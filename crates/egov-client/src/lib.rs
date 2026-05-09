@@ -32,6 +32,12 @@ pub struct UpdateBatch {
 
 pub trait EgovProvider: Send + Sync {
     fn fetch_update(&self, date: &str) -> Result<UpdateBatch>;
+
+    /// 全件バルク取得。`category` は e-Gov v2 の分類番号 (1=憲法・法律 など)。
+    /// 規定実装は未対応エラー — provider ごとに実装する。
+    fn fetch_bulk(&self, _category: u32, _limit: Option<usize>) -> Result<UpdateBatch> {
+        anyhow::bail!("fetch_bulk is not implemented for this provider")
+    }
 }
 
 pub struct MockProvider;
@@ -49,6 +55,22 @@ impl EgovProvider for MockProvider {
             })
             .collect();
         Ok(UpdateBatch { date: date.to_string(), laws })
+    }
+
+    fn fetch_bulk(&self, category: u32, limit: Option<usize>) -> Result<UpdateBatch> {
+        // モックでは category を無視して同じ 5 件を返す。
+        let mut laws: Vec<FetchedLaw> = SAMPLE_LAWS
+            .iter()
+            .map(|(id, xml)| FetchedLaw {
+                law_id: (*id).to_string(),
+                source_url: format!("mock://egov/bulk/cat{}/{}.xml", category, id),
+                xml: xml.as_bytes().to_vec(),
+            })
+            .collect();
+        if let Some(n) = limit {
+            laws.truncate(n);
+        }
+        Ok(UpdateBatch { date: format!("bulk-cat{category}"), laws })
     }
 }
 
@@ -239,6 +261,38 @@ impl EgovProvider for HttpProvider {
             }
         }
         Ok(UpdateBatch { date: date.to_string(), laws })
+    }
+
+    fn fetch_bulk(&self, category: u32, limit: Option<usize>) -> Result<UpdateBatch> {
+        let client = Self::client()?;
+        let list_url = format!("{}/lawlists/{}", self.base_url, category);
+        let list_xml = Self::get_with_retry(&client, &list_url)
+            .and_then(Self::maybe_unzip_xml)
+            .with_context(|| format!("fetch lawlists/{category}"))?;
+        let mut ids = Self::extract_law_ids(&list_xml);
+        tracing::info!("bulk: category={category} → {} law ids", ids.len());
+        if let Some(n) = limit {
+            ids.truncate(n);
+        }
+        let total = ids.len();
+
+        let mut laws = Vec::new();
+        for (i, id) in ids.into_iter().enumerate() {
+            let url = format!("{}/lawdata/{}", self.base_url, id);
+            match Self::get_with_retry(&client, &url).and_then(Self::maybe_unzip_xml) {
+                Ok(xml) => laws.push(FetchedLaw { law_id: id, xml, source_url: url }),
+                Err(e) => tracing::warn!("skip {url}: {e:#}"),
+            }
+            if (i + 1) % 50 == 0 {
+                tracing::info!("bulk: {}/{}", i + 1, total);
+            }
+            // 軽い rate limit。e-Gov API の SLO は不明なので保守的に。
+            std::thread::sleep(Duration::from_millis(200));
+        }
+        Ok(UpdateBatch {
+            date: format!("bulk-cat{category}"),
+            laws,
+        })
     }
 }
 

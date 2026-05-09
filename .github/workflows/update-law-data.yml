@@ -15,7 +15,23 @@ on:
         type: choice
         options: ["http", "mock"]
       date:
-        description: "Optional explicit date YYYY-MM-DD (default: state/latest.json から自動算出)"
+        description: "単日 YYYY-MM-DD (空なら state/latest.json から自動算出)"
+        required: false
+        type: string
+      from_date:
+        description: "(バックフィル) 開始日 YYYY-MM-DD"
+        required: false
+        type: string
+      to_date:
+        description: "(バックフィル) 終了日 YYYY-MM-DD"
+        required: false
+        type: string
+      bulk_category:
+        description: "(全件取得) e-Gov カテゴリ番号 1=憲法・法律, 2=政令・勅令, 3=府省令"
+        required: false
+        type: string
+      bulk_limit:
+        description: "(全件取得) 件数キャップ — 省略時は全件"
         required: false
         type: string
       force:
@@ -43,7 +59,8 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # bulk_category 指定時は数千件 × 200ms で 30 分超過しうるので余裕を取る。
+    timeout-minutes: 360
     outputs:
       changed: ${{ steps.detect.outputs.changed }}
       new_xmls: ${{ steps.detect.outputs.new_xmls }}
@@ -84,8 +101,70 @@ jobs:
           }
           EOF
 
+      # 全件バルク: bulk_category が指定されたら全件取得して build-json する。
+      # 数千件規模になるので timeout が長め (workflow 全体は timeout-minutes: 30 のまま;
+      # 大規模カテゴリは bulk_limit でクランプ推奨)。
+      - name: lawpub fetch-bulk
+        if: >-
+          github.event_name == 'workflow_dispatch' &&
+          github.event.inputs.bulk_category != ''
+        run: |
+          ARGS=(fetch-bulk --category "${{ github.event.inputs.bulk_category }}" --cache .cache --provider "$LAWPUB_PROVIDER")
+          if [ -n "${{ github.event.inputs.bulk_limit }}" ]; then
+            ARGS+=(--limit "${{ github.event.inputs.bulk_limit }}")
+          fi
+          ./target/release/lawpub "${ARGS[@]}"
+          ./target/release/lawpub build-json --input .cache --output public
+          mkdir -p state
+          ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          cat > state/last_run.json <<EOF
+          {
+            "version": 1,
+            "ran_at": "$ts",
+            "provider": "$LAWPUB_PROVIDER",
+            "dates": ["bulk-cat${{ github.event.inputs.bulk_category }}"],
+            "new_xmls": -1,
+            "errors": [],
+            "changed": true
+          }
+          EOF
+
+      # バックフィル分岐: from_date / to_date が両方指定されたら fetch-range で範囲取得し、
+      # その後 build-json で public/ を再生成する。lawpub update より柔軟。
+      - name: lawpub backfill (range)
+        if: >-
+          github.event_name == 'workflow_dispatch' &&
+          github.event.inputs.bulk_category == '' &&
+          github.event.inputs.from_date != '' &&
+          github.event.inputs.to_date != ''
+        run: |
+          ./target/release/lawpub fetch-range \
+            --from "${{ github.event.inputs.from_date }}" \
+            --to   "${{ github.event.inputs.to_date }}" \
+            --cache .cache
+          ./target/release/lawpub build-json --input .cache --output public
+          # 後段の Detect changes が読めるように changed=true でマーカーを書く。
+          mkdir -p state
+          ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          cat > state/last_run.json <<EOF
+          {
+            "version": 1,
+            "ran_at": "$ts",
+            "provider": "$LAWPUB_PROVIDER",
+            "dates": ["${{ github.event.inputs.from_date }}..${{ github.event.inputs.to_date }}"],
+            "new_xmls": -1,
+            "errors": [],
+            "changed": true
+          }
+          EOF
+
       - name: lawpub update (data refresh)
-        if: github.event_name != 'push'
+        if: >-
+          github.event_name != 'push' &&
+          !(github.event_name == 'workflow_dispatch' && (
+            github.event.inputs.bulk_category != '' ||
+            (github.event.inputs.from_date != '' && github.event.inputs.to_date != '')
+          ))
         run: |
           ARGS=(--public public --cache .cache --provider "$LAWPUB_PROVIDER")
           if [ -n "${{ github.event.inputs.date }}" ]; then

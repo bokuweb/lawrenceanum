@@ -162,11 +162,26 @@ auto-commit が deploy ループに入ることはない。
   失敗時は backup から戻す。
 - `concurrency: update-law-json` でスケジュールの重複実行を直列化。
 
-### 手動実行
+### 手動実行 (workflow_dispatch)
 
-```text
+```bash
+# 単日 (state/latest.json を無視して特定日だけ取得)
+gh workflow run update-law-data.yml -f date=2026-05-01
+
+# 期間バックフィル (cron 開始前の取りこぼしを埋める)
 gh workflow run update-law-data.yml \
-  -f provider=http \
-  -f date=2026-05-01 \
-  -f force=true
+  -f from_date=2024-04-01 -f to_date=2026-05-09
+
+# 全件バルク (cron 開始時点までを一括収集)
+#   1=憲法・法律, 2=政令・勅令, 3=府省令・規則
+gh workflow run update-law-data.yml -f bulk_category=1
+gh workflow run update-law-data.yml -f bulk_category=2 -f bulk_limit=500   # 件数キャップ
+
+# 強制再ビルド (e-Gov 取得無し / 既存 public/ をそのまま deploy)
+gh workflow run update-law-data.yml -f force=true
 ```
+
+優先順位は `bulk_category > from/to > date > 自動 (state ベース)`。
+バルクは数千件 × 200ms スリープ規模なので timeout-minutes は 360 で確保済。
+途中で失敗してもキャッシュ (`.cache/revisions/`) は workflow 内で生きており、
+build-json は途中まで取れた分だけで public/ を生成する。
