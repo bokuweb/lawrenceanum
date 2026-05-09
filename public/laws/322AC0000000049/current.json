@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "law_id": "322AC0000000049",
+  "law_num": "昭和二十二年法律第四十九号",
+  "title": "労働基準法",
+  "revision_id": "6003442324ee",
+  "promulgation_date": "1947-04-07",
+  "effective_date": null,
+  "status": "current",
+  "articles": [
+    {
+      "article_id": "art_1",
+      "article_no": "第一条",
+      "caption": "労働条件の原則",
+      "paragraphs": [
+        {
+          "paragraph_no": "1",
+          "text": "労働条件は、労働者が人たるに値する生活を営むための必要を充たすべきものでなければならない。"
+        }
+      ]
+    }
+  ],
+  "source": {
+    "provider": "egov",
+    "raw_xml_sha256": "6003442324eedba5d2acedcfef78959e8b259b08145061e558543e3f491dc847",
+    "fetched_at": "2026-05-09T09:52:35.113498+00:00"
+  }
+}

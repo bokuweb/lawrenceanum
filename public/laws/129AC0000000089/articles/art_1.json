@@ -1,0 +1,19 @@
+{
+  "article_id": "art_1",
+  "article_no": "第一条",
+  "caption": "基本原則",
+  "paragraphs": [
+    {
+      "paragraph_no": "1",
+      "text": "私権は、公共の福祉に適合しなければならない。"
+    },
+    {
+      "paragraph_no": "2",
+      "text": "権利の行使及び義務の履行は、信義に従い誠実に行わなければならない。"
+    },
+    {
+      "paragraph_no": "3",
+      "text": "権利の濫用は、これを許さない。"
+    }
+  ]
+}

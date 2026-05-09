@@ -1,0 +1,19 @@
+{
+  "law_id": "417AC0000000086",
+  "events": [
+    {
+      "event_id": "evt_ef323ac2bbf2",
+      "event_type": "initial",
+      "target_law_id": "417AC0000000086",
+      "amending_law_num": null,
+      "promulgation_date": "2005-07-26",
+      "effective_date": null,
+      "revision_id": "ef323ac2bbf2",
+      "source_update_date": "2026-05-09",
+      "status": "snapshot",
+      "kanpo": {
+        "linked": false
+      }
+    }
+  ]
+}

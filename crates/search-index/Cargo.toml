@@ -1,0 +1,12 @@
+[package]
+name = "search-index"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+law-normalizer = { path = "../law-normalizer" }
+rusqlite = { version = "0.32", features = ["bundled"] }
+tracing.workspace = true

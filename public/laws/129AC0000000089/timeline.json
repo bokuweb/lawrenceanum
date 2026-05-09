@@ -1,0 +1,19 @@
+{
+  "law_id": "129AC0000000089",
+  "events": [
+    {
+      "event_id": "evt_023fc6f1423f",
+      "event_type": "initial",
+      "target_law_id": "129AC0000000089",
+      "amending_law_num": null,
+      "promulgation_date": "1896-04-27",
+      "effective_date": null,
+      "revision_id": "023fc6f1423f",
+      "source_update_date": "2026-05-09",
+      "status": "snapshot",
+      "kanpo": {
+        "linked": false
+      }
+    }
+  ]
+}

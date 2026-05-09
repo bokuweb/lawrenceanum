@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "law_id": "417AC0000000086",
+  "law_num": "平成十七年法律第八十六号",
+  "title": "会社法",
+  "revision_id": "ef323ac2bbf2",
+  "promulgation_date": "2005-07-26",
+  "effective_date": null,
+  "status": "current",
+  "articles": [
+    {
+      "article_id": "art_1",
+      "article_no": "第一条",
+      "caption": "趣旨",
+      "paragraphs": [
+        {
+          "paragraph_no": "1",
+          "text": "会社の設立、組織、運営及び管理については、他の法律に特別の定めがある場合を除くほか、この法律の定めるところによる。"
+        }
+      ]
+    }
+  ],
+  "source": {
+    "provider": "egov",
+    "raw_xml_sha256": "ef323ac2bbf2084bfaec5c0e1a60e6b0b8b2e06a460f5afe87b5df4eb8c9de5e",
+    "fetched_at": "2026-05-09T09:52:35.113598+00:00"
+  }
+}

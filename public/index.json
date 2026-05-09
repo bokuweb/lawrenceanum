@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "generated_at": "2026-05-09T09:52:35.122231+00:00",
+  "endpoints": {
+    "laws": "laws/index.json",
+    "updates_latest": "updates/latest.json",
+    "manifest": "manifest.json",
+    "health": "health.json"
+  }
+}

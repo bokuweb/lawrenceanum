@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "law_id": "140AC0000000045",
+  "law_num": "明治四十年法律第四十五号",
+  "title": "刑法",
+  "revision_id": "823c5025f0c1",
+  "promulgation_date": "1907-04-24",
+  "effective_date": null,
+  "status": "current",
+  "articles": [
+    {
+      "article_id": "art_1",
+      "article_no": "第一条",
+      "caption": "国内犯",
+      "paragraphs": [
+        {
+          "paragraph_no": "1",
+          "text": "この法律は、日本国内において罪を犯したすべての者に適用する。"
+        }
+      ]
+    },
+    {
+      "article_id": "art_2",
+      "article_no": "第二条",
+      "caption": "準用",
+      "paragraphs": [
+        {
+          "paragraph_no": "1",
+          "text": "不法行為については、民法第三条の規定を参照すること。"
+        }
+      ]
+    }
+  ],
+  "source": {
+    "provider": "egov",
+    "raw_xml_sha256": "823c5025f0c1637cbe34b9664e576e56f86e27ee0c40df605ee09c14c9c97bfe",
+    "fetched_at": "2026-05-09T09:52:35.112178+00:00"
+  }
+}

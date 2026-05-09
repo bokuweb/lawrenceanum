@@ -1,0 +1,240 @@
+{
+  "version": 1,
+  "generated_at": "2026-05-09T09:52:35.126962+00:00",
+  "files": [
+    {
+      "path": "index.json",
+      "sha256": "8f5ee3f10ddeef1a8cf59df9bd3d096d9972682c104a4c5d64572d626f4f9271",
+      "bytes": 231,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/129AC0000000089/articles/art_1.json",
+      "sha256": "b30a45fc086eeb52912e45021b3cf74cea27342bb99e7f4b2c76e6f8082a57ea",
+      "bytes": 488,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/129AC0000000089/articles/art_2.json",
+      "sha256": "fd7dff05a4a3c05c2de1f6bc86a455ad6a9d89bd1de80d3a38f440ec0055baf0",
+      "bytes": 281,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/129AC0000000089/articles/art_3.json",
+      "sha256": "5879227263359f1cfdbb5338a3c32de9b9548a120cf158b711dec3ee7162b7ce",
+      "bytes": 431,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/129AC0000000089/current.json",
+      "sha256": "4dde2076d8a58575c9cfc99c3b51a6d424722b446942f40357af99ed56c5e295",
+      "bytes": 1844,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/129AC0000000089/revisions/023fc6f1423f.json",
+      "sha256": "4dde2076d8a58575c9cfc99c3b51a6d424722b446942f40357af99ed56c5e295",
+      "bytes": 1844,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/129AC0000000089/timeline.json",
+      "sha256": "79cdab5e4b220b8a8101ad79365e61fa4c4438df057e6f10d255de81b4cd4f51",
+      "bytes": 434,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/129AC0000000089/versions.json",
+      "sha256": "76a5021f05c0c7efb1f1b216cd073fec1fbe6cedb2e7d783b5fc61abf7882d81",
+      "bytes": 322,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/140AC0000000045/articles/art_1.json",
+      "sha256": "d41af20eaf4e45ea714afb1288f4ee4bbbd8381b60240c1222ff22d280bec4e9",
+      "bytes": 251,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/140AC0000000045/articles/art_2.json",
+      "sha256": "09ac6746166a707590ebc532dbd5ab0c72859e14e66ac7aeb7ec1da1464eff17",
+      "bytes": 236,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/140AC0000000045/current.json",
+      "sha256": "d3c3940a61ae10fff6fdf668a3e454cb1a3019bac52529c8173617b9449976c0",
+      "bytes": 1034,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/140AC0000000045/revisions/823c5025f0c1.json",
+      "sha256": "d3c3940a61ae10fff6fdf668a3e454cb1a3019bac52529c8173617b9449976c0",
+      "bytes": 1034,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/140AC0000000045/timeline.json",
+      "sha256": "c2f4c12a4c4521f215cc9fff0262b645863c6a118ef01708a534ed7ade138a23",
+      "bytes": 434,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/140AC0000000045/versions.json",
+      "sha256": "d255e9fa695fc34801573de4e26b02530530562fdfbe0b6b809839e7c3790058",
+      "bytes": 322,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/321CONSTITUTION/articles/art_1.json",
+      "sha256": "fcf87e83dceb6c977dc7c41a6a534c92d2f6b722e897f6c895aba7ec6c6bf4b6",
+      "bytes": 304,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/321CONSTITUTION/current.json",
+      "sha256": "0b26ff80d25553c8029496e0ca485fd901f8d425b3b368147c0c6ab2440ac857",
+      "bytes": 802,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/321CONSTITUTION/revisions/0de103437c2c.json",
+      "sha256": "0b26ff80d25553c8029496e0ca485fd901f8d425b3b368147c0c6ab2440ac857",
+      "bytes": 802,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/321CONSTITUTION/timeline.json",
+      "sha256": "6283f201ec506148f82620659e95b5299b6107369b8a102909f87f23c778bc2b",
+      "bytes": 434,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/321CONSTITUTION/versions.json",
+      "sha256": "25cbeb3167124ec28f8b7c80396ee80059e6b9ec3e19daac25b827846c66a3e7",
+      "bytes": 322,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/322AC0000000049/articles/art_1.json",
+      "sha256": "2d83995c113942f86634f468e19214779c918a877d222e1a0b28be0710efd00b",
+      "bytes": 308,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/322AC0000000049/current.json",
+      "sha256": "bb1e8248d47c0d01c0ef57603cafa543ce1dada4395f8161858fac10b52859ee",
+      "bytes": 821,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/322AC0000000049/revisions/6003442324ee.json",
+      "sha256": "bb1e8248d47c0d01c0ef57603cafa543ce1dada4395f8161858fac10b52859ee",
+      "bytes": 821,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/322AC0000000049/timeline.json",
+      "sha256": "d4556753862dd3f12e39c95f74493b500dee4f042948013c74c3ba233cecf66e",
+      "bytes": 434,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/322AC0000000049/versions.json",
+      "sha256": "1e27ed298619b32991fb03ab777b06770758b7752415d71b9238f3630e777431",
+      "bytes": 322,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/417AC0000000086/articles/art_1.json",
+      "sha256": "10a32af6f701e41c0eb2f7c8ea6bac85a65bd9bec1d848a3984dd837e1acdb2f",
+      "bytes": 329,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/417AC0000000086/current.json",
+      "sha256": "d570f60d328b07b3442c76121e6030cf4a95ef170adcb4da249b545cfcb9c158",
+      "bytes": 833,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/417AC0000000086/revisions/ef323ac2bbf2.json",
+      "sha256": "d570f60d328b07b3442c76121e6030cf4a95ef170adcb4da249b545cfcb9c158",
+      "bytes": 833,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/417AC0000000086/timeline.json",
+      "sha256": "7d82190951c58670322f15772e418eb0a396de67f79d71e57ce4959cdeca9a96",
+      "bytes": 434,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/417AC0000000086/versions.json",
+      "sha256": "b715083e8ac885b9acc60eff31a0f483b121b47e54c60f7b31c7357dafbbd938",
+      "bytes": 322,
+      "content_type": "application/json"
+    },
+    {
+      "path": "laws/all.ndjson",
+      "sha256": "972b1da681a21cd3a9c89015003fdaa88a98523ca2b53a7e57163fc148300459",
+      "bytes": 865,
+      "content_type": "application/x-ndjson"
+    },
+    {
+      "path": "laws/index.json",
+      "sha256": "42f1972e7a93d6e1a38343f7d0677f456ca07ba64041d49804526ff7ba20beea",
+      "bytes": 1578,
+      "content_type": "application/json"
+    },
+    {
+      "path": "robots.txt",
+      "sha256": "befa30284d46cf89ba3ab58ba65af7e987be472e9efcdd368c98cea0530e378b",
+      "bytes": 45,
+      "content_type": "text/plain"
+    },
+    {
+      "path": "schema/law-document.json",
+      "sha256": "494efdc9a447edec16d18b0daf1df5f2df6266eff2a035e66f466b5f51c8ec98",
+      "bytes": 2434,
+      "content_type": "application/json"
+    },
+    {
+      "path": "schema/manifest.json",
+      "sha256": "0ce03849917b79ebeec8af448eeebab0b62c20c99ef1ceec77d8486f90fddb0f",
+      "bytes": 949,
+      "content_type": "application/json"
+    },
+    {
+      "path": "schema/updates.json",
+      "sha256": "1e67b76e5d346d31242b0d43e71f3a4112e1570434dfd0a53c0a08901de9c6ae",
+      "bytes": 1751,
+      "content_type": "application/json"
+    },
+    {
+      "path": "search.db",
+      "sha256": "1d154c6ad76a4e09952c6e0822c1974e63489094632fa8f1627ca5e618915237",
+      "bytes": 53248,
+      "content_type": "application/vnd.sqlite3"
+    },
+    {
+      "path": "sitemap.xml",
+      "sha256": "b857ba2a3e6cb016e126c1149a3b82a28f2fe0a74a3698037358c98a645beb91",
+      "bytes": 1220,
+      "content_type": "application/xml"
+    },
+    {
+      "path": "updates/2026-05-09.json",
+      "sha256": "61ee4975fc264a4a8d1451b9ad1148f87232308931fa025335ec2ca8db6bb145",
+      "bytes": 1728,
+      "content_type": "application/json"
+    },
+    {
+      "path": "updates/latest.json",
+      "sha256": "b7fda9cf72b89c1c555a548bb575bb1706df60bd6f0cae7de184957fc22f2002",
+      "bytes": 1796,
+      "content_type": "application/json"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "law_id": "129AC0000000089",
+  "law_num": "明治二十九年法律第八十九号",
+  "title": "民法",
+  "revision_id": "023fc6f1423f",
+  "promulgation_date": "1896-04-27",
+  "effective_date": null,
+  "status": "current",
+  "articles": [
+    {
+      "article_id": "art_1",
+      "article_no": "第一条",
+      "caption": "基本原則",
+      "paragraphs": [
+        {
+          "paragraph_no": "1",
+          "text": "私権は、公共の福祉に適合しなければならない。"
+        },
+        {
+          "paragraph_no": "2",
+          "text": "権利の行使及び義務の履行は、信義に従い誠実に行わなければならない。"
+        },
+        {
+          "paragraph_no": "3",
+          "text": "権利の濫用は、これを許さない。"
+        }
+      ]
+    },
+    {
+      "article_id": "art_2",
+      "article_no": "第二条",
+      "caption": "解釈の基準",
+      "paragraphs": [
+        {
+          "paragraph_no": "1",
+          "text": "この法律は、個人の尊厳と両性の本質的平等を旨として、解釈しなければならない。"
+        }
+      ]
+    },
+    {
+      "article_id": "art_3",
+      "article_no": "第三条",
+      "caption": "権利能力",
+      "paragraphs": [
+        {
+          "paragraph_no": "1",
+          "text": "第一条の規定に従い、私権の享有は、出生に始まる。"
+        },
+        {
+          "paragraph_no": "2",
+          "text": "前条の解釈に基づき、外国人は、法令又は条約の規定により禁止される場合を除き、私権を享有する。"
+        }
+      ]
+    }
+  ],
+  "source": {
+    "provider": "egov",
+    "raw_xml_sha256": "023fc6f1423f470f81980ed0462d099e61adbe866af98549960eee3fc59f2121",
+    "fetched_at": "2026-05-09T09:52:35.113403+00:00"
+  }
+}

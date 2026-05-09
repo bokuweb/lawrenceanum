@@ -1,0 +1,19 @@
+{
+  "law_id": "322AC0000000049",
+  "events": [
+    {
+      "event_id": "evt_6003442324ee",
+      "event_type": "initial",
+      "target_law_id": "322AC0000000049",
+      "amending_law_num": null,
+      "promulgation_date": "1947-04-07",
+      "effective_date": null,
+      "revision_id": "6003442324ee",
+      "source_update_date": "2026-05-09",
+      "status": "snapshot",
+      "kanpo": {
+        "linked": false
+      }
+    }
+  ]
+}

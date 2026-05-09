@@ -1,0 +1,79 @@
+{
+  "generated_at": "2026-05-09T09:52:35.122231+00:00",
+  "latest_update_date": "2026-05-09",
+  "updated_laws": [
+    {
+      "law_id": "129AC0000000089",
+      "title": "民法",
+      "change_type": "added",
+      "revision_id": "023fc6f1423f",
+      "current": "laws/129AC0000000089/current.json",
+      "article_diff": {
+        "added": [
+          "art_1",
+          "art_2",
+          "art_3"
+        ],
+        "removed": [],
+        "modified": []
+      }
+    },
+    {
+      "law_id": "140AC0000000045",
+      "title": "刑法",
+      "change_type": "added",
+      "revision_id": "823c5025f0c1",
+      "current": "laws/140AC0000000045/current.json",
+      "article_diff": {
+        "added": [
+          "art_1",
+          "art_2"
+        ],
+        "removed": [],
+        "modified": []
+      }
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法",
+      "change_type": "added",
+      "revision_id": "0de103437c2c",
+      "current": "laws/321CONSTITUTION/current.json",
+      "article_diff": {
+        "added": [
+          "art_1"
+        ],
+        "removed": [],
+        "modified": []
+      }
+    },
+    {
+      "law_id": "322AC0000000049",
+      "title": "労働基準法",
+      "change_type": "added",
+      "revision_id": "6003442324ee",
+      "current": "laws/322AC0000000049/current.json",
+      "article_diff": {
+        "added": [
+          "art_1"
+        ],
+        "removed": [],
+        "modified": []
+      }
+    },
+    {
+      "law_id": "417AC0000000086",
+      "title": "会社法",
+      "change_type": "added",
+      "revision_id": "ef323ac2bbf2",
+      "current": "laws/417AC0000000086/current.json",
+      "article_diff": {
+        "added": [
+          "art_1"
+        ],
+        "removed": [],
+        "modified": []
+      }
+    }
+  ]
+}

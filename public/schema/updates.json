@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema/updates.json",
+  "title": "UpdatesByDate",
+  "type": "object",
+  "required": [
+    "date",
+    "updated_laws"
+  ],
+  "properties": {
+    "date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "updated_laws": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "law_id",
+          "title",
+          "change_type",
+          "current"
+        ],
+        "properties": {
+          "law_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "change_type": {
+            "type": "string",
+            "enum": [
+              "added",
+              "modified",
+              "removed"
+            ]
+          },
+          "revision_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "current": {
+            "type": "string"
+          },
+          "article_diff": {
+            "type": "object",
+            "required": [
+              "added",
+              "removed",
+              "modified"
+            ],
+            "properties": {
+              "added": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "removed": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "modified": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

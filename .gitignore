@@ -1,0 +1,14 @@
+/target
+/.cache
+/public.tmp
+/public.bak
+**/*.rs.bk
+.DS_Store
+# 単発の実行レポート — state/latest.json は commit するが last_run.json は per-run。
+/state/last_run.json
+# Frontend
+**/node_modules
+figma/dist
+figma/.vite
+*.tsbuildinfo
+

@@ -1,0 +1,19 @@
+{
+  "law_id": "321CONSTITUTION",
+  "events": [
+    {
+      "event_id": "evt_0de103437c2c",
+      "event_type": "initial",
+      "target_law_id": "321CONSTITUTION",
+      "amending_law_num": null,
+      "promulgation_date": "1946-11-03",
+      "effective_date": null,
+      "revision_id": "0de103437c2c",
+      "source_update_date": "2026-05-09",
+      "status": "snapshot",
+      "kanpo": {
+        "linked": false
+      }
+    }
+  ]
+}
