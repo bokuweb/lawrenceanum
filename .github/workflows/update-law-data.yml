@@ -66,7 +66,9 @@ jobs:
       new_xmls: ${{ steps.detect.outputs.new_xmls }}
     env:
       LAWPUB_PROVIDER: ${{ github.event.inputs.provider || 'http' }}
-      LAWPUB_EGOV_BASE_URL: https://laws.e-gov.go.jp/api/2
+      # 既定は v1 API (path 構造: lawlists/{cat}, lawdata/{id}, updatelawlists/{yyyymmdd})。
+      # v2 にしたい場合はリポジトリ Variables / Secrets で上書き。
+      LAWPUB_EGOV_BASE_URL: https://laws.e-gov.go.jp/api/1
     steps:
       - name: Checkout
         uses: actions/checkout@v4

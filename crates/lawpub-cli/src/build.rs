@@ -16,8 +16,11 @@ fn provider_by_name(name: &str) -> Result<Box<dyn EgovProvider>> {
     match name {
         "mock" => Ok(Box::new(MockProvider)),
         "http" => {
+            // 既定は v1 API。v2 (`/api/2/`) は path 構造が異なり 404 になるため、
+            // 既知の動作する v1 (`/api/1/lawlists/{cat}`, `/api/1/lawdata/{id}`,
+            // `/api/1/updatelawlists/{yyyymmdd}`) を採用する。
             let base = std::env::var("LAWPUB_EGOV_BASE_URL")
-                .unwrap_or_else(|_| "https://laws.e-gov.go.jp/api/2".to_string());
+                .unwrap_or_else(|_| "https://laws.e-gov.go.jp/api/1".to_string());
             Ok(Box::new(egov_client::HttpProvider::new(base)))
         }
         other => anyhow::bail!("unknown provider: {other}"),
