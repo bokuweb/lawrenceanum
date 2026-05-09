@@ -2,8 +2,7 @@
 //!
 //! Phase 1.5 では `MockProvider` (組み込みサンプル) と `HttpProvider` (e-Gov 法令API
 //! v2 を想定) の二系統を提供する。HttpProvider のエンドポイントは
-//! `LAWPUB_EGOV_BASE_URL` で上書き可能で、既定値は
-//! `https://laws.e-gov.go.jp/api/2`。
+//! `LAWPUB_EGOV_BASE_URL` で上書き可能で、既定値は v1 (`https://laws.e-gov.go.jp/api/1`)。
 //!
 //! ## エンドポイント (v2 想定)
 //!
