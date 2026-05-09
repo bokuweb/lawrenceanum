@@ -35,6 +35,23 @@ pub fn run_fetch_update(date: &str, cache: &Path, provider: &str) -> Result<usiz
     Ok(new_xmls)
 }
 
+pub fn run_fetch_bulk(
+    category: u32,
+    limit: Option<usize>,
+    cache: &Path,
+    provider: &str,
+) -> Result<()> {
+    let p = provider_by_name(provider)?;
+    let batch = p.fetch_bulk(category, limit)?;
+    let date_label = batch.date.clone();
+    let n = write_cache_batch(cache, &date_label, &batch.laws)?;
+    tracing::info!(
+        "bulk: category={category} fetched={} new={n} cache_label={date_label}",
+        batch.laws.len()
+    );
+    Ok(())
+}
+
 pub fn run_fetch_range(from: &str, to: &str, cache: &Path, provider: &str) -> Result<()> {
     use chrono::NaiveDate;
     let from = NaiveDate::parse_from_str(from, "%Y-%m-%d")?;

@@ -32,11 +32,20 @@ enum Cmd {
         to: String,
         #[arg(long, default_value = ".cache")]
         cache: PathBuf,
+        #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
+        provider: String,
     },
-    /// 全件バルクを取得する (Phase 1 では未実装)。
+    /// 指定カテゴリの全件バルクを取得する (e-Gov v2: 1=憲法・法律, 2=政令・勅令, ...)。
+    /// 数千〜数万件になり得るため、`--limit` で件数を絞れる。
     FetchBulk {
+        #[arg(long)]
+        category: u32,
+        #[arg(long)]
+        limit: Option<usize>,
         #[arg(long, default_value = ".cache")]
         cache: PathBuf,
+        #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
+        provider: String,
     },
     /// キャッシュ済みデータから配信用JSONを生成する。
     BuildJson {
@@ -110,9 +119,9 @@ fn main() -> Result<()> {
         Cmd::BuildIndex { output } => build::run_build_index(&output),
         Cmd::Validate { public } => validate::run_validate(&public),
         Cmd::FetchUpdate { date, cache } => build::run_fetch_update(&date, &cache, "mock").map(|_| ()),
-        Cmd::FetchRange { from, to, cache } => build::run_fetch_range(&from, &to, &cache, "mock"),
-        Cmd::FetchBulk { .. } => {
-            anyhow::bail!("fetch-bulk は Phase 1 では未実装です")
+        Cmd::FetchRange { from, to, cache, provider } => build::run_fetch_range(&from, &to, &cache, &provider),
+        Cmd::FetchBulk { category, limit, cache, provider } => {
+            build::run_fetch_bulk(category, limit, &cache, &provider)
         }
         Cmd::KanpoFetch { date, cache } => kanpo::run_fetch(&date, &cache),
         Cmd::KanpoLink { output } => kanpo::run_link(&output),
