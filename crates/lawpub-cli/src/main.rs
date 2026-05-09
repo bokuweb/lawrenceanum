@@ -1,0 +1,121 @@
+use anyhow::Result;
+use clap::{Parser, Subcommand};
+use std::path::PathBuf;
+
+mod build;
+mod kanpo;
+mod state;
+mod status;
+mod validate;
+
+#[derive(Parser)]
+#[command(name = "lawpub", version, about = "e-Gov 法令データ正規化・配信 CLI")]
+struct Cli {
+    #[command(subcommand)]
+    cmd: Cmd,
+}
+
+#[derive(Subcommand)]
+enum Cmd {
+    /// 単一の更新日付を取得してキャッシュに格納する。
+    FetchUpdate {
+        #[arg(long)]
+        date: String,
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+    },
+    /// 期間指定で更新を取得する。
+    FetchRange {
+        #[arg(long)]
+        from: String,
+        #[arg(long)]
+        to: String,
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+    },
+    /// 全件バルクを取得する (Phase 1 では未実装)。
+    FetchBulk {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+    },
+    /// キャッシュ済みデータから配信用JSONを生成する。
+    BuildJson {
+        #[arg(long, default_value = ".cache")]
+        input: PathBuf,
+        #[arg(long, default_value = "public")]
+        output: PathBuf,
+    },
+    /// `public/` 配下の index/manifest を再生成する。
+    BuildIndex {
+        #[arg(long, default_value = "public")]
+        output: PathBuf,
+    },
+    /// `public/manifest.json` の sha256 と実ファイルが一致するか検証する。
+    Validate {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+    /// fetch-update + build-json + build-index をまとめて実行する。
+    Update {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        /// `mock` (組み込みサンプル) または `http` (e-Gov 法令API)。
+        /// 環境変数 `LAWPUB_PROVIDER` で上書き可能。
+        #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
+        provider: String,
+        /// 取得対象の日付。指定しなければ state/latest.json から決まる。
+        #[arg(long)]
+        date: Option<String>,
+        /// 新規revisionが無くても public/ を強制再生成する。
+        #[arg(long)]
+        force: bool,
+    },
+    /// 官報の日付ページを取得する (Phase 3 placeholder)。
+    KanpoFetch {
+        #[arg(long)]
+        date: String,
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+    },
+    /// 官報リンクを `public/kanpo/` に書き出す (Phase 3 placeholder)。
+    KanpoLink {
+        #[arg(long, default_value = "public")]
+        output: PathBuf,
+    },
+    /// cache / public / state を要約して JSON で stdout に出す。
+    Status {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+    },
+}
+
+fn main() -> Result<()> {
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
+        )
+        .init();
+
+    let cli = Cli::parse();
+    match cli.cmd {
+        Cmd::Update { public, cache, provider, date, force } => {
+            build::run_update(&public, &cache, &provider, date.as_deref(), force)
+        }
+        Cmd::BuildJson { input, output } => build::run_build_json(&input, &output),
+        Cmd::BuildIndex { output } => build::run_build_index(&output),
+        Cmd::Validate { public } => validate::run_validate(&public),
+        Cmd::FetchUpdate { date, cache } => build::run_fetch_update(&date, &cache, "mock").map(|_| ()),
+        Cmd::FetchRange { from, to, cache } => build::run_fetch_range(&from, &to, &cache, "mock"),
+        Cmd::FetchBulk { .. } => {
+            anyhow::bail!("fetch-bulk は Phase 1 では未実装です")
+        }
+        Cmd::KanpoFetch { date, cache } => kanpo::run_fetch(&date, &cache),
+        Cmd::KanpoLink { output } => kanpo::run_link(&output),
+        Cmd::Status { public, cache } => status::run(&public, &cache),
+    }
+}

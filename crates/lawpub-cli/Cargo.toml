@@ -1,0 +1,27 @@
+[package]
+name = "lawpub-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "lawpub"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+sha2.workspace = true
+hex.workspace = true
+walkdir.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+egov-client = { path = "../egov-client" }
+law-normalizer = { path = "../law-normalizer" }
+kanpo-client = { path = "../kanpo-client" }
+kanpo-linker = { path = "../kanpo-linker" }
+search-index = { path = "../search-index" }

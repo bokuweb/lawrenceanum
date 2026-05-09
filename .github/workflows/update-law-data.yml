@@ -1,0 +1,178 @@
+name: Update law JSON
+
+on:
+  # main merge: コード/データ変更を即座に Pages へ反映する。
+  # GITHUB_TOKEN による自動 commit は workflow を再トリガしないので、
+  # cron が auto-commit してもループしない。
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: "egov provider (http | mock)"
+        required: false
+        default: "http"
+        type: choice
+        options: ["http", "mock"]
+      date:
+        description: "Optional explicit date YYYY-MM-DD (default: state/latest.json から自動算出)"
+        required: false
+        type: string
+      force:
+        description: "Rebuild public/ even if no new revisions"
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # JST 06:30 / 12:30 / 18:30 / 翌 00:30 (UTC -9h)
+    - cron: "30 21 * * *"
+    - cron: "30 3 * * *"
+    - cron: "30 9 * * *"
+    - cron: "30 15 * * *"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  # スケジュール重複を直列化、ただし手動 dispatch は割り込まない (cancel-in-progress: false)。
+  group: update-law-json
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      changed: ${{ steps.detect.outputs.changed }}
+      new_xmls: ${{ steps.detect.outputs.new_xmls }}
+    env:
+      LAWPUB_PROVIDER: ${{ github.event.inputs.provider || 'http' }}
+      LAWPUB_EGOV_BASE_URL: https://laws.e-gov.go.jp/api/2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # state/latest.json を更新するために push 権限で取得。
+          persist-credentials: true
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build lawpub
+        run: cargo build --release -p lawpub-cli
+
+      # main merge では既に commit 済の public/ を使う。e-Gov へは触らずに deploy だけ走る。
+      - name: Mark force-deploy (push to main)
+        if: github.event_name == 'push'
+        run: |
+          mkdir -p state
+          ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          cat > state/last_run.json <<EOF
+          {
+            "version": 1,
+            "ran_at": "$ts",
+            "provider": "skip-on-push",
+            "dates": [],
+            "new_xmls": 0,
+            "errors": [],
+            "changed": true
+          }
+          EOF
+
+      - name: lawpub update (data refresh)
+        if: github.event_name != 'push'
+        run: |
+          ARGS=(--public public --cache .cache --provider "$LAWPUB_PROVIDER")
+          if [ -n "${{ github.event.inputs.date }}" ]; then
+            ARGS+=(--date "${{ github.event.inputs.date }}")
+          fi
+          if [ "${{ github.event.inputs.force }}" = "true" ]; then
+            ARGS+=(--force)
+          fi
+          ./target/release/lawpub update "${ARGS[@]}"
+
+      - name: lawpub kanpo-link (best-effort)
+        if: github.event_name != 'push'
+        run: ./target/release/lawpub kanpo-link --output public || true
+
+      - name: Detect changes
+        id: detect
+        run: |
+          changed=$(jq -r '.changed' state/last_run.json 2>/dev/null || echo true)
+          new_xmls=$(jq -r '.new_xmls' state/last_run.json 2>/dev/null || echo 0)
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
+          echo "new_xmls=$new_xmls" >> "$GITHUB_OUTPUT"
+          echo "::notice::event=${{ github.event_name }} changed=$changed new_xmls=$new_xmls"
+          jq . state/last_run.json || true
+
+      - name: Setup pnpm
+        if: steps.detect.outputs.changed == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        if: steps.detect.outputs.changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: figma/pnpm-lock.yaml
+
+      - name: Build web UI
+        if: steps.detect.outputs.changed == 'true'
+        working-directory: figma
+        run: |
+          pnpm install --no-frozen-lockfile
+          pnpm build
+
+      - name: Validate public JSON
+        if: steps.detect.outputs.changed == 'true'
+        run: ./target/release/lawpub validate --public public
+
+      - name: Configure Pages
+        if: steps.detect.outputs.changed == 'true'
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: steps.detect.outputs.changed == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+      - name: Commit changes
+        # push:main は「既に main にあるものを deploy する」フローなので auto-commit はしない。
+        if: steps.detect.outputs.changed == 'true' && github.event_name != 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # state/last_run.json は per-run なので除外、state/latest.json と public/ のみ commit。
+          git add public state/latest.json
+          if git diff --cached --quiet; then
+            echo "::notice::lawpub reported changes, but git tree is clean — skipping commit"
+          else
+            git commit -m "chore(data): refresh law JSON (provider=${LAWPUB_PROVIDER}, +${{ steps.detect.outputs.new_xmls }} XML)"
+            # push の競合は同時実行のスケジュール cron と重ならない限り起きない (concurrency group)。
+            git push
+          fi
+
+  deploy:
+    needs: update
+    if: needs.update.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

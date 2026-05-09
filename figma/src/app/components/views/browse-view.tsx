@@ -1,0 +1,443 @@
+import { useEffect, useMemo, useState } from "react";
+import { Card, CardContent } from "../ui/card";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { ScrollArea } from "../ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { ARTICLES_V2, TIMELINE_EVENTS, type LawSummary } from "../mock-data";
+import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight } from "lucide-react";
+import { useLocation, useNavigate } from "react-router";
+import { useLaws, useLawDetail } from "../../data/use-laws";
+import { getRefsForLaw, type ArticleRef } from "../../data/search-engine";
+
+export function BrowseView({ lawId, onSelect, onCompare }: { lawId: string | null; onSelect: (id: string | null) => void; onCompare: (id: string) => void }) {
+  const { laws, live, loading } = useLaws();
+  if (lawId) {
+    const matched = laws.find(l => l.law_id === lawId);
+    // 一覧に居なければ最小限の LawSummary を仮組み — 詳細は useLawDetail が JSON を埋める。
+    const law: LawSummary = matched ?? {
+      law_id: lawId,
+      law_num: "",
+      title: lawId,
+      category: "行政",
+      promulgation_date: "",
+      effective_date: "",
+      last_updated: "",
+      status: "current",
+      article_count: 0,
+    };
+    return <LawDetail law={law} onBack={() => onSelect(null)} onCompare={() => onCompare(lawId)} />;
+  }
+
+  return (
+    <div className="p-6">
+      <div className="mb-6 flex items-end justify-between">
+        <div>
+          <h1 className="text-2xl">法令閲覧</h1>
+          <p className="text-sm text-muted-foreground mt-1">登録されている全法令を一覧で参照</p>
+        </div>
+        <div className="text-xs text-muted-foreground">
+          {loading ? "読み込み中…" : `${laws.length} 件${live ? "" : " (モック)"}`}
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-4">
+        {laws.map(l => (
+          <Card key={l.law_id} className="hover:border-primary/50 hover:shadow-md transition-all cursor-pointer" onClick={() => onSelect(l.law_id)}>
+            <CardContent className="p-5">
+              <div className="flex items-start justify-between mb-3">
+                <Badge variant="outline">{l.category}</Badge>
+                <Badge variant={l.status === "scheduled" ? "default" : l.status === "amended" ? "secondary" : "outline"} className="text-xs">
+                  {l.status === "scheduled" ? "施行待ち" : l.status === "amended" ? "改正" : "現行"}
+                </Badge>
+              </div>
+              <div className="text-base mb-1">{l.title}</div>
+              <div className="text-xs text-muted-foreground mb-4 truncate">{l.law_num}</div>
+              <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border">
+                <span>{l.article_count} 条</span>
+                <span>更新 {l.last_updated}</span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ShareButton() {
+  const [copied, setCopied] = useState(false);
+  const onClick = async () => {
+    const url = window.location.href;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // clipboard 不可環境のフォールバック: prompt を出すだけ。
+      window.prompt("URL をコピーしてください", url);
+    }
+  };
+  return (
+    <Button variant="outline" size="sm" className="gap-1.5" onClick={onClick}>
+      {copied ? <Check className="size-4 text-emerald-500" /> : <Link2 className="size-4" />}
+      {copied ? "コピー済" : "共有"}
+    </Button>
+  );
+}
+
+function scrollToArticle(articleId: string) {
+  const el = document.getElementById(articleId);
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    // 視覚的なフォーカスを 1 秒だけ付ける。
+    el.classList.add("ring-2", "ring-primary", "ring-offset-2");
+    window.setTimeout(() => el.classList.remove("ring-2", "ring-primary", "ring-offset-2"), 1200);
+  }
+}
+
+/**
+ * 条文本文の文字列に含まれる「第○条」を <a> リンクに置き換える。
+ * `refs` は同 article から出ている outgoing 参照のみで、from->to 順に並ぶ。
+ * 出現順に書き換え、未参照部分はそのままテキストとして残す。
+ */
+type NavigateFn = (to: { pathname: string; hash?: string } | string) => void;
+
+function linkifyText(
+  text: string,
+  refs: ArticleRef[],
+  navigate: NavigateFn,
+  selfLawId: string,
+): React.ReactNode[] {
+  if (refs.length === 0) return [text];
+  type Span = { start: number; end: number; ref: ArticleRef };
+  const spans: Span[] = [];
+  const sortedRefs = [...refs].sort((a, b) => b.ref_text.length - a.ref_text.length);
+  for (const r of sortedRefs) {
+    let from = 0;
+    while (true) {
+      const idx = text.indexOf(r.ref_text, from);
+      if (idx < 0) break;
+      const end = idx + r.ref_text.length;
+      const overlaps = spans.some(s => !(end <= s.start || idx >= s.end));
+      if (!overlaps) spans.push({ start: idx, end, ref: r });
+      from = end;
+    }
+  }
+  spans.sort((a, b) => a.start - b.start);
+  const out: React.ReactNode[] = [];
+  let cursor = 0;
+  spans.forEach((s, i) => {
+    if (s.start > cursor) out.push(text.slice(cursor, s.start));
+    const r = s.ref;
+    const isCross = r.ref_type === "cross_law" || r.to_law_id !== selfLawId;
+    const targetId = r.to_article_id ?? "";
+    const onClick = (ev: React.MouseEvent) => {
+      ev.preventDefault();
+      if (isCross) {
+        // 他法令への遷移。HashRouter 配下では `hash` を別フィールドに渡さないと
+        // `#` がパス文字列に紛れ込む。
+        navigate({
+          pathname: `/laws/${r.to_law_id}`,
+          hash: targetId ? `#${targetId}` : "",
+        });
+      } else if (targetId) {
+        scrollToArticle(targetId);
+      }
+    };
+    const cls = isCross
+      ? "text-emerald-600 dark:text-emerald-400 underline decoration-dotted underline-offset-2 hover:bg-emerald-500/10 rounded px-0.5"
+      : r.ref_type === "previous_article" || r.ref_type === "next_article"
+      ? "text-amber-600 dark:text-amber-400 underline decoration-dotted underline-offset-2 hover:bg-amber-500/10 rounded px-0.5"
+      : "text-primary underline decoration-dotted underline-offset-2 hover:bg-primary/10 rounded px-0.5";
+    const title = isCross
+      ? `${r.to_law_id}${targetId ? ` / ${targetId}` : ""}`
+      : `${r.ref_type}: ${targetId}`;
+    out.push(
+      <a
+        key={`${s.start}-${i}`}
+        href={isCross ? `#/laws/${r.to_law_id}${targetId ? `/${targetId}` : ""}` : `#${targetId}`}
+        title={title}
+        className={cls}
+        onClick={onClick}
+      >
+        {text.slice(s.start, s.end)}
+      </a>
+    );
+    cursor = s.end;
+  });
+  if (cursor < text.length) out.push(text.slice(cursor));
+  return out;
+}
+
+function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => void; onCompare: () => void }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const detail = useLawDetail(law.law_id);
+  const articles = detail.doc?.articles ?? ARTICLES_V2;
+  const [activeArt, setActiveArt] = useState(articles[0]?.article_id ?? ARTICLES_V2[0].article_id);
+  const liveEvents = detail.timeline?.events ?? [];
+  const mockEvents = TIMELINE_EVENTS[law.law_id] ?? [];
+  const useLiveTimeline = liveEvents.length > 0;
+
+  // URL の hash (#art_X) で初期スクロール対象を受け取る。
+  // detail.doc が来た後でないと DOM が無いので、両者揃ったタイミングで scroll する。
+  useEffect(() => {
+    const target = location.hash.replace(/^#/, "");
+    if (!target || !detail.doc) return;
+    // DOM 反映を待ってから scroll。
+    const t = window.setTimeout(() => scrollToArticle(target), 50);
+    return () => window.clearTimeout(t);
+  }, [location.hash, detail.doc?.law_id]);
+
+  // 参照グラフ: 法令単位で 1 度だけ load してから、article_id 別にバケット化する。
+  const [refs, setRefs] = useState<ArticleRef[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    getRefsForLaw(law.law_id).then(r => { if (!cancelled) setRefs(r); }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [law.law_id]);
+  const outgoingByArt = useMemo(() => {
+    const m = new Map<string, ArticleRef[]>();
+    for (const r of refs) {
+      if (r.from_law_id !== law.law_id) continue;
+      const list = m.get(r.from_article_id) ?? [];
+      list.push(r);
+      m.set(r.from_article_id, list);
+    }
+    return m;
+  }, [refs, law.law_id]);
+  const incomingByArt = useMemo(() => {
+    const m = new Map<string, ArticleRef[]>();
+    for (const r of refs) {
+      if (r.to_law_id !== law.law_id || !r.to_article_id) continue;
+      const list = m.get(r.to_article_id) ?? [];
+      list.push(r);
+      m.set(r.to_article_id, list);
+    }
+    return m;
+  }, [refs, law.law_id]);
+  const articleNoById = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const a of articles) m.set(a.article_id, a.article_no);
+    return m;
+  }, [articles]);
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="border-b border-border bg-background px-6 py-4">
+        <Button variant="ghost" size="sm" onClick={onBack} className="gap-1 -ml-2 mb-3">
+          <ArrowLeft className="size-4" /> 一覧に戻る
+        </Button>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <h1 className="text-2xl">{law.title}</h1>
+              <Badge variant="outline">{law.category}</Badge>
+              <Badge variant={law.status === "scheduled" ? "default" : "secondary"}>
+                {law.status === "scheduled" ? "施行待ち" : law.status === "amended" ? "改正" : "現行"}
+              </Badge>
+            </div>
+            <div className="text-sm text-muted-foreground">{law.law_num}</div>
+            <div className="flex gap-4 mt-3 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1"><Hash className="size-3" />{law.law_id}</span>
+              <span className="flex items-center gap-1"><Calendar className="size-3" />公布 {law.promulgation_date}</span>
+              <span className="flex items-center gap-1"><Calendar className="size-3" />施行 {law.effective_date}</span>
+              <span className="flex items-center gap-1"><Tag className="size-3" />{law.article_count} 条</span>
+            </div>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <ShareButton />
+            <Button variant="outline" size="sm" className="gap-1.5" asChild>
+              <a href={`./laws/${law.law_id}/current.json`} target="_blank" rel="noreferrer">
+                <Download className="size-4" />JSON
+              </a>
+            </Button>
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={onCompare}><GitCompare className="size-4" />比較</Button>
+            <Button variant="outline" size="sm" className="gap-1.5" asChild>
+              <a href={`https://laws.e-gov.go.jp/law/${law.law_id}`} target="_blank" rel="noreferrer">
+                <ExternalLink className="size-4" />e-Gov
+              </a>
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <Tabs defaultValue="content" className="flex-1 flex flex-col min-h-0">
+        <div className="border-b border-border px-6">
+          <TabsList className="h-11 bg-transparent p-0 gap-2">
+            <TabsTrigger value="content" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-11">本文</TabsTrigger>
+            <TabsTrigger value="timeline" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-11">改正履歴</TabsTrigger>
+            <TabsTrigger value="versions" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-11">バージョン</TabsTrigger>
+            <TabsTrigger value="meta" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-11">メタデータ</TabsTrigger>
+          </TabsList>
+        </div>
+
+        <TabsContent value="content" className="flex-1 min-h-0 m-0">
+          <div className="grid grid-cols-[240px_1fr] h-full">
+            <ScrollArea className="border-r border-border">
+              <div className="p-3 space-y-1">
+                <div className="text-xs text-muted-foreground px-2 py-1.5">条文目次</div>
+                {articles.map(a => (
+                  <button
+                    key={a.article_id}
+                    onClick={() => setActiveArt(a.article_id)}
+                    className={`w-full text-left px-2 py-1.5 rounded text-sm hover:bg-accent transition-colors ${activeArt === a.article_id ? "bg-accent" : ""}`}
+                  >
+                    <div>{a.article_no}</div>
+                    {a.caption && <div className="text-xs text-muted-foreground truncate">{a.caption}</div>}
+                  </button>
+                ))}
+              </div>
+            </ScrollArea>
+            <ScrollArea>
+              <div className="max-w-3xl mx-auto px-8 py-8 space-y-8">
+                {articles.map(a => {
+                  const out = outgoingByArt.get(a.article_id) ?? [];
+                  const inc = incomingByArt.get(a.article_id) ?? [];
+                  return (
+                    <article key={a.article_id} id={a.article_id} className="scroll-mt-4 transition-shadow">
+                      <header className="mb-3">
+                        <div className="flex items-baseline gap-3">
+                          <h2 className="text-lg">{a.article_no}</h2>
+                          {a.caption && <span className="text-sm text-muted-foreground">（{a.caption}）</span>}
+                        </div>
+                        {inc.length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
+                            <span className="text-muted-foreground">被参照:</span>
+                            {inc.map((r, i) => (
+                              <a
+                                key={i}
+                                href={`#${r.from_article_id}`}
+                                onClick={(ev) => { ev.preventDefault(); scrollToArticle(r.from_article_id); }}
+                                className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded border border-border hover:bg-accent transition-colors"
+                              >
+                                <ArrowUpRight className="size-3" />
+                                {articleNoById.get(r.from_article_id) ?? r.from_article_id}
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </header>
+                      <div className="space-y-2 text-sm leading-relaxed">
+                        {a.paragraphs.map(p => (
+                          <p key={p.paragraph_no} className="flex gap-3">
+                            <span className="text-muted-foreground tabular-nums shrink-0 w-6">{p.paragraph_no}</span>
+                            <span>{linkifyText(p.text, out, navigate, law.law_id)}</span>
+                          </p>
+                        ))}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </ScrollArea>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="timeline" className="flex-1 min-h-0 m-0 p-6 overflow-auto">
+          <div className="max-w-3xl">
+            <div className="space-y-4">
+              {useLiveTimeline ? (
+                liveEvents.map((e, i) => (
+                  <div key={e.event_id} className="flex gap-4">
+                    <div className="flex flex-col items-center">
+                      <div className="size-3 rounded-full bg-emerald-500 ring-4 ring-background" />
+                      {i < liveEvents.length - 1 && <div className="w-px flex-1 bg-border mt-1" />}
+                    </div>
+                    <Card className="flex-1 mb-2">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary">{e.status}</Badge>
+                            <span className="text-xs text-muted-foreground">{e.event_type}</span>
+                          </div>
+                          {e.kanpo?.linked && (
+                            <Badge variant="outline" className="text-xs">
+                              官報リンク済 (conf {e.kanpo.confidence?.toFixed(2)})
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="text-sm">rev {e.revision_id}</div>
+                        {e.amending_law_num && (
+                          <div className="text-xs text-muted-foreground mt-2">{e.amending_law_num}</div>
+                        )}
+                        <div className="flex gap-4 text-xs text-muted-foreground mt-2">
+                          {e.promulgation_date && <span>公布 {e.promulgation_date}</span>}
+                          {e.effective_date && <span>施行 {e.effective_date}</span>}
+                          {e.source_update_date && <span>取込 {e.source_update_date}</span>}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ))
+              ) : (
+                <>
+                  {mockEvents.length === 0 && <div className="text-sm text-muted-foreground">改正履歴はありません</div>}
+                  {mockEvents.map((e, i) => (
+                    <div key={e.event_id} className="flex gap-4">
+                      <div className="flex flex-col items-center">
+                        <div className={`size-3 rounded-full ${e.status === "effective" ? "bg-emerald-500" : "bg-amber-500"} ring-4 ring-background`} />
+                        {i < mockEvents.length - 1 && <div className="w-px flex-1 bg-border mt-1" />}
+                      </div>
+                      <Card className="flex-1 mb-2">
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <Badge variant={e.status === "effective" ? "secondary" : "default"}>
+                                {e.status === "effective" ? "施行済" : "施行待ち"}
+                              </Badge>
+                              <span className="text-xs text-muted-foreground">{e.event_type}</span>
+                            </div>
+                            {e.kanpo_linked && <Badge variant="outline" className="text-xs">官報リンク済</Badge>}
+                          </div>
+                          <div className="text-sm">{e.summary}</div>
+                          <div className="text-xs text-muted-foreground mt-2">{e.amending_law_num}</div>
+                          <div className="flex gap-4 text-xs text-muted-foreground mt-2">
+                            <span>公布 {e.promulgation_date}</span>
+                            <span>施行 {e.effective_date}</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="versions" className="flex-1 m-0 p-6 overflow-auto">
+          {detail.versions ? (
+            <div className="max-w-3xl space-y-2">
+              <div className="text-xs text-muted-foreground">
+                current: {detail.versions.current_revision_id ?? "(未指定)"}
+              </div>
+              {detail.versions.versions.map(v => (
+                <Card key={v.revision_id}>
+                  <CardContent className="p-4 flex items-center gap-4 text-sm">
+                    <Badge variant={v.revision_id === detail.versions?.current_revision_id ? "default" : "outline"}>
+                      {v.revision_id}
+                    </Badge>
+                    <div className="flex-1 grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+                      <span>公布 {v.promulgation_date ?? "—"}</span>
+                      <span>施行 {v.effective_date ?? "—"}</span>
+                      <span>取込 {v.source_update_date ?? "—"}</span>
+                    </div>
+                    <a className="text-xs underline" href={"./" + v.path} target="_blank" rel="noreferrer">JSON</a>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-muted-foreground">バージョン情報を取得できませんでした</div>
+          )}
+        </TabsContent>
+        <TabsContent value="meta" className="flex-1 m-0 p-6 overflow-auto">
+          <pre className="text-xs bg-muted rounded-md p-4 overflow-auto max-w-3xl">
+{JSON.stringify(detail.doc ?? { law_id: law.law_id, law_num: law.law_num, title: law.title }, null, 2)}
+          </pre>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}

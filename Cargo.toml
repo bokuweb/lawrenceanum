@@ -1,0 +1,35 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/egov-client",
+    "crates/law-normalizer",
+    "crates/kanpo-client",
+    "crates/kanpo-linker",
+    "crates/search-index",
+    "crates/lawpub-cli",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+publish = false
+
+[workspace.dependencies]
+anyhow = "1"
+thiserror = "2"
+clap = { version = "4", features = ["derive", "env"] }
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json", "stream"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+quick-xml = { version = "0.37", features = ["serialize"] }
+csv = "1"
+zip = { version = "2", default-features = false, features = ["deflate"] }
+sha2 = "0.10"
+chrono = { version = "0.4", features = ["serde"] }
+scraper = "0.22"
+walkdir = "2"
+hex = "0.4"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
