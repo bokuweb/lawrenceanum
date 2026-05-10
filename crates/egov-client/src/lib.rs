@@ -90,18 +90,42 @@ impl HttpProvider {
             .context("build reqwest client")
     }
 
+    /// e-Gov は高頻度アクセスで `301 → /sorry/404-notfound.html` を返してくる
+    /// (CloudFront 由来のレートリミットらしい)。`reqwest::blocking` のデフォルト
+    /// は redirect を辿って HTML を返してしまうので、こちらで HTML らしさを
+    /// 検出したら "soft-404 = レート制限の可能性" と扱い、長めの backoff で
+    /// 再試行する。本当に廃止された法令 ID なら 5 回試しても HTML が返る
+    /// ので、最終的に Err を返して呼び出し側で skip させる。
     fn get_with_retry(client: &reqwest::blocking::Client, url: &str) -> Result<Vec<u8>> {
         let mut last_err: Option<anyhow::Error> = None;
-        for attempt in 0..3 {
-            match client.get(url).send().and_then(|r| r.error_for_status()) {
+        let attempts = 5;
+        for attempt in 0..attempts {
+            let res = client.get(url).send().and_then(|r| r.error_for_status());
+            match res {
                 Ok(resp) => match resp.bytes() {
-                    Ok(b) => return Ok(b.to_vec()),
+                    Ok(b) => {
+                        let bytes = b.to_vec();
+                        if Self::looks_like_egov_xml(&bytes) {
+                            return Ok(bytes);
+                        }
+                        last_err = Some(anyhow!(
+                            "soft-404 (HTML or empty response) — likely rate-limited"
+                        ));
+                    }
                     Err(e) => last_err = Some(anyhow!(e)),
                 },
                 Err(e) => last_err = Some(anyhow!(e)),
             }
-            // exponential backoff: 1s, 3s
-            std::thread::sleep(Duration::from_millis(1000 * (1u64 << attempt)));
+            // soft-404 のときは長めに、ネット系 err は短めに backoff。
+            // attempt=0..4 → 1s, 3s, 6s, 12s, 24s (合計 ~46s)。
+            let secs: u64 = match attempt {
+                0 => 1,
+                1 => 3,
+                2 => 6,
+                3 => 12,
+                _ => 24,
+            };
+            std::thread::sleep(Duration::from_secs(secs));
         }
         Err(last_err.unwrap_or_else(|| anyhow!("unknown fetch error")))
             .with_context(|| format!("GET {url}"))
@@ -303,12 +327,13 @@ impl EgovProvider for HttpProvider {
         }
         let total = ids.len();
 
-        // 並列取得: e-Gov のレスポンスが ~1.8s/req と遅いので逐次だと 5h かかる。
-        // 4 並列なら ~75 min に抑えられる。LAWPUB_BULK_CONCURRENCY で上書き可。
+        // 並列取得: 4 で走らせると CloudFront 側のレートリミットに引っかかり
+        // 大量に 301→HTML が返る。実測で安定動作するのは 2 並列まで。
+        // 8967 件 x 1.8s/req ÷ 2 ≒ 135 分 (= 2.25h) が現実的な所要時間。
         let concurrency: usize = std::env::var("LAWPUB_BULK_CONCURRENCY")
             .ok()
             .and_then(|s| s.parse().ok())
-            .unwrap_or(4)
+            .unwrap_or(2)
             .clamp(1, 16);
         let pool = rayon::ThreadPoolBuilder::new()
             .num_threads(concurrency)
@@ -343,8 +368,9 @@ impl EgovProvider for HttpProvider {
                     }
                     Err(e) => tracing::warn!("skip {url}: {e:#}"),
                 }
-                // 並列実行下では sleep は意味が薄いので外す。サーバ側で過負荷が
-                // 観測される場合は LAWPUB_BULK_CONCURRENCY=2 などで下げる。
+                // CloudFront のレートリミットを避けるため、各スレッドは 1 req
+                // ごとに 200 ms 休む。concurrency=2 なら全体 ~10 req/sec を超えない。
+                std::thread::sleep(Duration::from_millis(200));
             });
         });
 
