@@ -46,15 +46,22 @@ function useUpdatesIndex(): { entries: UpdatesIndexEntry[]; loading: boolean; li
           });
         }
         // latest が dates に含まれない場合は補う。
-        if (latest.latest_update_date && !entries.find(e => e.date === latest.latest_update_date)) {
+        const isYmd = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s);
+        if (
+          latest.latest_update_date &&
+          isYmd(latest.latest_update_date) &&
+          !entries.find(e => e.date === latest.latest_update_date)
+        ) {
           entries.unshift({
             date: latest.latest_update_date,
             count: latest.updated_laws.length,
             laws: latest.updated_laws.map(l => l.title),
           });
         }
-        entries.sort((a, b) => b.date.localeCompare(a.date));
-        setState({ entries, loading: false, live: entries.length > 0 });
+        // 過去の bulk-catN ラベルや空文字を除外。
+        const cleaned = entries.filter(e => isYmd(e.date));
+        cleaned.sort((a, b) => b.date.localeCompare(a.date));
+        setState({ entries: cleaned, loading: false, live: cleaned.length > 0 });
       } catch {
         if (!cancelled) setState({ entries: [], loading: false, live: false });
       }

@@ -46,10 +46,16 @@ pub fn run_fetch_bulk(
 ) -> Result<()> {
     let p = provider_by_name(provider)?;
     let batch = p.fetch_bulk(category, limit)?;
-    let date_label = batch.date.clone();
-    let n = write_cache_batch(cache, &date_label, &batch.laws)?;
+    // bulk 取得を JST 今日付の更新として記録する。non-date label
+    // ("bulk-catN") を first_seen_date に使うと updates/{date}.json や
+    // updates/latest.json が壊れるので、必ず YYYY-MM-DD で揃える。
+    let today = (Utc::now() + chrono::Duration::hours(9))
+        .date_naive()
+        .format("%Y-%m-%d")
+        .to_string();
+    let n = write_cache_batch(cache, &today, &batch.laws)?;
     tracing::info!(
-        "bulk: category={category} fetched={} new={n} cache_label={date_label}",
+        "bulk: category={category} fetched={} new={n} stamped_as={today}",
         batch.laws.len()
     );
     Ok(())

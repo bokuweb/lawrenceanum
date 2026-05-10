@@ -82,6 +82,20 @@ jobs:
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
 
+      # CI run 間で .cache/ (raw XML revisions / 官報 PDF metadata) を永続化する。
+      # これがないと毎回フル fetch しないと parse やり直しができないので、
+      # parser を改善した後に --force で再ビルドだけする運用が成立する。
+      - name: Restore lawpub cache
+        id: lawpub-cache
+        uses: actions/cache@v4
+        with:
+          path: .cache
+          # キーは「日次 + last_run」で動かす。日付が変われば新規キーになるが
+          # restore-keys で最近のキャッシュを引いてくる。
+          key: lawpub-cache-v1-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            lawpub-cache-v1-${{ runner.os }}-
+
       - name: Build lawpub
         run: cargo build --release -p lawpub-cli
 
