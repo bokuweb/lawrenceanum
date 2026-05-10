@@ -32,5 +32,6 @@ scraper = "0.22"
 walkdir = "2"
 hex = "0.4"
 aho-corasick = "1"
+rayon = "1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

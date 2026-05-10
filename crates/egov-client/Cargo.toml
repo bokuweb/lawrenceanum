@@ -18,3 +18,4 @@ reqwest = { workspace = true, features = ["blocking"] }
 tokio.workspace = true
 tracing.workspace = true
 quick-xml.workspace = true
+rayon.workspace = true

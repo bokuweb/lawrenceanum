@@ -275,19 +275,48 @@ impl EgovProvider for HttpProvider {
         }
         let total = ids.len();
 
-        let mut laws = Vec::new();
-        for (i, id) in ids.into_iter().enumerate() {
-            let url = format!("{}/lawdata/{}", self.base_url, id);
-            match Self::get_with_retry(&client, &url).and_then(Self::maybe_unzip_xml) {
-                Ok(xml) => laws.push(FetchedLaw { law_id: id, xml, source_url: url }),
-                Err(e) => tracing::warn!("skip {url}: {e:#}"),
-            }
-            if (i + 1) % 50 == 0 {
-                tracing::info!("bulk: {}/{}", i + 1, total);
-            }
-            // 軽い rate limit。e-Gov API の SLO は不明なので保守的に。
-            std::thread::sleep(Duration::from_millis(200));
-        }
+        // 並列取得: e-Gov のレスポンスが ~1.8s/req と遅いので逐次だと 5h かかる。
+        // 4 並列なら ~75 min に抑えられる。LAWPUB_BULK_CONCURRENCY で上書き可。
+        let concurrency: usize = std::env::var("LAWPUB_BULK_CONCURRENCY")
+            .ok()
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(4)
+            .clamp(1, 16);
+        let pool = rayon::ThreadPoolBuilder::new()
+            .num_threads(concurrency)
+            .build()
+            .context("rayon pool")?;
+        let counter = std::sync::atomic::AtomicUsize::new(0);
+        let base_url = self.base_url.clone();
+        let laws_arc = std::sync::Mutex::new(Vec::<FetchedLaw>::with_capacity(total));
+
+        pool.install(|| {
+            use rayon::prelude::*;
+            ids.par_iter().for_each(|id| {
+                let url = format!("{}/lawdata/{}", base_url, id);
+                let result = Self::get_with_retry(&client, &url).and_then(Self::maybe_unzip_xml);
+                let n = counter.fetch_add(1, std::sync::atomic::Ordering::Relaxed) + 1;
+                if n % 200 == 0 {
+                    tracing::info!("bulk: {}/{}", n, total);
+                }
+                match result {
+                    Ok(xml) => {
+                        if let Ok(mut g) = laws_arc.lock() {
+                            g.push(FetchedLaw {
+                                law_id: id.clone(),
+                                xml,
+                                source_url: url,
+                            });
+                        }
+                    }
+                    Err(e) => tracing::warn!("skip {url}: {e:#}"),
+                }
+                // 並列実行下では sleep は意味が薄いので外す。サーバ側で過負荷が
+                // 観測される場合は LAWPUB_BULK_CONCURRENCY=2 などで下げる。
+            });
+        });
+
+        let laws = laws_arc.into_inner().unwrap_or_default();
         Ok(UpdateBatch {
             date: format!("bulk-cat{category}"),
             laws,
