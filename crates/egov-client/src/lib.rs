@@ -108,17 +108,29 @@ impl HttpProvider {
     }
 
     /// 応答が e-Gov の XML (DataRoot 形式) かどうか頭の数百バイトでざっと検査する。
-    /// HTML エラーページ (`<!doctype html>` / `<html>` / `<head>`) を弾く。
+    /// 失敗条件は「明らかに HTML エラーページに見える」ことだけ。
+    /// `std::str::from_utf8` は 512 byte カットが日本語多バイトの途中で起きると
+    /// Err を返してしまい正常応答まで弾く事故が起きるので、必ず lossy 変換を使う。
     fn looks_like_egov_xml(bytes: &[u8]) -> bool {
-        let head_len = bytes.len().min(512);
-        let head = &bytes[..head_len];
-        let s = std::str::from_utf8(head).unwrap_or("").trim_start();
-        let lower: String = s.chars().take(64).collect::<String>().to_ascii_lowercase();
-        if lower.starts_with("<!doctype html") || lower.starts_with("<html") {
+        if bytes.is_empty() {
             return false;
         }
-        // e-Gov の正常応答は `<?xml` で始まり、すぐ <DataRoot> が来る。
-        s.starts_with("<?xml") || s.contains("<DataRoot")
+        let head_len = bytes.len().min(2048);
+        let head = String::from_utf8_lossy(&bytes[..head_len]);
+        let trimmed = head.trim_start();
+        let lower_prefix: String = trimmed
+            .chars()
+            .take(64)
+            .collect::<String>()
+            .to_ascii_lowercase();
+        // 明らかな HTML レスポンス (= e-Gov のメンテナンスページ等) は弾く。
+        // それ以外 (`<?xml`、ZIP 展開後の <Law>、その他不明形式) は通す方針で
+        // 偽陽性 (= 正常 XML を捨てる事故) をゼロに寄せる。parse 段で再度
+        // ガードするので fail-deadly にはならない。
+        if lower_prefix.starts_with("<!doctype html") || lower_prefix.starts_with("<html") {
+            return false;
+        }
+        true
     }
 
     /// 応答が ZIP (PK\x03\x04) なら最初の .xml エントリを取り出す。
