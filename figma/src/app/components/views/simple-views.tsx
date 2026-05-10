@@ -179,12 +179,6 @@ function useKanpoIndex(): { rows: KanpoIssueRow[]; loading: boolean; live: boole
   return state;
 }
 
-const KANPO_MOCK = [
-  { date: "2026-05-01", issue_no: "号外 第101号", issue_type: "extra", confidence: 0.95, law: "デジタル社会形成基本法改正", reasons: ["公布日", "法令番号"] },
-  { date: "2026-04-20", issue_no: "本紙 第230号", issue_type: "regular", confidence: 0.88, law: "労働基準法", reasons: ["公布日", "法令名"] },
-  { date: "2026-03-15", issue_no: "本紙 第188号", issue_type: "regular", confidence: 0.78, law: "刑法", reasons: ["公布日"] },
-];
-
 export function KanpoView() {
   const { rows, loading, live } = useKanpoIndex();
   return (
@@ -195,11 +189,27 @@ export function KanpoView() {
           <p className="text-sm text-muted-foreground mt-1">e-Gov改正イベントと官報PDFの突合結果</p>
         </div>
         <div className="text-xs text-muted-foreground">
-          {loading ? "読み込み中…" : `${rows.length} 件${live ? "" : " (モック)"}`}
+          {loading ? "読み込み中…" : `${rows.length} 件`}
         </div>
       </div>
+
+      {!loading && !live && (
+        <Card>
+          <CardContent className="p-4 text-sm space-y-2">
+            <div>📰 官報リンクはまだ未収集です。</div>
+            <div className="text-xs text-muted-foreground">
+              `lawpub kanpo-fetch --date YYYY-MM-DD` の実装は現状モックのみで、公式官報 PDF の取得 / 突合は
+              Phase 3 タスクとして残っています。e-Gov の改正イベントには <code>kanpo: {"{ linked: false }"}</code> が
+              入った状態です — タイムラインから該当公布日の官報を自分で開くには、各イベントの公布日を
+              <a className="underline ml-1" href="https://kanpou.npb.go.jp/" target="_blank" rel="noreferrer">官報公式サイト</a>
+              で検索してください。
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid gap-3">
-        {(live ? rows : []).map((k, i) => {
+        {rows.map((k, i) => {
           const top = k.matched_law_events[0];
           const conf = top?.confidence ?? 0;
           return (
@@ -228,23 +238,6 @@ export function KanpoView() {
             </Card>
           );
         })}
-        {!live && KANPO_MOCK.map((k, i) => (
-          <Card key={i}>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm tabular-nums">{k.date}</span>
-                  <Badge variant="outline">{k.issue_no}</Badge>
-                </div>
-                <Badge variant={k.confidence >= 0.8 ? "default" : "secondary"} className="tabular-nums">
-                  confidence {k.confidence.toFixed(2)}
-                </Badge>
-              </div>
-              <div className="text-sm">{k.law}</div>
-              <div className="text-xs text-muted-foreground mt-1">match: {k.reasons.join(", ")}</div>
-            </CardContent>
-          </Card>
-        ))}
       </div>
     </div>
   );
