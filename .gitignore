@@ -11,4 +11,10 @@
 figma/dist
 figma/.vite
 *.tsbuildinfo
+figma/test-results
+figma/playwright-report
+
+# 大きな成果物は Pages artifact 経由で deploy されるが git には載せない。
+# search.db: 法令本文 FTS5 index (数十 MB)
+/public/search.db
 

@@ -223,13 +223,14 @@ pub fn build_search_db(out_path: &Path, laws: &[LawDocument]) -> Result<()> {
             title TEXT NOT NULL
         );
 
+        -- 法令単位 FTS5。条文単位インデックス (5MB → 1.5GB に肥大) は廃止。
+        -- 法令名 + 法令番号で検索 → /laws/{id}/current.json を取得して
+        -- ブラウザ側で条文 grep する流れにすると、配信 search.db は < 10MB に収まる。
+        -- 条文単位 FTS の復活は sql.js-httpvfs か別の delivery 戦略が前提。
         CREATE VIRTUAL TABLE search_fts USING fts5(
             law_id UNINDEXED,
-            article_id UNINDEXED,
-            article_no UNINDEXED,
-            caption UNINDEXED,
+            law_num UNINDEXED,
             title_tokens,
-            content_tokens,
             tokenize='unicode61'
         );
 
@@ -260,8 +261,7 @@ pub fn build_search_db(out_path: &Path, laws: &[LawDocument]) -> Result<()> {
         let mut law_stmt =
             tx.prepare("INSERT INTO laws (law_id, law_num, title) VALUES (?1, ?2, ?3)")?;
         let mut fts_stmt = tx.prepare(
-            "INSERT INTO search_fts (law_id, article_id, article_no, caption, title_tokens, content_tokens) \
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            "INSERT INTO search_fts (law_id, law_num, title_tokens) VALUES (?1, ?2, ?3)",
         )?;
         let mut ref_stmt = tx.prepare(
             "INSERT INTO refs (from_law_id, from_article_id, to_law_id, to_article_id, ref_text, ref_type) \
@@ -295,7 +295,13 @@ pub fn build_search_db(out_path: &Path, laws: &[LawDocument]) -> Result<()> {
 
         for d in laws {
             law_stmt.execute(params![d.law_id, d.law_num, d.title])?;
-            let title_tokens = tokenize_for_fts(&d.title);
+            let title_tokens = tokenize_for_fts(&format!(
+                "{} {}",
+                d.title,
+                d.law_num.clone().unwrap_or_default()
+            ));
+            // 1 row / law。条文単位の content_tokens は索引しない (DB が爆発するため)。
+            fts_stmt.execute(params![d.law_id, d.law_num, title_tokens])?;
 
             let no_to_id = articles_index.get(&d.law_id).cloned().unwrap_or_default();
             let articles_in_order: Vec<(String, String)> = d
@@ -311,21 +317,6 @@ pub fn build_search_db(out_path: &Path, laws: &[LawDocument]) -> Result<()> {
                     .map(|p| p.text.as_str())
                     .collect::<Vec<_>>()
                     .join("\n");
-                let content = format!(
-                    "{} {} {}",
-                    a.article_no,
-                    a.caption.clone().unwrap_or_default(),
-                    body
-                );
-                let content_tokens = tokenize_for_fts(&content);
-                fts_stmt.execute(params![
-                    d.law_id,
-                    a.article_id,
-                    a.article_no,
-                    a.caption.clone().unwrap_or_default(),
-                    title_tokens,
-                    content_tokens,
-                ])?;
                 total_articles += 1;
 
                 // 1) 自己参照 (同一法令内の "第○条")。

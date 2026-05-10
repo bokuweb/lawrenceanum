@@ -160,7 +160,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span>{h.title}</span>
-                          <Badge variant="outline" className="text-xs">{h.article_no}</Badge>
+                          {h.article_no && <Badge variant="outline" className="text-xs">{h.article_no}</Badge>}
                           {h.caption && <span className="text-xs text-muted-foreground">（{h.caption}）</span>}
                         </div>
                         <div className="text-xs text-muted-foreground mt-0.5 truncate">{h.law_num ?? ""} · {h.law_id}</div>

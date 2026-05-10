@@ -12,10 +12,15 @@ import initSqlJs, { type Database } from "sql.js";
 // 出力は assets/sql-wasm-{hash}.wasm として bundle に同梱され、Pages 配信下で動く。
 import sqlWasmUrl from "sql.js/dist/sql-wasm.wasm?url";
 
+/**
+ * 法令単位の検索ヒット。条文単位 indexing は DB が肥大するため一旦廃止し、
+ * 法令名 + 法令番号で hit → クリックして browse 詳細を開いて条文を読む流れ。
+ */
 export type SearchHit = {
   law_id: string;
   law_num: string | null;
   title: string;
+  // browse-view 互換のため空でも残す。
   article_id: string;
   article_no: string;
   caption: string;
@@ -114,10 +119,11 @@ export async function search(q: string, limit = 50): Promise<SearchHit[]> {
 
   // FTS5: 空白区切りのトークンは AND 結合される。bigram は word_char 化の段階で
   // FTS5 メタ文字 (",-,",")) を含まないので素直に渡せる。
+  // search_fts は law_id / law_num UNINDEXED + title_tokens の 1 row/law。
+  // snippet() は title_tokens 列 (col 2) を対象にする。
   const stmt = db.prepare(
-    `SELECT s.law_id, s.article_id, s.article_no, s.caption,
-            l.title, l.law_num,
-            snippet(search_fts, 5, '<mark>', '</mark>', '...', 16) AS snippet
+    `SELECT s.law_id, l.title, l.law_num,
+            snippet(search_fts, 2, '<mark>', '</mark>', '...', 16) AS snippet
        FROM search_fts s
        JOIN laws l ON l.law_id = s.law_id
       WHERE search_fts MATCH $q
@@ -132,9 +138,9 @@ export async function search(q: string, limit = 50): Promise<SearchHit[]> {
       law_id: String(row.law_id ?? ""),
       law_num: (row.law_num as string | null) ?? null,
       title: String(row.title ?? ""),
-      article_id: String(row.article_id ?? ""),
-      article_no: String(row.article_no ?? ""),
-      caption: String(row.caption ?? ""),
+      article_id: "",
+      article_no: "",
+      caption: "",
       snippet: String(row.snippet ?? ""),
     });
   }
