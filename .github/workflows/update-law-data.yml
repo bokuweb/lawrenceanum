@@ -236,6 +236,10 @@ jobs:
       - name: Build web UI
         if: steps.detect.outputs.changed == 'true'
         working-directory: figma
+        env:
+          # Frontend が search.db を取りにいく URL。R2 公開 URL を渡す。
+          # 未設定なら ./search.db (同 origin) を試す。
+          VITE_SEARCH_DB_URL: ${{ secrets.R2_PUBLIC_URL && format('{0}/search.db', secrets.R2_PUBLIC_URL) || '' }}
         run: |
           pnpm install --no-frozen-lockfile
           pnpm build
@@ -243,6 +247,35 @@ jobs:
       - name: Validate public JSON
         if: steps.detect.outputs.changed == 'true'
         run: ./target/release/lawpub validate --public public
+
+      # search.db は git/Pages 配信に乗せず R2 (egress 無料) に置く。
+      # validate を済ませてから upload + 削除し、manifest からも entry を抜く。
+      - name: Upload search.db to R2
+        if: >-
+          steps.detect.outputs.changed == 'true' &&
+          env.R2_BUCKET != '' &&
+          env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          if [ ! -f public/search.db ]; then
+            echo "::warning::public/search.db not found, skipping R2 upload"
+            exit 0
+          fi
+          ls -lh public/search.db
+          aws s3 cp public/search.db "s3://$R2_BUCKET/search.db" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --content-type 'application/x-sqlite3' \
+            --cache-control 'public, max-age=300'
+          rm -f public/search.db
+          # manifest から search.db エントリを除去 (validate は終了済みなので OK)。
+          tmp=$(mktemp)
+          jq '.files |= map(select(.path != "search.db"))' public/manifest.json > "$tmp"
+          mv "$tmp" public/manifest.json
 
       - name: Configure Pages
         if: steps.detect.outputs.changed == 'true'

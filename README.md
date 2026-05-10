@@ -89,11 +89,59 @@ Override with `LAWPUB_PROVIDER` and `LAWPUB_EGOV_BASE_URL`.
 | `crates/search-index`    | bigram tokenizer + SQLite FTS5 builder + ref-graph extractor |
 | `crates/lawpub-cli`      | the `lawpub` binary |
 
-## Browser search (WASM SQLite + FTS5)
+## Browser search (WASM SQLite + FTS5 over Cloudflare R2)
 
-`lawpub` emits `public/search.db` (SQLite + FTS5) at build time, and the SPA
-reads it through **sql.js** (sqlite.org's Emscripten build = **WASM SQLite**).
-Native `rusqlite` is build-time only; what gets shipped is purely WASM.
+`lawpub` emits `public/search.db` (SQLite + FTS5, ~1.5 GB at full bulk) at
+build time. The SPA reads it through **sql.js-httpvfs** (sqlite.org's
+Emscripten WASM build + an HTTP-Range VFS). Each query downloads only the
+SQLite **pages** (4 KB) it needs — typically 100-300 KB / query — so the
+1.5 GB DB stays remote.
+
+Hosting options:
+
+| Option | search.db location | When to use |
+|---|---|---|
+| **GitHub Pages only (default)** | `public/search.db` (same origin) | OK for tiny demos (<50 MB), hard limit 100 MB git |
+| **Cloudflare R2 (recommended)**  | `https://<r2-pub>/search.db` via `VITE_SEARCH_DB_URL` | Production / full bulk. R2 free tier (10 GB storage + free egress) covers personal use indefinitely |
+| Turso / D1                       | Their HTTP API | Only if edge-replicated reads matter |
+
+### R2 setup (one-time)
+
+1. Sign up for Cloudflare (free). R2 dashboard → **Create bucket** (e.g.
+   `lawrenceanum`).
+2. Bucket settings → **Public access** → enable "r2.dev subdomain". Note the
+   public URL `https://pub-<hash>.r2.dev`.
+3. Bucket settings → **CORS policy** → allow your Pages origin:
+
+   ```json
+   [
+     {
+       "AllowedOrigins": ["https://<owner>.github.io"],
+       "AllowedMethods": ["GET"],
+       "AllowedHeaders": ["range", "if-match", "if-none-match"],
+       "ExposeHeaders": ["content-length", "content-range", "etag"],
+       "MaxAgeSeconds": 86400
+     }
+   ]
+   ```
+
+4. R2 → **Manage R2 API tokens** → create token with **Object Read & Write**
+   on that single bucket.
+5. GitHub repo → Settings → Secrets and variables → Actions → add:
+
+   | Secret | Example |
+   |---|---|
+   | `R2_ACCOUNT_ID`       | your account id |
+   | `R2_ACCESS_KEY_ID`    | from step 4 |
+   | `R2_SECRET_ACCESS_KEY`| from step 4 |
+   | `R2_BUCKET`           | `lawrenceanum` |
+   | `R2_ENDPOINT`         | `https://<R2_ACCOUNT_ID>.r2.cloudflarestorage.com` |
+   | `R2_PUBLIC_URL`       | `https://pub-<hash>.r2.dev` |
+
+When all of `R2_BUCKET` / `R2_ENDPOINT` are set, the workflow uploads
+`search.db` to R2 after `validate`, removes it from the Pages artifact, and
+builds the SPA with `VITE_SEARCH_DB_URL=$R2_PUBLIC_URL/search.db`. With the
+secrets unset, everything still works (search.db stays in `public/`).
 
 - Indexed at the article level. The FTS5 virtual table has columns
   `law_id` / `article_id` / `article_no` / `caption` / `title_tokens` /
