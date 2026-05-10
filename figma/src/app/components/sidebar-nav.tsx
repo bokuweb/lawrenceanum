@@ -21,7 +21,7 @@ export function SidebarNav() {
           <Scale className="size-4 text-primary-foreground" />
         </div>
         <div className="flex flex-col leading-tight">
-          <span className="text-sidebar-foreground">LawPub</span>
+          <span className="text-sidebar-foreground">Lawrenceanum</span>
           <span className="text-xs text-muted-foreground">e-Gov 法令データ</span>
         </div>
       </div>

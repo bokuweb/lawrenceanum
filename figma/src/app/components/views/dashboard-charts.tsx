@@ -38,11 +38,11 @@ export function StatTrend({ label, data }: { label: string; data: { month: strin
   );
 }
 
-export function UpdateTrendCard({ data }: { data: { month: string; count: number }[] }) {
+export function UpdateTrendCard({ data, title }: { data: { month: string; count: number }[]; title?: string }) {
   return (
     <Card className="col-span-2">
       <CardHeader className="flex-row items-center justify-between">
-        <CardTitle>更新トレンド</CardTitle>
+        <CardTitle>{title ?? "更新トレンド"}</CardTitle>
         <Activity className="size-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>

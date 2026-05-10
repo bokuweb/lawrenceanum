@@ -34,6 +34,11 @@ on:
         description: "(全件取得) 件数キャップ — 省略時は全件"
         required: false
         type: string
+      bulk_concurrency:
+        description: "(全件取得) 並列度 — 既定 4。e-Gov 過負荷で 503 が出る場合は 2"
+        required: false
+        type: string
+        default: "4"
       force:
         description: "Rebuild public/ even if no new revisions"
         required: false
@@ -124,6 +129,8 @@ jobs:
         if: >-
           github.event_name == 'workflow_dispatch' &&
           github.event.inputs.bulk_category != ''
+        env:
+          LAWPUB_BULK_CONCURRENCY: ${{ github.event.inputs.bulk_concurrency || '4' }}
         run: |
           ARGS=(fetch-bulk --category "${{ github.event.inputs.bulk_category }}" --cache .cache --provider "$LAWPUB_PROVIDER")
           if [ -n "${{ github.event.inputs.bulk_limit }}" ]; then

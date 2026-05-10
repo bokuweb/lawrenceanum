@@ -51,13 +51,19 @@ function ChartFallback({ height = "h-64" }: { height?: string }) {
 }
 
 export function DashboardView() {
-  const { laws, health, latestUpdates, loading, error } = useLiveSnapshot();
+  const { laws, health, latestUpdates, trend14, loading, error } = useLiveSnapshot();
 
   const lawCount = laws?.laws.length ?? LAWS.length;
   const monthUpdateCount = latestUpdates?.updated_laws.length ?? 12;
   const fileCount = health?.file_count ?? null;
   const healthOk = health?.ok ?? true;
   const featuredLaws = laws?.laws.slice(0, 5) ?? LAWS.slice(0, 5);
+  // recharts の data フィールド名を共通化 (StatTrend と UpdateTrendCard の双方が使う)。
+  // trend14 は count を持つ ({date, count}) ので互換、長期 mock とは構造を揃えた。
+  const trendForChart = trend14.length > 0
+    ? trend14.map(d => ({ month: d.date, count: d.count }))
+    : UPDATE_TREND;
+  const trendSum = trend14.reduce((acc, d) => acc + d.count, 0);
 
   return (
     <div className="p-6 space-y-6">
@@ -97,15 +103,15 @@ export function DashboardView() {
       })()}
 
       <div className="grid grid-cols-4 gap-4">
-        <StatCard label="登録法令数" value={lawCount.toLocaleString()} delta={`${lawCount}件`} icon={Database} trend={UPDATE_TREND} />
-        <StatCard label="直近の更新" value={monthUpdateCount.toLocaleString()} delta={latestUpdates?.latest_update_date ?? ""} icon={TrendingUp} trend={UPDATE_TREND} />
+        <StatCard label="登録法令数" value={lawCount.toLocaleString()} delta={`${lawCount}件`} icon={Database} trend={trendForChart} />
+        <StatCard label="直近 14 日更新" value={trendSum.toLocaleString()} delta={latestUpdates?.latest_update_date ?? ""} icon={TrendingUp} trend={trendForChart} />
         <StatCard label="配信ファイル数" value={fileCount?.toLocaleString() ?? "—"} delta={health ? "manifest基準" : "未取得"} icon={FileText} />
         <StatCard label="ヘルス" value={healthOk ? "OK" : "NG"} delta={health?.latest_egov_update_date ?? ""} icon={CheckCircle2} />
       </div>
 
       <div className="grid grid-cols-3 gap-4">
         <Suspense fallback={<ChartFallback />}>
-          <UpdateTrendCard data={UPDATE_TREND} />
+          <UpdateTrendCard data={trendForChart} title="更新トレンド (直近 14 日)" />
         </Suspense>
         <Suspense fallback={<ChartFallback />}>
           <CategoryCard data={CATEGORY_DISTRIBUTION} />
