@@ -173,8 +173,20 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
   const navigate = useNavigate();
   const location = useLocation();
   const detail = useLawDetail(law.law_id);
-  const articles = detail.doc?.articles ?? ARTICLES_V2;
-  const [activeArt, setActiveArt] = useState(articles[0]?.article_id ?? ARTICLES_V2[0].article_id);
+  // ライブ取得結果を尊重: doc が来たらたとえ articles=[] でもライブを採用し、
+  // mock にフォールバックして「中身がチラ見えして消える」現象を回避する。
+  // 完全 offline (doc も error も無い) のときだけ mock を使う。
+  const liveAvailable = !!detail.doc;
+  const offlineFallback = !detail.loading && !detail.doc;
+  const articles = detail.doc?.articles ?? (offlineFallback ? ARTICLES_V2 : []);
+  const articlesEmpty = liveAvailable && articles.length === 0;
+  const [activeArt, setActiveArt] = useState(articles[0]?.article_id ?? "");
+  // articles が後から確定するので追従する。
+  useEffect(() => {
+    if (articles[0] && !articles.find(a => a.article_id === activeArt)) {
+      setActiveArt(articles[0].article_id);
+    }
+  }, [articles.length]);
   const liveEvents = detail.timeline?.events ?? [];
   const mockEvents = TIMELINE_EVENTS[law.law_id] ?? [];
   const useLiveTimeline = liveEvents.length > 0;
@@ -291,6 +303,31 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
             </ScrollArea>
             <ScrollArea>
               <div className="max-w-3xl mx-auto px-8 py-8 space-y-8">
+                {detail.loading && articles.length === 0 && (
+                  <div className="text-sm text-muted-foreground py-12 text-center">本文を読み込み中…</div>
+                )}
+                {articlesEmpty && (
+                  <Card>
+                    <CardContent className="p-6 space-y-3">
+                      <div className="text-sm">この法令は構造化された条文 (MainProvision/Article) を持たないため、本ビューでは表示できません。</div>
+                      <div className="text-xs text-muted-foreground">
+                        旧法 (太政官布告) や条文構造の特殊な法令で発生します。生 JSON または e-Gov 公式ページを参照してください。
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" asChild>
+                          <a href={`./laws/${law.law_id}/current.json`} target="_blank" rel="noreferrer">
+                            <Download className="size-4" /> 生 JSON
+                          </a>
+                        </Button>
+                        <Button variant="outline" size="sm" asChild>
+                          <a href={`https://laws.e-gov.go.jp/law/${law.law_id}`} target="_blank" rel="noreferrer">
+                            <ExternalLink className="size-4" /> e-Gov で開く
+                          </a>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
                 {articles.map(a => {
                   const out = outgoingByArt.get(a.article_id) ?? [];
                   const inc = incomingByArt.get(a.article_id) ?? [];
