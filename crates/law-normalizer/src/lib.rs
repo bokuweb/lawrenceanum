@@ -85,6 +85,9 @@ pub fn parse_law_xml(xml: &[u8], law_id: &str) -> Result<LawDocument> {
     let mut current_article: Option<Article> = None;
     let mut current_paragraph: Option<Paragraph> = None;
     let mut current_item_num: Option<String> = None;
+    // Article 配下に居ない Paragraph (= 太政官布告など旧法の素のParagraph) は
+    // ここに溜め、最後に synthetic な「本則」article として吐き出す。
+    let mut orphan_paragraphs: Vec<Paragraph> = Vec::new();
 
     let mut text_buf = String::new();
 
@@ -178,10 +181,15 @@ pub fn parse_law_xml(xml: &[u8], law_id: &str) -> Result<LawDocument> {
                         current_item_num = None;
                     }
                     "Paragraph" => {
-                        if let (Some(a), Some(p)) =
-                            (current_article.as_mut(), current_paragraph.take())
-                        {
-                            a.paragraphs.push(p);
+                        if let Some(p) = current_paragraph.take() {
+                            if let Some(a) = current_article.as_mut() {
+                                a.paragraphs.push(p);
+                            } else if !p.text.trim().is_empty() {
+                                // Article に属さない top-level Paragraph (例: <MainProvision>
+                                // 直下の Paragraph、AppdxNote 配下の Paragraph 等) は
+                                // 後でまとめて synthetic article として救う。
+                                orphan_paragraphs.push(p);
+                            }
                         }
                     }
                     "Article" => {
@@ -200,6 +208,17 @@ pub fn parse_law_xml(xml: &[u8], law_id: &str) -> Result<LawDocument> {
             _ => {}
         }
         buf.clear();
+    }
+
+    // 真に Article を持たない法令 (旧法の太政官布告など) は orphan で本則を救う。
+    // Article が 1 件でもあれば orphan は無視 (本文外の付録扱い)。
+    if articles.is_empty() && !orphan_paragraphs.is_empty() {
+        articles.push(Article {
+            article_id: "art_preamble".to_string(),
+            article_no: "本則".to_string(),
+            caption: None,
+            paragraphs: orphan_paragraphs,
+        });
     }
 
     Ok(LawDocument {
@@ -289,6 +308,38 @@ mod tests {
         assert_eq!(doc.law_num.as_deref(), Some("明治二十九年法律第八十九号"));
         assert_eq!(doc.promulgation_date.as_deref(), Some("1896-04-27"));
         assert_eq!(doc.articles.len(), 1);
+    }
+
+    #[test]
+    fn synthesizes_preamble_for_law_without_articles() {
+        // 105DF0000000337 (改暦ノ布告) のような <MainProvision><Paragraph> 直下構造を救う。
+        let xml = r#"<?xml version="1.0"?>
+<DataRoot>
+  <Result><Code>0</Code></Result>
+  <ApplData>
+    <LawFullText>
+      <Law>
+        <LawNum>明治五年太政官布告第三百三十七号</LawNum>
+        <LawBody>
+          <LawTitle>明治五年太政官布告第三百三十七号（改暦ノ布告）</LawTitle>
+          <MainProvision>
+            <Paragraph Num="1">
+              <ParagraphNum/>
+              <ParagraphSentence>
+                <Sentence>今般改暦ノ儀別紙詔書ノ通被仰出候条此旨相達候事</Sentence>
+              </ParagraphSentence>
+            </Paragraph>
+          </MainProvision>
+        </LawBody>
+      </Law>
+    </LawFullText>
+  </ApplData>
+</DataRoot>"#;
+        let doc = parse_law_xml(xml.as_bytes(), "105DF0000000337").unwrap();
+        assert_eq!(doc.articles.len(), 1);
+        assert_eq!(doc.articles[0].article_id, "art_preamble");
+        assert_eq!(doc.articles[0].article_no, "本則");
+        assert!(doc.articles[0].paragraphs[0].text.contains("改暦"));
     }
 
     #[test]

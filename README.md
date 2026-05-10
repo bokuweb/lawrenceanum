@@ -1,141 +1,180 @@
 # lawrenceanum
 
-e-Gov 法令データを GitHub Actions で定期取得し、Rust 製 CLI (`lawpub`) で
-正規化したJSONをGitHub Pages上に静的配信するための基盤。
+A static-hosted JSON API + WASM-SQLite-powered SPA for Japanese statute data
+(法令), built on top of e-Gov 法令API. GitHub Actions periodically pulls the
+upstream data, the Rust CLI (`lawpub`) normalizes it into stable JSON, and the
+result is served from GitHub Pages.
 
-詳細設計は [docs/plan.md](docs/plan.md) を参照。
+Detailed design: [docs/plan.md](docs/plan.md).
 
-## ステータス
+## What you get
 
-Phase 1 (最小JSON配信) を実装中。e-Gov の実HTTP取得は未実装で、Phase 1 では
-組み込みのモック provider が `民法` 1件分のサンプル XML を返す。
+- Static JSON API at `https://<owner>.github.io/<repo>/...`
+  - `index.json`, `manifest.json`, `health.json`
+  - `laws/index.json`, `laws/{law_id}/{current,versions,timeline}.json`
+  - `laws/{law_id}/revisions/{rev_id}.json`, `laws/{law_id}/articles/{art_id}.json`
+  - `updates/latest.json`, `updates/{YYYY-MM-DD}.json`
+  - `kanpo/{YYYY-MM-DD}/index.json`
+  - `sitemap.xml`, `robots.txt`, `laws/all.ndjson`
+- A React SPA at the same origin that consumes those JSON files
+  - HashRouter, deep-linkable to any law / article / version
+  - Browser-side full-text search via **WASM SQLite (sql.js) + FTS5**
+  - Cross-reference graph: `第○条` → article links, backlinks panel,
+    cross-law jumps for `民法第七百九条` style references
 
-## ローカル実行
+## Local quickstart
 
 ```bash
 cargo build --release -p lawpub-cli
-./target/release/lawpub update --public public --cache .cache
+./target/release/lawpub update --public public --cache .cache --provider mock
 ./target/release/lawpub validate --public public
+
+# Serve the SPA on top
+cd figma && pnpm install
+pnpm dev          # http://localhost:5173/   (a custom Vite middleware
+                  # serves ../public/*.json so the SPA reads live JSON)
+# or production build:
+pnpm build        # writes index.html + assets/ next to the JSON
 ```
 
-生成されるファイル:
+Generated files under `public/`:
 
 ```
 public/
-├── index.json
-├── manifest.json
-├── health.json
+├── index.json / manifest.json / health.json / sitemap.xml / robots.txt
 ├── laws/
 │   ├── index.json
-│   └── 129AC0000000089/
+│   ├── all.ndjson
+│   └── {law_id}/
 │       ├── current.json
-│       └── articles/
-│           └── art_*.json
-└── updates/latest.json
-state/latest.json
+│       ├── versions.json
+│       ├── timeline.json
+│       ├── revisions/{rev_id}.json
+│       └── articles/{art_id}.json
+├── updates/{latest.json,{YYYY-MM-DD}.json}
+├── kanpo/{YYYY-MM-DD}/index.json
+├── schema/{law-document,manifest,updates}.json
+├── search.db                                  # SQLite + FTS5
+├── index.html / assets/                       # SPA build output
+state/latest.json                              # cron-managed pointer
 ```
 
-## CLI
+## CLI surface
 
 ```text
-lawpub update         --public public --cache .cache [--provider mock] [--date YYYY-MM-DD]
+lawpub update         --public public --cache .cache [--provider http|mock] [--date YYYY-MM-DD] [--force]
 lawpub fetch-update   --date YYYY-MM-DD --cache .cache
-lawpub fetch-range    --from YYYY-MM-DD --to YYYY-MM-DD --cache .cache
+lawpub fetch-range    --from YYYY-MM-DD --to YYYY-MM-DD --cache .cache [--provider http|mock]
+lawpub fetch-bulk     --category N [--limit M] --cache .cache [--provider http|mock]
 lawpub build-json     --input .cache --output public
 lawpub build-index    --output public
+lawpub kanpo-fetch    --date YYYY-MM-DD --cache .cache
+lawpub kanpo-link     --output public
 lawpub validate       --public public
+lawpub status         --public public --cache .cache
 ```
 
-`fetch-bulk` / `kanpo-*` は Phase 2 / 3 用のスタブ。
+The provider defaults to `http` and uses `https://laws.e-gov.go.jp/api/1` (v1
+API; v2 has a different path scheme — `/api/2/laws`, `/api/2/law_data/{id}`).
+Override with `LAWPUB_PROVIDER` and `LAWPUB_EGOV_BASE_URL`.
 
-## ワークスペース構成
+## Workspace layout
 
-| crate | 役割 |
+| crate | purpose |
 |---|---|
-| `crates/egov-client`     | e-Gov 取得 (現状は Mock のみ) |
-| `crates/law-normalizer`  | LawXML → 正規化済み LawDocument |
-| `crates/kanpo-client`    | 官報サイト取得 (Phase 3) |
-| `crates/kanpo-linker`    | 改正イベント ↔ 官報PDF マッチング (Phase 3) |
-| `crates/search-index`    | bigram トークナイザ + SQLite FTS5 ビルダ |
-| `crates/lawpub-cli`      | CLI バイナリ `lawpub` |
+| `crates/egov-client`     | e-Gov fetcher (`HttpProvider`, `MockProvider`) |
+| `crates/law-normalizer`  | LawXML → normalized `LawDocument` |
+| `crates/kanpo-client`    | 官報 site scraper (Phase 3, mock for now) |
+| `crates/kanpo-linker`    | amendment ↔ 官報 PDF matching with confidence score |
+| `crates/search-index`    | bigram tokenizer + SQLite FTS5 builder + ref-graph extractor |
+| `crates/lawpub-cli`      | the `lawpub` binary |
 
-## ブラウザ検索 (SQLite FTS5 + 条項間参照グラフ)
+## Browser search (WASM SQLite + FTS5)
 
-`lawpub` ビルド時に `public/search.db` (SQLite + FTS5) を生成し、ブラウザは
-`sql.js` (**WASM SQLite** = sqlite.org の Emscripten ビルド) で読み込む。
-ネイティブ rusqlite は build pipeline 限定で、配信される実行体は WASM のみ。
+`lawpub` emits `public/search.db` (SQLite + FTS5) at build time, and the SPA
+reads it through **sql.js** (sqlite.org's Emscripten build = **WASM SQLite**).
+Native `rusqlite` is build-time only; what gets shipped is purely WASM.
 
-- 索引対象は各法令の現行版条文。`law_id` / `article_id` / `article_no` /
-  `caption` / `title_tokens` / `content_tokens` を持つ FTS5 仮想テーブル
-- 日本語は文字 bigram で前段分割 (`crates/search-index::tokenize` と
-  `figma/src/app/data/search-engine::tokenize` が同一実装)
-- クエリも同じ bigram で分割して FTS5 に投げる、`snippet()` 関数でハイライト
-- `meta` テーブルに `built_at` / `law_count` / `article_count` / `ref_count` を保存
-- `refs` テーブルに条項間参照を格納:
+- Indexed at the article level. The FTS5 virtual table has columns
+  `law_id` / `article_id` / `article_no` / `caption` / `title_tokens` /
+  `content_tokens`.
+- Japanese is pre-tokenized as **character bigrams**
+  (`crates/search-index::tokenize` and
+  `figma/src/app/data/search-engine::tokenize` are kept in lockstep).
+- Queries go through the same bigram tokenizer; FTS5 `snippet()` produces
+  highlighted excerpts.
+- A `meta` table stores `built_at` / `law_count` / `article_count` /
+  `ref_count`.
+- A `refs` table stores cross-references between articles:
+
   ```sql
   CREATE TABLE refs (
     from_law_id TEXT, from_article_id TEXT,
     to_law_id   TEXT, to_article_id   TEXT,
-    ref_text TEXT, ref_type TEXT  -- 'self_article' (Phase 1)
+    ref_text TEXT,
+    ref_type TEXT  -- 'self_article' | 'previous_article' | 'next_article' | 'cross_law'
   );
   ```
-  Phase 1 は同一法令内の「第○条」を `article_no` 部分一致で抽出。
-  ブラウザ側は `getOutgoingRefs` / `getIncomingRefs` / `getRefsForLaw` で取得し、
-  Browse 詳細ビューで本文中をリンク化 (クリックで `#article_id` にスクロール) +
-  被参照バッジを各条文ヘッダに表示する。
 
-`/search` ルートを開くと sql-wasm + `search.db` を遅延ロード。失敗時はモック
-LawSummary フィルタへフォールバックするので Pages 配信前のローカル開発でも動く。
-参考: [`../ellisii/crates/jp-tokenizer-bigram`](../ellisii/crates/jp-tokenizer-bigram/) と
-[`store-sqlite`](../ellisii/crates/store-sqlite/) の同型 FTS5 構成。
+  Extraction uses Aho-Corasick (`MatchKind::LeftmostLongest`) to keep build
+  time linear in body length × match count even with thousands of laws.
 
-## Web UI (SSG)
+The browser exposes `getOutgoingRefs` / `getIncomingRefs` / `getRefsForLaw` and
+the Browse detail view linkifies article text in place. Clicking a reference
+scrolls to `#article_id`; cross-law references navigate to
+`/laws/{other_id}#{article_id}`. Each article header also lists incoming
+references as backlinks.
 
-`figma/` がデザインの正本兼 UI 実装。Vite + React + Tailwind v4 + shadcn/ui で
-組み、ビルド成果物は `lawpub` の生成 JSON と同じ `public/` へ統合する。
+`/search` lazy-loads sql-wasm (~320KB gzip) + `search.db` on first navigation;
+falling back to a mock filter when the DB is unreachable so local dev still
+works.
 
-- `base: './'` で相対パス参照、サブパス Pages にも対応
-- `outDir: ../public`, `emptyOutDir: false` で JSON を保護
-- `publicDir: false` で静的アセットの再帰コピーを抑止
-- dev mode は `lawpubJsonDevServer` middleware が `../public/*.json` をその場で配信
+Inspired by ellisii's [`jp-tokenizer-bigram`](../ellisii/crates/jp-tokenizer-bigram/)
+and [`store-sqlite`](../ellisii/crates/store-sqlite/).
 
-### ローカル
+## Web UI (static SPA)
 
-```bash
-cargo run --release -p lawpub-cli -- update --public public --cache .cache
-cd figma && pnpm install && pnpm dev   # http://localhost:5173/
-# あるいは本番ビルド
-pnpm build                              # ../public/{index.html,assets/} を出力
-```
+`figma/` doubles as the design source-of-truth and the actual UI implementation
+(Vite + React + Tailwind v4 + shadcn/ui). It builds straight into the same
+`public/` directory the JSON lives in.
 
-### CI ステップ順
+- `base: './'` so assets are relative — works on any GitHub Pages sub-path
+- `outDir: ../public`, `emptyOutDir: false` so the JSON survives a Vite build
+- `publicDir: false` to avoid copying assets into themselves
+- Dev mode: `lawpubJsonDevServer` Vite middleware serves `../public/*.json`
+  on the fly so `pnpm dev` sees live data without a separate server
+- Lazy-loaded chart bundle (recharts ≈ 420 KB) via `React.lazy`, kept out of
+  the initial dashboard render
 
-1. `lawpub update` (JSON 生成、`public/` を atomic rename で差し替え)
-2. `lawpub kanpo-link` (timeline へ官報突合を反映、manifest 再計算)
-3. **変更検知** (`state/last_run.json` の `.changed` を判定) — false なら以降スキップ
-4. `pnpm build` (HTML + assets を `public/` へ追加 — JSON は残る)
-5. `lawpub validate` (manifest の sha256 を実ファイルと照合)
+### CI step order
+
+1. `lawpub update` writes JSON via atomic `public.tmp/` → rename
+2. `lawpub kanpo-link` overlays 官報 matches on each `timeline.json`,
+   recomputes `manifest.json`
+3. **Change detection**: read `state/last_run.json.changed`; if `false`, skip
+   the rest
+4. `pnpm build` adds `index.html` + `assets/` to `public/` (JSON untouched)
+5. `lawpub validate` cross-checks every manifest entry's sha256
 6. `actions/configure-pages` → `actions/upload-pages-artifact`
-7. `git commit && git push` (`public/` と `state/latest.json`)
-8. 別ジョブ `deploy`: `actions/deploy-pages` (アップロード済 artifact を消費)
+7. `git commit && git push` (`public/` plus `state/latest.json`)
+8. Separate `deploy` job runs `actions/deploy-pages`
 
-## 自動最新化
+## Auto-update via GitHub Actions
 
-GitHub Actions の `update-law-data.yml` が以下のトリガで動作する:
+`update-law-data.yml` is driven by three triggers:
 
-| トリガ | 動作 |
+| Trigger | Behaviour |
 |---|---|
-| `schedule` (JST 06:30 / 12:30 / 18:30 / 00:30) | e-Gov API から更新取得 → 変更があれば commit + deploy |
-| `push` (main へ merge) | 既に main に居る `public/` を rebuild + deploy (e-Gov へは触らない) |
-| `workflow_dispatch` | provider/date/force を選んで手動実行 |
+| `schedule` (JST 06:30 / 12:30 / 18:30 / 00:30) | Pull latest e-Gov diff, commit + deploy if anything changed |
+| `push` (merge to `main`) | Rebuild SPA over the existing committed `public/` and redeploy. **No** e-Gov fetch, **no** auto-commit |
+| `workflow_dispatch` | Pick `provider` / `date` / `force` / `from_date` / `to_date` / `bulk_category` / `bulk_limit` |
 
-main merge では auto-commit せず deploy のみ走る (cron の方で state は管理)。
-GITHUB_TOKEN による自動 commit は workflow を再トリガしないので、cron の
-auto-commit が deploy ループに入ることはない。
+Auto-commits use `GITHUB_TOKEN`, which by GitHub policy does not re-trigger
+workflows — so a cron auto-commit cannot create a deploy loop.
 
-### 変更検知によるノーオペ削減
+### Change detection (no-op suppression)
 
-`lawpub update` は実行ごとに `state/last_run.json` (gitignore) を出力する:
+`lawpub update` writes `state/last_run.json` (gitignored) on every run:
 
 ```json
 {
@@ -149,39 +188,52 @@ auto-commit が deploy ループに入ることはない。
 }
 ```
 
-`.cache/revisions/{law_id}/{rev_id}.xml` の sha256 で重複判定し、新規 XML が
-0 件かつ `public/manifest.json` が存在する場合は `changed=false` を返して
-以降の build/commit/deploy をスキップする。これにより e-Gov 側に動きが無い
-時間帯でも commit が膨らまない。
+If the sha256-deduped revision store (`.cache/revisions/`) gained no new XMLs
+**and** `public/manifest.json` already exists, the run reports `changed=false`
+and every downstream step (build / commit / deploy) is skipped. So idle hours
+on the e-Gov side do not bloat git history.
 
-### フェイルセーフ
+### Failure handling
 
-- HttpProvider は 3 回のリトライ + 指数バックオフ。それでも失敗した日付は
-  `errors` に記録するだけで、他の日付の処理は継続する (plan §14)。
-- `public/` の atomic rename: `public.tmp/` → `public.bak/` 経由で差し替え、
-  失敗時は backup から戻す。
-- `concurrency: update-law-json` でスケジュールの重複実行を直列化。
+- HttpProvider retries each request three times with exponential backoff. A
+  failed date is logged in `errors` and other dates keep going (plan §14).
+- `public/` is replaced atomically via `public.tmp/` → `public.bak/` →
+  rename. A failure mid-swap is rolled back from the backup.
+- `concurrency: update-law-json` serializes overlapping schedule + dispatch
+  runs.
 
-### 手動実行 (workflow_dispatch)
+### Manual triggers
 
 ```bash
-# 単日 (state/latest.json を無視して特定日だけ取得)
+# Single date (overrides the auto state-based range)
 gh workflow run update-law-data.yml -f date=2026-05-01
 
-# 期間バックフィル (cron 開始前の取りこぼしを埋める)
+# Range backfill (fill in dates before cron started)
 gh workflow run update-law-data.yml \
   -f from_date=2024-04-01 -f to_date=2026-05-09
 
-# 全件バルク (cron 開始時点までを一括収集)
-#   1=憲法・法律, 2=政令・勅令, 3=府省令・規則
+# Bulk fetch (one-shot collection of every law in a category)
+#   1 = 憲法・法律
+#   2 = 政令・勅令
+#   3 = 府省令・規則
 gh workflow run update-law-data.yml -f bulk_category=1
-gh workflow run update-law-data.yml -f bulk_category=2 -f bulk_limit=500   # 件数キャップ
+gh workflow run update-law-data.yml -f bulk_category=2 -f bulk_limit=500
 
-# 強制再ビルド (e-Gov 取得無し / 既存 public/ をそのまま deploy)
+# Force a redeploy without touching e-Gov
 gh workflow run update-law-data.yml -f force=true
 ```
 
-優先順位は `bulk_category > from/to > date > 自動 (state ベース)`。
-バルクは数千件 × 200ms スリープ規模なので timeout-minutes は 360 で確保済。
-途中で失敗してもキャッシュ (`.cache/revisions/`) は workflow 内で生きており、
-build-json は途中まで取れた分だけで public/ を生成する。
+Priority is `bulk_category > from_date/to_date > date > automatic state-based`.
+Bulk runs do thousands of requests × 200 ms throttle, so the workflow's
+`timeout-minutes` is 360. If a bulk run dies partway through, the in-job
+`.cache/revisions/` still holds whatever it managed to fetch and `build-json`
+will produce a partial `public/`.
+
+## Status
+
+Up and running on Pages. The cron is incremental from the moment it starts;
+historical revisions only accumulate going forward unless you explicitly
+backfill via `bulk_category=N` or `from_date=…/to_date=…`. There is no e-Gov
+endpoint that returns historical revisions of a single law (only the current
+version + a daily-update list), so deeper history requires the daily snapshots
+to keep stacking up over time.
