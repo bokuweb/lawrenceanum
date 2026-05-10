@@ -107,6 +107,20 @@ impl HttpProvider {
             .with_context(|| format!("GET {url}"))
     }
 
+    /// 応答が e-Gov の XML (DataRoot 形式) かどうか頭の数百バイトでざっと検査する。
+    /// HTML エラーページ (`<!doctype html>` / `<html>` / `<head>`) を弾く。
+    fn looks_like_egov_xml(bytes: &[u8]) -> bool {
+        let head_len = bytes.len().min(512);
+        let head = &bytes[..head_len];
+        let s = std::str::from_utf8(head).unwrap_or("").trim_start();
+        let lower: String = s.chars().take(64).collect::<String>().to_ascii_lowercase();
+        if lower.starts_with("<!doctype html") || lower.starts_with("<html") {
+            return false;
+        }
+        // e-Gov の正常応答は `<?xml` で始まり、すぐ <DataRoot> が来る。
+        s.starts_with("<?xml") || s.contains("<DataRoot")
+    }
+
     /// 応答が ZIP (PK\x03\x04) なら最初の .xml エントリを取り出す。
     /// path は相対化・`..` 拒否で Zip Slip 対策する (展開はせずメモリ内のみ)。
     fn maybe_unzip_xml(bytes: Vec<u8>) -> Result<Vec<u8>> {
@@ -251,11 +265,13 @@ impl EgovProvider for HttpProvider {
         for id in ids {
             let url = format!("{}/lawdata/{}", self.base_url, id);
             match Self::get_with_retry(&client, &url).and_then(Self::maybe_unzip_xml) {
-                Ok(xml) => laws.push(FetchedLaw {
-                    law_id: id,
-                    xml,
-                    source_url: url,
-                }),
+                Ok(xml) => {
+                    if !Self::looks_like_egov_xml(&xml) {
+                        tracing::warn!("skip {url}: response does not look like e-Gov XML");
+                        continue;
+                    }
+                    laws.push(FetchedLaw { law_id: id, xml, source_url: url });
+                }
                 Err(e) => tracing::warn!("skip {url}: {e:#}"),
             }
         }
@@ -301,6 +317,10 @@ impl EgovProvider for HttpProvider {
                 }
                 match result {
                     Ok(xml) => {
+                        if !Self::looks_like_egov_xml(&xml) {
+                            tracing::warn!("skip {url}: response does not look like e-Gov XML");
+                            return;
+                        }
                         if let Ok(mut g) = laws_arc.lock() {
                             g.push(FetchedLaw {
                                 law_id: id.clone(),

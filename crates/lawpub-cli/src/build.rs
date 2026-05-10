@@ -363,8 +363,17 @@ fn collect_laws_with_history(cache: &Path) -> Result<Vec<LawWithHistory>> {
                     String::new()
                 };
 
-                let doc = parse_law_xml(&bytes, &law_id)
-                    .with_context(|| format!("parse {}", path.display()))?;
+                // 不正な XML (HTML エラーページが混じった等) でビルド全体が
+                // 死なないように warn + skip + cache の不正ファイル削除。
+                let doc = match parse_law_xml(&bytes, &law_id) {
+                    Ok(d) => d,
+                    Err(e) => {
+                        tracing::warn!("skip bad XML cache {}: {e:#}", path.display());
+                        let _ = std::fs::remove_file(&path);
+                        let _ = std::fs::remove_file(meta_path);
+                        continue;
+                    }
+                };
                 revs.push(Revision {
                     revision_id: rev_id,
                     sha256: sha,
@@ -416,7 +425,14 @@ fn collect_laws_with_history(cache: &Path) -> Result<Vec<LawWithHistory>> {
                     fetched_dates: BTreeMap::new(),
                 });
                 if !entry.revisions.iter().any(|r| r.revision_id == rev_id) {
-                    let doc = parse_law_xml(&bytes, &law_id)?;
+                    let doc = match parse_law_xml(&bytes, &law_id) {
+                        Ok(d) => d,
+                        Err(e) => {
+                            tracing::warn!("skip bad XML cache {}: {e:#}", path.display());
+                            let _ = std::fs::remove_file(&path);
+                            continue;
+                        }
+                    };
                     entry.revisions.push(Revision {
                         revision_id: rev_id.clone(),
                         sha256: sha,
