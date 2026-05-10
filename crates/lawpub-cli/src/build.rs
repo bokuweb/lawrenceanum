@@ -38,6 +38,16 @@ pub fn run_fetch_update(date: &str, cache: &Path, provider: &str) -> Result<usiz
     Ok(new_xmls)
 }
 
+fn cache_has_revisions(cache: &Path) -> bool {
+    let dir = cache.join("revisions");
+    if !dir.exists() {
+        return false;
+    }
+    std::fs::read_dir(&dir)
+        .map(|it| it.filter_map(|e| e.ok()).any(|e| e.file_type().map(|t| t.is_dir()).unwrap_or(false)))
+        .unwrap_or(false)
+}
+
 pub fn run_fetch_bulk(
     category: u32,
     limit: Option<usize>,
@@ -290,9 +300,23 @@ pub fn run_update(
 
     // public/ が存在しない/壊れている場合は強制再生成。
     let public_complete = public.join("manifest.json").exists();
-    let changed = force || new_xmls > 0 || !public_complete;
+    let mut changed = force || new_xmls > 0 || !public_complete;
     if changed {
-        run_build_json(cache, public)?;
+        // cache が空のときに build_json は bail するが、`--force` の場合は
+        // 「キャッシュが復元できていないだけ」のケースが多いので、warn にし
+        // 既存 public/ をそのまま残す方針に変える。
+        if cache_has_revisions(cache) {
+            run_build_json(cache, public)?;
+        } else if public_complete {
+            tracing::warn!(
+                "cache is empty but public/ already exists — keeping existing public/ as-is"
+            );
+            changed = false;
+        } else {
+            anyhow::bail!(
+                "cache is empty and public/ does not exist — run `lawpub fetch-bulk --category 1` first"
+            );
+        }
     } else {
         tracing::info!(
             "no new revisions and public/ is intact — skipping rebuild ({} dates checked)",

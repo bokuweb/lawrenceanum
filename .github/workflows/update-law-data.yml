@@ -88,15 +88,13 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       # CI run 間で .cache/ (raw XML revisions / 官報 PDF metadata) を永続化する。
-      # これがないと毎回フル fetch しないと parse やり直しができないので、
-      # parser を改善した後に --force で再ビルドだけする運用が成立する。
+      # job が途中で失敗しても (parse error など) cache が残るよう、
+      # restore と save を分けて save に always() を付ける。
       - name: Restore lawpub cache
-        id: lawpub-cache
-        uses: actions/cache@v4
+        id: lawpub-cache-restore
+        uses: actions/cache/restore@v4
         with:
           path: .cache
-          # キーは「日次 + last_run」で動かす。日付が変われば新規キーになるが
-          # restore-keys で最近のキャッシュを引いてくる。
           key: lawpub-cache-v1-${{ runner.os }}-${{ github.run_id }}
           restore-keys: |
             lawpub-cache-v1-${{ runner.os }}-
@@ -201,6 +199,15 @@ jobs:
       - name: lawpub kanpo-link (best-effort)
         if: github.event_name != 'push'
         run: ./target/release/lawpub kanpo-link --output public || true
+
+      # 失敗しても cache を保存することで、次の run が途中まで取得した
+      # XML を再利用できる。bulk が parse error で死んでも 8000+ 件は救う。
+      - name: Save lawpub cache
+        if: always() && (github.event_name != 'push')
+        uses: actions/cache/save@v4
+        with:
+          path: .cache
+          key: lawpub-cache-v1-${{ runner.os }}-${{ github.run_id }}
 
       - name: Detect changes
         id: detect
