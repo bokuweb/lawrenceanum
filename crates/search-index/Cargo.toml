@@ -10,3 +10,4 @@ anyhow.workspace = true
 law-normalizer = { path = "../law-normalizer" }
 rusqlite = { version = "0.32", features = ["bundled"] }
 tracing.workspace = true
+aho-corasick.workspace = true

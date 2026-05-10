@@ -100,46 +100,59 @@ pub fn extract_relative_article_refs(
     out
 }
 
+/// 他法令参照のために事前構築する索引。Aho-Corasick オートマトンとそのスロットに
+/// 対応する `(title, law_id)` 配列を保持する。法令単位で 1 度だけ作って使い回す。
+pub struct CrossLawIndex {
+    ac: AhoCorasick,
+    entries: Vec<(String, String)>, // (title, law_id) — index = pattern_id
+}
+
+impl CrossLawIndex {
+    pub fn build(title_index: &std::collections::HashMap<String, String>) -> Option<Self> {
+        // 1 文字タイトルは除外 (誤マッチ多発)。"民法" "刑法" 等 2 文字は残す。
+        let mut entries: Vec<(String, String)> = title_index
+            .iter()
+            .filter(|(t, _)| t.chars().count() >= 2)
+            .map(|(t, id)| (t.clone(), id.clone()))
+            .collect();
+        if entries.is_empty() {
+            return None;
+        }
+        // LeftmostLongest で最長一致 (民事訴訟法 と 民法 が混在しても長い方が勝つ)。
+        entries.sort_by(|a, b| b.0.chars().count().cmp(&a.0.chars().count()));
+        let patterns: Vec<&str> = entries.iter().map(|(t, _)| t.as_str()).collect();
+        let ac = AhoCorasick::builder()
+            .match_kind(MatchKind::LeftmostLongest)
+            .build(&patterns)
+            .ok()?;
+        Some(Self { ac, entries })
+    }
+}
+
 /// 他法令への参照: `title + 第○条` のパターンを検出する。
-/// `title_index`: 法令タイトル → law_id
-/// `articles_index`: law_id → (article_no -> article_id)
-/// 戻り値: (matched_text_full, to_law_id, to_article_id_opt)
 pub fn extract_cross_law_refs(
     body: &str,
     self_law_id: &str,
-    title_index: &std::collections::HashMap<String, String>,
+    cross_index: &CrossLawIndex,
     articles_index: &std::collections::HashMap<String, std::collections::HashMap<String, String>>,
 ) -> Vec<(String, String, Option<String>)> {
     let mut out: Vec<(String, String, Option<String>)> = Vec::new();
-    // title は長いものから優先 (民法 と 民事訴訟法 など部分一致を避ける)。
-    let mut titles: Vec<&String> = title_index.keys().collect();
-    titles.sort_by(|a, b| b.chars().count().cmp(&a.chars().count()));
-    for title in titles {
-        let other_id = match title_index.get(title) {
-            Some(v) => v,
-            None => continue,
-        };
+    for m in cross_index.ac.find_iter(body) {
+        let (title, other_id) = &cross_index.entries[m.pattern().as_usize()];
         if other_id == self_law_id {
             continue;
         }
-        let mut start = 0usize;
-        while let Some(pos) = body[start..].find(title.as_str()) {
-            let abs = start + pos;
-            let after = abs + title.len();
-            // title 直後に「第○条」が続くか確認。最大 12 文字 (第十二条の二 等) スキャン。
-            let tail = &body[after..(after + 36).min(body.len())];
-            if let Some(art_map) = articles_index.get(other_id) {
-                if let Some((art_text, art_id)) = match_article_prefix(tail, art_map) {
-                    let full = format!("{}{}", title, art_text);
-                    out.push((full, other_id.clone(), Some(art_id)));
-                    start = after + art_text.len();
-                    continue;
-                }
+        let after = m.end();
+        // 後続最大 16 文字を見て「第○条」を探す。byte ではなく char 数で切ること。
+        let tail: String = body[after..].chars().take(16).collect();
+        if let Some(art_map) = articles_index.get(other_id) {
+            if let Some((art_text, art_id)) = match_article_prefix(&tail, art_map) {
+                let full = format!("{}{}", title, art_text);
+                out.push((full, other_id.clone(), Some(art_id)));
+                continue;
             }
-            // article がヒットしない場合でも法令名だけは記録 (to_article_id=None)。
-            out.push((title.to_string(), other_id.clone(), None));
-            start = after;
         }
+        out.push((title.clone(), other_id.clone(), None));
     }
     out
 }
@@ -160,39 +173,34 @@ fn match_article_prefix(
     None
 }
 
+use aho_corasick::{AhoCorasick, MatchKind};
+
 /// 法令本文中の同一法令内 article 参照を抽出する。
-/// `article_no_to_id`: その法令の "第三条" 等 → "art_3" の lookup map。
-/// 戻り値の `(ref_text, to_article_id)` は出現順 / 重複排除なし。呼び出し側で
-/// 必要なら dedup する。
+/// Aho-Corasick で全 article_no を同時に LeftmostLongest マッチさせ、
+/// `第百条` と `第十条` の重なりは長い方を採る。
 pub fn extract_self_article_refs<'a>(
     body: &'a str,
     article_no_to_id: &'a std::collections::HashMap<String, String>,
 ) -> Vec<(&'a str, String)> {
-    let mut hits: Vec<(usize, usize, &str, String)> = Vec::new();
-    // article_no が長いものから順に試すと "第百条" と "第十条" の被りを回避できる。
-    let mut keys: Vec<&String> = article_no_to_id.keys().collect();
-    keys.sort_by(|a, b| b.chars().count().cmp(&a.chars().count()));
-
-    for key in keys {
-        let mut start = 0usize;
-        while let Some(pos) = body[start..].find(key.as_str()) {
-            let abs = start + pos;
-            let end = abs + key.len();
-            // 既に他のキーで覆われていれば skip。
-            let overlaps = hits
-                .iter()
-                .any(|(s, e, _, _)| !(end <= *s || abs >= *e));
-            if !overlaps {
-                if let Some(id) = article_no_to_id.get(key) {
-                    let s = &body[abs..end];
-                    hits.push((abs, end, s, id.clone()));
-                }
-            }
-            start = end;
+    if article_no_to_id.is_empty() || body.is_empty() {
+        return Vec::new();
+    }
+    let keys: Vec<&str> = article_no_to_id.keys().map(|s| s.as_str()).collect();
+    let ac = match AhoCorasick::builder()
+        .match_kind(MatchKind::LeftmostLongest)
+        .build(&keys)
+    {
+        Ok(a) => a,
+        Err(_) => return Vec::new(),
+    };
+    let mut out: Vec<(&str, String)> = Vec::new();
+    for m in ac.find_iter(body) {
+        let key = keys[m.pattern().as_usize()];
+        if let Some(id) = article_no_to_id.get(key) {
+            out.push((&body[m.start()..m.end()], id.clone()));
         }
     }
-    hits.sort_by_key(|(s, _, _, _)| *s);
-    hits.into_iter().map(|(_, _, t, id)| (t, id)).collect()
+    out
 }
 
 pub fn build_search_db(out_path: &Path, laws: &[LawDocument]) -> Result<()> {
@@ -282,6 +290,9 @@ pub fn build_search_db(out_path: &Path, laws: &[LawDocument]) -> Result<()> {
             articles_index.insert(d.law_id.clone(), m);
         }
 
+        // cross-law 用の AC オートマトンは法令一覧から 1 度だけ構築。
+        let cross_index = CrossLawIndex::build(&title_index);
+
         for d in laws {
             law_stmt.execute(params![d.law_id, d.law_num, d.title])?;
             let title_tokens = tokenize_for_fts(&d.title);
@@ -360,10 +371,14 @@ pub fn build_search_db(out_path: &Path, laws: &[LawDocument]) -> Result<()> {
                     total_refs += 1;
                 }
 
-                // 3) 他法令参照 (例「民法第七百九条」)。
-                for (text, to_law, to_art) in
-                    extract_cross_law_refs(&body, &d.law_id, &title_index, &articles_index)
-                {
+                // 3) 他法令参照 (例「民法第七百九条」)。AC オートマトンが無い時は skip。
+                let cross_iter: Vec<(String, String, Option<String>)> =
+                    if let Some(ix) = cross_index.as_ref() {
+                        extract_cross_law_refs(&body, &d.law_id, ix, &articles_index)
+                    } else {
+                        Vec::new()
+                    };
+                for (text, to_law, to_art) in cross_iter {
                     let key = (text.clone(), to_art.clone().unwrap_or_default(), "cross_law".into());
                     if emitted.contains(&key) {
                         continue;
@@ -433,5 +448,26 @@ mod tests {
         let hits = extract_self_article_refs(body, &map);
         let ids: Vec<&String> = hits.iter().map(|(_, id)| id).collect();
         assert_eq!(ids, vec!["art_1", "art_10", "art_100"]);
+    }
+
+    #[test]
+    fn cross_law_refs_handle_utf8_boundary_at_lookahead() {
+        // 旧実装は body[after..(after + 36).min(body.len())] でバイトカットしていて、
+        // 「第百条」直後にマルチバイト文字が並ぶと panic していた。
+        let mut titles = std::collections::HashMap::new();
+        titles.insert("民法".to_string(), "129AC0000000089".to_string());
+
+        let mut art_map_minpo = std::collections::HashMap::new();
+        art_map_minpo.insert("第三条".to_string(), "art_3".to_string());
+        let mut articles_idx = std::collections::HashMap::new();
+        articles_idx.insert("129AC0000000089".to_string(), art_map_minpo);
+
+        // 民法 のすぐ後に長めの日本語が続き、後続走査の終端がマルチバイト文字の中に当たる
+        // ようなケース。
+        let body = "施行日前にされた国等の事務に係る処分であって、当該処分をした行政庁（以下この条において「処分庁」という。）に施行日前に行政不服審査法に規定する民法上級行政庁";
+        let cross = CrossLawIndex::build(&titles).unwrap();
+        // panic しないこと自体がテスト。返り値は最低 1 件 (民法だけマッチ → article 解決失敗で None) を期待。
+        let hits = extract_cross_law_refs(body, "OTHER", &cross, &articles_idx);
+        assert!(hits.iter().any(|(_, lid, _)| lid == "129AC0000000089"));
     }
 }
