@@ -72,7 +72,9 @@ export function useLawDetail(lawId: string | null | undefined): LawDetail {
       return
     }
     let cancelled = false
-    setState((s) => ({ ...s, loading: true, error: null }))
+    // lawId が変わったら前の law の doc を即破棄する。
+    // そうしないと BrowseView 側で「前回開いた法令の中身が一瞬チラ見えする」現象が出る。
+    setState({ loading: true, doc: null, versions: null, timeline: null, error: null })
     Promise.allSettled([api.law(lawId), api.versions(lawId), api.timeline(lawId)]).then(
       ([docR, vR, tR]) => {
         if (cancelled) return

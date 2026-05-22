@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Moon, Sun, Search, Bell, Github } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -6,15 +7,33 @@ import { Avatar, AvatarFallback } from "./ui/avatar";
 
 export function Topbar({ value, onChange }: { value: string; onChange: (q: string) => void }) {
   const { theme, toggle } = useTheme();
+  // IME 変換中は外側からの value 更新で composition が破棄されるのを防ぐため、
+  // ローカル state を持ち、composition 終了時に親へ通知する。
+  const [local, setLocal] = useState(value);
+  const composing = useRef(false);
+  useEffect(() => {
+    if (!composing.current) setLocal(value);
+  }, [value]);
   return (
     <header className="h-16 border-b border-border bg-background/80 backdrop-blur flex items-center px-6 gap-4 sticky top-0 z-10">
       <div className="relative flex-1 max-w-xl">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
         <Input
-          value={value}
+          value={local}
           placeholder="法令名・法令番号・条文を検索..."
           className="pl-9 h-9"
-          onChange={e => onChange(e.target.value)}
+          onCompositionStart={() => { composing.current = true; }}
+          onCompositionEnd={e => {
+            composing.current = false;
+            const v = (e.target as HTMLInputElement).value;
+            setLocal(v);
+            onChange(v);
+          }}
+          onChange={e => {
+            const v = e.target.value;
+            setLocal(v);
+            if (!composing.current) onChange(v);
+          }}
         />
         <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground border border-border rounded px-1.5 py-0.5 bg-muted">⌘K</kbd>
       </div>

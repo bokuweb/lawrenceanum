@@ -26,7 +26,8 @@ export function BrowseView({ lawId, onSelect, onCompare }: { lawId: string | nul
       status: "current",
       article_count: 0,
     };
-    return <LawDetail law={law} onBack={() => onSelect(null)} onCompare={() => onCompare(lawId)} />;
+    // key={lawId}: lawId が変わるたびに LawDetail を作り直し、前の law の doc/state を持ち越さない。
+    return <LawDetail key={lawId} law={law} onBack={() => onSelect(null)} onCompare={() => onCompare(lawId)} />;
   }
 
   return (

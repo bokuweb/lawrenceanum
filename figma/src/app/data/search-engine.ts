@@ -129,8 +129,9 @@ export async function isAvailable(): Promise<boolean> {
 async function exec<T = Record<string, unknown>>(sql: string, params: unknown[] = []): Promise<T[]> {
   const w = await loadWorker();
   if (!w) return [];
-  // db.query は SqliteWorker 経由で `(sql, ...params) => row[]` の signature。
-  return (await (w.db.query as any)(sql, ...params)) as T[];
+  // sql.js-httpvfs の db.query は `(sql, params[]) => row[]`。配列で渡す
+  // (spread すると bind が効かず fts5 が空文字 MATCH を見て syntax error)。
+  return (await (w.db.query as any)(sql, params)) as T[];
 }
 
 export async function search(q: string, limit = 50): Promise<SearchHit[]> {
