@@ -844,6 +844,7 @@ dependencies = [
  "kanpo-client",
  "kanpo-linker",
  "law-normalizer",
+ "rayon",
  "search-index",
  "serde",
  "serde_json",

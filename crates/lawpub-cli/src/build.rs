@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use chrono::Utc;
-use egov_client::{EgovProvider, FetchedLaw, MockProvider};
-use law_normalizer::{parse_law_xml, sha256_hex, LawDocument, LawSummary};
+use egov_client::{EgovProvider, FetchedLaw, LawRevisionList, MockProvider, RevisionMeta};
+use law_normalizer::{parse_law_xml, sha256_hex, LawDocument};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::collections::BTreeMap;
@@ -297,9 +297,15 @@ struct Revision {
 struct LawWithHistory {
     law_id: String,
     /// 古い順 (first_seen_date 昇順)。最後の要素が現行版。
+    /// これは「本文が手元にある revision」だけを表す — メタだけの履歴は別。
     revisions: Vec<Revision>,
     /// このビルドで「新しく取得された」日 → 直近の change_type 推定に使う。
     fetched_dates: BTreeMap<String, String>, // date -> revision_id
+    /// e-Gov v2 `/law_revisions/{id}` で取れた改正履歴メタ。
+    /// 本文を持っているとは限らない (殆どは meta-only)。古い順。
+    meta_revisions: Vec<RevisionMeta>,
+    /// 同 v2 から得た正規 `LawInfo` (公布日・法令番号・元号 など)。
+    meta_law_info: Option<egov_client::LawInfoV2>,
 }
 
 impl LawWithHistory {
@@ -383,6 +389,8 @@ pub fn run_build_index(output: &Path) -> Result<()> {
                     doc,
                 }],
                 fetched_dates: BTreeMap::new(),
+                meta_revisions: Vec::new(),
+                meta_law_info: None,
             }
         })
         .collect();
@@ -536,6 +544,8 @@ fn collect_laws_with_history(cache: &Path) -> Result<Vec<LawWithHistory>> {
                         law_id,
                         revisions: revs,
                         fetched_dates: BTreeMap::new(),
+                meta_revisions: Vec::new(),
+                meta_law_info: None,
                     },
                 );
             }
@@ -570,6 +580,8 @@ fn collect_laws_with_history(cache: &Path) -> Result<Vec<LawWithHistory>> {
                     law_id: law_id.clone(),
                     revisions: Vec::new(),
                     fetched_dates: BTreeMap::new(),
+                meta_revisions: Vec::new(),
+                meta_law_info: None,
                 });
                 if !entry.revisions.iter().any(|r| r.revision_id == rev_id) {
                     let doc = match parse_law_xml(&bytes, &law_id) {
@@ -592,6 +604,50 @@ fn collect_laws_with_history(cache: &Path) -> Result<Vec<LawWithHistory>> {
                 }
                 entry.fetched_dates.insert(date.clone(), rev_id);
             }
+        }
+    }
+
+    // v2 `.cache/revisions_meta/{law_id}.json` を読み込み、各 LawWithHistory に
+    // meta_revisions / meta_law_info を流し込む。timeline.json / versions.json の
+    // 「改正履歴フル一覧」の駆動源になる。本文 (.cache/revisions/) が無い meta は
+    // メタだけ持ち、本文閲覧は出来ない (= UI で "本文 future revision" 表示)。
+    let meta_dir = cache.join("revisions_meta");
+    if meta_dir.exists() {
+        for f in std::fs::read_dir(&meta_dir)? {
+            let f = f?;
+            let p = f.path();
+            if p.extension().and_then(|s| s.to_str()) != Some("json") {
+                continue;
+            }
+            let law_id = match p.file_stem().and_then(|s| s.to_str()) {
+                Some(s) => s.to_string(),
+                None => continue,
+            };
+            let bytes = std::fs::read(&p)?;
+            let list: LawRevisionList = match serde_json::from_slice(&bytes) {
+                Ok(v) => v,
+                Err(e) => {
+                    tracing::warn!("skip bad revisions_meta {}: {e:#}", p.display());
+                    continue;
+                }
+            };
+            // 改正履歴は通常新しい順 (e-Gov) で返るので、古い順に並び替えてから格納。
+            let mut revs = list.revisions;
+            revs.sort_by(|a, b| {
+                a.amendment_promulgate_date
+                    .as_deref()
+                    .unwrap_or("")
+                    .cmp(b.amendment_promulgate_date.as_deref().unwrap_or(""))
+            });
+            let entry = by_law.entry(law_id.clone()).or_insert_with(|| LawWithHistory {
+                law_id: law_id.clone(),
+                revisions: Vec::new(),
+                fetched_dates: BTreeMap::new(),
+                meta_revisions: Vec::new(),
+                meta_law_info: None,
+            });
+            entry.meta_revisions = revs;
+            entry.meta_law_info = Some(list.law_info);
         }
     }
 
@@ -666,10 +722,30 @@ fn write_law_documents(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
         let dir = public.join("laws").join(&law.law_id);
         std::fs::create_dir_all(&dir)?;
 
+        // 本文 (revisions[].revision_id) は今 .cache/revisions/{law_id}/{sha-rev-id}.xml
+        // から sha 由来の ID で持っている。v2 meta が取れているなら、その「現在
+        // 施行中」revision (`current_revision_status == "CurrentEnforced"`) の
+        // v2 ID を本文の revision_id として採用する。これで versions.json /
+        // timeline.json と current_revision_id が同じ ID 空間で揃う。
+        //
+        // 値域: CurrentEnforced / PreviousEnforced / UnEnforced / Repealed
+        // (将来 Repealed の取扱いは要検討。今は CurrentEnforced を優先し、
+        //  無ければ最新の v2 ID にフォールバック)。
+        let current_v2_id: Option<String> = law
+            .meta_revisions
+            .iter()
+            .rev()
+            .find(|m| m.current_revision_status.as_deref() == Some("CurrentEnforced"))
+            .map(|m| m.law_revision_id.clone())
+            .or_else(|| law.meta_revisions.last().map(|m| m.law_revision_id.clone()));
+
         // current.json は最新版に revision_id を埋める。
         let cur_rev = law.current_rev();
+        let current_rev_id = current_v2_id
+            .clone()
+            .unwrap_or_else(|| cur_rev.revision_id.clone());
         let mut current_doc = cur_rev.doc.clone();
-        current_doc.revision_id = Some(cur_rev.revision_id.clone());
+        current_doc.revision_id = Some(current_rev_id.clone());
         write_json_pretty(&dir.join("current.json"), &current_doc)?;
 
         let articles_dir = dir.join("articles");
@@ -679,61 +755,166 @@ fn write_law_documents(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
         }
 
         // 過去 revision を全部書き出す (Phase 2 §7.6)。
+        // 現状は本文を 1 件しか持っていないことが多いので、その 1 件を v2 ID
+        // ファイル名で書き出して versions.json と紐付ける。
         let revisions_dir = dir.join("revisions");
         std::fs::create_dir_all(&revisions_dir)?;
         for r in &law.revisions {
             let mut doc = r.doc.clone();
-            doc.revision_id = Some(r.revision_id.clone());
-            doc.status = if r.revision_id == cur_rev.revision_id {
+            let file_rev_id = if r.revision_id == cur_rev.revision_id {
+                current_rev_id.clone()
+            } else {
+                r.revision_id.clone()
+            };
+            doc.revision_id = Some(file_rev_id.clone());
+            doc.status = if file_rev_id == current_rev_id {
                 "current".to_string()
             } else {
                 "historical".to_string()
             };
             write_json_pretty(
-                &revisions_dir.join(format!("{}.json", r.revision_id)),
+                &revisions_dir.join(format!("{}.json", file_rev_id)),
                 &doc,
             )?;
         }
 
-        let versions: Vec<_> = law
-            .revisions
-            .iter()
-            .map(|r| {
-                json!({
-                    "revision_id": r.revision_id,
-                    "effective_date": r.doc.effective_date,
-                    "promulgation_date": r.doc.promulgation_date,
-                    "path": format!("laws/{}/revisions/{}.json", law.law_id, r.revision_id),
-                    "source_update_date": if r.first_seen_date.is_empty() { serde_json::Value::Null } else { serde_json::Value::String(r.first_seen_date.clone()) },
+        // versions.json: e-Gov v2 meta_revisions が取れていればそれを骨格にし、
+        // 本文 (revisions/{id}/{rev_id}.xml) を持っている revision には path を
+        // 埋める。meta が無い場合は従来通り本文ベースで書き出す (= fallback)。
+        // 本文を持っている v2 ID 集合 = current_v2_id 一つ (今は) + 仮に
+        // .cache/revisions/ に v2 ID 形式で配置されたファイルがあればそれら。
+        let mut body_rev_ids: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
+        if let Some(cur) = current_v2_id.as_ref() {
+            body_rev_ids.insert(cur.clone());
+        }
+        // (将来 fetch_revision_body で他 v2 ID 本文を保存したら、ここに足す)
+        let versions: Vec<_> = if !law.meta_revisions.is_empty() {
+            law.meta_revisions
+                .iter()
+                .map(|m| {
+                    let has_body = body_rev_ids.contains(&m.law_revision_id);
+                    json!({
+                        "revision_id": m.law_revision_id,
+                        "effective_date": m.amendment_enforcement_date,
+                        "scheduled_enforcement_date": m.amendment_scheduled_enforcement_date,
+                        "promulgation_date": m.amendment_promulgate_date,
+                        "amendment_law_id": m.amendment_law_id,
+                        "amendment_law_num": m.amendment_law_num,
+                        "amendment_law_title": m.amendment_law_title,
+                        "amendment_type": m.amendment_type,
+                        "mission": m.mission,
+                        "repeal_status": m.repeal_status,
+                        "current_revision_status": m.current_revision_status,
+                        "path": if has_body {
+                            serde_json::Value::String(format!("laws/{}/revisions/{}.json", law.law_id, m.law_revision_id))
+                        } else {
+                            serde_json::Value::Null
+                        },
+                        "body_available": has_body,
+                    })
                 })
-            })
-            .collect();
+                .collect()
+        } else {
+            law.revisions
+                .iter()
+                .map(|r| {
+                    json!({
+                        "revision_id": r.revision_id,
+                        "effective_date": r.doc.effective_date,
+                        "promulgation_date": r.doc.promulgation_date,
+                        "path": format!("laws/{}/revisions/{}.json", law.law_id, r.revision_id),
+                        "body_available": true,
+                        "source_update_date": if r.first_seen_date.is_empty() { serde_json::Value::Null } else { serde_json::Value::String(r.first_seen_date.clone()) },
+                    })
+                })
+                .collect()
+        };
         write_json_pretty(
             &dir.join("versions.json"),
             &json!({
                 "law_id": law.law_id,
-                "current_revision_id": cur_rev.revision_id,
+                "current_revision_id": current_rev_id,
                 "versions": versions,
             }),
         )?;
 
-        // timeline は revision 遷移 1件 = イベント 1件として並べる。
-        let mut events = Vec::new();
-        for (i, r) in law.revisions.iter().enumerate() {
-            let event_type = if i == 0 { "initial" } else { "snapshot" };
-            events.push(json!({
-                "event_id": format!("evt_{}", r.revision_id),
-                "event_type": event_type,
-                "target_law_id": law.law_id,
-                "amending_law_num": null,
-                "promulgation_date": r.doc.promulgation_date,
-                "effective_date": r.doc.effective_date,
-                "revision_id": r.revision_id,
-                "source_update_date": if r.first_seen_date.is_empty() { serde_json::Value::Null } else { serde_json::Value::String(r.first_seen_date.clone()) },
-                "status": "snapshot",
-                "kanpo": { "linked": false }
+        // timeline: meta_revisions があれば改正履歴一件=イベント一件、無ければ
+        // 従来の「本文 revision 一件=snapshot 一件」フォールバック。
+        //
+        // 注意: e-Gov v2 `/law_revisions` は「改正」だけを返してくる (= 制定
+        // そのものは含まれない)。制定イベントは `law_info.promulgation_date`
+        // から合成して先頭に挿入する。これがないと「民法は 2016-04-13 改正
+        // から始まったように見える」現象が出る。
+        let events: Vec<_> = if !law.meta_revisions.is_empty() {
+            let mut events: Vec<serde_json::Value> = Vec::with_capacity(law.meta_revisions.len() + 1);
+            if let Some(info) = law.meta_law_info.as_ref() {
+                if let Some(date) = info.promulgation_date.as_deref() {
+                    events.push(json!({
+                        "event_id": format!("evt_{}_enactment", law.law_id),
+                        "event_type": "enactment",
+                        "target_law_id": law.law_id,
+                        "amending_law_id": null,
+                        "amending_law_num": null,
+                        "amending_law_title": null,
+                        "promulgation_date": date,
+                        "effective_date": null,
+                        "scheduled_enforcement_date": null,
+                        "enforcement_comment": null,
+                        "revision_id": null,
+                        "status": "Enacted",
+                        "repeal_status": null,
+                        "mission": "Enactment",
+                        "kanpo": { "linked": false }
+                    }));
+                }
+            }
+            events.extend(law.meta_revisions.iter().map(|m| {
+                    let event_type = match m.amendment_type.as_deref() {
+                        Some("1") => "enactment",   // 制定
+                        Some("3") => "amendment",   // 改正
+                        Some("8") => "repeal",      // 廃止
+                        _ => "snapshot",
+                    };
+                    json!({
+                        "event_id": format!("evt_{}", m.law_revision_id),
+                        "event_type": event_type,
+                        "target_law_id": law.law_id,
+                        "amending_law_id": m.amendment_law_id,
+                        "amending_law_num": m.amendment_law_num,
+                        "amending_law_title": m.amendment_law_title,
+                        "promulgation_date": m.amendment_promulgate_date,
+                        "effective_date": m.amendment_enforcement_date,
+                        "scheduled_enforcement_date": m.amendment_scheduled_enforcement_date,
+                        "enforcement_comment": m.amendment_enforcement_comment,
+                        "revision_id": m.law_revision_id,
+                        "status": m.current_revision_status.clone().unwrap_or_else(|| "Unknown".to_string()),
+                        "repeal_status": m.repeal_status,
+                        "mission": m.mission,
+                        "kanpo": { "linked": false }
+                    })
             }));
-        }
+            events
+        } else {
+            law.revisions
+                .iter()
+                .enumerate()
+                .map(|(i, r)| {
+                    let event_type = if i == 0 { "initial" } else { "snapshot" };
+                    json!({
+                        "event_id": format!("evt_{}", r.revision_id),
+                        "event_type": event_type,
+                        "target_law_id": law.law_id,
+                        "amending_law_num": null,
+                        "promulgation_date": r.doc.promulgation_date,
+                        "effective_date": r.doc.effective_date,
+                        "revision_id": r.revision_id,
+                        "source_update_date": if r.first_seen_date.is_empty() { serde_json::Value::Null } else { serde_json::Value::String(r.first_seen_date.clone()) },
+                        "status": "snapshot",
+                        "kanpo": { "linked": false }
+                    })
+                })
+                .collect()
+        };
         write_json_pretty(
             &dir.join("timeline.json"),
             &json!({
@@ -748,18 +929,27 @@ fn write_law_documents(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
 fn write_indices(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
     let generated_at = Utc::now().to_rfc3339();
 
-    let summaries: Vec<LawSummary> = laws
+    // v2 meta があれば category / amendment 件数を index に乗せる。UI 側の
+     // mock LAWS による category マッピングを段階的に置き換えるための情報源。
+    let summaries: Vec<serde_json::Value> = laws
         .iter()
         .map(|l| {
             let d = l.current();
-            LawSummary {
-                law_id: l.law_id.clone(),
-                law_num: d.law_num.clone(),
-                title: d.title.clone(),
-                current: format!("laws/{}/current.json", l.law_id),
-                timeline: format!("laws/{}/timeline.json", l.law_id),
-                versions: format!("laws/{}/versions.json", l.law_id),
-            }
+            let category = l
+                .meta_revisions
+                .last()
+                .and_then(|m| m.category.clone());
+            let revisions_count = l.meta_revisions.len();
+            json!({
+                "law_id": l.law_id,
+                "law_num": d.law_num,
+                "title": d.title,
+                "category": category,
+                "revisions_count": revisions_count,
+                "current": format!("laws/{}/current.json", l.law_id),
+                "timeline": format!("laws/{}/timeline.json", l.law_id),
+                "versions": format!("laws/{}/versions.json", l.law_id),
+            })
         })
         .collect();
 
@@ -915,6 +1105,8 @@ pub fn rebuild_manifest(public: &Path) -> Result<()> {
         law_id: String::new(),
         revisions: Vec::new(),
         fetched_dates: BTreeMap::new(),
+                meta_revisions: Vec::new(),
+                meta_law_info: None,
     };
     let stub = vec![dummy; law_count];
     write_manifest_and_health(public, &stub)

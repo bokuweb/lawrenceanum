@@ -92,21 +92,43 @@ export type VersionsJson = {
     revision_id: string
     effective_date: string | null
     promulgation_date: string | null
-    path: string
-    source_update_date: string | null
+    /** v2 で未施行 revision のときに入る。`effective_date` は null になる。 */
+    scheduled_enforcement_date?: string | null
+    /** 改正を起こした法令 (= このリビジョンを生んだ親) のメタ。 */
+    amendment_law_id?: string | null
+    amendment_law_num?: string | null
+    amendment_law_title?: string | null
+    /** "1"=制定, "3"=改正, "8"=廃止 (e-Gov v2)。 */
+    amendment_type?: string | null
+    /** "New" (新規/全部改正) / "Partial" (一部改正)。 */
+    mission?: string | null
+    repeal_status?: string | null
+    /** "CurrentEnforced" / "PreviousEnforced" / "UnEnforced" / "Repealed"。 */
+    current_revision_status?: string | null
+    /** 本文 JSON が手元にあるかどうか。false のときは path=null。 */
+    body_available?: boolean
+    path: string | null
+    source_update_date?: string | null
   }[]
 }
 
 export type TimelineEventRaw = {
   event_id: string
+  /** "enactment" (制定) / "amendment" (改正) / "repeal" (廃止) / "snapshot" (旧仕様) */
   event_type: string
   target_law_id: string
+  amending_law_id?: string | null
   amending_law_num: string | null
+  amending_law_title?: string | null
   promulgation_date: string | null
   effective_date: string | null
-  revision_id: string
+  scheduled_enforcement_date?: string | null
+  enforcement_comment?: string | null
+  revision_id: string | null
   source_update_date?: string | null
   status: string
+  repeal_status?: string | null
+  mission?: string | null
   kanpo: {
     linked: boolean
     path?: string

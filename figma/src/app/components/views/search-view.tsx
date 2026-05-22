@@ -137,8 +137,10 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
               hits.length === 0 && q ? (
                 <div className="text-center py-12 text-sm text-muted-foreground">該当する条文がありません</div>
               ) : (
-                hits.map(h => (
-                  <Card key={`${h.law_id}-${h.article_id}`} className="hover:border-primary/50 transition-colors cursor-pointer" onClick={() => {
+                hits.map((h, i) => (
+                  // FTS5 が同じ article に対し複数ヒットを返す (snippet 位置違い) ケース
+                  // があり law_id+article_id だけだと key 衝突する。順序 index を足す。
+                  <Card key={`${h.law_id}-${h.article_id}-${i}`} className="hover:border-primary/50 transition-colors cursor-pointer" onClick={() => {
                     // 条文 hit から法令詳細へ。article_id は URL ハッシュに乗せたいが
                     // 現状 Browse 詳細は scroll 制御を持っていないので、まず法令単位で開く。
                     onOpen({

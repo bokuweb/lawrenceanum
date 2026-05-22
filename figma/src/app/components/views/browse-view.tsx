@@ -376,18 +376,35 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
           <div className="max-w-3xl">
             <div className="space-y-4">
               {useLiveTimeline ? (
-                liveEvents.map((e, i) => (
+                liveEvents.map((e, i) => {
+                  // event_type → ラベルとカラー。
+                  const typeLabel =
+                    e.event_type === "enactment" ? "制定"
+                    : e.event_type === "amendment" ? "改正"
+                    : e.event_type === "repeal" ? "廃止"
+                    : e.event_type === "snapshot" ? "snapshot"
+                    : e.event_type;
+                  // status → 表示テキスト + dot 色。e-Gov v2 由来。
+                  const statusInfo =
+                    e.status === "CurrentEnforced" ? { label: "現行", dot: "bg-emerald-500" }
+                    : e.status === "PreviousEnforced" ? { label: "旧版", dot: "bg-zinc-400" }
+                    : e.status === "UnEnforced" ? { label: "施行待ち", dot: "bg-amber-500" }
+                    : e.status === "Repealed" ? { label: "廃止済", dot: "bg-red-500" }
+                    : e.status === "Enacted" ? { label: "制定", dot: "bg-emerald-500" }
+                    : { label: e.status || "snapshot", dot: "bg-emerald-500" };
+                  return (
                   <div key={e.event_id} className="flex gap-4">
                     <div className="flex flex-col items-center">
-                      <div className="size-3 rounded-full bg-emerald-500 ring-4 ring-background" />
+                      <div className={`size-3 rounded-full ${statusInfo.dot} ring-4 ring-background`} />
                       {i < liveEvents.length - 1 && <div className="w-px flex-1 bg-border mt-1" />}
                     </div>
                     <Card className="flex-1 mb-2">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
-                            <Badge variant="secondary">{e.status}</Badge>
-                            <span className="text-xs text-muted-foreground">{e.event_type}</span>
+                            <Badge variant="secondary">{statusInfo.label}</Badge>
+                            <span className="text-xs text-muted-foreground">{typeLabel}</span>
+                            {e.mission && <span className="text-xs text-muted-foreground">{e.mission === "New" ? "新規/全部" : "一部"}</span>}
                           </div>
                           {e.kanpo?.linked && (
                             <Badge variant="outline" className="text-xs">
@@ -395,19 +412,27 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
                             </Badge>
                           )}
                         </div>
-                        <div className="text-sm">rev {e.revision_id}</div>
-                        {e.amending_law_num && (
-                          <div className="text-xs text-muted-foreground mt-2">{e.amending_law_num}</div>
+                        {e.amending_law_title && (
+                          <div className="text-sm">{e.amending_law_title}</div>
                         )}
-                        <div className="flex gap-4 text-xs text-muted-foreground mt-2">
+                        {e.amending_law_num && (
+                          <div className="text-xs text-muted-foreground mt-1">{e.amending_law_num}</div>
+                        )}
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mt-2">
                           {e.promulgation_date && <span>公布 {e.promulgation_date}</span>}
                           {e.effective_date && <span>施行 {e.effective_date}</span>}
-                          {e.source_update_date && <span>取込 {e.source_update_date}</span>}
+                          {!e.effective_date && e.scheduled_enforcement_date && (
+                            <span>施行予定 {e.scheduled_enforcement_date}</span>
+                          )}
                         </div>
+                        {e.enforcement_comment && (
+                          <div className="text-xs text-muted-foreground mt-1">{e.enforcement_comment}</div>
+                        )}
                       </CardContent>
                     </Card>
                   </div>
-                ))
+                  );
+                })
               ) : (
                 <>
                   {mockEvents.length === 0 && <div className="text-sm text-muted-foreground">改正履歴はありません</div>}
