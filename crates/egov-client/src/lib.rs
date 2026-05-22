@@ -29,6 +29,52 @@ pub struct UpdateBatch {
     pub laws: Vec<FetchedLaw>,
 }
 
+/// v2 `/law_revisions/{id}` のレスポンスを我々の保存形に整えたもの。
+/// 不要なフィールド (kana 等) は捨てる。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LawInfoV2 {
+    pub law_id: String,
+    pub law_num: Option<String>,
+    pub law_num_era: Option<String>,
+    pub law_num_year: Option<i64>,
+    pub law_num_type: Option<String>,
+    pub promulgation_date: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RevisionMeta {
+    pub law_revision_id: String,
+    pub law_title: Option<String>,
+    pub category: Option<String>,
+    /// 改正法令の公布日 (= このリビジョンの起点)
+    pub amendment_promulgate_date: Option<String>,
+    /// 改正法令の施行日 (None なら未施行)
+    pub amendment_enforcement_date: Option<String>,
+    pub amendment_scheduled_enforcement_date: Option<String>,
+    pub amendment_law_id: Option<String>,
+    pub amendment_law_title: Option<String>,
+    pub amendment_law_num: Option<String>,
+    /// 1=制定, 3=改正, 8=廃止 など。
+    pub amendment_type: Option<String>,
+    /// "None"/"Repeal"/"Expire" など。
+    pub repeal_status: Option<String>,
+    pub repeal_date: Option<String>,
+    /// "Enforced" / "UnEnforced" / "Repealed" 等。
+    pub current_revision_status: Option<String>,
+    /// "New" (新規制定/全部改正) / "Partial" (一部改正)。
+    pub mission: Option<String>,
+    pub remain_in_force: Option<bool>,
+    pub amendment_enforcement_comment: Option<String>,
+    /// e-Gov 側の更新タイムスタンプ。
+    pub updated: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LawRevisionList {
+    pub law_info: LawInfoV2,
+    pub revisions: Vec<RevisionMeta>,
+}
+
 pub trait EgovProvider: Send + Sync {
     fn fetch_update(&self, date: &str) -> Result<UpdateBatch>;
 
@@ -75,11 +121,133 @@ impl EgovProvider for MockProvider {
 
 pub struct HttpProvider {
     base_url: String,
+    v2_base_url: String,
 }
 
 impl HttpProvider {
     pub fn new(base_url: impl Into<String>) -> Self {
-        Self { base_url: base_url.into().trim_end_matches('/').to_string() }
+        let base_url = base_url.into().trim_end_matches('/').to_string();
+        // v2 ベースは env で上書き可、未指定なら公開エンドポイント。
+        // 既存 v1 配信が止まる前の retrofit/差分用に独立 URL として持つ。
+        let v2_base_url = std::env::var("LAWPUB_EGOV_V2_BASE_URL")
+            .unwrap_or_else(|_| "https://laws.e-gov.go.jp/api/2".to_string())
+            .trim_end_matches('/')
+            .to_string();
+        Self { base_url, v2_base_url }
+    }
+
+    /// v2 `/law_revisions/{law_id}` を叩いて改正履歴メタデータを取得する。
+    /// 全件 backfill (8990 法令分) と、cron 差分 (毎日数件) の両方の入口。
+    pub fn fetch_law_revisions(&self, law_id: &str) -> Result<LawRevisionList> {
+        let client = Self::client()?;
+        let url = format!(
+            "{}/law_revisions/{}?response_format=json",
+            self.v2_base_url, law_id
+        );
+        let bytes = Self::get_json_with_retry(&client, &url)?;
+        let parsed: serde_json::Value =
+            serde_json::from_slice(&bytes).context("parse law_revisions JSON")?;
+        let li = &parsed["law_info"];
+        let law_info = LawInfoV2 {
+            law_id: li["law_id"].as_str().unwrap_or(law_id).to_string(),
+            law_num: li["law_num"].as_str().map(String::from),
+            law_num_era: li["law_num_era"].as_str().map(String::from),
+            law_num_year: li["law_num_year"].as_i64(),
+            law_num_type: li["law_num_type"].as_str().map(String::from),
+            promulgation_date: li["promulgation_date"].as_str().map(String::from),
+        };
+        let revisions = parsed["revisions"]
+            .as_array()
+            .cloned()
+            .unwrap_or_default()
+            .into_iter()
+            .map(|v| RevisionMeta {
+                law_revision_id: v["law_revision_id"].as_str().unwrap_or("").to_string(),
+                law_title: v["law_title"].as_str().map(String::from),
+                category: v["category"].as_str().map(String::from),
+                amendment_promulgate_date: v["amendment_promulgate_date"]
+                    .as_str()
+                    .map(String::from),
+                amendment_enforcement_date: v["amendment_enforcement_date"]
+                    .as_str()
+                    .map(String::from),
+                amendment_scheduled_enforcement_date: v["amendment_scheduled_enforcement_date"]
+                    .as_str()
+                    .map(String::from),
+                amendment_law_id: v["amendment_law_id"].as_str().map(String::from),
+                amendment_law_title: v["amendment_law_title"].as_str().map(String::from),
+                amendment_law_num: v["amendment_law_num"].as_str().map(String::from),
+                amendment_type: v["amendment_type"].as_str().map(String::from),
+                repeal_status: v["repeal_status"].as_str().map(String::from),
+                repeal_date: v["repeal_date"].as_str().map(String::from),
+                current_revision_status: v["current_revision_status"]
+                    .as_str()
+                    .map(String::from),
+                mission: v["mission"].as_str().map(String::from),
+                remain_in_force: v["remain_in_force"].as_bool(),
+                amendment_enforcement_comment: v["amendment_enforcement_comment"]
+                    .as_str()
+                    .map(String::from),
+                updated: v["updated"].as_str().map(String::from),
+            })
+            .collect();
+        Ok(LawRevisionList { law_info, revisions })
+    }
+
+    /// v2 `/law_data/{law_revision_id}` で時点指定の本文 XML を取る。
+    /// `law_revision_id` は `LAWID_YYYYMMDD_AMENDLAWID` 形式。既存 parser に流せる
+    /// よう response_format=xml を明示要求する。
+    pub fn fetch_revision_body(&self, revision_id: &str) -> Result<Vec<u8>> {
+        let client = Self::client()?;
+        let url = format!(
+            "{}/law_data/{}?response_format=xml",
+            self.v2_base_url, revision_id
+        );
+        Self::get_with_retry(&client, &url).and_then(Self::maybe_unzip_xml)
+    }
+
+    /// JSON 応答用の retry。`looks_like_egov_xml` の代わりに先頭が `{`/`[` か
+    /// で簡易チェックし、HTML エラーページや空応答は soft-404 として再試行する。
+    fn get_json_with_retry(
+        client: &reqwest::blocking::Client,
+        url: &str,
+    ) -> Result<Vec<u8>> {
+        let mut last_err: Option<anyhow::Error> = None;
+        let attempts = 5;
+        for attempt in 0..attempts {
+            let res = client
+                .get(url)
+                .header("Accept", "application/json")
+                .send()
+                .and_then(|r| r.error_for_status());
+            match res {
+                Ok(resp) => match resp.bytes() {
+                    Ok(b) => {
+                        let bytes = b.to_vec();
+                        let head_idx = bytes.iter().position(|c| !c.is_ascii_whitespace());
+                        let head_byte = head_idx.and_then(|i| bytes.get(i)).copied();
+                        if head_byte == Some(b'{') || head_byte == Some(b'[') {
+                            return Ok(bytes);
+                        }
+                        last_err = Some(anyhow!(
+                            "non-JSON response (possible rate-limit / soft-404)"
+                        ));
+                    }
+                    Err(e) => last_err = Some(anyhow!(e)),
+                },
+                Err(e) => last_err = Some(anyhow!(e)),
+            }
+            let secs: u64 = match attempt {
+                0 => 1,
+                1 => 3,
+                2 => 6,
+                3 => 12,
+                _ => 24,
+            };
+            std::thread::sleep(Duration::from_secs(secs));
+        }
+        Err(last_err.unwrap_or_else(|| anyhow!("unknown fetch error")))
+            .with_context(|| format!("GET {url}"))
     }
 
     fn client() -> Result<reqwest::blocking::Client> {

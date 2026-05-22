@@ -20,6 +20,7 @@ hex.workspace = true
 walkdir.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
+rayon.workspace = true
 egov-client = { path = "../egov-client" }
 law-normalizer = { path = "../law-normalizer" }
 kanpo-client = { path = "../kanpo-client" }

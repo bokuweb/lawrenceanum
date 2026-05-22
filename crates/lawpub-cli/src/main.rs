@@ -81,6 +81,28 @@ enum Cmd {
         #[arg(long)]
         force: bool,
     },
+    /// e-Gov v2 `/law_revisions/{id}` で改正履歴メタを取得し
+    /// `.cache/revisions_meta/{law_id}.json` に保存する。
+    ///
+    /// 指定方法は二択:
+    /// - `--law-id <ID>`: 単一法令のみ取得 (テストや差分用)
+    /// - `--all`: `.cache/revisions/` 以下の全法令を順に取得 (一括 backfill 用)
+    FetchRevisions {
+        #[arg(long, conflicts_with = "all")]
+        law_id: Option<String>,
+        /// `.cache/revisions/` に既にある全法令ぶん取得する。
+        #[arg(long, conflicts_with = "law_id")]
+        all: bool,
+        /// 並列度。e-Gov v2 もレートリミットがあるので控えめに (既定 2)。
+        #[arg(long, default_value_t = 2)]
+        concurrency: usize,
+        /// 既に `revisions_meta/{id}.json` が存在する場合に上書きするかどうか。
+        /// 未指定なら skip して resume 友好的に振る舞う。
+        #[arg(long)]
+        force: bool,
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+    },
     /// 官報の日付ページを取得する (Phase 3 placeholder)。
     KanpoFetch {
         #[arg(long)]
@@ -122,6 +144,9 @@ fn main() -> Result<()> {
         Cmd::FetchRange { from, to, cache, provider } => build::run_fetch_range(&from, &to, &cache, &provider),
         Cmd::FetchBulk { category, limit, cache, provider } => {
             build::run_fetch_bulk(category, limit, &cache, &provider)
+        }
+        Cmd::FetchRevisions { law_id, all, concurrency, force, cache } => {
+            build::run_fetch_revisions(law_id.as_deref(), all, concurrency, force, &cache)
         }
         Cmd::KanpoFetch { date, cache } => kanpo::run_fetch(&date, &cache),
         Cmd::KanpoLink { output } => kanpo::run_link(&output),

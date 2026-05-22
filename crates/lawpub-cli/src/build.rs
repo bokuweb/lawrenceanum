@@ -27,6 +27,129 @@ fn provider_by_name(name: &str) -> Result<Box<dyn EgovProvider>> {
     }
 }
 
+/// v2 メタ取得用の HttpProvider を作る。`LAWPUB_EGOV_V2_BASE_URL` が未設定なら
+/// HttpProvider 内部で公開エンドポイントにフォールバックする。
+fn http_provider_v2() -> egov_client::HttpProvider {
+    // base_url は v1 ベース。HttpProvider 内で v2_base_url を別途解決する。
+    let base = std::env::var("LAWPUB_EGOV_BASE_URL")
+        .unwrap_or_else(|_| "https://laws.e-gov.go.jp/api/1".to_string());
+    egov_client::HttpProvider::new(base)
+}
+
+/// `.cache/revisions_meta/{law_id}.json` に v2 改正履歴を保存する。
+/// 全件 backfill / 単一 law の両モードを使い分け、resume するため既に
+/// ファイルがあれば既定で skip する。
+pub fn run_fetch_revisions(
+    law_id: Option<&str>,
+    all: bool,
+    concurrency: usize,
+    force: bool,
+    cache: &Path,
+) -> Result<()> {
+    let meta_dir = cache.join("revisions_meta");
+    std::fs::create_dir_all(&meta_dir).context("create revisions_meta dir")?;
+
+    let targets: Vec<String> = if let Some(id) = law_id {
+        vec![id.to_string()]
+    } else if all {
+        // 既に bulk で revisions/{id}/ が出来ているはずなので、それを対象に。
+        let revisions_dir = cache.join("revisions");
+        if !revisions_dir.exists() {
+            anyhow::bail!(
+                "{} not found — run `lawpub fetch-bulk` first",
+                revisions_dir.display()
+            );
+        }
+        std::fs::read_dir(&revisions_dir)?
+            .flatten()
+            .filter_map(|e| {
+                e.file_type().ok().and_then(|t| {
+                    if t.is_dir() {
+                        e.file_name().to_str().map(String::from)
+                    } else {
+                        None
+                    }
+                })
+            })
+            .collect()
+    } else {
+        anyhow::bail!("specify --law-id <ID> or --all");
+    };
+    tracing::info!(
+        "fetch-revisions: {} target(s), concurrency={}, force={}",
+        targets.len(),
+        concurrency,
+        force
+    );
+
+    let provider = http_provider_v2();
+    let counter = std::sync::atomic::AtomicUsize::new(0);
+    let errors = std::sync::Mutex::new(Vec::<(String, String)>::new());
+    let total = targets.len();
+    let concurrency = concurrency.clamp(1, 16);
+
+    let pool = rayon::ThreadPoolBuilder::new()
+        .num_threads(concurrency)
+        .build()
+        .context("rayon pool")?;
+    pool.install(|| {
+        use rayon::prelude::*;
+        targets.par_iter().for_each(|id| {
+            let out = meta_dir.join(format!("{}.json", id));
+            if out.exists() && !force {
+                let n = counter.fetch_add(1, std::sync::atomic::Ordering::Relaxed) + 1;
+                if n % 500 == 0 {
+                    tracing::info!("fetch-revisions: {}/{} (skipped existing)", n, total);
+                }
+                return;
+            }
+            match provider.fetch_law_revisions(id) {
+                Ok(list) => {
+                    let body = match serde_json::to_vec_pretty(&list) {
+                        Ok(b) => b,
+                        Err(e) => {
+                            errors
+                                .lock()
+                                .unwrap()
+                                .push((id.clone(), format!("serialize: {e}")));
+                            return;
+                        }
+                    };
+                    if let Err(e) = std::fs::write(&out, body) {
+                        errors
+                            .lock()
+                            .unwrap()
+                            .push((id.clone(), format!("write: {e}")));
+                    }
+                }
+                Err(e) => {
+                    errors.lock().unwrap().push((id.clone(), format!("{e:#}")));
+                }
+            }
+            let n = counter.fetch_add(1, std::sync::atomic::Ordering::Relaxed) + 1;
+            if n % 100 == 0 {
+                tracing::info!("fetch-revisions: {}/{}", n, total);
+            }
+        });
+    });
+
+    let errs = errors.into_inner().unwrap();
+    if !errs.is_empty() {
+        tracing::warn!("fetch-revisions: {} errors", errs.len());
+        for (id, msg) in errs.iter().take(10) {
+            tracing::warn!("  {id}: {msg}");
+        }
+        if errs.len() > 10 {
+            tracing::warn!("  ... and {} more", errs.len() - 10);
+        }
+    }
+    tracing::info!(
+        "fetch-revisions done: written to {}",
+        meta_dir.display()
+    );
+    Ok(())
+}
+
 pub fn run_fetch_update(date: &str, cache: &Path, provider: &str) -> Result<usize> {
     let p = provider_by_name(provider)?;
     let batch = p.fetch_update(date)?;
