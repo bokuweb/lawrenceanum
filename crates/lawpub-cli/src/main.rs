@@ -103,6 +103,19 @@ enum Cmd {
         #[arg(long, default_value = ".cache")]
         cache: PathBuf,
     },
+    /// `.cache/revisions_meta/{law_id}.json` を 1 ファイルにまとめる/展開する。
+    /// 単一の JSONL (= `{"law_id":..., "law_info":..., "revisions":[...]}` を法令毎に1行)。
+    /// R2 等へのアップロードと CI 復元を 1 ファイル単位で扱うためのユーティリティ。
+    BundleRevisionsMeta {
+        /// pack: `.cache/revisions_meta/*.json` を読み込み 1 ファイルにまとめる。
+        /// unpack: 1 ファイルを読み 法令毎の JSON を `--in-dir` に書き出す。
+        #[arg(long, value_parser = ["pack", "unpack"])]
+        mode: String,
+        #[arg(long, default_value = ".cache/revisions_meta")]
+        dir: PathBuf,
+        #[arg(long, default_value = ".cache/revisions_meta.jsonl")]
+        file: PathBuf,
+    },
     /// 官報の日付ページを取得する (Phase 3 placeholder)。
     KanpoFetch {
         #[arg(long)]
@@ -147,6 +160,9 @@ fn main() -> Result<()> {
         }
         Cmd::FetchRevisions { law_id, all, concurrency, force, cache } => {
             build::run_fetch_revisions(law_id.as_deref(), all, concurrency, force, &cache)
+        }
+        Cmd::BundleRevisionsMeta { mode, dir, file } => {
+            build::run_bundle_revisions_meta(&mode, &dir, &file)
         }
         Cmd::KanpoFetch { date, cache } => kanpo::run_fetch(&date, &cache),
         Cmd::KanpoLink { output } => kanpo::run_link(&output),

@@ -102,6 +102,28 @@ jobs:
       - name: Build lawpub
         run: cargo build --release -p lawpub-cli
 
+      # 改正履歴メタ (revisions_meta.jsonl) を R2 から復元する。
+      # 手元で `lawpub fetch-revisions --all` を回した後 `bundle pack` で 1 ファイル
+      # にして R2 にアップロードしてある想定。無ければ skip して進む (= 旧挙動)。
+      - name: Restore revisions_meta from R2
+        if: env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          mkdir -p .cache
+          if aws s3 cp "s3://$R2_BUCKET/revisions_meta.jsonl" .cache/revisions_meta.jsonl --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            ls -lh .cache/revisions_meta.jsonl
+            ./target/release/lawpub bundle-revisions-meta --mode unpack \
+              --file .cache/revisions_meta.jsonl --dir .cache/revisions_meta
+            echo "::notice::revisions_meta: $(ls .cache/revisions_meta | wc -l) files restored"
+          else
+            echo "::warning::revisions_meta.jsonl not found in R2 — skipping (timeline will only have snapshot events)"
+          fi
+
       # main merge では既に commit 済の public/ を使う。e-Gov へは触らずに deploy だけ走る。
       - name: Mark force-deploy (push to main)
         if: github.event_name == 'push'

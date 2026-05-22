@@ -271,6 +271,39 @@ gh workflow run update-law-data.yml -f bulk_category=2 -f bulk_limit=500
 gh workflow run update-law-data.yml -f force=true
 ```
 
+### One-time amendment-history backfill (e-Gov API v2)
+
+`/api/1/lawdata/{id}` (currently used by bulk/cron) only returns the law's *current*
+snapshot — no historical revisions. To populate the timeline with actual amendment
+history (e.g. 民法 has ~33 revisions back to Heisei era), we use e-Gov API v2's
+`/law_revisions/{id}` endpoint. This is a one-time backfill done **locally** (not in
+Actions) because it makes ~9000 requests and would be slow / risky in CI.
+
+```bash
+# 1. Pull the existing .cache/revisions/ down from the CI cache if you don't have it
+#    locally (the bulk fetch ran in Actions). Skip if you already have a local bulk.
+#    Alternatively just re-run `lawpub fetch-bulk --category 1/2/3` locally.
+
+# 2. Fetch the full revision history for every law in the cache. Concurrency 2 is
+#    e-Gov-friendly (CloudFront rate-limits at ~4+). Resumes if interrupted.
+./target/release/lawpub fetch-revisions --all --concurrency 2
+
+# 3. Pack the per-law JSONs into a single jsonl for shipping.
+./target/release/lawpub bundle-revisions-meta --mode pack \
+  --dir .cache/revisions_meta --file .cache/revisions_meta.jsonl
+
+# 4. Upload to R2. CI's "Restore revisions_meta from R2" step picks it up.
+aws s3 cp .cache/revisions_meta.jsonl \
+  "s3://$R2_BUCKET/revisions_meta.jsonl" --endpoint-url "$R2_ENDPOINT"
+
+# 5. Trigger a force rebuild so build-json picks up the new meta.
+gh workflow run "Update law JSON" -f force=true
+```
+
+After this, the cron path (`lawpub update`) refreshes the meta for *only* the
+laws updated that day, so the timeline stays fresh without re-running the
+full backfill.
+
 Priority is `bulk_category > from_date/to_date > date > automatic state-based`.
 Bulk runs do thousands of requests × 200 ms throttle, so the workflow's
 `timeout-minutes` is 360. If a bulk run dies partway through, the in-job

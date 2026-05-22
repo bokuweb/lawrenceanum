@@ -150,6 +150,85 @@ pub fn run_fetch_revisions(
     Ok(())
 }
 
+/// `.cache/revisions_meta/{id}.json` を 1 つの JSONL に pack / unpack する。
+/// pack: ディレクトリの全 JSON を 1 行 1 法令の JSONL にまとめる
+///       (`{"law_id":"...","law_info":{...},"revisions":[...]}`)。
+/// unpack: 同形式の JSONL を法令毎の JSON ファイルに展開する。
+pub fn run_bundle_revisions_meta(mode: &str, dir: &Path, file: &Path) -> Result<()> {
+    match mode {
+        "pack" => {
+            anyhow::ensure!(dir.exists(), "{} not found", dir.display());
+            if let Some(parent) = file.parent() {
+                std::fs::create_dir_all(parent)?;
+            }
+            let mut writer = std::io::BufWriter::new(std::fs::File::create(file)?);
+            use std::io::Write;
+            let mut count = 0usize;
+            for entry in std::fs::read_dir(dir)? {
+                let entry = entry?;
+                let p = entry.path();
+                if p.extension().and_then(|s| s.to_str()) != Some("json") {
+                    continue;
+                }
+                let law_id = match p.file_stem().and_then(|s| s.to_str()) {
+                    Some(s) => s.to_string(),
+                    None => continue,
+                };
+                let bytes = std::fs::read(&p)?;
+                let mut v: serde_json::Value = match serde_json::from_slice(&bytes) {
+                    Ok(v) => v,
+                    Err(e) => {
+                        tracing::warn!("skip bad meta {}: {e:#}", p.display());
+                        continue;
+                    }
+                };
+                if let Some(obj) = v.as_object_mut() {
+                    obj.insert("law_id".to_string(), serde_json::Value::String(law_id));
+                }
+                let line = serde_json::to_vec(&v)?;
+                writer.write_all(&line)?;
+                writer.write_all(b"\n")?;
+                count += 1;
+            }
+            writer.flush()?;
+            tracing::info!("bundle pack: wrote {count} laws to {}", file.display());
+            Ok(())
+        }
+        "unpack" => {
+            anyhow::ensure!(file.exists(), "{} not found", file.display());
+            std::fs::create_dir_all(dir)?;
+            let reader = std::io::BufReader::new(std::fs::File::open(file)?);
+            use std::io::BufRead;
+            let mut count = 0usize;
+            for (i, line) in reader.lines().enumerate() {
+                let line = line?;
+                if line.trim().is_empty() {
+                    continue;
+                }
+                let v: serde_json::Value = serde_json::from_str(&line)
+                    .with_context(|| format!("parse line {} of {}", i + 1, file.display()))?;
+                let law_id = match v.get("law_id").and_then(|s| s.as_str()) {
+                    Some(s) => s.to_string(),
+                    None => {
+                        tracing::warn!("line {} has no law_id, skipping", i + 1);
+                        continue;
+                    }
+                };
+                let mut out = v.clone();
+                if let Some(obj) = out.as_object_mut() {
+                    obj.remove("law_id");
+                }
+                let body = serde_json::to_vec_pretty(&out)?;
+                std::fs::write(dir.join(format!("{}.json", law_id)), body)?;
+                count += 1;
+            }
+            tracing::info!("bundle unpack: wrote {count} files to {}", dir.display());
+            Ok(())
+        }
+        other => anyhow::bail!("unknown mode: {other} (expected pack|unpack)"),
+    }
+}
+
 pub fn run_fetch_update(date: &str, cache: &Path, provider: &str) -> Result<usize> {
     let p = provider_by_name(provider)?;
     let batch = p.fetch_update(date)?;
