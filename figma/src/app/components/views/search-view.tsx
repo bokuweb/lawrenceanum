@@ -9,7 +9,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { type LawSummary } from "../mock-data";
 import { Search, SlidersHorizontal, ChevronRight, FileText, Database } from "lucide-react";
 import { useLaws } from "../../data/use-laws";
-import { search as ftsSearch, getMeta as getFtsMeta, getCategories, unbigramSnippet, type SearchHit } from "../../data/search-engine";
+import { search as ftsSearch, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, type SearchHit } from "../../data/search-engine";
 
 export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initialQuery?: string; onOpen: (l: LawSummary) => void; onQueryChange?: (q: string) => void }) {
   const [q, setQ] = useState(initialQuery);
@@ -63,6 +63,9 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   // FTS が使えるかどうかで表示モードを切り替える。
   const useFts = ftsAvailable === true;
   const resultCount = useFts ? hits.length : filteredLaws.length;
+  // bigram index は 2 文字以上でないと検索できない。クエリはあるが
+  // 使えるトークン (2 文字以上) が 1 つも無いとき = 短すぎ。
+  const tooShort = useFts && q.trim() !== "" && buildFtsMatch(q.trim()) === "";
 
   return (
     <div className="p-6">
@@ -143,6 +146,17 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
                   FTS5 / 法令 {ftsMeta.law_count} · 条文 {ftsMeta.article_count} を全文検索
                 </div>
               )}
+            </div>
+          ) : tooShort ? (
+            // bigram index の制約で 1 文字検索は不可。2 文字以上を促す。
+            <div className="flex flex-col items-center justify-center text-center py-20 gap-2">
+              <div className="size-14 rounded-full bg-muted flex items-center justify-center">
+                <Search className="size-6 text-muted-foreground" />
+              </div>
+              <div className="text-sm">2 文字以上で検索してください</div>
+              <div className="text-xs text-muted-foreground">
+                全文検索は 2 文字単位 (bigram) で索引しているため、1 文字では検索できません
+              </div>
             </div>
           ) : (
             <>

@@ -88,16 +88,17 @@ export function tokenizeForFts(text: string): string {
 /**
  * クエリ文字列を FTS5 の MATCH 式に変換する。
  *
- * content は文字 bigram で索引されているため、1 文字 CJK のクエリ
- * (例: 「あ」) は exact では bigram トークンに当たらず ほぼ 0 件になる。
- * 1 文字トークンは prefix クエリ (`あ*`) にして「あ で始まる bigram」
- * = 実質「あ を含む条文」を拾えるようにする。
+ * content は文字 bigram で索引されているため、1 文字トークンは検索に使えない:
+ * - exact (`あ`) → bigram トークンに当たらず ほぼ 0 件
+ * - prefix (`あ*`) → prefix index が無いので httpvfs 上で FTS index を
+ *   ほぼ全スキャンし 30s 超でハングする
  *
- * 2 文字以上のトークン (= bigram そのもの) は exact のまま。
+ * よって 1 文字トークンは捨て、2 文字以上のトークン (= bigram) だけ残す。
+ * 全トークンが 1 文字なら空文字を返す → 呼び出し側で「2文字以上」を促す。
  */
 export function buildFtsMatch(text: string): string {
   return tokenize(text)
-    .map(t => (Array.from(t).length === 1 ? `${t}*` : t))
+    .filter(t => Array.from(t).length >= 2)
     .join(" ");
 }
 
