@@ -241,11 +241,12 @@ jobs:
           echo "::notice::event=${{ github.event_name }} changed=$changed new_xmls=$new_xmls"
           jq . state/last_run.json || true
 
+      # pnpm のバージョンは root package.json の `packageManager` フィールドから
+      # 解決する。ここで version を併記すると pnpm/action-setup@v4 が二重指定で
+      # 落ちる (ERR_PNPM_BAD_PM_VERSION)。
       - name: Setup pnpm
         if: steps.detect.outputs.changed == 'true'
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Setup Node
         if: steps.detect.outputs.changed == 'true'
