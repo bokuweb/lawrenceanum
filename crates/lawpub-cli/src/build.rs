@@ -158,6 +158,42 @@ pub fn run_fetch_update(date: &str, cache: &Path, provider: &str) -> Result<usiz
         "date={date}: provider returned {} laws, {new_xmls} new XML(s) cached",
         batch.laws.len()
     );
+    // 差分対象の各 law の改正履歴メタも同時に refresh する。
+    // - provider が "mock" の場合は v2 API を叩かないので skip。
+    // - 失敗しても warn にとどめ、本体 (XML 取得) 成功は壊さない。
+    // - 件数は通常 0〜数件なので並列化せず逐次 (rate-limit 安全側)。
+    if provider == "http" && !batch.laws.is_empty() {
+        let v2 = http_provider_v2();
+        let meta_dir = cache.join("revisions_meta");
+        if let Err(e) = std::fs::create_dir_all(&meta_dir) {
+            tracing::warn!("create revisions_meta dir failed: {e}");
+        } else {
+            for l in &batch.laws {
+                match v2.fetch_law_revisions(&l.law_id) {
+                    Ok(list) => match serde_json::to_vec_pretty(&list) {
+                        Ok(body) => {
+                            if let Err(e) =
+                                std::fs::write(meta_dir.join(format!("{}.json", l.law_id)), body)
+                            {
+                                tracing::warn!(
+                                    "refresh revisions_meta for {}: write failed: {e}",
+                                    l.law_id
+                                );
+                            }
+                        }
+                        Err(e) => tracing::warn!(
+                            "refresh revisions_meta for {}: serialize failed: {e}",
+                            l.law_id
+                        ),
+                    },
+                    Err(e) => tracing::warn!(
+                        "refresh revisions_meta for {}: fetch failed: {e:#}",
+                        l.law_id
+                    ),
+                }
+            }
+        }
+    }
     Ok(new_xmls)
 }
 
