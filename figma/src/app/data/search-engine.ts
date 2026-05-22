@@ -86,6 +86,22 @@ export function tokenizeForFts(text: string): string {
 }
 
 /**
+ * クエリ文字列を FTS5 の MATCH 式に変換する。
+ *
+ * content は文字 bigram で索引されているため、1 文字 CJK のクエリ
+ * (例: 「あ」) は exact では bigram トークンに当たらず ほぼ 0 件になる。
+ * 1 文字トークンは prefix クエリ (`あ*`) にして「あ で始まる bigram」
+ * = 実質「あ を含む条文」を拾えるようにする。
+ *
+ * 2 文字以上のトークン (= bigram そのもの) は exact のまま。
+ */
+export function buildFtsMatch(text: string): string {
+  return tokenize(text)
+    .map(t => (Array.from(t).length === 1 ? `${t}*` : t))
+    .join(" ");
+}
+
+/**
  * FTS5 snippet() の出力は事前 bigram トークン化されたテキスト
  * (例: `第三 三十 十一 一条 <mark>民法</mark> 法施 施行 ...`) で読みづらいため、
  * 隣接する CJK bigram のオーバーラップ (= 末尾 1 文字 = 先頭 1 文字) を畳んで
@@ -189,8 +205,9 @@ async function exec<T = Record<string, unknown>>(sql: string, params: unknown[] 
 }
 
 export async function search(q: string, limit = 50): Promise<SearchHit[]> {
-  const tokens = tokenizeForFts(q.trim());
-  if (!tokens) return [];
+  // 1 文字クエリは prefix (`あ*`) になる。exact だと bigram index に当たらない。
+  const match = buildFtsMatch(q.trim());
+  if (!match) return [];
   const rows = await exec<{
     law_id: string; article_id: string; article_no: string; caption: string;
     title: string; law_num: string | null; snippet: string;
@@ -203,7 +220,7 @@ export async function search(q: string, limit = 50): Promise<SearchHit[]> {
       WHERE search_fts MATCH ?
       ORDER BY rank
       LIMIT ?`,
-    [tokens, limit],
+    [match, limit],
   );
   return rows.map(r => ({
     law_id: String(r.law_id ?? ""),
