@@ -1326,8 +1326,20 @@ fn write_manifest_and_health(public: &Path, laws: &[LawWithHistory]) -> Result<(
 fn write_search_db(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
     // 現行版だけを索引対象にする。履歴 rev は法令本文との突き合わせが必要になったら検討。
     let docs: Vec<LawDocument> = laws.iter().map(|l| l.current().clone()).collect();
+    // law_id → e-Gov 法令分類。v2 meta の最新 revision の category を採用する。
+    let categories: BTreeMap<String, String> = laws
+        .iter()
+        .filter_map(|l| {
+            l.meta_revisions
+                .last()
+                .and_then(|m| m.category.clone())
+                .map(|c| (l.law_id.clone(), c))
+        })
+        .collect();
+    let categories: std::collections::HashMap<String, String> =
+        categories.into_iter().collect();
     let path = public.join("search.db");
-    search_index::build_search_db(&path, &docs)?;
+    search_index::build_search_db(&path, &docs, &categories)?;
     Ok(())
 }
 

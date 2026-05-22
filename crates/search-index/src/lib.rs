@@ -203,7 +203,15 @@ pub fn extract_self_article_refs<'a>(
     out
 }
 
-pub fn build_search_db(out_path: &Path, laws: &[LawDocument]) -> Result<()> {
+/// `laws`: 索引対象の現行版 LawDocument 群。
+/// `categories`: law_id → e-Gov 法令分類 (「民事」「行政組織」など) の対応表。
+///   FTS5 検索結果をカテゴリで絞り込めるよう `laws.category` 列に格納する。
+///   未知の law_id は NULL になる。
+pub fn build_search_db(
+    out_path: &Path,
+    laws: &[LawDocument],
+    categories: &std::collections::HashMap<String, String>,
+) -> Result<()> {
     if let Some(parent) = out_path.parent() {
         std::fs::create_dir_all(parent)?;
     }
@@ -220,8 +228,11 @@ pub fn build_search_db(out_path: &Path, laws: &[LawDocument]) -> Result<()> {
         CREATE TABLE laws (
             law_id TEXT PRIMARY KEY,
             law_num TEXT,
-            title TEXT NOT NULL
+            title TEXT NOT NULL,
+            -- e-Gov 法令分類 (50 区分)。FTS5 検索のカテゴリ絞り込みに使う。
+            category TEXT
         );
+        CREATE INDEX idx_laws_category ON laws(category);
 
         -- 条文単位 FTS5。8800 法令で約 1.5GB になるが、ブラウザは
         -- sql.js-httpvfs 経由で必要な page (4KB 単位) のみ Range fetch するので
@@ -261,8 +272,9 @@ pub fn build_search_db(out_path: &Path, laws: &[LawDocument]) -> Result<()> {
 
     let tx = conn.unchecked_transaction()?;
     {
-        let mut law_stmt =
-            tx.prepare("INSERT INTO laws (law_id, law_num, title) VALUES (?1, ?2, ?3)")?;
+        let mut law_stmt = tx.prepare(
+            "INSERT INTO laws (law_id, law_num, title, category) VALUES (?1, ?2, ?3, ?4)",
+        )?;
         let mut fts_stmt = tx.prepare(
             "INSERT INTO search_fts (law_id, article_id, article_no, caption, title_tokens, content_tokens) \
              VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
@@ -298,7 +310,12 @@ pub fn build_search_db(out_path: &Path, laws: &[LawDocument]) -> Result<()> {
         let cross_index = CrossLawIndex::build(&title_index);
 
         for d in laws {
-            law_stmt.execute(params![d.law_id, d.law_num, d.title])?;
+            law_stmt.execute(params![
+                d.law_id,
+                d.law_num,
+                d.title,
+                categories.get(&d.law_id),
+            ])?;
             let title_tokens = tokenize_for_fts(&format!(
                 "{} {}",
                 d.title,

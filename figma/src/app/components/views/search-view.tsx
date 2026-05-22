@@ -5,19 +5,17 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
-import { type LawCategory, type LawSummary } from "../mock-data";
+import { ScrollArea } from "../ui/scroll-area";
+import { type LawSummary } from "../mock-data";
 import { Search, SlidersHorizontal, ChevronRight, FileText, Database } from "lucide-react";
 import { useLaws } from "../../data/use-laws";
-import { search as ftsSearch, getMeta as getFtsMeta, unbigramSnippet, type SearchHit } from "../../data/search-engine";
-
-const CATEGORIES: LawCategory[] = ["民事", "刑事", "行政", "商事", "労働", "税務", "憲法"];
+import { search as ftsSearch, getMeta as getFtsMeta, getCategories, unbigramSnippet, type SearchHit } from "../../data/search-engine";
 
 export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initialQuery?: string; onOpen: (l: LawSummary) => void; onQueryChange?: (q: string) => void }) {
   const [q, setQ] = useState(initialQuery);
   useEffect(() => { setQ(initialQuery); }, [initialQuery]);
 
-  const [cats, setCats] = useState<Set<LawCategory>>(new Set());
-  const [statuses, setStatuses] = useState<Set<string>>(new Set());
+  const [cats, setCats] = useState<Set<string>>(new Set());
   const { laws, live: lawsLive, loading } = useLaws();
 
   // FTS 検索結果と meta。
@@ -25,12 +23,15 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   const [ftsAvailable, setFtsAvailable] = useState<boolean | null>(null);
   const [ftsMeta, setFtsMeta] = useState<Record<string, string> | null>(null);
   const [searching, setSearching] = useState(false);
+  // search.db の laws.category から取れる e-Gov 法令分類 (50 区分)。
+  const [ftsCategories, setFtsCategories] = useState<string[]>([]);
 
   useEffect(() => {
     getFtsMeta().then(m => {
       setFtsAvailable(m !== null);
       setFtsMeta(m);
     });
+    getCategories().then(setFtsCategories).catch(() => setFtsCategories([]));
   }, []);
 
   useEffect(() => {
@@ -38,19 +39,20 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
     if (ftsAvailable === false) return; // FTS 不可ならフィルタ側に倒す。
     let cancelled = false;
     setSearching(true);
-    ftsSearch(q).then(r => { if (!cancelled) { setHits(r); setSearching(false); } }).catch(() => { if (!cancelled) setSearching(false); });
+    ftsSearch(q, 50, Array.from(cats))
+      .then(r => { if (!cancelled) { setHits(r); setSearching(false); } })
+      .catch(() => { if (!cancelled) setSearching(false); });
     return () => { cancelled = true; };
-  }, [q, ftsAvailable]);
+  }, [q, ftsAvailable, cats]);
 
   // FTS 不可のときの法令単位フィルタ (旧来動作)。
   const filteredLaws = useMemo(() => {
     return laws.filter(l => {
       const matchQ = !q || l.title.includes(q) || l.law_num.includes(q) || l.law_id.includes(q);
       const matchC = cats.size === 0 || cats.has(l.category);
-      const matchS = statuses.size === 0 || statuses.has(l.status);
-      return matchQ && matchC && matchS;
+      return matchQ && matchC;
     });
-  }, [q, cats, statuses, laws]);
+  }, [q, cats, laws]);
 
   const toggle = <T,>(set: Set<T>, v: T, fn: (s: Set<T>) => void) => {
     const next = new Set(set);
@@ -84,31 +86,37 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
               <div className="flex items-center gap-2 text-sm">
                 <SlidersHorizontal className="size-4" />
                 絞り込み
-                {useFts && (
-                  <span className="ml-auto text-[10px] text-muted-foreground">FTS5 では未対応</span>
+                {cats.size > 0 && (
+                  <button
+                    className="ml-auto text-[10px] text-muted-foreground hover:text-foreground underline"
+                    onClick={() => setCats(new Set())}
+                  >
+                    クリア ({cats.size})
+                  </button>
                 )}
               </div>
               <div>
-                <Label className="text-xs text-muted-foreground mb-2 block">カテゴリ</Label>
-                <div className={"space-y-2 " + (useFts ? "opacity-40 pointer-events-none" : "")}>
-                  {CATEGORIES.map(c => (
-                    <div key={c} className="flex items-center gap-2">
-                      <Checkbox id={`c-${c}`} checked={cats.has(c)} onCheckedChange={() => toggle(cats, c, setCats)} />
-                      <Label htmlFor={`c-${c}`} className="text-sm cursor-pointer">{c}</Label>
+                <Label className="text-xs text-muted-foreground mb-2 block">
+                  カテゴリ (e-Gov 法令分類)
+                </Label>
+                {ftsCategories.length > 0 ? (
+                  <ScrollArea className="h-72 pr-3">
+                    <div className="space-y-2">
+                      {ftsCategories.map(c => (
+                        <div key={c} className="flex items-center gap-2">
+                          <Checkbox
+                            id={`c-${c}`}
+                            checked={cats.has(c)}
+                            onCheckedChange={() => toggle(cats, c, setCats)}
+                          />
+                          <Label htmlFor={`c-${c}`} className="text-sm cursor-pointer">{c}</Label>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground mb-2 block">ステータス</Label>
-                <div className={"space-y-2 " + (useFts ? "opacity-40 pointer-events-none" : "")}>
-                  {[["current", "現行"], ["amended", "改正済"], ["scheduled", "施行待ち"]].map(([k, label]) => (
-                    <div key={k} className="flex items-center gap-2">
-                      <Checkbox id={`s-${k}`} checked={statuses.has(k)} onCheckedChange={() => toggle(statuses, k, setStatuses)} />
-                      <Label htmlFor={`s-${k}`} className="text-sm cursor-pointer">{label}</Label>
-                    </div>
-                  ))}
-                </div>
+                  </ScrollArea>
+                ) : (
+                  <div className="text-xs text-muted-foreground">読み込み中…</div>
+                )}
               </div>
             </CardContent>
           </Card>

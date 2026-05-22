@@ -204,10 +204,29 @@ async function exec<T = Record<string, unknown>>(sql: string, params: unknown[] 
   return (await (w.db.query as any)(sql, params)) as T[];
 }
 
-export async function search(q: string, limit = 50): Promise<SearchHit[]> {
+/** search.db の `laws.category` に存在する e-Gov 法令分類を昇順で返す。 */
+export async function getCategories(): Promise<string[]> {
+  const rows = await exec<{ category: string }>(
+    `SELECT DISTINCT category FROM laws
+      WHERE category IS NOT NULL AND category <> ''
+      ORDER BY category`,
+  );
+  return rows.map(r => String(r.category));
+}
+
+export async function search(
+  q: string,
+  limit = 50,
+  categories: string[] = [],
+): Promise<SearchHit[]> {
   // 1 文字クエリは prefix (`あ*`) になる。exact だと bigram index に当たらない。
   const match = buildFtsMatch(q.trim());
   if (!match) return [];
+  // カテゴリ絞り込み: 選択があれば l.category IN (?, ?, ...) を足す。
+  const catFilter =
+    categories.length > 0
+      ? ` AND l.category IN (${categories.map(() => "?").join(",")})`
+      : "";
   const rows = await exec<{
     law_id: string; article_id: string; article_no: string; caption: string;
     title: string; law_num: string | null; snippet: string;
@@ -217,10 +236,10 @@ export async function search(q: string, limit = 50): Promise<SearchHit[]> {
             snippet(search_fts, 5, '<mark>', '</mark>', '...', 16) AS snippet
        FROM search_fts s
        JOIN laws l ON l.law_id = s.law_id
-      WHERE search_fts MATCH ?
+      WHERE search_fts MATCH ?${catFilter}
       ORDER BY rank
       LIMIT ?`,
-    [match, limit],
+    [match, ...categories, limit],
   );
   return rows.map(r => ({
     law_id: String(r.law_id ?? ""),
