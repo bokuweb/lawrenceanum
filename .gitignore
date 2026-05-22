@@ -14,6 +14,9 @@ figma/.vite
 figma/test-results
 figma/playwright-report
 
+# wrangler のローカル状態 (R2 ローカルシミュレーション等)
+/.wrangler
+
 # 大きな成果物は Pages artifact 経由で deploy されるが git には載せない。
 # search.db: 法令本文 FTS5 index (数十 MB)
 /public/search.db

@@ -295,13 +295,21 @@ Actions) because it makes ~9000 requests and would be slow / risky in CI.
 ./target/release/lawpub bundle-revisions-meta --mode pack \
   --dir .cache/revisions_meta --file .cache/revisions_meta.jsonl
 
-# 4. Upload to R2. CI's "Restore revisions_meta from R2" step picks it up.
-aws s3 cp .cache/revisions_meta.jsonl \
-  "s3://$R2_BUCKET/revisions_meta.jsonl" --endpoint-url "$R2_ENDPOINT"
+# 4. Upload to R2 via wrangler (uses your `wrangler login` session — no R2
+#    access key needed locally). CI's "Restore revisions_meta from R2" step
+#    later pulls the same object back via the S3 API.
+export R2_BUCKET=<bucket>
+pnpm install               # installs wrangler (root devDependency)
+pnpm upload-revisions-meta # = wrangler r2 object put "$R2_BUCKET/revisions_meta.jsonl" ...
 
 # 5. Trigger a force rebuild so build-json picks up the new meta.
 gh workflow run "Update law JSON" -f force=true
 ```
+
+The upload uses `wrangler` (a root `devDependency`); `pnpm upload-revisions-meta`
+wraps `wrangler r2 object put ... --remote`. CI reads the object back with the
+S3 API + `R2_*` secrets — upload and download paths differ but hit the same
+R2 object.
 
 After this, the cron path (`lawpub update`) refreshes the meta for *only* the
 laws updated that day, so the timeline stays fresh without re-running the
