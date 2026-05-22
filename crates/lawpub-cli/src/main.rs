@@ -87,15 +87,24 @@ enum Cmd {
     /// 指定方法は二択:
     /// - `--law-id <ID>`: 単一法令のみ取得 (テストや差分用)
     /// - `--all`: `.cache/revisions/` 以下の全法令を順に取得 (一括 backfill 用)
+    /// - `--from-public <DIR>`: `public/laws/index.json` の laws[].law_id を対象に取得
+    ///   (= git checkout だけある別端末で backfill する場合の入口)
     FetchRevisions {
-        #[arg(long, conflicts_with = "all")]
+        #[arg(long, conflicts_with_all = ["all", "from_public"])]
         law_id: Option<String>,
         /// `.cache/revisions/` に既にある全法令ぶん取得する。
-        #[arg(long, conflicts_with = "law_id")]
+        #[arg(long, conflicts_with_all = ["law_id", "from_public"])]
         all: bool,
+        /// `public/laws/index.json` の laws[] から ID を読み取って取得。
+        /// `.cache/revisions/` が手元に無い別端末でも回せる。
+        #[arg(long, value_name = "PUBLIC_DIR", conflicts_with_all = ["law_id", "all"])]
+        from_public: Option<PathBuf>,
         /// 並列度。e-Gov v2 もレートリミットがあるので控えめに (既定 2)。
         #[arg(long, default_value_t = 2)]
         concurrency: usize,
+        /// スモークテスト用の件数キャップ。指定すると先頭 N 件だけ取得。
+        #[arg(long)]
+        limit: Option<usize>,
         /// 既に `revisions_meta/{id}.json` が存在する場合に上書きするかどうか。
         /// 未指定なら skip して resume 友好的に振る舞う。
         #[arg(long)]
@@ -158,8 +167,16 @@ fn main() -> Result<()> {
         Cmd::FetchBulk { category, limit, cache, provider } => {
             build::run_fetch_bulk(category, limit, &cache, &provider)
         }
-        Cmd::FetchRevisions { law_id, all, concurrency, force, cache } => {
-            build::run_fetch_revisions(law_id.as_deref(), all, concurrency, force, &cache)
+        Cmd::FetchRevisions { law_id, all, from_public, concurrency, limit, force, cache } => {
+            build::run_fetch_revisions(
+                law_id.as_deref(),
+                all,
+                from_public.as_deref(),
+                concurrency,
+                limit,
+                force,
+                &cache,
+            )
         }
         Cmd::BundleRevisionsMeta { mode, dir, file } => {
             build::run_bundle_revisions_meta(&mode, &dir, &file)

@@ -280,13 +280,16 @@ history (e.g. 民法 has ~33 revisions back to Heisei era), we use e-Gov API v2'
 Actions) because it makes ~9000 requests and would be slow / risky in CI.
 
 ```bash
-# 1. Pull the existing .cache/revisions/ down from the CI cache if you don't have it
-#    locally (the bulk fetch ran in Actions). Skip if you already have a local bulk.
-#    Alternatively just re-run `lawpub fetch-bulk --category 1/2/3` locally.
+# 1. Smoke-test on a few laws first. ID 源は public/laws/index.json (auto-committed
+#    by Actions) なので fresh checkout でも .cache 不要で回せる。
+./target/release/lawpub fetch-revisions --from-public ./public --limit 5
 
-# 2. Fetch the full revision history for every law in the cache. Concurrency 2 is
-#    e-Gov-friendly (CloudFront rate-limits at ~4+). Resumes if interrupted.
-./target/release/lawpub fetch-revisions --all --concurrency 2
+# 2. Full backfill. Concurrency 2 is e-Gov-friendly (CloudFront rate-limits at ~4+).
+#    Resumes if interrupted; existing per-law JSONs are skipped (use --force to redo).
+./target/release/lawpub fetch-revisions --from-public ./public --concurrency 2
+
+#    Alternative: when .cache/revisions/ is already populated locally:
+# ./target/release/lawpub fetch-revisions --all --concurrency 2
 
 # 3. Pack the per-law JSONs into a single jsonl for shipping.
 ./target/release/lawpub bundle-revisions-meta --mode pack \

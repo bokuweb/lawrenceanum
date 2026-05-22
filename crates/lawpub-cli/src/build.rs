@@ -42,21 +42,23 @@ fn http_provider_v2() -> egov_client::HttpProvider {
 pub fn run_fetch_revisions(
     law_id: Option<&str>,
     all: bool,
+    from_public: Option<&Path>,
     concurrency: usize,
+    limit: Option<usize>,
     force: bool,
     cache: &Path,
 ) -> Result<()> {
     let meta_dir = cache.join("revisions_meta");
     std::fs::create_dir_all(&meta_dir).context("create revisions_meta dir")?;
 
-    let targets: Vec<String> = if let Some(id) = law_id {
+    let mut targets: Vec<String> = if let Some(id) = law_id {
         vec![id.to_string()]
     } else if all {
         // 既に bulk で revisions/{id}/ が出来ているはずなので、それを対象に。
         let revisions_dir = cache.join("revisions");
         if !revisions_dir.exists() {
             anyhow::bail!(
-                "{} not found — run `lawpub fetch-bulk` first",
+                "{} not found — run `lawpub fetch-bulk` first (or use --from-public)",
                 revisions_dir.display()
             );
         }
@@ -72,9 +74,27 @@ pub fn run_fetch_revisions(
                 })
             })
             .collect()
+    } else if let Some(public_dir) = from_public {
+        // public/laws/index.json の laws[].law_id を ID 源として使う。
+        // git checkout だけある別端末でも .cache 無しで backfill 出来る。
+        let idx_path = public_dir.join("laws").join("index.json");
+        let bytes = std::fs::read(&idx_path)
+            .with_context(|| format!("read {}", idx_path.display()))?;
+        let v: serde_json::Value = serde_json::from_slice(&bytes)
+            .with_context(|| format!("parse {}", idx_path.display()))?;
+        v["laws"]
+            .as_array()
+            .cloned()
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|e| e["law_id"].as_str().map(String::from))
+            .collect()
     } else {
-        anyhow::bail!("specify --law-id <ID> or --all");
+        anyhow::bail!("specify --law-id <ID> | --all | --from-public <DIR>");
     };
+    if let Some(n) = limit {
+        targets.truncate(n);
+    }
     tracing::info!(
         "fetch-revisions: {} target(s), concurrency={}, force={}",
         targets.len(),
