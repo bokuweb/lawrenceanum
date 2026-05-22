@@ -8,7 +8,7 @@ import { Label } from "../ui/label";
 import { type LawCategory, type LawSummary } from "../mock-data";
 import { Search, SlidersHorizontal, ChevronRight, FileText, Database } from "lucide-react";
 import { useLaws } from "../../data/use-laws";
-import { search as ftsSearch, getMeta as getFtsMeta, type SearchHit } from "../../data/search-engine";
+import { search as ftsSearch, getMeta as getFtsMeta, unbigramSnippet, type SearchHit } from "../../data/search-engine";
 
 const CATEGORIES: LawCategory[] = ["民事", "刑事", "行政", "商事", "労働", "税務", "憲法"];
 
@@ -161,13 +161,13 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
                         <div className="flex items-center gap-2 flex-wrap">
                           <span>{h.title}</span>
                           {h.article_no && <Badge variant="outline" className="text-xs">{h.article_no}</Badge>}
-                          {h.caption && <span className="text-xs text-muted-foreground">（{h.caption}）</span>}
+                          {h.caption && <span className="text-xs text-muted-foreground">{h.caption}</span>}
                         </div>
                         <div className="text-xs text-muted-foreground mt-0.5 truncate">{h.law_num ?? ""} · {h.law_id}</div>
                         {h.snippet && (
                           <div
                             className="text-sm mt-2 leading-relaxed [&>mark]:bg-amber-300/40 [&>mark]:rounded-sm [&>mark]:px-0.5"
-                            dangerouslySetInnerHTML={{ __html: h.snippet }}
+                            dangerouslySetInnerHTML={{ __html: unbigramSnippet(h.snippet) }}
                           />
                         )}
                       </div>

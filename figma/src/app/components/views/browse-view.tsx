@@ -337,7 +337,7 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
                       <header className="mb-3">
                         <div className="flex items-baseline gap-3">
                           <h2 className="text-lg">{a.article_no}</h2>
-                          {a.caption && <span className="text-sm text-muted-foreground">（{a.caption}）</span>}
+                          {a.caption && <span className="text-sm text-muted-foreground">{a.caption}</span>}
                         </div>
                         {inc.length > 0 && (
                           <div className="mt-2 flex flex-wrap gap-1.5 text-xs">

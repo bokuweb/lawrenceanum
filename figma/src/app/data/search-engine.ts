@@ -85,6 +85,60 @@ export function tokenizeForFts(text: string): string {
   return tokenize(text).join(" ");
 }
 
+/**
+ * FTS5 snippet() の出力は事前 bigram トークン化されたテキスト
+ * (例: `第三 三十 十一 一条 <mark>民法</mark> 法施 施行 ...`) で読みづらいため、
+ * 隣接する CJK bigram のオーバーラップ (= 末尾 1 文字 = 先頭 1 文字) を畳んで
+ * `第三十一条<mark>民法</mark>施行...` に復元する。
+ *
+ * - `<mark>` / `</mark>` は通過させる。直前の bigram と直後の bigram に
+ *   挟まれていても overlap 判定は維持するので、mark 跨ぎでも崩れない。
+ * - ASCII 単語同士は半角空白で区切り直す (元のスペースは separator として捨てる)。
+ * - `...` (snippet の省略マーカ) は contiguity を切る。
+ */
+export function unbigramSnippet(s: string): string {
+  type Tok = { kind: "text" | "mark"; v: string };
+  const toks: Tok[] = [];
+  let i = 0;
+  while (i < s.length) {
+    if (s.startsWith("<mark>", i)) { toks.push({ kind: "mark", v: "<mark>" }); i += 6; continue; }
+    if (s.startsWith("</mark>", i)) { toks.push({ kind: "mark", v: "</mark>" }); i += 7; continue; }
+    if (s[i] === " ") { i++; continue; }
+    // ellipsis marker "..." は前後にスペースが入らないので、bigram にくっついた
+     // `タル...` のような塊を `タル` + `...` に切る。
+    if (s.startsWith("...", i)) { toks.push({ kind: "text", v: "..." }); i += 3; continue; }
+    let j = i;
+    while (
+      j < s.length &&
+      s[j] !== " " &&
+      !s.startsWith("<mark>", j) &&
+      !s.startsWith("</mark>", j) &&
+      !s.startsWith("...", j)
+    ) j++;
+    toks.push({ kind: "text", v: s.slice(i, j) });
+    i = j;
+  }
+  const isCjkBigram = (t: string): boolean => {
+    const chars = Array.from(t);
+    return chars.length === 2 && isCjk(chars[0]) && isCjk(chars[1]);
+  };
+  let out = "";
+  let prev = "";
+  for (const t of toks) {
+    if (t.kind === "mark") { out += t.v; continue; }
+    if (t.v === "...") { out += t.v; prev = ""; continue; }
+    if (isCjkBigram(t.v) && isCjkBigram(prev) && prev[1] === t.v[0]) {
+      out += t.v[1];
+    } else {
+      const lastCh = out.length > 0 ? out[out.length - 1] : "";
+      if (lastCh && /[A-Za-z0-9]/.test(lastCh) && /[A-Za-z0-9]/.test(t.v[0])) out += " ";
+      out += t.v;
+    }
+    prev = t.v;
+  }
+  return out;
+}
+
 let workerPromise: Promise<WorkerHttpvfs | null> | null = null;
 
 async function loadWorker(): Promise<WorkerHttpvfs | null> {

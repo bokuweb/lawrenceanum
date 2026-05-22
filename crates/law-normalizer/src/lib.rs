@@ -65,6 +65,42 @@ pub struct Paragraph {
     pub text: String,
 }
 
+/// 元号 → 西暦元年 (元号1年に対応する西暦)。
+fn era_start_year(era: &str) -> Option<i32> {
+    match era {
+        "Meiji" => Some(1868),
+        "Taisho" => Some(1912),
+        "Showa" => Some(1926),
+        "Heisei" => Some(1989),
+        "Reiwa" => Some(2019),
+        _ => None,
+    }
+}
+
+/// `<Law Era="Meiji" Year="29" PromulgateMonth="04" PromulgateDay="27">` から
+/// "1896-04-27" を組み立てる。1 要素でも欠けたら None。
+fn promulgation_date_from_law_attrs(e: &quick_xml::events::BytesStart) -> Option<String> {
+    let mut era: Option<String> = None;
+    let mut year: Option<i32> = None;
+    let mut month: Option<u32> = None;
+    let mut day: Option<u32> = None;
+    for a in e.attributes().flatten() {
+        let v = String::from_utf8(a.value.into_owned()).ok()?;
+        match a.key.as_ref() {
+            b"Era" => era = Some(v),
+            b"Year" => year = v.parse().ok(),
+            b"PromulgateMonth" => month = v.parse().ok(),
+            b"PromulgateDay" => day = v.parse().ok(),
+            _ => {}
+        }
+    }
+    let start = era_start_year(era.as_deref()?)?;
+    let y = year?;
+    let m = month?;
+    let d = day?;
+    Some(format!("{:04}-{:02}-{:02}", start + y - 1, m, d))
+}
+
 pub fn sha256_hex(bytes: &[u8]) -> String {
     let mut hasher = Sha256::new();
     hasher.update(bytes);
@@ -95,6 +131,14 @@ pub fn parse_law_xml(xml: &[u8], law_id: &str) -> Result<LawDocument> {
         match reader.read_event_into(&mut buf) {
             Ok(Event::Start(e)) => {
                 let name = String::from_utf8_lossy(e.name().as_ref()).to_string();
+                // <Law Era=".." Year=".." PromulgateMonth=".." PromulgateDay=".."> 形式の
+                // 公布日 (e-Gov v1 API 実 XML はこちら) を拾う。
+                // <PromulgationDate>YYYY-MM-DD</PromulgationDate> 形式は別途 End 側で拾う。
+                if name == "Law" && promulgation_date.is_none() {
+                    if let Some(d) = promulgation_date_from_law_attrs(&e) {
+                        promulgation_date = Some(d);
+                    }
+                }
                 match name.as_str() {
                     "Article" => {
                         let num = e
@@ -308,6 +352,25 @@ mod tests {
         assert_eq!(doc.law_num.as_deref(), Some("明治二十九年法律第八十九号"));
         assert_eq!(doc.promulgation_date.as_deref(), Some("1896-04-27"));
         assert_eq!(doc.articles.len(), 1);
+    }
+
+    #[test]
+    fn parses_promulgation_date_from_law_attrs() {
+        // e-Gov v1 API 実 XML は <PromulgationDate> 要素ではなく <Law> 属性に
+        // Era / Year / PromulgateMonth / PromulgateDay を持つ。これを西暦に変換できること。
+        let xml = r#"<?xml version="1.0"?>
+<Law Era="Meiji" Year="29" PromulgateMonth="04" PromulgateDay="27">
+  <LawBody><LawTitle>民法</LawTitle><MainProvision/></LawBody>
+</Law>"#;
+        let doc = parse_law_xml(xml.as_bytes(), "129AC0000000089").unwrap();
+        assert_eq!(doc.promulgation_date.as_deref(), Some("1896-04-27"));
+
+        let xml2 = r#"<?xml version="1.0"?>
+<Law Era="Reiwa" Year="5" PromulgateMonth="06" PromulgateDay="14">
+  <LawBody><LawTitle>x</LawTitle><MainProvision/></LawBody>
+</Law>"#;
+        let doc2 = parse_law_xml(xml2.as_bytes(), "x").unwrap();
+        assert_eq!(doc2.promulgation_date.as_deref(), Some("2023-06-14"));
     }
 
     #[test]
