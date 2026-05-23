@@ -6,6 +6,7 @@ import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
 import { ScrollArea } from "../ui/scroll-area";
+import { Skeleton } from "../ui/skeleton";
 import { type LawSummary } from "../mock-data";
 import { Search, SlidersHorizontal, ChevronRight, FileText, Database } from "lucide-react";
 import { useLaws } from "../../data/use-laws";
@@ -22,7 +23,9 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [ftsAvailable, setFtsAvailable] = useState<boolean | null>(null);
   const [ftsMeta, setFtsMeta] = useState<Record<string, string> | null>(null);
-  const [searching, setSearching] = useState(false);
+  // 初期クエリがあれば検索中扱いで開始する。さもないと初回 render で
+  // hits=[] のまま「該当する条文がありません」が一瞬表示されてしまう。
+  const [searching, setSearching] = useState(() => initialQuery.trim() !== "");
   // search.db の laws.category から取れる e-Gov 法令分類 (50 区分)。
   const [ftsCategories, setFtsCategories] = useState<string[]>([]);
 
@@ -175,7 +178,23 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
 
           <div className="space-y-2">
             {useFts ? (
-              hits.length === 0 && q ? (
+              hits.length === 0 && searching ? (
+                // 検索中で結果未到達。skeleton カードを並べて待ちであることを示す。
+                <div className="space-y-2">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Card key={i}>
+                      <CardContent className="p-4 flex items-start gap-4">
+                        <Skeleton className="size-10 shrink-0" />
+                        <div className="min-w-0 flex-1 space-y-2">
+                          <Skeleton className="h-4 w-2/3" />
+                          <Skeleton className="h-3 w-1/3" />
+                          <Skeleton className="h-3 w-full" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : hits.length === 0 && q ? (
                 <div className="text-center py-12 text-sm text-muted-foreground">該当する条文がありません</div>
               ) : (
                 hits.map((h, i) => (
