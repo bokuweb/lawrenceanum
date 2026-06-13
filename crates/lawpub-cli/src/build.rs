@@ -713,14 +713,68 @@ fn diff_articles(prev: &LawDocument, cur: &LawDocument) -> ArticleDiff {
 }
 
 pub fn run_build_json(input: &Path, output: &Path) -> Result<()> {
-    let laws = collect_laws_with_history(input)?;
-    if laws.is_empty() {
+    // メモリ有界化: 法令を 1 件ずつ load → 本文ファイルを書き出し → 履歴 doc を解放する。
+    // (旧実装は全 revision の LawDocument を一括で RAM に載せ、全件履歴では 16GB を
+    //  超えて OOM していた。build-diffs は public のファイルを 1 法令ずつ読むので、
+    //  ここで履歴本文を書き出しさえすれば後段は元々有界。)
+    //
+    // グローバル索引 / 検索 / SEO は「現行 doc + meta だけ持つ軽量 Vec」から既存
+    // writer で生成する。updates の差分計算 (compute_diff) は fetched_dates を持つ
+    // 法令にだけ必要なので、その法令だけ履歴 doc を残す (日次 update は少数、
+    // backfill は 0 件)。出力は旧実装とバイト等価 (generated_at を除く)。
+    let tmp = output.with_file_name(format!(
+        "{}.tmp",
+        output
+            .file_name()
+            .and_then(|s| s.to_str())
+            .unwrap_or("public")
+    ));
+    if tmp.exists() {
+        std::fs::remove_dir_all(&tmp)?;
+    }
+    std::fs::create_dir_all(&tmp)?;
+    write_schema(&tmp)?;
+
+    let egov = build_egov_index(input)?;
+    let law_ids = collect_law_ids(input, &egov)?;
+    let mut light: Vec<LawWithHistory> = Vec::new();
+    let mut skipped = 0usize;
+    for law_id in law_ids {
+        let mut law = build_one_law(input, &law_id, egov.get(&law_id))?;
+        if law.revisions.is_empty() {
+            // 本文を持たない (meta-only) 法令は配信対象外 (旧 build_into と同じ)。
+            skipped += 1;
+            continue;
+        }
+        // この法令の本文ファイル (current/revisions/articles/versions/timeline) を書き出す。
+        write_law_documents(&tmp, std::slice::from_ref(&law))?;
+        if law.fetched_dates.is_empty() {
+            // 履歴 doc を解放しピーク RAM を抑える。現行版だけ残す。
+            let cur = law.current_rev().clone();
+            law.revisions = vec![cur];
+        }
+        light.push(law);
+    }
+    if light.is_empty() {
         anyhow::bail!(
             "no law XML found under {} — run `lawpub fetch-update` first",
             input.display()
         );
     }
-    build_into(output, &laws)
+    if skipped > 0 {
+        tracing::info!(
+            "build-json: skipped {} meta-only laws (no body cached)",
+            skipped
+        );
+    }
+
+    write_indices(&tmp, &light)?;
+    write_per_date_updates(&tmp, &light)?;
+    write_seo(&tmp, &light)?;
+    write_search_db(&tmp, &light)?;
+    write_manifest_and_health(&tmp, &light)?;
+
+    swap_into(output, &tmp)
 }
 
 pub fn run_build_index(output: &Path) -> Result<()> {
@@ -866,6 +920,7 @@ pub fn run_update(
 /// Walk `.cache/revisions/{law_id}/{rev_id}.xml` to build the historical version
 /// list, then walk `.cache/egov/{date}/{law_id}.xml` to learn which revisions
 /// became visible on which dates. The latter informs `updates/{date}.json`.
+#[allow(dead_code)] // 旧一括実装。run_build_json はストリーム版に移行済み (参照用に保持)。
 fn collect_laws_with_history(cache: &Path) -> Result<Vec<LawWithHistory>> {
     let revisions_dir = cache.join("revisions");
     let egov_dir = cache.join("egov");
@@ -1068,6 +1123,214 @@ fn read_existing_law_documents(public: &Path) -> Result<Vec<LawDocument>> {
     Ok(out)
 }
 
+/// tmp ディレクトリを public へ原子的に差し替える (旧 public は .bak 経由でロールバック可)。
+fn swap_into(public: &Path, tmp: &Path) -> Result<()> {
+    let backup = public.with_file_name(format!(
+        "{}.bak",
+        public
+            .file_name()
+            .and_then(|s| s.to_str())
+            .unwrap_or("public")
+    ));
+    if backup.exists() {
+        std::fs::remove_dir_all(&backup)?;
+    }
+    if public.exists() {
+        std::fs::rename(public, &backup)?;
+    }
+    if let Err(e) = std::fs::rename(tmp, public) {
+        if backup.exists() {
+            let _ = std::fs::rename(&backup, public);
+        }
+        return Err(e.into());
+    }
+    if backup.exists() {
+        let _ = std::fs::remove_dir_all(&backup);
+    }
+    Ok(())
+}
+
+/// `.cache/egov/{date}/{law_id}.xml` を走査し `law_id -> [(date, path)]` の軽量索引を作る。
+/// 本文はここではパースせず、per-law 構築時に取り込む。
+fn build_egov_index(cache: &Path) -> Result<BTreeMap<String, Vec<(String, PathBuf)>>> {
+    let mut idx: BTreeMap<String, Vec<(String, PathBuf)>> = BTreeMap::new();
+    let egov_dir = cache.join("egov");
+    if egov_dir.exists() {
+        for date_dir in std::fs::read_dir(&egov_dir)? {
+            let date_dir = date_dir?;
+            if !date_dir.file_type()?.is_dir() {
+                continue;
+            }
+            let date = date_dir.file_name().to_string_lossy().to_string();
+            for f in std::fs::read_dir(date_dir.path())? {
+                let f = f?;
+                let path = f.path();
+                if path.extension().and_then(|s| s.to_str()) != Some("xml") {
+                    continue;
+                }
+                let law_id = path
+                    .file_stem()
+                    .and_then(|s| s.to_str())
+                    .unwrap_or("")
+                    .to_string();
+                idx.entry(law_id).or_default().push((date.clone(), path));
+            }
+        }
+    }
+    for v in idx.values_mut() {
+        v.sort_by(|a, b| a.0.cmp(&b.0));
+    }
+    Ok(idx)
+}
+
+/// 配信対象になりうる law_id 集合 (revisions / egov / meta の和)。BTreeSet で law_id 昇順。
+fn collect_law_ids(
+    cache: &Path,
+    egov: &BTreeMap<String, Vec<(String, PathBuf)>>,
+) -> Result<std::collections::BTreeSet<String>> {
+    let mut ids: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
+    let rev_dir = cache.join("revisions");
+    if rev_dir.exists() {
+        for e in std::fs::read_dir(&rev_dir)? {
+            let e = e?;
+            if e.file_type()?.is_dir() {
+                ids.insert(e.file_name().to_string_lossy().to_string());
+            }
+        }
+    }
+    let meta_dir = cache.join("revisions_meta");
+    if meta_dir.exists() {
+        for e in std::fs::read_dir(&meta_dir)? {
+            let e = e?;
+            let p = e.path();
+            if p.extension().and_then(|s| s.to_str()) == Some("json") {
+                if let Some(s) = p.file_stem().and_then(|s| s.to_str()) {
+                    ids.insert(s.to_string());
+                }
+            }
+        }
+    }
+    for k in egov.keys() {
+        ids.insert(k.clone());
+    }
+    Ok(ids)
+}
+
+/// 1 法令分の `LawWithHistory` を構築する (.cache/revisions + egov + revisions_meta)。
+/// 旧 `collect_laws_with_history` を per-law に分解したもの。出力互換を保つため
+/// revision の収集順 / sort / meta マージは旧実装と同一にしてある。
+fn build_one_law(
+    cache: &Path,
+    law_id: &str,
+    egov_entries: Option<&Vec<(String, PathBuf)>>,
+) -> Result<LawWithHistory> {
+    let mut revs: Vec<Revision> = Vec::new();
+    let law_rev_dir = cache.join("revisions").join(law_id);
+    if law_rev_dir.is_dir() {
+        for f in std::fs::read_dir(&law_rev_dir)? {
+            let f = f?;
+            let path = f.path();
+            if path.extension().and_then(|s| s.to_str()) != Some("xml") {
+                continue;
+            }
+            let rev_id = path
+                .file_stem()
+                .and_then(|s| s.to_str())
+                .unwrap_or("")
+                .to_string();
+            let bytes = std::fs::read(&path)?;
+            let sha = sha256_hex(&bytes);
+            let meta_path = path.with_extension("meta.json");
+            let first_seen = if meta_path.exists() {
+                let v: serde_json::Value = serde_json::from_slice(&std::fs::read(&meta_path)?)?;
+                v.get("first_seen_date")
+                    .and_then(|s| s.as_str())
+                    .unwrap_or("")
+                    .to_string()
+            } else {
+                String::new()
+            };
+            let doc = match parse_law_xml(&bytes, law_id) {
+                Ok(d) => d,
+                Err(e) => {
+                    tracing::warn!("skip bad XML cache {}: {e:#}", path.display());
+                    let _ = std::fs::remove_file(&path);
+                    let _ = std::fs::remove_file(meta_path);
+                    continue;
+                }
+            };
+            revs.push(Revision {
+                revision_id: rev_id,
+                sha256: sha,
+                first_seen_date: first_seen,
+                doc,
+            });
+        }
+        revs.sort_by(|a, b| a.first_seen_date.cmp(&b.first_seen_date));
+    }
+
+    let mut law = LawWithHistory {
+        law_id: law_id.to_string(),
+        revisions: revs,
+        fetched_dates: BTreeMap::new(),
+        meta_revisions: Vec::new(),
+        meta_law_info: None,
+    };
+
+    // egov: どの日にどの rev が見えたか。.cache/revisions に無い新規 rev はここで取り込む。
+    if let Some(entries) = egov_entries {
+        for (date, path) in entries {
+            let bytes = std::fs::read(path)?;
+            let sha = sha256_hex(&bytes);
+            let rev_id = revision_id_from_sha(&sha);
+            if !law.revisions.iter().any(|r| r.revision_id == rev_id) {
+                let doc = match parse_law_xml(&bytes, law_id) {
+                    Ok(d) => d,
+                    Err(e) => {
+                        tracing::warn!("skip bad XML cache {}: {e:#}", path.display());
+                        let _ = std::fs::remove_file(path);
+                        continue;
+                    }
+                };
+                law.revisions.push(Revision {
+                    revision_id: rev_id.clone(),
+                    sha256: sha,
+                    first_seen_date: date.clone(),
+                    doc,
+                });
+                law.revisions
+                    .sort_by(|a, b| a.first_seen_date.cmp(&b.first_seen_date));
+            }
+            law.fetched_dates.insert(date.clone(), rev_id);
+        }
+    }
+
+    // v2 改正履歴メタ (古い順に整える)。
+    let meta_path = cache.join("revisions_meta").join(format!("{law_id}.json"));
+    if meta_path.exists() {
+        let bytes = std::fs::read(&meta_path)?;
+        match serde_json::from_slice::<LawRevisionList>(&bytes) {
+            Ok(list) => {
+                let mut mrevs = list.revisions;
+                mrevs.sort_by(|a, b| {
+                    a.amendment_promulgate_date
+                        .as_deref()
+                        .unwrap_or("")
+                        .cmp(b.amendment_promulgate_date.as_deref().unwrap_or(""))
+                });
+                law.meta_revisions = mrevs;
+                law.meta_law_info = Some(list.law_info);
+            }
+            Err(e) => {
+                tracing::warn!("skip bad revisions_meta {}: {e:#}", meta_path.display());
+            }
+        }
+    }
+
+    Ok(law)
+}
+
+#[allow(dead_code)] // 旧一括実装。run_build_json はストリーム版に移行済み (参照用に保持)。
 fn build_into(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
     // 本文を 1 件も持たない (= meta だけ) の法令は配信対象から外す。
     // fetch_revision_bodies が間に合っていない大量の meta-only 法令でも
