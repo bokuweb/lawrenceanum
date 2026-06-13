@@ -1,0 +1,12 @@
+[package]
+name = "law-diff"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+law-normalizer = { path = "../law-normalizer" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+similar = { workspace = true }

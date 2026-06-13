@@ -78,8 +78,8 @@ pub fn run_fetch_revisions(
         // public/laws/index.json の laws[].law_id を ID 源として使う。
         // git checkout だけある別端末でも .cache 無しで backfill 出来る。
         let idx_path = public_dir.join("laws").join("index.json");
-        let bytes = std::fs::read(&idx_path)
-            .with_context(|| format!("read {}", idx_path.display()))?;
+        let bytes =
+            std::fs::read(&idx_path).with_context(|| format!("read {}", idx_path.display()))?;
         let v: serde_json::Value = serde_json::from_slice(&bytes)
             .with_context(|| format!("parse {}", idx_path.display()))?;
         v["laws"]
@@ -163,10 +163,208 @@ pub fn run_fetch_revisions(
             tracing::warn!("  ... and {} more", errs.len() - 10);
         }
     }
+    tracing::info!("fetch-revisions done: written to {}", meta_dir.display());
+    Ok(())
+}
+
+/// `.cache/revisions_meta/{law_id}.json` の各 revision について、e-Gov v2
+/// `/law_data/{revision_id}` を叩いて本文 XML を取得し
+/// `.cache/revisions/{law_id}/{revision_id}.xml` に保存する。
+///
+/// build-diffs が「実データ」を吐けるようにするための backfill 入口。
+/// 既存ファイルがあれば skip (resume 友好)。
+///
+/// `--law-id` で単一、`--all` で全 meta、`--limit` で件数キャップ。
+pub fn run_fetch_revision_bodies(
+    law_id: Option<&str>,
+    all: bool,
+    concurrency: usize,
+    limit_laws: Option<usize>,
+    limit_revs_per_law: Option<usize>,
+    force: bool,
+    cache: &Path,
+) -> Result<()> {
+    let meta_dir = cache.join("revisions_meta");
+    if !meta_dir.exists() {
+        anyhow::bail!(
+            "{} not found — run `lawpub fetch-revisions` first",
+            meta_dir.display()
+        );
+    }
+    let revisions_root = cache.join("revisions");
+    std::fs::create_dir_all(&revisions_root)?;
+
+    // 対象法令の選定
+    let mut law_ids: Vec<String> = if let Some(id) = law_id {
+        vec![id.to_string()]
+    } else if all {
+        std::fs::read_dir(&meta_dir)?
+            .flatten()
+            .filter_map(|e| {
+                let p = e.path();
+                if p.extension().and_then(|s| s.to_str()) == Some("json") {
+                    p.file_stem().and_then(|s| s.to_str()).map(String::from)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    } else {
+        anyhow::bail!("specify --law-id <ID> or --all");
+    };
+    law_ids.sort();
+    if let Some(n) = limit_laws {
+        law_ids.truncate(n);
+    }
+
+    // 全 (law_id, revision_id) ペアを集めて並列ダウンロード
+    #[derive(Clone)]
+    struct Job {
+        law_id: String,
+        revision_id: String,
+    }
+    let mut jobs: Vec<Job> = Vec::new();
+    for lid in &law_ids {
+        let p = meta_dir.join(format!("{}.json", lid));
+        let bytes = match std::fs::read(&p) {
+            Ok(b) => b,
+            Err(e) => {
+                tracing::warn!("skip {}: read meta: {e}", lid);
+                continue;
+            }
+        };
+        let parsed: LawRevisionList = match serde_json::from_slice(&bytes) {
+            Ok(v) => v,
+            Err(e) => {
+                tracing::warn!("skip {}: parse meta: {e}", lid);
+                continue;
+            }
+        };
+        let mut revs: Vec<&RevisionMeta> = parsed.revisions.iter().collect();
+        if let Some(n) = limit_revs_per_law {
+            revs.truncate(n);
+        }
+        for r in revs {
+            if r.law_revision_id.is_empty() {
+                continue;
+            }
+            let out = revisions_root
+                .join(lid)
+                .join(format!("{}.xml", r.law_revision_id));
+            if out.exists() && !force {
+                continue;
+            }
+            jobs.push(Job {
+                law_id: lid.clone(),
+                revision_id: r.law_revision_id.clone(),
+            });
+        }
+    }
+
+    let total = jobs.len();
     tracing::info!(
-        "fetch-revisions done: written to {}",
-        meta_dir.display()
+        "fetch-revision-bodies: {} body(ies) to fetch across {} law(s), concurrency={}",
+        total,
+        law_ids.len(),
+        concurrency
     );
+    if total == 0 {
+        return Ok(());
+    }
+
+    let provider = http_provider_v2();
+    let counter = std::sync::atomic::AtomicUsize::new(0);
+    let errors = std::sync::Mutex::new(Vec::<(String, String, String)>::new());
+    let concurrency = concurrency.clamp(1, 8);
+
+    let pool = rayon::ThreadPoolBuilder::new()
+        .num_threads(concurrency)
+        .build()
+        .context("rayon pool")?;
+    pool.install(|| {
+        use rayon::prelude::*;
+        jobs.par_iter().for_each(|job| {
+            let dir = revisions_root.join(&job.law_id);
+            if let Err(e) = std::fs::create_dir_all(&dir) {
+                errors.lock().unwrap().push((
+                    job.law_id.clone(),
+                    job.revision_id.clone(),
+                    format!("mkdir: {e}"),
+                ));
+                return;
+            }
+            let xml_path = dir.join(format!("{}.xml", job.revision_id));
+            let meta_path = dir.join(format!("{}.meta.json", job.revision_id));
+
+            match provider.fetch_revision_body(&job.revision_id) {
+                Ok(bytes) => {
+                    let sha = sha256_hex(&bytes);
+                    // 軽くパース検証してから書く (HTML 等の混入を弾く)
+                    if parse_law_xml(&bytes, &job.law_id).is_err() {
+                        errors.lock().unwrap().push((
+                            job.law_id.clone(),
+                            job.revision_id.clone(),
+                            "parse_law_xml failed".to_string(),
+                        ));
+                        return;
+                    }
+                    if let Err(e) = std::fs::write(&xml_path, &bytes) {
+                        errors.lock().unwrap().push((
+                            job.law_id.clone(),
+                            job.revision_id.clone(),
+                            format!("write xml: {e}"),
+                        ));
+                        return;
+                    }
+                    let meta = json!({
+                        "law_id": job.law_id,
+                        "revision_id": job.revision_id,
+                        "first_seen_date": "",
+                        "sha256": sha,
+                        "source_url": format!(
+                            "https://laws.e-gov.go.jp/api/2/law_data/{}?response_format=xml",
+                            job.revision_id
+                        ),
+                        "bytes": bytes.len(),
+                        "fetched_via": "fetch_revision_bodies",
+                    });
+                    if let Err(e) = std::fs::write(
+                        &meta_path,
+                        serde_json::to_vec_pretty(&meta).unwrap_or_default(),
+                    ) {
+                        tracing::warn!(
+                            "write meta failed for {}/{}: {e}",
+                            job.law_id,
+                            job.revision_id
+                        );
+                    }
+                }
+                Err(e) => {
+                    errors.lock().unwrap().push((
+                        job.law_id.clone(),
+                        job.revision_id.clone(),
+                        format!("{e:#}"),
+                    ));
+                }
+            }
+            let n = counter.fetch_add(1, std::sync::atomic::Ordering::Relaxed) + 1;
+            if n % 50 == 0 {
+                tracing::info!("fetch-revision-bodies: {}/{}", n, total);
+            }
+        });
+    });
+
+    let errs = errors.into_inner().unwrap();
+    if !errs.is_empty() {
+        tracing::warn!("fetch-revision-bodies: {} errors", errs.len());
+        for (lid, rid, msg) in errs.iter().take(10) {
+            tracing::warn!("  {lid}/{rid}: {msg}");
+        }
+        if errs.len() > 10 {
+            tracing::warn!("  ... and {} more", errs.len() - 10);
+        }
+    }
+    tracing::info!("fetch-revision-bodies done");
     Ok(())
 }
 
@@ -302,7 +500,10 @@ fn cache_has_revisions(cache: &Path) -> bool {
         return false;
     }
     std::fs::read_dir(&dir)
-        .map(|it| it.filter_map(|e| e.ok()).any(|e| e.file_type().map(|t| t.is_dir()).unwrap_or(false)))
+        .map(|it| {
+            it.filter_map(|e| e.ok())
+                .any(|e| e.file_type().map(|t| t.is_dir()).unwrap_or(false))
+        })
         .unwrap_or(false)
 }
 
@@ -456,7 +657,11 @@ impl LawWithHistory {
             .revisions
             .iter()
             .position(|r| r.revision_id == rev_id)?;
-        if idx == 0 { None } else { self.revisions.get(idx - 1) }
+        if idx == 0 {
+            None
+        } else {
+            self.revisions.get(idx - 1)
+        }
     }
     fn rev(&self, rev_id: &str) -> Option<&Revision> {
         self.revisions.iter().find(|r| r.revision_id == rev_id)
@@ -472,10 +677,16 @@ struct ArticleDiff {
 
 fn diff_articles(prev: &LawDocument, cur: &LawDocument) -> ArticleDiff {
     use std::collections::BTreeMap;
-    let prev_map: BTreeMap<&str, &law_normalizer::Article> =
-        prev.articles.iter().map(|a| (a.article_id.as_str(), a)).collect();
-    let cur_map: BTreeMap<&str, &law_normalizer::Article> =
-        cur.articles.iter().map(|a| (a.article_id.as_str(), a)).collect();
+    let prev_map: BTreeMap<&str, &law_normalizer::Article> = prev
+        .articles
+        .iter()
+        .map(|a| (a.article_id.as_str(), a))
+        .collect();
+    let cur_map: BTreeMap<&str, &law_normalizer::Article> = cur
+        .articles
+        .iter()
+        .map(|a| (a.article_id.as_str(), a))
+        .collect();
     let mut added = Vec::new();
     let mut removed = Vec::new();
     let mut modified = Vec::new();
@@ -494,7 +705,11 @@ fn diff_articles(prev: &LawDocument, cur: &LawDocument) -> ArticleDiff {
             removed.push(id.to_string());
         }
     }
-    ArticleDiff { added, removed, modified }
+    ArticleDiff {
+        added,
+        removed,
+        modified,
+    }
 }
 
 pub fn run_build_json(input: &Path, output: &Path) -> Result<()> {
@@ -590,11 +805,49 @@ pub fn run_update(
         );
     }
 
+    // Phase 1: 差分 / スナップショット生成。
+    // build-json が走った直後は public/ が新しくなっているので、毎回再計算する。
+    // 失敗しても update 全体は壊さない方針 (差分は補助情報)。
+    let mut wrote_post_artifacts = false;
+    if changed && public.join("laws").join("index.json").exists() {
+        match crate::diffs::run_build_diffs(public) {
+            Ok(()) => wrote_post_artifacts = true,
+            Err(e) => tracing::warn!("build-diffs failed (continuing): {e:#}"),
+        }
+        // 任意日付スナップショットはコストが大 (法令数 × 日付数 のファイルが出る)
+        // ため、`LAWPUB_SNAPSHOT_DATES` 環境変数が設定されたときだけ生成する。
+        // 例: `LAWPUB_SNAPSHOT_DATES=2018-04-01,2020-04-01,2024-04-01`
+        if let Ok(raw) = std::env::var("LAWPUB_SNAPSHOT_DATES") {
+            let dates: Vec<String> = raw
+                .split(',')
+                .map(|s| s.trim().to_string())
+                .filter(|s| !s.is_empty())
+                .collect();
+            if !dates.is_empty() {
+                match crate::snapshots::run_build_snapshots(public, &dates, false) {
+                    Ok(()) => wrote_post_artifacts = true,
+                    Err(e) => tracing::warn!("build-snapshots failed (continuing): {e:#}"),
+                }
+            }
+        }
+        // diff/snapshot は manifest.json の後に書かれるため、validate を通すには
+        // manifest を再生成する必要がある。
+        if wrote_post_artifacts {
+            if let Err(e) = rebuild_manifest(public) {
+                tracing::warn!("rebuild_manifest after diffs/snapshots failed: {e:#}");
+            }
+        }
+    }
+
     if let Some(last) = dates.last() {
         st.latest_successful_update_date = Some(last.clone());
     }
     st.last_run_at = Some(state::now_iso());
-    st.last_run_status = Some(if errors.is_empty() { "ok".into() } else { "partial".into() });
+    st.last_run_status = Some(if errors.is_empty() {
+        "ok".into()
+    } else {
+        "partial".into()
+    });
     state::save(&state_path, &st)?;
 
     let report = state::RunReport {
@@ -643,8 +896,7 @@ fn collect_laws_with_history(cache: &Path) -> Result<Vec<LawWithHistory>> {
 
                 let meta_path = path.with_extension("meta.json");
                 let first_seen = if meta_path.exists() {
-                    let v: serde_json::Value =
-                        serde_json::from_slice(&std::fs::read(&meta_path)?)?;
+                    let v: serde_json::Value = serde_json::from_slice(&std::fs::read(&meta_path)?)?;
                     v.get("first_seen_date")
                         .and_then(|s| s.as_str())
                         .unwrap_or("")
@@ -679,8 +931,8 @@ fn collect_laws_with_history(cache: &Path) -> Result<Vec<LawWithHistory>> {
                         law_id,
                         revisions: revs,
                         fetched_dates: BTreeMap::new(),
-                meta_revisions: Vec::new(),
-                meta_law_info: None,
+                        meta_revisions: Vec::new(),
+                        meta_law_info: None,
                     },
                 );
             }
@@ -711,13 +963,15 @@ fn collect_laws_with_history(cache: &Path) -> Result<Vec<LawWithHistory>> {
                 let rev_id = revision_id_from_sha(&sha);
 
                 // revisions が無い (履歴が消失した) ときの保険として、その場で1件作る。
-                let entry = by_law.entry(law_id.clone()).or_insert_with(|| LawWithHistory {
-                    law_id: law_id.clone(),
-                    revisions: Vec::new(),
-                    fetched_dates: BTreeMap::new(),
-                meta_revisions: Vec::new(),
-                meta_law_info: None,
-                });
+                let entry = by_law
+                    .entry(law_id.clone())
+                    .or_insert_with(|| LawWithHistory {
+                        law_id: law_id.clone(),
+                        revisions: Vec::new(),
+                        fetched_dates: BTreeMap::new(),
+                        meta_revisions: Vec::new(),
+                        meta_law_info: None,
+                    });
                 if !entry.revisions.iter().any(|r| r.revision_id == rev_id) {
                     let doc = match parse_law_xml(&bytes, &law_id) {
                         Ok(d) => d,
@@ -774,13 +1028,15 @@ fn collect_laws_with_history(cache: &Path) -> Result<Vec<LawWithHistory>> {
                     .unwrap_or("")
                     .cmp(b.amendment_promulgate_date.as_deref().unwrap_or(""))
             });
-            let entry = by_law.entry(law_id.clone()).or_insert_with(|| LawWithHistory {
-                law_id: law_id.clone(),
-                revisions: Vec::new(),
-                fetched_dates: BTreeMap::new(),
-                meta_revisions: Vec::new(),
-                meta_law_info: None,
-            });
+            let entry = by_law
+                .entry(law_id.clone())
+                .or_insert_with(|| LawWithHistory {
+                    law_id: law_id.clone(),
+                    revisions: Vec::new(),
+                    fetched_dates: BTreeMap::new(),
+                    meta_revisions: Vec::new(),
+                    meta_law_info: None,
+                });
             entry.meta_revisions = revs;
             entry.meta_law_info = Some(list.law_info);
         }
@@ -805,17 +1061,37 @@ fn read_existing_law_documents(public: &Path) -> Result<Vec<LawDocument>> {
             continue;
         }
         let bytes = std::fs::read(&cur)?;
-        let doc: LawDocument = serde_json::from_slice(&bytes)
-            .with_context(|| format!("parse {}", cur.display()))?;
+        let doc: LawDocument =
+            serde_json::from_slice(&bytes).with_context(|| format!("parse {}", cur.display()))?;
         out.push(doc);
     }
     Ok(out)
 }
 
 fn build_into(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
+    // 本文を 1 件も持たない (= meta だけ) の法令は配信対象から外す。
+    // fetch_revision_bodies が間に合っていない大量の meta-only 法令でも
+    // build がコケないようにするための安全網。
+    let laws_owned: Vec<LawWithHistory> = laws
+        .iter()
+        .filter(|l| !l.revisions.is_empty())
+        .cloned()
+        .collect();
+    let skipped = laws.len() - laws_owned.len();
+    if skipped > 0 {
+        tracing::info!(
+            "build_into: skipped {} meta-only laws (no body cached)",
+            skipped
+        );
+    }
+    let laws = laws_owned.as_slice();
+
     let tmp = public.with_file_name(format!(
         "{}.tmp",
-        public.file_name().and_then(|s| s.to_str()).unwrap_or("public")
+        public
+            .file_name()
+            .and_then(|s| s.to_str())
+            .unwrap_or("public")
     ));
     if tmp.exists() {
         std::fs::remove_dir_all(&tmp)?;
@@ -832,7 +1108,10 @@ fn build_into(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
 
     let backup = public.with_file_name(format!(
         "{}.bak",
-        public.file_name().and_then(|s| s.to_str()).unwrap_or("public")
+        public
+            .file_name()
+            .and_then(|s| s.to_str())
+            .unwrap_or("public")
     ));
     if backup.exists() {
         std::fs::remove_dir_all(&backup)?;
@@ -854,6 +1133,12 @@ fn build_into(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
 
 fn write_law_documents(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
     for law in laws {
+        // 本文を 1 件も持たない (= meta だけ取れている) 法令は current.json を
+        // 書けないので skip する。fetch_revision_bodies が走るまでは大量の
+        // meta-only 法令が居ても OK にしたい。
+        if law.revisions.is_empty() {
+            continue;
+        }
         let dir = public.join("laws").join(&law.law_id);
         std::fs::create_dir_all(&dir)?;
 
@@ -907,10 +1192,7 @@ fn write_law_documents(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
             } else {
                 "historical".to_string()
             };
-            write_json_pretty(
-                &revisions_dir.join(format!("{}.json", file_rev_id)),
-                &doc,
-            )?;
+            write_json_pretty(&revisions_dir.join(format!("{}.json", file_rev_id)), &doc)?;
         }
 
         // versions.json: e-Gov v2 meta_revisions が取れていればそれを骨格にし、
@@ -918,11 +1200,16 @@ fn write_law_documents(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
         // 埋める。meta が無い場合は従来通り本文ベースで書き出す (= fallback)。
         // 本文を持っている v2 ID 集合 = current_v2_id 一つ (今は) + 仮に
         // .cache/revisions/ に v2 ID 形式で配置されたファイルがあればそれら。
-        let mut body_rev_ids: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
+        let mut body_rev_ids: std::collections::BTreeSet<String> =
+            std::collections::BTreeSet::new();
         if let Some(cur) = current_v2_id.as_ref() {
             body_rev_ids.insert(cur.clone());
         }
-        // (将来 fetch_revision_body で他 v2 ID 本文を保存したら、ここに足す)
+        // `.cache/revisions/{law_id}/{v2_id}.xml` で取得済みの履歴本文も登録する。
+        // fetch_revision_body で過去 revision を引いた結果がここに入る。
+        for r in &law.revisions {
+            body_rev_ids.insert(r.revision_id.clone());
+        }
         let versions: Vec<_> = if !law.meta_revisions.is_empty() {
             law.meta_revisions
                 .iter()
@@ -981,7 +1268,8 @@ fn write_law_documents(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
         // から合成して先頭に挿入する。これがないと「民法は 2016-04-13 改正
         // から始まったように見える」現象が出る。
         let events: Vec<_> = if !law.meta_revisions.is_empty() {
-            let mut events: Vec<serde_json::Value> = Vec::with_capacity(law.meta_revisions.len() + 1);
+            let mut events: Vec<serde_json::Value> =
+                Vec::with_capacity(law.meta_revisions.len() + 1);
             if let Some(info) = law.meta_law_info.as_ref() {
                 if let Some(date) = info.promulgation_date.as_deref() {
                     events.push(json!({
@@ -1065,15 +1353,12 @@ fn write_indices(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
     let generated_at = Utc::now().to_rfc3339();
 
     // v2 meta があれば category / amendment 件数を index に乗せる。UI 側の
-     // mock LAWS による category マッピングを段階的に置き換えるための情報源。
+    // mock LAWS による category マッピングを段階的に置き換えるための情報源。
     let summaries: Vec<serde_json::Value> = laws
         .iter()
         .map(|l| {
             let d = l.current();
-            let category = l
-                .meta_revisions
-                .last()
-                .and_then(|m| m.category.clone());
+            let category = l.meta_revisions.last().and_then(|m| m.category.clone());
             let revisions_count = l.meta_revisions.len();
             json!({
                 "law_id": l.law_id,
@@ -1240,8 +1525,8 @@ pub fn rebuild_manifest(public: &Path) -> Result<()> {
         law_id: String::new(),
         revisions: Vec::new(),
         fetched_dates: BTreeMap::new(),
-                meta_revisions: Vec::new(),
-                meta_law_info: None,
+        meta_revisions: Vec::new(),
+        meta_law_info: None,
     };
     let stub = vec![dummy; law_count];
     write_manifest_and_health(public, &stub)
@@ -1336,8 +1621,7 @@ fn write_search_db(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
                 .map(|c| (l.law_id.clone(), c))
         })
         .collect();
-    let categories: std::collections::HashMap<String, String> =
-        categories.into_iter().collect();
+    let categories: std::collections::HashMap<String, String> = categories.into_iter().collect();
     let path = public.join("search.db");
     search_index::build_search_db(&path, &docs, &categories)?;
     Ok(())

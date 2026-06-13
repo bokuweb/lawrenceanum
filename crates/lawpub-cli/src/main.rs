@@ -3,7 +3,10 @@ use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 
 mod build;
+mod compress;
+mod diffs;
 mod kanpo;
+mod snapshots;
 mod state;
 mod status;
 mod validate;
@@ -112,6 +115,27 @@ enum Cmd {
         #[arg(long, default_value = ".cache")]
         cache: PathBuf,
     },
+    /// `.cache/revisions_meta/{law_id}.json` を元に、各 revision の本文 XML を
+    /// `.cache/revisions/{law_id}/{revision_id}.xml` として e-Gov v2 から取得する。
+    /// build-diffs / 任意リビジョン参照のための backfill 入口。
+    FetchRevisionBodies {
+        #[arg(long, conflicts_with = "all")]
+        law_id: Option<String>,
+        #[arg(long, conflicts_with = "law_id")]
+        all: bool,
+        #[arg(long, default_value_t = 2)]
+        concurrency: usize,
+        /// 対象法令数のキャップ (テスト用)。
+        #[arg(long)]
+        limit_laws: Option<usize>,
+        /// 1 法令あたりの revision 数キャップ (テスト用)。
+        #[arg(long)]
+        limit_revs_per_law: Option<usize>,
+        #[arg(long)]
+        force: bool,
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+    },
     /// `.cache/revisions_meta/{law_id}.json` を 1 ファイルにまとめる/展開する。
     /// 単一の JSONL (= `{"law_id":..., "law_info":..., "revisions":[...]}` を法令毎に1行)。
     /// R2 等へのアップロードと CI 復元を 1 ファイル単位で扱うためのユーティリティ。
@@ -124,6 +148,43 @@ enum Cmd {
         dir: PathBuf,
         #[arg(long, default_value = ".cache/revisions_meta.jsonl")]
         file: PathBuf,
+    },
+    /// 全法令の隣接 revision 間 diff を生成し `laws/{id}/diff/` と `laws/{id}/diffs.json` を書き出す。
+    BuildDiffs {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+    /// 単発の 2 revision diff を stdout に出す。
+    Diff {
+        #[arg(long)]
+        law: String,
+        #[arg(long)]
+        from: String,
+        #[arg(long)]
+        to: String,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+    /// 任意日付スナップショット `laws/{id}/at/{yyyy-mm-dd}.json` を生成する。
+    BuildSnapshots {
+        /// カンマ区切りの日付リスト (例: 2018-04-01,2020-04-01)。
+        #[arg(long, value_delimiter = ',')]
+        dates: Vec<String>,
+        /// 公布済み・未施行も含めて解決する。
+        #[arg(long)]
+        include_unenforced: bool,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+    /// 配信用 JSON を gzip 事前圧縮する (`*.json` / `*.ndjson` → `*.gz`)。
+    /// SPA は `VITE_COMPRESSED` 時に `.gz` を取得し展開する。
+    /// `search.db*` は Range アクセスのため対象外。
+    Compress {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+        /// 元の非圧縮ファイルを削除する (容量削減)。未指定なら `.gz` を併置。
+        #[arg(long)]
+        remove_original: bool,
     },
     /// 官報の日付ページを取得する (Phase 3 placeholder)。
     KanpoFetch {
@@ -156,30 +217,105 @@ fn main() -> Result<()> {
 
     let cli = Cli::parse();
     match cli.cmd {
-        Cmd::Update { public, cache, provider, date, force } => {
-            build::run_update(&public, &cache, &provider, date.as_deref(), force)
-        }
+        Cmd::Update {
+            public,
+            cache,
+            provider,
+            date,
+            force,
+        } => build::run_update(&public, &cache, &provider, date.as_deref(), force),
         Cmd::BuildJson { input, output } => build::run_build_json(&input, &output),
         Cmd::BuildIndex { output } => build::run_build_index(&output),
         Cmd::Validate { public } => validate::run_validate(&public),
-        Cmd::FetchUpdate { date, cache } => build::run_fetch_update(&date, &cache, "mock").map(|_| ()),
-        Cmd::FetchRange { from, to, cache, provider } => build::run_fetch_range(&from, &to, &cache, &provider),
-        Cmd::FetchBulk { category, limit, cache, provider } => {
-            build::run_fetch_bulk(category, limit, &cache, &provider)
+        Cmd::FetchUpdate { date, cache } => {
+            build::run_fetch_update(&date, &cache, "mock").map(|_| ())
         }
-        Cmd::FetchRevisions { law_id, all, from_public, concurrency, limit, force, cache } => {
-            build::run_fetch_revisions(
-                law_id.as_deref(),
-                all,
-                from_public.as_deref(),
-                concurrency,
-                limit,
-                force,
-                &cache,
-            )
-        }
+        Cmd::FetchRange {
+            from,
+            to,
+            cache,
+            provider,
+        } => build::run_fetch_range(&from, &to, &cache, &provider),
+        Cmd::FetchBulk {
+            category,
+            limit,
+            cache,
+            provider,
+        } => build::run_fetch_bulk(category, limit, &cache, &provider),
+        Cmd::FetchRevisions {
+            law_id,
+            all,
+            from_public,
+            concurrency,
+            limit,
+            force,
+            cache,
+        } => build::run_fetch_revisions(
+            law_id.as_deref(),
+            all,
+            from_public.as_deref(),
+            concurrency,
+            limit,
+            force,
+            &cache,
+        ),
+        Cmd::FetchRevisionBodies {
+            law_id,
+            all,
+            concurrency,
+            limit_laws,
+            limit_revs_per_law,
+            force,
+            cache,
+        } => build::run_fetch_revision_bodies(
+            law_id.as_deref(),
+            all,
+            concurrency,
+            limit_laws,
+            limit_revs_per_law,
+            force,
+            &cache,
+        ),
         Cmd::BundleRevisionsMeta { mode, dir, file } => {
             build::run_bundle_revisions_meta(&mode, &dir, &file)
+        }
+        Cmd::BuildDiffs { public } => {
+            diffs::run_build_diffs(&public)?;
+            // 単独実行でも manifest を整合させる。
+            build::rebuild_manifest(&public)
+        }
+        Cmd::Diff {
+            law,
+            from,
+            to,
+            public,
+        } => diffs::run_diff_pair(&public, &law, &from, &to),
+        Cmd::BuildSnapshots {
+            dates,
+            include_unenforced,
+            public,
+        } => {
+            snapshots::run_build_snapshots(&public, &dates, include_unenforced)?;
+            build::rebuild_manifest(&public)
+        }
+        Cmd::Compress {
+            public,
+            remove_original,
+        } => {
+            let s = compress::run_compress(&public, remove_original)?;
+            let pct = if s.bytes_in > 0 {
+                s.bytes_out as f64 * 100.0 / s.bytes_in as f64
+            } else {
+                0.0
+            };
+            tracing::info!(
+                "compress: {} files, {:.1} MB -> {:.1} MB ({:.1}%)",
+                s.files,
+                s.bytes_in as f64 / 1_048_576.0,
+                s.bytes_out as f64 / 1_048_576.0,
+                pct
+            );
+            Ok(())
         }
         Cmd::KanpoFetch { date, cache } => kanpo::run_fetch(&date, &cache),
         Cmd::KanpoLink { output } => kanpo::run_link(&output),

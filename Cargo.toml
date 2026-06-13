@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "crates/egov-client",
     "crates/law-normalizer",
+    "crates/law-diff",
     "crates/kanpo-client",
     "crates/kanpo-linker",
     "crates/search-index",
@@ -35,3 +36,4 @@ aho-corasick = "1"
 rayon = "1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+similar = "2"

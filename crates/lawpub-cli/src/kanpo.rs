@@ -35,8 +35,7 @@ pub fn run_link(public: &Path) -> Result<()> {
         if f.path().extension().and_then(|s| s.to_str()) != Some("json") {
             continue;
         }
-        let kd: kanpo_client::KanpoDate =
-            serde_json::from_slice(&std::fs::read(f.path())?)?;
+        let kd: kanpo_client::KanpoDate = serde_json::from_slice(&std::fs::read(f.path())?)?;
         by_date.push((kd.date.clone(), kd));
     }
     by_date.sort_by(|a, b| a.0.cmp(&b.0));
@@ -68,8 +67,7 @@ pub fn run_link(public: &Path) -> Result<()> {
         if !timeline_path.exists() {
             continue;
         }
-        let mut tl: serde_json::Value =
-            serde_json::from_slice(&std::fs::read(&timeline_path)?)?;
+        let mut tl: serde_json::Value = serde_json::from_slice(&std::fs::read(&timeline_path)?)?;
         let events = match tl.get_mut("events").and_then(|e| e.as_array_mut()) {
             Some(e) => e,
             None => continue,
@@ -96,10 +94,7 @@ pub fn run_link(public: &Path) -> Result<()> {
                         issue,
                     );
                     if r.confidence > 0.0
-                        && best
-                            .as_ref()
-                            .map(|b| r.confidence > b.0)
-                            .unwrap_or(true)
+                        && best.as_ref().map(|b| r.confidence > b.0).unwrap_or(true)
                     {
                         best = Some((r.confidence, date.as_str(), issue, r.match_reasons));
                     }

@@ -1,11 +1,11 @@
 name: Update law JSON
 
 on:
-  # main merge: コード/データ変更を即座に Pages へ反映する。
-  # GITHUB_TOKEN による自動 commit は workflow を再トリガしないので、
-  # cron が auto-commit してもループしない。
-  push:
-    branches: [main]
+  # public は git 追跡しない (Pages artifact で都度ビルド配信) ため、push では
+  # deploy しない (commit 済データが無い)。定期実行 + 手動のみで public を
+  # 再生成して deploy する。
+  schedule:
+    - cron: "0 18 * * *" # 毎日 ~03:00 JST。頻度は適宜調整。
   workflow_dispatch:
     inputs:
       provider:
@@ -39,6 +39,10 @@ on:
         required: false
         type: string
         default: "4"
+      snapshot_dates:
+        description: "(任意) スナップショット生成日のCSV YYYY-MM-DD,...。空ならスナップショットは生成しない (diff は常に生成)。"
+        required: false
+        type: string
       force:
         description: "Rebuild public/ even if no new revisions"
         required: false
@@ -74,6 +78,8 @@ jobs:
       # 既定は v1 API (path 構造: lawlists/{cat}, lawdata/{id}, updatelawlists/{yyyymmdd})。
       # v2 にしたい場合はリポジトリ Variables / Secrets で上書き。
       LAWPUB_EGOV_BASE_URL: https://laws.e-gov.go.jp/api/1
+      # 任意。設定されていれば lawpub update 内部で build-snapshots が走る。
+      LAWPUB_SNAPSHOT_DATES: ${{ github.event.inputs.snapshot_dates }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -123,24 +129,6 @@ jobs:
           else
             echo "::warning::revisions_meta.jsonl not found in R2 — skipping (timeline will only have snapshot events)"
           fi
-
-      # main merge では既に commit 済の public/ を使う。e-Gov へは触らずに deploy だけ走る。
-      - name: Mark force-deploy (push to main)
-        if: github.event_name == 'push'
-        run: |
-          mkdir -p state
-          ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          cat > state/last_run.json <<EOF
-          {
-            "version": 1,
-            "ran_at": "$ts",
-            "provider": "skip-on-push",
-            "dates": [],
-            "new_xmls": 0,
-            "errors": [],
-            "changed": true
-          }
-          EOF
 
       # 全件バルク: bulk_category が指定されたら全件取得して build-json する。
       # 数千件規模になるので timeout が長め (workflow 全体は timeout-minutes: 30 のまま;
@@ -263,6 +251,8 @@ jobs:
           # Frontend が search.db を取りにいく URL。R2 公開 URL を渡す。
           # 未設定なら ./search.db (同 origin) を試す。
           VITE_SEARCH_DB_URL: ${{ secrets.R2_PUBLIC_URL && format('{0}/search.db', secrets.R2_PUBLIC_URL) || '' }}
+          # 配信 JSON は gzip 事前圧縮するので SPA を圧縮モードでビルド (.gz を取得して展開)。
+          VITE_COMPRESSED: '1'
         run: |
           pnpm install --no-frozen-lockfile
           pnpm build
@@ -300,6 +290,12 @@ jobs:
           jq '.files |= map(select(.path != "search.db"))' public/manifest.json > "$tmp"
           mv "$tmp" public/manifest.json
 
+      # 配信 JSON を gzip 事前圧縮 (*.json/*.ndjson -> *.gz, 元削除)。
+      # validate 後・artifact 前に実行する。search.db は Range のため対象外。
+      - name: Compress public JSON (gzip)
+        if: steps.detect.outputs.changed == 'true'
+        run: ./target/release/lawpub compress --public public --remove-original
+
       - name: Configure Pages
         if: steps.detect.outputs.changed == 'true'
         uses: actions/configure-pages@v5
@@ -316,9 +312,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # state/last_run.json は per-run なので除外。state/latest.json は
-          # `lawpub update` 経路でのみ作られる (fetch-bulk / fetch-range は無し)。
-          git add public
+          # public/ は git 追跡しない (Pages artifact で deploy)。state/last_run.json は
+          # per-run なので除外。state/latest.json は `lawpub update` 経路でのみ作られる。
           [ -f state/latest.json ] && git add state/latest.json || true
           if git diff --cached --quiet; then
             echo "::notice::lawpub reported changes, but git tree is clean — skipping commit"

@@ -17,7 +17,7 @@ figma/playwright-report
 # wrangler のローカル状態 (R2 ローカルシミュレーション等)
 /.wrangler
 
-# 大きな成果物は Pages artifact 経由で deploy されるが git には載せない。
-# search.db: 法令本文 FTS5 index (数十 MB)
-/public/search.db
+# 生成物 public/ は git に載せない (履歴肥大を避ける)。CI が lawpub + vite で
+# 再生成し、gzip 圧縮して Pages artifact 経由で deploy する (search.db は R2)。
+/public
 

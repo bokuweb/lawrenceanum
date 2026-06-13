@@ -142,13 +142,105 @@ export type TimelineJson = {
   events: TimelineEventRaw[]
 }
 
+// gzip 事前圧縮配信のフラグ。配信を圧縮した deploy では `VITE_COMPRESSED=1` を立てる。
+// 立っていなければ従来どおり非圧縮 JSON を取得する (本番挙動を変えない)。
+const COMPRESSED = import.meta.env.VITE_COMPRESSED === '1' || import.meta.env.VITE_COMPRESSED === 'true'
+
+/** gzip レスポンスをブラウザ標準の DecompressionStream で展開して文字列にする (依存ゼロ)。 */
+async function gunzipToText(res: Response): Promise<string> {
+  if (!res.body) return await res.text()
+  const stream = res.body.pipeThrough(new DecompressionStream('gzip'))
+  return await new Response(stream).text()
+}
+
 async function getJson<T>(path: string): Promise<T> {
   // 相対 fetch にすることで、Pages のサブパスでも `./laws/index.json` のように
   // 解決される。`new URL(path, document.baseURI)` で base を尊重する。
+  // 圧縮配信時は `${path}.gz` を優先し、無ければ非圧縮にフォールバックする。
+  // ※ search.db は sql.js-httpvfs が Range アクセスするため、ここでは扱わない (圧縮対象外)。
+  if (COMPRESSED) {
+    const gzUrl = new URL(`${path}.gz`, document.baseURI).toString()
+    const gz = await fetch(gzUrl, { cache: 'no-cache' })
+    if (gz.ok) return JSON.parse(await gunzipToText(gz)) as T
+  }
   const url = new URL(path, document.baseURI).toString()
   const res = await fetch(url, { cache: 'no-cache' })
   if (!res.ok) throw new Error(`${res.status} ${res.statusText} for ${url}`)
   return (await res.json()) as T
+}
+
+// Phase 1: 任意 revision 間の構造化 diff (law-diff crate 由来)。
+export type DiffTextOp =
+  | { op: 'equal'; text: string }
+  | { op: 'insert'; text: string }
+  | { op: 'delete'; text: string }
+
+export type ParagraphDiff =
+  | { change_type: 'unchanged'; paragraph_no: string | null }
+  | { change_type: 'added'; paragraph_no: string | null; text: string }
+  | { change_type: 'removed'; paragraph_no: string | null; text: string }
+  | {
+      change_type: 'modified'
+      paragraph_no: string | null
+      text_diff: DiffTextOp[]
+    }
+
+export type ArticleDiff =
+  | { change_type: 'unchanged'; article_id: string }
+  | {
+      change_type: 'added'
+      article_id: string
+      to: { article_no: string; caption: string | null; paragraphs: { paragraph_no: string | null; text: string }[] }
+    }
+  | {
+      change_type: 'removed'
+      article_id: string
+      from: { article_no: string; caption: string | null; paragraphs: { paragraph_no: string | null; text: string }[] }
+    }
+  | {
+      change_type: 'modified'
+      article_id: string
+      from: { article_no: string; caption: string | null }
+      to: { article_no: string; caption: string | null }
+      paragraphs: ParagraphDiff[]
+    }
+
+export type LawDiff = {
+  schema_version: number
+  law_id: string
+  from: { revision_id: string | null; effective_date: string | null; promulgation_date: string | null }
+  to: { revision_id: string | null; effective_date: string | null; promulgation_date: string | null }
+  summary: {
+    articles_added: number
+    articles_removed: number
+    articles_modified: number
+    articles_unchanged: number
+  }
+  articles: ArticleDiff[]
+}
+
+export type DiffsIndex = {
+  law_id: string
+  diffs: {
+    from_revision_id: string
+    to_revision_id: string
+    from_effective_date: string | null
+    to_effective_date: string | null
+    path: string
+    summary: LawDiff['summary']
+  }[]
+}
+
+export type SnapshotResolved = {
+  law_id: string
+  as_of: string
+  include_unenforced: boolean
+  resolved_revision_id: string | null
+  effective_date?: string | null
+  promulgation_date?: string | null
+  body_available?: boolean
+  current?: string | null
+  status?: string
 }
 
 export const api = {
@@ -162,4 +254,12 @@ export const api = {
     getJson<LawDocumentRaw>(`./laws/${lawId}/revisions/${revId}.json`),
   latestUpdates: () => getJson<UpdatesByDate>('./updates/latest.json'),
   updatesOnDate: (date: string) => getJson<UpdatesByDate>(`./updates/${date}.json`),
+  /** 隣接 revision 間 diff の索引。 */
+  diffsIndex: (lawId: string) => getJson<DiffsIndex>(`./laws/${lawId}/diffs.json`),
+  /** 特定の from..to の構造化 diff。 */
+  diff: (lawId: string, fromRev: string, toRev: string) =>
+    getJson<LawDiff>(`./laws/${lawId}/diff/${fromRev}..${toRev}.json`),
+  /** 任意日付スナップショット (resolved revision を返すリダイレクト JSON)。 */
+  snapshotAt: (lawId: string, date: string) =>
+    getJson<SnapshotResolved>(`./laws/${lawId}/at/${date}.json`),
 }

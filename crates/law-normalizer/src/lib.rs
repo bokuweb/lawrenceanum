@@ -47,8 +47,27 @@ pub struct LawDocument {
     pub promulgation_date: Option<String>,
     pub effective_date: Option<String>,
     pub status: String,
+    /// 本則 (`<MainProvision>`) 配下の条文のみ。`article_id = art_{Num}` で安定。
     pub articles: Vec<Article>,
+    /// 附則 (`<SupplProvision>`) の集合。各 SupplProvision は別ブロックとして保持し、
+    /// 本則の条文番号と衝突しないよう独立スコープの article_id を持つ。
+    /// 後方互換のため、空なら配信 JSON からも省略される。
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub suppl_provisions: Vec<SupplProvision>,
     pub source: SourceMeta,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SupplProvision {
+    /// 附則の通し番号 (1 始まり)。同じ法令内で複数 `<SupplProvision>` がある場合に分離する。
+    pub index: u32,
+    /// `<SupplProvision AmendLawNum="...">` の AmendLawNum 属性 (= 改正法令番号)。
+    /// 制定時の元 SupplProvision には付かないことが多い。
+    pub amend_law_num: Option<String>,
+    /// 附則の見出し (e.g. "附則" / "附 則" / "附則（令和五年六月一四日法律第五十三号）")。
+    pub label: Option<String>,
+    /// 附則内の条文。article_id は本則と衝突しないよう `suppl{index}_art_{Num}` で発番。
+    pub articles: Vec<Article>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -107,6 +126,19 @@ pub fn sha256_hex(bytes: &[u8]) -> String {
     hex::encode(hasher.finalize())
 }
 
+/// 条文を「どこに帰属させるか」を表す書き先。
+///
+/// XML を上から舐めながら、`<MainProvision>` に入ったら `Main`、
+/// `<SupplProvision>` に入ったら `Suppl(idx)`、それ以外 (AppdxTable 等) は
+/// `Other` にする。`Other` 配下の Article は配信対象から外す。
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum Scope {
+    None,
+    Main,
+    Suppl(u32),
+    Other,
+}
+
 pub fn parse_law_xml(xml: &[u8], law_id: &str) -> Result<LawDocument> {
     let raw_sha = sha256_hex(xml);
     let mut reader = Reader::from_reader(xml);
@@ -117,40 +149,76 @@ pub fn parse_law_xml(xml: &[u8], law_id: &str) -> Result<LawDocument> {
     let mut title: Option<String> = None;
     let mut promulgation_date: Option<String> = None;
     let mut articles: Vec<Article> = Vec::new();
+    let mut suppl_provisions: Vec<SupplProvision> = Vec::new();
+    let mut suppl_count: u32 = 0;
 
     let mut current_article: Option<Article> = None;
     let mut current_paragraph: Option<Paragraph> = None;
     let mut current_item_num: Option<String> = None;
-    // Article 配下に居ない Paragraph (= 太政官布告など旧法の素のParagraph) は
-    // ここに溜め、最後に synthetic な「本則」article として吐き出す。
+    // MainProvision に属さない top-level Paragraph (旧太政官布告等) を救う。
     let mut orphan_paragraphs: Vec<Paragraph> = Vec::new();
 
     let mut text_buf = String::new();
+
+    // スコープスタック。Article は `current_scope()` の値で行き先を決める。
+    let mut scope_stack: Vec<Scope> = vec![Scope::None];
 
     loop {
         match reader.read_event_into(&mut buf) {
             Ok(Event::Start(e)) => {
                 let name = String::from_utf8_lossy(e.name().as_ref()).to_string();
-                // <Law Era=".." Year=".." PromulgateMonth=".." PromulgateDay=".."> 形式の
-                // 公布日 (e-Gov v1 API 実 XML はこちら) を拾う。
-                // <PromulgationDate>YYYY-MM-DD</PromulgationDate> 形式は別途 End 側で拾う。
                 if name == "Law" && promulgation_date.is_none() {
                     if let Some(d) = promulgation_date_from_law_attrs(&e) {
                         promulgation_date = Some(d);
                     }
                 }
                 match name.as_str() {
+                    "MainProvision" => {
+                        scope_stack.push(Scope::Main);
+                    }
+                    "SupplProvision" => {
+                        suppl_count += 1;
+                        let amend_law_num = e
+                            .attributes()
+                            .flatten()
+                            .find(|a| a.key.as_ref() == b"AmendLawNum")
+                            .and_then(|a| String::from_utf8(a.value.into_owned()).ok());
+                        suppl_provisions.push(SupplProvision {
+                            index: suppl_count,
+                            amend_law_num,
+                            label: None,
+                            articles: Vec::new(),
+                        });
+                        scope_stack.push(Scope::Suppl(suppl_count));
+                    }
                     "Article" => {
                         let num = e
                             .attributes()
                             .flatten()
                             .find(|a| a.key.as_ref() == b"Num")
                             .and_then(|a| String::from_utf8(a.value.into_owned()).ok());
-                        current_article = Some(Article {
-                            article_id: format!(
+                        let scope = *scope_stack.last().unwrap_or(&Scope::None);
+                        let id = match scope {
+                            Scope::Main | Scope::None => format!(
                                 "art_{}",
                                 num.clone().unwrap_or_else(|| (articles.len() + 1).to_string())
                             ),
+                            Scope::Suppl(idx) => format!(
+                                "suppl{}_art_{}",
+                                idx,
+                                num.clone().unwrap_or_else(|| {
+                                    let n = suppl_provisions
+                                        .last()
+                                        .map(|s| s.articles.len() + 1)
+                                        .unwrap_or(1);
+                                    n.to_string()
+                                })
+                            ),
+                            // Other (AppdxTable 等) 配下は配信対象外なので id は何でも良い。
+                            Scope::Other => format!("ignored_{}", articles.len() + 1),
+                        };
+                        current_article = Some(Article {
+                            article_id: id,
                             article_no: String::new(),
                             caption: None,
                             paragraphs: Vec::new(),
@@ -169,6 +237,12 @@ pub fn parse_law_xml(xml: &[u8], law_id: &str) -> Result<LawDocument> {
                             .find(|a| a.key.as_ref() == b"Num")
                             .and_then(|a| String::from_utf8(a.value.into_owned()).ok());
                     }
+                    // 配信対象外の構造ブロック (附則ではない別表・別紙系)。
+                    // 配下の Article は articles/suppl どちらにも入れたくない。
+                    "AppdxTable" | "AppdxNote" | "AppdxStyle" | "AppdxFig" | "AppdxFormat"
+                    | "Appdx" | "TOC" => {
+                        scope_stack.push(Scope::Other);
+                    }
                     _ => {}
                 }
                 text_buf.clear();
@@ -185,6 +259,13 @@ pub fn parse_law_xml(xml: &[u8], law_id: &str) -> Result<LawDocument> {
                     "LawNum" => law_num = Some(trimmed.to_string()),
                     "LawTitle" => title = Some(trimmed.to_string()),
                     "PromulgationDate" => promulgation_date = Some(trimmed.to_string()),
+                    "SupplProvisionLabel" => {
+                        if let Some(sp) = suppl_provisions.last_mut() {
+                            if !trimmed.is_empty() {
+                                sp.label = Some(trimmed.to_string());
+                            }
+                        }
+                    }
                     "ArticleTitle" => {
                         if let Some(a) = current_article.as_mut() {
                             a.article_no = trimmed.to_string();
@@ -229,19 +310,46 @@ pub fn parse_law_xml(xml: &[u8], law_id: &str) -> Result<LawDocument> {
                             if let Some(a) = current_article.as_mut() {
                                 a.paragraphs.push(p);
                             } else if !p.text.trim().is_empty() {
-                                // Article に属さない top-level Paragraph (例: <MainProvision>
-                                // 直下の Paragraph、AppdxNote 配下の Paragraph 等) は
-                                // 後でまとめて synthetic article として救う。
-                                orphan_paragraphs.push(p);
+                                let scope = *scope_stack.last().unwrap_or(&Scope::None);
+                                if matches!(scope, Scope::Main | Scope::None) {
+                                    // 旧法 (太政官布告等) の MainProvision 直下 Paragraph。
+                                    orphan_paragraphs.push(p);
+                                }
+                                // Suppl/Other 配下の orphan Paragraph は捨てる
+                                // (現状ユースケース無し)。
                             }
                         }
                     }
                     "Article" => {
                         if let Some(mut a) = current_article.take() {
-                            if a.article_id.is_empty() {
-                                a.article_id = format!("art_{}", articles.len() + 1);
+                            let scope = *scope_stack.last().unwrap_or(&Scope::None);
+                            match scope {
+                                Scope::Main | Scope::None => {
+                                    if a.article_id.is_empty() {
+                                        a.article_id = format!("art_{}", articles.len() + 1);
+                                    }
+                                    articles.push(a);
+                                }
+                                Scope::Suppl(_) => {
+                                    if let Some(sp) = suppl_provisions.last_mut() {
+                                        if a.article_id.is_empty() {
+                                            a.article_id =
+                                                format!("art_{}", sp.articles.len() + 1);
+                                        }
+                                        sp.articles.push(a);
+                                    }
+                                }
+                                Scope::Other => {
+                                    // 別表・別紙系は捨てる。
+                                }
                             }
-                            articles.push(a);
+                        }
+                    }
+                    "MainProvision" | "SupplProvision" | "AppdxTable" | "AppdxNote"
+                    | "AppdxStyle" | "AppdxFig" | "AppdxFormat" | "Appdx" | "TOC" => {
+                        // 開きで push したスコープを閉じる。
+                        if scope_stack.len() > 1 {
+                            scope_stack.pop();
                         }
                     }
                     _ => {}
@@ -275,6 +383,7 @@ pub fn parse_law_xml(xml: &[u8], law_id: &str) -> Result<LawDocument> {
         effective_date: None,
         status: "current".to_string(),
         articles,
+        suppl_provisions,
         source: SourceMeta {
             provider: "egov".to_string(),
             raw_xml_sha256: Some(raw_sha),
@@ -403,6 +512,104 @@ mod tests {
         assert_eq!(doc.articles[0].article_id, "art_preamble");
         assert_eq!(doc.articles[0].article_no, "本則");
         assert!(doc.articles[0].paragraphs[0].text.contains("改暦"));
+    }
+
+    #[test]
+    fn isolates_main_and_suppl_articles() {
+        // 民法のように MainProvision と複数の SupplProvision が同じ Num="1" を
+        // 持つケースで、article_id が衝突せず本則・附則が分離されることを確認する。
+        let xml = r#"<?xml version="1.0"?>
+<Law>
+  <LawNum>明治二十九年法律第八十九号</LawNum>
+  <LawBody>
+    <LawTitle>民法</LawTitle>
+    <MainProvision>
+      <Article Num="1">
+        <ArticleTitle>第一条</ArticleTitle>
+        <ArticleCaption>（基本原則）</ArticleCaption>
+        <Paragraph>
+          <ParagraphNum>1</ParagraphNum>
+          <ParagraphSentence>私権は、公共の福祉に適合しなければならない。</ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="2">
+        <ArticleTitle>第二条</ArticleTitle>
+        <Paragraph>
+          <ParagraphSentence>本則の二条本文。</ParagraphSentence>
+        </Paragraph>
+      </Article>
+    </MainProvision>
+    <SupplProvision>
+      <SupplProvisionLabel>附則</SupplProvisionLabel>
+      <Article Num="1">
+        <ArticleTitle>第一条</ArticleTitle>
+        <Paragraph>
+          <ParagraphSentence>この法律は、公布の日から起算して施行する。</ParagraphSentence>
+        </Paragraph>
+      </Article>
+    </SupplProvision>
+    <SupplProvision AmendLawNum="令和五年法律第五十三号">
+      <SupplProvisionLabel>附則（令和五年六月一四日法律第五十三号）</SupplProvisionLabel>
+      <Article Num="1">
+        <ArticleTitle>第一条</ArticleTitle>
+        <Paragraph>
+          <ParagraphSentence>改正法附則の一条本文。</ParagraphSentence>
+        </Paragraph>
+      </Article>
+    </SupplProvision>
+  </LawBody>
+</Law>"#;
+        let doc = parse_law_xml(xml.as_bytes(), "129AC0000000089").unwrap();
+        // 本則は 2 条のみ
+        assert_eq!(doc.articles.len(), 2);
+        assert_eq!(doc.articles[0].article_id, "art_1");
+        assert_eq!(doc.articles[1].article_id, "art_2");
+        assert!(doc.articles[0].paragraphs[0]
+            .text
+            .contains("公共の福祉"));
+        // 附則 2 本が独立
+        assert_eq!(doc.suppl_provisions.len(), 2);
+        assert_eq!(doc.suppl_provisions[0].index, 1);
+        assert_eq!(doc.suppl_provisions[0].articles[0].article_id, "suppl1_art_1");
+        assert!(doc.suppl_provisions[0].articles[0].paragraphs[0]
+            .text
+            .contains("公布の日"));
+        assert_eq!(doc.suppl_provisions[1].index, 2);
+        assert_eq!(
+            doc.suppl_provisions[1].amend_law_num.as_deref(),
+            Some("令和五年法律第五十三号")
+        );
+        assert_eq!(doc.suppl_provisions[1].articles[0].article_id, "suppl2_art_1");
+        assert!(doc.suppl_provisions[1].articles[0].paragraphs[0]
+            .text
+            .contains("改正法附則"));
+    }
+
+    #[test]
+    fn excludes_appdx_articles() {
+        // AppdxTable などの別表/別記配下に <Article> がある場合は articles に含めない。
+        let xml = r#"<?xml version="1.0"?>
+<Law>
+  <LawBody>
+    <LawTitle>テスト法</LawTitle>
+    <MainProvision>
+      <Article Num="1">
+        <ArticleTitle>第一条</ArticleTitle>
+        <Paragraph><ParagraphSentence>本則。</ParagraphSentence></Paragraph>
+      </Article>
+    </MainProvision>
+    <AppdxTable>
+      <Article Num="1">
+        <ArticleTitle>第一条</ArticleTitle>
+        <Paragraph><ParagraphSentence>別表条文 (拾わない)。</ParagraphSentence></Paragraph>
+      </Article>
+    </AppdxTable>
+  </LawBody>
+</Law>"#;
+        let doc = parse_law_xml(xml.as_bytes(), "L").unwrap();
+        assert_eq!(doc.articles.len(), 1);
+        assert!(doc.articles[0].paragraphs[0].text.contains("本則"));
+        assert_eq!(doc.suppl_provisions.len(), 0);
     }
 
     #[test]

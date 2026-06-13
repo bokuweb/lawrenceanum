@@ -18,11 +18,13 @@ chrono.workspace = true
 sha2.workspace = true
 hex.workspace = true
 walkdir.workspace = true
+flate2 = "1"
 tracing.workspace = true
 tracing-subscriber.workspace = true
 rayon.workspace = true
 egov-client = { path = "../egov-client" }
 law-normalizer = { path = "../law-normalizer" }
+law-diff = { path = "../law-diff" }
 kanpo-client = { path = "../kanpo-client" }
 kanpo-linker = { path = "../kanpo-linker" }
 search-index = { path = "../search-index" }
