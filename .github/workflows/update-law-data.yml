@@ -366,7 +366,11 @@ jobs:
 
       - name: Commit changes
         # push:main は「既に main にあるものを deploy する」フローなので auto-commit はしない。
+        # state/latest.json の push は付随的な記録にすぎない。run は ~1h かかり、その間に
+        # 別 run や PR マージで main が進むと push が競合する。これで deploy まで巻き添えに
+        # しないよう continue-on-error にし、pull --rebase + リトライで成功率も上げる。
         if: steps.detect.outputs.changed == 'true' && github.event_name != 'push'
+        continue-on-error: true
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -375,11 +379,17 @@ jobs:
           [ -f state/latest.json ] && git add state/latest.json || true
           if git diff --cached --quiet; then
             echo "::notice::lawpub reported changes, but git tree is clean — skipping commit"
-          else
-            git commit -m "chore(data): refresh law JSON (provider=${LAWPUB_PROVIDER}, +${{ steps.detect.outputs.new_xmls }} XML)"
-            # push の競合は同時実行のスケジュール cron と重ならない限り起きない (concurrency group)。
-            git push
+            exit 0
           fi
+          git commit -m "chore(data): refresh law JSON (provider=${LAWPUB_PROVIDER}, +${{ steps.detect.outputs.new_xmls }} XML)"
+          # main が進んでいたら rebase して push を数回リトライ。失敗しても deploy は止めない
+          # (continue-on-error)。記録は次回 run で再試行される。
+          for i in 1 2 3; do
+            if git push; then echo "pushed state/latest.json (attempt $i)"; exit 0; fi
+            echo "::warning::push rejected (attempt $i) — rebasing onto origin/main"
+            git pull --rebase origin main || true
+          done
+          echo "::warning::state/latest.json の push に失敗 (deploy は継続)。次回 run で再試行。"
 
   deploy:
     needs: update
