@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react'
-import { api, type Health, type LawsIndex, type UpdatesByDate } from './api'
+import { api, type Health, type LawsIndex, type UpdatesByDate, type UpdateEntry } from './api'
+
+export type UpdateDay = {
+  /** MM-DD (表示用) */
+  date: string
+  /** YYYY-MM-DD (ルーティング・API 用) */
+  fullDate: string
+  count: number
+  laws: UpdateEntry[]
+}
 
 export type LiveSnapshot = {
   loading: boolean
@@ -7,8 +16,8 @@ export type LiveSnapshot = {
   laws: LawsIndex | null
   health: Health | null
   latestUpdates: UpdatesByDate | null
-  /** 直近 14 日分の更新件数 (古い順)。`updates/{date}.json` が無い日は 0 件として埋める。 */
-  trend14: { date: string; count: number }[]
+  /** 直近 14 日分の更新（古い順）。`updates/{date}.json` が無い日は 0 件として埋める。 */
+  trend14: UpdateDay[]
 }
 
 /**
@@ -46,7 +55,9 @@ export function useLiveSnapshot(): LiveSnapshot {
         const v = r.status === 'fulfilled' ? r.value : null
         return {
           date: dates[i].slice(5),  // MM-DD だけ表示用に短縮
+          fullDate: dates[i],
           count: v?.updated_laws.length ?? 0,
+          laws: v?.updated_laws ?? [],
         }
       })
       setState({

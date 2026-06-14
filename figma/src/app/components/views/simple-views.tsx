@@ -2,14 +2,16 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { RECENT_UPDATES } from "../mock-data";
-import { Newspaper, ExternalLink, FileCheck2 } from "lucide-react";
+import { Newspaper, FileCheck2, ChevronDown, ChevronRight, GitCompare } from "lucide-react";
 import { Button } from "../ui/button";
 import { Switch } from "../ui/switch";
 import { Label } from "../ui/label";
 import { useTheme } from "../theme-provider";
+import { Link } from "react-router";
 import { api, type UpdatesByDate } from "../../data/api";
 
-type UpdatesIndexEntry = { date: string; count: number; laws: string[] };
+import { type UpdateEntry } from "../../data/api";
+type UpdatesIndexEntry = { date: string; count: number; laws: UpdateEntry[] };
 
 /**
  * `updates/latest.json` と最近 14 日分の `updates/{date}.json` を fetch する。
@@ -42,7 +44,7 @@ function useUpdatesIndex(): { entries: UpdatesIndexEntry[]; loading: boolean; li
           entries.push({
             date: r.d,
             count: r.v.updated_laws.length,
-            laws: r.v.updated_laws.map(l => l.title),
+            laws: r.v.updated_laws,
           });
         }
         // latest が dates に含まれない場合は補う。
@@ -55,7 +57,7 @@ function useUpdatesIndex(): { entries: UpdatesIndexEntry[]; loading: boolean; li
           entries.unshift({
             date: latest.latest_update_date,
             count: latest.updated_laws.length,
-            laws: latest.updated_laws.map(l => l.title),
+            laws: latest.updated_laws,
           });
         }
         // 過去の bulk-catN ラベルや空文字を除外。
@@ -73,9 +75,10 @@ function useUpdatesIndex(): { entries: UpdatesIndexEntry[]; loading: boolean; li
 
 export function UpdatesView() {
   const { entries, loading, live } = useUpdatesIndex();
+  const [expanded, setExpanded] = useState<string | null>(null);
   const display = live
     ? entries
-    : RECENT_UPDATES.map(u => ({ date: u.date, count: u.count, laws: u.laws }));
+    : RECENT_UPDATES.map(u => ({ date: u.date, count: u.count, laws: u.laws as any[] }));
 
   return (
     <div className="p-6 space-y-6">
@@ -89,28 +92,64 @@ export function UpdatesView() {
         </div>
       </div>
       <div className="space-y-2">
-        {display.map(u => (
-          <Card key={u.date}>
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="text-center w-20 shrink-0">
-                <div className="text-2xl tabular-nums">{u.date.slice(8)}</div>
-                <div className="text-xs text-muted-foreground">{u.date.slice(0, 7)}</div>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary">{u.count} 件の更新</Badge>
-                  <FileCheck2 className="size-4 text-emerald-500" />
+        {display.map(u => {
+          const open = expanded === u.date;
+          const lawEntries: any[] = Array.isArray(u.laws) ? u.laws : [];
+          return (
+            <Card key={u.date} className="overflow-hidden">
+              <button
+                className="w-full text-left"
+                onClick={() => setExpanded(open ? null : u.date)}
+              >
+                <CardContent className="p-4 flex items-center gap-4 hover:bg-accent/50 transition-colors">
+                  <div className="text-center w-20 shrink-0">
+                    <div className="text-2xl tabular-nums">{u.date.slice(8)}</div>
+                    <div className="text-xs text-muted-foreground">{u.date.slice(0, 7)}</div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary">{u.count} 件の更新</Badge>
+                      <FileCheck2 className="size-4 text-emerald-500" />
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {lawEntries.slice(0, 3).map((l: any) => typeof l === 'string' ? l : l.title).join("、")}
+                      {lawEntries.length > 3 && ` 他 ${lawEntries.length - 3} 件`}
+                    </div>
+                  </div>
+                  {open ? <ChevronDown className="size-4 text-muted-foreground shrink-0" /> : <ChevronRight className="size-4 text-muted-foreground shrink-0" />}
+                </CardContent>
+              </button>
+              {open && lawEntries.length > 0 && (
+                <div className="border-t border-border">
+                  {lawEntries.map((l: any, i: number) => {
+                    if (typeof l === 'string') {
+                      return (
+                        <div key={i} className="px-6 py-2.5 text-sm border-b border-border/50 last:border-0">{l}</div>
+                      );
+                    }
+                    return (
+                      <div key={l.law_id ?? i} className="flex items-center justify-between px-6 py-2.5 gap-3 border-b border-border/50 last:border-0 hover:bg-accent/40 transition-colors">
+                        <div className="min-w-0 flex-1">
+                          <Link to={`/laws/${l.law_id}`} className="text-sm truncate block hover:underline">{l.title}</Link>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <Badge variant={l.change_type === 'added' ? 'default' : l.change_type === 'removed' ? 'destructive' : 'secondary'} className="text-xs px-1.5">
+                            {l.change_type === 'added' ? '追加' : l.change_type === 'removed' ? '廃止' : '改正'}
+                          </Badge>
+                          <Button variant="ghost" size="icon" className="size-7" asChild>
+                            <Link to={`/laws/${l.law_id}/compare`} title="差分を見る">
+                              <GitCompare className="size-3.5" />
+                            </Link>
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-                <div className="text-sm text-muted-foreground mt-1 truncate">{u.laws.join("、")}</div>
-              </div>
-              <Button variant="ghost" size="sm" asChild>
-                <a className="gap-1 inline-flex items-center" href={`./updates/${u.date}.json`} target="_blank" rel="noreferrer">
-                  JSON <ExternalLink className="size-3" />
-                </a>
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+              )}
+            </Card>
+          );
+        })}
         {!loading && display.length === 0 && (
           <div className="text-sm text-muted-foreground text-center py-12">更新履歴がまだありません</div>
         )}

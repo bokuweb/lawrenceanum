@@ -1,13 +1,76 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
-import { TrendingUp, Database, FileText, CheckCircle2, ArrowUpRight } from "lucide-react";
+import { TrendingUp, Database, FileText, CheckCircle2, ArrowUpRight, ChevronDown, ChevronRight, GitCompare } from "lucide-react";
 import { Button } from "../ui/button";
 import { useLiveSnapshot } from "../../data/use-live-data";
+import { Link } from "react-router";
 
 // recharts を含む可視化要素は別チャンクへ。
 const StatTrend = lazy(() => import("./dashboard-charts").then(m => ({ default: m.StatTrend })));
 const UpdateTrendCard = lazy(() => import("./dashboard-charts").then(m => ({ default: m.UpdateTrendCard })));
+
+import { type UpdateDay } from "../../data/use-live-data";
+
+function RecentUpdatesCard({ trend14, loading }: { trend14: UpdateDay[]; loading: boolean }) {
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const days = trend14.filter(d => d.count > 0).slice().reverse().slice(0, 7);
+
+  return (
+    <Card>
+      <CardHeader className="flex-row items-center justify-between">
+        <CardTitle>直近の更新</CardTitle>
+        <Button variant="ghost" size="sm" asChild>
+          <Link to="/updates">すべて見る</Link>
+        </Button>
+      </CardHeader>
+      <CardContent className="space-y-1 p-4 pt-0">
+        {days.map(u => {
+          const open = expanded === u.fullDate;
+          return (
+            <div key={u.fullDate} className="border border-border rounded-md overflow-hidden">
+              <button
+                className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-accent transition-colors text-left"
+                onClick={() => setExpanded(open ? null : u.fullDate)}
+              >
+                {open ? <ChevronDown className="size-3.5 text-muted-foreground shrink-0" /> : <ChevronRight className="size-3.5 text-muted-foreground shrink-0" />}
+                <span className="text-xs text-muted-foreground tabular-nums w-12 shrink-0">{u.date}</span>
+                <Badge variant="secondary" className="tabular-nums text-xs">{u.count} 件</Badge>
+              </button>
+              {open && (
+                <div className="border-t border-border bg-muted/30">
+                  {u.laws.map(l => (
+                    <div key={l.law_id} className="flex items-center justify-between px-4 py-2 gap-2 border-b border-border/50 last:border-0 hover:bg-accent/50 transition-colors">
+                      <div className="min-w-0 flex-1">
+                        <Link to={`/laws/${l.law_id}`} className="text-xs truncate block hover:underline">{l.title}</Link>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Badge variant={l.change_type === 'added' ? 'default' : l.change_type === 'removed' ? 'destructive' : 'secondary'} className="text-xs px-1.5">
+                          {l.change_type === 'added' ? '追加' : l.change_type === 'removed' ? '廃止' : '改正'}
+                        </Badge>
+                        <Button variant="ghost" size="icon" className="size-6" asChild>
+                          <Link to={`/laws/${l.law_id}/compare`} title="差分を見る">
+                            <GitCompare className="size-3" />
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+        {!loading && days.length === 0 && (
+          <div className="text-xs text-muted-foreground py-4 text-center">直近 14 日に更新はありません</div>
+        )}
+        {loading && (
+          <div className="text-xs text-muted-foreground py-4 text-center">読み込み中…</div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
 function StatCard({ label, value, delta, icon: Icon, trend }: any) {
   return (
@@ -56,7 +119,7 @@ export function DashboardView() {
   const healthOk = health?.ok ?? null;
   const featuredLaws = laws?.laws.slice(0, 5) ?? [];
   // 直近 14 日のリアル更新だけを使う。読み込み中は空配列。
-  const trendForChart = trend14.map(d => ({ month: d.date, count: d.count }));
+  const trendForChart = trend14.map(d => ({ month: d.date, count: d.count }))  // d.date は MM-DD;
   const trendSum = trend14.reduce((acc, d) => acc + d.count, 0);
   const fmt = (n: number | null | undefined) =>
     n === null || n === undefined ? "—" : n.toLocaleString();
@@ -114,28 +177,7 @@ export function DashboardView() {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <Card>
-          <CardHeader className="flex-row items-center justify-between">
-            <CardTitle>直近の更新</CardTitle>
-            <Button variant="ghost" size="sm">すべて見る</Button>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {trend14.filter(d => d.count > 0).slice(-7).reverse().map(u => (
-              <div key={u.date} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
-                <div className="text-xs text-muted-foreground tabular-nums w-24">{u.date}</div>
-                <Badge variant="secondary" className="tabular-nums">{u.count} 件</Badge>
-              </div>
-            ))}
-            {!loading && trend14.every(d => d.count === 0) && (
-              <div className="text-xs text-muted-foreground py-4 text-center">
-                直近 14 日に更新はありません
-              </div>
-            )}
-            {loading && (
-              <div className="text-xs text-muted-foreground py-4 text-center">読み込み中…</div>
-            )}
-          </CardContent>
-        </Card>
+        <RecentUpdatesCard trend14={trend14} loading={loading} />
 
         <Card>
           <CardHeader><CardTitle>注目の法令</CardTitle></CardHeader>
