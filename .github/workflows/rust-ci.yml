@@ -1,0 +1,51 @@
+name: rust-ci
+
+# PR 時に Rust の build/test/fmt を回す軽い CI。
+# 過去に workspace のライセンス継承崩れ (license.workspace vs license-file) が
+# PR 時チェック無しで main に入りビルド不能になった再発防止。
+on:
+  push:
+    branches: [main]
+    paths:
+      - "crates/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/rust-ci.yml"
+  pull_request:
+    paths:
+      - "crates/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/rust-ci.yml"
+
+concurrency:
+  group: rust-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      # build/test は崩れていたら落とす (= 真の壊れ=今回のライセンス継承崩れ等を検出)。
+      - name: Build & test (workspace)
+        run: cargo test --workspace --locked
+
+      # fmt / clippy は情報提供のみ (既存クレートに整形崩れ・warning が残っているため)。
+      # 一度 `cargo fmt --all` で整形し既存 warning を解消したら、それぞれ
+      # `--check` / `-- -D warnings` に締めて必須化できる。
+      - name: Format check (advisory)
+        run: cargo fmt --all -- --check || true
+
+      - name: Clippy (advisory)
+        run: cargo clippy --workspace --all-targets || true
