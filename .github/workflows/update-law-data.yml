@@ -4,8 +4,6 @@ on:
   # public は git 追跡しない (Pages artifact で都度ビルド配信) ため、push では
   # deploy しない (commit 済データが無い)。定期実行 + 手動のみで public を
   # 再生成して deploy する。
-  schedule:
-    - cron: "0 18 * * *" # 毎日 ~03:00 JST。頻度は適宜調整。
   workflow_dispatch:
     inputs:
       provider:
