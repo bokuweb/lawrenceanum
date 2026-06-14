@@ -1871,6 +1871,113 @@ pub fn run_rebuild_manifest(public: &Path) -> Result<()> {
     Ok(())
 }
 
+/// 履歴束 (.zst) を復号して NDJSON の各行 (空行除く) を返す。ファイルが無ければ空。
+fn read_history_bundle_lines(path: &Path) -> Result<Vec<String>> {
+    if !path.exists() {
+        return Ok(Vec::new());
+    }
+    let bytes = std::fs::read(path)?;
+    let raw =
+        zstd::decode_all(&bytes[..]).with_context(|| format!("zstd decode {}", path.display()))?;
+    let text = String::from_utf8(raw).with_context(|| format!("utf8 {}", path.display()))?;
+    Ok(text
+        .lines()
+        .filter(|l| !l.is_empty())
+        .map(|l| l.to_string())
+        .collect())
+}
+
+/// NDJSON 1 行 (= 1 版の LawDocument) から revision_id を取り出す。
+fn revision_id_of_line(line: &str) -> Option<String> {
+    serde_json::from_str::<serde_json::Value>(line)
+        .ok()
+        .and_then(|v| {
+            v.get("revision_id")
+                .and_then(|r| r.as_str())
+                .map(|s| s.to_string())
+        })
+}
+
+/// `public` の (CI が cache から作った) 履歴束に `prebuilt` の履歴束をマージする。
+///
+/// 法令ごとに revision_id で union (dedup) する。過去の版は prebuilt 側が、
+/// 新しい版は CI 側が持つので、32GB の revision キャッシュを CI に置かずに
+/// 履歴束を最新化できる (差分更新)。同一 revision_id が両方にある場合は
+/// **public (CI) 側を採用**する — CI 側は新しい current を踏まえて各版の
+/// status (current/historical) を計算し直しているため。
+/// 出力は revision_id 昇順 (BTreeMap) なので、同じ入力なら同じ束 = 冪等。
+pub fn run_merge_history(public: &Path, prebuilt: &Path) -> Result<()> {
+    use std::collections::BTreeSet;
+    let pub_laws = public.join("laws");
+    let pre_laws = prebuilt.join("laws");
+
+    let mut law_ids: BTreeSet<String> = BTreeSet::new();
+    for base in [&pub_laws, &pre_laws] {
+        if base.exists() {
+            for e in std::fs::read_dir(base)? {
+                let e = e?;
+                if e.file_type()?.is_dir() {
+                    law_ids.insert(e.file_name().to_string_lossy().to_string());
+                }
+            }
+        }
+    }
+
+    let mut unioned = 0usize;
+    let mut changed = 0usize;
+    for id in &law_ids {
+        let pub_bundle = pub_laws.join(id).join("history.ndjson.zst");
+        let pre_bundle = pre_laws.join(id).join("history.ndjson.zst");
+        let pre_lines = read_history_bundle_lines(&pre_bundle)?;
+        let pub_lines = read_history_bundle_lines(&pub_bundle)?;
+        if pre_lines.is_empty() && pub_lines.is_empty() {
+            continue;
+        }
+        // prebuilt を先に、public を後に入れる。同一 revision_id は後勝ち = public 優先。
+        // revision_id が無い行は衝突させないよう一意キーで保持する。
+        let mut by_rev: BTreeMap<String, String> = BTreeMap::new();
+        let mut anon = 0usize;
+        for line in &pre_lines {
+            let key = revision_id_of_line(line).unwrap_or_else(|| {
+                anon += 1;
+                format!("\u{0}pre{anon}")
+            });
+            by_rev.insert(key, line.clone());
+        }
+        for line in &pub_lines {
+            let key = revision_id_of_line(line).unwrap_or_else(|| {
+                anon += 1;
+                format!("\u{0}pub{anon}")
+            });
+            by_rev.insert(key, line.clone());
+        }
+
+        let mut ndjson: Vec<u8> = Vec::new();
+        for line in by_rev.values() {
+            ndjson.extend_from_slice(line.as_bytes());
+            ndjson.push(b'\n');
+        }
+        let compressed = zstd_long(&ndjson)?;
+
+        // 既存と同一バイトなら書かない (冪等・無駄な mtime 更新を避ける)。
+        let existing = std::fs::read(&pub_bundle).ok();
+        if existing.as_deref() != Some(compressed.as_slice()) {
+            if let Some(parent) = pub_bundle.parent() {
+                std::fs::create_dir_all(parent)?;
+            }
+            std::fs::write(&pub_bundle, &compressed)?;
+            changed += 1;
+        }
+        unioned += 1;
+    }
+    tracing::info!(
+        "merge-history: {} laws unioned ({} bundles changed)",
+        unioned,
+        changed
+    );
+    Ok(())
+}
+
 fn write_manifest_and_health(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
     let generated_at = Utc::now().to_rfc3339();
 
@@ -2174,5 +2281,63 @@ mod history_bundle_tests {
         let mut out = Vec::new();
         dec.read_to_end(&mut out).unwrap();
         assert_eq!(out, data, "zstd round-trip must be lossless");
+    }
+
+    #[test]
+    fn merge_history_unions_by_revision_id_public_wins() {
+        use std::path::PathBuf;
+        let base = std::env::temp_dir().join(format!("lawpub_mh_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&base);
+        let pre = base.join("pre/laws/X");
+        let pubd = base.join("pub/laws/X");
+        std::fs::create_dir_all(&pre).unwrap();
+        std::fs::create_dir_all(&pubd).unwrap();
+        let write = |dir: &PathBuf, lines: &[&str]| {
+            let nd = lines.join("\n") + "\n";
+            std::fs::write(
+                dir.join("history.ndjson.zst"),
+                super::zstd_long(nd.as_bytes()).unwrap(),
+            )
+            .unwrap();
+        };
+        // prebuilt: r1(historical) + r2(当時 current)
+        write(
+            &pre,
+            &[
+                r#"{"revision_id":"r1","status":"historical"}"#,
+                r#"{"revision_id":"r2","status":"current"}"#,
+            ],
+        );
+        // public(CI): r2(now historical) + r3(新 current)
+        write(
+            &pubd,
+            &[
+                r#"{"revision_id":"r2","status":"historical"}"#,
+                r#"{"revision_id":"r3","status":"current"}"#,
+            ],
+        );
+
+        super::run_merge_history(&base.join("pub"), &base.join("pre")).unwrap();
+
+        let lines = super::read_history_bundle_lines(&pubd.join("history.ndjson.zst")).unwrap();
+        let ids: Vec<String> = lines
+            .iter()
+            .map(|l| super::revision_id_of_line(l).unwrap())
+            .collect();
+        // union = 3 版, revision_id 昇順, 衝突 r2 は public 側 (historical) が勝つ。
+        assert_eq!(ids, vec!["r1", "r2", "r3"]);
+        assert!(
+            lines[1].contains("\"status\":\"historical\""),
+            "r2 should take public's status: {}",
+            lines[1]
+        );
+
+        // 冪等: もう一度マージしてもバイト不変。
+        let before = std::fs::read(pubd.join("history.ndjson.zst")).unwrap();
+        super::run_merge_history(&base.join("pub"), &base.join("pre")).unwrap();
+        let after = std::fs::read(pubd.join("history.ndjson.zst")).unwrap();
+        assert_eq!(before, after, "merge-history must be idempotent");
+
+        let _ = std::fs::remove_dir_all(&base);
     }
 }

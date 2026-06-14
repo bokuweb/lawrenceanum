@@ -74,6 +74,16 @@ enum Cmd {
         #[arg(long, default_value = "public")]
         public: PathBuf,
     },
+    /// `public` の履歴束に `prebuilt` の履歴束を法令ごとに revision_id で
+    /// union (dedup) してマージする。過去版は prebuilt、新版は CI ビルド由来を
+    /// 取り込めるので、全 revision キャッシュを CI に置かずに履歴を差分更新できる。
+    MergeHistory {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+        /// マージ元の prebuilt 履歴束ツリー (laws/{id}/history.ndjson.zst を含む)。
+        #[arg(long)]
+        prebuilt: PathBuf,
+    },
     /// fetch-update + build-json + build-index をまとめて実行する。
     Update {
         #[arg(long, default_value = "public")]
@@ -235,6 +245,7 @@ fn main() -> Result<()> {
         Cmd::BuildIndex { output } => build::run_build_index(&output),
         Cmd::Validate { public } => validate::run_validate(&public),
         Cmd::RebuildManifest { public } => build::run_rebuild_manifest(&public),
+        Cmd::MergeHistory { public, prebuilt } => build::run_merge_history(&public, &prebuilt),
         Cmd::FetchUpdate { date, cache } => {
             build::run_fetch_update(&date, &cache, "mock").map(|_| ())
         }

@@ -15,10 +15,11 @@
 | SPA: 履歴束取得＋展開 | ✅ | `figma/src/app/data/api.ts` `fetchHistory`/`api.history` (fzstd) |
 | SPA: クライアント側 任意2版 diff | ✅ | `figma/src/app/components/views/compare-view.tsx` (束を1回ロード→`revDocs`) |
 | e2e (self-contained) + CI | ✅ | `figma/tests/history.spec.ts` / `playwright.history.config.ts` / `.github/workflows/e2e-history.yml` |
-| manifest 単独再生成コマンド | ✅ | `lawpub rebuild-manifest --public <dir>` (overlay 後に validate を通す) |
+| manifest 単独再生成コマンド | ✅ | `lawpub rebuild-manifest --public <dir>` (束差し替え後に validate を通す) |
+| 履歴差分マージコマンド | ✅ | `lawpub merge-history --public <dir> --prebuilt <dir>` (法令ごとに revision_id で union) |
 | R2 アップロード用スクリプト | ✅ | `scripts/upload-history-bundles.sh` |
-| 本番 CI への R2 復元結線 | ✅ | `update-law-data.yml` 「Restore prebuilt history bundles from R2」 |
-| **R2 へ束を実アップロード** | ⏳ **要 owner 実行** | 下記「アップロード手順」 |
+| 本番 CI への R2 マージ結線 | ✅ | `update-law-data.yml`「Merge prebuilt history bundles from R2」+「Re-upload merged ...」 |
+| **R2 へ束を初回アップロード** | ⏳ **要 owner 実行** | 下記「アップロード手順」 |
 
 ### アップロード手順 (owner が手元で1回 + 履歴を作り直すたび)
 アップロードは **wrangler** (要 Node v22+) を使う。`scripts/upload-history-bundles.sh`:
@@ -31,9 +32,17 @@ PUBLIC=/Users/bokuweb/lawpub-build/public ./scripts/upload-history-bundles.sh
 #    wrangler r2 object put で r2://lawrenceanum-search/history-bundles.tar に置く
 ```
 アップロード後、次回の `update-law-data.yml` 実行 (定期 or 手動 dispatch) で CI が
-`history-bundles.tar` を取得 → `public/laws/**` に上書き → `lawpub rebuild-manifest`
-→ validate → gzip → Pages 同梱、の順で本番配信される。束が R2 に無い間は warn して
-従来挙動 (CI 内 cache から作った部分的な束 or 束なし) で続行する (安全ロールアウト)。
+`history-bundles.tar` を取得 → **`lawpub merge-history`** で CI が cache から作った束に
+**法令ごとに revision_id で union** (過去版=prebuilt / 新版=CI、衝突は CI 優先) →
+`lawpub rebuild-manifest` → validate → gzip → Pages 同梱、の順で本番配信される。
+さらに **マージ後の束を R2 に書き戻し** (`Re-upload merged ...`) て prebuilt を最新化する。
+これにより GH Actions cache の evict 後も履歴が巻き戻らず、R2 が常に最新の真実になる
+(union は順序非依存＝冪等)。束が R2 に無い間は warn して従来挙動 (CI 内 cache から
+作った部分的な束 or 束なし) で続行する (安全ロールアウト)。
+
+> 差分更新なので CI に 32GB cache は不要。日々変わるのは数法令ぶんの束だけで、
+> メモリ・ディスクともに軽量。フル再ベースラインが要るとき (スキーマ変更等) のみ、
+> 手元で全 cache から再ビルドして `scripts/upload-history-bundles.sh` で上げ直す。
 
 > 注: 中身が既に zstd のため tar は二重圧縮しない **plain `history-bundles.tar`**。
 > アップロードは wrangler (CLOUDFLARE_API_TOKEN/ACCOUNT_ID)、CI の取得側は既存ステップと

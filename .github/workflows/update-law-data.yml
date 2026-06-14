@@ -257,10 +257,12 @@ jobs:
 
       # 履歴束 (history.ndjson.zst) の全件ビルドには 32GB の revision キャッシュが
       # 必要で CI では回せない。手元で生成して R2 に上げた prebuilt 束
-      # (scripts/upload-history-bundles.sh) を取得し、public/ に上書きする。
-      # 上書き後は manifest を実体から再生成して validate を通す。
+      # (scripts/upload-history-bundles.sh) を取得し、CI が cache から作った束に
+      # **法令ごとに revision_id で union (merge-history)** する。過去版は prebuilt、
+      # 新版は CI ビルド由来を取り込めるので、差分だけで履歴を最新化できる。
+      # マージ後は manifest を実体から再生成して validate を通す。
       # 束が無ければ warn して続行 (= CI 内 cache から作った部分的な束のまま)。
-      - name: Restore prebuilt history bundles from R2
+      - name: Merge prebuilt history bundles from R2
         if: >-
           steps.detect.outputs.changed == 'true' &&
           env.R2_BUCKET != '' &&
@@ -274,11 +276,15 @@ jobs:
         run: |
           if aws s3 cp "s3://$R2_BUCKET/history-bundles.tar" /tmp/history-bundles.tar --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
             ls -lh /tmp/history-bundles.tar
-            tar -xf /tmp/history-bundles.tar -C public
-            n=$(find public/laws -name history.ndjson.zst | wc -l)
-            echo "::notice::restored $n prebuilt history bundles from R2"
-            # 束を上書きしたので manifest.json の sha256/bytes を実体から再計算する。
+            rm -rf /tmp/prebuilt-history && mkdir -p /tmp/prebuilt-history
+            tar -xf /tmp/history-bundles.tar -C /tmp/prebuilt-history
+            n=$(find /tmp/prebuilt-history/laws -name history.ndjson.zst | wc -l)
+            echo "::notice::fetched $n prebuilt history bundles from R2; merging"
+            # 過去版(prebuilt) ∪ 新版(CI) を法令ごとに union する。
+            ./target/release/lawpub merge-history --public public --prebuilt /tmp/prebuilt-history
+            # 束が差し替わったので manifest.json の sha256/bytes を実体から再計算する。
             ./target/release/lawpub rebuild-manifest --public public
+            echo "MERGED_HISTORY=1" >> "$GITHUB_ENV"
           else
             echo "::warning::history-bundles.tar not found in R2 — keeping CI-built history (may be partial)"
           fi
@@ -286,6 +292,32 @@ jobs:
       - name: Validate public JSON
         if: steps.detect.outputs.changed == 'true'
         run: ./target/release/lawpub validate --public public
+
+      # マージ後の履歴束を R2 に書き戻して prebuilt を最新化する。
+      # こうしないと GH Actions cache の evict で新版が CI から消えたとき、
+      # 次回のマージ元 (R2 prebuilt) が古いままになり履歴が巻き戻る。
+      # R2 が常に最新の真実になることで冪等性を担保する (validate 済みのみ upload)。
+      - name: Re-upload merged history bundles to R2
+        if: >-
+          steps.detect.outputs.changed == 'true' &&
+          env.MERGED_HISTORY == '1' &&
+          env.R2_BUCKET != '' &&
+          env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          ( cd public && find laws -name 'history.ndjson.zst' -print0 | sort -z \
+              | tar --null -cf /tmp/history-bundles-merged.tar -T - )
+          ls -lh /tmp/history-bundles-merged.tar
+          aws s3 cp /tmp/history-bundles-merged.tar "s3://$R2_BUCKET/history-bundles.tar" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --content-type 'application/x-tar' \
+            --cache-control 'public, max-age=300'
+          echo "::notice::re-uploaded merged history bundles to R2 (prebuilt refreshed)"
 
       # search.db は git/Pages 配信に乗せず R2 (egress 無料) に置く。
       # validate を済ませてから upload + 削除し、manifest からも entry を抜く。
