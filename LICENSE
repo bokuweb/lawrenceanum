@@ -1,0 +1,70 @@
+lawrenceanum License
+
+Copyright (c) 2026 bokuweb
+
+日本語版（正文）
+
+本ソフトウェア（ソースコード、ドキュメント、関連データを含む。以下「本ソフ
+トウェア」といいます）は、以下の条件に従って利用できます。
+
+1. 個人利用
+   個人による非商用の利用（私的な学習・研究・検証・趣味目的での利用、改変、
+   複製、再配布を含む）は、無償かつ自由に行うことができます。
+
+2. 商用利用
+   本ソフトウェアを商用目的で利用する場合（営利を目的とする事業・製品・サー
+   ビスへの組み込み、社内業務での利用、有償での再配布などを含むがこれらに限
+   られない）は、事前に権利者へお問い合わせのうえ、許諾を得る必要があります。
+
+   お問い合わせ先: https://github.com/bokuweb/lawrenceanum
+
+3. 表示
+   本ソフトウェアを再配布する場合は、上記の著作権表示および本ライセンス条文
+   を保持してください。
+
+4. 無保証
+   本ソフトウェアは「現状有姿」で提供され、明示または黙示を問わず、商品性、
+   特定目的への適合性、および権利非侵害を含むいかなる保証も行いません。本ソ
+   フトウェアの利用または利用不能から生じるいかなる損害についても、権利者は
+   責任を負いません。
+
+   なお、本ソフトウェアが扱う法令データは e-Gov 法令API 等の公的データに由来
+   します。データそのものの正確性・最新性については各提供元の規約に従うものと
+   し、権利者はこれを保証しません。
+
+---
+
+English version (for reference; the Japanese version above prevails in case of
+any discrepancy)
+
+This software (including source code, documentation, and associated data,
+collectively the "Software") may be used under the following terms.
+
+1. Personal use
+   Personal, non-commercial use (including use for private study, research,
+   evaluation, or hobby purposes, as well as modification, copying, and
+   redistribution) is permitted free of charge.
+
+2. Commercial use
+   Any commercial use of the Software (including, but not limited to,
+   incorporation into for-profit businesses, products, or services; use in
+   internal business operations; and redistribution for a fee) requires prior
+   inquiry to, and permission from, the copyright holder.
+
+   Contact: https://github.com/bokuweb/lawrenceanum
+
+3. Attribution
+   Redistributions of the Software must retain the above copyright notice and
+   this license text.
+
+4. No warranty
+   The Software is provided "as is", without warranty of any kind, express or
+   implied, including but not limited to the warranties of merchantability,
+   fitness for a particular purpose, and noninfringement. In no event shall the
+   copyright holder be liable for any damages arising from the use of or
+   inability to use the Software.
+
+   The statute data handled by the Software originates from public sources such
+   as the e-Gov Law API. The accuracy and timeliness of the data itself are
+   subject to the terms of the respective providers, and the copyright holder
+   makes no warranty regarding it.
