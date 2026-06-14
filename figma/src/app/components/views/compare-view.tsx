@@ -54,11 +54,12 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
   const [versions, setVersions] = useState<VersionsJson | null>(null);
   const [versionA, setVersionA] = useState<string>("");
   const [versionB, setVersionB] = useState<string>("");
-  const [docA, setDocA] = useState<LawDocumentRaw | null>(null);
-  const [docB, setDocB] = useState<LawDocumentRaw | null>(null);
+  // revision_id -> 本文。履歴束 (history.ndjson.zst) を 1 回展開して全版を保持する。
+  // (注: 変数名 `history` は window.history と衝突するので使わない)
+  const [revDocs, setRevDocs] = useState<Map<string, LawDocumentRaw>>(new Map());
   const [error, setError] = useState<string | null>(null);
 
-  // versions.json をロード。
+  // versions.json をロード。本文を持つ版 (body_available) を既定の比較対象にする。
   useEffect(() => {
     if (!lawId) return;
     let cancelled = false;
@@ -66,33 +67,36 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
     api.versions(lawId).then(v => {
       if (cancelled) return;
       setVersions(v);
-      if (v.versions.length >= 2) {
-        setVersionA(v.versions[v.versions.length - 2].revision_id);
-        setVersionB(v.versions[v.versions.length - 1].revision_id);
-      } else if (v.versions.length === 1) {
-        setVersionA(v.versions[0].revision_id);
-        setVersionB(v.versions[0].revision_id);
+      const list = v.versions.filter(x => x.body_available !== false);
+      const pick = list.length ? list : v.versions;
+      if (pick.length >= 2) {
+        setVersionA(pick[pick.length - 2].revision_id);
+        setVersionB(pick[pick.length - 1].revision_id);
+      } else if (pick.length === 1) {
+        setVersionA(pick[0].revision_id);
+        setVersionB(pick[0].revision_id);
       }
     }).catch(e => { if (!cancelled) { setVersions(null); setError(String(e)); } });
     return () => { cancelled = true; };
   }, [lawId]);
 
-  // 選択された rev をロード。
+  // 履歴束 (history.ndjson.zst) を 1 回ロード — 全版を含むので、版選択は束から引く
+  // だけで済み、per-revision の追加 fetch が不要 (任意 2 版 diff をクライアント側で)。
   useEffect(() => {
-    if (!lawId || !versionA) return;
+    if (!lawId) return;
     let cancelled = false;
-    api.revision(lawId, versionA).then(d => { if (!cancelled) setDocA(d); }).catch(() => { if (!cancelled) setDocA(null); });
+    api.history(lawId)
+      .then(docs => { if (!cancelled) setRevDocs(new Map(docs.map(d => [d.revision_id ?? "", d]))); })
+      .catch(() => { if (!cancelled) setRevDocs(new Map()); });
     return () => { cancelled = true; };
-  }, [lawId, versionA]);
-  useEffect(() => {
-    if (!lawId || !versionB) return;
-    let cancelled = false;
-    api.revision(lawId, versionB).then(d => { if (!cancelled) setDocB(d); }).catch(() => { if (!cancelled) setDocB(null); });
-    return () => { cancelled = true; };
-  }, [lawId, versionB]);
+  }, [lawId]);
+
+  const docA = versionA ? revDocs.get(versionA) ?? null : null;
+  const docB = versionB ? revDocs.get(versionB) ?? null : null;
+  const availVersions = versions?.versions.filter(v => v.body_available !== false) ?? [];
 
   // フォールバック: live が無い・足りない場合はモック ARTICLES_V1/V2。
-  const liveAvailable = !!docA && !!docB && (versions?.versions.length ?? 0) >= 2;
+  const liveAvailable = !!docA && !!docB && availVersions.length >= 2;
   const articlesA: Article[] = liveAvailable ? docA!.articles : (ARTICLES_V1 as unknown as Article[]);
   const articlesB: Article[] = liveAvailable ? docB!.articles : (ARTICLES_V2 as unknown as Article[]);
   const law = laws.find(l => l.law_id === lawId) ?? laws[0] ?? { title: "民法", law_id: "?" } as any;
@@ -153,7 +157,7 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
             <Select value={versionA} onValueChange={setVersionA}>
               <SelectTrigger><SelectValue placeholder="選択" /></SelectTrigger>
               <SelectContent>
-                {versions?.versions.length ? versions.versions.map(v => (
+                {availVersions.length ? availVersions.map(v => (
                   <SelectItem key={v.revision_id} value={v.revision_id}>{versionLabel(v.revision_id)}</SelectItem>
                 )) : (
                   <>
@@ -170,7 +174,7 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
             <Select value={versionB} onValueChange={setVersionB}>
               <SelectTrigger><SelectValue placeholder="選択" /></SelectTrigger>
               <SelectContent>
-                {versions?.versions.length ? versions.versions.map(v => (
+                {availVersions.length ? availVersions.map(v => (
                   <SelectItem key={v.revision_id} value={v.revision_id}>{versionLabel(v.revision_id)}</SelectItem>
                 )) : (
                   <>

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "generated_at": "2026-06-14T03:57:39.493070+00:00",
+  "laws": [
+    {
+      "law_id": "129AC0000000089",
+      "law_num": "明治二十九年法律第八十九号",
+      "title": "民法",
+      "category": "民事",
+      "revisions_count": 33,
+      "current": "laws/129AC0000000089/current.json",
+      "timeline": "laws/129AC0000000089/timeline.json",
+      "versions": "laws/129AC0000000089/versions.json"
+    }
+  ]
+}
