@@ -6,7 +6,7 @@
   "scripts": {
     "upload-revisions-meta": "wrangler r2 object put \"$R2_BUCKET/revisions_meta.jsonl\" --file=.cache/revisions_meta.jsonl --content-type=application/x-ndjson --remote"
   },
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "packageManager": "pnpm@10.33.4",
   "devDependencies": {
     "wrangler": "^4.93.1"

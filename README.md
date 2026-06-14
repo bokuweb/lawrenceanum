@@ -329,3 +329,14 @@ backfill via `bulk_category=N` or `from_date=…/to_date=…`. There is no e-Gov
 endpoint that returns historical revisions of a single law (only the current
 version + a daily-update list), so deeper history requires the daily snapshots
 to keep stacking up over time.
+
+## License
+
+- **個人利用**: 非商用の個人利用（学習・研究・検証・趣味目的での利用・改変・
+  再配布を含む）は無償で自由に行えます。
+- **商用利用**: 商用目的での利用は事前のお問い合わせ・許諾が必要です。
+
+詳細は [LICENSE](LICENSE) を参照してください。
+
+なお、本リポジトリが扱う法令データは e-Gov 法令API 等の公的データに由来します。
+データ自体の利用条件は各提供元の規約に従ってください。
