@@ -1809,9 +1809,10 @@ pub fn rebuild_manifest(public: &Path) -> Result<()> {
     write_manifest_and_health(public, &stub)
 }
 
-fn write_manifest_and_health(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
-    let generated_at = Utc::now().to_rfc3339();
-
+/// `public/` 配下の全ファイル (manifest.json / health.json を除く) を walk して
+/// manifest の files[] エントリ (path / sha256 / bytes / content_type) を作る。
+/// パス昇順にソート済み。manifest 生成と manifest 単独再生成の両方で使う。
+fn collect_manifest_files(public: &Path) -> Result<Vec<serde_json::Value>> {
     let mut files = Vec::new();
     for entry in WalkDir::new(public).into_iter().filter_map(|e| e.ok()) {
         if !entry.file_type().is_file() {
@@ -1849,6 +1850,31 @@ fn write_manifest_and_health(public: &Path, laws: &[LawWithHistory]) -> Result<(
         }));
     }
     files.sort_by(|a, b| a["path"].as_str().cmp(&b["path"].as_str()));
+    Ok(files)
+}
+
+/// `manifest.json` の files[] だけをディスク内容から再計算して書き直す。
+/// `health.json` や index/laws 系は触らない。
+/// prebuilt 履歴束を上書きした後に validate を通すための軽量再生成。
+pub fn run_rebuild_manifest(public: &Path) -> Result<()> {
+    let files = collect_manifest_files(public)?;
+    let file_count = files.len();
+    write_json_pretty(
+        &public.join("manifest.json"),
+        &json!({
+            "version": SCHEMA_VERSION,
+            "generated_at": Utc::now().to_rfc3339(),
+            "files": files,
+        }),
+    )?;
+    tracing::info!("rebuilt manifest.json ({} files)", file_count);
+    Ok(())
+}
+
+fn write_manifest_and_health(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
+    let generated_at = Utc::now().to_rfc3339();
+
+    let files = collect_manifest_files(public)?;
 
     let file_count = files.len();
     write_json_pretty(

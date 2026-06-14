@@ -67,6 +67,13 @@ enum Cmd {
         #[arg(long, default_value = "public")]
         public: PathBuf,
     },
+    /// `public/manifest.json` の files[] を現在のディスク内容から再計算する。
+    /// index/laws/health は触らない。prebuilt 履歴束 (history.ndjson.zst) を
+    /// 上書きした後など、ファイル実体だけ差し替えたときに validate を通すための再生成。
+    RebuildManifest {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
     /// fetch-update + build-json + build-index をまとめて実行する。
     Update {
         #[arg(long, default_value = "public")]
@@ -227,6 +234,7 @@ fn main() -> Result<()> {
         Cmd::BuildJson { input, output } => build::run_build_json(&input, &output),
         Cmd::BuildIndex { output } => build::run_build_index(&output),
         Cmd::Validate { public } => validate::run_validate(&public),
+        Cmd::RebuildManifest { public } => build::run_rebuild_manifest(&public),
         Cmd::FetchUpdate { date, cache } => {
             build::run_fetch_update(&date, &cache, "mock").map(|_| ())
         }

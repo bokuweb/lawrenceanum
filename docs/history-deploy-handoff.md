@@ -6,6 +6,42 @@
 
 ---
 
+## ✅ 実装ステータス (2026-06-14 更新)
+
+§3 (SPA フロント) と §4 (配信結線) は **実装完了**。残りは「R2 への束アップロード (要 owner creds)」のみ。
+
+| 項目 | 状態 | 実体 |
+|---|---|---|
+| SPA: 履歴束取得＋展開 | ✅ | `figma/src/app/data/api.ts` `fetchHistory`/`api.history` (fzstd) |
+| SPA: クライアント側 任意2版 diff | ✅ | `figma/src/app/components/views/compare-view.tsx` (束を1回ロード→`revDocs`) |
+| e2e (self-contained) + CI | ✅ | `figma/tests/history.spec.ts` / `playwright.history.config.ts` / `.github/workflows/e2e-history.yml` |
+| manifest 単独再生成コマンド | ✅ | `lawpub rebuild-manifest --public <dir>` (overlay 後に validate を通す) |
+| R2 アップロード用スクリプト | ✅ | `scripts/upload-history-bundles.sh` |
+| 本番 CI への R2 復元結線 | ✅ | `update-law-data.yml` 「Restore prebuilt history bundles from R2」 |
+| **R2 へ束を実アップロード** | ⏳ **要 owner 実行** | 下記「アップロード手順」 |
+
+### アップロード手順 (owner が手元で1回 + 履歴を作り直すたび)
+アップロードは **wrangler** (要 Node v22+) を使う。`scripts/upload-history-bundles.sh`:
+```sh
+export CLOUDFLARE_API_TOKEN=...                          # "Workers R2 Storage: Edit" のトークン
+export CLOUDFLARE_ACCOUNT_ID=34b12b4121da67f3145f5c1a07701302
+export R2_BUCKET=lawrenceanum-search
+PUBLIC=/Users/bokuweb/lawpub-build/public ./scripts/upload-history-bundles.sh
+# -> laws/*/history.ndjson.zst (8,964 / ~92MB) を 1 つの tar にまとめ
+#    wrangler r2 object put で r2://lawrenceanum-search/history-bundles.tar に置く
+```
+アップロード後、次回の `update-law-data.yml` 実行 (定期 or 手動 dispatch) で CI が
+`history-bundles.tar` を取得 → `public/laws/**` に上書き → `lawpub rebuild-manifest`
+→ validate → gzip → Pages 同梱、の順で本番配信される。束が R2 に無い間は warn して
+従来挙動 (CI 内 cache から作った部分的な束 or 束なし) で続行する (安全ロールアウト)。
+
+> 注: 中身が既に zstd のため tar は二重圧縮しない **plain `history-bundles.tar`**。
+> アップロードは wrangler (CLOUDFLARE_API_TOKEN/ACCOUNT_ID)、CI の取得側は既存ステップと
+> 同じ `aws s3` (R2 の S3 互換 endpoint + R2_ACCESS_KEY_ID/SECRET) を使うが、同じバケットの
+> 同じキーを読み書きするので混在して問題ない。
+
+---
+
 ## 0. 結論サマリー
 
 - 全履歴 (45,885 revisions / 非圧縮 19GB) を **法令ごとの zstd 束 `history.ndjson.zst` = 計 72MB** に圧縮する仕組みを実装済み (`build-json` が生成)。
@@ -106,10 +142,11 @@ export async function fetchHistory(lawId: string): Promise<Revision[]> {
   build-json の per-file revisions 出力は配信前に除外するか、将来 build-json 側で出力を止める。
 
 ## 5. 受け入れ条件
-- [ ] 法令詳細で版一覧が出て、任意の版本文を表示できる
-- [ ] 任意 2 版を選んで diff が表示される (条文 added/removed/modified)
-- [ ] 配信サイズが Pages 上限内 (履歴束 72MB)
-- [ ] 既存の現行版表示・全文検索 (search.db/R2) が従来どおり動く
+- [x] 版一覧 (compare 画面) が出て、任意 2 版を選べる (`compare-view.tsx`)
+- [x] 任意 2 版を選んで diff が表示される (条文 added/removed/modified, クライアント側)
+- [x] e2e (Playwright) が束を fetch→fzstd 展開して実データ diff を検証 (history.spec, CI green)
+- [ ] 配信サイズが Pages 上限内 (履歴束 ~92MB) — R2 アップロード後の本番 deploy で確認
+- [ ] 既存の現行版表示・全文検索 (search.db/R2) が従来どおり動く — 本番 deploy で確認
 
 ## 6. 後片付け (任意)
 - 外付け `.cache/revisions` (32GB) は R2 アーカイブ済＋再ビルド実証済なので削除可。
