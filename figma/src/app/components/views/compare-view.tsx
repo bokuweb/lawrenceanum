@@ -59,23 +59,16 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
   const [revDocs, setRevDocs] = useState<Map<string, LawDocumentRaw>>(new Map());
   const [error, setError] = useState<string | null>(null);
 
-  // versions.json をロード。本文を持つ版 (body_available) を既定の比較対象にする。
+  // versions.json をロード (版の日付などメタ情報用)。lawId が変わったら選択をリセット。
   useEffect(() => {
     if (!lawId) return;
     let cancelled = false;
     setError(null);
+    setVersionA("");
+    setVersionB("");
     api.versions(lawId).then(v => {
       if (cancelled) return;
       setVersions(v);
-      const list = v.versions.filter(x => x.body_available !== false);
-      const pick = list.length ? list : v.versions;
-      if (pick.length >= 2) {
-        setVersionA(pick[pick.length - 2].revision_id);
-        setVersionB(pick[pick.length - 1].revision_id);
-      } else if (pick.length === 1) {
-        setVersionA(pick[0].revision_id);
-        setVersionB(pick[0].revision_id);
-      }
     }).catch(e => { if (!cancelled) { setVersions(null); setError(String(e)); } });
     return () => { cancelled = true; };
   }, [lawId]);
@@ -91,9 +84,34 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
     return () => { cancelled = true; };
   }, [lawId]);
 
+  // 比較できる版 = 束 (revDocs) に本文がある版。versions.json の body_available は
+  // CI の部分 cache から再生成されるため当てにならない (本文は束にある)。
+  // 束が未ロード/失敗のときだけ body_available を暫定フォールバックにする。
+  const availVersions = useMemo(() => {
+    const list = versions?.versions ?? [];
+    if (revDocs.size > 0) {
+      const inBundle = list.filter(v => revDocs.has(v.revision_id));
+      if (inBundle.length) return inBundle;
+    }
+    return list.filter(v => v.body_available !== false);
+  }, [versions, revDocs]);
+
+  // 既定の比較版は束に本文がある最新 2 版。束ロード後 (availVersions 確定後) に確定する。
+  useEffect(() => {
+    if (!availVersions.length) return;
+    const ids = new Set(availVersions.map(v => v.revision_id));
+    if (versionA && versionB && ids.has(versionA) && ids.has(versionB)) return;
+    if (availVersions.length >= 2) {
+      setVersionA(availVersions[availVersions.length - 2].revision_id);
+      setVersionB(availVersions[availVersions.length - 1].revision_id);
+    } else {
+      setVersionA(availVersions[0].revision_id);
+      setVersionB(availVersions[0].revision_id);
+    }
+  }, [availVersions, versionA, versionB]);
+
   const docA = versionA ? revDocs.get(versionA) ?? null : null;
   const docB = versionB ? revDocs.get(versionB) ?? null : null;
-  const availVersions = versions?.versions.filter(v => v.body_available !== false) ?? [];
 
   // フォールバック: live が無い・足りない場合はモック ARTICLES_V1/V2。
   const liveAvailable = !!docA && !!docB && availVersions.length >= 2;
