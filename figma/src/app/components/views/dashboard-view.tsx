@@ -117,7 +117,8 @@ export function DashboardView() {
   const lawCount = laws?.laws.length ?? null;
   const fileCount = health?.file_count ?? null;
   const healthOk = health?.ok ?? null;
-  const featuredLaws = laws?.laws.slice(0, 5) ?? [];
+  // 直近の更新日から最大 8 件の更新法令を取得する。
+  const recentLaws = trend14.filter(d => d.count > 0).slice().reverse().slice(0, 3).flatMap(d => d.laws).slice(0, 8);
   // 直近 14 日のリアル更新だけを使う。読み込み中は空配列。
   const trendForChart = trend14.map(d => ({ month: d.date, count: d.count }))  // d.date は MM-DD;
   const trendSum = trend14.reduce((acc, d) => acc + d.count, 0);
@@ -180,23 +181,34 @@ export function DashboardView() {
         <RecentUpdatesCard trend14={trend14} loading={loading} />
 
         <Card>
-          <CardHeader><CardTitle>注目の法令</CardTitle></CardHeader>
-          <CardContent className="space-y-2">
-            {featuredLaws.map((l: any) => (
-              <div key={l.law_id} className="flex items-center justify-between p-3 rounded-md border border-border hover:bg-accent transition-colors cursor-pointer">
-                <div className="min-w-0">
-                  <div className="text-sm truncate">{l.title}</div>
-                  <div className="text-xs text-muted-foreground truncate">{l.law_num ?? l.law_id}</div>
+          <CardHeader className="flex-row items-center justify-between">
+            <CardTitle>最近更新された法令</CardTitle>
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/updates">すべて見る</Link>
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-1 p-4 pt-0">
+            {recentLaws.map((l) => (
+              <div key={l.law_id} className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-md border border-border hover:bg-accent transition-colors">
+                <div className="min-w-0 flex-1">
+                  <Link to={`/laws/${l.law_id}`} className="text-sm truncate block hover:underline">{l.title}</Link>
                 </div>
-                <Badge variant="outline">現行</Badge>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <Badge variant={l.change_type === 'added' ? 'default' : l.change_type === 'removed' ? 'destructive' : 'secondary'} className="text-xs px-1.5">
+                    {l.change_type === 'added' ? '追加' : l.change_type === 'removed' ? '廃止' : '改正'}
+                  </Badge>
+                  <Button variant="ghost" size="icon" className="size-6" asChild>
+                    <Link to={`/laws/${l.law_id}/compare`} title="差分を見る">
+                      <GitCompare className="size-3" />
+                    </Link>
+                  </Button>
+                </div>
               </div>
             ))}
-            {!loading && featuredLaws.length === 0 && (
-              <div className="text-xs text-muted-foreground py-4 text-center">
-                法令データ未取得
-              </div>
+            {!loading && recentLaws.length === 0 && (
+              <div className="text-xs text-muted-foreground py-4 text-center">直近の更新データなし</div>
             )}
-            {loading && featuredLaws.length === 0 && (
+            {loading && recentLaws.length === 0 && (
               <div className="text-xs text-muted-foreground py-4 text-center">読み込み中…</div>
             )}
           </CardContent>
