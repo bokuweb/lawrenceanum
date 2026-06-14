@@ -1463,15 +1463,20 @@ fn write_law_documents(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
         // 埋める。meta が無い場合は従来通り本文ベースで書き出す (= fallback)。
         // 本文を持っている v2 ID 集合 = current_v2_id 一つ (今は) + 仮に
         // .cache/revisions/ に v2 ID 形式で配置されたファイルがあればそれら。
+        // body_available は「実際に書き出した revision ファイル」と厳密に一致させる。
+        // 現行版はファイル名が current_rev_id になる (上の revisions 書き出しと同じ規則)
+        // ため、r.revision_id ではなく書き出し名 (file_rev_id) を登録する。これを誤ると
+        // versions.json が存在しないファイルを body_available としてしまい、build-diffs が
+        // そのファイルの読み込みに失敗する。
         let mut body_rev_ids: std::collections::BTreeSet<String> =
             std::collections::BTreeSet::new();
-        if let Some(cur) = current_v2_id.as_ref() {
-            body_rev_ids.insert(cur.clone());
-        }
-        // `.cache/revisions/{law_id}/{v2_id}.xml` で取得済みの履歴本文も登録する。
-        // fetch_revision_body で過去 revision を引いた結果がここに入る。
         for r in &law.revisions {
-            body_rev_ids.insert(r.revision_id.clone());
+            let file_rev_id = if r.revision_id == cur_rev.revision_id {
+                current_rev_id.clone()
+            } else {
+                r.revision_id.clone()
+            };
+            body_rev_ids.insert(file_rev_id);
         }
         let versions: Vec<_> = if !law.meta_revisions.is_empty() {
             law.meta_revisions
