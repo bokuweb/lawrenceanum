@@ -1,0 +1,297 @@
+//! 法令 ↔ 国会会議録 クロスリンク生成。
+//!
+//! ## アルゴリズム
+//!
+//! 1. `public/laws/index.json` から全法令の (law_id, title, amending_law_num リスト) を読む。
+//! 2. aho-corasick で改正法番号・法令タイトルの辞書を構築する。
+//! 3. `public/proceedings/*.json` の各 speech.speech テキストにマッチを走らせる。
+//! 4. マッチが 1 件以上ある会議を `LinkedProceeding` として収集し
+//!    `public/links/law-to-proceedings/{law_id}.json` に書き出す。
+//!
+//! ## 信頼度
+//!
+//! - `amending_law_num` マッチ → `relevance = "amendment_debate"`, confidence 高
+//! - タイトルのみマッチ  → `relevance = "reference_only"`, confidence 低
+//!
+//! LLM は呼ばない。抽出は aho-corasick のみ。
+
+use anyhow::{Context, Result};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::path::Path;
+
+// ── 公開型 ────────────────────────────────────────────────────────
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LinkedProceeding {
+    pub meeting_id: String,
+    pub date: String,
+    pub house: String,
+    pub committee: Option<String>,
+    pub relevance: String,
+    pub speech_count_mentioning: usize,
+    pub confidence: f32,
+    pub match_reasons: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LawToProceedings {
+    pub schema_version: u32,
+    pub law_id: String,
+    pub linked_proceedings: Vec<LinkedProceeding>,
+}
+
+// ── 内部型 ────────────────────────────────────────────────────────
+
+struct LawEntry {
+    law_id: String,
+    title: String,
+    amending_law_nums: Vec<String>,
+}
+
+// aho-corasick パターンに対するメタ情報
+#[derive(Clone)]
+struct PatternMeta {
+    law_id: String,
+    pattern_text: String,
+    is_law_num: bool, // true = 改正法番号マッチ、false = タイトルマッチ
+}
+
+// ── 公開エントリポイント ──────────────────────────────────────────
+
+/// `public/` ディレクトリを受け取り、`links/law-to-proceedings/` を生成する。
+pub fn run_link(public: &Path) -> Result<()> {
+    let laws = load_law_entries(public)?;
+    tracing::info!("linking: {} laws loaded", laws.len());
+
+    let (ac, metas) = build_automaton(&laws)?;
+    tracing::info!("linking: {} patterns in automaton", metas.len());
+
+    let proceedings_dir = public.join("proceedings");
+    if !proceedings_dir.exists() {
+        tracing::warn!("no proceedings dir at {}; skipping link generation", proceedings_dir.display());
+        return Ok(());
+    }
+
+    // law_id → Vec<LinkedProceeding>
+    let mut result: HashMap<String, Vec<LinkedProceeding>> = HashMap::new();
+
+    for entry in walkdir::WalkDir::new(&proceedings_dir)
+        .min_depth(1)
+        .max_depth(1)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|e| e.path().extension().and_then(|x| x.to_str()) == Some("json"))
+        .filter(|e| e.file_name().to_str() != Some("index.json"))
+    {
+        let path = entry.path();
+        let bytes = std::fs::read(path)
+            .with_context(|| format!("read {}", path.display()))?;
+        let meeting: serde_json::Value = serde_json::from_slice(&bytes)?;
+
+        let meeting_id = meeting["meeting_id"].as_str().unwrap_or("").to_string();
+        let date = meeting["date"].as_str().unwrap_or("").to_string();
+        let house = meeting["house"].as_str().unwrap_or("").to_string();
+        let committee = meeting["committee"].as_str().map(String::from);
+
+        // 全発言テキストを連結してマッチング
+        let full_text: String = meeting["speeches"]
+            .as_array()
+            .map(|arr| {
+                arr.iter()
+                    .filter_map(|s| s["speech"].as_str())
+                    .collect::<Vec<_>>()
+                    .join("\n")
+            })
+            .unwrap_or_default();
+
+        // law_id → (マッチ理由セット, 言及発言数カウント)
+        let mut law_hits: HashMap<String, (std::collections::HashSet<String>, bool)> =
+            HashMap::new();
+
+        for mat in ac.find_overlapping_iter(&full_text) {
+            let meta = &metas[mat.pattern().as_usize()];
+            let entry = law_hits.entry(meta.law_id.clone()).or_default();
+            entry.0.insert(meta.pattern_text.clone());
+            if meta.is_law_num {
+                entry.1 = true; // 改正法番号マッチあり
+            }
+        }
+
+        // 発言単位のカウント（同一 law_id に言及した speech の数）
+        for (law_id, (reasons, has_law_num)) in &law_hits {
+            let speech_count = meeting["speeches"]
+                .as_array()
+                .map(|arr| {
+                    arr.iter()
+                        .filter(|s| {
+                            let text = s["speech"].as_str().unwrap_or("");
+                            reasons.iter().any(|r| text.contains(r.as_str()))
+                        })
+                        .count()
+                })
+                .unwrap_or(0);
+
+            let (relevance, confidence) = if *has_law_num {
+                ("amendment_debate".to_string(), 0.92f32)
+            } else {
+                ("reference_only".to_string(), 0.55f32)
+            };
+
+            result.entry(law_id.clone()).or_default().push(LinkedProceeding {
+                meeting_id: meeting_id.clone(),
+                date: date.clone(),
+                house: house.clone(),
+                committee: committee.clone(),
+                relevance,
+                speech_count_mentioning: speech_count,
+                confidence,
+                match_reasons: reasons.iter().cloned().collect(),
+            });
+        }
+    }
+
+    // 書き出し
+    let links_dir = public.join("links").join("law-to-proceedings");
+    std::fs::create_dir_all(&links_dir)?;
+
+    let mut written = 0usize;
+    for (law_id, mut proceedings) in result {
+        // 日付降順
+        proceedings.sort_by(|a, b| b.date.cmp(&a.date));
+        let output = LawToProceedings {
+            schema_version: 1,
+            law_id: law_id.clone(),
+            linked_proceedings: proceedings,
+        };
+        let path = links_dir.join(format!("{law_id}.json"));
+        std::fs::write(&path, serde_json::to_string_pretty(&output)?)
+            .with_context(|| format!("write {}", path.display()))?;
+        written += 1;
+    }
+    tracing::info!("linking: {written} law-to-proceedings files written");
+    Ok(())
+}
+
+// ── 内部関数 ──────────────────────────────────────────────────────
+
+fn load_law_entries(public: &Path) -> Result<Vec<LawEntry>> {
+    let index_path = public.join("laws").join("index.json");
+    let bytes = std::fs::read(&index_path)
+        .with_context(|| format!("read {}", index_path.display()))?;
+    let v: serde_json::Value = serde_json::from_slice(&bytes)?;
+
+    let mut entries = Vec::new();
+    for law in v["laws"].as_array().unwrap_or(&vec![]) {
+        let law_id = law["law_id"].as_str().unwrap_or("").to_string();
+        let title = law["title"].as_str().unwrap_or("").to_string();
+        if law_id.is_empty() || title.is_empty() {
+            continue;
+        }
+
+        // timeline から改正法番号を収集する
+        let timeline_path = public.join(&law["timeline"].as_str().unwrap_or(""));
+        let amending_law_nums = if timeline_path.exists() {
+            load_amending_law_nums(&timeline_path).unwrap_or_default()
+        } else {
+            vec![]
+        };
+
+        entries.push(LawEntry { law_id, title, amending_law_nums });
+    }
+    Ok(entries)
+}
+
+fn load_amending_law_nums(timeline_path: &Path) -> Result<Vec<String>> {
+    let bytes = std::fs::read(timeline_path)?;
+    let v: serde_json::Value = serde_json::from_slice(&bytes)?;
+    let nums = v["events"]
+        .as_array()
+        .unwrap_or(&vec![])
+        .iter()
+        .filter_map(|e| e["amending_law_num"].as_str().map(String::from))
+        .filter(|s| !s.is_empty())
+        .collect();
+    Ok(nums)
+}
+
+fn build_automaton(
+    laws: &[LawEntry],
+) -> Result<(aho_corasick::AhoCorasick, Vec<PatternMeta>)> {
+    let mut patterns: Vec<String> = Vec::new();
+    let mut metas: Vec<PatternMeta> = Vec::new();
+
+    for law in laws {
+        // タイトルが短すぎると誤マッチが多い（「法」など）
+        if law.title.chars().count() >= 4 {
+            patterns.push(law.title.clone());
+            metas.push(PatternMeta {
+                law_id: law.law_id.clone(),
+                pattern_text: law.title.clone(),
+                is_law_num: false,
+            });
+        }
+        for num in &law.amending_law_nums {
+            if num.chars().count() >= 6 {
+                patterns.push(num.clone());
+                metas.push(PatternMeta {
+                    law_id: law.law_id.clone(),
+                    pattern_text: num.clone(),
+                    is_law_num: true,
+                });
+            }
+        }
+    }
+
+    let ac = aho_corasick::AhoCorasick::new(&patterns)
+        .context("build aho-corasick automaton")?;
+    Ok((ac, metas))
+}
+
+// ── テスト ────────────────────────────────────────────────────────
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_law(id: &str, title: &str, nums: &[&str]) -> LawEntry {
+        LawEntry {
+            law_id: id.to_string(),
+            title: title.to_string(),
+            amending_law_nums: nums.iter().map(|s| s.to_string()).collect(),
+        }
+    }
+
+    #[test]
+    fn automaton_matches_law_num() {
+        let laws = vec![make_law(
+            "129AC0000000089",
+            "民法",
+            &["令和四年法律第百二号"],
+        )];
+        let (ac, metas) = build_automaton(&laws).unwrap();
+        let text = "令和四年法律第百二号に基づく改正について審議します。";
+        let hits: Vec<_> = ac.find_overlapping_iter(text).collect();
+        assert!(!hits.is_empty());
+        assert!(metas[hits[0].pattern().as_usize()].is_law_num);
+        assert_eq!(metas[hits[0].pattern().as_usize()].law_id, "129AC0000000089");
+    }
+
+    #[test]
+    fn automaton_matches_title() {
+        let laws = vec![make_law("140AC0000000045", "刑事訴訟法", &[])];
+        let (ac, metas) = build_automaton(&laws).unwrap();
+        let text = "刑事訴訟法の改正に関する質問をします。";
+        let hits: Vec<_> = ac.find_overlapping_iter(text).collect();
+        assert!(!hits.is_empty());
+        assert!(!metas[hits[0].pattern().as_usize()].is_law_num);
+    }
+
+    #[test]
+    fn short_title_is_excluded() {
+        let laws = vec![make_law("X", "法", &[])];
+        let (ac, _metas) = build_automaton(&laws).unwrap();
+        let hits: Vec<_> = ac.find_overlapping_iter("法について").collect();
+        assert!(hits.is_empty());
+    }
+}

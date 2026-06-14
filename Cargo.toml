@@ -8,6 +8,13 @@ members = [
     "crates/kanpo-linker",
     "crates/search-index",
     "crates/lawpub-cli",
+    "crates/kokkai-client",
+    "crates/linking",
+    "crates/pubcomment-client",
+    "crates/procurement-client",
+    "crates/reiki-client",
+    "crates/shingikai-client",
+    "crates/estat-client",
 ]
 
 [workspace.package]

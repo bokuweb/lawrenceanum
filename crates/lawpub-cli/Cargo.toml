@@ -29,3 +29,10 @@ law-diff = { path = "../law-diff" }
 kanpo-client = { path = "../kanpo-client" }
 kanpo-linker = { path = "../kanpo-linker" }
 search-index = { path = "../search-index" }
+kokkai-client = { path = "../kokkai-client" }
+linking = { path = "../linking" }
+pubcomment-client = { path = "../pubcomment-client" }
+procurement-client = { path = "../procurement-client" }
+reiki-client = { path = "../reiki-client" }
+shingikai-client = { path = "../shingikai-client" }
+estat-client = { path = "../estat-client" }
