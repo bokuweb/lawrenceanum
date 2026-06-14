@@ -140,9 +140,25 @@ fn build_diffs_for_law(public: &Path, law_id: &str) -> Result<usize> {
             }
         }
 
-        // 本文を読み込んで diff
-        let from_doc = read_revision(public, law_id, &from.revision_id)?;
-        let to_doc = read_revision(public, law_id, &to.revision_id)?;
+        // 本文を読み込んで diff。万一 body_available と実ファイルがずれていても
+        // (データ不整合) その pair を skip して build 全体を止めない (防御)。
+        let from_doc = match read_revision(public, law_id, &from.revision_id) {
+            Ok(d) => d,
+            Err(e) => {
+                tracing::warn!(
+                    "skip diff pair (missing from-body) {}: {e:#}",
+                    from.revision_id
+                );
+                continue;
+            }
+        };
+        let to_doc = match read_revision(public, law_id, &to.revision_id) {
+            Ok(d) => d,
+            Err(e) => {
+                tracing::warn!("skip diff pair (missing to-body) {}: {e:#}", to.revision_id);
+                continue;
+            }
+        };
         let diff = diff_documents(&from_doc, &to_doc, false);
         let value = serde_json::to_value(&diff)?;
         write_json_pretty(&out_path, &value)?;
