@@ -13,6 +13,8 @@ figma/.vite
 *.tsbuildinfo
 figma/test-results
 figma/playwright-report
+# 履歴 e2e の合成配信ディレクトリ (vite build + fixture overlay)。生成物なので追跡しない。
+figma/tests/.serve
 
 # wrangler のローカル状態 (R2 ローカルシミュレーション等)
 /.wrangler

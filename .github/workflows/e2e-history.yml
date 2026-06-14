@@ -1,0 +1,56 @@
+name: e2e-history
+
+# 履歴ビューア (compare view) の self-contained e2e。
+# fixture (figma/tests/fixtures/public に commit 済の履歴束) を使うので
+# Rust ビルドや 32GB キャッシュは不要 — ランナー内で完結する。
+on:
+  push:
+    branches: [main]
+    paths:
+      - "figma/**"
+      - ".github/workflows/e2e-history.yml"
+  pull_request:
+    paths:
+      - "figma/**"
+      - ".github/workflows/e2e-history.yml"
+  workflow_dispatch:
+
+jobs:
+  history-e2e:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: figma
+    steps:
+      - uses: actions/checkout@v4
+
+      # pnpm のバージョンは root package.json の `packageManager` から解決する
+      # (version を併記すると二重指定で落ちる)。
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: figma/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      # webServer (tests/serve.mjs) が vite build → fixture overlay → 静的配信を行う。
+      - name: Run history e2e
+        run: pnpm exec playwright test --config playwright.history.config.ts
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: figma/playwright-report/
+          retention-days: 7
+          if-no-files-found: ignore

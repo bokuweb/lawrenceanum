@@ -4,8 +4,6 @@ on:
   # public は git 追跡しない (Pages artifact で都度ビルド配信) ため、push では
   # deploy しない (commit 済データが無い)。定期実行 + 手動のみで public を
   # 再生成して deploy する。
-  schedule:
-    - cron: "0 18 * * *" # 毎日 ~03:00 JST。頻度は適宜調整。
   workflow_dispatch:
     inputs:
       provider:
@@ -256,6 +254,34 @@ jobs:
         run: |
           pnpm install --no-frozen-lockfile
           pnpm build
+
+      # 履歴束 (history.ndjson.zst) の全件ビルドには 32GB の revision キャッシュが
+      # 必要で CI では回せない。手元で生成して R2 に上げた prebuilt 束
+      # (scripts/upload-history-bundles.sh) を取得し、public/ に上書きする。
+      # 上書き後は manifest を実体から再生成して validate を通す。
+      # 束が無ければ warn して続行 (= CI 内 cache から作った部分的な束のまま)。
+      - name: Restore prebuilt history bundles from R2
+        if: >-
+          steps.detect.outputs.changed == 'true' &&
+          env.R2_BUCKET != '' &&
+          env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          if aws s3 cp "s3://$R2_BUCKET/history-bundles.tar" /tmp/history-bundles.tar --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            ls -lh /tmp/history-bundles.tar
+            tar -xf /tmp/history-bundles.tar -C public
+            n=$(find public/laws -name history.ndjson.zst | wc -l)
+            echo "::notice::restored $n prebuilt history bundles from R2"
+            # 束を上書きしたので manifest.json の sha256/bytes を実体から再計算する。
+            ./target/release/lawpub rebuild-manifest --public public
+          else
+            echo "::warning::history-bundles.tar not found in R2 — keeping CI-built history (may be partial)"
+          fi
 
       - name: Validate public JSON
         if: steps.detect.outputs.changed == 'true'
