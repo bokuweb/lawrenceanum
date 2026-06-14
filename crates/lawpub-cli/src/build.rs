@@ -5,6 +5,7 @@ use law_normalizer::{parse_law_xml, sha256_hex, LawDocument};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::collections::BTreeMap;
+use std::io::Write as _;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
@@ -1442,6 +1443,10 @@ fn write_law_documents(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
         // ファイル名で書き出して versions.json と紐付ける。
         let revisions_dir = dir.join("revisions");
         std::fs::create_dir_all(&revisions_dir)?;
+        // 履歴束 (history.zst): 全版を NDJSON 1 ファイルにまとめ zstd(--long) で圧縮する。
+        // 版間はほぼ同一なので大窓 zstd が重複を dedup し、per-file gzip の ~1/30 になる。
+        // SPA はこの束を 1 回取得して履歴閲覧＋任意 2 版 diff をクライアント側で行える。
+        let mut history_ndjson: Vec<u8> = Vec::new();
         for r in &law.revisions {
             let mut doc = r.doc.clone();
             let file_rev_id = if r.revision_id == cur_rev.revision_id {
@@ -1456,7 +1461,11 @@ fn write_law_documents(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
                 "historical".to_string()
             };
             write_json_pretty(&revisions_dir.join(format!("{}.json", file_rev_id)), &doc)?;
+            // 束には compact JSON を 1 行として追記 (同じ doc)。
+            history_ndjson.extend_from_slice(&serde_json::to_vec(&doc)?);
+            history_ndjson.push(b'\n');
         }
+        std::fs::write(dir.join("history.ndjson.zst"), zstd_long(&history_ndjson)?)?;
 
         // versions.json: e-Gov v2 meta_revisions が取れていればそれを骨格にし、
         // 本文 (revisions/{id}/{rev_id}.xml) を持っている revision には path を
@@ -2103,4 +2112,41 @@ fn write_json_pretty<T: Serialize>(path: &Path, value: &T) -> Result<()> {
     let bytes = serde_json::to_vec_pretty(value)?;
     std::fs::write(path, bytes)?;
     Ok(())
+}
+
+/// NDJSON を zstd(level 19, long-distance matching) で圧縮する。履歴束 (history.ndjson.zst) 用。
+/// window は内容サイズに合わせて 23..=27 にクランプし、版間 dedup を効かせつつ
+/// 復号側 (ブラウザの fzstd 等) の確保メモリを内容相当に抑える。
+fn zstd_long(data: &[u8]) -> Result<Vec<u8>> {
+    let bits = usize::BITS - data.len().max(1).leading_zeros();
+    let window_log = bits.clamp(23, 27);
+    let mut enc = zstd::stream::write::Encoder::new(Vec::new(), 19)?;
+    enc.long_distance_matching(true)?;
+    enc.window_log(window_log)?;
+    enc.write_all(data)?;
+    Ok(enc.finish()?)
+}
+
+#[cfg(test)]
+mod history_bundle_tests {
+    use super::zstd_long;
+    use std::io::Read;
+
+    #[test]
+    fn zstd_long_roundtrips_and_dedups_repeats() {
+        // 同一行を多数並べた NDJSON は大窓 zstd で激しく縮む (版間 dedup の代理)。
+        let line = format!("{}\n", "{\"a\":\"".to_string() + &"x".repeat(2000) + "\"}");
+        let data = line.repeat(50).into_bytes();
+        let z = zstd_long(&data).unwrap();
+        assert!(
+            z.len() * 10 < data.len(),
+            "repeated content should compress >10x: {} -> {}",
+            data.len(),
+            z.len()
+        );
+        let mut dec = zstd::stream::read::Decoder::new(&z[..]).unwrap();
+        let mut out = Vec::new();
+        dec.read_to_end(&mut out).unwrap();
+        assert_eq!(out, data, "zstd round-trip must be lossless");
+    }
 }
