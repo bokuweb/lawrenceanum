@@ -101,43 +101,69 @@ pub fn reconstruct_vertical(xhtml: &str) -> String {
 
 /// カラム語を縦方向の段(tier)に分割する。
 ///
-/// 各段は独立した右→左の縦フロー。段の境目は「どのカラムも跨がない y のすき間」
-/// として現れる（段内ではカラムが段の高さいっぱいに走るため y は密に覆われる）。
-/// y被覆の空白(>= GAP_MIN)で区切り、各カラムを中心 y が属する段へ割り当てる。
+/// 各段は独立した右→左の縦フロー。段の境目は「跨ぐカラムがほとんど無い y の横線」
+/// として現れる。完全な空白だけでなく、わずかな橋渡しカラム（新旧対照表で本文の
+/// 右側に伸びる前文カラム等）を許容して谷を検出するため、横断カラム数の極小点で
+/// 再帰的に分割する。これにより
+///   - 本紙の2段組（上段/下段が完全に分かれる）
+///   - 新旧対照表（改正後=上段 / 改正前=下段、前文が境界を跨ぐ）
+/// の双方を段として正しく分離できる。
 fn split_tiers(cols: Vec<Col>) -> Vec<Vec<Col>> {
-    const GAP_MIN: f32 = 6.0;
-    if cols.len() < 2 {
-        return vec![cols];
+    let mut out = Vec::new();
+    split_tiers_rec(cols, 0, &mut out);
+    out
+}
+
+/// 跨ぎカラム数の許容上限（前文 1 本程度の橋渡しを段境界として許す）。
+const MAX_BRIDGE: usize = 1;
+
+fn split_tiers_rec(cols: Vec<Col>, depth: usize, out: &mut Vec<Vec<Col>>) {
+    // 過分割の防止: 段が小さい / 深すぎる場合はこれ以上分けない。
+    if cols.len() < 4 || depth >= 6 {
+        out.push(cols);
+        return;
     }
-    // y 区間を結合して被覆と空白を求める。
-    let mut spans: Vec<(f32, f32)> = cols.iter().map(|c| (c.y, c.y1)).collect();
-    spans.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal));
-    let mut bands: Vec<(f32, f32)> = Vec::new();
-    let (mut lo, mut hi) = spans[0];
-    for &(s, e) in &spans[1..] {
-        if s > hi + GAP_MIN {
-            bands.push((lo, hi));
-            lo = s;
-            hi = e;
-        } else if e > hi {
-            hi = e;
+    let ymin = cols.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+    let ymax = cols.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+    let margin = (ymax - ymin) * 0.2;
+    let (lo, hi) = (ymin + margin, ymax - margin);
+
+    // 中央域で「跨ぐカラム数」が最小の cut を探す。候補はカラムの下端(y1)。
+    let mut best: Option<(usize, f32)> = None;
+    for c in &cols {
+        let cut = c.y1 + 0.5;
+        if cut < lo || cut > hi {
+            continue;
+        }
+        let crossing = cols.iter().filter(|d| d.y < cut && cut < d.y1).count();
+        if best.map(|b| crossing < b.0).unwrap_or(true) {
+            best = Some((crossing, cut));
         }
     }
-    bands.push((lo, hi));
-    if bands.len() < 2 {
-        return vec![cols];
+
+    let Some((crossing, cut)) = best else {
+        out.push(cols);
+        return;
+    };
+    if crossing > MAX_BRIDGE {
+        out.push(cols);
+        return;
     }
-    // 各カラムを中心 y が入る段へ割り当て。
-    let mut tiers: Vec<Vec<Col>> = bands.iter().map(|_| Vec::new()).collect();
+    // cut で上下に分割（橋渡しカラムは中心 y が属する側へ）。
+    let (mut top, mut bottom): (Vec<Col>, Vec<Col>) = (Vec::new(), Vec::new());
     for c in cols {
-        let center = (c.y + c.y1) / 2.0;
-        let idx = bands
-            .iter()
-            .position(|&(lo, hi)| center >= lo && center <= hi)
-            .unwrap_or(0);
-        tiers[idx].push(c);
+        if (c.y + c.y1) / 2.0 < cut {
+            top.push(c);
+        } else {
+            bottom.push(c);
+        }
     }
-    tiers
+    if top.is_empty() || bottom.is_empty() {
+        out.push(top.into_iter().chain(bottom).collect());
+        return;
+    }
+    split_tiers_rec(top, depth + 1, out);
+    split_tiers_rec(bottom, depth + 1, out);
 }
 
 /// 1ページ分のカラム語を右→左・上→下に並べて本文に組む。
@@ -413,6 +439,21 @@ mod tests {
             <word xMin="50" yMin="100" xMax="58" yMax="160">左</word>
         </page></doc></body></html>"#;
         assert_eq!(reconstruct_vertical(xhtml), "右上右下\n左");
+    }
+
+    #[test]
+    fn splits_tiers_tolerating_one_bridging_column() {
+        // 新旧対照表: 上段(改正後) / 下段(改正前) を、境界を跨ぐ前文カラム1本があっても
+        // 段として分離する（横断カラム数の谷で分割）。
+        let xhtml = r#"<html><body><doc><page width="595" height="842">
+            <word xMin="100" yMin="100" xMax="108" yMax="360">後右</word>
+            <word xMin="50"  yMin="100" xMax="58"  yMax="360">後左</word>
+            <word xMin="100" yMin="420" xMax="108" yMax="700">前右</word>
+            <word xMin="50"  yMin="420" xMax="58"  yMax="700">前左</word>
+            <word xMin="200" yMin="100" xMax="208" yMax="700">前文</word>
+        </page></doc></body></html>"#;
+        // 前文(橋渡し)は中心 y が下段側なので下段の先頭(最も右)に来る。
+        assert_eq!(reconstruct_vertical(xhtml), "後右\n後左\n前文\n前右\n前左");
     }
 
     #[test]

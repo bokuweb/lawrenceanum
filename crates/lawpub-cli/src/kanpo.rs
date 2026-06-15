@@ -16,13 +16,17 @@ pub fn run_fetch(date: &str, provider: &str, limit: usize, cache: &Path) -> Resu
             let http = HttpProvider::new()?;
             tracing::info!("fetch kanpo for {date} from {}", http.base_url());
             let mut kd = http.fetch_date(date)?;
-            let stats = fill_amend_texts(&http, &mut kd, true, limit);
+            // 生 PDF は `.cache/kanpo-pdf/{date}/` に保持し、抽出精度を上げた際に
+            // 再抽出できるようにする（git 管理外。永続化は R2 等へ別途同期）。
+            let pdf_dir = cache.join("kanpo-pdf").join(date);
+            let stats = fill_amend_texts(&http, &mut kd, true, limit, Some(&pdf_dir));
             tracing::info!(
-                "extracted amend texts: items={} downloaded={} pdf={:.1}MB formats={:?}",
+                "extracted amend texts: items={} downloaded={} pdf={:.1}MB formats={:?} (raw pdf -> {})",
                 stats.amend_items,
                 stats.downloaded,
                 stats.total_pdf_bytes as f64 / 1_048_576.0,
                 stats.by_format,
+                pdf_dir.display(),
             );
             kd
         }
@@ -52,13 +56,21 @@ struct FillStats {
 ///
 /// 同一ページ(=同一 PDF)を複数項目が共有するためページ単位でキャッシュする。
 /// `amend_only` なら改正/廃止/制定系の標題だけを対象にする。
+/// `pdf_dir` を渡すと取得した生 PDF をそこへ保存する（後で抽出精度を上げた際の
+/// 再抽出用。`{pdf_dir}/{PDFファイル名}`）。
 fn fill_amend_texts(
     provider: &HttpProvider,
     kd: &mut KanpoDate,
     amend_only: bool,
     limit: usize,
+    pdf_dir: Option<&Path>,
 ) -> FillStats {
     let mut stats = FillStats::default();
+    if let Some(dir) = pdf_dir {
+        if let Err(e) = std::fs::create_dir_all(dir) {
+            tracing::warn!("create pdf dir {} failed: {e}", dir.display());
+        }
+    }
     // pdf_url -> (記事セグメント一覧, ページ全体の形式)
     let mut page_cache: std::collections::HashMap<String, (Vec<String>, String)> = Default::default();
 
@@ -82,6 +94,15 @@ fn fill_amend_texts(
                 };
                 stats.total_pdf_bytes += pdf_bytes.len();
                 stats.downloaded += 1;
+                // 生 PDF を保持（再抽出用）。
+                if let Some(dir) = pdf_dir {
+                    if let Some(name) = item.pdf_url.rsplit('/').next() {
+                        let p = dir.join(name);
+                        if let Err(e) = std::fs::write(&p, &pdf_bytes) {
+                            tracing::warn!("save pdf {} failed: {e}", p.display());
+                        }
+                    }
+                }
                 match pdf::extract(&pdf_bytes) {
                     Ok(ex) => {
                         let segs = pdf::segment_articles(&ex.text);
@@ -310,7 +331,7 @@ pub fn run_poc(date: &str, amend_only: bool, limit: usize, cache: &Path) -> Resu
     let out_dir = cache.join("kanpo-poc").join(date);
     std::fs::create_dir_all(&out_dir)?;
 
-    let stats = fill_amend_texts(&provider, &mut kd, amend_only, limit);
+    let stats = fill_amend_texts(&provider, &mut kd, amend_only, limit, None);
 
     // 改め文が取れた項目を目視検証用テキストに書き出す。
     for issue in &kd.issues {
