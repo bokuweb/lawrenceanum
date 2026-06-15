@@ -503,6 +503,34 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
                         {e.enforcement_comment && (
                           <div className="text-xs text-muted-foreground mt-1">{e.enforcement_comment}</div>
                         )}
+                        {(e.kanpo?.amend_text || e.kanpo?.pdf_url) && (
+                          <div className="mt-3 border-t pt-2">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs font-medium">改め文</span>
+                              {e.kanpo.amend_format && (
+                                <Badge variant="secondary" className="text-xs">
+                                  {e.kanpo.amend_format === "shinkyu" ? "新旧対照表" : e.kanpo.amend_format === "prose" ? "散文" : "本文"}
+                                </Badge>
+                              )}
+                              {e.kanpo.pdf_url && (
+                                <a
+                                  className="text-xs underline text-muted-foreground ml-auto"
+                                  href={e.kanpo.pdf_url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
+                                  官報PDF{e.kanpo.page ? `（p.${e.kanpo.page}）` : ""}
+                                </a>
+                              )}
+                            </div>
+                            {e.kanpo.amend_text && (
+                              <details>
+                                <summary className="text-xs text-muted-foreground cursor-pointer select-none">本文を表示</summary>
+                                <pre className="mt-1 text-xs whitespace-pre-wrap font-sans leading-relaxed max-h-80 overflow-auto rounded bg-muted/40 p-2">{e.kanpo.amend_text}</pre>
+                              </details>
+                            )}
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   </div>

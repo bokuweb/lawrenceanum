@@ -73,9 +73,15 @@ pub fn reconstruct_vertical(xhtml: &str) -> String {
             if y < TOP_MARGIN || y > height - BOTTOM_MARGIN {
                 continue;
             }
-            // scraper が実体参照は復号済み。約物を正規化する。
-            let text: String =
-                w.text().collect::<String>().chars().map(normalize_char).collect();
+            // scraper が実体参照は復号済み。約物を正規化し、私用領域(傍線等の
+            // フォント固有グリフ)を除去する。
+            let text: String = w
+                .text()
+                .collect::<String>()
+                .chars()
+                .filter(|c| !is_private_use(*c))
+                .map(normalize_char)
+                .collect();
             if text.trim().is_empty() {
                 continue;
             }
@@ -221,7 +227,11 @@ pub fn segment_articles(text: &str) -> Vec<String> {
 pub fn normalize_text(raw: &str) -> String {
     let mut lines: Vec<String> = Vec::new();
     for line in raw.lines() {
-        let line: String = line.chars().map(normalize_char).collect();
+        let line: String = line
+            .chars()
+            .filter(|c| !is_private_use(*c))
+            .map(normalize_char)
+            .collect();
         let stripped = strip_margin_lead(&line);
         if is_margin_noise(&stripped) {
             continue;
@@ -240,6 +250,12 @@ pub fn normalize_text(raw: &str) -> String {
         out.push(l);
     }
     out.join("\n").trim().to_string()
+}
+
+/// 私用領域(PUA)の文字か。官報 PDF は傍線・下線などをフォント固有グリフ(U+E000–
+/// U+F8FF)で埋め込むことがあり、テキストとしては意味を持たないため除去する。
+fn is_private_use(c: char) -> bool {
+    ('\u{E000}'..='\u{F8FF}').contains(&c)
 }
 
 /// 縦書き presentation form を通常の全角約物に写像する。
@@ -370,6 +386,16 @@ mod tests {
         assert!(out.contains("本則を次のように改める"));
         assert!(out.contains("第六条"));
         assert!(!out.contains("令和"));
+    }
+
+    #[test]
+    fn strips_private_use_glyphs() {
+        // U+E0A8 等の PUA(傍線グリフ)は除去される。
+        let raw = "本文\u{E0A8}\u{E0A8}\u{E0A8}\n令和八年";
+        let out = normalize_text(raw);
+        assert!(!out.contains('\u{E0A8}'));
+        assert!(out.contains("本文"));
+        assert!(out.contains("令和八年"));
     }
 
     #[test]
