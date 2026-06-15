@@ -1,15 +1,34 @@
 use anyhow::{Context, Result};
 use chrono::Utc;
-use kanpo_client::{pdf, HttpProvider, KanpoIssue, KanpoProvider, MockKanpoProvider};
+use kanpo_client::{pdf, HttpProvider, KanpoDate, KanpoProvider, MockKanpoProvider};
 use kanpo_linker::{match_event, AUTO_LINK_THRESHOLD};
 use serde::Serialize;
 use serde_json::json;
 use std::path::{Path, PathBuf};
 
-/// `lawpub kanpo-fetch` — 指定日の官報を取得して `.cache/kanpo/{date}.json` に保存。
-pub fn run_fetch(date: &str, cache: &Path) -> Result<()> {
-    let provider = MockKanpoProvider; // Phase 3 初期はモックのみ。
-    let kd = provider.fetch_date(date)?;
+/// `lawpub kanpo-fetch` — 指定日の官報を取得し、改正・廃止・制定系の各項目の改め文を
+/// 抽出して `.cache/kanpo/{date}.json` に保存する。`provider` は "http"(デジタル官報) /
+/// "mock"。`limit` は1日あたりの PDF ダウンロード上限（負荷ガード）。
+pub fn run_fetch(date: &str, provider: &str, limit: usize, cache: &Path) -> Result<()> {
+    let mut kd = match provider {
+        "mock" => MockKanpoProvider.fetch_date(date)?,
+        _ => {
+            let http = HttpProvider::new()?;
+            tracing::info!("fetch kanpo for {date} from {}", http.base_url());
+            let mut kd = http.fetch_date(date)?;
+            let stats = fill_amend_texts(&http, &mut kd, true, limit);
+            tracing::info!(
+                "extracted amend texts: items={} downloaded={} pdf={:.1}MB formats={:?}",
+                stats.amend_items,
+                stats.downloaded,
+                stats.total_pdf_bytes as f64 / 1_048_576.0,
+                stats.by_format,
+            );
+            kd
+        }
+    };
+    // mock のときも安定した形で保存。
+    kd.date = date.to_string();
     let dir = cache.join("kanpo");
     std::fs::create_dir_all(&dir)?;
     let path = dir.join(format!("{}.json", date));
@@ -17,6 +36,132 @@ pub fn run_fetch(date: &str, cache: &Path) -> Result<()> {
     std::fs::write(&path, bytes).with_context(|| format!("write {}", path.display()))?;
     tracing::info!("wrote kanpo cache: {}", path.display());
     Ok(())
+}
+
+/// 改め文抽出の集計。
+#[derive(Default)]
+struct FillStats {
+    amend_items: usize,
+    downloaded: usize,
+    total_pdf_bytes: usize,
+    by_format: std::collections::BTreeMap<String, usize>,
+}
+
+/// 各項目について項目別 PDF を取得・抽出・記事分割し、標題に合致する改め文本文を
+/// `item.amend_text` / `item.amend_format` に詰める。
+///
+/// 同一ページ(=同一 PDF)を複数項目が共有するためページ単位でキャッシュする。
+/// `amend_only` なら改正/廃止/制定系の標題だけを対象にする。
+fn fill_amend_texts(
+    provider: &HttpProvider,
+    kd: &mut KanpoDate,
+    amend_only: bool,
+    limit: usize,
+) -> FillStats {
+    let mut stats = FillStats::default();
+    // pdf_url -> (記事セグメント一覧, ページ全体の形式)
+    let mut page_cache: std::collections::HashMap<String, (Vec<String>, String)> = Default::default();
+
+    for issue in &mut kd.issues {
+        for item in &mut issue.items {
+            if amend_only && !is_amend_title(&item.title) {
+                continue;
+            }
+            stats.amend_items += 1;
+
+            if !page_cache.contains_key(&item.pdf_url) {
+                if stats.downloaded >= limit {
+                    continue;
+                }
+                let pdf_bytes = match provider.get_bytes(&item.pdf_url) {
+                    Ok(b) => b,
+                    Err(e) => {
+                        tracing::warn!("download failed {}: {e}", item.pdf_url);
+                        continue;
+                    }
+                };
+                stats.total_pdf_bytes += pdf_bytes.len();
+                stats.downloaded += 1;
+                match pdf::extract(&pdf_bytes) {
+                    Ok(ex) => {
+                        let segs = pdf::segment_articles(&ex.text);
+                        page_cache.insert(item.pdf_url.clone(), (segs, ex.format));
+                    }
+                    Err(e) => {
+                        tracing::warn!("extract failed {}: {e}", item.pdf_url);
+                        continue;
+                    }
+                }
+            }
+            let (segments, page_format) = match page_cache.get(&item.pdf_url) {
+                Some(v) => v,
+                None => continue,
+            };
+
+            let body = best_segment(&item.title, segments)
+                .map(|s| s.to_string())
+                .unwrap_or_else(|| segments.join("\n\n"));
+            let format = pdf::detect_format_of(&body).unwrap_or_else(|| page_format.clone());
+            *stats.by_format.entry(format.clone()).or_default() += 1;
+            item.amend_format = Some(format);
+            item.amend_text = Some(body);
+        }
+    }
+    stats
+}
+
+/// 改正・廃止・制定系の標題か（改め文抽出の対象判定）。
+fn is_amend_title(title: &str) -> bool {
+    title.contains("改正") || title.contains("廃止") || title.contains("制定")
+}
+
+/// 改正イベントに対応する官報項目を、公布日の厳密一致 + 標題一致で探す。
+/// 戻り値は (confidence, 官報日付, 項目)。
+fn match_item<'a>(
+    promulgation: Option<&str>,
+    title: Option<&str>,
+    by_date: &'a [(String, KanpoDate)],
+) -> Option<(f64, &'a str, &'a kanpo_client::KanpoItem)> {
+    let pd = promulgation?;
+    let ev_core = title_core(title?);
+    if ev_core.chars().count() < 4 {
+        return None;
+    }
+    let mut best: Option<(f64, &str, &kanpo_client::KanpoItem)> = None;
+    for (date, kd) in by_date {
+        if date != pd {
+            continue;
+        }
+        for issue in &kd.issues {
+            for item in &issue.items {
+                let score = title_match_score(&ev_core, &item.title);
+                if score <= 0.0 {
+                    continue;
+                }
+                // 公布日一致(0.5) + 標題一致(最大0.45)。
+                let conf = 0.5 + 0.45 * score;
+                if best.map(|b| conf > b.0).unwrap_or(true) {
+                    best = Some((conf, date.as_str(), item));
+                }
+            }
+        }
+    }
+    best
+}
+
+/// イベント標題の対象法令名コアと、官報項目標題のコアの一致度 (0.0–1.0)。
+fn title_match_score(ev_core: &str, item_title: &str) -> f64 {
+    let item_core = title_core(item_title);
+    if item_core.is_empty() {
+        return 0.0;
+    }
+    if ev_core == item_core {
+        1.0
+    } else if item_core.contains(ev_core) || ev_core.contains(&item_core) {
+        0.8
+    } else {
+        0.0
+    }
 }
 
 /// `lawpub kanpo-link` — `.cache/kanpo/*.json` を読み、`public/laws/*/timeline.json`
@@ -82,33 +227,64 @@ pub fn run_link(public: &Path) -> Result<()> {
                 .get("amending_law_num")
                 .and_then(|v| v.as_str())
                 .map(|s| s.to_string());
+            let title = ev
+                .get("amending_law_title")
+                .and_then(|v| v.as_str())
+                .map(|s| s.to_string());
 
-            let mut best: Option<(f64, &str, &KanpoIssue, Vec<&'static str>)> = None;
+            // (a) 号レベルの突合（既存。公布日/法令番号/法令名のスコアリング）。
+            let mut best: Option<(f64, &str, Vec<&'static str>)> = None;
             for (date, kd) in &by_date {
                 for issue in &kd.issues {
                     let r = match_event(
                         promulgation.as_deref(),
                         law_num.as_deref(),
-                        None, // event title は現状 timeline に持たないため未使用。
+                        title.as_deref(),
                         None,
                         issue,
                     );
                     if r.confidence > 0.0
                         && best.as_ref().map(|b| r.confidence > b.0).unwrap_or(true)
                     {
-                        best = Some((r.confidence, date.as_str(), issue, r.match_reasons));
+                        best = Some((r.confidence, date.as_str(), r.match_reasons));
                     }
                 }
             }
-            if let Some((conf, date, _issue, reasons)) = best {
-                let linked = conf >= AUTO_LINK_THRESHOLD;
-                ev["kanpo"] = json!({
-                    "linked": linked,
-                    "path": format!("kanpo/{}/index.json", date),
-                    "confidence": conf,
-                    "match_reasons": reasons,
-                });
+
+            // (b) 項目レベルの突合（公布日の厳密一致 + 標題一致）。改め文項目を特定する。
+            let item_match = match_item(promulgation.as_deref(), title.as_deref(), &by_date);
+
+            if best.is_none() && item_match.is_none() {
+                continue;
             }
+            let (mut conf, mut date, mut reasons): (f64, String, Vec<String>) = match &best {
+                Some((c, d, r)) => (*c, d.to_string(), r.iter().map(|s| s.to_string()).collect()),
+                None => (0.0, String::new(), Vec::new()),
+            };
+            let mut obj = serde_json::Map::new();
+            if let Some((iconf, idate, item)) = item_match {
+                // 項目一致は号レベルより強い信号。改め文・官報PDFリンクを付与する。
+                if iconf > conf {
+                    conf = iconf;
+                    date = idate.to_string();
+                    reasons = vec!["promulgation_date".into(), "item_title".into()];
+                }
+                obj.insert("pdf_url".into(), json!(item.pdf_url));
+                obj.insert("page".into(), json!(item.page));
+                if let Some(t) = &item.amend_text {
+                    obj.insert("amend_text".into(), json!(t));
+                }
+                if let Some(f) = &item.amend_format {
+                    obj.insert("amend_format".into(), json!(f));
+                }
+            }
+            obj.insert("linked".into(), json!(conf >= AUTO_LINK_THRESHOLD));
+            if !date.is_empty() {
+                obj.insert("path".into(), json!(format!("kanpo/{}/index.json", date)));
+            }
+            obj.insert("confidence".into(), json!(conf));
+            obj.insert("match_reasons".into(), json!(reasons));
+            ev["kanpo"] = serde_json::Value::Object(obj);
         }
 
         let bytes = serde_json::to_vec_pretty(&tl)?;
@@ -129,95 +305,42 @@ pub fn run_link(public: &Path) -> Result<()> {
 pub fn run_poc(date: &str, amend_only: bool, limit: usize, cache: &Path) -> Result<()> {
     let provider = HttpProvider::new()?;
     tracing::info!("fetch kanpo TOC for {date} from {}", provider.base_url());
-    let kd = provider.fetch_date(date)?;
+    let mut kd = provider.fetch_date(date)?;
 
     let out_dir = cache.join("kanpo-poc").join(date);
     std::fs::create_dir_all(&out_dir)?;
 
-    let mut total_items = 0usize;
-    let mut downloaded = 0usize;
-    let mut by_format: std::collections::BTreeMap<String, usize> = Default::default();
-    let mut total_pdf_bytes = 0usize;
-    // 同一ページ(=同一 PDF)を複数項目が共有するため、ページ単位でキャッシュする。
-    // pdf_url -> (記事セグメント一覧, ページ全体の形式)
-    let mut page_cache: std::collections::HashMap<String, (Vec<String>, String)> = Default::default();
+    let stats = fill_amend_texts(&provider, &mut kd, amend_only, limit);
 
-    let mut kd = kd;
-    for issue in &mut kd.issues {
-        for item in &mut issue.items {
-            total_items += 1;
-            if amend_only
-                && !(item.title.contains("改正") || item.title.contains("廃止"))
-            {
-                continue;
-            }
-
-            // ページ PDF を取得・抽出・記事分割（ページ単位で1回だけ）。
-            if !page_cache.contains_key(&item.pdf_url) {
-                if downloaded >= limit {
-                    continue;
-                }
-                let pdf_bytes = match provider.get_bytes(&item.pdf_url) {
-                    Ok(b) => b,
-                    Err(e) => {
-                        tracing::warn!("download failed {}: {e}", item.pdf_url);
-                        continue;
-                    }
-                };
-                total_pdf_bytes += pdf_bytes.len();
-                downloaded += 1;
-                match pdf::extract(&pdf_bytes) {
-                    Ok(ex) => {
-                        let segs = pdf::segment_articles(&ex.text);
-                        page_cache.insert(item.pdf_url.clone(), (segs, ex.format));
-                    }
-                    Err(e) => {
-                        tracing::warn!("extract failed {}: {e}", item.pdf_url);
-                        continue;
-                    }
-                }
-            }
-            let (segments, page_format) = match page_cache.get(&item.pdf_url) {
-                Some(v) => v,
-                None => continue,
-            };
-
-            // 標題に最も合致する記事セグメントを選ぶ。無ければページ全体。
-            let body = best_segment(&item.title, segments)
-                .map(|s| s.to_string())
-                .unwrap_or_else(|| segments.join("\n\n"));
-            let format = pdf::detect_format_of(&body).unwrap_or_else(|| page_format.clone());
-
-            *by_format.entry(format.clone()).or_default() += 1;
-            item.amend_format = Some(format.clone());
-            item.amend_text = Some(truncate_chars(&body, 400));
-
+    // 改め文が取れた項目を目視検証用テキストに書き出す。
+    for issue in &kd.issues {
+        for item in &issue.items {
+            let Some(body) = &item.amend_text else { continue };
+            let fmt = item.amend_format.as_deref().unwrap_or("unknown");
             let fname = format!("{:04}-{}.txt", item.page, sanitize(&item.title));
             let header = format!(
                 "# {}\n# {}  page={}  format={}\n# {}\n\n",
-                item.title, issue.issue_no, item.page, format, item.pdf_url
+                item.title, issue.issue_no, item.page, fmt, item.pdf_url
             );
             std::fs::write(out_dir.join(&fname), format!("{header}{body}"))?;
         }
     }
-
     write_json_pretty(&out_dir.join("toc.json"), &kd)?;
 
     tracing::info!(
-        "kanpo-poc done: issues={} items={} downloaded={} pdf_total={:.1}MB formats={:?}",
+        "kanpo-poc done: issues={} downloaded={} pdf_total={:.1}MB formats={:?}",
         kd.issues.len(),
-        total_items,
-        downloaded,
-        total_pdf_bytes as f64 / 1_048_576.0,
-        by_format,
+        stats.downloaded,
+        stats.total_pdf_bytes as f64 / 1_048_576.0,
+        stats.by_format,
     );
     println!(
-        "wrote {} (issues={}, items={}, downloaded={}, formats={:?})",
+        "wrote {} (issues={}, amend_items={}, downloaded={}, formats={:?})",
         out_dir.display(),
         kd.issues.len(),
-        total_items,
-        downloaded,
-        by_format,
+        stats.amend_items,
+        stats.downloaded,
+        stats.by_format,
     );
     Ok(())
 }
@@ -287,14 +410,6 @@ fn sanitize(s: &str) -> String {
         .collect()
 }
 
-fn truncate_chars(s: &str, n: usize) -> String {
-    let mut out: String = s.chars().take(n).collect();
-    if s.chars().count() > n {
-        out.push('…');
-    }
-    out
-}
-
 fn write_json_pretty<T: Serialize>(path: &Path, value: &T) -> Result<()> {
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent)?;
@@ -302,4 +417,69 @@ fn write_json_pretty<T: Serialize>(path: &Path, value: &T) -> Result<()> {
     let bytes = serde_json::to_vec_pretty(value)?;
     std::fs::write(path, bytes)?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use kanpo_client::{KanpoIssue, KanpoItem};
+
+    fn item(title: &str) -> KanpoItem {
+        KanpoItem {
+            title: title.to_string(),
+            page: 1,
+            pdf_url: "u".into(),
+            sha256: None,
+            agency_hint: None,
+            amend_text: Some("本文".into()),
+            amend_format: Some("prose".into()),
+        }
+    }
+
+    #[test]
+    fn title_core_strips_agency_and_target() {
+        assert_eq!(
+            title_core("電波法による伝搬障害の防止に関する規則の一部を改正する省令（総務七七）"),
+            "電波法による伝搬障害の防止に関する規則"
+        );
+        assert_eq!(
+            title_core("木質ペレット燃料の日本農林規格を廃止する件（農林水産七六四）"),
+            "木質ペレット燃料の日本農林規格"
+        );
+    }
+
+    #[test]
+    fn match_item_uses_date_and_title() {
+        let kd = KanpoDate {
+            date: "2026-06-15".into(),
+            issues: vec![KanpoIssue {
+                issue_type: "extra".into(),
+                issue_no: "第131号".into(),
+                pdf_url: String::new(),
+                sha256: None,
+                promulgation_date: "2026-06-15".into(),
+                law_nums: vec![],
+                titles: vec![],
+                items: vec![item("電波法による伝搬障害の防止に関する規則の一部を改正する省令（総務七七）")],
+            }],
+        };
+        let by_date = vec![("2026-06-15".to_string(), kd)];
+
+        // 公布日 + 標題が一致 → 高 confidence。
+        let m = match_item(
+            Some("2026-06-15"),
+            Some("電波法による伝搬障害の防止に関する規則の一部を改正する省令"),
+            &by_date,
+        );
+        assert!(m.is_some());
+        assert!(m.unwrap().0 >= AUTO_LINK_THRESHOLD);
+
+        // 公布日違い → 不一致。
+        assert!(match_item(
+            Some("2026-06-12"),
+            Some("電波法による伝搬障害の防止に関する規則の一部を改正する省令"),
+            &by_date
+        )
+        .is_none());
+    }
 }

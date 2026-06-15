@@ -209,10 +209,16 @@ enum Cmd {
         #[arg(long)]
         remove_original: bool,
     },
-    /// 官報の日付ページを取得する (Phase 3 placeholder)。
+    /// 指定日の官報を取得し、各項目の改め文を抽出して `.cache/kanpo/{date}.json` に保存。
     KanpoFetch {
         #[arg(long)]
         date: String,
+        /// `http` (デジタル官報) または `mock`。
+        #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
+        provider: String,
+        /// 1日あたりの PDF ダウンロード上限 (負荷ガード)。
+        #[arg(long, default_value_t = 200)]
+        limit: usize,
         #[arg(long, default_value = ".cache")]
         cache: PathBuf,
     },
@@ -491,7 +497,12 @@ fn main() -> Result<()> {
             );
             Ok(())
         }
-        Cmd::KanpoFetch { date, cache } => kanpo::run_fetch(&date, &cache),
+        Cmd::KanpoFetch {
+            date,
+            provider,
+            limit,
+            cache,
+        } => kanpo::run_fetch(&date, &provider, limit, &cache),
         Cmd::KanpoLink { output } => kanpo::run_link(&output),
         Cmd::KanpoPoc {
             date,
