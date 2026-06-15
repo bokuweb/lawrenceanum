@@ -1,6 +1,33 @@
+import { useEffect, useState } from "react";
 import { LayoutDashboard, Search, BookOpen, History, Newspaper, Settings, Scale } from "lucide-react";
 import { NavLink, useLocation } from "react-router";
 import { cn } from "./ui/utils";
+import { api } from "../data/api";
+
+/** ISO (UTC) を "YYYY-MM-DD HH:mm JST" に整形。 */
+function formatJst(iso: string | undefined | null): string | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return null;
+  const jst = new Date(d.getTime() + 9 * 60 * 60 * 1000); // UTC+9
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${jst.getUTCFullYear()}-${p(jst.getUTCMonth() + 1)}-${p(jst.getUTCDate())} ${p(jst.getUTCHours())}:${p(jst.getUTCMinutes())} JST`;
+}
+
+/** 最新同期時刻。health.json の generated_at を採用し、無ければ index.json にフォールバック。 */
+function useLastSync(): string | null {
+  const [sync, setSync] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .health()
+      .then((h) => formatJst(h.generated_at))
+      .catch(() => api.index().then((i) => formatJst(i.generated_at)).catch(() => null))
+      .then((v) => { if (!cancelled && v) setSync(v); });
+    return () => { cancelled = true; };
+  }, []);
+  return sync;
+}
 
 const items: { path: string; label: string; icon: any; matchPrefix?: string }[] = [
   { path: "/", label: "ダッシュボード", icon: LayoutDashboard },
@@ -13,6 +40,7 @@ const items: { path: string; label: string; icon: any; matchPrefix?: string }[] 
 
 export function SidebarNav() {
   const loc = useLocation();
+  const lastSync = useLastSync();
   return (
     <aside className="w-60 border-r border-border bg-sidebar flex flex-col">
       <div className="h-16 flex items-center gap-2 px-5 border-b border-border">
@@ -54,7 +82,7 @@ export function SidebarNav() {
       <div className="p-3 border-t border-border">
         <div className="rounded-md bg-muted/50 p-3 text-xs text-muted-foreground">
           <div className="text-foreground mb-1">最新同期</div>
-          2026-05-09 06:30 JST
+          {lastSync ?? "読み込み中…"}
         </div>
       </div>
     </aside>

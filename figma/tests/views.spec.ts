@@ -15,6 +15,17 @@ test("search page keeps a single search input (header only, none in body)", asyn
   await expect(page.locator("main input")).toHaveCount(0);
 });
 
+// サイドバー左下の「最新同期」は health.json の generated_at から動的表示する
+// (以前はハードコードで固定だった)。fixture health = 2026-06-14T03:58:50Z → JST 12:58。
+test("sidebar last-sync is derived from health.json (not hardcoded)", async ({ page }) => {
+  await page.goto(new URL("#/", BASE).toString());
+  const aside = page.locator("aside");
+  await expect(aside.getByText("最新同期")).toBeVisible({ timeout: 15_000 });
+  await expect(aside).toContainText("2026-06-14 12:58 JST", { timeout: 15_000 });
+  // 旧ハードコード値が残っていないこと。
+  await expect(aside).not.toContainText("2026-05-09 06:30");
+});
+
 // 更新履歴は、ロード中に mock 一覧ではなく skeleton を表示する。
 test("updates view shows skeleton (not mock) while loading", async ({ page }) => {
   // updates/latest.json を保留 → useUpdatesIndex が await で止まりロード中が続く。
