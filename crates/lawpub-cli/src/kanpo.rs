@@ -528,6 +528,7 @@ mod tests {
                 law_nums: vec![],
                 titles: vec![],
                 items: vec![item("電波法による伝搬障害の防止に関する規則の一部を改正する省令（総務七七）")],
+                page_count: None,
             }],
         };
         let by_date = vec![("2026-06-15".to_string(), kd)];
