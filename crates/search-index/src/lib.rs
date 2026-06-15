@@ -222,6 +222,9 @@ pub fn build_search_db(
 
     conn.execute_batch(
         r#"
+        -- 64KB pages align with the browser-side requestChunkSize=65536 so each
+        -- HTTP Range fetch from R2 retrieves exactly one SQLite page.
+        PRAGMA page_size = 65536;
         PRAGMA journal_mode = OFF;
         PRAGMA synchronous = OFF;
 

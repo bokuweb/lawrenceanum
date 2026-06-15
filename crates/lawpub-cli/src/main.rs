@@ -348,6 +348,20 @@ enum Cmd {
         #[arg(long, default_value = "public")]
         public: PathBuf,
     },
+
+    /// 法令 ↔ パブコメ クロスリンクを生成する。
+    /// `public/links/law-to-pubcomment/{law_id}.json` を書き出す。
+    LinkLawsAndPubcomment {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
+    /// 法令 ↔ 調達情報 クロスリンクを生成する。
+    /// `public/links/law-to-procurement/{law_id}.json` を書き出す。
+    LinkLawsAndProcurement {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
 }
 
 fn main() -> Result<()> {
@@ -496,5 +510,7 @@ fn main() -> Result<()> {
         }
         Cmd::BudgetFetch { cache, provider } => budget::run_fetch(&cache, &provider),
         Cmd::BudgetBuildJson { cache, public } => budget::run_build_json(&cache, &public),
+        Cmd::LinkLawsAndPubcomment { public } => linking::run_link_pubcomment(&public),
+        Cmd::LinkLawsAndProcurement { public } => linking::run_link_procurement(&public),
     }
 }

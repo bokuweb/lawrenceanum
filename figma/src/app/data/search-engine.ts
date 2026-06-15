@@ -175,7 +175,10 @@ async function loadWorker(): Promise<WorkerHttpvfs | null> {
               from: "inline",
               config: {
                 serverMode: "full",
-                requestChunkSize: 4096,
+                // 64KB/chunk: FTS5 B-tree traversal typically needs 10-30 pages.
+                // At 4KB that's 10-30 HTTP round trips (~50ms each on R2).
+                // At 64KB each request covers 16 SQLite pages, cutting trips by ~16x.
+                requestChunkSize: 65536,
                 url: dbUrl,
               },
             },
@@ -183,6 +186,9 @@ async function loadWorker(): Promise<WorkerHttpvfs | null> {
           workerUrl,
           wasmUrl,
         );
+        // Pre-warm: prime the SQLite page cache with a lightweight query so the
+        // first real search doesn't pay cold-start cost.
+        await (worker.db.query as any)("SELECT 1");
         return worker;
       } catch (e) {
         console.warn("[search] httpvfs init failed", e);
@@ -234,7 +240,7 @@ export async function search(
   }>(
     `SELECT s.law_id, s.article_id, s.article_no, s.caption,
             l.title, l.law_num,
-            snippet(search_fts, 5, '<mark>', '</mark>', '...', 16) AS snippet
+            snippet(search_fts, 5, '<mark>', '</mark>', '...', 8) AS snippet
        FROM search_fts s
        JOIN laws l ON l.law_id = s.law_id
       WHERE search_fts MATCH ?${catFilter}
