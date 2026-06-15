@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use chrono::Utc;
-use kanpo_client::{pdf, HttpProvider, KanpoDate, KanpoProvider, MockKanpoProvider};
+use kanpo_client::{page_pdf_url, pdf, HttpProvider, KanpoDate, KanpoProvider, MockKanpoProvider};
 use kanpo_linker::{match_event, AUTO_LINK_THRESHOLD};
 use serde::Serialize;
 use serde_json::json;
@@ -65,64 +65,101 @@ fn fill_amend_texts(
     limit: usize,
     pdf_dir: Option<&Path>,
 ) -> FillStats {
+    // 1項目が複数ページに跨る（新旧対照表等）ため、項目の開始ページから次項目の
+    // 開始ページ手前（最終項目は号の総ページ）までを連結して抽出する。
+    const MAX_SPAN: u32 = 25;
     let mut stats = FillStats::default();
     if let Some(dir) = pdf_dir {
         if let Err(e) = std::fs::create_dir_all(dir) {
             tracing::warn!("create pdf dir {} failed: {e}", dir.display());
         }
     }
-    // pdf_url -> (記事セグメント一覧, ページ全体の形式)
-    let mut page_cache: std::collections::HashMap<String, (Vec<String>, String)> = Default::default();
+    // page PDF URL -> 抽出済みページ本文（空文字は取得/抽出失敗のメモ化）。
+    let mut page_text: std::collections::HashMap<String, String> = Default::default();
 
     for issue in &mut kd.issues {
+        // 号内の全項目の開始ページ（昇順・重複排除）。終端ページ算定に使う。
+        let mut starts: Vec<u32> = issue.items.iter().map(|i| i.page).collect();
+        starts.sort_unstable();
+        starts.dedup();
+        let last_page = issue
+            .page_count
+            .unwrap_or_else(|| starts.last().copied().unwrap_or(0));
+
         for item in &mut issue.items {
             if amend_only && !is_amend_title(&item.title) {
                 continue;
             }
             stats.amend_items += 1;
 
-            if !page_cache.contains_key(&item.pdf_url) {
-                if stats.downloaded >= limit {
+            // 終端ページ = 次の開始ページ-1（無ければ号の最終ページ）。上限で頭打ち。
+            let end = starts
+                .iter()
+                .copied()
+                .find(|&p| p > item.page)
+                .map(|p| p - 1)
+                .unwrap_or(last_page)
+                .max(item.page)
+                .min(item.page + MAX_SPAN - 1);
+
+            let mut parts: Vec<String> = Vec::new();
+            for n in item.page..=end {
+                let url = if n == item.page {
+                    item.pdf_url.clone()
+                } else {
+                    match page_pdf_url(&item.pdf_url, item.page, n) {
+                        Some(u) => u,
+                        None => continue,
+                    }
+                };
+                if let Some(t) = page_text.get(&url) {
+                    if !t.is_empty() {
+                        parts.push(t.clone());
+                    }
                     continue;
                 }
-                let pdf_bytes = match provider.get_bytes(&item.pdf_url) {
+                if stats.downloaded >= limit {
+                    break;
+                }
+                let pdf_bytes = match provider.get_bytes(&url) {
                     Ok(b) => b,
                     Err(e) => {
-                        tracing::warn!("download failed {}: {e}", item.pdf_url);
+                        tracing::warn!("download failed {url}: {e}");
+                        page_text.insert(url, String::new());
                         continue;
                     }
                 };
                 stats.total_pdf_bytes += pdf_bytes.len();
                 stats.downloaded += 1;
-                // 生 PDF を保持（再抽出用）。
                 if let Some(dir) = pdf_dir {
-                    if let Some(name) = item.pdf_url.rsplit('/').next() {
-                        let p = dir.join(name);
-                        if let Err(e) = std::fs::write(&p, &pdf_bytes) {
-                            tracing::warn!("save pdf {} failed: {e}", p.display());
-                        }
+                    if let Some(name) = url.rsplit('/').next() {
+                        let _ = std::fs::write(dir.join(name), &pdf_bytes);
                     }
                 }
-                match pdf::extract(&pdf_bytes) {
-                    Ok(ex) => {
-                        let segs = pdf::segment_articles(&ex.text);
-                        page_cache.insert(item.pdf_url.clone(), (segs, ex.format));
-                    }
+                let text = match pdf::extract(&pdf_bytes) {
+                    Ok(ex) => ex.text,
                     Err(e) => {
-                        tracing::warn!("extract failed {}: {e}", item.pdf_url);
-                        continue;
+                        tracing::warn!("extract failed {url}: {e}");
+                        String::new()
                     }
+                };
+                page_text.insert(url, text.clone());
+                if !text.is_empty() {
+                    parts.push(text);
                 }
             }
-            let (segments, page_format) = match page_cache.get(&item.pdf_url) {
-                Some(v) => v,
-                None => continue,
-            };
 
-            let body = best_segment(&item.title, segments)
+            let full = parts.join("\n");
+            if full.is_empty() {
+                continue;
+            }
+            let segments = pdf::segment_articles(&full);
+            let body = best_segment(&item.title, &segments)
                 .map(|s| s.to_string())
                 .unwrap_or_else(|| segments.join("\n\n"));
-            let format = pdf::detect_format_of(&body).unwrap_or_else(|| page_format.clone());
+            let format = pdf::detect_format_of(&body)
+                .or_else(|| pdf::detect_format_of(&full))
+                .unwrap_or_else(|| "unknown".to_string());
             *stats.by_format.entry(format.clone()).or_default() += 1;
             item.amend_format = Some(format);
             item.amend_text = Some(body);

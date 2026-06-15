@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 pub mod http;
 pub mod pdf;
 
-pub use http::HttpProvider;
+pub use http::{page_pdf_url, HttpProvider};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KanpoIssue {
@@ -27,6 +27,9 @@ pub struct KanpoIssue {
     /// 既存のモック / 旧キャッシュとの後方互換のため `default`。
     #[serde(default)]
     pub items: Vec<KanpoItem>,
+    /// この号の総ページ数（号インデックスから取得）。項目の終端ページ算定に使う。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub page_count: Option<u32>,
 }
 
 /// 官報1号のなかの「目次1項目」= 1つの法令/告示/通知に相当する単位。
@@ -78,6 +81,7 @@ impl KanpoProvider for MockKanpoProvider {
                 law_nums: vec![],
                 titles: vec![],
                 items: vec![],
+                page_count: None,
             }],
         })
     }

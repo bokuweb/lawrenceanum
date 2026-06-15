@@ -82,7 +82,16 @@ impl KanpoProvider for HttpProvider {
         let html = self
             .get_text(&url)
             .with_context(|| format!("fetch kanpo TOC {url}"))?;
-        let issues = parse_toc(&self.base_url, &compact, date, &html)?;
+        let mut issues = parse_toc(&self.base_url, &compact, date, &html)?;
+        // 各号の総ページ数を号インデックスから取得（項目の終端ページ算定に使う）。
+        for issue in &mut issues {
+            if let Some(dir) = issue_dir(&issue.pdf_url) {
+                let idx_url = format!("{}{}0000f.html", issue.pdf_url, dir);
+                if let Ok(idx) = self.get_text(&idx_url) {
+                    issue.page_count = max_page_in_index(&idx, &dir);
+                }
+            }
+        }
         Ok(KanpoDate {
             date: date.to_string(),
             issues,
@@ -129,6 +138,7 @@ pub fn parse_toc(base_url: &str, compact: &str, date: &str, html: &str) -> Resul
                 law_nums: vec![],
                 titles: vec![],
                 items: vec![],
+                page_count: None,
             });
             continue;
         }
@@ -236,4 +246,41 @@ fn extract_agency_hint(title: &str) -> Option<String> {
 
 fn normalize_ws(s: &str) -> String {
     s.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+/// issue.pdf_url (`{base}/{compact}/{dir}/`) から号ディレクトリ名 `{dir}` を取り出す。
+fn issue_dir(pdf_url: &str) -> Option<String> {
+    pdf_url
+        .trim_end_matches('/')
+        .rsplit('/')
+        .next()
+        .filter(|s| !s.is_empty())
+        .map(|s| s.to_string())
+}
+
+/// 号インデックス HTML から `{dir}{NNNN}f.html` の最大ページ番号を返す。
+fn max_page_in_index(html: &str, dir: &str) -> Option<u32> {
+    let needle = format!("{dir}");
+    let mut max = 0u32;
+    for part in html.split(&needle).skip(1) {
+        // part 先頭が `NNNNf.html` の形か（full 等は弾く）。
+        let bytes = part.as_bytes();
+        if bytes.len() >= 4 && bytes[..4].iter().all(|b| b.is_ascii_digit()) {
+            if let Ok(n) = part[..4].parse::<u32>() {
+                max = max.max(n);
+            }
+        }
+    }
+    if max > 0 {
+        Some(max)
+    } else {
+        None
+    }
+}
+
+/// 項目別 PDF URL (`.../pdf/{dir}{PPPP}.pdf`) の PPPP を別ページ番号に差し替える。
+pub fn page_pdf_url(item_pdf_url: &str, current_page: u32, target_page: u32) -> Option<String> {
+    let suffix = format!("{:04}.pdf", current_page);
+    let prefix = item_pdf_url.strip_suffix(&suffix)?;
+    Some(format!("{prefix}{:04}.pdf", target_page))
 }
