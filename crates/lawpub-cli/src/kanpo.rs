@@ -100,12 +100,13 @@ fn fill_amend_texts(
             }
             stats.amend_items += 1;
 
-            // 終端ページ = 次の開始ページ-1（無ければ号の最終ページ）。上限で頭打ち。
+            // 終端ページ = 次の開始ページ「込み」（無ければ号の最終ページ）。上限で頭打ち。
+            // 短い記事は次記事の開始ページへ本文が溢れることが多いため、境界ページも
+            // 取り込み、混入分は記事分割＋標題突合で振り分ける。
             let end = starts
                 .iter()
                 .copied()
                 .find(|&p| p > item.page)
-                .map(|p| p - 1)
                 .unwrap_or(last_page)
                 .max(item.page)
                 .min(item.page + MAX_SPAN - 1);

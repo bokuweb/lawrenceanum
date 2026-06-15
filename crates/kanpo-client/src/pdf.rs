@@ -226,15 +226,15 @@ fn run_pdftotext(pdf: &[u8], args: &[&str]) -> Result<String> {
 
 /// 官報1ページ分の本文を「記事」単位に分割する。
 ///
-/// 官報は各法令/告示の制定文を `〇` 見出し（例: 「〇総務省令第七十七号」「〇農林水産省
-/// 告示第七百六十四号」）で始める。`〇` 始まりのカラム（行）を区切りに分割すると、
-/// 1ページに複数記事が詰まっていても記事ごとに切り出せる。
+/// 1ページに複数の法令/告示が詰まることがあるので、記事の先頭マーカで区切る。
+/// - 省令・告示・規則: `〇` 見出し（例: 「〇総務省令第七十七号」）。
+/// - 法律・政令の公布: 「{件名}をここに公布する。」で始まるブロック。
+///   （これが無いと複数の政令が1記事に混ざり、best_segment が誤った巨大ブロックを返す。）
 pub fn segment_articles(text: &str) -> Vec<String> {
     let mut articles: Vec<String> = Vec::new();
     let mut cur: Vec<&str> = Vec::new();
     for line in text.lines() {
-        let t = line.trim_start();
-        if t.starts_with('〇') && !cur.is_empty() {
+        if is_article_boundary(line) && !cur.is_empty() {
             articles.push(cur.join("\n").trim().to_string());
             cur = Vec::new();
         }
@@ -247,6 +247,12 @@ pub fn segment_articles(text: &str) -> Vec<String> {
         }
     }
     articles
+}
+
+/// その行が新しい記事の先頭か（省令/告示の `〇` 見出し、または法律/政令の公布行）。
+fn is_article_boundary(line: &str) -> bool {
+    let t = line.trim_start();
+    t.starts_with('〇') || t.contains("をここに公布する")
 }
 
 /// 縦書き約物の正規化 + ページ柱ノイズ除去。
@@ -476,5 +482,15 @@ mod tests {
         assert_eq!(arts.len(), 2);
         assert!(arts[0].contains("電波法"));
         assert!(arts[1].contains("規格を廃止"));
+    }
+
+    #[test]
+    fn segments_articles_on_promulgation_boundary() {
+        // 同一ページに複数の政令公布が並ぶケース。「をここに公布する」で記事を分ける。
+        let text = "労働組合法施行令の一部を改正する政令をここに公布する。\n御名御璽\n労働組合法施行令の一部を次のように改正する。\n美容師法施行令の一部を改正する政令をここに公布する。\n御名御璽\n美容師法施行令の一部を次のように改正する。";
+        let arts = segment_articles(text);
+        assert_eq!(arts.len(), 2);
+        assert!(arts[0].contains("労働組合法施行令") && !arts[0].contains("美容師"));
+        assert!(arts[1].contains("美容師法施行令") && !arts[1].contains("労働組合"));
     }
 }
