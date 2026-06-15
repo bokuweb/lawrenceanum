@@ -32,10 +32,11 @@ pub fn extract(pdf: &[u8]) -> Result<Extracted> {
     Ok(Extracted { text, format })
 }
 
-/// 縦書き1カラム = 1 word とみなした語。
+/// 縦書き1カラム = 1 word とみなした語。`y`/`y1` は上端/下端。
 struct Col {
     x: f32,
     y: f32,
+    y1: f32,
     text: String,
 }
 
@@ -63,8 +64,9 @@ pub fn reconstruct_vertical(xhtml: &str) -> String {
             // scraper は HTML パーサのため属性名を小文字化する（xMin -> xmin）。
             let x = v.attr("xmin").and_then(|s| s.parse::<f32>().ok());
             let y = v.attr("ymin").and_then(|s| s.parse::<f32>().ok());
-            let (x, y) = match (x, y) {
-                (Some(x), Some(y)) => (x, y),
+            let y1 = v.attr("ymax").and_then(|s| s.parse::<f32>().ok());
+            let (x, y, y1) = match (x, y, y1) {
+                (Some(x), Some(y), Some(y1)) => (x, y, y1),
                 _ => continue,
             };
             // 上下余白帯の柱（発行日・「官報」等の running header）を除外。
@@ -77,14 +79,59 @@ pub fn reconstruct_vertical(xhtml: &str) -> String {
             if text.trim().is_empty() {
                 continue;
             }
-            cols.push(Col { x, y, text });
+            cols.push(Col { x, y, y1, text });
         }
-        let page_text = reconstruct_page(cols);
-        if !page_text.is_empty() {
-            pages.push(page_text);
+        // 段組み(tier)ごとに分けてから各段を右→左に再構成する。官報本紙は2段組が多く、
+        // 段を分けないと「同 x にある上段の列と下段の列」が1列に連結され記事が混線する。
+        for tier in split_tiers(cols) {
+            let page_text = reconstruct_page(tier);
+            if !page_text.is_empty() {
+                pages.push(page_text);
+            }
         }
     }
     pages.join("\n").trim().to_string()
+}
+
+/// カラム語を縦方向の段(tier)に分割する。
+///
+/// 各段は独立した右→左の縦フロー。段の境目は「どのカラムも跨がない y のすき間」
+/// として現れる（段内ではカラムが段の高さいっぱいに走るため y は密に覆われる）。
+/// y被覆の空白(>= GAP_MIN)で区切り、各カラムを中心 y が属する段へ割り当てる。
+fn split_tiers(cols: Vec<Col>) -> Vec<Vec<Col>> {
+    const GAP_MIN: f32 = 6.0;
+    if cols.len() < 2 {
+        return vec![cols];
+    }
+    // y 区間を結合して被覆と空白を求める。
+    let mut spans: Vec<(f32, f32)> = cols.iter().map(|c| (c.y, c.y1)).collect();
+    spans.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal));
+    let mut bands: Vec<(f32, f32)> = Vec::new();
+    let (mut lo, mut hi) = spans[0];
+    for &(s, e) in &spans[1..] {
+        if s > hi + GAP_MIN {
+            bands.push((lo, hi));
+            lo = s;
+            hi = e;
+        } else if e > hi {
+            hi = e;
+        }
+    }
+    bands.push((lo, hi));
+    if bands.len() < 2 {
+        return vec![cols];
+    }
+    // 各カラムを中心 y が入る段へ割り当て。
+    let mut tiers: Vec<Vec<Col>> = bands.iter().map(|_| Vec::new()).collect();
+    for c in cols {
+        let center = (c.y + c.y1) / 2.0;
+        let idx = bands
+            .iter()
+            .position(|&(lo, hi)| center >= lo && center <= hi)
+            .unwrap_or(0);
+        tiers[idx].push(c);
+    }
+    tiers
 }
 
 /// 1ページ分のカラム語を右→左・上→下に並べて本文に組む。
@@ -335,11 +382,24 @@ mod tests {
     fn reconstructs_right_to_left_columns() {
         // x が大きい(右)カラムを先に、各カラム内は y 昇順(上→下)で連結する。
         let xhtml = r#"<html><body><doc><page width="595" height="842">
-            <word xMin="100" yMin="100" xMax="108" yMax="150">右上</word>
+            <word xMin="100" yMin="100" xMax="108" yMax="160">右上</word>
             <word xMin="100" yMin="160" xMax="108" yMax="190">右下</word>
-            <word xMin="50" yMin="100" xMax="58" yMax="150">左</word>
+            <word xMin="50" yMin="100" xMax="58" yMax="160">左</word>
         </page></doc></body></html>"#;
         assert_eq!(reconstruct_vertical(xhtml), "右上右下\n左");
+    }
+
+    #[test]
+    fn splits_two_tiers_then_reads_each_right_to_left() {
+        // 上段(y 100-360) と下段(y 420-700) が y のすき間で分かれ、各段を右→左に読む。
+        // 同 x(=100) に上段列と下段列があっても連結されないことを確認する。
+        let xhtml = r#"<html><body><doc><page width="595" height="842">
+            <word xMin="100" yMin="100" xMax="108" yMax="360">上右</word>
+            <word xMin="50"  yMin="100" xMax="58"  yMax="360">上左</word>
+            <word xMin="100" yMin="420" xMax="108" yMax="700">下右</word>
+            <word xMin="50"  yMin="420" xMax="58"  yMax="700">下左</word>
+        </page></doc></body></html>"#;
+        assert_eq!(reconstruct_vertical(xhtml), "上右\n上左\n下右\n下左");
     }
 
     #[test]
