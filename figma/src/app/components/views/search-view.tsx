@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "../ui/card";
-import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
@@ -134,10 +133,6 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
         </aside>
 
         <div className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <Input value={q} onChange={e => { setQ(e.target.value); onQueryChange?.(e.target.value); }} className="pl-9 h-11" placeholder="例: 民法、第一条、信義誠実、労働..." />
-          </div>
           {!q.trim() ? (
             // 検索語が空のときは件数 (0 件) ではなく案内を出す。
             <div className="flex flex-col items-center justify-center text-center py-20 gap-3">

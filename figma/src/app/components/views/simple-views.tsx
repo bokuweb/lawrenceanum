@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
-import { RECENT_UPDATES } from "../mock-data";
+import { Skeleton } from "../ui/skeleton";
 import { Newspaper, FileCheck2, ChevronDown, ChevronRight, GitCompare } from "lucide-react";
 import { Button } from "../ui/button";
 import { Switch } from "../ui/switch";
@@ -74,11 +74,8 @@ function useUpdatesIndex(): { entries: UpdatesIndexEntry[]; loading: boolean; li
 }
 
 export function UpdatesView() {
-  const { entries, loading, live } = useUpdatesIndex();
+  const { entries, loading } = useUpdatesIndex();
   const [expanded, setExpanded] = useState<string | null>(null);
-  const display = live
-    ? entries
-    : RECENT_UPDATES.map(u => ({ date: u.date, count: u.count, laws: u.laws as any[] }));
 
   return (
     <div className="p-6 space-y-6">
@@ -88,11 +85,25 @@ export function UpdatesView() {
           <p className="text-sm text-muted-foreground mt-1">日付別のe-Gov更新サマリ</p>
         </div>
         <div className="text-xs text-muted-foreground">
-          {loading ? "読み込み中…" : `${display.length} 日${live ? "" : " (モック)"}`}
+          {loading ? "読み込み中…" : `${entries.length} 日`}
         </div>
       </div>
       <div className="space-y-2">
-        {display.map(u => {
+        {loading && Array.from({ length: 8 }).map((_, i) => (
+          <Card key={i}>
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="w-20 shrink-0 space-y-1.5">
+                <Skeleton className="h-7 w-10 mx-auto" />
+                <Skeleton className="h-3 w-14 mx-auto" />
+              </div>
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-5 w-28" />
+                <Skeleton className="h-3 w-2/3" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+        {!loading && entries.map(u => {
           const open = expanded === u.date;
           const lawEntries: any[] = Array.isArray(u.laws) ? u.laws : [];
           return (
@@ -150,7 +161,7 @@ export function UpdatesView() {
             </Card>
           );
         })}
-        {!loading && display.length === 0 && (
+        {!loading && entries.length === 0 && (
           <div className="text-sm text-muted-foreground text-center py-12">更新履歴がまだありません</div>
         )}
       </div>
