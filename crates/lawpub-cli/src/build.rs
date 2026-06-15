@@ -1637,12 +1637,23 @@ fn write_indices(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
             let d = l.current();
             let category = l.meta_revisions.last().and_then(|m| m.category.clone());
             let revisions_count = l.meta_revisions.len();
+            // 「更新順」ソート用。revisions は first_seen_date 昇順なので現行版の
+            // first_seen_date が最新の取込日 = この法令が最後に更新された日。
+            let last_updated = {
+                let fsd = &l.current_rev().first_seen_date;
+                if fsd.is_empty() {
+                    serde_json::Value::Null
+                } else {
+                    serde_json::Value::String(fsd.clone())
+                }
+            };
             json!({
                 "law_id": l.law_id,
                 "law_num": d.law_num,
                 "title": d.title,
                 "category": category,
                 "revisions_count": revisions_count,
+                "last_updated": last_updated,
                 "current": format!("laws/{}/current.json", l.law_id),
                 "timeline": format!("laws/{}/timeline.json", l.law_id),
                 "versions": format!("laws/{}/versions.json", l.law_id),

@@ -8,9 +8,43 @@
       "title": "民法",
       "category": "民事",
       "revisions_count": 33,
+      "last_updated": null,
       "current": "laws/129AC0000000089/current.json",
       "timeline": "laws/129AC0000000089/timeline.json",
       "versions": "laws/129AC0000000089/versions.json"
+    },
+    {
+      "law_id": "900AC0000000001",
+      "law_num": "テスト法律第一号",
+      "title": "アルファ法",
+      "category": "行政",
+      "revisions_count": 2,
+      "last_updated": "2026-06-15",
+      "current": "laws/900AC0000000001/current.json",
+      "timeline": "laws/900AC0000000001/timeline.json",
+      "versions": "laws/900AC0000000001/versions.json"
+    },
+    {
+      "law_id": "900AC0000000002",
+      "law_num": "テスト法律第二号",
+      "title": "ベータ法",
+      "category": "行政",
+      "revisions_count": 2,
+      "last_updated": "2026-06-10",
+      "current": "laws/900AC0000000002/current.json",
+      "timeline": "laws/900AC0000000002/timeline.json",
+      "versions": "laws/900AC0000000002/versions.json"
+    },
+    {
+      "law_id": "900AC0000000003",
+      "law_num": "テスト法律第三号",
+      "title": "ガンマ法",
+      "category": "行政",
+      "revisions_count": 1,
+      "last_updated": "2026-06-01",
+      "current": "laws/900AC0000000003/current.json",
+      "timeline": "laws/900AC0000000003/timeline.json",
+      "versions": "laws/900AC0000000003/versions.json"
     }
   ]
 }

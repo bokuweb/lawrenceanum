@@ -3,23 +3,31 @@ import { api, type LawDocumentRaw, type LawsIndex, type TimelineJson, type Versi
 import { LAWS, type LawCategory, type LawSummary } from '../components/mock-data'
 
 /** Live JSON のフィールドを mock-data の `LawSummary` 形に寄せる。 */
-function adapt(raw: { law_id: string; law_num: string | null; title: string }): LawSummary {
+function adapt(raw: {
+  law_id: string
+  law_num: string | null
+  title: string
+  category?: string | null
+  last_updated?: string | null
+}): LawSummary {
   const matched = LAWS.find((m) => m.law_id === raw.law_id)
   if (matched) {
     return {
       ...matched,
       title: raw.title || matched.title,
       law_num: raw.law_num || matched.law_num,
+      // index に更新日があれば優先 (mock の値より実データを尊重)。
+      last_updated: raw.last_updated || matched.last_updated,
     }
   }
   return {
     law_id: raw.law_id,
     law_num: raw.law_num ?? '',
     title: raw.title,
-    category: '行政' as LawCategory,
+    category: (raw.category as LawCategory) ?? ('行政' as LawCategory),
     promulgation_date: '',
     effective_date: '',
-    last_updated: '',
+    last_updated: raw.last_updated ?? '',
     status: 'current',
     article_count: 0,
   }

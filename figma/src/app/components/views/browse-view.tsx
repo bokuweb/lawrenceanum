@@ -2,10 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Skeleton } from "../ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { ScrollArea } from "../ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ARTICLES_V2, TIMELINE_EVENTS, type LawSummary } from "../mock-data";
-import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight } from "lucide-react";
+import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 import { useLaws, useLawDetail } from "../../data/use-laws";
 import { getRefsForLaw, type ArticleRef } from "../../data/search-engine";
@@ -30,37 +33,109 @@ export function BrowseView({ lawId, onSelect, onCompare }: { lawId: string | nul
     return <LawDetail key={lawId} law={law} onBack={() => onSelect(null)} onCompare={() => onCompare(lawId)} />;
   }
 
+  return <LawList laws={laws} live={live} loading={loading} onSelect={onSelect} />;
+}
+
+type SortKey = "updated" | "title";
+
+function LawList({ laws, live, loading, onSelect }: { laws: LawSummary[]; live: boolean; loading: boolean; onSelect: (id: string) => void }) {
+  const [query, setQuery] = useState("");
+  const [sortKey, setSortKey] = useState<SortKey>("updated");
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const matched = q
+      ? laws.filter(l => l.title.toLowerCase().includes(q) || (l.law_num ?? "").toLowerCase().includes(q))
+      : laws;
+    const sorted = [...matched];
+    if (sortKey === "updated") {
+      // 更新日 (last_updated) 降順。空は末尾。同日は title で安定化。
+      sorted.sort((a, b) => {
+        const ad = a.last_updated || "", bd = b.last_updated || "";
+        if (ad !== bd) return ad < bd ? 1 : -1;
+        return a.title.localeCompare(b.title, "ja");
+      });
+    } else {
+      sorted.sort((a, b) => a.title.localeCompare(b.title, "ja"));
+    }
+    return sorted;
+  }, [laws, query, sortKey]);
+
   return (
     <div className="p-6">
-      <div className="mb-6 flex items-end justify-between">
+      <div className="mb-4 flex items-end justify-between">
         <div>
           <h1 className="text-2xl">法令閲覧</h1>
           <p className="text-sm text-muted-foreground mt-1">登録されている全法令を一覧で参照</p>
         </div>
         <div className="text-xs text-muted-foreground">
-          {loading ? "読み込み中…" : `${laws.length} 件${live ? "" : " (モック)"}`}
+          {loading ? "読み込み中…" : `${filtered.length} / ${laws.length} 件${live ? "" : " (モック)"}`}
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-4">
-        {laws.map(l => (
-          <Card key={l.law_id} className="hover:border-primary/50 hover:shadow-md transition-all cursor-pointer" onClick={() => onSelect(l.law_id)}>
-            <CardContent className="p-5">
-              <div className="flex items-start justify-between mb-3">
-                <Badge variant="outline">{l.category}</Badge>
-                <Badge variant={l.status === "scheduled" ? "default" : l.status === "amended" ? "secondary" : "outline"} className="text-xs">
-                  {l.status === "scheduled" ? "施行待ち" : l.status === "amended" ? "改正" : "現行"}
-                </Badge>
-              </div>
-              <div className="text-base mb-1">{l.title}</div>
-              <div className="text-xs text-muted-foreground mb-4 truncate">{l.law_num}</div>
-              <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border">
-                <span>{l.article_count} 条</span>
-                <span>更新 {l.last_updated}</span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+
+      <div className="mb-6 flex items-center gap-3">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="タイトル・法令番号で絞り込み"
+            className="pl-9"
+            disabled={loading}
+          />
+        </div>
+        <Select value={sortKey} onValueChange={v => setSortKey(v as SortKey)}>
+          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="updated">更新順</SelectItem>
+            <SelectItem value="title">名称順</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
+
+      {loading ? (
+        <div className="grid grid-cols-3 gap-4">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-5 w-16" />
+                  <Skeleton className="h-5 w-12" />
+                </div>
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
+                <div className="flex items-center justify-between pt-3 border-t border-border">
+                  <Skeleton className="h-3 w-10" />
+                  <Skeleton className="h-3 w-20" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="text-sm text-muted-foreground py-12 text-center">「{query}」に一致する法令はありません</div>
+      ) : (
+        <div className="grid grid-cols-3 gap-4">
+          {filtered.map(l => (
+            <Card key={l.law_id} className="hover:border-primary/50 hover:shadow-md transition-all cursor-pointer" onClick={() => onSelect(l.law_id)}>
+              <CardContent className="p-5">
+                <div className="flex items-start justify-between mb-3">
+                  <Badge variant="outline">{l.category}</Badge>
+                  <Badge variant={l.status === "scheduled" ? "default" : l.status === "amended" ? "secondary" : "outline"} className="text-xs">
+                    {l.status === "scheduled" ? "施行待ち" : l.status === "amended" ? "改正" : "現行"}
+                  </Badge>
+                </div>
+                <div className="text-base mb-1">{l.title}</div>
+                <div className="text-xs text-muted-foreground mb-4 truncate">{l.law_num}</div>
+                <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border">
+                  <span>{l.article_count} 条</span>
+                  <span>更新 {l.last_updated || "—"}</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
