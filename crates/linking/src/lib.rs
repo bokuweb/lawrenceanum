@@ -1,4 +1,4 @@
-//! 法令 ↔ 国会会議録 クロスリンク生成。
+//! 法令 ↔ 国会会議録・パブコメ・調達情報 クロスリンク生成。
 //!
 //! ## アルゴリズム
 //!
@@ -246,6 +246,222 @@ fn build_automaton(
     let ac = aho_corasick::AhoCorasick::new(&patterns)
         .context("build aho-corasick automaton")?;
     Ok((ac, metas))
+}
+
+// ── パブコメ クロスリンク ─────────────────────────────────────────
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LinkedPubcomment {
+    pub case_id: String,
+    pub title: String,
+    pub ministry: String,
+    pub start_date: String,
+    pub end_date: String,
+    pub relevance: String,
+    pub confidence: f32,
+    pub match_reasons: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LawToPubcomments {
+    pub schema_version: u32,
+    pub law_id: String,
+    pub linked_pubcomments: Vec<LinkedPubcomment>,
+}
+
+/// `public/` を受け取り、`links/law-to-pubcomment/` を生成する。
+pub fn run_link_pubcomment(public: &Path) -> Result<()> {
+    let laws = load_law_entries(public)?;
+    tracing::info!("link-pubcomment: {} laws loaded", laws.len());
+
+    let (ac, metas) = build_automaton(&laws)?;
+
+    let pubcomment_dir = public.join("pubcomment");
+    if !pubcomment_dir.exists() {
+        tracing::warn!("no pubcomment dir; skipping");
+        return Ok(());
+    }
+
+    let mut result: HashMap<String, Vec<LinkedPubcomment>> = HashMap::new();
+
+    for entry in walkdir::WalkDir::new(&pubcomment_dir)
+        .min_depth(1)
+        .max_depth(1)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|e| e.path().extension().and_then(|x| x.to_str()) == Some("json"))
+        .filter(|e| e.file_name().to_str() != Some("index.json"))
+    {
+        let path = entry.path();
+        let bytes = std::fs::read(path)
+            .with_context(|| format!("read {}", path.display()))?;
+        let doc: serde_json::Value = serde_json::from_slice(&bytes)?;
+
+        let case_id = doc["case_id"].as_str().unwrap_or("").to_string();
+        let title = doc["title"].as_str().unwrap_or("").to_string();
+        let ministry = doc["ministry"].as_str().unwrap_or("").to_string();
+        let start_date = doc["start_date"].as_str().unwrap_or("").to_string();
+        let end_date = doc["end_date"].as_str().unwrap_or("").to_string();
+
+        let search_text = format!(
+            "{}\n{}\n{}",
+            title,
+            doc["summary"].as_str().unwrap_or(""),
+            doc["description"].as_str().unwrap_or("")
+        );
+
+        let mut law_hits: HashMap<String, (std::collections::HashSet<String>, bool)> =
+            HashMap::new();
+        for mat in ac.find_overlapping_iter(&search_text) {
+            let meta = &metas[mat.pattern().as_usize()];
+            let entry = law_hits.entry(meta.law_id.clone()).or_default();
+            entry.0.insert(meta.pattern_text.clone());
+            if meta.is_law_num {
+                entry.1 = true;
+            }
+        }
+
+        for (law_id, (reasons, has_law_num)) in &law_hits {
+            let (relevance, confidence) = if *has_law_num {
+                ("amendment_comment".to_string(), 0.90f32)
+            } else {
+                ("reference_only".to_string(), 0.55f32)
+            };
+            result.entry(law_id.clone()).or_default().push(LinkedPubcomment {
+                case_id: case_id.clone(),
+                title: title.clone(),
+                ministry: ministry.clone(),
+                start_date: start_date.clone(),
+                end_date: end_date.clone(),
+                relevance,
+                confidence,
+                match_reasons: reasons.iter().cloned().collect(),
+            });
+        }
+    }
+
+    let links_dir = public.join("links").join("law-to-pubcomment");
+    std::fs::create_dir_all(&links_dir)?;
+
+    let mut written = 0usize;
+    for (law_id, mut items) in result {
+        items.sort_by(|a, b| b.end_date.cmp(&a.end_date));
+        let output = LawToPubcomments {
+            schema_version: 1,
+            law_id: law_id.clone(),
+            linked_pubcomments: items,
+        };
+        let path = links_dir.join(format!("{law_id}.json"));
+        std::fs::write(&path, serde_json::to_string_pretty(&output)?)
+            .with_context(|| format!("write {}", path.display()))?;
+        written += 1;
+    }
+    tracing::info!("link-pubcomment: {written} files written");
+    Ok(())
+}
+
+// ── 調達情報 クロスリンク ─────────────────────────────────────────
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LinkedProcurement {
+    pub item_id: String,
+    pub title: String,
+    pub organization: String,
+    pub notice_date: String,
+    pub relevance: String,
+    pub confidence: f32,
+    pub match_reasons: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LawToProcurements {
+    pub schema_version: u32,
+    pub law_id: String,
+    pub linked_procurements: Vec<LinkedProcurement>,
+}
+
+/// `public/` を受け取り、`links/law-to-procurement/` を生成する。
+pub fn run_link_procurement(public: &Path) -> Result<()> {
+    let laws = load_law_entries(public)?;
+    tracing::info!("link-procurement: {} laws loaded", laws.len());
+
+    let (ac, metas) = build_automaton(&laws)?;
+
+    let procurement_dir = public.join("procurement");
+    if !procurement_dir.exists() {
+        tracing::warn!("no procurement dir; skipping");
+        return Ok(());
+    }
+
+    let mut result: HashMap<String, Vec<LinkedProcurement>> = HashMap::new();
+
+    for entry in walkdir::WalkDir::new(&procurement_dir)
+        .min_depth(1)
+        .max_depth(1)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|e| e.path().extension().and_then(|x| x.to_str()) == Some("json"))
+        .filter(|e| e.file_name().to_str() != Some("index.json"))
+    {
+        let path = entry.path();
+        let bytes = std::fs::read(path)
+            .with_context(|| format!("read {}", path.display()))?;
+        let doc: serde_json::Value = serde_json::from_slice(&bytes)?;
+
+        let item_id = doc["item_id"].as_str().unwrap_or("").to_string();
+        let title = doc["title"].as_str().unwrap_or("").to_string();
+        let organization = doc["organization"].as_str().unwrap_or("").to_string();
+        let notice_date = doc["notice_date"].as_str().unwrap_or("").to_string();
+
+        let search_text = format!("{title}\n{organization}");
+
+        let mut law_hits: HashMap<String, (std::collections::HashSet<String>, bool)> =
+            HashMap::new();
+        for mat in ac.find_overlapping_iter(&search_text) {
+            let meta = &metas[mat.pattern().as_usize()];
+            let entry = law_hits.entry(meta.law_id.clone()).or_default();
+            entry.0.insert(meta.pattern_text.clone());
+            if meta.is_law_num {
+                entry.1 = true;
+            }
+        }
+
+        for (law_id, (reasons, has_law_num)) in &law_hits {
+            let (relevance, confidence) = if *has_law_num {
+                ("law_cited".to_string(), 0.88f32)
+            } else {
+                ("reference_only".to_string(), 0.50f32)
+            };
+            result.entry(law_id.clone()).or_default().push(LinkedProcurement {
+                item_id: item_id.clone(),
+                title: title.clone(),
+                organization: organization.clone(),
+                notice_date: notice_date.clone(),
+                relevance,
+                confidence,
+                match_reasons: reasons.iter().cloned().collect(),
+            });
+        }
+    }
+
+    let links_dir = public.join("links").join("law-to-procurement");
+    std::fs::create_dir_all(&links_dir)?;
+
+    let mut written = 0usize;
+    for (law_id, mut items) in result {
+        items.sort_by(|a, b| b.notice_date.cmp(&a.notice_date));
+        let output = LawToProcurements {
+            schema_version: 1,
+            law_id: law_id.clone(),
+            linked_procurements: items,
+        };
+        let path = links_dir.join(format!("{law_id}.json"));
+        std::fs::write(&path, serde_json::to_string_pretty(&output)?)
+            .with_context(|| format!("write {}", path.display()))?;
+        written += 1;
+    }
+    tracing::info!("link-procurement: {written} files written");
+    Ok(())
 }
 
 // ── テスト ────────────────────────────────────────────────────────

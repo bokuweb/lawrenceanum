@@ -1,0 +1,276 @@
+name: Update corpus data (kokkai / pubcomment / procurement)
+
+# 国会会議録・パブコメ・調達情報を定期取得し GitHub Pages に配信する。
+# 法令 (update-law-data.yml) とは独立したジョブとして管理する。
+#
+# スケジュール: JST 毎朝 05:00 (UTC 20:00 前日)
+#   - 法令 (06:30 JST) より早めに取得し、link-laws-and-proceedings が
+#     最新の両方を参照できるようにする。
+on:
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: "provider (http | mock)"
+        required: false
+        default: "http"
+        type: choice
+        options: ["http", "mock"]
+      domains:
+        description: "カンマ区切りドメイン (kokkai,pubcomment,procurement,reiki,shingikai,budget) / 空=全て"
+        required: false
+        type: string
+      kokkai_session:
+        description: "国会回次 (空=直近3会期を自動算出)"
+        required: false
+        type: string
+  schedule:
+    # JST 05:00 毎日
+    - cron: "0 20 * * *"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: update-corpus-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    outputs:
+      changed: ${{ steps.detect.outputs.changed }}
+    env:
+      LAWPUB_PROVIDER: ${{ github.event.inputs.provider || 'http' }}
+      DOMAINS: ${{ github.event.inputs.domains || 'kokkai,pubcomment,procurement' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Restore corpus cache
+        id: cache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache
+          key: corpus-cache-v1-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            corpus-cache-v1-${{ runner.os }}-
+
+      - name: Build lawpub
+        run: cargo build --release -p lawpub-cli
+
+      # ── 国会会議録 ───────────────────────────────────────────────
+
+      - name: Fetch kokkai (直近 3 会期)
+        if: contains(env.DOMAINS, 'kokkai') || env.DOMAINS == ''
+        run: |
+          provider="${LAWPUB_PROVIDER}"
+          # 会期番号: 入力があればそれ、なければ直近 3 会期を推定
+          if [ -n "${{ github.event.inputs.kokkai_session }}" ]; then
+            sessions="${{ github.event.inputs.kokkai_session }}"
+          else
+            # 現在の最新会期を kokkai API から取得し直近 3 会期を算出
+            latest=$(curl -sf "https://kokkai.ndl.go.jp/api/meeting_list?maximumRecords=1&recordPacking=json" \
+              | jq -r '.meetingRecord[0].session // "217"' 2>/dev/null || echo "217")
+            sessions="$((latest-2)),$((latest-1)),$latest"
+          fi
+          echo "::notice::kokkai sessions: $sessions"
+          for s in ${sessions//,/ }; do
+            ./target/release/lawpub proceedings-fetch \
+              --session "$s" --cache .cache --provider "$provider" || true
+          done
+
+      - name: Build kokkai JSON
+        if: contains(env.DOMAINS, 'kokkai') || env.DOMAINS == ''
+        run: |
+          [ -d .cache/proceedings ] || { echo "::notice::no kokkai cache, skip"; exit 0; }
+          mkdir -p public
+          ./target/release/lawpub proceedings-build-json \
+            --cache .cache --public public
+
+      # ── 法令 ↔ 国会 クロスリンク ─────────────────────────────────
+
+      - name: Link laws and proceedings
+        if: contains(env.DOMAINS, 'kokkai') || env.DOMAINS == ''
+        run: |
+          [ -f public/laws/index.json ] || { echo "::notice::no laws index, skip link"; exit 0; }
+          [ -d public/proceedings ] || { echo "::notice::no proceedings, skip link"; exit 0; }
+          ./target/release/lawpub link-laws-and-proceedings --public public
+
+      # ── パブコメ ─────────────────────────────────────────────────
+
+      - name: Fetch pubcomment
+        if: contains(env.DOMAINS, 'pubcomment') || env.DOMAINS == ''
+        run: |
+          ./target/release/lawpub pubcomment-fetch \
+            --cache .cache --provider "${LAWPUB_PROVIDER}" --max-pages 50 || true
+
+      - name: Build pubcomment JSON
+        if: contains(env.DOMAINS, 'pubcomment') || env.DOMAINS == ''
+        run: |
+          [ -d .cache/pubcomment ] || { echo "::notice::no pubcomment cache, skip"; exit 0; }
+          mkdir -p public
+          ./target/release/lawpub pubcomment-build-json \
+            --cache .cache --public public
+
+      # ── 法令 ↔ パブコメ クロスリンク ─────────────────────────────
+
+      - name: Link laws and pubcomment
+        if: contains(env.DOMAINS, 'pubcomment') || env.DOMAINS == ''
+        run: |
+          [ -f public/laws/index.json ] || { echo "::notice::no laws index, skip link"; exit 0; }
+          [ -d public/pubcomment ] || { echo "::notice::no pubcomment, skip link"; exit 0; }
+          ./target/release/lawpub link-laws-and-pubcomment --public public || true
+
+      # ── 調達情報 ─────────────────────────────────────────────────
+
+      - name: Fetch procurement (直近 30 日)
+        if: contains(env.DOMAINS, 'procurement') || env.DOMAINS == ''
+        run: |
+          from=$(date -u -d "30 days ago" +%Y-%m-%d 2>/dev/null || date -v-30d +%Y-%m-%d)
+          to=$(date -u +%Y-%m-%d)
+          ./target/release/lawpub procurement-fetch \
+            --from "$from" --to "$to" \
+            --cache .cache --provider "${LAWPUB_PROVIDER}" || true
+
+      - name: Build procurement JSON
+        if: contains(env.DOMAINS, 'procurement') || env.DOMAINS == ''
+        run: |
+          [ -d .cache/procurement ] || { echo "::notice::no procurement cache, skip"; exit 0; }
+          mkdir -p public
+          ./target/release/lawpub procurement-build-json \
+            --cache .cache --public public
+
+      # ── 審議会（手動のみ、頻度低） ────────────────────────────────
+
+      - name: Fetch shingikai (moj)
+        if: contains(env.DOMAINS, 'shingikai')
+        run: |
+          ./target/release/lawpub shingiakai-fetch \
+            --ministry moj --cache .cache --provider "${LAWPUB_PROVIDER}" || true
+          ./target/release/lawpub shingiakai-build-json \
+            --cache .cache --public public || true
+
+      # ── 予算（手動のみ、appId 必要） ─────────────────────────────
+
+      - name: Fetch budget (e-Stat)
+        if: contains(env.DOMAINS, 'budget') && env.LAWPUB_ESTAT_APP_ID != ''
+        env:
+          LAWPUB_ESTAT_APP_ID: ${{ secrets.ESTAT_APP_ID }}
+        run: |
+          ./target/release/lawpub budget-fetch \
+            --cache .cache --provider "${LAWPUB_PROVIDER}" || true
+          ./target/release/lawpub budget-build-json \
+            --cache .cache --public public || true
+
+      # ── 例規（手動のみ、頻度低） ─────────────────────────────────
+
+      - name: Fetch reiki
+        if: contains(env.DOMAINS, 'reiki')
+        run: |
+          ./target/release/lawpub reiki-fetch \
+            --cache .cache --provider "${LAWPUB_PROVIDER}" || true
+          ./target/release/lawpub reiki-build-json \
+            --cache .cache --public public || true
+
+      # ── キャッシュ保存 ────────────────────────────────────────────
+
+      - name: Save corpus cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: .cache
+          key: corpus-cache-v1-${{ runner.os }}-${{ github.run_id }}
+
+      # ── 変更検出 → Pages 配信 ─────────────────────────────────────
+
+      - name: Detect changes
+        id: detect
+        run: |
+          if git diff --quiet && [ -z "$(git ls-files --others --exclude-standard public/)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::no changes in public/"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::changes detected in public/"
+          fi
+
+      - name: Setup pnpm
+        if: steps.detect.outputs.changed == 'true'
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        if: steps.detect.outputs.changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: figma/pnpm-lock.yaml
+
+      - name: Build web UI
+        if: steps.detect.outputs.changed == 'true'
+        working-directory: figma
+        env:
+          VITE_SEARCH_DB_URL: ${{ secrets.R2_PUBLIC_URL && format('{0}/search.db', secrets.R2_PUBLIC_URL) || '' }}
+          VITE_COMPRESSED: '1'
+        run: |
+          pnpm install --no-frozen-lockfile
+          pnpm build
+
+      - name: Compress public JSON (gzip)
+        if: steps.detect.outputs.changed == 'true'
+        run: ./target/release/lawpub compress --public public --remove-original
+
+      - name: Configure Pages
+        if: steps.detect.outputs.changed == 'true'
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: steps.detect.outputs.changed == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+      - name: Commit state
+        if: steps.detect.outputs.changed == 'true'
+        continue-on-error: true
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          mkdir -p state
+          echo "{\"updated_at\":\"$ts\",\"domains\":\"${DOMAINS}\"}" > state/corpus_latest.json
+          git add state/corpus_latest.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(corpus): refresh corpus data ($ts)"
+          for i in 1 2 3; do
+            git push && exit 0
+            git pull --rebase origin main || true
+          done
+
+  deploy:
+    needs: update
+    if: needs.update.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

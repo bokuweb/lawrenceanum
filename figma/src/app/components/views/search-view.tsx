@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
@@ -20,6 +20,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   const { laws, live: lawsLive, loading } = useLaws();
 
   // FTS 検索結果と meta。
+  const queryGenRef = useRef(0);
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [ftsAvailable, setFtsAvailable] = useState<boolean | null>(null);
   const [ftsMeta, setFtsMeta] = useState<Record<string, string> | null>(null);
@@ -40,12 +41,16 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   useEffect(() => {
     if (!q.trim()) { setHits([]); return; }
     if (ftsAvailable === false) return; // FTS 不可ならフィルタ側に倒す。
-    let cancelled = false;
+    // 世代カウンタをインクリメント。このエフェクトより前に発行されたクエリが
+    // 後から返ってきても、gen が古ければ結果を捨てる。
+    const gen = ++queryGenRef.current;
     setSearching(true);
-    ftsSearch(q, 50, Array.from(cats))
-      .then(r => { if (!cancelled) { setHits(r); setSearching(false); } })
-      .catch(() => { if (!cancelled) setSearching(false); });
-    return () => { cancelled = true; };
+    const timer = setTimeout(() => {
+      ftsSearch(q, 50, Array.from(cats))
+        .then(r => { if (queryGenRef.current === gen) { setHits(r); setSearching(false); } })
+        .catch(() => { if (queryGenRef.current === gen) setSearching(false); });
+    }, 300);
+    return () => { clearTimeout(timer); };
   }, [q, ftsAvailable, cats]);
 
   // FTS 不可のときの法令単位フィルタ (旧来動作)。
