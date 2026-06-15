@@ -221,6 +221,21 @@ enum Cmd {
         #[arg(long, default_value = "public")]
         output: PathBuf,
     },
+    /// 官報の項目別 PDF から改め文を抽出する PoC。`.cache/kanpo-poc/{date}/` に
+    /// 整形済みテキストと目次 JSON を書き出し、抽出精度を目視検証する。
+    KanpoPoc {
+        /// 対象日 (YYYY-MM-DD)。
+        #[arg(long)]
+        date: String,
+        /// 改正・廃止系の項目だけに絞る (標題に「改正」「廃止」を含む)。
+        #[arg(long)]
+        amend_only: bool,
+        /// ダウンロードする項目数の上限 (負荷確認用)。
+        #[arg(long, default_value_t = 20)]
+        limit: usize,
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+    },
     /// cache / public / state を要約して JSON で stdout に出す。
     Status {
         #[arg(long, default_value = "public")]
@@ -478,6 +493,12 @@ fn main() -> Result<()> {
         }
         Cmd::KanpoFetch { date, cache } => kanpo::run_fetch(&date, &cache),
         Cmd::KanpoLink { output } => kanpo::run_link(&output),
+        Cmd::KanpoPoc {
+            date,
+            amend_only,
+            limit,
+            cache,
+        } => kanpo::run_poc(&date, amend_only, limit, &cache),
         Cmd::Status { public, cache } => status::run(&public, &cache),
         Cmd::ProceedingsFetch { session, cache, provider } => {
             proceedings::run_fetch(session, &cache, &provider)
