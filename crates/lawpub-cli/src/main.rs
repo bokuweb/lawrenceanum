@@ -2,10 +2,16 @@ use anyhow::Result;
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 
+mod budget;
 mod build;
 mod compress;
 mod diffs;
 mod kanpo;
+mod proceedings;
+mod procurement;
+mod pubcomment;
+mod reiki;
+mod shingikai;
 mod snapshots;
 mod state;
 mod status;
@@ -222,6 +228,126 @@ enum Cmd {
         #[arg(long, default_value = ".cache")]
         cache: PathBuf,
     },
+
+    /// 国会会議録: 指定会期の全会議を取得し `.cache/proceedings/{session}/` に保存する。
+    ProceedingsFetch {
+        /// 国会回次 (例: 215)。
+        #[arg(long)]
+        session: u32,
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        /// `mock` (組み込みサンプル) または `http` (国会会議録API)。
+        #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
+        provider: String,
+    },
+
+    /// 国会会議録: `.cache/proceedings/` のキャッシュから配信用 JSON を生成する。
+    ProceedingsBuildJson {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
+    /// 法令 ↔ 国会会議録 クロスリンクを生成する。
+    /// `public/links/law-to-proceedings/{law_id}.json` を書き出す。
+    LinkLawsAndProceedings {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
+    /// パブコメ: 結果公示済み案件を取得し `.cache/pubcomment/` に保存する。
+    PubcommentFetch {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
+        provider: String,
+        /// 最大取得ページ数（1 ページ = 最大 20 件程度）。
+        #[arg(long, default_value_t = 100)]
+        max_pages: u32,
+    },
+
+    /// パブコメ: キャッシュから配信用 JSON を生成する。
+    PubcommentBuildJson {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
+    /// 調達情報: 官公需ポータル (kkj.go.jp) から公告日範囲で取得する。
+    ProcurementFetch {
+        #[arg(long)]
+        from: String,
+        #[arg(long)]
+        to: String,
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
+        provider: String,
+    },
+
+    /// 調達情報: キャッシュから配信用 JSON を生成する。
+    ProcurementBuildJson {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
+    /// 例規: 自治体例規集を取得する（初期: 3 自治体）。
+    ReikiFetch {
+        /// 対象自治体コード（省略時: 全登録自治体）。
+        #[arg(long, value_delimiter = ',')]
+        municipalities: Vec<String>,
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
+        provider: String,
+    },
+
+    /// 例規: キャッシュから配信用 JSON を生成する。
+    ReikiBuildJson {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
+    /// 審議会: 府省の審議会・委員会議事録を取得する。
+    ShingiakaiFetch {
+        /// 府省 ID (moj, cao, ...)。
+        #[arg(long, default_value = "moj")]
+        ministry: String,
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
+        provider: String,
+    },
+
+    /// 審議会: キャッシュから配信用 JSON を生成する。
+    ShingiakaiBuildJson {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
+    /// 予算: e-Stat API から財政統計データを取得する（LAWPUB_ESTAT_APP_ID 必須）。
+    BudgetFetch {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
+        provider: String,
+    },
+
+    /// 予算: キャッシュから配信用 JSON を生成する。
+    BudgetBuildJson {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
 }
 
 fn main() -> Result<()> {
@@ -339,5 +465,36 @@ fn main() -> Result<()> {
         Cmd::KanpoFetch { date, cache } => kanpo::run_fetch(&date, &cache),
         Cmd::KanpoLink { output } => kanpo::run_link(&output),
         Cmd::Status { public, cache } => status::run(&public, &cache),
+        Cmd::ProceedingsFetch { session, cache, provider } => {
+            proceedings::run_fetch(session, &cache, &provider)
+        }
+        Cmd::ProceedingsBuildJson { cache, public } => {
+            proceedings::run_build_json(&cache, &public)
+        }
+        Cmd::LinkLawsAndProceedings { public } => linking::run_link(&public),
+        Cmd::PubcommentFetch { cache, provider, max_pages } => {
+            pubcomment::run_fetch(&cache, &provider, max_pages)
+        }
+        Cmd::PubcommentBuildJson { cache, public } => {
+            pubcomment::run_build_json(&cache, &public)
+        }
+        Cmd::ProcurementFetch { from, to, cache, provider } => {
+            procurement::run_fetch(&from, &to, &cache, &provider)
+        }
+        Cmd::ProcurementBuildJson { cache, public } => {
+            procurement::run_build_json(&cache, &public)
+        }
+        Cmd::ReikiFetch { municipalities, cache, provider } => {
+            reiki::run_fetch(&municipalities, &cache, &provider)
+        }
+        Cmd::ReikiBuildJson { cache, public } => reiki::run_build_json(&cache, &public),
+        Cmd::ShingiakaiFetch { ministry, cache, provider } => {
+            shingikai::run_fetch(&ministry, &cache, &provider)
+        }
+        Cmd::ShingiakaiBuildJson { cache, public } => {
+            shingikai::run_build_json(&cache, &public)
+        }
+        Cmd::BudgetFetch { cache, provider } => budget::run_fetch(&cache, &provider),
+        Cmd::BudgetBuildJson { cache, public } => budget::run_build_json(&cache, &public),
     }
 }

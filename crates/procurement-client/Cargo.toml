@@ -1,0 +1,15 @@
+[package]
+name = "procurement-client"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+publish.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+reqwest = { workspace = true, features = ["blocking"] }
+quick-xml.workspace = true
+tracing.workspace = true
+chrono.workspace = true
