@@ -88,6 +88,10 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
+      # kanpo-fetch の改め文抽出に pdftotext(poppler) が必要。
+      - name: Install poppler (pdftotext)
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
 
@@ -203,6 +207,20 @@ jobs:
             ARGS+=(--force)
           fi
           ./target/release/lawpub update "${ARGS[@]}"
+
+      # 官報取得(best-effort): 直近数日分の官報を取得し改め文を抽出して
+      # .cache/kanpo/ に蓄積する。デジタル官報の遡及窓(直近約90日)に従い前向きに
+      # 貯まる。.cache は run 間で永続化されるので毎回数日分で十分。公報休刊日は 404 で
+      # スキップ。pdftotext 必須。
+      - name: lawpub kanpo-fetch (best-effort)
+        if: github.event_name != 'push'
+        run: |
+          for i in 0 1 2 3 4 5; do
+            d=$(date -u -d "-$i day" +%Y-%m-%d 2>/dev/null || date -u -v-${i}d +%Y-%m-%d)
+            echo "::group::kanpo-fetch $d"
+            ./target/release/lawpub kanpo-fetch --date "$d" --provider http --cache .cache || true
+            echo "::endgroup::"
+          done
 
       - name: lawpub kanpo-link (best-effort)
         if: github.event_name != 'push'

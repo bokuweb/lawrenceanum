@@ -9,24 +9,32 @@ use std::path::{Path, PathBuf};
 /// `lawpub kanpo-fetch` — 指定日の官報を取得し、改正・廃止・制定系の各項目の改め文を
 /// 抽出して `.cache/kanpo/{date}.json` に保存する。`provider` は "http"(デジタル官報) /
 /// "mock"。`limit` は1日あたりの PDF ダウンロード上限（負荷ガード）。
-pub fn run_fetch(date: &str, provider: &str, limit: usize, cache: &Path) -> Result<()> {
+pub fn run_fetch(
+    date: &str,
+    provider: &str,
+    limit: usize,
+    save_pdf: bool,
+    cache: &Path,
+) -> Result<()> {
     let mut kd = match provider {
         "mock" => MockKanpoProvider.fetch_date(date)?,
         _ => {
             let http = HttpProvider::new()?;
             tracing::info!("fetch kanpo for {date} from {}", http.base_url());
             let mut kd = http.fetch_date(date)?;
-            // 生 PDF は `.cache/kanpo-pdf/{date}/` に保持し、抽出精度を上げた際に
-            // 再抽出できるようにする（git 管理外。永続化は R2 等へ別途同期）。
-            let pdf_dir = cache.join("kanpo-pdf").join(date);
-            let stats = fill_amend_texts(&http, &mut kd, true, limit, Some(&pdf_dir));
+            // --save-pdf 指定時のみ生 PDF を `{cache}/kanpo-pdf/{date}/` に保持
+            // （抽出精度を上げた際の再抽出用。git 管理外、永続化は R2 等へ別途同期）。
+            let pdf_dir = save_pdf.then(|| cache.join("kanpo-pdf").join(date));
+            let stats = fill_amend_texts(&http, &mut kd, true, limit, pdf_dir.as_deref());
             tracing::info!(
-                "extracted amend texts: items={} downloaded={} pdf={:.1}MB formats={:?} (raw pdf -> {})",
+                "extracted amend texts: items={} downloaded={} pdf={:.1}MB formats={:?}{}",
                 stats.amend_items,
                 stats.downloaded,
                 stats.total_pdf_bytes as f64 / 1_048_576.0,
                 stats.by_format,
-                pdf_dir.display(),
+                pdf_dir
+                    .map(|d| format!(" (raw pdf -> {})", d.display()))
+                    .unwrap_or_default(),
             );
             kd
         }

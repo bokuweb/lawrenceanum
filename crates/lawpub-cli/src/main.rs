@@ -219,6 +219,10 @@ enum Cmd {
         /// 1日あたりの PDF ダウンロード上限 (負荷ガード)。
         #[arg(long, default_value_t = 200)]
         limit: usize,
+        /// 取得した生 PDF を `{cache}/kanpo-pdf/{date}/` に保持する (後の再抽出用)。
+        /// 既定オフ (CI のキャッシュ肥大回避)。ローカルでのアーカイブ時に指定。
+        #[arg(long)]
+        save_pdf: bool,
         #[arg(long, default_value = ".cache")]
         cache: PathBuf,
     },
@@ -501,8 +505,9 @@ fn main() -> Result<()> {
             date,
             provider,
             limit,
+            save_pdf,
             cache,
-        } => kanpo::run_fetch(&date, &provider, limit, &cache),
+        } => kanpo::run_fetch(&date, &provider, limit, save_pdf, &cache),
         Cmd::KanpoLink { output } => kanpo::run_link(&output),
         Cmd::KanpoPoc {
             date,
