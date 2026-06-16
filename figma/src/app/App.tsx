@@ -12,6 +12,7 @@ const CompareView = lazy(() => import("./components/views/compare-view").then(m 
 const UpdatesView = lazy(() => import("./components/views/simple-views").then(m => ({ default: m.UpdatesView })));
 const KanpoView = lazy(() => import("./components/views/simple-views").then(m => ({ default: m.KanpoView })));
 const SettingsView = lazy(() => import("./components/views/simple-views").then(m => ({ default: m.SettingsView })));
+const ProceedingsView = lazy(() => import("./components/views/proceedings-view").then(m => ({ default: m.ProceedingsView })));
 
 function ViewFallback() {
   return <div className="p-6 text-sm text-muted-foreground">読み込み中…</div>;
@@ -49,6 +50,17 @@ function CompareRoute() {
   return <CompareView initialLawId={lawId ?? null} />;
 }
 
+function ProceedingsRoute() {
+  const { meetingId } = useParams();
+  const navigate = useNavigate();
+  return (
+    <ProceedingsView
+      meetingId={meetingId ?? null}
+      onSelectMeeting={(id) => navigate(id ? `/proceedings/${id}` : "/proceedings")}
+    />
+  );
+}
+
 function AppShell() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -81,6 +93,8 @@ function AppShell() {
               <Route path="/laws/:lawId" element={<BrowseRoute />} />
               <Route path="/laws/:lawId/compare" element={<CompareRoute />} />
               <Route path="/compare" element={<CompareRoute />} />
+              <Route path="/proceedings" element={<ProceedingsRoute />} />
+              <Route path="/proceedings/:meetingId" element={<ProceedingsRoute />} />
               <Route path="/updates" element={<UpdatesView />} />
               <Route path="/kanpo" element={<KanpoView />} />
               <Route path="/settings" element={<SettingsView />} />
