@@ -33,6 +33,7 @@ pub fn extract(pdf: &[u8]) -> Result<Extracted> {
 }
 
 /// 縦書き1カラム = 1 word とみなした語。`y`/`y1` は上端/下端。
+#[derive(Clone)]
 struct Col {
     x: f32,
     y: f32,
@@ -87,16 +88,123 @@ pub fn reconstruct_vertical(xhtml: &str) -> String {
             }
             cols.push(Col { x, y, y1, text });
         }
-        // 段組み(tier)ごとに分けてから各段を右→左に再構成する。官報本紙は2段組が多く、
-        // 段を分けないと「同 x にある上段の列と下段の列」が1列に連結され記事が混線する。
-        for tier in split_tiers(cols) {
-            let page_text = reconstruct_page(tier);
-            if !page_text.is_empty() {
-                pages.push(page_text);
+        // 新旧対照表の「改正後／改正前」見出し（単字縦積み）をアンカーに段を切れる場合は
+        // それを優先（後/前ラベル付きの構造化テキストを出力）。できなければ汎用の段組み
+        // (横断カラム数の谷)で分割する。官報本紙は2段組が多く、段を分けないと「同 x にある
+        // 上段の列と下段の列」が1列に連結され記事が混線する。
+        if let Some(t) = reconstruct_shinkyu(&cols) {
+            pages.push(t);
+        } else {
+            for tier in split_tiers(cols) {
+                let page_text = reconstruct_page(tier);
+                if !page_text.is_empty() {
+                    pages.push(page_text);
+                }
             }
         }
     }
     pages.join("\n").trim().to_string()
+}
+
+/// 新旧対照表の「改正後／改正前」欄見出しアンカー（単字「改」「正」「後/前」が同 x に
+/// 縦積み）。`y_top` は「改」の上端、`y_bot` は「後/前」の下端。
+struct ShinkyuAnchor {
+    x: f32,
+    y_top: f32,
+    y_bot: f32,
+    is_before: bool, // true=改正前, false=改正後
+}
+
+/// カラム群から改正後/改正前の見出しアンカーを検出する。
+fn detect_shinkyu_anchors(cols: &[Col]) -> Vec<ShinkyuAnchor> {
+    let single = |c: &Col, ch: char| c.text.chars().count() == 1 && c.text.starts_with(ch);
+    let singles: Vec<&Col> = cols
+        .iter()
+        .filter(|c| c.text.chars().count() == 1)
+        .collect();
+    let mut anchors = Vec::new();
+    for c in &singles {
+        let tail = c.text.chars().next().unwrap();
+        if tail != '後' && tail != '前' {
+            continue;
+        }
+        // 「後/前」の真上(同 x, 0<Δy<60)に「正」、その上に「改」。
+        let sho = singles
+            .iter()
+            .find(|s| single(s, '正') && (s.x - c.x).abs() < 5.0 && (0.0..60.0).contains(&(c.y - s.y)));
+        let Some(sho) = sho else { continue };
+        let kai = singles
+            .iter()
+            .find(|k| single(k, '改') && (k.x - c.x).abs() < 5.0 && (0.0..60.0).contains(&(sho.y - k.y)));
+        if let Some(kai) = kai {
+            anchors.push(ShinkyuAnchor {
+                x: c.x,
+                y_top: kai.y,
+                y_bot: c.y1,
+                is_before: tail == '前',
+            });
+        }
+    }
+    anchors
+}
+
+/// 改正後/改正前アンカーが見つかれば、見出し y を境界に y バンドへ分割し、各バンドを
+/// 右→左で再構成して「改正後」「改正前」ラベル付きの構造化テキストを返す。
+///
+/// 官報の縦書き新旧対照表は「改正後=上段／改正前=下段」を1記事につき複数回繰り返す
+/// （1ページに複数表・複数記事のことも）。見出しアンカーで素直にバンド化できるので、
+/// 横断カラム数の谷に頼る split_tiers より確実に後/前を分離できる。
+fn reconstruct_shinkyu(cols: &[Col]) -> Option<String> {
+    let mut anchors = detect_shinkyu_anchors(cols);
+    if !anchors.iter().any(|a| !a.is_before) || !anchors.iter().any(|a| a.is_before) {
+        return None;
+    }
+    anchors.sort_by(|a, b| a.y_top.partial_cmp(&b.y_top).unwrap_or(std::cmp::Ordering::Equal));
+
+    let page_top = cols.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+    let page_bot = cols.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max) + 1.0;
+
+    // 見出しの単字（改/正/後/前, アンカー x 上）は本文から除外し、自前でラベルを出す。
+    let is_header_char = |c: &Col| {
+        c.text.chars().count() == 1
+            && matches!(c.text.chars().next().unwrap(), '改' | '正' | '後' | '前')
+            && anchors.iter().any(|a| (a.x - c.x).abs() < 5.0)
+    };
+    let recon_band = |lo: f32, hi: f32| -> String {
+        let band: Vec<Col> = cols
+            .iter()
+            .filter(|c| {
+                let cy = (c.y + c.y1) / 2.0;
+                cy >= lo && cy < hi && !is_header_char(c)
+            })
+            .cloned()
+            .collect();
+        reconstruct_page(band)
+    };
+
+    // バンド境界は隣接アンカー間の中点（見出しの上に本文が始まるため、見出し y では
+    // なく後/前領域の中点で切る）。先頭バンドには前文・制定文も含まれる。
+    let mut out: Vec<String> = Vec::new();
+    for (i, a) in anchors.iter().enumerate() {
+        let lo = if i == 0 {
+            page_top
+        } else {
+            (anchors[i - 1].y_bot + a.y_top) / 2.0
+        };
+        // 次アンカーがあれば中点。無い（最終バンド）場合、ページ末まで伸ばすと後続の別記事を
+        // 飲み込むので、直前バンド相当の高さに制限する（新旧表の後/前は対称）。
+        let hi = match anchors.get(i + 1) {
+            Some(n) => (a.y_bot + n.y_top) / 2.0,
+            None if i > 0 => (a.y_top + (a.y_top - anchors[i - 1].y_top)).min(page_bot),
+            None => page_bot,
+        };
+        out.push(if a.is_before { "改正前" } else { "改正後" }.to_string());
+        let body = recon_band(lo, hi);
+        if !body.trim().is_empty() {
+            out.push(body);
+        }
+    }
+    Some(out.join("\n").trim().to_string())
 }
 
 /// カラム語を縦方向の段(tier)に分割する。
@@ -491,6 +599,23 @@ mod tests {
             <word xMin="50"  yMin="420" xMax="58"  yMax="700">下左</word>
         </page></doc></body></html>"#;
         assert_eq!(reconstruct_vertical(xhtml), "上右\n上左\n下右\n下左");
+    }
+
+    #[test]
+    fn reconstruct_shinkyu_splits_after_before_by_header_anchor() {
+        // 改正後(上段)/改正前(下段)の見出し（単字縦積み）をアンカーに後/前を分離し、
+        // 「改正後」「改正前」ラベル付きで出力する。
+        let xhtml = r#"<html><body><doc><page width="595" height="842">
+            <word xMin="100" yMin="100" xMax="108" yMax="108">改</word>
+            <word xMin="100" yMin="140" xMax="108" yMax="148">正</word>
+            <word xMin="100" yMin="180" xMax="108" yMax="188">後</word>
+            <word xMin="80"  yMin="100" xMax="88"  yMax="200">あ</word>
+            <word xMin="100" yMin="300" xMax="108" yMax="308">改</word>
+            <word xMin="100" yMin="340" xMax="108" yMax="348">正</word>
+            <word xMin="100" yMin="380" xMax="108" yMax="388">前</word>
+            <word xMin="80"  yMin="300" xMax="88"  yMax="400">い</word>
+        </page></doc></body></html>"#;
+        assert_eq!(reconstruct_vertical(xhtml), "改正後\nあ\n改正前\nい");
     }
 
     #[test]
