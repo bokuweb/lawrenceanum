@@ -10,8 +10,7 @@ import { Separator } from "../ui/separator";
 import { type LawSummary } from "../mock-data";
 import { Search, SlidersHorizontal, ChevronRight, FileText, Database, Landmark, MessageSquare } from "lucide-react";
 import { useLaws } from "../../data/use-laws";
-import { search as ftsSearch, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, type SearchHit } from "../../data/search-engine";
-import { useProceedingsIndex } from "../../data/use-proceedings";
+import { search as ftsSearch, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, searchSpeeches, type SearchHit, type SpeechHit } from "../../data/search-engine";
 import { useNavigate } from "react-router";
 
 export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initialQuery?: string; onOpen: (l: LawSummary) => void; onQueryChange?: (q: string) => void }) {
@@ -21,11 +20,11 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
 
   const [cats, setCats] = useState<Set<string>>(new Set());
   const { laws, live: lawsLive, loading } = useLaws();
-  const { data: proceedingsData } = useProceedingsIndex();
 
   // FTS 検索結果と meta。
   const queryGenRef = useRef(0);
   const [hits, setHits] = useState<SearchHit[]>([]);
+  const [speechHits, setSpeechHits] = useState<SpeechHit[]>([]);
   const [ftsAvailable, setFtsAvailable] = useState<boolean | null>(null);
   const [ftsMeta, setFtsMeta] = useState<Record<string, string> | null>(null);
   // 初期クエリがあれば検索中扱いで開始する。さもないと初回 render で
@@ -43,15 +42,24 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   }, []);
 
   useEffect(() => {
-    if (!q.trim()) { setHits([]); return; }
+    if (!q.trim()) { setHits([]); setSpeechHits([]); return; }
     if (ftsAvailable === false) return; // FTS 不可ならフィルタ側に倒す。
     // 世代カウンタをインクリメント。このエフェクトより前に発行されたクエリが
     // 後から返ってきても、gen が古ければ結果を捨てる。
     const gen = ++queryGenRef.current;
     setSearching(true);
     const timer = setTimeout(() => {
-      ftsSearch(q, 50, Array.from(cats))
-        .then(r => { if (queryGenRef.current === gen) { setHits(r); setSearching(false); } })
+      Promise.all([
+        ftsSearch(q, 50, Array.from(cats)),
+        searchSpeeches(q, 10),
+      ])
+        .then(([lawHits, spHits]) => {
+          if (queryGenRef.current === gen) {
+            setHits(lawHits);
+            setSpeechHits(spHits);
+            setSearching(false);
+          }
+        })
         .catch(() => { if (queryGenRef.current === gen) setSearching(false); });
     }, 300);
     return () => { clearTimeout(timer); };
@@ -72,17 +80,6 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
     fn(next);
   };
 
-  // 会議録の簡易フィルタ（委員会名・院・会期・発言者を対象）
-  const proceedingHits = useMemo(() => {
-    const qTrim = q.trim();
-    if (!qTrim || !proceedingsData) return [];
-    const lower = qTrim.toLowerCase();
-    return proceedingsData.meetings.filter(m =>
-      (m.committee ?? "").toLowerCase().includes(lower) ||
-      m.house.toLowerCase().includes(lower) ||
-      String(m.session).includes(lower)
-    ).slice(0, 5);
-  }, [q, proceedingsData]);
 
   // FTS が使えるかどうかで表示モードを切り替える。
   const useFts = ftsAvailable === true;
@@ -180,37 +177,39 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
             </div>
           ) : (
             <>
-          {/* 会議録セクション */}
-          {proceedingHits.length > 0 && (
+          {/* 会議録発言 FTS セクション */}
+          {useFts && speechHits.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Landmark className="size-3.5" />
-                <span>国会会議録 ({proceedingHits.length}件)</span>
+                <span>国会会議録 発言 ({speechHits.length}件)</span>
               </div>
-              {proceedingHits.map(m => (
+              {speechHits.map((h, i) => (
                 <Card
-                  key={m.meeting_id}
+                  key={`${h.meeting_id}-${h.speech_id}-${i}`}
                   className="hover:border-primary/50 transition-colors cursor-pointer"
-                  onClick={() => navigate(`/proceedings/${m.meeting_id}`)}
+                  onClick={() => navigate(`/proceedings/${h.meeting_id}`)}
                 >
-                  <CardContent className="p-3 flex items-center gap-3">
-                    <div className="size-8 rounded-md bg-muted flex items-center justify-center shrink-0">
+                  <CardContent className="p-3 flex items-start gap-3">
+                    <div className="size-8 rounded-md bg-muted flex items-center justify-center shrink-0 mt-0.5">
                       <Landmark className="size-4 text-muted-foreground" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-medium">{m.committee ?? "本会議"}</span>
-                        <Badge variant="outline" className="text-xs">{m.house}</Badge>
-                        <Badge variant="outline" className="text-xs">第{m.session}回</Badge>
+                        <span className="text-sm font-medium">{h.committee ?? "本会議"}</span>
+                        <Badge variant="outline" className="text-xs">{h.house}</Badge>
+                        <Badge variant="outline" className="text-xs">第{h.session}回</Badge>
+                        {h.speaker && <span className="text-xs text-muted-foreground">{h.speaker}</span>}
                       </div>
-                      <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2">
-                        <span>{m.date}</span>
-                        <span className="flex items-center gap-0.5">
-                          <MessageSquare className="size-3" />{m.speech_count}発言
-                        </span>
-                      </div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{h.date}</div>
+                      {h.snippet && (
+                        <div
+                          className="text-sm mt-1.5 leading-relaxed [&>mark]:bg-amber-300/40 [&>mark]:rounded-sm [&>mark]:px-0.5"
+                          dangerouslySetInnerHTML={{ __html: unbigramSnippet(h.snippet) }}
+                        />
+                      )}
                     </div>
-                    <ChevronRight className="size-4 text-muted-foreground shrink-0" />
+                    <ChevronRight className="size-4 text-muted-foreground shrink-0 mt-1" />
                   </CardContent>
                 </Card>
               ))}

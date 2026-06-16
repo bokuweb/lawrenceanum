@@ -259,6 +259,49 @@ export async function search(
   }));
 }
 
+export type SpeechHit = {
+  meeting_id: string;
+  speech_id: string;
+  speaker: string | null;
+  speaker_group: string | null;
+  snippet: string;
+  house: string;
+  committee: string | null;
+  date: string;
+  session: number;
+};
+
+export async function searchSpeeches(q: string, limit = 20): Promise<SpeechHit[]> {
+  const match = buildFtsMatch(q.trim());
+  if (!match) return [];
+  const rows = await exec<{
+    meeting_id: string; speech_id: string; speaker: string | null;
+    speaker_group: string | null; snippet: string;
+    house: string; committee: string | null; date: string; session: number;
+  }>(
+    `SELECT s.meeting_id, s.speech_id, s.speaker, s.speaker_group,
+            snippet(speeches_fts, 4, '<mark>', '</mark>', '...', 10) AS snippet,
+            m.house, m.committee, m.date, m.session
+       FROM speeches_fts s
+       JOIN meetings m ON m.meeting_id = s.meeting_id
+      WHERE speeches_fts MATCH ?
+      ORDER BY rank
+      LIMIT ?`,
+    [match, limit],
+  );
+  return rows.map(r => ({
+    meeting_id: String(r.meeting_id ?? ""),
+    speech_id: String(r.speech_id ?? ""),
+    speaker: r.speaker ?? null,
+    speaker_group: r.speaker_group ?? null,
+    snippet: String(r.snippet ?? ""),
+    house: String(r.house ?? ""),
+    committee: r.committee ?? null,
+    date: String(r.date ?? ""),
+    session: Number(r.session ?? 0),
+  }));
+}
+
 export async function getOutgoingRefs(lawId: string, articleId: string): Promise<ArticleRef[]> {
   return exec<ArticleRef>(
     `SELECT from_law_id, from_article_id, to_law_id, to_article_id, ref_text, ref_type

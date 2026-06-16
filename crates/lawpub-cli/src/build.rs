@@ -2044,7 +2044,9 @@ fn write_search_db(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
         .collect();
     let categories: std::collections::HashMap<String, String> = categories.into_iter().collect();
     let path = public.join("search.db");
-    search_index::build_search_db(&path, &docs, &categories)?;
+    let proc_dir = public.join("proceedings");
+    let proc_dir_opt = if proc_dir.is_dir() { Some(proc_dir.as_path()) } else { None };
+    search_index::build_search_db(&path, &docs, &categories, proc_dir_opt)?;
     Ok(())
 }
 

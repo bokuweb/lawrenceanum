@@ -207,10 +207,12 @@ pub fn extract_self_article_refs<'a>(
 /// `categories`: law_id → e-Gov 法令分類 (「民事」「行政組織」など) の対応表。
 ///   FTS5 検索結果をカテゴリで絞り込めるよう `laws.category` 列に格納する。
 ///   未知の law_id は NULL になる。
+/// `proceedings_dir`: `public/proceedings/` へのパス。Some の場合は発言 FTS も構築。
 pub fn build_search_db(
     out_path: &Path,
     laws: &[LawDocument],
     categories: &std::collections::HashMap<String, String>,
+    proceedings_dir: Option<&Path>,
 ) -> Result<()> {
     if let Some(parent) = out_path.parent() {
         std::fs::create_dir_all(parent)?;
@@ -264,6 +266,27 @@ pub fn build_search_db(
         );
         CREATE INDEX idx_refs_from ON refs(from_law_id, from_article_id);
         CREATE INDEX idx_refs_to   ON refs(to_law_id, to_article_id);
+
+        -- 発言単位 FTS5。発言テキストを bigram 索引する。
+        -- meeting_id / speech_id / speaker / speaker_group は検索対象外 (UNINDEXED)。
+        CREATE VIRTUAL TABLE speeches_fts USING fts5(
+            meeting_id UNINDEXED,
+            speech_id UNINDEXED,
+            speaker UNINDEXED,
+            speaker_group UNINDEXED,
+            speech_tokens,
+            tokenize='unicode61'
+        );
+
+        -- 会議メタ (JOIN 用)。index.json の MeetingMeta に対応。
+        CREATE TABLE meetings (
+            meeting_id TEXT PRIMARY KEY,
+            session INTEGER,
+            house TEXT,
+            committee TEXT,
+            date TEXT,
+            speech_count INTEGER
+        );
 
         CREATE TABLE meta (
             key TEXT PRIMARY KEY,
@@ -430,13 +453,82 @@ pub fn build_search_db(
             total_articles,
             total_refs
         );
+
+        // ── 発言 FTS (proceedings_dir が Some のとき) ───────────────────────
+        let mut total_meetings = 0usize;
+        let mut total_speeches = 0usize;
+        if let Some(proc_dir) = proceedings_dir {
+            let mut meeting_stmt = tx.prepare(
+                "INSERT OR IGNORE INTO meetings (meeting_id, session, house, committee, date, speech_count) \
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            )?;
+            let mut speech_stmt = tx.prepare(
+                "INSERT INTO speeches_fts (meeting_id, speech_id, speaker, speaker_group, speech_tokens) \
+                 VALUES (?1, ?2, ?3, ?4, ?5)",
+            )?;
+
+            // index.json を読んで meetings テーブルに挿入。
+            let index_path = proc_dir.join("index.json");
+            if index_path.exists() {
+                let raw = std::fs::read_to_string(&index_path)
+                    .with_context(|| format!("read {}", index_path.display()))?;
+                let index: serde_json::Value = serde_json::from_str(&raw)?;
+                if let Some(meetings) = index.get("meetings").and_then(|v| v.as_array()) {
+                    for m in meetings {
+                        let meeting_id = m.get("meeting_id").and_then(|v| v.as_str()).unwrap_or("");
+                        let session = m.get("session").and_then(|v| v.as_i64()).unwrap_or(0);
+                        let house = m.get("house").and_then(|v| v.as_str()).unwrap_or("");
+                        let committee = m.get("committee").and_then(|v| v.as_str());
+                        let date = m.get("date").and_then(|v| v.as_str()).unwrap_or("");
+                        let speech_count = m.get("speech_count").and_then(|v| v.as_i64()).unwrap_or(0);
+                        meeting_stmt.execute(params![
+                            meeting_id, session, house, committee, date, speech_count,
+                        ])?;
+                        total_meetings += 1;
+
+                        // 個別会議 JSON を読んで発言を索引。
+                        let meeting_path = proc_dir.join(format!("{}.json", meeting_id));
+                        if !meeting_path.exists() {
+                            continue;
+                        }
+                        let raw2 = std::fs::read_to_string(&meeting_path)
+                            .with_context(|| format!("read {}", meeting_path.display()))?;
+                        let meeting_json: serde_json::Value = serde_json::from_str(&raw2)?;
+                        if let Some(speeches) = meeting_json.get("speeches").and_then(|v| v.as_array()) {
+                            for s in speeches {
+                                let speech_id = s.get("speech_id").and_then(|v| v.as_str()).unwrap_or("");
+                                let speaker = s.get("speaker").and_then(|v| v.as_str());
+                                let speaker_group = s.get("speaker_group").and_then(|v| v.as_str());
+                                let speech_text = s.get("speech").and_then(|v| v.as_str()).unwrap_or("");
+                                if speech_text.is_empty() {
+                                    continue;
+                                }
+                                let tokens = tokenize_for_fts(speech_text);
+                                speech_stmt.execute(params![
+                                    meeting_id, speech_id, speaker, speaker_group, tokens,
+                                ])?;
+                                total_speeches += 1;
+                            }
+                        }
+                    }
+                }
+            }
+            tracing::info!(
+                "search.db: indexed {} meetings / {} speeches",
+                total_meetings,
+                total_speeches
+            );
+        }
+
         tx.execute(
             "INSERT INTO meta (key, value) VALUES ('built_at', datetime('now')), \
-             ('law_count', ?1), ('article_count', ?2), ('ref_count', ?3), ('tokenizer', 'bigram')",
+             ('law_count', ?1), ('article_count', ?2), ('ref_count', ?3), \
+             ('speech_count', ?4), ('tokenizer', 'bigram')",
             params![
                 laws.len() as i64,
                 total_articles as i64,
-                total_refs as i64
+                total_refs as i64,
+                total_speeches as i64,
             ],
         )?;
     }
