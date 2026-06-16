@@ -1310,15 +1310,19 @@ fn build_one_law(
             let bytes = std::fs::read(&path)?;
             let sha = sha256_hex(&bytes);
             let meta_path = path.with_extension("meta.json");
-            let first_seen = if meta_path.exists() {
-                let v: serde_json::Value = serde_json::from_slice(&std::fs::read(&meta_path)?)?;
-                v.get("first_seen_date")
-                    .and_then(|s| s.as_str())
-                    .unwrap_or("")
-                    .to_string()
-            } else {
-                String::new()
-            };
+            // サイドカー meta は first_seen_date を持つだけの補助情報。空/壊れていても
+            // (R2 復元アーカイブに 0 バイトの .meta.json が混じる等) ビルド全体を
+            // 止めず、欠落時 (= 上の else 相当) と同じく first_seen="" に倒す。
+            // 他の XML/meta 読み込み (parse_law_xml / revisions_meta) と同じ寛容方針。
+            let first_seen = std::fs::read(&meta_path)
+                .ok()
+                .and_then(|b| serde_json::from_slice::<serde_json::Value>(&b).ok())
+                .and_then(|v| {
+                    v.get("first_seen_date")
+                        .and_then(|s| s.as_str())
+                        .map(|s| s.to_string())
+                })
+                .unwrap_or_default();
             let doc = match parse_law_xml(&bytes, law_id) {
                 Ok(d) => d,
                 Err(e) => {
