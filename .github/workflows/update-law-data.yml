@@ -132,6 +132,44 @@ jobs:
             echo "::warning::revisions_meta.jsonl not found in R2 — skipping (timeline will only have snapshot events)"
           fi
 
+      # 法令コーパス本体 (.cache/revisions/{law_id}/*.xml, 全版 32GB) を R2 から復元する。
+      # build-json は .cache/revisions を走査して public/laws/index.json を毎回ゼロから
+      # 作り直す。このコーパスは 32GB あり GH Actions cache (10GB 上限) には収まらない
+      # ので、cache が evict された run では当日 fetch 分(数十件)だけになり、法令数が
+      # 9000→数十に崩壊して deploy される事故が起きる。R2 の revisions.tar.zst (160MB,
+      # 真の source of truth) を毎回 top-up することで、cache の状態に依存せずコーパスを
+      # 常に full に保つ。--skip-old-files で既存(=fetch 済の新しい版)は温存し欠落のみ補う。
+      # 手元での作り直し+アップロードは scripts/upload-revisions-corpus.sh。
+      - name: Restore revisions corpus from R2
+        if: env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          mkdir -p .cache/revisions
+          have=$(find .cache/revisions -maxdepth 1 -mindepth 1 -type d | wc -l | tr -d ' ')
+          # revisions_meta (直前に R2 から復元) が既知の法令集合。これを基準線にする。
+          want=$(find .cache/revisions_meta -maxdepth 1 -mindepth 1 2>/dev/null | wc -l | tr -d ' ')
+          echo "::notice::revisions corpus: have=$have laws, baseline(meta)=$want"
+          # cache が温かく既に揃っているなら 32GB 展開を省く。meta の 90% 未満なら復元。
+          if [ "${want:-0}" -ge 100 ] && [ "${have:-0}" -lt $(( want * 9 / 10 )) ]; then
+            if aws s3 cp "s3://$R2_BUCKET/revisions.tar.zst" /tmp/revisions.tar.zst --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+              ls -lh /tmp/revisions.tar.zst
+              # アーカイブの top-level は ./{law_id}/ なので .cache/revisions 直下へ展開。
+              zstd -dc /tmp/revisions.tar.zst | tar -x -C .cache/revisions --skip-old-files
+              rm -f /tmp/revisions.tar.zst
+              now=$(find .cache/revisions -maxdepth 1 -mindepth 1 -type d | wc -l | tr -d ' ')
+              echo "::notice::revisions corpus restored from R2: $now laws"
+            else
+              echo "::warning::revisions.tar.zst not found in R2 — corpus は不完全のまま (法令数が崩壊する恐れ)。scripts/upload-revisions-corpus.sh で初回アップロードが必要。"
+            fi
+          else
+            echo "::notice::revisions corpus is warm ($have laws) — R2 復元をスキップ"
+          fi
+
       # 全件バルク: bulk_category が指定されたら全件取得して build-json する。
       # 数千件規模になるので timeout が長め (workflow 全体は timeout-minutes: 30 のまま;
       # 大規模カテゴリは bulk_limit でクランプ推奨)。

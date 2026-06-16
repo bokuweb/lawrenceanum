@@ -161,3 +161,13 @@ export async function fetchHistory(lawId: string): Promise<Revision[]> {
 - 外付け `.cache/revisions` (32GB) は R2 アーカイブ済＋再ビルド実証済なので削除可。
 - 内蔵 `/Users/bokuweb/lawpub-build` (cache 32GB + public 19GB) も deploy 確定後に掃除可。
 - git 履歴の完全縮小は force-push 後の fresh clone で。
+
+> ⚠️ **R2 `revisions.tar.zst` は load-bearing — 削除しないこと。**
+> `build-json` は `.cache/revisions` を走査して `public/laws/index.json` を作り直すが、
+> このコーパス(32GB)は GH Actions cache(10GB上限)に収まらず evict され得る。CI は毎 run
+> `update-law-data.yml`「Restore revisions corpus from R2」で R2 の `revisions.tar.zst`
+> から top-up して full を保つ (これが無いと当日 fetch 分だけになり法令数が崩壊する。
+> 2026-06 に 9000→77 で実際に発生)。コーパスを作り直したら
+> `scripts/upload-revisions-corpus.sh` で R2 を最新化すること。多重防御として
+> `lawpub update` 側に壊滅的縮小ガード (基準線 = max(revisions_meta, state.law_count)、
+> 半分未満なら run を失敗させ deploy を止める) も入っている。

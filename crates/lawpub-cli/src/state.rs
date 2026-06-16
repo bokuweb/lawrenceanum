@@ -9,6 +9,10 @@ pub struct LatestState {
     pub latest_successful_update_date: Option<String>,
     pub last_run_at: Option<String>,
     pub last_run_status: Option<String>,
+    /// 直近で正常に deploy した法令数。git 追跡される state/latest.json に残るため、
+    /// R2 (revisions_meta) が落ちていても参照できる「壊滅的縮小ガード」の基準線。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub law_count: Option<usize>,
 }
 
 impl Default for LatestState {
@@ -18,6 +22,7 @@ impl Default for LatestState {
             latest_successful_update_date: None,
             last_run_at: None,
             last_run_status: None,
+            law_count: None,
         }
     }
 }
