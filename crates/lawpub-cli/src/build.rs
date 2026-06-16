@@ -508,6 +508,54 @@ fn cache_has_revisions(cache: &Path) -> bool {
         .unwrap_or(false)
 }
 
+/// `dir` 直下のエントリ数を数える (失敗時 0)。`is_dir` 指定で種別を絞る。
+fn count_cache_entries(dir: &Path, dirs_only: bool) -> usize {
+    std::fs::read_dir(dir)
+        .map(|it| {
+            it.filter_map(|e| e.ok())
+                .filter(|e| {
+                    !dirs_only || e.file_type().map(|t| t.is_dir()).unwrap_or(false)
+                })
+                .count()
+        })
+        .unwrap_or(0)
+}
+
+/// コーパスの壊滅的縮小を検知する。
+///
+/// `.cache/revisions/{law_id}/` (XML 本体) の法令数を `baseline` (既知の正常な
+/// 法令数) と突き合わせ、本体が baseline の半分未満なら「コーパス消失」とみなす。
+///
+/// 背景: コーパスは GH Actions cache (揮発・10GB上限<32GB) にしか無い時期があり、
+/// cache が evict された run では `run_fetch_update` が当日分(数十件)だけを
+/// `.cache/revisions` に書く。その状態で `run_build_json` すると
+/// `public/laws/index.json` が数十件に崩壊し、9000→77 のような縮小をそのまま
+/// deploy してしまう (実際に発生)。
+///
+/// `baseline` は呼び出し側で `max(revisions_meta 件数 [R2由来],
+/// state.law_count [git追跡の last-good])` を渡す。R2 が落ちて meta が無くても
+/// git の last-good で守れる多重防御。`Some((revs, baseline))` を返したら
+/// 呼び出し側でビルドを中止する。baseline が小さい (テスト fixture / mock /
+/// 初回) ときは誤検知を避けるため発動しない。
+fn corpus_shrunk_catastrophically(cache: &Path, baseline: usize) -> Option<(usize, usize)> {
+    let revs = count_cache_entries(&cache.join("revisions"), true);
+    if baseline >= 100 && revs.saturating_mul(2) < baseline {
+        Some((revs, baseline))
+    } else {
+        None
+    }
+}
+
+/// `public/laws/` 直下の法令ディレクトリ数 (= deploy される法令数) を数える。
+/// index.json などのファイルは除外する。読めなければ `None`。
+fn count_law_dirs(public: &Path) -> Option<usize> {
+    let dir = public.join("laws");
+    if !dir.is_dir() {
+        return None;
+    }
+    Some(count_cache_entries(&dir, true))
+}
+
 pub fn run_fetch_bulk(
     category: u32,
     limit: Option<usize>,
@@ -842,7 +890,27 @@ pub fn run_update(
         // 「キャッシュが復元できていないだけ」のケースが多いので、warn にし
         // 既存 public/ をそのまま残す方針に変える。
         if cache_has_revisions(cache) {
+            // 壊滅的縮小ガード (多重防御): コーパス本体が既知の正常な法令数より
+            // 極端に少ないなら、部分コーパスから index を作り直して縮小版を deploy
+            // するのを防ぐため run を失敗させる。基準線は R2 由来の revisions_meta と
+            // git 追跡の last-good (state.law_count) の大きい方 — R2 が落ちても
+            // git の値で守れる。R2 の revisions.tar.zst を復元すれば解消する。
+            let meta = count_cache_entries(&cache.join("revisions_meta"), false);
+            let baseline = meta.max(st.law_count.unwrap_or(0));
+            if let Some((revs, base)) = corpus_shrunk_catastrophically(cache, baseline) {
+                anyhow::bail!(
+                    "corpus shrink guard: .cache/revisions に {revs} 法令しか無いが \
+                     既知の正常値は {base} 法令 (meta={meta}, last_good={:?})。部分 \
+                     コーパスからの public/ 再生成を中止する (法令数が崩壊する)。R2 の \
+                     revisions.tar.zst を .cache/revisions へ復元してから再実行すること。",
+                    st.law_count
+                );
+            }
             run_build_json(cache, public)?;
+            // 成功したら deploy される法令数を git 追跡の state に記録 → 次回の基準線。
+            if let Some(n) = count_law_dirs(public) {
+                st.law_count = Some(n);
+            }
         } else if public_complete {
             tracing::warn!(
                 "cache is empty but public/ already exists — keeping existing public/ as-is"
@@ -2271,6 +2339,48 @@ fn zstd_long(data: &[u8]) -> Result<Vec<u8>> {
     enc.window_log(window_log)?;
     enc.write_all(data)?;
     Ok(enc.finish()?)
+}
+
+#[cfg(test)]
+mod corpus_guard_tests {
+    use super::corpus_shrunk_catastrophically;
+    use std::fs;
+
+    fn mk_dirs(base: &std::path::Path, sub: &str, n: usize) {
+        let d = base.join(sub);
+        fs::create_dir_all(&d).unwrap();
+        for i in 0..n {
+            fs::create_dir_all(d.join(format!("LAW{i:06}"))).unwrap();
+        }
+    }
+
+    #[test]
+    fn trips_when_corpus_far_below_baseline() {
+        let tmp = std::env::temp_dir().join(format!("corpus_guard_a_{}", std::process::id()));
+        let _ = fs::remove_dir_all(&tmp);
+        mk_dirs(&tmp, "revisions", 77); // 当日 fetch 分だけ残った崩壊状態
+        assert_eq!(corpus_shrunk_catastrophically(&tmp, 9000), Some((77, 9000)));
+        let _ = fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn ok_when_corpus_near_baseline() {
+        let tmp = std::env::temp_dir().join(format!("corpus_guard_b_{}", std::process::id()));
+        let _ = fs::remove_dir_all(&tmp);
+        mk_dirs(&tmp, "revisions", 8990);
+        assert_eq!(corpus_shrunk_catastrophically(&tmp, 8971), None);
+        let _ = fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn skipped_for_small_baseline() {
+        // baseline が小さい (テスト/mock/初回) ときは誤検知を避けて発動しない。
+        let tmp = std::env::temp_dir().join(format!("corpus_guard_c_{}", std::process::id()));
+        let _ = fs::remove_dir_all(&tmp);
+        mk_dirs(&tmp, "revisions", 1);
+        assert_eq!(corpus_shrunk_catastrophically(&tmp, 10), None);
+        let _ = fs::remove_dir_all(&tmp);
+    }
 }
 
 #[cfg(test)]
