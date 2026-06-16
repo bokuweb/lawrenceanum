@@ -296,4 +296,68 @@ export const api = {
   /** 任意日付スナップショット (resolved revision を返すリダイレクト JSON)。 */
   snapshotAt: (lawId: string, date: string) =>
     getJson<SnapshotResolved>(`./laws/${lawId}/at/${date}.json`),
+
+  /** 国会会議録インデックス。 */
+  proceedingsIndex: () => getJson<ProceedingsIndex>('./proceedings/index.json'),
+  /** 個別会議（発言全文）。 */
+  meeting: (meetingId: string) => getJson<Meeting>(`./proceedings/${meetingId}.json`),
+  /** 法令 ↔ 国会会議録 クロスリンク。 */
+  lawToProceedings: (lawId: string) => getJson<LawToProceedings>(`./links/law-to-proceedings/${lawId}.json`),
+}
+
+// ── 国会会議録 型定義 ──────────────────────────────────────────────
+
+export type MeetingMeta = {
+  meeting_id: string
+  session: number
+  house: string
+  committee: string | null
+  date: string
+  issue: string | null
+  speech_count: number
+}
+
+export type ProceedingsIndex = {
+  schema_version: number
+  count: number
+  meetings: MeetingMeta[]
+}
+
+export type Speech = {
+  speech_id: string
+  order: number
+  speaker: string | null
+  speaker_id: string | null
+  speaker_group: string | null
+  speaker_position: string | null
+  speech: string
+}
+
+export type Meeting = {
+  schema_version: number
+  meeting_id: string
+  session: number
+  house: string
+  committee: string | null
+  date: string
+  issue: string | null
+  speeches: Speech[]
+  source: { provider: string; fetched_at: string }
+}
+
+export type LinkedProceeding = {
+  meeting_id: string
+  date: string
+  house: string
+  committee: string | null
+  relevance: string
+  speech_count_mentioning: number
+  confidence: number
+  match_reasons: string[]
+}
+
+export type LawToProceedings = {
+  schema_version: number
+  law_id: string
+  linked_proceedings: LinkedProceeding[]
 }
