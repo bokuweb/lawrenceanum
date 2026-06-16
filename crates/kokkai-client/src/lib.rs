@@ -174,19 +174,32 @@ impl Default for HttpProvider {
 impl KokkaiProvider for HttpProvider {
     fn fetch_meeting_list(&self, session: u32) -> Result<Vec<MeetingMeta>> {
         let client = Self::client()?;
-        let url = format!(
-            "{}/meeting_list?sessionFrom={session}&sessionTo={session}&recordPacking=json",
-            self.base_url
-        );
-        let v = Self::get_json(&client, &url)?;
-        let metas = parse_meeting_list(&v)?;
-        Ok(metas)
+        // NDL API は 1 ページ最大 100 件。`nextRecordPosition` を辿って全ページ取る
+        // (旧コードは 1 ページ=最大 30 件しか取らず、大きい会期を取りこぼしていた)。
+        let mut all = Vec::new();
+        let mut start = 1u32;
+        loop {
+            let url = format!(
+                "{}/meeting_list?sessionFrom={session}&sessionTo={session}\
+                 &maximumRecords=100&startRecord={start}&recordPacking=json",
+                self.base_url
+            );
+            let v = Self::get_json(&client, &url)?;
+            all.append(&mut parse_meeting_list(&v)?);
+            // nextRecordPosition: 次ページ先頭。終端では -1 / 省略 → as_u64 が None。
+            match v.get("nextRecordPosition").and_then(|n| n.as_u64()) {
+                Some(next) if next as u32 > start => start = next as u32,
+                _ => break,
+            }
+        }
+        Ok(all)
     }
 
     fn fetch_meeting(&self, meeting_id: &str) -> Result<FetchedMeeting> {
         let client = Self::client()?;
+        // NDL API の会議単位出力は `issueID` で引く (`meetingId` は 400 になる)。
         let url = format!(
-            "{}/meeting?meetingId={meeting_id}&recordPacking=json",
+            "{}/meeting?issueID={meeting_id}&recordPacking=json",
             self.base_url
         );
         let raw = Self::get_json(&client, &url)?;
@@ -200,6 +213,25 @@ impl KokkaiProvider for HttpProvider {
 
 // ── 正規化 ────────────────────────────────────────────────────────
 
+/// JSON 値を u32 として読む。NDL API は項目によって数値 (`"session":217`) と
+/// 文字列 (`"speechOrder":"0"`) が混在するため、どちらでも受ける。
+fn json_u32(v: &serde_json::Value) -> Option<u32> {
+    if let Some(n) = v.as_u64() {
+        return u32::try_from(n).ok();
+    }
+    v.as_str().and_then(|s| s.trim().parse::<u32>().ok())
+}
+
+/// 会議の一意キー。NDL API のフィールド名は `issueID`。
+/// (旧コードは `meetingId` を読んでいたが実 API には無く全件取りこぼしていた。
+///  念のため `meetingId` もフォールバックで見る。)
+fn meeting_key(r: &serde_json::Value) -> Option<String> {
+    r["issueID"]
+        .as_str()
+        .or_else(|| r["meetingId"].as_str())
+        .map(String::from)
+}
+
 /// API の `meeting_list` レスポンスから `MeetingMeta` のリストを抽出する。
 pub fn parse_meeting_list(v: &serde_json::Value) -> Result<Vec<MeetingMeta>> {
     let records = v
@@ -211,9 +243,13 @@ pub fn parse_meeting_list(v: &serde_json::Value) -> Result<Vec<MeetingMeta>> {
     let metas = records
         .iter()
         .filter_map(|r| {
-            let meeting_id = r["meetingId"].as_str()?.to_string();
-            let session = r["session"].as_str()?.parse::<u32>().ok()?;
+            let meeting_id = meeting_key(r)?;
+            let session = json_u32(&r["session"])?;
             let house = r["nameOfHouse"].as_str().unwrap_or("").to_string();
+            // speech_count: numberOfSpeech があればそれ、無ければ speechRecord 長。
+            let speech_count = json_u32(&r["numberOfSpeech"]).unwrap_or_else(|| {
+                r["speechRecord"].as_array().map(|a| a.len() as u32).unwrap_or(0)
+            });
             Some(MeetingMeta {
                 meeting_id,
                 session,
@@ -221,10 +257,7 @@ pub fn parse_meeting_list(v: &serde_json::Value) -> Result<Vec<MeetingMeta>> {
                 committee: r["nameOfMeeting"].as_str().map(String::from),
                 date: r["date"].as_str().unwrap_or("").to_string(),
                 issue: r["issue"].as_str().map(String::from),
-                speech_count: r["numberOfSpeech"]
-                    .as_str()
-                    .and_then(|s| s.parse().ok())
-                    .unwrap_or(0),
+                speech_count,
             })
         })
         .collect();
@@ -241,14 +274,8 @@ pub fn normalize_meeting(raw: &FetchedMeeting, fetched_at: &str) -> Result<Meeti
         .and_then(|a| a.first())
         .ok_or_else(|| anyhow::anyhow!("no meetingRecord in response"))?;
 
-    let meeting_id = records["meetingId"]
-        .as_str()
-        .unwrap_or(&raw.meeting_id)
-        .to_string();
-    let session = records["session"]
-        .as_str()
-        .and_then(|s| s.parse().ok())
-        .unwrap_or(0);
+    let meeting_id = meeting_key(records).unwrap_or_else(|| raw.meeting_id.clone());
+    let session = json_u32(&records["session"]).unwrap_or(0);
     let house = records["nameOfHouse"].as_str().unwrap_or("").to_string();
     let date = records["date"].as_str().unwrap_or("").to_string();
 
@@ -263,10 +290,8 @@ pub fn normalize_meeting(raw: &FetchedMeeting, fetched_at: &str) -> Result<Meeti
             if speech_id.is_empty() {
                 return None;
             }
-            let order = s["speechOrder"]
-                .as_str()
-                .and_then(|v| v.parse().ok())
-                .unwrap_or(0);
+            // speechOrder は数値 (0,1,...)。文字列でも受ける。
+            let order = json_u32(&s["speechOrder"]).unwrap_or(0);
             let speech_text = s["speech"].as_str().unwrap_or("").to_string();
             Some(Speech {
                 speech_id,
@@ -317,17 +342,16 @@ pub const SAMPLE_MEETING_JSON: &str = r#"{
       "issueID": "120020241101200X06",
       "imageKind": "会議録",
       "searchObject": 0,
-      "session": "215",
+      "session": 215,
       "nameOfHouse": "衆議院",
       "nameOfMeeting": "法務委員会",
       "issue": "第6号",
       "date": "2024-11-01",
       "closing": null,
-      "meetingId": "120020241101200X06",
       "speechRecord": [
         {
           "speechID": "120020241101200X06_000",
-          "speechOrder": "0",
+          "speechOrder": 0,
           "speaker": "委員長",
           "speakerYomi": null,
           "speakerGroup": null,
@@ -345,7 +369,7 @@ pub const SAMPLE_MEETING_JSON: &str = r#"{
         },
         {
           "speechID": "120020241101200X06_001",
-          "speechOrder": "1",
+          "speechOrder": 1,
           "speaker": "山田太郎",
           "speakerYomi": "やまだたろう",
           "speakerGroup": "自由民主党",
@@ -421,10 +445,15 @@ mod tests {
         let v: serde_json::Value = serde_json::from_str(SAMPLE_MEETING_LIST_JSON).unwrap();
         let metas = parse_meeting_list(&v).unwrap();
         assert_eq!(metas.len(), 1);
+        // issueID をキーに取れていること (旧コードは meetingId を読み全件脱落していた)。
+        assert_eq!(metas[0].meeting_id, "121705254X03620250620");
         assert_eq!(metas[0].house, "shugiin");
-        assert_eq!(metas[0].session, 215);
+        assert_eq!(metas[0].session, 215); // session は数値で来る
+        assert_eq!(metas[0].speech_count, 2); // speechRecord 長から
     }
 
+    // 実 NDL API の meeting_list レスポンス形 (issueID のみ・session は数値・
+    // meetingId/numberOfSpeech は無い・speech 数は speechRecord 長)。
     const SAMPLE_MEETING_LIST_JSON: &str = r#"{
       "numberOfRecords": 1,
       "numberOfReturn": 1,
@@ -432,14 +461,16 @@ mod tests {
       "nextRecordPosition": -1,
       "meetingRecord": [
         {
-          "issueID": "120020241101200X06",
-          "session": "215",
+          "issueID": "121705254X03620250620",
+          "session": 215,
           "nameOfHouse": "衆議院",
           "nameOfMeeting": "法務委員会",
           "issue": "第6号",
           "date": "2024-11-01",
-          "meetingId": "120020241101200X06",
-          "numberOfSpeech": "2"
+          "speechRecord": [
+            { "speechID": "121705254X03620250620_000" },
+            { "speechID": "121705254X03620250620_001" }
+          ]
         }
       ]
     }"#;
