@@ -347,6 +347,53 @@ jobs:
             echo "::warning::history-bundles.tar not found in R2 — keeping CI-built history (may be partial)"
           fi
 
+      # 国会会議録 (proceedings) を R2 prebuilt キャッシュから復元して同じ public/ に
+      # 同梱する。corpus workflow (update-corpus-data.yml) が kokkai を fetch/build して
+      # R2 (proceedings-cache.tar.zst) に上げたものを取得 → proceedings-build-json →
+      # link-laws-and-proceedings。これにより法令と議事録が 1 つの Pages デプロイに同居し
+      # 互いを clobber しない (2 ワークフローが別々に public/ を上げて潰し合う問題の解消)。
+      # link は法令 current.json に backlink を書くため、後で rebuild-manifest して
+      # validate を通す。R2 に束が無ければ議事録なしで続行 (安全ロールアウト)。
+      - name: Build proceedings from R2 cache
+        if: >-
+          steps.detect.outputs.changed == 'true' &&
+          env.R2_BUCKET != '' &&
+          env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        # 議事録の失敗で法令 deploy を絶対に止めない (laws 優先)。サブブロックは
+        # 全工程 best-effort。失敗しても manifest は laws 整合のままで validate は通る。
+        continue-on-error: true
+        run: |
+          set +e
+          if ! aws s3 cp "s3://$R2_BUCKET/proceedings-cache.tar.zst" /tmp/proceedings-cache.tar.zst --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            echo "::warning::proceedings-cache.tar.zst not found in R2 — 議事録なしで続行 (corpus workflow が未アップロード)"
+            exit 0
+          fi
+          mkdir -p .cache/proceedings
+          # アーカイブ top-level は ./{session}/ なので .cache/proceedings 直下へ展開。
+          zstd -dc --long=31 /tmp/proceedings-cache.tar.zst | tar -x -C .cache/proceedings
+          rm -f /tmp/proceedings-cache.tar.zst
+          n=$(find .cache/proceedings -name '*.json' | wc -l | tr -d ' ')
+          if [ "${n:-0}" -eq 0 ]; then
+            echo "::warning::proceedings cache is empty — 議事録なしで続行"
+            exit 0
+          fi
+          echo "::notice::proceedings cache restored from R2: $n meeting files"
+          ./target/release/lawpub proceedings-build-json --cache .cache --public public \
+            || echo "::warning::proceedings-build-json failed"
+          ./target/release/lawpub link-laws-and-proceedings --public public \
+            || echo "::warning::link-laws-and-proceedings failed"
+          # link が法令 current.json に backlink を書くため、何があっても manifest を
+          # 実体から作り直す (条件分岐でスキップすると manifest が stale になり後段の
+          # Validate が sha 不一致で落ちて法令 deploy ごと止まる)。
+          ./target/release/lawpub rebuild-manifest --public public \
+            || echo "::warning::rebuild-manifest failed (validate が落ちる可能性)"
+
       - name: Validate public JSON
         if: steps.detect.outputs.changed == 'true'
         run: ./target/release/lawpub validate --public public

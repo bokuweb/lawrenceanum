@@ -1,11 +1,12 @@
 name: Update corpus data (kokkai / pubcomment / procurement)
 
-# 国会会議録・パブコメ・調達情報を定期取得し GitHub Pages に配信する。
-# 法令 (update-law-data.yml) とは独立したジョブとして管理する。
+# 国会会議録・パブコメ・調達情報を定期取得し、生キャッシュを R2 にアップロードする。
+# **このワークフローは Pages へ deploy しない。** 配信は法令ワークフロー
+# (update-law-data.yml) が R2 の各キャッシュを取り込んで laws と一緒に 1 つの
+# public/ で行う (2 ワークフローが別々に Pages を上げると互いを clobber するため)。
 #
 # スケジュール: JST 毎朝 05:00 (UTC 20:00 前日)
-#   - 法令 (06:30 JST) より早めに取得し、link-laws-and-proceedings が
-#     最新の両方を参照できるようにする。
+#   - 法令 (06:30 JST) より早めに取得・R2 へ上げ、後続の法令 run が取り込めるようにする。
 on:
   workflow_dispatch:
     inputs:
@@ -28,9 +29,8 @@ on:
     - cron: "0 20 * * *"
 
 permissions:
+  # Pages へは deploy しない (法令ワークフローが配信)。state コミットと R2 upload のみ。
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
   group: update-corpus-data
@@ -40,8 +40,6 @@ jobs:
   update:
     runs-on: ubuntu-latest
     timeout-minutes: 120
-    outputs:
-      changed: ${{ steps.detect.outputs.changed }}
     env:
       LAWPUB_PROVIDER: ${{ github.event.inputs.provider || 'http' }}
       DOMAINS: ${{ github.event.inputs.domains || 'kokkai,pubcomment,procurement' }}
@@ -99,14 +97,32 @@ jobs:
           ./target/release/lawpub proceedings-build-json \
             --cache .cache --public public
 
-      # ── 法令 ↔ 国会 クロスリンク ─────────────────────────────────
-
-      - name: Link laws and proceedings
-        if: contains(env.DOMAINS, 'kokkai') || env.DOMAINS == ''
+      # ── 議事録キャッシュを R2 へ (法令ワークフローが配信元) ───────────
+      # このワークフローは Pages へ deploy しない (法令ワークフロー update-law-data.yml が
+      # laws と一緒に 1 つの public/ で配信する。2 ワークフローが別々に Pages を上げると
+      # 互いを clobber するため)。ここでは生 kokkai キャッシュ (.cache/proceedings) を
+      # zstd tar にして R2 (proceedings-cache.tar.zst) に置き、法令ワークフローの
+      # 「Build proceedings from R2 cache」が取得 → build → link → 同梱 deploy する。
+      # 会期の生 JSON は GH Actions cache (揮発) に依存せず R2 を真の source にする。
+      - name: Upload proceedings cache to R2
+        if: (contains(env.DOMAINS, 'kokkai') || env.DOMAINS == '') && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
         run: |
-          [ -f public/laws/index.json ] || { echo "::notice::no laws index, skip link"; exit 0; }
-          [ -d public/proceedings ] || { echo "::notice::no proceedings, skip link"; exit 0; }
-          ./target/release/lawpub link-laws-and-proceedings --public public
+          [ -d .cache/proceedings ] || { echo "::notice::no proceedings cache, skip R2 upload"; exit 0; }
+          n=$(find .cache/proceedings -name '*.json' | wc -l | tr -d ' ')
+          # top-level を ./{session}/ にするため .cache/proceedings 内から固める。
+          ( cd .cache/proceedings && tar -cf - . | zstd -19 --long -T0 -o /tmp/proceedings-cache.tar.zst -f )
+          ls -lh /tmp/proceedings-cache.tar.zst
+          aws s3 cp /tmp/proceedings-cache.tar.zst "s3://$R2_BUCKET/proceedings-cache.tar.zst" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --content-type 'application/zstd' \
+            --cache-control 'public, max-age=300'
+          echo "::notice::uploaded proceedings cache to R2 ($n meeting files)"
 
       # ── パブコメ ─────────────────────────────────────────────────
 
@@ -193,57 +209,12 @@ jobs:
           path: .cache
           key: corpus-cache-v1-${{ runner.os }}-${{ github.run_id }}
 
-      # ── 変更検出 → Pages 配信 ─────────────────────────────────────
-
-      - name: Detect changes
-        id: detect
-        run: |
-          if git diff --quiet && [ -z "$(git ls-files --others --exclude-standard public/)" ]; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::no changes in public/"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-            echo "::notice::changes detected in public/"
-          fi
-
-      - name: Setup pnpm
-        if: steps.detect.outputs.changed == 'true'
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node
-        if: steps.detect.outputs.changed == 'true'
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-          cache-dependency-path: figma/pnpm-lock.yaml
-
-      - name: Build web UI
-        if: steps.detect.outputs.changed == 'true'
-        working-directory: figma
-        env:
-          VITE_SEARCH_DB_URL: ${{ secrets.R2_PUBLIC_URL && format('{0}/search.db', secrets.R2_PUBLIC_URL) || '' }}
-          VITE_COMPRESSED: '1'
-        run: |
-          pnpm install --no-frozen-lockfile
-          pnpm build
-
-      - name: Compress public JSON (gzip)
-        if: steps.detect.outputs.changed == 'true'
-        run: ./target/release/lawpub compress --public public --remove-original
-
-      - name: Configure Pages
-        if: steps.detect.outputs.changed == 'true'
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        if: steps.detect.outputs.changed == 'true'
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: public
-
+      # ── 実行記録 ──────────────────────────────────────────────────
+      # このワークフローは Pages へ deploy しない。配信は法令ワークフロー
+      # (update-law-data.yml) が R2 の各キャッシュ (proceedings-cache.tar.zst 等) を
+      # 取り込んで laws と一緒に 1 つの public/ で行う。ここは fetch/build して
+      # R2 にアップロードするまでが責務。実行時刻だけ記録する。
       - name: Commit state
-        if: steps.detect.outputs.changed == 'true'
         continue-on-error: true
         run: |
           git config user.name "github-actions[bot]"
@@ -258,19 +229,3 @@ jobs:
             git push && exit 0
             git pull --rebase origin main || true
           done
-
-  deploy:
-    needs: update
-    if: needs.update.outputs.changed == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
