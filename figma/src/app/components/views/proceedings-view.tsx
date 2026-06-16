@@ -1,12 +1,13 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Badge } from "../ui/badge";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
-import { Button } from "../ui/button";
-import { ArrowLeft, MessageSquare, Search, Users, BookOpen } from "lucide-react";
+import { Separator } from "../ui/separator";
+import { MessageSquare, Search, BookOpen, ExternalLink } from "lucide-react";
 import { useProceedingsIndex, useMeeting, type MeetingMeta } from "../../data/use-proceedings";
+import { api, type MeetingToLaws } from "../../data/api";
 import { useNavigate } from "react-router";
 
 // ── ユーティリティ ────────────────────────────────────────────────
@@ -115,12 +116,25 @@ function SpeechCard({ speech, query }: {
 
 // ── 会議詳細パネル ────────────────────────────────────────────────
 
+function useLinkedLaws(meetingId: string) {
+  const [data, setData] = useState<MeetingToLaws | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    api.meetingToLaws(meetingId)
+      .then(d => { if (!cancelled) setData(d); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [meetingId]);
+  return data;
+}
+
 function MeetingDetail({ meetingId, query, onLawClick }: {
   meetingId: string;
   query: string;
   onLawClick: (lawId: string) => void;
 }) {
   const { data, loading } = useMeeting(meetingId);
+  const linkedLaws = useLinkedLaws(meetingId);
   const [speechQuery, setSpeechQuery] = useState("");
   const effectiveQuery = speechQuery || query;
 
@@ -171,6 +185,35 @@ function MeetingDetail({ meetingId, query, onLawClick }: {
           {filteredSpeeches.length} / {data.speeches.length} 発言
         </div>
       </div>
+
+      {/* 関連法令 */}
+      {linkedLaws && linkedLaws.linked_laws.length > 0 && (
+        <div className="px-5 py-3 border-b border-border shrink-0">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground mb-2">
+            <BookOpen className="size-3" />
+            関連法令 ({linkedLaws.linked_laws.length})
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {linkedLaws.linked_laws.map(l => (
+              <button
+                key={l.law_id}
+                onClick={() => onLawClick(l.law_id)}
+                className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded border border-border hover:border-primary hover:text-primary transition-colors"
+              >
+                {l.relevance === "amendment_debate" && (
+                  <span className="size-1.5 rounded-full bg-orange-400 shrink-0" />
+                )}
+                {l.title}
+                <ExternalLink className="size-2.5 opacity-50" />
+              </button>
+            ))}
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-1.5">
+            <span className="inline-flex items-center gap-1"><span className="size-1.5 rounded-full bg-orange-400 inline-block" />改正審議</span>
+            <span className="ml-2 opacity-60">その他は言及のみ</span>
+          </p>
+        </div>
+      )}
 
       {/* 発言リスト */}
       <ScrollArea className="flex-1">

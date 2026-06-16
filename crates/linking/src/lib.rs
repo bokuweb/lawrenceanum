@@ -23,6 +23,22 @@ use std::path::Path;
 // ── 公開型 ────────────────────────────────────────────────────────
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LinkedLaw {
+    pub law_id: String,
+    pub title: String,
+    pub relevance: String,
+    pub confidence: f32,
+    pub match_reasons: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MeetingToLaws {
+    pub schema_version: u32,
+    pub meeting_id: String,
+    pub linked_laws: Vec<LinkedLaw>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LinkedProceeding {
     pub meeting_id: String,
     pub date: String,
@@ -151,14 +167,39 @@ pub fn run_link(public: &Path) -> Result<()> {
         }
     }
 
-    // 書き出し
+    // 書き出し: law-to-proceedings
     let links_dir = public.join("links").join("law-to-proceedings");
     std::fs::create_dir_all(&links_dir)?;
 
+    // 書き出し: meeting-to-laws (逆引き)
+    let m2l_dir = public.join("links").join("meeting-to-laws");
+    std::fs::create_dir_all(&m2l_dir)?;
+
+    // 法令タイトルの逆引き用マップ
+    let law_title_map: HashMap<String, String> = laws
+        .iter()
+        .map(|l| (l.law_id.clone(), l.title.clone()))
+        .collect();
+
+    // meeting_id → Vec<LinkedLaw>
+    let mut m2l: HashMap<String, Vec<LinkedLaw>> = HashMap::new();
+
     let mut written = 0usize;
     for (law_id, mut proceedings) in result {
-        // 日付降順
+        // law-to-proceedings: 日付降順
         proceedings.sort_by(|a, b| b.date.cmp(&a.date));
+
+        // meeting-to-laws に逆登録
+        for p in &proceedings {
+            m2l.entry(p.meeting_id.clone()).or_default().push(LinkedLaw {
+                law_id: law_id.clone(),
+                title: law_title_map.get(&law_id).cloned().unwrap_or_default(),
+                relevance: p.relevance.clone(),
+                confidence: p.confidence,
+                match_reasons: p.match_reasons.clone(),
+            });
+        }
+
         let output = LawToProceedings {
             schema_version: 1,
             law_id: law_id.clone(),
@@ -170,6 +211,22 @@ pub fn run_link(public: &Path) -> Result<()> {
         written += 1;
     }
     tracing::info!("linking: {written} law-to-proceedings files written");
+
+    let mut m2l_written = 0usize;
+    for (meeting_id, mut linked_laws) in m2l {
+        // confidence 降順
+        linked_laws.sort_by(|a, b| b.confidence.partial_cmp(&a.confidence).unwrap_or(std::cmp::Ordering::Equal));
+        let output = MeetingToLaws {
+            schema_version: 1,
+            meeting_id: meeting_id.clone(),
+            linked_laws,
+        };
+        let path = m2l_dir.join(format!("{meeting_id}.json"));
+        std::fs::write(&path, serde_json::to_string_pretty(&output)?)
+            .with_context(|| format!("write {}", path.display()))?;
+        m2l_written += 1;
+    }
+    tracing::info!("linking: {m2l_written} meeting-to-laws files written");
     Ok(())
 }
 
