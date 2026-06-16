@@ -78,9 +78,19 @@ jobs:
           if [ -n "${{ github.event.inputs.kokkai_session }}" ]; then
             sessions="${{ github.event.inputs.kokkai_session }}"
           else
-            # 現在の最新会期を kokkai API から取得し直近 3 会期を算出
-            latest=$(curl -sf "https://kokkai.ndl.go.jp/api/meeting_list?maximumRecords=1&recordPacking=json" \
-              | jq -r '.meetingRecord[0].session // "217"' 2>/dev/null || echo "217")
+            # 現在の最新会期を kokkai API から取得し直近 3 会期を算出。
+            # meeting_list は検索条件必須なので「直近60日の日付範囲」で引き、その中の
+            # 最大 session を採る (旧コードは無条件 meeting_list で叩いていたが
+            # HTTP 400「検索条件を指定してください」になり latest が空 → "-2,-1," と
+            # なって何も取得できていなかった)。失敗時は安全側の固定値にフォールバック。
+            from=$(date -u -d "60 days ago" +%Y-%m-%d 2>/dev/null || date -u -v-60d +%Y-%m-%d)
+            until=$(date -u +%Y-%m-%d)
+            latest=$(curl -sf "https://kokkai.ndl.go.jp/api/meeting_list?from=$from&until=$until&maximumRecords=100&recordPacking=json" \
+              | jq -r '[.meetingRecord[].session] | max // empty' 2>/dev/null || true)
+            if ! [ "${latest:-0}" -gt 0 ] 2>/dev/null; then
+              echo "::warning::最新会期の自動検出に失敗 — フォールバック 221 を使用"
+              latest=221
+            fi
             sessions="$((latest-2)),$((latest-1)),$latest"
           fi
           echo "::notice::kokkai sessions: $sessions"
