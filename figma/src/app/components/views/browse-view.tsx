@@ -13,6 +13,38 @@ import { useLocation, useNavigate } from "react-router";
 import { useLaws, useLawDetail } from "../../data/use-laws";
 import { getRefsForLaw, type ArticleRef } from "../../data/search-engine";
 
+/**
+ * 新旧対照表の改め文テキストを「改正後」「改正前」の見出し行で区切り、表組み用に
+ * { preamble, rows: [{after, before}] } へ分解する。見出しが無ければ null（呼び出し側で
+ * プレーン表示にフォールバック）。officialの新旧表は 改正後→改正前 が交互に並ぶ。
+ */
+function parseShinkyu(text: string): { preamble: string; rows: { after: string; before: string }[] } | null {
+  const lines = text.split("\n");
+  const isAfter = (l: string) => l.trim() === "改正後";
+  const isBefore = (l: string) => l.trim() === "改正前";
+  if (!lines.some(isAfter) || !lines.some(isBefore)) return null;
+  const noise = (l: string) => l.trim() === "（傍線部分は改正部分）" || l.trim() === "";
+
+  const firstAfter = lines.findIndex(isAfter);
+  const preamble = lines.slice(0, firstAfter).filter(l => !noise(l)).join("\n").trim();
+
+  const rows: { after: string; before: string }[] = [];
+  let i = firstAfter;
+  while (i < lines.length) {
+    if (!isAfter(lines[i])) { i++; continue; }
+    i++; // skip 改正後
+    const after: string[] = [];
+    while (i < lines.length && !isBefore(lines[i]) && !isAfter(lines[i])) { if (!noise(lines[i])) after.push(lines[i]); i++; }
+    const before: string[] = [];
+    if (i < lines.length && isBefore(lines[i])) {
+      i++; // skip 改正前
+      while (i < lines.length && !isAfter(lines[i])) { if (!noise(lines[i])) before.push(lines[i]); i++; }
+    }
+    if (after.length || before.length) rows.push({ after: after.join("\n").trim(), before: before.join("\n").trim() });
+  }
+  return rows.length ? { preamble, rows } : null;
+}
+
 export function BrowseView({ lawId, onSelect, onCompare }: { lawId: string | null; onSelect: (id: string | null) => void; onCompare: (id: string) => void }) {
   const { laws, live, loading } = useLaws();
   if (lawId) {
@@ -502,6 +534,61 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
                         </div>
                         {e.enforcement_comment && (
                           <div className="text-xs text-muted-foreground mt-1">{e.enforcement_comment}</div>
+                        )}
+                        {(e.kanpo?.amend_text || e.kanpo?.pdf_url) && (
+                          <div className="mt-3 border-t pt-2">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs font-medium">改め文</span>
+                              {e.kanpo.amend_format && (
+                                <Badge variant="secondary" className="text-xs">
+                                  {e.kanpo.amend_format === "shinkyu" ? "新旧対照表" : e.kanpo.amend_format === "prose" ? "散文" : "本文"}
+                                </Badge>
+                              )}
+                              {e.kanpo.pdf_url && (
+                                <a
+                                  className="text-xs underline text-muted-foreground ml-auto"
+                                  href={e.kanpo.pdf_url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
+                                  官報PDF{e.kanpo.page ? `（p.${e.kanpo.page}）` : ""}
+                                </a>
+                              )}
+                            </div>
+                            {e.kanpo.amend_text && (() => {
+                              const shinkyu = e.kanpo.amend_format === "shinkyu" ? parseShinkyu(e.kanpo.amend_text) : null;
+                              return (
+                                <details>
+                                  <summary className="text-xs text-muted-foreground cursor-pointer select-none">本文を表示</summary>
+                                  {shinkyu ? (
+                                    <div className="mt-1 max-h-96 overflow-auto rounded bg-muted/40 p-2 space-y-2">
+                                      {shinkyu.preamble && (
+                                        <pre className="text-xs whitespace-pre-wrap font-sans leading-relaxed">{shinkyu.preamble}</pre>
+                                      )}
+                                      <table className="w-full text-xs border-collapse table-fixed">
+                                        <thead>
+                                          <tr>
+                                            <th className="w-1/2 border border-border bg-background/60 px-2 py-1 text-left font-medium">改正後</th>
+                                            <th className="w-1/2 border border-border bg-background/60 px-2 py-1 text-left font-medium">改正前</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          {shinkyu.rows.map((r, ri) => (
+                                            <tr key={ri} className="align-top">
+                                              <td className="border border-border px-2 py-1"><pre className="whitespace-pre-wrap font-sans leading-relaxed">{r.after}</pre></td>
+                                              <td className="border border-border px-2 py-1"><pre className="whitespace-pre-wrap font-sans leading-relaxed">{r.before}</pre></td>
+                                            </tr>
+                                          ))}
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  ) : (
+                                    <pre className="mt-1 text-xs whitespace-pre-wrap font-sans leading-relaxed max-h-80 overflow-auto rounded bg-muted/40 p-2">{e.kanpo.amend_text}</pre>
+                                  )}
+                                </details>
+                              );
+                            })()}
+                          </div>
                         )}
                       </CardContent>
                     </Card>

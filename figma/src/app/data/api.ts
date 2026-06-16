@@ -139,6 +139,14 @@ export type TimelineEventRaw = {
     path?: string
     confidence?: number
     match_reasons?: string[]
+    /** 官報項目別 PDF の URL（改め文の出所）。 */
+    pdf_url?: string
+    /** 官報内の開始ページ番号。 */
+    page?: number
+    /** 官報から抽出・整形した改め文テキスト。 */
+    amend_text?: string
+    /** "prose"(散文改め文) / "shinkyu"(新旧対照表) / "unknown"。 */
+    amend_format?: string
   }
 }
 

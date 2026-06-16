@@ -209,10 +209,20 @@ enum Cmd {
         #[arg(long)]
         remove_original: bool,
     },
-    /// 官報の日付ページを取得する (Phase 3 placeholder)。
+    /// 指定日の官報を取得し、各項目の改め文を抽出して `.cache/kanpo/{date}.json` に保存。
     KanpoFetch {
         #[arg(long)]
         date: String,
+        /// `http` (デジタル官報) または `mock`。
+        #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
+        provider: String,
+        /// 1日あたりの PDF ダウンロード上限 (負荷ガード)。
+        #[arg(long, default_value_t = 200)]
+        limit: usize,
+        /// 取得した生 PDF を `{cache}/kanpo-pdf/{date}/` に保持する (後の再抽出用)。
+        /// 既定オフ (CI のキャッシュ肥大回避)。ローカルでのアーカイブ時に指定。
+        #[arg(long)]
+        save_pdf: bool,
         #[arg(long, default_value = ".cache")]
         cache: PathBuf,
     },
@@ -220,6 +230,21 @@ enum Cmd {
     KanpoLink {
         #[arg(long, default_value = "public")]
         output: PathBuf,
+    },
+    /// 官報の項目別 PDF から改め文を抽出する PoC。`.cache/kanpo-poc/{date}/` に
+    /// 整形済みテキストと目次 JSON を書き出し、抽出精度を目視検証する。
+    KanpoPoc {
+        /// 対象日 (YYYY-MM-DD)。
+        #[arg(long)]
+        date: String,
+        /// 改正・廃止系の項目だけに絞る (標題に「改正」「廃止」を含む)。
+        #[arg(long)]
+        amend_only: bool,
+        /// ダウンロードする項目数の上限 (負荷確認用)。
+        #[arg(long, default_value_t = 20)]
+        limit: usize,
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
     },
     /// cache / public / state を要約して JSON で stdout に出す。
     Status {
@@ -476,8 +501,20 @@ fn main() -> Result<()> {
             );
             Ok(())
         }
-        Cmd::KanpoFetch { date, cache } => kanpo::run_fetch(&date, &cache),
+        Cmd::KanpoFetch {
+            date,
+            provider,
+            limit,
+            save_pdf,
+            cache,
+        } => kanpo::run_fetch(&date, &provider, limit, save_pdf, &cache),
         Cmd::KanpoLink { output } => kanpo::run_link(&output),
+        Cmd::KanpoPoc {
+            date,
+            amend_only,
+            limit,
+            cache,
+        } => kanpo::run_poc(&date, amend_only, limit, &cache),
         Cmd::Status { public, cache } => status::run(&public, &cache),
         Cmd::ProceedingsFetch { session, cache, provider } => {
             proceedings::run_fetch(session, &cache, &provider)

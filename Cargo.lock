@@ -929,8 +929,13 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
+ "hex",
+ "reqwest",
+ "scraper",
  "serde",
  "serde_json",
+ "sha2",
+ "tracing",
 ]
 
 [[package]]
