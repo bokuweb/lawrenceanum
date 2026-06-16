@@ -13,10 +13,10 @@
 #   PUBLIC=/path/to/public ./scripts/upload-search-db.sh
 #   (PUBLIC 省略時は ./public)
 #
-# search.db を先に生成するには:
+# search.db を先に生成するには (proceedings 込みで索引したい場合):
 #   cargo build --release -p lawpub-cli
-#   ./target/release/lawpub build --public "$PUBLIC"
-#   # または search.db だけ再生成する場合は --steps search-db など (将来的に)
+#   # public/laws と public/proceedings が揃っている状態で:
+#   ./target/release/lawpub build-search-db --public "$PUBLIC"
 set -euo pipefail
 
 PUBLIC="${PUBLIC:-public}"
