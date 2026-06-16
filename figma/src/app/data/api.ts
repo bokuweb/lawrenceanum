@@ -303,6 +303,8 @@ export const api = {
   meeting: (meetingId: string) => getJson<Meeting>(`./proceedings/${meetingId}.json`),
   /** 法令 ↔ 国会会議録 クロスリンク。 */
   lawToProceedings: (lawId: string) => getJson<LawToProceedings>(`./links/law-to-proceedings/${lawId}.json`),
+  /** 会議 → 言及法令 逆引きリンク。 */
+  meetingToLaws: (meetingId: string) => getJson<MeetingToLaws>(`./links/meeting-to-laws/${meetingId}.json`),
 }
 
 // ── 国会会議録 型定義 ──────────────────────────────────────────────
@@ -343,6 +345,20 @@ export type Meeting = {
   issue: string | null
   speeches: Speech[]
   source: { provider: string; fetched_at: string }
+}
+
+export type LinkedLaw = {
+  law_id: string
+  title: string
+  relevance: string
+  confidence: number
+  match_reasons: string[]
+}
+
+export type MeetingToLaws = {
+  schema_version: number
+  meeting_id: string
+  linked_laws: LinkedLaw[]
 }
 
 export type LinkedProceeding = {

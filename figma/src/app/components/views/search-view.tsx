@@ -6,17 +6,22 @@ import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
 import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
+import { Separator } from "../ui/separator";
 import { type LawSummary } from "../mock-data";
-import { Search, SlidersHorizontal, ChevronRight, FileText, Database } from "lucide-react";
+import { Search, SlidersHorizontal, ChevronRight, FileText, Database, Landmark, MessageSquare } from "lucide-react";
 import { useLaws } from "../../data/use-laws";
 import { search as ftsSearch, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, type SearchHit } from "../../data/search-engine";
+import { useProceedingsIndex } from "../../data/use-proceedings";
+import { useNavigate } from "react-router";
 
 export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initialQuery?: string; onOpen: (l: LawSummary) => void; onQueryChange?: (q: string) => void }) {
+  const navigate = useNavigate();
   const [q, setQ] = useState(initialQuery);
   useEffect(() => { setQ(initialQuery); }, [initialQuery]);
 
   const [cats, setCats] = useState<Set<string>>(new Set());
   const { laws, live: lawsLive, loading } = useLaws();
+  const { data: proceedingsData } = useProceedingsIndex();
 
   // FTS 検索結果と meta。
   const queryGenRef = useRef(0);
@@ -66,6 +71,18 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
     next.has(v) ? next.delete(v) : next.add(v);
     fn(next);
   };
+
+  // 会議録の簡易フィルタ（委員会名・院・会期・発言者を対象）
+  const proceedingHits = useMemo(() => {
+    const qTrim = q.trim();
+    if (!qTrim || !proceedingsData) return [];
+    const lower = qTrim.toLowerCase();
+    return proceedingsData.meetings.filter(m =>
+      (m.committee ?? "").toLowerCase().includes(lower) ||
+      m.house.toLowerCase().includes(lower) ||
+      String(m.session).includes(lower)
+    ).slice(0, 5);
+  }, [q, proceedingsData]);
 
   // FTS が使えるかどうかで表示モードを切り替える。
   const useFts = ftsAvailable === true;
@@ -163,9 +180,47 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
             </div>
           ) : (
             <>
+          {/* 会議録セクション */}
+          {proceedingHits.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Landmark className="size-3.5" />
+                <span>国会会議録 ({proceedingHits.length}件)</span>
+              </div>
+              {proceedingHits.map(m => (
+                <Card
+                  key={m.meeting_id}
+                  className="hover:border-primary/50 transition-colors cursor-pointer"
+                  onClick={() => navigate(`/proceedings/${m.meeting_id}`)}
+                >
+                  <CardContent className="p-3 flex items-center gap-3">
+                    <div className="size-8 rounded-md bg-muted flex items-center justify-center shrink-0">
+                      <Landmark className="size-4 text-muted-foreground" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-medium">{m.committee ?? "本会議"}</span>
+                        <Badge variant="outline" className="text-xs">{m.house}</Badge>
+                        <Badge variant="outline" className="text-xs">第{m.session}回</Badge>
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2">
+                        <span>{m.date}</span>
+                        <span className="flex items-center gap-0.5">
+                          <MessageSquare className="size-3" />{m.speech_count}発言
+                        </span>
+                      </div>
+                    </div>
+                    <ChevronRight className="size-4 text-muted-foreground shrink-0" />
+                  </CardContent>
+                </Card>
+              ))}
+              <Separator />
+            </div>
+          )}
+
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>
-              {resultCount} 件の結果
+              法令 {resultCount} 件
               {(loading || searching) && " (読み込み中…)"}
               {!loading && !lawsLive && !useFts && " (モック)"}
               {useFts && " · 関連度順 (FTS5)"}
