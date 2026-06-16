@@ -68,6 +68,13 @@ enum Cmd {
         #[arg(long, default_value = "public")]
         output: PathBuf,
     },
+    /// `public/search.db` を既存の `public/laws` + `public/proceedings` から
+    /// その場で再生成する (swap しない)。proceedings 生成後に走らせると
+    /// 法令条文 + 国会発言の両方を索引した search.db ができる。
+    BuildSearchDb {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
     /// `public/manifest.json` の sha256 と実ファイルが一致するか検証する。
     Validate {
         #[arg(long, default_value = "public")]
@@ -408,6 +415,7 @@ fn main() -> Result<()> {
         } => build::run_update(&public, &cache, &provider, date.as_deref(), force),
         Cmd::BuildJson { input, output } => build::run_build_json(&input, &output),
         Cmd::BuildIndex { output } => build::run_build_index(&output),
+        Cmd::BuildSearchDb { public } => build::run_build_search_db(&public),
         Cmd::Validate { public } => validate::run_validate(&public),
         Cmd::RebuildManifest { public } => build::run_rebuild_manifest(&public),
         Cmd::MergeHistory { public, prebuilt } => build::run_merge_history(&public, &prebuilt),

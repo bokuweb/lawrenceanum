@@ -804,6 +804,62 @@ pub fn run_build_index(output: &Path) -> Result<()> {
     Ok(())
 }
 
+/// `public/search.db` を既存の配信物からその場で再生成する。
+///
+/// build-json は `public.tmp` を作って swap するため、その時点では
+/// proceedings / links 等の他コマンド生成物がまだ無い (build-json は最初に走る)。
+/// よって発言を索引した search.db は「proceedings-build-json の後」に
+/// このコマンドで別途生成する必要がある。
+/// - 法令: `public/laws/*/current.json` を読む。
+/// - カテゴリ: `public/laws/index.json` の各 `category` を採用する。
+/// - 発言: `public/proceedings/` があれば索引する。
+pub fn run_build_search_db(public: &Path) -> Result<()> {
+    let docs = read_existing_law_documents(public)?;
+    if docs.is_empty() {
+        anyhow::bail!(
+            "no laws under {} — run `lawpub build-json` first",
+            public.join("laws").display()
+        );
+    }
+    let categories = read_categories_from_index(public)?;
+    let path = public.join("search.db");
+    let proc_dir = public.join("proceedings");
+    let proc_dir_opt = if proc_dir.is_dir() {
+        Some(proc_dir.as_path())
+    } else {
+        None
+    };
+    search_index::build_search_db(&path, &docs, &categories, proc_dir_opt)?;
+    // search.db は manifest 管理外 (R2 配信 / Range アクセスのため) なので
+    // manifest 再生成は不要。validate も search.db を対象にしない。
+    tracing::info!("build-search-db: wrote {}", path.display());
+    Ok(())
+}
+
+/// `public/laws/index.json` から law_id → category を読む。
+/// build-json は meta_revisions から取るが、ここでは配信済み index を信頼する。
+fn read_categories_from_index(public: &Path) -> Result<std::collections::HashMap<String, String>> {
+    let mut out: std::collections::HashMap<String, String> = Default::default();
+    let idx = public.join("laws").join("index.json");
+    if !idx.exists() {
+        return Ok(out);
+    }
+    let raw = std::fs::read_to_string(&idx)?;
+    let v: serde_json::Value = serde_json::from_str(&raw)?;
+    if let Some(arr) = v.get("laws").and_then(|x| x.as_array()) {
+        for l in arr {
+            let id = l.get("law_id").and_then(|x| x.as_str());
+            let cat = l.get("category").and_then(|x| x.as_str());
+            if let (Some(id), Some(cat)) = (id, cat) {
+                if !cat.is_empty() {
+                    out.insert(id.to_string(), cat.to_string());
+                }
+            }
+        }
+    }
+    Ok(out)
+}
+
 pub fn run_update(
     public: &Path,
     cache: &Path,
