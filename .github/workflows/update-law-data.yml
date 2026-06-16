@@ -159,7 +159,9 @@ jobs:
             if aws s3 cp "s3://$R2_BUCKET/revisions.tar.zst" /tmp/revisions.tar.zst --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
               ls -lh /tmp/revisions.tar.zst
               # アーカイブの top-level は ./{law_id}/ なので .cache/revisions 直下へ展開。
-              zstd -dc /tmp/revisions.tar.zst | tar -x -C .cache/revisions --skip-old-files
+              # --long=31: 大窓 zstd でも復号できるよう窓上限を引き上げる (既定27では
+              # frame が大きい窓で作られていると "too much memory" で失敗し得る)。
+              zstd -dc --long=31 /tmp/revisions.tar.zst | tar -x -C .cache/revisions --skip-old-files
               rm -f /tmp/revisions.tar.zst
               now=$(find .cache/revisions -maxdepth 1 -mindepth 1 -type d | wc -l | tr -d ' ')
               echo "::notice::revisions corpus restored from R2: $now laws"
