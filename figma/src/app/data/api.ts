@@ -154,9 +154,18 @@ export type TimelineEventRaw = {
 
 /** 改め文の構造化表現（kanpo-amend crate の Document に対応）。 */
 export type AmendRun = { text: string; underline?: boolean }
+/** 別表（罫線で区切られた表）。rows[r][c] がセルの Run 列。 */
+export type AmendNestedTable = { rows: AmendRun[][][] }
+export type AmendShinkyuRow = {
+  after: AmendRun[]
+  before: AmendRun[]
+  /** 別表の改正後/改正前 2D 表（あれば）。 */
+  after_table?: AmendNestedTable
+  before_table?: AmendNestedTable
+}
 export type AmendBlock =
   | { kind: "paragraph"; runs: AmendRun[] }
-  | { kind: "shinkyu"; rows: { after: AmendRun[]; before: AmendRun[] }[] }
+  | { kind: "shinkyu"; rows: AmendShinkyuRow[] }
 export type AmendDocument = { format: string; blocks: AmendBlock[] }
 
 export type TimelineJson = {
