@@ -8,9 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { ScrollArea } from "../ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ARTICLES_V2, TIMELINE_EVENTS, type LawSummary } from "../mock-data";
-import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search } from "lucide-react";
+import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 import { useLaws, useLawDetail } from "../../data/use-laws";
+import { api, type LawToProceedings } from "../../data/api";
 import { getRefsForLaw, type ArticleRef } from "../../data/search-engine";
 
 /**
@@ -295,7 +296,18 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
       setActiveArt(articles[0].article_id);
     }
   }, [articles.length]);
-  const liveEvents = detail.timeline?.events ?? [];
+  // 改正履歴は新しいものから順に並べる。公布日を主キーに、無ければ施行日・施行予定日・
+  // 取込日にフォールバックして降順ソートする。
+  const liveEvents = useMemo(() => {
+    const events = detail.timeline?.events ?? [];
+    const dateKey = (e: (typeof events)[number]) =>
+      e.promulgation_date || e.effective_date || e.scheduled_enforcement_date || e.source_update_date || "";
+    return [...events].sort((a, b) => {
+      const ad = dateKey(a), bd = dateKey(b);
+      if (ad !== bd) return ad < bd ? 1 : -1;
+      return 0;
+    });
+  }, [detail.timeline]);
   const mockEvents = TIMELINE_EVENTS[law.law_id] ?? [];
   const useLiveTimeline = liveEvents.length > 0;
 
@@ -342,6 +354,18 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
     return m;
   }, [articles]);
 
+  // この法令に言及している国会会議録（law→proceedings クロスリンク）。リンクが無ければ非表示。
+  const [proceedings, setProceedings] = useState<LawToProceedings | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    setProceedings(null);
+    api.lawToProceedings(law.law_id)
+      .then(d => { if (!cancelled) setProceedings(d); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [law.law_id]);
+  const linkedProceedings = proceedings?.linked_proceedings ?? [];
+
   return (
     <div className="flex flex-col h-full">
       <div className="border-b border-border bg-background px-6 py-4">
@@ -381,6 +405,36 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
           </div>
         </div>
       </div>
+
+      {linkedProceedings.length > 0 && (
+        <div className="border-b border-border bg-background px-6 py-3">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground mb-2">
+            <Landmark className="size-3" />
+            この法令への国会発言 ({linkedProceedings.length})
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {linkedProceedings.map(p => (
+              <button
+                key={p.meeting_id}
+                onClick={() => navigate(`/proceedings/${p.meeting_id}`)}
+                title={p.match_reasons?.join(" / ") || undefined}
+                className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded border border-border hover:border-primary hover:text-primary transition-colors"
+              >
+                {p.relevance === "amendment_debate" && (
+                  <span className="size-1.5 rounded-full bg-orange-400 shrink-0" />
+                )}
+                <span>{p.date}</span>
+                <span className="text-muted-foreground">{p.house}{p.committee ?? "本会議"}</span>
+                <ArrowUpRight className="size-2.5 opacity-50" />
+              </button>
+            ))}
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-1.5">
+            <span className="inline-flex items-center gap-1"><span className="size-1.5 rounded-full bg-orange-400 inline-block" />改正審議</span>
+            <span className="ml-2 opacity-60">その他は言及のみ</span>
+          </p>
+        </div>
+      )}
 
       <Tabs defaultValue="content" className="flex-1 flex flex-col min-h-0">
         <div className="border-b border-border px-6">
