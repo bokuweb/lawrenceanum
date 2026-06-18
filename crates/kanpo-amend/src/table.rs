@@ -42,12 +42,21 @@ pub(crate) fn reconstruct_tables(
     words: &[PlacedWord],
     band_y0: f32,
     band_y1: f32,
+    max_x: f32,
 ) -> Vec<GridTable> {
-    // 帯内の横罫線（少し下にはみ出す下端罫線も含めるため +12pt 許容）。
+    // 帯内の横罫線。条件:
+    // - 下端罫線が少し帯外に出るため +12pt 許容
+    // - 改正後/改正前ラベル列や本文より右(=max_x 以降)は別表でないので除外
+    // - 表の外枠(全幅に近い罫線)は別表のセル罫線でないので除外(長さ300pt超)
     let hs: Vec<_> = rules
         .horizontal
         .iter()
-        .filter(|h| band_y0 - 2.0 <= h.y && h.y <= band_y1 + 12.0)
+        .filter(|h| {
+            band_y0 - 2.0 <= h.y
+                && h.y <= band_y1 + 12.0
+                && h.x1 <= max_x
+                && (h.x1 - h.x0) <= 300.0
+        })
         .collect();
     if hs.is_empty() {
         return Vec::new();
@@ -89,6 +98,7 @@ pub(crate) fn reconstruct_tables(
             }
             rows.push(row);
         }
+        let rows = trim_empty_edges(rows);
         if rows.iter().any(|r| r.iter().any(|c| !c.is_empty())) {
             tables.push(GridTable { left_x: x_lo, rows });
         }
@@ -96,6 +106,33 @@ pub(crate) fn reconstruct_tables(
     // 右→左（left_x 降順）。
     tables.sort_by(|a, b| b.left_x.partial_cmp(&a.left_x).unwrap_or(std::cmp::Ordering::Equal));
     tables
+}
+
+/// 全セルが空の行・列を表の縁から取り除く（罫線の外枠と本文の隙間で出来る空帯を除去）。
+fn trim_empty_edges(mut rows: Vec<Vec<String>>) -> Vec<Vec<String>> {
+    // 空行を端から削る。
+    while rows.first().is_some_and(|r| r.iter().all(|c| c.is_empty())) {
+        rows.remove(0);
+    }
+    while rows.last().is_some_and(|r| r.iter().all(|c| c.is_empty())) {
+        rows.pop();
+    }
+    if rows.is_empty() {
+        return rows;
+    }
+    let ncol = rows.iter().map(|r| r.len()).max().unwrap_or(0);
+    let col_empty = |c: usize| rows.iter().all(|r| r.get(c).map(|s| s.is_empty()).unwrap_or(true));
+    let mut lo = 0;
+    while lo < ncol && col_empty(lo) {
+        lo += 1;
+    }
+    let mut hi = ncol;
+    while hi > lo && col_empty(hi - 1) {
+        hi -= 1;
+    }
+    rows.into_iter()
+        .map(|r| r.into_iter().enumerate().filter(|(i, _)| *i >= lo && *i < hi).map(|(_, c)| c).collect())
+        .collect()
 }
 
 /// セル矩形 [x0,x1)×[y0,y1) に中心が入る語を縦書き順（右→左, 上→下）で連結。
@@ -136,7 +173,7 @@ mod tests {
         let w = |x: f32, yc: f32, t: &str| PlacedWord { x, yc, text: t.into() };
         // 右列(x30-50): 上=見出A, 下=見出B / 左列(x10-30): 上=値A, 下=値B
         let words = vec![w(40.0, 20.0, "見出A"), w(40.0, 40.0, "見出B"), w(20.0, 20.0, "値A"), w(20.0, 40.0, "値B")];
-        let tables = reconstruct_tables(&rules, &words, 10.0, 50.0);
+        let tables = reconstruct_tables(&rules, &words, 10.0, 50.0, 1000.0);
         assert_eq!(tables.len(), 1);
         assert_eq!(
             tables[0].rows,
@@ -166,7 +203,7 @@ mod tests {
         };
         let w = |x: f32, t: &str| PlacedWord { x, yc: 20.0, text: t.into() };
         let words = vec![w(10.0, "左表"), w(50.0, "右表")];
-        let tables = reconstruct_tables(&rules, &words, 0.0, 40.0);
+        let tables = reconstruct_tables(&rules, &words, 0.0, 40.0, 1000.0);
         assert_eq!(tables.len(), 2);
         // 右→左順: 右表(x40-60)が先。
         assert_eq!(tables[0].rows[0][0], "右表");

@@ -33,10 +33,23 @@ pub enum Block {
 
 /// 新旧対照表の 1 行（条・別表など 1 単位）。改正後/改正前のセル。
 /// 片側のみ存在する行（新設・削除）はもう一方が空 Vec になる。
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+/// 別表（罫線で区切られた表）の行では `after_table`/`before_table` に 2D 表が入る。
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize)]
 pub struct ShinkyuRow {
     pub after: Vec<Run>,
     pub before: Vec<Run>,
+    /// 別表の改正後側 2D 表（あれば）。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub after_table: Option<NestedTable>,
+    /// 別表の改正前側 2D 表（あれば）。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub before_table: Option<NestedTable>,
+}
+
+/// 別表（罫線グリッド）を復元した 2D 表。`rows[r][c]` がセルの Run 列。
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct NestedTable {
+    pub rows: Vec<Vec<Vec<Run>>>,
 }
 
 /// 同一スタイルが続くテキスト片。
@@ -218,7 +231,7 @@ fn align_rows(after_lines: &[&str], before_lines: &[&str]) -> Vec<ShinkyuRow> {
         let after = ai.map(|i| cell_runs_from_str(&a[i].text)).unwrap_or_default();
         let before = bi.map(|j| cell_runs_from_str(&b[j].text)).unwrap_or_default();
         if !after.is_empty() || !before.is_empty() {
-            rows.push(ShinkyuRow { after, before });
+            rows.push(ShinkyuRow { after, before, ..Default::default() });
         }
     }
     rows
@@ -234,6 +247,7 @@ fn single_row(after_lines: &[&str], before_lines: &[&str]) -> ShinkyuRow {
     ShinkyuRow {
         after: cell_runs(after_lines),
         before: cell_runs(before_lines),
+        ..Default::default()
     }
 }
 
@@ -363,6 +377,7 @@ mod tests {
                     rows: vec![ShinkyuRow {
                         after: vec![Run::plain("甲種")],
                         before: vec![Run::plain("乙類")],
+                        ..Default::default()
                     }],
                 },
             ]
@@ -405,7 +420,8 @@ mod tests {
             Block::Shinkyu {
                 rows: vec![ShinkyuRow {
                     after: vec![Run::plain("A2")],
-                    before: vec![Run::plain("B2")]
+                    before: vec![Run::plain("B2")],
+                    ..Default::default()
                 }]
             }
         );
