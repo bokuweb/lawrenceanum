@@ -281,6 +281,10 @@ fn is_row_heading(line: &str) -> bool {
     }
     if let Some(rest) = t.strip_prefix('（') {
         if let Some(inner) = rest.strip_suffix('）') {
+            // 凡例「（傍線部分は…）」は条見出しではない（注記であり、片側だけの偽行を生む）。
+            if inner.starts_with("傍線") {
+                return false;
+            }
             return inner.chars().count() >= 3 && !inner.contains('）');
         }
     }
