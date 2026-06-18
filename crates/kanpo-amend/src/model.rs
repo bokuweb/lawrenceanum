@@ -63,13 +63,46 @@ impl Run {
 }
 
 /// テキストの 1 セル（複数行）を 1 つの Run に畳む。空なら空 Vec。
-/// 改行は列折り返し由来なので維持する（呼び出し側で整形可能）。
+/// 縦書きの列折り返しで途中改行された行は結合し、条・号・文末などの構造的改行のみ残す。
 fn cell_runs(lines: &[&str]) -> Vec<Run> {
-    let text = lines.join("\n").trim().to_string();
+    let text = join_wrapped_lines(lines);
     if text.is_empty() {
         Vec::new()
     } else {
         vec![Run::plain(text)]
+    }
+}
+
+/// 縦書きの列折り返し（語の途中での改行）を結合する。
+///
+/// 各行は復元時の 1 縦列に相当し、列幅で途中改行される。文末（`。`）で終わる行や、
+/// 次行が構造マーカー（`第○条` / 号（一・二…/イ・ロ…/数字）/ `（見出し）` / `別表` /
+/// `附則`）で始まる箇所だけ改行を残し、それ以外は連結して読みやすくする。
+fn join_wrapped_lines(lines: &[&str]) -> String {
+    let lines: Vec<&str> = lines.iter().map(|l| l.trim()).filter(|l| !l.is_empty()).collect();
+    let mut out = String::new();
+    for (idx, line) in lines.iter().enumerate() {
+        out.push_str(line);
+        if idx + 1 < lines.len() {
+            let ends_sentence = line.ends_with('。') || line.ends_with('！') || line.ends_with('？');
+            if ends_sentence || starts_structural_marker(lines[idx + 1]) {
+                out.push('\n');
+            }
+        }
+    }
+    out.trim().to_string()
+}
+
+/// 行頭が条文の構造マーカー（条・号・見出し・別表・附則）か。列折り返し結合で改行を残す判定に使う。
+fn starts_structural_marker(line: &str) -> bool {
+    let mut chars = line.chars();
+    match chars.next() {
+        Some('第') | Some('（') | Some('別') | Some('附') => true,
+        // 号: 漢数字・カタカナ列記・全角/半角数字で始まる。
+        Some(c) if "一二三四五六七八九十".contains(c) => true,
+        Some(c) if "イロハニホヘトチリヌルヲワカヨタレソツネ".contains(c) => true,
+        Some(c) if c.is_ascii_digit() || ('０'..='９').contains(&c) => true,
+        _ => false,
     }
 }
 
@@ -182,13 +215,19 @@ fn align_rows(after_lines: &[&str], before_lines: &[&str]) -> Vec<ShinkyuRow> {
     }
     let mut rows = Vec::new();
     for (ai, bi) in aln {
-        let after = ai.map(|i| vec![Run::plain(a[i].text.clone())]).unwrap_or_default();
-        let before = bi.map(|j| vec![Run::plain(b[j].text.clone())]).unwrap_or_default();
+        let after = ai.map(|i| cell_runs_from_str(&a[i].text)).unwrap_or_default();
+        let before = bi.map(|j| cell_runs_from_str(&b[j].text)).unwrap_or_default();
         if !after.is_empty() || !before.is_empty() {
             rows.push(ShinkyuRow { after, before });
         }
     }
     rows
+}
+
+/// 文字列（複数行）を列折り返し結合してセルの Run 列にする。
+fn cell_runs_from_str(text: &str) -> Vec<Run> {
+    let lines: Vec<&str> = text.lines().collect();
+    cell_runs(&lines)
 }
 
 fn single_row(after_lines: &[&str], before_lines: &[&str]) -> ShinkyuRow {
@@ -373,6 +412,25 @@ mod tests {
         let text = "前文\n改正後\n甲種\n改正前\n乙類";
         let doc = Document::from_text(text);
         assert_eq!(doc.to_text(), text);
+    }
+
+    #[test]
+    fn joins_column_wrapped_lines_keeping_structure() {
+        // 列折り返し（語の途中改行）は結合し、号・条・文末の改行は残す。
+        let lines = vec![
+            "第六十二条かつお・まぐろ漁業者は、次に掲げる行為をしな",
+            "ければならない。",
+            "一（略）",
+            "二当該さめを所持すること。",
+        ];
+        let runs = cell_runs(&lines);
+        let text = &runs[0].text;
+        // 「しな」+「ければ」は連結される。
+        assert!(text.contains("行為をしなければならない。"), "{text}");
+        // 号「一」「二」は改行で分かれる。
+        let after_first = text.split('\n').collect::<Vec<_>>();
+        assert!(after_first.iter().any(|l| l.trim() == "一（略）"), "{text}");
+        assert!(after_first.iter().any(|l| l.starts_with("二当該さめ")), "{text}");
     }
 
     #[test]
