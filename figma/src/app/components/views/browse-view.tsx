@@ -11,7 +11,7 @@ import { ARTICLES_V2, TIMELINE_EVENTS, type LawSummary } from "../mock-data";
 import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 import { useLaws, useLawDetail } from "../../data/use-laws";
-import { api, type LawToProceedings } from "../../data/api";
+import { api, type LawToProceedings, type AmendDocument, type AmendRun } from "../../data/api";
 import { getRefsForLaw, type ArticleRef } from "../../data/search-engine";
 
 /**
@@ -44,6 +44,53 @@ function parseShinkyu(text: string): { preamble: string; rows: { after: string; 
     if (after.length || before.length) rows.push({ after: after.join("\n").trim(), before: before.join("\n").trim() });
   }
   return rows.length ? { preamble, rows } : null;
+}
+
+/** Run 列を描画。傍線(下線)付きは <u> で表す（現状は常に false だが将来の傍線抽出に対応）。 */
+function renderRuns(runs: AmendRun[]) {
+  return runs.map((r, i) => (r.underline ? <u key={i}>{r.text}</u> : <span key={i}>{r.text}</span>));
+}
+
+/**
+ * 構造化改め文(amend_document)を描画する。段落はそのまま、新旧対照表は条（別表）ごとの
+ * 行に分けて改正後/改正前を左右対比のテーブルで表示する。
+ */
+function AmendDocumentView({ doc }: { doc: AmendDocument }) {
+  return (
+    <div className="mt-1 max-h-96 overflow-auto rounded bg-muted/40 p-2 space-y-2">
+      {doc.blocks.map((b, bi) => {
+        if (b.kind === "paragraph") {
+          return (
+            <pre key={bi} className="text-xs whitespace-pre-wrap font-sans leading-relaxed">
+              {renderRuns(b.runs)}
+            </pre>
+          );
+        }
+        return (
+          <table key={bi} className="w-full text-xs border-collapse table-fixed">
+            <thead>
+              <tr>
+                <th className="w-1/2 border border-border bg-background/60 px-2 py-1 text-left font-medium">改正後</th>
+                <th className="w-1/2 border border-border bg-background/60 px-2 py-1 text-left font-medium">改正前</th>
+              </tr>
+            </thead>
+            <tbody>
+              {b.rows.map((r, ri) => (
+                <tr key={ri} className="align-top">
+                  <td className="border border-border px-2 py-1">
+                    <pre className="whitespace-pre-wrap font-sans leading-relaxed">{renderRuns(r.after)}</pre>
+                  </td>
+                  <td className="border border-border px-2 py-1">
+                    <pre className="whitespace-pre-wrap font-sans leading-relaxed">{renderRuns(r.before)}</pre>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        );
+      })}
+    </div>
+  );
 }
 
 export function BrowseView({ lawId, onSelect, onCompare }: { lawId: string | null; onSelect: (id: string | null) => void; onCompare: (id: string) => void }) {
@@ -610,11 +657,14 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
                               )}
                             </div>
                             {e.kanpo.amend_text && (() => {
-                              const shinkyu = e.kanpo.amend_format === "shinkyu" ? parseShinkyu(e.kanpo.amend_text) : null;
+                              const doc = e.kanpo.amend_document;
+                              const shinkyu = !doc && e.kanpo.amend_format === "shinkyu" ? parseShinkyu(e.kanpo.amend_text) : null;
                               return (
                                 <details>
                                   <summary className="text-xs text-muted-foreground cursor-pointer select-none">本文を表示</summary>
-                                  {shinkyu ? (
+                                  {doc ? (
+                                    <AmendDocumentView doc={doc} />
+                                  ) : shinkyu ? (
                                     <div className="mt-1 max-h-96 overflow-auto rounded bg-muted/40 p-2 space-y-2">
                                       {shinkyu.preamble && (
                                         <pre className="text-xs whitespace-pre-wrap font-sans leading-relaxed">{shinkyu.preamble}</pre>

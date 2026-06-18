@@ -29,12 +29,30 @@ pub fn segment_articles(text: &str) -> Vec<String> {
 ///
 /// - 省令・告示・規則の `〇` 見出し（例: 「〇総務省令第七十七号」）
 /// - 法律・政令の公布行（「…をここに公布する」）
-/// - 「告示」「公告」「公示」の独立見出し行（新旧対照表ページに同居する別記事の境界。
-///   例: 郵便法施行規則の表の下に並ぶ自転車の型式認定告示）
+/// - 官報の区分見出しの独立行（新旧対照表ページに同居する別記事の境界）。
+///   「告示」「公告」「公示」「法規的告示」「条約」「庁令」「訓令」「国会事項」「官庁報告」等。
+///   例: 省令の改め文の直後に並ぶ「法規的告示」の別件、型式認定告示など。
 fn is_article_boundary(line: &str) -> bool {
     let t = line.trim();
-    t.starts_with('〇') || t.contains("をここに公布する") || matches!(t, "告示" | "公告" | "公示")
+    t.starts_with('〇')
+        || t.contains("をここに公布する")
+        || SECTION_HEADERS.contains(&t)
 }
+
+/// 官報本文に現れる区分（記事カテゴリ）見出し。これらが独立行で現れたら別記事の開始とみなす。
+/// 本文中に単独行で現れることはまずないものに限定し、誤分割を避ける。
+const SECTION_HEADERS: &[&str] = &[
+    "告示",
+    "公告",
+    "公示",
+    "法規的告示",
+    "条約",
+    "庁令",
+    "訓令",
+    "国会事項",
+    "官庁報告",
+    "皇室事項",
+];
 
 #[cfg(test)]
 mod tests {
@@ -57,6 +75,16 @@ mod tests {
         assert_eq!(arts.len(), 2);
         assert!(arts[0].contains("第十六条") && !arts[0].contains("型式認定"));
         assert!(arts[1].starts_with("告示") && arts[1].contains("型式認定"));
+    }
+
+    #[test]
+    fn segments_articles_on_section_header() {
+        // 省令の改め文の直後に同居する「法規的告示」の別件を境界で切り離す。
+        let text = "〇農林水産省令第三十二号\n…の一部を改正する省令\n附則\nこの省令は…から施行する。\n法規的告示\n…第六十二条第二号ただし書の規定に基づき…\n…の措置を講じている場合";
+        let arts = segment_articles(text);
+        assert_eq!(arts.len(), 2);
+        assert!(arts[0].contains("省令") && !arts[0].contains("ただし書"));
+        assert!(arts[1].starts_with("法規的告示"));
     }
 
     #[test]
