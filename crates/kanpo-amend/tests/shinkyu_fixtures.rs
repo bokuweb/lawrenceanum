@@ -115,20 +115,25 @@ fn gyogyo_structures_into_document_with_shinkyu_block() {
     assert_eq!(doc.format, "shinkyu");
     // 先頭は前文(段落)、続いて新旧対照表ブロック。
     assert!(matches!(doc.blocks.first(), Some(Block::Paragraph { .. })));
-    let shinkyu = doc
+    let rows = doc
         .blocks
         .iter()
         .find_map(|b| match b {
-            Block::Shinkyu { after, before } => Some((after, before)),
+            Block::Shinkyu { rows } => Some(rows),
             _ => None,
         })
         .expect("新旧対照表ブロック");
-    let after_text: String = shinkyu.0.iter().map(|r| r.text.as_str()).collect();
-    let before_text: String = shinkyu.1.iter().map(|r| r.text.as_str()).collect();
-    assert!(after_text.contains("中西部太平洋条約海域、東部太平洋"), "改正後セル");
-    assert!(before_text.contains("インド洋協定海域においては"), "改正前セル");
+    // 条・別表ごとに行分割され、改正後/改正前が対応する。
+    assert!(rows.len() >= 3, "（さめ…）/別表第四/別表第八 で複数行: {}", rows.len());
+    let all_after: String = rows.iter().flat_map(|r| &r.after).map(|r| r.text.as_str()).collect();
+    let all_before: String = rows.iter().flat_map(|r| &r.before).map(|r| r.text.as_str()).collect();
+    assert!(all_after.contains("中西部太平洋条約海域、東部太平洋"), "改正後セル");
+    assert!(all_before.contains("インド洋協定海域においては"), "改正前セル");
+    // 先頭行（さめの…）は改正後/改正前 両方を持つ。
+    let first = &rows[0];
+    assert!(!first.after.is_empty() && !first.before.is_empty(), "先頭行は両側");
     // 傍線フィールドは現状すべて false。
-    assert!(shinkyu.0.iter().all(|r| !r.underline));
+    assert!(rows.iter().flat_map(|r| &r.after).all(|r| !r.underline));
 
     // JSON 化できる（HTML 等への変換用）。
     let json = serde_json::to_string(&doc).unwrap();
