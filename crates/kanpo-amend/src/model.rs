@@ -154,9 +154,30 @@ impl Document {
                     k += 1;
                 }
                 let before_lines = &lines[before_start..k];
-                blocks.push(Block::Shinkyu {
-                    rows: align_rows(after_lines, before_lines),
+                // 附則(施行期日・経過措置)は改正全体の付則で、新旧対照表の条ではない。
+                // 表の行から外し、表ブロックの後ろに段落として置く。
+                let mut rows = align_rows(after_lines, before_lines);
+                let mut furisoku: Vec<Vec<Run>> = Vec::new();
+                rows.retain(|r| {
+                    let is_furi = |runs: &[Run]| {
+                        runs.first().map(|x| x.text.trim_start().starts_with("附則")).unwrap_or(false)
+                    };
+                    if is_furi(&r.after) || is_furi(&r.before) {
+                        let content = if !r.after.is_empty() { r.after.clone() } else { r.before.clone() };
+                        if !content.is_empty() {
+                            furisoku.push(content);
+                        }
+                        false
+                    } else {
+                        true
+                    }
                 });
+                if !rows.is_empty() {
+                    blocks.push(Block::Shinkyu { rows });
+                }
+                for runs in furisoku {
+                    blocks.push(Block::Paragraph { runs });
+                }
                 i = k;
             } else {
                 para.push(lines[i]);
