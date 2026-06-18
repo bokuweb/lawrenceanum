@@ -15,8 +15,8 @@ pub(crate) struct Col {
 }
 
 /// ページ上下の余白帯にある柱（「官」「報」「令和 年 月 日」等）を落とすための閾値(pt)。
-const TOP_MARGIN: f32 = 56.0;
-const BOTTOM_MARGIN: f32 = 30.0;
+pub(crate) const TOP_MARGIN: f32 = 56.0;
+pub(crate) const BOTTOM_MARGIN: f32 = 30.0;
 
 /// `-bbox-layout` の XHTML から縦書き読み順（右→左・各カラム上→下）を復元する。
 ///
@@ -95,6 +95,58 @@ pub fn reconstruct_vertical(xhtml: &str) -> String {
         }
     }
     pages.join("\n").trim().to_string()
+}
+
+/// `-bbox-layout` の XHTML をページ単位に解析し、`(ページ高さ, 余白除去済みカラム列)` を返す。
+/// 別表復元（罫線とテキストの突合）で文字座標が必要なときに使う。
+pub(crate) fn parse_page_cols(xhtml: &str) -> Vec<(f32, Vec<Col>)> {
+    let doc = Html::parse_document(xhtml);
+    let page_sel = Selector::parse("page").unwrap();
+    let word_sel = Selector::parse("word").unwrap();
+    let mut out = Vec::new();
+    for page in doc.select(&page_sel) {
+        let height = page
+            .value()
+            .attr("height")
+            .and_then(|s| s.parse::<f32>().ok())
+            .unwrap_or(842.0);
+        let mut cols: Vec<Col> = Vec::new();
+        for w in page.select(&word_sel) {
+            let v = w.value();
+            let x = v.attr("xmin").and_then(|s| s.parse::<f32>().ok());
+            let y = v.attr("ymin").and_then(|s| s.parse::<f32>().ok());
+            let y1 = v.attr("ymax").and_then(|s| s.parse::<f32>().ok());
+            let (x, y, y1) = match (x, y, y1) {
+                (Some(x), Some(y), Some(y1)) => (x, y, y1),
+                _ => continue,
+            };
+            if y < TOP_MARGIN || y > height - BOTTOM_MARGIN {
+                continue;
+            }
+            let text: String = w
+                .text()
+                .collect::<String>()
+                .chars()
+                .filter(|c| !is_private_use(*c))
+                .map(normalize_char)
+                .collect();
+            if text.trim().is_empty() {
+                continue;
+            }
+            cols.push(Col { x, y, y1, text });
+        }
+        out.push((height, cols));
+    }
+    out
+}
+
+/// `Col`（縦書き 1 カラム語）から、別表復元で使う中心 y 付きの語へ。
+pub(crate) fn col_to_word(c: &Col) -> crate::table::PlacedWord {
+    crate::table::PlacedWord {
+        x: c.x,
+        yc: (c.y + c.y1) / 2.0,
+        text: c.text.clone(),
+    }
 }
 
 /// カラム語を縦方向の段(tier)に分割する。

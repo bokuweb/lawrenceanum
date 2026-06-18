@@ -11,7 +11,7 @@ import { ARTICLES_V2, TIMELINE_EVENTS, type LawSummary } from "../mock-data";
 import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 import { useLaws, useLawDetail } from "../../data/use-laws";
-import { api, type LawToProceedings, type AmendDocument, type AmendRun } from "../../data/api";
+import { api, type LawToProceedings, type AmendDocument, type AmendRun, type AmendNestedTable } from "../../data/api";
 import { getRefsForLaw, type ArticleRef } from "../../data/search-engine";
 
 /**
@@ -51,6 +51,33 @@ function renderRuns(runs: AmendRun[]) {
   return runs.map((r, i) => (r.underline ? <u key={i}>{r.text}</u> : <span key={i}>{r.text}</span>));
 }
 
+/** 別表（罫線で区切られた表）を入れ子テーブルとして描画する。 */
+function NestedTableView({ table }: { table: AmendNestedTable }) {
+  return (
+    <table className="w-full border-collapse my-1">
+      <tbody>
+        {table.rows.map((row, ri) => (
+          <tr key={ri} className="align-top">
+            {row.map((cell, ci) => (
+              <td key={ci} className="border border-border/70 px-1.5 py-0.5">
+                <pre className="whitespace-pre-wrap font-sans leading-relaxed">{renderRuns(cell)}</pre>
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+/** 新旧対照表のセル。別表(2D表)があればそれを、無ければテキストを描画する。 */
+function renderCell(runs: AmendRun[], table?: AmendNestedTable) {
+  if (table && table.rows.length > 0) {
+    return <NestedTableView table={table} />;
+  }
+  return <pre className="whitespace-pre-wrap font-sans leading-relaxed">{renderRuns(runs)}</pre>;
+}
+
 /**
  * 構造化改め文(amend_document)を描画する。段落はそのまま、新旧対照表は条（別表）ごとの
  * 行に分けて改正後/改正前を左右対比のテーブルで表示する。
@@ -77,12 +104,8 @@ function AmendDocumentView({ doc }: { doc: AmendDocument }) {
             <tbody>
               {b.rows.map((r, ri) => (
                 <tr key={ri} className="align-top">
-                  <td className="border border-border px-2 py-1">
-                    <pre className="whitespace-pre-wrap font-sans leading-relaxed">{renderRuns(r.after)}</pre>
-                  </td>
-                  <td className="border border-border px-2 py-1">
-                    <pre className="whitespace-pre-wrap font-sans leading-relaxed">{renderRuns(r.before)}</pre>
-                  </td>
+                  <td className="border border-border px-2 py-1">{renderCell(r.after, r.after_table)}</td>
+                  <td className="border border-border px-2 py-1">{renderCell(r.before, r.before_table)}</td>
                 </tr>
               ))}
             </tbody>

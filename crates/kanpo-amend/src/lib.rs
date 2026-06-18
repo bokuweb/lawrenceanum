@@ -29,11 +29,13 @@
 use anyhow::Result;
 
 pub mod format;
+pub mod lines;
 pub mod model;
 pub mod normalize;
 pub mod pdftotext;
 pub mod segment;
 pub mod shinkyu;
+pub mod table;
 pub mod vertical;
 
 pub use format::detect_format_of;
@@ -60,6 +62,82 @@ pub fn extract(pdf: &[u8]) -> Result<Extracted> {
 
 /// PDF バイト列から構造化した [`Document`] を得る。HTML や表へ変換しやすい形。
 /// 改め文をテキストではなく構造で受け取りたい呼び出し側はこちらを使う。
+///
+/// 新旧対照表中の別表（罫線で区切られた表）は、`pdftocairo` の罫線とテキスト座標から
+/// 2D 表として復元し、対応する `別表第○` 行の `after_table`/`before_table` に格納する。
 pub fn extract_document(pdf: &[u8]) -> Result<Document> {
-    Ok(Document::from_text(&extract(pdf)?.text))
+    let xhtml = pdftotext::run_pdftotext_bbox(pdf)?;
+    let text = reconstruct_vertical(&xhtml);
+    let mut doc = Document::from_text(&text);
+    attach_tables(&mut doc, pdf);
+    Ok(doc)
+}
+
+/// 既存の [`Document`] に、1 ページ PDF から復元した別表 2D 表を attach する。
+///
+/// 複数ページにまたがる項目では、各ページの PDF についてこれを呼ぶと、まだ表の付いて
+/// いない `別表第○` 行へ読み順に割り当てられる。罫線が取れなければ何もしない（best-effort）。
+pub fn attach_tables(doc: &mut Document, pdf: &[u8]) {
+    let Ok(rules) = lines::extract_rules(pdf) else {
+        return;
+    };
+    let Ok(xhtml) = pdftotext::run_pdftotext_bbox(pdf) else {
+        return;
+    };
+    attach_bessho_tables(doc, &rules, &xhtml);
+}
+
+/// 罫線から別表 2D 表を復元し、Document の未充填の `別表第○` 行に順番に attach する。
+fn attach_bessho_tables(doc: &mut Document, rules: &lines::PageRules, xhtml: &str) {
+    // 1 ページ目（kanpo の項目別 PDF はページ単位で渡される）。
+    let Some((height, cols)) = vertical::parse_page_cols(xhtml).into_iter().next() else {
+        return;
+    };
+    // 改正後/改正前 の境界 y。見出しが無ければ別表 attach はしない。
+    let Some((header_x, divider)) = shinkyu::detect_shinkyu_header(&cols) else {
+        return;
+    };
+    let words: Vec<table::PlacedWord> = cols.iter().map(vertical::col_to_word).collect();
+    let after_tables = table::reconstruct_tables(rules, &words, vertical::TOP_MARGIN, divider, header_x);
+    let before_tables =
+        table::reconstruct_tables(rules, &words, divider, height - vertical::BOTTOM_MARGIN, header_x);
+
+    // Document の 別表行（after が「別表」で始まる行）に、読み順で順番に割り当てる。
+    let (mut ai, mut bi) = (0usize, 0usize);
+    for block in &mut doc.blocks {
+        let model::Block::Shinkyu { rows } = block else { continue };
+        for row in rows.iter_mut() {
+            let is_bessho = |runs: &[Run]| runs.first().map(|r| r.text.trim_start().starts_with("別表")).unwrap_or(false);
+            // 既に別表が付いている行（前のページで充填済み）は飛ばす。
+            if is_bessho(&row.after) && row.after_table.is_none() && ai < after_tables.len() {
+                row.after_table = Some(to_nested(&after_tables[ai]));
+                ai += 1;
+            }
+            if is_bessho(&row.before) && row.before_table.is_none() && bi < before_tables.len() {
+                row.before_table = Some(to_nested(&before_tables[bi]));
+                bi += 1;
+            }
+        }
+    }
+}
+
+/// 復元した 2D 表（セル文字列）を Document の入れ子テーブルへ変換する。
+fn to_nested(t: &table::GridTable) -> model::NestedTable {
+    model::NestedTable {
+        rows: t
+            .rows
+            .iter()
+            .map(|row| {
+                row.iter()
+                    .map(|cell| {
+                        if cell.is_empty() {
+                            Vec::new()
+                        } else {
+                            vec![Run::plain(cell.clone())]
+                        }
+                    })
+                    .collect()
+            })
+            .collect(),
+    }
 }
