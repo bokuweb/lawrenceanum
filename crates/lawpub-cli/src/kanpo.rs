@@ -340,6 +340,12 @@ pub fn run_link(public: &Path) -> Result<()> {
                 obj.insert("page".into(), json!(item.page));
                 if let Some(t) = &item.amend_text {
                     obj.insert("amend_text".into(), json!(t));
+                    // 構造化（条ごとの行整列・改正後/改正前の対応）も載せる。フロントは
+                    // これを使って条単位の新旧対比表を組む。配信は gzip なので amend_text
+                    // との重複は圧縮される。
+                    if let Ok(doc) = serde_json::to_value(pdf::Document::from_text(t)) {
+                        obj.insert("amend_document".into(), doc);
+                    }
                 }
                 if let Some(f) = &item.amend_format {
                     obj.insert("amend_format".into(), json!(f));
