@@ -29,6 +29,7 @@
 use anyhow::Result;
 
 pub mod format;
+pub mod lines;
 pub mod model;
 pub mod normalize;
 pub mod pdftotext;

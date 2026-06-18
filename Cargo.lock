@@ -928,6 +928,7 @@ name = "kanpo-amend"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "quick-xml",
  "scraper",
  "serde",
  "serde_json",
