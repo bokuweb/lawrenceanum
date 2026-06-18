@@ -35,6 +35,7 @@ pub mod normalize;
 pub mod pdftotext;
 pub mod segment;
 pub mod shinkyu;
+pub mod table;
 pub mod vertical;
 
 pub use format::detect_format_of;
