@@ -924,12 +924,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "kanpo-amend"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "scraper",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "kanpo-client"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
  "hex",
+ "kanpo-amend",
  "reqwest",
  "scraper",
  "serde",

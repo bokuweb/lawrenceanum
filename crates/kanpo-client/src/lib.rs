@@ -8,7 +8,10 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 pub mod http;
-pub mod pdf;
+
+/// 改め文抽出は [`kanpo_amend`] crate に切り出した。後方互換のため `kanpo_client::pdf`
+/// として再エクスポートする（`pdf::extract` / `pdf::segment_articles` / `pdf::detect_format_of` 等）。
+pub use kanpo_amend as pdf;
 
 pub use http::{page_pdf_url, HttpProvider};
 

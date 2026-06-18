@@ -5,6 +5,7 @@ members = [
     "crates/law-normalizer",
     "crates/law-diff",
     "crates/kanpo-client",
+    "crates/kanpo-amend",
     "crates/kanpo-linker",
     "crates/search-index",
     "crates/lawpub-cli",
