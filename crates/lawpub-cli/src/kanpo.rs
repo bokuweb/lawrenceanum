@@ -84,6 +84,8 @@ fn fill_amend_texts(
     }
     // page PDF URL -> 抽出済みページ本文（空文字は取得/抽出失敗のメモ化）。
     let mut page_text: std::collections::HashMap<String, String> = Default::default();
+    // page PDF URL -> 生バイト。別表(罫線表)の復元に PDF 座標が要るため保持する。
+    let mut page_pdf: std::collections::HashMap<String, Vec<u8>> = Default::default();
 
     for issue in &mut kd.issues {
         // 号内の全項目の開始ページ（昇順・重複排除）。終端ページ算定に使う。
@@ -112,6 +114,7 @@ fn fill_amend_texts(
                 .min(item.page + MAX_SPAN - 1);
 
             let mut parts: Vec<String> = Vec::new();
+            let mut item_urls: Vec<String> = Vec::new();
             for n in item.page..=end {
                 let url = if n == item.page {
                     item.pdf_url.clone()
@@ -121,6 +124,7 @@ fn fill_amend_texts(
                         None => continue,
                     }
                 };
+                item_urls.push(url.clone());
                 if let Some(t) = page_text.get(&url) {
                     if !t.is_empty() {
                         parts.push(t.clone());
@@ -152,6 +156,7 @@ fn fill_amend_texts(
                         String::new()
                     }
                 };
+                page_pdf.insert(url.clone(), pdf_bytes);
                 page_text.insert(url, text.clone());
                 if !text.is_empty() {
                     parts.push(text);
@@ -170,6 +175,16 @@ fn fill_amend_texts(
                 .or_else(|| pdf::detect_format_of(&full))
                 .unwrap_or_else(|| "unknown".to_string());
             *stats.by_format.entry(format.clone()).or_default() += 1;
+
+            // 構造化 Document を作り、別表(罫線表)を各ページ PDF から復元して attach する。
+            // 別表は取得時(座標がある今)しか復元できないため、ここで amend_document に保存する。
+            let mut doc = pdf::Document::from_text(&body);
+            for url in &item_urls {
+                if let Some(bytes) = page_pdf.get(url) {
+                    pdf::attach_tables(&mut doc, bytes);
+                }
+            }
+            item.amend_document = serde_json::to_value(&doc).ok();
             item.amend_format = Some(format);
             item.amend_text = Some(body);
         }
@@ -340,10 +355,14 @@ pub fn run_link(public: &Path) -> Result<()> {
                 obj.insert("page".into(), json!(item.page));
                 if let Some(t) = &item.amend_text {
                     obj.insert("amend_text".into(), json!(t));
-                    // 構造化（条ごとの行整列・改正後/改正前の対応）も載せる。フロントは
-                    // これを使って条単位の新旧対比表を組む。配信は gzip なので amend_text
-                    // との重複は圧縮される。
-                    if let Ok(doc) = serde_json::to_value(pdf::Document::from_text(t)) {
+                    // 構造化（条単位の行整列＋別表の2D表）を載せる。取得時に保存した
+                    // amend_document（別表含む）があればそれを優先、無ければテキストから再構成。
+                    // 配信は gzip なので amend_text との重複は圧縮される。
+                    let doc = item
+                        .amend_document
+                        .clone()
+                        .or_else(|| serde_json::to_value(pdf::Document::from_text(t)).ok());
+                    if let Some(doc) = doc {
                         obj.insert("amend_document".into(), doc);
                     }
                 }
@@ -506,6 +525,7 @@ mod tests {
             agency_hint: None,
             amend_text: Some("本文".into()),
             amend_format: Some("prose".into()),
+            amend_document: None,
         }
     }
 

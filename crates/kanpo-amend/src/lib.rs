@@ -69,14 +69,25 @@ pub fn extract_document(pdf: &[u8]) -> Result<Document> {
     let xhtml = pdftotext::run_pdftotext_bbox(pdf)?;
     let text = reconstruct_vertical(&xhtml);
     let mut doc = Document::from_text(&text);
-    // 別表(罫線表)を復元して該当行に attach（best-effort: 罫線が取れなければ素の Document）。
-    if let Ok(rules) = lines::extract_rules(pdf) {
-        attach_bessho_tables(&mut doc, &rules, &xhtml);
-    }
+    attach_tables(&mut doc, pdf);
     Ok(doc)
 }
 
-/// 罫線から別表 2D 表を復元し、Document の `別表第○` 行に順番に attach する。
+/// 既存の [`Document`] に、1 ページ PDF から復元した別表 2D 表を attach する。
+///
+/// 複数ページにまたがる項目では、各ページの PDF についてこれを呼ぶと、まだ表の付いて
+/// いない `別表第○` 行へ読み順に割り当てられる。罫線が取れなければ何もしない（best-effort）。
+pub fn attach_tables(doc: &mut Document, pdf: &[u8]) {
+    let Ok(rules) = lines::extract_rules(pdf) else {
+        return;
+    };
+    let Ok(xhtml) = pdftotext::run_pdftotext_bbox(pdf) else {
+        return;
+    };
+    attach_bessho_tables(doc, &rules, &xhtml);
+}
+
+/// 罫線から別表 2D 表を復元し、Document の未充填の `別表第○` 行に順番に attach する。
 fn attach_bessho_tables(doc: &mut Document, rules: &lines::PageRules, xhtml: &str) {
     // 1 ページ目（kanpo の項目別 PDF はページ単位で渡される）。
     let Some((height, cols)) = vertical::parse_page_cols(xhtml).into_iter().next() else {
@@ -96,21 +107,13 @@ fn attach_bessho_tables(doc: &mut Document, rules: &lines::PageRules, xhtml: &st
     for block in &mut doc.blocks {
         let model::Block::Shinkyu { rows } = block else { continue };
         for row in rows.iter_mut() {
-            let after_is_bessho = row
-                .after
-                .first()
-                .map(|r| r.text.trim_start().starts_with("別表"))
-                .unwrap_or(false);
-            let before_is_bessho = row
-                .before
-                .first()
-                .map(|r| r.text.trim_start().starts_with("別表"))
-                .unwrap_or(false);
-            if after_is_bessho && ai < after_tables.len() {
+            let is_bessho = |runs: &[Run]| runs.first().map(|r| r.text.trim_start().starts_with("別表")).unwrap_or(false);
+            // 既に別表が付いている行（前のページで充填済み）は飛ばす。
+            if is_bessho(&row.after) && row.after_table.is_none() && ai < after_tables.len() {
                 row.after_table = Some(to_nested(&after_tables[ai]));
                 ai += 1;
             }
-            if before_is_bessho && bi < before_tables.len() {
+            if is_bessho(&row.before) && row.before_table.is_none() && bi < before_tables.len() {
                 row.before_table = Some(to_nested(&before_tables[bi]));
                 bi += 1;
             }
