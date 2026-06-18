@@ -3,7 +3,7 @@
 //!
 //! フィクスチャ生成: `pdftotext -bbox-layout -enc UTF-8 <pdf> <out>.bbox.html`
 
-use kanpo_amend::{detect_format_of, reconstruct_vertical, segment_articles};
+use kanpo_amend::{detect_format_of, reconstruct_vertical, segment_articles, Block, Document};
 
 /// 出力を「改正後」「改正前」の欄見出し行で 3 分割する（前文 / 改正後 / 改正前）。
 /// 複数の表段がある場合は最初の段を対象にする。縦書きの列折り返しで語が改行分割される
@@ -104,6 +104,35 @@ fn multipage_continuation_page_gets_after_before_labels() {
     // 改正後/改正前の差分: 改正後「次の第一号から第四号まで」 vs 改正前「次の各号のいずれにも」。
     assert!(after.contains("第一号から第四号まで"), "改正後に新文言: {after}");
     assert!(before.contains("各号のいずれにも"), "改正前に旧文言: {before}");
+}
+
+#[test]
+fn gyogyo_structures_into_document_with_shinkyu_block() {
+    // 構造化出力: 漁業省令ページ2 → 前文の段落 + 改正後/改正前の新旧対照表ブロック。
+    let xhtml = include_str!("fixtures/gyogyo_p2.bbox.html");
+    let doc = Document::from_text(&reconstruct_vertical(xhtml));
+
+    assert_eq!(doc.format, "shinkyu");
+    // 先頭は前文(段落)、続いて新旧対照表ブロック。
+    assert!(matches!(doc.blocks.first(), Some(Block::Paragraph { .. })));
+    let shinkyu = doc
+        .blocks
+        .iter()
+        .find_map(|b| match b {
+            Block::Shinkyu { after, before } => Some((after, before)),
+            _ => None,
+        })
+        .expect("新旧対照表ブロック");
+    let after_text: String = shinkyu.0.iter().map(|r| r.text.as_str()).collect();
+    let before_text: String = shinkyu.1.iter().map(|r| r.text.as_str()).collect();
+    assert!(after_text.contains("中西部太平洋条約海域、東部太平洋"), "改正後セル");
+    assert!(before_text.contains("インド洋協定海域においては"), "改正前セル");
+    // 傍線フィールドは現状すべて false。
+    assert!(shinkyu.0.iter().all(|r| !r.underline));
+
+    // JSON 化できる（HTML 等への変換用）。
+    let json = serde_json::to_string(&doc).unwrap();
+    assert!(json.contains("\"kind\":\"shinkyu\""));
 }
 
 #[test]

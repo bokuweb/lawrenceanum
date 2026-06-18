@@ -29,6 +29,7 @@
 use anyhow::Result;
 
 pub mod format;
+pub mod model;
 pub mod normalize;
 pub mod pdftotext;
 pub mod segment;
@@ -36,6 +37,7 @@ pub mod shinkyu;
 pub mod vertical;
 
 pub use format::detect_format_of;
+pub use model::{Block, Document, Run};
 pub use normalize::normalize_text;
 pub use segment::segment_articles;
 pub use vertical::reconstruct_vertical;
@@ -54,4 +56,10 @@ pub fn extract(pdf: &[u8]) -> Result<Extracted> {
     let text = reconstruct_vertical(&xhtml);
     let format = format::detect_format(&text);
     Ok(Extracted { text, format })
+}
+
+/// PDF バイト列から構造化した [`Document`] を得る。HTML や表へ変換しやすい形。
+/// 改め文をテキストではなく構造で受け取りたい呼び出し側はこちらを使う。
+pub fn extract_document(pdf: &[u8]) -> Result<Document> {
+    Ok(Document::from_text(&extract(pdf)?.text))
 }
