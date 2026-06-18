@@ -1,0 +1,10 @@
+[package]
+name = "kanpo-amend"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+publish.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+scraper.workspace = true
