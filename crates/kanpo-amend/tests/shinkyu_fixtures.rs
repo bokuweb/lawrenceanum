@@ -88,3 +88,30 @@ fn yubin_shinkyu_table_body_is_extracted() {
         "型式認定は別記事として分離される"
     );
 }
+
+#[test]
+fn multipage_continuation_page_gets_after_before_labels() {
+    // 雇用保険法施行規則の新旧対照表の継続ページ(p66)。先頭ページでないため「改正後/改正前」の
+    // 欄見出しが無いが、上下半がほぼ同一内容なので継続ページと判定し、欄見出しを補って復元する。
+    let xhtml = include_str!("fixtures/koyou_cont_p66.bbox.html");
+    let out = reconstruct_vertical(xhtml);
+
+    assert_eq!(detect_format_of(&out).as_deref(), Some("shinkyu"), "out=\n{}", &out[..out.len().min(400)]);
+    assert!(out.lines().any(|l| l.trim() == "改正後"), "継続ページに改正後ラベル");
+    assert!(out.lines().any(|l| l.trim() == "改正前"), "継続ページに改正前ラベル");
+
+    let (after, before) = split_shinkyu(&out);
+    // 改正後/改正前の差分: 改正後「次の第一号から第四号まで」 vs 改正前「次の各号のいずれにも」。
+    assert!(after.contains("第一号から第四号まで"), "改正後に新文言: {after}");
+    assert!(before.contains("各号のいずれにも"), "改正前に旧文言: {before}");
+}
+
+#[test]
+fn personnel_list_page_is_not_misdetected_as_shinkyu() {
+    // 上下2段組だが「上下で別内容」の人事異動ページ。新旧対照表ではないので、
+    // 継続ページ検出（内容類似ガード）に誤って引っかからず、欄見出しを付けない。
+    let xhtml = include_str!("fixtures/jinji_p4.bbox.html");
+    let out = reconstruct_vertical(xhtml);
+    assert!(!out.lines().any(|l| l.trim() == "改正後"), "人事ページに改正後ラベルを付けない: {out}");
+    assert!(!out.lines().any(|l| l.trim() == "改正前"), "人事ページに改正前ラベルを付けない");
+}

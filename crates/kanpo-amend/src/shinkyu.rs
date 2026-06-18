@@ -59,6 +59,76 @@ pub(crate) fn detect_shinkyu_header(cols: &[Col]) -> Option<(f32, f32)> {
     flush_and_check(&mut group)
 }
 
+/// 見出しの無い継続ページで、上下2帯（改正後/改正前）構造を幾何＋内容類似から検出する。
+///
+/// 多ページ新旧対照表の 2 ページ目以降は「改正後/改正前」の欄見出しを繰り返さないため、
+/// [`detect_shinkyu_header`] では拾えない。代わりに次の 3 条件で継続ページを判定する:
+///   1. ページ中央付近に列がほとんど跨がない横線（谷）があり、そこを境界 y とできる
+///   2. 上帯と下帯の高さがほぼ等しい（表は上下対称）
+///   3. 上帯と下帯の本文がほぼ同一（改正後 ≒ 改正前。bigram Jaccard で判定）
+///
+/// 人事異動一覧のような「上下で別内容」の 2 段組ページは (3) で弾かれる。
+/// 条件を満たせば境界 y を返す。
+pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Option<f32> {
+    if cols.len() < 8 {
+        return None;
+    }
+    let center = |c: &Col| (c.y + c.y1) / 2.0;
+    // 中央域 [0.35H, 0.65H] で跨ぎ最小の cut（候補は各列の下端）。
+    let (lo, hi) = (0.35 * height, 0.65 * height);
+    let mut best: Option<(usize, f32)> = None;
+    for c in cols {
+        let cut = c.y1 + 0.5;
+        if cut < lo || cut > hi {
+            continue;
+        }
+        let crossing = cols.iter().filter(|d| d.y < cut && cut < d.y1).count();
+        if best.map(|b| crossing < b.0).unwrap_or(true) {
+            best = Some((crossing, cut));
+        }
+    }
+    let (_, divider) = best?;
+    let upper: Vec<Col> = cols.iter().filter(|c| center(c) < divider).cloned().collect();
+    let lower: Vec<Col> = cols.iter().filter(|c| center(c) >= divider).cloned().collect();
+    if upper.len() < 3 || lower.len() < 3 {
+        return None;
+    }
+    // 上下帯の高さ対称性（表は改正後欄の高さ ≒ 改正前欄の高さ）。
+    let band_height = |g: &[Col]| {
+        let top = g.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+        let bot = g.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+        bot - top
+    };
+    let (uh, lh) = (band_height(&upper), band_height(&lower));
+    if uh.min(lh) / uh.max(lh) < 0.7 {
+        return None;
+    }
+    // 内容類似（改正後 ≒ 改正前）。新旧対照表は両欄がほぼ同一テキストで差分のみ異なる。
+    // 人事異動一覧のように上下で別内容のページはここで弾かれる。
+    let ut = reconstruct_page(upper);
+    let lt = reconstruct_page(lower);
+    if bigram_jaccard(&ut, &lt) < 0.5 {
+        return None;
+    }
+    Some(divider)
+}
+
+/// 2 文字 n-gram 集合の Jaccard 係数（0.0–1.0）。改正後/改正前の本文類似度に使う。
+fn bigram_jaccard(a: &str, b: &str) -> f32 {
+    use std::collections::HashSet;
+    let bigrams = |s: &str| -> HashSet<(char, char)> {
+        let chars: Vec<char> = s.chars().filter(|c| !c.is_whitespace()).collect();
+        chars.windows(2).map(|w| (w[0], w[1])).collect()
+    };
+    let (sa, sb) = (bigrams(a), bigrams(b));
+    if sa.is_empty() && sb.is_empty() {
+        return 0.0;
+    }
+    let inter = sa.intersection(&sb).count() as f32;
+    let union = sa.union(&sb).count() as f32;
+    inter / union
+}
+
 /// `chars` 中で連続部分列 `pat` が最初に現れる開始位置を返す。
 fn find_run(chars: &[char], pat: &[char]) -> Option<usize> {
     if pat.is_empty() || chars.len() < pat.len() {

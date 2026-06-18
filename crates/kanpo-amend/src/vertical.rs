@@ -3,9 +3,10 @@
 use scraper::{Html, Selector};
 
 use crate::normalize::{is_margin_noise, is_private_use, normalize_char};
-use crate::shinkyu::{detect_shinkyu_header, reconstruct_shinkyu};
+use crate::shinkyu::{detect_shinkyu_bands_headerless, detect_shinkyu_header, reconstruct_shinkyu};
 
 /// 縦書き1カラム = 1 word とみなした語。`y`/`y1` は上端/下端。
+#[derive(Clone)]
 pub(crate) struct Col {
     pub(crate) x: f32,
     pub(crate) y: f32,
@@ -67,11 +68,23 @@ pub fn reconstruct_vertical(xhtml: &str) -> String {
         // まず段組み(tier)に分ける。官報本紙は2段組が多く、段を分けないと「同 x にある
         // 上段の列と下段の列」が1列に連結され混線する。表と無関係記事が同居するページも
         // tier で分かれるので、混入を防げる。
+        // 多ページ新旧対照表の継続ページ（2 ページ目以降）は「改正後/改正前」の欄見出しを
+        // 繰り返さない。ページ全体に見出しが無く、上下半がほぼ同一内容（改正後 ≒ 改正前）なら、
+        // 継続ページとみなして上下帯に分け、改正後/改正前の見出しを補って復元する。
+        // ※ 見出しのあるページ（先頭ページ）や、見出しはないが別記事が同居するページ
+        //   （例: 郵便+型式認定）は段(tier)単位で扱う必要があるため、ここでは除外する。
+        if detect_shinkyu_header(&cols).is_none() {
+            if let Some(divider) = detect_shinkyu_bands_headerless(&cols, height) {
+                let page_text = reconstruct_shinkyu(cols, f32::MAX, divider);
+                if !page_text.is_empty() {
+                    pages.push(page_text);
+                }
+                continue;
+            }
+        }
+        // 通常ページ: まず段組み(tier)に分け、新旧対照表の見出しがある段は 2 帯へ、
+        // 無ければ右→左復元する。表と無関係記事が同居するページも tier で分かれ混入を防げる。
         for tier in split_tiers(cols) {
-            // 新旧対照表の段は「改正後=上帯 / 改正前=下帯」を縦の罫線(描画)ではなく y 座標の
-            // 帯で表す。改正後／改正前の欄見出し列を検出できたら、その x を表の右端、見出し
-            // 中心の中点を上下帯の境界として 2 帯に分けて復元する。前文カラムが境界を跨いでも
-            // 改正後/改正前が混線しない。見出しが無ければ通常の右→左復元にフォールバック。
             let page_text = match detect_shinkyu_header(&tier) {
                 Some((header_x, divider)) => reconstruct_shinkyu(tier, header_x, divider),
                 None => reconstruct_page(tier),
