@@ -37,7 +37,7 @@ pub mod shinkyu;
 pub mod vertical;
 
 pub use format::detect_format_of;
-pub use model::{Block, Document, Run};
+pub use model::{Block, Document, Run, ShinkyuRow};
 pub use normalize::normalize_text;
 pub use segment::segment_articles;
 pub use vertical::reconstruct_vertical;

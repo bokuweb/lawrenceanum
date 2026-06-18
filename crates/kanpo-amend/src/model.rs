@@ -27,8 +27,16 @@ pub struct Document {
 pub enum Block {
     /// 散文（前文・散文改め文など）。
     Paragraph { runs: Vec<Run> },
-    /// 新旧対照表の 1 段（改正後 / 改正前）。
-    Shinkyu { after: Vec<Run>, before: Vec<Run> },
+    /// 新旧対照表の 1 段。条（別表）ごとの行に分け、各行で改正後/改正前を対応させる。
+    Shinkyu { rows: Vec<ShinkyuRow> },
+}
+
+/// 新旧対照表の 1 行（条・別表など 1 単位）。改正後/改正前のセル。
+/// 片側のみ存在する行（新設・削除）はもう一方が空 Vec になる。
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct ShinkyuRow {
+    pub after: Vec<Run>,
+    pub before: Vec<Run>,
 }
 
 /// 同一スタイルが続くテキスト片。
@@ -55,13 +63,46 @@ impl Run {
 }
 
 /// テキストの 1 セル（複数行）を 1 つの Run に畳む。空なら空 Vec。
-/// 改行は列折り返し由来なので維持する（呼び出し側で整形可能）。
+/// 縦書きの列折り返しで途中改行された行は結合し、条・号・文末などの構造的改行のみ残す。
 fn cell_runs(lines: &[&str]) -> Vec<Run> {
-    let text = lines.join("\n").trim().to_string();
+    let text = join_wrapped_lines(lines);
     if text.is_empty() {
         Vec::new()
     } else {
         vec![Run::plain(text)]
+    }
+}
+
+/// 縦書きの列折り返し（語の途中での改行）を結合する。
+///
+/// 各行は復元時の 1 縦列に相当し、列幅で途中改行される。文末（`。`）で終わる行や、
+/// 次行が構造マーカー（`第○条` / 号（一・二…/イ・ロ…/数字）/ `（見出し）` / `別表` /
+/// `附則`）で始まる箇所だけ改行を残し、それ以外は連結して読みやすくする。
+fn join_wrapped_lines(lines: &[&str]) -> String {
+    let lines: Vec<&str> = lines.iter().map(|l| l.trim()).filter(|l| !l.is_empty()).collect();
+    let mut out = String::new();
+    for (idx, line) in lines.iter().enumerate() {
+        out.push_str(line);
+        if idx + 1 < lines.len() {
+            let ends_sentence = line.ends_with('。') || line.ends_with('！') || line.ends_with('？');
+            if ends_sentence || starts_structural_marker(lines[idx + 1]) {
+                out.push('\n');
+            }
+        }
+    }
+    out.trim().to_string()
+}
+
+/// 行頭が条文の構造マーカー（条・号・見出し・別表・附則）か。列折り返し結合で改行を残す判定に使う。
+fn starts_structural_marker(line: &str) -> bool {
+    let mut chars = line.chars();
+    match chars.next() {
+        Some('第') | Some('（') | Some('別') | Some('附') => true,
+        // 号: 漢数字・カタカナ列記・全角/半角数字で始まる。
+        Some(c) if "一二三四五六七八九十".contains(c) => true,
+        Some(c) if "イロハニホヘトチリヌルヲワカヨタレソツネ".contains(c) => true,
+        Some(c) if c.is_ascii_digit() || ('０'..='９').contains(&c) => true,
+        _ => false,
     }
 }
 
@@ -92,15 +133,17 @@ impl Document {
                 while j < lines.len() && lines[j].trim() != "改正前" {
                     j += 1;
                 }
-                let after = cell_runs(&lines[after_start..j]);
+                let after_lines = &lines[after_start..j];
                 // 改正前セル: 次の「改正後」まで（次段の開始）。
                 let before_start = (j + 1).min(lines.len());
                 let mut k = before_start;
                 while k < lines.len() && lines[k].trim() != "改正後" {
                     k += 1;
                 }
-                let before = cell_runs(&lines[before_start..k]);
-                blocks.push(Block::Shinkyu { after, before });
+                let before_lines = &lines[before_start..k];
+                blocks.push(Block::Shinkyu {
+                    rows: align_rows(after_lines, before_lines),
+                });
                 i = k;
             } else {
                 para.push(lines[i]);
@@ -124,16 +167,164 @@ impl Document {
                         out.push(t);
                     }
                 }
-                Block::Shinkyu { after, before } => {
+                Block::Shinkyu { rows } => {
+                    let after: String = rows
+                        .iter()
+                        .map(|r| runs_text(&r.after))
+                        .filter(|s| !s.is_empty())
+                        .collect::<Vec<_>>()
+                        .join("\n");
+                    let before: String = rows
+                        .iter()
+                        .map(|r| runs_text(&r.before))
+                        .filter(|s| !s.is_empty())
+                        .collect::<Vec<_>>()
+                        .join("\n");
                     out.push("改正後".to_string());
-                    out.push(runs_text(after));
+                    out.push(after);
                     out.push("改正前".to_string());
-                    out.push(runs_text(before));
+                    out.push(before);
                 }
             }
         }
         out.join("\n").trim().to_string()
     }
+}
+
+/// 新旧対照表 1 段を条（別表）ごとの行に分け、改正後/改正前を対応させる。
+///
+/// 各帯を行見出し（`（…）`の条見出し・`別表`・`附則`）で区切り、見出しテキストの
+/// 最長共通部分列(LCS)で対応付ける。共通見出しが揃った条は同じ行に、片側だけの条
+/// （新設・削除）はもう一方が空セルの行になる。見出しが揃わない/少ない場合は単一行に
+/// フォールバックする（＝従来挙動、退行なし）。
+fn align_rows(after_lines: &[&str], before_lines: &[&str]) -> Vec<ShinkyuRow> {
+    let a = segment_band(after_lines);
+    let b = segment_band(before_lines);
+    let a_head = a.iter().filter(|s| s.heading.is_some()).count();
+    let b_head = b.iter().filter(|s| s.heading.is_some()).count();
+    // 見出しが両側に 2 つ以上無ければ行分割しない。
+    if a_head < 2 || b_head < 2 {
+        return vec![single_row(after_lines, before_lines)];
+    }
+    let keys_a: Vec<&str> = a.iter().map(|s| s.heading.as_deref().unwrap_or("")).collect();
+    let keys_b: Vec<&str> = b.iter().map(|s| s.heading.as_deref().unwrap_or("")).collect();
+    let aln = lcs_align(&keys_a, &keys_b);
+    // 共通見出しが 1 つも無ければ対応付け不能としてフォールバック。
+    if !aln.iter().any(|(i, j)| i.is_some() && j.is_some()) {
+        return vec![single_row(after_lines, before_lines)];
+    }
+    let mut rows = Vec::new();
+    for (ai, bi) in aln {
+        let after = ai.map(|i| cell_runs_from_str(&a[i].text)).unwrap_or_default();
+        let before = bi.map(|j| cell_runs_from_str(&b[j].text)).unwrap_or_default();
+        if !after.is_empty() || !before.is_empty() {
+            rows.push(ShinkyuRow { after, before });
+        }
+    }
+    rows
+}
+
+/// 文字列（複数行）を列折り返し結合してセルの Run 列にする。
+fn cell_runs_from_str(text: &str) -> Vec<Run> {
+    let lines: Vec<&str> = text.lines().collect();
+    cell_runs(&lines)
+}
+
+fn single_row(after_lines: &[&str], before_lines: &[&str]) -> ShinkyuRow {
+    ShinkyuRow {
+        after: cell_runs(after_lines),
+        before: cell_runs(before_lines),
+    }
+}
+
+/// 帯の 1 セグメント（行見出し＋本文、または先頭の見出し無し前置き）。
+struct Seg {
+    heading: Option<String>,
+    text: String,
+}
+
+/// 帯テキストを行見出しで区切る。各セグメントは見出し行から次の見出し行の手前まで。
+/// 先頭の見出し無し部分は `heading=None` の前置きセグメントになる。
+fn segment_band(lines: &[&str]) -> Vec<Seg> {
+    let mut segs: Vec<Seg> = Vec::new();
+    let mut heading: Option<String> = None;
+    let mut cur: Vec<&str> = Vec::new();
+    for &line in lines {
+        if is_row_heading(line) {
+            if !cur.is_empty() {
+                let text = cur.join("\n").trim().to_string();
+                if !text.is_empty() {
+                    segs.push(Seg { heading: heading.take(), text });
+                }
+                cur.clear();
+            }
+            heading = Some(line.trim().to_string());
+        }
+        cur.push(line);
+    }
+    if !cur.is_empty() {
+        let text = cur.join("\n").trim().to_string();
+        if !text.is_empty() {
+            segs.push(Seg { heading, text });
+        }
+    }
+    segs
+}
+
+/// 行見出し（新旧対照表の 1 行の先頭）か。
+/// - `別表` / `附則` 始まり
+/// - 単一の `（…）` 見出し行（中身 3 文字以上、途中に `）` を含まない）。`（略）`/`（新設）`は除外。
+fn is_row_heading(line: &str) -> bool {
+    let t = line.trim();
+    if t.starts_with("別表") || t.starts_with("附則") {
+        return true;
+    }
+    if let Some(rest) = t.strip_prefix('（') {
+        if let Some(inner) = rest.strip_suffix('）') {
+            return inner.chars().count() >= 3 && !inner.contains('）');
+        }
+    }
+    false
+}
+
+/// 2 列の系列を最長共通部分列で対応付ける。返り値は `(a の index, b の index)` の列で、
+/// 片側のみのギャップは `None`。
+fn lcs_align(a: &[&str], b: &[&str]) -> Vec<(Option<usize>, Option<usize>)> {
+    let (n, m) = (a.len(), b.len());
+    let mut dp = vec![vec![0u32; m + 1]; n + 1];
+    for i in (0..n).rev() {
+        for j in (0..m).rev() {
+            dp[i][j] = if a[i] == b[j] {
+                dp[i + 1][j + 1] + 1
+            } else {
+                dp[i + 1][j].max(dp[i][j + 1])
+            };
+        }
+    }
+    let mut res = Vec::new();
+    let (mut i, mut j) = (0, 0);
+    while i < n && j < m {
+        if a[i] == b[j] {
+            res.push((Some(i), Some(j)));
+            i += 1;
+            j += 1;
+        } else if dp[i + 1][j] >= dp[i][j + 1] {
+            res.push((Some(i), None));
+            i += 1;
+        } else {
+            res.push((None, Some(j)));
+            j += 1;
+        }
+    }
+    while i < n {
+        res.push((Some(i), None));
+        i += 1;
+    }
+    while j < m {
+        res.push((None, Some(j)));
+        j += 1;
+    }
+    res
 }
 
 #[cfg(test)]
@@ -154,6 +345,7 @@ mod tests {
 
     #[test]
     fn structures_shinkyu_into_after_before() {
+        // 見出しが無い小さなセルは単一行になる。
         let text = "前文\n改正後\n甲種\n改正前\n乙類";
         let doc = Document::from_text(text);
         assert_eq!(doc.format, "shinkyu");
@@ -164,11 +356,33 @@ mod tests {
                     runs: vec![Run::plain("前文")]
                 },
                 Block::Shinkyu {
-                    after: vec![Run::plain("甲種")],
-                    before: vec![Run::plain("乙類")],
+                    rows: vec![ShinkyuRow {
+                        after: vec![Run::plain("甲種")],
+                        before: vec![Run::plain("乙類")],
+                    }],
                 },
             ]
         );
+    }
+
+    #[test]
+    fn aligns_rows_by_heading_lcs() {
+        // 共通見出し（特例A/特例B）は同じ行に、改正後のみの新設（特例C）は片側行に。
+        let after = "（特例A）\n第一条新\n（特例B）\n第二条新\n（特例C）\n第三条新";
+        let before = "（特例A）\n第一条旧\n（特例B）\n第二条旧";
+        let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
+        let rows = match &doc.blocks[0] {
+            Block::Shinkyu { rows } => rows,
+            _ => panic!("shinkyu block"),
+        };
+        assert_eq!(rows.len(), 3);
+        // 行1: 特例A 改正後/改正前 両方。
+        assert!(rows[0].after[0].text.contains("第一条新") && rows[0].before[0].text.contains("第一条旧"));
+        // 行2: 特例B 両方。
+        assert!(rows[1].after[0].text.contains("第二条新") && rows[1].before[0].text.contains("第二条旧"));
+        // 行3: 特例C は改正後のみ（新設）。改正前セルは空。
+        assert!(rows[2].after[0].text.contains("第三条新"));
+        assert!(rows[2].before.is_empty());
     }
 
     #[test]
@@ -185,8 +399,10 @@ mod tests {
         assert_eq!(
             doc.blocks[1],
             Block::Shinkyu {
-                after: vec![Run::plain("A2")],
-                before: vec![Run::plain("B2")]
+                rows: vec![ShinkyuRow {
+                    after: vec![Run::plain("A2")],
+                    before: vec![Run::plain("B2")]
+                }]
             }
         );
     }
@@ -196,6 +412,25 @@ mod tests {
         let text = "前文\n改正後\n甲種\n改正前\n乙類";
         let doc = Document::from_text(text);
         assert_eq!(doc.to_text(), text);
+    }
+
+    #[test]
+    fn joins_column_wrapped_lines_keeping_structure() {
+        // 列折り返し（語の途中改行）は結合し、号・条・文末の改行は残す。
+        let lines = vec![
+            "第六十二条かつお・まぐろ漁業者は、次に掲げる行為をしな",
+            "ければならない。",
+            "一（略）",
+            "二当該さめを所持すること。",
+        ];
+        let runs = cell_runs(&lines);
+        let text = &runs[0].text;
+        // 「しな」+「ければ」は連結される。
+        assert!(text.contains("行為をしなければならない。"), "{text}");
+        // 号「一」「二」は改行で分かれる。
+        let after_first = text.split('\n').collect::<Vec<_>>();
+        assert!(after_first.iter().any(|l| l.trim() == "一（略）"), "{text}");
+        assert!(after_first.iter().any(|l| l.starts_with("二当該さめ")), "{text}");
     }
 
     #[test]
