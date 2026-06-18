@@ -46,6 +46,10 @@ on:
         required: false
         default: false
         type: boolean
+      kanpo_backfill_days:
+        description: "(官報バックフィル) 直近何日分の官報を取得するか。空=既定6日。デジタル官報の遡及窓に合わせ最大90程度。"
+        required: false
+        type: string
   schedule:
     # JST 06:30 / 12:30 / 18:30 / 翌 00:30 (UTC -9h)
     - cron: "30 21 * * *"
@@ -254,8 +258,12 @@ jobs:
       # スキップ。pdftotext 必須。
       - name: lawpub kanpo-fetch (best-effort)
         if: github.event_name != 'push'
+        env:
+          # 既定 6 日。手動 dispatch で kanpo_backfill_days を渡すと遡及窓(最大90程度)まで一括取得。
+          KANPO_BACKFILL_DAYS: ${{ github.event.inputs.kanpo_backfill_days || '6' }}
         run: |
-          for i in 0 1 2 3 4 5; do
+          last=$(( KANPO_BACKFILL_DAYS - 1 ))
+          for i in $(seq 0 "$last"); do
             d=$(date -u -d "-$i day" +%Y-%m-%d 2>/dev/null || date -u -v-${i}d +%Y-%m-%d)
             echo "::group::kanpo-fetch $d"
             ./target/release/lawpub kanpo-fetch --date "$d" --provider http --cache .cache || true
