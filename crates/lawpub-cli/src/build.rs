@@ -1219,6 +1219,21 @@ fn swap_into(public: &Path, tmp: &Path) -> Result<()> {
     Ok(())
 }
 
+/// macOS の AppleDouble (`._foo`) や隠しファイル/ディレクトリかを判定する。
+///
+/// R2 等から tar で復元した revision キャッシュには `._*.xml` が混じることがある。
+/// AppleDouble は拡張子こそ `.xml` だが中身はバイナリのリソースフォークで、
+/// 寛容な `parse_law_xml` は本文 0 件の doc として黙って受理してしまう。これを
+/// revision として取り込むと、本文 0 件の幽霊版が履歴束に同日付で 1 件ずつ増え、
+/// 比較画面が「直前版 = 幽霊(空)」を選んで全条が "追加" に化ける (実害があった)。
+/// 正規の revision/law/date のファイル・ディレクトリ名が `.` で始まることは無いので、
+/// 先頭ドットを一律で除外して安全側に倒す。
+fn is_hidden_or_appledouble(path: &Path) -> bool {
+    path.file_name()
+        .and_then(|s| s.to_str())
+        .is_some_and(|n| n.starts_with('.'))
+}
+
 /// `.cache/egov/{date}/{law_id}.xml` を走査し `law_id -> [(date, path)]` の軽量索引を作る。
 /// 本文はここではパースせず、per-law 構築時に取り込む。
 fn build_egov_index(cache: &Path) -> Result<BTreeMap<String, Vec<(String, PathBuf)>>> {
@@ -1227,13 +1242,16 @@ fn build_egov_index(cache: &Path) -> Result<BTreeMap<String, Vec<(String, PathBu
     if egov_dir.exists() {
         for date_dir in std::fs::read_dir(&egov_dir)? {
             let date_dir = date_dir?;
-            if !date_dir.file_type()?.is_dir() {
+            if !date_dir.file_type()?.is_dir() || is_hidden_or_appledouble(&date_dir.path()) {
                 continue;
             }
             let date = date_dir.file_name().to_string_lossy().to_string();
             for f in std::fs::read_dir(date_dir.path())? {
                 let f = f?;
                 let path = f.path();
+                if is_hidden_or_appledouble(&path) {
+                    continue;
+                }
                 if path.extension().and_then(|s| s.to_str()) != Some("xml") {
                     continue;
                 }
@@ -1262,7 +1280,7 @@ fn collect_law_ids(
     if rev_dir.exists() {
         for e in std::fs::read_dir(&rev_dir)? {
             let e = e?;
-            if e.file_type()?.is_dir() {
+            if e.file_type()?.is_dir() && !is_hidden_or_appledouble(&e.path()) {
                 ids.insert(e.file_name().to_string_lossy().to_string());
             }
         }
@@ -1272,6 +1290,9 @@ fn collect_law_ids(
         for e in std::fs::read_dir(&meta_dir)? {
             let e = e?;
             let p = e.path();
+            if is_hidden_or_appledouble(&p) {
+                continue;
+            }
             if p.extension().and_then(|s| s.to_str()) == Some("json") {
                 if let Some(s) = p.file_stem().and_then(|s| s.to_str()) {
                     ids.insert(s.to_string());
@@ -1299,6 +1320,11 @@ fn build_one_law(
         for f in std::fs::read_dir(&law_rev_dir)? {
             let f = f?;
             let path = f.path();
+            // AppleDouble (`._*.xml`) は拡張子が xml でも中身はバイナリ。読み込むと
+            // 本文 0 件の幽霊版になり履歴束を壊すので、隠しファイルは丸ごと飛ばす。
+            if is_hidden_or_appledouble(&path) {
+                continue;
+            }
             if path.extension().and_then(|s| s.to_str()) != Some("xml") {
                 continue;
             }
@@ -1966,6 +1992,10 @@ fn read_history_bundle_lines(path: &Path) -> Result<Vec<String>> {
     Ok(text
         .lines()
         .filter(|l| !l.is_empty())
+        // 既存の束に紛れ込んだ AppleDouble 由来の幽霊版 (revision_id が `._...`、本文 0 件)
+        // を取り除く。これらは比較画面で「直前版が空」として全条追加に化けるため、
+        // マージ時に読み捨てて二度と束に再書き込みされないようにする。
+        .filter(|l| !revision_id_of_line(l).is_some_and(|id| id.starts_with('.')))
         .map(|l| l.to_string())
         .collect())
 }
@@ -2464,6 +2494,35 @@ mod history_bundle_tests {
         super::run_merge_history(&base.join("pub"), &base.join("pre")).unwrap();
         let after = std::fs::read(pubd.join("history.ndjson.zst")).unwrap();
         assert_eq!(before, after, "merge-history must be idempotent");
+
+        let _ = std::fs::remove_dir_all(&base);
+    }
+
+    #[test]
+    fn read_history_bundle_drops_appledouble_ghost_lines() {
+        // R2 等から復元したキャッシュ由来の AppleDouble 幽霊版 (revision_id が `._...`、
+        // 本文 0 件) が束に混じっていても、読み込み時に捨てて二度と再書き込みしない。
+        // これを残すと比較画面で「直前版 = 空」になり全条が "追加" に化ける (回帰防止)。
+        let base = std::env::temp_dir().join(format!("lawpub_ghost_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&base);
+        std::fs::create_dir_all(&base).unwrap();
+        let path = base.join("history.ndjson.zst");
+        let nd = [
+            r#"{"revision_id":"._L_20240101_A","articles":[]}"#,
+            r#"{"revision_id":"L_20240101_A","articles":[{"article_id":"art_1"}]}"#,
+            r#"{"revision_id":".hidden","articles":[]}"#,
+            r#"{"revision_id":"L_20250101_B","articles":[{"article_id":"art_1"}]}"#,
+        ]
+        .join("\n")
+            + "\n";
+        std::fs::write(&path, super::zstd_long(nd.as_bytes()).unwrap()).unwrap();
+
+        let lines = super::read_history_bundle_lines(&path).unwrap();
+        let ids: Vec<String> = lines
+            .iter()
+            .map(|l| super::revision_id_of_line(l).unwrap())
+            .collect();
+        assert_eq!(ids, vec!["L_20240101_A", "L_20250101_B"]);
 
         let _ = std::fs::remove_dir_all(&base);
     }
