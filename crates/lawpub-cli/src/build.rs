@@ -2150,7 +2150,9 @@ fn write_search_db(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
     let proc_dir_opt = if proc_dir.is_dir() { Some(proc_dir.as_path()) } else { None };
     let kanpo_dir = public.join("kanpo");
     let kanpo_dir_opt = if kanpo_dir.is_dir() { Some(kanpo_dir.as_path()) } else { None };
-    search_index::build_search_db(&path, &docs, &categories, proc_dir_opt, kanpo_dir_opt)?;
+    let tsutatsu_dir = public.join("tsutatsu");
+    let tsutatsu_dir_opt = if tsutatsu_dir.is_dir() { Some(tsutatsu_dir.as_path()) } else { None };
+    search_index::build_search_db(&path, &docs, &categories, proc_dir_opt, kanpo_dir_opt, tsutatsu_dir_opt)?;
     Ok(())
 }
 

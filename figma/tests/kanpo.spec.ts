@@ -42,3 +42,11 @@ test("官報検索結果から改正対象法令へ逆引きできる", async ({
   await lawBtn.click();
   await expect(page).toHaveURL(/#\/laws\/415M60000008005/, { timeout: 15_000 });
 });
+
+test("検索の通達セクションに通達がヒットする", async ({ page }) => {
+  await page.goto(new URL("#/search?q=住所の意義", BASE).toString());
+  // fixture の tsutatsu_fts (所得税基本通達 2-1 住所の意義)。
+  await expect(page.getByText(/通達 \(\d+件\)/)).toBeVisible({ timeout: FTS_TIMEOUT });
+  await expect(page.getByText("住所の意義")).toBeVisible();
+  await expect(page.getByText("2-1", { exact: true })).toBeVisible();
+});

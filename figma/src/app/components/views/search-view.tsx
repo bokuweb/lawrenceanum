@@ -8,9 +8,9 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
 import { Separator } from "../ui/separator";
 import { type LawSummary } from "../mock-data";
-import { Search, SlidersHorizontal, ChevronRight, FileText, Database, Landmark, MessageSquare, Newspaper, ExternalLink, BookOpen } from "lucide-react";
+import { Search, SlidersHorizontal, ChevronRight, FileText, Database, Landmark, MessageSquare, Newspaper, ExternalLink, BookOpen, ScrollText } from "lucide-react";
 import { useLaws } from "../../data/use-laws";
-import { search as ftsSearch, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, searchSpeeches, searchKanpo, synonymExpansions, type SearchHit, type SpeechHit, type KanpoHit } from "../../data/search-engine";
+import { search as ftsSearch, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, searchSpeeches, searchKanpo, searchTsutatsu, synonymExpansions, type SearchHit, type SpeechHit, type KanpoHit, type TsutatsuHit } from "../../data/search-engine";
 import { useNavigate } from "react-router";
 
 export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initialQuery?: string; onOpen: (l: LawSummary) => void; onQueryChange?: (q: string) => void }) {
@@ -26,6 +26,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [speechHits, setSpeechHits] = useState<SpeechHit[]>([]);
   const [kanpoHits, setKanpoHits] = useState<KanpoHit[]>([]);
+  const [tsutatsuHits, setTsutatsuHits] = useState<TsutatsuHit[]>([]);
   const [ftsAvailable, setFtsAvailable] = useState<boolean | null>(null);
   const [ftsMeta, setFtsMeta] = useState<Record<string, string> | null>(null);
   // 初期クエリがあれば検索中扱いで開始する。さもないと初回 render で
@@ -43,7 +44,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   }, []);
 
   useEffect(() => {
-    if (!q.trim()) { setHits([]); setSpeechHits([]); setKanpoHits([]); return; }
+    if (!q.trim()) { setHits([]); setSpeechHits([]); setKanpoHits([]); setTsutatsuHits([]); return; }
     if (ftsAvailable === false) return; // FTS 不可ならフィルタ側に倒す。
     // 世代カウンタをインクリメント。このエフェクトより前に発行されたクエリが
     // 後から返ってきても、gen が古ければ結果を捨てる。
@@ -54,12 +55,14 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
         ftsSearch(q, 50, Array.from(cats)),
         searchSpeeches(q, 10),
         searchKanpo(q, 10),
+        searchTsutatsu(q, 10),
       ])
-        .then(([lawHits, spHits, kpHits]) => {
+        .then(([lawHits, spHits, kpHits, tsHits]) => {
           if (queryGenRef.current === gen) {
             setHits(lawHits);
             setSpeechHits(spHits);
             setKanpoHits(kpHits);
+            setTsutatsuHits(tsHits);
             setSearching(false);
           }
         })
@@ -279,6 +282,44 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
                         className="text-muted-foreground hover:text-primary shrink-0 mt-1"
                         title="官報PDFを開く"
                       >
+                        <ExternalLink className="size-4" />
+                      </a>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+              <Separator />
+            </div>
+          )}
+
+          {/* 通達 (soft law) FTS セクション */}
+          {useFts && tsutatsuHits.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <ScrollText className="size-3.5" />
+                <span>通達 ({tsutatsuHits.length}件)</span>
+              </div>
+              {tsutatsuHits.map((h, i) => (
+                <Card key={`${h.tax}-${h.number}-${i}`} className="hover:border-primary/50 transition-colors">
+                  <CardContent className="p-3 flex items-start gap-3">
+                    <div className="size-8 rounded-md bg-muted flex items-center justify-center shrink-0 mt-0.5">
+                      <ScrollText className="size-4 text-muted-foreground" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-muted text-muted-foreground shrink-0">{h.number}</span>
+                        {h.caption && <span className="text-sm font-medium">{h.caption}</span>}
+                        {h.set_name && <Badge variant="outline" className="text-xs">{h.set_name}</Badge>}
+                      </div>
+                      {h.snippet && (
+                        <div
+                          className="text-sm mt-1.5 leading-relaxed [&>mark]:bg-amber-300/40 [&>mark]:rounded-sm [&>mark]:px-0.5"
+                          dangerouslySetInnerHTML={{ __html: unbigramSnippet(h.snippet) }}
+                        />
+                      )}
+                    </div>
+                    {h.source_url && (
+                      <a href={h.source_url} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary shrink-0 mt-1" title="通達の原文を開く">
                         <ExternalLink className="size-4" />
                       </a>
                     )}

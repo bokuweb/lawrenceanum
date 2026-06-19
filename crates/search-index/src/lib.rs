@@ -314,6 +314,7 @@ pub fn build_search_db(
     categories: &std::collections::HashMap<String, String>,
     proceedings_dir: Option<&Path>,
     kanpo_dir: Option<&Path>,
+    tsutatsu_dir: Option<&Path>,
 ) -> Result<()> {
     if let Some(parent) = out_path.parent() {
         std::fs::create_dir_all(parent)?;
@@ -404,6 +405,18 @@ pub fn build_search_db(
             -- 逆引き: この改め文が改正する対象法令 (kanpo-link の linked_laws の先頭)。
             law_id UNINDEXED,
             law_title UNINDEXED,
+            tokenize='unicode61'
+        );
+
+        -- 通達 (soft law) FTS5。番号・見出し・本文を bigram 索引する。
+        CREATE VIRTUAL TABLE tsutatsu_fts USING fts5(
+            tax UNINDEXED,
+            number UNINDEXED,
+            caption UNINDEXED,
+            set_name UNINDEXED,
+            source_url UNINDEXED,
+            caption_tokens,
+            text_tokens,
             tokenize='unicode61'
         );
 
@@ -727,6 +740,58 @@ pub fn build_search_db(
             tracing::info!("search.db: indexed {} kanpo items", total_kanpo);
         }
 
+        // ── 通達 FTS (tsutatsu_dir が Some のとき) ──────────────────────────
+        let mut total_tsutatsu = 0usize;
+        if let Some(tdir) = tsutatsu_dir {
+            let mut tsutatsu_stmt = tx.prepare(
+                "INSERT INTO tsutatsu_fts \
+                 (tax, number, caption, set_name, source_url, caption_tokens, text_tokens) \
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+            )?;
+            // `public/tsutatsu/{tax}.json` (index.json 以外) を走査する。
+            let mut files: Vec<std::path::PathBuf> = std::fs::read_dir(tdir)
+                .map(|rd| {
+                    rd.filter_map(|e| e.ok())
+                        .map(|e| e.path())
+                        .filter(|p| {
+                            p.extension().and_then(|x| x.to_str()) == Some("json")
+                                && p.file_name().and_then(|x| x.to_str()) != Some("index.json")
+                        })
+                        .collect()
+                })
+                .unwrap_or_default();
+            files.sort();
+            for f in &files {
+                let Ok(bytes) = std::fs::read(f) else { continue };
+                let Ok(v) = serde_json::from_slice::<serde_json::Value>(&bytes) else { continue };
+                let tax = v.get("tax").and_then(|x| x.as_str()).unwrap_or("");
+                let set_name = v.get("name").and_then(|x| x.as_str()).unwrap_or("");
+                let Some(items) = v.get("items").and_then(|x| x.as_array()) else { continue };
+                for it in items {
+                    let number = it.get("number").and_then(|x| x.as_str()).unwrap_or("");
+                    let caption = it.get("caption").and_then(|x| x.as_str()).unwrap_or("");
+                    let text = it.get("text").and_then(|x| x.as_str()).unwrap_or("");
+                    let source_url = it.get("source_url").and_then(|x| x.as_str()).unwrap_or("");
+                    if text.is_empty() {
+                        continue;
+                    }
+                    let caption_tokens = tokenize_for_fts(caption);
+                    let text_tokens = tokenize_for_fts(text);
+                    tsutatsu_stmt.execute(params![
+                        tax,
+                        number,
+                        caption,
+                        set_name,
+                        source_url,
+                        caption_tokens,
+                        text_tokens,
+                    ])?;
+                    total_tsutatsu += 1;
+                }
+            }
+            tracing::info!("search.db: indexed {} tsutatsu items", total_tsutatsu);
+        }
+
         tx.execute(
             "INSERT INTO meta (key, value) VALUES ('built_at', datetime('now')), \
              ('law_count', ?1), ('article_count', ?2), ('ref_count', ?3), \
@@ -828,7 +893,7 @@ mod tests {
 
         let db_path = root.join("search.db");
         let cats = std::collections::HashMap::new();
-        build_search_db(&db_path, &[], &cats, None, Some(&root.join("kanpo"))).unwrap();
+        build_search_db(&db_path, &[], &cats, None, Some(&root.join("kanpo")), None).unwrap();
 
         let conn = Connection::open(&db_path).unwrap();
         // 「施行規則」を bigram トークン化して MATCH。
@@ -894,7 +959,7 @@ mod tests {
             source: SourceMeta { provider: "test".into(), raw_xml_sha256: None, fetched_at: "2026-01-01".into() },
         };
         let cats = std::collections::HashMap::new();
-        build_search_db(&db, &[law], &cats, None, None).unwrap();
+        build_search_db(&db, &[law], &cats, None, None, None).unwrap();
 
         let conn = Connection::open(&db).unwrap();
         // 「バーゼル規制」(= BIS規制 の同義語) で本文がヒット = 同義語索引が効いている。
@@ -906,6 +971,53 @@ mod tests {
             )
             .unwrap();
         assert!(cnt >= 1, "synonym (バーゼル規制) でヒットせず");
+
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn tsutatsu_fts_indexes_and_matches() {
+        let root = std::env::temp_dir().join("lawpub_tsutatsu_fts_test");
+        let _ = std::fs::remove_dir_all(&root);
+        let tdir = root.join("tsutatsu");
+        std::fs::create_dir_all(&tdir).unwrap();
+        let set = serde_json::json!({
+            "schema_version": 1,
+            "name": "所得税基本通達",
+            "tax": "shotoku",
+            "items": [{
+                "tax": "shotoku", "number": "2-1", "caption": "住所の意義",
+                "text": "法に規定する住所とは各人の生活の本拠をいう。",
+                "source_url": "https://www.nta.go.jp/x.htm"
+            }],
+            "source": {"provider": "nta", "fetched_at": "x", "index_url": "y"}
+        });
+        std::fs::write(tdir.join("shotoku.json"), serde_json::to_string(&set).unwrap()).unwrap();
+        // index.json は走査対象外であること (混ざらない)。
+        std::fs::write(tdir.join("index.json"), "{}").unwrap();
+
+        let db = root.join("search.db");
+        let cats = std::collections::HashMap::new();
+        build_search_db(&db, &[], &cats, None, None, Some(&tdir)).unwrap();
+
+        let conn = Connection::open(&db).unwrap();
+        let caption: String = conn
+            .query_row(
+                "SELECT caption FROM tsutatsu_fts WHERE tsutatsu_fts MATCH ?1 LIMIT 1",
+                params![tokenize_for_fts("住所")],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert_eq!(caption, "住所の意義");
+        // 本文トークンでもヒット。
+        let n: i64 = conn
+            .query_row(
+                "SELECT count(*) FROM tsutatsu_fts WHERE tsutatsu_fts MATCH ?1",
+                params![tokenize_for_fts("生活の本拠")],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert!(n >= 1);
 
         let _ = std::fs::remove_dir_all(&root);
     }
