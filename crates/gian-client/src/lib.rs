@@ -363,6 +363,10 @@ pub fn parse_keika(html: &str, meta: &BillMeta, fetched_at: &str) -> Result<Bill
 
     let bill_type = get("議案種類");
     let number = get("議案番号");
+    // 実際の会期は審議経過の「議案提出回次」。一覧 (最新=0) の引数より優先する。
+    let session = get("議案提出回次")
+        .and_then(|v| v.chars().filter(|c| c.is_ascii_digit()).collect::<String>().parse::<u32>().ok())
+        .unwrap_or(meta.session);
     let title = get("議案件名").unwrap_or_else(|| meta.title.clone());
     let submitter = get("議案提出者");
     let parties = get("議案提出会派");
@@ -387,7 +391,7 @@ pub fn parse_keika(html: &str, meta: &BillMeta, fetched_at: &str) -> Result<Bill
     Ok(Bill {
         schema_version: 1,
         bill_id: meta.bill_id.clone(),
-        session: meta.session,
+        session,
         bill_type,
         number,
         title,
@@ -447,6 +451,7 @@ mod tests {
     fn parse_keika_fields() {
         let html = r#"<html><body><table>
           <tr><td headers="KOMOKU"><span>議案種類</span></td><td headers="NAIYO"><span>衆法</span></td></tr>
+          <tr><td headers="KOMOKU"><span>議案提出回次</span></td><td headers="NAIYO"><span>221</span></td></tr>
           <tr><td headers="KOMOKU"><span>議案番号</span></td><td headers="NAIYO"><span>1</span></td></tr>
           <tr><td headers="KOMOKU"><span>議案件名</span></td><td headers="NAIYO"><span>政治資金規正法の一部を改正する法律案</span></td></tr>
           <tr><td headers="KOMOKU"><span>議案提出者</span></td><td headers="NAIYO"><span>落合 貴之君外四名</span></td></tr>
@@ -455,7 +460,7 @@ mod tests {
         </table></body></html>"#;
         let meta = BillMeta {
             bill_id: "1DE153E".into(),
-            session: 221,
+            session: 0,
             title: "一覧由来".into(),
             status: Some("成立".into()),
             keika_url: "https://x/keika/1DE153E.htm".into(),
@@ -468,7 +473,8 @@ mod tests {
         assert_eq!(b.committee.as_deref(), Some("政治改革に関する特別"));
         assert_eq!(b.law_num.as_deref(), Some("法律第50号"));
         assert_eq!(b.promulgation_date.as_deref(), Some("令和 8年 6月20日"));
-        assert_eq!(b.fields.len(), 6);
+        assert_eq!(b.fields.len(), 7);
+        assert_eq!(b.session, 221); // 議案提出回次で上書き
         // 最新の動き = 公布 (令和8年6月20日 = 2026-06-20)。
         assert_eq!(b.latest_date.as_deref(), Some("2026-06-20"));
         assert_eq!(b.latest_event.as_deref(), Some("公布"));

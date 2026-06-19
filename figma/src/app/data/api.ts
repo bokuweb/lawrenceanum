@@ -336,6 +336,55 @@ export const api = {
 
   /** 今後の施行予定 (施行期日カレンダー, 施行日昇順)。 */
   enforcementUpcoming: () => getJson<EnforcementUpcoming>('./enforcement/upcoming.json'),
+
+  /** 議案 (法案審議トラッキング) 全体インデックス。 */
+  gianIndex: () => getJson<GianIndex>('./gian/index.json'),
+  /** 個別議案の審議経過。 */
+  gianBill: (session: string, billId: string) =>
+    getJson<GianBill>(`./gian/${session}/${billId}.json`),
+}
+
+// ── 議案 (法案審議トラッキング) 型定義 ─────────────────────────────
+
+export type GianBillMeta = {
+  bill_id: string
+  session: number | string
+  bill_type?: string | null
+  number?: string | null
+  title: string
+  committee?: string | null
+  result?: string | null
+  status?: string | null
+  promulgation_date?: string | null
+  latest_date?: string | null
+  latest_event?: string | null
+  detail_url?: string | null
+}
+
+export type GianIndex = {
+  schema_version: number
+  count: number
+  bills: GianBillMeta[]
+}
+
+export type GianBill = {
+  schema_version: number
+  bill_id: string
+  session: number
+  bill_type?: string | null
+  number?: string | null
+  title: string
+  submitter?: string | null
+  parties?: string | null
+  committee?: string | null
+  result?: string | null
+  promulgation_date?: string | null
+  law_num?: string | null
+  latest_date?: string | null
+  latest_event?: string | null
+  status?: string | null
+  fields: { key: string; value: string }[]
+  source: { provider: string; fetched_at: string; detail_url: string }
 }
 
 // ── 施行予定 型定義 ───────────────────────────────────────────────
