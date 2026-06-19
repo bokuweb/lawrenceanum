@@ -255,8 +255,9 @@ fn collect_gian_items(public: &Path) -> Vec<FeedItem> {
         if title.is_empty() || date.is_empty() {
             continue;
         }
-        let detail = b.get("detail_url").and_then(|x| x.as_str()).unwrap_or("");
-        if detail.is_empty() {
+        let bill_id = b.get("bill_id").and_then(|x| x.as_str()).unwrap_or("");
+        let session = b.get("session").and_then(|x| x.as_str().map(String::from).or_else(|| x.as_u64().map(|n| n.to_string()))).unwrap_or_default();
+        if bill_id.is_empty() || session.is_empty() {
             continue;
         }
         let bill_type = b.get("bill_type").and_then(|x| x.as_str());
@@ -273,8 +274,8 @@ fn collect_gian_items(public: &Path) -> Vec<FeedItem> {
             kind: "bill".into(),
             date: date.to_string(),
             title: title.to_string(),
-            href: detail.to_string(),
-            internal: false,
+            href: format!("/gian/{session}/{bill_id}"),
+            internal: true,
             law_id: None,
             law_title: None,
             ministry: None,

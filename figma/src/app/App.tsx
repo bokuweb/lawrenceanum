@@ -16,6 +16,7 @@ const ProceedingsView = lazy(() => import("./components/views/proceedings-view")
 const PubcommentView = lazy(() => import("./components/views/pubcomment-view").then(m => ({ default: m.PubcommentView })));
 const FeedView = lazy(() => import("./components/views/feed-view").then(m => ({ default: m.FeedView })));
 const EnforcementView = lazy(() => import("./components/views/enforcement-view").then(m => ({ default: m.EnforcementView })));
+const GianView = lazy(() => import("./components/views/gian-view").then(m => ({ default: m.GianView })));
 
 function ViewFallback() {
   return <div className="p-6 text-sm text-muted-foreground">読み込み中…</div>;
@@ -75,6 +76,17 @@ function PubcommentRoute() {
   );
 }
 
+function GianRoute() {
+  const { session, billId } = useParams();
+  const navigate = useNavigate();
+  return (
+    <GianView
+      billRef={session && billId ? { session, billId } : null}
+      onSelect={(s, id) => navigate(`/gian/${s}/${id}`)}
+    />
+  );
+}
+
 function AppShell() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -112,6 +124,8 @@ function AppShell() {
               <Route path="/pubcomment" element={<PubcommentRoute />} />
               <Route path="/pubcomment/:caseId" element={<PubcommentRoute />} />
               <Route path="/feed" element={<FeedView />} />
+              <Route path="/gian" element={<GianRoute />} />
+              <Route path="/gian/:session/:billId" element={<GianRoute />} />
               <Route path="/enforcement" element={<EnforcementView />} />
               <Route path="/updates" element={<UpdatesView />} />
               <Route path="/kanpo" element={<KanpoView />} />
