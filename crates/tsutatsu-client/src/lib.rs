@@ -37,6 +37,12 @@ pub struct TsutatsuSet {
     /// 通達集名 (例: "所得税基本通達")。
     pub name: String,
     pub tax: String,
+    /// 親法令の e-Gov 法令ID (通達本文中の「法」が指す法令)。クロスリンク用。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub parent_law_id: Option<String>,
+    /// 親法令の題名 (例: "所得税法")。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub parent_law_title: Option<String>,
     pub items: Vec<TsutatsuItem>,
     pub source: TsutatsuSource,
 }
@@ -237,13 +243,42 @@ pub fn parse_body(html: &str, page_url: &str, tax: &str) -> Vec<TsutatsuItem> {
 
 // ── 既知の通達集 ──────────────────────────────────────────────────
 
-/// (税目スラッグ, 名称, 目次URL)。MVP は所得税基本通達。
-pub fn known_sets() -> Vec<(String, String, String)> {
-    vec![(
-        "shotoku".to_string(),
-        "所得税基本通達".to_string(),
-        format!("{BASE_URL}/law/tsutatsu/kihon/shotoku/01.htm"),
-    )]
+/// 収集対象の通達集 1 件分のメタ。`parent_law_*` は通達本文中の「法」が指す
+/// 親法令で、法令↔通達クロスリンクに使う。
+#[derive(Debug, Clone)]
+pub struct KnownSet {
+    pub tax: &'static str,
+    pub name: &'static str,
+    pub index_url: String,
+    pub parent_law_id: &'static str,
+    pub parent_law_title: &'static str,
+}
+
+/// 既知の基本通達集 (国税庁)。所得税・法人税・消費税の各基本通達。
+pub fn known_sets() -> Vec<KnownSet> {
+    vec![
+        KnownSet {
+            tax: "shotoku",
+            name: "所得税基本通達",
+            index_url: format!("{BASE_URL}/law/tsutatsu/kihon/shotoku/01.htm"),
+            parent_law_id: "340AC0000000033",
+            parent_law_title: "所得税法",
+        },
+        KnownSet {
+            tax: "hojin",
+            name: "法人税基本通達",
+            index_url: format!("{BASE_URL}/law/tsutatsu/kihon/hojin/01.htm"),
+            parent_law_id: "340AC0000000034",
+            parent_law_title: "法人税法",
+        },
+        KnownSet {
+            tax: "shohi",
+            name: "消費税法基本通達",
+            index_url: format!("{BASE_URL}/law/tsutatsu/kihon/shohi/01.htm"),
+            parent_law_id: "363AC0000000108",
+            parent_law_title: "消費税法",
+        },
+    ]
 }
 
 // ── テスト ────────────────────────────────────────────────────────
@@ -295,15 +330,16 @@ mod tests {
     #[test]
     #[ignore]
     fn http_real_fetch() {
-        let (tax, name, idx) = known_sets().into_iter().next().unwrap();
+        let ks = known_sets().into_iter().next().unwrap();
+        let (tax, name) = (ks.tax, ks.name);
         let p = HttpProvider::new();
-        let pages = p.list_pages(&idx).unwrap();
+        let pages = p.list_pages(&ks.index_url).unwrap();
         println!("{name}: {} body pages", pages.len());
         assert!(!pages.is_empty());
         // 前文ページは項目を持たないので、項目が出るまで数ページ試す。
         let mut total = 0usize;
         for page in pages.iter().take(5) {
-            let items = p.fetch_page(page, &tax).unwrap();
+            let items = p.fetch_page(page, tax).unwrap();
             if !items.is_empty() && total == 0 {
                 println!("e.g. {:?}", items.first().map(|i| (&i.number, &i.caption, i.text.chars().take(20).collect::<String>())));
             }

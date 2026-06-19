@@ -72,6 +72,13 @@ enum Cmd {
         #[arg(long, default_value = "public")]
         output: PathBuf,
     },
+    /// `public/` から横断検索 DB (search.db) を再構築する。
+    /// 議事録・官報・通達が `public/` に出揃った後に呼ぶと、それらを索引に取り込める
+    /// (build-json 時点ではこれらは未配置で法令のみが索引される)。
+    BuildSearchDb {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
     /// `public/manifest.json` の sha256 と実ファイルが一致するか検証する。
     Validate {
         #[arg(long, default_value = "public")]
@@ -395,6 +402,13 @@ enum Cmd {
         public: PathBuf,
     },
 
+    /// 法令 ↔ 通達 クロスリンクを生成する (通達集の親法令単位)。
+    /// `public/links/law-to-tsutatsu/{law_id}.json` を書き出す。
+    LinkLawsAndTsutatsu {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
     /// 規制変化フィードを生成する (法令改正・パブコメ・官報の新着)。
     /// `public/feeds/recent.json` と RSS `recent.xml` を書き出す。
     BuildFeeds {
@@ -466,6 +480,7 @@ fn main() -> Result<()> {
         } => build::run_update(&public, &cache, &provider, date.as_deref(), force),
         Cmd::BuildJson { input, output } => build::run_build_json(&input, &output),
         Cmd::BuildIndex { output } => build::run_build_index(&output),
+        Cmd::BuildSearchDb { public } => build::run_build_search_db(&public),
         Cmd::Validate { public } => validate::run_validate(&public),
         Cmd::RebuildManifest { public } => build::run_rebuild_manifest(&public),
         Cmd::MergeHistory { public, prebuilt } => build::run_merge_history(&public, &prebuilt),
@@ -613,5 +628,6 @@ fn main() -> Result<()> {
         Cmd::TsutatsuFetch { cache, provider, max_pages } => tsutatsu::run_fetch(&cache, &provider, max_pages),
         Cmd::TsutatsuBuildJson { cache, public } => tsutatsu::run_build_json(&cache, &public),
         Cmd::LinkLawsAndProcurement { public } => linking::run_link_procurement(&public),
+        Cmd::LinkLawsAndTsutatsu { public } => linking::run_link_tsutatsu(&public),
     }
 }

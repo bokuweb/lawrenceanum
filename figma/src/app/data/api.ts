@@ -325,6 +325,8 @@ export const api = {
   tsutatsuIndex: () => getJson<TsutatsuIndex>('./tsutatsu/index.json'),
   /** 個別の通達集 (項目一覧つき)。 */
   tsutatsuSet: (tax: string) => getJson<TsutatsuSet>(`./tsutatsu/${tax}.json`),
+  /** 法令 ↔ 通達 クロスリンク (通達集の親法令単位)。 */
+  lawToTsutatsu: (lawId: string) => getJson<LawToTsutatsu>(`./links/law-to-tsutatsu/${lawId}.json`),
 
   /** 議案 (法案審議トラッキング) 全体インデックス。 */
   gianIndex: () => getJson<GianIndex>('./gian/index.json'),
@@ -410,15 +412,37 @@ export type TsutatsuSet = {
   schema_version: number
   name: string
   tax: string
+  parent_law_id?: string | null
+  parent_law_title?: string | null
   items: TsutatsuItem[]
   source: { provider: string; fetched_at: string; index_url: string }
 }
 
-export type TsutatsuIndexEntry = { tax: string; name: string; count: number }
+export type TsutatsuIndexEntry = {
+  tax: string
+  name: string
+  count: number
+  parent_law_id?: string | null
+  parent_law_title?: string | null
+}
 export type TsutatsuIndex = {
   schema_version: number
   count: number
   sets: TsutatsuIndexEntry[]
+}
+
+/** 法令 → 通達 クロスリンク (通達集の親法令単位)。 */
+export type LinkedTsutatsu = {
+  tax: string
+  name: string
+  count: number
+  relevance: string
+  confidence: number
+}
+export type LawToTsutatsu = {
+  schema_version: number
+  law_id: string
+  linked_tsutatsu: LinkedTsutatsu[]
 }
 
 // ── 規制変化フィード 型定義 ───────────────────────────────────────

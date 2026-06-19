@@ -58,10 +58,19 @@ function ItemCard({ item, query }: { item: TsutatsuItem; query: string }) {
   );
 }
 
+// HashRouter のため `#/tsutatsu?tax=shotoku` の query はハッシュ内にある。
+function initialTaxFromUrl(): string | null {
+  const hash = window.location.hash;
+  const qi = hash.indexOf("?");
+  if (qi < 0) return null;
+  return new URLSearchParams(hash.slice(qi + 1)).get("tax");
+}
+
 export function TsutatsuView() {
   const { data: index, loading: idxLoading } = useTsutatsuIndex();
-  const [tax, setTax] = useState<string | null>(null);
+  const [tax, setTax] = useState<string | null>(() => initialTaxFromUrl());
   useEffect(() => {
+    // URL 指定が無い場合のみ先頭の通達集を既定選択。
     if (!tax && index && index.sets.length > 0) setTax(index.sets[0].tax);
   }, [index, tax]);
   const { data: set, loading } = useTsutatsuSet(tax);

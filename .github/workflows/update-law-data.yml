@@ -501,6 +501,50 @@ jobs:
           ./target/release/lawpub reiki-build-json --cache .cache --public public \
             || echo "::warning::reiki-build-json failed"
 
+      # 通達 (国税庁 法令解釈通達) を R2 prebuilt キャッシュから復元して同梱する。
+      # corpus workflow が tsutatsu-cache.tar.zst に上げたものを取得 → tsutatsu-build-json
+      # → link-laws-and-tsutatsu (通達集の親法令で法令詳細にクロスリンク)。後段の
+      # build-search-db が public/tsutatsu を索引するので、それより前に実行する。
+      - name: Build tsutatsu from R2 cache
+        if: >-
+          steps.detect.outputs.changed == 'true' && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        continue-on-error: true
+        run: |
+          set +e
+          if ! aws s3 cp "s3://$R2_BUCKET/tsutatsu-cache.tar.zst" /tmp/tsutatsu-cache.tar.zst --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            echo "::warning::tsutatsu-cache.tar.zst not found in R2 — 通達なしで続行"
+            exit 0
+          fi
+          mkdir -p .cache/tsutatsu
+          # アーカイブ top-level は ./{tax}.json なので .cache/tsutatsu 直下へ展開。
+          zstd -dc --long=31 /tmp/tsutatsu-cache.tar.zst | tar -x -C .cache/tsutatsu
+          rm -f /tmp/tsutatsu-cache.tar.zst
+          n=$(find .cache/tsutatsu -name '*.json' | wc -l | tr -d ' ')
+          [ "${n:-0}" -eq 0 ] && { echo "::warning::tsutatsu cache empty"; exit 0; }
+          echo "::notice::tsutatsu cache restored from R2: $n sets"
+          ./target/release/lawpub tsutatsu-build-json --cache .cache --public public \
+            || echo "::warning::tsutatsu-build-json failed"
+          ./target/release/lawpub link-laws-and-tsutatsu --public public \
+            || echo "::warning::link-laws-and-tsutatsu failed"
+
+      # 横断検索 DB を全コーパス込みで作り直す。build-json (lawpub update 内) が作る
+      # search.db は議事録・官報・通達が public/ に未配置の時点のもので法令しか索引して
+      # いない。proceedings/pubcomment/gian/reiki/kanpo/tsutatsu が出揃ったここで再構築し、
+      # 通達・官報・議事録を横断検索に確実に取り込む。直後の build-feeds が rebuild-manifest
+      # するので、差し替えた search.db の sha は manifest に反映され validate を通る。
+      - name: Rebuild search.db with corpus
+        if: steps.detect.outputs.changed == 'true'
+        continue-on-error: true
+        run: |
+          ./target/release/lawpub build-search-db --public public \
+            || echo "::warning::build-search-db failed (search.db は法令のみのまま)"
+
       # 施行予定カレンダー (今後の施行) を timeline から集約する。laws が出揃った後。
       - name: Build enforcement calendar
         if: steps.detect.outputs.changed == 'true'

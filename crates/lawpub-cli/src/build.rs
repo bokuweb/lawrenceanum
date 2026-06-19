@@ -2131,6 +2131,46 @@ fn write_manifest_and_health(public: &Path, laws: &[LawWithHistory]) -> Result<(
 /// SSG 配信なので、検索エンジンが各 `/#/laws/:id` にアクセスしても HashRouter が
 /// 同じ index.html を返す。それでも sitemap には法令詳細 URL を載せて検索回遊性を
 /// 担保する (実体は SPA だが OG 情報は同一の index.html がメタを返す)。
+/// `public/` から search.db を再構築する。
+///
+/// `build-json` 時点では `public/{proceedings,kanpo,tsutatsu}` がまだ配置されておらず
+/// (それらは後続ステップで R2 から復元・生成される)、その時に作られる search.db は
+/// 法令しか索引していない。全コーパスが `public/` に出揃った後にこのコマンドを呼ぶことで、
+/// 議事録・官報・通達を横断検索 DB に確実に取り込む。法令本文は各 `current.json` から、
+/// 分類は `laws/index.json` から復元する。
+pub fn run_build_search_db(public: &Path) -> Result<()> {
+    let docs = read_existing_law_documents(public)?;
+    // 分類 (category) は current.json に無いので laws/index.json から復元する。
+    let mut categories: std::collections::HashMap<String, String> = std::collections::HashMap::new();
+    if let Ok(bytes) = std::fs::read(public.join("laws").join("index.json")) {
+        if let Ok(v) = serde_json::from_slice::<serde_json::Value>(&bytes) {
+            for law in v["laws"].as_array().unwrap_or(&vec![]) {
+                if let (Some(id), Some(cat)) = (law["law_id"].as_str(), law["category"].as_str()) {
+                    if !cat.is_empty() {
+                        categories.insert(id.to_string(), cat.to_string());
+                    }
+                }
+            }
+        }
+    }
+    let path = public.join("search.db");
+    let proc_dir = public.join("proceedings");
+    let proc_dir_opt = if proc_dir.is_dir() { Some(proc_dir.as_path()) } else { None };
+    let kanpo_dir = public.join("kanpo");
+    let kanpo_dir_opt = if kanpo_dir.is_dir() { Some(kanpo_dir.as_path()) } else { None };
+    let tsutatsu_dir = public.join("tsutatsu");
+    let tsutatsu_dir_opt = if tsutatsu_dir.is_dir() { Some(tsutatsu_dir.as_path()) } else { None };
+    tracing::info!(
+        "build-search-db: {} laws, proceedings={} kanpo={} tsutatsu={}",
+        docs.len(),
+        proc_dir_opt.is_some(),
+        kanpo_dir_opt.is_some(),
+        tsutatsu_dir_opt.is_some(),
+    );
+    search_index::build_search_db(&path, &docs, &categories, proc_dir_opt, kanpo_dir_opt, tsutatsu_dir_opt)?;
+    Ok(())
+}
+
 fn write_search_db(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
     // 現行版だけを索引対象にする。履歴 rev は法令本文との突き合わせが必要になったら検討。
     let docs: Vec<LawDocument> = laws.iter().map(|l| l.current().clone()).collect();
