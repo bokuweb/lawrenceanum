@@ -11,6 +11,8 @@
  */
 
 import { createDbWorker, type WorkerHttpvfs } from "sql.js-httpvfs";
+// 法令シソーラス (ellisii-toolkit jp-law-thesaurus)。クエリ同義語展開に使う。
+import thesaurusData from "./jp-law-thesaurus.json";
 
 export type SearchHit = {
   law_id: string;
@@ -100,6 +102,45 @@ export function buildFtsMatch(text: string): string {
   return tokenize(text)
     .filter(t => Array.from(t).length >= 2)
     .join(" ");
+}
+
+// ── 法令シソーラスによるクエリ同義語展開 ──────────────────────────
+// 索引側 (search.db build 時) の同義語追記は法令本文のみ・再ビルドが必要なのに対し、
+// クエリ側展開は全 FTS 面 (法令/官報/会議録) に即時効く。入力語に法律 term が含まれて
+// いれば、その別表記を OR で足して取りこぼしを減らす。
+const THESAURUS_ENTRIES: string[][] = (() => {
+  const out: string[][] = [];
+  const entries = (thesaurusData as any)?.entries ?? {};
+  for (const [k, v] of Object.entries(entries)) {
+    if (k.startsWith("_") || typeof v !== "object" || v === null) continue;
+    const syns = (v as any).synonyms;
+    if (!Array.isArray(syns) || syns.length === 0) continue;
+    const forms = [k, ...syns].filter(s => typeof s === "string" && Array.from(s).length >= 2);
+    if (forms.length >= 2) out.push(forms);
+  }
+  return out;
+})();
+
+/** クエリに出現した法律 term の「別表記」(原文に無いもの) を返す。UI 表示にも使う。 */
+export function synonymExpansions(query: string): string[] {
+  const q = query.trim();
+  if (!q) return [];
+  const extra = new Set<string>();
+  for (const forms of THESAURUS_ENTRIES) {
+    if (forms.some(f => q.includes(f))) {
+      for (const f of forms) if (!q.includes(f)) extra.add(f);
+    }
+  }
+  return [...extra].slice(0, 12); // 暴発防止に上限。
+}
+
+/** 原クエリ + 同義語を OR 連結した FTS5 MATCH 式。同義語が無ければ buildFtsMatch と同じ。 */
+export function buildFtsMatchExpanded(query: string): string {
+  const base = buildFtsMatch(query);
+  if (!base) return base;
+  const groups = [base, ...synonymExpansions(query).map(buildFtsMatch).filter(Boolean)];
+  if (groups.length === 1) return base;
+  return groups.map(g => `(${g})`).join(" OR ");
 }
 
 /**
@@ -227,7 +268,7 @@ export async function search(
   categories: string[] = [],
 ): Promise<SearchHit[]> {
   // 1 文字クエリは prefix (`あ*`) になる。exact だと bigram index に当たらない。
-  const match = buildFtsMatch(q.trim());
+  const match = buildFtsMatchExpanded(q.trim());
   if (!match) return [];
   // カテゴリ絞り込み: 選択があれば l.category IN (?, ?, ...) を足す。
   const catFilter =
@@ -272,7 +313,7 @@ export type SpeechHit = {
 };
 
 export async function searchSpeeches(q: string, limit = 20): Promise<SpeechHit[]> {
-  const match = buildFtsMatch(q.trim());
+  const match = buildFtsMatchExpanded(q.trim());
   if (!match) return [];
   const rows = await exec<{
     meeting_id: string; speech_id: string; speaker: string | null;
@@ -320,7 +361,7 @@ export type KanpoHit = {
  * 旧 search.db（kanpo_fts 未作成）では "no such table" になるため空配列にフォールバックする。
  */
 export async function searchKanpo(q: string, limit = 10): Promise<KanpoHit[]> {
-  const match = buildFtsMatch(q.trim());
+  const match = buildFtsMatchExpanded(q.trim());
   if (!match) return [];
   try {
     const rows = await exec<{
