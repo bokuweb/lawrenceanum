@@ -23,13 +23,23 @@ pub fn run_fetch(cache: &Path, provider: &str, max_pages: u32) -> Result<()> {
             break;
         }
         for meta in &cases {
-            let detail = match p.fetch_case_detail(&meta.case_id) {
+            let mut detail = match p.fetch_case_detail(&meta.case_id) {
                 Ok(d) => d,
                 Err(e) => {
                     tracing::warn!("skip {}: {e:#}", meta.case_id);
                     continue;
                 }
             };
+            // 一覧側のメタ (所管省庁・結果の公示日・案件名) で詳細の欠損を補完する。
+            if detail.ministry.is_none() {
+                detail.ministry = meta.ministry.clone();
+            }
+            if detail.result_published.is_none() {
+                detail.result_published = meta.result_published.clone();
+            }
+            if detail.title.is_empty() {
+                detail.title = meta.title.clone();
+            }
             let path = dir.join(format!("{}.json", meta.case_id));
             std::fs::write(&path, serde_json::to_string_pretty(&detail)?)
                 .with_context(|| format!("write {}", path.display()))?;

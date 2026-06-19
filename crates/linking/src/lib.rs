@@ -333,6 +333,12 @@ pub fn run_link_pubcomment(public: &Path) -> Result<()> {
 
     let (ac, metas) = build_automaton(&laws)?;
 
+    // 関連法令名の完全一致用。automaton は誤マッチ防止で 4 文字未満の短いタイトルを
+    // 除外するため、民法・刑法など重要な短 title 法令を取りこぼす。related_law_name は
+    // 正確な法令名なので、完全一致なら短 title でも安全にリンクできる。
+    let title_to_law: HashMap<&str, &str> =
+        laws.iter().map(|l| (l.title.as_str(), l.law_id.as_str())).collect();
+
     let pubcomment_dir = public.join("pubcomment");
     if !pubcomment_dir.exists() {
         tracing::warn!("no pubcomment dir; skipping");
@@ -357,19 +363,54 @@ pub fn run_link_pubcomment(public: &Path) -> Result<()> {
         let case_id = doc["case_id"].as_str().unwrap_or("").to_string();
         let title = doc["title"].as_str().unwrap_or("").to_string();
         let ministry = doc["ministry"].as_str().unwrap_or("").to_string();
-        let start_date = doc["start_date"].as_str().unwrap_or("").to_string();
-        let end_date = doc["end_date"].as_str().unwrap_or("").to_string();
+        // パブコメ JSON のフィールドは reception_start / reception_end
+        // (旧スキーマの start_date / end_date は存在しない)。
+        let start_date = doc["reception_start"].as_str().unwrap_or("").to_string();
+        let end_date = doc["reception_end"].as_str().unwrap_or("").to_string();
 
-        let search_text = format!(
-            "{}\n{}\n{}",
-            title,
-            doc["summary"].as_str().unwrap_or(""),
-            doc["description"].as_str().unwrap_or("")
-        );
+        // 「関連法令名」での一致は改正パブコメの強いシグナル。タイトル・意見本文での
+        // 一致は言及扱い。意見と府省の考え方 (opinions) も検索対象に含める。
+        let related_law_name = doc["related_law_name"].as_str().unwrap_or("");
+        let opinions_text: String = doc["opinions"]
+            .as_array()
+            .map(|arr| {
+                arr.iter()
+                    .map(|o| {
+                        format!(
+                            "{} {} {}",
+                            o["item"].as_str().unwrap_or(""),
+                            o["opinion"].as_str().unwrap_or(""),
+                            o["ministry_response"].as_str().unwrap_or("")
+                        )
+                    })
+                    .collect::<Vec<_>>()
+                    .join("\n")
+            })
+            .unwrap_or_default();
+        let weak_text = format!("{title}\n{opinions_text}");
 
-        let mut law_hits: HashMap<String, (std::collections::HashSet<String>, bool)> =
+        // (reasons, has_law_num, matched_in_related_law_name)
+        let mut law_hits: HashMap<String, (std::collections::HashSet<String>, bool, bool)> =
             HashMap::new();
-        for mat in ac.find_overlapping_iter(&search_text) {
+        for mat in ac.find_overlapping_iter(related_law_name) {
+            let meta = &metas[mat.pattern().as_usize()];
+            let entry = law_hits.entry(meta.law_id.clone()).or_default();
+            entry.0.insert(meta.pattern_text.clone());
+            entry.2 = true;
+            if meta.is_law_num {
+                entry.1 = true;
+            }
+        }
+        // related_law_name の完全一致 (automaton が落とす短 title 法令の救済)。
+        let rln_trim = related_law_name.trim();
+        if !rln_trim.is_empty() {
+            if let Some(&law_id) = title_to_law.get(rln_trim) {
+                let entry = law_hits.entry(law_id.to_string()).or_default();
+                entry.0.insert(rln_trim.to_string());
+                entry.2 = true;
+            }
+        }
+        for mat in ac.find_overlapping_iter(&weak_text) {
             let meta = &metas[mat.pattern().as_usize()];
             let entry = law_hits.entry(meta.law_id.clone()).or_default();
             entry.0.insert(meta.pattern_text.clone());
@@ -378,8 +419,8 @@ pub fn run_link_pubcomment(public: &Path) -> Result<()> {
             }
         }
 
-        for (law_id, (reasons, has_law_num)) in &law_hits {
-            let (relevance, confidence) = if *has_law_num {
+        for (law_id, (reasons, has_law_num, in_related)) in &law_hits {
+            let (relevance, confidence) = if *has_law_num || *in_related {
                 ("amendment_comment".to_string(), 0.90f32)
             } else {
                 ("reference_only".to_string(), 0.55f32)

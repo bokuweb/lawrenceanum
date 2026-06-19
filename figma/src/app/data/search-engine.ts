@@ -302,6 +302,50 @@ export async function searchSpeeches(q: string, limit = 20): Promise<SpeechHit[]
   }));
 }
 
+export type KanpoHit = {
+  date: string;
+  issue_no: string;
+  title: string;
+  page: number;
+  pdf_url: string;
+  agency: string | null;
+  snippet: string;
+};
+
+/**
+ * 官報記事の全文検索 (kanpo_fts)。改め文 (amend_text) と記事タイトルを横断する。
+ * 旧 search.db（kanpo_fts 未作成）では "no such table" になるため空配列にフォールバックする。
+ */
+export async function searchKanpo(q: string, limit = 10): Promise<KanpoHit[]> {
+  const match = buildFtsMatch(q.trim());
+  if (!match) return [];
+  try {
+    const rows = await exec<{
+      date: string; issue_no: string; title: string; page: number;
+      pdf_url: string; agency: string | null; snippet: string;
+    }>(
+      `SELECT date, issue_no, title, page, pdf_url, agency,
+              snippet(kanpo_fts, 7, '<mark>', '</mark>', '...', 10) AS snippet
+         FROM kanpo_fts
+        WHERE kanpo_fts MATCH ?
+        ORDER BY rank
+        LIMIT ?`,
+      [match, limit],
+    );
+    return rows.map(r => ({
+      date: String(r.date ?? ""),
+      issue_no: String(r.issue_no ?? ""),
+      title: String(r.title ?? ""),
+      page: Number(r.page ?? 0),
+      pdf_url: String(r.pdf_url ?? ""),
+      agency: r.agency ?? null,
+      snippet: String(r.snippet ?? ""),
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export async function getOutgoingRefs(lawId: string, articleId: string): Promise<ArticleRef[]> {
   return exec<ArticleRef>(
     `SELECT from_law_id, from_article_id, to_law_id, to_article_id, ref_text, ref_type

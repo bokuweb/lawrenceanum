@@ -402,6 +402,51 @@ jobs:
           ./target/release/lawpub rebuild-manifest --public public \
             || echo "::warning::rebuild-manifest failed (validate が落ちる可能性)"
 
+      # パブコメ (pubcomment) を proceedings と同じ方式で R2 prebuilt キャッシュから
+      # 復元して同じ public/ に同梱する。corpus workflow (update-corpus-data.yml) が
+      # fetch/build して R2 (pubcomment-cache.tar.zst) に上げたものを取得 →
+      # pubcomment-build-json → link-laws-and-pubcomment。link は public/laws/index.json が
+      # 必要なため、laws build 後のここで実行する。link は法令 current.json に backlink を
+      # 書くため、最後に rebuild-manifest して validate を通す。R2 に束が無ければ
+      # パブコメなしで続行 (安全ロールアウト)。
+      - name: Build pubcomment from R2 cache
+        if: >-
+          steps.detect.outputs.changed == 'true' &&
+          env.R2_BUCKET != '' &&
+          env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        # パブコメの失敗で法令 deploy を絶対に止めない (laws 優先)。全工程 best-effort。
+        continue-on-error: true
+        run: |
+          set +e
+          if ! aws s3 cp "s3://$R2_BUCKET/pubcomment-cache.tar.zst" /tmp/pubcomment-cache.tar.zst --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            echo "::warning::pubcomment-cache.tar.zst not found in R2 — パブコメなしで続行 (corpus workflow が未アップロード)"
+            exit 0
+          fi
+          mkdir -p .cache/pubcomment
+          # アーカイブ top-level は ./{case_id}.json なので .cache/pubcomment 直下へ展開。
+          zstd -dc --long=31 /tmp/pubcomment-cache.tar.zst | tar -x -C .cache/pubcomment
+          rm -f /tmp/pubcomment-cache.tar.zst
+          n=$(find .cache/pubcomment -name '*.json' | wc -l | tr -d ' ')
+          if [ "${n:-0}" -eq 0 ]; then
+            echo "::warning::pubcomment cache is empty — パブコメなしで続行"
+            exit 0
+          fi
+          echo "::notice::pubcomment cache restored from R2: $n cases"
+          ./target/release/lawpub pubcomment-build-json --cache .cache --public public \
+            || echo "::warning::pubcomment-build-json failed"
+          ./target/release/lawpub link-laws-and-pubcomment --public public \
+            || echo "::warning::link-laws-and-pubcomment failed"
+          # link が法令 current.json に backlink を書くため、何があっても manifest を
+          # 実体から作り直す (stale だと後段の Validate が sha 不一致で落ちて deploy ごと止まる)。
+          ./target/release/lawpub rebuild-manifest --public public \
+            || echo "::warning::rebuild-manifest failed (validate が落ちる可能性)"
+
       - name: Validate public JSON
         if: steps.detect.outputs.changed == 'true'
         run: ./target/release/lawpub validate --public public

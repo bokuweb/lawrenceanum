@@ -46,10 +46,54 @@ function lawpubJsonDevServer() {
   }
 }
 
+/**
+ * Dev-only middleware that serves `../public/search.db` with HTTP Range support.
+ * sql.js-httpvfs (`serverMode: "full"`) は byte-range で SQLite ページを取得するため
+ * Range 必須。本番は VITE_SEARCH_DB_URL (R2) を使うので dev のみ。
+ */
+function lawpubSearchDbDevServer() {
+  const publicRoot = path.resolve(__dirname, '../public')
+  return {
+    name: 'lawpub-searchdb-dev-server',
+    configureServer(server: any) {
+      server.middlewares.use((req: any, res: any, next: any) => {
+        const url = (req.url || '').split('?')[0]
+        if (url !== '/search.db') return next()
+        const file = path.join(publicRoot, 'search.db')
+        if (!fs.existsSync(file) || !fs.statSync(file).isFile()) return next()
+        const size = fs.statSync(file).size
+        res.setHeader('Accept-Ranges', 'bytes')
+        res.setHeader('Content-Type', 'application/octet-stream')
+        res.setHeader('Cache-Control', 'no-store')
+        const range = req.headers['range']
+        const m = range && /^bytes=(\d*)-(\d*)$/.exec(range)
+        if (m) {
+          let start = m[1] === '' ? undefined : parseInt(m[1], 10)
+          let end = m[2] === '' ? undefined : parseInt(m[2], 10)
+          if (start === undefined) { start = size - (end as number); end = size - 1 }
+          else if (end === undefined) { end = size - 1 }
+          if (start < 0 || end >= size || start > end) {
+            res.statusCode = 416
+            res.setHeader('Content-Range', `bytes */${size}`)
+            return res.end()
+          }
+          res.statusCode = 206
+          res.setHeader('Content-Range', `bytes ${start}-${end}/${size}`)
+          res.setHeader('Content-Length', String(end - start + 1))
+          return fs.createReadStream(file, { start, end }).pipe(res)
+        }
+        res.setHeader('Content-Length', String(size))
+        fs.createReadStream(file).pipe(res)
+      })
+    },
+  }
+}
+
 export default defineConfig({
   plugins: [
     figmaAssetResolver(),
     lawpubJsonDevServer(),
+    lawpubSearchDbDevServer(),
     // The React and Tailwind plugins are both required for Make, even if
     // Tailwind is not being actively used – do not remove them
     react(),

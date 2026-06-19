@@ -8,9 +8,9 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
 import { Separator } from "../ui/separator";
 import { type LawSummary } from "../mock-data";
-import { Search, SlidersHorizontal, ChevronRight, FileText, Database, Landmark, MessageSquare } from "lucide-react";
+import { Search, SlidersHorizontal, ChevronRight, FileText, Database, Landmark, MessageSquare, Newspaper, ExternalLink } from "lucide-react";
 import { useLaws } from "../../data/use-laws";
-import { search as ftsSearch, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, searchSpeeches, type SearchHit, type SpeechHit } from "../../data/search-engine";
+import { search as ftsSearch, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, searchSpeeches, searchKanpo, type SearchHit, type SpeechHit, type KanpoHit } from "../../data/search-engine";
 import { useNavigate } from "react-router";
 
 export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initialQuery?: string; onOpen: (l: LawSummary) => void; onQueryChange?: (q: string) => void }) {
@@ -25,6 +25,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   const queryGenRef = useRef(0);
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [speechHits, setSpeechHits] = useState<SpeechHit[]>([]);
+  const [kanpoHits, setKanpoHits] = useState<KanpoHit[]>([]);
   const [ftsAvailable, setFtsAvailable] = useState<boolean | null>(null);
   const [ftsMeta, setFtsMeta] = useState<Record<string, string> | null>(null);
   // 初期クエリがあれば検索中扱いで開始する。さもないと初回 render で
@@ -42,7 +43,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   }, []);
 
   useEffect(() => {
-    if (!q.trim()) { setHits([]); setSpeechHits([]); return; }
+    if (!q.trim()) { setHits([]); setSpeechHits([]); setKanpoHits([]); return; }
     if (ftsAvailable === false) return; // FTS 不可ならフィルタ側に倒す。
     // 世代カウンタをインクリメント。このエフェクトより前に発行されたクエリが
     // 後から返ってきても、gen が古ければ結果を捨てる。
@@ -52,11 +53,13 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
       Promise.all([
         ftsSearch(q, 50, Array.from(cats)),
         searchSpeeches(q, 10),
+        searchKanpo(q, 10),
       ])
-        .then(([lawHits, spHits]) => {
+        .then(([lawHits, spHits, kpHits]) => {
           if (queryGenRef.current === gen) {
             setHits(lawHits);
             setSpeechHits(spHits);
+            setKanpoHits(kpHits);
             setSearching(false);
           }
         })
@@ -210,6 +213,55 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
                       )}
                     </div>
                     <ChevronRight className="size-4 text-muted-foreground shrink-0 mt-1" />
+                  </CardContent>
+                </Card>
+              ))}
+              <Separator />
+            </div>
+          )}
+
+          {/* 官報記事 FTS セクション */}
+          {useFts && kanpoHits.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Newspaper className="size-3.5" />
+                <span>官報 ({kanpoHits.length}件)</span>
+              </div>
+              {kanpoHits.map((h, i) => (
+                <Card
+                  key={`${h.date}-${h.issue_no}-${h.page}-${i}`}
+                  className="hover:border-primary/50 transition-colors"
+                >
+                  <CardContent className="p-3 flex items-start gap-3">
+                    <div className="size-8 rounded-md bg-muted flex items-center justify-center shrink-0 mt-0.5">
+                      <Newspaper className="size-4 text-muted-foreground" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-medium">{h.title}</span>
+                        {h.agency && <Badge variant="outline" className="text-xs">{h.agency}</Badge>}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {h.date} · {h.issue_no}{h.page ? ` · ${h.page}頁` : ""}
+                      </div>
+                      {h.snippet && (
+                        <div
+                          className="text-sm mt-1.5 leading-relaxed [&>mark]:bg-amber-300/40 [&>mark]:rounded-sm [&>mark]:px-0.5"
+                          dangerouslySetInnerHTML={{ __html: unbigramSnippet(h.snippet) }}
+                        />
+                      )}
+                    </div>
+                    {h.pdf_url && (
+                      <a
+                        href={h.pdf_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-muted-foreground hover:text-primary shrink-0 mt-1"
+                        title="官報PDFを開く"
+                      >
+                        <ExternalLink className="size-4" />
+                      </a>
+                    )}
                   </CardContent>
                 </Card>
               ))}
