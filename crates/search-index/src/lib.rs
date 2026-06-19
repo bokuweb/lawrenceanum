@@ -203,6 +203,105 @@ pub fn extract_self_article_refs<'a>(
     out
 }
 
+// ── 法令シソーラス (同義語展開) ───────────────────────────────────
+//
+// jp-law-thesaurus (ellisii-toolkit 由来, PolyForm-Noncommercial)。法律ターム ↔
+// 同義語の静的辞書。索引時に本文へ出現した term の同義語を追記することで、
+// 「BIS規制」を含む法令を「バーゼル規制」でも引けるようにする (recall 改善)。
+// scenarios は literal corpus で精度を下げるため使わず、synonyms のみ展開する。
+
+/// 同義語展開器。本文に出現した法律 term の同義語群を返す。
+pub struct Thesaurus {
+    /// 全 surface form (key + synonyms)。aho-corasick の pattern 順と一致。
+    automaton: AhoCorasick,
+    /// pattern index → entry index。
+    pat_to_entry: Vec<usize>,
+    /// entry index → その entry の全 surface form (key + synonyms)。
+    entry_terms: Vec<Vec<String>>,
+}
+
+impl Thesaurus {
+    /// クレート同梱の jp-law-thesaurus を読み込む。
+    pub fn bundled() -> Self {
+        Self::from_json_str(include_str!("../data/jp-law-thesaurus.json"))
+            .unwrap_or_else(|_| Self::empty())
+    }
+
+    fn empty() -> Self {
+        Thesaurus {
+            automaton: AhoCorasick::new(Vec::<&str>::new()).unwrap(),
+            pat_to_entry: Vec::new(),
+            entry_terms: Vec::new(),
+        }
+    }
+
+    pub fn from_json_str(s: &str) -> Result<Self> {
+        let v: serde_json::Value = serde_json::from_str(s).context("parse thesaurus json")?;
+        let entries = v.get("entries").and_then(|e| e.as_object());
+        let mut entry_terms: Vec<Vec<String>> = Vec::new();
+        let mut patterns: Vec<String> = Vec::new();
+        let mut pat_to_entry: Vec<usize> = Vec::new();
+        if let Some(entries) = entries {
+            for (key, val) in entries {
+                // コメント行 (____...) や非オブジェクトは無視。
+                if key.starts_with('_') {
+                    continue;
+                }
+                let Some(obj) = val.as_object() else { continue };
+                let syns: Vec<String> = obj
+                    .get("synonyms")
+                    .and_then(|x| x.as_array())
+                    .map(|a| a.iter().filter_map(|s| s.as_str().map(String::from)).collect())
+                    .unwrap_or_default();
+                if syns.is_empty() {
+                    continue;
+                }
+                // surface forms = key + synonyms (2 文字以上のみ; 短語は誤展開源)。
+                let mut terms = vec![key.clone()];
+                terms.extend(syns);
+                let entry_idx = entry_terms.len();
+                for t in &terms {
+                    if t.chars().count() >= 2 {
+                        patterns.push(t.clone());
+                        pat_to_entry.push(entry_idx);
+                    }
+                }
+                entry_terms.push(terms);
+            }
+        }
+        let automaton = AhoCorasick::builder()
+            .match_kind(MatchKind::Standard)
+            .build(&patterns)
+            .context("build thesaurus automaton")?;
+        Ok(Thesaurus { automaton, pat_to_entry, entry_terms })
+    }
+
+    pub fn entry_count(&self) -> usize {
+        self.entry_terms.len()
+    }
+
+    /// `text` に出現した term の同義語群（key + synonyms）を空白連結で返す。
+    /// 出現が無ければ空文字。
+    pub fn expand(&self, text: &str) -> String {
+        if self.entry_terms.is_empty() {
+            return String::new();
+        }
+        let mut hit = vec![false; self.entry_terms.len()];
+        for m in self.automaton.find_iter(text) {
+            hit[self.pat_to_entry[m.pattern().as_usize()]] = true;
+        }
+        let mut out: Vec<&str> = Vec::new();
+        for (i, h) in hit.iter().enumerate() {
+            if *h {
+                for t in &self.entry_terms[i] {
+                    out.push(t.as_str());
+                }
+            }
+        }
+        out.join(" ")
+    }
+}
+
 /// `laws`: 索引対象の現行版 LawDocument 群。
 /// `categories`: law_id → e-Gov 法令分類 (「民事」「行政組織」など) の対応表。
 ///   FTS5 検索結果をカテゴリで絞り込めるよう `laws.category` 列に格納する。
@@ -316,6 +415,10 @@ pub fn build_search_db(
     )
     .context("schema")?;
 
+    // 法令シソーラス: 本文に出現した法律 term の同義語を索引へ追記し recall を上げる。
+    let thesaurus = Thesaurus::bundled();
+    tracing::info!("search.db: thesaurus loaded ({} entries)", thesaurus.entry_count());
+
     let tx = conn.unchecked_transaction()?;
     {
         let mut law_stmt = tx.prepare(
@@ -388,7 +491,14 @@ pub fn build_search_db(
                     a.caption.clone().unwrap_or_default(),
                     body
                 );
-                let content_tokens = tokenize_for_fts(&content);
+                // 本文に出現した法律 term の同義語を追記してから索引する。
+                let syn = thesaurus.expand(&content);
+                let content_for_index = if syn.is_empty() {
+                    content.clone()
+                } else {
+                    format!("{content}\n{syn}")
+                };
+                let content_tokens = tokenize_for_fts(&content_for_index);
                 fts_stmt.execute(params![
                     d.law_id,
                     a.article_id,
@@ -741,6 +851,61 @@ mod tests {
             )
             .unwrap();
         assert!(cnt >= 1, "amend_text 検索でヒットせず");
+
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn thesaurus_expands_synonyms() {
+        let t = Thesaurus::bundled();
+        assert!(t.entry_count() > 100, "thesaurus not loaded: {}", t.entry_count());
+        let e = t.expand("当行はBIS規制に基づき自己資本を維持する。");
+        assert!(e.contains("バーゼル規制"), "expand miss: {e}");
+        // 出現しない term は展開しない。
+        assert_eq!(t.expand("これは無関係な文章です"), "");
+    }
+
+    #[test]
+    fn synonym_search_via_thesaurus() {
+        use law_normalizer::{Article, LawDocument, Paragraph, SourceMeta};
+        let root = std::env::temp_dir().join("lawpub_thesaurus_test");
+        let _ = std::fs::remove_dir_all(&root);
+        std::fs::create_dir_all(&root).unwrap();
+        let db = root.join("search.db");
+        let law = LawDocument {
+            schema_version: 1,
+            law_id: "TEST1".into(),
+            law_num: Some("テスト法".into()),
+            title: "テスト銀行法".into(),
+            revision_id: None,
+            promulgation_date: None,
+            effective_date: None,
+            status: "current".into(),
+            articles: vec![Article {
+                article_id: "art_1".into(),
+                article_no: "第1条".into(),
+                caption: Some("自己資本".into()),
+                paragraphs: vec![Paragraph {
+                    paragraph_no: None,
+                    text: "銀行はBIS規制に基づき自己資本比率を維持しなければならない。".into(),
+                }],
+            }],
+            suppl_provisions: vec![],
+            source: SourceMeta { provider: "test".into(), raw_xml_sha256: None, fetched_at: "2026-01-01".into() },
+        };
+        let cats = std::collections::HashMap::new();
+        build_search_db(&db, &[law], &cats, None, None).unwrap();
+
+        let conn = Connection::open(&db).unwrap();
+        // 「バーゼル規制」(= BIS規制 の同義語) で本文がヒット = 同義語索引が効いている。
+        let cnt: i64 = conn
+            .query_row(
+                "SELECT count(*) FROM search_fts WHERE search_fts MATCH ?1",
+                params![tokenize_for_fts("バーゼル規制")],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert!(cnt >= 1, "synonym (バーゼル規制) でヒットせず");
 
         let _ = std::fs::remove_dir_all(&root);
     }
