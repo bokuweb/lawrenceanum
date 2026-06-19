@@ -108,6 +108,9 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
     if (revDocs.size > 0) {
       const all = Array.from(revDocs.keys())
         .filter(Boolean)
+        // macOS AppleDouble 由来の幽霊版 (revision_id が `._...` で本文 0 件) を除外する。
+        // これを版として並べると「直前版 = 空」が選ばれ、全条が "追加" に化ける。
+        .filter(id => !id.startsWith(".") && (revDocs.get(id)?.articles.length ?? 0) > 0)
         .map(id => ({ revision_id: id, date: revDate(id) }));
       // 日付付き revision があれば、それだけを版として並べる (hash 形式の作業
       // スナップショットは日付付きの重複なので除外し、セレクタを綺麗に保つ)。
