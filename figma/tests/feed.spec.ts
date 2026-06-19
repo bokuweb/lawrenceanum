@@ -6,8 +6,16 @@ const BASE = process.env.HISTORY_BASE ?? "http://127.0.0.1:8799/";
 const FEED = {
   schema_version: 1,
   generated_at: "2026-06-19T00:00:00Z",
-  count: 3,
+  count: 4,
   items: [
+    {
+      kind: "bill",
+      date: "2026-06-12",
+      title: "テスト法案（審議トラッキング）",
+      href: "https://www.shugiin.go.jp/keika/TEST.htm",
+      internal: false,
+      summary: "衆法 · 委員会付託(衆) · テスト特別委員会",
+    },
     {
       kind: "pubcomment",
       date: "2026-06-19",
@@ -51,10 +59,22 @@ test("新着フィードが横断アイテムとRSS購読を表示する", async
   await expect(page.getByRole("heading", { name: /規制変化フィード/ })).toBeVisible({ timeout: 15_000 });
   await expect(page.getByRole("link", { name: /RSS購読/ })).toBeVisible();
 
-  // 3 種別のアイテムが出る。
+  // 4 種別のアイテムが出る（法案・パブコメ・法令・官報）。
+  await expect(page.getByText("テスト法案（審議トラッキング）")).toBeVisible();
   await expect(page.getByText("テスト民法改正パブコメ")).toBeVisible();
   await expect(page.getByText("テスト改正法")).toBeVisible();
   await expect(page.getByText("ある省令の一部を改正する省令")).toBeVisible();
+});
+
+test("法案フィルタで法案だけに絞れる", async ({ page }) => {
+  await mockFeed(page);
+  await page.goto(new URL("#/feed", BASE).toString());
+  await expect(page.getByText("テスト改正法")).toBeVisible({ timeout: 15_000 });
+
+  await page.getByLabel("フィルタ-法案").click();
+  await expect(page.getByText("テスト法案（審議トラッキング）")).toBeVisible();
+  await expect(page.getByText("テスト改正法")).toHaveCount(0);
+  await expect(page.getByText("テスト民法改正パブコメ")).toHaveCount(0);
 });
 
 test("種別フィルタで官報だけに絞れる", async ({ page }) => {

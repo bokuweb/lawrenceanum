@@ -53,6 +53,10 @@ pub struct Bill {
     pub result: Option<String>,
     pub promulgation_date: Option<String>,
     pub law_num: Option<String>,
+    /// 最新の動きの日付 (ISO)。受理/付託/審議結果/公布の最大。新着フィード用。
+    pub latest_date: Option<String>,
+    /// その最新の動きのラベル（例: 「委員会付託(衆)」「公布」）。
+    pub latest_event: Option<String>,
     /// 一覧由来の状態。
     pub status: Option<String>,
     /// 審議経過ページの全項目（KOMOKU/NAIYO）。
@@ -115,8 +119,16 @@ impl GianProvider for MockProvider {
             result: None,
             promulgation_date: None,
             law_num: None,
+            latest_date: Some("2026-06-12".to_string()),
+            latest_event: Some("委員会付託(衆)".to_string()),
             status: meta.status.clone(),
-            fields: vec![KeyValue { key: "議案件名".into(), value: meta.title.clone() }],
+            fields: vec![
+                KeyValue { key: "議案件名".into(), value: meta.title.clone() },
+                KeyValue {
+                    key: "衆議院付託年月日／衆議院付託委員会".into(),
+                    value: "令和 8年 6月12日 ／ 政治改革に関する特別".into(),
+                },
+            ],
             source: BillSource {
                 provider: "shugiin".to_string(),
                 fetched_at: "2024-01-01T00:00:00Z".to_string(),
@@ -259,6 +271,78 @@ fn after_slash(v: &str) -> Option<String> {
     None
 }
 
+/// 「8」「元」「６」等 (全角/半角/元年) を数値に。
+fn jp_num(s: &str) -> Option<u32> {
+    let t = s.trim();
+    if t == "元" {
+        return Some(1);
+    }
+    let digits: String = t
+        .chars()
+        .filter_map(|c| {
+            if c.is_ascii_digit() {
+                Some(c)
+            } else if ('０'..='９').contains(&c) {
+                char::from_u32(c as u32 - '０' as u32 + '0' as u32)
+            } else {
+                None
+            }
+        })
+        .collect();
+    digits.parse().ok()
+}
+
+/// 「令和 8年 6月12日」→「2026-06-12」。変換不能は None。
+fn wareki_to_iso(s: &str) -> Option<String> {
+    let s = s.trim();
+    let eras = [("令和", 2018), ("平成", 1988), ("昭和", 1925), ("大正", 1911), ("明治", 1867)];
+    let (rest, base) = eras.iter().find_map(|(e, b)| s.strip_prefix(e).map(|r| (r, *b)))?;
+    let yi = rest.find('年')?;
+    let year = jp_num(&rest[..yi])? as i32 + base;
+    let after_y = &rest[yi + '年'.len_utf8()..];
+    let mi = after_y.find('月')?;
+    let month = jp_num(&after_y[..mi])?;
+    let after_m = &after_y[mi + '月'.len_utf8()..];
+    let di = after_m.find('日')?;
+    let day = jp_num(&after_m[..di])?;
+    if !(1..=12).contains(&month) || !(1..=31).contains(&day) {
+        return None;
+    }
+    Some(format!("{year:04}-{month:02}-{day:02}"))
+}
+
+/// `／` 区切りの先頭（日付部分）を返す。区切りが無ければ全体。
+fn before_slash(v: &str) -> &str {
+    v.split('／').next().unwrap_or(v).trim()
+}
+
+/// 受理/付託/審議結果/公布のうち最も新しい日付(ISO)とそのイベント名を返す。
+fn latest_event(fields: &[KeyValue]) -> (Option<String>, Option<String>) {
+    let get = |k: &str| fields.iter().find(|f| f.key == k).map(|f| f.value.as_str());
+    // (フィールド名, イベントラベル)
+    let candidates = [
+        ("公布年月日／法律番号", "公布"),
+        ("衆議院審議終了年月日／衆議院審議結果", "審議終了(衆)"),
+        ("参議院審議終了年月日／参議院審議結果", "審議終了(参)"),
+        ("衆議院付託年月日／衆議院付託委員会", "委員会付託(衆)"),
+        ("参議院付託年月日／参議院付託委員会", "委員会付託(参)"),
+        ("衆議院議案受理年月日", "受理(衆)"),
+        ("参議院議案受理年月日", "受理(参)"),
+    ];
+    let mut best: Option<(String, &str)> = None;
+    for (key, label) in candidates {
+        let Some(raw) = get(key) else { continue };
+        let Some(iso) = wareki_to_iso(before_slash(raw)) else { continue };
+        if best.as_ref().map(|(d, _)| iso > *d).unwrap_or(true) {
+            best = Some((iso, label));
+        }
+    }
+    match best {
+        Some((iso, label)) => (Some(iso), Some(label.to_string())),
+        None => (None, None),
+    }
+}
+
 /// 審議経過ページ (`keika/{ID}.htm`) を事実フィールドに構造化する。
 pub fn parse_keika(html: &str, meta: &BillMeta, fetched_at: &str) -> Result<Bill> {
     let doc = Html::parse_document(html);
@@ -298,6 +382,8 @@ pub fn parse_keika(html: &str, meta: &BillMeta, fetched_at: &str) -> Result<Bill
         .filter(|s| !s.is_empty());
     let law_num = kofu.as_deref().and_then(after_slash);
 
+    let (latest_date, latest_ev) = latest_event(&fields);
+
     Ok(Bill {
         schema_version: 1,
         bill_id: meta.bill_id.clone(),
@@ -311,6 +397,8 @@ pub fn parse_keika(html: &str, meta: &BillMeta, fetched_at: &str) -> Result<Bill
         result,
         promulgation_date,
         law_num,
+        latest_date,
+        latest_event: latest_ev,
         status: meta.status.clone(),
         fields,
         source: BillSource {
@@ -381,6 +469,18 @@ mod tests {
         assert_eq!(b.law_num.as_deref(), Some("法律第50号"));
         assert_eq!(b.promulgation_date.as_deref(), Some("令和 8年 6月20日"));
         assert_eq!(b.fields.len(), 6);
+        // 最新の動き = 公布 (令和8年6月20日 = 2026-06-20)。
+        assert_eq!(b.latest_date.as_deref(), Some("2026-06-20"));
+        assert_eq!(b.latest_event.as_deref(), Some("公布"));
+    }
+
+    #[test]
+    fn wareki_conversion() {
+        assert_eq!(wareki_to_iso("令和 8年 6月12日").as_deref(), Some("2026-06-12"));
+        assert_eq!(wareki_to_iso("令和元年 5月 1日").as_deref(), Some("2019-05-01"));
+        assert_eq!(wareki_to_iso("平成31年 4月30日").as_deref(), Some("2019-04-30"));
+        assert_eq!(wareki_to_iso("／").as_deref(), None);
+        assert_eq!(wareki_to_iso("").as_deref(), None);
     }
 
     #[test]

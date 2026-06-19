@@ -78,6 +78,8 @@ pub fn run_build_json(cache: &Path, public: &Path) -> Result<()> {
                 "result": bill["result"],
                 "status": bill["status"],
                 "promulgation_date": bill["promulgation_date"],
+                "latest_date": bill["latest_date"],
+                "latest_event": bill["latest_event"],
                 "detail_url": bill["source"]["detail_url"],
             });
             entries.push(entry.clone());
