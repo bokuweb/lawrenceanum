@@ -13,6 +13,7 @@ const UpdatesView = lazy(() => import("./components/views/simple-views").then(m 
 const KanpoView = lazy(() => import("./components/views/simple-views").then(m => ({ default: m.KanpoView })));
 const SettingsView = lazy(() => import("./components/views/simple-views").then(m => ({ default: m.SettingsView })));
 const ProceedingsView = lazy(() => import("./components/views/proceedings-view").then(m => ({ default: m.ProceedingsView })));
+const PubcommentView = lazy(() => import("./components/views/pubcomment-view").then(m => ({ default: m.PubcommentView })));
 
 function ViewFallback() {
   return <div className="p-6 text-sm text-muted-foreground">読み込み中…</div>;
@@ -61,6 +62,17 @@ function ProceedingsRoute() {
   );
 }
 
+function PubcommentRoute() {
+  const { caseId } = useParams();
+  const navigate = useNavigate();
+  return (
+    <PubcommentView
+      caseId={caseId ?? null}
+      onSelectCase={(id) => navigate(id ? `/pubcomment/${id}` : "/pubcomment")}
+    />
+  );
+}
+
 function AppShell() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -95,6 +107,8 @@ function AppShell() {
               <Route path="/compare" element={<CompareRoute />} />
               <Route path="/proceedings" element={<ProceedingsRoute />} />
               <Route path="/proceedings/:meetingId" element={<ProceedingsRoute />} />
+              <Route path="/pubcomment" element={<PubcommentRoute />} />
+              <Route path="/pubcomment/:caseId" element={<PubcommentRoute />} />
               <Route path="/updates" element={<UpdatesView />} />
               <Route path="/kanpo" element={<KanpoView />} />
               <Route path="/settings" element={<SettingsView />} />

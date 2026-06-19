@@ -2148,7 +2148,9 @@ fn write_search_db(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
     let path = public.join("search.db");
     let proc_dir = public.join("proceedings");
     let proc_dir_opt = if proc_dir.is_dir() { Some(proc_dir.as_path()) } else { None };
-    search_index::build_search_db(&path, &docs, &categories, proc_dir_opt)?;
+    let kanpo_dir = public.join("kanpo");
+    let kanpo_dir_opt = if kanpo_dir.is_dir() { Some(kanpo_dir.as_path()) } else { None };
+    search_index::build_search_db(&path, &docs, &categories, proc_dir_opt, kanpo_dir_opt)?;
     Ok(())
 }
 

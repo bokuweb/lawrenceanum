@@ -79,6 +79,31 @@ function serve() {
     const target = exists ? filePath : join(serveDir, 'index.html')
     res.setHeader('Content-Type', MIME[extname(target)] ?? 'application/octet-stream')
     res.setHeader('Cache-Control', 'no-store')
+    res.setHeader('Accept-Ranges', 'bytes')
+
+    // HTTP Range 対応。sql.js-httpvfs (`serverMode: "full"`) は search.db を
+    // byte-range で取得するため必須 (本番 R2 と同条件にする)。
+    const size = statSync(target).size
+    const range = req.headers['range']
+    const m = range && /^bytes=(\d*)-(\d*)$/.exec(range)
+    if (m) {
+      let start = m[1] === '' ? undefined : parseInt(m[1], 10)
+      let end = m[2] === '' ? undefined : parseInt(m[2], 10)
+      if (start === undefined) { start = size - end; end = size - 1 }
+      else if (end === undefined) { end = size - 1 }
+      if (start < 0 || end >= size || start > end) {
+        res.statusCode = 416
+        res.setHeader('Content-Range', `bytes */${size}`)
+        res.end()
+        return
+      }
+      res.statusCode = 206
+      res.setHeader('Content-Range', `bytes ${start}-${end}/${size}`)
+      res.setHeader('Content-Length', String(end - start + 1))
+      createReadStream(target, { start, end }).pipe(res)
+      return
+    }
+    res.setHeader('Content-Length', String(size))
     createReadStream(target).pipe(res)
   })
   server.listen(port, host, () => {

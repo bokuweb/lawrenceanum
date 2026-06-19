@@ -323,6 +323,13 @@ export const api = {
   lawToProceedings: (lawId: string) => getJson<LawToProceedings>(`./links/law-to-proceedings/${lawId}.json`),
   /** 会議 → 言及法令 逆引きリンク。 */
   meetingToLaws: (meetingId: string) => getJson<MeetingToLaws>(`./links/meeting-to-laws/${meetingId}.json`),
+
+  /** パブリックコメント案件インデックス。 */
+  pubcommentIndex: () => getJson<PubcommentIndex>('./pubcomment/index.json'),
+  /** 個別パブコメ案件（意見と府省の考え方を含む）。 */
+  pubcommentCase: (caseId: string) => getJson<PubcommentCase>(`./pubcomment/${encodeURIComponent(caseId)}.json`),
+  /** 法令 ↔ パブコメ クロスリンク。 */
+  lawToPubcomment: (lawId: string) => getJson<LawToPubcomments>(`./links/law-to-pubcomment/${lawId}.json`),
 }
 
 // ── 国会会議録 型定義 ──────────────────────────────────────────────
@@ -394,4 +401,67 @@ export type LawToProceedings = {
   schema_version: number
   law_id: string
   linked_proceedings: LinkedProceeding[]
+}
+
+// ── パブリックコメント 型定義 ──────────────────────────────────────
+
+export type PubcommentCaseMeta = {
+  case_id: string
+  title: string
+  ministry: string | null
+  result_published: string | null
+  related_law_name: string | null
+}
+
+export type PubcommentIndex = {
+  schema_version: number
+  count: number
+  cases: PubcommentCaseMeta[]
+}
+
+export type OpinionSummary = {
+  item: string
+  opinion: string
+  ministry_response: string
+}
+
+export type PubcommentAttachment = {
+  name: string
+  url: string
+}
+
+export type PubcommentCase = {
+  schema_version: number
+  case_id: string
+  title: string
+  ministry: string | null
+  reception_start: string | null
+  reception_end: string | null
+  result_published: string | null
+  related_law_name: string | null
+  category?: string | null
+  command_title?: string | null
+  legal_basis?: string | null
+  responsible_office?: string | null
+  opinion_count?: number | null
+  opinions: OpinionSummary[]
+  attachments?: PubcommentAttachment[]
+  source: { provider: string; fetched_at: string; detail_url: string }
+}
+
+export type LinkedPubcomment = {
+  case_id: string
+  title: string
+  ministry: string
+  start_date: string
+  end_date: string
+  relevance: string
+  confidence: number
+  match_reasons: string[]
+}
+
+export type LawToPubcomments = {
+  schema_version: number
+  law_id: string
+  linked_pubcomments: LinkedPubcomment[]
 }

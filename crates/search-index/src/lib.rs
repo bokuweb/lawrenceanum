@@ -208,11 +208,13 @@ pub fn extract_self_article_refs<'a>(
 ///   FTS5 検索結果をカテゴリで絞り込めるよう `laws.category` 列に格納する。
 ///   未知の law_id は NULL になる。
 /// `proceedings_dir`: `public/proceedings/` へのパス。Some の場合は発言 FTS も構築。
+/// `kanpo_dir`: `public/kanpo/` へのパス。Some の場合は官報記事 FTS も構築。
 pub fn build_search_db(
     out_path: &Path,
     laws: &[LawDocument],
     categories: &std::collections::HashMap<String, String>,
     proceedings_dir: Option<&Path>,
+    kanpo_dir: Option<&Path>,
 ) -> Result<()> {
     if let Some(parent) = out_path.parent() {
         std::fs::create_dir_all(parent)?;
@@ -286,6 +288,21 @@ pub fn build_search_db(
             committee TEXT,
             date TEXT,
             speech_count INTEGER
+        );
+
+        -- 官報記事 FTS5。改め文 (amend_text) と記事タイトルを bigram 索引する。
+        -- 表示用メタ (date/issue_no/title/page/pdf_url/agency) は UNINDEXED で同居させ
+        -- JOIN 不要にする (search_fts と同じ方針)。
+        CREATE VIRTUAL TABLE kanpo_fts USING fts5(
+            date UNINDEXED,
+            issue_no UNINDEXED,
+            title UNINDEXED,
+            page UNINDEXED,
+            pdf_url UNINDEXED,
+            agency UNINDEXED,
+            title_tokens,
+            content_tokens,
+            tokenize='unicode61'
         );
 
         CREATE TABLE meta (
@@ -520,6 +537,74 @@ pub fn build_search_db(
             );
         }
 
+        // ── 官報記事 FTS (kanpo_dir が Some のとき) ─────────────────────────
+        let mut total_kanpo = 0usize;
+        if let Some(kdir) = kanpo_dir {
+            let mut kanpo_stmt = tx.prepare(
+                "INSERT INTO kanpo_fts \
+                 (date, issue_no, title, page, pdf_url, agency, title_tokens, content_tokens) \
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+            )?;
+            // `public/kanpo/{date}/index.json` を日付昇順に走査する。
+            let mut date_dirs: Vec<std::path::PathBuf> = std::fs::read_dir(kdir)
+                .map(|rd| {
+                    rd.filter_map(|e| e.ok())
+                        .map(|e| e.path())
+                        .filter(|p| p.is_dir())
+                        .collect()
+                })
+                .unwrap_or_default();
+            date_dirs.sort();
+            for ddir in &date_dirs {
+                let index_path = ddir.join("index.json");
+                if !index_path.exists() {
+                    continue;
+                }
+                let raw = std::fs::read_to_string(&index_path)
+                    .with_context(|| format!("read {}", index_path.display()))?;
+                let v: serde_json::Value = serde_json::from_str(&raw)?;
+                let date = v.get("date").and_then(|x| x.as_str()).unwrap_or("");
+                let Some(issues) = v.get("issues").and_then(|x| x.as_array()) else {
+                    continue;
+                };
+                for issue in issues {
+                    let issue_no = issue.get("issue_no").and_then(|x| x.as_str()).unwrap_or("");
+                    let issue_pdf = issue.get("pdf_url").and_then(|x| x.as_str()).unwrap_or("");
+                    let Some(items) = issue.get("items").and_then(|x| x.as_array()) else {
+                        continue;
+                    };
+                    for item in items {
+                        let title = item.get("title").and_then(|x| x.as_str()).unwrap_or("");
+                        if title.is_empty() {
+                            continue;
+                        }
+                        let page = item.get("page").and_then(|x| x.as_i64()).unwrap_or(0);
+                        let pdf_url = item
+                            .get("pdf_url")
+                            .and_then(|x| x.as_str())
+                            .filter(|s| !s.is_empty())
+                            .unwrap_or(issue_pdf);
+                        let agency = item.get("agency_hint").and_then(|x| x.as_str()).unwrap_or("");
+                        let amend = item.get("amend_text").and_then(|x| x.as_str()).unwrap_or("");
+                        let title_tokens = tokenize_for_fts(title);
+                        let content_tokens = tokenize_for_fts(amend);
+                        kanpo_stmt.execute(params![
+                            date,
+                            issue_no,
+                            title,
+                            page,
+                            pdf_url,
+                            agency,
+                            title_tokens,
+                            content_tokens,
+                        ])?;
+                        total_kanpo += 1;
+                    }
+                }
+            }
+            tracing::info!("search.db: indexed {} kanpo items", total_kanpo);
+        }
+
         tx.execute(
             "INSERT INTO meta (key, value) VALUES ('built_at', datetime('now')), \
              ('law_count', ?1), ('article_count', ?2), ('ref_count', ?3), \
@@ -589,5 +674,62 @@ mod tests {
         // panic しないこと自体がテスト。返り値は最低 1 件 (民法だけマッチ → article 解決失敗で None) を期待。
         let hits = extract_cross_law_refs(body, "OTHER", &cross, &articles_idx);
         assert!(hits.iter().any(|(_, lid, _)| lid == "129AC0000000089"));
+    }
+
+    #[test]
+    fn kanpo_fts_indexes_and_matches() {
+        // 一時ディレクトリに public/kanpo/{date}/index.json を作り、build_search_db で
+        // 索引 → kanpo_fts を MATCH 検索して改め文がヒットすることを確認する。
+        let root = std::env::temp_dir().join("lawpub_kanpo_fts_test");
+        let _ = std::fs::remove_dir_all(&root);
+        let kanpo_dir = root.join("kanpo").join("2026-04-02");
+        std::fs::create_dir_all(&kanpo_dir).unwrap();
+        let index = serde_json::json!({
+            "date": "2026-04-02",
+            "issues": [{
+                "issue_no": "第1678号",
+                "pdf_url": "https://www.kanpo.go.jp/20260402/20260402h01678/",
+                "items": [{
+                    "title": "郵便法施行規則の一部を改正する省令（総務五八）",
+                    "page": 2,
+                    "pdf_url": "https://www.kanpo.go.jp/20260402/x.pdf",
+                    "agency_hint": "総務五八",
+                    "amend_text": "郵便法施行規則の一部を改正する省令\n郵便法施行規則（平成十五年総務省令第五号）の一部を次のように改正する。"
+                }]
+            }]
+        });
+        std::fs::write(
+            kanpo_dir.join("index.json"),
+            serde_json::to_string(&index).unwrap(),
+        )
+        .unwrap();
+
+        let db_path = root.join("search.db");
+        let cats = std::collections::HashMap::new();
+        build_search_db(&db_path, &[], &cats, None, Some(&root.join("kanpo"))).unwrap();
+
+        let conn = Connection::open(&db_path).unwrap();
+        // 「施行規則」を bigram トークン化して MATCH。
+        let match_expr = tokenize_for_fts("施行規則");
+        let title: String = conn
+            .query_row(
+                "SELECT title FROM kanpo_fts WHERE kanpo_fts MATCH ?1 LIMIT 1",
+                params![match_expr],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert!(title.contains("郵便法施行規則"), "got: {title}");
+
+        // 本文(改め文)側のトークンでもヒットする。
+        let cnt: i64 = conn
+            .query_row(
+                "SELECT count(*) FROM kanpo_fts WHERE kanpo_fts MATCH ?1",
+                params![tokenize_for_fts("総務省令")],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert!(cnt >= 1, "amend_text 検索でヒットせず");
+
+        let _ = std::fs::remove_dir_all(&root);
     }
 }

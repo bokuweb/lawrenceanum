@@ -150,14 +150,31 @@ jobs:
           ./target/release/lawpub pubcomment-build-json \
             --cache .cache --public public
 
-      # ── 法令 ↔ パブコメ クロスリンク ─────────────────────────────
-
-      - name: Link laws and pubcomment
-        if: contains(env.DOMAINS, 'pubcomment') || env.DOMAINS == ''
+      # ── パブコメキャッシュを R2 へ (法令ワークフローが配信元) ─────────
+      # proceedings と同じ方式。このワークフローは Pages へ deploy せず、法令ワークフロー
+      # (update-law-data.yml) が R2 の pubcomment-cache.tar.zst を取得 → build-json →
+      # link-laws-and-pubcomment して laws と同梱 deploy する。法令 ↔ パブコメの link は
+      # public/laws/index.json が必要で、それが揃うのは法令ワークフロー側のため、ここでは
+      # 生 pubcomment キャッシュ (.cache/pubcomment/{case_id}.json) を上げるまでが責務。
+      - name: Upload pubcomment cache to R2
+        if: (contains(env.DOMAINS, 'pubcomment') || env.DOMAINS == '') && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
         run: |
-          [ -f public/laws/index.json ] || { echo "::notice::no laws index, skip link"; exit 0; }
-          [ -d public/pubcomment ] || { echo "::notice::no pubcomment, skip link"; exit 0; }
-          ./target/release/lawpub link-laws-and-pubcomment --public public || true
+          [ -d .cache/pubcomment ] || { echo "::notice::no pubcomment cache, skip R2 upload"; exit 0; }
+          n=$(find .cache/pubcomment -name '*.json' | wc -l | tr -d ' ')
+          # top-level を ./{case_id}.json にするため .cache/pubcomment 内から固める。
+          ( cd .cache/pubcomment && tar -cf - . | zstd -19 --long -T0 -o /tmp/pubcomment-cache.tar.zst -f )
+          ls -lh /tmp/pubcomment-cache.tar.zst
+          aws s3 cp /tmp/pubcomment-cache.tar.zst "s3://$R2_BUCKET/pubcomment-cache.tar.zst" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --content-type 'application/zstd' \
+            --cache-control 'public, max-age=300'
+          echo "::notice::uploaded pubcomment cache to R2 ($n cases)"
 
       # ── 調達情報 ─────────────────────────────────────────────────
 

@@ -8,10 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { ScrollArea } from "../ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ARTICLES_V2, TIMELINE_EVENTS, type LawSummary } from "../mock-data";
-import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark } from "lucide-react";
+import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark, MessageSquare } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 import { useLaws, useLawDetail } from "../../data/use-laws";
-import { api, type LawToProceedings, type AmendDocument, type AmendRun, type AmendNestedTable } from "../../data/api";
+import { api, type LawToProceedings, type LawToPubcomments, type AmendDocument, type AmendRun, type AmendNestedTable } from "../../data/api";
 import { getRefsForLaw, type ArticleRef } from "../../data/search-engine";
 
 /**
@@ -436,6 +436,18 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
   }, [law.law_id]);
   const linkedProceedings = proceedings?.linked_proceedings ?? [];
 
+  // この法令に関するパブコメ（law→pubcomment クロスリンク）。リンクが無ければ非表示。
+  const [pubcomments, setPubcomments] = useState<LawToPubcomments | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    setPubcomments(null);
+    api.lawToPubcomment(law.law_id)
+      .then(d => { if (!cancelled) setPubcomments(d); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [law.law_id]);
+  const linkedPubcomments = pubcomments?.linked_pubcomments ?? [];
+
   return (
     <div className="flex flex-col h-full">
       <div className="border-b border-border bg-background px-6 py-4">
@@ -501,6 +513,36 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
           </div>
           <p className="text-[10px] text-muted-foreground mt-1.5">
             <span className="inline-flex items-center gap-1"><span className="size-1.5 rounded-full bg-orange-400 inline-block" />改正審議</span>
+            <span className="ml-2 opacity-60">その他は言及のみ</span>
+          </p>
+        </div>
+      )}
+
+      {linkedPubcomments.length > 0 && (
+        <div className="border-b border-border bg-background px-6 py-3">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground mb-2">
+            <MessageSquare className="size-3" />
+            この法令に関するパブコメ ({linkedPubcomments.length})
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {linkedPubcomments.map(p => (
+              <button
+                key={p.case_id}
+                onClick={() => navigate(`/pubcomment/${p.case_id}`)}
+                title={p.match_reasons?.join(" / ") || undefined}
+                className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded border border-border hover:border-primary hover:text-primary transition-colors max-w-xs"
+              >
+                {p.relevance === "amendment_comment" && (
+                  <span className="size-1.5 rounded-full bg-orange-400 shrink-0" />
+                )}
+                <span className="truncate">{p.title}</span>
+                <span className="text-muted-foreground shrink-0">{p.ministry}</span>
+                <ArrowUpRight className="size-2.5 opacity-50 shrink-0" />
+              </button>
+            ))}
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-1.5">
+            <span className="inline-flex items-center gap-1"><span className="size-1.5 rounded-full bg-orange-400 inline-block" />改正パブコメ</span>
             <span className="ml-2 opacity-60">その他は言及のみ</span>
           </p>
         </div>
