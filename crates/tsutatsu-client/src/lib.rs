@@ -169,28 +169,58 @@ pub fn parse_index(html: &str) -> Vec<String> {
     let mut seen = std::collections::HashSet::new();
     for el in doc.select(&a) {
         let href = el.value().attr("href").unwrap_or("");
+        // フラグメント(#a-...)とクエリを除いたページ URL で判定・重複排除する。
+        // 目次は同一本文ページへ条文アンカー付きリンクを多数張るため、これを
+        // 剥がさないと .htm 末尾判定に失敗し本文ページをほとんど拾えない。
+        let page = href.split('#').next().unwrap_or(href);
         // 本文ページは kihon/{税目}/NN/NN.htm の形 (章/節の 2 階層)。
-        if href.contains("/kihon/")
-            && regex_like_two_level(href)
-            && seen.insert(href.to_string())
+        if page.contains("/kihon/")
+            && regex_like_two_level(page)
+            && seen.insert(page.to_string())
         {
-            out.push(href.to_string());
+            out.push(page.to_string());
         }
     }
     out
 }
 
-/// `…/kihon/{tax}/{2桁}/{2桁}.htm` のように末尾が「数字ディレクトリ/数字.htm」か。
+/// 本文ページ判定: `…/kihon/{tax}/…/{章ディレクトリ}/{ファイル}.htm` で、
+/// 直前の章ディレクトリが数字なら本文ページ。ファイル名の形は税目で異なる
+/// (所得税 `02.htm`、法人税 `02_03_07a.htm`、相続税 `00.htm`) ため、ファイル名は
+/// 問わず「親ディレクトリが数字」を本文ページのシグナルとする。章目次 (`{tax}/01.htm`)
+/// や `{tax}/zenbun/01.htm` 等は親が数字でないため除外される。
 fn regex_like_two_level(href: &str) -> bool {
     let path = href.split('?').next().unwrap_or(href);
-    let parts: Vec<&str> = path.trim_end_matches(".htm").rsplit('/').collect();
-    // parts[0] = ファイル名(数字), parts[1] = 章ディレクトリ(数字)
-    parts.len() >= 2
-        && path.ends_with(".htm")
-        && parts[0].chars().all(|c| c.is_ascii_digit())
-        && !parts[0].is_empty()
-        && parts[1].chars().all(|c| c.is_ascii_digit())
-        && !parts[1].is_empty()
+    let path = path.split('#').next().unwrap_or(path);
+    if !path.ends_with(".htm") {
+        return false;
+    }
+    let comps: Vec<&str> = path.split('/').filter(|s| !s.is_empty()).collect();
+    if comps.len() < 2 {
+        return false;
+    }
+    let file = comps[comps.len() - 1];
+    let parent = comps[comps.len() - 2];
+    !file.is_empty()
+        && !parent.is_empty()
+        && parent.chars().all(|c| c.is_ascii_digit())
+}
+
+/// 「番号らしい」<strong>断片か (数字・全角数字・ハイフン・空白・読点のみで、
+/// 数字を 1 つ以上含む)。先頭の番号 strong と本文中の強調 strong (例 "第3条") を
+/// 区別するために使う。
+fn is_number_like(s: &str) -> bool {
+    let mut has_digit = false;
+    for c in s.chars() {
+        match c {
+            '0'..='9' | '０'..='９' => has_digit = true,
+            '−' | '－' | '-' | 'ー' => {}
+            c if c.is_whitespace() => {}
+            '\u{3000}' => {} // 全角スペース
+            _ => return false,
+        }
+    }
+    has_digit
 }
 
 /// 通達番号らしき文字列を正規化 ("2", "−5　" → "2-5")。
@@ -222,11 +252,19 @@ pub fn parse_body(html: &str, page_url: &str, tax: &str) -> Vec<TsutatsuItem> {
             caption = if c.is_empty() { None } else { Some(c) };
             continue;
         }
-        // p.indent1 = 通達項目。先頭の <strong> 群が番号。
-        let number: String = norm_number(
-            &el.select(&strong).map(|s| text_of(&s)).collect::<Vec<_>>().join(""),
-        );
-        if number.is_empty() || !number.contains('-') {
+        // p.indent1 = 通達項目。先頭から「番号らしい」<strong> が続く範囲を番号とみなす
+        // (例: "2","−5　" → "2-5"; "1　" → "1")。本文中の強調 (例 "第3条") で止める。
+        let mut raw = String::new();
+        for s in el.select(&strong) {
+            let st = text_of(&s);
+            if is_number_like(&st) {
+                raw.push_str(&st);
+            } else {
+                break;
+            }
+        }
+        let number = norm_number(&raw);
+        if number.is_empty() {
             continue; // 番号が取れないものは項目でない。
         }
         let full = text_of(&el);
@@ -278,6 +316,21 @@ pub fn known_sets() -> Vec<KnownSet> {
             parent_law_id: "363AC0000000108",
             parent_law_title: "消費税法",
         },
+        KnownSet {
+            tax: "sozoku",
+            name: "相続税法基本通達",
+            index_url: format!("{BASE_URL}/law/tsutatsu/kihon/sisan/sozoku2/01.htm"),
+            parent_law_id: "325AC0000000073",
+            parent_law_title: "相続税法",
+        },
+        KnownSet {
+            // 財産評価基本通達も「法」は相続税法を指すため親法令は相続税法。
+            tax: "hyoka",
+            name: "財産評価基本通達",
+            index_url: format!("{BASE_URL}/law/tsutatsu/kihon/sisan/hyoka_new/01.htm"),
+            parent_law_id: "325AC0000000073",
+            parent_law_title: "相続税法",
+        },
     ]
 }
 
@@ -299,8 +352,27 @@ mod tests {
     #[test]
     fn two_level_filter() {
         assert!(regex_like_two_level("/law/tsutatsu/kihon/shotoku/01/02.htm"));
+        assert!(regex_like_two_level("/law/tsutatsu/kihon/hojin/02/02_03_07a.htm")); // 法人税
+        assert!(regex_like_two_level("/law/tsutatsu/kihon/sisan/sozoku2/01/00.htm")); // 相続税
         assert!(!regex_like_two_level("/law/tsutatsu/kihon/shotoku/01.htm")); // 目次(1階層)
+        assert!(!regex_like_two_level("/law/tsutatsu/kihon/hojin/zenbun/01.htm")); // 全文(章でない)
         assert!(!regex_like_two_level("/law/tsutatsu/menu.htm"));
+    }
+
+    #[test]
+    fn parse_index_strips_anchor_and_dedups() {
+        // 目次は同一本文ページに条文アンカー付きで多数リンクする。フラグメントを
+        // 剥がして本文ページ単位で重複排除する。
+        let html = r#"<html><body>
+          <p><a href="/law/tsutatsu/kihon/sisan/sozoku2/01/00.htm">a</a></p>
+          <p><a href="/law/tsutatsu/kihon/sisan/sozoku2/01/01.htm#a-1_1">b</a></p>
+          <p><a href="/law/tsutatsu/kihon/sisan/sozoku2/01/01.htm#a-1_2">c</a></p>
+          <p><a href="/law/tsutatsu/kihon/sisan/sozoku2/02.htm">章目次(除外)</a></p>
+        </body></html>"#;
+        let pages = parse_index(html);
+        assert_eq!(pages.len(), 2);
+        assert!(pages.contains(&"/law/tsutatsu/kihon/sisan/sozoku2/01/00.htm".to_string()));
+        assert!(pages.contains(&"/law/tsutatsu/kihon/sisan/sozoku2/01/01.htm".to_string()));
     }
 
     #[test]
@@ -308,6 +380,33 @@ mod tests {
         assert_eq!(norm_number("2−5　"), "2-5");
         assert_eq!(norm_number("２－１０"), "2-10");
         assert_eq!(norm_number("見出しのみ"), "");
+    }
+
+    #[test]
+    fn number_like_detection() {
+        assert!(is_number_like("1　"));
+        assert!(is_number_like("4−2"));
+        assert!(is_number_like("２－１０"));
+        assert!(!is_number_like("第3条")); // 本文中の強調は番号でない
+        assert!(!is_number_like("　")); // 数字なし
+        assert!(!is_number_like("注"));
+    }
+
+    #[test]
+    fn parse_body_accepts_bare_number_items() {
+        // 財産評価基本通達のような単独番号 ("1") の項目も拾う。
+        let html = r#"<html><body>
+          <h2>(評価の原則)</h2>
+          <p class="indent1"><strong>1　</strong>財産の価額は、時価によるものとし…</p>
+          <h2>(時価の意義)</h2>
+          <p class="indent1"><strong>4</strong><strong>−2　</strong>「時価」とは…</p>
+          <p class="indent1">法第3条の規定により…（番号 strong なし＝項目でない）</p>
+        </body></html>"#;
+        let items = parse_body(html, "https://x/01/01.htm", "hyoka");
+        assert_eq!(items.len(), 2);
+        assert_eq!(items[0].number, "1");
+        assert_eq!(items[0].caption.as_deref(), Some("評価の原則"));
+        assert_eq!(items[1].number, "4-2");
     }
 
     #[test]
