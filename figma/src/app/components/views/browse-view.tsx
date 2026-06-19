@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { ScrollArea } from "../ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ARTICLES_V2, TIMELINE_EVENTS, type LawSummary } from "../mock-data";
-import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark, MessageSquare } from "lucide-react";
+import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark, MessageSquare, Newspaper } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 import { useLaws, useLawDetail } from "../../data/use-laws";
 import { api, type LawToProceedings, type LawToPubcomments, type AmendDocument, type AmendRun, type AmendNestedTable } from "../../data/api";
@@ -448,6 +448,13 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
   }, [law.law_id]);
   const linkedPubcomments = pubcomments?.linked_pubcomments ?? [];
 
+  // この法令の官報掲載。timeline イベントのうち官報リンク済み (pdf_url あり) を拾う。
+  // liveEvents は公布日降順ソート済み。
+  const kanpoEvents = useMemo(
+    () => liveEvents.filter(e => e.kanpo?.linked && e.kanpo?.pdf_url),
+    [liveEvents],
+  );
+
   return (
     <div className="flex flex-col h-full">
       <div className="border-b border-border bg-background px-6 py-4">
@@ -545,6 +552,35 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
             <span className="inline-flex items-center gap-1"><span className="size-1.5 rounded-full bg-orange-400 inline-block" />改正パブコメ</span>
             <span className="ml-2 opacity-60">その他は言及のみ</span>
           </p>
+        </div>
+      )}
+
+      {kanpoEvents.length > 0 && (
+        <div className="border-b border-border bg-background px-6 py-3">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground mb-2">
+            <Newspaper className="size-3" />
+            この法令の官報掲載 ({kanpoEvents.length})
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {kanpoEvents.map(e => (
+              <a
+                key={e.event_id}
+                href={e.kanpo.pdf_url}
+                target="_blank"
+                rel="noreferrer"
+                title={e.amending_law_title ?? undefined}
+                className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded border border-border hover:border-primary hover:text-primary transition-colors max-w-xs"
+              >
+                <span className="shrink-0">{e.promulgation_date}</span>
+                {e.kanpo.amend_format === "shinkyu" && (
+                  <span className="text-[10px] px-1 rounded bg-muted text-muted-foreground shrink-0">新旧対照表</span>
+                )}
+                <span className="truncate text-muted-foreground">{e.amending_law_title ?? "改正"}</span>
+                <ExternalLink className="size-2.5 opacity-50 shrink-0" />
+              </a>
+            ))}
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-1.5">官報PDF（改め文の出所）を開きます</p>
         </div>
       )}
 
