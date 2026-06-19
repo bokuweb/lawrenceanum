@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "name": "所得税基本通達",
+  "tax": "shotoku",
+  "items": [
+    { "tax": "shotoku", "number": "2-1", "caption": "住所の意義", "text": "法に規定する住所とは各人の生活の本拠をいい、生活の本拠であるかどうかは客観的事実によって判定する。", "source_url": "https://www.nta.go.jp/law/tsutatsu/kihon/shotoku/01/02.htm" }
+  ],
+  "source": { "provider": "nta", "fetched_at": "2026-06-19T00:00:00Z", "index_url": "https://www.nta.go.jp/law/tsutatsu/kihon/shotoku/01.htm" }
+}

@@ -393,6 +393,48 @@ export async function searchKanpo(q: string, limit = 10): Promise<KanpoHit[]> {
   }
 }
 
+export type TsutatsuHit = {
+  tax: string;
+  number: string;
+  caption: string | null;
+  set_name: string | null;
+  source_url: string;
+  snippet: string;
+};
+
+/**
+ * 通達 (soft law) の全文検索 (tsutatsu_fts)。番号・見出し・本文を横断。
+ * 旧 search.db（tsutatsu_fts 未作成）では空配列にフォールバック。
+ */
+export async function searchTsutatsu(q: string, limit = 10): Promise<TsutatsuHit[]> {
+  const match = buildFtsMatchExpanded(q.trim());
+  if (!match) return [];
+  try {
+    const rows = await exec<{
+      tax: string; number: string; caption: string | null;
+      set_name: string | null; source_url: string; snippet: string;
+    }>(
+      `SELECT tax, number, caption, set_name, source_url,
+              snippet(tsutatsu_fts, 6, '<mark>', '</mark>', '...', 10) AS snippet
+         FROM tsutatsu_fts
+        WHERE tsutatsu_fts MATCH ?
+        ORDER BY rank
+        LIMIT ?`,
+      [match, limit],
+    );
+    return rows.map(r => ({
+      tax: String(r.tax ?? ""),
+      number: String(r.number ?? ""),
+      caption: r.caption ?? null,
+      set_name: r.set_name ?? null,
+      source_url: String(r.source_url ?? ""),
+      snippet: String(r.snippet ?? ""),
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export async function getOutgoingRefs(lawId: string, articleId: string): Promise<ArticleRef[]> {
   return exec<ArticleRef>(
     `SELECT from_law_id, from_article_id, to_law_id, to_article_id, ref_text, ref_type
