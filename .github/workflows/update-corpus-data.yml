@@ -17,7 +17,7 @@ on:
         type: choice
         options: ["http", "mock"]
       domains:
-        description: "カンマ区切りドメイン (kokkai,pubcomment,procurement,reiki,shingikai,budget) / 空=全て"
+        description: "カンマ区切りドメイン (kokkai,pubcomment,procurement,gian,reiki,shingikai,budget) / 空=全て"
         required: false
         type: string
       kokkai_session:
@@ -42,7 +42,7 @@ jobs:
     timeout-minutes: 120
     env:
       LAWPUB_PROVIDER: ${{ github.event.inputs.provider || 'http' }}
-      DOMAINS: ${{ github.event.inputs.domains || 'kokkai,pubcomment,procurement' }}
+      DOMAINS: ${{ github.event.inputs.domains || 'kokkai,pubcomment,procurement,gian' }}
 
     steps:
       - name: Checkout
@@ -139,8 +139,9 @@ jobs:
       - name: Fetch pubcomment
         if: contains(env.DOMAINS, 'pubcomment') || env.DOMAINS == ''
         run: |
+          # both = 意見募集中(締切前) + 結果公示済み。募集中は締切アラートの要。
           ./target/release/lawpub pubcomment-fetch \
-            --cache .cache --provider "${LAWPUB_PROVIDER}" --max-pages 50 || true
+            --cache .cache --provider "${LAWPUB_PROVIDER}" --max-pages 50 --status both || true
 
       - name: Build pubcomment JSON
         if: contains(env.DOMAINS, 'pubcomment') || env.DOMAINS == ''
@@ -175,6 +176,33 @@ jobs:
             --content-type 'application/zstd' \
             --cache-control 'public, max-age=300'
           echo "::notice::uploaded pubcomment cache to R2 ($n cases)"
+
+      # ── 議案 (法案審議トラッキング) ───────────────────────────────
+      - name: Fetch gian
+        if: contains(env.DOMAINS, 'gian') || env.DOMAINS == ''
+        run: |
+          # session=0 = 最新会期 (継続審議は審議経過の議案提出回次から正しい会期に)。
+          ./target/release/lawpub gian-fetch \
+            --cache .cache --provider "${LAWPUB_PROVIDER}" --session 0 || true
+
+      - name: Upload gian cache to R2
+        if: (contains(env.DOMAINS, 'gian') || env.DOMAINS == '') && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          [ -d .cache/gian ] || { echo "::notice::no gian cache, skip R2 upload"; exit 0; }
+          n=$(find .cache/gian -name '*.json' | wc -l | tr -d ' ')
+          # top-level を ./{session}/{bill_id}.json にするため .cache/gian 内から固める。
+          ( cd .cache/gian && tar -cf - . | zstd -19 --long -T0 -o /tmp/gian-cache.tar.zst -f )
+          aws s3 cp /tmp/gian-cache.tar.zst "s3://$R2_BUCKET/gian-cache.tar.zst" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --content-type 'application/zstd' \
+            --cache-control 'public, max-age=300'
+          echo "::notice::uploaded gian cache to R2 ($n bills)"
 
       # ── 調達情報 ─────────────────────────────────────────────────
 
@@ -224,8 +252,25 @@ jobs:
         run: |
           ./target/release/lawpub reiki-fetch \
             --cache .cache --provider "${LAWPUB_PROVIDER}" || true
-          ./target/release/lawpub reiki-build-json \
-            --cache .cache --public public || true
+
+      - name: Upload reiki cache to R2
+        if: contains(env.DOMAINS, 'reiki') && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          [ -d .cache/reiki ] || { echo "::notice::no reiki cache, skip R2 upload"; exit 0; }
+          n=$(find .cache/reiki -name '*.json' | wc -l | tr -d ' ')
+          # top-level を ./{muni_code}/{reiki_id}.json にするため .cache/reiki 内から固める。
+          ( cd .cache/reiki && tar -cf - . | zstd -19 --long -T0 -o /tmp/reiki-cache.tar.zst -f )
+          aws s3 cp /tmp/reiki-cache.tar.zst "s3://$R2_BUCKET/reiki-cache.tar.zst" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --content-type 'application/zstd' \
+            --cache-control 'public, max-age=300'
+          echo "::notice::uploaded reiki cache to R2 ($n reiki)"
 
       # ── キャッシュ保存 ────────────────────────────────────────────
 
