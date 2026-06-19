@@ -17,6 +17,7 @@ const PubcommentView = lazy(() => import("./components/views/pubcomment-view").t
 const FeedView = lazy(() => import("./components/views/feed-view").then(m => ({ default: m.FeedView })));
 const EnforcementView = lazy(() => import("./components/views/enforcement-view").then(m => ({ default: m.EnforcementView })));
 const GianView = lazy(() => import("./components/views/gian-view").then(m => ({ default: m.GianView })));
+const TsutatsuView = lazy(() => import("./components/views/tsutatsu-view").then(m => ({ default: m.TsutatsuView })));
 
 function ViewFallback() {
   return <div className="p-6 text-sm text-muted-foreground">読み込み中…</div>;
@@ -127,6 +128,7 @@ function AppShell() {
               <Route path="/gian" element={<GianRoute />} />
               <Route path="/gian/:session/:billId" element={<GianRoute />} />
               <Route path="/enforcement" element={<EnforcementView />} />
+              <Route path="/tsutatsu" element={<TsutatsuView />} />
               <Route path="/updates" element={<UpdatesView />} />
               <Route path="/kanpo" element={<KanpoView />} />
               <Route path="/settings" element={<SettingsView />} />

@@ -321,6 +321,11 @@ export const api = {
   /** 今後の施行予定 (施行期日カレンダー, 施行日昇順)。 */
   enforcementUpcoming: () => getJson<EnforcementUpcoming>('./enforcement/upcoming.json'),
 
+  /** 通達 (soft law) 集インデックス。 */
+  tsutatsuIndex: () => getJson<TsutatsuIndex>('./tsutatsu/index.json'),
+  /** 個別の通達集 (項目一覧つき)。 */
+  tsutatsuSet: (tax: string) => getJson<TsutatsuSet>(`./tsutatsu/${tax}.json`),
+
   /** 議案 (法案審議トラッキング) 全体インデックス。 */
   gianIndex: () => getJson<GianIndex>('./gian/index.json'),
   /** 個別議案の審議経過。 */
@@ -388,6 +393,32 @@ export type EnforcementUpcoming = {
   as_of: string
   count: number
   items: EnforcementItem[]
+}
+
+// ── 通達 (soft law) 型定義 ────────────────────────────────────────
+
+export type TsutatsuItem = {
+  tax: string
+  /** 通達番号 (例: "2-5")。 */
+  number: string
+  caption?: string | null
+  text: string
+  source_url: string
+}
+
+export type TsutatsuSet = {
+  schema_version: number
+  name: string
+  tax: string
+  items: TsutatsuItem[]
+  source: { provider: string; fetched_at: string; index_url: string }
+}
+
+export type TsutatsuIndexEntry = { tax: string; name: string; count: number }
+export type TsutatsuIndex = {
+  schema_version: number
+  count: number
+  sets: TsutatsuIndexEntry[]
 }
 
 // ── 規制変化フィード 型定義 ───────────────────────────────────────

@@ -27,7 +27,7 @@ function lawpubJsonDevServer() {
   const publicRoot = path.resolve(__dirname, '../public')
   const matches = (url: string) =>
     /^\/(index|manifest|health)\.json(\?|$)/.test(url) ||
-    /^\/(laws|updates|kanpo|schema|proceedings|links|pubcomment|procurement|shingikai|budget|reiki|feeds|enforcement|gian)\//.test(url)
+    /^\/(laws|updates|kanpo|schema|proceedings|links|pubcomment|procurement|shingikai|budget|reiki|feeds|enforcement|gian|tsutatsu)\//.test(url)
 
   return {
     name: 'lawpub-json-dev-server',
