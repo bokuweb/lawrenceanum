@@ -54,3 +54,44 @@ test("law list filters by title", async ({ page }) => {
   await expect(page.locator("text=アルファ法")).toHaveCount(0);
   await expect(page.locator("text=民法")).toHaveCount(0);
 });
+
+// 法令詳細の「この法令の官報掲載」ブロック。timeline.json の官報リンク済み
+// イベント (kanpo.linked && pdf_url) を拾って表示する。current.json は fixture に
+// 無く 404 → offlineFallback だが、timeline は独立取得されるのでブロックは出る。
+test("法令詳細に「この法令の官報掲載」が出て官報PDFへリンクする", async ({ page }) => {
+  const lawId = "129AC0000000089"; // fixture index に居る民法
+  await page.route(`**/laws/${lawId}/timeline.json`, (route) =>
+    route.fulfill({
+      json: {
+        law_id: lawId,
+        events: [
+          {
+            event_id: "ev-kanpo-1",
+            event_type: "amendment",
+            target_law_id: lawId,
+            amending_law_num: "令和八年政令第九六号",
+            amending_law_title: "民法の一部を改正する政令",
+            promulgation_date: "2026-04-24",
+            effective_date: "2026-04-24",
+            revision_id: "r1",
+            status: "current",
+            kanpo: {
+              linked: true,
+              path: "kanpo/2026-04-24/index.json",
+              confidence: 0.95,
+              pdf_url: "https://www.kanpo.go.jp/20260424/x.pdf",
+              page: 3,
+              amend_format: "prose",
+            },
+          },
+        ],
+      },
+    }),
+  );
+
+  await page.goto(new URL(`#/laws/${lawId}`, BASE).toString());
+
+  await expect(page.getByText(/この法令の官報掲載 \(\d+\)/)).toBeVisible({ timeout: 15_000 });
+  const link = page.getByRole("link", { name: /民法の一部を改正する政令/ });
+  await expect(link).toHaveAttribute("href", "https://www.kanpo.go.jp/20260424/x.pdf");
+});
