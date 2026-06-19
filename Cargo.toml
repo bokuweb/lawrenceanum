@@ -16,6 +16,7 @@ members = [
     "crates/reiki-client",
     "crates/shingikai-client",
     "crates/estat-client",
+    "crates/gian-client",
 ]
 
 [workspace.package]

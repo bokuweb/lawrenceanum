@@ -7,6 +7,7 @@ mod build;
 mod compress;
 mod diffs;
 mod feeds;
+mod gian;
 mod kanpo;
 mod proceedings;
 mod procurement;
@@ -395,6 +396,25 @@ enum Cmd {
         #[arg(long, default_value = "public")]
         public: PathBuf,
     },
+
+    /// 国会 議案情報 (法案審議トラッキング) を取得し `.cache/gian/` に保存する。
+    GianFetch {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "http")]
+        provider: String,
+        /// 国会回次。0 で最新回。
+        #[arg(long, default_value_t = 0)]
+        session: u32,
+    },
+
+    /// `.cache/gian/` → `public/gian/{session}/*.json` + index を書き出す。
+    GianBuildJson {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
 }
 
 fn main() -> Result<()> {
@@ -557,6 +577,8 @@ fn main() -> Result<()> {
         Cmd::BudgetBuildJson { cache, public } => budget::run_build_json(&cache, &public),
         Cmd::LinkLawsAndPubcomment { public } => linking::run_link_pubcomment(&public),
         Cmd::BuildFeeds { public } => feeds::run_build_feeds(&public),
+        Cmd::GianFetch { cache, provider, session } => gian::run_fetch(&cache, &provider, session),
+        Cmd::GianBuildJson { cache, public } => gian::run_build_json(&cache, &public),
         Cmd::LinkLawsAndProcurement { public } => linking::run_link_procurement(&public),
     }
 }
