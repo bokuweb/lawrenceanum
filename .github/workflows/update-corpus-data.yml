@@ -17,7 +17,7 @@ on:
         type: choice
         options: ["http", "mock"]
       domains:
-        description: "カンマ区切りドメイン (kokkai,pubcomment,procurement,gian,reiki,shingikai,budget) / 空=全て"
+        description: "カンマ区切りドメイン (kokkai,pubcomment,procurement,gian,tsutatsu,reiki,shingikai,budget) / 空=全て"
         required: false
         type: string
       kokkai_session:
@@ -42,7 +42,7 @@ jobs:
     timeout-minutes: 120
     env:
       LAWPUB_PROVIDER: ${{ github.event.inputs.provider || 'http' }}
-      DOMAINS: ${{ github.event.inputs.domains || 'kokkai,pubcomment,procurement,gian' }}
+      DOMAINS: ${{ github.event.inputs.domains || 'kokkai,pubcomment,procurement,gian,tsutatsu' }}
 
     steps:
       - name: Checkout
@@ -203,6 +203,34 @@ jobs:
             --content-type 'application/zstd' \
             --cache-control 'public, max-age=300'
           echo "::notice::uploaded gian cache to R2 ($n bills)"
+
+      # ── 通達 (国税庁 法令解釈通達 soft law) ───────────────────────
+      - name: Fetch tsutatsu
+        if: contains(env.DOMAINS, 'tsutatsu') || env.DOMAINS == ''
+        run: |
+          # 所得税・法人税・消費税の各基本通達 (全ページ)。著作権法13条で通達に
+          # 著作権なし・国税庁は PDL1.0 (CC BY 互換) で再配布可 (出典明記)。
+          ./target/release/lawpub tsutatsu-fetch \
+            --cache .cache --provider "${LAWPUB_PROVIDER}" --max-pages 0 || true
+
+      - name: Upload tsutatsu cache to R2
+        if: (contains(env.DOMAINS, 'tsutatsu') || env.DOMAINS == '') && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          [ -d .cache/tsutatsu ] || { echo "::notice::no tsutatsu cache, skip R2 upload"; exit 0; }
+          n=$(find .cache/tsutatsu -name '*.json' | wc -l | tr -d ' ')
+          # top-level を ./{tax}.json にするため .cache/tsutatsu 内から固める。
+          ( cd .cache/tsutatsu && tar -cf - . | zstd -19 --long -T0 -o /tmp/tsutatsu-cache.tar.zst -f )
+          aws s3 cp /tmp/tsutatsu-cache.tar.zst "s3://$R2_BUCKET/tsutatsu-cache.tar.zst" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --content-type 'application/zstd' \
+            --cache-control 'public, max-age=300'
+          echo "::notice::uploaded tsutatsu cache to R2 ($n sets)"
 
       # ── 調達情報 ─────────────────────────────────────────────────
 

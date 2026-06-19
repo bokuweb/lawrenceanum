@@ -562,6 +562,75 @@ pub fn run_link_procurement(public: &Path) -> Result<()> {
     Ok(())
 }
 
+// ── 通達 クロスリンク ─────────────────────────────────────────────
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LinkedTsutatsu {
+    /// 税目スラッグ (例: "shotoku")。
+    pub tax: String,
+    /// 通達集名 (例: "所得税基本通達")。
+    pub name: String,
+    /// 通達項目数。
+    pub count: usize,
+    pub relevance: String,
+    pub confidence: f32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LawToTsutatsu {
+    pub schema_version: u32,
+    pub law_id: String,
+    pub linked_tsutatsu: Vec<LinkedTsutatsu>,
+}
+
+/// `public/` を受け取り、`links/law-to-tsutatsu/` を生成する。
+///
+/// 通達集の `parent_law_id` (例: 所得税基本通達 → 所得税法) を使った
+/// 集合レベルのクロスリンク。通達本文中の「法」はその親法令を指すため、
+/// 親法令の詳細画面から関連通達集へ辿れるようにする。
+pub fn run_link_tsutatsu(public: &Path) -> Result<()> {
+    let index_path = public.join("tsutatsu").join("index.json");
+    if !index_path.exists() {
+        tracing::warn!("no tsutatsu index at {}; skipping", index_path.display());
+        return Ok(());
+    }
+    let v: serde_json::Value = serde_json::from_slice(&std::fs::read(&index_path)?)?;
+
+    // law_id → Vec<LinkedTsutatsu>
+    let mut result: HashMap<String, Vec<LinkedTsutatsu>> = HashMap::new();
+    for set in v["sets"].as_array().unwrap_or(&vec![]) {
+        let law_id = set["parent_law_id"].as_str().unwrap_or("");
+        if law_id.is_empty() {
+            continue;
+        }
+        result.entry(law_id.to_string()).or_default().push(LinkedTsutatsu {
+            tax: set["tax"].as_str().unwrap_or("").to_string(),
+            name: set["name"].as_str().unwrap_or("").to_string(),
+            count: set["count"].as_u64().unwrap_or(0) as usize,
+            relevance: "interpretive_circular".to_string(),
+            confidence: 0.95,
+        });
+    }
+
+    let links_dir = public.join("links").join("law-to-tsutatsu");
+    std::fs::create_dir_all(&links_dir)?;
+    let mut written = 0usize;
+    for (law_id, mut items) in result {
+        items.sort_by(|a, b| a.tax.cmp(&b.tax));
+        let output = LawToTsutatsu {
+            schema_version: 1,
+            law_id: law_id.clone(),
+            linked_tsutatsu: items,
+        };
+        let path = links_dir.join(format!("{law_id}.json"));
+        std::fs::write(&path, serde_json::to_string_pretty(&output)?)
+            .with_context(|| format!("write {}", path.display()))?;
+        written += 1;
+    }
+    tracing::info!("link-tsutatsu: {written} files written");
+    Ok(())
+}
+
 // ── テスト ────────────────────────────────────────────────────────
 
 #[cfg(test)]
@@ -607,5 +676,37 @@ mod tests {
         let (ac, _metas) = build_automaton(&laws).unwrap();
         let hits: Vec<_> = ac.find_overlapping_iter("法について").collect();
         assert!(hits.is_empty());
+    }
+
+    #[test]
+    fn tsutatsu_links_by_parent_law() {
+        let dir = std::env::temp_dir().join(format!("lawpub_tsutatsu_link_{}", std::process::id()));
+        let tsutatsu_dir = dir.join("tsutatsu");
+        std::fs::create_dir_all(&tsutatsu_dir).unwrap();
+        std::fs::write(
+            tsutatsu_dir.join("index.json"),
+            serde_json::to_vec(&serde_json::json!({
+                "schema_version": 1,
+                "count": 2,
+                "sets": [
+                    {"tax": "shotoku", "name": "所得税基本通達", "count": 638,
+                     "parent_law_id": "340AC0000000033", "parent_law_title": "所得税法"},
+                    {"tax": "hojin", "name": "法人税基本通達", "count": 100,
+                     "parent_law_id": "340AC0000000034", "parent_law_title": "法人税法"}
+                ]
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        run_link_tsutatsu(&dir).unwrap();
+
+        let out = dir.join("links").join("law-to-tsutatsu").join("340AC0000000033.json");
+        let v: LawToTsutatsu = serde_json::from_slice(&std::fs::read(&out).unwrap()).unwrap();
+        assert_eq!(v.law_id, "340AC0000000033");
+        assert_eq!(v.linked_tsutatsu.len(), 1);
+        assert_eq!(v.linked_tsutatsu[0].tax, "shotoku");
+        assert_eq!(v.linked_tsutatsu[0].count, 638);
+        std::fs::remove_dir_all(&dir).ok();
     }
 }
