@@ -37,3 +37,4 @@ reiki-client = { path = "../reiki-client" }
 shingikai-client = { path = "../shingikai-client" }
 estat-client = { path = "../estat-client" }
 gian-client = { path = "../gian-client" }
+tsutatsu-client = { path = "../tsutatsu-client" }

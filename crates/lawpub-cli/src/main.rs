@@ -17,6 +17,7 @@ mod reiki;
 mod shingikai;
 mod snapshots;
 mod state;
+mod tsutatsu;
 mod status;
 mod validate;
 
@@ -425,6 +426,25 @@ enum Cmd {
         #[arg(long, default_value = "public")]
         public: PathBuf,
     },
+
+    /// 国税庁 法令解釈通達 (soft law) を取得し `.cache/tsutatsu/` に保存する。
+    TsutatsuFetch {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "http")]
+        provider: String,
+        /// 通達集ごとの最大取得本文ページ数 (0=全て)。
+        #[arg(long, default_value_t = 0)]
+        max_pages: usize,
+    },
+
+    /// `.cache/tsutatsu/` → `public/tsutatsu/{tax}.json` + index を書き出す。
+    TsutatsuBuildJson {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
 }
 
 fn main() -> Result<()> {
@@ -590,6 +610,8 @@ fn main() -> Result<()> {
         Cmd::GianFetch { cache, provider, session } => gian::run_fetch(&cache, &provider, session),
         Cmd::GianBuildJson { cache, public } => gian::run_build_json(&cache, &public),
         Cmd::BuildEnforcement { public } => enforcement::run_build(&public),
+        Cmd::TsutatsuFetch { cache, provider, max_pages } => tsutatsu::run_fetch(&cache, &provider, max_pages),
+        Cmd::TsutatsuBuildJson { cache, public } => tsutatsu::run_build_json(&cache, &public),
         Cmd::LinkLawsAndProcurement { public } => linking::run_link_procurement(&public),
     }
 }
