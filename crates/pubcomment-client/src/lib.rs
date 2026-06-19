@@ -34,6 +34,9 @@ pub struct CaseMeta {
     pub reception_start: Option<String>,
     pub reception_end: Option<String>,
     pub result_published: Option<String>,
+    /// "open" (意見募集中, Mode=0) / "closed" (結果公示済み, Mode=1)。
+    #[serde(default)]
+    pub status: String,
     pub detail_url: String,
 }
 
@@ -83,6 +86,9 @@ pub struct CaseDetail {
     /// 結果公示等の添付ファイル。
     #[serde(default)]
     pub attachments: Vec<Attachment>,
+    /// "open" (意見募集中) / "closed" (結果公示済み)。
+    #[serde(default)]
+    pub status: String,
     pub source: CaseSource,
 }
 
@@ -93,17 +99,56 @@ pub struct CaseSource {
     pub detail_url: String,
 }
 
+impl CaseDetail {
+    /// 詳細ページを取らずに一覧メタから組む（意見募集中は結果が未公開のため）。
+    pub fn from_meta(meta: &CaseMeta, fetched_at: &str) -> Self {
+        CaseDetail {
+            schema_version: 1,
+            case_id: meta.case_id.clone(),
+            title: meta.title.clone(),
+            ministry: meta.ministry.clone(),
+            reception_start: meta.reception_start.clone(),
+            reception_end: meta.reception_end.clone(),
+            result_published: meta.result_published.clone(),
+            related_law_name: None,
+            category: None,
+            command_title: None,
+            legal_basis: None,
+            responsible_office: None,
+            opinion_count: None,
+            opinions: Vec::new(),
+            attachments: Vec::new(),
+            status: meta.status.clone(),
+            source: CaseSource {
+                provider: "egov_pubcomment".to_string(),
+                fetched_at: fetched_at.to_string(),
+                detail_url: meta.detail_url.clone(),
+            },
+        }
+    }
+}
+
 // ── Provider trait ────────────────────────────────────────────────
 
 pub trait PubcommentProvider: Send + Sync {
-    fn fetch_case_list(&self, page: u32) -> Result<Vec<CaseMeta>>;
-    fn fetch_case_detail(&self, case_id: &str) -> Result<CaseDetail>;
+    /// `mode`: 0=意見募集中, 1=結果公示済み。
+    fn fetch_case_list(&self, mode: u8, page: u32) -> Result<Vec<CaseMeta>>;
+    fn fetch_case_detail(&self, case_id: &str, mode: u8) -> Result<CaseDetail>;
+}
+
+/// mode → status 文字列。
+pub fn mode_status(mode: u8) -> &'static str {
+    if mode == 0 { "open" } else { "closed" }
 }
 
 // ── URL 生成 ──────────────────────────────────────────────────────
 
-fn list_url(base: &str, page: u32) -> String {
-    format!("{base}/pcm/list?CLASSNAME=PCMMSTLIST&Mode=1&Page={page}")
+fn list_url(base: &str, mode: u8, page: u32) -> String {
+    format!("{base}/pcm/list?CLASSNAME=PCMMSTLIST&Mode={mode}&Page={page}")
+}
+
+fn detail_url_mode(base: &str, case_id: &str, mode: u8) -> String {
+    format!("{base}/pcm/1040?CLASSNAME=PCM1040&id={case_id}&Mode={mode}")
 }
 
 fn detail_url(base: &str, case_id: &str) -> String {
@@ -115,7 +160,7 @@ fn detail_url(base: &str, case_id: &str) -> String {
 pub struct MockProvider;
 
 impl PubcommentProvider for MockProvider {
-    fn fetch_case_list(&self, _page: u32) -> Result<Vec<CaseMeta>> {
+    fn fetch_case_list(&self, mode: u8, _page: u32) -> Result<Vec<CaseMeta>> {
         Ok(vec![CaseMeta {
             case_id: "300110052".to_string(),
             title: "民法の一部を改正する法律案に関するパブリックコメント".to_string(),
@@ -123,11 +168,12 @@ impl PubcommentProvider for MockProvider {
             reception_start: Some("2023-06-01".to_string()),
             reception_end: Some("2023-06-30".to_string()),
             result_published: Some("2023-09-01".to_string()),
-            detail_url: detail_url(BASE_URL, "300110052"),
+            status: mode_status(mode).to_string(),
+            detail_url: detail_url_mode(BASE_URL, "300110052", mode),
         }])
     }
 
-    fn fetch_case_detail(&self, case_id: &str) -> Result<CaseDetail> {
+    fn fetch_case_detail(&self, case_id: &str, mode: u8) -> Result<CaseDetail> {
         Ok(CaseDetail {
             schema_version: 1,
             case_id: case_id.to_string(),
@@ -136,6 +182,7 @@ impl PubcommentProvider for MockProvider {
             reception_start: Some("2023-06-01".to_string()),
             reception_end: Some("2023-06-30".to_string()),
             result_published: Some("2023-09-01".to_string()),
+            status: mode_status(mode).to_string(),
             related_law_name: Some("民法".to_string()),
             category: Some("民事".to_string()),
             command_title: Some("民法の一部を改正する法律".to_string()),
@@ -199,19 +246,27 @@ impl Default for HttpProvider {
 }
 
 impl PubcommentProvider for HttpProvider {
-    fn fetch_case_list(&self, page: u32) -> Result<Vec<CaseMeta>> {
+    fn fetch_case_list(&self, mode: u8, page: u32) -> Result<Vec<CaseMeta>> {
         let client = Self::client()?;
-        let url = list_url(&self.base_url, page);
+        let url = list_url(&self.base_url, mode, page);
         let html = Self::get_html(&client, &url)?;
-        parse_case_list(&html, &self.base_url)
+        let mut metas = parse_case_list(&html, &self.base_url)?;
+        // 詳細 URL の Mode と status を揃える。
+        for m in metas.iter_mut() {
+            m.status = mode_status(mode).to_string();
+            m.detail_url = detail_url_mode(&self.base_url, &m.case_id, mode);
+        }
+        Ok(metas)
     }
 
-    fn fetch_case_detail(&self, case_id: &str) -> Result<CaseDetail> {
+    fn fetch_case_detail(&self, case_id: &str, mode: u8) -> Result<CaseDetail> {
         let client = Self::client()?;
-        let url = detail_url(&self.base_url, case_id);
+        let url = detail_url_mode(&self.base_url, case_id, mode);
         let html = Self::get_html(&client, &url)?;
         let fetched_at = chrono::Utc::now().to_rfc3339();
-        parse_case_detail(&html, case_id, &url, &fetched_at, &self.base_url)
+        let mut d = parse_case_detail(&html, case_id, &url, &fetched_at, &self.base_url)?;
+        d.status = mode_status(mode).to_string();
+        Ok(d)
     }
 }
 
@@ -291,9 +346,11 @@ pub fn parse_case_list(html: &str, base_url: &str) -> Result<Vec<CaseMeta>> {
             .select(&status_cursor_sel)
             .find_map(|c| c.value().attr("onclick").and_then(extract_case_id));
 
-        // 属性 (案件番号 / 結果の公示日 / 所管省庁 …) を label→value で集める。
+        // 属性を label→value で集める (募集中カードは 案の公示日/受付締切日時 を持つ)。
         let mut ministry = None;
         let mut result_published = None;
+        let mut reception_start = None;
+        let mut reception_end = None;
         let mut case_id_attr = None;
         for d in li.select(&detail_sel) {
             let full = text_of(&d);
@@ -302,6 +359,8 @@ pub fn parse_case_list(html: &str, base_url: &str) -> Result<Vec<CaseMeta>> {
             match label.as_str() {
                 "案件番号" => case_id_attr = Some(value),
                 "結果の公示日" | "結果公示日" => result_published = Some(value),
+                "案の公示日" => reception_start = Some(value),
+                "受付締切日時" => reception_end = Some(value),
                 "所管省庁" => ministry = Some(value),
                 _ => {}
             }
@@ -319,9 +378,10 @@ pub fn parse_case_list(html: &str, base_url: &str) -> Result<Vec<CaseMeta>> {
             case_id: case_id.clone(),
             title,
             ministry,
-            reception_start: None,
-            reception_end: None,
+            reception_start,
+            reception_end,
             result_published,
+            status: String::new(),
             detail_url: detail_url(base_url, &case_id),
         });
     }
@@ -416,6 +476,7 @@ pub fn parse_case_detail(
         opinion_count,
         opinions: Vec::new(),
         attachments,
+        status: String::new(),
         source: CaseSource {
             provider: "egov_pubcomment".to_string(),
             fetched_at: fetched_at.to_string(),
@@ -433,7 +494,7 @@ mod tests {
     #[test]
     fn mock_provider_returns_list() {
         let p = MockProvider;
-        let cases = p.fetch_case_list(1).unwrap();
+        let cases = p.fetch_case_list(1, 1).unwrap();
         assert_eq!(cases.len(), 1);
         assert_eq!(cases[0].ministry.as_deref(), Some("法務省"));
     }
@@ -441,7 +502,7 @@ mod tests {
     #[test]
     fn mock_provider_returns_detail() {
         let p = MockProvider;
-        let d = p.fetch_case_detail("300110052").unwrap();
+        let d = p.fetch_case_detail("300110052", 1).unwrap();
         assert_eq!(d.schema_version, 1);
         assert_eq!(d.source.provider, "egov_pubcomment");
         assert!(d.source.detail_url.contains("/pcm/1040"));
@@ -523,10 +584,10 @@ mod tests {
     #[ignore]
     fn http_provider_real_fetch() {
         let p = HttpProvider::new();
-        let cases = p.fetch_case_list(1).unwrap();
+        let cases = p.fetch_case_list(1, 1).unwrap();
         println!("{} cases on page 1", cases.len());
         assert!(!cases.is_empty());
-        let d = p.fetch_case_detail(&cases[0].case_id).unwrap();
+        let d = p.fetch_case_detail(&cases[0].case_id, 1).unwrap();
         println!("detail: {} / law={:?}", d.title, d.related_law_name);
         assert!(!d.title.is_empty());
     }

@@ -24,10 +24,16 @@ function CaseListItem({ meta, selected, onClick }: {
     >
       <div className="text-sm font-medium line-clamp-2">{meta.title}</div>
       <div className="flex items-center gap-2 mt-1 flex-wrap">
+        {meta.status === "open" && (
+          <span className="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 font-medium">募集中</span>
+        )}
         {meta.ministry && (
           <span className="text-xs text-muted-foreground">{meta.ministry}</span>
         )}
-        {meta.result_published && (
+        {meta.status === "open" && meta.reception_end && (
+          <span className="text-xs text-amber-700 dark:text-amber-400">締切 {meta.reception_end}</span>
+        )}
+        {meta.status !== "open" && meta.result_published && (
           <span className="text-xs text-muted-foreground">公示 {meta.result_published}</span>
         )}
         {meta.related_law_name && (
