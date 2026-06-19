@@ -1,10 +1,54 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useNavigate } from "react-router";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
 import { ScrollText, Search, ExternalLink } from "lucide-react";
 import { api, type TsutatsuIndex, type TsutatsuSet, type TsutatsuItem } from "../../data/api";
+
+// 全角数字→半角。
+function toAscii(s: string): string {
+  return s.replace(/[０-９]/g, d => String.fromCharCode(d.charCodeAt(0) - 0xff10 + 0x30));
+}
+
+// 通達本文中の「法第N条」を親法令の条文へリンクする。
+// ただし「法」が漢字/かなに続く場合 (民法・措置法・同法 等) は親法令を指さないため
+// リンクしない (誤リンク防止)。先頭または非漢字かなの直後の「法」のみ対象。
+const LAW_ART_RE = /(^|[^一-鿿ぁ-んァ-ヶー々])(法第)([0-9０-９]+)(条)/g;
+
+function renderWithLawLinks(
+  text: string,
+  parentLawId: string | null | undefined,
+  onJump: (articleId: string) => void,
+): ReactNode {
+  if (!parentLawId || !text) return text;
+  const out: ReactNode[] = [];
+  let last = 0;
+  let m: RegExpExecArray | null;
+  LAW_ART_RE.lastIndex = 0;
+  while ((m = LAW_ART_RE.exec(text)) !== null) {
+    const [whole, pre] = m;
+    const n = toAscii(m[3]);
+    const refStart = m.index + pre.length; // 「法第…条」の開始位置
+    out.push(text.slice(last, refStart));
+    out.push(
+      <button
+        key={refStart}
+        type="button"
+        onClick={() => onJump(`art_${n}`)}
+        title={`${parentLawId} 第${n}条へ`}
+        className="text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid"
+      >
+        法第{m[3]}条
+      </button>,
+    );
+    last = m.index + whole.length;
+  }
+  if (last === 0) return text; // マッチ無し
+  out.push(text.slice(last));
+  return out;
+}
 
 function useTsutatsuIndex() {
   const [data, setData] = useState<TsutatsuIndex | null>(null);
@@ -34,7 +78,17 @@ function useTsutatsuSet(tax: string | null) {
   return { data, loading };
 }
 
-function ItemCard({ item, query }: { item: TsutatsuItem; query: string }) {
+function ItemCard({
+  item,
+  query,
+  parentLawId,
+  onJump,
+}: {
+  item: TsutatsuItem;
+  query: string;
+  parentLawId?: string | null;
+  onJump: (articleId: string) => void;
+}) {
   // テキストはクエリ周辺を抜粋表示。
   const excerpt = useMemo(() => {
     const q = query.trim();
@@ -53,7 +107,9 @@ function ItemCard({ item, query }: { item: TsutatsuItem; query: string }) {
           <ExternalLink className="size-3.5" />
         </a>
       </div>
-      <p className="text-sm text-muted-foreground leading-relaxed">{excerpt}</p>
+      <p className="text-sm text-muted-foreground leading-relaxed">
+        {renderWithLawLinks(excerpt, parentLawId, onJump)}
+      </p>
     </div>
   );
 }
@@ -67,6 +123,7 @@ function initialTaxFromUrl(): string | null {
 }
 
 export function TsutatsuView() {
+  const navigate = useNavigate();
   const { data: index, loading: idxLoading } = useTsutatsuIndex();
   const [tax, setTax] = useState<string | null>(() => initialTaxFromUrl());
   useEffect(() => {
@@ -108,6 +165,16 @@ export function TsutatsuView() {
           <Input value={query} onChange={e => setQuery(e.target.value)} placeholder="番号・見出し・本文で絞り込み…" className="pl-8 h-8 text-sm" />
         </div>
         {set && <span className="text-xs text-muted-foreground">{filtered.length}/{set.items.length}件</span>}
+        {set?.parent_law_id && set?.parent_law_title && (
+          <button
+            type="button"
+            onClick={() => navigate(`/laws/${set.parent_law_id}`)}
+            className="text-xs text-muted-foreground hover:text-primary"
+            title="この通達集が解釈する法令"
+          >
+            法＝<span className="underline decoration-dotted underline-offset-2">{set.parent_law_title}</span>
+          </button>
+        )}
       </div>
 
       <div className="border border-border rounded-lg overflow-hidden">
@@ -119,7 +186,15 @@ export function TsutatsuView() {
               {index ? "該当する通達がありません" : "通達を読み込めませんでした"}
             </p>
           ) : (
-            filtered.map((item, i) => <ItemCard key={`${item.number}-${i}`} item={item} query={query} />)
+            filtered.map((item, i) => (
+              <ItemCard
+                key={`${item.number}-${i}`}
+                item={item}
+                query={query}
+                parentLawId={set.parent_law_id}
+                onJump={(articleId) => navigate(`/laws/${set.parent_law_id}#${articleId}`)}
+              />
+            ))
           )}
         </ScrollArea>
       </div>
