@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -20,9 +20,32 @@ function fmtDate(d: string): string {
   return d.length === 8 ? `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}` : d;
 }
 
+// 文字単位 LCS は O(m·n) で、長文段落 (e.g. 4900 字) どうしだと ~24M セルの
+// DP を確保し数秒メインスレッドを止めてしまう。積 m·n がこの閾値を超えたら
+// 細かい文字 diff を諦め、共通の接頭/接尾だけ残す粗い diff にフォールバックする。
+const LCS_CELL_LIMIT = 250_000;
+
+/** 共通接頭・接尾だけ一致扱いにし、中間をまるごと del/add にする O(n) フォールバック。 */
+function coarseDiff(a: string, b: string): { left: DiffSeg[]; right: DiffSeg[] } {
+  const min = Math.min(a.length, b.length);
+  let p = 0;
+  while (p < min && a[p] === b[p]) p++;
+  let s = 0;
+  while (s < min - p && a[a.length - 1 - s] === b[b.length - 1 - s]) s++;
+  const left: DiffSeg[] = [], right: DiffSeg[] = [];
+  if (p) { left.push({ type: "eq", text: a.slice(0, p) }); right.push({ type: "eq", text: b.slice(0, p) }); }
+  const aMid = a.slice(p, a.length - s), bMid = b.slice(p, b.length - s);
+  if (aMid) left.push({ type: "del", text: aMid });
+  if (bMid) right.push({ type: "add", text: bMid });
+  if (s) { left.push({ type: "eq", text: a.slice(a.length - s) }); right.push({ type: "eq", text: b.slice(b.length - s) }); }
+  return { left, right };
+}
+
 function diffWords(a: string, b: string): { left: DiffSeg[]; right: DiffSeg[] } {
   if (a === b) return { left: [{ type: "eq", text: a }], right: [{ type: "eq", text: b }] };
   const m = a.length, n = b.length;
+  // 長文どうしは LCS の DP が爆発するので粗い diff に切り替える。
+  if (m * n > LCS_CELL_LIMIT) return coarseDiff(a, b);
   const dp: number[][] = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
   for (let i = m - 1; i >= 0; i--) for (let j = n - 1; j >= 0; j--) {
     dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
@@ -53,6 +76,13 @@ function renderSegs(segs: DiffSeg[]) {
   ));
 }
 
+/** 条の本文を 1 本の文字列に畳んで同一判定に使う (JSON.stringify より軽い)。 */
+function articleSig(a: Article): string {
+  let s = `${a.article_no}|${a.caption ?? ""}`;
+  for (const p of a.paragraphs) s += `${p.paragraph_no ?? ""}${p.text}`;
+  return s;
+}
+
 export function CompareView({ initialLawId }: { initialLawId: string | null }) {
   const { laws } = useLaws();
   const fallbackLaw = laws[0];
@@ -63,74 +93,61 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
   }, [fallbackLaw?.law_id]);
 
   const [versions, setVersions] = useState<VersionsJson | null>(null);
+  const [versionsLoading, setVersionsLoading] = useState(true);
   const [versionA, setVersionA] = useState<string>("");
   const [versionB, setVersionB] = useState<string>("");
-  // revision_id -> 本文。履歴束 (history.ndjson.zst) を 1 回展開して全版を保持する。
-  // (注: 変数名 `history` は window.history と衝突するので使わない)
-  const [revDocs, setRevDocs] = useState<Map<string, LawDocumentRaw>>(new Map());
-  // 履歴束のロード中フラグ。ロード完了まではモックではなく skeleton を出す。
-  const [loadingHistory, setLoadingHistory] = useState(true);
 
-  // versions.json をロード (版の日付などラベル用)。lawId が変わったら選択をリセット。
-  // ※ deploy によっては versions.json が無い (404) ことがある。本文は履歴束にあるので
-  //    ここが失敗しても比較自体は成立する — 失敗はラベルが素っ気なくなるだけで致命的でない。
+  // revision_id -> 本文。版は選択された 2 つだけを on-demand で取得しキャッシュする。
+  // (旧実装は全版を 1 つの history.ndjson.zst に束ね、ブラウザで zstd 展開していたが、
+  //  大法令だと展開後 ~200MB・fzstd が大窓 LDM を誤展開し、12 秒固まった上に本文が
+  //  壊れて比較が成立しなかった。比較に要るのは常に 2 版なので個別取得に切り替える。)
+  const [bodies, setBodies] = useState<Map<string, LawDocumentRaw>>(new Map());
+  // 取得に失敗した revision_id (404 等)。再取得ループを避けるため覚えておく。
+  const failedRef = useRef<Set<string>>(new Set());
+  // 既定選択の「本文が変わる版まで A を遡る」自動処理の状態。ユーザが手で選んだら
+  // 止め、暴走 (毎ステップ 1 fetch) を避けるため遡り段数にも上限を設ける。
+  const autoWalkRef = useRef(false);
+  const walkStepsRef = useRef(0);
+
+  // versions.json をロード — 版一覧 (ラベル + body_available + 既定選択) の唯一の源。
   useEffect(() => {
     if (!lawId) return;
     let cancelled = false;
     setVersions(null);
+    setVersionsLoading(true);
     setVersionA("");
     setVersionB("");
-    api.versions(lawId).then(v => {
-      if (cancelled) return;
-      setVersions(v);
-    }).catch(() => { if (!cancelled) setVersions(null); });
+    setBodies(new Map());
+    failedRef.current = new Set();
+    autoWalkRef.current = false;
+    walkStepsRef.current = 0;
+    api.versions(lawId)
+      .then(v => { if (!cancelled) setVersions(v); })
+      .catch(() => { if (!cancelled) setVersions(null); })
+      .finally(() => { if (!cancelled) setVersionsLoading(false); });
     return () => { cancelled = true; };
   }, [lawId]);
 
-  // 履歴束 (history.ndjson.zst) を 1 回ロード — 全版を含むので、版選択は束から引く
-  // だけで済み、per-revision の追加 fetch が不要 (任意 2 版 diff をクライアント側で)。
-  useEffect(() => {
-    if (!lawId) return;
-    let cancelled = false;
-    setLoadingHistory(true);
-    api.history(lawId)
-      .then(docs => { if (!cancelled) setRevDocs(new Map(docs.map(d => [d.revision_id ?? "", d]))); })
-      .catch(() => { if (!cancelled) setRevDocs(new Map()); })
-      .finally(() => { if (!cancelled) setLoadingHistory(false); });
-    return () => { cancelled = true; };
-  }, [lawId]);
-
-  // 比較できる版 = 履歴束 (revDocs) に本文がある版。束こそが本文の真の在処で、
-  // versions.json は (a) deploy によっては 404 で欠ける (b) body_available が CI の
-  // 部分 cache から再生成され当てにならない — ので、束があるならそれを起点にする。
-  // 束が無い (取得失敗) ときだけ versions.json の body_available を暫定フォールバックに。
+  // 比較できる版 = versions.json で本文ファイルへの path を持つ版。
+  //   - 判定は path の有無のみ。body_available は CI の部分 cache から再生成され
+  //     当てにならず (path はあるのに false など) 、これで弾くと全滅し得る。本文の
+  //     実在は実際の fetch (404 は failedRef で吸収) で確かめる。
+  //   - 未施行版は本番では path=null なので自然に除外される。
+  // 日付付きがあれば日付付きだけを並べてセレクタを綺麗に保つ (hash 形式の作業
+  // スナップショットは重複なので除外)。
   const availVersions = useMemo<{ revision_id: string; date: string }[]>(() => {
-    if (revDocs.size > 0) {
-      const all = Array.from(revDocs.keys())
-        .filter(Boolean)
-        // macOS AppleDouble 由来の幽霊版 (revision_id が `._...` で本文 0 件) を除外する。
-        // これを版として並べると「直前版 = 空」が選ばれ、全条が "追加" に化ける。
-        .filter(id => !id.startsWith(".") && (revDocs.get(id)?.articles.length ?? 0) > 0)
-        .map(id => ({ revision_id: id, date: revDate(id) }));
-      // 日付付き revision があれば、それだけを版として並べる (hash 形式の作業
-      // スナップショットは日付付きの重複なので除外し、セレクタを綺麗に保つ)。
-      const dated = all.filter(v => v.date);
-      return (dated.length ? dated : all).sort((a, b) => a.date.localeCompare(b.date));
-    }
-    return (versions?.versions ?? [])
-      .filter(v => v.body_available !== false)
+    const all = (versions?.versions ?? [])
+      .filter(v => !!v.path)
       .map(v => ({ revision_id: v.revision_id, date: revDate(v.revision_id) }));
-  }, [versions, revDocs]);
+    const dated = all.filter(v => v.date);
+    return (dated.length ? dated : all).sort((a, b) => a.date.localeCompare(b.date));
+  }, [versions]);
 
-  // 既定の比較版 = 「現在施行中の最新版」と、それと本文が実際に異なる直近の版。
-  //   - After: 今日以前で最新の版 (未来施行版まで取ると未来 vs 未来になり無意味)。
-  //   - Before: After から遡って最初に本文が変わる版。e-Gov の隣接版は本文が同一の
-  //     ことが多く、単純な「1 つ前」だと差分 0 で空に見える (= 今回の不具合の体感)。
+  // 既定の比較版を確定する。
+  //   - After (B): 今日以前で最新の版 (未来施行版まで取ると未来 vs 未来になり無意味)。
+  //   - Before (A): その 1 つ前。本文が同一なら下の「distinct 化」effect が更に遡る。
   useEffect(() => {
-    // 履歴束のロード完了を待ってから確定する。ロード前に versions.json フォールバック
-    // (本文ありが 1 版だけ) で A=B を仮確定してしまうと、束が来た後も下のガードが
-    // 「A/B は今のリストにも在る」と見て据え置き、同一版どうしの 0 差分で固まる。
-    if (loadingHistory || !availVersions.length) return;
+    if (versionsLoading || !availVersions.length) return;
     const ids = new Set(availVersions.map(v => v.revision_id));
     if (versionA && versionB && ids.has(versionA) && ids.has(versionB)) return;
     const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
@@ -138,49 +155,98 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
     for (let i = availVersions.length - 1; i >= 0; i--) {
       if (availVersions[i].date && availVersions[i].date <= today) { bIdx = i; break; }
     }
-    const sig = (rid: string) => {
-      const d = revDocs.get(rid);
-      return d ? JSON.stringify(d.articles) : rid;
-    };
-    const bSig = sig(availVersions[bIdx].revision_id);
-    let aIdx = Math.max(0, bIdx - 1);
-    for (let i = bIdx - 1; i >= 0; i--) {
-      if (sig(availVersions[i].revision_id) !== bSig) { aIdx = i; break; }
-    }
+    const aIdx = Math.max(0, bIdx - 1);
     setVersionA(availVersions[aIdx].revision_id);
     setVersionB(availVersions[bIdx].revision_id);
-  }, [availVersions, versionA, versionB, revDocs, loadingHistory]);
+  }, [availVersions, versionA, versionB, versionsLoading]);
 
-  const docA = versionA ? revDocs.get(versionA) ?? null : null;
-  const docB = versionB ? revDocs.get(versionB) ?? null : null;
+  // 選択中の 2 版の本文を on-demand 取得 (キャッシュ済みはスキップ)。
+  useEffect(() => {
+    let cancelled = false;
+    const want = [versionA, versionB].filter(Boolean).filter(
+      id => !bodies.has(id) && !failedRef.current.has(id)
+    );
+    if (!want.length) return;
+    Promise.all(want.map(id =>
+      api.revision(lawId, id)
+        .then(doc => ({ id, doc }))
+        .catch(() => { failedRef.current.add(id); return { id, doc: null as LawDocumentRaw | null }; })
+    )).then(results => {
+      if (cancelled) return;
+      const got = results.filter(r => r.doc);
+      if (!got.length) return;
+      setBodies(prev => {
+        const next = new Map(prev);
+        for (const r of got) next.set(r.id, r.doc!);
+        return next;
+      });
+    });
+    return () => { cancelled = true; };
+  }, [lawId, versionA, versionB, bodies]);
 
-  // 3 状態: skeleton (ロード中 / 実データ確定待ち) → 実比較 / mock (本当にデータが無い)。
+  const docA = versionA ? bodies.get(versionA) ?? null : null;
+  const docB = versionB ? bodies.get(versionB) ?? null : null;
+
+  // 既定で選んだ A=B (本文が同一) のとき、本文が実際に変わる版まで A を更に遡らせる。
+  // e-Gov は隣接版の本文が同一なことが多く、単純な「1 つ前」だと差分 0 で空に見える。
+  // 各ステップで 1 fetch するので段数に上限を設け、見つからなければそのまま諦める。
+  const MAX_WALK_STEPS = 15;
+  useEffect(() => {
+    if (versionsLoading || !docA || !docB) return;
+    if (walkStepsRef.current >= MAX_WALK_STEPS) return;
+    if (autoWalkRef.current) return;                 // ユーザが手で選んだら止める
+    const aIdx = availVersions.findIndex(v => v.revision_id === versionA);
+    const bIdx = availVersions.findIndex(v => v.revision_id === versionB);
+    if (aIdx <= 0 || bIdx < 0) return;
+    const sigA = docA.articles.map(articleSig).join("");
+    const sigB = docB.articles.map(articleSig).join("");
+    if (sigA === sigB) {
+      walkStepsRef.current += 1;
+      setVersionA(availVersions[aIdx - 1].revision_id);
+    }
+  }, [docA, docB, availVersions, versionA, versionB, versionsLoading]);
+
+  // ユーザがセレクタを触ったら自動遡りを止める。
+  const onPickA = (id: string) => { autoWalkRef.current = true; setVersionA(id); };
+  const onPickB = (id: string) => { autoWalkRef.current = true; setVersionB(id); };
+
+  // 3 状態: skeleton (ロード中 / 本文取得待ち) → 実比較 / mock (本当にデータが無い)。
   const willBeLive = availVersions.length >= 2;            // 実データで比較できる見込み
-  const liveAvailable = !!docA && !!docB && willBeLive;    // 実データが揃った
-  // ロード中、または「実データは来るが版選択がまだ確定していない一瞬」は skeleton。
-  // こうしないと、その一瞬だけモックがチラ見えしてしまう。
-  const showSkeleton = loadingHistory || (willBeLive && !liveAvailable);
-  const showMock = !showSkeleton && !liveAvailable;        // 本当にデータが無い時だけ mock
+  const bothFetched = !!docA && !!docB;
+  const bothFailed = (versionA ? failedRef.current.has(versionA) : false)
+    && (versionB ? failedRef.current.has(versionB) : false);
+  const liveAvailable = bothFetched && willBeLive;        // 実データが揃った
+  // ロード中、または「実データは来るが本文取得がまだ終わっていない一瞬」は skeleton。
+  // 取得が両方とも失敗したときは無限 skeleton を避け mock に落とす。
+  const showSkeleton = !bothFailed && (versionsLoading || (willBeLive && !liveAvailable));
+  const showMock = !showSkeleton && !liveAvailable;       // 本当にデータが無い時だけ mock
   const articlesA: Article[] = liveAvailable ? docA!.articles : (ARTICLES_V1 as unknown as Article[]);
   const articlesB: Article[] = liveAvailable ? docB!.articles : (ARTICLES_V2 as unknown as Article[]);
   const law = laws.find(l => l.law_id === lawId) ?? laws[0] ?? { title: "民法", law_id: "?" } as any;
 
-  const articleIds = useMemo(() => {
-    const ids = new Set([...articlesA.map(a => a.article_id), ...articlesB.map(a => a.article_id)]);
-    return Array.from(ids);
-  }, [articlesA, articlesB]);
-
-  const stats = useMemo(() => {
+  // 条の照合は Map で O(1) に (find の O(n²) を避ける)。状態 (追加/削除/変更/同一) も
+  // ここで 1 度だけ確定し、stats と本文レンダの双方で使い回す。
+  const { orderedIds, mapA, mapB, statusOf, stats } = useMemo(() => {
+    const mapA = new Map(articlesA.map(a => [a.article_id, a]));
+    const mapB = new Map(articlesB.map(a => [a.article_id, a]));
+    const orderedIds: string[] = [];
+    const seen = new Set<string>();
+    for (const a of articlesA) { orderedIds.push(a.article_id); seen.add(a.article_id); }
+    for (const b of articlesB) if (!seen.has(b.article_id)) { orderedIds.push(b.article_id); seen.add(b.article_id); }
+    const statusOf = new Map<string, "added" | "removed" | "modified" | "same">();
     let added = 0, removed = 0, modified = 0;
-    for (const id of articleIds) {
-      const a = articlesA.find(x => x.article_id === id);
-      const b = articlesB.find(x => x.article_id === id);
-      if (!a) added++;
-      else if (!b) removed++;
-      else if (JSON.stringify(a) !== JSON.stringify(b)) modified++;
+    for (const id of orderedIds) {
+      const a = mapA.get(id);
+      const b = mapB.get(id);
+      let st: "added" | "removed" | "modified" | "same";
+      if (!a) { st = "added"; added++; }
+      else if (!b) { st = "removed"; removed++; }
+      else if (articleSig(a) !== articleSig(b)) { st = "modified"; modified++; }
+      else st = "same";
+      statusOf.set(id, st);
     }
-    return { added, removed, modified };
-  }, [articleIds, articlesA, articlesB]);
+    return { orderedIds, mapA, mapB, statusOf, stats: { added, removed, modified } };
+  }, [articlesA, articlesB]);
 
   const versionLabel = (revId: string) => {
     const v = versions?.versions.find(x => x.revision_id === revId);
@@ -222,8 +288,8 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
           </div>
           <div className="flex-1 space-y-1.5">
             <label className="text-xs text-muted-foreground">基準版 (Before)</label>
-            {loadingHistory ? <Skeleton className="h-9 w-full" /> : (
-            <Select value={versionA} onValueChange={setVersionA}>
+            {versionsLoading ? <Skeleton className="h-9 w-full" /> : (
+            <Select value={versionA} onValueChange={onPickA}>
               <SelectTrigger><SelectValue placeholder="選択" /></SelectTrigger>
               <SelectContent>
                 {availVersions.length ? availVersions.map(v => (
@@ -241,8 +307,8 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
           <ArrowRight className="size-4 text-muted-foreground mb-3" />
           <div className="flex-1 space-y-1.5">
             <label className="text-xs text-muted-foreground">比較版 (After)</label>
-            {loadingHistory ? <Skeleton className="h-9 w-full" /> : (
-            <Select value={versionB} onValueChange={setVersionB}>
+            {versionsLoading ? <Skeleton className="h-9 w-full" /> : (
+            <Select value={versionB} onValueChange={onPickB}>
               <SelectTrigger><SelectValue placeholder="選択" /></SelectTrigger>
               <SelectContent>
                 {availVersions.length ? availVersions.map(v => (
@@ -291,7 +357,7 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
         <Badge variant="outline" className="gap-1.5"><span className="size-2 rounded-sm bg-emerald-500" />追加 {stats.added}</Badge>
         <Badge variant="outline" className="gap-1.5"><span className="size-2 rounded-sm bg-amber-500" />変更 {stats.modified}</Badge>
         <Badge variant="outline" className="gap-1.5"><span className="size-2 rounded-sm bg-rose-500" />削除 {stats.removed}</Badge>
-        <span className="ml-auto text-xs text-muted-foreground self-center">{law.title} · {articleIds.length} 条を比較</span>
+        <span className="ml-auto text-xs text-muted-foreground self-center">{law.title} · {orderedIds.length} 条を比較</span>
       </div>
 
       {stats.added + stats.modified + stats.removed === 0 && (
@@ -301,11 +367,11 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
       )}
 
       <div className="space-y-3">
-        {articleIds.map(id => {
-          const a = articlesA.find(x => x.article_id === id);
-          const b = articlesB.find(x => x.article_id === id);
-          const status = !a ? "added" : !b ? "removed" : JSON.stringify(a) === JSON.stringify(b) ? "same" : "modified";
+        {orderedIds.map(id => {
+          const status = statusOf.get(id);
           if (status === "same") return null;
+          const a = mapA.get(id);
+          const b = mapB.get(id);
           const head = (a ?? b)!;
           return (
             <Card key={id} className="overflow-hidden">
