@@ -1,15 +1,23 @@
 import { test, expect } from "@playwright/test";
 
-// 履歴束 (history.ndjson.zst) を使った「版閲覧＋任意2版 diff」の e2e。
-// 既定はローカル静的サーバ (fixture public)。CI も同じ BASE を webServer で立てる。
+// 「版閲覧＋任意2版 diff」(compare view) の e2e。
+// compare view は versions.json で版一覧を引き、選択中の 2 版の本文だけを
+// 個別 revision JSON (`revisions/{id}.json`) として on-demand 取得して diff する。
+// (旧実装は全版を 1 つの history.ndjson.zst に束ねブラウザで zstd 展開していたが、
+//  大法令だと展開後 ~200MB・fzstd が大窓 LDM を誤展開して数秒固まり本文も壊れて
+//  比較が成立しなかった。比較に要るのは常に 2 版なので個別取得に切り替えた。)
 const BASE = process.env.HISTORY_BASE ?? "http://127.0.0.1:8799/";
-// 複数版を持つ法令 (民法)。fixture/本番いずれにも履歴束がある想定。
+// 複数版を持つ法令 (民法)。fixture/本番いずれにも versions.json + revisions がある想定。
 const LAW = process.env.HISTORY_LAW ?? "129AC0000000089";
 
-test("compare view loads the zstd history bundle and diffs two revisions", async ({ page }) => {
-  // 履歴束が実際に fetch されることをネットワークで確認する。
-  const bundle = page.waitForResponse(
-    (r) => r.url().includes(`/laws/${LAW}/history.ndjson.zst`) && r.status() === 200,
+test("compare view fetches per-revision JSON and diffs two revisions", async ({ page }) => {
+  // 版一覧 (versions.json) と、選択 2 版の本文 (revisions/*.json) が fetch される。
+  const versions = page.waitForResponse(
+    (r) => r.url().includes(`/laws/${LAW}/versions.json`) && r.status() === 200,
+    { timeout: 30_000 },
+  );
+  const revision = page.waitForResponse(
+    (r) => /\/laws\/[^/]+\/revisions\/[^/]+\.json/.test(r.url()) && r.status() === 200,
     { timeout: 30_000 },
   );
 
@@ -18,14 +26,14 @@ test("compare view loads the zstd history bundle and diffs two revisions", async
   await expect(page.getByRole("heading", { name: "バージョン比較" })).toBeVisible({
     timeout: 15_000,
   });
-  await bundle; // 束 (zstd) を取得できた = fzstd 復号経路が走る
+  await versions; // 版一覧を取得
+  await revision; // 個別版の本文を取得 (= 実比較の経路が走る)
 
-  // モックフォールバックではない (= live 履歴を束から復号できている)。
+  // モックフォールバックではない (= 実データを取得できている)。
   await expect(page.locator("text=モックでデモ表示")).toHaveCount(0);
 
   // 実データの条数で比較している (民法は 1000 条超)。
-  // 初期表示は mock の数条 → 束 (zstd) 展開後に実データへ更新される。
-  // 更新前に assert すると落ちるので、3 桁以上の条数になるまでリトライ待ちする。
+  // 初期表示は skeleton → 本文取得後に実データへ更新される。
   await expect(page.locator("text=条を比較")).toContainText(/\d{3,}\s*条を比較/, {
     timeout: 30_000,
   });
@@ -72,45 +80,37 @@ test("compare view defaults to a non-empty diff (differing revisions)", async ({
   expect(s.added + s.modified + s.removed).toBeGreaterThan(0);
 });
 
-// 本番 Pages の不具合再現: versions.json が 404 でも、本文の真の在処である
-// 履歴束から比較が成立する (モックに落ちない)。比較対象リストを versions.json
-// に依存させていた旧実装はここで空になり、ずっとモックになっていた。
-test("compare works when versions.json is missing (404) — bundle is the source of truth", async ({
+// 性能の要: 全版を束ねた巨大な history.ndjson.zst をクライアントで展開しない。
+// 比較に要るのは 2 版だけなので、束は一切 fetch せず個別 revision を取る。
+// (束は大法令で展開後 ~200MB になり fzstd 誤復号で固まる元凶だった。)
+test("does not download the full history bundle (loads only selected revisions)", async ({
   page,
 }) => {
-  await page.route(`**/laws/${LAW}/versions.json*`, (route) =>
-    route.fulfill({ status: 404, contentType: "text/plain", body: "Not Found" }),
-  );
-  const bundle = page.waitForResponse(
-    (r) => r.url().includes(`/laws/${LAW}/history.ndjson.zst`) && r.status() === 200,
-    { timeout: 30_000 },
-  );
+  const bundleRequests: string[] = [];
+  page.on("request", (req) => {
+    if (req.url().includes("history.ndjson.zst")) bundleRequests.push(req.url());
+  });
 
   await page.goto(new URL(`#/laws/${LAW}/compare`, BASE).toString());
   await expect(page.getByRole("heading", { name: "バージョン比較" })).toBeVisible({
     timeout: 15_000,
   });
-  await bundle;
-
-  // versions.json 404 でもモックフォールバックしない。
-  await expect(page.locator("text=モックでデモ表示")).toHaveCount(0);
-  // 実データの条数で比較できている。
+  // 実データで比較できるところまで待つ。
   await expect(page.locator("text=条を比較")).toContainText(/\d{3,}\s*条を比較/, {
     timeout: 30_000,
   });
-  // 版ラベルは revision_id から日付を起こす (例: "施行 2026-04-01")。
-  await expect(page.locator("text=差分はありません")).toHaveCount(0);
-  const s = await readSummary(page);
-  expect(s.added + s.modified + s.removed).toBeGreaterThan(0);
+
+  // 束は一度も要求していない。
+  expect(bundleRequests).toHaveLength(0);
 });
 
-// 履歴束のロード中は、モックではなく skeleton を表示する (初回の mock チラ見え防止)。
-// 束のレスポンスをゲートで保留し、「ロード中」を観測可能にして検証する。
-test("shows skeleton (not mock) while the history bundle is loading", async ({ page }) => {
+// 本文取得中は、モックではなく skeleton を表示する (初回の mock チラ見え防止)。
+// 個別 revision のレスポンスをゲートで保留し、「取得中」を観測可能にして検証する。
+test("shows skeleton (not mock) while revision bodies are loading", async ({ page }) => {
   let release: () => void = () => {};
   const gate = new Promise<void>((res) => (release = res));
-  await page.route(`**/laws/${LAW}/history.ndjson.zst`, async (route) => {
-    await gate; // 解放するまで束を返さない → ロード中状態が続く
+  await page.route(`**/laws/${LAW}/revisions/**`, async (route) => {
+    await gate; // 解放するまで本文を返さない → 取得中状態が続く
     await route.continue();
   });
 
@@ -119,7 +119,7 @@ test("shows skeleton (not mock) while the history bundle is loading", async ({ p
     timeout: 15_000,
   });
 
-  // ロード中: skeleton が出ていて、モックは出ていない。
+  // 取得中: skeleton が出ていて、モックは出ていない。
   await expect(page.locator('[data-slot="skeleton"]').first()).toBeVisible({
     timeout: 10_000,
   });
@@ -127,7 +127,7 @@ test("shows skeleton (not mock) while the history bundle is loading", async ({ p
   // モックの版ラベル "モック" もセレクタに出ていない。
   await expect(page.locator("text=· モック")).toHaveCount(0);
 
-  // 束を解放 → 実データに置き換わり skeleton が消える。
+  // 本文を解放 → 実データに置き換わり skeleton が消える。
   release();
   await expect(page.locator("text=条を比較")).toContainText(/\d{3,}\s*条を比較/, {
     timeout: 30_000,

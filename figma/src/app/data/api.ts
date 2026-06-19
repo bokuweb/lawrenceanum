@@ -274,29 +274,13 @@ export type SnapshotResolved = {
   status?: string
 }
 
-/**
- * 法令の全版を 1 ファイルにまとめた履歴束 `history.ndjson.zst` を取得・展開する。
- * 版間はほぼ同一なので zstd(--long) が重複を dedup し、per-file 取得より遥かに軽い。
- * 1 回取得すれば全版を持つので、履歴閲覧＋任意 2 版 diff をクライアント側で行える。
- */
-export async function fetchHistory(lawId: string): Promise<LawDocumentRaw[]> {
-  const url = new URL(`./laws/${lawId}/history.ndjson.zst`, document.baseURI).toString()
-  const res = await fetch(url, { cache: 'force-cache' })
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText} for ${url}`)
-  const buf = new Uint8Array(await res.arrayBuffer())
-  // fzstd は zstd(long-distance matching) フレームも復号できる (依存は ~小)。
-  const { decompress } = await import('fzstd')
-  const text = new TextDecoder().decode(decompress(buf))
-  return text
-    .split('\n')
-    .filter((l) => l.length > 0)
-    .map((l) => JSON.parse(l) as LawDocumentRaw)
-}
+// NOTE: 旧 `fetchHistory` (history.ndjson.zst を fzstd でブラウザ展開) は廃止した。
+// 大法令だと展開後 ~200MB に膨らみ fzstd が大窓 LDM フレームを誤復号して数秒固まった
+// 上に本文が壊れ、比較が成立しなかった。compare view は versions.json + 個別 revision
+// (api.revision) の on-demand 取得に切り替えている。
 
 export const api = {
   index: () => getJson<IndexJson>('./index.json'),
-  /** 履歴束 (全版を 1 ファイル, zstd)。版閲覧＋任意 2 版 diff のデータ源。 */
-  history: (lawId: string) => fetchHistory(lawId),
   health: () => getJson<Health>('./health.json'),
   lawsIndex: () => getJson<LawsIndex>('./laws/index.json'),
   law: (lawId: string) => getJson<LawDocumentRaw>(`./laws/${lawId}/current.json`),
