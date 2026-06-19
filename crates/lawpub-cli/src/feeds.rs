@@ -224,8 +224,54 @@ fn kind_label(k: &str) -> &str {
         "law" => "法令",
         "pubcomment" => "パブコメ",
         "kanpo" => "官報",
+        "bill" => "法案",
         _ => k,
     }
+}
+
+/// 法案審議の動き: `public/gian/index.json` の各法案を最新動向日で。
+fn collect_gian_items(public: &Path) -> Vec<FeedItem> {
+    let Some(v) = read_json(&public.join("gian").join("index.json")) else {
+        return Vec::new();
+    };
+    let Some(bills) = v.get("bills").and_then(|x| x.as_array()) else {
+        return Vec::new();
+    };
+    let mut items = Vec::new();
+    for b in bills {
+        let title = b.get("title").and_then(|x| x.as_str()).unwrap_or("");
+        let date = b.get("latest_date").and_then(|x| x.as_str()).unwrap_or("");
+        // 最新動向日が無い法案 (未審議等) はフィードに出さない。
+        if title.is_empty() || date.is_empty() {
+            continue;
+        }
+        let detail = b.get("detail_url").and_then(|x| x.as_str()).unwrap_or("");
+        if detail.is_empty() {
+            continue;
+        }
+        let bill_type = b.get("bill_type").and_then(|x| x.as_str());
+        let committee = b.get("committee").and_then(|x| x.as_str());
+        let event = b.get("latest_event").and_then(|x| x.as_str());
+        // summary 例: 「衆法 · 委員会付託(衆) · 政治改革に関する特別」
+        let summary = [bill_type, event, committee]
+            .into_iter()
+            .flatten()
+            .filter(|s| !s.is_empty())
+            .collect::<Vec<_>>()
+            .join(" · ");
+        items.push(FeedItem {
+            kind: "bill".into(),
+            date: date.to_string(),
+            title: title.to_string(),
+            href: detail.to_string(),
+            internal: false,
+            law_id: None,
+            law_title: None,
+            ministry: None,
+            summary: (!summary.is_empty()).then_some(summary),
+        });
+    }
+    items
 }
 
 fn xml_escape(s: &str) -> String {
@@ -289,6 +335,7 @@ pub fn run_build_feeds(public: &Path) -> Result<()> {
     items.extend(collect_law_items(public, 14));
     items.extend(collect_pubcomment_items(public));
     items.extend(collect_kanpo_items(public, 30));
+    items.extend(collect_gian_items(public));
 
     // 日付を ISO に正規化 (パブコメの和式日付を揃え、横断ソートを正しくする)。
     for it in items.iter_mut() {

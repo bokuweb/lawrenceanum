@@ -338,7 +338,7 @@ export const api = {
 // ── 規制変化フィード 型定義 ───────────────────────────────────────
 
 export type FeedItem = {
-  kind: 'law' | 'pubcomment' | 'kanpo' | string
+  kind: 'law' | 'bill' | 'pubcomment' | 'kanpo' | string
   date: string
   title: string
   /** アプリ内ルート ("/laws/..") か外部URL (官報PDF)。 */

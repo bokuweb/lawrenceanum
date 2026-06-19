@@ -3,11 +3,12 @@ import { useNavigate } from "react-router";
 import { Badge } from "../ui/badge";
 import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
-import { BookOpen, MessageSquare, Newspaper, Rss, ArrowUpRight, Bell } from "lucide-react";
+import { BookOpen, MessageSquare, Newspaper, Rss, ArrowUpRight, Bell, Landmark } from "lucide-react";
 import { api, type RecentFeed, type FeedItem } from "../../data/api";
 
 const KINDS = [
   { key: "law", label: "法令改正", icon: BookOpen },
+  { key: "bill", label: "法案", icon: Landmark },
   { key: "pubcomment", label: "パブコメ", icon: MessageSquare },
   { key: "kanpo", label: "官報", icon: Newspaper },
 ] as const;
