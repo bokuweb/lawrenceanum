@@ -447,6 +447,60 @@ jobs:
           ./target/release/lawpub rebuild-manifest --public public \
             || echo "::warning::rebuild-manifest failed (validate が落ちる可能性)"
 
+      # 議案 (法案審議トラッキング) を R2 prebuilt キャッシュから復元して同梱する。
+      # corpus workflow が gian-cache.tar.zst に上げたものを取得 → gian-build-json。
+      # build-feeds が public/gian を読んで「法案」フィードを出すので feeds より前に。
+      - name: Build gian from R2 cache
+        if: >-
+          steps.detect.outputs.changed == 'true' && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        continue-on-error: true
+        run: |
+          set +e
+          if ! aws s3 cp "s3://$R2_BUCKET/gian-cache.tar.zst" /tmp/gian-cache.tar.zst --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            echo "::warning::gian-cache.tar.zst not found in R2 — 議案なしで続行"
+            exit 0
+          fi
+          mkdir -p .cache/gian
+          zstd -dc --long=31 /tmp/gian-cache.tar.zst | tar -x -C .cache/gian
+          rm -f /tmp/gian-cache.tar.zst
+          n=$(find .cache/gian -name '*.json' | wc -l | tr -d ' ')
+          [ "${n:-0}" -eq 0 ] && { echo "::warning::gian cache empty"; exit 0; }
+          echo "::notice::gian cache restored from R2: $n bills"
+          ./target/release/lawpub gian-build-json --cache .cache --public public \
+            || echo "::warning::gian-build-json failed"
+
+      # 例規 (自治体例規) を R2 prebuilt キャッシュから復元して同梱する (手動収集分)。
+      - name: Build reiki from R2 cache
+        if: >-
+          steps.detect.outputs.changed == 'true' && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        continue-on-error: true
+        run: |
+          set +e
+          if ! aws s3 cp "s3://$R2_BUCKET/reiki-cache.tar.zst" /tmp/reiki-cache.tar.zst --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            echo "::notice::reiki-cache.tar.zst not in R2 — 例規なしで続行"
+            exit 0
+          fi
+          mkdir -p .cache/reiki
+          zstd -dc --long=31 /tmp/reiki-cache.tar.zst | tar -x -C .cache/reiki
+          rm -f /tmp/reiki-cache.tar.zst
+          n=$(find .cache/reiki -name '*.json' | wc -l | tr -d ' ')
+          [ "${n:-0}" -eq 0 ] && { echo "::warning::reiki cache empty"; exit 0; }
+          echo "::notice::reiki cache restored from R2: $n reiki"
+          ./target/release/lawpub reiki-build-json --cache .cache --public public \
+            || echo "::warning::reiki-build-json failed"
+
       # 施行予定カレンダー (今後の施行) を timeline から集約する。laws が出揃った後。
       - name: Build enforcement calendar
         if: steps.detect.outputs.changed == 'true'
