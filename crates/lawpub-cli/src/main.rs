@@ -6,6 +6,7 @@ mod budget;
 mod build;
 mod compress;
 mod diffs;
+mod enforcement;
 mod feeds;
 mod gian;
 mod kanpo;
@@ -418,6 +419,12 @@ enum Cmd {
         #[arg(long, default_value = "public")]
         public: PathBuf,
     },
+
+    /// 今後の施行予定を timeline から集約し `public/enforcement/upcoming.json` を書く。
+    BuildEnforcement {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
 }
 
 fn main() -> Result<()> {
@@ -582,6 +589,7 @@ fn main() -> Result<()> {
         Cmd::BuildFeeds { public } => feeds::run_build_feeds(&public),
         Cmd::GianFetch { cache, provider, session } => gian::run_fetch(&cache, &provider, session),
         Cmd::GianBuildJson { cache, public } => gian::run_build_json(&cache, &public),
+        Cmd::BuildEnforcement { public } => enforcement::run_build(&public),
         Cmd::LinkLawsAndProcurement { public } => linking::run_link_procurement(&public),
     }
 }

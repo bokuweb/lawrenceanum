@@ -333,6 +333,28 @@ export const api = {
 
   /** 規制変化フィード (法令改正・パブコメ・官報の新着, 逆時系列)。 */
   recentFeed: () => getJson<RecentFeed>('./feeds/recent.json'),
+
+  /** 今後の施行予定 (施行期日カレンダー, 施行日昇順)。 */
+  enforcementUpcoming: () => getJson<EnforcementUpcoming>('./enforcement/upcoming.json'),
+}
+
+// ── 施行予定 型定義 ───────────────────────────────────────────────
+
+export type EnforcementItem = {
+  date: string
+  law_id: string
+  title: string
+  amending_law_title?: string
+  /** "scheduled"(施行予定日) / "effective"(施行日)。 */
+  date_kind: string
+}
+
+export type EnforcementUpcoming = {
+  schema_version: number
+  generated_at: string
+  as_of: string
+  count: number
+  items: EnforcementItem[]
 }
 
 // ── 規制変化フィード 型定義 ───────────────────────────────────────
