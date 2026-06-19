@@ -6,6 +6,7 @@ mod budget;
 mod build;
 mod compress;
 mod diffs;
+mod feeds;
 mod kanpo;
 mod proceedings;
 mod procurement;
@@ -387,6 +388,13 @@ enum Cmd {
         #[arg(long, default_value = "public")]
         public: PathBuf,
     },
+
+    /// 規制変化フィードを生成する (法令改正・パブコメ・官報の新着)。
+    /// `public/feeds/recent.json` と RSS `recent.xml` を書き出す。
+    BuildFeeds {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
 }
 
 fn main() -> Result<()> {
@@ -548,6 +556,7 @@ fn main() -> Result<()> {
         Cmd::BudgetFetch { cache, provider } => budget::run_fetch(&cache, &provider),
         Cmd::BudgetBuildJson { cache, public } => budget::run_build_json(&cache, &public),
         Cmd::LinkLawsAndPubcomment { public } => linking::run_link_pubcomment(&public),
+        Cmd::BuildFeeds { public } => feeds::run_build_feeds(&public),
         Cmd::LinkLawsAndProcurement { public } => linking::run_link_procurement(&public),
     }
 }

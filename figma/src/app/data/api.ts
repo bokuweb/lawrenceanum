@@ -330,6 +330,30 @@ export const api = {
   pubcommentCase: (caseId: string) => getJson<PubcommentCase>(`./pubcomment/${encodeURIComponent(caseId)}.json`),
   /** 法令 ↔ パブコメ クロスリンク。 */
   lawToPubcomment: (lawId: string) => getJson<LawToPubcomments>(`./links/law-to-pubcomment/${lawId}.json`),
+
+  /** 規制変化フィード (法令改正・パブコメ・官報の新着, 逆時系列)。 */
+  recentFeed: () => getJson<RecentFeed>('./feeds/recent.json'),
+}
+
+// ── 規制変化フィード 型定義 ───────────────────────────────────────
+
+export type FeedItem = {
+  kind: 'law' | 'pubcomment' | 'kanpo' | string
+  date: string
+  title: string
+  /** アプリ内ルート ("/laws/..") か外部URL (官報PDF)。 */
+  href: string
+  internal: boolean
+  law_id?: string
+  ministry?: string
+  summary?: string
+}
+
+export type RecentFeed = {
+  schema_version: number
+  generated_at: string
+  count: number
+  items: FeedItem[]
 }
 
 // ── 国会会議録 型定義 ──────────────────────────────────────────────

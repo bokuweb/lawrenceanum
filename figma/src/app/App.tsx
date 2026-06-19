@@ -14,6 +14,7 @@ const KanpoView = lazy(() => import("./components/views/simple-views").then(m =>
 const SettingsView = lazy(() => import("./components/views/simple-views").then(m => ({ default: m.SettingsView })));
 const ProceedingsView = lazy(() => import("./components/views/proceedings-view").then(m => ({ default: m.ProceedingsView })));
 const PubcommentView = lazy(() => import("./components/views/pubcomment-view").then(m => ({ default: m.PubcommentView })));
+const FeedView = lazy(() => import("./components/views/feed-view").then(m => ({ default: m.FeedView })));
 
 function ViewFallback() {
   return <div className="p-6 text-sm text-muted-foreground">読み込み中…</div>;
@@ -109,6 +110,7 @@ function AppShell() {
               <Route path="/proceedings/:meetingId" element={<ProceedingsRoute />} />
               <Route path="/pubcomment" element={<PubcommentRoute />} />
               <Route path="/pubcomment/:caseId" element={<PubcommentRoute />} />
+              <Route path="/feed" element={<FeedView />} />
               <Route path="/updates" element={<UpdatesView />} />
               <Route path="/kanpo" element={<KanpoView />} />
               <Route path="/settings" element={<SettingsView />} />
