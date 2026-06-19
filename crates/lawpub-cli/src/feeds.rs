@@ -118,13 +118,23 @@ fn collect_pubcomment_items(public: &Path) -> Vec<FeedItem> {
         if case_id.is_empty() || title.is_empty() {
             continue;
         }
+        let status = c.get("status").and_then(|x| x.as_str()).unwrap_or("");
+        let open = status == "open";
+        // 募集中は締切(reception_end)を日付に、結果公示は公示日(result_published)。
         let date = c
-            .get("result_published")
+            .get(if open { "reception_end" } else { "result_published" })
             .and_then(|x| x.as_str())
             .unwrap_or("")
             .to_string();
         let ministry = c.get("ministry").and_then(|x| x.as_str()).map(String::from);
         let related = c.get("related_law_name").and_then(|x| x.as_str());
+        // 募集中は「意見募集中・締切」を前面に（締切アラート）。
+        let summary = if open {
+            let base = "意見募集中（締切）".to_string();
+            Some(related.map(|r| format!("{base} · 関連: {r}")).unwrap_or(base))
+        } else {
+            related.map(|r| format!("関連: {r}"))
+        };
         items.push(FeedItem {
             kind: "pubcomment".into(),
             date,
@@ -134,7 +144,7 @@ fn collect_pubcomment_items(public: &Path) -> Vec<FeedItem> {
             law_id: None,
             law_title: None,
             ministry,
-            summary: related.map(|r| format!("関連: {r}")),
+            summary,
         });
     }
     items

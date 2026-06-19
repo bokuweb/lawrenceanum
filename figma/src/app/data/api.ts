@@ -436,6 +436,10 @@ export type PubcommentCaseMeta = {
   title: string
   ministry: string | null
   result_published: string | null
+  /** 受付締切日時（意見募集中のとき）。 */
+  reception_end?: string | null
+  /** "open"(意見募集中) / "closed"(結果公示済み)。 */
+  status?: string | null
   related_law_name: string | null
 }
 
@@ -470,6 +474,8 @@ export type PubcommentCase = {
   legal_basis?: string | null
   responsible_office?: string | null
   opinion_count?: number | null
+  /** "open"(意見募集中) / "closed"(結果公示済み)。 */
+  status?: string | null
   opinions: OpinionSummary[]
   attachments?: PubcommentAttachment[]
   source: { provider: string; fetched_at: string; detail_url: string }

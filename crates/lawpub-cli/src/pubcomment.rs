@@ -9,45 +9,69 @@ fn make_provider(provider: &str) -> Box<dyn PubcommentProvider> {
     }
 }
 
+/// status 文字列 → 取得する Mode 群。open=意見募集中(0), closed=結果公示(1)。
+fn modes_for(status: &str) -> Vec<u8> {
+    match status {
+        "open" => vec![0],
+        "both" => vec![0, 1],
+        _ => vec![1], // closed (既定)
+    }
+}
+
 /// `lawpub pubcomment-fetch` の実装。
-/// 結果公示済み案件を全ページ取得し `.cache/pubcomment/{case_id}.json` に保存する。
-pub fn run_fetch(cache: &Path, provider: &str, max_pages: u32) -> Result<()> {
+/// `status`(open/closed/both) の各 Mode を全ページ取得し
+/// `.cache/pubcomment/{case_id}.json` に保存する。
+pub fn run_fetch(cache: &Path, provider: &str, max_pages: u32, status: &str) -> Result<()> {
     let p = make_provider(provider);
     let dir = cache.join("pubcomment");
     std::fs::create_dir_all(&dir)?;
 
     let mut total = 0usize;
-    for page in 1..=max_pages {
-        let cases = p.fetch_case_list(page)?;
-        if cases.is_empty() {
-            break;
-        }
-        for meta in &cases {
-            let mut detail = match p.fetch_case_detail(&meta.case_id) {
-                Ok(d) => d,
-                Err(e) => {
-                    tracing::warn!("skip {}: {e:#}", meta.case_id);
-                    continue;
+    for mode in modes_for(status) {
+        for page in 1..=max_pages {
+            let cases = p.fetch_case_list(mode, page)?;
+            if cases.is_empty() {
+                break;
+            }
+            for meta in &cases {
+                // 募集中(mode=0)は結果未公開＆詳細ページが別系統で空のため、
+                // 一覧メタから組む（締切・所管・案件名は一覧に揃っている）。
+                let mut detail = if mode == 0 {
+                    pubcomment_client::CaseDetail::from_meta(meta, &chrono::Utc::now().to_rfc3339())
+                } else {
+                    match p.fetch_case_detail(&meta.case_id, mode) {
+                        Ok(d) => d,
+                        Err(e) => {
+                            tracing::warn!("skip {}: {e:#}", meta.case_id);
+                            continue;
+                        }
+                    }
+                };
+                // 一覧側のメタで詳細の欠損を補完する。
+                if detail.ministry.is_none() {
+                    detail.ministry = meta.ministry.clone();
                 }
-            };
-            // 一覧側のメタ (所管省庁・結果の公示日・案件名) で詳細の欠損を補完する。
-            if detail.ministry.is_none() {
-                detail.ministry = meta.ministry.clone();
+                if detail.result_published.is_none() {
+                    detail.result_published = meta.result_published.clone();
+                }
+                if detail.reception_end.is_none() {
+                    detail.reception_end = meta.reception_end.clone();
+                }
+                if detail.title.is_empty() {
+                    detail.title = meta.title.clone();
+                }
+                if detail.status.is_empty() {
+                    detail.status = meta.status.clone();
+                }
+                let path = dir.join(format!("{}.json", meta.case_id));
+                std::fs::write(&path, serde_json::to_string_pretty(&detail)?)
+                    .with_context(|| format!("write {}", path.display()))?;
+                total += 1;
             }
-            if detail.result_published.is_none() {
-                detail.result_published = meta.result_published.clone();
-            }
-            if detail.title.is_empty() {
-                detail.title = meta.title.clone();
-            }
-            let path = dir.join(format!("{}.json", meta.case_id));
-            std::fs::write(&path, serde_json::to_string_pretty(&detail)?)
-                .with_context(|| format!("write {}", path.display()))?;
-            total += 1;
+            tracing::info!("pubcomment-fetch: mode={mode} page={page} ({total} total)");
         }
-        tracing::info!("pubcomment-fetch: page={page} done ({total} total)");
     }
-    tracing::info!("pubcomment-fetch: {total} cases saved");
+    tracing::info!("pubcomment-fetch: {total} cases saved (status={status})");
     Ok(())
 }
 
@@ -81,14 +105,31 @@ pub fn run_build_json(cache: &Path, public: &Path) -> Result<()> {
             "title": detail["title"],
             "ministry": detail["ministry"],
             "result_published": detail["result_published"],
+            "reception_end": detail["reception_end"],
+            "status": detail["status"],
             "related_law_name": detail["related_law_name"],
         }));
     }
 
+    // 募集中(open)を先頭に（締切が近い順）、その後 結果公示を公示日降順。
     index_entries.sort_by(|a, b| {
-        let da = a["result_published"].as_str().unwrap_or("");
-        let db = b["result_published"].as_str().unwrap_or("");
-        db.cmp(da)
+        let oa = a["status"].as_str() == Some("open");
+        let ob = b["status"].as_str() == Some("open");
+        match (oa, ob) {
+            (true, false) => std::cmp::Ordering::Less,
+            (false, true) => std::cmp::Ordering::Greater,
+            (true, true) => {
+                // 締切が近い順（昇順）。
+                let ea = a["reception_end"].as_str().unwrap_or("");
+                let eb = b["reception_end"].as_str().unwrap_or("");
+                ea.cmp(eb)
+            }
+            (false, false) => {
+                let da = a["result_published"].as_str().unwrap_or("");
+                let db = b["result_published"].as_str().unwrap_or("");
+                db.cmp(da)
+            }
+        }
     });
     let index = serde_json::json!({
         "schema_version": 1,

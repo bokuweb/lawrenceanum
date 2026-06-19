@@ -283,7 +283,7 @@ enum Cmd {
         public: PathBuf,
     },
 
-    /// パブコメ: 結果公示済み案件を取得し `.cache/pubcomment/` に保存する。
+    /// パブコメ: 案件を取得し `.cache/pubcomment/` に保存する。
     PubcommentFetch {
         #[arg(long, default_value = ".cache")]
         cache: PathBuf,
@@ -292,6 +292,9 @@ enum Cmd {
         /// 最大取得ページ数（1 ページ = 最大 20 件程度）。
         #[arg(long, default_value_t = 100)]
         max_pages: u32,
+        /// 取得対象: open(意見募集中) / closed(結果公示済み) / both。
+        #[arg(long, default_value = "closed")]
+        status: String,
     },
 
     /// パブコメ: キャッシュから配信用 JSON を生成する。
@@ -551,8 +554,8 @@ fn main() -> Result<()> {
             proceedings::run_build_json(&cache, &public)
         }
         Cmd::LinkLawsAndProceedings { public } => linking::run_link(&public),
-        Cmd::PubcommentFetch { cache, provider, max_pages } => {
-            pubcomment::run_fetch(&cache, &provider, max_pages)
+        Cmd::PubcommentFetch { cache, provider, max_pages, status } => {
+            pubcomment::run_fetch(&cache, &provider, max_pages, &status)
         }
         Cmd::PubcommentBuildJson { cache, public } => {
             pubcomment::run_build_json(&cache, &public)
