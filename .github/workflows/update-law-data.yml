@@ -447,6 +447,18 @@ jobs:
           ./target/release/lawpub rebuild-manifest --public public \
             || echo "::warning::rebuild-manifest failed (validate が落ちる可能性)"
 
+      # 規制変化フィード (法令改正・パブコメ・官報の新着) を生成する。laws/pubcomment/
+      # kanpo が public/ に出揃った後に実行し、feeds/recent.json + RSS を書く。
+      # feeds/ を manifest に載せるため rebuild-manifest して validate を通す。
+      - name: Build regulatory feeds
+        if: steps.detect.outputs.changed == 'true'
+        continue-on-error: true
+        run: |
+          ./target/release/lawpub build-feeds --public public \
+            || echo "::warning::build-feeds failed"
+          ./target/release/lawpub rebuild-manifest --public public \
+            || echo "::warning::rebuild-manifest failed (validate が落ちる可能性)"
+
       - name: Validate public JSON
         if: steps.detect.outputs.changed == 'true'
         run: ./target/release/lawpub validate --public public

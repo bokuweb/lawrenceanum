@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { LayoutDashboard, Search, BookOpen, History, Settings, Scale, Landmark, MessageSquare } from "lucide-react";
+import { LayoutDashboard, Search, BookOpen, History, Settings, Scale, Landmark, MessageSquare, Bell } from "lucide-react";
 import { NavLink, useLocation } from "react-router";
 import { cn } from "./ui/utils";
 import { api } from "../data/api";
@@ -31,6 +31,7 @@ function useLastSync(): string | null {
 
 const items: { path: string; label: string; icon: any; matchPrefix?: string }[] = [
   { path: "/", label: "ダッシュボード", icon: LayoutDashboard },
+  { path: "/feed", label: "新着", icon: Bell, matchPrefix: "/feed" },
   { path: "/search", label: "検索", icon: Search },
   { path: "/laws", label: "法令閲覧", icon: BookOpen, matchPrefix: "/laws" },
   { path: "/proceedings", label: "国会会議録", icon: Landmark, matchPrefix: "/proceedings" },
