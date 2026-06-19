@@ -386,9 +386,26 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
   useEffect(() => {
     const target = location.hash.replace(/^#/, "");
     if (!target || !detail.doc) return;
-    // DOM 反映を待ってから scroll。
-    const t = window.setTimeout(() => scrollToArticle(target), 50);
-    return () => window.clearTimeout(t);
+    // 条文が多い法令 (例: 所得税法 1283 条) は描画に時間がかかるうえ、被参照チップが
+    // 後から非同期で読み込まれてレイアウトがずれる。対象要素が現れて「上部付近に収まる」
+    // まで数回ポーリングしながら scroll し直す (固定遅延 1 回では取りこぼす/ずれる)。
+    let tries = 0;
+    let highlighted = false;
+    let timer = window.setTimeout(function tick() {
+      const el = document.getElementById(target);
+      if (el) {
+        el.scrollIntoView({ behavior: "auto", block: "start" });
+        if (!highlighted) {
+          highlighted = true;
+          el.classList.add("ring-2", "ring-primary", "ring-offset-2");
+          window.setTimeout(() => el.classList.remove("ring-2", "ring-primary", "ring-offset-2"), 1500);
+        }
+        const top = el.getBoundingClientRect().top;
+        if (top >= -10 && top < 300) return; // 上部付近に収まったら終了
+      }
+      if (tries++ < 40) timer = window.setTimeout(tick, 100); // 最大 ~4 秒
+    }, 50);
+    return () => window.clearTimeout(timer);
   }, [location.hash, detail.doc?.law_id]);
 
   // 参照グラフ: 法令単位で 1 度だけ load してから、article_id 別にバケット化する。
