@@ -267,26 +267,38 @@ pub fn run_link(public: &Path) -> Result<()> {
     }
     by_date.sort_by(|a, b| a.0.cmp(&b.0));
 
-    for (date, kd) in &by_date {
-        let dir = public.join("kanpo").join(date);
-        std::fs::create_dir_all(&dir)?;
-        write_json_pretty(
-            &dir.join("index.json"),
-            &json!({
-                "date": date,
-                "generated_at": Utc::now().to_rfc3339(),
-                "issues": kd.issues,
-            }),
-        )?;
-    }
+    // 法令 id→タイトル (逆引き linked_laws の表示用)。
+    let law_titles: std::collections::HashMap<String, String> = {
+        let idx_path = public.join("laws").join("index.json");
+        std::fs::read(&idx_path)
+            .ok()
+            .and_then(|b| serde_json::from_slice::<serde_json::Value>(&b).ok())
+            .and_then(|v| v.get("laws").and_then(|l| l.as_array()).cloned())
+            .map(|laws| {
+                laws.iter()
+                    .filter_map(|l| {
+                        Some((
+                            l.get("law_id")?.as_str()?.to_string(),
+                            l.get("title")?.as_str()?.to_string(),
+                        ))
+                    })
+                    .collect()
+            })
+            .unwrap_or_default()
+    };
 
-    // 2) timeline.json に kanpo マッチングを反映。
+    // 官報PDF URL → 改正対象法令 id 群 (逆引き)。timeline マッチで埋める。
+    let mut reverse: std::collections::HashMap<String, std::collections::BTreeSet<String>> =
+        std::collections::HashMap::new();
+
+    // 2) timeline.json に kanpo マッチングを反映しつつ逆引きを集める。
     let laws_dir = public.join("laws");
-    if !laws_dir.exists() {
-        return Ok(());
-    }
-    for entry in std::fs::read_dir(&laws_dir)? {
-        let entry = entry?;
+    let law_entries: Vec<std::fs::DirEntry> = if laws_dir.exists() {
+        std::fs::read_dir(&laws_dir)?.filter_map(|e| e.ok()).collect()
+    } else {
+        Vec::new()
+    };
+    for entry in law_entries {
         if !entry.file_type()?.is_dir() {
             continue;
         }
@@ -311,6 +323,11 @@ pub fn run_link(public: &Path) -> Result<()> {
                 .map(|s| s.to_string());
             let title = ev
                 .get("amending_law_title")
+                .and_then(|v| v.as_str())
+                .map(|s| s.to_string());
+            // 逆引き用: この timeline が属する改正対象法令。
+            let target_law_id = ev
+                .get("target_law_id")
                 .and_then(|v| v.as_str())
                 .map(|s| s.to_string());
 
@@ -344,6 +361,9 @@ pub fn run_link(public: &Path) -> Result<()> {
                 None => (0.0, String::new(), Vec::new()),
             };
             let mut obj = serde_json::Map::new();
+            // 逆引き用: 実際にマッチした官報記事の標題 (同一PDF/ページ上の無関係記事に
+            // 巻き込まれないよう、記事タイトルで一意に紐づける)。
+            let mut matched_item_title: Option<String> = None;
             if let Some((iconf, idate, item)) = item_match {
                 // 項目一致は号レベルより強い信号。改め文・官報PDFリンクを付与する。
                 if iconf > conf {
@@ -351,6 +371,7 @@ pub fn run_link(public: &Path) -> Result<()> {
                     date = idate.to_string();
                     reasons = vec!["promulgation_date".into(), "item_title".into()];
                 }
+                matched_item_title = Some(item.title.clone());
                 obj.insert("pdf_url".into(), json!(item.pdf_url));
                 obj.insert("page".into(), json!(item.page));
                 if let Some(t) = &item.amend_text {
@@ -376,11 +397,69 @@ pub fn run_link(public: &Path) -> Result<()> {
             }
             obj.insert("confidence".into(), json!(conf));
             obj.insert("match_reasons".into(), json!(reasons));
+            // 逆引き: linked かつマッチ記事が特定できたら (日付, 記事タイトル) → 対象法令。
+            if obj.get("linked").and_then(|v| v.as_bool()).unwrap_or(false) {
+                if let (Some(t), Some(tlid)) = (matched_item_title.as_deref(), target_law_id.as_deref()) {
+                    if !tlid.is_empty() && !date.is_empty() {
+                        reverse
+                            .entry(format!("{date}\u{1f}{t}"))
+                            .or_default()
+                            .insert(tlid.to_string());
+                    }
+                }
+            }
             ev["kanpo"] = serde_json::Value::Object(obj);
         }
 
         let bytes = serde_json::to_vec_pretty(&tl)?;
         std::fs::write(&timeline_path, bytes)?;
+    }
+
+    // 3) public/kanpo/{date}/index.json を逆引き (linked_laws) 付きで出力。
+    //    官報PDF → 改正対象法令へジャンプできるようにする。
+    for (date, kd) in &by_date {
+        let dir = public.join("kanpo").join(date);
+        std::fs::create_dir_all(&dir)?;
+        let mut issues_val = serde_json::to_value(&kd.issues)?;
+        if let Some(issues) = issues_val.as_array_mut() {
+            for issue in issues.iter_mut() {
+                let Some(items) = issue.get_mut("items").and_then(|x| x.as_array_mut()) else {
+                    continue;
+                };
+                for item in items.iter_mut() {
+                    let item_title = item
+                        .get("title")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("")
+                        .to_string();
+                    if item_title.is_empty() {
+                        continue;
+                    }
+                    if let Some(ids) = reverse.get(&format!("{date}\u{1f}{item_title}")) {
+                        let linked: Vec<serde_json::Value> = ids
+                            .iter()
+                            .map(|id| {
+                                json!({
+                                    "law_id": id,
+                                    "title": law_titles.get(id).cloned().unwrap_or_default(),
+                                })
+                            })
+                            .collect();
+                        if let Some(obj) = item.as_object_mut() {
+                            obj.insert("linked_laws".into(), json!(linked));
+                        }
+                    }
+                }
+            }
+        }
+        write_json_pretty(
+            &dir.join("index.json"),
+            &json!({
+                "date": date,
+                "generated_at": Utc::now().to_rfc3339(),
+                "issues": issues_val,
+            }),
+        )?;
     }
 
     // timeline と kanpo/index.json を書き換えたので manifest を再計算。
