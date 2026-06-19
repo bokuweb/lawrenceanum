@@ -15,6 +15,15 @@ test("search page keeps a single search input (header only, none in body)", asyn
   await expect(page.locator("main input")).toHaveCount(0);
 });
 
+// 検索クエリに法律 term が含まれると、シソーラスの別表記を「同義語も検索」として表示する
+// (検索は自動でそれらも OR 検索する)。ヒントはクライアント側計算で search.db 不要。
+test("search shows thesaurus synonyms for a legal term query", async ({ page }) => {
+  await page.goto(new URL("#/search?q=バーゼル規制", BASE).toString());
+  await expect(page.getByRole("heading", { name: "検索" })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText("同義語も検索:")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText("BIS規制", { exact: true })).toBeVisible();
+});
+
 // サイドバー左下の「最新同期」は health.json の generated_at から動的表示する
 // (以前はハードコードで固定だった)。fixture health = 2026-06-14T03:58:50Z → JST 12:58。
 test("sidebar last-sync is derived from health.json (not hardcoded)", async ({ page }) => {

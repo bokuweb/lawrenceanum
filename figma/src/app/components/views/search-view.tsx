@@ -10,7 +10,7 @@ import { Separator } from "../ui/separator";
 import { type LawSummary } from "../mock-data";
 import { Search, SlidersHorizontal, ChevronRight, FileText, Database, Landmark, MessageSquare, Newspaper, ExternalLink, BookOpen } from "lucide-react";
 import { useLaws } from "../../data/use-laws";
-import { search as ftsSearch, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, searchSpeeches, searchKanpo, type SearchHit, type SpeechHit, type KanpoHit } from "../../data/search-engine";
+import { search as ftsSearch, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, searchSpeeches, searchKanpo, synonymExpansions, type SearchHit, type SpeechHit, type KanpoHit } from "../../data/search-engine";
 import { useNavigate } from "react-router";
 
 export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initialQuery?: string; onOpen: (l: LawSummary) => void; onQueryChange?: (q: string) => void }) {
@@ -90,6 +90,8 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   // bigram index は 2 文字以上でないと検索できない。クエリはあるが
   // 使えるトークン (2 文字以上) が 1 つも無いとき = 短すぎ。
   const tooShort = useFts && q.trim() !== "" && buildFtsMatch(q.trim()) === "";
+  // クエリに含まれる法律 term の別表記 (シソーラス)。検索は自動でこれらも OR 検索する。
+  const synonyms = useMemo(() => synonymExpansions(q), [q]);
 
   return (
     <div className="p-6">
@@ -104,6 +106,14 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
             </span>
           )}
         </p>
+        {synonyms.length > 0 && (
+          <div className="mt-2 flex items-center gap-1.5 flex-wrap text-xs text-muted-foreground">
+            <span>同義語も検索:</span>
+            {synonyms.map(s => (
+              <span key={s} className="px-1.5 py-0.5 rounded bg-muted text-foreground/80">{s}</span>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-[260px_1fr] gap-6">
