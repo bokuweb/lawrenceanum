@@ -310,6 +310,9 @@ export type KanpoHit = {
   pdf_url: string;
   agency: string | null;
   snippet: string;
+  /** 逆引き: この改め文が改正する対象法令 (あれば)。 */
+  law_id: string | null;
+  law_title: string | null;
 };
 
 /**
@@ -323,8 +326,9 @@ export async function searchKanpo(q: string, limit = 10): Promise<KanpoHit[]> {
     const rows = await exec<{
       date: string; issue_no: string; title: string; page: number;
       pdf_url: string; agency: string | null; snippet: string;
+      law_id: string | null; law_title: string | null;
     }>(
-      `SELECT date, issue_no, title, page, pdf_url, agency,
+      `SELECT date, issue_no, title, page, pdf_url, agency, law_id, law_title,
               snippet(kanpo_fts, 7, '<mark>', '</mark>', '...', 10) AS snippet
          FROM kanpo_fts
         WHERE kanpo_fts MATCH ?
@@ -340,6 +344,8 @@ export async function searchKanpo(q: string, limit = 10): Promise<KanpoHit[]> {
       pdf_url: String(r.pdf_url ?? ""),
       agency: r.agency ?? null,
       snippet: String(r.snippet ?? ""),
+      law_id: r.law_id ? String(r.law_id) : null,
+      law_title: r.law_title ? String(r.law_title) : null,
     }));
   } catch {
     return [];

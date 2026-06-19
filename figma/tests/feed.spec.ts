@@ -34,6 +34,8 @@ const FEED = {
       internal: false,
       ministry: "総務一",
       summary: "官報",
+      law_id: "TESTLAW2",
+      law_title: "テスト対象法",
     },
   ],
 };
@@ -74,4 +76,14 @@ test("内部アイテムをクリックすると該当ページへ遷移する",
 
   await page.getByText("テスト改正法").click();
   await expect(page).toHaveURL(/#\/laws\/TESTLAW1/, { timeout: 15_000 });
+});
+
+test("官報項目の逆引きチップから改正対象法令へ遷移する", async ({ page }) => {
+  await mockFeed(page);
+  await page.goto(new URL("#/feed", BASE).toString());
+
+  const lawChip = page.getByRole("link", { name: "テスト対象法" });
+  await expect(lawChip).toBeVisible({ timeout: 15_000 });
+  await lawChip.click();
+  await expect(page).toHaveURL(/#\/laws\/TESTLAW2/, { timeout: 15_000 });
 });

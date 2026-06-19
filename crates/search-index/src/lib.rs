@@ -302,6 +302,9 @@ pub fn build_search_db(
             agency UNINDEXED,
             title_tokens,
             content_tokens,
+            -- 逆引き: この改め文が改正する対象法令 (kanpo-link の linked_laws の先頭)。
+            law_id UNINDEXED,
+            law_title UNINDEXED,
             tokenize='unicode61'
         );
 
@@ -542,8 +545,8 @@ pub fn build_search_db(
         if let Some(kdir) = kanpo_dir {
             let mut kanpo_stmt = tx.prepare(
                 "INSERT INTO kanpo_fts \
-                 (date, issue_no, title, page, pdf_url, agency, title_tokens, content_tokens) \
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+                 (date, issue_no, title, page, pdf_url, agency, title_tokens, content_tokens, law_id, law_title) \
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
             )?;
             // `public/kanpo/{date}/index.json` を日付昇順に走査する。
             let mut date_dirs: Vec<std::path::PathBuf> = std::fs::read_dir(kdir)
@@ -586,6 +589,13 @@ pub fn build_search_db(
                             .unwrap_or(issue_pdf);
                         let agency = item.get("agency_hint").and_then(|x| x.as_str()).unwrap_or("");
                         let amend = item.get("amend_text").and_then(|x| x.as_str()).unwrap_or("");
+                        // 逆引き: linked_laws の先頭を「主たる改正対象法令」として持つ。
+                        let first_law = item
+                            .get("linked_laws")
+                            .and_then(|x| x.as_array())
+                            .and_then(|a| a.first());
+                        let law_id = first_law.and_then(|l| l.get("law_id")).and_then(|x| x.as_str()).unwrap_or("");
+                        let law_title = first_law.and_then(|l| l.get("title")).and_then(|x| x.as_str()).unwrap_or("");
                         let title_tokens = tokenize_for_fts(title);
                         let content_tokens = tokenize_for_fts(amend);
                         kanpo_stmt.execute(params![
@@ -597,6 +607,8 @@ pub fn build_search_db(
                             agency,
                             title_tokens,
                             content_tokens,
+                            law_id,
+                            law_title,
                         ])?;
                         total_kanpo += 1;
                     }

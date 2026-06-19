@@ -8,7 +8,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
 import { Separator } from "../ui/separator";
 import { type LawSummary } from "../mock-data";
-import { Search, SlidersHorizontal, ChevronRight, FileText, Database, Landmark, MessageSquare, Newspaper, ExternalLink } from "lucide-react";
+import { Search, SlidersHorizontal, ChevronRight, FileText, Database, Landmark, MessageSquare, Newspaper, ExternalLink, BookOpen } from "lucide-react";
 import { useLaws } from "../../data/use-laws";
 import { search as ftsSearch, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, searchSpeeches, searchKanpo, type SearchHit, type SpeechHit, type KanpoHit } from "../../data/search-engine";
 import { useNavigate } from "react-router";
@@ -249,6 +249,16 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
                           className="text-sm mt-1.5 leading-relaxed [&>mark]:bg-amber-300/40 [&>mark]:rounded-sm [&>mark]:px-0.5"
                           dangerouslySetInnerHTML={{ __html: unbigramSnippet(h.snippet) }}
                         />
+                      )}
+                      {h.law_id && h.law_title && (
+                        <button
+                          onClick={() => navigate(`/laws/${h.law_id}`)}
+                          className="mt-1.5 inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded border border-border hover:border-primary hover:text-primary transition-colors"
+                          title="改正対象の法令を開く"
+                        >
+                          <BookOpen className="size-3 shrink-0" />
+                          <span className="truncate max-w-[18rem]">{h.law_title}</span>
+                        </button>
                       )}
                     </div>
                     {h.pdf_url && (

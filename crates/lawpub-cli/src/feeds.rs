@@ -24,6 +24,9 @@ pub struct FeedItem {
     pub internal: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub law_id: Option<String>,
+    /// 逆引き: 官報項目が改正する対象法令名 (kanpo の linked_laws 先頭)。
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub law_title: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ministry: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -91,6 +94,7 @@ fn collect_law_items(public: &Path, max_dates: usize) -> Vec<FeedItem> {
                 href: format!("/laws/{law_id}"),
                 internal: true,
                 law_id: Some(law_id.to_string()),
+                law_title: None,
                 ministry: None,
                 summary: Some(summary.to_string()),
             });
@@ -128,6 +132,7 @@ fn collect_pubcomment_items(public: &Path) -> Vec<FeedItem> {
             href: format!("/pubcomment/{case_id}"),
             internal: true,
             law_id: None,
+            law_title: None,
             ministry,
             summary: related.map(|r| format!("関連: {r}")),
         });
@@ -175,13 +180,18 @@ fn collect_kanpo_items(public: &Path, max_dates: usize) -> Vec<FeedItem> {
                     continue;
                 }
                 let agency = it.get("agency_hint").and_then(|x| x.as_str()).map(String::from);
+                // 逆引き: linked_laws の先頭 (改正対象法令)。
+                let first_law = it.get("linked_laws").and_then(|x| x.as_array()).and_then(|a| a.first());
+                let law_id = first_law.and_then(|l| l.get("law_id")).and_then(|x| x.as_str()).map(String::from);
+                let law_title = first_law.and_then(|l| l.get("title")).and_then(|x| x.as_str()).map(String::from);
                 items.push(FeedItem {
                     kind: "kanpo".into(),
                     date: date.clone(),
                     title: title.to_string(),
                     href: pdf.to_string(),
                     internal: false,
-                    law_id: None,
+                    law_id,
+                    law_title,
                     ministry: agency,
                     summary: Some("官報".into()),
                 });

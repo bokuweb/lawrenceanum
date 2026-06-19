@@ -345,6 +345,8 @@ export type FeedItem = {
   href: string
   internal: boolean
   law_id?: string
+  /** 逆引き: 官報項目が改正する対象法令名 (あれば)。 */
+  law_title?: string
   ministry?: string
   summary?: string
 }

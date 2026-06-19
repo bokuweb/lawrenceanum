@@ -29,18 +29,21 @@ function useRecentFeed() {
   return { data, loading };
 }
 
-function FeedRow({ item, onOpen }: { item: FeedItem; onOpen: (i: FeedItem) => void }) {
+function FeedRow({ item, onOpen, onLaw }: {
+  item: FeedItem;
+  onOpen: (i: FeedItem) => void;
+  onLaw: (lawId: string) => void;
+}) {
   const meta = kindMeta(item.kind);
   const Icon = meta.icon;
+  // 官報項目で対象法令が逆引きできるとき、外部PDFとは別に法令へ飛べるようにする。
+  const showLawLink = item.kind === "kanpo" && item.law_id && item.law_title;
   return (
-    <button
-      onClick={() => onOpen(item)}
-      className="w-full text-left px-4 py-3 border-b border-border hover:bg-accent/50 transition-colors flex items-start gap-3"
-    >
+    <div className="w-full border-b border-border hover:bg-accent/50 transition-colors flex items-start gap-3 px-4 py-3">
       <div className="size-8 rounded-md bg-muted flex items-center justify-center shrink-0 mt-0.5">
         <Icon className="size-4 text-muted-foreground" />
       </div>
-      <div className="min-w-0 flex-1">
+      <button onClick={() => onOpen(item)} className="min-w-0 flex-1 text-left">
         <div className="flex items-center gap-2 flex-wrap">
           <Badge variant="outline" className="text-xs shrink-0">{meta.label}</Badge>
           <span className="text-xs text-muted-foreground">{item.date}</span>
@@ -50,9 +53,21 @@ function FeedRow({ item, onOpen }: { item: FeedItem; onOpen: (i: FeedItem) => vo
         {item.summary && (
           <div className="text-xs text-muted-foreground mt-0.5">{item.summary}</div>
         )}
-      </div>
+        {showLawLink && (
+          <span
+            role="link"
+            tabIndex={0}
+            onClick={(e) => { e.stopPropagation(); onLaw(item.law_id!); }}
+            className="mt-1.5 inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded border border-border hover:border-primary hover:text-primary transition-colors cursor-pointer"
+            title="改正対象の法令を開く"
+          >
+            <BookOpen className="size-3 shrink-0" />
+            <span className="truncate max-w-[18rem]">{item.law_title}</span>
+          </span>
+        )}
+      </button>
       <ArrowUpRight className="size-4 text-muted-foreground shrink-0 mt-1" />
-    </button>
+    </div>
   );
 }
 
@@ -145,7 +160,9 @@ export function FeedView() {
               {data ? "該当する新着がありません" : "フィードを読み込めませんでした"}
             </p>
           ) : (
-            filtered.map((item, i) => <FeedRow key={`${item.kind}-${item.href}-${i}`} item={item} onOpen={open} />)
+            filtered.map((item, i) => (
+              <FeedRow key={`${item.kind}-${item.href}-${i}`} item={item} onOpen={open} onLaw={(id) => navigate(`/laws/${id}`)} />
+            ))
           )}
         </ScrollArea>
       </div>
