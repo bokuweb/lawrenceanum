@@ -68,6 +68,10 @@ enum Cmd {
         input: PathBuf,
         #[arg(long, default_value = "public")]
         output: PathBuf,
+        /// search.db の生成を省略する。全 corpus 配置後に build-search-db を呼ぶ
+        /// deployment pipeline 向け。
+        #[arg(long)]
+        skip_search_db: bool,
     },
     /// `public/` 配下の index/manifest を再生成する。
     BuildIndex {
@@ -119,6 +123,10 @@ enum Cmd {
         /// 新規revisionが無くても public/ を強制再生成する。
         #[arg(long)]
         force: bool,
+        /// build-json 内の法令のみ search.db を省略する。後段で全 corpus 版を
+        /// build-search-db する deployment pipeline 向け。
+        #[arg(long)]
+        skip_search_db: bool,
     },
     /// e-Gov v2 `/law_revisions/{id}` で改正履歴メタを取得し
     /// `.cache/revisions_meta/{law_id}.json` に保存する。
@@ -482,8 +490,20 @@ fn main() -> Result<()> {
             provider,
             date,
             force,
-        } => build::run_update(&public, &cache, &provider, date.as_deref(), force),
-        Cmd::BuildJson { input, output } => build::run_build_json(&input, &output),
+            skip_search_db,
+        } => build::run_update(
+            &public,
+            &cache,
+            &provider,
+            date.as_deref(),
+            force,
+            skip_search_db,
+        ),
+        Cmd::BuildJson {
+            input,
+            output,
+            skip_search_db,
+        } => build::run_build_json(&input, &output, !skip_search_db),
         Cmd::BuildIndex { output } => build::run_build_index(&output),
         Cmd::BuildSearchDb { public } => build::run_build_search_db(&public),
         Cmd::Validate { public } => validate::run_validate(&public),
@@ -666,5 +686,26 @@ mod cli_tests {
             Cmd::FetchUpdate { provider, .. } => assert_eq!(provider, "mock"),
             _ => panic!("expected fetch-update"),
         }
+    }
+
+    #[test]
+    fn deployment_commands_accept_skip_search_db() {
+        let build = Cli::try_parse_from(["lawpub", "build-json", "--skip-search-db"]).unwrap();
+        assert!(matches!(
+            build.cmd,
+            Cmd::BuildJson {
+                skip_search_db: true,
+                ..
+            }
+        ));
+
+        let update = Cli::try_parse_from(["lawpub", "update", "--skip-search-db"]).unwrap();
+        assert!(matches!(
+            update.cmd,
+            Cmd::Update {
+                skip_search_db: true,
+                ..
+            }
+        ));
     }
 }

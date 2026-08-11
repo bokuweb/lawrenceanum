@@ -302,6 +302,10 @@ impl Thesaurus {
     }
 }
 
+const LAW_INDEX_BATCH_SIZE: usize = 100;
+const PROCEEDINGS_INDEX_BATCH_SIZE: usize = 25;
+const FILE_INDEX_BATCH_SIZE: usize = 14;
+
 /// `laws`: 索引対象の現行版 LawDocument 群。
 /// `categories`: law_id → e-Gov 法令分類 (「民事」「行政組織」など) の対応表。
 ///   FTS5 検索結果をカテゴリで絞り込めるよう `laws.category` 列に格納する。
@@ -319,10 +323,20 @@ pub fn build_search_db(
     if let Some(parent) = out_path.parent() {
         std::fs::create_dir_all(parent)?;
     }
-    if out_path.exists() {
-        std::fs::remove_file(out_path)?;
+    // 生成途中の DB を公開パスへ置かない。呼び出し側が失敗後も処理を続けた場合でも、
+    // partial DB が公開・アップロードされないよう成功時だけ差し替える。
+    let building_path = out_path.with_file_name(format!(
+        "{}.building",
+        out_path
+            .file_name()
+            .and_then(|name| name.to_str())
+            .unwrap_or("search.db")
+    ));
+    if building_path.exists() {
+        std::fs::remove_file(&building_path)?;
     }
-    let conn = Connection::open(out_path).with_context(|| format!("open {}", out_path.display()))?;
+    let conn = Connection::open(&building_path)
+        .with_context(|| format!("open {}", building_path.display()))?;
 
     conn.execute_batch(
         r#"
@@ -331,6 +345,10 @@ pub fn build_search_db(
         PRAGMA page_size = 65536;
         PRAGMA journal_mode = OFF;
         PRAGMA synchronous = OFF;
+        -- GitHub-hosted runner のメモリ使用量を予測可能にする。FTS の一時データは
+        -- RAM に抱えずファイルへ退避し、SQLite page cache は約 32MiB に制限する。
+        PRAGMA temp_store = FILE;
+        PRAGMA cache_size = -32768;
 
         CREATE TABLE laws (
             law_id TEXT PRIMARY KEY,
@@ -432,380 +450,455 @@ pub fn build_search_db(
     let thesaurus = Thesaurus::bundled();
     tracing::info!("search.db: thesaurus loaded ({} entries)", thesaurus.entry_count());
 
-    let tx = conn.unchecked_transaction()?;
-    {
-        let mut law_stmt = tx.prepare(
-            "INSERT INTO laws (law_id, law_num, title, category) VALUES (?1, ?2, ?3, ?4)",
-        )?;
-        let mut fts_stmt = tx.prepare(
-            "INSERT INTO search_fts (law_id, article_id, article_no, caption, title_tokens, content_tokens) \
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-        )?;
-        let mut ref_stmt = tx.prepare(
-            "INSERT INTO refs (from_law_id, from_article_id, to_law_id, to_article_id, ref_text, ref_type) \
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-        )?;
+    let mut total_articles = 0usize;
+    let mut total_refs = 0usize;
 
-        let mut total_articles = 0usize;
-        let mut total_refs = 0usize;
-
-        // 全法令にまたがる索引を一度だけ作って cross-law 解決に流用する。
-        let mut title_index: std::collections::HashMap<String, String> = Default::default();
-        let mut articles_index: std::collections::HashMap<
-            String,
-            std::collections::HashMap<String, String>,
-        > = Default::default();
-        for d in laws {
-            if !d.title.is_empty() {
-                title_index.insert(d.title.clone(), d.law_id.clone());
-            }
-            let mut m: std::collections::HashMap<String, String> = Default::default();
-            for a in &d.articles {
-                if !a.article_no.is_empty() {
-                    m.insert(a.article_no.clone(), a.article_id.clone());
-                }
-            }
-            articles_index.insert(d.law_id.clone(), m);
+    // 全法令にまたがる索引を一度だけ作って cross-law 解決に流用する。
+    let mut title_index: std::collections::HashMap<String, String> = Default::default();
+    let mut articles_index: std::collections::HashMap<
+        String,
+        std::collections::HashMap<String, String>,
+    > = Default::default();
+    for d in laws {
+        if !d.title.is_empty() {
+            title_index.insert(d.title.clone(), d.law_id.clone());
         }
+        let mut m: std::collections::HashMap<String, String> = Default::default();
+        for a in &d.articles {
+            if !a.article_no.is_empty() {
+                m.insert(a.article_no.clone(), a.article_id.clone());
+            }
+        }
+        articles_index.insert(d.law_id.clone(), m);
+    }
 
-        // cross-law 用の AC オートマトンは法令一覧から 1 度だけ構築。
-        let cross_index = CrossLawIndex::build(&title_index);
+    // cross-law 用の AC オートマトンは法令一覧から 1 度だけ構築。
+    let cross_index = CrossLawIndex::build(&title_index);
 
-        for d in laws {
-            law_stmt.execute(params![
-                d.law_id,
-                d.law_num,
-                d.title,
-                categories.get(&d.law_id),
-            ])?;
-            let title_tokens = tokenize_for_fts(&format!(
-                "{} {}",
-                d.title,
-                d.law_num.clone().unwrap_or_default()
-            ));
+    // FTS5 の pending terms と refs を全 corpus 分 RAM に保持しないよう、法令を
+    // 小さな transaction に分割する。失敗時は DB 自体を次回作り直すため atomicity は不要。
+    for (batch_index, batch) in laws.chunks(LAW_INDEX_BATCH_SIZE).enumerate() {
+        let tx = conn.unchecked_transaction()?;
+        {
+            let mut law_stmt = tx.prepare(
+                "INSERT INTO laws (law_id, law_num, title, category) VALUES (?1, ?2, ?3, ?4)",
+            )?;
+            let mut fts_stmt = tx.prepare(
+                "INSERT INTO search_fts (law_id, article_id, article_no, caption, title_tokens, content_tokens) \
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            )?;
+            let mut ref_stmt = tx.prepare(
+                "INSERT INTO refs (from_law_id, from_article_id, to_law_id, to_article_id, ref_text, ref_type) \
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            )?;
 
-            let no_to_id = articles_index.get(&d.law_id).cloned().unwrap_or_default();
-            let articles_in_order: Vec<(String, String)> = d
-                .articles
-                .iter()
-                .map(|a| (a.article_id.clone(), a.article_no.clone()))
-                .collect();
-
-            for (idx, a) in d.articles.iter().enumerate() {
-                let body = a
-                    .paragraphs
-                    .iter()
-                    .map(|p| p.text.as_str())
-                    .collect::<Vec<_>>()
-                    .join("\n");
-                let content = format!(
-                    "{} {} {}",
-                    a.article_no,
-                    a.caption.clone().unwrap_or_default(),
-                    body
-                );
-                // 本文に出現した法律 term の同義語を追記してから索引する。
-                let syn = thesaurus.expand(&content);
-                let content_for_index = if syn.is_empty() {
-                    content.clone()
-                } else {
-                    format!("{content}\n{syn}")
-                };
-                let content_tokens = tokenize_for_fts(&content_for_index);
-                fts_stmt.execute(params![
+            for d in batch {
+                law_stmt.execute(params![
                     d.law_id,
-                    a.article_id,
-                    a.article_no,
-                    a.caption.clone().unwrap_or_default(),
-                    title_tokens,
-                    content_tokens,
+                    d.law_num,
+                    d.title,
+                    categories.get(&d.law_id),
                 ])?;
-                total_articles += 1;
+                let title_tokens = tokenize_for_fts(&format!(
+                    "{} {}",
+                    d.title,
+                    d.law_num.clone().unwrap_or_default()
+                ));
 
-                // 1) 自己参照 (同一法令内の "第○条")。
-                let mut emitted: std::collections::HashSet<(String, String, String)> =
-                    Default::default();
-                for (text, to_id) in extract_self_article_refs(&body, &no_to_id) {
-                    if to_id == a.article_id {
-                        continue;
-                    }
-                    let key = (text.to_string(), to_id.clone(), "self_article".into());
-                    if emitted.contains(&key) {
-                        continue;
-                    }
-                    emitted.insert(key);
-                    ref_stmt.execute(params![
-                        d.law_id,
-                        a.article_id,
-                        d.law_id,
-                        to_id,
-                        text,
-                        "self_article",
-                    ])?;
-                    total_refs += 1;
-                }
+                // articles_index は上で全法令について作成済み。法令ごとの map を clone せず
+                // 借用し、巨大法令での一時的なメモリ増加を避ける。
+                let no_to_id = &articles_index[&d.law_id];
+                let articles_in_order: Vec<(String, String)> = d
+                    .articles
+                    .iter()
+                    .map(|a| (a.article_id.clone(), a.article_no.clone()))
+                    .collect();
 
-                // 2) 前条/次条 相対参照。
-                for (text, to_id, ref_type) in
-                    extract_relative_article_refs(&body, idx, &articles_in_order)
-                {
-                    let key = (text.clone(), to_id.clone(), ref_type.to_string());
-                    if emitted.contains(&key) {
-                        continue;
-                    }
-                    emitted.insert(key);
-                    ref_stmt.execute(params![
-                        d.law_id,
-                        a.article_id,
-                        d.law_id,
-                        to_id,
-                        text,
-                        ref_type,
-                    ])?;
-                    total_refs += 1;
-                }
-
-                // 3) 他法令参照 (例「民法第七百九条」)。AC オートマトンが無い時は skip。
-                let cross_iter: Vec<(String, String, Option<String>)> =
-                    if let Some(ix) = cross_index.as_ref() {
-                        extract_cross_law_refs(&body, &d.law_id, ix, &articles_index)
+                for (idx, a) in d.articles.iter().enumerate() {
+                    let body = a
+                        .paragraphs
+                        .iter()
+                        .map(|p| p.text.as_str())
+                        .collect::<Vec<_>>()
+                        .join("\n");
+                    let content = format!(
+                        "{} {} {}",
+                        a.article_no,
+                        a.caption.clone().unwrap_or_default(),
+                        body
+                    );
+                    // 本文に出現した法律 term の同義語を追記してから索引する。
+                    let syn = thesaurus.expand(&content);
+                    let content_for_index = if syn.is_empty() {
+                        content.clone()
                     } else {
-                        Vec::new()
+                        format!("{content}\n{syn}")
                     };
-                for (text, to_law, to_art) in cross_iter {
-                    let key = (text.clone(), to_art.clone().unwrap_or_default(), "cross_law".into());
-                    if emitted.contains(&key) {
-                        continue;
-                    }
-                    emitted.insert(key);
-                    ref_stmt.execute(params![
+                    let content_tokens = tokenize_for_fts(&content_for_index);
+                    fts_stmt.execute(params![
                         d.law_id,
                         a.article_id,
-                        to_law,
-                        to_art,
-                        text,
-                        "cross_law",
+                        a.article_no,
+                        a.caption.clone().unwrap_or_default(),
+                        title_tokens,
+                        content_tokens,
                     ])?;
-                    total_refs += 1;
+                    total_articles += 1;
+
+                    // 1) 自己参照 (同一法令内の "第○条")。
+                    let mut emitted: std::collections::HashSet<(String, String, String)> =
+                        Default::default();
+                    for (text, to_id) in extract_self_article_refs(&body, no_to_id) {
+                        if to_id == a.article_id {
+                            continue;
+                        }
+                        let key = (text.to_string(), to_id.clone(), "self_article".into());
+                        if emitted.contains(&key) {
+                            continue;
+                        }
+                        emitted.insert(key);
+                        ref_stmt.execute(params![
+                            d.law_id,
+                            a.article_id,
+                            d.law_id,
+                            to_id,
+                            text,
+                            "self_article",
+                        ])?;
+                        total_refs += 1;
+                    }
+
+                    // 2) 前条/次条 相対参照。
+                    for (text, to_id, ref_type) in
+                        extract_relative_article_refs(&body, idx, &articles_in_order)
+                    {
+                        let key = (text.clone(), to_id.clone(), ref_type.to_string());
+                        if emitted.contains(&key) {
+                            continue;
+                        }
+                        emitted.insert(key);
+                        ref_stmt.execute(params![
+                            d.law_id,
+                            a.article_id,
+                            d.law_id,
+                            to_id,
+                            text,
+                            ref_type,
+                        ])?;
+                        total_refs += 1;
+                    }
+
+                    // 3) 他法令参照 (例「民法第七百九条」)。AC オートマトンが無い時は skip。
+                    let cross_iter: Vec<(String, String, Option<String>)> =
+                        if let Some(ix) = cross_index.as_ref() {
+                            extract_cross_law_refs(&body, &d.law_id, ix, &articles_index)
+                        } else {
+                            Vec::new()
+                        };
+                    for (text, to_law, to_art) in cross_iter {
+                        let key = (
+                            text.clone(),
+                            to_art.clone().unwrap_or_default(),
+                            "cross_law".into(),
+                        );
+                        if emitted.contains(&key) {
+                            continue;
+                        }
+                        emitted.insert(key);
+                        ref_stmt.execute(params![
+                            d.law_id,
+                            a.article_id,
+                            to_law,
+                            to_art,
+                            text,
+                            "cross_law",
+                        ])?;
+                        total_refs += 1;
+                    }
                 }
             }
         }
+        tx.commit()?;
+        let indexed_laws = ((batch_index + 1) * LAW_INDEX_BATCH_SIZE).min(laws.len());
         tracing::info!(
-            "search.db: indexed {} laws / {} articles / {} refs",
+            "search.db: indexed {}/{} laws / {} articles / {} refs",
+            indexed_laws,
             laws.len(),
             total_articles,
             total_refs
         );
+    }
 
-        // ── 発言 FTS (proceedings_dir が Some のとき) ───────────────────────
-        let mut total_meetings = 0usize;
-        let mut total_speeches = 0usize;
-        if let Some(proc_dir) = proceedings_dir {
-            let mut meeting_stmt = tx.prepare(
-                "INSERT OR IGNORE INTO meetings (meeting_id, session, house, committee, date, speech_count) \
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-            )?;
-            let mut speech_stmt = tx.prepare(
-                "INSERT INTO speeches_fts (meeting_id, speech_id, speaker, speaker_group, speech_tokens) \
-                 VALUES (?1, ?2, ?3, ?4, ?5)",
-            )?;
+    // ── 発言 FTS (proceedings_dir が Some のとき) ───────────────────────────
+    let mut total_meetings = 0usize;
+    let mut total_speeches = 0usize;
+    if let Some(proc_dir) = proceedings_dir {
+        // index.json を読んで meetings テーブルに挿入。
+        let index_path = proc_dir.join("index.json");
+        if index_path.exists() {
+            let raw = std::fs::read_to_string(&index_path)
+                .with_context(|| format!("read {}", index_path.display()))?;
+            let index: serde_json::Value = serde_json::from_str(&raw)?;
+            if let Some(meetings) = index.get("meetings").and_then(|v| v.as_array()) {
+                for batch in meetings.chunks(PROCEEDINGS_INDEX_BATCH_SIZE) {
+                    let tx = conn.unchecked_transaction()?;
+                    {
+                        let mut meeting_stmt = tx.prepare(
+                            "INSERT OR IGNORE INTO meetings (meeting_id, session, house, committee, date, speech_count) \
+                             VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+                        )?;
+                        let mut speech_stmt = tx.prepare(
+                            "INSERT INTO speeches_fts (meeting_id, speech_id, speaker, speaker_group, speech_tokens) \
+                             VALUES (?1, ?2, ?3, ?4, ?5)",
+                        )?;
 
-            // index.json を読んで meetings テーブルに挿入。
-            let index_path = proc_dir.join("index.json");
-            if index_path.exists() {
-                let raw = std::fs::read_to_string(&index_path)
-                    .with_context(|| format!("read {}", index_path.display()))?;
-                let index: serde_json::Value = serde_json::from_str(&raw)?;
-                if let Some(meetings) = index.get("meetings").and_then(|v| v.as_array()) {
-                    for m in meetings {
-                        let meeting_id = m.get("meeting_id").and_then(|v| v.as_str()).unwrap_or("");
-                        let session = m.get("session").and_then(|v| v.as_i64()).unwrap_or(0);
-                        let house = m.get("house").and_then(|v| v.as_str()).unwrap_or("");
-                        let committee = m.get("committee").and_then(|v| v.as_str());
-                        let date = m.get("date").and_then(|v| v.as_str()).unwrap_or("");
-                        let speech_count = m.get("speech_count").and_then(|v| v.as_i64()).unwrap_or(0);
-                        meeting_stmt.execute(params![
-                            meeting_id, session, house, committee, date, speech_count,
-                        ])?;
-                        total_meetings += 1;
+                        for m in batch {
+                            let meeting_id =
+                                m.get("meeting_id").and_then(|v| v.as_str()).unwrap_or("");
+                            let session = m.get("session").and_then(|v| v.as_i64()).unwrap_or(0);
+                            let house = m.get("house").and_then(|v| v.as_str()).unwrap_or("");
+                            let committee = m.get("committee").and_then(|v| v.as_str());
+                            let date = m.get("date").and_then(|v| v.as_str()).unwrap_or("");
+                            let speech_count =
+                                m.get("speech_count").and_then(|v| v.as_i64()).unwrap_or(0);
+                            meeting_stmt.execute(params![
+                                meeting_id,
+                                session,
+                                house,
+                                committee,
+                                date,
+                                speech_count,
+                            ])?;
+                            total_meetings += 1;
 
-                        // 個別会議 JSON を読んで発言を索引。
-                        let meeting_path = proc_dir.join(format!("{}.json", meeting_id));
-                        if !meeting_path.exists() {
-                            continue;
-                        }
-                        let raw2 = std::fs::read_to_string(&meeting_path)
-                            .with_context(|| format!("read {}", meeting_path.display()))?;
-                        let meeting_json: serde_json::Value = serde_json::from_str(&raw2)?;
-                        if let Some(speeches) = meeting_json.get("speeches").and_then(|v| v.as_array()) {
-                            for s in speeches {
-                                let speech_id = s.get("speech_id").and_then(|v| v.as_str()).unwrap_or("");
-                                let speaker = s.get("speaker").and_then(|v| v.as_str());
-                                let speaker_group = s.get("speaker_group").and_then(|v| v.as_str());
-                                let speech_text = s.get("speech").and_then(|v| v.as_str()).unwrap_or("");
-                                if speech_text.is_empty() {
-                                    continue;
+                            // 個別会議 JSON を読んで発言を索引。
+                            let meeting_path = proc_dir.join(format!("{}.json", meeting_id));
+                            if !meeting_path.exists() {
+                                continue;
+                            }
+                            let raw2 = std::fs::read_to_string(&meeting_path)
+                                .with_context(|| format!("read {}", meeting_path.display()))?;
+                            let meeting_json: serde_json::Value = serde_json::from_str(&raw2)?;
+                            if let Some(speeches) =
+                                meeting_json.get("speeches").and_then(|v| v.as_array())
+                            {
+                                for s in speeches {
+                                    let speech_id =
+                                        s.get("speech_id").and_then(|v| v.as_str()).unwrap_or("");
+                                    let speaker = s.get("speaker").and_then(|v| v.as_str());
+                                    let speaker_group =
+                                        s.get("speaker_group").and_then(|v| v.as_str());
+                                    let speech_text =
+                                        s.get("speech").and_then(|v| v.as_str()).unwrap_or("");
+                                    if speech_text.is_empty() {
+                                        continue;
+                                    }
+                                    let tokens = tokenize_for_fts(speech_text);
+                                    speech_stmt.execute(params![
+                                        meeting_id,
+                                        speech_id,
+                                        speaker,
+                                        speaker_group,
+                                        tokens,
+                                    ])?;
+                                    total_speeches += 1;
                                 }
-                                let tokens = tokenize_for_fts(speech_text);
-                                speech_stmt.execute(params![
-                                    meeting_id, speech_id, speaker, speaker_group, tokens,
-                                ])?;
-                                total_speeches += 1;
                             }
                         }
                     }
+                    tx.commit()?;
+                    tracing::info!(
+                        "search.db: indexed {} meetings / {} speeches",
+                        total_meetings,
+                        total_speeches
+                    );
                 }
             }
-            tracing::info!(
-                "search.db: indexed {} meetings / {} speeches",
-                total_meetings,
-                total_speeches
-            );
         }
+    }
 
-        // ── 官報記事 FTS (kanpo_dir が Some のとき) ─────────────────────────
-        let mut total_kanpo = 0usize;
-        if let Some(kdir) = kanpo_dir {
-            let mut kanpo_stmt = tx.prepare(
-                "INSERT INTO kanpo_fts \
-                 (date, issue_no, title, page, pdf_url, agency, title_tokens, content_tokens, law_id, law_title) \
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
-            )?;
-            // `public/kanpo/{date}/index.json` を日付昇順に走査する。
-            let mut date_dirs: Vec<std::path::PathBuf> = std::fs::read_dir(kdir)
-                .map(|rd| {
-                    rd.filter_map(|e| e.ok())
-                        .map(|e| e.path())
-                        .filter(|p| p.is_dir())
-                        .collect()
-                })
-                .unwrap_or_default();
-            date_dirs.sort();
-            for ddir in &date_dirs {
-                let index_path = ddir.join("index.json");
-                if !index_path.exists() {
-                    continue;
-                }
-                let raw = std::fs::read_to_string(&index_path)
-                    .with_context(|| format!("read {}", index_path.display()))?;
-                let v: serde_json::Value = serde_json::from_str(&raw)?;
-                let date = v.get("date").and_then(|x| x.as_str()).unwrap_or("");
-                let Some(issues) = v.get("issues").and_then(|x| x.as_array()) else {
-                    continue;
-                };
-                for issue in issues {
-                    let issue_no = issue.get("issue_no").and_then(|x| x.as_str()).unwrap_or("");
-                    let issue_pdf = issue.get("pdf_url").and_then(|x| x.as_str()).unwrap_or("");
-                    let Some(items) = issue.get("items").and_then(|x| x.as_array()) else {
+    // ── 官報記事 FTS (kanpo_dir が Some のとき) ─────────────────────────────
+    let mut total_kanpo = 0usize;
+    if let Some(kdir) = kanpo_dir {
+        // `public/kanpo/{date}/index.json` を日付昇順に走査する。
+        let mut date_dirs: Vec<std::path::PathBuf> = std::fs::read_dir(kdir)
+            .map(|rd| {
+                rd.filter_map(|e| e.ok())
+                    .map(|e| e.path())
+                    .filter(|p| p.is_dir())
+                    .collect()
+            })
+            .unwrap_or_default();
+        date_dirs.sort();
+        for batch in date_dirs.chunks(FILE_INDEX_BATCH_SIZE) {
+            let tx = conn.unchecked_transaction()?;
+            {
+                let mut kanpo_stmt = tx.prepare(
+                    "INSERT INTO kanpo_fts \
+                     (date, issue_no, title, page, pdf_url, agency, title_tokens, content_tokens, law_id, law_title) \
+                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
+                )?;
+                for ddir in batch {
+                    let index_path = ddir.join("index.json");
+                    if !index_path.exists() {
+                        continue;
+                    }
+                    let raw = std::fs::read_to_string(&index_path)
+                        .with_context(|| format!("read {}", index_path.display()))?;
+                    let v: serde_json::Value = serde_json::from_str(&raw)?;
+                    let date = v.get("date").and_then(|x| x.as_str()).unwrap_or("");
+                    let Some(issues) = v.get("issues").and_then(|x| x.as_array()) else {
                         continue;
                     };
-                    for item in items {
-                        let title = item.get("title").and_then(|x| x.as_str()).unwrap_or("");
-                        if title.is_empty() {
+                    for issue in issues {
+                        let issue_no = issue.get("issue_no").and_then(|x| x.as_str()).unwrap_or("");
+                        let issue_pdf = issue.get("pdf_url").and_then(|x| x.as_str()).unwrap_or("");
+                        let Some(items) = issue.get("items").and_then(|x| x.as_array()) else {
                             continue;
+                        };
+                        for item in items {
+                            let title = item.get("title").and_then(|x| x.as_str()).unwrap_or("");
+                            if title.is_empty() {
+                                continue;
+                            }
+                            let page = item.get("page").and_then(|x| x.as_i64()).unwrap_or(0);
+                            let pdf_url = item
+                                .get("pdf_url")
+                                .and_then(|x| x.as_str())
+                                .filter(|s| !s.is_empty())
+                                .unwrap_or(issue_pdf);
+                            let agency = item
+                                .get("agency_hint")
+                                .and_then(|x| x.as_str())
+                                .unwrap_or("");
+                            let amend = item
+                                .get("amend_text")
+                                .and_then(|x| x.as_str())
+                                .unwrap_or("");
+                            // 逆引き: linked_laws の先頭を「主たる改正対象法令」として持つ。
+                            let first_law = item
+                                .get("linked_laws")
+                                .and_then(|x| x.as_array())
+                                .and_then(|a| a.first());
+                            let law_id = first_law
+                                .and_then(|l| l.get("law_id"))
+                                .and_then(|x| x.as_str())
+                                .unwrap_or("");
+                            let law_title = first_law
+                                .and_then(|l| l.get("title"))
+                                .and_then(|x| x.as_str())
+                                .unwrap_or("");
+                            let title_tokens = tokenize_for_fts(title);
+                            let content_tokens = tokenize_for_fts(amend);
+                            kanpo_stmt.execute(params![
+                                date,
+                                issue_no,
+                                title,
+                                page,
+                                pdf_url,
+                                agency,
+                                title_tokens,
+                                content_tokens,
+                                law_id,
+                                law_title,
+                            ])?;
+                            total_kanpo += 1;
                         }
-                        let page = item.get("page").and_then(|x| x.as_i64()).unwrap_or(0);
-                        let pdf_url = item
-                            .get("pdf_url")
-                            .and_then(|x| x.as_str())
-                            .filter(|s| !s.is_empty())
-                            .unwrap_or(issue_pdf);
-                        let agency = item.get("agency_hint").and_then(|x| x.as_str()).unwrap_or("");
-                        let amend = item.get("amend_text").and_then(|x| x.as_str()).unwrap_or("");
-                        // 逆引き: linked_laws の先頭を「主たる改正対象法令」として持つ。
-                        let first_law = item
-                            .get("linked_laws")
-                            .and_then(|x| x.as_array())
-                            .and_then(|a| a.first());
-                        let law_id = first_law.and_then(|l| l.get("law_id")).and_then(|x| x.as_str()).unwrap_or("");
-                        let law_title = first_law.and_then(|l| l.get("title")).and_then(|x| x.as_str()).unwrap_or("");
-                        let title_tokens = tokenize_for_fts(title);
-                        let content_tokens = tokenize_for_fts(amend);
-                        kanpo_stmt.execute(params![
-                            date,
-                            issue_no,
-                            title,
-                            page,
-                            pdf_url,
-                            agency,
-                            title_tokens,
-                            content_tokens,
-                            law_id,
-                            law_title,
-                        ])?;
-                        total_kanpo += 1;
                     }
                 }
             }
+            tx.commit()?;
             tracing::info!("search.db: indexed {} kanpo items", total_kanpo);
         }
+    }
 
-        // ── 通達 FTS (tsutatsu_dir が Some のとき) ──────────────────────────
-        let mut total_tsutatsu = 0usize;
-        if let Some(tdir) = tsutatsu_dir {
-            let mut tsutatsu_stmt = tx.prepare(
-                "INSERT INTO tsutatsu_fts \
-                 (tax, number, caption, set_name, source_url, caption_tokens, text_tokens) \
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-            )?;
-            // `public/tsutatsu/{tax}.json` (index.json 以外) を走査する。
-            let mut files: Vec<std::path::PathBuf> = std::fs::read_dir(tdir)
-                .map(|rd| {
-                    rd.filter_map(|e| e.ok())
-                        .map(|e| e.path())
-                        .filter(|p| {
-                            p.extension().and_then(|x| x.to_str()) == Some("json")
-                                && p.file_name().and_then(|x| x.to_str()) != Some("index.json")
-                        })
-                        .collect()
-                })
-                .unwrap_or_default();
-            files.sort();
-            for f in &files {
-                let Ok(bytes) = std::fs::read(f) else { continue };
-                let Ok(v) = serde_json::from_slice::<serde_json::Value>(&bytes) else { continue };
-                let tax = v.get("tax").and_then(|x| x.as_str()).unwrap_or("");
-                let set_name = v.get("name").and_then(|x| x.as_str()).unwrap_or("");
-                let Some(items) = v.get("items").and_then(|x| x.as_array()) else { continue };
-                for it in items {
-                    let number = it.get("number").and_then(|x| x.as_str()).unwrap_or("");
-                    let caption = it.get("caption").and_then(|x| x.as_str()).unwrap_or("");
-                    let text = it.get("text").and_then(|x| x.as_str()).unwrap_or("");
-                    let source_url = it.get("source_url").and_then(|x| x.as_str()).unwrap_or("");
-                    if text.is_empty() {
+    // ── 通達 FTS (tsutatsu_dir が Some のとき) ──────────────────────────────
+    let mut total_tsutatsu = 0usize;
+    if let Some(tdir) = tsutatsu_dir {
+        // `public/tsutatsu/{tax}.json` (index.json 以外) を走査する。
+        let mut files: Vec<std::path::PathBuf> = std::fs::read_dir(tdir)
+            .map(|rd| {
+                rd.filter_map(|e| e.ok())
+                    .map(|e| e.path())
+                    .filter(|p| {
+                        p.extension().and_then(|x| x.to_str()) == Some("json")
+                            && p.file_name().and_then(|x| x.to_str()) != Some("index.json")
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+        files.sort();
+        for batch in files.chunks(FILE_INDEX_BATCH_SIZE) {
+            let tx = conn.unchecked_transaction()?;
+            {
+                let mut tsutatsu_stmt = tx.prepare(
+                    "INSERT INTO tsutatsu_fts \
+                     (tax, number, caption, set_name, source_url, caption_tokens, text_tokens) \
+                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+                )?;
+                for f in batch {
+                    let Ok(bytes) = std::fs::read(f) else {
                         continue;
+                    };
+                    let Ok(v) = serde_json::from_slice::<serde_json::Value>(&bytes) else {
+                        continue;
+                    };
+                    let tax = v.get("tax").and_then(|x| x.as_str()).unwrap_or("");
+                    let set_name = v.get("name").and_then(|x| x.as_str()).unwrap_or("");
+                    let Some(items) = v.get("items").and_then(|x| x.as_array()) else {
+                        continue;
+                    };
+                    for it in items {
+                        let number = it.get("number").and_then(|x| x.as_str()).unwrap_or("");
+                        let caption = it.get("caption").and_then(|x| x.as_str()).unwrap_or("");
+                        let text = it.get("text").and_then(|x| x.as_str()).unwrap_or("");
+                        let source_url =
+                            it.get("source_url").and_then(|x| x.as_str()).unwrap_or("");
+                        if text.is_empty() {
+                            continue;
+                        }
+                        let caption_tokens = tokenize_for_fts(caption);
+                        let text_tokens = tokenize_for_fts(text);
+                        tsutatsu_stmt.execute(params![
+                            tax,
+                            number,
+                            caption,
+                            set_name,
+                            source_url,
+                            caption_tokens,
+                            text_tokens,
+                        ])?;
+                        total_tsutatsu += 1;
                     }
-                    let caption_tokens = tokenize_for_fts(caption);
-                    let text_tokens = tokenize_for_fts(text);
-                    tsutatsu_stmt.execute(params![
-                        tax,
-                        number,
-                        caption,
-                        set_name,
-                        source_url,
-                        caption_tokens,
-                        text_tokens,
-                    ])?;
-                    total_tsutatsu += 1;
                 }
             }
+            tx.commit()?;
             tracing::info!("search.db: indexed {} tsutatsu items", total_tsutatsu);
         }
-
-        tx.execute(
-            "INSERT INTO meta (key, value) VALUES ('built_at', datetime('now')), \
-             ('law_count', ?1), ('article_count', ?2), ('ref_count', ?3), \
-             ('speech_count', ?4), ('tokenizer', 'bigram')",
-            params![
-                laws.len() as i64,
-                total_articles as i64,
-                total_refs as i64,
-                total_speeches as i64,
-            ],
-        )?;
     }
-    tx.commit()?;
-    conn.execute_batch("VACUUM;").ok();
+
+    conn.execute(
+        "INSERT INTO meta (key, value) VALUES ('built_at', datetime('now')), \
+         ('law_count', ?1), ('article_count', ?2), ('ref_count', ?3), \
+         ('speech_count', ?4), ('tokenizer', 'bigram')",
+        params![
+            laws.len() as i64,
+            total_articles as i64,
+            total_refs as i64,
+            total_speeches as i64,
+        ],
+    )?;
+    // 新規作成した DB には回収すべき free page がないため、全 DB を複製する VACUUM は
+    // 不要。軽量な planner/index 最適化だけを行う。
+    conn.execute_batch("PRAGMA optimize;").ok();
+    drop(conn);
+    std::fs::rename(&building_path, out_path).with_context(|| {
+        format!(
+            "replace {} with {}",
+            out_path.display(),
+            building_path.display()
+        )
+    })?;
     Ok(())
 }
 
@@ -828,6 +921,30 @@ mod tests {
     fn fts_join() {
         assert_eq!(tokenize_for_fts("東京駅前"), "東京 京駅 駅前");
         assert_eq!(tokenize_for_fts("検索"), "検索");
+    }
+
+    #[test]
+    fn failed_rebuild_preserves_published_database() {
+        let root = std::env::temp_dir().join("lawpub_search_atomic_test");
+        let _ = std::fs::remove_dir_all(&root);
+        let kanpo_dir = root.join("kanpo").join("2026-01-01");
+        std::fs::create_dir_all(&kanpo_dir).unwrap();
+        std::fs::write(kanpo_dir.join("index.json"), "not-json").unwrap();
+        let db = root.join("search.db");
+        std::fs::write(&db, b"published-db").unwrap();
+
+        let result = build_search_db(
+            &db,
+            &[],
+            &std::collections::HashMap::new(),
+            None,
+            Some(&root.join("kanpo")),
+            None,
+        );
+
+        assert!(result.is_err());
+        assert_eq!(std::fs::read(&db).unwrap(), b"published-db");
+        let _ = std::fs::remove_dir_all(&root);
     }
 
     #[test]
@@ -971,6 +1088,65 @@ mod tests {
             )
             .unwrap();
         assert!(cnt >= 1, "synonym (バーゼル規制) でヒットせず");
+
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn law_index_commits_across_batch_boundary() {
+        use law_normalizer::{Article, LawDocument, Paragraph, SourceMeta};
+
+        let root = std::env::temp_dir().join("lawpub_search_batch_test");
+        let _ = std::fs::remove_dir_all(&root);
+        std::fs::create_dir_all(&root).unwrap();
+        let db = root.join("search.db");
+        let laws: Vec<LawDocument> = (0..=LAW_INDEX_BATCH_SIZE)
+            .map(|i| LawDocument {
+                schema_version: 1,
+                law_id: format!("TEST{i:04}"),
+                law_num: Some(format!("テスト法令第{i}号")),
+                title: format!("索引分割テスト法令{i}"),
+                revision_id: None,
+                promulgation_date: None,
+                effective_date: None,
+                status: "current".into(),
+                articles: vec![Article {
+                    article_id: "art_1".into(),
+                    article_no: "第一条".into(),
+                    caption: None,
+                    paragraphs: vec![Paragraph {
+                        paragraph_no: None,
+                        text: "分割トランザクションを検証する。".into(),
+                    }],
+                }],
+                suppl_provisions: vec![],
+                source: SourceMeta {
+                    provider: "test".into(),
+                    raw_xml_sha256: None,
+                    fetched_at: "2026-01-01".into(),
+                },
+            })
+            .collect();
+
+        build_search_db(
+            &db,
+            &laws,
+            &std::collections::HashMap::new(),
+            None,
+            None,
+            None,
+        )
+        .unwrap();
+
+        let conn = Connection::open(&db).unwrap();
+        let law_count: i64 = conn
+            .query_row("SELECT count(*) FROM laws", [], |row| row.get(0))
+            .unwrap();
+        let article_count: i64 = conn
+            .query_row("SELECT count(*) FROM search_fts", [], |row| row.get(0))
+            .unwrap();
+        assert_eq!(law_count, laws.len() as i64);
+        assert_eq!(article_count, laws.len() as i64);
 
         let _ = std::fs::remove_dir_all(&root);
     }
