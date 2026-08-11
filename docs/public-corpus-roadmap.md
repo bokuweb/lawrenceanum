@@ -10,6 +10,9 @@
 - `update-corpus-data.yml` は GitHub Actions cache だけに依存せず、各 run の開始時に
   R2 の last-good コーパスを復元してから直近データを追記する。cache eviction 後に
   直近分だけで R2 を上書きし、過去データを失う経路を防いだ。
+- 法令 XML は `collect-law-corpus.yml` で検索 DB / Pages の再構築から分離して取得する。
+  base 以降の重複排除済み XML・revision meta・cursor を R2 の追記層へ保存し、
+  配信 run の成否や Actions cache eviction にかかわらず収集を前進させる。
 - パブコメは案件メタ・添付 URL に加えて、結果公示の添付原本を
   `.cache/pubcomment-assets/` に保存する。案件 JSON には MIME type / bytes / SHA-256 /
   取得時刻 / `pdftotext` 抽出全文を収録する。原本は別の R2 archive に永続化する。

@@ -36,6 +36,8 @@ enum Cmd {
         date: String,
         #[arg(long, default_value = ".cache")]
         cache: PathBuf,
+        #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
+        provider: String,
     },
     /// 期間指定で更新を取得する。
     FetchRange {
@@ -487,8 +489,12 @@ fn main() -> Result<()> {
         Cmd::Validate { public } => validate::run_validate(&public),
         Cmd::RebuildManifest { public } => build::run_rebuild_manifest(&public),
         Cmd::MergeHistory { public, prebuilt } => build::run_merge_history(&public, &prebuilt),
-        Cmd::FetchUpdate { date, cache } => {
-            build::run_fetch_update(&date, &cache, "mock").map(|_| ())
+        Cmd::FetchUpdate {
+            date,
+            cache,
+            provider,
+        } => {
+            build::run_fetch_update(&date, &cache, &provider).map(|_| ())
         }
         Cmd::FetchRange {
             from,
@@ -638,5 +644,27 @@ fn main() -> Result<()> {
         Cmd::TsutatsuBuildJson { cache, public } => tsutatsu::run_build_json(&cache, &public),
         Cmd::LinkLawsAndProcurement { public } => linking::run_link_procurement(&public),
         Cmd::LinkLawsAndTsutatsu { public } => linking::run_link_tsutatsu(&public),
+    }
+}
+
+#[cfg(test)]
+mod cli_tests {
+    use super::*;
+
+    #[test]
+    fn fetch_update_accepts_explicit_provider() {
+        let cli = Cli::try_parse_from([
+            "lawpub",
+            "fetch-update",
+            "--date",
+            "2026-08-11",
+            "--provider",
+            "mock",
+        ])
+        .unwrap();
+        match cli.cmd {
+            Cmd::FetchUpdate { provider, .. } => assert_eq!(provider, "mock"),
+            _ => panic!("expected fetch-update"),
+        }
     }
 }

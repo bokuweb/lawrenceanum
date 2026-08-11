@@ -86,6 +86,11 @@ evict されても過去の国会会議録・議案・パブコメ・通達を�
 `.cache/gian-assets/`、意味のある状態変更ごとの議案スナップショットは
 `.cache/gian-history/` に内容アドレスで保存される。定期 workflow は両方を R2 に永続化する。
 
+法令 XML の収集は `collect-law-corpus.yml` が毎日 02:00 JST に独立実行する。重い検索 DB / Pages
+再構築が失敗しても、内容ハッシュで重複排除した更新 XML・revision meta・収集 cursor は
+`law-corpus-delta.tar.zst` として R2 に残る。配信 workflow は既存の full corpus にこの追記層を
+overlay してからビルドする。`fetch-update` は `--provider http|mock` を明示できる。
+
 The provider defaults to `http` and uses `https://laws.e-gov.go.jp/api/1` (v1
 API; v2 has a different path scheme — `/api/2/laws`, `/api/2/law_data/{id}`).
 Override with `LAWPUB_PROVIDER` and `LAWPUB_EGOV_BASE_URL`.

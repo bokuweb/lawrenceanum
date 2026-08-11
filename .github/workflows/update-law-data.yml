@@ -176,6 +176,29 @@ jobs:
             echo "::notice::revisions corpus is warm ($have laws) — R2 復元をスキップ"
           fi
 
+      # 軽量な collect-law-corpus.yml が R2 に蓄積した追記層を base corpus へ重ねる。
+      # 配信 workflow が失敗し続けても、収集済み XML / revision meta はここから復元できる。
+      - name: Overlay durable law corpus delta from R2
+        if: env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          if aws s3 cp "s3://$R2_BUCKET/law-corpus-delta.tar.zst" /tmp/law-corpus-delta.tar.zst \
+            --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            # revisions は内容アドレスなので既存 base と共存し、revisions_meta は新しい
+            # delta 側を上書きする。取得日は revision の meta から追跡できる。
+            zstd -dc --long=31 /tmp/law-corpus-delta.tar.zst | tar -x -C .cache
+            rm -f /tmp/law-corpus-delta.tar.zst
+            n=$(find .cache/revisions -name '*.xml' | wc -l | tr -d ' ')
+            echo "::notice::durable law delta overlaid: $n total revision XMLs"
+          else
+            echo "::notice::law-corpus-delta.tar.zst not found; base corpus only"
+          fi
+
       # 全件バルク: bulk_category が指定されたら全件取得して build-json する。
       # 数千件規模になるので timeout が長め (workflow 全体は timeout-minutes: 30 のまま;
       # 大規模カテゴリは bulk_limit でクランプ推奨)。
