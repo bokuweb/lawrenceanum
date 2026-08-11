@@ -77,6 +77,15 @@ pub fn run_fetch(
                 if detail.reception_end.is_none() {
                     detail.reception_end = meta.reception_end.clone();
                 }
+                if detail.category.is_none() {
+                    detail.category = meta.category.clone();
+                }
+                if detail.responsible_office.is_none() {
+                    detail.responsible_office = meta.responsible_office.clone();
+                }
+                if detail.opinion_count.is_none() {
+                    detail.opinion_count = meta.opinion_count;
+                }
                 if detail.title.is_empty() {
                     detail.title = meta.title.clone();
                 }

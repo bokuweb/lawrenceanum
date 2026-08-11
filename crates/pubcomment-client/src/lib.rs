@@ -35,6 +35,15 @@ pub struct CaseMeta {
     pub reception_start: Option<String>,
     pub reception_end: Option<String>,
     pub result_published: Option<String>,
+    /// 一覧/RSSに含まれる分野カテゴリー。
+    #[serde(default)]
+    pub category: Option<String>,
+    /// 一覧/RSSに含まれる所管省庁・部局名等。
+    #[serde(default)]
+    pub responsible_office: Option<String>,
+    /// 結果公示RSSに含まれる提出意見数。
+    #[serde(default)]
+    pub opinion_count: Option<u32>,
     /// "open" (意見募集中, Mode=0) / "closed" (結果公示済み, Mode=1)。
     #[serde(default)]
     pub status: String,
@@ -142,11 +151,11 @@ impl CaseDetail {
             reception_end: meta.reception_end.clone(),
             result_published: meta.result_published.clone(),
             related_law_name: None,
-            category: None,
+            category: meta.category.clone(),
             command_title: None,
             legal_basis: None,
-            responsible_office: None,
-            opinion_count: None,
+            responsible_office: meta.responsible_office.clone(),
+            opinion_count: meta.opinion_count,
             opinions: Vec::new(),
             attachments: Vec::new(),
             status: meta.status.clone(),
@@ -217,6 +226,9 @@ impl PubcommentProvider for MockProvider {
             reception_start: Some("2023-06-01".to_string()),
             reception_end: Some("2023-06-30".to_string()),
             result_published: Some("2023-09-01".to_string()),
+            category: Some("民事".to_string()),
+            responsible_office: Some("法務省民事局".to_string()),
+            opinion_count: Some(1),
             status: mode_status(mode).to_string(),
             detail_url: detail_url_mode(BASE_URL, "300110052", mode),
         }])
@@ -517,7 +529,25 @@ fn ministry_short(office: &str) -> Option<String> {
     if s.is_empty() {
         return None;
     }
-    // 最初の「省」または「庁」までを府省名とする。内閣府/会計検査院など例外は全体を返す。
+    // 「省」「庁」で終わらない機関は、部局名まで ministry に混ざらないよう先に切る。
+    const AUTHORITIES: &[&str] = &[
+        "個人情報保護委員会",
+        "公正取引委員会",
+        "カジノ管理委員会",
+        "国家公安委員会",
+        "原子力規制委員会",
+        "内閣官房",
+        "内閣府",
+        "会計検査院",
+        "人事院",
+    ];
+    if let Some(authority) = AUTHORITIES
+        .iter()
+        .find(|authority| s.starts_with(**authority))
+    {
+        return Some((*authority).to_string());
+    }
+    // それ以外は最初の「省」または「庁」までを府省名とする。
     for (i, c) in s.char_indices() {
         if c == '省' || c == '庁' {
             return Some(s[..i + c.len_utf8()].to_string());
@@ -575,8 +605,16 @@ pub fn parse_case_rss(xml: &str, mode: u8) -> Result<Vec<CaseMeta>> {
         let Some(case_id) = extract_case_id(&item.link) else {
             continue;
         };
-        let office = rss_description_field(&item.description, "問合せ先（所管省庁・部局名等）");
-        let ministry = office.as_deref().and_then(ministry_short);
+        let responsible_office =
+            rss_description_field(&item.description, "問合せ先（所管省庁・部局名等）");
+        let ministry = responsible_office.as_deref().and_then(ministry_short);
+        let opinion_count = rss_description_field(&item.description, "提出意見数").and_then(|v| {
+            v.chars()
+                .filter(|c| c.is_ascii_digit())
+                .collect::<String>()
+                .parse::<u32>()
+                .ok()
+        });
         cases.push(CaseMeta {
             case_id,
             title: norm_ws(&item.title),
@@ -593,6 +631,9 @@ pub fn parse_case_rss(xml: &str, mode: u8) -> Result<Vec<CaseMeta>> {
                 &item.description,
                 "結果の公示日",
             )),
+            category: rss_description_field(&item.description, "カテゴリー"),
+            responsible_office,
+            opinion_count,
             status: mode_status(mode).to_string(),
             detail_url: item.link,
         });
@@ -621,6 +662,9 @@ pub fn parse_case_list(html: &str, base_url: &str) -> Result<Vec<CaseMeta>> {
         let mut result_published = None;
         let mut reception_start = None;
         let mut reception_end = None;
+        let mut category = None;
+        let mut responsible_office = None;
+        let mut opinion_count = None;
         let mut case_id_attr = None;
         for d in li.select(&detail_sel) {
             let full = text_of(&d);
@@ -636,6 +680,18 @@ pub fn parse_case_list(html: &str, base_url: &str) -> Result<Vec<CaseMeta>> {
                 "案の公示日" => reception_start = Some(value),
                 "受付締切日時" => reception_end = Some(value),
                 "所管省庁" => ministry = Some(value),
+                "カテゴリー" => category = Some(value),
+                "所管省庁・部局名等" | "問合せ先（所管省庁・部局名等）" => {
+                    responsible_office = Some(value)
+                }
+                "提出意見数" => {
+                    opinion_count = value
+                        .chars()
+                        .filter(|c| c.is_ascii_digit())
+                        .collect::<String>()
+                        .parse::<u32>()
+                        .ok()
+                }
                 _ => {}
             }
         }
@@ -659,6 +715,9 @@ pub fn parse_case_list(html: &str, base_url: &str) -> Result<Vec<CaseMeta>> {
             reception_start,
             reception_end,
             result_published,
+            category,
+            responsible_office,
+            opinion_count,
             status: String::new(),
             detail_url: detail_url(base_url, &case_id),
         });
@@ -794,6 +853,10 @@ mod tests {
         let cases = p.fetch_case_list(1, 1).unwrap();
         assert_eq!(cases.len(), 1);
         assert_eq!(cases[0].ministry.as_deref(), Some("法務省"));
+        let detail = CaseDetail::from_meta(&cases[0], "2026-08-11T00:00:00Z");
+        assert_eq!(detail.category.as_deref(), Some("民事"));
+        assert_eq!(detail.responsible_office.as_deref(), Some("法務省民事局"));
+        assert_eq!(detail.opinion_count, Some(1));
     }
 
     #[test]
@@ -926,7 +989,7 @@ mod tests {
  <item rdf:about="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCM1040&amp;id=145210700&amp;Mode=1">
   <title>電波法関係告示案に係る意見募集の結果について</title>
   <link>https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCM1040&amp;id=145210700&amp;Mode=1</link>
-  <description>結果の公示日：2026/08/10&lt;br/&gt;案の公示日：2026/04/25&lt;br/&gt;受付締切日時：2026/05/29 23:59&lt;br/&gt;問合せ先（所管省庁・部局名等）：総務省総合通信基盤局&lt;br/&gt;</description>
+  <description>結果の公示日：2026/08/10&lt;br/&gt;案の公示日：2026/04/25&lt;br/&gt;受付締切日時：2026/05/29 23:59&lt;br/&gt;提出意見数：3&lt;br/&gt;カテゴリー：電気通信&lt;br/&gt;問合せ先（所管省庁・部局名等）：総務省総合通信基盤局&lt;br/&gt;</description>
  </item>
 </rdf:RDF>"#;
         let cases = parse_case_rss(xml, 1).unwrap();
@@ -935,7 +998,25 @@ mod tests {
         assert_eq!(cases[0].ministry.as_deref(), Some("総務省"));
         assert_eq!(cases[0].reception_start.as_deref(), Some("2026-04-25"));
         assert_eq!(cases[0].result_published.as_deref(), Some("2026-08-10"));
+        assert_eq!(cases[0].category.as_deref(), Some("電気通信"));
+        assert_eq!(
+            cases[0].responsible_office.as_deref(),
+            Some("総務省総合通信基盤局")
+        );
+        assert_eq!(cases[0].opinion_count, Some(3));
         assert_eq!(cases[0].status, "closed");
+    }
+
+    #[test]
+    fn ministry_short_handles_authorities_without_sho_or_cho_suffix() {
+        assert_eq!(
+            ministry_short("内閣府政策統括官（経済安全保障担当）").as_deref(),
+            Some("内閣府")
+        );
+        assert_eq!(
+            ministry_short("個人情報保護委員会事務局").as_deref(),
+            Some("個人情報保護委員会")
+        );
     }
 
     #[test]
