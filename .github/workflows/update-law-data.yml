@@ -594,6 +594,32 @@ jobs:
           ./target/release/lawpub reiki-build-json --cache .cache --public public \
             || echo "::warning::reiki-build-json failed"
 
+      # e-Stat 財政統計を corpus workflow の durable cache から復元して配信する。
+      - name: Build budget from R2 cache
+        if: >-
+          steps.detect.outputs.changed == 'true' && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        continue-on-error: true
+        run: |
+          set +e
+          if ! aws s3 cp "s3://$R2_BUCKET/budget-cache.tar.zst" /tmp/budget-cache.tar.zst --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            echo "::notice::budget-cache.tar.zst not in R2 — 財政統計なしで続行"
+            exit 0
+          fi
+          mkdir -p .cache/budget
+          zstd -dc --long=31 /tmp/budget-cache.tar.zst | tar -x -C .cache/budget
+          rm -f /tmp/budget-cache.tar.zst
+          n=$(find .cache/budget -name '*.json' | wc -l | tr -d ' ')
+          [ "${n:-0}" -eq 0 ] && { echo "::warning::budget cache empty"; exit 0; }
+          echo "::notice::budget cache restored from R2: $n datasets"
+          ./target/release/lawpub budget-build-json --cache .cache --public public \
+            || echo "::warning::budget-build-json failed"
+
       # 通達 (国税庁 法令解釈通達) を R2 prebuilt キャッシュから復元して同梱する。
       # corpus workflow が tsutatsu-cache.tar.zst に上げたものを取得 → tsutatsu-build-json
       # → link-laws-and-tsutatsu (通達集の親法令で法令詳細にクロスリンク)。後段の
@@ -642,6 +668,17 @@ jobs:
         run: |
           ./target/release/lawpub build-enforcement --public public \
             || echo "::warning::build-enforcement failed"
+
+      # corpus workflow がデータ源ごとに記録した最終試行・成功時刻を配信へ同梱する。
+      # build-feeds 後の rebuild-manifest がこれを health.json の corpora に統合する。
+      - name: Include corpus collector status
+        if: steps.detect.outputs.changed == 'true'
+        run: |
+          if [ -f state/corpus_latest.json ]; then
+            cp state/corpus_latest.json public/corpus-status.json
+          else
+            echo "::notice::state/corpus_latest.json not found; collector status unavailable"
+          fi
 
       # 規制変化フィード (法令改正・パブコメ・官報の新着) を生成する。laws/pubcomment/
       # kanpo が public/ に出揃った後に実行し、feeds/recent.json + RSS を書く。

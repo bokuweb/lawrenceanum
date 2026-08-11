@@ -96,6 +96,9 @@ export type CorpusHealth = {
   count: number
   unit: 'meetings' | 'cases' | 'items' | 'bills' | 'municipalities' | 'sets' | 'datasets' | string
   latest_item_date: string | null
+  collection_status?: 'success' | 'failure' | 'skipped' | string | null
+  last_collection_attempt_at?: string | null
+  last_collection_success_at?: string | null
 }
 
 export type VersionsJson = {
