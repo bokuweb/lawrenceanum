@@ -522,6 +522,8 @@ jobs:
           echo "::notice::shingikai cache restored from R2: $n meetings"
           ./target/release/lawpub shingikai-build-json --cache .cache --public public \
             || echo "::warning::shingikai-build-json failed"
+          ./target/release/lawpub link-laws-and-shingikai --public public \
+            || echo "::warning::link-laws-and-shingikai failed"
 
       # 議案 (法案審議トラッキング) を R2 prebuilt キャッシュから復元して同梱する。
       # corpus workflow が gian-cache.tar.zst に上げたものを取得 → gian-build-json。

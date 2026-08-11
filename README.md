@@ -95,6 +95,9 @@ PDF 原本・SHA-256・決議日・抽出全文を `.cache/gian-resolutions/` �
 `.cache/shingikai-history/` に保存する。毎日05:00 JSTに各審議会の直近20会議を再確認し、
 新しい会議や「議事録準備中→公開」の変化だけが R2 の永続コーパスへ追加される。
 全履歴を手動収集する場合は `--max-meetings 0` を指定する。
+配信時には議題・概要・議事録・配布資料全文を法令辞書と照合し、
+`public/links/law-to-shingikai/{law_id}.json` と
+`public/links/shingikai-to-laws/{minutes_id}.json` の双方向リンクを自動生成する。
 
 法令 XML の収集は `collect-law-corpus.yml` が毎日 02:00 JST に独立実行する。重い検索 DB / Pages
 再構築が失敗しても、内容ハッシュで重複排除した更新 XML・revision meta・収集 cursor は
