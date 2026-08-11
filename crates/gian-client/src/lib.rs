@@ -17,6 +17,7 @@ use sha2::{Digest, Sha256};
 use std::time::Duration;
 
 pub const BASE_URL: &str = "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian";
+pub const RESOLUTION_BASE_URL: &str = "https://www.sangiin.go.jp/japanese/gianjoho/ketsugi";
 
 // ── 公開型 ────────────────────────────────────────────────────────
 
@@ -96,12 +97,59 @@ pub struct BillSource {
     pub detail_url: String,
 }
 
+/// 参議院の委員会別「附帯決議」一覧から得られる原本メタデータ。
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct ResolutionMeta {
+    pub resolution_id: String,
+    pub session: u32,
+    pub chamber: String,
+    pub committee: String,
+    /// 「○○法律案に対する附帯決議」。
+    pub title: String,
+    /// 「に対する附帯決議」を除いた議案名部分。複数議案を含む場合も原文のまま。
+    pub subject: String,
+    pub resolution_date: Option<String>,
+    pub source_url: String,
+}
+
+/// PDF 原本と取得時 provenance。CLI が内容アドレス保存・全文抽出する。
+#[derive(Debug, Clone)]
+pub struct FetchedResolution {
+    pub bytes: Vec<u8>,
+    pub media_type: Option<String>,
+    pub fetched_at: String,
+}
+
+/// `.cache/gian-resolutions/` と配信用 JSON の安定スキーマ。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SupplementaryResolution {
+    pub schema_version: u32,
+    pub resolution_id: String,
+    pub session: u32,
+    pub chamber: String,
+    pub committee: String,
+    pub title: String,
+    pub subject: String,
+    pub resolution_date: Option<String>,
+    pub source_url: String,
+    pub media_type: Option<String>,
+    pub sha256: String,
+    pub bytes: u64,
+    pub fetched_at: String,
+    pub raw_path: String,
+    pub extracted_text: Option<String>,
+    pub extraction_method: Option<String>,
+    pub extraction_error: Option<String>,
+}
+
 // ── Provider trait ────────────────────────────────────────────────
 
 pub trait GianProvider: Send + Sync {
     /// `session` 回次の議案一覧。0 を渡すと最新回 (menu.htm)。
     fn list_bills(&self, session: u32) -> Result<Vec<BillMeta>>;
     fn fetch_bill(&self, meta: &BillMeta) -> Result<Bill>;
+    fn list_resolutions(&self, session: u32) -> Result<Vec<ResolutionMeta>>;
+    fn fetch_resolution(&self, meta: &ResolutionMeta) -> Result<FetchedResolution>;
 }
 
 // ── URL ───────────────────────────────────────────────────────────
@@ -175,12 +223,37 @@ impl GianProvider for MockProvider {
             },
         })
     }
+
+    fn list_resolutions(&self, session: u32) -> Result<Vec<ResolutionMeta>> {
+        let session = if session == 0 { 221 } else { session };
+        Ok(vec![ResolutionMeta {
+            resolution_id: format!("sangiin-{session}-f065_061601"),
+            session,
+            chamber: "参議院".to_string(),
+            committee: "法務委員会".to_string(),
+            title: "政治資金規正法の一部を改正する法律案に対する附帯決議".to_string(),
+            subject: "政治資金規正法の一部を改正する法律案".to_string(),
+            resolution_date: Some("2026-06-16".to_string()),
+            source_url: format!("{RESOLUTION_BASE_URL}/{session}/f065_061601.pdf"),
+        }])
+    }
+
+    fn fetch_resolution(&self, _meta: &ResolutionMeta) -> Result<FetchedResolution> {
+        Ok(FetchedResolution {
+            bytes: "政府は、この法律の施行に当たり必要な措置を講ずること。"
+                .as_bytes()
+                .to_vec(),
+            media_type: Some("text/plain; charset=utf-8".to_string()),
+            fetched_at: "2026-06-16T00:00:00Z".to_string(),
+        })
+    }
 }
 
 // ── Http (衆議院, Shift-JIS) ───────────────────────────────────────
 
 pub struct HttpProvider {
     base_url: String,
+    resolution_base_url: String,
 }
 
 impl HttpProvider {
@@ -189,7 +262,14 @@ impl HttpProvider {
             .unwrap_or_else(|_| BASE_URL.to_string())
             .trim_end_matches('/')
             .to_string();
-        Self { base_url }
+        let resolution_base_url = std::env::var("LAWPUB_GIAN_RESOLUTION_BASE_URL")
+            .unwrap_or_else(|_| RESOLUTION_BASE_URL.to_string())
+            .trim_end_matches('/')
+            .to_string();
+        Self {
+            base_url,
+            resolution_base_url,
+        }
     }
 
     pub fn base_url(&self) -> &str {
@@ -214,6 +294,17 @@ impl HttpProvider {
             .with_context(|| format!("GET {url}"))?;
         resp.text_with_charset("Shift_JIS")
             .context("decode shift_jis")
+    }
+
+    fn get_utf8(client: &reqwest::blocking::Client, url: &str) -> Result<String> {
+        std::thread::sleep(Duration::from_secs(1));
+        client
+            .get(url)
+            .send()
+            .and_then(|r| r.error_for_status())
+            .with_context(|| format!("GET {url}"))?
+            .text()
+            .context("decode utf-8")
     }
 }
 
@@ -268,6 +359,39 @@ impl GianProvider for HttpProvider {
             }
         }
         Ok(bill)
+    }
+
+    fn list_resolutions(&self, session: u32) -> Result<Vec<ResolutionMeta>> {
+        let client = Self::client()?;
+        let segment = if session == 0 {
+            "current".to_string()
+        } else {
+            session.to_string()
+        };
+        let url = format!("{}/{segment}/futai_ind.html", self.resolution_base_url);
+        let html = Self::get_utf8(&client, &url)?;
+        parse_resolution_list(&html, session, &url)
+    }
+
+    fn fetch_resolution(&self, meta: &ResolutionMeta) -> Result<FetchedResolution> {
+        let client = Self::client()?;
+        std::thread::sleep(Duration::from_secs(1));
+        let response = client
+            .get(&meta.source_url)
+            .send()
+            .and_then(|r| r.error_for_status())
+            .with_context(|| format!("GET {}", meta.source_url))?;
+        let media_type = response
+            .headers()
+            .get(reqwest::header::CONTENT_TYPE)
+            .and_then(|v| v.to_str().ok())
+            .map(str::to_string);
+        let bytes = response.bytes()?.to_vec();
+        Ok(FetchedResolution {
+            bytes,
+            media_type,
+            fetched_at: chrono::Utc::now().to_rfc3339(),
+        })
     }
 }
 
@@ -348,6 +472,178 @@ pub struct BillDocumentLink {
     pub kind: String,
     pub label: String,
     pub url: String,
+}
+
+/// 参議院「附帯決議一覧」の委員会見出しと PDF リンクを安定メタへ変換する。
+pub fn parse_resolution_list(
+    html: &str,
+    requested_session: u32,
+    index_url: &str,
+) -> Result<Vec<ResolutionMeta>> {
+    let doc = Html::parse_document(html);
+    let base = reqwest::Url::parse(index_url).context("parse resolution index URL")?;
+    let session = if requested_session == 0 {
+        doc.select(&sel("h2.title_text, title"))
+            .find_map(|el| extract_session_number(&text_of(&el)))
+            .context("current resolution page does not contain a Diet session number")?
+    } else {
+        requested_session
+    };
+    let mut committee = String::new();
+    let mut resolutions = Vec::new();
+    let mut seen = std::collections::HashSet::new();
+
+    for element in doc.select(&sel("h3, ul.exp_list_icn02")) {
+        if element.value().name() == "h3" {
+            committee = text_of(&element);
+            continue;
+        }
+        if committee.is_empty() {
+            continue;
+        }
+        for anchor in element.select(&sel("a")) {
+            let Some(href) = anchor.value().attr("href") else {
+                continue;
+            };
+            if !href.to_ascii_lowercase().contains(".pdf") {
+                continue;
+            }
+            let url = base
+                .join(href)
+                .with_context(|| format!("resolve resolution URL {href}"))?
+                .to_string();
+            if !seen.insert(url.clone()) {
+                continue;
+            }
+            let label = text_of(&anchor);
+            let (title, subject, resolution_date) = parse_resolution_label(&label);
+            if title.is_empty() {
+                continue;
+            }
+            let stem = href
+                .rsplit('/')
+                .next()
+                .unwrap_or(href)
+                .split('.')
+                .next()
+                .unwrap_or("");
+            if stem.is_empty() {
+                continue;
+            }
+            resolutions.push(ResolutionMeta {
+                resolution_id: format!("sangiin-{session}-{stem}"),
+                session,
+                chamber: "参議院".to_string(),
+                committee: committee.clone(),
+                title,
+                subject,
+                resolution_date,
+                source_url: url,
+            });
+        }
+    }
+    Ok(resolutions)
+}
+
+/// Word 等が生成した縦書き PDF の `pdftotext -bbox-layout` XHTML を、
+/// 同じ x 座標の文字を上から下へ、列を右から左へ並べて本文に戻す。
+/// 横書き PDF を誤変換しないよう、十分な長さの縦列がないページは空として扱う。
+pub fn reconstruct_vertical_glyph_text(xhtml: &str) -> String {
+    #[derive(Debug)]
+    struct Glyph {
+        x: f32,
+        y: f32,
+        text: String,
+    }
+
+    let doc = Html::parse_document(xhtml);
+    let page_selector = sel("page");
+    let word_selector = sel("word");
+    let mut pages = Vec::new();
+    for page in doc.select(&page_selector) {
+        let height = page
+            .value()
+            .attr("height")
+            .and_then(|value| value.parse::<f32>().ok())
+            .unwrap_or(842.0);
+        let mut glyphs: Vec<Glyph> = page
+            .select(&word_selector)
+            .filter_map(|word| {
+                let x = word.value().attr("xmin")?.parse::<f32>().ok()?;
+                let y = word.value().attr("ymin")?.parse::<f32>().ok()?;
+                if !(50.0..=(height - 25.0)).contains(&y) {
+                    return None;
+                }
+                let text = text_of(&word);
+                (!text.is_empty()).then_some(Glyph { x, y, text })
+            })
+            .collect();
+        glyphs.sort_by(|a, b| {
+            b.x.partial_cmp(&a.x)
+                .unwrap_or(std::cmp::Ordering::Equal)
+                .then_with(|| a.y.partial_cmp(&b.y).unwrap_or(std::cmp::Ordering::Equal))
+        });
+
+        let mut columns: Vec<Vec<Glyph>> = Vec::new();
+        for glyph in glyphs {
+            if let Some(column) = columns
+                .last_mut()
+                .filter(|column| (column[0].x - glyph.x).abs() <= 1.0)
+            {
+                column.push(glyph);
+            } else {
+                columns.push(vec![glyph]);
+            }
+        }
+        if columns.iter().map(Vec::len).max().unwrap_or(0) < 8 {
+            continue;
+        }
+        let lines: Vec<String> = columns
+            .into_iter()
+            .filter_map(|mut column| {
+                column.sort_by(|a, b| a.y.partial_cmp(&b.y).unwrap_or(std::cmp::Ordering::Equal));
+                let line = column
+                    .into_iter()
+                    .map(|glyph| glyph.text)
+                    .collect::<String>();
+                (!line.trim().is_empty()).then_some(line)
+            })
+            .collect();
+        if !lines.is_empty() {
+            pages.push(lines.join("\n"));
+        }
+    }
+    pages.join("\n\n").trim().to_string()
+}
+
+fn extract_session_number(text: &str) -> Option<u32> {
+    let start = text.find('第')? + '第'.len_utf8();
+    let rest = &text[start..];
+    let end = rest.find('回')?;
+    jp_num(&rest[..end])
+}
+
+fn parse_resolution_label(label: &str) -> (String, String, Option<String>) {
+    let label = label.trim().strip_suffix("（PDF）").unwrap_or(label.trim());
+    let date_start = ["（令和", "（平成", "（昭和", "（大正", "（明治"]
+        .iter()
+        .filter_map(|marker| label.rfind(marker))
+        .max();
+    let (title, date) = if let Some(start) = date_start {
+        let date_text = label[start + '（'.len_utf8()..]
+            .split('）')
+            .next()
+            .unwrap_or("");
+        (label[..start].trim(), wareki_to_iso(date_text))
+    } else {
+        (label, None)
+    };
+    let subject = title
+        .strip_suffix("に対する附帯決議")
+        .unwrap_or(title)
+        .trim()
+        .to_string();
+    (title.to_string(), subject, date)
 }
 
 /// 本文情報一覧から、LLM の根拠資料になる法律案・要綱・修正案だけを列挙する。
@@ -650,6 +946,68 @@ mod tests {
     }
 
     #[test]
+    fn parse_sangiin_resolution_list() {
+        let html = r#"<html><head><title>第221回国会 附帯決議一覧</title></head><body>
+          <h2 class="title_text">第221回国会　附帯決議一覧</h2>
+          <h3 class="title03 mt20">内閣委員会</h3>
+          <ul class="exp_list_icn02">
+            <li><a href="f063_060902.pdf">国家情報会議設置法案に対する附帯決議（令和8年6月9日）（PDF）</a></li>
+          </ul>
+          <h3 class="title03 mt20">法務委員会</h3>
+          <ul class="exp_list_icn02">
+            <li><a href="f065_061601.pdf">民法等の一部を改正する法律案及び関係法律整備法案に対する附帯決議（令和８年６月１６日）（PDF）</a></li>
+          </ul>
+        </body></html>"#;
+        let resolutions = parse_resolution_list(
+            html,
+            0,
+            "https://www.sangiin.go.jp/japanese/gianjoho/ketsugi/current/futai_ind.html",
+        )
+        .unwrap();
+        assert_eq!(resolutions.len(), 2);
+        assert_eq!(resolutions[0].session, 221);
+        assert_eq!(resolutions[0].committee, "内閣委員会");
+        assert_eq!(resolutions[0].subject, "国家情報会議設置法案");
+        assert_eq!(
+            resolutions[0].resolution_date.as_deref(),
+            Some("2026-06-09")
+        );
+        assert_eq!(resolutions[1].committee, "法務委員会");
+        assert_eq!(
+            resolutions[1].resolution_date.as_deref(),
+            Some("2026-06-16")
+        );
+        assert!(resolutions[1].source_url.ends_with("f065_061601.pdf"));
+    }
+
+    #[test]
+    fn reconstructs_single_glyph_vertical_pdf_text() {
+        let xhtml = r#"<html><body><doc><page width="595" height="842">
+          <word xMin="350" yMin="84" xMax="362" yMax="96">一</word>
+          <word xMin="350" yMin="113" xMax="362" yMax="125">政</word>
+          <word xMin="350" yMin="127" xMax="362" yMax="139">府</word>
+          <word xMin="350" yMin="141" xMax="362" yMax="153">は</word>
+          <word xMin="350" yMin="155" xMax="362" yMax="167">、</word>
+          <word xMin="350" yMin="169" xMax="362" yMax="181">次</word>
+          <word xMin="350" yMin="183" xMax="362" yMax="195">の</word>
+          <word xMin="350" yMin="197" xMax="362" yMax="209">措</word>
+          <word xMin="350" yMin="211" xMax="362" yMax="223">置</word>
+          <word xMin="330" yMin="84" xMax="342" yMax="96">を</word>
+          <word xMin="330" yMin="98" xMax="342" yMax="110">講</word>
+          <word xMin="330" yMin="112" xMax="342" yMax="124">ず</word>
+          <word xMin="330" yMin="126" xMax="342" yMax="138">る</word>
+          <word xMin="330" yMin="140" xMax="342" yMax="152">こ</word>
+          <word xMin="330" yMin="154" xMax="342" yMax="166">と</word>
+          <word xMin="330" yMin="168" xMax="342" yMax="180">。</word>
+          <word xMin="330" yMin="182" xMax="342" yMax="194">　</word>
+        </page></doc></body></html>"#;
+        assert_eq!(
+            reconstruct_vertical_glyph_text(xhtml),
+            "一政府は、次の措置\nを講ずること。"
+        );
+    }
+
+    #[test]
     fn parse_keika_fields() {
         let html = r#"<html><body><table>
           <tr><td headers="KOMOKU"><span>議案種類</span></td><td headers="NAIYO"><span>衆法</span></td></tr>
@@ -720,5 +1078,11 @@ mod tests {
         assert!(!b.fields.is_empty());
         assert!(b.documents.iter().any(|d| d.kind == "bill_text"));
         assert!(b.documents.iter().any(|d| d.text.contains("理 由")));
+
+        let resolutions = p.list_resolutions(0).unwrap();
+        println!("{} supplementary resolutions", resolutions.len());
+        assert!(!resolutions.is_empty());
+        let fetched = p.fetch_resolution(&resolutions[0]).unwrap();
+        assert!(fetched.bytes.starts_with(b"%PDF-"));
     }
 }

@@ -84,7 +84,10 @@ evict されても過去の国会会議録・議案・パブコメ・通達を�
 `gian-fetch` は審議経過に加えて、衆議院の提出時法律案（提出理由を含む）・要綱・修正案を
 取得する。抽出本文と出典 URL / SHA-256 は議案 JSON に入り、原 HTML は
 `.cache/gian-assets/`、意味のある状態変更ごとの議案スナップショットは
-`.cache/gian-history/` に内容アドレスで保存される。定期 workflow は両方を R2 に永続化する。
+`.cache/gian-history/` に内容アドレスで保存される。さらに参議院の委員会別附帯決議を取得し、
+PDF 原本・SHA-256・決議日・抽出全文を `.cache/gian-resolutions/` と
+`.cache/gian-resolution-assets/` に保存する。`gian-build-json` は決議を議案件名で関連付け、
+`public/links/bill-to-resolutions/` を生成する。定期 workflow は全てを R2 に永続化する。
 
 法令 XML の収集は `collect-law-corpus.yml` が毎日 02:00 JST に独立実行する。重い検索 DB / Pages
 再構築が失敗しても、内容ハッシュで重複排除した更新 XML・revision meta・収集 cursor は

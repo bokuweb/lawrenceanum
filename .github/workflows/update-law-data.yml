@@ -522,6 +522,21 @@ jobs:
           n=$(find .cache/gian -name '*.json' | wc -l | tr -d ' ')
           [ "${n:-0}" -eq 0 ] && { echo "::warning::gian cache empty"; exit 0; }
           echo "::notice::gian cache restored from R2: $n bills"
+          restore_gian_bundle() {
+            object="$1"
+            target="$2"
+            archive="/tmp/$object"
+            mkdir -p "$target"
+            if aws s3 cp "s3://$R2_BUCKET/$object" "$archive" --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+              zstd -dc --long=31 "$archive" | tar -x -C "$target"
+              rm -f "$archive"
+              echo "::notice::restored $object"
+            else
+              echo "::notice::$object not found; continuing without it"
+            fi
+          }
+          restore_gian_bundle gian-resolutions.tar.zst .cache/gian-resolutions
+          restore_gian_bundle gian-resolution-assets.tar.zst .cache/gian-resolution-assets
           ./target/release/lawpub gian-build-json --cache .cache --public public \
             || echo "::warning::gian-build-json failed"
 
