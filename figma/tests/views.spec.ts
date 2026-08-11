@@ -35,6 +35,24 @@ test("sidebar last-sync is derived from health.json (not hardcoded)", async ({ p
   await expect(aside).not.toContainText("2026-05-09 06:30");
 });
 
+test("dashboard shows corpus counts, freshness, and missing indexes", async ({ page }) => {
+  await page.goto(new URL("#/", BASE).toString());
+  await expect(page.getByRole("heading", { name: "コーパス収録状況" })).toBeVisible({ timeout: 15_000 });
+
+  const proceedings = page.locator('[data-corpus="proceedings"]');
+  await expect(proceedings).toContainText("国会会議録");
+  await expect(proceedings).toContainText("903 会議");
+  await expect(proceedings).toContainText("最新 2026-07-24");
+
+  const pubcomment = page.locator('[data-corpus="pubcomment"]');
+  await expect(pubcomment).toContainText("44 件");
+  await expect(pubcomment).toContainText("最新 2026-08-09");
+
+  const procurement = page.locator('[data-corpus="procurement"]');
+  await expect(procurement).toContainText("政府調達");
+  await expect(procurement).toContainText("未配信");
+});
+
 // 更新履歴は、ロード中に mock 一覧ではなく skeleton を表示する。
 test("updates view shows skeleton (not mock) while loading", async ({ page }) => {
   // updates/latest.json を保留 → useUpdatesIndex が await で止まりロード中が続く。

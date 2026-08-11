@@ -4,6 +4,7 @@ import { Badge } from "../ui/badge";
 import { TrendingUp, Database, FileText, CheckCircle2, ArrowUpRight, ChevronDown, ChevronRight, GitCompare } from "lucide-react";
 import { Button } from "../ui/button";
 import { useLiveSnapshot } from "../../data/use-live-data";
+import { type CorpusHealth } from "../../data/api";
 import { Link } from "react-router";
 
 // recharts を含む可視化要素は別チャンクへ。
@@ -111,6 +112,65 @@ function ChartFallback({ height = "h-64" }: { height?: string }) {
   );
 }
 
+const CORPUS_DISPLAY: { key: string; label: string }[] = [
+  { key: "proceedings", label: "国会会議録" },
+  { key: "pubcomment", label: "パブリックコメント" },
+  { key: "procurement", label: "政府調達" },
+  { key: "shingikai", label: "審議会議事録" },
+  { key: "gian", label: "議案" },
+  { key: "reiki", label: "自治体例規" },
+  { key: "tsutatsu", label: "通達" },
+  { key: "budget", label: "財政統計" },
+];
+
+const UNIT_LABELS: Record<string, string> = {
+  meetings: "会議",
+  cases: "件",
+  items: "件",
+  bills: "件",
+  municipalities: "自治体",
+  sets: "税目",
+  datasets: "統計",
+};
+
+function CorpusStatusCard({ corpora }: { corpora?: Record<string, CorpusHealth> }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>コーパス収録状況</CardTitle>
+      </CardHeader>
+      <CardContent className="p-4 pt-0">
+        {!corpora ? (
+          <div className="text-xs text-muted-foreground py-3">収録状況は次回のデータ更新後に表示されます</div>
+        ) : (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+            {CORPUS_DISPLAY.map(({ key, label }) => {
+              const corpus = corpora[key];
+              const available = corpus?.available === true;
+              return (
+                <div key={key} className="rounded-md border border-border px-3 py-2.5" data-corpus={key}>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm truncate">{label}</span>
+                    <span className={`size-2 rounded-full shrink-0 ${available ? "bg-emerald-500" : "bg-amber-500"}`} />
+                  </div>
+                  <div className="mt-1 flex items-baseline justify-between gap-2">
+                    <span className="text-lg tabular-nums">
+                      {available ? `${corpus.count.toLocaleString()} ${UNIT_LABELS[corpus.unit] ?? corpus.unit}` : "未配信"}
+                    </span>
+                    {available && corpus.latest_item_date && (
+                      <span className="text-xs text-muted-foreground tabular-nums">最新 {corpus.latest_item_date}</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export function DashboardView() {
   const { laws, health, latestUpdates, trend14, loading, error } = useLiveSnapshot();
 
@@ -170,6 +230,8 @@ export function DashboardView() {
         <StatCard label="配信ファイル数" value={fmt(fileCount)} delta={health ? "manifest基準" : ""} icon={FileText} />
         <StatCard label="ヘルス" value={healthOk === null ? "—" : healthOk ? "OK" : "NG"} delta={health?.latest_egov_update_date ?? ""} icon={CheckCircle2} />
       </div>
+
+      <CorpusStatusCard corpora={health?.corpora} />
 
       <div className="grid grid-cols-1 gap-4">
         <Suspense fallback={<ChartFallback />}>

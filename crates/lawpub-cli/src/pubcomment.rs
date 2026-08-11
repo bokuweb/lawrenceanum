@@ -268,6 +268,7 @@ pub fn run_build_json(cache: &Path, public: &Path) -> Result<()> {
             "title": detail["title"],
             "ministry": detail["ministry"],
             "result_published": detail["result_published"],
+            "reception_start": detail["reception_start"],
             "reception_end": detail["reception_end"],
             "status": detail["status"],
             "related_law_name": detail["related_law_name"],
@@ -353,6 +354,7 @@ mod tests {
         assert_eq!(index["cases"][0]["category"], "民事");
         assert_eq!(index["cases"][0]["responsible_office"], "法務省民事局");
         assert_eq!(index["cases"][0]["opinion_count"], 1);
+        assert_eq!(index["cases"][0]["reception_start"], "2023-06-01");
 
         std::fs::remove_dir_all(root).unwrap();
     }

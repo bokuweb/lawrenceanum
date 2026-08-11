@@ -2127,11 +2127,131 @@ fn write_manifest_and_health(public: &Path, laws: &[LawWithHistory]) -> Result<(
             "latest_egov_update_date": if latest_date.is_empty() { Utc::now().date_naive().format("%Y-%m-%d").to_string() } else { latest_date },
             "law_count": laws.len(),
             "file_count": file_count,
+            "corpora": collect_corpus_health(public),
             "errors": [],
         }),
     )?;
 
     Ok(())
+}
+
+/// 各コーパスの index.json を横断し、公開データの収録状況を health.json に載せる。
+/// index が存在しないコーパスも固定キーで `available: false` として返すことで、
+/// 「0 件」と「収集・復元に失敗して未配信」を区別できるようにする。
+fn collect_corpus_health(public: &Path) -> serde_json::Value {
+    struct CorpusSpec {
+        name: &'static str,
+        collection: &'static str,
+        unit: &'static str,
+        date_fields: &'static [&'static str],
+    }
+
+    const SPECS: &[CorpusSpec] = &[
+        CorpusSpec {
+            name: "proceedings",
+            collection: "meetings",
+            unit: "meetings",
+            date_fields: &["date"],
+        },
+        CorpusSpec {
+            name: "pubcomment",
+            collection: "cases",
+            unit: "cases",
+            date_fields: &["result_published", "reception_start"],
+        },
+        CorpusSpec {
+            name: "procurement",
+            collection: "items",
+            unit: "items",
+            date_fields: &["publish_date"],
+        },
+        CorpusSpec {
+            name: "shingikai",
+            collection: "minutes",
+            unit: "meetings",
+            date_fields: &["date"],
+        },
+        CorpusSpec {
+            name: "gian",
+            collection: "bills",
+            unit: "bills",
+            date_fields: &["latest_date", "promulgation_date"],
+        },
+        CorpusSpec {
+            name: "reiki",
+            collection: "municipalities",
+            unit: "municipalities",
+            date_fields: &[],
+        },
+        CorpusSpec {
+            name: "tsutatsu",
+            collection: "sets",
+            unit: "sets",
+            date_fields: &[],
+        },
+        CorpusSpec {
+            name: "budget",
+            collection: "datasets",
+            unit: "datasets",
+            date_fields: &[],
+        },
+    ];
+
+    let mut corpora = serde_json::Map::new();
+    for spec in SPECS {
+        let index_path = public.join(spec.name).join("index.json");
+        let index = std::fs::read(&index_path)
+            .ok()
+            .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).ok());
+        let entries = index
+            .as_ref()
+            .and_then(|value| value.get(spec.collection))
+            .and_then(serde_json::Value::as_array);
+        let count = index
+            .as_ref()
+            .and_then(|value| value.get("count"))
+            .and_then(serde_json::Value::as_u64)
+            .unwrap_or_else(|| entries.map_or(0, |items| items.len() as u64));
+        let latest_item_date = entries
+            .into_iter()
+            .flatten()
+            .flat_map(|entry| {
+                spec.date_fields
+                    .iter()
+                    .filter_map(|field| entry.get(*field))
+            })
+            .filter_map(serde_json::Value::as_str)
+            .filter_map(normalize_date_prefix)
+            .max();
+
+        corpora.insert(
+            spec.name.to_string(),
+            json!({
+                "available": index.is_some(),
+                "count": count,
+                "unit": spec.unit,
+                "latest_item_date": latest_item_date,
+            }),
+        );
+    }
+    serde_json::Value::Object(corpora)
+}
+
+fn normalize_date_prefix(value: &str) -> Option<String> {
+    let prefix = value.get(..10)?;
+    let bytes = prefix.as_bytes();
+    if bytes.len() == 10
+        && bytes[4] == b'-'
+        && bytes[7] == b'-'
+        && bytes
+            .iter()
+            .enumerate()
+            .all(|(i, byte)| i == 4 || i == 7 || byte.is_ascii_digit())
+    {
+        Some(prefix.to_string())
+    } else {
+        None
+    }
 }
 
 /// Sitemap + robots.txt + 法令一覧の NDJSON を出力する。
@@ -2465,6 +2585,45 @@ mod corpus_guard_tests {
         mk_dirs(&tmp, "revisions", 1);
         assert_eq!(corpus_shrunk_catastrophically(&tmp, 10), None);
         let _ = fs::remove_dir_all(&tmp);
+    }
+}
+
+#[cfg(test)]
+mod corpus_health_tests {
+    use super::collect_corpus_health;
+
+    #[test]
+    fn reports_counts_latest_dates_and_missing_indexes() {
+        let root = std::env::temp_dir().join(format!(
+            "lawpub_corpus_health_{}_{}",
+            std::process::id(),
+            chrono::Utc::now().timestamp_nanos_opt().unwrap_or_default()
+        ));
+        let proceedings = root.join("proceedings");
+        let pubcomment = root.join("pubcomment");
+        std::fs::create_dir_all(&proceedings).unwrap();
+        std::fs::create_dir_all(&pubcomment).unwrap();
+        std::fs::write(
+            proceedings.join("index.json"),
+            r#"{"count":2,"meetings":[{"date":"2026-07-24"},{"date":"2026-08-01"}]}"#,
+        )
+        .unwrap();
+        std::fs::write(
+            pubcomment.join("index.json"),
+            r#"{"count":1,"cases":[{"result_published":null,"reception_start":"2026-08-09T10:00:00+09:00"}]}"#,
+        )
+        .unwrap();
+
+        let health = collect_corpus_health(&root);
+        assert_eq!(health["proceedings"]["available"], true);
+        assert_eq!(health["proceedings"]["count"], 2);
+        assert_eq!(health["proceedings"]["latest_item_date"], "2026-08-01");
+        assert_eq!(health["pubcomment"]["latest_item_date"], "2026-08-09");
+        assert_eq!(health["procurement"]["available"], false);
+        assert_eq!(health["procurement"]["count"], 0);
+        assert!(health["procurement"]["latest_item_date"].is_null());
+
+        std::fs::remove_dir_all(root).unwrap();
     }
 }
 
