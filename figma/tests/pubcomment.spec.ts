@@ -14,6 +14,9 @@ const INDEX = {
       ministry: "法務省",
       result_published: "2026-06-01",
       related_law_name: "民法",
+      category: "民事",
+      responsible_office: "法務省民事局",
+      opinion_count: 1,
     },
   ],
 };
@@ -63,6 +66,8 @@ test("パブコメ一覧に案件と関連法令チップが出る", async ({ pa
   // 一覧アイテム: 案件名・所管省庁・関連法令名。
   await expect(page.getByText("テスト民法改正パブリックコメント").first()).toBeVisible({ timeout: 15_000 });
   await expect(page.getByText("法務省").first()).toBeVisible();
+  await expect(page.getByText("民事").first()).toBeVisible();
+  await expect(page.getByText("提出意見 1件").first()).toBeVisible();
 });
 
 test("案件を選ぶと意見と府省の考え方・添付PDF・関連法令が出る", async ({ page }) => {
