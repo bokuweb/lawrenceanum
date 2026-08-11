@@ -1,0 +1,158 @@
+name: Collect law corpus updates
+
+# 法令の取得を、検索 DB / Pages の重い再構築から分離する。
+# update-law-data.yml が途中で停止しても、内容ハッシュで重複排除した更新 XML・
+# revision meta と収集 cursor は R2 の差分オーバーレイに残る。
+on:
+  workflow_dispatch:
+    inputs:
+      from_date:
+        description: "開始日 YYYY-MM-DD（空なら durable cursor - 3日）"
+        required: false
+        type: string
+      to_date:
+        description: "終了日 YYYY-MM-DD（空なら最大31日または今日）"
+        required: false
+        type: string
+  schedule:
+    # JST 02:00 毎日。05:00 corpus / 06:30 law deploy より前に永続化する。
+    - cron: "0 17 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: collect-law-corpus
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      # durable production archive へ mock データを混入させないため固定する。
+      LAWPUB_PROVIDER: http
+      LAWPUB_EGOV_BASE_URL: https://laws.e-gov.go.jp/api/1
+      R2_BUCKET: ${{ secrets.R2_BUCKET }}
+      R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      DELTA_CACHE: .law-corpus-delta
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Require durable R2 storage
+        run: |
+          if [ -z "$R2_BUCKET" ] || [ -z "$R2_ENDPOINT" ] || [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+            echo "::error::R2 secrets are required; refusing an ephemeral collection run"
+            exit 1
+          fi
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build lawpub
+        run: cargo build --release -p lawpub-cli
+
+      # この archive は base revisions.tar.zst 以降の追記層。小さい更新集合だけを
+      # 再圧縮するため、32GB の base コーパスを毎日固め直す必要がない。
+      - name: Restore durable law delta from R2
+        run: |
+          mkdir -p "$DELTA_CACHE"
+          if aws s3 cp "s3://$R2_BUCKET/law-corpus-delta.tar.zst" /tmp/law-corpus-delta.tar.zst \
+            --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            zstd -dc --long=31 /tmp/law-corpus-delta.tar.zst | tar -x -C "$DELTA_CACHE"
+            rm -f /tmp/law-corpus-delta.tar.zst
+            echo "::notice::restored durable law corpus delta"
+          else
+            echo "::notice::no law corpus delta yet; seeding cursor from state/latest.json"
+          fi
+
+      - name: Resolve bounded collection range
+        id: range
+        env:
+          INPUT_FROM: ${{ github.event.inputs.from_date }}
+          INPUT_TO: ${{ github.event.inputs.to_date }}
+        run: |
+          state="$DELTA_CACHE/state/law_collection.json"
+          today=$(TZ=Asia/Tokyo date +%Y-%m-%d)
+          if [ -n "$INPUT_FROM" ]; then
+            from="$INPUT_FROM"
+          else
+            last=$(jq -r '.latest_successful_update_date // empty' "$state" 2>/dev/null || true)
+            if [ -z "$last" ]; then
+              last=$(jq -r '.latest_successful_update_date // empty' state/latest.json 2>/dev/null || true)
+            fi
+            if [ -n "$last" ]; then
+              from=$(date -u -d "$last - 3 days" +%Y-%m-%d)
+            else
+              from="$today"
+            fi
+          fi
+
+          if [ -n "$INPUT_TO" ]; then
+            to="$INPUT_TO"
+          else
+            bounded=$(date -u -d "$from + 30 days" +%Y-%m-%d)
+            if [[ "$bounded" < "$today" ]]; then to="$bounded"; else to="$today"; fi
+          fi
+          if [[ "$from" > "$to" ]]; then
+            echo "::error::invalid range: $from > $to"
+            exit 1
+          fi
+          echo "from=$from" >> "$GITHUB_OUTPUT"
+          echo "to=$to" >> "$GITHUB_OUTPUT"
+          echo "::notice::law collection range $from..$to (today=$today)"
+
+      - name: Fetch law updates into delta cache
+        env:
+          FROM: ${{ steps.range.outputs.from }}
+          TO: ${{ steps.range.outputs.to }}
+        run: |
+          before=$(find "$DELTA_CACHE/revisions" -name '*.xml' 2>/dev/null | wc -l | tr -d ' ')
+          current="$FROM"
+          while [[ "$current" < "$TO" || "$current" == "$TO" ]]; do
+            ./target/release/lawpub fetch-update \
+              --date "$current" --cache "$DELTA_CACHE" --provider "$LAWPUB_PROVIDER"
+            current=$(date -u -d "$current + 1 day" +%Y-%m-%d)
+          done
+          after=$(find "$DELTA_CACHE/revisions" -name '*.xml' 2>/dev/null | wc -l | tr -d ' ')
+          echo "::notice::durable delta revisions: $before -> $after"
+
+      # upload が成功した run だけ cursor を進める。archive 内にも state を含め、
+      # git commit の競合や Actions cache eviction に依存しない。
+      - name: Save cursor and upload durable delta
+        env:
+          FROM: ${{ steps.range.outputs.from }}
+          TO: ${{ steps.range.outputs.to }}
+        run: |
+          mkdir -p "$DELTA_CACHE/state"
+          now=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          jq -n \
+            --arg from "$FROM" --arg to "$TO" --arg now "$now" --arg provider "$LAWPUB_PROVIDER" \
+            '{version:1, latest_successful_update_date:$to, last_range:{from:$from,to:$to}, last_run_at:$now, provider:$provider}' \
+            > "$DELTA_CACHE/state/law_collection.json"
+
+          # egov/{date}/*.xml は revisions の同一原本を日付別に複製した audit cache。
+          # first_seen_date は revisions 側 meta に残るため、durable archive では除外して
+          # R2 容量を約半分に抑える。重複排除済み原本・meta・cursor だけを保存する。
+          mkdir -p "$DELTA_CACHE/revisions" "$DELTA_CACHE/revisions_meta"
+          ( cd "$DELTA_CACHE" && \
+            tar -cf - revisions revisions_meta state | \
+            zstd -12 -T0 -o /tmp/law-corpus-delta.tar.zst -f )
+          ls -lh /tmp/law-corpus-delta.tar.zst
+          aws s3 cp /tmp/law-corpus-delta.tar.zst "s3://$R2_BUCKET/law-corpus-delta.tar.zst" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --content-type 'application/zstd' \
+            --cache-control 'public, max-age=300'
+          aws s3 cp "$DELTA_CACHE/state/law_collection.json" "s3://$R2_BUCKET/law-collection-state.json" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --content-type 'application/json' \
+            --cache-control 'public, max-age=300'
+          echo "::notice::law corpus delta and cursor persisted to R2"
