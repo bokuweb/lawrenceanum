@@ -42,15 +42,18 @@ test("dashboard shows corpus counts, freshness, and missing indexes", async ({ p
   const proceedings = page.locator('[data-corpus="proceedings"]');
   await expect(proceedings).toContainText("国会会議録");
   await expect(proceedings).toContainText("903 会議");
-  await expect(proceedings).toContainText("最新 2026-07-24");
+  await expect(proceedings).toContainText("データ 2026-07-24");
+  await expect(proceedings).toContainText("収集成功 2026-08-11");
 
   const pubcomment = page.locator('[data-corpus="pubcomment"]');
   await expect(pubcomment).toContainText("44 件");
-  await expect(pubcomment).toContainText("最新 2026-08-09");
+  await expect(pubcomment).toContainText("データ 2026-08-09");
+  await expect(pubcomment).toContainText("収集失敗 2026-08-11");
 
   const procurement = page.locator('[data-corpus="procurement"]');
   await expect(procurement).toContainText("政府調達");
   await expect(procurement).toContainText("未配信");
+  await expect(procurement).toContainText("収集失敗 2026-08-11");
 });
 
 // 更新履歴は、ロード中に mock 一覧ではなく skeleton を表示する。

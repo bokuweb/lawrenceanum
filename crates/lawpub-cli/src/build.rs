@@ -2197,6 +2197,10 @@ fn collect_corpus_health(public: &Path) -> serde_json::Value {
         },
     ];
 
+    let collector_state = std::fs::read(public.join("corpus-status.json"))
+        .ok()
+        .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).ok());
+
     let mut corpora = serde_json::Map::new();
     for spec in SPECS {
         let index_path = public.join(spec.name).join("index.json");
@@ -2223,6 +2227,10 @@ fn collect_corpus_health(public: &Path) -> serde_json::Value {
             .filter_map(serde_json::Value::as_str)
             .filter_map(normalize_date_prefix)
             .max();
+        let collector = collector_state
+            .as_ref()
+            .and_then(|state| state.get("corpora"))
+            .and_then(|corpora| corpora.get(spec.name));
 
         corpora.insert(
             spec.name.to_string(),
@@ -2231,6 +2239,9 @@ fn collect_corpus_health(public: &Path) -> serde_json::Value {
                 "count": count,
                 "unit": spec.unit,
                 "latest_item_date": latest_item_date,
+                "collection_status": collector.and_then(|value| value.get("status")).cloned(),
+                "last_collection_attempt_at": collector.and_then(|value| value.get("last_attempt_at")).cloned(),
+                "last_collection_success_at": collector.and_then(|value| value.get("last_success_at")).cloned(),
             }),
         );
     }
@@ -2613,12 +2624,27 @@ mod corpus_health_tests {
             r#"{"count":1,"cases":[{"result_published":null,"reception_start":"2026-08-09T10:00:00+09:00"}]}"#,
         )
         .unwrap();
+        std::fs::write(
+            root.join("corpus-status.json"),
+            r#"{"version":2,"corpora":{"proceedings":{"status":"success","last_attempt_at":"2026-08-11T20:00:00Z","last_success_at":"2026-08-11T20:00:00Z"},"pubcomment":{"status":"failure","last_attempt_at":"2026-08-11T20:00:00Z","last_success_at":"2026-08-10T20:00:00Z"}}}"#,
+        )
+        .unwrap();
 
         let health = collect_corpus_health(&root);
         assert_eq!(health["proceedings"]["available"], true);
         assert_eq!(health["proceedings"]["count"], 2);
         assert_eq!(health["proceedings"]["latest_item_date"], "2026-08-01");
+        assert_eq!(health["proceedings"]["collection_status"], "success");
+        assert_eq!(
+            health["proceedings"]["last_collection_success_at"],
+            "2026-08-11T20:00:00Z"
+        );
         assert_eq!(health["pubcomment"]["latest_item_date"], "2026-08-09");
+        assert_eq!(health["pubcomment"]["collection_status"], "failure");
+        assert_eq!(
+            health["pubcomment"]["last_collection_success_at"],
+            "2026-08-10T20:00:00Z"
+        );
         assert_eq!(health["procurement"]["available"], false);
         assert_eq!(health["procurement"]["count"], 0);
         assert!(health["procurement"]["latest_item_date"].is_null());

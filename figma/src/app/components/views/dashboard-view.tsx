@@ -147,20 +147,38 @@ function CorpusStatusCard({ corpora }: { corpora?: Record<string, CorpusHealth> 
             {CORPUS_DISPLAY.map(({ key, label }) => {
               const corpus = corpora[key];
               const available = corpus?.available === true;
+              const collectionFailed = corpus?.collection_status === "failure";
+              const collectionSucceeded = corpus?.collection_status === "success";
+              const statusColor = collectionFailed
+                ? "bg-red-500"
+                : !available
+                  ? "bg-amber-500"
+                  : collectionSucceeded
+                    ? "bg-emerald-500"
+                    : "bg-muted-foreground";
               return (
                 <div key={key} className="rounded-md border border-border px-3 py-2.5" data-corpus={key}>
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-sm truncate">{label}</span>
-                    <span className={`size-2 rounded-full shrink-0 ${available ? "bg-emerald-500" : "bg-amber-500"}`} />
+                    <span className={`size-2 rounded-full shrink-0 ${statusColor}`} />
                   </div>
                   <div className="mt-1 flex items-baseline justify-between gap-2">
                     <span className="text-lg tabular-nums">
                       {available ? `${corpus.count.toLocaleString()} ${UNIT_LABELS[corpus.unit] ?? corpus.unit}` : "未配信"}
                     </span>
                     {available && corpus.latest_item_date && (
-                      <span className="text-xs text-muted-foreground tabular-nums">最新 {corpus.latest_item_date}</span>
+                      <span className="text-xs text-muted-foreground tabular-nums">データ {corpus.latest_item_date}</span>
                     )}
                   </div>
+                  {corpus && (
+                    <div className={`mt-1 text-xs tabular-nums ${collectionFailed ? "text-red-500" : "text-muted-foreground"}`}>
+                      {collectionFailed
+                        ? `収集失敗 ${corpus.last_collection_attempt_at?.slice(0, 10) ?? ""}`
+                        : corpus.last_collection_success_at
+                          ? `収集成功 ${corpus.last_collection_success_at.slice(0, 10)}`
+                          : "収集履歴なし"}
+                    </div>
+                  )}
                 </div>
               );
             })}
