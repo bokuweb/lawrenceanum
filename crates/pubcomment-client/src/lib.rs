@@ -17,7 +17,7 @@
 //! このクレートは添付の取得までを担当し、テキスト抽出・キャッシュは CLI 側で行う。
 
 use anyhow::{Context, Result};
-use reqwest::header::{CONTENT_DISPOSITION, CONTENT_TYPE};
+use reqwest::header::{ACCEPT, ACCEPT_LANGUAGE, CONTENT_DISPOSITION, CONTENT_TYPE};
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use std::io::Read;
@@ -183,6 +183,19 @@ fn list_url(base: &str, mode: u8, page: u32) -> String {
     format!("{base}/pcm/list?CLASSNAME=PCMMSTLIST&Mode={mode}&Page={page}")
 }
 
+fn legacy_list_url(base: &str, mode: u8, page: u32) -> String {
+    format!("{base}/servlet/Public?CLASSNAME=PCMMSTLIST&Mode={mode}&Page={page}")
+}
+
+fn rss_url(base: &str, mode: u8) -> String {
+    let feed = if mode == 0 {
+        "pcm_list.xml"
+    } else {
+        "pcm_result.xml"
+    };
+    format!("{base}/rss/{feed}")
+}
+
 fn detail_url_mode(base: &str, case_id: &str, mode: u8) -> String {
     format!("{base}/pcm/1040?CLASSNAME=PCM1040&id={case_id}&Mode={mode}")
 }
@@ -277,7 +290,25 @@ impl HttpProvider {
 
     fn client() -> Result<reqwest::blocking::Client> {
         reqwest::blocking::Client::builder()
-            .user_agent("lawpub/0.1 (+https://github.com/bokuweb/lawrenceanum)")
+            .user_agent(
+                "Mozilla/5.0 (compatible; Lawrenceanum/0.1; +https://github.com/bokuweb/lawrenceanum)",
+            )
+            .default_headers({
+                let mut headers = reqwest::header::HeaderMap::new();
+                headers.insert(
+                    ACCEPT,
+                    "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+                        .parse()
+                        .expect("static Accept header"),
+                );
+                headers.insert(
+                    ACCEPT_LANGUAGE,
+                    "ja,en-US;q=0.8,en;q=0.6"
+                        .parse()
+                        .expect("static Accept-Language header"),
+                );
+                headers
+            })
             .timeout(Duration::from_secs(30))
             .build()
             .context("build reqwest client")
@@ -305,12 +336,59 @@ impl PubcommentProvider for HttpProvider {
     fn fetch_case_list(&self, mode: u8, page: u32) -> Result<Vec<CaseMeta>> {
         let client = Self::client()?;
         let url = list_url(&self.base_url, mode, page);
-        let html = Self::get_html(&client, &url)?;
-        let mut metas = parse_case_list(&html, &self.base_url)?;
+        let primary =
+            Self::get_html(&client, &url).and_then(|html| parse_case_list(&html, &self.base_url));
+        let (mut metas, try_legacy) = match primary {
+            Ok(cases) if !cases.is_empty() => (cases, false),
+            Ok(cases) if page > 1 => (cases, false),
+            Ok(_) => {
+                tracing::warn!("pubcomment primary list returned no cases; trying legacy entry");
+                (Vec::new(), true)
+            }
+            Err(error) => {
+                tracing::warn!("pubcomment primary list failed ({error:#}); trying legacy entry");
+                (Vec::new(), true)
+            }
+        };
+
+        if try_legacy {
+            let legacy_url = legacy_list_url(&self.base_url, mode, page);
+            metas = match Self::get_html(&client, &legacy_url)
+                .and_then(|html| parse_case_list(&html, &self.base_url))
+            {
+                Ok(cases) if !cases.is_empty() => cases,
+                Ok(_) => {
+                    tracing::warn!("pubcomment legacy list returned no cases; trying official RSS");
+                    Vec::new()
+                }
+                Err(error) => {
+                    tracing::warn!(
+                        "pubcomment legacy list failed ({error:#}); trying official RSS"
+                    );
+                    Vec::new()
+                }
+            };
+        }
+
+        // e-Gov の HTML 一覧は CDN/WAF が GitHub-hosted runner を 403 にすることがある。
+        // 公式 RSS は静的配信で、募集中・結果公示の直近案件を毎日取得する用途に適する。
+        // RSS はページングしないため page=1 だけで使い、日次 durable cache へ追記する。
+        if metas.is_empty() && page == 1 {
+            let feed_url = rss_url(&self.base_url, mode);
+            let xml = Self::get_html(&client, &feed_url)
+                .with_context(|| format!("GET pubcomment RSS fallback {feed_url}"))?;
+            metas = parse_case_rss(&xml, mode)?;
+            tracing::info!(
+                "pubcomment RSS fallback: mode={mode}, {} cases",
+                metas.len()
+            );
+        }
         // 詳細 URL の Mode と status を揃える。
         for m in metas.iter_mut() {
             m.status = mode_status(mode).to_string();
-            m.detail_url = detail_url_mode(&self.base_url, &m.case_id, mode);
+            if m.detail_url.is_empty() {
+                m.detail_url = detail_url_mode(&self.base_url, &m.case_id, mode);
+            }
         }
         Ok(metas)
     }
@@ -457,6 +535,69 @@ fn extract_case_id(s: &str) -> Option<String> {
     } else {
         Some(id)
     }
+}
+
+#[derive(Debug, Deserialize)]
+struct RssDocument {
+    #[serde(rename = "item", default)]
+    items: Vec<RssItem>,
+}
+
+#[derive(Debug, Deserialize)]
+struct RssItem {
+    #[serde(default)]
+    title: String,
+    #[serde(default)]
+    link: String,
+    #[serde(default)]
+    description: String,
+}
+
+fn rss_description_field(description: &str, label: &str) -> Option<String> {
+    description
+        .replace("<br />", "<br/>")
+        .split("<br/>")
+        .find_map(|part| part.trim().strip_prefix(label))
+        .map(|value| value.trim_start_matches(['：', ':']).trim())
+        .filter(|value| !value.is_empty())
+        .map(String::from)
+}
+
+fn normalize_rss_date(value: Option<String>) -> Option<String> {
+    value.map(|date| date.replace('/', "-"))
+}
+
+/// e-Gov 公式 RDF/RSS 1.0 の募集中・結果公示フィードを一覧メタへ正規化する。
+pub fn parse_case_rss(xml: &str, mode: u8) -> Result<Vec<CaseMeta>> {
+    let feed: RssDocument = quick_xml::de::from_str(xml).context("parse pubcomment RSS")?;
+    let mut cases = Vec::new();
+    for item in feed.items {
+        let Some(case_id) = extract_case_id(&item.link) else {
+            continue;
+        };
+        let office = rss_description_field(&item.description, "問合せ先（所管省庁・部局名等）");
+        let ministry = office.as_deref().and_then(ministry_short);
+        cases.push(CaseMeta {
+            case_id,
+            title: norm_ws(&item.title),
+            ministry,
+            reception_start: normalize_rss_date(rss_description_field(
+                &item.description,
+                "案の公示日",
+            )),
+            reception_end: normalize_rss_date(rss_description_field(
+                &item.description,
+                "受付締切日時",
+            )),
+            result_published: normalize_rss_date(rss_description_field(
+                &item.description,
+                "結果の公示日",
+            )),
+            status: mode_status(mode).to_string(),
+            detail_url: item.link,
+        });
+    }
+    Ok(cases)
 }
 
 /// 案件一覧 HTML から `CaseMeta` を抽出する (現行 egovui カード構造)。
@@ -775,6 +916,26 @@ mod tests {
         assert!(d.attachments[0]
             .url
             .contains("/pcm/download?seqNo=0000316383"));
+    }
+
+    #[test]
+    fn parse_official_rss_fallback() {
+        let xml = r#"<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns="http://purl.org/rss/1.0/"
+ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+ <item rdf:about="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCM1040&amp;id=145210700&amp;Mode=1">
+  <title>電波法関係告示案に係る意見募集の結果について</title>
+  <link>https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCM1040&amp;id=145210700&amp;Mode=1</link>
+  <description>結果の公示日：2026/08/10&lt;br/&gt;案の公示日：2026/04/25&lt;br/&gt;受付締切日時：2026/05/29 23:59&lt;br/&gt;問合せ先（所管省庁・部局名等）：総務省総合通信基盤局&lt;br/&gt;</description>
+ </item>
+</rdf:RDF>"#;
+        let cases = parse_case_rss(xml, 1).unwrap();
+        assert_eq!(cases.len(), 1);
+        assert_eq!(cases[0].case_id, "145210700");
+        assert_eq!(cases[0].ministry.as_deref(), Some("総務省"));
+        assert_eq!(cases[0].reception_start.as_deref(), Some("2026-04-25"));
+        assert_eq!(cases[0].result_published.as_deref(), Some("2026-08-10"));
+        assert_eq!(cases[0].status, "closed");
     }
 
     #[test]
