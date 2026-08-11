@@ -1,6 +1,7 @@
-name: Update corpus data (kokkai / pubcomment / procurement)
+name: Update corpus data
 
-# 国会会議録・パブコメ・調達情報を定期取得し、生キャッシュを R2 にアップロードする。
+# 国会会議録・パブコメ・調達・議案・通達・審議会を定期取得し、生キャッシュを R2 に
+# アップロードする。
 # **このワークフローは Pages へ deploy しない。** 配信は法令ワークフロー
 # (update-law-data.yml) が R2 の各キャッシュを取り込んで laws と一緒に 1 つの
 # public/ で行う (2 ワークフローが別々に Pages を上げると互いを clobber するため)。
@@ -42,7 +43,7 @@ jobs:
     timeout-minutes: 120
     env:
       LAWPUB_PROVIDER: ${{ github.event.inputs.provider || 'http' }}
-      DOMAINS: ${{ github.event.inputs.domains || 'kokkai,pubcomment,procurement,gian,tsutatsu' }}
+      DOMAINS: ${{ github.event.inputs.domains || 'kokkai,pubcomment,procurement,gian,tsutatsu,shingikai' }}
 
     steps:
       - name: Checkout
@@ -102,6 +103,9 @@ jobs:
           restore_bundle tsutatsu-cache.tar.zst .cache/tsutatsu
           restore_bundle procurement-cache.tar.zst .cache/procurement
           restore_bundle reiki-cache.tar.zst .cache/reiki
+          restore_bundle shingikai-cache.tar.zst .cache/shingikai
+          restore_bundle shingikai-assets.tar.zst .cache/shingikai-assets
+          restore_bundle shingikai-history.tar.zst .cache/shingikai-history
 
       - name: Build lawpub
         run: cargo build --release -p lawpub-cli
@@ -357,15 +361,40 @@ jobs:
             --cache-control 'public, max-age=300'
           echo "::notice::uploaded procurement cache to R2 ($n batches)"
 
-      # ── 審議会（手動のみ、頻度低） ────────────────────────────────
+      # ── 審議会（法務省、直近会議を日次追跡） ──────────────────────
 
       - name: Fetch shingikai (moj)
-        if: contains(env.DOMAINS, 'shingikai')
+        if: contains(env.DOMAINS, 'shingikai') || env.DOMAINS == ''
         run: |
-          ./target/release/lawpub shingiakai-fetch \
-            --ministry moj --cache .cache --provider "${LAWPUB_PROVIDER}" || true
-          ./target/release/lawpub shingiakai-build-json \
+          ./target/release/lawpub shingikai-fetch \
+            --ministry moj --cache .cache --provider "${LAWPUB_PROVIDER}" \
+            --max-meetings 20 || true
+          ./target/release/lawpub shingikai-build-json \
             --cache .cache --public public || true
+
+      - name: Upload shingikai corpus to R2
+        if: (contains(env.DOMAINS, 'shingikai') || env.DOMAINS == '') && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          upload_bundle() {
+            source="$1"
+            object="$2"
+            [ -d "$source" ] || { echo "::notice::no $source, skip $object"; return; }
+            archive="/tmp/$object"
+            ( cd "$source" && tar -cf - . | zstd -19 --long -T0 -o "$archive" -f )
+            aws s3 cp "$archive" "s3://$R2_BUCKET/$object" \
+              --endpoint-url "$R2_ENDPOINT" \
+              --content-type 'application/zstd' \
+              --cache-control 'public, max-age=300'
+          }
+          upload_bundle .cache/shingikai shingikai-cache.tar.zst
+          upload_bundle .cache/shingikai-assets shingikai-assets.tar.zst
+          upload_bundle .cache/shingikai-history shingikai-history.tar.zst
 
       # ── 予算（手動のみ、appId 必要） ─────────────────────────────
 

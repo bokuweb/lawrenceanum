@@ -497,6 +497,32 @@ jobs:
           ./target/release/lawpub procurement-build-json --cache .cache --public public \
             || echo "::warning::procurement-build-json failed"
 
+      # 法務省審議会の議事概要・議事録全文・配布資料メタを durable corpus から配信する。
+      - name: Build shingikai from R2 cache
+        if: >-
+          steps.detect.outputs.changed == 'true' && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        continue-on-error: true
+        run: |
+          set +e
+          if ! aws s3 cp "s3://$R2_BUCKET/shingikai-cache.tar.zst" /tmp/shingikai-cache.tar.zst --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            echo "::notice::shingikai-cache.tar.zst not in R2 — 審議会なしで続行"
+            exit 0
+          fi
+          mkdir -p .cache/shingikai
+          zstd -dc --long=31 /tmp/shingikai-cache.tar.zst | tar -x -C .cache/shingikai
+          rm -f /tmp/shingikai-cache.tar.zst
+          n=$(find .cache/shingikai -name '*.json' | wc -l | tr -d ' ')
+          [ "${n:-0}" -eq 0 ] && { echo "::warning::shingikai cache empty"; exit 0; }
+          echo "::notice::shingikai cache restored from R2: $n meetings"
+          ./target/release/lawpub shingikai-build-json --cache .cache --public public \
+            || echo "::warning::shingikai-build-json failed"
+
       # 議案 (法案審議トラッキング) を R2 prebuilt キャッシュから復元して同梱する。
       # corpus workflow が gian-cache.tar.zst に上げたものを取得 → gian-build-json。
       # build-feeds が public/gian を読んで「法案」フィードを出すので feeds より前に。

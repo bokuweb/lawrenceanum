@@ -1040,6 +1040,7 @@ dependencies = [
  "pubcomment-client",
  "rayon",
  "reiki-client",
+ "reqwest",
  "search-index",
  "serde",
  "serde_json",
