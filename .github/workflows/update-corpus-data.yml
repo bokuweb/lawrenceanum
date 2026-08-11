@@ -43,7 +43,9 @@ jobs:
     timeout-minutes: 120
     env:
       LAWPUB_PROVIDER: ${{ github.event.inputs.provider || 'http' }}
-      DOMAINS: ${{ github.event.inputs.domains || 'kokkai,pubcomment,procurement,gian,tsutatsu,shingikai' }}
+      DOMAINS: ${{ github.event.inputs.domains || 'kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget' }}
+      # 未設定なら budget step は安全に skip。Secret 追加後の次回runから自動収集する。
+      LAWPUB_ESTAT_APP_ID: ${{ secrets.ESTAT_APP_ID }}
 
     steps:
       - name: Checkout
@@ -106,6 +108,7 @@ jobs:
           restore_bundle shingikai-cache.tar.zst .cache/shingikai
           restore_bundle shingikai-assets.tar.zst .cache/shingikai-assets
           restore_bundle shingikai-history.tar.zst .cache/shingikai-history
+          restore_bundle budget-cache.tar.zst .cache/budget
 
       - name: Build lawpub
         run: cargo build --release -p lawpub-cli
@@ -434,14 +437,35 @@ jobs:
       # ── 予算（手動のみ、appId 必要） ─────────────────────────────
 
       - name: Fetch budget (e-Stat)
+        id: fetch_budget
         if: contains(env.DOMAINS, 'budget') && env.LAWPUB_ESTAT_APP_ID != ''
-        env:
-          LAWPUB_ESTAT_APP_ID: ${{ secrets.ESTAT_APP_ID }}
+        continue-on-error: true
         run: |
           ./target/release/lawpub budget-fetch \
-            --cache .cache --provider "${LAWPUB_PROVIDER}" || true
+            --cache .cache --provider "${LAWPUB_PROVIDER}"
           ./target/release/lawpub budget-build-json \
-            --cache .cache --public public || true
+            --cache .cache --public public
+
+      - name: Upload budget cache to R2
+        id: upload_budget
+        if: contains(env.DOMAINS, 'budget') && env.LAWPUB_ESTAT_APP_ID != '' && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        continue-on-error: true
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          [ -d .cache/budget ] || { echo "::notice::no budget cache, skip R2 upload"; exit 0; }
+          n=$(find .cache/budget -name '*.json' | wc -l | tr -d ' ')
+          [ "${n:-0}" -gt 0 ] || { echo "::warning::budget cache is empty"; exit 1; }
+          ( cd .cache/budget && tar -cf - . | zstd -19 --long -T0 -o /tmp/budget-cache.tar.zst -f )
+          aws s3 cp /tmp/budget-cache.tar.zst "s3://$R2_BUCKET/budget-cache.tar.zst" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --content-type 'application/zstd' \
+            --cache-control 'public, max-age=300'
+          echo "::notice::uploaded budget cache to R2 ($n datasets)"
 
       # ── 例規（手動のみ、頻度低） ─────────────────────────────────
 
@@ -506,6 +530,8 @@ jobs:
           REIKI_UPLOAD_OUTCOME: ${{ steps.upload_reiki.outcome }}
           SHINGIKAI_OUTCOME: ${{ steps.fetch_shingikai.outcome }}
           SHINGIKAI_UPLOAD_OUTCOME: ${{ steps.upload_shingikai.outcome }}
+          BUDGET_OUTCOME: ${{ steps.fetch_budget.outcome }}
+          BUDGET_UPLOAD_OUTCOME: ${{ steps.upload_budget.outcome }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -553,6 +579,7 @@ jobs:
           update_domain tsutatsu tsutatsu "$TSUTATSU_OUTCOME" "$TSUTATSU_UPLOAD_OUTCOME"
           update_domain reiki reiki "$REIKI_OUTCOME" "$REIKI_UPLOAD_OUTCOME"
           update_domain shingikai shingikai "$SHINGIKAI_OUTCOME" "$SHINGIKAI_UPLOAD_OUTCOME"
+          update_domain budget budget "$BUDGET_OUTCOME" "$BUDGET_UPLOAD_OUTCOME"
           tmp=$(mktemp)
           jq --arg ts "$ts" --arg domains "$DOMAINS" '
             .version = 2 | .updated_at = $ts | .last_run_domains = $domains
