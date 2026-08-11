@@ -13,3 +13,4 @@ reqwest = { workspace = true, features = ["blocking"] }
 scraper.workspace = true
 tracing.workspace = true
 chrono.workspace = true
+quick-xml.workspace = true

@@ -43,6 +43,7 @@ pub fn run_fetch(
                 break;
             }
             for meta in &cases {
+                let path = dir.join(format!("{}.json", meta.case_id));
                 // 募集中(mode=0)は結果未公開＆詳細ページが別系統で空のため、
                 // 一覧メタから組む（締切・所管・案件名は一覧に揃っている）。
                 let mut detail = if mode == 0 {
@@ -51,8 +52,18 @@ pub fn run_fetch(
                     match p.fetch_case_detail(&meta.case_id, mode) {
                         Ok(d) => d,
                         Err(e) => {
-                            tracing::warn!("skip {}: {e:#}", meta.case_id);
-                            continue;
+                            // HTML 詳細も WAF で拒否される場合がある。既存の充実済み cache を
+                            // 優先し、初回でも RSS/一覧メタだけは保存して案件を欠落させない。
+                            tracing::warn!(
+                                "pubcomment {} detail unavailable; preserving metadata: {e:#}",
+                                meta.case_id
+                            );
+                            read_cached_case(&path).unwrap_or_else(|| {
+                                pubcomment_client::CaseDetail::from_meta(
+                                    meta,
+                                    &chrono::Utc::now().to_rfc3339(),
+                                )
+                            })
                         }
                     }
                 };
@@ -72,7 +83,6 @@ pub fn run_fetch(
                 if detail.status.is_empty() {
                     detail.status = meta.status.clone();
                 }
-                let path = dir.join(format!("{}.json", meta.case_id));
                 if fetch_attachments && !detail.attachments.is_empty() {
                     let previous = read_cached_case(&path);
                     hydrate_attachments(p.as_ref(), cache, &mut detail, previous.as_ref());

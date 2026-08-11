@@ -215,6 +215,10 @@ jobs:
         run: |
           [ -d .cache/pubcomment ] || { echo "::notice::no pubcomment cache, skip R2 upload"; exit 0; }
           n=$(find .cache/pubcomment -name '*.json' | wc -l | tr -d ' ')
+          if [ "${n:-0}" -eq 0 ]; then
+            echo "::warning::pubcomment cache is empty — keeping the last-good R2 bundle"
+            exit 0
+          fi
           # top-level を ./{case_id}.json にするため .cache/pubcomment 内から固める。
           ( cd .cache/pubcomment && tar -cf - . | zstd -19 --long -T0 -o /tmp/pubcomment-cache.tar.zst -f )
           ls -lh /tmp/pubcomment-cache.tar.zst
