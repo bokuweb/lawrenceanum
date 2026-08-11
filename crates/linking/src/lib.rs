@@ -20,6 +20,9 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
 
+mod shingikai;
+pub use shingikai::run_link_shingikai;
+
 // ── 公開型 ────────────────────────────────────────────────────────
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

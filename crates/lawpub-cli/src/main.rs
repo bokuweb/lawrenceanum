@@ -390,6 +390,12 @@ enum Cmd {
         public: PathBuf,
     },
 
+    /// 法令 ↔ 審議会議事録・配布資料の双方向クロスリンクを生成する。
+    LinkLawsAndShingikai {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
     /// 予算: e-Stat API から財政統計データを取得する（LAWPUB_ESTAT_APP_ID 必須）。
     BudgetFetch {
         #[arg(long, default_value = ".cache")]
@@ -663,6 +669,7 @@ fn main() -> Result<()> {
         Cmd::ShingikaiBuildJson { cache, public } => {
             shingikai::run_build_json(&cache, &public)
         }
+        Cmd::LinkLawsAndShingikai { public } => linking::run_link_shingikai(&public),
         Cmd::BudgetFetch { cache, provider } => budget::run_fetch(&cache, &provider),
         Cmd::BudgetBuildJson { cache, public } => budget::run_build_json(&cache, &public),
         Cmd::LinkLawsAndPubcomment { public } => linking::run_link_pubcomment(&public),
@@ -740,5 +747,8 @@ mod cli_tests {
 
         let legacy = Cli::try_parse_from(["lawpub", "shingiakai-build-json"]).unwrap();
         assert!(matches!(legacy.cmd, Cmd::ShingikaiBuildJson { .. }));
+
+        let link = Cli::try_parse_from(["lawpub", "link-laws-and-shingikai"]).unwrap();
+        assert!(matches!(link.cmd, Cmd::LinkLawsAndShingikai { .. }));
     }
 }

@@ -197,7 +197,9 @@ lawpub link-laws-and-proceedings --output public
 - **データ**: 委員会名・開催日・出席委員・議事要旨・添付資料 URL。
 - **crate**: `shingikai-scraper`（府省アダプタ方式、1 府省 = 1 impl）/ 正規化。配信 `shingikai/{id}/minutes.json`。
 - **工数注意**: 府省ごとに HTML 構造が異なるため、アダプタ数＝工数。まず 2〜3 府省の PoC から。
-- **リンク**: 議事録テキスト × 法令名マッチ → `links/law-to-shingikai/{law_id}.json`。
+- **リンク（実装済み）**: 議題・概要・議事録・配布資料全文 × 法令番号/法令名マッチ →
+  `links/law-to-shingikai/{law_id}.json` と `links/shingikai-to-laws/{minutes_id}.json`。
+- **次の拡張**: 法務省に続き、内閣府・国土交通省・厚生労働省アダプタを追加する。
 
 ## 11. 予算・決算層
 
