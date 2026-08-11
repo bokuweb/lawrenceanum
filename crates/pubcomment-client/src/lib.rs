@@ -6,20 +6,21 @@
 //!
 //! - 案件一覧: `GET /pcm/list?CLASSNAME=PCMMSTLIST&Mode=1&Page={n}` (Mode=1 = 結果公示済み)
 //!   → `ul.egovui-list-comment-list > li` の各カードを抽出。詳細遷移はカードの
-//!     `.egovui-link-area-cursor` の onClick に埋まる `id={案件番号}` から URL を組む。
+//!   `.egovui-link-area-cursor` の onClick に埋まる `id={案件番号}` から URL を組む。
 //! - 案件詳細: `GET /pcm/1040?CLASSNAME=PCM1040&id={案件番号}&Mode=1`
 //!   → `table.egovui-normal-horizontal` の th/td から各属性を読む。
 //!
 //! ## スコープ
 //!
 //! 1 リクエストごとに 1 秒以上待機する。提出された意見と府省の考え方の本文は
-//! HTML にインラインでは無く PDF 添付 (`/pcm/download?seqNo=...`) で公開されるため、
-//! このクレートでは添付メタ (名前と URL) のみ収集し、本文 PDF の解釈は行わない
-//! (将来 kanpo-amend と同様の PDF 抽出を別途行う想定)。個人情報は取得しない。
+//! HTML にインラインでは無く PDF 等の添付 (`/pcm/download?seqNo=...`) で公開される。
+//! このクレートは添付の取得までを担当し、テキスト抽出・キャッシュは CLI 側で行う。
 
 use anyhow::{Context, Result};
+use reqwest::header::{CONTENT_DISPOSITION, CONTENT_TYPE};
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
+use std::io::Read;
 use std::time::Duration;
 
 pub const BASE_URL: &str = "https://public-comment.e-gov.go.jp";
@@ -52,6 +53,36 @@ pub struct OpinionSummary {
 pub struct Attachment {
     pub name: String,
     pub url: String,
+    /// HTTP Content-Type（パラメータを除いた MIME type）。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub media_type: Option<String>,
+    /// Content-Disposition から得た原ファイル名（得られた場合）。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub filename: Option<String>,
+    /// 取得した原ファイルの SHA-256。URL が同じでも内容差分を検出できる。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sha256: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bytes: Option<u64>,
+    /// pdftotext 等で抽出した全文。構造化された意見/府省回答は下流で生成する。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub extracted_text: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub extraction_method: Option<String>,
+    /// 未対応形式・スキャン PDF 等でもメタと原本は保存し、理由を残す。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub extraction_error: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fetched_at: Option<String>,
+}
+
+/// HTTP から取得した添付原本。永続化とテキスト抽出は利用側が行う。
+#[derive(Debug, Clone)]
+pub struct FetchedAttachment {
+    pub bytes: Vec<u8>,
+    pub media_type: Option<String>,
+    pub filename: Option<String>,
+    pub fetched_at: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -134,11 +165,16 @@ pub trait PubcommentProvider: Send + Sync {
     /// `mode`: 0=意見募集中, 1=結果公示済み。
     fn fetch_case_list(&self, mode: u8, page: u32) -> Result<Vec<CaseMeta>>;
     fn fetch_case_detail(&self, case_id: &str, mode: u8) -> Result<CaseDetail>;
+    fn fetch_attachment(&self, url: &str) -> Result<FetchedAttachment>;
 }
 
 /// mode → status 文字列。
 pub fn mode_status(mode: u8) -> &'static str {
-    if mode == 0 { "open" } else { "closed" }
+    if mode == 0 {
+        "open"
+    } else {
+        "closed"
+    }
 }
 
 // ── URL 生成 ──────────────────────────────────────────────────────
@@ -194,12 +230,32 @@ impl PubcommentProvider for MockProvider {
                 opinion: "基本原則をより明確にすべきである。".to_string(),
                 ministry_response: "ご意見を踏まえ、条文の表現を検討します。".to_string(),
             }],
-            attachments: vec![],
+            attachments: vec![Attachment {
+                name: "意見募集結果".to_string(),
+                url: "mock://pubcomment/result.txt".to_string(),
+                media_type: None,
+                filename: None,
+                sha256: None,
+                bytes: None,
+                extracted_text: None,
+                extraction_method: None,
+                extraction_error: None,
+                fetched_at: None,
+            }],
             source: CaseSource {
                 provider: "egov_pubcomment".to_string(),
                 fetched_at: "2024-01-01T00:00:00Z".to_string(),
                 detail_url: detail_url(BASE_URL, case_id),
             },
+        })
+    }
+
+    fn fetch_attachment(&self, _url: &str) -> Result<FetchedAttachment> {
+        Ok(FetchedAttachment {
+            bytes: "提出意見\n府省の考え方".as_bytes().to_vec(),
+            media_type: Some("text/plain".to_string()),
+            filename: Some("mock-result.txt".to_string()),
+            fetched_at: "2024-01-01T00:00:00Z".to_string(),
         })
     }
 }
@@ -268,6 +324,75 @@ impl PubcommentProvider for HttpProvider {
         d.status = mode_status(mode).to_string();
         Ok(d)
     }
+
+    fn fetch_attachment(&self, url: &str) -> Result<FetchedAttachment> {
+        const MAX_ATTACHMENT_BYTES: u64 = 50 * 1024 * 1024;
+
+        let client = Self::client()?;
+        std::thread::sleep(Duration::from_secs(1));
+        let mut resp = client
+            .get(url)
+            .send()
+            .and_then(|r| r.error_for_status())
+            .with_context(|| format!("GET attachment {url}"))?;
+        if let Some(n) = resp.content_length() {
+            if n > MAX_ATTACHMENT_BYTES {
+                anyhow::bail!("attachment too large: {n} bytes (limit={MAX_ATTACHMENT_BYTES})");
+            }
+        }
+
+        let media_type = resp
+            .headers()
+            .get(CONTENT_TYPE)
+            .and_then(|v| v.to_str().ok())
+            .and_then(|v| v.split(';').next())
+            .map(|v| v.trim().to_ascii_lowercase())
+            .filter(|v| !v.is_empty());
+        let filename = resp
+            .headers()
+            .get(CONTENT_DISPOSITION)
+            .and_then(|v| v.to_str().ok())
+            .and_then(filename_from_content_disposition);
+
+        let mut bytes = Vec::new();
+        resp.by_ref()
+            .take(MAX_ATTACHMENT_BYTES + 1)
+            .read_to_end(&mut bytes)
+            .context("read attachment body")?;
+        if bytes.len() as u64 > MAX_ATTACHMENT_BYTES {
+            anyhow::bail!(
+                "attachment exceeded limit while streaming: {} bytes (limit={MAX_ATTACHMENT_BYTES})",
+                bytes.len()
+            );
+        }
+        Ok(FetchedAttachment {
+            bytes,
+            media_type,
+            filename,
+            fetched_at: chrono::Utc::now().to_rfc3339(),
+        })
+    }
+}
+
+/// Content-Disposition の filename / RFC 5987 filename* を最小限解釈する。
+/// 日本語 filename* は percent-encoding のままでも識別には使えるため、ここでは
+/// 外部依存を増やさず値だけを保存する。
+fn filename_from_content_disposition(value: &str) -> Option<String> {
+    for key in ["filename*=", "filename="] {
+        if let Some(raw) = value.split(';').map(str::trim).find_map(|part| {
+            part.strip_prefix(key).or_else(|| {
+                let lower = part.to_ascii_lowercase();
+                lower.strip_prefix(key).map(|_| &part[key.len()..])
+            })
+        }) {
+            let raw = raw.trim_matches('"');
+            let raw = raw.split("''").nth(1).unwrap_or(raw);
+            if !raw.is_empty() {
+                return Some(raw.to_string());
+            }
+        }
+    }
+    None
 }
 
 // ── HTML パース ───────────────────────────────────────────────────
@@ -327,7 +452,11 @@ fn ministry_short(office: &str) -> Option<String> {
 fn extract_case_id(s: &str) -> Option<String> {
     let after = s.split("id=").nth(1)?;
     let id: String = after.chars().take_while(|c| c.is_ascii_digit()).collect();
-    if id.is_empty() { None } else { Some(id) }
+    if id.is_empty() {
+        None
+    } else {
+        Some(id)
+    }
 }
 
 /// 案件一覧 HTML から `CaseMeta` を抽出する (現行 egovui カード構造)。
@@ -354,7 +483,11 @@ pub fn parse_case_list(html: &str, base_url: &str) -> Result<Vec<CaseMeta>> {
         let mut case_id_attr = None;
         for d in li.select(&detail_sel) {
             let full = text_of(&d);
-            let label = d.select(&span_sel).next().map(|s| text_of(&s)).unwrap_or_default();
+            let label = d
+                .select(&span_sel)
+                .next()
+                .map(|s| text_of(&s))
+                .unwrap_or_default();
             let value = norm_ws(full.strip_prefix(&label).unwrap_or(&full));
             match label.as_str() {
                 "案件番号" => case_id_attr = Some(value),
@@ -372,7 +505,11 @@ pub fn parse_case_list(html: &str, base_url: &str) -> Result<Vec<CaseMeta>> {
             _ => continue,
         };
 
-        let title = li.select(&title_sel).next().map(|a| text_of(&a)).unwrap_or_default();
+        let title = li
+            .select(&title_sel)
+            .next()
+            .map(|a| text_of(&a))
+            .unwrap_or_default();
 
         cases.push(CaseMeta {
             case_id: case_id.clone(),
@@ -414,7 +551,10 @@ pub fn parse_case_detail(
             continue;
         };
         // ラベルは空白を完全に除去して正規化 (「  案件番号  」→「案件番号」)。
-        let label: String = text_of(&th).chars().filter(|c| !c.is_whitespace()).collect();
+        let label: String = text_of(&th)
+            .chars()
+            .filter(|c| !c.is_whitespace())
+            .collect();
         let value = text_of(&td);
         fields.entry(label).or_insert(value);
     }
@@ -432,7 +572,11 @@ pub fn parse_case_detail(
         .or_else(|| get("所管省庁"));
     let ministry = responsible_office.as_deref().and_then(ministry_short);
     let opinion_count = get("提出意見数").and_then(|v| {
-        v.chars().filter(|c| c.is_ascii_digit()).collect::<String>().parse::<u32>().ok()
+        v.chars()
+            .filter(|c| c.is_ascii_digit())
+            .collect::<String>()
+            .parse::<u32>()
+            .ok()
     });
 
     // 添付ファイル (結果公示 PDF 等)。
@@ -449,8 +593,20 @@ pub fn parse_case_detail(
         };
         let name = text_of(&a);
         attachments.push(Attachment {
-            name: if name.is_empty() { "添付".to_string() } else { name },
+            name: if name.is_empty() {
+                "添付".to_string()
+            } else {
+                name
+            },
             url: full,
+            media_type: None,
+            filename: None,
+            sha256: None,
+            bytes: None,
+            extracted_text: None,
+            extraction_method: None,
+            extraction_error: None,
+            fetched_at: None,
         });
     }
 
@@ -506,20 +662,52 @@ mod tests {
         assert_eq!(d.schema_version, 1);
         assert_eq!(d.source.provider, "egov_pubcomment");
         assert!(d.source.detail_url.contains("/pcm/1040"));
+        assert_eq!(d.attachments.len(), 1);
+        let fetched = p.fetch_attachment(&d.attachments[0].url).unwrap();
+        assert_eq!(fetched.media_type.as_deref(), Some("text/plain"));
+        assert!(!fetched.bytes.is_empty());
+    }
+
+    #[test]
+    fn content_disposition_filename_is_preserved() {
+        assert_eq!(
+            filename_from_content_disposition("inline; filename*=UTF-8''%E7%B5%90%E6%9E%9C.pdf")
+                .as_deref(),
+            Some("%E7%B5%90%E6%9E%9C.pdf")
+        );
+        assert_eq!(
+            filename_from_content_disposition("attachment; filename=answer.pdf").as_deref(),
+            Some("answer.pdf")
+        );
     }
 
     #[test]
     fn law_name_extraction() {
-        assert_eq!(law_name_from_legal_basis("更生保護法第12条第3項（…）").as_deref(), Some("更生保護法"));
-        assert_eq!(law_name_from_legal_basis("民法第90条").as_deref(), Some("民法"));
-        assert_eq!(law_name_from_legal_basis("労働基準法施行規則").as_deref(), Some("労働基準法施行規則"));
+        assert_eq!(
+            law_name_from_legal_basis("更生保護法第12条第3項（…）").as_deref(),
+            Some("更生保護法")
+        );
+        assert_eq!(
+            law_name_from_legal_basis("民法第90条").as_deref(),
+            Some("民法")
+        );
+        assert_eq!(
+            law_name_from_legal_basis("労働基準法施行規則").as_deref(),
+            Some("労働基準法施行規則")
+        );
         assert_eq!(law_name_from_legal_basis("  ").as_deref(), None);
     }
 
     #[test]
     fn ministry_short_works() {
-        assert_eq!(ministry_short("法務省保護局総務課").as_deref(), Some("法務省"));
-        assert_eq!(ministry_short("国土交通省道路局").as_deref(), Some("国土交通省"));
+        assert_eq!(
+            ministry_short("法務省保護局総務課").as_deref(),
+            Some("法務省")
+        );
+        assert_eq!(
+            ministry_short("国土交通省道路局").as_deref(),
+            Some("国土交通省")
+        );
     }
 
     #[test]
@@ -567,7 +755,14 @@ mod tests {
 </tbody></table>
 <a class="file" href="/pcm/download?seqNo=0000316383" target="_blank">結果公示</a>
 </body></html>"#;
-        let d = parse_case_detail(html, "300110052", "http://x/pcm/1040", "2026-01-01T00:00:00Z", BASE_URL).unwrap();
+        let d = parse_case_detail(
+            html,
+            "300110052",
+            "http://x/pcm/1040",
+            "2026-01-01T00:00:00Z",
+            BASE_URL,
+        )
+        .unwrap();
         assert!(d.title.contains("更生保護法施行令"));
         assert_eq!(d.category.as_deref(), Some("刑事"));
         assert_eq!(d.related_law_name.as_deref(), Some("更生保護法"));
@@ -577,7 +772,9 @@ mod tests {
         assert_eq!(d.opinion_count, Some(2));
         assert_eq!(d.ministry.as_deref(), Some("法務省"));
         assert_eq!(d.attachments.len(), 1);
-        assert!(d.attachments[0].url.contains("/pcm/download?seqNo=0000316383"));
+        assert!(d.attachments[0]
+            .url
+            .contains("/pcm/download?seqNo=0000316383"));
     }
 
     #[test]

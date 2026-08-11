@@ -65,8 +65,48 @@ jobs:
           restore-keys: |
             corpus-cache-v1-${{ runner.os }}-
 
+      # Actions cache は揮発・容量制限付きなので、cache miss の run が直近分だけを
+      # R2 へ上書きすると過去コーパスが消える。各 fetch の前に R2 の last-good を
+      # top-up し、R2 を追記型コーパスの source of truth にする。
+      - name: Restore durable corpus caches from R2
+        if: env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          restore_bundle() {
+            object="$1"
+            target="$2"
+            archive="/tmp/${object}"
+            mkdir -p "$target"
+            if aws s3 cp "s3://$R2_BUCKET/$object" "$archive" --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+              # Actions cache に R2 より新しいファイルがある場合は温存する。
+              zstd -dc --long=31 "$archive" | tar -x --skip-old-files -C "$target"
+              rm -f "$archive"
+              echo "::notice::restored $object into $target"
+            else
+              echo "::notice::$object not found in R2 — starting this domain from available cache"
+            fi
+          }
+          restore_bundle proceedings-cache.tar.zst .cache/proceedings
+          restore_bundle pubcomment-cache.tar.zst .cache/pubcomment
+          restore_bundle pubcomment-assets.tar.zst .cache/pubcomment-assets
+          restore_bundle gian-cache.tar.zst .cache/gian
+          restore_bundle gian-assets.tar.zst .cache/gian-assets
+          restore_bundle gian-history.tar.zst .cache/gian-history
+          restore_bundle tsutatsu-cache.tar.zst .cache/tsutatsu
+          restore_bundle procurement-cache.tar.zst .cache/procurement
+          restore_bundle reiki-cache.tar.zst .cache/reiki
+
       - name: Build lawpub
         run: cargo build --release -p lawpub-cli
+
+      # パブコメ添付 PDF の原本保存・全文抽出に使用する。
+      - name: Install poppler (pdftotext)
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
 
       # ── 国会会議録 ───────────────────────────────────────────────
 
@@ -141,7 +181,8 @@ jobs:
         run: |
           # both = 意見募集中(締切前) + 結果公示済み。募集中は締切アラートの要。
           ./target/release/lawpub pubcomment-fetch \
-            --cache .cache --provider "${LAWPUB_PROVIDER}" --max-pages 50 --status both || true
+            --cache .cache --provider "${LAWPUB_PROVIDER}" --max-pages 50 --status both \
+            --fetch-attachments || true
 
       - name: Build pubcomment JSON
         if: contains(env.DOMAINS, 'pubcomment') || env.DOMAINS == ''
@@ -177,6 +218,26 @@ jobs:
             --cache-control 'public, max-age=300'
           echo "::notice::uploaded pubcomment cache to R2 ($n cases)"
 
+      # 添付原本は配信用 JSON と分離して保存する。案件 JSON には sha256・抽出全文が入り、
+      # 原本はこの durable archive から次回 run に復元される。
+      - name: Upload pubcomment attachment originals to R2
+        if: (contains(env.DOMAINS, 'pubcomment') || env.DOMAINS == '') && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          [ -d .cache/pubcomment-assets ] || { echo "::notice::no pubcomment assets, skip"; exit 0; }
+          n=$(find .cache/pubcomment-assets -type f | wc -l | tr -d ' ')
+          ( cd .cache/pubcomment-assets && tar -cf - . | zstd -19 --long -T0 -o /tmp/pubcomment-assets.tar.zst -f )
+          aws s3 cp /tmp/pubcomment-assets.tar.zst "s3://$R2_BUCKET/pubcomment-assets.tar.zst" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --content-type 'application/zstd' \
+            --cache-control 'public, max-age=300'
+          echo "::notice::uploaded pubcomment attachment originals to R2 ($n files)"
+
       # ── 議案 (法案審議トラッキング) ───────────────────────────────
       - name: Fetch gian
         if: contains(env.DOMAINS, 'gian') || env.DOMAINS == ''
@@ -203,6 +264,29 @@ jobs:
             --content-type 'application/zstd' \
             --cache-control 'public, max-age=300'
           echo "::notice::uploaded gian cache to R2 ($n bills)"
+
+      - name: Upload gian document originals and history to R2
+        if: (contains(env.DOMAINS, 'gian') || env.DOMAINS == '') && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          upload_bundle() {
+            source="$1"
+            object="$2"
+            [ -d "$source" ] || { echo "::notice::no $source, skip $object"; return; }
+            archive="/tmp/$object"
+            ( cd "$source" && tar -cf - . | zstd -19 --long -T0 -o "$archive" -f )
+            aws s3 cp "$archive" "s3://$R2_BUCKET/$object" \
+              --endpoint-url "$R2_ENDPOINT" \
+              --content-type 'application/zstd' \
+              --cache-control 'public, max-age=300'
+          }
+          upload_bundle .cache/gian-assets gian-assets.tar.zst
+          upload_bundle .cache/gian-history gian-history.tar.zst
 
       # ── 通達 (国税庁 法令解釈通達 soft law) ───────────────────────
       - name: Fetch tsutatsu
@@ -250,6 +334,24 @@ jobs:
           mkdir -p public
           ./target/release/lawpub procurement-build-json \
             --cache .cache --public public
+
+      - name: Upload procurement cache to R2
+        if: (contains(env.DOMAINS, 'procurement') || env.DOMAINS == '') && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          [ -d .cache/procurement ] || { echo "::notice::no procurement cache, skip R2 upload"; exit 0; }
+          n=$(find .cache/procurement -name '*.json' | wc -l | tr -d ' ')
+          ( cd .cache/procurement && tar -cf - . | zstd -19 --long -T0 -o /tmp/procurement-cache.tar.zst -f )
+          aws s3 cp /tmp/procurement-cache.tar.zst "s3://$R2_BUCKET/procurement-cache.tar.zst" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --content-type 'application/zstd' \
+            --cache-control 'public, max-age=300'
+          echo "::notice::uploaded procurement cache to R2 ($n batches)"
 
       # ── 審議会（手動のみ、頻度低） ────────────────────────────────
 
@@ -325,7 +427,7 @@ jobs:
           git add state/corpus_latest.json
           git diff --cached --quiet && exit 0
           git commit -m "chore(corpus): refresh corpus data ($ts)"
-          for i in 1 2 3; do
+          for _ in 1 2 3; do
             git push && exit 0
             git pull --rebase origin main || true
           done

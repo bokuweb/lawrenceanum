@@ -1,6 +1,9 @@
 use anyhow::{Context, Result};
-use pubcomment_client::{HttpProvider, MockProvider, PubcommentProvider};
+use pubcomment_client::{Attachment, CaseDetail, HttpProvider, MockProvider, PubcommentProvider};
+use sha2::{Digest, Sha256};
+use std::collections::HashMap;
 use std::path::Path;
+use std::process::Command;
 
 fn make_provider(provider: &str) -> Box<dyn PubcommentProvider> {
     match provider {
@@ -21,7 +24,13 @@ fn modes_for(status: &str) -> Vec<u8> {
 /// `lawpub pubcomment-fetch` の実装。
 /// `status`(open/closed/both) の各 Mode を全ページ取得し
 /// `.cache/pubcomment/{case_id}.json` に保存する。
-pub fn run_fetch(cache: &Path, provider: &str, max_pages: u32, status: &str) -> Result<()> {
+pub fn run_fetch(
+    cache: &Path,
+    provider: &str,
+    max_pages: u32,
+    status: &str,
+    fetch_attachments: bool,
+) -> Result<()> {
     let p = make_provider(provider);
     let dir = cache.join("pubcomment");
     std::fs::create_dir_all(&dir)?;
@@ -64,6 +73,10 @@ pub fn run_fetch(cache: &Path, provider: &str, max_pages: u32, status: &str) -> 
                     detail.status = meta.status.clone();
                 }
                 let path = dir.join(format!("{}.json", meta.case_id));
+                if fetch_attachments && !detail.attachments.is_empty() {
+                    let previous = read_cached_case(&path);
+                    hydrate_attachments(p.as_ref(), cache, &mut detail, previous.as_ref());
+                }
                 std::fs::write(&path, serde_json::to_string_pretty(&detail)?)
                     .with_context(|| format!("write {}", path.display()))?;
                 total += 1;
@@ -71,8 +84,136 @@ pub fn run_fetch(cache: &Path, provider: &str, max_pages: u32, status: &str) -> 
             tracing::info!("pubcomment-fetch: mode={mode} page={page} ({total} total)");
         }
     }
-    tracing::info!("pubcomment-fetch: {total} cases saved (status={status})");
+    tracing::info!(
+        "pubcomment-fetch: {total} cases saved (status={status}, attachments={fetch_attachments})"
+    );
     Ok(())
+}
+
+fn read_cached_case(path: &Path) -> Option<CaseDetail> {
+    let bytes = std::fs::read(path).ok()?;
+    serde_json::from_slice(&bytes).ok()
+}
+
+/// URL から安定した短いキャッシュキーを作る。e-Gov の seqNo URL は実質不変だが、
+/// URL 文字列をファイル名に直接使わず、case_id 配下で衝突しないようにする。
+fn attachment_cache_key(url: &str) -> String {
+    let digest = Sha256::digest(url.as_bytes());
+    hex::encode(digest)[..24].to_string()
+}
+
+fn hydrate_attachments(
+    provider: &dyn PubcommentProvider,
+    cache: &Path,
+    detail: &mut CaseDetail,
+    previous: Option<&CaseDetail>,
+) {
+    let previous_by_url: HashMap<&str, &Attachment> = previous
+        .map(|p| p.attachments.iter().map(|a| (a.url.as_str(), a)).collect())
+        .unwrap_or_default();
+    let asset_dir = cache.join("pubcomment-assets").join(&detail.case_id);
+    if let Err(e) = std::fs::create_dir_all(&asset_dir) {
+        tracing::warn!(
+            "pubcomment {}: create asset dir failed: {e:#}",
+            detail.case_id
+        );
+        return;
+    }
+
+    for attachment in &mut detail.attachments {
+        let raw_path = asset_dir.join(attachment_cache_key(&attachment.url));
+
+        // R2/GH cache から原本と抽出済みメタが両方戻っていれば再取得しない。
+        if raw_path.exists() {
+            if let Some(old) = previous_by_url.get(attachment.url.as_str()) {
+                if old.sha256.is_some() {
+                    let name = attachment.name.clone();
+                    let url = attachment.url.clone();
+                    *attachment = (*old).clone();
+                    attachment.name = name;
+                    attachment.url = url;
+                    continue;
+                }
+            }
+        }
+
+        let fetched = match provider.fetch_attachment(&attachment.url) {
+            Ok(v) => v,
+            Err(e) => {
+                attachment.extraction_error = Some(format!("fetch failed: {e:#}"));
+                tracing::warn!(
+                    "pubcomment {} attachment {}: {e:#}",
+                    detail.case_id,
+                    attachment.url
+                );
+                continue;
+            }
+        };
+        let sha256 = hex::encode(Sha256::digest(&fetched.bytes));
+        if let Err(e) = std::fs::write(&raw_path, &fetched.bytes) {
+            attachment.extraction_error = Some(format!("cache write failed: {e:#}"));
+            continue;
+        }
+
+        attachment.media_type = fetched.media_type;
+        attachment.filename = fetched.filename;
+        attachment.sha256 = Some(sha256);
+        attachment.bytes = Some(fetched.bytes.len() as u64);
+        attachment.fetched_at = Some(fetched.fetched_at);
+
+        match extract_attachment_text(&raw_path, attachment.media_type.as_deref(), &fetched.bytes) {
+            Ok((text, method)) => {
+                attachment.extracted_text = Some(text);
+                attachment.extraction_method = Some(method);
+                attachment.extraction_error = None;
+            }
+            Err(e) => {
+                attachment.extraction_error = Some(e.to_string());
+            }
+        }
+    }
+}
+
+fn extract_attachment_text(
+    path: &Path,
+    media_type: Option<&str>,
+    bytes: &[u8],
+) -> Result<(String, String)> {
+    let is_pdf = media_type == Some("application/pdf") || bytes.starts_with(b"%PDF-");
+    if is_pdf {
+        let output = Command::new("pdftotext")
+            .args(["-layout", "-enc", "UTF-8"])
+            .arg(path)
+            .arg("-")
+            .output()
+            .context("run pdftotext (install poppler-utils)")?;
+        if !output.status.success() {
+            anyhow::bail!(
+                "pdftotext failed: {}",
+                String::from_utf8_lossy(&output.stderr).trim()
+            );
+        }
+        let text = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        if text.is_empty() {
+            anyhow::bail!("pdftotext returned empty text (possibly scanned PDF)");
+        }
+        return Ok((text, "pdftotext-layout".to_string()));
+    }
+
+    if media_type.is_some_and(|m| {
+        m.starts_with("text/") || m == "application/json" || m == "application/xml"
+    }) {
+        let text = String::from_utf8_lossy(bytes).trim().to_string();
+        if text.is_empty() {
+            anyhow::bail!("text attachment is empty");
+        }
+        return Ok((text, "utf8-lossy".to_string()));
+    }
+
+    anyhow::bail!(
+        "text extraction unsupported for {} (raw source archived)",
+        media_type.unwrap_or("unknown media type")
+    )
 }
 
 /// `lawpub pubcomment-build-json` の実装。
@@ -80,7 +221,10 @@ pub fn run_fetch(cache: &Path, provider: &str, max_pages: u32, status: &str) -> 
 pub fn run_build_json(cache: &Path, public: &Path) -> Result<()> {
     let src_dir = cache.join("pubcomment");
     if !src_dir.exists() {
-        anyhow::bail!("no pubcomment cache at {}; run pubcomment-fetch first", src_dir.display());
+        anyhow::bail!(
+            "no pubcomment cache at {}; run pubcomment-fetch first",
+            src_dir.display()
+        );
     }
     let out_dir = public.join("pubcomment");
     std::fs::create_dir_all(&out_dir)?;
@@ -136,7 +280,49 @@ pub fn run_build_json(cache: &Path, public: &Path) -> Result<()> {
         "count": index_entries.len(),
         "cases": index_entries,
     });
-    std::fs::write(out_dir.join("index.json"), serde_json::to_string_pretty(&index)?)?;
-    tracing::info!("pubcomment-build-json: {} cases written", index_entries.len());
+    std::fs::write(
+        out_dir.join("index.json"),
+        serde_json::to_string_pretty(&index)?,
+    )?;
+    tracing::info!(
+        "pubcomment-build-json: {} cases written",
+        index_entries.len()
+    );
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn fetch_archives_and_extracts_mock_attachment() {
+        let root = std::env::temp_dir().join(format!(
+            "lawpub-pubcomment-attachments-{}-{}",
+            std::process::id(),
+            chrono::Utc::now().timestamp_nanos_opt().unwrap_or_default()
+        ));
+        run_fetch(&root, "mock", 1, "closed", true).unwrap();
+
+        let case_path = root.join("pubcomment/300110052.json");
+        let detail: CaseDetail =
+            serde_json::from_slice(&std::fs::read(case_path).unwrap()).unwrap();
+        let attachment = &detail.attachments[0];
+        assert_eq!(attachment.media_type.as_deref(), Some("text/plain"));
+        assert_eq!(attachment.extraction_method.as_deref(), Some("utf8-lossy"));
+        assert!(attachment
+            .extracted_text
+            .as_deref()
+            .unwrap()
+            .contains("府省の考え方"));
+        assert!(attachment.sha256.is_some());
+        assert_eq!(
+            std::fs::read_dir(root.join("pubcomment-assets/300110052"))
+                .unwrap()
+                .count(),
+            1
+        );
+
+        std::fs::remove_dir_all(root).unwrap();
+    }
 }

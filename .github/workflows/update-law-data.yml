@@ -447,6 +447,33 @@ jobs:
           ./target/release/lawpub rebuild-manifest --public public \
             || echo "::warning::rebuild-manifest failed (validate が落ちる可能性)"
 
+      # 調達情報を durable corpus から復元して配信へ同梱する。調達は日付範囲ごとの
+      # batch JSON を R2 で累積し、ここで重複排除した public index に正規化する。
+      - name: Build procurement from R2 cache
+        if: >-
+          steps.detect.outputs.changed == 'true' && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        continue-on-error: true
+        run: |
+          set +e
+          if ! aws s3 cp "s3://$R2_BUCKET/procurement-cache.tar.zst" /tmp/procurement-cache.tar.zst --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            echo "::notice::procurement-cache.tar.zst not in R2 — 調達情報なしで続行"
+            exit 0
+          fi
+          mkdir -p .cache/procurement
+          zstd -dc --long=31 /tmp/procurement-cache.tar.zst | tar -x -C .cache/procurement
+          rm -f /tmp/procurement-cache.tar.zst
+          n=$(find .cache/procurement -name '*.json' | wc -l | tr -d ' ')
+          [ "${n:-0}" -eq 0 ] && { echo "::warning::procurement cache empty"; exit 0; }
+          echo "::notice::procurement cache restored from R2: $n batches"
+          ./target/release/lawpub procurement-build-json --cache .cache --public public \
+            || echo "::warning::procurement-build-json failed"
+
       # 議案 (法案審議トラッキング) を R2 prebuilt キャッシュから復元して同梱する。
       # corpus workflow が gian-cache.tar.zst に上げたものを取得 → gian-build-json。
       # build-feeds が public/gian を読んで「法案」フィードを出すので feeds より前に。

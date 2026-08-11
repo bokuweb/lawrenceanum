@@ -70,9 +70,21 @@ lawpub build-json     --input .cache --output public
 lawpub build-index    --output public
 lawpub kanpo-fetch    --date YYYY-MM-DD --cache .cache
 lawpub kanpo-link     --output public
+lawpub pubcomment-fetch --cache .cache --status both --fetch-attachments
+lawpub gian-fetch       --cache .cache --session 0
 lawpub validate       --public public
 lawpub status         --public public --cache .cache
 ```
+
+`pubcomment-fetch --fetch-attachments` は結果公示の PDF/text 原本を
+`.cache/pubcomment-assets/` に保存し、SHA-256・MIME type・抽出全文を案件 JSON に記録する。
+定期 workflow は R2 の前回コーパスを復元してから差分取得するため、GitHub Actions cache が
+evict されても過去の国会会議録・議案・パブコメ・通達を失わずに追記できる。
+
+`gian-fetch` は審議経過に加えて、衆議院の提出時法律案（提出理由を含む）・要綱・修正案を
+取得する。抽出本文と出典 URL / SHA-256 は議案 JSON に入り、原 HTML は
+`.cache/gian-assets/`、意味のある状態変更ごとの議案スナップショットは
+`.cache/gian-history/` に内容アドレスで保存される。定期 workflow は両方を R2 に永続化する。
 
 The provider defaults to `http` and uses `https://laws.e-gov.go.jp/api/1` (v1
 API; v2 has a different path scheme — `/api/2/laws`, `/api/2/law_data/{id}`).
