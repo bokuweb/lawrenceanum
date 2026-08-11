@@ -304,6 +304,9 @@ enum Cmd {
         /// 取得対象: open(意見募集中) / closed(結果公示済み) / both。
         #[arg(long, default_value = "closed")]
         status: String,
+        /// 結果公示の添付原本も保存し、PDF/text の全文を案件 JSON へ抽出する。
+        #[arg(long)]
+        fetch_attachments: bool,
     },
 
     /// パブコメ: キャッシュから配信用 JSON を生成する。
@@ -596,8 +599,14 @@ fn main() -> Result<()> {
             proceedings::run_build_json(&cache, &public)
         }
         Cmd::LinkLawsAndProceedings { public } => linking::run_link(&public),
-        Cmd::PubcommentFetch { cache, provider, max_pages, status } => {
-            pubcomment::run_fetch(&cache, &provider, max_pages, &status)
+        Cmd::PubcommentFetch {
+            cache,
+            provider,
+            max_pages,
+            status,
+            fetch_attachments,
+        } => {
+            pubcomment::run_fetch(&cache, &provider, max_pages, &status, fetch_attachments)
         }
         Cmd::PubcommentBuildJson { cache, public } => {
             pubcomment::run_build_json(&cache, &public)

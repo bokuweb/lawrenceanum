@@ -3,19 +3,20 @@
 //! 衆議院「議案情報」(`itdb_gian.nsf`) から法案の審議経過を取得する。
 //! 公式 API は無いため HTML をパースする。robots.txt は不在 (404)。
 //!
-//! ## 合法性の方針
-//! - 取得・保存するのは **事実データ**（件名・種類・番号・提出者・各日付・付託委員会・
-//!   審議結果）のみ。事実は著作物性が低い。法案本文 (honbun) や経過ページの HTML 丸ごとは
-//!   保存せず、原文へディープリンク (`source.detail_url`) する。
+//! ## 収集方針
+//! - 審議経過の事実データに加え、衆議院が公開する提出時法律案・要綱・修正案を
+//!   出典 URL / SHA-256 付きで取得する。法律案本文には提出理由も含まれる。
+//! - 原 HTML は呼び出し側が内容アドレスで保存できるよう一時的に返すが、配信用 JSON には
+//!   抽出本文と provenance のみを収録する。
 //! - 衆議院サイトは Shift-JIS。`text_with_charset` で復号する。
 
 use anyhow::{Context, Result};
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::time::Duration;
 
-pub const BASE_URL: &str =
-    "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian";
+pub const BASE_URL: &str = "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian";
 
 // ── 公開型 ────────────────────────────────────────────────────────
 
@@ -28,6 +29,9 @@ pub struct BillMeta {
     /// 一覧上の状態（例: 「衆議院で審議中」「成立」）。
     pub status: Option<String>,
     pub keika_url: String,
+    /// 提出時法律案・要綱・修正案を列挙する本文情報ページ。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub honbun_url: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -61,7 +65,28 @@ pub struct Bill {
     pub status: Option<String>,
     /// 審議経過ページの全項目（KOMOKU/NAIYO）。
     pub fields: Vec<KeyValue>,
+    /// 提出時法律案・要綱・修正案。提出理由は通常 `bill_text` の末尾に含まれる。
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub documents: Vec<BillDocument>,
     pub source: BillSource,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BillDocument {
+    /// `bill_text` / `outline` / `amendment`。
+    pub kind: String,
+    pub label: String,
+    pub url: String,
+    pub text: String,
+    /// 取得した原 HTML の SHA-256。改訂版の同定と重複排除に使う。
+    pub sha256: String,
+    pub fetched_at: String,
+    /// `.cache` からの相対パス。CLI が原本保存後に設定する。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub raw_path: Option<String>,
+    /// CLI が原本を保存するための一時データ。配信用 JSON には出さない。
+    #[serde(skip)]
+    pub raw_html: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -102,6 +127,7 @@ impl GianProvider for MockProvider {
             title: "政治資金規正法の一部を改正する法律案".to_string(),
             status: Some("衆議院で審議中".to_string()),
             keika_url: format!("{BASE_URL}/keika/1DE153E.htm"),
+            honbun_url: Some(format!("{BASE_URL}/honbun/g22105001.htm")),
         }])
     }
 
@@ -123,12 +149,25 @@ impl GianProvider for MockProvider {
             latest_event: Some("委員会付託(衆)".to_string()),
             status: meta.status.clone(),
             fields: vec![
-                KeyValue { key: "議案件名".into(), value: meta.title.clone() },
+                KeyValue {
+                    key: "議案件名".into(),
+                    value: meta.title.clone(),
+                },
                 KeyValue {
                     key: "衆議院付託年月日／衆議院付託委員会".into(),
                     value: "令和 8年 6月12日 ／ 政治改革に関する特別".into(),
                 },
             ],
+            documents: vec![BillDocument {
+                kind: "bill_text".to_string(),
+                label: "提出時法律案".to_string(),
+                url: format!("{BASE_URL}/honbun/houan/g22105001.htm"),
+                text: "政治資金規正法の一部を改正する法律案 理由".to_string(),
+                sha256: "mock-sha256".to_string(),
+                fetched_at: "2024-01-01T00:00:00Z".to_string(),
+                raw_path: None,
+                raw_html: Some("<p>政治資金規正法の一部を改正する法律案 理由</p>".to_string()),
+            }],
             source: BillSource {
                 provider: "shugiin".to_string(),
                 fetched_at: "2024-01-01T00:00:00Z".to_string(),
@@ -173,7 +212,8 @@ impl HttpProvider {
             .send()
             .and_then(|r| r.error_for_status())
             .with_context(|| format!("GET {url}"))?;
-        resp.text_with_charset("Shift_JIS").context("decode shift_jis")
+        resp.text_with_charset("Shift_JIS")
+            .context("decode shift_jis")
     }
 }
 
@@ -195,7 +235,39 @@ impl GianProvider for HttpProvider {
         let client = Self::client()?;
         let html = Self::get_sjis(&client, &meta.keika_url)?;
         let fetched_at = chrono::Utc::now().to_rfc3339();
-        parse_keika(&html, meta, &fetched_at)
+        let mut bill = parse_keika(&html, meta, &fetched_at)?;
+
+        if let Some(index_url) = &meta.honbun_url {
+            match Self::get_sjis(&client, index_url) {
+                Ok(index_html) => {
+                    for link in parse_document_index(&index_html, index_url)? {
+                        match Self::get_sjis(&client, &link.url) {
+                            Ok(raw_html) => {
+                                let sha256 = format!("{:x}", Sha256::digest(raw_html.as_bytes()));
+                                let text = extract_document_text(&raw_html);
+                                if text.is_empty() {
+                                    tracing::warn!("empty bill document: {}", link.url);
+                                    continue;
+                                }
+                                bill.documents.push(BillDocument {
+                                    kind: link.kind,
+                                    label: link.label,
+                                    url: link.url,
+                                    text,
+                                    sha256,
+                                    fetched_at: fetched_at.clone(),
+                                    raw_path: None,
+                                    raw_html: Some(raw_html),
+                                });
+                            }
+                            Err(e) => tracing::warn!("skip bill document {}: {e:#}", link.url),
+                        }
+                    }
+                }
+                Err(e) => tracing::warn!("skip bill document index {index_url}: {e:#}"),
+            }
+        }
+        Ok(bill)
     }
 }
 
@@ -235,6 +307,17 @@ pub fn parse_bill_list(html: &str, session: u32, base: &str) -> Result<Vec<BillM
             continue;
         }
         let keika_url = format!("{base}/keika/{file}");
+        let honbun_url = tr.select(&a_sel).find_map(|a| {
+            let href = a.value().attr("href").unwrap_or("");
+            if !href.contains("honbun/") {
+                return None;
+            }
+            reqwest::Url::parse(&format!("{base}/menu.htm"))
+                .ok()?
+                .join(href)
+                .ok()
+                .map(|u| u.to_string())
+        });
 
         // 件名・状態: 経過/本文リンクのみのセルを除いた td テキスト。
         let cells: Vec<String> = tr
@@ -254,9 +337,73 @@ pub fn parse_bill_list(html: &str, session: u32, base: &str) -> Result<Vec<BillM
             title,
             status,
             keika_url,
+            honbun_url,
         });
     }
     Ok(bills)
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BillDocumentLink {
+    pub kind: String,
+    pub label: String,
+    pub url: String,
+}
+
+/// 本文情報一覧から、LLM の根拠資料になる法律案・要綱・修正案だけを列挙する。
+pub fn parse_document_index(html: &str, index_url: &str) -> Result<Vec<BillDocumentLink>> {
+    let doc = Html::parse_document(html);
+    let base = reqwest::Url::parse(index_url).context("parse bill document index URL")?;
+    let mut links = Vec::new();
+    let mut seen = std::collections::HashSet::new();
+    for a in doc.select(&sel("a")) {
+        let Some(href) = a.value().attr("href") else {
+            continue;
+        };
+        let lower = href.to_ascii_lowercase();
+        let kind = if lower.contains("/houan/") {
+            "bill_text"
+        } else if lower.contains("/youkou/") {
+            "outline"
+        } else if lower.contains("/syuuseian/") || lower.contains("/shuseian/") {
+            "amendment"
+        } else {
+            continue;
+        };
+        let url = base
+            .join(href)
+            .with_context(|| format!("resolve bill document URL {href}"))?
+            .to_string();
+        if !seen.insert(url.clone()) {
+            continue;
+        }
+        let label = text_of(&a);
+        links.push(BillDocumentLink {
+            kind: kind.to_string(),
+            label: if label.is_empty() {
+                kind.to_string()
+            } else {
+                label
+            },
+            url,
+        });
+    }
+    Ok(links)
+}
+
+/// ヘッダー・フッターを除き、文書本体の段落を改行区切りで抽出する。
+pub fn extract_document_text(html: &str) -> String {
+    let doc = Html::parse_document(html);
+    let mut lines = Vec::new();
+    for el in doc.select(&sel(
+        "#mainlayout p, #mainlayout h1, #mainlayout h2, #mainlayout h3",
+    )) {
+        let text = text_of(&el);
+        if !text.is_empty() && lines.last().is_none_or(|last| last != &text) {
+            lines.push(text);
+        }
+    }
+    lines.join("\n")
 }
 
 /// 「日付／委員会」「日付／結果」形式の値から ／ 以降を返す。
@@ -295,8 +442,16 @@ fn jp_num(s: &str) -> Option<u32> {
 /// 「令和 8年 6月12日」→「2026-06-12」。変換不能は None。
 fn wareki_to_iso(s: &str) -> Option<String> {
     let s = s.trim();
-    let eras = [("令和", 2018), ("平成", 1988), ("昭和", 1925), ("大正", 1911), ("明治", 1867)];
-    let (rest, base) = eras.iter().find_map(|(e, b)| s.strip_prefix(e).map(|r| (r, *b)))?;
+    let eras = [
+        ("令和", 2018),
+        ("平成", 1988),
+        ("昭和", 1925),
+        ("大正", 1911),
+        ("明治", 1867),
+    ];
+    let (rest, base) = eras
+        .iter()
+        .find_map(|(e, b)| s.strip_prefix(e).map(|r| (r, *b)))?;
     let yi = rest.find('年')?;
     let year = jp_num(&rest[..yi])? as i32 + base;
     let after_y = &rest[yi + '年'.len_utf8()..];
@@ -332,7 +487,9 @@ fn latest_event(fields: &[KeyValue]) -> (Option<String>, Option<String>) {
     let mut best: Option<(String, &str)> = None;
     for (key, label) in candidates {
         let Some(raw) = get(key) else { continue };
-        let Some(iso) = wareki_to_iso(before_slash(raw)) else { continue };
+        let Some(iso) = wareki_to_iso(before_slash(raw)) else {
+            continue;
+        };
         if best.as_ref().map(|(d, _)| iso > *d).unwrap_or(true) {
             best = Some((iso, label));
         }
@@ -354,18 +511,30 @@ pub fn parse_keika(html: &str, meta: &BillMeta, fetched_at: &str) -> Result<Bill
     let vals: Vec<String> = doc.select(&naiyo_sel).map(|e| text_of(&e)).collect();
     let fields: Vec<KeyValue> = keys
         .into_iter()
-        .zip(vals.into_iter())
+        .zip(vals)
         .filter(|(k, _)| !k.is_empty())
         .map(|(key, value)| KeyValue { key, value })
         .collect();
 
-    let get = |k: &str| fields.iter().find(|f| f.key == k).map(|f| f.value.clone()).filter(|v| !v.is_empty());
+    let get = |k: &str| {
+        fields
+            .iter()
+            .find(|f| f.key == k)
+            .map(|f| f.value.clone())
+            .filter(|v| !v.is_empty())
+    };
 
     let bill_type = get("議案種類");
     let number = get("議案番号");
     // 実際の会期は審議経過の「議案提出回次」。一覧 (最新=0) の引数より優先する。
     let session = get("議案提出回次")
-        .and_then(|v| v.chars().filter(|c| c.is_ascii_digit()).collect::<String>().parse::<u32>().ok())
+        .and_then(|v| {
+            v.chars()
+                .filter(|c| c.is_ascii_digit())
+                .collect::<String>()
+                .parse::<u32>()
+                .ok()
+        })
         .unwrap_or(meta.session);
     let title = get("議案件名").unwrap_or_else(|| meta.title.clone());
     let submitter = get("議案提出者");
@@ -405,6 +574,7 @@ pub fn parse_keika(html: &str, meta: &BillMeta, fetched_at: &str) -> Result<Bill
         latest_event: latest_ev,
         status: meta.status.clone(),
         fields,
+        documents: Vec::new(),
         source: BillSource {
             provider: "shugiin".to_string(),
             fetched_at: fetched_at.to_string(),
@@ -427,6 +597,7 @@ mod tests {
         let b = p.fetch_bill(&bills[0]).unwrap();
         assert_eq!(b.bill_type.as_deref(), Some("衆法"));
         assert!(b.source.detail_url.contains("keika/"));
+        assert_eq!(b.documents[0].kind, "bill_text");
     }
 
     #[test]
@@ -445,6 +616,37 @@ mod tests {
         assert!(bills[0].title.contains("政治資金規正法"));
         assert_eq!(bills[0].status.as_deref(), Some("衆議院で審議中"));
         assert!(bills[0].keika_url.ends_with("keika/1DE153E.htm"));
+        assert!(bills[0]
+            .honbun_url
+            .as_deref()
+            .unwrap()
+            .ends_with("honbun/g22105001.htm"));
+    }
+
+    #[test]
+    fn parse_document_index_and_body() {
+        let index = r#"<html><body><div id="mainlayout"><ul>
+          <li><a href="./houan/g22105001.htm">提出時法律案</a></li>
+          <li><a href="./youkou/g22105001.htm">[要綱]</a></li>
+          <li><a href="./syuuseian/13_8A62.htm">修正案（可決）</a></li>
+        </ul></div></body></html>"#;
+        let links = parse_document_index(
+            index,
+            "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/g22105001.htm",
+        )
+        .unwrap();
+        assert_eq!(links.len(), 3);
+        assert_eq!(links[0].kind, "bill_text");
+        assert_eq!(links[1].kind, "outline");
+        assert_eq!(links[2].kind, "amendment");
+        assert!(links[0].url.contains("/honbun/houan/"));
+
+        let body = r#"<html><body><div id="mainlayout">
+          <p>法律案本文</p><p>理 由</p><p>これが提出理由である。</p>
+        </div><div id="FooterBlock"><p>footer</p></div></body></html>"#;
+        let text = extract_document_text(body);
+        assert!(text.contains("法律案本文\n理 由\nこれが提出理由である。"));
+        assert!(!text.contains("footer"));
     }
 
     #[test]
@@ -464,6 +666,7 @@ mod tests {
             title: "一覧由来".into(),
             status: Some("成立".into()),
             keika_url: "https://x/keika/1DE153E.htm".into(),
+            honbun_url: Some("https://x/honbun/g22105001.htm".into()),
         };
         let b = parse_keika(html, &meta, "2026-01-01T00:00:00Z").unwrap();
         assert_eq!(b.bill_type.as_deref(), Some("衆法"));
@@ -475,16 +678,25 @@ mod tests {
         assert_eq!(b.promulgation_date.as_deref(), Some("令和 8年 6月20日"));
         assert_eq!(b.fields.len(), 7);
         assert_eq!(b.session, 221); // 議案提出回次で上書き
-        // 最新の動き = 公布 (令和8年6月20日 = 2026-06-20)。
+                                    // 最新の動き = 公布 (令和8年6月20日 = 2026-06-20)。
         assert_eq!(b.latest_date.as_deref(), Some("2026-06-20"));
         assert_eq!(b.latest_event.as_deref(), Some("公布"));
     }
 
     #[test]
     fn wareki_conversion() {
-        assert_eq!(wareki_to_iso("令和 8年 6月12日").as_deref(), Some("2026-06-12"));
-        assert_eq!(wareki_to_iso("令和元年 5月 1日").as_deref(), Some("2019-05-01"));
-        assert_eq!(wareki_to_iso("平成31年 4月30日").as_deref(), Some("2019-04-30"));
+        assert_eq!(
+            wareki_to_iso("令和 8年 6月12日").as_deref(),
+            Some("2026-06-12")
+        );
+        assert_eq!(
+            wareki_to_iso("令和元年 5月 1日").as_deref(),
+            Some("2019-05-01")
+        );
+        assert_eq!(
+            wareki_to_iso("平成31年 4月30日").as_deref(),
+            Some("2019-04-30")
+        );
         assert_eq!(wareki_to_iso("／").as_deref(), None);
         assert_eq!(wareki_to_iso("").as_deref(), None);
     }
@@ -497,8 +709,16 @@ mod tests {
         println!("{} bills (latest session)", bills.len());
         assert!(!bills.is_empty());
         let b = p.fetch_bill(&bills[0]).unwrap();
-        println!("first: [{}] {} / 委員会={:?} / 結果={:?}", b.bill_type.as_deref().unwrap_or("?"), b.title, b.committee, b.result);
+        println!(
+            "first: [{}] {} / 委員会={:?} / 結果={:?}",
+            b.bill_type.as_deref().unwrap_or("?"),
+            b.title,
+            b.committee,
+            b.result
+        );
         assert!(!b.title.is_empty());
         assert!(!b.fields.is_empty());
+        assert!(b.documents.iter().any(|d| d.kind == "bill_text"));
+        assert!(b.documents.iter().any(|d| d.text.contains("理 由")));
     }
 }
