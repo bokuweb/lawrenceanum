@@ -551,6 +551,9 @@ export type PubcommentCaseMeta = {
   /** "open"(意見募集中) / "closed"(結果公示済み)。 */
   status?: string | null
   related_law_name: string | null
+  category?: string | null
+  responsible_office?: string | null
+  opinion_count?: number | null
 }
 
 export type PubcommentIndex = {

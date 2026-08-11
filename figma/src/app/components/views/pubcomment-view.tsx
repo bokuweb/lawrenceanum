@@ -30,11 +30,17 @@ function CaseListItem({ meta, selected, onClick }: {
         {meta.ministry && (
           <span className="text-xs text-muted-foreground">{meta.ministry}</span>
         )}
+        {meta.category && (
+          <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{meta.category}</span>
+        )}
         {meta.status === "open" && meta.reception_end && (
           <span className="text-xs text-amber-700 dark:text-amber-400">締切 {meta.reception_end}</span>
         )}
         {meta.status !== "open" && meta.result_published && (
           <span className="text-xs text-muted-foreground">公示 {meta.result_published}</span>
+        )}
+        {typeof meta.opinion_count === "number" && (
+          <span className="text-xs text-muted-foreground">提出意見 {meta.opinion_count}件</span>
         )}
         {meta.related_law_name && (
           <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground flex items-center gap-0.5">

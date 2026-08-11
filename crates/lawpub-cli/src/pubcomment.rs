@@ -271,6 +271,9 @@ pub fn run_build_json(cache: &Path, public: &Path) -> Result<()> {
             "reception_end": detail["reception_end"],
             "status": detail["status"],
             "related_law_name": detail["related_law_name"],
+            "category": detail["category"],
+            "responsible_office": detail["responsible_office"],
+            "opinion_count": detail["opinion_count"],
         }));
     }
 
@@ -341,6 +344,15 @@ mod tests {
                 .count(),
             1
         );
+
+        let public = root.join("public");
+        run_build_json(&root, &public).unwrap();
+        let index: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(public.join("pubcomment/index.json")).unwrap())
+                .unwrap();
+        assert_eq!(index["cases"][0]["category"], "民事");
+        assert_eq!(index["cases"][0]["responsible_office"], "法務省民事局");
+        assert_eq!(index["cases"][0]["opinion_count"], 1);
 
         std::fs::remove_dir_all(root).unwrap();
     }
