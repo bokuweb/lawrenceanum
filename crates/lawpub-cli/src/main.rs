@@ -367,7 +367,8 @@ enum Cmd {
     },
 
     /// 審議会: 府省の審議会・委員会議事録を取得する。
-    ShingiakaiFetch {
+    #[command(name = "shingikai-fetch", alias = "shingiakai-fetch")]
+    ShingikaiFetch {
         /// 府省 ID (moj, cao, ...)。
         #[arg(long, default_value = "moj")]
         ministry: String,
@@ -375,10 +376,14 @@ enum Cmd {
         cache: PathBuf,
         #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
         provider: String,
+        /// 委員会ごとの直近会議数。0 は公式一覧の全履歴。
+        #[arg(long, default_value_t = 20)]
+        max_meetings: usize,
     },
 
     /// 審議会: キャッシュから配信用 JSON を生成する。
-    ShingiakaiBuildJson {
+    #[command(name = "shingikai-build-json", alias = "shingiakai-build-json")]
+    ShingikaiBuildJson {
         #[arg(long, default_value = ".cache")]
         cache: PathBuf,
         #[arg(long, default_value = "public")]
@@ -647,10 +652,15 @@ fn main() -> Result<()> {
             reiki::run_fetch(&municipalities, &cache, &provider)
         }
         Cmd::ReikiBuildJson { cache, public } => reiki::run_build_json(&cache, &public),
-        Cmd::ShingiakaiFetch { ministry, cache, provider } => {
-            shingikai::run_fetch(&ministry, &cache, &provider)
+        Cmd::ShingikaiFetch {
+            ministry,
+            cache,
+            provider,
+            max_meetings,
+        } => {
+            shingikai::run_fetch(&ministry, &cache, &provider, max_meetings)
         }
-        Cmd::ShingiakaiBuildJson { cache, public } => {
+        Cmd::ShingikaiBuildJson { cache, public } => {
             shingikai::run_build_json(&cache, &public)
         }
         Cmd::BudgetFetch { cache, provider } => budget::run_fetch(&cache, &provider),
@@ -707,5 +717,28 @@ mod cli_tests {
                 ..
             }
         ));
+    }
+
+    #[test]
+    fn shingikai_command_accepts_limit_and_legacy_alias() {
+        let current = Cli::try_parse_from([
+            "lawpub",
+            "shingikai-fetch",
+            "--ministry",
+            "moj",
+            "--max-meetings",
+            "0",
+        ])
+        .unwrap();
+        assert!(matches!(
+            current.cmd,
+            Cmd::ShingikaiFetch {
+                max_meetings: 0,
+                ..
+            }
+        ));
+
+        let legacy = Cli::try_parse_from(["lawpub", "shingiakai-build-json"]).unwrap();
+        assert!(matches!(legacy.cmd, Cmd::ShingikaiBuildJson { .. }));
     }
 }
