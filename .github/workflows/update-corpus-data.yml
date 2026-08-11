@@ -97,6 +97,8 @@ jobs:
           restore_bundle gian-cache.tar.zst .cache/gian
           restore_bundle gian-assets.tar.zst .cache/gian-assets
           restore_bundle gian-history.tar.zst .cache/gian-history
+          restore_bundle gian-resolutions.tar.zst .cache/gian-resolutions
+          restore_bundle gian-resolution-assets.tar.zst .cache/gian-resolution-assets
           restore_bundle tsutatsu-cache.tar.zst .cache/tsutatsu
           restore_bundle procurement-cache.tar.zst .cache/procurement
           restore_bundle reiki-cache.tar.zst .cache/reiki
@@ -287,6 +289,8 @@ jobs:
           }
           upload_bundle .cache/gian-assets gian-assets.tar.zst
           upload_bundle .cache/gian-history gian-history.tar.zst
+          upload_bundle .cache/gian-resolutions gian-resolutions.tar.zst
+          upload_bundle .cache/gian-resolution-assets gian-resolution-assets.tar.zst
 
       # ── 通達 (国税庁 法令解釈通達 soft law) ───────────────────────
       - name: Fetch tsutatsu
