@@ -214,7 +214,7 @@ jobs:
             ARGS+=(--limit "${{ github.event.inputs.bulk_limit }}")
           fi
           ./target/release/lawpub "${ARGS[@]}"
-          ./target/release/lawpub build-json --input .cache --output public
+          ./target/release/lawpub build-json --input .cache --output public --skip-search-db
           mkdir -p state
           ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           cat > state/last_run.json <<EOF
@@ -242,7 +242,7 @@ jobs:
             --from "${{ github.event.inputs.from_date }}" \
             --to   "${{ github.event.inputs.to_date }}" \
             --cache .cache
-          ./target/release/lawpub build-json --input .cache --output public
+          ./target/release/lawpub build-json --input .cache --output public --skip-search-db
           # 後段の Detect changes が読めるように changed=true でマーカーを書く。
           mkdir -p state
           ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -266,7 +266,7 @@ jobs:
             (github.event.inputs.from_date != '' && github.event.inputs.to_date != '')
           ))
         run: |
-          ARGS=(--public public --cache .cache --provider "$LAWPUB_PROVIDER")
+          ARGS=(--public public --cache .cache --provider "$LAWPUB_PROVIDER" --skip-search-db)
           if [ -n "${{ github.event.inputs.date }}" ]; then
             ARGS+=(--date "${{ github.event.inputs.date }}")
           fi
@@ -583,17 +583,14 @@ jobs:
           ./target/release/lawpub link-laws-and-tsutatsu --public public \
             || echo "::warning::link-laws-and-tsutatsu failed"
 
-      # 横断検索 DB を全コーパス込みで作り直す。build-json (lawpub update 内) が作る
-      # search.db は議事録・官報・通達が public/ に未配置の時点のもので法令しか索引して
-      # いない。proceedings/pubcomment/gian/reiki/kanpo/tsutatsu が出揃ったここで再構築し、
-      # 通達・官報・議事録を横断検索に確実に取り込む。直後の build-feeds が rebuild-manifest
-      # するので、差し替えた search.db の sha は manifest に反映され validate を通る。
+      # 横断検索 DB を全コーパス込みで一度だけ作る。前段の update/build-json には
+      # --skip-search-db を渡し、法令のみの 1.6GB 索引を作ってからここで再作成する二重処理を
+      # 避ける。proceedings/kanpo/tsutatsu が出揃ったここで生成し、通達・官報・議事録を
+      # 確実に取り込む。直後の build-feeds が rebuild-manifest するので、search.db の sha
+      # は manifest に反映され validate を通る。
       - name: Rebuild search.db with corpus
         if: steps.detect.outputs.changed == 'true'
-        continue-on-error: true
-        run: |
-          ./target/release/lawpub build-search-db --public public \
-            || echo "::warning::build-search-db failed (search.db は法令のみのまま)"
+        run: ./target/release/lawpub build-search-db --public public
 
       # 施行予定カレンダー (今後の施行) を timeline から集約する。laws が出揃った後。
       - name: Build enforcement calendar

@@ -761,7 +761,7 @@ fn diff_articles(prev: &LawDocument, cur: &LawDocument) -> ArticleDiff {
     }
 }
 
-pub fn run_build_json(input: &Path, output: &Path) -> Result<()> {
+pub fn run_build_json(input: &Path, output: &Path, build_search_db: bool) -> Result<()> {
     // メモリ有界化: 法令を 1 件ずつ load → 本文ファイルを書き出し → 履歴 doc を解放する。
     // (旧実装は全 revision の LawDocument を一括で RAM に載せ、全件履歴では 16GB を
     //  超えて OOM していた。build-diffs は public のファイルを 1 法令ずつ読むので、
@@ -820,7 +820,13 @@ pub fn run_build_json(input: &Path, output: &Path) -> Result<()> {
     write_indices(&tmp, &light)?;
     write_per_date_updates(&tmp, &light)?;
     write_seo(&tmp, &light)?;
-    write_search_db(&tmp, &light)?;
+    if build_search_db {
+        write_search_db(&tmp, &light)?;
+    } else {
+        tracing::info!(
+            "build-json: skipping law-only search.db; run build-search-db after corpus assembly"
+        );
+    }
     write_manifest_and_health(&tmp, &light)?;
 
     swap_into(output, &tmp)
@@ -858,6 +864,7 @@ pub fn run_update(
     provider: &str,
     date: Option<&str>,
     force: bool,
+    skip_search_db: bool,
 ) -> Result<()> {
     let state_path = PathBuf::from("state/latest.json");
     let last_run_path = PathBuf::from("state/last_run.json");
@@ -906,7 +913,7 @@ pub fn run_update(
                     st.law_count
                 );
             }
-            run_build_json(cache, public)?;
+            run_build_json(cache, public, !skip_search_db)?;
             // 成功したら deploy される法令数を git 追跡の state に記録 → 次回の基準線。
             if let Some(n) = count_law_dirs(public) {
                 st.law_count = Some(n);
