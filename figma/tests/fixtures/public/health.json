@@ -4,5 +4,15 @@
   "latest_egov_update_date": "2026-06-14",
   "law_count": 8964,
   "file_count": 315261,
+  "corpora": {
+    "proceedings": { "available": true, "count": 903, "unit": "meetings", "latest_item_date": "2026-07-24" },
+    "pubcomment": { "available": true, "count": 44, "unit": "cases", "latest_item_date": "2026-08-09" },
+    "procurement": { "available": false, "count": 0, "unit": "items", "latest_item_date": null },
+    "shingikai": { "available": true, "count": 120, "unit": "meetings", "latest_item_date": "2026-08-08" },
+    "gian": { "available": true, "count": 321, "unit": "bills", "latest_item_date": "2026-06-20" },
+    "reiki": { "available": true, "count": 2, "unit": "municipalities", "latest_item_date": null },
+    "tsutatsu": { "available": true, "count": 3, "unit": "sets", "latest_item_date": null },
+    "budget": { "available": true, "count": 5, "unit": "datasets", "latest_item_date": null }
+  },
   "errors": []
 }

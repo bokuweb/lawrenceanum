@@ -87,7 +87,15 @@ export type Health = {
   latest_egov_update_date: string
   law_count: number
   file_count: number
+  corpora?: Record<string, CorpusHealth>
   errors: string[]
+}
+
+export type CorpusHealth = {
+  available: boolean
+  count: number
+  unit: 'meetings' | 'cases' | 'items' | 'bills' | 'municipalities' | 'sets' | 'datasets' | string
+  latest_item_date: string | null
 }
 
 export type VersionsJson = {
