@@ -3,8 +3,9 @@
 //! 各府省ウェブサイトに分散しており統一 API がないため、府省ごとのアダプタで
 //! 「審議会一覧 → 会議一覧 → 会議詳細 → 添付原本」を辿る。
 //!
-//! 現在の実サイト対応は法務省 (`moj`)、内閣府 (`cao`)、国土交通省 (`mlit`)。URL を委員会名から
-//! 推測せず、公式一覧から辿った URL をそのまま provenance として保持する。
+//! 現在の実サイト対応は法務省 (`moj`)、内閣府 (`cao`)、国土交通省 (`mlit`)、
+//! 厚生労働省 (`mhlw`)。URL を委員会名から推測せず、公式一覧から辿った URL を
+//! そのまま provenance として保持する。
 
 use anyhow::{Context, Result};
 use scraper::{ElementRef, Html, Selector};
@@ -15,6 +16,7 @@ use std::time::Duration;
 pub const MOJ_BASE_URL: &str = "https://www.moj.go.jp";
 pub const CAO_BASE_URL: &str = "https://www.cao.go.jp";
 pub const MLIT_BASE_URL: &str = "https://www.mlit.go.jp";
+pub const MHLW_BASE_URL: &str = "https://www.mhlw.go.jp";
 
 // ── 公開型 ────────────────────────────────────────────────────────
 
@@ -469,6 +471,95 @@ impl MinistryAdapter for MlitAdapter {
     }
 }
 
+// ── 厚生労働省アダプタ ────────────────────────────────────────────
+
+/// 厚労省の審議会一覧で直近に更新された（`new` 表示のある）委員会を自動発見する。
+/// 更新対象は日々入れ替わるが、取得済み会議は永続キャッシュに残るため、活動中の
+/// 審議会・分科会・部会を低負荷で継続的に積み上げられる。
+pub struct MhlwAdapter {
+    base_url: String,
+}
+
+impl MhlwAdapter {
+    pub fn new() -> Self {
+        let base_url = std::env::var("LAWPUB_MHLW_BASE_URL")
+            .unwrap_or_else(|_| MHLW_BASE_URL.to_string())
+            .trim_end_matches('/')
+            .to_string();
+        Self { base_url }
+    }
+
+    fn client() -> Result<reqwest::blocking::Client> {
+        reqwest::blocking::Client::builder()
+            .user_agent("lawpub/0.1 (+https://github.com/bokuweb/lawrenceanum)")
+            .timeout(Duration::from_secs(45))
+            .build()
+            .context("build client")
+    }
+
+    fn get_html(client: &reqwest::blocking::Client, url: &str) -> Result<String> {
+        std::thread::sleep(Duration::from_millis(500));
+        client
+            .get(url)
+            .send()
+            .and_then(|response| response.error_for_status())
+            .with_context(|| format!("GET {url}"))?
+            .text()
+            .context("read HTML")
+    }
+}
+
+impl Default for MhlwAdapter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl MinistryAdapter for MhlwAdapter {
+    fn ministry_id(&self) -> &str {
+        "mhlw"
+    }
+
+    fn list_committees(&self) -> Result<Vec<CommitteeMeta>> {
+        let client = Self::client()?;
+        let url = format!("{}/stf/shingi/indexshingi.html", self.base_url);
+        let html = Self::get_html(&client, &url)?;
+        parse_mhlw_committee_list(&html, &url)
+    }
+
+    fn list_minutes(&self, committee: &CommitteeMeta) -> Result<Vec<MinutesMeta>> {
+        let client = Self::client()?;
+        let html = Self::get_html(&client, &committee.index_url)?;
+        parse_mhlw_minutes_list(&html, committee)
+    }
+
+    fn fetch_minutes(&self, meta: &MinutesMeta) -> Result<MinutesDocument> {
+        let client = Self::client()?;
+        let html = Self::get_html(&client, &meta.detail_url)?;
+        parse_mhlw_minutes_detail(&html, meta, &chrono::Utc::now().to_rfc3339())
+    }
+
+    fn fetch_attachment(&self, attachment: &MinutesAttachment) -> Result<FetchedAttachment> {
+        let client = Self::client()?;
+        std::thread::sleep(Duration::from_millis(500));
+        let response = client
+            .get(&attachment.source_url)
+            .send()
+            .and_then(|response| response.error_for_status())
+            .with_context(|| format!("GET {}", attachment.source_url))?;
+        let media_type = response
+            .headers()
+            .get(reqwest::header::CONTENT_TYPE)
+            .and_then(|value| value.to_str().ok())
+            .map(str::to_string);
+        Ok(FetchedAttachment {
+            bytes: response.bytes()?.to_vec(),
+            media_type,
+            fetched_at: chrono::Utc::now().to_rfc3339(),
+        })
+    }
+}
+
 // ── HTML パース ───────────────────────────────────────────────────
 
 fn selector(value: &str) -> Selector {
@@ -529,6 +620,203 @@ pub fn parse_mlit_committee_list(html: &str, index_url: &str) -> Result<Vec<Comm
         "MLIT recent council list has no meeting links"
     );
     Ok(committees)
+}
+
+pub fn parse_mhlw_committee_list(html: &str, index_url: &str) -> Result<Vec<CommitteeMeta>> {
+    let doc = Html::parse_document(html);
+    let mut committees = Vec::new();
+    let mut seen = HashSet::new();
+    for item in doc.select(&selector("#content .m-listLink__link")) {
+        if item.select(&selector(".m-icnNew")).next().is_none() {
+            continue;
+        }
+        let Some(anchor) = item.select(&selector("a[href]")).next() else {
+            continue;
+        };
+        let href = anchor.value().attr("href").unwrap_or("");
+        if !href.contains("/stf/shingi") {
+            continue;
+        }
+        let index_url = resolve_url(index_url, href)?;
+        if !seen.insert(index_url.clone()) {
+            continue;
+        }
+        let Some(committee_id) = url_stem(&index_url) else {
+            continue;
+        };
+        let title = text_of(&anchor);
+        if title.is_empty() {
+            continue;
+        }
+        committees.push(CommitteeMeta {
+            committee_id,
+            ministry: "mhlw".to_string(),
+            title,
+            index_url,
+        });
+    }
+    anyhow::ensure!(
+        !committees.is_empty(),
+        "MHLW council list has no recently updated committee links"
+    );
+    Ok(committees)
+}
+
+pub fn parse_mhlw_minutes_list(html: &str, committee: &CommitteeMeta) -> Result<Vec<MinutesMeta>> {
+    let doc = Html::parse_document(html);
+    let mut meetings = Vec::new();
+    let mut seen = HashSet::new();
+    for row in doc.select(&selector("#content table.m-tableFlex tbody tr")) {
+        let cells: Vec<_> = row.select(&selector(":scope > td")).collect();
+        if cells.len() < 5 {
+            continue;
+        }
+        let meeting_number = text_of(&cells[0]);
+        let Some(date) = japanese_date_in_text(&text_of(&cells[1])) else {
+            continue;
+        };
+        let agenda = text_of(&cells[2]);
+        let minutes_url = cells
+            .get(3)
+            .and_then(|cell| cell.select(&selector("a[href]")).next())
+            .and_then(|anchor| anchor.value().attr("href"))
+            .map(|href| resolve_url(&committee.index_url, href))
+            .transpose()?;
+        let materials_url = cells
+            .get(4)
+            .and_then(|cell| cell.select(&selector("a[href]")).next())
+            .and_then(|anchor| anchor.value().attr("href"))
+            .map(|href| resolve_url(&committee.index_url, href))
+            .transpose()?;
+        let notice_url = cells
+            .get(5)
+            .and_then(|cell| cell.select(&selector("a[href]")).next())
+            .and_then(|anchor| anchor.value().attr("href"))
+            .map(|href| resolve_url(&committee.index_url, href))
+            .transpose()?;
+        let Some(detail_url) = materials_url.or_else(|| minutes_url.clone()).or(notice_url) else {
+            continue;
+        };
+        let number_key = ascii_digits(&meeting_number);
+        let suffix = (!number_key.is_empty()).then(|| format!("_{number_key}"));
+        let minutes_id = format!(
+            "mhlw_{}_{}{}",
+            committee.committee_id,
+            date.replace('-', ""),
+            suffix.unwrap_or_default()
+        );
+        if !seen.insert(minutes_id.clone()) {
+            continue;
+        }
+        meetings.push(MinutesMeta {
+            minutes_id,
+            ministry: "mhlw".to_string(),
+            committee_id: committee.committee_id.clone(),
+            committee: committee.title.clone(),
+            date: Some(date),
+            title: format!("{} {}", committee.title, meeting_number),
+            detail_url,
+            agenda: (!agenda.is_empty() && agenda != "－").then_some(agenda),
+            minutes_url,
+        });
+    }
+    meetings.sort_by(|a, b| {
+        b.date
+            .cmp(&a.date)
+            .then_with(|| b.minutes_id.cmp(&a.minutes_id))
+    });
+    Ok(meetings)
+}
+
+pub fn parse_mhlw_minutes_detail(
+    html: &str,
+    meta: &MinutesMeta,
+    fetched_at: &str,
+) -> Result<MinutesDocument> {
+    let doc = Html::parse_document(html);
+    let content = doc
+        .select(&selector("main#content"))
+        .next()
+        .context("MHLW meeting page has no main#content")?;
+    let mut attachments = Vec::new();
+    let mut seen = HashSet::new();
+
+    if let Some(minutes_url) = &meta.minutes_url {
+        seen.insert(minutes_url.clone());
+        attachments.push(MinutesAttachment {
+            attachment_id: url_stem(minutes_url).unwrap_or_else(|| "minutes".to_string()),
+            kind: "minutes_text".to_string(),
+            label: "議事録／議事要旨".to_string(),
+            source_url: minutes_url.clone(),
+            media_type: None,
+            bytes: None,
+            sha256: None,
+            fetched_at: None,
+            raw_path: None,
+            extracted_text: None,
+            extraction_method: None,
+            extraction_error: None,
+        });
+    }
+
+    for anchor in content.select(&selector("a[href]")) {
+        let href = anchor.value().attr("href").unwrap_or("");
+        let path = href
+            .to_ascii_lowercase()
+            .split(['?', '#'])
+            .next()
+            .unwrap_or("")
+            .to_string();
+        if ![
+            ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".csv",
+        ]
+        .iter()
+        .any(|extension| path.ends_with(extension))
+        {
+            continue;
+        }
+        let source_url = resolve_url(&meta.detail_url, href)?;
+        if !seen.insert(source_url.clone()) {
+            continue;
+        }
+        attachments.push(MinutesAttachment {
+            attachment_id: url_stem(&source_url).unwrap_or_else(|| "material".to_string()),
+            kind: "material".to_string(),
+            label: text_of(&anchor),
+            source_url,
+            media_type: None,
+            bytes: None,
+            sha256: None,
+            fetched_at: None,
+            raw_path: None,
+            extracted_text: None,
+            extraction_method: None,
+            extraction_error: None,
+        });
+    }
+
+    Ok(MinutesDocument {
+        schema_version: 2,
+        minutes_id: meta.minutes_id.clone(),
+        ministry: meta.ministry.clone(),
+        committee_id: meta.committee_id.clone(),
+        committee: meta.committee.clone(),
+        date: meta.date.clone(),
+        title: meta.title.clone(),
+        agenda: meta.agenda.clone(),
+        summary: None,
+        body_text: text_of(&content),
+        minutes_text: None,
+        attachments,
+        source: MinutesSource {
+            provider: "shingikai_mhlw".to_string(),
+            fetched_at: fetched_at.to_string(),
+            detail_url: meta.detail_url.clone(),
+            raw_html_sha256: None,
+            raw_html_path: None,
+        },
+        raw_html: Some(html.to_string()),
+    })
 }
 
 pub fn parse_mlit_minutes_list(html: &str, committee: &CommitteeMeta) -> Result<Vec<MinutesMeta>> {
@@ -1154,6 +1442,16 @@ fn japanese_date_in_text(text: &str) -> Option<String> {
     None
 }
 
+fn ascii_digits(text: &str) -> String {
+    text.chars()
+        .filter_map(|character| match character {
+            '0'..='9' => Some(character),
+            '０'..='９' => char::from_u32(character as u32 - '０' as u32 + '0' as u32),
+            _ => None,
+        })
+        .collect()
+}
+
 // ── テスト ────────────────────────────────────────────────────────
 
 #[cfg(test)]
@@ -1170,6 +1468,9 @@ mod tests {
     const MLIT_COUNCILS: &str = include_str!("../tests/fixtures/mlit_councils.html");
     const MLIT_COMMITTEE: &str = include_str!("../tests/fixtures/mlit_committee.html");
     const MLIT_MATERIALS: &str = include_str!("../tests/fixtures/mlit_materials.html");
+    const MHLW_COUNCILS: &str = include_str!("../tests/fixtures/mhlw_councils.html");
+    const MHLW_COMMITTEE: &str = include_str!("../tests/fixtures/mhlw_committee.html");
+    const MHLW_MATERIALS: &str = include_str!("../tests/fixtures/mhlw_materials.html");
 
     #[test]
     fn mock_adapter_list_and_fetch() {
@@ -1283,10 +1584,7 @@ mod tests {
         let meetings = parse_mlit_minutes_list(MLIT_COMMITTEE, &committees[0]).unwrap();
         assert_eq!(meetings.len(), 2);
         assert_eq!(meetings[0].date.as_deref(), Some("2026-05-19"));
-        assert_eq!(
-            meetings[0].minutes_id,
-            "mlit_s101_kokudo01_20260519"
-        );
+        assert_eq!(meetings[0].minutes_id, "mlit_s101_kokudo01_20260519");
         assert_eq!(
             meetings[1].minutes_url.as_deref(),
             Some("https://www.mlit.go.jp/policy/shingikai/content/002001447.pdf")
@@ -1302,6 +1600,42 @@ mod tests {
             "第28回国土審議会議事次第(PDF形式:42KB)"
         );
         assert!(document.body_text.contains("広域地方計画"));
+    }
+
+    #[test]
+    fn parses_mhlw_official_site_fixtures() {
+        let committees = parse_mhlw_committee_list(
+            MHLW_COUNCILS,
+            "https://www.mhlw.go.jp/stf/shingi/indexshingi.html",
+        )
+        .unwrap();
+        assert_eq!(committees.len(), 2);
+        assert_eq!(committees[0].committee_id, "shingi-hosho_126702");
+        assert_eq!(committees[1].title, "労働条件分科会");
+
+        let meetings = parse_mhlw_minutes_list(MHLW_COMMITTEE, &committees[0]).unwrap();
+        assert_eq!(meetings.len(), 2);
+        assert_eq!(meetings[0].date.as_deref(), Some("2026-07-15"));
+        assert_eq!(
+            meetings[0].minutes_id,
+            "mhlw_shingi-hosho_126702_20260715_123"
+        );
+        assert_eq!(
+            meetings[0].agenda.as_deref(),
+            Some("制度改正について その他")
+        );
+        assert_eq!(
+            meetings[1].minutes_url.as_deref(),
+            Some("https://www.mhlw.go.jp/stf/newpage_72796.html")
+        );
+
+        let document =
+            parse_mhlw_minutes_detail(MHLW_MATERIALS, &meetings[1], "2026-08-13T00:00:00Z")
+                .unwrap();
+        assert_eq!(document.source.provider, "shingikai_mhlw");
+        assert_eq!(document.attachments.len(), 3);
+        assert_eq!(document.attachments[0].kind, "minutes_text");
+        assert_eq!(document.attachments[1].label, "議事次第［81KB］");
     }
 
     #[test]
@@ -1364,5 +1698,37 @@ mod tests {
             document.attachments.len()
         );
         assert!(!document.attachments.is_empty());
+    }
+
+    #[test]
+    #[ignore]
+    fn mhlw_real_site_contract() {
+        let adapter = MhlwAdapter::new();
+        let committees = adapter.list_committees().unwrap();
+        println!("{} recently updated committees", committees.len());
+        assert!(!committees.is_empty());
+        let mut verified = 0usize;
+        let mut attachment_total = 0usize;
+        for committee in &committees {
+            let meetings = adapter.list_minutes(committee).unwrap_or_default();
+            let Some(meeting) = meetings.first() else {
+                println!("no parseable meeting: {}", committee.title);
+                continue;
+            };
+            let document = adapter.fetch_minutes(meeting).unwrap();
+            println!(
+                "latest: {} / {} attachments",
+                document.title,
+                document.attachments.len()
+            );
+            assert!(!document.body_text.is_empty());
+            verified += 1;
+            attachment_total += document.attachments.len();
+        }
+        println!("verified {verified} committees / {attachment_total} attachments");
+        assert!(
+            verified > 0,
+            "no recently updated MHLW committee had a meeting"
+        );
     }
 }
