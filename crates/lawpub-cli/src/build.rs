@@ -1987,6 +1987,32 @@ pub fn run_rebuild_manifest(public: &Path) -> Result<()> {
     Ok(())
 }
 
+/// 後段で生成された各コーパスの index と collector state を読み直し、既存の
+/// 法令件数・e-Gov 更新日は保ったまま `health.json` の公開状況を更新する。
+pub fn run_refresh_health(public: &Path) -> Result<()> {
+    let health_path = public.join("health.json");
+    let mut health = std::fs::read(&health_path)
+        .ok()
+        .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).ok())
+        .filter(|value| value.is_object())
+        .unwrap_or_else(|| {
+            json!({
+                "ok": true,
+                "latest_egov_update_date": Utc::now().date_naive().format("%Y-%m-%d").to_string(),
+                "law_count": 0,
+                "errors": [],
+            })
+        });
+    let file_count = collect_manifest_files(public)?.len();
+    let object = health.as_object_mut().context("health.json must be an object")?;
+    object.insert("generated_at".to_string(), json!(Utc::now().to_rfc3339()));
+    object.insert("file_count".to_string(), json!(file_count));
+    object.insert("corpora".to_string(), collect_corpus_health(public));
+    write_json_pretty(&health_path, &health)?;
+    tracing::info!("refreshed health.json from corpus indexes");
+    Ok(())
+}
+
 /// 履歴束 (.zst) を復号して NDJSON の各行 (空行除く) を返す。ファイルが無ければ空。
 fn read_history_bundle_lines(path: &Path) -> Result<Vec<String>> {
     if !path.exists() {
@@ -2601,7 +2627,7 @@ mod corpus_guard_tests {
 
 #[cfg(test)]
 mod corpus_health_tests {
-    use super::collect_corpus_health;
+    use super::{collect_corpus_health, run_refresh_health};
 
     #[test]
     fn reports_counts_latest_dates_and_missing_indexes() {
@@ -2648,6 +2674,45 @@ mod corpus_health_tests {
         assert_eq!(health["procurement"]["available"], false);
         assert_eq!(health["procurement"]["count"], 0);
         assert!(health["procurement"]["latest_item_date"].is_null());
+
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn refreshes_existing_health_after_corpus_builds() {
+        let root = std::env::temp_dir().join(format!(
+            "lawpub_refresh_health_{}_{}",
+            std::process::id(),
+            chrono::Utc::now().timestamp_nanos_opt().unwrap_or_default()
+        ));
+        std::fs::create_dir_all(root.join("pubcomment")).unwrap();
+        std::fs::write(
+            root.join("health.json"),
+            r#"{"ok":true,"latest_egov_update_date":"2026-08-12","law_count":8986,"file_count":0,"corpora":{},"errors":[]}"#,
+        )
+        .unwrap();
+        std::fs::write(
+            root.join("pubcomment/index.json"),
+            r#"{"count":45,"cases":[{"result_published":"2026-08-12"}]}"#,
+        )
+        .unwrap();
+        std::fs::write(
+            root.join("corpus-status.json"),
+            r#"{"version":2,"corpora":{"pubcomment":{"status":"success","last_attempt_at":"2026-08-12T06:11:21Z","last_success_at":"2026-08-12T06:11:21Z"}}}"#,
+        )
+        .unwrap();
+
+        run_refresh_health(&root).unwrap();
+        let health: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(root.join("health.json")).unwrap()).unwrap();
+        assert_eq!(health["law_count"], 8986);
+        assert_eq!(health["latest_egov_update_date"], "2026-08-12");
+        assert_eq!(health["corpora"]["pubcomment"]["available"], true);
+        assert_eq!(health["corpora"]["pubcomment"]["count"], 45);
+        assert_eq!(
+            health["corpora"]["pubcomment"]["collection_status"],
+            "success"
+        );
 
         std::fs::remove_dir_all(root).unwrap();
     }

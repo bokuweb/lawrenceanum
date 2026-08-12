@@ -399,18 +399,22 @@ jobs:
             --cache-control 'public, max-age=300'
           echo "::notice::uploaded procurement cache to R2 ($n batches)"
 
-      # ── 審議会（法務省、直近会議を日次追跡） ──────────────────────
+      # ── 審議会（法務省・内閣府、直近会議を日次追跡） ─────────────
 
-      - name: Fetch shingikai (moj)
+      - name: Fetch shingikai (moj, cao)
         id: fetch_shingikai
         if: contains(env.DOMAINS, 'shingikai') || env.DOMAINS == ''
         continue-on-error: true
         run: |
-          ./target/release/lawpub shingikai-fetch \
-            --ministry moj --cache .cache --provider "${LAWPUB_PROVIDER}" \
-            --max-meetings 20
+          failed=0
+          for ministry in moj cao; do
+            ./target/release/lawpub shingikai-fetch \
+              --ministry "$ministry" --cache .cache --provider "${LAWPUB_PROVIDER}" \
+              --max-meetings 20 || failed=1
+          done
           ./target/release/lawpub shingikai-build-json \
             --cache .cache --public public
+          exit "$failed"
 
       - name: Upload shingikai corpus to R2
         id: upload_shingikai
