@@ -1041,6 +1041,7 @@ dependencies = [
  "rayon",
  "reiki-client",
  "reqwest",
+ "scraper",
  "search-index",
  "serde",
  "serde_json",

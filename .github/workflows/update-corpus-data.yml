@@ -399,19 +399,19 @@ jobs:
             --cache-control 'public, max-age=300'
           echo "::notice::uploaded procurement cache to R2 ($n batches)"
 
-      # ── 審議会（法務省・内閣府・国交省、直近会議を日次追跡） ──────
+      # ── 審議会（法務省・内閣府・国交省・厚労省、日次追跡） ───────
 
-      - name: Fetch shingikai (moj, cao, mlit)
+      - name: Fetch shingikai (moj, cao, mlit, mhlw)
         id: fetch_shingikai
         if: contains(env.DOMAINS, 'shingikai') || env.DOMAINS == ''
         continue-on-error: true
         run: |
           failed=0
-          for ministry in moj cao mlit; do
+          for ministry in moj cao mlit mhlw; do
             max_meetings=20
-            # 国交省は直近3か月の活動中委員会を横断するため、各委員会の最新だけを追う。
+            # 国交省・厚労省は活動中委員会を横断するため、各委員会の最新だけを追う。
             # 既取得分はR2に残るので、新規開催と議事録の後日公開を日次で積み上げられる。
-            if [ "$ministry" = "mlit" ]; then
+            if [ "$ministry" = "mlit" ] || [ "$ministry" = "mhlw" ]; then
               max_meetings=1
             fi
             ./target/release/lawpub shingikai-fetch \

@@ -1,8 +1,9 @@
 use anyhow::{Context, Result};
+use scraper::{Html, Selector};
 use sha2::{Digest, Sha256};
 use shingikai_client::{
-    CaoAdapter, MinistryAdapter, MinutesAttachment, MinutesDocument, MlitAdapter, MockAdapter,
-    MojAdapter,
+    CaoAdapter, MhlwAdapter, MinistryAdapter, MinutesAttachment, MinutesDocument, MlitAdapter,
+    MockAdapter, MojAdapter,
 };
 use std::collections::HashMap;
 use std::path::Path;
@@ -16,6 +17,7 @@ fn make_adapter(ministry: &str, provider: &str) -> Result<Box<dyn MinistryAdapte
         "moj" => Ok(Box::new(MojAdapter::new())),
         "cao" => Ok(Box::new(CaoAdapter::new())),
         "mlit" => Ok(Box::new(MlitAdapter::new())),
+        "mhlw" => Ok(Box::new(MhlwAdapter::new())),
         _ => anyhow::bail!("unsupported shingikai ministry: {ministry}"),
     }
 }
@@ -216,6 +218,29 @@ fn extract_attachment_text(
     bytes: &[u8],
     extension: &str,
 ) -> Result<(String, String)> {
+    if media_type.is_some_and(|value| value.starts_with("text/html"))
+        || matches!(extension, "html" | "htm")
+    {
+        let html = String::from_utf8_lossy(bytes);
+        let document = Html::parse_document(&html);
+        let content_selector = Selector::parse("#content").unwrap();
+        let body_selector = Selector::parse("body").unwrap();
+        let content = document
+            .select(&content_selector)
+            .next()
+            .or_else(|| document.select(&body_selector).next())
+            .context("HTML attachment has no content")?;
+        let text = content
+            .text()
+            .flat_map(str::split_whitespace)
+            .collect::<Vec<_>>()
+            .join(" ");
+        if text.is_empty() {
+            anyhow::bail!("HTML attachment has no visible text");
+        }
+        return Ok((text, "html-visible-text".to_string()));
+    }
+
     if media_type.is_some_and(|value| value.starts_with("text/"))
         || matches!(extension, "txt" | "csv")
     {
@@ -408,6 +433,21 @@ mod tests {
     }
 
     #[test]
+    fn extracts_visible_text_from_html_minutes() {
+        let bytes = r#"<!doctype html><html><body><nav>menu</nav><main id="content">
+            <h1>第35回議事録</h1><p>制度改正について審議した。</p>
+            </main></body></html>"#
+            .as_bytes();
+        let path = temp_root("minutes.html");
+        let (text, method) =
+            extract_attachment_text(&path, Some("text/html; charset=UTF-8"), bytes, "html")
+                .unwrap();
+        assert_eq!(method, "html-visible-text");
+        assert!(text.contains("制度改正について審議した。"));
+        assert!(!text.contains("menu"));
+    }
+
+    #[test]
     #[ignore]
     fn real_moj_minutes_txt_extracts() {
         let adapter = MojAdapter::new();
@@ -435,5 +475,34 @@ mod tests {
         println!("{method}: {} chars", text.chars().count());
         assert!(text.contains("法制審議会"));
         assert!(text.chars().count() > 10_000);
+    }
+
+    #[test]
+    #[ignore]
+    fn real_mhlw_html_minutes_extracts() {
+        let adapter = MhlwAdapter::new();
+        let attachment = MinutesAttachment {
+            attachment_id: "newpage_72796".to_string(),
+            kind: "minutes_text".to_string(),
+            label: "議事録".to_string(),
+            source_url: "https://www.mhlw.go.jp/stf/newpage_72796.html".to_string(),
+            media_type: None,
+            bytes: None,
+            sha256: None,
+            fetched_at: None,
+            raw_path: None,
+            extracted_text: None,
+            extraction_method: None,
+            extraction_error: None,
+        };
+        let fetched = adapter.fetch_attachment(&attachment).unwrap();
+        let path = temp_root("real-mhlw.html");
+        let (text, method) =
+            extract_attachment_text(&path, fetched.media_type.as_deref(), &fetched.bytes, "html")
+                .unwrap();
+        println!("{method}: {} chars", text.chars().count());
+        assert_eq!(method, "html-visible-text");
+        assert!(text.contains("勤労者生活分科会"));
+        assert!(text.contains("議題"));
     }
 }

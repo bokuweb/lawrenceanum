@@ -90,16 +90,17 @@ PDF 原本・SHA-256・決議日・抽出全文を `.cache/gian-resolutions/` �
 `public/links/bill-to-resolutions/` を生成する。定期 workflow は全てを R2 に永続化する。
 
 法務省の現行審議会、内閣府の規制改革推進会議（本会議・各WG）、国土交通省の
-直近3か月に活動した審議会・分科会・部会は `shingikai-fetch` が
+直近3か月に活動した審議会・分科会・部会、厚生労働省の直近に更新された審議会等は
+`shingikai-fetch` が
 公式の審議会一覧から会議ページを辿り、議題・議事概要・議事録 TXT/PDF・配布資料を取得する。
 会議 HTML と添付原本は SHA-256 による
 内容アドレスで `.cache/shingikai-assets/`、意味のある会議状態の変更は
 `.cache/shingikai-history/` に保存する。毎日05:00 JSTに法務省・内閣府は各審議会の
-直近20会議、国交省は活動中の各委員会の最新会議を再確認し、
+直近20会議、国交省・厚労省は活動中の各委員会の最新会議を再確認し、
 新しい会議や「議事録準備中→公開」の変化だけが R2 の永続コーパスへ追加される。
 全履歴を手動収集する場合は `--max-meetings 0` を指定する。府省は
 `--ministry moj`（法務省）/ `--ministry cao`（内閣府）/
-`--ministry mlit`（国土交通省）で選択する。
+`--ministry mlit`（国土交通省）/ `--ministry mhlw`（厚生労働省）で選択する。
 配信時には議題・概要・議事録・配布資料全文を法令辞書と照合し、
 `public/links/law-to-shingikai/{law_id}.json` と
 `public/links/shingikai-to-laws/{minutes_id}.json` の双方向リンクを自動生成する。
