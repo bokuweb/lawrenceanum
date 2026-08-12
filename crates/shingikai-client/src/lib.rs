@@ -3,8 +3,8 @@
 //! 各府省ウェブサイトに分散しており統一 API がないため、府省ごとのアダプタで
 //! 「審議会一覧 → 会議一覧 → 会議詳細 → 添付原本」を辿る。
 //!
-//! 現在の実サイト対応は法務省 (`moj`)。URL を委員会名から推測せず、公式一覧に
-//! 掲載された不透明な URL をそのまま provenance として保持する。
+//! 現在の実サイト対応は法務省 (`moj`) と内閣府 (`cao`)。URL を委員会名から
+//! 推測せず、公式一覧から辿った URL をそのまま provenance として保持する。
 
 use anyhow::{Context, Result};
 use scraper::{ElementRef, Html, Selector};
@@ -13,6 +13,7 @@ use std::collections::HashSet;
 use std::time::Duration;
 
 pub const MOJ_BASE_URL: &str = "https://www.moj.go.jp";
+pub const CAO_BASE_URL: &str = "https://www.cao.go.jp";
 
 // ── 公開型 ────────────────────────────────────────────────────────
 
@@ -33,6 +34,10 @@ pub struct MinutesMeta {
     pub date: Option<String>,
     pub title: String,
     pub detail_url: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub agenda: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub minutes_url: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -138,6 +143,8 @@ impl MinistryAdapter for MockAdapter {
             date: Some("2026-05-27".to_string()),
             title: format!("{} 第1回会議", committee.title),
             detail_url: "https://example.com/shingikai/0001.html".to_string(),
+            agenda: None,
+            minutes_url: None,
         }])
     }
 
@@ -277,6 +284,102 @@ impl MinistryAdapter for MojAdapter {
     }
 }
 
+// ── 内閣府アダプタ ────────────────────────────────────────────────
+
+/// 内閣府のうち、まず法令改正との接点が多く、会議資料・議事録のHTML構造が
+/// 安定している規制改革推進会議（本会議と各WG）を収集する。
+pub struct CaoAdapter {
+    base_url: String,
+}
+
+impl CaoAdapter {
+    pub fn new() -> Self {
+        let base_url = std::env::var("LAWPUB_CAO_BASE_URL")
+            .unwrap_or_else(|_| CAO_BASE_URL.to_string())
+            .trim_end_matches('/')
+            .to_string();
+        Self { base_url }
+    }
+
+    fn client() -> Result<reqwest::blocking::Client> {
+        reqwest::blocking::Client::builder()
+            .user_agent("lawpub/0.1 (+https://github.com/bokuweb/lawrenceanum)")
+            .timeout(Duration::from_secs(45))
+            .build()
+            .context("build client")
+    }
+
+    fn get_html(client: &reqwest::blocking::Client, url: &str) -> Result<String> {
+        std::thread::sleep(Duration::from_millis(500));
+        client
+            .get(url)
+            .send()
+            .and_then(|response| response.error_for_status())
+            .with_context(|| format!("GET {url}"))?
+            .text()
+            .context("read HTML")
+    }
+}
+
+impl Default for CaoAdapter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl MinistryAdapter for CaoAdapter {
+    fn ministry_id(&self) -> &str {
+        "cao"
+    }
+
+    fn list_committees(&self) -> Result<Vec<CommitteeMeta>> {
+        let client = Self::client()?;
+        let council_url = format!("{}/council.html", self.base_url);
+        let council_html = Self::get_html(&client, &council_url)?;
+        let landing = parse_cao_regulatory_council_url(&council_html, &council_url)?;
+        let landing_html = Self::get_html(&client, &landing)?;
+        let meeting_url = parse_cao_regulatory_meeting_url(&landing_html, &landing)?;
+        Ok(vec![CommitteeMeta {
+            committee_id: "regulatory_reform".to_string(),
+            ministry: "cao".to_string(),
+            title: "規制改革推進会議".to_string(),
+            index_url: meeting_url,
+        }])
+    }
+
+    fn list_minutes(&self, committee: &CommitteeMeta) -> Result<Vec<MinutesMeta>> {
+        let client = Self::client()?;
+        let html = Self::get_html(&client, &committee.index_url)?;
+        parse_cao_regulatory_minutes_list(&html, committee)
+    }
+
+    fn fetch_minutes(&self, meta: &MinutesMeta) -> Result<MinutesDocument> {
+        let client = Self::client()?;
+        let html = Self::get_html(&client, &meta.detail_url)?;
+        parse_cao_minutes_detail(&html, meta, &chrono::Utc::now().to_rfc3339())
+    }
+
+    fn fetch_attachment(&self, attachment: &MinutesAttachment) -> Result<FetchedAttachment> {
+        let client = Self::client()?;
+        std::thread::sleep(Duration::from_millis(500));
+        let response = client
+            .get(&attachment.source_url)
+            .send()
+            .and_then(|response| response.error_for_status())
+            .with_context(|| format!("GET {}", attachment.source_url))?;
+        let media_type = response
+            .headers()
+            .get(reqwest::header::CONTENT_TYPE)
+            .and_then(|value| value.to_str().ok())
+            .map(str::to_string);
+        Ok(FetchedAttachment {
+            bytes: response.bytes()?.to_vec(),
+            media_type,
+            fetched_at: chrono::Utc::now().to_rfc3339(),
+        })
+    }
+}
+
 // ── HTML パース ───────────────────────────────────────────────────
 
 fn selector(value: &str) -> Selector {
@@ -306,6 +409,214 @@ fn url_stem(url: &str) -> Option<String> {
         .next_back()?
         .rsplit_once('.')
         .map(|(stem, _)| stem.to_string())
+}
+
+pub fn parse_cao_regulatory_council_url(html: &str, index_url: &str) -> Result<String> {
+    let doc = Html::parse_document(html);
+    doc.select(&selector("main a[href]"))
+        .find(|anchor| text_of(anchor).trim() == "規制改革推進会議")
+        .and_then(|anchor| anchor.value().attr("href"))
+        .map(|href| resolve_url(index_url, href))
+        .transpose()?
+        .context("CAO council list has no regulatory reform council")
+}
+
+pub fn parse_cao_regulatory_meeting_url(html: &str, landing_url: &str) -> Result<String> {
+    let doc = Html::parse_document(html);
+    doc.select(&selector("main a[href]"))
+        .find(|anchor| {
+            text_of(anchor).contains("規制改革推進会議")
+                && anchor.value().attr("href").is_some_and(|href| {
+                    href.split(['?', '#'])
+                        .next()
+                        .unwrap_or("")
+                        .ends_with("meeting.html")
+                })
+        })
+        .and_then(|anchor| anchor.value().attr("href"))
+        .map(|href| resolve_url(landing_url, href))
+        .transpose()?
+        .context("CAO regulatory reform landing page has no meeting list")
+}
+
+pub fn parse_cao_regulatory_minutes_list(
+    html: &str,
+    committee: &CommitteeMeta,
+) -> Result<Vec<MinutesMeta>> {
+    let doc = Html::parse_document(html);
+    let mut meetings = Vec::new();
+    let mut seen = HashSet::new();
+
+    for heading in doc.select(&selector("#mainContents h3[id], #mainContents h4[id]")) {
+        let mut sibling = heading.next_sibling();
+        let table = loop {
+            let Some(node) = sibling else { break None };
+            sibling = node.next_sibling();
+            let Some(element) = ElementRef::wrap(node) else {
+                continue;
+            };
+            break (element.value().name() == "table").then_some(element);
+        };
+        let Some(table) = table else { continue };
+        let heading_id = heading.value().attr("id").unwrap_or("general");
+        let section_id = heading_id.split('_').next().unwrap_or("general");
+        let committee_id = format!("regulatory_reform_{section_id}");
+        let committee_title = text_of(&heading).replace(['　', '\u{00a0}'], " ");
+
+        for row in table.select(&selector("tbody tr")) {
+            let cells: Vec<_> = row.select(&selector(":scope > td")).collect();
+            if cells.len() < 4 {
+                continue;
+            }
+            let meeting_number = text_of(&cells[0]);
+            let date = wareki_date_in_text(&text_of(&cells[1]));
+            let Some(detail_href) = cells[2]
+                .select(&selector("a[href]"))
+                .next()
+                .and_then(|anchor| anchor.value().attr("href"))
+            else {
+                continue;
+            };
+            let detail_url = resolve_url(&committee.index_url, detail_href)?;
+            if !seen.insert(detail_url.clone()) {
+                continue;
+            }
+            let minutes_url = cells[3]
+                .select(&selector("a[href]"))
+                .next()
+                .and_then(|anchor| anchor.value().attr("href"))
+                .map(|href| resolve_url(&committee.index_url, href))
+                .transpose()?;
+            let agenda = cells[2]
+                .select(&selector(".agenda li"))
+                .map(|item| text_of(&item))
+                .filter(|value| !value.is_empty())
+                .collect::<Vec<_>>()
+                .join("\n");
+            let meeting_key = reqwest::Url::parse(&detail_url)
+                .ok()
+                .and_then(|url| {
+                    let mut segments = url.path_segments()?.rev();
+                    segments.next()?;
+                    segments.next().map(str::to_string)
+                })
+                .unwrap_or_else(|| url_stem(&detail_url).unwrap_or_else(|| meeting_number.clone()));
+            meetings.push(MinutesMeta {
+                minutes_id: format!("cao_{committee_id}_{meeting_key}"),
+                ministry: "cao".to_string(),
+                committee_id: committee_id.clone(),
+                committee: committee_title.clone(),
+                date,
+                title: format!("{committee_title} {meeting_number}"),
+                detail_url,
+                agenda: (!agenda.is_empty()).then_some(agenda),
+                minutes_url,
+            });
+        }
+    }
+
+    meetings.sort_by(|a, b| {
+        b.date
+            .cmp(&a.date)
+            .then_with(|| b.minutes_id.cmp(&a.minutes_id))
+    });
+    Ok(meetings)
+}
+
+pub fn parse_cao_minutes_detail(
+    html: &str,
+    meta: &MinutesMeta,
+    fetched_at: &str,
+) -> Result<MinutesDocument> {
+    let doc = Html::parse_document(html);
+    let content = doc
+        .select(&selector("#mainContents"))
+        .next()
+        .or_else(|| doc.select(&selector("main#contents")).next())
+        .context("CAO meeting page has no main content")?;
+    let mut attachments = Vec::new();
+    let mut seen = HashSet::new();
+
+    if let Some(minutes_url) = &meta.minutes_url {
+        seen.insert(minutes_url.clone());
+        attachments.push(MinutesAttachment {
+            attachment_id: url_stem(minutes_url).unwrap_or_else(|| "minutes".to_string()),
+            kind: "minutes_pdf".to_string(),
+            label: "議事録".to_string(),
+            source_url: minutes_url.clone(),
+            media_type: None,
+            bytes: None,
+            sha256: None,
+            fetched_at: None,
+            raw_path: None,
+            extracted_text: None,
+            extraction_method: None,
+            extraction_error: None,
+        });
+    }
+
+    for anchor in content.select(&selector("a[href]")) {
+        let href = anchor.value().attr("href").unwrap_or("");
+        let lower = href.to_ascii_lowercase();
+        let supported = [
+            ".pdf", ".txt", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".csv",
+        ]
+        .iter()
+        .any(|extension| {
+            lower
+                .split(['?', '#'])
+                .next()
+                .unwrap_or("")
+                .ends_with(extension)
+        });
+        if !supported {
+            continue;
+        }
+        let source_url = resolve_url(&meta.detail_url, href)?;
+        if !seen.insert(source_url.clone()) {
+            continue;
+        }
+        attachments.push(MinutesAttachment {
+            attachment_id: url_stem(&source_url).unwrap_or_else(|| "material".to_string()),
+            kind: "material".to_string(),
+            label: text_of(&anchor),
+            source_url,
+            media_type: None,
+            bytes: None,
+            sha256: None,
+            fetched_at: None,
+            raw_path: None,
+            extracted_text: None,
+            extraction_method: None,
+            extraction_error: None,
+        });
+    }
+
+    Ok(MinutesDocument {
+        schema_version: 2,
+        minutes_id: meta.minutes_id.clone(),
+        ministry: meta.ministry.clone(),
+        committee_id: meta.committee_id.clone(),
+        committee: meta.committee.clone(),
+        date: meta.date.clone(),
+        title: meta.title.clone(),
+        agenda: meta
+            .agenda
+            .clone()
+            .or_else(|| section_text(&content, "議事")),
+        summary: None,
+        body_text: text_of(&content),
+        minutes_text: None,
+        attachments,
+        source: MinutesSource {
+            provider: "shingikai_cao".to_string(),
+            fetched_at: fetched_at.to_string(),
+            detail_url: meta.detail_url.clone(),
+            raw_html_sha256: None,
+            raw_html_path: None,
+        },
+        raw_html: Some(html.to_string()),
+    })
 }
 
 pub fn parse_moj_committee_list(html: &str, index_url: &str) -> Result<Vec<CommitteeMeta>> {
@@ -363,6 +674,8 @@ pub fn parse_moj_minutes_list(html: &str, committee: &CommitteeMeta) -> Result<V
             date: wareki_date_in_text(&title),
             title,
             detail_url,
+            agenda: None,
+            minutes_url: None,
         });
     }
     meetings.sort_by(|a, b| {
@@ -541,6 +854,10 @@ mod tests {
     const COUNCILS: &str = include_str!("../tests/fixtures/moj_councils.html");
     const COMMITTEE: &str = include_str!("../tests/fixtures/moj_committee.html");
     const MEETING: &str = include_str!("../tests/fixtures/moj_meeting.html");
+    const CAO_COUNCILS: &str = include_str!("../tests/fixtures/cao_councils.html");
+    const CAO_LANDING: &str = include_str!("../tests/fixtures/cao_regulatory_landing.html");
+    const CAO_MEETINGS: &str = include_str!("../tests/fixtures/cao_regulatory_meetings.html");
+    const CAO_AGENDA: &str = include_str!("../tests/fixtures/cao_agenda.html");
 
     #[test]
     fn mock_adapter_list_and_fetch() {
@@ -597,6 +914,49 @@ mod tests {
     }
 
     #[test]
+    fn parses_cao_regulatory_reform_fixtures() {
+        let landing =
+            parse_cao_regulatory_council_url(CAO_COUNCILS, "https://www.cao.go.jp/council.html")
+                .unwrap();
+        assert_eq!(landing, "https://www8.cao.go.jp/kisei-kaikaku/index.html");
+        let meeting_url = parse_cao_regulatory_meeting_url(CAO_LANDING, &landing).unwrap();
+        assert_eq!(
+            meeting_url,
+            "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/meeting.html"
+        );
+        let committee = CommitteeMeta {
+            committee_id: "regulatory_reform".to_string(),
+            ministry: "cao".to_string(),
+            title: "規制改革推進会議".to_string(),
+            index_url: meeting_url,
+        };
+        let meetings = parse_cao_regulatory_minutes_list(CAO_MEETINGS, &committee).unwrap();
+        assert_eq!(meetings.len(), 2);
+        assert_eq!(
+            meetings[0].minutes_id,
+            "cao_regulatory_reform_general_260629"
+        );
+        assert_eq!(meetings[0].date.as_deref(), Some("2026-06-29"));
+        assert_eq!(
+            meetings[0].agenda.as_deref(),
+            Some("規制改革推進に関する答申（案）について")
+        );
+        assert_eq!(meetings[1].committee_id, "regulatory_reform_medical");
+        assert_eq!(
+            meetings[1].minutes_url.as_deref(),
+            Some("https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_02medical/260515/medical12_minutes.pdf")
+        );
+
+        let document =
+            parse_cao_minutes_detail(CAO_AGENDA, &meetings[0], "2026-08-12T00:00:00Z").unwrap();
+        assert_eq!(document.source.provider, "shingikai_cao");
+        assert_eq!(document.attachments.len(), 3);
+        assert_eq!(document.attachments[0].kind, "minutes_pdf");
+        assert_eq!(document.attachments[1].label, "議事次第");
+        assert!(document.body_text.contains("規制改革推進に関する答申"));
+    }
+
+    #[test]
     #[ignore]
     fn moj_real_site_contract() {
         let adapter = MojAdapter::new();
@@ -617,5 +977,26 @@ mod tests {
         assert!(!meetings.is_empty());
         assert!(!doc.body_text.is_empty());
         assert!(doc.attachments.iter().any(|value| value.kind == "material"));
+    }
+
+    #[test]
+    #[ignore]
+    fn cao_real_site_contract() {
+        let adapter = CaoAdapter::new();
+        let committees = adapter.list_committees().unwrap();
+        assert_eq!(committees.len(), 1);
+        let meetings = adapter.list_minutes(&committees[0]).unwrap();
+        println!("{} regulatory reform meetings", meetings.len());
+        assert!(!meetings.is_empty());
+        let document = adapter.fetch_minutes(&meetings[0]).unwrap();
+        println!(
+            "latest: {} / {} attachments",
+            document.title,
+            document.attachments.len()
+        );
+        assert!(document
+            .attachments
+            .iter()
+            .any(|attachment| attachment.kind == "minutes_pdf"));
     }
 }

@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use sha2::{Digest, Sha256};
 use shingikai_client::{
-    MinistryAdapter, MinutesAttachment, MinutesDocument, MockAdapter, MojAdapter,
+    CaoAdapter, MinistryAdapter, MinutesAttachment, MinutesDocument, MockAdapter, MojAdapter,
 };
 use std::collections::HashMap;
 use std::path::Path;
@@ -13,6 +13,7 @@ fn make_adapter(ministry: &str, provider: &str) -> Result<Box<dyn MinistryAdapte
     }
     match ministry {
         "moj" => Ok(Box::new(MojAdapter::new())),
+        "cao" => Ok(Box::new(CaoAdapter::new())),
         _ => anyhow::bail!("unsupported shingikai ministry: {ministry}"),
     }
 }

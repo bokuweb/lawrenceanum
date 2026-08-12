@@ -89,12 +89,14 @@ PDF 原本・SHA-256・決議日・抽出全文を `.cache/gian-resolutions/` �
 `.cache/gian-resolution-assets/` に保存する。`gian-build-json` は決議を議案件名で関連付け、
 `public/links/bill-to-resolutions/` を生成する。定期 workflow は全てを R2 に永続化する。
 
-法務省の現行審議会は `shingikai-fetch` が公式の審議会一覧から会議ページを辿り、議題・
-議事概要・議事録 TXT/PDF・配布資料を取得する。会議 HTML と添付原本は SHA-256 による
+法務省の現行審議会と内閣府の規制改革推進会議（本会議・各WG）は `shingikai-fetch` が
+公式の審議会一覧から会議ページを辿り、議題・議事概要・議事録 TXT/PDF・配布資料を取得する。
+会議 HTML と添付原本は SHA-256 による
 内容アドレスで `.cache/shingikai-assets/`、意味のある会議状態の変更は
 `.cache/shingikai-history/` に保存する。毎日05:00 JSTに各審議会の直近20会議を再確認し、
 新しい会議や「議事録準備中→公開」の変化だけが R2 の永続コーパスへ追加される。
-全履歴を手動収集する場合は `--max-meetings 0` を指定する。
+全履歴を手動収集する場合は `--max-meetings 0` を指定する。府省は
+`--ministry moj`（法務省）/ `--ministry cao`（内閣府）で選択する。
 配信時には議題・概要・議事録・配布資料全文を法令辞書と照合し、
 `public/links/law-to-shingikai/{law_id}.json` と
 `public/links/shingikai-to-laws/{minutes_id}.json` の双方向リンクを自動生成する。
