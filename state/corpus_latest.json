@@ -1,1 +1,12 @@
-{"updated_at":"2026-08-11T10:23:56Z","domains":"pubcomment"}
+{
+  "version": 2,
+  "corpora": {
+    "procurement": {
+      "last_attempt_at": "2026-08-12T05:29:57Z",
+      "status": "success",
+      "last_success_at": "2026-08-12T05:29:57Z"
+    }
+  },
+  "updated_at": "2026-08-12T05:29:57Z",
+  "last_run_domains": "procurement"
+}
