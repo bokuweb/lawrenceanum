@@ -670,7 +670,7 @@ jobs:
             || echo "::warning::build-enforcement failed"
 
       # corpus workflow がデータ源ごとに記録した最終試行・成功時刻を配信へ同梱する。
-      # build-feeds 後の rebuild-manifest がこれを health.json の corpora に統合する。
+      # build-feeds 後の refresh-health がこれを health.json の corpora に統合する。
       - name: Include corpus collector status
         if: steps.detect.outputs.changed == 'true'
         run: |
@@ -689,6 +689,8 @@ jobs:
         run: |
           ./target/release/lawpub build-feeds --public public \
             || echo "::warning::build-feeds failed"
+          ./target/release/lawpub refresh-health --public public \
+            || echo "::warning::refresh-health failed (health.json の件数が古い可能性)"
           ./target/release/lawpub rebuild-manifest --public public \
             || echo "::warning::rebuild-manifest failed (validate が落ちる可能性)"
 
