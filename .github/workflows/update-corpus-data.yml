@@ -388,6 +388,10 @@ jobs:
         run: |
           [ -d .cache/procurement ] || { echo "::notice::no procurement cache, skip R2 upload"; exit 0; }
           n=$(find .cache/procurement -name '*.json' | wc -l | tr -d ' ')
+          if [ "${n:-0}" -eq 0 ]; then
+            echo "::warning::procurement cache is empty — keeping the last-good R2 bundle"
+            exit 1
+          fi
           ( cd .cache/procurement && tar -cf - . | zstd -19 --long -T0 -o /tmp/procurement-cache.tar.zst -f )
           aws s3 cp /tmp/procurement-cache.tar.zst "s3://$R2_BUCKET/procurement-cache.tar.zst" \
             --endpoint-url "$R2_ENDPOINT" \
@@ -548,7 +552,7 @@ jobs:
             upload_outcome="$4"
             case ",${DOMAINS}," in
               *",${selector},"*) ;;
-              *) return ;;
+              *) return 0 ;;
             esac
             # durable R2 保存まで成功して初めて collection success とする。
             # 未選択・前提step失敗による skipped は「試行」として記録しない。
@@ -557,7 +561,7 @@ jobs:
             elif [ "$fetch_outcome" = "success" ] && [ "$upload_outcome" = "success" ]; then
               outcome=success
             else
-              return
+              return 0
             fi
             tmp=$(mktemp)
             jq --arg key "$key" --arg ts "$ts" --arg outcome "$outcome" '
