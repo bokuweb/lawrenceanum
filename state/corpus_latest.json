@@ -27,11 +27,11 @@
       "last_success_at": "2026-08-12T06:11:21Z"
     },
     "shingikai": {
-      "last_attempt_at": "2026-08-12T06:11:21Z",
+      "last_attempt_at": "2026-08-12T09:13:01Z",
       "status": "success",
-      "last_success_at": "2026-08-12T06:11:21Z"
+      "last_success_at": "2026-08-12T09:13:01Z"
     }
   },
-  "updated_at": "2026-08-12T06:11:21Z",
-  "last_run_domains": "kokkai,pubcomment,gian,tsutatsu,shingikai"
+  "updated_at": "2026-08-12T09:13:01Z",
+  "last_run_domains": "shingikai"
 }
