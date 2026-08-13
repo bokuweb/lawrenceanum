@@ -2,36 +2,36 @@
   "version": 2,
   "corpora": {
     "procurement": {
-      "last_attempt_at": "2026-08-12T20:49:52Z",
+      "last_attempt_at": "2026-08-13T20:46:57Z",
       "status": "success",
-      "last_success_at": "2026-08-12T20:49:52Z"
+      "last_success_at": "2026-08-13T20:46:57Z"
     },
     "proceedings": {
-      "last_attempt_at": "2026-08-12T20:49:52Z",
+      "last_attempt_at": "2026-08-13T20:46:57Z",
       "status": "success",
-      "last_success_at": "2026-08-12T20:49:52Z"
+      "last_success_at": "2026-08-13T20:46:57Z"
     },
     "pubcomment": {
-      "last_attempt_at": "2026-08-12T20:49:52Z",
+      "last_attempt_at": "2026-08-13T20:46:57Z",
       "status": "success",
-      "last_success_at": "2026-08-12T20:49:52Z"
+      "last_success_at": "2026-08-13T20:46:57Z"
     },
     "gian": {
-      "last_attempt_at": "2026-08-12T20:49:52Z",
+      "last_attempt_at": "2026-08-13T20:46:57Z",
       "status": "success",
-      "last_success_at": "2026-08-12T20:49:52Z"
+      "last_success_at": "2026-08-13T20:46:57Z"
     },
     "tsutatsu": {
-      "last_attempt_at": "2026-08-12T20:49:52Z",
+      "last_attempt_at": "2026-08-13T20:46:57Z",
       "status": "success",
-      "last_success_at": "2026-08-12T20:49:52Z"
+      "last_success_at": "2026-08-13T20:46:57Z"
     },
     "shingikai": {
-      "last_attempt_at": "2026-08-12T20:49:52Z",
+      "last_attempt_at": "2026-08-13T20:46:57Z",
       "status": "success",
-      "last_success_at": "2026-08-12T20:49:52Z"
+      "last_success_at": "2026-08-13T20:46:57Z"
     }
   },
-  "updated_at": "2026-08-12T20:49:52Z",
+  "updated_at": "2026-08-13T20:46:57Z",
   "last_run_domains": "kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget"
 }
