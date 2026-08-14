@@ -337,11 +337,13 @@ pub fn run_build_json(cache: &Path, public: &Path) -> Result<()> {
             if path.extension().and_then(|value| value.to_str()) != Some("json") {
                 continue;
             }
-            let document: serde_json::Value = serde_json::from_slice(&std::fs::read(&path)?)?;
+            let mut document: serde_json::Value = serde_json::from_slice(&std::fs::read(&path)?)?;
             let id = document["minutes_id"].as_str().unwrap_or("").to_string();
             if id.is_empty() {
                 continue;
             }
+            let status = effective_meeting_status(document["date"].as_str());
+            document["status"] = serde_json::Value::String(status.to_string());
             std::fs::write(
                 ministry_out.join(format!("{id}.json")),
                 serde_json::to_string_pretty(&document)?,
@@ -352,6 +354,7 @@ pub fn run_build_json(cache: &Path, public: &Path) -> Result<()> {
                 "committee_id": document["committee_id"],
                 "committee": document["committee"],
                 "date": document["date"],
+                "status": status,
                 "title": document["title"],
                 "attachment_count": document["attachments"].as_array().map(Vec::len).unwrap_or(0),
                 "has_minutes": document["minutes_text"].as_str().is_some_and(|value| !value.is_empty()),
@@ -364,7 +367,7 @@ pub fn run_build_json(cache: &Path, public: &Path) -> Result<()> {
         std::fs::write(
             ministry_out.join("index.json"),
             serde_json::to_string_pretty(&serde_json::json!({
-                "schema_version": 2,
+                "schema_version": 3,
                 "ministry": ministry_id,
                 "count": ministry_entries.len(),
                 "minutes": ministry_entries,
@@ -376,7 +379,7 @@ pub fn run_build_json(cache: &Path, public: &Path) -> Result<()> {
     std::fs::write(
         out.join("index.json"),
         serde_json::to_string_pretty(&serde_json::json!({
-            "schema_version": 2,
+            "schema_version": 3,
             "count": index_entries.len(),
             "minutes": index_entries,
         }))?,
@@ -386,6 +389,17 @@ pub fn run_build_json(cache: &Path, public: &Path) -> Result<()> {
         index_entries.len()
     );
     Ok(())
+}
+
+fn effective_meeting_status(date: Option<&str>) -> &'static str {
+    let is_future = date
+        .and_then(|value| chrono::NaiveDate::parse_from_str(value, "%Y-%m-%d").ok())
+        .is_some_and(|value| value > chrono::Utc::now().date_naive());
+    if is_future {
+        "scheduled"
+    } else {
+        "held"
+    }
 }
 
 #[cfg(test)]
@@ -429,6 +443,7 @@ mod tests {
                 .unwrap();
         assert_eq!(index["count"], 1);
         assert_eq!(index["minutes"][0]["has_minutes"], true);
+        assert_eq!(index["minutes"][0]["status"], "held");
         std::fs::remove_dir_all(root).unwrap();
     }
 
@@ -445,6 +460,12 @@ mod tests {
         assert_eq!(method, "html-visible-text");
         assert!(text.contains("制度改正について審議した。"));
         assert!(!text.contains("menu"));
+    }
+
+    #[test]
+    fn meeting_status_rolls_forward_at_build_time() {
+        assert_eq!(effective_meeting_status(Some("2099-09-15")), "scheduled");
+        assert_eq!(effective_meeting_status(Some("2000-01-01")), "held");
     }
 
     #[test]

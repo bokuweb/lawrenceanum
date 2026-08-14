@@ -28,6 +28,14 @@ pub struct CommitteeMeta {
     pub index_url: String,
 }
 
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum MeetingStatus {
+    Scheduled,
+    #[default]
+    Held,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct MinutesMeta {
     pub minutes_id: String,
@@ -35,6 +43,8 @@ pub struct MinutesMeta {
     pub committee_id: String,
     pub committee: String,
     pub date: Option<String>,
+    #[serde(default)]
+    pub status: MeetingStatus,
     pub title: String,
     pub detail_url: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -76,6 +86,10 @@ pub struct MinutesDocument {
     pub committee_id: String,
     pub committee: String,
     pub date: Option<String>,
+    /// 将来の開催予定は `scheduled`、開催日を迎えた会議は `held`。
+    /// 旧キャッシュにはフィールドが無いため、後方互換で `held` を既定値とする。
+    #[serde(default)]
+    pub status: MeetingStatus,
     pub title: String,
     pub agenda: Option<String>,
     pub summary: Option<String>,
@@ -144,6 +158,7 @@ impl MinistryAdapter for MockAdapter {
             committee_id: committee.committee_id.clone(),
             committee: committee.title.clone(),
             date: Some("2026-05-27".to_string()),
+            status: MeetingStatus::Held,
             title: format!("{} 第1回会議", committee.title),
             detail_url: "https://example.com/shingikai/0001.html".to_string(),
             agenda: None,
@@ -153,12 +168,13 @@ impl MinistryAdapter for MockAdapter {
 
     fn fetch_minutes(&self, meta: &MinutesMeta) -> Result<MinutesDocument> {
         Ok(MinutesDocument {
-            schema_version: 2,
+            schema_version: 3,
             minutes_id: meta.minutes_id.clone(),
             ministry: meta.ministry.clone(),
             committee_id: meta.committee_id.clone(),
             committee: meta.committee.clone(),
             date: meta.date.clone(),
+            status: meta.status,
             title: meta.title.clone(),
             agenda: Some("会社法制の見直し".to_string()),
             summary: Some("株主総会のデジタル化について審議された。".to_string()),
@@ -708,12 +724,14 @@ pub fn parse_mhlw_minutes_list(html: &str, committee: &CommitteeMeta) -> Result<
         if !seen.insert(minutes_id.clone()) {
             continue;
         }
+        let status = meeting_status_for_date(&date);
         meetings.push(MinutesMeta {
             minutes_id,
             ministry: "mhlw".to_string(),
             committee_id: committee.committee_id.clone(),
             committee: committee.title.clone(),
             date: Some(date),
+            status,
             title: format!("{} {}", committee.title, meeting_number),
             detail_url,
             agenda: (!agenda.is_empty() && agenda != "－").then_some(agenda),
@@ -796,12 +814,13 @@ pub fn parse_mhlw_minutes_detail(
     }
 
     Ok(MinutesDocument {
-        schema_version: 2,
+        schema_version: 3,
         minutes_id: meta.minutes_id.clone(),
         ministry: meta.ministry.clone(),
         committee_id: meta.committee_id.clone(),
         committee: meta.committee.clone(),
         date: meta.date.clone(),
+        status: meta.status,
         title: meta.title.clone(),
         agenda: meta.agenda.clone(),
         summary: None,
@@ -866,6 +885,7 @@ pub fn parse_mlit_minutes_list(html: &str, committee: &CommitteeMeta) -> Result<
             committee_id: committee.committee_id.clone(),
             committee: committee.title.clone(),
             date: Some(date),
+            status: MeetingStatus::Held,
             title,
             detail_url,
             agenda: None,
@@ -948,12 +968,13 @@ pub fn parse_mlit_minutes_detail(
     }
 
     Ok(MinutesDocument {
-        schema_version: 2,
+        schema_version: 3,
         minutes_id: meta.minutes_id.clone(),
         ministry: meta.ministry.clone(),
         committee_id: meta.committee_id.clone(),
         committee: meta.committee.clone(),
         date: meta.date.clone(),
+        status: meta.status,
         title: meta.title.clone(),
         agenda: meta.agenda.clone(),
         summary: None,
@@ -1067,6 +1088,7 @@ pub fn parse_cao_regulatory_minutes_list(
                 committee_id: committee_id.clone(),
                 committee: committee_title.clone(),
                 date,
+                status: MeetingStatus::Held,
                 title: format!("{committee_title} {meeting_number}"),
                 detail_url,
                 agenda: (!agenda.is_empty()).then_some(agenda),
@@ -1153,12 +1175,13 @@ pub fn parse_cao_minutes_detail(
     }
 
     Ok(MinutesDocument {
-        schema_version: 2,
+        schema_version: 3,
         minutes_id: meta.minutes_id.clone(),
         ministry: meta.ministry.clone(),
         committee_id: meta.committee_id.clone(),
         committee: meta.committee.clone(),
         date: meta.date.clone(),
+        status: meta.status,
         title: meta.title.clone(),
         agenda: meta
             .agenda
@@ -1232,6 +1255,7 @@ pub fn parse_moj_minutes_list(html: &str, committee: &CommitteeMeta) -> Result<V
             committee_id: committee.committee_id.clone(),
             committee: committee.title.clone(),
             date: wareki_date_in_text(&title),
+            status: MeetingStatus::Held,
             title,
             detail_url,
             agenda: None,
@@ -1324,7 +1348,7 @@ pub fn parse_moj_minutes_detail(
     }
 
     Ok(MinutesDocument {
-        schema_version: 2,
+        schema_version: 3,
         minutes_id: meta.minutes_id.clone(),
         ministry: meta.ministry.clone(),
         committee_id: meta.committee_id.clone(),
@@ -1333,6 +1357,7 @@ pub fn parse_moj_minutes_detail(
             .date
             .clone()
             .or_else(|| wareki_date_in_text(&page_title)),
+        status: meta.status,
         title: page_title,
         agenda,
         summary,
@@ -1452,6 +1477,17 @@ fn ascii_digits(text: &str) -> String {
         .collect()
 }
 
+fn meeting_status_for_date(date: &str) -> MeetingStatus {
+    let scheduled = chrono::NaiveDate::parse_from_str(date, "%Y-%m-%d")
+        .ok()
+        .is_some_and(|value| value > chrono::Utc::now().date_naive());
+    if scheduled {
+        MeetingStatus::Scheduled
+    } else {
+        MeetingStatus::Held
+    }
+}
+
 // ── テスト ────────────────────────────────────────────────────────
 
 #[cfg(test)]
@@ -1479,7 +1515,7 @@ mod tests {
         let metas = adapter.list_minutes(&committees[0]).unwrap();
         let doc = adapter.fetch_minutes(&metas[0]).unwrap();
         let attachment = adapter.fetch_attachment(&doc.attachments[0]).unwrap();
-        assert_eq!(doc.schema_version, 2);
+        assert_eq!(doc.schema_version, 3);
         assert!(!doc.body_text.is_empty());
         assert!(attachment.bytes.starts_with(b"\xef\xbb\xbf"));
     }
@@ -1524,6 +1560,15 @@ mod tests {
             wareki_date_in_text("平成１３年２月１６日開催").as_deref(),
             Some("2001-02-16")
         );
+    }
+
+    #[test]
+    fn classifies_future_meetings_as_scheduled() {
+        assert_eq!(
+            meeting_status_for_date("2099-09-15"),
+            MeetingStatus::Scheduled
+        );
+        assert_eq!(meeting_status_for_date("2000-01-01"), MeetingStatus::Held);
     }
 
     #[test]
@@ -1614,23 +1659,26 @@ mod tests {
         assert_eq!(committees[1].title, "労働条件分科会");
 
         let meetings = parse_mhlw_minutes_list(MHLW_COMMITTEE, &committees[0]).unwrap();
-        assert_eq!(meetings.len(), 2);
-        assert_eq!(meetings[0].date.as_deref(), Some("2026-07-15"));
+        assert_eq!(meetings.len(), 3);
+        assert_eq!(meetings[0].date.as_deref(), Some("2099-09-15"));
+        assert_eq!(meetings[0].status, MeetingStatus::Scheduled);
+        assert_eq!(meetings[1].date.as_deref(), Some("2026-07-15"));
+        assert_eq!(meetings[1].status, MeetingStatus::Held);
         assert_eq!(
-            meetings[0].minutes_id,
+            meetings[1].minutes_id,
             "mhlw_shingi-hosho_126702_20260715_123"
         );
         assert_eq!(
-            meetings[0].agenda.as_deref(),
+            meetings[1].agenda.as_deref(),
             Some("制度改正について その他")
         );
         assert_eq!(
-            meetings[1].minutes_url.as_deref(),
+            meetings[2].minutes_url.as_deref(),
             Some("https://www.mhlw.go.jp/stf/newpage_72796.html")
         );
 
         let document =
-            parse_mhlw_minutes_detail(MHLW_MATERIALS, &meetings[1], "2026-08-13T00:00:00Z")
+            parse_mhlw_minutes_detail(MHLW_MATERIALS, &meetings[2], "2026-08-13T00:00:00Z")
                 .unwrap();
         assert_eq!(document.source.provider, "shingikai_mhlw");
         assert_eq!(document.attachments.len(), 3);

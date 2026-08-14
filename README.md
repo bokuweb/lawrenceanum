@@ -98,6 +98,8 @@ PDF 原本・SHA-256・決議日・抽出全文を `.cache/gian-resolutions/` �
 `.cache/shingikai-history/` に保存する。毎日05:00 JSTに法務省・内閣府は各審議会の
 直近20会議、国交省・厚労省は活動中の各委員会の最新会議を再確認し、
 新しい会議や「議事録準備中→公開」の変化だけが R2 の永続コーパスへ追加される。
+厚労省が事前公開する将来の会議も `status: scheduled` として保持し、開催日以降は
+`held` に更新する。公開 health の最新開催日は `held` の会議だけから算出する。
 全履歴を手動収集する場合は `--max-meetings 0` を指定する。府省は
 `--ministry moj`（法務省）/ `--ministry cao`（内閣府）/
 `--ministry mlit`（国土交通省）/ `--ministry mhlw`（厚生労働省）で選択する。
