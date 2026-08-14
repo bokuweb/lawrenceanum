@@ -2245,6 +2245,10 @@ fn collect_corpus_health(public: &Path) -> serde_json::Value {
         let latest_item_date = entries
             .into_iter()
             .flatten()
+            .filter(|entry| {
+                spec.name != "shingikai"
+                    || entry.get("status").and_then(serde_json::Value::as_str) != Some("scheduled")
+            })
             .flat_map(|entry| {
                 spec.date_fields
                     .iter()
@@ -2638,8 +2642,10 @@ mod corpus_health_tests {
         ));
         let proceedings = root.join("proceedings");
         let pubcomment = root.join("pubcomment");
+        let shingikai = root.join("shingikai");
         std::fs::create_dir_all(&proceedings).unwrap();
         std::fs::create_dir_all(&pubcomment).unwrap();
+        std::fs::create_dir_all(&shingikai).unwrap();
         std::fs::write(
             proceedings.join("index.json"),
             r#"{"count":2,"meetings":[{"date":"2026-07-24"},{"date":"2026-08-01"}]}"#,
@@ -2648,6 +2654,11 @@ mod corpus_health_tests {
         std::fs::write(
             pubcomment.join("index.json"),
             r#"{"count":1,"cases":[{"result_published":null,"reception_start":"2026-08-09T10:00:00+09:00"}]}"#,
+        )
+        .unwrap();
+        std::fs::write(
+            shingikai.join("index.json"),
+            r#"{"count":2,"minutes":[{"date":"2026-07-29","status":"held"},{"date":"2099-09-15","status":"scheduled"}]}"#,
         )
         .unwrap();
         std::fs::write(
@@ -2667,6 +2678,8 @@ mod corpus_health_tests {
         );
         assert_eq!(health["pubcomment"]["latest_item_date"], "2026-08-09");
         assert_eq!(health["pubcomment"]["collection_status"], "failure");
+        assert_eq!(health["shingikai"]["count"], 2);
+        assert_eq!(health["shingikai"]["latest_item_date"], "2026-07-29");
         assert_eq!(
             health["pubcomment"]["last_collection_success_at"],
             "2026-08-10T20:00:00Z"
