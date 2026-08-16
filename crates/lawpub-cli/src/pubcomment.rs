@@ -168,6 +168,24 @@ fn hydrate_attachments(
                 continue;
             }
         };
+        // Reader fallback は e-Gov 原本ではなく、公開 PDF から抽出された派生テキスト。
+        // 原本 SHA/bytes や raw archive と混同せず、抽出本文としてだけ保存する。
+        if let Some(method) = fetched.extraction_method.as_deref() {
+            let text = String::from_utf8_lossy(&fetched.bytes).trim().to_string();
+            if text.is_empty() {
+                attachment.extraction_error = Some(format!("{method} returned empty text"));
+                continue;
+            }
+            attachment.media_type = fetched.media_type;
+            attachment.filename = fetched.filename;
+            attachment.sha256 = None;
+            attachment.bytes = None;
+            attachment.extracted_text = Some(text);
+            attachment.extraction_method = Some(method.to_string());
+            attachment.extraction_error = None;
+            attachment.fetched_at = Some(fetched.fetched_at);
+            continue;
+        }
         let sha256 = hex::encode(Sha256::digest(&fetched.bytes));
         if let Err(e) = std::fs::write(&raw_path, &fetched.bytes) {
             attachment.extraction_error = Some(format!("cache write failed: {e:#}"));

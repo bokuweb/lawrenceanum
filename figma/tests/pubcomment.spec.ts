@@ -49,12 +49,12 @@ const DETAIL = {
   },
 };
 
-async function mockPubcomment(page: import("@playwright/test").Page) {
+async function mockPubcomment(page: import("@playwright/test").Page, detail = DETAIL) {
   await page.route("**/pubcomment/index.json", (route) =>
     route.fulfill({ json: INDEX }),
   );
   await page.route("**/pubcomment/2023-00001.json", (route) =>
-    route.fulfill({ json: DETAIL }),
+    route.fulfill({ json: detail }),
   );
 }
 
@@ -88,6 +88,25 @@ test("案件を選ぶと意見と府省の考え方・添付PDF・関連法令�
 
   // 関連法令ボタン (クリックで検索へ誘導)。一覧アイテムも「民法」を含むので exact 指定。
   await expect(page.getByRole("button", { name: "民法", exact: true })).toBeVisible();
+});
+
+test("意見が未構造化でも添付PDFの抽出本文を表示・検索できる", async ({ page }) => {
+  await mockPubcomment(page, {
+    ...DETAIL,
+    opinions: [],
+    attachments: [{
+      name: "提出意見及び府省の考え方",
+      url: "https://example.com/result.pdf",
+      extracted_text: "長期的なモニタリングを実施すべきである。 府省回答：今後の参考とします。",
+    }],
+  });
+  await page.goto(new URL("#/pubcomment/2023-00001", BASE).toString());
+
+  await expect(page.getByText("PDF抽出本文（未構造化）")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText(/長期的なモニタリングを実施すべき/)).toBeVisible();
+
+  await page.getByPlaceholder("意見・考え方を検索…").fill("モニタリング");
+  await expect(page.getByText("1 / 1 件の抽出資料")).toBeVisible();
 });
 
 test("一覧から案件をクリックして詳細へ遷移できる", async ({ page }) => {
