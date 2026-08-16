@@ -132,6 +132,17 @@ enum Cmd {
         /// build-search-db する deployment pipeline 向け。
         #[arg(long)]
         skip_search_db: bool,
+        /// 全法令の隣接版差分生成を省略する。大規模コーパスのCIデプロイ向け。
+        #[arg(long)]
+        skip_diffs: bool,
+        /// 履歴束は現行版と今回更新分だけを書き出す。過去版の個別 JSON は維持し、
+        /// 完全な履歴束を後段で R2 からマージする deployment pipeline 向け。
+        #[arg(long)]
+        compact_history: bool,
+        /// e-Gov の日付別取得を省略し、復元済みキャッシュから配信物だけを再生成する。
+        /// 収集を durable corpus workflow に分離した deployment pipeline 向け。
+        #[arg(long)]
+        skip_fetch: bool,
     },
     /// e-Gov v2 `/law_revisions/{id}` で改正履歴メタを取得し
     /// `.cache/revisions_meta/{law_id}.json` に保存する。
@@ -507,6 +518,9 @@ fn main() -> Result<()> {
             date,
             force,
             skip_search_db,
+            skip_diffs,
+            compact_history,
+            skip_fetch,
         } => build::run_update(
             &public,
             &cache,
@@ -514,6 +528,9 @@ fn main() -> Result<()> {
             date.as_deref(),
             force,
             skip_search_db,
+            skip_diffs,
+            compact_history,
+            skip_fetch,
         ),
         Cmd::BuildJson {
             input,
@@ -722,11 +739,22 @@ mod cli_tests {
             }
         ));
 
-        let update = Cli::try_parse_from(["lawpub", "update", "--skip-search-db"]).unwrap();
+        let update = Cli::try_parse_from([
+            "lawpub",
+            "update",
+            "--skip-search-db",
+            "--skip-diffs",
+            "--compact-history",
+            "--skip-fetch",
+        ])
+        .unwrap();
         assert!(matches!(
             update.cmd,
             Cmd::Update {
                 skip_search_db: true,
+                skip_diffs: true,
+                compact_history: true,
+                skip_fetch: true,
                 ..
             }
         ));

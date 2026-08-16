@@ -266,7 +266,10 @@ jobs:
             (github.event.inputs.from_date != '' && github.event.inputs.to_date != '')
           ))
         run: |
-          ARGS=(--public public --cache .cache --provider "$LAWPUB_PROVIDER" --skip-search-db)
+          # 法令の取得は JST 02:00 の collect-law-corpus.yml が R2 delta へ永続化済み。
+          # Pages run はその復元キャッシュから配信物だけを生成し、重複するAPI取得を省く。
+          # 全9千法令の差分再計算もrunner shutdownを繰り返すため配信runから分離する。
+          ARGS=(--public public --cache .cache --provider "$LAWPUB_PROVIDER" --skip-search-db --skip-diffs --compact-history --skip-fetch)
           if [ -n "${{ github.event.inputs.date }}" ]; then
             ARGS+=(--date "${{ github.event.inputs.date }}")
           fi
