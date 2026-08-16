@@ -21,6 +21,7 @@ use reqwest::header::{ACCEPT, ACCEPT_LANGUAGE, CONTENT_DISPOSITION, CONTENT_TYPE
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use std::io::Read;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 
 pub const BASE_URL: &str = "https://public-comment.e-gov.go.jp";
@@ -318,6 +319,7 @@ impl PubcommentProvider for MockProvider {
 
 pub struct HttpProvider {
     base_url: String,
+    reader_required: AtomicBool,
 }
 
 impl HttpProvider {
@@ -326,7 +328,10 @@ impl HttpProvider {
             .unwrap_or_else(|_| BASE_URL.to_string())
             .trim_end_matches('/')
             .to_string();
-        Self { base_url }
+        Self {
+            base_url,
+            reader_required: AtomicBool::new(false),
+        }
     }
 
     fn client() -> Result<reqwest::blocking::Client> {
@@ -381,7 +386,7 @@ impl HttpProvider {
     fn fetch_reader_attachment(
         client: &reqwest::blocking::Client,
         source_url: &str,
-        direct_error: &reqwest::Error,
+        direct_error: &str,
     ) -> Result<FetchedAttachment> {
         let url = reader_url(source_url).context("pubcomment reader fallback is disabled")?;
         tracing::warn!(
@@ -495,6 +500,9 @@ impl PubcommentProvider for HttpProvider {
             let html = match response {
                 Ok(html) => html,
                 Err(error) => {
+                    if !via_reader {
+                        self.reader_required.store(true, Ordering::Relaxed);
+                    }
                     errors.push(format!("{source_url}: {error:#}"));
                     continue;
                 }
@@ -513,6 +521,9 @@ impl PubcommentProvider for HttpProvider {
                 && detail.attachments.is_empty()
                 && detail.opinion_count.is_none()
             {
+                if !via_reader {
+                    self.reader_required.store(true, Ordering::Relaxed);
+                }
                 errors.push(format!(
                     "{source_url}: response did not contain case detail"
                 ));
@@ -529,11 +540,21 @@ impl PubcommentProvider for HttpProvider {
 
     fn fetch_attachment(&self, url: &str) -> Result<FetchedAttachment> {
         let client = Self::client()?;
+        if self.reader_required.load(Ordering::Relaxed) {
+            return Self::fetch_reader_attachment(
+                &client,
+                url,
+                "e-Gov detail access was blocked earlier in this run",
+            );
+        }
         std::thread::sleep(Duration::from_secs(1));
         let direct = client.get(url).send().and_then(|r| r.error_for_status());
         let mut resp = match direct {
             Ok(resp) => resp,
-            Err(error) => return Self::fetch_reader_attachment(&client, url, &error),
+            Err(error) => {
+                self.reader_required.store(true, Ordering::Relaxed);
+                return Self::fetch_reader_attachment(&client, url, &error.to_string());
+            }
         };
         if let Some(n) = resp.content_length() {
             if n > MAX_ATTACHMENT_BYTES {
