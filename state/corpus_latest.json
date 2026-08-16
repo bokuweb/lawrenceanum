@@ -12,9 +12,9 @@
       "last_success_at": "2026-08-15T20:38:10Z"
     },
     "pubcomment": {
-      "last_attempt_at": "2026-08-15T20:38:10Z",
+      "last_attempt_at": "2026-08-16T01:22:56Z",
       "status": "success",
-      "last_success_at": "2026-08-15T20:38:10Z"
+      "last_success_at": "2026-08-16T01:22:56Z"
     },
     "gian": {
       "last_attempt_at": "2026-08-15T20:38:10Z",
@@ -32,6 +32,6 @@
       "last_success_at": "2026-08-15T20:38:10Z"
     }
   },
-  "updated_at": "2026-08-16T01:19:23Z",
+  "updated_at": "2026-08-16T01:22:56Z",
   "last_run_domains": "pubcomment"
 }
