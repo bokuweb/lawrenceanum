@@ -1,7 +1,9 @@
 use anyhow::{Context, Result};
-use pubcomment_client::{Attachment, CaseDetail, HttpProvider, MockProvider, PubcommentProvider};
+use pubcomment_client::{
+    Attachment, CaseDetail, CaseMeta, HttpProvider, MockProvider, PubcommentProvider,
+};
 use sha2::{Digest, Sha256};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::Path;
 use std::process::Command;
 
@@ -21,6 +23,15 @@ fn modes_for(status: &str) -> Vec<u8> {
     }
 }
 
+/// e-Gov がページ番号を無視して同じ一覧を返すことがあるため、既出案件を除外する。
+/// mode ごとに別の集合を使い、募集中から結果公示へ移った案件は結果側で更新できるようにする。
+fn retain_unseen_cases(cases: Vec<CaseMeta>, seen: &mut HashSet<String>) -> Vec<CaseMeta> {
+    cases
+        .into_iter()
+        .filter(|case| seen.insert(case.case_id.clone()))
+        .collect()
+}
+
 /// `lawpub pubcomment-fetch` の実装。
 /// `status`(open/closed/both) の各 Mode を全ページ取得し
 /// `.cache/pubcomment/{case_id}.json` に保存する。
@@ -37,9 +48,17 @@ pub fn run_fetch(
 
     let mut total = 0usize;
     for mode in modes_for(status) {
+        let mut seen_case_ids = HashSet::new();
         for page in 1..=max_pages {
             let cases = p.fetch_case_list(mode, page)?;
             if cases.is_empty() {
+                break;
+            }
+            let cases = retain_unseen_cases(cases, &mut seen_case_ids);
+            if cases.is_empty() {
+                tracing::info!(
+                    "pubcomment-fetch: mode={mode} page={page} returned no new case IDs; pagination exhausted"
+                );
                 break;
             }
             for meta in &cases {
@@ -335,6 +354,34 @@ pub fn run_build_json(cache: &Path, public: &Path) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn case_meta(case_id: &str) -> CaseMeta {
+        CaseMeta {
+            case_id: case_id.to_string(),
+            title: format!("case {case_id}"),
+            ministry: None,
+            reception_start: None,
+            reception_end: None,
+            result_published: None,
+            category: None,
+            responsible_office: None,
+            opinion_count: None,
+            status: "closed".to_string(),
+            detail_url: format!("https://example.com/{case_id}"),
+        }
+    }
+
+    #[test]
+    fn repeated_list_page_is_detected_as_exhausted() {
+        let mut seen = HashSet::new();
+        let first = retain_unseen_cases(vec![case_meta("a"), case_meta("b")], &mut seen);
+        let repeated = retain_unseen_cases(vec![case_meta("a"), case_meta("b")], &mut seen);
+        let partly_new = retain_unseen_cases(vec![case_meta("b"), case_meta("c")], &mut seen);
+
+        assert_eq!(first.len(), 2);
+        assert!(repeated.is_empty());
+        assert_eq!(partly_new[0].case_id, "c");
+    }
 
     #[test]
     fn fetch_archives_and_extracts_mock_attachment() {
