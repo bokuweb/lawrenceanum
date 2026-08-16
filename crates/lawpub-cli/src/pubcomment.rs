@@ -121,6 +121,14 @@ pub fn run_fetch(
             }
             tracing::info!("pubcomment-fetch: mode={mode} page={page} ({total} total)");
         }
+        if mode == 0 && max_pages > 0 {
+            let removed = prune_stale_open_cases(&dir, &seen_case_ids)?;
+            if removed > 0 {
+                tracing::info!(
+                    "pubcomment-fetch: removed {removed} stale open cases not present in current RSS"
+                );
+            }
+        }
     }
     tracing::info!(
         "pubcomment-fetch: {total} cases saved (status={status}, attachments={fetch_attachments})"
@@ -131,6 +139,27 @@ pub fn run_fetch(
 fn read_cached_case(path: &Path) -> Option<CaseDetail> {
     let bytes = std::fs::read(path).ok()?;
     serde_json::from_slice(&bytes).ok()
+}
+
+/// 募集中案件は履歴として残すと、締切後も UI 上で open のままになる。
+/// 現在の公式 RSS にない open キャッシュだけを除去し、closed の結果公示は保持する。
+fn prune_stale_open_cases(dir: &Path, active_ids: &HashSet<String>) -> Result<usize> {
+    let mut removed = 0;
+    for entry in std::fs::read_dir(dir)? {
+        let path = entry?.path();
+        if path.extension().and_then(|ext| ext.to_str()) != Some("json") {
+            continue;
+        }
+        let Some(detail) = read_cached_case(&path) else {
+            continue;
+        };
+        if detail.status == "open" && !active_ids.contains(&detail.case_id) {
+            std::fs::remove_file(&path)
+                .with_context(|| format!("remove stale open case {}", path.display()))?;
+            removed += 1;
+        }
+    }
+    Ok(removed)
 }
 
 /// URL から安定した短いキャッシュキーを作る。e-Gov の seqNo URL は実質不変だが、
@@ -399,6 +428,34 @@ mod tests {
         assert_eq!(first.len(), 2);
         assert!(repeated.is_empty());
         assert_eq!(partly_new[0].case_id, "c");
+    }
+
+    #[test]
+    fn stale_open_cases_are_pruned_but_closed_cases_are_retained() {
+        let root = std::env::temp_dir().join(format!(
+            "lawpub-pubcomment-prune-{}-{}",
+            std::process::id(),
+            chrono::Utc::now().timestamp_nanos_opt().unwrap_or_default()
+        ));
+        std::fs::create_dir_all(&root).unwrap();
+        for (case_id, status) in [("active", "open"), ("stale", "open"), ("result", "closed")] {
+            let mut meta = case_meta(case_id);
+            meta.status = status.to_string();
+            let detail = CaseDetail::from_meta(&meta, "2026-08-16T00:00:00Z");
+            std::fs::write(
+                root.join(format!("{case_id}.json")),
+                serde_json::to_vec(&detail).unwrap(),
+            )
+            .unwrap();
+        }
+
+        let active_ids = HashSet::from(["active".to_string()]);
+        assert_eq!(prune_stale_open_cases(&root, &active_ids).unwrap(), 1);
+        assert!(root.join("active.json").exists());
+        assert!(!root.join("stale.json").exists());
+        assert!(root.join("result.json").exists());
+
+        std::fs::remove_dir_all(root).unwrap();
     }
 
     #[test]
