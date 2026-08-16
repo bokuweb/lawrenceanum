@@ -865,6 +865,7 @@ pub fn run_update(
     date: Option<&str>,
     force: bool,
     skip_search_db: bool,
+    skip_diffs: bool,
 ) -> Result<()> {
     let state_path = PathBuf::from("state/latest.json");
     let last_run_path = PathBuf::from("state/last_run.json");
@@ -940,9 +941,16 @@ pub fn run_update(
     // 失敗しても update 全体は壊さない方針 (差分は補助情報)。
     let mut wrote_post_artifacts = false;
     if changed && public.join("laws").join("index.json").exists() {
-        match crate::diffs::run_build_diffs(public) {
-            Ok(()) => wrote_post_artifacts = true,
-            Err(e) => tracing::warn!("build-diffs failed (continuing): {e:#}"),
+        if skip_diffs {
+            tracing::info!(
+                "build-diffs: skipped; run `lawpub build-diffs --public {}` separately",
+                public.display()
+            );
+        } else {
+            match crate::diffs::run_build_diffs(public) {
+                Ok(()) => wrote_post_artifacts = true,
+                Err(e) => tracing::warn!("build-diffs failed (continuing): {e:#}"),
+            }
         }
         // 任意日付スナップショットはコストが大 (法令数 × 日付数 のファイルが出る)
         // ため、`LAWPUB_SNAPSHOT_DATES` 環境変数が設定されたときだけ生成する。

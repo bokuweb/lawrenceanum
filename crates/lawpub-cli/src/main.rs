@@ -132,6 +132,9 @@ enum Cmd {
         /// build-search-db する deployment pipeline 向け。
         #[arg(long)]
         skip_search_db: bool,
+        /// 全法令の隣接版差分生成を省略する。大規模コーパスのCIデプロイ向け。
+        #[arg(long)]
+        skip_diffs: bool,
     },
     /// e-Gov v2 `/law_revisions/{id}` で改正履歴メタを取得し
     /// `.cache/revisions_meta/{law_id}.json` に保存する。
@@ -507,6 +510,7 @@ fn main() -> Result<()> {
             date,
             force,
             skip_search_db,
+            skip_diffs,
         } => build::run_update(
             &public,
             &cache,
@@ -514,6 +518,7 @@ fn main() -> Result<()> {
             date.as_deref(),
             force,
             skip_search_db,
+            skip_diffs,
         ),
         Cmd::BuildJson {
             input,
@@ -722,11 +727,17 @@ mod cli_tests {
             }
         ));
 
-        let update = Cli::try_parse_from(["lawpub", "update", "--skip-search-db"]).unwrap();
+        let update = Cli::try_parse_from([
+            "lawpub",
+            "update",
+            "--skip-search-db",
+            "--skip-diffs",
+        ]).unwrap();
         assert!(matches!(
             update.cmd,
             Cmd::Update {
                 skip_search_db: true,
+                skip_diffs: true,
                 ..
             }
         ));
