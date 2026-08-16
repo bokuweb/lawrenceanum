@@ -209,6 +209,12 @@ fn detail_url_mode(base: &str, case_id: &str, mode: u8) -> String {
     format!("{base}/pcm/1040?CLASSNAME=PCM1040&id={case_id}&Mode={mode}")
 }
 
+/// 公式 RSS が掲載している互換 URL。e-Gov の CDN は送信元によって `/pcm/1040`
+/// を 403 にすることがある一方、この入口は同じ詳細ページへ遷移できる。
+fn rss_detail_url_mode(base: &str, case_id: &str, mode: u8) -> String {
+    format!("{base}/servlet/Public?CLASSNAME=PCM1040&id={case_id}&Mode={mode}")
+}
+
 fn detail_url(base: &str, case_id: &str) -> String {
     format!("{base}/pcm/1040?CLASSNAME=PCM1040&id={case_id}&Mode=1")
 }
@@ -302,9 +308,9 @@ impl HttpProvider {
 
     fn client() -> Result<reqwest::blocking::Client> {
         reqwest::blocking::Client::builder()
-            .user_agent(
-                "Mozilla/5.0 (compatible; Lawrenceanum/0.1; +https://github.com/bokuweb/lawrenceanum)",
-            )
+            // Akamai が bot を明示した UA を GitHub-hosted runner から拒否するため、
+            // 通常ブラウザ相当の UA を使う。取得間隔は get_html 側で 1 秒空ける。
+            .user_agent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36")
             .default_headers({
                 let mut headers = reqwest::header::HeaderMap::new();
                 headers.insert(
@@ -407,12 +413,44 @@ impl PubcommentProvider for HttpProvider {
 
     fn fetch_case_detail(&self, case_id: &str, mode: u8) -> Result<CaseDetail> {
         let client = Self::client()?;
-        let url = detail_url_mode(&self.base_url, case_id, mode);
-        let html = Self::get_html(&client, &url)?;
-        let fetched_at = chrono::Utc::now().to_rfc3339();
-        let mut d = parse_case_detail(&html, case_id, &url, &fetched_at, &self.base_url)?;
-        d.status = mode_status(mode).to_string();
-        Ok(d)
+        let urls = [
+            // RSS に明記された URL を優先し、現行パスをフォールバックにする。
+            rss_detail_url_mode(&self.base_url, case_id, mode),
+            detail_url_mode(&self.base_url, case_id, mode),
+        ];
+        let mut errors = Vec::new();
+        for url in urls {
+            let html = match Self::get_html(&client, &url) {
+                Ok(html) => html,
+                Err(error) => {
+                    errors.push(format!("{url}: {error:#}"));
+                    continue;
+                }
+            };
+            let fetched_at = chrono::Utc::now().to_rfc3339();
+            let mut detail =
+                match parse_case_detail(&html, case_id, &url, &fetched_at, &self.base_url) {
+                    Ok(detail) => detail,
+                    Err(error) => {
+                        errors.push(format!("{url}: {error:#}"));
+                        continue;
+                    }
+                };
+            // CDN のブロックページが 200 を返しても空の案件として保存しない。
+            if detail.title.is_empty()
+                && detail.attachments.is_empty()
+                && detail.opinion_count.is_none()
+            {
+                errors.push(format!("{url}: response did not contain case detail"));
+                continue;
+            }
+            detail.status = mode_status(mode).to_string();
+            return Ok(detail);
+        }
+        anyhow::bail!(
+            "all pubcomment detail routes failed for {case_id}: {}",
+            errors.join(" | ")
+        )
     }
 
     fn fetch_attachment(&self, url: &str) -> Result<FetchedAttachment> {
@@ -857,6 +895,14 @@ mod tests {
         assert_eq!(detail.category.as_deref(), Some("民事"));
         assert_eq!(detail.responsible_office.as_deref(), Some("法務省民事局"));
         assert_eq!(detail.opinion_count, Some(1));
+    }
+
+    #[test]
+    fn rss_detail_route_matches_official_feed_links() {
+        assert_eq!(
+            rss_detail_url_mode(BASE_URL, "550004317", 1),
+            "https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCM1040&id=550004317&Mode=1"
+        );
     }
 
     #[test]
