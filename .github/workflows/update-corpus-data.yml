@@ -448,7 +448,7 @@ jobs:
           upload_bundle .cache/shingikai-assets shingikai-assets.tar.zst
           upload_bundle .cache/shingikai-history shingikai-history.tar.zst
 
-      # ── 予算（手動のみ、appId 必要） ─────────────────────────────
+      # ── 予算（appId 設定後は日次更新） ───────────────────────────
 
       - name: Fetch budget (e-Stat)
         id: fetch_budget
