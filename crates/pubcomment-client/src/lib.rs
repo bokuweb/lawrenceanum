@@ -21,9 +21,12 @@ use reqwest::header::{ACCEPT, ACCEPT_LANGUAGE, CONTENT_DISPOSITION, CONTENT_TYPE
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use std::io::Read;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 
 pub const BASE_URL: &str = "https://public-comment.e-gov.go.jp";
+const DEFAULT_READER_BASE_URL: &str = "https://r.jina.ai";
+const MAX_ATTACHMENT_BYTES: u64 = 50 * 1024 * 1024;
 
 // ── 公開型 ────────────────────────────────────────────────────────
 
@@ -92,6 +95,9 @@ pub struct FetchedAttachment {
     pub media_type: Option<String>,
     pub filename: Option<String>,
     pub fetched_at: String,
+    /// 原本を取得できず Reader が抽出したテキストの場合に設定する。
+    /// この場合、利用側は原本 SHA や原本サイズとして保存してはならない。
+    pub extraction_method: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -209,6 +215,29 @@ fn detail_url_mode(base: &str, case_id: &str, mode: u8) -> String {
     format!("{base}/pcm/1040?CLASSNAME=PCM1040&id={case_id}&Mode={mode}")
 }
 
+/// 公式 RSS が掲載している互換 URL。e-Gov の CDN は送信元によって `/pcm/1040`
+/// を 403 にすることがある一方、この入口は同じ詳細ページへ遷移できる。
+fn rss_detail_url_mode(base: &str, case_id: &str, mode: u8) -> String {
+    format!("{base}/servlet/Public?CLASSNAME=PCM1040&id={case_id}&Mode={mode}")
+}
+
+/// GitHub-hosted runner が e-Gov CDN に拒否された場合だけ使う公開ページ Reader。
+/// 空の `LAWPUB_PUBCOMMENT_READER_BASE_URL` で無効化でき、セルフホスト先にも差替可能。
+fn reader_url(source_url: &str) -> Option<String> {
+    let base = std::env::var("LAWPUB_PUBCOMMENT_READER_BASE_URL")
+        .unwrap_or_else(|_| DEFAULT_READER_BASE_URL.to_string());
+    reader_url_with_base(&base, source_url)
+}
+
+fn reader_url_with_base(base: &str, source_url: &str) -> Option<String> {
+    let base = base.trim().trim_end_matches('/');
+    if base.is_empty() {
+        return None;
+    }
+    // Reader URL 自体の query と混同されないよう、取得元 query の区切りを encode する。
+    Some(format!("{base}/{}", source_url.replace('&', "%26")))
+}
+
 fn detail_url(base: &str, case_id: &str) -> String {
     format!("{base}/pcm/1040?CLASSNAME=PCM1040&id={case_id}&Mode=1")
 }
@@ -281,6 +310,7 @@ impl PubcommentProvider for MockProvider {
             media_type: Some("text/plain".to_string()),
             filename: Some("mock-result.txt".to_string()),
             fetched_at: "2024-01-01T00:00:00Z".to_string(),
+            extraction_method: None,
         })
     }
 }
@@ -289,6 +319,7 @@ impl PubcommentProvider for MockProvider {
 
 pub struct HttpProvider {
     base_url: String,
+    reader_required: AtomicBool,
 }
 
 impl HttpProvider {
@@ -297,14 +328,17 @@ impl HttpProvider {
             .unwrap_or_else(|_| BASE_URL.to_string())
             .trim_end_matches('/')
             .to_string();
-        Self { base_url }
+        Self {
+            base_url,
+            reader_required: AtomicBool::new(false),
+        }
     }
 
     fn client() -> Result<reqwest::blocking::Client> {
         reqwest::blocking::Client::builder()
-            .user_agent(
-                "Mozilla/5.0 (compatible; Lawrenceanum/0.1; +https://github.com/bokuweb/lawrenceanum)",
-            )
+            // Akamai が bot を明示した UA を GitHub-hosted runner から拒否するため、
+            // 通常ブラウザ相当の UA を使う。取得間隔は get_html 側で 1 秒空ける。
+            .user_agent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36")
             .default_headers({
                 let mut headers = reqwest::header::HeaderMap::new();
                 headers.insert(
@@ -336,6 +370,53 @@ impl HttpProvider {
             .with_context(|| format!("GET {url}"))?;
         resp.text().context("read response text")
     }
+
+    fn get_reader_html(client: &reqwest::blocking::Client, source_url: &str) -> Result<String> {
+        let url = reader_url(source_url).context("pubcomment reader fallback is disabled")?;
+        std::thread::sleep(Duration::from_secs(1));
+        let resp = client
+            .get(&url)
+            .header("X-Return-Format", "html")
+            .send()
+            .and_then(|r| r.error_for_status())
+            .with_context(|| format!("GET reader fallback {url}"))?;
+        resp.text().context("read reader HTML")
+    }
+
+    fn fetch_reader_attachment(
+        client: &reqwest::blocking::Client,
+        source_url: &str,
+        direct_error: &str,
+    ) -> Result<FetchedAttachment> {
+        let url = reader_url(source_url).context("pubcomment reader fallback is disabled")?;
+        tracing::warn!(
+            "pubcomment attachment direct fetch failed; using reader text fallback: {direct_error}"
+        );
+        std::thread::sleep(Duration::from_secs(1));
+        let mut resp = client
+            .get(&url)
+            .send()
+            .and_then(|r| r.error_for_status())
+            .with_context(|| format!("GET attachment reader fallback {url}"))?;
+        let mut bytes = Vec::new();
+        resp.by_ref()
+            .take(MAX_ATTACHMENT_BYTES + 1)
+            .read_to_end(&mut bytes)
+            .context("read attachment reader text")?;
+        if bytes.len() as u64 > MAX_ATTACHMENT_BYTES {
+            anyhow::bail!("attachment reader text exceeded {MAX_ATTACHMENT_BYTES} bytes");
+        }
+        if bytes.iter().all(u8::is_ascii_whitespace) {
+            anyhow::bail!("attachment reader returned empty text for {source_url}");
+        }
+        Ok(FetchedAttachment {
+            bytes,
+            media_type: Some("text/markdown".to_string()),
+            filename: None,
+            fetched_at: chrono::Utc::now().to_rfc3339(),
+            extraction_method: Some("jina-reader".to_string()),
+        })
+    }
 }
 
 impl Default for HttpProvider {
@@ -347,6 +428,31 @@ impl Default for HttpProvider {
 impl PubcommentProvider for HttpProvider {
     fn fetch_case_list(&self, mode: u8, page: u32) -> Result<Vec<CaseMeta>> {
         let client = Self::client()?;
+
+        // 日次更新では公式 RSS を正とする。HTML の Mode=0 は「現在募集中」ではなく
+        // 過去を含む意見募集案件一覧（数千件）なので、全件を open と誤分類してしまう。
+        // RSS はページングしないため 1 ページ目だけを取得し、durable cache へ追記する。
+        // 明示的な過去バックフィル時だけ従来の HTML 一覧を利用可能にしておく。
+        let html_backfill =
+            std::env::var("LAWPUB_PUBCOMMENT_HTML_BACKFILL").is_ok_and(|value| value == "1");
+        if !html_backfill {
+            if page > 1 {
+                return Ok(Vec::new());
+            }
+            let feed_url = rss_url(&self.base_url, mode);
+            let xml = Self::get_html(&client, &feed_url)
+                .with_context(|| format!("GET pubcomment RSS {feed_url}"))?;
+            let mut metas = parse_case_rss(&xml, mode)?;
+            tracing::info!("pubcomment RSS: mode={mode}, {} cases", metas.len());
+            for meta in &mut metas {
+                meta.status = mode_status(mode).to_string();
+                if meta.detail_url.is_empty() {
+                    meta.detail_url = detail_url_mode(&self.base_url, &meta.case_id, mode);
+                }
+            }
+            return Ok(metas);
+        }
+
         let url = list_url(&self.base_url, mode, page);
         let primary =
             Self::get_html(&client, &url).and_then(|html| parse_case_list(&html, &self.base_url));
@@ -407,24 +513,74 @@ impl PubcommentProvider for HttpProvider {
 
     fn fetch_case_detail(&self, case_id: &str, mode: u8) -> Result<CaseDetail> {
         let client = Self::client()?;
-        let url = detail_url_mode(&self.base_url, case_id, mode);
-        let html = Self::get_html(&client, &url)?;
-        let fetched_at = chrono::Utc::now().to_rfc3339();
-        let mut d = parse_case_detail(&html, case_id, &url, &fetched_at, &self.base_url)?;
-        d.status = mode_status(mode).to_string();
-        Ok(d)
+        let mut errors = Vec::new();
+        let direct_url = detail_url_mode(&self.base_url, case_id, mode);
+        let rss_url = rss_detail_url_mode(&self.base_url, case_id, mode);
+        for (source_url, via_reader) in [(direct_url, false), (rss_url, true)] {
+            let response = if via_reader {
+                Self::get_reader_html(&client, &source_url)
+            } else {
+                Self::get_html(&client, &source_url)
+            };
+            let html = match response {
+                Ok(html) => html,
+                Err(error) => {
+                    if !via_reader {
+                        self.reader_required.store(true, Ordering::Relaxed);
+                    }
+                    errors.push(format!("{source_url}: {error:#}"));
+                    continue;
+                }
+            };
+            let fetched_at = chrono::Utc::now().to_rfc3339();
+            let mut detail =
+                match parse_case_detail(&html, case_id, &source_url, &fetched_at, &self.base_url) {
+                    Ok(detail) => detail,
+                    Err(error) => {
+                        errors.push(format!("{source_url}: {error:#}"));
+                        continue;
+                    }
+                };
+            // CDN のブロックページが 200 を返しても空の案件として保存しない。
+            if detail.title.is_empty()
+                && detail.attachments.is_empty()
+                && detail.opinion_count.is_none()
+            {
+                if !via_reader {
+                    self.reader_required.store(true, Ordering::Relaxed);
+                }
+                errors.push(format!(
+                    "{source_url}: response did not contain case detail"
+                ));
+                continue;
+            }
+            detail.status = mode_status(mode).to_string();
+            return Ok(detail);
+        }
+        anyhow::bail!(
+            "all pubcomment detail routes failed for {case_id}: {}",
+            errors.join(" | ")
+        )
     }
 
     fn fetch_attachment(&self, url: &str) -> Result<FetchedAttachment> {
-        const MAX_ATTACHMENT_BYTES: u64 = 50 * 1024 * 1024;
-
         let client = Self::client()?;
+        if self.reader_required.load(Ordering::Relaxed) {
+            return Self::fetch_reader_attachment(
+                &client,
+                url,
+                "e-Gov detail access was blocked earlier in this run",
+            );
+        }
         std::thread::sleep(Duration::from_secs(1));
-        let mut resp = client
-            .get(url)
-            .send()
-            .and_then(|r| r.error_for_status())
-            .with_context(|| format!("GET attachment {url}"))?;
+        let direct = client.get(url).send().and_then(|r| r.error_for_status());
+        let mut resp = match direct {
+            Ok(resp) => resp,
+            Err(error) => {
+                self.reader_required.store(true, Ordering::Relaxed);
+                return Self::fetch_reader_attachment(&client, url, &error.to_string());
+            }
+        };
         if let Some(n) = resp.content_length() {
             if n > MAX_ATTACHMENT_BYTES {
                 anyhow::bail!("attachment too large: {n} bytes (limit={MAX_ATTACHMENT_BYTES})");
@@ -460,6 +616,7 @@ impl PubcommentProvider for HttpProvider {
             media_type,
             filename,
             fetched_at: chrono::Utc::now().to_rfc3339(),
+            extraction_method: None,
         })
     }
 }
@@ -857,6 +1014,22 @@ mod tests {
         assert_eq!(detail.category.as_deref(), Some("民事"));
         assert_eq!(detail.responsible_office.as_deref(), Some("法務省民事局"));
         assert_eq!(detail.opinion_count, Some(1));
+    }
+
+    #[test]
+    fn rss_detail_route_matches_official_feed_links() {
+        assert_eq!(
+            rss_detail_url_mode(BASE_URL, "550004317", 1),
+            "https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCM1040&id=550004317&Mode=1"
+        );
+        assert_eq!(
+            reader_url_with_base(
+                "https://r.jina.ai",
+                "https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCM1040&id=550004317&Mode=1"
+            )
+            .as_deref(),
+            Some("https://r.jina.ai/https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCM1040%26id=550004317%26Mode=1")
+        );
     }
 
     #[test]

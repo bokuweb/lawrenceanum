@@ -3,8 +3,9 @@ import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
-import { MessageSquare, Search, BookOpen, ExternalLink, FileDown } from "lucide-react";
+import { MessageSquare, Search, BookOpen, ExternalLink, FileDown, FileText } from "lucide-react";
 import { usePubcommentIndex, usePubcommentCase, type PubcommentCaseMeta } from "../../data/use-pubcomment";
+import type { PubcommentAttachment } from "../../data/api";
 import { useNavigate } from "react-router";
 
 // ── 一覧アイテム ──────────────────────────────────────────────────
@@ -88,6 +89,24 @@ function OpinionCard({ opinion, query }: {
   );
 }
 
+function AttachmentTextCard({ attachment, initiallyOpen }: {
+  attachment: PubcommentAttachment;
+  initiallyOpen: boolean;
+}) {
+  return (
+    <details className="border-b border-border py-3 last:border-0" open={initiallyOpen}>
+      <summary className="cursor-pointer list-none flex items-center gap-2 text-sm font-medium">
+        <FileText className="size-4 shrink-0 text-muted-foreground" />
+        <span className="truncate">{attachment.name || attachment.filename || "添付資料"}</span>
+        <span className="text-[10px] font-normal text-muted-foreground shrink-0">PDF抽出本文（未構造化）</span>
+      </summary>
+      <pre className="mt-3 max-h-[32rem] overflow-auto rounded-md bg-muted/40 p-3 whitespace-pre-wrap break-words font-sans text-sm leading-relaxed text-foreground/90">
+        {attachment.extracted_text}
+      </pre>
+    </details>
+  );
+}
+
 // ── 案件詳細パネル ────────────────────────────────────────────────
 
 function CaseDetail({ caseId, onLawClick }: {
@@ -107,6 +126,22 @@ function CaseDetail({ caseId, onLawClick }: {
       o.ministry_response.toLowerCase().includes(q)
     );
   }, [data, opinionQuery]);
+
+  const extractedAttachments = useMemo(() => (
+    (data?.attachments ?? []).filter(
+      (attachment) => typeof attachment.extracted_text === "string" && attachment.extracted_text.trim().length > 0,
+    )
+  ), [data]);
+
+  const filteredAttachments = useMemo(() => {
+    const q = opinionQuery.trim().toLowerCase();
+    if (!q) return extractedAttachments;
+    return extractedAttachments.filter((attachment) =>
+      attachment.name.toLowerCase().includes(q)
+      || (attachment.filename ?? "").toLowerCase().includes(q)
+      || (attachment.extracted_text ?? "").toLowerCase().includes(q)
+    );
+  }, [extractedAttachments, opinionQuery]);
 
   if (loading) {
     return (
@@ -178,7 +213,13 @@ function CaseDetail({ caseId, onLawClick }: {
           />
         </div>
         <div className="text-xs text-muted-foreground mt-1.5 flex items-center gap-3">
-          <span>{filtered.length} / {data.opinions.length} 件の意見</span>
+          <span>
+            {data.opinions.length > 0
+              ? `${filtered.length} / ${data.opinions.length} 件の意見`
+              : extractedAttachments.length > 0
+                ? `${filteredAttachments.length} / ${extractedAttachments.length} 件の抽出資料`
+                : "構造化された意見 0件"}
+          </span>
           {data.source?.detail_url && (
             <a
               href={data.source.detail_url}
@@ -195,7 +236,19 @@ function CaseDetail({ caseId, onLawClick }: {
       {/* 意見リスト */}
       <ScrollArea className="flex-1">
         <div className="px-5">
-          {filtered.length === 0 ? (
+          {data.opinions.length === 0 && extractedAttachments.length > 0 ? (
+            filteredAttachments.length > 0 ? (
+              filteredAttachments.map((attachment, i) => (
+                <AttachmentTextCard
+                  key={`${attachment.url}-${i}`}
+                  attachment={attachment}
+                  initiallyOpen={i === 0}
+                />
+              ))
+            ) : (
+              <p className="py-8 text-center text-sm text-muted-foreground">該当する抽出資料がありません</p>
+            )
+          ) : filtered.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
               {data.opinions.length === 0
                 ? (data.attachments && data.attachments.length > 0

@@ -78,6 +78,13 @@ lawpub status         --public public --cache .cache
 
 `pubcomment-fetch --fetch-attachments` は結果公示の PDF/text 原本を
 `.cache/pubcomment-assets/` に保存し、SHA-256・MIME type・抽出全文を案件 JSON に記録する。
+日次更新は e-Gov 公式 RSS の現在・直近案件を取得し、R2 の前回キャッシュへ追記する。
+過去の HTML 一覧を明示的にバックフィルする場合だけ
+`LAWPUB_PUBCOMMENT_HTML_BACKFILL=1` を指定する。
+e-Gov CDN が GitHub-hosted runner を拒否した場合は、Jina Reader（既定）を詳細 HTML・
+PDF 抽出本文の取得にだけ使う（原本 URL は e-Gov のまま保持し、派生本文を原本 SHA/bytes
+としては記録しない）。`LAWPUB_PUBCOMMENT_READER_BASE_URL` を空にすると無効化でき、
+セルフホストした互換 Reader の URL にも差し替えられる。
 定期 workflow は R2 の前回コーパスを復元してから差分取得するため、GitHub Actions cache が
 evict されても過去の国会会議録・議案・パブコメ・通達を失わずに追記できる。
 

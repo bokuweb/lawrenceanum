@@ -582,6 +582,14 @@ export type OpinionSummary = {
 export type PubcommentAttachment = {
   name: string
   url: string
+  media_type?: string | null
+  filename?: string | null
+  sha256?: string | null
+  bytes?: number | null
+  /** 添付 PDF 等から機械抽出した全文。意見ペアに未構造化でも閲覧・検索できる。 */
+  extracted_text?: string | null
+  extraction_method?: string | null
+  extraction_error?: string | null
 }
 
 export type PubcommentCase = {
