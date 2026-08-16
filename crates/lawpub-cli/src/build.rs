@@ -887,6 +887,7 @@ pub fn run_update(
     skip_search_db: bool,
     skip_diffs: bool,
     compact_history: bool,
+    skip_fetch: bool,
 ) -> Result<()> {
     let state_path = PathBuf::from("state/latest.json");
     let last_run_path = PathBuf::from("state/last_run.json");
@@ -898,15 +899,22 @@ pub fn run_update(
         None => state::pick_dates(&st, today_jst),
     };
 
-    tracing::info!("update target dates: {:?}", dates);
     let mut new_xmls = 0usize;
     let mut errors: Vec<String> = Vec::new();
-    for d in &dates {
-        match run_fetch_update(d, cache, provider) {
-            Ok(n) => new_xmls += n,
-            Err(e) => {
-                tracing::warn!("fetch {} failed: {e:#}", d);
-                errors.push(format!("{d}: {e:#}"));
+    if skip_fetch {
+        tracing::info!(
+            "update fetch: skipped; building from restored durable corpus cache ({} target dates not requested)",
+            dates.len()
+        );
+    } else {
+        tracing::info!("update target dates: {:?}", dates);
+        for d in &dates {
+            match run_fetch_update(d, cache, provider) {
+                Ok(n) => new_xmls += n,
+                Err(e) => {
+                    tracing::warn!("fetch {} failed: {e:#}", d);
+                    errors.push(format!("{d}: {e:#}"));
+                }
             }
         }
     }
@@ -998,8 +1006,10 @@ pub fn run_update(
         }
     }
 
-    if let Some(last) = dates.last() {
-        st.latest_successful_update_date = Some(last.clone());
+    if !skip_fetch {
+        if let Some(last) = dates.last() {
+            st.latest_successful_update_date = Some(last.clone());
+        }
     }
     st.last_run_at = Some(state::now_iso());
     st.last_run_status = Some(if errors.is_empty() {
@@ -1013,7 +1023,7 @@ pub fn run_update(
         version: 1,
         ran_at: state::now_iso(),
         provider: provider.to_string(),
-        dates: dates.clone(),
+        dates: if skip_fetch { Vec::new() } else { dates.clone() },
         new_xmls,
         errors,
         changed,

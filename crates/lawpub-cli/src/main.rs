@@ -139,6 +139,10 @@ enum Cmd {
         /// 完全な履歴束を後段で R2 からマージする deployment pipeline 向け。
         #[arg(long)]
         compact_history: bool,
+        /// e-Gov の日付別取得を省略し、復元済みキャッシュから配信物だけを再生成する。
+        /// 収集を durable corpus workflow に分離した deployment pipeline 向け。
+        #[arg(long)]
+        skip_fetch: bool,
     },
     /// e-Gov v2 `/law_revisions/{id}` で改正履歴メタを取得し
     /// `.cache/revisions_meta/{law_id}.json` に保存する。
@@ -516,6 +520,7 @@ fn main() -> Result<()> {
             skip_search_db,
             skip_diffs,
             compact_history,
+            skip_fetch,
         } => build::run_update(
             &public,
             &cache,
@@ -525,6 +530,7 @@ fn main() -> Result<()> {
             skip_search_db,
             skip_diffs,
             compact_history,
+            skip_fetch,
         ),
         Cmd::BuildJson {
             input,
@@ -739,6 +745,7 @@ mod cli_tests {
             "--skip-search-db",
             "--skip-diffs",
             "--compact-history",
+            "--skip-fetch",
         ])
         .unwrap();
         assert!(matches!(
@@ -747,6 +754,7 @@ mod cli_tests {
                 skip_search_db: true,
                 skip_diffs: true,
                 compact_history: true,
+                skip_fetch: true,
                 ..
             }
         ));
