@@ -428,6 +428,31 @@ impl Default for HttpProvider {
 impl PubcommentProvider for HttpProvider {
     fn fetch_case_list(&self, mode: u8, page: u32) -> Result<Vec<CaseMeta>> {
         let client = Self::client()?;
+
+        // 日次更新では公式 RSS を正とする。HTML の Mode=0 は「現在募集中」ではなく
+        // 過去を含む意見募集案件一覧（数千件）なので、全件を open と誤分類してしまう。
+        // RSS はページングしないため 1 ページ目だけを取得し、durable cache へ追記する。
+        // 明示的な過去バックフィル時だけ従来の HTML 一覧を利用可能にしておく。
+        let html_backfill =
+            std::env::var("LAWPUB_PUBCOMMENT_HTML_BACKFILL").is_ok_and(|value| value == "1");
+        if !html_backfill {
+            if page > 1 {
+                return Ok(Vec::new());
+            }
+            let feed_url = rss_url(&self.base_url, mode);
+            let xml = Self::get_html(&client, &feed_url)
+                .with_context(|| format!("GET pubcomment RSS {feed_url}"))?;
+            let mut metas = parse_case_rss(&xml, mode)?;
+            tracing::info!("pubcomment RSS: mode={mode}, {} cases", metas.len());
+            for meta in &mut metas {
+                meta.status = mode_status(mode).to_string();
+                if meta.detail_url.is_empty() {
+                    meta.detail_url = detail_url_mode(&self.base_url, &meta.case_id, mode);
+                }
+            }
+            return Ok(metas);
+        }
+
         let url = list_url(&self.base_url, mode, page);
         let primary =
             Self::get_html(&client, &url).and_then(|html| parse_case_list(&html, &self.base_url));

@@ -161,6 +161,24 @@ fn hydrate_attachments(
     for attachment in &mut detail.attachments {
         let raw_path = asset_dir.join(attachment_cache_key(&attachment.url));
 
+        // Reader 由来の本文は原本ファイルを保存しないため raw_path が存在しない。
+        // 前回の抽出本文が durable cache にあれば、日次実行で同じ PDF を再取得しない。
+        if let Some(old) = previous_by_url.get(attachment.url.as_str()) {
+            if old.extraction_method.as_deref() == Some("jina-reader")
+                && old
+                    .extracted_text
+                    .as_ref()
+                    .is_some_and(|text| !text.is_empty())
+            {
+                let name = attachment.name.clone();
+                let url = attachment.url.clone();
+                *attachment = (*old).clone();
+                attachment.name = name;
+                attachment.url = url;
+                continue;
+            }
+        }
+
         // R2/GH cache から原本と抽出済みメタが両方戻っていれば再取得しない。
         if raw_path.exists() {
             if let Some(old) = previous_by_url.get(attachment.url.as_str()) {
