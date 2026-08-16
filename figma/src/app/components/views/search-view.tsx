@@ -10,7 +10,7 @@ import { Separator } from "../ui/separator";
 import { type LawSummary } from "../mock-data";
 import { Search, SlidersHorizontal, ChevronRight, FileText, Database, Landmark, MessageSquare, Newspaper, ExternalLink, BookOpen, ScrollText } from "lucide-react";
 import { useLaws } from "../../data/use-laws";
-import { search as ftsSearch, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, searchSpeeches, searchKanpo, searchTsutatsu, synonymExpansions, type SearchHit, type SpeechHit, type KanpoHit, type TsutatsuHit } from "../../data/search-engine";
+import { search as ftsSearch, isAvailable as isFtsAvailable, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, searchSpeeches, searchKanpo, searchTsutatsu, synonymExpansions, type SearchHit, type SpeechHit, type KanpoHit, type TsutatsuHit } from "../../data/search-engine";
 import { useNavigate } from "react-router";
 
 export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initialQuery?: string; onOpen: (l: LawSummary) => void; onQueryChange?: (q: string) => void }) {
@@ -23,6 +23,11 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
 
   // FTS 検索結果と meta。
   const queryGenRef = useRef(0);
+  // sql.js-httpvfs は 1 Worker 内でクエリを直列実行する。入力のたびに
+  // 検索を追加すると古いクエリがキューに残るため、常に最新世代だけを
+  // 実行するキューに集約する。
+  const searchQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const searchDetailsRequestedRef = useRef(false);
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [speechHits, setSpeechHits] = useState<SpeechHit[]>([]);
   const [kanpoHits, setKanpoHits] = useState<KanpoHit[]>([]);
@@ -32,44 +37,98 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   // 初期クエリがあれば検索中扱いで開始する。さもないと初回 render で
   // hits=[] のまま「該当する条文がありません」が一瞬表示されてしまう。
   const [searching, setSearching] = useState(() => initialQuery.trim() !== "");
+  const [supplementarySearching, setSupplementarySearching] = useState(false);
   // search.db の laws.category から取れる e-Gov 法令分類 (50 区分)。
   const [ftsCategories, setFtsCategories] = useState<string[]>([]);
 
   useEffect(() => {
-    getFtsMeta().then(m => {
-      setFtsAvailable(m !== null);
-      setFtsMeta(m);
-    });
-    getCategories().then(setFtsCategories).catch(() => setFtsCategories([]));
-  }, []);
-
-  useEffect(() => {
-    if (!q.trim()) { setHits([]); setSpeechHits([]); setKanpoHits([]); setTsutatsuHits([]); return; }
-    if (ftsAvailable === false) return; // FTS 不可ならフィルタ側に倒す。
     // 世代カウンタをインクリメント。このエフェクトより前に発行されたクエリが
     // 後から返ってきても、gen が古ければ結果を捨てる。
     const gen = ++queryGenRef.current;
+    const query = q.trim();
+    if (!query) {
+      setHits([]); setSpeechHits([]); setKanpoHits([]); setTsutatsuHits([]);
+      setSearching(false);
+      setSupplementarySearching(false);
+      return;
+    }
+    if (ftsAvailable === false) {
+      setSearching(false);
+      setSupplementarySearching(false);
+      return; // FTS 不可ならフィルタ側に倒す。
+    }
+    if (!buildFtsMatch(query)) {
+      setHits([]); setSpeechHits([]); setKanpoHits([]); setTsutatsuHits([]);
+      setSearching(false);
+      setSupplementarySearching(false);
+      return;
+    }
+
     setSearching(true);
+    setSupplementarySearching(false);
+    setHits([]);
+    setSpeechHits([]);
+    setKanpoHits([]);
+    setTsutatsuHits([]);
     const timer = setTimeout(() => {
-      Promise.all([
-        ftsSearch(q, 50, Array.from(cats)),
-        searchSpeeches(q, 10),
-        searchKanpo(q, 10),
-        searchTsutatsu(q, 10),
-      ])
-        .then(([lawHits, spHits, kpHits, tsHits]) => {
-          if (queryGenRef.current === gen) {
-            setHits(lawHits);
-            setSpeechHits(spHits);
-            setKanpoHits(kpHits);
-            setTsutatsuHits(tsHits);
+      const run = async () => {
+        // 待ち行列にいる間に入力が更新されたら、DB に古い検索を
+        // 発行すること自体をやめる。
+        if (queryGenRef.current !== gen) return;
+        try {
+          // meta / カテゴリの補助クエリより検索を優先する。ここでは
+          // Worker と DB の準備だけを待ち、検索後に詳細情報を読み込む。
+          const available = await isFtsAvailable();
+          if (queryGenRef.current !== gen) return;
+          if (!available) {
+            setFtsAvailable(false);
             setSearching(false);
+            return;
           }
-        })
-        .catch(() => { if (queryGenRef.current === gen) setSearching(false); });
+
+          // 一番重要な法令結果を先に表示する。Promise.all で全横断面を
+          // 待つと、通達まで完了する間ずっと skeleton のままになる。
+          const lawHits = await ftsSearch(query, 50, Array.from(cats));
+          if (queryGenRef.current !== gen) return;
+          setFtsAvailable(true);
+          setHits(lawHits);
+          setSearching(false);
+          setSupplementarySearching(true);
+
+          // 1 Worker では Promise.all でも並列にならない。明示的に 1 つずつ
+          // 実行し、その都度表示する。入力が変わったら残りは発行しない。
+          const spHits = await searchSpeeches(query, 10);
+          if (queryGenRef.current !== gen) return;
+          setSpeechHits(spHits);
+
+          const kpHits = await searchKanpo(query, 10);
+          if (queryGenRef.current !== gen) return;
+          setKanpoHits(kpHits);
+
+          const tsHits = await searchTsutatsu(query, 10);
+          if (queryGenRef.current !== gen) return;
+          setTsutatsuHits(tsHits);
+          setSupplementarySearching(false);
+        } catch {
+          if (queryGenRef.current === gen) {
+            setSearching(false);
+            setSupplementarySearching(false);
+          }
+        }
+      };
+      searchQueueRef.current = searchQueueRef.current.catch(() => {}).then(run);
     }, 300);
     return () => { clearTimeout(timer); };
-  }, [q, ftsAvailable, cats]);
+  }, [q, cats]);
+
+  // 件数 meta とカテゴリは初回の法令検索をブロックさせない。
+  // 検索結果が画面に出てから、1 度だけ遅延読み込みする。
+  useEffect(() => {
+    if (ftsAvailable !== true || searching || searchDetailsRequestedRef.current) return;
+    searchDetailsRequestedRef.current = true;
+    getFtsMeta().then(setFtsMeta).catch(() => setFtsMeta(null));
+    getCategories().then(setFtsCategories).catch(() => setFtsCategories([]));
+  }, [ftsAvailable, searching]);
 
   // FTS 不可のときの法令単位フィルタ (旧来動作)。
   const filteredLaws = useMemo(() => {
@@ -336,6 +395,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
               {(loading || searching) && " (読み込み中…)"}
               {!loading && !lawsLive && !useFts && " (モック)"}
               {useFts && " · 関連度順 (FTS5)"}
+              {useFts && supplementarySearching && " · 会議録・官報・通達を検索中…"}
             </span>
             <div className="flex gap-2">
               <Button variant="outline" size="sm">関連度順</Button>

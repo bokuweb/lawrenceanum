@@ -216,9 +216,8 @@ async function loadWorker(): Promise<WorkerHttpvfs | null> {
               from: "inline",
               config: {
                 serverMode: "full",
-                // 64KB/chunk: FTS5 B-tree traversal typically needs 10-30 pages.
-                // At 4KB that's 10-30 HTTP round trips (~50ms each on R2).
-                // At 64KB each request covers 16 SQLite pages, cutting trips by ~16x.
+                // search.db の 64KB page_size に合わせ、1 回の Range で
+                // 必要な SQLite ページを過不足なく取得する。
                 requestChunkSize: 65536,
                 url: dbUrl,
               },
