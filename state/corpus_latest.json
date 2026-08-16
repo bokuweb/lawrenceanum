@@ -32,11 +32,11 @@
       "last_success_at": "2026-08-15T20:38:10Z"
     },
     "budget": {
-      "last_attempt_at": "2026-08-16T01:33:52Z",
+      "last_attempt_at": "2026-08-16T02:13:28Z",
       "status": "success",
-      "last_success_at": "2026-08-16T01:33:52Z"
+      "last_success_at": "2026-08-16T02:13:28Z"
     }
   },
-  "updated_at": "2026-08-16T01:33:52Z",
+  "updated_at": "2026-08-16T02:13:28Z",
   "last_run_domains": "budget"
 }
