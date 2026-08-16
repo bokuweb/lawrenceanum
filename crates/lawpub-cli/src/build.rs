@@ -762,6 +762,15 @@ fn diff_articles(prev: &LawDocument, cur: &LawDocument) -> ArticleDiff {
 }
 
 pub fn run_build_json(input: &Path, output: &Path, build_search_db: bool) -> Result<()> {
+    run_build_json_with_options(input, output, build_search_db, false)
+}
+
+fn run_build_json_with_options(
+    input: &Path,
+    output: &Path,
+    build_search_db: bool,
+    compact_history: bool,
+) -> Result<()> {
     // メモリ有界化: 法令を 1 件ずつ load → 本文ファイルを書き出し → 履歴 doc を解放する。
     // (旧実装は全 revision の LawDocument を一括で RAM に載せ、全件履歴では 16GB を
     //  超えて OOM していた。build-diffs は public のファイルを 1 法令ずつ読むので、
@@ -788,6 +797,7 @@ pub fn run_build_json(input: &Path, output: &Path, build_search_db: bool) -> Res
     let law_ids = collect_law_ids(input, &egov)?;
     let mut light: Vec<LawWithHistory> = Vec::new();
     let mut skipped = 0usize;
+    let mut history_entries_omitted = 0usize;
     for law_id in law_ids {
         let mut law = build_one_law(input, &law_id, egov.get(&law_id))?;
         if law.revisions.is_empty() {
@@ -796,7 +806,11 @@ pub fn run_build_json(input: &Path, output: &Path, build_search_db: bool) -> Res
             continue;
         }
         // この法令の本文ファイル (current/revisions/articles/versions/timeline) を書き出す。
-        write_law_documents(&tmp, std::slice::from_ref(&law))?;
+        // 過去版の個別 JSON は比較画面が on-demand 取得するので必ず維持する。一方、
+        // Pages deploy の履歴束は後段で R2 の prebuilt と union するため、ここでは
+        // 現行版と今回更新分だけに絞り、10万版の再圧縮を避けられる。
+        history_entries_omitted +=
+            write_law_documents(&tmp, std::slice::from_ref(&law), compact_history)?;
         if law.fetched_dates.is_empty() {
             // 履歴 doc を解放しピーク RAM を抑える。現行版だけ残す。
             let cur = law.current_rev().clone();
@@ -814,6 +828,12 @@ pub fn run_build_json(input: &Path, output: &Path, build_search_db: bool) -> Res
         tracing::info!(
             "build-json: skipped {} meta-only laws (no body cached)",
             skipped
+        );
+    }
+    if compact_history {
+        tracing::info!(
+            "build-json: compact history omitted {} prebuilt history entry(ies) from recompression; individual revision JSON files were preserved",
+            history_entries_omitted
         );
     }
 
@@ -866,6 +886,7 @@ pub fn run_update(
     force: bool,
     skip_search_db: bool,
     skip_diffs: bool,
+    compact_history: bool,
 ) -> Result<()> {
     let state_path = PathBuf::from("state/latest.json");
     let last_run_path = PathBuf::from("state/last_run.json");
@@ -914,7 +935,7 @@ pub fn run_update(
                     st.law_count
                 );
             }
-            run_build_json(cache, public, !skip_search_db)?;
+            run_build_json_with_options(cache, public, !skip_search_db, compact_history)?;
             // 成功したら deploy される法令数を git 追跡の state に記録 → 次回の基準線。
             if let Some(n) = count_law_dirs(public) {
                 st.law_count = Some(n);
@@ -1476,7 +1497,7 @@ fn build_into(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
     std::fs::create_dir_all(&tmp)?;
 
     write_schema(&tmp)?;
-    write_law_documents(&tmp, laws)?;
+    write_law_documents(&tmp, laws, false)?;
     write_indices(&tmp, laws)?;
     write_per_date_updates(&tmp, laws)?;
     write_seo(&tmp, laws)?;
@@ -1508,7 +1529,25 @@ fn build_into(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
     Ok(())
 }
 
-fn write_law_documents(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
+fn include_in_compact_history(
+    law: &LawWithHistory,
+    revision: &Revision,
+    file_revision_id: &str,
+    current_revision_id: &str,
+) -> bool {
+    file_revision_id == current_revision_id
+        || law
+            .fetched_dates
+            .values()
+            .any(|id| id == &revision.revision_id || id == file_revision_id)
+}
+
+fn write_law_documents(
+    public: &Path,
+    laws: &[LawWithHistory],
+    compact_history: bool,
+) -> Result<usize> {
+    let mut history_entries_omitted = 0usize;
     for law in laws {
         // 本文を 1 件も持たない (= meta だけ取れている) 法令は current.json を
         // 書けないので skip する。fetch_revision_bodies が走るまでは大量の
@@ -1556,9 +1595,9 @@ fn write_law_documents(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
         // ファイル名で書き出して versions.json と紐付ける。
         let revisions_dir = dir.join("revisions");
         std::fs::create_dir_all(&revisions_dir)?;
-        // 履歴束 (history.zst): 全版を NDJSON 1 ファイルにまとめ zstd(--long) で圧縮する。
-        // 版間はほぼ同一なので大窓 zstd が重複を dedup し、per-file gzip の ~1/30 になる。
-        // SPA はこの束を 1 回取得して履歴閲覧＋任意 2 版 diff をクライアント側で行える。
+        // 履歴束 (history.zst): 通常は全版を NDJSON 1 ファイルにまとめる。
+        // Pages deploy では後段で R2 の prebuilt 束と union するため、現行版と今回更新分
+        // だけを一旦圧縮する。比較画面が読む個別 revision JSON は上で全版を書き出す。
         let mut history_ndjson: Vec<u8> = Vec::new();
         for r in &law.revisions {
             let mut doc = r.doc.clone();
@@ -1574,9 +1613,15 @@ fn write_law_documents(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
                 "historical".to_string()
             };
             write_json_pretty(&revisions_dir.join(format!("{}.json", file_rev_id)), &doc)?;
-            // 束には compact JSON を 1 行として追記 (同じ doc)。
-            history_ndjson.extend_from_slice(&serde_json::to_vec(&doc)?);
-            history_ndjson.push(b'\n');
+            if !compact_history
+                || include_in_compact_history(law, r, &file_rev_id, &current_rev_id)
+            {
+                // 束には compact JSON を 1 行として追記 (同じ doc)。
+                history_ndjson.extend_from_slice(&serde_json::to_vec(&doc)?);
+                history_ndjson.push(b'\n');
+            } else {
+                history_entries_omitted += 1;
+            }
         }
         std::fs::write(dir.join("history.ndjson.zst"), zstd_long(&history_ndjson)?)?;
 
@@ -1736,7 +1781,7 @@ fn write_law_documents(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
             }),
         )?;
     }
-    Ok(())
+    Ok(history_entries_omitted)
 }
 
 fn write_indices(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
@@ -2847,5 +2892,75 @@ mod history_bundle_tests {
         assert_eq!(ids, vec!["L_20240101_A", "L_20250101_B"]);
 
         let _ = std::fs::remove_dir_all(&base);
+    }
+}
+
+#[cfg(test)]
+mod deployment_build_tests {
+    use super::{read_history_bundle_lines, write_law_documents, LawWithHistory, Revision};
+    use law_normalizer::{LawDocument, SourceMeta};
+    use std::collections::BTreeMap;
+
+    fn revision(id: &str) -> Revision {
+        Revision {
+            revision_id: id.to_string(),
+            sha256: id.to_string(),
+            first_seen_date: id.to_string(),
+            doc: LawDocument {
+                schema_version: 1,
+                law_id: "LAW".to_string(),
+                law_num: None,
+                title: "test".to_string(),
+                revision_id: Some(id.to_string()),
+                promulgation_date: None,
+                effective_date: None,
+                status: "historical".to_string(),
+                articles: Vec::new(),
+                suppl_provisions: Vec::new(),
+                source: SourceMeta {
+                    provider: "test".to_string(),
+                    raw_xml_sha256: None,
+                    fetched_at: "2026-08-16T00:00:00Z".to_string(),
+                },
+            },
+        }
+    }
+
+    fn law() -> LawWithHistory {
+        LawWithHistory {
+            law_id: "LAW".to_string(),
+            revisions: vec![revision("r1"), revision("r2"), revision("r3")],
+            fetched_dates: BTreeMap::new(),
+            meta_revisions: Vec::new(),
+            meta_law_info: None,
+        }
+    }
+
+    #[test]
+    fn compact_history_keeps_individual_bodies_and_limits_bundle() {
+        let mut law = law();
+        law.fetched_dates
+            .insert("2026-08-16".to_string(), "r2".to_string());
+        let root = std::env::temp_dir().join(format!(
+            "lawpub_compact_history_{}_{}",
+            std::process::id(),
+            chrono::Utc::now().timestamp_nanos_opt().unwrap_or_default()
+        ));
+        let _ = std::fs::remove_dir_all(&root);
+
+        assert_eq!(write_law_documents(&root, &[law], true).unwrap(), 1);
+        let revisions = root.join("laws/LAW/revisions");
+        assert!(revisions.join("r1.json").exists());
+        assert!(revisions.join("r2.json").exists());
+        assert!(revisions.join("r3.json").exists());
+
+        let lines = read_history_bundle_lines(&root.join("laws/LAW/history.ndjson.zst")).unwrap();
+        let ids: Vec<String> = lines
+            .iter()
+            .filter_map(|line| super::revision_id_of_line(line))
+            .collect();
+        assert_eq!(ids, vec!["r2", "r3"]);
+
+        let _ = std::fs::remove_dir_all(root);
     }
 }

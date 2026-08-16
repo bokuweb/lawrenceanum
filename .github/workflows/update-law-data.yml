@@ -268,7 +268,7 @@ jobs:
         run: |
           # 全9千法令の差分再計算はrunner shutdownを繰り返すため、配信runでは分離する。
           # 法令本文・検索・各コーパスのPages更新を差分生成の失敗で止めない。
-          ARGS=(--public public --cache .cache --provider "$LAWPUB_PROVIDER" --skip-search-db --skip-diffs)
+          ARGS=(--public public --cache .cache --provider "$LAWPUB_PROVIDER" --skip-search-db --skip-diffs --compact-history)
           if [ -n "${{ github.event.inputs.date }}" ]; then
             ARGS+=(--date "${{ github.event.inputs.date }}")
           fi
