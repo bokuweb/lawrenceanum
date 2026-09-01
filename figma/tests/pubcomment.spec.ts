@@ -102,11 +102,39 @@ test("意見が未構造化でも添付PDFの抽出本文を表示・検索で�
   });
   await page.goto(new URL("#/pubcomment/2023-00001", BASE).toString());
 
-  await expect(page.getByText("PDF抽出本文（未構造化）")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText("添付資料の抽出本文（未構造化）")).toBeVisible({ timeout: 15_000 });
   await expect(page.getByText(/長期的なモニタリングを実施すべき/)).toBeVisible();
 
   await page.getByPlaceholder("意見・考え方を検索…").fill("モニタリング");
   await expect(page.getByText("1 / 1 件の抽出資料")).toBeVisible();
+});
+
+test("募集中の案件では結果公示前であることを表示する", async ({ page }) => {
+  await mockPubcomment(page, {
+    ...DETAIL,
+    status: "open",
+    result_published: null,
+    opinion_count: null,
+    opinions: [],
+    attachments: [],
+  });
+  await page.goto(new URL("#/pubcomment/2023-00001", BASE).toString());
+
+  await expect(page.getByText("意見募集中のため、意見の概要・府省の考え方はまだ公開されていません"))
+    .toBeVisible({ timeout: 15_000 });
+});
+
+test("結果公示済みで提出意見0件なら件数を明示する", async ({ page }) => {
+  await mockPubcomment(page, {
+    ...DETAIL,
+    status: "closed",
+    opinion_count: 0,
+    opinions: [],
+    attachments: [],
+  });
+  await page.goto(new URL("#/pubcomment/2023-00001", BASE).toString());
+
+  await expect(page.getByText("提出意見は0件です")).toBeVisible({ timeout: 15_000 });
 });
 
 test("一覧から案件をクリックして詳細へ遷移できる", async ({ page }) => {

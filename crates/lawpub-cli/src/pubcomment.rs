@@ -4,6 +4,7 @@ use pubcomment_client::{
 };
 use sha2::{Digest, Sha256};
 use std::collections::{HashMap, HashSet};
+use std::io::{Cursor, Read};
 use std::path::Path;
 use std::process::Command;
 
@@ -214,10 +215,47 @@ fn hydrate_attachments(
                 if old.sha256.is_some() {
                     let name = attachment.name.clone();
                     let url = attachment.url.clone();
-                    *attachment = (*old).clone();
-                    attachment.name = name;
-                    attachment.url = url;
-                    continue;
+                    let retry_docx = old.extracted_text.as_deref().unwrap_or("").is_empty()
+                        && is_docx_attachment(
+                            old.media_type.as_deref(),
+                            old.filename.as_deref(),
+                            &[],
+                        );
+                    // 旧runで unsupported だった DOCX は、R2上の原本を使って新しい
+                    // 抽出器を一度だけ再適用する。0 byte 原本は下へ進め再取得する。
+                    if retry_docx && old.bytes != Some(0) {
+                        if let Ok(bytes) = std::fs::read(&raw_path) {
+                            let mut recovered = (*old).clone();
+                            recovered.media_type = Some(
+                                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                    .to_string(),
+                            );
+                            match extract_attachment_text(
+                                &raw_path,
+                                recovered.media_type.as_deref(),
+                                recovered.filename.as_deref(),
+                                &bytes,
+                            ) {
+                                Ok((text, method)) => {
+                                    recovered.extracted_text = Some(text);
+                                    recovered.extraction_method = Some(method);
+                                    recovered.extraction_error = None;
+                                }
+                                Err(error) => {
+                                    recovered.extraction_error = Some(error.to_string());
+                                }
+                            }
+                            *attachment = recovered;
+                            attachment.name = name;
+                            attachment.url = url;
+                            continue;
+                        }
+                    } else if old.bytes != Some(0) {
+                        *attachment = (*old).clone();
+                        attachment.name = name;
+                        attachment.url = url;
+                        continue;
+                    }
                 }
             }
         }
@@ -264,7 +302,12 @@ fn hydrate_attachments(
         attachment.bytes = Some(fetched.bytes.len() as u64);
         attachment.fetched_at = Some(fetched.fetched_at);
 
-        match extract_attachment_text(&raw_path, attachment.media_type.as_deref(), &fetched.bytes) {
+        match extract_attachment_text(
+            &raw_path,
+            attachment.media_type.as_deref(),
+            attachment.filename.as_deref(),
+            &fetched.bytes,
+        ) {
             Ok((text, method)) => {
                 attachment.extracted_text = Some(text);
                 attachment.extraction_method = Some(method);
@@ -280,6 +323,7 @@ fn hydrate_attachments(
 fn extract_attachment_text(
     path: &Path,
     media_type: Option<&str>,
+    filename: Option<&str>,
     bytes: &[u8],
 ) -> Result<(String, String)> {
     let is_pdf = media_type == Some("application/pdf") || bytes.starts_with(b"%PDF-");
@@ -303,6 +347,42 @@ fn extract_attachment_text(
         return Ok((text, "pdftotext-layout".to_string()));
     }
 
+    if is_docx_attachment(media_type, filename, bytes) {
+        return Ok((
+            extract_docx_text(bytes)?,
+            "docx-wordprocessingml".to_string(),
+        ));
+    }
+
+    let leading = bytes
+        .iter()
+        .copied()
+        .skip_while(u8::is_ascii_whitespace)
+        .take(32)
+        .collect::<Vec<_>>();
+    let is_html = media_type == Some("text/html")
+        || leading.starts_with(b"<!DOCTYPE html")
+        || leading.starts_with(b"<!doctype html")
+        || leading.starts_with(b"<html");
+    if is_html {
+        let html = String::from_utf8_lossy(bytes);
+        let document = scraper::Html::parse_document(&html);
+        let main = scraper::Selector::parse("main").expect("static selector");
+        let text = document
+            .select(&main)
+            .next()
+            .unwrap_or_else(|| document.root_element())
+            .text()
+            .map(str::trim)
+            .filter(|part| !part.is_empty())
+            .collect::<Vec<_>>()
+            .join("\n");
+        if text.is_empty() {
+            anyhow::bail!("HTML attachment contains no text");
+        }
+        return Ok((text, "html-text".to_string()));
+    }
+
     if media_type.is_some_and(|m| {
         m.starts_with("text/") || m == "application/json" || m == "application/xml"
     }) {
@@ -317,6 +397,45 @@ fn extract_attachment_text(
         "text extraction unsupported for {} (raw source archived)",
         media_type.unwrap_or("unknown media type")
     )
+}
+
+fn is_docx_attachment(media_type: Option<&str>, filename: Option<&str>, bytes: &[u8]) -> bool {
+    media_type == Some("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+        || filename.is_some_and(|name| name.to_ascii_lowercase().ends_with(".docx"))
+        || (bytes.starts_with(b"PK\x03\x04")
+            && filename.is_some_and(|name| name.to_ascii_lowercase().contains(".docx")))
+}
+
+fn extract_docx_text(bytes: &[u8]) -> Result<String> {
+    let cursor = Cursor::new(bytes);
+    let mut archive = zip::ZipArchive::new(cursor).context("open DOCX zip")?;
+    let mut document = archive
+        .by_name("word/document.xml")
+        .context("DOCX is missing word/document.xml")?;
+    let mut xml = String::new();
+    document
+        .read_to_string(&mut xml)
+        .context("read DOCX document.xml")?;
+
+    let mut reader = quick_xml::Reader::from_str(&xml);
+    reader.config_mut().trim_text(false);
+    let mut text = String::new();
+    loop {
+        use quick_xml::events::Event;
+        match reader.read_event().context("parse DOCX document.xml")? {
+            Event::Text(value) => text.push_str(&value.unescape().context("decode DOCX text")?),
+            Event::Empty(tag) if tag.name().as_ref() == b"w:tab" => text.push('\t'),
+            Event::Empty(tag) if tag.name().as_ref() == b"w:br" => text.push('\n'),
+            Event::End(tag) if tag.name().as_ref() == b"w:p" => text.push('\n'),
+            Event::Eof => break,
+            _ => {}
+        }
+    }
+    let text = text.trim().to_string();
+    if text.is_empty() {
+        anyhow::bail!("DOCX document contains no text");
+    }
+    Ok(text)
 }
 
 /// `lawpub pubcomment-build-json` の実装。
@@ -497,5 +616,49 @@ mod tests {
         assert_eq!(index["cases"][0]["reception_start"], "2023-06-01");
 
         std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn docx_attachment_text_is_extracted() {
+        use std::io::Write as _;
+
+        let mut bytes = Vec::new();
+        {
+            let cursor = Cursor::new(&mut bytes);
+            let mut archive = zip::ZipWriter::new(cursor);
+            archive
+                .start_file(
+                    "word/document.xml",
+                    zip::write::SimpleFileOptions::default(),
+                )
+                .unwrap();
+            archive
+                .write_all(
+                    r#"<?xml version="1.0" encoding="UTF-8"?><w:document xmlns:w="urn:test"><w:body><w:p><w:r><w:t>提出意見</w:t></w:r></w:p><w:p><w:r><w:t>府省の考え方</w:t></w:r></w:p></w:body></w:document>"#
+                        .as_bytes(),
+                )
+                .unwrap();
+            archive.finish().unwrap();
+        }
+
+        let text = extract_docx_text(&bytes).unwrap();
+        assert_eq!(text, "提出意見\n府省の考え方");
+        assert!(is_docx_attachment(
+            Some("application/octetstream"),
+            Some("%E6%84%8F%E8%A6%8B.docx"),
+            &bytes,
+        ));
+    }
+
+    #[test]
+    fn external_result_html_text_is_extracted() {
+        let html = r#"<!DOCTYPE html><html><body><nav>navigation</nav><main><h1>意見募集の結果</h1><p>提出意見164件</p></main></body></html>"#
+            .as_bytes();
+        let (text, method) =
+            extract_attachment_text(Path::new("unused.html"), Some("text/html"), None, html)
+                .unwrap();
+        assert_eq!(method, "html-text");
+        assert_eq!(text, "意見募集の結果\n提出意見164件");
+        assert!(!text.contains("navigation"));
     }
 }

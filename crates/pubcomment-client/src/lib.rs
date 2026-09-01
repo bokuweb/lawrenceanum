@@ -20,6 +20,7 @@ use anyhow::{Context, Result};
 use reqwest::header::{ACCEPT, ACCEPT_LANGUAGE, CONTENT_DISPOSITION, CONTENT_TYPE};
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 use std::io::Read;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
@@ -611,6 +612,14 @@ impl PubcommentProvider for HttpProvider {
                 bytes.len()
             );
         }
+        if bytes.is_empty() {
+            return Self::fetch_reader_attachment(
+                &client,
+                url,
+                "e-Gov returned an empty attachment body",
+            );
+        }
+        let media_type = infer_attachment_media_type(media_type, filename.as_deref(), &bytes);
         Ok(FetchedAttachment {
             bytes,
             media_type,
@@ -619,6 +628,25 @@ impl PubcommentProvider for HttpProvider {
             extraction_method: None,
         })
     }
+}
+
+/// e-Gov は DOCX を `application/octetstream` で返すことがあるため、ファイル名と
+/// magic bytes を優先して、下流の抽出器が扱える MIME type に補正する。
+fn infer_attachment_media_type(
+    media_type: Option<String>,
+    filename: Option<&str>,
+    bytes: &[u8],
+) -> Option<String> {
+    if bytes.starts_with(b"%PDF-") {
+        return Some("application/pdf".to_string());
+    }
+    let filename = filename.unwrap_or("").to_ascii_lowercase();
+    if bytes.starts_with(b"PK\x03\x04") && filename.ends_with(".docx") {
+        return Some(
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document".to_string(),
+        );
+    }
+    media_type
 }
 
 /// Content-Disposition の filename / RFC 5987 filename* を最小限解釈する。
@@ -936,19 +964,23 @@ pub fn parse_case_detail(
             .ok()
     });
 
-    // 添付ファイル (結果公示 PDF 等)。
+    // 添付ファイル (結果公示 PDF 等) と、府省サイト上の外部結果ページ。
     let mut attachments = Vec::new();
-    for a in document.select(&sel("a.file[href], a[href*=\"/pcm/download\"]")) {
-        let href = a.value().attr("href").unwrap_or("");
-        if href.is_empty() {
-            continue;
+    let mut attachment_urls = HashSet::new();
+    let mut push_attachment = |href: &str, name: String| {
+        if href.is_empty() || href.starts_with("javascript:") || href.starts_with('#') {
+            return;
         }
         let full = if href.starts_with("http") {
             href.to_string()
-        } else {
+        } else if href.starts_with('/') {
             format!("{base_url}{href}")
+        } else {
+            format!("{}/{href}", base_url.trim_end_matches('/'))
         };
-        let name = text_of(&a);
+        if !attachment_urls.insert(full.clone()) {
+            return;
+        }
         attachments.push(Attachment {
             name: if name.is_empty() {
                 "添付".to_string()
@@ -965,6 +997,29 @@ pub fn parse_case_detail(
             extraction_error: None,
             fetched_at: None,
         });
+    };
+
+    // e-Gov 内にファイルを置かず、府省サイトの結果ページだけを「結果概要」欄に
+    // 掲載する案件がある。ナビゲーションやSNSリンクを拾わないよう結果行に限定する。
+    for tr in document.select(&tr_sel) {
+        let (Some(th), Some(td)) = (tr.select(&th_sel).next(), tr.select(&td_sel).next()) else {
+            continue;
+        };
+        let label: String = text_of(&th)
+            .chars()
+            .filter(|c| !c.is_whitespace())
+            .collect();
+        if !label.contains("結果概要") && !label.contains("結果・理由等") {
+            continue;
+        }
+        for anchor in td.select(&sel("a[href]")) {
+            push_attachment(anchor.value().attr("href").unwrap_or(""), text_of(&anchor));
+        }
+    }
+
+    for a in document.select(&sel("a.file[href], a[href*=\"/pcm/download\"]")) {
+        let href = a.value().attr("href").unwrap_or("");
+        push_attachment(href, text_of(&a));
     }
 
     let title = if title.is_empty() {
@@ -1059,6 +1114,28 @@ mod tests {
     }
 
     #[test]
+    fn attachment_media_type_is_inferred_from_magic_and_filename() {
+        assert_eq!(
+            infer_attachment_media_type(
+                Some("application/octetstream".to_string()),
+                Some("%E6%84%8F%E8%A6%8B.docx"),
+                b"PK\x03\x04mock",
+            )
+            .as_deref(),
+            Some("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+        );
+        assert_eq!(
+            infer_attachment_media_type(
+                Some("application/octet-stream".to_string()),
+                Some("unknown.bin"),
+                b"%PDF-1.7",
+            )
+            .as_deref(),
+            Some("application/pdf")
+        );
+    }
+
+    #[test]
     fn law_name_extraction() {
         assert_eq!(
             law_name_from_legal_basis("更生保護法第12条第3項（…）").as_deref(),
@@ -1129,6 +1206,7 @@ mod tests {
   <tr><th> 結果の公示日 </th><td>2026年6月19日</td></tr>
   <tr><th> 提出意見数 </th><td>2</td></tr>
   <tr><th> （所管省庁・部局名等） </th><td>法務省保護局総務課</td></tr>
+  <tr><th> 結果概要 提出意見 意見の考慮 結果・理由等 </th><td><a href="https://example.go.jp/result.html">府省サイトの結果</a></td></tr>
 </tbody></table>
 <a class="file" href="/pcm/download?seqNo=0000316383" target="_blank">結果公示</a>
 </body></html>"#;
@@ -1148,8 +1226,10 @@ mod tests {
         assert_eq!(d.result_published.as_deref(), Some("2026年6月19日"));
         assert_eq!(d.opinion_count, Some(2));
         assert_eq!(d.ministry.as_deref(), Some("法務省"));
-        assert_eq!(d.attachments.len(), 1);
-        assert!(d.attachments[0]
+        assert_eq!(d.attachments.len(), 2);
+        assert_eq!(d.attachments[0].url, "https://example.go.jp/result.html");
+        assert!(d.attachments[0].name.contains("府省サイトの結果"));
+        assert!(d.attachments[1]
             .url
             .contains("/pcm/download?seqNo=0000316383"));
     }
