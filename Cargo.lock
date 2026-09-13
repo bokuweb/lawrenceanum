@@ -1038,6 +1038,7 @@ dependencies = [
  "linking",
  "procurement-client",
  "pubcomment-client",
+ "quick-xml",
  "rayon",
  "reiki-client",
  "reqwest",
@@ -1051,6 +1052,7 @@ dependencies = [
  "tracing-subscriber",
  "tsutatsu-client",
  "walkdir",
+ "zip",
  "zstd",
 ]
 
