@@ -1128,6 +1128,7 @@ mod tests {
                 paragraphs: vec![Paragraph {
                     paragraph_no: None,
                     text: "銀行はBIS規制に基づき自己資本比率を維持しなければならない。".into(),
+                    ..Default::default()
                 }],
             }],
             suppl_provisions: vec![],
@@ -1266,6 +1267,7 @@ mod tests {
                     paragraphs: vec![Paragraph {
                         paragraph_no: None,
                         text: "分割トランザクションを検証する。".into(),
+                        ..Default::default()
                     }],
                 }],
                 suppl_provisions: vec![],

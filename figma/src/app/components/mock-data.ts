@@ -16,7 +16,7 @@ export type Article = {
   article_id: string;
   article_no: string;
   caption?: string;
-  paragraphs: { paragraph_no: string; text: string }[];
+  paragraphs: { paragraph_no: string; paragraph_num?: string; text: string }[];
 };
 
 export type LawDocument = LawSummary & {

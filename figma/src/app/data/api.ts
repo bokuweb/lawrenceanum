@@ -42,7 +42,22 @@ export type LawsIndex = {
   laws: LawSummaryRaw[]
 }
 
-export type Paragraph = { paragraph_no: string | null; text: string }
+/** 号 (`<Item>`) と号の細分 (`<Subitem1>`…)。num は Num 属性、title は "十五" / "イ" 等。 */
+export type Item = {
+  num: string | null
+  title: string | null
+  text: string
+  subitems?: Item[]
+}
+export type Paragraph = {
+  /** `<ParagraphNum>` の表示テキスト。第 1 項や旧様式の法令では null。 */
+  paragraph_no: string | null
+  /** `<Paragraph Num>` 属性 ("1", "2", …)。旧 JSON には無い。 */
+  paragraph_num?: string | null
+  /** 項の文 + 番号付きの号 ("十五　社外取締役　…") を改行で連結したもの。 */
+  text: string
+  items?: Item[]
+}
 export type Article = {
   article_id: string
   article_no: string

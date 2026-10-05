@@ -376,6 +376,7 @@ mod tests {
                 .map(|(n, t)| Paragraph {
                     paragraph_no: if n.is_empty() { None } else { Some(n.to_string()) },
                     text: t.to_string(),
+                    ..Default::default()
                 })
                 .collect(),
         }
