@@ -1173,10 +1173,12 @@ mod tests {
                 article_id: "art_2".into(),
                 article_no: "第二条".into(),
                 caption: None,
-                paragraphs: vec![Paragraph {
-                    paragraph_no: None,
-                    text: "別表に掲げるもの".into(),
-                }],
+                // 構造体リテラルにせず JSON から作る (Paragraph に項目が増えても壊れない)。
+                paragraphs: vec![serde_json::from_value::<Paragraph>(serde_json::json!({
+                    "paragraph_no": null,
+                    "text": "別表に掲げるもの",
+                }))
+                .unwrap()],
             }],
             suppl_provisions: vec![],
             appendix_tables,
