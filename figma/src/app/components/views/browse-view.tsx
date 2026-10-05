@@ -719,10 +719,10 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
                         )}
                       </header>
                       <div className="space-y-2 text-sm leading-relaxed">
-                        {a.paragraphs.map(p => (
-                          <p key={p.paragraph_no} className="flex gap-3">
+                        {a.paragraphs.map((p, i) => (
+                          <p key={p.paragraph_num ?? p.paragraph_no ?? i} className="flex gap-3">
                             <span className="text-muted-foreground tabular-nums shrink-0 w-6">{p.paragraph_no}</span>
-                            <span>{linkifyText(p.text, out, navigate, law.law_id)}</span>
+                            <span className="whitespace-pre-line">{linkifyText(p.text, out, navigate, law.law_id)}</span>
                           </p>
                         ))}
                       </div>

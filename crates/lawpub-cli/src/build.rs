@@ -2547,8 +2547,26 @@ fn write_schema(public: &Path) -> Result<()> {
                 "type": "object",
                 "required": ["text"],
                 "properties": {
-                    "paragraph_no": { "type": ["string", "null"] },
-                    "text":         { "type": "string" }
+                    "paragraph_no":  { "type": ["string", "null"] },
+                    "paragraph_num": { "type": ["string", "null"] },
+                    "text":          { "type": "string" },
+                    "items": {
+                        "type": "array",
+                        "items": { "$ref": "#/$defs/item" }
+                    }
+                }
+            },
+            "item": {
+                "type": "object",
+                "required": ["text"],
+                "properties": {
+                    "num":   { "type": ["string", "null"] },
+                    "title": { "type": ["string", "null"] },
+                    "text":  { "type": "string" },
+                    "subitems": {
+                        "type": "array",
+                        "items": { "$ref": "#/$defs/item" }
+                    }
                 }
             },
             "source": {
