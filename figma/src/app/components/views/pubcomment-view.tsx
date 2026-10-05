@@ -98,7 +98,7 @@ function AttachmentTextCard({ attachment, initiallyOpen }: {
       <summary className="cursor-pointer list-none flex items-center gap-2 text-sm font-medium">
         <FileText className="size-4 shrink-0 text-muted-foreground" />
         <span className="truncate">{attachment.name || attachment.filename || "添付資料"}</span>
-        <span className="text-[10px] font-normal text-muted-foreground shrink-0">PDF抽出本文（未構造化）</span>
+        <span className="text-[10px] font-normal text-muted-foreground shrink-0">添付資料の抽出本文（未構造化）</span>
       </summary>
       <pre className="mt-3 max-h-[32rem] overflow-auto rounded-md bg-muted/40 p-3 whitespace-pre-wrap break-words font-sans text-sm leading-relaxed text-foreground/90">
         {attachment.extracted_text}
@@ -185,7 +185,7 @@ function CaseDetail({ caseId, onLawClick }: {
           </div>
         )}
 
-        {/* 添付ファイル（意見と府省の考え方の本文 PDF など） */}
+        {/* 添付ファイル（意見と府省の考え方の本文 PDF / DOCX など） */}
         {data.attachments && data.attachments.length > 0 && (
           <div className="mt-2.5 flex flex-wrap gap-1.5">
             {data.attachments.map((a, i) => (
@@ -252,8 +252,12 @@ function CaseDetail({ caseId, onLawClick }: {
             <p className="py-8 text-center text-sm text-muted-foreground">
               {data.opinions.length === 0
                 ? (data.attachments && data.attachments.length > 0
-                    ? "意見と府省の考え方は上部の添付ファイル（PDF）で公開されています"
-                    : "意見の概要が公開されていません")
+                    ? "意見と府省の考え方は上部の添付ファイルで公開されています"
+                    : data.status === "open"
+                      ? "意見募集中のため、意見の概要・府省の考え方はまだ公開されていません"
+                      : data.opinion_count === 0
+                        ? "提出意見は0件です"
+                        : "意見の概要データを取得できませんでした（e-Gov原文をご確認ください）")
                 : "該当する意見がありません"}
             </p>
           ) : (
