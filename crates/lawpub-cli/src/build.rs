@@ -724,18 +724,22 @@ struct ArticleDiff {
     modified: Vec<String>, // article_id
 }
 
+/// 本則の条文と別表 (`appdx_{n}`) を id → JSON 文字列で並べる。
+fn diffable_units(doc: &LawDocument) -> std::collections::BTreeMap<&str, Option<String>> {
+    let articles = doc
+        .articles
+        .iter()
+        .map(|a| (a.article_id.as_str(), serde_json::to_string(a).ok()));
+    let tables = doc
+        .appendix_tables
+        .iter()
+        .map(|t| (t.appdx_id.as_str(), serde_json::to_string(t).ok()));
+    articles.chain(tables).collect()
+}
+
 fn diff_articles(prev: &LawDocument, cur: &LawDocument) -> ArticleDiff {
-    use std::collections::BTreeMap;
-    let prev_map: BTreeMap<&str, &law_normalizer::Article> = prev
-        .articles
-        .iter()
-        .map(|a| (a.article_id.as_str(), a))
-        .collect();
-    let cur_map: BTreeMap<&str, &law_normalizer::Article> = cur
-        .articles
-        .iter()
-        .map(|a| (a.article_id.as_str(), a))
-        .collect();
+    let prev_map = diffable_units(prev);
+    let cur_map = diffable_units(cur);
     let mut added = Vec::new();
     let mut removed = Vec::new();
     let mut modified = Vec::new();
@@ -743,7 +747,7 @@ fn diff_articles(prev: &LawDocument, cur: &LawDocument) -> ArticleDiff {
         match prev_map.get(id) {
             None => added.push(id.to_string()),
             Some(p) => {
-                if serde_json::to_string(p).ok() != serde_json::to_string(a).ok() {
+                if p != a {
                     modified.push(id.to_string());
                 }
             }
@@ -1599,6 +1603,11 @@ fn write_law_documents(
         for a in &current_doc.articles {
             write_json_pretty(&articles_dir.join(format!("{}.json", a.article_id)), a)?;
         }
+        // 別表も `articles/appdx_{n}.json` に置く (id は `art_*` と衝突しない)。
+        // search.db の article_id と同じ id なので、検索ヒットから同じ規則で引ける。
+        for t in &current_doc.appendix_tables {
+            write_json_pretty(&articles_dir.join(format!("{}.json", t.appdx_id)), t)?;
+        }
 
         // 過去 revision を全部書き出す (Phase 2 §7.6)。
         // 現状は本文を 1 件しか持っていないことが多いので、その 1 件を v2 ID
@@ -1920,6 +1929,7 @@ fn compute_diff(law: &LawWithHistory, rev_id: &str) -> ArticleDiff {
                 .articles
                 .iter()
                 .map(|a| a.article_id.clone())
+                .chain(cur.doc.appendix_tables.iter().map(|t| t.appdx_id.clone()))
                 .collect(),
             removed: vec![],
             modified: vec![],
@@ -2527,6 +2537,10 @@ fn write_schema(public: &Path) -> Result<()> {
                 "type": "array",
                 "items": { "$ref": "#/$defs/article" }
             },
+            "appendix_tables": {
+                "type": "array",
+                "items": { "$ref": "#/$defs/appendix_table" }
+            },
             "source": { "$ref": "#/$defs/source" }
         },
         "$defs": {
@@ -2541,6 +2555,42 @@ fn write_schema(public: &Path) -> Result<()> {
                         "type": "array",
                         "items": { "$ref": "#/$defs/paragraph" }
                     }
+                }
+            },
+            "appendix_table": {
+                "type": "object",
+                "required": ["appdx_id", "index"],
+                "properties": {
+                    "appdx_id": { "type": "string", "pattern": "^appdx_[0-9]+$" },
+                    "index":    { "type": "integer", "minimum": 1 },
+                    "title":    { "type": ["string", "null"] },
+                    "related_article_num": { "type": ["string", "null"] },
+                    "rows": {
+                        "type": "array",
+                        "items": { "type": "array", "items": { "$ref": "#/$defs/appendix_cell" } }
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": ["text"],
+                            "properties": {
+                                "title": { "type": ["string", "null"] },
+                                "text":  { "type": "string" }
+                            }
+                        }
+                    },
+                    "remarks": { "type": "array", "items": { "type": "string" } }
+                }
+            },
+            "appendix_cell": {
+                "type": "object",
+                "required": ["text"],
+                "properties": {
+                    "text":    { "type": "string" },
+                    "header":  { "type": "boolean" },
+                    "rowspan": { "type": "integer", "minimum": 1 },
+                    "colspan": { "type": "integer", "minimum": 1 }
                 }
             },
             "paragraph": {
@@ -2908,7 +2958,7 @@ mod history_bundle_tests {
 #[cfg(test)]
 mod deployment_build_tests {
     use super::{read_history_bundle_lines, write_law_documents, LawWithHistory, Revision};
-    use law_normalizer::{LawDocument, SourceMeta};
+    use law_normalizer::{AppendixItem, AppendixTable, LawDocument, SourceMeta};
     use std::collections::BTreeMap;
 
     fn revision(id: &str) -> Revision {
@@ -2927,6 +2977,7 @@ mod deployment_build_tests {
                 status: "historical".to_string(),
                 articles: Vec::new(),
                 suppl_provisions: Vec::new(),
+                appendix_tables: Vec::new(),
                 source: SourceMeta {
                     provider: "test".to_string(),
                     raw_xml_sha256: None,
@@ -2972,5 +3023,61 @@ mod deployment_build_tests {
         assert_eq!(ids, vec!["r2", "r3"]);
 
         let _ = std::fs::remove_dir_all(root);
+    }
+
+    fn appendix(text: &str) -> AppendixTable {
+        AppendixTable {
+            appdx_id: "appdx_1".to_string(),
+            index: 1,
+            title: Some("別表".to_string()),
+            related_article_num: Some("（第二条関係）".to_string()),
+            rows: Vec::new(),
+            items: vec![AppendixItem {
+                title: Some("一".to_string()),
+                text: text.to_string(),
+            }],
+            remarks: Vec::new(),
+        }
+    }
+
+    #[test]
+    fn writes_appendix_tables_to_current_and_articles_dir() {
+        let mut law = law();
+        law.revisions[2].doc.appendix_tables = vec![appendix("刑法（明治四十年法律第四十五号）")];
+        let root = std::env::temp_dir().join(format!(
+            "lawpub_appdx_{}_{}",
+            std::process::id(),
+            chrono::Utc::now().timestamp_nanos_opt().unwrap_or_default()
+        ));
+        let _ = std::fs::remove_dir_all(&root);
+
+        write_law_documents(&root, &[law], false).unwrap();
+        let current: serde_json::Value = serde_json::from_slice(
+            &std::fs::read(root.join("laws/LAW/current.json")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(current["appendix_tables"][0]["appdx_id"], "appdx_1");
+        let per_table: serde_json::Value = serde_json::from_slice(
+            &std::fs::read(root.join("laws/LAW/articles/appdx_1.json")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(per_table["title"], "別表");
+        assert_eq!(per_table["items"][0]["text"], "刑法（明治四十年法律第四十五号）");
+
+        let _ = std::fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn diff_articles_reports_appendix_table_changes() {
+        let prev = revision("r1").doc;
+        let mut cur = revision("r2").doc;
+        cur.appendix_tables = vec![appendix("刑法")];
+        assert_eq!(super::diff_articles(&prev, &cur).added, vec!["appdx_1"]);
+
+        let mut next = revision("r3").doc;
+        next.appendix_tables = vec![appendix("食品衛生法")];
+        let d = super::diff_articles(&cur, &next);
+        assert_eq!(d.modified, vec!["appdx_1"]);
+        assert!(d.added.is_empty() && d.removed.is_empty());
     }
 }
