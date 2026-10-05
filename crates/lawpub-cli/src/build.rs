@@ -708,9 +708,57 @@ struct LawWithHistory {
     meta_revisions: Vec<RevisionMeta>,
     /// 同 v2 から得た正規 `LawInfo` (公布日・法令番号・元号 など)。
     meta_law_info: Option<egov_client::LawInfoV2>,
+    /// `fetched_dates` の各 revision について前計算した更新フィード用の要約
+    /// (rev_id → change_type / 条文差分)。`release_history` で履歴本文を解放した後も
+    /// updates/*.json を旧実装とバイト等価に出すために持つ。空なら都度計算する。
+    fetched_updates: BTreeMap<String, FetchedUpdate>,
+}
+
+/// 取得日に観測された 1 revision の更新フィード用要約。
+#[derive(Debug, Clone, PartialEq)]
+struct FetchedUpdate {
+    change_type: &'static str,
+    article_diff: ArticleDiff,
 }
 
 impl LawWithHistory {
+    /// 更新フィードに要る要約 (change_type / 条文差分) を前計算してから、現行版以外の
+    /// 履歴本文を解放する。
+    ///
+    /// `.cache/egov/{date}/` は Actions cache 上で無期限に蓄積し、`fetch-bulk` の日付は
+    /// 全法令を含む。旧実装は「fetched_dates を持つ法令は履歴本文を保持」していたため、
+    /// 実質全法令の全版 (10万版超) を最後まで RAM に抱え、16GB runner が
+    /// write_manifest_and_health 付近で落ちていた。要約だけ残せば保持量は現行版 + 差分の
+    /// article_id 列に有界化される。
+    fn release_history(&mut self) {
+        let updates: BTreeMap<String, FetchedUpdate> = self
+            .fetched_dates
+            .values()
+            .map(|rev_id| {
+                let update = FetchedUpdate {
+                    change_type: classify(self, rev_id),
+                    article_diff: compute_diff(self, rev_id),
+                };
+                (rev_id.clone(), update)
+            })
+            .collect();
+        self.fetched_updates = updates;
+        if let Some(cur) = self.revisions.pop() {
+            self.revisions = vec![cur];
+        }
+    }
+
+    /// `rev_id` の更新フィード用要約。前計算済みならそれを、無ければ履歴から計算する。
+    fn fetched_update(&self, rev_id: &str) -> FetchedUpdate {
+        self.fetched_updates
+            .get(rev_id)
+            .cloned()
+            .unwrap_or_else(|| FetchedUpdate {
+                change_type: classify(self, rev_id),
+                article_diff: compute_diff(self, rev_id),
+            })
+    }
+
     fn current(&self) -> &LawDocument {
         &self.revisions.last().unwrap().doc
     }
@@ -734,25 +782,29 @@ impl LawWithHistory {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 struct ArticleDiff {
     added: Vec<String>,    // article_id
     removed: Vec<String>,  // article_id
     modified: Vec<String>, // article_id
 }
 
+/// 本則の条文と別表 (`appdx_{n}`) を id → JSON 文字列で並べる。
+fn diffable_units(doc: &LawDocument) -> std::collections::BTreeMap<&str, Option<String>> {
+    let articles = doc
+        .articles
+        .iter()
+        .map(|a| (a.article_id.as_str(), serde_json::to_string(a).ok()));
+    let tables = doc
+        .appendix_tables
+        .iter()
+        .map(|t| (t.appdx_id.as_str(), serde_json::to_string(t).ok()));
+    articles.chain(tables).collect()
+}
+
 fn diff_articles(prev: &LawDocument, cur: &LawDocument) -> ArticleDiff {
-    use std::collections::BTreeMap;
-    let prev_map: BTreeMap<&str, &law_normalizer::Article> = prev
-        .articles
-        .iter()
-        .map(|a| (a.article_id.as_str(), a))
-        .collect();
-    let cur_map: BTreeMap<&str, &law_normalizer::Article> = cur
-        .articles
-        .iter()
-        .map(|a| (a.article_id.as_str(), a))
-        .collect();
+    let prev_map = diffable_units(prev);
+    let cur_map = diffable_units(cur);
     let mut added = Vec::new();
     let mut removed = Vec::new();
     let mut modified = Vec::new();
@@ -760,7 +812,7 @@ fn diff_articles(prev: &LawDocument, cur: &LawDocument) -> ArticleDiff {
         match prev_map.get(id) {
             None => added.push(id.to_string()),
             Some(p) => {
-                if serde_json::to_string(p).ok() != serde_json::to_string(a).ok() {
+                if p != a {
                     modified.push(id.to_string());
                 }
             }
@@ -828,11 +880,9 @@ fn run_build_json_with_options(
         // 現行版と今回更新分だけに絞り、10万版の再圧縮を避けられる。
         history_entries_omitted +=
             write_law_documents(&tmp, std::slice::from_ref(&law), compact_history)?;
-        if law.fetched_dates.is_empty() {
-            // 履歴 doc を解放しピーク RAM を抑える。現行版だけ残す。
-            let cur = law.current_rev().clone();
-            law.revisions = vec![cur];
-        }
+        // 履歴 doc を解放しピーク RAM を抑える。fetched_dates を持つ法令も、更新フィード
+        // 用の要約だけ前計算して現行版以外は捨てる (全法令が該当しうるため例外にしない)。
+        law.release_history();
         light.push(law);
     }
     if light.is_empty() {
@@ -887,6 +937,7 @@ pub fn run_build_index(output: &Path) -> Result<()> {
                 fetched_dates: BTreeMap::new(),
                 meta_revisions: Vec::new(),
                 meta_law_info: None,
+                fetched_updates: BTreeMap::new(),
             }
         })
         .collect();
@@ -1120,6 +1171,7 @@ fn collect_laws_with_history(cache: &Path) -> Result<Vec<LawWithHistory>> {
                         fetched_dates: BTreeMap::new(),
                         meta_revisions: Vec::new(),
                         meta_law_info: None,
+                        fetched_updates: BTreeMap::new(),
                     },
                 );
             }
@@ -1158,6 +1210,7 @@ fn collect_laws_with_history(cache: &Path) -> Result<Vec<LawWithHistory>> {
                         fetched_dates: BTreeMap::new(),
                         meta_revisions: Vec::new(),
                         meta_law_info: None,
+                        fetched_updates: BTreeMap::new(),
                     });
                 if !entry.revisions.iter().any(|r| r.revision_id == rev_id) {
                     let doc = match parse_law_xml(&bytes, &law_id) {
@@ -1223,6 +1276,7 @@ fn collect_laws_with_history(cache: &Path) -> Result<Vec<LawWithHistory>> {
                     fetched_dates: BTreeMap::new(),
                     meta_revisions: Vec::new(),
                     meta_law_info: None,
+                    fetched_updates: BTreeMap::new(),
                 });
             entry.meta_revisions = revs;
             entry.meta_law_info = Some(list.law_info);
@@ -1437,6 +1491,7 @@ fn build_one_law(
         fetched_dates: BTreeMap::new(),
         meta_revisions: Vec::new(),
         meta_law_info: None,
+        fetched_updates: BTreeMap::new(),
     };
 
     // egov: どの日にどの rev が見えたか。.cache/revisions に無い新規 rev はここで取り込む。
@@ -1615,6 +1670,11 @@ fn write_law_documents(
         std::fs::create_dir_all(&articles_dir)?;
         for a in &current_doc.articles {
             write_json_pretty(&articles_dir.join(format!("{}.json", a.article_id)), a)?;
+        }
+        // 別表も `articles/appdx_{n}.json` に置く (id は `art_*` と衝突しない)。
+        // search.db の article_id と同じ id なので、検索ヒットから同じ規則で引ける。
+        for t in &current_doc.appendix_tables {
+            write_json_pretty(&articles_dir.join(format!("{}.json", t.appdx_id)), t)?;
         }
 
         // 過去 revision を全部書き出す (Phase 2 §7.6)。
@@ -1881,14 +1941,14 @@ fn write_indices(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
         laws.iter()
             .filter_map(|l| {
                 l.fetched_dates.get(&latest_date).map(|rev_id| {
-                    let diff = compute_diff(l, rev_id);
+                    let update = l.fetched_update(rev_id);
                     json!({
                         "law_id": l.law_id,
                         "title": l.current().title,
-                        "change_type": classify(l, &latest_date, rev_id),
+                        "change_type": update.change_type,
                         "revision_id": rev_id,
                         "current": format!("laws/{}/current.json", l.law_id),
-                        "article_diff": diff,
+                        "article_diff": update.article_diff,
                     })
                 })
             })
@@ -1912,7 +1972,7 @@ fn write_indices(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
 
 /// その日に観測された rev_id がそのlawの最初の rev なら "added"、
 /// それ以外なら "modified"。"removed" は別ソースが必要なので未実装。
-fn classify(law: &LawWithHistory, _date: &str, rev_id: &str) -> &'static str {
+fn classify(law: &LawWithHistory, rev_id: &str) -> &'static str {
     if law.revisions.first().map(|r| r.revision_id.as_str()) == Some(rev_id) {
         "added"
     } else {
@@ -1938,6 +1998,7 @@ fn compute_diff(law: &LawWithHistory, rev_id: &str) -> ArticleDiff {
                 .articles
                 .iter()
                 .map(|a| a.article_id.clone())
+                .chain(cur.doc.appendix_tables.iter().map(|t| t.appdx_id.clone()))
                 .collect(),
             removed: vec![],
             modified: vec![],
@@ -1959,14 +2020,14 @@ fn write_per_date_updates(public: &Path, laws: &[LawWithHistory]) -> Result<()> 
         let arr: Vec<_> = entries
             .iter()
             .map(|(l, rev_id)| {
-                let diff = compute_diff(l, rev_id);
+                let update = l.fetched_update(rev_id);
                 json!({
                     "law_id": l.law_id,
                     "title": l.current().title,
-                    "change_type": classify(l, &date, rev_id),
+                    "change_type": update.change_type,
                     "revision_id": rev_id,
                     "current": format!("laws/{}/current.json", l.law_id),
-                    "article_diff": diff,
+                    "article_diff": update.article_diff,
                 })
             })
             .collect();
@@ -2001,6 +2062,7 @@ pub fn rebuild_manifest(public: &Path) -> Result<()> {
         fetched_dates: BTreeMap::new(),
         meta_revisions: Vec::new(),
         meta_law_info: None,
+        fetched_updates: BTreeMap::new(),
     };
     let stub = vec![dummy; law_count];
     write_manifest_and_health(public, &stub)
@@ -2547,6 +2609,10 @@ fn write_schema(public: &Path) -> Result<()> {
                 "type": "array",
                 "items": { "$ref": "#/$defs/article" }
             },
+            "appendix_tables": {
+                "type": "array",
+                "items": { "$ref": "#/$defs/appendix_table" }
+            },
             "source": { "$ref": "#/$defs/source" }
         },
         "$defs": {
@@ -2563,12 +2629,66 @@ fn write_schema(public: &Path) -> Result<()> {
                     }
                 }
             },
+            "appendix_table": {
+                "type": "object",
+                "required": ["appdx_id", "index"],
+                "properties": {
+                    "appdx_id": { "type": "string", "pattern": "^appdx_[0-9]+$" },
+                    "index":    { "type": "integer", "minimum": 1 },
+                    "title":    { "type": ["string", "null"] },
+                    "related_article_num": { "type": ["string", "null"] },
+                    "rows": {
+                        "type": "array",
+                        "items": { "type": "array", "items": { "$ref": "#/$defs/appendix_cell" } }
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": ["text"],
+                            "properties": {
+                                "title": { "type": ["string", "null"] },
+                                "text":  { "type": "string" }
+                            }
+                        }
+                    },
+                    "remarks": { "type": "array", "items": { "type": "string" } }
+                }
+            },
+            "appendix_cell": {
+                "type": "object",
+                "required": ["text"],
+                "properties": {
+                    "text":    { "type": "string" },
+                    "header":  { "type": "boolean" },
+                    "rowspan": { "type": "integer", "minimum": 1 },
+                    "colspan": { "type": "integer", "minimum": 1 }
+                }
+            },
             "paragraph": {
                 "type": "object",
                 "required": ["text"],
                 "properties": {
-                    "paragraph_no": { "type": ["string", "null"] },
-                    "text":         { "type": "string" }
+                    "paragraph_no":  { "type": ["string", "null"] },
+                    "paragraph_num": { "type": ["string", "null"] },
+                    "text":          { "type": "string" },
+                    "items": {
+                        "type": "array",
+                        "items": { "$ref": "#/$defs/item" }
+                    }
+                }
+            },
+            "item": {
+                "type": "object",
+                "required": ["text"],
+                "properties": {
+                    "num":   { "type": ["string", "null"] },
+                    "title": { "type": ["string", "null"] },
+                    "text":  { "type": "string" },
+                    "subitems": {
+                        "type": "array",
+                        "items": { "$ref": "#/$defs/item" }
+                    }
                 }
             },
             "source": {
@@ -2978,7 +3098,7 @@ mod history_bundle_tests {
 #[cfg(test)]
 mod deployment_build_tests {
     use super::{read_history_bundle_lines, write_law_documents, LawWithHistory, Revision};
-    use law_normalizer::{LawDocument, SourceMeta};
+    use law_normalizer::{AppendixItem, AppendixTable, LawDocument, SourceMeta};
     use std::collections::BTreeMap;
 
     fn revision(id: &str) -> Revision {
@@ -2997,6 +3117,7 @@ mod deployment_build_tests {
                 status: "historical".to_string(),
                 articles: Vec::new(),
                 suppl_provisions: Vec::new(),
+                appendix_tables: Vec::new(),
                 source: SourceMeta {
                     provider: "test".to_string(),
                     raw_xml_sha256: None,
@@ -3013,6 +3134,7 @@ mod deployment_build_tests {
             fetched_dates: BTreeMap::new(),
             meta_revisions: Vec::new(),
             meta_law_info: None,
+            fetched_updates: BTreeMap::new(),
         }
     }
 
@@ -3040,6 +3162,225 @@ mod deployment_build_tests {
             .filter_map(|line| super::revision_id_of_line(line))
             .collect();
         assert_eq!(ids, vec!["r2", "r3"]);
+
+        let _ = std::fs::remove_dir_all(root);
+    }
+
+    fn appendix(text: &str) -> AppendixTable {
+        AppendixTable {
+            appdx_id: "appdx_1".to_string(),
+            index: 1,
+            title: Some("別表".to_string()),
+            related_article_num: Some("（第二条関係）".to_string()),
+            rows: Vec::new(),
+            items: vec![AppendixItem {
+                title: Some("一".to_string()),
+                text: text.to_string(),
+            }],
+            remarks: Vec::new(),
+        }
+    }
+
+    #[test]
+    fn writes_appendix_tables_to_current_and_articles_dir() {
+        let mut law = law();
+        law.revisions[2].doc.appendix_tables = vec![appendix("刑法（明治四十年法律第四十五号）")];
+        let root = std::env::temp_dir().join(format!(
+            "lawpub_appdx_{}_{}",
+            std::process::id(),
+            chrono::Utc::now().timestamp_nanos_opt().unwrap_or_default()
+        ));
+        let _ = std::fs::remove_dir_all(&root);
+
+        write_law_documents(&root, &[law], false).unwrap();
+        let current: serde_json::Value = serde_json::from_slice(
+            &std::fs::read(root.join("laws/LAW/current.json")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(current["appendix_tables"][0]["appdx_id"], "appdx_1");
+        let per_table: serde_json::Value = serde_json::from_slice(
+            &std::fs::read(root.join("laws/LAW/articles/appdx_1.json")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(per_table["title"], "別表");
+        assert_eq!(per_table["items"][0]["text"], "刑法（明治四十年法律第四十五号）");
+
+        let _ = std::fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn diff_articles_reports_appendix_table_changes() {
+        let prev = revision("r1").doc;
+        let mut cur = revision("r2").doc;
+        cur.appendix_tables = vec![appendix("刑法")];
+        assert_eq!(super::diff_articles(&prev, &cur).added, vec!["appdx_1"]);
+
+        let mut next = revision("r3").doc;
+        next.appendix_tables = vec![appendix("食品衛生法")];
+        let d = super::diff_articles(&cur, &next);
+        assert_eq!(d.modified, vec!["appdx_1"]);
+        assert!(d.added.is_empty() && d.removed.is_empty());
+    }
+}
+
+#[cfg(test)]
+mod release_history_tests {
+    use super::{classify, compute_diff, run_build_json, LawWithHistory, Revision};
+    use law_normalizer::{Article, LawDocument, Paragraph, SourceMeta};
+    use std::collections::BTreeMap;
+
+    fn revision(id: &str, date: &str, texts: &[&str]) -> Revision {
+        let articles = texts
+            .iter()
+            .enumerate()
+            .map(|(i, text)| Article {
+                article_id: format!("art_{}", i + 1),
+                article_no: format!("{}", i + 1),
+                caption: None,
+                paragraphs: vec![Paragraph {
+                    paragraph_no: None,
+                    text: text.to_string(),
+                }],
+            })
+            .collect();
+        Revision {
+            revision_id: id.to_string(),
+            sha256: id.to_string(),
+            first_seen_date: date.to_string(),
+            doc: LawDocument {
+                schema_version: 1,
+                law_id: "LAW".to_string(),
+                law_num: None,
+                title: "test".to_string(),
+                revision_id: Some(id.to_string()),
+                promulgation_date: None,
+                effective_date: None,
+                status: "historical".to_string(),
+                articles,
+                suppl_provisions: Vec::new(),
+                source: SourceMeta {
+                    provider: "test".to_string(),
+                    raw_xml_sha256: None,
+                    fetched_at: "2026-10-05T00:00:00Z".to_string(),
+                },
+            },
+        }
+    }
+
+    #[test]
+    fn release_history_drops_bodies_but_keeps_update_feed() {
+        // bulk 取得日 (r1) と日次更新日 (r2, r3) の全てを fetched_dates に持つ法令。
+        // 旧実装はこの種の法令の全版本文を build 終了まで保持し、全法令が該当する
+        // 本番キャッシュで 16GB runner を落としていた。
+        let mut law = LawWithHistory {
+            law_id: "LAW".to_string(),
+            revisions: vec![
+                revision("r1", "2026-06-01", &["a", "b"]),
+                revision("r2", "2026-08-10", &["a", "B"]),
+                revision("r3", "2026-09-01", &["a", "B", "c"]),
+            ],
+            fetched_dates: BTreeMap::from([
+                ("2026-06-01".to_string(), "r1".to_string()),
+                ("2026-08-10".to_string(), "r2".to_string()),
+                ("2026-09-01".to_string(), "r3".to_string()),
+            ]),
+            meta_revisions: Vec::new(),
+            meta_law_info: None,
+            fetched_updates: BTreeMap::new(),
+        };
+        let expected: Vec<_> = ["r1", "r2", "r3"]
+            .iter()
+            .map(|id| (classify(&law, id), compute_diff(&law, id)))
+            .collect();
+
+        law.release_history();
+
+        assert_eq!(law.revisions.len(), 1, "only the current body is retained");
+        assert_eq!(law.current_rev().revision_id, "r3");
+        for (id, (change_type, diff)) in ["r1", "r2", "r3"].iter().zip(expected) {
+            let update = law.fetched_update(id);
+            assert_eq!(update.change_type, change_type, "change_type of {id}");
+            assert_eq!(update.article_diff, diff, "article_diff of {id}");
+        }
+        assert_eq!(law.fetched_update("r1").change_type, "added");
+        assert_eq!(
+            law.fetched_update("r2").article_diff.modified,
+            vec!["art_2"]
+        );
+        assert_eq!(law.fetched_update("r3").article_diff.added, vec!["art_3"]);
+    }
+
+    fn law_xml(texts: &[&str]) -> String {
+        let articles: String = texts
+            .iter()
+            .enumerate()
+            .map(|(i, text)| {
+                format!(
+                    r#"<Article Num="{n}"><ArticleTitle>第{n}条</ArticleTitle><Paragraph><ParagraphNum>1</ParagraphNum><ParagraphSentence>{text}</ParagraphSentence></Paragraph></Article>"#,
+                    n = i + 1
+                )
+            })
+            .collect();
+        format!(
+            r#"<?xml version="1.0" encoding="UTF-8"?><Law><LawNum>テスト法</LawNum><LawBody><LawTitle>テスト法</LawTitle><MainProvision>{articles}</MainProvision></LawBody></Law>"#
+        )
+    }
+
+    #[test]
+    fn build_json_writes_update_feed_from_released_history() {
+        let root = std::env::temp_dir().join(format!(
+            "lawpub_release_history_{}_{}",
+            std::process::id(),
+            chrono::Utc::now().timestamp_nanos_opt().unwrap_or_default()
+        ));
+        let cache = root.join("cache");
+        let public = root.join("public");
+        let v1 = law_xml(&["第一版", "残る"]);
+        let v2 = law_xml(&["第二版", "残る"]);
+        let rev_dir = cache.join("revisions/LAW");
+        std::fs::create_dir_all(&rev_dir).unwrap();
+        for (xml, date) in [(&v1, "2026-06-01"), (&v2, "2026-08-10")] {
+            let sha = law_normalizer::sha256_hex(xml.as_bytes());
+            let rev_id = super::revision_id_from_sha(&sha);
+            std::fs::write(rev_dir.join(format!("{rev_id}.xml")), xml).unwrap();
+            std::fs::write(
+                rev_dir.join(format!("{rev_id}.meta.json")),
+                serde_json::json!({ "first_seen_date": date }).to_string(),
+            )
+            .unwrap();
+        }
+        // bulk 日と日次更新日の audit cache。どちらも fetched_dates になる。
+        for (xml, date) in [(&v1, "2026-06-01"), (&v2, "2026-08-10")] {
+            let dir = cache.join("egov").join(date);
+            std::fs::create_dir_all(&dir).unwrap();
+            std::fs::write(dir.join("LAW.xml"), xml).unwrap();
+        }
+
+        run_build_json(&cache, &public, false).unwrap();
+
+        let read = |p: &str| -> serde_json::Value {
+            serde_json::from_slice(&std::fs::read(public.join(p)).unwrap()).unwrap()
+        };
+        let bulk = read("updates/2026-06-01.json");
+        assert_eq!(bulk["updated_laws"][0]["change_type"], "added");
+        assert_eq!(
+            bulk["updated_laws"][0]["article_diff"]["added"],
+            serde_json::json!(["art_1", "art_2"])
+        );
+        let daily = read("updates/2026-08-10.json");
+        assert_eq!(daily["updated_laws"][0]["change_type"], "modified");
+        assert_eq!(
+            daily["updated_laws"][0]["article_diff"]["modified"],
+            serde_json::json!(["art_1"])
+        );
+        let latest = read("updates/latest.json");
+        assert_eq!(latest["latest_update_date"], "2026-08-10");
+        assert_eq!(latest["updated_laws"], daily["updated_laws"]);
+        // 過去版の個別 JSON は従来どおり全版書き出される。
+        let revisions = std::fs::read_dir(public.join("laws/LAW/revisions"))
+            .unwrap()
+            .count();
+        assert_eq!(revisions, 2);
 
         let _ = std::fs::remove_dir_all(root);
     }

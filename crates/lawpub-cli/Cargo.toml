@@ -25,6 +25,8 @@ tracing.workspace = true
 tracing-subscriber.workspace = true
 rayon.workspace = true
 scraper.workspace = true
+quick-xml.workspace = true
+zip.workspace = true
 egov-client = { path = "../egov-client" }
 law-normalizer = { path = "../law-normalizer" }
 law-diff = { path = "../law-diff" }

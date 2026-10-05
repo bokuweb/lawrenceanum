@@ -5,7 +5,8 @@
 //!   時 / クエリ時に **同じ bigram トークナイザ** で前段分割し、空白区切りの
 //!   文字列を FTS5 列に詰める。
 //! - 出力ファイル `search.db` をブラウザの sql.js で読んで条文ベース検索する。
-//! - 1 行 = 1 条文。`law_id` と `article_id` を UNINDEXED 列として持つ。
+//! - 1 行 = 1 条文 (別表は 1 表 = 1 行、`article_id = appdx_{n}`)。`law_id` と `article_id` を
+//!   UNINDEXED 列として持つ。
 
 use anyhow::{Context, Result};
 use law_normalizer::LawDocument;
@@ -616,6 +617,63 @@ pub fn build_search_db(
                         total_refs += 1;
                     }
                 }
+
+                // 別表: 1 表 = 1 行で search_fts に入れる。article_id は `appdx_{n}`、
+                // article_no は表題 ("別表")、caption は関係条 ("（第二条関係）")。
+                // 列挙された法令名・条名からは本則と同じく自己/他法令参照を張る。
+                for t in &d.appendix_tables {
+                    let body = t.plain_text();
+                    let article_no = t.title.clone().unwrap_or_else(|| "別表".to_string());
+                    let caption = t.related_article_num.clone().unwrap_or_default();
+                    let syn = thesaurus.expand(&body);
+                    let content_for_index = if syn.is_empty() {
+                        body.clone()
+                    } else {
+                        format!("{body}\n{syn}")
+                    };
+                    fts_stmt.execute(params![
+                        d.law_id,
+                        t.appdx_id,
+                        article_no,
+                        caption,
+                        title_tokens,
+                        tokenize_for_fts(&content_for_index),
+                    ])?;
+                    total_articles += 1;
+
+                    let mut emitted: std::collections::HashSet<(String, Option<String>)> =
+                        Default::default();
+                    for (text, to_id) in extract_self_article_refs(&body, no_to_id) {
+                        if emitted.insert((text.to_string(), Some(to_id.clone()))) {
+                            ref_stmt.execute(params![
+                                d.law_id,
+                                t.appdx_id,
+                                d.law_id,
+                                to_id,
+                                text,
+                                "self_article",
+                            ])?;
+                            total_refs += 1;
+                        }
+                    }
+                    if let Some(ix) = cross_index.as_ref() {
+                        for (text, to_law, to_art) in
+                            extract_cross_law_refs(&body, &d.law_id, ix, &articles_index)
+                        {
+                            if emitted.insert((text.clone(), to_art.clone())) {
+                                ref_stmt.execute(params![
+                                    d.law_id,
+                                    t.appdx_id,
+                                    to_law,
+                                    to_art,
+                                    text,
+                                    "cross_law",
+                                ])?;
+                                total_refs += 1;
+                            }
+                        }
+                    }
+                }
             }
         }
         tx.commit()?;
@@ -1070,9 +1128,11 @@ mod tests {
                 paragraphs: vec![Paragraph {
                     paragraph_no: None,
                     text: "銀行はBIS規制に基づき自己資本比率を維持しなければならない。".into(),
+                    ..Default::default()
                 }],
             }],
             suppl_provisions: vec![],
+            appendix_tables: vec![],
             source: SourceMeta { provider: "test".into(), raw_xml_sha256: None, fetched_at: "2026-01-01".into() },
         };
         let cats = std::collections::HashMap::new();
@@ -1088,6 +1148,96 @@ mod tests {
             )
             .unwrap();
         assert!(cnt >= 1, "synonym (バーゼル規制) でヒットせず");
+
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn appendix_tables_are_searchable_and_linked() {
+        use law_normalizer::{
+            AppendixItem, AppendixTable, Article, LawDocument, Paragraph, SourceMeta,
+        };
+        let root = std::env::temp_dir().join("lawpub_appdx_search_test");
+        let _ = std::fs::remove_dir_all(&root);
+        std::fs::create_dir_all(&root).unwrap();
+        let db = root.join("search.db");
+        let doc = |law_id: &str, title: &str, appendix_tables: Vec<AppendixTable>| LawDocument {
+            schema_version: 1,
+            law_id: law_id.into(),
+            law_num: None,
+            title: title.into(),
+            revision_id: None,
+            promulgation_date: None,
+            effective_date: None,
+            status: "current".into(),
+            articles: vec![Article {
+                article_id: "art_2".into(),
+                article_no: "第二条".into(),
+                caption: None,
+                // 構造体リテラルにせず JSON から作る (Paragraph に項目が増えても壊れない)。
+                paragraphs: vec![serde_json::from_value::<Paragraph>(serde_json::json!({
+                    "paragraph_no": null,
+                    "text": "別表に掲げるもの",
+                }))
+                .unwrap()],
+            }],
+            suppl_provisions: vec![],
+            appendix_tables,
+            source: SourceMeta {
+                provider: "test".into(),
+                raw_xml_sha256: None,
+                fetched_at: "2026-01-01".into(),
+            },
+        };
+        let whistle = doc(
+            "416AC0000000122",
+            "公益通報者保護法",
+            vec![AppendixTable {
+                appdx_id: "appdx_1".into(),
+                index: 1,
+                title: Some("別表".into()),
+                related_article_num: Some("（第二条関係）".into()),
+                rows: vec![],
+                items: vec![
+                    AppendixItem {
+                        title: Some("一".into()),
+                        text: "刑法（明治四十年法律第四十五号）".into(),
+                    },
+                    AppendixItem {
+                        title: Some("二".into()),
+                        text: "食品衛生法（昭和二十二年法律第二百三十三号）".into(),
+                    },
+                ],
+                remarks: vec![],
+            }],
+        );
+        let keiho = doc("140AC0000000045", "刑法", vec![]);
+        build_search_db(&db, &[whistle, keiho], &Default::default(), None, None, None).unwrap();
+
+        let conn = Connection::open(&db).unwrap();
+        let (law_id, article_id, article_no, caption): (String, String, String, String) = conn
+            .query_row(
+                "SELECT law_id, article_id, article_no, caption FROM search_fts \
+                 WHERE search_fts MATCH ?1",
+                params![tokenize_for_fts("食品衛生法")],
+                |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)),
+            )
+            .unwrap();
+        assert_eq!(law_id, "416AC0000000122");
+        assert_eq!(article_id, "appdx_1");
+        assert_eq!(article_no, "別表");
+        assert_eq!(caption, "（第二条関係）");
+
+        // 別表に列挙された法令名から他法令参照を張る。
+        let to_law: String = conn
+            .query_row(
+                "SELECT to_law_id FROM refs WHERE from_law_id = ?1 AND from_article_id = 'appdx_1' \
+                 AND ref_type = 'cross_law'",
+                params!["416AC0000000122"],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert_eq!(to_law, "140AC0000000045");
 
         let _ = std::fs::remove_dir_all(&root);
     }
@@ -1117,9 +1267,11 @@ mod tests {
                     paragraphs: vec![Paragraph {
                         paragraph_no: None,
                         text: "分割トランザクションを検証する。".into(),
+                        ..Default::default()
                     }],
                 }],
                 suppl_provisions: vec![],
+                appendix_tables: vec![],
                 source: SourceMeta {
                     provider: "test".into(),
                     raw_xml_sha256: None,

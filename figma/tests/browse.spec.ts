@@ -128,6 +128,74 @@ test("法令詳細に「この法令の通達」が出て通達ビューへ遷�
   await expect(page).toHaveURL(/#\/tsutatsu\?tax=shotoku/, { timeout: 15_000 });
 });
 
+// 法令詳細の別表 (current.json の appendix_tables)。号列挙形式と表形式の両方を
+// 本文末尾に描画し、条文目次から #appdx_{n} へ飛べることを検証する。
+test("法令詳細に別表 (appendix_tables) が表示される", async ({ page }) => {
+  const lawId = "900AC0000000001"; // fixture index に居るアルファ法
+  await page.route(`**/laws/${lawId}/current.json`, (route) =>
+    route.fulfill({
+      json: {
+        schema_version: 1,
+        law_id: lawId,
+        law_num: "テスト法律第一号",
+        title: "アルファ法",
+        revision_id: null,
+        promulgation_date: null,
+        effective_date: null,
+        status: "current",
+        articles: [
+          {
+            article_id: "art_2",
+            article_no: "第二条",
+            caption: null,
+            paragraphs: [{ paragraph_no: null, text: "別表に掲げるもの" }],
+          },
+        ],
+        appendix_tables: [
+          {
+            appdx_id: "appdx_1",
+            index: 1,
+            title: "別表",
+            related_article_num: "（第二条関係）",
+            items: [
+              { title: "一", text: "刑法（明治四十年法律第四十五号）" },
+              { title: "八", text: "前各号に掲げるもののほか、政令で定めるもの" },
+            ],
+          },
+          {
+            appdx_id: "appdx_2",
+            index: 2,
+            title: "別表第二",
+            related_article_num: null,
+            rows: [
+              [{ text: "区分", header: true }, { text: "金額", header: true }],
+              [{ text: "甲" }, { text: "千円" }],
+            ],
+            remarks: ["金額は消費税を含む。"],
+          },
+        ],
+        source: { provider: "egov", raw_xml_sha256: null, fetched_at: "2026-10-01T00:00:00Z" },
+      },
+    }),
+  );
+
+  await page.goto(new URL(`#/laws/${lawId}`, BASE).toString());
+
+  const appdx1 = page.locator("#appdx_1");
+  await expect(appdx1).toBeVisible({ timeout: 15_000 });
+  await expect(appdx1.getByRole("heading", { name: "別表" })).toBeVisible();
+  await expect(appdx1).toContainText("（第二条関係）");
+  await expect(appdx1).toContainText("刑法（明治四十年法律第四十五号）");
+
+  const appdx2 = page.locator("#appdx_2");
+  await expect(appdx2.locator("th")).toHaveText(["区分", "金額"]);
+  await expect(appdx2.locator("td")).toHaveText(["甲", "千円"]);
+  await expect(appdx2).toContainText("金額は消費税を含む。");
+
+  // 条文目次にも別表が並ぶ。
+  await expect(page.getByRole("button", { name: /別表第二/ })).toBeVisible();
+});
+
 // e-Gov 出典表記 (公共データ利用規約 第1.0版)。サイドバーには health.json の
 // latest_egov_update_date を、法令詳細には current.json の source.fetched_at (JST 日付) を添える。
 test("出典表記 (e-Gov法令検索・加工の旨) がサイドバーと法令詳細に出る", async ({ page }) => {
