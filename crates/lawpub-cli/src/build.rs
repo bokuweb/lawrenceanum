@@ -3239,7 +3239,9 @@ mod release_history_tests {
                 caption: None,
                 paragraphs: vec![Paragraph {
                     paragraph_no: None,
+                    paragraph_num: None,
                     text: text.to_string(),
+                    items: Vec::new(),
                 }],
             })
             .collect();
@@ -3258,6 +3260,7 @@ mod release_history_tests {
                 status: "historical".to_string(),
                 articles,
                 suppl_provisions: Vec::new(),
+                appendix_tables: Vec::new(),
                 source: SourceMeta {
                     provider: "test".to_string(),
                     raw_xml_sha256: None,
