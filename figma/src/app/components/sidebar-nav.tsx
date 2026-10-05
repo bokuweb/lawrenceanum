@@ -3,6 +3,7 @@ import { LayoutDashboard, Search, BookOpen, History, Settings, Scale, Landmark, 
 import { NavLink, useLocation } from "react-router";
 import { cn } from "./ui/utils";
 import { api } from "../data/api";
+import { EgovAttribution } from "./egov-attribution";
 
 /** ISO (UTC) を "YYYY-MM-DD HH:mm JST" に整形。 */
 function formatJst(iso: string | undefined | null): string | null {
@@ -14,19 +15,24 @@ function formatJst(iso: string | undefined | null): string | null {
   return `${jst.getUTCFullYear()}-${p(jst.getUTCMonth() + 1)}-${p(jst.getUTCDate())} ${p(jst.getUTCHours())}:${p(jst.getUTCMinutes())} JST`;
 }
 
-/** 最新同期時刻。health.json の generated_at を採用し、無ければ index.json にフォールバック。 */
-function useLastSync(): string | null {
-  const [sync, setSync] = useState<string | null>(null);
+/**
+ * 最新同期時刻と e-Gov 更新日。同期時刻は health.json の generated_at を採用し、
+ * 無ければ index.json にフォールバック。e-Gov 更新日は出典表記の「時点」に使う。
+ */
+function useLastSync(): { sync: string | null; egovDate: string | null } {
+  const [state, setState] = useState<{ sync: string | null; egovDate: string | null }>({ sync: null, egovDate: null });
   useEffect(() => {
     let cancelled = false;
     api
       .health()
-      .then((h) => formatJst(h.generated_at))
-      .catch(() => api.index().then((i) => formatJst(i.generated_at)).catch(() => null))
-      .then((v) => { if (!cancelled && v) setSync(v); });
+      .then((h) => ({ sync: formatJst(h.generated_at), egovDate: h.latest_egov_update_date || null }))
+      .catch(() =>
+        api.index().then((i) => ({ sync: formatJst(i.generated_at), egovDate: null })).catch(() => null),
+      )
+      .then((v) => { if (!cancelled && v) setState(v); });
     return () => { cancelled = true; };
   }, []);
-  return sync;
+  return state;
 }
 
 const items: { path: string; label: string; icon: any; matchPrefix?: string }[] = [
@@ -45,7 +51,7 @@ const items: { path: string; label: string; icon: any; matchPrefix?: string }[] 
 
 export function SidebarNav() {
   const loc = useLocation();
-  const lastSync = useLastSync();
+  const { sync: lastSync, egovDate } = useLastSync();
   return (
     <aside className="w-60 border-r border-border bg-sidebar flex flex-col">
       <div className="h-16 flex items-center gap-2 px-5 border-b border-border">
@@ -89,6 +95,7 @@ export function SidebarNav() {
           <div className="text-foreground mb-1">最新同期</div>
           {lastSync ?? "読み込み中…"}
         </div>
+        <EgovAttribution asOf={egovDate} className="mt-2 px-1 text-[11px]" />
       </div>
     </aside>
   );

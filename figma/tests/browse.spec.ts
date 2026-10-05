@@ -127,3 +127,37 @@ test("法令詳細に「この法令の通達」が出て通達ビューへ遷�
   await chip.click();
   await expect(page).toHaveURL(/#\/tsutatsu\?tax=shotoku/, { timeout: 15_000 });
 });
+
+// e-Gov 出典表記 (公共データ利用規約 第1.0版)。サイドバーには health.json の
+// latest_egov_update_date を、法令詳細には current.json の source.fetched_at (JST 日付) を添える。
+test("出典表記 (e-Gov法令検索・加工の旨) がサイドバーと法令詳細に出る", async ({ page }) => {
+  const lawId = "129AC0000000089"; // fixture index に居る民法
+  await page.route(`**/laws/${lawId}/current.json`, (route) =>
+    route.fulfill({
+      json: {
+        schema_version: 1,
+        law_id: lawId,
+        law_num: "明治二十九年法律第八十九号",
+        title: "民法",
+        revision_id: "r1",
+        promulgation_date: null,
+        effective_date: null,
+        status: "current",
+        articles: [{ article_id: "a1", article_no: "第一条", caption: null, paragraphs: [{ paragraph_no: "1", text: "私権は、公共の福祉に適合しなければならない。" }] }],
+        source: { provider: "egov", raw_xml_sha256: null, fetched_at: "2026-06-13T20:00:00+00:00" },
+      },
+    }),
+  );
+
+  await page.goto(new URL(`#/laws/${lawId}`, BASE).toString());
+  await expect(page.getByText("私権は、公共の福祉に適合しなければならない。")).toBeVisible({ timeout: 15_000 });
+
+  const notes = page.getByTestId("egov-attribution");
+  await expect(notes).toHaveCount(2);
+  // サイドバー: fixture health.json の latest_egov_update_date。
+  await expect(notes.first()).toContainText("e-Gov法令検索（デジタル庁）のデータを lawrenceanum が加工して作成（2026-06-14 時点）");
+  // 法令詳細: fetched_at 2026-06-13T20:00Z → JST 2026-06-14。
+  await expect(notes.nth(1)).toContainText("加工して作成（2026-06-14 時点）");
+  await expect(notes.nth(1).getByRole("link", { name: "e-Gov法令検索" })).toHaveAttribute("href", "https://laws.e-gov.go.jp/");
+  await expect(notes.nth(1).getByRole("link", { name: "公共データ利用規約（第1.0版）" })).toHaveAttribute("href", "https://www.e-gov.go.jp/terms");
+});

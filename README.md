@@ -306,11 +306,13 @@ gh workflow run update-law-data.yml \
   -f from_date=2024-04-01 -f to_date=2026-05-09
 
 # Bulk fetch (one-shot collection of every law in a category)
-#   1 = 憲法・法律
-#   2 = 政令・勅令
-#   3 = 府省令・規則
-gh workflow run update-law-data.yml -f bulk_category=1
-gh workflow run update-law-data.yml -f bulk_category=2 -f bulk_limit=500
+# Category numbers follow e-Gov API v1 `GET /api/1/lawlists/{category}`:
+#   1 = 全法令 (all of 2 + 3 + 4)
+#   2 = 憲法・法律
+#   3 = 政令・勅令
+#   4 = 府省令・規則
+gh workflow run update-law-data.yml -f bulk_category=2
+gh workflow run update-law-data.yml -f bulk_category=3 -f bulk_limit=500
 
 # Force a redeploy without touching e-Gov
 gh workflow run update-law-data.yml -f force=true
@@ -383,5 +385,25 @@ to keep stacking up over time.
 
 詳細は [LICENSE](LICENSE) を参照してください。
 
-なお、本リポジトリが扱う法令データは e-Gov 法令API 等の公的データに由来します。
-データ自体の利用条件は各提供元の規約に従ってください。
+### データの出典と利用条件
+
+本リポジトリのライセンスはソフトウェアに関するもので、配信データの元になった
+公的データの利用条件は各提供元の規約に従います。
+
+- **法令データ (e-Gov 法令検索 / 法令API)**: e-Gov のコンテンツは
+  [公共データ利用規約（第1.0版）](https://www.digital.go.jp/resources/open_data/public_data_license_v1.0)
+  (PDL1.0) に基づき利用できます（[e-Gov 利用規約](https://www.e-gov.go.jp/terms)）。
+  配信 JSON・SPA の法令データは e-Gov 法令API から取得したデータを lawrenceanum
+  が加工（構造化・JSON 化・差分の付与等）して作成したもので、国が作成したそのまま
+  のデータではありません。出典表記は SPA のサイドバー・法令詳細ページ、および
+  `index.json` / `manifest.json` の `attribution` フィールドに載せています。
+
+  ```
+  出典：e-Gov法令検索（https://laws.e-gov.go.jp/）
+  e-Gov法令検索（デジタル庁）のデータを lawrenceanum が加工して作成
+  ```
+
+  本リポジトリの配信データをさらに再利用する場合も、上記の出典と、加工した場合は
+  その旨・加工者を明示してください。
+- **その他のコーパス** (官報、国会会議録、パブリックコメント、審議会、通達、議案、
+  例規 など): それぞれの提供元の利用規約に従ってください。
