@@ -11,7 +11,7 @@ import { ARTICLES_V2, TIMELINE_EVENTS, type LawSummary } from "../mock-data";
 import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark, MessageSquare, Newspaper, ScrollText } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 import { useLaws, useLawDetail } from "../../data/use-laws";
-import { api, type LawToProceedings, type LawToPubcomments, type LawToTsutatsu, type AmendDocument, type AmendRun, type AmendNestedTable } from "../../data/api";
+import { api, type AppendixTable, type LawToProceedings, type LawToPubcomments, type LawToTsutatsu, type AmendDocument, type AmendRun, type AmendNestedTable } from "../../data/api";
 import { getRefsForLaw, type ArticleRef } from "../../data/search-engine";
 
 /**
@@ -348,6 +348,62 @@ function linkifyText(
   return out;
 }
 
+/** 別表 1 つ分。表形式 (`rows`) は <table>、号の列挙 (`items`) は条文の号と同じ体裁で出す。 */
+function AppendixTableView({ table, linkify }: { table: AppendixTable; linkify: (text: string) => React.ReactNode[] }) {
+  const rows = table.rows ?? [];
+  const items = table.items ?? [];
+  const remarks = table.remarks ?? [];
+  return (
+    <section id={table.appdx_id} className="scroll-mt-4 transition-shadow" data-testid="appendix-table">
+      <header className="mb-3 flex items-baseline gap-3">
+        <h2 className="text-lg">{table.title ?? "別表"}</h2>
+        {table.related_article_num && <span className="text-sm text-muted-foreground">{table.related_article_num}</span>}
+      </header>
+      {rows.length > 0 && (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-sm leading-relaxed">
+            <tbody>
+              {rows.map((row, ri) => (
+                <tr key={ri}>
+                  {row.map((c, ci) => {
+                    const Cell = c.header ? "th" : "td";
+                    return (
+                      <Cell
+                        key={ci}
+                        rowSpan={c.rowspan}
+                        colSpan={c.colspan}
+                        className={`border border-border px-2 py-1 align-top whitespace-pre-wrap text-left ${c.header ? "bg-muted font-normal" : ""}`}
+                      >
+                        {linkify(c.text)}
+                      </Cell>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {items.length > 0 && (
+        <div className="space-y-2 text-sm leading-relaxed">
+          {items.map((it, i) => (
+            <p key={i} className="flex gap-3">
+              <span className="text-muted-foreground shrink-0 w-6">{it.title}</span>
+              <span className="whitespace-pre-wrap">{linkify(it.text)}</span>
+            </p>
+          ))}
+        </div>
+      )}
+      {remarks.length > 0 && (
+        <div className="mt-3 space-y-1 text-xs text-muted-foreground leading-relaxed">
+          <div>備考</div>
+          {remarks.map((r, i) => <p key={i} className="whitespace-pre-wrap">{linkify(r)}</p>)}
+        </div>
+      )}
+    </section>
+  );
+}
+
 function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => void; onCompare: () => void }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -359,6 +415,7 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
   const offlineFallback = !detail.loading && !detail.doc;
   const articles = detail.doc?.articles ?? (offlineFallback ? ARTICLES_V2 : []);
   const articlesEmpty = liveAvailable && articles.length === 0;
+  const appendixTables: AppendixTable[] = detail.doc?.appendix_tables ?? [];
   const [activeArt, setActiveArt] = useState(articles[0]?.article_id ?? "");
   // articles が後から確定するので追従する。
   useEffect(() => {
@@ -438,8 +495,9 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
   const articleNoById = useMemo(() => {
     const m = new Map<string, string>();
     for (const a of articles) m.set(a.article_id, a.article_no);
+    for (const t of appendixTables) m.set(t.appdx_id, t.title ?? "別表");
     return m;
-  }, [articles]);
+  }, [articles, appendixTables]);
 
   // この法令に言及している国会会議録（law→proceedings クロスリンク）。リンクが無ければ非表示。
   const [proceedings, setProceedings] = useState<LawToProceedings | null>(null);
@@ -662,6 +720,16 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
                     {a.caption && <div className="text-xs text-muted-foreground truncate">{a.caption}</div>}
                   </button>
                 ))}
+                {appendixTables.map(t => (
+                  <button
+                    key={t.appdx_id}
+                    onClick={() => { setActiveArt(t.appdx_id); scrollToArticle(t.appdx_id); }}
+                    className={`w-full text-left px-2 py-1.5 rounded text-sm hover:bg-accent transition-colors ${activeArt === t.appdx_id ? "bg-accent" : ""}`}
+                  >
+                    <div>{t.title ?? "別表"}</div>
+                    {t.related_article_num && <div className="text-xs text-muted-foreground truncate">{t.related_article_num}</div>}
+                  </button>
+                ))}
               </div>
             </ScrollArea>
             <ScrollArea>
@@ -729,6 +797,13 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
                     </article>
                   );
                 })}
+                {appendixTables.map(t => (
+                  <AppendixTableView
+                    key={t.appdx_id}
+                    table={t}
+                    linkify={text => linkifyText(text, outgoingByArt.get(t.appdx_id) ?? [], navigate, law.law_id)}
+                  />
+                ))}
               </div>
             </ScrollArea>
           </div>

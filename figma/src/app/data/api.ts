@@ -50,6 +50,19 @@ export type Article = {
   paragraphs: Paragraph[]
 }
 
+/** 別表 (`<AppdxTable>`)。表形式なら `rows`、号の列挙なら `items` に入る。 */
+export type AppendixCell = { text: string; header?: boolean; rowspan?: number; colspan?: number }
+export type AppendixTable = {
+  /** `appdx_{index}`。search.db の article_id・ページ内アンカーと同じ値。 */
+  appdx_id: string
+  index: number
+  title: string | null
+  related_article_num: string | null
+  rows?: AppendixCell[][]
+  items?: { title: string | null; text: string }[]
+  remarks?: string[]
+}
+
 export type LawDocumentRaw = {
   schema_version: number
   law_id: string
@@ -60,6 +73,8 @@ export type LawDocumentRaw = {
   effective_date: string | null
   status: 'current' | 'historical' | 'future' | string
   articles: Article[]
+  /** 旧 JSON には無い。空のときも省略される。 */
+  appendix_tables?: AppendixTable[]
   source: { provider: string; raw_xml_sha256: string | null; fetched_at: string }
 }
 

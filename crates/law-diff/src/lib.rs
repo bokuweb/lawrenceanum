@@ -357,6 +357,7 @@ mod tests {
             status: "current".to_string(),
             articles,
             suppl_provisions: Vec::new(),
+            appendix_tables: Vec::new(),
             source: SourceMeta {
                 provider: "test".to_string(),
                 raw_xml_sha256: None,
