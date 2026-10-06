@@ -190,7 +190,7 @@ jobs:
           if aws s3 cp "s3://$R2_BUCKET/law-corpus-delta.tar.zst" /tmp/law-corpus-delta.tar.zst \
             --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
             # revisions は内容アドレスなので既存 base と共存し、revisions_meta は新しい
-            # delta 側を上書きする。取得日は revision の meta から追跡できる。
+            # delta 側を上書きする。egov/{date}/ は updates/{date}.json の元になる。
             zstd -dc --long=31 /tmp/law-corpus-delta.tar.zst | tar -x -C .cache
             rm -f /tmp/law-corpus-delta.tar.zst
             n=$(find .cache/revisions -name '*.xml' | wc -l | tr -d ' ')
