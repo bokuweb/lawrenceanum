@@ -78,7 +78,8 @@ pub struct LawRevisionList {
 pub trait EgovProvider: Send + Sync {
     fn fetch_update(&self, date: &str) -> Result<UpdateBatch>;
 
-    /// 全件バルク取得。`category` は e-Gov v2 の分類番号 (1=憲法・法律 など)。
+    /// 全件バルク取得。`category` は e-Gov API v1 `lawlists/{category}` の分類番号
+    /// (1=全法令, 2=憲法・法律, 3=政令・勅令, 4=府省令・規則)。
     /// 規定実装は未対応エラー — provider ごとに実装する。
     fn fetch_bulk(&self, _category: u32, _limit: Option<usize>) -> Result<UpdateBatch> {
         anyhow::bail!("fetch_bulk is not implemented for this provider")

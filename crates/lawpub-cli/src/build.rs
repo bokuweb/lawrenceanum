@@ -13,6 +13,23 @@ use crate::state;
 
 const SCHEMA_VERSION: u32 = 1;
 
+/// e-Gov 法令データの出典表記。e-Gov のコンテンツは公共データ利用規約（第1.0版）
+/// (PDL1.0, https://www.e-gov.go.jp/terms) に基づき利用でき、出典の記載に加えて、
+/// 加工した場合はその旨と加工者を出典とは別に示す必要がある。`index.json` と
+/// `manifest.json` に `attribution` として載せる。
+fn egov_attribution() -> serde_json::Value {
+    json!({
+        "source": "e-Gov法令検索",
+        "source_url": "https://laws.e-gov.go.jp/",
+        "publisher": "デジタル庁",
+        "license": "公共データ利用規約（第1.0版）",
+        "license_url": "https://www.digital.go.jp/resources/open_data/public_data_license_v1.0",
+        "terms_url": "https://www.e-gov.go.jp/terms",
+        "processed_by": "lawrenceanum",
+        "notice": "出典：e-Gov法令検索（https://laws.e-gov.go.jp/）。本データは e-Gov法令API から取得した法令データを lawrenceanum が加工（構造化・JSON 化・差分の付与等）して作成したものであり、国が作成したそのままのデータではありません。"
+    })
+}
+
 fn provider_by_name(name: &str) -> Result<Box<dyn EgovProvider>> {
     match name {
         "mock" => Ok(Box::new(MockProvider)),
@@ -1903,6 +1920,7 @@ fn write_indices(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
         &json!({
             "version": SCHEMA_VERSION,
             "generated_at": generated_at,
+            "attribution": egov_attribution(),
             "endpoints": {
                 "laws": "laws/index.json",
                 "updates_latest": "updates/latest.json",
@@ -2105,6 +2123,7 @@ pub fn run_rebuild_manifest(public: &Path) -> Result<()> {
         &json!({
             "version": SCHEMA_VERSION,
             "generated_at": Utc::now().to_rfc3339(),
+            "attribution": egov_attribution(),
             "files": files,
         }),
     )?;
@@ -2260,6 +2279,7 @@ fn write_manifest_and_health(public: &Path, laws: &[LawWithHistory]) -> Result<(
         &json!({
             "version": SCHEMA_VERSION,
             "generated_at": generated_at,
+            "attribution": egov_attribution(),
             "files": files,
         }),
     )?;
@@ -2692,6 +2712,21 @@ fn write_schema(public: &Path) -> Result<()> {
         "properties": {
             "version":      { "type": "integer", "minimum": 1 },
             "generated_at": { "type": "string", "format": "date-time" },
+            "attribution": {
+                "type": "object",
+                "description": "出典表記 (e-Gov法令検索 / 公共データ利用規約 第1.0版)",
+                "required": ["source", "source_url", "license", "processed_by", "notice"],
+                "properties": {
+                    "source":       { "type": "string" },
+                    "source_url":   { "type": "string", "format": "uri" },
+                    "publisher":    { "type": "string" },
+                    "license":      { "type": "string" },
+                    "license_url":  { "type": "string", "format": "uri" },
+                    "terms_url":    { "type": "string", "format": "uri" },
+                    "processed_by": { "type": "string" },
+                    "notice":       { "type": "string" }
+                }
+            },
             "files": {
                 "type": "array",
                 "items": {
@@ -2809,6 +2844,41 @@ mod corpus_guard_tests {
         mk_dirs(&tmp, "revisions", 1);
         assert_eq!(corpus_shrunk_catastrophically(&tmp, 10), None);
         let _ = fs::remove_dir_all(&tmp);
+    }
+}
+
+#[cfg(test)]
+mod attribution_tests {
+    use super::{rebuild_manifest, run_rebuild_manifest};
+    use crate::validate::run_validate;
+
+    #[test]
+    fn manifest_carries_egov_attribution_and_still_validates() {
+        let root = std::env::temp_dir().join(format!(
+            "lawpub_attribution_{}_{}",
+            std::process::id(),
+            chrono::Utc::now().timestamp_nanos_opt().unwrap_or_default()
+        ));
+        std::fs::create_dir_all(root.join("laws")).unwrap();
+        std::fs::write(root.join("laws/index.json"), r#"{"laws":[]}"#).unwrap();
+
+        for rebuild in [rebuild_manifest, run_rebuild_manifest] {
+            rebuild(&root).unwrap();
+            let manifest: serde_json::Value =
+                serde_json::from_slice(&std::fs::read(root.join("manifest.json")).unwrap())
+                    .unwrap();
+            let a = &manifest["attribution"];
+            assert_eq!(a["source"], "e-Gov法令検索");
+            assert_eq!(a["source_url"], "https://laws.e-gov.go.jp/");
+            assert_eq!(a["processed_by"], "lawrenceanum");
+            assert!(a["notice"]
+                .as_str()
+                .unwrap()
+                .starts_with("出典：e-Gov法令検索"));
+            run_validate(&root).unwrap();
+        }
+
+        std::fs::remove_dir_all(root).unwrap();
     }
 }
 
@@ -3169,7 +3239,9 @@ mod release_history_tests {
                 caption: None,
                 paragraphs: vec![Paragraph {
                     paragraph_no: None,
+                    paragraph_num: None,
                     text: text.to_string(),
+                    items: Vec::new(),
                 }],
             })
             .collect();
@@ -3188,6 +3260,7 @@ mod release_history_tests {
                 status: "historical".to_string(),
                 articles,
                 suppl_provisions: Vec::new(),
+                appendix_tables: Vec::new(),
                 source: SourceMeta {
                     provider: "test".to_string(),
                     raw_xml_sha256: None,

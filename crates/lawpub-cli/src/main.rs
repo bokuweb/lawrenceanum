@@ -50,7 +50,8 @@ enum Cmd {
         #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
         provider: String,
     },
-    /// 指定カテゴリの全件バルクを取得する (e-Gov v2: 1=憲法・法律, 2=政令・勅令, ...)。
+    /// 指定カテゴリの全件バルクを取得する
+    /// (e-Gov API v1 `lawlists/{category}`: 1=全法令, 2=憲法・法律, 3=政令・勅令, 4=府省令・規則)。
     /// 数千〜数万件になり得るため、`--limit` で件数を絞れる。
     FetchBulk {
         #[arg(long)]

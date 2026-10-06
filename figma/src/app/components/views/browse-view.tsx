@@ -13,6 +13,7 @@ import { useLocation, useNavigate } from "react-router";
 import { useLaws, useLawDetail } from "../../data/use-laws";
 import { api, type AppendixTable, type LawToProceedings, type LawToPubcomments, type LawToTsutatsu, type AmendDocument, type AmendRun, type AmendNestedTable } from "../../data/api";
 import { getRefsForLaw, type ArticleRef } from "../../data/search-engine";
+import { EgovAttribution, toJstDate } from "../egov-attribution";
 
 /**
  * 新旧対照表の改め文テキストを「改正後」「改正前」の見出し行で区切り、表組み用に
@@ -564,6 +565,7 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
               <span className="flex items-center gap-1"><Calendar className="size-3" />施行 {law.effective_date}</span>
               <span className="flex items-center gap-1"><Tag className="size-3" />{law.article_count} 条</span>
             </div>
+            <EgovAttribution asOf={toJstDate(detail.doc?.source?.fetched_at)} className="mt-2" />
           </div>
           <div className="flex gap-2 shrink-0">
             <ShareButton />
