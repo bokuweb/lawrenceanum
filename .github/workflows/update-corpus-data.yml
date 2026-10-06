@@ -28,17 +28,54 @@ on:
   schedule:
     # JST 05:00 毎日
     - cron: "0 20 * * *"
+    # フォールバック (JST 08:00): 05:00 の run が Runner 未割当などで失敗した日だけ
+    # 再取得する。成功済み / 実行中の run があれば guard job で skip する。
+    # 法令ワークフローは 1 日複数回 R2 を取り込むので、次の法令 run で配信される。
+    - cron: "0 23 * * *"
 
 permissions:
   # Pages へは deploy しない (法令ワークフローが配信)。state コミットと R2 upload のみ。
   contents: write
+  # guard job が当日の run 状況を参照する。
+  actions: read
 
 concurrency:
   group: update-corpus-data
   cancel-in-progress: false
 
 jobs:
+  # フォールバック cron の run だけ、当日 (UTC 19:00 以降) に成功済み or 実行中の
+  # run があれば update を skip する。通常 cron / 手動実行は常に update する。
+  guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.check.outputs.run }}
+    steps:
+      - name: Check earlier runs today
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ] || [ "${{ github.event.schedule }}" != "0 23 * * *" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          since="$(date -u +%Y-%m-%d)T19:00:00Z"
+          covered=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow update-corpus-data.yml \
+            --created ">=$since" --limit 20 --json databaseId,status,conclusion \
+            --jq "[.[] | select(.databaseId != ${{ github.run_id }}) | select(.conclusion == \"success\" or .status != \"completed\")] | length")
+          if [ "$covered" -gt 0 ]; then
+            echo "::notice::today's corpus run already succeeded or is running — skipping fallback"
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::no successful corpus run since $since — running fallback"
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
   update:
+    needs: guard
+    if: needs.guard.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
