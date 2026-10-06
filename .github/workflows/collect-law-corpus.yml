@@ -14,6 +14,15 @@ on:
         description: "終了日 YYYY-MM-DD（空なら最大31日または今日）"
         required: false
         type: string
+      sync_current_bodies:
+        description: "e-Gov の現行版一覧と突き合わせ、欠けている現行版本文・改正履歴メタ・法令を取得する"
+        required: false
+        default: true
+        type: boolean
+      sync_limit:
+        description: "(現行版本文の同期) 処理する法令数の上限。空なら全件"
+        required: false
+        type: string
   schedule:
     # JST 02:00 毎日。05:00 corpus / 06:30 law deploy より前に永続化する。
     - cron: "0 17 * * *"
@@ -124,6 +133,60 @@ jobs:
           done
           after=$(find "$DELTA_CACHE/revisions" -name '*.xml' 2>/dev/null | wc -l | tr -d ' ')
           echo "::notice::durable delta revisions: $before -> $after"
+
+      # 現行版本文の同期に使う「base コーパス (R2) に既にある meta / 本文」を用意する。
+      # 32GB の本文は展開せず、tar の一覧だけを取る (存在確認に使う)。
+      - name: Restore base revisions meta and corpus listing from R2
+        if: github.event_name == 'schedule' || github.event.inputs.sync_current_bodies != 'false'
+        run: |
+          mkdir -p .law-base/revisions_meta
+          if aws s3 cp "s3://$R2_BUCKET/revisions_meta.jsonl" /tmp/revisions_meta.jsonl \
+            --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            ./target/release/lawpub bundle-revisions-meta --mode unpack \
+              --file /tmp/revisions_meta.jsonl --dir .law-base/revisions_meta
+            rm -f /tmp/revisions_meta.jsonl
+          else
+            echo "::warning::revisions_meta.jsonl not found in R2"
+          fi
+          if aws s3 cp "s3://$R2_BUCKET/revisions.tar.zst" /tmp/revisions.tar.zst \
+            --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            zstd -dc --long=31 /tmp/revisions.tar.zst | tar -t > .law-base/files.txt
+            rm -f /tmp/revisions.tar.zst
+          else
+            echo "::warning::revisions.tar.zst not found in R2"
+            : > .law-base/files.txt
+          fi
+          echo "::notice::base meta $(ls .law-base/revisions_meta | wc -l) laws, base corpus $(grep -c '\.xml$' .law-base/files.txt) XMLs"
+
+      # 施行日を迎えて版が切り替わった法令は日次の更新一覧に載らないことがあり、
+      # 手元の本文が改正前のまま残る。e-Gov v2 /laws の現行版 ID と突き合わせ、
+      # 欠けている現行版本文 (/law_data/{revision_id})・古い改正履歴メタ・手元に無い
+      # 現行法令だけを delta に取得する。並列 4・リトライ付き。失敗しても取得済み分は
+      # delta に残し、cursor の更新と upload は続ける。
+      - name: Sync current revision bodies into delta cache
+        if: github.event_name == 'schedule' || github.event.inputs.sync_current_bodies != 'false'
+        env:
+          SYNC_LIMIT: ${{ github.event.inputs.sync_limit }}
+        run: |
+          mkdir -p "$DELTA_CACHE/state"
+          # base meta が復元できていないと全法令を「手元に無い」と判定して全件取得に
+          # なるので、その場合は同期しない (e-Gov への過負荷防止)。
+          base_meta=$(find .law-base/revisions_meta -name '*.json' | wc -l | tr -d ' ')
+          if [ "$base_meta" -lt 1000 ]; then
+            echo "::warning::base revisions meta is missing ($base_meta laws); skipping current body sync"
+            exit 0
+          fi
+          ARGS=(sync-current-bodies --cache "$DELTA_CACHE" --lookup .law-base
+                --existing-list .law-base/files.txt --concurrency 4
+                --report "$DELTA_CACHE/state/sync_current_bodies.json")
+          if [ -n "$SYNC_LIMIT" ]; then ARGS+=(--limit "$SYNC_LIMIT"); fi
+          if ! ./target/release/lawpub "${ARGS[@]}"; then
+            echo "::warning::sync-current-bodies failed; uploading what was fetched"
+          fi
+          if [ -f "$DELTA_CACHE/state/sync_current_bodies.json" ]; then
+            jq -r '"::notice::current bodies: meta \(.meta_refreshed|length), bodies \(.bodies_fetched|length), new laws \(.new_laws|length), errors \(.errors|length) (planned \(.planned))"' \
+              "$DELTA_CACHE/state/sync_current_bodies.json"
+          fi
 
       # upload が成功した run だけ cursor を進める。archive 内にも state を含め、
       # git commit の競合や Actions cache eviction に依存しない。

@@ -47,7 +47,7 @@ fn provider_by_name(name: &str) -> Result<Box<dyn EgovProvider>> {
 
 /// v2 メタ取得用の HttpProvider を作る。`LAWPUB_EGOV_V2_BASE_URL` が未設定なら
 /// HttpProvider 内部で公開エンドポイントにフォールバックする。
-fn http_provider_v2() -> egov_client::HttpProvider {
+pub(crate) fn http_provider_v2() -> egov_client::HttpProvider {
     // base_url は v1 ベース。HttpProvider 内で v2_base_url を別途解決する。
     let base = std::env::var("LAWPUB_EGOV_BASE_URL")
         .unwrap_or_else(|_| "https://laws.e-gov.go.jp/api/1".to_string());
@@ -485,22 +485,32 @@ pub fn run_fetch_update(date: &str, cache: &Path, provider: &str) -> Result<usiz
         } else {
             for l in &batch.laws {
                 match v2.fetch_law_revisions(&l.law_id) {
-                    Ok(list) => match serde_json::to_vec_pretty(&list) {
-                        Ok(body) => {
-                            if let Err(e) =
-                                std::fs::write(meta_dir.join(format!("{}.json", l.law_id)), body)
-                            {
-                                tracing::warn!(
-                                    "refresh revisions_meta for {}: write failed: {e}",
-                                    l.law_id
-                                );
+                    Ok(list) => {
+                        match serde_json::to_vec_pretty(&list) {
+                            Ok(body) => {
+                                if let Err(e) = std::fs::write(
+                                    meta_dir.join(format!("{}.json", l.law_id)),
+                                    body,
+                                ) {
+                                    tracing::warn!(
+                                        "refresh revisions_meta for {}: write failed: {e}",
+                                        l.law_id
+                                    );
+                                }
                             }
+                            Err(e) => tracing::warn!(
+                                "refresh revisions_meta for {}: serialize failed: {e}",
+                                l.law_id
+                            ),
                         }
-                        Err(e) => tracing::warn!(
-                            "refresh revisions_meta for {}: serialize failed: {e}",
-                            l.law_id
-                        ),
-                    },
+                        // 版 ID と本文は同じ XML から取る。メタが指す現行版の本文
+                        // (v2 `/law_data/{revision_id}`) も揃えておく。
+                        if let Err(e) = crate::current_bodies::fetch_current_body_if_missing(
+                            &v2, cache, &l.law_id, &list,
+                        ) {
+                            tracing::warn!("fetch current revision body for {}: {e:#}", l.law_id);
+                        }
+                    }
                     Err(e) => tracing::warn!(
                         "refresh revisions_meta for {}: fetch failed: {e:#}",
                         l.law_id
@@ -1529,12 +1539,7 @@ fn build_one_law(
         match serde_json::from_slice::<LawRevisionList>(&bytes) {
             Ok(list) => {
                 let mut mrevs = list.revisions;
-                mrevs.sort_by(|a, b| {
-                    a.amendment_promulgate_date
-                        .as_deref()
-                        .unwrap_or("")
-                        .cmp(b.amendment_promulgate_date.as_deref().unwrap_or(""))
-                });
+                sort_meta_revisions(&mut mrevs);
                 law.meta_revisions = mrevs;
                 law.meta_law_info = Some(list.law_info);
             }
@@ -1544,7 +1549,213 @@ fn build_one_law(
         }
     }
 
+    if let Some(CurrentBody {
+        revision_id,
+        expected: Some(expected),
+        matched: false,
+    }) = settle_current_revision(&mut law)
+    {
+        tracing::warn!(
+            "{law_id}: e-Gov の現行版 {expected} の本文 XML が無いため、手元で最新の本文 {revision_id} を \
+             その版 ID のまま現行として出す (`lawpub sync-current-bodies` で取得すると解消)"
+        );
+    }
+
     Ok(law)
+}
+
+/// 改正履歴メタを公布日の古い順に並べる (versions.json / timeline.json の並び)。
+pub(crate) fn sort_meta_revisions(revisions: &mut [RevisionMeta]) {
+    revisions.sort_by(|a, b| {
+        a.amendment_promulgate_date
+            .as_deref()
+            .unwrap_or("")
+            .cmp(b.amendment_promulgate_date.as_deref().unwrap_or(""))
+    });
+}
+
+/// v2 版 ID (`{law_id}_{YYYYMMDD}_{改正法令ID}`) の日付部を `YYYY-MM-DD` で返す。
+/// sha 由来の ID (先頭 12 桁 hex) など v2 形式でなければ `None`。
+pub(crate) fn v2_revision_date(law_id: &str, revision_id: &str) -> Option<String> {
+    let rest = revision_id.strip_prefix(law_id)?.strip_prefix('_')?;
+    let ymd = rest.get(..8)?;
+    if !ymd.bytes().all(|b| b.is_ascii_digit()) || rest.as_bytes().get(8) != Some(&b'_') {
+        return None;
+    }
+    Some(format!("{}-{}-{}", &ymd[..4], &ymd[4..6], &ymd[6..]))
+}
+
+fn is_iso_date(s: &str) -> bool {
+    let b = s.as_bytes();
+    b.len() == 10
+        && b[4] == b'-'
+        && b[7] == b'-'
+        && b.iter()
+            .enumerate()
+            .all(|(i, c)| i == 4 || i == 7 || c.is_ascii_digit())
+}
+
+/// 本文 revision の並び順キー。v2 版は ID の日付 (= 施行日)、sha 由来の版は初観測日。
+/// `fetch-revision-bodies` が書く v2 版は first_seen_date が空なので、first_seen_date
+/// だけで並べると v2 版同士の順序が `read_dir` 任せになり、古い版が末尾 (= 現行) に来る。
+fn body_order_key(law_id: &str, r: &Revision) -> String {
+    v2_revision_date(law_id, &r.revision_id).unwrap_or_else(|| r.first_seen_date.clone())
+}
+
+/// 改正履歴メタ 1 版の施行日 (`YYYY-MM-DD`)。無ければ版 ID の日付部。
+fn meta_enforcement_date(m: &RevisionMeta) -> Option<String> {
+    m.amendment_enforcement_date
+        .as_deref()
+        .and_then(|d| d.get(..10))
+        .map(str::to_string)
+        .or_else(|| {
+            let law_id = m.law_revision_id.split('_').next().unwrap_or_default();
+            v2_revision_date(law_id, &m.law_revision_id)
+        })
+}
+
+/// e-Gov 改正履歴メタ上の現行版。CurrentEnforced → 廃止法令の最終版 (Repeal) →
+/// 未施行でない版のうち施行日が最新のもの → 末尾の順に探す。v2 `/laws` 一覧の
+/// `current_revision_info` と同じ版を指す (e-Gov 側で施行済みの最新版が CurrentEnforced に
+/// 切り替わらず PreviousEnforced のまま残っている法令があり、一覧はその版を現行とする)。
+pub(crate) fn expected_current_meta(meta: &[RevisionMeta]) -> Option<&RevisionMeta> {
+    let with_status = |s: &str| {
+        meta.iter()
+            .rev()
+            .find(|m| m.current_revision_status.as_deref() == Some(s))
+    };
+    with_status("CurrentEnforced")
+        .or_else(|| with_status("Repeal"))
+        .or_else(|| {
+            meta.iter()
+                .filter(|m| m.current_revision_status.as_deref() != Some("UnEnforced"))
+                .filter_map(|m| meta_enforcement_date(m).map(|d| (d, m)))
+                .max_by(|a, b| a.0.cmp(&b.0))
+                .map(|(_, m)| m)
+        })
+        .or_else(|| meta.last())
+}
+
+/// sha 由来の本文 (v1 `lawdata` = 取得時点の現行本文) が `meta` の版を写しているか。
+/// その版の施行日と e-Gov の更新日時の両方以降に取得されたものだけを同じ版とみなす。
+/// first_seen_date は取得日以前の日付 (更新一覧の対象日) なので、判定は安全側に倒れる。
+fn sha_body_reflects(meta: &RevisionMeta, first_seen: &str) -> bool {
+    if !is_iso_date(first_seen) {
+        return false;
+    }
+    let updated = meta.updated.as_deref().and_then(|u| u.get(..10));
+    let Some(enforced) = meta_enforcement_date(meta) else {
+        return false;
+    };
+    first_seen >= enforced.as_str() && updated.is_none_or(|u| first_seen >= u)
+}
+
+/// `settle_current_revision` の結果。
+#[derive(Debug, Clone, PartialEq)]
+struct CurrentBody {
+    /// 現行として配信する本文の版 ID (= `revisions.last()`)。
+    revision_id: String,
+    /// e-Gov 改正履歴メタ上の現行版 ID (メタが無ければ `None`)。
+    expected: Option<String>,
+    /// 配信する本文が `expected` の版のものか。
+    matched: bool,
+}
+
+/// 本文を版順に並べ、`revisions.last()` が配信すべき現行版になるよう整える。
+///
+/// 版 ID と本文は必ず同じ XML から取る。e-Gov の現行版 (CurrentEnforced) の本文が
+///   1. `{現行版 ID}.xml` として手元にあればそれを使う。
+///   2. 無くても、その版への切替以降に取得した sha 由来の本文があれば、それを現行版 ID に
+///      付け替える (同じ版の sha 本文は 1 つに畳み、更新フィードの参照も付け替える)。
+///   3. どちらも無ければ、手元で最新の本文 (未施行版を除く) を **その本文自身の版 ID のまま**
+///      現行にする。古い本文に新しい版 ID を付けない。
+fn settle_current_revision(law: &mut LawWithHistory) -> Option<CurrentBody> {
+    let law_id = law.law_id.clone();
+    law.revisions.sort_by(|a, b| {
+        body_order_key(&law_id, a)
+            .cmp(&body_order_key(&law_id, b))
+            .then_with(|| a.revision_id.cmp(&b.revision_id))
+    });
+    if law.revisions.is_empty() {
+        return None;
+    }
+    let Some(expected) = expected_current_meta(&law.meta_revisions).cloned() else {
+        let last = law.revisions.last()?;
+        return Some(CurrentBody {
+            revision_id: last.revision_id.clone(),
+            expected: None,
+            matched: false,
+        });
+    };
+    let expected_id = expected.law_revision_id.clone();
+
+    let exact = law
+        .revisions
+        .iter()
+        .position(|r| r.revision_id == expected_id);
+    let same_sha: Vec<usize> = law
+        .revisions
+        .iter()
+        .enumerate()
+        .filter(|(_, r)| {
+            v2_revision_date(&law_id, &r.revision_id).is_none()
+                && sha_body_reflects(&expected, &r.first_seen_date)
+        })
+        .map(|(i, _)| i)
+        .collect();
+
+    let keep = exact.or_else(|| same_sha.last().copied());
+    let Some(keep) = keep else {
+        let unenforced: std::collections::BTreeSet<&str> = law
+            .meta_revisions
+            .iter()
+            .filter(|m| m.current_revision_status.as_deref() == Some("UnEnforced"))
+            .map(|m| m.law_revision_id.as_str())
+            .collect();
+        let idx = law
+            .revisions
+            .iter()
+            .rposition(|r| !unenforced.contains(r.revision_id.as_str()))
+            .unwrap_or(law.revisions.len() - 1);
+        let cur = law.revisions.remove(idx);
+        let revision_id = cur.revision_id.clone();
+        law.revisions.push(cur);
+        return Some(CurrentBody {
+            revision_id,
+            expected: Some(expected_id),
+            matched: false,
+        });
+    };
+
+    // 現行版と同じ版の sha 本文を 1 つに畳む。更新フィード (fetched_dates) は現行版 ID を指す。
+    let mut renamed: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
+    let mut kept: Option<Revision> = None;
+    let mut rest = Vec::with_capacity(law.revisions.len());
+    for (i, r) in std::mem::take(&mut law.revisions).into_iter().enumerate() {
+        if i == keep {
+            kept = Some(r);
+        } else if same_sha.contains(&i) {
+            renamed.insert(r.revision_id);
+        } else {
+            rest.push(r);
+        }
+    }
+    let mut cur = kept.expect("keep index is in range");
+    if cur.revision_id != expected_id {
+        renamed.insert(std::mem::replace(&mut cur.revision_id, expected_id.clone()));
+    }
+    for rev_id in law.fetched_dates.values_mut() {
+        if renamed.contains(rev_id) {
+            *rev_id = expected_id.clone();
+        }
+    }
+    rest.push(cur);
+    law.revisions = rest;
+    Some(CurrentBody {
+        revision_id: expected_id.clone(),
+        expected: Some(expected_id),
+        matched: true,
+    })
 }
 
 #[allow(dead_code)] // 旧一括実装。run_build_json はストリーム版に移行済み (参照用に保持)。
@@ -1613,15 +1824,10 @@ fn build_into(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
 
 fn include_in_compact_history(
     law: &LawWithHistory,
-    revision: &Revision,
-    file_revision_id: &str,
+    revision_id: &str,
     current_revision_id: &str,
 ) -> bool {
-    file_revision_id == current_revision_id
-        || law
-            .fetched_dates
-            .values()
-            .any(|id| id == &revision.revision_id || id == file_revision_id)
+    revision_id == current_revision_id || law.fetched_dates.values().any(|id| id == revision_id)
 }
 
 fn write_law_documents(
@@ -1640,28 +1846,12 @@ fn write_law_documents(
         let dir = public.join("laws").join(&law.law_id);
         std::fs::create_dir_all(&dir)?;
 
-        // 本文 (revisions[].revision_id) は今 .cache/revisions/{law_id}/{sha-rev-id}.xml
-        // から sha 由来の ID で持っている。v2 meta が取れているなら、その「現在
-        // 施行中」revision (`current_revision_status == "CurrentEnforced"`) の
-        // v2 ID を本文の revision_id として採用する。これで versions.json /
-        // timeline.json と current_revision_id が同じ ID 空間で揃う。
-        //
-        // 値域: CurrentEnforced / PreviousEnforced / UnEnforced / Repealed
-        // (将来 Repealed の取扱いは要検討。今は CurrentEnforced を優先し、
-        //  無ければ最新の v2 ID にフォールバック)。
-        let current_v2_id: Option<String> = law
-            .meta_revisions
-            .iter()
-            .rev()
-            .find(|m| m.current_revision_status.as_deref() == Some("CurrentEnforced"))
-            .map(|m| m.law_revision_id.clone())
-            .or_else(|| law.meta_revisions.last().map(|m| m.law_revision_id.clone()));
-
-        // current.json は最新版に revision_id を埋める。
+        // 現行版は `settle_current_revision` が revisions の末尾に置いている。版 ID は
+        // 必ず本文と同じ XML の ID を使う。e-Gov の現行版 (CurrentEnforced) の本文が
+        // 手元に無いときに版 ID だけ現行版のものへ書き換えると、改正前の本文に新しい
+        // 版 ID が付いてしまう (current.json / revisions / articles / 検索 DB に波及)。
         let cur_rev = law.current_rev();
-        let current_rev_id = current_v2_id
-            .clone()
-            .unwrap_or_else(|| cur_rev.revision_id.clone());
+        let current_rev_id = cur_rev.revision_id.clone();
         let mut current_doc = cur_rev.doc.clone();
         current_doc.revision_id = Some(current_rev_id.clone());
         write_json_pretty(&dir.join("current.json"), &current_doc)?;
@@ -1677,9 +1867,7 @@ fn write_law_documents(
             write_json_pretty(&articles_dir.join(format!("{}.json", t.appdx_id)), t)?;
         }
 
-        // 過去 revision を全部書き出す (Phase 2 §7.6)。
-        // 現状は本文を 1 件しか持っていないことが多いので、その 1 件を v2 ID
-        // ファイル名で書き出して versions.json と紐付ける。
+        // 過去 revision を全部書き出す (Phase 2 §7.6)。ファイル名は本文の版 ID。
         let revisions_dir = dir.join("revisions");
         std::fs::create_dir_all(&revisions_dir)?;
         // 履歴束 (history.zst): 通常は全版を NDJSON 1 ファイルにまとめる。
@@ -1688,20 +1876,14 @@ fn write_law_documents(
         let mut history_ndjson: Vec<u8> = Vec::new();
         for r in &law.revisions {
             let mut doc = r.doc.clone();
-            let file_rev_id = if r.revision_id == cur_rev.revision_id {
-                current_rev_id.clone()
-            } else {
-                r.revision_id.clone()
-            };
-            doc.revision_id = Some(file_rev_id.clone());
-            doc.status = if file_rev_id == current_rev_id {
+            doc.revision_id = Some(r.revision_id.clone());
+            doc.status = if r.revision_id == current_rev_id {
                 "current".to_string()
             } else {
                 "historical".to_string()
             };
-            write_json_pretty(&revisions_dir.join(format!("{}.json", file_rev_id)), &doc)?;
-            if !compact_history
-                || include_in_compact_history(law, r, &file_rev_id, &current_rev_id)
+            write_json_pretty(&revisions_dir.join(format!("{}.json", r.revision_id)), &doc)?;
+            if !compact_history || include_in_compact_history(law, &r.revision_id, &current_rev_id)
             {
                 // 束には compact JSON を 1 行として追記 (同じ doc)。
                 history_ndjson.extend_from_slice(&serde_json::to_vec(&doc)?);
@@ -1715,28 +1897,18 @@ fn write_law_documents(
         // versions.json: e-Gov v2 meta_revisions が取れていればそれを骨格にし、
         // 本文 (revisions/{id}/{rev_id}.xml) を持っている revision には path を
         // 埋める。meta が無い場合は従来通り本文ベースで書き出す (= fallback)。
-        // 本文を持っている v2 ID 集合 = current_v2_id 一つ (今は) + 仮に
-        // .cache/revisions/ に v2 ID 形式で配置されたファイルがあればそれら。
-        // body_available は「実際に書き出した revision ファイル」と厳密に一致させる。
-        // 現行版はファイル名が current_rev_id になる (上の revisions 書き出しと同じ規則)
-        // ため、r.revision_id ではなく書き出し名 (file_rev_id) を登録する。これを誤ると
-        // versions.json が存在しないファイルを body_available としてしまい、build-diffs が
-        // そのファイルの読み込みに失敗する。
-        let mut body_rev_ids: std::collections::BTreeSet<String> =
-            std::collections::BTreeSet::new();
-        for r in &law.revisions {
-            let file_rev_id = if r.revision_id == cur_rev.revision_id {
-                current_rev_id.clone()
-            } else {
-                r.revision_id.clone()
-            };
-            body_rev_ids.insert(file_rev_id);
-        }
+        // body_available は「実際に書き出した revision ファイル」と厳密に一致させる
+        // (存在しないファイルを body_available にすると build-diffs が読み込みに失敗する)。
+        let body_rev_ids: std::collections::BTreeSet<&str> = law
+            .revisions
+            .iter()
+            .map(|r| r.revision_id.as_str())
+            .collect();
         let versions: Vec<_> = if !law.meta_revisions.is_empty() {
             law.meta_revisions
                 .iter()
                 .map(|m| {
-                    let has_body = body_rev_ids.contains(&m.law_revision_id);
+                    let has_body = body_rev_ids.contains(m.law_revision_id.as_str());
                     json!({
                         "revision_id": m.law_revision_id,
                         "effective_date": m.amendment_enforcement_date,
@@ -2783,7 +2955,7 @@ fn write_schema(public: &Path) -> Result<()> {
     Ok(())
 }
 
-fn write_json_pretty<T: Serialize>(path: &Path, value: &T) -> Result<()> {
+pub(crate) fn write_json_pretty<T: Serialize>(path: &Path, value: &T) -> Result<()> {
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent)?;
     }
@@ -3385,6 +3557,245 @@ mod release_history_tests {
             .count();
         assert_eq!(revisions, 2);
 
+        let _ = std::fs::remove_dir_all(root);
+    }
+}
+
+#[cfg(test)]
+mod current_body_tests {
+    //! 現行版の本文と版 ID の整合 (古い本文に新しい版 ID を付けない) の回帰テスト。
+    use super::{run_build_json, sha256_hex};
+    use std::path::{Path, PathBuf};
+
+    const LAW: &str = "132AC0000000095";
+    const V2012: &str = "132AC0000000095_20121001_424AC0000000030";
+    const V2022: &str = "132AC0000000095_20220617_504AC0000000068";
+    const V2025: &str = "132AC0000000095_20250601_504AC0000000068";
+
+    fn law_xml(text: &str) -> String {
+        format!(
+            r#"<?xml version="1.0" encoding="UTF-8"?><Law><LawNum>明治三十二年法律第九十五号</LawNum><LawBody><LawTitle>水難救護法</LawTitle><MainProvision><Article Num="24"><ArticleTitle>第二十四条</ArticleTitle><Paragraph><ParagraphNum>1</ParagraphNum><ParagraphSentence>{text}</ParagraphSentence></Paragraph></Article></MainProvision></LawBody></Law>"#
+        )
+    }
+
+    fn tmp_root(tag: &str) -> PathBuf {
+        let root = std::env::temp_dir().join(format!(
+            "lawpub_current_body_{tag}_{}_{}",
+            std::process::id(),
+            chrono::Utc::now().timestamp_nanos_opt().unwrap_or_default()
+        ));
+        let _ = std::fs::remove_dir_all(&root);
+        root
+    }
+
+    fn meta_rev(id: &str, enforced: &str, status: &str) -> serde_json::Value {
+        serde_json::json!({
+            "law_revision_id": id,
+            "amendment_promulgate_date": "2022-06-17",
+            "amendment_enforcement_date": enforced,
+            "current_revision_status": status,
+            "updated": format!("{enforced}T00:16:53+09:00"),
+        })
+    }
+
+    /// e-Gov の改正履歴メタ。2025-06-01 施行の拘禁刑改正版が現行。
+    fn write_meta(cache: &Path, extra: &[serde_json::Value]) {
+        let mut revisions = vec![
+            meta_rev(V2025, "2025-06-01", "CurrentEnforced"),
+            meta_rev(V2022, "2022-06-17", "PreviousEnforced"),
+            meta_rev(V2012, "2012-10-01", "PreviousEnforced"),
+        ];
+        revisions.extend_from_slice(extra);
+        let dir = cache.join("revisions_meta");
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(
+            dir.join(format!("{LAW}.json")),
+            serde_json::json!({
+                "law_info": { "law_id": LAW, "promulgation_date": "1899-03-29" },
+                "revisions": revisions,
+            })
+            .to_string(),
+        )
+        .unwrap();
+    }
+
+    /// `fetch-revision-bodies` と同じく first_seen_date 空で v2 版の本文を置く。
+    fn write_v2_body(cache: &Path, rev: &str, text: &str) {
+        let dir = cache.join("revisions").join(LAW);
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join(format!("{rev}.xml")), law_xml(text)).unwrap();
+        std::fs::write(
+            dir.join(format!("{rev}.meta.json")),
+            r#"{"first_seen_date":""}"#,
+        )
+        .unwrap();
+    }
+
+    /// v1 `lawdata` 由来 (sha 名) の本文を first_seen_date 付きで置く。sha 由来 ID を返す。
+    fn write_sha_body(cache: &Path, text: &str, first_seen: &str) -> String {
+        let xml = law_xml(text);
+        let rev = super::revision_id_from_sha(&sha256_hex(xml.as_bytes()));
+        let dir = cache.join("revisions").join(LAW);
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join(format!("{rev}.xml")), &xml).unwrap();
+        std::fs::write(
+            dir.join(format!("{rev}.meta.json")),
+            serde_json::json!({ "first_seen_date": first_seen }).to_string(),
+        )
+        .unwrap();
+        rev
+    }
+
+    fn read(public: &Path, rel: &str) -> serde_json::Value {
+        serde_json::from_slice(&std::fs::read(public.join("laws").join(LAW).join(rel)).unwrap())
+            .unwrap()
+    }
+
+    fn history_ids(public: &Path) -> Vec<String> {
+        super::read_history_bundle_lines(&public.join("laws").join(LAW).join("history.ndjson.zst"))
+            .unwrap()
+            .iter()
+            .filter_map(|l| super::revision_id_of_line(l))
+            .collect()
+    }
+
+    const OLD: &str = "三年以下ノ重禁錮ニ処ス";
+    const NEW: &str = "三年以下ノ拘禁刑ニ処ス";
+
+    #[test]
+    fn stale_body_never_gets_the_new_revision_id() {
+        let root = tmp_root("stale");
+        let (cache, public) = (root.join("cache"), root.join("public"));
+        write_meta(&cache, &[]);
+        // 現行版 (2025-06-01) の本文は未取得。手元には改正前の 2 版だけがある。
+        write_v2_body(&cache, V2022, OLD);
+        write_v2_body(&cache, V2012, OLD);
+
+        run_build_json(&cache, &public, true).unwrap();
+
+        let current = read(&public, "current.json");
+        // 改正前の本文には改正前の版 ID を付ける (新しい版 ID を付けない)。
+        assert_eq!(current["revision_id"], V2022);
+        assert_eq!(current["articles"][0]["paragraphs"][0]["text"], OLD);
+        let versions = read(&public, "versions.json");
+        assert_eq!(versions["current_revision_id"], V2022);
+        let v2025 = versions["versions"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|v| v["revision_id"] == V2025)
+            .unwrap();
+        assert_eq!(v2025["body_available"], false);
+        assert!(!public
+            .join("laws")
+            .join(LAW)
+            .join(format!("revisions/{V2025}.json"))
+            .exists());
+        assert!(!history_ids(&public).iter().any(|id| id == V2025));
+        let rev_2022 = read(&public, &format!("revisions/{V2022}.json"));
+        assert_eq!(rev_2022["status"], "current");
+
+        // 現行版の本文を取得すれば、版 ID と本文がそろって新しくなる。
+        write_v2_body(&cache, V2025, NEW);
+        run_build_json(&cache, &public, true).unwrap();
+        let current = read(&public, "current.json");
+        assert_eq!(current["revision_id"], V2025);
+        assert_eq!(current["articles"][0]["paragraphs"][0]["text"], NEW);
+        assert_eq!(
+            read(&public, "articles/art_24.json")["paragraphs"][0]["text"],
+            NEW
+        );
+        assert_eq!(
+            read(&public, &format!("revisions/{V2025}.json"))["articles"][0]["paragraphs"][0]
+                ["text"],
+            NEW
+        );
+        assert_eq!(
+            read(&public, &format!("revisions/{V2022}.json"))["status"],
+            "historical"
+        );
+        assert_eq!(read(&public, "versions.json")["current_revision_id"], V2025);
+        // 検索 DB も現行版の本文から作られる (FTS には分かち書きした本文が入る)。
+        let db = std::fs::read(public.join("search.db")).unwrap();
+        let contains = |text: &str| {
+            let needle = search_index::tokenize_for_fts(text);
+            db.windows(needle.len()).any(|w| w == needle.as_bytes())
+        };
+        assert!(contains(NEW), "search.db must index the current body");
+        assert!(!contains(OLD), "search.db must not index the stale body");
+
+        let _ = std::fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn sha_body_is_renamed_only_when_fetched_after_the_switch() {
+        // 施行日 (2025-06-01) より前に v1 で取った本文は現行版の本文とみなさない。
+        let root = tmp_root("sha_before");
+        let (cache, public) = (root.join("cache"), root.join("public"));
+        write_meta(&cache, &[]);
+        write_v2_body(&cache, V2012, OLD);
+        let before = write_sha_body(&cache, OLD, "2025-05-20");
+        run_build_json(&cache, &public, false).unwrap();
+        let current = read(&public, "current.json");
+        assert_eq!(current["revision_id"], before.as_str());
+        assert_eq!(current["articles"][0]["paragraphs"][0]["text"], OLD);
+        let _ = std::fs::remove_dir_all(root);
+
+        // 切替以降に取った本文は現行版のものなので、現行版 ID に付け替える。
+        let root = tmp_root("sha_after");
+        let (cache, public) = (root.join("cache"), root.join("public"));
+        write_meta(&cache, &[]);
+        write_v2_body(&cache, V2022, OLD);
+        let after = write_sha_body(&cache, NEW, "2025-06-02");
+        // 更新一覧に載った日の audit cache。更新フィードは付け替え後の版 ID を指す。
+        let day = cache.join("egov/2025-06-02");
+        std::fs::create_dir_all(&day).unwrap();
+        std::fs::write(day.join(format!("{LAW}.xml")), law_xml(NEW)).unwrap();
+        run_build_json(&cache, &public, false).unwrap();
+        let current = read(&public, "current.json");
+        assert_eq!(current["revision_id"], V2025);
+        assert_eq!(current["articles"][0]["paragraphs"][0]["text"], NEW);
+        assert!(!public
+            .join("laws")
+            .join(LAW)
+            .join(format!("revisions/{after}.json"))
+            .exists());
+        let feed: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(public.join("updates/2025-06-02.json")).unwrap())
+                .unwrap();
+        assert_eq!(feed["updated_laws"][0]["revision_id"], V2025);
+        assert_eq!(feed["updated_laws"][0]["change_type"], "modified");
+        let _ = std::fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn unenforced_or_stub_bodies_are_not_served_as_current() {
+        // 未施行版 (2027) の本文があっても、現行版はメタの CurrentEnforced。
+        let root = tmp_root("unenforced");
+        let (cache, public) = (root.join("cache"), root.join("public"));
+        let future = "132AC0000000095_20270401_507AC0000000001";
+        write_meta(&cache, &[meta_rev(future, "2027-04-01", "UnEnforced")]);
+        write_v2_body(&cache, future, "未施行の文言");
+        write_v2_body(&cache, V2025, NEW);
+        write_v2_body(&cache, V2012, OLD);
+        run_build_json(&cache, &public, false).unwrap();
+        let current = read(&public, "current.json");
+        assert_eq!(current["revision_id"], V2025);
+        assert_eq!(current["articles"][0]["paragraphs"][0]["text"], NEW);
+        assert_eq!(
+            read(&public, &format!("revisions/{future}.json"))["status"],
+            "historical"
+        );
+        let _ = std::fs::remove_dir_all(root);
+
+        // 現行版の本文が無く、手元にあるのが未施行版だけなら、それは現行にしない。
+        let root = tmp_root("unenforced_only");
+        let (cache, public) = (root.join("cache"), root.join("public"));
+        write_meta(&cache, &[meta_rev(future, "2027-04-01", "UnEnforced")]);
+        write_v2_body(&cache, future, "未施行の文言");
+        write_v2_body(&cache, V2012, OLD);
+        run_build_json(&cache, &public, false).unwrap();
+        assert_eq!(read(&public, "current.json")["revision_id"], V2012);
         let _ = std::fs::remove_dir_all(root);
     }
 }

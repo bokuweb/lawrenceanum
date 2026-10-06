@@ -75,6 +75,45 @@ pub struct LawRevisionList {
     pub revisions: Vec<RevisionMeta>,
 }
 
+/// v2 `/laws` 一覧の 1 法令分。e-Gov が「いま現行」とみなす版 (`current_revision_info`)
+/// の ID を持つので、手元の改正履歴メタ・本文が最新かを法令単位の API 呼び出し無しに判定できる。
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct LawListEntry {
+    pub law_id: String,
+    pub law_title: Option<String>,
+    pub current_revision_id: String,
+    /// "CurrentEnforced" / "Repeal" / "UnEnforced" 等。
+    pub current_revision_status: Option<String>,
+    /// "None" (現行) / "Repeal" / "Expire" / "LossOfEffectiveness" 等。
+    pub repeal_status: Option<String>,
+    pub updated: Option<String>,
+}
+
+impl LawListEntry {
+    /// v2 `/laws` の `laws[]` 1 要素から組み立てる。`current_revision_info` が無ければ
+    /// `revision_info` で代用し、どちらにも版 ID が無ければ `None`。
+    pub fn from_v2_json(v: &serde_json::Value) -> Option<Self> {
+        let law_id = v["law_info"]["law_id"].as_str()?.to_string();
+        let rev = if v["current_revision_info"].is_object() {
+            &v["current_revision_info"]
+        } else {
+            &v["revision_info"]
+        };
+        let current_revision_id = rev["law_revision_id"].as_str()?.to_string();
+        if current_revision_id.is_empty() {
+            return None;
+        }
+        Some(Self {
+            law_id,
+            law_title: rev["law_title"].as_str().map(String::from),
+            current_revision_id,
+            current_revision_status: rev["current_revision_status"].as_str().map(String::from),
+            repeal_status: rev["repeal_status"].as_str().map(String::from),
+            updated: rev["updated"].as_str().map(String::from),
+        })
+    }
+}
+
 pub trait EgovProvider: Send + Sync {
     fn fetch_update(&self, date: &str) -> Result<UpdateBatch>;
 
@@ -205,6 +244,31 @@ impl HttpProvider {
             self.v2_base_url, revision_id
         );
         Self::get_with_retry(&client, &url).and_then(Self::maybe_unzip_xml)
+    }
+
+    /// v2 `/laws` を offset でページ送りして全法令の現行版 ID を集める。
+    /// 1 ページ 1000 件・約 10 リクエストで全法令 (廃止を含む) を列挙できる。
+    pub fn list_laws(&self) -> Result<Vec<LawListEntry>> {
+        let client = Self::client()?;
+        let mut out = Vec::new();
+        let mut offset = 0u64;
+        loop {
+            let url = format!(
+                "{}/laws?response_format=json&limit=1000&offset={}",
+                self.v2_base_url, offset
+            );
+            let bytes = Self::get_json_with_retry(&client, &url)?;
+            let parsed: serde_json::Value =
+                serde_json::from_slice(&bytes).context("parse laws JSON")?;
+            let laws = parsed["laws"].as_array().cloned().unwrap_or_default();
+            out.extend(laws.iter().filter_map(LawListEntry::from_v2_json));
+            match parsed["next_offset"].as_u64() {
+                Some(next) if next > offset && !laws.is_empty() => offset = next,
+                _ => break,
+            }
+            std::thread::sleep(Duration::from_millis(500));
+        }
+        Ok(out)
     }
 
     /// JSON 応答用の retry。`looks_like_egov_xml` の代わりに先頭が `{`/`[` か
@@ -448,6 +512,38 @@ mod tests {
   </ApplData>
 </DataRoot>"#;
         assert!(HttpProvider::extract_law_ids(xml.as_slice()).is_empty());
+    }
+
+    #[test]
+    fn law_list_entry_prefers_current_revision_info() {
+        let v = serde_json::json!({
+            "law_info": { "law_id": "132AC0000000095" },
+            "revision_info": { "law_revision_id": "132AC0000000095_20220617_504AC0000000068" },
+            "current_revision_info": {
+                "law_revision_id": "132AC0000000095_20250601_504AC0000000068",
+                "law_title": "水難救護法",
+                "current_revision_status": "CurrentEnforced",
+                "repeal_status": "None",
+                "updated": "2025-06-01T00:16:53+09:00"
+            }
+        });
+        let e = LawListEntry::from_v2_json(&v).unwrap();
+        assert_eq!(e.law_id, "132AC0000000095");
+        assert_eq!(e.current_revision_id, "132AC0000000095_20250601_504AC0000000068");
+        assert_eq!(e.repeal_status.as_deref(), Some("None"));
+
+        // current_revision_info が null なら revision_info で代用、版 ID 無しは捨てる。
+        let fallback = serde_json::json!({
+            "law_info": { "law_id": "X" },
+            "revision_info": { "law_revision_id": "X_20200101_000000000000000" },
+            "current_revision_info": null
+        });
+        assert_eq!(
+            LawListEntry::from_v2_json(&fallback).unwrap().current_revision_id,
+            "X_20200101_000000000000000"
+        );
+        let empty = serde_json::json!({ "law_info": { "law_id": "Y" }, "revision_info": {} });
+        assert!(LawListEntry::from_v2_json(&empty).is_none());
     }
 }
 

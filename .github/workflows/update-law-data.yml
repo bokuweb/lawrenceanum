@@ -46,6 +46,11 @@ on:
         required: false
         default: false
         type: boolean
+      full_history:
+        description: "(救済) 履歴束を全版から作り直し、R2 の prebuilt 束をそれで置き換える。版 ID と本文が食い違った過去の束を一掃する一回限りの実行用 (時間がかかる)"
+        required: false
+        default: false
+        type: boolean
       kanpo_backfill_days:
         description: "(官報バックフィル) 直近何日分の官報を取得するか。空=既定6日。デジタル官報の遡及窓に合わせ最大90程度。"
         required: false
@@ -159,7 +164,9 @@ jobs:
           want=$(find .cache/revisions_meta -maxdepth 1 -mindepth 1 2>/dev/null | wc -l | tr -d ' ')
           echo "::notice::revisions corpus: have=$have laws, baseline(meta)=$want"
           # cache が温かく既に揃っているなら 32GB 展開を省く。meta の 90% 未満なら復元。
-          if [ "${want:-0}" -ge 100 ] && [ "${have:-0}" -lt $(( want * 9 / 10 )) ]; then
+          # full_history では履歴束を全版から作るので、欠けた版が無いよう必ず top-up する。
+          if [ "${{ github.event.inputs.full_history }}" = "true" ] || \
+             { [ "${want:-0}" -ge 100 ] && [ "${have:-0}" -lt $(( want * 9 / 10 )) ]; }; then
             if aws s3 cp "s3://$R2_BUCKET/revisions.tar.zst" /tmp/revisions.tar.zst --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
               ls -lh /tmp/revisions.tar.zst
               # アーカイブの top-level は ./{law_id}/ なので .cache/revisions 直下へ展開。
@@ -269,14 +276,39 @@ jobs:
           # 法令の取得は JST 02:00 の collect-law-corpus.yml が R2 delta へ永続化済み。
           # Pages run はその復元キャッシュから配信物だけを生成し、重複するAPI取得を省く。
           # 全9千法令の差分再計算もrunner shutdownを繰り返すため配信runから分離する。
-          ARGS=(--public public --cache .cache --provider "$LAWPUB_PROVIDER" --skip-search-db --skip-diffs --compact-history --skip-fetch)
+          ARGS=(--public public --cache .cache --provider "$LAWPUB_PROVIDER" --skip-search-db --skip-diffs --skip-fetch)
           if [ -n "${{ github.event.inputs.date }}" ]; then
             ARGS+=(--date "${{ github.event.inputs.date }}")
+          fi
+          if [ "${{ github.event.inputs.full_history }}" = "true" ]; then
+            # 全版の履歴束を作り、後段で R2 prebuilt とマージせずに置き換える。
+            ARGS+=(--force)
+          else
+            ARGS+=(--compact-history)
           fi
           if [ "${{ github.event.inputs.force }}" = "true" ]; then
             ARGS+=(--force)
           fi
           ./target/release/lawpub update "${ARGS[@]}"
+
+      # 配信する本文が e-Gov の現行版か・版 ID と本文 XML が食い違っていないかを検査する。
+      # 現行版の本文が未取得の法令は旧版 ID のまま出る (stale)。collect-law-corpus.yml の
+      # sync-current-bodies が取得すると次の run で解消する。配信は止めない (報告のみ)。
+      - name: Check current bodies against revision ids
+        if: hashFiles('public/laws/index.json') != ''
+        continue-on-error: true
+        run: |
+          ./target/release/lawpub check-current-bodies --public public --cache .cache \
+            --report /tmp/check-current-bodies.json
+          jq -r '.summary | "::notice::current bodies: laws \(.laws), stale \(.stale), body_mismatch \(.body_mismatch), body_unverified \(.body_unverified), empty_body \(.empty_body)"' \
+            /tmp/check-current-bodies.json
+          {
+            echo "### 現行版本文の検査"
+            jq -r '.summary | to_entries[] | "- \(.key): \(.value)"' /tmp/check-current-bodies.json
+            echo
+            echo "stale (先頭 50 件):"
+            jq -r '.stale[:50][] | "- \(.law_id): 配信 \(.revision_id) / e-Gov 現行 \(.expected_revision_id)"' /tmp/check-current-bodies.json
+          } >> "$GITHUB_STEP_SUMMARY"
 
       # 官報取得(best-effort): 直近数日分の官報を取得し改め文を抽出して
       # .cache/kanpo/ に蓄積する。デジタル官報の遡及窓(直近約90日)に従い前向きに
@@ -357,6 +389,7 @@ jobs:
       - name: Merge prebuilt history bundles from R2
         if: >-
           steps.detect.outputs.changed == 'true' &&
+          github.event.inputs.full_history != 'true' &&
           env.R2_BUCKET != '' &&
           env.R2_ENDPOINT != ''
         env:
@@ -380,6 +413,17 @@ jobs:
           else
             echo "::warning::history-bundles.tar not found in R2 — keeping CI-built history (may be partial)"
           fi
+
+      # full_history: 全版から作った束をそのまま正とし、R2 の prebuilt を置き換える
+      # (旧 prebuilt には改正前の本文に新しい版 ID を付けた行が残っているため union しない)。
+      - name: Use full history bundles
+        if: >-
+          steps.detect.outputs.changed == 'true' &&
+          github.event.inputs.full_history == 'true'
+        run: |
+          n=$(find public/laws -name history.ndjson.zst | wc -l | tr -d ' ')
+          echo "::notice::full history bundles built from corpus: $n laws (replacing R2 prebuilt)"
+          echo "MERGED_HISTORY=1" >> "$GITHUB_ENV"
 
       # 国会会議録 (proceedings) を R2 prebuilt キャッシュから復元して同じ public/ に
       # 同梱する。corpus workflow (update-corpus-data.yml) が kokkai を fetch/build して
