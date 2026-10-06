@@ -139,12 +139,13 @@ jobs:
             '{version:1, latest_successful_update_date:$to, last_range:{from:$from,to:$to}, last_run_at:$now, provider:$provider}' \
             > "$DELTA_CACHE/state/law_collection.json"
 
-          # egov/{date}/*.xml は revisions の同一原本を日付別に複製した audit cache。
-          # first_seen_date は revisions 側 meta に残るため、durable archive では除外して
-          # R2 容量を約半分に抑える。重複排除済み原本・meta・cursor だけを保存する。
-          mkdir -p "$DELTA_CACHE/revisions" "$DELTA_CACHE/revisions_meta"
+          # egov/{date}/*.xml は「どの日にどの法令が更新されたか」の唯一の記録。
+          # build-json は updates/{date}.json と updates/latest.json をここからしか
+          # 作らないため、除外すると新着・更新トレンドが base コーパスの日付で止まる。
+          # revisions と同じ原本の複製だが、delta は日次更新分だけなので容量は小さい。
+          mkdir -p "$DELTA_CACHE/revisions" "$DELTA_CACHE/revisions_meta" "$DELTA_CACHE/egov"
           ( cd "$DELTA_CACHE" && \
-            tar -cf - revisions revisions_meta state | \
+            tar -cf - revisions revisions_meta egov state | \
             zstd -12 -T0 -o /tmp/law-corpus-delta.tar.zst -f )
           ls -lh /tmp/law-corpus-delta.tar.zst
           aws s3 cp /tmp/law-corpus-delta.tar.zst "s3://$R2_BUCKET/law-corpus-delta.tar.zst" \
