@@ -5,6 +5,7 @@ use std::path::PathBuf;
 mod budget;
 mod build;
 mod compress;
+mod current_bodies;
 mod diffs;
 mod enforcement;
 mod feeds;
@@ -196,6 +197,53 @@ enum Cmd {
         force: bool,
         #[arg(long, default_value = ".cache")]
         cache: PathBuf,
+    },
+    /// e-Gov v2 `/laws` 一覧の現行版 ID と手元の改正履歴メタ・本文 XML を突き合わせ、
+    /// 古いメタ・欠けている現行版本文 (と手元に無い現行法令) だけを取得する。
+    /// 施行日に版が切り替わった法令は日次の更新一覧に載らないことがあるため、
+    /// 版 ID と本文を揃えるにはこれで現行版の本文を取る。
+    SyncCurrentBodies {
+        /// 改正履歴メタと本文 XML の書き込み先。
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        /// 既存のメタ・本文を探す追加の cache ディレクトリ (書き込みはしない。複数可)。
+        #[arg(long)]
+        lookup: Vec<PathBuf>,
+        /// 既存本文 XML のファイル一覧 (`zstd -dc revisions.tar.zst | tar -t` の出力など)。
+        #[arg(long)]
+        existing_list: Option<PathBuf>,
+        /// 対象の法令 ID (複数可。省略時は e-Gov 一覧の全法令)。
+        #[arg(long)]
+        law_id: Vec<String>,
+        /// 手元に無い廃止・失効法令も新規に加える (既定は現行法令のみ)。
+        #[arg(long)]
+        include_repealed: bool,
+        /// 並列度 (1〜8)。e-Gov の負荷を考え既定 4。
+        #[arg(long, default_value_t = 4)]
+        concurrency: usize,
+        /// 処理する法令数の上限 (スモークテスト用)。
+        #[arg(long)]
+        limit: Option<usize>,
+        /// 取得せず、足りないものを報告するだけ。
+        #[arg(long)]
+        dry_run: bool,
+        /// 結果 (取得した法令・エラー) を書き出す JSON。
+        #[arg(long)]
+        report: Option<PathBuf>,
+    },
+    /// 生成済み public/ の各法令について、配信本文が e-Gov の現行版か (stale)、
+    /// 版 ID と本文 XML が食い違っていないか (mismatch)、本文が空でないかを検査する。
+    CheckCurrentBodies {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+        /// 本文 XML の cache。指定すると版 ID の XML と配信本文の sha を突き合わせる。
+        #[arg(long)]
+        cache: Option<PathBuf>,
+        #[arg(long)]
+        report: Option<PathBuf>,
+        /// 版 ID と本文が食い違う法令があれば失敗する。
+        #[arg(long)]
+        fail_on_mismatch: bool,
     },
     /// `.cache/revisions_meta/{law_id}.json` を 1 ファイルにまとめる/展開する。
     /// 単一の JSONL (= `{"law_id":..., "law_info":..., "revisions":[...]}` を法令毎に1行)。
@@ -596,6 +644,38 @@ fn main() -> Result<()> {
             limit_revs_per_law,
             force,
             &cache,
+        ),
+        Cmd::SyncCurrentBodies {
+            cache,
+            lookup,
+            existing_list,
+            law_id,
+            include_repealed,
+            concurrency,
+            limit,
+            dry_run,
+            report,
+        } => current_bodies::run_sync_current_bodies(&current_bodies::SyncOptions {
+            cache: &cache,
+            lookup: &lookup,
+            existing_list: existing_list.as_deref(),
+            law_ids: &law_id,
+            include_repealed,
+            concurrency,
+            limit,
+            dry_run,
+            report: report.as_deref(),
+        }),
+        Cmd::CheckCurrentBodies {
+            public,
+            cache,
+            report,
+            fail_on_mismatch,
+        } => current_bodies::run_check_current_bodies(
+            &public,
+            cache.as_deref(),
+            report.as_deref(),
+            fail_on_mismatch,
         ),
         Cmd::BundleRevisionsMeta { mode, dir, file } => {
             build::run_bundle_revisions_meta(&mode, &dir, &file)

@@ -67,6 +67,8 @@ lawpub fetch-update   --date YYYY-MM-DD --cache .cache
 lawpub fetch-range    --from YYYY-MM-DD --to YYYY-MM-DD --cache .cache [--provider http|mock]
 lawpub fetch-bulk     --category N [--limit M] --cache .cache [--provider http|mock]
 lawpub build-json     --input .cache --output public
+lawpub sync-current-bodies --cache .cache [--lookup DIR] [--existing-list FILE] [--law-id ID] [--dry-run] [--report FILE]
+lawpub check-current-bodies --public public [--cache .cache] [--report FILE] [--fail-on-mismatch]
 lawpub build-index    --output public
 lawpub kanpo-fetch    --date YYYY-MM-DD --cache .cache
 lawpub kanpo-link     --output public
@@ -75,6 +77,15 @@ lawpub gian-fetch       --cache .cache --session 0
 lawpub validate       --public public
 lawpub status         --public public --cache .cache
 ```
+
+`current.json` / `revisions/{id}.json` / `articles/` / 検索 DB の本文は、必ずその
+`revision_id` の版の本文 XML から作る。e-Gov の現行版 (CurrentEnforced) の本文 XML
+(`.cache/revisions/{law_id}/{revision_id}.xml`) が手元に無いときは、手元で最新の本文を
+**その本文自身の版 ID のまま** 出して警告する (古い本文に新しい版 ID を付けない)。
+`sync-current-bodies` は e-Gov v2 `/laws` 一覧の現行版 ID と突き合わせ、欠けている現行版本文・
+古い改正履歴メタ・手元に無い現行法令だけを取得する (collect-law-corpus.yml が毎日実行)。
+`check-current-bodies` は生成済み public/ の版 ID と本文の食い違い (mismatch)・
+現行版より古い本文 (stale)・空の本文を報告する。
 
 `pubcomment-fetch --fetch-attachments` は結果公示の PDF/text 原本を
 `.cache/pubcomment-assets/` に保存し、SHA-256・MIME type・抽出全文を案件 JSON に記録する。
