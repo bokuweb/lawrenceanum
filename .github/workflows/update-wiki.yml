@@ -37,6 +37,11 @@ on:
         default: "direct"
         type: choice
         options: ["direct", "pr"]
+      debug:
+        description: "Claude の出力全文をログに出す (失敗原因の調査用。公開リポジトリなのでログは誰でも読める)"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -103,6 +108,7 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ github.token }}
+          show_full_output: ${{ github.event.inputs.debug == 'true' }}
           prompt: |
             `.github/wiki-agent.md` の指示に従い、`.wiki-work/plan.md` の全タスクについて wiki を更新してください。
             ソースバンドル (`.wiki-work/sources/`) の抜粋だけを根拠にし、引用ルールを厳守してください。
@@ -128,6 +134,7 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ github.token }}
+          show_full_output: ${{ github.event.inputs.debug == 'true' }}
           prompt: |
             `.wiki-work/check-report.md` に wiki の検証エラーがあります。`.github/wiki-agent.md` の引用ルールに従って、
             エラーになった箇所だけを直してください。引用が原文と一致しない場合は、ソースバンドル
