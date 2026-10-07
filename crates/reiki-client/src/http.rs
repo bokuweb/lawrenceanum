@@ -2,7 +2,7 @@
 //!
 //! - ホストごとに最小間隔（既定 1 秒、robots.txt の Crawl-delay が長ければそちら）を空ける。
 //!   429 / 503 を受けたらそのホストの間隔を倍にし（`Retry-After` があれば従う）、
-//!   成功が続けば少しずつ元に戻す。共有ホスト（www1.g-reiki.net は 500 自治体超）は
+//!   1 分ほど成功が続くごとに 3/4 ずつ戻す。共有ホスト（www1.g-reiki.net は 500 自治体超）は
 //!   1 req/sec でも 429 を返すことがある（2026-10 確認）。
 //! - robots.txt を尊重する（`User-agent: *` または `lawpub` のグループの Disallow/Allow）。
 //!   取得が 5xx・タイムアウトなら RFC 9309 に従い、その実行中はホスト全体を禁止扱いにする。
@@ -140,8 +140,10 @@ fn pattern_matches(pat: &str, path: &str) -> bool {
 
 /// 429 等を受けたときに広げる間隔の上限。
 const MAX_BACKOFF_INTERVAL: Duration = Duration::from_secs(30);
-/// この回数連続で成功したら間隔を縮める。
-const RECOVER_AFTER_SUCCESSES: u32 = 50;
+/// この時間ぶん連続で成功したら間隔を縮める（最低 RECOVER_MIN_SUCCESSES 回）。
+/// 回数だけで数えると 30 秒間隔からの回復に何時間もかかるため時間で揃える。
+const RECOVER_WINDOW: Duration = Duration::from_secs(60);
+const RECOVER_MIN_SUCCESSES: u32 = 5;
 
 struct HostState {
     robots: Robots,
@@ -177,8 +179,14 @@ impl HostState {
     fn on_success(&mut self, min: Duration) {
         let base = self.base_interval(min);
         self.ok_streak += 1;
-        let floor = if self.too_fast.is_zero() { base } else { (self.too_fast * 5 / 4).max(base) };
-        if self.ok_streak >= RECOVER_AFTER_SUCCESSES && self.interval > floor {
+        let floor = if self.too_fast.is_zero() {
+            base
+        } else {
+            (self.too_fast * 5 / 4).max(base)
+        };
+        let needed = ((RECOVER_WINDOW.as_millis() / self.interval.as_millis().max(1)) as u32)
+            .max(RECOVER_MIN_SUCCESSES);
+        if self.ok_streak >= needed && self.interval > floor {
             self.interval = (self.interval * 3 / 4).max(floor);
             self.ok_streak = 0;
         }
@@ -463,11 +471,12 @@ mod tests {
             st.on_throttled(min, None);
         }
         assert_eq!(st.interval, MAX_BACKOFF_INTERVAL);
-        for _ in 0..RECOVER_AFTER_SUCCESSES {
+        // 30 秒間隔なら 5 回（2.5 分）の成功で縮み始める
+        for _ in 0..RECOVER_MIN_SUCCESSES {
             st.on_success(min);
         }
         assert!(st.interval < MAX_BACKOFF_INTERVAL);
-        for _ in 0..(RECOVER_AFTER_SUCCESSES * 40) {
+        for _ in 0..2000 {
             st.on_success(min);
         }
         // 429 が連続しただけ（制限期間）なら下限は付かず元の間隔に戻る
@@ -483,7 +492,7 @@ mod tests {
         };
         st2.on_success(min);
         st2.on_throttled(min, None);
-        for _ in 0..(RECOVER_AFTER_SUCCESSES * 10) {
+        for _ in 0..500 {
             st2.on_success(min);
         }
         assert_eq!(st2.interval, Duration::from_millis(1250));
