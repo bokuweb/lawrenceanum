@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "processed": {
+    "kokkai:122104037X00220260826": {
+      "status": "linked",
+      "date": "2026-10-08"
+    },
+    "kokkai:122104040X00220260826": {
+      "status": "no_link",
+      "date": "2026-10-08"
+    },
+    "kokkai:122204339X00120261005": {
+      "status": "no_link",
+      "date": "2026-10-08"
+    },
+    "kokkai:122204541X00120261005": {
+      "status": "no_link",
+      "date": "2026-10-08"
+    },
+    "kokkai:122205253X00120261005": {
+      "status": "no_link",
+      "date": "2026-10-08"
+    },
+    "kokkai:122205387X00120261005": {
+      "status": "no_link",
+      "date": "2026-10-08"
+    },
+    "kokkai:122214536X00120261005": {
+      "status": "no_link",
+      "date": "2026-10-08"
+    },
+    "kokkai:122214575X00120261005": {
+      "status": "no_link",
+      "date": "2026-10-08"
+    },
+    "kokkai:122215253X00120261005": {
+      "status": "no_link",
+      "date": "2026-10-08"
+    },
+    "kokkai:122215364X00120261005": {
+      "status": "no_link",
+      "date": "2026-10-08"
+    },
+    "kokkai:122215382X00120261005": {
+      "status": "no_link",
+      "date": "2026-10-08"
+    },
+    "kokkai:122215383X00120261005": {
+      "status": "no_link",
+      "date": "2026-10-08"
+    },
+    "kokkai:122215384X00120261005": {
+      "status": "no_link",
+      "date": "2026-10-08"
+    },
+    "kokkai:122215385X00120261005": {
+      "status": "no_link",
+      "date": "2026-10-08"
+    },
+    "kokkai:122215386X00120261005": {
+      "status": "no_link",
+      "date": "2026-10-08"
+    },
+    "shingikai:mhlw_shingi-kousei_206844_20260901_68": {
+      "status": "linked",
+      "date": "2026-10-08"
+    }
+  }
+}
