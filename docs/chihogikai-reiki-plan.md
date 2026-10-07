@@ -80,11 +80,14 @@ local-politics.jp が使えない以上、「全文を自前ホストするか/�
 2. 第二段で第一法規(`d1-law.com`)型アダプタ → 上位2社で約93%カバー。
 3. 既存 [`reiki-client`](../crates/reiki-client/src/lib.rs) の修正3点（後述）を土台に。
 
-### 既存 `reiki-client` の不足（要修正3点）
+### 既存 `reiki-client` の不足（要修正3点）— 2026-10 対応済み
+
+> 3 点とも解消し、全国収集に移行した。現行の設計と運用は [`reiki-plan.md` §14](reiki-plan.md#14-実装状況2026-10) を参照。
+
 1. `known_municipalities()` のURLが**実在パターンと不一致**（`city.*.lg.jp/reiki` は推測値）。実テナント slug 一覧（RILG由来）へ差し替え。
 2. `list_reiki` のパスが固定。実入口は `reiki_menu.html` で、本文一覧は体系/五十音目次の遷移を要する場合あり。実HTML再検証必須。
 3. **条・項・号の構造化が無い**（`body_text` 平テキストのみ）。law-normalizer相当の正規化を追加。
-- CI連携は**実装済み**（`reiki-fetch`/`reiki-build-json`、`update-corpus-data.yml` の `DOMAINS` に `reiki`）。配信JSON経路あり。
+- ~~CI連携は `update-corpus-data.yml` の `DOMAINS` に `reiki`~~ → 専用の `collect-reiki.yml` に移した（2026-10）。
 
 ---
 

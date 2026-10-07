@@ -1051,6 +1051,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "tsutatsu-client",
+ "url",
  "walkdir",
  "zip",
  "zstd",
@@ -1556,11 +1557,15 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
+ "encoding_rs",
+ "hex",
  "reqwest",
  "scraper",
  "serde",
  "serde_json",
+ "sha2",
  "tracing",
+ "url",
 ]
 
 [[package]]

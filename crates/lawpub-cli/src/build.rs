@@ -2524,7 +2524,8 @@ fn collect_corpus_health(public: &Path) -> serde_json::Value {
             name: "reiki",
             collection: "municipalities",
             unit: "municipalities",
-            date_fields: &[],
+            // 自治体ごとの例規集「内容現在」日の最新。
+            date_fields: &["current_as_of"],
         },
         CorpusSpec {
             name: "tsutatsu",
@@ -2574,10 +2575,13 @@ fn collect_corpus_health(public: &Path) -> serde_json::Value {
             .filter_map(serde_json::Value::as_str)
             .filter_map(normalize_date_prefix)
             .max();
+        // 収集状況は corpus ワークフローの state を優先し、無ければ index.json 自身の
+        // `collection`（専用ワークフローで収集する例規など、state をコミットしないもの）。
         let collector = collector_state
             .as_ref()
             .and_then(|state| state.get("corpora"))
-            .and_then(|corpora| corpora.get(spec.name));
+            .and_then(|corpora| corpora.get(spec.name))
+            .or_else(|| index.as_ref().and_then(|value| value.get("collection")));
 
         corpora.insert(
             spec.name.to_string(),
@@ -3113,6 +3117,25 @@ mod corpus_health_tests {
         assert_eq!(health["procurement"]["count"], 0);
         assert!(health["procurement"]["latest_item_date"].is_null());
 
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn reiki_uses_index_collection_and_current_as_of() {
+        let root = std::env::temp_dir().join(format!("lawpub_corpus_health_reiki_{}", std::process::id()));
+        let reiki = root.join("reiki");
+        std::fs::create_dir_all(&reiki).unwrap();
+        std::fs::write(
+            reiki.join("index.json"),
+            r#"{"count":2,"reiki_count":1500,"collection":{"status":"success","last_attempt_at":"2026-10-08T05:00:00Z","last_success_at":"2026-10-08T05:00:00Z"},
+                "municipalities":[{"municipality_code":"121002","current_as_of":"2026-07-01"},{"municipality_code":"012122","current_as_of":"2026-08-13"}]}"#,
+        )
+        .unwrap();
+        let health = collect_corpus_health(&root);
+        assert_eq!(health["reiki"]["count"], 2);
+        assert_eq!(health["reiki"]["latest_item_date"], "2026-08-13");
+        assert_eq!(health["reiki"]["collection_status"], "success");
+        assert_eq!(health["reiki"]["last_collection_success_at"], "2026-10-08T05:00:00Z");
         std::fs::remove_dir_all(root).unwrap();
     }
 

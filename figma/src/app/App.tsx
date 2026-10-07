@@ -18,6 +18,7 @@ const FeedView = lazy(() => import("./components/views/feed-view").then(m => ({ 
 const EnforcementView = lazy(() => import("./components/views/enforcement-view").then(m => ({ default: m.EnforcementView })));
 const GianView = lazy(() => import("./components/views/gian-view").then(m => ({ default: m.GianView })));
 const TsutatsuView = lazy(() => import("./components/views/tsutatsu-view").then(m => ({ default: m.TsutatsuView })));
+const ReikiView = lazy(() => import("./components/views/reiki-view").then(m => ({ default: m.ReikiView })));
 
 function ViewFallback() {
   return <div className="p-6 text-sm text-muted-foreground">読み込み中…</div>;
@@ -88,6 +89,22 @@ function GianRoute() {
   );
 }
 
+function ReikiRoute() {
+  const { muni, reikiId } = useParams();
+  const [params] = useSearchParams();
+  const navigate = useNavigate();
+  return (
+    <ReikiView
+      muniCode={muni ?? null}
+      reikiId={reikiId ?? null}
+      articleId={params.get("a")}
+      onSelectMunicipality={(code) => navigate(`/reiki/${code}`)}
+      onSelectReiki={(code, id, a) => navigate(`/reiki/${code}/${encodeURIComponent(id)}${a ? `?a=${encodeURIComponent(a)}` : ""}`)}
+      onBack={() => navigate("/reiki")}
+    />
+  );
+}
+
 function AppShell() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -129,6 +146,9 @@ function AppShell() {
               <Route path="/gian/:session/:billId" element={<GianRoute />} />
               <Route path="/enforcement" element={<EnforcementView />} />
               <Route path="/tsutatsu" element={<TsutatsuView />} />
+              <Route path="/reiki" element={<ReikiRoute />} />
+              <Route path="/reiki/:muni" element={<ReikiRoute />} />
+              <Route path="/reiki/:muni/:reikiId" element={<ReikiRoute />} />
               <Route path="/updates" element={<UpdatesView />} />
               <Route path="/kanpo" element={<KanpoView />} />
               <Route path="/settings" element={<SettingsView />} />

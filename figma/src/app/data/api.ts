@@ -374,6 +374,96 @@ export const api = {
   /** 個別議案の審議経過。 */
   gianBill: (session: string, billId: string) =>
     getJson<GianBill>(`./gian/${session}/${billId}.json`),
+
+  /** 自治体例規: 収集済み自治体の一覧。 */
+  reikiIndex: () => getJson<ReikiIndex>(`${REIKI_BASE}/index.json`),
+  /** 自治体例規: 1 自治体の例規一覧。 */
+  reikiMunicipality: (code: string) => getJson<ReikiMunicipalityIndex>(`${REIKI_BASE}/${code}/index.json`),
+  /** 自治体例規: 本文（条・項・号・附則）。 */
+  reikiDoc: (code: string, reikiId: string) =>
+    getJson<ReikiDocument>(`${REIKI_BASE}/${code}/${encodeURIComponent(reikiId)}.json`),
+}
+
+// ── 自治体例規 型定義 ───────────────────────────────────────────
+
+// 全国の例規は Pages に収まらないため R2 から配信する (`VITE_REIKI_BASE_URL`)。
+// 未設定時は同 origin の ./reiki（ローカル開発・e2e フィクスチャ）。
+const REIKI_BASE: string = (import.meta.env.VITE_REIKI_BASE_URL || './reiki').replace(/\/$/, '')
+
+export type ReikiMunicipalitySummary = {
+  municipality_code: string
+  name: string
+  prefecture: string
+  count: number
+  current_as_of: string | null
+  updated_at: string | null
+  vendor: string | null
+  source_url: string | null
+}
+
+export type ReikiIndex = {
+  schema_version: number
+  generated_at: string
+  /** 収集済み自治体数 */
+  count: number
+  reiki_count: number
+  /** 収集対象として登録済みの自治体数 */
+  registered_count: number
+  unsupported_count: number
+  municipalities: ReikiMunicipalitySummary[]
+}
+
+export type ReikiMeta = {
+  reiki_id: string
+  title: string
+  reiki_number: string | null
+  kind: string | null
+  promulgated_date: string | null
+  article_count: number
+}
+
+export type ReikiMunicipalityIndex = {
+  schema_version: number
+  municipality_code: string
+  name: string
+  prefecture: string
+  current_as_of: string | null
+  count: number
+  reiki: ReikiMeta[]
+}
+
+export type ReikiItem = { num: string; text: string; subitems?: ReikiItem[] }
+export type ReikiParagraph = { num: string | null; caption?: string | null; text: string; items?: ReikiItem[] }
+export type ReikiArticle = {
+  article_no: string
+  article_id: string
+  caption: string | null
+  heading?: string | null
+  paragraphs: ReikiParagraph[]
+}
+
+export type ReikiDocument = {
+  schema_version: number
+  reiki_id: string
+  municipality_code: string
+  municipality_name: string
+  prefecture: string
+  title: string
+  reiki_number: string | null
+  kind: string | null
+  promulgated_date: string | null
+  current_as_of: string | null
+  preamble?: string[]
+  articles: ReikiArticle[]
+  supplementary?: { title: string; articles: ReikiArticle[] }[]
+  content_sha256: string
+  source: {
+    provider: string
+    fetched_at: string
+    checked_at?: string
+    detail_url: string
+    municipality_official_site: string
+  }
 }
 
 // ── 議案 (法案審議トラッキング) 型定義 ─────────────────────────────

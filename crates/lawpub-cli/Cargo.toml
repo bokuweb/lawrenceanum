@@ -38,6 +38,7 @@ linking = { path = "../linking" }
 pubcomment-client = { path = "../pubcomment-client" }
 procurement-client = { path = "../procurement-client" }
 reiki-client = { path = "../reiki-client" }
+url = "2"
 shingikai-client = { path = "../shingikai-client" }
 estat-client = { path = "../estat-client" }
 gian-client = { path = "../gian-client" }
