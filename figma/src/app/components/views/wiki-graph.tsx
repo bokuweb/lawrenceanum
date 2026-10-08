@@ -65,8 +65,8 @@ export function WikiGraphCanvas({
           ctx.arc(n.x, n.y, r, 0, 2 * Math.PI);
           ctx.fillStyle = WIKI_TYPES[n.type]?.color ?? "#94a3b8";
           ctx.fill();
-          // ズームしたとき、または結節点 (法令・論点) は常にラベルを出す。
-          if (scale > 1.6 || n.type === "law" || n.type === "topic") {
+          // ラベルは結節点 (つながり 3 本以上、または論点) だけ常に出し、他はズームしたときに出す。
+          if (scale > 1.6 || n.degree >= 3 || n.type === "topic") {
             const fontSize = Math.max(10 / scale, 2);
             ctx.font = `${fontSize}px sans-serif`;
             ctx.textAlign = "center";

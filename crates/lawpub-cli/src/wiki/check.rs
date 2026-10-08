@@ -20,7 +20,7 @@ pub struct CheckArgs {
 }
 
 const ROOT_FILES: [&str; 3] = ["index.md", "log.md", "README.md"];
-const DIRS: [&str; 4] = ["laws/", "meetings/", "people/", "topics/"];
+const DIRS: [&str; 5] = ["laws/", "meetings/", "people/", "topics/", "bills/"];
 const MIN_QUOTE_CHARS: usize = 8;
 const MAX_QUOTE_CHARS: usize = 200;
 
@@ -297,7 +297,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
         if ty.is_empty() {
             err(1, "OKF の必須フィールド `type` がありません".into());
         }
-        if matches!(ty, "law" | "meeting" | "person" | "topic") && page.get_str("title").is_empty()
+        if matches!(ty, "law" | "meeting" | "person" | "topic" | "bill") && page.get_str("title").is_empty()
         {
             err(1, "`title` がありません".into());
         }

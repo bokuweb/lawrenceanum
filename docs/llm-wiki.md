@@ -20,6 +20,7 @@ wiki/
 ├── laws/{law_id}.md             # type: law   — 経緯の要約 (LLM) + 時系列 (生成)
 ├── meetings/kokkai/{id}.md      # type: meeting — 要点 (LLM) + メタ (生成)
 ├── meetings/shingikai/{id}.md
+├── bills/{回次}/{議案ID}.md     # type: bill   — 審議経過・会派の賛否・対象法令（生成、LLM 不使用）
 ├── people/{氏名}.md             # type: person — 国会で法令に言及した発言の一覧（生成）
 ├── topics/{論点}.md             # type: topic  — 論点ごとのまとめ (LLM)
 └── .lawpub/state.json           # 処理済み会議
@@ -44,9 +45,9 @@ wiki の更新 (JST 09:00) は、次の法令ワークフローのデプロイ (
 
 | 段階 | 実行者 | 内容 |
 |---|---|---|
-| `lawpub wiki-plan` | 決定的 | 未処理の会議を新しい順に見て、法令リンクのあるものを最大 `WIKI_MAX_ITEMS` 件選ぶ。法令名を含む発言だけを前後の文脈付きで抜粋したソースバンドルと、ページの雛形を作る |
+| `lawpub wiki-plan` | 決定的 | 未処理の会議を新しい順に見て、法令リンクのあるものを最大 `WIKI_MAX_ITEMS` 件選ぶ。法令名を含む発言だけを前後の文脈付きで抜粋したソースバンドルと、ページの雛形を作る。あわせて議案（件名から対象法令を決める）と法令の改正履歴（直近 10 年の公布・施行）を取り込む |
 | Claude Code | LLM | `.github/wiki-agent.md` に従い、抜粋だけを根拠に要約・経緯・論点を書く。使えるツールは wiki/ の Read/Edit/Write のみ（Bash・ネットワークは無し） |
-| `lawpub wiki-finalize` | 決定的 | 時系列表・人物ページ・index・log を frontmatter から再生成する。未完了の会議は雛形を消して翌日に回す |
+| `lawpub wiki-finalize` | 決定的 | 法令ページの時系列表（会議・議案の経過・公布/施行を 1 本に。改正法は法律番号で議案ページにつなぐ）、人物ページ、index、log を再生成する。未完了の会議は雛形を消して翌日に回す |
 | `lawpub wiki-check` | 決定的 | OKF frontmatter・相対リンク・引用を検証する。失敗したら LLM に 1 回だけ修正させ、それでも駄目なら push しない |
 
 ### 引用の検証
