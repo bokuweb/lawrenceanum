@@ -202,7 +202,6 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
         ),
         Err(e) => tracing::warn!("wiki-plan: 議案・改正履歴の取り込みに失敗: {e:#}"),
     }
-    let mut tasks = tasks;
     match plan_bills(args, &source) {
         Ok(bill_tasks) => tasks.extend(bill_tasks),
         Err(e) => tracing::warn!("wiki-plan: 議案の要約タスクの作成に失敗: {e:#}"),
