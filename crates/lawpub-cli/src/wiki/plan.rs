@@ -24,11 +24,11 @@ pub struct PlanArgs {
 }
 
 /// 1 発言から抜き出す文脈幅 (文字数)。
-const WINDOW_BEFORE: usize = 300;
-const WINDOW_AFTER: usize = 700;
+const WINDOW_BEFORE: usize = 200;
+const WINDOW_AFTER: usize = 500;
 /// 1 会議あたりのソースバンドルの上限。
-const MAX_EXCERPTS_PER_MEETING: usize = 24;
-const MAX_CHARS_PER_MEETING: usize = 14_000;
+const MAX_EXCERPTS_PER_MEETING: usize = 12;
+const MAX_CHARS_PER_MEETING: usize = 8_000;
 
 struct Candidate {
     kind: &'static str,
@@ -136,6 +136,12 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
             _ => shingikai_units(&doc),
         };
         let excerpts = build_excerpts(&units, &laws);
+        // 会議録情報 (付議案件の一覧) と委員長・議長の議事進行にしか法令名が出ない会議は、
+        // LLM に渡しても「形式的言及」にしかならないので渡さない (トークン節約)。
+        if c.kind == KIND_KOKKAI && !excerpts.is_empty() && excerpts.iter().all(is_procedural) {
+            state.mark(&key, "formal_only", &today_s);
+            continue;
+        }
         if excerpts.is_empty() {
             // 法令名が添付資料にだけ現れる等、発言として引用できる言及が無い。
             state.mark(&key, "no_excerpt", &today_s);
@@ -322,6 +328,20 @@ pub(crate) fn build_excerpts_for(units: &[Unit], laws: &[(String, Vec<String>)])
         }
     }
     out
+}
+
+/// 国会の議事進行の発言 (会議録情報、委員長・議長) か。発言冒頭の「○國場委員長　」で判定する。
+pub(crate) fn is_procedural(e: &Excerpt) -> bool {
+    if e.speaker.as_deref() == Some(KOKKAI_HEADER_SPEAKER) {
+        return true;
+    }
+    let head: String = e
+        .text
+        .trim_start_matches('…')
+        .chars()
+        .take_while(|c| !c.is_whitespace())
+        .collect();
+    head.starts_with('○') && (head.contains("委員長") || head.contains("議長") || head.contains("会長"))
 }
 
 fn build_excerpts(units: &[Unit], laws: &[LinkedLaw]) -> Vec<Excerpt> {
@@ -582,6 +602,24 @@ mod tests {
         assert!(out[0].text.starts_with('…') && out[0].text.ends_with('…'));
         assert!(out[0].text.contains("予防接種法の改正について伺います。"));
         assert!(out[0].text.chars().count() < 1100);
+    }
+
+    #[test]
+    fn procedural_speeches_are_detected() {
+        let ex = |speaker: &str, text: &str| Excerpt {
+            reference: "r".into(),
+            url: "u".into(),
+            speaker: Some(speaker.into()),
+            group: None,
+            position: None,
+            laws: vec![],
+            text: text.into(),
+        };
+        assert!(is_procedural(&ex("会議録情報", "本日の会議に付した案件 地方自治法")));
+        assert!(is_procedural(&ex("國場幸之助", "○國場委員長　地方自治法第九十九条の規定に基づく意見書")));
+        assert!(!is_procedural(&ex("山田太郎", "○山田太郎君　予防接種法の改正について伺います")));
+        // 抜粋が発言の途中から始まる場合は、冒頭の話者表示が無いので議事進行とみなさない。
+        assert!(!is_procedural(&ex("國場幸之助", "…地方自治法の改正について")));
     }
 
     #[test]
