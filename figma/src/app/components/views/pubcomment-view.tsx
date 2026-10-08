@@ -153,7 +153,7 @@ function CaseDetail({ caseId, onLawClick }: {
   if (!data) return <div className="p-6 text-sm text-muted-foreground">読み込めませんでした</div>;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-0">
       {/* ヘッダー */}
       <div className="px-5 py-4 border-b border-border shrink-0">
         <h2 className="text-base font-semibold leading-snug">{data.title}</h2>
@@ -234,7 +234,7 @@ function CaseDetail({ caseId, onLawClick }: {
       </div>
 
       {/* 意見リスト */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="px-5">
           {data.opinions.length === 0 && extractedAttachments.length > 0 ? (
             filteredAttachments.length > 0 ? (
@@ -309,9 +309,9 @@ export function PubcommentView({
   }, [data, query, ministryFilter]);
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full min-h-0">
       {/* 左: 一覧 */}
-      <div className="w-80 shrink-0 border-r border-border flex flex-col">
+      <div className="w-80 shrink-0 border-r border-border flex flex-col min-h-0">
         <div className="px-4 py-3 border-b border-border shrink-0 space-y-2">
           <div className="flex items-center gap-2">
             <h2 className="text-sm font-semibold flex-1">パブリックコメント</h2>
@@ -339,7 +339,7 @@ export function PubcommentView({
           </Select>
         </div>
 
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 min-h-0">
           {loading ? (
             <div className="p-4 space-y-2">
               {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
@@ -362,7 +362,7 @@ export function PubcommentView({
       </div>
 
       {/* 右: 詳細 */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0">
         {caseId ? (
           <CaseDetail
             caseId={caseId}

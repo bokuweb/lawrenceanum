@@ -45,7 +45,7 @@ function BillDetail({ session, billId }: { session: string; billId: string }) {
   // 空でない審議経過のみ表示。
   const rows = bill.fields.filter(f => f.value && f.value !== "／");
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-0">
       <div className="px-5 py-4 border-b border-border shrink-0">
         <div className="flex items-center gap-2 mb-1 flex-wrap">
           {bill.bill_type && <span className={["text-xs font-bold px-1.5 py-0.5 rounded", billTypeColor(bill.bill_type)].join(" ")}>{bill.bill_type}</span>}
@@ -63,7 +63,7 @@ function BillDetail({ session, billId }: { session: string; billId: string }) {
           </a>
         )}
       </div>
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <table className="w-full text-sm">
           <tbody>
             {rows.map((f, i) => (
@@ -102,8 +102,8 @@ export function GianView({ billRef, onSelect }: {
   }, [data, query, typeFilter]);
 
   return (
-    <div className="flex h-full">
-      <div className="w-96 shrink-0 border-r border-border flex flex-col">
+    <div className="flex h-full min-h-0">
+      <div className="w-96 shrink-0 border-r border-border flex flex-col min-h-0">
         <div className="px-4 py-3 border-b border-border shrink-0 space-y-2">
           <div className="flex items-center gap-2">
             <h2 className="text-sm font-semibold flex-1">議案（法案審議）</h2>
@@ -121,7 +121,7 @@ export function GianView({ billRef, onSelect }: {
             </SelectContent>
           </Select>
         </div>
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 min-h-0">
           {loading ? (
             <div className="p-4 space-y-2">{[...Array(8)].map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}</div>
           ) : filtered.length === 0 ? (
@@ -148,7 +148,7 @@ export function GianView({ billRef, onSelect }: {
           )}
         </ScrollArea>
       </div>
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0">
         {billRef ? (
           <BillDetail session={billRef.session} billId={billRef.billId} />
         ) : (
