@@ -353,7 +353,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
 
         let llm_text: String = llm_blocks(&page.body).concat();
         let needs_citation = match ty {
-            "meeting" | "law" => !llm_text.trim().is_empty(),
+            "meeting" | "law" | "person" | "committee" => !llm_text.trim().is_empty(),
             "topic" => true,
             _ => false,
         };
