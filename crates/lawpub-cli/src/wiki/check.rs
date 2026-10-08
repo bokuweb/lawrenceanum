@@ -53,7 +53,7 @@ fn parse_citation(rest: &str) -> Option<(String, String, String)> {
     let (url, rest) = rest.split_once(')')?;
     let rest = rest.trim();
     let quote = rest.strip_prefix('「')?.strip_suffix('」')?;
-    if !(reference.starts_with("kokkai:") || reference.starts_with("shingikai:")) {
+    if !(reference.starts_with("kokkai:") || reference.starts_with("shingikai:") || reference.starts_with("gian:")) {
         return None;
     }
     Some((reference.to_string(), url.to_string(), quote.to_string()))
@@ -155,17 +155,17 @@ impl Resolver<'_> {
                 .map(|(m, _)| m)
                 .unwrap_or(id)
                 .to_string(),
-            KIND_SHINGIKAI => id.split('#').next().unwrap_or(id).to_string(),
+            KIND_SHINGIKAI | KIND_GIAN => id.split('#').next().unwrap_or(id).to_string(),
             _ => return Ok(None),
         };
         let key = format!("{kind}:{doc_id}");
         if !self.docs.contains_key(&key) {
             let doc = self.load_doc(kind, &doc_id)?;
             let units = doc.map(|d| {
-                let units = if kind == KIND_KOKKAI {
-                    kokkai_units(&d)
-                } else {
-                    shingikai_units(&d)
+                let units = match kind {
+                    KIND_KOKKAI => kokkai_units(&d),
+                    KIND_GIAN => gian_units(&d["detail"], d["resolutions"].as_array().map(Vec::as_slice).unwrap_or(&[])),
+                    _ => shingikai_units(&d),
                 };
                 if kind == KIND_SHINGIKAI {
                     let full: String = units.iter().map(|u| u.text.as_str()).collect();
@@ -195,12 +195,18 @@ impl Resolver<'_> {
     }
 
     fn load_doc(&mut self, kind: &str, id: &str) -> Result<Option<Value>> {
-        let local = self.work.join("docs").join(kind).join(format!("{id}.json"));
+        // 議案は `{session}/{bill_id}` を `{session}_{bill_id}.json` として保存している。
+        let local = self.work.join("docs").join(kind).join(format!("{}.json", id.replace('/', "_")));
         if local.exists() {
             return Ok(Some(serde_json::from_slice(&std::fs::read(&local)?)?));
         }
         if kind == KIND_KOKKAI {
             return self.source.get_json(&format!("proceedings/{id}.json"));
+        }
+        if kind == KIND_GIAN {
+            let Some((session, bill_id)) = id.split_once('/') else { return Ok(None) };
+            let Ok(session) = session.parse::<u64>() else { return Ok(None) };
+            return fetch_gian_doc(&self.source, session, bill_id);
         }
         if self.ministries.is_none() {
             let index = self
@@ -353,7 +359,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
 
         let llm_text: String = llm_blocks(&page.body).concat();
         let needs_citation = match ty {
-            "meeting" | "law" | "person" | "committee" => !llm_text.trim().is_empty(),
+            "meeting" | "law" | "person" | "committee" | "bill" => !llm_text.trim().is_empty(),
             "topic" => true,
             _ => false,
         };
@@ -515,6 +521,35 @@ mod tests {
         run_check(&args()).unwrap();
         // 議事録に無い文は従来どおり落とす。
         std::fs::write(wiki.join("meetings/shingikai/S1.md"), page("S1#0", "医療費助成を全面的に廃止する")).unwrap();
+        assert!(run_check(&args()).is_err());
+        std::fs::remove_dir_all(root).ok();
+    }
+
+    #[test]
+    fn bill_citations_are_verified_against_bill_documents() {
+        let root = temp_dir("check_gian");
+        let wiki = root.join("wiki");
+        let work = root.join("work");
+        std::fs::create_dir_all(wiki.join("bills/221")).unwrap();
+        std::fs::create_dir_all(work.join("docs/gian")).unwrap();
+        std::fs::write(
+            work.join("docs/gian/221_B1.json"),
+            serde_json::to_vec(&json!({
+                "detail": {"session": 221, "bill_id": "B1", "documents": [
+                    {"kind": "bill_text", "url": "https://x/houan", "text": "理 由\n投票人の投票しやすい環境を整える必要がある。"}
+                ]},
+                "resolutions": []
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+        let page = |q: &str| {
+            format!("---\ntype: \"bill\"\ntitle: \"法案\"\n---\n{LLM_BEGIN}\n提出理由[^1]。\n\n[^1]: [gian:221/B1#reason](https://x/houan) 「{q}」\n{LLM_END}\n")
+        };
+        let args = || CheckArgs { wiki: wiki.clone(), work: work.clone(), base_url: root.join("public").display().to_string(), changed_only: false };
+        std::fs::write(wiki.join("bills/221/B1.md"), page("投票人の投票しやすい環境を整える")).unwrap();
+        run_check(&args()).unwrap();
+        std::fs::write(wiki.join("bills/221/B1.md"), page("投票所を全面的に廃止する")).unwrap();
         assert!(run_check(&args()).is_err());
         std::fs::remove_dir_all(root).ok();
     }

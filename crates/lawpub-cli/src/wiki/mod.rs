@@ -216,6 +216,82 @@ pub fn shingikai_units(doc: &Value) -> Vec<Unit> {
         .collect()
 }
 
+pub const KIND_GIAN: &str = "gian";
+
+/// 議案の引用単位。法律案の「理由」(`#reason`)、要綱 (`#outline`)、その他の議案文書 (`#{kind}`)、
+/// 附帯決議 (`#res-{resolution_id}`)。参照は `gian:{session}/{bill_id}#…`。
+pub fn gian_units(detail: &Value, resolutions: &[Value]) -> Vec<Unit> {
+    let session = detail["session"].as_u64().map(|s| s.to_string()).unwrap_or_default();
+    let bill_id = detail["bill_id"].as_str().unwrap_or("");
+    let base = format!("{KIND_GIAN}:{session}/{bill_id}");
+    let mut out = Vec::new();
+    for doc in detail["documents"].as_array().into_iter().flatten() {
+        let kind = doc["kind"].as_str().unwrap_or("");
+        let text = doc["text"].as_str().unwrap_or("");
+        if text.trim().is_empty() {
+            continue;
+        }
+        let url = doc["url"].as_str().unwrap_or("").to_string();
+        let (anchor, text) = match kind {
+            // 法律案本文は長いので、末尾の「理由」だけを引用単位にする。
+            "bill_text" => match text.rfind("理 由").or_else(|| text.rfind("理由")) {
+                Some(i) => ("reason".to_string(), text[i..].to_string()),
+                None => continue,
+            },
+            "outline" => ("outline".to_string(), text.to_string()),
+            other => (other.to_string(), text.to_string()),
+        };
+        out.push(Unit {
+            reference: format!("{base}#{anchor}"),
+            url,
+            speaker: doc["label"].as_str().map(String::from),
+            group: None,
+            position: None,
+            text,
+        });
+    }
+    for r in resolutions {
+        let (Some(id), Some(text)) = (r["resolution_id"].as_str(), r["extracted_text"].as_str()) else { continue };
+        if text.trim().is_empty() {
+            continue;
+        }
+        out.push(Unit {
+            reference: format!("{base}#res-{id}"),
+            url: r["source_url"].as_str().unwrap_or("").to_string(),
+            speaker: Some(format!(
+                "{}{} 附帯決議",
+                r["chamber"].as_str().unwrap_or(""),
+                r["committee"].as_str().unwrap_or("")
+            )),
+            group: None,
+            position: None,
+            text: text.to_string(),
+        });
+    }
+    out
+}
+
+/// 議案の詳細と附帯決議を配信 JSON から集める (plan と check で共通)。
+pub fn fetch_gian_doc(source: &Source, session: u64, bill_id: &str) -> Result<Option<Value>> {
+    let Some(detail) = source.get_json(&format!("gian/{session}/{bill_id}.json"))? else {
+        return Ok(None);
+    };
+    let mut resolutions = Vec::new();
+    if let Some(links) = source.get_json(&format!("links/bill-to-resolutions/{session}/{bill_id}.json"))? {
+        for r in links["resolutions"].as_array().into_iter().flatten() {
+            let Some(id) = r["resolution_id"].as_str() else { continue };
+            if let Some(full) = source.get_json(&format!("gian/resolutions/{session}/{id}.json"))? {
+                resolutions.push(full);
+            }
+        }
+    }
+    let mut detail = detail;
+    // 詳細に回次・議案 ID が無い場合に備えて補う。
+    detail["session"] = serde_json::json!(session);
+    detail["bill_id"] = serde_json::json!(bill_id);
+    Ok(Some(serde_json::json!({ "detail": detail, "resolutions": resolutions })))
+}
+
 /// 引用照合用の正規化: 空白 (全角空白・改行を含む) をすべて除く。
 pub fn normalize_for_quote(s: &str) -> String {
     s.chars().filter(|c| !c.is_whitespace()).collect()
@@ -626,8 +702,11 @@ pub fn rel_path(root: &Path, path: &Path) -> String {
 
 #[cfg(test)]
 pub(crate) fn temp_dir(tag: &str) -> PathBuf {
+    // 並列実行されるテスト同士で衝突しないよう、時刻に加えて連番を付ける。
+    static SEQ: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+    let seq = SEQ.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
     let dir = std::env::temp_dir().join(format!(
-        "lawpub_wiki_{tag}_{}_{}",
+        "lawpub_wiki_{tag}_{}_{seq}_{}",
         std::process::id(),
         std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
@@ -720,6 +799,25 @@ mod tests {
         assert_eq!(speakers, vec![None, Some("古藤補佐"), Some("森光健康・生活衛生局長")]);
         assert!(units[2].text.starts_with("○森光健康・生活衛生局長 難病法の下で推進します。"));
         assert_eq!(units[2].reference, "shingikai:m2#2");
+    }
+
+    #[test]
+    fn gian_units_cover_reason_outline_and_resolutions() {
+        let detail = json!({
+            "session": 221, "bill_id": "B1",
+            "documents": [
+                {"kind": "bill_text", "label": "提出時法律案", "url": "https://x/houan", "text": "第一条 …改める。\n理 由\n投票しやすい環境を整える必要がある。"},
+                {"kind": "outline", "label": "[要綱]", "url": "https://x/youkou", "text": "第１ 開票立会人の選任"}
+            ]
+        });
+        let res = vec![json!({"resolution_id": "R1", "chamber": "参議院", "committee": "憲法審査会",
+                              "source_url": "https://x/r1.pdf", "extracted_text": "一、徹底的に審議を尽くすこと。"})];
+        let units = gian_units(&detail, &res);
+        let refs: Vec<&str> = units.iter().map(|u| u.reference.as_str()).collect();
+        assert_eq!(refs, vec!["gian:221/B1#reason", "gian:221/B1#outline", "gian:221/B1#res-R1"]);
+        assert!(units[0].text.starts_with("理 由") && !units[0].text.contains("第一条"));
+        assert_eq!(units[2].url, "https://x/r1.pdf");
+        assert_eq!(units[2].speaker.as_deref(), Some("参議院憲法審査会 附帯決議"));
     }
 
     #[test]
