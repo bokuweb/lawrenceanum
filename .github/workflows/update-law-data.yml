@@ -730,6 +730,21 @@ jobs:
       # 規制変化フィード (法令改正・パブコメ・官報の新着) を生成する。laws/pubcomment/
       # kanpo が public/ に出揃った後に実行し、feeds/recent.json + RSS を書く。
       # feeds/・enforcement/ を manifest に載せるため rebuild-manifest して validate を通す。
+      # LLM wiki (orphan ブランチ `wiki`、update-wiki.yml が日次更新) を SPA 用の JSON にして同梱する。
+      # 後段の rebuild-manifest / compress に乗せるため feeds より前に置く。失敗しても deploy は止めない。
+      - name: Include LLM wiki
+        if: steps.detect.outputs.changed == 'true'
+        continue-on-error: true
+        run: |
+          if git fetch --depth=1 origin wiki 2>/dev/null; then
+            rm -rf .wiki-src && mkdir .wiki-src
+            git archive FETCH_HEAD | tar -x -C .wiki-src
+            ./target/release/lawpub wiki-export --wiki .wiki-src --out public/wiki \
+              || echo "::warning::wiki-export failed"
+          else
+            echo "::notice::wiki ブランチが無いので wiki なしで続行"
+          fi
+
       - name: Build regulatory feeds
         if: steps.detect.outputs.changed == 'true'
         continue-on-error: true

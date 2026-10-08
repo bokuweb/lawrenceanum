@@ -320,8 +320,31 @@ export type SnapshotResolved = {
 // 上に本文が壊れ、比較が成立しなかった。compare view は versions.json + 個別 revision
 // (api.revision) の on-demand 取得に切り替えている。
 
+// LLM wiki (OKF)。`lawpub wiki-export` が `wiki` ブランチから生成する。
+export type WikiPageMeta = {
+  /** wiki ルート相対のパス (拡張子なし)。例: `laws/323AC0000000131` */
+  path: string
+  /** OKF の type: `law` / `meeting` / `person` / `topic` / `index` / `log` */
+  type: string
+  title: string
+  description: string
+  date: string | null
+  tags: string[]
+}
+export type WikiIndex = { schema_version: number; generated_at: string; pages: WikiPageMeta[] }
+export type WikiGraph = {
+  schema_version: number
+  nodes: { id: string; type: string; title: string; description: string }[]
+  links: { source: string; target: string }[]
+}
+export type WikiPage = { path: string; frontmatter: Record<string, unknown>; body: string }
+
 export const api = {
   index: () => getJson<IndexJson>('./index.json'),
+  wikiIndex: () => getJson<WikiIndex>('./wiki/index.json'),
+  wikiGraph: () => getJson<WikiGraph>('./wiki/graph.json'),
+  wikiPage: (path: string) =>
+    getJson<WikiPage>(`./wiki/page/${path.split('/').map(encodeURIComponent).join('/')}.json`),
   health: () => getJson<Health>('./health.json'),
   lawsIndex: () => getJson<LawsIndex>('./laws/index.json'),
   law: (lawId: string) => getJson<LawDocumentRaw>(`./laws/${lawId}/current.json`),

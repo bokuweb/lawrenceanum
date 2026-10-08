@@ -95,7 +95,7 @@ fn footnote_refs(text: &str) -> Vec<String> {
 }
 
 /// 相対リンク `](target)` の参照先 (外部 URL とアンカーのみは除く)。
-fn relative_links(text: &str) -> Vec<String> {
+pub(crate) fn relative_links(text: &str) -> Vec<String> {
     let mut out = Vec::new();
     let mut rest = text;
     while let Some(i) = rest.find("](") {

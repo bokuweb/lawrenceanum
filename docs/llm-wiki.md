@@ -25,6 +25,21 @@ wiki/
 └── .lawpub/state.json           # 処理済み会議
 ```
 
+## アプリでの閲覧
+
+法令ワークフロー (`update-law-data.yml`) が Pages へデプロイするとき、`wiki` ブランチを
+`lawpub wiki-export` で SPA 用の JSON に変換して `public/wiki/` に同梱する。
+
+```
+public/wiki/index.json                 全ページの一覧 (type / title / description / date / tags)
+public/wiki/graph.json                 ナレッジグラフ (ノード = ページ、エッジ = ページ間リンク)
+public/wiki/page/{path}.json           frontmatter と本文 (Markdown)
+```
+
+SPA の `#/wiki` で、type 別に色分けしたナレッジグラフと一覧、各ページ（要点・出典の脚注・
+つながっているページ）を閲覧できる。法令詳細画面には、wiki ページがある法令だけ「経緯 wiki」への導線が出る。
+wiki の更新 (JST 09:00) は、次の法令ワークフローのデプロイ (JST 12:30 など) で反映される。
+
 ## 日次の流れ (`.github/workflows/update-wiki.yml`, JST 09:00)
 
 | 段階 | 実行者 | 内容 |

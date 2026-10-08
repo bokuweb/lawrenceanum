@@ -17,6 +17,7 @@ const PubcommentView = lazy(() => import("./components/views/pubcomment-view").t
 const FeedView = lazy(() => import("./components/views/feed-view").then(m => ({ default: m.FeedView })));
 const EnforcementView = lazy(() => import("./components/views/enforcement-view").then(m => ({ default: m.EnforcementView })));
 const GianView = lazy(() => import("./components/views/gian-view").then(m => ({ default: m.GianView })));
+const WikiView = lazy(() => import("./components/views/wiki-view").then(m => ({ default: m.WikiView })));
 const TsutatsuView = lazy(() => import("./components/views/tsutatsu-view").then(m => ({ default: m.TsutatsuView })));
 
 function ViewFallback() {
@@ -88,6 +89,17 @@ function GianRoute() {
   );
 }
 
+function WikiRoute() {
+  const params = useParams();
+  const navigate = useNavigate();
+  return (
+    <WikiView
+      path={params["*"] ? params["*"] : null}
+      onOpen={(p) => navigate(p ? `/wiki/${p}` : "/wiki")}
+    />
+  );
+}
+
 function AppShell() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -129,6 +141,8 @@ function AppShell() {
               <Route path="/gian/:session/:billId" element={<GianRoute />} />
               <Route path="/enforcement" element={<EnforcementView />} />
               <Route path="/tsutatsu" element={<TsutatsuView />} />
+              <Route path="/wiki" element={<WikiRoute />} />
+              <Route path="/wiki/*" element={<WikiRoute />} />
               <Route path="/updates" element={<UpdatesView />} />
               <Route path="/kanpo" element={<KanpoView />} />
               <Route path="/settings" element={<SettingsView />} />
