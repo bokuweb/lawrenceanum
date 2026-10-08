@@ -21,6 +21,8 @@ pub struct PlanArgs {
     pub max_probes: usize,
     pub lookback_days: i64,
     pub today: Option<String>,
+    /// 1 回の plan で LLM に要約させる議案の上限 (会議とは別枠)。
+    pub max_bills: usize,
 }
 
 /// 1 発言から抜き出す文脈幅 (文字数)。
@@ -199,6 +201,10 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
             st.bills, st.bills_fetched, st.laws_created, st.laws_with_revisions
         ),
         Err(e) => tracing::warn!("wiki-plan: 議案・改正履歴の取り込みに失敗: {e:#}"),
+    }
+    match plan_bills(args, &source) {
+        Ok(bill_tasks) => tasks.extend(bill_tasks),
+        Err(e) => tracing::warn!("wiki-plan: 議案の要約タスクの作成に失敗: {e:#}"),
     }
 
     state.save(&args.wiki)?;
@@ -705,6 +711,139 @@ fn write_task(
     })
 }
 
+/// 議案の引用単位をソースバンドルに載せるときの上限 (字)。
+const BILL_REASON_CHARS: usize = 1_500;
+const BILL_OUTLINE_CHARS: usize = 2_500;
+const BILL_RESOLUTION_CHARS: usize = 1_500;
+const MAX_RESOLUTIONS: usize = 3;
+
+fn head(text: &str, n: usize) -> String {
+    let chars: Vec<char> = text.chars().collect();
+    if chars.len() <= n {
+        text.to_string()
+    } else {
+        chars[..n].iter().collect::<String>() + "…"
+    }
+}
+
+/// 経過が進んだ (または未要約の) 議案を、新しい順に最大 `max_bills` 件 LLM に渡す。
+/// 議案ページの `llm_latest_date` が `latest_date` と同じなら要約済み。
+fn plan_bills(args: &PlanArgs, source: &Source) -> Result<Vec<Task>> {
+    if args.max_bills == 0 {
+        return Ok(Vec::new());
+    }
+    let mut pending: Vec<(String, PathBuf, Page)> = Vec::new();
+    for path in walk_md(&args.wiki, "bills") {
+        let page = Page::read(&path)?;
+        let latest = page.get_str("latest_date");
+        if latest.is_empty() || page.get_str("llm_latest_date") == latest {
+            continue;
+        }
+        pending.push((page.get_str("date").to_string(), path, page));
+    }
+    pending.sort_by(|a, b| b.0.cmp(&a.0).then_with(|| a.1.cmp(&b.1)));
+
+    let mut tasks = Vec::new();
+    for (_, path, mut page) in pending {
+        if tasks.len() >= args.max_bills {
+            break;
+        }
+        let (Some(session), bill_id) = (page.get("session").and_then(Value::as_u64), page.get_str("bill_id").to_string()) else {
+            continue;
+        };
+        let doc = match fetch_gian_doc(source, session, &bill_id) {
+            Ok(Some(d)) => d,
+            Ok(None) => continue,
+            Err(e) => {
+                tracing::warn!("wiki-plan: 議案 {session}/{bill_id}: {e:#}");
+                continue;
+            }
+        };
+        let resolutions: Vec<Value> = doc["resolutions"].as_array().cloned().unwrap_or_default();
+        let units = gian_units(&doc["detail"], &resolutions);
+        if units.is_empty() {
+            // 要約の材料 (理由・要綱・附帯決議) が無い議案は、表の情報だけで足りる。
+            let latest = page.get_str("latest_date").to_string();
+            page.set("llm_latest_date", json!(latest));
+            page.write(&path)?;
+            continue;
+        }
+        let dir = args.work.join("docs").join(KIND_GIAN);
+        std::fs::create_dir_all(&dir)?;
+        std::fs::write(dir.join(format!("{session}_{}.json", file_safe(&bill_id))), serde_json::to_vec(&doc)?)?;
+
+        let mut n_res = 0;
+        let excerpts: Vec<Value> = units
+            .iter()
+            .filter_map(|u| {
+                let anchor = u.reference.rsplit('#').next().unwrap_or("");
+                let cap = match anchor {
+                    "reason" => BILL_REASON_CHARS,
+                    "outline" => BILL_OUTLINE_CHARS,
+                    a if a.starts_with("res-") => {
+                        n_res += 1;
+                        if n_res > MAX_RESOLUTIONS {
+                            return None;
+                        }
+                        BILL_RESOLUTION_CHARS
+                    }
+                    _ => return None,
+                };
+                Some(json!({"ref": u.reference, "url": u.url, "label": u.speaker, "text": head(&u.text, cap)}))
+            })
+            .collect();
+        let laws: Vec<TaskLaw> = page
+            .get("laws")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .filter_map(|v| v.as_str())
+            .map(|id| {
+                let lp = law_page(id);
+                let title = Page::read(&args.wiki.join(&lp)).map(|p| p.get_str("title").to_string()).unwrap_or_default();
+                TaskLaw { law_id: id.to_string(), title, page: lp }
+            })
+            .collect();
+        let rel = rel_path(&args.wiki, &path);
+        let fields: serde_json::Map<String, Value> = doc["detail"]["fields"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(|f| Some((f["key"].as_str()?.to_string(), f["value"].clone())))
+            .filter(|(k, _)| k.contains("提出") || k.contains("会派") || k.contains("結果"))
+            .collect();
+        let source_rel = format!("sources/bill_{session}_{}.json", file_safe(&bill_id));
+        let bundle = json!({
+            "kind": "bill",
+            "id": bill_id,
+            "session": session,
+            "title": page.get_str("title"),
+            "bill_type": page.get_str("bill_type"),
+            "result": page.get_str("result"),
+            "stages": page.get("stages"),
+            "fields": fields,
+            "laws": laws,
+            "already_summarized_until": page.get("llm_latest_date"),
+            "excerpts": excerpts,
+        });
+        std::fs::write(args.work.join(&source_rel), serde_json::to_string_pretty(&bundle)?)?;
+        tasks.push(Task {
+            key: format!("{KIND_GIAN}:{session}/{bill_id}"),
+            kind: "bill".into(),
+            id: bill_id.clone(),
+            date: page.get_str("date").to_string(),
+            title: page.get_str("title").to_string(),
+            page: rel,
+            source: source_rel,
+            laws,
+            people: Vec::new(),
+            committee: None,
+            created: Vec::new(),
+        });
+    }
+    Ok(tasks)
+}
+
 fn plan_pages(tasks: &[Task]) -> BTreeSet<String> {
     tasks.iter().map(|t| t.page.clone()).collect()
 }
@@ -778,11 +917,8 @@ fn render_plan_md(plan: &Plan, wiki: &Path, work: &Path) -> String {
                 "（既存・追記）"
             }
         };
-        out.push_str(&format!(
-            "- 会議ページ: `{wiki}/{}`{}\n",
-            t.page,
-            new(&t.page)
-        ));
+        let page_label = if t.kind == "bill" { "議案ページ" } else { "会議ページ" };
+        out.push_str(&format!("- {page_label}: `{wiki}/{}`{}\n", t.page, new(&t.page)));
         for l in &t.laws {
             out.push_str(&format!(
                 "- 法令ページ: `{wiki}/{}` {}{}\n",
@@ -968,6 +1104,7 @@ mod tests {
             max_probes: 10,
             lookback_days: 30,
             today: Some("2026-10-08".into()),
+            max_bills: 0,
         })
         .unwrap();
 
@@ -1007,6 +1144,7 @@ mod tests {
             max_probes: 10,
             lookback_days: 30,
             today: Some("2026-10-09".into()),
+            max_bills: 0,
         })
         .unwrap();
         let again = Plan::load(&work).unwrap().unwrap();

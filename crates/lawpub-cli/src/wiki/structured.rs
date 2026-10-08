@@ -16,7 +16,7 @@ const LAW_BILL_TYPES: [&str; 3] = ["閣法", "衆法", "参法"];
 const REVISION_YEARS: i64 = 10;
 const MAX_REVISIONS: usize = 30;
 /// 議案ページの描画形式。変えたら上げると、経過に変化が無い議案も描き直す。
-const BILL_RENDER_VERSION: u64 = 1;
+const BILL_RENDER_VERSION: u64 = 2;
 
 #[derive(Debug, Default)]
 pub struct SyncStats {
@@ -103,7 +103,24 @@ fn sync_bills(
                 stats.laws_created += 1;
             }
         }
-        render_bill(&detail, b, &rel, &targets, titles)?.write(&path)?;
+        // LLM の書いた「概要と経緯」と、その時点の経過 (llm_latest_date) は描き直しても残す。
+        let previous = if path.exists() { Page::read(&path).ok() } else { None };
+        let mut page = render_bill(&detail, b, &rel, &targets, titles)?;
+        if let Some(prev) = previous {
+            let narrative = first_llm_block(&prev.body);
+            page.body = page.body.replacen(&format!("{LLM_BEGIN}\n{LLM_END}"), &if narrative.is_empty() {
+                format!("{LLM_BEGIN}\n{LLM_END}")
+            } else {
+                format!("{LLM_BEGIN}\n{narrative}\n{LLM_END}")
+            }, 1);
+            if let Some(v) = prev.get("llm_latest_date") {
+                page.set("llm_latest_date", v.clone());
+            }
+            if let Some(v) = prev.get("tags") {
+                page.set("tags", v.clone());
+            }
+        }
+        page.write(&path)?;
     }
     Ok(())
 }
@@ -220,7 +237,9 @@ fn render_bill(
         .iter()
         .map(|id| format!("[{}]({})", titles.get(id).map(String::as_str).unwrap_or(id), rel_link(rel, &law_page(id))))
         .collect();
-    let mut body = format!("\n# {title}\n\n<!-- lawpub:begin meta -->\n| 項目 | 内容 |\n|---|---|\n");
+    let mut body = format!(
+        "\n# {title}\n\n## 概要と経緯\n\n{LLM_BEGIN}\n{LLM_END}\n\n<!-- lawpub:begin meta -->\n## 議案の情報（一覧）\n\n| 項目 | 内容 |\n|---|---|\n"
+    );
     let number_part = if number.is_empty() { String::new() } else { format!(" 第{number}号") };
     body.push_str(&format!("| 種類 | {bill_type}（第{session}回国会{number_part}） |\n"));
     for (label, key) in [("提出者", "議案提出者"), ("提出会派", "議案提出会派")] {

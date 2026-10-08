@@ -119,7 +119,14 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
                             .any(|b| !citations_in(b).is_empty())
                 })
                 .unwrap_or(false);
-        if done {
+        if done && task.kind == "bill" {
+            // 議案は state ではなく、要約した時点の経過 (latest_date) をページに記録する。
+            let mut page = Page::read(&path)?;
+            let latest = page.get("latest_date").cloned().unwrap_or(Value::Null);
+            page.set("llm_latest_date", latest);
+            page.write(&path)?;
+            completed.push(task.clone());
+        } else if done {
             state.mark(&task.key, "linked", &today);
             // 経緯の形式を満たしたので、再投入の対象から外す。
             let mut page = Page::read(&path)?;
