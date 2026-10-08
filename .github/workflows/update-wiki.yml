@@ -1,0 +1,185 @@
+name: Update LLM wiki
+
+# 配信済みコーパス (Pages の静的 JSON) から、法令に言及した国会・審議会の発言を
+# OKF 形式の wiki (専用の orphan ブランチ `wiki`) に日次で積み上げる。
+#
+#   wiki-plan (決定的)    : 未処理の会議から法令リンクのあるものを最大 N 件選び、抜粋と雛形を作る
+#   Claude Code (LLM)     : 抜粋だけを読み、要約・経緯・論点ページを引用付きで書く
+#   wiki-finalize (決定的): 時系列・人物・index・log を再生成し、未完了タスクは巻き戻す
+#   wiki-check (決定的)   : 引用 (発言 ID の実在・原文一致)・リンク・OKF frontmatter を検証
+#                           → 失敗したら 1 回だけ LLM に修正させ、それでも駄目なら push しない
+#
+# wiki は main と履歴を分けるため orphan ブランチに置く (日次コミットで main を汚さない)。
+# 正本は常にコーパス側で、wiki は消して作り直せる派生物。
+#
+# 必要な設定:
+#   Secrets  : CLAUDE_CODE_OAUTH_TOKEN (`claude setup-token` で発行。Pro/Max プランで実行)
+#              または ANTHROPIC_API_KEY (従量課金)
+#   Variables: WIKI_MODEL (既定 claude-sonnet-5-5) / WIKI_MAX_ITEMS (既定 8)
+on:
+  schedule:
+    # JST 09:00。法令ワークフロー (JST 06:30) の Pages 配信後に、前日分の会議を取り込む。
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+    inputs:
+      max_items:
+        description: "1 回で処理する会議の上限 (コスト上限)"
+        required: false
+        type: string
+      lookback_days:
+        description: "何日前までの未処理会議を対象にするか"
+        required: false
+        default: "45"
+        type: string
+      push_mode:
+        description: "direct = wiki ブランチへ直接 push / pr = wiki 宛ての PR を作る (試運転向け)"
+        required: false
+        default: "direct"
+        type: choice
+        options: ["direct", "pr"]
+      debug:
+        description: "Claude の出力全文をログに出す (失敗原因の調査用。公開リポジトリなのでログは誰でも読める)"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-wiki
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      WIKI_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+      WIKI_MODEL: ${{ vars.WIKI_MODEL || 'claude-sonnet-5-5' }}
+      MAX_ITEMS: ${{ github.event.inputs.max_items || vars.WIKI_MAX_ITEMS || '8' }}
+      LOOKBACK_DAYS: ${{ github.event.inputs.lookback_days || '45' }}
+      PUSH_MODE: ${{ github.event.inputs.push_mode || 'direct' }}
+      HAS_CLAUDE_AUTH: ${{ secrets.ANTHROPIC_API_KEY != '' || secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check out wiki branch
+        id: wiki
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin wiki >/dev/null; then
+            git fetch --depth=1 origin wiki
+            git worktree add -b wiki wiki FETCH_HEAD
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::wiki ブランチが無いので orphan ブランチとして作成します"
+            git worktree add --orphan -b wiki wiki
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build lawpub
+        run: cargo build --release -p lawpub-cli
+
+      - name: Plan
+        id: plan
+        run: |
+          ./target/release/lawpub wiki-plan \
+            --wiki wiki --work .wiki-work \
+            --max-items "$MAX_ITEMS" --lookback-days "$LOOKBACK_DAYS"
+          echo "tasks=$(jq '.tasks | length' .wiki-work/plan.json)" >> "$GITHUB_OUTPUT"
+          cat .wiki-work/plan.md >> "$GITHUB_STEP_SUMMARY"
+
+      # Claude には wiki/ の編集と読み取りだけを許す。Bash とネットワークは渡さない
+      # (会議録は外部由来のテキストなので、プロンプトインジェクションの影響範囲を最小にする)。
+      - name: Write wiki pages (Claude Code)
+        if: steps.plan.outputs.tasks != '0' && env.HAS_CLAUDE_AUTH == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ github.token }}
+          show_full_output: ${{ github.event.inputs.debug == 'true' }}
+          prompt: |
+            `.github/wiki-agent.md` の指示に従い、`.wiki-work/plan.md` の全タスクについて wiki を更新してください。
+            ソースバンドル (`.wiki-work/sources/`) の抜粋だけを根拠にし、引用ルールを厳守してください。
+          claude_args: >-
+            --model ${{ env.WIKI_MODEL }}
+            --max-turns 120
+            --allowedTools "Read,Glob,Grep,Edit(wiki/**),Write(wiki/**),MultiEdit(wiki/**)"
+            --disallowedTools "Bash,WebFetch,WebSearch,NotebookEdit"
+
+      - name: Finalize
+        run: ./target/release/lawpub wiki-finalize --wiki wiki --work .wiki-work
+
+      - name: Check
+        id: check
+        continue-on-error: true
+        run: ./target/release/lawpub wiki-check --wiki wiki --work .wiki-work --changed
+
+      # 検証エラーは 1 回だけ LLM に直させる (引用の引き直し、または該当記述の削除)。
+      - name: Repair (Claude Code)
+        if: steps.check.outcome == 'failure' && env.HAS_CLAUDE_AUTH == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ github.token }}
+          show_full_output: ${{ github.event.inputs.debug == 'true' }}
+          prompt: |
+            `.wiki-work/check-report.md` に wiki の検証エラーがあります。`.github/wiki-agent.md` の引用ルールに従って、
+            エラーになった箇所だけを直してください。引用が原文と一致しない場合は、ソースバンドル
+            (`.wiki-work/sources/`) の `text` から正しい一節を引き直すか、根拠を示せない記述ごと削除してください。
+          claude_args: >-
+            --model ${{ env.WIKI_MODEL }}
+            --max-turns 40
+            --allowedTools "Read,Glob,Grep,Edit(wiki/**),Write(wiki/**),MultiEdit(wiki/**)"
+            --disallowedTools "Bash,WebFetch,WebSearch,NotebookEdit"
+
+      - name: Re-check after repair
+        if: steps.check.outcome == 'failure'
+        run: |
+          ./target/release/lawpub wiki-finalize --wiki wiki --work .wiki-work
+          ./target/release/lawpub wiki-check --wiki wiki --work .wiki-work --changed
+
+      - name: Report
+        if: always()
+        run: |
+          [ -f .wiki-work/check-report.md ] && cat .wiki-work/check-report.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Commit and push
+        run: |
+          cd wiki
+          git add -A
+          if git diff --cached --quiet; then
+            echo "::notice::wiki に変更なし"
+            exit 0
+          fi
+          date=$(jq -r '.date' ../.wiki-work/plan.json)
+          n=$(jq '.tasks | length' ../.wiki-work/plan.json)
+          git commit -q -m "wiki: ${date} (${n} meetings planned)" -m "run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          if [ "$PUSH_MODE" = "pr" ] && [ "${{ steps.wiki.outputs.exists }}" = "true" ]; then
+            branch="wiki-update/${date}-${{ github.run_id }}"
+            git push origin "HEAD:refs/heads/${branch}"
+            {
+              cat ../.wiki-work/plan.md
+              echo
+              cat ../.wiki-work/check-report.md 2>/dev/null || true
+              echo
+              echo "🤖 Generated with [Claude Code](https://claude.com/claude-code)"
+            } > ../.wiki-work/pr-body.md
+            gh pr create --base wiki --head "$branch" --title "wiki: ${date}" --body-file ../.wiki-work/pr-body.md
+          else
+            git push origin HEAD:refs/heads/wiki
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}

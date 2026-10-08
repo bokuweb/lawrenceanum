@@ -21,6 +21,7 @@ mod state;
 mod tsutatsu;
 mod status;
 mod validate;
+mod wiki;
 
 #[derive(Parser)]
 #[command(name = "lawpub", version, about = "e-Gov 法令データ正規化・配信 CLI")]
@@ -509,6 +510,53 @@ enum Cmd {
         #[arg(long, default_value = "public")]
         public: PathBuf,
     },
+    /// LLM wiki (OKF) の今日の対象会議を選び、ソースバンドルとページ雛形を作る。
+    /// 法令リンクのある未処理会議を新しい順に最大 `--max-items` 件 (コスト上限)。
+    WikiPlan {
+        /// 配信済みコーパス。Pages の URL かローカルの public/。
+        #[arg(long, env = "WIKI_BASE_URL", default_value = "https://bokuweb.github.io/lawrenceanum")]
+        base_url: String,
+        #[arg(long, default_value = "wiki")]
+        wiki: PathBuf,
+        #[arg(long, default_value = ".wiki-work")]
+        work: PathBuf,
+        #[arg(long, default_value_t = 8)]
+        max_items: usize,
+        /// 法令リンクを引く会議数の上限 (リンク無しの会議も 1 件と数える)。
+        #[arg(long, default_value_t = 300)]
+        max_probes: usize,
+        #[arg(long, default_value_t = 45)]
+        lookback_days: i64,
+        /// 基準日 YYYY-MM-DD (既定: JST の今日)。
+        #[arg(long)]
+        today: Option<String>,
+    },
+    /// LLM が書いた後、時系列・人物・index・log を再生成し、未完了タスクを巻き戻す。
+    WikiFinalize {
+        #[arg(long, default_value = "wiki")]
+        wiki: PathBuf,
+        #[arg(long, default_value = ".wiki-work")]
+        work: PathBuf,
+    },
+    /// wiki の Markdown を SPA 用の静的 JSON (一覧・ページ・ナレッジグラフ) に書き出す。
+    WikiExport {
+        #[arg(long, default_value = "wiki")]
+        wiki: PathBuf,
+        #[arg(long, default_value = "public/wiki")]
+        out: PathBuf,
+    },
+    /// wiki の OKF frontmatter・リンク・引用 (発言 ID と原文一致) を検証する。
+    WikiCheck {
+        #[arg(long, env = "WIKI_BASE_URL", default_value = "https://bokuweb.github.io/lawrenceanum")]
+        base_url: String,
+        #[arg(long, default_value = "wiki")]
+        wiki: PathBuf,
+        #[arg(long, default_value = ".wiki-work")]
+        work: PathBuf,
+        /// 引用の照合を git で変更のあったページに限る。
+        #[arg(long)]
+        changed: bool,
+    },
 
     /// 予算: e-Stat API から財政統計データを取得する（LAWPUB_ESTAT_APP_ID 必須）。
     BudgetFetch {
@@ -855,6 +903,22 @@ fn main() -> Result<()> {
         Cmd::GianFetch { cache, provider, session } => gian::run_fetch(&cache, &provider, session),
         Cmd::GianBuildJson { cache, public } => gian::run_build_json(&cache, &public),
         Cmd::BuildEnforcement { public } => enforcement::run_build(&public),
+        Cmd::WikiPlan { base_url, wiki, work, max_items, max_probes, lookback_days, today } => {
+            wiki::plan::run_plan(&wiki::plan::PlanArgs {
+                base_url,
+                wiki,
+                work,
+                max_items,
+                max_probes,
+                lookback_days,
+                today,
+            })
+        }
+        Cmd::WikiFinalize { wiki, work } => wiki::finalize::run_finalize(&wiki::finalize::FinalizeArgs { wiki, work }),
+        Cmd::WikiExport { wiki, out } => wiki::export::run_export(&wiki::export::ExportArgs { wiki, out }),
+        Cmd::WikiCheck { base_url, wiki, work, changed } => {
+            wiki::check::run_check(&wiki::check::CheckArgs { wiki, work, base_url, changed_only: changed })
+        }
         Cmd::TsutatsuFetch { cache, provider, max_pages } => tsutatsu::run_fetch(&cache, &provider, max_pages),
         Cmd::TsutatsuBuildJson { cache, public } => tsutatsu::run_build_json(&cache, &public),
         Cmd::LinkLawsAndProcurement { public } => linking::run_link_procurement(&public),

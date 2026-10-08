@@ -23,3 +23,7 @@ figma/tests/.serve
 # 再生成し、gzip 圧縮して Pages artifact 経由で deploy する (search.db は R2)。
 /public
 
+
+# LLM wiki: 本体は orphan ブランチ `wiki` (CI では worktree として wiki/ に展開)。作業領域も追跡しない。
+/wiki
+/.wiki-work
