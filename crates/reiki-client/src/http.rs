@@ -144,6 +144,10 @@ const MAX_BACKOFF_INTERVAL: Duration = Duration::from_secs(30);
 /// 回数だけで数えると 30 秒間隔からの回復に何時間もかかるため時間で揃える。
 const RECOVER_WINDOW: Duration = Duration::from_secs(60);
 const RECOVER_MIN_SUCCESSES: u32 = 5;
+/// 同じホストで 403 がこの回数続いたら、その実行中はホストへのアクセスをやめる。
+/// www1.g-reiki.net は GitHub Actions の IP からの要求をすべて 403 にする（2026-10-08 確認）。
+/// アクセス制限なので回避はせず、同居する自治体それぞれに 403 を出し続けないようにする。
+const FORBIDDEN_STREAK_TO_BLOCK: u32 = 3;
 
 struct HostState {
     robots: Robots,
@@ -200,7 +204,23 @@ pub struct PoliteClient {
     /// http で要求すると https へ転送されたホスト。以降は最初から https で取りに行き、
     /// 1 ページ 2 リクエスト（307 + 本体）にならないようにする。
     https_hosts: Mutex<std::collections::HashSet<String>>,
+    /// ホスト名ごとの 403 の連続回数（http/https は同じホストとして数える）。
+    forbidden: Mutex<HashMap<String, u32>>,
 }
+
+/// ホストが 403 を返し続けるため、この実行中はアクセスしない。
+#[derive(Debug)]
+pub struct HostBlocked(pub String);
+impl std::fmt::Display for HostBlocked {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{} returned HTTP 403 repeatedly; skipped for this run",
+            self.0
+        )
+    }
+}
+impl std::error::Error for HostBlocked {}
 
 /// 404 などで本文が取れなかったことを表す（リトライしない）。
 #[derive(Debug)]
@@ -228,7 +248,30 @@ impl PoliteClient {
             min_interval,
             hosts: Mutex::new(HashMap::new()),
             https_hosts: Mutex::new(Default::default()),
+            forbidden: Mutex::new(HashMap::new()),
         })
+    }
+
+    /// 403 が続いてアクセスを止めたホストか。
+    pub fn is_blocked(&self, host: &str) -> bool {
+        self.forbidden
+            .lock()
+            .unwrap()
+            .get(host)
+            .is_some_and(|n| *n >= FORBIDDEN_STREAK_TO_BLOCK)
+    }
+
+    fn record_forbidden(&self, host: &str, forbidden: bool) {
+        let mut m = self.forbidden.lock().unwrap();
+        if forbidden {
+            let n = m.entry(host.to_string()).or_default();
+            *n += 1;
+            if *n == FORBIDDEN_STREAK_TO_BLOCK {
+                tracing::warn!("{host}: HTTP 403 が {n} 回続いたため、この実行ではアクセスしない");
+            }
+        } else {
+            m.remove(host);
+        }
     }
 
     /// 既に https へ転送されたことのあるホストなら URL を https に書き換える。
@@ -339,6 +382,10 @@ impl PoliteClient {
         let url = upgraded.as_str();
         let u = url::Url::parse(url).with_context(|| format!("parse url {url}"))?;
         let origin = Self::origin(&u);
+        let host = u.host_str().unwrap_or("").to_string();
+        if self.is_blocked(&host) {
+            return Err(HostBlocked(host).into());
+        }
         if !self.allowed(url)? {
             bail!("robots.txt disallows {url}");
         }
@@ -351,6 +398,7 @@ impl PoliteClient {
             match self.client.get(url).send() {
                 Ok(r) => {
                     let status = r.status();
+                    self.record_forbidden(&host, status.as_u16() == 403);
                     if status.is_success() {
                         self.with_host(&origin, |st, min| st.on_success(min));
                         if u.scheme() == "http"
@@ -496,6 +544,26 @@ mod tests {
             st2.on_success(min);
         }
         assert_eq!(st2.interval, Duration::from_millis(1250));
+    }
+
+    #[test]
+    fn blocks_host_after_repeated_403_and_counts_http_https_together() {
+        let c = PoliteClient::new(Duration::from_secs(1)).unwrap();
+        c.record_forbidden("www1.g-reiki.net", true);
+        c.record_forbidden("www1.g-reiki.net", true);
+        assert!(!c.is_blocked("www1.g-reiki.net"));
+        // 途中で成功すれば数え直し
+        c.record_forbidden("www1.g-reiki.net", false);
+        for _ in 0..FORBIDDEN_STREAK_TO_BLOCK {
+            c.record_forbidden("www1.g-reiki.net", true);
+        }
+        assert!(c.is_blocked("www1.g-reiki.net"));
+        assert!(!c.is_blocked("en3-jg.d1-law.com"));
+        // ブロック中はネットワークに出ずに HostBlocked を返す
+        let err = c
+            .get_html("http://www1.g-reiki.net/x/reiki_menu.html")
+            .unwrap_err();
+        assert!(err.downcast_ref::<HostBlocked>().is_some());
     }
 
     #[test]
