@@ -158,7 +158,7 @@ function MeetingDetail({ meetingId, query, onLawClick }: {
   if (!data) return <div className="p-6 text-sm text-muted-foreground">読み込めませんでした</div>;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-0">
       {/* ヘッダー */}
       <div className="px-5 py-4 border-b border-border shrink-0">
         <div className="flex items-center gap-2 mb-1">
@@ -216,7 +216,7 @@ function MeetingDetail({ meetingId, query, onLawClick }: {
       )}
 
       {/* 発言リスト */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="px-5">
           {filteredSpeeches.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">該当する発言がありません</p>
@@ -275,9 +275,9 @@ export function ProceedingsView({
   }, [data, query, houseFilter, sessionFilter]);
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full min-h-0">
       {/* 左: 一覧 */}
-      <div className="w-80 shrink-0 border-r border-border flex flex-col">
+      <div className="w-80 shrink-0 border-r border-border flex flex-col min-h-0">
         <div className="px-4 py-3 border-b border-border shrink-0 space-y-2">
           <div className="flex items-center gap-2">
             <h2 className="text-sm font-semibold flex-1">国会会議録</h2>
@@ -320,7 +320,7 @@ export function ProceedingsView({
           </div>
         </div>
 
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 min-h-0">
           {loading ? (
             <div className="p-4 space-y-2">
               {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}
@@ -343,7 +343,7 @@ export function ProceedingsView({
       </div>
 
       {/* 右: 詳細 */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0">
         {meetingId ? (
           <MeetingDetail
             meetingId={meetingId}
