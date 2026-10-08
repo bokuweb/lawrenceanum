@@ -99,8 +99,8 @@ function WikiHome({
       <div className="mb-4">
         <h1 className="text-2xl flex items-center gap-2"><Network className="size-6" />経緯 wiki</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          国会・審議会で法令に言及した発言を、法令・会議・人物・論点ごとにつないだ wiki（OKF 形式）。
-          要約は LLM が書き、すべての記述に会議録の原文引用が付いています。
+          国会・審議会での発言、議案の審議経過、法令の公布・施行を、法令・会議・議案・人物・論点ごとにつないだ wiki（OKF 形式）。
+          要約は LLM が書き、すべての記述に会議録の原文引用が付いています。議案と公布・施行は公開データをそのまま載せています。
         </p>
       </div>
 
@@ -287,7 +287,8 @@ function WikiMarkdown({ body, from, onOpen }: { body: string; from: string; onOp
           ul: ({ children }) => <ul className="list-disc pl-5 space-y-1.5">{children}</ul>,
           ol: ({ children }) => <ol className="list-decimal pl-5 space-y-1">{children}</ol>,
           table: ({ children }) => (
-            <div className="overflow-x-auto border border-border rounded-md">
+            // 日付・種別などの短い列が 1 文字ずつ折り返されないようにする。
+            <div className="overflow-x-auto border border-border rounded-md [&_td:first-child]:whitespace-nowrap [&_td]:min-w-[3.5em]">
               <table className="w-full text-xs">{children}</table>
             </div>
           ),

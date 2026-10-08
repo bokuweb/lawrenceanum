@@ -154,6 +154,15 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
         tasks.push(task);
     }
 
+    // 議案と改正履歴 (LLM 不要) を取り込む。失敗しても会議のタスクは続ける。
+    match structured::sync(&source, &args.wiki, today) {
+        Ok(st) => println!(
+            "wiki-plan: {} bill(s) ({} fetched), {} new law page(s), {} law(s) with revisions",
+            st.bills, st.bills_fetched, st.laws_created, st.laws_with_revisions
+        ),
+        Err(e) => tracing::warn!("wiki-plan: 議案・改正履歴の取り込みに失敗: {e:#}"),
+    }
+
     state.save(&args.wiki)?;
     let plan = Plan {
         schema_version: 1,
@@ -460,28 +469,8 @@ fn write_task(
     let mut task_laws = Vec::new();
     for law in &laws {
         let lp = law_page(&law.law_id);
-        let lp_path = args.wiki.join(&lp);
-        if !lp_path.exists() {
+        if ensure_law_page(&args.wiki, source.base(), &law.law_id, &law.title)? {
             created.push(lp.clone());
-            let page = Page {
-                frontmatter: vec![
-                    ("type".into(), json!("law")),
-                    ("title".into(), json!(law.title)),
-                    ("description".into(), json!("")),
-                    ("resource".into(), json!(format!("{}/#/laws/{}", source.base(), law.law_id))),
-                    ("timestamp".into(), json!(now_rfc3339())),
-                    ("law_id".into(), json!(law.law_id)),
-                    ("tags".into(), json!([])),
-                ],
-                body: format!(
-                    "\n# {}\n\n- 法令ID: `{}`\n- 本文: [lawrenceanum]({}/#/laws/{})\n\n## 経緯の要約\n\n{LLM_BEGIN}\n{LLM_END}\n\n## 時系列\n\n<!-- lawpub:begin timeline -->\n<!-- lawpub:end timeline -->\n",
-                    law.title,
-                    law.law_id,
-                    source.base(),
-                    law.law_id,
-                ),
-            };
-            page.write(&lp_path)?;
         }
         task_laws.push(TaskLaw {
             law_id: law.law_id.clone(),

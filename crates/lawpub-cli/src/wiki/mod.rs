@@ -26,6 +26,7 @@ pub mod check;
 pub mod export;
 pub mod finalize;
 pub mod plan;
+pub mod structured;
 
 pub const STATE_PATH: &str = ".lawpub/state.json";
 pub const LLM_BEGIN: &str = "<!-- llm:begin -->";
@@ -309,6 +310,34 @@ pub fn meeting_page(kind: &str, id: &str) -> String {
 
 pub fn law_page(law_id: &str) -> String {
     format!("laws/{}.md", file_safe(law_id))
+}
+
+pub fn bill_page(session: u64, bill_id: &str) -> String {
+    format!("bills/{session}/{}.md", file_safe(bill_id))
+}
+
+/// 法令ページが無ければ雛形を作る (時系列は finalize、要約は LLM が埋める)。作ったら true。
+pub fn ensure_law_page(wiki: &Path, base: &str, law_id: &str, title: &str) -> Result<bool> {
+    let path = wiki.join(law_page(law_id));
+    if path.exists() {
+        return Ok(false);
+    }
+    let page = Page {
+        frontmatter: vec![
+            ("type".into(), serde_json::json!("law")),
+            ("title".into(), serde_json::json!(title)),
+            ("description".into(), serde_json::json!("")),
+            ("resource".into(), serde_json::json!(format!("{base}/#/laws/{law_id}"))),
+            ("timestamp".into(), serde_json::json!(now_rfc3339())),
+            ("law_id".into(), serde_json::json!(law_id)),
+            ("tags".into(), serde_json::json!([])),
+        ],
+        body: format!(
+            "\n# {title}\n\n- 法令ID: `{law_id}`\n- 本文: [lawrenceanum]({base}/#/laws/{law_id})\n\n## 経緯の要約\n\n{LLM_BEGIN}\n{LLM_END}\n\n## 時系列\n\n<!-- lawpub:begin timeline -->\n<!-- lawpub:end timeline -->\n"
+        ),
+    };
+    page.write(&path)?;
+    Ok(true)
 }
 
 pub fn person_page(name: &str) -> String {

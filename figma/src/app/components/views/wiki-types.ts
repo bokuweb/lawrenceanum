@@ -4,9 +4,10 @@ export const WIKI_TYPES: Record<string, { label: string; color: string }> = {
   meeting: { label: "会議", color: "#f59e0b" },
   person: { label: "人物", color: "#10b981" },
   topic: { label: "論点", color: "#a855f7" },
+  bill: { label: "議案", color: "#ef4444" },
 };
 
-export const WIKI_TYPE_ORDER = ["law", "topic", "meeting", "person"];
+export const WIKI_TYPE_ORDER = ["law", "topic", "bill", "meeting", "person"];
 
 /** wiki ページ (拡張子なし) からの相対リンクを、wiki ルート相対のパス (拡張子なし) に解決する。 */
 export function resolveWikiLink(from: string, href: string): string | null {

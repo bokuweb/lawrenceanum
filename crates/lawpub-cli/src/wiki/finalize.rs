@@ -19,6 +19,56 @@ pub struct FinalizeArgs {
     pub work: PathBuf,
 }
 
+/// 法令の時系列に載せる議案の段階 (付託・委員会採決は議案ページだけに載せる)。
+const TIMELINE_STAGES: [&str; 3] = ["received", "plenary", "promulgated"];
+
+#[derive(Debug, Clone)]
+struct BillInfo {
+    page: String,
+    title: String,
+    date: String,
+    description: String,
+    law_num_text: Option<String>,
+    laws: Vec<String>,
+    /// (日付, kind, ラベル)。
+    stages: Vec<(String, String, String)>,
+}
+
+fn load_bills(wiki: &Path) -> Result<Vec<BillInfo>> {
+    let mut out = Vec::new();
+    for path in walk_md(wiki, "bills") {
+        let page = Page::read(&path)?;
+        let strs = |k: &str| -> Vec<String> {
+            page.get(k)
+                .and_then(Value::as_array)
+                .map(|a| a.iter().filter_map(|v| v.as_str().map(String::from)).collect())
+                .unwrap_or_default()
+        };
+        let stages = page
+            .get("stages")
+            .and_then(Value::as_array)
+            .map(|a| {
+                a.iter()
+                    .filter_map(|s| {
+                        Some((s["date"].as_str()?.to_string(), s["kind"].as_str()?.to_string(), s["label"].as_str()?.to_string()))
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+        out.push(BillInfo {
+            page: rel_path(wiki, &path),
+            title: page.get_str("title").to_string(),
+            date: page.get_str("date").to_string(),
+            description: page.get_str("description").to_string(),
+            law_num_text: page.get("law_num_text").and_then(Value::as_str).map(String::from),
+            laws: strs("laws"),
+            stages,
+        });
+    }
+    out.sort_by(|a, b| b.date.cmp(&a.date).then_with(|| a.page.cmp(&b.page)));
+    Ok(out)
+}
+
 /// 人物ページの 1 行: (会議, 会派, 言及した法令 ID)。
 type Remark<'a> = (&'a MeetingInfo, Option<String>, Vec<String>);
 
@@ -27,6 +77,8 @@ struct MeetingInfo {
     page: String,
     title: String,
     date: String,
+    /// `kokkai` / `shingikai`。
+    corpus: String,
     description: String,
     laws: Vec<String>,
     speakers: Vec<(String, Option<String>, Vec<String>)>,
@@ -78,32 +130,67 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
     // 2. 会議ページを集める。
     let meetings = load_meetings(wiki)?;
 
-    // 3. 法令ページの時系列。どの会議からも参照されず LLM 区間も空のまま新規作成したページは消す。
+    // 3. 法令ページの時系列 (会議・議案・公布/施行を 1 本の表に)。どの会議からも議案からも
+    //    参照されず LLM 区間も空のまま、この plan で新規作成したページは消す。
+    let bills = load_bills(wiki)?;
     let mut law_titles: BTreeMap<String, String> = BTreeMap::new();
     for path in walk_md(wiki, "laws") {
         let rel = rel_path(wiki, &path);
         let mut page = Page::read(&path)?;
         let law_id = page.get_str("law_id").to_string();
-        let mut rows: Vec<&MeetingInfo> = meetings
-            .iter()
-            .filter(|m| m.laws.contains(&law_id))
-            .collect();
+        let law_meetings: Vec<&MeetingInfo> = meetings.iter().filter(|m| m.laws.contains(&law_id)).collect();
+        let law_bills: Vec<&BillInfo> = bills.iter().filter(|b| b.laws.contains(&law_id)).collect();
         let llm_empty = llm_blocks(&page.body).iter().all(|b| b.trim().is_empty());
-        if rows.is_empty() && llm_empty && created_laws.contains(&rel) {
+        if law_meetings.is_empty() && law_bills.is_empty() && llm_empty && created_laws.contains(&rel) {
             std::fs::remove_file(&path)?;
             continue;
         }
         law_titles.insert(law_id.clone(), page.get_str("title").to_string());
-        rows.sort_by(|a, b| b.date.cmp(&a.date).then_with(|| a.page.cmp(&b.page)));
-        let mut table = String::from("| 日付 | 会議 | 概要 |\n|---|---|---|\n");
-        for m in &rows {
-            table.push_str(&format!(
-                "| {} | [{}]({}) | {} |\n",
-                m.date,
-                cell(&m.title),
-                rel_link(&rel, &m.page),
-                cell(&m.description)
-            ));
+
+        // (日付, 並び順, 種別, 内容)。同じ日は 公布/施行 → 議案 → 会議 の順。
+        let mut rows: Vec<(String, u8, &str, String)> = Vec::new();
+        for m in &law_meetings {
+            let kind = if m.corpus == KIND_SHINGIKAI { "審議会" } else { "国会" };
+            let desc = if m.description.is_empty() { String::new() } else { format!(" — {}", m.description) };
+            rows.push((m.date.clone(), 2, kind, format!("[{}]({}){desc}", m.title, rel_link(&rel, &m.page))));
+        }
+        let revision_nums: BTreeSet<&str> = page
+            .get("revisions")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .filter_map(|r| r["law_num"].as_str())
+            .collect();
+        for b in &law_bills {
+            // 改正履歴に同じ法律番号の公布があれば、議案側の「公布」は重ねて出さない。
+            let promulgation_in_revisions =
+                b.law_num_text.as_deref().is_some_and(|n| revision_nums.contains(n));
+            for s in b.stages.iter().filter(|s| TIMELINE_STAGES.contains(&s.1.as_str())) {
+                if s.1 == "promulgated" && promulgation_in_revisions {
+                    continue;
+                }
+                rows.push((s.0.clone(), 1, "議案", format!("[{}]({}): {}", b.title, rel_link(&rel, &b.page), s.2)));
+            }
+        }
+        for r in page.get("revisions").and_then(Value::as_array).into_iter().flatten() {
+            let (Some(date), Some(label)) = (r["date"].as_str(), r["label"].as_str()) else { continue };
+            let kind = match r["kind"].as_str() {
+                Some("promulgated") => "公布",
+                Some("scheduled") => "施行予定",
+                _ => "施行",
+            };
+            // 改正法の法律番号で議案ページにつなぐ (国会審議 → 公布 → 施行)。
+            let bill = r["law_num"]
+                .as_str()
+                .and_then(|n| bills.iter().find(|b| b.law_num_text.as_deref() == Some(n)))
+                .map(|b| format!(" — [議案]({})", rel_link(&rel, &b.page)))
+                .unwrap_or_default();
+            rows.push((date.to_string(), 0, kind, format!("{label}{bill}")));
+        }
+        rows.sort_by(|a, b| b.0.cmp(&a.0).then_with(|| a.1.cmp(&b.1)).then_with(|| a.3.cmp(&b.3)));
+        let mut table = String::from("| 日付 | 種別 | 内容 |\n|---|---|---|\n");
+        for (date, _, kind, text) in &rows {
+            table.push_str(&format!("| {date} | {kind} | {} |\n", cell(text)));
         }
         if let Some(body) = replace_block(&page.body, "timeline", &table) {
             if body != page.body {
@@ -197,6 +284,7 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
     write_index(
         wiki,
         &meetings,
+        &bills,
         &law_titles,
         &people.keys().cloned().collect::<Vec<_>>(),
     )?;
@@ -252,6 +340,7 @@ fn load_meetings(wiki: &Path) -> Result<Vec<MeetingInfo>> {
             page: rel_path(wiki, &path),
             title: page.get_str("title").to_string(),
             date: page.get_str("date").to_string(),
+            corpus: page.get_str("corpus").to_string(),
             description: page.get_str("description").to_string(),
             laws,
             speakers,
@@ -264,12 +353,13 @@ fn load_meetings(wiki: &Path) -> Result<Vec<MeetingInfo>> {
 fn write_index(
     wiki: &Path,
     meetings: &[MeetingInfo],
+    bills: &[BillInfo],
     law_titles: &BTreeMap<String, String>,
     people: &[String],
 ) -> Result<()> {
     let mut body = String::from(
         "\n# lawrenceanum 法令経緯 wiki\n\n\
-         国会会議録・審議会議事録のうち法令に言及した発言を、法令・会議・人物・論点ごとに整理した wiki です。\n\
+         国会会議録・審議会議事録のうち法令に言及した発言と、議案の審議経過・法令の公布・施行を、法令・会議・議案・人物・論点ごとに整理した wiki です。\n\
          正本は [lawrenceanum](https://github.com/bokuweb/lawrenceanum) の正規化コーパスで、本文の要約は LLM が書き、\
          すべての記述に会議録の発言 ID と原文引用を付けています（`lawpub wiki-check` で照合済み）。\n\n",
     );
@@ -312,6 +402,13 @@ fn write_index(
             cell(title),
             law_page(id)
         ));
+    }
+
+    if !bills.is_empty() {
+        body.push_str(&format!("\n## 最近の議案（{}）\n\n| 日付 | 議案 | 経過 |\n|---|---|---|\n", bills.len()));
+        for b in bills.iter().take(30) {
+            body.push_str(&format!("| {} | [{}]({}) | {} |\n", b.date, cell(&b.title), b.page, cell(&b.description)));
+        }
     }
 
     let topics = walk_md(wiki, "topics");
@@ -455,7 +552,7 @@ mod tests {
         );
 
         let law = std::fs::read_to_string(wiki.join("laws/L1.md")).unwrap();
-        assert!(law.contains("| 2026-10-01 | [参議院 厚生労働委員会 第1号](../meetings/kokkai/M1.md) | 予防接種法の救済拡充を質疑 |"));
+        assert!(law.contains("| 2026-10-01 | 国会 | [参議院 厚生労働委員会 第1号](../meetings/kokkai/M1.md) — 予防接種法の救済拡充を質疑 |"));
         let person = Page::read(&wiki.join("people/山田太郎.md")).unwrap();
         assert_eq!(person.get_str("affiliation"), "無所属");
         assert!(person.body.contains("[予防接種法](../laws/L1.md)"));
@@ -469,6 +566,42 @@ mod tests {
             State::load(&wiki).unwrap().processed["kokkai:M1"].status,
             "linked"
         );
+        std::fs::remove_dir_all(root).ok();
+    }
+
+    #[test]
+    fn law_timeline_merges_meetings_bills_and_revisions() {
+        let summary = "質疑[^1]。\n\n[^1]: [kokkai:M1_001](https://kokkai.ndl.go.jp/txt/M1/1) 「副反応の救済を拡充すべき」";
+        let (root, wiki, work) = setup("予防接種法の救済拡充を質疑", summary);
+        std::fs::write(
+            wiki.join("laws/L1.md"),
+            law().replace(
+                "law_id: \"L1\"\n",
+                "law_id: \"L1\"\nrevisions: [{\"date\":\"2026-11-20\",\"kind\":\"promulgated\",\"label\":\"公布: 予防接種法の一部を改正する法律（令和八年法律第九十号）\",\"law_num\":\"令和八年法律第九十号\"}]\n",
+            ),
+        )
+        .unwrap();
+        std::fs::create_dir_all(wiki.join("bills/221")).unwrap();
+        std::fs::write(
+            wiki.join("bills/221/B1.md"),
+            "---\ntype: \"bill\"\ntitle: \"予防接種法の一部を改正する法律案\"\ndate: \"2026-11-20\"\nlaw_num_text: \"令和八年法律第九十号\"\nlaws: [\"L1\"]\nstages: [{\"date\":\"2026-10-20\",\"kind\":\"received\",\"label\":\"衆議院で受理\"},{\"date\":\"2026-10-25\",\"kind\":\"referred\",\"label\":\"衆議院 厚生労働委員会に付託\"},{\"date\":\"2026-11-10\",\"kind\":\"plenary\",\"label\":\"参議院 本会議で可決\"}]\n---\n# 議案\n",
+        )
+        .unwrap();
+        run_finalize(&FinalizeArgs { wiki: wiki.clone(), work }).unwrap();
+
+        let law = std::fs::read_to_string(wiki.join("laws/L1.md")).unwrap();
+        let rows: Vec<&str> = law.lines().filter(|l| l.starts_with("| 2026-")).collect();
+        assert_eq!(
+            rows,
+            vec![
+                "| 2026-11-20 | 公布 | 公布: 予防接種法の一部を改正する法律（令和八年法律第九十号） — [議案](../bills/221/B1.md) |",
+                "| 2026-11-10 | 議案 | [予防接種法の一部を改正する法律案](../bills/221/B1.md): 参議院 本会議で可決 |",
+                "| 2026-10-20 | 議案 | [予防接種法の一部を改正する法律案](../bills/221/B1.md): 衆議院で受理 |",
+                "| 2026-10-01 | 国会 | [参議院 厚生労働委員会 第1号](../meetings/kokkai/M1.md) — 予防接種法の救済拡充を質疑 |",
+            ],
+            "付託は議案ページだけに載せる"
+        );
+        assert!(std::fs::read_to_string(wiki.join("index.md")).unwrap().contains("## 最近の議案（1）"));
         std::fs::remove_dir_all(root).ok();
     }
 
