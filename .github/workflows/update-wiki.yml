@@ -114,7 +114,7 @@ jobs:
             ソースバンドル (`.wiki-work/sources/`) の抜粋だけを根拠にし、引用ルールを厳守してください。
           claude_args: >-
             --model ${{ env.WIKI_MODEL }}
-            --max-turns 120
+            --max-turns 60
             --allowedTools "Read,Glob,Grep,Edit(wiki/**),Write(wiki/**),MultiEdit(wiki/**)"
             --disallowedTools "Bash,WebFetch,WebSearch,NotebookEdit"
 
@@ -141,7 +141,7 @@ jobs:
             (`.wiki-work/sources/`) の `text` から正しい一節を引き直すか、根拠を示せない記述ごと削除してください。
           claude_args: >-
             --model ${{ env.WIKI_MODEL }}
-            --max-turns 40
+            --max-turns 20
             --allowedTools "Read,Glob,Grep,Edit(wiki/**),Write(wiki/**),MultiEdit(wiki/**)"
             --disallowedTools "Bash,WebFetch,WebSearch,NotebookEdit"
 
