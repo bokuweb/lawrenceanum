@@ -23,6 +23,7 @@ use std::io::Read;
 use std::path::{Path, PathBuf};
 
 pub mod check;
+pub mod export;
 pub mod finalize;
 pub mod plan;
 

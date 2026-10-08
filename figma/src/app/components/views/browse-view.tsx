@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { ScrollArea } from "../ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ARTICLES_V2, TIMELINE_EVENTS, type LawSummary } from "../mock-data";
-import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark, MessageSquare, Newspaper, ScrollText } from "lucide-react";
+import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark, MessageSquare, Newspaper, ScrollText, Network } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 import { useLaws, useLawDetail } from "../../data/use-laws";
 import { api, type AppendixTable, type LawToProceedings, type LawToPubcomments, type LawToTsutatsu, type AmendDocument, type AmendRun, type AmendNestedTable } from "../../data/api";
@@ -500,6 +500,21 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
     return m;
   }, [articles, appendixTables]);
 
+  // この法令の経緯 wiki ページ（LLM wiki, OKF）。ページが無ければ非表示。
+  const [wikiDescription, setWikiDescription] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    setWikiDescription(null);
+    api.wikiPage(`laws/${law.law_id}`)
+      .then(p => {
+        if (cancelled) return;
+        const d = p.frontmatter.description;
+        setWikiDescription(typeof d === "string" ? d : "");
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [law.law_id]);
+
   // この法令に言及している国会会議録（law→proceedings クロスリンク）。リンクが無ければ非表示。
   const [proceedings, setProceedings] = useState<LawToProceedings | null>(null);
   useEffect(() => {
@@ -583,6 +598,23 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
           </div>
         </div>
       </div>
+
+      {wikiDescription !== null && (
+        <div className="border-b border-border bg-background px-6 py-3">
+          <button
+            type="button"
+            onClick={() => navigate(`/wiki/laws/${law.law_id}`)}
+            className="flex items-start gap-2 text-left text-sm hover:text-primary"
+          >
+            <Network className="size-4 mt-0.5 shrink-0" />
+            <span>
+              <span className="font-semibold">経緯 wiki</span>
+              <span className="text-muted-foreground ml-2">{wikiDescription || "国会・審議会での言及と経緯"}</span>
+            </span>
+            <ArrowUpRight className="size-3 mt-1 opacity-50 shrink-0" />
+          </button>
+        </div>
+      )}
 
       {linkedProceedings.length > 0 && (
         <div className="border-b border-border bg-background px-6 py-3">

@@ -489,6 +489,13 @@ enum Cmd {
         #[arg(long, default_value = ".wiki-work")]
         work: PathBuf,
     },
+    /// wiki の Markdown を SPA 用の静的 JSON (一覧・ページ・ナレッジグラフ) に書き出す。
+    WikiExport {
+        #[arg(long, default_value = "wiki")]
+        wiki: PathBuf,
+        #[arg(long, default_value = "public/wiki")]
+        out: PathBuf,
+    },
     /// wiki の OKF frontmatter・リンク・引用 (発言 ID と原文一致) を検証する。
     WikiCheck {
         #[arg(long, env = "WIKI_BASE_URL", default_value = "https://bokuweb.github.io/lawrenceanum")]
@@ -834,6 +841,7 @@ fn main() -> Result<()> {
             })
         }
         Cmd::WikiFinalize { wiki, work } => wiki::finalize::run_finalize(&wiki::finalize::FinalizeArgs { wiki, work }),
+        Cmd::WikiExport { wiki, out } => wiki::export::run_export(&wiki::export::ExportArgs { wiki, out }),
         Cmd::WikiCheck { base_url, wiki, work, changed } => {
             wiki::check::run_check(&wiki::check::CheckArgs { wiki, work, base_url, changed_only: changed })
         }
