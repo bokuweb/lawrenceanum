@@ -241,6 +241,8 @@ struct RunStats {
     docs_failed: usize,
     removed: usize,
     errors: usize,
+    /// アクセスを止めたホスト（403 が続いた）に載っていてスキップした自治体。
+    blocked: usize,
 }
 
 fn origin_of(url: &str) -> String {
@@ -327,9 +329,17 @@ fn crawl_tenant(sh: &Shared, p: &dyn ReikiProvider, m: &Municipality) -> Result<
     let as_of = match p.current_as_of(m) {
         Ok(a) => a,
         Err(e) => {
-            sh.stats.lock().unwrap().errors += 1;
             let msg = format!("{e:#}");
-            tracing::warn!("reiki {} {}: entry page: {msg}", m.code, m.name);
+            if e.downcast_ref::<reiki_client::http::HostBlocked>()
+                .is_some()
+            {
+                // ホスト単位で止めた（警告はクライアントが 1 回だけ出す）。
+                sh.stats.lock().unwrap().blocked += 1;
+                tracing::debug!("reiki {} {}: {msg}", m.code, m.name);
+            } else {
+                sh.stats.lock().unwrap().errors += 1;
+                tracing::warn!("reiki {} {}: entry page: {msg}", m.code, m.name);
+            }
             return sh.update_state(&m.code, |s| {
                 s.last_error = Some(msg);
                 s.last_checked_at = Some(now_rfc3339());
@@ -623,9 +633,8 @@ pub fn run_build_json(
             .values()
             .filter(|d| {
                 !pending_only
-                    || published.is_none_or(|p| {
-                        parse_ts(&d.source.fetched_at).is_none_or(|f| f > p)
-                    })
+                    || published
+                        .is_none_or(|p| parse_ts(&d.source.fetched_at).is_none_or(|f| f > p))
             })
             .collect();
         let is_touched = !pending_only

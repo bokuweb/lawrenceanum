@@ -84,6 +84,15 @@ test("自治体名・都道府県で絞り込める", async ({ page }) => {
   await expect(page.getByRole("button", { name: /留萌市/ })).toHaveCount(0);
 });
 
+test("自治体内の本文検索では件数欄が本文ヒット数になる", async ({ page }) => {
+  await page.goto(new URL("#/reiki/121002", BASE).toString());
+  const box = page.getByPlaceholder("題名で絞り込み（Enter で本文検索）");
+  await expect(box).toBeVisible({ timeout: 15_000 });
+  await box.fill("個人情報");
+  await box.press("Enter");
+  await expect(page.getByTestId("reiki-list-count")).toHaveText(/^本文 \d+件$/, { timeout: 30_000 });
+});
+
 test("本文の条・項・号・表・附則を描画し、原文へリンクする", async ({ page }) => {
   await page.route("**/reiki/121002/121002_g002RG00000853.json", (r) => r.fulfill({ json: RICH_DOC }));
   await page.goto(new URL("#/reiki/121002/121002_g002RG00000853?a=art_3", BASE).toString());

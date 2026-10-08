@@ -277,7 +277,11 @@ function ReikiList({ code, reikiId, onBack, onSelect }: {
         </button>
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-semibold flex-1 truncate">{data ? `${data.prefecture} ${data.name}` : "…"}</h2>
-          {data && <span className="text-xs text-muted-foreground tabular-nums">{filtered.length.toLocaleString()}件</span>}
+          {data && (
+            <span className="text-xs text-muted-foreground tabular-nums" data-testid="reiki-list-count">
+              {hits ? `本文 ${hits.length.toLocaleString()}件` : `${filtered.length.toLocaleString()}件`}
+            </span>
+          )}
         </div>
         {data?.current_as_of && <div className="text-xs text-muted-foreground">例規集 {data.current_as_of} 現在</div>}
         <div className="relative">
