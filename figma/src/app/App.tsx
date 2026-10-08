@@ -20,6 +20,9 @@ const GianView = lazy(() => import("./components/views/gian-view").then(m => ({ 
 const WikiView = lazy(() => import("./components/views/wiki-view").then(m => ({ default: m.WikiView })));
 const TsutatsuView = lazy(() => import("./components/views/tsutatsu-view").then(m => ({ default: m.TsutatsuView })));
 const ReikiView = lazy(() => import("./components/views/reiki-view").then(m => ({ default: m.ReikiView })));
+const ProcurementView = lazy(() => import("./components/views/procurement-view").then(m => ({ default: m.ProcurementView })));
+const ShingikaiView = lazy(() => import("./components/views/shingikai-view").then(m => ({ default: m.ShingikaiView })));
+const BudgetView = lazy(() => import("./components/views/budget-view").then(m => ({ default: m.BudgetView })));
 
 function ViewFallback() {
   return <div className="p-6 text-sm text-muted-foreground">読み込み中…</div>;
@@ -117,6 +120,29 @@ function WikiRoute() {
   );
 }
 
+function ProcurementRoute() {
+  const { itemId } = useParams();
+  const navigate = useNavigate();
+  return <ProcurementView itemId={itemId ?? null} onSelect={(id) => navigate(`/procurement/${id}`)} />;
+}
+
+function ShingikaiRoute() {
+  const { ministry, minutesId } = useParams();
+  const navigate = useNavigate();
+  return (
+    <ShingikaiView
+      meetingRef={ministry && minutesId ? { ministry, minutesId } : null}
+      onSelect={(m, id) => navigate(`/shingikai/${m}/${id}`)}
+    />
+  );
+}
+
+function BudgetRoute() {
+  const { statsId } = useParams();
+  const navigate = useNavigate();
+  return <BudgetView statsId={statsId ?? null} onSelect={(id) => navigate(`/budget/${id}`)} />;
+}
+
 function AppShell() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -163,6 +189,12 @@ function AppShell() {
               <Route path="/reiki/:muni/:reikiId" element={<ReikiRoute />} />
               <Route path="/wiki" element={<WikiRoute />} />
               <Route path="/wiki/*" element={<WikiRoute />} />
+              <Route path="/shingikai" element={<ShingikaiRoute />} />
+              <Route path="/shingikai/:ministry/:minutesId" element={<ShingikaiRoute />} />
+              <Route path="/procurement" element={<ProcurementRoute />} />
+              <Route path="/procurement/:itemId" element={<ProcurementRoute />} />
+              <Route path="/budget" element={<BudgetRoute />} />
+              <Route path="/budget/:statsId" element={<BudgetRoute />} />
               <Route path="/updates" element={<UpdatesView />} />
               <Route path="/kanpo" element={<KanpoView />} />
               <Route path="/settings" element={<SettingsView />} />

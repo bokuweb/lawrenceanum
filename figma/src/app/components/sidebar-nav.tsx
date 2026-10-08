@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { LayoutDashboard, Search, BookOpen, History, Settings, Scale, Landmark, MessageSquare, Bell, CalendarClock, FileText, ScrollText, Network, Building2 } from "lucide-react";
+import { LayoutDashboard, Search, BookOpen, History, Settings, Scale, Landmark, MessageSquare, Bell, CalendarClock, FileText, ScrollText, Network, Building2, Users, Briefcase, BarChart3 } from "lucide-react";
 import { NavLink, useLocation } from "react-router";
 import { cn } from "./ui/utils";
 import { api } from "../data/api";
@@ -44,6 +44,9 @@ const items: { path: string; label: string; icon: any; matchPrefix?: string }[] 
   { path: "/gian", label: "議案", icon: FileText, matchPrefix: "/gian" },
   { path: "/pubcomment", label: "パブコメ", icon: MessageSquare, matchPrefix: "/pubcomment" },
   { path: "/tsutatsu", label: "通達", icon: ScrollText, matchPrefix: "/tsutatsu" },
+  { path: "/shingikai", label: "審議会", icon: Users, matchPrefix: "/shingikai" },
+  { path: "/procurement", label: "政府調達", icon: Briefcase, matchPrefix: "/procurement" },
+  { path: "/budget", label: "財政統計", icon: BarChart3, matchPrefix: "/budget" },
   { path: "/reiki", label: "自治体例規", icon: Building2, matchPrefix: "/reiki" },
   { path: "/wiki", label: "経緯 wiki", icon: Network, matchPrefix: "/wiki" },
   { path: "/enforcement", label: "施行予定", icon: CalendarClock, matchPrefix: "/enforcement" },
