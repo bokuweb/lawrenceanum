@@ -295,6 +295,12 @@ pub struct Task {
     /// 作業ディレクトリ基準のソースバンドル。
     pub source: String,
     pub laws: Vec<TaskLaw>,
+    /// 経緯を書き足す人物ページ (実質的な発言をした人だけ LLM が追記する)。
+    #[serde(default)]
+    pub people: Vec<String>,
+    /// 経緯を書き足す会議体ページ。
+    #[serde(default)]
+    pub committee: Option<String>,
     /// この plan で新規作成したページ (未完了なら finalize が削除する)。
     pub created: Vec<String>,
 }
@@ -345,10 +351,105 @@ pub fn ensure_law_page(wiki: &Path, base: &str, law_id: &str, title: &str) -> Re
             ("tags".into(), serde_json::json!([])),
         ],
         body: format!(
-            "\n# {title}\n\n- 法令ID: `{law_id}`\n- 本文: [lawrenceanum]({base}/#/laws/{law_id})\n\n## 経緯の要約\n\n{LLM_BEGIN}\n{LLM_END}\n\n## 時系列\n\n<!-- lawpub:begin timeline -->\n<!-- lawpub:end timeline -->\n"
+            "\n# {title}\n\n- 法令ID: `{law_id}`\n- 本文: [lawrenceanum]({base}/#/laws/{law_id})\n\n## 経緯\n\n{LLM_BEGIN}\n{LLM_END}\n\n## 関連する出来事（一覧）\n\n<!-- lawpub:begin timeline -->\n<!-- lawpub:end timeline -->\n"
         ),
     };
     page.write(&path)?;
+    Ok(true)
+}
+
+/// LLM が書く「経緯」の形式。上げると、処理済みの会議も翌日以降に処理し直して
+/// 人物・会議体・法令ページの経緯を書き足す (1 回の上限は max_items)。
+pub const NARRATIVE_VERSION: u64 = 1;
+
+/// 会議体ページの名前。国会は「衆議院 予算委員会」、審議会は部会・委員会名。
+pub fn committee_title(corpus: &str, organization: &str, committee: &str) -> Option<String> {
+    let committee = committee.trim();
+    if committee.is_empty() {
+        return None;
+    }
+    Some(if corpus == KIND_SHINGIKAI {
+        committee.to_string()
+    } else {
+        format!("{organization} {committee}").trim().to_string()
+    })
+}
+
+pub fn committee_page(title: &str) -> String {
+    format!("committees/{}.md", file_safe(title))
+}
+
+/// 最初の LLM 区間の中身 (無ければ空)。機械がページを描き直しても LLM の記述は残す。
+pub fn first_llm_block(body: &str) -> String {
+    llm_blocks(body).first().map(|b| b.trim().to_string()).unwrap_or_default()
+}
+
+fn llm_section(content: &str) -> String {
+    if content.is_empty() {
+        format!("{LLM_BEGIN}\n{LLM_END}")
+    } else {
+        format!("{LLM_BEGIN}\n{content}\n{LLM_END}")
+    }
+}
+
+pub fn person_body(name: &str, intro: &str, narrative: &str, table: &str) -> String {
+    format!(
+        "\n# {name}\n\n{intro}\n\n## 発言と経緯\n\n{}\n\n## 発言した会議（一覧）\n\n<!-- lawpub:begin remarks -->\n{table}<!-- lawpub:end remarks -->\n",
+        llm_section(narrative)
+    )
+}
+
+pub fn committee_body(title: &str, narrative: &str, block: &str) -> String {
+    format!(
+        "\n# {title}\n\n## 審議の経緯\n\n{}\n\n<!-- lawpub:begin committee -->\n{block}<!-- lawpub:end committee -->\n",
+        llm_section(narrative)
+    )
+}
+
+/// 人物ページが無ければ雛形を作る (一覧は finalize、経緯は LLM が埋める)。作ったら true。
+pub fn ensure_person_page(wiki: &Path, name: &str) -> Result<bool> {
+    let path = wiki.join(person_page(name));
+    if path.exists() {
+        // 経緯の区間が無い旧形式のページは作り替える (一覧は finalize が埋め直す)。
+        let mut page = Page::read(&path)?;
+        if !page.body.contains(LLM_BEGIN) {
+            page.body = person_body(name, "", "", "");
+            page.write(&path)?;
+        }
+        return Ok(false);
+    }
+    Page {
+        frontmatter: vec![
+            ("type".into(), serde_json::json!("person")),
+            ("title".into(), serde_json::json!(name)),
+            ("description".into(), serde_json::json!("")),
+        ],
+        body: person_body(name, "", "", ""),
+    }
+    .write(&path)?;
+    Ok(true)
+}
+
+/// 会議体ページが無ければ雛形を作る。作ったら true。
+pub fn ensure_committee_page(wiki: &Path, title: &str) -> Result<bool> {
+    let path = wiki.join(committee_page(title));
+    if path.exists() {
+        let mut page = Page::read(&path)?;
+        if !page.body.contains(LLM_BEGIN) {
+            page.body = committee_body(title, "", "");
+            page.write(&path)?;
+        }
+        return Ok(false);
+    }
+    Page {
+        frontmatter: vec![
+            ("type".into(), serde_json::json!("committee")),
+            ("title".into(), serde_json::json!(title)),
+            ("description".into(), serde_json::json!("")),
+        ],
+        body: committee_body(title, "", ""),
+    }
+    .write(&path)?;
     Ok(true)
 }
 

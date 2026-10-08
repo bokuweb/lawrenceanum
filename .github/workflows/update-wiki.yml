@@ -15,7 +15,7 @@ name: Update LLM wiki
 # 必要な設定:
 #   Secrets  : CLAUDE_CODE_OAUTH_TOKEN (`claude setup-token` で発行。Pro/Max プランで実行)
 #              または ANTHROPIC_API_KEY (従量課金)
-#   Variables: WIKI_MODEL (既定 claude-sonnet-5-5) / WIKI_MAX_ITEMS (既定 8)
+#   Variables: WIKI_MODEL (既定 claude-sonnet-5-5) / WIKI_MAX_ITEMS (既定 5)
 on:
   schedule:
     # JST 09:00。法令ワークフロー (JST 06:30) の Pages 配信後に、前日分の会議を取り込む。
@@ -58,7 +58,7 @@ jobs:
     env:
       WIKI_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
       WIKI_MODEL: ${{ vars.WIKI_MODEL || 'claude-sonnet-5-5' }}
-      MAX_ITEMS: ${{ github.event.inputs.max_items || vars.WIKI_MAX_ITEMS || '8' }}
+      MAX_ITEMS: ${{ github.event.inputs.max_items || vars.WIKI_MAX_ITEMS || '5' }}
       LOOKBACK_DAYS: ${{ github.event.inputs.lookback_days || '45' }}
       PUSH_MODE: ${{ github.event.inputs.push_mode || 'direct' }}
       HAS_CLAUDE_AUTH: ${{ secrets.ANTHROPIC_API_KEY != '' || secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
@@ -114,7 +114,7 @@ jobs:
             ソースバンドル (`.wiki-work/sources/`) の抜粋だけを根拠にし、引用ルールを厳守してください。
           claude_args: >-
             --model ${{ env.WIKI_MODEL }}
-            --max-turns 60
+            --max-turns 90
             --allowedTools "Read,Glob,Grep,Edit(wiki/**),Write(wiki/**),MultiEdit(wiki/**)"
             --disallowedTools "Bash,WebFetch,WebSearch,NotebookEdit"
 
