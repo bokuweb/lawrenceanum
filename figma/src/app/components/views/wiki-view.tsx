@@ -99,7 +99,7 @@ function WikiHome({
       <div className="mb-4">
         <h1 className="text-2xl flex items-center gap-2"><Network className="size-6" />経緯 wiki</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          国会・審議会での発言、議案の審議経過、法令の公布・施行を、法令・会議・議案・人物・論点ごとにつないだ wiki（OKF 形式）。
+          国会・審議会での発言、議案の審議経過、法令の公布・施行を、法令・会議体・会議・議案・人物・論点ごとにつないだ wiki（OKF 形式）。
           要約は LLM が書き、すべての記述に会議録の原文引用が付いています。議案と公布・施行は公開データをそのまま載せています。
         </p>
       </div>
