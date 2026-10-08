@@ -56,6 +56,70 @@ test("dashboard shows corpus counts, freshness, and missing indexes", async ({ p
   await expect(procurement).toContainText("収集失敗 2026-08-11");
 });
 
+test("dashboard corpus tiles link to each corpus list (unavailable ones stay inert)", async ({ page }) => {
+  await page.goto(new URL("#/", BASE).toString());
+  await expect(page.getByRole("heading", { name: "コーパス収録状況" })).toBeVisible({ timeout: 15_000 });
+
+  await expect(page.locator('a[data-corpus="proceedings"]')).toHaveAttribute("href", "#/proceedings");
+  await expect(page.locator('a[data-corpus="shingikai"]')).toHaveAttribute("href", "#/shingikai");
+  await expect(page.locator('a[data-corpus="gian"]')).toHaveAttribute("href", "#/gian");
+  await expect(page.locator('a[data-corpus="reiki"]')).toHaveAttribute("href", "#/reiki");
+  // 未配信 (index なし) のコーパスはリンクにしない。
+  await expect(page.locator('a[data-corpus="procurement"]')).toHaveCount(0);
+  await expect(page.locator('div[data-corpus="procurement"]')).toBeVisible();
+
+  await page.locator('a[data-corpus="proceedings"]').click();
+  await expect(page).toHaveURL(/#\/proceedings$/);
+});
+
+// 更新トレンドは日ごとの件数を法令種別 (law_id の種別コード) で積み上げ、
+// hover でその日の種別・変更種別の内訳と法令名を出す。
+test("dashboard update trend breaks each day down by law kind", async ({ page }) => {
+  const today = new Date().toISOString().slice(0, 10);
+  const law = (law_id: string, title: string, change_type: string) =>
+    ({ law_id, title, change_type, current: `laws/${law_id}/current.json` });
+  await page.route("**/updates/*.json", async (route) => {
+    if (!route.request().url().endsWith(`/updates/${today}.json`)) {
+      return route.fulfill({ status: 404, body: "" });
+    }
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({
+        date: today,
+        updated_laws: [
+          law("211AC0000000070", "健康保険法", "modified"),
+          law("322CO0000000016", "地方自治法施行令", "modified"),
+          law("323CO0000000201", "テスト政令", "added"),
+          law("427M60000002001", "テスト府省令", "modified"),
+          law("119IO0000000000", "テスト勅令", "removed"),
+        ],
+      }),
+    });
+  });
+
+  await page.goto(new URL("#/", BASE).toString());
+  const card = page.getByTestId("update-breakdown");
+  await expect(card).toBeVisible({ timeout: 15_000 });
+
+  const legend = page.getByTestId("update-breakdown-legend");
+  await expect(legend).toContainText("法律1");
+  await expect(legend).toContainText("政令2");
+  await expect(legend).toContainText("府省令1");
+  await expect(legend).toContainText("その他1");
+
+  // 当日 (右端) の棒は 4 段積み。hover すると内訳 tooltip が出る。
+  const segments = card.locator(".recharts-bar-rectangle path");
+  await expect(segments).toHaveCount(4);
+  await segments.last().hover();
+  const tooltip = card.locator(".recharts-tooltip-wrapper");
+  await expect(tooltip).toContainText(today.slice(5));
+  await expect(tooltip).toContainText("5 件");
+  await expect(tooltip).toContainText("改正 3");
+  await expect(tooltip).toContainText("追加 1");
+  await expect(tooltip).toContainText("廃止 1");
+  await expect(tooltip).toContainText("健康保険法");
+});
+
 // 更新履歴は、ロード中に mock 一覧ではなく skeleton を表示する。
 test("updates view shows skeleton (not mock) while loading", async ({ page }) => {
   // updates/latest.json を保留 → useUpdatesIndex が await で止まりロード中が続く。

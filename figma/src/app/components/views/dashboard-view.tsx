@@ -9,9 +9,10 @@ import { Link } from "react-router";
 
 // recharts を含む可視化要素は別チャンクへ。
 const StatTrend = lazy(() => import("./dashboard-charts").then(m => ({ default: m.StatTrend })));
-const UpdateTrendCard = lazy(() => import("./dashboard-charts").then(m => ({ default: m.UpdateTrendCard })));
+const UpdateBreakdownCard = lazy(() => import("./dashboard-charts").then(m => ({ default: m.UpdateBreakdownCard })));
 
 import { type UpdateDay } from "../../data/use-live-data";
+import { breakdownUpdates } from "../../data/law-kind";
 
 function RecentUpdatesCard({ trend14, loading }: { trend14: UpdateDay[]; loading: boolean }) {
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -112,15 +113,16 @@ function ChartFallback({ height = "h-64" }: { height?: string }) {
   );
 }
 
-const CORPUS_DISPLAY: { key: string; label: string }[] = [
-  { key: "proceedings", label: "国会会議録" },
-  { key: "pubcomment", label: "パブリックコメント" },
-  { key: "procurement", label: "政府調達" },
-  { key: "shingikai", label: "審議会議事録" },
-  { key: "gian", label: "議案" },
-  { key: "reiki", label: "自治体例規" },
-  { key: "tsutatsu", label: "通達" },
-  { key: "budget", label: "財政統計" },
+// 各タイルは収録済みならそのコーパスの一覧ビューへ遷移する。
+const CORPUS_DISPLAY: { key: string; label: string; path: string }[] = [
+  { key: "proceedings", label: "国会会議録", path: "/proceedings" },
+  { key: "pubcomment", label: "パブリックコメント", path: "/pubcomment" },
+  { key: "procurement", label: "政府調達", path: "/procurement" },
+  { key: "shingikai", label: "審議会議事録", path: "/shingikai" },
+  { key: "gian", label: "議案", path: "/gian" },
+  { key: "reiki", label: "自治体例規", path: "/reiki" },
+  { key: "tsutatsu", label: "通達", path: "/tsutatsu" },
+  { key: "budget", label: "財政統計", path: "/budget" },
 ];
 
 const UNIT_LABELS: Record<string, string> = {
@@ -144,7 +146,7 @@ function CorpusStatusCard({ corpora }: { corpora?: Record<string, CorpusHealth> 
           <div className="text-xs text-muted-foreground py-3">収録状況は次回のデータ更新後に表示されます</div>
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-            {CORPUS_DISPLAY.map(({ key, label }) => {
+            {CORPUS_DISPLAY.map(({ key, label, path }) => {
               const corpus = corpora[key];
               const available = corpus?.available === true;
               const collectionFailed = corpus?.collection_status === "failure";
@@ -156,10 +158,14 @@ function CorpusStatusCard({ corpora }: { corpora?: Record<string, CorpusHealth> 
                   : collectionSucceeded
                     ? "bg-emerald-500"
                     : "bg-muted-foreground";
-              return (
-                <div key={key} className="rounded-md border border-border px-3 py-2.5" data-corpus={key}>
+              const linkable = available;
+              const body = (
+                <>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm truncate">{label}</span>
+                    <span className="text-sm truncate flex items-center gap-1">
+                      {label}
+                      {linkable && <ChevronRight className="size-3.5 text-muted-foreground opacity-0 -translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-x-0" />}
+                    </span>
                     <span className={`size-2 rounded-full shrink-0 ${statusColor}`} />
                   </div>
                   <div className="mt-1 flex items-baseline justify-between gap-2">
@@ -179,6 +185,21 @@ function CorpusStatusCard({ corpora }: { corpora?: Record<string, CorpusHealth> 
                           : "収集履歴なし"}
                     </div>
                   )}
+                </>
+              );
+              return linkable ? (
+                <Link
+                  key={key}
+                  to={path}
+                  data-corpus={key}
+                  aria-label={`${label}の一覧を開く`}
+                  className="group block rounded-md border border-border px-3 py-2.5 transition-colors hover:bg-accent hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {body}
+                </Link>
+              ) : (
+                <div key={key} className="rounded-md border border-border px-3 py-2.5" data-corpus={key}>
+                  {body}
                 </div>
               );
             })}
@@ -199,6 +220,7 @@ export function DashboardView() {
   const recentLaws = trend14.filter(d => d.count > 0).slice().reverse().slice(0, 3).flatMap(d => d.laws).slice(0, 8);
   // 直近 14 日のリアル更新だけを使う。読み込み中は空配列。
   const trendForChart = trend14.map(d => ({ month: d.date, count: d.count }))  // d.date は MM-DD;
+  const breakdown = trend14.map(d => breakdownUpdates(d.date, d.laws));
   const trendSum = trend14.reduce((acc, d) => acc + d.count, 0);
   const fmt = (n: number | null | undefined) =>
     n === null || n === undefined ? "—" : n.toLocaleString();
@@ -253,7 +275,7 @@ export function DashboardView() {
 
       <div className="grid grid-cols-1 gap-4">
         <Suspense fallback={<ChartFallback />}>
-          <UpdateTrendCard data={trendForChart} title="更新トレンド (直近 14 日)" />
+          <UpdateBreakdownCard data={breakdown} title="更新トレンド (直近 14 日・法令種別)" />
         </Suspense>
       </div>
 

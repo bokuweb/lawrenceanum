@@ -405,6 +405,22 @@ export const api = {
   /** 自治体例規: 本文（条・項・号・附則）。 */
   reikiDoc: (code: string, reikiId: string) =>
     getJson<ReikiDocument>(`${REIKI_BASE}/${code}/${encodeURIComponent(reikiId)}.json`),
+
+  /** 政府調達 (官公需情報ポータル) 公告インデックス。 */
+  procurementIndex: () => getJson<ProcurementIndex>('./procurement/index.json'),
+  /** 個別の調達公告。item_id は base64url なのでそのままパスに使える。 */
+  procurementItem: (itemId: string) => getJson<ProcurementItem>(`./procurement/${itemId}.json`),
+
+  /** 審議会議事録 全府省インデックス (開催日降順)。 */
+  shingikaiIndex: () => getJson<ShingikaiIndex>('./shingikai/index.json'),
+  /** 個別の審議会会議 (議題・議事録全文・配布資料)。 */
+  shingikaiMeeting: (ministry: string, minutesId: string) =>
+    getJson<ShingikaiMeeting>(`./shingikai/${ministry}/${minutesId}.json`),
+
+  /** 財政統計 (e-Stat) データセット一覧。 */
+  budgetIndex: () => getJson<BudgetIndex>('./budget/index.json'),
+  /** 個別の統計表 (値の全件)。 */
+  budgetDataset: (statsId: string) => getJson<BudgetDataset>(`./budget/${statsId}.json`),
 }
 
 // ── 自治体例規 型定義 ───────────────────────────────────────────
@@ -487,6 +503,106 @@ export type ReikiDocument = {
     detail_url: string
     municipality_official_site: string
   }
+}
+
+// ── 政府調達 型定義 ─────────────────────────────────────────────
+
+export type ProcurementItemMeta = {
+  item_id: string
+  title: string
+  organization: string | null
+  notice_type: string | null
+  publish_date: string | null
+}
+
+export type ProcurementIndex = {
+  schema_version: number
+  count: number
+  items: ProcurementItemMeta[]
+}
+
+export type ProcurementItem = ProcurementItemMeta & {
+  schema_version: number
+  deadline: string | null
+  contract_amount: number | string | null
+  contractor: string | null
+  contract_date: string | null
+  detail_url: string | null
+  source: { provider: string; fetched_at: string }
+}
+
+// ── 審議会議事録 型定義 ─────────────────────────────────────────
+
+export type ShingikaiMeetingMeta = {
+  minutes_id: string
+  ministry: string
+  committee_id: string
+  committee: string
+  date: string | null
+  status: 'held' | 'scheduled' | string
+  title: string
+  attachment_count: number
+  has_minutes: boolean
+  detail_url: string | null
+}
+
+export type ShingikaiIndex = {
+  schema_version: number
+  count: number
+  minutes: ShingikaiMeetingMeta[]
+}
+
+export type ShingikaiAttachment = {
+  attachment_id: string
+  /** `minutes_text` / `minutes_pdf` / `material` */
+  kind: string
+  label: string
+  source_url: string
+  media_type?: string
+  bytes?: number
+  extracted_text?: string
+}
+
+export type ShingikaiMeeting = {
+  schema_version: number
+  minutes_id: string
+  ministry: string
+  committee_id: string
+  committee: string
+  date: string | null
+  status: 'held' | 'scheduled' | string
+  title: string
+  agenda: string | null
+  summary: string | null
+  body_text: string
+  minutes_text?: string
+  attachments: ShingikaiAttachment[]
+  source: { provider: string; fetched_at: string; detail_url: string }
+}
+
+// ── 財政統計 型定義 ─────────────────────────────────────────────
+
+export type BudgetIndex = {
+  schema_version: number
+  count: number
+  datasets: { stats_data_id: string; title: string; value_count: number }[]
+}
+
+export type BudgetValue = {
+  area: string | null
+  time: string | null
+  category: string | null
+  dimensions: Record<string, string>
+  value: string
+  unit: string | null
+}
+
+export type BudgetDataset = {
+  schema_version: number
+  stats_data_id: string
+  title: string
+  values: BudgetValue[]
+  source: { provider: string; fetched_at: string; stats_data_id: string }
 }
 
 // ── 議案 (法案審議トラッキング) 型定義 ─────────────────────────────
