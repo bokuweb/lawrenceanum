@@ -21,7 +21,9 @@ wiki/
 ├── meetings/kokkai/{id}.md      # type: meeting — 要点 (LLM) + メタ (生成)
 ├── meetings/shingikai/{id}.md
 ├── bills/{回次}/{議案ID}.md     # type: bill   — 審議経過・会派の賛否・対象法令（生成、LLM 不使用）
-├── people/{氏名}.md             # type: person — 国会で法令に言及した発言の一覧（生成）
+├── committees/{会議体}.md       # type: committee — 開催回・扱った法令・発言者（生成）
+├── people/{氏名}.md             # type: person — 法令に言及した発言の一覧（生成）。国会は議事進行を除く発言者全員、
+│                                #   審議会は官職者（例: 森光健康・生活衛生局長）。姓だけの委員は会議体ページに載せる
 ├── topics/{論点}.md             # type: topic  — 論点ごとのまとめ (LLM)
 └── .lawpub/state.json           # 処理済み会議
 ```

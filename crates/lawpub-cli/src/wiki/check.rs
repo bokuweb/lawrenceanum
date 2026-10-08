@@ -20,7 +20,7 @@ pub struct CheckArgs {
 }
 
 const ROOT_FILES: [&str; 3] = ["index.md", "log.md", "README.md"];
-const DIRS: [&str; 5] = ["laws/", "meetings/", "people/", "topics/", "bills/"];
+const DIRS: [&str; 6] = ["laws/", "meetings/", "people/", "topics/", "bills/", "committees/"];
 const MIN_QUOTE_CHARS: usize = 8;
 const MAX_QUOTE_CHARS: usize = 200;
 
@@ -141,6 +141,8 @@ struct Resolver<'a> {
     work: &'a Path,
     source: Source,
     docs: HashMap<String, Option<HashMap<String, Unit>>>,
+    /// 審議会の議事録全文 (正規化済み)。発言の区切り方を変える前の引用番号も受け付けるため。
+    full_texts: HashMap<String, String>,
     ministries: Option<HashMap<String, String>>,
 }
 
@@ -165,6 +167,10 @@ impl Resolver<'_> {
                 } else {
                     shingikai_units(&d)
                 };
+                if kind == KIND_SHINGIKAI {
+                    let full: String = units.iter().map(|u| u.text.as_str()).collect();
+                    self.full_texts.insert(key.clone(), normalize_for_quote(&full));
+                }
                 units
                     .into_iter()
                     .map(|u| (u.reference.clone(), u))
@@ -175,6 +181,17 @@ impl Resolver<'_> {
         Ok(self.docs[&key]
             .as_ref()
             .and_then(|u| u.get(reference).cloned()))
+    }
+
+    /// 審議会の引用文が、発言番号に関係なく同じ議事録の本文にあるか (`unit` を先に呼んで読み込み済みであること)。
+    fn in_shingikai_minutes(&self, reference: &str, normalized_quote: &str) -> bool {
+        let Some(id) = reference.strip_prefix("shingikai:") else {
+            return false;
+        };
+        let key = format!("{KIND_SHINGIKAI}:{}", id.split('#').next().unwrap_or(id));
+        self.full_texts
+            .get(&key)
+            .is_some_and(|t| t.contains(normalized_quote))
     }
 
     fn load_doc(&mut self, kind: &str, id: &str) -> Result<Option<Value>> {
@@ -262,6 +279,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
         work: &args.work,
         source: Source::new(&args.base_url)?,
         docs: HashMap::new(),
+        full_texts: HashMap::new(),
         ministries: None,
     };
     let mut errors: Vec<String> = Vec::new();
@@ -297,7 +315,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
         if ty.is_empty() {
             err(1, "OKF の必須フィールド `type` がありません".into());
         }
-        if matches!(ty, "law" | "meeting" | "person" | "topic" | "bill") && page.get_str("title").is_empty()
+        if matches!(ty, "law" | "meeting" | "person" | "topic" | "bill" | "committee") && page.get_str("title").is_empty()
         {
             err(1, "`title` がありません".into());
         }
@@ -364,6 +382,8 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
             }
             let unit = match resolver.unit(&c.reference) {
                 Ok(Some(u)) => u,
+                // 審議会は発言の区切り方を改めたことがあるので、番号が合わなくても同じ議事録に引用文があればよい。
+                Ok(None) if resolver.in_shingikai_minutes(&c.reference, &quote) => continue,
                 Ok(None) => {
                     err(c.line, format!("発言 {} が見つかりません", c.reference));
                     continue;
@@ -385,7 +405,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
                     ),
                 );
             }
-            if !normalize_for_quote(&unit.text).contains(&quote) {
+            if !normalize_for_quote(&unit.text).contains(&quote) && !resolver.in_shingikai_minutes(&c.reference, &quote) {
                 err(c.line, format!("引用「{}」は {} の本文にありません（要約ではなく原文をそのまま引用してください）", c.quote, c.reference));
             }
         }
@@ -467,6 +487,36 @@ mod tests {
             changed_only: false,
         };
         (root, args)
+    }
+
+    #[test]
+    fn shingikai_quote_with_stale_turn_number_passes_if_in_same_minutes() {
+        let root = temp_dir("check_shingikai");
+        let wiki = root.join("wiki");
+        let work = root.join("work");
+        std::fs::create_dir_all(wiki.join("meetings/shingikai")).unwrap();
+        std::fs::create_dir_all(work.join("docs/shingikai")).unwrap();
+        std::fs::write(
+            work.join("docs/shingikai/S1.json"),
+            serde_json::to_vec(&json!({
+                "minutes_id": "S1",
+                "source": {"detail_url": "https://example.go.jp/s1"},
+                "minutes_text": "議事内容 ○古藤補佐 開会します。 ○森光健康・生活衛生局長 公平かつ安定的な医療費助成の制度確立を図る。"
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+        let page = |r: &str, q: &str| {
+            format!("---\ntype: \"meeting\"\ntitle: \"会議\"\n---\n{LLM_BEGIN}\n述べた[^1]。\n\n[^1]: [shingikai:{r}](https://example.go.jp/s1) 「{q}」\n{LLM_END}\n")
+        };
+        let args = || CheckArgs { wiki: wiki.clone(), work: work.clone(), base_url: root.join("public").display().to_string(), changed_only: false };
+        // 旧来の「#0 = 全文」の番号でも、同じ議事録にあれば通す。
+        std::fs::write(wiki.join("meetings/shingikai/S1.md"), page("S1#0", "公平かつ安定的な医療費助成の制度確立")).unwrap();
+        run_check(&args()).unwrap();
+        // 議事録に無い文は従来どおり落とす。
+        std::fs::write(wiki.join("meetings/shingikai/S1.md"), page("S1#0", "医療費助成を全面的に廃止する")).unwrap();
+        assert!(run_check(&args()).is_err());
+        std::fs::remove_dir_all(root).ok();
     }
 
     #[test]

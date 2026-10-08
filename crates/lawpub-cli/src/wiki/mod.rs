@@ -178,16 +178,28 @@ pub fn shingikai_units(doc: &Value) -> Vec<Unit> {
         .or_else(|| doc["body_text"].as_str())
         .unwrap_or("");
 
-    let mut turns: Vec<(Option<String>, String)> = vec![(None, String::new())];
-    for line in text.lines() {
-        let trimmed = line.trim_start_matches([' ', '\u{3000}', '\t']);
-        if let Some(rest) = trimmed.strip_prefix('○') {
-            let speaker: String = rest.chars().take_while(|c| !c.is_whitespace()).collect();
-            turns.push(((!speaker.is_empty()).then_some(speaker), String::new()));
+    // 話者表示「○森委員　…」で区切る。法務省は行頭、厚生労働省などは本文が 1 行につながって
+    // 文中に現れるので、「直前が空白か先頭」かつ「○の後に空白までの短い表記が続く」位置を区切りとする。
+    let chars: Vec<(usize, char)> = text.char_indices().collect();
+    let mut marks: Vec<(usize, String)> = Vec::new();
+    for (k, &(pos, c)) in chars.iter().enumerate() {
+        if c != '○' || (k > 0 && !chars[k - 1].1.is_whitespace()) {
+            continue;
         }
-        let current = &mut turns.last_mut().expect("non-empty").1;
-        current.push_str(line);
-        current.push('\n');
+        let label: String = chars[k + 1..].iter().map(|x| x.1).take_while(|c| !c.is_whitespace()).collect();
+        let n = label.chars().count();
+        let followed_by_space = chars.get(k + 1 + n).is_some_and(|x| x.1.is_whitespace());
+        if n == 0 || n > 30 || label.contains(['。', '、']) || !followed_by_space {
+            continue;
+        }
+        marks.push((pos, label));
+    }
+    let mut turns: Vec<(Option<String>, String)> = Vec::new();
+    let first = marks.first().map(|m| m.0).unwrap_or(text.len());
+    turns.push((None, text[..first].to_string()));
+    for (i, (pos, label)) in marks.iter().enumerate() {
+        let end = marks.get(i + 1).map(|m| m.0).unwrap_or(text.len());
+        turns.push((Some(label.clone()), text[*pos..end].to_string()));
     }
     turns
         .into_iter()
@@ -592,6 +604,21 @@ mod tests {
         assert_eq!(units[1].speaker.as_deref(), Some("神作部会長"));
         assert!(units[1].text.contains("続き"));
         assert_eq!(units[2].speaker.as_deref(), Some("森委員"));
+    }
+
+    #[test]
+    fn shingikai_minutes_split_on_inline_speaker_marks() {
+        // 厚生労働省の議事録は本文が 1 行につながっている。
+        let doc = json!({
+            "minutes_id": "m2",
+            "source": {"detail_url": "u"},
+            "minutes_text": "議事内容 ○古藤補佐 開会します。 ○森光健康・生活衛生局長 難病法の下で推進します。 資料○番 ○ 箇条書き",
+        });
+        let units = shingikai_units(&doc);
+        let speakers: Vec<Option<&str>> = units.iter().map(|u| u.speaker.as_deref()).collect();
+        assert_eq!(speakers, vec![None, Some("古藤補佐"), Some("森光健康・生活衛生局長")]);
+        assert!(units[2].text.starts_with("○森光健康・生活衛生局長 難病法の下で推進します。"));
+        assert_eq!(units[2].reference, "shingikai:m2#2");
     }
 
     #[test]

@@ -11,8 +11,6 @@ use super::*;
 use serde_json::json;
 use std::collections::BTreeSet;
 
-/// 指示書 (.github/wiki-agent.md) で LLM に付けさせる、形式的な言及だけの会議の印。
-const FORMAL_MENTION_PREFIX: &str = "形式的言及";
 
 pub struct FinalizeArgs {
     pub wiki: PathBuf,
@@ -70,7 +68,17 @@ fn load_bills(wiki: &Path) -> Result<Vec<BillInfo>> {
 }
 
 /// 人物ページの 1 行: (会議, 会派, 言及した法令 ID)。
-type Remark<'a> = (&'a MeetingInfo, Option<String>, Vec<String>);
+type Remark<'a> = (&'a MeetingInfo, &'a Speaker);
+
+#[derive(Debug, Clone)]
+struct Speaker {
+    name: String,
+    group: Option<String>,
+    position: Option<String>,
+    /// `kokkai` (国会議員・政府側・職員) / `official` (審議会の官職者) / `member` (審議会の委員)。
+    role: String,
+    laws: Vec<String>,
+}
 
 #[derive(Debug, Clone)]
 struct MeetingInfo {
@@ -81,7 +89,9 @@ struct MeetingInfo {
     corpus: String,
     description: String,
     laws: Vec<String>,
-    speakers: Vec<(String, Option<String>, Vec<String>)>,
+    organization: String,
+    committee: String,
+    speakers: Vec<Speaker>,
 }
 
 pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
@@ -201,18 +211,12 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
         }
     }
 
-    // 4. 人物ページ (国会の発言者のみ。審議会は姓+役職のため同定できない)。
-    //    議事進行や請願報告だけの「形式的言及」の会議は人物の発言として数えない。
+    // 4. 人物ページ。国会は議事進行を除く発言者全員 (議員・政府側・職員)、審議会は官職者だけ
+    //    (「森委員」のような姓だけの委員は同定できないので会議体ページに載せる)。
     let mut people: BTreeMap<String, Vec<Remark>> = BTreeMap::new();
-    for m in meetings
-        .iter()
-        .filter(|m| !m.description.starts_with(FORMAL_MENTION_PREFIX))
-    {
-        for (name, group, laws) in &m.speakers {
-            people
-                .entry(name.clone())
-                .or_default()
-                .push((m, group.clone(), laws.clone()));
+    for m in &meetings {
+        for sp in m.speakers.iter().filter(|sp| sp.role != "member") {
+            people.entry(sp.name.clone()).or_default().push((m, sp));
         }
     }
     // people/ は丸ごと生成物なので、対象から外れた人物のページは消す。
@@ -227,63 +231,65 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
         remarks.sort_by(|a, b| b.0.date.cmp(&a.0.date));
         let rel = person_page(name);
         let path = wiki.join(&rel);
-        let mut page = if path.exists() {
-            Page::read(&path)?
+        let mut page = if path.exists() { Page::read(&path)? } else { Page::default() };
+        let latest = remarks[0].1;
+        let official = latest.role == "official";
+        // 肩書き: 国会は役職 (無ければ会派)、審議会の官職者は所属府省。
+        let affiliation = if official {
+            remarks[0].0.organization.clone()
         } else {
-            Page::default()
+            remarks.iter().find_map(|r| r.1.group.clone()).unwrap_or_default()
         };
-        let affiliation = remarks.iter().find_map(|r| r.1.clone()).unwrap_or_default();
+        let position = remarks.iter().find_map(|r| r.1.position.clone()).unwrap_or_default();
+        let description = [position.as_str(), affiliation.as_str()]
+            .iter()
+            .filter(|s| !s.is_empty())
+            .copied()
+            .collect::<Vec<_>>()
+            .join("・");
         let mut table = String::from("| 日付 | 会議 | 言及した法令 |\n|---|---|---|\n");
-        for (m, _, laws) in &remarks {
-            let laws: Vec<String> = laws
+        for (m, sp) in &remarks {
+            let laws: Vec<String> = sp
+                .laws
                 .iter()
-                .filter_map(|id| {
-                    law_titles
-                        .get(id)
-                        .map(|t| format!("[{}]({})", t, rel_link(&rel, &law_page(id))))
-                })
+                .filter_map(|id| law_titles.get(id).map(|t| format!("[{}]({})", t, rel_link(&rel, &law_page(id)))))
                 .collect();
-            table.push_str(&format!(
-                "| {} | [{}]({}) | {} |\n",
-                m.date,
-                cell(&m.title),
-                rel_link(&rel, &m.page),
-                laws.join("、")
-            ));
+            table.push_str(&format!("| {} | [{}]({}) | {} |\n", m.date, cell(&m.title), rel_link(&rel, &m.page), laws.join("、")));
         }
-        let description = page.get_str("description").to_string();
+        let intro = if official {
+            "審議会の議事録で法令に言及した発言の一覧です（議事録の表記どおり。同じ人が別の表記で載ることがあります）。"
+        } else {
+            "国会会議録で法令に言及した発言の一覧です（会議録の記載事実のみ）。"
+        };
         let tags = page.get("tags").cloned().unwrap_or(json!([]));
         let mut fm = vec![
             ("type".to_string(), json!("person")),
             ("title".to_string(), json!(name)),
             ("description".to_string(), json!(description)),
             ("affiliation".to_string(), json!(affiliation)),
-            (
-                "timestamp".to_string(),
-                page.get("timestamp")
-                    .cloned()
-                    .unwrap_or(json!(now_rfc3339())),
-            ),
+            ("position".to_string(), json!(position)),
+            ("timestamp".to_string(), page.get("timestamp").cloned().unwrap_or(json!(now_rfc3339()))),
             ("tags".to_string(), tags),
         ];
-        let body = match replace_block(&page.body, "remarks", &table) {
-            Some(b) => b,
-            None => format!(
-                "\n# {name}\n\n国会会議録で法令に言及した発言の一覧です（会議録の記載事実のみ）。\n\n## 法令に言及した発言\n\n<!-- lawpub:begin remarks -->\n{table}<!-- lawpub:end remarks -->\n"
-            ),
-        };
+        let body = format!(
+            "\n# {name}\n\n{intro}\n\n## 法令に言及した発言\n\n<!-- lawpub:begin remarks -->\n{table}<!-- lawpub:end remarks -->\n"
+        );
         if body != page.body {
-            fm[4].1 = json!(now_rfc3339());
+            fm[5].1 = json!(now_rfc3339());
         }
         page.frontmatter = fm;
         page.body = body;
         page.write(&path)?;
     }
 
+    // 4b. 会議体ページ (委員会・審議会の部会など)。開催回・扱った法令・発言者をまとめる。
+    let committees = write_committees(wiki, &meetings, &law_titles, &people)?;
+
     // 5. index.md / log.md。
     write_index(
         wiki,
         &meetings,
+        &committees,
         &bills,
         &law_titles,
         &people.keys().cloned().collect::<Vec<_>>(),
@@ -302,6 +308,115 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
     Ok(())
 }
 
+/// 会議体ページの名前。国会は「衆議院 予算委員会」、審議会は部会・委員会名。
+fn committee_title(m: &MeetingInfo) -> Option<String> {
+    if m.committee.trim().is_empty() {
+        return None;
+    }
+    Some(if m.corpus == KIND_SHINGIKAI {
+        m.committee.trim().to_string()
+    } else {
+        format!("{} {}", m.organization, m.committee).trim().to_string()
+    })
+}
+
+pub fn committee_page(title: &str) -> String {
+    format!("committees/{}.md", file_safe(title))
+}
+
+/// 会議体ページを丸ごと生成する。戻り値は (タイトル, ページ, 開催回数)。
+fn write_committees(
+    wiki: &Path,
+    meetings: &[MeetingInfo],
+    law_titles: &BTreeMap<String, String>,
+    people: &BTreeMap<String, Vec<Remark>>,
+) -> Result<Vec<(String, String, usize)>> {
+    let mut groups: BTreeMap<String, Vec<&MeetingInfo>> = BTreeMap::new();
+    for m in meetings {
+        if let Some(t) = committee_title(m) {
+            groups.entry(t).or_default().push(m);
+        }
+    }
+    let keep: BTreeSet<String> = groups.keys().map(|t| committee_page(t)).collect();
+    for path in walk_md(wiki, "committees") {
+        if !keep.contains(&rel_path(wiki, &path)) {
+            std::fs::remove_file(&path)?;
+        }
+    }
+
+    let mut out = Vec::new();
+    for (title, ms) in &groups {
+        let rel = committee_page(title);
+        let path = wiki.join(&rel);
+        let mut body = format!("\n# {title}\n\n<!-- lawpub:begin committee -->\n## 開催回\n\n| 日付 | 会議 | 概要 |\n|---|---|---|\n");
+        for m in ms {
+            body.push_str(&format!("| {} | [{}]({}) | {} |\n", m.date, cell(&m.title), rel_link(&rel, &m.page), cell(&m.description)));
+        }
+
+        let mut law_counts: BTreeMap<&str, usize> = BTreeMap::new();
+        for m in ms {
+            for id in &m.laws {
+                *law_counts.entry(id.as_str()).or_default() += 1;
+            }
+        }
+        let mut laws: Vec<(&str, usize)> = law_counts.into_iter().filter(|(id, _)| law_titles.contains_key(*id)).collect();
+        laws.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(b.0)));
+        if !laws.is_empty() {
+            body.push_str("\n## 扱った法令\n\n");
+            for (id, n) in &laws {
+                body.push_str(&format!("- [{}]({})（{n} 回）\n", law_titles[*id], rel_link(&rel, &law_page(id))));
+            }
+        }
+
+        // 発言者: 人物ページがある人はリンク、委員 (姓のみ) は表記と開催回へのリンク。
+        let mut linked: BTreeSet<&str> = BTreeSet::new();
+        let mut members: BTreeMap<&str, Vec<&MeetingInfo>> = BTreeMap::new();
+        for m in ms {
+            for sp in &m.speakers {
+                if people.contains_key(&sp.name) {
+                    linked.insert(sp.name.as_str());
+                } else {
+                    members.entry(sp.name.as_str()).or_default().push(m);
+                }
+            }
+        }
+        if !linked.is_empty() || !members.is_empty() {
+            body.push_str("\n## 法令に言及した発言者\n\n");
+            for name in &linked {
+                body.push_str(&format!("- [{name}]({})\n", rel_link(&rel, &person_page(name))));
+            }
+            for (name, mms) in &members {
+                let refs: Vec<String> = mms.iter().map(|m| format!("[{}]({})", m.date, rel_link(&rel, &m.page))).collect();
+                body.push_str(&format!("- {name}（{}）\n", refs.join("、")));
+            }
+        }
+        body.push_str("<!-- lawpub:end committee -->\n");
+
+        let organization = ms[0].organization.clone();
+        let latest = ms.iter().map(|m| m.date.as_str()).max().unwrap_or("");
+        let description = format!("{organization}・wiki 収録 {} 回（最新 {latest}）", ms.len());
+        let mut page = if path.exists() { Page::read(&path)? } else { Page::default() };
+        let changed = page.body != body;
+        let timestamp = if changed || page.get("timestamp").is_none() {
+            json!(now_rfc3339())
+        } else {
+            page.get("timestamp").cloned().unwrap_or(json!(now_rfc3339()))
+        };
+        page.frontmatter = vec![
+            ("type".into(), json!("committee")),
+            ("title".into(), json!(title)),
+            ("description".into(), json!(description)),
+            ("organization".into(), json!(organization)),
+            ("date".into(), json!(latest)),
+            ("timestamp".into(), timestamp),
+        ];
+        page.body = body;
+        page.write(&path)?;
+        out.push((title.clone(), rel, ms.len()));
+    }
+    Ok(out)
+}
+
 fn load_meetings(wiki: &Path) -> Result<Vec<MeetingInfo>> {
     let mut out = Vec::new();
     for path in walk_md(wiki, "meetings") {
@@ -315,23 +430,25 @@ fn load_meetings(wiki: &Path) -> Result<Vec<MeetingInfo>> {
                     .collect()
             })
             .unwrap_or_default();
+        let corpus = page.get_str("corpus").to_string();
         let speakers = page
             .get("speakers")
             .and_then(Value::as_array)
             .map(|a| {
                 a.iter()
-                    .filter_map(|s| {
-                        let name = s["name"].as_str()?.to_string();
-                        let group = s["group"].as_str().map(String::from);
-                        let laws = s["laws"]
-                            .as_array()
-                            .map(|l| {
-                                l.iter()
-                                    .filter_map(|v| v.as_str().map(String::from))
-                                    .collect()
-                            })
-                            .unwrap_or_default();
-                        Some((name, group, laws))
+                    .filter_map(|v| {
+                        let name = v["name"].as_str()?.to_string();
+                        let default_role = if corpus == KIND_SHINGIKAI { "member" } else { "kokkai" };
+                        Some(Speaker {
+                            name,
+                            group: v["group"].as_str().map(String::from),
+                            position: v["position"].as_str().map(String::from),
+                            role: v["role"].as_str().unwrap_or(default_role).to_string(),
+                            laws: v["laws"]
+                                .as_array()
+                                .map(|l| l.iter().filter_map(|x| x.as_str().map(String::from)).collect())
+                                .unwrap_or_default(),
+                        })
                     })
                     .collect()
             })
@@ -340,7 +457,9 @@ fn load_meetings(wiki: &Path) -> Result<Vec<MeetingInfo>> {
             page: rel_path(wiki, &path),
             title: page.get_str("title").to_string(),
             date: page.get_str("date").to_string(),
-            corpus: page.get_str("corpus").to_string(),
+            corpus,
+            organization: page.get_str("organization").to_string(),
+            committee: page.get_str("committee").to_string(),
             description: page.get_str("description").to_string(),
             laws,
             speakers,
@@ -353,6 +472,7 @@ fn load_meetings(wiki: &Path) -> Result<Vec<MeetingInfo>> {
 fn write_index(
     wiki: &Path,
     meetings: &[MeetingInfo],
+    committees: &[(String, String, usize)],
     bills: &[BillInfo],
     law_titles: &BTreeMap<String, String>,
     people: &[String],
@@ -402,6 +522,14 @@ fn write_index(
             cell(title),
             law_page(id)
         ));
+    }
+
+    if !committees.is_empty() {
+        body.push_str(&format!("\n## 会議体（{}）\n\n", committees.len()));
+        let links: Vec<String> =
+            committees.iter().map(|(title, page, n)| format!("[{title}]({page})（{n}）")).collect();
+        body.push_str(&links.join(" · "));
+        body.push('\n');
     }
 
     if !bills.is_empty() {
@@ -606,24 +734,32 @@ mod tests {
     }
 
     #[test]
-    fn formal_mentions_do_not_make_person_pages() {
-        let summary = "請願の報告のみ[^1]。\n\n[^1]: [kokkai:M1_001](https://kokkai.ndl.go.jp/txt/M1/1) 「請願は四種三十二件であります」";
-        let (root, wiki, work) = setup("形式的言及: 請願・陳情の件数報告", summary);
-        std::fs::create_dir_all(wiki.join("people")).unwrap();
+    fn officials_get_person_pages_and_members_go_to_committee_page() {
+        let summary = "公示案の了承を求めた[^1]。\n\n[^1]: [shingikai:S1#2](https://www.mhlw.go.jp/s1) 「結果案の了承を求めたい」";
+        let (root, wiki, work) = setup("形式的言及: 経費の説明", "質疑[^1]。\n\n[^1]: [kokkai:M1_001](https://kokkai.ndl.go.jp/txt/M1/1) 「副反応の救済を拡充すべき」");
+        std::fs::create_dir_all(wiki.join("meetings/shingikai")).unwrap();
         std::fs::write(
-            wiki.join("people/山田太郎.md"),
-            "---\ntype: \"person\"\n---\n",
+            wiki.join("meetings/shingikai/S1.md"),
+            format!(
+                "---\ntype: \"meeting\"\ntitle: \"指定難病検討委員会 第68回\"\ndescription: \"公示案を了承\"\ndate: \"2026-09-01\"\ncorpus: \"shingikai\"\norganization: \"厚生労働省\"\ncommittee: \"疾病対策部会指定難病検討委員会\"\nlaws: [\"L1\"]\nspeakers: [{{\"name\": \"森光健康・生活衛生局長\", \"role\": \"official\", \"laws\": [\"L1\"]}}, {{\"name\": \"森委員\", \"role\": \"member\", \"laws\": [\"L1\"]}}]\n---\n# x\n\n{LLM_BEGIN}\n{summary}\n{LLM_END}\n"
+            ),
         )
         .unwrap();
-        run_finalize(&FinalizeArgs {
-            wiki: wiki.clone(),
-            work,
-        })
-        .unwrap();
-        assert!(!wiki.join("people/山田太郎.md").exists());
-        assert!(std::fs::read_to_string(wiki.join("laws/L1.md"))
-            .unwrap()
-            .contains("形式的言及: 請願"));
+        run_finalize(&FinalizeArgs { wiki: wiki.clone(), work }).unwrap();
+
+        // 形式的言及の会議でも、議事進行でない発言者 (plan で除外済み) は人物ページになる。
+        assert!(wiki.join("people/山田太郎.md").exists());
+        let official = Page::read(&wiki.join("people/森光健康・生活衛生局長.md")).unwrap();
+        assert_eq!(official.get_str("affiliation"), "厚生労働省");
+        assert!(!wiki.join("people/森委員.md").exists(), "姓だけの委員は人物ページにしない");
+
+        let committee = std::fs::read_to_string(wiki.join("committees/疾病対策部会指定難病検討委員会.md")).unwrap();
+        assert!(committee.contains("type: \"committee\""));
+        assert!(committee.contains("| 2026-09-01 | [指定難病検討委員会 第68回](../meetings/shingikai/S1.md) | 公示案を了承 |"));
+        assert!(committee.contains("- [予防接種法](../laws/L1.md)（1 回）"));
+        assert!(committee.contains("- [森光健康・生活衛生局長](../people/森光健康・生活衛生局長.md)"));
+        assert!(committee.contains("- 森委員（[2026-09-01](../meetings/shingikai/S1.md)）"));
+        assert!(std::fs::read_to_string(wiki.join("index.md")).unwrap().contains("## 会議体（"));
         std::fs::remove_dir_all(root).ok();
     }
 

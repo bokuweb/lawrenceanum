@@ -26,7 +26,7 @@
 - 同じページの frontmatter の `description` と `tags` の値（会議ページ・法令ページとも）
 - `wiki/topics/*.md`（新規作成・追記）
 
-それ以外（frontmatter の他のフィールド、`<!-- lawpub:begin … -->` のブロック、`people/`、`bills/`、
+それ以外（frontmatter の他のフィールド、`<!-- lawpub:begin … -->` のブロック、`people/`、`bills/`、`committees/`、
 `index.md`、`log.md`）は機械が再生成するので編集しないでください。
 frontmatter の値は JSON リテラルで書きます（例: `description: "…"`、`tags: ["副反応救済", "予防接種"]`）。
 

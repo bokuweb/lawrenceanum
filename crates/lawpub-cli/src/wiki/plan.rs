@@ -11,7 +11,7 @@
 
 use super::*;
 use serde_json::json;
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashMap};
 
 pub struct PlanArgs {
     pub base_url: String,
@@ -29,6 +29,16 @@ const WINDOW_AFTER: usize = 500;
 /// 1 会議あたりのソースバンドルの上限。
 const MAX_EXCERPTS_PER_MEETING: usize = 12;
 const MAX_CHARS_PER_MEETING: usize = 8_000;
+/// 会議ページの frontmatter (speakers 等) の形式。上げると既存ページも LLM なしで作り直す。
+pub(crate) const MEETING_RENDER_VERSION: u64 = 2;
+/// 1 回の plan で作り直す既存会議ページの上限 (取得数の上限)。
+const MAX_REFRESH_PER_RUN: usize = 60;
+
+/// 審議会の発言者表記のうち、官職で終わるもの (姓＋官職でほぼ 1 人に決まる)。
+/// 「森委員」「神作部会長」のような委員は姓だけで同定できないので会議体ページに載せる。
+const OFFICIAL_TITLES: [&str; 14] = [
+    "局長", "審議官", "課長", "室長", "大臣", "政務官", "長官", "次長", "統括官", "参事官", "官房長", "次官", "総長", "部長",
+];
 
 struct Candidate {
     kind: &'static str,
@@ -158,6 +168,13 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
 
         let task = write_task(args, &source, &c, &doc, &laws, &excerpts)?;
         tasks.push(task);
+    }
+
+    // 古い形式の会議ページ (発言者の分類が無い等) を LLM なしで作り直す。
+    match refresh_meetings(&source, &args.wiki, &plan_pages(&tasks)) {
+        Ok(n) if n > 0 => println!("wiki-plan: refreshed {n} meeting page(s)"),
+        Ok(_) => {}
+        Err(e) => tracing::warn!("wiki-plan: 会議ページの更新に失敗: {e:#}"),
     }
 
     // 議案と改正履歴 (LLM 不要) を取り込む。失敗しても会議のタスクは続ける。
@@ -330,6 +347,38 @@ pub(crate) fn build_excerpts_for(units: &[Unit], laws: &[(String, Vec<String>)])
     out
 }
 
+/// 抜粋から発言者を集める。国会は議事進行 (会議録情報・委員長/議長) を除いた全員、
+/// 審議会は官職者 (`official`) と委員 (`member`) に分ける。
+pub(crate) fn speakers_from_excerpts(kind: &str, excerpts: &[Excerpt]) -> Vec<Value> {
+    let mut speakers: BTreeMap<String, (Value, BTreeSet<String>)> = BTreeMap::new();
+    for e in excerpts {
+        let Some(name) = e.speaker.as_deref().filter(|n| !n.is_empty()) else { continue };
+        let meta = if kind == KIND_KOKKAI {
+            if is_procedural(e) {
+                continue;
+            }
+            json!({"name": name, "group": e.group, "position": e.position, "role": "kokkai"})
+        } else {
+            let role = if is_official_label(name) { "official" } else { "member" };
+            json!({"name": name, "role": role})
+        };
+        let entry = speakers.entry(name.to_string()).or_insert((meta, BTreeSet::new()));
+        entry.1.extend(e.laws.iter().cloned());
+    }
+    speakers
+        .into_values()
+        .map(|(mut meta, laws)| {
+            meta["laws"] = json!(laws);
+            meta
+        })
+        .collect()
+}
+
+pub(crate) fn is_official_label(label: &str) -> bool {
+    // 「補佐」(課長補佐) や「委員」は姓だけの表記なので官職者として扱わない。
+    !label.ends_with("補佐") && OFFICIAL_TITLES.iter().any(|t| label.ends_with(t) && label.chars().count() > t.chars().count() + 1)
+}
+
 /// 国会の議事進行の発言 (会議録情報、委員長・議長) か。発言冒頭の「○國場委員長　」で判定する。
 pub(crate) fn is_procedural(e: &Excerpt) -> bool {
     if e.speaker.as_deref() == Some(KOKKAI_HEADER_SPEAKER) {
@@ -427,22 +476,7 @@ fn write_task(
     } else {
         Page::default()
     };
-    let mut speakers: BTreeMap<String, (Option<String>, BTreeSet<String>)> = BTreeMap::new();
-    if c.kind == KIND_KOKKAI {
-        for e in excerpts {
-            let Some(name) = e.speaker.as_deref().filter(|n| *n != KOKKAI_HEADER_SPEAKER) else {
-                continue;
-            };
-            let entry = speakers
-                .entry(name.to_string())
-                .or_insert((e.group.clone(), BTreeSet::new()));
-            entry.1.extend(e.laws.iter().cloned());
-        }
-    }
-    let speakers_json: Vec<Value> = speakers
-        .iter()
-        .map(|(name, (group, laws))| json!({"name": name, "group": group, "laws": laws}))
-        .collect();
+    let speakers_json = speakers_from_excerpts(c.kind, excerpts);
     let description = meeting.get_str("description").to_string();
     let tags = meeting.get("tags").cloned().unwrap_or(json!([]));
     meeting.frontmatter = vec![
@@ -461,6 +495,7 @@ fn write_task(
         ),
         ("speakers".into(), Value::Array(speakers_json)),
         ("tags".into(), tags),
+        ("render_version".into(), json!(MEETING_RENDER_VERSION)),
     ];
     let law_links: Vec<String> = laws
         .iter()
@@ -527,6 +562,57 @@ fn write_task(
         laws: task_laws,
         created,
     })
+}
+
+fn plan_pages(tasks: &[Task]) -> BTreeSet<String> {
+    tasks.iter().map(|t| t.page.clone()).collect()
+}
+
+/// `render_version` が古い会議ページの frontmatter (speakers・laws) を、会議本体と法令リンクから
+/// 作り直す。LLM の書いた description・tags・要点はそのまま残す。
+fn refresh_meetings(source: &Source, wiki: &Path, skip: &BTreeSet<String>) -> Result<usize> {
+    let mut refreshed = 0;
+    let mut shingikai_ministry: Option<HashMap<String, String>> = None;
+    for path in walk_md(wiki, "meetings") {
+        if refreshed >= MAX_REFRESH_PER_RUN {
+            break;
+        }
+        let rel = rel_path(wiki, &path);
+        if skip.contains(&rel) {
+            continue;
+        }
+        let mut page = Page::read(&path)?;
+        if page.get("render_version").and_then(Value::as_u64) == Some(MEETING_RENDER_VERSION) {
+            continue;
+        }
+        let kind = page.get_str("corpus").to_string();
+        let id = path.file_stem().and_then(|s| s.to_str()).unwrap_or("").to_string();
+        let (link_path, doc_path) = if kind == KIND_KOKKAI {
+            (format!("links/meeting-to-laws/{id}.json"), format!("proceedings/{id}.json"))
+        } else {
+            if shingikai_ministry.is_none() {
+                let index = source.get_json("shingikai/index.json")?.unwrap_or(Value::Null);
+                shingikai_ministry = Some(
+                    index["minutes"]
+                        .as_array()
+                        .into_iter()
+                        .flatten()
+                        .filter_map(|m| Some((m["minutes_id"].as_str()?.to_string(), m["ministry"].as_str()?.to_string())))
+                        .collect(),
+                );
+            }
+            let Some(ministry) = shingikai_ministry.as_ref().and_then(|m| m.get(&id)) else { continue };
+            (format!("links/shingikai-to-laws/{id}.json"), format!("shingikai/{ministry}/{id}.json"))
+        };
+        let (Some(links), Some(doc)) = (source.get_json(&link_path)?, source.get_json(&doc_path)?) else { continue };
+        let units = if kind == KIND_KOKKAI { kokkai_units(&doc) } else { shingikai_units(&doc) };
+        let excerpts = build_excerpts(&units, &linked_laws(&links));
+        page.set("speakers", Value::Array(speakers_from_excerpts(&kind, &excerpts)));
+        page.set("render_version", json!(MEETING_RENDER_VERSION));
+        page.write(&path)?;
+        refreshed += 1;
+    }
+    Ok(refreshed)
 }
 
 fn render_plan_md(plan: &Plan, wiki: &Path, work: &Path) -> String {
@@ -602,6 +688,38 @@ mod tests {
         assert!(out[0].text.starts_with('…') && out[0].text.ends_with('…'));
         assert!(out[0].text.contains("予防接種法の改正について伺います。"));
         assert!(out[0].text.chars().count() < 1100);
+    }
+
+    #[test]
+    fn speakers_are_classified_by_corpus() {
+        let ex = |speaker: &str, position: Option<&str>, text: &str| Excerpt {
+            reference: "r".into(),
+            url: "u".into(),
+            speaker: Some(speaker.into()),
+            group: None,
+            position: position.map(String::from),
+            laws: vec!["L1".into()],
+            text: text.into(),
+        };
+        let kokkai = speakers_from_excerpts(
+            KIND_KOKKAI,
+            &[
+                ex("会議録情報", None, "本日の会議に付した案件"),
+                ex("國場幸之助", None, "○國場委員長　これより会議を開きます"),
+                ex("築山信彦", Some("衆議院事務総長"), "○築山事務総長　日本国憲法施行八十周年記念行事の経費"),
+            ],
+        );
+        assert_eq!(kokkai.len(), 1);
+        assert_eq!(kokkai[0]["name"], "築山信彦");
+        assert_eq!(kokkai[0]["position"], "衆議院事務総長");
+
+        let shingikai = speakers_from_excerpts(
+            KIND_SHINGIKAI,
+            &[ex("森光健康・生活衛生局長", None, "x"), ex("森委員", None, "x"), ex("古藤補佐", None, "x")],
+        );
+        let roles: Vec<(&str, &str)> =
+            shingikai.iter().map(|s| (s["name"].as_str().unwrap(), s["role"].as_str().unwrap())).collect();
+        assert_eq!(roles, vec![("古藤補佐", "member"), ("森光健康・生活衛生局長", "official"), ("森委員", "member")]);
     }
 
     #[test]
