@@ -53,7 +53,9 @@ export function WikiGraphCanvas({
         width={size.width}
         height={size.height}
         backgroundColor="rgba(0,0,0,0)"
-        linkColor={() => "rgba(127,127,127,0.35)"}
+        // ライト/ダークどちらの背景でも見える中間色 (slate-400)。
+        linkColor={() => "rgba(148,163,184,0.75)"}
+        linkWidth={1.2}
         nodeLabel={(n: any) => `${escapeHtml(n.title)}${n.description ? `<br/><small>${escapeHtml(n.description)}</small>` : ""}`}
         onNodeClick={(n: any) => onOpen(n.id)}
         cooldownTicks={120}
