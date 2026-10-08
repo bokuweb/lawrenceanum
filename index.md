@@ -3,7 +3,7 @@ type: "index"
 title: "lawrenceanum 法令経緯 wiki"
 description: "国会・審議会での法令への言及を、法令・会議・人物・論点ごとにたどれる OKF 形式の wiki"
 resource: "https://github.com/bokuweb/lawrenceanum"
-timestamp: "2026-10-08T05:18:05Z"
+timestamp: "2026-10-08T07:27:39Z"
 ---
 
 # lawrenceanum 法令経緯 wiki
