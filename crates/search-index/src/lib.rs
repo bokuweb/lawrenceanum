@@ -13,6 +13,8 @@ use law_normalizer::LawDocument;
 use rusqlite::{params, Connection};
 use std::path::Path;
 
+pub mod reiki;
+
 pub fn is_cjk(c: char) -> bool {
     matches!(
         c,

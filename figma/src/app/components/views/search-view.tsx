@@ -8,9 +8,9 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
 import { Separator } from "../ui/separator";
 import { type LawSummary } from "../mock-data";
-import { Search, SlidersHorizontal, ChevronRight, FileText, Database, Landmark, MessageSquare, Newspaper, ExternalLink, BookOpen, ScrollText } from "lucide-react";
+import { Search, SlidersHorizontal, ChevronRight, FileText, Database, Landmark, MessageSquare, Newspaper, ExternalLink, BookOpen, ScrollText, Building2 } from "lucide-react";
 import { useLaws } from "../../data/use-laws";
-import { search as ftsSearch, isAvailable as isFtsAvailable, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, searchSpeeches, searchKanpo, searchTsutatsu, synonymExpansions, type SearchHit, type SpeechHit, type KanpoHit, type TsutatsuHit } from "../../data/search-engine";
+import { search as ftsSearch, isAvailable as isFtsAvailable, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, searchSpeeches, searchKanpo, searchTsutatsu, searchReiki, synonymExpansions, type SearchHit, type SpeechHit, type KanpoHit, type TsutatsuHit, type ReikiHit } from "../../data/search-engine";
 import { useNavigate } from "react-router";
 
 export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initialQuery?: string; onOpen: (l: LawSummary) => void; onQueryChange?: (q: string) => void }) {
@@ -32,6 +32,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   const [speechHits, setSpeechHits] = useState<SpeechHit[]>([]);
   const [kanpoHits, setKanpoHits] = useState<KanpoHit[]>([]);
   const [tsutatsuHits, setTsutatsuHits] = useState<TsutatsuHit[]>([]);
+  const [reikiHits, setReikiHits] = useState<ReikiHit[]>([]);
   const [ftsAvailable, setFtsAvailable] = useState<boolean | null>(null);
   const [ftsMeta, setFtsMeta] = useState<Record<string, string> | null>(null);
   // 初期クエリがあれば検索中扱いで開始する。さもないと初回 render で
@@ -47,7 +48,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
     const gen = ++queryGenRef.current;
     const query = q.trim();
     if (!query) {
-      setHits([]); setSpeechHits([]); setKanpoHits([]); setTsutatsuHits([]);
+      setHits([]); setSpeechHits([]); setKanpoHits([]); setTsutatsuHits([]); setReikiHits([]);
       setSearching(false);
       setSupplementarySearching(false);
       return;
@@ -58,7 +59,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
       return; // FTS 不可ならフィルタ側に倒す。
     }
     if (!buildFtsMatch(query)) {
-      setHits([]); setSpeechHits([]); setKanpoHits([]); setTsutatsuHits([]);
+      setHits([]); setSpeechHits([]); setKanpoHits([]); setTsutatsuHits([]); setReikiHits([]);
       setSearching(false);
       setSupplementarySearching(false);
       return;
@@ -70,6 +71,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
     setSpeechHits([]);
     setKanpoHits([]);
     setTsutatsuHits([]);
+    setReikiHits([]);
     const timer = setTimeout(() => {
       const run = async () => {
         // 待ち行列にいる間に入力が更新されたら、DB に古い検索を
@@ -108,6 +110,11 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
           const tsHits = await searchTsutatsu(query, 10);
           if (queryGenRef.current !== gen) return;
           setTsutatsuHits(tsHits);
+
+          // 自治体例規は別 DB (reiki-search.db)。題名・本文を横断し、自治体をまたいで並べる。
+          const rkHits = await searchReiki(query, { limit: 20 });
+          if (queryGenRef.current !== gen) return;
+          setReikiHits(rkHits);
           setSupplementarySearching(false);
         } catch {
           if (queryGenRef.current === gen) {
@@ -382,6 +389,35 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
                         <ExternalLink className="size-4" />
                       </a>
                     )}
+                  </CardContent>
+                </Card>
+              ))}
+              <Separator />
+            </div>
+          )}
+
+          {/* 自治体例規 FTS セクション (reiki-search.db) */}
+          {useFts && reikiHits.length > 0 && (
+            <div className="space-y-2" data-testid="reiki-hits">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Building2 className="size-3.5" />
+                <span>自治体例規 ({reikiHits.length}件)</span>
+              </div>
+              {reikiHits.map((h, i) => (
+                <Card key={`${h.reiki_id}-${h.article_id}-${i}`} className="hover:border-primary/50 transition-colors cursor-pointer"
+                  onClick={() => navigate(`/reiki/${h.municipality_code}/${encodeURIComponent(h.reiki_id)}${h.article_id ? `?a=${encodeURIComponent(h.article_id)}` : ""}`)}>
+                  <CardContent className="p-3 flex items-start gap-3">
+                    <div className="size-8 rounded-md bg-muted flex items-center justify-center shrink-0 mt-0.5">
+                      <Building2 className="size-4 text-muted-foreground" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-muted text-muted-foreground shrink-0">{h.prefecture} {h.municipality_name}</span>
+                        <span className="text-sm font-medium">{h.title}</span>
+                        {h.article_no && <Badge variant="outline" className="text-xs">{h.article_no}{h.caption ? `（${h.caption}）` : ""}</Badge>}
+                      </div>
+                      {h.excerpt && <div className="text-sm mt-1.5 leading-relaxed text-muted-foreground line-clamp-2">{h.excerpt}</div>}
+                    </div>
                   </CardContent>
                 </Card>
               ))}

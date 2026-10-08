@@ -197,47 +197,55 @@ export function unbigramSnippet(s: string): string {
   return out;
 }
 
-let workerPromise: Promise<WorkerHttpvfs | null> | null = null;
-
-async function loadWorker(): Promise<WorkerHttpvfs | null> {
-  if (!workerPromise) {
-    workerPromise = (async () => {
-      try {
-        // wasm/worker は sql.js-httpvfs の dist を Vite が ?url で解決 → 同一 host bundle に含める。
-        // search.db は VITE_SEARCH_DB_URL (R2 等) を優先、未設定なら同 origin の ./search.db。
-        const wasmUrl = (await import("sql.js-httpvfs/dist/sql-wasm.wasm?url")).default;
-        const workerUrl = (await import("sql.js-httpvfs/dist/sqlite.worker.js?url")).default;
-        const dbUrl =
-          (import.meta as any).env?.VITE_SEARCH_DB_URL ||
-          new URL("./search.db", document.baseURI).toString();
-        const worker = await createDbWorker(
-          [
-            {
-              from: "inline",
-              config: {
-                serverMode: "full",
-                // search.db の 64KB page_size に合わせ、1 回の Range で
-                // 必要な SQLite ページを過不足なく取得する。
-                requestChunkSize: 65536,
-                url: dbUrl,
+/** sql.js-httpvfs のワーカーを 1 DB につき 1 つ遅延生成する。 */
+function workerLoader(envUrl: string | undefined, fallbackPath: string, label: string) {
+  let promise: Promise<WorkerHttpvfs | null> | null = null;
+  return (): Promise<WorkerHttpvfs | null> => {
+    if (!promise) {
+      promise = (async () => {
+        try {
+          // wasm/worker は sql.js-httpvfs の dist を Vite が ?url で解決 → 同一 host bundle に含める。
+          // DB 本体は環境変数の URL (R2 等) を優先、未設定なら同 origin の相対パス。
+          const wasmUrl = (await import("sql.js-httpvfs/dist/sql-wasm.wasm?url")).default;
+          const workerUrl = (await import("sql.js-httpvfs/dist/sqlite.worker.js?url")).default;
+          const dbUrl = envUrl || new URL(fallbackPath, document.baseURI).toString();
+          const worker = await createDbWorker(
+            [
+              {
+                from: "inline",
+                config: {
+                  serverMode: "full",
+                  // DB の 64KB page_size に合わせ、1 回の Range で
+                  // 必要な SQLite ページを過不足なく取得する。
+                  requestChunkSize: 65536,
+                  url: dbUrl,
+                },
               },
-            },
-          ],
-          workerUrl,
-          wasmUrl,
-        );
-        // Pre-warm: prime the SQLite page cache with a lightweight query so the
-        // first real search doesn't pay cold-start cost.
-        await (worker.db.query as any)("SELECT 1");
-        return worker;
-      } catch (e) {
-        console.warn("[search] httpvfs init failed", e);
-        return null;
-      }
-    })();
-  }
-  return workerPromise;
+            ],
+            workerUrl,
+            wasmUrl,
+          );
+          // Pre-warm: prime the SQLite page cache with a lightweight query so the
+          // first real search doesn't pay cold-start cost.
+          await (worker.db.query as any)("SELECT 1");
+          return worker;
+        } catch (e) {
+          console.warn(`[search] httpvfs init failed (${label})`, e);
+          return null;
+        }
+      })();
+    }
+    return promise;
+  };
 }
+
+const loadWorker = workerLoader((import.meta as any).env?.VITE_SEARCH_DB_URL, "./search.db", "search.db");
+// 自治体例規は件数が法令の 100 倍規模なので別 DB (reiki-search.db) に分けている。
+const loadReikiWorker = workerLoader(
+  (import.meta as any).env?.VITE_REIKI_SEARCH_DB_URL,
+  "./reiki-search.db",
+  "reiki-search.db",
+);
 
 export async function isAvailable(): Promise<boolean> {
   return (await loadWorker()) !== null;
@@ -432,6 +440,97 @@ export async function searchTsutatsu(q: string, limit = 10): Promise<TsutatsuHit
   } catch {
     return [];
   }
+}
+
+export type ReikiHit = {
+  municipality_code: string;
+  municipality_name: string;
+  prefecture: string;
+  reiki_id: string;
+  title: string;
+  reiki_number: string | null;
+  /** 題名で当たった行は空文字 */
+  article_id: string;
+  article_no: string;
+  caption: string | null;
+  excerpt: string;
+};
+
+export type ReikiScope =
+  | { kind: "all" }
+  | { kind: "prefecture"; prefecture: string }
+  | { kind: "municipality"; code: string };
+
+/**
+ * 自治体例規の全文検索 (reiki-search.db)。
+ *
+ * - 行は自治体コード順に並んでいるので、県・自治体の絞り込みは `reiki_municipalities` の
+ *   rowid 範囲を FTS5 に渡して Range 読みの量を抑える。
+ * - 全国で数十万件に当たる語でも重くならないよう、MATCH の候補を先頭 `scan` 件に
+ *   限ってから rank で並べる（候補の外側は「さらに絞り込む」で辿る想定）。
+ * - `titleOnly` は題名だけを対象にする（他自治体の同種例規を探す用途）。
+ */
+export async function searchReiki(
+  q: string,
+  opts: { scope?: ReikiScope; titleOnly?: boolean; limit?: number; scan?: number } = {},
+): Promise<ReikiHit[]> {
+  const base = buildFtsMatchExpanded(q.trim());
+  if (!base) return [];
+  const w = await loadReikiWorker();
+  if (!w) return [];
+  const query = async <T,>(sql: string, params: unknown[]): Promise<T[]> =>
+    (await (w.db.query as any)(sql, params)) as T[];
+  const { scope = { kind: "all" }, titleOnly = false, limit = 30, scan = 2000 } = opts;
+  try {
+    let lo = 0;
+    let hi = Number.MAX_SAFE_INTEGER;
+    if (scope.kind !== "all") {
+      const where = scope.kind === "prefecture" ? "prefecture = ?" : "municipality_code = ?";
+      const arg = scope.kind === "prefecture" ? scope.prefecture : scope.code;
+      const r = await query<{ lo: number | null; hi: number | null }>(
+        `SELECT min(min_rowid) AS lo, max(max_rowid) AS hi FROM reiki_municipalities WHERE ${where}`,
+        [arg],
+      );
+      if (!r[0] || r[0].lo == null || r[0].hi == null) return [];
+      lo = r[0].lo;
+      hi = r[0].hi;
+    }
+    const match = titleOnly ? `title_tokens : (${base})` : base;
+    const rows = await query<ReikiHit>(
+      `SELECT d.municipality_code, d.municipality_name, d.prefecture, d.reiki_id, d.title,
+              d.reiki_number, m.article_id, m.article_no, m.caption, m.excerpt
+         FROM (SELECT rowid, rank FROM reiki_fts
+                WHERE reiki_fts MATCH ? AND rowid BETWEEN ? AND ?
+                LIMIT ?) f
+         JOIN reiki_fts_meta m ON m.rowid = f.rowid
+         JOIN reiki_docs d ON d.id = m.doc_id
+        ORDER BY f.rank
+        LIMIT ?`,
+      [match, lo, hi, scan, limit],
+    );
+    return rows.map(r => ({
+      municipality_code: String(r.municipality_code ?? ""),
+      municipality_name: String(r.municipality_name ?? ""),
+      prefecture: String(r.prefecture ?? ""),
+      reiki_id: String(r.reiki_id ?? ""),
+      title: String(r.title ?? ""),
+      reiki_number: r.reiki_number ?? null,
+      article_id: String(r.article_id ?? ""),
+      article_no: String(r.article_no ?? ""),
+      caption: r.caption ?? null,
+      excerpt: String(r.excerpt ?? ""),
+    }));
+  } catch (e) {
+    console.warn("[search] reiki query failed", e);
+    return [];
+  }
+}
+
+/** 例規題名から先頭の自治体名を外した「種類名」（他自治体の同種例規を探す検索語）。 */
+export function reikiGenericTitle(title: string, municipalityName: string): string {
+  const t = title.trim();
+  if (municipalityName && t.startsWith(municipalityName)) return t.slice(municipalityName.length).trim() || t;
+  return t;
 }
 
 export async function getOutgoingRefs(lawId: string, articleId: string): Promise<ArticleRef[]> {

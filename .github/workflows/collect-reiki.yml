@@ -1,0 +1,186 @@
+name: Collect reiki (自治体例規)
+
+# 全国の自治体例規集（RILG 全国自治体例規集リンク集に載る、ぎょうせい Reiki-Base /
+# 第一法規 例規類集 HTML 版）を巡回し、R2 に保存・配信する。
+#
+# - 1 ホストあたり 1 req/sec 以下（robots.txt の Crawl-delay、429 を受けたら自動で間隔を
+#   広げる）。www1.g-reiki.net だけで 500 自治体超が同居するため全国一巡には数週間〜
+#   2 か月かかる。1 日 2 回、time budget の範囲で「未取得 → 中断中 → 内容現在日が
+#   変わった → 古い順」に進め、状態は R2 の reiki-cache/ に残して次回再開する。
+# - 例規は件数が法令の 100 倍規模で GitHub Pages に収まらないため、本文 JSON と
+#   検索 DB (reiki-search.db) は R2 から直接配信する。Pages には全国一覧
+#   reiki/index.json だけを update-law-data.yml が同梱する（ダッシュボード用）。
+#
+# R2 のレイアウト:
+#   reiki-cache/state.json, reiki-cache/tenants/{code}.ndjson.zst  収集キャッシュ
+#   reiki/index.json.gz, reiki/{code}/index.json.gz, reiki/{code}/{id}.json.gz  配信
+#   reiki-search.db  全文検索 (sql.js-httpvfs が Range 読み)
+on:
+  workflow_dispatch:
+    inputs:
+      municipalities:
+        description: "対象の団体コード（カンマ区切り、空=全登録自治体）"
+        required: false
+        type: string
+      time_budget_mins:
+        description: "巡回に使う時間（分）"
+        required: false
+        default: "300"
+        type: string
+      rebuild_search_db:
+        description: "変更が無くても reiki-search.db を作り直す"
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # JST 23:00 / 11:00（法令・コーパスの収集と時間帯をずらす）。concurrency で直列化。
+    - cron: "0 14 * * *"
+    - cron: "0 2 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: collect-reiki
+  cancel-in-progress: false
+
+env:
+  R2_BUCKET: ${{ secrets.R2_BUCKET }}
+  R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: auto
+  # 収集キャッシュに mock データを混ぜない。
+  LAWPUB_PROVIDER: http
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    # 巡回 (既定 300 分) + 復元・ビルド・アップロード。6 時間上限の内側に収める。
+    timeout-minutes: 345
+    outputs:
+      docs_written: ${{ steps.publish.outputs.docs_written }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Require durable R2 storage
+        run: |
+          if [ -z "$R2_BUCKET" ] || [ -z "$R2_ENDPOINT" ] || [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+            echo "::error::R2 secrets are required; refusing an ephemeral collection run"
+            exit 1
+          fi
+          aws configure set default.s3.max_concurrent_requests 64
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build lawpub
+        run: cargo build --release -p lawpub-cli
+
+      # aws s3 sync はダウンロードしたファイルの mtime を R2 の LastModified に揃えるので、
+      # 後段の sync では今回書き換えた自治体のファイルだけが上がる。
+      - name: Restore reiki cache from R2
+        run: |
+          mkdir -p .cache/reiki
+          aws s3 sync "s3://$R2_BUCKET/reiki-cache/" .cache/reiki/ --endpoint-url "$R2_ENDPOINT" --only-show-errors
+          n=$(find .cache/reiki/tenants -name '*.ndjson.zst' 2>/dev/null | wc -l | tr -d ' ')
+          echo "::notice::restored reiki cache: ${n:-0} municipalities"
+
+      - name: Fetch reiki
+        id: fetch
+        env:
+          MUNICIPALITIES: ${{ github.event.inputs.municipalities }}
+          BUDGET: ${{ github.event.inputs.time_budget_mins || '300' }}
+        run: |
+          ./target/release/lawpub reiki-fetch \
+            --cache .cache \
+            --municipalities "${MUNICIPALITIES}" \
+            --time-budget-mins "${BUDGET}" \
+            --concurrency 8
+
+      # 巡回が途中で失敗しても、取れた分は必ず残す（翌日はそこから再開する）。
+      - name: Upload reiki cache to R2
+        if: always()
+        run: |
+          [ -d .cache/reiki ] || exit 0
+          aws s3 sync .cache/reiki/ "s3://$R2_BUCKET/reiki-cache/" \
+            --endpoint-url "$R2_ENDPOINT" --only-show-errors \
+            --exclude '*.tmp' \
+            --content-type 'application/octet-stream' \
+            --cache-control 'no-store'
+
+      - name: Publish changed reiki to R2
+        id: publish
+        run: |
+          rm -rf out && mkdir -p out
+          ./target/release/lawpub reiki-build-json --cache .cache --public out --pending-only
+          mv out/reiki/_publish.json /tmp/reiki-publish.json
+          written=$(jq -r '.docs_written' /tmp/reiki-publish.json)
+          munis=$(jq -r '.municipalities | length' /tmp/reiki-publish.json)
+          echo "docs_written=$written" >> "$GITHUB_OUTPUT"
+          ./target/release/lawpub compress --public out --remove-original
+          aws s3 cp out/reiki/ "s3://$R2_BUCKET/reiki/" --recursive \
+            --endpoint-url "$R2_ENDPOINT" --only-show-errors \
+            --content-type 'application/gzip' \
+            --cache-control 'public, max-age=300'
+          removed=0
+          for p in $(jq -r '.removed[]' /tmp/reiki-publish.json); do
+            aws s3 rm "s3://$R2_BUCKET/reiki/${p}.gz" --endpoint-url "$R2_ENDPOINT" --only-show-errors || true
+            removed=$((removed + 1))
+          done
+          echo "::notice::published $written reiki in $munis municipalities, removed $removed"
+
+      - name: Mark published
+        run: |
+          ./target/release/lawpub reiki-mark-published --cache .cache --manifest /tmp/reiki-publish.json
+          aws s3 cp .cache/reiki/state.json "s3://$R2_BUCKET/reiki-cache/state.json" \
+            --endpoint-url "$R2_ENDPOINT" --only-show-errors --cache-control 'no-store'
+
+  search-db:
+    needs: collect
+    if: >-
+      always() && needs.collect.result == 'success' &&
+      (needs.collect.outputs.docs_written != '0' || github.event.inputs.rebuild_search_db == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build lawpub
+        run: cargo build --release -p lawpub-cli
+
+      # 全国分の検索 DB は 20GB 超になり得るため、空きの大きい /mnt で作る。
+      - name: Prepare work dir on /mnt
+        run: |
+          sudo mkdir -p /mnt/reiki && sudo chown "$USER" /mnt/reiki
+          df -h / /mnt
+
+      - name: Restore reiki cache from R2
+        run: |
+          aws configure set default.s3.max_concurrent_requests 64
+          mkdir -p /mnt/reiki/cache/reiki
+          aws s3 sync "s3://$R2_BUCKET/reiki-cache/" /mnt/reiki/cache/reiki/ --endpoint-url "$R2_ENDPOINT" --only-show-errors
+
+      # 生成途中の DB は .building に書かれ、成功時だけ差し替わる。
+      - name: Build reiki-search.db
+        run: |
+          ./target/release/lawpub reiki-build-search-db --cache /mnt/reiki/cache --out /mnt/reiki/reiki-search.db
+          ls -lh /mnt/reiki/reiki-search.db
+
+      - name: Upload reiki-search.db to R2
+        run: |
+          aws s3 cp /mnt/reiki/reiki-search.db "s3://$R2_BUCKET/reiki-search.db" \
+            --endpoint-url "$R2_ENDPOINT" --only-show-errors \
+            --content-type 'application/x-sqlite3' \
+            --cache-control 'public, max-age=300'

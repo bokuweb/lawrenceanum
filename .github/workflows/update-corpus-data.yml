@@ -18,7 +18,7 @@ on:
         type: choice
         options: ["http", "mock"]
       domains:
-        description: "カンマ区切りドメイン (kokkai,pubcomment,procurement,gian,tsutatsu,reiki,shingikai,budget) / 空=全て"
+        description: "カンマ区切りドメイン (kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget) / 空=全て。自治体例規は collect-reiki.yml"
         required: false
         type: string
       kokkai_session:
@@ -141,7 +141,6 @@ jobs:
           restore_bundle gian-resolution-assets.tar.zst .cache/gian-resolution-assets
           restore_bundle tsutatsu-cache.tar.zst .cache/tsutatsu
           restore_bundle procurement-cache.tar.zst .cache/procurement
-          restore_bundle reiki-cache.tar.zst .cache/reiki
           restore_bundle shingikai-cache.tar.zst .cache/shingikai
           restore_bundle shingikai-assets.tar.zst .cache/shingikai-assets
           restore_bundle shingikai-history.tar.zst .cache/shingikai-history
@@ -518,37 +517,6 @@ jobs:
             --cache-control 'public, max-age=300'
           echo "::notice::uploaded budget cache to R2 ($n datasets)"
 
-      # ── 例規（手動のみ、頻度低） ─────────────────────────────────
-
-      - name: Fetch reiki
-        id: fetch_reiki
-        if: contains(env.DOMAINS, 'reiki')
-        continue-on-error: true
-        run: |
-          ./target/release/lawpub reiki-fetch \
-            --cache .cache --provider "${LAWPUB_PROVIDER}"
-
-      - name: Upload reiki cache to R2
-        id: upload_reiki
-        if: contains(env.DOMAINS, 'reiki') && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
-        continue-on-error: true
-        env:
-          R2_BUCKET: ${{ secrets.R2_BUCKET }}
-          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: auto
-        run: |
-          [ -d .cache/reiki ] || { echo "::notice::no reiki cache, skip R2 upload"; exit 0; }
-          n=$(find .cache/reiki -name '*.json' | wc -l | tr -d ' ')
-          # top-level を ./{muni_code}/{reiki_id}.json にするため .cache/reiki 内から固める。
-          ( cd .cache/reiki && tar -cf - . | zstd -19 --long -T0 -o /tmp/reiki-cache.tar.zst -f )
-          aws s3 cp /tmp/reiki-cache.tar.zst "s3://$R2_BUCKET/reiki-cache.tar.zst" \
-            --endpoint-url "$R2_ENDPOINT" \
-            --content-type 'application/zstd' \
-            --cache-control 'public, max-age=300'
-          echo "::notice::uploaded reiki cache to R2 ($n reiki)"
-
       # ── キャッシュ保存 ────────────────────────────────────────────
 
       - name: Save corpus cache
@@ -577,8 +545,6 @@ jobs:
           GIAN_UPLOAD_OUTCOME: ${{ steps.upload_gian.outcome }}
           TSUTATSU_OUTCOME: ${{ steps.fetch_tsutatsu.outcome }}
           TSUTATSU_UPLOAD_OUTCOME: ${{ steps.upload_tsutatsu.outcome }}
-          REIKI_OUTCOME: ${{ steps.fetch_reiki.outcome }}
-          REIKI_UPLOAD_OUTCOME: ${{ steps.upload_reiki.outcome }}
           SHINGIKAI_OUTCOME: ${{ steps.fetch_shingikai.outcome }}
           SHINGIKAI_UPLOAD_OUTCOME: ${{ steps.upload_shingikai.outcome }}
           BUDGET_OUTCOME: ${{ steps.fetch_budget.outcome }}
@@ -628,7 +594,6 @@ jobs:
           update_domain procurement procurement "$PROCUREMENT_OUTCOME" "$PROCUREMENT_UPLOAD_OUTCOME"
           update_domain gian gian "$GIAN_OUTCOME" "$GIAN_UPLOAD_OUTCOME"
           update_domain tsutatsu tsutatsu "$TSUTATSU_OUTCOME" "$TSUTATSU_UPLOAD_OUTCOME"
-          update_domain reiki reiki "$REIKI_OUTCOME" "$REIKI_UPLOAD_OUTCOME"
           update_domain shingikai shingikai "$SHINGIKAI_OUTCOME" "$SHINGIKAI_UPLOAD_OUTCOME"
           update_domain budget budget "$BUDGET_OUTCOME" "$BUDGET_UPLOAD_OUTCOME"
           tmp=$(mktemp)

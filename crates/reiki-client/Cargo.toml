@@ -13,3 +13,7 @@ reqwest = { workspace = true, features = ["blocking"] }
 scraper.workspace = true
 tracing.workspace = true
 chrono.workspace = true
+sha2.workspace = true
+hex.workspace = true
+encoding_rs = "0.8"
+url = "2"

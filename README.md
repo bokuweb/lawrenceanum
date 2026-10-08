@@ -74,6 +74,10 @@ lawpub kanpo-fetch    --date YYYY-MM-DD --cache .cache
 lawpub kanpo-link     --output public
 lawpub pubcomment-fetch --cache .cache --status both --fetch-attachments
 lawpub gian-fetch       --cache .cache --session 0
+lawpub reiki-discover   [--out crates/reiki-client/data/tenants.json]
+lawpub reiki-fetch      --cache .cache [--municipalities CODE,...] [--time-budget-mins 60]
+lawpub reiki-build-json --cache .cache --public public [--pending-only]
+lawpub reiki-build-search-db --cache .cache --out reiki-search.db
 lawpub validate       --public public
 lawpub status         --public public --cache .cache
 ```

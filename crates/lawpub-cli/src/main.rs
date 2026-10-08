@@ -413,15 +413,43 @@ enum Cmd {
         public: PathBuf,
     },
 
-    /// 例規: 自治体例規集を取得する（初期: 3 自治体）。
+    /// 例規: RILG 全国自治体例規集リンク集から収集対象の自治体一覧を再生成する。
+    ReikiDiscover {
+        /// 出力先（既定: reiki-client に同梱する tenants.json）。
+        #[arg(long, default_value = "crates/reiki-client/data/tenants.json")]
+        out: PathBuf,
+        /// 取得済みの RILG HTML を使う（省略時はネットワークから取得）。
+        #[arg(long)]
+        rilg_html: Option<PathBuf>,
+    },
+
+    /// 例規: 自治体例規集を巡回取得する（時間予算内で未取得・更新・古い順）。
     ReikiFetch {
-        /// 対象自治体コード（省略時: 全登録自治体）。
+        /// 対象自治体コード（省略時: 登録済み全自治体）。
         #[arg(long, value_delimiter = ',')]
         municipalities: Vec<String>,
         #[arg(long, default_value = ".cache")]
         cache: PathBuf,
         #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
         provider: String,
+        /// テナント一覧 JSON（省略時: 同梱の tenants.json）。
+        #[arg(long)]
+        registry: Option<PathBuf>,
+        /// この実行で使ってよい時間（分）。超えたら状態を保存して終了し、次回再開する。
+        #[arg(long, default_value_t = 60)]
+        time_budget_mins: u64,
+        /// 並列に処理するホスト数（同一ホストは常に直列）。
+        #[arg(long, default_value_t = 8)]
+        concurrency: usize,
+        /// 内容現在日が変わらなくても全件を再確認する間隔（日）。
+        #[arg(long, default_value_t = 60)]
+        max_age_days: i64,
+        /// 内容現在日を出していない例規集を再確認する間隔（日）。
+        #[arg(long, default_value_t = 14)]
+        recheck_days: i64,
+        /// 同一ホストへのリクエスト間隔（ミリ秒、下限 1000）。
+        #[arg(long, default_value_t = 1000)]
+        min_interval_ms: u64,
     },
 
     /// 例規: キャッシュから配信用 JSON を生成する。
@@ -430,6 +458,27 @@ enum Cmd {
         cache: PathBuf,
         #[arg(long, default_value = "public")]
         public: PathBuf,
+        /// 前回公開以降に変わった例規だけを書き、reiki/_publish.json を出す。
+        #[arg(long)]
+        pending_only: bool,
+        #[arg(long)]
+        registry: Option<PathBuf>,
+    },
+
+    /// 例規: reiki-build-json --pending-only の出力を配信先へ反映したことを記録する。
+    ReikiMarkPublished {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "public/reiki/_publish.json")]
+        manifest: PathBuf,
+    },
+
+    /// 例規: 全文検索 DB (reiki-search.db) を生成する。
+    ReikiBuildSearchDb {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "reiki-search.db")]
+        out: PathBuf,
     },
 
     /// 審議会: 府省の審議会・委員会議事録を取得する。
@@ -806,10 +855,35 @@ fn main() -> Result<()> {
         Cmd::ProcurementBuildJson { cache, public } => {
             procurement::run_build_json(&cache, &public)
         }
-        Cmd::ReikiFetch { municipalities, cache, provider } => {
-            reiki::run_fetch(&municipalities, &cache, &provider)
+        Cmd::ReikiDiscover { out, rilg_html } => reiki::run_discover(&out, rilg_html.as_deref()),
+        Cmd::ReikiFetch {
+            municipalities,
+            cache,
+            provider,
+            registry,
+            time_budget_mins,
+            concurrency,
+            max_age_days,
+            recheck_days,
+            min_interval_ms,
+        } => reiki::run_fetch(
+            &cache,
+            &reiki::FetchOptions {
+                municipalities,
+                provider,
+                registry,
+                time_budget: std::time::Duration::from_secs(time_budget_mins * 60),
+                concurrency,
+                max_age_days,
+                recheck_days,
+                min_interval: std::time::Duration::from_millis(min_interval_ms.max(1000)),
+            },
+        ),
+        Cmd::ReikiBuildJson { cache, public, pending_only, registry } => {
+            reiki::run_build_json(&cache, &public, pending_only, registry.as_deref())
         }
-        Cmd::ReikiBuildJson { cache, public } => reiki::run_build_json(&cache, &public),
+        Cmd::ReikiMarkPublished { cache, manifest } => reiki::run_mark_published(&cache, &manifest),
+        Cmd::ReikiBuildSearchDb { cache, out } => reiki::run_build_search_db(&cache, &out),
         Cmd::ShingikaiFetch {
             ministry,
             cache,

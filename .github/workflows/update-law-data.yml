@@ -373,6 +373,9 @@ jobs:
           # Frontend が search.db を取りにいく URL。R2 公開 URL を渡す。
           # 未設定なら ./search.db (同 origin) を試す。
           VITE_SEARCH_DB_URL: ${{ secrets.R2_PUBLIC_URL && format('{0}/search.db', secrets.R2_PUBLIC_URL) || '' }}
+          # 自治体例規は本文 JSON・検索 DB とも R2 から配信する (collect-reiki.yml)。
+          VITE_REIKI_BASE_URL: ${{ secrets.R2_PUBLIC_URL && format('{0}/reiki', secrets.R2_PUBLIC_URL) || '' }}
+          VITE_REIKI_SEARCH_DB_URL: ${{ secrets.R2_PUBLIC_URL && format('{0}/reiki-search.db', secrets.R2_PUBLIC_URL) || '' }}
           # 配信 JSON は gzip 事前圧縮するので SPA を圧縮モードでビルド (.gz を取得して展開)。
           VITE_COMPRESSED: '1'
         run: |
@@ -615,8 +618,9 @@ jobs:
           ./target/release/lawpub gian-build-json --cache .cache --public public \
             || echo "::warning::gian-build-json failed"
 
-      # 例規 (自治体例規) を R2 prebuilt キャッシュから復元して同梱する (手動収集分)。
-      - name: Build reiki from R2 cache
+      # 自治体例規の本文・検索 DB は collect-reiki.yml が R2 から直接配信する（Pages に
+      # 収まらない規模のため）。ここでは全国一覧だけを同梱し、ダッシュボードの収録状況に使う。
+      - name: Fetch reiki index from R2
         if: >-
           steps.detect.outputs.changed == 'true' && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
         env:
@@ -627,19 +631,13 @@ jobs:
           AWS_DEFAULT_REGION: auto
         continue-on-error: true
         run: |
-          set +e
-          if ! aws s3 cp "s3://$R2_BUCKET/reiki-cache.tar.zst" /tmp/reiki-cache.tar.zst --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
-            echo "::notice::reiki-cache.tar.zst not in R2 — 例規なしで続行"
+          if ! aws s3 cp "s3://$R2_BUCKET/reiki/index.json.gz" /tmp/reiki-index.json.gz --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            echo "::notice::reiki/index.json.gz not in R2 yet — 例規なしで続行"
             exit 0
           fi
-          mkdir -p .cache/reiki
-          zstd -dc --long=31 /tmp/reiki-cache.tar.zst | tar -x -C .cache/reiki
-          rm -f /tmp/reiki-cache.tar.zst
-          n=$(find .cache/reiki -name '*.json' | wc -l | tr -d ' ')
-          [ "${n:-0}" -eq 0 ] && { echo "::warning::reiki cache empty"; exit 0; }
-          echo "::notice::reiki cache restored from R2: $n reiki"
-          ./target/release/lawpub reiki-build-json --cache .cache --public public \
-            || echo "::warning::reiki-build-json failed"
+          mkdir -p public/reiki
+          gzip -dc /tmp/reiki-index.json.gz > public/reiki/index.json
+          echo "::notice::reiki index: $(jq -r '.count' public/reiki/index.json) municipalities / $(jq -r '.reiki_count' public/reiki/index.json) reiki"
 
       # e-Stat API key が設定された後に corpus workflow が蓄積する財政統計を配信する。
       - name: Build budget from R2 cache
