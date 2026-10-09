@@ -129,7 +129,8 @@ test("検索の自治体例規セクションに複数自治体の例規がヒ�
 
 test("サイドバーの自治体例規から例規ビューを開ける", async ({ page }) => {
   await page.goto(new URL("#/", BASE).toString());
-  const link = page.getByRole("link", { name: "自治体例規" });
+  // ダッシュボードのコーパスカードにも同名のリンクがあるので、サイドバーに絞る。
+  const link = page.getByRole("navigation").getByRole("link", { name: "自治体例規" });
   await expect(link).toBeVisible({ timeout: 15_000 });
   await link.click();
   await expect(page).toHaveURL(/#\/reiki$/);

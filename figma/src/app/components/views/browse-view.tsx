@@ -500,7 +500,7 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
     return m;
   }, [articles, appendixTables]);
 
-  // この法令の経緯 wiki ページ（LLM wiki, OKF）。ページが無ければ非表示。
+  // この法令の wiki ページ（LLM wiki, OKF）。ページが無ければ非表示。
   const [wikiDescription, setWikiDescription] = useState<string | null>(null);
   useEffect(() => {
     let cancelled = false;
@@ -608,7 +608,7 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
           >
             <Network className="size-4 mt-0.5 shrink-0" />
             <span>
-              <span className="font-semibold">経緯 wiki</span>
+              <span className="font-semibold">wiki</span>
               <span className="text-muted-foreground ml-2">{wikiDescription || "国会・審議会での言及と経緯"}</span>
             </span>
             <ArrowUpRight className="size-3 mt-1 opacity-50 shrink-0" />

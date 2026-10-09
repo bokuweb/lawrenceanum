@@ -427,11 +427,29 @@ pub fn ensure_law_page(wiki: &Path, base: &str, law_id: &str, title: &str) -> Re
             ("tags".into(), serde_json::json!([])),
         ],
         body: format!(
-            "\n# {title}\n\n- 法令ID: `{law_id}`\n- 本文: [lawrenceanum]({base}/#/laws/{law_id})\n\n## 経緯\n\n{LLM_BEGIN}\n{LLM_END}\n\n## 関連する出来事（一覧）\n\n<!-- lawpub:begin timeline -->\n<!-- lawpub:end timeline -->\n"
+            "\n# {title}\n\n- 法令ID: `{law_id}`\n- 本文: [lawrenceanum]({base}/#/laws/{law_id})\n\n## 全体像\n\n{LLM_BEGIN}\n{LLM_END}\n\n## 経緯\n\n{LLM_BEGIN}\n{LLM_END}\n\n## 関連する出来事（一覧）\n\n<!-- lawpub:begin timeline -->\n<!-- lawpub:end timeline -->\n"
         ),
     };
     page.write(&path)?;
     Ok(true)
+}
+
+/// 法令ページ先頭の「全体像」(きっかけ → 議論 → 意思決定 → 結果 → その後) の見出し。
+pub const LAW_SYNTHESIS_HEADING: &str = "## 全体像";
+
+/// 「全体像」の LLM 区間が無い法令ページ (旧形式) に、「経緯」の前へ区間を足す。
+pub fn ensure_law_synthesis(wiki: &Path, law_id: &str) -> Result<()> {
+    let path = wiki.join(law_page(law_id));
+    if !path.exists() {
+        return Ok(());
+    }
+    let mut page = Page::read(&path)?;
+    if page.body.contains(LAW_SYNTHESIS_HEADING) {
+        return Ok(());
+    }
+    let Some(i) = page.body.find("## 経緯") else { return Ok(()) };
+    page.body.insert_str(i, &format!("{LAW_SYNTHESIS_HEADING}\n\n{LLM_BEGIN}\n{LLM_END}\n\n"));
+    page.write(&path)
 }
 
 /// LLM が書く「経緯」の形式。上げると、処理済みの会議も翌日以降に処理し直して
@@ -818,6 +836,22 @@ mod tests {
         assert!(units[0].text.starts_with("理 由") && !units[0].text.contains("第一条"));
         assert_eq!(units[2].url, "https://x/r1.pdf");
         assert_eq!(units[2].speaker.as_deref(), Some("参議院憲法審査会 附帯決議"));
+    }
+
+    #[test]
+    fn law_synthesis_section_is_added_before_the_narrative() {
+        let root = temp_dir("synthesis");
+        let path = root.join("laws/L1.md");
+        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+        std::fs::write(&path, format!("---\ntype: \"law\"\n---\n# 法\n\n## 経緯の要約\n\n{LLM_BEGIN}\n既存[^1]\n{LLM_END}\n")).unwrap();
+        ensure_law_synthesis(&root, "L1").unwrap();
+        ensure_law_synthesis(&root, "L1").unwrap();
+        let body = Page::read(&path).unwrap().body;
+        assert_eq!(body.matches(LAW_SYNTHESIS_HEADING).count(), 1);
+        assert!(body.find(LAW_SYNTHESIS_HEADING).unwrap() < body.find("## 経緯の要約").unwrap());
+        assert_eq!(llm_blocks(&body).len(), 2);
+        assert!(llm_blocks(&body)[1].contains("既存"));
+        std::fs::remove_dir_all(root).ok();
     }
 
     #[test]

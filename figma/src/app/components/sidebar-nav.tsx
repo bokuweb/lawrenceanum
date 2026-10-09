@@ -48,7 +48,7 @@ const items: { path: string; label: string; icon: any; matchPrefix?: string }[] 
   { path: "/procurement", label: "政府調達", icon: Briefcase, matchPrefix: "/procurement" },
   { path: "/budget", label: "財政統計", icon: BarChart3, matchPrefix: "/budget" },
   { path: "/reiki", label: "自治体例規", icon: Building2, matchPrefix: "/reiki" },
-  { path: "/wiki", label: "経緯 wiki", icon: Network, matchPrefix: "/wiki" },
+  { path: "/wiki", label: "wiki", icon: Network, matchPrefix: "/wiki" },
   { path: "/enforcement", label: "施行予定", icon: CalendarClock, matchPrefix: "/enforcement" },
   { path: "/updates", label: "更新履歴", icon: History },
   { path: "/settings", label: "設定", icon: Settings },
