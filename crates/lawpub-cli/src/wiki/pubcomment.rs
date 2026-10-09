@@ -107,7 +107,7 @@ pub fn sync(
             .map(|id| format!("[{}]({})", titles.get(id).map(String::as_str).unwrap_or(id), rel_link(&rel, &law_page(id))))
             .collect();
         let mut meta = String::from("## 意見募集の情報（一覧）\n\n| 項目 | 内容 |\n|---|---|\n");
-        meta.push_str(&format!("| 所管 | {} |\n", cell(&format!("{ministry} {}", c["responsible_office"].as_str().unwrap_or("")).trim().to_string())));
+        meta.push_str(&format!("| 所管 | {} |\n", cell(format!("{ministry} {}", c["responsible_office"].as_str().unwrap_or("")).trim())));
         meta.push_str(&format!("| 募集期間 | {period} |\n"));
         if let Some(r) = &result {
             meta.push_str(&format!("| 結果公示 | {r} |\n"));
