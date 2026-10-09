@@ -480,7 +480,7 @@ fn write_index(
     people: &[String],
 ) -> Result<()> {
     let mut body = String::from(
-        "\n# lawrenceanum 法令経緯 wiki\n\n\
+        "\n# lawrenceanum wiki\n\n\
          国会会議録・審議会議事録のうち法令に言及した発言と、議案の審議経過・法令の公布・施行を、法令・会議・議案・人物・論点ごとに整理した wiki です。\n\
          正本は [lawrenceanum](https://github.com/bokuweb/lawrenceanum) の正規化コーパスで、本文の要約は LLM が書き、\
          すべての記述に会議録の発言 ID と原文引用を付けています（`lawpub wiki-check` で照合済み）。\n\n",
@@ -563,7 +563,7 @@ fn write_index(
     let page = Page {
         frontmatter: vec![
             ("type".into(), json!("index")),
-            ("title".into(), json!("lawrenceanum 法令経緯 wiki")),
+            ("title".into(), json!("lawrenceanum wiki")),
             ("description".into(), json!("国会・審議会での法令への言及を、法令・会議・人物・論点ごとにたどれる OKF 形式の wiki")),
             ("resource".into(), json!("https://github.com/bokuweb/lawrenceanum")),
             ("timestamp".into(), json!(now_rfc3339())),

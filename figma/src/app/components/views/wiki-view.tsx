@@ -97,10 +97,10 @@ function WikiHome({
   return (
     <div className="p-6 max-w-6xl">
       <div className="mb-4">
-        <h1 className="text-2xl flex items-center gap-2"><Network className="size-6" />経緯 wiki</h1>
+        <h1 className="text-2xl flex items-center gap-2"><Network className="size-6" />wiki</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          国会・審議会での発言、議案の審議経過、法令の公布・施行を、法令・会議体・会議・議案・人物・論点ごとにつないだ wiki（OKF 形式）。
-          要約は LLM が書き、すべての記述に会議録の原文引用が付いています。議案と公布・施行は公開データをそのまま載せています。
+          審議会・パブコメ・国会・議案・公布/施行をまたいで、「きっかけ → 議論 → 意思決定 → 結果 → その後」をたどれる wiki（OKF 形式）。
+          文章は LLM が書き、すべての記述を会議録・議案文書の原文引用で検証しています。
         </p>
       </div>
 
@@ -284,6 +284,7 @@ function WikiMarkdown({ body, from, onOpen }: { body: string; from: string; onOp
           h1: () => null,
           h2: ({ children, id }) => <h2 id={id} className="text-base font-semibold mt-6 mb-2">{children}</h2>,
           h3: ({ children }) => <h3 className="text-sm font-semibold mt-4 mb-1">{children}</h3>,
+          h4: ({ children }) => <h4 className="text-sm font-medium text-muted-foreground mt-3 mb-1">{children}</h4>,
           ul: ({ children }) => <ul className="list-disc pl-5 space-y-1.5">{children}</ul>,
           ol: ({ children }) => <ol className="list-decimal pl-5 space-y-1">{children}</ol>,
           table: ({ children }) => (
