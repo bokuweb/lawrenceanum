@@ -15,7 +15,7 @@ name: Update LLM wiki
 # 必要な設定:
 #   Secrets  : CLAUDE_CODE_OAUTH_TOKEN (`claude setup-token` で発行。Pro/Max プランで実行)
 #              または ANTHROPIC_API_KEY (従量課金)
-#   Variables: WIKI_MODEL (既定 claude-sonnet-5-5) / WIKI_MAX_ITEMS (既定 5) / WIKI_MAX_BILLS (既定 5)
+#   Variables: WIKI_MODEL (既定 claude-sonnet-5-5) / WIKI_MAX_ITEMS (既定 5) / WIKI_MAX_BILLS (既定 5) / WIKI_MAX_PUBCOMMENTS (既定 3)
 on:
   schedule:
     # JST 09:00。法令ワークフロー (JST 06:30) の Pages 配信後に、前日分の会議を取り込む。
@@ -28,6 +28,10 @@ on:
         type: string
       max_bills:
         description: "1 回で要約する議案の上限 (会議とは別枠。0 で議案の要約をしない)"
+        required: false
+        type: string
+      max_pubcomments:
+        description: "1 回で要約するパブコメ (結果公示済み) の上限 (別枠。0 で要約しない)"
         required: false
         type: string
       lookback_days:
@@ -64,6 +68,7 @@ jobs:
       WIKI_MODEL: ${{ vars.WIKI_MODEL || 'claude-sonnet-5-5' }}
       MAX_ITEMS: ${{ github.event.inputs.max_items || vars.WIKI_MAX_ITEMS || '5' }}
       MAX_BILLS: ${{ github.event.inputs.max_bills || vars.WIKI_MAX_BILLS || '5' }}
+      MAX_PUBCOMMENTS: ${{ github.event.inputs.max_pubcomments || vars.WIKI_MAX_PUBCOMMENTS || '3' }}
       LOOKBACK_DAYS: ${{ github.event.inputs.lookback_days || '45' }}
       PUSH_MODE: ${{ github.event.inputs.push_mode || 'direct' }}
       HAS_CLAUDE_AUTH: ${{ secrets.ANTHROPIC_API_KEY != '' || secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
@@ -100,7 +105,7 @@ jobs:
         run: |
           ./target/release/lawpub wiki-plan \
             --wiki wiki --work .wiki-work \
-            --max-items "$MAX_ITEMS" --max-bills "$MAX_BILLS" --lookback-days "$LOOKBACK_DAYS"
+            --max-items "$MAX_ITEMS" --max-bills "$MAX_BILLS" --max-pubcomments "$MAX_PUBCOMMENTS" --lookback-days "$LOOKBACK_DAYS"
           echo "tasks=$(jq '.tasks | length' .wiki-work/plan.json)" >> "$GITHUB_OUTPUT"
           cat .wiki-work/plan.md >> "$GITHUB_STEP_SUMMARY"
 

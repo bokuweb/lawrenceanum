@@ -67,6 +67,45 @@ fn load_bills(wiki: &Path) -> Result<Vec<BillInfo>> {
     Ok(out)
 }
 
+#[derive(Debug, Clone)]
+struct PubcommentInfo {
+    page: String,
+    title: String,
+    date: String,
+    description: String,
+    /// LLM が書いた 1 行 (募集状況の機械的な文と異なる場合だけ)。
+    summary: Option<String>,
+    laws: Vec<String>,
+    reception_start: Option<String>,
+    result_date: Option<String>,
+    opinion_count: Option<u64>,
+}
+
+fn load_pubcomments(wiki: &Path) -> Result<Vec<PubcommentInfo>> {
+    let mut out = Vec::new();
+    for path in walk_md(wiki, "pubcomments") {
+        let page = Page::read(&path)?;
+        let description = page.get_str("description").to_string();
+        let summary = (!description.is_empty() && description != page.get_str("stats")).then(|| description.clone());
+        out.push(PubcommentInfo {
+            page: rel_path(wiki, &path),
+            title: page.get_str("title").to_string(),
+            date: page.get_str("date").to_string(),
+            description,
+            summary,
+            laws: page
+                .get("laws")
+                .and_then(Value::as_array)
+                .map(|a| a.iter().filter_map(|v| v.as_str().map(String::from)).collect())
+                .unwrap_or_default(),
+            reception_start: page.get("reception_start").and_then(Value::as_str).map(String::from),
+            result_date: page.get("result_date").and_then(Value::as_str).map(String::from),
+            opinion_count: page.get("opinion_count").and_then(Value::as_u64),
+        });
+    }
+    Ok(out)
+}
+
 /// 人物ページの 1 行: (会議, 会派, 言及した法令 ID)。
 type Remark<'a> = (&'a MeetingInfo, &'a Speaker);
 
@@ -119,7 +158,14 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
                             .any(|b| !citations_in(b).is_empty())
                 })
                 .unwrap_or(false);
-        if done && task.kind == "bill" {
+        if done && task.kind == "pubcomment" {
+            // パブコメは、要約した時点の結果公示日をページに記録する。
+            let mut page = Page::read(&path)?;
+            let result = page.get("result_date").cloned().unwrap_or(Value::Null);
+            page.set("llm_result_date", result);
+            page.write(&path)?;
+            completed.push(task.clone());
+        } else if done && task.kind == "bill" {
             // 議案は state ではなく、要約した時点の経過 (latest_date) をページに記録する。
             let mut page = Page::read(&path)?;
             let latest = page.get("latest_date").cloned().unwrap_or(Value::Null);
@@ -154,6 +200,7 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
     // 3. 法令ページの時系列 (会議・議案・公布/施行を 1 本の表に)。どの会議からも議案からも
     //    参照されず LLM 区間も空のまま、この plan で新規作成したページは消す。
     let bills = load_bills(wiki)?;
+    let pubcomments = load_pubcomments(wiki)?;
     let mut law_titles: BTreeMap<String, String> = BTreeMap::new();
     for path in walk_md(wiki, "laws") {
         let rel = rel_path(wiki, &path);
@@ -161,8 +208,9 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
         let law_id = page.get_str("law_id").to_string();
         let law_meetings: Vec<&MeetingInfo> = meetings.iter().filter(|m| m.laws.contains(&law_id)).collect();
         let law_bills: Vec<&BillInfo> = bills.iter().filter(|b| b.laws.contains(&law_id)).collect();
+        let law_pubcomments: Vec<&PubcommentInfo> = pubcomments.iter().filter(|p| p.laws.contains(&law_id)).collect();
         let llm_empty = llm_blocks(&page.body).iter().all(|b| b.trim().is_empty());
-        if law_meetings.is_empty() && law_bills.is_empty() && llm_empty && created_laws.contains(&rel) {
+        if law_meetings.is_empty() && law_bills.is_empty() && law_pubcomments.is_empty() && llm_empty && created_laws.contains(&rel) {
             std::fs::remove_file(&path)?;
             continue;
         }
@@ -191,6 +239,18 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
                     continue;
                 }
                 rows.push((s.0.clone(), 1, "議案", format!("[{}]({}): {}", b.title, rel_link(&rel, &b.page), s.2)));
+            }
+        }
+        // パブコメ: 意見募集の開始と結果公示 (意見数と、LLM の 1 行要約があれば添える)。
+        for pc in &law_pubcomments {
+            let link = format!("[{}]({})", pc.title, rel_link(&rel, &pc.page));
+            if let Some(d) = &pc.reception_start {
+                rows.push((d.clone(), 1, "パブコメ", format!("意見募集開始: {link}")));
+            }
+            if let Some(d) = &pc.result_date {
+                let n = pc.opinion_count.map(|n| format!("（意見 {n} 件）")).unwrap_or_default();
+                let summary = pc.summary.as_deref().map(|s| format!(" — {s}")).unwrap_or_default();
+                rows.push((d.clone(), 1, "パブコメ", format!("結果公示: {link}{n}{summary}")));
             }
         }
         for r in page.get("revisions").and_then(Value::as_array).into_iter().flatten() {
@@ -305,6 +365,7 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
         &meetings,
         &committees,
         &bills,
+        &pubcomments,
         &law_titles,
         &people.keys().cloned().collect::<Vec<_>>(),
     )?;
@@ -476,6 +537,7 @@ fn write_index(
     meetings: &[MeetingInfo],
     committees: &[(String, String, usize)],
     bills: &[BillInfo],
+    pubcomments: &[PubcommentInfo],
     law_titles: &BTreeMap<String, String>,
     people: &[String],
 ) -> Result<()> {
@@ -532,6 +594,15 @@ fn write_index(
             committees.iter().map(|(title, page, n)| format!("[{title}]({page})（{n}）")).collect();
         body.push_str(&links.join(" · "));
         body.push('\n');
+    }
+
+    if !pubcomments.is_empty() {
+        let mut recent: Vec<&PubcommentInfo> = pubcomments.iter().collect();
+        recent.sort_by(|a, b| b.date.cmp(&a.date));
+        body.push_str(&format!("\n## 最近のパブコメ（{}）\n\n| 日付 | 案件 | 状況 |\n|---|---|---|\n", pubcomments.len()));
+        for pc in recent.iter().take(20) {
+            body.push_str(&format!("| {} | [{}]({}) | {} |\n", pc.date, cell(&pc.title), pc.page, cell(&pc.description)));
+        }
     }
 
     if !bills.is_empty() {

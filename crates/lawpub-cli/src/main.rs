@@ -533,6 +533,9 @@ enum Cmd {
         /// LLM に要約させる議案の上限 (会議とは別枠)。経過が進んだ議案も対象。
         #[arg(long, default_value_t = 5)]
         max_bills: usize,
+        /// LLM に要約させるパブコメ (結果公示済み) の上限 (別枠)。
+        #[arg(long, default_value_t = 3)]
+        max_pubcomments: usize,
     },
     /// LLM が書いた後、時系列・人物・index・log を再生成し、未完了タスクを巻き戻す。
     WikiFinalize {
@@ -906,7 +909,7 @@ fn main() -> Result<()> {
         Cmd::GianFetch { cache, provider, session } => gian::run_fetch(&cache, &provider, session),
         Cmd::GianBuildJson { cache, public } => gian::run_build_json(&cache, &public),
         Cmd::BuildEnforcement { public } => enforcement::run_build(&public),
-        Cmd::WikiPlan { base_url, wiki, work, max_items, max_probes, lookback_days, today, max_bills } => {
+        Cmd::WikiPlan { base_url, wiki, work, max_items, max_probes, lookback_days, today, max_bills, max_pubcomments } => {
             wiki::plan::run_plan(&wiki::plan::PlanArgs {
                 base_url,
                 wiki,
@@ -916,6 +919,7 @@ fn main() -> Result<()> {
                 lookback_days,
                 today,
                 max_bills,
+                max_pubcomments,
             })
         }
         Cmd::WikiFinalize { wiki, work } => wiki::finalize::run_finalize(&wiki::finalize::FinalizeArgs { wiki, work }),
