@@ -25,6 +25,8 @@ pub struct PlanArgs {
     pub max_bills: usize,
     /// 1 回の plan で LLM に要約させるパブコメ (結果公示済み) の上限 (別枠)。
     pub max_pubcomments: usize,
+    /// 自治体例規の配信元 (R2 の `{public}/reiki`)。空なら例規の照合をしない。
+    pub reiki_base_url: String,
 }
 
 /// 1 発言から抜き出す文脈幅 (文字数)。
@@ -212,6 +214,11 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
     match plan_bills(args, &source) {
         Ok(bill_tasks) => tasks.extend(bill_tasks),
         Err(e) => tracing::warn!("wiki-plan: 議案の要約タスクの作成に失敗: {e:#}"),
+    }
+    match super::reiki::sync(&args.reiki_base_url, source.base(), &args.wiki, today) {
+        Ok(Some(n)) => println!("wiki-plan: reiki links refreshed ({n} law page(s) updated)"),
+        Ok(None) => {}
+        Err(e) => tracing::warn!("wiki-plan: 例規の照合に失敗: {e:#}"),
     }
     match super::pubcomment::plan_tasks(&source, &args.wiki, &args.work, args.max_pubcomments) {
         Ok(pc_tasks) => tasks.extend(pc_tasks),
@@ -1150,6 +1157,7 @@ mod tests {
             today: Some("2026-10-08".into()),
             max_bills: 0,
             max_pubcomments: 0,
+            reiki_base_url: String::new(),
         })
         .unwrap();
         let plan = Plan::load(&work).unwrap().unwrap();
@@ -1233,6 +1241,7 @@ mod tests {
             today: Some("2026-10-08".into()),
             max_bills: 0,
             max_pubcomments: 0,
+            reiki_base_url: String::new(),
         })
         .unwrap();
 
@@ -1274,6 +1283,7 @@ mod tests {
             today: Some("2026-10-09".into()),
             max_bills: 0,
             max_pubcomments: 0,
+            reiki_base_url: String::new(),
         })
         .unwrap();
         let again = Plan::load(&work).unwrap().unwrap();

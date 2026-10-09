@@ -69,6 +69,8 @@ jobs:
       MAX_ITEMS: ${{ github.event.inputs.max_items || vars.WIKI_MAX_ITEMS || '5' }}
       MAX_BILLS: ${{ github.event.inputs.max_bills || vars.WIKI_MAX_BILLS || '5' }}
       MAX_PUBCOMMENTS: ${{ github.event.inputs.max_pubcomments || vars.WIKI_MAX_PUBCOMMENTS || '3' }}
+      # 自治体例規は R2 から配信している。Secret が無ければ例規の照合を飛ばす (週 1 回更新)。
+      WIKI_REIKI_BASE_URL: ${{ secrets.R2_PUBLIC_URL && format('{0}/reiki', secrets.R2_PUBLIC_URL) || '' }}
       LOOKBACK_DAYS: ${{ github.event.inputs.lookback_days || '45' }}
       PUSH_MODE: ${{ github.event.inputs.push_mode || 'direct' }}
       HAS_CLAUDE_AUTH: ${{ secrets.ANTHROPIC_API_KEY != '' || secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}

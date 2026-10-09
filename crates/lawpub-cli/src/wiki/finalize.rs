@@ -273,6 +273,17 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
         for (date, _, kind, text) in &rows {
             table.push_str(&format!("| {date} | {kind} | {} |\n", cell(text)));
         }
+        // 自治体の対応 (例規): wiki-plan が週 1 回 frontmatter に書いた照合結果を描く。
+        let reiki = super::reiki::render_section(page.get("reiki"));
+        if let Some(body) = replace_block(&page.body, "reiki", &reiki) {
+            page.body = body;
+        } else if !reiki.is_empty() {
+            let block = format!("<!-- lawpub:begin reiki -->\n{reiki}<!-- lawpub:end reiki -->\n\n");
+            match page.body.find("## 関連する出来事").or_else(|| page.body.find("## 時系列")) {
+                Some(i) => page.body.insert_str(i, &block),
+                None => page.body.push_str(&format!("\n{block}")),
+            }
+        }
         if let Some(body) = replace_block(&page.body, "timeline", &table) {
             if body != page.body {
                 page.body = body;
