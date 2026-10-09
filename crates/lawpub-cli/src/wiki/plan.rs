@@ -23,6 +23,8 @@ pub struct PlanArgs {
     pub today: Option<String>,
     /// 1 回の plan で LLM に要約させる議案の上限 (会議とは別枠)。
     pub max_bills: usize,
+    /// 1 回の plan で LLM に要約させるパブコメ (結果公示済み) の上限 (別枠)。
+    pub max_pubcomments: usize,
 }
 
 /// 1 発言から抜き出す文脈幅 (文字数)。
@@ -202,14 +204,18 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
     // 議案と改正履歴 (LLM 不要) を取り込む。失敗しても会議のタスクは続ける。
     match structured::sync(&source, &args.wiki, today) {
         Ok(st) => println!(
-            "wiki-plan: {} bill(s) ({} fetched), {} new law page(s), {} law(s) with revisions",
-            st.bills, st.bills_fetched, st.laws_created, st.laws_with_revisions
+            "wiki-plan: {} bill(s) ({} fetched), {} pubcomment(s), {} new law page(s), {} law(s) with revisions",
+            st.bills, st.bills_fetched, st.pubcomments, st.laws_created, st.laws_with_revisions
         ),
         Err(e) => tracing::warn!("wiki-plan: 議案・改正履歴の取り込みに失敗: {e:#}"),
     }
     match plan_bills(args, &source) {
         Ok(bill_tasks) => tasks.extend(bill_tasks),
         Err(e) => tracing::warn!("wiki-plan: 議案の要約タスクの作成に失敗: {e:#}"),
+    }
+    match super::pubcomment::plan_tasks(&source, &args.wiki, &args.work, args.max_pubcomments) {
+        Ok(pc_tasks) => tasks.extend(pc_tasks),
+        Err(e) => tracing::warn!("wiki-plan: パブコメの要約タスクの作成に失敗: {e:#}"),
     }
 
     state.save(&args.wiki)?;
@@ -984,7 +990,11 @@ fn render_plan_md(plan: &Plan, wiki: &Path, work: &Path) -> String {
                 "（既存・追記）"
             }
         };
-        let page_label = if t.kind == "bill" { "議案ページ" } else { "会議ページ" };
+        let page_label = match t.kind.as_str() {
+            "bill" => "議案ページ",
+            "pubcomment" => "パブコメページ",
+            _ => "会議ページ",
+        };
         out.push_str(&format!("- {page_label}: `{wiki}/{}`{}\n", t.page, new(&t.page)));
         for l in &t.laws {
             out.push_str(&format!(
@@ -1139,6 +1149,7 @@ mod tests {
             lookback_days: 30,
             today: Some("2026-10-08".into()),
             max_bills: 0,
+            max_pubcomments: 0,
         })
         .unwrap();
         let plan = Plan::load(&work).unwrap().unwrap();
@@ -1221,6 +1232,7 @@ mod tests {
             lookback_days: 30,
             today: Some("2026-10-08".into()),
             max_bills: 0,
+            max_pubcomments: 0,
         })
         .unwrap();
 
@@ -1261,6 +1273,7 @@ mod tests {
             lookback_days: 30,
             today: Some("2026-10-09".into()),
             max_bills: 0,
+            max_pubcomments: 0,
         })
         .unwrap();
         let again = Plan::load(&work).unwrap().unwrap();

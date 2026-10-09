@@ -26,6 +26,7 @@ pub mod check;
 pub mod export;
 pub mod finalize;
 pub mod plan;
+pub mod pubcomment;
 pub mod structured;
 
 pub const STATE_PATH: &str = ".lawpub/state.json";

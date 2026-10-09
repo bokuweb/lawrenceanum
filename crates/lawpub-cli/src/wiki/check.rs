@@ -9,6 +9,7 @@
 //!
 //! 引用の照合は `--changed` なら git で変更のあったページだけに行う (会議本体の取得を減らす)。
 
+use super::pubcomment::{pubcomment_units, KIND_PUBCOMMENT};
 use super::*;
 use std::collections::{HashMap, HashSet};
 
@@ -20,7 +21,7 @@ pub struct CheckArgs {
 }
 
 const ROOT_FILES: [&str; 3] = ["index.md", "log.md", "README.md"];
-const DIRS: [&str; 6] = ["laws/", "meetings/", "people/", "topics/", "bills/", "committees/"];
+const DIRS: [&str; 7] = ["laws/", "meetings/", "people/", "topics/", "bills/", "committees/", "pubcomments/"];
 const MIN_QUOTE_CHARS: usize = 8;
 const MAX_QUOTE_CHARS: usize = 200;
 
@@ -53,7 +54,7 @@ fn parse_citation(rest: &str) -> Option<(String, String, String)> {
     let (url, rest) = rest.split_once(')')?;
     let rest = rest.trim();
     let quote = rest.strip_prefix('「')?.strip_suffix('」')?;
-    if !(reference.starts_with("kokkai:") || reference.starts_with("shingikai:") || reference.starts_with("gian:")) {
+    if !(reference.starts_with("kokkai:") || reference.starts_with("shingikai:") || reference.starts_with("gian:") || reference.starts_with("pubcomment:")) {
         return None;
     }
     Some((reference.to_string(), url.to_string(), quote.to_string()))
@@ -155,7 +156,7 @@ impl Resolver<'_> {
                 .map(|(m, _)| m)
                 .unwrap_or(id)
                 .to_string(),
-            KIND_SHINGIKAI | KIND_GIAN => id.split('#').next().unwrap_or(id).to_string(),
+            KIND_SHINGIKAI | KIND_GIAN | KIND_PUBCOMMENT => id.split('#').next().unwrap_or(id).to_string(),
             _ => return Ok(None),
         };
         let key = format!("{kind}:{doc_id}");
@@ -164,6 +165,7 @@ impl Resolver<'_> {
             let units = doc.map(|d| {
                 let units = match kind {
                     KIND_KOKKAI => kokkai_units(&d),
+                    KIND_PUBCOMMENT => pubcomment_units(&d),
                     KIND_GIAN => gian_units(&d["detail"], d["resolutions"].as_array().map(Vec::as_slice).unwrap_or(&[])),
                     _ => shingikai_units(&d),
                 };
@@ -202,6 +204,9 @@ impl Resolver<'_> {
         }
         if kind == KIND_KOKKAI {
             return self.source.get_json(&format!("proceedings/{id}.json"));
+        }
+        if kind == KIND_PUBCOMMENT {
+            return self.source.get_json(&format!("pubcomment/{id}.json"));
         }
         if kind == KIND_GIAN {
             let Some((session, bill_id)) = id.split_once('/') else { return Ok(None) };
@@ -321,7 +326,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
         if ty.is_empty() {
             err(1, "OKF の必須フィールド `type` がありません".into());
         }
-        if matches!(ty, "law" | "meeting" | "person" | "topic" | "bill" | "committee") && page.get_str("title").is_empty()
+        if matches!(ty, "law" | "meeting" | "person" | "topic" | "bill" | "committee" | "pubcomment") && page.get_str("title").is_empty()
         {
             err(1, "`title` がありません".into());
         }
@@ -359,7 +364,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
 
         let llm_text: String = llm_blocks(&page.body).concat();
         let needs_citation = match ty {
-            "meeting" | "law" | "person" | "committee" | "bill" => !llm_text.trim().is_empty(),
+            "meeting" | "law" | "person" | "committee" | "bill" | "pubcomment" => !llm_text.trim().is_empty(),
             "topic" => true,
             _ => false,
         };
