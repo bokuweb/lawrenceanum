@@ -24,6 +24,7 @@ pub struct SyncStats {
     pub bills_fetched: usize,
     pub laws_created: usize,
     pub laws_with_revisions: usize,
+    pub pubcomments: usize,
 }
 
 pub fn sync(source: &Source, wiki: &Path, today: chrono::NaiveDate) -> Result<SyncStats> {
@@ -45,6 +46,10 @@ pub fn sync(source: &Source, wiki: &Path, today: chrono::NaiveDate) -> Result<Sy
         .collect();
 
     sync_bills(source, wiki, &unique, &titles, &mut stats)?;
+    match super::pubcomment::sync(source, wiki, &unique, &titles) {
+        Ok(pc) => stats.pubcomments = pc.cases,
+        Err(e) => tracing::warn!("wiki-plan: パブコメの取り込みに失敗: {e:#}"),
+    }
     sync_revisions(source, wiki, today, &mut stats)?;
     Ok(stats)
 }
