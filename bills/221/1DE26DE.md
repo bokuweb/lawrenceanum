@@ -3,7 +3,7 @@ type: "bill"
 title: "情報通信技術を活用した行政の推進等に関する法律及び情報処理の促進に関する法律の一部を改正する法律案"
 description: "閣法（第221回国会）: 2026-07-17 公布（法律第57号）"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE26DE.htm"
-timestamp: "2026-10-08T05:17:46Z"
+timestamp: "2026-10-09T00:11:37Z"
 date: "2026-07-17"
 session: 221
 bill_id: "1DE26DE"
@@ -14,12 +14,19 @@ law_num_text: "令和八年法律第五十七号"
 laws: ["414AC0000000151","345AC0000000090"]
 stages: [{"date":"2026-04-07","kind":"received","label":"衆議院で受理"},{"date":"2026-04-21","kind":"referred","label":"衆議院 地域活性化・こども政策・デジタル社会形成に関する特別に付託"},{"date":"2026-05-21","kind":"committee","label":"衆議院 委員会で可決"},{"date":"2026-05-26","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-05-26","kind":"received","label":"参議院で受理"},{"date":"2026-06-12","kind":"referred","label":"参議院 デジタル社会の形成及び人工知能の活用等に関する特別に付託"},{"date":"2026-07-08","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-07-10","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-07-17","kind":"promulgated","label":"公布（法律第57号）"}]
 tags: []
-render_version: 1
+render_version: 2
 ---
 
 # 情報通信技術を活用した行政の推進等に関する法律及び情報処理の促進に関する法律の一部を改正する法律案
 
+## 概要と経緯
+
+<!-- llm:begin -->
+<!-- llm:end -->
+
 <!-- lawpub:begin meta -->
+## 議案の情報（一覧）
+
 | 項目 | 内容 |
 |---|---|
 | 種類 | 閣法（第221回国会 第53号） |

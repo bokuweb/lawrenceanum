@@ -3,7 +3,7 @@ type: "bill"
 title: "青少年が安全に安心してインターネットを利用できる環境の整備等に関する法律の一部を改正する法律案"
 description: "参法（第221回国会）: 2026-07-15 参議院で受理"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE2CC2.htm"
-timestamp: "2026-10-08T05:17:43Z"
+timestamp: "2026-10-09T00:11:36Z"
 date: "2026-07-15"
 session: 221
 bill_id: "1DE2CC2"
@@ -14,12 +14,19 @@ law_num_text: null
 laws: ["420AC1000000079"]
 stages: [{"date":"2026-07-15","kind":"received","label":"参議院で受理"}]
 tags: []
-render_version: 1
+render_version: 2
 ---
 
 # 青少年が安全に安心してインターネットを利用できる環境の整備等に関する法律の一部を改正する法律案
 
+## 概要と経緯
+
+<!-- llm:begin -->
+<!-- llm:end -->
+
 <!-- lawpub:begin meta -->
+## 議案の情報（一覧）
+
 | 項目 | 内容 |
 |---|---|
 | 種類 | 参法（第221回国会 第19号） |

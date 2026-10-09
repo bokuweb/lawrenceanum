@@ -3,7 +3,7 @@ type: "bill"
 title: "国家社会機能継続性確保施策及び副首都の整備に係る施策の推進に関する法律案"
 description: "衆法（第221回国会）: 2026-07-31 公布（法律第78号）"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE2ACE.htm"
-timestamp: "2026-10-08T05:17:42Z"
+timestamp: "2026-10-09T00:11:35Z"
 date: "2026-07-31"
 session: 221
 bill_id: "1DE2ACE"
@@ -14,12 +14,19 @@ law_num_text: "令和八年法律第七十八号"
 laws: ["508AC1000000078"]
 stages: [{"date":"2026-06-24","kind":"received","label":"衆議院で受理"},{"date":"2026-06-26","kind":"referred","label":"衆議院 地域活性化・こども政策・デジタル社会形成に関する特別に付託"},{"date":"2026-07-15","kind":"committee","label":"衆議院 委員会で修正"},{"date":"2026-07-15","kind":"plenary","label":"衆議院 本会議で修正"},{"date":"2026-07-15","kind":"received","label":"参議院で受理"},{"date":"2026-07-21","kind":"referred","label":"参議院 沖縄・北方問題及び地方に関する特別に付託"},{"date":"2026-07-24","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-07-24","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-07-31","kind":"promulgated","label":"公布（法律第78号）"}]
 tags: []
-render_version: 1
+render_version: 2
 ---
 
 # 国家社会機能継続性確保施策及び副首都の整備に係る施策の推進に関する法律案
 
+## 概要と経緯
+
+<!-- llm:begin -->
+<!-- llm:end -->
+
 <!-- lawpub:begin meta -->
+## 議案の情報（一覧）
+
 | 項目 | 内容 |
 |---|---|
 | 種類 | 衆法（第221回国会 第27号） |

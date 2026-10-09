@@ -3,7 +3,7 @@ type: "bill"
 title: "受託中小企業振興法の一部を改正する法律案"
 description: "衆法（第221回国会）: 2026-07-23 衆議院 経済産業に付託"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE2BF2.htm"
-timestamp: "2026-10-08T05:17:50Z"
+timestamp: "2026-10-09T00:11:41Z"
 date: "2026-07-23"
 session: 221
 bill_id: "1DE2BF2"
@@ -14,12 +14,19 @@ law_num_text: null
 laws: ["345AC0000000145"]
 stages: [{"date":"2026-07-15","kind":"received","label":"衆議院で受理"},{"date":"2026-07-23","kind":"referred","label":"衆議院 経済産業に付託"}]
 tags: []
-render_version: 1
+render_version: 2
 ---
 
 # 受託中小企業振興法の一部を改正する法律案
 
+## 概要と経緯
+
+<!-- llm:begin -->
+<!-- llm:end -->
+
 <!-- lawpub:begin meta -->
+## 議案の情報（一覧）
+
 | 項目 | 内容 |
 |---|---|
 | 種類 | 衆法（第221回国会 第32号） |

@@ -3,7 +3,7 @@ type: "bill"
 title: "日本国憲法の改正手続に関する法律の一部を改正する法律案"
 description: "衆法（第221回国会）: 2026-07-31 公布（法律第73号）"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE28DE.htm"
-timestamp: "2026-10-08T05:17:47Z"
+timestamp: "2026-10-09T00:11:39Z"
 date: "2026-07-31"
 session: 221
 bill_id: "1DE28DE"
@@ -14,12 +14,19 @@ law_num_text: "令和八年法律第七十三号"
 laws: ["419AC1000000051"]
 stages: [{"date":"2026-06-05","kind":"received","label":"衆議院で受理"},{"date":"2026-06-10","kind":"referred","label":"衆議院 憲法審査会に付託"},{"date":"2026-06-18","kind":"committee","label":"衆議院 委員会で可決"},{"date":"2026-06-19","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-06-19","kind":"received","label":"参議院で受理"},{"date":"2026-06-23","kind":"referred","label":"参議院 憲法審査会に付託"},{"date":"2026-07-22","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-07-24","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-07-31","kind":"promulgated","label":"公布（法律第73号）"}]
 tags: []
-render_version: 1
+render_version: 2
 ---
 
 # 日本国憲法の改正手続に関する法律の一部を改正する法律案
 
+## 概要と経緯
+
+<!-- llm:begin -->
+<!-- llm:end -->
+
 <!-- lawpub:begin meta -->
+## 議案の情報（一覧）
+
 | 項目 | 内容 |
 |---|---|
 | 種類 | 衆法（第221回国会 第11号） |

@@ -3,7 +3,7 @@ type: "bill"
 title: "大都市地域における特別区の設置に関する法律の一部を改正する法律案"
 description: "参法（第221回国会）: 2026-07-24 参議院 本会議で否決"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE2CAA.htm"
-timestamp: "2026-10-08T05:17:42Z"
+timestamp: "2026-10-09T00:11:35Z"
 date: "2026-07-24"
 session: 221
 bill_id: "1DE2CAA"
@@ -14,12 +14,19 @@ law_num_text: null
 laws: ["424AC1000000080"]
 stages: [{"date":"2026-07-15","kind":"received","label":"参議院で受理"},{"date":"2026-07-21","kind":"referred","label":"参議院 沖縄・北方問題及び地方に関する特別に付託"},{"date":"2026-07-24","kind":"committee","label":"参議院 委員会で否決"},{"date":"2026-07-24","kind":"plenary","label":"参議院 本会議で否決"}]
 tags: []
-render_version: 1
+render_version: 2
 ---
 
 # 大都市地域における特別区の設置に関する法律の一部を改正する法律案
 
+## 概要と経緯
+
+<!-- llm:begin -->
+<!-- llm:end -->
+
 <!-- lawpub:begin meta -->
+## 議案の情報（一覧）
+
 | 項目 | 内容 |
 |---|---|
 | 種類 | 参法（第221回国会 第18号） |

@@ -3,7 +3,7 @@ type: "bill"
 title: "太陽電池廃棄物の再資源化等の推進に関する法律案"
 description: "閣法（第221回国会）: 2026-06-05 公布（法律第33号）"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE25EE.htm"
-timestamp: "2026-10-08T05:17:50Z"
+timestamp: "2026-10-09T00:11:41Z"
 date: "2026-06-05"
 session: 221
 bill_id: "1DE25EE"
@@ -14,12 +14,19 @@ law_num_text: "令和八年法律第三十三号"
 laws: ["508AC0000000033"]
 stages: [{"date":"2026-04-03","kind":"received","label":"衆議院で受理"},{"date":"2026-04-16","kind":"referred","label":"衆議院 環境に付託"},{"date":"2026-04-28","kind":"committee","label":"衆議院 委員会で可決"},{"date":"2026-05-12","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-05-12","kind":"received","label":"参議院で受理"},{"date":"2026-05-20","kind":"referred","label":"参議院 環境に付託"},{"date":"2026-05-28","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-05-29","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-06-05","kind":"promulgated","label":"公布（法律第33号）"}]
 tags: []
-render_version: 1
+render_version: 2
 ---
 
 # 太陽電池廃棄物の再資源化等の推進に関する法律案
 
+## 概要と経緯
+
+<!-- llm:begin -->
+<!-- llm:end -->
+
 <!-- lawpub:begin meta -->
+## 議案の情報（一覧）
+
 | 項目 | 内容 |
 |---|---|
 | 種類 | 閣法（第221回国会 第49号） |

@@ -3,7 +3,7 @@ type: "bill"
 title: "国家情報会議設置法案"
 description: "閣法（第221回国会）: 2026-06-03 公布（法律第28号）"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE1FCA.htm"
-timestamp: "2026-10-08T05:17:49Z"
+timestamp: "2026-10-09T00:11:40Z"
 date: "2026-06-03"
 session: 221
 bill_id: "1DE1FCA"
@@ -14,12 +14,19 @@ law_num_text: "令和八年法律第二十八号"
 laws: ["508AC0000000028"]
 stages: [{"date":"2026-03-13","kind":"received","label":"衆議院で受理"},{"date":"2026-04-02","kind":"referred","label":"衆議院 内閣に付託"},{"date":"2026-04-22","kind":"committee","label":"衆議院 委員会で可決"},{"date":"2026-04-23","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-04-23","kind":"received","label":"参議院で受理"},{"date":"2026-05-08","kind":"referred","label":"参議院 内閣に付託"},{"date":"2026-05-26","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-05-27","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-06-03","kind":"promulgated","label":"公布（法律第28号）"}]
 tags: []
-render_version: 1
+render_version: 2
 ---
 
 # 国家情報会議設置法案
 
+## 概要と経緯
+
+<!-- llm:begin -->
+<!-- llm:end -->
+
 <!-- lawpub:begin meta -->
+## 議案の情報（一覧）
+
 | 項目 | 内容 |
 |---|---|
 | 種類 | 閣法（第221回国会 第24号） |

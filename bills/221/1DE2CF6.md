@@ -3,7 +3,7 @@ type: "bill"
 title: "建築士法の一部を改正する法律案"
 description: "衆法（第221回国会）: 2026-07-31 公布（法律第74号）"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE2CF6.htm"
-timestamp: "2026-10-08T05:17:50Z"
+timestamp: "2026-10-09T00:11:41Z"
 date: "2026-07-31"
 session: 221
 bill_id: "1DE2CF6"
@@ -14,12 +14,19 @@ law_num_text: "令和八年法律第七十四号"
 laws: ["325AC1000000202"]
 stages: [{"date":"2026-07-22","kind":"received","label":"衆議院で受理"},{"date":"2026-07-22","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-07-22","kind":"received","label":"参議院で受理"},{"date":"2026-07-22","kind":"referred","label":"参議院 国土交通に付託"},{"date":"2026-07-23","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-07-24","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-07-31","kind":"promulgated","label":"公布（法律第74号）"}]
 tags: []
-render_version: 1
+render_version: 2
 ---
 
 # 建築士法の一部を改正する法律案
 
+## 概要と経緯
+
+<!-- llm:begin -->
+<!-- llm:end -->
+
 <!-- lawpub:begin meta -->
+## 議案の情報（一覧）
+
 | 項目 | 内容 |
 |---|---|
 | 種類 | 衆法（第221回国会 第38号） |

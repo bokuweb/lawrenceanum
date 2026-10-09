@@ -3,7 +3,7 @@ type: "bill"
 title: "自動車の運転により人を死傷させる行為等の処罰に関する法律及び道路交通法の一部を改正する法律案"
 description: "閣法（第221回国会）: 2026-07-01 公布（法律第52号）"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE24AA.htm"
-timestamp: "2026-10-08T05:17:43Z"
+timestamp: "2026-10-09T00:11:36Z"
 date: "2026-07-01"
 session: 221
 bill_id: "1DE24AA"
@@ -14,12 +14,19 @@ law_num_text: "令和八年法律第五十二号"
 laws: ["425AC0000000086","335AC0000000105"]
 stages: [{"date":"2026-03-31","kind":"received","label":"参議院で受理"},{"date":"2026-04-13","kind":"referred","label":"参議院 法務に付託"},{"date":"2026-04-16","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-04-17","kind":"received","label":"衆議院で受理"},{"date":"2026-04-17","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-06-16","kind":"referred","label":"衆議院 法務に付託"},{"date":"2026-06-24","kind":"committee","label":"衆議院 委員会で可決"},{"date":"2026-06-25","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-07-01","kind":"promulgated","label":"公布（法律第52号）"}]
 tags: []
-render_version: 1
+render_version: 2
 ---
 
 # 自動車の運転により人を死傷させる行為等の処罰に関する法律及び道路交通法の一部を改正する法律案
 
+## 概要と経緯
+
+<!-- llm:begin -->
+<!-- llm:end -->
+
 <!-- lawpub:begin meta -->
+## 議案の情報（一覧）
+
 | 項目 | 内容 |
 |---|---|
 | 種類 | 閣法（第221回国会 第42号） |
