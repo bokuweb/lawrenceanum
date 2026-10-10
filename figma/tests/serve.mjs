@@ -16,7 +16,7 @@ import { fileURLToPath } from 'node:url'
 
 const here = fileURLToPath(new URL('.', import.meta.url))
 const figmaRoot = resolve(here, '..')
-const serveDir = resolve(figmaRoot, 'tests/.serve')
+const serveDir = resolve(figmaRoot, process.env.SERVE_DIR ?? 'tests/.serve')
 const fixtureDir = resolve(figmaRoot, 'tests/fixtures/public')
 const port = Number(process.env.PORT ?? 8799)
 const host = process.env.HOST ?? '127.0.0.1'
@@ -27,7 +27,7 @@ function buildIfNeeded() {
     console.log(`[serve] reuse existing build at ${serveDir} (REBUILD=1 to force)`)
     return
   }
-  console.log('[serve] building SPA into tests/.serve ...')
+  console.log(`[serve] building SPA into ${serveDir} ...`)
   // vite.config の outDir は ../public 固定なので CLI で上書きする。
   // .serve はソース外なので --emptyOutDir でクリーンビルドして問題ない。
   const npx = process.platform === 'win32' ? 'npx.cmd' : 'npx'

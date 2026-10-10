@@ -293,7 +293,7 @@ export type DocumentHit = {
 };
 
 /** 収集済みのパブコメ・議案・審議会（添付の抽出本文を含む）。 */
-export async function searchDocuments(q: string, kind: DocumentKind, limit = 10): Promise<DocumentHit[]> {
+export async function searchDocuments(q: string, kind: DocumentKind, limit = 10, strict = false, offset = 0): Promise<DocumentHit[]> {
   const match = buildFtsMatchExpanded(q.trim());
   if (!match) return [];
   try {
@@ -302,10 +302,11 @@ export async function searchDocuments(q: string, kind: DocumentKind, limit = 10)
               snippet(documents_fts, 6, '<mark>', '</mark>', '...', 12) AS snippet
          FROM documents_fts
         WHERE documents_fts MATCH ? AND kind = ?
-        ORDER BY rank LIMIT ?`,
-      [match, kind, limit],
+        ORDER BY rank, rowid LIMIT ? OFFSET ?`,
+      [match, kind, limit, offset],
     );
   } catch (error) {
+    if (strict) throw error;
     // 再ビルド前のDBでも既存の検索対象を利用できる。
     if (String(error).includes("no such table")) return [];
     throw error;
@@ -326,8 +327,9 @@ export async function search(
   q: string,
   limit = 50,
   categories: string[] = [],
+  offset = 0,
 ): Promise<SearchHit[]> {
-  // 1 文字クエリは prefix (`あ*`) になる。exact だと bigram index に当たらない。
+  // bigram index に合わせ、2文字未満の検索語は対象外。
   const match = buildFtsMatchExpanded(q.trim());
   if (!match) return [];
   // カテゴリ絞り込み: 選択があれば l.category IN (?, ?, ...) を足す。
@@ -345,9 +347,9 @@ export async function search(
        FROM search_fts s
        JOIN laws l ON l.law_id = s.law_id
       WHERE search_fts MATCH ?${catFilter}
-      ORDER BY rank
-      LIMIT ?`,
-    [match, ...categories, limit],
+      ORDER BY rank, s.rowid
+      LIMIT ? OFFSET ?`,
+    [match, ...categories, limit, offset],
   );
   return rows.map(r => ({
     law_id: String(r.law_id ?? ""),
@@ -372,7 +374,7 @@ export type SpeechHit = {
   session: number;
 };
 
-export async function searchSpeeches(q: string, limit = 20): Promise<SpeechHit[]> {
+export async function searchSpeeches(q: string, limit = 20, offset = 0): Promise<SpeechHit[]> {
   const match = buildFtsMatchExpanded(q.trim());
   if (!match) return [];
   const rows = await exec<{
@@ -386,9 +388,9 @@ export async function searchSpeeches(q: string, limit = 20): Promise<SpeechHit[]
        FROM speeches_fts s
        JOIN meetings m ON m.meeting_id = s.meeting_id
       WHERE speeches_fts MATCH ?
-      ORDER BY rank
-      LIMIT ?`,
-    [match, limit],
+      ORDER BY rank, s.rowid
+      LIMIT ? OFFSET ?`,
+    [match, limit, offset],
   );
   return rows.map(r => ({
     meeting_id: String(r.meeting_id ?? ""),
@@ -420,7 +422,7 @@ export type KanpoHit = {
  * 官報記事の全文検索 (kanpo_fts)。改め文 (amend_text) と記事タイトルを横断する。
  * 旧 search.db（kanpo_fts 未作成）では "no such table" になるため空配列にフォールバックする。
  */
-export async function searchKanpo(q: string, limit = 10): Promise<KanpoHit[]> {
+export async function searchKanpo(q: string, limit = 10, strict = false, offset = 0): Promise<KanpoHit[]> {
   const match = buildFtsMatchExpanded(q.trim());
   if (!match) return [];
   try {
@@ -433,9 +435,9 @@ export async function searchKanpo(q: string, limit = 10): Promise<KanpoHit[]> {
               snippet(kanpo_fts, 7, '<mark>', '</mark>', '...', 10) AS snippet
          FROM kanpo_fts
         WHERE kanpo_fts MATCH ?
-        ORDER BY rank
-        LIMIT ?`,
-      [match, limit],
+        ORDER BY rank, rowid
+        LIMIT ? OFFSET ?`,
+      [match, limit, offset],
     );
     return rows.map(r => ({
       date: String(r.date ?? ""),
@@ -448,7 +450,8 @@ export async function searchKanpo(q: string, limit = 10): Promise<KanpoHit[]> {
       law_id: r.law_id ? String(r.law_id) : null,
       law_title: r.law_title ? String(r.law_title) : null,
     }));
-  } catch {
+  } catch (error) {
+    if (strict) throw error;
     return [];
   }
 }
@@ -466,7 +469,7 @@ export type TsutatsuHit = {
  * 通達 (soft law) の全文検索 (tsutatsu_fts)。番号・見出し・本文を横断。
  * 旧 search.db（tsutatsu_fts 未作成）では空配列にフォールバック。
  */
-export async function searchTsutatsu(q: string, limit = 10): Promise<TsutatsuHit[]> {
+export async function searchTsutatsu(q: string, limit = 10, strict = false, offset = 0): Promise<TsutatsuHit[]> {
   const match = buildFtsMatchExpanded(q.trim());
   if (!match) return [];
   try {
@@ -478,9 +481,9 @@ export async function searchTsutatsu(q: string, limit = 10): Promise<TsutatsuHit
               snippet(tsutatsu_fts, 6, '<mark>', '</mark>', '...', 10) AS snippet
          FROM tsutatsu_fts
         WHERE tsutatsu_fts MATCH ?
-        ORDER BY rank
-        LIMIT ?`,
-      [match, limit],
+        ORDER BY rank, rowid
+        LIMIT ? OFFSET ?`,
+      [match, limit, offset],
     );
     return rows.map(r => ({
       tax: String(r.tax ?? ""),
@@ -490,7 +493,8 @@ export async function searchTsutatsu(q: string, limit = 10): Promise<TsutatsuHit
       source_url: String(r.source_url ?? ""),
       snippet: String(r.snippet ?? ""),
     }));
-  } catch {
+  } catch (error) {
+    if (strict) throw error;
     return [];
   }
 }
@@ -525,15 +529,18 @@ export type ReikiScope =
  */
 export async function searchReiki(
   q: string,
-  opts: { scope?: ReikiScope; titleOnly?: boolean; limit?: number; scan?: number } = {},
+  opts: { scope?: ReikiScope; titleOnly?: boolean; limit?: number; scan?: number; strict?: boolean; offset?: number } = {},
 ): Promise<ReikiHit[]> {
   const base = buildFtsMatchExpanded(q.trim());
   if (!base) return [];
   const w = await loadReikiWorker();
-  if (!w) return [];
+  if (!w) {
+    if (opts.strict) throw new Error("自治体例規の検索 DB を利用できません。");
+    return [];
+  }
   const query = async <T,>(sql: string, params: unknown[]): Promise<T[]> =>
     queryWorker<T>(w, sql, params);
-  const { scope = { kind: "all" }, titleOnly = false, limit = 30, scan = 2000 } = opts;
+  const { scope = { kind: "all" }, titleOnly = false, limit = 30, scan = 2000, offset = 0 } = opts;
   try {
     let lo = 0;
     let hi = Number.MAX_SAFE_INTEGER;
@@ -557,9 +564,9 @@ export async function searchReiki(
                 LIMIT ?) f
          JOIN reiki_fts_meta m ON m.rowid = f.rowid
          JOIN reiki_docs d ON d.id = m.doc_id
-        ORDER BY f.rank
-        LIMIT ?`,
-      [match, lo, hi, scan, limit],
+        ORDER BY f.rank, f.rowid
+        LIMIT ? OFFSET ?`,
+      [match, lo, hi, scan, limit, offset],
     );
     return rows.map(r => ({
       municipality_code: String(r.municipality_code ?? ""),
@@ -574,6 +581,7 @@ export async function searchReiki(
       excerpt: String(r.excerpt ?? ""),
     }));
   } catch (e) {
+    if (opts.strict) throw e;
     console.warn("[search] reiki query failed", e);
     return [];
   }
@@ -586,19 +594,19 @@ export function reikiGenericTitle(title: string, municipalityName: string): stri
   return t;
 }
 
-export async function getOutgoingRefs(lawId: string, articleId: string): Promise<ArticleRef[]> {
+export async function getOutgoingRefs(lawId: string, articleId?: string): Promise<ArticleRef[]> {
   return exec<ArticleRef>(
     `SELECT from_law_id, from_article_id, to_law_id, to_article_id, ref_text, ref_type
-       FROM refs WHERE from_law_id = ? AND from_article_id = ? ORDER BY id`,
-    [lawId, articleId],
+       FROM refs WHERE from_law_id = ?${articleId === undefined ? '' : ' AND from_article_id = ?'} ORDER BY id`,
+    articleId === undefined ? [lawId] : [lawId, articleId],
   );
 }
 
-export async function getIncomingRefs(lawId: string, articleId: string): Promise<ArticleRef[]> {
+export async function getIncomingRefs(lawId: string, articleId?: string): Promise<ArticleRef[]> {
   return exec<ArticleRef>(
     `SELECT from_law_id, from_article_id, to_law_id, to_article_id, ref_text, ref_type
-       FROM refs WHERE to_law_id = ? AND to_article_id = ? ORDER BY id`,
-    [lawId, articleId],
+       FROM refs WHERE to_law_id = ?${articleId === undefined ? '' : ' AND to_article_id = ?'} ORDER BY id`,
+    articleId === undefined ? [lawId] : [lawId, articleId],
   );
 }
 
