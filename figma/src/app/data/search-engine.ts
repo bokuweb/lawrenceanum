@@ -251,12 +251,65 @@ export async function isAvailable(): Promise<boolean> {
   return (await loadWorker()) !== null;
 }
 
+// 静的DBの同一検索は再利用する。進行中の検索も共有し、戻る操作や再入力で
+// Worker の待ち行列と HTTP Range 読みを増やさない。DB ごとに直近32検索だけ保持。
+const queryCaches = new WeakMap<WorkerHttpvfs, Map<string, Promise<unknown[]>>>();
+async function queryWorker<T>(w: WorkerHttpvfs, sql: string, params: unknown[]): Promise<T[]> {
+  if (!sql.includes(" MATCH ")) return (await (w.db.query as any)(sql, params)) as T[];
+  let cache = queryCaches.get(w);
+  if (!cache) { cache = new Map(); queryCaches.set(w, cache); }
+  const key = JSON.stringify([sql, params]);
+  const existing = cache.get(key);
+  if (existing) {
+    cache.delete(key);
+    cache.set(key, existing);
+    return existing as Promise<T[]>;
+  }
+  const result = Promise.resolve((w.db.query as any)(sql, params)).catch(error => {
+    if (cache.get(key) === result) cache.delete(key);
+    throw error;
+  });
+  cache.set(key, result);
+  if (cache.size > 32) cache.delete(cache.keys().next().value!);
+  return result as Promise<T[]>;
+}
+
 async function exec<T = Record<string, unknown>>(sql: string, params: unknown[] = []): Promise<T[]> {
   const w = await loadWorker();
   if (!w) return [];
   // sql.js-httpvfs の db.query は `(sql, params[]) => row[]`。配列で渡す
   // (spread すると bind が効かず fts5 が空文字 MATCH を見て syntax error)。
-  return (await (w.db.query as any)(sql, params)) as T[];
+  return queryWorker<T>(w, sql, params);
+}
+
+export type DocumentKind = "pubcomment" | "gian" | "shingikai";
+export type DocumentHit = {
+  kind: DocumentKind;
+  document_id: string;
+  title: string;
+  subtitle: string;
+  route: string;
+  snippet: string;
+};
+
+/** 収集済みのパブコメ・議案・審議会（添付の抽出本文を含む）。 */
+export async function searchDocuments(q: string, kind: DocumentKind, limit = 10): Promise<DocumentHit[]> {
+  const match = buildFtsMatchExpanded(q.trim());
+  if (!match) return [];
+  try {
+    return await exec<DocumentHit>(
+      `SELECT kind, document_id, title, subtitle, route,
+              snippet(documents_fts, 6, '<mark>', '</mark>', '...', 12) AS snippet
+         FROM documents_fts
+        WHERE documents_fts MATCH ? AND kind = ?
+        ORDER BY rank LIMIT ?`,
+      [match, kind, limit],
+    );
+  } catch (error) {
+    // 再ビルド前のDBでも既存の検索対象を利用できる。
+    if (String(error).includes("no such table")) return [];
+    throw error;
+  }
 }
 
 /** search.db の `laws.category` に存在する e-Gov 法令分類を昇順で返す。 */
@@ -479,7 +532,7 @@ export async function searchReiki(
   const w = await loadReikiWorker();
   if (!w) return [];
   const query = async <T,>(sql: string, params: unknown[]): Promise<T[]> =>
-    (await (w.db.query as any)(sql, params)) as T[];
+    queryWorker<T>(w, sql, params);
   const { scope = { kind: "all" }, titleOnly = false, limit = 30, scan = 2000 } = opts;
   try {
     let lo = 0;

@@ -1,0 +1,28 @@
+{
+  "schema_version": 3,
+  "minutes_id": "search-meeting",
+  "ministry": "moj",
+  "committee_id": "search",
+  "committee": "法制審議会",
+  "date": "2026-10-09",
+  "status": "held",
+  "title": "検索テストの審議会",
+  "agenda": null,
+  "summary": null,
+  "body_text": "",
+  "minutes_text": "会議発言の記録。",
+  "attachments": [
+    {
+      "attachment_id": "material",
+      "kind": "material",
+      "label": "配布資料",
+      "source_url": "https://example.com/material.pdf",
+      "extracted_text": "配布原文に記載された検討事項。"
+    }
+  ],
+  "source": {
+    "provider": "mock",
+    "fetched_at": "2026-10-10T00:00:00Z",
+    "detail_url": "https://example.com/document"
+  }
+}

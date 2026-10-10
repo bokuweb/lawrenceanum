@@ -10,14 +10,25 @@ import { Separator } from "../ui/separator";
 import { type LawSummary } from "../mock-data";
 import { Search, SlidersHorizontal, ChevronRight, FileText, Database, Landmark, MessageSquare, Newspaper, ExternalLink, BookOpen, ScrollText, Building2 } from "lucide-react";
 import { useLaws } from "../../data/use-laws";
-import { search as ftsSearch, isAvailable as isFtsAvailable, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, searchSpeeches, searchKanpo, searchTsutatsu, searchReiki, synonymExpansions, type SearchHit, type SpeechHit, type KanpoHit, type TsutatsuHit, type ReikiHit } from "../../data/search-engine";
+import { search as ftsSearch, isAvailable as isFtsAvailable, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, searchSpeeches, searchKanpo, searchTsutatsu, searchReiki, synonymExpansions, type SearchHit, type SpeechHit, type KanpoHit, type TsutatsuHit, type ReikiHit, searchDocuments, type DocumentHit, type DocumentKind } from "../../data/search-engine";
 import { useNavigate } from "react-router";
+
+const SEARCH_TARGETS = [
+  ["laws", "法令・条文"], ["speeches", "国会会議録"], ["kanpo", "官報"],
+  ["tsutatsu", "通達"], ["reiki", "自治体例規"], ["pubcomment", "パブコメ"],
+  ["gian", "議案"], ["shingikai", "審議会資料"],
+] as const;
+type SearchTarget = typeof SEARCH_TARGETS[number][0];
+const DOCUMENT_LABELS: Record<DocumentKind, string> = {
+  pubcomment: "パブコメ", gian: "議案", shingikai: "審議会資料",
+};
 
 export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initialQuery?: string; onOpen: (l: LawSummary) => void; onQueryChange?: (q: string) => void }) {
   const navigate = useNavigate();
   const [q, setQ] = useState(initialQuery);
   useEffect(() => { setQ(initialQuery); }, [initialQuery]);
 
+  const [targets, setTargets] = useState<Set<SearchTarget>>(() => new Set(SEARCH_TARGETS.map(([key]) => key)));
   const [cats, setCats] = useState<Set<string>>(new Set());
   const { laws, live: lawsLive, loading } = useLaws();
 
@@ -33,6 +44,9 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   const [kanpoHits, setKanpoHits] = useState<KanpoHit[]>([]);
   const [tsutatsuHits, setTsutatsuHits] = useState<TsutatsuHit[]>([]);
   const [reikiHits, setReikiHits] = useState<ReikiHit[]>([]);
+  const [documentHits, setDocumentHits] = useState<Record<DocumentKind, DocumentHit[]>>({ pubcomment: [], gian: [], shingikai: [] });
+  const [reikiSearching, setReikiSearching] = useState(false);
+  const reikiQueueRef = useRef<Promise<void>>(Promise.resolve());
   const [ftsAvailable, setFtsAvailable] = useState<boolean | null>(null);
   const [ftsMeta, setFtsMeta] = useState<Record<string, string> | null>(null);
   // 初期クエリがあれば検索中扱いで開始する。さもないと初回 render で
@@ -43,99 +57,82 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   const [ftsCategories, setFtsCategories] = useState<string[]>([]);
 
   useEffect(() => {
-    // 世代カウンタをインクリメント。このエフェクトより前に発行されたクエリが
-    // 後から返ってきても、gen が古ければ結果を捨てる。
     const gen = ++queryGenRef.current;
     const query = q.trim();
-    if (!query) {
-      setHits([]); setSpeechHits([]); setKanpoHits([]); setTsutatsuHits([]); setReikiHits([]);
-      setSearching(false);
-      setSupplementarySearching(false);
-      return;
-    }
-    if (ftsAvailable === false) {
-      setSearching(false);
-      setSupplementarySearching(false);
-      return; // FTS 不可ならフィルタ側に倒す。
-    }
-    if (!buildFtsMatch(query)) {
-      setHits([]); setSpeechHits([]); setKanpoHits([]); setTsutatsuHits([]); setReikiHits([]);
-      setSearching(false);
-      setSupplementarySearching(false);
-      return;
-    }
-
-    setSearching(true);
+    const current = () => queryGenRef.current === gen;
+    setHits([]); setSpeechHits([]); setKanpoHits([]); setTsutatsuHits([]);
+    setDocumentHits({ pubcomment: [], gian: [], shingikai: [] });
     setSupplementarySearching(false);
-    setHits([]);
-    setSpeechHits([]);
-    setKanpoHits([]);
-    setTsutatsuHits([]);
-    setReikiHits([]);
+    if (!query || !buildFtsMatch(query) || ![...targets].some(t => t !== "reiki")) {
+      setSearching(false);
+      return;
+    }
+    setSearching(targets.has("laws"));
+    setSupplementarySearching(true);
     const timer = setTimeout(() => {
       const run = async () => {
-        // 待ち行列にいる間に入力が更新されたら、DB に古い検索を
-        // 発行すること自体をやめる。
-        if (queryGenRef.current !== gen) return;
+        if (!current()) return;
         try {
-          // meta / カテゴリの補助クエリより検索を優先する。ここでは
-          // Worker と DB の準備だけを待ち、検索後に詳細情報を読み込む。
           const available = await isFtsAvailable();
-          if (queryGenRef.current !== gen) return;
-          if (!available) {
-            setFtsAvailable(false);
-            setSearching(false);
-            return;
+          if (!current()) return;
+          setFtsAvailable(available);
+          if (!available) return;
+          // 各対象の失敗は他の結果を妨げない。Worker には最新の検索だけ発行する。
+          const tasks: [SearchTarget, () => Promise<void>][] = [
+            ["laws", async () => {
+              const rows = await ftsSearch(query, 50, Array.from(cats));
+              if (current()) { setHits(rows); setSearching(false); }
+            }],
+            ["speeches", async () => { const rows = await searchSpeeches(query, 10); if (current()) setSpeechHits(rows); }],
+            ["kanpo", async () => { const rows = await searchKanpo(query, 10); if (current()) setKanpoHits(rows); }],
+            ["tsutatsu", async () => { const rows = await searchTsutatsu(query, 10); if (current()) setTsutatsuHits(rows); }],
+            ...(["pubcomment", "gian", "shingikai"] as const).map(kind => [kind, async () => {
+              const rows = await searchDocuments(query, kind);
+              if (current()) setDocumentHits(prev => ({ ...prev, [kind]: rows }));
+            }] as [SearchTarget, () => Promise<void>]),
+          ];
+          for (const [target, task] of tasks) {
+            if (!current()) return;
+            if (!targets.has(target)) continue;
+            try { await task(); } catch (error) { console.warn(`[search] ${target} failed`, error); }
           }
-
-          // 一番重要な法令結果を先に表示する。Promise.all で全横断面を
-          // 待つと、通達まで完了する間ずっと skeleton のままになる。
-          const lawHits = await ftsSearch(query, 50, Array.from(cats));
-          if (queryGenRef.current !== gen) return;
-          setFtsAvailable(true);
-          setHits(lawHits);
-          setSearching(false);
-          setSupplementarySearching(true);
-
-          // 1 Worker では Promise.all でも並列にならない。明示的に 1 つずつ
-          // 実行し、その都度表示する。入力が変わったら残りは発行しない。
-          const spHits = await searchSpeeches(query, 10);
-          if (queryGenRef.current !== gen) return;
-          setSpeechHits(spHits);
-
-          const kpHits = await searchKanpo(query, 10);
-          if (queryGenRef.current !== gen) return;
-          setKanpoHits(kpHits);
-
-          const tsHits = await searchTsutatsu(query, 10);
-          if (queryGenRef.current !== gen) return;
-          setTsutatsuHits(tsHits);
-
-          // 自治体例規は別 DB (reiki-search.db)。題名・本文を横断し、自治体をまたいで並べる。
-          const rkHits = await searchReiki(query, { limit: 20 });
-          if (queryGenRef.current !== gen) return;
-          setReikiHits(rkHits);
-          setSupplementarySearching(false);
-        } catch {
-          if (queryGenRef.current === gen) {
-            setSearching(false);
-            setSupplementarySearching(false);
-          }
+        } finally {
+          if (current()) { setSearching(false); setSupplementarySearching(false); }
         }
       };
       searchQueueRef.current = searchQueueRef.current.catch(() => {}).then(run);
-    }, 300);
-    return () => { clearTimeout(timer); };
-  }, [q, cats]);
+    }, 200);
+    return () => { clearTimeout(timer); if (current()) ++queryGenRef.current; };
+  }, [q, cats, targets]);
+
+  // 別DBの例規は独立した待ち行列で実行する。大きな例規検索が次の法令検索を止めない。
+  const reikiSelected = targets.has("reiki");
+  useEffect(() => {
+    let active = true;
+    const query = q.trim();
+    setReikiHits([]);
+    if (!reikiSelected || !buildFtsMatch(query)) { setReikiSearching(false); return; }
+    setReikiSearching(true);
+    const timer = setTimeout(() => {
+      reikiQueueRef.current = reikiQueueRef.current.catch(() => {}).then(async () => {
+        if (!active) return;
+        try {
+          const rows = await searchReiki(query, { limit: 20 });
+          if (active) setReikiHits(rows);
+        } finally { if (active) setReikiSearching(false); }
+      });
+    }, 200);
+    return () => { active = false; clearTimeout(timer); };
+  }, [q, reikiSelected]);
 
   // 件数 meta とカテゴリは初回の法令検索をブロックさせない。
   // 検索結果が画面に出てから、1 度だけ遅延読み込みする。
   useEffect(() => {
-    if (ftsAvailable !== true || searching || searchDetailsRequestedRef.current) return;
+    if (ftsAvailable !== true || searching || supplementarySearching || searchDetailsRequestedRef.current) return;
     searchDetailsRequestedRef.current = true;
     getFtsMeta().then(setFtsMeta).catch(() => setFtsMeta(null));
     getCategories().then(setFtsCategories).catch(() => setFtsCategories([]));
-  }, [ftsAvailable, searching]);
+  }, [ftsAvailable, searching, supplementarySearching]);
 
   // FTS 不可のときの法令単位フィルタ (旧来動作)。
   const filteredLaws = useMemo(() => {
@@ -154,11 +151,11 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
 
 
   // FTS が使えるかどうかで表示モードを切り替える。
-  const useFts = ftsAvailable === true;
+  const useFts = ftsAvailable !== false;
   const resultCount = useFts ? hits.length : filteredLaws.length;
   // bigram index は 2 文字以上でないと検索できない。クエリはあるが
   // 使えるトークン (2 文字以上) が 1 つも無いとき = 短すぎ。
-  const tooShort = useFts && q.trim() !== "" && buildFtsMatch(q.trim()) === "";
+  const tooShort = q.trim() !== "" && buildFtsMatch(q.trim()) === "";
   // クエリに含まれる法律 term の別表記 (シソーラス)。検索は自動でこれらも OR 検索する。
   const synonyms = useMemo(() => synonymExpansions(q), [q]);
 
@@ -167,7 +164,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
       <div className="mb-6">
         <h1 className="text-2xl">検索</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          法令・条文・改正履歴を横断検索
+          法令・会議録・官報・通達・例規・パブコメ・議案・審議会資料を横断検索
           {useFts && ftsMeta && (
             <span className="ml-2 inline-flex items-center gap-1 text-xs text-muted-foreground">
               <Database className="size-3" />
@@ -201,7 +198,22 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
                   </button>
                 )}
               </div>
-              <div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs text-muted-foreground">検索対象</Label>
+                  <div className="flex gap-2 text-xs">
+                    <button onClick={() => setTargets(new Set(SEARCH_TARGETS.map(([key]) => key)))}>すべて</button>
+                    <button onClick={() => setTargets(new Set())}>解除</button>
+                  </div>
+                </div>
+                {SEARCH_TARGETS.map(([key, label]) => (
+                  <div key={key} className="flex items-center gap-2">
+                    <Checkbox id={`target-${key}`} checked={targets.has(key)} onCheckedChange={() => toggle(targets, key, setTargets)} />
+                    <Label htmlFor={`target-${key}`} className="text-sm cursor-pointer">{label}</Label>
+                  </div>
+                ))}
+              </div>
+              {targets.has("laws") && <div>
                 <Label className="text-xs text-muted-foreground mb-2 block">
                   カテゴリ (e-Gov 法令分類)
                 </Label>
@@ -223,19 +235,21 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
                 ) : (
                   <div className="text-xs text-muted-foreground">読み込み中…</div>
                 )}
-              </div>
+              </div>}
             </CardContent>
           </Card>
         </aside>
 
         <div className="space-y-4">
-          {!q.trim() ? (
+          {targets.size === 0 ? (
+            <div className="text-center py-20 text-sm text-muted-foreground">検索対象を選んでください</div>
+          ) : !q.trim() ? (
             // 検索語が空のときは件数 (0 件) ではなく案内を出す。
             <div className="flex flex-col items-center justify-center text-center py-20 gap-3">
               <div className="size-14 rounded-full bg-muted flex items-center justify-center">
                 <Search className="size-6 text-muted-foreground" />
               </div>
-              <div className="text-sm">法令名・法令番号・条文キーワードを入力して検索</div>
+              <div className="text-sm">資料名や本文のキーワードを入力して検索</div>
               <div className="text-xs text-muted-foreground">
                 例: 民法 ／ 第九条 ／ 信義誠実 ／ 労働基準
               </div>
@@ -259,6 +273,38 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
             </div>
           ) : (
             <>
+          {(["pubcomment", "gian", "shingikai"] as const).map(kind => documentHits[kind].length > 0 && (
+            <div key={kind} className="space-y-2">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <FileText className="size-3.5" />
+                <span>{DOCUMENT_LABELS[kind]} ({documentHits[kind].length}件)</span>
+              </div>
+              {documentHits[kind].map(hit => (
+                <Card key={hit.route} className="hover:border-primary/50 transition-colors cursor-pointer"
+                  onClick={() => navigate(hit.route.split("/").map(encodeURIComponent).join("/"))}>
+                  <CardContent className="p-3">
+                    <div className="text-sm font-medium">{hit.title}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{hit.subtitle}</div>
+                    <div className="text-sm mt-1.5 leading-relaxed [&>mark]:bg-amber-300/40"
+                      dangerouslySetInnerHTML={{ __html: unbigramSnippet(hit.snippet) }} />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ))}
+          {(supplementarySearching || reikiSearching) && (
+            <div role="status" className="text-xs text-muted-foreground">選択した資料を検索中…</div>
+          )}
+          {!targets.has("laws") && !supplementarySearching && !reikiSearching &&
+            speechHits.length + kanpoHits.length + tsutatsuHits.length + reikiHits.length +
+            Object.values(documentHits).reduce((total, rows) => total + rows.length, 0) === 0 && (
+            <div className="text-center py-12 text-sm text-muted-foreground">
+              {ftsAvailable === false && [...targets].some(t => t !== "reiki")
+                ? "検索DBを読み込めませんでした"
+                : "該当する資料がありません"}
+            </div>
+          )}
+
           {/* 会議録発言 FTS セクション */}
           {useFts && speechHits.length > 0 && (
             <div className="space-y-2">
@@ -397,7 +443,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
           )}
 
           {/* 自治体例規 FTS セクション (reiki-search.db) */}
-          {useFts && reikiHits.length > 0 && (
+          {reikiHits.length > 0 && (
             <div className="space-y-2" data-testid="reiki-hits">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Building2 className="size-3.5" />
@@ -425,13 +471,13 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
             </div>
           )}
 
+          {targets.has("laws") && <>
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>
               法令 {resultCount} 件
               {(loading || searching) && " (読み込み中…)"}
               {!loading && !lawsLive && !useFts && " (モック)"}
               {useFts && " · 関連度順 (FTS5)"}
-              {useFts && supplementarySearching && " · 会議録・官報・通達を検索中…"}
             </span>
             <div className="flex gap-2">
               <Button variant="outline" size="sm">関連度順</Button>
@@ -532,6 +578,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
               </>
             )}
           </div>
+          </>}
             </>
           )}
         </div>
