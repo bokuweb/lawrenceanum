@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "bill_id": "search-bill",
+  "session": 221,
+  "title": "検索テストの法律案",
+  "committee": "法務委員会",
+  "fields": [],
+  "documents": [
+    {
+      "kind": "bill_text",
+      "label": "法律案",
+      "url": "https://example.com/bill",
+      "text": "提出理由として制度改善が必要である。"
+    }
+  ],
+  "source": {
+    "provider": "mock",
+    "fetched_at": "2026-10-10T00:00:00Z",
+    "detail_url": "https://example.com/document"
+  }
+}

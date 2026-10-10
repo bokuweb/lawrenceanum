@@ -20,7 +20,7 @@ export function Topbar({ value, onChange }: { value: string; onChange: (q: strin
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
         <Input
           value={local}
-          placeholder="法令名・法令番号・条文を検索..."
+          placeholder="法令・資料名・本文を検索..."
           className="pl-9 h-9"
           onCompositionStart={() => { composing.current = true; }}
           onCompositionEnd={e => {

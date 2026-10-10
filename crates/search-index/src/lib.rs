@@ -14,6 +14,7 @@ use rusqlite::{params, Connection};
 use std::path::Path;
 
 pub mod reiki;
+mod documents;
 
 pub fn is_cjk(c: char) -> bool {
     matches!(
@@ -315,6 +316,7 @@ const FILE_INDEX_BATCH_SIZE: usize = 14;
 ///   未知の law_id は NULL になる。
 /// `proceedings_dir`: `public/proceedings/` へのパス。Some の場合は発言 FTS も構築。
 /// `kanpo_dir`: `public/kanpo/` へのパス。Some の場合は官報記事 FTS も構築。
+/// 出力先と同じディレクトリの `pubcomment/`, `gian/`, `shingikai/` も索引する。
 pub fn build_search_db(
     out_path: &Path,
     laws: &[LawDocument],
@@ -936,6 +938,8 @@ pub fn build_search_db(
             tracing::info!("search.db: indexed {} tsutatsu items", total_tsutatsu);
         }
     }
+
+    documents::build(&conn, out_path.parent().unwrap_or_else(|| Path::new(".")))?;
 
     conn.execute(
         "INSERT INTO meta (key, value) VALUES ('built_at', datetime('now')), \

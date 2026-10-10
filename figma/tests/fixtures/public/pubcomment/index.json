@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "count": 1,
+  "cases": [
+    {
+      "schema_version": 1,
+      "case_id": "search-case",
+      "title": "検索テストの意見募集案件",
+      "ministry": "法務省",
+      "reception_start": null,
+      "reception_end": null,
+      "result_published": "2026-10-09",
+      "related_law_name": null,
+      "status": "closed",
+      "opinions": [],
+      "attachments": [
+        {
+          "name": "結果公示",
+          "url": "https://example.com/result.pdf",
+          "extracted_text": "添付原文の行政回答について説明する。"
+        }
+      ],
+      "source": {
+        "provider": "mock",
+        "fetched_at": "2026-10-10T00:00:00Z",
+        "detail_url": "https://example.com/document"
+      }
+    }
+  ]
+}

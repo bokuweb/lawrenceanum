@@ -151,6 +151,16 @@ Override with `LAWPUB_PROVIDER` and `LAWPUB_EGOV_BASE_URL`.
 
 ## Browser search (WASM SQLite + FTS5 over Cloudflare R2)
 
+検索画面では法令・国会会議録・官報・通達・自治体例規・パブコメ・議案・審議会資料を
+選んで横断検索できる。パブコメの意見・行政回答・添付抽出本文、議案の提出理由・要綱・
+修正案、審議会の議事録・配布資料抽出本文も対象となる。抽出されていない画像PDFの本文は
+対象外。`lawpub build-search-db --public public` は `public/{pubcomment,gian,shingikai}`
+も索引するため、各コーパスの JSON 生成後に実行する（配信 workflow はこの順序で実行済み）。
+
+対象を絞ると不要な検索を省略する。同一検索はDBごとに直近32件まで再利用し、自治体例規は
+独立した Worker と待ち行列で検索するため、例規の取得待ちが次の法令検索を妨げない。
+検索中に入力が変わった場合は古い結果を破棄し、未実行の古い検索を省略する。
+
 `lawpub` emits `public/search.db` (SQLite + FTS5, ~1.5 GB at full bulk) at
 build time. The SPA reads it through **sql.js-httpvfs** (sqlite.org's
 Emscripten WASM build + an HTTP-Range VFS). Each query downloads only the
