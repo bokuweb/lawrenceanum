@@ -263,6 +263,9 @@ and [`store-sqlite`](../ellisii/crates/store-sqlite/).
   on the fly so `pnpm dev` sees live data without a separate server
 - Lazy-loaded chart bundle (recharts ≈ 420 KB) via `React.lazy`, kept out of
   the initial dashboard render
+- 19 WebMCP read-only tools expose full-text search with pagination, document
+  details and entries, law versions/diffs/snapshots, related documents, Wiki links,
+  and update feeds. See [WebMCP usage](docs/webmcp.md).
 
 ### CI step order
 

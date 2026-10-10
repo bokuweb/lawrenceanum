@@ -88,6 +88,7 @@ export type LawDocumentRaw = {
   effective_date: string | null
   status: 'current' | 'historical' | 'future' | string
   articles: Article[]
+  suppl_provisions?: { index: number; amend_law_num: string | null; label: string | null; articles: Article[] }[]
   /** 旧 JSON には無い。空のときも省略される。 */
   appendix_tables?: AppendixTable[]
   source: { provider: string; raw_xml_sha256: string | null; fetched_at: string }
@@ -356,6 +357,7 @@ export const api = {
     getJson<LawDocumentRaw>(`./laws/${lawId}/revisions/${revId}.json`),
   latestUpdates: () => getJson<UpdatesByDate>('./updates/latest.json'),
   updatesOnDate: (date: string) => getJson<UpdatesByDate>(`./updates/${date}.json`),
+  kanpoOnDate: (date: string) => getJson<{ date: string; generated_at?: string; issues: Record<string, unknown>[] }>(`./kanpo/${date}/index.json`),
   /** 隣接 revision 間 diff の索引。 */
   diffsIndex: (lawId: string) => getJson<DiffsIndex>(`./laws/${lawId}/diffs.json`),
   /** 特定の from..to の構造化 diff。 */
