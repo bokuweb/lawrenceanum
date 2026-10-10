@@ -8,9 +8,9 @@ test("dashboard shows law count from live JSON", async ({ page }) => {
   console.log("[health]", JSON.stringify(health));
 
   await page.goto(BASE);
-  // ダッシュボード stat カードが live を反映するまで待つ。"—" が消えるまで。
+  // データ取得とカウントアップが完了し、確定値が表示されるまで待つ。
   const lawValue = page.locator('text=登録法令数').locator('..').locator('div').nth(1);
-  await expect(lawValue).not.toHaveText("—", { timeout: 15_000 });
+  await expect(lawValue).toHaveText(health.law_count.toLocaleString(), { timeout: 15_000 });
   const value = (await lawValue.textContent())?.replace(/,/g, "").trim() ?? "";
   console.log("[ui] 登録法令数 =", value);
   expect(Number(value)).toBe(health.law_count);

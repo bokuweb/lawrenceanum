@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Activity, Table2 } from "lucide-react";
 import { PATTERN_ORDER, PatternDef, Swatch, useChartPatterns } from "../chart-patterns";
 import { LAW_KINDS, type LawKind, type UpdateBreakdown } from "../../data/law-kind";
+import { useReducedMotion } from "../ui/use-reduced-motion";
 
 /**
  * recharts (≈557KB) を含むビジュアライズ部分をまとめたモジュール。
@@ -23,6 +24,7 @@ const COLORS = [
 ];
 
 export function StatTrend({ label, data }: { label: string; data: { month: string; count: number }[] }) {
+  const reducedMotion = useReducedMotion();
   const id = `g-${label.replace(/[^a-z0-9]/gi, "-")}`;
   return (
     <div className="h-10 mt-3 -mx-1">
@@ -34,7 +36,8 @@ export function StatTrend({ label, data }: { label: string; data: { month: strin
               <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <Area dataKey="count" stroke="var(--primary)" fill={`url(#${id})`} strokeWidth={1.5} />
+          <Area dataKey="count" stroke="var(--primary)" fill={`url(#${id})`} strokeWidth={1.5}
+            isAnimationActive={!reducedMotion} animationBegin={120} animationDuration={950} animationEasing="ease-out" />
         </AreaChart>
       </ResponsiveContainer>
     </div>
@@ -112,6 +115,7 @@ function BreakdownTooltip({ active, payload, patterns }: any) {
 
 /** 直近の法令更新件数を、法令種別ごとに積み上げて表示する。 */
 export function UpdateBreakdownCard({ data, title }: { data: UpdateBreakdown[]; title?: string }) {
+  const reducedMotion = useReducedMotion();
   const totals = Object.fromEntries(
     LAW_KINDS.map(k => [k, data.reduce((acc, d) => acc + d.kinds[k], 0)]),
   ) as Record<LawKind, number>;
@@ -188,7 +192,10 @@ export function UpdateBreakdownCard({ data, title }: { data: UpdateBreakdown[]; 
                   dataKey={(d: UpdateBreakdown) => d.kinds[k]}
                   stackId="kind"
                   fill={patterns ? `url(#${patternId(k)})` : LAW_KIND_COLORS[k]}
-                  isAnimationActive={false}
+                  isAnimationActive={!reducedMotion}
+                  animationBegin={100}
+                  animationDuration={850}
+                  animationEasing="ease-out"
                   shape={(p: any) => <StackSegment {...p} kind={k} />}
                 />
               ))}
@@ -202,6 +209,7 @@ export function UpdateBreakdownCard({ data, title }: { data: UpdateBreakdown[]; 
 }
 
 export function CategoryCard({ data }: { data: { name: string; value: number }[] }) {
+  const reducedMotion = useReducedMotion();
   return (
     <Card>
       <CardHeader><CardTitle>カテゴリ分布</CardTitle></CardHeader>
@@ -209,7 +217,8 @@ export function CategoryCard({ data }: { data: { name: string; value: number }[]
         <div className="h-64">
           <ResponsiveContainer>
             <PieChart>
-              <Pie data={data} dataKey="value" nameKey="name" innerRadius={50} outerRadius={85} paddingAngle={2} stroke="var(--background)" strokeWidth={2}>
+              <Pie data={data} dataKey="value" nameKey="name" innerRadius={50} outerRadius={85} paddingAngle={2} stroke="var(--background)" strokeWidth={2}
+                isAnimationActive={!reducedMotion} animationBegin={100} animationDuration={950} animationEasing="ease-out">
                 {data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
               </Pie>
               <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }} />

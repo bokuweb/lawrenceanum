@@ -1,11 +1,12 @@
-import { Suspense, lazy, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
-import { TrendingUp, Database, FileText, CheckCircle2, ArrowUpRight, ChevronDown, ChevronRight, GitCompare } from "lucide-react";
+import { TrendingUp, Database, FileText, CheckCircle2, ArrowUpRight, ChevronRight, GitCompare } from "lucide-react";
 import { Button } from "../ui/button";
 import { useLiveSnapshot } from "../../data/use-live-data";
 import { type CorpusHealth } from "../../data/api";
 import { Link } from "react-router";
+import { useReducedMotion } from "../ui/use-reduced-motion";
 
 // recharts を含む可視化要素は別チャンクへ。
 const StatTrend = lazy(() => import("./dashboard-charts").then(m => ({ default: m.StatTrend })));
@@ -34,13 +35,14 @@ function RecentUpdatesCard({ trend14, loading }: { trend14: UpdateDay[]; loading
               <button
                 className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-accent transition-colors text-left"
                 onClick={() => setExpanded(open ? null : u.fullDate)}
+                aria-expanded={open}
               >
-                {open ? <ChevronDown className="size-3.5 text-muted-foreground shrink-0" /> : <ChevronRight className="size-3.5 text-muted-foreground shrink-0" />}
+                <ChevronRight className={`size-3.5 text-muted-foreground shrink-0 transition-transform duration-200 motion-reduce:transition-none ${open ? "rotate-90" : ""}`} />
                 <span className="text-xs text-muted-foreground tabular-nums w-12 shrink-0">{u.date}</span>
                 <Badge variant="secondary" className="tabular-nums text-xs">{u.count} 件</Badge>
               </button>
               {open && (
-                <div className="border-t border-border bg-muted/30">
+                <div className="dashboard-details border-t border-border bg-muted/30">
                   {u.laws.map(l => (
                     <div key={l.law_id} className="flex items-center justify-between px-4 py-2 gap-2 border-b border-border/50 last:border-0 hover:bg-accent/50 transition-colors">
                       <div className="min-w-0 flex-1">
@@ -74,6 +76,35 @@ function RecentUpdatesCard({ trend14, loading }: { trend14: UpdateDay[]; loading
   );
 }
 
+function AnimatedCount({ value }: { value: number | null }) {
+  const reducedMotion = useReducedMotion();
+  const [display, setDisplay] = useState<number | null>(value === null ? null : 0);
+  const current = useRef(display ?? 0);
+
+  useEffect(() => {
+    if (value === null || reducedMotion) {
+      current.current = value ?? 0;
+      setDisplay(value);
+      return;
+    }
+    const from = current.current;
+    let start: number | undefined;
+    let frame: number;
+    const tick = (now: number) => {
+      start ??= now;
+      const progress = Math.min((now - start) / 850, 1);
+      current.current = Math.round(from + (value - from) * (1 - (1 - progress) ** 3));
+      setDisplay(current.current);
+      if (progress < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [value, reducedMotion]);
+
+  const finalValue = value === null ? "—" : value.toLocaleString();
+  return <span aria-label={finalValue}><span aria-hidden="true">{reducedMotion ? finalValue : display?.toLocaleString() ?? "—"}</span></span>;
+}
+
 function StatCard({ label, value, delta, icon: Icon, trend }: any) {
   return (
     <Card>
@@ -81,7 +112,7 @@ function StatCard({ label, value, delta, icon: Icon, trend }: any) {
         <div className="flex items-start justify-between">
           <div className="space-y-1">
             <div className="text-sm text-muted-foreground">{label}</div>
-            <div className="text-2xl tabular-nums">{value}</div>
+            <div className="text-2xl tabular-nums">{typeof value === "number" || value === null ? <AnimatedCount value={value} /> : value}</div>
             <div className="flex items-center gap-1 text-xs text-emerald-500">
               <ArrowUpRight className="size-3" />
               {delta}
@@ -222,11 +253,9 @@ export function DashboardView() {
   const trendForChart = trend14.map(d => ({ month: d.date, count: d.count }))  // d.date は MM-DD;
   const breakdown = trend14.map(d => breakdownUpdates(d.date, d.laws));
   const trendSum = trend14.reduce((acc, d) => acc + d.count, 0);
-  const fmt = (n: number | null | undefined) =>
-    n === null || n === undefined ? "—" : n.toLocaleString();
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="dashboard p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl">ダッシュボード</h1>
@@ -239,7 +268,7 @@ export function DashboardView() {
         </div>
         <Badge variant="outline" className="gap-1.5">
           <span className={`size-1.5 rounded-full ${
-            healthOk === null ? "bg-muted-foreground" : healthOk ? "bg-emerald-500 animate-pulse" : "bg-red-500"
+            healthOk === null ? "bg-muted-foreground" : healthOk ? "bg-emerald-500 motion-safe:animate-pulse" : "bg-red-500"
           }`} />
           {loading ? "読み込み中" : healthOk === null ? "未取得" : healthOk ? "稼働中" : "異常"}
         </Badge>
@@ -264,10 +293,10 @@ export function DashboardView() {
         );
       })()}
 
-      <div className="grid grid-cols-4 gap-4">
-        <StatCard label="登録法令数" value={fmt(lawCount)} delta={lawCount === null ? "" : `${lawCount}件`} icon={Database} trend={trendForChart} />
-        <StatCard label="直近 14 日更新" value={fmt(trend14.length ? trendSum : null)} delta={latestUpdates?.latest_update_date ?? ""} icon={TrendingUp} trend={trendForChart} />
-        <StatCard label="配信ファイル数" value={fmt(fileCount)} delta={health ? "manifest基準" : ""} icon={FileText} />
+      <div className="dashboard-stats grid grid-cols-4 gap-4">
+        <StatCard label="登録法令数" value={lawCount} delta={lawCount === null ? "" : `${lawCount}件`} icon={Database} trend={trendForChart} />
+        <StatCard label="直近 14 日更新" value={trend14.length ? trendSum : null} delta={latestUpdates?.latest_update_date ?? ""} icon={TrendingUp} trend={trendForChart} />
+        <StatCard label="配信ファイル数" value={fileCount} delta={health ? "manifest基準" : ""} icon={FileText} />
         <StatCard label="ヘルス" value={healthOk === null ? "—" : healthOk ? "OK" : "NG"} delta={health?.latest_egov_update_date ?? ""} icon={CheckCircle2} />
       </div>
 
