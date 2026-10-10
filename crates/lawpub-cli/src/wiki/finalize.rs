@@ -200,6 +200,10 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
     // 3. 法令ページの時系列 (会議・議案・公布/施行を 1 本の表に)。どの会議からも議案からも
     //    参照されず LLM 区間も空のまま、この plan で新規作成したページは消す。
     let bills = load_bills(wiki)?;
+    // 時系列に載せる間接的な改正 (整理法など) は直近 3 年まで。
+    let revision_cutoff = chrono::NaiveDate::parse_from_str(&today, "%Y-%m-%d")
+        .map(|d| (d - chrono::Duration::days(365 * 3)).format("%Y-%m-%d").to_string())
+        .unwrap_or_default();
     let pubcomments = load_pubcomments(wiki)?;
     let mut law_titles: BTreeMap<String, String> = BTreeMap::new();
     for path in walk_md(wiki, "laws") {
@@ -215,6 +219,7 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
             continue;
         }
         law_titles.insert(law_id.clone(), page.get_str("title").to_string());
+        let law_title = page.get_str("title").to_string();
 
         // (日付, 並び順, 種別, 内容)。同じ日は 公布/施行 → 議案 → 会議 の順。
         let mut rows: Vec<(String, u8, &str, String)> = Vec::new();
@@ -266,6 +271,12 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
                 .and_then(|n| bills.iter().find(|b| b.law_num_text.as_deref() == Some(n)))
                 .map(|b| format!(" — [議案]({})", rel_link(&rel, &b.page)))
                 .unwrap_or_default();
+            // 関係法律の整理法などの間接的な改正は行が増えるだけなので、この法令を直接改める改正・
+            // 議案ページにつながる改正・直近の改正だけを載せる。
+            let direct = !law_title.is_empty() && label.contains(law_title.as_str());
+            if !direct && bill.is_empty() && date < revision_cutoff.as_str() {
+                continue;
+            }
             rows.push((date.to_string(), 0, kind, format!("{label}{bill}")));
         }
         rows.sort_by(|a, b| b.0.cmp(&a.0).then_with(|| a.1.cmp(&b.1)).then_with(|| a.3.cmp(&b.3)));
@@ -791,7 +802,7 @@ mod tests {
             wiki.join("laws/L1.md"),
             law().replace(
                 "law_id: \"L1\"\n",
-                "law_id: \"L1\"\nrevisions: [{\"date\":\"2026-11-20\",\"kind\":\"promulgated\",\"label\":\"公布: 予防接種法の一部を改正する法律（令和八年法律第九十号）\",\"law_num\":\"令和八年法律第九十号\"}]\n",
+                "law_id: \"L1\"\nrevisions: [{\"date\":\"2026-11-20\",\"kind\":\"promulgated\",\"label\":\"公布: 予防接種法の一部を改正する法律（令和八年法律第九十号）\",\"law_num\":\"令和八年法律第九十号\"},{\"date\":\"2019-06-01\",\"kind\":\"enforced\",\"label\":\"施行: 関係法律の整理等に関する法律（令和元年法律第一号）\",\"law_num\":\"令和元年法律第一号\"}]\n",
             ),
         )
         .unwrap();

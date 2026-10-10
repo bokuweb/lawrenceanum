@@ -330,6 +330,8 @@ export type WikiPageMeta = {
   description: string
   date: string | null
   tags: string[]
+  /** LLM の文章がまだ無く、機械が作った一覧しかないページ (一覧・グラフ・導線では出さない)。 */
+  stub?: boolean
 }
 export type WikiIndex = { schema_version: number; generated_at: string; pages: WikiPageMeta[] }
 export type WikiGraph = {
@@ -337,7 +339,7 @@ export type WikiGraph = {
   nodes: { id: string; type: string; title: string; description: string }[]
   links: { source: string; target: string }[]
 }
-export type WikiPage = { path: string; frontmatter: Record<string, unknown>; body: string }
+export type WikiPage = { path: string; frontmatter: Record<string, unknown>; body: string; stub?: boolean }
 
 export const api = {
   index: () => getJson<IndexJson>('./index.json'),
