@@ -15,6 +15,7 @@ laws: ["419AC1000000051"]
 stages: [{"date":"2026-06-05","kind":"received","label":"衆議院で受理"},{"date":"2026-06-10","kind":"referred","label":"衆議院 憲法審査会に付託"},{"date":"2026-06-18","kind":"committee","label":"衆議院 委員会で可決"},{"date":"2026-06-19","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-06-19","kind":"received","label":"参議院で受理"},{"date":"2026-06-23","kind":"referred","label":"参議院 憲法審査会に付託"},{"date":"2026-07-22","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-07-24","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-07-31","kind":"promulgated","label":"公布（法律第73号）"}]
 tags: []
 render_version: 2
+llm_latest_date: "2026-07-31"
 ---
 
 # 日本国憲法の改正手続に関する法律の一部を改正する法律案
@@ -22,6 +23,29 @@ render_version: 2
 ## 概要と経緯
 
 <!-- llm:begin -->
+**提出理由**: 憲法改正国民投票の投票人が投票しやすい環境を整えるため、必要な措置を講ずる必要があるとされた[^1]。
+
+**主な内容**
+- 開票立会人の選任規定を整備し、投票立会人の選任要件を緩和する[^2]。
+- 投票立会人は、投票区の名簿登録者に限らず、国民投票の投票権を有する者から選任できるものとする[^3]。
+- AM 放送に加え、FM（超短波）放送の放送設備でも憲法改正案の広報放送をできるようにする[^4]。
+- 施行は、公布の日から起算して 3 月を経過した日とする。
+
+**審議の経過**
+- 2026-06-05 衆議院で受理、2026-06-10 憲法審査会に付託。
+- 2026-06-18 衆議院憲法審査会で可決。
+- 2026-06-19 衆議院本会議で可決（賛成: 自由民主党・無所属の会、中道改革連合・無所属、日本維新の会、国民民主党・無所属クラブ、参政党、チームみらい／反対: 日本共産党）。同日、参議院で受理し、2026-06-23 憲法審査会に付託。
+- 2026-07-22 参議院憲法審査会で可決し、附帯決議。決議は、国民の投票機会の最大限の確保[^5]や、国民投票の公平・公正確保のための法改正を始めとする必要な措置[^6]を求めた。
+- 2026-07-24 参議院本会議で可決。
+
+**結果**: 2026-07-24 成立、2026-07-31 公布（令和八年法律第七十三号）。
+
+[^1]: [gian:221/1DE28DE#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22105011.htm) 「憲法改正国民投票の投票人の投票しやすい環境を整えるため」
+[^2]: [gian:221/1DE28DE#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22105011.htm) 「開票立会人の選任に係る規定を整備し、及び投票立会人の選任要件を緩和するとともに」
+[^3]: [gian:221/1DE28DE#outline](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/youkou/g22105011.htm) 「投票立会人を、投票区の投票人名簿に登録された者に限らず、国民投票の投票権を有する者の中から選任することができる」
+[^4]: [gian:221/1DE28DE#outline](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/youkou/g22105011.htm) 「現行のＡＭ放送（中波放送）の放送設備に加えて、ＦＭ放送（超短波放送）の放送設備によっても憲法改正案の広報のための放送をすることができる」
+[^5]: [gian:221/1DE28DE#res-sangiin-221-f905_072201](https://www.sangiin.go.jp/japanese/gianjoho/ketsugi/current/f905_072201.pdf) 「国民の投票機会が最大限確保される必要があることに鑑み」
+[^6]: [gian:221/1DE28DE#res-sangiin-221-f905_072201](https://www.sangiin.go.jp/japanese/gianjoho/ketsugi/current/f905_072201.pdf) 「国民投票の公平及び公正の確保のために法改正を始めとする必要な措置を講ずること」
 <!-- llm:end -->
 
 <!-- lawpub:begin meta -->

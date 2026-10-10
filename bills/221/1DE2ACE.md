@@ -15,6 +15,7 @@ laws: ["508AC1000000078"]
 stages: [{"date":"2026-06-24","kind":"received","label":"衆議院で受理"},{"date":"2026-06-26","kind":"referred","label":"衆議院 地域活性化・こども政策・デジタル社会形成に関する特別に付託"},{"date":"2026-07-15","kind":"committee","label":"衆議院 委員会で修正"},{"date":"2026-07-15","kind":"plenary","label":"衆議院 本会議で修正"},{"date":"2026-07-15","kind":"received","label":"参議院で受理"},{"date":"2026-07-21","kind":"referred","label":"参議院 沖縄・北方問題及び地方に関する特別に付託"},{"date":"2026-07-24","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-07-24","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-07-31","kind":"promulgated","label":"公布（法律第78号）"}]
 tags: []
 render_version: 2
+llm_latest_date: "2026-07-31"
 ---
 
 # 国家社会機能継続性確保施策及び副首都の整備に係る施策の推進に関する法律案
@@ -22,6 +23,27 @@ render_version: 2
 ## 概要と経緯
 
 <!-- llm:begin -->
+**提出理由**: 大規模災害に備え、副首都の整備に係る施策などの国家社会機能継続性確保施策について基本理念や国の責務を定め[^1]、推進本部を設置すること等により総合的かつ計画的に推進する必要があるとされた[^2]。
+
+**主な内容**
+- 副首都は、東京圏で首都中枢機能の維持が困難となった場合に、その全部または大部分を代替し、多極分散型経済圏の中核にもなる道府県として指定される[^3]。
+- 国は、副首都の整備に係る施策などを総合的かつ計画的に策定・実施する責務を有する[^4]。
+
+**審議の経過**
+- 2026-06-24 衆議院で受理、2026-06-26 地域活性化・こども政策・デジタル社会形成に関する特別委員会に付託。
+- 2026-07-15 衆議院委員会・本会議で修正議決（賛成: 自由民主党・無所属の会、日本維新の会、チームみらい／反対: 中道改革連合・無所属、国民民主党・無所属クラブ、参政党、日本共産党）。同日、参議院で受理。
+- 2026-07-21 参議院沖縄・北方問題及び地方に関する特別委員会に付託。
+- 2026-07-24 同委員会で可決し、附帯決議。決議は、副首都の指定を特定の道府県を前提とせず複数指定を前提とした制度設計とすること[^5]、客観的な基準の明確化[^6]、政府内の審議過程の透明性確保[^7]を求めた。同日、参議院本会議で可決。
+
+**結果**: 2026-07-24 成立、2026-07-31 公布（令和八年法律第七十八号）。
+
+[^1]: [gian:221/1DE2ACE#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22105027.htm) 「大規模災害に備えて、副首都の整備に係る施策その他国家社会機能継続性確保施策に関し、基本理念を定め」
+[^2]: [gian:221/1DE2ACE#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22105027.htm) 「国家社会機能継続性確保施策・副首都整備推進本部を設置すること等により」
+[^3]: [gian:221/1DE2ACE#outline](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/youkou/g22105027.htm) 「首都中枢機能の全部又は大部分を代替する機能を担うとともに、多極分散型経済圏の形成の中核となる機能をも担う道府県」
+[^4]: [gian:221/1DE2ACE#outline](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/youkou/g22105027.htm) 「副首都の整備に係る施策その他国家社会機能継続性確保施策を総合的かつ計画的に策定し、及び実施する責務を有する」
+[^5]: [gian:221/1DE2ACE#res-sangiin-221-f437_072402](https://www.sangiin.go.jp/japanese/gianjoho/ketsugi/current/f437_072402.pdf) 「副首都の指定は、特定の道府県の指定を前提にしたものではなく、同時被災リスクに備える観点から、」
+[^6]: [gian:221/1DE2ACE#res-sangiin-221-f437_072402](https://www.sangiin.go.jp/japanese/gianjoho/ketsugi/current/f437_072402.pdf) 「恣意性を排除するため、客観的な基準を明確にすること」
+[^7]: [gian:221/1DE2ACE#res-sangiin-221-f437_072402](https://www.sangiin.go.jp/japanese/gianjoho/ketsugi/current/f437_072402.pdf) 「副首都の指定に当たっては、政府内の審議過程の透明性を確保すること。」
 <!-- llm:end -->
 
 <!-- lawpub:begin meta -->
