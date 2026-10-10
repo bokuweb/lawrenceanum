@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { setChartPatterns, useChartPatterns } from "../chart-patterns";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Skeleton } from "../ui/skeleton";
@@ -293,6 +294,19 @@ export function KanpoView() {
   );
 }
 
+function ChartPatternsSetting() {
+  const [, on] = useChartPatterns();
+  return (
+    <div className="flex items-center justify-between">
+      <div>
+        <Label>グラフを模様でも区別する</Label>
+        <div className="text-xs text-muted-foreground mt-0.5">色の区別がつきにくい場合に、系列を斜線の向きでも見分けられるようにします</div>
+      </div>
+      <Switch checked={on} onCheckedChange={setChartPatterns} aria-label="グラフを模様でも区別する" />
+    </div>
+  );
+}
+
 export function SettingsView() {
   const { theme, toggle } = useTheme();
   const [base, setBase] = useState("");
@@ -313,6 +327,7 @@ export function SettingsView() {
             </div>
             <Switch checked={theme === "dark"} onCheckedChange={toggle} />
           </div>
+          <ChartPatternsSetting />
         </CardContent>
       </Card>
       <Card>

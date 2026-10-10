@@ -19,6 +19,13 @@ pub struct ExportArgs {
     pub out: PathBuf,
 }
 
+/// LLM の文章 (要点・経緯・概要) がまだ無く、機械が作った一覧しかないページ。
+/// アプリでは一覧・グラフ・導線から外し、開いたときは要約前であることを示す。
+pub(crate) fn is_stub(page: &Page) -> bool {
+    matches!(page.get_str("type"), "law" | "bill" | "pubcomment" | "person" | "committee" | "meeting")
+        && llm_blocks(&page.body).iter().all(|b| b.trim().is_empty())
+}
+
 /// グラフに載せないハブページ。
 const HUB_PAGES: [&str; 3] = ["index.md", "log.md", "README.md"];
 
@@ -60,7 +67,8 @@ pub fn run_export(args: &ExportArgs) -> Result<()> {
         };
         pages.push((rel, page));
     }
-    let known: BTreeSet<&str> = pages.iter().map(|(rel, _)| rel.as_str()).collect();
+    // グラフは要約済みのページだけでつなぐ (一覧だけのページは結節点にしない)。
+    let known: BTreeSet<&str> = pages.iter().filter(|(_, p)| !is_stub(p)).map(|(rel, _)| rel.as_str()).collect();
 
     let mut index = Vec::new();
     let mut nodes = Vec::new();
@@ -75,14 +83,15 @@ pub fn run_export(args: &ExportArgs) -> Result<()> {
             "description": page.get_str("description"),
             "date": page.get("date").cloned().unwrap_or(Value::Null),
             "tags": page.get("tags").cloned().unwrap_or(json!([])),
+            "stub": is_stub(page),
         });
         index.push(entry.clone());
 
         let dest = args.out.join("page").join(format!("{id}.json"));
         std::fs::create_dir_all(dest.parent().expect("has parent"))?;
-        std::fs::write(&dest, serde_json::to_vec(&json!({ "path": id, "frontmatter": fm, "body": page.body }))?)?;
+        std::fs::write(&dest, serde_json::to_vec(&json!({ "path": id, "frontmatter": fm, "body": page.body, "stub": is_stub(page) }))?)?;
 
-        if HUB_PAGES.contains(&rel.as_str()) {
+        if HUB_PAGES.contains(&rel.as_str()) || !known.contains(rel.as_str()) {
             continue;
         }
         nodes.push(json!({
@@ -141,22 +150,27 @@ mod tests {
             std::fs::write(p, s).unwrap();
         };
         write("index.md", "---\ntype: \"index\"\ntitle: \"wiki\"\n---\n[L1](laws/L1.md)\n");
-        write("laws/L1.md", "---\ntype: \"law\"\ntitle: \"予防接種法\"\n---\n[会議](../meetings/kokkai/M1.md) [欠落](../laws/none.md)\n");
+        write("laws/L1.md", "---\ntype: \"law\"\ntitle: \"予防接種法\"\n---\n<!-- llm:begin -->\n経緯\n<!-- llm:end -->\n[会議](../meetings/kokkai/M1.md) [欠落](../laws/none.md) [議案](../bills/221/B1.md)\n");
+        // LLM の文章が無い (一覧だけの) 議案ページは要約前としてグラフに載せない。
+        write("bills/221/B1.md", "---\ntype: \"bill\"\ntitle: \"議案\"\n---\n<!-- llm:begin -->\n<!-- llm:end -->\n[予防接種法](../../laws/L1.md)\n");
         write(
             "meetings/kokkai/M1.md",
-            "---\ntype: \"meeting\"\ntitle: \"厚生労働委員会\"\ndate: \"2026-10-01\"\n---\n[予防接種法](../../laws/L1.md)\n",
+            "---\ntype: \"meeting\"\ntitle: \"厚生労働委員会\"\ndate: \"2026-10-01\"\n---\n<!-- llm:begin -->\n要点\n<!-- llm:end -->\n[予防接種法](../../laws/L1.md)\n",
         );
         write(".lawpub/state.md", "ignored");
 
         run_export(&ExportArgs { wiki, out: out.clone() }).unwrap();
 
         let index: Value = serde_json::from_slice(&std::fs::read(out.join("index.json")).unwrap()).unwrap();
-        assert_eq!(index["pages"].as_array().unwrap().len(), 3);
+        assert_eq!(index["pages"].as_array().unwrap().len(), 4);
+        let stub_of = |path: &str| index["pages"].as_array().unwrap().iter().find(|p| p["path"] == path).unwrap()["stub"].clone();
+        assert_eq!(stub_of("bills/221/B1"), json!(true));
+        assert_eq!(stub_of("laws/L1"), json!(false));
         let page: Value = serde_json::from_slice(&std::fs::read(out.join("page/laws/L1.json")).unwrap()).unwrap();
         assert_eq!(page["frontmatter"]["title"], "予防接種法");
         assert!(page["body"].as_str().unwrap().contains("[会議]"));
         let graph: Value = serde_json::from_slice(&std::fs::read(out.join("graph.json")).unwrap()).unwrap();
-        assert_eq!(graph["nodes"].as_array().unwrap().len(), 2, "index はハブなので除く");
+        assert_eq!(graph["nodes"].as_array().unwrap().len(), 2, "index (ハブ) と要約前の議案は除く");
         assert_eq!(graph["links"], json!([{ "source": "laws/L1", "target": "meetings/kokkai/M1" }]));
         std::fs::remove_dir_all(root).ok();
     }

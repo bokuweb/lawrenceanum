@@ -10,6 +10,7 @@ const INDEX = {
     { path: "laws/L1", type: "law", title: "予防接種法", description: "副反応救済をめぐる議論", date: null, tags: [] },
     { path: "meetings/kokkai/M1", type: "meeting", title: "参議院 厚生労働委員会 第1号", description: "山田議員が救済拡充を質疑", date: "2026-10-01", tags: ["副反応救済"] },
     { path: "index", type: "index", title: "lawrenceanum wiki", description: "", date: null, tags: [] },
+    { path: "bills/221/B9", type: "bill", title: "要約前の議案", description: "", date: "2026-10-05", tags: [], stub: true },
   ],
 };
 
@@ -129,6 +130,29 @@ test("法令詳細に wiki への導線が出て、wiki ページへ移動でき
 test("wiki ページが無い法令には導線を出さない", async ({ page }) => {
   await page.route("**/wiki/page/laws/**", (r) => r.fulfill({ status: 404, body: "" }));
   await page.goto(new URL("#/laws/129AC0000000089", BASE).toString());
+  await expect(page.getByRole("heading", { name: "民法" }).first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole("button", { name: /^wiki/ })).toHaveCount(0);
+});
+
+test("要約前 (一覧だけ) のページは既定で一覧に出さず、チェックで表示できる", async ({ page }) => {
+  await mock(page);
+  await page.goto(new URL("#/wiki", BASE).toString());
+  await page.getByRole("tab", { name: "一覧" }).click();
+  await expect(page.getByRole("button", { name: /参議院 厚生労働委員会 第1号/ })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole("button", { name: /要約前の議案/ })).toHaveCount(0);
+  // 件数のチップも要約済みだけを数える。
+  await expect(page.getByRole("button", { name: "議案 0" })).toBeVisible();
+
+  await page.getByLabel(/要約前のページも表示/).check();
+  await expect(page.getByRole("button", { name: /要約前の議案/ })).toBeVisible();
+});
+
+test("要約前の法令ページには法令詳細から導線を出さない", async ({ page }) => {
+  const lawId = "129AC0000000089";
+  await page.route(`**/wiki/page/laws/${lawId}.json`, (r) =>
+    r.fulfill({ json: { path: `laws/${lawId}`, frontmatter: { type: "law", title: "民法", description: "" }, body: "\n# 民法\n", stub: true } }),
+  );
+  await page.goto(new URL(`#/laws/${lawId}`, BASE).toString());
   await expect(page.getByRole("heading", { name: "民法" }).first()).toBeVisible({ timeout: 15_000 });
   await expect(page.getByRole("button", { name: /^wiki/ })).toHaveCount(0);
 });

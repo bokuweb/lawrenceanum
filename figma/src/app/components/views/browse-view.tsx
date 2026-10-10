@@ -507,7 +507,8 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
     setWikiDescription(null);
     api.wikiPage(`laws/${law.law_id}`)
       .then(p => {
-        if (cancelled) return;
+        // 要約前 (一覧だけ) のページには導線を出さない。
+        if (cancelled || p.stub) return;
         const d = p.frontmatter.description;
         setWikiDescription(typeof d === "string" ? d : "");
       })

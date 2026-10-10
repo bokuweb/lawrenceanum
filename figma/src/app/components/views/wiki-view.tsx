@@ -65,10 +65,11 @@ function WikiHome({
 }) {
   const [query, setQuery] = useState("");
   const [visible, setVisible] = useState<Set<string>>(() => new Set(WIKI_TYPE_ORDER));
-  const pages = useMemo(
-    () => (index.data?.pages ?? []).filter(p => WIKI_TYPES[p.type]),
-    [index.data],
-  );
+  const [showStubs, setShowStubs] = useState(false);
+  const all = useMemo(() => (index.data?.pages ?? []).filter(p => WIKI_TYPES[p.type]), [index.data]);
+  const stubCount = useMemo(() => all.filter(p => p.stub).length, [all]);
+  // 要約前 (一覧だけ) のページは既定で出さない。件数のチップも要約済みのページだけを数える。
+  const pages = useMemo(() => all.filter(p => showStubs || !p.stub), [all, showStubs]);
   const counts = useMemo(() => {
     const c = new Map<string, number>();
     for (const p of pages) c.set(p.type, (c.get(p.type) ?? 0) + 1);
@@ -151,6 +152,12 @@ function WikiHome({
                 <Search className="size-4 absolute left-2.5 top-2.5 text-muted-foreground" />
                 <Input value={query} onChange={e => setQuery(e.target.value)} placeholder="タイトル・概要・タグで絞り込み" className="pl-8" />
               </div>
+              {stubCount > 0 && (
+                <label className="flex items-center gap-1.5 text-xs text-muted-foreground mb-3">
+                  <input type="checkbox" checked={showStubs} onChange={e => setShowStubs(e.target.checked)} />
+                  要約前のページも表示（{stubCount}）
+                </label>
+              )}
               <ul className="divide-y divide-border border border-border rounded-lg">
                 {filtered.map(p => (
                   <li key={p.path}>
@@ -234,6 +241,11 @@ function WikiPageView({
             </div>
             <h1 className="text-2xl mb-1">{str("title") || path}</h1>
             {str("description") && <p className="text-sm text-muted-foreground mb-2">{str("description")}</p>}
+            {page.data.stub && (
+              <p className="text-xs rounded-md border border-border bg-muted/40 px-3 py-2 mb-3 text-muted-foreground" data-testid="wiki-stub-note">
+                このページはまだ LLM による要約がありません。収集したデータの一覧だけを表示しています（毎日の更新で順次まとめます）。
+              </p>
+            )}
             <div className="flex flex-wrap items-center gap-1.5 mb-5">
               {str("resource") && (
                 <a
