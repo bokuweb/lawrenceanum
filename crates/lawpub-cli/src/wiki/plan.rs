@@ -27,6 +27,8 @@ pub struct PlanArgs {
     pub max_pubcomments: usize,
     /// 自治体例規の配信元 (R2 の `{public}/reiki`)。空なら例規の照合をしない。
     pub reiki_base_url: String,
+    /// LLM に 1 回で渡すタスク数 (`.wiki-work/chunks/NNN.md` ごとに別々の実行にする)。
+    pub chunk_size: usize,
 }
 
 /// 1 発言から抜き出す文脈幅 (文字数)。
@@ -240,6 +242,13 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
         args.work.join("plan.md"),
         render_plan_md(&plan, &args.wiki, &args.work),
     )?;
+    // LLM には数件ずつ別々に渡す (一度に何十件も渡すと途中で作業を切り上げてしまうため)。
+    let chunks = args.work.join("chunks");
+    std::fs::create_dir_all(&chunks)?;
+    for (i, part) in plan.tasks.chunks(args.chunk_size.max(1)).enumerate() {
+        let sub = Plan { tasks: part.to_vec(), ..plan.clone() };
+        std::fs::write(chunks.join(format!("{:03}.md", i + 1)), render_plan_md(&sub, &args.wiki, &args.work))?;
+    }
     println!(
         "wiki-plan: {} task(s), {probes} link probe(s)",
         plan.tasks.len()
@@ -1158,6 +1167,7 @@ mod tests {
             max_bills: 0,
             max_pubcomments: 0,
             reiki_base_url: String::new(),
+            chunk_size: 4,
         })
         .unwrap();
         let plan = Plan::load(&work).unwrap().unwrap();
@@ -1242,12 +1252,16 @@ mod tests {
             max_bills: 0,
             max_pubcomments: 0,
             reiki_base_url: String::new(),
+            chunk_size: 4,
         })
         .unwrap();
 
         let plan = Plan::load(&work).unwrap().unwrap();
         assert_eq!(plan.tasks.len(), 1);
         assert_eq!(plan.tasks[0].page, "meetings/kokkai/M1.md");
+        // LLM に渡す単位 (チャンク) にも同じタスクが書き出される。
+        let chunk = std::fs::read_to_string(work.join("chunks/001.md")).unwrap();
+        assert!(chunk.contains("meetings/kokkai/M1.md"));
         let meeting = Page::read(&wiki.join("meetings/kokkai/M1.md")).unwrap();
         assert_eq!(meeting.get_str("title"), "参議院 厚生労働委員会 第1号");
         assert_eq!(meeting.get("speakers").unwrap()[0]["name"], "山田太郎");
@@ -1284,6 +1298,7 @@ mod tests {
             max_bills: 0,
             max_pubcomments: 0,
             reiki_base_url: String::new(),
+            chunk_size: 4,
         })
         .unwrap();
         let again = Plan::load(&work).unwrap().unwrap();

@@ -62,7 +62,8 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # チャンク (4 件) ごとに LLM を呼ぶので、上限を上げた手動実行でも収まるように長めにする。
+    timeout-minutes: 150
     env:
       WIKI_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
       WIKI_MODEL: ${{ vars.WIKI_MODEL || 'claude-sonnet-5-5' }}
@@ -113,22 +114,49 @@ jobs:
 
       # Claude には wiki/ の編集と読み取りだけを許す。Bash とネットワークは渡さない
       # (会議録は外部由来のテキストなので、プロンプトインジェクションの影響範囲を最小にする)。
-      - name: Write wiki pages (Claude Code)
+      # Claude には wiki/ の編集と読み取りだけを許す。Bash とネットワークは渡さない
+      # (会議録は外部由来のテキストなので、プロンプトインジェクションの影響範囲を最小にする)。
+      # 一度に何十件も渡すと途中で作業を切り上げてしまうので、wiki-plan が分けたチャンク
+      # (.wiki-work/chunks/NNN.md、既定 4 件) ごとに、まっさらな状態の Claude Code を呼ぶ。
+      - name: Setup Node (Claude Code CLI)
         if: steps.plan.outputs.tasks != '0' && env.HAS_CLAUDE_AUTH == 'true'
-        uses: anthropics/claude-code-action@v1
+        uses: actions/setup-node@v4
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          github_token: ${{ github.token }}
-          show_full_output: ${{ github.event.inputs.debug == 'true' }}
-          prompt: |
-            `.github/wiki-agent.md` の指示に従い、`.wiki-work/plan.md` の全タスクについて wiki を更新してください。
-            ソースバンドル (`.wiki-work/sources/`) の抜粋だけを根拠にし、引用ルールを厳守してください。
-          claude_args: >-
-            --model ${{ env.WIKI_MODEL }}
-            --max-turns 90
-            --allowedTools "Read,Glob,Grep,Edit(wiki/**),Write(wiki/**),MultiEdit(wiki/**)"
-            --disallowedTools "Bash,WebFetch,WebSearch,NotebookEdit"
+          node-version: 22
+
+      - name: Install Claude Code CLI
+        if: steps.plan.outputs.tasks != '0' && env.HAS_CLAUDE_AUTH == 'true'
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Write wiki pages (Claude Code, per chunk)
+        if: steps.plan.outputs.tasks != '0' && env.HAS_CLAUDE_AUTH == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          DEBUG_OUTPUT: ${{ github.event.inputs.debug == 'true' }}
+        run: |
+          # 空の Secret は未設定として扱う (空の API キーが OAuth より優先されないように)。
+          [ -n "$ANTHROPIC_API_KEY" ] || unset ANTHROPIC_API_KEY
+          [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ] || unset CLAUDE_CODE_OAUTH_TOKEN
+          echo "### Claude Code (チャンクごと)" >> "$GITHUB_STEP_SUMMARY"
+          for f in .wiki-work/chunks/*.md; do
+            prompt="\`.github/wiki-agent.md\` の指示に従い、\`$f\` に載っている全タスクを最後まで処理して wiki を更新してください。
+          ソースバンドル (\`.wiki-work/sources/\`) の抜粋だけを根拠にし、引用ルールを厳守してください。途中で作業を切り上げないこと。"
+            if claude -p "$prompt" \
+                --model "$WIKI_MODEL" \
+                --max-turns 40 \
+                --permission-mode dontAsk \
+                --allowedTools "Read,Glob,Grep,Edit(wiki/**),Write(wiki/**),MultiEdit(wiki/**)" \
+                --disallowedTools "Bash,WebFetch,WebSearch,NotebookEdit" \
+                --output-format json > "$f.result.json" 2> "$f.err"; then
+              jq -r --arg f "$f" '"- \($f): \(.num_turns) turns, $\(.total_cost_usd), is_error=\(.is_error)"' "$f.result.json" | tee -a "$GITHUB_STEP_SUMMARY"
+            else
+              # 1 チャンクの失敗で他を止めない (未完了のタスクは finalize が翌日に回す)。
+              echo "::warning::$f の処理に失敗: $(tail -c 500 "$f.err")"
+              echo "- $f: 失敗" >> "$GITHUB_STEP_SUMMARY"
+            fi
+            if [ "$DEBUG_OUTPUT" = "true" ]; then jq -r '.result // empty' "$f.result.json" 2>/dev/null || true; fi
+          done
 
       - name: Finalize
         run: ./target/release/lawpub wiki-finalize --wiki wiki --work .wiki-work
@@ -141,21 +169,23 @@ jobs:
       # 検証エラーは 1 回だけ LLM に直させる (引用の引き直し、または該当記述の削除)。
       - name: Repair (Claude Code)
         if: steps.check.outcome == 'failure' && env.HAS_CLAUDE_AUTH == 'true'
-        uses: anthropics/claude-code-action@v1
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          github_token: ${{ github.token }}
-          show_full_output: ${{ github.event.inputs.debug == 'true' }}
-          prompt: |
-            `.wiki-work/check-report.md` に wiki の検証エラーがあります。`.github/wiki-agent.md` の引用ルールに従って、
-            エラーになった箇所だけを直してください。引用が原文と一致しない場合は、ソースバンドル
-            (`.wiki-work/sources/`) の `text` から正しい一節を引き直すか、根拠を示せない記述ごと削除してください。
-          claude_args: >-
-            --model ${{ env.WIKI_MODEL }}
-            --max-turns 20
-            --allowedTools "Read,Glob,Grep,Edit(wiki/**),Write(wiki/**),MultiEdit(wiki/**)"
-            --disallowedTools "Bash,WebFetch,WebSearch,NotebookEdit"
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          [ -n "$ANTHROPIC_API_KEY" ] || unset ANTHROPIC_API_KEY
+          [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ] || unset CLAUDE_CODE_OAUTH_TOKEN
+          command -v claude >/dev/null || npm install -g @anthropic-ai/claude-code
+          claude -p "\`.wiki-work/check-report.md\` に wiki の検証エラーがあります。\`.github/wiki-agent.md\` の引用ルールに従って、
+          エラーになった箇所だけを直してください。引用が原文と一致しない場合は、ソースバンドル
+          (\`.wiki-work/sources/\`) の \`text\` から正しい一節を引き直すか、根拠を示せない記述ごと削除してください。" \
+            --model "$WIKI_MODEL" \
+            --max-turns 20 \
+            --permission-mode dontAsk \
+            --allowedTools "Read,Glob,Grep,Edit(wiki/**),Write(wiki/**),MultiEdit(wiki/**)" \
+            --disallowedTools "Bash,WebFetch,WebSearch,NotebookEdit" \
+            --output-format json > .wiki-work/repair.result.json || echo "::warning::修正パスに失敗"
+          jq -r '"修正パス: \(.num_turns) turns, $\(.total_cost_usd)"' .wiki-work/repair.result.json 2>/dev/null || true
 
       - name: Re-check after repair
         if: steps.check.outcome == 'failure'
@@ -178,7 +208,7 @@ jobs:
           fi
           date=$(jq -r '.date' ../.wiki-work/plan.json)
           n=$(jq '.tasks | length' ../.wiki-work/plan.json)
-          git commit -q -m "wiki: ${date} (${n} meetings planned)" -m "run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          git commit -q -m "wiki: ${date} (${n} tasks planned)" -m "run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           if [ "$PUSH_MODE" = "pr" ] && [ "${{ steps.wiki.outputs.exists }}" = "true" ]; then
             branch="wiki-update/${date}-${{ github.run_id }}"
             git push origin "HEAD:refs/heads/${branch}"
