@@ -10,7 +10,12 @@ test("法令と会議録は本文だけの一致でも条番号・話者を表�
   await page.getByPlaceholder(/検索/).fill("索引照合");
   await expect(page.getByText("試験法", { exact: true })).toBeVisible();
   await expect(page.getByText("第一条", { exact: true })).toBeVisible();
+  await expect(page.getByRole("tab", { name: "法令・条文 1件", exact: true })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByText("試験法", { exact: true })).toBeInViewport();
+  await expect(page.getByText("試験太郎", { exact: true })).toHaveCount(0);
+  await page.getByRole("tab", { name: /^国会会議録/ }).click();
   await expect(page.getByText("試験太郎", { exact: true })).toBeVisible();
+  await expect(page.getByText("試験法", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("alert")).toHaveCount(0);
 });
 
@@ -48,14 +53,18 @@ test("例規DBの読み込みが遅くても次の検索と対象切り替えを
   try {
     await page.goto(new URL("#/search?q=郵便法施行規則", BASE).toString());
     await started;
-    await expect(page.getByText("官報 (1件)", { exact: true })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("tab", { name: "官報 1件", exact: true })).toBeVisible({ timeout: 20_000 });
+    await page.getByRole("tab", { name: /^官報/ }).click();
+    await expect(page.getByText("官報 (1件)", { exact: true })).toBeVisible();
     await page.getByPlaceholder(/検索/).fill("添付原文");
+    await page.getByRole("tab", { name: /^パブコメ/ }).click();
     await expect(page.getByText("パブコメ (1件)", { exact: true })).toBeVisible({ timeout: 10_000 });
     await expect(page.getByText("官報 (1件)", { exact: true })).toHaveCount(0);
     await page.getByRole("checkbox", { name: "パブコメ", exact: true }).uncheck();
     await expect(page.getByText("パブコメ (1件)", { exact: true })).toHaveCount(0);
     // 再選択しても同じ検索結果を再利用できる。
     await page.getByRole("checkbox", { name: "パブコメ", exact: true }).check();
+    await page.getByRole("tab", { name: /^パブコメ/ }).click();
     await expect(page.getByText("パブコメ (1件)", { exact: true })).toBeVisible({ timeout: 10_000 });
   } finally { release(); }
 });
@@ -84,6 +93,7 @@ test("同じDBへの古い検索が停止していても入力を変えると検
     await firstRequest;
     blocked = false;
     await page.getByPlaceholder(/検索/).fill("添付原文");
+    await page.getByRole("tab", { name: /^パブコメ/ }).click();
     await expect(page.getByText("パブコメ (1件)", { exact: true })).toBeVisible({ timeout: 5000 });
     await expect(page.getByText("官報 (1件)", { exact: true })).toHaveCount(0);
     await expect(page.getByRole("alert")).toHaveCount(0);
@@ -101,14 +111,22 @@ test("1つの検索が停止しても他の結果を出し、期限後は終了�
   try {
     await page.goto(new URL("#/search?q=検索テスト", BASE).toString());
     // いずれか1対象のWorkerが停止しても、別の同一DBの対象は検索できる。
-    await expect(page.getByText(/^(パブコメ|議案|審議会資料) \(1件\)$/).first()).toBeVisible({ timeout: 5000 });
+    const completedTab = page.getByRole("tab", { name: /^(パブコメ|議案|審議会資料) 1件$/ }).first();
+    await expect(completedTab).toBeVisible({ timeout: 5000 });
+    await completedTab.click();
+    await expect(page.getByText(/^(パブコメ|議案|審議会資料) \(1件\)$/).first()).toBeVisible();
+    const failedTab = page.getByRole("tab", { name: /エラー$/ });
+    await expect(failedTab).toBeVisible({ timeout: 15000 });
+    await failedTab.click();
     await expect(page.getByRole("alert")).toContainText("時間がかかっているため中断しました", { timeout: 15000 });
     await expect(page.getByRole("status")).toHaveCount(0);
     release();
     await page.getByRole("button", { name: "再試行", exact: true }).click();
-    await expect(page.getByText("パブコメ (1件)", { exact: true })).toBeVisible();
-    await expect(page.getByText("議案 (1件)", { exact: true })).toBeVisible();
-    await expect(page.getByText("審議会資料 (1件)", { exact: true })).toBeVisible();
+    for (const label of ["パブコメ", "議案", "審議会資料"]) {
+      await expect(page.getByRole("tab", { name: `${label} 1件`, exact: true })).toBeVisible();
+      await page.getByRole("tab", { name: `${label} 1件`, exact: true }).click();
+      await expect(page.getByText(`${label} (1件)`, { exact: true })).toBeVisible();
+    }
     await expect(page.getByRole("status")).toHaveCount(0);
     await expect(page.getByRole("alert")).toHaveCount(0);
   } finally { release(); }
@@ -150,4 +168,38 @@ test("読み込みが進んでいる検索は12秒を超えても結果を表示
   await expect(page.getByText("通信が進む検索結果", { exact: true })).toBeVisible({ timeout: 20_000 });
   await expect(page.getByRole("alert")).toHaveCount(0);
   await expect(page.getByRole("status")).toHaveCount(0);
+});
+
+test("タブはキーボードで切り替えられ、切り替えても検索をやり直さない", async ({ page }) => {
+  await page.addInitScript(() => {
+    const OriginalWorker = window.Worker;
+    (window as any).searchWorkersCreated = 0;
+    window.Worker = class extends OriginalWorker {
+      constructor(url: string | URL, options?: WorkerOptions) {
+        super(url, options);
+        (window as any).searchWorkersCreated++;
+      }
+    };
+  });
+  await page.goto(new URL("#/search?q=索引照合", BASE).toString());
+  await expect(page.getByText("試験法", { exact: true })).toBeInViewport();
+  await expect(page.getByRole("status")).toHaveCount(0);
+  await expect(page.getByRole("tab")).toHaveCount(8);
+  await expect(page.getByRole("tabpanel")).toHaveCount(1);
+  const workersBefore = await page.evaluate(() => (window as any).searchWorkersCreated);
+  const lawTab = page.getByRole("tab", { name: "法令・条文 1件", exact: true });
+  await lawTab.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(page.getByRole("tab", { name: "国会会議録 1件", exact: true })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByText("試験太郎", { exact: true })).toBeVisible();
+  await page.getByRole("tab", { name: "官報 0件", exact: true }).click();
+  await expect(page.getByText("該当する資料がありません", { exact: true })).toBeVisible();
+  await lawTab.click();
+  await expect(page.getByText("試験法", { exact: true })).toBeVisible();
+  await expect(page.getByRole("status")).toHaveCount(0);
+  expect(await page.evaluate(() => (window as any).searchWorkersCreated)).toBe(workersBefore);
+  await page.getByRole("checkbox", { name: "法令・条文", exact: true }).uncheck();
+  await expect(page.getByRole("tab", { name: /^法令・条文/ })).toHaveCount(0);
+  await expect(page.getByRole("tab", { name: /^国会会議録/ })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByText("試験太郎", { exact: true })).toBeVisible();
 });
