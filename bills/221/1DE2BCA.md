@@ -15,6 +15,7 @@ laws: ["503AC0000000081"]
 stages: [{"date":"2026-07-10","kind":"received","label":"衆議院で受理"},{"date":"2026-07-14","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-07-14","kind":"received","label":"参議院で受理"},{"date":"2026-07-21","kind":"referred","label":"参議院 こども・子育て・若者活躍に関する特別に付託"},{"date":"2026-07-22","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-07-24","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-07-31","kind":"promulgated","label":"公布（法律第77号）"}]
 tags: []
 render_version: 2
+llm_latest_date: "2026-07-31"
 ---
 
 # 医療的ケア児及びその家族に対する支援に関する法律の一部を改正する法律案
@@ -22,6 +23,28 @@ render_version: 2
 ## 概要と経緯
 
 <!-- llm:begin -->
+**提出理由**: 医療的ケア児の成長その他の状況を踏まえ、支援の対象を医療的ケア児等及び重症心身障害者並びにそれらの家族に拡大し、支援のための施策を強化する必要があるとされた[^1]。
+
+**主な内容**
+- 支援の対象を「医療的ケア児及びその家族」から「医療的ケア児等及び重症心身障害者並びにそれらの家族」に拡大し、題名もこれに合わせて改める[^2]。
+- 学校等の設置者の責務の対象に、大学、高等専門学校、専修学校（高等課程）の設置者を追加する[^3]。
+- 就労の支援として、在宅勤務など個々の特性に応じた就労形態による就労の機会の確保を国・地方公共団体が図る[^4]。
+
+**審議の経過**
+- 2026-07-10 衆議院で受理。
+- 2026-07-14 衆議院本会議で可決（全会一致。賛成: 自由民主党・無所属の会、中道改革連合・無所属、日本維新の会、国民民主党・無所属クラブ、参政党、チームみらい、日本共産党）。参議院で受理。
+- 2026-07-21 参議院こども・子育て・若者活躍に関する特別委員会に付託。
+- 2026-07-22 同委員会で可決し、附帯決議。強度行動障害の状態にある者やその家族の支援体制の整備の推進や、喀痰吸引等研修の事業者負担の軽減の検討などを求めた[^5][^6]。
+- 2026-07-24 参議院本会議で可決。
+
+**結果**: 2026-07-31 公布（令和八年法律第七十七号）。
+
+[^1]: [gian:221/1DE2BCA#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22105029.htm) 「支援の対象を医療的ケア児等及び重症心身障害者並びにそれらの家族に拡大した上」
+[^2]: [gian:221/1DE2BCA#outline](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/youkou/g22105029.htm) 「医療的ケア児等及び重症心身障害者並びにそれらの家族に対する支援に関する法律」
+[^3]: [gian:221/1DE2BCA#outline](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/youkou/g22105029.htm) 「大学及び高等専門学校並びに専修学校（高等課程に限る。）の設置者を追加する」
+[^4]: [gian:221/1DE2BCA#outline](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/youkou/g22105029.htm) 「在宅勤務その他の個々の医療的ケア児等及び重症心身障害者の特性に応じた就労形態による適切な就労の機会の確保」
+[^5]: [gian:221/1DE2BCA#res-sangiin-221-f440_072201](https://www.sangiin.go.jp/japanese/gianjoho/ketsugi/current/f440_072201.pdf) 「強度行動障害の状態にある者やその家族についても」
+[^6]: [gian:221/1DE2BCA#res-sangiin-221-f440_072201](https://www.sangiin.go.jp/japanese/gianjoho/ketsugi/current/f440_072201.pdf) 「喀痰吸引等研修について、様式の見直し等による事業者の負担軽減を検討すること」
 <!-- llm:end -->
 
 <!-- lawpub:begin meta -->
