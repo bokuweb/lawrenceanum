@@ -8,10 +8,12 @@ import { WIKI_TYPES } from "./wiki-types";
 export function WikiGraphCanvas({
   graph,
   visibleTypes,
+  showStubs,
   onOpen,
 }: {
   graph: WikiGraph;
   visibleTypes: Set<string>;
+  showStubs: boolean;
   onOpen: (path: string) => void;
 }) {
   const box = useRef<HTMLDivElement>(null);
@@ -29,7 +31,7 @@ export function WikiGraphCanvas({
 
   // force-graph はノード/リンクを書き換えるため、毎回コピーを渡す。
   const data = useMemo(() => {
-    const nodes = graph.nodes.filter(n => visibleTypes.has(n.type)).map(n => ({ ...n }));
+    const nodes = graph.nodes.filter(n => visibleTypes.has(n.type) && (showStubs || !n.stub)).map(n => ({ ...n }));
     const ids = new Set(nodes.map(n => n.id));
     const links = graph.links.filter(l => ids.has(l.source) && ids.has(l.target)).map(l => ({ ...l }));
     const degree = new Map<string, number>();
@@ -38,7 +40,7 @@ export function WikiGraphCanvas({
       degree.set(l.target, (degree.get(l.target) ?? 0) + 1);
     }
     return { nodes: nodes.map(n => ({ ...n, degree: degree.get(n.id) ?? 0 })), links };
-  }, [graph, visibleTypes]);
+  }, [graph, visibleTypes, showStubs]);
 
   const labelColor = useMemo(() => {
     const v = getComputedStyle(document.documentElement).getPropertyValue("--foreground").trim();
@@ -65,8 +67,16 @@ export function WikiGraphCanvas({
           const r = 3 + Math.sqrt(n.degree) * 1.6;
           ctx.beginPath();
           ctx.arc(n.x, n.y, r, 0, 2 * Math.PI);
-          ctx.fillStyle = WIKI_TYPES[n.type]?.color ?? "#94a3b8";
-          ctx.fill();
+          // 要約前のページは中抜きの輪で描き、要約済みと見分けられるようにする。
+          const color = WIKI_TYPES[n.type]?.color ?? "#94a3b8";
+          if (n.stub) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          } else {
+            ctx.fillStyle = color;
+            ctx.fill();
+          }
           // ラベルは結節点 (つながり 3 本以上、または論点) だけ常に出し、他はズームしたときに出す。
           if (scale > 1.6 || n.degree >= 3 || n.type === "topic") {
             const fontSize = Math.max(10 / scale, 2);

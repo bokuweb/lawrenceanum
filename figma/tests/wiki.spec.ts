@@ -143,8 +143,13 @@ test("要約前 (一覧だけ) のページは既定で一覧に出さず、チ�
   // 件数のチップも要約済みだけを数える。
   await expect(page.getByRole("button", { name: "議案 0" })).toBeVisible();
 
-  await page.getByLabel(/要約前のページも表示/).check();
+  await page.getByLabel(/要約前（一覧だけ）のページも表示/).check();
   await expect(page.getByRole("button", { name: /要約前の議案/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: "議案 1" })).toBeVisible();
+
+  // 切り替えはブラウザに保存され、再読み込みしても維持される。
+  await page.reload();
+  await expect(page.getByLabel(/要約前（一覧だけ）のページも表示/)).toBeChecked({ timeout: 15_000 });
 });
 
 test("要約前の法令ページには法令詳細から導線を出さない", async ({ page }) => {
@@ -155,4 +160,18 @@ test("要約前の法令ページには法令詳細から導線を出さない",
   await page.goto(new URL(`#/laws/${lawId}`, BASE).toString());
   await expect(page.getByRole("heading", { name: "民法" }).first()).toBeVisible({ timeout: 15_000 });
   await expect(page.getByRole("button", { name: /^wiki/ })).toHaveCount(0);
+});
+
+test("「要約前のページも表示」が有効なら、要約前の法令ページにも法令詳細から行ける", async ({ page }) => {
+  const lawId = "129AC0000000089";
+  await page.addInitScript(() => localStorage.setItem("wiki-show-stubs", "on"));
+  await page.route(`**/wiki/page/laws/${lawId}.json`, (r) =>
+    r.fulfill({ json: { path: `laws/${lawId}`, frontmatter: { type: "law", title: "民法", description: "" }, body: "\n# 民法\n", stub: true } }),
+  );
+  await page.goto(new URL(`#/laws/${lawId}`, BASE).toString());
+  const band = page.getByRole("button", { name: /^wiki.*要約前（一覧のみ）/ });
+  await expect(band).toBeVisible({ timeout: 15_000 });
+  await band.click();
+  await expect(page).toHaveURL(new RegExp(`#/wiki/laws/${lawId}$`));
+  await expect(page.getByTestId("wiki-stub-note")).toBeVisible();
 });

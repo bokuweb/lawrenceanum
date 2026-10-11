@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useShowStubs } from "./wiki-prefs";
 import { Card, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -501,20 +502,21 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
   }, [articles, appendixTables]);
 
   // この法令の wiki ページ（LLM wiki, OKF）。ページが無ければ非表示。
+  const showStubs = useShowStubs();
   const [wikiDescription, setWikiDescription] = useState<string | null>(null);
   useEffect(() => {
     let cancelled = false;
     setWikiDescription(null);
     api.wikiPage(`laws/${law.law_id}`)
       .then(p => {
-        // 要約前 (一覧だけ) のページには導線を出さない。
-        if (cancelled || p.stub) return;
+        // 要約前 (一覧だけ) のページは、wiki の「要約前のページも表示」が有効なときだけ導線を出す。
+        if (cancelled || (p.stub && !showStubs)) return;
         const d = p.frontmatter.description;
-        setWikiDescription(typeof d === "string" ? d : "");
+        setWikiDescription(p.stub ? "要約前（一覧のみ）" : typeof d === "string" ? d : "");
       })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [law.law_id]);
+  }, [law.law_id, showStubs]);
 
   // この法令に言及している国会会議録（law→proceedings クロスリンク）。リンクが無ければ非表示。
   const [proceedings, setProceedings] = useState<LawToProceedings | null>(null);
