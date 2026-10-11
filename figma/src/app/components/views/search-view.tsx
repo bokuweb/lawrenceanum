@@ -62,7 +62,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
       return;
     }
     setPending(new Set(targets));
-    const request = { signal: controller.signal };
+    const request = { signal: controller.signal, includeSnippet: false };
     const timer = setTimeout(() => {
       const tasks: [SearchTarget, () => Promise<void>][] = [
         ["laws", async () => {

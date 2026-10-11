@@ -2,6 +2,18 @@ import { test, expect } from "@playwright/test";
 
 const BASE = process.env.HISTORY_BASE ?? "http://127.0.0.1:8799/";
 
+test("法令と会議録は本文だけの一致でも条番号・話者を表示する", async ({ page }) => {
+  await page.goto(new URL("#/search", BASE).toString());
+  await page.getByRole("button", { name: "解除", exact: true }).click();
+  await page.getByRole("checkbox", { name: "法令・条文", exact: true }).check();
+  await page.getByRole("checkbox", { name: "国会会議録", exact: true }).check();
+  await page.getByPlaceholder(/検索/).fill("索引照合");
+  await expect(page.getByText("試験法", { exact: true })).toBeVisible();
+  await expect(page.getByText("第一条", { exact: true })).toBeVisible();
+  await expect(page.getByText("試験太郎", { exact: true })).toBeVisible();
+  await expect(page.getByRole("alert")).toHaveCount(0);
+});
+
 for (const [query, label, title, path] of [
   ["添付原文", "パブコメ", "検索テストの意見募集案件", "/pubcomment/search-case"],
   ["提出理由", "議案", "検索テストの法律案", "/gian/221/search-bill"],
@@ -100,4 +112,42 @@ test("1つの検索が停止しても他の結果を出し、期限後は終了�
     await expect(page.getByRole("status")).toHaveCount(0);
     await expect(page.getByRole("alert")).toHaveCount(0);
   } finally { release(); }
+});
+
+test("読み込みが進んでいる検索は12秒を超えても結果を表示する", async ({ page }) => {
+  // A slow SQLite worker that keeps completing HTTP reads. The old absolute
+  // 12-second timer rejected this valid response before it could arrive.
+  await page.route(/\/sqlite\.worker-[^/]+\.js$/, async route => {
+    const response = await route.fetch();
+    // Vite also emits a tiny ?url module; keep that module intact.
+    if ((await response.body()).length < 10_000) { await route.fulfill({ response }); return; }
+    await route.fulfill({
+      contentType: "text/javascript",
+      body: `self.addEventListener('message', event => {
+      const channel = new MessageChannel();
+      channel.port1.onmessage = ({data}) => {
+        const sql = data.argumentList[0].value;
+        if (!sql.includes(' MATCH ')) {
+          channel.port1.postMessage({id:data.id,type:0,value:[]}); return;
+        }
+        const progress = setInterval(() => self.postMessage({type:'search-progress'}), 500);
+        setTimeout(() => {
+          clearInterval(progress);
+          channel.port1.postMessage({id:data.id,type:0,value:[{
+            law_id:'129AC0000000089',title:'通信が進む検索結果',article_id:'1',
+            article_no:'第一条',caption:'労働',law_num:'',snippet:''
+          }]});
+        }, 13000);
+      };
+      self.postMessage({id:event.data.id,type:3,name:'WORKERSQLPROXIES',value:channel.port2},[channel.port2]);
+    });`,
+    });
+  });
+  await page.goto(new URL("#/search", BASE).toString());
+  await page.getByRole("button", { name: "解除", exact: true }).click();
+  await page.getByRole("checkbox", { name: "法令・条文", exact: true }).check();
+  await page.getByPlaceholder(/検索/).fill("労働");
+  await expect(page.getByText("通信が進む検索結果", { exact: true })).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByRole("alert")).toHaveCount(0);
+  await expect(page.getByRole("status")).toHaveCount(0);
 });
