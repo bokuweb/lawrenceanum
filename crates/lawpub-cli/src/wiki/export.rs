@@ -67,8 +67,7 @@ pub fn run_export(args: &ExportArgs) -> Result<()> {
         };
         pages.push((rel, page));
     }
-    // グラフは要約済みのページだけでつなぐ (一覧だけのページは結節点にしない)。
-    let known: BTreeSet<&str> = pages.iter().filter(|(_, p)| !is_stub(p)).map(|(rel, _)| rel.as_str()).collect();
+    let known: BTreeSet<&str> = pages.iter().map(|(rel, _)| rel.as_str()).collect();
 
     let mut index = Vec::new();
     let mut nodes = Vec::new();
@@ -91,14 +90,16 @@ pub fn run_export(args: &ExportArgs) -> Result<()> {
         std::fs::create_dir_all(dest.parent().expect("has parent"))?;
         std::fs::write(&dest, serde_json::to_vec(&json!({ "path": id, "frontmatter": fm, "body": page.body, "stub": is_stub(page) }))?)?;
 
-        if HUB_PAGES.contains(&rel.as_str()) || !known.contains(rel.as_str()) {
+        if HUB_PAGES.contains(&rel.as_str()) {
             continue;
         }
+        // 要約前のページも載せ、アプリ側で既定は隠す (切り替えで表示できる)。
         nodes.push(json!({
             "id": id,
             "type": page.get_str("type"),
             "title": page.get_str("title"),
             "description": page.get_str("description"),
+            "stub": is_stub(page),
         }));
         for target in relative_links(&page.body) {
             let Some(to) = resolve_link(rel, &target) else { continue };
@@ -170,8 +171,16 @@ mod tests {
         assert_eq!(page["frontmatter"]["title"], "予防接種法");
         assert!(page["body"].as_str().unwrap().contains("[会議]"));
         let graph: Value = serde_json::from_slice(&std::fs::read(out.join("graph.json")).unwrap()).unwrap();
-        assert_eq!(graph["nodes"].as_array().unwrap().len(), 2, "index (ハブ) と要約前の議案は除く");
-        assert_eq!(graph["links"], json!([{ "source": "laws/L1", "target": "meetings/kokkai/M1" }]));
+        let nodes = graph["nodes"].as_array().unwrap();
+        assert_eq!(nodes.len(), 3, "index (ハブ) は除き、要約前の議案は stub 付きで載せる");
+        assert_eq!(nodes.iter().find(|n| n["id"] == "bills/221/B1").unwrap()["stub"], json!(true));
+        assert_eq!(
+            graph["links"],
+            json!([
+                { "source": "bills/221/B1", "target": "laws/L1" },
+                { "source": "laws/L1", "target": "meetings/kokkai/M1" }
+            ])
+        );
         std::fs::remove_dir_all(root).ok();
     }
 }

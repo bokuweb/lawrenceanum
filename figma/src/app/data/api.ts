@@ -337,7 +337,7 @@ export type WikiPageMeta = {
 export type WikiIndex = { schema_version: number; generated_at: string; pages: WikiPageMeta[] }
 export type WikiGraph = {
   schema_version: number
-  nodes: { id: string; type: string; title: string; description: string }[]
+  nodes: { id: string; type: string; title: string; description: string; stub?: boolean }[]
   links: { source: string; target: string }[]
 }
 export type WikiPage = { path: string; frontmatter: Record<string, unknown>; body: string; stub?: boolean }

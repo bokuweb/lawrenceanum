@@ -9,6 +9,7 @@ import { Skeleton } from "../ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { api, type WikiGraph, type WikiIndex, type WikiPage, type WikiPageMeta } from "../../data/api";
 import { WIKI_TYPES, WIKI_TYPE_ORDER, resolveWikiLink } from "./wiki-types";
+import { setShowStubs, useShowStubs } from "./wiki-prefs";
 
 const WikiGraphCanvas = lazy(() => import("./wiki-graph").then(m => ({ default: m.WikiGraphCanvas })));
 
@@ -65,7 +66,7 @@ function WikiHome({
 }) {
   const [query, setQuery] = useState("");
   const [visible, setVisible] = useState<Set<string>>(() => new Set(WIKI_TYPE_ORDER));
-  const [showStubs, setShowStubs] = useState(false);
+  const showStubs = useShowStubs();
   const all = useMemo(() => (index.data?.pages ?? []).filter(p => WIKI_TYPES[p.type]), [index.data]);
   const stubCount = useMemo(() => all.filter(p => p.stub).length, [all]);
   // 要約前 (一覧だけ) のページは既定で出さない。件数のチップも要約済みのページだけを数える。
@@ -132,6 +133,13 @@ function WikiHome({
             })}
           </div>
 
+          {stubCount > 0 && (
+            <label className="flex items-center gap-1.5 text-xs text-muted-foreground mb-3 w-fit">
+              <input type="checkbox" checked={showStubs} onChange={e => setShowStubs(e.target.checked)} />
+              要約前（一覧だけ）のページも表示（{stubCount}）
+            </label>
+          )}
+
           <Tabs defaultValue="graph">
             <TabsList>
               <TabsTrigger value="graph">グラフ</TabsTrigger>
@@ -140,7 +148,7 @@ function WikiHome({
             <TabsContent value="graph">
               {graph ? (
                 <Suspense fallback={<Skeleton className="h-[560px] w-full" />}>
-                  <WikiGraphCanvas graph={graph} visibleTypes={visible} onOpen={p => onOpen(p)} />
+                  <WikiGraphCanvas graph={graph} visibleTypes={visible} showStubs={showStubs} onOpen={p => onOpen(p)} />
                 </Suspense>
               ) : (
                 <Skeleton className="h-[560px] w-full" />
@@ -152,12 +160,6 @@ function WikiHome({
                 <Search className="size-4 absolute left-2.5 top-2.5 text-muted-foreground" />
                 <Input value={query} onChange={e => setQuery(e.target.value)} placeholder="タイトル・概要・タグで絞り込み" className="pl-8" />
               </div>
-              {stubCount > 0 && (
-                <label className="flex items-center gap-1.5 text-xs text-muted-foreground mb-3">
-                  <input type="checkbox" checked={showStubs} onChange={e => setShowStubs(e.target.checked)} />
-                  要約前のページも表示（{stubCount}）
-                </label>
-              )}
               <ul className="divide-y divide-border border border-border rounded-lg">
                 {filtered.map(p => (
                   <li key={p.path}>
@@ -168,7 +170,10 @@ function WikiHome({
                     >
                       <TypeBadge type={p.type} />
                       <span className="min-w-0">
-                        <span className="text-sm font-medium block truncate">{p.title}</span>
+                        <span className="text-sm font-medium block truncate">
+                          {p.title}
+                          {p.stub && <span className="text-[10px] font-normal text-muted-foreground ml-1">（要約前）</span>}
+                        </span>
                         {p.description && <span className="text-xs text-muted-foreground line-clamp-2">{p.description}</span>}
                       </span>
                       {p.date && <span className="ml-auto text-xs text-muted-foreground shrink-0">{p.date}</span>}
@@ -202,6 +207,7 @@ function WikiPageView({
   const tags = Array.isArray(fm.tags) ? (fm.tags as string[]) : [];
 
   // グラフ上の隣接ページ (このページへのリンクと、このページからのリンク)。
+  const showStubs = useShowStubs();
   const neighbors = useMemo(() => {
     if (!graph || !index) return [];
     const byPath = new Map(index.pages.map(p => [p.path, p]));
@@ -212,12 +218,12 @@ function WikiPageView({
     }
     return [...ids]
       .map(id => byPath.get(id))
-      .filter((p): p is WikiPageMeta => !!p)
+      .filter((p): p is WikiPageMeta => !!p && (showStubs || !p.stub))
       .sort((a, b) =>
         WIKI_TYPE_ORDER.indexOf(a.type) - WIKI_TYPE_ORDER.indexOf(b.type) ||
         (b.date ?? "").localeCompare(a.date ?? ""),
       );
-  }, [graph, index, path]);
+  }, [graph, index, path, showStubs]);
 
   useEffect(() => {
     document.querySelector("main")?.scrollTo({ top: 0 });
@@ -270,7 +276,10 @@ function WikiPageView({
                   <li key={n.path}>
                     <button type="button" onClick={() => onOpen(n.path)} className="text-left flex items-start gap-1.5 hover:text-primary">
                       <TypeBadge type={n.type} />
-                      <span className="leading-snug">{n.title}</span>
+                      <span className="leading-snug">
+                        {n.title}
+                        {n.stub && <span className="text-[10px] text-muted-foreground ml-1">（要約前）</span>}
+                      </span>
                     </button>
                   </li>
                 ))}
