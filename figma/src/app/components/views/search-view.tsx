@@ -10,7 +10,7 @@ import { Separator } from "../ui/separator";
 import { type LawSummary } from "../mock-data";
 import { Search, SlidersHorizontal, ChevronRight, FileText, Database, Landmark, MessageSquare, Newspaper, ExternalLink, BookOpen, ScrollText, Building2 } from "lucide-react";
 import { useLaws } from "../../data/use-laws";
-import { search as ftsSearch, isAvailable as isFtsAvailable, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, searchSpeeches, searchKanpo, searchTsutatsu, searchReiki, synonymExpansions, type SearchHit, type SpeechHit, type KanpoHit, type TsutatsuHit, type ReikiHit, searchDocuments, type DocumentHit, type DocumentKind } from "../../data/search-engine";
+import { search as ftsSearch, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, searchSpeeches, searchKanpo, searchTsutatsu, searchReiki, synonymExpansions, type SearchHit, type SpeechHit, type KanpoHit, type TsutatsuHit, type ReikiHit, searchDocuments, type DocumentHit, type DocumentKind } from "../../data/search-engine";
 import { useNavigate } from "react-router";
 
 const SEARCH_TARGETS = [
@@ -32,12 +32,6 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   const [cats, setCats] = useState<Set<string>>(new Set());
   const { laws, live: lawsLive, loading } = useLaws();
 
-  // FTS 検索結果と meta。
-  const queryGenRef = useRef(0);
-  // sql.js-httpvfs は 1 Worker 内でクエリを直列実行する。入力のたびに
-  // 検索を追加すると古いクエリがキューに残るため、常に最新世代だけを
-  // 実行するキューに集約する。
-  const searchQueueRef = useRef<Promise<void>>(Promise.resolve());
   const searchDetailsRequestedRef = useRef(false);
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [speechHits, setSpeechHits] = useState<SpeechHit[]>([]);
@@ -45,85 +39,63 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   const [tsutatsuHits, setTsutatsuHits] = useState<TsutatsuHit[]>([]);
   const [reikiHits, setReikiHits] = useState<ReikiHit[]>([]);
   const [documentHits, setDocumentHits] = useState<Record<DocumentKind, DocumentHit[]>>({ pubcomment: [], gian: [], shingikai: [] });
-  const [reikiSearching, setReikiSearching] = useState(false);
-  const reikiQueueRef = useRef<Promise<void>>(Promise.resolve());
   const [ftsAvailable, setFtsAvailable] = useState<boolean | null>(null);
   const [ftsMeta, setFtsMeta] = useState<Record<string, string> | null>(null);
-  // 初期クエリがあれば検索中扱いで開始する。さもないと初回 render で
-  // hits=[] のまま「該当する条文がありません」が一瞬表示されてしまう。
-  const [searching, setSearching] = useState(() => initialQuery.trim() !== "");
-  const [supplementarySearching, setSupplementarySearching] = useState(false);
+  const [pending, setPending] = useState<Set<SearchTarget>>(() =>
+    new Set(initialQuery.trim() ? SEARCH_TARGETS.map(([key]) => key) : []));
+  const [failures, setFailures] = useState<Partial<Record<SearchTarget, string>>>({});
+  const [retry, setRetry] = useState(0);
+  const searching = pending.has("laws");
+  const supplementarySearching = [...pending].some(target => target !== "laws");
   // search.db の laws.category から取れる e-Gov 法令分類 (50 区分)。
   const [ftsCategories, setFtsCategories] = useState<string[]>([]);
 
   useEffect(() => {
-    const gen = ++queryGenRef.current;
-    const query = q.trim();
-    const current = () => queryGenRef.current === gen;
-    setHits([]); setSpeechHits([]); setKanpoHits([]); setTsutatsuHits([]);
-    setDocumentHits({ pubcomment: [], gian: [], shingikai: [] });
-    setSupplementarySearching(false);
-    if (!query || !buildFtsMatch(query) || ![...targets].some(t => t !== "reiki")) {
-      setSearching(false);
-      return;
-    }
-    setSearching(targets.has("laws"));
-    setSupplementarySearching(true);
-    const timer = setTimeout(() => {
-      const run = async () => {
-        if (!current()) return;
-        try {
-          const available = await isFtsAvailable();
-          if (!current()) return;
-          setFtsAvailable(available);
-          if (!available) return;
-          // 各対象の失敗は他の結果を妨げない。Worker には最新の検索だけ発行する。
-          const tasks: [SearchTarget, () => Promise<void>][] = [
-            ["laws", async () => {
-              const rows = await ftsSearch(query, 50, Array.from(cats));
-              if (current()) { setHits(rows); setSearching(false); }
-            }],
-            ["speeches", async () => { const rows = await searchSpeeches(query, 10); if (current()) setSpeechHits(rows); }],
-            ["kanpo", async () => { const rows = await searchKanpo(query, 10); if (current()) setKanpoHits(rows); }],
-            ["tsutatsu", async () => { const rows = await searchTsutatsu(query, 10); if (current()) setTsutatsuHits(rows); }],
-            ...(["pubcomment", "gian", "shingikai"] as const).map(kind => [kind, async () => {
-              const rows = await searchDocuments(query, kind);
-              if (current()) setDocumentHits(prev => ({ ...prev, [kind]: rows }));
-            }] as [SearchTarget, () => Promise<void>]),
-          ];
-          for (const [target, task] of tasks) {
-            if (!current()) return;
-            if (!targets.has(target)) continue;
-            try { await task(); } catch (error) { console.warn(`[search] ${target} failed`, error); }
-          }
-        } finally {
-          if (current()) { setSearching(false); setSupplementarySearching(false); }
-        }
-      };
-      searchQueueRef.current = searchQueueRef.current.catch(() => {}).then(run);
-    }, 200);
-    return () => { clearTimeout(timer); if (current()) ++queryGenRef.current; };
-  }, [q, cats, targets]);
-
-  // 別DBの例規は独立した待ち行列で実行する。大きな例規検索が次の法令検索を止めない。
-  const reikiSelected = targets.has("reiki");
-  useEffect(() => {
+    const controller = new AbortController();
     let active = true;
     const query = q.trim();
-    setReikiHits([]);
-    if (!reikiSelected || !buildFtsMatch(query)) { setReikiSearching(false); return; }
-    setReikiSearching(true);
+    setHits([]); setSpeechHits([]); setKanpoHits([]); setTsutatsuHits([]); setReikiHits([]);
+    setDocumentHits({ pubcomment: [], gian: [], shingikai: [] });
+    setFailures({});
+    if (!query || !buildFtsMatch(query) || targets.size === 0) {
+      setPending(new Set());
+      return;
+    }
+    setPending(new Set(targets));
+    const request = { signal: controller.signal };
     const timer = setTimeout(() => {
-      reikiQueueRef.current = reikiQueueRef.current.catch(() => {}).then(async () => {
-        if (!active) return;
-        try {
-          const rows = await searchReiki(query, { limit: 20 });
-          if (active) setReikiHits(rows);
-        } finally { if (active) setReikiSearching(false); }
-      });
+      const tasks: [SearchTarget, () => Promise<void>][] = [
+        ["laws", async () => {
+          const rows = await ftsSearch(query, 50, Array.from(cats), 0, request);
+          if (active) { setHits(rows); setFtsAvailable(true); }
+        }],
+        ["speeches", async () => { const rows = await searchSpeeches(query, 10, 0, request); if (active) setSpeechHits(rows); }],
+        ["kanpo", async () => { const rows = await searchKanpo(query, 10, true, 0, request); if (active) setKanpoHits(rows); }],
+        ["tsutatsu", async () => { const rows = await searchTsutatsu(query, 10, true, 0, request); if (active) setTsutatsuHits(rows); }],
+        ["reiki", async () => { const rows = await searchReiki(query, { limit: 20, strict: true, ...request }); if (active) setReikiHits(rows); }],
+        ...(["pubcomment", "gian", "shingikai"] as const).map(kind => [kind, async () => {
+          const rows = await searchDocuments(query, kind, 10, true, 0, { ...request, includeSnippet: false });
+          if (active) setDocumentHits(prev => ({ ...prev, [kind]: rows }));
+        }] as [SearchTarget, () => Promise<void>]),
+      ];
+      // 各対象のWorkerは独立しており、遅い対象を待たずに結果を表示する。
+      for (const [target, task] of tasks) {
+        if (!targets.has(target)) continue;
+        void task().catch(error => {
+          if (!active) return;
+          if (target === "laws") setFtsAvailable(false);
+          const message = error?.name === "TimeoutError"
+            ? "時間がかかっているため中断しました。語句や検索対象を絞って再検索してください。"
+            : "検索できませんでした。再試行してください。";
+          setFailures(prev => ({ ...prev, [target]: message }));
+        }).finally(() => {
+          if (active) setPending(prev => { const next = new Set(prev); next.delete(target); return next; });
+        });
+      }
     }, 200);
-    return () => { active = false; clearTimeout(timer); };
-  }, [q, reikiSelected]);
+    // 結果を捨てるだけでなく、同期XHRやSQLの実行もWorkerごと止める。
+    return () => { active = false; clearTimeout(timer); controller.abort(); };
+  }, [q, cats, targets, retry]);
 
   // 件数 meta とカテゴリは初回の法令検索をブロックさせない。
   // 検索結果が画面に出てから、1 度だけ遅延読み込みする。
@@ -273,6 +245,14 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
             </div>
           ) : (
             <>
+          {Object.keys(failures).length > 0 && (
+            <div role="alert" className="rounded-md border p-3 text-sm space-y-1">
+              {SEARCH_TARGETS.filter(([key]) => failures[key]).map(([key, label]) => (
+                <p key={key}>{label}：{failures[key]}</p>
+              ))}
+              <Button variant="outline" size="sm" onClick={() => setRetry(value => value + 1)}>再試行</Button>
+            </div>
+          )}
           {(["pubcomment", "gian", "shingikai"] as const).map(kind => documentHits[kind].length > 0 && (
             <div key={kind} className="space-y-2">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -285,17 +265,17 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
                   <CardContent className="p-3">
                     <div className="text-sm font-medium">{hit.title}</div>
                     <div className="text-xs text-muted-foreground mt-0.5">{hit.subtitle}</div>
-                    <div className="text-sm mt-1.5 leading-relaxed [&>mark]:bg-amber-300/40"
-                      dangerouslySetInnerHTML={{ __html: unbigramSnippet(hit.snippet) }} />
+                    {hit.snippet && <div className="text-sm mt-1.5 leading-relaxed [&>mark]:bg-amber-300/40"
+                      dangerouslySetInnerHTML={{ __html: unbigramSnippet(hit.snippet) }} />}
                   </CardContent>
                 </Card>
               ))}
             </div>
           ))}
-          {(supplementarySearching || reikiSearching) && (
-            <div role="status" className="text-xs text-muted-foreground">選択した資料を検索中…</div>
+          {(pending.size > 0) && (
+            <div role="status" className="text-xs text-muted-foreground">検索中: {SEARCH_TARGETS.filter(([key]) => pending.has(key)).map(([, label]) => label).join("・")}</div>
           )}
-          {!targets.has("laws") && !supplementarySearching && !reikiSearching &&
+          {!targets.has("laws") && !supplementarySearching && Object.keys(failures).length === 0 &&
             speechHits.length + kanpoHits.length + tsutatsuHits.length + reikiHits.length +
             Object.values(documentHits).reduce((total, rows) => total + rows.length, 0) === 0 && (
             <div className="text-center py-12 text-sm text-muted-foreground">
@@ -306,7 +286,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
           )}
 
           {/* 会議録発言 FTS セクション */}
-          {useFts && speechHits.length > 0 && (
+          {speechHits.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Landmark className="size-3.5" />
@@ -346,7 +326,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
           )}
 
           {/* 官報記事 FTS セクション */}
-          {useFts && kanpoHits.length > 0 && (
+          {kanpoHits.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Newspaper className="size-3.5" />
@@ -405,7 +385,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
           )}
 
           {/* 通達 (soft law) FTS セクション */}
-          {useFts && tsutatsuHits.length > 0 && (
+          {tsutatsuHits.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <ScrollText className="size-3.5" />
@@ -477,12 +457,8 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
               法令 {resultCount} 件
               {(loading || searching) && " (読み込み中…)"}
               {!loading && !lawsLive && !useFts && " (モック)"}
-              {useFts && " · 関連度順 (FTS5)"}
+              {useFts && " · 索引順 (FTS5)"}
             </span>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">関連度順</Button>
-              <Button variant="ghost" size="sm">更新日順</Button>
-            </div>
           </div>
 
           <div className="space-y-2">

@@ -274,7 +274,7 @@ export function createWebMcpTools(): Tool[] {
         sections: SECTIONS[corpus] ?? [],
       })),
     })),
-    tool('search_legal_data', '法令の条文・国会発言・官報・通達・自治体例規・パブコメ・議案・審議会を全文検索する。同義語展開、順位順ページング、詳細取得用 document_args に対応。例規は先頭2000候補内の検索のため自治体・都道府県で絞り込む。DBの取得失敗はエラーを返す。', {
+    tool('search_legal_data', '法令の条文・国会発言・官報・通達・自治体例規・パブコメ・議案・審議会を全文検索する。同義語展開、索引順ページング、詳細取得用 document_args に対応。例規は先頭2000候補内の検索のため自治体・都道府県で絞り込む。DBの取得失敗はエラーを返す。', {
       query: text('2文字以上の全文検索キーワード（空白区切りは AND 条件）'),
       corpus: { type: 'string', enum: ['laws', 'proceedings', 'kanpo', 'tsutatsu', 'reiki', 'pubcomment', 'gian', 'shingikai'], default: 'laws' },
       ...paging,

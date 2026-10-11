@@ -56,3 +56,48 @@ test("検索対象の解除と短い検索語を案内する", async ({ page }) 
   await page.getByPlaceholder(/検索/).fill("法");
   await expect(page.getByText("2 文字以上で検索してください")).toBeVisible();
 });
+
+test("同じDBへの古い検索が停止していても入力を変えると検索し直せる", async ({ page }) => {
+  let blocked = true;
+  let release = () => {};
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  let started = () => {};
+  const firstRequest = new Promise<void>(resolve => { started = resolve; });
+  await page.route("**/search.db", async route => {
+    if (blocked) { started(); await gate; }
+    await route.continue().catch(() => {});
+  });
+  try {
+    await page.goto(new URL("#/search?q=郵便法施行規則", BASE).toString());
+    await firstRequest;
+    blocked = false;
+    await page.getByPlaceholder(/検索/).fill("添付原文");
+    await expect(page.getByText("パブコメ (1件)", { exact: true })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText("官報 (1件)", { exact: true })).toHaveCount(0);
+    await expect(page.getByRole("alert")).toHaveCount(0);
+  } finally { release(); }
+});
+
+test("1つの検索が停止しても他の結果を出し、期限後は終了して再試行できる", async ({ page }) => {
+  let blockOne = true;
+  let release = () => {};
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/search.db", async route => {
+    if (blockOne) { blockOne = false; await gate; }
+    await route.continue().catch(() => {});
+  });
+  try {
+    await page.goto(new URL("#/search?q=検索テスト", BASE).toString());
+    // いずれか1対象のWorkerが停止しても、別の同一DBの対象は検索できる。
+    await expect(page.getByText(/^(パブコメ|議案|審議会資料) \(1件\)$/).first()).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole("alert")).toContainText("時間がかかっているため中断しました", { timeout: 15000 });
+    await expect(page.getByRole("status")).toHaveCount(0);
+    release();
+    await page.getByRole("button", { name: "再試行", exact: true }).click();
+    await expect(page.getByText("パブコメ (1件)", { exact: true })).toBeVisible();
+    await expect(page.getByText("議案 (1件)", { exact: true })).toBeVisible();
+    await expect(page.getByText("審議会資料 (1件)", { exact: true })).toBeVisible();
+    await expect(page.getByRole("status")).toHaveCount(0);
+    await expect(page.getByRole("alert")).toHaveCount(0);
+  } finally { release(); }
+});

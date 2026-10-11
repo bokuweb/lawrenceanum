@@ -2,15 +2,15 @@
  * sql.js-httpvfs (WASM SQLite + HTTP Range) によるブラウザ内検索。
  *
  * - search.db は Cloudflare R2 に置く想定 (`VITE_SEARCH_DB_URL` で URL 指定)。
- * - sql.js-httpvfs が SQLite ページ (4KB) を Range fetch するので、1.5GB DB
- *   でも 1 query ≒ 100〜300KB しか DL しない。
+ * - sql.js-httpvfs が必要な SQLite ページを HTTP Range で取得する。
+ * - 全ヒットの採点を避け、索引順で必要件数だけ読み出す。
  * - VITE_SEARCH_DB_URL 未設定時は同 origin の `./search.db` を使う (小規模時 fallback)。
  *
  * Rust 側の `crates/search-index::tokenize` と完全一致した bigram 分割を
  * クエリにも適用する。
  */
 
-import { createDbWorker, type WorkerHttpvfs } from "sql.js-httpvfs";
+import { SearchWorker, type SearchRequest } from "./search-worker";
 // 法令シソーラス (ellisii-toolkit jp-law-thesaurus)。クエリ同義語展開に使う。
 import thesaurusData from "./jp-law-thesaurus.json";
 
@@ -197,89 +197,29 @@ export function unbigramSnippet(s: string): string {
   return out;
 }
 
-/** sql.js-httpvfs のワーカーを 1 DB につき 1 つ遅延生成する。 */
-function workerLoader(envUrl: string | undefined, fallbackPath: string, label: string) {
-  let promise: Promise<WorkerHttpvfs | null> | null = null;
-  return (): Promise<WorkerHttpvfs | null> => {
-    if (!promise) {
-      promise = (async () => {
-        try {
-          // wasm/worker は sql.js-httpvfs の dist を Vite が ?url で解決 → 同一 host bundle に含める。
-          // DB 本体は環境変数の URL (R2 等) を優先、未設定なら同 origin の相対パス。
-          const wasmUrl = (await import("sql.js-httpvfs/dist/sql-wasm.wasm?url")).default;
-          const workerUrl = (await import("sql.js-httpvfs/dist/sqlite.worker.js?url")).default;
-          const dbUrl = envUrl || new URL(fallbackPath, document.baseURI).toString();
-          const worker = await createDbWorker(
-            [
-              {
-                from: "inline",
-                config: {
-                  serverMode: "full",
-                  // DB の 64KB page_size に合わせ、1 回の Range で
-                  // 必要な SQLite ページを過不足なく取得する。
-                  requestChunkSize: 65536,
-                  url: dbUrl,
-                },
-              },
-            ],
-            workerUrl,
-            wasmUrl,
-          );
-          // Pre-warm: prime the SQLite page cache with a lightweight query so the
-          // first real search doesn't pay cold-start cost.
-          await (worker.db.query as any)("SELECT 1");
-          return worker;
-        } catch (e) {
-          console.warn(`[search] httpvfs init failed (${label})`, e);
-          return null;
-        }
-      })();
-    }
-    return promise;
-  };
+// 各対象を独立したWorkerで検索する。実行中の古い検索はAbortSignalで停止できる。
+const workers = new Map<string, SearchWorker>();
+function client(source: string): SearchWorker {
+  let worker = workers.get(source);
+  if (!worker) {
+    const reiki = source === "reiki";
+    const url = reiki ? (import.meta as any).env?.VITE_REIKI_SEARCH_DB_URL : (import.meta as any).env?.VITE_SEARCH_DB_URL;
+    worker = new SearchWorker(url || new URL(reiki ? "./reiki-search.db" : "./search.db", document.baseURI).toString());
+    workers.set(source, worker);
+  }
+  return worker;
 }
-
-const loadWorker = workerLoader((import.meta as any).env?.VITE_SEARCH_DB_URL, "./search.db", "search.db");
-// 自治体例規は件数が法令の 100 倍規模なので別 DB (reiki-search.db) に分けている。
-const loadReikiWorker = workerLoader(
-  (import.meta as any).env?.VITE_REIKI_SEARCH_DB_URL,
-  "./reiki-search.db",
-  "reiki-search.db",
-);
 
 export async function isAvailable(): Promise<boolean> {
-  return (await loadWorker()) !== null;
+  try { await client("laws").query("SELECT 1"); return true; } catch { return false; }
 }
 
-// 静的DBの同一検索は再利用する。進行中の検索も共有し、戻る操作や再入力で
-// Worker の待ち行列と HTTP Range 読みを増やさない。DB ごとに直近32検索だけ保持。
-const queryCaches = new WeakMap<WorkerHttpvfs, Map<string, Promise<unknown[]>>>();
-async function queryWorker<T>(w: WorkerHttpvfs, sql: string, params: unknown[]): Promise<T[]> {
-  if (!sql.includes(" MATCH ")) return (await (w.db.query as any)(sql, params)) as T[];
-  let cache = queryCaches.get(w);
-  if (!cache) { cache = new Map(); queryCaches.set(w, cache); }
-  const key = JSON.stringify([sql, params]);
-  const existing = cache.get(key);
-  if (existing) {
-    cache.delete(key);
-    cache.set(key, existing);
-    return existing as Promise<T[]>;
-  }
-  const result = Promise.resolve((w.db.query as any)(sql, params)).catch(error => {
-    if (cache.get(key) === result) cache.delete(key);
-    throw error;
-  });
-  cache.set(key, result);
-  if (cache.size > 32) cache.delete(cache.keys().next().value!);
-  return result as Promise<T[]>;
-}
-
-async function exec<T = Record<string, unknown>>(sql: string, params: unknown[] = []): Promise<T[]> {
-  const w = await loadWorker();
-  if (!w) return [];
-  // sql.js-httpvfs の db.query は `(sql, params[]) => row[]`。配列で渡す
-  // (spread すると bind が効かず fts5 が空文字 MATCH を見て syntax error)。
-  return queryWorker<T>(w, sql, params);
+async function exec<T = Record<string, unknown>>(sql: string, params: unknown[] = [], request?: SearchRequest): Promise<T[]> {
+  const source = sql.includes("documents_fts") ? String(params[1])
+    : sql.includes("speeches_fts") ? "speeches"
+    : sql.includes("kanpo_fts") ? "kanpo"
+    : sql.includes("tsutatsu_fts") ? "tsutatsu" : "laws";
+  return client(source).query<T>(sql, params, request);
 }
 
 export type DocumentKind = "pubcomment" | "gian" | "shingikai";
@@ -293,17 +233,40 @@ export type DocumentHit = {
 };
 
 /** 収集済みのパブコメ・議案・審議会（添付の抽出本文を含む）。 */
-export async function searchDocuments(q: string, kind: DocumentKind, limit = 10, strict = false, offset = 0): Promise<DocumentHit[]> {
+export async function searchDocuments(q: string, kind: DocumentKind, limit = 10, strict = false, offset = 0, request?: SearchRequest & { includeSnippet?: boolean }): Promise<DocumentHit[]> {
   const match = buildFtsMatchExpanded(q.trim());
   if (!match) return [];
+  // build-search-db inserts each kind contiguously and records its row count.
+  // Constrain the FTS cursor before reading content: kind is UNINDEXED, so
+  // filtering it alone would fetch large PDF bodies from unrelated kinds.
+  const kinds = ["pubcomment", "gian", "shingikai"];
+  const position = kinds.indexOf(kind);
+  const keys = (end: number) => kinds.slice(0, end).map(k => `'${k}_count'`).join(",") || "NULL";
+  const bound = (end: number, fallback: string) => `(SELECT COALESCE(SUM(CAST(value AS INTEGER)), ${fallback}) FROM meta WHERE key IN (${keys(end)}))`;
+  const range = `rowid BETWEEN ${bound(position, "0")} + 1 AND ${bound(position + 1, "9007199254740991")}`;
   try {
-    return await exec<DocumentHit>(
+    if (request?.includeSnippet === false) {
+      // FTS xColumn loads all indexed text, including multi-megabyte PDFs.
+      // Read only the compact leading columns of its backing content record.
+      return await client(kind).query<DocumentHit>(
+        `SELECT c.c0 AS kind, c.c1 AS document_id, c.c2 AS title,
+                c.c3 AS subtitle, c.c4 AS route, '' AS snippet
+           FROM (SELECT rowid FROM documents_fts
+                  WHERE documents_fts MATCH ? AND ${range}
+                  ORDER BY rowid LIMIT ? OFFSET ?) f
+           JOIN documents_fts_content c ON c.id = f.rowid
+          WHERE c.c0 = ? ORDER BY f.rowid`,
+        [match, limit, offset, kind], request,
+      );
+    }
+    return await client(kind).query<DocumentHit>(
       `SELECT kind, document_id, title, subtitle, route,
               snippet(documents_fts, 6, '<mark>', '</mark>', '...', 12) AS snippet
          FROM documents_fts
         WHERE documents_fts MATCH ? AND kind = ?
-        ORDER BY rank, rowid LIMIT ? OFFSET ?`,
-      [match, kind, limit, offset],
+          AND ${range}
+        ORDER BY rowid LIMIT ? OFFSET ?`,
+      [match, kind, limit, offset], request,
     );
   } catch (error) {
     if (strict) throw error;
@@ -328,6 +291,7 @@ export async function search(
   limit = 50,
   categories: string[] = [],
   offset = 0,
+  request?: SearchRequest,
 ): Promise<SearchHit[]> {
   // bigram index に合わせ、2文字未満の検索語は対象外。
   const match = buildFtsMatchExpanded(q.trim());
@@ -347,9 +311,9 @@ export async function search(
        FROM search_fts s
        JOIN laws l ON l.law_id = s.law_id
       WHERE search_fts MATCH ?${catFilter}
-      ORDER BY rank, s.rowid
+      ORDER BY s.rowid
       LIMIT ? OFFSET ?`,
-    [match, ...categories, limit, offset],
+    [match, ...categories, limit, offset], request,
   );
   return rows.map(r => ({
     law_id: String(r.law_id ?? ""),
@@ -374,7 +338,7 @@ export type SpeechHit = {
   session: number;
 };
 
-export async function searchSpeeches(q: string, limit = 20, offset = 0): Promise<SpeechHit[]> {
+export async function searchSpeeches(q: string, limit = 20, offset = 0, request?: SearchRequest): Promise<SpeechHit[]> {
   const match = buildFtsMatchExpanded(q.trim());
   if (!match) return [];
   const rows = await exec<{
@@ -388,9 +352,9 @@ export async function searchSpeeches(q: string, limit = 20, offset = 0): Promise
        FROM speeches_fts s
        JOIN meetings m ON m.meeting_id = s.meeting_id
       WHERE speeches_fts MATCH ?
-      ORDER BY rank, s.rowid
+      ORDER BY s.rowid
       LIMIT ? OFFSET ?`,
-    [match, limit, offset],
+    [match, limit, offset], request,
   );
   return rows.map(r => ({
     meeting_id: String(r.meeting_id ?? ""),
@@ -422,7 +386,7 @@ export type KanpoHit = {
  * 官報記事の全文検索 (kanpo_fts)。改め文 (amend_text) と記事タイトルを横断する。
  * 旧 search.db（kanpo_fts 未作成）では "no such table" になるため空配列にフォールバックする。
  */
-export async function searchKanpo(q: string, limit = 10, strict = false, offset = 0): Promise<KanpoHit[]> {
+export async function searchKanpo(q: string, limit = 10, strict = false, offset = 0, request?: SearchRequest): Promise<KanpoHit[]> {
   const match = buildFtsMatchExpanded(q.trim());
   if (!match) return [];
   try {
@@ -435,9 +399,9 @@ export async function searchKanpo(q: string, limit = 10, strict = false, offset 
               snippet(kanpo_fts, 7, '<mark>', '</mark>', '...', 10) AS snippet
          FROM kanpo_fts
         WHERE kanpo_fts MATCH ?
-        ORDER BY rank, rowid
+        ORDER BY rowid
         LIMIT ? OFFSET ?`,
-      [match, limit, offset],
+      [match, limit, offset], request,
     );
     return rows.map(r => ({
       date: String(r.date ?? ""),
@@ -469,7 +433,7 @@ export type TsutatsuHit = {
  * 通達 (soft law) の全文検索 (tsutatsu_fts)。番号・見出し・本文を横断。
  * 旧 search.db（tsutatsu_fts 未作成）では空配列にフォールバック。
  */
-export async function searchTsutatsu(q: string, limit = 10, strict = false, offset = 0): Promise<TsutatsuHit[]> {
+export async function searchTsutatsu(q: string, limit = 10, strict = false, offset = 0, request?: SearchRequest): Promise<TsutatsuHit[]> {
   const match = buildFtsMatchExpanded(q.trim());
   if (!match) return [];
   try {
@@ -481,9 +445,9 @@ export async function searchTsutatsu(q: string, limit = 10, strict = false, offs
               snippet(tsutatsu_fts, 6, '<mark>', '</mark>', '...', 10) AS snippet
          FROM tsutatsu_fts
         WHERE tsutatsu_fts MATCH ?
-        ORDER BY rank, rowid
+        ORDER BY rowid
         LIMIT ? OFFSET ?`,
-      [match, limit, offset],
+      [match, limit, offset], request,
     );
     return rows.map(r => ({
       tax: String(r.tax ?? ""),
@@ -524,22 +488,17 @@ export type ReikiScope =
  * - 行は自治体コード順に並んでいるので、県・自治体の絞り込みは `reiki_municipalities` の
  *   rowid 範囲を FTS5 に渡して Range 読みの量を抑える。
  * - 全国で数十万件に当たる語でも重くならないよう、MATCH の候補を先頭 `scan` 件に
- *   限ってから rank で並べる（候補の外側は「さらに絞り込む」で辿る想定）。
+ *   限る（候補の外側は「さらに絞り込む」で辿る想定）。索引順で採点を避ける。
  * - `titleOnly` は題名だけを対象にする（他自治体の同種例規を探す用途）。
  */
 export async function searchReiki(
   q: string,
-  opts: { scope?: ReikiScope; titleOnly?: boolean; limit?: number; scan?: number; strict?: boolean; offset?: number } = {},
+  opts: { scope?: ReikiScope; titleOnly?: boolean; limit?: number; scan?: number; strict?: boolean; offset?: number; signal?: AbortSignal; timeoutMs?: number } = {},
 ): Promise<ReikiHit[]> {
   const base = buildFtsMatchExpanded(q.trim());
   if (!base) return [];
-  const w = await loadReikiWorker();
-  if (!w) {
-    if (opts.strict) throw new Error("自治体例規の検索 DB を利用できません。");
-    return [];
-  }
   const query = async <T,>(sql: string, params: unknown[]): Promise<T[]> =>
-    queryWorker<T>(w, sql, params);
+    client("reiki").query<T>(sql, params, opts);
   const { scope = { kind: "all" }, titleOnly = false, limit = 30, scan = 2000, offset = 0 } = opts;
   try {
     let lo = 0;
@@ -559,14 +518,14 @@ export async function searchReiki(
     const rows = await query<ReikiHit>(
       `SELECT d.municipality_code, d.municipality_name, d.prefecture, d.reiki_id, d.title,
               d.reiki_number, m.article_id, m.article_no, m.caption, m.excerpt
-         FROM (SELECT rowid, rank FROM reiki_fts
+         FROM (SELECT rowid FROM reiki_fts
                 WHERE reiki_fts MATCH ? AND rowid BETWEEN ? AND ?
                 LIMIT ?) f
          JOIN reiki_fts_meta m ON m.rowid = f.rowid
          JOIN reiki_docs d ON d.id = m.doc_id
-        ORDER BY f.rank, f.rowid
+        ORDER BY f.rowid
         LIMIT ? OFFSET ?`,
-      [match, lo, hi, scan, limit, offset],
+      [match, lo, hi, Math.min(scan, offset + limit), limit, offset],
     );
     return rows.map(r => ({
       municipality_code: String(r.municipality_code ?? ""),
@@ -581,7 +540,7 @@ export async function searchReiki(
       excerpt: String(r.excerpt ?? ""),
     }));
   } catch (e) {
-    if (opts.strict) throw e;
+    if (opts.strict) throw Object.assign(new Error(`自治体例規の検索 DB: ${e instanceof Error ? e.message : String(e)}`), { name: e instanceof Error ? e.name : "Error" });
     console.warn("[search] reiki query failed", e);
     return [];
   }
@@ -619,9 +578,7 @@ export async function getRefsForLaw(lawId: string): Promise<ArticleRef[]> {
 }
 
 export async function getMeta(): Promise<Record<string, string> | null> {
-  const w = await loadWorker();
-  if (!w) return null;
-  const rows = await (w.db.query as any)(`SELECT key, value FROM meta`);
+  const rows = await exec<{ key: string; value: string }>("SELECT key, value FROM meta");
   const meta: Record<string, string> = {};
   for (const r of rows as { key: string; value: string }[]) meta[r.key] = r.value;
   return meta;
