@@ -157,15 +157,18 @@ Override with `LAWPUB_PROVIDER` and `LAWPUB_EGOV_BASE_URL`.
 対象外。`lawpub build-search-db --public public` は `public/{pubcomment,gian,shingikai}`
 も索引するため、各コーパスの JSON 生成後に実行する（配信 workflow はこの順序で実行済み）。
 
-対象を絞ると不要な検索を省略する。同一検索はDBごとに直近32件まで再利用し、自治体例規は
-独立した Worker と待ち行列で検索するため、例規の取得待ちが次の法令検索を妨げない。
-検索中に入力が変わった場合は古い結果を破棄し、未実行の古い検索を省略する。
+対象を絞ると不要な検索を省略する。全ヒットの関連度採点を避け、索引順で必要件数だけ取得する。
+各検索対象に独立した Worker を使い、完了した対象から結果を表示する。同一検索の完了結果は
+対象ごとに直近32件まで再利用する。入力・検索対象を変えると実行中の古い Worker を停止する。
+12秒で終わらない対象は Worker を停止して中断を表示し、他の対象の結果を残して再試行できる。
+資料3種の画面表示では本文も照合するが、長大なPDF本文から抜粋を作らず題名・メタデータを
+先に表示する。本文は詳細画面で確認でき、WebMCP の検索では従来どおり抜粋を返す。
 
 `lawpub` emits `public/search.db` (SQLite + FTS5, ~1.5 GB at full bulk) at
 build time. The SPA reads it through **sql.js-httpvfs** (sqlite.org's
 Emscripten WASM build + an HTTP-Range VFS). Each query downloads only the
-SQLite **pages** (4 KB) it needs — typically 100-300 KB / query — so the
-1.5 GB DB stays remote.
+SQLite **pages** it needs in 64 KB chunks; transfer size depends on the query
+and the indexed text. The full DB stays remote.
 
 Hosting options:
 
