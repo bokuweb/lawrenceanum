@@ -15,6 +15,7 @@ test("検索の官報セクションに改め文記事がヒットする", async
   await page.goto(new URL("#/search?q=郵便法施行規則", BASE).toString());
 
   // 官報セクションのヘッダ (FTS5 が search.db を Range で読めている証拠)。
+  await page.getByRole("tab", { name: /^官報/ }).click();
   await expect(page.getByText(/官報 \(\d+件\)/)).toBeVisible({ timeout: FTS_TIMEOUT });
   // fixture の記事タイトルと号・頁メタ。
   await expect(
@@ -25,6 +26,7 @@ test("検索の官報セクションに改め文記事がヒットする", async
 
 test("官報記事カードに官報PDFリンクがある", async ({ page }) => {
   await page.goto(new URL("#/search?q=郵便法施行規則", BASE).toString());
+  await page.getByRole("tab", { name: /^官報/ }).click();
   await expect(page.getByText(/官報 \(\d+件\)/)).toBeVisible({ timeout: FTS_TIMEOUT });
 
   const pdf = page.getByRole("link", { name: "官報PDFを開く" });
@@ -34,6 +36,7 @@ test("官報記事カードに官報PDFリンクがある", async ({ page }) => 
 
 test("官報検索結果から改正対象法令へ逆引きできる", async ({ page }) => {
   await page.goto(new URL("#/search?q=郵便法施行規則", BASE).toString());
+  await page.getByRole("tab", { name: /^官報/ }).click();
   await expect(page.getByText(/官報 \(\d+件\)/)).toBeVisible({ timeout: FTS_TIMEOUT });
 
   // fixture の linked_laws (郵便法施行規則 415M60000008005) への逆引きチップ。
@@ -45,6 +48,7 @@ test("官報検索結果から改正対象法令へ逆引きできる", async ({
 
 test("検索の通達セクションに通達がヒットする", async ({ page }) => {
   await page.goto(new URL("#/search?q=住所の意義", BASE).toString());
+  await page.getByRole("tab", { name: /^通達/ }).click();
   // fixture の tsutatsu_fts (所得税基本通達 2-1 住所の意義)。
   await expect(page.getByText(/通達 \(\d+件\)/)).toBeVisible({ timeout: FTS_TIMEOUT });
   await expect(page.getByText("住所の意義")).toBeVisible();

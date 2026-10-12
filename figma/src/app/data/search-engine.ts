@@ -301,15 +301,20 @@ export async function search(
     categories.length > 0
       ? ` AND l.category IN (${categories.map(() => "?").join(",")})`
       : "";
+  // Reading metadata via FTS xColumn also loads the full body.
+  // The UI reads leading columns from the backing record instead; MATCH still
+  // covers all text. API callers keep snippets unless explicitly disabled.
+  const compact = request?.includeSnippet === false;
   const rows = await exec<{
     law_id: string; article_id: string; article_no: string; caption: string;
     title: string; law_num: string | null; snippet: string;
   }>(
-    `SELECT s.law_id, s.article_id, s.article_no, s.caption,
+    `SELECT ${compact ? "c.c0 AS law_id, c.c1 AS article_id, c.c2 AS article_no, c.c3 AS caption" : "s.law_id, s.article_id, s.article_no, s.caption"},
             l.title, l.law_num,
-            snippet(search_fts, 5, '<mark>', '</mark>', '...', 8) AS snippet
+            ${compact ? "''" : "snippet(search_fts, 5, '<mark>', '</mark>', '...', 8)"} AS snippet
        FROM search_fts s
-       JOIN laws l ON l.law_id = s.law_id
+       ${compact ? "JOIN search_fts_content c ON c.id = s.rowid" : ""}
+       JOIN laws l ON l.law_id = ${compact ? "c.c0" : "s.law_id"}
       WHERE search_fts MATCH ?${catFilter}
       ORDER BY s.rowid
       LIMIT ? OFFSET ?`,
@@ -341,16 +346,18 @@ export type SpeechHit = {
 export async function searchSpeeches(q: string, limit = 20, offset = 0, request?: SearchRequest): Promise<SpeechHit[]> {
   const match = buildFtsMatchExpanded(q.trim());
   if (!match) return [];
+  const compact = request?.includeSnippet === false;
   const rows = await exec<{
     meeting_id: string; speech_id: string; speaker: string | null;
     speaker_group: string | null; snippet: string;
     house: string; committee: string | null; date: string; session: number;
   }>(
-    `SELECT s.meeting_id, s.speech_id, s.speaker, s.speaker_group,
-            snippet(speeches_fts, 4, '<mark>', '</mark>', '...', 10) AS snippet,
+    `SELECT ${compact ? "c.c0 AS meeting_id, c.c1 AS speech_id, c.c2 AS speaker, c.c3 AS speaker_group" : "s.meeting_id, s.speech_id, s.speaker, s.speaker_group"},
+            ${compact ? "''" : "snippet(speeches_fts, 4, '<mark>', '</mark>', '...', 10)"} AS snippet,
             m.house, m.committee, m.date, m.session
        FROM speeches_fts s
-       JOIN meetings m ON m.meeting_id = s.meeting_id
+       ${compact ? "JOIN speeches_fts_content c ON c.id = s.rowid" : ""}
+       JOIN meetings m ON m.meeting_id = ${compact ? "c.c0" : "s.meeting_id"}
       WHERE speeches_fts MATCH ?
       ORDER BY s.rowid
       LIMIT ? OFFSET ?`,
@@ -436,16 +443,18 @@ export type TsutatsuHit = {
 export async function searchTsutatsu(q: string, limit = 10, strict = false, offset = 0, request?: SearchRequest): Promise<TsutatsuHit[]> {
   const match = buildFtsMatchExpanded(q.trim());
   if (!match) return [];
+  const compact = request?.includeSnippet === false;
   try {
     const rows = await exec<{
       tax: string; number: string; caption: string | null;
       set_name: string | null; source_url: string; snippet: string;
     }>(
-      `SELECT tax, number, caption, set_name, source_url,
-              snippet(tsutatsu_fts, 6, '<mark>', '</mark>', '...', 10) AS snippet
+      `SELECT ${compact ? "c.c0 AS tax, c.c1 AS number, c.c2 AS caption, c.c3 AS set_name, c.c4 AS source_url" : "tax, number, caption, set_name, source_url"},
+              ${compact ? "''" : "snippet(tsutatsu_fts, 6, '<mark>', '</mark>', '...', 10)"} AS snippet
          FROM tsutatsu_fts
+         ${compact ? "JOIN tsutatsu_fts_content c ON c.id = tsutatsu_fts.rowid" : ""}
         WHERE tsutatsu_fts MATCH ?
-        ORDER BY rowid
+        ORDER BY tsutatsu_fts.rowid
         LIMIT ? OFFSET ?`,
       [match, limit, offset], request,
     );

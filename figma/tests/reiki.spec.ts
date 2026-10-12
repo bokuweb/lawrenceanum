@@ -118,6 +118,7 @@ test("本文の条・項・号・表・附則を描画し、原文へリンク�
 
 test("検索の自治体例規セクションに複数自治体の例規がヒットし、本文へ遷移する", async ({ page }) => {
   await page.goto(new URL("#/search?q=個人情報保護", BASE).toString());
+  await page.getByRole("tab", { name: /^自治体例規/ }).click();
   const section = page.getByTestId("reiki-hits");
   await expect(section).toBeVisible({ timeout: 30_000 });
   await expect(section.getByText("千葉県 千葉市")).toBeVisible();

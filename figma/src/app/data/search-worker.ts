@@ -1,7 +1,8 @@
 export const SEARCH_TIMEOUT_MS = 12_000;
-export type SearchRequest = { signal?: AbortSignal; timeoutMs?: number };
+export const SEARCH_MAX_DURATION_MS = 60_000;
+export type SearchRequest = { signal?: AbortSignal; timeoutMs?: number; includeSnippet?: boolean };
 
-type Pending = { reject: (error: Error) => void; cleanup: () => void };
+type Pending = { reject: (error: Error) => void; cleanup: () => void; progress: () => void };
 type State = {
   native?: Worker;
   db?: MessagePort;
@@ -69,9 +70,15 @@ export class SearchWorker {
         import("sql.js-httpvfs/dist/sqlite.worker.js?url"),
       ]);
       if (state.closed) throw new DOMException("Search cancelled", "AbortError");
-      const native = new Worker(workerModule.default);
+      const native = new Worker(new URL("./search-sqlite.worker.ts", import.meta.url));
       state.native = native;
+      native.addEventListener("message", event => {
+        if (event.data?.type === "search-progress") {
+          for (const request of state.pending) request.progress();
+        }
+      });
       native.addEventListener("error", event => this.stop(state, new Error(event.message || "Search worker failed")));
+      native.postMessage({ type: "search-init", url: workerModule.default });
       const db = await call<MessagePort>(state, native, "SplitFileHttpDatabase", [wasm.default, [{ from: "inline", config: {
         serverMode: "full", requestChunkSize: 65536, url: this.url,
       } }]]);
@@ -95,9 +102,15 @@ export class SearchWorker {
     const state = this.getState();
     return new Promise<T[]>((resolve, reject) => {
       const abort = () => this.stop(state, new DOMException("Search cancelled", "AbortError"));
-      const timer = setTimeout(() => this.stop(state, new DOMException("Search timed out", "TimeoutError")), timeoutMs);
-      const request: Pending = { reject, cleanup: () => {
+      const timeout = () => this.stop(state, new DOMException("Search timed out", "TimeoutError"));
+      let timer = setTimeout(timeout, timeoutMs);
+      const deadline = setTimeout(timeout, SEARCH_MAX_DURATION_MS);
+      const request: Pending = { reject, progress: () => {
         clearTimeout(timer);
+        timer = setTimeout(timeout, timeoutMs);
+      }, cleanup: () => {
+        clearTimeout(timer);
+        clearTimeout(deadline);
         signal?.removeEventListener("abort", abort);
       } };
       state.pending.add(request);
