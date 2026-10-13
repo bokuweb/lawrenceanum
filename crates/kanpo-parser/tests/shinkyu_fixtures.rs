@@ -3,7 +3,7 @@
 //!
 //! フィクスチャ生成: `pdftotext -bbox-layout -enc UTF-8 <pdf> <out>.bbox.html`
 
-use kanpo_amend::{detect_format_of, reconstruct_vertical, segment_articles, Block, Document};
+use kanpo_parser::{detect_format_of, reconstruct_vertical, segment_articles, Block, Document};
 
 /// 出力を「改正後」「改正前」の欄見出し行で 3 分割する（前文 / 改正後 / 改正前）。
 /// 複数の表段がある場合は最初の段を対象にする。縦書きの列折り返しで語が改行分割される

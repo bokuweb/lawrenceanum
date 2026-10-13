@@ -60,7 +60,7 @@
 ### 現状
 
 - `public/kanpo/{date}/index.json`（`date` / `generated_at` / `issues`）に官報メタを保持。
-- [`kanpo-amend`](../crates/kanpo-amend) が PDF から改め文・新旧対照表のテキストを構造化抽出済み。
+- [`kanpo-parser`](../crates/kanpo-parser) が PDF から改め文・新旧対照表のテキストを構造化抽出済み。
 - ただし **`search-index`（SQLite FTS5）は官報を索引していない** → 全文検索の対象外。
 
 ### 機会
@@ -72,7 +72,7 @@
 
 ### 設計案（段階）
 
-1. **索引**: `kanpo-amend` 抽出テキスト（改め文・新旧対照表・公示本文）を `search.db` の
+1. **索引**: `kanpo-parser` 抽出テキスト（改め文・新旧対照表・公示本文）を `search.db` の
    官報テーブル（FTS5・日本語 bigram）へ投入。`lawpub kanpo-build-index` 等のサブコマンドを追加。
 2. **検索UI**: フロントに「官報検索」ビューを追加（[`proceedings-view`](../figma/src/app/components/views/proceedings-view.tsx) / 
    パブコメビューと同型）。号・日付・府省・キーワードで横断。

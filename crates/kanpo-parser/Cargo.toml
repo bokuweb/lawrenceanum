@@ -1,5 +1,8 @@
 [package]
-name = "kanpo-amend"
+name = "kanpo-parser"
+description = "デジタル官報 PDF（縦書き・多段組）の読み順復元と改め文・新旧対照表の構造化"
+repository = "https://github.com/bokuweb/lawrenceanum"
+readme = "README.md"
 version.workspace = true
 edition.workspace = true
 license-file.workspace = true

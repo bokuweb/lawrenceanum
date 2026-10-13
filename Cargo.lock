@@ -947,24 +947,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "kanpo-amend"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "quick-xml",
- "scraper",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "kanpo-client"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
  "hex",
- "kanpo-amend",
+ "kanpo-parser",
  "reqwest",
  "scraper",
  "serde",
@@ -980,6 +969,17 @@ dependencies = [
  "anyhow",
  "kanpo-client",
  "law-normalizer",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "kanpo-parser"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "quick-xml",
+ "scraper",
  "serde",
  "serde_json",
 ]
