@@ -189,12 +189,12 @@ export type TimelineEventRaw = {
     amend_text?: string
     /** "prose"(散文改め文) / "shinkyu"(新旧対照表) / "unknown"。 */
     amend_format?: string
-    /** 構造化した改め文。条ごとの行整列・改正後/改正前の対応を持つ（kanpo-amend crate 由来）。 */
+    /** 構造化した改め文。条ごとの行整列・改正後/改正前の対応を持つ（kanpo-parser crate 由来）。 */
     amend_document?: AmendDocument
   }
 }
 
-/** 改め文の構造化表現（kanpo-amend crate の Document に対応）。 */
+/** 改め文の構造化表現（kanpo-parser crate の Document に対応）。 */
 export type AmendRun = { text: string; underline?: boolean }
 /** 別表（罫線で区切られた表）。rows[r][c] がセルの Run 列。 */
 export type AmendNestedTable = { rows: AmendRun[][][] }

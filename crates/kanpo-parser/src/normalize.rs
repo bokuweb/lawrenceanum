@@ -37,6 +37,37 @@ pub(crate) fn is_private_use(c: char) -> bool {
     ('\u{E000}'..='\u{F8FF}').contains(&c)
 }
 
+/// ToUnicode を持たない私用 CID（`Adobe-Npb1` 等）のグリフを本来の文字へ戻す。
+///
+/// 官報の表中の括弧付き数字「(1)」や化学名のハイフンは、ToUnicode 無しの別フォントで
+/// 組まれることがあり、poppler は CID をそのまま符号位置とみなして無関係な漢字を出す
+/// （例: (1)→`挎`、(15)→`昝昫`、‐→`慺`）。フォント切替で独立した 1 語になり、
+/// 1em 四方に収まる（2 桁は半角 2 グリフで 1em）ことを条件に写像する。
+/// `星`・`昭` など常用漢字と衝突する符号もあるため、語全体がこの形のときだけ置き換える。
+pub(crate) fn fix_private_cid_glyphs(text: &str, width: f32, height: f32) -> Option<String> {
+    if height > width * 1.3 {
+        return None;
+    }
+    let fw = |d: u32| char::from_u32('０' as u32 + d).unwrap_or('？');
+    let chars: Vec<char> = text.trim().chars().collect();
+    match chars.as_slice() {
+        // (1)〜(10): U+630E..=U+6317
+        [c] if ('\u{630E}'..='\u{6317}').contains(c) => {
+            let n = *c as u32 - 0x630D;
+            let digits: String = n.to_string().chars().map(|d| fw(d.to_digit(10).unwrap())).collect();
+            Some(format!("（{digits}）"))
+        }
+        ['\u{617A}'] => Some("－".to_string()),
+        // (11)〜(99): 「(十の位」U+661D..=U+6625 +「一の位)」U+6627..=U+6630（1..9,0 の順）
+        [t, o] if ('\u{661D}'..='\u{6625}').contains(t) && ('\u{6627}'..='\u{6630}').contains(o) => {
+            let tens = *t as u32 - 0x661C;
+            let ones = (*o as u32 - 0x6626) % 10;
+            Some(format!("（{}{}）", fw(tens), fw(ones)))
+        }
+        _ => None,
+    }
+}
+
 /// 縦書き presentation form を通常の全角約物に写像する。
 pub(crate) fn normalize_char(c: char) -> char {
     match c {
@@ -142,6 +173,19 @@ mod tests {
         assert!(out.contains("本則を次のように改める"));
         assert!(out.contains("第六条"));
         assert!(!out.contains("令和"));
+    }
+
+    #[test]
+    fn restores_private_cid_numbered_items() {
+        // 1em 四方の独立語だけを写像する。
+        assert_eq!(fix_private_cid_glyphs("挎", 8.0, 8.0).as_deref(), Some("（１）"));
+        assert_eq!(fix_private_cid_glyphs("挗", 8.0, 8.0).as_deref(), Some("（１０）"));
+        assert_eq!(fix_private_cid_glyphs("昝昫", 8.0, 8.0).as_deref(), Some("（１５）"));
+        assert_eq!(fix_private_cid_glyphs("昡昰", 8.0, 8.0).as_deref(), Some("（５０）"));
+        assert_eq!(fix_private_cid_glyphs("慺", 8.0, 8.0).as_deref(), Some("－"));
+        // 通常の本文（2 文字で 2em の高さ・常用漢字の語）は触らない。
+        assert_eq!(fix_private_cid_glyphs("星昭", 8.0, 16.0), None);
+        assert_eq!(fix_private_cid_glyphs("昭和", 8.0, 8.0), None);
     }
 
     #[test]

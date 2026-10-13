@@ -36,7 +36,11 @@ fn is_article_boundary(line: &str) -> bool {
     let t = line.trim();
     t.starts_with('〇')
         || t.contains("をここに公布する")
-        || SECTION_HEADERS.contains(&t)
+        || {
+            // 区分見出しは字間を空けて組まれる（「法　規　的　告　示」）。
+            let compact: String = t.chars().filter(|c| !c.is_whitespace()).collect();
+            SECTION_HEADERS.contains(&compact.as_str())
+        }
 }
 
 /// 官報本文に現れる区分（記事カテゴリ）見出し。これらが独立行で現れたら別記事の開始とみなす。
@@ -46,6 +50,7 @@ const SECTION_HEADERS: &[&str] = &[
     "公告",
     "公示",
     "法規的告示",
+    "その他告示",
     "条約",
     "庁令",
     "訓令",

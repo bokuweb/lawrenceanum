@@ -1,4 +1,6 @@
-//! 官報項目別 PDF からの改め文テキスト抽出。
+//! デジタル官報の項目別 PDF パーサ。縦書きの読み順を復元し、改め文・新旧対照表を構造化する。
+//!
+//! 使い方は crate 直下の `README.md` を参照。
 //!
 //! デジタル官報 PDF はテキスト層を持つ（OCR 不要）が、**縦書き・多段組**のため
 //! `pdftotext -layout` の素の出力には次の癖がある。
@@ -22,7 +24,7 @@
 //! # 例
 //! ```no_run
 //! let pdf: &[u8] = b"...";
-//! let ex = kanpo_amend::extract(pdf).unwrap();
+//! let ex = kanpo_parser::extract(pdf).unwrap();
 //! println!("{} ({})", ex.text, ex.format);
 //! ```
 
@@ -107,7 +109,7 @@ fn attach_bessho_tables(doc: &mut Document, rules: &lines::PageRules, xhtml: &st
     for block in &mut doc.blocks {
         let model::Block::Shinkyu { rows } = block else { continue };
         for row in rows.iter_mut() {
-            let is_bessho = |runs: &[Run]| runs.first().map(|r| r.text.trim_start().starts_with("別表")).unwrap_or(false);
+            let is_bessho = |runs: &[Run]| runs.first().map(|r| model::starts_with_spaced(&r.text, "別表")).unwrap_or(false);
             // 既に別表が付いている行（前のページで充填済み）は飛ばす。
             if is_bessho(&row.after) && row.after_table.is_none() && ai < after_tables.len() {
                 row.after_table = Some(to_nested(&after_tables[ai]));

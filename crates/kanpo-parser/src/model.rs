@@ -160,7 +160,7 @@ impl Document {
                 let mut furisoku: Vec<Vec<Run>> = Vec::new();
                 rows.retain(|r| {
                     let is_furi = |runs: &[Run]| {
-                        runs.first().map(|x| x.text.trim_start().starts_with("附則")).unwrap_or(false)
+                        runs.first().map(|x| starts_with_spaced(&x.text, "附則")).unwrap_or(false)
                     };
                     if is_furi(&r.after) || is_furi(&r.before) {
                         let content = if !r.after.is_empty() { r.after.clone() } else { r.before.clone() };
@@ -232,20 +232,32 @@ impl Document {
 /// （新設・削除）はもう一方が空セルの行になる。見出しが揃わない/少ない場合は単一行に
 /// フォールバックする（＝従来挙動、退行なし）。
 fn align_rows(after_lines: &[&str], before_lines: &[&str]) -> Vec<ShinkyuRow> {
-    let a = segment_band(after_lines);
-    let b = segment_band(before_lines);
+    align_rows_by(after_lines, before_lines, is_row_heading)
+        .or_else(|| align_rows_by(after_lines, before_lines, go_heading_key))
+        .unwrap_or_else(|| vec![single_row(after_lines, before_lines)])
+}
+
+/// 行見出しの判定 `heading`（見出しなら対応付けの鍵を返す）で両帯を区切り、LCS で対応付ける。
+/// 見出しが両側に 2 つ以上無い、または共通見出しが無ければ `None`。
+fn align_rows_by(
+    after_lines: &[&str],
+    before_lines: &[&str],
+    heading: fn(&str) -> Option<String>,
+) -> Option<Vec<ShinkyuRow>> {
+    let a = segment_band(after_lines, heading);
+    let b = segment_band(before_lines, heading);
     let a_head = a.iter().filter(|s| s.heading.is_some()).count();
     let b_head = b.iter().filter(|s| s.heading.is_some()).count();
     // 見出しが両側に 2 つ以上無ければ行分割しない。
     if a_head < 2 || b_head < 2 {
-        return vec![single_row(after_lines, before_lines)];
+        return None;
     }
     let keys_a: Vec<&str> = a.iter().map(|s| s.heading.as_deref().unwrap_or("")).collect();
     let keys_b: Vec<&str> = b.iter().map(|s| s.heading.as_deref().unwrap_or("")).collect();
     let aln = lcs_align(&keys_a, &keys_b);
     // 共通見出しが 1 つも無ければ対応付け不能としてフォールバック。
     if !aln.iter().any(|(i, j)| i.is_some() && j.is_some()) {
-        return vec![single_row(after_lines, before_lines)];
+        return None;
     }
     let mut rows = Vec::new();
     for (ai, bi) in aln {
@@ -255,7 +267,7 @@ fn align_rows(after_lines: &[&str], before_lines: &[&str]) -> Vec<ShinkyuRow> {
             rows.push(ShinkyuRow { after, before, ..Default::default() });
         }
     }
-    rows
+    Some(rows)
 }
 
 /// 文字列（複数行）を列折り返し結合してセルの Run 列にする。
@@ -280,12 +292,12 @@ struct Seg {
 
 /// 帯テキストを行見出しで区切る。各セグメントは見出し行から次の見出し行の手前まで。
 /// 先頭の見出し無し部分は `heading=None` の前置きセグメントになる。
-fn segment_band(lines: &[&str]) -> Vec<Seg> {
+fn segment_band(lines: &[&str], is_heading: fn(&str) -> Option<String>) -> Vec<Seg> {
     let mut segs: Vec<Seg> = Vec::new();
     let mut heading: Option<String> = None;
     let mut cur: Vec<&str> = Vec::new();
     for &line in lines {
-        if is_row_heading(line) {
+        if let Some(key) = is_heading(line) {
             if !cur.is_empty() {
                 let text = cur.join("\n").trim().to_string();
                 if !text.is_empty() {
@@ -293,7 +305,7 @@ fn segment_band(lines: &[&str]) -> Vec<Seg> {
                 }
                 cur.clear();
             }
-            heading = Some(line.trim().to_string());
+            heading = Some(key);
         }
         cur.push(line);
     }
@@ -306,24 +318,47 @@ fn segment_band(lines: &[&str]) -> Vec<Seg> {
     segs
 }
 
-/// 行見出し（新旧対照表の 1 行の先頭）か。
+/// 行見出し（新旧対照表の 1 行の先頭）なら、その行（対応付けの鍵）を返す。
 /// - `別表` / `附則` 始まり
 /// - 単一の `（…）` 見出し行（中身 3 文字以上、途中に `）` を含まない）。`（略）`/`（新設）`は除外。
-fn is_row_heading(line: &str) -> bool {
+fn is_row_heading(line: &str) -> Option<String> {
     let t = line.trim();
-    if t.starts_with("別表") || t.starts_with("附則") {
-        return true;
+    let key = Some(t.to_string());
+    if starts_with_spaced(t, "別表") || starts_with_spaced(t, "附則") {
+        return key;
     }
     if let Some(rest) = t.strip_prefix('（') {
         if let Some(inner) = rest.strip_suffix('）') {
             // 凡例「（傍線部分は…）」は条見出しではない（注記であり、片側だけの偽行を生む）。
             if inner.starts_with("傍線") {
-                return false;
+                return None;
             }
-            return inner.chars().count() >= 3 && !inner.contains('）');
+            if inner.chars().count() >= 3 && !inner.contains('）') {
+                return key;
+            }
         }
     }
-    false
+    None
+}
+
+/// 号の見出し行（`一　（略）`・`二　次に掲げる…`）なら号番号を鍵として返す。
+///
+/// 条見出しの無い表（告示の別表の号ごとの改正など）を号単位で揃えるためのフォールバック。
+/// 帯の復元で号番号と本文の間の空き（全角空白）が保たれることを前提にし、列折り返しで
+/// たまたま漢数字から始まった行（`五重量パーセント以上…`）と区別する。
+fn go_heading_key(line: &str) -> Option<String> {
+    let t = line.trim();
+    let num: String = t.chars().take_while(|c| "一二三四五六七八九十".contains(*c)).collect();
+    if num.is_empty() {
+        return None;
+    }
+    t[num.len()..].starts_with('\u{3000}').then_some(num)
+}
+
+/// 字間の空白（`附　則`・`別　表` のような均等割り）を無視して `prefix` で始まるか。
+pub(crate) fn starts_with_spaced(text: &str, prefix: &str) -> bool {
+    let mut chars = text.chars().filter(|c| !c.is_whitespace());
+    prefix.chars().all(|p| chars.next() == Some(p))
 }
 
 /// 2 列の系列を最長共通部分列で対応付ける。返り値は `(a の index, b の index)` の列で、
@@ -422,6 +457,23 @@ mod tests {
         assert!(rows[1].after[0].text.contains("第二条新") && rows[1].before[0].text.contains("第二条旧"));
         // 行3: 特例C は改正後のみ（新設）。改正前セルは空。
         assert!(rows[2].after[0].text.contains("第三条新"));
+        assert!(rows[2].before.is_empty());
+    }
+
+    #[test]
+    fn aligns_rows_by_go_number_without_article_headings() {
+        // 条見出しの無い表は号番号で揃える。列折り返しで漢数字始まりになった行
+        // （五重量…）は号ではない。改正前に無い号（三）は片側行になる。
+        let after = "一\u{3000}（略）\n二\u{3000}（１）\u{3000}甲酸溶液（濃度が四十\n五重量パーセント）\n三\u{3000}（略）";
+        let before = "一\u{3000}（略）\n二\u{3000}（新設）";
+        let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
+        let rows = match &doc.blocks[0] {
+            Block::Shinkyu { rows } => rows,
+            _ => panic!("shinkyu block"),
+        };
+        assert_eq!(rows.len(), 3, "{rows:?}");
+        assert!(rows[1].after[0].text.contains("五重量パーセント"));
+        assert!(rows[1].before[0].text.contains("（新設）"));
         assert!(rows[2].before.is_empty());
     }
 

@@ -9,9 +9,9 @@ use serde::{Deserialize, Serialize};
 
 pub mod http;
 
-/// 改め文抽出は [`kanpo_amend`] crate に切り出した。後方互換のため `kanpo_client::pdf`
+/// 改め文抽出は [`kanpo_parser`] crate に切り出した。後方互換のため `kanpo_client::pdf`
 /// として再エクスポートする（`pdf::extract` / `pdf::segment_articles` / `pdf::detect_format_of` 等）。
-pub use kanpo_amend as pdf;
+pub use kanpo_parser as pdf;
 
 pub use http::{page_pdf_url, HttpProvider};
 
@@ -56,7 +56,7 @@ pub struct KanpoItem {
     /// 抽出結果の形式判定: "prose"（散文改め文）/ "shinkyu"（新旧対照表）/ "unknown"。
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub amend_format: Option<String>,
-    /// 構造化した改め文（kanpo-amend の Document）。別表の 2D 表は取得時にしか復元できない
+    /// 構造化した改め文（kanpo-parser の Document）。別表の 2D 表は取得時にしか復元できない
     /// （罫線座標が要る）ため、ここに保存して kanpo-link で timeline へ転記する。
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub amend_document: Option<serde_json::Value>,

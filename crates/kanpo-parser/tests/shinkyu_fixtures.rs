@@ -3,7 +3,7 @@
 //!
 //! フィクスチャ生成: `pdftotext -bbox-layout -enc UTF-8 <pdf> <out>.bbox.html`
 
-use kanpo_amend::{detect_format_of, reconstruct_vertical, segment_articles, Block, Document};
+use kanpo_parser::{detect_format_of, reconstruct_vertical, segment_articles, Block, Document};
 
 /// 出力を「改正後」「改正前」の欄見出し行で 3 分割する（前文 / 改正後 / 改正前）。
 /// 複数の表段がある場合は最初の段を対象にする。縦書きの列折り返しで語が改行分割される
@@ -148,4 +148,55 @@ fn personnel_list_page_is_not_misdetected_as_shinkyu() {
     let out = reconstruct_vertical(xhtml);
     assert!(!out.lines().any(|l| l.trim() == "改正後"), "人事ページに改正後ラベルを付けない: {out}");
     assert!(!out.lines().any(|l| l.trim() == "改正前"), "人事ページに改正前ラベルを付けない");
+}
+
+#[test]
+fn kaiyo_table_continues_into_lower_tiers_on_same_page() {
+    // 環境省告示（海洋汚染防止法施行令 別表第一の物質）ページ2。上半分（見出し付き）から
+    // 下半分の段へ欄見出し無しで表が続き、下段の左には別記事（農林水産省告示）が同居する。
+    // 表中の (1)(15) 等は ToUnicode 無しの私用 CID で組まれている。
+    let xhtml = include_str!("fixtures/kaiyo_busshitsu_p2.bbox.html");
+    let out = reconstruct_vertical(xhtml);
+    assert_eq!(detect_format_of(&out).as_deref(), Some("shinkyu"), "out=\n{out}");
+
+    // 段の先頭列（bbox が上余白にかかる）も落とさない。
+    assert!(out.contains("〇環境省告示第四十三号"), "記事見出し: {out}");
+    assert!(out.contains("公布の日から適用する。"), "前文: {out}");
+    // 私用 CID の括弧付き数字・ハイフンを復元し、化けた漢字を残さない。
+    assert!(!out.contains(['挎', '昝', '昞', '慺']), "化けたグリフ: {out}");
+
+    let lines: Vec<&str> = out.lines().collect();
+    let go = lines.iter().position(|l| *l == "改正後").unwrap();
+    let mae = lines.iter().position(|l| *l == "改正前").unwrap();
+    let (after, before) = (&lines[go + 1..mae], &lines[mae + 1..]);
+    // 折り返した物質名をセルごとに組み、係数は物質名の後ろに来る。
+    assert!(after.contains(
+        &"（２）\u{3000}Ｎ－アルキル－Ｎ・Ｎ・Ｎ－トリメチルアンモニウムクロリド（アルキル基の炭素数が十二から十六までのもの及びその混合物に限る。）\u{3000}一、〇〇〇"
+    ), "{after:#?}");
+    // 下半分の段の表（改正後の続き）は改正後へ、改正前の続きは改正前へ入る。
+    assert!(after.contains(&"（２７）\u{3000}テトラキス（ヒドロキシメチル）ホスホニウム硫酸塩\u{3000}一〇〇"), "{after:#?}");
+    assert!(after.contains(&"（１６）\u{3000}ポリアスパラギン酸アミン\u{3000}〇"), "{after:#?}");
+    assert!(before.contains(&"（３３）〜（５０）\u{3000}（略）\u{3000}（略）"), "{before:#?}");
+    assert!(!before.iter().any(|l| l.contains("テトラキス")), "改正前に改正後の行が混入しない");
+
+    // 同居する農林水産省告示は表の後ろに出て、記事分割で表とは別記事になる。
+    let segments = segment_articles(&out);
+    let table = segments.iter().find(|s| s.contains("〇環境省告示")).unwrap();
+    assert!(!table.contains("保安林") && !table.contains("その他告示"), "{table}");
+    assert!(segments.iter().any(|s| s.starts_with("〇農林水産省告示第千五百二十三号") && s.contains("保安林")));
+
+    // 条見出しの無い表は号（一・二・三）ごとに改正後/改正前を揃える。
+    let doc = Document::from_text(table);
+    let rows = doc
+        .blocks
+        .iter()
+        .find_map(|b| match b {
+            Block::Shinkyu { rows } => Some(rows),
+            _ => None,
+        })
+        .expect("新旧対照表ブロック");
+    assert_eq!(rows.len(), 3);
+    for (row, go) in rows.iter().zip(["一", "二", "三"]) {
+        assert!(row.after[0].text.starts_with(go) && row.before[0].text.starts_with(go), "{row:?}");
+    }
 }
