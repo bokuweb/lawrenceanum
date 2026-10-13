@@ -3,6 +3,7 @@ import { HashRouter, Navigate, Route, Routes, useLocation, useNavigate, useParam
 import { ThemeProvider } from "./components/theme-provider";
 import { SidebarNav } from "./components/sidebar-nav";
 import { Topbar } from "./components/topbar";
+import { useKanpoParserEnabled } from "./kanpo-parser-flag";
 
 // 各ビューを遅延ロード。
 const DashboardView = lazy(() => import("./components/views/dashboard-view").then(m => ({ default: m.DashboardView })));
@@ -152,6 +153,7 @@ function AppShell() {
   // /search にいるときは URL の ?q= と双方向同期、それ以外のページでは入力即 /search?q= に遷移する。
   const onSearchPage = location.pathname === "/search";
   const topbarValue = onSearchPage ? params.get("q") ?? "" : "";
+  const kanpoParser = useKanpoParserEnabled();
   return (
     <div className="size-full flex bg-background text-foreground">
       <SidebarNav />
@@ -199,7 +201,7 @@ function AppShell() {
               <Route path="/budget/:statsId" element={<BudgetRoute />} />
               <Route path="/updates" element={<UpdatesView />} />
               <Route path="/kanpo" element={<KanpoView />} />
-              <Route path="/kanpo-playground" element={<KanpoPlaygroundView />} />
+              {kanpoParser && <Route path="/kanpo-playground" element={<KanpoPlaygroundView />} />}
               <Route path="/settings" element={<SettingsView />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

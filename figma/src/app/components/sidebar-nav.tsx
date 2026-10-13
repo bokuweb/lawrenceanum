@@ -4,6 +4,7 @@ import { NavLink, useLocation } from "react-router";
 import { cn } from "./ui/utils";
 import { api } from "../data/api";
 import { EgovAttribution } from "./egov-attribution";
+import { useKanpoParserEnabled } from "../kanpo-parser-flag";
 
 /** ISO (UTC) を "YYYY-MM-DD HH:mm JST" に整形。 */
 function formatJst(iso: string | undefined | null): string | null {
@@ -35,7 +36,7 @@ function useLastSync(): { sync: string | null; egovDate: string | null } {
   return state;
 }
 
-const items: { path: string; label: string; icon: any; matchPrefix?: string }[] = [
+const items: { path: string; label: string; icon: any; matchPrefix?: string; kanpoParser?: boolean }[] = [
   { path: "/", label: "ダッシュボード", icon: LayoutDashboard },
   { path: "/feed", label: "新着", icon: Bell, matchPrefix: "/feed" },
   { path: "/search", label: "検索", icon: Search },
@@ -51,13 +52,15 @@ const items: { path: string; label: string; icon: any; matchPrefix?: string }[] 
   { path: "/wiki", label: "wiki", icon: Network, matchPrefix: "/wiki" },
   { path: "/enforcement", label: "施行予定", icon: CalendarClock, matchPrefix: "/enforcement" },
   { path: "/updates", label: "更新履歴", icon: History },
-  { path: "/kanpo-playground", label: "官報パーサ", icon: ScanText },
+  // 本番では ?kanpo-parser=1 で有効にしたときだけ（kanpo-parser-flag.ts）。
+  { path: "/kanpo-playground", label: "官報パーサ", icon: ScanText, kanpoParser: true },
   { path: "/settings", label: "設定", icon: Settings },
 ];
 
 export function SidebarNav() {
   const loc = useLocation();
   const { sync: lastSync, egovDate } = useLastSync();
+  const kanpoParser = useKanpoParserEnabled();
   return (
     <aside className="w-60 border-r border-border bg-sidebar flex flex-col">
       <div className="h-16 flex items-center gap-2 px-5 border-b border-border">
@@ -70,7 +73,7 @@ export function SidebarNav() {
         </div>
       </div>
       <nav className="flex-1 p-3 space-y-1">
-        {items.map(it => {
+        {items.filter(it => !it.kanpoParser || kanpoParser).map(it => {
           const Icon = it.icon;
           // `/` is exact-match only; everything else matches by prefix so that
           // /laws/:lawId still highlights "法令閲覧".
