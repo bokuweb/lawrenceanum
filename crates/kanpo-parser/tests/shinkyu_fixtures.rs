@@ -214,7 +214,8 @@ fn analysis_traces_every_word_and_matches_text() {
         for page in &a.pages {
             let mut seen = std::collections::HashSet::new();
             for line in page.regions.iter().flat_map(|r| &r.lines) {
-                for id in &line.words {
+                let in_table = line.table.iter().flat_map(|t| t.cells.iter().flat_map(|c| c.words.iter()));
+                for id in line.words.iter().chain(in_table) {
                     assert!(seen.insert(*id), "語 {id} が複数の行に属する");
                     assert_eq!(page.words[*id].status, kanpo_parser::trace::WordStatus::Used);
                 }

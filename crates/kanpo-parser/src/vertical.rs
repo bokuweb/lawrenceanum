@@ -187,8 +187,12 @@ fn doc_text_of(units: &[Unit], count: &mut usize) -> (String, Vec<crate::trace::
 
 /// 行に組まれなかった語に、捨てた理由（欄見出しのラベルか柱の行）を付ける。
 fn mark_unused(words: &mut [Word], regions: &[crate::trace::Region]) {
-    let used: std::collections::HashSet<usize> =
-        regions.iter().flat_map(|r| r.lines.iter().flat_map(|l| l.words.iter().copied())).collect();
+    // 表の行は語をセルの側に持つ。
+    let used: std::collections::HashSet<usize> = regions
+        .iter()
+        .flat_map(|r| r.lines.iter())
+        .flat_map(|l| l.words.iter().copied().chain(l.table.iter().flat_map(|t| t.cells.iter().flat_map(|c| c.words.iter().copied()))))
+        .collect();
     for w in words.iter_mut().filter(|w| w.status == WordStatus::Used && !used.contains(&w.id)) {
         w.status = if matches!(w.text.as_str(), "改" | "正" | "後" | "前") {
             WordStatus::HeaderLabel
@@ -706,13 +710,23 @@ struct Cell {
     words: Vec<usize>,
 }
 
+/// 縦に置いた欧文（学名など）の語間か。前の語が半角の欧字・数字・記号で終わり、次の語が
+/// 半角の欧字・数字で始まり、少しでも空いていれば半角空白を入れる。
+fn latin_space(prev: &str, prev_end: f32, next: &Col) -> bool {
+    let end = prev.chars().last().is_some_and(|c| c.is_ascii_graphic());
+    let start = next.text.chars().next().is_some_and(|c| c.is_ascii_alphanumeric());
+    end && start && next.y - prev_end > 0.5
+}
+
 /// 1 列（y 昇順の語）を、空きの大きさに応じて空白挿入・セル分割する。
 fn split_cells(g: Vec<Col>, em: f32) -> Vec<Cell> {
     let mut cells: Vec<Cell> = Vec::new();
     for c in g {
         match cells.last_mut() {
             Some(cell) if c.y - cell.y1 < em * CELL_BREAK_EM => {
-                if c.y - cell.y1 >= em * GAP_EM {
+                if latin_space(&cell.text, cell.y1, &c) {
+                    cell.text.push(' ');
+                } else if c.y - cell.y1 >= em * GAP_EM {
                     cell.text.push('\u{3000}');
                 }
                 cell.y1 = cell.y1.max(c.y1);
@@ -800,7 +814,15 @@ pub(crate) fn reconstruct_page(cols: Vec<Col>) -> String {
 pub(crate) fn page_lines(cols: Vec<Col>) -> Vec<Line> {
     let mut lines: Vec<Line> = Vec::new();
     for g in column_groups(cols) {
-        let text: String = g.iter().map(|c| c.text.as_str()).collect();
+        let mut text = String::new();
+        let mut prev_end = f32::MIN;
+        for c in &g {
+            if latin_space(&text, prev_end, c) {
+                text.push(' ');
+            }
+            text.push_str(&c.text);
+            prev_end = prev_end.max(c.y1);
+        }
         if is_margin_noise(&text) {
             continue;
         }

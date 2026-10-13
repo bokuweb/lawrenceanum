@@ -449,7 +449,13 @@ pub(crate) fn lines_with_tables(cols: Vec<Col>, grids: &[&Grid]) -> Vec<Line> {
         let (mine, others): (Vec<Col>, Vec<Col>) = rest.into_iter().partition(inside);
         rest = others;
         if !mine.is_empty() {
-            tables.push(grid_table(g, mine));
+            let t = grid_table(g, mine.clone());
+            // 1 セルだけ（枠で囲んだだけの文）は表にせず本文に戻す。
+            if t.rows * t.cols <= 1 {
+                rest.extend(mine);
+            } else {
+                tables.push(t);
+            }
         }
     }
     let right_of: std::collections::HashMap<usize, f32> = rest.iter().map(|c| (c.id, c.x1)).collect();
@@ -536,6 +542,29 @@ fn grid_table(g: &Grid, cols: Vec<Col>) -> Table {
     }
     let strip_of = |xi: usize| nx - 1 - xi; // x 区間 → 右からの番号
     let cell_text = |words: Vec<Col>| -> String {
+        // 横組みの語（学名などの欧文）が多いセルは、行ごとに左から並べて語間に空白を入れる。
+        let horizontal = words.iter().filter(|c| c.x1 - c.x > (c.y1 - c.y) * 1.5).count();
+        if horizontal * 2 > words.len() {
+            let mut ws = words;
+            ws.sort_by(|a, b| {
+                let row = |c: &Col| ((c.y + c.y1) / 2.0 / 4.0).round() as i64;
+                row(a).cmp(&row(b)).then(a.x.partial_cmp(&b.x).unwrap_or(std::cmp::Ordering::Equal))
+            });
+            let mut text = String::new();
+            let mut prev: Option<&Col> = None;
+            for c in &ws {
+                if let Some(p) = prev {
+                    let em = (c.y1 - c.y).max(1.0);
+                    let same_row = ((p.y + p.y1) / 2.0 - (c.y + c.y1) / 2.0).abs() < em * 0.5;
+                    if !same_row || c.x - p.x1 > em * 0.2 {
+                        text.push(' ');
+                    }
+                }
+                text.push_str(&c.text);
+                prev = Some(c);
+            }
+            return text;
+        }
         let lines: Vec<String> = cell_lines(words).into_iter().map(|l| l.text).collect();
         // セルの中の列の折り返しは連結し、文末（。）でだけ改行する。
         let mut text = String::new();
