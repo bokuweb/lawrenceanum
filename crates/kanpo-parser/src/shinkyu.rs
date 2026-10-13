@@ -9,23 +9,28 @@ use crate::vertical::{cell_lines, page_lines, reconstruct_page, Col};
 
 /// 縦書き新旧対照表ページの「改正後／改正前」欄見出し列を検出する。
 ///
-/// x 近傍でカラムをまとめ、その縦連結に両ラベルが現れる列を見出し列とみなし、
-/// `(見出し x, 上下帯の境界 y)` を返す。境界は両ラベルの中心の中点。
-/// 見つからなければ `None`（＝通常ページ）。
+/// 見出しが複数ある（表が横に並ぶ）ときは最も右のものを返す。見つからなければ `None`
+/// （＝通常ページ）。
 pub(crate) fn detect_shinkyu_header(cols: &[Col]) -> Option<(f32, f32)> {
+    detect_shinkyu_headers(cols).into_iter().next()
+}
+
+/// 「改正後／改正前」欄見出し列をすべて検出し、右から順に `(見出し x, 上下帯の境界 y)` を返す。
+///
+/// x 近傍でカラムをまとめ、その縦連結に両ラベルが現れる列を見出し列とみなす。境界は
+/// 両ラベルの中心の中点。ラベルは 1〜3 文字の短い語（「改」「正」「後」や「改正後」）に
+/// 限る。前文の「改正前欄に掲げる…改正後欄に…」を見出しと取り違えないため。
+pub(crate) fn detect_shinkyu_headers(cols: &[Col]) -> Vec<(f32, f32)> {
     // x 近傍(±6pt)でグループ化。
-    let mut idx: Vec<usize> = (0..cols.len()).collect();
+    let mut idx: Vec<usize> = (0..cols.len()).filter(|&i| cols[i].text.chars().count() <= 3).collect();
     idx.sort_by(|&a, &b| cols[a].x.partial_cmp(&cols[b].x).unwrap_or(std::cmp::Ordering::Equal));
-    let mut group: Vec<usize> = Vec::new();
-    let mut rep = f32::NEG_INFINITY;
-    let flush_and_check = |g: &mut Vec<usize>| -> Option<(f32, f32)> {
-        if g.len() < 3 {
-            g.clear();
+    let check = |g: &mut Vec<usize>| -> Option<(f32, f32)> {
+        if g.len() < 2 {
             return None;
         }
         g.sort_by(|&a, &b| cols[a].y.partial_cmp(&cols[b].y).unwrap_or(std::cmp::Ordering::Equal));
         let chars: Vec<char> = g.iter().flat_map(|&i| cols[i].text.chars()).collect();
-        // 各文字の y 中心（cols[i] が複数文字なら全文字に同じ中心を割当: 見出しは1文字列なので十分）。
+        // 各文字の y 中心（語が複数文字なら全文字に同じ中心を割当: 見出しは短いので十分）。
         let centers: Vec<f32> = g
             .iter()
             .flat_map(|&i| {
@@ -36,7 +41,6 @@ pub(crate) fn detect_shinkyu_header(cols: &[Col]) -> Option<(f32, f32)> {
         let header_x = g.iter().map(|&i| cols[i].x).fold(f32::INFINITY, f32::min);
         let go = find_run(&chars, &['改', '正', '後']);
         let mae = find_run(&chars, &['改', '正', '前']);
-        g.clear();
         match (go, mae) {
             (Some(gi), Some(mi)) if gi != mi => {
                 let go_c = (centers[gi] + centers[gi + 1] + centers[gi + 2]) / 3.0;
@@ -46,18 +50,54 @@ pub(crate) fn detect_shinkyu_header(cols: &[Col]) -> Option<(f32, f32)> {
             _ => None,
         }
     };
+    let mut found: Vec<(f32, f32)> = Vec::new();
+    let mut group: Vec<usize> = Vec::new();
+    let mut rep = f32::NEG_INFINITY;
     for &i in &idx {
         if !group.is_empty() && cols[i].x - rep > 6.0 {
-            if let Some(found) = flush_and_check(&mut group) {
-                return Some(found);
-            }
+            found.extend(check(&mut group));
+            group.clear();
         }
         if group.is_empty() {
             rep = cols[i].x;
         }
         group.push(i);
     }
-    flush_and_check(&mut group)
+    found.extend(check(&mut group));
+    found.sort_by(|a, b| b.0.partial_cmp(&a.0).unwrap_or(std::cmp::Ordering::Equal));
+    found
+}
+
+/// 1 つの段に新旧対照表が横に並ぶとき、表ごとの縦の切れ目で分ける（右から順）。
+///
+/// 官報は右から「前文 A・見出し A・表 A・前文 B・見出し B・表 B …」と組む。表の本体は
+/// 改正後帯・改正前帯の中に収まるのに対し、次の前文は帯の境目をまたぐ長い列になるので、
+/// 見出し A の左で最初に帯の境目をまたぐ列（または `〇…号` の記事見出しの列）の右端を
+/// 切れ目にする。
+pub(crate) fn split_side_by_side_tables(cols: Vec<Col>) -> Vec<Vec<Col>> {
+    let heads = detect_shinkyu_headers(&cols);
+    let mut cuts: Vec<f32> = Vec::new();
+    for w in heads.windows(2) {
+        let ((h1, d1), (h2, _)) = (w[0], w[1]);
+        let cut = cols
+            .iter()
+            .filter(|c| c.x > h2 + 6.0 && c.x1 < h1 - 1.0 && ((c.y < d1 && c.y1 > d1) || c.text.starts_with('〇')))
+            .map(|c| c.x1)
+            .reduce(f32::max);
+        if let Some(cut) = cut {
+            cuts.push(cut + 1.0);
+        }
+    }
+    if cuts.is_empty() {
+        return vec![cols];
+    }
+    let mut slices: Vec<Vec<Col>> = vec![Vec::new(); cuts.len() + 1];
+    for c in cols {
+        let k = cuts.iter().filter(|&&cut| c.x < cut).count();
+        slices[k].push(c);
+    }
+    slices.retain(|s| !s.is_empty());
+    slices
 }
 
 /// 見出しの無い継続ページで、上下2帯（改正後/改正前）構造を幾何＋内容類似から検出する。
@@ -115,7 +155,7 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
 }
 
 /// 2 文字 n-gram 集合の Jaccard 係数（0.0–1.0）。改正後/改正前の本文類似度に使う。
-fn bigram_jaccard(a: &str, b: &str) -> f32 {
+pub(crate) fn bigram_jaccard(a: &str, b: &str) -> f32 {
     use std::collections::HashSet;
     let bigrams = |s: &str| -> HashSet<(char, char)> {
         let chars: Vec<char> = s.chars().filter(|c| !c.is_whitespace()).collect();
@@ -193,6 +233,36 @@ impl ShinkyuLayout {
             before: vec![lower],
             trailing: vec![outside],
         }
+    }
+
+    /// 前文の右側に、前ページから続く別の表の末尾が同居していれば切り出す。
+    ///
+    /// 前の項目の新旧対照表がページ上部の右端で終わり、そのすぐ左から次の項目（前文＋
+    /// 新しい表）が始まるページがある。前文は両帯を跨ぐ長い列になるのに対し、前の表の
+    /// 末尾は改正後帯・改正前帯それぞれに収まる短い列になる。両帯を跨ぐ前文の列より右に
+    /// あって帯の中に収まる列を前の表の続きとし、上帯を改正後・下帯を改正前とする
+    /// （両帯にそれぞれ列があるときだけ）。区分見出し（「法　規　的　告　示」）のような
+    /// 大きい字は帯の境目で割れても前の表ではないので、前文と同じ字の大きさの列に限る。
+    pub(crate) fn split_off_leading_continuation(&mut self, divider: f32) -> Option<Unit> {
+        let spans = |c: &Col| c.y < divider && c.y1 > divider;
+        let span_right = self.preamble.iter().filter(|c| spans(c)).map(|c| c.x1).reduce(f32::max)?;
+        let em = self.preamble.iter().filter(|c| spans(c)).map(|c| c.x1 - c.x).reduce(f32::min)?;
+        // 字の大きさは幅と高さの小さい方で比べる（縦中横の「(120)」は幅だけ広い）。
+        let glyph = |c: &Col| (c.x1 - c.x).min(c.y1 - c.y);
+        let is_tail = |c: &Col| c.x > span_right + 2.0 && !spans(c) && glyph(c) <= em * 1.3;
+        let (tail, rest): (Vec<Col>, Vec<Col>) = std::mem::take(&mut self.preamble).into_iter().partition(is_tail);
+        let (after, before): (Vec<Col>, Vec<Col>) = tail.into_iter().partition(|c| c.y1 <= divider);
+        if after.is_empty() || before.is_empty() {
+            self.preamble = rest.into_iter().chain(after).chain(before).collect();
+            return None;
+        }
+        self.preamble = rest;
+        Some(Unit::Shinkyu {
+            preamble: Vec::new(),
+            after: vec![cell_lines(after)],
+            before: vec![cell_lines(before)],
+            outside: Vec::new(),
+        })
     }
 
     /// 見出し段における改正後帯→改正前帯の y ピッチ。

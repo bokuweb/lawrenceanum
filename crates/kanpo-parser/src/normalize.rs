@@ -37,35 +37,100 @@ pub(crate) fn is_private_use(c: char) -> bool {
     ('\u{E000}'..='\u{F8FF}').contains(&c)
 }
 
-/// ToUnicode を持たない私用 CID（`Adobe-Npb1` 等）のグリフを本来の文字へ戻す。
+/// ToUnicode を持たない私用 CID（`Adobe-Npb1` 等）のグリフを本来の文字へ戻した結果。
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct CidGlyph {
+    /// 連番の系統（同じページに同じ系統の記号が出ているかの判定に使う）。
+    pub family: u8,
+    /// 常用漢字と同じ符号か。字間を空けて組んだ名前・見出しの 1 字（「張　振昊」の
+    /// `振`、「係　数」の `数`）と区別がつかないので、呼び出し側が文脈で判断する。
+    pub ambiguous: bool,
+    pub text: String,
+}
+
+/// 系統の番号。
+const FAM_PAREN_NUM: u8 = 1;
+const FAM_CIRCLED: u8 = 2;
+const FAM_ROMAN: u8 = 3;
+const FAM_PAREN_KANJI: u8 = 4;
+const FAM_PAREN_KANA: u8 = 5;
+const FAM_SINGLE: u8 = 6;
+
+/// 連番の範囲の中で常用漢字と同じ符号（文脈が無ければ写像しない）。
+const AMBIGUOUS: &str = "挑振挺挾挿掘掛故效敍敏敕敗敘教敝敞敢散敦敬";
+
+/// ToUnicode を持たない私用 CID のグリフを本来の文字へ戻す。
 ///
-/// 官報の表中の括弧付き数字「(1)」や化学名のハイフンは、ToUnicode 無しの別フォントで
-/// 組まれることがあり、poppler は CID をそのまま符号位置とみなして無関係な漢字を出す
-/// （例: (1)→`挎`、(15)→`昝昫`、‐→`慺`）。フォント切替で独立した 1 語になり、
-/// 1em 四方に収まる（2 桁は半角 2 グリフで 1em）ことを条件に写像する。
-/// `星`・`昭` など常用漢字と衝突する符号もあるため、語全体がこの形のときだけ置き換える。
-pub(crate) fn fix_private_cid_glyphs(text: &str, width: f32, height: f32) -> Option<String> {
+/// 官報の表や条文中の項目記号（(1)・①・(i)・㈠・(ア)）、化学名のハイフン、縦組み数字の
+/// 小数点、人名・地名の異体字は、ToUnicode 無しの別フォントで組まれることがあり、poppler は
+/// CID をそのまま符号位置とみなして無関係な漢字を出す（例: (1)→`挎`、(15)→`昝昫`、
+/// ①→`挭`、㈠→`掴`、(ア)→`敁`、‐→`慺`）。フォント切替で独立した 1 語になり、1em 四方に
+/// 収まる（2 桁は半角 2 グリフで 1em）ことを条件にする。
+///
+/// 対応は蓄積した官報の原本画像と突き合わせて確かめたもの。連番の範囲は確認できた
+/// 符号の並びから端まで延ばしている。目次のページ番号の数字（`掠`→一、`採`→二 …）は
+/// `接`・`推`・`採` など字間を空けた見出しの本物の漢字と区別できないので扱わない。
+pub(crate) fn private_cid_glyph(text: &str, width: f32, height: f32) -> Option<CidGlyph> {
     if height > width * 1.3 {
         return None;
     }
-    let fw = |d: u32| char::from_u32('０' as u32 + d).unwrap_or('？');
+    let fw = |n: u32| -> String { n.to_string().chars().map(|d| char::from_u32('０' as u32 + d.to_digit(10).unwrap()).unwrap()).collect() };
+    let nth = |s: &str, i: u32| s.chars().nth(i as usize);
     let chars: Vec<char> = text.trim().chars().collect();
-    match chars.as_slice() {
-        // (1)〜(10): U+630E..=U+6317
-        [c] if ('\u{630E}'..='\u{6317}').contains(c) => {
-            let n = *c as u32 - 0x630D;
-            let digits: String = n.to_string().chars().map(|d| fw(d.to_digit(10).unwrap())).collect();
-            Some(format!("（{digits}）"))
+    let (family, mapped) = match chars.as_slice() {
+        [c] => {
+            let code = *c as u32;
+            match code {
+                // (1)〜(10)
+                0x630E..=0x6317 => (FAM_PAREN_NUM, format!("（{}）", fw(code - 0x630D))),
+                // ①〜⑳
+                0x632D..=0x6340 => (FAM_CIRCLED, char::from_u32(0x2460 + code - 0x632D)?.to_string()),
+                // (i)〜(x)
+                0x6395..=0x639E => {
+                    const ROMAN: [&str; 10] = ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x"];
+                    (FAM_ROMAN, format!("（{}）", ROMAN[(code - 0x6395) as usize]))
+                }
+                // ㈠〜㈩
+                0x63B4..=0x63BD => (FAM_PAREN_KANJI, format!("（{}）", nth("一二三四五六七八九十", code - 0x63B4)?)),
+                // (ア)〜(ン)（五十音順）
+                0x6541..=0x656E => (
+                    FAM_PAREN_KANA,
+                    format!(
+                        "（{}）",
+                        nth("アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン", code - 0x6541)?
+                    ),
+                ),
+                // 縦組み数字の小数点
+                0x65E0 => (FAM_SINGLE, "・".to_string()),
+                // 化学名などのハイフン
+                0x617A => (FAM_SINGLE, "－".to_string()),
+                // ㊟（「注４を注５とし」の注）
+                0x629D => (FAM_SINGLE, "（注）".to_string()),
+                // 異体字（一点しんにょうの「辻」・「釜」）
+                0x5A79 => (FAM_SINGLE, "辻".to_string()),
+                0x4F42 => (FAM_SINGLE, "釜".to_string()),
+                _ => return None,
+            }
         }
-        ['\u{617A}'] => Some("－".to_string()),
         // (11)〜(99): 「(十の位」U+661D..=U+6625 +「一の位)」U+6627..=U+6630（1..9,0 の順）
         [t, o] if ('\u{661D}'..='\u{6625}').contains(t) && ('\u{6627}'..='\u{6630}').contains(o) => {
             let tens = *t as u32 - 0x661C;
             let ones = (*o as u32 - 0x6626) % 10;
-            Some(format!("（{}{}）", fw(tens), fw(ones)))
+            (FAM_PAREN_NUM, format!("（{}）", fw(tens * 10 + ones)))
         }
-        _ => None,
-    }
+        _ => return None,
+    };
+    Some(CidGlyph {
+        family,
+        ambiguous: chars.len() == 1 && AMBIGUOUS.contains(chars[0]),
+        text: mapped,
+    })
+}
+
+/// 文脈なしで写像してよいものだけを写像する（常用漢字と同じ符号は `None`）。
+#[cfg(test)]
+fn fix_private_cid_glyphs(text: &str, width: f32, height: f32) -> Option<String> {
+    private_cid_glyph(text, width, height).filter(|g| !g.ambiguous).map(|g| g.text)
 }
 
 /// 縦書き presentation form を通常の全角約物に写像する。
@@ -183,6 +248,17 @@ mod tests {
         assert_eq!(fix_private_cid_glyphs("昝昫", 8.0, 8.0).as_deref(), Some("（１５）"));
         assert_eq!(fix_private_cid_glyphs("昡昰", 8.0, 8.0).as_deref(), Some("（５０）"));
         assert_eq!(fix_private_cid_glyphs("慺", 8.0, 8.0).as_deref(), Some("－"));
+        assert_eq!(fix_private_cid_glyphs("挭", 8.0, 8.0).as_deref(), Some("①"));
+        // 常用漢字と同じ符号は文脈が無ければ写像しない（呼び出し側が判断する）。
+        assert_eq!(fix_private_cid_glyphs("振", 8.0, 8.0), None);
+        assert_eq!(private_cid_glyph("振", 8.0, 8.0).map(|g| g.text).as_deref(), Some("③"));
+        assert_eq!(fix_private_cid_glyphs("敫", 8.0, 8.0).as_deref(), Some("（ロ）"));
+        assert_eq!(fix_private_cid_glyphs("掝", 8.0, 8.0).as_deref(), Some("（ix）"));
+        assert_eq!(fix_private_cid_glyphs("掴", 8.0, 8.0).as_deref(), Some("（一）"));
+        assert_eq!(fix_private_cid_glyphs("敁", 8.0, 8.0).as_deref(), Some("（ア）"));
+        assert_eq!(fix_private_cid_glyphs("无", 8.0, 8.0).as_deref(), Some("・"));
+        // 語の中の「振」（通常の本文）は触らない。
+        assert_eq!(fix_private_cid_glyphs("振替", 8.0, 16.0), None);
         // 通常の本文（2 文字で 2em の高さ・常用漢字の語）は触らない。
         assert_eq!(fix_private_cid_glyphs("星昭", 8.0, 16.0), None);
         assert_eq!(fix_private_cid_glyphs("昭和", 8.0, 8.0), None);

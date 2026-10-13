@@ -59,3 +59,44 @@ pdftotext -bbox-layout -enc UTF-8 input.pdf out.bbox.html
 cargo run -p kanpo-parser --example dump -- out.bbox.html
 cargo run -p kanpo-parser --example structured -- out.bbox.html
 ```
+
+## 解析過程の可視化（`analyze`）
+
+`analyze(&xhtml)` は本文・記事・構造化結果に加えて、各語がどの領域（前文・改正後・改正前・
+表外・本文）のどの行に組まれたか、捨てた語はその理由（余白・欄見出し・柱）を返す。
+poppler を使わないので WASM（`crates/kanpo-parser-wasm`）でも動き、Web の playground
+（`/kanpo-playground`）がこれを使って PDF の上に割り当てを重ねて表示する。
+
+```bash
+cargo run -p kanpo-parser --example trace -- out.bbox.html
+```
+
+## 回帰テスト用コーパス
+
+`tests/corpus/<case>/` に実官報のページ（`page.pdf`・`page.bbox.html`）と、何を確かめるケースか
+（`case.json`）、目視で確認した期待出力（`expected.txt`・`expected.json`）を置いている。
+パーサを直して出力が変わったら、差分を確かめてから更新する。
+
+```bash
+UPDATE_EXPECT=1 cargo test -p kanpo-parser --test corpus
+```
+
+官報原本は GitHub Actions（`collect-kanpo-pdf.yml`）が毎日 R2 の `kanpo-pdf/` に蓄積している
+（デジタル官報の公開は約 90 日）。手元に取るには:
+
+```bash
+cargo run -p lawpub-cli -- kanpo-archive --date 2026-10-05 --out .cache/kanpo-archive
+cargo run --release -p kanpo-parser --example scan -- .cache/kanpo-archive > scan.tsv
+```
+
+`scan` は全ページを解析して怪しいページ（欄見出しがあるのに表にならない、改正後/改正前の
+行数が極端に偏る、私用 CID の化け候補など）に印を付ける。新しいエッジケースを見つけたら
+コーパスに足す。
+
+## 既知の限界
+
+- 縦書きと横書きが混在するページ（号外の決算公告など）は、どちらか多い方の読み方で組む
+- 表の中の罫線表（セルが格子になった表）はセル構造までは復元しない（新旧対照表の `別表第○` 行の
+  2D 表は `attach_tables` が罫線から復元する）
+- ToUnicode の無い私用 CID は、原本と突き合わせて確かめた範囲だけ写像する
+  （目次のページ番号の数字など、常用漢字と区別できない符号はそのまま）

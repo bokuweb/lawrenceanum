@@ -111,6 +111,12 @@ pub fn analyze(xhtml: &str) -> Analysis {
     }
 }
 
+/// PDF バイト列を `pdftotext -bbox-layout` に通し、座標付き XHTML を得る。
+/// [`analyze`] / [`reconstruct_vertical`] の入力になる（poppler が必要）。
+pub fn bbox_xhtml(pdf: &[u8]) -> Result<String> {
+    pdftotext::run_pdftotext_bbox(pdf)
+}
+
 /// PDF バイト列から構造化した [`Document`] を得る。HTML や表へ変換しやすい形。
 /// 改め文をテキストではなく構造で受け取りたい呼び出し側はこちらを使う。
 ///

@@ -76,7 +76,8 @@ pub struct PageTrace {
     pub width: f32,
     pub height: f32,
     /// ページ全体をどう扱ったか: `"tiers"`（段に分けて復元）/ `"headerless_shinkyu"`
-    /// （欄見出しの無い新旧対照表の継続ページとして上下帯に分けた）。
+    /// （欄見出しの無い新旧対照表の継続ページとして上下帯に分けた）/ `"horizontal"`
+    /// （横組みのページとして pdftotext の行順で組んだ）。
     pub layout: &'static str,
     pub words: Vec<Word>,
     pub regions: Vec<Region>,

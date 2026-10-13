@@ -1,0 +1,9 @@
+{
+  "title": "環境省告示第四十三号（海洋汚染防止法施行令 別表第一の物質）の新旧対照表",
+  "date": "2026-10-05",
+  "issue": "本紙 第1801号",
+  "page": 2,
+  "source": "https://www.kanpo.go.jp/20261005/20261005h01801/pdf/20261005h018010002.pdf",
+  "tags": ["shinkyu", "continuation-tier", "private-cid", "inner-table", "co-located-article"],
+  "notes": "上半分（欄見出し付き）から下半分の段へ見出し無しで表が続き、下段の左に農林水産省告示が同居する。(1)(15) 等は ToUnicode 無しの私用 CID。物質｜係数の表の中で物質名が折り返す。"
+}
