@@ -119,6 +119,39 @@ pub fn analyze_with_rules(xhtml: &str, rules: &[Option<lines::PageRules>]) -> An
     }
 }
 
+/// 項目（告示など）の 1 ページ分の入力。
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct PageInput {
+    /// `pdftotext -bbox-layout` の XHTML（1 ページ）。
+    pub xhtml: String,
+    /// そのページの罫線（[`page_rules`]）。無ければ表の復元をしない。
+    #[serde(default)]
+    pub rules: Option<lines::PageRules>,
+}
+
+/// 複数ページにまたがる項目をまとめて解析する。ページで切れた新旧対照表は 1 つの表に
+/// つなぎ、記事（`〇…号`）ごとに構造化する。
+pub fn analyze_item(pages: &[PageInput]) -> Analysis {
+    let xhtml = combine_pages(pages.iter().map(|p| p.xhtml.as_str()));
+    let rules: Vec<Option<lines::PageRules>> = pages.iter().map(|p| p.rules.clone()).collect();
+    analyze_with_rules(&xhtml, &rules)
+}
+
+/// 1 ページずつの XHTML の `<page>` 要素を 1 つの文書にまとめる。
+fn combine_pages<'a>(xhtmls: impl Iterator<Item = &'a str>) -> String {
+    let mut out = String::from("<html><body><doc>");
+    for x in xhtmls {
+        let mut rest = x;
+        while let Some(start) = rest.find("<page") {
+            let Some(end) = rest[start..].find("</page>") else { break };
+            out.push_str(&rest[start..start + end + "</page>".len()]);
+            rest = &rest[start + end + "</page>".len()..];
+        }
+    }
+    out.push_str("</doc></body></html>");
+    out
+}
+
 /// 構造化用テキストの表の目印を、表を書き下したテキストに戻す。
 fn render_table_markers(text: &str, tables: &[trace::Table]) -> String {
     text.lines()

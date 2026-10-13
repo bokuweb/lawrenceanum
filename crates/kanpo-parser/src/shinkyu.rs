@@ -126,7 +126,9 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
             continue;
         }
         let crossing = cols.iter().filter(|d| d.y < cut && cut < d.y1).count();
-        if best.map(|b| crossing < b.0).unwrap_or(true) {
+        // またぐ列が同じ数なら、ページ中央（上下の帯の境目）に近い方を採る。
+        let closer = |b: (usize, f32)| crossing == b.0 && (cut - height / 2.0).abs() < (b.1 - height / 2.0).abs();
+        if best.map(|b| crossing < b.0 || closer(b)).unwrap_or(true) {
             best = Some((crossing, cut));
         }
     }
@@ -148,12 +150,34 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
     }
     // 内容類似（改正後 ≒ 改正前）。新旧対照表は両欄がほぼ同一テキストで差分のみ異なる。
     // 人事異動一覧のように上下で別内容のページはここで弾かれる。
+    // 上下の本文が順序も含めてほぼ同じであること（新旧対照表は改正後 ≒ 改正前）。文字の
+    // 集合だけ比べると、似た法令文が続く普通の 2 段組み（政令本文など）も似て見えるので、
+    // 最長共通部分列の長さの比で比べる。
     let ut = reconstruct_page(upper);
     let lt = reconstruct_page(lower);
-    if bigram_jaccard(&ut, &lt) < 0.5 {
+    if bigram_jaccard(&ut, &lt) < 0.5 || sequence_ratio(&ut, &lt) < 0.5 {
         return None;
     }
     Some(divider)
+}
+
+/// 2 つの文の、順序を考慮した近さ（2 × 最長共通部分列の長さ ÷ 両方の長さの和、0.0–1.0）。
+/// 長い文は先頭 2000 字で比べる。
+fn sequence_ratio(a: &str, b: &str) -> f32 {
+    let a: Vec<char> = a.chars().filter(|c| !c.is_whitespace()).take(2000).collect();
+    let b: Vec<char> = b.chars().filter(|c| !c.is_whitespace()).take(2000).collect();
+    if a.is_empty() || b.is_empty() {
+        return 0.0;
+    }
+    let mut prev = vec![0u32; b.len() + 1];
+    let mut cur = vec![0u32; b.len() + 1];
+    for &ca in &a {
+        for (j, &cb) in b.iter().enumerate() {
+            cur[j + 1] = if ca == cb { prev[j] + 1 } else { prev[j + 1].max(cur[j]) };
+        }
+        std::mem::swap(&mut prev, &mut cur);
+    }
+    2.0 * prev[b.len()] as f32 / (a.len() + b.len()) as f32
 }
 
 /// 2 文字 n-gram 集合の Jaccard 係数（0.0–1.0）。改正後/改正前の本文類似度に使う。
@@ -181,8 +205,14 @@ fn find_run(chars: &[char], pat: &[char]) -> Option<usize> {
 }
 
 /// 新旧対照表の段を改正後(上帯)/改正前(下帯)に分けて復元する。
+/// 見出しの無い継続ページ用: ページ全体が表なので、表の下の別記事を切り離す判定はしない。
 pub(crate) fn reconstruct_shinkyu(cols: Vec<Col>, header_x: f32, divider: f32, grids: &[Grid]) -> Unit {
-    ShinkyuLayout::split(cols, header_x, divider).into_unit(grids, None)
+    let mut layout = ShinkyuLayout::split(cols, header_x, divider);
+    let outside: Vec<Col> = layout.trailing.drain(..).flatten().collect();
+    if let Some(before) = layout.before.first_mut() {
+        before.extend(outside);
+    }
+    layout.into_unit(grids, None)
 }
 
 /// 新旧対照表 1 件分のカラム配置。
@@ -226,7 +256,8 @@ impl ShinkyuLayout {
         // 表の後ろへ回す。表が紙面全体を占める通常ケースでは下端がページ外になり実質無効。
         let (lower, outside): (Vec<Col>, Vec<Col>) = match upper.iter().map(|c| c.y).reduce(f32::min) {
             Some(table_top) => {
-                let table_bottom = 2.0 * divider - table_top;
+                // 帯の高さの差や行末の短い列のはみ出しを見込んで 20pt の余裕を持たせる。
+                let table_bottom = 2.0 * divider - table_top + 20.0;
                 lower_all.into_iter().partition(|c| (c.y + c.y1) / 2.0 < table_bottom)
             }
             None => (lower_all, Vec::new()),

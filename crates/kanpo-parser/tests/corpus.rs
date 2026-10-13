@@ -1,7 +1,9 @@
 //! 実官報ページのコーパス（`tests/corpus/<case>/`）で、復元結果をスナップショットと照合する。
 //!
 //! 各ケースは次のファイルを持つ:
-//! - `page.pdf` — 原本（デジタル官報の項目別 PDF 1 ページ）
+//! - `page.pdf` — 原本（デジタル官報の項目別 PDF 1 ページ）。複数ページにまたがるケースは
+//!   2 ページ目以降を `page-2.pdf`・`page-3.pdf` …（bbox・rules も同じ名前）に置き、
+//!   項目としてまとめて解析する
 //! - `page.bbox.html` — `pdftotext -bbox-layout -enc UTF-8 page.pdf page.bbox.html` の出力
 //! - `page.rules.json` — 罫線（`cargo run -p kanpo-parser --example prepare -- page.pdf` が
 //!   上の bbox と一緒に作る）
@@ -39,11 +41,17 @@ fn corpus_matches_expected() {
         let case: serde_json::Value =
             serde_json::from_str(&std::fs::read_to_string(dir.join("case.json")).unwrap()).unwrap();
         assert!(case["title"].is_string() && case["notes"].is_string(), "{name}: case.json に title/notes");
-        let xhtml = std::fs::read_to_string(dir.join("page.bbox.html")).unwrap();
-        let rules = std::fs::read_to_string(dir.join("page.rules.json"))
-            .ok()
-            .map(|s| serde_json::from_str::<kanpo_parser::lines::PageRules>(&s).unwrap());
-        let a = kanpo_parser::analyze_with_rules(&xhtml, &[rules]);
+        let pages: Vec<kanpo_parser::PageInput> = std::iter::once("page".to_string())
+            .chain((2..).map(|n| format!("page-{n}")))
+            .map_while(|stem| {
+                let xhtml = std::fs::read_to_string(dir.join(format!("{stem}.bbox.html"))).ok()?;
+                let rules = std::fs::read_to_string(dir.join(format!("{stem}.rules.json")))
+                    .ok()
+                    .map(|s| serde_json::from_str(&s).unwrap());
+                Some(kanpo_parser::PageInput { xhtml, rules })
+            })
+            .collect();
+        let a = kanpo_parser::analyze_item(&pages);
         let text = format!("{}\n", a.text);
         let docs: Vec<_> = a.articles.iter().map(|art| &art.document).collect();
         let json = format!("{}\n", serde_json::to_string_pretty(&docs).unwrap());
