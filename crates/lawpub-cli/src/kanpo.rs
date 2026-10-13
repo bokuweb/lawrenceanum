@@ -169,7 +169,7 @@ fn fill_amend_texts(
                 continue;
             }
             let segments: Vec<String> = analysis.articles.iter().map(|a| a.text.clone()).collect();
-            let picked = best_segment(&item.title, &segments).and_then(|b| segments.iter().position(|s| s == b));
+            let picked = pdf::pick_article(&item.title, &analysis.articles);
             let (body, doc) = match picked {
                 Some(i) => (segments[i].clone(), analysis.articles[i].document.clone()),
                 None => {
@@ -512,44 +512,6 @@ pub fn run_poc(date: &str, amend_only: bool, limit: usize, cache: &Path) -> Resu
         stats.by_format,
     );
     Ok(())
-}
-
-/// 標題に最も合致する記事セグメントを選ぶ。
-///
-/// 本文ヘッダには対象法令名のあとに法令番号「（…）」が挿入されるため、標題そのものの
-/// 完全一致では拾えない。対象法令名（「の一部を」「を廃止」より前）を鍵に、まず完全一致、
-/// 次に前方一致を縮めながら探す。
-fn best_segment<'a>(title: &str, segments: &'a [String]) -> Option<&'a str> {
-    let core = title_core(title);
-    if core.chars().count() < 4 {
-        return None;
-    }
-    // core（または前方一致の鍵）を含む候補を集める。
-    let mut keys: Vec<String> = vec![core.clone()];
-    let chars: Vec<char> = core.chars().collect();
-    let mut len = chars.len().saturating_sub(2);
-    while len >= 6 {
-        keys.push(chars[..len].iter().collect());
-        len = len.saturating_sub(4);
-    }
-    // 制定文本文らしさ（「の規定に基づき」「次のように」「改める」「定める」）を優先し、
-    // 目次エントリ（短く制定文マーカを欠く）を避ける。同点は長い方。
-    segments
-        .iter()
-        .filter(|s| keys.iter().any(|k| s.contains(k.as_str())))
-        .max_by_key(|s| body_score(s))
-        .map(|s| s.as_str())
-}
-
-/// セグメントの「制定文本文らしさ」スコア。
-fn body_score(s: &str) -> usize {
-    let mut score = 0;
-    for m in ["の規定に基づき", "次のように", "に改める", "を加える", "定める"] {
-        if s.contains(m) {
-            score += 1000;
-        }
-    }
-    score + s.chars().count()
 }
 
 /// 標題から突合の鍵となる「対象法令名」を取り出す。

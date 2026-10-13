@@ -133,7 +133,22 @@ pub fn find_grids_inside(rules: &PageRules, x0: f32, x1: f32, y0: f32, y1: f32) 
             .filter(|h| h.x1 - h.x0 > 4.0)
             .collect(),
     };
-    find_grids(&inside, f32::MAX, f32::MAX)
+    let grids = find_grids(&inside, f32::MAX, f32::MAX);
+    if !grids.is_empty() || !inside.vertical.is_empty() {
+        return grids;
+    }
+    // 縦の罫線が無く、帯の幅いっぱいの横線（欄の境目）だけがある帯（ページをまたいだ表の続きなど）は、
+    // 帯全体を 1 列とし、横線で欄に分けた表とみなす。
+    // 同じ高さの線分（途中で切れて描かれることがある）の合計の長さで判定する。
+    let full: Vec<f32> = cluster(inside.horizontal.iter().map(|h| h.y).collect(), MERGE);
+    let hspan = |y: f32| inside.horizontal.iter().filter(|h| (h.y - y).abs() <= MERGE).map(|h| h.x1 - h.x0).sum::<f32>();
+    let full: Vec<f32> = full.into_iter().filter(|&y| hspan(y) >= (x1 - x0) * 0.8).collect();
+    if full.is_empty() {
+        return grids;
+    }
+    let ys: Vec<f32> = std::iter::once(y0).chain(full).chain(std::iter::once(y1)).collect();
+    let cells = (0..ys.len() - 1).map(|j| GridCell { x0: 0, x1: 1, y0: j, y1: j + 1 }).collect();
+    vec![Grid { xs: vec![x0, x1], ys, cells }]
 }
 
 /// 近い値をまとめて代表値（平均）の昇順リストにする。連鎖的にまとめる。

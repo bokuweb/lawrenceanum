@@ -5,7 +5,8 @@ use scraper::{Html, Selector};
 use crate::horizontal::{horizontal_lines, is_left_strip_header, LEFT_STRIP};
 use crate::normalize::{is_margin_noise, is_private_use, normalize_char, private_cid_glyph, CidGlyph};
 use crate::shinkyu::{
-    detect_shinkyu_bands_headerless, detect_shinkyu_header, reconstruct_shinkyu, split_side_by_side_tables, ShinkyuLayout,
+    band_pair_unit, detect_shinkyu_bands_headerless, detect_shinkyu_header, reconstruct_shinkyu, split_side_by_side_tables,
+    tiers_look_like_bands, ShinkyuLayout,
 };
 use crate::grid::{find_grids, Grid};
 use crate::lines::PageRules;
@@ -112,7 +113,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             .flatten();
         if let Some(divider) = headerless {
             layout = "headerless_shinkyu";
-            units.push(reconstruct_shinkyu(cols, f32::MAX, divider, &grids));
+            units.push(reconstruct_shinkyu(cols, f32::MAX, divider, &grids, page_rules));
         } else {
             // 通常ページ: まず段組み(tier)に分ける。官報本紙は2段組が多く、段を分けないと
             // 「同 x にある上段の列と下段の列」が1列に連結され混線する。新旧対照表の見出しが
@@ -149,6 +150,15 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                             }
                         }
                         layout.into_unit(&grids, page_rules)
+                    }
+                    // 見出しの無い 2 段が改正後/改正前の組なら（4 段に組んだ継続ページ）表として組む。
+                    None if i < tiers.len()
+                        && detect_shinkyu_header(&tiers[i]).is_none()
+                        && tiers_look_like_bands(&tier, &tiers[i]) =>
+                    {
+                        let next = std::mem::take(&mut tiers[i]);
+                        i += 1;
+                        band_pair_unit(tier, next, &grids, page_rules)
                     }
                     None => Unit::Plain(page_lines(tier)),
                 };

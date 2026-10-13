@@ -220,7 +220,7 @@ impl Document {
     /// `tables` の表に置き換え、本文の流れの中の表（`Run::table`）にする。
     pub(crate) fn from_text_with_tables(text: &str, tables: &[Table]) -> Document {
         let mut doc = Document::from_text(text);
-        let splice = |runs: &mut Vec<Run>| *runs = splice_tables(std::mem::take(runs), tables);
+        let splice = |runs: &mut Vec<Run>| *runs = join_adjacent_tables(splice_tables(std::mem::take(runs), tables));
         for block in &mut doc.blocks {
             match block {
                 Block::Paragraph { runs } => splice(runs),
@@ -303,11 +303,16 @@ fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
 }
 
 /// セルの Run 列に続きをつなぐ。前の文が文末（。）で終わっていなければ改行せずに連結する
-/// （ページの切れ目は列の折り返しと同じ）。
+/// （ページの切れ目は列の折り返しと同じ）。ページの切れ目で分かれた表（列数が同じ表が続く）は
+/// 1 つの表につなぐ。
 fn append_runs(dst: &mut Vec<Run>, src: Vec<Run>) {
     let mut src = src.into_iter();
     if let (Some(last), Some(first)) = (dst.last_mut(), src.as_slice().first()) {
-        if last.table.is_none() && first.table.is_none() {
+        if let (Some(a), Some(b)) = (last.table.as_mut(), first.table.as_ref()) {
+            if join_tables(a, b) {
+                src.next();
+            }
+        } else if last.table.is_none() && first.table.is_none() {
             let next_line = first.text.lines().next().unwrap_or("");
             let table_edge = last.text.ends_with('\u{E001}') || next_line.starts_with('\u{E000}');
             let sep = if last.text.ends_with('。') || table_edge || starts_structural_marker(next_line) { "\n" } else { "" };
@@ -316,6 +321,59 @@ fn append_runs(dst: &mut Vec<Run>, src: Vec<Run>) {
         }
     }
     dst.extend(src);
+}
+
+/// 表 `b` が表 `a` の続き（列数が同じ）なら `a` の下につなぐ。`b` の先頭行が `a` の先頭行
+/// （見出し行）と同じなら、ページごとに繰り返された見出しとして落とす。つないだら true。
+fn join_tables(a: &mut NestedTable, b: &NestedTable) -> bool {
+    let cols = |t: &NestedTable| t.rows.first().map(|r| r.len()).unwrap_or(0);
+    if cols(a) == 0 || cols(a) != cols(b) {
+        return false;
+    }
+    let text = |row: &Vec<Vec<Run>>| row.iter().map(|c| c.iter().map(|r| r.text.as_str()).collect::<String>()).collect::<Vec<_>>();
+    let mut skip = usize::from(b.rows.first().map(text) == a.rows.first().map(text));
+    // ページの切れ目で行が途中で切れている（前の行が「、」などで終わり、次の行が項目の頭で
+    // 始まらない）なら、次の先頭行を前の最後の行の続きとしてセルごとに連結する。
+    let lead = |row: &Vec<Vec<Run>>| row.iter().map(|c| c.iter().map(|r| r.text.as_str()).collect::<String>()).find(|t| !t.is_empty()).unwrap_or_default();
+    let a_rows = a.rows.len();
+    let merged_cells = b.merges.iter().any(|m| m.row == skip) || a.merges.iter().any(|m| m.row + m.rowspan == a_rows);
+    if let (Some(last), Some(next)) = (a.rows.last_mut(), b.rows.get(skip)) {
+        let tail = lead(last);
+        let head = lead(next);
+        let cut = tail.ends_with(['、', '，', ',']) || !tail.ends_with(['。', '）', '」', '〕', '］']);
+        if !tail.is_empty() && !head.is_empty() && cut && !crate::vertical::starts_item(&head) && !merged_cells {
+            for (dst, src) in last.iter_mut().zip(next.iter()) {
+                let add: String = src.iter().map(|r| r.text.as_str()).collect();
+                match dst.last_mut() {
+                    Some(r) if r.table.is_none() => r.text.push_str(&add),
+                    _ if !add.is_empty() => dst.push(Run::plain(add)),
+                    _ => {}
+                }
+            }
+            skip += 1;
+        }
+    }
+    let offset = a.rows.len();
+    a.rows.extend(b.rows.iter().skip(skip).cloned());
+    a.merges.extend(b.merges.iter().filter(|m| m.row >= skip).map(|m| CellMerge {
+        row: m.row - skip + offset,
+        ..*m
+    }));
+    true
+}
+
+/// 続けて並ぶ表の Run（本文を挟まない）で列数が同じものを 1 つの表につなぐ。
+fn join_adjacent_tables(runs: Vec<Run>) -> Vec<Run> {
+    let mut out: Vec<Run> = Vec::new();
+    for run in runs {
+        if let (Some(Run { table: Some(a), .. }), Some(b)) = (out.last_mut(), run.table.as_ref()) {
+            if join_tables(a, b) {
+                continue;
+            }
+        }
+        out.push(run);
+    }
+    out
 }
 
 /// Run の中の表の目印の行を表の Run に置き換える（前後の本文は別の Run に分ける）。
