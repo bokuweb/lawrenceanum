@@ -356,6 +356,32 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
     // 縦書きのページが /Rotate で横倒しに表示されている（座標上は縦の列が横の行に見える）
     // なら、復元に使う座標を 90° 回して縦書きに戻す。語の表示用の座標（`Word`）は
     // PDF の表示と重なるよう元のまま残す。
+    // pdftotext の縦書きの語の bbox は、字面より約 1 文字分（語の幅）上にずれて出る。
+    // 原本の画像と突き合わせると、縦書き用の書体（語の幅＝文字の大きさがちょうど整数 pt）
+    // の列はほぼ正確に 1em ずれているので 1em 下へ補正する（罫線の座標や PDF の表示と揃える）。
+    // 横組み用の書体を回転して縦に置いた語（幅が 8.184pt など 1.023 倍）はずれないので触らない。
+    // 1 字の正方形の語は縦横どちらの組みか語だけでは分からないので、ページの向き
+    // （縦長の語と横長の語の文字数）で決める。
+    let (mut v_chars, mut h_chars) = (0usize, 0usize);
+    for (x, y, x1, y1, t) in &raws {
+        let n = t.chars().count();
+        if n >= 2 && y1 - y > (x1 - x) * 1.5 {
+            v_chars += n;
+        } else if n >= 2 && x1 - x > (y1 - y) * 1.5 {
+            h_chars += n;
+        }
+    }
+    let vertical_page = v_chars >= h_chars;
+    for (x, y, x1, y1, t) in raws.iter_mut() {
+        let em = *x1 - *x;
+        let vertical_font = (em - em.round()).abs() < 0.01;
+        let tall = *y1 - *y >= em * 1.5 || (vertical_page && t.chars().count() <= 2 && *y1 - *y >= em * 0.9);
+        // 上の余白帯の柱（「官」「報」「第」「号」の 1 字の語）は動かさない。
+        if vertical_font && *y1 > TOP_MARGIN && tall {
+            *y += em;
+            *y1 += em;
+        }
+    }
     let sideways = is_sideways_vertical(&raws);
     let geom: Vec<(f32, f32, f32, f32)> = raws
         .iter()
@@ -706,18 +732,21 @@ fn starts_item(text: &str) -> bool {
 }
 
 /// カラム語を x 降順（右→左）に縦の列へ束ね、各列を y 昇順（上→下）に並べる。
-/// 列間隔(≒13px)に対し、x 中心の差 10px 以内を同じ列とみなす。半角幅の記号（`'` 等）は
-/// 列の右半分に置かれ xMin が半字ずれるため、左端ではなく中心で比べる。
+/// x 中心の差が 0.75 文字分以内なら同じ列とみなす（本文の列間隔は約 1.5 文字分だが、
+/// 表の中は行間なしで 1 文字分おきに列が並ぶことがある）。半角幅の記号（`'` 等）は
+/// 列の右半分に置かれ xMin が半字ずれるため、左端ではなく中心で比べる。縦中横の数字
+/// （幅が広い）は列の文字の大きさで比べる。
 fn column_groups(mut cols: Vec<Col>) -> Vec<Vec<Col>> {
     let center = |c: &Col| (c.x + c.x1) / 2.0;
     cols.sort_by(|a, b| center(b).partial_cmp(&center(a)).unwrap_or(std::cmp::Ordering::Equal));
-    const COL_THRESHOLD: f32 = 10.0;
     let mut groups: Vec<Vec<Col>> = Vec::new();
-    let mut rep_x = f32::INFINITY;
+    let (mut rep_x, mut rep_em) = (f32::INFINITY, f32::INFINITY);
     for c in cols {
-        if rep_x - center(&c) > COL_THRESHOLD {
+        let em = (c.x1 - c.x).min(rep_em).max(6.0);
+        if rep_x - center(&c) > em * 0.75 {
             groups.push(Vec::new());
             rep_x = center(&c);
+            rep_em = c.x1 - c.x;
         }
         groups.last_mut().unwrap().push(c);
     }

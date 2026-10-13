@@ -117,6 +117,12 @@ pub fn bbox_xhtml(pdf: &[u8]) -> Result<String> {
     pdftotext::run_pdftotext_bbox(pdf)
 }
 
+/// PDF（1 ページ）の罫線（縦線・横線）を抽出する。[`analyze_with_rules`] に渡すと、新旧対照表の
+/// 帯の中の罫線表を 2D 表として復元できる（poppler の `pdftocairo` が必要）。
+pub fn page_rules(pdf: &[u8]) -> Result<lines::PageRules> {
+    lines::extract_rules(pdf)
+}
+
 /// PDF バイト列から構造化した [`Document`] を得る。HTML や表へ変換しやすい形。
 /// 改め文をテキストではなく構造で受け取りたい呼び出し側はこちらを使う。
 ///
