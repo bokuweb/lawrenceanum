@@ -11,6 +11,7 @@ mod enforcement;
 mod feeds;
 mod gian;
 mod kanpo;
+mod kanpo_archive;
 mod proceedings;
 mod procurement;
 mod pubcomment;
@@ -312,6 +313,18 @@ enum Cmd {
         save_pdf: bool,
         #[arg(long, default_value = ".cache")]
         cache: PathBuf,
+    },
+    /// 指定日の官報の全ページ PDF と座標付きテキスト (`pdftotext -bbox-layout`) を
+    /// `{out}/{date}/` に保存し、号・ページ・項目の一覧を `manifest.json` に書く。
+    /// 既に保存済みのページは取り直さない（中断からの再開用）。R2 への蓄積に使う。
+    KanpoArchive {
+        #[arg(long)]
+        date: String,
+        #[arg(long, default_value = ".cache/kanpo-archive")]
+        out: PathBuf,
+        /// ページ取得の間隔 (ミリ秒)。デジタル官報への負荷ガード。
+        #[arg(long, default_value_t = 500)]
+        interval_ms: u64,
     },
     /// 官報リンクを `public/kanpo/` に書き出す (Phase 3 placeholder)。
     KanpoLink {
@@ -834,6 +847,7 @@ fn main() -> Result<()> {
             save_pdf,
             cache,
         } => kanpo::run_fetch(&date, &provider, limit, save_pdf, &cache),
+        Cmd::KanpoArchive { date, out, interval_ms } => kanpo_archive::run(&date, &out, interval_ms),
         Cmd::KanpoLink { output } => kanpo::run_link(&output),
         Cmd::KanpoPoc {
             date,

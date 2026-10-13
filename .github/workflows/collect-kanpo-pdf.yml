@@ -1,0 +1,127 @@
+name: Collect kanpo PDF (官報原本の蓄積)
+
+# デジタル官報 (www.kanpo.go.jp) は直近約 90 日しか公開されない。パーサの検証・再抽出や
+# playground での確認のため、号の全ページ PDF と座標付きテキスト (pdftotext -bbox-layout)
+# を R2 に蓄積する。
+#
+# - 毎日、直近 BACKFILL_DAYS 日のうち未保存の日だけを取得する（休刊日は目次が 404 で
+#   スキップ）。初回や取りこぼし時は手動 dispatch で backfill_days=90 を渡す。
+# - 1 日あたり 100〜300 ページ程度。ページ取得は 0.5 秒間隔（負荷ガード）。
+# - 取りこぼしのあった日は manifest.json を置かないので、次回やり直す。
+#
+# R2 のレイアウト:
+#   kanpo-pdf/index.json                                  保存済みの日付一覧（playground 用）
+#   kanpo-pdf/{date}/manifest.json                        号・ページ・目次項目
+#   kanpo-pdf/{date}/{号dir}/{号dir}{PPPP}.pdf             ページ PDF
+#   kanpo-pdf/{date}/{号dir}/{号dir}{PPPP}.bbox.html       座標付きテキスト
+on:
+  workflow_dispatch:
+    inputs:
+      backfill_days:
+        description: "遡る日数（デジタル官報の公開期間は約 90 日）"
+        required: false
+        default: "7"
+        type: string
+      time_budget_mins:
+        description: "取得に使う時間（分）。超えたら残りは次回に回す"
+        required: false
+        default: "300"
+        type: string
+  schedule:
+    # JST 12:00（官報は 8:30 公開。update-law-data の kanpo-fetch とは独立）。
+    - cron: "0 3 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: collect-kanpo-pdf
+  cancel-in-progress: false
+
+env:
+  R2_BUCKET: ${{ secrets.R2_BUCKET }}
+  R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: auto
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Require durable R2 storage
+        run: |
+          if [ -z "$R2_BUCKET" ] || [ -z "$R2_ENDPOINT" ] || [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+            echo "::error::R2 secrets are required; refusing an ephemeral collection run"
+            exit 1
+          fi
+          aws configure set default.s3.max_concurrent_requests 32
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install poppler (pdftotext)
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build lawpub
+        run: cargo build --release -p lawpub-cli
+
+      - name: Archive kanpo PDFs to R2
+        env:
+          BACKFILL_DAYS: ${{ github.event.inputs.backfill_days || '7' }}
+          BUDGET_MINS: ${{ github.event.inputs.time_budget_mins || '300' }}
+        run: |
+          set -u
+          deadline=$(( $(date +%s) + BUDGET_MINS * 60 ))
+          mkdir -p out
+          aws s3 cp "s3://$R2_BUCKET/kanpo-pdf/index.json" index.json \
+            --endpoint-url "$R2_ENDPOINT" --only-show-errors 2>/dev/null || echo '{"dates":[]}' > index.json
+          archived=0
+          for i in $(seq 0 $(( BACKFILL_DAYS - 1 ))); do
+            if [ "$(date +%s)" -ge "$deadline" ]; then
+              echo "::notice::time budget exhausted; remaining days are left for the next run"
+              break
+            fi
+            d=$(date -u -d "-$i day" +%Y-%m-%d)
+            if jq -e --arg d "$d" '.dates | index($d)' index.json >/dev/null; then
+              continue
+            fi
+            echo "::group::kanpo-archive $d"
+            if ./target/release/lawpub kanpo-archive --date "$d" --out out; then
+              # PDF・座標付きテキストを先に上げ、manifest は最後に置く（manifest の有無 = 完了）。
+              aws s3 sync "out/$d/" "s3://$R2_BUCKET/kanpo-pdf/$d/" \
+                --endpoint-url "$R2_ENDPOINT" --only-show-errors \
+                --exclude 'manifest.json' --exclude '*.bbox.html' \
+                --content-type 'application/pdf' --cache-control 'public, max-age=31536000, immutable'
+              aws s3 sync "out/$d/" "s3://$R2_BUCKET/kanpo-pdf/$d/" \
+                --endpoint-url "$R2_ENDPOINT" --only-show-errors \
+                --exclude '*' --include '*.bbox.html' \
+                --content-type 'text/html; charset=utf-8' --cache-control 'public, max-age=31536000, immutable'
+              aws s3 cp "out/$d/manifest.json" "s3://$R2_BUCKET/kanpo-pdf/$d/manifest.json" \
+                --endpoint-url "$R2_ENDPOINT" --only-show-errors \
+                --content-type 'application/json' --cache-control 'public, max-age=300'
+              jq --arg d "$d" '.dates = ((.dates + [$d]) | unique | reverse)' index.json > index.tmp && mv index.tmp index.json
+              archived=$((archived + 1))
+              rm -rf "out/$d"
+            else
+              echo "::warning::kanpo-archive $d did not complete (休刊日の 404 か取得失敗)"
+            fi
+            echo "::endgroup::"
+          done
+          aws s3 cp index.json "s3://$R2_BUCKET/kanpo-pdf/index.json" \
+            --endpoint-url "$R2_ENDPOINT" --only-show-errors \
+            --content-type 'application/json' --cache-control 'public, max-age=300'
+          total=$(jq '.dates | length' index.json)
+          echo "::notice::archived $archived new days (total $total days in R2)"
+          {
+            echo "### 官報原本の蓄積"
+            echo "- 今回保存: $archived 日"
+            echo "- R2 の保存済み: $total 日"
+          } >> "$GITHUB_STEP_SUMMARY"

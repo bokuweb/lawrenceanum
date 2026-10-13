@@ -250,7 +250,7 @@ fn normalize_ws(s: &str) -> String {
 }
 
 /// issue.pdf_url (`{base}/{compact}/{dir}/`) から号ディレクトリ名 `{dir}` を取り出す。
-fn issue_dir(pdf_url: &str) -> Option<String> {
+pub fn issue_dir(pdf_url: &str) -> Option<String> {
     pdf_url
         .trim_end_matches('/')
         .rsplit('/')
