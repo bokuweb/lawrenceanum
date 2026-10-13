@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, searchForWorkspaceRoot } from 'vite'
 import path from 'path'
 import fs from 'fs'
 import tailwindcss from '@tailwindcss/vite'
@@ -140,6 +140,14 @@ export default defineConfig({
     },
   },
   publicDir: false,
+
+  server: {
+    fs: {
+      // 官報パーサ playground はリポジトリ直下の回帰テスト用コーパス
+      // (crates/kanpo-parser/tests/corpus) を import.meta.glob で取り込むので、dev でも配信を許す。
+      allow: [searchForWorkspaceRoot(process.cwd()), path.resolve(__dirname, '../crates/kanpo-parser/tests/corpus')],
+    },
+  },
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
