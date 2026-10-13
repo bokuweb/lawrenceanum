@@ -46,9 +46,27 @@ for article in kanpo_parser::segment_articles(&ex.text) {
 # Ok::<(), anyhow::Error>(())
 ```
 
-ページ PDF を 1 本で扱うなら `extract_document(&pdf)` が構造化と別表の復元をまとめて行う。
-複数ページにまたがる項目は、ページのテキストを連結して `Document::from_text` した後、
-各ページの PDF で `attach_tables(&mut doc, &pdf)` を呼ぶ。
+複数ページにまたがる項目（告示など）は、ページごとの座標付きテキストと罫線をまとめて
+`analyze_item` に渡す。ページで切れた新旧対照表は 1 つの表につながり、新旧対照表の帯の中の
+罫線の表（別表など）はセルの結合まで含めて、本文の流れの中の表（`Run::table`）になる。
+
+```rust,no_run
+let pages: Vec<kanpo_parser::PageInput> = ["p1.pdf", "p2.pdf"]
+    .iter()
+    .map(|path| {
+        let pdf = std::fs::read(path)?;
+        Ok(kanpo_parser::PageInput {
+            xhtml: kanpo_parser::bbox_xhtml(&pdf)?,
+            rules: kanpo_parser::page_rules(&pdf).ok(),
+        })
+    })
+    .collect::<anyhow::Result<_>>()?;
+let analysis = kanpo_parser::analyze_item(&pages);
+for article in &analysis.articles {
+    println!("{}", serde_json::to_string_pretty(&article.document)?);
+}
+# Ok::<(), anyhow::Error>(())
+```
 
 `pdftotext -bbox-layout` の XHTML が手元にあれば、poppler 無しで `reconstruct_vertical(&xhtml)` を使える。
 
@@ -73,11 +91,14 @@ cargo run -p kanpo-parser --example trace -- out.bbox.html
 
 ## 回帰テスト用コーパス
 
-`tests/corpus/<case>/` に実官報のページ（`page.pdf`・`page.bbox.html`）と、何を確かめるケースか
+`tests/corpus/<case>/` に実官報のページ（`page.pdf`・`page.bbox.html`・`page.rules.json`。複数ページの
+ケースは `page-2.*` …）と、何を確かめるケースか
 （`case.json`）、目視で確認した期待出力（`expected.txt`・`expected.json`）を置いている。
 パーサを直して出力が変わったら、差分を確かめてから更新する。
 
 ```bash
+# PDF から .bbox.html と .rules.json を作る
+cargo run -p kanpo-parser --example prepare -- crates/kanpo-parser/tests/corpus/<case>/page.pdf
 UPDATE_EXPECT=1 cargo test -p kanpo-parser --test corpus
 ```
 
@@ -96,7 +117,6 @@ cargo run --release -p kanpo-parser --example scan -- .cache/kanpo-archive > sca
 ## 既知の限界
 
 - 縦書きと横書きが混在するページ（号外の決算公告など）は、どちらか多い方の読み方で組む
-- 表の中の罫線表（セルが格子になった表）はセル構造までは復元しない（新旧対照表の `別表第○` 行の
-  2D 表は `attach_tables` が罫線から復元する）
+- 罫線の表を 2D 表として復元するのは新旧対照表の帯の中だけ（普通の本文の中の表は行のまま）
 - ToUnicode の無い私用 CID は、原本と突き合わせて確かめた範囲だけ写像する
   （目次のページ番号の数字など、常用漢字と区別できない符号はそのまま）

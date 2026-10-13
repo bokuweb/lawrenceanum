@@ -9,6 +9,7 @@
 //!   {out}/{date}/manifest.json
 //!   {out}/{date}/{号dir}/{号dir}{PPPP}.pdf
 //!   {out}/{date}/{号dir}/{号dir}{PPPP}.bbox.html
+//!   {out}/{date}/{号dir}/{号dir}{PPPP}.rules.json   罫線（表の復元用）
 
 use anyhow::{Context, Result};
 use kanpo_client::{issue_dir, pdf, HttpProvider, KanpoProvider};
@@ -46,6 +47,8 @@ struct PageEntry {
     bytes: usize,
     /// 座標付きテキストを作れたか（poppler が無い・PDF が壊れている場合は false）。
     bbox: bool,
+    /// 罫線（`.rules.json`）を作れたか。
+    rules: bool,
 }
 
 #[derive(Serialize)]
@@ -110,12 +113,22 @@ pub fn run(date: &str, out: &Path, interval_ms: u64) -> Result<()> {
                         false
                     }
                 };
+            let rules_path = path.with_extension("rules.json");
+            let rules = rules_path.exists()
+                || match pdf::page_rules(&bytes) {
+                    Ok(r) => std::fs::write(&rules_path, serde_json::to_vec(&r)?).is_ok(),
+                    Err(e) => {
+                        tracing::warn!("pdftocairo failed {}: {e}", path.display());
+                        false
+                    }
+                };
             pages.push(PageEntry {
                 page: n,
                 file,
                 sha256: hex::encode(Sha256::digest(&bytes)),
                 bytes: bytes.len(),
                 bbox,
+                rules,
             });
         }
         issues.push(IssueEntry {
