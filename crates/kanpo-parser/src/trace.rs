@@ -7,10 +7,84 @@
 use serde::Serialize;
 
 /// 復元した 1 行（縦書きの 1 列、表ならセルを連結した 1 行）と、それを構成する語の ID。
+/// 罫線の表は 1 つの行として持ち、`table` にセル構造を入れる（`text` は表を行ごとに
+/// 書き下したもの）。
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Line {
     pub text: String,
     pub words: Vec<usize>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub table: Option<Table>,
+}
+
+impl Line {
+    pub fn text(text: String, words: Vec<usize>) -> Self {
+        Line { text, words, table: None }
+    }
+}
+
+/// 罫線から復元した表。座標は枠（pt）、セルは論理上の行・列（縦組みの表は転置済み:
+/// 右の縦の列が 1 行目、上の欄が 1 列目）。
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct Table {
+    pub x0: f32,
+    pub y0: f32,
+    pub x1: f32,
+    pub y1: f32,
+    pub rows: usize,
+    pub cols: usize,
+    pub cells: Vec<TableCell>,
+}
+
+/// 表のセル。結合セルは `rowspan`/`colspan` が 2 以上。`x0..y1` はセルの枠（pt）。
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct TableCell {
+    pub row: usize,
+    pub col: usize,
+    pub rowspan: usize,
+    pub colspan: usize,
+    pub x0: f32,
+    pub y0: f32,
+    pub x1: f32,
+    pub y1: f32,
+    pub text: String,
+    pub words: Vec<usize>,
+}
+
+impl Table {
+    /// テキスト出力用に、行ごとにセルを全角空白で区切って書き下す。
+    pub fn render(&self) -> String {
+        (0..self.rows)
+            .map(|r| {
+                let mut cells: Vec<&TableCell> = self.cells.iter().filter(|c| c.row == r).collect();
+                cells.sort_by_key(|c| c.col);
+                cells.iter().map(|c| c.text.replace('\n', "")).collect::<Vec<_>>().join("\u{3000}")
+            })
+            .filter(|l| !l.is_empty())
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+
+    /// 構造化結果（[`crate::model::NestedTable`]）へ。
+    pub fn to_nested(&self) -> crate::model::NestedTable {
+        use crate::model::{CellMerge, NestedTable, Run};
+        let mut rows: Vec<Vec<Vec<Run>>> = vec![vec![Vec::new(); self.cols]; self.rows];
+        let mut merges = Vec::new();
+        for c in &self.cells {
+            if !c.text.is_empty() {
+                rows[c.row][c.col] = vec![Run::plain(c.text.clone())];
+            }
+            if c.rowspan > 1 || c.colspan > 1 {
+                merges.push(CellMerge {
+                    row: c.row,
+                    col: c.col,
+                    rowspan: c.rowspan,
+                    colspan: c.colspan,
+                });
+            }
+        }
+        NestedTable { rows, merges }
+    }
 }
 
 /// 行が属する領域の役割。
@@ -83,6 +157,22 @@ pub struct PageTrace {
     pub regions: Vec<Region>,
     /// このページの復元テキスト（[`crate::reconstruct_vertical`] のページ分）。
     pub text: String,
+    /// 構造化用のテキスト。表は [`table_marker`] の 1 行になる。
+    #[serde(skip)]
+    pub(crate) doc_text: String,
+    /// このページの表（`doc_text` の目印の番号はページをまたいだ通し番号）。
+    #[serde(skip)]
+    pub(crate) tables: Vec<Table>,
+}
+
+/// 構造化用テキストの中で表の位置を示す目印（私用領域の文字で囲んだ通し番号）。
+pub(crate) fn table_marker(index: usize) -> String {
+    format!("\u{E000}{index}\u{E001}")
+}
+
+/// 文字列が表の目印だけの行なら、その通し番号。
+pub(crate) fn parse_table_marker(s: &str) -> Option<usize> {
+    s.trim().strip_prefix('\u{E000}')?.strip_suffix('\u{E001}')?.parse().ok()
 }
 
 /// 段（または表）1 つ分の復元結果。テキストと領域の両方をここから作る。
@@ -98,31 +188,51 @@ pub(crate) enum Unit {
 
 /// 行列を改行で連結する（前後の空白は落とす）。
 pub(crate) fn join_lines(lines: &[Line]) -> String {
-    lines.iter().map(|l| l.text.as_str()).collect::<Vec<_>>().join("\n").trim().to_string()
+    join_lines_with(lines, &mut |l| l.text.clone())
+}
+
+fn join_lines_with(lines: &[Line], render: &mut dyn FnMut(&Line) -> String) -> String {
+    lines.iter().map(render).collect::<Vec<_>>().join("\n").trim().to_string()
 }
 
 impl Unit {
     /// `改正後`／`改正前` の欄見出し行を冠したテキストに組む。見出し行はフロントの
     /// 新旧対照表組み(parseShinkyu)と `detect_format` の shinkyu 判定の双方に整合する。
     pub(crate) fn text(&self) -> String {
+        self.text_with(&mut |l| l.text.clone())
+    }
+
+    /// 構造化用のテキスト。表の行は目印に置き換え、表を `tables` に積む（目印の番号は
+    /// `first_index` からの通し番号）。
+    pub(crate) fn doc_text(&self, tables: &mut Vec<Table>, first_index: usize) -> String {
+        self.text_with(&mut |l| match &l.table {
+            Some(t) => {
+                tables.push(t.clone());
+                table_marker(first_index + tables.len() - 1)
+            }
+            None => l.text.clone(),
+        })
+    }
+
+    fn text_with(&self, render: &mut dyn FnMut(&Line) -> String) -> String {
         match self {
-            Unit::Plain(lines) => join_lines(lines),
+            Unit::Plain(lines) => join_lines_with(lines, render),
             Unit::Shinkyu {
                 preamble,
                 after,
                 before,
                 outside,
             } => {
-                let join = |parts: &[Vec<Line>]| -> String {
+                let mut out: Vec<String> = Vec::new();
+                let pre = join_lines_with(preamble, render);
+                let mut join = |parts: &[Vec<Line>]| -> String {
                     parts
                         .iter()
-                        .map(|p| join_lines(p))
+                        .map(|p| join_lines_with(p, render))
                         .filter(|t| !t.is_empty())
                         .collect::<Vec<_>>()
                         .join("\n")
                 };
-                let mut out: Vec<String> = Vec::new();
-                let pre = join_lines(preamble);
                 if !pre.is_empty() {
                     out.push(pre);
                 }

@@ -11,6 +11,7 @@
 use serde::Serialize;
 
 use crate::format::detect_format;
+use crate::trace::{parse_table_marker, Table};
 
 /// 改め文 1 件の構造化表現。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -46,10 +47,24 @@ pub struct ShinkyuRow {
     pub before_table: Option<NestedTable>,
 }
 
-/// 別表（罫線グリッド）を復元した 2D 表。`rows[r][c]` がセルの Run 列。
+/// 罫線の表を復元した 2D 表。`rows[r][c]` がセルの Run 列。
+///
+/// 結合セルは `merges` に左上のマスと広がりを持ち、結合で覆われる残りのマスは空になる。
+/// 縦組みの表は「縦の列＝行」に転置している（右の列が 1 行目）。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct NestedTable {
     pub rows: Vec<Vec<Vec<Run>>>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub merges: Vec<CellMerge>,
+}
+
+/// 結合セル（`row`・`col` の位置から `rowspan` × `colspan` マス）。
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub struct CellMerge {
+    pub row: usize,
+    pub col: usize,
+    pub rowspan: usize,
+    pub colspan: usize,
 }
 
 /// 同一スタイルが続くテキスト片。
@@ -59,6 +74,9 @@ pub struct Run {
     /// 傍線（下線）が付いているか。現状は常に false（将来の傍線抽出用の予約フィールド）。
     #[serde(default, skip_serializing_if = "is_false")]
     pub underline: bool,
+    /// 本文の流れの中に置かれた表（あれば `text` は空）。新旧対照表のセルの中の別表など。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub table: Option<NestedTable>,
 }
 
 fn is_false(b: &bool) -> bool {
@@ -71,6 +89,7 @@ impl Run {
         Run {
             text: text.into(),
             underline: false,
+            table: None,
         }
     }
 }
@@ -98,7 +117,9 @@ fn join_wrapped_lines(lines: &[&str]) -> String {
         out.push_str(line);
         if idx + 1 < lines.len() {
             let ends_sentence = line.ends_with('。') || line.ends_with('！') || line.ends_with('？');
-            if ends_sentence || starts_structural_marker(lines[idx + 1]) {
+            // 表の目印の行は前後とも改行で区切る（表を本文に連結しない）。
+            let around_table = parse_table_marker(line).is_some() || parse_table_marker(lines[idx + 1]).is_some();
+            if ends_sentence || around_table || starts_structural_marker(lines[idx + 1]) {
                 out.push('\n');
             }
         }
@@ -188,6 +209,25 @@ impl Document {
         Document { format, blocks }
     }
 
+    /// [`Document::from_text`] と同じだが、テキスト中の表の目印（[`crate::trace::table_marker`]）を
+    /// `tables` の表に置き換え、本文の流れの中の表（`Run::table`）にする。
+    pub(crate) fn from_text_with_tables(text: &str, tables: &[Table]) -> Document {
+        let mut doc = Document::from_text(text);
+        let splice = |runs: &mut Vec<Run>| *runs = splice_tables(std::mem::take(runs), tables);
+        for block in &mut doc.blocks {
+            match block {
+                Block::Paragraph { runs } => splice(runs),
+                Block::Shinkyu { rows } => {
+                    for r in rows {
+                        splice(&mut r.after);
+                        splice(&mut r.before);
+                    }
+                }
+            }
+        }
+        doc
+    }
+
     /// 構造化表現を `reconstruct_vertical` 互換のフラットテキストへ戻す。
     /// 記事分割・標題突合など既存のテキスト前提処理との後方互換に使う。
     pub fn to_text(&self) -> String {
@@ -223,6 +263,40 @@ impl Document {
         }
         out.join("\n").trim().to_string()
     }
+}
+
+/// Run の中の表の目印の行を表の Run に置き換える（前後の本文は別の Run に分ける）。
+fn splice_tables(runs: Vec<Run>, tables: &[Table]) -> Vec<Run> {
+    let mut out: Vec<Run> = Vec::new();
+    for run in runs {
+        if run.table.is_some() || !run.text.contains('\u{E000}') {
+            out.push(run);
+            continue;
+        }
+        let mut buf: Vec<&str> = Vec::new();
+        let flush = |buf: &mut Vec<&str>, out: &mut Vec<Run>| {
+            let t = buf.join("\n").trim().to_string();
+            if !t.is_empty() {
+                out.push(Run::plain(t));
+            }
+            buf.clear();
+        };
+        for line in run.text.lines() {
+            match parse_table_marker(line).and_then(|i| tables.get(i)) {
+                Some(t) => {
+                    flush(&mut buf, &mut out);
+                    out.push(Run {
+                        text: String::new(),
+                        underline: false,
+                        table: Some(t.to_nested()),
+                    });
+                }
+                None => buf.push(line),
+            }
+        }
+        flush(&mut buf, &mut out);
+    }
+    out
 }
 
 /// 新旧対照表 1 段を条（別表）ごとの行に分け、改正後/改正前を対応させる。

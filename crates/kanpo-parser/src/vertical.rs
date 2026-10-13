@@ -6,6 +6,8 @@ use crate::normalize::{is_margin_noise, is_private_use, normalize_char, private_
 use crate::shinkyu::{
     detect_shinkyu_bands_headerless, detect_shinkyu_header, reconstruct_shinkyu, split_side_by_side_tables, ShinkyuLayout,
 };
+use crate::grid::{find_grids, Grid};
+use crate::lines::PageRules;
 use crate::trace::{join_lines, Line, PageTrace, Unit, Word, WordStatus};
 
 /// 縦書き1カラム = 1 word とみなした語。`y`/`y1` は上端/下端。
@@ -43,13 +45,26 @@ pub fn reconstruct_vertical(xhtml: &str) -> String {
 
 /// ページごとに読み順を復元し、各語の割り当て（どの領域のどの行か）も返す。
 pub(crate) fn analyze_pages(xhtml: &str) -> Vec<PageTrace> {
+    analyze_pages_with_rules(xhtml, &[])
+}
+
+/// [`analyze_pages`] に罫線を与える版。`rules[i]` は `xhtml` の i ページ目の罫線（無ければ
+/// 表の復元をしない）。罫線があると、新旧対照表の外枠で表外の列を分け、帯の中の罫線の表を
+/// 2D 表として復元する。
+pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>]) -> Vec<PageTrace> {
     let doc = Html::parse_document(xhtml);
     let page_sel = Selector::parse("page").unwrap();
 
     let mut pages: Vec<PageTrace> = Vec::new();
-    for page in doc.select(&page_sel) {
+    // 表の目印の通し番号（ページをまたぐ）。
+    let mut table_count = 0usize;
+    for (pi, page) in doc.select(&page_sel).enumerate() {
         let dim = |k: &str, default: f32| page.value().attr(k).and_then(|s| s.parse::<f32>().ok()).unwrap_or(default);
         let (width, height) = (dim("width", 595.0), dim("height", 842.0));
+        let page_rules: Option<&PageRules> = rules.get(pi).and_then(|r| r.as_ref());
+        let grids: Vec<Grid> = page_rules
+            .map(|r| find_grids(r, width.max(height), width.max(height)))
+            .unwrap_or_default();
         let (cols, mut words, line_of) = page_words_traced(page, width, height);
         let mut layout = "tiers";
         let mut units: Vec<Unit> = Vec::new();
@@ -69,6 +84,7 @@ pub(crate) fn analyze_pages(xhtml: &str) -> Vec<PageTrace> {
                 None => Unit::Plain(horizontal_lines(cols, &line_of)),
             });
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
+            let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             let regions: Vec<_> = units.into_iter().enumerate().flat_map(|(i, u)| u.regions(i)).collect();
             mark_unused(&mut words, &regions);
             pages.push(PageTrace {
@@ -78,6 +94,8 @@ pub(crate) fn analyze_pages(xhtml: &str) -> Vec<PageTrace> {
                 words,
                 regions,
                 text,
+                doc_text,
+                tables,
             });
             continue;
         }
@@ -92,7 +110,7 @@ pub(crate) fn analyze_pages(xhtml: &str) -> Vec<PageTrace> {
             .flatten();
         if let Some(divider) = headerless {
             layout = "headerless_shinkyu";
-            units.push(reconstruct_shinkyu(cols, f32::MAX, divider));
+            units.push(reconstruct_shinkyu(cols, f32::MAX, divider, &grids));
         } else {
             // 通常ページ: まず段組み(tier)に分ける。官報本紙は2段組が多く、段を分けないと
             // 「同 x にある上段の列と下段の列」が1列に連結され混線する。新旧対照表の見出しが
@@ -111,6 +129,7 @@ pub(crate) fn analyze_pages(xhtml: &str) -> Vec<PageTrace> {
                 let unit = match detect_shinkyu_header(&tier) {
                     Some((header_x, divider)) => {
                         let mut layout = ShinkyuLayout::split(tier, header_x, divider);
+                        layout.clip_to_frame(&grids, header_x, divider);
                         if let Some(tail) = layout.split_off_leading_continuation(divider) {
                             units.push(tail);
                         }
@@ -127,7 +146,7 @@ pub(crate) fn analyze_pages(xhtml: &str) -> Vec<PageTrace> {
                                 break;
                             }
                         }
-                        layout.into_unit()
+                        layout.into_unit(&grids, page_rules)
                     }
                     None => Unit::Plain(page_lines(tier)),
                 };
@@ -140,6 +159,7 @@ pub(crate) fn analyze_pages(xhtml: &str) -> Vec<PageTrace> {
             .filter(|t| !t.is_empty())
             .collect::<Vec<_>>()
             .join("\n");
+        let (doc_text, tables) = doc_text_of(&units, &mut table_count);
         let regions: Vec<_> = units.into_iter().enumerate().flat_map(|(i, u)| u.regions(i)).collect();
         mark_unused(&mut words, &regions);
         pages.push(PageTrace {
@@ -149,9 +169,20 @@ pub(crate) fn analyze_pages(xhtml: &str) -> Vec<PageTrace> {
             words,
             regions,
             text,
+            doc_text,
+            tables,
         });
     }
     pages
+}
+
+/// 構造化用テキスト（表は目印）とそのページの表。`count` は表の通し番号。
+fn doc_text_of(units: &[Unit], count: &mut usize) -> (String, Vec<crate::trace::Table>) {
+    let start = *count;
+    let mut tables = Vec::new();
+    let parts: Vec<String> = units.iter().map(|u| u.doc_text(&mut tables, start)).collect();
+    *count = start + tables.len();
+    (parts.into_iter().filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n"), tables)
 }
 
 /// 行に組まれなかった語に、捨てた理由（欄見出しのラベルか柱の行）を付ける。
@@ -310,10 +341,7 @@ fn horizontal_lines(cols: Vec<Col>, line_of: &[usize]) -> Vec<Line> {
             }
         }
         rows.push((y, g.iter().map(|c| c.x1).fold(f32::MIN, f32::max), lines.len()));
-        lines.push(Line {
-            text,
-            words: g.iter().map(|c| c.id).collect(),
-        });
+        lines.push(Line::text(text, g.iter().map(|c| c.id).collect()));
     }
     lines
 }
@@ -515,7 +543,12 @@ fn split_beside_crossing(cols: &[Col], cut: f32) -> Option<(Vec<Col>, Vec<Col>, 
     const MIN_TIER_GAP: f32 = 4.0;
     let ymin = cols.iter().map(|c| c.y).reduce(f32::min)?;
     let ymax = cols.iter().map(|c| c.y1).reduce(f32::max)?;
-    if ymax - ymin < MIN_REGION_HEIGHT || detect_shinkyu_header(cols).is_some() {
+    // 欄見出しの半分（同じ x に「改」「正」の 1 字の語が上下に並ぶ）を含む領域も切らない。
+    // 帯の境目で上下に割れた新旧対照表の半分を細切れにすると、段を戻せなくなる。
+    let has_label = cols.iter().filter(|c| c.text == "改").any(|k| {
+        cols.iter().any(|c| c.text == "正" && (c.x - k.x).abs() < 2.0 && c.y > k.y && c.y - k.y < 120.0)
+    });
+    if ymax - ymin < MIN_REGION_HEIGHT || has_label || detect_shinkyu_header(cols).is_some() {
         return None;
     }
     let crosses = |c: &Col| c.y < cut && cut < c.y1;
@@ -622,9 +655,11 @@ pub(crate) fn cell_lines(cols: Vec<Col>) -> Vec<Line> {
     let mut lines: Vec<Line> = Vec::new();
     // 表の行: (行頭列の上端 y, 1em, セル列)。
     let mut row: Option<(f32, f32, Vec<Cell>)> = None;
-    let render = |cells: Vec<Cell>| Line {
-        text: cells.iter().map(|c| c.text.as_str()).collect::<Vec<_>>().join("\u{3000}"),
-        words: cells.into_iter().flat_map(|c| c.words).collect(),
+    let render = |cells: Vec<Cell>| {
+        Line::text(
+            cells.iter().map(|c| c.text.as_str()).collect::<Vec<_>>().join("\u{3000}"),
+            cells.into_iter().flat_map(|c| c.words).collect(),
+        )
     };
     for g in column_groups(cols) {
         let em = (g[0].x1 - g[0].x).max(1.0);
@@ -713,7 +748,7 @@ fn cell_slot(row: &[Cell], c: &Cell, em: f32) -> Option<usize> {
 }
 
 /// 表のセル内で新しい小項目を始める頭か。
-fn starts_item(text: &str) -> bool {
+pub(crate) fn starts_item(text: &str) -> bool {
     const MARKS: &[&str] = &["（略）", "（新設）", "（削る）", "〔略〕", "〔同上〕"];
     if MARKS.iter().any(|m| text.starts_with(m)) {
         return true;
@@ -736,7 +771,7 @@ fn starts_item(text: &str) -> bool {
 /// 表の中は行間なしで 1 文字分おきに列が並ぶことがある）。半角幅の記号（`'` 等）は
 /// 列の右半分に置かれ xMin が半字ずれるため、左端ではなく中心で比べる。縦中横の数字
 /// （幅が広い）は列の文字の大きさで比べる。
-fn column_groups(mut cols: Vec<Col>) -> Vec<Vec<Col>> {
+pub(crate) fn column_groups(mut cols: Vec<Col>) -> Vec<Vec<Col>> {
     let center = |c: &Col| (c.x + c.x1) / 2.0;
     cols.sort_by(|a, b| center(b).partial_cmp(&center(a)).unwrap_or(std::cmp::Ordering::Equal));
     let mut groups: Vec<Vec<Col>> = Vec::new();
@@ -769,10 +804,7 @@ pub(crate) fn page_lines(cols: Vec<Col>) -> Vec<Line> {
         if is_margin_noise(&text) {
             continue;
         }
-        lines.push(Line {
-            text,
-            words: g.iter().map(|c| c.id).collect(),
-        });
+        lines.push(Line::text(text, g.iter().map(|c| c.id).collect()));
     }
     lines
 }

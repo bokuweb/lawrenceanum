@@ -4,8 +4,10 @@
 //! 表す。「改正後」(上) と「改正前」(下) のラベルが表の右端に縦に並ぶことを手がかりに、
 //! 見出し x(=表の右端) と上下帯の境界 y を求め、本体を 2 帯に分けて復元する。
 
-use crate::trace::Unit;
-use crate::vertical::{cell_lines, page_lines, reconstruct_page, Col};
+use crate::grid::{find_grids_inside, Grid};
+use crate::lines::PageRules;
+use crate::trace::{Line, Table, TableCell, Unit};
+use crate::vertical::{cell_lines, column_groups, page_lines, reconstruct_page, starts_item, Col};
 
 /// 縦書き新旧対照表ページの「改正後／改正前」欄見出し列を検出する。
 ///
@@ -179,8 +181,8 @@ fn find_run(chars: &[char], pat: &[char]) -> Option<usize> {
 }
 
 /// 新旧対照表の段を改正後(上帯)/改正前(下帯)に分けて復元する。
-pub(crate) fn reconstruct_shinkyu(cols: Vec<Col>, header_x: f32, divider: f32) -> Unit {
-    ShinkyuLayout::split(cols, header_x, divider).into_unit()
+pub(crate) fn reconstruct_shinkyu(cols: Vec<Col>, header_x: f32, divider: f32, grids: &[Grid]) -> Unit {
+    ShinkyuLayout::split(cols, header_x, divider).into_unit(grids, None)
 }
 
 /// 新旧対照表 1 件分のカラム配置。
@@ -188,6 +190,8 @@ pub(crate) fn reconstruct_shinkyu(cols: Vec<Col>, header_x: f32, divider: f32) -
 /// 帯ごとのカラム群をページ内の段ごとに分けて持つ（同じ x に別の段の列があるため、
 /// 1 つの Vec に混ぜると右→左復元で列が連結されてしまう）。
 pub(crate) struct ShinkyuLayout {
+    /// 罫線の外枠から求めた改正後帯・改正前帯の矩形 `(x0, x1, y0, y1)`（見出し段のみ）。
+    band_boxes: Option<[(f32, f32, f32, f32); 2]>,
     preamble: Vec<Col>,
     after: Vec<Vec<Col>>,
     before: Vec<Vec<Col>>,
@@ -228,6 +232,7 @@ impl ShinkyuLayout {
             None => (lower_all, Vec::new()),
         };
         ShinkyuLayout {
+            band_boxes: None,
             preamble,
             after: vec![upper],
             before: vec![lower],
@@ -331,15 +336,286 @@ impl ShinkyuLayout {
         Some(!ends_here)
     }
 
-    /// 帯ごとに行へ組む（テキスト化は [`Unit::text`]）。
-    pub(crate) fn into_unit(self) -> Unit {
+    /// 新旧対照表の外枠（欄見出しを含み、帯の境目をまたぐ罫線の枠）が取れれば、枠の左の外に
+    /// ある列（表の後ろの「附則」など）を改正後/改正前の帯から外して表外へ回す。
+    pub(crate) fn clip_to_frame(&mut self, grids: &[Grid], header_x: f32, divider: f32) {
+        let frame = grids
+            .iter()
+            .filter(|g| g.left() <= header_x && header_x <= g.right() + 1.0 && g.top() < divider && divider < g.bottom())
+            .min_by(|a, b| {
+                let area = |g: &Grid| (g.right() - g.left()) * (g.bottom() - g.top());
+                area(a).partial_cmp(&area(b)).unwrap_or(std::cmp::Ordering::Equal)
+            });
+        let Some(frame) = frame else { return };
+        let left = frame.left();
+        // 帯の矩形: 左右は枠の左端から欄見出しの列の左の罫線まで、上下は枠の上端・帯の境目・下端。
+        let label_left = frame.xs.iter().copied().filter(|&x| x < header_x - 1.0).fold(left, f32::max);
+        let mid = frame.ys.iter().copied().min_by(|a, b| (a - divider).abs().partial_cmp(&(b - divider).abs()).unwrap()).unwrap_or(divider);
+        self.band_boxes = Some([(left, label_left, frame.top(), mid), (left, label_left, mid, frame.bottom())]);
+        let mut out: Vec<Col> = Vec::new();
+        for band in [&mut self.after, &mut self.before] {
+            if let Some(part) = band.first_mut() {
+                let (inside, outside): (Vec<Col>, Vec<Col>) = std::mem::take(part).into_iter().partition(|c| (c.x + c.x1) / 2.0 > left);
+                *part = inside;
+                out.extend(outside);
+            }
+        }
+        if !out.is_empty() {
+            self.trailing.insert(0, out);
+        }
+    }
+
+    /// 帯ごとに行へ組む（テキスト化は [`Unit::text`]）。帯の中の罫線の表は表として組む。
+    pub(crate) fn into_unit(self, grids: &[Grid], rules: Option<&PageRules>) -> Unit {
+        // 見出し段の帯は、帯の内側の罫線だけで表を探す（表の罫線が帯の枠に接していても拾える）。
+        // それ以外（下の段への続き・見出しの無い継続ページ）は、ページの枠のうち他の枠を含まない
+        // ものを表の候補にする。
+        let band_grids: Vec<Grid> = match (self.band_boxes, rules) {
+            (Some(boxes), Some(r)) => boxes
+                .iter()
+                .flat_map(|&(x0, x1, y0, y1)| find_grids_inside(r, x0, x1, y0, y1))
+                .filter(|g| g.cells.len() >= 2)
+                .collect(),
+            _ => Vec::new(),
+        };
+        let in_boxes = |g: &Grid| {
+            self.band_boxes.is_some_and(|b| b.iter().any(|&(x0, x1, y0, y1)| x0 - 1.0 <= g.left() && g.right() <= x1 + 1.0 && y0 - 1.0 <= g.top() && g.bottom() <= y1 + 1.0))
+        };
+        let inner: Vec<&Grid> = grids
+            .iter()
+            .filter(|g| g.cells.len() >= 2 && !grids.iter().any(|o| g.encloses(o)) && !in_boxes(g))
+            .chain(band_grids.iter())
+            .collect();
+        let all_after: Vec<&Col> = self.after.iter().flatten().collect();
+        let all_before: Vec<&Col> = self.before.iter().flatten().collect();
+        let inside = |g: &Grid, c: &Col| g.contains((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0, 0.5);
+        // 片方の帯の語だけを含む枠をその帯の表とする（帯の境目をまたぐ外枠などは除く）。
+        let tables_for = |own: &[&Col], other: &[&Col]| -> Vec<&Grid> {
+            inner
+                .iter()
+                .copied()
+                .filter(|g| own.iter().any(|c| inside(g, c)) && !other.iter().any(|c| inside(g, c)))
+                .collect()
+        };
+        let after_grids = tables_for(&all_after, &all_before);
+        let before_grids = tables_for(&all_before, &all_after);
         Unit::Shinkyu {
             preamble: page_lines(self.preamble),
-            after: self.after.into_iter().map(cell_lines).collect(),
-            before: self.before.into_iter().map(cell_lines).collect(),
+            after: self.after.into_iter().map(|p| lines_with_tables(p, &after_grids)).collect(),
+            before: self.before.into_iter().map(|p| lines_with_tables(p, &before_grids)).collect(),
             outside: self.trailing.into_iter().map(page_lines).collect(),
         }
     }
+}
+
+/// 帯の語を、罫線の表に入るものと入らないものに分け、表は表として、残りは行として組み、
+/// 表を読み順（右→左）の位置に差し込む。
+pub(crate) fn lines_with_tables(cols: Vec<Col>, grids: &[&Grid]) -> Vec<Line> {
+    let mut tables: Vec<Table> = Vec::new();
+    let mut rest = cols;
+    for g in grids {
+        let inside = |c: &Col| g.contains((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0, 0.5);
+        let (mine, others): (Vec<Col>, Vec<Col>) = rest.into_iter().partition(inside);
+        rest = others;
+        if !mine.is_empty() {
+            tables.push(grid_table(g, mine));
+        }
+    }
+    let right_of: std::collections::HashMap<usize, f32> = rest.iter().map(|c| (c.id, c.x1)).collect();
+    let mut lines = cell_lines(rest);
+    // 右端の x が大きい表から、その表より左にある最初の行の手前へ差し込む。
+    tables.sort_by(|a, b| b.x1.partial_cmp(&a.x1).unwrap_or(std::cmp::Ordering::Equal));
+    for t in tables.into_iter().rev() {
+        let line_right = |l: &Line| l.words.iter().filter_map(|w| right_of.get(w)).copied().fold(f32::MIN, f32::max);
+        let at = lines.iter().position(|l| l.table.is_none() && line_right(l) <= t.x0 + 1.0).unwrap_or(lines.len());
+        lines.insert(at, Line { text: t.render(), words: Vec::new(), table: Some(t) });
+    }
+    lines
+}
+
+/// 格子のセルに語を割り当てて表にする。縦組みなので「縦の列＝行」に転置する
+/// （右の列が 1 行目、上の欄が 1 列目）。
+///
+/// 罫線で区切られた縦の帯の中に、行を区切る罫線が無いまま複数の行が並ぶ表もある
+/// （「物質｜係数」の表で物質ごとの行）。帯の中で、複数の欄にまたがって同じ x に字がある
+/// 文字の列（物質名と係数が同じ縦の線上に並ぶ）を 1 行の頭とし、1 つの欄にしか字の無い
+/// 列（セルの中の折り返し）はその行に入れる。
+fn grid_table(g: &Grid, cols: Vec<Col>) -> Table {
+    let nx = g.xs.len() - 1;
+    // 語 → セル。
+    let mut cell_words: Vec<Vec<Col>> = vec![Vec::new(); g.cells.len()];
+    for c in cols {
+        if let Some(i) = g.cell_at((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0) {
+            cell_words[i].push(c);
+        }
+    }
+    // 縦の帯（x 区間、右から）ごとに行の頭を決める。行の頭はその帯の文字の列（右→左）の
+    // 添字の列。帯の中で最初の欄にある列の上端が、最も上の列から 0.5 文字以内なら頭。
+    let strip_records: Vec<Vec<Vec<f32>>> = (0..nx)
+        .rev()
+        .map(|xi| {
+            let single: Vec<usize> = (0..g.cells.len()).filter(|&i| g.cells[i].x0 == xi && g.cells[i].x1 == xi + 1).collect();
+            // 字のある最初の欄（二重線の枠の間の空の細い欄などは飛ばす）。
+            let top_field = single.iter().filter(|&&i| !cell_words[i].is_empty()).map(|&i| g.cells[i].y0).min();
+            let words: Vec<Col> = single.iter().flat_map(|&i| cell_words[i].iter().cloned()).collect();
+            let groups = column_groups(words);
+            let field_of = |c: &Col| g.cell_at((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0).map(|i| g.cells[i].y0);
+            let tops: Vec<Option<f32>> = groups
+                .iter()
+                .map(|grp| {
+                    // 複数の欄にまたがり、最初の欄が項目の頭（（１）・（新設）・（略）・一　…）で
+                    // 始まる列だけを行の頭にする（並行して折り返すセルと取り違えないため）。
+                    let fields: std::collections::BTreeSet<usize> = grp.iter().filter_map(&field_of).collect();
+                    let mut in_top: Vec<&Col> = grp.iter().filter(|c| field_of(c) == top_field).collect();
+                    in_top.sort_by(|a, b| a.y.partial_cmp(&b.y).unwrap_or(std::cmp::Ordering::Equal));
+                    let lead: String = in_top.iter().map(|c| c.text.as_str()).collect::<Vec<_>>().join("\u{3000}");
+                    if fields.len() < 2 || !starts_item(&lead) {
+                        return None;
+                    }
+                    in_top.first().map(|c| c.y)
+                })
+                .collect();
+            let base = tops.iter().flatten().copied().reduce(f32::min);
+            // 行ごとの文字の列の中心 x（その行に属する列を後で探すため）。
+            let mut records: Vec<Vec<f32>> = Vec::new();
+            for (grp, top) in groups.iter().zip(&tops) {
+                let em = grp[0].x1 - grp[0].x;
+                let cx = (grp[0].x + grp[0].x1) / 2.0;
+                let head = matches!((top, base), (Some(t), Some(b)) if *t <= b + em * 0.5);
+                match records.last_mut() {
+                    Some(r) if !head => r.push(cx),
+                    _ => records.push(vec![cx]),
+                }
+            }
+            // 最初の頭より右の列（最初の欄に字の無い列）は最初の行に入れる。
+            if records.len() >= 2 && !matches!((tops.first(), base), (Some(Some(t)), Some(b)) if *t <= b + 4.0) {
+                let first = records.remove(0);
+                records[0].splice(0..0, first);
+            }
+            if records.is_empty() {
+                records.push(Vec::new());
+            }
+            records
+        })
+        .collect();
+    // 帯（右から k 番目）の先頭の行番号。
+    let mut offset = vec![0usize; nx + 1];
+    for k in 0..nx {
+        offset[k + 1] = offset[k] + strip_records[k].len();
+    }
+    let strip_of = |xi: usize| nx - 1 - xi; // x 区間 → 右からの番号
+    let cell_text = |words: Vec<Col>| -> String {
+        let lines: Vec<String> = cell_lines(words).into_iter().map(|l| l.text).collect();
+        // セルの中の列の折り返しは連結し、文末（。）でだけ改行する。
+        let mut text = String::new();
+        for (i, l) in lines.iter().enumerate() {
+            text.push_str(l);
+            if i + 1 < lines.len() && l.ends_with('。') {
+                text.push('\n');
+            }
+        }
+        text
+    };
+    let mut cells: Vec<TableCell> = Vec::new();
+    for (cell, words) in g.cells.iter().zip(cell_words) {
+        let (s_right, s_left) = (strip_of(cell.x1 - 1), strip_of(cell.x0));
+        let records = &strip_records[s_right];
+        if cell.x1 - cell.x0 == 1 && records.len() >= 2 {
+            // 行の区切りの無い帯: 行ごとのセルに分ける。
+            let mut per: Vec<Vec<Col>> = vec![Vec::new(); records.len()];
+            for w in words {
+                let cx = (w.x + w.x1) / 2.0;
+                let r = records
+                    .iter()
+                    .position(|rec| rec.iter().any(|&x| (x - cx).abs() < (w.x1 - w.x).max(6.0) * 0.75))
+                    .unwrap_or(0);
+                per[r].push(w);
+            }
+            for (r, ws) in per.into_iter().enumerate() {
+                let (x0, x1) = ws
+                    .iter()
+                    .fold((f32::INFINITY, f32::NEG_INFINITY), |(a, b), c| (a.min(c.x), b.max(c.x1)));
+                cells.push(TableCell {
+                    row: offset[s_right] + r,
+                    col: cell.y0,
+                    rowspan: 1,
+                    colspan: cell.y1 - cell.y0,
+                    x0: if x0.is_finite() { x0 } else { g.xs[cell.x0] },
+                    y0: g.ys[cell.y0],
+                    x1: if x1.is_finite() { x1 } else { g.xs[cell.x1] },
+                    y1: g.ys[cell.y1],
+                    words: ws.iter().map(|c| c.id).collect(),
+                    text: cell_text(ws),
+                });
+            }
+        } else {
+            cells.push(TableCell {
+                row: offset[s_right],
+                col: cell.y0,
+                rowspan: offset[s_left + 1] - offset[s_right],
+                colspan: cell.y1 - cell.y0,
+                x0: g.xs[cell.x0],
+                y0: g.ys[cell.y0],
+                x1: g.xs[cell.x1],
+                y1: g.ys[cell.y1],
+                words: words.iter().map(|c| c.id).collect(),
+                text: cell_text(words),
+            });
+        }
+    }
+    cells.sort_by_key(|c| (c.row, c.col));
+    trim_empty_edges(Table {
+        x0: g.left(),
+        y0: g.top(),
+        x1: g.right(),
+        y1: g.bottom(),
+        rows: offset[nx],
+        cols: g.ys.len() - 1,
+        cells,
+    })
+}
+
+/// 表の端の、字の無いセルだけの行・列を落とす（二重線の枠の間の細い欄など）。
+fn trim_empty_edges(mut t: Table) -> Table {
+    let empty_row = |t: &Table, r: usize| t.cells.iter().filter(|c| c.row <= r && r < c.row + c.rowspan).all(|c| c.text.is_empty());
+    let empty_col = |t: &Table, k: usize| t.cells.iter().filter(|c| c.col <= k && k < c.col + c.colspan).all(|c| c.text.is_empty());
+    let drop_row = |t: &mut Table, r: usize| {
+        t.cells.retain(|c| !(c.row == r && c.rowspan == 1));
+        for c in &mut t.cells {
+            if c.row > r {
+                c.row -= 1;
+            } else if c.row + c.rowspan > r {
+                c.rowspan -= 1;
+            }
+        }
+        t.rows -= 1;
+    };
+    let drop_col = |t: &mut Table, k: usize| {
+        t.cells.retain(|c| !(c.col == k && c.colspan == 1));
+        for c in &mut t.cells {
+            if c.col > k {
+                c.col -= 1;
+            } else if c.col + c.colspan > k {
+                c.colspan -= 1;
+            }
+        }
+        t.cols -= 1;
+    };
+    while t.rows > 1 && empty_row(&t, t.rows - 1) {
+        let r = t.rows - 1;
+        drop_row(&mut t, r);
+    }
+    while t.rows > 1 && empty_row(&t, 0) {
+        drop_row(&mut t, 0);
+    }
+    while t.cols > 1 && empty_col(&t, t.cols - 1) {
+        let k = t.cols - 1;
+        drop_col(&mut t, k);
+    }
+    while t.cols > 1 && empty_col(&t, 0) {
+        drop_col(&mut t, 0);
+    }
+    t
 }
 
 /// 縦の列（x 近傍のカラム語の束）の頭。`lead` は列の先頭語。

@@ -3,6 +3,8 @@
 //! 各ケースは次のファイルを持つ:
 //! - `page.pdf` — 原本（デジタル官報の項目別 PDF 1 ページ）
 //! - `page.bbox.html` — `pdftotext -bbox-layout -enc UTF-8 page.pdf page.bbox.html` の出力
+//! - `page.rules.json` — 罫線（`cargo run -p kanpo-parser --example prepare -- page.pdf` が
+//!   上の bbox と一緒に作る）
 //! - `case.json` — 出典・タグ・何を確かめるケースか（notes）
 //! - `expected.txt` — 復元した本文（目視で正しいと確認したもの）
 //! - `expected.json` — 記事ごとの構造化結果
@@ -38,7 +40,10 @@ fn corpus_matches_expected() {
             serde_json::from_str(&std::fs::read_to_string(dir.join("case.json")).unwrap()).unwrap();
         assert!(case["title"].is_string() && case["notes"].is_string(), "{name}: case.json に title/notes");
         let xhtml = std::fs::read_to_string(dir.join("page.bbox.html")).unwrap();
-        let a = kanpo_parser::analyze(&xhtml);
+        let rules = std::fs::read_to_string(dir.join("page.rules.json"))
+            .ok()
+            .map(|s| serde_json::from_str::<kanpo_parser::lines::PageRules>(&s).unwrap());
+        let a = kanpo_parser::analyze_with_rules(&xhtml, &[rules]);
         let text = format!("{}\n", a.text);
         let docs: Vec<_> = a.articles.iter().map(|art| &art.document).collect();
         let json = format!("{}\n", serde_json::to_string_pretty(&docs).unwrap());

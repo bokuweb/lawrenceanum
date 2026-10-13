@@ -31,6 +31,7 @@
 use anyhow::Result;
 
 pub mod format;
+pub mod grid;
 pub mod lines;
 pub mod model;
 pub mod normalize;
@@ -87,20 +88,27 @@ pub struct ArticleAnalysis {
 /// どの領域（前文・改正後・改正前・表外・本文）のどの行に組まれたかを返す。
 /// poppler を使わないので WASM でも動く。
 pub fn analyze(xhtml: &str) -> Analysis {
-    let pages = vertical::analyze_pages(xhtml);
-    let text = pages
-        .iter()
-        .map(|p| p.text.as_str())
-        .filter(|t| !t.is_empty())
-        .collect::<Vec<_>>()
-        .join("\n")
-        .trim()
-        .to_string();
-    let articles = segment_articles(&text)
+    analyze_with_rules(xhtml, &[])
+}
+
+/// [`analyze`] に各ページの罫線（[`page_rules`]）を与える版。`rules[i]` は i ページ目の罫線。
+///
+/// 罫線があると、新旧対照表の外枠で表の外の列（附則など）を分け、帯の中の罫線の表
+/// （別表など）をセルの結合まで含めて 2D 表として復元し、構造化結果では本文の流れの中の
+/// 表（[`model::Run::table`]）として返す。複数ページの XHTML（`<page>` が複数）も渡せる。
+pub fn analyze_with_rules(xhtml: &str, rules: &[Option<lines::PageRules>]) -> Analysis {
+    let pages = vertical::analyze_pages_with_rules(xhtml, rules);
+    let join = |f: &dyn Fn(&trace::PageTrace) -> &str| {
+        pages.iter().map(f).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n").trim().to_string()
+    };
+    let text = join(&|p| p.text.as_str());
+    let doc_text = join(&|p| p.doc_text.as_str());
+    let tables: Vec<trace::Table> = pages.iter().flat_map(|p| p.tables.iter().cloned()).collect();
+    let articles = segment_articles(&doc_text)
         .into_iter()
-        .map(|text| ArticleAnalysis {
-            document: Document::from_text(&text),
-            text,
+        .map(|seg| ArticleAnalysis {
+            document: Document::from_text_with_tables(&seg, &tables),
+            text: render_table_markers(&seg, &tables),
         })
         .collect();
     Analysis {
@@ -109,6 +117,17 @@ pub fn analyze(xhtml: &str) -> Analysis {
         text,
         articles,
     }
+}
+
+/// 構造化用テキストの表の目印を、表を書き下したテキストに戻す。
+fn render_table_markers(text: &str, tables: &[trace::Table]) -> String {
+    text.lines()
+        .map(|l| match trace::parse_table_marker(l).and_then(|i| tables.get(i)) {
+            Some(t) => t.render(),
+            None => l.to_string(),
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
 /// PDF バイト列を `pdftotext -bbox-layout` に通し、座標付き XHTML を得る。
@@ -187,6 +206,7 @@ fn attach_bessho_tables(doc: &mut Document, rules: &lines::PageRules, xhtml: &st
 /// 復元した 2D 表（セル文字列）を Document の入れ子テーブルへ変換する。
 fn to_nested(t: &table::GridTable) -> model::NestedTable {
     model::NestedTable {
+        merges: Vec::new(),
         rows: t
             .rows
             .iter()
