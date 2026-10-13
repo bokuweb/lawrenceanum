@@ -175,15 +175,18 @@ impl Document {
                     k += 1;
                 }
                 let before_lines = &lines[before_start..k];
-                // 附則(施行期日・経過措置)は改正全体の付則で、新旧対照表の条ではない。
-                // 表の行から外し、表ブロックの後ろに段落として置く。
+                // 片側の帯にだけある附則（施行期日・経過措置）は改正全体の付則が帯に紛れ込んだもので、
+                // 新旧対照表の条ではない。表の行から外し、表ブロックの後ろに段落として置く。
+                // 両側にある附則（「附　則〔１〜24略〕」と「附　則〔１〜24同上〕」）は、改正される
+                // 法令の附則の行なので表に残す。
                 let mut rows = align_rows(after_lines, before_lines);
                 let mut furisoku: Vec<Vec<Run>> = Vec::new();
                 rows.retain(|r| {
                     let is_furi = |runs: &[Run]| {
                         runs.first().map(|x| starts_with_spaced(&x.text, "附則")).unwrap_or(false)
                     };
-                    if is_furi(&r.after) || is_furi(&r.before) {
+                    let one_sided = r.after.is_empty() || r.before.is_empty();
+                    if one_sided && (is_furi(&r.after) || is_furi(&r.before)) {
                         let content = if !r.after.is_empty() { r.after.clone() } else { r.before.clone() };
                         if !content.is_empty() {
                             furisoku.push(content);
@@ -193,6 +196,8 @@ impl Document {
                         true
                     }
                 });
+                // 改正後・改正前とも空の行（空白だけの帯）は作らない。
+                rows.retain(|r| !r.after.is_empty() || !r.before.is_empty());
                 if !rows.is_empty() {
                     blocks.push(Block::Shinkyu { rows });
                 }
@@ -220,7 +225,7 @@ impl Document {
     /// `tables` の表に置き換え、本文の流れの中の表（`Run::table`）にする。
     pub(crate) fn from_text_with_tables(text: &str, tables: &[Table]) -> Document {
         let mut doc = Document::from_text(text);
-        let splice = |runs: &mut Vec<Run>| *runs = splice_tables(std::mem::take(runs), tables);
+        let splice = |runs: &mut Vec<Run>| *runs = join_adjacent_tables(splice_tables(std::mem::take(runs), tables));
         for block in &mut doc.blocks {
             match block {
                 Block::Paragraph { runs } => splice(runs),
@@ -303,11 +308,16 @@ fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
 }
 
 /// セルの Run 列に続きをつなぐ。前の文が文末（。）で終わっていなければ改行せずに連結する
-/// （ページの切れ目は列の折り返しと同じ）。
+/// （ページの切れ目は列の折り返しと同じ）。ページの切れ目で分かれた表（列数が同じ表が続く）は
+/// 1 つの表につなぐ。
 fn append_runs(dst: &mut Vec<Run>, src: Vec<Run>) {
     let mut src = src.into_iter();
     if let (Some(last), Some(first)) = (dst.last_mut(), src.as_slice().first()) {
-        if last.table.is_none() && first.table.is_none() {
+        if let (Some(a), Some(b)) = (last.table.as_mut(), first.table.as_ref()) {
+            if join_tables(a, b) {
+                src.next();
+            }
+        } else if last.table.is_none() && first.table.is_none() {
             let next_line = first.text.lines().next().unwrap_or("");
             let table_edge = last.text.ends_with('\u{E001}') || next_line.starts_with('\u{E000}');
             let sep = if last.text.ends_with('。') || table_edge || starts_structural_marker(next_line) { "\n" } else { "" };
@@ -316,6 +326,59 @@ fn append_runs(dst: &mut Vec<Run>, src: Vec<Run>) {
         }
     }
     dst.extend(src);
+}
+
+/// 表 `b` が表 `a` の続き（列数が同じ）なら `a` の下につなぐ。`b` の先頭行が `a` の先頭行
+/// （見出し行）と同じなら、ページごとに繰り返された見出しとして落とす。つないだら true。
+fn join_tables(a: &mut NestedTable, b: &NestedTable) -> bool {
+    let cols = |t: &NestedTable| t.rows.first().map(|r| r.len()).unwrap_or(0);
+    if cols(a) == 0 || cols(a) != cols(b) {
+        return false;
+    }
+    let text = |row: &Vec<Vec<Run>>| row.iter().map(|c| c.iter().map(|r| r.text.as_str()).collect::<String>()).collect::<Vec<_>>();
+    let mut skip = usize::from(b.rows.first().map(text) == a.rows.first().map(text));
+    // ページの切れ目で行が途中で切れている（前の行が「、」などで終わり、次の行が項目の頭で
+    // 始まらない）なら、次の先頭行を前の最後の行の続きとしてセルごとに連結する。
+    let lead = |row: &Vec<Vec<Run>>| row.iter().map(|c| c.iter().map(|r| r.text.as_str()).collect::<String>()).find(|t| !t.is_empty()).unwrap_or_default();
+    let a_rows = a.rows.len();
+    let merged_cells = b.merges.iter().any(|m| m.row == skip) || a.merges.iter().any(|m| m.row + m.rowspan == a_rows);
+    if let (Some(last), Some(next)) = (a.rows.last_mut(), b.rows.get(skip)) {
+        let tail = lead(last);
+        let head = lead(next);
+        let cut = tail.ends_with(['、', '，', ',']) || !tail.ends_with(['。', '）', '」', '〕', '］']);
+        if !tail.is_empty() && !head.is_empty() && cut && !crate::vertical::starts_item(&head) && !merged_cells {
+            for (dst, src) in last.iter_mut().zip(next.iter()) {
+                let add: String = src.iter().map(|r| r.text.as_str()).collect();
+                match dst.last_mut() {
+                    Some(r) if r.table.is_none() => r.text.push_str(&add),
+                    _ if !add.is_empty() => dst.push(Run::plain(add)),
+                    _ => {}
+                }
+            }
+            skip += 1;
+        }
+    }
+    let offset = a.rows.len();
+    a.rows.extend(b.rows.iter().skip(skip).cloned());
+    a.merges.extend(b.merges.iter().filter(|m| m.row >= skip).map(|m| CellMerge {
+        row: m.row - skip + offset,
+        ..*m
+    }));
+    true
+}
+
+/// 続けて並ぶ表の Run（本文を挟まない）で列数が同じものを 1 つの表につなぐ。
+fn join_adjacent_tables(runs: Vec<Run>) -> Vec<Run> {
+    let mut out: Vec<Run> = Vec::new();
+    for run in runs {
+        if let (Some(Run { table: Some(a), .. }), Some(b)) = (out.last_mut(), run.table.as_ref()) {
+            if join_tables(a, b) {
+                continue;
+            }
+        }
+        out.push(run);
+    }
+    out
 }
 
 /// Run の中の表の目印の行を表の Run に置き換える（前後の本文は別の Run に分ける）。
@@ -340,16 +403,13 @@ fn splice_tables(runs: Vec<Run>, tables: &[Table]) -> Vec<Run> {
             let Some(len) = rest[start..].find('\u{E001}') else { break };
             let end = start + len + '\u{E001}'.len_utf8();
             buf.push(&rest[..start]);
-            match parse_table_marker(&rest[start..end]).and_then(|i| tables.get(i)) {
-                Some(t) => {
-                    flush(&mut buf, &mut out);
-                    out.push(Run {
-                        text: String::new(),
-                        underline: false,
-                        table: Some(t.to_nested()),
-                    });
-                }
-                None => {}
+            if let Some(t) = parse_table_marker(&rest[start..end]).and_then(|i| tables.get(i)) {
+                flush(&mut buf, &mut out);
+                out.push(Run {
+                    text: String::new(),
+                    underline: false,
+                    table: Some(t.to_nested()),
+                });
             }
             rest = &rest[end..];
         }
@@ -393,13 +453,28 @@ fn align_rows_by(
     if !aln.iter().any(|(i, j)| i.is_some() && j.is_some()) {
         return None;
     }
-    let mut rows = Vec::new();
+    let mut rows: Vec<ShinkyuRow> = Vec::new();
     for (ai, bi) in aln {
         let after = ai.map(|i| cell_runs_from_str(&a[i].text)).unwrap_or_default();
         let before = bi.map(|j| cell_runs_from_str(&b[j].text)).unwrap_or_default();
-        if !after.is_empty() || !before.is_empty() {
-            rows.push(ShinkyuRow { after, before, ..Default::default() });
+        if after.is_empty() && before.is_empty() {
+            continue;
         }
+        // 片側だけの行が、反対側だけの行のすぐ後に続く（見出しの文言が改正で変わった条）なら
+        // 1 行にまとめる。新設の条は改正前の欄にも「（新設）」があるので片側が空にはならない。
+        if let Some(prev) = rows.last_mut() {
+            let complement = (prev.after.is_empty() && !prev.before.is_empty() && !after.is_empty() && before.is_empty())
+                || (!prev.after.is_empty() && prev.before.is_empty() && after.is_empty() && !before.is_empty());
+            if complement {
+                if prev.after.is_empty() {
+                    prev.after = after;
+                } else {
+                    prev.before = before;
+                }
+                continue;
+            }
+        }
+        rows.push(ShinkyuRow { after, before, ..Default::default() });
     }
     Some(rows)
 }
@@ -623,6 +698,17 @@ mod tests {
         assert!(rows[1].after[0].text.contains("乙の前半の後半。"), "{rows:?}");
         assert!(rows[1].before[0].text.contains("旧乙の前半の後半。"), "{rows:?}");
         assert!(rows[2].after[0].text.contains("第四条"));
+    }
+
+    #[test]
+    fn pairs_rows_whose_heading_changed() {
+        // 見出しの文言が変わった条（改正後「（乙の手続）」・改正前「（乙の申請）」）は 1 行にまとめる。
+        let after = "（甲の規定）\n第一条　甲\n（乙の手続）\n第二条　新";
+        let before = "（甲の規定）\n第一条　甲\n（乙の申請）\n第二条　旧";
+        let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
+        let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
+        assert_eq!(rows.len(), 2, "{rows:?}");
+        assert!(rows[1].after[0].text.contains("新") && rows[1].before[0].text.contains("旧"));
     }
 
     #[test]

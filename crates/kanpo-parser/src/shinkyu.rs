@@ -6,6 +6,7 @@
 
 use crate::grid::{find_grids_inside, Grid};
 use crate::lines::PageRules;
+use crate::segment::is_heading_mark;
 use crate::trace::{Line, Table, TableCell, Unit};
 use crate::vertical::{cell_lines, column_groups, page_lines, reconstruct_page, starts_item, Col};
 
@@ -161,6 +162,58 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
     Some(divider)
 }
 
+/// 見出しの無い隣り合う 2 段（上の段 `a`・下の段 `b`）が、新旧対照表の改正後帯・改正前帯の
+/// 組に見えるか。継続ページが 4 段（改正後・改正前・改正後・改正前）に組まれる場合に、段の組
+/// ごとに判定する。高さと左右の範囲がほぼ揃い、本文が順序も含めてほぼ同じで、省略・新設の印が
+/// あることを求める。
+pub(crate) fn tiers_look_like_bands(a: &[Col], b: &[Col]) -> bool {
+    if a.len() < 3 || b.len() < 3 {
+        return false;
+    }
+    let ext = |g: &[Col]| {
+        (
+            g.iter().map(|c| c.x).fold(f32::INFINITY, f32::min),
+            g.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max),
+            g.iter().map(|c| c.y).fold(f32::INFINITY, f32::min),
+            g.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max),
+        )
+    };
+    let ((ax0, ax1, ay0, ay1), (bx0, bx1, by0, by1)) = (ext(a), ext(b));
+    let (ha, hb) = (ay1 - ay0, by1 - by0);
+    let overlap = (ax1.min(bx1) - ax0.max(bx0)).max(0.0) / (ax1 - ax0).max(bx1 - bx0).max(1.0);
+    if ha.min(hb) / ha.max(hb) < 0.7 || overlap < 0.7 {
+        return false;
+    }
+    let (at, bt) = (reconstruct_page(a.to_vec()), reconstruct_page(b.to_vec()));
+    // 新旧対照表に特有の省略・新設の印があること（同じひな形の告示が上下の段に並ぶページ、
+    // たとえば灯台や道路の告示の続きを取り違えないため）。
+    let marked = has_shinkyu_marks(&at) || has_shinkyu_marks(&bt);
+    marked && bigram_jaccard(&at, &bt) >= 0.5 && sequence_ratio(&at, &bt) >= 0.5
+}
+
+/// 新旧対照表に特有の省略・新設の印（「（略）」「〔九〜一六　略〕」「〔同上〕」「［同左］」
+/// 「（新設）」「（削る）」）があるか。
+fn has_shinkyu_marks(t: &str) -> bool {
+    const MARKS: [&str; 13] = [
+        "略）", "略〕", "略］", "同上）", "同上〕", "同左］", "同左）", "新設）", "新設〕", "新設］", "削る）", "削る〕",
+        // 表の注記（「備考　表中の〔　〕の記載は注記である。」）。
+        "記載は注記である",
+    ];
+    MARKS.iter().any(|m| t.contains(m))
+}
+
+/// [`tiers_look_like_bands`] の 2 段を改正後・改正前として組む。
+pub(crate) fn band_pair_unit(after: Vec<Col>, before: Vec<Col>, grids: &[Grid], rules: Option<&PageRules>) -> Unit {
+    ShinkyuLayout {
+        band_boxes: None,
+        preamble: Vec::new(),
+        after: vec![after],
+        before: vec![before],
+        trailing: Vec::new(),
+    }
+    .into_unit(grids, rules)
+}
+
 /// 2 つの文の、順序を考慮した近さ（2 × 最長共通部分列の長さ ÷ 両方の長さの和、0.0–1.0）。
 /// 長い文は先頭 2000 字で比べる。
 fn sequence_ratio(a: &str, b: &str) -> f32 {
@@ -206,13 +259,13 @@ fn find_run(chars: &[char], pat: &[char]) -> Option<usize> {
 
 /// 新旧対照表の段を改正後(上帯)/改正前(下帯)に分けて復元する。
 /// 見出しの無い継続ページ用: ページ全体が表なので、表の下の別記事を切り離す判定はしない。
-pub(crate) fn reconstruct_shinkyu(cols: Vec<Col>, header_x: f32, divider: f32, grids: &[Grid]) -> Unit {
+pub(crate) fn reconstruct_shinkyu(cols: Vec<Col>, header_x: f32, divider: f32, grids: &[Grid], rules: Option<&PageRules>) -> Unit {
     let mut layout = ShinkyuLayout::split(cols, header_x, divider);
     let outside: Vec<Col> = layout.trailing.drain(..).flatten().collect();
     if let Some(before) = layout.before.first_mut() {
         before.extend(outside);
     }
-    layout.into_unit(grids, None)
+    layout.into_unit(grids, rules)
 }
 
 /// 新旧対照表 1 件分のカラム配置。
@@ -279,26 +332,128 @@ impl ShinkyuLayout {
     /// あって帯の中に収まる列を前の表の続きとし、上帯を改正後・下帯を改正前とする
     /// （両帯にそれぞれ列があるときだけ）。区分見出し（「法　規　的　告　示」）のような
     /// 大きい字は帯の境目で割れても前の表ではないので、前文と同じ字の大きさの列に限る。
-    pub(crate) fn split_off_leading_continuation(&mut self, divider: f32) -> Option<Unit> {
+    ///
+    /// 帯の中の次の記事の標題（「〇」で始まる行）から左は前文に残す。表の末尾が罫線で
+    /// 囲まれていれば、枠の外の列（表の後ろの備考・附則）は表の後ろに本文として出す。
+    /// 表の末尾らしくなければ（2 段に組んだ前の記事の続きなど）、上下の段を混ぜて読まない
+    /// よう、段ごとに組んで前文より先に出す。
+    pub(crate) fn split_off_leading_continuation(&mut self, divider: f32, grids: &[Grid], rules: Option<&PageRules>) -> Vec<Unit> {
         let spans = |c: &Col| c.y < divider && c.y1 > divider;
-        let span_right = self.preamble.iter().filter(|c| spans(c)).map(|c| c.x1).reduce(f32::max)?;
-        let em = self.preamble.iter().filter(|c| spans(c)).map(|c| c.x1 - c.x).reduce(f32::min)?;
+        let Some(span_right) = self.preamble.iter().filter(|c| spans(c)).map(|c| c.x1).reduce(f32::max) else {
+            return Vec::new();
+        };
+        let em = self.preamble.iter().filter(|c| spans(c)).map(|c| c.x1 - c.x).fold(f32::INFINITY, f32::min);
         // 字の大きさは幅と高さの小さい方で比べる（縦中横の「(120)」は幅だけ広い）。
         let glyph = |c: &Col| (c.x1 - c.x).min(c.y1 - c.y);
-        let is_tail = |c: &Col| c.x > span_right + 2.0 && !spans(c) && glyph(c) <= em * 1.3;
+        // 表の帯（罫線の外枠があればその上端）より上（段の上の方の前文）は末尾ではない。
+        let band_top = match self.band_boxes {
+            Some([(_, _, top, _), _]) => top,
+            None => self.after.iter().flatten().map(|c| c.y).fold(f32::INFINITY, f32::min),
+        };
+        let is_tail = |c: &Col| c.x > span_right + 2.0 && !spans(c) && glyph(c) <= em * 1.3 && c.y1 > band_top - em;
         let (tail, rest): (Vec<Col>, Vec<Col>) = std::mem::take(&mut self.preamble).into_iter().partition(is_tail);
-        let (after, before): (Vec<Col>, Vec<Col>) = tail.into_iter().partition(|c| c.y1 <= divider);
-        if after.is_empty() || before.is_empty() {
-            self.preamble = rest.into_iter().chain(after).chain(before).collect();
-            return None;
+        let (upper, lower): (Vec<Col>, Vec<Col>) = tail.into_iter().partition(|c| c.y1 <= divider);
+        let mut rest = rest;
+        // 標題の列から左（次の記事）を切る。連名の標題（「内閣府、総務省、／〇財務省、…令第七号」）
+        // は「、」で終わる右隣の行も標題に含める。
+        let mut cut_at_heading = |part: Vec<Col>| -> Vec<Col> {
+            // 行の右端・下端。行は同じ x の離れた語（帯の下の方の表の末尾）も含むので、上から
+            // 続く分だけ見る。
+            let extent = |l: &Line| {
+                let mut cols: Vec<&Col> = part.iter().filter(|c| l.words.contains(&c.id)).collect();
+                cols.sort_by(|a, b| a.y.total_cmp(&b.y));
+                let mut ext = (f32::NEG_INFINITY, f32::NEG_INFINITY);
+                for c in cols {
+                    if ext.1 > f32::NEG_INFINITY && c.y > ext.1 + em * 2.0 {
+                        break;
+                    }
+                    ext = (ext.0.max(c.x1), ext.1.max(c.y1));
+                }
+                ext
+            };
+            let mut lines: Vec<(Line, (f32, f32))> = page_lines(part.clone()).into_iter().map(|l| { let e = extent(&l); (l, e) }).collect();
+            lines.sort_by(|a, b| b.1 .0.total_cmp(&a.1 .0));
+            let heading = lines.iter().position(|(l, _)| is_heading_mark(&l.text)).map(|h| {
+                let mut ext = lines[h].1;
+                for (l, e) in lines[..h].iter().rev() {
+                    if !l.text.ends_with('、') || e.0 > ext.0 + em * 2.0 {
+                        break;
+                    }
+                    ext = (e.0, ext.1.max(e.1));
+                }
+                ext
+            });
+            let next_article = |c: &Col| heading.is_some_and(|(right, _)| (c.x + c.x1) / 2.0 <= right);
+            let (next, cont): (Vec<Col>, Vec<Col>) = part.into_iter().partition(next_article);
+            rest.extend(next);
+            cont
+        };
+        let (upper, lower) = (cut_at_heading(upper), cut_at_heading(lower));
+        // 枠は末尾の右端を含むもの（末尾の中の入れ子の表の枠は使わない）で、上下の帯ごとに
+        // その帯にかかる枠だけを使う（片方の帯にしか枠が見つからないことがある）。
+        let tail_right = upper.iter().chain(&lower).map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max);
+        let frame_left = |is_upper: bool| {
+            grids
+                .iter()
+                .filter(|g| g.left() < tail_right && g.right() >= tail_right - 6.0 && g.left() > span_right - 2.0)
+                .filter(|g| if is_upper { g.top() < divider - 6.0 } else { g.bottom() > divider + 6.0 })
+                .map(|g| g.left())
+                .reduce(f32::min)
+        };
+        let split_frame = |part: Vec<Col>, left: Option<f32>| -> (Vec<Col>, Vec<Col>) {
+            part.into_iter().partition(|c| left.is_none_or(|l| (c.x + c.x1) / 2.0 > l))
+        };
+        let (after, out_after) = split_frame(upper, frame_left(true));
+        let (before, out_before) = split_frame(lower, frame_left(false));
+        // 表の末尾なら上下（改正後・改正前）の本文が似ているか、省略・新設の印がある。2 段に組んだ
+        // 普通の改め文（「様式第○中…に改める」「附則」）を表の末尾と取り違えないため。
+        let looks_like_table = || {
+            let (at, bt) = (reconstruct_page(after.clone()), reconstruct_page(before.clone()));
+            // 表の末尾は短く改正部分の差も大きいので、段の組の判定より緩めにする（実測: 表の末尾
+            // 0.41/0.49、2 段組みの改め文 0.18/0.42）。
+            // 罫線があれば、上下とも罫線の枠の中に収まっていることも表の証拠にする（上下で中身の
+            // 違う長い一覧の表の末尾など）。
+            let framed = |part: &[Col]| {
+                let inside = part.iter().filter(|c| grids.iter().any(|g| g.contains((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0, 0.5))).count();
+                inside * 10 >= part.len() * 8
+            };
+            has_shinkyu_marks(&at)
+                || has_shinkyu_marks(&bt)
+                || (bigram_jaccard(&at, &bt) >= 0.35 && sequence_ratio(&at, &bt) >= 0.4)
+                || (!grids.is_empty() && framed(&after) && framed(&before))
+        };
+        let one_sided = after.is_empty() || before.is_empty();
+        // 片方の帯だけなら表の末尾とは言えないが、もう片方の帯に何も無い（あっても次の記事だけ）
+        // なら、残った帯は前の記事の続き。前文に混ぜると同じ x の前文の行と 1 行に組まれる。
+        let other_empty = (after.is_empty() && out_after.is_empty()) || (before.is_empty() && out_before.is_empty());
+        if one_sided && !other_empty {
+            self.preamble = rest.into_iter().chain(after).chain(out_after).chain(before).chain(out_before).collect();
+            return Vec::new();
         }
         self.preamble = rest;
-        Some(Unit::Shinkyu {
-            preamble: Vec::new(),
-            after: vec![cell_lines(after)],
-            before: vec![cell_lines(before)],
-            outside: Vec::new(),
-        })
+        let outside: Vec<Line> = cell_lines(out_after).into_iter().chain(cell_lines(out_before)).collect();
+        let mut units = Vec::new();
+        if one_sided || !looks_like_table() {
+            let lines: Vec<Line> = cell_lines(after).into_iter().chain(cell_lines(before)).chain(outside).collect();
+            if !lines.is_empty() {
+                units.push(Unit::Plain(lines));
+            }
+            return units;
+        }
+        units.push(
+            ShinkyuLayout {
+                band_boxes: None,
+                preamble: Vec::new(),
+                after: vec![after],
+                before: vec![before],
+                trailing: Vec::new(),
+            }
+            .into_unit(grids, rules),
+        );
+        if !outside.is_empty() {
+            units.push(Unit::Plain(outside));
+        }
+        units
     }
 
     /// 見出し段における改正後帯→改正前帯の y ピッチ。
@@ -401,16 +556,52 @@ impl ShinkyuLayout {
         // 見出し段の帯は、帯の内側の罫線だけで表を探す（表の罫線が帯の枠に接していても拾える）。
         // それ以外（下の段への続き・見出しの無い継続ページ）は、ページの枠のうち他の枠を含まない
         // ものを表の候補にする。
-        let band_grids: Vec<Grid> = match (self.band_boxes, rules) {
-            (Some(boxes), Some(r)) => boxes
+        // 帯の矩形: 見出し段は外枠から、それ以外（下の段への続き・継続ページ・段の組）は
+        // 帯の語の広がりから求める。
+        let word_box = |part: &[Col]| -> Option<(f32, f32, f32, f32)> {
+            if part.is_empty() {
+                return None;
+            }
+            let pad = 4.0;
+            Some((
+                part.iter().map(|c| c.x).fold(f32::INFINITY, f32::min) - pad,
+                part.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max) + pad,
+                part.iter().map(|c| c.y).fold(f32::INFINITY, f32::min) - pad,
+                part.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max) + pad,
+            ))
+        };
+        // 語の広がりの上下を、そのすぐ外側にある帯の幅いっぱいの横線まで広げる（帯の中の欄が
+        // 空のとき、欄の境目の線が語の端と重なって帯の縁とみなされないように）。
+        let snap = |(x0, x1, y0, y1): (f32, f32, f32, f32)| -> (f32, f32, f32, f32) {
+            let Some(r) = rules else { return (x0, x1, y0, y1) };
+            let full_at = |y: f32| r.horizontal.iter().filter(|h| (h.y - y).abs() < 1.0).map(|h| h.x1.min(x1) - h.x0.max(x0)).filter(|w| *w > 0.0).sum::<f32>() >= (x1 - x0) * 0.8;
+            let ys: Vec<f32> = r.horizontal.iter().map(|h| h.y).filter(|&y| full_at(y)).collect();
+            let top = ys.iter().copied().filter(|&y| y <= y0 + 6.0).fold(y0, |a, y| if a == y0 || y > a { y } else { a });
+            let bottom = ys.iter().copied().filter(|&y| y >= y1 + 6.0).fold(y1, |a, y| if a == y1 || y < a { y } else { a });
+            (x0, x1, top.min(y0), bottom.max(y1))
+        };
+        let mut boxes: Vec<(f32, f32, f32, f32)> = Vec::new();
+        for (k, band) in [&self.after, &self.before].into_iter().enumerate() {
+            for (i, part) in band.iter().enumerate() {
+                let b = match (i, self.band_boxes) {
+                    (0, Some(bb)) => Some(bb[k]),
+                    _ => word_box(part).map(snap),
+                };
+                boxes.extend(b);
+            }
+        }
+        let band_grids: Vec<Grid> = match rules {
+            Some(r) => boxes
                 .iter()
                 .flat_map(|&(x0, x1, y0, y1)| find_grids_inside(r, x0, x1, y0, y1))
                 .filter(|g| g.cells.len() >= 2)
                 .collect(),
-            _ => Vec::new(),
+            None => Vec::new(),
         };
+        // 帯の内側で表が見つかった帯では、ページ全体の枠からの候補は使わない（同じ表の二重取り）。
         let in_boxes = |g: &Grid| {
-            self.band_boxes.is_some_and(|b| b.iter().any(|&(x0, x1, y0, y1)| x0 - 1.0 <= g.left() && g.right() <= x1 + 1.0 && y0 - 1.0 <= g.top() && g.bottom() <= y1 + 1.0))
+            band_grids.iter().any(|b| b.left() - 6.0 <= g.left() && g.right() <= b.right() + 6.0 && b.top() - 6.0 <= g.top() && g.bottom() <= b.bottom() + 6.0)
+                || self.band_boxes.is_some_and(|b| b.iter().any(|&(x0, x1, y0, y1)| x0 - 1.0 <= g.left() && g.right() <= x1 + 1.0 && y0 - 1.0 <= g.top() && g.bottom() <= y1 + 1.0))
         };
         let inner: Vec<&Grid> = grids
             .iter()
@@ -635,10 +826,18 @@ fn grid_table(g: &Grid, cols: Vec<Col>) -> Table {
     })
 }
 
-/// 表の端の、字の無いセルだけの行・列を落とす（二重線の枠の間の細い欄など）。
+/// 表の端の、字の無い細い（20pt 未満）行・列を落とす（二重線の枠の間の欄など）。空でも
+/// 幅のある欄は実在する欄なので残す（ページをまたいだ表の列数を揃えるため）。
 fn trim_empty_edges(mut t: Table) -> Table {
-    let empty_row = |t: &Table, r: usize| t.cells.iter().filter(|c| c.row <= r && r < c.row + c.rowspan).all(|c| c.text.is_empty());
-    let empty_col = |t: &Table, k: usize| t.cells.iter().filter(|c| c.col <= k && k < c.col + c.colspan).all(|c| c.text.is_empty());
+    const THIN: f32 = 20.0;
+    let empty_row = |t: &Table, r: usize| {
+        let cs: Vec<&TableCell> = t.cells.iter().filter(|c| c.row <= r && r < c.row + c.rowspan).collect();
+        cs.iter().all(|c| c.text.is_empty()) && cs.iter().all(|c| c.rowspan > 1 || c.x1 - c.x0 < THIN)
+    };
+    let empty_col = |t: &Table, k: usize| {
+        let cs: Vec<&TableCell> = t.cells.iter().filter(|c| c.col <= k && k < c.col + c.colspan).collect();
+        cs.iter().all(|c| c.text.is_empty()) && cs.iter().all(|c| c.colspan > 1 || c.y1 - c.y0 < THIN)
+    };
     let drop_row = |t: &mut Table, r: usize| {
         t.cells.retain(|c| !(c.row == r && c.rowspan == 1));
         for c in &mut t.cells {

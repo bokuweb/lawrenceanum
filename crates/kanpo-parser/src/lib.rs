@@ -139,6 +139,67 @@ pub fn analyze_item(pages: &[PageInput]) -> Analysis {
     analyze_with_rules(&xhtml, &rules)
 }
 
+/// 目次の標題（例: 「○○規則の一部を改正する省令（総務七七）」）に最も合う記事の添字を返す。
+///
+/// 本文ヘッダには対象法令名のあとに法令番号「（…）」が挿入されるため、標題そのものの
+/// 完全一致では拾えない。対象法令名（「の一部を」「を廃止」より前）を鍵に、まず完全一致、
+/// 次に前方一致を縮めながら探し、制定文らしい（「次のように」「改める」等を含む）長い記事を採る。
+pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> {
+    // ダッシュ類は標題（―）と本文（－）で字が違うことがあるので揃えて比べる。
+    let unify = |s: &str| -> String {
+        s.chars().map(|c| if matches!(c, '―' | '—' | '‐' | '‑' | '–' | '-') { '－' } else { c }).collect()
+    };
+    let core = unify(&title_core(title));
+    if core.chars().count() < 4 {
+        return None;
+    }
+    // 前置き（「…の規定に基づき、」「…の規定により、」）の付いた標題は、その後ろでも照合する。
+    let mut cores = vec![core.clone()];
+    for marker in ["規定に基づき、", "規定により、"] {
+        if let Some(p) = core.rfind(marker) {
+            let rest = core[p + marker.len()..].to_string();
+            if rest.chars().count() >= 6 {
+                cores.push(rest);
+            }
+        }
+    }
+    let mut keys: Vec<String> = Vec::new();
+    for c in &cores {
+        keys.push(c.clone());
+        let chars: Vec<char> = c.chars().collect();
+        let mut len = chars.len().saturating_sub(2);
+        while len >= 6 {
+            keys.push(chars[..len].iter().collect());
+            len = len.saturating_sub(4);
+        }
+    }
+    let body_score = |s: &str| -> usize {
+        let markers = ["の規定に基づき", "次のように", "に改める", "を加える", "定める"];
+        markers.iter().filter(|m| s.contains(*m)).count() * 1000 + s.chars().count()
+    };
+    let texts: Vec<String> = articles.iter().map(|a| unify(&a.text)).collect();
+    articles
+        .iter()
+        .enumerate()
+        .filter(|(i, _)| keys.iter().any(|k| texts[*i].contains(k.as_str())))
+        .max_by_key(|(_, a)| body_score(&a.text))
+        .map(|(i, _)| i)
+}
+
+/// 標題から突合の鍵となる「対象法令名」を取り出す（末尾の制定機関略号と「の一部を…」を除く）。
+pub fn title_core(title: &str) -> String {
+    let mut t = title;
+    if let Some(p) = t.rfind('（') {
+        t = &t[..p];
+    }
+    for marker in ["の一部を", "を廃止"] {
+        if let Some(p) = t.find(marker) {
+            return t[..p].trim().to_string();
+        }
+    }
+    t.trim().to_string()
+}
+
 /// 1 ページずつの XHTML の `<page>` 要素を 1 つの文書にまとめる。
 fn combine_pages<'a>(xhtmls: impl Iterator<Item = &'a str>) -> String {
     let mut out = String::from("<html><body><doc>");
@@ -157,6 +218,8 @@ fn combine_pages<'a>(xhtmls: impl Iterator<Item = &'a str>) -> String {
 /// 構造化用テキストの表の目印を、表を書き下したテキストに戻す。
 fn render_table_markers(text: &str, tables: &[trace::Table]) -> String {
     text.lines()
+        // 新旧対照表の終わりの目印は構造化用なので落とす。
+        .filter(|l| l.trim() != trace::SHINKYU_END)
         .map(|l| match trace::parse_table_marker(l).and_then(|i| tables.get(i)) {
             Some(t) => t.render(),
             None => l.to_string(),

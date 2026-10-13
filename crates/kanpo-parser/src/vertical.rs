@@ -5,7 +5,8 @@ use scraper::{Html, Selector};
 use crate::horizontal::{horizontal_lines, is_left_strip_header, LEFT_STRIP};
 use crate::normalize::{is_margin_noise, is_private_use, normalize_char, private_cid_glyph, CidGlyph};
 use crate::shinkyu::{
-    detect_shinkyu_bands_headerless, detect_shinkyu_header, reconstruct_shinkyu, split_side_by_side_tables, ShinkyuLayout,
+    band_pair_unit, detect_shinkyu_bands_headerless, detect_shinkyu_header, reconstruct_shinkyu, split_side_by_side_tables,
+    tiers_look_like_bands, ShinkyuLayout,
 };
 use crate::grid::{find_grids, Grid};
 use crate::lines::PageRules;
@@ -112,7 +113,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             .flatten();
         if let Some(divider) = headerless {
             layout = "headerless_shinkyu";
-            units.push(reconstruct_shinkyu(cols, f32::MAX, divider, &grids));
+            units.push(reconstruct_shinkyu(cols, f32::MAX, divider, &grids, page_rules));
         } else {
             // 通常ページ: まず段組み(tier)に分ける。官報本紙は2段組が多く、段を分けないと
             // 「同 x にある上段の列と下段の列」が1列に連結され混線する。新旧対照表の見出しが
@@ -132,9 +133,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                     Some((header_x, divider)) => {
                         let mut layout = ShinkyuLayout::split(tier, header_x, divider);
                         layout.clip_to_frame(&grids, header_x, divider);
-                        if let Some(tail) = layout.split_off_leading_continuation(divider) {
-                            units.push(tail);
-                        }
+                        units.extend(layout.split_off_leading_continuation(divider, &grids, page_rules));
                         while i + 1 < tiers.len()
                             && detect_shinkyu_header(&tiers[i]).is_none()
                             && detect_shinkyu_header(&tiers[i + 1]).is_none()
@@ -150,7 +149,16 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         }
                         layout.into_unit(&grids, page_rules)
                     }
-                    None => Unit::Plain(page_lines(tier)),
+                    // 見出しの無い 2 段が改正後/改正前の組なら（4 段に組んだ継続ページ）表として組む。
+                    None if i < tiers.len()
+                        && detect_shinkyu_header(&tiers[i]).is_none()
+                        && tiers_look_like_bands(&tier, &tiers[i]) =>
+                    {
+                        let next = std::mem::take(&mut tiers[i]);
+                        i += 1;
+                        band_pair_unit(tier, next, &grids, page_rules)
+                    }
+                    None => Unit::Plain(drop_stray_labels(page_lines(tier))),
                 };
                 units.push(unit);
             }
@@ -185,6 +193,18 @@ fn doc_text_of(units: &[Unit], count: &mut usize) -> (String, Vec<crate::trace::
     let parts: Vec<String> = units.iter().map(|u| u.doc_text(&mut tables, start)).collect();
     *count = start + tables.len();
     (parts.into_iter().filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n"), tables)
+}
+
+/// 新旧対照表と判定できなかった段に残った欄見出しの字だけの行（「改正後」「改」「正前」など）を
+/// 捨てる。帯の中身が画像の様式などで文字が無いと、欄見出しだけが段に分かれて残り、後続の表の
+/// セルに紛れ込む。
+fn drop_stray_labels(mut lines: Vec<Line>) -> Vec<Line> {
+    lines.retain(|l| {
+        let t: String = l.text.chars().filter(|c| !c.is_whitespace()).collect();
+        let label = !t.is_empty() && t.chars().count() <= 3 && t.chars().all(|c| "改正後前".contains(c)) && (t.contains('改') || t.contains('正'));
+        !label
+    });
+    lines
 }
 
 /// 行に組まれなかった語に、捨てた理由（欄見出しのラベルか柱の行）を付ける。

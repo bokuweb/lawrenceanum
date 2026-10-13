@@ -37,7 +37,7 @@ pub fn segment_articles(text: &str) -> Vec<String> {
 ///   最低賃金公示などがこの見出しの下に並ぶ。
 fn is_article_boundary(line: &str) -> bool {
     let t = line.trim();
-    t.starts_with('〇')
+    is_heading_mark(t)
         || t.contains("をここに公布する")
         || {
             // 区分見出しは字間を空けて組まれる（「法　規　的　告　示」）。
@@ -57,6 +57,16 @@ fn is_notice_title(line: &str, prev: Option<&str>) -> bool {
         && t.chars().count() <= 40
         && !t.contains(['。', '、'])
         && prev.is_some_and(|p| p.trim_end().ends_with('。'))
+}
+
+/// 行が記事の `〇` 見出し（「〇総務省令第七十七号」）で始まるか。漢数字の零（「〇・五ミリ
+/// リットル」「〇　五〇」）や単独の印の「〇」は見出しではない。
+pub(crate) fn is_heading_mark(t: &str) -> bool {
+    let mut chars = t.chars();
+    chars.next() == Some('〇')
+        && chars
+            .next()
+            .is_some_and(|c| !c.is_whitespace() && !c.is_ascii_digit() && !"・．.，、〇一二三四五六七八九十百千０１２３４５６７８９".contains(c))
 }
 
 /// 官報本文に現れる区分（記事カテゴリ）見出し。これらが独立行で現れたら別記事の開始とみなす。
@@ -90,6 +100,15 @@ mod tests {
         assert_eq!(arts.len(), 2);
         assert!(arts[0].contains("電波法"));
         assert!(arts[1].contains("規格を廃止"));
+    }
+
+    #[test]
+    fn zero_numeral_is_not_heading() {
+        // 「〇・五ミリリットル」の漢数字の零で始まる行で記事を切らない。
+        let text = "〇厚生労働省令第百号\n接種量は、\n〇・五ミリリットルとする方法\n〇　五〇　鳥取県";
+        assert_eq!(segment_articles(text).len(), 1);
+        assert!(is_heading_mark("〇財務省、厚生労働省、令第七号"));
+        assert!(!is_heading_mark("〇"));
     }
 
     #[test]
