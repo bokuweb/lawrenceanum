@@ -82,10 +82,9 @@ fn fill_amend_texts(
             tracing::warn!("create pdf dir {} failed: {e}", dir.display());
         }
     }
-    // page PDF URL -> 抽出済みページ本文（空文字は取得/抽出失敗のメモ化）。
-    let mut page_text: std::collections::HashMap<String, String> = Default::default();
-    // page PDF URL -> 生バイト。別表(罫線表)の復元に PDF 座標が要るため保持する。
-    let mut page_pdf: std::collections::HashMap<String, Vec<u8>> = Default::default();
+    // page PDF URL -> 解析の入力（座標付きテキストと罫線）。None は取得/抽出失敗のメモ化。
+    // 同一ページ(=同一 PDF)を複数項目が共有するためページ単位でキャッシュする。
+    let mut page_input: std::collections::HashMap<String, Option<pdf::PageInput>> = Default::default();
 
     for issue in &mut kd.issues {
         // 号内の全項目の開始ページ（昇順・重複排除）。終端ページ算定に使う。
@@ -113,8 +112,7 @@ fn fill_amend_texts(
                 .max(item.page)
                 .min(item.page + MAX_SPAN - 1);
 
-            let mut parts: Vec<String> = Vec::new();
-            let mut item_urls: Vec<String> = Vec::new();
+            let mut pages: Vec<pdf::PageInput> = Vec::new();
             for n in item.page..=end {
                 let url = if n == item.page {
                     item.pdf_url.clone()
@@ -124,11 +122,8 @@ fn fill_amend_texts(
                         None => continue,
                     }
                 };
-                item_urls.push(url.clone());
-                if let Some(t) = page_text.get(&url) {
-                    if !t.is_empty() {
-                        parts.push(t.clone());
-                    }
+                if let Some(cached) = page_input.get(&url) {
+                    pages.extend(cached.clone());
                     continue;
                 }
                 if stats.downloaded >= limit {
@@ -138,7 +133,7 @@ fn fill_amend_texts(
                     Ok(b) => b,
                     Err(e) => {
                         tracing::warn!("download failed {url}: {e}");
-                        page_text.insert(url, String::new());
+                        page_input.insert(url, None);
                         continue;
                     }
                 };
@@ -149,41 +144,44 @@ fn fill_amend_texts(
                         let _ = std::fs::write(dir.join(name), &pdf_bytes);
                     }
                 }
-                let text = match pdf::extract(&pdf_bytes) {
-                    Ok(ex) => ex.text,
+                let input = match pdf::bbox_xhtml(&pdf_bytes) {
+                    Ok(xhtml) => Some(pdf::PageInput {
+                        xhtml,
+                        // 罫線は表（新旧対照表の中の別表など）の復元に使う。取れなくても本文は組める。
+                        rules: pdf::page_rules(&pdf_bytes).ok(),
+                    }),
                     Err(e) => {
                         tracing::warn!("extract failed {url}: {e}");
-                        String::new()
+                        None
                     }
                 };
-                page_pdf.insert(url.clone(), pdf_bytes);
-                page_text.insert(url, text.clone());
-                if !text.is_empty() {
-                    parts.push(text);
-                }
+                pages.extend(input.clone());
+                page_input.insert(url, input);
             }
-
-            let full = parts.join("\n");
-            if full.is_empty() {
+            if pages.is_empty() {
                 continue;
             }
-            let segments = pdf::segment_articles(&full);
-            let body = best_segment(&item.title, &segments)
-                .map(|s| s.to_string())
-                .unwrap_or_else(|| segments.join("\n\n"));
+
+            // 項目のページをまとめて解析する（ページで切れた新旧対照表は 1 つの表につなぎ、
+            // 罫線の表は本文の流れの中の表として構造化する）。記事ごとに分け、標題に合う記事を採る。
+            let analysis = pdf::analyze_item(&pages);
+            if analysis.text.is_empty() {
+                continue;
+            }
+            let segments: Vec<String> = analysis.articles.iter().map(|a| a.text.clone()).collect();
+            let picked = best_segment(&item.title, &segments).and_then(|b| segments.iter().position(|s| s == b));
+            let (body, doc) = match picked {
+                Some(i) => (segments[i].clone(), analysis.articles[i].document.clone()),
+                None => {
+                    let body = segments.join("\n\n");
+                    let doc = pdf::Document::from_text(&body);
+                    (body, doc)
+                }
+            };
             let format = pdf::detect_format_of(&body)
-                .or_else(|| pdf::detect_format_of(&full))
+                .or_else(|| pdf::detect_format_of(&analysis.text))
                 .unwrap_or_else(|| "unknown".to_string());
             *stats.by_format.entry(format.clone()).or_default() += 1;
-
-            // 構造化 Document を作り、別表(罫線表)を各ページ PDF から復元して attach する。
-            // 別表は取得時(座標がある今)しか復元できないため、ここで amend_document に保存する。
-            let mut doc = pdf::Document::from_text(&body);
-            for url in &item_urls {
-                if let Some(bytes) = page_pdf.get(url) {
-                    pdf::attach_tables(&mut doc, bytes);
-                }
-            }
             item.amend_document = serde_json::to_value(&doc).ok();
             item.amend_format = Some(format);
             item.amend_text = Some(body);

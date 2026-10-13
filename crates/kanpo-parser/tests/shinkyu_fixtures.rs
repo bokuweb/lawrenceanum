@@ -200,3 +200,34 @@ fn kaiyo_table_continues_into_lower_tiers_on_same_page() {
         assert!(row.after[0].text.starts_with(go) && row.before[0].text.starts_with(go), "{row:?}");
     }
 }
+
+#[test]
+fn analysis_traces_every_word_and_matches_text() {
+    // 可視化用の解析結果は本文と一致し、使われた語はちょうど 1 つの行に属する。
+    for xhtml in [
+        include_str!("fixtures/kaiyo_busshitsu_p2.bbox.html"),
+        include_str!("fixtures/gyogyo_p2.bbox.html"),
+        include_str!("fixtures/koyou_cont_p66.bbox.html"),
+    ] {
+        let a = kanpo_parser::analyze(xhtml);
+        assert_eq!(a.text, reconstruct_vertical(xhtml));
+        for page in &a.pages {
+            let mut seen = std::collections::HashSet::new();
+            for line in page.regions.iter().flat_map(|r| &r.lines) {
+                let in_table = line.table.iter().flat_map(|t| t.cells.iter().flat_map(|c| c.words.iter()));
+                for id in line.words.iter().chain(in_table) {
+                    assert!(seen.insert(*id), "語 {id} が複数の行に属する");
+                    assert_eq!(page.words[*id].status, kanpo_parser::trace::WordStatus::Used);
+                }
+            }
+            let used = page.words.iter().filter(|w| w.status == kanpo_parser::trace::WordStatus::Used).count();
+            assert_eq!(used, seen.len());
+        }
+    }
+    // 新旧対照表の欄見出しのラベルと、上余白の柱は捨てた語として残る。
+    let a = kanpo_parser::analyze(include_str!("fixtures/kaiyo_busshitsu_p2.bbox.html"));
+    let status = |s| a.pages[0].words.iter().filter(|w| w.status == s).count();
+    assert_eq!(status(kanpo_parser::trace::WordStatus::HeaderLabel), 6);
+    assert!(status(kanpo_parser::trace::WordStatus::Margin) > 0);
+    assert!(a.articles.iter().any(|art| art.text.starts_with("〇農林水産省告示")));
+}

@@ -195,13 +195,23 @@ export type TimelineEventRaw = {
 }
 
 /** 改め文の構造化表現（kanpo-parser crate の Document に対応）。 */
-export type AmendRun = { text: string; underline?: boolean }
-/** 別表（罫線で区切られた表）。rows[r][c] がセルの Run 列。 */
-export type AmendNestedTable = { rows: AmendRun[][][] }
+export type AmendRun = {
+  text: string
+  underline?: boolean
+  /** 本文の流れの中に置かれた表（あれば text は空）。段落や改正後/改正前セルの中の別表など。 */
+  table?: AmendNestedTable
+}
+/** 結合セル（row・col の位置から rowspan × colspan マス）。 */
+export type AmendCellMerge = { row: number; col: number; rowspan: number; colspan: number }
+/**
+ * 別表（罫線で区切られた表）。rows[r][c] がセルの Run 列。結合セルは merges に左上のマスと
+ * 広がりを持ち、結合で覆われる残りのマスは空配列（描画しない）。
+ */
+export type AmendNestedTable = { rows: AmendRun[][][]; merges?: AmendCellMerge[] }
 export type AmendShinkyuRow = {
   after: AmendRun[]
   before: AmendRun[]
-  /** 別表の改正後/改正前 2D 表（あれば）。 */
+  /** 別表の改正後/改正前 2D 表（あれば）。旧形式のデータ用（新しいデータは Run の table）。 */
   after_table?: AmendNestedTable
   before_table?: AmendNestedTable
 }

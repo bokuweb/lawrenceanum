@@ -11,6 +11,7 @@
 use serde::Serialize;
 
 use crate::format::detect_format;
+use crate::trace::{parse_table_marker, Table, SHINKYU_END};
 
 /// 改め文 1 件の構造化表現。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -46,10 +47,24 @@ pub struct ShinkyuRow {
     pub before_table: Option<NestedTable>,
 }
 
-/// 別表（罫線グリッド）を復元した 2D 表。`rows[r][c]` がセルの Run 列。
+/// 罫線の表を復元した 2D 表。`rows[r][c]` がセルの Run 列。
+///
+/// 結合セルは `merges` に左上のマスと広がりを持ち、結合で覆われる残りのマスは空になる。
+/// 縦組みの表は「縦の列＝行」に転置している（右の列が 1 行目）。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct NestedTable {
     pub rows: Vec<Vec<Vec<Run>>>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub merges: Vec<CellMerge>,
+}
+
+/// 結合セル（`row`・`col` の位置から `rowspan` × `colspan` マス）。
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub struct CellMerge {
+    pub row: usize,
+    pub col: usize,
+    pub rowspan: usize,
+    pub colspan: usize,
 }
 
 /// 同一スタイルが続くテキスト片。
@@ -59,6 +74,9 @@ pub struct Run {
     /// 傍線（下線）が付いているか。現状は常に false（将来の傍線抽出用の予約フィールド）。
     #[serde(default, skip_serializing_if = "is_false")]
     pub underline: bool,
+    /// 本文の流れの中に置かれた表（あれば `text` は空）。新旧対照表のセルの中の別表など。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub table: Option<NestedTable>,
 }
 
 fn is_false(b: &bool) -> bool {
@@ -71,6 +89,7 @@ impl Run {
         Run {
             text: text.into(),
             underline: false,
+            table: None,
         }
     }
 }
@@ -98,7 +117,9 @@ fn join_wrapped_lines(lines: &[&str]) -> String {
         out.push_str(line);
         if idx + 1 < lines.len() {
             let ends_sentence = line.ends_with('。') || line.ends_with('！') || line.ends_with('？');
-            if ends_sentence || starts_structural_marker(lines[idx + 1]) {
+            // 表の目印の行は前後とも改行で区切る（表を本文に連結しない）。
+            let around_table = parse_table_marker(line).is_some() || parse_table_marker(lines[idx + 1]).is_some();
+            if ends_sentence || around_table || starts_structural_marker(lines[idx + 1]) {
                 out.push('\n');
             }
         }
@@ -110,7 +131,7 @@ fn join_wrapped_lines(lines: &[&str]) -> String {
 fn starts_structural_marker(line: &str) -> bool {
     let mut chars = line.chars();
     match chars.next() {
-        Some('第') | Some('（') | Some('別') | Some('附') => true,
+        Some('第') | Some('（') | Some('(') | Some('別') | Some('附') => true,
         // 号: 漢数字・カタカナ列記・全角/半角数字で始まる。
         Some(c) if "一二三四五六七八九十".contains(c) => true,
         Some(c) if "イロハニホヘトチリヌルヲワカヨタレソツネ".contains(c) => true,
@@ -147,10 +168,10 @@ impl Document {
                     j += 1;
                 }
                 let after_lines = &lines[after_start..j];
-                // 改正前セル: 次の「改正後」まで（次段の開始）。
+                // 改正前セル: 次の「改正後」（次段の開始）か、表の終わりの目印まで。
                 let before_start = (j + 1).min(lines.len());
                 let mut k = before_start;
-                while k < lines.len() && lines[k].trim() != "改正後" {
+                while k < lines.len() && lines[k].trim() != "改正後" && lines[k].trim() != SHINKYU_END {
                     k += 1;
                 }
                 let before_lines = &lines[before_start..k];
@@ -178,14 +199,40 @@ impl Document {
                 for runs in furisoku {
                     blocks.push(Block::Paragraph { runs });
                 }
-                i = k;
+                i = if lines.get(k).is_some_and(|l| l.trim() == SHINKYU_END) { k + 1 } else { k };
+            } else if lines[i].trim() == SHINKYU_END {
+                // 表の終わりの目印は本文に入れない（表の後ろに本文があればそれが段落になり、
+                // 続く表とはつながらない。ページの切れ目のように間に本文が無ければつながる）。
+                i += 1;
             } else {
                 para.push(lines[i]);
                 i += 1;
             }
         }
         flush_para(&mut para, &mut blocks);
-        Document { format, blocks }
+        Document {
+            format,
+            blocks: merge_continued_tables(blocks),
+        }
+    }
+
+    /// [`Document::from_text`] と同じだが、テキスト中の表の目印（[`crate::trace::table_marker`]）を
+    /// `tables` の表に置き換え、本文の流れの中の表（`Run::table`）にする。
+    pub(crate) fn from_text_with_tables(text: &str, tables: &[Table]) -> Document {
+        let mut doc = Document::from_text(text);
+        let splice = |runs: &mut Vec<Run>| *runs = splice_tables(std::mem::take(runs), tables);
+        for block in &mut doc.blocks {
+            match block {
+                Block::Paragraph { runs } => splice(runs),
+                Block::Shinkyu { rows } => {
+                    for r in rows {
+                        splice(&mut r.after);
+                        splice(&mut r.before);
+                    }
+                }
+            }
+        }
+        doc
     }
 
     /// 構造化表現を `reconstruct_vertical` 互換のフラットテキストへ戻す。
@@ -223,6 +270,93 @@ impl Document {
         }
         out.join("\n").trim().to_string()
     }
+}
+
+/// 続けて現れる新旧対照表のブロック（ページ・段の切れ目で分かれたもの）を 1 つにつなぐ。
+///
+/// 後ろのブロックの先頭の行が条の見出し（`（見出し）`・`別表`・`附則`）で始まらなければ、
+/// 前のブロックの最後の行（ページの切れ目で途中まで載った条）の続きとしてつなぐ。
+fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
+    let mut out: Vec<Block> = Vec::new();
+    for block in blocks {
+        let (Some(Block::Shinkyu { rows: prev }), Block::Shinkyu { rows }) = (out.last_mut(), &block) else {
+            out.push(block);
+            continue;
+        };
+        let mut rows = rows.clone();
+        let continues = |runs: &[Run]| {
+            runs.first()
+                .and_then(|r| r.text.lines().next())
+                .is_some_and(|l| is_row_heading(l).is_none())
+        };
+        if let (Some(last), Some(first)) = (prev.last_mut(), rows.first()) {
+            let cont = (first.after.is_empty() || continues(&first.after)) && (first.before.is_empty() || continues(&first.before));
+            if cont && (!first.after.is_empty() || !first.before.is_empty()) {
+                let first = rows.remove(0);
+                append_runs(&mut last.after, first.after);
+                append_runs(&mut last.before, first.before);
+            }
+        }
+        prev.extend(rows);
+    }
+    out
+}
+
+/// セルの Run 列に続きをつなぐ。前の文が文末（。）で終わっていなければ改行せずに連結する
+/// （ページの切れ目は列の折り返しと同じ）。
+fn append_runs(dst: &mut Vec<Run>, src: Vec<Run>) {
+    let mut src = src.into_iter();
+    if let (Some(last), Some(first)) = (dst.last_mut(), src.as_slice().first()) {
+        if last.table.is_none() && first.table.is_none() {
+            let next_line = first.text.lines().next().unwrap_or("");
+            let table_edge = last.text.ends_with('\u{E001}') || next_line.starts_with('\u{E000}');
+            let sep = if last.text.ends_with('。') || table_edge || starts_structural_marker(next_line) { "\n" } else { "" };
+            last.text = format!("{}{sep}{}", last.text, first.text);
+            src.next();
+        }
+    }
+    dst.extend(src);
+}
+
+/// Run の中の表の目印の行を表の Run に置き換える（前後の本文は別の Run に分ける）。
+fn splice_tables(runs: Vec<Run>, tables: &[Table]) -> Vec<Run> {
+    let mut out: Vec<Run> = Vec::new();
+    for run in runs {
+        if run.table.is_some() || !run.text.contains('\u{E000}') {
+            out.push(run);
+            continue;
+        }
+        let mut buf: Vec<&str> = Vec::new();
+        let flush = |buf: &mut Vec<&str>, out: &mut Vec<Run>| {
+            let t = buf.concat().trim().to_string();
+            if !t.is_empty() {
+                out.push(Run::plain(t));
+            }
+            buf.clear();
+        };
+        // 目印は通常は独立した行だが、行の途中にあっても表に置き換える。
+        let mut rest = run.text.as_str();
+        while let Some(start) = rest.find('\u{E000}') {
+            let Some(len) = rest[start..].find('\u{E001}') else { break };
+            let end = start + len + '\u{E001}'.len_utf8();
+            buf.push(&rest[..start]);
+            match parse_table_marker(&rest[start..end]).and_then(|i| tables.get(i)) {
+                Some(t) => {
+                    flush(&mut buf, &mut out);
+                    out.push(Run {
+                        text: String::new(),
+                        underline: false,
+                        table: Some(t.to_nested()),
+                    });
+                }
+                None => {}
+            }
+            rest = &rest[end..];
+        }
+        buf.push(rest);
+        flush(&mut buf, &mut out);
+    }
+    out
 }
 
 /// 新旧対照表 1 段を条（別表）ごとの行に分け、改正後/改正前を対応させる。
@@ -478,25 +612,34 @@ mod tests {
     }
 
     #[test]
+    fn merges_table_continued_on_next_page() {
+        // 1 ページ目の最後の条（第三条）が 2 ページ目へ続き、2 ページ目で次の条が始まる。
+        let text = "改正後\n（甲の規定）\n第一条　甲\n（乙の規定）\n第三条　乙の前半\n改正前\n（甲の規定）\n第一条　旧甲\n（乙の規定）\n第三条　旧乙の前半\n\
+                    改正後\nの後半。\n（丙の規定）\n第四条　丙\n（丁の規定）\n第五条　丁\n改正前\nの後半。\n（丙の規定）\n第四条　旧丙\n（丁の規定）\n第五条　旧丁";
+        let doc = Document::from_text(text);
+        assert_eq!(doc.blocks.len(), 1, "{:?}", doc.blocks);
+        let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
+        assert_eq!(rows.len(), 4, "{rows:?}");
+        assert!(rows[1].after[0].text.contains("乙の前半の後半。"), "{rows:?}");
+        assert!(rows[1].before[0].text.contains("旧乙の前半の後半。"), "{rows:?}");
+        assert!(rows[2].after[0].text.contains("第四条"));
+    }
+
+    #[test]
     fn handles_multiple_shinkyu_segments() {
-        // 多ページ表: 改正後/改正前 が複数段。
+        // 多ページ表: 改正後/改正前 が複数段。2 段目の先頭が条の見出しで始まらなければ、
+        // 1 段目の最後の行の続きとしてつなぐ（ページの切れ目は列の折り返しと同じ）。
         let text = "改正後\nA1\n改正前\nB1\n改正後\nA2\n改正前\nB2";
         let doc = Document::from_text(text);
-        let shinkyu: Vec<_> = doc
-            .blocks
-            .iter()
-            .filter(|b| matches!(b, Block::Shinkyu { .. }))
-            .collect();
-        assert_eq!(shinkyu.len(), 2);
         assert_eq!(
-            doc.blocks[1],
-            Block::Shinkyu {
+            doc.blocks,
+            vec![Block::Shinkyu {
                 rows: vec![ShinkyuRow {
-                    after: vec![Run::plain("A2")],
-                    before: vec![Run::plain("B2")],
+                    after: vec![Run::plain("A1A2")],
+                    before: vec![Run::plain("B1B2")],
                     ..Default::default()
                 }]
-            }
+            }]
         );
     }
 

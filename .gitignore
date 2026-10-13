@@ -27,3 +27,5 @@ figma/tests/.serve
 # LLM wiki: 本体は orphan ブランチ `wiki` (CI では worktree として wiki/ に展開)。作業領域も追跡しない。
 /wiki
 /.wiki-work
+# kanpo-parser の WASM（figma/scripts/build-kanpo-wasm.sh が生成）
+figma/src/wasm
