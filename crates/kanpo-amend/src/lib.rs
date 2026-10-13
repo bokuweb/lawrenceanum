@@ -107,7 +107,7 @@ fn attach_bessho_tables(doc: &mut Document, rules: &lines::PageRules, xhtml: &st
     for block in &mut doc.blocks {
         let model::Block::Shinkyu { rows } = block else { continue };
         for row in rows.iter_mut() {
-            let is_bessho = |runs: &[Run]| runs.first().map(|r| r.text.trim_start().starts_with("別表")).unwrap_or(false);
+            let is_bessho = |runs: &[Run]| runs.first().map(|r| model::starts_with_spaced(&r.text, "別表")).unwrap_or(false);
             // 既に別表が付いている行（前のページで充填済み）は飛ばす。
             if is_bessho(&row.after) && row.after_table.is_none() && ai < after_tables.len() {
                 row.after_table = Some(to_nested(&after_tables[ai]));

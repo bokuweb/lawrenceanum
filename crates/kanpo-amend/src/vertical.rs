@@ -2,13 +2,14 @@
 
 use scraper::{Html, Selector};
 
-use crate::normalize::{is_margin_noise, is_private_use, normalize_char};
-use crate::shinkyu::{detect_shinkyu_bands_headerless, detect_shinkyu_header, reconstruct_shinkyu};
+use crate::normalize::{fix_private_cid_glyphs, is_margin_noise, is_private_use, normalize_char};
+use crate::shinkyu::{detect_shinkyu_bands_headerless, detect_shinkyu_header, reconstruct_shinkyu, ShinkyuLayout};
 
 /// 縦書き1カラム = 1 word とみなした語。`y`/`y1` は上端/下端。
 #[derive(Clone)]
 pub(crate) struct Col {
     pub(crate) x: f32,
+    pub(crate) x1: f32,
     pub(crate) y: f32,
     pub(crate) y1: f32,
     pub(crate) text: String,
@@ -27,7 +28,6 @@ pub(crate) const BOTTOM_MARGIN: f32 = 30.0;
 pub fn reconstruct_vertical(xhtml: &str) -> String {
     let doc = Html::parse_document(xhtml);
     let page_sel = Selector::parse("page").unwrap();
-    let word_sel = Selector::parse("word").unwrap();
 
     let mut pages: Vec<String> = Vec::new();
     for page in doc.select(&page_sel) {
@@ -36,35 +36,7 @@ pub fn reconstruct_vertical(xhtml: &str) -> String {
             .attr("height")
             .and_then(|s| s.parse::<f32>().ok())
             .unwrap_or(842.0);
-        let mut cols: Vec<Col> = Vec::new();
-        for w in page.select(&word_sel) {
-            let v = w.value();
-            // scraper は HTML パーサのため属性名を小文字化する（xMin -> xmin）。
-            let x = v.attr("xmin").and_then(|s| s.parse::<f32>().ok());
-            let y = v.attr("ymin").and_then(|s| s.parse::<f32>().ok());
-            let y1 = v.attr("ymax").and_then(|s| s.parse::<f32>().ok());
-            let (x, y, y1) = match (x, y, y1) {
-                (Some(x), Some(y), Some(y1)) => (x, y, y1),
-                _ => continue,
-            };
-            // 上下余白帯の柱（発行日・「官報」等の running header）を除外。
-            if y < TOP_MARGIN || y > height - BOTTOM_MARGIN {
-                continue;
-            }
-            // scraper が実体参照は復号済み。約物を正規化し、私用領域(傍線等の
-            // フォント固有グリフ)を除去する。
-            let text: String = w
-                .text()
-                .collect::<String>()
-                .chars()
-                .filter(|c| !is_private_use(*c))
-                .map(normalize_char)
-                .collect();
-            if text.trim().is_empty() {
-                continue;
-            }
-            cols.push(Col { x, y, y1, text });
-        }
+        let cols = page_words(page, height);
         // まず段組み(tier)に分ける。官報本紙は2段組が多く、段を分けないと「同 x にある
         // 上段の列と下段の列」が1列に連結され混線する。表と無関係記事が同居するページも
         // tier で分かれるので、混入を防げる。
@@ -84,9 +56,30 @@ pub fn reconstruct_vertical(xhtml: &str) -> String {
         }
         // 通常ページ: まず段組み(tier)に分け、新旧対照表の見出しがある段は 2 帯へ、
         // 無ければ右→左復元する。表と無関係記事が同居するページも tier で分かれ混入を防げる。
-        for tier in split_tiers(cols) {
+        // 見出しのある段に続く段の組（表がページ下半へ続く形）は、表の続きなら取り込む。
+        let mut tiers = split_tiers(cols);
+        let mut i = 0;
+        while i < tiers.len() {
+            let tier = std::mem::take(&mut tiers[i]);
+            i += 1;
             let page_text = match detect_shinkyu_header(&tier) {
-                Some((header_x, divider)) => reconstruct_shinkyu(tier, header_x, divider),
+                Some((header_x, divider)) => {
+                    let mut layout = ShinkyuLayout::split(tier, header_x, divider);
+                    while i + 1 < tiers.len()
+                        && detect_shinkyu_header(&tiers[i]).is_none()
+                        && detect_shinkyu_header(&tiers[i + 1]).is_none()
+                    {
+                        let (head, tail) = tiers.split_at_mut(i + 1);
+                        let Some(more) = layout.absorb_continuation(&mut head[i], &mut tail[0]) else {
+                            break;
+                        };
+                        i += 2;
+                        if !more {
+                            break;
+                        }
+                    }
+                    layout.render()
+                }
                 None => reconstruct_page(tier),
             };
             if !page_text.is_empty() {
@@ -102,7 +95,6 @@ pub fn reconstruct_vertical(xhtml: &str) -> String {
 pub(crate) fn parse_page_cols(xhtml: &str) -> Vec<(f32, Vec<Col>)> {
     let doc = Html::parse_document(xhtml);
     let page_sel = Selector::parse("page").unwrap();
-    let word_sel = Selector::parse("word").unwrap();
     let mut out = Vec::new();
     for page in doc.select(&page_sel) {
         let height = page
@@ -110,34 +102,44 @@ pub(crate) fn parse_page_cols(xhtml: &str) -> Vec<(f32, Vec<Col>)> {
             .attr("height")
             .and_then(|s| s.parse::<f32>().ok())
             .unwrap_or(842.0);
-        let mut cols: Vec<Col> = Vec::new();
-        for w in page.select(&word_sel) {
-            let v = w.value();
-            let x = v.attr("xmin").and_then(|s| s.parse::<f32>().ok());
-            let y = v.attr("ymin").and_then(|s| s.parse::<f32>().ok());
-            let y1 = v.attr("ymax").and_then(|s| s.parse::<f32>().ok());
-            let (x, y, y1) = match (x, y, y1) {
-                (Some(x), Some(y), Some(y1)) => (x, y, y1),
-                _ => continue,
-            };
-            if y < TOP_MARGIN || y > height - BOTTOM_MARGIN {
-                continue;
-            }
-            let text: String = w
-                .text()
-                .collect::<String>()
-                .chars()
-                .filter(|c| !is_private_use(*c))
-                .map(normalize_char)
-                .collect();
-            if text.trim().is_empty() {
-                continue;
-            }
-            cols.push(Col { x, y, y1, text });
-        }
+        let cols = page_words(page, height);
         out.push((height, cols));
     }
     out
+}
+
+/// 1 ページの `<word>` を縦書きカラム語として読み出す。
+///
+/// 余白帯の柱（発行日・「官報」等の running header）は **語全体が余白に収まるもの**だけ
+/// 落とす。縦書き語の bbox は実際の字面より約 1em 上にずれて出るため、段の先頭列
+/// （例: 「〇総務省令第五十八号」）は上端 y が余白帯にかかる。上端だけで判定すると
+/// 記事見出しや前文の列がまるごと消える。
+fn page_words(page: scraper::ElementRef, height: f32) -> Vec<Col> {
+    let word_sel = Selector::parse("word").unwrap();
+    let mut cols: Vec<Col> = Vec::new();
+    for w in page.select(&word_sel) {
+        let v = w.value();
+        // scraper は HTML パーサのため属性名を小文字化する（xMin -> xmin）。
+        let num = |k: &str| v.attr(k).and_then(|s| s.parse::<f32>().ok());
+        let (Some(x), Some(x1), Some(y), Some(y1)) = (num("xmin"), num("xmax"), num("ymin"), num("ymax")) else {
+            continue;
+        };
+        if y1 <= TOP_MARGIN || y >= height - BOTTOM_MARGIN {
+            continue;
+        }
+        let raw: String = w.text().collect();
+        // scraper が実体参照は復号済み。私用 CID の括弧付き数字等を復元し、約物を正規化し、
+        // 私用領域(傍線等のフォント固有グリフ)を除去する。
+        let text: String = match fix_private_cid_glyphs(&raw, x1 - x, y1 - y) {
+            Some(fixed) => fixed,
+            None => raw.chars().filter(|c| !is_private_use(*c)).map(normalize_char).collect(),
+        };
+        if text.trim().is_empty() {
+            continue;
+        }
+        cols.push(Col { x, x1, y, y1, text });
+    }
+    cols
 }
 
 /// `Col`（縦書き 1 カラム語）から、別表復元で使う中心 y 付きの語へ。
@@ -215,28 +217,147 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, out: &mut Vec<Vec<Col>>) {
     split_tiers_rec(bottom, depth + 1, out);
 }
 
-/// 1ページ分（または1段分）のカラム語を右→左・上→下に並べて本文に組む。
-pub(crate) fn reconstruct_page(mut cols: Vec<Col>) -> String {
-    if cols.is_empty() {
-        return String::new();
+/// 新旧対照表の帯を組む。[`reconstruct_page`] に加えて表のセルを扱う。
+///
+/// - 同じ列の中で語と語の間が 1em 前後以上空いていれば全角空白を挟む。帯の中では列内の
+///   空きが条見出しと本文の区切り（`第六十二条　かつお…`）やセル境界（物質名｜係数、
+///   `（略）｜（略）`）を表すため、詰めると別のセルの語が連結してしまう。
+/// - 2em 以上の空きで 2 つ以上のセルに分かれる列（表の行頭列）の後に、字下げして始まり
+///   各セルの y 範囲に収まる列が続けば、それは折り返したセルの続きとみなし、該当セルへ
+///   連結する（`（２）Ｎ－アルキル－Ｎ・` ＋ `Ｎ・Ｎ－トリメチル…` → 係数の前に組む）。
+pub(crate) fn reconstruct_cells(cols: Vec<Col>) -> String {
+    let mut lines: Vec<String> = Vec::new();
+    // 表の行: (行頭列の上端 y, 1em, セル列)。
+    let mut row: Option<(f32, f32, Vec<Cell>)> = None;
+    let render = |cells: Vec<Cell>| cells.into_iter().map(|c| c.text).collect::<Vec<_>>().join("\u{3000}");
+    for g in column_groups(cols) {
+        let em = (g[0].x1 - g[0].x).max(1.0);
+        let cells = split_cells(g, em);
+        let top = cells[0].y0;
+        if let Some((row_top, row_em, row_cells)) = row.as_mut() {
+            let slots: Option<Vec<usize>> = (top > *row_top + *row_em * 0.5)
+                .then(|| cells.iter().map(|c| cell_slot(row_cells, c, *row_em)).collect())
+                .flatten();
+            if let Some(slots) = slots {
+                for (c, i) in cells.into_iter().zip(slots) {
+                    row_cells[i].text.push_str(&c.text);
+                }
+                continue;
+            }
+            lines.push(render(row.take().unwrap().2));
+        }
+        if cells.len() >= 2 {
+            row = Some((top, em, cells));
+        } else {
+            let line = render(cells);
+            if !is_margin_noise(&line) {
+                lines.push(line);
+            }
+        }
     }
-    // x 降順（右→左）にカラムをクラスタリング。列間隔(≒13px)に対し閾値 10px。
-    cols.sort_by(|a, b| b.x.partial_cmp(&a.x).unwrap_or(std::cmp::Ordering::Equal));
+    if let Some((_, _, cells)) = row {
+        lines.push(render(cells));
+    }
+    lines.join("\n").trim().to_string()
+}
+
+/// 列内の空きを空白とみなす閾値（em 比）。0em（フォント切替などの分割）とは区別する。
+const GAP_EM: f32 = 0.75;
+/// 列内の空きをセル境界とみなす閾値（em 比）。1em の字間（条見出し・均等割り）とは区別する。
+const CELL_BREAK_EM: f32 = 1.75;
+
+/// 縦の列の中の 1 セル（y 範囲と、1em 空きを全角空白にしたテキスト）。
+struct Cell {
+    y0: f32,
+    y1: f32,
+    text: String,
+}
+
+/// 1 列（y 昇順の語）を、空きの大きさに応じて空白挿入・セル分割する。
+fn split_cells(g: Vec<Col>, em: f32) -> Vec<Cell> {
+    let mut cells: Vec<Cell> = Vec::new();
+    for c in g {
+        match cells.last_mut() {
+            Some(cell) if c.y - cell.y1 < em * CELL_BREAK_EM => {
+                if c.y - cell.y1 >= em * GAP_EM {
+                    cell.text.push('\u{3000}');
+                }
+                cell.y1 = cell.y1.max(c.y1);
+                cell.text.push_str(&c.text);
+            }
+            _ => cells.push(Cell {
+                y0: c.y,
+                y1: c.y1,
+                text: c.text,
+            }),
+        }
+    }
+    cells
+}
+
+/// 折り返しセル `c` が収まる行のセル番号。`c` の上端が属するセルを選ぶ。
+///
+/// 次の場合はセルの続きではない（新しい小項目の行）として `None`:
+/// - 次のセルの上端を越えて伸びる（セルをまたぐ）
+/// - 項目の頭（`（新設）`・`十六　…`・`十七〜…`・`２　…`）で始まる
+/// - そのセルの直前の断片が文末（`。`）で終わっている
+fn cell_slot(row: &[Cell], c: &Cell, em: f32) -> Option<usize> {
+    let i = row.iter().rposition(|r| r.y0 <= c.y0 + em * 0.5)?;
+    if row.get(i + 1).is_some_and(|next| c.y1 > next.y0 + em * 0.5)
+        || starts_item(&c.text)
+        || row[i].text.ends_with('。')
+    {
+        return None;
+    }
+    Some(i)
+}
+
+/// 表のセル内で新しい小項目を始める頭か。
+fn starts_item(text: &str) -> bool {
+    const MARKS: &[&str] = &["（略）", "（新設）", "（削る）", "〔略〕", "〔同上〕"];
+    if MARKS.iter().any(|m| text.starts_with(m)) {
+        return true;
+    }
+    // 括弧付き数字 `（１５）`
+    if let Some(rest) = text.strip_prefix('（') {
+        let digits = rest.chars().take_while(|c| c.is_ascii_digit() || ('０'..='９').contains(c)).count();
+        if digits > 0 && rest.chars().nth(digits) == Some('）') {
+            return true;
+        }
+    }
+    // 号・項の番号 + 空白/範囲（`十六　`・`十七〜`・`２　`）
+    let is_num = |c: char| "一二三四五六七八九十百".contains(c) || c.is_ascii_digit() || ('０'..='９').contains(&c);
+    let n = text.chars().take_while(|c| is_num(*c)).count();
+    n > 0 && matches!(text.chars().nth(n), Some('\u{3000}') | Some('〜'))
+}
+
+/// カラム語を x 降順（右→左）に縦の列へ束ね、各列を y 昇順（上→下）に並べる。
+/// 列間隔(≒13px)に対し、x 中心の差 10px 以内を同じ列とみなす。半角幅の記号（`'` 等）は
+/// 列の右半分に置かれ xMin が半字ずれるため、左端ではなく中心で比べる。
+fn column_groups(mut cols: Vec<Col>) -> Vec<Vec<Col>> {
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    cols.sort_by(|a, b| center(b).partial_cmp(&center(a)).unwrap_or(std::cmp::Ordering::Equal));
     const COL_THRESHOLD: f32 = 10.0;
     let mut groups: Vec<Vec<Col>> = Vec::new();
     let mut rep_x = f32::INFINITY;
     for c in cols {
-        if rep_x - c.x > COL_THRESHOLD {
+        if rep_x - center(&c) > COL_THRESHOLD {
             groups.push(Vec::new());
-            rep_x = c.x;
+            rep_x = center(&c);
         }
         groups.last_mut().unwrap().push(c);
     }
-
-    // 各カラム内は y 昇順（上→下）に連結。柱（発行日・号数）カラムは捨てる。
-    let mut lines: Vec<String> = Vec::new();
-    for mut g in groups {
+    for g in &mut groups {
         g.sort_by(|a, b| a.y.partial_cmp(&b.y).unwrap_or(std::cmp::Ordering::Equal));
+    }
+    groups
+}
+
+/// 1ページ分（または1段分）のカラム語を右→左・上→下に並べて本文に組む。柱（発行日・号数）
+/// の列は捨てる。
+pub(crate) fn reconstruct_page(cols: Vec<Col>) -> String {
+    let mut lines: Vec<String> = Vec::new();
+    for g in column_groups(cols) {
         let line: String = g.into_iter().map(|c| c.text).collect();
         if is_margin_noise(&line) {
             continue;

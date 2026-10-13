@@ -4,7 +4,7 @@
 //! 表す。「改正後」(上) と「改正前」(下) のラベルが表の右端に縦に並ぶことを手がかりに、
 //! 見出し x(=表の右端) と上下帯の境界 y を求め、本体を 2 帯に分けて復元する。
 
-use crate::vertical::{reconstruct_page, Col};
+use crate::vertical::{reconstruct_cells, reconstruct_page, Col};
 
 /// 縦書き新旧対照表ページの「改正後／改正前」欄見出し列を検出する。
 ///
@@ -138,60 +138,189 @@ fn find_run(chars: &[char], pat: &[char]) -> Option<usize> {
 }
 
 /// 新旧対照表の段を改正後(上帯)/改正前(下帯)に分けて復元する。
-///
-/// 見出し列 x より右(=`x >= header_x`)は前文・標題とみなし先頭にそのまま置く。
-/// 表本体(`x < header_x`)を境界 y で上下に分け、各帯を右→左に復元して
-/// `改正後`／`改正前` の欄見出し行を冠して返す。見出し行はフロントの新旧対照表
-/// 組み(parseShinkyu)と `detect_format` の shinkyu 判定の双方に整合する。
 pub(crate) fn reconstruct_shinkyu(cols: Vec<Col>, header_x: f32, divider: f32) -> String {
-    let mut preamble: Vec<Col> = Vec::new();
-    let mut upper: Vec<Col> = Vec::new();
-    let mut lower_all: Vec<Col> = Vec::new();
-    for c in cols {
-        if c.x >= header_x - 1.0 {
-            // 見出しラベル自身(改/正/後/前)は捨て、それ以外(前文・標題)は前文へ。
-            if matches!(c.text.as_str(), "改" | "正" | "後" | "前") && (c.x - header_x).abs() < 6.0 {
-                continue;
+    ShinkyuLayout::split(cols, header_x, divider).render()
+}
+
+/// 新旧対照表 1 件分のカラム配置。
+///
+/// 帯ごとのカラム群をページ内の段ごとに分けて持つ（同じ x に別の段の列があるため、
+/// 1 つの Vec に混ぜると右→左復元で列が連結されてしまう）。
+pub(crate) struct ShinkyuLayout {
+    preamble: Vec<Col>,
+    after: Vec<Vec<Col>>,
+    before: Vec<Vec<Col>>,
+    /// 表の外にある列（表の下・左に同居する別記事）。表の後ろに読み順で出す。
+    trailing: Vec<Vec<Col>>,
+}
+
+impl ShinkyuLayout {
+    /// 見出し列 x より右(=`x >= header_x`)は前文・標題とみなし先頭にそのまま置く。
+    /// 表本体(`x < header_x`)を境界 y で上下に分ける。
+    pub(crate) fn split(cols: Vec<Col>, header_x: f32, divider: f32) -> Self {
+        let mut preamble: Vec<Col> = Vec::new();
+        let mut upper: Vec<Col> = Vec::new();
+        let mut lower_all: Vec<Col> = Vec::new();
+        for c in cols {
+            if c.x >= header_x - 1.0 {
+                // 見出しラベル自身(改/正/後/前)は捨て、それ以外(前文・標題)は前文へ。
+                if matches!(c.text.as_str(), "改" | "正" | "後" | "前") && (c.x - header_x).abs() < 6.0 {
+                    continue;
+                }
+                preamble.push(c);
+            } else if (c.y + c.y1) / 2.0 < divider {
+                upper.push(c);
+            } else {
+                lower_all.push(c);
             }
-            preamble.push(c);
-        } else if (c.y + c.y1) / 2.0 < divider {
-            upper.push(c);
-        } else {
-            lower_all.push(c);
+        }
+        // 新旧対照表は境界 y を挟んでほぼ上下対称（改正後欄の高さ ≒ 改正前欄の高さ）。
+        // 改正前(下帯)が表の下端を越えて広がる場合、それは表の下に同居する別記事
+        // （型式認定一覧など）の可能性が高い。上帯の最上端を表頂点とみなし、その鏡像
+        // (`2*divider - table_top`) を下端として下帯を制限し、はみ出た列は表外として
+        // 表の後ろへ回す。表が紙面全体を占める通常ケースでは下端がページ外になり実質無効。
+        let (lower, outside): (Vec<Col>, Vec<Col>) = match upper.iter().map(|c| c.y).reduce(f32::min) {
+            Some(table_top) => {
+                let table_bottom = 2.0 * divider - table_top;
+                lower_all.into_iter().partition(|c| (c.y + c.y1) / 2.0 < table_bottom)
+            }
+            None => (lower_all, Vec::new()),
+        };
+        ShinkyuLayout {
+            preamble,
+            after: vec![upper],
+            before: vec![lower],
+            trailing: vec![outside],
         }
     }
-    // 新旧対照表は境界 y を挟んでほぼ上下対称（改正後欄の高さ ≒ 改正前欄の高さ）。
-    // 改正前(下帯)が表の下端を越えて広がる場合、それは表の下に同居する別記事
-    // （型式認定一覧など）の可能性が高い。上帯の最上端を表頂点とみなし、その鏡像
-    // (`2*divider - table_top`) を下端として下帯を制限し、表外の記事の取り込みを防ぐ。
-    // 表が紙面全体を占める通常ケースでは下端がページ外になり実質無効（＝無害）。
-    let lower: Vec<Col> = if let Some(table_top) = upper
-        .iter()
-        .map(|c| c.y)
-        .fold(None, |acc: Option<f32>, y| Some(acc.map_or(y, |a| a.min(y))))
-    {
-        let table_bottom = 2.0 * divider - table_top;
-        lower_all
-            .into_iter()
-            .filter(|c| (c.y + c.y1) / 2.0 < table_bottom)
-            .collect()
-    } else {
-        lower_all
-    };
-    let mut out: Vec<String> = Vec::new();
-    let pre = reconstruct_page(preamble);
-    if !pre.is_empty() {
-        out.push(pre);
+
+    /// 見出し段における改正後帯→改正前帯の y ピッチ。
+    ///
+    /// 新旧対照表は改正後/改正前の対応する行を同じ x に並べるので、両帯で x が一致する
+    /// 列頭どうしの y 差の最頻値が帯のピッチになる。下の段へ続く表の判定に使う。
+    fn band_pitch(&self) -> Option<f32> {
+        let (a, b) = (self.after.first()?, self.before.first()?);
+        let (ha, hb) = (column_heads(a), column_heads(b));
+        let dys: Vec<f32> = hb
+            .iter()
+            .filter_map(|h| ha.iter().find(|g| (g.x - h.x).abs() <= 1.0).map(|g| h.y - g.y))
+            .collect();
+        // 許容 1.5pt で最多の y 差を採る（同数なら先勝ち）。
+        let best = dys
+            .iter()
+            .map(|&d| {
+                let near: Vec<f32> = dys.iter().copied().filter(|e| (e - d).abs() <= 1.5).collect();
+                (near.len(), near.iter().sum::<f32>() / near.len() as f32)
+            })
+            .max_by_key(|(n, _)| *n)?;
+        (best.0 >= 2).then_some(best.1)
     }
-    let after = reconstruct_page(upper);
-    let before = reconstruct_page(lower);
-    if !after.is_empty() || !before.is_empty() {
-        out.push("改正後".to_string());
-        out.push(after);
-        out.push("改正前".to_string());
-        out.push(before);
+
+    /// 見出し段の下に続く段の組 `(a, b)` が同じ表の続き（a=改正後, b=改正前）なら取り込む。
+    ///
+    /// 官報は表の欄見出しを同じページの下の段では繰り返さないため、見出しの無い段の組を
+    /// 次の条件で表の続きと判定する:
+    ///   1. b の列頭に、x が一致し y 差が見出し段の帯ピッチに等しい a の列頭がある
+    ///      （改正後/改正前の対応行が同じ x に並ぶ）。一致が 3 組以上。
+    ///   2. 両段の最右列どうしが一致する（表は段の右端から始まる続き）。
+    ///   3. a の最右列が記事見出し（`〇…`）で始まらない。
+    ///   4. 表の範囲（一致した最左の x より右）にある b の列頭の 6 割以上が一致する。
+    ///
+    /// 段落の通常の段送りは段ピッチ（表の帯ピッチとは独立）で並ぶため 1. で弾かれる。
+    /// 表の範囲より左の列は別記事として `trailing` に回す。取り込んだ段の組に表外の列が
+    /// あれば表はそこで終わりとみなし `false`（続けて次の段の組を見ない）を返す。
+    pub(crate) fn absorb_continuation(&mut self, a: &mut Vec<Col>, b: &mut Vec<Col>) -> Option<bool> {
+        let pitch = self.band_pitch()?;
+        let (ha, hb) = (column_heads(a), column_heads(b));
+        let (ra, rb) = (ha.first()?, hb.first()?);
+        if (ra.x - rb.x).abs() > 1.0 || ra.lead.starts_with('〇') {
+            return None;
+        }
+        let matched: Vec<f32> = hb
+            .iter()
+            .filter(|h| ha.iter().any(|g| (g.x - h.x).abs() <= 1.0 && (h.y - g.y - pitch).abs() <= 1.5))
+            .map(|h| h.x)
+            .collect();
+        if matched.len() < 3 || matched.first() != Some(&rb.x) {
+            return None;
+        }
+        // 列頭の x は列間隔（≒12pt）の半分の余裕を見て表の左端とする。
+        let left = matched.iter().copied().fold(f32::INFINITY, f32::min) - 6.0;
+        let in_table = hb.iter().filter(|h| h.x >= left).count();
+        if (matched.len() as f32) < in_table as f32 * 0.6 {
+            return None;
+        }
+        let (a_tab, a_rest): (Vec<Col>, Vec<Col>) = std::mem::take(a).into_iter().partition(|c| c.x >= left);
+        let (b_tab, b_rest): (Vec<Col>, Vec<Col>) = std::mem::take(b).into_iter().partition(|c| c.x >= left);
+        let ends_here = !a_rest.is_empty() || !b_rest.is_empty();
+        self.after.push(a_tab);
+        self.before.push(b_tab);
+        self.trailing.push(a_rest);
+        self.trailing.push(b_rest);
+        Some(!ends_here)
     }
-    out.join("\n").trim().to_string()
+
+    /// `改正後`／`改正前` の欄見出し行を冠したテキストに組む。見出し行はフロントの
+    /// 新旧対照表組み(parseShinkyu)と `detect_format` の shinkyu 判定の双方に整合する。
+    pub(crate) fn render(self) -> String {
+        let join = |parts: Vec<Vec<Col>>, rebuild: fn(Vec<Col>) -> String| -> String {
+            parts
+                .into_iter()
+                .map(rebuild)
+                .filter(|t| !t.is_empty())
+                .collect::<Vec<_>>()
+                .join("\n")
+        };
+        let mut out: Vec<String> = Vec::new();
+        let pre = reconstruct_page(self.preamble);
+        if !pre.is_empty() {
+            out.push(pre);
+        }
+        let after = join(self.after, reconstruct_cells);
+        let before = join(self.before, reconstruct_cells);
+        if !after.is_empty() || !before.is_empty() {
+            out.push("改正後".to_string());
+            out.push(after);
+            out.push("改正前".to_string());
+            out.push(before);
+        }
+        let rest = join(self.trailing, reconstruct_page);
+        if !rest.is_empty() {
+            out.push(rest);
+        }
+        out.join("\n").trim().to_string()
+    }
+}
+
+/// 縦の列（x 近傍のカラム語の束）の頭。`lead` は列の先頭語。
+struct ColumnHead {
+    x: f32,
+    y: f32,
+    lead: String,
+}
+
+/// カラム語を [`reconstruct_page`] と同じ規則（右→左、x 差 10pt 以内を 1 列）で列に束ね、
+/// 各列の頭（代表 x・最上端 y・先頭語）を右から順に返す。
+fn column_heads(cols: &[Col]) -> Vec<ColumnHead> {
+    let mut sorted: Vec<&Col> = cols.iter().collect();
+    sorted.sort_by(|a, b| b.x.partial_cmp(&a.x).unwrap_or(std::cmp::Ordering::Equal));
+    let mut heads: Vec<ColumnHead> = Vec::new();
+    for c in sorted {
+        match heads.last_mut() {
+            Some(h) if h.x - c.x <= 10.0 => {
+                if c.y < h.y {
+                    h.y = c.y;
+                    h.lead = c.text.clone();
+                }
+            }
+            _ => heads.push(ColumnHead {
+                x: c.x,
+                y: c.y,
+                lead: c.text.clone(),
+            }),
+        }
+    }
+    heads
 }
 
 #[cfg(test)]
@@ -207,6 +336,57 @@ mod tests {
             Some(1)
         );
         assert_eq!(super::find_run(&['改', '正'], &['改', '正', '後']), None);
+    }
+
+    /// 見出し段（帯ピッチ 170）の下に、列頭の y 差が `lower_pitch` の段の組が続くページ。
+    fn page_with_lower_tiers(lower_pitch: f32) -> String {
+        let w = |x: f32, y: f32, h: f32, t: &str| {
+            format!(r#"<word xMin="{x}" yMin="{y}" xMax="{}" yMax="{}">{t}</word>"#, x + 8.0, y + h)
+        };
+        // 前文は複数列で上下帯を跨ぐ（実ページ同様、帯の境界で段に割れない）。
+        let mut words = vec![
+            w(344.0, 60.0, 350.0, "前文一"),
+            w(332.0, 60.0, 350.0, "前文二"),
+            w(320.0, 60.0, 350.0, "前文三"),
+            // 欄見出しは各帯の中央に縦に並ぶ。
+            w(300.0, 100.0, 8.0, "改"),
+            w(300.0, 116.0, 8.0, "正"),
+            w(300.0, 132.0, 8.0, "後"),
+            w(300.0, 270.0, 8.0, "改"),
+            w(300.0, 286.0, 8.0, "正"),
+            w(300.0, 302.0, 8.0, "前"),
+        ];
+        for (i, x) in [280.0, 268.0, 256.0].into_iter().enumerate() {
+            words.push(w(x, 70.0, 100.0, &format!("甲{i}")));
+            words.push(w(x, 240.0, 100.0, &format!("乙{i}")));
+            words.push(w(x, 430.0, 100.0, &format!("丙{i}")));
+            words.push(w(x, 430.0 + lower_pitch, 100.0, &format!("丁{i}")));
+        }
+        format!(r#"<page width="595" height="842">{}</page>"#, words.join(""))
+    }
+
+    fn after_block(out: &str) -> String {
+        let lines: Vec<&str> = out.lines().collect();
+        let go = lines.iter().position(|l| *l == "改正後").unwrap();
+        let mae = lines.iter().position(|l| *l == "改正前").unwrap();
+        lines[go + 1..mae].concat()
+    }
+
+    #[test]
+    fn absorbs_lower_tiers_aligned_at_band_pitch() {
+        // 下の段の組が見出し段と同じ帯ピッチで揃う → 表の続き（丙=改正後, 丁=改正前）。
+        let out = reconstruct_vertical(&page_with_lower_tiers(170.0));
+        let after = after_block(&out);
+        assert!(after.contains("甲0") && after.contains("丙0"), "{out}");
+        assert!(!after.contains("丁0"), "{out}");
+    }
+
+    #[test]
+    fn keeps_lower_tiers_at_other_pitch_out_of_table() {
+        // 段送りのピッチ（184）で揃うだけの通常記事は表に取り込まない。
+        let out = reconstruct_vertical(&page_with_lower_tiers(184.0));
+        let after = after_block(&out);
+        assert!(after.contains("甲0") && !after.contains("丙0"), "{out}");
     }
 
     #[test]
