@@ -16,6 +16,7 @@
 //!
 //! - `normalize` — 約物正規化・PUA 除去・ページ柱ノイズ判定
 //! - `vertical` — 縦書き読み順の復元（段分割・右→左再構成）
+//! - `horizontal` — 回転ページ・横書きページの読み順復元（列分割・左→右再構成）
 //! - `shinkyu` — 新旧対照表（改正後=上帯/改正前=下帯）の検出と分離
 //! - `segment` — 1 ページ内の複数記事の分割
 //! - `format` — 改め文の形式判定（prose / shinkyu / unknown）
@@ -32,6 +33,7 @@ use anyhow::Result;
 
 pub mod format;
 pub mod grid;
+mod horizontal;
 pub mod lines;
 pub mod model;
 pub mod normalize;

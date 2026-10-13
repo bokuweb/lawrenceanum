@@ -2,6 +2,7 @@
 
 use scraper::{Html, Selector};
 
+use crate::horizontal::{horizontal_lines, is_left_strip_header, LEFT_STRIP};
 use crate::normalize::{is_margin_noise, is_private_use, normalize_char, private_cid_glyph, CidGlyph};
 use crate::shinkyu::{
     detect_shinkyu_bands_headerless, detect_shinkyu_header, reconstruct_shinkyu, split_side_by_side_tables, ShinkyuLayout,
@@ -65,10 +66,11 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         let grids: Vec<Grid> = page_rules
             .map(|r| find_grids(r, width.max(height), width.max(height)))
             .unwrap_or_default();
-        let (cols, mut words, line_of) = page_words_traced(page, width, height);
+        let (cols, mut words, rotated) = page_words_traced(page, width, height);
         let mut layout = "tiers";
         let mut units: Vec<Unit> = Vec::new();
-        if is_horizontal_page(&cols) {
+        // 回転ページ（柱が左端帯にある）は、テキスト層が柱だけでも横組みとして扱う。
+        if rotated || is_horizontal_page(&cols) {
             layout = "horizontal";
             units.push(match split_horizontal_shinkyu(&cols) {
                 // 横書きの新旧対照表: 左の列が改正後、右の列が改正前。
@@ -76,12 +78,12 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                     let (left, right): (Vec<Col>, Vec<Col>) = cols.into_iter().partition(|c| c.x1 <= mid);
                     Unit::Shinkyu {
                         preamble: Vec::new(),
-                        after: vec![horizontal_lines(left, &line_of)],
-                        before: vec![horizontal_lines(right, &line_of)],
+                        after: vec![horizontal_lines(left)],
+                        before: vec![horizontal_lines(right)],
                         outside: Vec::new(),
                     }
                 }
-                None => Unit::Plain(horizontal_lines(cols, &line_of)),
+                None => Unit::Plain(horizontal_lines(cols)),
             });
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
@@ -297,92 +299,39 @@ fn split_horizontal_shinkyu(cols: &[Col]) -> Option<f32> {
     (matched >= 5 && matched * 10 >= r.len() * 3 && (same_left >= 2 || labels)).then_some(mid)
 }
 
-/// 横組みのページを pdftotext の行（`<line>`）の順に組む。pdftotext は横組みについては
-/// 段組み・ブロックの読み順を自前で解析するので、それに従う。行の中の語は字間より広い
-/// 空きがあれば空白で区切る（表の数値の列など）。
-fn horizontal_lines(cols: Vec<Col>, line_of: &[usize]) -> Vec<Line> {
-    let mut order: Vec<usize> = Vec::new();
-    let mut groups: std::collections::HashMap<usize, Vec<Col>> = std::collections::HashMap::new();
-    for c in cols {
-        let li = line_of[c.id];
-        if !groups.contains_key(&li) {
-            order.push(li);
-        }
-        groups.entry(li).or_default().push(c);
-    }
-    let mut lines: Vec<Line> = Vec::new();
-    // (行の y, 行の右端, lines の添字)
-    let mut rows: Vec<(f32, f32, usize)> = Vec::new();
-    for li in order {
-        let mut g = groups.remove(&li).unwrap_or_default();
-        if g.is_empty() {
-            continue;
-        }
-        g.sort_by(|a, b| a.x.partial_cmp(&b.x).unwrap_or(std::cmp::Ordering::Equal));
-        let mut text = String::new();
-        let mut prev: Option<f32> = None;
-        for c in &g {
-            let em = (c.y1 - c.y).max(1.0);
-            if prev.is_some_and(|end| c.x - end > em * 0.5) {
-                text.push(' ');
-            }
-            prev = Some(c.x1);
-            text.push_str(&c.text);
-        }
-        if is_margin_noise(&text) {
-            continue;
-        }
-        // 字間を空けた表題（「中　間　決　算　公　告」）は pdftotext が 1 字ずつ別の行に
-        // するので、同じ高さで右に続く短い断片は直前の同じ高さの行へつなぐ。
-        let (y, x0) = (g[0].y, g[0].x);
-        if text.chars().count() <= 3 {
-            if let Some(row) = rows.iter().rev().take(12).find(|r| (r.0 - y).abs() < 1.0 && r.1 < x0) {
-                let line: &mut Line = &mut lines[row.2];
-                line.text.push(' ');
-                line.text.push_str(&text);
-                line.words.extend(g.iter().map(|c| c.id));
-                continue;
-            }
-        }
-        rows.push((y, g.iter().map(|c| c.x1).fold(f32::MIN, f32::max), lines.len()));
-        lines.push(Line::text(text, g.iter().map(|c| c.id).collect()));
-    }
-    lines
-}
-
-/// 1 ページの `<word>` を縦書きカラム語として読み出す。可視化用に全語の一覧も返す
-/// （カラム語の `id` はその添字）。
+/// 1 ページの `<word>` を縦書きカラム語として読み出す。可視化用に全語の一覧と、回転ページ
+/// （横組みの本文を `/Rotate 270` で置いたページ）かどうかも返す（カラム語の `id` は語の添字）。
 ///
 /// 余白帯の柱（発行日・「官報」等の running header）は **語全体が余白に収まるもの**だけ
 /// 落とす。縦書き語の bbox は実際の字面より約 1em 上にずれて出るため、段の先頭列
 /// （例: 「〇総務省令第五十八号」）は上端 y が余白帯にかかる。上端だけで判定すると
 /// 記事見出しや前文の列がまるごと消える。
-fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) -> (Vec<Col>, Vec<Word>, Vec<usize>) {
+///
+/// 回転ページの柱は上端ではなく左端の帯に縦に並ぶ（上端の帯には本文が来る）ので、
+/// 左端の帯に収まる語を柱として落とす（[`is_left_strip_header`]）。
+fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) -> (Vec<Col>, Vec<Word>, bool) {
     let word_sel = Selector::parse("word").unwrap();
     let line_sel = Selector::parse("line").unwrap();
     // (x0, y0, x1, y1, raw)
     let mut raws: Vec<(f32, f32, f32, f32, String)> = Vec::new();
-    // 語が属する pdftotext の行（横組みページの行の組み立てに使う）。
-    let mut line_of: Vec<usize> = Vec::new();
-    let mut push = |w: scraper::ElementRef, line: usize| {
+    let mut push = |w: scraper::ElementRef| {
         let v = w.value();
         // scraper は HTML パーサのため属性名を小文字化する（xMin -> xmin）。
         let num = |k: &str| v.attr(k).and_then(|s| s.parse::<f32>().ok());
         if let (Some(x), Some(x1), Some(y), Some(y1)) = (num("xmin"), num("xmax"), num("ymin"), num("ymax")) {
             raws.push((x, y, x1, y1, w.text().collect()));
-            line_of.push(line);
         }
     };
     if page.select(&line_sel).next().is_some() {
-        for (li, line) in page.select(&line_sel).enumerate() {
+        for line in page.select(&line_sel) {
             for w in line.select(&word_sel) {
-                push(w, li);
+                push(w);
             }
         }
     } else {
         // 行構造の無い入力（テスト用の最小 XHTML など）は 1 語 1 行とみなす。
-        for (i, w) in page.select(&word_sel).enumerate() {
-            push(w, i);
+        for w in page.select(&word_sel) {
+            push(w);
         }
     }
     // 縦書きのページが /Rotate で横倒しに表示されている（座標上は縦の列が横の行に見える）
@@ -415,6 +364,7 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
         }
     }
     let sideways = is_sideways_vertical(&raws);
+    let rotated = !sideways && raws.iter().any(|(_, _, x1, _, t)| is_left_strip_header(*x1, t));
     let geom: Vec<(f32, f32, f32, f32)> = raws
         .iter()
         .map(|&(x, y, x1, y1, _)| {
@@ -457,7 +407,12 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
             Some(g) => g.text.clone(),
             None => raw.chars().filter(|c| !is_private_use(*c)).map(normalize_char).collect(),
         };
-        let status = if gy1 <= TOP_MARGIN || gy >= height - BOTTOM_MARGIN {
+        let in_margin = if rotated {
+            gx1 <= LEFT_STRIP
+        } else {
+            gy1 <= TOP_MARGIN || gy >= height - BOTTOM_MARGIN
+        };
+        let status = if in_margin {
             WordStatus::Margin
         } else if text.trim().is_empty() {
             WordStatus::Empty
@@ -486,7 +441,7 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
             status,
         });
     }
-    (cols, words, line_of)
+    (cols, words, rotated)
 }
 
 /// `Col`（縦書き 1 カラム語）から、別表復元で使う中心 y 付きの語へ。
