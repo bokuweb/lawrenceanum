@@ -170,6 +170,10 @@ pub(crate) fn table_marker(index: usize) -> String {
     format!("\u{E000}{index}\u{E001}")
 }
 
+/// 構造化用テキストで新旧対照表の終わりを示す行。改正前セルはここで閉じる（表の後ろの
+/// 前文・附則を改正前セルに取り込まない）。
+pub(crate) const SHINKYU_END: &str = "\u{E002}";
+
 /// 文字列が表の目印だけの行なら、その通し番号。
 pub(crate) fn parse_table_marker(s: &str) -> Option<usize> {
     s.trim().strip_prefix('\u{E000}')?.strip_suffix('\u{E001}')?.parse().ok()
@@ -199,22 +203,26 @@ impl Unit {
     /// `改正後`／`改正前` の欄見出し行を冠したテキストに組む。見出し行はフロントの
     /// 新旧対照表組み(parseShinkyu)と `detect_format` の shinkyu 判定の双方に整合する。
     pub(crate) fn text(&self) -> String {
-        self.text_with(&mut |l| l.text.clone())
+        self.text_with(&mut |l| l.text.clone(), false)
     }
 
     /// 構造化用のテキスト。表の行は目印に置き換え、表を `tables` に積む（目印の番号は
     /// `first_index` からの通し番号）。
     pub(crate) fn doc_text(&self, tables: &mut Vec<Table>, first_index: usize) -> String {
-        self.text_with(&mut |l| match &l.table {
-            Some(t) => {
-                tables.push(t.clone());
-                table_marker(first_index + tables.len() - 1)
-            }
-            None => l.text.clone(),
-        })
+        self.text_with(
+            &mut |l| match &l.table {
+                Some(t) => {
+                    tables.push(t.clone());
+                    table_marker(first_index + tables.len() - 1)
+                }
+                None => l.text.clone(),
+            },
+            true,
+        )
     }
 
-    fn text_with(&self, render: &mut dyn FnMut(&Line) -> String) -> String {
+    /// `end_marker` なら新旧対照表の改正前の後ろに [`SHINKYU_END`] を置く（構造化用）。
+    fn text_with(&self, render: &mut dyn FnMut(&Line) -> String, end_marker: bool) -> String {
         match self {
             Unit::Plain(lines) => join_lines_with(lines, render),
             Unit::Shinkyu {
@@ -242,6 +250,9 @@ impl Unit {
                     out.push(after);
                     out.push("改正前".to_string());
                     out.push(before);
+                    if end_marker {
+                        out.push(SHINKYU_END.to_string());
+                    }
                 }
                 let rest = join(outside);
                 if !rest.is_empty() {
