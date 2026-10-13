@@ -175,15 +175,18 @@ impl Document {
                     k += 1;
                 }
                 let before_lines = &lines[before_start..k];
-                // 附則(施行期日・経過措置)は改正全体の付則で、新旧対照表の条ではない。
-                // 表の行から外し、表ブロックの後ろに段落として置く。
+                // 片側の帯にだけある附則（施行期日・経過措置）は改正全体の付則が帯に紛れ込んだもので、
+                // 新旧対照表の条ではない。表の行から外し、表ブロックの後ろに段落として置く。
+                // 両側にある附則（「附　則〔１〜24略〕」と「附　則〔１〜24同上〕」）は、改正される
+                // 法令の附則の行なので表に残す。
                 let mut rows = align_rows(after_lines, before_lines);
                 let mut furisoku: Vec<Vec<Run>> = Vec::new();
                 rows.retain(|r| {
                     let is_furi = |runs: &[Run]| {
                         runs.first().map(|x| starts_with_spaced(&x.text, "附則")).unwrap_or(false)
                     };
-                    if is_furi(&r.after) || is_furi(&r.before) {
+                    let one_sided = r.after.is_empty() || r.before.is_empty();
+                    if one_sided && (is_furi(&r.after) || is_furi(&r.before)) {
                         let content = if !r.after.is_empty() { r.after.clone() } else { r.before.clone() };
                         if !content.is_empty() {
                             furisoku.push(content);
@@ -193,6 +196,8 @@ impl Document {
                         true
                     }
                 });
+                // 改正後・改正前とも空の行（空白だけの帯）は作らない。
+                rows.retain(|r| !r.after.is_empty() || !r.before.is_empty());
                 if !rows.is_empty() {
                     blocks.push(Block::Shinkyu { rows });
                 }

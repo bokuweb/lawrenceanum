@@ -145,25 +145,43 @@ pub fn analyze_item(pages: &[PageInput]) -> Analysis {
 /// 完全一致では拾えない。対象法令名（「の一部を」「を廃止」より前）を鍵に、まず完全一致、
 /// 次に前方一致を縮めながら探し、制定文らしい（「次のように」「改める」等を含む）長い記事を採る。
 pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> {
-    let core = title_core(title);
+    // ダッシュ類は標題（―）と本文（－）で字が違うことがあるので揃えて比べる。
+    let unify = |s: &str| -> String {
+        s.chars().map(|c| if matches!(c, '―' | '—' | '‐' | '‑' | '–' | '-') { '－' } else { c }).collect()
+    };
+    let core = unify(&title_core(title));
     if core.chars().count() < 4 {
         return None;
     }
-    let mut keys: Vec<String> = vec![core.clone()];
-    let chars: Vec<char> = core.chars().collect();
-    let mut len = chars.len().saturating_sub(2);
-    while len >= 6 {
-        keys.push(chars[..len].iter().collect());
-        len = len.saturating_sub(4);
+    // 前置き（「…の規定に基づき、」「…の規定により、」）の付いた標題は、その後ろでも照合する。
+    let mut cores = vec![core.clone()];
+    for marker in ["規定に基づき、", "規定により、"] {
+        if let Some(p) = core.rfind(marker) {
+            let rest = core[p + marker.len()..].to_string();
+            if rest.chars().count() >= 6 {
+                cores.push(rest);
+            }
+        }
+    }
+    let mut keys: Vec<String> = Vec::new();
+    for c in &cores {
+        keys.push(c.clone());
+        let chars: Vec<char> = c.chars().collect();
+        let mut len = chars.len().saturating_sub(2);
+        while len >= 6 {
+            keys.push(chars[..len].iter().collect());
+            len = len.saturating_sub(4);
+        }
     }
     let body_score = |s: &str| -> usize {
         let markers = ["の規定に基づき", "次のように", "に改める", "を加える", "定める"];
         markers.iter().filter(|m| s.contains(*m)).count() * 1000 + s.chars().count()
     };
+    let texts: Vec<String> = articles.iter().map(|a| unify(&a.text)).collect();
     articles
         .iter()
         .enumerate()
-        .filter(|(_, a)| keys.iter().any(|k| a.text.contains(k.as_str())))
+        .filter(|(i, _)| keys.iter().any(|k| texts[*i].contains(k.as_str())))
         .max_by_key(|(_, a)| body_score(&a.text))
         .map(|(i, _)| i)
 }
