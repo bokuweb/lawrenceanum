@@ -2,6 +2,7 @@
 
 use scraper::{Html, Selector};
 
+use crate::horizontal::{is_horizontal_page, reconstruct_horizontal};
 use crate::normalize::{fix_private_cid_glyphs, is_margin_noise, is_private_use, normalize_char};
 use crate::shinkyu::{detect_shinkyu_bands_headerless, detect_shinkyu_header, reconstruct_shinkyu, ShinkyuLayout};
 
@@ -25,6 +26,9 @@ pub(crate) const BOTTOM_MARGIN: f32 = 30.0;
 /// テキストは上→下に整列済み）として出力する。よって **カラムを右→左に並べ替える**
 /// だけで正しい読み順が復元でき、`-layout` で起きる「別記事の横方向への混線」を解消できる。
 /// 複数ページの PDF はページごとに復元して連結する。
+///
+/// 回転して横組みで組まれたページ（官庁報告「労働」・公告「諸事項」など）や号外の横書きの
+/// ページは、柱の位置と語の形で判別し、横書きの段組として読む（`horizontal` モジュール）。
 pub fn reconstruct_vertical(xhtml: &str) -> String {
     let doc = Html::parse_document(xhtml);
     let page_sel = Selector::parse("page").unwrap();
@@ -36,7 +40,16 @@ pub fn reconstruct_vertical(xhtml: &str) -> String {
             .attr("height")
             .and_then(|s| s.parse::<f32>().ok())
             .unwrap_or(842.0);
-        let cols = page_words(page, height);
+        let words = page_words(page);
+        // 回転ページ・横書きのページは縦書きの復元に通さず、列を見つけて横書きの読み順で組む。
+        if is_horizontal_page(&words) {
+            let page_text = reconstruct_horizontal(words, height);
+            if !page_text.is_empty() {
+                pages.push(page_text);
+            }
+            continue;
+        }
+        let cols = drop_margins(words, height);
         // まず段組み(tier)に分ける。官報本紙は2段組が多く、段を分けないと「同 x にある
         // 上段の列と下段の列」が1列に連結され混線する。表と無関係記事が同居するページも
         // tier で分かれるので、混入を防げる。
@@ -102,19 +115,18 @@ pub(crate) fn parse_page_cols(xhtml: &str) -> Vec<(f32, Vec<Col>)> {
             .attr("height")
             .and_then(|s| s.parse::<f32>().ok())
             .unwrap_or(842.0);
-        let cols = page_words(page, height);
-        out.push((height, cols));
+        let words = page_words(page);
+        // 横組みページには縦書きの別表は無い。
+        if is_horizontal_page(&words) {
+            continue;
+        }
+        out.push((height, drop_margins(words, height)));
     }
     out
 }
 
-/// 1 ページの `<word>` を縦書きカラム語として読み出す。
-///
-/// 余白帯の柱（発行日・「官報」等の running header）は **語全体が余白に収まるもの**だけ
-/// 落とす。縦書き語の bbox は実際の字面より約 1em 上にずれて出るため、段の先頭列
-/// （例: 「〇総務省令第五十八号」）は上端 y が余白帯にかかる。上端だけで判定すると
-/// 記事見出しや前文の列がまるごと消える。
-fn page_words(page: scraper::ElementRef, height: f32) -> Vec<Col> {
+/// 1 ページの `<word>` を読み出す（私用 CID の復元・約物正規化・PUA 除去済み、空語は除く）。
+fn page_words(page: scraper::ElementRef) -> Vec<Col> {
     let word_sel = Selector::parse("word").unwrap();
     let mut cols: Vec<Col> = Vec::new();
     for w in page.select(&word_sel) {
@@ -124,9 +136,6 @@ fn page_words(page: scraper::ElementRef, height: f32) -> Vec<Col> {
         let (Some(x), Some(x1), Some(y), Some(y1)) = (num("xmin"), num("xmax"), num("ymin"), num("ymax")) else {
             continue;
         };
-        if y1 <= TOP_MARGIN || y >= height - BOTTOM_MARGIN {
-            continue;
-        }
         let raw: String = w.text().collect();
         // scraper が実体参照は復号済み。私用 CID の括弧付き数字等を復元し、約物を正規化し、
         // 私用領域(傍線等のフォント固有グリフ)を除去する。
@@ -140,6 +149,18 @@ fn page_words(page: scraper::ElementRef, height: f32) -> Vec<Col> {
         cols.push(Col { x, x1, y, y1, text });
     }
     cols
+}
+
+/// 縦書きページの上下の余白帯にある柱（発行日・「官報」等の running header）を落とす。
+///
+/// **語全体が余白に収まるもの**だけ落とす。縦書き語の bbox は実際の字面より約 1em 上に
+/// ずれて出るため、段の先頭列（例: 「〇総務省令第五十八号」）は上端 y が余白帯にかかる。
+/// 上端だけで判定すると記事見出しや前文の列がまるごと消える。
+fn drop_margins(words: Vec<Col>, height: f32) -> Vec<Col> {
+    words
+        .into_iter()
+        .filter(|c| c.y1 > TOP_MARGIN && c.y < height - BOTTOM_MARGIN)
+        .collect()
 }
 
 /// `Col`（縦書き 1 カラム語）から、別表復元で使う中心 y 付きの語へ。
