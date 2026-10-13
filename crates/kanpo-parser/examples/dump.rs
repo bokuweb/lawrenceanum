@@ -1,6 +1,7 @@
 //! 抽出結果を目視確認するためのデバッグ用ダンプ。
 //!
 //! `pdftotext -bbox-layout` の XHTML を渡すと、縦書き復元後の本文を行番号付きで出力する。
+//! 同じ名前の `.rules.json`（examples/prepare が作る）があれば罫線も使う。
 //!
 //! ```text
 //! pdftotext -bbox-layout -enc UTF-8 input.pdf out.html
@@ -21,7 +22,10 @@ fn main() -> ExitCode {
             return ExitCode::from(1);
         }
     };
-    let out = kanpo_parser::reconstruct_vertical(&xhtml);
+    let rules: Option<kanpo_parser::lines::PageRules> = std::fs::read_to_string(path.replace(".bbox.html", ".rules.json"))
+        .ok()
+        .and_then(|s| serde_json::from_str(&s).ok());
+    let out = kanpo_parser::analyze_with_rules(&xhtml, &[rules]).text;
     for (i, line) in out.lines().enumerate() {
         println!("{i:3} {line}");
     }

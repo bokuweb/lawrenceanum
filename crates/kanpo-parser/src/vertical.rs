@@ -133,9 +133,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                     Some((header_x, divider)) => {
                         let mut layout = ShinkyuLayout::split(tier, header_x, divider);
                         layout.clip_to_frame(&grids, header_x, divider);
-                        if let Some(tail) = layout.split_off_leading_continuation(divider) {
-                            units.push(tail);
-                        }
+                        units.extend(layout.split_off_leading_continuation(divider, &grids, page_rules));
                         while i + 1 < tiers.len()
                             && detect_shinkyu_header(&tiers[i]).is_none()
                             && detect_shinkyu_header(&tiers[i + 1]).is_none()
@@ -160,7 +158,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         i += 1;
                         band_pair_unit(tier, next, &grids, page_rules)
                     }
-                    None => Unit::Plain(page_lines(tier)),
+                    None => Unit::Plain(drop_stray_labels(page_lines(tier))),
                 };
                 units.push(unit);
             }
@@ -195,6 +193,18 @@ fn doc_text_of(units: &[Unit], count: &mut usize) -> (String, Vec<crate::trace::
     let parts: Vec<String> = units.iter().map(|u| u.doc_text(&mut tables, start)).collect();
     *count = start + tables.len();
     (parts.into_iter().filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n"), tables)
+}
+
+/// 新旧対照表と判定できなかった段に残った欄見出しの字だけの行（「改正後」「改」「正前」など）を
+/// 捨てる。帯の中身が画像の様式などで文字が無いと、欄見出しだけが段に分かれて残り、後続の表の
+/// セルに紛れ込む。
+fn drop_stray_labels(mut lines: Vec<Line>) -> Vec<Line> {
+    lines.retain(|l| {
+        let t: String = l.text.chars().filter(|c| !c.is_whitespace()).collect();
+        let label = !t.is_empty() && t.chars().count() <= 3 && t.chars().all(|c| "改正後前".contains(c)) && (t.contains('改') || t.contains('正'));
+        !label
+    });
+    lines
 }
 
 /// 行に組まれなかった語に、捨てた理由（欄見出しのラベルか柱の行）を付ける。

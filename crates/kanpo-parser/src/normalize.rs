@@ -65,18 +65,19 @@ const AMBIGUOUS: &str = "挑振挺挾挿掘掛故效敍敏敕敗敘教敝敞敢�
 /// 小数点、人名・地名の異体字は、ToUnicode 無しの別フォントで組まれることがあり、poppler は
 /// CID をそのまま符号位置とみなして無関係な漢字を出す（例: (1)→`挎`、(15)→`昝昫`、
 /// ①→`挭`、㈠→`掴`、(ア)→`敁`、‐→`慺`）。フォント切替で独立した 1 語になり、1em 四方に
-/// 収まる（2 桁は半角 2 グリフで 1em）ことを条件にする。
+/// 収まる（2 桁は半角 2 グリフで 1em）ことを条件にする。続けて組まれて 1 語になったもの
+/// （「（３９）(i)」）は、記号の数だけの高さまで許す。
 ///
 /// 対応は蓄積した官報の原本画像と突き合わせて確かめたもの。連番の範囲は確認できた
 /// 符号の並びから端まで延ばしている。目次のページ番号の数字（`掠`→一、`採`→二 …）は
 /// `接`・`推`・`採` など字間を空けた見出しの本物の漢字と区別できないので扱わない。
 pub(crate) fn private_cid_glyph(text: &str, width: f32, height: f32) -> Option<CidGlyph> {
-    if height > width * 1.3 {
+    let chars: Vec<char> = text.trim().chars().collect();
+    if chars.len() < 3 && height > width * 1.3 {
         return None;
     }
     let fw = |n: u32| -> String { n.to_string().chars().map(|d| char::from_u32('０' as u32 + d.to_digit(10).unwrap()).unwrap()).collect() };
     let nth = |s: &str, i: u32| s.chars().nth(i as usize);
-    let chars: Vec<char> = text.trim().chars().collect();
     let (family, mapped) = match chars.as_slice() {
         [c] => {
             let code = *c as u32;
@@ -117,6 +118,25 @@ pub(crate) fn private_cid_glyph(text: &str, width: f32, height: f32) -> Option<C
             let tens = *t as u32 - 0x661C;
             let ones = (*o as u32 - 0x6626) % 10;
             (FAM_PAREN_NUM, format!("（{}）", fw(tens * 10 + ones)))
+        }
+        // 続けて組まれて 1 語になったもの（「（３９）(i)」）。常用漢字と同じ符号だけの語は除く。
+        _ if chars.len() >= 3 => {
+            let (mut out, mut sure, mut i, mut tokens) = (String::new(), false, 0, 0);
+            while i < chars.len() {
+                let pair = chars.get(i..i + 2).map(|p| p.iter().collect::<String>());
+                let (g, n) = match pair.and_then(|p| private_cid_glyph(&p, width, width)) {
+                    Some(g) => (g, 2),
+                    None => (private_cid_glyph(&chars[i].to_string(), width, width)?, 1),
+                };
+                sure |= !g.ambiguous;
+                out.push_str(&g.text);
+                i += n;
+                tokens += 1;
+            }
+            if !sure || height > width * 1.3 * tokens as f32 {
+                return None;
+            }
+            (FAM_PAREN_NUM, out)
         }
         _ => return None,
     };
@@ -249,6 +269,11 @@ mod tests {
         assert_eq!(fix_private_cid_glyphs("昡昰", 8.0, 8.0).as_deref(), Some("（５０）"));
         assert_eq!(fix_private_cid_glyphs("慺", 8.0, 8.0).as_deref(), Some("－"));
         assert_eq!(fix_private_cid_glyphs("挭", 8.0, 8.0).as_deref(), Some("①"));
+        // 続けて組まれた「（３９）(i)」「（４０）(vii)」（(vii) は常用漢字「掛」と同じ符号）。
+        assert_eq!(fix_private_cid_glyphs("星是掕", 8.0, 16.0).as_deref(), Some("（３９）（i）"));
+        assert_eq!(fix_private_cid_glyphs("映昰掛", 8.0, 16.0).as_deref(), Some("（４０）（vii）"));
+        assert_eq!(fix_private_cid_glyphs("掛挑振", 8.0, 24.0), None);
+        assert_eq!(fix_private_cid_glyphs("星是掕", 8.0, 40.0), None);
         // 常用漢字と同じ符号は文脈が無ければ写像しない（呼び出し側が判断する）。
         assert_eq!(fix_private_cid_glyphs("振", 8.0, 8.0), None);
         assert_eq!(private_cid_glyph("振", 8.0, 8.0).map(|g| g.text).as_deref(), Some("③"));

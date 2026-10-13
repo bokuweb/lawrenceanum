@@ -403,16 +403,13 @@ fn splice_tables(runs: Vec<Run>, tables: &[Table]) -> Vec<Run> {
             let Some(len) = rest[start..].find('\u{E001}') else { break };
             let end = start + len + '\u{E001}'.len_utf8();
             buf.push(&rest[..start]);
-            match parse_table_marker(&rest[start..end]).and_then(|i| tables.get(i)) {
-                Some(t) => {
-                    flush(&mut buf, &mut out);
-                    out.push(Run {
-                        text: String::new(),
-                        underline: false,
-                        table: Some(t.to_nested()),
-                    });
-                }
-                None => {}
+            if let Some(t) = parse_table_marker(&rest[start..end]).and_then(|i| tables.get(i)) {
+                flush(&mut buf, &mut out);
+                out.push(Run {
+                    text: String::new(),
+                    underline: false,
+                    table: Some(t.to_nested()),
+                });
             }
             rest = &rest[end..];
         }
@@ -456,13 +453,28 @@ fn align_rows_by(
     if !aln.iter().any(|(i, j)| i.is_some() && j.is_some()) {
         return None;
     }
-    let mut rows = Vec::new();
+    let mut rows: Vec<ShinkyuRow> = Vec::new();
     for (ai, bi) in aln {
         let after = ai.map(|i| cell_runs_from_str(&a[i].text)).unwrap_or_default();
         let before = bi.map(|j| cell_runs_from_str(&b[j].text)).unwrap_or_default();
-        if !after.is_empty() || !before.is_empty() {
-            rows.push(ShinkyuRow { after, before, ..Default::default() });
+        if after.is_empty() && before.is_empty() {
+            continue;
         }
+        // 片側だけの行が、反対側だけの行のすぐ後に続く（見出しの文言が改正で変わった条）なら
+        // 1 行にまとめる。新設の条は改正前の欄にも「（新設）」があるので片側が空にはならない。
+        if let Some(prev) = rows.last_mut() {
+            let complement = (prev.after.is_empty() && !prev.before.is_empty() && !after.is_empty() && before.is_empty())
+                || (!prev.after.is_empty() && prev.before.is_empty() && after.is_empty() && !before.is_empty());
+            if complement {
+                if prev.after.is_empty() {
+                    prev.after = after;
+                } else {
+                    prev.before = before;
+                }
+                continue;
+            }
+        }
+        rows.push(ShinkyuRow { after, before, ..Default::default() });
     }
     Some(rows)
 }
@@ -686,6 +698,17 @@ mod tests {
         assert!(rows[1].after[0].text.contains("乙の前半の後半。"), "{rows:?}");
         assert!(rows[1].before[0].text.contains("旧乙の前半の後半。"), "{rows:?}");
         assert!(rows[2].after[0].text.contains("第四条"));
+    }
+
+    #[test]
+    fn pairs_rows_whose_heading_changed() {
+        // 見出しの文言が変わった条（改正後「（乙の手続）」・改正前「（乙の申請）」）は 1 行にまとめる。
+        let after = "（甲の規定）\n第一条　甲\n（乙の手続）\n第二条　新";
+        let before = "（甲の規定）\n第一条　甲\n（乙の申請）\n第二条　旧";
+        let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
+        let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
+        assert_eq!(rows.len(), 2, "{rows:?}");
+        assert!(rows[1].after[0].text.contains("新") && rows[1].before[0].text.contains("旧"));
     }
 
     #[test]
