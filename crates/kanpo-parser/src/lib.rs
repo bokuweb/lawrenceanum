@@ -155,6 +155,8 @@ fn combine_pages<'a>(xhtmls: impl Iterator<Item = &'a str>) -> String {
 /// 構造化用テキストの表の目印を、表を書き下したテキストに戻す。
 fn render_table_markers(text: &str, tables: &[trace::Table]) -> String {
     text.lines()
+        // 新旧対照表の終わりの目印は構造化用なので落とす。
+        .filter(|l| l.trim() != trace::SHINKYU_END)
         .map(|l| match trace::parse_table_marker(l).and_then(|i| tables.get(i)) {
             Some(t) => t.render(),
             None => l.to_string(),
