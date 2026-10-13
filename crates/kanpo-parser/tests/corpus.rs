@@ -56,6 +56,10 @@ fn corpus_matches_expected() {
         let docs: Vec<_> = a.articles.iter().map(|art| &art.document).collect();
         let json = format!("{}\n", serde_json::to_string_pretty(&docs).unwrap());
 
+        // 構造化用の内部の目印（私用領域 U+E000〜U+E002）が本文・構造化結果に漏れていない。
+        if a.text.contains(['\u{E000}', '\u{E001}', '\u{E002}']) || json.contains(['\u{E000}', '\u{E001}', '\u{E002}']) {
+            failures.push(format!("{name}: 表・表の終わりの目印が漏れている"));
+        }
         if let Some(c) = a.text.chars().find(|c| garbled(*c)) {
             failures.push(format!("{name}: 私用 CID の復元漏れ {c:?}"));
         }

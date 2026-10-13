@@ -309,7 +309,8 @@ fn append_runs(dst: &mut Vec<Run>, src: Vec<Run>) {
     if let (Some(last), Some(first)) = (dst.last_mut(), src.as_slice().first()) {
         if last.table.is_none() && first.table.is_none() {
             let next_line = first.text.lines().next().unwrap_or("");
-            let sep = if last.text.ends_with('。') || starts_structural_marker(next_line) { "\n" } else { "" };
+            let table_edge = last.text.ends_with('\u{E001}') || next_line.starts_with('\u{E000}');
+            let sep = if last.text.ends_with('。') || table_edge || starts_structural_marker(next_line) { "\n" } else { "" };
             last.text = format!("{}{sep}{}", last.text, first.text);
             src.next();
         }
@@ -327,14 +328,19 @@ fn splice_tables(runs: Vec<Run>, tables: &[Table]) -> Vec<Run> {
         }
         let mut buf: Vec<&str> = Vec::new();
         let flush = |buf: &mut Vec<&str>, out: &mut Vec<Run>| {
-            let t = buf.join("\n").trim().to_string();
+            let t = buf.concat().trim().to_string();
             if !t.is_empty() {
                 out.push(Run::plain(t));
             }
             buf.clear();
         };
-        for line in run.text.lines() {
-            match parse_table_marker(line).and_then(|i| tables.get(i)) {
+        // 目印は通常は独立した行だが、行の途中にあっても表に置き換える。
+        let mut rest = run.text.as_str();
+        while let Some(start) = rest.find('\u{E000}') {
+            let Some(len) = rest[start..].find('\u{E001}') else { break };
+            let end = start + len + '\u{E001}'.len_utf8();
+            buf.push(&rest[..start]);
+            match parse_table_marker(&rest[start..end]).and_then(|i| tables.get(i)) {
                 Some(t) => {
                     flush(&mut buf, &mut out);
                     out.push(Run {
@@ -343,9 +349,11 @@ fn splice_tables(runs: Vec<Run>, tables: &[Table]) -> Vec<Run> {
                         table: Some(t.to_nested()),
                     });
                 }
-                None => buf.push(line),
+                None => {}
             }
+            rest = &rest[end..];
         }
+        buf.push(rest);
         flush(&mut buf, &mut out);
     }
     out
