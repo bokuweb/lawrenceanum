@@ -4,7 +4,8 @@
 //! 表す。「改正後」(上) と「改正前」(下) のラベルが表の右端に縦に並ぶことを手がかりに、
 //! 見出し x(=表の右端) と上下帯の境界 y を求め、本体を 2 帯に分けて復元する。
 
-use crate::vertical::{reconstruct_cells, reconstruct_page, Col};
+use crate::trace::Unit;
+use crate::vertical::{cell_lines, page_lines, reconstruct_page, Col};
 
 /// 縦書き新旧対照表ページの「改正後／改正前」欄見出し列を検出する。
 ///
@@ -138,8 +139,8 @@ fn find_run(chars: &[char], pat: &[char]) -> Option<usize> {
 }
 
 /// 新旧対照表の段を改正後(上帯)/改正前(下帯)に分けて復元する。
-pub(crate) fn reconstruct_shinkyu(cols: Vec<Col>, header_x: f32, divider: f32) -> String {
-    ShinkyuLayout::split(cols, header_x, divider).render()
+pub(crate) fn reconstruct_shinkyu(cols: Vec<Col>, header_x: f32, divider: f32) -> Unit {
+    ShinkyuLayout::split(cols, header_x, divider).into_unit()
 }
 
 /// 新旧対照表 1 件分のカラム配置。
@@ -260,35 +261,14 @@ impl ShinkyuLayout {
         Some(!ends_here)
     }
 
-    /// `改正後`／`改正前` の欄見出し行を冠したテキストに組む。見出し行はフロントの
-    /// 新旧対照表組み(parseShinkyu)と `detect_format` の shinkyu 判定の双方に整合する。
-    pub(crate) fn render(self) -> String {
-        let join = |parts: Vec<Vec<Col>>, rebuild: fn(Vec<Col>) -> String| -> String {
-            parts
-                .into_iter()
-                .map(rebuild)
-                .filter(|t| !t.is_empty())
-                .collect::<Vec<_>>()
-                .join("\n")
-        };
-        let mut out: Vec<String> = Vec::new();
-        let pre = reconstruct_page(self.preamble);
-        if !pre.is_empty() {
-            out.push(pre);
+    /// 帯ごとに行へ組む（テキスト化は [`Unit::text`]）。
+    pub(crate) fn into_unit(self) -> Unit {
+        Unit::Shinkyu {
+            preamble: page_lines(self.preamble),
+            after: self.after.into_iter().map(cell_lines).collect(),
+            before: self.before.into_iter().map(cell_lines).collect(),
+            outside: self.trailing.into_iter().map(page_lines).collect(),
         }
-        let after = join(self.after, reconstruct_cells);
-        let before = join(self.before, reconstruct_cells);
-        if !after.is_empty() || !before.is_empty() {
-            out.push("改正後".to_string());
-            out.push(after);
-            out.push("改正前".to_string());
-            out.push(before);
-        }
-        let rest = join(self.trailing, reconstruct_page);
-        if !rest.is_empty() {
-            out.push(rest);
-        }
-        out.join("\n").trim().to_string()
     }
 }
 

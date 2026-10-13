@@ -38,6 +38,7 @@ pub mod pdftotext;
 pub mod segment;
 pub mod shinkyu;
 pub mod table;
+pub mod trace;
 pub mod vertical;
 
 pub use format::detect_format_of;
@@ -60,6 +61,54 @@ pub fn extract(pdf: &[u8]) -> Result<Extracted> {
     let text = reconstruct_vertical(&xhtml);
     let format = format::detect_format(&text);
     Ok(Extracted { text, format })
+}
+
+/// 復元過程まで含めた解析結果（playground・デバッグ用）。
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct Analysis {
+    /// ページごとの語・領域・行の割り当て。
+    pub pages: Vec<trace::PageTrace>,
+    /// [`reconstruct_vertical`] と同じ本文。
+    pub text: String,
+    /// 本文全体の形式判定（"prose"/"shinkyu"/"unknown"）。
+    pub format: String,
+    /// 記事ごとの本文と構造化結果。
+    pub articles: Vec<ArticleAnalysis>,
+}
+
+/// 記事 1 件の本文と構造化結果。
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct ArticleAnalysis {
+    pub text: String,
+    pub document: Document,
+}
+
+/// `pdftotext -bbox-layout` の XHTML を解析し、本文・記事・構造化結果に加えて、各語が
+/// どの領域（前文・改正後・改正前・表外・本文）のどの行に組まれたかを返す。
+/// poppler を使わないので WASM でも動く。
+pub fn analyze(xhtml: &str) -> Analysis {
+    let pages = vertical::analyze_pages(xhtml);
+    let text = pages
+        .iter()
+        .map(|p| p.text.as_str())
+        .filter(|t| !t.is_empty())
+        .collect::<Vec<_>>()
+        .join("\n")
+        .trim()
+        .to_string();
+    let articles = segment_articles(&text)
+        .into_iter()
+        .map(|text| ArticleAnalysis {
+            document: Document::from_text(&text),
+            text,
+        })
+        .collect();
+    Analysis {
+        format: format::detect_format(&text),
+        pages,
+        text,
+        articles,
+    }
 }
 
 /// PDF バイト列から構造化した [`Document`] を得る。HTML や表へ変換しやすい形。

@@ -4,10 +4,13 @@ use scraper::{Html, Selector};
 
 use crate::normalize::{fix_private_cid_glyphs, is_margin_noise, is_private_use, normalize_char};
 use crate::shinkyu::{detect_shinkyu_bands_headerless, detect_shinkyu_header, reconstruct_shinkyu, ShinkyuLayout};
+use crate::trace::{join_lines, Line, PageTrace, Unit, Word, WordStatus};
 
 /// 縦書き1カラム = 1 word とみなした語。`y`/`y1` は上端/下端。
 #[derive(Clone)]
 pub(crate) struct Col {
+    /// ページ内の語 ID（[`Word::id`]）。
+    pub(crate) id: usize,
     pub(crate) x: f32,
     pub(crate) x1: f32,
     pub(crate) y: f32,
@@ -26,68 +29,101 @@ pub(crate) const BOTTOM_MARGIN: f32 = 30.0;
 /// だけで正しい読み順が復元でき、`-layout` で起きる「別記事の横方向への混線」を解消できる。
 /// 複数ページの PDF はページごとに復元して連結する。
 pub fn reconstruct_vertical(xhtml: &str) -> String {
+    analyze_pages(xhtml)
+        .iter()
+        .map(|p| p.text.as_str())
+        .filter(|t| !t.is_empty())
+        .collect::<Vec<_>>()
+        .join("\n")
+        .trim()
+        .to_string()
+}
+
+/// ページごとに読み順を復元し、各語の割り当て（どの領域のどの行か）も返す。
+pub(crate) fn analyze_pages(xhtml: &str) -> Vec<PageTrace> {
     let doc = Html::parse_document(xhtml);
     let page_sel = Selector::parse("page").unwrap();
 
-    let mut pages: Vec<String> = Vec::new();
+    let mut pages: Vec<PageTrace> = Vec::new();
     for page in doc.select(&page_sel) {
-        let height = page
-            .value()
-            .attr("height")
-            .and_then(|s| s.parse::<f32>().ok())
-            .unwrap_or(842.0);
-        let cols = page_words(page, height);
-        // まず段組み(tier)に分ける。官報本紙は2段組が多く、段を分けないと「同 x にある
-        // 上段の列と下段の列」が1列に連結され混線する。表と無関係記事が同居するページも
-        // tier で分かれるので、混入を防げる。
+        let dim = |k: &str, default: f32| page.value().attr(k).and_then(|s| s.parse::<f32>().ok()).unwrap_or(default);
+        let (width, height) = (dim("width", 595.0), dim("height", 842.0));
+        let (cols, mut words) = page_words_traced(page, height);
+        let mut layout = "tiers";
+        let mut units: Vec<Unit> = Vec::new();
         // 多ページ新旧対照表の継続ページ（2 ページ目以降）は「改正後/改正前」の欄見出しを
         // 繰り返さない。ページ全体に見出しが無く、上下半がほぼ同一内容（改正後 ≒ 改正前）なら、
         // 継続ページとみなして上下帯に分け、改正後/改正前の見出しを補って復元する。
         // ※ 見出しのあるページ（先頭ページ）や、見出しはないが別記事が同居するページ
         //   （例: 郵便+型式認定）は段(tier)単位で扱う必要があるため、ここでは除外する。
-        if detect_shinkyu_header(&cols).is_none() {
-            if let Some(divider) = detect_shinkyu_bands_headerless(&cols, height) {
-                let page_text = reconstruct_shinkyu(cols, f32::MAX, divider);
-                if !page_text.is_empty() {
-                    pages.push(page_text);
-                }
-                continue;
-            }
-        }
-        // 通常ページ: まず段組み(tier)に分け、新旧対照表の見出しがある段は 2 帯へ、
-        // 無ければ右→左復元する。表と無関係記事が同居するページも tier で分かれ混入を防げる。
-        // 見出しのある段に続く段の組（表がページ下半へ続く形）は、表の続きなら取り込む。
-        let mut tiers = split_tiers(cols);
-        let mut i = 0;
-        while i < tiers.len() {
-            let tier = std::mem::take(&mut tiers[i]);
-            i += 1;
-            let page_text = match detect_shinkyu_header(&tier) {
-                Some((header_x, divider)) => {
-                    let mut layout = ShinkyuLayout::split(tier, header_x, divider);
-                    while i + 1 < tiers.len()
-                        && detect_shinkyu_header(&tiers[i]).is_none()
-                        && detect_shinkyu_header(&tiers[i + 1]).is_none()
-                    {
-                        let (head, tail) = tiers.split_at_mut(i + 1);
-                        let Some(more) = layout.absorb_continuation(&mut head[i], &mut tail[0]) else {
-                            break;
-                        };
-                        i += 2;
-                        if !more {
-                            break;
+        let headerless = detect_shinkyu_header(&cols)
+            .is_none()
+            .then(|| detect_shinkyu_bands_headerless(&cols, height))
+            .flatten();
+        if let Some(divider) = headerless {
+            layout = "headerless_shinkyu";
+            units.push(reconstruct_shinkyu(cols, f32::MAX, divider));
+        } else {
+            // 通常ページ: まず段組み(tier)に分ける。官報本紙は2段組が多く、段を分けないと
+            // 「同 x にある上段の列と下段の列」が1列に連結され混線する。新旧対照表の見出しが
+            // ある段は 2 帯へ、無ければ右→左復元する。表と無関係記事が同居するページも
+            // tier で分かれ混入を防げる。見出しのある段に続く段の組（表がページ下半へ続く形）は、
+            // 表の続きなら取り込む。
+            let mut tiers = split_tiers(cols);
+            let mut i = 0;
+            while i < tiers.len() {
+                let tier = std::mem::take(&mut tiers[i]);
+                i += 1;
+                let unit = match detect_shinkyu_header(&tier) {
+                    Some((header_x, divider)) => {
+                        let mut layout = ShinkyuLayout::split(tier, header_x, divider);
+                        while i + 1 < tiers.len()
+                            && detect_shinkyu_header(&tiers[i]).is_none()
+                            && detect_shinkyu_header(&tiers[i + 1]).is_none()
+                        {
+                            let (head, tail) = tiers.split_at_mut(i + 1);
+                            let Some(more) = layout.absorb_continuation(&mut head[i], &mut tail[0]) else {
+                                break;
+                            };
+                            i += 2;
+                            if !more {
+                                break;
+                            }
                         }
+                        layout.into_unit()
                     }
-                    layout.render()
-                }
-                None => reconstruct_page(tier),
-            };
-            if !page_text.is_empty() {
-                pages.push(page_text);
+                    None => Unit::Plain(page_lines(tier)),
+                };
+                units.push(unit);
             }
         }
+        let text = units
+            .iter()
+            .map(Unit::text)
+            .filter(|t| !t.is_empty())
+            .collect::<Vec<_>>()
+            .join("\n");
+        let regions: Vec<_> = units.into_iter().enumerate().flat_map(|(i, u)| u.regions(i)).collect();
+        // 行に組まれなかった語は、欄見出しのラベルか柱の行として捨てたもの。
+        let used: std::collections::HashSet<usize> =
+            regions.iter().flat_map(|r| r.lines.iter().flat_map(|l| l.words.iter().copied())).collect();
+        for w in words.iter_mut().filter(|w| w.status == WordStatus::Used && !used.contains(&w.id)) {
+            w.status = if matches!(w.text.as_str(), "改" | "正" | "後" | "前") {
+                WordStatus::HeaderLabel
+            } else {
+                WordStatus::Noise
+            };
+        }
+        pages.push(PageTrace {
+            width,
+            height,
+            layout,
+            words,
+            regions,
+            text,
+        });
     }
-    pages.join("\n").trim().to_string()
+    pages
 }
 
 /// `-bbox-layout` の XHTML をページ単位に解析し、`(ページ高さ, 余白除去済みカラム列)` を返す。
@@ -108,15 +144,21 @@ pub(crate) fn parse_page_cols(xhtml: &str) -> Vec<(f32, Vec<Col>)> {
     out
 }
 
-/// 1 ページの `<word>` を縦書きカラム語として読み出す。
+fn page_words(page: scraper::ElementRef, height: f32) -> Vec<Col> {
+    page_words_traced(page, height).0
+}
+
+/// 1 ページの `<word>` を縦書きカラム語として読み出す。可視化用に全語の一覧も返す
+/// （カラム語の `id` はその添字）。
 ///
 /// 余白帯の柱（発行日・「官報」等の running header）は **語全体が余白に収まるもの**だけ
 /// 落とす。縦書き語の bbox は実際の字面より約 1em 上にずれて出るため、段の先頭列
 /// （例: 「〇総務省令第五十八号」）は上端 y が余白帯にかかる。上端だけで判定すると
 /// 記事見出しや前文の列がまるごと消える。
-fn page_words(page: scraper::ElementRef, height: f32) -> Vec<Col> {
+fn page_words_traced(page: scraper::ElementRef, height: f32) -> (Vec<Col>, Vec<Word>) {
     let word_sel = Selector::parse("word").unwrap();
     let mut cols: Vec<Col> = Vec::new();
+    let mut words: Vec<Word> = Vec::new();
     for w in page.select(&word_sel) {
         let v = w.value();
         // scraper は HTML パーサのため属性名を小文字化する（xMin -> xmin）。
@@ -124,9 +166,6 @@ fn page_words(page: scraper::ElementRef, height: f32) -> Vec<Col> {
         let (Some(x), Some(x1), Some(y), Some(y1)) = (num("xmin"), num("xmax"), num("ymin"), num("ymax")) else {
             continue;
         };
-        if y1 <= TOP_MARGIN || y >= height - BOTTOM_MARGIN {
-            continue;
-        }
         let raw: String = w.text().collect();
         // scraper が実体参照は復号済み。私用 CID の括弧付き数字等を復元し、約物を正規化し、
         // 私用領域(傍線等のフォント固有グリフ)を除去する。
@@ -134,12 +173,36 @@ fn page_words(page: scraper::ElementRef, height: f32) -> Vec<Col> {
             Some(fixed) => fixed,
             None => raw.chars().filter(|c| !is_private_use(*c)).map(normalize_char).collect(),
         };
-        if text.trim().is_empty() {
-            continue;
+        let status = if y1 <= TOP_MARGIN || y >= height - BOTTOM_MARGIN {
+            WordStatus::Margin
+        } else if text.trim().is_empty() {
+            WordStatus::Empty
+        } else {
+            WordStatus::Used
+        };
+        let id = words.len();
+        if status == WordStatus::Used {
+            cols.push(Col {
+                id,
+                x,
+                x1,
+                y,
+                y1,
+                text: text.clone(),
+            });
         }
-        cols.push(Col { x, x1, y, y1, text });
+        words.push(Word {
+            id,
+            x0: x,
+            y0: y,
+            x1,
+            y1,
+            raw,
+            text,
+            status,
+        });
     }
-    cols
+    (cols, words)
 }
 
 /// `Col`（縦書き 1 カラム語）から、別表復元で使う中心 y 付きの語へ。
@@ -217,7 +280,7 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, out: &mut Vec<Vec<Col>>) {
     split_tiers_rec(bottom, depth + 1, out);
 }
 
-/// 新旧対照表の帯を組む。[`reconstruct_page`] に加えて表のセルを扱う。
+/// 新旧対照表の帯を行に組む。[`page_lines`] に加えて表のセルを扱う。
 ///
 /// - 同じ列の中で語と語の間が 1em 前後以上空いていれば全角空白を挟む。帯の中では列内の
 ///   空きが条見出しと本文の区切り（`第六十二条　かつお…`）やセル境界（物質名｜係数、
@@ -225,11 +288,14 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, out: &mut Vec<Vec<Col>>) {
 /// - 2em 以上の空きで 2 つ以上のセルに分かれる列（表の行頭列）の後に、字下げして始まり
 ///   各セルの y 範囲に収まる列が続けば、それは折り返したセルの続きとみなし、該当セルへ
 ///   連結する（`（２）Ｎ－アルキル－Ｎ・` ＋ `Ｎ・Ｎ－トリメチル…` → 係数の前に組む）。
-pub(crate) fn reconstruct_cells(cols: Vec<Col>) -> String {
-    let mut lines: Vec<String> = Vec::new();
+pub(crate) fn cell_lines(cols: Vec<Col>) -> Vec<Line> {
+    let mut lines: Vec<Line> = Vec::new();
     // 表の行: (行頭列の上端 y, 1em, セル列)。
     let mut row: Option<(f32, f32, Vec<Cell>)> = None;
-    let render = |cells: Vec<Cell>| cells.into_iter().map(|c| c.text).collect::<Vec<_>>().join("\u{3000}");
+    let render = |cells: Vec<Cell>| Line {
+        text: cells.iter().map(|c| c.text.as_str()).collect::<Vec<_>>().join("\u{3000}"),
+        words: cells.into_iter().flat_map(|c| c.words).collect(),
+    };
     for g in column_groups(cols) {
         let em = (g[0].x1 - g[0].x).max(1.0);
         let cells = split_cells(g, em);
@@ -241,6 +307,7 @@ pub(crate) fn reconstruct_cells(cols: Vec<Col>) -> String {
             if let Some(slots) = slots {
                 for (c, i) in cells.into_iter().zip(slots) {
                     row_cells[i].text.push_str(&c.text);
+                    row_cells[i].words.extend(c.words);
                 }
                 continue;
             }
@@ -250,7 +317,7 @@ pub(crate) fn reconstruct_cells(cols: Vec<Col>) -> String {
             row = Some((top, em, cells));
         } else {
             let line = render(cells);
-            if !is_margin_noise(&line) {
+            if !is_margin_noise(&line.text) {
                 lines.push(line);
             }
         }
@@ -258,7 +325,7 @@ pub(crate) fn reconstruct_cells(cols: Vec<Col>) -> String {
     if let Some((_, _, cells)) = row {
         lines.push(render(cells));
     }
-    lines.join("\n").trim().to_string()
+    lines
 }
 
 /// 列内の空きを空白とみなす閾値（em 比）。0em（フォント切替などの分割）とは区別する。
@@ -271,6 +338,7 @@ struct Cell {
     y0: f32,
     y1: f32,
     text: String,
+    words: Vec<usize>,
 }
 
 /// 1 列（y 昇順の語）を、空きの大きさに応じて空白挿入・セル分割する。
@@ -284,11 +352,13 @@ fn split_cells(g: Vec<Col>, em: f32) -> Vec<Cell> {
                 }
                 cell.y1 = cell.y1.max(c.y1);
                 cell.text.push_str(&c.text);
+                cell.words.push(c.id);
             }
             _ => cells.push(Cell {
                 y0: c.y,
                 y1: c.y1,
                 text: c.text,
+                words: vec![c.id],
             }),
         }
     }
@@ -353,18 +423,25 @@ fn column_groups(mut cols: Vec<Col>) -> Vec<Vec<Col>> {
     groups
 }
 
-/// 1ページ分（または1段分）のカラム語を右→左・上→下に並べて本文に組む。柱（発行日・号数）
-/// の列は捨てる。
+/// 1ページ分（または1段分）のカラム語を右→左・上→下に並べて本文に組む。
 pub(crate) fn reconstruct_page(cols: Vec<Col>) -> String {
-    let mut lines: Vec<String> = Vec::new();
+    join_lines(&page_lines(cols))
+}
+
+/// カラム語を右→左・上→下に並べ、縦の列ごとの行にする。柱（発行日・号数）の列は捨てる。
+pub(crate) fn page_lines(cols: Vec<Col>) -> Vec<Line> {
+    let mut lines: Vec<Line> = Vec::new();
     for g in column_groups(cols) {
-        let line: String = g.into_iter().map(|c| c.text).collect();
-        if is_margin_noise(&line) {
+        let text: String = g.iter().map(|c| c.text.as_str()).collect();
+        if is_margin_noise(&text) {
             continue;
         }
-        lines.push(line);
+        lines.push(Line {
+            text,
+            words: g.iter().map(|c| c.id).collect(),
+        });
     }
-    lines.join("\n").trim().to_string()
+    lines
 }
 
 #[cfg(test)]
