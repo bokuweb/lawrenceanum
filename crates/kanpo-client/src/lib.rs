@@ -13,7 +13,7 @@ pub mod http;
 /// として再エクスポートする（`pdf::extract` / `pdf::segment_articles` / `pdf::detect_format_of` 等）。
 pub use kanpo_parser as pdf;
 
-pub use http::{page_pdf_url, HttpProvider};
+pub use http::{issue_dir, page_pdf_url, HttpProvider};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KanpoIssue {

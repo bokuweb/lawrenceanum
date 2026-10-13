@@ -3,21 +3,21 @@
 //! 官報には `/Rotate 270` で横向きに置かれ、本文を横書きで組んだページがある（官庁報告
 //! 「労働」欄の最低賃金公示、公告「諸事項」など）。`pdftotext -bbox-layout` はこのページを
 //! 回転後の座標（横長、x≈0–842 / y≈0–595）で出すが、`<page>` の幅・高さは回転前の
-//! 595×842 のままなので、ページ寸法では判別できない。柱の位置と語の形で判定する。
+//! 595×842 のままなので、ページ寸法では判別できない。柱の位置で判定する（[`is_left_strip_header`]）。
 //!
 //! 縦書き本紙の段が、回転により左から右へ並ぶ「列」になる（x≈61–241, 245–421, 429–789…）。
 //! 2 段抜きの記事は列の下に全幅で置かれ、柱（「官」「報」「令和 年 月 日」「第 号」）は
-//! 左端の帯 (x≈42–55) に縦に並ぶ。`pdftotext` 自身の読み順は 1 列なら正しいが、
+//! 左端の帯 (x≈42–55) に縦に並ぶ。`pdftotext` 自身の読み順（`<line>` の順）は 1 列なら正しいが、
 //! 複数列だと列をまたいで行単位に交互に並ぶため、列を見つけて左→右・各列上→下に組み直す。
 //!
-//! 号外の財務諸表など、回転せず縦長のページに横書きで組んだページも同じように読む
-//! （柱は縦書きページと同じく上端の帯にある）。
+//! 号外の公告・決算公告など、回転せず縦長のページに横書きで組んだページも同じように読む。
 
-use crate::vertical::{Col, BOTTOM_MARGIN, TOP_MARGIN};
+use crate::trace;
+use crate::vertical::Col;
 
 /// 回転ページの左端の柱の帯（回転前のページ上余白）。語全体がこの x より左にあれば柱として
 /// 捨てる。本文の左端は x≈61、表の丸数字は x≈53 から始まるので、語の右端で判定する。
-const LEFT_STRIP: f32 = 56.0;
+pub(crate) const LEFT_STRIP: f32 = 56.0;
 /// 列の間の溝とみなす最小の空き(pt)。列間は 4〜8pt。
 const MIN_GUTTER: f32 = 3.0;
 /// 溝に語が食い込むのを許す幅(pt)。両端をこれだけ縮めるので、`2 * GUTTER_OVERLAP - MIN_GUTTER`
@@ -29,58 +29,22 @@ const ALIGN_TOL: f32 = 1.0;
 /// 本文の段とみなす最小の列幅(pt)。横組みの段の幅は約 176–180pt、表の項目名の列は 100pt 前後。
 const MIN_TEXT_COLUMN_WIDTH: f32 = 150.0;
 
-/// 回転ページか。柱の「官」「報」が上端ではなく左端の帯にある。
+/// 回転ページの柱（左端の帯にある「官」「報」）か。
 ///
-/// テキスト層に柱しか無い回転ページもある（本文が画像・アウトライン）。語の形では判別
-/// できないので、柱の位置で見る。
-fn is_rotated_page(words: &[Col]) -> bool {
-    words
-        .iter()
-        .any(|w| w.x1 <= LEFT_STRIP && matches!(w.text.trim(), "官" | "報"))
+/// 回転ページでは柱が上端ではなく左端の帯に縦に並び、上端の帯には本文が来る。テキスト層に
+/// 柱しか無い回転ページもある（本文が画像・アウトライン）ので、語の形ではなく柱の位置で見る。
+pub(crate) fn is_left_strip_header(x1: f32, text: &str) -> bool {
+    x1 <= LEFT_STRIP && matches!(text.trim(), "官" | "報")
 }
 
-/// ページを横組みとして読むか。回転ページか、本文が横書き（横長の語が多い）なら横組み。
+/// 横組みの語（柱は除去済み）を読み順の行に組む。
 ///
-/// 縦書きページの語は 1 列 = 1 語で縦長、横書きの語は横長になる。2 文字以上の語の文字数を
-/// 縦長/横長で数えて比べる（回転ページの柱「令和」「金曜日」は縦長なので、語数ではなく
-/// 文字数で比べる）。
-pub(crate) fn is_horizontal_page(words: &[Col]) -> bool {
-    if is_rotated_page(words) {
-        return true;
-    }
-    let (mut wide, mut tall) = (0usize, 0usize);
-    for w in words {
-        let n = w.text.chars().count();
-        if n < 2 {
-            continue;
-        }
-        let (dx, dy) = (w.x1 - w.x, w.y1 - w.y);
-        if dx > dy * 1.5 {
-            wide += n;
-        } else if dy > dx * 1.5 {
-            tall += n;
-        }
-    }
-    wide > tall
-}
-
-/// 横組みページの語から本文を組む。柱を捨て、列を見つけて読み順に並べる。
-///
-/// 柱は帯ごと捨てる（回転ページは左端帯、そうでなければ上下の余白帯）。`is_margin_noise` は
-/// 使わない。横組みの日付行「令和８年10月２日」は数字を除くと柱の「令和年月日」と同じ骨格に
-/// なり、本文が消える。
-pub(crate) fn reconstruct_horizontal(words: Vec<Col>, height: f32) -> String {
-    let words: Vec<Col> = if is_rotated_page(&words) {
-        words.into_iter().filter(|w| w.x1 > LEFT_STRIP).collect()
-    } else {
-        words
-            .into_iter()
-            .filter(|w| w.y1 > TOP_MARGIN && w.y < height - BOTTOM_MARGIN)
-            .collect()
-    };
-    let mut lines: Vec<String> = Vec::new();
-    order_region(words, &mut lines);
-    lines.join("\n").trim().to_string()
+/// `is_margin_noise` は使わない。横組みの日付行「令和８年10月２日」は数字を除くと柱の
+/// 「令和年月日」と同じ骨格になり、本文が消える。
+pub(crate) fn horizontal_lines(cols: Vec<Col>) -> Vec<trace::Line> {
+    let mut lines: Vec<trace::Line> = Vec::new();
+    order_region(cols, &mut lines);
+    lines
 }
 
 /// 横書きの 1 行（y が重なる語の並び、x 昇順）。
@@ -133,7 +97,7 @@ fn group_lines(words: &[Col]) -> Vec<Line> {
 ///    行間は 1〜2pt しかないため、あらゆる行間で切ると多段組の行が交互に並んでしまう。
 ///    「列組みになる部分」が最も大きくなる 1 か所だけで切る（全幅記事と段組の境目）。
 /// 3. どちらも無ければ 1 本の流れとして行を上→下に出す。
-fn order_region(words: Vec<Col>, out: &mut Vec<String>) {
+fn order_region(words: Vec<Col>, out: &mut Vec<trace::Line>) {
     if words.is_empty() {
         return;
     }
@@ -152,7 +116,11 @@ fn order_region(words: Vec<Col>, out: &mut Vec<String>) {
             return;
         }
     }
-    out.extend(lines.iter().map(|l| render_line(&l.words)));
+    out.extend(
+        lines
+            .iter()
+            .map(|l| trace::Line::text(render_line(&l.words), l.words.iter().map(|w| w.id).collect())),
+    );
 }
 
 /// 領域を左右の列に分ける縦の溝の x。左から順に、列分割として妥当な最初の溝を返す。
@@ -161,9 +129,19 @@ fn order_region(words: Vec<Col>, out: &mut Vec<String>) {
 /// （句読点・括弧）や、回転した縦書き部分の字下げで、隣の列と数 pt 重なることがあるため。
 /// 語は中心 x で左右に振り分ける（[`x_center`]）。
 fn column_cut(words: &[Col]) -> Option<f32> {
-    let mut spans: Vec<(f32, f32)> = words
-        .iter()
-        .map(|w| (w.x + GUTTER_OVERLAP, w.x1 - GUTTER_OVERLAP))
+    // 字間空けの見出し（「中　間　決　算　公　告」）は 1 字語の並びだが、1 語として溝をふさぐ。
+    let mut spans: Vec<(f32, f32)> = Vec::new();
+    for line in group_lines(words) {
+        for (w, joined) in line.words.iter().zip(letter_spaced(&line.words)) {
+            match spans.last_mut() {
+                Some(span) if joined => span.1 = w.x1,
+                _ => spans.push((w.x, w.x1)),
+            }
+        }
+    }
+    let mut spans: Vec<(f32, f32)> = spans
+        .into_iter()
+        .map(|(x, x1)| (x + GUTTER_OVERLAP, x1 - GUTTER_OVERLAP))
         .filter(|(a, b)| a < b)
         .collect();
     spans.sort_by(|a, b| a.0.total_cmp(&b.0));
@@ -253,32 +231,38 @@ fn band_cut(lines: &[Line]) -> Option<f32> {
 ///   （表の次のセル）では区切る。
 fn render_line(words: &[Col]) -> String {
     let mut s = String::new();
-    let mut prev: Option<&Col> = None;
-    // 字間空けの見出しの字間（直前の 1 字語どうしの空き）。
-    let mut spaced_gap: Option<f32> = None;
-    for w in words {
-        if let Some(p) = prev {
+    for (i, (w, joined)) in words.iter().zip(letter_spaced(words)).enumerate() {
+        if i > 0 && !joined {
+            let p = &words[i - 1];
             let em = (p.y1 - p.y).min(w.y1 - w.y).max(1.0);
-            let gap = w.x - p.x1;
-            let single = p.text.chars().count() == 1 && w.text.chars().count() == 1;
-            let letter_spaced = single
-                && match spaced_gap {
-                    None => gap <= em * 8.0,
-                    Some(g) => (gap - g).abs() <= em,
-                };
-            if letter_spaced {
-                spaced_gap = Some(gap);
-            } else {
-                spaced_gap = None;
-                if gap >= em * 0.75 {
-                    s.push('\u{3000}');
-                }
+            if w.x - p.x1 >= em * 0.75 {
+                s.push('\u{3000}');
             }
         }
         s.push_str(&w.text);
-        prev = Some(w);
     }
     s
+}
+
+/// 1 行の語（x 昇順）のそれぞれが、直前の語と字間空けの見出しとしてつながるか（先頭は false）。
+/// 1 字語どうしで、字間が 8em 以内かつ見出しの中でほぼ一定なら、つながる。
+fn letter_spaced(words: &[Col]) -> Vec<bool> {
+    let mut out = vec![false; words.len()];
+    // 字間空けの見出しの字間（直前の 1 字語どうしの空き）。
+    let mut spaced_gap: Option<f32> = None;
+    for i in 1..words.len() {
+        let (p, w) = (&words[i - 1], &words[i]);
+        let em = (p.y1 - p.y).min(w.y1 - w.y).max(1.0);
+        let gap = w.x - p.x1;
+        let single = p.text.chars().count() == 1 && w.text.chars().count() == 1;
+        out[i] = single
+            && match spaced_gap {
+                None => gap <= em * 8.0,
+                Some(g) => (gap - g).abs() <= em,
+            };
+        spaced_gap = out[i].then_some(gap);
+    }
+    out
 }
 
 #[cfg(test)]
@@ -287,6 +271,7 @@ mod tests {
 
     fn w(x: f32, x1: f32, y: f32, text: &str) -> Col {
         Col {
+            id: 0,
             x,
             x1,
             y,
@@ -295,63 +280,22 @@ mod tests {
         }
     }
 
+    fn read(words: Vec<Col>) -> String {
+        horizontal_lines(words)
+            .into_iter()
+            .map(|l| l.text)
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+
     #[test]
-    fn detects_horizontal_page_by_word_shape() {
-        // 柱の縦長語（令和・金曜日）より、本文の横長語の文字数が多ければ横組み。
-        let words = vec![
-            Col {
-                x: 44.0,
-                x1: 54.0,
-                y: 487.0,
-                y1: 507.0,
-                text: "令和".into(),
-            },
-            Col {
-                x: 44.0,
-                x1: 54.0,
-                y: 362.0,
-                y1: 392.0,
-                text: "金曜日".into(),
-            },
-            w(90.0, 207.0, 47.0, "相続財産清算人の選任及び相"),
-        ];
-        assert!(is_horizontal_page(&words));
-        // 縦書きの列（幅 1em・高さ数文字分）だけなら縦組み。
-        let vertical = vec![Col {
-            x: 100.0,
-            x1: 108.0,
-            y: 100.0,
-            y1: 160.0,
-            text: "縦書きの列".into(),
-        }];
-        assert!(!is_horizontal_page(&vertical));
-        // テキスト層が柱だけの回転ページ（柱の「官」「報」が左端帯にある）も横組みとして扱い、
-        // 柱を捨てて空になる。
-        let header_only = vec![
-            Col {
-                x: 42.3,
-                x1: 54.5,
-                y: 315.5,
-                y1: 327.5,
-                text: "官".into(),
-            },
-            Col {
-                x: 42.3,
-                x1: 54.5,
-                y: 267.5,
-                y1: 279.5,
-                text: "報".into(),
-            },
-            Col {
-                x: 44.1,
-                x1: 54.3,
-                y: 362.5,
-                y1: 392.5,
-                text: "金曜日".into(),
-            },
-        ];
-        assert!(is_horizontal_page(&header_only));
-        assert_eq!(reconstruct_horizontal(header_only, 842.0), "");
+    fn detects_rotated_page_header_in_left_strip() {
+        // 回転ページの柱は左端の帯（x≈42–55）にある。縦書きページの柱（上端の帯）や本文の
+        // 「官」とは区別する。
+        assert!(is_left_strip_header(54.5, "官"));
+        assert!(is_left_strip_header(54.5, "報"));
+        assert!(!is_left_strip_header(279.5, "官"));
+        assert!(!is_left_strip_header(54.3, "金曜日"));
     }
 
     #[test]
@@ -366,19 +310,8 @@ mod tests {
             w(61.0, 241.0, 80.0, "左三"),
             w(61.0, 421.0, 100.0, "全幅一"),
             w(61.0, 421.0, 110.0, "全幅二"),
-            // 左端帯の柱は捨てる。
-            Col {
-                x: 42.0,
-                x1: 54.0,
-                y: 300.0,
-                y1: 312.0,
-                text: "官".into(),
-            },
         ];
-        assert_eq!(
-            reconstruct_horizontal(words, 842.0),
-            "左一\n左二\n左三\n右一\n右二\n全幅一\n全幅二"
-        );
+        assert_eq!(read(words), "左一\n左二\n左三\n右一\n右二\n全幅一\n全幅二");
     }
 
     #[test]
@@ -392,9 +325,20 @@ mod tests {
             w(172.0, 412.0, 162.0, "内容二"),
         ];
         assert_eq!(
-            reconstruct_horizontal(words, 842.0),
+            read(words),
             "項目一\u{3000}内容一の一行目\n内容一の二行目\n項目二\u{3000}内容二"
         );
+    }
+
+    #[test]
+    fn keeps_word_ids_of_each_line() {
+        let mut a = w(61.0, 241.0, 100.0, "佐賀労働局長");
+        a.id = 7;
+        let mut b = w(249.0, 289.0, 100.0, "田之上英治");
+        b.id = 9;
+        let lines = horizontal_lines(vec![b, a]);
+        assert_eq!(lines.len(), 1);
+        assert_eq!(lines[0].words, vec![7, 9]);
     }
 
     #[test]

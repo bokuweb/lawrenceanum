@@ -8,34 +8,35 @@
 use anyhow::Result;
 use quick_xml::events::Event;
 use quick_xml::Reader;
+use serde::{Deserialize, Serialize};
 
 use crate::pdftotext::run_pdftocairo_svg;
 
 /// 縦罫線。`x` 位置に `y0..y1` の範囲で伸びる。
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub(crate) struct VRule {
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub struct VRule {
     pub x: f32,
     pub y0: f32,
     pub y1: f32,
 }
 
 /// 横罫線。`y` 位置に `x0..x1` の範囲で伸びる。
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub(crate) struct HRule {
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub struct HRule {
     pub y: f32,
     pub x0: f32,
     pub x1: f32,
 }
 
 /// 1 ページ分の罫線。
-#[derive(Debug, Clone, Default)]
-pub(crate) struct PageRules {
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+pub struct PageRules {
     pub vertical: Vec<VRule>,
     pub horizontal: Vec<HRule>,
 }
 
 /// PDF（1 ページ）から罫線を抽出する。poppler `pdftocairo` を使う。
-pub(crate) fn extract_rules(pdf: &[u8]) -> Result<PageRules> {
+pub fn extract_rules(pdf: &[u8]) -> Result<PageRules> {
     let svg = run_pdftocairo_svg(pdf)?;
     Ok(parse_svg_rules(&svg))
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { LayoutDashboard, Search, BookOpen, History, Settings, Scale, Landmark, MessageSquare, Bell, CalendarClock, FileText, ScrollText, Network, Building2, Users, Briefcase, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Search, BookOpen, History, Settings, Scale, Landmark, MessageSquare, Bell, CalendarClock, FileText, ScrollText, Network, Building2, Users, Briefcase, BarChart3, ScanText } from "lucide-react";
 import { NavLink, useLocation } from "react-router";
 import { cn } from "./ui/utils";
 import { api } from "../data/api";
@@ -51,6 +51,7 @@ const items: { path: string; label: string; icon: any; matchPrefix?: string }[] 
   { path: "/wiki", label: "wiki", icon: Network, matchPrefix: "/wiki" },
   { path: "/enforcement", label: "施行予定", icon: CalendarClock, matchPrefix: "/enforcement" },
   { path: "/updates", label: "更新履歴", icon: History },
+  { path: "/kanpo-playground", label: "官報パーサ", icon: ScanText },
   { path: "/settings", label: "設定", icon: Settings },
 ];
 

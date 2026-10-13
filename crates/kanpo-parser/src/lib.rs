@@ -32,6 +32,7 @@
 use anyhow::Result;
 
 pub mod format;
+pub mod grid;
 mod horizontal;
 pub mod lines;
 pub mod model;
@@ -40,6 +41,7 @@ pub mod pdftotext;
 pub mod segment;
 pub mod shinkyu;
 pub mod table;
+pub mod trace;
 pub mod vertical;
 
 pub use format::detect_format_of;
@@ -62,6 +64,117 @@ pub fn extract(pdf: &[u8]) -> Result<Extracted> {
     let text = reconstruct_vertical(&xhtml);
     let format = format::detect_format(&text);
     Ok(Extracted { text, format })
+}
+
+/// 復元過程まで含めた解析結果（playground・デバッグ用）。
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct Analysis {
+    /// ページごとの語・領域・行の割り当て。
+    pub pages: Vec<trace::PageTrace>,
+    /// [`reconstruct_vertical`] と同じ本文。
+    pub text: String,
+    /// 本文全体の形式判定（"prose"/"shinkyu"/"unknown"）。
+    pub format: String,
+    /// 記事ごとの本文と構造化結果。
+    pub articles: Vec<ArticleAnalysis>,
+}
+
+/// 記事 1 件の本文と構造化結果。
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct ArticleAnalysis {
+    pub text: String,
+    pub document: Document,
+}
+
+/// `pdftotext -bbox-layout` の XHTML を解析し、本文・記事・構造化結果に加えて、各語が
+/// どの領域（前文・改正後・改正前・表外・本文）のどの行に組まれたかを返す。
+/// poppler を使わないので WASM でも動く。
+pub fn analyze(xhtml: &str) -> Analysis {
+    analyze_with_rules(xhtml, &[])
+}
+
+/// [`analyze`] に各ページの罫線（[`page_rules`]）を与える版。`rules[i]` は i ページ目の罫線。
+///
+/// 罫線があると、新旧対照表の外枠で表の外の列（附則など）を分け、帯の中の罫線の表
+/// （別表など）をセルの結合まで含めて 2D 表として復元し、構造化結果では本文の流れの中の
+/// 表（[`model::Run::table`]）として返す。複数ページの XHTML（`<page>` が複数）も渡せる。
+pub fn analyze_with_rules(xhtml: &str, rules: &[Option<lines::PageRules>]) -> Analysis {
+    let pages = vertical::analyze_pages_with_rules(xhtml, rules);
+    let join = |f: &dyn Fn(&trace::PageTrace) -> &str| {
+        pages.iter().map(f).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n").trim().to_string()
+    };
+    let text = join(&|p| p.text.as_str());
+    let doc_text = join(&|p| p.doc_text.as_str());
+    let tables: Vec<trace::Table> = pages.iter().flat_map(|p| p.tables.iter().cloned()).collect();
+    let articles = segment_articles(&doc_text)
+        .into_iter()
+        .map(|seg| ArticleAnalysis {
+            document: Document::from_text_with_tables(&seg, &tables),
+            text: render_table_markers(&seg, &tables),
+        })
+        .collect();
+    Analysis {
+        format: format::detect_format(&text),
+        pages,
+        text,
+        articles,
+    }
+}
+
+/// 項目（告示など）の 1 ページ分の入力。
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct PageInput {
+    /// `pdftotext -bbox-layout` の XHTML（1 ページ）。
+    pub xhtml: String,
+    /// そのページの罫線（[`page_rules`]）。無ければ表の復元をしない。
+    #[serde(default)]
+    pub rules: Option<lines::PageRules>,
+}
+
+/// 複数ページにまたがる項目をまとめて解析する。ページで切れた新旧対照表は 1 つの表に
+/// つなぎ、記事（`〇…号`）ごとに構造化する。
+pub fn analyze_item(pages: &[PageInput]) -> Analysis {
+    let xhtml = combine_pages(pages.iter().map(|p| p.xhtml.as_str()));
+    let rules: Vec<Option<lines::PageRules>> = pages.iter().map(|p| p.rules.clone()).collect();
+    analyze_with_rules(&xhtml, &rules)
+}
+
+/// 1 ページずつの XHTML の `<page>` 要素を 1 つの文書にまとめる。
+fn combine_pages<'a>(xhtmls: impl Iterator<Item = &'a str>) -> String {
+    let mut out = String::from("<html><body><doc>");
+    for x in xhtmls {
+        let mut rest = x;
+        while let Some(start) = rest.find("<page") {
+            let Some(end) = rest[start..].find("</page>") else { break };
+            out.push_str(&rest[start..start + end + "</page>".len()]);
+            rest = &rest[start + end + "</page>".len()..];
+        }
+    }
+    out.push_str("</doc></body></html>");
+    out
+}
+
+/// 構造化用テキストの表の目印を、表を書き下したテキストに戻す。
+fn render_table_markers(text: &str, tables: &[trace::Table]) -> String {
+    text.lines()
+        .map(|l| match trace::parse_table_marker(l).and_then(|i| tables.get(i)) {
+            Some(t) => t.render(),
+            None => l.to_string(),
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
+/// PDF バイト列を `pdftotext -bbox-layout` に通し、座標付き XHTML を得る。
+/// [`analyze`] / [`reconstruct_vertical`] の入力になる（poppler が必要）。
+pub fn bbox_xhtml(pdf: &[u8]) -> Result<String> {
+    pdftotext::run_pdftotext_bbox(pdf)
+}
+
+/// PDF（1 ページ）の罫線（縦線・横線）を抽出する。[`analyze_with_rules`] に渡すと、新旧対照表の
+/// 帯の中の罫線表を 2D 表として復元できる（poppler の `pdftocairo` が必要）。
+pub fn page_rules(pdf: &[u8]) -> Result<lines::PageRules> {
+    lines::extract_rules(pdf)
 }
 
 /// PDF バイト列から構造化した [`Document`] を得る。HTML や表へ変換しやすい形。
@@ -128,6 +241,7 @@ fn attach_bessho_tables(doc: &mut Document, rules: &lines::PageRules, xhtml: &st
 /// 復元した 2D 表（セル文字列）を Document の入れ子テーブルへ変換する。
 fn to_nested(t: &table::GridTable) -> model::NestedTable {
     model::NestedTable {
+        merges: Vec::new(),
         rows: t
             .rows
             .iter()

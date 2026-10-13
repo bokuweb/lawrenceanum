@@ -23,6 +23,8 @@ const ReikiView = lazy(() => import("./components/views/reiki-view").then(m => (
 const ProcurementView = lazy(() => import("./components/views/procurement-view").then(m => ({ default: m.ProcurementView })));
 const ShingikaiView = lazy(() => import("./components/views/shingikai-view").then(m => ({ default: m.ShingikaiView })));
 const BudgetView = lazy(() => import("./components/views/budget-view").then(m => ({ default: m.BudgetView })));
+// 官報パーサ playground は pdf.js と WASM を抱えるので、ここも遅延ロードで本体から切り離す。
+const KanpoPlaygroundView = lazy(() => import("./components/views/kanpo-playground-view").then(m => ({ default: m.KanpoPlaygroundView })));
 
 function ViewFallback() {
   return <div className="p-6 text-sm text-muted-foreground">読み込み中…</div>;
@@ -197,6 +199,7 @@ function AppShell() {
               <Route path="/budget/:statsId" element={<BudgetRoute />} />
               <Route path="/updates" element={<UpdatesView />} />
               <Route path="/kanpo" element={<KanpoView />} />
+              <Route path="/kanpo-playground" element={<KanpoPlaygroundView />} />
               <Route path="/settings" element={<SettingsView />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

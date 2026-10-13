@@ -6,6 +6,7 @@ members = [
     "crates/law-diff",
     "crates/kanpo-client",
     "crates/kanpo-parser",
+    "crates/kanpo-parser-wasm",
     "crates/kanpo-linker",
     "crates/search-index",
     "crates/lawpub-cli",
