@@ -182,19 +182,25 @@ impl Document {
                 // 両側にある附則（「附　則〔１〜24略〕」と「附　則〔１〜24同上〕」）は、改正される
                 // 法令の附則の行なので表に残す。
                 let mut rows = align_rows(after_lines, before_lines);
+                // 附則の後に続く同じ側だけの行（「（施行期日）」で分かれた行）も附則の続き。
                 let mut furisoku: Vec<Vec<Run>> = Vec::new();
+                let mut furi_side: Option<bool> = None;
                 rows.retain(|r| {
                     let is_furi = |runs: &[Run]| {
                         runs.first().map(|x| starts_with_spaced(&x.text, "附則")).unwrap_or(false)
                     };
                     let one_sided = r.after.is_empty() || r.before.is_empty();
-                    if one_sided && (is_furi(&r.after) || is_furi(&r.before)) {
+                    let side = r.before.is_empty();
+                    let continues = one_sided && furi_side == Some(side);
+                    if continues || (one_sided && (is_furi(&r.after) || is_furi(&r.before))) {
                         let content = if !r.after.is_empty() { r.after.clone() } else { r.before.clone() };
                         if !content.is_empty() {
                             furisoku.push(content);
                         }
+                        furi_side = Some(side);
                         false
                     } else {
+                        furi_side = None;
                         true
                     }
                 });
