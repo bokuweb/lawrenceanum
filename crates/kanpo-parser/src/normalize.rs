@@ -33,6 +33,17 @@ pub(crate) fn is_private_use(c: char) -> bool {
     ('\u{E000}'..='\u{F8FF}').contains(&c)
 }
 
+/// 語（`<word>`）の文字列を本文の文字列にする。[`text_char`] と同じだが、「－」（U+E61C）だけの
+/// 語は落とす。表の金額欄の「－」（金額が無い印）のように単独で置かれたものを字にすると、横に
+/// 並んだ表の間の溝をふさいで列の切り分けが変わるため、語の中で他の字に続くものだけを戻す。
+/// 小数点・桁区切り（U+EA74・U+EA75）は単独の語でも戻す（前の数字に重ねて置かれ、語が分かれる）。
+pub(crate) fn word_text(raw: &str) -> String {
+    if !raw.is_empty() && raw.chars().all(|c| c == '\u{E61C}' || (is_private_use(c) && private_use_char(c).is_none())) {
+        return String::new();
+    }
+    raw.chars().filter_map(text_char).collect()
+}
+
 /// 語の 1 文字を本文の文字にする。約物を正規化し、私用領域の文字は意味の分かるもの
 /// （[`private_use_char`]）だけを戻して、ほかは落とす。
 pub(crate) fn text_char(c: char) -> Option<char> {
@@ -45,10 +56,13 @@ pub(crate) fn text_char(c: char) -> Option<char> {
 /// ToUnicode で私用領域に写された、意味の分かる文字。横書きの数字の小数点・桁区切りが
 /// DF 平成明朝（`DFHSMinchoRPro6N-W3`、CID 26064・26065）で U+EA74・U+EA75 に写されている
 /// （「433.795MHz」「2,760,000円」）。蓄積した官報の 1,400 字余りがすべて数字の間に出る。
+/// U+E61C（CID 24952）は全角の「－」（型式「５ＢＡ－ＢＡ１」、項番号「３－１－５」）。
+/// 原本の字形で確かめた。英数字の間に出る。
 fn private_use_char(c: char) -> Option<char> {
     match c {
         '\u{EA74}' => Some('.'),
         '\u{EA75}' => Some(','),
+        '\u{E61C}' => Some('－'),
         _ => None,
     }
 }
@@ -265,6 +279,11 @@ mod tests {
     fn maps_private_use_decimal_point_and_thousands_separator() {
         // 数字の小数点・桁区切りは私用領域に写されている。ほかの私用領域の字（傍線など）は落とす。
         assert_eq!(normalize_text("433\u{EA74}795MHz"), "433.795MHz");
+        assert_eq!(normalize_text("５ＢＡ\u{E61C}ＢＡ１"), "５ＢＡ－ＢＡ１");
+        assert_eq!(word_text("５ＢＡ\u{E61C}ＢＡ１"), "５ＢＡ－ＢＡ１");
+        // 単独で置かれた私用領域の字（表の金額欄の「－」など）の語は落とす。
+        assert_eq!(word_text("\u{E61C}"), "");
+        assert_eq!(word_text("\u{EA75}"), ",");
         assert_eq!(normalize_text("2\u{EA75}760\u{EA75}000円"), "2,760,000円");
         assert_eq!(normalize_text("第\u{E005}\u{E005}条"), "第条");
     }
