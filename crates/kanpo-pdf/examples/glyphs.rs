@@ -9,20 +9,9 @@ fn main() {
     let path = std::env::args().nth(1).expect("pdf path");
     let pages = kanpo_pdf::extract_pages(&std::fs::read(path).unwrap()).unwrap();
     for (i, p) in pages.iter().enumerate() {
-        println!(
-            "# page {} {}x{} rotate={} glyphs={} paths={}",
-            i + 1,
-            p.width,
-            p.height,
-            p.rotate,
-            p.glyphs.len(),
-            p.paths.len()
-        );
+        println!("# page {} {}x{} rotate={} glyphs={} paths={}", i + 1, p.width, p.height, p.rotate, p.glyphs.len(), p.paths.len());
         for (k, f) in p.fonts.iter().enumerate() {
-            println!(
-                "# font {k} {} vertical={} ordering={:?}",
-                f.name, f.vertical, f.ordering
-            );
+            println!("# font {k} {} vertical={} ordering={:?} to_unicode={}", f.name, f.vertical, f.ordering, f.has_to_unicode);
         }
         for (k, g) in p.glyphs.iter().enumerate() {
             println!(

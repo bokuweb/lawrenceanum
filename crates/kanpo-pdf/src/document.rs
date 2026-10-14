@@ -50,8 +50,9 @@ impl Document {
             crypt: None,
             cache: RefCell::new(HashMap::new()),
         };
+        let mut object_streams = Vec::new();
         if doc.read_xref_chain().is_err() || !doc.trailer.contains_key(&b"Root"[..]) {
-            doc.reconstruct();
+            object_streams = doc.reconstruct();
         }
         if !doc.trailer.contains_key(&b"Root"[..]) {
             return Err(Error::Malformed("no document catalog".into()));
@@ -72,6 +73,7 @@ impl Document {
                 doc.cache.borrow_mut().clear();
             }
         }
+        doc.index_object_streams(&object_streams);
         Ok(doc)
     }
 
@@ -205,8 +207,11 @@ impl Document {
     }
 
     /// xref が使えないとき、本体から `n g obj` を拾って表を作り直す。
-    fn reconstruct(&mut self) {
+    /// 作り直した後に中身を索引するオブジェクトストリームの番号を返す（暗号化された文書では
+    /// 鍵ができてからでないと中身が読めないので、[`Self::index_object_streams`] は後で呼ぶ）。
+    fn reconstruct(&mut self) -> Vec<u32> {
         self.xref.clear();
+        let mut object_streams = Vec::new();
         let data = &self.data;
         let mut i = 0;
         let mut trailer = Dict::new();
@@ -257,22 +262,7 @@ impl Document {
                 Some(b"Catalog") => {
                     trailer.entry(b"Root".to_vec()).or_insert(Object::Ref(r));
                 }
-                Some(b"ObjStm") => {
-                    let n = d.get(&b"N"[..]).and_then(Object::as_i64).unwrap_or(0);
-                    if let Some(Ok(body)) = obj.as_stream().map(|s| self.decode_stream(s)) {
-                        let mut p = Parser::new(&body, 0);
-                        for index in 0..n.max(0) as u32 {
-                            match (p.lexer.next_token(), p.lexer.next_token()) {
-                                (Some(Token::Int(obj_num)), Some(Token::Int(_))) => {
-                                    self.xref
-                                        .entry(obj_num as u32)
-                                        .or_insert(Entry::InStream { stream: num, index });
-                                }
-                                _ => break,
-                            }
-                        }
-                    }
-                }
+                Some(b"ObjStm") => object_streams.push(num),
                 _ => {}
             }
         }
@@ -285,6 +275,26 @@ impl Document {
             }
         }
         self.trailer = trailer;
+        self.cache.borrow_mut().clear();
+        object_streams
+    }
+
+    /// オブジェクトストリームの中のオブジェクトを xref に加える（xref を作り直したとき）。
+    fn index_object_streams(&mut self, streams: &[u32]) {
+        for &num in streams {
+            let Some(Object::Stream(s)) = self.get(ObjRef { num, gen: 0 }) else { continue };
+            let Ok(body) = self.decode_stream(&s) else { continue };
+            let n = s.dict.get(&b"N"[..]).and_then(Object::as_i64).unwrap_or(0);
+            let mut p = Parser::new(&body, 0);
+            for index in 0..n.max(0) as u32 {
+                match (p.lexer.next_token(), p.lexer.next_token()) {
+                    (Some(Token::Int(obj_num)), Some(Token::Int(_))) => {
+                        self.xref.entry(obj_num as u32).or_insert(Entry::InStream { stream: num, index });
+                    }
+                    _ => break,
+                }
+            }
+        }
         self.cache.borrow_mut().clear();
     }
 

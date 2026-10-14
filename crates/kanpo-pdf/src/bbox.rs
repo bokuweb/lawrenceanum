@@ -7,6 +7,8 @@
 //! - 縦書きの語: 文字の原点（字の上端の中央）を左上とする正方形をつないだもの。実際の字面より
 //!   右へ半 em、上へ 1 em ずれる（kanpo-parser はこのずれを前提に補正している）
 //! - poppler が読めないフォント（[`poppler_readable`]）の文字は出さない
+//! - 同じ字がほぼ同じ位置に重ねて描かれていたら 2 つ目は捨てる。横書きで別の字が前の字と同じ位置に
+//!   重ねて置かれた私用領域の字は、その字だけで 1 語にする
 //! - 縦書きはフォントが変わると語を切る。字間（Tc）で空けた字は別の語にする
 //! - 横書きでも、字間（Tc）だけで空けた字は 0.55 em まで同じ語にする（字間を空けた見出し・表の欄の名前）
 //! - 字と字の間に罫線（字送りに直交する線）があれば語を切る（表のセルの境目）
@@ -84,6 +86,8 @@ pub fn poppler_readable(font: &FontInfo) -> bool {
 pub fn words(page: &Page) -> Vec<Word> {
     let mut out: Vec<Word> = Vec::new();
     let mut prev: Option<&Glyph> = None;
+    // 重ねて置かれた字の次の字は、新しい語にする。
+    let mut break_next = false;
     let readable: Vec<bool> = page.fonts.iter().map(poppler_readable).collect();
     let rules = page_rules(page);
     for (i, g) in page.glyphs.iter().enumerate() {
@@ -96,7 +100,14 @@ pub fn words(page: &Page) -> Vec<Word> {
             prev = None;
             continue;
         }
-        let continues = prev.is_some_and(|p| {
+        if prev.is_some_and(|p| duplicate(p, g)) {
+            continue;
+        }
+        // 横書きで私用領域の字を前の字と同じ位置に重ねたもの（私用 CID の 2 字で 1 字を作る組み方）は、
+        // その字だけで 1 語にする（poppler と同じ。縦書きは poppler も切らない）。
+        let overlap = !g.vertical && prev.is_some_and(|p| overlaps(p, g));
+        let forced_break = std::mem::replace(&mut break_next, overlap) || overlap;
+        let continues = !forced_break && prev.is_some_and(|p| {
             // 縦書きはフォントが変わると語を切る（横書きは切らない）。poppler の出力に合わせた。
             if (g.vertical && p.font != g.font)
                 || p.vertical != g.vertical
@@ -180,6 +191,21 @@ fn rule_between(rules: &PageRules, p: &Glyph, g: &Glyph) -> bool {
     }
 }
 
+/// 直前の字と同じ字がほぼ同じ位置（字の大きさの 1 割以内）に重ねて描かれているか。
+/// 重ね描き（太字の代わりなど）の 2 つ目は poppler と同じく語に入れない。
+fn duplicate(p: &Glyph, g: &Glyph) -> bool {
+    const DUP: f64 = 0.1;
+    p.text == g.text && (p.x - g.x).abs() < DUP * g.size && (p.y - g.y).abs() < DUP * g.size
+}
+
+/// 私用領域の字を、前の字と同じ位置から重ねて書いたか（私用 CID の 2 字を重ねて 1 字を作る組み方）。
+/// 「）（」のような約物を同じ位置に重ねる詰めは含まない（poppler もつなぐ）。
+fn overlaps(p: &Glyph, g: &Glyph) -> bool {
+    let private = |t: &str| t.chars().any(|c| ('\u{E000}'..='\u{F8FF}').contains(&c));
+    let (along, across) = advance_axes(p, g.x - p.x, g.y - p.y);
+    private(&g.text) && along.abs() < 0.1 * g.size && across.abs() < 0.2 * g.size
+}
+
 /// 字送りの方向の成分と、それに直交する成分。
 fn advance_axes(p: &Glyph, dx: f64, dy: f64) -> (f64, f64) {
     let (ax, ay) = (p.end_x - p.x, p.end_y - p.y);
@@ -235,4 +261,67 @@ fn escape(t: &str) -> String {
         }
     }
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::page::FontInfo;
+
+    /// 横書き 8pt の字（字幅 1 em）。
+    fn glyph(text: &str, x: f64, font: usize) -> Glyph {
+        Glyph {
+            text: text.into(),
+            code: 0,
+            cid: 0,
+            font,
+            x,
+            y: 100.0,
+            end_x: x + 8.0,
+            end_y: 100.0,
+            size: 8.0,
+            vertical: false,
+            bbox: [x, 93.0, x + 8.0, 102.0],
+            invisible: false,
+            spacing: 0.0,
+            kern: 0.0,
+            show: 0,
+        }
+    }
+
+    fn page(glyphs: Vec<Glyph>) -> Page {
+        let font = FontInfo { name: "F".into(), vertical: false, ordering: Some("Japan1".into()), has_to_unicode: false };
+        Page { width: 595.0, height: 842.0, rotate: 0, glyphs, paths: Vec::new(), fonts: vec![font.clone(), font] }
+    }
+
+    fn texts(p: &Page) -> Vec<String> {
+        words(p).into_iter().map(|w| w.text).collect()
+    }
+
+    #[test]
+    fn joins_adjacent_glyphs_and_splits_at_gaps() {
+        let p = page(vec![glyph("令", 10.0, 0), glyph("和", 18.0, 0), glyph("八", 40.0, 0)]);
+        assert_eq!(texts(&p), ["令和", "八"]);
+    }
+
+    #[test]
+    fn drops_duplicated_glyph_drawn_on_top() {
+        // 同じ字を 0.04pt ずらして重ね描きしたものは 1 字にする。
+        let p = page(vec![glyph("太", 10.0, 0), glyph("太", 10.04, 0), glyph("字", 18.0, 0)]);
+        assert_eq!(texts(&p), ["太字"]);
+        assert_eq!(words(&p)[0].glyphs, vec![0, 2]);
+    }
+
+    #[test]
+    fn overlapping_different_glyph_is_its_own_word() {
+        // 「度」の後に、私用 CID の 2 字を同じ位置に重ねて 1 字を作る組み方。重ねた 2 字目は
+        // 1 語になり、その次の字（」）も新しい語になる。
+        let p = page(vec![
+            glyph("度", 10.0, 0),
+            glyph("\u{EAD6}", 18.0, 1),
+            glyph("\u{EADF}", 18.0, 1),
+            glyph("」", 26.0, 0),
+        ]);
+        assert_eq!(texts(&p), ["度\u{EAD6}", "\u{EADF}", "」"]);
+    }
 }
