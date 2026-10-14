@@ -586,18 +586,41 @@ impl ShinkyuLayout {
                 area(a).partial_cmp(&area(b)).unwrap_or(std::cmp::Ordering::Equal)
             });
         let Some(frame) = frame else { return };
-        let left = frame.left();
         // 帯の矩形: 左右は枠の左端から欄見出しの列の左の罫線まで、上下は枠の上端・帯の境目・下端。
-        let label_left = frame.xs.iter().copied().filter(|&x| x < header_x - 1.0).fold(left, f32::max);
+        let label_left = frame.xs.iter().copied().filter(|&x| x < header_x - 1.0).fold(frame.left(), f32::max);
         let mid = frame.ys.iter().copied().min_by(|a, b| (a - divider).abs().partial_cmp(&(b - divider).abs()).unwrap()).unwrap_or(divider);
-        self.band_boxes = Some([(left, label_left, frame.top(), mid), (left, label_left, mid, frame.bottom())]);
+        // 枠の左端に、帯の境目の横線が届かず上下の帯をまたぐ細い欄（表の後ろの「備考」、数行）が
+        // あり、その列が帯の境目をまたいでいれば（長い備考）、帯の中心で上下に分けると備考が割れる。
+        // 欄の列はまとめて改正後の帯の終わりに置き（短い備考が改正後の帯に収まるときと同じ）、
+        // 欄の右の罫線を帯の左端にする。幅の広い欄（枠の中に組んだ次の記事など）は帯のまま扱う。
+        let left = frame.left();
+        let mut note_right = left;
+        let max_width = (label_left - left) * 0.25;
+        while let Some(c) = frame.cells.iter().find(|c| {
+            (frame.xs[c.x0] - note_right).abs() < 1.0
+                && frame.xs[c.x1] - frame.xs[c.x0] <= max_width
+                && frame.ys[c.y0] < mid - 1.0
+                && frame.ys[c.y1] > mid + 1.0
+        }) {
+            note_right = frame.xs[c.x1];
+        }
+        let in_note = |c: &Col| (left..=note_right).contains(&((c.x + c.x1) / 2.0));
+        let split_note = self.after.first().into_iter().chain(self.before.first()).flatten().any(|c| in_note(c) && c.y < mid && c.y1 > mid);
+        let band_left = if split_note { note_right } else { left };
+        self.band_boxes = Some([(band_left, label_left, frame.top(), mid), (band_left, label_left, mid, frame.bottom())]);
         let mut out: Vec<Col> = Vec::new();
+        let mut note: Vec<Col> = Vec::new();
         for band in [&mut self.after, &mut self.before] {
             if let Some(part) = band.first_mut() {
                 let (inside, outside): (Vec<Col>, Vec<Col>) = std::mem::take(part).into_iter().partition(|c| (c.x + c.x1) / 2.0 > left);
+                let (inside, in_note_cell): (Vec<Col>, Vec<Col>) = inside.into_iter().partition(|c| !split_note || !in_note(c));
                 *part = inside;
+                note.extend(in_note_cell);
                 out.extend(outside);
             }
+        }
+        if let Some(after) = self.after.first_mut() {
+            after.extend(note);
         }
         if !out.is_empty() {
             self.trailing.insert(0, out);
@@ -1105,5 +1128,42 @@ mod tests {
         assert!(before_idx < otsu, "乙類は改正前側: {out}");
         // 欄見出しが揃うので shinkyu と判定される。
         assert_eq!(detect_format(&out), "shinkyu");
+    }
+
+    #[test]
+    fn note_cell_spanning_both_bands_stays_in_one_piece() {
+        // 実ページ（総務省令の新旧対照表）と同じ形: 外枠 x 74〜333.5・y 69.5〜412.5 の左端に、帯の境目
+        // （y 241）の横線が届かない幅 37pt の欄（x 74〜111.25）があり、表の後ろの備考が上下の帯を
+        // またいで 1 行に組まれている。備考は割らずに改正後の帯の終わりに置く。
+        use super::ShinkyuLayout;
+        use crate::grid::find_grids;
+        use crate::lines::{HRule, PageRules, VRule};
+        use crate::trace::Unit;
+        use crate::vertical::Col;
+        let rules = PageRules {
+            vertical: [74.0, 111.25, 310.9, 333.5].iter().map(|&x| VRule { x, y0: 69.5, y1: 412.5 }).collect(),
+            horizontal: vec![
+                HRule { y: 69.5, x0: 74.0, x1: 333.5 },
+                HRule { y: 241.0, x0: 111.25, x1: 333.5 },
+                HRule { y: 412.5, x0: 74.0, x1: 333.5 },
+            ],
+        };
+        let grids = find_grids(&rules, 595.0, 842.0);
+        let col = |id: usize, x: f32, y: f32, y1: f32, text: &str| Col { id, x, x1: x + 8.0, y, y1, text: text.to_string() };
+        let cols = vec![
+            col(0, 200.0, 75.0, 139.0, "改正後の本文"),
+            col(1, 200.0, 250.0, 314.0, "改正前の本文"),
+            // 備考の行（「表中の〔」と「〕の記載…」の間が 1em 空く）。後ろの語は帯の境目をまたぎ、
+            // 中心は下の帯にある。
+            col(2, 100.0, 75.0, 123.0, "備考表中の〔"),
+            col(3, 100.0, 131.0, 398.0, "〕の記載は注記である。"),
+        ];
+        let mut layout = ShinkyuLayout::split(cols, 315.0, 241.0);
+        layout.clip_to_frame(&grids, 315.0, 241.0);
+        let Unit::Shinkyu { after, before, outside, .. } = layout.into_unit(&grids, Some(&rules)) else { panic!() };
+        let text = |parts: &[Vec<crate::trace::Line>]| parts.iter().flatten().map(|l| l.text.clone()).collect::<Vec<_>>().join("\n");
+        assert_eq!(text(&after), "改正後の本文\n備考表中の〔　〕の記載は注記である。");
+        assert_eq!(text(&before), "改正前の本文");
+        assert_eq!(text(&outside), "");
     }
 }
