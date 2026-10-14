@@ -100,7 +100,8 @@ const AMBIGUOUS: &str = "挑振挺挾挿掘掛故效敍敏敕敗敘教敝敞敢�
 ///
 /// 対応は蓄積した官報の原本画像と突き合わせて確かめたもの。連番の範囲は確認できた
 /// 符号の並びから端まで延ばしている。目次のページ番号の数字（`掠`→一、`採`→二 …）は
-/// `接`・`推`・`採` など字間を空けた見出しの本物の漢字と区別できないので扱わない。
+/// `接`・`推`・`採` など字間を空けた見出しの本物の漢字と区別できないのでここでは扱わない
+/// （ページの中の並びを見る [`toc_page_numbers`]）。
 pub(crate) fn private_cid_glyph(text: &str, width: f32, height: f32) -> Option<CidGlyph> {
     let chars: Vec<char> = text.trim().chars().collect();
     if chars.len() < 3 && height > width * 1.3 {
@@ -175,6 +176,42 @@ pub(crate) fn private_cid_glyph(text: &str, width: f32, height: f32) -> Option<C
         ambiguous: chars.len() == 1 && AMBIGUOUS.contains(chars[0]),
         text: mapped,
     })
+}
+
+/// 目次のページ番号の数字の私用 CID（U+639F `掟`→〇、U+63A0 `掠`→一 … U+63A8 `推`→九）。
+const TOC_DIGIT_ZERO: u32 = 0x639F;
+
+/// 目次のページ番号（ToUnicode の無い数字のフォント）の語を見つけ、漢数字（「一三」）にした文字列を返す。
+/// `words` は語の `(x0, y0, x1, y1, 字)`。戻り値は語ごと（ページ番号でなければ `None`）。
+///
+/// ページ番号の数字は、私用 CID で連番の漢字（`掠`・`採`・`探`・`掣`・`掤`・`接`・`掦`・`控`・`推`・`掟`）に
+/// 化ける。どれも常用漢字なので、字だけでは本文の字と区別できない。目次ではページ番号を
+/// 項目の列の下端にそろえて縦に組み、2 桁以上は 1 字 0.75em 以下に詰める。そこで、この 10 字だけの語の
+/// うち、2 字以上を 1 字 0.85em 未満に詰めたもの、または同じ大きさの同じ 10 字だけの語と下端がそろうもの
+/// （ほかの項目のページ番号）を、ページ番号とする（蓄積した官報 59 日分の目次で、項目の掲載ページと
+/// 突き合わせて確かめた。項目が 1 つだけの目次の「一」は並ぶ語が無いので写像しない）。
+pub(crate) fn toc_page_numbers(words: &[(f32, f32, f32, f32, String)]) -> Vec<Option<String>> {
+    let digit = |c: char| (TOC_DIGIT_ZERO..=TOC_DIGIT_ZERO + 9).contains(&(c as u32));
+    let digits: Vec<usize> = (0..words.len())
+        .filter(|&i| {
+            let t = words[i].4.trim();
+            !t.is_empty() && t.chars().all(digit)
+        })
+        .collect();
+    let mut out = vec![None; words.len()];
+    for &i in &digits {
+        let (x, y, x1, y1, t) = &words[i];
+        let (w, h, n) = (x1 - x, y1 - y, t.trim().chars().count());
+        let packed = n >= 2 && h < n as f32 * w * 0.85;
+        let aligned = digits.iter().any(|&j| {
+            let (u, _, u1, v1, _) = &words[j];
+            j != i && (v1 - y1).abs() < 1.0 && ((u1 - u) - w).abs() < 0.5
+        });
+        if packed || aligned {
+            out[i] = Some(t.trim().chars().map(|c| "〇一二三四五六七八九".chars().nth((c as u32 - TOC_DIGIT_ZERO) as usize).unwrap()).collect());
+        }
+    }
+    out
 }
 
 /// 文脈なしで写像してよいものだけを写像する（常用漢字と同じ符号は `None`）。
@@ -274,6 +311,26 @@ pub(crate) fn is_margin_noise(line: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn maps_toc_page_numbers_by_their_placement() {
+        // 号外第 220 号の目次（項目の掲載ページ 1・13・14・66・72）。下端がそろい、2 桁は 1 字 0.75em。
+        let w = |x: f32, y: f32, y1: f32, t: &str| (x, y, x + 9.0, y1, t.to_string());
+        let words = vec![
+            w(327.7, 221.1, 230.1, "掠"),
+            w(191.1, 216.6, 230.1, "掠探"),
+            w(85.7, 216.6, 230.1, "接接"),
+            w(50.5, 216.6, 230.1, "掦採"),
+            // 本文の字（下端がそろわない 1 字）はそのまま。
+            w(300.0, 400.0, 409.0, "接"),
+        ];
+        let got = toc_page_numbers(&words);
+        assert_eq!(got, vec![Some("一".into()), Some("一三".into()), Some("六六".into()), Some("七二".into()), None]);
+        // 1 字の語が 1 つだけなら写像しない（字間を空けた見出しの「接」と区別できない）。
+        assert_eq!(toc_page_numbers(&[w(327.7, 221.1, 230.1, "掠")]), vec![None]);
+        // 3 桁（1 字 0.67em）は 1 つでも写像する。掟は〇。
+        assert_eq!(toc_page_numbers(&[w(489.5, 212.1, 230.1, "掣掠掟")]), vec![Some("四一〇".into())]);
+    }
 
     #[test]
     fn maps_private_use_decimal_point_and_thousands_separator() {

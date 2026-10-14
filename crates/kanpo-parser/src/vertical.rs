@@ -2,8 +2,8 @@
 
 use scraper::{Html, Selector};
 
-use crate::horizontal::{horizontal_lines, is_left_strip_header, LEFT_STRIP};
-use crate::normalize::{is_margin_noise, private_cid_glyph, word_text, CidGlyph};
+use crate::horizontal::{horizontal_lines, is_left_strip_header, row_lines, LEFT_STRIP};
+use crate::normalize::{is_margin_noise, private_cid_glyph, toc_page_numbers, word_text, CidGlyph};
 use crate::shinkyu::{
     band_pair_unit, detect_shinkyu_bands_headerless, detect_shinkyu_header, lines_with_tables_by, reconstruct_shinkyu, split_side_by_side_tables,
     tiers_look_like_bands, ShinkyuLayout,
@@ -599,6 +599,8 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
     // 横組み用の書体を回転して縦に置いた語（幅が 8.184pt など 1.023 倍）はずれないので触らない。
     // 1 字の正方形の語は縦横どちらの組みか語だけでは分からないので、ページの向き
     // （縦長の語と横長の語の文字数）で決める。
+    // 目次のページ番号（私用 CID の数字）。位置で見るので、座標を補正する前に決める。
+    let toc_numbers = toc_page_numbers(&raws);
     let (mut v_chars, mut h_chars) = (0usize, 0usize);
     for (x, y, x1, y1, t) in &raws {
         let n = t.chars().count();
@@ -659,12 +661,13 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
 
     let mut cols: Vec<Col> = Vec::new();
     let mut words: Vec<Word> = Vec::new();
-    for (((x, y, x1, y1, raw), glyph), (gx, gy, gx1, gy1)) in raws.into_iter().zip(glyphs).zip(geom) {
+    for ((((x, y, x1, y1, raw), glyph), (gx, gy, gx1, gy1)), toc_number) in raws.into_iter().zip(glyphs).zip(geom).zip(toc_numbers) {
         // scraper が実体参照は復号済み。私用 CID の括弧付き数字等を復元し、約物を正規化し、
         // 私用領域(傍線等のフォント固有グリフ)を除去する。
-        let text: String = match glyph {
-            Some(g) => g.text.clone(),
-            None => word_text(&raw),
+        let text: String = match (toc_number, glyph) {
+            (Some(n), _) => n,
+            (None, Some(g)) => g.text.clone(),
+            (None, None) => word_text(&raw),
         };
         let in_margin = if rotated {
             gx1 <= LEFT_STRIP
@@ -1021,6 +1024,19 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
                 .min_by(|p, q| p.y.total_cmp(&q.y))
                 .map(|b| (a.y1, b.y, (b.y - a.y1) / w.min(b.x1 - b.x).max(1.0)))
         })
+        .collect();
+    // 横組みの欄で上下に続く行の組も加える（「（号　外）」と「発行　内閣府」の間で段に切ると、
+    // 欄が 1 行ずつに割れて横組みの欄として読めない）。
+    let wide: Vec<&Col> = cols.iter().filter(|c| c.text.chars().count() >= 2 && c.x1 - c.x > (c.y1 - c.y) * 1.5).collect();
+    let pairs: Vec<(f32, f32, f32)> = pairs
+        .into_iter()
+        .chain(wide.iter().filter_map(|a| {
+            let em = a.y1 - a.y;
+            wide.iter()
+                .filter(|b| b.y >= a.y1 - 0.5 && b.x < a.x1 && a.x < b.x1 && ((b.y1 - b.y) - em).abs() <= em * 0.3)
+                .min_by(|p, q| p.y.total_cmp(&q.y))
+                .map(|b| (a.y1, b.y, (b.y - a.y1) / em.min(b.y1 - b.y).max(1.0)))
+        }))
         .collect();
     // cut が同じ列の語と語の間を、字間ほどの空き（[`TOUCH_EM`] 未満）で切るか。字間を空けた
     // 欄見出し（「名　称」）や欧文の語間を段の境目と取り違えないため。
@@ -1385,9 +1401,20 @@ pub(crate) fn reconstruct_page(cols: Vec<Col>) -> String {
 }
 
 /// カラム語を右→左・上→下に並べ、縦の列ごとの行にする。柱（発行日・号数）の列は捨てる。
+///
+/// 縦書きの段の中に横組みで置いた欄（号外の目次ページの「官報」の題字の下の「（号　外）」
+/// 「発行　内閣府」「（原稿作成　国立印刷局）」など）は、縦の列として読むと語が右から並んで
+/// 「外）」「（号」と逆になる。そうした横組みの語は横の行に組み、その欄の右端の位置
+/// （右→左の読み順で欄に差し掛かったところ）に置く。
 pub(crate) fn page_lines(cols: Vec<Col>) -> Vec<Line> {
+    let (cols, blocks) = split_off_horizontal_blocks(cols);
+    let mut blocks = blocks.into_iter().peekable();
     let mut lines: Vec<Line> = Vec::new();
     for g in column_groups(cols) {
+        let x = g.iter().map(|c| (c.x + c.x1) / 2.0).fold(f32::NEG_INFINITY, f32::max);
+        while let Some((_, block)) = blocks.next_if(|(right, _)| *right > x) {
+            lines.extend(block);
+        }
         let mut text = String::new();
         let mut prev_end = f32::MIN;
         for c in &g {
@@ -1402,7 +1429,123 @@ pub(crate) fn page_lines(cols: Vec<Col>) -> Vec<Line> {
         }
         lines.push(Line::text(text, g.iter().map(|c| c.id).collect()));
     }
+    lines.extend(blocks.flat_map(|(_, block)| block));
     lines
+}
+
+/// 縦書きの段の中の横組みの欄を取り出す。`(残りの語, [(欄の右端, 欄の行)])`（欄は右端の降順）。
+///
+/// 横組みの語は 2 字以上で横長のもの。縦の列の途中に挟まった語（縦中横の数字など）は除く。
+/// 横組みの語の行が 2 行以上（上下に 1.5 行分以内の間隔で続き、左右が重なる）続く欄だけを
+/// 取り出す（1 行だけの横長の語は、表の欄の名前などと区別が付かないので列のまま読む）。
+fn split_off_horizontal_blocks(cols: Vec<Col>) -> (Vec<Col>, Vec<(f32, Vec<Line>)>) {
+    // 縦の列（2 字以上の縦長の語）のすぐ上か下（全角空白 1 字ほどの空きまで。「高橋　佑」）に続く語。
+    let in_column = |w: &Col| {
+        let em = w.y1 - w.y;
+        let near = |gap: f32| -em * 0.5 < gap && gap < em * 1.5;
+        cols.iter().any(|c| {
+            c.text.chars().count() >= 2
+                && c.y1 - c.y > (c.x1 - c.x) * 1.5
+                && w.x < (c.x + c.x1) / 2.0
+                && (c.x + c.x1) / 2.0 < w.x1
+                && (near(w.y - c.y1) || near(c.y - w.y1))
+        })
+    };
+    let wide: Vec<usize> = (0..cols.len())
+        .filter(|&i| {
+            let c = &cols[i];
+            c.text.chars().count() >= 2 && c.x1 - c.x > (c.y1 - c.y) * 1.5 && !in_column(c)
+        })
+        .collect();
+    if wide.len() < 2 {
+        return (cols, Vec::new());
+    }
+    // 横組みの語を、上下に続き左右が重なる語ごとの欄にまとめる（union-find）。
+    let mut parent: Vec<usize> = (0..wide.len()).collect();
+    fn root(parent: &mut [usize], i: usize) -> usize {
+        let mut r = i;
+        while parent[r] != r {
+            r = parent[r];
+        }
+        parent[i] = r;
+        r
+    }
+    for a in 0..wide.len() {
+        for b in a + 1..wide.len() {
+            let (p, q) = (&cols[wide[a]], &cols[wide[b]]);
+            let em = (p.y1 - p.y).max(q.y1 - q.y);
+            let same_row = (p.y + p.y1 - q.y - q.y1).abs() / 2.0 < em * 0.5 && (p.x.max(q.x) - p.x1.min(q.x1)) < em * 3.0;
+            let stacked = p.x < q.x1 && q.x < p.x1 && (p.y.max(q.y) - p.y1.min(q.y1)) < em * 1.5;
+            if same_row || stacked {
+                let (ra, rb) = (root(&mut parent, a), root(&mut parent, b));
+                parent[ra] = rb;
+            }
+        }
+    }
+    let mut groups: std::collections::BTreeMap<usize, Vec<usize>> = std::collections::BTreeMap::new();
+    for k in 0..wide.len() {
+        let r = root(&mut parent, k);
+        groups.entry(r).or_default().push(wide[k]);
+    }
+    // 縦組みの列（2 字以上の縦長の語）。
+    let tall = |c: &Col| c.text.chars().count() >= 2 && c.y1 - c.y > (c.x1 - c.x) * 1.5;
+    let center = |c: &Col| ((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0);
+    let mut taken = vec![false; cols.len()];
+    let mut blocks: Vec<(f32, Vec<Col>)> = Vec::new();
+    for mut members in groups.into_values() {
+        if row_lines(members.iter().map(|&i| cols[i].clone()).collect()).len() < 2 {
+            continue;
+        }
+        // 欄の中の 1 字ずつの語・正方形の語（字間を空けた見出し「第　67　期　決　算　公　告」、表の
+        // 「流　動　資　産」、2 桁の数字）も欄に入れる。欄の左右の範囲で、上下に 2 行分まで広げる。
+        let bounds = |members: &[usize]| {
+            members.iter().fold((f32::INFINITY, f32::INFINITY, f32::NEG_INFINITY, f32::NEG_INFINITY, 0f32), |(x0, y0, x1, y1, em), &i| {
+                let c = &cols[i];
+                (x0.min(c.x), y0.min(c.y), x1.max(c.x1), y1.max(c.y1), em.max((c.y1 - c.y).min(c.x1 - c.x)))
+            })
+        };
+        // 同じ行で 4 字分以内に続く語（表の行頭の「流　動　資　産」と隣の欄の金額の間）も入れる。
+        loop {
+            let (x0, y0, x1, y1, em) = bounds(&members);
+            let beside = |c: &Col| {
+                let cy = center(c).1;
+                y0 < cy
+                    && cy < y1
+                    && members.iter().any(|&j| {
+                        let m = &cols[j];
+                        (center(m).1 - cy).abs() < em * 0.5 && m.x.max(c.x) - m.x1.min(c.x1) < em * 4.0
+                    })
+            };
+            let more: Vec<usize> = (0..cols.len())
+                .filter(|&i| !members.contains(&i) && !taken[i] && !tall(&cols[i]) && !in_column(&cols[i]))
+                .filter(|&i| {
+                    let (cx, cy) = center(&cols[i]);
+                    (x0 - em * 0.5 < cx && cx < x1 + em * 0.5 && y0 - em * 2.0 < cy && cy < y1 + em * 2.0) || beside(&cols[i])
+                })
+                .collect();
+            if more.is_empty() {
+                break;
+            }
+            members.extend(more);
+        }
+        // 欄の中に縦の列が入り込んでいれば（横組みの語が縦書きの表の中に散っているだけ）取り出さない。
+        let (x0, y0, x1, y1, _) = bounds(&members);
+        let intruded = cols.iter().enumerate().any(|(i, c)| {
+            let (cx, cy) = center(c);
+            !members.contains(&i) && tall(c) && x0 < cx && cx < x1 && y0 < cy && cy < y1
+        });
+        if intruded {
+            continue;
+        }
+        for &i in &members {
+            taken[i] = true;
+        }
+        blocks.push((x1, members.iter().map(|&i| cols[i].clone()).collect()));
+    }
+    blocks.sort_by(|a, b| b.0.total_cmp(&a.0));
+    let blocks = blocks.into_iter().map(|(x1, block)| (x1, row_lines(block))).collect();
+    let rest = cols.into_iter().zip(taken).filter(|(_, t)| !t).map(|(c, _)| c).collect();
+    (rest, blocks)
 }
 
 #[cfg(test)]
