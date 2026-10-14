@@ -63,10 +63,13 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     for (pi, page) in doc.select(&page_sel).enumerate() {
         let (width, height) = page_size(page);
         let page_rules: Option<&PageRules> = rules.get(pi).and_then(|r| r.as_ref());
-        let grids: Vec<Grid> = page_rules
-            .map(|r| find_grids(r, width.max(height), width.max(height)))
-            .unwrap_or_default();
-        let (cols, mut words, rotated) = page_words_traced(page, width, height);
+        let (cols, mut words, rotated, sideways) = page_words_traced(page, width, height);
+        // 横倒しの縦書きページは語の座標を回して使うので、回していない罫線の枠は使わない。
+        let grids: Vec<Grid> = if sideways {
+            Vec::new()
+        } else {
+            page_rules.map(|r| find_grids(r, width.max(height), width.max(height))).unwrap_or_default()
+        };
         // 枠ごとの、中にある語の ID（普通の本文の段で表を組むのは、枠の中の語が全部その段に
         // あるときだけ。段に切ると表が左右に割れることがある）。
         let grid_words: Vec<Vec<usize>> = grids
@@ -126,10 +129,36 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             // tier で分かれ混入を防げる。見出しのある段に続く段の組（表がページ下半へ続く形）は、
             // 表の続きなら取り込む。
             // 1 つの段に表が横に並ぶなら表ごとに分ける（右から順）。
-            let mut tiers: Vec<Vec<Col>> = merge_split_header_tiers(split_tiers(cols))
-                .into_iter()
-                .flat_map(split_side_by_side_tables)
+            // 罫線の表（他の枠を含まない枠で、中の字が縦組み、セルに文章の無いもの）は段の
+            // 切れ目で割らない（セルの間の空きが段の境目に見えて、表が上下に割れていた）。
+            // 新旧対照表のあるページ（見出しのある段・帯の組になる段がある）は帯の中の表を帯ごとに
+            // 組むので、これまでどおりに切る。
+            let hrules: Vec<(f32, f32, f32)> = page_rules.map(|r| r.horizontal.iter().map(|h| (h.y, h.x0, h.x1)).collect()).unwrap_or_default();
+            let plain_tiers = merge_split_header_tiers(split_tiers(cols.clone(), &TierRules { tables: Vec::new(), hrules: hrules.clone() }));
+            let shinkyu_page = plain_tiers.iter().any(|t| detect_shinkyu_header(t).is_some())
+                || plain_tiers.windows(2).any(|w| tiers_look_like_bands(&w[0], &w[1]));
+            let tables: Vec<(f32, f32, f32, f32)> = grids
+                .iter()
+                .filter(|g| g.cells.len() >= 2 && !grids.iter().any(|o| g.encloses(o)) && vertical_inside(&cols, g) && !prose_cells(&cols, g))
+                .map(|g| (g.left(), g.right(), g.top(), g.bottom()))
                 .collect();
+            // 横組みの語の多いページ（横書きの表が並ぶ告示など）は段の組み方が当てにならない。
+            let (v_chars, h_chars) = cols.iter().fold((0, 0), |(v, h), c| {
+                let n = c.text.chars().count();
+                if n >= 2 && c.y1 - c.y > (c.x1 - c.x) * 1.5 {
+                    (v + n, h)
+                } else if n >= 2 && c.x1 - c.x > (c.y1 - c.y) * 1.5 {
+                    (v, h + n)
+                } else {
+                    (v, h)
+                }
+            });
+            let tiers = if shinkyu_page || tables.is_empty() || v_chars < h_chars * 2 {
+                plain_tiers
+            } else {
+                merge_split_header_tiers(split_tiers(cols, &TierRules { tables, hrules }))
+            };
+            let mut tiers: Vec<Vec<Col>> = tiers.into_iter().flat_map(split_side_by_side_tables).collect();
             let mut i = 0;
             while i < tiers.len() {
                 let tier = std::mem::take(&mut tiers[i]);
@@ -363,7 +392,8 @@ fn split_horizontal_shinkyu(cols: &[Col]) -> Option<f32> {
 ///
 /// 回転ページの柱は上端ではなく左端の帯に縦に並ぶ（上端の帯には本文が来る）ので、
 /// 左端の帯に収まる語を柱として落とす（[`is_left_strip_header`]）。
-fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) -> (Vec<Col>, Vec<Word>, bool) {
+/// 戻り値は（語の列、表示用の語、回転ページか、横倒しの縦書きページか）。
+fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) -> (Vec<Col>, Vec<Word>, bool, bool) {
     let word_sel = Selector::parse("word").unwrap();
     let line_sel = Selector::parse("line").unwrap();
     // (x0, y0, x1, y1, raw)
@@ -499,7 +529,7 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
         });
     }
     merge_warichu(&mut cols);
-    (cols, words, rotated)
+    (cols, words, rotated, sideways)
 }
 
 /// 枠のセルに文章（200 字を超える、または 2 文以上）が入っているか。公告の囲み記事などの
@@ -633,9 +663,15 @@ pub(crate) fn col_to_word(c: &Col) -> crate::table::PlacedWord {
 /// 再帰的に分割する。これにより本紙の 2 段組（上段/下段が完全に分かれる）と、
 /// 新旧対照表（改正後=上段 / 改正前=下段、前文が境界を跨ぐ）の双方を段として
 /// 正しく分離できる。
-fn split_tiers(cols: Vec<Col>) -> Vec<Vec<Col>> {
+/// 段分けで使う罫線: 割らない表の枠 `(x0, x1, y0, y1)` と横線 `(y, x0, x1)`。
+struct TierRules {
+    tables: Vec<(f32, f32, f32, f32)>,
+    hrules: Vec<(f32, f32, f32)>,
+}
+
+fn split_tiers(cols: Vec<Col>, rules: &TierRules) -> Vec<Vec<Col>> {
     let mut out = Vec::new();
-    split_tiers_rec(cols, 0, &mut out);
+    split_tiers_rec(cols, 0, rules, false, &mut out);
     out
 }
 
@@ -711,7 +747,10 @@ fn split_beside_crossing(cols: &[Col], cut: f32) -> Option<(Vec<Col>, Vec<Col>, 
 /// 跨ぎカラム数の許容上限（前文 1 本程度の橋渡しを段境界として許す）。
 const MAX_BRIDGE: usize = 1;
 
-fn split_tiers_rec(cols: Vec<Col>, depth: usize, out: &mut Vec<Vec<Col>>) {
+/// `ruled_only` なら、段の幅の大半にわたる横線のある所でだけ切る（表の脇で縦に切った残り。
+/// 罫線の無い表を段の境目と取り違えて割らないため）。
+fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: bool, out: &mut Vec<Vec<Col>>) {
+    let tables = &rules.tables;
     // 過分割の防止: 段が小さい / 深すぎる場合はこれ以上分けない。
     if cols.len() < 4 || depth >= 6 {
         out.push(cols);
@@ -722,23 +761,57 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, out: &mut Vec<Vec<Col>>) {
     let margin = (ymax - ymin) * 0.2;
     let (lo, hi) = (ymin + margin, ymax - margin);
 
-    // 中央域で「跨ぐカラム数」が最小の cut を探す。候補はカラムの下端(y1)。
+    // 中央域で「跨ぐカラム数」が最小の cut を探す。候補はカラムの下端(y1)。この段の語を含む
+    // 罫線の表を横切る cut は、表を横切らない cut が無いときだけ使う（セルの間の空きが段の
+    // 境目に見えて、表が上下に割れていた）。
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    let table_at = |cut: f32| {
+        tables.iter().find(|&&(x0, x1, y0, y1)| {
+            y0 + 1.0 < cut && cut < y1 - 1.0 && cols.iter().any(|c| x0 < center(c) && center(c) < x1 && y0 < c.y1 && c.y < y1)
+        })
+    };
+    let (xmin, xmax) = (cols.iter().map(|c| c.x).fold(f32::INFINITY, f32::min), cols.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max));
+    let ruled = |cut: f32| {
+        rules.hrules.iter().any(|&(y, x0, x1)| (y - cut).abs() < 12.0 && x1.min(xmax) - x0.max(xmin) >= (xmax - xmin) * 0.6)
+    };
+    // （跨ぐカラム数, cut）。best_free は表を横切らないものの中の最良。
     let mut best: Option<(usize, f32)> = None;
+    let mut best_free: Option<(usize, f32)> = None;
     for c in &cols {
         let cut = c.y1 + 0.5;
-        if cut < lo || cut > hi {
+        if cut < lo || cut > hi || (ruled_only && !ruled(cut)) {
             continue;
         }
         let crossing = cols.iter().filter(|d| d.y < cut && cut < d.y1).count();
         if best.map(|b| crossing < b.0).unwrap_or(true) {
             best = Some((crossing, cut));
         }
+        if table_at(cut).is_none() && best_free.map(|b| crossing < b.0).unwrap_or(true) {
+            best_free = Some((crossing, cut));
+        }
+    }
+    if best_free.is_some_and(|(crossing, _)| crossing <= MAX_BRIDGE) {
+        best = best_free;
     }
 
     let Some((crossing, cut)) = best else {
         out.push(cols);
         return;
     };
+    // それでも表を横切るなら、表を割らずに表の脇で縦に切る。表の左に語があれば表の左端で、
+    // 無ければ表の右端で切り、右側から順に段へ分ける。表が段の幅いっぱいなら切らない。
+    if let Some(&(x0, x1, _, _)) = table_at(cut) {
+        for (edge, table_right) in [(x0 - 1.0, true), (x1 + 1.0, false)] {
+            let (right, left): (Vec<Col>, Vec<Col>) = cols.iter().cloned().partition(|c| center(c) >= edge);
+            if !right.is_empty() && !left.is_empty() {
+                split_tiers_rec(right, depth + 1, rules, ruled_only || !table_right, out);
+                split_tiers_rec(left, depth + 1, rules, ruled_only || table_right, out);
+                return;
+            }
+        }
+        out.push(cols);
+        return;
+    }
     if crossing > MAX_BRIDGE {
         // 段の境目をまたぐ列（表など）が左右どちらかに寄っていれば、先にそこで縦に切り、
         // 右側から順に段へ分ける。下半分の右に段をまたぐ表、左に段ごとの本文がある
@@ -747,9 +820,9 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, out: &mut Vec<Vec<Col>>) {
         if let Some((right, left, crossing_right)) = split_beside_crossing(&cols, cut) {
             if crossing_right {
                 out.push(right);
-                split_tiers_rec(left, depth + 1, out);
+                split_tiers_rec(left, depth + 1, rules, ruled_only, out);
             } else {
-                split_tiers_rec(right, depth + 1, out);
+                split_tiers_rec(right, depth + 1, rules, ruled_only, out);
                 out.push(left);
             }
         } else {
@@ -770,8 +843,8 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, out: &mut Vec<Vec<Col>>) {
         out.push(top.into_iter().chain(bottom).collect());
         return;
     }
-    split_tiers_rec(top, depth + 1, out);
-    split_tiers_rec(bottom, depth + 1, out);
+    split_tiers_rec(top, depth + 1, rules, ruled_only, out);
+    split_tiers_rec(bottom, depth + 1, rules, ruled_only, out);
 }
 
 /// 新旧対照表の帯を行に組む。[`page_lines`] に加えて表のセルを扱う。
