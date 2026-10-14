@@ -233,7 +233,7 @@ fn clean_title(text: &str) -> String {
 }
 
 /// 標題末尾の `（総務七七）` のような括弧内（制定機関略号）を取り出す。
-fn extract_agency_hint(title: &str) -> Option<String> {
+pub fn extract_agency_hint(title: &str) -> Option<String> {
     let open = title.rfind('（')?;
     let close = title.rfind('）')?;
     if close > open {
