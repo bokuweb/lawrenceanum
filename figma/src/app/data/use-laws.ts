@@ -9,6 +9,7 @@ function adapt(raw: {
   title: string
   category?: string | null
   last_updated?: string | null
+  article_count?: number
 }): LawSummary {
   const matched = LAWS.find((m) => m.law_id === raw.law_id)
   if (matched) {
@@ -18,6 +19,7 @@ function adapt(raw: {
       law_num: raw.law_num || matched.law_num,
       // index に更新日があれば優先 (mock の値より実データを尊重)。
       last_updated: raw.last_updated || matched.last_updated,
+      article_count: raw.article_count ?? matched.article_count,
     }
   }
   return {
@@ -29,7 +31,8 @@ function adapt(raw: {
     effective_date: '',
     last_updated: raw.last_updated ?? '',
     status: 'current',
-    article_count: 0,
+    // 条数を持たない古い index では 0 (= 不明) とし、UI 側で表示しない。
+    article_count: raw.article_count ?? 0,
   }
 }
 

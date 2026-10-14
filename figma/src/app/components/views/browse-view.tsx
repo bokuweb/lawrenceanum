@@ -164,7 +164,7 @@ function LawList({ laws, live, loading, onSelect }: { laws: LawSummary[]; live: 
                 <div className="text-base mb-1">{l.title}</div>
                 <div className="text-xs text-muted-foreground mb-4 truncate">{l.law_num}</div>
                 <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border">
-                  <span>{l.article_count} 条</span>
+                  <span>{l.article_count > 0 ? `${l.article_count} 条` : ""}</span>
                   <span>更新 {l.last_updated || "—"}</span>
                 </div>
               </CardContent>
@@ -512,7 +512,7 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
               <span className="flex items-center gap-1"><Hash className="size-3" />{law.law_id}</span>
               <span className="flex items-center gap-1"><Calendar className="size-3" />公布 {law.promulgation_date}</span>
               <span className="flex items-center gap-1"><Calendar className="size-3" />施行 {law.effective_date}</span>
-              <span className="flex items-center gap-1"><Tag className="size-3" />{law.article_count} 条</span>
+              <span className="flex items-center gap-1"><Tag className="size-3" />{detail.doc ? articles.length : law.article_count} 条</span>
             </div>
             <EgovAttribution asOf={toJstDate(detail.doc?.source?.fetched_at)} className="mt-2" />
           </div>
