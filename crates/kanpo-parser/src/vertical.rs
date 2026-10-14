@@ -511,6 +511,16 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
             push(w);
         }
     }
+    // 語は座標の正規の順（x 降順・y 昇順）に並べ替えてから使う。`<word>` の並びは抽出器によって
+    // 違い（poppler は段組みの解析順、kanpo-pdf はコンテンツストリームの順）、以降の処理の
+    // 同点の扱いなどに入力順が出ないようにする。
+    raws.sort_by(|a, b| {
+        b.0.total_cmp(&a.0)
+            .then(a.1.total_cmp(&b.1))
+            .then(b.2.total_cmp(&a.2))
+            .then(a.3.total_cmp(&b.3))
+            .then_with(|| a.4.cmp(&b.4))
+    });
     // 縦書きのページが /Rotate で横倒しに表示されている（座標上は縦の列が横の行に見える）
     // なら、復元に使う座標を 90° 回して縦書きに戻す。語の表示用の座標（`Word`）は
     // PDF の表示と重なるよう元のまま残す。
@@ -839,6 +849,9 @@ fn split_beside_crossing(cols: &[Col], cut: f32) -> Option<(Vec<Col>, Vec<Col>, 
 
 /// 跨ぎカラム数の許容上限（前文 1 本程度の橋渡しを段境界として許す）。
 const MAX_BRIDGE: usize = 1;
+/// 同じ列で続く語の空きがこれ未満なら同じ文の続き（字間を空けた見出し・欧文の語間。半角
+/// 0.5em まで）とみなし、そこを段の境目にしない(em 比)。
+const TOUCH_EM: f32 = 0.6;
 
 /// `ruled_only` なら、段の幅の大半にわたる横線のある所でだけ切る（表の脇で縦に切った残り。
 /// 罫線の無い表を段の境目と取り違えて割らないため）。
@@ -858,6 +871,7 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
     // 罫線の表を横切る cut は、表を横切らない cut が無いときだけ使う（セルの間の空きが段の
     // 境目に見えて、表が上下に割れていた）。
     let center = |c: &Col| (c.x + c.x1) / 2.0;
+    let upright = |c: &Col| c.y1 - c.y >= (c.x1 - c.x) * 0.9;
     let table_at = |cut: f32| {
         tables.iter().find(|&&(x0, x1, y0, y1)| {
             y0 + 1.0 < cut && cut < y1 - 1.0 && cols.iter().any(|c| x0 < center(c) && center(c) < x1 && y0 < c.y1 && c.y < y1)
@@ -867,27 +881,64 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
     let ruled = |cut: f32| {
         rules.hrules.iter().any(|&(y, x0, x1)| (y - cut).abs() < 12.0 && x1.min(xmax) - x0.max(xmin) >= (xmax - xmin) * 0.6)
     };
-    // （跨ぐカラム数, cut）。best_free は表を横切らないものの中の最良。
-    let mut best: Option<(usize, f32)> = None;
-    let mut best_free: Option<(usize, f32)> = None;
+    // 同じ列で上下に続く縦組みの語の組（上の語の下端, 下の語の上端, 空き(em)）。字の大きさの
+    // 違う語や横組みの語（見出し「（号外）」の下の発行者の欄など）は、同じ文の続きではない。
+    let mut by_center: Vec<&Col> = cols.iter().filter(|c| upright(c)).collect();
+    by_center.sort_by(|a, b| center(a).total_cmp(&center(b)));
+    let pairs: Vec<(f32, f32, f32)> = by_center
+        .iter()
+        .filter_map(|&a| {
+            let w = a.x1 - a.x;
+            let from = by_center.partition_point(|b| center(b) <= center(a) - w * 0.5);
+            let to = by_center.partition_point(|b| center(b) < center(a) + w * 0.5);
+            by_center[from..to]
+                .iter()
+                .filter(|b| b.y >= a.y1 - 0.5 && (center(a) - center(b)).abs() < w.min(b.x1 - b.x) * 0.5)
+                .filter(|b| ((b.x1 - b.x) - w).abs() <= w.max(b.x1 - b.x) * 0.05)
+                .min_by(|p, q| p.y.total_cmp(&q.y))
+                .map(|b| (a.y1, b.y, (b.y - a.y1) / w.min(b.x1 - b.x).max(1.0)))
+        })
+        .collect();
+    // cut が同じ列の語と語の間を、字間ほどの空き（[`TOUCH_EM`] 未満）で切るか。字間を空けた
+    // 欄見出し（「名　称」）や欧文の語間を段の境目と取り違えないため。
+    let touching = |cut: f32| pairs.iter().any(|&(y1, y, gap)| y1 < cut && cut < y && gap < TOUCH_EM);
+    // 候補の順位。跨ぐカラム数の少ないものを採る。同数のときは、跨ぐ列の無い cut なら字間を
+    // 切らないものの中で上のもの、跨ぐ列のある cut なら右の列の下端（語の正規の順で先に来る列）を
+    // 採る（語の入力順に左右されないように）。
+    // （跨ぐカラム数, 字間を切るか, cut, 候補を作った列の x, y）。
+    type Cand = (usize, bool, f32, f32, f32);
+    let better = |a: &Cand, b: &Option<Cand>| {
+        b.is_none_or(|b| {
+            let tie = if a.0 == 0 {
+                a.1.cmp(&b.1).then(a.2.total_cmp(&b.2))
+            } else {
+                b.3.total_cmp(&a.3).then(a.4.total_cmp(&b.4)).then(a.2.total_cmp(&b.2))
+            };
+            a.0.cmp(&b.0).then(tie).is_lt()
+        })
+    };
+    // best_free は表を横切らないものの中の最良。
+    let mut best: Option<Cand> = None;
+    let mut best_free: Option<Cand> = None;
     for c in &cols {
         let cut = c.y1 + 0.5;
         if cut < lo || cut > hi || (ruled_only && !ruled(cut)) {
             continue;
         }
         let crossing = cols.iter().filter(|d| d.y < cut && cut < d.y1).count();
-        if best.map(|b| crossing < b.0).unwrap_or(true) {
-            best = Some((crossing, cut));
+        let cand = (crossing, touching(cut), cut, c.x, c.y);
+        if better(&cand, &best) {
+            best = Some(cand);
         }
-        if table_at(cut).is_none() && best_free.map(|b| crossing < b.0).unwrap_or(true) {
-            best_free = Some((crossing, cut));
+        if table_at(cut).is_none() && better(&cand, &best_free) {
+            best_free = Some(cand);
         }
     }
-    if best_free.is_some_and(|(crossing, _)| crossing <= MAX_BRIDGE) {
+    if best_free.is_some_and(|b| b.0 <= MAX_BRIDGE) {
         best = best_free;
     }
 
-    let Some((crossing, cut)) = best else {
+    let Some((crossing, _, cut, _, _)) = best else {
         out.push(cols);
         return;
     };
@@ -928,6 +979,48 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
             out.push(cols);
         }
         return;
+    }
+    // ページ全体（最上位）では、跨ぐ列の無い横の空白の帯はどれも段の境目なので、まとめて切る
+    // （1 つずつ切ると、先に切った位置で残りの領域の中央域が変わり、どれを先に切るかで目次の
+    // ページ番号の行などが前後の段に付いたり付かなかったりする）。字間を切るものは除く。
+    if crossing == 0 && depth == 0 {
+        let mut cuts: Vec<f32> = cols
+            .iter()
+            .map(|c| c.y1 + 0.5)
+            .filter(|&cut| lo <= cut && cut <= hi && table_at(cut).is_none() && !touching(cut))
+            .filter(|&cut| !cols.iter().any(|d| d.y < cut && cut < d.y1))
+            .collect();
+        cuts.sort_by(f32::total_cmp);
+        let part_of = |c: &Col, cuts: &[f32]| cuts.partition_point(|&cut| cut <= (c.y + c.y1) / 2.0);
+        // 語の無い区間を作る cut（ほぼ同じ位置の cut）を除く。
+        cuts = cuts
+            .iter()
+            .enumerate()
+            .filter(|&(i, _)| cols.iter().any(|c| part_of(c, &cuts) == i))
+            .map(|(_, &cut)| cut)
+            .collect();
+        // 1 語だけの区間が、同じ字の大きさの列の続き（セルの区切りほど空いていない）で隣の区間と
+        // つながるなら、その cut では切らない（段の境目の直後の項目番号「二」が、続く「名古屋市…」
+        // の列から離れないように。目次のページ番号の行は字の大きさが本文と違うので切る）。
+        let continues = |cut: f32| pairs.iter().any(|&(y1, y, gap)| y1 < cut && cut < y && gap < CELL_BREAK_EM);
+        loop {
+            let sizes: Vec<usize> = (0..=cuts.len()).map(|i| cols.iter().filter(|c| part_of(c, &cuts) == i).count()).collect();
+            let Some(i) = (0..cuts.len()).find(|&i| (sizes[i] < 2 || sizes[i + 1] < 2) && continues(cuts[i])) else {
+                break;
+            };
+            cuts.remove(i);
+        }
+        if !cuts.is_empty() {
+            let mut parts: Vec<Vec<Col>> = vec![Vec::new(); cuts.len() + 1];
+            for c in cols {
+                let k = part_of(&c, &cuts);
+                parts[k].push(c);
+            }
+            for p in parts.into_iter().filter(|p| !p.is_empty()) {
+                split_tiers_rec(p, depth + 1, rules, ruled_only, out);
+            }
+            return;
+        }
     }
     // cut で上下に分割（橋渡しカラムは中心 y が属する側へ）。
     let (mut top, mut bottom): (Vec<Col>, Vec<Col>) = (Vec::new(), Vec::new());
