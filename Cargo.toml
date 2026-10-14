@@ -7,6 +7,7 @@ members = [
     "crates/kanpo-client",
     "crates/kanpo-parser",
     "crates/kanpo-parser-wasm",
+    "crates/kanpo-pdf",
     "crates/kanpo-linker",
     "crates/search-index",
     "crates/lawpub-cli",
@@ -48,3 +49,11 @@ rayon = "1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 similar = "2"
+
+# 官報 PDF は AES-256（R6）で暗号化されていて、鍵の導出に AES と SHA-2 を数十回まわす。
+# 暗号の crate は debug でも最適化する（しないとテストで 1 ページ 0.5 秒かかる）。
+[profile.dev.package.aes]
+opt-level = 3
+
+[profile.dev.package.sha2]
+opt-level = 3
