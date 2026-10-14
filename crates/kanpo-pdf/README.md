@@ -48,8 +48,22 @@ for page in kanpo_pdf::extract_pages(&pdf)? {
 - Adobe-Japan1 の CID → Unicode は Adobe の公開データから作っている。poppler の表と違い、ハイフンは
   U+002D、下線は U+005F になる（poppler は U+2011・U+0332）
 
-官報 296 ページ（kanpo-parser のスナップショットテストのページ）で比べると、罫線は全ページで一致し
-（0.1 pt 未満の丸め差を除く）、語は 96% が文字列・枠まで一致する。
+- 同じ字がほぼ同じ位置に重ねて描かれていたら 2 つ目を捨てる（poppler と同じ）。横書きで私用領域の字を
+  前の字と同じ位置に重ねたもの（私用 CID の 2 字で 1 字を作る組み方）は、その字だけで 1 語にする
+
+kanpo-parser のスナップショットテストのページ（313 ページ）と、それ以外の官報 6 日分（1004 ページ）で
+poppler と比べた結果:
+
+| | スナップショットのページ | 6 日分 |
+|---|---|---|
+| 罫線（pdftocairo と） | 全ページ一致（0.1 pt 未満の丸め差を除く） | — |
+| 字（語の切れ目を無視して数える） | ハイフン・下線の符号の違い（上記）以外は 1 字差 | 同左＋poppler が捨てる縦書き用の「：」 |
+| 語（文字列・枠まで一致） | 96.4% | 97.1% |
+| パーサの本文が poppler と同じページ | 279 / 313 | 884 / 1004 |
+| 読めない・panic | 0 | 0 |
+
+本文の違いの多くは語の切れ目と、パーサが語の入力順に依存していることによる。調べるには
+`cargo run --release -p kanpo-parser --example poppler_diff -- <PDF のディレクトリ>`（poppler が要る）。
 
 ## データとライセンス
 
@@ -75,6 +89,8 @@ cargo run -p kanpo-pdf --example content -- page.pdf    # 復号・展開した�
 # poppler の出力（あれば）との突き合わせ
 cargo run -p kanpo-pdf --example compare_bbox -- page.pdf page.bbox.html -v
 cargo run -p kanpo-pdf --example compare_rules -- page.pdf page.rules.json -v
+# 隣り合う字の空きと poppler の語の切れ目の集計（<pdf>.poppler.html を読む）
+cargo run --release -p kanpo-pdf --example gap_stats -- <PDF のディレクトリ>
 ```
 
 [`Page::glyphs`]: src/page.rs
