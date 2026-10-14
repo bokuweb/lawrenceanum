@@ -114,14 +114,22 @@ fn join_wrapped_lines(lines: &[&str]) -> String {
     let lines: Vec<&str> = lines.iter().map(|l| l.trim()).filter(|l| !l.is_empty()).collect();
     let mut out = String::new();
     for (idx, line) in lines.iter().enumerate() {
+        let starts_line = out.is_empty() || out.ends_with('\n');
         out.push_str(line);
         if idx + 1 < lines.len() {
             let ends_sentence = line.ends_with('。') || line.ends_with('！') || line.ends_with('？');
             // 表の目印の行は前後とも改行で区切る（表を本文に連結しない）。
             let around_table = parse_table_marker(line).is_some() || parse_table_marker(lines[idx + 1]).is_some();
+            // 省略の印（「〔２・３　略〕」）は 1 列を占めるので、後ろの列もつなげない。前の行につないだ印
+            // （「修業〔項を加える。〕年限…」。隣の欄の印が文の途中に紛れ込んだもの）は文の続きを切らない。
+            let after_note = starts_line && line.starts_with(['〔', '［']) && is_bracket_note(line);
             // 「…法律第」＋「二十六号）…」のように語の途中で切れた行は、次が号の頭に見えても続ける。
             let mid_word = line.ends_with('第');
-            if ends_sentence || around_table || (starts_structural_marker(lines[idx + 1]) && !mid_word) {
+            // 漢数字の続き（「十六号）…」）は、前の列が下まで埋まっているときだけ折り返しとみなす。
+            // 短い列のあとの数は、1 列に 1 つずつ並べた地番（「四四三番二」「四四五番二」）などの区切り。
+            let wrapped_number = fills_column(&lines, idx)
+                && (continues_number(line, lines[idx + 1]) || starts_reference(lines[idx + 1]) || continues_parenthetical(line, lines[idx + 1]));
+            if ends_sentence || around_table || after_note || (starts_structural_marker(lines[idx + 1]) && !mid_word && !wrapped_number) {
                 out.push('\n');
             }
         }
@@ -129,17 +137,172 @@ fn join_wrapped_lines(lines: &[&str]) -> String {
     out.trim().to_string()
 }
 
-/// 行頭が条文の構造マーカー（条・号・見出し・別表・附則）か。列折り返し結合で改行を残す判定に使う。
+/// 行頭が条文の構造マーカー（条・号・見出し・別表・附則・省略の印）か。列折り返し結合で改行を残す判定に使う。
 fn starts_structural_marker(line: &str) -> bool {
     let mut chars = line.chars();
     match chars.next() {
         Some('第') | Some('（') | Some('(') | Some('別') | Some('附') => true,
-        // 号: 漢数字・カタカナ列記・全角/半角数字で始まる。
+        // 号: 漢数字・カタカナ列記・全角/半角数字で始まる（語の途中で折り返した数は呼び出し側で除く）。
         Some(c) if "一二三四五六七八九十".contains(c) => true,
         Some(c) if "イロハニホヘトチリヌルヲワカヨタレソツネ".contains(c) => true,
         Some(c) if c.is_ascii_digit() || ('０'..='９').contains(&c) => true,
+        // 省略・新設などの印（「〔四・五　略〕」「〔新設〕」「［表略］」）は、本文の後ろに続けず行を分ける。
+        Some('〔') | Some('［') => is_bracket_note(line),
         _ => false,
     }
+}
+
+/// `lines[idx]` が下まで埋まった列か（近くの行の長さとくらべる。半角の字は 0.5 字で数える）。
+///
+/// 復元したテキストの 1 行は縦書きの 1 列なので、語の途中で折り返す行は列の下端まで字が詰まっている。
+fn fills_column(lines: &[&str], idx: usize) -> bool {
+    let width = |l: &str| l.chars().map(|c| if (c as u32) < 0x100 || ('｡'..='ﾟ').contains(&c) { 0.5 } else { 1.0 }).sum::<f32>();
+    let lo = idx.saturating_sub(4);
+    let hi = (idx + 2).min(lines.len());
+    let longest = lines[lo..hi].iter().map(|l| width(l)).fold(0.0, f32::max);
+    width(lines[idx]) >= (longest * 0.8).max(18.0)
+}
+
+/// 行頭の `〔…〕`・`［…］` が、新旧対照表の省略・新設・削除などの印か（「〔２・３　略〕」「〔同上〕」
+/// 「〔新設〕」「〔第二項を加える。〕」）。「〔　〕の記載」のような本文中の括弧は印でない。
+///
+/// 印は 1 列を占めるので、後ろに同じ行で本文が続くもの（「〔項を加える。〕年限二年以上の…」。
+/// 隣の欄の印が文の途中に紛れ込んだもの）は印として扱わない。印が続く（「〔略〕〔２・３　略〕」）のはよい。
+fn is_bracket_note(line: &str) -> bool {
+    let mut rest = line.trim();
+    let mut found = false;
+    while let Some(close) = rest.strip_prefix('〔').map(|_| '〕').or_else(|| rest.strip_prefix('［').map(|_| '］')) {
+        let body = &rest[rest.chars().next().map_or(0, char::len_utf8)..];
+        let Some(end) = body.find(close) else {
+            return false;
+        };
+        let inner = body[..end].trim();
+        if !["略", "同上", "同左", "新設", "削る", "削除", "加える。", "削る。", "挿入"].iter().any(|s| inner.ends_with(s)) {
+            return false;
+        }
+        found = true;
+        rest = body[end + close.len_utf8()..].trim_start_matches([' ', '　']);
+    }
+    found && rest.is_empty()
+}
+
+/// 行頭の漢数字が号の番号でなく、`prev` の行の末尾から折り返した数の続きか。
+///
+/// 号の番号ではありえない並び（[`NumberCue::Strong`]）なら続き。それ以外は `prev` が数の途中
+/// （「第四十」「四万」「「三〇一、」「（平成」）で終わるときだけ続きとする（「…第四十一条の十」＋
+/// 「六の二第一項…」）。位取りの数は地番や表の値を 1 列に 1 つずつ並べたもの（「四四三番二」
+/// 「四四五番二」）でもあるので、形だけでは続きとしない。
+fn continues_number(prev: &str, line: &str) -> bool {
+    let mid_number = prev.ends_with(|c: char| "一二三四五六七八九十百千〇万億、・「（第".contains(c))
+        || ["明治", "大正", "昭和", "平成", "令和"].iter().any(|era| prev.ends_with(era));
+    match kanji_number_cue(line) {
+        NumberCue::Heading => false,
+        NumberCue::Strong => true,
+        NumberCue::Plain | NumberCue::Positional => mid_number,
+    }
+}
+
+/// 行頭が号・項を指す語（「第七号並びに…」「第二項の規定により…」）か。条の見出し（「第十条　」）と違い、
+/// 号・項は「第…号」「第…項」の形で行頭に立たないので、前の行から折り返した語の続き。
+fn starts_reference(line: &str) -> bool {
+    const NUMERAL: &str = "一二三四五六七八九十百千〇";
+    let Some(rest) = line.strip_prefix('第') else {
+        return false;
+    };
+    let mut chars = rest.chars().peekable();
+    let mut digits = 0;
+    while let Some(&c) = chars.peek() {
+        if NUMERAL.contains(c) {
+            digits += 1;
+            chars.next();
+        } else if c == 'の' && digits > 0 {
+            chars.next();
+        } else {
+            break;
+        }
+    }
+    let kind = chars.next();
+    digits > 0 && matches!(kind, Some('号' | '項')) && !chars.next().is_some_and(char::is_whitespace)
+}
+
+/// 行頭の `（` が見出し（「（経過措置）」）や番号（「（１）」「（イ）」）でなく、`prev` の行から折り返した
+/// 括弧書き（「…に関する法律」＋「（昭和五十七年法律第八十号）第七十条…」）か。1 行で閉じない括弧で、
+/// `prev` が文や括弧書きの終わり（「。」「）」）で終わっていないもの。
+fn continues_parenthetical(prev: &str, line: &str) -> bool {
+    let Some(inner) = line.strip_prefix('（') else {
+        return false;
+    };
+    // 番号の括弧（「（１４）　」「（イ）」「（乙）」）。
+    let label: String = inner.chars().take_while(|&c| c != '）').collect();
+    let numbered = inner.contains('）')
+        && label.chars().count() <= 4
+        && label.chars().all(|c| c.is_ascii_alphanumeric() || c.is_numeric() || "一二三四五六七八九十ⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹイロハニホヘトチリヌルヲ甲乙丙丁".contains(c) || ('ａ'..='ｚ').contains(&c) || ('Ａ'..='Ｚ').contains(&c));
+    // 1 行で閉じる見出し（「（経過措置）」）。
+    let caption = line.ends_with('）') && line.matches('（').count() == line.matches('）').count();
+    !numbered && !caption && !prev.ends_with(['。', '）'])
+}
+
+/// 行頭の漢数字が前の行からの続きである手がかり。
+#[derive(Debug, PartialEq, Eq)]
+enum NumberCue {
+    /// 漢数字で始まらない行。または数の後ろが空白（「四　」「四一八〇　防府北飛行場」）で、号の番号や表の行の頭。
+    Heading,
+    /// 号の番号かもしれない（手がかり無し。散文の段落では号の番号の後ろの空白が落ちる）。
+    Plain,
+    /// 位取りで書いた数（「四、五〇〇」「三・〇五MHz」「一三、五〇〇」）。号の番号は「十四」のように書く。
+    Positional,
+    /// 号の番号ではありえない並び（「十六号）」「十三年法律第…」）。
+    Strong,
+}
+
+/// 行頭の漢数字が号の番号か、前の行で折り返した語の続きかの手がかり。
+///
+/// 号の番号（「四　」「三の二　」「四〜九　」）は空白で本文と区切られる。散文の段落では空白が落ちて
+/// 「二前号に規定する…」「三日本郵政株式会社」のようにもなるので、空白が無いだけでは続きとみなさず、
+/// 号の番号ではありえない並びのときだけ続きとする:
+///
+/// - 位取りで書いた数（[`NumberCue::Positional`]）
+/// - 数の直後が号・条・項・円・閉じ括弧（「十六号）」「五条の二十三」「一項」「七九〇円」）
+/// - 法令番号・日付・期間の途中（「十三年法律第…」「八日）から」「六月以内」「十日まで」）
+fn kanji_number_cue(line: &str) -> NumberCue {
+    const DIGITS: &str = "一二三四五六七八九";
+    const NUMERAL: &str = "一二三四五六七八九十百千万億〇";
+    let chars: Vec<char> = line.chars().collect();
+    // 数（「三の二」「四・五」「四、五〇〇」の区切りも含める）の終わりまで進む。
+    let mut i = 0;
+    while i < chars.len() {
+        let separator = matches!(chars[i], 'の' | '・' | '、' | '〜') && chars.get(i + 1).is_some_and(|c| NUMERAL.contains(*c));
+        if !NUMERAL.contains(chars[i]) && !separator {
+            break;
+        }
+        i += 1;
+    }
+    let number = &chars[..i];
+    let rest: String = chars[i..].iter().take(16).collect();
+    // 空白で区切った数は号の番号や表の行の頭（「四　」「四一八〇　防府北飛行場」）。
+    if i == 0 || rest.starts_with(char::is_whitespace) {
+        return NumberCue::Heading;
+    }
+    let positional = number.contains(&'〇') || number.windows(2).any(|w| DIGITS.contains(w[0]) && DIGITS.contains(w[1]));
+    if positional {
+        return NumberCue::Positional;
+    }
+    let Some(next) = rest.chars().next() else {
+        return NumberCue::Plain;
+    };
+    let strong = |b: bool| if b { NumberCue::Strong } else { NumberCue::Plain };
+    if matches!(next, '号' | '条' | '項' | '円' | '）' | '」' | '』' | 'の') {
+        return strong(!["条例", "条約", "項目", "円滑"].iter().any(|w| rest.starts_with(w)));
+    }
+    // 「十三年法律第…」「二年厚生労働省令第…」: 年の後ろ、「第」の前が法令の種類で終わる。
+    if let Some(law) = rest.strip_prefix('年').and_then(|r| r.split('第').next().filter(|_| r.contains('第'))) {
+        if law.chars().count() <= 12 && law.ends_with(['律', '令', '則', '示']) {
+            return NumberCue::Strong;
+        }
+    }
+    strong(["日）", "日から", "日まで", "日以前", "日以後", "日分", "月）", "月以内", "月から", "月まで", "年以内", "年度）"]
+        .iter()
+        .any(|w| rest.starts_with(w)))
 }
 
 impl Document {
@@ -330,7 +493,9 @@ fn append_runs(dst: &mut Vec<Run>, src: Vec<Run>) {
             let table_edge = last.text.ends_with('\u{E001}') || next_line.starts_with('\u{E000}');
             // 「…第」＋「一号イ…」のように語の途中で切れているときは、次が項目の頭に見えても改行しない。
             let mid_word = last.text.ends_with('第');
-            let sep = if last.text.ends_with('。') || table_edge || (starts_structural_marker(next_line) && !mid_word) { "\n" } else { "" };
+            // ページの切れ目では前の列の長さが分からないので、数の形だけで続きか決める。
+            let wrapped_number = continues_number(&last.text, next_line) || starts_reference(next_line);
+            let sep = if last.text.ends_with('。') || table_edge || (starts_structural_marker(next_line) && !mid_word && !wrapped_number) { "\n" } else { "" };
             last.text = format!("{}{sep}{}", last.text, first.text);
             src.next();
         }
@@ -952,6 +1117,70 @@ mod tests {
         let after_first = text.split('\n').collect::<Vec<_>>();
         assert!(after_first.iter().any(|l| l.trim() == "一（略）"), "{text}");
         assert!(after_first.iter().any(|l| l.starts_with("二当該さめ")), "{text}");
+    }
+
+    #[test]
+    fn joins_numbers_wrapped_mid_word() {
+        // 実ページ（g00164 0041 改正前・h01754 0002・g00160 0049）の列。数の途中で列が折り返している。
+        let text = join_wrapped_lines(&[
+            "する金額と租税特別措置法（昭和三十二年法律第二",
+            "十六号）第四十一条の十六の二第一項第一号イに掲げ",
+            "る場合（令和九年以後の各年分にあつては、同項に掲",
+            "げる場合）における同項の規定による基礎控除の額の",
+        ]);
+        assert!(text.contains("法律第二十六号）第四十一条"), "{text}");
+        let text = join_wrapped_lines(&["額に相当する金額と租税特別措置法（昭和", "三十二年法律第二十六号）第四十一条の十", "六の二第一項第一号イに掲げる場合（令和", "九年以後の各年分にあつては、同項に掲げ"]);
+        assert!(!text.contains('\n'), "{text}");
+        let text = join_wrapped_lines(&["「二二四、七〇〇」に、「三六九、一〇〇」を「四一四、四〇〇」に、「五五二、四〇〇」を「六〇五、", "四〇〇」に、「七一一、五〇〇」を「八六一、六〇〇」に改める。"]);
+        assert!(text.contains("「六〇五、四〇〇」"), "{text}");
+        // 号・項を指す語（「第七号並びに…」）は条の見出しではない。
+        let text = join_wrapped_lines(&["の科目（以下この号、次号、第五号及び", "第七号並びに第四項及び第七項において", "「実習科目」という。）を除く。）を修めて"]);
+        assert!(text.contains("第五号及び第七号並びに"), "{text}");
+        // 折り返した括弧書き（g00160 0058）。1 行で閉じる見出しや番号の括弧は改行のまま。
+        let text = join_wrapped_lines(&[
+            "は、当該事項につき同項各号に掲げる場合の区分に応じ、当該各号に定める方法により投資主",
+            "（その期間内に当該方法による提供計算書類等の提供の請求をした者を除く。）に対して提供し",
+            "たものとみなす。",
+            "（経過措置）",
+            "第二条　この府令の施行の際現に存する投資法人については、なお従前の例による。ただし",
+            "（１）　前号に掲げるもの",
+        ]);
+        assert!(text.contains("投資主（その期間内に"), "{text}");
+        assert!(text.contains("\n（経過措置）\n"), "{text}");
+        assert!(text.contains("\n（１）　前号"), "{text}");
+    }
+
+    #[test]
+    fn keeps_items_and_lists_that_start_with_numbers() {
+        // 号の番号（空白で区切る）は改行のまま。
+        let text = join_wrapped_lines(&["四　法第四条第三号の総務省令で定める無線局は、次に掲げるものとする", "一　次に掲げる条件に適合するもの"]);
+        assert_eq!(text.lines().count(), 2, "{text}");
+        // 散文の段落で号の番号の後ろの空白が落ちたもの（「三日本郵政」）は、数の続きとみなさない。
+        let text = join_wrapped_lines(&["二　日本銀行に関する制度の企画及び立案に関すること", "三日本郵政株式会社"]);
+        assert_eq!(text.lines().count(), 2, "{text}");
+        // 1 列に 1 つずつ並べた地番（短い列）は、位取りの数でもつなげない（h01798 0006）。
+        let text = join_wrapped_lines(&["岐阜県岐阜市大字岩井", "字矢之洞三八〇番二〇〇", "字嶽四四二番七から四四二番九まで", "四四三番二", "四四五番二"]);
+        assert!(text.ends_with("まで\n四四三番二\n四四五番二"), "{text}");
+        // 名簿の行（h01789 0008）。
+        let text = join_wrapped_lines(&["三六三四林田俊一八、七、三一", "三八五九早川正八、四、三〇", "四〇五四小川裕通八、七、三一"]);
+        assert_eq!(text.lines().count(), 3, "{text}");
+    }
+
+    #[test]
+    fn separates_omission_marks() {
+        // 省略の印は 1 列を占める（g00164 0041 改正後）。
+        let text = join_wrapped_lines(&["第六条　〔略〕", "〔２・３　略〕", "４　法第四条第三号の総務省令で定める無線局は、次に掲げるものとする。"]);
+        assert_eq!(text, "第六条　〔略〕\n〔２・３　略〕\n４　法第四条第三号の総務省令で定める無線局は、次に掲げるものとする。");
+        let text = join_wrapped_lines(&["五MHz以下の周波数の電波を使用するもの", "〔三〜十一　同上〕"]);
+        assert_eq!(text.lines().count(), 2, "{text}");
+        // 印の後ろの列も続けない（備考は別の行）。
+        let text = join_wrapped_lines(&["〔六〜十四　略〕", "備考　表中の〔　〕の記載は注記である。"]);
+        assert_eq!(text.lines().count(), 2, "{text}");
+        // 文の途中の括弧（「〔　〕の記載」）や、後ろに本文の続く印は行を分けない。
+        assert!(!is_bracket_note("〔　〕の記載及び対象規定の二重傍線"));
+        assert!(!is_bracket_note("〔項を加える。〕年限二年以上のものに限る。"));
+        assert!(is_bracket_note("〔略〕〔２・３　略〕"));
+        assert!(is_bracket_note("［様式　別紙二十三　挿入］"));
     }
 
     #[test]

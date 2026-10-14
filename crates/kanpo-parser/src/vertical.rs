@@ -27,6 +27,10 @@ pub(crate) struct Col {
 /// ページ上下の余白帯にある柱（「官」「報」「令和 年 月 日」等）を落とすための閾値(pt)。
 pub(crate) const TOP_MARGIN: f32 = 56.0;
 pub(crate) const BOTTOM_MARGIN: f32 = 30.0;
+/// 縦長のページの右の余白帯(pt)。号の 1 ページ目（分冊の先頭ページ）には、綴じ穴の印「○」2 つと
+/// 中央の印「▷」（私用 CID で「才」に化ける）が本文の右の外（x≈570–588）に刷られている。本文の右端は
+/// x≈553 まで。
+pub(crate) const RIGHT_MARGIN: f32 = 30.0;
 
 /// `-bbox-layout` の XHTML から縦書き読み順（右→左・各カラム上→下）を復元する。
 ///
@@ -141,6 +145,20 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 units.push(Unit::Plain(drop_stray_labels(page_lines(rest))));
             }
         } else {
+            // 前のページの新旧対照表の続きが、ページの右端の罫線の欄（上下の欄）に収まり、その左に
+            // 別の記事が続くページは、段に切る前に欄の中を表の続きとして切り出す（欄が上下の段を
+            // またぐので、段に切ると改正前の欄が次の記事の表に入ってしまう）。
+            let cols = if prev_table {
+                match split_off_leading_frame(cols, page_rules) {
+                    Ok((after, before, rest)) => {
+                        units.push(band_pair_unit(after, before, &grids, page_rules));
+                        rest
+                    }
+                    Err(cols) => cols,
+                }
+            } else {
+                cols
+            };
             // 通常ページ: まず段組み(tier)に分ける。官報本紙は2段組が多く、段を分けないと
             // 「同 x にある上段の列と下段の列」が1列に連結され混線する。新旧対照表の見出しが
             // ある段は 2 帯へ、無ければ右→左復元する。表と無関係記事が同居するページも
@@ -307,6 +325,57 @@ fn split_off_full_height_left(cols: Vec<Col>, divider: f32, rules: Option<&PageR
         return (cols, Vec::new());
     }
     cols.into_iter().partition(right)
+}
+
+/// [`split_off_leading_frame`] の結果（改正後, 改正前, 残り）。
+type LeadingFrame = (Vec<Col>, Vec<Col>, Vec<Col>);
+
+/// ページの右端にある、前のページの新旧対照表の続きの欄を切り出す。`(改正後, 改正前, 残り)`。
+///
+/// 続きの欄は、紙面の高さのほとんどを通る縦の罫線の右にあり、その縦線から右へ伸びる横の罫線で
+/// 上下（改正後・改正前）に分かれていて、欄見出しが無い（g00160 0059: 右端の上の欄に改正後の
+/// 「５　前項の場合には…」、下の欄に改正前の「〔項を加える。〕」。その左に備考・附則・次の記事が続く）。
+/// 罫線の枠では取れない（下の段の次の記事の表の横線が、この欄の縦線まで伸びて 1 つの枠になる）ので、
+/// 罫線を直接見る。縦線の左に字が無い（ページ全体が表の続き）なら切り出さない（見出しの無い継続ページとして読む）。
+fn split_off_leading_frame(cols: Vec<Col>, rules: Option<&PageRules>) -> Result<LeadingFrame, Vec<Col>> {
+    let Some(rules) = rules else {
+        return Err(cols);
+    };
+    let top = cols.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+    let bottom = cols.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+    let right_edge = cols.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max);
+    let center = |c: &Col| ((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0);
+    let mut verticals: Vec<_> = rules.vertical.iter().filter(|v| v.y1 - v.y0 >= (bottom - top) * 0.8 && v.x < right_edge).collect();
+    verticals.sort_by(|a, b| b.x.total_cmp(&a.x));
+    let found = verticals.into_iter().find_map(|v| {
+        // 縦線の左端から右へ、右端の字の上まで伸びる横線が上下の欄の境目。
+        let h = rules.horizontal.iter().find(|h| (h.x0 - v.x).abs() <= 3.0 && h.x1 >= right_edge - 2.0 && h.y > v.y0 + (v.y1 - v.y0) * 0.25 && h.y < v.y1 - (v.y1 - v.y0) * 0.25)?;
+        let right: Vec<&Col> = cols.iter().filter(|c| center(c).0 > v.x && center(c).1 > v.y0 && center(c).1 < v.y1).collect();
+        // 境目をまたぐ列は無い（またぐなら上下の欄ではない）。
+        if right.iter().any(|c| c.y < h.y - 2.0 && c.y1 > h.y + 2.0) {
+            return None;
+        }
+        let upper = right.iter().filter(|c| center(c).1 < h.y).count();
+        let lower = right.len() - upper;
+        let label = right.iter().any(|c| matches!(c.text.chars().filter(|ch| !ch.is_whitespace()).collect::<String>().as_str(), "改正後" | "改正前" | "改" | "正" | "後" | "前"));
+        let left_of = cols.iter().filter(|c| c.x1 < v.x).count();
+        (upper > 0 && lower > 0 && !label && left_of >= 3).then_some((v.x, v.y0, v.y1, h.y))
+    });
+    let Some((x, y0, y1, mid)) = found else {
+        return Err(cols);
+    };
+    let (mut after, mut before, mut rest) = (Vec::new(), Vec::new(), Vec::new());
+    for c in cols {
+        let (cx, cy) = center(&c);
+        if cx <= x || cy <= y0 || cy >= y1 {
+            rest.push(c);
+        } else if cy < mid {
+            after.push(c);
+        } else {
+            before.push(c);
+        }
+    }
+    Ok((after, before, rest))
 }
 
 /// 段の字が紙面の上半分（改正後の帯）にだけあり、新しい記事（「〇」で始まる行）も附則も欄見出しも無いか。
@@ -600,7 +669,7 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
         let in_margin = if rotated {
             gx1 <= LEFT_STRIP
         } else {
-            gy1 <= TOP_MARGIN || gy >= height - BOTTOM_MARGIN
+            gy1 <= TOP_MARGIN || gy >= height - BOTTOM_MARGIN || (!sideways && gx >= page_width - RIGHT_MARGIN)
         };
         let status = if in_margin {
             WordStatus::Margin
@@ -904,6 +973,8 @@ const MAX_BRIDGE: usize = 1;
 /// 同じ列で続く語の空きがこれ未満なら同じ文の続き（字間を空けた見出し・欧文の語間。半角
 /// 0.5em まで）とみなし、そこを段の境目にしない(em 比)。
 const TOUCH_EM: f32 = 0.6;
+/// 同じ列で続く語の空きがこれ未満なら、全角空白 1 字ほどの区切り（同じセル・同じ行の中）とみなす(em 比)。
+const SPACE_EM: f32 = 1.25;
 
 /// `ruled_only` なら、段の幅の大半にわたる横線のある所でだけ切る（表の脇で縦に切った残り。
 /// 罫線の無い表を段の境目と取り違えて割らないため）。
@@ -1014,11 +1085,29 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
         // ページで、本文の上下の段の列が 1 行に連結されるのを防ぐ。
         // またぐ列のある側（表など）は 1 段のまま置き、もう一方だけを段に分ける。
         if let Some((right, left, crossing_right)) = split_beside_crossing(&cols, cut) {
+            // またがない側は cut で段に割れることを確かめてある。その側の中央域の外に cut が来ると
+            // 分け直しでは切れない（短い下の帯（改正前欄の「〔項を加える。〕」だけの帯など）が上の帯の
+            // 列に付く）ので、そのときは cut で上下に切ってから分ける。同じ列が全角 1 字ほどの空きで
+            // 続く（表のセルの中の「八、　五、二〇」）なら段の境目ではないので切らない。
+            let in_cell = pairs.iter().any(|&(y1, y, gap)| y1 < cut && cut < y && gap < SPACE_EM);
+            let split_side = |side: Vec<Col>, out: &mut Vec<Vec<Col>>| {
+                let top = side.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+                let bottom = side.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+                let central = (top + (bottom - top) * 0.2..=bottom - (bottom - top) * 0.2).contains(&cut);
+                if in_cell || central {
+                    split_tiers_rec(side, depth + 1, rules, ruled_only, out);
+                    return;
+                }
+                let (top, bottom): (Vec<Col>, Vec<Col>) = side.into_iter().partition(|c| (c.y + c.y1) / 2.0 < cut);
+                for part in [top, bottom].into_iter().filter(|p| !p.is_empty()) {
+                    split_tiers_rec(part, depth + 1, rules, ruled_only, out);
+                }
+            };
             if crossing_right {
                 out.push(right);
-                split_tiers_rec(left, depth + 1, rules, ruled_only, out);
+                split_side(left, out);
             } else {
-                split_tiers_rec(right, depth + 1, rules, ruled_only, out);
+                split_side(right, out);
                 out.push(left);
             }
         } else if let Some(edge) = partial_rule_edge(&cols, rules, lo, hi) {
