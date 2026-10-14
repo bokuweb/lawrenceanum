@@ -87,6 +87,13 @@ fn archive_pages() {
     insta::glob!("archive/pages/**/*.pdf", |path| {
         let page = read_page(path);
         let a = kanpo_parser::analyze_item(std::slice::from_ref(&page));
+        // 1 つの語を 2 つの行（表のセルを含む）に組まない（決算公告の枠が二重に出ていた）。
+        for p in &a.pages {
+            let mut seen = std::collections::HashSet::new();
+            let words = p.regions.iter().flat_map(|r| &r.lines).flat_map(|l| l.words.iter().chain(l.table.iter().flat_map(|t| t.cells.iter().flat_map(|c| &c.words))));
+            let dup: Vec<&str> = words.filter(|&&w| !seen.insert(w)).map(|&w| p.words[w].text.as_str()).collect();
+            assert!(dup.is_empty(), "{}: 2 回以上組んだ語 {dup:?}", path.display());
+        }
         let mut out = String::new();
         let layouts: Vec<&str> = a.pages.iter().map(|p| p.layout).collect();
         out.push_str(&format!("layout: {}\nformat: {}\n\n--- 本文 ---\n{}\n", layouts.join(","), a.format, a.text));

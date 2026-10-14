@@ -87,7 +87,7 @@ const FAM_PAREN_KANA: u8 = 5;
 const FAM_SINGLE: u8 = 6;
 
 /// 連番の範囲の中で常用漢字と同じ符号（文脈が無ければ写像しない）。
-const AMBIGUOUS: &str = "挑振挺挾挿掘掛故效敍敏敕敗敘教敝敞敢散敦敬";
+const AMBIGUOUS: &str = "挑振挺挾挿掘掛掌故效敍敏敕敗敘教敝敞敢散敦敬";
 
 /// ToUnicode を持たない私用 CID のグリフを本来の文字へ戻す。
 ///
@@ -138,9 +138,22 @@ pub(crate) fn private_cid_glyph(text: &str, width: f32, height: f32) -> Option<C
                 0x617A => (FAM_SINGLE, "－".to_string()),
                 // ㊟（「注４を注５とし」の注）
                 0x629D => (FAM_SINGLE, "（注）".to_string()),
-                // 異体字（一点しんにょうの「辻」・「釜」）
+                // (Ⅰ)・(Ⅱ)（「在宅患者訪問診療料（Ⅰ）及び（Ⅱ）」）
+                0x638B => (FAM_SINGLE, "（Ⅰ）".to_string()),
+                0x638C => (FAM_SINGLE, "（Ⅱ）".to_string()),
+                // 異体字（一点しんにょうの「辻」・「釜」、地名・人名・医療用語の字）
                 0x5A79 => (FAM_SINGLE, "辻".to_string()),
                 0x4F42 => (FAM_SINGLE, "釜".to_string()),
+                0x4F2E => (FAM_SINGLE, "灸".to_string()),
+                0x4F37 => (FAM_SINGLE, "梗".to_string()),
+                0x4F3D => (FAM_SINGLE, "竈".to_string()),
+                0x4F41 => (FAM_SINGLE, "斧".to_string()),
+                0x4F45 => (FAM_SINGLE, "籾".to_string()),
+                0x5A31 => (FAM_SINGLE, "葛".to_string()),
+                0x5A52 => (FAM_SINGLE, "薩".to_string()),
+                0x5A7B => (FAM_SINGLE, "鄭".to_string()),
+                0x5A91 => (FAM_SINGLE, "樋".to_string()),
+                0x5B3D => (FAM_SINGLE, "徳".to_string()),
                 _ => return None,
             }
         }
@@ -311,6 +324,18 @@ pub(crate) fn is_margin_noise(line: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn maps_variant_glyphs_checked_against_the_originals() {
+        // 原本の画像と突き合わせた異体字（宮城県塩竈市・心筋梗塞・鍼灸・奈良県葛城市・鹿児島県薩摩郡・樋口）。
+        for (cid, want) in [("伽", "竈"), ("伷", "梗"), ("伮", "灸"), ("佁", "斧"), ("佅", "籾"), ("娱", "葛"), ("婒", "薩"), ("婻", "鄭"), ("媑", "樋"), ("嬽", "徳")] {
+            assert_eq!(fix_private_cid_glyphs(cid, 9.0, 9.0).as_deref(), Some(want), "{cid}");
+        }
+        assert_eq!(fix_private_cid_glyphs("掋", 9.0, 9.0).as_deref(), Some("（Ⅰ）"));
+        // 「掌」は常用漢字なので文脈なしでは写像しない。
+        assert_eq!(fix_private_cid_glyphs("掌", 9.0, 9.0), None);
+        assert_eq!(private_cid_glyph("掌", 9.0, 9.0).map(|g| g.text).as_deref(), Some("（Ⅱ）"));
+    }
 
     #[test]
     fn maps_toc_page_numbers_by_their_placement() {
