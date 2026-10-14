@@ -407,5 +407,9 @@ mod tests {
         assert_eq!(aj1(1200), Some('一'));
         // 縦書き用の読点は縦書き用の字形の符号になる。
         assert_eq!(aj1(7887), Some('\u{FE11}'));
+        // poppler の表に無い縦書き用のコロン（「一：六」）も字にする。
+        assert_eq!(aj1(12101), Some('：'));
+        // 互換漢字は統合漢字に（CID 7651 は U+FA36 ではなく「喝」U+559D）。
+        assert_eq!(aj1(7651), Some('\u{559D}'));
     }
 }
