@@ -52,7 +52,7 @@ const items: { path: string; label: string; icon: any; matchPrefix?: string; kan
   { path: "/wiki", label: "wiki", icon: Network, matchPrefix: "/wiki" },
   { path: "/enforcement", label: "施行予定", icon: CalendarClock, matchPrefix: "/enforcement" },
   { path: "/updates", label: "更新履歴", icon: History },
-  // 本番では ?kanpo-parser=1 で有効にしたときだけ（kanpo-parser-flag.ts）。
+  // 表示可否は kanpo-parser-flag.ts（今は本番でも常に表示）。
   { path: "/kanpo-playground", label: "官報パーサ", icon: ScanText, kanpoParser: true },
   { path: "/settings", label: "設定", icon: Settings },
 ];
