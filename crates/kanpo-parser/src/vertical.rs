@@ -427,6 +427,11 @@ fn is_horizontal_page(cols: &[Col]) -> bool {
     let (mut horizontal, mut vertical) = (0usize, 0usize);
     for c in cols.iter().filter(|c| c.text.chars().count() >= 2) {
         let (w, h) = (c.x1 - c.x, c.y1 - c.y);
+        // 字間を広く空けた横書きの見出し・表の欄の名前（「利　益　剰　余　金」）は文の量に数えない
+        // （縦書きのページの中の横組みの表で、横書きが多く見える）。
+        if w / c.text.chars().count() as f32 > h * 1.3 {
+            continue;
+        }
         if w > h * 1.5 {
             horizontal += c.text.chars().count();
         } else if h > w * 1.5 {
@@ -1169,6 +1174,21 @@ pub(crate) fn page_lines(cols: Vec<Col>) -> Vec<Line> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn letter_spaced_horizontal_labels_do_not_make_a_horizontal_page() {
+        // 縦書きの本文（縦長の語）の中に、字間を空けた横書きの表の欄の名前が多いページ。
+        let col = |x: f32, y: f32, x1: f32, y1: f32, text: &str| Col { id: 0, x, x1, y, y1, text: text.to_string() };
+        let mut cols = vec![col(500.0, 60.0, 508.0, 140.0, "縦書きの本文の一行"), col(490.0, 60.0, 498.0, 140.0, "縦書きの本文の二行")];
+        for i in 0..4 {
+            // 5 字を 0.5em 空けて 1 語にしたもの（幅 56pt、高さ 8pt）。
+            cols.push(col(100.0, 200.0 + 10.0 * i as f32, 156.0, 208.0 + 10.0 * i as f32, "利益剰余金"));
+        }
+        assert!(!is_horizontal_page(&cols));
+        // 字間を空けていない横書きの語なら横組みのページ。
+        cols.push(col(100.0, 300.0, 260.0, 308.0, "横書きの本文の一行に並ぶ二十字の文字列です"));
+        assert!(is_horizontal_page(&cols));
+    }
 
     #[test]
     fn reconstructs_right_to_left_columns() {

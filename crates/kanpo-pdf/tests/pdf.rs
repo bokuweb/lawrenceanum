@@ -193,8 +193,10 @@ fn letter_spaced_glyphs_make_one_word() {
     assert_eq!(words_of("BT /F1 10 Tf 3 Tc 100 700 Td (ABC) Tj ET\n"), ["ABC"]);
     // 同じ 0.3 em でも TJ の数値で空けた字は別の語。
     assert_eq!(words_of("BT /F1 10 Tf 100 700 Td [(A) -300 (B)] TJ ET\n"), ["A", "B"]);
-    // 字間が 0.35 em を越えれば Tc でも別の語。
-    assert_eq!(words_of("BT /F1 10 Tf 4 Tc 100 700 Td (AB) Tj ET\n"), ["A", "B"]);
+    // 字間が 0.55 em を越えれば Tc でも別の語。
+    assert_eq!(words_of("BT /F1 10 Tf 6 Tc 100 700 Td (AB) Tj ET\n"), ["A", "B"]);
+    // 最後の字だけ別の演算子で描かれていても、前の字の字間と同じ空きで続けば同じ語。
+    assert_eq!(words_of("BT /F1 10 Tf 5 Tc 100 700 Td (AB) Tj 23.34 0 Td (C) Tj ET\n"), ["ABC"]);
 }
 
 #[test]
