@@ -216,7 +216,7 @@ pub(crate) fn tiers_look_like_bands(a: &[Col], b: &[Col]) -> bool {
     // 削った条・新設の条の行は片方の帯が空いて列が疎になるので、疎な方の段の列がほぼ全部もう
     // 片方の段の列と揃うこと（同じ行送りの 2 段組みでも揃うので、印のあるときだけ）。両方の印が
     // あれば、行の長さが違って行頭だけが揃う帯も採る。
-    let need = if omitted && changed { 6 } else { 8 };
+    let need = if omitted && changed { 6 } else { 7 };
     changed && matched >= 6 && matched * 10 >= ra.min(rb) * need
 }
 
@@ -464,12 +464,14 @@ impl ShinkyuLayout {
         self.preamble = rest;
         // 改正前の帯だけに残った文の続き（改正前の欄が長く次の段へ送られたもの）は、新旧対照表
         // として出し、構造化で前の表の最後の行の改正前につなぐ。見出し（「（…の一部改正）」）や
-        // 標題・印だけのものはこれまでどおり本文にする。
+        // 標題・印だけのもの、附則の本文はこれまでどおり本文にする。
         let before_text = reconstruct_page(before.clone());
         let continued_before = after.is_empty()
             && out_after.is_empty()
             && before_text.chars().count() >= 10
-            && !before_text.starts_with(['（', '〇', '(']);
+            && !before_text.starts_with(['（', '〇', '('])
+            // 改正する法令自身の附則（「この省令は、…から施行する。」）は表の続きではない。
+            && !(before_text.starts_with("この") && (before_text.contains("施行") || before_text.contains("適用")));
         let outside: Vec<Line> = cell_lines(out_after).into_iter().chain(cell_lines(out_before)).collect();
         let mut units = Vec::new();
         if one_sided && continued_before {
