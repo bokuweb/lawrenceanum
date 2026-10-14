@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { LayoutDashboard, Search, BookOpen, History, Settings, Scale, Landmark, MessageSquare, Bell, CalendarClock, FileText, ScrollText, Network, Building2, Users, Briefcase, BarChart3, ScanText } from "lucide-react";
+import { LayoutDashboard, Search, BookOpen, History, Settings, Scale, Landmark, MessageSquare, Bell, CalendarClock, FileText, ScrollText, Network, Building2, Users, Briefcase, BarChart3, ScanText, CircleHelp } from "lucide-react";
 import { NavLink, useLocation } from "react-router";
 import { cn } from "./ui/utils";
 import { api } from "../data/api";
 import { EgovAttribution } from "./egov-attribution";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { useKanpoParserEnabled } from "../kanpo-parser-flag";
 
 /** ISO (UTC) を "YYYY-MM-DD HH:mm JST" に整形。 */
@@ -103,10 +104,37 @@ export function SidebarNav() {
       </nav>
       <div className="shrink-0 p-3 border-t border-border">
         <div className="rounded-md bg-muted/50 p-3 text-xs text-muted-foreground">
-          <div className="text-foreground mb-1">最新同期</div>
+          <div className="flex items-center gap-1 text-foreground mb-1">
+            最新同期
+            {/* 出典表記はサイドバーに常時出すと場所を取るのでヘルプの tooltip に寄せる。
+                法令詳細には常時出しているので、出典の明示はそちらでも満たす。 */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="データの出典"
+                  className="rounded-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <CircleHelp className="size-3.5" />
+                </button>
+              </TooltipTrigger>
+              {/* aria-label を渡すと Radix が読み上げ用に children を複製しなくなる
+                  (複製されると data-testid が二重になる)。 */}
+              <TooltipContent
+                side="right"
+                sideOffset={6}
+                className="max-w-64"
+                aria-label={`出典：e-Gov法令検索（デジタル庁）のデータを lawrenceanum が加工して作成${egovDate ? `（${egovDate} 時点）` : ""}。公共データ利用規約（第1.0版）`}
+              >
+                <EgovAttribution
+                  asOf={egovDate}
+                  className="text-[11px] text-primary-foreground [&_a:hover]:text-primary-foreground/80"
+                />
+              </TooltipContent>
+            </Tooltip>
+          </div>
           {lastSync ?? "読み込み中…"}
         </div>
-        <EgovAttribution asOf={egovDate} className="mt-2 px-1 text-[11px]" />
       </div>
     </aside>
   );
