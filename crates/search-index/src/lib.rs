@@ -952,8 +952,11 @@ pub fn build_search_db(
             total_speeches as i64,
         ],
     )?;
-    // 新規作成した DB には回収すべき free page がないため、全 DB を複製する VACUUM は
-    // 不要。軽量な planner/index 最適化だけを行う。
+    // PRAGMA optimize only updates planner statistics; it does not merge FTS5
+    // segments. Merge after all batches so a browser query need not fetch each
+    // segment over a separate sequence of HTTP Range requests.
+    optimize_fts(&conn)?;
+    // Avoid copying the entire DB with VACUUM: HTTP readers only fetch live pages.
     conn.execute_batch("PRAGMA optimize;").ok();
     drop(conn);
     std::fs::rename(&building_path, out_path).with_context(|| {
@@ -966,9 +969,77 @@ pub fn build_search_db(
     Ok(())
 }
 
+fn optimize_fts(conn: &Connection) -> Result<()> {
+    for table in [
+        "search_fts",
+        "speeches_fts",
+        "kanpo_fts",
+        "tsutatsu_fts",
+        "documents_fts",
+    ] {
+        conn.execute_batch(&format!("INSERT INTO {table}({table}) VALUES('optimize');"))
+            .with_context(|| format!("merge {table} segments"))?;
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn fts_optimization_merges_batches_without_changing_matches() {
+        let conn = Connection::open_in_memory().unwrap();
+        let tables = [
+            "search_fts",
+            "speeches_fts",
+            "kanpo_fts",
+            "tsutatsu_fts",
+            "documents_fts",
+        ];
+        for table in tables {
+            conn.execute_batch(&format!("CREATE VIRTUAL TABLE {table} USING fts5(text);"))
+                .unwrap();
+            for batch in 0..12 {
+                conn.execute(
+                    &format!("INSERT INTO {table}(text) VALUES (?1)"),
+                    [format!("労働 条件 batch{batch}")],
+                )
+                .unwrap();
+            }
+            let segments: i64 = conn
+                .query_row(
+                    &format!("SELECT count(DISTINCT segid) FROM {table}_idx"),
+                    [],
+                    |r| r.get(0),
+                )
+                .unwrap();
+            assert!(segments > 1, "{table} fixture must have multiple segments");
+        }
+        let matches = |table: &str| {
+            conn.prepare(&format!(
+                "SELECT rowid, text FROM {table} WHERE {table} MATCH '労働' ORDER BY rowid"
+            ))
+            .unwrap()
+            .query_map([], |r| Ok((r.get::<_, i64>(0)?, r.get::<_, String>(1)?)))
+            .unwrap()
+            .collect::<rusqlite::Result<Vec<_>>>()
+            .unwrap()
+        };
+        let before: Vec<_> = tables.iter().map(|table| matches(table)).collect();
+        optimize_fts(&conn).unwrap();
+        for (table, expected) in tables.iter().zip(before) {
+            assert_eq!(matches(table), expected);
+            let segments: i64 = conn
+                .query_row(
+                    &format!("SELECT count(DISTINCT segid) FROM {table}_idx"),
+                    [],
+                    |r| r.get(0),
+                )
+                .unwrap();
+            assert_eq!(segments, 1, "{table}");
+        }
+    }
 
     #[test]
     fn cjk_bigram() {

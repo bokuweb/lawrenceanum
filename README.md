@@ -161,6 +161,9 @@ Override with `LAWPUB_PROVIDER` and `LAWPUB_EGOV_BASE_URL`.
 結果は資料種別のタブで切り替える。初期表示は法令・条文で、各タブに取得件数・検索中・エラーを表示する。
 タブの切り替えでは再検索せず、検索対象から外したタブは非表示になる。
 
+表示中のタブを先に検索し、結果が出てから残りを並行検索する。
+表示中の検索が1秒以上かかる場合も残りを開始する。待機中のタブを選ぶとすぐに検索し、
+タブには検索中と待機中を区別して表示する。
 各検索対象に独立した Worker を使い、完了した対象から結果を表示する。同一検索の完了結果は
 対象ごとに直近32件まで再利用する。入力・検索対象を変えると実行中の古い Worker を停止する。
 12秒間読み込みが進まない対象は Worker を停止して中断を表示し、他の対象の結果を残して
@@ -174,6 +177,14 @@ build time. The SPA reads it through **sql.js-httpvfs** (sqlite.org's
 Emscripten WASM build + an HTTP-Range VFS). Each query downloads only the
 SQLite **pages** it needs in 64 KB chunks; transfer size depends on the query
 and the indexed text. The full DB stays remote.
+
+DB生成の最後に、法令・会議録・官報・通達・資料の FTS5 索引を [`optimize`](https://www.sqlite.org/fts5.html#the_optimize_command) で統合する。
+バッチ挿入で分かれた索引をまとめ、検索時の HTTP Range 読み込みを減らす。
+この改善は `search.db` の再生成・R2への配信後に反映される（自治体例規は既に統合処理済み）。
+比較計測には `figma/scripts/benchmark-search.mjs` を使える。新しいブラウザコンテキストで
+「労働」を検索し、法令表示までと全対象の完了までの時間・DBリクエスト数・応答本文の
+バイト数を JSON に記録する。引数は `BASE_URL OUTPUT_JSON [RUNS=3] [READ_DELAY_MS=200] [MAIN_DB_FILE]`。
+最後の引数で固定した `search.db` のコピーを指定できる。指定しない場合は配信先を読む。
 
 Hosting options:
 
