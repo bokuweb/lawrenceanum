@@ -115,6 +115,14 @@ cargo run --release -p kanpo-parser --example scan -- .cache/kanpo-archive > sca
 cargo run --release -p lawpub-cli -- kanpo-reextract --archive https://…r2.dev/kanpo-pdf --cache .cache --date 2026-10-09
 ```
 
+パーサを直したら、蓄積した官報の全ページの本文を直す前後で書き出して比べる（`textdump` は 1 つの語を
+2 つの行に組んだページも標準エラーに出す）:
+
+```bash
+cargo run --release -p kanpo-parser --example textdump -- .cache/kanpo-archive /tmp/after
+diff -r /tmp/before /tmp/after
+```
+
 `scan` は全ページを解析して怪しいページ（欄見出しがあるのに表にならない、改正後/改正前の
 行数が極端に偏る、私用 CID の化け候補など）に印を付ける。新しいエッジケースを見つけたら
 コーパスに足す。
