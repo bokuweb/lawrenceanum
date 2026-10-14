@@ -10,9 +10,9 @@ publish.workspace = true
 
 [dependencies]
 anyhow.workspace = true
+kanpo-pdf = { path = "../kanpo-pdf" }
 scraper.workspace = true
 serde.workspace = true
-quick-xml.workspace = true
 
 [dev-dependencies]
 serde_json.workspace = true

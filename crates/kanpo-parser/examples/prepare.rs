@@ -1,5 +1,5 @@
 //! PDF から、解析の入力になる座標付きテキスト（`.bbox.html`）と罫線（`.rules.json`）を作る。
-//! コーパスへの追加や、playground に手元の PDF を読ませるときに使う（poppler が必要）。
+//! コーパスへの追加や、playground に手元の PDF を読ませるときに使う（kanpo-pdf で読むので poppler は要らない）。
 //!
 //! ```text
 //! cargo run -p kanpo-parser --example prepare -- page.pdf

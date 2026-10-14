@@ -1,17 +1,22 @@
 name: kanpo-parser test
 
-# 官報パーサ（crates/kanpo-parser）の単体テスト・コーパス・蓄積した官報のスナップショット
-# テスト（tests/archive_snapshots.rs）を、パーサを触る PR と main への push で回す。
+# 官報パーサ（crates/kanpo-parser）と PDF リーダ（crates/kanpo-pdf）の単体テスト・コーパス・
+# 蓄積した官報のスナップショットテスト（tests/archive_snapshots.rs）を、どちらかを触る PR と
+# main への push で回す。
 on:
   pull_request:
     paths:
       - "crates/kanpo-parser/**"
+      - "crates/kanpo-parser-wasm/**"
+      - "crates/kanpo-pdf/**"
       - "Cargo.lock"
       - ".github/workflows/kanpo-parser-test.yml"
   push:
     branches: [main]
     paths:
       - "crates/kanpo-parser/**"
+      - "crates/kanpo-parser-wasm/**"
+      - "crates/kanpo-pdf/**"
       - "Cargo.lock"
       - ".github/workflows/kanpo-parser-test.yml"
 
@@ -31,4 +36,4 @@ jobs:
         env:
           INSTA_UPDATE: "no"
           CI: "true"
-        run: cargo test -p kanpo-parser --locked
+        run: cargo test -p kanpo-pdf -p kanpo-parser -p kanpo-parser-wasm --locked
