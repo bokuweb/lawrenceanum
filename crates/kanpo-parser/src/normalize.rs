@@ -6,11 +6,7 @@
 pub fn normalize_text(raw: &str) -> String {
     let mut lines: Vec<String> = Vec::new();
     for line in raw.lines() {
-        let line: String = line
-            .chars()
-            .filter(|c| !is_private_use(*c))
-            .map(normalize_char)
-            .collect();
+        let line: String = line.chars().filter_map(text_char).collect();
         let stripped = strip_margin_lead(&line);
         if is_margin_noise(&stripped) {
             continue;
@@ -35,6 +31,26 @@ pub fn normalize_text(raw: &str) -> String {
 /// U+F8FF)で埋め込むことがあり、テキストとしては意味を持たないため除去する。
 pub(crate) fn is_private_use(c: char) -> bool {
     ('\u{E000}'..='\u{F8FF}').contains(&c)
+}
+
+/// 語の 1 文字を本文の文字にする。約物を正規化し、私用領域の文字は意味の分かるもの
+/// （[`private_use_char`]）だけを戻して、ほかは落とす。
+pub(crate) fn text_char(c: char) -> Option<char> {
+    if is_private_use(c) {
+        return private_use_char(c);
+    }
+    Some(normalize_char(c))
+}
+
+/// ToUnicode で私用領域に写された、意味の分かる文字。横書きの数字の小数点・桁区切りが
+/// DF 平成明朝（`DFHSMinchoRPro6N-W3`、CID 26064・26065）で U+EA74・U+EA75 に写されている
+/// （「433.795MHz」「2,760,000円」）。蓄積した官報の 1,400 字余りがすべて数字の間に出る。
+fn private_use_char(c: char) -> Option<char> {
+    match c {
+        '\u{EA74}' => Some('.'),
+        '\u{EA75}' => Some(','),
+        _ => None,
+    }
 }
 
 /// ToUnicode を持たない私用 CID（`Adobe-Npb1` 等）のグリフを本来の文字へ戻した結果。
@@ -244,6 +260,14 @@ pub(crate) fn is_margin_noise(line: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn maps_private_use_decimal_point_and_thousands_separator() {
+        // 数字の小数点・桁区切りは私用領域に写されている。ほかの私用領域の字（傍線など）は落とす。
+        assert_eq!(normalize_text("433\u{EA74}795MHz"), "433.795MHz");
+        assert_eq!(normalize_text("2\u{EA75}760\u{EA75}000円"), "2,760,000円");
+        assert_eq!(normalize_text("第\u{E005}\u{E005}条"), "第条");
+    }
 
     #[test]
     fn normalizes_vertical_punctuation() {

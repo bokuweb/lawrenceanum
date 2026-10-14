@@ -3,7 +3,7 @@
 use scraper::{Html, Selector};
 
 use crate::horizontal::{horizontal_lines, is_left_strip_header, LEFT_STRIP};
-use crate::normalize::{is_margin_noise, is_private_use, normalize_char, private_cid_glyph, CidGlyph};
+use crate::normalize::{is_margin_noise, private_cid_glyph, text_char, CidGlyph};
 use crate::shinkyu::{
     band_pair_unit, detect_shinkyu_bands_headerless, detect_shinkyu_header, lines_with_tables_by, reconstruct_shinkyu, split_side_by_side_tables,
     tiers_look_like_bands, ShinkyuLayout,
@@ -585,7 +585,7 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
         // 私用領域(傍線等のフォント固有グリフ)を除去する。
         let text: String = match glyph {
             Some(g) => g.text.clone(),
-            None => raw.chars().filter(|c| !is_private_use(*c)).map(normalize_char).collect(),
+            None => raw.chars().filter_map(text_char).collect(),
         };
         let in_margin = if rotated {
             gx1 <= LEFT_STRIP
