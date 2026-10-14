@@ -25,6 +25,7 @@ use std::path::{Path, PathBuf};
 pub mod check;
 pub mod export;
 pub mod finalize;
+pub mod kanpo;
 pub mod plan;
 pub mod pubcomment;
 pub mod reiki;

@@ -549,6 +549,9 @@ enum Cmd {
         /// LLM に要約させるパブコメ (結果公示済み) の上限 (別枠)。
         #[arg(long, default_value_t = 3)]
         max_pubcomments: usize,
+        /// LLM に要約させる官報の項目 (改め文。wiki に法令ページがある法令につながるもの) の上限 (別枠)。
+        #[arg(long, default_value_t = 3)]
+        max_kanpo: usize,
         /// 自治体例規の配信元 (例: https://…r2.dev/reiki)。空なら例規の照合をしない (週 1 回更新)。
         #[arg(long, env = "WIKI_REIKI_BASE_URL", default_value = "")]
         reiki_base_url: String,
@@ -929,7 +932,7 @@ fn main() -> Result<()> {
         Cmd::GianFetch { cache, provider, session } => gian::run_fetch(&cache, &provider, session),
         Cmd::GianBuildJson { cache, public } => gian::run_build_json(&cache, &public),
         Cmd::BuildEnforcement { public } => enforcement::run_build(&public),
-        Cmd::WikiPlan { base_url, wiki, work, max_items, max_probes, lookback_days, today, max_bills, max_pubcomments, reiki_base_url, chunk_size } => {
+        Cmd::WikiPlan { base_url, wiki, work, max_items, max_probes, lookback_days, today, max_bills, max_pubcomments, max_kanpo, reiki_base_url, chunk_size } => {
             wiki::plan::run_plan(&wiki::plan::PlanArgs {
                 base_url,
                 wiki,
@@ -940,6 +943,7 @@ fn main() -> Result<()> {
                 today,
                 max_bills,
                 max_pubcomments,
+                max_kanpo,
                 reiki_base_url,
                 chunk_size,
             })

@@ -175,3 +175,75 @@ test("「要約前のページも表示」が有効なら、要約前の法令�
   await expect(page).toHaveURL(new RegExp(`#/wiki/laws/${lawId}$`));
   await expect(page.getByTestId("wiki-stub-note")).toBeVisible();
 });
+
+test("官報ページは type「官報」で一覧に出て、要約・出典・官報の本文（自動抽出）を表示する", async ({ page }) => {
+  // `lawpub wiki-export` が書く kanpo ページ (要約済み) の形。
+  const KANPO = {
+    path: "kanpo/2026-10-09/g223-p0002-bdc0e8a0",
+    frontmatter: {
+      type: "kanpo",
+      title: "輸出貿易管理令の一部を改正する政令（三二五）",
+      description: "別表第二の三の品目を改め規制対象を広げる（公布から7日後に施行）",
+      resource: "https://www.kanpo.go.jp/20261009/20261009g00223/pdf/20261009g002230002.pdf",
+      date: "2026-10-09",
+      laws: ["L1"],
+    },
+    body: [
+      "",
+      "# 輸出貿易管理令の一部を改正する政令（三二五）",
+      "",
+      "## 改正の内容",
+      "",
+      "<!-- llm:begin -->",
+      "**施行**: 公布の日から起算して七日を経過した日から施行する[^1]。",
+      "",
+      "[^1]: [kanpo:2026-10-09/g223-p0002-bdc0e8a0](https://www.kanpo.go.jp/20261009/20261009g00223/pdf/20261009g002230002.pdf) 「この政令は、公布の日から起算して七日を経過した日から施行する。」",
+      "<!-- llm:end -->",
+      "",
+      "<!-- lawpub:begin meta -->",
+      "## 官報の情報（一覧）",
+      "",
+      "| 項目 | 内容 |",
+      "|---|---|",
+      "| 改正対象 | [予防接種法](../../laws/L1.md) |",
+      "<!-- lawpub:end meta -->",
+      "",
+      "<!-- lawpub:begin source -->",
+      "## 官報の本文（自動抽出）",
+      "",
+      "````text",
+      "輸出貿易管理令（昭和二十四年政令第三百七十八号）の一部を次のように改正する。",
+      "附　則",
+      "この政令は、公布の日から起算して七日を経過した日から施行する。",
+      "````",
+      "<!-- lawpub:end source -->",
+      "",
+    ].join("\n"),
+    stub: false,
+  };
+  await mock(page);
+  await page.route("**/wiki/index.json", (r) =>
+    r.fulfill({
+      json: {
+        ...INDEX,
+        pages: [...INDEX.pages, { path: KANPO.path, type: "kanpo", title: KANPO.frontmatter.title, description: KANPO.frontmatter.description, date: "2026-10-09", tags: [] }],
+      },
+    }),
+  );
+  await page.route(`**/wiki/page/${KANPO.path}.json`, (r) => r.fulfill({ json: KANPO }));
+
+  await page.goto(new URL("#/wiki", BASE).toString());
+  await expect(page.getByRole("button", { name: "官報 1" })).toBeVisible({ timeout: 15_000 });
+  await page.getByRole("tab", { name: "一覧" }).click();
+  await page.getByRole("button", { name: /輸出貿易管理令の一部を改正する政令/ }).click();
+
+  await expect(page).toHaveURL(/#\/wiki\/kanpo\/2026-10-09\/g223-p0002-bdc0e8a0$/);
+  await expect(page.getByRole("heading", { name: "輸出貿易管理令の一部を改正する政令（三二五）", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "出典" })).toBeVisible();
+  // 本文はコードブロック (折り返し・高さ制限付き) で、Markdown として解釈しない。
+  const source = page.locator("pre");
+  await expect(source).toContainText("輸出貿易管理令（昭和二十四年政令第三百七十八号）の一部を次のように改正する。");
+  await expect(source).toHaveCSS("white-space", "pre-wrap");
+  await page.getByRole("link", { name: "予防接種法" }).click();
+  await expect(page).toHaveURL(/#\/wiki\/laws\/L1$/);
+});

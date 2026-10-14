@@ -316,6 +316,10 @@ function WikiMarkdown({ body, from, onOpen }: { body: string; from: string; onOp
           ),
           th: ({ children }) => <th className="text-left font-medium bg-muted/50 px-2 py-1.5 border-b border-border">{children}</th>,
           td: ({ children }) => <td className="px-2 py-1.5 border-b border-border align-top">{children}</td>,
+          // 官報ページの本文 (自動抽出) はコードブロックで載せる。長い行を折り返し、高さを抑える。
+          pre: ({ children }) => (
+            <pre className="whitespace-pre-wrap break-all text-xs leading-relaxed bg-muted/50 border border-border rounded-md p-3 max-h-96 overflow-y-auto [&_code]:bg-transparent [&_code]:p-0">{children}</pre>
+          ),
           code: ({ children }) => <code className="px-1 py-0.5 rounded bg-muted text-[0.9em]">{children}</code>,
           a: ({ href = "", children }) => <WikiLink href={href} from={from} onOpen={onOpen}>{children}</WikiLink>,
         }}
