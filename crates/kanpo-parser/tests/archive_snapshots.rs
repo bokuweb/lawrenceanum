@@ -77,8 +77,13 @@ fn render_document(out: &mut String, doc: &Document) {
     }
 }
 
+/// `insta::glob!` は失敗の集計を共有するので、2 つのテストが並列に走ると失敗が他方のテストの
+/// ものとして出る。順に走らせる。
+static GLOB: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
 #[test]
 fn archive_pages() {
+    let _guard = GLOB.lock().unwrap_or_else(|e| e.into_inner());
     insta::glob!("archive/pages/**/*.pdf", |path| {
         let page = read_page(path);
         let a = kanpo_parser::analyze_item(std::slice::from_ref(&page));
@@ -96,6 +101,7 @@ fn archive_pages() {
 
 #[test]
 fn archive_items() {
+    let _guard = GLOB.lock().unwrap_or_else(|e| e.into_inner());
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/archive/pages");
     insta::glob!("archive/items/*.json", |path| {
         let item: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();

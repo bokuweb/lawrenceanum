@@ -196,7 +196,7 @@ test("法令詳細に別表 (appendix_tables) が表示される", async ({ page
   await expect(page.getByRole("button", { name: /別表第二/ })).toBeVisible();
 });
 
-// e-Gov 出典表記 (公共データ利用規約 第1.0版)。サイドバーには health.json の
+// e-Gov 出典表記 (公共データ利用規約 第1.0版)。サイドバー (「最新同期」横のヘルプの tooltip) には health.json の
 // latest_egov_update_date を、法令詳細には current.json の source.fetched_at (JST 日付) を添える。
 test("出典表記 (e-Gov法令検索・加工の旨) がサイドバーと法令詳細に出る", async ({ page }) => {
   const lawId = "129AC0000000089"; // fixture index に居る民法
@@ -220,12 +220,18 @@ test("出典表記 (e-Gov法令検索・加工の旨) がサイドバーと法�
   await page.goto(new URL(`#/laws/${lawId}`, BASE).toString());
   await expect(page.getByText("私権は、公共の福祉に適合しなければならない。")).toBeVisible({ timeout: 15_000 });
 
+  // サイドバーの出典は「最新同期」横のヘルプの tooltip に入っているので、開くまでは法令詳細の 1 つだけ。
   const notes = page.getByTestId("egov-attribution");
-  await expect(notes).toHaveCount(2);
-  // サイドバー: fixture health.json の latest_egov_update_date。
-  await expect(notes.first()).toContainText("e-Gov法令検索（デジタル庁）のデータを lawrenceanum が加工して作成（2026-06-14 時点）");
+  await expect(notes).toHaveCount(1);
   // 法令詳細: fetched_at 2026-06-13T20:00Z → JST 2026-06-14。
-  await expect(notes.nth(1)).toContainText("加工して作成（2026-06-14 時点）");
-  await expect(notes.nth(1).getByRole("link", { name: "e-Gov法令検索" })).toHaveAttribute("href", "https://laws.e-gov.go.jp/");
-  await expect(notes.nth(1).getByRole("link", { name: "公共データ利用規約（第1.0版）" })).toHaveAttribute("href", "https://www.e-gov.go.jp/terms");
+  await expect(notes.first()).toContainText("加工して作成（2026-06-14 時点）");
+  await expect(notes.first().getByRole("link", { name: "e-Gov法令検索" })).toHaveAttribute("href", "https://laws.e-gov.go.jp/");
+  await expect(notes.first().getByRole("link", { name: "公共データ利用規約（第1.0版）" })).toHaveAttribute("href", "https://www.e-gov.go.jp/terms");
+
+  // サイドバー: ヘルプを hover すると fixture health.json の latest_egov_update_date 付きで出る。
+  await page.locator("aside").getByRole("button", { name: "データの出典" }).hover();
+  const sidebarNote = page.locator("[data-slot=tooltip-content]").getByTestId("egov-attribution");
+  await expect(sidebarNote).toContainText("e-Gov法令検索（デジタル庁）のデータを lawrenceanum が加工して作成（2026-06-14 時点）");
+  await expect(sidebarNote.getByRole("link", { name: "公共データ利用規約（第1.0版）" })).toHaveAttribute("href", "https://www.e-gov.go.jp/terms");
+  await expect(notes).toHaveCount(2);
 });

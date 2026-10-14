@@ -60,6 +60,8 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     let mut pages: Vec<PageTrace> = Vec::new();
     // 表の目印の通し番号（ページをまたぐ）。
     let mut table_count = 0usize;
+    // 前のページが新旧対照表で終わったか（表の続きのページの判定に使う）。
+    let mut prev_table = false;
     for (pi, page) in doc.select(&page_sel).enumerate() {
         let (width, height) = page_size(page);
         let page_rules: Option<&PageRules> = rules.get(pi).and_then(|r| r.as_ref());
@@ -85,10 +87,19 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 // 横書きの新旧対照表: 左の列が改正後、右の列が改正前。
                 Some(mid) => {
                     let (left, right): (Vec<Col>, Vec<Col>) = cols.into_iter().partition(|c| c.x1 <= mid);
+                    // 欄見出し（「改　正　後」）だけの行は本文ではない。
+                    let body = |cols: Vec<Col>| -> Vec<Line> {
+                        let mut lines = horizontal_lines(cols);
+                        let label = |l: &Line| matches!(l.text.chars().filter(|c| !c.is_whitespace()).collect::<String>().as_str(), "改正後" | "改正前");
+                        if lines.first().is_some_and(label) {
+                            lines.remove(0);
+                        }
+                        lines
+                    };
                     Unit::Shinkyu {
                         preamble: Vec::new(),
-                        after: vec![horizontal_lines(left)],
-                        before: vec![horizontal_lines(right)],
+                        after: vec![body(left)],
+                        before: vec![body(right)],
                         outside: Vec::new(),
                     }
                 }
@@ -96,6 +107,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             });
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
+            prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
             let regions: Vec<_> = units.into_iter().enumerate().flat_map(|(i, u)| u.regions(i)).collect();
             mark_unused(&mut words, &regions);
             pages.push(PageTrace {
@@ -121,7 +133,13 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             .flatten();
         if let Some(divider) = headerless {
             layout = "headerless_shinkyu";
-            units.push(reconstruct_shinkyu(cols, f32::MAX, divider, &grids, page_rules));
+            // 表の左に、上下の帯の境目をまたいで紙面の高さいっぱいに組まれた別記事（表の
+            // 後ろの附則・次の記事）が同居していれば、表の後ろに本文として出す。
+            let (table, rest) = split_off_full_height_left(cols, divider, page_rules);
+            units.push(reconstruct_shinkyu(table, f32::MAX, divider, &grids, page_rules));
+            if !rest.is_empty() {
+                units.push(Unit::Plain(drop_stray_labels(page_lines(rest))));
+            }
         } else {
             // 通常ページ: まず段組み(tier)に分ける。官報本紙は2段組が多く、段を分けないと
             // 「同 x にある上段の列と下段の列」が1列に連結され混線する。新旧対照表の見出しが
@@ -159,6 +177,32 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 merge_split_header_tiers(split_tiers(cols, &TierRules { tables, hrules }))
             };
             let mut tiers: Vec<Vec<Col>> = tiers.into_iter().flat_map(split_side_by_side_tables).collect();
+            // 段の中の罫線の表（他の枠を含まない枠で、中の語が全部この段にあり、中の字が縦組みで、
+            // セルに文章の入っていないものだけ。横組みの表は行ごとに読むこれまでの組み方のほうがよい）。
+            let inner_grids = |tier: &[Col]| -> Vec<&Grid> {
+                let ids: std::collections::HashSet<usize> = tier.iter().map(|c| c.id).collect();
+                grids
+                    .iter()
+                    .zip(&grid_words)
+                    .filter(|(g, gw)| {
+                        g.cells.len() >= 2
+                            && !grids.iter().any(|o| g.encloses(o))
+                            && gw.iter().all(|id| ids.contains(id))
+                            && vertical_inside(tier, g)
+                            && !prose_cells(tier, g)
+                    })
+                    .map(|(g, _)| g)
+                    .collect()
+            };
+            // 前のページの新旧対照表の続きで、改正前の欄が空いている（新設の条の続き）ページは、
+            // 上半分（改正後の帯）にだけ字がある。改正後だけの表として前の表につなぐ。
+            if prev_table && tiers.len() == 1 && after_band_only(&tiers[0], height) {
+                let tier = std::mem::take(&mut tiers[0]);
+                tiers.clear();
+                let inner = inner_grids(&tier);
+                let after = lines_with_tables_by(tier, &inner, cell_lines);
+                units.push(Unit::Shinkyu { preamble: Vec::new(), after: vec![after], before: vec![Vec::new()], outside: Vec::new() });
+            }
             let mut i = 0;
             while i < tiers.len() {
                 let tier = std::mem::take(&mut tiers[i]);
@@ -192,23 +236,9 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         i += 1;
                         band_pair_unit(tier, next, &grids, page_rules)
                     }
-                    // 普通の本文の段でも、罫線の表は表として組む（他の枠を含まない枠で、中の語が全部
-                    // この段にあり、中の字が縦組みで、セルに文章の入っていないものだけ。横組みの表は
-                    // 行ごとに読むこれまでの組み方のほうがよい）。
+                    // 普通の本文の段でも、罫線の表は表として組む。
                     None => {
-                        let ids: std::collections::HashSet<usize> = tier.iter().map(|c| c.id).collect();
-                        let inner: Vec<&Grid> = grids
-                            .iter()
-                            .zip(&grid_words)
-                            .filter(|(g, gw)| {
-                                g.cells.len() >= 2
-                                    && !grids.iter().any(|o| g.encloses(o))
-                                    && gw.iter().all(|id| ids.contains(id))
-                                    && vertical_inside(&tier, g)
-                                    && !prose_cells(&tier, g)
-                            })
-                            .map(|(g, _)| g)
-                            .collect();
+                        let inner = inner_grids(&tier);
                         Unit::Plain(drop_stray_labels(lines_with_tables_by(tier, &inner, page_lines)))
                     }
                 };
@@ -222,6 +252,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             .collect::<Vec<_>>()
             .join("\n");
         let (doc_text, tables) = doc_text_of(&units, &mut table_count);
+        prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
         let regions: Vec<_> = units.into_iter().enumerate().flat_map(|(i, u)| u.regions(i)).collect();
         mark_unused(&mut words, &regions);
         pages.push(PageTrace {
@@ -236,6 +267,63 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         });
     }
     pages
+}
+
+/// 見出しの無い新旧対照表のページで、帯の境目 `divider` をまたぐ長い列（3 列以上）があれば、
+/// その右端より左を表の外として分ける（表は境目で上下の帯に分かれるので、境目をまたいで続く
+/// 列は表の中には無い）。その右に帯の枠の左辺（境目をまたぐ縦の罫線か、境目の横の罫線の
+/// 左端）があれば、そこより左を表の外にする（境目をまたがない附則の見出しなどの短い列も表の外になる）。右に上下の帯が
+/// それぞれ残るときだけ分ける。`(表, 表の外)`。
+fn split_off_full_height_left(cols: Vec<Col>, divider: f32, rules: Option<&PageRules>) -> (Vec<Col>, Vec<Col>) {
+    let mut widths: Vec<f32> = cols.iter().map(|c| c.x1 - c.x).collect();
+    widths.sort_by(f32::total_cmp);
+    let em = widths.get(widths.len() / 2).copied().unwrap_or(10.0);
+    let crossing: Vec<&Col> = cols.iter().filter(|c| c.y < divider - em * 2.0 && c.y1 > divider + em * 2.0).collect();
+    if crossing.len() < 3 {
+        return (cols, Vec::new());
+    }
+    let mut boundary = crossing.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max);
+    // 縦の罫線は帯の高さいっぱいのもの（区分見出し「法規的告示」の囲みの罫線は使わない）。
+    let top = cols.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+    let bottom = cols.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+    let verticals = rules
+        .into_iter()
+        .flat_map(|r| &r.vertical)
+        .filter(|v| v.y0 < divider - em * 4.0 && v.y1 > divider + em * 4.0 && v.y1 - v.y0 >= (bottom - top) * 0.6)
+        .map(|v| v.x);
+    let horizontals = rules
+        .into_iter()
+        .flat_map(|r| &r.horizontal)
+        .filter(|h| (h.y - divider).abs() < em * 3.0 && h.x1 - h.x0 > em * 5.0)
+        .map(|h| h.x0);
+    if let Some(frame) = verticals.chain(horizontals).filter(|&x| x > boundary).reduce(f32::min) {
+        boundary = frame;
+    }
+    let right = |c: &Col| (c.x + c.x1) / 2.0 > boundary + 1.0;
+    let center = |c: &Col| (c.y + c.y1) / 2.0;
+    let upper = cols.iter().filter(|c| right(c) && center(c) < divider).count();
+    let lower = cols.iter().filter(|c| right(c) && center(c) >= divider).count();
+    if upper < 3 || lower < 3 {
+        return (cols, Vec::new());
+    }
+    cols.into_iter().partition(right)
+}
+
+/// 段の字が紙面の上半分（改正後の帯）にだけあり、新しい記事（「〇」で始まる行）も附則も欄見出しも無いか。
+fn after_band_only(tier: &[Col], height: f32) -> bool {
+    if tier.len() < 3 || detect_shinkyu_header(tier).is_some() {
+        return false;
+    }
+    let bottom = tier.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+    // 表の後ろの附則（改正する法令自身の附則）がページの上に来ただけのページは違う。
+    let other = |l: &Line| {
+        let t: String = l.text.chars().filter(|c| !c.is_whitespace()).collect();
+        crate::segment::is_heading_mark(&l.text) || t.starts_with("附則")
+    };
+    let lines = page_lines(tier.to_vec());
+    // 改正前の欄の印（「〔同上〕」「［同左］」）があれば改正後の帯だけではない（左右に並べた様式など）。
+    let before_marks = lines.iter().any(|l| l.text.contains("同上") || l.text.contains("同左"));
+    bottom < height * 0.55 && !before_marks && !lines.iter().any(other)
 }
 
 /// 構造化用テキスト（表は目印）とそのページの表。`count` は表の通し番号。
