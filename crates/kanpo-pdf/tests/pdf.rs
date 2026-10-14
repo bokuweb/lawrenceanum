@@ -223,3 +223,39 @@ fn rotated_page_words_match_pdftotext() {
         ours.swap_remove(hit.unwrap());
     }
 }
+
+/// ページツリーとフォントをオブジェクトストリームに入れ、xref を壊した PDF。
+fn object_stream_pdf_without_xref() -> Vec<u8> {
+    let objs = [
+        "<< /Type /Catalog /Pages 2 0 R >>",
+        "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+        "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
+        "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /FirstChar 65 /LastChar 66 /Widths [667 667] >>",
+    ];
+    let mut header = String::new();
+    let mut body = String::new();
+    for (i, o) in objs.iter().enumerate() {
+        header.push_str(&format!("{} {} ", i + 1, body.len()));
+        body.push_str(o);
+        body.push('\n');
+    }
+    let stm = format!("{header}{body}");
+    let content = "BT /F1 10 Tf 1 0 0 1 100 700 Tm (AB) Tj ET\n";
+    let mut out = b"%PDF-1.5\n".to_vec();
+    out.extend_from_slice(format!("5 0 obj\n<< /Length {} >>\nstream\n{content}endstream\nendobj\n", content.len()).as_bytes());
+    out.extend_from_slice(
+        format!("6 0 obj\n<< /Type /ObjStm /N 4 /First {} /Length {} >>\nstream\n{stm}endstream\nendobj\n", header.len(), stm.len())
+            .as_bytes(),
+    );
+    // xref は無く、startxref も壊れている。
+    out.extend_from_slice(b"trailer\n<< /Size 7 /Root 1 0 R >>\nstartxref\n999999\n%%EOF\n");
+    out
+}
+
+#[test]
+fn reconstructs_xref_with_object_streams() {
+    let pages = kanpo_pdf::extract_pages(&object_stream_pdf_without_xref()).unwrap();
+    assert_eq!(pages.len(), 1);
+    let text: String = pages[0].glyphs.iter().map(|g| g.text.as_str()).collect();
+    assert_eq!(text, "AB");
+}
