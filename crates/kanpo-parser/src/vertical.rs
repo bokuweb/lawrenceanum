@@ -927,7 +927,7 @@ fn merge_split_header_tiers(tiers: Vec<Vec<Col>>) -> Vec<Vec<Col>> {
 ///
 /// 段の内部（1 段分の高さ）では切らない。短い列の下端を段の境目と取り違えて段を
 /// 細切れにしないため。新旧対照表の見出しを含む領域も帯の扱いを崩さないよう切らない。
-fn split_beside_crossing(cols: &[Col], cut: f32) -> Option<(Vec<Col>, Vec<Col>, bool)> {
+fn split_beside_crossing(cols: &[Col], cut: f32, spaced: &[(f32, f32, f32)]) -> Option<(Vec<Col>, Vec<Col>, bool)> {
     /// 複数の段にまたがる領域とみなす高さ(pt)。官報の 1 段は約 176pt。
     const MIN_REGION_HEIGHT: f32 = 300.0;
     /// 段の境目の空き(pt)。
@@ -953,7 +953,15 @@ fn split_beside_crossing(cols: &[Col], cut: f32) -> Option<(Vec<Col>, Vec<Col>, 
             (Some(a), Some(b)) => b - a,
             _ => return false,
         };
-        side.iter().filter(|c| crosses(c)).count() <= MAX_BRIDGE && above.len() >= 2 && below.len() >= 2 && gap >= MIN_TIER_GAP
+        let xs = side.iter().map(|c| c.x).reduce(f32::min).unwrap_or(0.0);
+        let xe = side.iter().map(|c| c.x1).reduce(f32::max).unwrap_or(0.0);
+        // 欄の見出しの字と字の間で切るなら、段の境目ではなく表の中。
+        let in_label = spaced.iter().any(|&(px, y1, y)| xs <= px && px <= xe && y1 < cut && cut < y);
+        side.iter().filter(|c| crosses(c)).count() <= MAX_BRIDGE
+            && above.len() >= 2
+            && below.len() >= 2
+            && gap >= MIN_TIER_GAP
+            && !in_label
     };
     // またぐ列が右に寄っている: 左側を段に割れるか。
     let (right, left): (Vec<Col>, Vec<Col>) = cols.iter().cloned().partition(|c| center(c) >= cx_min - 1.0);
@@ -966,6 +974,49 @@ fn split_beside_crossing(cols: &[Col], cut: f32) -> Option<(Vec<Col>, Vec<Col>, 
         return Some((right, left, false));
     }
     None
+}
+
+/// 1 字ずつの語が同じ列に同じ間隔で 3 つ以上並ぶ（欄の高さに合わせて字間を空けた見出し
+/// 「区　間　変　更　前」）ときの、字と字の間 `(列の中央, 上の字の下端, 下の字の上端)`。
+fn spaced_label_gaps(cols: &[Col]) -> Vec<(f32, f32, f32)> {
+    /// 表の欄の見出しの字の大きさの上限(pt)。これより大きい字は記事の種類の見出し
+    /// （「そ　の　他　告　示」）で、段をまたいで組まれるので段の境目を妨げない。
+    const MAX_LABEL_SIZE: f32 = 11.0;
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    let mut singles: Vec<&Col> = cols
+        .iter()
+        .filter(|c| c.text.chars().count() == 1 && c.x1 - c.x < MAX_LABEL_SIZE && c.y1 - c.y >= (c.x1 - c.x) * 0.9)
+        .collect();
+    singles.sort_by(|a, b| center(a).total_cmp(&center(b)).then(a.y.total_cmp(&b.y)));
+    let mut out = Vec::new();
+    let mut i = 0;
+    while i < singles.len() {
+        let w = singles[i].x1 - singles[i].x;
+        let mut j = i + 1;
+        while j < singles.len() && (center(singles[j]) - center(singles[i])).abs() < w * 0.5 {
+            j += 1;
+        }
+        let column = &singles[i..j];
+        let mut k = 0;
+        while k + 2 < column.len() {
+            let gap = |n: usize| column[n + 1].y - column[n].y1;
+            let g0 = gap(k);
+            if g0 <= 0.0 || g0 > w * 2.5 {
+                k += 1;
+                continue;
+            }
+            let mut end = k + 1;
+            while end < column.len() - 1 && (gap(end) - g0).abs() < w * 0.15 {
+                end += 1;
+            }
+            if end - k >= 2 {
+                out.extend((k..end).map(|n| (center(column[n]), column[n].y1, column[n + 1].y)));
+            }
+            k = end;
+        }
+        i = j;
+    }
+    out
 }
 
 /// 跨ぎカラム数の許容上限（前文 1 本程度の橋渡しを段境界として許す）。
@@ -1084,7 +1135,7 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
         // 右側から順に段へ分ける。下半分の右に段をまたぐ表、左に段ごとの本文がある
         // ページで、本文の上下の段の列が 1 行に連結されるのを防ぐ。
         // またぐ列のある側（表など）は 1 段のまま置き、もう一方だけを段に分ける。
-        if let Some((right, left, crossing_right)) = split_beside_crossing(&cols, cut) {
+        if let Some((right, left, crossing_right)) = split_beside_crossing(&cols, cut, &spaced_label_gaps(&cols)) {
             // またがない側は cut で段に割れることを確かめてある。その側の中央域の外に cut が来ると
             // 分け直しでは切れない（短い下の帯（改正前欄の「〔項を加える。〕」だけの帯など）が上の帯の
             // 列に付く）ので、そのときは cut で上下に切ってから分ける。同じ列が全角 1 字ほどの空きで
