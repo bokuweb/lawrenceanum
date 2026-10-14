@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useCallback, useMemo } from "react";
 import { HashRouter, Navigate, Route, Routes, useLocation, useNavigate, useParams, useSearchParams } from "react-router";
 import { ThemeProvider } from "./components/theme-provider";
 import { SidebarNav } from "./components/sidebar-nav";
@@ -11,7 +11,7 @@ const SearchView = lazy(() => import("./components/views/search-view").then(m =>
 const BrowseView = lazy(() => import("./components/views/browse-view").then(m => ({ default: m.BrowseView })));
 const CompareView = lazy(() => import("./components/views/compare-view").then(m => ({ default: m.CompareView })));
 const UpdatesView = lazy(() => import("./components/views/simple-views").then(m => ({ default: m.UpdatesView })));
-const KanpoView = lazy(() => import("./components/views/simple-views").then(m => ({ default: m.KanpoView })));
+const KanpoView = lazy(() => import("./components/views/kanpo-view").then(m => ({ default: m.KanpoView })));
 const SettingsView = lazy(() => import("./components/views/simple-views").then(m => ({ default: m.SettingsView })));
 const ProceedingsView = lazy(() => import("./components/views/proceedings-view").then(m => ({ default: m.ProceedingsView })));
 const PubcommentView = lazy(() => import("./components/views/pubcomment-view").then(m => ({ default: m.PubcommentView })));
@@ -146,6 +146,29 @@ function BudgetRoute() {
   return <BudgetView statsId={statsId ?? null} onSelect={(id) => navigate(`/budget/${id}`)} />;
 }
 
+function KanpoRoute() {
+  const { date, issue, item } = useParams();
+  const [params] = useSearchParams();
+  const navigate = useNavigate();
+  const selected = issue !== undefined && item !== undefined && /^\d+$/.test(issue) && /^\d+$/.test(item)
+    ? { issue: Number(issue), item: Number(item) }
+    : null;
+  // 検索結果からは号・頁・標題で項目を指す（`?no=第1806号&p=2&t=…`）。中身を読んで並び順の URL に置き換える。
+  const title = params.get("t");
+  const issueNo = params.get("no");
+  const page = params.get("p");
+  const lookup = useMemo(
+    () => (title ? { title, issueNo, page: page && /^\d+$/.test(page) ? Number(page) : null } : null),
+    [title, issueNo, page],
+  );
+  const onSelect = useCallback(
+    (d: string, ref: { issue: number; item: number } | null, opts?: { replace?: boolean }) =>
+      navigate(ref ? `/kanpo/${d}/${ref.issue}/${ref.item}` : `/kanpo/${d}`, { replace: opts?.replace }),
+    [navigate],
+  );
+  return <KanpoView date={date ?? null} selected={selected} lookup={lookup} onSelect={onSelect} />;
+}
+
 function AppShell() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -200,7 +223,9 @@ function AppShell() {
               <Route path="/budget" element={<BudgetRoute />} />
               <Route path="/budget/:statsId" element={<BudgetRoute />} />
               <Route path="/updates" element={<UpdatesView />} />
-              <Route path="/kanpo" element={<KanpoView />} />
+              <Route path="/kanpo" element={<KanpoRoute />} />
+              <Route path="/kanpo/:date" element={<KanpoRoute />} />
+              <Route path="/kanpo/:date/:issue/:item" element={<KanpoRoute />} />
               {kanpoParser && <Route path="/kanpo-playground" element={<KanpoPlaygroundView />} />}
               <Route path="/settings" element={<SettingsView />} />
               <Route path="*" element={<Navigate to="/" replace />} />

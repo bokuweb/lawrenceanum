@@ -222,6 +222,39 @@ export type AmendBlock =
   | { kind: "shinkyu"; rows: AmendShinkyuRow[] }
 export type AmendDocument = { format: string; blocks: AmendBlock[] }
 
+/** 官報項目から引いた法令（kanpo-link の linked_laws / basis_laws）。match は timeline / title。 */
+export type KanpoLawRef = { law_id: string; title: string; match?: string }
+/** 官報の 1 項目（目次の 1 行）。改め文の本文は改正/廃止/制定系の標題だけに入る。 */
+export type KanpoItem = {
+  title: string
+  page: number
+  /** 項目の開始ページの PDF。 */
+  pdf_url: string
+  agency_hint?: string | null
+  amend_text?: string
+  amend_format?: string
+  amend_document?: AmendDocument
+  /** 改正対象の法令（先頭が主たる対象）。 */
+  linked_laws?: KanpoLawRef[]
+  /** 告示などの根拠法令（改正対象が引けないときだけ）。 */
+  basis_laws?: KanpoLawRef[]
+}
+/** 官報の 1 号。issue_type は regular（本紙）/ extra（号外）/ special_extra（特別号外）など。 */
+export type KanpoIssue = {
+  issue_type: string
+  issue_no: string
+  pdf_url: string
+  page_count?: number | null
+  items: KanpoItem[]
+}
+/** `kanpo/{date}/index.json`。 */
+export type KanpoDay = { date: string; generated_at?: string; issues: KanpoIssue[] }
+/** `kanpo/index.json`。配信している日付の一覧（新しい順）。 */
+export type KanpoDates = {
+  generated_at?: string
+  dates: { date: string; items: number; linked_items: number }[]
+}
+
 export type TimelineJson = {
   law_id: string
   events: TimelineEventRaw[]
@@ -369,7 +402,8 @@ export const api = {
     getJson<LawDocumentRaw>(`./laws/${lawId}/revisions/${revId}.json`),
   latestUpdates: () => getJson<UpdatesByDate>('./updates/latest.json'),
   updatesOnDate: (date: string) => getJson<UpdatesByDate>(`./updates/${date}.json`),
-  kanpoOnDate: (date: string) => getJson<{ date: string; generated_at?: string; issues: Record<string, unknown>[] }>(`./kanpo/${date}/index.json`),
+  kanpoDates: () => getJson<KanpoDates>('./kanpo/index.json'),
+  kanpoOnDate: (date: string) => getJson<KanpoDay>(`./kanpo/${date}/index.json`),
   /** 隣接 revision 間 diff の索引。 */
   diffsIndex: (lawId: string) => getJson<DiffsIndex>(`./laws/${lawId}/diffs.json`),
   /** 特定の from..to の構造化 diff。 */

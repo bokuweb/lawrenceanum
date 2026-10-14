@@ -3,7 +3,7 @@ import { setChartPatterns, useChartPatterns } from "../chart-patterns";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Skeleton } from "../ui/skeleton";
-import { Newspaper, FileCheck2, ChevronDown, ChevronRight, GitCompare } from "lucide-react";
+import { FileCheck2, ChevronDown, ChevronRight, GitCompare } from "lucide-react";
 import { Button } from "../ui/button";
 import { Switch } from "../ui/switch";
 import { Label } from "../ui/label";
@@ -165,130 +165,6 @@ export function UpdatesView() {
         {!loading && entries.length === 0 && (
           <div className="text-sm text-muted-foreground text-center py-12">更新履歴がまだありません</div>
         )}
-      </div>
-    </div>
-  );
-}
-
-type KanpoMatchedLaw = {
-  law_id: string;
-  revision_id?: string;
-  amending_law_num?: string;
-  confidence: number;
-  match_reasons: string[];
-};
-type KanpoIssueRow = {
-  date: string;
-  issue_type: string;
-  issue_no: string;
-  pdf_url: string;
-  matched_law_events: KanpoMatchedLaw[];
-};
-
-/**
- * 直近 14 日の `kanpo/{date}/index.json` を試行的に取得して並べる。
- */
-function useKanpoIndex(): { rows: KanpoIssueRow[]; loading: boolean; live: boolean } {
-  const [state, setState] = useState({ rows: [] as KanpoIssueRow[], loading: true, live: false });
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const today = new Date();
-      const dates: string[] = [];
-      for (let i = 0; i < 14; i++) {
-        const d = new Date(today);
-        d.setUTCDate(d.getUTCDate() - i);
-        dates.push(d.toISOString().slice(0, 10));
-      }
-      const results = await Promise.all(
-        dates.map(d =>
-          fetch(new URL(`./kanpo/${d}/index.json`, document.baseURI).toString())
-            .then(r => (r.ok ? r.json() : Promise.reject(r.status)))
-            .then((j: any) => ({ d, j }))
-            .catch(() => null)
-        )
-      );
-      if (cancelled) return;
-      const rows: KanpoIssueRow[] = [];
-      for (const r of results) {
-        if (!r) continue;
-        for (const issue of r.j.issues ?? []) {
-          rows.push({
-            date: r.d,
-            issue_type: issue.issue_type ?? "",
-            issue_no: issue.issue_no ?? "",
-            pdf_url: issue.pdf_url ?? "",
-            matched_law_events: issue.matched_law_events ?? [],
-          });
-        }
-      }
-      rows.sort((a, b) => b.date.localeCompare(a.date));
-      setState({ rows, loading: false, live: rows.length > 0 });
-    })();
-    return () => { cancelled = true; };
-  }, []);
-  return state;
-}
-
-export function KanpoView() {
-  const { rows, loading, live } = useKanpoIndex();
-  return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-2xl flex items-center gap-2"><Newspaper className="size-6" />官報リンク</h1>
-          <p className="text-sm text-muted-foreground mt-1">e-Gov改正イベントと官報PDFの突合結果</p>
-        </div>
-        <div className="text-xs text-muted-foreground">
-          {loading ? "読み込み中…" : `${rows.length} 件`}
-        </div>
-      </div>
-
-      {!loading && !live && (
-        <Card>
-          <CardContent className="p-4 text-sm space-y-2">
-            <div>📰 官報リンクはまだ未収集です。</div>
-            <div className="text-xs text-muted-foreground">
-              `lawpub kanpo-fetch --date YYYY-MM-DD` の実装は現状モックのみで、公式官報 PDF の取得 / 突合は
-              Phase 3 タスクとして残っています。e-Gov の改正イベントには <code>kanpo: {"{ linked: false }"}</code> が
-              入った状態です — タイムラインから該当公布日の官報を自分で開くには、各イベントの公布日を
-              <a className="underline ml-1" href="https://kanpou.npb.go.jp/" target="_blank" rel="noreferrer">官報公式サイト</a>
-              で検索してください。
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="grid gap-3">
-        {rows.map((k, i) => {
-          const top = k.matched_law_events[0];
-          const conf = top?.confidence ?? 0;
-          return (
-            <Card key={`${k.date}-${i}`}>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm tabular-nums">{k.date}</span>
-                    <Badge variant="outline">{k.issue_type} {k.issue_no}</Badge>
-                  </div>
-                  <Badge variant={conf >= 0.8 ? "default" : "secondary"} className="tabular-nums">
-                    confidence {conf.toFixed(2)}
-                  </Badge>
-                </div>
-                <div className="text-sm">{top?.amending_law_num ?? top?.law_id ?? "—"}</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  match: {top?.match_reasons?.join(", ") ?? "(なし)"}
-                  {k.pdf_url && (
-                    <>
-                      {" · "}
-                      <a className="underline" href={k.pdf_url} target="_blank" rel="noreferrer">PDF</a>
-                    </>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
       </div>
     </div>
   );

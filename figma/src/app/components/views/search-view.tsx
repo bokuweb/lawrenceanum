@@ -384,7 +384,13 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
                             </div>
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-sm font-medium">{h.title}</span>
+                                <button
+                                  onClick={() => navigate(`/kanpo/${h.date}?${new URLSearchParams({ no: h.issue_no, p: String(h.page), t: h.title })}`)}
+                                  className="text-sm font-medium text-left hover:text-primary hover:underline"
+                                  title="官報の項目を開く"
+                                >
+                                  {h.title}
+                                </button>
                                 {h.agency && <Badge variant="outline" className="text-xs">{h.agency}</Badge>}
                               </div>
                               <div className="text-xs text-muted-foreground mt-0.5">
