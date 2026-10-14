@@ -54,3 +54,56 @@ test("検索の通達セクションに通達がヒットする", async ({ page 
   await expect(page.getByText("住所の意義")).toBeVisible();
   await expect(page.getByText("2-1", { exact: true })).toBeVisible();
 });
+
+// 官報の一覧と項目の表示 (#/kanpo)。fixture の kanpo/index.json と kanpo/2026-04-02/index.json を読む。
+test("官報の一覧に最新の発行日の号と項目が並ぶ", async ({ page }) => {
+  await page.goto(new URL("#/kanpo", BASE).toString());
+
+  await expect(page.getByRole("combobox", { name: "発行日" })).toContainText("2026-04-02");
+  await expect(page.getByRole("region", { name: "本紙 第1678号" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "号外 第70号" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /共同募金会が募集する寄附金/ })).toBeVisible();
+  await expect(page.getByRole("status", { name: "表示中の項目数" })).toHaveText("3件");
+});
+
+test("改め文の項目を選ぶと本文と改正対象の法令が出る", async ({ page }) => {
+  await page.goto(new URL("#/kanpo", BASE).toString());
+  await page.getByRole("button", { name: /郵便法施行規則の一部を改正する省令/ }).click();
+
+  await expect(page).toHaveURL(/#\/kanpo\/2026-04-02\/0\/0$/);
+  await expect(page.getByRole("heading", { name: "郵便法施行規則の一部を改正する省令（総務五八）" })).toBeVisible();
+  await expect(page.getByText("一部を次のように改正する。")).toBeVisible();
+  await expect(page.getByRole("link", { name: /官報PDF（2頁）/ })).toHaveAttribute("href", "https://www.kanpo.go.jp/20260402/x.pdf");
+
+  await page.getByRole("button", { name: "郵便法施行規則", exact: true }).click();
+  await expect(page).toHaveURL(/#\/laws\/415M60000008005/, { timeout: 15_000 });
+});
+
+test("本文を取り込んでいない項目は PDF への導線を出す", async ({ page }) => {
+  await page.goto(new URL("#/kanpo/2026-04-02/0/1", BASE).toString());
+
+  await expect(page.getByRole("heading", { name: /共同募金会が募集する寄附金/ })).toBeVisible();
+  await expect(page.getByText("この項目の本文はまだ取り込んでいません。")).toBeVisible();
+  await expect(page.getByRole("link", { name: /官報PDF（3頁）/ })).toHaveAttribute("href", "https://www.kanpo.go.jp/20260402/y.pdf");
+});
+
+test("その日の項目を標題で絞り込める", async ({ page }) => {
+  await page.goto(new URL("#/kanpo/2026-04-02", BASE).toString());
+  await page.getByRole("textbox", { name: "この日の項目を絞り込む" }).fill("共同募金");
+
+  await expect(page.getByRole("status", { name: "表示中の項目数" })).toHaveText("1件");
+  await expect(page.getByRole("button", { name: /共同募金会が募集する寄附金/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /郵便法施行規則の一部を改正する省令/ })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "号外 第70号" })).toHaveCount(0);
+});
+
+test("官報の検索結果から項目の表示へ移れる", async ({ page }) => {
+  await page.goto(new URL("#/search?q=郵便法施行規則", BASE).toString());
+  await page.getByRole("tab", { name: /^官報/ }).click();
+  await expect(page.getByText(/官報 \(\d+件\)/)).toBeVisible({ timeout: FTS_TIMEOUT });
+
+  await page.getByRole("button", { name: "郵便法施行規則の一部を改正する省令（総務五八）" }).click();
+  // 号・頁・標題で項目を引き、並び順の URL に置き換える。
+  await expect(page).toHaveURL(/#\/kanpo\/2026-04-02\/0\/0$/, { timeout: 15_000 });
+  await expect(page.getByRole("heading", { name: "郵便法施行規則の一部を改正する省令（総務五八）" })).toBeVisible();
+});

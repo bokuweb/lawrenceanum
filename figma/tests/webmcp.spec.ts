@@ -127,7 +127,7 @@ test('WebMCP: corpus lists and details use composite identifiers', async ({ page
   const reiki = await call(page, 'list_legal_data', { corpus: 'reiki', municipality_code: '012122' })
   expect((await call(page, 'get_legal_document', { corpus: 'reiki', municipality_code: '012122', id: reiki.data.items[0].reiki_id })).data.title).toContain('留萌市')
   expect((await call(page, 'get_legal_document', { corpus: 'tsutatsu', id: 'shotoku' })).data.items).not.toHaveLength(0)
-  expect((await call(page, 'list_legal_data', { corpus: 'kanpo', date: '2026-04-02' })).data.items).toHaveLength(1)
+  expect((await call(page, 'list_legal_data', { corpus: 'kanpo', date: '2026-04-02' })).data.items).toHaveLength(2)
   expect((await call(page, 'get_legal_document', { corpus: 'kanpo', date: '2026-04-02' })).data.issues[0].items[0].title).toContain('郵便法')
 })
 

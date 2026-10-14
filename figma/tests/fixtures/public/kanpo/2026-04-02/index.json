@@ -8,7 +8,9 @@
       "pdf_url": "https://www.kanpo.go.jp/20260402/20260402h01678/",
       "promulgation_date": "2026-04-02",
       "law_nums": [],
-      "titles": ["郵便法施行規則の一部を改正する省令（総務五八）"],
+      "titles": [
+        "郵便法施行規則の一部を改正する省令（総務五八）"
+      ],
       "items": [
         {
           "title": "郵便法施行規則の一部を改正する省令（総務五八）",
@@ -16,7 +18,57 @@
           "pdf_url": "https://www.kanpo.go.jp/20260402/x.pdf",
           "agency_hint": "総務五八",
           "amend_text": "郵便法施行規則の一部を改正する省令\n郵便法施行規則（平成十五年総務省令第五号）の一部を次のように改正する。",
-          "linked_laws": [{ "law_id": "415M60000008005", "title": "郵便法施行規則" }]
+          "linked_laws": [
+            {
+              "law_id": "415M60000008005",
+              "title": "郵便法施行規則"
+            }
+          ],
+          "amend_format": "prose",
+          "amend_document": {
+            "format": "prose",
+            "blocks": [
+              {
+                "kind": "paragraph",
+                "runs": [
+                  {
+                    "text": "郵便法施行規則の一部を改正する省令"
+                  }
+                ]
+              },
+              {
+                "kind": "paragraph",
+                "runs": [
+                  {
+                    "text": "郵便法施行規則（平成十五年総務省令第五号）の一部を次のように改正する。"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "title": "共同募金会が募集する寄附金を寄附金控除の対象となる寄附金として承認する件（総務三八三）",
+          "page": 3,
+          "pdf_url": "https://www.kanpo.go.jp/20260402/y.pdf",
+          "agency_hint": "総務三八三"
+        }
+      ],
+      "page_count": 4
+    },
+    {
+      "issue_type": "extra",
+      "issue_no": "第70号",
+      "pdf_url": "https://www.kanpo.go.jp/20260402/20260402g00070/",
+      "promulgation_date": "2026-04-02",
+      "law_nums": [],
+      "titles": [],
+      "page_count": 2,
+      "items": [
+        {
+          "title": "相続、公示催告、失踪、除権決定、破産、特別清算、再生、所有者不明関係",
+          "page": 1,
+          "pdf_url": "https://www.kanpo.go.jp/20260402/z.pdf"
         }
       ]
     }
