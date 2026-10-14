@@ -9,8 +9,9 @@
 //! 2. ページ柱（「官」「報」「令和 年 月 日」等の余白テキスト）の混入
 //! 3. 新旧対照表での 改正後／改正前 2 カラムの並走（罫線でなく y 座標の帯で表現）
 //!
-//! 本クレートは座標付きテキスト(`pdftotext -bbox-layout`)から縦書きの読み順を復元し、
-//! (1)(2) を整形、(3) を改正後/改正前に分離する。`pdftotext`(poppler) への依存を前提とする。
+//! 本クレートは座標付きテキスト（`pdftotext -bbox-layout` と同じ形の XHTML）から縦書きの読み順を
+//! 復元し、(1)(2) を整形、(3) を改正後/改正前に分離する。PDF からの座標付きテキストと罫線の
+//! 取り出しは pure Rust の kanpo-pdf が行う（poppler は要らない）。
 //!
 //! # モジュール構成
 //!
@@ -20,7 +21,7 @@
 //! - `shinkyu` — 新旧対照表（改正後=上帯/改正前=下帯）の検出と分離
 //! - `segment` — 1 ページ内の複数記事の分割
 //! - `format` — 改め文の形式判定（prose / shinkyu / unknown）
-//! - `pdftotext` — poppler `pdftotext` の起動
+//! - `lines` — 罫線（kanpo-pdf で抽出）
 //!
 //! # 例
 //! ```no_run
@@ -37,7 +38,6 @@ mod horizontal;
 pub mod lines;
 pub mod model;
 pub mod normalize;
-pub mod pdftotext;
 pub mod segment;
 pub mod shinkyu;
 pub mod table;
@@ -60,7 +60,7 @@ pub struct Extracted {
 /// PDF バイト列（官報1ページ分）から、縦書きの読み順を復元したページ本文と
 /// 形式判定を返す。
 pub fn extract(pdf: &[u8]) -> Result<Extracted> {
-    let xhtml = pdftotext::run_pdftotext_bbox(pdf)?;
+    let xhtml = bbox_xhtml(pdf)?;
     let text = reconstruct_vertical(&xhtml);
     let format = format::detect_format(&text);
     Ok(Extracted { text, format })
@@ -122,9 +122,9 @@ pub fn analyze_with_rules(xhtml: &str, rules: &[Option<lines::PageRules>]) -> An
 }
 
 /// 項目（告示など）の 1 ページ分の入力。
-#[derive(Debug, Clone, Default, serde::Deserialize)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct PageInput {
-    /// `pdftotext -bbox-layout` の XHTML（1 ページ）。
+    /// `pdftotext -bbox-layout` と同じ形の XHTML（1 ページ、[`bbox_xhtml`]）。
     pub xhtml: String,
     /// そのページの罫線（[`page_rules`]）。無ければ表の復元をしない。
     #[serde(default)]
@@ -252,14 +252,27 @@ fn render_table_markers(text: &str, tables: &[trace::Table]) -> String {
         .join("\n")
 }
 
-/// PDF バイト列を `pdftotext -bbox-layout` に通し、座標付き XHTML を得る。
-/// [`analyze`] / [`reconstruct_vertical`] の入力になる（poppler が必要）。
+/// PDF バイト列から、`pdftotext -bbox-layout` と同じ形の座標付き XHTML を得る（kanpo-pdf）。
+/// [`analyze`] / [`reconstruct_vertical`] の入力になる。
 pub fn bbox_xhtml(pdf: &[u8]) -> Result<String> {
-    pdftotext::run_pdftotext_bbox(pdf)
+    let pages = kanpo_pdf::extract_pages(pdf)?;
+    Ok(kanpo_pdf::bbox::bbox_layout(&pages))
+}
+
+/// PDF の各ページを [`analyze_item`] の入力（座標付きテキストと罫線）にする。
+pub fn page_inputs(pdf: &[u8]) -> Result<Vec<PageInput>> {
+    let pages = kanpo_pdf::extract_pages(pdf)?;
+    Ok(pages
+        .into_iter()
+        .map(|p| PageInput {
+            rules: Some(kanpo_pdf::page_rules(&p)),
+            xhtml: kanpo_pdf::bbox::bbox_layout(std::slice::from_ref(&p)),
+        })
+        .collect())
 }
 
 /// PDF（1 ページ）の罫線（縦線・横線）を抽出する。[`analyze_with_rules`] に渡すと、新旧対照表の
-/// 帯の中の罫線表を 2D 表として復元できる（poppler の `pdftocairo` が必要）。
+/// 帯の中の罫線表を 2D 表として復元できる。
 pub fn page_rules(pdf: &[u8]) -> Result<lines::PageRules> {
     lines::extract_rules(pdf)
 }
@@ -267,10 +280,10 @@ pub fn page_rules(pdf: &[u8]) -> Result<lines::PageRules> {
 /// PDF バイト列から構造化した [`Document`] を得る。HTML や表へ変換しやすい形。
 /// 改め文をテキストではなく構造で受け取りたい呼び出し側はこちらを使う。
 ///
-/// 新旧対照表中の別表（罫線で区切られた表）は、`pdftocairo` の罫線とテキスト座標から
+/// 新旧対照表中の別表（罫線で区切られた表）は、罫線とテキスト座標から
 /// 2D 表として復元し、対応する `別表第○` 行の `after_table`/`before_table` に格納する。
 pub fn extract_document(pdf: &[u8]) -> Result<Document> {
-    let xhtml = pdftotext::run_pdftotext_bbox(pdf)?;
+    let xhtml = bbox_xhtml(pdf)?;
     let text = reconstruct_vertical(&xhtml);
     let mut doc = Document::from_text(&text);
     attach_tables(&mut doc, pdf);
@@ -285,7 +298,7 @@ pub fn attach_tables(doc: &mut Document, pdf: &[u8]) {
     let Ok(rules) = lines::extract_rules(pdf) else {
         return;
     };
-    let Ok(xhtml) = pdftotext::run_pdftotext_bbox(pdf) else {
+    let Ok(xhtml) = bbox_xhtml(pdf) else {
         return;
     };
     attach_bessho_tables(doc, &rules, &xhtml);

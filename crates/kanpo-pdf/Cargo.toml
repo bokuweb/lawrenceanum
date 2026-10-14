@@ -1,0 +1,20 @@
+[package]
+name = "kanpo-pdf"
+description = "官報 PDF から文字の座標と罫線を取り出す pure Rust の PDF リーダ（poppler 不要・WASM 可）"
+repository = "https://github.com/bokuweb/lawrenceanum"
+readme = "README.md"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+publish.workspace = true
+
+[dependencies]
+aes = "0.8"
+cbc = "0.1"
+md-5 = "0.10"
+miniz_oxide = "0.8"
+serde = { workspace = true }
+sha2 = "0.10"
+
+[dev-dependencies]
+serde_json.workspace = true

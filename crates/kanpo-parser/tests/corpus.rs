@@ -4,14 +4,17 @@
 //! - `page.pdf` — 原本（デジタル官報の項目別 PDF 1 ページ）。複数ページにまたがるケースは
 //!   2 ページ目以降を `page-2.pdf`・`page-3.pdf` …（bbox・rules も同じ名前）に置き、
 //!   項目としてまとめて解析する
-//! - `page.bbox.html` — `pdftotext -bbox-layout -enc UTF-8 page.pdf page.bbox.html` の出力
-//! - `page.rules.json` — 罫線（`cargo run -p kanpo-parser --example prepare -- page.pdf` が
-//!   上の bbox と一緒に作る）
+//! - `page.bbox.html` — 座標付きテキスト（`pdftotext -bbox-layout` と同じ形。kanpo-pdf で作る）
+//! - `page.rules.json` — 罫線
+//!
+//!   どちらも `page.pdf` から作れる（playground が読むので置いている）。テストは PDF から作り直して
+//!   保存済みのものと同じかも確かめる（`cargo run -p kanpo-parser --example prepare -- page.pdf`
+//!   か `UPDATE_EXPECT=1` で作り直す）
 //! - `case.json` — 出典・タグ・何を確かめるケースか（notes）
 //! - `expected.txt` — 復元した本文（目視で正しいと確認したもの）
 //! - `expected.json` — 記事ごとの構造化結果
 //!
-//! パーサを直して出力が変わったら、差分を目視で確かめてから
+//! パーサ・kanpo-pdf を直して出力が変わったら、差分を目視で確かめてから
 //! `UPDATE_EXPECT=1 cargo test -p kanpo-parser --test corpus` で更新する。
 
 use std::path::{Path, PathBuf};
@@ -21,7 +24,7 @@ fn cases() -> Vec<PathBuf> {
     let mut dirs: Vec<PathBuf> = std::fs::read_dir(&root)
         .unwrap()
         .filter_map(|e| e.ok().map(|e| e.path()))
-        .filter(|p| p.join("page.bbox.html").exists())
+        .filter(|p| p.join("page.pdf").exists())
         .collect();
     dirs.sort();
     dirs
@@ -44,11 +47,18 @@ fn corpus_matches_expected() {
         let pages: Vec<kanpo_parser::PageInput> = std::iter::once("page".to_string())
             .chain((2..).map(|n| format!("page-{n}")))
             .map_while(|stem| {
-                let xhtml = std::fs::read_to_string(dir.join(format!("{stem}.bbox.html"))).ok()?;
-                let rules = std::fs::read_to_string(dir.join(format!("{stem}.rules.json")))
-                    .ok()
-                    .map(|s| serde_json::from_str(&s).unwrap());
-                Some(kanpo_parser::PageInput { xhtml, rules })
+                let pdf = std::fs::read(dir.join(format!("{stem}.pdf"))).ok()?;
+                let page = kanpo_parser::page_inputs(&pdf).unwrap().remove(0);
+                let rules = serde_json::to_string(&page.rules).unwrap();
+                for (file, actual) in [(format!("{stem}.bbox.html"), &page.xhtml), (format!("{stem}.rules.json"), &rules)] {
+                    let path = dir.join(&file);
+                    if update {
+                        std::fs::write(&path, actual).unwrap();
+                    } else if std::fs::read_to_string(&path).ok().as_ref() != Some(actual) {
+                        failures.push(format!("{name}/{file} が PDF から作ったものと違う（UPDATE_EXPECT=1 で作り直す）"));
+                    }
+                }
+                Some(page)
             })
             .collect();
         let a = kanpo_parser::analyze_item(&pages);

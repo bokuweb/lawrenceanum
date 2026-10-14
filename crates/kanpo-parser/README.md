@@ -12,15 +12,8 @@
 
 ## 前提
 
-PDF の解析に [poppler](https://poppler.freedesktop.org/) の `pdftotext` / `pdftocairo` を子プロセスで使う。
-
-```bash
-brew install poppler
-```
-
-```bash
-sudo apt-get install -y poppler-utils
-```
+PDF から座標付きテキストと罫線を取り出すのは pure Rust の [kanpo-pdf](../kanpo-pdf/)（poppler も外部コマンドも
+要らない。WASM でも動く）。出力は `pdftotext -bbox-layout` と同じ形の XHTML で、パーサはこれを読む。
 
 ## 依存に追加する
 
@@ -70,12 +63,13 @@ for article in &analysis.articles {
 # Ok::<(), anyhow::Error>(())
 ```
 
-`pdftotext -bbox-layout` の XHTML が手元にあれば、poppler 無しで `reconstruct_vertical(&xhtml)` を使える。
+ページごとの入力は `page_inputs(&pdf)` でもまとめて作れる。`pdftotext -bbox-layout` の XHTML
+（以前の poppler の出力など）が手元にあれば、それを `reconstruct_vertical(&xhtml)` / `analyze(&xhtml)` に渡してもよい。
 
 ## デバッグ
 
 ```bash
-pdftotext -bbox-layout -enc UTF-8 input.pdf out.bbox.html
+cargo run -p kanpo-parser --example prepare -- input.pdf   # input.bbox.html と input.rules.json を作る
 cargo run -p kanpo-parser --example dump -- out.bbox.html
 cargo run -p kanpo-parser --example structured -- out.bbox.html
 ```
@@ -84,7 +78,7 @@ cargo run -p kanpo-parser --example structured -- out.bbox.html
 
 `analyze(&xhtml)` は本文・記事・構造化結果に加えて、各語がどの領域（前文・改正後・改正前・
 表外・本文）のどの行に組まれたか、捨てた語はその理由（余白・欄見出し・柱）を返す。
-poppler を使わないので WASM（`crates/kanpo-parser-wasm`）でも動き、Web の playground
+WASM（`crates/kanpo-parser-wasm`）でも動き（PDF から直接解析する `analyze_pdf` もある）、Web の playground
 （`/kanpo-playground`）がこれを使って PDF の上に割り当てを重ねて表示する。
 
 ```bash
@@ -96,11 +90,12 @@ cargo run -p kanpo-parser --example trace -- out.bbox.html
 `tests/corpus/<case>/` に実官報のページ（`page.pdf`・`page.bbox.html`・`page.rules.json`。複数ページの
 ケースは `page-2.*` …）と、何を確かめるケースか
 （`case.json`）、目視で確認した期待出力（`expected.txt`・`expected.json`）を置いている。
-パーサを直して出力が変わったら、差分を確かめてから更新する。
+`tests/corpus.rs` は `page.pdf` を kanpo-pdf で読んで解析する（`page.bbox.html`・`page.rules.json` は
+playground が読むために置いている PDF からの生成物で、テストは PDF から作ったものと同じかも確かめる）。
+パーサや kanpo-pdf を直して出力が変わったら、差分を確かめてから更新する。
 
 ```bash
-# PDF から .bbox.html と .rules.json を作る
-cargo run -p kanpo-parser --example prepare -- crates/kanpo-parser/tests/corpus/<case>/page.pdf
+# 期待出力と .bbox.html・.rules.json を作り直す
 UPDATE_EXPECT=1 cargo test -p kanpo-parser --test corpus
 ```
 
@@ -127,8 +122,8 @@ cargo run --release -p lawpub-cli -- kanpo-reextract --archive https://…r2.dev
 ## 蓄積した官報のスナップショットテスト
 
 `tests/archive/` に、蓄積した官報から層別に選んだページ（号の種類 × 組み方 × 新旧対照表 ×
-罫線の表 × 割注 × 私用 CID）と 2〜6 ページの項目を置いている（`bbox.html` を gzip したものと
-`rules.json` だけで、PDF は置かない）。`tests/archive_snapshots.rs` がページごとの本文と記事の
+罫線の表 × 割注 × 私用 CID）の原本 PDF と、2〜6 ページの項目を置いている。`tests/archive_snapshots.rs` は
+本番と同じく PDF を kanpo-pdf で読んで解析し、ページごとの本文と記事の
 構造、項目ごとの標題の記事の構造を [insta](https://insta.rs) のスナップショット
 （`tests/snapshots/`）と比べる。CI（`kanpo-parser-test.yml`）でも回る。
 

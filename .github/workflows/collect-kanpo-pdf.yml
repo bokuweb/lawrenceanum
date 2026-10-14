@@ -1,8 +1,8 @@
 name: Collect kanpo PDF (官報原本の蓄積)
 
 # デジタル官報 (www.kanpo.go.jp) は直近約 90 日しか公開されない。パーサの検証・再抽出や
-# playground での確認のため、号の全ページ PDF と座標付きテキスト (pdftotext -bbox-layout)
-# を R2 に蓄積する。
+# playground での確認のため、号の全ページ PDF と座標付きテキスト（pdftotext -bbox-layout と同じ形。
+# kanpo-pdf で取り出すので poppler は要らない）を R2 に蓄積する。
 #
 # - 毎日、直近 BACKFILL_DAYS 日のうち未保存の日だけを取得する（休刊日は目次が 404 で
 #   スキップ）。初回や取りこぼし時は手動 dispatch で backfill_days=90 を渡す。
@@ -64,9 +64,6 @@ jobs:
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
-
-      - name: Install poppler (pdftotext)
-        run: sudo apt-get update && sudo apt-get install -y poppler-utils
 
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2

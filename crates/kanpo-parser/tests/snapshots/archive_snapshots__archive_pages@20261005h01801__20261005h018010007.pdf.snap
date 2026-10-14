@@ -1,0 +1,15 @@
+---
+source: crates/kanpo-parser/tests/archive_snapshots.rs
+expression: out
+input_file: crates/kanpo-parser/tests/archive/pages/20261005h01801/20261005h018010007.pdf
+---
+layout: horizontal
+format: unknown
+
+--- 本文 ---
+相続財産清算人の選任及び相
+続権主張の催告
+
+--- 記事 ---
+## 0 (unknown)
+  P 相続財産清算人の選任及び相続権主張の催告

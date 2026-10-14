@@ -1,6 +1,6 @@
 ---
 source: crates/kanpo-parser/tests/archive_snapshots.rs
-assertion_line: 125
+assertion_line: 122
 expression: out
 input_file: crates/kanpo-parser/tests/archive/items/20260724g00164-p41-2.json
 ---
@@ -144,7 +144,7 @@ picked: Some(2)
     ロに規定する無線設備のものに限る。）
     前 [表 3x2]
       | 周波数帯 | 不要発射の強度の許容値 |
-      | １GHz以下（433 795 MHzを超え434 045MHz以下の周波数を除く。） | 任意の100kHz幅で250nW以下 |
+      | １GHz以下（433 795MHzを超え434 045MHz以下の周波数を除く。） | 任意の100kHz幅で250nW以下 |
       | １GHzを超えるもの | 任意の１MHz幅で１μW以下 |
     前 ［注　同左］［24〜73　同左］
   P 備考表中の〔〕の記載及び対象規定の二重傍線を付した標記部分を除く全体に付した傍線は注記である。

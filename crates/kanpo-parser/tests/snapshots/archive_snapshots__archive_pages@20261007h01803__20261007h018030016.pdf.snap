@@ -1,0 +1,12 @@
+---
+source: crates/kanpo-parser/tests/archive_snapshots.rs
+expression: out
+input_file: crates/kanpo-parser/tests/archive/pages/20261007h01803/20261007h018030016.pdf
+---
+layout: horizontal
+format: unknown
+
+--- 本文 ---
+
+
+--- 記事 ---

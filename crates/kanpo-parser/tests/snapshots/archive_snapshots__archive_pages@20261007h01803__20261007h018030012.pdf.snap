@@ -1,0 +1,18 @@
+---
+source: crates/kanpo-parser/tests/archive_snapshots.rs
+expression: out
+input_file: crates/kanpo-parser/tests/archive/pages/20261007h01803/20261007h018030012.pdf
+---
+layout: horizontal
+format: unknown
+
+--- 本文 ---
+失踪宣告
+失踪に関する届出の催告
+失踪宣告取消
+公示催告
+除権決定
+
+--- 記事 ---
+## 0 (unknown)
+  P 失踪宣告失踪に関する届出の催告失踪宣告取消公示催告除権決定
