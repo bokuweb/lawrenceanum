@@ -1026,16 +1026,18 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
         })
         .collect();
     // 横組みの欄で上下に続く行の組も加える（「（号　外）」と「発行　内閣府」の間で段に切ると、
-    // 欄が 1 行ずつに割れて横組みの欄として読めない）。
-    let wide: Vec<&Col> = cols.iter().filter(|c| c.text.chars().count() >= 2 && c.x1 - c.x > (c.y1 - c.y) * 1.5).collect();
+    // 欄が 1 行ずつに割れて横組みの欄として読めない）。横組みの語と、そのすぐ上か下の縦組みでない語
+    // （字間を空けて 1 字ずつの語になった「発　行　内　閣　府」、字の大きさの違う行）の組。
+    let wide = |c: &Col| c.text.chars().count() >= 2 && c.x1 - c.x > (c.y1 - c.y) * 1.5;
+    let flat: Vec<&Col> = cols.iter().filter(|c| !(c.text.chars().count() >= 2 && c.y1 - c.y > (c.x1 - c.x) * 1.5)).collect();
+    let below = |a: &Col, b: &Col| b.y >= a.y1 - 0.5 && b.x < a.x1 && a.x < b.x1;
     let pairs: Vec<(f32, f32, f32)> = pairs
         .into_iter()
-        .chain(wide.iter().filter_map(|a| {
-            let em = a.y1 - a.y;
-            wide.iter()
-                .filter(|b| b.y >= a.y1 - 0.5 && b.x < a.x1 && a.x < b.x1 && ((b.y1 - b.y) - em).abs() <= em * 0.3)
+        .chain(flat.iter().filter_map(|&a| {
+            flat.iter()
+                .filter(|&&b| below(a, b) && (wide(a) || wide(b)))
                 .min_by(|p, q| p.y.total_cmp(&q.y))
-                .map(|b| (a.y1, b.y, (b.y - a.y1) / em.min(b.y1 - b.y).max(1.0)))
+                .map(|b| (a.y1, b.y, (b.y - a.y1) / (a.y1 - a.y).min(b.y1 - b.y).max(1.0)))
         }))
         .collect();
     // cut が同じ列の語と語の間を、字間ほどの空き（[`TOUCH_EM`] 未満）で切るか。字間を空けた
@@ -1493,7 +1495,9 @@ fn split_off_horizontal_blocks(cols: Vec<Col>) -> (Vec<Col>, Vec<(f32, Vec<Line>
     let mut taken = vec![false; cols.len()];
     let mut blocks: Vec<(f32, Vec<Col>)> = Vec::new();
     for mut members in groups.into_values() {
-        if row_lines(members.iter().map(|&i| cols[i].clone()).collect()).len() < 2 {
+        // 先に取り出した欄が広がって取り込んだ語は除く。
+        members.retain(|&i| !taken[i]);
+        if members.is_empty() {
             continue;
         }
         // 欄の中の 1 字ずつの語・正方形の語（字間を空けた見出し「第　67　期　決　算　公　告」、表の
@@ -1527,6 +1531,16 @@ fn split_off_horizontal_blocks(cols: Vec<Col>) -> (Vec<Col>, Vec<(f32, Vec<Line>
                 break;
             }
             members.extend(more);
+        }
+        // 横に並ぶ行（横組みの語か、横に並ぶ 2 語以上の行）が 2 行以上ある欄だけ（本紙の題字の下は
+        // 「発　行　内　閣　府」が 1 字ずつの語で、横組みの語の行は「（原稿作成　国立印刷局）」だけ）。
+        let wide_ids: std::collections::HashSet<usize> = wide.iter().map(|&i| cols[i].id).collect();
+        let rows = row_lines(members.iter().map(|&i| cols[i].clone()).collect())
+            .iter()
+            .filter(|l| l.words.len() >= 2 || l.words.iter().any(|id| wide_ids.contains(id)))
+            .count();
+        if rows < 2 {
+            continue;
         }
         // 欄の中に縦の列が入り込んでいれば（横組みの語が縦書きの表の中に散っているだけ）取り出さない。
         let (x0, y0, x1, y1, _) = bounds(&members);

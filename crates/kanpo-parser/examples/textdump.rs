@@ -1,5 +1,6 @@
 //! 蓄積した官報（`lawpub kanpo-archive` の出力）の全ページを本番と同じく座標付きテキストと罫線から
 //! 解析し、ページごとの本文を `<out_dir>/<ページ>.txt` に書く（パーサを直す前後の出力を比べる用）。
+//! 1 つの語が 2 つ以上の行（表のセルを含む）に組まれたページは標準エラーに出す。
 //!
 //! ```text
 //! cargo run --release -p kanpo-parser --example textdump -- <archive_dir> <out_dir>
@@ -41,7 +42,21 @@ fn main() {
                     let rules = std::fs::read_to_string(f.to_string_lossy().replace(".bbox.html", ".rules.json"))
                         .ok()
                         .and_then(|s| serde_json::from_str(&s).ok());
-                    let text = kanpo_parser::analyze_with_rules(&xhtml, &[rules]).text;
+                    let a = kanpo_parser::analyze_with_rules(&xhtml, &[rules]);
+                    for page in &a.pages {
+                        let mut seen = std::collections::HashSet::new();
+                        let dup = page
+                            .regions
+                            .iter()
+                            .flat_map(|r| &r.lines)
+                            .flat_map(|l| l.words.iter().chain(l.table.iter().flat_map(|t| t.cells.iter().flat_map(|c| &c.words))))
+                            .filter(|&&w| !seen.insert(w))
+                            .count();
+                        if dup > 0 {
+                            eprintln!("{}\t{dup} 語を 2 回以上組んだ", f.display());
+                        }
+                    }
+                    let text = a.text;
                     let name = f.file_name().unwrap().to_string_lossy().replace(".bbox.html", ".txt");
                     std::fs::write(out.join(name), text).unwrap();
                 }
