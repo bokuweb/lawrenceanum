@@ -52,13 +52,14 @@ pub struct TableCell {
 }
 
 impl Table {
-    /// テキスト出力用に、行ごとにセルを全角空白で区切って書き下す。
+    /// テキスト出力用に、行ごとにセルを全角空白で区切って書き下す（セルの中の改行も全角空白に
+    /// する。「大管工業㈱」「代表取締役　中島　栄一」のような項目を続けて書かないため）。
     pub fn render(&self) -> String {
         (0..self.rows)
             .map(|r| {
                 let mut cells: Vec<&TableCell> = self.cells.iter().filter(|c| c.row == r).collect();
                 cells.sort_by_key(|c| c.col);
-                cells.iter().map(|c| c.text.replace('\n', "")).collect::<Vec<_>>().join("\u{3000}")
+                cells.iter().map(|c| c.text.replace('\n', "\u{3000}")).collect::<Vec<_>>().join("\u{3000}")
             })
             .filter(|l| !l.is_empty())
             .collect::<Vec<_>>()

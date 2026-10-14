@@ -791,12 +791,25 @@ fn grid_table(g: &Grid, cols: Vec<Col>) -> Table {
             }
             return text;
         }
-        let lines: Vec<String> = cell_lines(words).into_iter().map(|l| l.text).collect();
-        // セルの中の列の折り返しは連結し、文末（。）でだけ改行する。
+        let geom: std::collections::HashMap<usize, (f32, f32)> = words.iter().map(|c| (c.id, (c.y1, c.x1 - c.x))).collect();
+        let lines: Vec<Line> = cell_lines(words);
+        let bottom = |l: &Line| l.words.iter().filter_map(|w| geom.get(w)).map(|b| b.0).fold(f32::MIN, f32::max);
+        let em = geom.values().map(|b| b.1).fold(f32::MAX, f32::min);
+        let max_bottom = lines.iter().map(bottom).fold(f32::MIN, f32::max);
+        // 空きを 2 つ以上含む項目（字間を空けた見出し「製　造　業　者　名」、氏名「代表取締役
+        // 中島　栄一」）と、同上の「〃　ＤＫＴ２Ａ２型」。折り返した文の列の空きは項目の番号の
+        // 後（「（一）　山形県山形」）くらい。
+        let spaced = |t: &str| {
+            let t = t.trim();
+            t.matches('\u{3000}').count() >= 2 || t.starts_with('〃')
+        };
+        // セルの中の列の折り返しは連結し、文末（。）・列の途中で終わる短い項目（「大管工業㈱」）・
+        // 空きのある項目の後で改行する。
         let mut text = String::new();
         for (i, l) in lines.iter().enumerate() {
-            text.push_str(l);
-            if i + 1 < lines.len() && l.ends_with('。') {
+            text.push_str(&l.text);
+            let short = bottom(l) < max_bottom - em * 1.5;
+            if i + 1 < lines.len() && (l.text.ends_with('。') || short || spaced(&l.text)) {
                 text.push('\n');
             }
         }
