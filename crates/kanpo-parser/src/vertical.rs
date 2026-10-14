@@ -121,7 +121,13 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             .flatten();
         if let Some(divider) = headerless {
             layout = "headerless_shinkyu";
-            units.push(reconstruct_shinkyu(cols, f32::MAX, divider, &grids, page_rules));
+            // 表の左に、上下の帯の境目をまたいで紙面の高さいっぱいに組まれた別記事（表の
+            // 後ろの附則・次の記事）が同居していれば、表の後ろに本文として出す。
+            let (table, rest) = split_off_full_height_left(cols, divider, page_rules);
+            units.push(reconstruct_shinkyu(table, f32::MAX, divider, &grids, page_rules));
+            if !rest.is_empty() {
+                units.push(Unit::Plain(drop_stray_labels(page_lines(rest))));
+            }
         } else {
             // 通常ページ: まず段組み(tier)に分ける。官報本紙は2段組が多く、段を分けないと
             // 「同 x にある上段の列と下段の列」が1列に連結され混線する。新旧対照表の見出しが
@@ -236,6 +242,46 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         });
     }
     pages
+}
+
+/// 見出しの無い新旧対照表のページで、帯の境目 `divider` をまたぐ長い列（3 列以上）があれば、
+/// その右端より左を表の外として分ける（表は境目で上下の帯に分かれるので、境目をまたいで続く
+/// 列は表の中には無い）。その右に帯の枠の左辺（境目をまたぐ縦の罫線か、境目の横の罫線の
+/// 左端）があれば、そこより左を表の外にする（境目をまたがない附則の見出しなどの短い列も表の外になる）。右に上下の帯が
+/// それぞれ残るときだけ分ける。`(表, 表の外)`。
+fn split_off_full_height_left(cols: Vec<Col>, divider: f32, rules: Option<&PageRules>) -> (Vec<Col>, Vec<Col>) {
+    let mut widths: Vec<f32> = cols.iter().map(|c| c.x1 - c.x).collect();
+    widths.sort_by(f32::total_cmp);
+    let em = widths.get(widths.len() / 2).copied().unwrap_or(10.0);
+    let crossing: Vec<&Col> = cols.iter().filter(|c| c.y < divider - em * 2.0 && c.y1 > divider + em * 2.0).collect();
+    if crossing.len() < 3 {
+        return (cols, Vec::new());
+    }
+    let mut boundary = crossing.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max);
+    // 縦の罫線は帯の高さいっぱいのもの（区分見出し「法規的告示」の囲みの罫線は使わない）。
+    let top = cols.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+    let bottom = cols.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+    let verticals = rules
+        .into_iter()
+        .flat_map(|r| &r.vertical)
+        .filter(|v| v.y0 < divider - em * 4.0 && v.y1 > divider + em * 4.0 && v.y1 - v.y0 >= (bottom - top) * 0.6)
+        .map(|v| v.x);
+    let horizontals = rules
+        .into_iter()
+        .flat_map(|r| &r.horizontal)
+        .filter(|h| (h.y - divider).abs() < em * 3.0 && h.x1 - h.x0 > em * 5.0)
+        .map(|h| h.x0);
+    if let Some(frame) = verticals.chain(horizontals).filter(|&x| x > boundary).reduce(f32::min) {
+        boundary = frame;
+    }
+    let right = |c: &Col| (c.x + c.x1) / 2.0 > boundary + 1.0;
+    let center = |c: &Col| (c.y + c.y1) / 2.0;
+    let upper = cols.iter().filter(|c| right(c) && center(c) < divider).count();
+    let lower = cols.iter().filter(|c| right(c) && center(c) >= divider).count();
+    if upper < 3 || lower < 3 {
+        return (cols, Vec::new());
+    }
+    cols.into_iter().partition(right)
 }
 
 /// 構造化用テキスト（表は目印）とそのページの表。`count` は表の通し番号。
