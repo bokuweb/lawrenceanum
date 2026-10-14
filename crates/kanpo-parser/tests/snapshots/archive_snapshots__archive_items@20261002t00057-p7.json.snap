@@ -1,0 +1,23 @@
+---
+source: crates/kanpo-parser/tests/archive_snapshots.rs
+expression: out
+input_file: crates/kanpo-parser/tests/archive/items/20261002t00057-p7.json
+---
+title: ウクライナをめぐる国際平和のための国際的な努力に我が国として寄与するために講ずる輸出等に係る禁止措置の対象となるロシア連邦及びベラルーシ共和国以外の国の団体を指定する件の一部を改正する件（同三〇一）
+pages: 2
+articles: 2
+picked: Some(1)
+
+## 0: 767アレクサンドル・スィチュゴフ〇外務省告示第三百二号
+## 1 (unknown) ← 標題の記事
+  P 〇外務省告示第三百一号７．9161003ウクライナをめぐる現下の国際情勢に鑑み、ウクライナをめぐる問題の解決を目指す国際平和のた８．9358010めの国際的な努力に我が国として寄与するため、主要国が講ずることとした措置の内容に沿って、我９．9312884が国が講ずる輸出等に係る禁止措置の対象として、「ウクライナをめぐる国際平和のための国際的な努10．9312896力に我が国として寄与するために講ずる輸出等に係る禁止措置の対象となるロシア連邦及びベラルー11．9341067シ共和国以外の国の団体を指定する件」（令和五年外務省告示第四百四十七号）の一部を次のように改12．9273052
+    13．9511533正する。14．9341081令和八年十月二日外務大臣茂木敏充15．9299692
+    （別表）に次のように加える。16．9412347
+    （別表）17．9610781
+    57ソリド・タリム・イノヴァション株式会社18．9422445
+    19．9271585Solid Tarim Inovasyon Anonim Sirketi 20．9842188所在地：Turktas D: 1, No: 31 Cikcilli Mahallesi, 106 Sokak, Alanya, Antalya 07400, Turkey 21．9511521
+    58アメジノFZE 22．9412335Amegino FZE 23．9436941
+    別称：アメギノFZE 24．9610793所在地：T19F6D, RAKEZ Amenity Center, Al Hamra Industrial ZoneFZ, Ras Al Khai‑25．9577082mah, United Arab Emirates 26．9577094
+    59オート・パーツ・イーストFZCO 27．9382798Auto Parts East FZCO 28．9354301所在地：Jebel Ali(JAFZA) RA08 YB05/YB06/YB07, Dubai 17370, United Arab Emi‑29．9354313
+    30．9235713rates 31．9321847
+    60モト・エクスポートDWC有限会社32．9513139MOTO Export DWC LLC 33．9321976所在地：Office No: DLCFCO6, Building No: DLCFC4, Warehouse No: DLCFC 34．9866380W06, Logistics District, Dubai 390667, United Arab Emirates 35．9341079

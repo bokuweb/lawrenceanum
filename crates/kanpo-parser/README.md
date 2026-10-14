@@ -116,6 +116,22 @@ cargo run --release -p kanpo-parser --example scan -- .cache/kanpo-archive > sca
 行数が極端に偏る、私用 CID の化け候補など）に印を付ける。新しいエッジケースを見つけたら
 コーパスに足す。
 
+## 蓄積した官報のスナップショットテスト
+
+`tests/archive/` に、蓄積した官報から層別に選んだページ（号の種類 × 組み方 × 新旧対照表 ×
+罫線の表 × 割注 × 私用 CID）と 2〜6 ページの項目を置いている（`bbox.html` を gzip したものと
+`rules.json` だけで、PDF は置かない）。`tests/archive_snapshots.rs` がページごとの本文と記事の
+構造、項目ごとの標題の記事の構造を [insta](https://insta.rs) のスナップショット
+（`tests/snapshots/`）と比べる。CI（`kanpo-parser-test.yml`）でも回る。
+
+```bash
+cargo test -p kanpo-parser --test archive_snapshots
+# 出力が変わったら差分を目視で確かめて受け入れる
+cargo insta review -p kanpo-parser
+# 選び直す（アーカイブが増えたとき）
+cargo run --release -p kanpo-parser --example snapshot_sample -- .cache/kanpo-archive crates/kanpo-parser/tests/archive 150
+```
+
 ## 既知の限界
 
 - 縦書きと横書きが混在するページ（号外の決算公告など）は、どちらか多い方の読み方で組む
