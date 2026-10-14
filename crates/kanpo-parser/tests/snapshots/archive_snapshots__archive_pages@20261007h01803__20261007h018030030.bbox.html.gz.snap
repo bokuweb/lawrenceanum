@@ -1,0 +1,15 @@
+---
+source: crates/kanpo-parser/tests/archive_snapshots.rs
+expression: out
+input_file: crates/kanpo-parser/tests/archive/pages/20261007h01803/20261007h018030030.bbox.html.gz
+---
+layout: horizontal
+format: unknown
+
+--- 本文 ---
+所有者不明土地管理命令に関
+する異議の催告
+
+--- 記事 ---
+## 0 (unknown)
+  P 所有者不明土地管理命令に関する異議の催告

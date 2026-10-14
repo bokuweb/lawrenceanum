@@ -119,7 +119,9 @@ fn join_wrapped_lines(lines: &[&str]) -> String {
             let ends_sentence = line.ends_with('。') || line.ends_with('！') || line.ends_with('？');
             // 表の目印の行は前後とも改行で区切る（表を本文に連結しない）。
             let around_table = parse_table_marker(line).is_some() || parse_table_marker(lines[idx + 1]).is_some();
-            if ends_sentence || around_table || starts_structural_marker(lines[idx + 1]) {
+            // 「…法律第」＋「二十六号）…」のように語の途中で切れた行は、次が号の頭に見えても続ける。
+            let mid_word = line.ends_with('第');
+            if ends_sentence || around_table || (starts_structural_marker(lines[idx + 1]) && !mid_word) {
                 out.push('\n');
             }
         }
@@ -320,7 +322,9 @@ fn append_runs(dst: &mut Vec<Run>, src: Vec<Run>) {
         } else if last.table.is_none() && first.table.is_none() {
             let next_line = first.text.lines().next().unwrap_or("");
             let table_edge = last.text.ends_with('\u{E001}') || next_line.starts_with('\u{E000}');
-            let sep = if last.text.ends_with('。') || table_edge || starts_structural_marker(next_line) { "\n" } else { "" };
+            // 「…第」＋「一号イ…」のように語の途中で切れているときは、次が項目の頭に見えても改行しない。
+            let mid_word = last.text.ends_with('第');
+            let sep = if last.text.ends_with('。') || table_edge || (starts_structural_marker(next_line) && !mid_word) { "\n" } else { "" };
             last.text = format!("{}{sep}{}", last.text, first.text);
             src.next();
         }

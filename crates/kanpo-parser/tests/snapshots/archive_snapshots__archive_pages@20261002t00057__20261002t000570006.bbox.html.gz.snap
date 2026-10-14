@@ -1,0 +1,138 @@
+---
+source: crates/kanpo-parser/tests/archive_snapshots.rs
+expression: out
+input_file: crates/kanpo-parser/tests/archive/pages/20261002t00057/20261002t000570006.bbox.html.gz
+---
+layout: horizontal
+format: unknown
+
+--- 本文 ---
+396
+397
+398
+399
+400
+401
+402
+株式会社プロムィシュレンニエ・テフノロギイ
+AktsionernoeObshchestvoPromyshlennyeTekhnologii
+別称：非公開株式会社インダストリアル・テクノロジーズ；株式会社プロムテフ；プロムテク
+株式会社；プロムテック株式会社；産業技術株式会社
+ClosedJointStockCompanyIndustrialTechnologies;AOPromtekh;PromtechJointStock
+Company;PromtechJSC;IndustrialTechnologiesJointStockCompany
+所在地：Pr‑KtNaukiD.14,K.5,Pomeshch.7,Dubna,Moscowregion141984,Russia
+兵器技術開発製造基金ロバエフ基金
+FundfortheDevelopmentofWeaponsTechnologiesandProductionLobaevFoundation
+別称：兵器開発製造技術民間慈善基金ロバエフ・チャリタブル・ファンデーション；ロバエフ
+基金
+PrivateCharitableFoundationfortheDevelopmentofWeaponsandProductionTechnol‑
+ogiesLobaevCharitableFoundation;LobaevFoundation
+所在地：Office1,Building1,61LeninStreet,Tarusa,Kalugaregion249100,Russia
+公開株式会社ノヴォヴャトカ
+OtkrytoeAktsionernoeObshchestvoNovo‑Vyatka
+別称：ノヴォ・ヴャトカ公開株式会社；株式会社ノヴォビャトカ；株式会社ノヴォビヤトカ；
+メカニカル・プラント・ノヴォヴャトカ
+NovoVyatkaOpenJointStockCompany;JointStockCompanyNovo‑Vyatka;JSCNovo‑
+Vyatka;JSCNovo‑Viatka;MechanicalPlantNovo‑Vyatka
+所在地：d.51korp.2ul.Sovetskaya,Kirov,Kirovskayaobl.610008,Russia
+株式会社アステイス
+JointStockCompanyAsteis
+別称：株式会社アステーズ；株式会社アステイズ；株式会社アスタイス
+AktsionernoeObshchestvoAsteis;JSCAsteys;JSCAsteis;JSCAstais
+所在地：28ProezdRezervnyi,NaberezhnyeChelny,RepublicofTatarstan423800,Russia
+株式会社モリオン
+JointStockCompanyMorion
+別称：モリオン株式会社
+StockCompanyMorionInc;AOMorion;JSCMorion
+所在地：Pr.KimaD.13A,SaintPetersburg199155,Russia
+有限会社トリミックス
+LimitedLiabilityCompanyTrimix
+別称：3MX；有限会社3MKH；有限会社トリミクス；有限会社3MX
+3MX;ObshchestvosOgranichennoiOtvetstvennostiu3MKH;LLCTRIMIX;LLC3MX
+所在地：roomNo.707,letter
+Russia
+ガランテクス・ヨーロッパOU
+GarantexEuropeOU
+別称：ガランテックス
+Garantex
+所在地：St.Petersburg,Russia
+Tower,MoscowCity,Moscow,
+A,
+;
+building8,Pridorozhnayaalley,St.Petersburg194352,
+12,PresnenskayaEmbankment,Floor14,FederationEast
+Russia
+（別表２）に次のように加える。
+（別表２）
+個人
+760　ヴラジスラフ・コスチン
+VladislavKostin
+生年月日：1983/10/28
+その他の情報：株式会社VNIIRプログレス・ゼネラル・ディレクター
+GeneralDirectorofJointStockCompanyVNIIRProgress
+761　アルチョム・ヤムシコフ
+ArtemYamshchikov
+別名：ArtemIamshchikov
+生年月日：1979/10/11
+その他の情報：TSKヴェクトル有限会社ゼネラル・ディレクター
+GeneralDirectorofOOOTSKVektor
+762　ドミートリー・レリコフ
+DmitryLelikov
+別名：DmitriyLelikov
+生年月日：1968/5/9
+その他の情報：ロステック副ゼネラル・ディレクター
+DeputyGeneralDirectorofRostec
+763　ヴァシーリー・ブロフコ
+VasilyBrovko
+別名：VaslyBrovko;VasiliyBrovko
+生年月日：1987/2/6
+その他の情報：ロステック・ディレクター
+DirectorofRostec
+764　イーゴリ・ホメンコ
+IgorKhomenko
+生年月日：1968/8/23
+その他の情報：有限会社TROSゼネラル・ディレクター
+GeneralDirectorofLLCTROS
+765　セルゲイ・ウシュコ
+SergeiUshko
+別名：SergeyUshko
+生年月日：1969/9/7
+その他の情報：有限会社TROSディレクター
+DirectorofLLCTROS
+766　ヴラジスラフ・ロバエフ
+VladislavLobaev
+生年月日：1972/4/4
+その他の情報：ロバエフ基金元総裁
+FormerPresidentoftheLobaevFoundation
+
+--- 記事 ---
+## 0 (unknown)
+  P 396
+    397
+    398
+    399
+    400
+    401
+    402株式会社プロムィシュレンニエ・テフノロギイAktsionernoeObshchestvoPromyshlennyeTekhnologii
+    別称：非公開株式会社インダストリアル・テクノロジーズ；株式会社プロムテフ；プロムテク株式会社；プロムテック株式会社；産業技術株式会社ClosedJointStockCompanyIndustrialTechnologies;AOPromtekh;PromtechJointStockCompany;PromtechJSC;IndustrialTechnologiesJointStockCompany所在地：Pr‑KtNaukiD.14,K.5,Pomeshch.7,Dubna,Moscowregion141984,Russia兵器技術開発製造基金ロバエフ基金FundfortheDevelopmentofWeaponsTechnologiesandProductionLobaevFoundation
+    別称：兵器開発製造技術民間慈善基金ロバエフ・チャリタブル・ファンデーション；ロバエフ基金PrivateCharitableFoundationfortheDevelopmentofWeaponsandProductionTechnol‑ogiesLobaevCharitableFoundation;LobaevFoundation所在地：Office1,Building1,61LeninStreet,Tarusa,Kalugaregion249100,Russia公開株式会社ノヴォヴャトカOtkrytoeAktsionernoeObshchestvoNovo‑Vyatka
+    別称：ノヴォ・ヴャトカ公開株式会社；株式会社ノヴォビャトカ；株式会社ノヴォビヤトカ；メカニカル・プラント・ノヴォヴャトカNovoVyatkaOpenJointStockCompany;JointStockCompanyNovo‑Vyatka;JSCNovo‑Vyatka;JSCNovo‑Viatka;MechanicalPlantNovo‑Vyatka所在地：d.51korp.2ul.Sovetskaya,Kirov,Kirovskayaobl.610008,Russia株式会社アステイスJointStockCompanyAsteis
+    別称：株式会社アステーズ；株式会社アステイズ；株式会社アスタイスAktsionernoeObshchestvoAsteis;JSCAsteys;JSCAsteis;JSCAstais所在地：28ProezdRezervnyi,NaberezhnyeChelny,RepublicofTatarstan423800,Russia株式会社モリオンJointStockCompanyMorion
+    別称：モリオン株式会社StockCompanyMorionInc;AOMorion;JSCMorion所在地：Pr.KimaD.13A,SaintPetersburg199155,Russia有限会社トリミックスLimitedLiabilityCompanyTrimix
+    別称：3MX；有限会社3MKH；有限会社トリミクス；有限会社3MX
+    3MX;ObshchestvosOgranichennoiOtvetstvennostiu3MKH;LLCTRIMIX;LLC3MX所在地：roomNo.707,letterRussiaガランテクス・ヨーロッパOUGarantexEuropeOU
+    別称：ガランテックスGarantex所在地：St.Petersburg,RussiaTower,MoscowCity,Moscow,A,;building8,Pridorozhnayaalley,St.Petersburg194352,
+    12,PresnenskayaEmbankment,Floor14,FederationEastRussia
+    （別表２）に次のように加える。
+    （別表２）個人
+    760　ヴラジスラフ・コスチンVladislavKostin生年月日：1983/10/28その他の情報：株式会社VNIIRプログレス・ゼネラル・ディレクターGeneralDirectorofJointStockCompanyVNIIRProgress
+    761　アルチョム・ヤムシコフArtemYamshchikov
+    別名：ArtemIamshchikov生年月日：1979/10/11その他の情報：TSKヴェクトル有限会社ゼネラル・ディレクターGeneralDirectorofOOOTSKVektor
+    762　ドミートリー・レリコフDmitryLelikov
+    別名：DmitriyLelikov生年月日：1968/5/9その他の情報：ロステック副ゼネラル・ディレクターDeputyGeneralDirectorofRostec
+    763　ヴァシーリー・ブロフコVasilyBrovko
+    別名：VaslyBrovko;VasiliyBrovko生年月日：1987/2/6その他の情報：ロステック・ディレクターDirectorofRostec
+    764　イーゴリ・ホメンコIgorKhomenko生年月日：1968/8/23その他の情報：有限会社TROSゼネラル・ディレクターGeneralDirectorofLLCTROS
+    765　セルゲイ・ウシュコSergeiUshko
+    別名：SergeyUshko生年月日：1969/9/7その他の情報：有限会社TROSディレクターDirectorofLLCTROS
+    766　ヴラジスラフ・ロバエフVladislavLobaev生年月日：1972/4/4その他の情報：ロバエフ基金元総裁FormerPresidentoftheLobaevFoundation
