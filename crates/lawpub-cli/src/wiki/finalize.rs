@@ -81,6 +81,19 @@ struct PubcommentInfo {
     opinion_count: Option<u64>,
 }
 
+/// 法令ページの時系列から官報の項目へのリンク先と、LLM が書いた 1 行 (あれば)。
+/// 項目ページ (`item_page`) があればそれを、無ければ官報の PDF を指す。
+fn kanpo_target(wiki: &Path, from: &str, entry: &Value) -> (String, Option<String>) {
+    if let Some(item) = entry["item_page"].as_str().filter(|p| wiki.join(p).exists()) {
+        let summary = Page::read(&wiki.join(item)).ok().and_then(|p| {
+            let d = p.get_str("description");
+            (!d.is_empty() && d != p.get_str("stats")).then(|| d.to_string())
+        });
+        return (rel_link(from, item), summary);
+    }
+    (entry["pdf_url"].as_str().unwrap_or("").to_string(), None)
+}
+
 fn load_pubcomments(wiki: &Path) -> Result<Vec<PubcommentInfo>> {
     let mut out = Vec::new();
     for path in walk_md(wiki, "pubcomments") {
@@ -158,7 +171,13 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
                             .any(|b| !citations_in(b).is_empty())
                 })
                 .unwrap_or(false);
-        if done && task.kind == "pubcomment" {
+        if done && task.kind == super::kanpo::KIND_KANPO {
+            // 官報の項目は一度要約したら終わり (本文もページ内で固定する)。
+            let mut page = Page::read(&path)?;
+            page.set("llm_done", json!(true));
+            page.write(&path)?;
+            completed.push(task.clone());
+        } else if done && task.kind == "pubcomment" {
             // パブコメは、要約した時点の結果公示日をページに記録する。
             let mut page = Page::read(&path)?;
             let result = page.get("result_date").cloned().unwrap_or(Value::Null);
@@ -278,10 +297,7 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
                     })
                 })
                 .flatten();
-            let kanpo_link = kanpo_hit
-                .and_then(|i| kanpo[i]["pdf_url"].as_str())
-                .map(|u| format!(" — [官報]({u})"))
-                .unwrap_or_default();
+            let kanpo_link = kanpo_hit.map(|i| format!(" — [官報]({})", kanpo_target(wiki, &rel, kanpo[i]).0)).unwrap_or_default();
             // 改正法の法律番号で議案ページにつなぐ (国会審議 → 公布 → 施行)。
             let bill = r["law_num"]
                 .as_str()
@@ -300,15 +316,20 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
             rows.push((date.to_string(), 0, kind, format!("{label}{bill}{kanpo_link}")));
         }
         for (k, _) in kanpo.iter().zip(&kanpo_used).filter(|(_, used)| !**used) {
-            let (Some(date), Some(title), Some(url)) = (k["date"].as_str(), k["title"].as_str(), k["pdf_url"].as_str()) else {
+            let (Some(date), Some(title)) = (k["date"].as_str(), k["title"].as_str()) else {
                 continue;
             };
+            let (target, summary) = kanpo_target(wiki, &rel, k);
+            if target.is_empty() {
+                continue;
+            }
             let place = match k["page"].as_u64() {
                 Some(p) => format!("{}・{p}ページ", k["issue"].as_str().unwrap_or("")),
                 None => k["issue"].as_str().unwrap_or("").to_string(),
             };
             let note = if k["relation"] == "basis" { "。この法令に基づく告示等" } else { "" };
-            rows.push((date.to_string(), 0, "官報", format!("[{title}]({url})（{place}{note}）")));
+            let summary = summary.map(|s| format!(" — {s}")).unwrap_or_default();
+            rows.push((date.to_string(), 0, "官報", format!("[{title}]({target})（{place}{note}）{summary}")));
         }
         rows.sort_by(|a, b| b.0.cmp(&a.0).then_with(|| a.1.cmp(&b.1)).then_with(|| a.3.cmp(&b.3)));
         let mut table = String::from("| 日付 | 種別 | 内容 |\n|---|---|---|\n");
@@ -658,6 +679,21 @@ fn write_index(
         }
     }
 
+    let mut kanpo: Vec<(String, String, String, String)> = walk_md(wiki, "kanpo")
+        .iter()
+        .filter_map(|path| {
+            let p = Page::read(path).ok()?;
+            Some((p.get_str("date").to_string(), p.get_str("title").to_string(), rel_path(wiki, path), p.get_str("description").to_string()))
+        })
+        .collect();
+    if !kanpo.is_empty() {
+        kanpo.sort_by(|a, b| b.0.cmp(&a.0).then_with(|| a.2.cmp(&b.2)));
+        body.push_str(&format!("\n## 最近の官報（{}）\n\n| 日付 | 項目 | 内容 |\n|---|---|---|\n", kanpo.len()));
+        for (date, title, page, description) in kanpo.iter().take(20) {
+            body.push_str(&format!("| {date} | [{}]({page}) | {} |\n", cell(title), cell(description)));
+        }
+    }
+
     if !bills.is_empty() {
         body.push_str(&format!("\n## 最近の議案（{}）\n\n| 日付 | 議案 | 経過 |\n|---|---|---|\n", bills.len()));
         for b in bills.iter().take(30) {
@@ -723,11 +759,11 @@ fn append_log(
     }
     let mut section = format!("{heading}\n");
     for t in completed {
-        let desc = meetings
-            .iter()
-            .find(|m| m.page == t.page)
-            .map(|m| m.description.as_str())
-            .unwrap_or("");
+        // 会議以外 (議案・パブコメ・官報) は、LLM が書いたページの description を添える。
+        let desc = match meetings.iter().find(|m| m.page == t.page) {
+            Some(m) => m.description.clone(),
+            None => Page::read(&wiki.join(&t.page)).map(|p| p.get_str("description").to_string()).unwrap_or_default(),
+        };
         section.push_str(&format!(
             "- {} [{}]({}) — {}\n",
             t.date, t.title, t.page, desc
@@ -881,6 +917,18 @@ mod tests {
             ),
         )
         .unwrap();
+        // 施行期日の政令には項目ページがあり、LLM が 1 行を書いている。
+        std::fs::create_dir_all(wiki.join("kanpo/2026-10-09")).unwrap();
+        std::fs::write(
+            wiki.join("kanpo/2026-10-09/g223-p0002-aaaa0000.md"),
+            "---\ntype: \"kanpo\"\ntitle: \"施行期日を定める政令\"\ndescription: \"改正法の残りを 2027-04-01 に施行\"\nstats: \"2026-10-09 号外第223号・2ページ（改め文）\"\ndate: \"2026-10-09\"\n---\n# x\n",
+        )
+        .unwrap();
+        let law = std::fs::read_to_string(wiki.join("laws/L1.md")).unwrap().replace(
+            "\"pdf_url\":\"https://k/p2.pdf\",",
+            "\"pdf_url\":\"https://k/p2.pdf\",\"item_page\":\"kanpo/2026-10-09/g223-p0002-aaaa0000.md\",",
+        );
+        std::fs::write(wiki.join("laws/L1.md"), law).unwrap();
         run_finalize(&FinalizeArgs { wiki: wiki.clone(), work }).unwrap();
 
         let law = std::fs::read_to_string(wiki.join("laws/L1.md")).unwrap();
@@ -888,13 +936,14 @@ mod tests {
         assert_eq!(
             rows,
             vec![
-                "| 2026-10-09 | 官報 | [予防接種法の一部を改正する法律の一部の施行期日を定める政令（三二二）](https://k/p2.pdf)（号外第223号・2ページ） |",
+                "| 2026-10-09 | 官報 | [予防接種法の一部を改正する法律の一部の施行期日を定める政令（三二二）](../kanpo/2026-10-09/g223-p0002-aaaa0000.md)（号外第223号・2ページ） — 改正法の残りを 2027-04-01 に施行 |",
                 "| 2026-10-05 | 官報 | [予防接種法第五条の規定に基づき、定期接種の対象を定める件の一部を改正する件（厚生労働三〇〇）](https://k/p4.pdf)（本紙第1600号・4ページ。この法令に基づく告示等） |",
                 "| 2026-10-01 | 国会 | [参議院 厚生労働委員会 第1号](../meetings/kokkai/M1.md) — 予防接種法の救済拡充を質疑 |",
                 "| 2026-09-01 | 公布 | 公布: 予防接種法施行令の一部を改正する政令（令和八年政令第三百号） — [官報](https://k/p1.pdf) |",
             ],
-            "e-Gov に反映済みの公布は行を重ねずに官報へつなぐ"
+            "e-Gov に反映済みの公布は行を重ねずに官報へつなぎ、項目ページがあればそちらを指す"
         );
+        assert!(std::fs::read_to_string(wiki.join("index.md")).unwrap().contains("## 最近の官報（1）"));
         std::fs::remove_dir_all(root).ok();
     }
 

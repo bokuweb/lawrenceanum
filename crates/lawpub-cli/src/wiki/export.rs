@@ -22,7 +22,7 @@ pub struct ExportArgs {
 /// LLM の文章 (要点・経緯・概要) がまだ無く、機械が作った一覧しかないページ。
 /// アプリでは一覧・グラフ・導線から外し、開いたときは要約前であることを示す。
 pub(crate) fn is_stub(page: &Page) -> bool {
-    matches!(page.get_str("type"), "law" | "bill" | "pubcomment" | "person" | "committee" | "meeting")
+    matches!(page.get_str("type"), "law" | "bill" | "pubcomment" | "kanpo" | "person" | "committee" | "meeting")
         && llm_blocks(&page.body).iter().all(|b| b.trim().is_empty())
 }
 

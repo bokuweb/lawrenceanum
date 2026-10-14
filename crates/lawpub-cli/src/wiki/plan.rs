@@ -25,6 +25,8 @@ pub struct PlanArgs {
     pub max_bills: usize,
     /// 1 回の plan で LLM に要約させるパブコメ (結果公示済み) の上限 (別枠)。
     pub max_pubcomments: usize,
+    /// 1 回の plan で LLM に要約させる官報の項目 (改め文) の上限 (別枠)。
+    pub max_kanpo: usize,
     /// 自治体例規の配信元 (R2 の `{public}/reiki`)。空なら例規の照合をしない。
     pub reiki_base_url: String,
     /// LLM に 1 回で渡すタスク数 (`.wiki-work/chunks/NNN.md` ごとに別々の実行にする)。
@@ -208,8 +210,8 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
     // 議案と改正履歴・官報 (LLM 不要) を取り込む。失敗しても会議のタスクは続ける。
     match structured::sync(&source, &args.wiki, today) {
         Ok(st) => println!(
-            "wiki-plan: {} bill(s) ({} fetched), {} pubcomment(s), {} new law page(s), {} law(s) with revisions, {} law(s) with kanpo",
-            st.bills, st.bills_fetched, st.pubcomments, st.laws_created, st.laws_with_revisions, st.laws_with_kanpo
+            "wiki-plan: {} bill(s) ({} fetched), {} pubcomment(s), {} new law page(s), {} law(s) with revisions, {} law(s) with kanpo ({} new kanpo page(s))",
+            st.bills, st.bills_fetched, st.pubcomments, st.laws_created, st.laws_with_revisions, st.laws_with_kanpo, st.kanpo_pages_created
         ),
         Err(e) => tracing::warn!("wiki-plan: 議案・改正履歴の取り込みに失敗: {e:#}"),
     }
@@ -225,6 +227,10 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
     match super::pubcomment::plan_tasks(&source, &args.wiki, &args.work, args.max_pubcomments) {
         Ok(pc_tasks) => tasks.extend(pc_tasks),
         Err(e) => tracing::warn!("wiki-plan: パブコメの要約タスクの作成に失敗: {e:#}"),
+    }
+    match super::kanpo::plan_tasks(&args.wiki, &args.work, args.max_kanpo) {
+        Ok(k_tasks) => tasks.extend(k_tasks),
+        Err(e) => tracing::warn!("wiki-plan: 官報の要約タスクの作成に失敗: {e:#}"),
     }
 
     state.save(&args.wiki)?;
@@ -1009,6 +1015,7 @@ fn render_plan_md(plan: &Plan, wiki: &Path, work: &Path) -> String {
         let page_label = match t.kind.as_str() {
             "bill" => "議案ページ",
             "pubcomment" => "パブコメページ",
+            "kanpo" => "官報ページ",
             _ => "会議ページ",
         };
         out.push_str(&format!("- {page_label}: `{wiki}/{}`{}\n", t.page, new(&t.page)));
@@ -1166,6 +1173,7 @@ mod tests {
             today: Some("2026-10-08".into()),
             max_bills: 0,
             max_pubcomments: 0,
+            max_kanpo: 0,
             reiki_base_url: String::new(),
             chunk_size: 4,
         })
@@ -1251,6 +1259,7 @@ mod tests {
             today: Some("2026-10-08".into()),
             max_bills: 0,
             max_pubcomments: 0,
+            max_kanpo: 0,
             reiki_base_url: String::new(),
             chunk_size: 4,
         })
@@ -1297,6 +1306,7 @@ mod tests {
             today: Some("2026-10-09".into()),
             max_bills: 0,
             max_pubcomments: 0,
+            max_kanpo: 0,
             reiki_base_url: String::new(),
             chunk_size: 4,
         })

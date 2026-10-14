@@ -8,7 +8,9 @@
 //! - 会議・法令ページの LLM 区間、topics/ のページには少なくとも 1 つの引用がある。
 //!
 //! 引用の照合は `--changed` なら git で変更のあったページだけに行う (会議本体の取得を減らす)。
+//! 官報 (`kanpo:{date}/{slug}`) の引用は、配信側ではなく wiki の項目ページに保存した本文と照合する。
 
+use super::kanpo::{kanpo_unit, KIND_KANPO};
 use super::pubcomment::{pubcomment_units, KIND_PUBCOMMENT};
 use super::*;
 use std::collections::{HashMap, HashSet};
@@ -21,7 +23,7 @@ pub struct CheckArgs {
 }
 
 const ROOT_FILES: [&str; 3] = ["index.md", "log.md", "README.md"];
-const DIRS: [&str; 7] = ["laws/", "meetings/", "people/", "topics/", "bills/", "committees/", "pubcomments/"];
+const DIRS: [&str; 8] = ["laws/", "meetings/", "people/", "topics/", "bills/", "committees/", "pubcomments/", "kanpo/"];
 const MIN_QUOTE_CHARS: usize = 8;
 const MAX_QUOTE_CHARS: usize = 200;
 
@@ -54,7 +56,7 @@ fn parse_citation(rest: &str) -> Option<(String, String, String)> {
     let (url, rest) = rest.split_once(')')?;
     let rest = rest.trim();
     let quote = rest.strip_prefix('「')?.strip_suffix('」')?;
-    if !(reference.starts_with("kokkai:") || reference.starts_with("shingikai:") || reference.starts_with("gian:") || reference.starts_with("pubcomment:")) {
+    if !["kokkai:", "shingikai:", "gian:", "pubcomment:", "kanpo:"].iter().any(|p| reference.starts_with(p)) {
         return None;
     }
     Some((reference.to_string(), url.to_string(), quote.to_string()))
@@ -140,6 +142,7 @@ fn percent_decode(s: &str) -> String {
 /// 引用元の発言を、作業ディレクトリに残した会議本体 → 配信 JSON の順に引く。
 struct Resolver<'a> {
     work: &'a Path,
+    wiki: &'a Path,
     source: Source,
     docs: HashMap<String, Option<HashMap<String, Unit>>>,
     /// 審議会の議事録全文 (正規化済み)。発言の区切り方を変える前の引用番号も受け付けるため。
@@ -150,6 +153,9 @@ struct Resolver<'a> {
 impl Resolver<'_> {
     fn unit(&mut self, reference: &str) -> Result<Option<Unit>> {
         let (kind, id) = reference.split_once(':').unwrap_or(("", ""));
+        if kind == KIND_KANPO {
+            return kanpo_unit(self.wiki, reference);
+        }
         let doc_id = match kind {
             KIND_KOKKAI => id
                 .rsplit_once('_')
@@ -288,6 +294,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
     };
     let mut resolver = Resolver {
         work: &args.work,
+        wiki,
         source: Source::new(&args.base_url)?,
         docs: HashMap::new(),
         full_texts: HashMap::new(),
@@ -326,7 +333,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
         if ty.is_empty() {
             err(1, "OKF の必須フィールド `type` がありません".into());
         }
-        if matches!(ty, "law" | "meeting" | "person" | "topic" | "bill" | "committee" | "pubcomment") && page.get_str("title").is_empty()
+        if matches!(ty, "law" | "meeting" | "person" | "topic" | "bill" | "committee" | "pubcomment" | "kanpo") && page.get_str("title").is_empty()
         {
             err(1, "`title` がありません".into());
         }
@@ -364,7 +371,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
 
         let llm_text: String = llm_blocks(&page.body).concat();
         let needs_citation = match ty {
-            "meeting" | "law" | "person" | "committee" | "bill" | "pubcomment" => !llm_text.trim().is_empty(),
+            "meeting" | "law" | "person" | "committee" | "bill" | "pubcomment" | "kanpo" => !llm_text.trim().is_empty(),
             "topic" => true,
             _ => false,
         };
@@ -527,6 +534,48 @@ mod tests {
         // 議事録に無い文は従来どおり落とす。
         std::fs::write(wiki.join("meetings/shingikai/S1.md"), page("S1#0", "医療費助成を全面的に廃止する")).unwrap();
         assert!(run_check(&args()).is_err());
+        std::fs::remove_dir_all(root).ok();
+    }
+
+    #[test]
+    fn kanpo_citations_are_verified_against_text_stored_in_the_wiki() {
+        let root = temp_dir("check_kanpo");
+        let wiki = root.join("wiki");
+        let work = root.join("work");
+        std::fs::create_dir_all(&work).unwrap();
+        ensure_law_page(&wiki, "https://example.test", "L1", "輸出貿易管理令").unwrap();
+        let item = super::super::kanpo::KanpoItem {
+            date: "2026-10-09".into(),
+            issue: "号外第223号".into(),
+            page_no: Some(2),
+            title: "輸出貿易管理令の一部を改正する政令（三二五）".into(),
+            pdf_url: "https://k/p2.pdf".into(),
+            format: "prose".into(),
+            text: "輸出貿易管理令の一部を次のように改正する。\n別表第一の一の項中「武器」を「武器及び弾薬」に改める。".into(),
+            amends: vec!["L1".into()],
+            basis: vec![],
+        };
+        let titles: HashMap<String, String> = [("L1".to_string(), "輸出貿易管理令".to_string())].into();
+        let rel = item.page();
+        let reference = format!("kanpo:2026-10-09/{}", item.slug());
+        let write = |url: &str, quote: &str| {
+            std::fs::remove_file(wiki.join(&rel)).ok();
+            super::super::kanpo::write_page(&wiki, &item, &titles).unwrap();
+            let mut page = Page::read(&wiki.join(&rel)).unwrap();
+            page.body = page.body.replace(
+                &format!("{LLM_BEGIN}\n{LLM_END}"),
+                &format!("{LLM_BEGIN}\n別表第一を改める[^1]。\n\n[^1]: [{reference}]({url}) 「{quote}」\n{LLM_END}"),
+            );
+            page.write(&wiki.join(&rel)).unwrap();
+        };
+        // 配信側 (public/) に官報が無くても、ページに保存した本文と照合する。
+        let args = || CheckArgs { wiki: wiki.clone(), work: work.clone(), base_url: root.join("public").display().to_string(), changed_only: false };
+        write("https://k/p2.pdf", "別表第一の一の項中「武器」を「武器及び弾薬」に改める");
+        run_check(&args()).unwrap();
+        write("https://k/p2.pdf", "別表第一を全面的に改める");
+        assert!(run_check(&args()).is_err(), "本文に無い引用は落とす");
+        write("https://k/other.pdf", "別表第一の一の項中「武器」を");
+        assert!(run_check(&args()).is_err(), "URL は官報の PDF と一致させる");
         std::fs::remove_dir_all(root).ok();
     }
 
