@@ -1,6 +1,9 @@
 //! ページの文字を 1 行ずつ出す（調査用）。
 //!
 //! cargo run -p kanpo-pdf --example glyphs -- page.pdf
+//!
+//! `spacing` は字の後の字間・語間（Tc・Tw）、`kern` は字の前の TJ の数値による送り（いずれも pt、
+//! 字送りの向きに正）、`show` は字を描いた演算子（Tj・TJ など）の通し番号。
 
 fn main() {
     let path = std::env::args().nth(1).expect("pdf path");
@@ -10,9 +13,9 @@ fn main() {
         for (k, f) in p.fonts.iter().enumerate() {
             println!("# font {k} {} vertical={} ordering={:?} to_unicode={}", f.name, f.vertical, f.ordering, f.has_to_unicode);
         }
-        for g in &p.glyphs {
+        for (k, g) in p.glyphs.iter().enumerate() {
             println!(
-                "{:?}\tcid={}\tf={}\tv={}\tsize={:.2}\torigin=({:.3},{:.3})\tend=({:.3},{:.3})\tbbox=[{:.3},{:.3},{:.3},{:.3}]\tsp={:.3}\tkern={:.3}\tshow={}",
+                "{k}\t{:?}\tcid={}\tf={}\tv={}\tsize={:.2}\torigin=({:.3},{:.3})\tend=({:.3},{:.3})\tbbox=[{:.3},{:.3},{:.3},{:.3}]\tspacing={:.3}\tkern={:.3}\tshow={}",
                 g.text, g.cid, g.font, g.vertical as u8, g.size, g.x, g.y, g.end_x, g.end_y, g.bbox[0], g.bbox[1], g.bbox[2], g.bbox[3], g.spacing, g.kern, g.show
             );
         }

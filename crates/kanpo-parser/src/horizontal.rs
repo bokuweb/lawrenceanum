@@ -132,7 +132,7 @@ fn column_cut(words: &[Col]) -> Option<f32> {
     // 字間空けの見出し（「中　間　決　算　公　告」）は 1 字語の並びだが、1 語として溝をふさぐ。
     let mut spans: Vec<(f32, f32)> = Vec::new();
     for line in group_lines(words) {
-        for (w, joined) in line.words.iter().zip(letter_spaced(&line.words)) {
+        for (w, joined) in line.words.iter().zip(letter_spaced(&line.words, true)) {
             match spans.last_mut() {
                 Some(span) if joined => span.1 = w.x1,
                 _ => spans.push((w.x, w.x1)),
@@ -231,7 +231,7 @@ fn band_cut(lines: &[Line]) -> Option<f32> {
 ///   （表の次のセル）では区切る。
 fn render_line(words: &[Col]) -> String {
     let mut s = String::new();
-    for (i, (w, joined)) in words.iter().zip(letter_spaced(words)).enumerate() {
+    for (i, (w, joined)) in words.iter().zip(letter_spaced(words, false)).enumerate() {
         if i > 0 && !joined {
             let p = &words[i - 1];
             let em = (p.y1 - p.y).min(w.y1 - w.y).max(1.0);
@@ -246,7 +246,12 @@ fn render_line(words: &[Col]) -> String {
 
 /// 1 行の語（x 昇順）のそれぞれが、直前の語と字間空けの見出しとしてつながるか（先頭は false）。
 /// 1 字語どうしで、字間が 8em 以内かつ見出しの中でほぼ一定なら、つながる。
-fn letter_spaced(words: &[Col]) -> Vec<bool> {
+///
+/// `spaced_words` なら、字間を空けて組んだ複数字の語（kanpo-pdf が字間（Tc）で空けた字を 1 語に
+/// したもの）も 1 字語の並びと同じに扱い、後ろの 1 字語がその語の字間とほぼ同じ空きならつなぐ。
+/// 列の溝を探すときに使う（1 字語の並びだったときと同じく、表の欄の中で字間を空けて組んだ語と
+/// 隣の欄の 1 字の間の溝を列の境目とみなさない）。
+fn letter_spaced(words: &[Col], spaced_words: bool) -> Vec<bool> {
     let mut out = vec![false; words.len()];
     // 字間空けの見出しの字間（直前の 1 字語どうしの空き）。
     let mut spaced_gap: Option<f32> = None;
@@ -254,7 +259,12 @@ fn letter_spaced(words: &[Col]) -> Vec<bool> {
         let (p, w) = (&words[i - 1], &words[i]);
         let em = (p.y1 - p.y).min(w.y1 - w.y).max(1.0);
         let gap = w.x - p.x1;
-        let single = p.text.chars().count() == 1 && w.text.chars().count() == 1;
+        let n = p.text.chars().count();
+        let inner_gap = (spaced_words && n >= 2).then(|| ((p.x1 - p.x) - em * n as f32) / (n - 1) as f32).filter(|g| *g >= em * 0.2);
+        if inner_gap.is_some() && spaced_gap.is_none() {
+            spaced_gap = inner_gap;
+        }
+        let single = (n == 1 || inner_gap.is_some()) && w.text.chars().count() == 1;
         out[i] = single
             && match spaced_gap {
                 None => gap <= em * 8.0,
@@ -278,6 +288,20 @@ mod tests {
             y1: y + 8.0,
             text: text.to_string(),
         }
+    }
+
+    #[test]
+    fn letter_spaced_word_bridges_to_next_single_glyph_only_for_gutters() {
+        // 表の欄の中で字間を 0.5em 空けて組んだ語（kanpo-pdf が 1 語にしたもの）と、隣の欄の 1 字。
+        // 1 字語の並びだったときと同じく、列の溝を探すときはつなぐ（溝を列の境目とみなさない）が、
+        // 行の文字列では別のセルとして空白を挟む。
+        let words = vec![w(173.0, 253.0, 100.0, "ル入り粒状複合"), w(261.0, 269.0, 100.0, "社")];
+        assert_eq!(letter_spaced(&words, true), [false, true]);
+        assert_eq!(letter_spaced(&words, false), [false, false]);
+        assert_eq!(render_line(&words), "ル入り粒状複合\u{3000}社");
+        // 字間を空けていない語の後ろの 1 字はつながない。
+        let words = vec![w(173.0, 221.0, 100.0, "くみあい苦土"), w(229.0, 237.0, 100.0, "社")];
+        assert_eq!(letter_spaced(&words, true), [false, false]);
     }
 
     fn read(words: Vec<Col>) -> String {

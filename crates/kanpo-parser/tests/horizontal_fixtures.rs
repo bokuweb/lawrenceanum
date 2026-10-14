@@ -58,7 +58,7 @@ fn saga_minimum_wage_single_column_page() {
          規定により公示する。\n\
          令和８年10月２日\n\
          佐賀労働局長　田之上英治\n\
-         第４号中「１時間1030円」を「１時間1095円」\n\
+         第４号中「１時間1,030円」を「１時間1,095円」\n\
          に改める。\n\
          附則\n\
          この決定は、令和８年11月15日から効力を生ず\n\
@@ -85,7 +85,7 @@ fn hyogo_minimum_wage_multi_column_page() {
         "{seg}"
     );
     assert!(
-        seg.contains("第４号中「１時間1117円」を「１時間1173円」\nに改める。"),
+        seg.contains("第４号中「１時間1,117円」を「１時間1,173円」\nに改める。"),
         "{seg}"
     );
     assert!(
