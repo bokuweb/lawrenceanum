@@ -15,6 +15,7 @@ laws: ["345AC0000000145"]
 stages: [{"date":"2026-07-15","kind":"received","label":"衆議院で受理"},{"date":"2026-07-23","kind":"referred","label":"衆議院 経済産業に付託"}]
 tags: []
 render_version: 2
+llm_latest_date: "2026-07-23"
 ---
 
 # 受託中小企業振興法の一部を改正する法律案
@@ -22,6 +23,21 @@ render_version: 2
 ## 概要と経緯
 
 <!-- llm:begin -->
+**提出理由**: 受託中小企業の一層の振興を図るため、振興基準や振興事業、国の責務等に関する規定を追加する必要があるとされた[^1]。
+
+**主な内容**
+- 振興事業計画で定める振興事業の例示に、委託事業者による関係中小受託事業者における適正な対価の決定の状況の把握を追加する[^2]。
+- 経済産業大臣が定める振興基準の事項に、中小受託事業者の人材の育成に関する事項を追加する[^3]。
+
+**審議の経過**
+- 2026-07-15 衆議院で受理（国民民主党・無所属クラブの議員提出）。
+- 2026-07-23 衆議院の経済産業に付託。
+
+**結果**: 閉会中審査とされた。
+
+[^1]: [gian:221/1DE2BF2#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22105032.htm) 「受託中小企業の一層の振興を図るため」
+[^2]: [gian:221/1DE2BF2#outline](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/youkou/g22105032.htm) 「委託事業者による関係中小受託事業者における適正な対価の決定の状況の把握を追加する」
+[^3]: [gian:221/1DE2BF2#outline](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/youkou/g22105032.htm) 「中小受託事業者の人材の育成に関する事項を追加する」
 <!-- llm:end -->
 
 <!-- lawpub:begin meta -->
