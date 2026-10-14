@@ -165,7 +165,8 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
 /// 見出しの無い隣り合う 2 段（上の段 `a`・下の段 `b`）が、新旧対照表の改正後帯・改正前帯の
 /// 組に見えるか。継続ページが 4 段（改正後・改正前・改正後・改正前）に組まれる場合に、段の組
 /// ごとに判定する。高さと左右の範囲がほぼ揃い、本文が順序も含めてほぼ同じで、省略・新設の印が
-/// あること、または上の段に「略」・下の段に「同上」があって両段の列が同じ x に並ぶことを求める。
+/// あること、または上の段に「略」・下の段に「同上」（か「（削る）」「（新設）」）があって両段の列が
+/// 同じ x に並ぶことを求める。
 pub(crate) fn tiers_look_like_bands(a: &[Col], b: &[Col]) -> bool {
     if a.len() < 3 || b.len() < 3 {
         return false;
@@ -192,9 +193,14 @@ pub(crate) fn tiers_look_like_bands(a: &[Col], b: &[Col]) -> bool {
         return true;
     }
     // 改正前の欄が「〔同上〕」ばかりで本文が似ていなくても、上の段に「略」、下の段に「同上」
-    // 「同左」があり、両段の列が同じ x に並んでいれば帯の組（対応する行を同じ x に組む）。
+    // 「同左」があるか、「（削る）」「（新設）」（改め文の「…を削る。」とは違って括弧に入る）が
+    // 合わせて 2 つ以上あって（削った条ばかりの帯は似ていない）、両段の列が同じ x に並んでいれば
+    // 帯の組（対応する行を同じ x に組む）。
     let count = |t: &str, marks: &[&str]| marks.iter().map(|m| t.matches(m).count()).sum::<usize>();
-    if count(&at, &["略）", "略〕", "略］"]) < 2 || count(&bt, &["同上）", "同上〕", "同左）", "同左］"]) < 2 {
+    let omitted = count(&at, &["略）", "略〕", "略］"]) >= 2 && count(&bt, &["同上）", "同上〕", "同左）", "同左］"]) >= 2;
+    let changed = |t: &str| count(t, &["削る）", "削る〕", "削る］", "新設）", "新設〕", "新設］", "削る。〕", "加える。〕"]);
+    let changed = changed(&at) + changed(&bt) >= 2;
+    if !omitted && !changed {
         return false;
     }
     let heads = |g: &[Col]| -> Vec<f32> { column_groups(g.to_vec()).iter().map(|g| g[0].x).collect() };
@@ -203,14 +209,24 @@ pub(crate) fn tiers_look_like_bands(a: &[Col], b: &[Col]) -> bool {
     let matched = hb.iter().filter(|&&x| hit(x, &ha)).count();
     // 前のページの続き（片方の帯の右端にだけある列）は数えない: 右から最初に揃う列までを除く。
     let rest = |own: &[f32], other: &[f32]| own.len() - own.iter().take_while(|&&x| !hit(x, other)).count();
-    matched >= 4 && matched * 10 >= rest(&ha, &hb).max(rest(&hb, &ha)) * 6
+    let (ra, rb) = (rest(&ha, &hb), rest(&hb, &ha));
+    if omitted && matched >= 4 && matched * 10 >= ra.max(rb) * 6 {
+        return true;
+    }
+    // 削った条・新設の条の行は片方の帯が空いて列が疎になるので、疎な方の段の列がほぼ全部もう
+    // 片方の段の列と揃うこと（同じ行送りの 2 段組みでも揃うので、印のあるときだけ）。両方の印が
+    // あれば、行の長さが違って行頭だけが揃う帯も採る。
+    let need = if omitted && changed { 6 } else { 8 };
+    changed && matched >= 6 && matched * 10 >= ra.min(rb) * need
 }
 
 /// 新旧対照表に特有の省略・新設の印（「（略）」「〔九〜一六　略〕」「〔同上〕」「［同左］」
-/// 「（新設）」「（削る）」）があるか。
+/// 「（新設）」「（削る）」「〔条を削る。〕」「〔項を加える。〕」）があるか。
 fn has_shinkyu_marks(t: &str) -> bool {
-    const MARKS: [&str; 13] = [
+    const MARKS: [&str; 15] = [
         "略）", "略〕", "略］", "同上）", "同上〕", "同左］", "同左）", "新設）", "新設〕", "新設］", "削る）", "削る〕",
+        // 「〔条を削る。〕」「〔項を加える。〕」の書き方。
+        "削る。〕", "加える。〕",
         // 表の注記（「備考　表中の〔　〕の記載は注記である。」）。
         "記載は注記である",
     ];

@@ -485,24 +485,54 @@ fn align_rows_by(
         }
         rows.push((after, before));
     }
-    // 「附則」などの見出しの後の「（新設）」「（削る）」は、片側が空の次の行（新設・削った条）のもの。
-    for i in 1..rows.len() {
+    // 「附則」などの見出しの後の「（新設）」「（削る）」（いくつか並ぶこともある）は、片側が空の
+    // 次の行（新設・削った条）のもの。印 1 つを片側が空の行 1 つへ順に移す。
+    for i in 0..rows.len() {
         for side in [0, 1] {
-            let (prev, cur) = rows.split_at_mut(i);
-            let (p, c) = if side == 0 { (&mut prev[i - 1].0, &mut cur[0].0) } else { (&mut prev[i - 1].1, &mut cur[0].1) };
-            if !c.trim().is_empty() {
+            let cell = |r: &(String, String)| if side == 0 { r.0.clone() } else { r.1.clone() };
+            let empty = rows[i + 1..].iter().take_while(|r| cell(r).trim().is_empty()).count();
+            if empty == 0 {
                 continue;
             }
-            let trimmed = p.trim_end();
-            let Some(pos) = trimmed.rfind('\n') else { continue };
-            let last = trimmed[pos + 1..].trim();
-            if last == "（新設）" || last == "（削る）" {
-                *c = last.to_string();
-                p.truncate(pos);
+            let text = cell(&rows[i]);
+            let (keep, marks) = split_trailing_marks(&text);
+            if marks.is_empty() {
+                continue;
+            }
+            // 印が空の行より多ければ、余りの（先の）印は元の行に残す。
+            let moved = marks.len().min(empty);
+            let mut kept: Vec<String> = keep.lines().map(str::to_string).collect();
+            kept.extend(marks[..marks.len() - moved].iter().cloned());
+            let set = |r: &mut (String, String), v: String| if side == 0 { r.0 = v } else { r.1 = v };
+            set(&mut rows[i], kept.join("\n"));
+            for (k, m) in marks[marks.len() - moved..].iter().enumerate() {
+                set(&mut rows[i + 1 + k], m.clone());
             }
         }
     }
     Some(rows.into_iter().map(|(a, b)| ShinkyuRow { after: cell_runs_from_str(&a), before: cell_runs_from_str(&b), ..Default::default() }).collect())
+}
+
+/// セルの末尾の、印だけの行（「（新設）」「〔新設〕〔新設〕」など）の印を分ける。`(残り, 印)`。
+fn split_trailing_marks(text: &str) -> (String, Vec<String>) {
+    const MARKS: [&str; 6] = ["（新設）", "〔新設〕", "［新設］", "（削る）", "〔削る〕", "［削る］"];
+    let mut lines: Vec<&str> = text.trim_end().lines().collect();
+    let mut marks: Vec<String> = Vec::new();
+    while let Some(last) = lines.last() {
+        let mut rest = last.trim();
+        let mut found: Vec<String> = Vec::new();
+        while let Some(m) = MARKS.iter().find(|m| rest.starts_with(**m)) {
+            found.push(m.to_string());
+            rest = rest[m.len()..].trim_start();
+        }
+        if found.is_empty() || !rest.is_empty() || lines.len() == 1 {
+            break;
+        }
+        lines.pop();
+        found.extend(marks);
+        marks = found;
+    }
+    (lines.join("\n"), marks)
 }
 
 /// 文字列（複数行）を列折り返し結合してセルの Run 列にする。
@@ -534,7 +564,7 @@ fn segment_band(lines: &[&str], is_heading: fn(&str) -> Option<String>) -> Vec<S
     for &line in lines {
         // 「（見出し）」（折り返して複数行のこともある）のすぐ後の「第○条　…」は見出しと同じ行。
         let caption: String = cur.iter().map(|l| l.trim()).collect();
-        let under_caption = article_number(line).is_some() && caption.starts_with('（') && caption.ends_with('）');
+        let under_caption = article_number(line).is_some() && is_one_paren(&caption);
         if let Some(key) = is_heading(line).filter(|_| !under_caption) {
             // 条の書き出しの直前の「（見出し）」（折り返して複数行のこともある）は新しい行へ移す。
             let mut carried: Vec<&str> = Vec::new();
@@ -570,6 +600,26 @@ fn segment_band(lines: &[&str], is_heading: fn(&str) -> Option<String>) -> Vec<S
         }
     }
     segs
+}
+
+/// 全体が 1 つの「（…）」か（中の括弧は入れ子で数える）。「（見出し）…本文…（見出し）」は違う。
+fn is_one_paren(s: &str) -> bool {
+    let mut depth = 0usize;
+    let n = s.chars().count();
+    for (i, c) in s.chars().enumerate() {
+        match c {
+            '（' => depth += 1,
+            '）' => {
+                depth = depth.saturating_sub(1);
+                if depth == 0 && i + 1 < n {
+                    return false;
+                }
+            }
+            _ if depth == 0 => return false,
+            _ => {}
+        }
+    }
+    n > 0 && depth == 0
 }
 
 /// 行見出し（新旧対照表の 1 行の先頭）なら、その行（対応付けの鍵）を返す。
@@ -823,6 +873,23 @@ mod tests {
         assert_eq!(rows.len(), 2, "{rows:?}");
         assert_eq!(rows[0].before[0].text.trim(), "附　則");
         assert_eq!(rows[1].before[0].text.trim(), "（新設）");
+    }
+
+    #[test]
+    fn splits_rows_at_article_after_changed_caption() {
+        // 見出しの文言が変わった条（改正後と改正前で見出しが違う）が続いても、条ごとの行に分ける。
+        let after = "（甲室）\n第一条　甲\n（削る）\n（乙室）\n第二条　乙";
+        let before = "（甲室及び丙室）\n第一条　甲\n２　丙\n（乙室及び丁室）\n第二条　乙";
+        let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
+        let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
+        assert_eq!(rows.len(), 2, "{rows:?}");
+        assert!(rows[1].after[0].text.starts_with("（乙室）") && rows[1].before[0].text.starts_with("（乙室及び丁室）"));
+    }
+
+    #[test]
+    fn one_paren_caption() {
+        assert!(is_one_paren("（令附則第四条（経過措置）の申出）"));
+        assert!(!is_one_paren("（甲室）第一条　甲（乙室）"));
     }
 
     #[test]
