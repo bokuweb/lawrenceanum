@@ -430,8 +430,9 @@ fn splice_tables(runs: Vec<Run>, tables: &[Table]) -> Vec<Run> {
 /// （新設・削除）はもう一方が空セルの行になる。見出しが揃わない/少ない場合は単一行に
 /// フォールバックする（＝従来挙動、退行なし）。
 fn align_rows(after_lines: &[&str], before_lines: &[&str]) -> Vec<ShinkyuRow> {
-    align_rows_by(after_lines, before_lines, is_row_heading)
-        .or_else(|| align_rows_by(after_lines, before_lines, go_heading_key))
+    align_rows_by(after_lines, before_lines, is_row_heading, 2)
+        .or_else(|| align_rows_by(after_lines, before_lines, go_heading_key, 2))
+        .or_else(|| align_rows_by(after_lines, before_lines, article_number, 1))
         .unwrap_or_else(|| vec![single_row(after_lines, before_lines)])
 }
 
@@ -441,13 +442,16 @@ fn align_rows_by(
     after_lines: &[&str],
     before_lines: &[&str],
     heading: fn(&str) -> Option<String>,
+    min_heads: usize,
 ) -> Option<Vec<ShinkyuRow>> {
     let a = segment_band(after_lines, heading);
     let b = segment_band(before_lines, heading);
     let a_head = a.iter().filter(|s| s.heading.is_some()).count();
     let b_head = b.iter().filter(|s| s.heading.is_some()).count();
-    // 見出しが両側に 2 つ以上無ければ行分割しない。
-    if a_head < 2 || b_head < 2 {
+    // 見出しが両側に `min_heads` 個以上無いか、分ける所が無ければ行分割しない（条の見出しは
+    // 1 つでよい: ページの続きで前の条の続きの後に見出しが 1 つだけ来るときは、続きと見出しの
+    // 条の 2 行に分ける。号の番号での分割は誤りやすいので 2 つ以上）。
+    if a_head < min_heads || b_head < min_heads || (a.len() < 2 && b.len() < 2) {
         return None;
     }
     let keys_a: Vec<&str> = a.iter().map(|s| s.heading.as_deref().unwrap_or("")).collect();
@@ -510,7 +514,25 @@ fn segment_band(lines: &[&str], is_heading: fn(&str) -> Option<String>) -> Vec<S
     let mut heading: Option<String> = None;
     let mut cur: Vec<&str> = Vec::new();
     for &line in lines {
-        if let Some(key) = is_heading(line) {
+        // 「（見出し）」（折り返して複数行のこともある）のすぐ後の「第○条　…」は見出しと同じ行。
+        let caption: String = cur.iter().map(|l| l.trim()).collect();
+        let under_caption = article_number(line).is_some() && caption.starts_with('（') && caption.ends_with('）');
+        if let Some(key) = is_heading(line).filter(|_| !under_caption) {
+            // 条の書き出しの直前の「（見出し）」（折り返して複数行のこともある）は新しい行へ移す。
+            let mut carried: Vec<&str> = Vec::new();
+            if article_number(line).is_some() && cur.last().is_some_and(|l| l.trim().ends_with('）')) {
+                let mut k = cur.len();
+                while k > 0 {
+                    k -= 1;
+                    let tail: String = cur[k..].iter().map(|l| l.trim()).collect();
+                    if tail.starts_with('（') {
+                        if k > 0 && tail.chars().filter(|c| *c == '（').count() == 1 {
+                            carried = cur.split_off(k);
+                        }
+                        break;
+                    }
+                }
+            }
             if !cur.is_empty() {
                 let text = cur.join("\n").trim().to_string();
                 if !text.is_empty() {
@@ -519,6 +541,7 @@ fn segment_band(lines: &[&str], is_heading: fn(&str) -> Option<String>) -> Vec<S
                 cur.clear();
             }
             heading = Some(key);
+            cur.extend(carried);
         }
         cur.push(line);
     }
@@ -540,6 +563,10 @@ fn is_row_heading(line: &str) -> Option<String> {
     if starts_with_spaced(t, "別表") || starts_with_spaced(t, "附則") {
         return key;
     }
+    // 見出しの無い条（前の条の見出しを共有する「第六条の二　…」）。鍵は条番号。
+    if let Some(num) = article_number(t) {
+        return Some(num);
+    }
     if let Some(rest) = t.strip_prefix('（') {
         if let Some(inner) = rest.strip_suffix('）') {
             // 凡例「（傍線部分は…）」は条見出しではない（注記であり、片側だけの偽行を生む）。
@@ -552,6 +579,36 @@ fn is_row_heading(line: &str) -> Option<String> {
         }
     }
     None
+}
+
+/// 行が条の書き出し（`第六条の二　…`。条番号の後に全角空白）なら条番号。列の折り返しで
+/// 行頭に来た「第三条の規定により」（空白が無い）は条の書き出しではない。
+fn article_number(line: &str) -> Option<String> {
+    const NUM: &str = "〇一二三四五六七八九十百千";
+    let t = line.trim();
+    let rest = t.strip_prefix('第')?;
+    let n = rest.chars().take_while(|c| NUM.contains(*c)).count();
+    if n == 0 {
+        return None;
+    }
+    let mut chars: Vec<char> = rest.chars().collect();
+    if chars.get(n) != Some(&'条') {
+        return None;
+    }
+    let mut end = n + 1;
+    // 枝番号（「の二」「の二の三」）。
+    while chars.get(end) == Some(&'の') {
+        let m = chars[end + 1..].iter().take_while(|c| NUM.contains(**c)).count();
+        if m == 0 {
+            break;
+        }
+        end += 1 + m;
+    }
+    if chars.get(end) != Some(&'\u{3000}') {
+        return None;
+    }
+    chars.truncate(end);
+    Some(format!("第{}", chars.into_iter().collect::<String>()))
 }
 
 /// 号の見出し行（`一　（略）`・`二　次に掲げる…`）なら号番号を鍵として返す。
@@ -713,6 +770,26 @@ mod tests {
         let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
         assert_eq!(rows.len(), 2, "{rows:?}");
         assert!(rows[1].after[0].text.contains("新") && rows[1].before[0].text.contains("旧"));
+    }
+
+    #[test]
+    fn splits_rows_at_article_without_caption() {
+        // 前の条の見出しを共有する「第六条の二」は別の行。見出しの直後の「第六条」は見出しと同じ行。
+        let after = "（免許を要しない無線局）\n第六条　〔略〕\n第六条の二　法第四条第三号の総務省令で定める機能は、次のとおり。";
+        let before = "（免許を要しない無線局）\n第六条　〔同上〕\n第六条の二　〔同上〕";
+        let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
+        let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
+        assert_eq!(rows.len(), 2, "{rows:?}");
+        assert!(rows[0].after[0].text.starts_with("（免許を要しない無線局）\n第六条"));
+        assert!(rows[1].after[0].text.starts_with("第六条の二") && rows[1].before[0].text.starts_with("第六条の二"));
+    }
+
+    #[test]
+    fn article_number_needs_space_after_number() {
+        assert_eq!(article_number("第六条の二　法第四条").as_deref(), Some("第六条の二"));
+        assert_eq!(article_number("第六十五条の十四　令第八十七条"), Some("第六十五条の十四".to_string()));
+        // 列の折り返しで行頭に来た参照は条の書き出しではない。
+        assert_eq!(article_number("第三条の規定により"), None);
     }
 
     #[test]
