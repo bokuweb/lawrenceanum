@@ -59,14 +59,15 @@ fn is_notice_title(line: &str, prev: Option<&str>) -> bool {
         && prev.is_some_and(|p| p.trim_end().ends_with('。'))
 }
 
-/// 行が記事の `〇` 見出し（「〇総務省令第七十七号」）で始まるか。漢数字の零（「〇・五ミリ
-/// リットル」「〇　五〇」）や単独の印の「〇」は見出しではない。
+/// 行が記事の `〇` 見出し（「〇総務省令第七十七号」）で始まるか。見出しは「〇」の直後に機関名
+/// （漢字）が続く。漢数字の零（「〇・五ミリリットル」「〇　五〇」、改め文の「…〇」を「…」に」の
+/// 折り返し）や単独の印の「〇」は見出しではない。
 pub(crate) fn is_heading_mark(t: &str) -> bool {
     let mut chars = t.chars();
     chars.next() == Some('〇')
         && chars
             .next()
-            .is_some_and(|c| !c.is_whitespace() && !c.is_ascii_digit() && !"・．.，、〇一二三四五六七八九十百千０１２３４５６７８９".contains(c))
+            .is_some_and(|c| ('\u{4E00}'..='\u{9FFF}').contains(&c) && !"〇一二三四五六七八九十百千".contains(c))
 }
 
 /// 官報本文に現れる区分（記事カテゴリ）見出し。これらが独立行で現れたら別記事の開始とみなす。
@@ -105,7 +106,7 @@ mod tests {
     #[test]
     fn zero_numeral_is_not_heading() {
         // 「〇・五ミリリットル」の漢数字の零で始まる行で記事を切らない。
-        let text = "〇厚生労働省令第百号\n接種量は、\n〇・五ミリリットルとする方法\n〇　五〇　鳥取県";
+        let text = "〇厚生労働省令第百号\n接種量は、\n〇・五ミリリットルとする方法\n〇　五〇　鳥取県\n〇」を「六〇一、七〇〇」に改める。";
         assert_eq!(segment_articles(text).len(), 1);
         assert!(is_heading_mark("〇財務省、厚生労働省、令第七号"));
         assert!(!is_heading_mark("〇"));

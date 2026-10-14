@@ -144,14 +144,27 @@ pub fn analyze_item(pages: &[PageInput]) -> Analysis {
 /// 本文ヘッダには対象法令名のあとに法令番号「（…）」が挿入されるため、標題そのものの
 /// 完全一致では拾えない。対象法令名（「の一部を」「を廃止」より前）を鍵に、まず完全一致、
 /// 次に前方一致を縮めながら探し、制定文らしい（「次のように」「改める」等を含む）長い記事を採る。
+///
+/// 本文は行の途中で折り返されるので空白・改行を除いて比べる。対象法令名が短い（「種苗法」）
+/// ときは制定機関略号を除いた標題全体を鍵にする。それでも見つからなければ、数字（漢数字・
+/// 算用数字）とダッシュを除いて比べ直す（標題「人事院規則二―四」・本文「人事院規則２－４」）。
 pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> {
     // ダッシュ類は標題（―）と本文（－）で字が違うことがあるので揃えて比べる。
     let unify = |s: &str| -> String {
-        s.chars().map(|c| if matches!(c, '―' | '—' | '‐' | '‑' | '–' | '-') { '－' } else { c }).collect()
+        s.chars()
+            .filter(|c| !c.is_whitespace())
+            .map(|c| if matches!(c, '―' | '—' | '‐' | '‑' | '–' | '-') { '－' } else { c })
+            .collect()
     };
-    let core = unify(&title_core(title));
+    let loose = |s: &str| -> String {
+        unify(s).chars().filter(|c| !c.is_ascii_digit() && !"０１２３４５６７８９〇一二三四五六七八九十百千－".contains(*c)).collect()
+    };
+    let mut core = unify(&title_core(title));
     if core.chars().count() < 4 {
-        return None;
+        core = unify(title.rfind('（').map_or(title, |p| &title[..p]));
+        if core.chars().count() < 6 {
+            return None;
+        }
     }
     // 前置き（「…の規定に基づき、」「…の規定により、」）の付いた標題は、その後ろでも照合する。
     let mut cores = vec![core.clone()];
@@ -163,27 +176,38 @@ pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> 
             }
         }
     }
-    let mut keys: Vec<String> = Vec::new();
-    for c in &cores {
-        keys.push(c.clone());
-        let chars: Vec<char> = c.chars().collect();
-        let mut len = chars.len().saturating_sub(2);
-        while len >= 6 {
-            keys.push(chars[..len].iter().collect());
-            len = len.saturating_sub(4);
+    let keys_of = |cores: &[String]| -> Vec<String> {
+        let mut keys: Vec<String> = Vec::new();
+        for c in cores {
+            keys.push(c.clone());
+            let chars: Vec<char> = c.chars().collect();
+            let mut len = chars.len().saturating_sub(2);
+            while len >= 6 {
+                keys.push(chars[..len].iter().collect());
+                len = len.saturating_sub(4);
+            }
         }
-    }
+        keys.retain(|k| k.chars().count() >= 4);
+        keys
+    };
     let body_score = |s: &str| -> usize {
         let markers = ["の規定に基づき", "次のように", "に改める", "を加える", "定める"];
         markers.iter().filter(|m| s.contains(*m)).count() * 1000 + s.chars().count()
     };
+    let best = |keys: &[String], texts: &[String]| {
+        articles
+            .iter()
+            .enumerate()
+            .filter(|(i, _)| keys.iter().any(|k| texts[*i].contains(k.as_str())))
+            .max_by_key(|(_, a)| body_score(&a.text))
+            .map(|(i, _)| i)
+    };
     let texts: Vec<String> = articles.iter().map(|a| unify(&a.text)).collect();
-    articles
-        .iter()
-        .enumerate()
-        .filter(|(i, _)| keys.iter().any(|k| texts[*i].contains(k.as_str())))
-        .max_by_key(|(_, a)| body_score(&a.text))
-        .map(|(i, _)| i)
+    best(&keys_of(&cores), &texts).or_else(|| {
+        let cores: Vec<String> = cores.iter().map(|c| loose(c)).filter(|c| c.chars().count() >= 6).collect();
+        let texts: Vec<String> = articles.iter().map(|a| loose(&a.text)).collect();
+        best(&keys_of(&cores), &texts)
+    })
 }
 
 /// 標題から突合の鍵となる「対象法令名」を取り出す（末尾の制定機関略号と「の一部を…」を除く）。
@@ -320,5 +344,33 @@ fn to_nested(t: &table::GridTable) -> model::NestedTable {
                     .collect()
             })
             .collect(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn arts(texts: &[&str]) -> Vec<ArticleAnalysis> {
+        texts.iter().map(|t| ArticleAnalysis { text: t.to_string(), document: model::Document::from_text(t) }).collect()
+    }
+
+    #[test]
+    fn picks_article_across_line_breaks() {
+        let a = arts(&["〇防衛省令第十八号\n自衛隊法施行規則の一部を次のように改正する。", "〇個人情報保護委員会告示第一号\n…第九条の規定に基づき、金\n融分野における個人情報保護に関するガイドラインの一部を次のように改正し"]);
+        assert_eq!(pick_article("金融分野における個人情報保護に関するガイドラインの一部を改正する件（個人情報保護委・金融庁一）", &a), Some(1));
+    }
+
+    #[test]
+    fn picks_article_with_short_law_name() {
+        let a = arts(&["〇農林水産省令第五十号\n種苗法施行規則の一部を次のように改正する。", "種苗法の一部を改正する法律をここに公布する。\n御名御璽"]);
+        assert_eq!(pick_article("種苗法の一部を改正する法律（七二）", &a), Some(1));
+    }
+
+    #[test]
+    fn picks_article_ignoring_numeral_style() {
+        let a = arts(&["人事院公示第26号\n人事院は、人事院規則２４（人事院の職員に対する権限の委任）第２項の規定に基づき、昭和38年人事院公示第５号の一部を次のように改正する。"]);
+        let title = "人事院規則二―四（人事院の職員に対する権限の委任）第二項の規定に基づき、昭和三十八年人事院公示第五号の一部を改正する件（人事院二六）";
+        assert_eq!(pick_article(title, &a), Some(0));
     }
 }
