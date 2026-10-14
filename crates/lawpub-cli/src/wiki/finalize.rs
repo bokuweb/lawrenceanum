@@ -258,6 +258,10 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
                 rows.push((d.clone(), 1, "パブコメ", format!("結果公示: {link}{n}{summary}")));
             }
         }
+        // 官報 (wiki-plan が frontmatter `kanpo` にためた項目)。改正対象の項目は、同じ日・同じ標題の
+        // 公布の行があればその行に官報へのリンクを付け、無ければ (e-Gov 未反映・告示の改正) 行を足す。
+        let kanpo: Vec<&Value> = page.get("kanpo").and_then(Value::as_array).into_iter().flatten().collect();
+        let mut kanpo_used = vec![false; kanpo.len()];
         for r in page.get("revisions").and_then(Value::as_array).into_iter().flatten() {
             let (Some(date), Some(label)) = (r["date"].as_str(), r["label"].as_str()) else { continue };
             let kind = match r["kind"].as_str() {
@@ -265,6 +269,19 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
                 Some("scheduled") => "施行予定",
                 _ => "施行",
             };
+            let kanpo_hit = (kind == "公布")
+                .then(|| {
+                    kanpo.iter().position(|k| {
+                        k["relation"] == "amends"
+                            && k["date"].as_str() == Some(date)
+                            && k["title"].as_str().map(kanpo_linker::title::strip_agency).is_some_and(|t| !t.is_empty() && label.contains(t))
+                    })
+                })
+                .flatten();
+            let kanpo_link = kanpo_hit
+                .and_then(|i| kanpo[i]["pdf_url"].as_str())
+                .map(|u| format!(" — [官報]({u})"))
+                .unwrap_or_default();
             // 改正法の法律番号で議案ページにつなぐ (国会審議 → 公布 → 施行)。
             let bill = r["law_num"]
                 .as_str()
@@ -277,7 +294,21 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
             if !direct && bill.is_empty() && date < revision_cutoff.as_str() {
                 continue;
             }
-            rows.push((date.to_string(), 0, kind, format!("{label}{bill}")));
+            if let Some(i) = kanpo_hit {
+                kanpo_used[i] = true;
+            }
+            rows.push((date.to_string(), 0, kind, format!("{label}{bill}{kanpo_link}")));
+        }
+        for (k, _) in kanpo.iter().zip(&kanpo_used).filter(|(_, used)| !**used) {
+            let (Some(date), Some(title), Some(url)) = (k["date"].as_str(), k["title"].as_str(), k["pdf_url"].as_str()) else {
+                continue;
+            };
+            let place = match k["page"].as_u64() {
+                Some(p) => format!("{}・{p}ページ", k["issue"].as_str().unwrap_or("")),
+                None => k["issue"].as_str().unwrap_or("").to_string(),
+            };
+            let note = if k["relation"] == "basis" { "。この法令に基づく告示等" } else { "" };
+            rows.push((date.to_string(), 0, "官報", format!("[{title}]({url})（{place}{note}）")));
         }
         rows.sort_by(|a, b| b.0.cmp(&a.0).then_with(|| a.1.cmp(&b.1)).then_with(|| a.3.cmp(&b.3)));
         let mut table = String::from("| 日付 | 種別 | 内容 |\n|---|---|---|\n");
@@ -827,6 +858,43 @@ mod tests {
             "付託は議案ページだけに載せる"
         );
         assert!(std::fs::read_to_string(wiki.join("index.md")).unwrap().contains("## 最近の議案（1）"));
+        std::fs::remove_dir_all(root).ok();
+    }
+
+    #[test]
+    fn law_timeline_links_kanpo_to_promulgation_or_adds_kanpo_rows() {
+        let summary = "質疑[^1]。\n\n[^1]: [kokkai:M1_001](https://kokkai.ndl.go.jp/txt/M1/1) 「副反応の救済を拡充すべき」";
+        let (root, wiki, work) = setup("予防接種法の救済拡充を質疑", summary);
+        std::fs::write(
+            wiki.join("laws/L1.md"),
+            law().replace(
+                "law_id: \"L1\"\n",
+                concat!(
+                    "law_id: \"L1\"\n",
+                    "revisions: [{\"date\":\"2026-09-01\",\"kind\":\"promulgated\",\"label\":\"公布: 予防接種法施行令の一部を改正する政令（令和八年政令第三百号）\",\"law_num\":\"令和八年政令第三百号\"}]\n",
+                    "kanpo: [",
+                    "{\"date\":\"2026-10-09\",\"issue\":\"号外第223号\",\"page\":2,\"title\":\"予防接種法の一部を改正する法律の一部の施行期日を定める政令（三二二）\",\"pdf_url\":\"https://k/p2.pdf\",\"relation\":\"amends\"},",
+                    "{\"date\":\"2026-10-05\",\"issue\":\"本紙第1600号\",\"page\":4,\"title\":\"予防接種法第五条の規定に基づき、定期接種の対象を定める件の一部を改正する件（厚生労働三〇〇）\",\"pdf_url\":\"https://k/p4.pdf\",\"relation\":\"basis\"},",
+                    "{\"date\":\"2026-09-01\",\"issue\":\"号外第190号\",\"page\":1,\"title\":\"予防接種法施行令の一部を改正する政令（三〇〇）\",\"pdf_url\":\"https://k/p1.pdf\",\"relation\":\"amends\"}",
+                    "]\n",
+                ),
+            ),
+        )
+        .unwrap();
+        run_finalize(&FinalizeArgs { wiki: wiki.clone(), work }).unwrap();
+
+        let law = std::fs::read_to_string(wiki.join("laws/L1.md")).unwrap();
+        let rows: Vec<&str> = law.lines().filter(|l| l.starts_with("| 2026-")).collect();
+        assert_eq!(
+            rows,
+            vec![
+                "| 2026-10-09 | 官報 | [予防接種法の一部を改正する法律の一部の施行期日を定める政令（三二二）](https://k/p2.pdf)（号外第223号・2ページ） |",
+                "| 2026-10-05 | 官報 | [予防接種法第五条の規定に基づき、定期接種の対象を定める件の一部を改正する件（厚生労働三〇〇）](https://k/p4.pdf)（本紙第1600号・4ページ。この法令に基づく告示等） |",
+                "| 2026-10-01 | 国会 | [参議院 厚生労働委員会 第1号](../meetings/kokkai/M1.md) — 予防接種法の救済拡充を質疑 |",
+                "| 2026-09-01 | 公布 | 公布: 予防接種法施行令の一部を改正する政令（令和八年政令第三百号） — [官報](https://k/p1.pdf) |",
+            ],
+            "e-Gov に反映済みの公布は行を重ねずに官報へつなぐ"
+        );
         std::fs::remove_dir_all(root).ok();
     }
 

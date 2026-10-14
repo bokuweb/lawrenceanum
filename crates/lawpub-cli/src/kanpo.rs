@@ -245,9 +245,13 @@ fn title_match_score(ev_core: &str, item_title: &str) -> f64 {
 }
 
 /// `lawpub kanpo-link` — `.cache/kanpo/*.json` を読み、`public/laws/*/timeline.json`
-/// の各イベントに官報マッチングを書き戻し、`public/kanpo/{date}/index.json` を生成する。
+/// の各イベントに官報マッチングを書き戻し、`public/kanpo/{date}/index.json` と日付一覧
+/// `public/kanpo/index.json` を生成する。
 pub fn run_link(public: &Path) -> Result<()> {
-    let cache_dir = PathBuf::from(".cache/kanpo");
+    link(&PathBuf::from(".cache/kanpo"), public)
+}
+
+fn link(cache_dir: &Path, public: &Path) -> Result<()> {
     if !cache_dir.exists() {
         tracing::info!("no kanpo cache; skipping kanpo-link");
         return Ok(());
@@ -255,7 +259,7 @@ pub fn run_link(public: &Path) -> Result<()> {
 
     // 1) public/kanpo/{date}/index.json を出力。
     let mut by_date: Vec<(String, kanpo_client::KanpoDate)> = Vec::new();
-    for f in std::fs::read_dir(&cache_dir)? {
+    for f in std::fs::read_dir(cache_dir)? {
         let f = f?;
         if f.path().extension().and_then(|s| s.to_str()) != Some("json") {
             continue;
@@ -284,6 +288,8 @@ pub fn run_link(public: &Path) -> Result<()> {
             })
             .unwrap_or_default()
     };
+    // 標題から改正対象・根拠法令を引くための題名索引 (同名の法令は除く)。
+    let title_index = kanpo_linker::LawTitles::new(law_titles.iter().map(|(id, t)| (t.clone(), id.clone())));
 
     // 官報PDF URL → 改正対象法令 id 群 (逆引き)。timeline マッチで埋める。
     let mut reverse: std::collections::HashMap<String, std::collections::BTreeSet<String>> =
@@ -413,18 +419,31 @@ pub fn run_link(public: &Path) -> Result<()> {
         std::fs::write(&timeline_path, bytes)?;
     }
 
-    // 3) public/kanpo/{date}/index.json を逆引き (linked_laws) 付きで出力。
+    // 3) public/kanpo/{date}/index.json を逆引き (linked_laws / basis_laws) 付きで出力。
     //    官報PDF → 改正対象法令へジャンプできるようにする。
+    //    e-Gov の timeline は反映が数か月遅れて直近の官報にほぼ当たらないため、標題からも引く。
+    //    linked_laws は先頭を「主たる改正対象」として feeds / 検索索引が使うので、timeline の一致を先に置き、
+    //    告示の根拠法令は別の basis_laws に分ける。
+    let law_ref = |id: &str, matched: &str| {
+        json!({
+            "law_id": id,
+            "title": law_titles.get(id).cloned().unwrap_or_default(),
+            "match": matched,
+        })
+    };
+    let mut dates_index: Vec<serde_json::Value> = Vec::new();
     for (date, kd) in &by_date {
         let dir = public.join("kanpo").join(date);
         std::fs::create_dir_all(&dir)?;
         let mut issues_val = serde_json::to_value(&kd.issues)?;
+        let (mut item_count, mut linked_count) = (0usize, 0usize);
         if let Some(issues) = issues_val.as_array_mut() {
             for issue in issues.iter_mut() {
                 let Some(items) = issue.get_mut("items").and_then(|x| x.as_array_mut()) else {
                     continue;
                 };
                 for item in items.iter_mut() {
+                    item_count += 1;
                     let item_title = item
                         .get("title")
                         .and_then(|v| v.as_str())
@@ -433,18 +452,33 @@ pub fn run_link(public: &Path) -> Result<()> {
                     if item_title.is_empty() {
                         continue;
                     }
-                    if let Some(ids) = reverse.get(&format!("{date}\u{1f}{item_title}")) {
-                        let linked: Vec<serde_json::Value> = ids
-                            .iter()
-                            .map(|id| {
-                                json!({
-                                    "law_id": id,
-                                    "title": law_titles.get(id).cloned().unwrap_or_default(),
-                                })
-                            })
-                            .collect();
-                        if let Some(obj) = item.as_object_mut() {
+                    let mut linked: Vec<serde_json::Value> = Vec::new();
+                    let mut seen = std::collections::BTreeSet::new();
+                    for id in reverse.get(&format!("{date}\u{1f}{item_title}")).into_iter().flatten() {
+                        if seen.insert(id.clone()) {
+                            linked.push(law_ref(id, "timeline"));
+                        }
+                    }
+                    let by_title = kanpo_linker::title_links(&item_title, &title_index);
+                    for id in &by_title.amends {
+                        if seen.insert(id.clone()) {
+                            linked.push(law_ref(id, "title"));
+                        }
+                    }
+                    let basis: Vec<serde_json::Value> = if linked.is_empty() {
+                        by_title.basis.iter().map(|id| law_ref(id, "title")).collect()
+                    } else {
+                        Vec::new()
+                    };
+                    if !linked.is_empty() || !basis.is_empty() {
+                        linked_count += 1;
+                    }
+                    if let Some(obj) = item.as_object_mut() {
+                        if !linked.is_empty() {
                             obj.insert("linked_laws".into(), json!(linked));
+                        }
+                        if !basis.is_empty() {
+                            obj.insert("basis_laws".into(), json!(basis));
                         }
                     }
                 }
@@ -458,7 +492,15 @@ pub fn run_link(public: &Path) -> Result<()> {
                 "issues": issues_val,
             }),
         )?;
+        dates_index.push(json!({ "date": date, "items": item_count, "linked_items": linked_count }));
     }
+    // 4) public/kanpo/index.json: 配信している日付の一覧 (新しい順)。wiki-plan はこれを見て日付ごとの
+    //    index.json を取りに行く (休刊日を推測で叩かずに済む)。
+    dates_index.reverse();
+    write_json_pretty(
+        &public.join("kanpo").join("index.json"),
+        &json!({ "generated_at": Utc::now().to_rfc3339(), "dates": dates_index }),
+    )?;
 
     // timeline と kanpo/index.json を書き換えたので manifest を再計算。
     crate::build::rebuild_manifest(public)?;
@@ -578,6 +620,58 @@ mod tests {
             title_core("木質ペレット燃料の日本農林規格を廃止する件（農林水産七六四）"),
             "木質ペレット燃料の日本農林規格"
         );
+    }
+
+    #[test]
+    fn link_resolves_targets_from_titles_and_writes_date_index() {
+        let root = crate::wiki::temp_dir("kanpo-link");
+        let (cache, public) = (root.join("cache"), root.join("public"));
+        std::fs::create_dir_all(&cache).unwrap();
+        std::fs::create_dir_all(public.join("laws")).unwrap();
+        std::fs::write(
+            public.join("laws/index.json"),
+            serde_json::to_vec(&json!({"laws": [
+                {"law_id": "L-yushutsu", "title": "輸出貿易管理令"},
+                {"law_id": "L-gaitame-rei", "title": "外国為替令"}
+            ]}))
+            .unwrap(),
+        )
+        .unwrap();
+        let mut amend = item("輸出貿易管理令の一部を改正する政令（三二五）");
+        amend.page = 2;
+        let issue = KanpoIssue {
+            issue_type: "extra".into(),
+            issue_no: "第223号".into(),
+            pdf_url: String::new(),
+            sha256: None,
+            promulgation_date: "2026-10-09".into(),
+            law_nums: vec![],
+            titles: vec![],
+            items: vec![
+                amend,
+                item("外国為替令第七条の規定に基づき、財務大臣が指定する取引又は行為を指定する件の一部を改正する件（財務二六七）"),
+                item("日本国に帰化を許可する件（法務省告示配一四九）"),
+            ],
+            page_count: None,
+        };
+        let kd = KanpoDate { date: "2026-10-09".into(), issues: vec![issue] };
+        std::fs::write(cache.join("2026-10-09.json"), serde_json::to_vec(&kd).unwrap()).unwrap();
+
+        link(&cache, &public).unwrap();
+
+        let day: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(public.join("kanpo/2026-10-09/index.json")).unwrap()).unwrap();
+        let items = &day["issues"][0]["items"];
+        assert_eq!(items[0]["linked_laws"], json!([{"law_id": "L-yushutsu", "title": "輸出貿易管理令", "match": "title"}]));
+        assert!(items[0].get("basis_laws").is_none());
+        assert!(items[1].get("linked_laws").is_none(), "告示の改正は改正対象にしない");
+        assert_eq!(items[1]["basis_laws"][0]["law_id"], "L-gaitame-rei");
+        assert!(items[2].get("linked_laws").is_none() && items[2].get("basis_laws").is_none());
+
+        let index: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(public.join("kanpo/index.json")).unwrap()).unwrap();
+        assert_eq!(index["dates"], json!([{"date": "2026-10-09", "items": 3, "linked_items": 2}]));
+        std::fs::remove_dir_all(root).ok();
     }
 
     #[test]

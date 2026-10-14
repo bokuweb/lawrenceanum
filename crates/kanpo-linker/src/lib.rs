@@ -7,6 +7,9 @@
 use kanpo_client::KanpoIssue;
 use serde::Serialize;
 
+pub mod title;
+pub use title::{title_links, LawTitles, TitleLinks};
+
 pub const AUTO_LINK_THRESHOLD: f64 = 0.80;
 
 #[derive(Debug, Clone, Serialize)]

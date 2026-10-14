@@ -205,11 +205,11 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
         Err(e) => tracing::warn!("wiki-plan: 会議ページの更新に失敗: {e:#}"),
     }
 
-    // 議案と改正履歴 (LLM 不要) を取り込む。失敗しても会議のタスクは続ける。
+    // 議案と改正履歴・官報 (LLM 不要) を取り込む。失敗しても会議のタスクは続ける。
     match structured::sync(&source, &args.wiki, today) {
         Ok(st) => println!(
-            "wiki-plan: {} bill(s) ({} fetched), {} pubcomment(s), {} new law page(s), {} law(s) with revisions",
-            st.bills, st.bills_fetched, st.pubcomments, st.laws_created, st.laws_with_revisions
+            "wiki-plan: {} bill(s) ({} fetched), {} pubcomment(s), {} new law page(s), {} law(s) with revisions, {} law(s) with kanpo",
+            st.bills, st.bills_fetched, st.pubcomments, st.laws_created, st.laws_with_revisions, st.laws_with_kanpo
         ),
         Err(e) => tracing::warn!("wiki-plan: 議案・改正履歴の取り込みに失敗: {e:#}"),
     }
