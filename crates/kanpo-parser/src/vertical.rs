@@ -5,7 +5,7 @@ use scraper::{Html, Selector};
 use crate::horizontal::{horizontal_lines, is_left_strip_header, LEFT_STRIP};
 use crate::normalize::{is_margin_noise, is_private_use, normalize_char, private_cid_glyph, CidGlyph};
 use crate::shinkyu::{
-    band_pair_unit, detect_shinkyu_bands_headerless, detect_shinkyu_header, reconstruct_shinkyu, split_side_by_side_tables,
+    band_pair_unit, detect_shinkyu_bands_headerless, detect_shinkyu_header, lines_with_tables_by, reconstruct_shinkyu, split_side_by_side_tables,
     tiers_look_like_bands, ShinkyuLayout,
 };
 use crate::grid::{find_grids, Grid};
@@ -61,13 +61,18 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     // 表の目印の通し番号（ページをまたぐ）。
     let mut table_count = 0usize;
     for (pi, page) in doc.select(&page_sel).enumerate() {
-        let dim = |k: &str, default: f32| page.value().attr(k).and_then(|s| s.parse::<f32>().ok()).unwrap_or(default);
-        let (width, height) = (dim("width", 595.0), dim("height", 842.0));
+        let (width, height) = page_size(page);
         let page_rules: Option<&PageRules> = rules.get(pi).and_then(|r| r.as_ref());
         let grids: Vec<Grid> = page_rules
             .map(|r| find_grids(r, width.max(height), width.max(height)))
             .unwrap_or_default();
         let (cols, mut words, rotated) = page_words_traced(page, width, height);
+        // 枠ごとの、中にある語の ID（普通の本文の段で表を組むのは、枠の中の語が全部その段に
+        // あるときだけ。段に切ると表が左右に割れることがある）。
+        let grid_words: Vec<Vec<usize>> = grids
+            .iter()
+            .map(|g| cols.iter().filter(|c| g.contains((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0, 0.5)).map(|c| c.id).collect())
+            .collect();
         let mut layout = "tiers";
         let mut units: Vec<Unit> = Vec::new();
         // 回転ページ（柱が左端帯にある）は、テキスト層が柱だけでも横組みとして扱う。
@@ -158,7 +163,25 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         i += 1;
                         band_pair_unit(tier, next, &grids, page_rules)
                     }
-                    None => Unit::Plain(drop_stray_labels(page_lines(tier))),
+                    // 普通の本文の段でも、罫線の表は表として組む（他の枠を含まない枠で、中の語が全部
+                    // この段にあり、中の字が縦組みで、セルに文章の入っていないものだけ。横組みの表は
+                    // 行ごとに読むこれまでの組み方のほうがよい）。
+                    None => {
+                        let ids: std::collections::HashSet<usize> = tier.iter().map(|c| c.id).collect();
+                        let inner: Vec<&Grid> = grids
+                            .iter()
+                            .zip(&grid_words)
+                            .filter(|(g, gw)| {
+                                g.cells.len() >= 2
+                                    && !grids.iter().any(|o| g.encloses(o))
+                                    && gw.iter().all(|id| ids.contains(id))
+                                    && vertical_inside(&tier, g)
+                                    && !prose_cells(&tier, g)
+                            })
+                            .map(|(g, _)| g)
+                            .collect();
+                        Unit::Plain(drop_stray_labels(lines_with_tables_by(tier, &inner, page_lines)))
+                    }
                 };
                 units.push(unit);
             }
@@ -231,20 +254,31 @@ pub(crate) fn parse_page_cols(xhtml: &str) -> Vec<(f32, Vec<Col>)> {
     let page_sel = Selector::parse("page").unwrap();
     let mut out = Vec::new();
     for page in doc.select(&page_sel) {
-        let height = page
-            .value()
-            .attr("height")
-            .and_then(|s| s.parse::<f32>().ok())
-            .unwrap_or(842.0);
-        let cols = page_words(page, height);
+        let (width, height) = page_size(page);
+        let cols = page_words_traced(page, width, height).0;
         out.push((height, cols));
     }
     out
 }
 
-fn page_words(page: scraper::ElementRef, height: f32) -> Vec<Col> {
-    let width = page.value().attr("width").and_then(|s| s.parse::<f32>().ok()).unwrap_or(595.0);
-    page_words_traced(page, width, height).0
+/// ページの幅と高さ（pt）。/Rotate 90・270 のページは、pdftotext が語の座標を回した後の
+/// 向きで出すのに `<page>` の幅・高さは回す前のままなので、語が幅をはみ出して高さに収まる
+/// ときは入れ替える（可視化で PDF の表示と語の枠を重ねるため）。
+fn page_size(page: scraper::ElementRef) -> (f32, f32) {
+    let dim = |k: &str, default: f32| page.value().attr(k).and_then(|s| s.parse::<f32>().ok()).unwrap_or(default);
+    let (width, height) = (dim("width", 595.0), dim("height", 842.0));
+    let word_sel = Selector::parse("word").unwrap();
+    let (mut max_x, mut max_y) = (0f32, 0f32);
+    for w in page.select(&word_sel) {
+        let num = |k: &str| w.value().attr(k).and_then(|s| s.parse::<f32>().ok()).unwrap_or(0.0);
+        max_x = max_x.max(num("xmax"));
+        max_y = max_y.max(num("ymax"));
+    }
+    if max_x > width + 2.0 && max_x <= height + 2.0 && max_y <= width + 2.0 {
+        (height, width)
+    } else {
+        (width, height)
+    }
 }
 
 /// 縦書きのページが横倒しに表示されているか。
@@ -376,7 +410,10 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
     for (x, y, x1, y1, t) in raws.iter_mut() {
         let em = *x1 - *x;
         let vertical_font = (em - em.round()).abs() < 0.01;
-        let tall = *y1 - *y >= em * 1.5 || (vertical_page && t.chars().count() <= 2 && *y1 - *y >= em * 0.9);
+        // 1〜2 字の語は高さも整数 pt のものだけ（縦中横の「13」は横組み用の書体で高さが
+        // 8.184pt などになり、ずれていない）。
+        let h = *y1 - *y;
+        let tall = h >= em * 1.5 || (vertical_page && t.chars().count() <= 2 && h >= em * 0.9 && (h - h.round()).abs() < 0.01);
         // 上の余白帯の柱（「官」「報」「第」「号」の 1 字の語）は動かさない。
         if vertical_font && *y1 > TOP_MARGIN && tall {
             *y += em;
@@ -461,7 +498,122 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
             status,
         });
     }
+    merge_warichu(&mut cols);
     (cols, words, rotated)
+}
+
+/// 枠のセルに文章（200 字を超える、または 2 文以上）が入っているか。公告の囲み記事などの
+/// 枠を表と取り違えないため。
+fn prose_cells(cols: &[Col], g: &Grid) -> bool {
+    let mut cells: std::collections::HashMap<usize, (usize, usize)> = std::collections::HashMap::new();
+    for c in cols {
+        if let Some(i) = g.cell_at((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0) {
+            let e = cells.entry(i).or_default();
+            e.0 += c.text.chars().count();
+            e.1 += c.text.matches('。').count();
+        }
+    }
+    cells.values().any(|&(chars, sentences)| chars > 200 || sentences >= 2)
+}
+
+/// 枠の中の語が縦組みか（縦長の語の字数が横長の語の字数以上）。
+fn vertical_inside(cols: &[Col], g: &Grid) -> bool {
+    let (mut v, mut h) = (0, 0);
+    for c in cols.iter().filter(|c| g.contains((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0, 0.5)) {
+        let n = c.text.chars().count();
+        if n >= 2 && c.y1 - c.y > (c.x1 - c.x) * 1.5 {
+            v += n;
+        } else if n >= 2 && c.x1 - c.x > (c.y1 - c.y) * 1.5 {
+            h += n;
+        }
+    }
+    v > 0 && v >= h
+}
+
+/// 割注（1 つの列の中に 2 行に割って組んだ部分）を 1 つの語にまとめる。
+///
+/// 連名の告示の標題「〇個人情報保護委員会／金融庁告示第一号」や本文中の「（平成二十九年
+/// 個人情報保護委員会／金融庁告示第一号）」は、機関名を右と左の半分の列に割って組む。
+/// pdftotext は右半分を 1 語、左半分を字ごとの語（または続きの語の頭）にするので、
+/// そのままでは別の列として読まれ、本文の間に「金融庁」の行が紛れ込む。
+/// 親の列（「〇」や本文の列）の中心がちょうど右半分の左端・左半分の右端に当たり、親の列が
+/// 割注のすぐ上で終わっているものを割注とし、右半分・左半分を「・」でつないで親の列に置く
+/// （「個人情報保護委員会・金融庁」）。左半分の語が割注より下へ続く（「省告示第五号」の
+/// ように続きの語とくっついた）ときは、割注の範囲の字だけを取り、残りは親の列に戻す。
+fn merge_warichu(cols: &mut Vec<Col>) {
+    let mut i = 0;
+    while i < cols.len() {
+        let r = cols[i].clone();
+        let w = r.x1 - r.x;
+        let n = r.text.chars().count();
+        if !(4.0..=14.0).contains(&w) || n < 2 || r.y1 - r.y < w * 1.5 {
+            i += 1;
+            continue;
+        }
+        let near = |a: f32, b: f32| (a - b).abs() < 0.6;
+        let parent = cols
+            .iter()
+            .enumerate()
+            .any(|(j, p)| j != i && ((p.x + p.x1) / 2.0 - r.x).abs() < w * 0.3 && (p.y1 - r.y).abs() < w * 0.75 && p.y < r.y);
+        // 左半分: 左端が右半分の 1 字分左で、右半分の範囲に掛かる語。
+        let left: Vec<usize> = (0..cols.len())
+            .filter(|&j| j != i && near(cols[j].x, r.x - w) && cols[j].y < r.y1 - w * 0.5 && cols[j].y1 > r.y + w * 0.5)
+            .collect();
+        if !parent || left.is_empty() || left.iter().any(|&j| cols[j].y < r.y - w * 0.5) {
+            i += 1;
+            continue;
+        }
+        let mut left_chars: Vec<(f32, char)> = Vec::new();
+        let mut rest: Vec<Col> = Vec::new();
+        for &j in &left {
+            let c = &cols[j];
+            let chars: Vec<char> = c.text.chars().collect();
+            let pitch = (c.y1 - c.y) / chars.len().max(1) as f32;
+            let k = chars.iter().enumerate().take_while(|(k, _)| c.y + pitch * (*k as f32 + 0.5) < r.y1).count();
+            left_chars.extend(chars[..k].iter().enumerate().map(|(m, ch)| (c.y + pitch * m as f32, *ch)));
+            if k < chars.len() {
+                rest.push(Col {
+                    id: c.id,
+                    x: r.x - w / 2.0,
+                    x1: r.x + w / 2.0,
+                    y: c.y + pitch * k as f32,
+                    y1: c.y1,
+                    text: chars[k..].iter().collect(),
+                });
+            }
+        }
+        left_chars.sort_by(|a, b| a.0.total_cmp(&b.0));
+        let left_text: String = left_chars.iter().map(|(_, ch)| ch).filter(|ch| !ch.is_whitespace()).collect();
+        // 割注の後は親の列が続く（「告示第一号」）。表のセルの折り返しや行末の約物を割注と
+        // 取り違えないため、すぐ下に親の列の続きがあるものに限る。
+        let bottom = left_chars.last().map_or(r.y1, |(y, _)| r.y1.max(*y + w));
+        let continues = !rest.is_empty()
+            || cols.iter().enumerate().any(|(j, q)| {
+                j != i && !left.contains(&j) && ((q.x + q.x1) / 2.0 - r.x).abs() < w * 0.3 && (q.y - bottom).abs() < w * 0.75
+            });
+        if left_text.is_empty() || !continues {
+            i += 1;
+            continue;
+        }
+        cols[i] = Col {
+            id: r.id,
+            x: r.x - w / 2.0,
+            x1: r.x + w / 2.0,
+            y: r.y,
+            y1: r.y1,
+            text: format!("{}・{}", r.text, left_text),
+        };
+        let mut removed = 0;
+        for &j in left.iter().rev() {
+            cols.remove(j);
+            if j < i {
+                removed += 1;
+            }
+        }
+        i -= removed;
+        cols.extend(rest);
+        i += 1;
+    }
 }
 
 /// `Col`（縦書き 1 カラム語）から、別表復元で使う中心 y 付きの語へ。

@@ -633,6 +633,11 @@ impl ShinkyuLayout {
 /// 帯の語を、罫線の表に入るものと入らないものに分け、表は表として、残りは行として組み、
 /// 表を読み順（右→左）の位置に差し込む。
 pub(crate) fn lines_with_tables(cols: Vec<Col>, grids: &[&Grid]) -> Vec<Line> {
+    lines_with_tables_by(cols, grids, cell_lines)
+}
+
+/// [`lines_with_tables`] の表の外の語の組み方を指定する版（普通の本文の段は [`page_lines`]）。
+pub(crate) fn lines_with_tables_by(cols: Vec<Col>, grids: &[&Grid], rest_lines: fn(Vec<Col>) -> Vec<Line>) -> Vec<Line> {
     let mut tables: Vec<Table> = Vec::new();
     let mut rest = cols;
     for g in grids {
@@ -649,13 +654,29 @@ pub(crate) fn lines_with_tables(cols: Vec<Col>, grids: &[&Grid]) -> Vec<Line> {
             }
         }
     }
-    let right_of: std::collections::HashMap<usize, f32> = rest.iter().map(|c| (c.id, c.x1)).collect();
-    let mut lines = cell_lines(rest);
-    // 右端の x が大きい表から、その表より左にある最初の行の手前へ差し込む。
+    let geom: std::collections::HashMap<usize, (f32, f32)> = rest.iter().map(|c| (c.id, ((c.x + c.x1) / 2.0, c.y))).collect();
+    let mut lines = rest_lines(rest);
+    // 右端の x が大きい表から、その表より左にある最初の行（行の中心が表の左端より左）か、表の
+    // 下にある最初の行の手前へ差し込む（表の左の罫線に接して組まれた次の記事の標題や、表の下の
+    // 備考を表の前に出さない）。
     tables.sort_by(|a, b| b.x1.partial_cmp(&a.x1).unwrap_or(std::cmp::Ordering::Equal));
-    for t in tables.into_iter().rev() {
-        let line_right = |l: &Line| l.words.iter().filter_map(|w| right_of.get(w)).copied().fold(f32::MIN, f32::max);
-        let at = lines.iter().position(|l| l.table.is_none() && line_right(l) <= t.x0 + 1.0).unwrap_or(lines.len());
+    // 差し込む位置は表の無い行の並びで決める。
+    let mut placed: Vec<(usize, Table)> = tables
+        .into_iter()
+        .map(|t| {
+            let after_table = |l: &Line| {
+                let g: Vec<(f32, f32)> = l.words.iter().filter_map(|w| geom.get(w)).copied().collect();
+                let center = g.iter().map(|p| p.0).fold(f32::MIN, f32::max);
+                let top = g.iter().map(|p| p.1).fold(f32::MAX, f32::min);
+                !g.is_empty() && (center < t.x0 || (center <= t.x1 && top >= t.y1 - 2.0))
+            };
+            (lines.iter().position(after_table).unwrap_or(lines.len()), t)
+        })
+        .collect();
+    // 後ろの位置から差し込む。同じ位置には左の表から差し込むと、右の表が前に来る。
+    placed.reverse();
+    placed.sort_by_key(|(at, _)| std::cmp::Reverse(*at));
+    for (at, t) in placed {
         lines.insert(at, Line { text: t.render(), words: Vec::new(), table: Some(t) });
     }
     lines
@@ -670,10 +691,24 @@ pub(crate) fn lines_with_tables(cols: Vec<Col>, grids: &[&Grid]) -> Vec<Line> {
 /// 列（セルの中の折り返し）はその行に入れる。
 fn grid_table(g: &Grid, cols: Vec<Col>) -> Table {
     let nx = g.xs.len() - 1;
-    // 語 → セル。
+    // 語 → セル。縦中横の短い語（「３番13号」の「13」）は字面が列から横にずれて隣のセルの
+    // 境に掛かることがあるので、すぐ上に続く語のある列の中心で決める。
+    let centers: Vec<f32> = cols
+        .iter()
+        .map(|c| {
+            let center = (c.x + c.x1) / 2.0;
+            if c.text.chars().count() > 3 {
+                return center;
+            }
+            let w = c.x1 - c.x;
+            cols.iter()
+                .find(|a| a.id != c.id && (a.y1 - c.y).abs() < w * 1.5 && a.x < c.x1 && c.x < a.x1 && a.text.chars().count() > 3)
+                .map_or(center, |a| (a.x + a.x1) / 2.0)
+        })
+        .collect();
     let mut cell_words: Vec<Vec<Col>> = vec![Vec::new(); g.cells.len()];
-    for c in cols {
-        if let Some(i) = g.cell_at((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0) {
+    for (c, cx) in cols.into_iter().zip(centers) {
+        if let Some(i) = g.cell_at(cx, (c.y + c.y1) / 2.0) {
             cell_words[i].push(c);
         }
     }
