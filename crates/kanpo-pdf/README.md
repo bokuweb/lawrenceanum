@@ -48,6 +48,11 @@ for page in kanpo_pdf::extract_pages(&pdf)? {
   - 字と字の間に罫線（字送りに直交する線）があれば、空きが小さくても語を切る（表のセルの境目）
 - poppler が読めずに捨てるフォント（対応表の無い CID の文字集合で ToUnicode も無いもの。官報では傍線などの
   字形の `Adobe-Npb1`）の字は、poppler と同じく語に入れない（[`Page::glyphs`] には入る）
+- ToUnicode の無い `Identity` の CID フォント（官報では項目記号の (1)・①・㈠、目次のページ番号の数字、
+  人名・地名の異体字などを組む `DFHSMinchoRPro6N-W3-Identity-V`）の字は、`bbox` では私用領域の
+  U+F0000 + CID にする（`bbox::IDENTITY_CID_BASE`）。poppler は CID をそのまま符号位置にして無関係な
+  漢字（`掠`・`振`）を出すので、本物の漢字と区別がつかない。kanpo-parser が字形の番号から字を決める。
+  [`Page::glyphs`] の `text` は poppler と同じ
 - Adobe-Japan1 の CID → Unicode は Adobe の公開データから作っている。poppler の表と違い、ハイフンは
   U+002D、下線は U+005F になる（poppler は U+2011・U+0332）
 
