@@ -90,6 +90,74 @@ fn corpus_matches_expected() {
     assert!(failures.is_empty(), "{}", failures.join("\n\n"));
 }
 
+/// 座標付きテキストの `<word>` の並び（抽出器ごとに違う）を変えても、復元結果が変わらない。
+#[test]
+fn output_does_not_depend_on_word_order() {
+    let mut failures: Vec<String> = Vec::new();
+    for dir in cases() {
+        let name = dir.file_name().unwrap().to_string_lossy().to_string();
+        let pages: Vec<kanpo_parser::PageInput> = std::iter::once("page".to_string())
+            .chain((2..).map(|n| format!("page-{n}")))
+            .map_while(|stem| Some(kanpo_parser::page_inputs(&std::fs::read(dir.join(format!("{stem}.pdf"))).ok()?).unwrap().remove(0)))
+            .collect();
+        let render = |pages: &[kanpo_parser::PageInput]| {
+            let a = kanpo_parser::analyze_item(pages);
+            let docs: Vec<_> = a.articles.iter().map(|art| &art.document).collect();
+            format!("{}\n{}", a.text, serde_json::to_string_pretty(&docs).unwrap())
+        };
+        let expected = render(&pages);
+        for (label, order) in [("reversed", reversed as WordOrder), ("interleaved", interleaved)] {
+            let shuffled: Vec<kanpo_parser::PageInput> = pages
+                .iter()
+                .map(|p| kanpo_parser::PageInput { xhtml: reorder_words(&p.xhtml, order), rules: p.rules.clone() })
+                .collect();
+            let actual = render(&shuffled);
+            if actual != expected {
+                failures.push(format!("{name} ({label}):\n{}", first_diff(&expected, &actual)));
+            }
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n\n"));
+}
+
+type WordOrder = fn(Vec<&str>) -> Vec<&str>;
+
+fn reversed(words: Vec<&str>) -> Vec<&str> {
+    words.into_iter().rev().collect()
+}
+
+/// 偶数番目の後に奇数番目（隣り合う語を引き離す）。
+fn interleaved(words: Vec<&str>) -> Vec<&str> {
+    let (even, odd): (Vec<_>, Vec<_>) = words.into_iter().enumerate().partition(|(i, _)| i % 2 == 0);
+    even.into_iter().chain(odd).map(|(_, w)| w).collect()
+}
+
+/// 各ページの `<word>` を `order` で並べ替え、1 語 1 行の XHTML に組み直す。
+fn reorder_words(xhtml: &str, order: WordOrder) -> String {
+    let mut out = String::new();
+    let mut rest = xhtml;
+    while let Some(start) = rest.find("<page ") {
+        let open_end = start + rest[start..].find('>').unwrap() + 1;
+        let close = rest.find("</page>").unwrap();
+        out.push_str(&rest[..open_end]);
+        let mut words: Vec<&str> = Vec::new();
+        let mut body = &rest[open_end..close];
+        while let Some(w) = body.find("<word ") {
+            let end = w + body[w..].find("</word>").unwrap() + "</word>".len();
+            words.push(&body[w..end]);
+            body = &body[end..];
+        }
+        for w in order(words) {
+            out.push_str("<line>");
+            out.push_str(w);
+            out.push_str("</line>\n");
+        }
+        rest = &rest[close..];
+    }
+    out.push_str(rest);
+    out
+}
+
 /// 最初に食い違う行の前後を示す。
 fn first_diff(expected: &str, actual: &str) -> String {
     let (e, a): (Vec<&str>, Vec<&str>) = (expected.lines().collect(), actual.lines().collect());
