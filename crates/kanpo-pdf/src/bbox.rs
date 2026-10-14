@@ -8,10 +8,13 @@
 //!   右へ半 em、上へ 1 em ずれる（kanpo-parser はこのずれを前提に補正している）
 //! - poppler が読めないフォント（[`poppler_readable`]）の文字は出さない
 //! - 縦書きはフォントが変わると語を切る。字間（Tc）で空けた字は別の語にする
+//! - 横書きでも、同じ演算子の中で字間（Tc）だけで空けた字は 0.35 em まで同じ語にする（字間を空けた見出し）
+//! - 字と字の間に罫線（字送りに直交する線）があれば語を切る（表のセルの境目）
 
 use std::fmt::Write;
 
 use crate::page::{FontInfo, Glyph, Page};
+use crate::rules::{page_rules, PageRules};
 
 /// 語。
 #[derive(Debug, Clone, PartialEq)]
@@ -36,6 +39,11 @@ const GAP_VERTICAL: f64 = 0.35;
 const OVERLAP: f64 = 1.05;
 /// 字送りに直交する方向のずれの許容（字の大きさに対する比）。
 const OFFSET: f64 = 0.1;
+/// 字間（Tc）だけで空けた字を同じ語にする空きの上限（字の大きさに対する比）。
+const TC_MAX: f64 = 0.35;
+/// 字の間の罫線で語を切るのは、この空き（字の大きさに対する比）より空いているときだけ。詰めて
+/// 組んだ字の境目に重なる線（クリップされて見えない線など）では切らない。
+const RULE_GAP: f64 = 0.05;
 
 fn poppler_box(g: &Glyph) -> [f64; 4] {
     if !g.vertical {
@@ -77,6 +85,7 @@ pub fn words(page: &Page) -> Vec<Word> {
     let mut out: Vec<Word> = Vec::new();
     let mut prev: Option<&Glyph> = None;
     let readable: Vec<bool> = page.fonts.iter().map(poppler_readable).collect();
+    let rules = page_rules(page);
     for (i, g) in page.glyphs.iter().enumerate() {
         if !readable.get(g.font).copied().unwrap_or(true) {
             // 捨てた文字の前後は別の語になる。
@@ -103,7 +112,10 @@ pub fn words(page: &Page) -> Vec<Word> {
                 return false;
             }
             let gap = if g.vertical { GAP_VERTICAL } else { GAP };
-            (-OVERLAP * g.size..=gap * g.size).contains(&along) && across.abs() <= OFFSET * g.size
+            let gap = if letter_spaced(p, g, along) { gap.max(TC_MAX) } else { gap };
+            (-OVERLAP * g.size..=gap * g.size).contains(&along)
+                && across.abs() <= OFFSET * g.size
+                && !(along > RULE_GAP * g.size && rule_between(&rules, p, g))
         });
         let b = poppler_box(g);
         let text = g.text.clone();
@@ -132,6 +144,39 @@ pub fn words(page: &Page) -> Vec<Word> {
         prev = Some(g);
     }
     out
+}
+
+/// 同じ演算子の中で、字間（Tc）だけで空けて続く字か（TJ の数値や位置の指定で空けていない）。
+/// 字間を空けて組んだ語（横書きの見出し「振　替　法　の　適　用　等」が 0.33 em、決算公告の
+/// 「純　資　産　合　計」が 0.25 em）は、普通の字間より空いていても 1 語にする。
+fn letter_spaced(p: &Glyph, g: &Glyph, along: f64) -> bool {
+    let tol = 0.01 * g.size;
+    p.show == g.show && g.kern.abs() < tol && p.spacing > tol && (along - p.spacing).abs() < tol
+}
+
+/// 前の字の送りの終点と次の字の原点の間を、字送りに直交する罫線が横切っているか。表のセルの
+/// 境目で、前のセルの最後の字と次のセルの最初の字が詰めて置かれていることがある（縦書きの表の
+/// 「静　岡」と次の欄の「清水港…」の間が 0.25 em）。
+fn rule_between(rules: &PageRules, p: &Glyph, g: &Glyph) -> bool {
+    // 罫線の太さと座標の丸めの分の余裕（pt）。
+    const PAD: f64 = 0.5;
+    let between = |a: f64, b: f64, v: f64| a.min(b) - PAD < v && v < a.max(b) + PAD;
+    let (ax, ay) = (p.end_x - p.x, p.end_y - p.y);
+    if ay.abs() > ax.abs() {
+        // 縦に送る字: 横線。字の幅の中心を通る線だけを見る。
+        let x = (g.bbox[0] + g.bbox[2]) / 2.0;
+        rules
+            .horizontal
+            .iter()
+            .any(|h| between(p.end_y, g.y, h.y as f64) && (h.x0 as f64) < x && x < h.x1 as f64)
+    } else {
+        // 横に送る字: 縦線。
+        let y = (g.bbox[1] + g.bbox[3]) / 2.0;
+        rules
+            .vertical
+            .iter()
+            .any(|v| between(p.end_x, g.x, v.x as f64) && (v.y0 as f64) < y && y < v.y1 as f64)
+    }
 }
 
 /// 字送りの方向の成分と、それに直交する成分。
