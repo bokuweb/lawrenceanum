@@ -5,7 +5,7 @@ use scraper::{Html, Selector};
 use crate::horizontal::{horizontal_lines, is_left_strip_header, LEFT_STRIP};
 use crate::normalize::{is_margin_noise, is_private_use, normalize_char, private_cid_glyph, CidGlyph};
 use crate::shinkyu::{
-    band_pair_unit, detect_shinkyu_bands_headerless, detect_shinkyu_header, reconstruct_shinkyu, split_side_by_side_tables,
+    band_pair_unit, detect_shinkyu_bands_headerless, detect_shinkyu_header, lines_with_tables_by, reconstruct_shinkyu, split_side_by_side_tables,
     tiers_look_like_bands, ShinkyuLayout,
 };
 use crate::grid::{find_grids, Grid};
@@ -68,6 +68,12 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             .map(|r| find_grids(r, width.max(height), width.max(height)))
             .unwrap_or_default();
         let (cols, mut words, rotated) = page_words_traced(page, width, height);
+        // 枠ごとの、中にある語の ID（普通の本文の段で表を組むのは、枠の中の語が全部その段に
+        // あるときだけ。段に切ると表が左右に割れることがある）。
+        let grid_words: Vec<Vec<usize>> = grids
+            .iter()
+            .map(|g| cols.iter().filter(|c| g.contains((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0, 0.5)).map(|c| c.id).collect())
+            .collect();
         let mut layout = "tiers";
         let mut units: Vec<Unit> = Vec::new();
         // 回転ページ（柱が左端帯にある）は、テキスト層が柱だけでも横組みとして扱う。
@@ -158,7 +164,25 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         i += 1;
                         band_pair_unit(tier, next, &grids, page_rules)
                     }
-                    None => Unit::Plain(drop_stray_labels(page_lines(tier))),
+                    // 普通の本文の段でも、罫線の表は表として組む（他の枠を含まない枠で、中の語が全部
+                    // この段にあり、中の字が縦組みで、セルに文章の入っていないものだけ。横組みの表は
+                    // 行ごとに読むこれまでの組み方のほうがよい）。
+                    None => {
+                        let ids: std::collections::HashSet<usize> = tier.iter().map(|c| c.id).collect();
+                        let inner: Vec<&Grid> = grids
+                            .iter()
+                            .zip(&grid_words)
+                            .filter(|(g, gw)| {
+                                g.cells.len() >= 2
+                                    && !grids.iter().any(|o| g.encloses(o))
+                                    && gw.iter().all(|id| ids.contains(id))
+                                    && vertical_inside(&tier, g)
+                                    && !prose_cells(&tier, g)
+                            })
+                            .map(|(g, _)| g)
+                            .collect();
+                        Unit::Plain(drop_stray_labels(lines_with_tables_by(tier, &inner, page_lines)))
+                    }
                 };
                 units.push(unit);
             }
@@ -376,7 +400,10 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
     for (x, y, x1, y1, t) in raws.iter_mut() {
         let em = *x1 - *x;
         let vertical_font = (em - em.round()).abs() < 0.01;
-        let tall = *y1 - *y >= em * 1.5 || (vertical_page && t.chars().count() <= 2 && *y1 - *y >= em * 0.9);
+        // 1〜2 字の語は高さも整数 pt のものだけ（縦中横の「13」は横組み用の書体で高さが
+        // 8.184pt などになり、ずれていない）。
+        let h = *y1 - *y;
+        let tall = h >= em * 1.5 || (vertical_page && t.chars().count() <= 2 && h >= em * 0.9 && (h - h.round()).abs() < 0.01);
         // 上の余白帯の柱（「官」「報」「第」「号」の 1 字の語）は動かさない。
         if vertical_font && *y1 > TOP_MARGIN && tall {
             *y += em;
@@ -463,6 +490,34 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
     }
     merge_warichu(&mut cols);
     (cols, words, rotated)
+}
+
+/// 枠のセルに文章（200 字を超える、または 2 文以上）が入っているか。公告の囲み記事などの
+/// 枠を表と取り違えないため。
+fn prose_cells(cols: &[Col], g: &Grid) -> bool {
+    let mut cells: std::collections::HashMap<usize, (usize, usize)> = std::collections::HashMap::new();
+    for c in cols {
+        if let Some(i) = g.cell_at((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0) {
+            let e = cells.entry(i).or_default();
+            e.0 += c.text.chars().count();
+            e.1 += c.text.matches('。').count();
+        }
+    }
+    cells.values().any(|&(chars, sentences)| chars > 200 || sentences >= 2)
+}
+
+/// 枠の中の語が縦組みか（縦長の語の字数が横長の語の字数以上）。
+fn vertical_inside(cols: &[Col], g: &Grid) -> bool {
+    let (mut v, mut h) = (0, 0);
+    for c in cols.iter().filter(|c| g.contains((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0, 0.5)) {
+        let n = c.text.chars().count();
+        if n >= 2 && c.y1 - c.y > (c.x1 - c.x) * 1.5 {
+            v += n;
+        } else if n >= 2 && c.x1 - c.x > (c.y1 - c.y) * 1.5 {
+            h += n;
+        }
+    }
+    v > 0 && v >= h
 }
 
 /// 割注（1 つの列の中に 2 行に割って組んだ部分）を 1 つの語にまとめる。
