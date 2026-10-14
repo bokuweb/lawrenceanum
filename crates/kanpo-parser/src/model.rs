@@ -571,6 +571,10 @@ fn segment_band(lines: &[&str], is_heading: fn(&str) -> Option<String>) -> Vec<S
         // 「（見出し）」（折り返して複数行のこともある）のすぐ後の「第○条　…」は見出しと同じ行。
         let caption: String = cur.iter().map(|l| l.trim()).collect();
         let under_caption = article_number(line).is_some() && is_one_paren(&caption);
+        // 帯の先頭の「（見出し）」の後の条は、見出しと同じ行のまま条の鍵を付ける。
+        if under_caption && heading.is_none() && segs.is_empty() {
+            heading = is_heading(line);
+        }
         if let Some(key) = is_heading(line).filter(|_| !under_caption) {
             // 条の書き出しの直前の「（見出し）」（折り返して複数行のこともある）は新しい行へ移す。
             let mut carried: Vec<&str> = Vec::new();

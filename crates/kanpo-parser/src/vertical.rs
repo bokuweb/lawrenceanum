@@ -85,10 +85,19 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 // 横書きの新旧対照表: 左の列が改正後、右の列が改正前。
                 Some(mid) => {
                     let (left, right): (Vec<Col>, Vec<Col>) = cols.into_iter().partition(|c| c.x1 <= mid);
+                    // 欄見出し（「改　正　後」）だけの行は本文ではない。
+                    let body = |cols: Vec<Col>| -> Vec<Line> {
+                        let mut lines = horizontal_lines(cols);
+                        let label = |l: &Line| matches!(l.text.chars().filter(|c| !c.is_whitespace()).collect::<String>().as_str(), "改正後" | "改正前");
+                        if lines.first().is_some_and(label) {
+                            lines.remove(0);
+                        }
+                        lines
+                    };
                     Unit::Shinkyu {
                         preamble: Vec::new(),
-                        after: vec![horizontal_lines(left)],
-                        before: vec![horizontal_lines(right)],
+                        after: vec![body(left)],
+                        before: vec![body(right)],
                         outside: Vec::new(),
                     }
                 }
