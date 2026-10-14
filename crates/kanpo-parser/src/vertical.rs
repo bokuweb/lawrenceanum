@@ -3,7 +3,7 @@
 use scraper::{Html, Selector};
 
 use crate::horizontal::{horizontal_lines, is_left_strip_header, LEFT_STRIP};
-use crate::normalize::{is_margin_noise, private_cid_glyph, text_char, CidGlyph};
+use crate::normalize::{is_margin_noise, private_cid_glyph, word_text, CidGlyph};
 use crate::shinkyu::{
     band_pair_unit, detect_shinkyu_bands_headerless, detect_shinkyu_header, lines_with_tables_by, reconstruct_shinkyu, split_side_by_side_tables,
     tiers_look_like_bands, ShinkyuLayout,
@@ -595,7 +595,7 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
         // 私用領域(傍線等のフォント固有グリフ)を除去する。
         let text: String = match glyph {
             Some(g) => g.text.clone(),
-            None => raw.chars().filter_map(text_char).collect(),
+            None => word_text(&raw),
         };
         let in_margin = if rotated {
             gx1 <= LEFT_STRIP
@@ -673,26 +673,76 @@ fn vertical_inside(cols: &[Col], g: &Grid) -> bool {
 /// 割注のすぐ上で終わっているものを割注とし、右半分・左半分を「・」でつないで親の列に置く
 /// （「個人情報保護委員会・金融庁」）。左半分の語が割注より下へ続く（「省告示第五号」の
 /// ように続きの語とくっついた）ときは、割注の範囲の字だけを取り、残りは親の列に戻す。
+/// 右半分が字間を空けた 1 字ずつの語（漢字・かな）のとき（「大　蔵　省」）はまとめて右半分とし、
+/// 行頭の割注（上に親の列が無い）は、そのように字間を空けた右半分と左半分の上下がそろうものを
+/// 割注とする。
 fn merge_warichu(cols: &mut Vec<Col>) {
     let mut i = 0;
     while i < cols.len() {
-        let r = cols[i].clone();
-        let w = r.x1 - r.x;
+        let w = cols[i].x1 - cols[i].x;
+        let near = |a: f32, b: f32| (a - b).abs() < 0.6;
+        // 右半分が左半分の長さに合わせて字間を空けて組まれ（「大　蔵　省」と「農林水産省」）、
+        // 1 字ずつの語になっていることがある。同じ列に 1 em 程度の空きで続く 1 字の語をまとめる。
+        // 機関名の字（漢字・かな）だけを対象にする（「1098、1099」の読点などを拾わない）。
+        let name_char = |t: &str| {
+            let mut cs = t.chars();
+            matches!((cs.next(), cs.next()), (Some(c), None) if ('\u{4E00}'..='\u{9FFF}').contains(&c) || ('\u{3041}'..='\u{30FF}').contains(&c))
+        };
+        let mut spaced = vec![i];
+        if name_char(&cols[i].text) {
+            loop {
+                let last = &cols[*spaced.last().unwrap()];
+                let next = (0..cols.len()).find(|&j| {
+                    !spaced.contains(&j)
+                        && name_char(&cols[j].text)
+                        && near(cols[j].x, last.x)
+                        && near(cols[j].x1, last.x1)
+                        && cols[j].y > last.y1 - w * 0.1
+                        && cols[j].y - last.y1 <= w * 1.5
+                });
+                match next {
+                    Some(j) => spaced.push(j),
+                    None => break,
+                }
+            }
+        }
+        let r = if spaced.len() > 1 {
+            let last = &cols[*spaced.last().unwrap()];
+            Col {
+                id: cols[i].id,
+                x: cols[i].x,
+                x1: cols[i].x1,
+                y: cols[i].y,
+                y1: last.y1,
+                text: spaced.iter().map(|&j| cols[j].text.as_str()).collect(),
+            }
+        } else {
+            cols[i].clone()
+        };
         let n = r.text.chars().count();
         if !(4.0..=14.0).contains(&w) || n < 2 || r.y1 - r.y < w * 1.5 {
             i += 1;
             continue;
         }
-        let near = |a: f32, b: f32| (a - b).abs() < 0.6;
         let parent = cols
             .iter()
             .enumerate()
             .any(|(j, p)| j != i && ((p.x + p.x1) / 2.0 - r.x).abs() < w * 0.3 && (p.y1 - r.y).abs() < w * 0.75 && p.y < r.y);
         // 左半分: 左端が右半分の 1 字分左で、右半分の範囲に掛かる語。
         let left: Vec<usize> = (0..cols.len())
-            .filter(|&j| j != i && near(cols[j].x, r.x - w) && cols[j].y < r.y1 - w * 0.5 && cols[j].y1 > r.y + w * 0.5)
+            .filter(|&j| !spaced.contains(&j) && near(cols[j].x, r.x - w) && cols[j].y < r.y1 - w * 0.5 && cols[j].y1 > r.y + w * 0.5)
             .collect();
-        if !parent || left.is_empty() || left.iter().any(|&j| cols[j].y < r.y - w * 0.5) {
+        // 行頭の割注（本文の途中で列が改まった直後）は上に親の列が無い。そのときは右半分が字間を
+        // 空けて左半分の長さに合わせてあり（「大　蔵　省」と「農林水産省」）、上下の範囲がそろって
+        // いるものに限る（隣り合う本文の列や表の見出しと取り違えないため）。
+        let balanced = || {
+            if spaced.len() < 2 {
+                return false;
+            }
+            let (top, bottom) = left.iter().fold((f32::MAX, f32::MIN), |(t, b), &j| (t.min(cols[j].y), b.max(cols[j].y1)));
+            (top - r.y).abs() < w * 0.5 && (bottom - r.y1).abs() < w * 0.5
+        };
+        if left.is_empty() || left.iter().any(|&j| cols[j].y < r.y - w * 0.5) || !(parent || balanced()) {
             i += 1;
             continue;
         }
@@ -722,7 +772,7 @@ fn merge_warichu(cols: &mut Vec<Col>) {
         let bottom = left_chars.last().map_or(r.y1, |(y, _)| r.y1.max(*y + w));
         let continues = !rest.is_empty()
             || cols.iter().enumerate().any(|(j, q)| {
-                j != i && !left.contains(&j) && ((q.x + q.x1) / 2.0 - r.x).abs() < w * 0.3 && (q.y - bottom).abs() < w * 0.75
+                !spaced.contains(&j) && !left.contains(&j) && ((q.x + q.x1) / 2.0 - r.x).abs() < w * 0.3 && (q.y - bottom).abs() < w * 0.75
             });
         if left_text.is_empty() || !continues {
             i += 1;
@@ -736,8 +786,10 @@ fn merge_warichu(cols: &mut Vec<Col>) {
             y1: r.y1,
             text: format!("{}・{}", r.text, left_text),
         };
+        let mut gone: Vec<usize> = left.iter().copied().chain(spaced.iter().skip(1).copied()).collect();
+        gone.sort_unstable();
         let mut removed = 0;
-        for &j in left.iter().rev() {
+        for &j in gone.iter().rev() {
             cols.remove(j);
             if j < i {
                 removed += 1;

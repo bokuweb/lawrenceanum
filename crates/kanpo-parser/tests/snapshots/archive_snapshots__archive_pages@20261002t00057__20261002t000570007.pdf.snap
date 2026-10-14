@@ -1,5 +1,6 @@
 ---
 source: crates/kanpo-parser/tests/archive_snapshots.rs
+assertion_line: 98
 expression: out
 input_file: crates/kanpo-parser/tests/archive/pages/20261002t00057/20261002t000570007.pdf
 ---
@@ -38,16 +39,16 @@ Solid Tarim Inovasyon Anonim Sirketi 20．9842188
 58アメジノFZE 22．9412335
 Amegino FZE 23．9436941
 別称：アメギノFZE 24．9610793
-所在地：T19F6D, RAKEZ Amenity Center, Al Hamra Industrial ZoneFZ, Ras Al Khai‑25．9577082
+所在地：T1－9F－6D, RAKEZ Amenity Center, Al Hamra Industrial Zone－FZ, Ras Al Khai‑25．9577082
 mah, United Arab Emirates 26．9577094
 59オート・パーツ・イーストFZCO 27．9382798
 Auto Parts East FZCO 28．9354301
-所在地：Jebel Ali(JAFZA) RA08 YB05/YB06/YB07, Dubai 17370, United Arab Emi‑29．9354313
+所在地：Jebel Ali(JAFZA) RA08 YB－05/YB－06/YB－07, Dubai 17370, United Arab Emi‑29．9354313
 30．9235713
 rates 31．9321847
 60モト・エクスポートDWC有限会社32．9513139
 MOTO Export DWC LLC 33．9321976
-所在地：Office No: DLCFCO6, Building No: DLCFC4, Warehouse No: DLCFC 34．9866380
+所在地：Office No: DLC－FC－O6, Building No: DLC－FC－4, Warehouse No: DLC－FC－34．9866380
 W06, Logistics District, Dubai 390667, United Arab Emirates 35．9341079
 
 --- 記事 ---
@@ -64,7 +65,7 @@ W06, Logistics District, Dubai 390667, United Arab Emirates 35．9341079
     57ソリド・タリム・イノヴァション株式会社18．9422445
     19．9271585Solid Tarim Inovasyon Anonim Sirketi 20．9842188所在地：Turktas D: 1, No: 31 Cikcilli Mahallesi, 106 Sokak, Alanya, Antalya 07400, Turkey 21．9511521
     58アメジノFZE 22．9412335Amegino FZE 23．9436941
-    別称：アメギノFZE 24．9610793所在地：T19F6D, RAKEZ Amenity Center, Al Hamra Industrial ZoneFZ, Ras Al Khai‑25．9577082mah, United Arab Emirates 26．9577094
-    59オート・パーツ・イーストFZCO 27．9382798Auto Parts East FZCO 28．9354301所在地：Jebel Ali(JAFZA) RA08 YB05/YB06/YB07, Dubai 17370, United Arab Emi‑29．9354313
+    別称：アメギノFZE 24．9610793所在地：T1－9F－6D, RAKEZ Amenity Center, Al Hamra Industrial Zone－FZ, Ras Al Khai‑25．9577082mah, United Arab Emirates 26．9577094
+    59オート・パーツ・イーストFZCO 27．9382798Auto Parts East FZCO 28．9354301所在地：Jebel Ali(JAFZA) RA08 YB－05/YB－06/YB－07, Dubai 17370, United Arab Emi‑29．9354313
     30．9235713rates 31．9321847
-    60モト・エクスポートDWC有限会社32．9513139MOTO Export DWC LLC 33．9321976所在地：Office No: DLCFCO6, Building No: DLCFC4, Warehouse No: DLCFC 34．9866380W06, Logistics District, Dubai 390667, United Arab Emirates 35．9341079
+    60モト・エクスポートDWC有限会社32．9513139MOTO Export DWC LLC 33．9321976所在地：Office No: DLC－FC－O6, Building No: DLC－FC－4, Warehouse No: DLC－FC－34．9866380W06, Logistics District, Dubai 390667, United Arab Emirates 35．9341079
