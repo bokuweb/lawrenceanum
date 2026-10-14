@@ -62,9 +62,11 @@ export function SidebarNav() {
   const { sync: lastSync, egovDate } = useLastSync();
   const kanpoParser = useKanpoParserEnabled();
   return (
-    <aside className="w-60 border-r border-border bg-sidebar flex flex-col">
-      <div className="h-16 flex items-center gap-2 px-5 border-b border-border">
-        <div className="size-8 rounded-md bg-primary flex items-center justify-center">
+    <aside className="w-60 shrink-0 border-r border-border bg-sidebar flex flex-col">
+      {/* ヘッダー・フッターは shrink-0 で固定し、縦に収まらない分はナビだけをスクロールさせる。
+          shrink-0 が無いと低い画面でヘッダーが潰れ、ロゴの上下の余白が消える。 */}
+      <div className="h-16 shrink-0 flex items-center gap-2 px-5 border-b border-border">
+        <div className="size-8 shrink-0 rounded-md bg-primary flex items-center justify-center">
           <Scale className="size-4 text-primary-foreground" />
         </div>
         <div className="flex flex-col leading-tight">
@@ -72,7 +74,7 @@ export function SidebarNav() {
           <span className="text-xs text-muted-foreground">e-Gov 法令データ</span>
         </div>
       </div>
-      <nav className="flex-1 p-3 space-y-1">
+      <nav className="flex-1 min-h-0 overflow-y-auto p-3 space-y-1">
         {items.filter(it => !it.kanpoParser || kanpoParser).map(it => {
           const Icon = it.icon;
           // `/` is exact-match only; everything else matches by prefix so that
@@ -99,7 +101,7 @@ export function SidebarNav() {
           );
         })}
       </nav>
-      <div className="p-3 border-t border-border">
+      <div className="shrink-0 p-3 border-t border-border">
         <div className="rounded-md bg-muted/50 p-3 text-xs text-muted-foreground">
           <div className="text-foreground mb-1">最新同期</div>
           {lastSync ?? "読み込み中…"}
