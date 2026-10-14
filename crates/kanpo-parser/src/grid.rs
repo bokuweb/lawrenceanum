@@ -79,6 +79,7 @@ pub fn find_grids(rules: &PageRules, width: f32, height: f32) -> Vec<Grid> {
         .map(|h| HRule { y: h.y, x0: h.x0.max(0.0), x1: h.x1.min(width) })
         .filter(|h| h.x1 - h.x0 > 4.0)
         .collect();
+    let (vs, hs) = (join_collinear_v(vs.clone(), &hs), join_collinear_h(hs, &vs));
 
     // 接している罫線を union-find でまとめる（縦線と横線の交差・端点の接触）。
     let n = vs.len() + hs.len();
@@ -102,6 +103,56 @@ pub fn find_grids(rules: &PageRules, width: f32, height: f32) -> Vec<Grid> {
         groups.entry(find(&mut parent, vs.len() + j)).or_default().1.push(*h);
     }
     groups.into_values().filter_map(|(v, h)| build_grid(&v, &h)).collect()
+}
+
+/// 同じ高さで端の接する横線を 1 本にする。
+///
+/// 1 本の罫線が途中で切れて描かれることがある（g00160 0058 の新旧対照表の枠の横線は x=223 で
+/// 2 本に分かれ、左の線分には縦線が接していない）。そのままでは左の線分が枠に入らず、表の枠が
+/// 右半分だけになって、左の列が表の外へ出てしまう。
+///
+/// 切れ目に縦線が交わるもの（罫線の交点ごとに分けて描いた線。h01764 0004 の横倒しのページでは、
+/// 紙面を横切る線が交点ごとに切れていて、まとめると隣り合う別の表が 1 つの枠になる）はまとめない。
+/// 交わる縦線があれば、枠はその縦線でつながる。
+fn join_collinear_h(hs: Vec<HRule>, vs: &[VRule]) -> Vec<HRule> {
+    let junction = |y: f32, x: f32| vs.iter().any(|v| (v.x - x).abs() <= TOUCH && v.y0 - TOUCH <= y && y <= v.y1 + TOUCH);
+    join_collinear(hs, |h| (h.y, h.x0, h.x1), |h, x1| h.x1 = x1, junction)
+}
+
+/// 同じ x で端の接する縦線を 1 本にする（[`join_collinear_h`] の縦線版）。
+fn join_collinear_v(vs: Vec<VRule>, hs: &[HRule]) -> Vec<VRule> {
+    let junction = |x: f32, y: f32| hs.iter().any(|h| (h.y - y).abs() <= TOUCH && h.x0 - TOUCH <= x && x <= h.x1 + TOUCH);
+    join_collinear(vs, |v| (v.x, v.y0, v.y1), |v, y1| v.y1 = y1, junction)
+}
+
+/// 同じ線の上（`key` の 0 番目の差が 0.5pt 以内）で端の接する線分（`key` の 1・2 番目が始点・終点）を、
+/// 始点の小さい方へまとめる。切れ目に直交する罫線のあるもの（`junction(線の位置, 切れ目)`）はまとめない。
+/// 罫線の順番は変えない（枠の順番が変わると、表の組み方が変わる）。
+fn join_collinear<T: Copy>(rules: Vec<T>, key: impl Fn(&T) -> (f32, f32, f32), set_end: impl Fn(&mut T, f32), junction: impl Fn(f32, f32) -> bool) -> Vec<T> {
+    let mut order: Vec<usize> = (0..rules.len()).collect();
+    order.sort_by(|&a, &b| {
+        let (ka, kb) = (key(&rules[a]), key(&rules[b]));
+        ka.0.total_cmp(&kb.0).then(ka.1.total_cmp(&kb.1))
+    });
+    let mut out = rules.clone();
+    let mut dropped = vec![false; rules.len()];
+    // 今まとめている線分（元の添字）。
+    let mut head: Option<usize> = None;
+    for &i in &order {
+        let (line, start, end) = key(&rules[i]);
+        if let Some(h) = head {
+            let (hl, _, he) = key(&out[h]);
+            if (hl - line).abs() <= 0.5 && start <= he + TOUCH && !junction(line, he.min(start)) {
+                if end > he {
+                    set_end(&mut out[h], end);
+                }
+                dropped[i] = true;
+                continue;
+            }
+        }
+        head = Some(i);
+    }
+    out.into_iter().zip(dropped).filter(|(_, d)| !d).map(|(r, _)| r).collect()
 }
 
 /// 区分見出し（「省　令」「告　示」）の囲みの縦線を除く。囲みは二重線で、上下の端に細かい
@@ -294,5 +345,29 @@ mod tests {
             &[(10.0, 10.0, 50.0), (50.0, 10.0, 50.0), (10.0, 100.0, 140.0), (50.0, 100.0, 140.0)],
         );
         assert_eq!(find_grids(&r, 595.0, 842.0).len(), 2);
+    }
+
+    #[test]
+    fn joins_rules_drawn_in_pieces() {
+        // 実ページ（g00160 0058）の新旧対照表の枠: 横線が x=223 で 2 本に分かれ、縦線は右の 2 本だけ。
+        let r = rules(
+            &[(426.0, 70.0, 780.0), (445.0, 70.0, 780.0)],
+            &[(70.0, 223.0, 445.0), (425.0, 223.0, 445.0), (780.0, 223.0, 445.0), (70.0, 46.0, 223.0), (425.0, 46.0, 223.0), (780.0, 46.0, 223.0)],
+        );
+        let grids = find_grids(&r, 595.0, 842.0);
+        assert_eq!(grids.len(), 1);
+        assert!((grids[0].left() - 46.0).abs() < 1.0, "{:?}", grids[0].xs);
+        assert_eq!(grids[0].xs.len(), 3, "{:?}", grids[0].xs);
+    }
+
+    #[test]
+    fn keeps_rules_split_at_crossings() {
+        // 交点ごとに切って描いた横線（h01764 0004）は、まとめると隣の別の表と 1 つの枠になる。
+        // 切れ目（x=100）に縦線が交わるのでまとめない。左右の表は別の枠のまま。
+        let r = rules(
+            &[(10.0, 10.0, 50.0), (60.0, 10.0, 50.0), (100.0, 0.0, 60.0), (140.0, 10.0, 50.0), (190.0, 10.0, 50.0)],
+            &[(10.0, 10.0, 60.0), (50.0, 10.0, 60.0), (10.0, 100.0, 190.0), (50.0, 100.0, 190.0), (10.0, 60.0, 100.0)],
+        );
+        assert_eq!(join_collinear_h(r.horizontal.clone(), &r.vertical).len(), 5);
     }
 }
