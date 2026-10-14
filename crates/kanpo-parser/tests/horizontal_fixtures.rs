@@ -129,7 +129,8 @@ fn notice_title_splits_notices_under_same_field_header() {
     // 前の公示（表を含む）も行単位で読める。
     let kunren = segment_with(&segments, "船舶局無線従事者証明の申請者に対する訓練の実");
     assert!(
-        kunren.contains("九州総合通信局　〒8608795\n熊本県熊本市西区春日"),
+        // 郵便番号の「－」は私用領域の U+E61C（全角の「－」）。
+        kunren.contains("九州総合通信局　〒860－8795\n熊本県熊本市西区春日"),
         "{kunren}"
     );
 }
