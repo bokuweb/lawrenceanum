@@ -29,6 +29,8 @@ export type LawSummaryRaw = {
   /** v2 meta があれば付く。UI のカテゴリ表示・絞り込み用。 */
   category?: string | null
   revisions_count?: number
+  /** 本則の条数。古い index には無い。 */
+  article_count?: number
   /** この法令が最後に更新された日 (最新 revision の取込日)。更新順ソート用。 */
   last_updated?: string | null
   current: string

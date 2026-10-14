@@ -559,7 +559,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
                                   <div className="text-xs text-muted-foreground mt-1 flex gap-4">
                                     <span>公布 {l.promulgation_date}</span>
                                     <span>施行 {l.effective_date}</span>
-                                    <span>条数 {l.article_count}</span>
+                                    {l.article_count > 0 && <span>条数 {l.article_count}</span>}
                                   </div>
                                 </div>
                                 <ChevronRight className="size-4 text-muted-foreground shrink-0" />

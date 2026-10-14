@@ -2070,6 +2070,8 @@ fn write_indices(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
                 "title": d.title,
                 "category": category,
                 "revisions_count": revisions_count,
+                // 本則の条数。一覧カードの「N 条」表示用 (無いと UI は 0 条になる)。
+                "article_count": d.articles.len(),
                 "last_updated": last_updated,
                 "current": format!("laws/{}/current.json", l.law_id),
                 "timeline": format!("laws/{}/timeline.json", l.law_id),
@@ -3574,6 +3576,9 @@ mod release_history_tests {
         let latest = read("updates/latest.json");
         assert_eq!(latest["latest_update_date"], "2026-08-10");
         assert_eq!(latest["updated_laws"], daily["updated_laws"]);
+        // 一覧カードの条数は現行版の本則条数。
+        let index = read("laws/index.json");
+        assert_eq!(index["laws"][0]["article_count"], 2);
         // 過去版の個別 JSON は従来どおり全版書き出される。
         let revisions = std::fs::read_dir(public.join("laws/LAW/revisions"))
             .unwrap()
