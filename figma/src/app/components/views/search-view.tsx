@@ -12,6 +12,7 @@ import { Search, SlidersHorizontal, ChevronRight, FileText, Database, Landmark, 
 import { useLaws } from "../../data/use-laws";
 import { search as ftsSearch, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, searchSpeeches, searchKanpo, searchTsutatsu, searchReiki, synonymExpansions, type SearchHit, type SpeechHit, type KanpoHit, type TsutatsuHit, type ReikiHit, searchDocuments, type DocumentHit, type DocumentKind } from "../../data/search-engine";
 import { useNavigate } from "react-router";
+import { createSearchQueue } from "../../data/search-queue";
 
 const SEARCH_TARGETS = [
   ["laws", "法令・条文"], ["speeches", "国会会議録"], ["kanpo", "官報"],
@@ -35,6 +36,12 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   useEffect(() => {
     if (visibleTarget) setActiveTarget(visibleTarget);
   }, [visibleTarget]);
+  const visibleTargetRef = useRef(visibleTarget);
+  visibleTargetRef.current = visibleTarget;
+  const queueRef = useRef<ReturnType<typeof createSearchQueue<SearchTarget>> | null>(null);
+  useEffect(() => {
+    if (visibleTarget) queueRef.current?.prioritize(visibleTarget);
+  }, [visibleTarget]);
   const [cats, setCats] = useState<Set<string>>(new Set());
   const { laws, live: lawsLive, loading } = useLaws();
 
@@ -49,6 +56,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   const [ftsMeta, setFtsMeta] = useState<Record<string, string> | null>(null);
   const [pending, setPending] = useState<Set<SearchTarget>>(() =>
     new Set(initialQuery.trim() ? SEARCH_TARGETS.map(([key]) => key) : []));
+  const [running, setRunning] = useState<Set<SearchTarget>>(new Set());
   const [failures, setFailures] = useState<Partial<Record<SearchTarget, string>>>({});
   const [retry, setRetry] = useState(0);
   const searching = pending.has("laws");
@@ -63,6 +71,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
     setHits([]); setSpeechHits([]); setKanpoHits([]); setTsutatsuHits([]); setReikiHits([]);
     setDocumentHits({ pubcomment: [], gian: [], shingikai: [] });
     setFailures({});
+    setRunning(new Set());
     if (!query || !buildFtsMatch(query) || targets.size === 0) {
       setPending(new Set());
       return;
@@ -84,23 +93,29 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
           if (active) setDocumentHits(prev => ({ ...prev, [kind]: rows }));
         }] as [SearchTarget, () => Promise<void>]),
       ];
-      // 各対象のWorkerは独立しており、遅い対象を待たずに結果を表示する。
-      for (const [target, task] of tasks) {
-        if (!targets.has(target)) continue;
-        void task().catch(error => {
+      const selectedTasks = new Map(tasks.filter(([target]) => targets.has(target)).map(([target, task]) => [target, async () => {
+        if (!active) return;
+        setRunning(prev => new Set(prev).add(target));
+        try {
+          await task();
+        } catch (error: any) {
           if (!active) return;
           if (target === "laws") setFtsAvailable(false);
           const message = error?.name === "TimeoutError"
             ? "時間がかかっているため中断しました。語句や検索対象を絞って再検索してください。"
             : "検索できませんでした。再試行してください。";
           setFailures(prev => ({ ...prev, [target]: message }));
-        }).finally(() => {
-          if (active) setPending(prev => { const next = new Set(prev); next.delete(target); return next; });
-        });
-      }
+        } finally {
+          if (active) {
+            setPending(prev => { const next = new Set(prev); next.delete(target); return next; });
+            setRunning(prev => { const next = new Set(prev); next.delete(target); return next; });
+          }
+        }
+      }] as const));
+      queueRef.current = createSearchQueue(selectedTasks, visibleTargetRef.current);
     }, 200);
     // 結果を捨てるだけでなく、同期XHRやSQLの実行もWorkerごと止める。
-    return () => { active = false; clearTimeout(timer); controller.abort(); };
+    return () => { active = false; clearTimeout(timer); queueRef.current?.cancel(); queueRef.current = null; controller.abort(); };
   }, [q, cats, targets, retry]);
 
   // 件数 meta とカテゴリは初回の法令検索をブロックさせない。
@@ -262,7 +277,9 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
                   <TabsTrigger key={key} value={key} className="flex-none px-3 py-2">
                     {label}
                     {pending.has(key) ? (
-                      <><LoaderCircle className="size-3 animate-spin" aria-hidden="true" /><span className="text-xs">検索中</span></>
+                      running.has(key)
+                        ? <><LoaderCircle className="size-3 animate-spin" aria-hidden="true" /><span className="text-xs">検索中</span></>
+                        : <span className="text-xs text-muted-foreground">待機中</span>
                     ) : failures[key] ? (
                       <span className="text-xs text-destructive">エラー</span>
                     ) : (
@@ -272,7 +289,10 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
                 ))}
               </TabsList>
               {pending.size > 0 && (
-                <div role="status" className="text-xs text-muted-foreground">検索中: {selectedTargets.filter(([key]) => pending.has(key)).map(([, label]) => label).join("・")}</div>
+                <div role="status" className="text-xs text-muted-foreground">
+                  {running.size > 0 && <>検索中: {selectedTargets.filter(([key]) => running.has(key)).map(([, label]) => label).join("・")}</>}
+                  {pending.size > running.size && <span className="ml-2">待機中: {pending.size - running.size}種類</span>}
+                </div>
               )}
               {selectedTargets.map(([key, label]) => (
                 <TabsContent key={key} value={key} className="space-y-4">
@@ -283,7 +303,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
                     </div>
                   )}
                   {key !== "laws" && pending.has(key) && (
-                    <div className="text-center py-12 text-sm text-muted-foreground">{label}を検索中…</div>
+                    <div className="text-center py-12 text-sm text-muted-foreground">{label}を{running.has(key) ? "検索中" : "待機中"}…</div>
                   )}
                   {key !== "laws" && !pending.has(key) && !failures[key] && resultCounts[key] === 0 && (
                     <div className="text-center py-12 text-sm text-muted-foreground">該当する資料がありません</div>
