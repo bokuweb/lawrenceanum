@@ -174,6 +174,40 @@ fn poppler_words(xhtml: &str) -> Vec<(String, [f64; 4])> {
         .collect()
 }
 
+/// Helvetica の A・B・C（字幅 667・667・722）で `content` を描いた 1 ページの語。
+fn words_of(content: &str) -> Vec<String> {
+    let pdf = build_pdf(&[
+        "<< /Type /Catalog /Pages 2 0 R >>".into(),
+        "<< /Type /Pages /Kids [3 0 R] /Count 1 >>".into(),
+        "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>".into(),
+        "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /FirstChar 65 /LastChar 67 /Widths [667 667 722] >>".into(),
+        format!("<< /Length {} >>\nstream\n{content}endstream", content.len()),
+    ]);
+    let pages = kanpo_pdf::extract_pages(&pdf).unwrap();
+    kanpo_pdf::bbox::words(&pages[0]).into_iter().map(|w| w.text).collect()
+}
+
+#[test]
+fn letter_spaced_glyphs_make_one_word() {
+    // 字間（Tc）だけで 0.3 em 空けた字は 1 語。
+    assert_eq!(words_of("BT /F1 10 Tf 3 Tc 100 700 Td (ABC) Tj ET\n"), ["ABC"]);
+    // 同じ 0.3 em でも TJ の数値で空けた字は別の語。
+    assert_eq!(words_of("BT /F1 10 Tf 100 700 Td [(A) -300 (B)] TJ ET\n"), ["A", "B"]);
+    // 字間が 0.35 em を越えれば Tc でも別の語。
+    assert_eq!(words_of("BT /F1 10 Tf 4 Tc 100 700 Td (AB) Tj ET\n"), ["A", "B"]);
+}
+
+#[test]
+fn rule_between_glyphs_splits_words() {
+    // A（100〜106.67）と B（107.67〜）の間の 0.1 em は、普通は同じ語。
+    let text = "BT /F1 10 Tf 100 700 Td [(A) -100 (B)] TJ ET\n";
+    assert_eq!(words_of(text), ["AB"]);
+    // 間に縦の罫線（表のセルの境目）があれば切る。
+    assert_eq!(words_of(&format!("{text}0.5 w 107.17 690 m 107.17 720 l S\n")), ["A", "B"]);
+    // 字に重ならない高さの線では切らない。
+    assert_eq!(words_of(&format!("{text}0.5 w 107.17 600 m 107.17 650 l S\n")), ["AB"]);
+}
+
 /// コーパス全体で、poppler と文字列・枠まで一致する語の割合。語の切れ目は poppler と完全には
 /// 一致しない（poppler 自身が同じ字間でもつないだり切ったりする）ので、割合で見る。
 #[test]
