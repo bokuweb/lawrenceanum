@@ -165,7 +165,7 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
 /// 見出しの無い隣り合う 2 段（上の段 `a`・下の段 `b`）が、新旧対照表の改正後帯・改正前帯の
 /// 組に見えるか。継続ページが 4 段（改正後・改正前・改正後・改正前）に組まれる場合に、段の組
 /// ごとに判定する。高さと左右の範囲がほぼ揃い、本文が順序も含めてほぼ同じで、省略・新設の印が
-/// あることを求める。
+/// あること、または上の段に「略」・下の段に「同上」があって両段の列が同じ x に並ぶことを求める。
 pub(crate) fn tiers_look_like_bands(a: &[Col], b: &[Col]) -> bool {
     if a.len() < 3 || b.len() < 3 {
         return false;
@@ -188,7 +188,19 @@ pub(crate) fn tiers_look_like_bands(a: &[Col], b: &[Col]) -> bool {
     // 新旧対照表に特有の省略・新設の印があること（同じひな形の告示が上下の段に並ぶページ、
     // たとえば灯台や道路の告示の続きを取り違えないため）。
     let marked = has_shinkyu_marks(&at) || has_shinkyu_marks(&bt);
-    marked && bigram_jaccard(&at, &bt) >= 0.5 && sequence_ratio(&at, &bt) >= 0.5
+    if marked && bigram_jaccard(&at, &bt) >= 0.5 && sequence_ratio(&at, &bt) >= 0.5 {
+        return true;
+    }
+    // 改正前の欄が「〔同上〕」ばかりで本文が似ていなくても、上の段に「略」、下の段に「同上」
+    // 「同左」があり、両段の列が同じ x に並んでいれば帯の組（対応する行を同じ x に組む）。
+    let count = |t: &str, marks: &[&str]| marks.iter().map(|m| t.matches(m).count()).sum::<usize>();
+    if count(&at, &["略）", "略〕", "略］"]) < 2 || count(&bt, &["同上）", "同上〕", "同左）", "同左］"]) < 2 {
+        return false;
+    }
+    let heads = |g: &[Col]| -> Vec<f32> { column_groups(g.to_vec()).iter().map(|g| g[0].x).collect() };
+    let (ha, hb) = (heads(a), heads(b));
+    let matched = hb.iter().filter(|x| ha.iter().any(|y| (*x - y).abs() <= 1.5)).count();
+    matched >= 4 && matched * 10 >= ha.len().max(hb.len()) * 6
 }
 
 /// 新旧対照表に特有の省略・新設の印（「（略）」「〔九〜一六　略〕」「〔同上〕」「［同左］」
@@ -431,8 +443,28 @@ impl ShinkyuLayout {
             return Vec::new();
         }
         self.preamble = rest;
+        // 改正前の帯だけに残った文の続き（改正前の欄が長く次の段へ送られたもの）は、新旧対照表
+        // として出し、構造化で前の表の最後の行の改正前につなぐ。見出し（「（…の一部改正）」）や
+        // 標題・印だけのものはこれまでどおり本文にする。
+        let before_text = reconstruct_page(before.clone());
+        let continued_before = after.is_empty()
+            && out_after.is_empty()
+            && before_text.chars().count() >= 10
+            && !before_text.starts_with(['（', '〇', '(']);
         let outside: Vec<Line> = cell_lines(out_after).into_iter().chain(cell_lines(out_before)).collect();
         let mut units = Vec::new();
+        if one_sided && continued_before {
+            units.push(Unit::Shinkyu {
+                preamble: Vec::new(),
+                after: vec![cell_lines(after)],
+                before: vec![cell_lines(before)],
+                outside: Vec::new(),
+            });
+            if !outside.is_empty() {
+                units.push(Unit::Plain(outside));
+            }
+            return units;
+        }
         if one_sided || !looks_like_table() {
             let lines: Vec<Line> = cell_lines(after).into_iter().chain(cell_lines(before)).chain(outside).collect();
             if !lines.is_empty() {

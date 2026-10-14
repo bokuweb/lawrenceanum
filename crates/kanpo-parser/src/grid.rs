@@ -71,6 +71,7 @@ pub fn find_grids(rules: &PageRules, width: f32, height: f32) -> Vec<Grid> {
         .map(|v| VRule { x: v.x, y0: v.y0.max(0.0), y1: v.y1.min(height) })
         .filter(|v| v.y1 - v.y0 > 4.0)
         .collect();
+    let vs = drop_heading_boxes(vs);
     let hs: Vec<HRule> = rules
         .horizontal
         .iter()
@@ -101,6 +102,39 @@ pub fn find_grids(rules: &PageRules, width: f32, height: f32) -> Vec<Grid> {
         groups.entry(find(&mut parent, vs.len() + j)).or_default().1.push(*h);
     }
     groups.into_values().filter_map(|(v, h)| build_grid(&v, &h)).collect()
+}
+
+/// 区分見出し（「省　令」「告　示」）の囲みの縦線を除く。囲みは二重線で、上下の端に細かい
+/// 縦線の束（「|||||」）がある。表の枠に接して組まれると、二重線が表の枠の横線と交わって
+/// 表の一部とみなされ、表が見出しの囲みの下端まで伸びてしまう。
+fn drop_heading_boxes(vs: Vec<VRule>) -> Vec<VRule> {
+    // 束: 長さの揃った短い縦線が 2.5pt 以内の間隔で 5 本以上並ぶもの。
+    let mut sorted: Vec<&VRule> = vs.iter().collect();
+    sorted.sort_by(|a, b| a.y0.total_cmp(&b.y0).then(a.x.total_cmp(&b.x)));
+    let mut bundles: Vec<(f32, f32, f32, f32)> = Vec::new();
+    let mut i = 0;
+    while i < sorted.len() {
+        let first = sorted[i];
+        let mut j = i + 1;
+        while j < sorted.len()
+            && (sorted[j].y0 - first.y0).abs() <= 1.0
+            && (sorted[j].y1 - first.y1).abs() <= 1.0
+            && sorted[j].x - sorted[j - 1].x <= 2.5
+        {
+            j += 1;
+        }
+        if j - i >= 5 && first.y1 - first.y0 <= 60.0 {
+            bundles.push((first.x, sorted[j - 1].x, first.y0, first.y1));
+        }
+        i = j.max(i + 1);
+    }
+    if bundles.is_empty() {
+        return vs;
+    }
+    // 束と、束を挟む二重線（束の y の範囲を含み、束の x の 5pt 以内）を除く。
+    vs.into_iter()
+        .filter(|v| !bundles.iter().any(|&(x0, x1, y0, y1)| v.x >= x0 - 5.0 && v.x <= x1 + 5.0 && v.y0 <= y0 + 1.0 && v.y1 >= y1 - 1.0))
+        .collect()
 }
 
 /// union-find の根（経路半減）。

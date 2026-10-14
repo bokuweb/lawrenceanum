@@ -1,5 +1,6 @@
 ---
 source: crates/kanpo-parser/tests/archive_snapshots.rs
+assertion_line: 102
 expression: out
 input_file: crates/kanpo-parser/tests/archive/pages/20261001h01799/20261001h017990006.bbox.html.gz
 ---
@@ -73,8 +74,7 @@ format: prose
 ## 0 (prose)
   P （特定警備実施要領の一部改正）
     第三条特定警備実施要領（平成二十五年国土交通省告示第千百六十二号）の一部を次のように改正する。
-    第五条第一項第一号中「国籍」を「国籍等（住民基本台帳法（昭和四十二年法律第八十一号）第
-    三十条の四十五に規定する国籍等をいう。）」に改める。
+    第五条第一項第一号中「国籍」を「国籍等（住民基本台帳法（昭和四十二年法律第八十一号）第三十条の四十五に規定する国籍等をいう。）」に改める。
     附則
     （施行期日）
     １この告示は、公布の日から施行する。

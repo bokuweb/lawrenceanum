@@ -825,6 +825,12 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
                 split_tiers_rec(right, depth + 1, rules, ruled_only, out);
                 out.push(left);
             }
+        } else if let Some(edge) = partial_rule_edge(&cols, rules, lo, hi) {
+            // 段の境目の横線が段の幅の一部（右か左に寄せて）にしか無ければ、その端で縦に
+            // 切る（横線の側は段に分かれた記事、反対側は段を通して組まれた別の記事や表）。
+            let (right, left): (Vec<Col>, Vec<Col>) = cols.into_iter().partition(|c| (c.x + c.x1) / 2.0 >= edge);
+            split_tiers_rec(right, depth + 1, rules, ruled_only, out);
+            split_tiers_rec(left, depth + 1, rules, ruled_only, out);
         } else {
             out.push(cols);
         }
@@ -845,6 +851,47 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
     }
     split_tiers_rec(top, depth + 1, rules, ruled_only, out);
     split_tiers_rec(bottom, depth + 1, rules, ruled_only, out);
+}
+
+/// `part` の語の右から 3 列までに記事の始まり（「〇…第○号」の標題・「…をここに公布する。」）があるか。
+fn starts_article(cols: &[Col], part: &dyn Fn(&Col) -> bool) -> bool {
+    column_groups(cols.iter().filter(|c| part(c)).cloned().collect()).iter().take(3).any(|g| {
+        let text: String = g.iter().map(|c| c.text.as_str()).collect();
+        crate::segment::is_heading_mark(&text) || text.contains("をここに公布する")
+    })
+}
+
+/// 段の幅の 4 割以上にわたり、右端か左端に寄せて引かれた横線（`lo..hi` の高さ）の、寄せて
+/// いない側の端の x。その外が別の記事の始まりのときだけ。
+fn partial_rule_edge(cols: &[Col], rules: &TierRules, lo: f32, hi: f32) -> Option<f32> {
+    let xmin = cols.iter().map(|c| c.x).fold(f32::INFINITY, f32::min);
+    let xmax = cols.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max);
+    let em = cols.iter().map(|c| c.x1 - c.x).fold(f32::INFINITY, f32::min).max(4.0);
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    // 新旧対照表の改正後帯と改正前帯の境目の横線（欄見出しのある表の幅の線）は段の境目ではない。
+    let dividers = crate::shinkyu::detect_shinkyu_headers(cols);
+    rules
+        .hrules
+        .iter()
+        .filter(|&&(y, x0, x1)| lo < y && y < hi && x1.min(xmax) - x0.max(xmin) >= (xmax - xmin) * 0.4)
+        .filter(|&&(y, x0, x1)| !dividers.iter().any(|&(hx, divider)| (divider - y).abs() < 15.0 && x0 - 5.0 <= hx && hx <= x1 + 5.0))
+        // 横線の側にも外にも新旧対照表の欄見出しがある（別々の記事の表が並ぶ）ときだけ。前の表の
+        // 末尾の帯の境目の線（欄見出しが無い）などで切らないため。
+        .filter(|&&(_, x0, x1)| {
+            let inside = |hx: f32| x0 - 5.0 <= hx && hx <= x1 + 5.0;
+            dividers.iter().any(|&(hx, _)| inside(hx)) && dividers.iter().any(|&(hx, _)| !inside(hx))
+        })
+        .filter_map(|&(_, x0, x1)| {
+            if x1 >= xmax - em * 2.0 && x0 > xmin + em * 2.0 && starts_article(cols, &|c: &Col| center(c) < x0 - 2.0) {
+                Some((x1 - x0, x0))
+            } else if x0 <= xmin + em * 2.0 && x1 < xmax - em * 2.0 && starts_article(cols, &|c: &Col| center(c) > x1 + 2.0) {
+                Some((x1 - x0, x1))
+            } else {
+                None
+            }
+        })
+        .max_by(|a, b| a.0.total_cmp(&b.0))
+        .map(|(_, edge)| edge)
 }
 
 /// 新旧対照表の帯を行に組む。[`page_lines`] に加えて表のセルを扱う。
