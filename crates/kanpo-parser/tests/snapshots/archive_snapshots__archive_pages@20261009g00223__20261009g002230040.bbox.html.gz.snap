@@ -1,0 +1,12 @@
+---
+source: crates/kanpo-parser/tests/archive_snapshots.rs
+expression: out
+input_file: crates/kanpo-parser/tests/archive/pages/20261009g00223/20261009g002230040.bbox.html.gz
+---
+layout: tiers
+format: unknown
+
+--- 本文 ---
+
+
+--- 記事 ---
