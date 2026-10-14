@@ -104,7 +104,9 @@ function ItemDetail({ date, issueLabel, item }: { date: string; issueLabel: stri
       <ScrollArea className="flex-1 min-h-0">
         <div className="px-5 py-4">
           {item.amend_document ? (
-            <AmendDocumentView doc={item.amend_document} />
+            // 既定の max-h-96（法令閲覧の改正履歴に埋め込む用）を外し、右の欄の高さいっぱいに使う。
+            // スクロールは右の欄の ScrollArea だけにする（入れ子のスクロールを作らない）。
+            <AmendDocumentView doc={item.amend_document} className="" />
           ) : item.amend_text ? (
             <pre className="text-sm whitespace-pre-wrap font-sans leading-relaxed">{item.amend_text}</pre>
           ) : (
