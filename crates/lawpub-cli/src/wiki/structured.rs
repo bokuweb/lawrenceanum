@@ -7,6 +7,9 @@
 //!   対象法令は件名から決める (`X の一部を改正する法律案` → X、`A及びB` は分割、制定法は `…法律案` → `…法律`)。
 //! - 法令ページの frontmatter `revisions`: 直近 10 年の公布・施行 (予定) の一覧。
 //!   finalize がこれと会議・議案を合わせて 1 本の時系列表にする。
+//! - 法令ページの frontmatter `kanpo`: その法令を改正する官報の項目と、その法令に基づく告示の改正。
+//!   デジタル官報の公開は約 90 日で、配信側 (`kanpo/{date}/index.json`) からも消えうるので、
+//!   取り込んだ項目は wiki 側に残し続ける (配信側から消えても frontmatter からは消さない)。
 
 use super::*;
 use serde_json::json;
@@ -17,6 +20,11 @@ const REVISION_YEARS: i64 = 10;
 const MAX_REVISIONS: usize = 30;
 /// 議案ページの描画形式。変えたら上げると、経過に変化が無い議案も描き直す。
 const BILL_RENDER_VERSION: u64 = 2;
+/// 法令ページの frontmatter `kanpo` の形式・対応付けの規則。変えたら上げると、たまった項目を捨てて引き直す。
+const KANPO_VERSION: u64 = 1;
+/// 1 回の plan で読む官報の日付の上限 (新しい順)。それより古い項目は wiki に残っている分を使う。
+const KANPO_DATES: usize = 120;
+const MAX_KANPO: usize = 60;
 
 #[derive(Debug, Default)]
 pub struct SyncStats {
@@ -25,6 +33,7 @@ pub struct SyncStats {
     pub laws_created: usize,
     pub laws_with_revisions: usize,
     pub pubcomments: usize,
+    pub laws_with_kanpo: usize,
 }
 
 pub fn sync(source: &Source, wiki: &Path, today: chrono::NaiveDate) -> Result<SyncStats> {
@@ -51,6 +60,9 @@ pub fn sync(source: &Source, wiki: &Path, today: chrono::NaiveDate) -> Result<Sy
         Err(e) => tracing::warn!("wiki-plan: パブコメの取り込みに失敗: {e:#}"),
     }
     sync_revisions(source, wiki, today, &mut stats)?;
+    if let Err(e) = sync_kanpo(source, wiki, &mut stats) {
+        tracing::warn!("wiki-plan: 官報の取り込みに失敗: {e:#}");
+    }
     Ok(stats)
 }
 
@@ -370,6 +382,113 @@ pub(crate) fn revisions_from_timeline(timeline: &Value, since: &str) -> Vec<Valu
     out.into_iter().take(MAX_REVISIONS).map(|(_, v)| v).collect()
 }
 
+// ── 官報 ────────────────────────────────────────────────────────
+
+fn sync_kanpo(source: &Source, wiki: &Path, stats: &mut SyncStats) -> Result<()> {
+    let Some(index) = source.get_json("kanpo/index.json")? else {
+        return Ok(());
+    };
+    let mut by_law: HashMap<String, Vec<Value>> = HashMap::new();
+    for d in index["dates"].as_array().into_iter().flatten().take(KANPO_DATES) {
+        let Some(date) = d["date"].as_str() else { continue };
+        if d["linked_items"].as_u64() == Some(0) {
+            continue;
+        }
+        let day = match source.get_json(&format!("kanpo/{date}/index.json")) {
+            Ok(Some(v)) => v,
+            Ok(None) => continue,
+            Err(e) => {
+                tracing::warn!("wiki-plan: 官報 {date}: {e:#}");
+                continue;
+            }
+        };
+        for (law_id, entry) in kanpo_entries(&day) {
+            by_law.entry(law_id).or_default().push(entry);
+        }
+    }
+    for path in walk_md(wiki, "laws") {
+        let mut page = Page::read(&path)?;
+        let fresh = by_law.remove(page.get_str("law_id")).unwrap_or_default();
+        let current = page.get("kanpo_version").and_then(Value::as_u64) == Some(KANPO_VERSION);
+        let kept = if current { page.get("kanpo").and_then(Value::as_array).cloned().unwrap_or_default() } else { Vec::new() };
+        let merged = merge_kanpo(kept, fresh);
+        if !merged.is_empty() {
+            stats.laws_with_kanpo += 1;
+        }
+        if merged.is_empty() && page.get("kanpo").is_none() {
+            continue;
+        }
+        let value = Value::Array(merged);
+        if !current || page.get("kanpo") != Some(&value) {
+            page.set("kanpo", value);
+            page.set("kanpo_version", json!(KANPO_VERSION));
+            page.write(&path)?;
+        }
+    }
+    Ok(())
+}
+
+/// 1 日分の官報 (`kanpo/{date}/index.json`) から、法令ごとの項目 (法令 ID, 項目) を取り出す。
+/// `linked_laws` (改正対象) は `amends`、`basis_laws` (告示の根拠法令) は `basis` として載せる。
+pub(crate) fn kanpo_entries(day: &Value) -> Vec<(String, Value)> {
+    let date = day["date"].as_str().unwrap_or("");
+    let mut out = Vec::new();
+    for issue in day["issues"].as_array().into_iter().flatten() {
+        let kind = match issue["issue_type"].as_str() {
+            Some("extra") => "号外",
+            Some("special_extra") => "特別号外",
+            _ => "本紙",
+        };
+        let issue_label = format!("{kind}{}", issue["issue_no"].as_str().unwrap_or(""));
+        for item in issue["items"].as_array().into_iter().flatten() {
+            let (Some(title), Some(url)) = (item["title"].as_str(), item["pdf_url"].as_str()) else { continue };
+            for (key, relation) in [("linked_laws", "amends"), ("basis_laws", "basis")] {
+                for law in item[key].as_array().into_iter().flatten() {
+                    let Some(law_id) = law["law_id"].as_str() else { continue };
+                    out.push((
+                        law_id.to_string(),
+                        json!({
+                            "date": date,
+                            "issue": issue_label,
+                            "page": item["page"],
+                            "title": title,
+                            "pdf_url": url,
+                            "relation": relation,
+                        }),
+                    ));
+                }
+            }
+        }
+    }
+    out
+}
+
+/// wiki に残っている項目に新しく取れた項目を重ねる (同じ項目は新しい方)。新しい順に `MAX_KANPO` 件。
+fn merge_kanpo(kept: Vec<Value>, fresh: Vec<Value>) -> Vec<Value> {
+    let key = |v: &Value| {
+        (
+            v["date"].as_str().unwrap_or("").to_string(),
+            v["pdf_url"].as_str().unwrap_or("").to_string(),
+            v["title"].as_str().unwrap_or("").to_string(),
+            v["relation"].as_str().unwrap_or("").to_string(),
+        )
+    };
+    let mut by_key: std::collections::BTreeMap<_, Value> = kept.into_iter().map(|v| (key(&v), v)).collect();
+    for v in fresh {
+        by_key.insert(key(&v), v);
+    }
+    let mut out: Vec<Value> = by_key.into_values().collect();
+    out.sort_by(|a, b| {
+        b["date"]
+            .as_str()
+            .cmp(&a["date"].as_str())
+            .then_with(|| a["page"].as_u64().cmp(&b["page"].as_u64()))
+            .then_with(|| a["title"].as_str().cmp(&b["title"].as_str()))
+    });
+    out.truncate(MAX_KANPO);
+    out
+}
+
 // ── 和暦・漢数字 ────────────────────────────────────────────────
 
 const ERAS: [(&str, i32); 3] = [("令和", 2018), ("平成", 1988), ("昭和", 1925)];
@@ -506,6 +625,56 @@ mod tests {
         assert_eq!(r[0]["label"], "施行予定: 難病法の一部を改正する法律（令和八年法律第十号）");
         assert_eq!(r[1]["kind"], "promulgated");
         assert_eq!(r[1]["law_num"], "令和八年法律第十号");
+    }
+
+    #[test]
+    fn kanpo_items_accumulate_on_existing_law_pages() {
+        let root = temp_dir("structured-kanpo");
+        let public = root.join("public");
+        let wiki = root.join("wiki");
+        let write = |rel: &str, v: Value| {
+            let p = public.join(rel);
+            std::fs::create_dir_all(p.parent().unwrap()).unwrap();
+            std::fs::write(p, serde_json::to_vec(&v).unwrap()).unwrap();
+        };
+        write("laws/index.json", json!({"laws": [{"law_id": "L1", "title": "外国為替令"}, {"law_id": "L2", "title": "輸出貿易管理令"}]}));
+        write("kanpo/index.json", json!({"dates": [{"date": "2026-10-09", "items": 3, "linked_items": 2}]}));
+        write("kanpo/2026-10-09/index.json", json!({"date": "2026-10-09", "issues": [{
+            "issue_type": "extra", "issue_no": "第223号", "items": [
+                {"title": "輸出貿易管理令の一部を改正する政令（三二五）", "page": 2, "pdf_url": "https://k/p2.pdf",
+                 "linked_laws": [{"law_id": "L2", "title": "輸出貿易管理令", "match": "title"}]},
+                {"title": "外国為替令第七条の規定に基づき、…を指定する件の一部を改正する件（財務二六七）", "page": 76, "pdf_url": "https://k/p76.pdf",
+                 "basis_laws": [{"law_id": "L1", "title": "外国為替令", "match": "title"}]},
+                {"title": "日本国に帰化を許可する件", "page": 7, "pdf_url": "https://k/p7.pdf"}
+            ]}]}));
+        ensure_law_page(&wiki, "https://example.test", "L1", "外国為替令").unwrap();
+        // L1 には前回までに取り込んだ (配信側からは消えた) 項目が残っている。
+        let mut l1 = Page::read(&wiki.join("laws/L1.md")).unwrap();
+        l1.set("kanpo", json!([{"date": "2026-07-01", "issue": "本紙第1500号", "page": 3, "title": "古い告示の改正", "pdf_url": "https://k/old.pdf", "relation": "basis"}]));
+        l1.set("kanpo_version", json!(KANPO_VERSION));
+        l1.write(&wiki.join("laws/L1.md")).unwrap();
+
+        let source = Source::new(&public.display().to_string()).unwrap();
+        let mut stats = SyncStats::default();
+        sync_kanpo(&source, &wiki, &mut stats).unwrap();
+
+        assert_eq!(stats.laws_with_kanpo, 1);
+        let l1 = Page::read(&wiki.join("laws/L1.md")).unwrap();
+        let kanpo = l1.get("kanpo").unwrap().as_array().unwrap();
+        assert_eq!(kanpo.len(), 2);
+        assert_eq!(kanpo[0]["issue"], "号外第223号");
+        assert_eq!(kanpo[0]["relation"], "basis");
+        assert_eq!(kanpo[1]["pdf_url"], "https://k/old.pdf", "配信側から消えた項目も残す");
+        assert!(!wiki.join("laws/L2.md").exists(), "官報だけでは法令ページを作らない");
+
+        // 対応付けの規則を変えたら (KANPO_VERSION が違えば) たまった項目を捨てて引き直す。
+        let mut l1 = Page::read(&wiki.join("laws/L1.md")).unwrap();
+        l1.set("kanpo_version", json!(0));
+        l1.write(&wiki.join("laws/L1.md")).unwrap();
+        sync_kanpo(&source, &wiki, &mut SyncStats::default()).unwrap();
+        let l1 = Page::read(&wiki.join("laws/L1.md")).unwrap();
+        assert_eq!(l1.get("kanpo").unwrap().as_array().unwrap().len(), 1);
+        std::fs::remove_dir_all(root).ok();
     }
 
     #[test]
