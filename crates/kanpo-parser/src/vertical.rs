@@ -461,7 +461,94 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
             status,
         });
     }
+    merge_warichu(&mut cols);
     (cols, words, rotated)
+}
+
+/// 割注（1 つの列の中に 2 行に割って組んだ部分）を 1 つの語にまとめる。
+///
+/// 連名の告示の標題「〇個人情報保護委員会／金融庁告示第一号」や本文中の「（平成二十九年
+/// 個人情報保護委員会／金融庁告示第一号）」は、機関名を右と左の半分の列に割って組む。
+/// pdftotext は右半分を 1 語、左半分を字ごとの語（または続きの語の頭）にするので、
+/// そのままでは別の列として読まれ、本文の間に「金融庁」の行が紛れ込む。
+/// 親の列（「〇」や本文の列）の中心がちょうど右半分の左端・左半分の右端に当たり、親の列が
+/// 割注のすぐ上で終わっているものを割注とし、右半分・左半分を「・」でつないで親の列に置く
+/// （「個人情報保護委員会・金融庁」）。左半分の語が割注より下へ続く（「省告示第五号」の
+/// ように続きの語とくっついた）ときは、割注の範囲の字だけを取り、残りは親の列に戻す。
+fn merge_warichu(cols: &mut Vec<Col>) {
+    let mut i = 0;
+    while i < cols.len() {
+        let r = cols[i].clone();
+        let w = r.x1 - r.x;
+        let n = r.text.chars().count();
+        if !(4.0..=14.0).contains(&w) || n < 2 || r.y1 - r.y < w * 1.5 {
+            i += 1;
+            continue;
+        }
+        let near = |a: f32, b: f32| (a - b).abs() < 0.6;
+        let parent = cols
+            .iter()
+            .enumerate()
+            .any(|(j, p)| j != i && ((p.x + p.x1) / 2.0 - r.x).abs() < w * 0.3 && (p.y1 - r.y).abs() < w * 0.75 && p.y < r.y);
+        // 左半分: 左端が右半分の 1 字分左で、右半分の範囲に掛かる語。
+        let left: Vec<usize> = (0..cols.len())
+            .filter(|&j| j != i && near(cols[j].x, r.x - w) && cols[j].y < r.y1 - w * 0.5 && cols[j].y1 > r.y + w * 0.5)
+            .collect();
+        if !parent || left.is_empty() || left.iter().any(|&j| cols[j].y < r.y - w * 0.5) {
+            i += 1;
+            continue;
+        }
+        let mut left_chars: Vec<(f32, char)> = Vec::new();
+        let mut rest: Vec<Col> = Vec::new();
+        for &j in &left {
+            let c = &cols[j];
+            let chars: Vec<char> = c.text.chars().collect();
+            let pitch = (c.y1 - c.y) / chars.len().max(1) as f32;
+            let k = chars.iter().enumerate().take_while(|(k, _)| c.y + pitch * (*k as f32 + 0.5) < r.y1).count();
+            left_chars.extend(chars[..k].iter().enumerate().map(|(m, ch)| (c.y + pitch * m as f32, *ch)));
+            if k < chars.len() {
+                rest.push(Col {
+                    id: c.id,
+                    x: r.x - w / 2.0,
+                    x1: r.x + w / 2.0,
+                    y: c.y + pitch * k as f32,
+                    y1: c.y1,
+                    text: chars[k..].iter().collect(),
+                });
+            }
+        }
+        left_chars.sort_by(|a, b| a.0.total_cmp(&b.0));
+        let left_text: String = left_chars.iter().map(|(_, ch)| ch).filter(|ch| !ch.is_whitespace()).collect();
+        // 割注の後は親の列が続く（「告示第一号」）。表のセルの折り返しや行末の約物を割注と
+        // 取り違えないため、すぐ下に親の列の続きがあるものに限る。
+        let bottom = left_chars.last().map_or(r.y1, |(y, _)| r.y1.max(*y + w));
+        let continues = !rest.is_empty()
+            || cols.iter().enumerate().any(|(j, q)| {
+                j != i && !left.contains(&j) && ((q.x + q.x1) / 2.0 - r.x).abs() < w * 0.3 && (q.y - bottom).abs() < w * 0.75
+            });
+        if left_text.is_empty() || !continues {
+            i += 1;
+            continue;
+        }
+        cols[i] = Col {
+            id: r.id,
+            x: r.x - w / 2.0,
+            x1: r.x + w / 2.0,
+            y: r.y,
+            y1: r.y1,
+            text: format!("{}・{}", r.text, left_text),
+        };
+        let mut removed = 0;
+        for &j in left.iter().rev() {
+            cols.remove(j);
+            if j < i {
+                removed += 1;
+            }
+        }
+        i -= removed;
+        cols.extend(rest);
+        i += 1;
+    }
 }
 
 /// `Col`（縦書き 1 カラム語）から、別表復元で使う中心 y 付きの語へ。
