@@ -432,7 +432,7 @@ fn splice_tables(runs: Vec<Run>, tables: &[Table]) -> Vec<Run> {
 fn align_rows(after_lines: &[&str], before_lines: &[&str]) -> Vec<ShinkyuRow> {
     align_rows_by(after_lines, before_lines, is_row_heading, 2)
         .or_else(|| align_rows_by(after_lines, before_lines, go_heading_key, 2))
-        .or_else(|| align_rows_by(after_lines, before_lines, article_number, 1))
+        .or_else(|| align_rows_by(after_lines, before_lines, unit_heading, 1))
         .unwrap_or_else(|| vec![single_row(after_lines, before_lines)])
 }
 
@@ -461,30 +461,48 @@ fn align_rows_by(
     if !aln.iter().any(|(i, j)| i.is_some() && j.is_some()) {
         return None;
     }
-    let mut rows: Vec<ShinkyuRow> = Vec::new();
+    let mut rows: Vec<(String, String)> = Vec::new();
     for (ai, bi) in aln {
-        let after = ai.map(|i| cell_runs_from_str(&a[i].text)).unwrap_or_default();
-        let before = bi.map(|j| cell_runs_from_str(&b[j].text)).unwrap_or_default();
-        if after.is_empty() && before.is_empty() {
+        let after = ai.map(|i| a[i].text.clone()).unwrap_or_default();
+        let before = bi.map(|j| b[j].text.clone()).unwrap_or_default();
+        if after.trim().is_empty() && before.trim().is_empty() {
             continue;
         }
         // 片側だけの行が、反対側だけの行のすぐ後に続く（見出しの文言が改正で変わった条）なら
         // 1 行にまとめる。新設の条は改正前の欄にも「（新設）」があるので片側が空にはならない。
         if let Some(prev) = rows.last_mut() {
-            let complement = (prev.after.is_empty() && !prev.before.is_empty() && !after.is_empty() && before.is_empty())
-                || (!prev.after.is_empty() && prev.before.is_empty() && after.is_empty() && !before.is_empty());
+            let empty = |s: &str| s.trim().is_empty();
+            let complement = (empty(&prev.0) && !empty(&prev.1) && !empty(&after) && empty(&before))
+                || (!empty(&prev.0) && empty(&prev.1) && empty(&after) && !empty(&before));
             if complement {
-                if prev.after.is_empty() {
-                    prev.after = after;
+                if empty(&prev.0) {
+                    prev.0 = after;
                 } else {
-                    prev.before = before;
+                    prev.1 = before;
                 }
                 continue;
             }
         }
-        rows.push(ShinkyuRow { after, before, ..Default::default() });
+        rows.push((after, before));
     }
-    Some(rows)
+    // 「附則」などの見出しの後の「（新設）」「（削る）」は、片側が空の次の行（新設・削った条）のもの。
+    for i in 1..rows.len() {
+        for side in [0, 1] {
+            let (prev, cur) = rows.split_at_mut(i);
+            let (p, c) = if side == 0 { (&mut prev[i - 1].0, &mut cur[0].0) } else { (&mut prev[i - 1].1, &mut cur[0].1) };
+            if !c.trim().is_empty() {
+                continue;
+            }
+            let trimmed = p.trim_end();
+            let Some(pos) = trimmed.rfind('\n') else { continue };
+            let last = trimmed[pos + 1..].trim();
+            if last == "（新設）" || last == "（削る）" {
+                *c = last.to_string();
+                p.truncate(pos);
+            }
+        }
+    }
+    Some(rows.into_iter().map(|(a, b)| ShinkyuRow { after: cell_runs_from_str(&a), before: cell_runs_from_str(&b), ..Default::default() }).collect())
 }
 
 /// 文字列（複数行）を列折り返し結合してセルの Run 列にする。
@@ -579,6 +597,17 @@ fn is_row_heading(line: &str) -> Option<String> {
         }
     }
     None
+}
+
+/// 条・別表・附則の書き出しなら鍵（見出しが 1 つでも行を分けてよい、はっきりした区切り）。
+fn unit_heading(line: &str) -> Option<String> {
+    let t = line.trim();
+    if starts_with_spaced(t, "別表") || starts_with_spaced(t, "附則") {
+        // 鍵は「別表第一号」のような番号まで（改正後・改正前で後に続く文が違う）。
+        let key: String = t.chars().take_while(|c| !c.is_whitespace() && !"（〔［".contains(*c)).collect();
+        return Some(key);
+    }
+    article_number(t)
 }
 
 /// 行が条の書き出し（`第六条の二　…`。条番号の後に全角空白）なら条番号。列の折り返しで
@@ -782,6 +811,18 @@ mod tests {
         assert_eq!(rows.len(), 2, "{rows:?}");
         assert!(rows[0].after[0].text.starts_with("（免許を要しない無線局）\n第六条"));
         assert!(rows[1].after[0].text.starts_with("第六条の二") && rows[1].before[0].text.starts_with("第六条の二"));
+    }
+
+    #[test]
+    fn moves_new_article_mark_to_its_row() {
+        // 「附　則」の後の「（新設）」は、改正後だけにある（新設の）条の行のもの。
+        let after = "附　則\n（経過措置）\n第二条　新しい条";
+        let before = "附　則\n（新設）";
+        let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
+        let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
+        assert_eq!(rows.len(), 2, "{rows:?}");
+        assert_eq!(rows[0].before[0].text.trim(), "附　則");
+        assert_eq!(rows[1].before[0].text.trim(), "（新設）");
     }
 
     #[test]

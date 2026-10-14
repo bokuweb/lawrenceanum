@@ -199,8 +199,11 @@ pub(crate) fn tiers_look_like_bands(a: &[Col], b: &[Col]) -> bool {
     }
     let heads = |g: &[Col]| -> Vec<f32> { column_groups(g.to_vec()).iter().map(|g| g[0].x).collect() };
     let (ha, hb) = (heads(a), heads(b));
-    let matched = hb.iter().filter(|x| ha.iter().any(|y| (*x - y).abs() <= 1.5)).count();
-    matched >= 4 && matched * 10 >= ha.len().max(hb.len()) * 6
+    let hit = |x: f32, other: &[f32]| other.iter().any(|y| (x - y).abs() <= 1.5);
+    let matched = hb.iter().filter(|&&x| hit(x, &ha)).count();
+    // 前のページの続き（片方の帯の右端にだけある列）は数えない: 右から最初に揃う列までを除く。
+    let rest = |own: &[f32], other: &[f32]| own.len() - own.iter().take_while(|&&x| !hit(x, other)).count();
+    matched >= 4 && matched * 10 >= rest(&ha, &hb).max(rest(&hb, &ha)) * 6
 }
 
 /// 新旧対照表に特有の省略・新設の印（「（略）」「〔九〜一六　略〕」「〔同上〕」「［同左］」
