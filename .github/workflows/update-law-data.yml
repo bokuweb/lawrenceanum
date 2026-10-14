@@ -55,6 +55,11 @@ on:
         description: "(官報バックフィル) 直近何日分の官報を取得するか。空=既定6日。デジタル官報の遡及窓に合わせ最大90程度。"
         required: false
         type: string
+      kanpo_reextract_all:
+        description: "(官報) R2 の官報原本から全日付の改め文を抽出し直す。パーサを直した後に過去の項目へ反映する用"
+        required: false
+        default: false
+        type: boolean
   schedule:
     # JST 06:30 / 12:30 / 18:30 / 翌 00:30 (UTC -9h)
     - cron: "30 21 * * *"
@@ -327,6 +332,24 @@ jobs:
             ./target/release/lawpub kanpo-fetch --date "$d" --provider http --cache .cache || true
             echo "::endgroup::"
           done
+
+      # 官報の復元 (best-effort): .cache/kanpo/ は Actions の cache にしか無く、cache の追い出しで消える
+      # (2026-10 に 10/02 より前が消えていた)。cache に無い日付を R2 の官報原本 (collect-kanpo-pdf.yml が
+      # 蓄積した座標付きテキストと罫線) から抽出し直す。kanpo_reextract_all なら全日付を作り直す
+      # (パーサの改善を過去の項目に反映する)。原本は公開 URL から読むので poppler も R2 の認証も要らない。
+      - name: lawpub kanpo-reextract (best-effort)
+        if: github.event_name != 'push'
+        env:
+          KANPO_ARCHIVE_URL: ${{ secrets.R2_PUBLIC_URL && format('{0}/kanpo-pdf', secrets.R2_PUBLIC_URL) || '' }}
+          REEXTRACT_ALL: ${{ github.event.inputs.kanpo_reextract_all == 'true' }}
+        run: |
+          if [ -z "$KANPO_ARCHIVE_URL" ]; then
+            echo "::notice::R2_PUBLIC_URL が無いので官報の復元をスキップ"
+            exit 0
+          fi
+          all=""
+          [ "$REEXTRACT_ALL" = "true" ] && all="--all"
+          ./target/release/lawpub kanpo-reextract --cache .cache $all || echo "::warning::kanpo-reextract failed"
 
       - name: lawpub kanpo-link (best-effort)
         if: github.event_name != 'push'

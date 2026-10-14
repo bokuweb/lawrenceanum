@@ -10,21 +10,24 @@
 //!   {out}/{date}/{号dir}/{号dir}{PPPP}.pdf
 //!   {out}/{date}/{号dir}/{号dir}{PPPP}.bbox.html
 //!   {out}/{date}/{号dir}/{号dir}{PPPP}.rules.json   罫線（表の復元用）
+//!
+//! `lawpub kanpo-reextract` (`run_reextract`) はこの原本から改め文を抽出し直し、`kanpo-fetch` と同じ形の
+//! `.cache/kanpo/{date}.json` を書く。
 
 use anyhow::{Context, Result};
 use kanpo_client::{issue_dir, pdf, HttpProvider, KanpoProvider};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::path::Path;
 use std::time::Duration;
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 struct Manifest {
     date: String,
     issues: Vec<IssueEntry>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 struct IssueEntry {
     /// "regular" | "extra" | "special_extra" 等。
     issue_type: String,
@@ -38,7 +41,7 @@ struct IssueEntry {
     items: Vec<ItemEntry>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 struct PageEntry {
     page: u32,
     /// `{dir}/{file}` の file（拡張子 `.pdf`）。座標付きテキストは `.bbox.html`。
@@ -51,7 +54,7 @@ struct PageEntry {
     rules: bool,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 struct ItemEntry {
     title: String,
     page: u32,
@@ -161,4 +164,234 @@ pub fn run(date: &str, out: &Path, interval_ms: u64) -> Result<()> {
     std::fs::write(&path, serde_json::to_vec_pretty(&manifest)?)?;
     tracing::info!("wrote {}", path.display());
     Ok(())
+}
+
+// ── 原本からの再抽出 ────────────────────────────────────────────────
+
+/// `kanpo-archive` の出力の置き場所。R2 の公開 URL (`https://…/kanpo-pdf`) か、手元のディレクトリ。
+struct Archive {
+    base: String,
+    client: Option<reqwest::blocking::Client>,
+}
+
+impl Archive {
+    fn new(base: &str) -> Result<Self> {
+        let base = base.trim_end_matches('/').to_string();
+        let client = if base.starts_with("http://") || base.starts_with("https://") {
+            Some(reqwest::blocking::Client::builder().timeout(Duration::from_secs(60)).build()?)
+        } else {
+            None
+        };
+        Ok(Self { base, client })
+    }
+
+    /// 無ければ None。
+    fn get(&self, rel: &str) -> Result<Option<Vec<u8>>> {
+        match &self.client {
+            Some(client) => {
+                let url = format!("{}/{rel}", self.base);
+                let mut last = None;
+                for attempt in 0..3 {
+                    match client.get(&url).send() {
+                        Ok(r) if r.status() == reqwest::StatusCode::NOT_FOUND => return Ok(None),
+                        Ok(r) => match r.error_for_status().and_then(|r| r.bytes()) {
+                            Ok(b) => return Ok(Some(b.to_vec())),
+                            Err(e) => last = Some(anyhow::anyhow!(e)),
+                        },
+                        Err(e) => last = Some(anyhow::anyhow!(e)),
+                    }
+                    std::thread::sleep(Duration::from_millis(500 * (attempt + 1)));
+                }
+                Err(last.unwrap()).with_context(|| format!("GET {url}"))
+            }
+            None => {
+                let path = Path::new(&self.base).join(rel);
+                if !path.exists() {
+                    return Ok(None);
+                }
+                Ok(Some(std::fs::read(&path).with_context(|| format!("read {}", path.display()))?))
+            }
+        }
+    }
+}
+
+/// manifest から、デジタル官報の目次を取ったときと同じ形の `KanpoDate` を組み立てる。
+fn kanpo_date(manifest: &Manifest) -> kanpo_client::KanpoDate {
+    let issues = manifest
+        .issues
+        .iter()
+        .map(|i| kanpo_client::KanpoIssue {
+            issue_type: i.issue_type.clone(),
+            issue_no: i.issue_no.clone(),
+            pdf_url: i.url.clone(),
+            sha256: None,
+            promulgation_date: manifest.date.clone(),
+            law_nums: Vec::new(),
+            titles: i.items.iter().map(|it| it.title.clone()).collect(),
+            items: i
+                .items
+                .iter()
+                .map(|it| kanpo_client::KanpoItem {
+                    title: it.title.clone(),
+                    page: it.page,
+                    pdf_url: format!("{}pdf/{}{:04}.pdf", i.url, i.dir, it.page),
+                    sha256: None,
+                    agency_hint: kanpo_client::extract_agency_hint(&it.title),
+                    amend_text: None,
+                    amend_format: None,
+                    amend_document: None,
+                })
+                .collect(),
+            page_count: Some(i.page_count),
+        })
+        .collect();
+    kanpo_client::KanpoDate { date: manifest.date.clone(), issues }
+}
+
+/// 1 日分を原本から抽出し直す。戻り値は (改め文の対象項目数, 本文が取れた項目数, 読んだページ数)。
+fn reextract_date(archive: &Archive, date: &str, cache: &Path) -> Result<Option<(usize, usize, usize)>> {
+    let Some(bytes) = archive.get(&format!("{date}/manifest.json"))? else {
+        return Ok(None);
+    };
+    let manifest: Manifest = serde_json::from_slice(&bytes).with_context(|| format!("parse {date}/manifest.json"))?;
+    let mut kd = kanpo_date(&manifest);
+    // ページ PDF の URL (`…/pdf/{dir}{PPPP}.pdf`) → 原本の `{date}/{dir}/{dir}{PPPP}.bbox.html` と `.rules.json`。
+    let mut read = 0usize;
+    let mut load = |url: &str| -> Option<Option<pdf::PageInput>> {
+        let stem = url.rsplit('/').next()?.strip_suffix(".pdf")?;
+        let dir = stem.get(..stem.len().checked_sub(4)?)?;
+        let fetch = |ext: &str| archive.get(&format!("{date}/{dir}/{stem}.{ext}"));
+        let xhtml = match fetch("bbox.html") {
+            Ok(Some(b)) => String::from_utf8_lossy(&b).into_owned(),
+            Ok(None) => return Some(None),
+            Err(e) => {
+                tracing::warn!("{e:#}");
+                return Some(None);
+            }
+        };
+        read += 1;
+        let rules = match fetch("rules.json") {
+            Ok(Some(b)) => serde_json::from_slice(&b).ok(),
+            _ => None,
+        };
+        Some(Some(pdf::PageInput { xhtml, rules }))
+    };
+    let stats = crate::kanpo::fill_amend_texts_with(&mut kd, true, &mut load);
+    let extracted = kd.issues.iter().flat_map(|i| &i.items).filter(|i| i.amend_text.is_some()).count();
+    let dir = cache.join("kanpo");
+    std::fs::create_dir_all(&dir)?;
+    std::fs::write(dir.join(format!("{date}.json")), serde_json::to_vec_pretty(&kd)?)?;
+    Ok(Some((stats.amend_items, extracted, read)))
+}
+
+/// `lawpub kanpo-reextract` — 原本 (`kanpo-archive` の出力) から `.cache/kanpo/{date}.json` を作る。
+///
+/// `.cache/kanpo/` は GitHub Actions の cache にしか無く、cache の追い出し (リポジトリ上限 10GB) で消える
+/// (2026-10-14 時点で配信されていた官報は 10/02 以降の 7 日分だけで、R2 には 07/16 からの 58 日分があった)。
+/// 改め文も取得した時点のパーサで抽出したまま残り、パーサを直しても過去の項目には反映されない。
+/// 原本の座標付きテキストと罫線から抽出し直せば、デジタル官報 (約 90 日で消える) に取りに行かずにどちらも直せる。
+///
+/// `dates` が空なら原本の `index.json` の全日付が対象。`all` でなければ cache に既にある日付は飛ばす。
+pub fn run_reextract(archive: &str, cache: &Path, dates: &[String], all: bool) -> Result<()> {
+    let archive = Archive::new(archive)?;
+    let dates: Vec<String> = if dates.is_empty() {
+        let Some(index) = archive.get("index.json")? else {
+            anyhow::bail!("原本の index.json がありません: {}", archive.base);
+        };
+        let v: serde_json::Value = serde_json::from_slice(&index)?;
+        v["dates"].as_array().into_iter().flatten().filter_map(|d| d.as_str().map(String::from)).collect()
+    } else {
+        dates.to_vec()
+    };
+    let (mut done, mut skipped) = (0usize, 0usize);
+    for date in &dates {
+        if !all && cache.join("kanpo").join(format!("{date}.json")).exists() {
+            skipped += 1;
+            continue;
+        }
+        match reextract_date(&archive, date, cache) {
+            Ok(Some((items, extracted, read))) => {
+                done += 1;
+                tracing::info!("kanpo-reextract {date}: amend items={items} extracted={extracted} pages read={read}");
+            }
+            Ok(None) => tracing::warn!("kanpo-reextract {date}: 原本に manifest がありません"),
+            // 1 日の失敗で他の日を止めない (次回また cache に無い日として拾う)。
+            Err(e) => tracing::warn!("kanpo-reextract {date}: {e:#}"),
+        }
+    }
+    println!("kanpo-reextract: {done} day(s) written, {skipped} day(s) already cached, {} day(s) in archive", dates.len());
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn manifest_becomes_the_same_shape_as_the_toc() {
+        let manifest: Manifest = serde_json::from_value(serde_json::json!({
+            "date": "2026-10-09",
+            "issues": [{"issue_type": "extra", "issue_no": "第223号", "dir": "20261009g00223",
+                        "url": "https://www.kanpo.go.jp/20261009/20261009g00223/", "page_count": 176,
+                        "pages": [], "items": [{"title": "輸出貿易管理令の一部を改正する政令（三二五）", "page": 2}]}]
+        }))
+        .unwrap();
+        let kd = kanpo_date(&manifest);
+        let item = &kd.issues[0].items[0];
+        assert_eq!(item.pdf_url, "https://www.kanpo.go.jp/20261009/20261009g00223/pdf/20261009g002230002.pdf");
+        assert_eq!(item.agency_hint.as_deref(), Some("三二五"));
+        assert_eq!(kd.issues[0].page_count, Some(176));
+        assert_eq!(kd.issues[0].promulgation_date, "2026-10-09");
+    }
+
+    #[test]
+    fn reextract_reads_pages_from_a_local_archive_and_skips_cached_days() {
+        let root = crate::wiki::temp_dir("kanpo-reextract");
+        let (archive, cache) = (root.join("archive"), root.join("cache"));
+        let day = archive.join("2026-10-09");
+        std::fs::create_dir_all(day.join("20261009g00223")).unwrap();
+        std::fs::write(
+            archive.join("index.json"),
+            r#"{"dates": ["2026-10-09", "2026-10-08"]}"#,
+        )
+        .unwrap();
+        std::fs::write(
+            day.join("manifest.json"),
+            serde_json::to_vec(&serde_json::json!({
+                "date": "2026-10-09",
+                "issues": [{"issue_type": "extra", "issue_no": "第223号", "dir": "20261009g00223",
+                            "url": "https://www.kanpo.go.jp/20261009/20261009g00223/", "page_count": 1,
+                            "pages": [{"page": 1, "file": "20261009g002230001.pdf", "sha256": "", "bytes": 0, "bbox": true, "rules": false}],
+                            "items": [{"title": "輸出貿易管理令の一部を改正する政令（三二五）", "page": 1},
+                                      {"title": "日本国に帰化を許可する件", "page": 1}]}]
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+        // 回帰テスト用コーパスの実官報ページを原本の座標付きテキストとして置く。
+        let corpus = Path::new(env!("CARGO_MANIFEST_DIR")).join("../kanpo-parser/tests/corpus");
+        let bbox = std::fs::read_dir(&corpus)
+            .unwrap()
+            .filter_map(|e| e.ok())
+            .map(|e| e.path().join("page.bbox.html"))
+            .find(|p| p.exists())
+            .expect("corpus page");
+        std::fs::copy(&bbox, day.join("20261009g00223/20261009g002230001.bbox.html")).unwrap();
+
+        run_reextract(&archive.display().to_string(), &cache, &[], false).unwrap();
+        let kd: kanpo_client::KanpoDate =
+            serde_json::from_slice(&std::fs::read(cache.join("kanpo/2026-10-09.json")).unwrap()).unwrap();
+        let items = &kd.issues[0].items;
+        assert!(items[0].amend_text.as_deref().is_some_and(|t| !t.is_empty()), "改正の項目は本文を抽出する");
+        assert!(items[1].amend_text.is_none(), "改正・廃止・制定の標題でない項目は抽出しない");
+        assert!(!cache.join("kanpo/2026-10-08.json").exists(), "原本に manifest が無い日は書かない");
+
+        // cache にある日は既定では作り直さず、--all なら作り直す。
+        std::fs::write(cache.join("kanpo/2026-10-09.json"), r#"{"date": "2026-10-09", "issues": []}"#).unwrap();
+        run_reextract(&archive.display().to_string(), &cache, &[], false).unwrap();
+        assert_eq!(std::fs::read_to_string(cache.join("kanpo/2026-10-09.json")).unwrap(), r#"{"date": "2026-10-09", "issues": []}"#);
+        run_reextract(&archive.display().to_string(), &cache, &[], true).unwrap();
+        assert!(std::fs::read_to_string(cache.join("kanpo/2026-10-09.json")).unwrap().contains("amend_text"));
+        std::fs::remove_dir_all(root).ok();
+    }
 }

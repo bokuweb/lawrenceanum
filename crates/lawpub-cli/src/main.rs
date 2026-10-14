@@ -326,6 +326,21 @@ enum Cmd {
         #[arg(long, default_value_t = 500)]
         interval_ms: u64,
     },
+    /// 官報原本 (`kanpo-archive` の出力。R2 の公開 URL か手元のディレクトリ) から改め文を抽出し直し、
+    /// `.cache/kanpo/{date}.json` を書く。既定では cache に無い日付だけ (cache が消えたときの復元)。
+    KanpoReextract {
+        /// 原本の置き場所 (例: `https://…r2.dev/kanpo-pdf` / `.cache/kanpo-archive`)。
+        #[arg(long, env = "KANPO_ARCHIVE_URL")]
+        archive: String,
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        /// 対象の日付 (複数可)。省略時は原本の index.json の全日付。
+        #[arg(long)]
+        date: Vec<String>,
+        /// cache にある日付も作り直す (パーサを直した後に過去の項目へ反映する)。
+        #[arg(long)]
+        all: bool,
+    },
     /// 官報リンクを `public/kanpo/` に書き出す (Phase 3 placeholder)。
     KanpoLink {
         #[arg(long, default_value = "public")]
@@ -851,6 +866,7 @@ fn main() -> Result<()> {
             cache,
         } => kanpo::run_fetch(&date, &provider, limit, save_pdf, &cache),
         Cmd::KanpoArchive { date, out, interval_ms } => kanpo_archive::run(&date, &out, interval_ms),
+        Cmd::KanpoReextract { archive, cache, date, all } => kanpo_archive::run_reextract(&archive, &cache, &date, all),
         Cmd::KanpoLink { output } => kanpo::run_link(&output),
         Cmd::KanpoPoc {
             date,

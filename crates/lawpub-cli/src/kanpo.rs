@@ -52,20 +52,20 @@ pub fn run_fetch(
 
 /// 改め文抽出の集計。
 #[derive(Default)]
-struct FillStats {
-    amend_items: usize,
-    downloaded: usize,
-    total_pdf_bytes: usize,
-    by_format: std::collections::BTreeMap<String, usize>,
+pub(crate) struct FillStats {
+    pub amend_items: usize,
+    pub downloaded: usize,
+    pub total_pdf_bytes: usize,
+    pub by_format: std::collections::BTreeMap<String, usize>,
 }
 
-/// 各項目について項目別 PDF を取得・抽出・記事分割し、標題に合致する改め文本文を
-/// `item.amend_text` / `item.amend_format` に詰める。
-///
-/// 同一ページ(=同一 PDF)を複数項目が共有するためページ単位でキャッシュする。
-/// `amend_only` なら改正/廃止/制定系の標題だけを対象にする。
-/// `pdf_dir` を渡すと取得した生 PDF をそこへ保存する（後で抽出精度を上げた際の
-/// 再抽出用。`{pdf_dir}/{PDFファイル名}`）。
+/// ページ PDF の URL から解析の入力 (座標付きテキストと罫線) を取る手段。デジタル官報から PDF を取って
+/// pdftotext にかける (`kanpo-fetch`) か、R2 に蓄積した原本の座標付きテキストを読む (`kanpo-reextract`)。
+/// `None` は取得の上限に達した (この項目の残りのページは取らない)、`Some(None)` は取得・抽出の失敗。
+pub(crate) type PageLoader<'a> = dyn FnMut(&str) -> Option<Option<pdf::PageInput>> + 'a;
+
+/// デジタル官報から項目別 PDF を取得して改め文を詰める。`limit` は 1 日あたりの PDF ダウンロード上限。
+/// `pdf_dir` を渡すと取得した生 PDF をそこへ保存する（`{pdf_dir}/{PDFファイル名}`）。
 fn fill_amend_texts(
     provider: &HttpProvider,
     kd: &mut KanpoDate,
@@ -73,17 +73,59 @@ fn fill_amend_texts(
     limit: usize,
     pdf_dir: Option<&Path>,
 ) -> FillStats {
-    // 1項目が複数ページに跨る（新旧対照表等）ため、項目の開始ページから次項目の
-    // 開始ページ手前（最終項目は号の総ページ）までを連結して抽出する。
-    const MAX_SPAN: u32 = 25;
-    let mut stats = FillStats::default();
     if let Some(dir) = pdf_dir {
         if let Err(e) = std::fs::create_dir_all(dir) {
             tracing::warn!("create pdf dir {} failed: {e}", dir.display());
         }
     }
+    let (mut downloaded, mut total_pdf_bytes) = (0usize, 0usize);
+    let mut load = |url: &str| -> Option<Option<pdf::PageInput>> {
+        if downloaded >= limit {
+            return None;
+        }
+        let pdf_bytes = match provider.get_bytes(url) {
+            Ok(b) => b,
+            Err(e) => {
+                tracing::warn!("download failed {url}: {e}");
+                return Some(None);
+            }
+        };
+        total_pdf_bytes += pdf_bytes.len();
+        downloaded += 1;
+        if let Some(dir) = pdf_dir {
+            if let Some(name) = url.rsplit('/').next() {
+                let _ = std::fs::write(dir.join(name), &pdf_bytes);
+            }
+        }
+        Some(match pdf::bbox_xhtml(&pdf_bytes) {
+            Ok(xhtml) => Some(pdf::PageInput {
+                xhtml,
+                // 罫線は表（新旧対照表の中の別表など）の復元に使う。取れなくても本文は組める。
+                rules: pdf::page_rules(&pdf_bytes).ok(),
+            }),
+            Err(e) => {
+                tracing::warn!("extract failed {url}: {e}");
+                None
+            }
+        })
+    };
+    let mut stats = fill_amend_texts_with(kd, amend_only, &mut load);
+    stats.downloaded = downloaded;
+    stats.total_pdf_bytes = total_pdf_bytes;
+    stats
+}
+
+/// 各項目について項目のページを `load` で集めて解析・記事分割し、標題に合致する改め文本文を
+/// `item.amend_text` / `item.amend_format` に詰める。
+///
+/// 同一ページ(=同一 PDF)を複数項目が共有するためページ単位でキャッシュする。
+/// `amend_only` なら改正/廃止/制定系の標題だけを対象にする。
+pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: &mut PageLoader) -> FillStats {
+    // 1項目が複数ページに跨る（新旧対照表等）ため、項目の開始ページから次項目の
+    // 開始ページ手前（最終項目は号の総ページ）までを連結して抽出する。
+    const MAX_SPAN: u32 = 25;
+    let mut stats = FillStats::default();
     // page PDF URL -> 解析の入力（座標付きテキストと罫線）。None は取得/抽出失敗のメモ化。
-    // 同一ページ(=同一 PDF)を複数項目が共有するためページ単位でキャッシュする。
     let mut page_input: std::collections::HashMap<String, Option<pdf::PageInput>> = Default::default();
 
     for issue in &mut kd.issues {
@@ -126,35 +168,7 @@ fn fill_amend_texts(
                     pages.extend(cached.clone());
                     continue;
                 }
-                if stats.downloaded >= limit {
-                    break;
-                }
-                let pdf_bytes = match provider.get_bytes(&url) {
-                    Ok(b) => b,
-                    Err(e) => {
-                        tracing::warn!("download failed {url}: {e}");
-                        page_input.insert(url, None);
-                        continue;
-                    }
-                };
-                stats.total_pdf_bytes += pdf_bytes.len();
-                stats.downloaded += 1;
-                if let Some(dir) = pdf_dir {
-                    if let Some(name) = url.rsplit('/').next() {
-                        let _ = std::fs::write(dir.join(name), &pdf_bytes);
-                    }
-                }
-                let input = match pdf::bbox_xhtml(&pdf_bytes) {
-                    Ok(xhtml) => Some(pdf::PageInput {
-                        xhtml,
-                        // 罫線は表（新旧対照表の中の別表など）の復元に使う。取れなくても本文は組める。
-                        rules: pdf::page_rules(&pdf_bytes).ok(),
-                    }),
-                    Err(e) => {
-                        tracing::warn!("extract failed {url}: {e}");
-                        None
-                    }
-                };
+                let Some(input) = load(&url) else { break };
                 pages.extend(input.clone());
                 page_input.insert(url, input);
             }

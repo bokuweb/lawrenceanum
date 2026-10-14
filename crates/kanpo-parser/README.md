@@ -112,6 +112,14 @@ cargo run -p lawpub-cli -- kanpo-archive --date 2026-10-05 --out .cache/kanpo-ar
 cargo run --release -p kanpo-parser --example scan -- .cache/kanpo-archive > scan.tsv
 ```
 
+法令ワークフロー（`update-law-data.yml`）は、配信用の改め文（`.cache/kanpo/{date}.json`）が無い日付をこの原本から
+抽出し直す（`lawpub kanpo-reextract`。`.cache` は Actions の cache なので追い出されると消える）。パーサを直したあとに
+過去の項目へ反映するには、ワークフローを `kanpo_reextract_all: true` で手動実行する。手元では:
+
+```bash
+cargo run --release -p lawpub-cli -- kanpo-reextract --archive https://…r2.dev/kanpo-pdf --cache .cache --date 2026-10-09
+```
+
 `scan` は全ページを解析して怪しいページ（欄見出しがあるのに表にならない、改正後/改正前の
 行数が極端に偏る、私用 CID の化け候補など）に印を付ける。新しいエッジケースを見つけたら
 コーパスに足す。
