@@ -61,8 +61,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     // 表の目印の通し番号（ページをまたぐ）。
     let mut table_count = 0usize;
     for (pi, page) in doc.select(&page_sel).enumerate() {
-        let dim = |k: &str, default: f32| page.value().attr(k).and_then(|s| s.parse::<f32>().ok()).unwrap_or(default);
-        let (width, height) = (dim("width", 595.0), dim("height", 842.0));
+        let (width, height) = page_size(page);
         let page_rules: Option<&PageRules> = rules.get(pi).and_then(|r| r.as_ref());
         let grids: Vec<Grid> = page_rules
             .map(|r| find_grids(r, width.max(height), width.max(height)))
@@ -255,20 +254,31 @@ pub(crate) fn parse_page_cols(xhtml: &str) -> Vec<(f32, Vec<Col>)> {
     let page_sel = Selector::parse("page").unwrap();
     let mut out = Vec::new();
     for page in doc.select(&page_sel) {
-        let height = page
-            .value()
-            .attr("height")
-            .and_then(|s| s.parse::<f32>().ok())
-            .unwrap_or(842.0);
-        let cols = page_words(page, height);
+        let (width, height) = page_size(page);
+        let cols = page_words_traced(page, width, height).0;
         out.push((height, cols));
     }
     out
 }
 
-fn page_words(page: scraper::ElementRef, height: f32) -> Vec<Col> {
-    let width = page.value().attr("width").and_then(|s| s.parse::<f32>().ok()).unwrap_or(595.0);
-    page_words_traced(page, width, height).0
+/// ページの幅と高さ（pt）。/Rotate 90・270 のページは、pdftotext が語の座標を回した後の
+/// 向きで出すのに `<page>` の幅・高さは回す前のままなので、語が幅をはみ出して高さに収まる
+/// ときは入れ替える（可視化で PDF の表示と語の枠を重ねるため）。
+fn page_size(page: scraper::ElementRef) -> (f32, f32) {
+    let dim = |k: &str, default: f32| page.value().attr(k).and_then(|s| s.parse::<f32>().ok()).unwrap_or(default);
+    let (width, height) = (dim("width", 595.0), dim("height", 842.0));
+    let word_sel = Selector::parse("word").unwrap();
+    let (mut max_x, mut max_y) = (0f32, 0f32);
+    for w in page.select(&word_sel) {
+        let num = |k: &str| w.value().attr(k).and_then(|s| s.parse::<f32>().ok()).unwrap_or(0.0);
+        max_x = max_x.max(num("xmax"));
+        max_y = max_y.max(num("ymax"));
+    }
+    if max_x > width + 2.0 && max_x <= height + 2.0 && max_y <= width + 2.0 {
+        (height, width)
+    } else {
+        (width, height)
+    }
 }
 
 /// 縦書きのページが横倒しに表示されているか。
