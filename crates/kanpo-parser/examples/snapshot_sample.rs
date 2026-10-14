@@ -10,14 +10,11 @@
 //!   選び方は語の並びに依らないページ名のハッシュ順なので、同じアーカイブからは同じページが選ばれる。
 //! - 項目: 目次の改正・廃止・制定の項目のうち 2〜6 ページのものから、号の種類 × 新旧対照表の
 //!   有無の層ごとに選ぶ（ページまたぎの表のつなぎ方を見るため）。項目のページもページの集合に入れる。
-//! - 置くもの: `pages/<号>/<ページ>.bbox.html.gz`（pdftotext -bbox-layout）と `.rules.json`（罫線）、
+//! - 置くもの: `pages/<号>/<ページ>.pdf`（原本。テストは kanpo-pdf で読む）、
 //!   `pages.tsv`（ページと層）、`items/<項目>.json`（項目の標題とページ）。PDF は置かない。
 
-use flate2::write::GzEncoder;
-use flate2::Compression;
 use serde_json::{json, Value};
 use std::collections::{BTreeMap, BTreeSet};
-use std::io::Write;
 use std::path::{Path, PathBuf};
 
 /// ページ名の FNV-1a ハッシュ（選ぶ順を決めるだけ）。
@@ -154,13 +151,7 @@ fn main() {
         if seen_dirs.insert(dir.clone()) {
             std::fs::create_dir_all(&dir).unwrap();
         }
-        let xhtml = std::fs::read(root.join(format!("{stem}.bbox.html"))).unwrap();
-        let mut gz = GzEncoder::new(Vec::new(), Compression::best());
-        gz.write_all(&xhtml).unwrap();
-        std::fs::write(dst.with_extension("bbox.html.gz"), gz.finish().unwrap()).unwrap();
-        if let Ok(rules) = std::fs::read(root.join(format!("{stem}.rules.json"))) {
-            std::fs::write(dst.with_extension("rules.json"), rules).unwrap();
-        }
+        std::fs::copy(root.join(format!("{stem}.pdf")), dst.with_extension("pdf")).unwrap();
         tsv.push_str(&format!("{rel}\t{stratum}\n"));
     }
     std::fs::write(out.join("pages.tsv"), tsv).unwrap();

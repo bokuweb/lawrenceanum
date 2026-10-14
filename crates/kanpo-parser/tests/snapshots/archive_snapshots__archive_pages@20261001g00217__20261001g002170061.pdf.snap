@@ -1,7 +1,7 @@
 ---
 source: crates/kanpo-parser/tests/archive_snapshots.rs
 expression: out
-input_file: crates/kanpo-parser/tests/archive/pages/20261001g00217/20261001g002170061.bbox.html.gz
+input_file: crates/kanpo-parser/tests/archive/pages/20261001g00217/20261001g002170061.pdf
 ---
 layout: tiers
 format: shinkyu
@@ -46,7 +46,7 @@ format: shinkyu
 スポーツ振興投票の実施等に関する法律第五条の二の文部科学大臣が指定する組織は、次のと
 おりとする。
 一　フィンランドに主たる事務所が所在する団体である　Suomen Palloliitto
-二　ドイツ連邦共和国に主たる事務所が所在する団体である　Bundesliga‑Gruppe GmbH
+二　ドイツ連邦共和国に主たる事務所が所在する団体である　Bundesliga-Gruppe GmbH
 三　アイスランドに主たる事務所が所在する団体である　Knattspyrnusamband I slands
 四　アイルランドに主たる事務所が所在する団体である　Football Association of Ireland
 五　〔略〕
@@ -91,7 +91,7 @@ GmbH
     後 一　フィンランドに主たる事務所が所在する団体である　Suomen Palloliitto
     前 一　ドイツ連邦共和国に主たる事務所が所在する団体である　DFL Deutsche Fuball LigaGmbH〔号を加える。〕〔号を加える。〕
    row 2
-    後 二　ドイツ連邦共和国に主たる事務所が所在する団体である　Bundesliga‑Gruppe GmbH
+    後 二　ドイツ連邦共和国に主たる事務所が所在する団体である　Bundesliga-Gruppe GmbH
     前 二　〔同上〕
    row 3
     後 三　アイスランドに主たる事務所が所在する団体である　Knattspyrnusamband I slands

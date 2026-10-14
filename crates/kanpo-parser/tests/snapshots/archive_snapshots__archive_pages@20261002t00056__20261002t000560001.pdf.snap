@@ -1,7 +1,7 @@
 ---
 source: crates/kanpo-parser/tests/archive_snapshots.rs
 expression: out
-input_file: crates/kanpo-parser/tests/archive/pages/20261002t00056/20261002t000560001.bbox.html.gz
+input_file: crates/kanpo-parser/tests/archive/pages/20261002t00056/20261002t000560001.pdf
 ---
 layout: horizontal
 format: unknown
@@ -56,13 +56,12 @@ JIHAD（KTJ）（originalscript:Катиба　ат‑Таухид　валь‑
 も活動している。KTJの戦闘員数は約500である。KTJは、カティーバ・イマーム・アル・ブハ
 リ（QE82）及びイスラミック・ジハード・グループ（QE50）のようなテロ組織とも協力し
 ている。同団体に対するインターポール（国際刑事警察機構）・国連安全保障理事会特別手配書
-のウェブ・リンク：https://www.interpol.int/en/How‑we‑work/Notices/View‑UN‑Notices‑
+のウェブ・リンク：https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-
 Entities
 変更後
 名称　カティーバ・ジャマーアト・アル・タウヒード・ワル・ジハード（KHATIBA
-JAMAATAL‑TAWHIDWAL‑JIHAD（KTJ）（
+JAMAATAL‑TAWHIDWAL‑JIHAD（KTJ）（originalscript:
 т　ат‑Таухид　валь‑Джихад））
-originalscript:
 別名　⒜ジャナット・オシクラリ（JANNATOSHIKLARI）
 Катиба　Джамаа
 ⒝ジャマーアト・アル・タウ
@@ -87,7 +86,7 @@ script:
     １　名簿記載者公告番号QE92（カティーバ・アル・タウヒード・ワル・ジハード（KHATIBAAL‑TAWHIDWAL‑JIHAD（KTJ）（originalscript:Катиба　ат‑Таухид　валь‑Джихад）））変更前名称　カティーバ・アル・タウヒード・ワル・ジハード（KHATIBAAL‑TAWHIDWAL‑JIHAD（KTJ）（originalscript:Катиба　ат‑Таухид　валь‑Джихад））
     別名　⒜ジャナット・オシクラリ（JANNATOSHIKLARI）　⒝ジャマーアート・アル・タウヒード・ワル・ジハード（Jamaatal‑Tawhidwal‑Jihad）旧名称　ジャナット・オシクラリ（JANNATOSHIKLARI）名簿に記載された年月日　2022年３月７日その他参考となるべき事項　カティーバ・アル・タウヒード・ワル・ジハード（かつてジャナット・オシクラリとして知られていた。）は、国際テロ組織であるレバントの人々のためのア
     ル・ヌスラ戦線（QE61）の傘下で活動しているテロ組織である。同団体は、主にシリア・アラブ共和国のハマ県、イドリブ県、ラタキア県で活動するが、トルコ、キルギスタン、ウズベキスタン、ロシア連邦、タジキスタン、カザフスタン、エジプト、アフガニスタン、ウクライナでも活動している。KTJの戦闘員数は約500である。KTJは、カティーバ・イマーム・アル・ブハ
-    リ（QE82）及びイスラミック・ジハード・グループ（QE50）のようなテロ組織とも協力している。同団体に対するインターポール（国際刑事警察機構）・国連安全保障理事会特別手配書のウェブ・リンク：https://www.interpol.int/en/How‑we‑work/Notices/View‑UN‑Notices‑Entities変更後名称　カティーバ・ジャマーアト・アル・タウヒード・ワル・ジハード（KHATIBAJAMAATAL‑TAWHIDWAL‑JIHAD（KTJ）（т　ат‑Таухид　валь‑Джихад））originalscript:
+    リ（QE82）及びイスラミック・ジハード・グループ（QE50）のようなテロ組織とも協力している。同団体に対するインターポール（国際刑事警察機構）・国連安全保障理事会特別手配書のウェブ・リンク：https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Entities変更後名称　カティーバ・ジャマーアト・アル・タウヒード・ワル・ジハード（KHATIBAJAMAATAL‑TAWHIDWAL‑JIHAD（KTJ）（originalscript:т　ат‑Таухид　валь‑Джихад））
     別名　⒜ジャナット・オシクラリ（JANNATOSHIKLARI）Катиба　Джамаа⒝ジャマーアト・アル・タウヒード・ワル・ジハード（【アラビア語表記】）
     （Jamaatal‑Tawhidwal‑Jihad（originalscript:
     カティーバ・アル・タウヒード・ワル・ジハード（【アラビア語表記】）

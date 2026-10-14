@@ -16,5 +16,4 @@ serde.workspace = true
 
 [dev-dependencies]
 serde_json.workspace = true
-flate2 = "1"
 insta = { version = "1", features = ["glob"] }

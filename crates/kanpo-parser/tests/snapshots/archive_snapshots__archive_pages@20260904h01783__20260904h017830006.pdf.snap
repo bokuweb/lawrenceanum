@@ -1,7 +1,7 @@
 ---
 source: crates/kanpo-parser/tests/archive_snapshots.rs
 expression: out
-input_file: crates/kanpo-parser/tests/archive/pages/20260904h01783/20260904h017830006.bbox.html.gz
+input_file: crates/kanpo-parser/tests/archive/pages/20260904h01783/20260904h017830006.pdf
 ---
 layout: tiers
 format: unknown

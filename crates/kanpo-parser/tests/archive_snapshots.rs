@@ -3,8 +3,9 @@
 //! `tests/archive/` は `examples/snapshot_sample` が R2 に蓄積した官報から層別に選んだもの
 //! （号の種類 × 組み方 × 新旧対照表 × 罫線の表 × 割注 × 私用 CID、と 2〜6 ページの項目）。
 //!
-//! - `pages/<号>/<ページ>.bbox.html.gz` と `.rules.json`: 1 ページずつ解析し、組み方・本文・
-//!   記事ごとの構造（段落・新旧対照表の行・表のセル）をスナップショットにする
+//! - `pages/<号>/<ページ>.pdf`: 原本の PDF。本番と同じく kanpo-pdf で座標付きテキストと罫線を
+//!   取り出して 1 ページずつ解析し、組み方・本文・記事ごとの構造（段落・新旧対照表の行・表のセル）を
+//!   スナップショットにする
 //! - `items/<項目>.json`: 項目のページをまとめて解析し（ページをまたぐ表のつなぎ方）、
 //!   目次の標題に合う記事とその構造をスナップショットにする
 //!
@@ -12,24 +13,14 @@
 //! `INSTA_UPDATE=always cargo test -p kanpo-parser --test archive_snapshots`）で差分を目視で
 //! 確かめてから受け入れる。`tests/snapshots/` がスナップショット。
 
-use flate2::read::GzDecoder;
 use kanpo_parser::{Block, Document, PageInput, Run};
-use std::io::Read;
 use std::path::Path;
 
-fn read_page(stem: &Path) -> PageInput {
-    let mut xhtml = String::new();
-    GzDecoder::new(std::fs::File::open(stem.with_extension("bbox.html.gz")).unwrap())
-        .read_to_string(&mut xhtml)
-        .unwrap();
-    let rules = std::fs::read_to_string(stem.with_extension("rules.json")).ok().map(|s| serde_json::from_str(&s).unwrap());
-    PageInput { xhtml, rules }
-}
-
-/// `pages/<号>/<ページ>.bbox.html.gz` → `pages/<号>/<ページ>`。
-fn stem_of(path: &Path) -> std::path::PathBuf {
-    let s = path.to_string_lossy();
-    std::path::PathBuf::from(s.trim_end_matches(".bbox.html.gz"))
+/// 1 ページの PDF を解析の入力にする。
+fn read_page(pdf: &Path) -> PageInput {
+    let mut pages = kanpo_parser::page_inputs(&std::fs::read(pdf).unwrap()).unwrap();
+    assert_eq!(pages.len(), 1, "{}", pdf.display());
+    pages.remove(0)
 }
 
 fn runs_text(runs: &[Run]) -> String {
@@ -88,8 +79,8 @@ fn render_document(out: &mut String, doc: &Document) {
 
 #[test]
 fn archive_pages() {
-    insta::glob!("archive/pages/**/*.bbox.html.gz", |path| {
-        let page = read_page(&stem_of(path));
+    insta::glob!("archive/pages/**/*.pdf", |path| {
+        let page = read_page(path);
         let a = kanpo_parser::analyze_item(std::slice::from_ref(&page));
         let mut out = String::new();
         let layouts: Vec<&str> = a.pages.iter().map(|p| p.layout).collect();
@@ -109,7 +100,7 @@ fn archive_items() {
     insta::glob!("archive/items/*.json", |path| {
         let item: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
         let title = item["title"].as_str().unwrap();
-        let pages: Vec<PageInput> = item["pages"].as_array().unwrap().iter().map(|p| read_page(&root.join(p.as_str().unwrap()))).collect();
+        let pages: Vec<PageInput> = item["pages"].as_array().unwrap().iter().map(|p| read_page(&root.join(format!("{}.pdf", p.as_str().unwrap())))).collect();
         let a = kanpo_parser::analyze_item(&pages);
         let picked = kanpo_parser::pick_article(title, &a.articles);
         let mut out = format!("title: {title}\npages: {}\narticles: {}\npicked: {picked:?}\n\n", pages.len(), a.articles.len());

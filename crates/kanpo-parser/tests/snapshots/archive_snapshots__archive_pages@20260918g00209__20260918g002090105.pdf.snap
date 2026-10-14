@@ -2,7 +2,7 @@
 source: crates/kanpo-parser/tests/archive_snapshots.rs
 assertion_line: 102
 expression: out
-input_file: crates/kanpo-parser/tests/archive/pages/20260918g00209/20260918g002090105.bbox.html.gz
+input_file: crates/kanpo-parser/tests/archive/pages/20260918g00209/20260918g002090105.pdf
 ---
 layout: tiers
 format: shinkyu

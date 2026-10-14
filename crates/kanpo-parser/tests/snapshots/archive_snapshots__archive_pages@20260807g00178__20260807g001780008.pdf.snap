@@ -1,7 +1,7 @@
 ---
 source: crates/kanpo-parser/tests/archive_snapshots.rs
 expression: out
-input_file: crates/kanpo-parser/tests/archive/pages/20260807g00178/20260807g001780008.bbox.html.gz
+input_file: crates/kanpo-parser/tests/archive/pages/20260807g00178/20260807g001780008.pdf
 ---
 layout: tiers
 format: prose
@@ -25,7 +25,7 @@ format: prose
 アンガン・スチール・カンパニー・リミテッド（ANGANG STEEL CO.,LTD.）　五十・一％
 ウーハン・アイアン・アンド・スチール・カンパニー・リミテッド（WUHAN IRON＆STEEL CO., LTD.）　五十・一％
 グァンシアン・チュアンシェン・ニュー・マテリアルズ・カンパニー・リミテッド（GUANXIAN CHUANGSHENG NEW MATERIALS CO., LTD.）　五十・一％
-ティエンジン・ローリング－ワン・スチール・カンパニー・リミテッド（TIANJIN ROLLING‑ONE STEEL CO., LTD.）　五十・一％
+ティエンジン・ローリング－ワン・スチール・カンパニー・リミテッド（TIANJIN ROLLING-ONE STEEL CO., LTD.）　五十・一％
 バオシャン・アイアン・アンド・スチール・カンパニー・リミテッド（BAOSHAN IRON＆STEEL CO., LTD.）　五十・一％
 バオスチール・チャンジャン・アイアン・アンド・スチール・カンパニー・リミテッド（BAOSTEEL ZHANJIANG IRON＆STEEL CO., LTD.）　五十・一％
 ビーエックス・スチール・ポスコ・コールド・ロールド・シート・カンパニー・リミテッド（BX STEEL POSCO COLD ROLLED SHEET CO., LTD.）　五十・一％
@@ -88,7 +88,7 @@ format: prose
       | アンガン・スチール・カンパニー・リミテッド（ANGANG STEEL CO.,LTD.） | 五十・一％ |
       | ウーハン・アイアン・アンド・スチール・カンパニー・リミテッド（WUHAN IRON＆STEEL CO., LTD.） | 五十・一％ |
       | グァンシアン・チュアンシェン・ニュー・マテリアルズ・カンパニー・リミテッド（GUANXIAN CHUANGSHENG NEW MATERIALS CO., LTD.） | 五十・一％ |
-      | ティエンジン・ローリング－ワン・スチール・カンパニー・リミテッド（TIANJIN ROLLING‑ONE STEEL CO., LTD.） | 五十・一％ |
+      | ティエンジン・ローリング－ワン・スチール・カンパニー・リミテッド（TIANJIN ROLLING-ONE STEEL CO., LTD.） | 五十・一％ |
       | バオシャン・アイアン・アンド・スチール・カンパニー・リミテッド（BAOSHAN IRON＆STEEL CO., LTD.） | 五十・一％ |
       | バオスチール・チャンジャン・アイアン・アンド・スチール・カンパニー・リミテッド（BAOSTEEL ZHANJIANG IRON＆STEEL CO., LTD.） | 五十・一％ |
       | ビーエックス・スチール・ポスコ・コールド・ロールド・シート・カンパニー・リミテッド（BX STEEL POSCO COLD ROLLED SHEET CO., LTD.） | 五十・一％ |

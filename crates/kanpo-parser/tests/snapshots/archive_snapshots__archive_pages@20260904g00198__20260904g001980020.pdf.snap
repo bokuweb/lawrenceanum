@@ -1,7 +1,7 @@
 ---
 source: crates/kanpo-parser/tests/archive_snapshots.rs
 expression: out
-input_file: crates/kanpo-parser/tests/archive/pages/20260904g00198/20260904g001980020.bbox.html.gz
+input_file: crates/kanpo-parser/tests/archive/pages/20260904g00198/20260904g001980020.pdf
 ---
 layout: horizontal
 format: prose
@@ -68,7 +68,7 @@ format: prose
 の破線で囲んだ部分のように改める。
 改正後　改正前
 （略）　（略）
-一（略）　一　（略）
+一　（略）　一　（略）
 １　（略）　１　（略）
 （一般会計）　（一般会計）
 目　目
@@ -115,7 +115,7 @@ format: prose
     令和八年九月四日　国土交通大臣　金子　恭之次の表により、改正前欄に掲げる規定の破線で囲んだ部分をこれに対応する改正後欄に掲げる規定の破線で囲んだ部分のように改める。
     改正後　改正前
     （略）　（略）
-    一（略）　一　（略）
+    一　（略）　一　（略）
     １　（略）　１　（略）
     （一般会計）　（一般会計）目　目
     （略）　（略）住宅市街地総合整備促進事業費補助　住宅市街地総合整備促進事業費補助

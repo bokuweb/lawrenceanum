@@ -1,8 +1,7 @@
 ---
 source: crates/kanpo-parser/tests/archive_snapshots.rs
-assertion_line: 102
 expression: out
-input_file: crates/kanpo-parser/tests/archive/pages/20260814h01768/20260814h017680027.bbox.html.gz
+input_file: crates/kanpo-parser/tests/archive/pages/20260814h01768/20260814h017680027.pdf
 ---
 layout: horizontal
 format: prose
@@ -43,7 +42,7 @@ format: prose
 なお、最終貸借対照表の開示状況は次のとおり
 です。
 （甲）
-https://liberty‑g.co.jp
+https://liberty-g.co.jp
 令和八年八月十四日
 埼玉県さいたま市南区文蔵一丁目一七番四
 号　（甲）株式会社Ｌｉｂｅｒｔｙ
@@ -147,7 +146,7 @@ https://www.jebl.co.jp
     会社その他の公告合併公告左記会社は合併して甲は乙の権利義務全部を承継して存続し乙は解散することにいたしました。
     この合併に対し異議のある債権者は、本公告掲載の翌日から一箇月以内にお申し出下さい。
     なお、最終貸借対照表の開示状況は次のとおりです。
-    （甲）https://liberty‑g.co.jp令和八年八月十四日埼玉県さいたま市南区文蔵一丁目一七番四号　（甲）株式会社Ｌｉｂｅｒｔｙ代表取締役　佐藤　拓也東京都台東区東上野六丁目二三番五号第二雨宮ビル一〇〇二号室
+    （甲）https://liberty-g.co.jp令和八年八月十四日埼玉県さいたま市南区文蔵一丁目一七番四号　（甲）株式会社Ｌｉｂｅｒｔｙ代表取締役　佐藤　拓也東京都台東区東上野六丁目二三番五号第二雨宮ビル一〇〇二号室
     （乙）合同会社ＳＨＡＲＥ代表社員　佐藤　一斗合併公告左記会社は合併して甲は乙の権利義務全部を承継して存続し乙は解散することにいたしました。
     この合併に対し異議のある債権者は、令和八年
     九月十八日までにお申し出下さい。

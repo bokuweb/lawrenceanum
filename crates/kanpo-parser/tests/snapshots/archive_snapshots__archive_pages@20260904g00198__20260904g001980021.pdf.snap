@@ -2,7 +2,7 @@
 source: crates/kanpo-parser/tests/archive_snapshots.rs
 assertion_line: 102
 expression: out
-input_file: crates/kanpo-parser/tests/archive/pages/20260904g00198/20260904g001980021.bbox.html.gz
+input_file: crates/kanpo-parser/tests/archive/pages/20260904g00198/20260904g001980021.pdf
 ---
 layout: horizontal
 format: prose
