@@ -1,6 +1,5 @@
 ---
 source: crates/kanpo-parser/tests/archive_snapshots.rs
-assertion_line: 98
 expression: out
 input_file: crates/kanpo-parser/tests/archive/pages/20261002g00218/20261002g002180017.pdf
 ---
@@ -185,14 +184,13 @@ format: unknown
 三五二
 二二七
 二二七
-伊藤
+伊藤正通
 十七
 十七
 十六
 十六
 中島
 牛越
-正通
 修
 元
 届出年月日
@@ -260,11 +258,11 @@ format: unknown
     三五二
     三五二
     二二七
-    二二七伊藤
+    二二七伊藤正通
     十七
     十七
     十六
-    十六中島牛越正通修元届出年月日令和八年四月二
+    十六中島牛越修元届出年月日令和八年四月二
     十四日届出年月日令和八年四月二
     十四日令和八年四月二十
     九日届出年月日令和八年四月三

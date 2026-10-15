@@ -139,6 +139,14 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
     if upper.len() < 3 || lower.len() < 3 {
         return None;
     }
+    // 改正の指示（「〜の一部を次のように改正する」「様式を次のように改める」）は改め文の本文で、新旧対照表の
+    // 欄（法令自身の文）には出ない（様式を改める条が上下に並び、様式の図の中の字が似ているページ）。
+    // 上の帯（改正後の欄になるはずのところ）に収まる語にあるときだけ見る（表の左に紙面の高さいっぱいに
+    // 組まれた次の記事の指示や、表の下に続く指示はある）。
+    let text: String = upper.iter().filter(|c| c.y1 < divider).flat_map(|c| c.text.chars()).collect();
+    if text.contains("の一部を次のように改正する") || text.contains("を次のように改める") {
+        return None;
+    }
     // 上下帯の高さ対称性（表は改正後欄の高さ ≒ 改正前欄の高さ）。
     let band_height = |g: &[Col]| {
         let top = g.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
