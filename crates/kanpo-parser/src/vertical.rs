@@ -2,7 +2,7 @@
 
 use scraper::{Html, Selector};
 
-use crate::horizontal::{horizontal_lines, is_left_strip_header, row_lines, LEFT_STRIP};
+use crate::horizontal::{horizontal_lines, horizontal_lines_with_tables, is_left_strip_header, row_lines, LEFT_STRIP};
 use crate::normalize::{is_margin_noise, is_toc_page_number, private_cid_glyph, toc_page_numbers, word_text, CidGlyph};
 use crate::shinkyu::{
     band_pair_unit, detect_shinkyu_bands_headerless, detect_shinkyu_header, lines_with_tables_by, reconstruct_shinkyu, split_side_by_side_tables,
@@ -111,7 +111,10 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         outside: Vec::new(),
                     }
                 }
-                None => Unit::Plain(horizontal_lines(cols)),
+                None => {
+                    let vrules: Vec<(f32, f32, f32)> = page_rules.map(|r| r.vertical.iter().map(|v| (v.x, v.y0, v.y1)).collect()).unwrap_or_default();
+                    Unit::Plain(horizontal_lines_with_tables(cols, &grids, &vrules))
+                }
             });
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
@@ -626,7 +629,11 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
         // 1〜2 字の語は高さも整数 pt のものだけ（縦中横の「13」は横組み用の書体で高さが
         // 8.184pt などになり、ずれていない）。
         let h = *y1 - *y;
-        let tall = h >= em * 1.5 || (vertical_page && t.chars().count() <= 2 && h >= em * 0.9 && (h - h.round()).abs() < 0.01);
+        // 半角の英数字 1 字の語（横組みの金額の頭の「3」）は、高さが幅の 2 倍でも縦組みではない
+        // （縦組みの小数点「･」は 1 字でもずれている）。
+        let half_width = t.chars().count() == 1 && t.chars().all(|c| c.is_ascii_alphanumeric());
+        let tall = (h >= em * 1.5 && !half_width)
+            || (vertical_page && t.chars().count() <= 2 && h >= em * 0.9 && (h - h.round()).abs() < 0.01);
         // 上の余白帯の柱（「官」「報」「第」「号」の 1 字の語）は動かさない。
         if vertical_font && *y1 > TOP_MARGIN && tall {
             *y += em;
@@ -1629,9 +1636,9 @@ fn split_off_horizontal_blocks(cols: Vec<Col>) -> (Vec<Col>, Vec<(f32, Vec<Line>
         }
     }
     let mut groups: std::collections::BTreeMap<usize, Vec<usize>> = std::collections::BTreeMap::new();
-    for k in 0..wide.len() {
+    for (k, &i) in wide.iter().enumerate() {
         let r = root(&mut parent, k);
-        groups.entry(r).or_default().push(wide[k]);
+        groups.entry(r).or_default().push(i);
     }
     // 縦組みの列（2 字以上の縦長の語）。
     let tall = |c: &Col| c.text.chars().count() >= 2 && c.y1 - c.y > (c.x1 - c.x) * 1.5;
