@@ -1629,9 +1629,9 @@ fn split_off_horizontal_blocks(cols: Vec<Col>) -> (Vec<Col>, Vec<(f32, Vec<Line>
         }
     }
     let mut groups: std::collections::BTreeMap<usize, Vec<usize>> = std::collections::BTreeMap::new();
-    for k in 0..wide.len() {
+    for (k, &i) in wide.iter().enumerate() {
         let r = root(&mut parent, k);
-        groups.entry(r).or_default().push(wide[k]);
+        groups.entry(r).or_default().push(i);
     }
     // 縦組みの列（2 字以上の縦長の語）。
     let tall = |c: &Col| c.text.chars().count() >= 2 && c.y1 - c.y > (c.x1 - c.x) * 1.5;
