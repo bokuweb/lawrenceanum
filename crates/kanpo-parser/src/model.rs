@@ -756,9 +756,9 @@ fn item_number(text: &str) -> Option<u32> {
     }
 }
 
-/// 改正前の欄が印 1 つ（「（新設）」）で改正後の欄が「一　…」の行の後に、改正前の欄が空で改正後の欄が
-/// 「二　…」「三　…」と続く行があれば、新設の項・条の号なので 1 つの行にまとめる（新設の項の号ごとに行が
-/// 分かれ、改正前の欄の空いた行になっていた）。
+/// 改正前の欄が印 1 つ（「（新設）」）の行の後に、改正前の欄が空で改正後の欄が、印の行の最後の号に続く番号
+/// （印の行が「一　…」なら「二　…」、新設の条の書き出しで終わるなら「一　…」）の行が続けば、新設の項・条の号
+/// なので 1 つの行にまとめる（新設の項の号ごとに行が分かれ、改正前の欄の空いた行になっていた）。
 fn merge_new_item_runs(rows: Vec<(String, String)>) -> Vec<(String, String)> {
     let mut out: Vec<(String, String)> = Vec::new();
     // 今まとめている行の、最後の号の番号。
@@ -772,7 +772,20 @@ fn merge_new_item_runs(rows: Vec<(String, String)>) -> Vec<(String, String)> {
                 continue;
             }
         }
-        open = (only_marks(&before).len() == 1 && item_number(&after) == Some(1)).then_some(1);
+        // 印の行の改正後の欄の最後の号の番号（その後に新設の条の書き出しがあれば 0。号はその条の号から始まる）。
+        let last_item = after.lines().fold(None, |n, line| {
+            // 横書きの「第145条の７」も条の書き出し。
+            let arabic = line.trim_start().strip_prefix('第').is_some_and(|r| {
+                let digits = r.chars().take_while(|c| c.is_ascii_digit() || ('０'..='９').contains(c)).count();
+                digits > 0 && r.chars().nth(digits) == Some('条')
+            });
+            if article_number(line).is_some() || arabic {
+                Some(0)
+            } else {
+                item_number(line).or(n)
+            }
+        });
+        open = if only_marks(&before).len() == 1 { last_item } else { None };
         out.push((after, before));
     }
     out
