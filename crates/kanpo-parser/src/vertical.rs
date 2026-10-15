@@ -764,13 +764,20 @@ fn merge_warichu(cols: &mut Vec<Col>) {
             let mut cs = t.chars();
             matches!((cs.next(), cs.next()), (Some(c), None) if ('\u{4E00}'..='\u{9FFF}').contains(&c) || ('\u{3041}'..='\u{30FF}').contains(&c))
         };
+        // 字間を空けた続きの語（「総」の後の「務」「省、」）。読点の付いた 2 字まで。
+        let spaced_part = |t: &str| {
+            let cs: Vec<char> = t.chars().collect();
+            name_char(t) || (cs.len() == 2 && name_char(&cs[0].to_string()) && matches!(cs[1], '、' | '・' | '，'))
+        };
         let mut spaced = vec![i];
-        if name_char(&cols[i].text) {
+        // 右半分の頭が複数字の語（「国家公安委員会、総」）でも、続きが字間を空けた語なら同じようにまとめる。
+        let head_ok = name_char(&cols[i].text) || cols[i].y1 - cols[i].y >= w * 1.5;
+        if head_ok {
             loop {
                 let last = &cols[*spaced.last().unwrap()];
                 let next = (0..cols.len()).find(|&j| {
                     !spaced.contains(&j)
-                        && name_char(&cols[j].text)
+                        && spaced_part(&cols[j].text)
                         && near(cols[j].x, last.x)
                         && near(cols[j].x1, last.x1)
                         && cols[j].y > last.y1 - w * 0.1
@@ -860,7 +867,8 @@ fn merge_warichu(cols: &mut Vec<Col>) {
             x1: r.x + w / 2.0,
             y: r.y,
             y1: r.y1,
-            text: format!("{}・{}", r.text, left_text),
+            // 右半分が読点で終わる（「総務省、」）ときは「・」でつながない。
+            text: if r.text.ends_with(['、', '・', '，']) { format!("{}{}", r.text, left_text) } else { format!("{}・{}", r.text, left_text) },
         };
         let mut gone: Vec<usize> = left.iter().copied().chain(spaced.iter().skip(1).copied()).collect();
         gone.sort_unstable();
@@ -1681,6 +1689,28 @@ fn split_off_horizontal_blocks(cols: Vec<Col>) -> (Vec<Col>, Vec<(f32, Vec<Line>
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn warichu_right_half_continues_with_letter_spaced_words() {
+        // 割注の右半分が複数字の語の後に字間を空けた語で続く（「国家公安委員会、総」「務」「省、」）。
+        // 左半分も字間を空けた 1 字の語（「文」「部」「科」「学」）と続きの語。
+        let col = |id: usize, x: f32, y: f32, y1: f32, text: &str| Col { id, x, x1: x + 8.0, y, y1, text: text.to_string() };
+        let mut cols = vec![
+            col(0, 403.6, 188.8, 236.8, "（令和二年"),
+            col(1, 407.6, 236.8, 308.8, "国家公安委員会、総"),
+            col(2, 407.6, 316.8, 324.8, "務"),
+            col(3, 407.6, 332.8, 348.8, "省、"),
+            col(4, 399.6, 236.8, 244.8, "文"),
+            col(5, 399.6, 248.8, 256.8, "部"),
+            col(6, 399.6, 260.8, 268.8, "科"),
+            col(7, 399.6, 272.8, 280.8, "学"),
+            col(8, 399.6, 284.8, 340.8, "省、国土交通省"),
+            col(9, 403.6, 348.8, 508.8, "告示第一号）の一部を次のように改正する。"),
+        ];
+        merge_warichu(&mut cols);
+        let texts: Vec<&str> = cols.iter().map(|c| c.text.as_str()).collect();
+        assert!(texts.contains(&"国家公安委員会、総務省、文部科学省、国土交通省"), "{texts:?}");
+    }
 
     #[test]
     fn letter_spaced_horizontal_labels_do_not_make_a_horizontal_page() {
