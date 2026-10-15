@@ -60,8 +60,11 @@ fn identity_cid(c: char) -> Option<u32> {
 }
 
 /// 目次のページ番号の数字の字形（ToUnicode の無いフォントの半角の漢数字、CID 25503〜25512）だけの語か。
-pub(crate) fn is_toc_page_number(raw: &str) -> bool {
-    !raw.is_empty() && raw.chars().all(|c| identity_cid(c).is_some_and(|cid| (25503..=25512).contains(&cid)))
+/// `text` は語の本文の文字列。タグの無い入力では、[`toc_page_numbers`] が漢数字にしたものだけ。
+pub(crate) fn is_toc_page_number(raw: &str, text: &str) -> bool {
+    let tagged = raw.chars().all(|c| identity_cid(c).is_some_and(|cid| (25503..=25512).contains(&cid)));
+    let untagged = raw.chars().all(|c| (TOC_DIGIT_ZERO..=TOC_DIGIT_ZERO + 9).contains(&(c as u32))) && text != raw;
+    !raw.is_empty() && (tagged || untagged)
 }
 
 /// CID をそのまま符号位置とみなした字（poppler と同じ。[`cid_glyph`] の表はこの符号で引く）。
@@ -112,7 +115,7 @@ const FAM_PAREN_KANA: u8 = 5;
 const FAM_SINGLE: u8 = 6;
 
 /// 連番の範囲の中で常用漢字と同じ符号（文脈が無ければ写像しない）。
-const AMBIGUOUS: &str = "挑振挺挾挿掘掛故效敍敏敕敗敘教敝敞敢散敦敬";
+const AMBIGUOUS: &str = "挑振挺挾挿掘掛掌故效敍敏敕敗敘教敝敞敢散敦敬";
 
 /// ToUnicode を持たない私用 CID のグリフを本来の文字へ戻す。
 ///
@@ -129,7 +132,8 @@ const AMBIGUOUS: &str = "挑振挺挾挿掘掛故效敍敏敕敗敘教敝敞敢�
 /// kanpo-pdf の出力では、ToUnicode の無い `Identity` のフォントの字が私用領域（U+F0000 + CID）に
 /// 分けてあるので、字の大きさや前後の語を見ずに写像し、常用漢字と同じ符号や、目次のページ番号の
 /// 数字（`掠`→一、`採`→二 …）・異体字も写像する（[`identity_only_glyph`]）。poppler の出力では
-/// 本物の漢字と区別できないので、これらは扱わない。
+/// 本物の漢字と区別できないので、これらは扱わない（目次のページ番号はページの中の並びで見る
+/// [`toc_page_numbers`]）。
 pub(crate) fn private_cid_glyph(text: &str, width: f32, height: f32) -> Option<CidGlyph> {
     let chars: Vec<char> = text.trim().chars().collect();
     // kanpo-pdf の出力では、ToUnicode の無いフォントの字が私用領域に分けてあるので紛れが無い。
@@ -182,9 +186,22 @@ fn cid_glyph(chars: &[char], width: f32, height: f32, sure: bool) -> Option<CidG
                 0x617A => (FAM_SINGLE, "－".to_string()),
                 // ㊟（「注４を注５とし」の注）
                 0x629D => (FAM_SINGLE, "（注）".to_string()),
-                // 異体字（一点しんにょうの「辻」・「釜」）
+                // (Ⅰ)・(Ⅱ)（「在宅患者訪問診療料（Ⅰ）及び（Ⅱ）」）
+                0x638B => (FAM_SINGLE, "（Ⅰ）".to_string()),
+                0x638C => (FAM_SINGLE, "（Ⅱ）".to_string()),
+                // 異体字（一点しんにょうの「辻」・「釜」、地名・人名・医療用語の字）
                 0x5A79 => (FAM_SINGLE, "辻".to_string()),
                 0x4F42 => (FAM_SINGLE, "釜".to_string()),
+                0x4F2E => (FAM_SINGLE, "灸".to_string()),
+                0x4F37 => (FAM_SINGLE, "梗".to_string()),
+                0x4F3D => (FAM_SINGLE, "竈".to_string()),
+                0x4F41 => (FAM_SINGLE, "斧".to_string()),
+                0x4F45 => (FAM_SINGLE, "籾".to_string()),
+                0x5A31 => (FAM_SINGLE, "葛".to_string()),
+                0x5A52 => (FAM_SINGLE, "薩".to_string()),
+                0x5A7B => (FAM_SINGLE, "鄭".to_string()),
+                0x5A91 => (FAM_SINGLE, "樋".to_string()),
+                0x5B3D => (FAM_SINGLE, "德".to_string()),
                 _ => return None,
             }
         }
@@ -269,6 +286,44 @@ fn identity_only_glyph(code: u32) -> Option<(u8, String)> {
         _ => return None,
     };
     Some((FAM_SINGLE, text.to_string()))
+}
+
+/// 目次のページ番号の数字の私用 CID（U+639F `掟`→〇、U+63A0 `掠`→一 … U+63A8 `推`→九）。
+const TOC_DIGIT_ZERO: u32 = 0x639F;
+
+/// 目次のページ番号（ToUnicode の無い数字のフォント）の語を見つけ、漢数字（「一三」）にした文字列を返す。
+/// `words` は語の `(x0, y0, x1, y1, 字)`。戻り値は語ごと（ページ番号でなければ `None`）。
+///
+/// ページ番号の数字は、私用 CID で連番の漢字（`掠`・`採`・`探`・`掣`・`掤`・`接`・`掦`・`控`・`推`・`掟`）に
+/// 化ける。どれも常用漢字なので、字だけでは本文の字と区別できない。目次ではページ番号を
+/// 項目の列の下端にそろえて縦に組み、2 桁以上は 1 字 0.75em 以下に詰める。そこで、この 10 字だけの語の
+/// うち、2 字以上を 1 字 0.85em 未満に詰めたもの、または同じ大きさの同じ 10 字だけの語と下端がそろうもの
+/// （ほかの項目のページ番号）を、ページ番号とする（蓄積した官報 59 日分の目次で、項目の掲載ページと
+/// 突き合わせて確かめた。項目が 1 つだけの目次の「一」は並ぶ語が無いので写像しない）。
+/// kanpo-pdf の出力（私用領域に分けた字）は [`private_cid_glyph`] が紛れなく写像するので、これは
+/// poppler・以前の抽出器の出力（R2 に蓄積した座標付きテキスト）のためのもの。
+pub(crate) fn toc_page_numbers(words: &[(f32, f32, f32, f32, String)]) -> Vec<Option<String>> {
+    let digit = |c: char| (TOC_DIGIT_ZERO..=TOC_DIGIT_ZERO + 9).contains(&(c as u32));
+    let digits: Vec<usize> = (0..words.len())
+        .filter(|&i| {
+            let t = words[i].4.trim();
+            !t.is_empty() && t.chars().all(digit)
+        })
+        .collect();
+    let mut out = vec![None; words.len()];
+    for &i in &digits {
+        let (x, y, x1, y1, t) = &words[i];
+        let (w, h, n) = (x1 - x, y1 - y, t.trim().chars().count());
+        let packed = n >= 2 && h < n as f32 * w * 0.85;
+        let aligned = digits.iter().any(|&j| {
+            let (u, _, u1, v1, _) = &words[j];
+            j != i && (v1 - y1).abs() < 1.0 && ((u1 - u) - w).abs() < 0.5
+        });
+        if packed || aligned {
+            out[i] = Some(t.trim().chars().map(|c| "〇一二三四五六七八九".chars().nth((c as u32 - TOC_DIGIT_ZERO) as usize).unwrap()).collect());
+        }
+    }
+    out
 }
 
 /// 文脈なしで写像してよいものだけを写像する（常用漢字と同じ符号は `None`）。
@@ -370,6 +425,38 @@ mod tests {
     use super::*;
 
     #[test]
+    fn maps_variant_glyphs_checked_against_the_originals() {
+        // 原本の画像と突き合わせた異体字（宮城県塩竈市・心筋梗塞・鍼灸・奈良県葛城市・鹿児島県薩摩郡・樋口）。
+        for (cid, want) in [("伽", "竈"), ("伷", "梗"), ("伮", "灸"), ("佁", "斧"), ("佅", "籾"), ("娱", "葛"), ("婒", "薩"), ("婻", "鄭"), ("媑", "樋"), ("嬽", "德")] {
+            assert_eq!(fix_private_cid_glyphs(cid, 9.0, 9.0).as_deref(), Some(want), "{cid}");
+        }
+        assert_eq!(fix_private_cid_glyphs("掋", 9.0, 9.0).as_deref(), Some("（Ⅰ）"));
+        // 「掌」は常用漢字なので文脈なしでは写像しない。
+        assert_eq!(fix_private_cid_glyphs("掌", 9.0, 9.0), None);
+        assert_eq!(private_cid_glyph("掌", 9.0, 9.0).map(|g| g.text).as_deref(), Some("（Ⅱ）"));
+    }
+
+    #[test]
+    fn maps_toc_page_numbers_by_their_placement() {
+        // 号外第 220 号の目次（項目の掲載ページ 1・13・14・66・72）。下端がそろい、2 桁は 1 字 0.75em。
+        let w = |x: f32, y: f32, y1: f32, t: &str| (x, y, x + 9.0, y1, t.to_string());
+        let words = vec![
+            w(327.7, 221.1, 230.1, "掠"),
+            w(191.1, 216.6, 230.1, "掠探"),
+            w(85.7, 216.6, 230.1, "接接"),
+            w(50.5, 216.6, 230.1, "掦採"),
+            // 本文の字（下端がそろわない 1 字）はそのまま。
+            w(300.0, 400.0, 409.0, "接"),
+        ];
+        let got = toc_page_numbers(&words);
+        assert_eq!(got, vec![Some("一".into()), Some("一三".into()), Some("六六".into()), Some("七二".into()), None]);
+        // 1 字の語が 1 つだけなら写像しない（字間を空けた見出しの「接」と区別できない）。
+        assert_eq!(toc_page_numbers(&[w(327.7, 221.1, 230.1, "掠")]), vec![None]);
+        // 3 桁（1 字 0.67em）は 1 つでも写像する。掟は〇。
+        assert_eq!(toc_page_numbers(&[w(489.5, 212.1, 230.1, "掣掠掟")]), vec![Some("四一〇".into())]);
+    }
+
+    #[test]
     fn maps_private_use_decimal_point_and_thousands_separator() {
         // 数字の小数点・桁区切りは私用領域に写されている。ほかの私用領域の字（傍線など）は落とす。
         assert_eq!(normalize_text("433\u{EA74}795MHz"), "433.795MHz");
@@ -446,13 +533,17 @@ mod tests {
         // 異体字（CID 20280 は poppler では「伸」になる）。
         assert_eq!(word_text(&word(&[20280])), "鮫");
         assert_eq!(word_text(&word(&[24954])), "－");
-        assert_eq!(word_text(&word(&[20270])), "灸");
         // 飾り罫は落とす。対応の分からない字は poppler と同じ字にする。
         assert_eq!(word_text(&word(&[26265, 26267])), "");
         assert_eq!(word_text(&word(&[20271])), "\u{4F2F}");
+        assert_eq!(word_text(&word(&[0x6682])), "\u{6682}");
+        // poppler の出力で原本と突き合わせた異体字は、タグが付いていても同じ字にする（鍼灸）。
+        assert_eq!(word_text(&word(&[20270])), "灸");
         // 目次のページ番号の字形。
-        assert!(is_toc_page_number(&word(&[25504, 25503])));
-        assert!(!is_toc_page_number("一〇"));
+        assert!(is_toc_page_number(&word(&[25504, 25503]), "一〇"));
+        assert!(is_toc_page_number("掠掟", "一〇"));
+        assert!(!is_toc_page_number("採", "採"));
+        assert!(!is_toc_page_number("一〇", "一〇"));
         // タグの無い（poppler の）入力では、常用漢字と同じ符号は写像しない。
         assert_eq!(fix_private_cid_glyphs("伸", 8.0, 8.0), None);
         assert_eq!(fix_private_cid_glyphs("採", 9.0, 9.0), None);

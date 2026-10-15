@@ -806,7 +806,7 @@ export function KanpoPlaygroundView() {
   const [showDropped, setShowDropped] = useState(true);
   const [showOrder, setShowOrder] = useState(false);
   const [showRules, setShowRules] = useState(false);
-  const [tab, setTab] = useState("lines");
+  const [tab, setTab] = useState("html");
   const [hoverWord, setHoverWord] = useState<string | null>(null);
   const [hoverCell, setHoverCell] = useState<CellRef | null>(null);
   const [hoverPanelLine, setHoverPanelLine] = useState<string | null>(null);

@@ -47,6 +47,15 @@ pub(crate) fn horizontal_lines(cols: Vec<Col>) -> Vec<trace::Line> {
     lines
 }
 
+/// 横組みの語を、列に分けずに上から 1 行ずつ組む（縦書きのページの中の小さな横組みの欄用。
+/// 欄は段の幅より狭く、段組みは無い。表の行は左のセルから順に読む）。
+pub(crate) fn row_lines(cols: Vec<Col>) -> Vec<trace::Line> {
+    group_lines(&cols)
+        .iter()
+        .map(|l| trace::Line::text(render_line(&l.words), l.words.iter().map(|w| w.id).collect()))
+        .collect()
+}
+
 /// 横書きの 1 行（y が重なる語の並び、x 昇順）。
 struct Line {
     y0: f32,
@@ -311,7 +320,7 @@ fn letter_spaced(words: &[Col], spaced_words: bool) -> Vec<bool> {
         if inner_gap.is_some() && spaced_gap.is_none() {
             spaced_gap = inner_gap;
         }
-        let single = (n == 1 || inner_gap.is_some()) && w.text.chars().count() == 1;
+        let single = (glyphs(&p.text) == 1 || inner_gap.is_some()) && glyphs(&w.text) == 1;
         out[i] = single
             && match spaced_gap {
                 None => gap <= em * 8.0,
@@ -320,6 +329,15 @@ fn letter_spaced(words: &[Col], spaced_words: bool) -> Vec<bool> {
         spaced_gap = out[i].then_some(gap);
     }
     out
+}
+
+/// 字間空けの見出しの字数。見出しを括弧で囲んだ「（号　外）」は、括弧が頭と尻の字にくっついて
+/// 「（号」「外）」の語になるので、閉じていない括弧は数えない（「（略）」のように閉じた括弧は数える）。
+fn glyphs(text: &str) -> usize {
+    let n = text.chars().count();
+    let open = text.starts_with(['（', '(', '〔']) && !text.contains(['）', ')', '〕']);
+    let close = text.ends_with(['）', ')', '〕']) && !text.contains(['（', '(', '〔']);
+    n - usize::from(open) - usize::from(close)
 }
 
 #[cfg(test)]
@@ -457,5 +475,10 @@ mod tests {
             w(654.6, 662.6, 92.4, "前"),
         ];
         assert_eq!(render_line(&kaisei), "改正後\u{3000}改正前");
+        // 括弧で囲んだ字間空けの見出し（括弧は頭と尻の字にくっつく）。閉じた括弧の語どうしは別のセル。
+        let gougai = vec![w(481.5, 501.5, 210.0, "（号"), w(521.5, 541.5, 210.0, "外）")];
+        assert_eq!(render_line(&gougai), "（号外）");
+        let ryaku = vec![w(100.0, 124.0, 210.0, "（略）"), w(160.0, 184.0, 210.0, "（略）")];
+        assert_eq!(render_line(&ryaku), "（略）\u{3000}（略）");
     }
 }
