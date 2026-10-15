@@ -368,7 +368,7 @@ fn column_cut(words: &[Col]) -> Option<f32> {
         if right_edge.is_finite() && a - right_edge >= MIN_GUTTER {
             let cut = (right_edge + a) / 2.0;
             let (left, right): (Vec<Col>, Vec<Col>) = words.iter().cloned().partition(|w| x_center(w) < cut);
-            if !latin_word_gap(words, cut) && !item_numbers(&left, &right) && is_column_split(&left, &right) {
+            if !latin_word_gap(words, cut) && !item_numbers(&left, &right) && !repeat_marks(&left, &right) && is_column_split(&left, &right) {
                 return Some(cut);
             }
         }
@@ -389,21 +389,44 @@ fn number_continues(prev: &Col, next: &Col) -> bool {
 
 /// 溝の左が項目番号の列か（「384」「385」…、「第二」「一」「二」が各項目の最初の行の左に置かれる）。
 /// 左の語がすべて 4 字までの数字・漢数字（「第」付きも）で、どれも右の語のすぐ左に同じ高さで並ぶなら、
-/// 番号は項目の行の頭とみなす。
+/// 番号は項目の行の頭とみなす。溝のすぐ左の列が表の行の見出しの番号（「第2821号」）だけのときも同じ。
 fn item_numbers(left: &[Col], right: &[Col]) -> bool {
+    let digit = |c: char| c.is_ascii_digit() || ('０'..='９').contains(&c);
     let number = |w: &Col| {
         let t = w.text.trim();
         (1..=4).contains(&t.chars().count())
-            && (t.chars().all(|c| c.is_ascii_digit() || ('０'..='９').contains(&c))
-                || t.trim_start_matches('第').chars().all(|c| "〇一二三四五六七八九十".contains(c)) && t != "第")
+            && (t.chars().all(digit) || t.trim_start_matches('第').chars().all(|c| "〇一二三四五六七八九十".contains(c)) && t != "第")
     };
-    left.len() >= 2
-        && left.iter().all(|n| {
+    // 表の行の見出しの番号（「第2821号」「第165回」）。
+    let key = |w: &Col| {
+        let t = w.text.trim();
+        let inner = t.strip_prefix('第').and_then(|t| t.strip_suffix(['号', '回']));
+        inner.is_some_and(|i| (1..=6).contains(&i.chars().count()) && i.chars().all(digit))
+    };
+    let next_to = |n: &Col, reach: f32| {
+        let em = (n.y1 - n.y).max(1.0);
+        right.iter().any(|w| (y_center(w) - y_center(n)).abs() <= ALIGN_TOL && w.x >= n.x1 && w.x - n.x1 < em * reach)
+    };
+    if left.len() >= 2 && left.iter().all(|n| number(n) && next_to(n, 2.0)) {
+        return true;
+    }
+    // 溝のすぐ左の列が行の見出しの番号だけで、どれも右の欄の語と同じ高さに並ぶ（溝の右に隣の段の
+    // 行が混ざっていても、語の単位で見れば揃う）。
+    let edge = left.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
+    let column: Vec<&Col> = left.iter().filter(|w| edge - w.x1 < (w.y1 - w.y).max(1.0) * 3.0).collect();
+    column.len() >= 3 && column.iter().all(|n| key(n) && next_to(n, 6.0))
+}
+
+/// 溝のすぐ右の列が「〃」（上の行と同じの印）だけで、どれも左の欄の語と同じ高さに並ぶか（表の欄）。
+fn repeat_marks(left: &[Col], right: &[Col]) -> bool {
+    let edge = right.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
+    let column: Vec<&Col> = right.iter().filter(|w| w.x - edge < (w.y1 - w.y).max(1.0) * 3.0).collect();
+    column.len() >= 3
+        && column.iter().all(|n| {
             let em = (n.y1 - n.y).max(1.0);
-            number(n)
-                && right
-                    .iter()
-                    .any(|w| (y_center(w) - y_center(n)).abs() <= ALIGN_TOL && w.x >= n.x1 && w.x - n.x1 < em * 2.0)
+            !n.text.trim().is_empty()
+                && n.text.trim().chars().all(|c| c == '〃' || c == '\u{3000}')
+                && left.iter().any(|w| (y_center(w) - y_center(n)).abs() <= ALIGN_TOL && w.x1 <= n.x && n.x - w.x1 < em * 12.0)
         })
 }
 
@@ -628,6 +651,22 @@ mod tests {
             read(words),
             "Proizvodstvennoe Predpriyatie Zavod Iskra; JSC Research and Production\nEnterprise Plant Iskra; NPP Plant Iskra; NPP Zavod Iskra; Aktsionernoe Obshchestvo"
         );
+    }
+
+    #[test]
+    fn row_keys_stay_with_their_rows_even_beside_another_column() {
+        // 罫線の無い表の行の見出しの番号（「第2821号」）。溝の右に隣の段の行（高さが揃わない）が
+        // 混ざっていても、番号を表の行の頭に付ける。
+        let mut words = Vec::new();
+        for (k, (key, name)) in [("第2821号", "第一種膨脹式救"), ("第2822号", "〃"), ("第2823号", "〃")].into_iter().enumerate() {
+            let y = 100.0 + 12.0 * k as f32;
+            words.push(w(61.0, 61.0 + 4.0 * key.chars().count() as f32 + 8.0, y, key));
+            words.push(w(130.0, 130.0 + 8.0 * name.chars().count() as f32, y, name));
+            // 隣の段の行（行送りが違う）。
+            words.push(w(449.0, 620.0, 95.0 + 13.0 * k as f32, "隣の段の本文の行で、表の行とは高さが揃わない"));
+        }
+        let text = read(words);
+        assert!(text.starts_with("第2821号\u{3000}第一種膨脹式救\n第2822号\u{3000}〃\n第2823号\u{3000}〃"), "{text}");
     }
 
     #[test]
