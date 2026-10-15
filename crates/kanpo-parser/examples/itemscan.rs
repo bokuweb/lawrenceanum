@@ -2,8 +2,10 @@
 //! 怪しい項目に印を付ける（ページまたぎ・表の中の表のエッジケース探し用）。
 //!
 //! ```text
-//! cargo run --release -p kanpo-parser --example itemscan -- <archive_dir> > items.tsv
+//! cargo run --release -p kanpo-parser --example itemscan -- [--pdf] <archive_dir> > items.tsv
 //! ```
+//!
+//! `--pdf` なら、座標付きテキストと罫線を原本の PDF から今の kanpo-pdf で作り直す（`lawpub kanpo-reextract` と同じ）。
 //!
 //! 改正・廃止・制定の項目ごとに、開始ページから次の項目の開始ページまで（最大 25 ページ）を
 //! まとめて解析し、標題に合う記事の構造（P=段落, S{n}=新旧対照表 n 行, T=表）と印を出す。
@@ -80,7 +82,9 @@ fn flags(doc: &Document) -> (String, Vec<String>) {
 }
 
 fn main() {
-    let root = std::env::args().nth(1).expect("usage: itemscan <archive_dir>");
+    let mut args = std::env::args().skip(1).peekable();
+    let from_pdf = args.next_if(|a| a == "--pdf").is_some();
+    let root = args.next().expect("usage: itemscan [--pdf] <archive_dir>");
     let mut days: Vec<_> = std::fs::read_dir(&root).unwrap().flatten().map(|e| e.path()).filter(|p| p.join("manifest.json").exists()).collect();
     days.sort();
     println!("date\tissue\tpage\tpages\tpicked\tshape\tflags\ttitle");
@@ -102,6 +106,10 @@ fn main() {
                 let pages: Vec<PageInput> = (start..=end)
                     .filter_map(|n| {
                         let stem = day.join(dir).join(format!("{dir}{n:04}"));
+                        if from_pdf {
+                            let pdf = std::fs::read(stem.with_extension("pdf")).ok()?;
+                            return Some(PageInput { xhtml: kanpo_parser::bbox_xhtml(&pdf).ok()?, rules: kanpo_parser::page_rules(&pdf).ok() });
+                        }
                         let xhtml = std::fs::read_to_string(stem.with_extension("bbox.html")).ok()?;
                         let rules = std::fs::read_to_string(stem.with_extension("rules.json")).ok().and_then(|s| serde_json::from_str(&s).ok());
                         Some(PageInput { xhtml, rules })
