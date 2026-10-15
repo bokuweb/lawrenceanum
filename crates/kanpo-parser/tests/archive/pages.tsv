@@ -299,6 +299,7 @@ page	stratum
 20261007h01803/20261007h018030032	honshi,tiers,warichu,private-cid
 20261008g00222/20261008g002220090	gougai,horizontal,warichu,private-cid
 20261008h01804/20261008h018040003	honshi,tiers
+20261008h01804/20261008h018040004	honshi,horizontal,table
 20261008h01804/20261008h018040008	honshi,horizontal,warichu
 20261009g00223/20261009g002230031	gougai,headerless_shinkyu,shinkyu,warichu,private-cid
 20261009h01805/20261009h018050004	honshi,horizontal,private-cid,item
