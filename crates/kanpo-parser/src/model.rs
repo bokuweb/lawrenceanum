@@ -770,7 +770,10 @@ fn pair_renumbered(rows: Vec<(String, String)>) -> Vec<(String, String)> {
         let seg = &rows[i..end];
         let a: Vec<&str> = seg.iter().filter(|r| !empty(&r.0)).map(|r| r.0.as_str()).collect();
         let b: Vec<&str> = seg.iter().filter(|r| !empty(&r.1)).map(|r| r.1.as_str()).collect();
-        let aln = lcs_align_by(a.len(), b.len(), |x, y| same_opening(a[x], b[y]));
+        // 新設・削った条の印（「（新設）」「〔条を加える。〕」）だけの行がある所では、条番号が同じでも別の条のことが
+        // ある（新設の条が前に入り、元の条が繰り下がった）ので、条番号では組まない。
+        let marked = seg.iter().any(|r| !only_marks(&r.0).is_empty() || !only_marks(&r.1).is_empty());
+        let aln = lcs_align_by(a.len(), b.len(), |x, y| same_opening(a[x], b[y]) || (!marked && same_article_alike(a[x], b[y])));
         if a.is_empty() || b.is_empty() || !aln.iter().any(|(x, y)| x.is_some() && y.is_some()) {
             out.extend(seg.iter().cloned());
         } else {
@@ -781,6 +784,14 @@ fn pair_renumbered(rows: Vec<(String, String)>) -> Vec<(String, String)> {
         i = end;
     }
     out
+}
+
+/// 条番号が同じで、文が似ている（2 字の組の Jaccard 係数 0.3 以上）か。条の見出しが改正で変わった条
+/// （「（審判手続調書の形式的記載事項）第二十五条」→「（審判手続に係る電子調書の形式的記録事項等）第二十五条」）は
+/// 見出しの鍵がそろわず、どちらも片側だけの行になっていた。
+fn same_article_alike(a: &str, b: &str) -> bool {
+    let number = |s: &str| s.trim().lines().take(3).find_map(article_number);
+    matches!((number(a), number(b)), (Some(x), Some(y)) if x == y) && crate::shinkyu::bigram_jaccard(a, b) >= 0.3
 }
 
 /// 号・条の番号（「十八　」「第二十条　」）を除いた書き出し 10 字。
@@ -1189,6 +1200,28 @@ mod tests {
         let mut rows = vec![row("第一条の二　乙", ""), row("第一条の三　丙", "第一条の三　旧丙\n（新設）\n（新設）")];
         spread_marks_back(&mut rows);
         assert_eq!(rows[0].1, "");
+    }
+
+    #[test]
+    fn pairs_same_numbered_articles_with_changed_captions() {
+        // 条の見出しが改正で変わり、見出しの鍵がそろわない条も、条番号が同じで文が似ていれば組にする。
+        let row = |a: &str, b: &str| (a.to_string(), b.to_string());
+        let rows = vec![
+            row("（審判手続に係る電子調書の形式的記録事項等）\n第二十五条　審判手続の事務を行う職員は、審判手続の期日ごとに電子調書を作成し、これに次に掲げる事項を記録しなければならない。", ""),
+            row("（他の電磁的記録の引用）\n第二十七条　審判手続に係る電子調書には、他の電磁的記録を引用することができる。", ""),
+            row("", "（審判手続調書の形式的記載事項）\n第二十五条　審判手続の事務を行う職員は、審判手続の期日ごとに調書を作成しなければならない。調書には、次に掲げる事項を記載しなければならない。"),
+            row("", "（調書への引用）\n第二十七条　審判手続の調書には、書面、写真その他審判官が適当と認めるものを引用し、事件記録に添付して調書の一部とすることができる。"),
+        ];
+        let out = pair_renumbered(rows);
+        assert!(out[0].0.contains("第二十五条") && out[0].1.contains("第二十五条"), "{out:?}");
+        // 新設の印のある所では条番号で組まない（新設の条が前に入り、元の条が繰り下がったことがある）。
+        let rows = vec![
+            row("（選定の方法）\n第九条の二　法第二条第十二号の国土交通省令で定める方法は、公募とする。", ""),
+            row("", "（新設）"),
+            row("", "（選定の方法）\n第九条の二　法第二条第十一号の国土交通省令で定める方法は、公募とする。"),
+        ];
+        let out = pair_renumbered(rows.clone());
+        assert_eq!(out, rows);
     }
 
     #[test]
