@@ -139,11 +139,14 @@ fn order_region(words: Vec<Col>, out: &mut Vec<trace::Line>) {
 /// 語は中心 x で左右に振り分ける（[`x_center`]）。
 fn column_cut(words: &[Col]) -> Option<f32> {
     // 字間空けの見出し（「中　間　決　算　公　告」）は 1 字語の並びだが、1 語として溝をふさぐ。
+    // 桁区切りで語が割れた数（「225,」「582,」「082,」「247」）も 1 語として溝をふさぐ（右揃えの金額の
+    // 桁の切れ目が行をまたいで縦に揃い、列の溝に見える）。
     let mut spans: Vec<(f32, f32)> = Vec::new();
     for line in group_lines(words) {
-        for (w, joined) in line.words.iter().zip(letter_spaced(&line.words, true)) {
+        for (i, (w, joined)) in line.words.iter().zip(letter_spaced(&line.words, true)).enumerate() {
+            let number = i > 0 && number_continues(&line.words[i - 1], w);
             match spans.last_mut() {
-                Some(span) if joined => span.1 = w.x1,
+                Some(span) if joined || number => span.1 = w.x1,
                 _ => spans.push((w.x, w.x1)),
             }
         }
@@ -166,6 +169,16 @@ fn column_cut(words: &[Col]) -> Option<f32> {
         right_edge = right_edge.max(b);
     }
     None
+}
+
+/// 数の続きか（桁区切りで割れた語「35」「,」「952」）。空きが半 em 未満で、前の語が数字か
+/// 桁区切りで終わり、次の語が数字か桁区切りで始まる。
+fn number_continues(prev: &Col, next: &Col) -> bool {
+    let em = (prev.y1 - prev.y).min(next.y1 - next.y).max(1.0);
+    let digitish = |c: char| c.is_ascii_digit() || matches!(c, ',' | '.');
+    next.x - prev.x1 < em * 0.5
+        && prev.text.chars().last().is_some_and(digitish)
+        && next.text.chars().next().is_some_and(digitish)
 }
 
 /// 溝の左が項目番号の列か（「384」「385」… が各項目の最初の行の左に置かれる）。左の語がすべて
@@ -406,6 +419,23 @@ mod tests {
             read(words),
             "Proizvodstvennoe Predpriyatie Zavod Iskra; JSC Research and Production\nEnterprise Plant Iskra; NPP Plant Iskra; NPP Zavod Iskra; Aktsionernoe Obshchestvo"
         );
+    }
+
+    #[test]
+    fn digit_groups_of_right_aligned_amounts_are_not_column_gutters() {
+        // 桁区切りで語が割れた右揃えの金額（「5,」「369,」「515,」「116」）。桁の切れ目が行をまたいで
+        // 縦に揃っても列の溝とみなさず、金額を 1 つにつなぐ。
+        let mut words = Vec::new();
+        for (y, label, groups) in [(100.0, "政治活動費", ["2,", "994,", "093,", "136"]), (112.0, "合計", ["5,", "369,", "543,", "815"])] {
+            words.push(w(61.0, 61.0 + 8.0 * label.chars().count() as f32, y, label));
+            let mut x = 300.0;
+            for g in groups {
+                let x1 = x + 4.0 * g.chars().count() as f32;
+                words.push(w(x, x1, y, g));
+                x = x1 + 2.0;
+            }
+        }
+        assert_eq!(read(words), "政治活動費\u{3000}2,994,093,136\n合計\u{3000}5,369,543,815");
     }
 
     #[test]
