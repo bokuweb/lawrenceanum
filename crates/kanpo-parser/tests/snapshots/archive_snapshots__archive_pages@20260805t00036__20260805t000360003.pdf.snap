@@ -1,0 +1,210 @@
+---
+source: crates/kanpo-parser/tests/archive_snapshots.rs
+expression: out
+input_file: crates/kanpo-parser/tests/archive/pages/20260805t00036/20260805t000360003.pdf
+---
+layout: horizontal
+format: shinkyu
+
+--- 本文 ---
+次の表により、改正前欄に掲げる規定の傍線を付した部分をこれに順次対応する改正後欄に掲げる
+規定の傍線を付した部分のように改める。
+改正後
+（別表）
+１．〜82．［略］
+83．アブドゥル・ハック・ワシーク
+ABDUL‑HAQ WASSIQ
+(original script:　)
+国連参照番号：TAi.082
+称号：マウラヴィ
+Maulavi
+役職：（タリバーン統治下（1996-2001））
+諜報担当治安次官
+Deputy Minister of Security　(In‑
+telligence)under the Taliban regime
+(1996-2001)
+生年月日：1971年；1975年頃；1968/9/
+20
+出生地：Gharib village, Khogyani
+District, Ghazni Province, Afghanis‑
+tan; Ghazni, Afghanistan
+別名：アブドゥル・ハック・ワーシ
+ク；アブドゥル・ハック・ワシク；ア
+ブドゥルハック・ワスィーク
+Abdul‑Haq Wasseq; Abdul Haq
+Wasiq; Abdulhaq Waseeq
+国籍：アフガニスタン
+Afghanistan
+旅券番号：アフガニスタン外交旅券D
+0009755（2021年10月23日発行、2026年
+10月23日失効、英字表記の氏名：
+Abdulhaq Waseeq）；アフガニスタン
+外交旅券D0010689（2026年３月29日発
+行、2031年３月29日失効、英字表記の
+氏名：Abdulhaq Waseeq、アラビア語
+表記の氏名：　）
+住所等：Afghanistan
+リスト掲載日：2001年１月31日（2003
+年９月３日、2007年９月21日、2008年
+10月３日、2011年11月29日、2013年12
+月31日、2014年２月11日、2016年９月
+７日、2026年３月10日、４月28日及び
+７月30日に改訂）
+その他の情報：身長は168㎝。国連安全
+保障理事会決議第1822号（2008年）に
+基づく見直しは2010年７月27日に終了
+した。写真はインターポール（国際刑
+事警察機構）・国連安全保障理事会特別
+手配書に含まれているものを利用可能。
+同人に対するインターポール（国際刑
+事警察機構）・国連安全保障理事会特別
+手配書のウェブ・リンク：https://
+www.interpol.int/en/How-we-work/
+Notices/View-UN-Notices-
+Individuals#2006-25979.
+84．〜516．［略］
+517．シラージュッディーン・ジャラールッ
+ディーン・ハッカーニ
+SIRAJUDDIN　JALLALOUDINE
+HAQQANI
+(original script:
+)
+国連参照番号：TAi.144
+役職：（1996年-2001年）副司令官
+Na'ib Amir　(Deputy Commander)
+(1996-2001)
+生年月日：1977年から1978年の間頃；
+1981/12/30
+出生地：Danda, Miramshah, North
+Waziristan, Pakistan; Khost Prov‑
+ince, Afghanistan; Neka district,
+Paktika Province, Afghanistan;
+Srana village, Garda Saray district,
+Paktia Province, Afghanistan; Pak‑
+tia, Afghanistan
+別名：シラージ・ハッカーニ；セラー
+ジュッディーン・ハカニ；シラージ・
+ハカニ；サラージ・ハカニ；アブドゥ
+ル・サタール・アブドゥッラー
+改正前
+（別表）
+１．〜82．［同左］
+83．アブドゥル・ハック・ワシーク
+ABDUL‑HAQ WASSIQ
+(original script:　)
+国連参照番号：TAi.082
+称号：マウラヴィ
+Maulavi
+役職：（タリバーン統治下（1996-2001））
+諜報担当治安次官
+Deputy Minister of Security　(In‑
+telligence)under the Taliban regime
+(1996-2001)
+生年月日：1971年；1975年頃；1968/9/
+20
+出生地：Gharib village, Khogyani
+District, Ghazni Province, Afghanis‑
+tan
+別名：アブドゥル・ハック・ワーシ
+ク；アブドゥル・ハック・ワシク；ア
+ブドゥルハック・ワスィーク
+Abdul‑Haq Wasseq; Abdul Haq
+Wasiq; Abdulhaq Waseeq
+国籍：アフガニスタン
+Afghanistan
+旅券番号：アフガニスタン外交旅券D
+0009755（2021年10月23日にアフガニス
+タンのカブールで発行、2026年10月23
+日失効、英字表記の氏名：Abdulhaq
+Waseeq、2026年10月23日失効）
+住所等：Afghanistan
+リスト掲載日：2001年１月31日（2003
+年９月３日、2007年９月21日、2008年
+10月３日、2011年11月29日、2013年12
+月31日、2014年２月11日、2016年９月
+７日、2026年３月10日及び４月28日に
+改訂）
+その他の情報：身長は168㎝。国連安全
+保障理事会決議第1822号（2008年）に
+基づく見直しは2010年７月27日に終了
+した。写真はインターポール（国際刑
+事警察機構）・国連安全保障理事会特別
+手配書に含まれているものを利用可能。
+同人に対するインターポール（国際刑
+事警察機構）・国連安全保障理事会特別
+手配書のウェブ・リンク：https://
+www.interpol.int/en/How-we-work/
+Notices/View-UN-Notices-
+Individuals#2006-25979.
+84．〜516．［同左］
+517．シラージュッディーン・ジャラールッ
+ディーン・ハッカーニ
+SIRAJUDDIN　JALLALOUDINE
+HAQQANI
+(original script:
+)
+国連参照番号：TAi.144
+役職：（1996年-2001年）副司令官
+Na'ib Amir　(Deputy Commander)
+(1996-2001)
+生年月日：1977年から1978年の間頃；
+1981/12/30
+出生地：Danda, Miramshah, North
+Waziristan, Pakistan; Khost Prov‑
+ince, Afghanistan; Neka district,
+Paktika Province, Afghanistan;
+Srana village, Garda Saray district,
+Paktia Province, Afghanistan
+別名：シラージ・ハッカーニ；セラー
+ジュッディーン・ハカニ；シラージ・
+ハカニ；サラージ・ハカニ；アブドゥ
+ル・サタール・アブドゥッラー
+
+--- 記事 ---
+## 0 (shinkyu)
+  P 次の表により、改正前欄に掲げる規定の傍線を付した部分をこれに順次対応する改正後欄に掲げる規定の傍線を付した部分のように改める。
+  [新旧対照表 1 行]
+   row 0
+    後 （別表）
+    １．〜82．［略］
+    83．アブドゥル・ハック・ワシークABDUL‑HAQ WASSIQ
+    (original script:　)国連参照番号：TAi.082称号：マウラヴィMaulavi役職：（タリバーン統治下（1996-2001））諜報担当治安次官Deputy Minister of Security　(In‑telligence)under the Taliban regime
+    (1996-2001)生年月日：1971年；1975年頃；1968/9/
+    20出生地：Gharib village, KhogyaniDistrict, Ghazni Province, Afghanis‑tan; Ghazni, Afghanistan
+    別名：アブドゥル・ハック・ワーシク；アブドゥル・ハック・ワシク；アブドゥルハック・ワスィークAbdul‑Haq Wasseq; Abdul HaqWasiq; Abdulhaq Waseeq国籍：アフガニスタンAfghanistan旅券番号：アフガニスタン外交旅券D
+    0009755（2021年10月23日発行、2026年
+    10月23日失効、英字表記の氏名：Abdulhaq Waseeq）；アフガニスタン外交旅券D0010689（2026年３月29日発行、2031年３月29日失効、英字表記の氏名：Abdulhaq Waseeq、アラビア語表記の氏名：　）住所等：Afghanistan
+    リスト掲載日：2001年１月31日（2003年９月３日、2007年９月21日、2008年
+    10月３日、2011年11月29日、2013年12月31日、2014年２月11日、2016年９月
+    ７日、2026年３月10日、４月28日及び
+    ７月30日に改訂）その他の情報：身長は168㎝。国連安全保障理事会決議第1822号（2008年）に基づく見直しは2010年７月27日に終了した。写真はインターポール（国際刑事警察機構）・国連安全保障理事会特別手配書に含まれているものを利用可能。
+    同人に対するインターポール（国際刑事警察機構）・国連安全保障理事会特別手配書のウェブ・リンク：https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals#2006-25979.
+    84．〜516．［略］
+    517．シラージュッディーン・ジャラールッディーン・ハッカーニSIRAJUDDIN　JALLALOUDINEHAQQANI
+    (original script:)国連参照番号：TAi.144役職：（1996年-2001年）副司令官Na'ib Amir　(Deputy Commander)
+    (1996-2001)生年月日：1977年から1978年の間頃；
+    1981/12/30出生地：Danda, Miramshah, NorthWaziristan, Pakistan; Khost Prov‑ince, Afghanistan; Neka district,Paktika Province, Afghanistan;Srana village, Garda Saray district,Paktia Province, Afghanistan; Pak‑tia, Afghanistan
+    別名：シラージ・ハッカーニ；セラージュッディーン・ハカニ；シラージ・
+    ハカニ；サラージ・ハカニ；アブドゥ
+    ル・サタール・アブドゥッラー
+    前 （別表）
+    １．〜82．［同左］
+    83．アブドゥル・ハック・ワシークABDUL‑HAQ WASSIQ
+    (original script:　)国連参照番号：TAi.082称号：マウラヴィMaulavi役職：（タリバーン統治下（1996-2001））諜報担当治安次官Deputy Minister of Security　(In‑telligence)under the Taliban regime
+    (1996-2001)生年月日：1971年；1975年頃；1968/9/
+    20出生地：Gharib village, KhogyaniDistrict, Ghazni Province, Afghanis‑tan
+    別名：アブドゥル・ハック・ワーシク；アブドゥル・ハック・ワシク；アブドゥルハック・ワスィークAbdul‑Haq Wasseq; Abdul HaqWasiq; Abdulhaq Waseeq国籍：アフガニスタンAfghanistan旅券番号：アフガニスタン外交旅券D
+    0009755（2021年10月23日にアフガニス
+    タンのカブールで発行、2026年10月23日失効、英字表記の氏名：AbdulhaqWaseeq、2026年10月23日失効）住所等：Afghanistan
+    リスト掲載日：2001年１月31日（2003年９月３日、2007年９月21日、2008年
+    10月３日、2011年11月29日、2013年12月31日、2014年２月11日、2016年９月
+    ７日、2026年３月10日及び４月28日に改訂）その他の情報：身長は168㎝。国連安全保障理事会決議第1822号（2008年）に基づく見直しは2010年７月27日に終了した。写真はインターポール（国際刑事警察機構）・国連安全保障理事会特別手配書に含まれているものを利用可能。
+    同人に対するインターポール（国際刑事警察機構）・国連安全保障理事会特別手配書のウェブ・リンク：https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals#2006-25979.
+    84．〜516．［同左］
+    517．シラージュッディーン・ジャラールッディーン・ハッカーニSIRAJUDDIN　JALLALOUDINEHAQQANI
+    (original script:)国連参照番号：TAi.144役職：（1996年-2001年）副司令官Na'ib Amir　(Deputy Commander)
+    (1996-2001)生年月日：1977年から1978年の間頃；
+    1981/12/30出生地：Danda, Miramshah, NorthWaziristan, Pakistan; Khost Prov‑ince, Afghanistan; Neka district,Paktika Province, Afghanistan;Srana village, Garda Saray district,Paktia Province, Afghanistan
+    別名：シラージ・ハッカーニ；セラージュッディーン・ハカニ；シラージ・
+    ハカニ；サラージ・ハカニ；アブドゥ
+    ル・サタール・アブドゥッラー
