@@ -157,6 +157,13 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
     if uh.min(lh) / uh.max(lh) < 0.7 {
         return None;
     }
+    // 上下の帯がどちらも、真ん中あたりで列のまたがない横の空きで 2 段に分かれ、上下の帯に記事の
+    // 見出し（「〇農林水産省告示第…号」）があれば、4 段組みの普通のページ（同じ形の告示が並ぶ
+    // 保安林の指定施業要件の変更など。上半分と下半分が似て見える）。
+    let has_heading = |g: &[Col]| g.iter().any(|c| c.text.starts_with('〇') && (c.text.contains("告示第") || c.text.contains("令第")));
+    if has_heading(&upper) && has_heading(&lower) && splits_into_tiers(&upper) && splits_into_tiers(&lower) {
+        return None;
+    }
     // 内容類似（改正後 ≒ 改正前）。新旧対照表は両欄がほぼ同一テキストで差分のみ異なる。
     // 人事異動一覧のように上下で別内容のページはここで弾かれる。
     // 上下の本文が順序も含めてほぼ同じであること（新旧対照表は改正後 ≒ 改正前）。文字の
@@ -168,6 +175,19 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
         return None;
     }
     Some(divider)
+}
+
+/// 帯が、高さの真ん中あたり（3 割〜7 割）で列のまたがない横の空きにより、それぞれ 4 分の 1 以上の
+/// 語を持つ上下 2 つの段に分かれるか。
+fn splits_into_tiers(band: &[Col]) -> bool {
+    let top = band.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+    let bottom = band.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+    let h = bottom - top;
+    band.iter().map(|c| c.y1 + 0.5).filter(|&y| y > top + h * 0.3 && y < top + h * 0.7).any(|y| {
+        let above = band.iter().filter(|c| c.y1 < y).count();
+        let below = band.iter().filter(|c| c.y > y).count();
+        above + below == band.len() && above * 4 >= band.len() && below * 4 >= band.len()
+    })
 }
 
 /// 見出しの無い隣り合う 2 段（上の段 `a`・下の段 `b`）が、新旧対照表の改正後帯・改正前帯の
