@@ -144,7 +144,10 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
     // 上の帯（改正後の欄になるはずのところ）に収まる語にあるときだけ見る（表の左に紙面の高さいっぱいに
     // 組まれた次の記事の指示や、表の下に続く指示はある）。
     let text: String = upper.iter().filter(|c| c.y1 < divider).flat_map(|c| c.text.chars()).collect();
-    if text.contains("の一部を次のように改正する") || text.contains("を次のように改める") {
+    // 改め文（「第四十二条第一項第一号の次に次の一号を加える。」「中「前項第二号」を「前項第三号」に改め」）も
+    // 新旧対照表の欄には出ない（上下の段に似た号が並ぶ改め文のページ）。
+    let amending = ["の一部を次のように改正する", "を次のように改める", "の次に次の", "」に改め", "」を削り"];
+    if amending.iter().any(|p| text.contains(p)) {
         return None;
     }
     // 上下帯の高さ対称性（表は改正後欄の高さ ≒ 改正前欄の高さ）。
