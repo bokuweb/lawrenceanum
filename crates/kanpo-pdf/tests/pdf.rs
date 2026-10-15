@@ -174,6 +174,17 @@ fn poppler_words(xhtml: &str) -> Vec<(String, [f64; 4])> {
         .collect()
 }
 
+/// 語の文字列を poppler の形にする（ToUnicode の無い Identity のフォントの字は、私用領域
+/// U+F0000 + CID ではなく CID をそのまま符号位置にする）。
+fn as_poppler(text: &str) -> String {
+    text.chars()
+        .map(|c| match (c as u32).checked_sub(kanpo_pdf::bbox::IDENTITY_CID_BASE) {
+            Some(cid) => char::from_u32(cid).unwrap(),
+            None => c,
+        })
+        .collect()
+}
+
 /// Helvetica の A・B・C（字幅 667・667・722）で `content` を描いた 1 ページの語。
 fn words_of(content: &str) -> Vec<String> {
     let pdf = build_pdf(&[
@@ -220,7 +231,7 @@ fn words_mostly_match_pdftotext_on_corpus() {
         let page = &kanpo_pdf::extract_pages(&std::fs::read(&pdf).unwrap()).unwrap()[0];
         let mut ours: Vec<(String, [f64; 4])> = kanpo_pdf::bbox::words(page)
             .into_iter()
-            .map(|w| (w.text, [w.x_min, w.y_min, w.x_max, w.y_max]))
+            .map(|w| (as_poppler(&w.text), [w.x_min, w.y_min, w.x_max, w.y_max]))
             .collect();
         total += theirs.len();
         for (text, b) in &theirs {
@@ -249,7 +260,7 @@ fn rotated_page_words_match_pdftotext() {
     // 語の並び順は poppler の段組み解析の順と違うので、文字列と枠で突き合わせる。
     for (text, b) in &theirs {
         let hit = ours.iter().position(|w| {
-            &w.text == text
+            &as_poppler(&w.text) == text
                 && [w.x_min, w.y_min, w.x_max, w.y_max]
                     .iter()
                     .zip(b)
