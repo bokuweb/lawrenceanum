@@ -139,6 +139,17 @@ fn grid_table(g: &Grid, words: &[Col]) -> Option<trace::Table> {
     if prose {
         return None;
     }
+    // セル i の k 行目が、前の行の折り返しの続きか。前の行が文で、セルの右端まで組まれている
+    // （右揃えの金額の行は右端に届くが、折り返しではない）。
+    let wraps = |i: usize, k: usize| {
+        k > 0 && {
+            let prev = &cell_lines[i][k - 1];
+            let text: String = prev.words.iter().map(|w| w.text.as_str()).collect();
+            let numeric = text.chars().filter(|c| c.is_ascii_digit()).count() * 2 >= text.chars().count();
+            let end = prev.words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
+            !numeric && text.chars().count() >= 4 && g.xs[g.cells[i].x1] - end <= (prev.y1 - prev.y0).max(1.0) * 1.5
+        }
+    };
     // 行の頭の高さ（格子の行ごと）。
     let ny = g.ys.len() - 1;
     let mut anchors: Vec<f32> = Vec::new();
@@ -147,14 +158,14 @@ fn grid_table(g: &Grid, words: &[Col]) -> Option<trace::Table> {
         anchors.push(g.ys[r]);
         let (top, bottom) = (g.ys[r], g.ys[r + 1]);
         for &i in &band {
-            for l in &cell_lines[i] {
+            for (k, l) in cell_lines[i].iter().enumerate() {
                 let c = l.center();
                 // 欄によって字の種類（数字と漢字）で字面の高さが少し違うので、行の高さの 4 割まで。
                 let tol = ((l.y1 - l.y0) * 0.4).max(ALIGN_TOL);
-                let aligned = band
-                    .iter()
-                    .filter(|&&j| g.cells[j].x0 != g.cells[i].x0)
-                    .any(|&j| cell_lines[j].iter().any(|m| (m.center() - c).abs() <= tol));
+                // 揃う 2 行がどちらも折り返しの続きなら、行の頭ではない（2 つの欄が同時に折り返した）。
+                let aligned = band.iter().filter(|&&j| g.cells[j].x0 != g.cells[i].x0).any(|&j| {
+                    cell_lines[j].iter().enumerate().any(|(n, m)| !(wraps(i, k) && wraps(j, n)) && (m.center() - c).abs() <= tol)
+                });
                 if top < c && c < bottom && aligned {
                     anchors.push(l.y0 - 0.5);
                 }
@@ -239,11 +250,15 @@ fn stacked(words: &[&Col]) -> bool {
     let upright = |w: &&Col| (w.text.chars().count() <= 2 && w.x1 - w.x <= (w.y1 - w.y) * 1.5) || w.y1 - w.y > (w.x1 - w.x) * 1.5;
     // 同じ欄に縦に並んだ「〃」（行ごとの繰り返しの印）は欄の名前ではない。
     let text: String = words.iter().map(|w| w.text.as_str()).collect();
+    // 横の行に 1〜2 字の語が 3 つ以上並ぶなら、字間を空けた横組みの項目名（「事　業　収　益」）。
+    // 縦長の語（「及び純資産の部」）は行にまとめると何行にも掛かるので数えない。
+    let owned: Vec<Col> = words.iter().filter(|w| w.text.chars().count() <= 2).map(|w| (*w).clone()).collect();
     words.len() >= 2
         && text.chars().count() >= 3
         && !text.chars().all(|c| c == '〃')
         && words.iter().all(upright)
         && y1 - y0 >= x1 - x0
+        && group_lines(&owned).iter().all(|l| l.words.len() <= 2)
 }
 
 /// 横書きの 1 行（y が重なる語の並び、x 昇順）。
