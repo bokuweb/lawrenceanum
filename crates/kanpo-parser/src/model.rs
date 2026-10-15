@@ -475,7 +475,44 @@ fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
         }
         prev.extend(rows);
     }
+    // ページの切れ目でつないだ表でも、新設の条・項の号やまとめて削った条の行をまとめる（ページごとの行の
+    // 対応ではページをまたぐ行が見えない）。
+    for block in &mut out {
+        if let Block::Shinkyu { rows } = block {
+            for planner in [new_item_plan as fn(&[(String, String)]) -> Vec<Option<usize>>, joined_article_plan] {
+                let texts: Vec<(String, String)> = rows.iter().map(|r| (runs_plain(&r.after), runs_plain(&r.before))).collect();
+                let plan = planner(&texts);
+                if plan.iter().all(Option::is_none) {
+                    continue;
+                }
+                let mut merged: Vec<ShinkyuRow> = Vec::new();
+                for (row, p) in std::mem::take(rows).into_iter().zip(&plan) {
+                    match (p, merged.last_mut()) {
+                        (Some(0), Some(last)) => append_rows_side(&mut last.after, row.after),
+                        (Some(_), Some(last)) => append_rows_side(&mut last.before, row.before),
+                        _ => merged.push(row),
+                    }
+                }
+                *rows = merged;
+            }
+        }
+    }
     out
+}
+
+/// セルの文（Run の字をつなぐ）。
+fn runs_plain(runs: &[Run]) -> String {
+    runs.iter().map(|r| r.text.as_str()).collect()
+}
+
+/// セルの後ろに、まとめる行のセルを改行してつなぐ。
+fn append_rows_side(dst: &mut Vec<Run>, src: Vec<Run>) {
+    if let (Some(last), Some(first)) = (dst.last_mut(), src.first()) {
+        if last.table.is_none() && first.table.is_none() && !last.text.ends_with('\n') {
+            last.text.push('\n');
+        }
+    }
+    dst.extend(src);
 }
 
 /// セルの Run 列に続きをつなぐ。前の文が文末（。）で終わっていなければ改行せずに連結する
@@ -765,6 +802,12 @@ fn move_leading_marks_back(rows: &mut [(String, String)]) {
 /// まとめて削った条（改正後「第十二条及び第十三条　削除」）の行の次に、反対の側だけに 2 つ目の条
 /// （改正前「第十三条　削除」）の行があれば、同じ行にまとめる。
 fn absorb_joined_articles(rows: Vec<(String, String)>) -> Vec<(String, String)> {
+    let plan = joined_article_plan(&rows);
+    apply_merge_plan(rows, &plan)
+}
+
+/// [`absorb_joined_articles`] で前の行にまとめる行（まとめる側。0: 改正後）。
+fn joined_article_plan(rows: &[(String, String)]) -> Vec<Option<usize>> {
     // まとめて削った条の最後の条と、範囲（「から…まで」）か。
     let last_of = |text: &str| -> Option<(String, bool)> {
         let first = text.trim().lines().next()?;
@@ -778,24 +821,23 @@ fn absorb_joined_articles(rows: Vec<(String, String)>) -> Vec<(String, String)> 
     };
     // 行の条（見出し「（…）」の後の条の書き出し）。
     let first_key = |t: &str| t.trim().lines().take(3).find_map(article_number);
-    let mut out: Vec<(String, String)> = Vec::new();
+    let mut plan = Vec::with_capacity(rows.len());
     // まとめている行の側（0: 改正後に「及び」の書き出し）と、最後の条・範囲か。
     let mut open: Option<(usize, String, bool)> = None;
     for (after, before) in rows {
-        if let (Some((side, last, range)), Some(prev)) = (open.clone(), out.last_mut()) {
-            let (other_empty, text) = if side == 0 { (after.trim().is_empty(), &before) } else { (before.trim().is_empty(), &after) };
+        if let Some((side, last, range)) = open.clone() {
+            let (other_empty, text, into) = if side == 0 { (after.trim().is_empty(), before, 1) } else { (before.trim().is_empty(), after, 0) };
             let key = first_key(text);
             if other_empty && (key.as_deref() == Some(last.as_str()) || (range && key.is_some())) {
-                let cell = if side == 0 { &mut prev.1 } else { &mut prev.0 };
-                *cell = format!("{}\n{}", cell.trim_end(), text);
+                plan.push(Some(into));
                 open = (key.as_deref() != Some(last.as_str())).then_some((side, last, range));
                 continue;
             }
         }
-        open = last_of(&after).map(|(k, r)| (0, k, r)).or_else(|| last_of(&before).map(|(k, r)| (1, k, r)));
-        out.push((after, before));
+        open = last_of(after).map(|(k, r)| (0, k, r)).or_else(|| last_of(before).map(|(k, r)| (1, k, r)));
+        plan.push(None);
     }
-    out
+    plan
 }
 
 /// 号の番号（「一」〜「二十」）。
@@ -821,7 +863,13 @@ fn item_number(text: &str) -> Option<u32> {
 /// （印の行が「一　…」なら「二　…」、新設の条の書き出しで終わるなら「一　…」）の行が続けば、新設の項・条の号
 /// なので 1 つの行にまとめる（新設の項の号ごとに行が分かれ、改正前の欄の空いた行になっていた）。
 fn merge_new_item_runs(rows: Vec<(String, String)>) -> Vec<(String, String)> {
-    let mut out: Vec<(String, String)> = Vec::new();
+    let plan = new_item_plan(&rows);
+    apply_merge_plan(rows, &plan)
+}
+
+/// [`merge_new_item_runs`] で前の行にまとめる行（まとめる側。0: 改正後）。
+fn new_item_plan(rows: &[(String, String)]) -> Vec<Option<usize>> {
+    let mut plan = Vec::with_capacity(rows.len());
     // 今まとめている行の、最後の号の番号。
     let mut open: Option<u32> = None;
     // 直前の行の改正前の欄が印だけ（新設の条・項）か。
@@ -833,22 +881,20 @@ fn merge_new_item_runs(rows: Vec<(String, String)>) -> Vec<(String, String)> {
     };
     for (after, before) in rows {
         if let (Some(n), true) = (open, before.trim().is_empty()) {
-            if item_number(&after) == Some(n + 1) {
-                let last = out.last_mut().unwrap();
-                last.0 = format!("{}\n{}", last.0.trim_end(), after);
+            if item_number(after) == Some(n + 1) {
+                plan.push(Some(0));
                 open = Some(n + 1);
                 continue;
             }
         }
         // 新設の条・項の行の後に、改正前の欄が空で号・項から書き出す行が続けば、印が足りずに分かれた新設の
         // 条・項の続き。
-        if in_new && before.trim().is_empty() && sub_item(&after) {
-            let last = out.last_mut().unwrap();
-            last.0 = format!("{}\n{}", last.0.trim_end(), after);
+        if in_new && before.trim().is_empty() && sub_item(after) {
+            plan.push(Some(0));
             open = None;
             continue;
         }
-        in_new = !only_marks(&before).is_empty();
+        in_new = !only_marks(before).is_empty();
         // 印の行の改正後の欄の最後の号の番号（その後に新設の条の書き出しがあれば 0。号はその条の号から始まる）。
         let last_item = after.lines().fold(None, |n, line| {
             // 横書きの「第145条の７」も条の書き出し。
@@ -862,8 +908,23 @@ fn merge_new_item_runs(rows: Vec<(String, String)>) -> Vec<(String, String)> {
                 item_number(line).or(n)
             }
         });
-        open = if only_marks(&before).len() == 1 { last_item } else { None };
-        out.push((after, before));
+        open = if only_marks(before).len() == 1 { last_item } else { None };
+        plan.push(None);
+    }
+    plan
+}
+
+/// 前の行にまとめる計画を文字列の行に当てる（まとめる側の文を前の行の同じ側の後ろにつなぐ）。
+fn apply_merge_plan(rows: Vec<(String, String)>, plan: &[Option<usize>]) -> Vec<(String, String)> {
+    let mut out: Vec<(String, String)> = Vec::new();
+    for ((after, before), p) in rows.into_iter().zip(plan) {
+        match (p, out.last_mut()) {
+            (Some(side), Some(last)) => {
+                let (cell, text) = if *side == 0 { (&mut last.0, after) } else { (&mut last.1, before) };
+                *cell = format!("{}\n{}", cell.trim_end(), text);
+            }
+            _ => out.push((after, before)),
+        }
     }
     out
 }
