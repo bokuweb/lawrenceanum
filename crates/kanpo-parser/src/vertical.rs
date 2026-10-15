@@ -1052,8 +1052,19 @@ fn split_beside_crossing(cols: &[Col], cut: f32, spaced: &[(f32, f32, f32)]) -> 
     if splits_at_cut(&left) && left.iter().all(|c| c.x1 < cx_min + 1.0) {
         return Some((right, left, true));
     }
-    // またぐ列が左に寄っている: 右側を段に割れるか。
-    let (right, left): (Vec<Col>, Vec<Col>) = cols.iter().cloned().partition(|c| center(c) > cx_max + 1.0);
+    // またぐ列が左に寄っている: 右側を段に割れるか。またぐ列のすぐ右で、またぐ列の上端の高さから
+    // 始まる記事の見出し（「〇国土交通省告示第千二百三号」の後に段をまたぐ前文が続く）は、またぐ側に付ける。
+    let cross_top = cols.iter().filter(|c| crosses(c)).map(|c| c.y).fold(f32::INFINITY, f32::min);
+    let heads: Vec<&Col> = cols
+        .iter()
+        .filter(|c| {
+            let em = c.x1 - c.x;
+            !crosses(c) && c.text.starts_with('〇') && c.x > cx_max - 1.0 && c.x - cx_max < em * 3.0 && (c.y - cross_top).abs() < em * 2.0
+        })
+        .collect();
+    // 見出しの列の語（「〇」の後に割注「財務省・農林水産省」と「令第四号」が続く）はまとめて付ける。
+    let heading = |c: &Col| !crosses(c) && heads.iter().any(|h| (center(h) - center(c)).abs() < (h.x1 - h.x) * 0.5);
+    let (right, left): (Vec<Col>, Vec<Col>) = cols.iter().cloned().partition(|c| center(c) > cx_max + 1.0 && !heading(c));
     if splits_at_cut(&right) && right.iter().all(|c| c.x > cx_max - 1.0) {
         return Some((right, left, false));
     }
