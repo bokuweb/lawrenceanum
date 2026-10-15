@@ -16,4 +16,6 @@ serde.workspace = true
 
 [dev-dependencies]
 serde_json.workspace = true
+# examples/egov_check が e-Gov の法令 API を引くため。
+reqwest = { workspace = true, features = ["blocking"] }
 insta = { version = "1", features = ["glob"] }
