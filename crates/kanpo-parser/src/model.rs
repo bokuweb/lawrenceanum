@@ -683,6 +683,7 @@ fn align_rows_by(
     }
     shift_omitted_past_new(&mut rows);
     spread_marks_back(&mut rows);
+    move_leading_marks_back(&mut rows);
     let rows = merge_new_item_runs(rows);
     Some(rows.into_iter().map(|(a, b)| ShinkyuRow { after: cell_runs_from_str(&a), before: cell_runs_from_str(&b), ..Default::default() }).collect())
 }
@@ -733,6 +734,29 @@ fn shift_omitted_past_new(rows: &mut [(String, String)]) {
         rows[i - 1].1 = keep;
         for (r, m) in rows[i..i + k].iter_mut().zip(marks) {
             r.1 = m;
+        }
+    }
+}
+
+/// セルの頭の印（「（新設）」「（削る。）」）の後に文が続き、前の行の同じ側が空なら、印は前の行（新設・削った
+/// 条）のもの（下の帯の印が次の条の文の頭に付いていた）。
+fn move_leading_marks_back(rows: &mut [(String, String)]) {
+    for i in 1..rows.len() {
+        for side in [0, 1] {
+            let cell = |r: &(String, String)| if side == 0 { r.0.clone() } else { r.1.clone() };
+            if !cell(&rows[i - 1]).trim().is_empty() {
+                continue;
+            }
+            let text = cell(&rows[i]);
+            let lines: Vec<&str> = text.lines().collect();
+            let k = lines.iter().take_while(|l| !l.trim().is_empty() && !only_marks(l).is_empty()).count();
+            if k == 0 || k == lines.len() {
+                continue;
+            }
+            let (marks, rest) = (lines[..k].join("\n"), lines[k..].join("\n"));
+            let set = |r: &mut (String, String), v: String| if side == 0 { r.0 = v } else { r.1 = v };
+            set(&mut rows[i - 1], marks);
+            set(&mut rows[i], rest);
         }
     }
 }
@@ -953,7 +977,7 @@ fn lcs_align_by(n: usize, m: usize, eq: impl Fn(usize, usize) -> bool) -> Vec<(O
 
 /// 文字列の頭の、新設・削った条などの印（「（新設）」「〔削る〕」「〔号を加える。〕」「〔項を削る。〕」）。
 fn leading_mark(text: &str) -> Option<&str> {
-    const MARKS: [&str; 6] = ["（新設）", "〔新設〕", "［新設］", "（削る）", "〔削る〕", "［削る］"];
+    const MARKS: [&str; 7] = ["（新設）", "〔新設〕", "［新設］", "（削る）", "〔削る〕", "［削る］", "（削る。）"];
     if let Some(m) = MARKS.iter().find(|m| text.starts_with(**m)) {
         return Some(&text[..m.len()]);
     }
@@ -1354,6 +1378,16 @@ mod tests {
         let out = realign_weak_windows(rows);
         assert!(out.iter().any(|r| r.0.starts_with("十六") && r.1.starts_with("十八")), "{out:?}");
         assert!(out.iter().any(|r| r.0.starts_with("十七") && r.1.starts_with("十九")), "{out:?}");
+    }
+
+    #[test]
+    fn moves_leading_marks_to_the_previous_row() {
+        let row = |a: &str, b: &str| (a.to_string(), b.to_string());
+        let mut rows = vec![row("第十一条の二　新しい条", ""), row("第十二条　甲", "（新設）\n第十二条　旧甲")];
+        move_leading_marks_back(&mut rows);
+        assert_eq!(rows[0].1, "（新設）");
+        assert_eq!(rows[1].1, "第十二条　旧甲");
+        assert_eq!(leading_mark("（削る。）"), Some("（削る。）"));
     }
 
     #[test]
