@@ -683,6 +683,7 @@ fn align_rows_by(
     }
     shift_omitted_past_new(&mut rows);
     spread_marks_back(&mut rows);
+    let rows = merge_new_item_runs(rows);
     Some(rows.into_iter().map(|(a, b)| ShinkyuRow { after: cell_runs_from_str(&a), before: cell_runs_from_str(&b), ..Default::default() }).collect())
 }
 
@@ -734,6 +735,47 @@ fn shift_omitted_past_new(rows: &mut [(String, String)]) {
             r.1 = m;
         }
     }
+}
+
+/// 号の番号（「一」〜「二十」）。
+fn item_number(text: &str) -> Option<u32> {
+    let head: String = text.trim_start().chars().take_while(|c| "一二三四五六七八九十".contains(*c)).collect();
+    let rest = text.trim_start()[head.len()..].chars().next();
+    if head.is_empty() || !matches!(rest, Some('　') | Some(' ')) {
+        return None;
+    }
+    let digit = |c: char| "一二三四五六七八九".find(c).map(|i| i as u32 / 3 + 1);
+    let cs: Vec<char> = head.chars().collect();
+    match cs.as_slice() {
+        [a] if *a == '十' => Some(10),
+        [a] => digit(*a),
+        ['十', b] => digit(*b).map(|d| 10 + d),
+        [a, '十'] => digit(*a).map(|d| d * 10),
+        [a, '十', b] => Some(digit(*a)? * 10 + digit(*b)?),
+        _ => None,
+    }
+}
+
+/// 改正前の欄が印 1 つ（「（新設）」）で改正後の欄が「一　…」の行の後に、改正前の欄が空で改正後の欄が
+/// 「二　…」「三　…」と続く行があれば、新設の項・条の号なので 1 つの行にまとめる（新設の項の号ごとに行が
+/// 分かれ、改正前の欄の空いた行になっていた）。
+fn merge_new_item_runs(rows: Vec<(String, String)>) -> Vec<(String, String)> {
+    let mut out: Vec<(String, String)> = Vec::new();
+    // 今まとめている行の、最後の号の番号。
+    let mut open: Option<u32> = None;
+    for (after, before) in rows {
+        if let (Some(n), true) = (open, before.trim().is_empty()) {
+            if item_number(&after) == Some(n + 1) {
+                let last = out.last_mut().unwrap();
+                last.0 = format!("{}\n{}", last.0.trim_end(), after);
+                open = Some(n + 1);
+                continue;
+            }
+        }
+        open = (only_marks(&before).len() == 1 && item_number(&after) == Some(1)).then_some(1);
+        out.push((after, before));
+    }
+    out
 }
 
 /// セルが印（「（新設）」「（削る）」など）だけなら、その印の列（1 行に並ぶものも分ける）。印以外があれば空。
@@ -1222,6 +1264,23 @@ mod tests {
         ];
         let out = pair_renumbered(rows.clone());
         assert_eq!(out, rows);
+    }
+
+    #[test]
+    fn merges_items_of_a_new_paragraph() {
+        let row = |a: &str, b: &str| (a.to_string(), b.to_string());
+        let rows = vec![
+            row("一　被保険者等記号・番号", "（新設）"),
+            row("二　計算期間の始期及び終期", ""),
+            row("三　申請者の氏名", ""),
+            row("（見出し）\n第十条　…", "（見出し）\n第十条　…"),
+        ];
+        let out = merge_new_item_runs(rows);
+        assert_eq!(out.len(), 2, "{out:?}");
+        assert!(out[0].0.contains("三　申請者の氏名"));
+        assert_eq!(item_number("十二　…"), Some(12));
+        assert_eq!(item_number("二十　…"), Some(20));
+        assert_eq!(item_number("一般"), None);
     }
 
     #[test]
