@@ -1460,6 +1460,9 @@ fn record_bands(bands: &[Vec<Col>]) -> Option<(usize, Vec<Line>)> {
         prev_top = mid;
         n += 1;
     }
+    if n == 2 {
+        return name_pair_bands(&bands[..2]);
+    }
     if n < 3 {
         return None;
     }
@@ -1538,6 +1541,29 @@ fn record_bands(bands: &[Vec<Col>]) -> Option<(usize, Vec<Line>)> {
         }
     }
     Some((n, lines))
+}
+
+/// 氏と名の間の空きで段に切られた名簿（叙位・叙勲の「窪田」の段と「信正」の段）。2 つの低い段（30pt 以下、
+/// 4 字以下の語）の列がどれも同じ x で 1 対 1 に組になれば、列ごとに「窪田　信正」とつなぐ。
+fn name_pair_bands(bands: &[Vec<Col>]) -> Option<(usize, Vec<Line>)> {
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    let short = |b: &[Col]| {
+        let (y0, y1) = b.iter().fold((f32::INFINITY, f32::NEG_INFINITY), |(a, z), c| (a.min(c.y), z.max(c.y1)));
+        y1 - y0 <= 30.0 && b.iter().all(|c| c.text.chars().count() <= 4)
+    };
+    let (a, b) = (&bands[0], &bands[1]);
+    if a.len() < 4 || a.len() != b.len() || !short(a) || !short(b) {
+        return None;
+    }
+    let mut a: Vec<&Col> = a.iter().collect();
+    let mut b: Vec<&Col> = b.iter().collect();
+    a.sort_by(|p, q| center(q).total_cmp(&center(p)));
+    b.sort_by(|p, q| center(q).total_cmp(&center(p)));
+    if a.iter().zip(&b).any(|(p, q)| (center(p) - center(q)).abs() > 2.0) {
+        return None;
+    }
+    let lines = a.iter().zip(&b).map(|(p, q)| Line::text(format!("{}\u{3000}{}", p.text, q.text), vec![p.id, q.id])).collect();
+    Some((2, lines))
 }
 
 /// 段の境目にかかる字間を空けた区分見出し（「法　規　的」と「告　示」が別の段に割れた「法規的告示」）を、
