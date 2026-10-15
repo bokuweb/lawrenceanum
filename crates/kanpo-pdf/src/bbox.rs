@@ -7,6 +7,8 @@
 //! - 縦書きの語: 文字の原点（字の上端の中央）を左上とする正方形をつないだもの。実際の字面より
 //!   右へ半 em、上へ 1 em ずれる（kanpo-parser はこのずれを前提に補正している）
 //! - poppler が読めないフォント（[`poppler_readable`]）の文字は出さない
+//! - ToUnicode の無い `Identity` の CID フォントの字は、CID を私用領域 U+F0000 + CID に置く
+//!   （[`IDENTITY_CID_BASE`]。poppler は CID をそのまま符号位置として無関係な漢字を出す）
 //! - 同じ字がほぼ同じ位置に重ねて描かれていたら 2 つ目は捨てる。横書きで別の字が前の字と同じ位置に
 //!   重ねて置かれた私用領域の字は、その字だけで 1 語にする
 //! - 縦書きはフォントが変わると語を切る。字間（Tc）で空けた字は別の語にする
@@ -80,6 +82,23 @@ pub fn poppler_readable(font: &FontInfo) -> bool {
     }
 }
 
+/// ToUnicode の無い `Identity` の CID フォントの字を置く私用領域の先頭（U+F0000 + CID）。
+///
+/// 官報では項目記号（(1)・①・㈠）や目次のページ番号の数字などが、ToUnicode の無い
+/// `DFHSMinchoRPro6N-W3-Identity-V`（Ordering が `Identity`）で組まれる。CID はフォントの字形の番号で
+/// 文字の対応は無い。poppler のように CID をそのまま符号位置にすると本物の漢字（`掠`・`採`）と
+/// 区別がつかないので、私用領域に置いて利用側（kanpo-parser）が字形の番号から字を決められるようにする。
+pub const IDENTITY_CID_BASE: u32 = 0xF0000;
+
+/// 語に入れる文字列。
+fn glyph_text(g: &Glyph, fonts: &[FontInfo]) -> String {
+    let unmapped = fonts.get(g.font).is_some_and(|f| f.ordering.as_deref() == Some("Identity") && !f.has_to_unicode);
+    match char::from_u32(IDENTITY_CID_BASE + g.cid) {
+        Some(c) if unmapped && g.cid <= 0xFFFD => c.to_string(),
+        _ => g.text.clone(),
+    }
+}
+
 /// 文字を語にまとめる。文字はコンテンツストリームの順に見て、前の文字と同じフォント・大きさで、
 /// 前の文字の字送りの終点に続いて（重なりは 1 em まで）置かれていれば同じ語にする。
 /// 空白文字は語を区切る。
@@ -129,7 +148,7 @@ pub fn words(page: &Page) -> Vec<Word> {
                 && !(along > RULE_GAP * g.size && rule_between(&rules, p, g))
         });
         let b = poppler_box(g);
-        let text = g.text.clone();
+        let text = glyph_text(g, &page.fonts);
         match out.last_mut() {
             Some(w) if continues => {
                 w.text.push_str(&text);

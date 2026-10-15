@@ -41,7 +41,27 @@ pub(crate) fn word_text(raw: &str) -> String {
     if !raw.is_empty() && raw.chars().all(|c| c == '\u{E61C}' || (is_private_use(c) && private_use_char(c).is_none())) {
         return String::new();
     }
-    raw.chars().filter_map(text_char).collect()
+    let mut out = String::new();
+    for c in raw.chars() {
+        match identity_cid(c) {
+            Some(cid) => match cid_glyph(&[cid_char(cid)], 1.0, 1.0, true) {
+                Some(g) => out.push_str(&g.text),
+                None => out.extend(text_char(cid_char(cid))),
+            },
+            None => out.extend(text_char(c)),
+        }
+    }
+    out
+}
+
+/// kanpo-pdf が ToUnicode の無い `Identity` の CID フォントの字を置く私用領域（U+F0000 + CID）の字なら、その CID。
+fn identity_cid(c: char) -> Option<u32> {
+    (c as u32).checked_sub(kanpo_pdf::bbox::IDENTITY_CID_BASE).filter(|&cid| cid <= 0xFFFD)
+}
+
+/// CID をそのまま符号位置とみなした字（poppler と同じ。[`cid_glyph`] の表はこの符号で引く）。
+fn cid_char(cid: u32) -> char {
+    char::from_u32(cid).unwrap_or('\u{FFFD}')
 }
 
 /// 語の 1 文字を本文の文字にする。約物を正規化し、私用領域の文字は意味の分かるもの
@@ -99,17 +119,37 @@ const AMBIGUOUS: &str = "挑振挺挾挿掘掛掌故效敍敏敕敗敘教敝敞�
 /// （「（３９）(i)」）は、記号の数だけの高さまで許す。
 ///
 /// 対応は蓄積した官報の原本画像と突き合わせて確かめたもの。連番の範囲は確認できた
-/// 符号の並びから端まで延ばしている。目次のページ番号の数字（`掠`→一、`採`→二 …）は
-/// `接`・`推`・`採` など字間を空けた見出しの本物の漢字と区別できないのでここでは扱わない
-/// （ページの中の並びを見る [`toc_page_numbers`]）。
+/// 符号の並びから端まで延ばしている。
+///
+/// kanpo-pdf の出力では、ToUnicode の無い `Identity` のフォントの字が私用領域（U+F0000 + CID）に
+/// 分けてあるので、字の大きさや前後の語を見ずに写像し、常用漢字と同じ符号や、目次のページ番号の
+/// 数字（`掠`→一、`採`→二 …）・異体字も写像する（[`identity_only_glyph`]）。poppler の出力では
+/// 本物の漢字と区別できないので、これらは扱わない（目次のページ番号はページの中の並びで見る
+/// [`toc_page_numbers`]）。
 pub(crate) fn private_cid_glyph(text: &str, width: f32, height: f32) -> Option<CidGlyph> {
     let chars: Vec<char> = text.trim().chars().collect();
-    if chars.len() < 3 && height > width * 1.3 {
+    // kanpo-pdf の出力では、ToUnicode の無いフォントの字が私用領域に分けてあるので紛れが無い。
+    if !chars.is_empty() && chars.iter().all(|&c| identity_cid(c).is_some()) {
+        let chars: Vec<char> = chars.iter().map(|&c| identity_cid(c).map_or(c, cid_char)).collect();
+        return cid_glyph(&chars, width, height, true);
+    }
+    cid_glyph(&chars, width, height, false)
+}
+
+/// [`private_cid_glyph`] の本体。`sure` なら字が ToUnicode の無いフォントのものと分かっている
+/// （常用漢字と同じ符号も写像し、字の大きさも問わない）。
+fn cid_glyph(chars: &[char], width: f32, height: f32, sure: bool) -> Option<CidGlyph> {
+    if !sure && chars.len() < 3 && height > width * 1.3 {
         return None;
     }
     let fw = |n: u32| -> String { n.to_string().chars().map(|d| char::from_u32('０' as u32 + d.to_digit(10).unwrap()).unwrap()).collect() };
     let nth = |s: &str, i: u32| s.chars().nth(i as usize);
-    let (family, mapped) = match chars.as_slice() {
+    let (family, mapped) = match chars {
+        // 目次のページ番号の数字（〇〜九。半角の字を縦に重ねて 1 em に 2 桁）
+        _ if sure && chars.iter().all(|c| ('\u{639F}'..='\u{63A8}').contains(c)) => {
+            (FAM_SINGLE, chars.iter().filter_map(|&c| nth("〇一二三四五六七八九", c as u32 - 0x639F)).collect())
+        }
+        [c] if sure && identity_only_glyph(*c as u32).is_some() => identity_only_glyph(*c as u32)?,
         [c] => {
             let code = *c as u32;
             match code {
@@ -153,7 +193,7 @@ pub(crate) fn private_cid_glyph(text: &str, width: f32, height: f32) -> Option<C
                 0x5A52 => (FAM_SINGLE, "薩".to_string()),
                 0x5A7B => (FAM_SINGLE, "鄭".to_string()),
                 0x5A91 => (FAM_SINGLE, "樋".to_string()),
-                0x5B3D => (FAM_SINGLE, "徳".to_string()),
+                0x5B3D => (FAM_SINGLE, "德".to_string()),
                 _ => return None,
             }
         }
@@ -165,19 +205,20 @@ pub(crate) fn private_cid_glyph(text: &str, width: f32, height: f32) -> Option<C
         }
         // 続けて組まれて 1 語になったもの（「（３９）(i)」）。常用漢字と同じ符号だけの語は除く。
         _ if chars.len() >= 3 => {
-            let (mut out, mut sure, mut i, mut tokens) = (String::new(), false, 0, 0);
+            let (mut out, mut known, mut i, mut tokens) = (String::new(), sure, 0, 0);
             while i < chars.len() {
                 let pair = chars.get(i..i + 2).map(|p| p.iter().collect::<String>());
-                let (g, n) = match pair.and_then(|p| private_cid_glyph(&p, width, width)) {
+                let pair: Option<Vec<char>> = pair.map(|p| p.chars().collect());
+                let (g, n) = match pair.and_then(|p| cid_glyph(&p, width, width, sure)) {
                     Some(g) => (g, 2),
-                    None => (private_cid_glyph(&chars[i].to_string(), width, width)?, 1),
+                    None => (cid_glyph(&chars[i..i + 1], width, width, sure)?, 1),
                 };
-                sure |= !g.ambiguous;
+                known |= !g.ambiguous;
                 out.push_str(&g.text);
                 i += n;
                 tokens += 1;
             }
-            if !sure || height > width * 1.3 * tokens as f32 {
+            if !known || (!sure && height > width * 1.3 * tokens as f32) {
                 return None;
             }
             (FAM_PAREN_NUM, out)
@@ -186,9 +227,55 @@ pub(crate) fn private_cid_glyph(text: &str, width: f32, height: f32) -> Option<C
     };
     Some(CidGlyph {
         family,
-        ambiguous: chars.len() == 1 && AMBIGUOUS.contains(chars[0]),
+        ambiguous: !sure && chars.len() == 1 && AMBIGUOUS.contains(chars[0]),
         text: mapped,
     })
+}
+
+/// ToUnicode の無いフォントの字と分かっているときだけ写像するもの（常用漢字と同じ符号を含む）。
+/// 原本の字形で確かめた。
+fn identity_only_glyph(code: u32) -> Option<(u8, String)> {
+    let nth = |s: &str, i: u32| s.chars().nth(i as usize).map(String::from);
+    let text = match code {
+        // (あ)〜(わ)（五十音順。(と)・(ぬ)・(る) で確かめた）
+        0x650E..=0x6538 => {
+            let kana = nth("あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわ", code - 0x650E)?;
+            return Some((FAM_PAREN_KANA, format!("（{kana}）")));
+        }
+        // ㈩ に続く (十一)〜(十五)
+        0x63BF..=0x63C3 => return Some((FAM_PAREN_KANJI, format!("（十{}）", nth("一二三四五", code - 0x63BF)?))),
+        // 化学名のプライム（「N・N′－」）
+        0x65C9 => "′",
+        // 2 行にまたがる大きな括弧の上半分・下半分（「（自令和七年四月一日／至令和八年三月三十一日）」）
+        0x6645 | 0x6646 => "（",
+        0x6647 | 0x6648 => "）",
+        // 複数行にまたがる大きな括弧の部品・飾り罫（字ではない）
+        0x62FC..=0x62FF | 0x6699..=0x669F => "",
+        // 決算公告の負の数の印（縦書き用の字形で、縦組みでは横倒しの ▷ に見える）
+        0x624D => "△",
+        // 人名・地名の異体字・簡体字など
+        0x41BE => "婷",
+        0x41FC => "暻",
+        0x4306 => "鄔",
+        0x4322 => "雯",
+        0x4473 => "宁",
+        0x4B17 => "吴",
+        0x4F34 => "鍵",
+        0x4F37 => "梗",
+        0x4F38 => "鮫",
+        0x4F3A => "杖",
+        0x4F45 => "籾",
+        0x52C7 => "刘",
+        0x5305 => "启",
+        0x55AD => "煒",
+        0x5A37 => "祇",
+        0x5A53 => "鯖",
+        0x5A70 => "蛸",
+        0x5A7B => "鄭",
+        0x5B12 | 0x5B3D => "德",
+        _ => return None,
+    };
+    Some((FAM_SINGLE, text.to_string()))
 }
 
 /// 目次のページ番号の数字の私用 CID（U+639F `掟`→〇、U+63A0 `掠`→一 … U+63A8 `推`→九）。
@@ -203,6 +290,8 @@ const TOC_DIGIT_ZERO: u32 = 0x639F;
 /// うち、2 字以上を 1 字 0.85em 未満に詰めたもの、または同じ大きさの同じ 10 字だけの語と下端がそろうもの
 /// （ほかの項目のページ番号）を、ページ番号とする（蓄積した官報 59 日分の目次で、項目の掲載ページと
 /// 突き合わせて確かめた。項目が 1 つだけの目次の「一」は並ぶ語が無いので写像しない）。
+/// kanpo-pdf の出力（私用領域に分けた字）は [`private_cid_glyph`] が紛れなく写像するので、これは
+/// poppler・以前の抽出器の出力（R2 に蓄積した座標付きテキスト）のためのもの。
 pub(crate) fn toc_page_numbers(words: &[(f32, f32, f32, f32, String)]) -> Vec<Option<String>> {
     let digit = |c: char| (TOC_DIGIT_ZERO..=TOC_DIGIT_ZERO + 9).contains(&(c as u32));
     let digits: Vec<usize> = (0..words.len())
@@ -267,7 +356,7 @@ pub(crate) fn normalize_char(c: char) -> char {
         '\u{FE44}' => '』',
         '\u{FE47}' => '〔',
         '\u{FE48}' => '〕',
-        other => other,
+        other => identity_cid(other).map_or(other, cid_char),
     }
 }
 
@@ -328,7 +417,7 @@ mod tests {
     #[test]
     fn maps_variant_glyphs_checked_against_the_originals() {
         // 原本の画像と突き合わせた異体字（宮城県塩竈市・心筋梗塞・鍼灸・奈良県葛城市・鹿児島県薩摩郡・樋口）。
-        for (cid, want) in [("伽", "竈"), ("伷", "梗"), ("伮", "灸"), ("佁", "斧"), ("佅", "籾"), ("娱", "葛"), ("婒", "薩"), ("婻", "鄭"), ("媑", "樋"), ("嬽", "徳")] {
+        for (cid, want) in [("伽", "竈"), ("伷", "梗"), ("伮", "灸"), ("佁", "斧"), ("佅", "籾"), ("娱", "葛"), ("婒", "薩"), ("婻", "鄭"), ("媑", "樋"), ("嬽", "德")] {
             assert_eq!(fix_private_cid_glyphs(cid, 9.0, 9.0).as_deref(), Some(want), "{cid}");
         }
         assert_eq!(fix_private_cid_glyphs("掋", 9.0, 9.0).as_deref(), Some("（Ⅰ）"));
@@ -412,6 +501,37 @@ mod tests {
         // 通常の本文（2 文字で 2em の高さ・常用漢字の語）は触らない。
         assert_eq!(fix_private_cid_glyphs("星昭", 8.0, 16.0), None);
         assert_eq!(fix_private_cid_glyphs("昭和", 8.0, 8.0), None);
+    }
+
+    /// kanpo-pdf が ToUnicode の無い Identity のフォントの字を置く私用領域の字。
+    fn tagged(cid: u32) -> String {
+        cid_char(kanpo_pdf::bbox::IDENTITY_CID_BASE + cid).to_string()
+    }
+
+    #[test]
+    fn decodes_glyphs_tagged_as_unmapped_identity_font() {
+        let word = |cids: &[u32]| cids.iter().map(|&c| tagged(c)).collect::<String>();
+        let glyph = |cids: &[u32], w: f32, h: f32| private_cid_glyph(&word(cids), w, h).map(|g| g.text);
+        // 目次のページ番号の数字（半角の字を縦に重ねた「一〇」は 1 em より高い）。
+        assert_eq!(glyph(&[25505], 9.0, 9.0).as_deref(), Some("二"));
+        assert_eq!(glyph(&[25504, 25503], 9.0, 13.5).as_deref(), Some("一〇"));
+        // 常用漢字と同じ符号（`振`・`故`）も、タグが付いていれば紛れない。
+        assert_eq!(glyph(&[25391], 8.0, 8.0).as_deref(), Some("③"));
+        assert_eq!(glyph(&[25925], 8.0, 8.0).as_deref(), Some("（オ）"));
+        assert_eq!(glyph(&[25889], 8.0, 8.0).as_deref(), Some("（と）"));
+        assert_eq!(glyph(&[25539], 8.0, 8.0).as_deref(), Some("（十五）"));
+        // 異体字（CID 20280 は poppler では「伸」になる）。
+        assert_eq!(word_text(&word(&[20280])), "鮫");
+        assert_eq!(word_text(&word(&[24954])), "－");
+        // 飾り罫は落とす。対応の分からない字は poppler と同じ字にする。
+        assert_eq!(word_text(&word(&[26265, 26267])), "");
+        assert_eq!(word_text(&word(&[0x6682])), "\u{6682}");
+        // poppler の出力で原本と突き合わせた異体字は、タグが付いていても同じ字にする（鍼灸）。
+        assert_eq!(word_text(&word(&[20270])), "灸");
+        // タグの無い（poppler の）入力では、常用漢字と同じ符号は写像しない。
+        assert_eq!(fix_private_cid_glyphs("伸", 8.0, 8.0), None);
+        assert_eq!(fix_private_cid_glyphs("採", 9.0, 9.0), None);
+        assert_eq!(word_text("伸"), "伸");
     }
 
     #[test]
