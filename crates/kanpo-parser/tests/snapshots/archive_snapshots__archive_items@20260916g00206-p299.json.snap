@@ -1,5 +1,6 @@
 ---
 source: crates/kanpo-parser/tests/archive_snapshots.rs
+assertion_line: 129
 expression: out
 input_file: crates/kanpo-parser/tests/archive/items/20260916g00206-p299.json
 ---
@@ -30,9 +31,9 @@ picked: Some(1)
    row 0
     後 １　検査を受けるべき医薬品、手数料、試験品の数量及び検査機関
     （略）生物学的製剤厚生労働大臣　上野賢一郎
+    （傍線部分は改正部分）
     前 １　検査を受けるべき医薬品、手数料、試験品の数量及び検査機関
     （略）生物学的製剤
-    （傍線部分は改正部分）
     前 [表 3x4]
       | 検査を受けるべき医薬 |  |  |  |
       | 品 | 手数料 | 試験品の数量 | 検査機関 |
