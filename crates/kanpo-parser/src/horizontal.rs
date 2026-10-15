@@ -60,6 +60,30 @@ pub(crate) fn row_lines(cols: Vec<Col>) -> Vec<trace::Line> {
 /// セルの右端からこの空き（em 比）までに終わる行は、次の行へ折り返している（セルの内側の余白を含む）。
 const WRAP_EM: f32 = 2.0;
 
+/// セルの中で `next` が `prev` の折り返しの続きか。`prev` が文（4 字以上で数字が半分未満）で、セルの
+/// 右端 `right` から [`WRAP_EM`] までに終わり、`next` が項目名（「所在地：」）で始まらない。右揃えの
+/// 金額の行は右端に届くが折り返しではない。
+fn wrapped(prev: &Line, next: &Line, right: f32) -> bool {
+    let text: String = prev.words.iter().map(|w| w.text.as_str()).collect();
+    let numeric = text.chars().filter(|c| c.is_ascii_digit()).count() * 2 >= text.chars().count();
+    let end = prev.words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
+    let next: String = next.words.iter().map(|w| w.text.as_str()).collect();
+    !numeric && !labeled(&next) && text.chars().count() >= 4 && right - end <= (prev.y1 - prev.y0).max(1.0) * WRAP_EM
+}
+
+/// 同じ行の同じセルの中で、欄に収まらずに折り返した金額の続きか（「113,191,23」「1」）。
+fn amount_tail(prev: &Line, next: &Line) -> bool {
+    let text: String = prev.words.iter().map(|w| w.text.as_str()).collect();
+    let next: String = next.words.iter().map(|w| w.text.as_str()).collect();
+    text.chars().filter(|c| c.is_ascii_digit()).count() * 2 >= text.chars().count()
+        && text.ends_with(|c: char| c.is_ascii_digit())
+        // 桁区切りの最後の組が 3 桁に足りない（「23」で切れている）。
+        && text.contains(',')
+        && text.rsplit(',').next().is_some_and(|g| g.len() < 3)
+        && (1..=3).contains(&next.chars().count())
+        && next.chars().all(|c| c.is_ascii_digit())
+}
+
 /// 「所在地：」「電話番号：」のような項目名で始まる行か（前の行がセルの右端まで組まれていても
 /// 折り返しの続きではない）。
 fn labeled(text: &str) -> bool {
@@ -135,7 +159,7 @@ fn grid_table(g: &Grid, words: &[Col]) -> Option<trace::Table> {
             }
         }
         for (i, ws) in cell_words.into_iter().enumerate() {
-            cell_lines[i] = group_lines(&ws);
+            cell_lines[i] = group_cell_lines(&ws);
         }
     }
     if cell_lines.iter().filter(|l| !l.is_empty()).count() < 2 {
@@ -150,16 +174,7 @@ fn grid_table(g: &Grid, words: &[Col]) -> Option<trace::Table> {
     }
     // セル i の k 行目が、前の行の折り返しの続きか。前の行が文で、セルの右端まで組まれている
     // （右揃えの金額の行は右端に届くが、折り返しではない）。
-    let wraps = |i: usize, k: usize| {
-        k > 0 && {
-            let prev = &cell_lines[i][k - 1];
-            let text: String = prev.words.iter().map(|w| w.text.as_str()).collect();
-            let numeric = text.chars().filter(|c| c.is_ascii_digit()).count() * 2 >= text.chars().count();
-            let end = prev.words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
-            let next: String = cell_lines[i][k].words.iter().map(|w| w.text.as_str()).collect();
-            !numeric && !labeled(&next) && text.chars().count() >= 4 && g.xs[g.cells[i].x1] - end <= (prev.y1 - prev.y0).max(1.0) * WRAP_EM
-        }
-    };
+    let wraps = |i: usize, k: usize| k > 0 && wrapped(&cell_lines[i][k - 1], &cell_lines[i][k], g.xs[g.cells[i].x1]);
     // 行の頭の高さ（格子の行ごと）。
     let ny = g.ys.len() - 1;
     let mut anchors: Vec<f32> = Vec::new();
@@ -215,16 +230,10 @@ fn grid_table(g: &Grid, words: &[Col]) -> Option<trace::Table> {
                     ws.iter().map(|w| w.text.as_str()).collect()
                 } else {
                     // セルの右端まで組んだ行の次の行は折り返しの続き（「神奈川県横浜市中」「区」）なのでつなぐ。
-                    let right = g.xs[gc.x1];
                     let mut text = String::new();
                     for (k, l) in ls.iter().enumerate() {
-                        if k > 0 {
-                            let prev = ls[k - 1];
-                            let em = (prev.y1 - prev.y0).max(1.0);
-                            let end = prev.words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
-                            if right - end > em * WRAP_EM || labeled(&render_line(&l.words)) {
-                                text.push('\n');
-                            }
+                        if k > 0 && !wrapped(ls[k - 1], l, g.xs[gc.x1]) && !amount_tail(ls[k - 1], l) {
+                            text.push('\n');
                         }
                         text.push_str(&render_line(&l.words));
                     }
@@ -287,6 +296,37 @@ impl Line {
 
 fn y_center(w: &Col) -> f32 {
     (w.y + w.y1) / 2.0
+}
+
+/// 表のセルの語を行に束ねる。[`group_lines`] より厳しく、語の中心 y が行の最初の語の中心から行の
+/// 高さの 35% 以内か、行と高さの半分以上重なって行のどの語とも左右に重ならない語だけを同じ行に
+/// する（金額の欄は行送りが字の高さとほぼ同じで、半行ずれて真下に置かれた「0」が上の行の範囲に
+/// 掛かり、「1,627,662」とつながっていた。字の種類で字面の高さが違う「3」「,298,613」はつなぐ）。
+fn group_cell_lines(words: &[Col]) -> Vec<Line> {
+    let mut sorted: Vec<&Col> = words.iter().collect();
+    sorted.sort_by(|a, b| y_center(a).total_cmp(&y_center(b)));
+    let mut lines: Vec<(f32, Line)> = Vec::new();
+    for w in sorted {
+        let c = y_center(w);
+        match lines.last_mut() {
+            Some((c0, l))
+                if (c - *c0).abs() <= (w.y1 - w.y).max(1.0) * 0.35
+                    || (l.y1.min(w.y1) - l.y0.max(w.y) >= (w.y1 - w.y) * 0.5 && !l.words.iter().any(|v| v.x < w.x1 && w.x < v.x1)) =>
+            {
+                l.y0 = l.y0.min(w.y);
+                l.y1 = l.y1.max(w.y1);
+                l.words.push(w.clone());
+            }
+            _ => lines.push((c, Line { y0: w.y, y1: w.y1, words: vec![w.clone()] })),
+        }
+    }
+    lines
+        .into_iter()
+        .map(|(_, mut l)| {
+            l.words.sort_by(|a, b| a.x.total_cmp(&b.x));
+            l
+        })
+        .collect()
 }
 
 /// 語を行に束ねる。語の中心 y が直前の行の y 範囲に入れば同じ行とする。
@@ -669,6 +709,21 @@ mod tests {
             read(words),
             "Proizvodstvennoe Predpriyatie Zavod Iskra; JSC Research and Production\nEnterprise Plant Iskra; NPP Plant Iskra; NPP Zavod Iskra; Aktsionernoe Obshchestvo"
         );
+    }
+
+    #[test]
+    fn cell_lines_keep_stacked_amounts_apart_and_join_wrapped_amounts() {
+        let col = |x: f32, x1: f32, y: f32, y1: f32, text: &str| Col { id: 0, x, x1, y, y1, text: text.to_string() };
+        // 行送りが字の高さとほぼ同じ金額の欄で、半行ずれて真下に置かれた「0」は別の行。
+        let lines = group_cell_lines(&[col(173.0, 199.0, 163.5, 171.7, "1,627,662"), col(195.0, 199.0, 167.5, 175.7, "0")]);
+        assert_eq!(lines.len(), 2);
+        // 字面の高さの違う「3」「,298,613」は同じ行。
+        let lines = group_cell_lines(&[col(352.5, 356.5, 71.6, 79.8, "3"), col(358.5, 384.5, 72.6, 78.8, ",298,613")]);
+        assert_eq!(lines.len(), 1);
+        // 欄に収まらずに折り返した金額はつなぐ。桁の揃った金額の後の数はつながない。
+        let line = |text: &str, y: f32| Line { y0: y, y1: y + 8.0, words: vec![col(332.5, 368.5, y, y + 8.0, text)] };
+        assert!(amount_tail(&line("113,191,23", 682.5), &line("1", 690.5)));
+        assert!(!amount_tail(&line("29,077,108,832", 682.5), &line("2", 690.5)));
     }
 
     #[test]

@@ -626,7 +626,11 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
         // 1〜2 字の語は高さも整数 pt のものだけ（縦中横の「13」は横組み用の書体で高さが
         // 8.184pt などになり、ずれていない）。
         let h = *y1 - *y;
-        let tall = h >= em * 1.5 || (vertical_page && t.chars().count() <= 2 && h >= em * 0.9 && (h - h.round()).abs() < 0.01);
+        // 半角の英数字 1 字の語（横組みの金額の頭の「3」）は、高さが幅の 2 倍でも縦組みではない
+        // （縦組みの小数点「･」は 1 字でもずれている）。
+        let half_width = t.chars().count() == 1 && t.chars().all(|c| c.is_ascii_alphanumeric());
+        let tall = (h >= em * 1.5 && !half_width)
+            || (vertical_page && t.chars().count() <= 2 && h >= em * 0.9 && (h - h.round()).abs() < 0.01);
         // 上の余白帯の柱（「官」「報」「第」「号」の 1 字の語）は動かさない。
         if vertical_font && *y1 > TOP_MARGIN && tall {
             *y += em;
