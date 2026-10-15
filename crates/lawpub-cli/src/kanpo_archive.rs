@@ -255,17 +255,33 @@ fn reextract_date(archive: &Archive, date: &str, cache: &Path) -> Result<Option<
     };
     let manifest: Manifest = serde_json::from_slice(&bytes).with_context(|| format!("parse {date}/manifest.json"))?;
     let mut kd = kanpo_date(&manifest);
-    // ページ PDF の URL (`…/pdf/{dir}{PPPP}.pdf`) → 原本の `{date}/{dir}/{dir}{PPPP}.bbox.html` と `.rules.json`。
+    // ページ PDF の URL (`…/pdf/{dir}{PPPP}.pdf`) → 原本の `{date}/{dir}/{dir}{PPPP}.pdf`。座標付きテキストと
+    // 罫線は今の kanpo-pdf で PDF から作り直す（蓄積した `.bbox.html`・`.rules.json` は取得した日の抽出器の
+    // 出力で、その後の kanpo-pdf の改善（ToUnicode の無いフォントの字の判別など）が入っていない。全 10,784
+    // ページで比べると 18% のページの本文が変わり、どれも原本に近づく）。PDF が無ければ蓄積したものを読む。
     let mut read = 0usize;
     let mut load = |url: &str| -> Option<Option<pdf::PageInput>> {
         let stem = url.rsplit('/').next()?.strip_suffix(".pdf")?;
         let dir = stem.get(..stem.len().checked_sub(4)?)?;
         let fetch = |ext: &str| archive.get(&format!("{date}/{dir}/{stem}.{ext}"));
+        let warn = |e: anyhow::Error| tracing::warn!("{e:#}");
+        if let Some(bytes) = fetch("pdf").unwrap_or_else(|e| {
+            warn(e);
+            None
+        }) {
+            match pdf::bbox_xhtml(&bytes) {
+                Ok(xhtml) => {
+                    read += 1;
+                    return Some(Some(pdf::PageInput { xhtml, rules: pdf::page_rules(&bytes).ok() }));
+                }
+                Err(e) => warn(e.context(format!("{stem}.pdf"))),
+            }
+        }
         let xhtml = match fetch("bbox.html") {
             Ok(Some(b)) => String::from_utf8_lossy(&b).into_owned(),
             Ok(None) => return Some(None),
             Err(e) => {
-                tracing::warn!("{e:#}");
+                warn(e);
                 return Some(None);
             }
         };
@@ -289,7 +305,8 @@ fn reextract_date(archive: &Archive, date: &str, cache: &Path) -> Result<Option<
 /// `.cache/kanpo/` は GitHub Actions の cache にしか無く、cache の追い出し (リポジトリ上限 10GB) で消える
 /// (2026-10-14 時点で配信されていた官報は 10/02 以降の 7 日分だけで、R2 には 07/16 からの 58 日分があった)。
 /// 改め文も取得した時点のパーサで抽出したまま残り、パーサを直しても過去の項目には反映されない。
-/// 原本の座標付きテキストと罫線から抽出し直せば、デジタル官報 (約 90 日で消える) に取りに行かずにどちらも直せる。
+/// 原本の PDF (無ければ蓄積した座標付きテキストと罫線) から抽出し直せば、デジタル官報 (約 90 日で消える) に
+/// 取りに行かずにどちらも直せる。
 ///
 /// `dates` が空なら原本の `index.json` の全日付が対象。`all` でなければ cache に既にある日付は飛ばす。
 pub fn run_reextract(archive: &str, cache: &Path, dates: &[String], all: bool) -> Result<()> {
@@ -393,5 +410,33 @@ mod tests {
         run_reextract(&archive.display().to_string(), &cache, &[], true).unwrap();
         assert!(std::fs::read_to_string(cache.join("kanpo/2026-10-09.json")).unwrap().contains("amend_text"));
         std::fs::remove_dir_all(root).ok();
+    }
+
+    #[test]
+    fn reextract_rebuilds_pages_from_the_archived_pdf() {
+        // 原本の PDF があれば、蓄積した座標付きテキストではなく PDF から読み直す（座標付きテキストが
+        // 無くても抽出できる）。
+        let root = crate::wiki::temp_dir("kanpo-reextract-pdf");
+        let (archive, cache) = (root.join("archive"), root.join("cache"));
+        let day = archive.join("2026-10-05");
+        std::fs::create_dir_all(day.join("20261005h01801")).unwrap();
+        std::fs::write(
+            day.join("manifest.json"),
+            serde_json::to_vec(&serde_json::json!({
+                "date": "2026-10-05",
+                "issues": [{"issue_type": "regular", "issue_no": "第1801号", "dir": "20261005h01801",
+                            "url": "https://www.kanpo.go.jp/20261005/20261005h01801/", "page_count": 2,
+                            "pages": [{"page": 2, "file": "20261005h018010002.pdf", "sha256": "", "bytes": 0, "bbox": false, "rules": false}],
+                            "items": [{"title": "国際海事機関海洋環境保護委員会の判定に基づき環境大臣が指定する物質の一部を改正する件（環境四三）", "page": 2}]}]
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+        let pdf = Path::new(env!("CARGO_MANIFEST_DIR")).join("../kanpo-parser/tests/corpus/2026-10-05-honshi1801-p2/page.pdf");
+        std::fs::copy(&pdf, day.join("20261005h01801/20261005h018010002.pdf")).unwrap();
+        run_reextract(&archive.display().to_string(), &cache, &["2026-10-05".to_string()], false).unwrap();
+        let kd: kanpo_client::KanpoDate =
+            serde_json::from_slice(&std::fs::read(cache.join("kanpo/2026-10-05.json")).unwrap()).unwrap();
+        assert!(kd.issues[0].items[0].amend_text.as_deref().is_some_and(|t| !t.is_empty()), "PDF から本文を抽出する");
     }
 }

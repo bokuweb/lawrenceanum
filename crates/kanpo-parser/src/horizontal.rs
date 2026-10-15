@@ -43,8 +43,18 @@ pub(crate) fn is_left_strip_header(x1: f32, text: &str) -> bool {
 /// `is_margin_noise` は使わない。横組みの日付行「令和８年10月２日」は数字を除くと柱の
 /// 「令和年月日」と同じ骨格になり、本文が消える。
 pub(crate) fn horizontal_lines(cols: Vec<Col>) -> Vec<trace::Line> {
+    horizontal_lines_around(cols, &[])
+}
+
+/// 語を取り除いた表の外枠 `(x0, y0, x1, y1)`。
+type Block = (f32, f32, f32, f32);
+
+/// [`horizontal_lines`] で、表として先に取り除いた語の外枠 `blocks` を、列の溝・上下の切れ目を
+/// ふさぐものとして扱う版。2 段抜きの表を抜いた跡が列の溝に見え、表の上の行（日付と署名が
+/// 1 行に並ぶ「令和八年十月十五日　九州運輸局長　日向　弘基」）が下の段組の列に分かれないようにする。
+fn horizontal_lines_around(cols: Vec<Col>, blocks: &[Block]) -> Vec<trace::Line> {
     let mut lines: Vec<trace::Line> = Vec::new();
-    order_region(cols, &mut lines);
+    order_region(cols, blocks, &mut lines);
     lines
 }
 
@@ -111,7 +121,11 @@ pub(crate) fn horizontal_lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrule
         return horizontal_lines(rest);
     }
     let geom: std::collections::HashMap<usize, (f32, f32, f32)> = rest.iter().map(|c| (c.id, (c.x, c.x1, c.y))).collect();
-    let mut lines = horizontal_lines(rest);
+    // 2 段抜きの表（本文の段 2 つ分の幅）だけ。決算公告の囲みの中の表は囲みの列ごとに並び、
+    // 囲みの列の溝は本文の段の溝と揃わないので、溝をふさぐと囲みの読み順が崩れる。
+    let blocks: Vec<Block> =
+        tables.iter().filter(|t| t.x1 - t.x0 >= MIN_TEXT_COLUMN_WIDTH * 2.0).map(|t| (t.x0, t.y0, t.x1, t.y1)).collect();
+    let mut lines = horizontal_lines_around(rest, &blocks);
     let mut placed: Vec<(usize, trace::Table)> = tables
         .into_iter()
         .map(|t| {
@@ -517,22 +531,26 @@ fn group_lines(words: &[Col]) -> Vec<Line> {
 ///    行間は 1〜2pt しかないため、あらゆる行間で切ると多段組の行が交互に並んでしまう。
 ///    「列組みになる部分」が最も大きくなる 1 か所だけで切る（全幅記事と段組の境目）。
 /// 3. どちらも無ければ 1 本の流れとして行を上→下に出す。
-fn order_region(words: Vec<Col>, out: &mut Vec<trace::Line>) {
+///
+/// `blocks`（取り除いた表の外枠）は語と同じく溝・切れ目をふさぎ、中心で左右・上下に振り分ける。
+fn order_region(words: Vec<Col>, blocks: &[Block], out: &mut Vec<trace::Line>) {
     if words.is_empty() {
         return;
     }
     let lines = group_lines(&words);
     if lines.len() >= 2 {
-        if let Some(cut) = column_cut(&words) {
+        if let Some(cut) = column_cut(&words, blocks) {
             let (left, right): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| x_center(w) < cut);
-            order_region(left, out);
-            order_region(right, out);
+            let (bl, br): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.0 + b.2) / 2.0 < cut);
+            order_region(left, &bl, out);
+            order_region(right, &br, out);
             return;
         }
-        if let Some(cut) = band_cut(&lines) {
+        if let Some(cut) = band_cut(&lines, blocks) {
             let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < cut);
-            order_region(top, out);
-            order_region(bottom, out);
+            let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < cut);
+            order_region(top, &bt, out);
+            order_region(bottom, &bb, out);
             return;
         }
     }
@@ -547,8 +565,8 @@ fn order_region(words: Vec<Col>, out: &mut Vec<trace::Line>) {
 ///
 /// 溝は、各語を両端から [`GUTTER_OVERLAP`] ずつ縮めた区間の切れ目として探す。行末のぶら下げ
 /// （句読点・括弧）や、回転した縦書き部分の字下げで、隣の列と数 pt 重なることがあるため。
-/// 語は中心 x で左右に振り分ける（[`x_center`]）。
-fn column_cut(words: &[Col]) -> Option<f32> {
+/// 語は中心 x で左右に振り分ける（[`x_center`]）。`blocks`（取り除いた表の外枠）も溝をふさぐ。
+fn column_cut(words: &[Col], blocks: &[Block]) -> Option<f32> {
     // 字間空けの見出し（「中　間　決　算　公　告」）は 1 字語の並びだが、1 語として溝をふさぐ。
     // 桁区切りで語が割れた数（「225,」「582,」「082,」「247」）も 1 語として溝をふさぐ（右揃えの金額の
     // 桁の切れ目が行をまたいで縦に揃い、列の溝に見える）。
@@ -562,6 +580,7 @@ fn column_cut(words: &[Col]) -> Option<f32> {
             }
         }
     }
+    spans.extend(blocks.iter().map(|b| (b.0, b.2)));
     let mut spans: Vec<(f32, f32)> = spans
         .into_iter()
         .map(|(x, x1)| (x + GUTTER_OVERLAP, x1 - GUTTER_OVERLAP))
@@ -696,22 +715,30 @@ fn is_column_split(left: &[Col], right: &[Col]) -> bool {
 }
 
 /// 上下に切る y。切った上側か下側が列組み（[`column_cut`] で切れる 2 行以上）になる
-/// 行間のうち、列組み側の語数が最大になるものを選ぶ。
-fn band_cut(lines: &[Line]) -> Option<f32> {
-    let mut by_top: Vec<&Line> = lines.iter().collect();
-    by_top.sort_by(|a, b| a.y0.total_cmp(&b.y0));
+/// 行間のうち、列組み側の語数が最大になるものを選ぶ。`blocks`（取り除いた表の外枠）の中では
+/// 切らず、切った側の列組みの判定にも入れる。
+fn band_cut(lines: &[Line], blocks: &[Block]) -> Option<f32> {
+    // 行と表を上端の順に並べ、そのどちらも跨がない行間で切る。
+    let mut items: Vec<(f32, f32, Option<&Line>)> =
+        lines.iter().map(|l| (l.y0, l.y1, Some(l))).chain(blocks.iter().map(|b| (b.1, b.3, None))).collect();
+    items.sort_by(|a, b| a.0.total_cmp(&b.0));
     let mut best: Option<(usize, f32)> = None;
     let mut bottom_edge = f32::NEG_INFINITY;
-    for (i, l) in by_top.iter().enumerate() {
-        if i > 0 && l.y0 > bottom_edge {
-            let cut = (bottom_edge + l.y0) / 2.0;
-            let (top, bottom) = by_top.split_at(i);
+    for (i, &(y0, y1, _)) in items.iter().enumerate() {
+        if i > 0 && y0 > bottom_edge {
+            let cut = (bottom_edge + y0) / 2.0;
+            let (top, bottom) = items.split_at(i);
             let score = [top, bottom]
                 .iter()
-                .filter(|part| part.len() >= 2)
-                .filter_map(|part| {
-                    let ws: Vec<Col> = part.iter().flat_map(|l| l.words.iter().cloned()).collect();
-                    column_cut(&ws).map(|_| ws.len())
+                .enumerate()
+                .filter_map(|(k, part)| {
+                    let part_lines: Vec<&Line> = part.iter().filter_map(|it| it.2).collect();
+                    if part_lines.len() < 2 {
+                        return None;
+                    }
+                    let ws: Vec<Col> = part_lines.iter().flat_map(|l| l.words.iter().cloned()).collect();
+                    let bs: Vec<Block> = blocks.iter().filter(|b| ((b.1 + b.3) / 2.0 < cut) == (k == 0)).copied().collect();
+                    column_cut(&ws, &bs).map(|_| ws.len())
                 })
                 .max();
             if let Some(score) = score {
@@ -720,7 +747,7 @@ fn band_cut(lines: &[Line]) -> Option<f32> {
                 }
             }
         }
-        bottom_edge = bottom_edge.max(l.y1);
+        bottom_edge = bottom_edge.max(y1);
     }
     best.map(|(_, cut)| cut)
 }
