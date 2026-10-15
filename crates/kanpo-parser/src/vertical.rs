@@ -111,7 +111,10 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         outside: Vec::new(),
                     }
                 }
-                None => Unit::Plain(horizontal_lines_with_tables(cols, &grids)),
+                None => {
+                    let vrules: Vec<(f32, f32, f32)> = page_rules.map(|r| r.vertical.iter().map(|v| (v.x, v.y0, v.y1)).collect()).unwrap_or_default();
+                    Unit::Plain(horizontal_lines_with_tables(cols, &grids, &vrules))
+                }
             });
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
