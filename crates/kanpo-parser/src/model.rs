@@ -681,7 +681,50 @@ fn align_rows_by(
             }
         }
     }
+    spread_marks_back(&mut rows);
     Some(rows.into_iter().map(|(a, b)| ShinkyuRow { after: cell_runs_from_str(&a), before: cell_runs_from_str(&b), ..Default::default() }).collect())
+}
+
+/// 印だけのセルに印がいくつも入り（「（新設）」が 4 つ）、その直前の行の同じ側が空なら、印は直前の新設・
+/// 削った条のもの（下の帯の印を読む順で、続く条の印がまとめて最後の条に付いていた）。1 つを残して
+/// 前の空の行へ後ろから順に移す。
+fn spread_marks_back(rows: &mut [(String, String)]) {
+    for i in 0..rows.len() {
+        for side in [0, 1] {
+            let cell = |r: &(String, String)| if side == 0 { r.0.clone() } else { r.1.clone() };
+            let marks = only_marks(&cell(&rows[i]));
+            if marks.len() < 2 {
+                continue;
+            }
+            let empty = rows[..i].iter().rev().take_while(|r| cell(r).trim().is_empty()).count();
+            let moved = (marks.len() - 1).min(empty);
+            if moved == 0 {
+                continue;
+            }
+            let set = |r: &mut (String, String), v: String| if side == 0 { r.0 = v } else { r.1 = v };
+            for k in 0..moved {
+                set(&mut rows[i - moved + k], marks[k].clone());
+            }
+            set(&mut rows[i], marks[moved..].join("\n"));
+        }
+    }
+}
+
+/// セルが印（「（新設）」「（削る）」など）だけなら、その印の列（1 行に並ぶものも分ける）。印以外があれば空。
+fn only_marks(text: &str) -> Vec<String> {
+    const MARKS: [&str; 6] = ["（新設）", "〔新設〕", "［新設］", "（削る）", "〔削る〕", "［削る］"];
+    let mut out = Vec::new();
+    for line in text.lines() {
+        let mut rest = line.trim();
+        while let Some(m) = MARKS.iter().find(|m| rest.starts_with(**m)) {
+            out.push(m.to_string());
+            rest = rest[m.len()..].trim_start();
+        }
+        if !rest.is_empty() {
+            return Vec::new();
+        }
+    }
+    out
 }
 
 /// 片側だけの行が続くところで、号・条の番号を除いた書き出しが同じ改正後の行と改正前の行を、順序を
@@ -1085,6 +1128,27 @@ mod tests {
         assert!(text(&row("二十\u{3000}").before).starts_with("十八"), "{rows:?}");
         assert!(text(&row("二十一").before).starts_with("十九"), "{rows:?}");
         assert!(row("二十二").before.is_empty(), "{rows:?}");
+    }
+
+    #[test]
+    fn moves_bunched_new_marks_back_to_the_new_articles() {
+        // 新設の条が 3 つ続き、改正前の欄の「（新設）」3 つがまとめて最後の条の行に付いていた。
+        let row = |a: &str, b: &str| (a.to_string(), b.to_string());
+        let mut rows = vec![
+            row("第一条　甲", "第一条　旧甲"),
+            row("第一条の二　乙", ""),
+            row("第一条の三　丙", ""),
+            row("第一条の四　丁", "（新設）\n（新設）\n（新設）"),
+        ];
+        spread_marks_back(&mut rows);
+        assert_eq!(rows[0].1, "第一条　旧甲");
+        for r in &rows[1..] {
+            assert_eq!(r.1, "（新設）", "{rows:?}");
+        }
+        // 印以外の字があるセルは動かさない。
+        let mut rows = vec![row("第一条の二　乙", ""), row("第一条の三　丙", "第一条の三　旧丙\n（新設）\n（新設）")];
+        spread_marks_back(&mut rows);
+        assert_eq!(rows[0].1, "");
     }
 
     #[test]
