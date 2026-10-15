@@ -292,7 +292,11 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         //   （例: 郵便+型式認定）は段(tier)単位で扱う必要があるため、ここでは除外する。
         let headerless = detect_shinkyu_header(&cols)
             .is_none()
-            .then(|| detect_shinkyu_bands_headerless(&cols, height).or_else(|| prev_table.then(|| marker_band_divider(&cols, height)).flatten()))
+            .then(|| {
+                detect_shinkyu_bands_headerless(&cols, height)
+                    .or_else(|| prev_table.then(|| marker_band_divider(&cols, height)).flatten())
+                    .or_else(|| prev_table.then(|| rule_band_divider(&cols, page_rules, height)).flatten())
+            })
             .flatten();
         if let Some(divider) = headerless {
             layout = "headerless_shinkyu";
@@ -460,6 +464,44 @@ fn clip_rules(r: &PageRules, lo: f32, hi: f32) -> PageRules {
             .filter(|h| h.x1 - h.x0 > 4.0)
             .collect(),
     }
+}
+
+/// 前のページの新旧対照表の続きで、紙面の中ほど（高さの 0.4〜0.6）に語の範囲の 7 割以上にわたる横線（改正後・
+/// 改正前の帯の境目の線）があり、それをまたぐ語が無く上下に語があれば、その高さ（号外第 215 号 335 ページ:
+/// 改正前の欄は「（略）」「（新設）」が多いが文もあり、上下の文が似ていない）。中央に最も近いものを採る。
+fn rule_band_divider(cols: &[Col], rules: Option<&PageRules>, height: f32) -> Option<f32> {
+    // 次の条・次の記事が始まるページ（改正の指示・「（傍線部分は改正部分）」・記事の標題）は表の続きだけのページではない。
+    let instruction = |t: &str| t.contains("改正する。") || t.contains("改める。") || t.contains("傍線部分は改正部分") || crate::segment::is_heading_mark(t);
+    if cols.iter().any(|c| instruction(&c.text)) {
+        return None;
+    }
+    let (x0, x1) = cols.iter().fold((f32::INFINITY, f32::NEG_INFINITY), |(a, b), c| (a.min(c.x), b.max(c.x1)));
+    let crossing = |y: f32| cols.iter().any(|c| c.y < y - 1.0 && c.y1 > y + 1.0);
+    let above = |y: f32| cols.iter().filter(|c| c.y1 <= y).count();
+    let below = |y: f32| cols.iter().filter(|c| c.y >= y).count();
+    // 線は表の縦線のところで途切れて描かれることがあるので、同じ高さの線分の長さを合計する。
+    let hs = &rules?.horizontal;
+    let span = |y: f32| hs.iter().filter(|h| (h.y - y).abs() <= 1.5).map(|h| (h.x1.min(x1) - h.x0.max(x0)).max(0.0)).sum::<f32>();
+    hs.iter()
+        .filter(|h| (height * 0.4..=height * 0.6).contains(&h.y) && span(h.y) >= (x1 - x0) * 0.7)
+        .map(|h| h.y)
+        .filter(|&y| !crossing(y) && above(y) >= 3 && below(y) >= 3 && looks_like_before_band(cols, y))
+        .min_by(|a, b| (a - height / 2.0).abs().total_cmp(&(b - height / 2.0).abs()))
+}
+
+/// `y` より下の語が改正前の欄らしいか: 3 割以上が省略・新設の印（「（略）」「（新設）」「〔同上〕」）か、
+/// 上の語にも同じ字列がある（改正前の欄は改正後の欄と同じ文が多い）。様式の枠など、紙面の中ほどに横線が
+/// あるだけの別のものと区別する。
+fn looks_like_before_band(cols: &[Col], y: f32) -> bool {
+    let compact = |t: &str| t.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+    let upper: std::collections::HashSet<String> = cols.iter().filter(|c| c.y1 <= y).map(|c| compact(&c.text)).collect();
+    let lower: Vec<String> = cols.iter().filter(|c| c.y >= y).map(|c| compact(&c.text)).collect();
+    let mark = |t: &str| {
+        let inner = t.strip_prefix(['（', '〔', '［']).and_then(|r| r.strip_suffix(['）', '〕', '］']));
+        inner.is_some_and(|i| matches!(i, "新設" | "削る" | "略" | "同上" | "同左"))
+    };
+    let alike = lower.iter().filter(|t| mark(t) || (t.chars().count() >= 4 && upper.contains(*t))).count();
+    !lower.is_empty() && alike * 10 >= lower.len() * 3
 }
 
 /// 前のページの新旧対照表の続きで、下の帯（改正前の欄）が「（新設）」「（削る）」「（略）」「〔同上〕」などの
