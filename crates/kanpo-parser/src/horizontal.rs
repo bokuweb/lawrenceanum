@@ -57,6 +57,15 @@ pub(crate) fn row_lines(cols: Vec<Col>) -> Vec<trace::Line> {
         .collect()
 }
 
+/// セルの右端からこの空き（em 比）までに終わる行は、次の行へ折り返している（セルの内側の余白を含む）。
+const WRAP_EM: f32 = 2.0;
+
+/// 「所在地：」「電話番号：」のような項目名で始まる行か（前の行がセルの右端まで組まれていても
+/// 折り返しの続きではない）。
+fn labeled(text: &str) -> bool {
+    text.chars().take(8).any(|c| c == '：' || c == ':')
+}
+
 /// 罫線の表（他の枠を含まない格子で、中の語が横組みのもの）を表として組み、残りの語は
 /// [`horizontal_lines`] で行に組んで、表を読み順の位置（表の下か右にある最初の行の手前）に差し込む。
 /// 表の欄の間の溝を列の溝と取り違えて、表が欄ごとに読まれないようにするため。
@@ -147,7 +156,8 @@ fn grid_table(g: &Grid, words: &[Col]) -> Option<trace::Table> {
             let text: String = prev.words.iter().map(|w| w.text.as_str()).collect();
             let numeric = text.chars().filter(|c| c.is_ascii_digit()).count() * 2 >= text.chars().count();
             let end = prev.words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
-            !numeric && text.chars().count() >= 4 && g.xs[g.cells[i].x1] - end <= (prev.y1 - prev.y0).max(1.0) * 1.5
+            let next: String = cell_lines[i][k].words.iter().map(|w| w.text.as_str()).collect();
+            !numeric && !labeled(&next) && text.chars().count() >= 4 && g.xs[g.cells[i].x1] - end <= (prev.y1 - prev.y0).max(1.0) * WRAP_EM
         }
     };
     // 行の頭の高さ（格子の行ごと）。
@@ -212,7 +222,7 @@ fn grid_table(g: &Grid, words: &[Col]) -> Option<trace::Table> {
                             let prev = ls[k - 1];
                             let em = (prev.y1 - prev.y0).max(1.0);
                             let end = prev.words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
-                            if right - end > em * 1.5 {
+                            if right - end > em * WRAP_EM || labeled(&render_line(&l.words)) {
                                 text.push('\n');
                             }
                         }
