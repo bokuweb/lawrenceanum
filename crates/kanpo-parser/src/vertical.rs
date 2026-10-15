@@ -920,11 +920,12 @@ fn attach_toc_page_numbers(mut tiers: Vec<Vec<Col>>, words: &[Word]) -> Vec<Vec<
             .filter_map(|(ci, c)| {
                 let em = c.x1 - c.x;
                 // すぐ上にある段で、同じ列の語の下端が番号の上にあるもの。
-                let (ui, _) = tiers.iter().enumerate().filter(|&(ui, _)| ui != ti).find_map(|(ui, up)| {
+                let ui = (0..tiers.len()).find(|&ui| {
+                    let up = &tiers[ui];
                     let bottom = up.iter().map(|d| d.y1).fold(f32::NEG_INFINITY, f32::max);
-                    let above = (0.0..em * 2.0).contains(&(c.y - bottom));
-                    let column = up.iter().filter(|d| (center(d) - center(c)).abs() < em * 0.5 && d.y1 <= c.y).count() > 0;
-                    (above && column).then_some((ui, ()))
+                    ui != ti
+                        && (0.0..em * 2.0).contains(&(c.y - bottom))
+                        && up.iter().any(|d| (center(d) - center(c)).abs() < em * 0.5 && d.y1 <= c.y)
                 })?;
                 Some((ci, ui))
             })
@@ -934,7 +935,7 @@ fn attach_toc_page_numbers(mut tiers: Vec<Vec<Col>>, words: &[Word]) -> Vec<Vec<
         }
     }
     // 後ろの添字から取り出す。
-    moves.sort_by(|a, b| (b.0, b.1).cmp(&(a.0, a.1)));
+    moves.sort_by_key(|&(ti, ci, _)| std::cmp::Reverse((ti, ci)));
     for (ti, ci, ui) in moves {
         let mut c = tiers[ti].remove(ci);
         c.text = format!("　{}", c.text);
