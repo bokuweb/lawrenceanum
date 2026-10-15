@@ -684,6 +684,7 @@ fn align_rows_by(
     shift_omitted_past_new(&mut rows);
     spread_marks_back(&mut rows);
     move_leading_marks_back(&mut rows);
+    let rows = absorb_joined_articles(rows);
     let rows = merge_new_item_runs(rows);
     Some(rows.into_iter().map(|(a, b)| ShinkyuRow { after: cell_runs_from_str(&a), before: cell_runs_from_str(&b), ..Default::default() }).collect())
 }
@@ -759,6 +760,42 @@ fn move_leading_marks_back(rows: &mut [(String, String)]) {
             set(&mut rows[i], rest);
         }
     }
+}
+
+/// まとめて削った条（改正後「第十二条及び第十三条　削除」）の行の次に、反対の側だけに 2 つ目の条
+/// （改正前「第十三条　削除」）の行があれば、同じ行にまとめる。
+fn absorb_joined_articles(rows: Vec<(String, String)>) -> Vec<(String, String)> {
+    // まとめて削った条の最後の条と、範囲（「から…まで」）か。
+    let last_of = |text: &str| -> Option<(String, bool)> {
+        let first = text.trim().lines().next()?;
+        article_number(first)?;
+        let (rest, range) = match first.split_once("及び") {
+            Some((_, r)) => (r, false),
+            None => (first.split_once("から")?.1, true),
+        };
+        let (head, _) = rest.split_once('\u{3000}')?;
+        article_number(&format!("{}\u{3000}削除", head.trim_end_matches("まで"))).map(|k| (k, range))
+    };
+    // 行の条（見出し「（…）」の後の条の書き出し）。
+    let first_key = |t: &str| t.trim().lines().take(3).find_map(article_number);
+    let mut out: Vec<(String, String)> = Vec::new();
+    // まとめている行の側（0: 改正後に「及び」の書き出し）と、最後の条・範囲か。
+    let mut open: Option<(usize, String, bool)> = None;
+    for (after, before) in rows {
+        if let (Some((side, last, range)), Some(prev)) = (open.clone(), out.last_mut()) {
+            let (other_empty, text) = if side == 0 { (after.trim().is_empty(), &before) } else { (before.trim().is_empty(), &after) };
+            let key = first_key(text);
+            if other_empty && (key.as_deref() == Some(last.as_str()) || (range && key.is_some())) {
+                let cell = if side == 0 { &mut prev.1 } else { &mut prev.0 };
+                *cell = format!("{}\n{}", cell.trim_end(), text);
+                open = (key.as_deref() != Some(last.as_str())).then_some((side, last, range));
+                continue;
+            }
+        }
+        open = last_of(&after).map(|(k, r)| (0, k, r)).or_else(|| last_of(&before).map(|(k, r)| (1, k, r)));
+        out.push((after, before));
+    }
+    out
 }
 
 /// 号の番号（「一」〜「二十」）。
@@ -1162,8 +1199,17 @@ fn article_number(line: &str) -> Option<String> {
         }
         end += 1 + m;
     }
+    // 「第十二条及び第十三条　削除」「第九条から第十一条まで　削除」は、まとめて削った条の書き出し（鍵は頭の条）。
     if chars.get(end) != Some(&'\u{3000}') {
-        return None;
+        let tail: String = chars[end..].iter().collect();
+        let joined = ["及び", "から"].iter().any(|j| {
+            tail.strip_prefix(j).and_then(|r| r.split_once('\u{3000}')).is_some_and(|(second, _)| {
+                article_number(&format!("{}\u{3000}削除", second.trim_end_matches("まで"))).is_some()
+            })
+        });
+        if !joined {
+            return None;
+        }
     }
     chars.truncate(end);
     Some(format!("第{}", chars.into_iter().collect::<String>()))
@@ -1378,6 +1424,17 @@ mod tests {
         let out = realign_weak_windows(rows);
         assert!(out.iter().any(|r| r.0.starts_with("十六") && r.1.starts_with("十八")), "{out:?}");
         assert!(out.iter().any(|r| r.0.starts_with("十七") && r.1.starts_with("十九")), "{out:?}");
+    }
+
+    #[test]
+    fn pairs_jointly_deleted_articles() {
+        let after = ["（調査事項）", "第五条　調査は、次の事項について行う。", "八　法人番号", "第十二条及び第十三条　削除"];
+        let before = ["（調査事項）", "第五条　調査は、次の事項について行う。", "第十二条　前条の入力は、", "第十三条　削除"];
+        let rows = align_rows(&after, &before);
+        let text = |r: &[Run]| r.iter().map(|x| x.text.as_str()).collect::<String>();
+        assert_eq!(rows.len(), 2, "{:?}", rows.iter().map(|r| (text(&r.after), text(&r.before))).collect::<Vec<_>>());
+        assert!(text(&rows[1].before).contains("第十三条"));
+        assert_eq!(article_number("第九条から第十一条まで　削除"), Some("第九条".to_string()));
     }
 
     #[test]
@@ -1630,3 +1687,4 @@ mod tests {
         assert!(!json.contains("underline"));
     }
 }
+
