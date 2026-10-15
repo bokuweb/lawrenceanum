@@ -387,6 +387,12 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             }
             let mut i = 0;
             while i < tiers.len() {
+                // 罫線の無い縦組みの表（欄ごとの低い段が上下に並び、行が同じ x の列に揃う名簿）は行ごとに組む。
+                if let Some((n, lines)) = (!shinkyu_page && !prev_table).then(|| record_bands(&tiers[i..])).flatten() {
+                    units.push(Unit::Plain(lines));
+                    i += n;
+                    continue;
+                }
                 let tier = std::mem::take(&mut tiers[i]);
                 i += 1;
                 let unit = match detect_shinkyu_header(&tier) {
@@ -1411,6 +1417,127 @@ fn split_tiers(cols: Vec<Col>, rules: &TierRules) -> Vec<Vec<Col>> {
     split_tiers_rec(cols, 0, rules, false, &mut out);
     rejoin_split_labels(&mut out);
     out
+}
+
+/// 罫線の無い縦組みの表（政治団体の届出の一覧など）。欄（名称・代表者の氏名・主たる事務所の所在地…）ごとの
+/// 低い段が上下に 3 つ以上並び、各行（団体ごと）の列がどの段でも同じ x から始まる。段ごとに読むと欄ごとの
+/// 一覧になり、どの団体の代表者か分からなくなるので、行の頭の x（半分以上の段に列のある x）で行に分け、
+/// 行ごとに欄を全角空白で区切って 1 行に組む。`bands` の頭からいくつの段を使ったかと、組んだ行を返す。
+fn record_bands(bands: &[Vec<Col>]) -> Option<(usize, Vec<Line>)> {
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    let ext = |b: &[Col]| {
+        (
+            b.iter().map(|c| c.x).fold(f32::INFINITY, f32::min),
+            b.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max),
+            b.iter().map(|c| c.y).fold(f32::INFINITY, f32::min),
+            b.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max),
+        )
+    };
+    let first = bands.first()?;
+    if first.len() < 3 {
+        return None;
+    }
+    let (fx0, fx1, _, _) = ext(first);
+    let mut n = 0;
+    let mut prev_top = f32::NEG_INFINITY;
+    for b in bands {
+        if b.len() < 2 {
+            break;
+        }
+        let (x0, x1, y0, y1) = ext(b);
+        let overlap = (x1.min(fx1) - x0.max(fx0)).max(0.0) / (x1 - x0).max(fx1 - fx0).max(1.0);
+        let upright = b.iter().filter(|c| c.y1 - c.y >= (c.x1 - c.x) * 0.9).count();
+        let mut mids: Vec<f32> = b.iter().map(|c| (c.y + c.y1) / 2.0).collect();
+        mids.sort_by(f32::total_cmp);
+        let mid = mids[mids.len() / 2];
+        // 表はページの上半分・下半分（2 段分、約 360pt）ずつ組まれ、上下に同じ形の別の表が並ぶことがあるので、それを
+        // 越えて続けない。
+        let first_top = ext(first).2;
+        if y1 - y0 > 100.0 || overlap < 0.7 || mid <= prev_top || upright * 10 < b.len() * 9 || y1 - first_top > 370.0 {
+            break;
+        }
+        let _ = y0;
+        prev_top = mid;
+        n += 1;
+    }
+    if n < 3 {
+        return None;
+    }
+    let all_bands = bands;
+    // 上下に並ぶ段の頭からの最も長い組で、行の頭が揃うもの（ページの上半分と下半分は別の表のことがある）。
+    let fit = |n: usize| -> Option<Vec<f32>> {
+        let bands = &all_bands[..n];
+        // 段ごとの列の x（右から）。
+        let columns: Vec<Vec<f32>> = bands
+            .iter()
+            .map(|b| {
+                let mut xs: Vec<f32> = b.iter().map(center).collect();
+                xs.sort_by(|a, b| b.total_cmp(a));
+                xs.dedup_by(|a, b| (*a - *b).abs() < 3.0);
+                xs
+            })
+            .collect();
+        // 欄の書き出しの列（右隣 1.5 字以内に列の無い列。折り返しの列は除く）。
+        let em = bands[0].iter().map(|c| c.x1 - c.x).fold(0.0, f32::max).max(6.0);
+        let starts: Vec<Vec<f32>> = columns
+            .iter()
+            .map(|cs| cs.iter().copied().filter(|&x| !cs.iter().any(|&o| o > x + 1.0 && o - x < em * 1.5)).collect())
+            .collect();
+        // 行の頭は、半分以上の段で欄の書き出しになる x。
+        let mut all: Vec<f32> = starts.iter().flatten().copied().collect();
+        all.sort_by(|a, b| b.total_cmp(a));
+        all.dedup_by(|a, b| (*a - *b).abs() < 3.0);
+        // 行ごとに 1 列の詰んだ表は、行の頭が右隣の行と 1 字ほどしか離れず書き出しに見えないので、8 割以上の段に
+        // 列のある x も行の頭にする。
+        let mut every: Vec<f32> = columns.iter().flatten().copied().collect();
+        every.sort_by(|a, b| b.total_cmp(a));
+        every.dedup_by(|a, b| (*a - *b).abs() < 3.0);
+        let mut anchors: Vec<f32> = all
+            .into_iter()
+            .filter(|&x| starts.iter().filter(|s| s.iter().any(|&y| (y - x).abs() < 3.0)).count() * 2 >= n.max(4))
+            .chain(every.into_iter().filter(|&x| columns.iter().filter(|c| c.iter().any(|&y| (y - x).abs() < 3.0)).count() * 10 >= n * 8))
+            .collect();
+        anchors.sort_by(|a, b| b.total_cmp(a));
+        anchors.dedup_by(|a, b| (*a - *b).abs() < 3.0);
+        if anchors.len() < 3 {
+            return None;
+        }
+        // どの段でも、欄の書き出しの 7 割以上が行の頭にある。
+        let aligned = |k: usize| {
+            let on = starts[k].iter().filter(|&&x| anchors.iter().any(|&a| (a - x).abs() < 3.0)).count();
+            on * 10 >= starts[k].len() * 7
+        };
+        (0..n).all(aligned).then_some(anchors)
+    };
+    let (n, anchors) = (3..=n).rev().find_map(|m| fit(m).map(|a| (m, a)))?;
+    let bands = &all_bands[..n];
+    let em = bands[0].iter().map(|c| c.x1 - c.x).fold(0.0, f32::max).max(6.0);
+    // 行の頭どうしの間隔が列の間隔（1 字分）ほどなら、行ではなく本文の列（普通の文の段）。
+    let gaps: Vec<f32> = anchors.windows(2).map(|w| w[0] - w[1]).collect();
+    if gaps.iter().filter(|&&g| g < em * 1.6).count() * 2 > gaps.len() {
+        return None;
+    }
+    let record_of = |x: f32| anchors.iter().rposition(|&a| x <= a + 3.0).unwrap_or(0);
+    let mut lines = Vec::new();
+    for r in 0..anchors.len() {
+        let mut fields: Vec<String> = Vec::new();
+        let mut ids: Vec<usize> = Vec::new();
+        for b in bands {
+            let mut ws: Vec<&Col> = b.iter().filter(|c| record_of(center(c)) == r).collect();
+            ws.sort_by(|a, b| {
+                let (ca, cb) = (center(a), center(b));
+                if (ca - cb).abs() < 3.0 { a.y.total_cmp(&b.y) } else { cb.total_cmp(&ca) }
+            });
+            if !ws.is_empty() {
+                fields.push(ws.iter().map(|c| c.text.as_str()).collect());
+                ids.extend(ws.iter().map(|c| c.id));
+            }
+        }
+        if !fields.is_empty() {
+            lines.push(Line::text(fields.join("\u{3000}"), ids));
+        }
+    }
+    Some((n, lines))
 }
 
 /// 段の境目にかかる字間を空けた区分見出し（「法　規　的」と「告　示」が別の段に割れた「法規的告示」）を、
