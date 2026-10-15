@@ -1409,7 +1409,44 @@ struct TierRules {
 fn split_tiers(cols: Vec<Col>, rules: &TierRules) -> Vec<Vec<Col>> {
     let mut out = Vec::new();
     split_tiers_rec(cols, 0, rules, false, &mut out);
+    rejoin_split_labels(&mut out);
     out
+}
+
+/// 段の境目にかかる字間を空けた区分見出し（「法　規　的」と「告　示」が別の段に割れた「法規的告示」）を、
+/// 頭の字のある段にまとめる。
+fn rejoin_split_labels(tiers: &mut [Vec<Col>]) {
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    for i in 0..tiers.len() {
+        for j in 0..tiers.len() {
+            if i == j {
+                continue;
+            }
+            // tiers[i] の列の続きが tiers[j] の同じ列の下にあり、つなぐと区分見出しになるか。
+            let xs: Vec<f32> = tiers[i].iter().map(center).collect();
+            for x in xs {
+                let mut head: Vec<&Col> = tiers[i].iter().filter(|c| (center(c) - x).abs() < 4.0).collect();
+                let mut tail: Vec<&Col> = tiers[j].iter().filter(|c| (center(c) - x).abs() < 4.0).collect();
+                if head.is_empty() || tail.is_empty() {
+                    continue;
+                }
+                head.sort_by(|a, b| a.y.total_cmp(&b.y));
+                tail.sort_by(|a, b| a.y.total_cmp(&b.y));
+                let (head_bottom, tail_top) = (head.last().unwrap().y1, tail[0].y);
+                let em = head[0].x1 - head[0].x;
+                if tail_top < head_bottom || tail_top - head_bottom > em * 3.0 {
+                    continue;
+                }
+                let text: String = head.iter().chain(tail.iter()).map(|c| c.text.as_str()).collect();
+                if !crate::segment::is_section_label(&text) {
+                    continue;
+                }
+                let ids: Vec<usize> = tail.iter().map(|c| c.id).collect();
+                let moved: Vec<Col> = tiers[j].extract_if(.., |c| ids.contains(&c.id)).collect();
+                tiers[i].extend(moved);
+            }
+        }
+    }
 }
 
 /// 目次のページ番号を、その項目の段に戻す。
