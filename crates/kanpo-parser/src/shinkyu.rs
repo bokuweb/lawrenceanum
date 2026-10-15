@@ -630,8 +630,80 @@ impl ShinkyuLayout {
         if let Some(after) = self.after.first_mut() {
             after.extend(note);
         }
-        if !out.is_empty() {
-            self.trailing.insert(0, out);
+        // 枠の左の外の列が、帯の境目の近くで上下の段に分かれていれば（境目の近くに、またぐ列の
+        // ほとんど無い横の空きがある）、上の段と下の段に分けて置く（同じ x に上下の段の列があり、
+        // 1 つにまとめると右→左に組むときに上の段の列と下の段の列がつながる）。空きをまたぐ列
+        // （段を通して組んだ附則）とそれに続く語は上に置く。横組みの欄（表の下の横書きの
+        // 新旧対照表など）があれば、欄を上下に割らないよう分けない。
+        let wide = out.iter().any(|c| c.text.chars().count() >= 2 && c.x1 - c.x > (c.y1 - c.y) * 1.5);
+        let center = |c: &Col| (c.x + c.x1) / 2.0;
+        // y をまたぐ列の数（語がまたぐか、同じ列で上下に 1.5 字以内で続く語の間が y にかかる）。
+        let crossing = |y: f32| {
+            let mut xs: Vec<f32> = out
+                .iter()
+                .filter(|c| {
+                    let em = c.x1 - c.x;
+                    (c.y < y && y < c.y1)
+                        || (c.y1 <= y && out.iter().any(|d| (center(d) - center(c)).abs() < em * 0.5 && d.y >= y && d.y - c.y1 < em * 1.5))
+                })
+                .map(center)
+                .collect();
+            xs.sort_by(|a, b| a.total_cmp(b));
+            xs.dedup_by(|a, b| (*a - *b).abs() < 4.0);
+            xs.len()
+        };
+        let mut columns: Vec<f32> = out.iter().map(center).collect();
+        columns.sort_by(|a, b| a.total_cmp(b));
+        columns.dedup_by(|a, b| (*a - *b).abs() < 4.0);
+        let cut = (!wide)
+            .then(|| {
+                out.iter()
+                    .flat_map(|c| [c.y - 0.5, c.y1 + 0.5])
+                    .filter(|y| (y - mid).abs() <= 40.0)
+                    // 罫線の表（帯の外の別の記事の表）を横切る所では分けない。
+                    .filter(|&y| {
+                        !grids.iter().any(|g| g.top() < y && y < g.bottom() && out.iter().any(|c| g.contains(center(c), (c.y + c.y1) / 2.0, 0.5)))
+                    })
+                    .map(|y| (crossing(y), y))
+                    .min_by(|a, b| a.0.cmp(&b.0).then((a.1 - mid).abs().total_cmp(&(b.1 - mid).abs())))
+            })
+            .flatten()
+            .filter(|&(n, _)| n * 5 <= columns.len());
+        let cut_y = cut.map(|(_, y)| y).unwrap_or(f32::INFINITY);
+        let (mut upper, lower): (Vec<Col>, Vec<Col>) = out.into_iter().partition(|c| c.y < cut_y);
+        // 空きをまたぐ語の下に続く語。
+        let mut spanning: Vec<(f32, f32, f32)> = upper.iter().filter(|c| c.y1 > cut_y).map(|c| (center(c), c.y1, c.x1 - c.x)).collect();
+        let mut lower_sorted = lower;
+        lower_sorted.sort_by(|a, b| a.y.total_cmp(&b.y));
+        // 下の段の列は段の上端から始まる。段の上端から離れた所で始まる列の最初の語で、上に同じ列の
+        // 語があるもの（下に寄せた署名「総務大臣林芳正」、字間を空けた標題の「省　令」の「令」）は上の段の列の続き。
+        let lower_top = lower_sorted.first().map(|c| c.y).unwrap_or(f32::INFINITY);
+        let mut lower = Vec::new();
+        for c in lower_sorted {
+            let em = c.x1 - c.x;
+            let same_column = |d: &Col| (center(d) - center(&c)).abs() < em * 0.5;
+            let continues = spanning.iter().any(|&(x, y1, _)| (x - center(&c)).abs() < em * 0.5 && y1 <= c.y + 1.0 && c.y - y1 < em * 1.5)
+                || (c.y - lower_top > em * 3.0 && !lower.iter().any(|d: &Col| same_column(d)) && upper.iter().any(|u| same_column(u) && u.y1 <= c.y));
+            if continues {
+                spanning.push((center(&c), c.y1, em));
+                upper.push(c);
+            } else {
+                lower.push(c);
+            }
+        }
+        // 下の段が 1 列だけか、空きのすぐ下から始まらなければ段の境目ではない（字間を空けた標題の字、
+        // 下に寄せた署名だけが下に残った）。
+        let mut lower_columns: Vec<f32> = lower.iter().map(center).collect();
+        lower_columns.sort_by(|a, b| a.total_cmp(b));
+        lower_columns.dedup_by(|a, b| (*a - *b).abs() < 4.0);
+        let starts_at_cut = lower.iter().any(|c| c.y - cut_y <= (c.x1 - c.x) * 3.0);
+        if lower_columns.len() < 2 || !starts_at_cut {
+            upper.append(&mut lower);
+        }
+        for part in [lower, upper] {
+            if !part.is_empty() {
+                self.trailing.insert(0, part);
+            }
         }
     }
 

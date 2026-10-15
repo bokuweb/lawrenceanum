@@ -46,6 +46,12 @@ fn is_article_boundary(line: &str) -> bool {
         }
 }
 
+/// 区分見出し・欄見出しの語か（「その他告示」「法　規　的　告　示」）。
+pub(crate) fn is_section_label(text: &str) -> bool {
+    let compact: String = text.chars().filter(|c| !c.is_whitespace()).collect();
+    SECTION_HEADERS.contains(&compact.as_str()) || FIELD_HEADERS.contains(&compact.as_str())
+}
+
 /// 官庁報告・公告の欄の中で、記事の標題（「指定保安検査機関の廃止に関する公示」）が始まる行か。
 ///
 /// 同じ欄見出しの下に複数の公示が続くため、欄見出しだけでは記事を分けられない。

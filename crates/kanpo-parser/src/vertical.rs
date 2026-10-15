@@ -1909,9 +1909,22 @@ pub(crate) fn column_groups(mut cols: Vec<Col>) -> Vec<Vec<Col>> {
         }
         groups.last_mut().unwrap().push(c);
     }
+    // 区分見出し（「その他告示」の囲み。本文より大きな字）は、同じ x の本文の列とつなげず 1 つの列にする
+    // （本文の列の折り返しの「号」とつながって「第百三十八その他告示号」になっていた）。
+    // 目次の「〔その他告示〕」のように本文と同じ大きさの字なら、そのまま列に組む。
+    let mut labels = Vec::new();
     for g in &mut groups {
+        let body_em = g.iter().filter(|c| !crate::segment::is_section_label(&c.text)).map(|c| c.x1 - c.x).fold(f32::INFINITY, f32::min);
+        if body_em.is_finite() {
+            labels.extend(g.extract_if(.., |c| crate::segment::is_section_label(&c.text) && c.x1 - c.x > body_em * 1.3 && c.y1 - c.y > (c.x1 - c.x) * 1.5));
+        }
         g.sort_by(|a, b| a.y.partial_cmp(&b.y).unwrap_or(std::cmp::Ordering::Equal));
     }
+    for l in labels {
+        let at = groups.iter().position(|g| g.iter().map(center).fold(f32::NEG_INFINITY, f32::max) < center(&l)).unwrap_or(groups.len());
+        groups.insert(at, vec![l]);
+    }
+    groups.retain(|g| !g.is_empty());
     groups
 }
 
