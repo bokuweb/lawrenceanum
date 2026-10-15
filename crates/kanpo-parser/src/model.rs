@@ -638,7 +638,7 @@ fn align_rows_by(
         .filter(|(after, before)| !(after.trim().is_empty() && before.trim().is_empty()))
         .collect();
     let mut rows: Vec<(String, String)> = Vec::new();
-    for (after, before) in pair_renumbered(raw) {
+    for (after, before) in pair_renumbered(realign_weak_windows(raw)) {
         // 片側だけの行が、反対側だけの行のすぐ後に続く（見出しの文言が改正で変わった条）なら
         // 1 行にまとめる。新設の条は改正前の欄にも「（新設）」があるので片側が空にはならない。
         if let Some(prev) = rows.last_mut() {
@@ -851,6 +851,51 @@ fn pair_renumbered(rows: Vec<(String, String)>) -> Vec<(String, String)> {
             for (x, y) in aln {
                 out.push((x.map(|x| a[x].to_string()).unwrap_or_default(), y.map(|y| b[y].to_string()).unwrap_or_default()));
             }
+        }
+        i = end;
+    }
+    out
+}
+
+/// 確かに組になった行（両側に文があり、2 字の組の Jaccard 係数 0.4 以上）の間で、片側だけの行のある所を、
+/// 文の似方で組み直す。号の繰り下げ（改正後「十八　特定非上場会社…」、改正前「二十二　特定非上場会社…」）では
+/// 番号で組むと別の号どうしが組になり、片側だけの行が離れた所にいくつも残っていた。組み直して片側だけの行が
+/// 減るときだけ使う。
+fn realign_weak_windows(rows: Vec<(String, String)>) -> Vec<(String, String)> {
+    let empty = |s: &str| s.trim().is_empty();
+    let sim = |a: &str, b: &str| crate::shinkyu::bigram_jaccard(a, b);
+    let confident = |r: &(String, String)| !empty(&r.0) && !empty(&r.1) && sim(&r.0, &r.1) >= 0.4;
+    // 番号を除いた書き出しが印だけ（「〔略〕」「〔同上〕」）の号。
+    let bare_mark = |s: &str| {
+        let first = s.trim().lines().next().unwrap_or("");
+        first.split_once('　').is_some_and(|(_, rest)| {
+            let r = rest.trim();
+            r.starts_with(['〔', '（', '［']) && r.chars().count() <= 6 && s.trim().lines().count() == 1
+        })
+    };
+    let eq = |a: &str, b: &str| same_opening(a, b) || sim(a, b) >= 0.5 || (bare_mark(a) && bare_mark(b));
+    let one_sided = |rs: &[(String, String)]| rs.iter().filter(|r| empty(&r.0) != empty(&r.1)).count();
+    let mut out: Vec<(String, String)> = Vec::new();
+    let mut i = 0;
+    while i < rows.len() {
+        if confident(&rows[i]) {
+            out.push(rows[i].clone());
+            i += 1;
+            continue;
+        }
+        let end = (i..rows.len()).find(|&k| confident(&rows[k])).unwrap_or(rows.len());
+        let window = &rows[i..end];
+        let a: Vec<&str> = window.iter().filter(|r| !empty(&r.0)).map(|r| r.0.as_str()).collect();
+        let b: Vec<&str> = window.iter().filter(|r| !empty(&r.1)).map(|r| r.1.as_str()).collect();
+        let aln = lcs_align_by(a.len(), b.len(), |x, y| eq(a[x], b[y]));
+        let realigned: Vec<(String, String)> = aln
+            .into_iter()
+            .map(|(x, y)| (x.map(|x| a[x].to_string()).unwrap_or_default(), y.map(|y| b[y].to_string()).unwrap_or_default()))
+            .collect();
+        if one_sided(window) > 0 && one_sided(&realigned) < one_sided(window) {
+            out.extend(realigned);
+        } else {
+            out.extend(window.iter().cloned());
         }
         i = end;
     }
@@ -1293,6 +1338,22 @@ mod tests {
         ];
         let out = pair_renumbered(rows.clone());
         assert_eq!(out, rows);
+    }
+
+    #[test]
+    fn realigns_renumbered_items_between_confident_rows() {
+        // 号の繰り下げで、番号で組むと別の号が組になる（十七↔十七）。文の似方で組み直す。
+        let row = |a: &str, b: &str| (a.to_string(), b.to_string());
+        let rows = vec![
+            row("十五　特別上場会社等（法第二十六条第一項第三号に掲げるもの）", "十五　特別上場会社等（法第二十六条第一項第三号に掲げるもの）"),
+            row("十六　特定非上場会社の議決権に係る議決権代理行使受任", ""),
+            row("十七　非上場会社の議決権に係る議決権代理行使受任の後における保有", "十七　有価証券の引受けのうち、次に掲げるもの"),
+            row("", "十八　特定非上場会社の議決権に係る議決権代理行使受任"),
+            row("", "十九　非上場会社の議決権に係る議決権代理行使受任の後における保有"),
+        ];
+        let out = realign_weak_windows(rows);
+        assert!(out.iter().any(|r| r.0.starts_with("十六") && r.1.starts_with("十八")), "{out:?}");
+        assert!(out.iter().any(|r| r.0.starts_with("十七") && r.1.starts_with("十九")), "{out:?}");
     }
 
     #[test]
