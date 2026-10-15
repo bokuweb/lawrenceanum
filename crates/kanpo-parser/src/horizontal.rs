@@ -139,11 +139,14 @@ fn order_region(words: Vec<Col>, out: &mut Vec<trace::Line>) {
 /// 語は中心 x で左右に振り分ける（[`x_center`]）。
 fn column_cut(words: &[Col]) -> Option<f32> {
     // 字間空けの見出し（「中　間　決　算　公　告」）は 1 字語の並びだが、1 語として溝をふさぐ。
+    // 桁区切りで語が割れた数（「225,」「582,」「082,」「247」）も 1 語として溝をふさぐ（右揃えの金額の
+    // 桁の切れ目が行をまたいで縦に揃い、列の溝に見える）。
     let mut spans: Vec<(f32, f32)> = Vec::new();
     for line in group_lines(words) {
-        for (w, joined) in line.words.iter().zip(letter_spaced(&line.words, true)) {
+        for (i, (w, joined)) in line.words.iter().zip(letter_spaced(&line.words, true)).enumerate() {
+            let number = i > 0 && number_continues(&line.words[i - 1], w);
             match spans.last_mut() {
-                Some(span) if joined => span.1 = w.x1,
+                Some(span) if joined || number => span.1 = w.x1,
                 _ => spans.push((w.x, w.x1)),
             }
         }
@@ -159,13 +162,61 @@ fn column_cut(words: &[Col]) -> Option<f32> {
         if right_edge.is_finite() && a - right_edge >= MIN_GUTTER {
             let cut = (right_edge + a) / 2.0;
             let (left, right): (Vec<Col>, Vec<Col>) = words.iter().cloned().partition(|w| x_center(w) < cut);
-            if is_column_split(&left, &right) {
+            if !latin_word_gap(words, cut) && !item_numbers(&left, &right) && is_column_split(&left, &right) {
                 return Some(cut);
             }
         }
         right_edge = right_edge.max(b);
     }
     None
+}
+
+/// 数の続きか（桁区切りで割れた語「35」「,」「952」）。空きが半 em 未満で、前の語が数字か
+/// 桁区切りで終わり、次の語が数字か桁区切りで始まる。
+fn number_continues(prev: &Col, next: &Col) -> bool {
+    let em = (prev.y1 - prev.y).min(next.y1 - next.y).max(1.0);
+    let digitish = |c: char| c.is_ascii_digit() || matches!(c, ',' | '.');
+    next.x - prev.x1 < em * 0.5
+        && prev.text.chars().last().is_some_and(digitish)
+        && next.text.chars().next().is_some_and(digitish)
+}
+
+/// 溝の左が項目番号の列か（「384」「385」…、「第二」「一」「二」が各項目の最初の行の左に置かれる）。
+/// 左の語がすべて 4 字までの数字・漢数字（「第」付きも）で、どれも右の語のすぐ左に同じ高さで並ぶなら、
+/// 番号は項目の行の頭とみなす。
+fn item_numbers(left: &[Col], right: &[Col]) -> bool {
+    let number = |w: &Col| {
+        let t = w.text.trim();
+        (1..=4).contains(&t.chars().count())
+            && (t.chars().all(|c| c.is_ascii_digit() || ('０'..='９').contains(&c))
+                || t.trim_start_matches('第').chars().all(|c| "〇一二三四五六七八九十".contains(c)) && t != "第")
+    };
+    left.len() >= 2
+        && left.iter().all(|n| {
+            let em = (n.y1 - n.y).max(1.0);
+            number(n)
+                && right
+                    .iter()
+                    .any(|w| (y_center(w) - y_center(n)).abs() <= ALIGN_TOL && w.x >= n.x1 && w.x - n.x1 < em * 2.0)
+        })
+}
+
+/// 溝が欧文の語間か。両端揃えの欧文の段落では、語間がたまたま行をまたいで縦に揃い、列の溝に
+/// 見える。溝の両側に語のある行の半分以上で、溝の左右の語が欧文の語の境目なら語間とみなす。
+fn latin_word_gap(words: &[Col], cut: f32) -> bool {
+    let (mut both, mut latin) = (0, 0);
+    for line in group_lines(words) {
+        let left = line.words.iter().filter(|w| x_center(w) < cut).max_by(|a, b| a.x1.total_cmp(&b.x1));
+        let right = line.words.iter().filter(|w| x_center(w) >= cut).min_by(|a, b| a.x.total_cmp(&b.x));
+        if let (Some(l), Some(r)) = (left, right) {
+            both += 1;
+            let em = (l.y1 - l.y).min(r.y1 - r.y).max(1.0);
+            if r.x - l.x1 < em * 1.5 && latin_word_break(&l.text, &r.text) {
+                latin += 1;
+            }
+        }
+    }
+    both > 0 && latin * 2 >= both
 }
 
 fn x_center(w: &Col) -> f32 {
@@ -232,19 +283,48 @@ fn band_cut(lines: &[Line]) -> Option<f32> {
     best.map(|(_, cut)| cut)
 }
 
+/// 欧文の行で語間とみなす空き(em 比)。両端揃えで詰めた行は語間が 0.28 em ほどになる。
+const LATIN_SPACE_EM: f32 = 0.2;
+/// 和文の行の中の欧文で語間とみなす空き(em 比)。字の種類の切り替えで 0.25 em ほど空く
+/// （「〇30 by 30目標」）ものは詰める。
+const MIXED_LATIN_SPACE_EM: f32 = 0.3;
+
+/// 欧文の語と語の境目か（「Zavod Iskra; JSC Research」）。数字どうし（表の金額の桁の
+/// 区切りで語が割れた「3,415,」「549」）は語間にしない。
+fn latin_word_break(prev: &str, next: &str) -> bool {
+    let (Some(p), Some(n)) = (prev.chars().last(), next.chars().next()) else {
+        return false;
+    };
+    let p_ok = p.is_ascii_alphabetic() || matches!(p, ';' | ',' | '.' | ':');
+    let n_ok = n.is_ascii_alphabetic() || (n.is_ascii_digit() && p.is_ascii_alphabetic());
+    p_ok && n_ok && !(p.is_ascii_punctuation() && n.is_ascii_digit())
+}
+
 /// 1 行の語（x 昇順）を連結する。
 ///
 /// - 1em の 3/4 以上空いていれば全角空白を挟む（「佐賀労働局長　田之上英治」、表のセル境界）。
+/// - 欧文の語と語の間は半角空白を挟む（[`latin_word_break`]。空きの下限は欧文の行と和文の行で変える）。
 /// - 1 字ずつの語が並ぶ字間空けの見出し（「労　働」「公　告」「附　則」「名　　称」、表の欄見出し
 ///   「改　　正　　後」は 7em 空き）は詰めて 1 語にする。ただし字間が急に広がったところ
 ///   （表の次のセル）では区切る。
 fn render_line(words: &[Col]) -> String {
     let mut s = String::new();
+    let chars = || words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace());
+    let latin_line = chars().filter(|c| c.is_ascii_alphabetic()).count() * 2 >= chars().count();
+    let space_em = if latin_line { LATIN_SPACE_EM } else { MIXED_LATIN_SPACE_EM };
     for (i, (w, joined)) in words.iter().zip(letter_spaced(words, false)).enumerate() {
         if i > 0 && !joined {
             let p = &words[i - 1];
             let em = (p.y1 - p.y).min(w.y1 - w.y).max(1.0);
-            if w.x - p.x1 >= em * 0.75 {
+            let gap = w.x - p.x1;
+            // 両端揃えの欧文の行は語間が 1 em を超えることがある（字と字の間なら 2 em までは語間と
+            // みなす。括弧の前後の広い空きは表のセルの境目「(現在)　(単位：千円)」）。
+            let letters = s.chars().last().is_some_and(|c| c.is_ascii_alphabetic() || matches!(c, ';' | ','))
+                && w.text.chars().next().is_some_and(|c| c.is_ascii_alphabetic());
+            let wide = if letters { em * 2.0 } else { em * 0.75 };
+            if (em * space_em..wide).contains(&gap) && latin_word_break(&s, &w.text) {
+                s.push(' ');
+            } else if gap >= em * 0.75 {
                 s.push('\u{3000}');
             }
         }
@@ -320,6 +400,75 @@ mod tests {
         // 字間を空けていない語の後ろの 1 字はつながない。
         let words = vec![w(173.0, 221.0, 100.0, "くみあい苦土"), w(229.0, 237.0, 100.0, "社")];
         assert_eq!(letter_spaced(&words, true), [false, false]);
+    }
+
+    #[test]
+    fn latin_words_are_spaced_and_not_split_into_columns() {
+        // 欧文の語は半角空白で区切る。表の金額の桁で割れた語や、和文の欄の境目は従来どおり。
+        let line = vec![w(81.0, 104.0, 47.0, "Zavod"), w(108.0, 127.0, 47.0, "Iskra;"), w(131.0, 145.0, 47.0, "JSC")];
+        assert_eq!(render_line(&line), "Zavod Iskra; JSC");
+        assert_eq!(render_line(&[w(81.0, 101.0, 47.0, "3,415,"), w(104.0, 116.0, 47.0, "549")]), "3,415,549");
+        assert_eq!(render_line(&[w(81.0, 97.0, 47.0, "〇30"), w(99.0, 108.0, 47.0, "by"), w(110.0, 126.0, 47.0, "30目標")]), "〇30by30目標");
+        assert_eq!(render_line(&[w(81.0, 161.0, 47.0, "(31日現在)"), w(170.0, 230.0, 47.0, "(単位：千円)")]), "(31日現在)\u{3000}(単位：千円)");
+        // 両端揃えの欧文の段落で、語間がたまたま縦に揃っても列の溝とみなさない。
+        let words = vec![
+            w(81.0, 200.0, 47.0, "Proizvodstvennoe"),
+            w(204.0, 250.0, 47.0, "Predpriyatie"),
+            w(254.0, 420.0, 47.0, "Zavod Iskra; JSC Research and Production"),
+            w(81.0, 248.0, 60.0, "Enterprise Plant Iskra; NPP Plant Iskra;"),
+            w(252.0, 420.0, 60.0, "NPP Zavod Iskra; Aktsionernoe Obshchestvo"),
+        ];
+        assert_eq!(
+            read(words),
+            "Proizvodstvennoe Predpriyatie Zavod Iskra; JSC Research and Production\nEnterprise Plant Iskra; NPP Plant Iskra; NPP Zavod Iskra; Aktsionernoe Obshchestvo"
+        );
+    }
+
+    #[test]
+    fn digit_groups_of_right_aligned_amounts_are_not_column_gutters() {
+        // 桁区切りで語が割れた右揃えの金額（「5,」「369,」「515,」「116」）。桁の切れ目が行をまたいで
+        // 縦に揃っても列の溝とみなさず、金額を 1 つにつなぐ。
+        let mut words = Vec::new();
+        for (y, label, groups) in [(100.0, "政治活動費", ["2,", "994,", "093,", "136"]), (112.0, "合計", ["5,", "369,", "543,", "815"])] {
+            words.push(w(61.0, 61.0 + 8.0 * label.chars().count() as f32, y, label));
+            let mut x = 300.0;
+            for g in groups {
+                let x1 = x + 4.0 * g.chars().count() as f32;
+                words.push(w(x, x1, y, g));
+                x = x1 + 2.0;
+            }
+        }
+        assert_eq!(read(words), "政治活動費\u{3000}2,994,093,136\n合計\u{3000}5,369,543,815");
+    }
+
+    #[test]
+    fn item_numbers_stay_at_the_head_of_their_rows() {
+        // 項目番号（「384」）は、項目の最初の行の頭に付ける（番号の列として先にまとめない）。
+        let words = vec![
+            w(61.0, 73.0, 114.0, "384"),
+            w(81.0, 201.0, 114.0, "株式会社アエロエレクトロマシュ"),
+            w(81.0, 240.0, 127.0, "Joint Stock Company Aeroelektromash"),
+            w(61.0, 73.0, 194.0, "385"),
+            w(81.0, 209.0, 194.0, "株式会社モトヴィリチャ・プランツ"),
+        ];
+        assert_eq!(
+            read(words),
+            "384\u{3000}株式会社アエロエレクトロマシュ\nJoint Stock Company Aeroelektromash\n385\u{3000}株式会社モトヴィリチャ・プランツ"
+        );
+        // 漢数字の項目番号（「第二」「一」「二」）も同じ。
+        let words = vec![
+            w(61.0, 77.0, 100.0, "第二"),
+            w(85.0, 245.0, 100.0, "くろまぐろ（大型魚）"),
+            w(69.0, 77.0, 112.0, "一"),
+            w(85.0, 245.0, 112.0, "漁獲可能量（法第15条第１項第１号関"),
+            w(85.0, 101.0, 124.0, "係）"),
+            w(69.0, 77.0, 136.0, "二"),
+            w(85.0, 245.0, 136.0, "都道府県別漁獲可能量（法第15条第１"),
+        ];
+        assert_eq!(
+            read(words),
+            "第二\u{3000}くろまぐろ（大型魚）\n一\u{3000}漁獲可能量（法第15条第１項第１号関\n係）\n二\u{3000}都道府県別漁獲可能量（法第15条第１"
+        );
     }
 
     fn read(words: Vec<Col>) -> String {

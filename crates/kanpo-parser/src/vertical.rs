@@ -3,7 +3,7 @@
 use scraper::{Html, Selector};
 
 use crate::horizontal::{horizontal_lines, is_left_strip_header, row_lines, LEFT_STRIP};
-use crate::normalize::{is_margin_noise, private_cid_glyph, toc_page_numbers, word_text, CidGlyph};
+use crate::normalize::{is_margin_noise, is_toc_page_number, private_cid_glyph, toc_page_numbers, word_text, CidGlyph};
 use crate::shinkyu::{
     band_pair_unit, detect_shinkyu_bands_headerless, detect_shinkyu_header, lines_with_tables_by, reconstruct_shinkyu, split_side_by_side_tables,
     tiers_look_like_bands, ShinkyuLayout,
@@ -27,6 +27,10 @@ pub(crate) struct Col {
 /// ページ上下の余白帯にある柱（「官」「報」「令和 年 月 日」等）を落とすための閾値(pt)。
 pub(crate) const TOP_MARGIN: f32 = 56.0;
 pub(crate) const BOTTOM_MARGIN: f32 = 30.0;
+/// 柱の文字列（「令和８年９月18日」「金曜日」）の行を捨てるのは、上端がこれより上の行だけ(pt)。
+/// 柱は上の余白帯にあり、少しはみ出すものもある。本文の日付の行（告示の日付・決算公告の日付。
+/// 横倒しのページでは本文の行の頭が 61pt あたりに来る）は残す。
+const MARGIN_NOISE_TOP: f32 = TOP_MARGIN + 4.0;
 /// 縦長のページの右の余白帯(pt)。号の 1 ページ目（分冊の先頭ページ）には、綴じ穴の印「○」2 つと
 /// 中央の印「▷」（私用 CID で「才」に化ける）が本文の右の外（x≈570–588）に刷られている。本文の右端は
 /// x≈553 まで。
@@ -69,7 +73,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     for (pi, page) in doc.select(&page_sel).enumerate() {
         let (width, height) = page_size(page);
         let page_rules: Option<&PageRules> = rules.get(pi).and_then(|r| r.as_ref());
-        let (cols, mut words, rotated, sideways) = page_words_traced(page, width, height);
+        let (cols, mut words, rotated, sideways, merged) = page_words_traced(page, width, height);
         // 横倒しの縦書きページは語の座標を回して使うので、回していない罫線の枠は使わない。
         let grids: Vec<Grid> = if sideways {
             Vec::new()
@@ -113,7 +117,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
             let regions: Vec<_> = units.into_iter().enumerate().flat_map(|(i, u)| u.regions(i)).collect();
-            mark_unused(&mut words, &regions);
+            mark_unused(&mut words, &regions, &merged);
             pages.push(PageTrace {
                 width,
                 height,
@@ -194,7 +198,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             } else {
                 merge_split_header_tiers(split_tiers(cols, &TierRules { tables, hrules }))
             };
-            let mut tiers: Vec<Vec<Col>> = tiers.into_iter().flat_map(split_side_by_side_tables).collect();
+            let mut tiers: Vec<Vec<Col>> = attach_toc_page_numbers(tiers.into_iter().flat_map(split_side_by_side_tables).collect(), &words);
             // 段の中の罫線の表（他の枠を含まない枠で、中の語が全部この段にあり、中の字が縦組みで、
             // セルに文章の入っていないものだけ。横組みの表は行ごとに読むこれまでの組み方のほうがよい）。
             let inner_grids = |tier: &[Col]| -> Vec<&Grid> {
@@ -272,7 +276,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         let (doc_text, tables) = doc_text_of(&units, &mut table_count);
         prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
         let regions: Vec<_> = units.into_iter().enumerate().flat_map(|(i, u)| u.regions(i)).collect();
-        mark_unused(&mut words, &regions);
+        mark_unused(&mut words, &regions, &merged);
         pages.push(PageTrace {
             width,
             height,
@@ -417,13 +421,16 @@ fn drop_stray_labels(mut lines: Vec<Line>) -> Vec<Line> {
 }
 
 /// 行に組まれなかった語に、捨てた理由（欄見出しのラベルか柱の行）を付ける。
-fn mark_unused(words: &mut [Word], regions: &[crate::trace::Region]) {
+fn mark_unused(words: &mut [Word], regions: &[crate::trace::Region], merged: &[(usize, usize)]) {
     // 表の行は語をセルの側に持つ。
-    let used: std::collections::HashSet<usize> = regions
+    let mut used: std::collections::HashSet<usize> = regions
         .iter()
         .flat_map(|r| r.lines.iter())
         .flat_map(|l| l.words.iter().copied().chain(l.table.iter().flat_map(|t| t.cells.iter().flat_map(|c| c.words.iter().copied()))))
         .collect();
+    // 割注にまとめた語は、まとめた先の語が組まれていれば組まれている。
+    let extra: Vec<usize> = merged.iter().filter(|(_, owner)| used.contains(owner)).map(|&(id, _)| id).collect();
+    used.extend(extra);
     for w in words.iter_mut().filter(|w| w.status == WordStatus::Used && !used.contains(&w.id)) {
         w.status = if matches!(w.text.as_str(), "改" | "正" | "後" | "前") {
             WordStatus::HeaderLabel
@@ -555,7 +562,9 @@ fn split_horizontal_shinkyu(cols: &[Col]) -> Option<f32> {
 /// 回転ページの柱は上端ではなく左端の帯に縦に並ぶ（上端の帯には本文が来る）ので、
 /// 左端の帯に収まる語を柱として落とす（[`is_left_strip_header`]）。
 /// 戻り値は（語の列、表示用の語、回転ページか、横倒しの縦書きページか）。
-fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) -> (Vec<Col>, Vec<Word>, bool, bool) {
+/// 戻り値の最後は割注にまとめて消えた語 `(語, まとめた先の語)`（[`merge_warichu`]）。
+#[allow(clippy::type_complexity)]
+fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>) {
     let word_sel = Selector::parse("word").unwrap();
     let line_sel = Selector::parse("line").unwrap();
     // (x0, y0, x1, y1, raw)
@@ -703,8 +712,8 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
             status,
         });
     }
-    merge_warichu(&mut cols);
-    (cols, words, rotated, sideways)
+    let merged = merge_warichu(&mut cols);
+    (cols, words, rotated, sideways, merged)
 }
 
 /// 枠のセルに文章（200 字を超える、または 2 文以上）が入っているか。公告の囲み記事などの
@@ -748,7 +757,8 @@ fn vertical_inside(cols: &[Col], g: &Grid) -> bool {
 /// 右半分が字間を空けた 1 字ずつの語（漢字・かな）のとき（「大　蔵　省」）はまとめて右半分とし、
 /// 行頭の割注（上に親の列が無い）は、そのように字間を空けた右半分と左半分の上下がそろうものを
 /// 割注とする。
-fn merge_warichu(cols: &mut Vec<Col>) {
+fn merge_warichu(cols: &mut Vec<Col>) -> Vec<(usize, usize)> {
+    let mut merged = Vec::new();
     let mut i = 0;
     while i < cols.len() {
         let w = cols[i].x1 - cols[i].x;
@@ -760,13 +770,20 @@ fn merge_warichu(cols: &mut Vec<Col>) {
             let mut cs = t.chars();
             matches!((cs.next(), cs.next()), (Some(c), None) if ('\u{4E00}'..='\u{9FFF}').contains(&c) || ('\u{3041}'..='\u{30FF}').contains(&c))
         };
+        // 字間を空けた続きの語（「総」の後の「務」「省、」）。読点の付いた 2 字まで。
+        let spaced_part = |t: &str| {
+            let cs: Vec<char> = t.chars().collect();
+            name_char(t) || (cs.len() == 2 && name_char(&cs[0].to_string()) && matches!(cs[1], '、' | '・' | '，'))
+        };
         let mut spaced = vec![i];
-        if name_char(&cols[i].text) {
+        // 右半分の頭が複数字の語（「国家公安委員会、総」）でも、続きが字間を空けた語なら同じようにまとめる。
+        let head_ok = name_char(&cols[i].text) || cols[i].y1 - cols[i].y >= w * 1.5;
+        if head_ok {
             loop {
                 let last = &cols[*spaced.last().unwrap()];
                 let next = (0..cols.len()).find(|&j| {
                     !spaced.contains(&j)
-                        && name_char(&cols[j].text)
+                        && spaced_part(&cols[j].text)
                         && near(cols[j].x, last.x)
                         && near(cols[j].x1, last.x1)
                         && cols[j].y > last.y1 - w * 0.1
@@ -856,10 +873,13 @@ fn merge_warichu(cols: &mut Vec<Col>) {
             x1: r.x + w / 2.0,
             y: r.y,
             y1: r.y1,
-            text: format!("{}・{}", r.text, left_text),
+            // 右半分が読点で終わる（「総務省、」）ときは「・」でつながない。
+            text: if r.text.ends_with(['、', '・', '，']) { format!("{}{}", r.text, left_text) } else { format!("{}・{}", r.text, left_text) },
         };
         let mut gone: Vec<usize> = left.iter().copied().chain(spaced.iter().skip(1).copied()).collect();
         gone.sort_unstable();
+        // 左半分の語で残りを列に戻したもの（`rest`）は、その語のまま組まれる。
+        merged.extend(gone.iter().map(|&j| cols[j].id).filter(|id| !rest.iter().any(|c| c.id == *id)).map(|id| (id, r.id)));
         let mut removed = 0;
         for &j in gone.iter().rev() {
             cols.remove(j);
@@ -871,6 +891,7 @@ fn merge_warichu(cols: &mut Vec<Col>) {
         cols.extend(rest);
         i += 1;
     }
+    merged
 }
 
 /// `Col`（縦書き 1 カラム語）から、別表復元で使う中心 y 付きの語へ。
@@ -900,6 +921,66 @@ fn split_tiers(cols: Vec<Col>, rules: &TierRules) -> Vec<Vec<Col>> {
     let mut out = Vec::new();
     split_tiers_rec(cols, 0, rules, false, &mut out);
     out
+}
+
+/// 目次のページ番号を、その項目の段に戻す。
+///
+/// 目次では、項目の最後の行と同じ列の段の下端に、ページ番号（「二」「一〇」）を置く。段の境目の
+/// 下に並ぶので段分割で別の段になり、どの項目の番号か分からなくなっていた。漢数字だけの語が
+/// その列の最後の語で、すぐ上の段の同じ列の下に続くなら、その段の列の後ろに全角空白で区切って
+/// つなぐ（初めから同じ段にある番号も区切る）。番号は目次の数字の字形（[`is_toc_page_number`]）のものだけで、同じ段に 2 つ以上
+/// あるときだけ扱う（表の欄の数や、本文の段の頭の項目番号「二」と取り違えないため）。
+fn attach_toc_page_numbers(mut tiers: Vec<Vec<Col>>, words: &[Word]) -> Vec<Vec<Col>> {
+    let is_number = |c: &Col| words.get(c.id).is_some_and(|w| is_toc_page_number(&w.raw, &w.text));
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    let mut moves: Vec<(usize, usize, usize)> = Vec::new();
+    for (ti, tier) in tiers.iter().enumerate() {
+        let candidates: Vec<(usize, usize)> = tier
+            .iter()
+            .enumerate()
+            .filter(|&(_, c)| is_number(c))
+            // その列の最後の語（下に続く語が無い）。
+            .filter(|&(_, c)| !tier.iter().any(|d| d.id != c.id && (center(d) - center(c)).abs() < (c.x1 - c.x) * 0.5 && d.y > c.y))
+            .filter_map(|(ci, c)| {
+                let em = c.x1 - c.x;
+                // すぐ上にある段で、同じ列の語の下端が番号の上にあるもの。
+                let ui = (0..tiers.len()).find(|&ui| {
+                    let up = &tiers[ui];
+                    let bottom = up.iter().map(|d| d.y1).fold(f32::NEG_INFINITY, f32::max);
+                    ui != ti
+                        && (0.0..em * 2.0).contains(&(c.y - bottom))
+                        && up.iter().any(|d| (center(d) - center(c)).abs() < em * 0.5 && d.y1 <= c.y)
+                })?;
+                Some((ci, ui))
+            })
+            .collect();
+        if candidates.len() >= 2 {
+            moves.extend(candidates.into_iter().map(|(ci, ui)| (ti, ci, ui)));
+        }
+    }
+    // 後ろの添字から取り出す。
+    moves.sort_by_key(|&(ti, ci, _)| std::cmp::Reverse((ti, ci)));
+    for (ti, ci, ui) in moves {
+        let mut c = tiers[ti].remove(ci);
+        c.text = format!("　{}", c.text);
+        tiers[ui].push(c);
+    }
+    // 初めから項目と同じ段にある番号も、同じ列の項目の後ろなら全角空白で区切る。
+    for tier in &mut tiers {
+        let follows: Vec<usize> = (0..tier.len())
+            .filter(|&i| {
+                let c = &tier[i];
+                !c.text.starts_with('　')
+                    && is_number(c)
+                    && tier.iter().any(|d| d.id != c.id && (center(d) - center(c)).abs() < (c.x1 - c.x) * 0.5 && d.y1 <= c.y)
+            })
+            .collect();
+        for i in follows {
+            tier[i].text = format!("　{}", tier[i].text);
+        }
+    }
+    tiers.retain(|t| !t.is_empty());
+    tiers
 }
 
 /// 改正後帯と改正前帯が別々の段に割れた新旧対照表を 1 段に戻す。
@@ -971,8 +1052,19 @@ fn split_beside_crossing(cols: &[Col], cut: f32, spaced: &[(f32, f32, f32)]) -> 
     if splits_at_cut(&left) && left.iter().all(|c| c.x1 < cx_min + 1.0) {
         return Some((right, left, true));
     }
-    // またぐ列が左に寄っている: 右側を段に割れるか。
-    let (right, left): (Vec<Col>, Vec<Col>) = cols.iter().cloned().partition(|c| center(c) > cx_max + 1.0);
+    // またぐ列が左に寄っている: 右側を段に割れるか。またぐ列のすぐ右で、またぐ列の上端の高さから
+    // 始まる記事の見出し（「〇国土交通省告示第千二百三号」の後に段をまたぐ前文が続く）は、またぐ側に付ける。
+    let cross_top = cols.iter().filter(|c| crosses(c)).map(|c| c.y).fold(f32::INFINITY, f32::min);
+    let heads: Vec<&Col> = cols
+        .iter()
+        .filter(|c| {
+            let em = c.x1 - c.x;
+            !crosses(c) && c.text.starts_with('〇') && c.x > cx_max - 1.0 && c.x - cx_max < em * 3.0 && (c.y - cross_top).abs() < em * 2.0
+        })
+        .collect();
+    // 見出しの列の語（「〇」の後に割注「財務省・農林水産省」と「令第四号」が続く）はまとめて付ける。
+    let heading = |c: &Col| !crosses(c) && heads.iter().any(|h| (center(h) - center(c)).abs() < (h.x1 - h.x) * 0.5);
+    let (right, left): (Vec<Col>, Vec<Col>) = cols.iter().cloned().partition(|c| center(c) > cx_max + 1.0 && !heading(c));
     if splits_at_cut(&right) && right.iter().all(|c| c.x > cx_max - 1.0) {
         return Some((right, left, false));
     }
@@ -1329,7 +1421,7 @@ pub(crate) fn cell_lines(cols: Vec<Col>) -> Vec<Line> {
             row = Some((top, em, cells));
         } else {
             let line = render(cells);
-            if !is_margin_noise(&line.text) {
+            if !(top < MARGIN_NOISE_TOP && is_margin_noise(&line.text)) {
                 lines.push(line);
             }
         }
@@ -1477,7 +1569,8 @@ pub(crate) fn page_lines(cols: Vec<Col>) -> Vec<Line> {
             text.push_str(&c.text);
             prev_end = prev_end.max(c.y1);
         }
-        if is_margin_noise(&text) {
+        let top = g.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+        if top < MARGIN_NOISE_TOP && is_margin_noise(&text) {
             continue;
         }
         lines.push(Line::text(text, g.iter().map(|c| c.id).collect()));
@@ -1616,6 +1709,28 @@ fn split_off_horizontal_blocks(cols: Vec<Col>) -> (Vec<Col>, Vec<(f32, Vec<Line>
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn warichu_right_half_continues_with_letter_spaced_words() {
+        // 割注の右半分が複数字の語の後に字間を空けた語で続く（「国家公安委員会、総」「務」「省、」）。
+        // 左半分も字間を空けた 1 字の語（「文」「部」「科」「学」）と続きの語。
+        let col = |id: usize, x: f32, y: f32, y1: f32, text: &str| Col { id, x, x1: x + 8.0, y, y1, text: text.to_string() };
+        let mut cols = vec![
+            col(0, 403.6, 188.8, 236.8, "（令和二年"),
+            col(1, 407.6, 236.8, 308.8, "国家公安委員会、総"),
+            col(2, 407.6, 316.8, 324.8, "務"),
+            col(3, 407.6, 332.8, 348.8, "省、"),
+            col(4, 399.6, 236.8, 244.8, "文"),
+            col(5, 399.6, 248.8, 256.8, "部"),
+            col(6, 399.6, 260.8, 268.8, "科"),
+            col(7, 399.6, 272.8, 280.8, "学"),
+            col(8, 399.6, 284.8, 340.8, "省、国土交通省"),
+            col(9, 403.6, 348.8, 508.8, "告示第一号）の一部を次のように改正する。"),
+        ];
+        merge_warichu(&mut cols);
+        let texts: Vec<&str> = cols.iter().map(|c| c.text.as_str()).collect();
+        assert!(texts.contains(&"国家公安委員会、総務省、文部科学省、国土交通省"), "{texts:?}");
+    }
 
     #[test]
     fn letter_spaced_horizontal_labels_do_not_make_a_horizontal_page() {

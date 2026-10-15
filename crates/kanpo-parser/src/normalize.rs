@@ -59,6 +59,14 @@ fn identity_cid(c: char) -> Option<u32> {
     (c as u32).checked_sub(kanpo_pdf::bbox::IDENTITY_CID_BASE).filter(|&cid| cid <= 0xFFFD)
 }
 
+/// 目次のページ番号の数字の字形（ToUnicode の無いフォントの半角の漢数字、CID 25503〜25512）だけの語か。
+/// `text` は語の本文の文字列。タグの無い入力では、[`toc_page_numbers`] が漢数字にしたものだけ。
+pub(crate) fn is_toc_page_number(raw: &str, text: &str) -> bool {
+    let tagged = raw.chars().all(|c| identity_cid(c).is_some_and(|cid| (25503..=25512).contains(&cid)));
+    let untagged = raw.chars().all(|c| (TOC_DIGIT_ZERO..=TOC_DIGIT_ZERO + 9).contains(&(c as u32))) && text != raw;
+    !raw.is_empty() && (tagged || untagged)
+}
+
 /// CID をそのまま符号位置とみなした字（poppler と同じ。[`cid_glyph`] の表はこの符号で引く）。
 fn cid_char(cid: u32) -> char {
     char::from_u32(cid).unwrap_or('\u{FFFD}')
@@ -260,6 +268,8 @@ fn identity_only_glyph(code: u32) -> Option<(u8, String)> {
         0x4322 => "雯",
         0x4473 => "宁",
         0x4B17 => "吴",
+        0x44C6 => "廻",
+        0x4F2E => "灸",
         0x4F34 => "鍵",
         0x4F37 => "梗",
         0x4F38 => "鮫",
@@ -525,9 +535,15 @@ mod tests {
         assert_eq!(word_text(&word(&[24954])), "－");
         // 飾り罫は落とす。対応の分からない字は poppler と同じ字にする。
         assert_eq!(word_text(&word(&[26265, 26267])), "");
+        assert_eq!(word_text(&word(&[20271])), "\u{4F2F}");
         assert_eq!(word_text(&word(&[0x6682])), "\u{6682}");
         // poppler の出力で原本と突き合わせた異体字は、タグが付いていても同じ字にする（鍼灸）。
         assert_eq!(word_text(&word(&[20270])), "灸");
+        // 目次のページ番号の字形。
+        assert!(is_toc_page_number(&word(&[25504, 25503]), "一〇"));
+        assert!(is_toc_page_number("掠掟", "一〇"));
+        assert!(!is_toc_page_number("採", "採"));
+        assert!(!is_toc_page_number("一〇", "一〇"));
         // タグの無い（poppler の）入力では、常用漢字と同じ符号は写像しない。
         assert_eq!(fix_private_cid_glyphs("伸", 8.0, 8.0), None);
         assert_eq!(fix_private_cid_glyphs("採", 9.0, 9.0), None);

@@ -57,6 +57,7 @@ page	stratum
 20260814h01768/20260814h017680027	honshi,horizontal,private-cid
 20260814t00041/20260814t000410001	tokubetsu,tiers,table,private-cid
 20260814t00041/20260814t000410002	tokubetsu,tiers,private-cid
+20260820h01772/20260820h017720007	honshi,tiers,private-cid
 20260821h01773/20260821h017730003	honshi,headerless_shinkyu,shinkyu,table,warichu,private-cid
 20260821t00045/20260821t000450001	tokubetsu,tiers,table
 20260821t00045/20260821t000450002	tokubetsu,tiers,table,private-cid
@@ -297,6 +298,7 @@ page	stratum
 20261007h01803/20261007h018030030	honshi,horizontal
 20261007h01803/20261007h018030032	honshi,tiers,warichu,private-cid
 20261008g00222/20261008g002220090	gougai,horizontal,warichu,private-cid
+20261008h01804/20261008h018040003	honshi,tiers
 20261008h01804/20261008h018040008	honshi,horizontal,warichu
 20261009g00223/20261009g002230031	gougai,headerless_shinkyu,shinkyu,warichu,private-cid
 20261009h01805/20261009h018050004	honshi,horizontal,private-cid,item
