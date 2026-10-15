@@ -1483,6 +1483,8 @@ fn spaced_label_gaps(cols: &[Col]) -> Vec<(f32, f32, f32)> {
 
 /// 跨ぎカラム数の許容上限（前文 1 本程度の橋渡しを段境界として許す）。
 const MAX_BRIDGE: usize = 1;
+/// 官報の本文の 1 段の高さ(pt)。
+const TIER_HEIGHT: f32 = 176.0;
 /// 同じ列で続く語の空きがこれ未満なら同じ文の続き（字間を空けた見出し・欧文の語間。半角
 /// 0.5em まで）とみなし、そこを段の境目にしない(em 比)。
 const TOUCH_EM: f32 = 0.6;
@@ -1612,7 +1614,8 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
         // 右側から順に段へ分ける。下半分の右に段をまたぐ表、左に段ごとの本文がある
         // ページで、本文の上下の段の列が 1 行に連結されるのを防ぐ。
         // またぐ列のある側（表など）は 1 段のまま置き、もう一方だけを段に分ける。
-        if let Some((right, left, crossing_right)) = split_beside_crossing(&cols, cut, &spaced_label_gaps(&cols)) {
+        let spaced = spaced_label_gaps(&cols);
+        if let Some((right, left, crossing_right)) = split_beside_crossing(&cols, cut, &spaced) {
             // またがない側は cut で段に割れることを確かめてある。その側の中央域の外に cut が来ると
             // 分け直しでは切れない（短い下の帯（改正前欄の「〔項を加える。〕」だけの帯など）が上の帯の
             // 列に付く）ので、そのときは cut で上下に切ってから分ける。同じ列が全角 1 字ほどの空きで
@@ -1632,7 +1635,65 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
                 }
             };
             if crossing_right {
-                out.push(right);
+                // またぐ列が段の中ほどにあり、その右にも段ごとの本文があれば（右の段の本文、またぐ
+                // 列の記事、左の段の本文の順）、右の本文も段に分ける。
+                // 本文より大きな字の語（区分見出しの囲みの「官庁報告」）があれば分けない（囲みが段の境目にかかる）。
+                let mut ems: Vec<f32> = right.iter().map(|c| c.x1 - c.x).collect();
+                ems.sort_by(f32::total_cmp);
+                let body_em = ems.get(ems.len() / 2).copied().unwrap_or(0.0);
+                // 上下とも 4 列以上の本文でなければ分けない（字間を空けた区分見出し「法　規　的　告　示」の 1 列、
+                // 数列の表）。
+                let columns = |side: &[Col], upper: bool| {
+                    let mut xs: Vec<f32> = side.iter().filter(|c| (c.y1 <= cut) == upper).map(|c| (c.x + c.x1) / 2.0).collect();
+                    xs.sort_by(f32::total_cmp);
+                    xs.dedup_by(|a, b| (*a - *b).abs() < 4.0);
+                    xs.len()
+                };
+                // 段の境目は、上の段の上端から 1 段の高さ（約 176pt）の所（字間・表のセルの間の空きではない）。
+                let off_tier = |side: &[Col]| {
+                    let top = side.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+                    (cut - top - TIER_HEIGHT).abs() > 10.0
+                };
+                // 段の本文なら、上の段の列の多くは段の下端まで、下の段の列の多くは段の上端から組まれている
+                // （表のセルの列は短く、セルの間の空きで切ると列の多くが境目から離れている）。
+                let filled = |side: &[Col]| {
+                    let mut ends: Vec<(f32, f32, f32)> = Vec::new(); // (列の x, 上の段の下端, 下の段の上端)
+                    for c in side {
+                        let x = (c.x + c.x1) / 2.0;
+                        let i = ends.iter().position(|e| (e.0 - x).abs() < 4.0).unwrap_or_else(|| {
+                            ends.push((x, f32::NEG_INFINITY, f32::INFINITY));
+                            ends.len() - 1
+                        });
+                        if c.y1 <= cut {
+                            ends[i].1 = ends[i].1.max(c.y1);
+                        } else {
+                            ends[i].2 = ends[i].2.min(c.y);
+                        }
+                    }
+                    let em = body_em.max(1.0);
+                    let lower_top = ends.iter().map(|e| e.2).fold(f32::INFINITY, f32::min);
+                    let above: Vec<f32> = ends.iter().map(|e| e.1).filter(|y| y.is_finite()).collect();
+                    let below: Vec<f32> = ends.iter().map(|e| e.2).filter(|y| y.is_finite()).collect();
+                    let full_above = above.iter().filter(|&&y| y >= cut - em * 3.0).count();
+                    let full_below = below.iter().filter(|&&y| y <= lower_top + em * 3.0).count();
+                    // 表の欄（名簿の名称の欄など）は 1 つの列に短い語が縦にいくつも並ぶ。本文の列は 1 段に数語。
+                    let words_per_column = side.len() as f32 / ends.len().max(1) as f32;
+                    full_above * 5 >= above.len() * 2 && full_below * 5 >= below.len() * 2 && words_per_column <= 4.0
+                };
+                let large = |side: &[Col]| {
+                    side.iter().any(|c| c.x1 - c.x > body_em * 1.3)
+                        || columns(side, true) < 4
+                        || columns(side, false) < 4
+                        || off_tier(side)
+                        || !filled(side)
+                };
+                match split_beside_crossing(&right, cut, &spaced) {
+                    Some((beyond, crossing_cols, false)) if !large(&beyond) => {
+                        split_side(beyond, out);
+                        out.push(crossing_cols);
+                    }
+                    _ => out.push(right),
+                }
                 split_side(left, out);
             } else {
                 split_side(right, out);

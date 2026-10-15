@@ -681,6 +681,7 @@ fn align_rows_by(
             }
         }
     }
+    shift_omitted_past_new(&mut rows);
     spread_marks_back(&mut rows);
     Some(rows.into_iter().map(|(a, b)| ShinkyuRow { after: cell_runs_from_str(&a), before: cell_runs_from_str(&b), ..Default::default() }).collect())
 }
@@ -706,6 +707,31 @@ fn spread_marks_back(rows: &mut [(String, String)]) {
                 set(&mut rows[i - moved + k], marks[k].clone());
             }
             set(&mut rows[i], marks[moved..].join("\n"));
+        }
+    }
+}
+
+/// 改正前の欄で「（新設）」の印が k 個続いた後の「三十七　（略）」が、番号の見出しで改正後の新設の
+/// 「三十七　ペルフルオロ…」と組になっていれば、改正前の「三十七」は号の繰り下げで k 行後の改正後の
+/// 「四十一　（略）」（改正前の欄が空）のもの。改正前の行を k 行後へ移し、印を新設の k 行へ配る。
+fn shift_omitted_past_new(rows: &mut [(String, String)]) {
+    let omitted = |s: &str| {
+        let first = s.trim().lines().next().unwrap_or("");
+        first.split_once('　').is_some_and(|(_, rest)| matches!(rest.trim(), "（略）" | "略" | "［略］"))
+    };
+    for i in 1..rows.len() {
+        if !omitted(&rows[i].1) || omitted(&rows[i].0) {
+            continue;
+        }
+        let (keep, marks) = split_trailing_marks(&rows[i - 1].1);
+        let k = marks.len();
+        if k == 0 || i + k >= rows.len() || !rows[i + 1..=i + k].iter().all(|r| r.1.trim().is_empty()) || !omitted(&rows[i + k].0) {
+            continue;
+        }
+        rows[i + k].1 = std::mem::take(&mut rows[i].1);
+        rows[i - 1].1 = keep;
+        for (r, m) in rows[i..i + k].iter_mut().zip(marks) {
+            r.1 = m;
         }
     }
 }
@@ -1163,6 +1189,26 @@ mod tests {
         let mut rows = vec![row("第一条の二　乙", ""), row("第一条の三　丙", "第一条の三　旧丙\n（新設）\n（新設）")];
         spread_marks_back(&mut rows);
         assert_eq!(rows[0].1, "");
+    }
+
+    #[test]
+    fn shifts_omitted_row_past_new_items() {
+        // 号を 4 つ加えて「三十七」以降を繰り下げた。改正前の「三十七　（略）」は改正後の「四十一　（略）」の行。
+        let row = |a: &str, b: &str| (a.to_string(), b.to_string());
+        let mut rows = vec![
+            row("三十二〜三十六　（略）", "三十二〜三十六　（略）\n（新設）\n（新設）\n（新設）\n（新設）"),
+            row("三十七　ペルフルオロアルカン酸", "三十七　（略）"),
+            row("三十八　長鎖ペルフルオロアルカン酸関連物質", ""),
+            row("三十九　チオりん酸", ""),
+            row("四十　ポリ塩化直鎖パラフィン", ""),
+            row("四十一　（略）\n附　則", ""),
+        ];
+        shift_omitted_past_new(&mut rows);
+        assert_eq!(rows[0].1, "三十二〜三十六　（略）");
+        for r in &rows[1..5] {
+            assert_eq!(r.1, "（新設）", "{rows:?}");
+        }
+        assert_eq!(rows[5].1, "三十七　（略）");
     }
 
     #[test]
