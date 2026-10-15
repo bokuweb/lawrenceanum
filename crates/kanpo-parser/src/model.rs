@@ -763,6 +763,13 @@ fn merge_new_item_runs(rows: Vec<(String, String)>) -> Vec<(String, String)> {
     let mut out: Vec<(String, String)> = Vec::new();
     // 今まとめている行の、最後の号の番号。
     let mut open: Option<u32> = None;
+    // 直前の行の改正前の欄が印だけ（新設の条・項）か。
+    let mut in_new = false;
+    // 号・項の書き出し（「三　」「２　」）。条の見出し・条の書き出しではない。
+    let sub_item = |t: &str| {
+        let t = t.trim_start();
+        item_number(t).is_some() || t.chars().next().is_some_and(|c| ('２'..='９').contains(&c)) && t.chars().nth(1) == Some('　')
+    };
     for (after, before) in rows {
         if let (Some(n), true) = (open, before.trim().is_empty()) {
             if item_number(&after) == Some(n + 1) {
@@ -772,6 +779,15 @@ fn merge_new_item_runs(rows: Vec<(String, String)>) -> Vec<(String, String)> {
                 continue;
             }
         }
+        // 新設の条・項の行の後に、改正前の欄が空で号・項から書き出す行が続けば、印が足りずに分かれた新設の
+        // 条・項の続き。
+        if in_new && before.trim().is_empty() && sub_item(&after) {
+            let last = out.last_mut().unwrap();
+            last.0 = format!("{}\n{}", last.0.trim_end(), after);
+            open = None;
+            continue;
+        }
+        in_new = !only_marks(&before).is_empty();
         // 印の行の改正後の欄の最後の号の番号（その後に新設の条の書き出しがあれば 0。号はその条の号から始まる）。
         let last_item = after.lines().fold(None, |n, line| {
             // 横書きの「第145条の７」も条の書き出し。
