@@ -180,7 +180,26 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 };
                 (unit, tail)
             };
-            let split = continued.map(|m| (m, f32::NEG_INFINITY, Vec::new())).or_else(|| split_horizontal_shinkyu(&cols, prev_table && prev_two_columns));
+            // 前のページの新旧対照表（縦書きの表も）の続きで、左右に高さのそろった罫線の表が 1 つずつ並ぶ横向きの
+            // ページは、その間を境目にする（号外第 215 号 323 ページ: 改正後・改正前の別表が左右に並ぶ）。
+            let side_by_side = prev_table
+                .then(|| {
+                    let inner: Vec<&Grid> = grids.iter().filter(|g| g.cells.len() >= 4 && !grids.iter().any(|o| g.encloses(o))).collect();
+                    let [l, r] = inner.as_slice() else { return None };
+                    let (l, r) = if l.left() < r.left() { (l, r) } else { (r, l) };
+                    let overlap = l.bottom().min(r.bottom()) - l.top().max(r.top());
+                    let rows = |g: &Grid| g.ys.len() as f32;
+                    let ok = l.right() < r.left()
+                        && overlap >= (l.bottom() - l.top()).max(r.bottom() - r.top()) * 0.8
+                        && (rows(l) - rows(r)).abs() <= rows(l).max(rows(r)) * 0.3;
+                    let mid = (l.right() + r.left()) / 2.0;
+                    (ok && !cols.iter().any(|c| c.x < mid - 2.0 && c.x1 > mid + 2.0)).then_some(mid)
+                })
+                .flatten();
+            let split = continued
+                .or(side_by_side)
+                .map(|m| (m, f32::NEG_INFINITY, Vec::new()))
+                .or_else(|| split_horizontal_shinkyu(&cols, prev_table && prev_two_columns));
             // 続きのページに次の記事・次の表の欄見出しがあれば、そこより上を前の表の続き、下を新しい表か本文として組む。
             let next_label_y = continued.and(Some(cut_y)).filter(|y| y.is_finite());
             match (split, next_label_y) {
