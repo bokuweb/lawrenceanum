@@ -424,7 +424,15 @@ fn item_numbers(left: &[Col], right: &[Col]) -> bool {
     // 行が混ざっていても、語の単位で見れば揃う）。
     let edge = left.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
     let column: Vec<&Col> = left.iter().filter(|w| edge - w.x1 < (w.y1 - w.y).max(1.0) * 3.0).collect();
-    column.len() >= 3 && column.iter().all(|n| key(n) && next_to(n, 6.0))
+    if column.len() >= 3 && column.iter().all(|n| key(n) && next_to(n, 6.0)) {
+        return true;
+    }
+    // 溝の左の領域の左端の列が行の見出しの番号で、その 4 分の 3 以上が溝の右の語と同じ高さに並ぶなら、
+    // 溝は同じ表の欄の間（項目名が折り返して行数が揃わなくても）。
+    let start = left.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
+    let keys: Vec<&Col> = left.iter().filter(|w| w.x - start < (w.y1 - w.y).max(1.0) * 3.0 && key(w)).collect();
+    let lined = keys.iter().filter(|n| right.iter().any(|w| (y_center(w) - y_center(n)).abs() <= ALIGN_TOL)).count();
+    keys.len() >= 3 && lined * 4 >= keys.len() * 3
 }
 
 /// 溝のすぐ右の列が「〃」（上の行と同じの印）だけで、どれも左の欄の語と同じ高さに並ぶか（表の欄）。
