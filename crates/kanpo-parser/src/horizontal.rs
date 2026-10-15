@@ -232,7 +232,7 @@ fn grid_table(g: &Grid, words: &[Col]) -> Option<trace::Table> {
 }
 
 /// 語が縦に積まれているか（縦組みの欄の名前）。2 語・3 字以上で、どの語も 1〜2 字か縦長で、全体が
-/// 横より縦に長い。
+/// 横幅以上の高さ（2 列に組んだ「資産｜の部」は正方形に近い）。
 fn stacked(words: &[&Col]) -> bool {
     let (x0, x1) = words.iter().fold((f32::INFINITY, f32::NEG_INFINITY), |(a, b), w| (a.min(w.x), b.max(w.x1)));
     let (y0, y1) = words.iter().fold((f32::INFINITY, f32::NEG_INFINITY), |(a, b), w| (a.min(w.y), b.max(w.y1)));
@@ -243,7 +243,7 @@ fn stacked(words: &[&Col]) -> bool {
         && text.chars().count() >= 3
         && !text.chars().all(|c| c == '〃')
         && words.iter().all(upright)
-        && y1 - y0 > (x1 - x0) * 1.5
+        && y1 - y0 >= x1 - x0
 }
 
 /// 横書きの 1 行（y が重なる語の並び、x 昇順）。
