@@ -609,7 +609,12 @@ fn render_line(words: &[Col]) -> String {
             let letters = s.chars().last().is_some_and(|c| c.is_ascii_alphabetic() || matches!(c, ';' | ','))
                 && w.text.chars().next().is_some_and(|c| c.is_ascii_alphabetic());
             let wide = if letters { em * 2.0 } else { em * 0.75 };
-            if (em * space_em..wide).contains(&gap) && latin_word_break(&s, &w.text) {
+            // 欧文の行では、読点の後の数・数の後の語も語間を空ける（「September 18, 2026」
+            // 「162, 2830 Willebroek」。金額の桁区切りの後には空きが無い）。
+            let comma_number = latin_line && s.ends_with(',') && w.text.starts_with(|c: char| c.is_ascii_digit());
+            // 数の後の語（「2830 Willebroek」「1 set」。単位「0.5mL」は空きが無い）。
+            let number_word = latin_line && s.ends_with(|c: char| c.is_ascii_digit()) && w.text.starts_with(|c: char| c.is_ascii_alphabetic());
+            if (em * space_em..wide).contains(&gap) && (latin_word_break(&s, &w.text) || comma_number || number_word) {
                 s.push(' ');
             } else if gap >= em * 0.75 {
                 s.push('\u{3000}');
@@ -697,6 +702,11 @@ mod tests {
         assert_eq!(render_line(&[w(81.0, 101.0, 47.0, "3,415,"), w(104.0, 116.0, 47.0, "549")]), "3,415,549");
         assert_eq!(render_line(&[w(81.0, 97.0, 47.0, "〇30"), w(99.0, 108.0, 47.0, "by"), w(110.0, 126.0, 47.0, "30目標")]), "〇30by30目標");
         assert_eq!(render_line(&[w(81.0, 161.0, 47.0, "(31日現在)"), w(170.0, 230.0, 47.0, "(単位：千円)")]), "(31日現在)\u{3000}(単位：千円)");
+        // 欧文の行の読点の後の数・数の後の語。
+        let line = vec![w(81.0, 117.0, 47.0, "December"), w(121.0, 133.0, 47.0, "31,"), w(137.0, 153.0, 47.0, "2025")];
+        assert_eq!(render_line(&line), "December 31, 2025");
+        let line = vec![w(81.0, 109.0, 47.0, "System,"), w(113.0, 117.0, 47.0, "1"), w(121.0, 133.0, 47.0, "set.")];
+        assert_eq!(render_line(&line), "System, 1 set.");
         // 両端揃えの欧文の段落で、語間がたまたま縦に揃っても列の溝とみなさない。
         let words = vec![
             w(81.0, 200.0, 47.0, "Proizvodstvennoe"),
