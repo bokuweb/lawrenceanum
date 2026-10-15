@@ -1453,7 +1453,9 @@ fn record_bands(bands: &[Vec<Col>]) -> Option<(usize, Vec<Line>)> {
         // 表はページの上半分・下半分（2 段分、約 360pt）ずつ組まれ、上下に同じ形の別の表が並ぶことがあるので、それを
         // 越えて続けない。
         let first_top = ext(first).2;
-        if y1 - y0 > 100.0 || overlap < 0.7 || mid <= prev_top || upright * 10 < b.len() * 9 || y1 - first_top > 370.0 {
+        // 100pt を越える段は、短い語（6 字以下。「〃」「2026－ＴＡ」の欄）だけのもの（文の段と取り違えないため）。
+        let tall = y1 - y0 > 100.0 && b.iter().any(|c| c.text.chars().count() > 6);
+        if y1 - y0 > 130.0 || tall || overlap < 0.7 || mid <= prev_top || upright * 10 < b.len() * 9 || y1 - first_top > 370.0 {
             break;
         }
         let _ = y0;
