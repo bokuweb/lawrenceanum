@@ -835,7 +835,23 @@ pub(crate) fn lines_with_tables_by(cols: Vec<Col>, grids: &[&Grid], rest_lines: 
     // 右端の x が大きい表から、その表より左にある最初の行（行の中心が表の左端より左）か、表の
     // 下にある最初の行の手前へ差し込む（表の左の罫線に接して組まれた次の記事の標題や、表の下の
     // 備考を表の前に出さない）。
-    tables.sort_by(|a, b| b.x1.partial_cmp(&a.x1).unwrap_or(std::cmp::Ordering::Equal));
+    // 左右の範囲のほとんど重なる表（横倒しのページで上下に並んだ座標の表）は上の表から。
+    tables.sort_by(|a, b| b.x1.total_cmp(&a.x1));
+    let mut stack: Vec<(usize, f32, f32)> = Vec::new(); // (組, 左端, 右端)
+    let mut keyed: Vec<((usize, f32), Table)> = Vec::new();
+    for t in tables {
+        let overlaps = |&(_, x0, x1): &(usize, f32, f32)| (t.x1.min(x1) - t.x0.max(x0)) > (t.x1 - t.x0).min(x1 - x0) * 0.5;
+        let group = match stack.iter().find(|s| overlaps(s)) {
+            Some(&(g, _, _)) => g,
+            None => {
+                stack.push((stack.len(), t.x0, t.x1));
+                stack.len() - 1
+            }
+        };
+        keyed.push(((group, t.y0), t));
+    }
+    keyed.sort_by(|a, b| a.0 .0.cmp(&b.0 .0).then(a.0 .1.total_cmp(&b.0 .1)));
+    let tables: Vec<Table> = keyed.into_iter().map(|(_, t)| t).collect();
     // 差し込む位置は表の無い行の並びで決める。
     let mut placed: Vec<(usize, Table)> = tables
         .into_iter()

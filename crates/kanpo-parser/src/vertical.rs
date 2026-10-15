@@ -78,14 +78,15 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     let mut prev_mid: Option<f32> = None;
     for (pi, page) in doc.select(&page_sel).enumerate() {
         let (width, height) = page_size(page);
-        let page_rules: Option<&PageRules> = rules.get(pi).and_then(|r| r.as_ref());
-        let (cols, mut words, rotated, sideways, merged) = page_words_traced(page, width, height);
-        // 横倒しの縦書きページは語の座標を回して使うので、回していない罫線の枠は使わない。
-        let grids: Vec<Grid> = if sideways {
-            Vec::new()
-        } else {
-            page_rules.map(|r| find_grids(r, width.max(height), width.max(height))).unwrap_or_default()
-        };
+        let (cols, mut words, rotated, sideways, merged) = page_words_traced(page, width, height, rules.get(pi).and_then(|r| r.as_ref()));
+        // 横倒しの縦書きページは語の座標を回して使うので、罫線も同じく回す（座標の表・砂防法の土地の表を
+        // 罫線の表として組む。回さないと表の欄が 1 語ずつの行になっていた）。
+        let turned: Option<PageRules> = rules.get(pi).and_then(|r| r.as_ref()).filter(|_| sideways).map(|r| turn_rules(r, width));
+        let page_rules: Option<&PageRules> = turned.as_ref().or_else(|| rules.get(pi).and_then(|r| r.as_ref()));
+        let mut grids: Vec<Grid> = page_rules.map(|r| find_grids(r, width.max(height), width.max(height))).unwrap_or_default();
+        if sideways {
+            grids.retain(|g| !unruled_records(g, &cols));
+        }
         // 枠ごとの、中にある語の ID（普通の本文の段で表を組むのは、枠の中の語が全部その段に
         // あるときだけ。段に切ると表が左右に割れることがある）。
         let grid_words: Vec<Vec<usize>> = grids
@@ -453,6 +454,40 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     pages
 }
 
+/// 横倒しのページの罫線の表で、行を区切る罫線の無いまま 1 つのセルに複数の行が入っているか（「クボタ浄化槽」
+/// 「〃」「〃」と型式が 3 行並ぶ欄、「交Ｎ26－79」「交Ｎ26－80」が 1 つの欄に入る表）。表示の行は回した座標の
+/// 縦の列なので、セルの中の列の 2 番目以降に同上（〃）があるか、書き出しの 2 字が同じ列が 2 つあるとき。そうした
+/// 表は罫線の表にせず行として組む（行の区切りの無い横組みの表は、縦組みの表の行の頭の決め方では分けられない）。
+fn unruled_records(g: &Grid, cols: &[Col]) -> bool {
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    // セルごとの、語の列の中心 x（右から）と、その列の先頭の語。
+    let mut cells: Vec<Vec<(f32, String)>> = vec![Vec::new(); g.cells.len()];
+    for c in cols {
+        if let Some(i) = g.cell_at(center(c), (c.y + c.y1) / 2.0) {
+            match cells[i].iter_mut().find(|(x, _)| (x - center(c)).abs() < 2.0) {
+                Some(_) => {}
+                None => cells[i].push((center(c), c.text.clone())),
+            }
+        }
+    }
+    for cell in &mut cells {
+        cell.sort_by(|a, b| b.0.total_cmp(&a.0));
+    }
+    let head = |t: &str| t.chars().filter(|c| !c.is_whitespace()).take(2).collect::<String>();
+    cells.iter().any(|cell| {
+        cell.iter().skip(1).any(|(_, t)| t.starts_with('〃'))
+            || cell.iter().enumerate().any(|(i, (_, a))| head(a).chars().count() == 2 && cell[i + 1..].iter().any(|(_, b)| head(a) == head(b)))
+    })
+}
+
+/// 横倒しのページの罫線を、語と同じく 90° 回す（表示の上端 → 元のページの右端、左端 → 上端）。
+fn turn_rules(r: &PageRules, page_width: f32) -> PageRules {
+    PageRules {
+        vertical: r.horizontal.iter().map(|h| crate::lines::VRule { x: page_width - h.y, y0: h.x0, y1: h.x1 }).collect(),
+        horizontal: r.vertical.iter().map(|v| crate::lines::HRule { y: v.x, x0: page_width - v.y1, x1: page_width - v.y0 }).collect(),
+    }
+}
+
 /// 罫線を x の範囲 `lo..=hi` で切り取る（範囲の端の縦線は残す）。
 fn clip_rules(r: &PageRules, lo: f32, hi: f32) -> PageRules {
     PageRules {
@@ -690,7 +725,7 @@ pub(crate) fn parse_page_cols(xhtml: &str) -> Vec<(f32, Vec<Col>)> {
     let mut out = Vec::new();
     for page in doc.select(&page_sel) {
         let (width, height) = page_size(page);
-        let cols = page_words_traced(page, width, height).0;
+        let cols = page_words_traced(page, width, height, None).0;
         out.push((height, cols));
     }
     out
@@ -757,6 +792,24 @@ fn sideways_vertical_font_shifted(raws: &[(f32, f32, f32, f32, String)]) -> bool
     let shifted = vform.iter().filter(|&&(x, h)| common(x + h)).count();
     let aligned = vform.iter().filter(|&&(x, _)| common(x)).count();
     shifted >= 3 && shifted > aligned * 2
+}
+
+/// 横倒しのページで、縦書き用の書体の語（高さがちょうど整数 pt）を 1 字分右へ戻すと、表の縦の罫線を
+/// またぐ語が半分以下に減るか（罫線は正しい位置にあり、語だけがずれている。号外の別表の「所　在　地」
+/// 「北　海　道」が欄の境の罫線をまたいでいた）。
+fn sideways_words_straddle_rules(raws: &[(f32, f32, f32, f32, String)], rules: Option<&PageRules>) -> bool {
+    let Some(rules) = rules else { return false };
+    let straddles = |dx: f32| {
+        raws.iter()
+            .filter(|(_, y, _, y1, t)| !t.is_empty() && ((y1 - y) - (y1 - y).round()).abs() < 0.01)
+            .filter(|(x, y, x1, y1, _)| {
+                let (x, x1) = (x + dx * (y1 - y), x1 + dx * (y1 - y));
+                rules.vertical.iter().any(|v| x + 1.0 < v.x && v.x < x1 - 1.0 && v.y0 < *y && *y1 < v.y1)
+            })
+            .count()
+    };
+    let (now, shifted) = (straddles(0.0), straddles(1.0));
+    now >= 3 && shifted * 2 <= now
 }
 
 /// 横組みの語（横長）の文字数が縦組みの語（縦長）より多いページか。号外の公告・決算公告の
@@ -941,7 +994,12 @@ fn split_horizontal_shinkyu_pairs(cols: &[Col], prev: Option<f32>) -> Option<(Un
 /// 戻り値は（語の列、表示用の語、回転ページか、横倒しの縦書きページか）。
 /// 戻り値の最後は割注にまとめて消えた語 `(語, まとめた先の語)`（[`merge_warichu`]）。
 #[allow(clippy::type_complexity)]
-fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>) {
+fn page_words_traced(
+    page: scraper::ElementRef,
+    page_width: f32,
+    height: f32,
+    page_rules: Option<&PageRules>,
+) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>) {
     let word_sel = Selector::parse("word").unwrap();
     let line_sel = Selector::parse("line").unwrap();
     // (x0, y0, x1, y1, raw)
@@ -1020,7 +1078,7 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
     }
     let sideways = is_sideways_vertical(&raws);
     let rotated = !sideways && raws.iter().any(|(_, _, x1, _, t)| is_left_strip_header(*x1, t));
-    let shift_sideways = sideways && sideways_vertical_font_shifted(&raws);
+    let shift_sideways = sideways && (sideways_vertical_font_shifted(&raws) || sideways_words_straddle_rules(&raws, page_rules));
     let geom: Vec<(f32, f32, f32, f32)> = raws
         .iter()
         .map(|(x, y, x1, y1, t)| {
