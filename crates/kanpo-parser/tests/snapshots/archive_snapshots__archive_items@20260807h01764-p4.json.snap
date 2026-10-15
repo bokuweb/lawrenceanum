@@ -1,6 +1,5 @@
 ---
 source: crates/kanpo-parser/tests/archive_snapshots.rs
-assertion_line: 122
 expression: out
 input_file: crates/kanpo-parser/tests/archive/items/20260807h01764-p4.json
 ---
@@ -16,7 +15,7 @@ picked: Some(2)
     令和八年八月七日次の表により、改正前欄に掲げるその標記部分に二重傍線を付した規定（以下「対象規定」という。）で改正後欄にこれに対応するものを掲げていないものは、これを削り、改正後欄に掲げる対象規定で改正前欄にこれに対応するものを掲げていないものは、これを加える。
     別表第一名称所在
     〔略〕〔略〕
-    札幌青葉鍼伮柔整専門学校北海札幌つなぐ日本語学校北海
+    札幌青葉鍼灸柔整専門学校北海札幌つなぐ日本語学校北海
     〔略〕〔略〕
   P [表 48x2]
       | 明治アカデミー札幌校 | 北海道 |

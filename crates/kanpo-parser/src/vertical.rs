@@ -3,7 +3,7 @@
 use scraper::{Html, Selector};
 
 use crate::horizontal::{horizontal_lines, is_left_strip_header, LEFT_STRIP};
-use crate::normalize::{is_margin_noise, private_cid_glyph, word_text, CidGlyph};
+use crate::normalize::{is_margin_noise, is_toc_page_number, private_cid_glyph, word_text, CidGlyph};
 use crate::shinkyu::{
     band_pair_unit, detect_shinkyu_bands_headerless, detect_shinkyu_header, lines_with_tables_by, reconstruct_shinkyu, split_side_by_side_tables,
     tiers_look_like_bands, ShinkyuLayout,
@@ -194,7 +194,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             } else {
                 merge_split_header_tiers(split_tiers(cols, &TierRules { tables, hrules }))
             };
-            let mut tiers: Vec<Vec<Col>> = tiers.into_iter().flat_map(split_side_by_side_tables).collect();
+            let mut tiers: Vec<Vec<Col>> = attach_toc_page_numbers(tiers.into_iter().flat_map(split_side_by_side_tables).collect(), &words);
             // 段の中の罫線の表（他の枠を含まない枠で、中の語が全部この段にあり、中の字が縦組みで、
             // セルに文章の入っていないものだけ。横組みの表は行ごとに読むこれまでの組み方のほうがよい）。
             let inner_grids = |tier: &[Col]| -> Vec<&Grid> {
@@ -897,6 +897,51 @@ fn split_tiers(cols: Vec<Col>, rules: &TierRules) -> Vec<Vec<Col>> {
     let mut out = Vec::new();
     split_tiers_rec(cols, 0, rules, false, &mut out);
     out
+}
+
+/// 目次のページ番号を、その項目の段に戻す。
+///
+/// 目次では、項目の最後の行と同じ列の段の下端に、ページ番号（「二」「一〇」）を置く。段の境目の
+/// 下に並ぶので段分割で別の段になり、どの項目の番号か分からなくなっていた。漢数字だけの語が
+/// その列の最後の語で、すぐ上の段の同じ列の下に続くなら、その段の列の後ろに全角空白で区切って
+/// つなぐ。番号は目次の数字の字形（[`is_toc_page_number`]）のものだけで、同じ段に 2 つ以上
+/// あるときだけ扱う（表の欄の数や、本文の段の頭の項目番号「二」と取り違えないため）。
+fn attach_toc_page_numbers(mut tiers: Vec<Vec<Col>>, words: &[Word]) -> Vec<Vec<Col>> {
+    let is_number = |c: &Col| words.get(c.id).is_some_and(|w| is_toc_page_number(&w.raw));
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    let mut moves: Vec<(usize, usize, usize)> = Vec::new();
+    for (ti, tier) in tiers.iter().enumerate() {
+        let candidates: Vec<(usize, usize)> = tier
+            .iter()
+            .enumerate()
+            .filter(|&(_, c)| is_number(c))
+            // その列の最後の語（下に続く語が無い）。
+            .filter(|&(_, c)| !tier.iter().any(|d| d.id != c.id && (center(d) - center(c)).abs() < (c.x1 - c.x) * 0.5 && d.y > c.y))
+            .filter_map(|(ci, c)| {
+                let em = c.x1 - c.x;
+                // すぐ上にある段で、同じ列の語の下端が番号の上にあるもの。
+                let (ui, _) = tiers.iter().enumerate().filter(|&(ui, _)| ui != ti).find_map(|(ui, up)| {
+                    let bottom = up.iter().map(|d| d.y1).fold(f32::NEG_INFINITY, f32::max);
+                    let above = (0.0..em * 2.0).contains(&(c.y - bottom));
+                    let column = up.iter().filter(|d| (center(d) - center(c)).abs() < em * 0.5 && d.y1 <= c.y).count() > 0;
+                    (above && column).then_some((ui, ()))
+                })?;
+                Some((ci, ui))
+            })
+            .collect();
+        if candidates.len() >= 2 {
+            moves.extend(candidates.into_iter().map(|(ci, ui)| (ti, ci, ui)));
+        }
+    }
+    // 後ろの添字から取り出す。
+    moves.sort_by(|a, b| (b.0, b.1).cmp(&(a.0, a.1)));
+    for (ti, ci, ui) in moves {
+        let mut c = tiers[ti].remove(ci);
+        c.text = format!("　{}", c.text);
+        tiers[ui].push(c);
+    }
+    tiers.retain(|t| !t.is_empty());
+    tiers
 }
 
 /// 改正後帯と改正前帯が別々の段に割れた新旧対照表を 1 段に戻す。
