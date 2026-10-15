@@ -1780,7 +1780,7 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
                 // 段の境目は、上の段の上端から 1 段の高さ（約 176pt）の所（字間・表のセルの間の空きではない）。
                 let off_tier = |side: &[Col]| {
                     let top = side.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
-                    (cut - top - TIER_HEIGHT).abs() > 10.0
+                    (cut - top - TIER_HEIGHT).abs() > 16.0
                 };
                 // 段の本文なら、上の段の列の多くは段の下端まで、下の段の列の多くは段の上端から組まれている
                 // （表のセルの列は短く、セルの間の空きで切ると列の多くが境目から離れている）。
