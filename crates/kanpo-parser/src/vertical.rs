@@ -2,7 +2,7 @@
 
 use scraper::{Html, Selector};
 
-use crate::horizontal::{horizontal_lines, is_left_strip_header, row_lines, LEFT_STRIP};
+use crate::horizontal::{horizontal_lines, horizontal_lines_with_tables, is_left_strip_header, row_lines, LEFT_STRIP};
 use crate::normalize::{is_margin_noise, is_toc_page_number, private_cid_glyph, toc_page_numbers, word_text, CidGlyph};
 use crate::shinkyu::{
     band_pair_unit, detect_shinkyu_bands_headerless, detect_shinkyu_header, lines_with_tables_by, reconstruct_shinkyu, split_side_by_side_tables,
@@ -111,7 +111,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         outside: Vec::new(),
                     }
                 }
-                None => Unit::Plain(horizontal_lines(cols)),
+                None => Unit::Plain(horizontal_lines_with_tables(cols, &grids)),
             });
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);

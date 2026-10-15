@@ -12,6 +12,7 @@
 //!
 //! 号外の公告・決算公告など、回転せず縦長のページに横書きで組んだページも同じように読む。
 
+use crate::grid::Grid;
 use crate::trace;
 use crate::vertical::Col;
 
@@ -56,7 +57,191 @@ pub(crate) fn row_lines(cols: Vec<Col>) -> Vec<trace::Line> {
         .collect()
 }
 
+/// 罫線の表（他の枠を含まない格子で、中の語が横組みのもの）を表として組み、残りの語は
+/// [`horizontal_lines`] で行に組んで、表を読み順の位置（表の下か右にある最初の行の手前）に差し込む。
+/// 表の欄の間の溝を列の溝と取り違えて、表が欄ごとに読まれないようにするため。
+pub(crate) fn horizontal_lines_with_tables(cols: Vec<Col>, grids: &[Grid]) -> Vec<trace::Line> {
+    let mut rest = cols;
+    let mut tables: Vec<trace::Table> = Vec::new();
+    for g in grids.iter().filter(|g| g.xs.len() >= 3 && g.ys.len() >= 3 && !grids.iter().any(|o| g.encloses(o))) {
+        let (mine, others): (Vec<Col>, Vec<Col>) = rest.into_iter().partition(|c| g.contains(x_center(c), y_center(c), 0.5));
+        rest = others;
+        match grid_table(g, &mine) {
+            Some(t) => tables.push(t),
+            None => rest.extend(mine),
+        }
+    }
+    if tables.is_empty() {
+        return horizontal_lines(rest);
+    }
+    let geom: std::collections::HashMap<usize, (f32, f32, f32)> = rest.iter().map(|c| (c.id, (c.x, c.x1, c.y))).collect();
+    let mut lines = horizontal_lines(rest);
+    let mut placed: Vec<(usize, trace::Table)> = tables
+        .into_iter()
+        .map(|t| {
+            let after = |l: &trace::Line| {
+                let g: Vec<(f32, f32, f32)> = l.words.iter().filter_map(|w| geom.get(w)).copied().collect();
+                let x0 = g.iter().map(|p| p.0).fold(f32::INFINITY, f32::min);
+                let x1 = g.iter().map(|p| p.1).fold(f32::NEG_INFINITY, f32::max);
+                let y0 = g.iter().map(|p| p.2).fold(f32::INFINITY, f32::min);
+                !g.is_empty() && (x0 >= t.x1 - 2.0 || (x0 < t.x1 && x1 > t.x0 && y0 >= t.y1 - 2.0))
+            };
+            (lines.iter().position(after).unwrap_or(lines.len()), t)
+        })
+        .collect();
+    // 後ろの位置から差し込む。同じ位置には、読み順で後の表（下・右）から差し込む。
+    placed.sort_by(|a, b| b.0.cmp(&a.0).then(b.1.x0.total_cmp(&a.1.x0)).then(b.1.y0.total_cmp(&a.1.y0)));
+    for (at, t) in placed {
+        lines.insert(at, trace::Line { text: t.render(), words: Vec::new(), table: Some(t) });
+    }
+    lines
+}
+
+/// 格子のセルに語を割り当てて横組みの表にする。中の語が横組みでなければ（縦組みの表）、
+/// 字が 1 つのセルにしか無ければ、文章の入ったセル（囲み記事）があれば `None`。
+///
+/// 行を区切る罫線の無い欄（1 つのセルに複数の項目が並ぶ）は、項目ごとの行に分ける。行の頭は、
+/// ほかの欄の行と高さが揃う行（揃わない行はセルの中の折り返し）。
+fn grid_table(g: &Grid, words: &[Col]) -> Option<trace::Table> {
+    // 2 字以上の語の字数で、横長の語が縦長の語より多いこと。
+    let (h_chars, v_chars) = words.iter().fold((0, 0), |(h, v), w| {
+        let n = w.text.chars().count();
+        if n < 2 {
+            (h, v)
+        } else if w.x1 - w.x > w.y1 - w.y {
+            (h + n, v)
+        } else {
+            (h, v + n)
+        }
+    });
+    if words.is_empty() || h_chars <= v_chars {
+        return None;
+    }
+    let mut cell_lines: Vec<Vec<Line>> = vec![Vec::new(); g.cells.len()];
+    {
+        let mut cell_words: Vec<Vec<Col>> = vec![Vec::new(); g.cells.len()];
+        for w in words {
+            if let Some(i) = g.cell_at(x_center(w), y_center(w)) {
+                cell_words[i].push(w.clone());
+            }
+        }
+        for (i, ws) in cell_words.into_iter().enumerate() {
+            cell_lines[i] = group_lines(&ws);
+        }
+    }
+    if cell_lines.iter().filter(|l| !l.is_empty()).count() < 2 {
+        return None;
+    }
+    let prose = cell_lines.iter().any(|ls| {
+        let t: String = ls.iter().flat_map(|l| l.words.iter().map(|w| w.text.as_str())).collect();
+        t.chars().count() > 200 || t.matches('。').count() >= 2
+    });
+    if prose {
+        return None;
+    }
+    // 行の頭の高さ（格子の行ごと）。
+    let ny = g.ys.len() - 1;
+    let mut anchors: Vec<f32> = Vec::new();
+    for r in 0..ny {
+        let band: Vec<usize> = (0..g.cells.len()).filter(|&i| g.cells[i].y0 <= r && r < g.cells[i].y1).collect();
+        anchors.push(g.ys[r]);
+        let (top, bottom) = (g.ys[r], g.ys[r + 1]);
+        for &i in &band {
+            for l in &cell_lines[i] {
+                let c = l.center();
+                // 欄によって字の種類（数字と漢字）で字面の高さが少し違うので、行の高さの 4 割まで。
+                let tol = ((l.y1 - l.y0) * 0.4).max(ALIGN_TOL);
+                let aligned = band
+                    .iter()
+                    .filter(|&&j| g.cells[j].x0 != g.cells[i].x0)
+                    .any(|&j| cell_lines[j].iter().any(|m| (m.center() - c).abs() <= tol));
+                if top < c && c < bottom && aligned {
+                    anchors.push(l.y0 - 0.5);
+                }
+            }
+        }
+    }
+    anchors.sort_by(f32::total_cmp);
+    anchors.dedup_by(|a, b| (*a - *b).abs() < 2.0);
+    let row_of = |y: f32| anchors.iter().rposition(|&a| a <= y).unwrap_or(0);
+    let mut cells: Vec<trace::TableCell> = Vec::new();
+    for (i, ls) in cell_lines.iter().enumerate() {
+        let gc = g.cells[i];
+        let mut by_row: std::collections::BTreeMap<usize, Vec<&Line>> = std::collections::BTreeMap::new();
+        // 縦組みの欄の名前（1 字ずつ縦に積んだ字）は、行に分けずに一番上の行に置く。
+        let all: Vec<&Col> = ls.iter().flat_map(|l| l.words.iter()).collect();
+        let whole = stacked(&all);
+        for l in ls {
+            let row = if whole { row_of(ls[0].center()) } else { row_of(l.center()) };
+            by_row.entry(row).or_default().push(l);
+        }
+        for (row, ls) in by_row {
+            let words: Vec<&Col> = ls.iter().flat_map(|l| l.words.iter()).collect();
+            cells.push(trace::TableCell {
+                row,
+                col: gc.x0,
+                rowspan: 1,
+                colspan: gc.x1 - gc.x0,
+                x0: g.xs[gc.x0],
+                y0: g.ys[gc.y0],
+                x1: g.xs[gc.x1],
+                y1: g.ys[gc.y1],
+                text: if stacked(&words) {
+                    // 縦組みの欄の名前（「負債及び／純資産の部」を 1 字ずつ縦に並べたもの）は、横組みの表の
+                    // 中なので左の列から上→下に読む。
+                    let mut ws = words.clone();
+                    ws.sort_by(|a, b| (x_center(a) / 4.0).round().total_cmp(&(x_center(b) / 4.0).round()).then(a.y.total_cmp(&b.y)));
+                    ws.iter().map(|w| w.text.as_str()).collect()
+                } else {
+                    // セルの右端まで組んだ行の次の行は折り返しの続き（「神奈川県横浜市中」「区」）なのでつなぐ。
+                    let right = g.xs[gc.x1];
+                    let mut text = String::new();
+                    for (k, l) in ls.iter().enumerate() {
+                        if k > 0 {
+                            let prev = ls[k - 1];
+                            let em = (prev.y1 - prev.y0).max(1.0);
+                            let end = prev.words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
+                            if right - end > em * 1.5 {
+                                text.push('\n');
+                            }
+                        }
+                        text.push_str(&render_line(&l.words));
+                    }
+                    text
+                },
+                words: ls.iter().flat_map(|l| l.words.iter().map(|w| w.id)).collect(),
+            });
+        }
+    }
+    // 字の無い行は詰める。
+    let mut used: Vec<usize> = cells.iter().map(|c| c.row).collect();
+    used.sort_unstable();
+    used.dedup();
+    for c in &mut cells {
+        c.row = used.iter().position(|&r| r == c.row).unwrap();
+    }
+    Some(trace::Table {
+        x0: g.left(),
+        y0: g.top(),
+        x1: g.right(),
+        y1: g.bottom(),
+        rows: used.len(),
+        cols: g.xs.len() - 1,
+        cells,
+    })
+}
+
+/// 語が縦に積まれているか（縦組みの欄の名前）。2 語以上で、どの語も 1〜2 字か縦長で、全体が
+/// 横より縦に長い。
+fn stacked(words: &[&Col]) -> bool {
+    let (x0, x1) = words.iter().fold((f32::INFINITY, f32::NEG_INFINITY), |(a, b), w| (a.min(w.x), b.max(w.x1)));
+    let (y0, y1) = words.iter().fold((f32::INFINITY, f32::NEG_INFINITY), |(a, b), w| (a.min(w.y), b.max(w.y1)));
+    let upright = |w: &&Col| (w.text.chars().count() <= 2 && w.x1 - w.x <= (w.y1 - w.y) * 1.5) || w.y1 - w.y > (w.x1 - w.x) * 1.5;
+    words.len() >= 2 && words.iter().all(upright) && y1 - y0 > (x1 - x0) * 1.5
+}
+
 /// 横書きの 1 行（y が重なる語の並び、x 昇順）。
+#[derive(Clone)]
 struct Line {
     y0: f32,
     y1: f32,
@@ -422,6 +607,29 @@ mod tests {
             read(words),
             "Proizvodstvennoe Predpriyatie Zavod Iskra; JSC Research and Production\nEnterprise Plant Iskra; NPP Plant Iskra; NPP Zavod Iskra; Aktsionernoe Obshchestvo"
         );
+    }
+
+    #[test]
+    fn ruled_table_is_read_row_by_row() {
+        use crate::grid::{Grid, GridCell};
+        // 貸借対照表の要旨: 縦組みの欄の名前｜科目｜金額。行を区切る罫線の無いセルに項目が並ぶ。
+        let cell = |x0, x1| GridCell { x0, x1, y0: 0, y1: 1 };
+        let total = GridCell { x0: 0, x1: 3, y0: 1, y1: 2 };
+        let grid = Grid { xs: vec![60.0, 72.0, 200.0, 300.0], ys: vec![100.0, 140.0, 148.0], cells: vec![cell(0, 1), cell(1, 2), cell(2, 3), total] };
+        let mut words = vec![w(62.0, 70.0, 104.0, "資"), w(62.0, 70.0, 112.0, "産"), w(62.0, 70.0, 120.0, "の"), w(62.0, 70.0, 128.0, "部")];
+        for (k, (label, amount)) in [("流動資産", "47,934"), ("固定資産", "3,865"), ("合計", "51,800")].into_iter().enumerate() {
+            let y = 104.0 + 10.0 * k as f32;
+            words.push(w(80.0, 80.0 + 8.0 * label.chars().count() as f32, y, label));
+            words.push(w(300.0 - 4.0 * amount.chars().count() as f32 - 2.0, 298.0, y, amount));
+        }
+        let mut words: Vec<Col> = words.into_iter().enumerate().map(|(id, mut c)| {
+            c.id = id;
+            c
+        }).collect();
+        words.push(Col { id: 99, x: 61.0, x1: 200.0, y: 156.0, y1: 164.0, text: "表の下の文".to_string() });
+        let lines = horizontal_lines_with_tables(words, &[grid]);
+        let texts: Vec<&str> = lines.iter().map(|l| l.text.as_str()).collect();
+        assert_eq!(texts, ["資産の部\u{3000}流動資産\u{3000}47,934\n固定資産\u{3000}3,865\n合計\u{3000}51,800", "表の下の文"]);
     }
 
     #[test]
