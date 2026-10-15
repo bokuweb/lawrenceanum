@@ -27,6 +27,10 @@ pub(crate) struct Col {
 /// ページ上下の余白帯にある柱（「官」「報」「令和 年 月 日」等）を落とすための閾値(pt)。
 pub(crate) const TOP_MARGIN: f32 = 56.0;
 pub(crate) const BOTTOM_MARGIN: f32 = 30.0;
+/// 柱の文字列（「令和８年９月18日」「金曜日」）の行を捨てるのは、上端がこれより上の行だけ(pt)。
+/// 柱は上の余白帯にあり、少しはみ出すものもある。本文の日付の行（告示の日付・決算公告の日付。
+/// 横倒しのページでは本文の行の頭が 61pt あたりに来る）は残す。
+const MARGIN_NOISE_TOP: f32 = TOP_MARGIN + 4.0;
 /// 縦長のページの右の余白帯(pt)。号の 1 ページ目（分冊の先頭ページ）には、綴じ穴の印「○」2 つと
 /// 中央の印「▷」（私用 CID で「才」に化ける）が本文の右の外（x≈570–588）に刷られている。本文の右端は
 /// x≈553 まで。
@@ -1389,7 +1393,7 @@ pub(crate) fn cell_lines(cols: Vec<Col>) -> Vec<Line> {
             row = Some((top, em, cells));
         } else {
             let line = render(cells);
-            if !is_margin_noise(&line.text) {
+            if !(top < MARGIN_NOISE_TOP && is_margin_noise(&line.text)) {
                 lines.push(line);
             }
         }
@@ -1537,7 +1541,8 @@ pub(crate) fn page_lines(cols: Vec<Col>) -> Vec<Line> {
             text.push_str(&c.text);
             prev_end = prev_end.max(c.y1);
         }
-        if is_margin_noise(&text) {
+        let top = g.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+        if top < MARGIN_NOISE_TOP && is_margin_noise(&text) {
             continue;
         }
         lines.push(Line::text(text, g.iter().map(|c| c.id).collect()));
