@@ -632,13 +632,13 @@ fn align_rows_by(
     if !aln.iter().any(|(i, j)| i.is_some() && j.is_some()) {
         return None;
     }
+    let raw: Vec<(String, String)> = aln
+        .into_iter()
+        .map(|(ai, bi)| (ai.map(|i| a[i].text.clone()).unwrap_or_default(), bi.map(|j| b[j].text.clone()).unwrap_or_default()))
+        .filter(|(after, before)| !(after.trim().is_empty() && before.trim().is_empty()))
+        .collect();
     let mut rows: Vec<(String, String)> = Vec::new();
-    for (ai, bi) in aln {
-        let after = ai.map(|i| a[i].text.clone()).unwrap_or_default();
-        let before = bi.map(|j| b[j].text.clone()).unwrap_or_default();
-        if after.trim().is_empty() && before.trim().is_empty() {
-            continue;
-        }
+    for (after, before) in pair_renumbered(raw) {
         // 片側だけの行が、反対側だけの行のすぐ後に続く（見出しの文言が改正で変わった条）なら
         // 1 行にまとめる。新設の条は改正前の欄にも「（新設）」があるので片側が空にはならない。
         if let Some(prev) = rows.last_mut() {
@@ -682,6 +682,76 @@ fn align_rows_by(
         }
     }
     Some(rows.into_iter().map(|(a, b)| ShinkyuRow { after: cell_runs_from_str(&a), before: cell_runs_from_str(&b), ..Default::default() }).collect())
+}
+
+/// 片側だけの行が続くところで、号・条の番号を除いた書き出しが同じ改正後の行と改正前の行を、順序を
+/// 保って 1 行にまとめる。号の繰り下げ（改正後「十八　特定非上場会社…」と改正前「二十二　特定非上場会社…」）
+/// では番号の見出しが揃わず、どちらも片側だけの行になっていた。
+fn pair_renumbered(rows: Vec<(String, String)>) -> Vec<(String, String)> {
+    let empty = |s: &str| s.trim().is_empty();
+    let one_side = |r: &(String, String)| empty(&r.0) != empty(&r.1);
+    let mut out: Vec<(String, String)> = Vec::new();
+    let mut i = 0;
+    while i < rows.len() {
+        if !one_side(&rows[i]) {
+            out.push(rows[i].clone());
+            i += 1;
+            continue;
+        }
+        let end = (i..rows.len()).find(|&k| !one_side(&rows[k])).unwrap_or(rows.len());
+        let seg = &rows[i..end];
+        let a: Vec<&str> = seg.iter().filter(|r| !empty(&r.0)).map(|r| r.0.as_str()).collect();
+        let b: Vec<&str> = seg.iter().filter(|r| !empty(&r.1)).map(|r| r.1.as_str()).collect();
+        let aln = lcs_align_by(a.len(), b.len(), |x, y| same_opening(a[x], b[y]));
+        if a.is_empty() || b.is_empty() || !aln.iter().any(|(x, y)| x.is_some() && y.is_some()) {
+            out.extend(seg.iter().cloned());
+        } else {
+            for (x, y) in aln {
+                out.push((x.map(|x| a[x].to_string()).unwrap_or_default(), y.map(|y| b[y].to_string()).unwrap_or_default()));
+            }
+        }
+        i = end;
+    }
+    out
+}
+
+/// 号・条の番号（「十八　」「第二十条　」）を除いた書き出しが 10 字以上同じか（「〔同上〕」などの印だけの行は除く）。
+fn same_opening(a: &str, b: &str) -> bool {
+    let opening = |s: &str| -> Vec<char> {
+        let first = s.trim().lines().next().unwrap_or("");
+        let rest = first.trim_start_matches(|c: char| "第一二三四五六七八九十百千条の0123456789０１２３４５６７８９".contains(c));
+        rest.trim_start().chars().filter(|c| !c.is_whitespace()).take(10).collect()
+    };
+    let (x, y) = (opening(a), opening(b));
+    x.len() >= 10 && x == y && !x.starts_with(&['〔', '（', '［'])
+}
+
+/// [`lcs_align`] の、要素の一致を `eq(i, j)` で決める版。
+fn lcs_align_by(n: usize, m: usize, eq: impl Fn(usize, usize) -> bool) -> Vec<(Option<usize>, Option<usize>)> {
+    let mut dp = vec![vec![0u32; m + 1]; n + 1];
+    for i in (0..n).rev() {
+        for j in (0..m).rev() {
+            dp[i][j] = if eq(i, j) { dp[i + 1][j + 1] + 1 } else { dp[i + 1][j].max(dp[i][j + 1]) };
+        }
+    }
+    let mut res = Vec::new();
+    let (mut i, mut j) = (0, 0);
+    while i < n && j < m {
+        if eq(i, j) && dp[i][j] == dp[i + 1][j + 1] + 1 {
+            res.push((Some(i), Some(j)));
+            i += 1;
+            j += 1;
+        } else if dp[i + 1][j] >= dp[i][j + 1] {
+            res.push((Some(i), None));
+            i += 1;
+        } else {
+            res.push((None, Some(j)));
+            j += 1;
+        }
+    }
+    res.extend((i..n).map(|i| (Some(i), None)));
+    res.extend((j..m).map(|j| (None, Some(j))));
+    res
 }
 
 /// セルの末尾の、印だけの行（「（新設）」「〔新設〕〔新設〕」など）の印を分ける。`(残り, 印)`。
@@ -999,6 +1069,22 @@ mod tests {
         assert!(rows[1].after[0].text.contains("五重量パーセント"));
         assert!(rows[1].before[0].text.contains("（新設）"));
         assert!(rows[2].before.is_empty());
+    }
+
+    #[test]
+    fn pairs_renumbered_go_rows_by_their_opening() {
+        // 号の繰り下げ（改正前の十八・十九が改正後では二十・二十一）。番号が揃わず片側だけの行に
+        // なっていたが、番号を除いた書き出しが同じ行を組にする。書き出しが違う行は片側のまま。
+        let after = "十七\u{3000}（略）\n二十\u{3000}特定非上場会社の議決権に係る議決権代理行使受任\n\
+                     二十一\u{3000}有価証券の引受けのうち元引受契約に係るもの\n二十二\u{3000}新しく加える号の文である";
+        let before = "十七\u{3000}（略）\n十八\u{3000}特定非上場会社の議決権に係る議決権代理行使受任\n十九\u{3000}有価証券の引受けのうち元引受契約に係るもの";
+        let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
+        let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
+        let text = |r: &[Run]| r.iter().map(|x| x.text.as_str()).collect::<String>();
+        let row = |k: &str| rows.iter().find(|r| text(&r.after).starts_with(k)).unwrap();
+        assert!(text(&row("二十\u{3000}").before).starts_with("十八"), "{rows:?}");
+        assert!(text(&row("二十一").before).starts_with("十九"), "{rows:?}");
+        assert!(row("二十二").before.is_empty(), "{rows:?}");
     }
 
     #[test]

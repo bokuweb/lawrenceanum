@@ -184,7 +184,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         //   （例: 郵便+型式認定）は段(tier)単位で扱う必要があるため、ここでは除外する。
         let headerless = detect_shinkyu_header(&cols)
             .is_none()
-            .then(|| detect_shinkyu_bands_headerless(&cols, height))
+            .then(|| detect_shinkyu_bands_headerless(&cols, height).or_else(|| prev_table.then(|| marker_band_divider(&cols, height)).flatten()))
             .flatten();
         if let Some(divider) = headerless {
             layout = "headerless_shinkyu";
@@ -338,6 +338,31 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         });
     }
     pages
+}
+
+/// 前のページの新旧対照表の続きで、下の帯（改正前の欄）が「（新設）」「（削る）」「（略）」「〔同上〕」などの
+/// 印の語だけのページの、上下の帯の境目（号外第 215 号 93 ページ: 新設の条が続き、改正前の欄は「（新設）」
+/// だけ）。上下の帯の文が似ていないので [`detect_shinkyu_bands_headerless`] では見つからず、下の帯の印が
+/// 上の帯の同じ列の続きとしてつながっていた。印より上に印でない語が 3 つ以上あり、印でない語がすべて
+/// 印より上にあって、境目が紙面の中ほど（0.35〜0.7）にあるときだけ。
+fn marker_band_divider(cols: &[Col], height: f32) -> Option<f32> {
+    let marker = |c: &Col| {
+        let t: String = c.text.chars().filter(|ch| !ch.is_whitespace()).collect();
+        let inner = t.strip_prefix(['（', '〔', '［']).and_then(|r| r.strip_suffix(['）', '〕', '］']));
+        inner.is_some_and(|i| matches!(i, "新設" | "削る" | "略" | "同上" | "同左"))
+    };
+    let (marks, body): (Vec<&Col>, Vec<&Col>) = cols.iter().partition(|c| marker(c));
+    let marks: Vec<&Col> = marks.into_iter().filter(|c| (c.y + c.y1) / 2.0 > height * 0.35).collect();
+    if marks.is_empty() || body.len() < 3 {
+        return None;
+    }
+    let mark_top = marks.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+    let body_bottom = body.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+    if body_bottom > mark_top - 2.0 {
+        return None;
+    }
+    let divider = (body_bottom + mark_top) / 2.0;
+    (height * 0.35..=height * 0.7).contains(&divider).then_some(divider)
 }
 
 /// 見出しの無い新旧対照表のページで、帯の境目 `divider` をまたぐ長い列（3 列以上）があれば、
@@ -1947,6 +1972,23 @@ mod tests {
         assert_eq!((v.x0, v.y0, v.x1, v.y1), (96.0, 108.0, 104.0, 188.0));
         let h = w("横組みの語の並びです");
         assert_eq!((h.x0, h.y0, h.x1, h.y1), (200.0, 300.0, 280.0, 308.0));
+    }
+
+    #[test]
+    fn finds_lower_band_of_only_marks() {
+        // 新設の条が続く新旧対照表の続きのページ: 上の帯に改正後の条文、下の帯に改正前の「（新設）」だけ。
+        let col = |x: f32, y: f32, y1: f32, t: &str| Col { id: 0, x, x1: x + 8.0, y, y1, text: t.to_string() };
+        let mut cols = vec![
+            col(500.0, 60.0, 380.0, "第九十八条の十四　医薬部外品の製造業者は"),
+            col(488.0, 60.0, 380.0, "号のいずれかに該当する責任技術者を"),
+            col(476.0, 60.0, 300.0, "一　薬剤師"),
+            col(500.0, 440.0, 472.0, "（新設）"),
+        ];
+        let divider = marker_band_divider(&cols, 842.0).unwrap();
+        assert!(380.0 < divider && divider < 440.0);
+        // 印でない語が下の帯にもあれば違う。
+        cols.push(col(300.0, 450.0, 600.0, "改正前の条文"));
+        assert_eq!(marker_band_divider(&cols, 842.0), None);
     }
 
     #[test]
