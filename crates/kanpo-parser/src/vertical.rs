@@ -1621,10 +1621,16 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
         best = best_free;
     }
 
-    let Some((crossing, _, cut, _, _)) = best else {
+    let Some((crossing, touches, cut, _, _)) = best else {
         out.push(cols);
         return;
     };
+    // 段より十分低い領域を字間ほどの空きでしか切れなければ段の境目ではない（横倒しの号外の 1 ページの
+    // 題字の下の横組みの欄「（号外）」「発行　内閣府」の行の間）。
+    if touches && ymax - ymin < 60.0 {
+        out.push(cols);
+        return;
+    }
     // それでも表を横切るなら、表を割らずに表の脇で縦に切る。表の左に語があれば表の左端で、
     // 無ければ表の右端で切り、右側から順に段へ分ける。表が段の幅いっぱいなら切らない。
     if let Some(&(x0, x1, _, _)) = table_at(cut) {
