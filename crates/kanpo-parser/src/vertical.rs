@@ -72,6 +72,8 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     let mut prev_table = false;
     // 前のページの、改正後・改正前の列の組が横に並ぶ新旧対照表の列の幅。
     let mut prev_pairs: Option<f32> = None;
+    // 前のページが横書きの 2 列の新旧対照表か。
+    let mut prev_two_columns = false;
     for (pi, page) in doc.select(&page_sel).enumerate() {
         let (width, height) = page_size(page);
         let page_rules: Option<&PageRules> = rules.get(pi).and_then(|r| r.as_ref());
@@ -94,15 +96,40 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         if rotated || is_horizontal_page(&cols) {
             layout = "horizontal";
             let mut pairs_here = None;
+            let mut two_columns_here = false;
             // 表の続きの後ろに同じページで始まる次の記事。
             let mut tail = None;
-            units.push(match split_horizontal_shinkyu(&cols) {
-                // 横書きの新旧対照表: 左の列が改正後、右の列が改正前。
-                Some(mid) => {
+            let vrules: Vec<(f32, f32, f32)> = page_rules.map(|r| r.vertical.iter().map(|v| (v.x, v.y0, v.y1)).collect()).unwrap_or_default();
+            units.push(match split_horizontal_shinkyu(&cols, prev_table && prev_two_columns) {
+                // 横書きの新旧対照表: 左の列が改正後、右の列が改正前。欄見出しより上は前文。
+                Some((mid, label_y, label_ids)) => {
+                    two_columns_here = true;
+                    let (pre, cols): (Vec<Col>, Vec<Col>) =
+                        cols.into_iter().filter(|c| !label_ids.contains(&c.id)).partition(|c| c.y1 <= label_y + 1.0);
+                    // 表の下端は改正後・改正前の欄の境の縦の罫線の下端。それより下（表の後ろの別の記事）は表の外。
+                    // 罫線は行ごとに途切れて描かれることがあるので、間の詰まった線はつなぐ。
+                    let top = cols.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+                    let mut near: Vec<(f32, f32)> = vrules.iter().filter(|&&(x, _, _)| (x - mid).abs() < 15.0).map(|&(_, y0, y1)| (y0, y1)).collect();
+                    near.sort_by(|a, b| a.0.total_cmp(&b.0));
+                    let mut bottom = f32::NEG_INFINITY;
+                    for (y0, y1) in near {
+                        if (!bottom.is_finite() && y0 <= top + 20.0) || (bottom.is_finite() && y0 <= bottom + 6.0) {
+                            bottom = bottom.max(y1);
+                        }
+                    }
+                    if bottom - top < 50.0 {
+                        bottom = f32::NEG_INFINITY;
+                    }
+                    let (cols, after_table): (Vec<Col>, Vec<Col>) =
+                        cols.into_iter().partition(|c| !bottom.is_finite() || c.y < bottom + 2.0);
+                    if !after_table.is_empty() {
+                        two_columns_here = false;
+                        tail = Some(Unit::Plain(horizontal_lines_with_tables(after_table, &grids, &vrules)));
+                    }
                     let (left, right): (Vec<Col>, Vec<Col>) = cols.into_iter().partition(|c| c.x1 <= mid);
                     // 欄見出し（「改　正　後」）だけの行は本文ではない。
                     let body = |cols: Vec<Col>| -> Vec<Line> {
-                        let mut lines = horizontal_lines(cols);
+                        let mut lines = horizontal_lines_with_tables(cols, &grids, &vrules);
                         let label = |l: &Line| matches!(l.text.chars().filter(|c| !c.is_whitespace()).collect::<String>().as_str(), "改正後" | "改正前");
                         if lines.first().is_some_and(label) {
                             lines.remove(0);
@@ -110,14 +137,13 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         lines
                     };
                     Unit::Shinkyu {
-                        preamble: Vec::new(),
+                        preamble: horizontal_lines(pre),
                         after: vec![body(left)],
                         before: vec![body(right)],
                         outside: Vec::new(),
                     }
                 }
                 None => {
-                    let vrules: Vec<(f32, f32, f32)> = page_rules.map(|r| r.vertical.iter().map(|v| (v.x, v.y0, v.y1)).collect()).unwrap_or_default();
                     match split_horizontal_shinkyu_pairs(&cols, prev_pairs.filter(|_| prev_table)) {
                         Some((unit, rest, geometry)) => {
                             if rest.is_empty() {
@@ -136,6 +162,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
             prev_pairs = pairs_here;
+            prev_two_columns = two_columns_here;
             let regions: Vec<_> = units.into_iter().enumerate().flat_map(|(i, u)| u.regions(i)).collect();
             mark_unused(&mut words, &regions, &merged);
             pages.push(PageTrace {
@@ -296,6 +323,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         let (doc_text, tables) = doc_text_of(&units, &mut table_count);
         prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
         prev_pairs = None;
+        prev_two_columns = false;
         let regions: Vec<_> = units.into_iter().enumerate().flat_map(|(i, u)| u.regions(i)).collect();
         mark_unused(&mut words, &regions, &merged);
         pages.push(PageTrace {
@@ -542,11 +570,54 @@ fn is_horizontal_page(cols: &[Col]) -> bool {
     horizontal > vertical
 }
 
-/// 横書きの新旧対照表（左右 2 列）なら左右の境目の x を返す。
+/// 欄見出し「改正後」「改正前」（`last` が「後」か「前」）の (左端, 右端, 上端, 語の ID)。字間を空けた
+/// 1 字ずつの語（「改　正　後」）か、1 語の「改正後」。
+fn shinkyu_labels(cols: &[Col], last: char) -> Vec<(f32, f32, f32, Vec<usize>)> {
+    let one = |c: &Col, ch: char| c.text.trim() == ch.to_string();
+    let mut out: Vec<(f32, f32, f32, Vec<usize>)> = cols
+        .iter()
+        .filter(|c| c.text.chars().filter(|ch| !ch.is_whitespace()).eq(['改', '正', last]))
+        .map(|c| (c.x, c.x1, c.y, vec![c.id]))
+        .collect();
+    for k in cols.iter().filter(|c| one(c, '改')) {
+        let em = (k.y1 - k.y).max(1.0);
+        let row = |ch: char| cols.iter().filter(move |c| one(c, ch) && (c.y - k.y).abs() < 2.0 && c.x > k.x && c.x - k.x < em * 16.0);
+        if let (Some(z), Some(e)) = (row('正').min_by(|p, q| p.x.total_cmp(&q.x)), row(last).min_by(|p, q| p.x.total_cmp(&q.x))) {
+            if z.x < e.x {
+                out.push((k.x, e.x1, k.y, vec![k.id, z.id, e.id]));
+            }
+        }
+    }
+    out
+}
+
+/// 横書きの新旧対照表（左右 2 列）なら左右の境目の x と、欄見出しの上端・語（あれば）を返す。
+///
+/// 欄見出し「改正後」「改正前」（字間を空けた 1 字ずつの語も）が左右に 1 つずつあれば、その間で、欄見出しより
+/// 下の語がまたがない切れ目を境目にする（欄見出しより上の紙面の幅いっぱいの前文は境目の判定に使わない）。
 ///
 /// ページ中央付近に、横組みの語が 1 つもまたがない縦の切れ目があり、左右の同じ高さに
-/// 対応する行（同じ文、または改正前欄の「〔同左〕」）が並ぶなら新旧対照表とみなす。
-fn split_horizontal_shinkyu(cols: &[Col]) -> Option<f32> {
+/// 対応する行（同じ文、または改正前欄の「〔同左〕」）が並ぶなら新旧対照表とみなす。前のページが
+/// 横書きの新旧対照表なら（`continuation`）、欄見出しの無い続きのページも同じ文が並べば表とする。
+fn split_horizontal_shinkyu(cols: &[Col], continuation: bool) -> Option<(f32, f32, Vec<usize>)> {
+    if let ([a], [b]) = (shinkyu_labels(cols, '後').as_slice(), shinkyu_labels(cols, '前').as_slice()) {
+        let (page_x0, page_x1) = cols.iter().fold((f32::INFINITY, f32::NEG_INFINITY), |(p, q), c| (p.min(c.x), q.max(c.x1)));
+        // 改正後・改正前の組が横に 2 組以上入る幅のページは [`split_horizontal_shinkyu_pairs`] が見る。
+        let pairs = page_x1 - page_x0 >= ((a.0 + a.1) - (b.0 + b.1)).abs() / 2.0 * 3.5;
+        if (a.2 - b.2).abs() <= 2.0 && a.1 < b.0 && !pairs {
+            let ids: Vec<usize> = a.3.iter().chain(&b.3).copied().collect();
+            let below: Vec<&Col> = cols.iter().filter(|c| c.y > a.2 + 1.0 && !ids.contains(&c.id)).collect();
+            let center = (a.1 + b.0) / 2.0;
+            let mid = below
+                .iter()
+                .map(|c| c.x1 + 1.0)
+                .filter(|&x| x > a.1 && x < b.0 && !below.iter().any(|d| d.x < x && x < d.x1))
+                .min_by(|p, q| (p - center).abs().total_cmp(&(q - center).abs()));
+            if let Some(mid) = mid {
+                return Some((mid, a.2, ids));
+            }
+        }
+    }
     let body: Vec<&Col> = cols.iter().filter(|c| (c.x1 - c.x) > (c.y1 - c.y)).collect();
     if body.len() < 10 {
         return None;
@@ -573,7 +644,7 @@ fn split_horizontal_shinkyu(cols: &[Col]) -> Option<f32> {
     // 改正前欄の省略記法「同左」か、欄見出しの「改正後」「改正前」があることも求める。
     let same_left = r.iter().filter(|c| c.text.contains("同左")).count();
     let labels = ["改正後", "改正前"].iter().all(|lb| cols.iter().any(|c| c.text.trim() == *lb));
-    (matched >= 5 && matched * 10 >= r.len() * 3 && (same_left >= 2 || labels)).then_some(mid)
+    (matched >= 5 && matched * 10 >= r.len() * 3 && (same_left >= 2 || labels || continuation)).then_some((mid, f32::NEG_INFINITY, Vec::new()))
 }
 
 /// 横向きのページで、改正後・改正前の列の組が横に 2 組以上並ぶ新旧対照表（本紙第 1760 号 3 ページ:
@@ -587,25 +658,7 @@ fn split_horizontal_shinkyu(cols: &[Col]) -> Option<f32> {
 /// 前のページの列の幅（`prev`）で、左の列から交互に分ける。次の記事の標題（「〇…」）のある列から後ろは
 /// 表の外として返す。戻り値は（表, 表の外の語, 次のページに渡す列の幅）。
 fn split_horizontal_shinkyu_pairs(cols: &[Col], prev: Option<f32>) -> Option<(Unit, Vec<Col>, f32)> {
-    // 欄見出し（字間を空けた 1 字ずつの語「改　正　後」か、1 語の「改正後」）の (左端, 右端, 上端, 語の ID)。
-    let labels = |last: char| -> Vec<(f32, f32, f32, Vec<usize>)> {
-        let one = |c: &Col, ch: char| c.text.trim() == ch.to_string();
-        let mut out: Vec<(f32, f32, f32, Vec<usize>)> = cols
-            .iter()
-            .filter(|c| c.text.chars().filter(|ch| !ch.is_whitespace()).eq(['改', '正', last]))
-            .map(|c| (c.x, c.x1, c.y, vec![c.id]))
-            .collect();
-        for k in cols.iter().filter(|c| one(c, '改')) {
-            let em = (k.y1 - k.y).max(1.0);
-            let row = |ch: char| cols.iter().filter(move |c| one(c, ch) && (c.y - k.y).abs() < 2.0 && c.x > k.x && c.x - k.x < em * 16.0);
-            if let (Some(z), Some(e)) = (row('正').min_by(|p, q| p.x.total_cmp(&q.x)), row(last).min_by(|p, q| p.x.total_cmp(&q.x))) {
-                if z.x < e.x {
-                    out.push((k.x, e.x1, k.y, vec![k.id, z.id, e.id]));
-                }
-            }
-        }
-        out
-    };
+    let labels = |last: char| shinkyu_labels(cols, last);
     let (after, before) = (labels('後'), labels('前'));
     let center = |l: &(f32, f32, f32, Vec<usize>)| (l.0 + l.1) / 2.0;
     // (列の幅, 欄見出しの高さ, 改正前の欄見出しの中心, 欄見出しの語, 改正後の欄見出しの中心)。
