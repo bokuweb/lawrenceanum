@@ -231,13 +231,19 @@ fn grid_table(g: &Grid, words: &[Col]) -> Option<trace::Table> {
     })
 }
 
-/// 語が縦に積まれているか（縦組みの欄の名前）。2 語以上で、どの語も 1〜2 字か縦長で、全体が
+/// 語が縦に積まれているか（縦組みの欄の名前）。2 語・3 字以上で、どの語も 1〜2 字か縦長で、全体が
 /// 横より縦に長い。
 fn stacked(words: &[&Col]) -> bool {
     let (x0, x1) = words.iter().fold((f32::INFINITY, f32::NEG_INFINITY), |(a, b), w| (a.min(w.x), b.max(w.x1)));
     let (y0, y1) = words.iter().fold((f32::INFINITY, f32::NEG_INFINITY), |(a, b), w| (a.min(w.y), b.max(w.y1)));
     let upright = |w: &&Col| (w.text.chars().count() <= 2 && w.x1 - w.x <= (w.y1 - w.y) * 1.5) || w.y1 - w.y > (w.x1 - w.x) * 1.5;
-    words.len() >= 2 && words.iter().all(upright) && y1 - y0 > (x1 - x0) * 1.5
+    // 同じ欄に縦に並んだ「〃」（行ごとの繰り返しの印）は欄の名前ではない。
+    let text: String = words.iter().map(|w| w.text.as_str()).collect();
+    words.len() >= 2
+        && text.chars().count() >= 3
+        && !text.chars().all(|c| c == '〃')
+        && words.iter().all(upright)
+        && y1 - y0 > (x1 - x0) * 1.5
 }
 
 /// 横書きの 1 行（y が重なる語の並び、x 昇順）。
