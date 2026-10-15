@@ -1076,7 +1076,10 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
         let in_margin = if rotated {
             gx1 <= LEFT_STRIP
         } else {
-            gy1 <= TOP_MARGIN || gy >= height - BOTTOM_MARGIN || (!sideways && gx >= page_width - RIGHT_MARGIN)
+            // 横倒しのページは回した座標の高さが表示の幅（`page_width`）。表示の高さで見ると、表示の右の
+            // 3 割ほど（号外226 p25 の 4 段目、座標の表の右端の欄）が余白として捨てられていた。
+            let bottom = if sideways { page_width } else { height };
+            gy1 <= TOP_MARGIN || gy >= bottom - BOTTOM_MARGIN || (!sideways && gx >= page_width - RIGHT_MARGIN)
         };
         let status = if in_margin {
             WordStatus::Margin
