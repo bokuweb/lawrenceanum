@@ -73,7 +73,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     for (pi, page) in doc.select(&page_sel).enumerate() {
         let (width, height) = page_size(page);
         let page_rules: Option<&PageRules> = rules.get(pi).and_then(|r| r.as_ref());
-        let (cols, mut words, rotated, sideways) = page_words_traced(page, width, height);
+        let (cols, mut words, rotated, sideways, merged) = page_words_traced(page, width, height);
         // 横倒しの縦書きページは語の座標を回して使うので、回していない罫線の枠は使わない。
         let grids: Vec<Grid> = if sideways {
             Vec::new()
@@ -117,7 +117,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
             let regions: Vec<_> = units.into_iter().enumerate().flat_map(|(i, u)| u.regions(i)).collect();
-            mark_unused(&mut words, &regions);
+            mark_unused(&mut words, &regions, &merged);
             pages.push(PageTrace {
                 width,
                 height,
@@ -276,7 +276,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         let (doc_text, tables) = doc_text_of(&units, &mut table_count);
         prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
         let regions: Vec<_> = units.into_iter().enumerate().flat_map(|(i, u)| u.regions(i)).collect();
-        mark_unused(&mut words, &regions);
+        mark_unused(&mut words, &regions, &merged);
         pages.push(PageTrace {
             width,
             height,
@@ -421,13 +421,16 @@ fn drop_stray_labels(mut lines: Vec<Line>) -> Vec<Line> {
 }
 
 /// 行に組まれなかった語に、捨てた理由（欄見出しのラベルか柱の行）を付ける。
-fn mark_unused(words: &mut [Word], regions: &[crate::trace::Region]) {
+fn mark_unused(words: &mut [Word], regions: &[crate::trace::Region], merged: &[(usize, usize)]) {
     // 表の行は語をセルの側に持つ。
-    let used: std::collections::HashSet<usize> = regions
+    let mut used: std::collections::HashSet<usize> = regions
         .iter()
         .flat_map(|r| r.lines.iter())
         .flat_map(|l| l.words.iter().copied().chain(l.table.iter().flat_map(|t| t.cells.iter().flat_map(|c| c.words.iter().copied()))))
         .collect();
+    // 割注にまとめた語は、まとめた先の語が組まれていれば組まれている。
+    let extra: Vec<usize> = merged.iter().filter(|(_, owner)| used.contains(owner)).map(|&(id, _)| id).collect();
+    used.extend(extra);
     for w in words.iter_mut().filter(|w| w.status == WordStatus::Used && !used.contains(&w.id)) {
         w.status = if matches!(w.text.as_str(), "改" | "正" | "後" | "前") {
             WordStatus::HeaderLabel
@@ -559,7 +562,9 @@ fn split_horizontal_shinkyu(cols: &[Col]) -> Option<f32> {
 /// 回転ページの柱は上端ではなく左端の帯に縦に並ぶ（上端の帯には本文が来る）ので、
 /// 左端の帯に収まる語を柱として落とす（[`is_left_strip_header`]）。
 /// 戻り値は（語の列、表示用の語、回転ページか、横倒しの縦書きページか）。
-fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) -> (Vec<Col>, Vec<Word>, bool, bool) {
+/// 戻り値の最後は割注にまとめて消えた語 `(語, まとめた先の語)`（[`merge_warichu`]）。
+#[allow(clippy::type_complexity)]
+fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>) {
     let word_sel = Selector::parse("word").unwrap();
     let line_sel = Selector::parse("line").unwrap();
     // (x0, y0, x1, y1, raw)
@@ -707,8 +712,8 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
             status,
         });
     }
-    merge_warichu(&mut cols);
-    (cols, words, rotated, sideways)
+    let merged = merge_warichu(&mut cols);
+    (cols, words, rotated, sideways, merged)
 }
 
 /// 枠のセルに文章（200 字を超える、または 2 文以上）が入っているか。公告の囲み記事などの
@@ -752,7 +757,8 @@ fn vertical_inside(cols: &[Col], g: &Grid) -> bool {
 /// 右半分が字間を空けた 1 字ずつの語（漢字・かな）のとき（「大　蔵　省」）はまとめて右半分とし、
 /// 行頭の割注（上に親の列が無い）は、そのように字間を空けた右半分と左半分の上下がそろうものを
 /// 割注とする。
-fn merge_warichu(cols: &mut Vec<Col>) {
+fn merge_warichu(cols: &mut Vec<Col>) -> Vec<(usize, usize)> {
+    let mut merged = Vec::new();
     let mut i = 0;
     while i < cols.len() {
         let w = cols[i].x1 - cols[i].x;
@@ -872,6 +878,8 @@ fn merge_warichu(cols: &mut Vec<Col>) {
         };
         let mut gone: Vec<usize> = left.iter().copied().chain(spaced.iter().skip(1).copied()).collect();
         gone.sort_unstable();
+        // 左半分の語で残りを列に戻したもの（`rest`）は、その語のまま組まれる。
+        merged.extend(gone.iter().map(|&j| cols[j].id).filter(|id| !rest.iter().any(|c| c.id == *id)).map(|id| (id, r.id)));
         let mut removed = 0;
         for &j in gone.iter().rev() {
             cols.remove(j);
@@ -883,6 +891,7 @@ fn merge_warichu(cols: &mut Vec<Col>) {
         cols.extend(rest);
         i += 1;
     }
+    merged
 }
 
 /// `Col`（縦書き 1 カラム語）から、別表復元で使う中心 y 付きの語へ。
