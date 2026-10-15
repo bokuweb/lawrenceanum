@@ -181,12 +181,15 @@ fn number_continues(prev: &Col, next: &Col) -> bool {
         && next.text.chars().next().is_some_and(digitish)
 }
 
-/// 溝の左が項目番号の列か（「384」「385」… が各項目の最初の行の左に置かれる）。左の語がすべて
-/// 4 桁までの数字で、どれも右の語のすぐ左に同じ高さで並ぶなら、番号は項目の行の頭とみなす。
+/// 溝の左が項目番号の列か（「384」「385」…、「第二」「一」「二」が各項目の最初の行の左に置かれる）。
+/// 左の語がすべて 4 字までの数字・漢数字（「第」付きも）で、どれも右の語のすぐ左に同じ高さで並ぶなら、
+/// 番号は項目の行の頭とみなす。
 fn item_numbers(left: &[Col], right: &[Col]) -> bool {
     let number = |w: &Col| {
         let t = w.text.trim();
-        (1..=4).contains(&t.chars().count()) && t.chars().all(|c| c.is_ascii_digit() || ('０'..='９').contains(&c))
+        (1..=4).contains(&t.chars().count())
+            && (t.chars().all(|c| c.is_ascii_digit() || ('０'..='９').contains(&c))
+                || t.trim_start_matches('第').chars().all(|c| "〇一二三四五六七八九十".contains(c)) && t != "第")
     };
     left.len() >= 2
         && left.iter().all(|n| {
@@ -451,6 +454,20 @@ mod tests {
         assert_eq!(
             read(words),
             "384\u{3000}株式会社アエロエレクトロマシュ\nJoint Stock Company Aeroelektromash\n385\u{3000}株式会社モトヴィリチャ・プランツ"
+        );
+        // 漢数字の項目番号（「第二」「一」「二」）も同じ。
+        let words = vec![
+            w(61.0, 77.0, 100.0, "第二"),
+            w(85.0, 245.0, 100.0, "くろまぐろ（大型魚）"),
+            w(69.0, 77.0, 112.0, "一"),
+            w(85.0, 245.0, 112.0, "漁獲可能量（法第15条第１項第１号関"),
+            w(85.0, 101.0, 124.0, "係）"),
+            w(69.0, 77.0, 136.0, "二"),
+            w(85.0, 245.0, 136.0, "都道府県別漁獲可能量（法第15条第１"),
+        ];
+        assert_eq!(
+            read(words),
+            "第二\u{3000}くろまぐろ（大型魚）\n一\u{3000}漁獲可能量（法第15条第１項第１号関\n係）\n二\u{3000}都道府県別漁獲可能量（法第15条第１"
         );
     }
 
