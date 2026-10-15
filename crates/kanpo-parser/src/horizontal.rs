@@ -241,9 +241,11 @@ fn band_cut(lines: &[Line]) -> Option<f32> {
     best.map(|(_, cut)| cut)
 }
 
-/// 欧文の語間とみなす空き(em 比)。語間は 0.4〜0.5 em ほど（「30 by 30」のように字の種類の
-/// 切り替えで 0.25 em ほど空くものは詰める）。
-const LATIN_SPACE_EM: f32 = 0.3;
+/// 欧文の行で語間とみなす空き(em 比)。両端揃えで詰めた行は語間が 0.28 em ほどになる。
+const LATIN_SPACE_EM: f32 = 0.2;
+/// 和文の行の中の欧文で語間とみなす空き(em 比)。字の種類の切り替えで 0.25 em ほど空く
+/// （「〇30 by 30目標」）ものは詰める。
+const MIXED_LATIN_SPACE_EM: f32 = 0.3;
 
 /// 欧文の語と語の境目か（「Zavod Iskra; JSC Research」）。数字どうし（表の金額の桁の
 /// 区切りで語が割れた「3,415,」「549」）は語間にしない。
@@ -259,12 +261,15 @@ fn latin_word_break(prev: &str, next: &str) -> bool {
 /// 1 行の語（x 昇順）を連結する。
 ///
 /// - 1em の 3/4 以上空いていれば全角空白を挟む（「佐賀労働局長　田之上英治」、表のセル境界）。
-/// - 欧文の語と語の間は半角空白を挟む（[`latin_word_break`]）。
+/// - 欧文の語と語の間は半角空白を挟む（[`latin_word_break`]。空きの下限は欧文の行と和文の行で変える）。
 /// - 1 字ずつの語が並ぶ字間空けの見出し（「労　働」「公　告」「附　則」「名　　称」、表の欄見出し
 ///   「改　　正　　後」は 7em 空き）は詰めて 1 語にする。ただし字間が急に広がったところ
 ///   （表の次のセル）では区切る。
 fn render_line(words: &[Col]) -> String {
     let mut s = String::new();
+    let chars = || words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace());
+    let latin_line = chars().filter(|c| c.is_ascii_alphabetic()).count() * 2 >= chars().count();
+    let space_em = if latin_line { LATIN_SPACE_EM } else { MIXED_LATIN_SPACE_EM };
     for (i, (w, joined)) in words.iter().zip(letter_spaced(words, false)).enumerate() {
         if i > 0 && !joined {
             let p = &words[i - 1];
@@ -275,7 +280,7 @@ fn render_line(words: &[Col]) -> String {
             let letters = s.chars().last().is_some_and(|c| c.is_ascii_alphabetic() || matches!(c, ';' | ','))
                 && w.text.chars().next().is_some_and(|c| c.is_ascii_alphabetic());
             let wide = if letters { em * 2.0 } else { em * 0.75 };
-            if (em * LATIN_SPACE_EM..wide).contains(&gap) && latin_word_break(&s, &w.text) {
+            if (em * space_em..wide).contains(&gap) && latin_word_break(&s, &w.text) {
                 s.push(' ');
             } else if gap >= em * 0.75 {
                 s.push('\u{3000}');
