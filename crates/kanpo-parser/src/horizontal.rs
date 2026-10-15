@@ -159,13 +159,30 @@ fn column_cut(words: &[Col]) -> Option<f32> {
         if right_edge.is_finite() && a - right_edge >= MIN_GUTTER {
             let cut = (right_edge + a) / 2.0;
             let (left, right): (Vec<Col>, Vec<Col>) = words.iter().cloned().partition(|w| x_center(w) < cut);
-            if !latin_word_gap(words, cut) && is_column_split(&left, &right) {
+            if !latin_word_gap(words, cut) && !item_numbers(&left, &right) && is_column_split(&left, &right) {
                 return Some(cut);
             }
         }
         right_edge = right_edge.max(b);
     }
     None
+}
+
+/// 溝の左が項目番号の列か（「384」「385」… が各項目の最初の行の左に置かれる）。左の語がすべて
+/// 4 桁までの数字で、どれも右の語のすぐ左に同じ高さで並ぶなら、番号は項目の行の頭とみなす。
+fn item_numbers(left: &[Col], right: &[Col]) -> bool {
+    let number = |w: &Col| {
+        let t = w.text.trim();
+        (1..=4).contains(&t.chars().count()) && t.chars().all(|c| c.is_ascii_digit() || ('０'..='９').contains(&c))
+    };
+    left.len() >= 2
+        && left.iter().all(|n| {
+            let em = (n.y1 - n.y).max(1.0);
+            number(n)
+                && right
+                    .iter()
+                    .any(|w| (y_center(w) - y_center(n)).abs() <= ALIGN_TOL && w.x >= n.x1 && w.x - n.x1 < em * 2.0)
+        })
 }
 
 /// 溝が欧文の語間か。両端揃えの欧文の段落では、語間がたまたま行をまたいで縦に揃い、列の溝に
@@ -388,6 +405,22 @@ mod tests {
         assert_eq!(
             read(words),
             "Proizvodstvennoe Predpriyatie Zavod Iskra; JSC Research and Production\nEnterprise Plant Iskra; NPP Plant Iskra; NPP Zavod Iskra; Aktsionernoe Obshchestvo"
+        );
+    }
+
+    #[test]
+    fn item_numbers_stay_at_the_head_of_their_rows() {
+        // 項目番号（「384」）は、項目の最初の行の頭に付ける（番号の列として先にまとめない）。
+        let words = vec![
+            w(61.0, 73.0, 114.0, "384"),
+            w(81.0, 201.0, 114.0, "株式会社アエロエレクトロマシュ"),
+            w(81.0, 240.0, 127.0, "Joint Stock Company Aeroelektromash"),
+            w(61.0, 73.0, 194.0, "385"),
+            w(81.0, 209.0, 194.0, "株式会社モトヴィリチャ・プランツ"),
+        ];
+        assert_eq!(
+            read(words),
+            "384\u{3000}株式会社アエロエレクトロマシュ\nJoint Stock Company Aeroelektromash\n385\u{3000}株式会社モトヴィリチャ・プランツ"
         );
     }
 
