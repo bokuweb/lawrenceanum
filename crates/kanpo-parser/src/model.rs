@@ -712,11 +712,10 @@ fn spread_marks_back(rows: &mut [(String, String)]) {
 
 /// セルが印（「（新設）」「（削る）」など）だけなら、その印の列（1 行に並ぶものも分ける）。印以外があれば空。
 fn only_marks(text: &str) -> Vec<String> {
-    const MARKS: [&str; 6] = ["（新設）", "〔新設〕", "［新設］", "（削る）", "〔削る〕", "［削る］"];
     let mut out = Vec::new();
     for line in text.lines() {
         let mut rest = line.trim();
-        while let Some(m) = MARKS.iter().find(|m| rest.starts_with(**m)) {
+        while let Some(m) = leading_mark(rest) {
             out.push(m.to_string());
             rest = rest[m.len()..].trim_start();
         }
@@ -758,14 +757,16 @@ fn pair_renumbered(rows: Vec<(String, String)>) -> Vec<(String, String)> {
     out
 }
 
+/// 号・条の番号（「十八　」「第二十条　」）を除いた書き出し 10 字。
+fn opening_of(s: &str) -> Vec<char> {
+    let first = s.trim().lines().next().unwrap_or("");
+    let rest = first.trim_start_matches(|c: char| "第一二三四五六七八九十百千条の0123456789０１２３４５６７８９".contains(c));
+    rest.trim_start().chars().filter(|c| !c.is_whitespace()).take(10).collect()
+}
+
 /// 号・条の番号（「十八　」「第二十条　」）を除いた書き出しが 10 字以上同じか（「〔同上〕」などの印だけの行は除く）。
 fn same_opening(a: &str, b: &str) -> bool {
-    let opening = |s: &str| -> Vec<char> {
-        let first = s.trim().lines().next().unwrap_or("");
-        let rest = first.trim_start_matches(|c: char| "第一二三四五六七八九十百千条の0123456789０１２３４５６７８９".contains(c));
-        rest.trim_start().chars().filter(|c| !c.is_whitespace()).take(10).collect()
-    };
-    let (x, y) = (opening(a), opening(b));
+    let (x, y) = (opening_of(a), opening_of(b));
     x.len() >= 10 && x == y && !x.starts_with(&['〔', '（', '［'])
 }
 
@@ -797,15 +798,28 @@ fn lcs_align_by(n: usize, m: usize, eq: impl Fn(usize, usize) -> bool) -> Vec<(O
     res
 }
 
+/// 文字列の頭の、新設・削った条などの印（「（新設）」「〔削る〕」「〔号を加える。〕」「〔項を削る。〕」）。
+fn leading_mark(text: &str) -> Option<&str> {
+    const MARKS: [&str; 6] = ["（新設）", "〔新設〕", "［新設］", "（削る）", "〔削る〕", "［削る］"];
+    if let Some(m) = MARKS.iter().find(|m| text.starts_with(**m)) {
+        return Some(&text[..m.len()]);
+    }
+    // 「〔号を加える。〕」「〔項を削る。〕」「〔条を加える。〕」など（〔 の後 8 字以内で「を加える。」「を削る。」）。
+    let body = text.strip_prefix('〔')?;
+    let end = body.find('〕')?;
+    let inner = &body[..end];
+    let ok = (inner.ends_with("を加える。") || inner.ends_with("を削る。")) && inner.chars().count() <= 12;
+    ok.then(|| &text[..'〔'.len_utf8() + end + '〕'.len_utf8()])
+}
+
 /// セルの末尾の、印だけの行（「（新設）」「〔新設〕〔新設〕」など）の印を分ける。`(残り, 印)`。
 fn split_trailing_marks(text: &str) -> (String, Vec<String>) {
-    const MARKS: [&str; 6] = ["（新設）", "〔新設〕", "［新設］", "（削る）", "〔削る〕", "［削る］"];
     let mut lines: Vec<&str> = text.trim_end().lines().collect();
     let mut marks: Vec<String> = Vec::new();
     while let Some(last) = lines.last() {
         let mut rest = last.trim();
         let mut found: Vec<String> = Vec::new();
-        while let Some(m) = MARKS.iter().find(|m| rest.starts_with(**m)) {
+        while let Some(m) = leading_mark(rest) {
             found.push(m.to_string());
             rest = rest[m.len()..].trim_start();
         }
@@ -1149,6 +1163,17 @@ mod tests {
         let mut rows = vec![row("第一条の二　乙", ""), row("第一条の三　丙", "第一条の三　旧丙\n（新設）\n（新設）")];
         spread_marks_back(&mut rows);
         assert_eq!(rows[0].1, "");
+    }
+
+    #[test]
+    fn recognizes_add_and_delete_marks() {
+        // 新しい書き方の印（「〔号を加える。〕」「〔項を削る。〕」）も新設・削った条の印。
+        assert_eq!(leading_mark("〔号を加える。〕"), Some("〔号を加える。〕"));
+        assert_eq!(leading_mark("〔項を削る。〕〔項を削る。〕"), Some("〔項を削る。〕"));
+        assert_eq!(leading_mark("（新設）"), Some("（新設）"));
+        assert_eq!(leading_mark("〔同上〕"), None);
+        assert_eq!(leading_mark("〔第三条の規定により読み替えて適用する場合を含む。〕"), None);
+        assert_eq!(only_marks("〔号を削る。〕\n〔号を削る。〕"), vec!["〔号を削る。〕", "〔号を削る。〕"]);
     }
 
     #[test]
