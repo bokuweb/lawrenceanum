@@ -104,6 +104,17 @@ fn labeled(text: &str) -> bool {
 /// [`horizontal_lines`] で行に組んで、表を読み順の位置（表の下か右にある最初の行の手前）に差し込む。
 /// 表の欄の間の溝を列の溝と取り違えて、表が欄ごとに読まれないようにするため。
 pub(crate) fn horizontal_lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)]) -> Vec<trace::Line> {
+    lines_with_tables(cols, grids, vrules, false)
+}
+
+/// [`horizontal_lines_with_tables`] の、段組みの無い 1 段（横書きの新旧対照表の片側の欄）を読む版。表の外の
+/// 語は段に分けずに上から 1 行ずつ組む（左寄せの短い行「目次」「［略］」と中央寄せの表題の間を段の溝と
+/// 取り違えて、左の行を先に読んでいた）。
+pub(crate) fn one_column_lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)]) -> Vec<trace::Line> {
+    lines_with_tables(cols, grids, vrules, true)
+}
+
+fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)], one_column: bool) -> Vec<trace::Line> {
     let mut rest = cols;
     let mut tables: Vec<trace::Table> = Vec::new();
     for g in grids.iter().filter(|g| g.xs.len() >= 3 && g.ys.len() >= 3 && !grids.iter().any(|o| g.encloses(o))) {
@@ -118,14 +129,14 @@ pub(crate) fn horizontal_lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrule
     rest = others;
     tables.extend(keyed);
     if tables.is_empty() {
-        return horizontal_lines(rest);
+        return if one_column { row_lines(rest) } else { horizontal_lines(rest) };
     }
     let geom: std::collections::HashMap<usize, (f32, f32, f32)> = rest.iter().map(|c| (c.id, (c.x, c.x1, c.y))).collect();
     // 2 段抜きの表（本文の段 2 つ分の幅）だけ。決算公告の囲みの中の表は囲みの列ごとに並び、
     // 囲みの列の溝は本文の段の溝と揃わないので、溝をふさぐと囲みの読み順が崩れる。
     let blocks: Vec<Block> =
         tables.iter().filter(|t| t.x1 - t.x0 >= MIN_TEXT_COLUMN_WIDTH * 2.0).map(|t| (t.x0, t.y0, t.x1, t.y1)).collect();
-    let mut lines = horizontal_lines_around(rest, &blocks);
+    let mut lines = if one_column { row_lines(rest) } else { horizontal_lines_around(rest, &blocks) };
     let mut placed: Vec<(usize, trace::Table)> = tables
         .into_iter()
         .map(|t| {
