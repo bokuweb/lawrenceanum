@@ -1622,6 +1622,18 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
         out.push(cols);
         return;
     }
+    // 1 つの列に字間を空けて組んだ区分見出し（「そ　の　他　告　示」）だけの領域は分けない。
+    {
+        let mut sorted: Vec<&Col> = cols.iter().collect();
+        sorted.sort_by(|a, b| a.y.total_cmp(&b.y));
+        let x = (sorted[0].x + sorted[0].x1) / 2.0;
+        let one_column = sorted.iter().all(|c| ((c.x + c.x1) / 2.0 - x).abs() < 4.0);
+        let text: String = sorted.iter().map(|c| c.text.as_str()).collect();
+        if one_column && crate::segment::is_section_label(&text) {
+            out.push(cols);
+            return;
+        }
+    }
     let ymin = cols.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
     let ymax = cols.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
     let margin = (ymax - ymin) * 0.2;
