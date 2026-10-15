@@ -399,7 +399,11 @@ fn after_band_only(tier: &[Col], height: f32) -> bool {
     let lines = page_lines(tier.to_vec());
     // 改正前の欄の印（「〔同上〕」「［同左］」）があれば改正後の帯だけではない（左右に並べた様式など）。
     let before_marks = lines.iter().any(|l| l.text.contains("同上") || l.text.contains("同左"));
-    bottom < height * 0.55 && !before_marks && !lines.iter().any(other)
+    // 改正の指示（「〜の一部を次のように改正する」「様式を次のように改める」）は改め文の本文で、改正後の
+    // 欄（法令自身の文）には出ない（様式を改める条の後に様式の図だけが続くページ）。
+    let text: String = lines.iter().flat_map(|l| l.text.chars()).filter(|c| !c.is_whitespace()).collect();
+    let instruction = text.contains("の一部を次のように改正する") || text.contains("を次のように改める");
+    bottom < height * 0.55 && !before_marks && !instruction && !lines.iter().any(other)
 }
 
 /// 構造化用テキスト（表は目印）とそのページの表。`count` は表の通し番号。
@@ -1331,10 +1335,18 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
             return;
         }
     }
-    // cut で上下に分割（橋渡しカラムは中心 y が属する側へ）。
+    // cut で上下に分割（橋渡しカラムは中心 y が属する側へ。ただし上の段の同じ列の語に続く
+    // （「第三条」の後の「歯科医師法施行規則…の一部を次のように改正する。」）なら上の段へ）。
+    let continues_above = |c: &Col| {
+        let w = c.x1 - c.x;
+        c.y < cut
+            && cut < c.y1
+            && cols.iter().any(|d| d.id != c.id && d.y1 <= c.y + 0.5 && c.y - d.y1 < w * SPACE_EM && (center(d) - center(c)).abs() < w * 0.5)
+    };
+    let upper: std::collections::HashSet<usize> = cols.iter().filter(|c| continues_above(c)).map(|c| c.id).collect();
     let (mut top, mut bottom): (Vec<Col>, Vec<Col>) = (Vec::new(), Vec::new());
     for c in cols {
-        if (c.y + c.y1) / 2.0 < cut {
+        if (c.y + c.y1) / 2.0 < cut || upper.contains(&c.id) {
             top.push(c);
         } else {
             bottom.push(c);
