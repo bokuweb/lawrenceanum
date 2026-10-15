@@ -735,7 +735,10 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
         }
     }
     let vertical_page = v_chars >= h_chars;
-    for (x, y, x1, y1, t) in raws.iter_mut() {
+    // 表示用の語の枠を左へ戻す量。縦書きの語の枠は横にも半 em 右へずれている（枠の左端が字の中心に
+    // 来る）。読み順の復元はこのずれのままの座標で組んであるので、表示用の座標（`Word`）だけ戻す。
+    let mut display_dx: Vec<f32> = vec![0.0; raws.len()];
+    for ((x, y, x1, y1, t), dx) in raws.iter_mut().zip(display_dx.iter_mut()) {
         let em = *x1 - *x;
         let vertical_font = (em - em.round()).abs() < 0.01;
         // 1〜2 字の語は高さも整数 pt のものだけ（縦中横の「13」は横組み用の書体で高さが
@@ -750,6 +753,7 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
         if vertical_font && *y1 > TOP_MARGIN && tall {
             *y += em;
             *y1 += em;
+            *dx = em / 2.0;
         }
     }
     let sideways = is_sideways_vertical(&raws);
@@ -789,7 +793,7 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
 
     let mut cols: Vec<Col> = Vec::new();
     let mut words: Vec<Word> = Vec::new();
-    for ((((x, y, x1, y1, raw), glyph), (gx, gy, gx1, gy1)), toc_number) in raws.into_iter().zip(glyphs).zip(geom).zip(toc_numbers) {
+    for (((((x, y, x1, y1, raw), glyph), (gx, gy, gx1, gy1)), toc_number), dx) in raws.into_iter().zip(glyphs).zip(geom).zip(toc_numbers).zip(display_dx) {
         // scraper が実体参照は復号済み。私用 CID の括弧付き数字等を復元し、約物を正規化し、
         // 私用領域(傍線等のフォント固有グリフ)を除去する。
         let text: String = match (toc_number, glyph) {
@@ -820,11 +824,13 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
                 text: text.clone(),
             });
         }
+        // 横倒しのページは表示の向きが違うので戻さない。
+        let dx = if sideways { 0.0 } else { dx };
         words.push(Word {
             id,
-            x0: x,
+            x0: x - dx,
             y0: y,
-            x1,
+            x1: x1 - dx,
             y1,
             raw,
             text,
@@ -1872,6 +1878,22 @@ mod tests {
         // 字間を空けていない横書きの語なら横組みのページ。
         cols.push(col(100.0, 300.0, 260.0, 308.0, "横書きの本文の一行に並ぶ二十字の文字列です"));
         assert!(is_horizontal_page(&cols));
+    }
+
+    #[test]
+    fn display_boxes_of_vertical_words_sit_on_the_glyphs() {
+        // 縦書きの語の枠は字面より右へ半 em・上へ 1 em ずれて出る。表示用の語の座標はどちらも戻す
+        // （読み順の復元に使う座標は上下だけ戻す）。横組みの語は動かさない。
+        let xhtml = r#"<html><body><doc><page width="595" height="842">
+            <word xMin="100" yMin="100" xMax="108" yMax="180">縦書きの本文の列です</word>
+            <word xMin="200" yMin="300" xMax="280" yMax="308">横組みの語の並びです</word>
+        </page></doc></body></html>"#;
+        let page = &analyze_pages(xhtml)[0];
+        let w = |t: &str| page.words.iter().find(|w| w.text == t).unwrap();
+        let v = w("縦書きの本文の列です");
+        assert_eq!((v.x0, v.y0, v.x1, v.y1), (96.0, 108.0, 104.0, 188.0));
+        let h = w("横組みの語の並びです");
+        assert_eq!((h.x0, h.y0, h.x1, h.y1), (200.0, 300.0, 280.0, 308.0));
     }
 
     #[test]

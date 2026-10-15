@@ -5,7 +5,8 @@
 //!
 //! - 横書きの語: 字面の枠（FontDescriptor の Ascent〜Descent）をつないだもの
 //! - 縦書きの語: 文字の原点（字の上端の中央）を左上とする正方形をつないだもの。実際の字面より
-//!   右へ半 em、上へ 1 em ずれる（kanpo-parser はこのずれを前提に補正している）
+//!   右へ半 em、上へ 1 em ずれる（kanpo-parser はこのずれを前提に補正している。読み順の復元では
+//!   上下だけ、表示用の語の座標では左右も戻す）
 //! - poppler が読めないフォント（[`poppler_readable`]）の文字は出さない
 //! - ToUnicode の無い `Identity` の CID フォントの字は、CID を私用領域 U+F0000 + CID に置く
 //!   （[`IDENTITY_CID_BASE`]。poppler は CID をそのまま符号位置として無関係な漢字を出す）
