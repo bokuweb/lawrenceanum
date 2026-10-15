@@ -1416,7 +1416,45 @@ fn split_tiers(cols: Vec<Col>, rules: &TierRules) -> Vec<Vec<Col>> {
     let mut out = Vec::new();
     split_tiers_rec(cols, 0, rules, false, &mut out);
     rejoin_split_labels(&mut out);
+    rejoin_item_numbers(&mut out);
+    out.retain(|t| !t.is_empty());
     out
+}
+
+/// 項目の番号（「１」「２」「三」「（４）」）だけの段が、すぐ下の段の同じ列の書き出しに続くなら下の段にまとめる
+/// （横倒しの品種登録の告示で、番号と項目の間の 1 字ほどの空きで段に切られ、番号だけの行が続いていた）。
+fn rejoin_item_numbers(tiers: &mut [Vec<Col>]) {
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    let number = |t: &str| {
+        let t = t.trim_start_matches(['（', '(']).trim_end_matches([')', '）']);
+        // 漢数字だけの段は目次のページ番号のことがあるので除く。
+        !t.is_empty() && t.chars().count() <= 2 && t.chars().all(|c| c.is_ascii_digit() || ('０'..='９').contains(&c))
+    };
+    for i in 0..tiers.len() {
+        if tiers[i].len() < 3 || !tiers[i].iter().all(|c| number(&c.text)) {
+            continue;
+        }
+        let bottom = tiers[i].iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+        let em = tiers[i].iter().map(|c| c.x1 - c.x).fold(0.0, f32::max).max(6.0);
+        let Some(j) = (0..tiers.len()).find(|&j| {
+            j != i && {
+                let top = tiers[j].iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+                let bottom_j = tiers[j].iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+                // 下の段は項目の文の段（座標の表の欄のような低い段ではない）。
+                top >= bottom - 1.0 && top - bottom < em * 2.0 && bottom_j - top > 100.0
+            }
+        }) else {
+            continue;
+        };
+        let followed = tiers[i]
+            .iter()
+            .filter(|n| tiers[j].iter().any(|c| (center(c) - center(n)).abs() < 3.0 && c.y >= n.y1 - 1.0 && c.y - n.y1 < em * 2.0))
+            .count();
+        if followed * 10 >= tiers[i].len() * 8 {
+            let moved = std::mem::take(&mut tiers[i]);
+            tiers[j].extend(moved);
+        }
+    }
 }
 
 /// 罫線の無い縦組みの表（政治団体の届出の一覧など）。欄（名称・代表者の氏名・主たる事務所の所在地…）ごとの
