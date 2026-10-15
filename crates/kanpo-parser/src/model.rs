@@ -1029,7 +1029,14 @@ fn realign_weak_windows(rows: Vec<(String, String)>) -> Vec<(String, String)> {
 /// 見出しの鍵がそろわず、どちらも片側だけの行になっていた。
 fn same_article_alike(a: &str, b: &str) -> bool {
     let number = |s: &str| s.trim().lines().take(3).find_map(article_number);
-    matches!((number(a), number(b)), (Some(x), Some(y)) if x == y) && crate::shinkyu::bigram_jaccard(a, b) >= 0.3
+    // 条の文が印だけ（「第二十五条の四　〔同上〕」「第五条　（略）」。見出しだけ改めた条）なら、条番号だけで組む。
+    let marker_only = |s: &str| {
+        let lines: Vec<&str> = s.trim().lines().collect();
+        let body = lines.iter().find(|l| article_number(l).is_some()).and_then(|l| l.split_once('\u{3000}')).map(|(_, r)| r.trim());
+        lines.len() <= 3 && body.is_some_and(|r| matches!(r, "〔同上〕" | "〔略〕" | "（略）" | "［同左］" | "［略］"))
+    };
+    matches!((number(a), number(b)), (Some(x), Some(y)) if x == y)
+        && (crate::shinkyu::bigram_jaccard(a, b) >= 0.3 || marker_only(a) || marker_only(b))
 }
 
 /// 号・条の番号（「十八　」「第二十条　」）を除いた書き出し 10 字。
