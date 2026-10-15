@@ -427,6 +427,9 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 units.push(unit);
             }
         }
+        if sideways {
+            unturn_tables(&mut units, width);
+        }
         let text = units
             .iter()
             .map(Unit::text)
@@ -478,6 +481,34 @@ fn unruled_records(g: &Grid, cols: &[Col]) -> bool {
         cell.iter().skip(1).any(|(_, t)| t.starts_with('〃'))
             || cell.iter().enumerate().any(|(i, (_, a))| head(a).chars().count() == 2 && cell[i + 1..].iter().any(|(_, b)| head(a) == head(b)))
     })
+}
+
+/// 横倒しのページの表の枠・セルの座標を、回した座標から表示の座標に戻す（語の表示用の座標と重ねるため）。
+fn unturn_tables(units: &mut [Unit], page_width: f32) {
+    let unturn = |x0: &mut f32, y0: &mut f32, x1: &mut f32, y1: &mut f32| {
+        let (a, b, c, d) = (*x0, *y0, *x1, *y1);
+        *x0 = b;
+        *x1 = d;
+        *y0 = page_width - c;
+        *y1 = page_width - a;
+    };
+    for unit in units {
+        let lines: Vec<&mut Line> = match unit {
+            Unit::Plain(lines) => lines.iter_mut().collect(),
+            Unit::Shinkyu { preamble, after, before, outside } => preamble
+                .iter_mut()
+                .chain(after.iter_mut().flatten())
+                .chain(before.iter_mut().flatten())
+                .chain(outside.iter_mut().flatten())
+                .collect(),
+        };
+        for t in lines.into_iter().filter_map(|l| l.table.as_mut()) {
+            unturn(&mut t.x0, &mut t.y0, &mut t.x1, &mut t.y1);
+            for c in &mut t.cells {
+                unturn(&mut c.x0, &mut c.y0, &mut c.x1, &mut c.y1);
+            }
+        }
+    }
 }
 
 /// 横倒しのページの罫線を、語と同じく 90° 回す（表示の上端 → 元のページの右端、左端 → 上端）。
