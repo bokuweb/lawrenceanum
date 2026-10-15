@@ -150,13 +150,31 @@ fn column_cut(words: &[Col]) -> Option<f32> {
         if right_edge.is_finite() && a - right_edge >= MIN_GUTTER {
             let cut = (right_edge + a) / 2.0;
             let (left, right): (Vec<Col>, Vec<Col>) = words.iter().cloned().partition(|w| x_center(w) < cut);
-            if is_column_split(&left, &right) {
+            if !latin_word_gap(words, cut) && is_column_split(&left, &right) {
                 return Some(cut);
             }
         }
         right_edge = right_edge.max(b);
     }
     None
+}
+
+/// 溝が欧文の語間か。両端揃えの欧文の段落では、語間がたまたま行をまたいで縦に揃い、列の溝に
+/// 見える。溝の両側に語のある行の半分以上で、溝の左右の語が欧文の語の境目なら語間とみなす。
+fn latin_word_gap(words: &[Col], cut: f32) -> bool {
+    let (mut both, mut latin) = (0, 0);
+    for line in group_lines(words) {
+        let left = line.words.iter().filter(|w| x_center(w) < cut).max_by(|a, b| a.x1.total_cmp(&b.x1));
+        let right = line.words.iter().filter(|w| x_center(w) >= cut).min_by(|a, b| a.x.total_cmp(&b.x));
+        if let (Some(l), Some(r)) = (left, right) {
+            both += 1;
+            let em = (l.y1 - l.y).min(r.y1 - r.y).max(1.0);
+            if r.x - l.x1 < em * 1.5 && latin_word_break(&l.text, &r.text) {
+                latin += 1;
+            }
+        }
+    }
+    both > 0 && latin * 2 >= both
 }
 
 fn x_center(w: &Col) -> f32 {
@@ -223,9 +241,25 @@ fn band_cut(lines: &[Line]) -> Option<f32> {
     best.map(|(_, cut)| cut)
 }
 
+/// 欧文の語間とみなす空き(em 比)。語間は 0.4〜0.5 em ほど（「30 by 30」のように字の種類の
+/// 切り替えで 0.25 em ほど空くものは詰める）。
+const LATIN_SPACE_EM: f32 = 0.3;
+
+/// 欧文の語と語の境目か（「Zavod Iskra; JSC Research」）。数字どうし（表の金額の桁の
+/// 区切りで語が割れた「3,415,」「549」）は語間にしない。
+fn latin_word_break(prev: &str, next: &str) -> bool {
+    let (Some(p), Some(n)) = (prev.chars().last(), next.chars().next()) else {
+        return false;
+    };
+    let p_ok = p.is_ascii_alphabetic() || matches!(p, ';' | ',' | '.' | ':');
+    let n_ok = n.is_ascii_alphabetic() || (n.is_ascii_digit() && p.is_ascii_alphabetic());
+    p_ok && n_ok && !(p.is_ascii_punctuation() && n.is_ascii_digit())
+}
+
 /// 1 行の語（x 昇順）を連結する。
 ///
 /// - 1em の 3/4 以上空いていれば全角空白を挟む（「佐賀労働局長　田之上英治」、表のセル境界）。
+/// - 欧文の語と語の間は半角空白を挟む（[`latin_word_break`]）。
 /// - 1 字ずつの語が並ぶ字間空けの見出し（「労　働」「公　告」「附　則」「名　　称」、表の欄見出し
 ///   「改　　正　　後」は 7em 空き）は詰めて 1 語にする。ただし字間が急に広がったところ
 ///   （表の次のセル）では区切る。
@@ -235,7 +269,15 @@ fn render_line(words: &[Col]) -> String {
         if i > 0 && !joined {
             let p = &words[i - 1];
             let em = (p.y1 - p.y).min(w.y1 - w.y).max(1.0);
-            if w.x - p.x1 >= em * 0.75 {
+            let gap = w.x - p.x1;
+            // 両端揃えの欧文の行は語間が 1 em を超えることがある（字と字の間なら 2 em までは語間と
+            // みなす。括弧の前後の広い空きは表のセルの境目「(現在)　(単位：千円)」）。
+            let letters = s.chars().last().is_some_and(|c| c.is_ascii_alphabetic() || matches!(c, ';' | ','))
+                && w.text.chars().next().is_some_and(|c| c.is_ascii_alphabetic());
+            let wide = if letters { em * 2.0 } else { em * 0.75 };
+            if (em * LATIN_SPACE_EM..wide).contains(&gap) && latin_word_break(&s, &w.text) {
+                s.push(' ');
+            } else if gap >= em * 0.75 {
                 s.push('\u{3000}');
             }
         }
@@ -302,6 +344,28 @@ mod tests {
         // 字間を空けていない語の後ろの 1 字はつながない。
         let words = vec![w(173.0, 221.0, 100.0, "くみあい苦土"), w(229.0, 237.0, 100.0, "社")];
         assert_eq!(letter_spaced(&words, true), [false, false]);
+    }
+
+    #[test]
+    fn latin_words_are_spaced_and_not_split_into_columns() {
+        // 欧文の語は半角空白で区切る。表の金額の桁で割れた語や、和文の欄の境目は従来どおり。
+        let line = vec![w(81.0, 104.0, 47.0, "Zavod"), w(108.0, 127.0, 47.0, "Iskra;"), w(131.0, 145.0, 47.0, "JSC")];
+        assert_eq!(render_line(&line), "Zavod Iskra; JSC");
+        assert_eq!(render_line(&[w(81.0, 101.0, 47.0, "3,415,"), w(104.0, 116.0, 47.0, "549")]), "3,415,549");
+        assert_eq!(render_line(&[w(81.0, 97.0, 47.0, "〇30"), w(99.0, 108.0, 47.0, "by"), w(110.0, 126.0, 47.0, "30目標")]), "〇30by30目標");
+        assert_eq!(render_line(&[w(81.0, 161.0, 47.0, "(31日現在)"), w(170.0, 230.0, 47.0, "(単位：千円)")]), "(31日現在)\u{3000}(単位：千円)");
+        // 両端揃えの欧文の段落で、語間がたまたま縦に揃っても列の溝とみなさない。
+        let words = vec![
+            w(81.0, 200.0, 47.0, "Proizvodstvennoe"),
+            w(204.0, 250.0, 47.0, "Predpriyatie"),
+            w(254.0, 420.0, 47.0, "Zavod Iskra; JSC Research and Production"),
+            w(81.0, 248.0, 60.0, "Enterprise Plant Iskra; NPP Plant Iskra;"),
+            w(252.0, 420.0, 60.0, "NPP Zavod Iskra; Aktsionernoe Obshchestvo"),
+        ];
+        assert_eq!(
+            read(words),
+            "Proizvodstvennoe Predpriyatie Zavod Iskra; JSC Research and Production\nEnterprise Plant Iskra; NPP Plant Iskra; NPP Zavod Iskra; Aktsionernoe Obshchestvo"
+        );
     }
 
     fn read(words: Vec<Col>) -> String {
