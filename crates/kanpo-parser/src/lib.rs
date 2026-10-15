@@ -203,11 +203,67 @@ pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> 
             .map(|(i, _)| i)
     };
     let texts: Vec<String> = articles.iter().map(|a| unify(&a.text)).collect();
-    best(&keys_of(&cores), &texts).or_else(|| {
-        let cores: Vec<String> = cores.iter().map(|c| loose(c)).filter(|c| c.chars().count() >= 6).collect();
-        let texts: Vec<String> = articles.iter().map(|a| loose(&a.text)).collect();
-        best(&keys_of(&cores), &texts)
-    })
+    best(&keys_of(&cores), &texts)
+        .or_else(|| {
+            let cores: Vec<String> = cores.iter().map(|c| loose(c)).filter(|c| c.chars().count() >= 6).collect();
+            let texts: Vec<String> = articles.iter().map(|a| loose(&a.text)).collect();
+            best(&keys_of(&cores), &texts)
+        })
+        .or_else(|| pick_by_number(title, articles))
+}
+
+/// 標題の末尾の番号（「（同二八五）」「（総務二八五）」）と記事の見出しの号数（「〇総務省告示第二百八十五号」）で
+/// 記事を選ぶ。目次の標題と本文の中の告示の名前が違うことがある（目次「…人体にばく露される電波の許容値に係る
+/// 総務大臣が別に告示する無線設備を定める件」、本文「…第十四条の二第一項第二号等の規定に基づく総務大臣が
+/// 別に告示する無線設備を定める件」）。見出しの号数が合う記事が 1 つだけのときに限る。機関名（「同」でなければ）
+/// が標題にあれば、見出しにもあるものだけ。
+fn pick_by_number(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> {
+    let open = title.rfind('（')?;
+    let inner = title[open + '（'.len_utf8()..].trim_end_matches('）');
+    let digit = |c: char| "〇一二三四五六七八九".find(c).map(|i| i / '〇'.len_utf8());
+    let start = inner.find(|c: char| digit(c).is_some())?;
+    let agency = &inner[..start];
+    let n = inner[start..].chars().map_while(digit).fold(0u64, |n, d| n * 10 + d as u64);
+    let agencies: Vec<&str> = if agency == "同" { Vec::new() } else { agency.split('・').filter(|a| !a.is_empty()).collect() };
+    let matched: Vec<usize> = articles
+        .iter()
+        .enumerate()
+        .filter(|(_, a)| {
+            let head = a.text.lines().find(|l| !l.trim().is_empty()).unwrap_or("");
+            heading_number(head) == Some(n) && agencies.iter().all(|ag| head.contains(ag))
+        })
+        .map(|(i, _)| i)
+        .collect();
+    (matched.len() == 1).then(|| matched[0])
+}
+
+/// 見出しの「第二百八十五号」「第26号」の号数。
+fn heading_number(head: &str) -> Option<u64> {
+    let start = head.find('第')? + '第'.len_utf8();
+    let end = start + head[start..].find('号')?;
+    let s = &head[start..end];
+    if !s.is_empty() && s.chars().all(|c| c.is_ascii_digit() || ('０'..='９').contains(&c)) {
+        return Some(s.chars().fold(0, |n, c| n * 10 + c.to_digit(10).or_else(|| Some(c as u32 - '０' as u32)).unwrap() as u64));
+    }
+    // 漢数字（千・百・十の位取り）。
+    let (mut total, mut digit) = (0u64, None::<u64>);
+    for c in s.chars() {
+        match "〇一二三四五六七八九".chars().position(|d| d == c) {
+            Some(d) => digit = Some(d as u64),
+            None => {
+                let unit = match c {
+                    '十' => 10,
+                    '百' => 100,
+                    '千' => 1000,
+                    _ => return None,
+                };
+                total += digit.unwrap_or(1) * unit;
+                digit = None;
+            }
+        }
+    }
+    let n = total + digit.unwrap_or(0);
+    (n > 0).then_some(n)
 }
 
 /// 標題から突合の鍵となる「対象法令名」を取り出す（末尾の制定機関略号と「の一部を…」を除く）。
@@ -385,5 +441,22 @@ mod tests {
         let a = arts(&["人事院公示第26号\n人事院は、人事院規則２４（人事院の職員に対する権限の委任）第２項の規定に基づき、昭和38年人事院公示第５号の一部を次のように改正する。"]);
         let title = "人事院規則二―四（人事院の職員に対する権限の委任）第二項の規定に基づき、昭和三十八年人事院公示第五号の一部を改正する件（人事院二六）";
         assert_eq!(pick_article(title, &a), Some(0));
+    }
+
+    #[test]
+    fn picks_article_by_number_when_toc_title_differs_from_body() {
+        // 目次の標題と本文の中の告示の名前が違う（号外第 171 号 29 ページ）。号数で選ぶ。
+        let a = arts(&[
+            "〇総務省告示第二百八十四号\n八〇〇MHz帯広帯域小電力無線システムの携帯局の無線設備の送信時間制限装置を定める件の一部を次のように改正する。",
+            "〇総務省告示第二百八十五号\n無線設備規則第十四条の二第一項第二号等の規定に基づく総務大臣が別に告示する無線設備を定める件の一部を次のように改正する。",
+        ]);
+        let title = "無線設備規則で規定する人体にばく露される電波の許容値に係る総務大臣が別に告示する無線設備を定める件の一部を改正する件（同二八五）";
+        assert_eq!(pick_article(title, &a), Some(1));
+        assert_eq!(pick_article(&title.replace("（同二八五）", "（総務二八五）"), &a), Some(1));
+        // 機関名が見出しに無ければ選ばない。号数の合う記事が無いときも。
+        assert_eq!(pick_article(&title.replace("（同二八五）", "（国土交通二八五）"), &a), None);
+        assert_eq!(pick_article(&title.replace("（同二八五）", "（同二八六）"), &a), None);
+        assert_eq!(heading_number("〇国土交通省告示第千百八十七号"), Some(1187));
+        assert_eq!(heading_number("人事院公示第26号"), Some(26));
     }
 }
