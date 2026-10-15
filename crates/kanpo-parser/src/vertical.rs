@@ -739,6 +739,26 @@ fn is_sideways_vertical(raws: &[(f32, f32, f32, f32, String)]) -> bool {
     horizontal > vertical && vforms > hforms * 2 && vforms >= 5
 }
 
+/// 横倒しの縦書きのページで、縦書き用の書体の語（縦書き用の約物を含む語）が、横組み用の書体の語
+/// （高さが整数 pt でない語）の行頭の位置より 1 字分（表示の左へ）ずれて出ているか。品種登録の取消しの
+/// 告示のように、段の中に横組みの項目と縦書きの前文が並ぶページでは、前文の頭が前の段の終わりに
+/// 付いて段に分かれなかった。横組みの語の無いページは縦書きの語どうしの位置が揃っているので動かさない。
+fn sideways_vertical_font_shifted(raws: &[(f32, f32, f32, f32, String)]) -> bool {
+    let integral = |h: f32| (h - h.round()).abs() < 0.01;
+    let mut starts: Vec<f32> = raws.iter().filter(|(_, y, _, y1, _)| !integral(y1 - y)).map(|r| r.0).collect();
+    starts.sort_by(f32::total_cmp);
+    // 3 語以上が揃う横組みの行頭。
+    let common = |x: f32| starts.iter().filter(|&&s| (s - x).abs() < 1.0).count() >= 3;
+    let vform: Vec<(f32, f32)> = raws
+        .iter()
+        .filter(|(_, y, _, y1, t)| integral(y1 - y) && t.chars().any(|c| ('\u{FE10}'..='\u{FE48}').contains(&c)))
+        .map(|(x, y, _, y1, _)| (*x, y1 - y))
+        .collect();
+    let shifted = vform.iter().filter(|&&(x, h)| common(x + h)).count();
+    let aligned = vform.iter().filter(|&&(x, _)| common(x)).count();
+    shifted >= 3 && shifted > aligned * 2
+}
+
 /// 横組みの語（横長）の文字数が縦組みの語（縦長）より多いページか。号外の公告・決算公告の
 /// ページなどは横組みで、縦書きの読み順の復元は合わない。
 fn is_horizontal_page(cols: &[Col]) -> bool {
@@ -1000,12 +1020,22 @@ fn page_words_traced(page: scraper::ElementRef, page_width: f32, height: f32) ->
     }
     let sideways = is_sideways_vertical(&raws);
     let rotated = !sideways && raws.iter().any(|(_, _, x1, _, t)| is_left_strip_header(*x1, t));
+    let shift_sideways = sideways && sideways_vertical_font_shifted(&raws);
     let geom: Vec<(f32, f32, f32, f32)> = raws
         .iter()
-        .map(|&(x, y, x1, y1, _)| {
+        .map(|(x, y, x1, y1, t)| {
+            let (x, y, x1, y1) = (*x, *y, *x1, *y1);
             if sideways {
-                // 元のページの上端 → 表示の左端、右端 → 表示の上端。
-                (page_width - y1, x, page_width - y, x1)
+                // 元のページの上端 → 表示の左端、右端 → 表示の上端。縦書き用の書体の語（字の大きさがちょうど
+                // 整数 pt）は、立てたページと同じく 1 字分元のページの上（表示の左）にずれて出るので戻す
+                // （段の頭の「〇農林水産省告示…」が前の段の終わりに付いて段に分かれなかった）。横組み用の
+                // 書体の語（高さ 8.184pt など）はずれていない。
+                let h = y1 - y;
+                // ずれが確かめられたページだけ（[`sideways_vertical_font_shifted`]）。柱（表示の左端の帯の「官」
+                // 「報」、題字の下の「（号外）」の欄）は動かさない。
+                let vertical_font = (h - h.round()).abs() < 0.01 && !t.is_empty();
+                let dx = if shift_sideways && vertical_font && x > TOP_MARGIN { h } else { 0.0 };
+                (page_width - y1, x + dx, page_width - y, x1 + dx)
             } else {
                 (x, y, x1, y1)
             }
