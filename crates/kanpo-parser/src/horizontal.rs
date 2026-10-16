@@ -131,7 +131,7 @@ fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)],
     if tables.is_empty() {
         return if one_column { row_lines(rest) } else { horizontal_lines(rest) };
     }
-    let geom: std::collections::HashMap<usize, (f32, f32, f32)> = rest.iter().map(|c| (c.id, (c.x, c.x1, c.y))).collect();
+    let geom: std::collections::HashMap<usize, (f32, f32, f32, f32)> = rest.iter().map(|c| (c.id, (c.x, c.x1, c.y, c.y1))).collect();
     // 2 段抜きの表（本文の段 2 つ分の幅）だけ。決算公告の囲みの中の表は囲みの列ごとに並び、
     // 囲みの列の溝は本文の段の溝と揃わないので、溝をふさぐと囲みの読み順が崩れる。
     let blocks: Vec<Block> =
@@ -140,12 +140,15 @@ fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)],
     let mut placed: Vec<(usize, trace::Table)> = tables
         .into_iter()
         .map(|t| {
+            // 表の右か、表の下（行の高さの中ほどが表の下端より下。字の大きい太字の見出しは上端が表の
+            // 最後の行に少し掛かる）にある行。
             let after = |l: &trace::Line| {
-                let g: Vec<(f32, f32, f32)> = l.words.iter().filter_map(|w| geom.get(w)).copied().collect();
+                let g: Vec<(f32, f32, f32, f32)> = l.words.iter().filter_map(|w| geom.get(w)).copied().collect();
                 let x0 = g.iter().map(|p| p.0).fold(f32::INFINITY, f32::min);
                 let x1 = g.iter().map(|p| p.1).fold(f32::NEG_INFINITY, f32::max);
                 let y0 = g.iter().map(|p| p.2).fold(f32::INFINITY, f32::min);
-                !g.is_empty() && (x0 >= t.x1 - 2.0 || (x0 < t.x1 && x1 > t.x0 && y0 >= t.y1 - 2.0))
+                let y1 = g.iter().map(|p| p.3).fold(f32::NEG_INFINITY, f32::max);
+                !g.is_empty() && (x0 >= t.x1 - 2.0 || (x0 < t.x1 && x1 > t.x0 && (y0 >= t.y1 - 2.0 || (y0 + y1) / 2.0 >= t.y1)))
             };
             (lines.iter().position(after).unwrap_or(lines.len()), t)
         })
@@ -158,29 +161,36 @@ fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)],
     lines
 }
 
-/// 表の行の見出しの番号（「第2821号」「第165回」「第Ｐ－280号」）か。
-fn row_key(text: &str) -> bool {
+/// 表の行の見出しの番号（「第2821号」「第165回」「第Ｐ－280号」）か、英字と数字の混じった記号
+/// （自動車の認定番号「2026－ＧＥ0002」、船舶の信号符字「ＪＤ5605」「7ＫＶＰ」）か。
+/// 記号は英字を含むものだけ（数字だけの欄（船舶番号・金額）を行の見出しと取り違えない）。
+pub(crate) fn row_key(text: &str) -> bool {
     let t = text.trim();
+    let digit = |c: char| c.is_ascii_digit() || ('０'..='９').contains(&c);
+    let alpha = |c: char| c.is_ascii_alphabetic() || ('Ａ'..='Ｚ').contains(&c);
+    let code_char = |c: char| digit(c) || alpha(c) || "－-".contains(c);
     let inner = t.strip_prefix('第').and_then(|t| t.strip_suffix(['号', '回']));
-    inner.is_some_and(|i| {
-        (1..=8).contains(&i.chars().count())
-            && i.chars().any(|c| c.is_ascii_digit() || ('０'..='９').contains(&c))
-            && i.chars().all(|c| c.is_ascii_alphanumeric() || ('０'..='９').contains(&c) || ('Ａ'..='Ｚ').contains(&c) || "－-".contains(c))
-    })
+    let numbered = inner.is_some_and(|i| (1..=8).contains(&i.chars().count()) && i.chars().any(digit) && i.chars().all(code_char));
+    let code = (3..=16).contains(&t.chars().count()) && t.chars().all(code_char) && t.chars().any(digit) && t.chars().any(alpha);
+    numbered || code
 }
 
 /// 罫線の無い横組みの表で、左端の列に行の見出しの番号（[`row_key`]）が 3 つ以上縦に並ぶものを表に
-/// する。`(表, 表に入らなかった語)`。
+/// する。`(表, 表に入らなかった語)`。縦組みの表は語を 90 度回して渡す（[`crate::vertical`]）。
 ///
-/// - 行: 番号の上端から次の番号の上端まで。最後の行は、番号の列に字の無い行が続く限り（折り返しの続き）
-/// - 欄: 番号の行で番号の右に並ぶ語の左端。右端は、番号の行の高さに掛かる縦の罫線（段の境の線）が
+/// - 行: 番号の上端から次の番号の上端まで。最後の行は、番号の列に字の無い行が続く限り（折り返しの続き）。
+///   番号の列の字でも、行の間隔より近く続くものは最後の行の折り返し（認定番号の「－23」）
+/// - 欄: 番号の行で番号の右に並ぶ語の左端のうち、2 つ以上の行で揃うもの（1 つの行だけの語の切れ目
+///   （「キャデラック　７ＢＵ－」）を欄にしない）。右端は、番号の行の高さに掛かる縦の罫線（段の境の線）が
 ///   あればそこまで、無ければ番号から右へ 5 em 未満の空きで続く語まで（隣の段の行を入れない）
 /// - セルの中の行は折り返しの続きとしてつなぐ（「第一種膨脹式救」「命いかだ（投下」「用）」）
-fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<trace::Table>, Vec<Col>) {
+pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<trace::Table>, Vec<Col>) {
     let mut words = words;
     let mut tables = Vec::new();
+    // 表にしなかった番号の列の番号。
+    let mut rejected: std::collections::HashSet<usize> = std::collections::HashSet::new();
     loop {
-        let mut keys: Vec<Col> = words.iter().filter(|w| row_key(&w.text)).cloned().collect();
+        let mut keys: Vec<Col> = words.iter().filter(|w| row_key(&w.text) && !rejected.contains(&w.id)).cloned().collect();
         keys.sort_by(|a, b| a.x.total_cmp(&b.x).then(a.y.total_cmp(&b.y)));
         // 番号 l と次の番号 k の間が、番号の列に字の無い行（折り返しの続き）で 2 em 未満の空きで続くか。
         let continuous = |l: &Col, k: &Col| {
@@ -205,60 +215,157 @@ fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<trace::Tabl
             tops.windows(2).all(|p| p[1] - p[0] < em * 2.0)
         };
         // 左端の揃う番号の列（行の高さの 6 倍を超えて離れたら、間が折り返しの続きでなければ別の表）。
-        let mut cluster: Vec<Col> = Vec::new();
+        let mut clusters: Vec<Vec<Col>> = Vec::new();
         for k in keys {
             let em = (k.y1 - k.y).max(1.0);
-            let joins = cluster
-                .last()
-                .is_some_and(|l| (k.x - cluster[0].x).abs() < 2.0 && k.y > l.y && (k.y - l.y < em * 6.0 || continuous(l, &k)));
-            if joins {
-                cluster.push(k);
-            } else if cluster.len() >= 3 {
-                break;
-            } else {
-                cluster = vec![k];
+            let joins = clusters.last().is_some_and(|c| {
+                let l = c.last().unwrap();
+                (k.x - c[0].x).abs() < 2.0 && k.y > l.y && (k.y - l.y < em * 6.0 || continuous(l, &k))
+            });
+            match clusters.last_mut() {
+                Some(c) if joins => c.push(k),
+                _ => clusters.push(vec![k]),
             }
         }
-        if cluster.len() < 3 {
+        // 番号が行の頭にあること: 番号のすぐ左（2 em 未満）に同じ行の語が続く番号が半分を超える列は、表の途中の
+        // 欄（型式「ＫＸ085－５」）か、別の語に続く記号の後ろ半分（「交　Ａ26－48」）なので行の見出しにしない。
+        let leads_rows = |c: &Vec<Col>| {
+            let led = c
+                .iter()
+                .filter(|k| {
+                    let em = (k.y1 - k.y).max(1.0);
+                    !words.iter().any(|w| {
+                        w.id != k.id && (y_center(w) - y_center(k)).abs() <= em * 0.5 && w.x1 <= k.x + 0.5 && k.x - w.x1 < em * 2.0
+                    })
+                })
+                .count();
+            led * 2 >= c.len()
+        };
+        let Some(mut cluster) = clusters.into_iter().find(|c| c.len() >= 3 && leads_rows(c)) else {
             break;
+        };
+        // 数字を含まない記号（信号符字「ＪＩＪＴ」「ＪＫＲＮ」）も、番号の列に左端が揃えば行の見出し。
+        {
+            let x = cluster[0].x;
+            let (top, end) = (cluster.iter().map(|k| k.y).fold(f32::INFINITY, f32::min), cluster.iter().map(|k| k.y).fold(f32::NEG_INFINITY, f32::max));
+            let span = (end - top) / (cluster.len() - 1).max(1) as f32;
+            let letters = |t: &str| {
+                let n = t.chars().count();
+                (3..=8).contains(&n) && t.chars().all(|c| c.is_ascii_uppercase() || ('Ａ'..='Ｚ').contains(&c))
+            };
+            let extra: Vec<Col> = words
+                .iter()
+                .filter(|w| (w.x - x).abs() < 1.0 && letters(&w.text) && w.y > top - span && w.y < end + span && !cluster.iter().any(|k| k.id == w.id))
+                .cloned()
+                .collect();
+            cluster.extend(extra);
         }
         cluster.sort_by(|a, b| a.y.total_cmp(&b.y));
         let em = cluster.iter().map(|k| k.y1 - k.y).fold(0.0, f32::max).max(1.0);
         let left = cluster[0].x - 1.0;
         let (first, final_y) = (cluster[0].y, cluster.last().unwrap().y1);
-        let fence = vrules
+        // 別の表の行の見出し（右に並ぶ表の番号の列。この表の番号と同じ種類（「第…号」か記号か）で、同じ左端の
+        // 番号がほかに 2 つ以上ある）。種類の違う記号の列（「第2821号」の表の型式「ＦＲＮ－ＳＡ－25」）は表の欄。
+        let numbered = |t: &str| t.trim().starts_with('第');
+        let kind = numbered(&cluster[0].text);
+        let same_key = |w: &Col| row_key(&w.text) && numbered(&w.text) == kind;
+        let other_key = |w: &Col| {
+            !cluster.iter().any(|k| k.id == w.id)
+                && same_key(w)
+                && words.iter().filter(|o| o.id != w.id && same_key(o) && (o.x - w.x).abs() < 2.0).count() >= 2
+        };
+        // 表の右端の柵: 番号の行の高さに掛かる縦の罫線（段の境の線）か、右に並ぶ別の表の番号の列の左端。
+        let rule_fence = vrules
             .iter()
             .filter(|&&(x, y0, y1)| x > cluster[0].x1 && y0 <= first && final_y <= y1)
             .map(|&(x, _, _)| x)
             .reduce(f32::min);
-        // 番号の行で番号から右へ続く語（欄の左端）。
-        let mut starts: Vec<f32> = Vec::new();
-        let mut right = cluster.iter().map(|k| k.x1).fold(f32::NEG_INFINITY, f32::max);
-        for k in &cluster {
+        let key_fence = words
+            .iter()
+            .filter(|w| w.x > cluster[0].x1 && w.y1 >= first - em && w.y <= final_y + em && other_key(w))
+            .map(|w| w.x - 0.5)
+            .reduce(f32::min);
+        // 隣の段の本文の行の頭: 表の高さの範囲で、番号の行に揃わない語（隣の段の本文の行）が 3 つ以上、表の行より
+        // 多く同じ左端から始まり、そこから始まる表の行が 3 分の 1 未満の x（罫線も溝も無く、日付の欄のすぐ右に
+        // 組まれた段の本文）。欄の左端（セルの中の折り返し「ＮＥＰＴＵＮＥ／ＬＥＡＤＥＲ」「進水装置用膨脹／
+        // 式救命いかだ」が多く始まる）は、表の行の多くもそこから始まる。
+        let on_row = |w: &Col| cluster.iter().any(|k| (y_center(w) - y_center(k)).abs() <= em * 0.35);
+        let mut flow_starts: Vec<f32> = words
+            .iter()
+            .filter(|w| w.x > cluster[0].x1 + em && w.y >= first - em && w.y1 <= final_y + em && !on_row(w))
+            .map(|w| w.x)
+            .collect();
+        flow_starts.sort_by(f32::total_cmp);
+        let flow_fence = flow_starts
+            .iter()
+            .copied()
+            .filter(|&x| {
+                let flow = flow_starts.iter().filter(|&&f| (f - x).abs() < 2.0).count();
+                let rows = cluster.iter().filter(|k| words.iter().any(|w| on_row(w) && (y_center(w) - y_center(k)).abs() <= em * 0.35 && (w.x - x).abs() < 2.0)).count();
+                flow >= 3 && flow > rows && rows * 3 < cluster.len()
+            })
+            .map(|x| x - 0.5)
+            .reduce(f32::min);
+        let fence = [rule_fence, key_fence, flow_fence].into_iter().flatten().reduce(f32::min);
+        // 番号の行で番号から右へ続く語。
+        let row_words = |k: &Col| -> Vec<&Col> {
             let mut row: Vec<&Col> = words.iter().filter(|w| (y_center(w) - y_center(k)).abs() <= em * 0.35 && w.x >= k.x1 - 0.5).collect();
             row.sort_by(|a, b| a.x.total_cmp(&b.x));
+            row
+        };
+        // 表の右端: 番号の行で番号から右へ続く語の右端の最大。〃 だけの行のように欄の間が大きく空く行が
+        // あっても、ほかの行で欄が続いていれば表の中。
+        let mut right = cluster.iter().map(|k| k.x1).fold(f32::NEG_INFINITY, f32::max);
+        for k in &cluster {
             let mut end = k.x1;
-            for w in row {
+            for w in row_words(k) {
                 let outside = match fence {
                     Some(f) => w.x1 > f,
                     None => w.x - end >= em * 5.0,
                 };
-                if outside {
+                if outside || other_key(w) {
                     break;
-                }
-                if w.x - end >= em * 0.75 {
-                    starts.push(w.x);
                 }
                 end = end.max(w.x1);
             }
             right = right.max(end);
         }
-        starts.sort_by(f32::total_cmp);
+        // 欄の左端（番号の行で前の語から空いて始まる語の左端と、その行の番号）。
+        let mut starts: Vec<(f32, usize)> = Vec::new();
+        for (ri, k) in cluster.iter().enumerate() {
+            let mut end = k.x1;
+            for w in row_words(k) {
+                if w.x1 > right + 2.0 || other_key(w) {
+                    break;
+                }
+                if w.x - end >= em * 0.75 {
+                    starts.push((w.x, ri));
+                }
+                end = end.max(w.x1);
+            }
+        }
+        starts.sort_by(|a, b| a.0.total_cmp(&b.0));
+        // 左端の近い（1 em 以内）語の切れ目をまとめ、2 つ以上かつ行の 3 分の 1 以上の行で揃うものを欄にする
+        // （字間を空けた欧文の船名の切れ目「ＭＩＴＳＵＩ　Ｏ」「ＣＯＳＭＯＳ　Ｌ」を欄にしない）。
+        let mut runs: Vec<Vec<(f32, usize)>> = Vec::new();
+        for s in starts {
+            match runs.last_mut() {
+                Some(run) if s.0 - run[0].0 <= em => run.push(s),
+                _ => runs.push(vec![s]),
+            }
+        }
         let mut columns: Vec<f32> = vec![left];
-        for x in starts {
-            if columns.last().is_some_and(|&c| x - c > em) {
+        for run in runs {
+            let rows: std::collections::HashSet<usize> = run.iter().map(|s| s.1).collect();
+            let x = run[0].0;
+            if rows.len() >= 2 && rows.len() * 3 >= cluster.len() && columns.last().is_some_and(|&c| x - c > em) {
                 columns.push(x - 1.0);
             }
+        }
+        // 欄が 1 つ（記号が縦に並ぶだけ。表の途中の型式の欄など）なら表にしない。
+        if columns.len() < 2 {
+            rejected.extend(cluster.iter().map(|k| k.id));
+            continue;
         }
         // 表の語: 番号の列の左端から右端まで、最初の番号の上端から。最後の行は、番号の列に字の無い行が
         // 1 em 未満の空きで続く限り。
@@ -267,26 +374,85 @@ fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<trace::Tabl
         let in_x = |w: &Col| w.x >= left && w.x1 <= right + 2.0;
         let mut bottom = last.y1;
         let key_end = columns.get(1).copied().unwrap_or(right) - 1.0;
+        // 行の間隔（番号の上端の差の中央値）。
+        let mut pitches: Vec<f32> = cluster.windows(2).map(|p| p[1].y - p[0].y).collect();
+        pitches.sort_by(f32::total_cmp);
+        let pitch = pitches[pitches.len() / 2];
         loop {
-            // 次の行（いまの下端から 1 em 以内に始まる語）。番号の列に字があれば表の外。
+            // 次の行（いまの下端から 1 em 以内に始まる語）。番号の列に字があれば表の外（行の間隔より
+            // 近ければ最後の行の番号の折り返し）。
             let next: Vec<&Col> = words
                 .iter()
                 .filter(|w| in_x(w) && w.y >= bottom - em * 0.5 && w.y < bottom + em && w.y > last.y + em * 0.5)
                 .collect();
-            if next.is_empty() || next.iter().any(|w| w.x < key_end) {
+            if next.is_empty() || next.iter().any(|w| (w.x < key_end && w.y >= last.y + pitch * 0.75) || other_key(w)) {
                 break;
             }
             bottom = next.iter().map(|w| w.y1).fold(bottom, f32::max);
         }
-        let (mine, others): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| in_x(w) && w.y >= top && w.y1 <= bottom + 0.5);
-        words = others;
-        let row_of = |w: &Col| cluster.iter().rposition(|k| k.y - em * 0.35 <= w.y).unwrap_or(0);
         let col_of = |w: &Col| columns.iter().rposition(|&c| c <= w.x + 1.0).unwrap_or(0);
+        // 見出しの行: 最初の番号のすぐ上（3.5 em 以内）に続く行を下から上へ、どの語も 1 つの欄に収まり、番号の
+        // 記号を含まない限り（「認定番号　車名及び型式　車体の形状」、2 行に組んだ「船舶／番号」）。見出しの語の
+        // ある欄が 2 つ以上のときだけ見出しの行にする。
+        let fits = |w: &Col| {
+            columns.iter().rposition(|&c| c <= w.x + em * 0.5).is_some_and(|i| {
+                w.x >= left - em && w.x1 <= columns.get(i + 1).map_or(right + 2.0, |&c| c + em * 0.5)
+            })
+        };
+        // 字の小さい語（日付の欄の上の「令和」）は見出しではない。
+        let above: Vec<Col> = words
+            .iter()
+            .filter(|w| {
+                w.y1 <= cluster[0].y + 0.5
+                    && w.y >= cluster[0].y - em * 3.5
+                    && w.x1 > left
+                    && w.x < right.min(fence.unwrap_or(f32::INFINITY))
+                    && w.y1 - w.y >= em * 0.8
+            })
+            .cloned()
+            .collect();
+        let mut head: Vec<Col> = Vec::new();
+        let mut head_top = cluster[0].y;
+        for l in group_cell_lines(&above).into_iter().rev() {
+            // 表の右端から始まる語（隣の段の本文の行の頭）は見出しに入れない。
+            let (keep, outside): (Vec<Col>, Vec<Col>) = l.words.into_iter().partition(|w| fits(w));
+            // 最初の行は表の 1.5 em 上まで、2 行目からは前の行に接するもの（2 行に組んだ見出し）だけ。
+            // 1 行空いた上の行（署名「外務大臣　茂木　敏充」）は見出しではない。
+            let gap = if head.is_empty() { em * 1.5 } else { em * 0.5 };
+            if l.y1 < head_top - gap
+                || keep.is_empty()
+                || keep.iter().any(|w| row_key(&w.text))
+                || outside.iter().any(|w| w.x < right - em)
+            {
+                break;
+            }
+            head_top = head_top.min(l.y0);
+            head.extend(keep);
+        }
+        if head.iter().map(col_of).collect::<std::collections::HashSet<_>>().len() < 2 {
+            head.clear();
+            head_top = cluster[0].y;
+        }
+        let head_ids: std::collections::HashSet<usize> = head.iter().map(|w| w.id).collect();
+        let off = usize::from(!head.is_empty());
+        let (mine, others): (Vec<Col>, Vec<Col>) =
+            words.into_iter().partition(|w| head_ids.contains(&w.id) || (in_x(w) && w.y >= top && w.y1 <= bottom + 0.5));
+        words = others;
+        let row_of = |w: &Col| {
+            if head_ids.contains(&w.id) {
+                0
+            } else {
+                cluster.iter().rposition(|k| k.y - em * 0.35 <= w.y).unwrap_or(0) + off
+            }
+        };
         let mut cells: std::collections::BTreeMap<(usize, usize), Vec<Col>> = std::collections::BTreeMap::new();
         for w in &mine {
             cells.entry((row_of(w), col_of(w))).or_default().push(w.clone());
         }
         let nc = columns.len();
+        // 行の上端・下端（見出しの行は見出しの上端から最初の番号まで）。
+        let row_top = |r: usize| if r < off { head_top } else { cluster[r - off].y };
+        let row_bottom = |r: usize| if r < off { cluster[0].y } else { cluster.get(r - off + 1).map_or(bottom, |k| k.y) };
         let cells: Vec<trace::TableCell> = cells
             .into_iter()
             .map(|((row, col), ws)| {
@@ -297,15 +463,15 @@ fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<trace::Tabl
                     rowspan: 1,
                     colspan: 1,
                     x0: columns[col],
-                    y0: cluster[row].y,
+                    y0: row_top(row),
                     x1: columns.get(col + 1).copied().unwrap_or(right),
-                    y1: cluster.get(row + 1).map_or(bottom, |k| k.y),
+                    y1: row_bottom(row),
                     text: lines.iter().map(|l| render_line(&l.words)).collect::<String>(),
                     words: ws.iter().map(|w| w.id).collect(),
                 }
             })
             .collect();
-        tables.push(trace::Table { x0: left, y0: top, x1: right, y1: bottom, rows: cluster.len(), cols: nc, cells });
+        tables.push(trace::Table { x0: left, y0: top.min(head_top - 0.5), x1: right, y1: bottom, rows: cluster.len() + off, cols: nc, cells });
     }
     (tables, words)
 }

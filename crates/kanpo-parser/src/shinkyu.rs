@@ -833,6 +833,11 @@ pub(crate) fn lines_with_tables_by(cols: Vec<Col>, grids: &[&Grid], rest_lines: 
             }
         }
     }
+    place_tables(rest, tables, rest_lines)
+}
+
+/// 表の外の語 `rest` を `rest_lines` で行に組み、表を読み順（右→左）の位置に差し込む。
+pub(crate) fn place_tables(rest: Vec<Col>, mut tables: Vec<Table>, rest_lines: fn(Vec<Col>) -> Vec<Line>) -> Vec<Line> {
     let geom: std::collections::HashMap<usize, (f32, f32)> = rest.iter().map(|c| (c.id, ((c.x + c.x1) / 2.0, c.y))).collect();
     let mut lines = rest_lines(rest);
     // 右端の x が大きい表から、その表より左にある最初の行（行の中心が表の左端より左）か、表の

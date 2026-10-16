@@ -339,3 +339,6 @@ page	stratum
 20260731h01759/20260731h017590008	honshi,tiers,unruled-vertical-table,staggered-header
 20261009g00223/20261009g002230034	gougai,tiers,shinkyu,unruled-band-table
 20260730g00171/20260730g001710046	gougai,horizontal,shinkyu,table-above-two-columns
+20261016h01809/20261016h018090002	honshi,tiers,borderless-table
+20261016h01809/20261016h018090003	honshi,horizontal,borderless-table
+20261016h01809/20261016h018090004	honshi,horizontal,borderless-table
