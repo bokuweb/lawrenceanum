@@ -1554,12 +1554,6 @@ fn record_bands(bands: &[Vec<Col>]) -> Option<(usize, Vec<Line>)> {
     };
     let (n, anchors) = (3..=n).rev().find_map(|m| fit(m).map(|a| (m, a)))?;
     let bands = &all_bands[..n];
-    let em = bands[0].iter().map(|c| c.x1 - c.x).fold(0.0, f32::max).max(6.0);
-    // 行の頭どうしの間隔が列の間隔（1 字分）ほどなら、行ではなく本文の列（普通の文の段）。
-    let gaps: Vec<f32> = anchors.windows(2).map(|w| w[0] - w[1]).collect();
-    if gaps.iter().filter(|&&g| g < em * 1.6).count() * 2 > gaps.len() {
-        return None;
-    }
     let record_of = |x: f32| anchors.iter().rposition(|&a| x <= a + 3.0).unwrap_or(0);
     let mut lines = Vec::new();
     for r in 0..anchors.len() {
