@@ -359,6 +359,27 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 merge_split_header_tiers(split_tiers(cols, &TierRules { tables, hrules, sideways }))
             };
             let mut tiers: Vec<Vec<Col>> = attach_toc_page_numbers(tiers.into_iter().flat_map(split_side_by_side_tables).collect(), &words);
+            // 新旧対照表のページで、行の罫線の無い枠（帯の中の表）の欄の境の横線で切られた段は、前の段に戻す（改正前の
+            // 帯の救助器具の表の「性能等」の欄が別の段になり、表から外れていた）。
+            if shinkyu_page {
+                let center = |c: &Col| ((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0);
+                let mut i = 1;
+                while i < tiers.len() {
+                    let inside = grids.iter().filter(|g| g.xs.len() <= 3 && g.ys.len() >= 4).any(|g| {
+                        let within = |c: &Col| {
+                            let (x, y) = center(c);
+                            g.contains(x, y, 0.0)
+                        };
+                        !tiers[i].is_empty() && tiers[i].iter().all(within) && tiers[i - 1].iter().filter(|c| within(c)).count() >= 3
+                    });
+                    if inside {
+                        let t = tiers.remove(i);
+                        tiers[i - 1].extend(t);
+                    } else {
+                        i += 1;
+                    }
+                }
+            }
             // 段の中の罫線の表（他の枠を含まない枠で、中の語が全部この段にあり、中の字が縦組みで、
             // セルに文章の入っていないものだけ。横組みの表は行ごとに読むこれまでの組み方のほうがよい）。
             let inner_grids = |tier: &[Col]| -> Vec<&Grid> {
