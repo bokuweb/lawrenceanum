@@ -67,13 +67,20 @@ fn is_notice_title(line: &str, prev: Option<&str>) -> bool {
 
 /// 行が記事の `〇` 見出し（「〇総務省令第七十七号」）で始まるか。見出しは「〇」の直後に機関名
 /// （漢字）が続く。漢数字の零（「〇・五ミリリットル」「〇　五〇」、改め文の「…〇」を「…」に」の
-/// 折り返し）や単独の印の「〇」は見出しではない。
+/// 折り返し）や単独の印の「〇」は見出しではない。番号の折り返し（「第二八三六・五〇」＋「号、…」で
+/// 行頭に来た「〇号、」「〇条」）も見出しではない。
 pub(crate) fn is_heading_mark(t: &str) -> bool {
     let mut chars = t.chars();
-    chars.next() == Some('〇')
-        && chars
-            .next()
-            .is_some_and(|c| ('\u{4E00}'..='\u{9FFF}').contains(&c) && !"〇一二三四五六七八九十百千".contains(c))
+    let kanji = |c: char| ('\u{4E00}'..='\u{9FFF}').contains(&c);
+    if chars.next() != Some('〇') {
+        return false;
+    }
+    let Some(second) = chars.next() else { return false };
+    if !kanji(second) || "〇一二三四五六七八九十百千".contains(second) || "号条項".contains(second) {
+        return false;
+    }
+    // 助数詞の後に漢字が続かない（「〇円、」「〇年」）のは数。「〇人事院規則」は見出し。
+    !("年月日円人件個度倍分時点種級番歳回台".contains(second) && !chars.next().is_some_and(kanji))
 }
 
 /// 官報本文に現れる区分（記事カテゴリ）見出し。これらが独立行で現れたら別記事の開始とみなす。
@@ -116,6 +123,9 @@ mod tests {
         assert_eq!(segment_articles(text).len(), 1);
         assert!(is_heading_mark("〇財務省、厚生労働省、令第七号"));
         assert!(!is_heading_mark("〇"));
+        assert!(!is_heading_mark("〇号、第二八三六・五〇号"));
+        assert!(!is_heading_mark("〇円とする。"));
+        assert!(is_heading_mark("〇人事院規則一―七二"));
     }
 
     #[test]
