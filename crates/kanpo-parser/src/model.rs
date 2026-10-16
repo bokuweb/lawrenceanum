@@ -676,10 +676,20 @@ fn align_rows_by(
         .collect();
     let plain = finish_rows(pair_renumbered(realign_weak_windows(raw.clone(), false)));
     let units = finish_rows(pair_renumbered(realign_weak_windows(raw, true)));
-    let one_sided = |rs: &[(String, String)]| rs.iter().filter(|r| r.0.trim().is_empty() != r.1.trim().is_empty()).count();
-    // 号ごとに分けて組み直すと、仕上げた後の片側だけの行が減るときだけ使う。
-    let rows = if one_sided(&units) < one_sided(&plain) { units } else { plain };
+    // 号ごとに分けて組み直すと、仕上げた後の片側だけの行が減る（同じなら両側のある行が増える）ときだけ使う。
+    let rows = if fewer_one_sided(&units, &plain) { units } else { plain };
     Some(rows.into_iter().map(|(a, b)| ShinkyuRow { after: cell_runs_from_str(&a), before: cell_runs_from_str(&b), ..Default::default() }).collect())
+}
+
+/// `a` は `b` より片側だけの行が少ないか（同じ数なら、両側に文のある行が多いか）。
+fn fewer_one_sided(a: &[(String, String)], b: &[(String, String)]) -> bool {
+    let count = |rs: &[(String, String)]| {
+        let one = rs.iter().filter(|r| r.0.trim().is_empty() != r.1.trim().is_empty()).count();
+        let both = rs.iter().filter(|r| !r.0.trim().is_empty() && !r.1.trim().is_empty()).count();
+        (one, both)
+    };
+    let ((one_a, both_a), (one_b, both_b)) = (count(a), count(b));
+    one_a < one_b || (one_a == one_b && both_a > both_b)
 }
 
 /// 対応付けた行を仕上げる（片側だけの行の補い合い・印の配り直し・まとめて削った条や新設の号の行をまとめる）。
@@ -992,7 +1002,7 @@ fn pair_renumbered(rows: Vec<(String, String)>) -> Vec<(String, String)> {
 /// 文の似方で組み直す。号の繰り下げ（改正後「十八　特定非上場会社…」、改正前「二十二　特定非上場会社…」）では
 /// 番号で組むと別の号どうしが組になり、片側だけの行が離れた所にいくつも残っていた。組み直して片側だけの行が
 /// 減るときだけ使う。
-/// `units` なら、印のある窓は号・項・条と印の単位に分けて組み直すことも試す（[`realign_by_units`]）。
+/// `units` なら、窓を号・項・条と印の単位に分けて組み直すことも試す（[`realign_by_units`]）。
 fn realign_weak_windows(rows: Vec<(String, String)>, units: bool) -> Vec<(String, String)> {
     let empty = |s: &str| s.trim().is_empty();
     let sim = |a: &str, b: &str| crate::shinkyu::bigram_jaccard(a, b);
@@ -1025,13 +1035,12 @@ fn realign_weak_windows(rows: Vec<(String, String)>, units: bool) -> Vec<(String
             .map(|(x, y)| (x.map(|x| a[x].to_string()).unwrap_or_default(), y.map(|y| b[y].to_string()).unwrap_or_default()))
             .collect();
         let chosen: Vec<(String, String)> = if one_sided(window) > 0 && one_sided(&realigned) < one_sided(window) { realigned } else { window.to_vec() };
-        // 印のある窓は、号ごとに分けて組み直すと片側だけの行がさらに減るなら、そちらを使う（直前の行の末尾の印も含める）。
+        // 号ごとに分けて組み直すと片側だけの行がさらに減る（同じなら両側のある行が増える）なら、そちらを使う
+        // （直前の行の末尾の印も含める）。
         let peeled = out.last().map(|r| (split_trailing_marks(&r.0), split_trailing_marks(&r.1)));
-        let has_marks = window.iter().any(|r| [&r.0, &r.1].iter().any(|c| c.lines().any(|l| !only_marks(l).is_empty())))
-            || peeled.as_ref().is_some_and(|((_, a), (_, b))| !a.is_empty() || !b.is_empty());
-        if units && has_marks && one_sided(&chosen) > 0 {
+        if units && one_sided(&chosen) > 0 {
             if let Some((rows, (after_used, before_used))) = realign_by_units(window, peeled.as_ref()) {
-                if one_sided(&rows) < one_sided(&chosen) {
+                if fewer_one_sided(&rows, &chosen) {
                     // 直前の行の末尾の印は組み直した行へ移したので、直前の行からは除く。
                     if let (Some(last), Some(((after_keep, _), (before_keep, _)))) = (out.last_mut(), peeled) {
                         if after_used {
