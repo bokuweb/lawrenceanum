@@ -779,6 +779,7 @@ fn finish_rows(aligned: Vec<(String, String)>) -> Vec<(String, String)> {
             }
         }
     }
+    pair_replaced_article(&mut rows);
     shift_omitted_past_new(&mut rows);
     spread_marks_back(&mut rows);
     move_leading_marks_back(&mut rows);
@@ -808,6 +809,26 @@ fn spread_marks_back(rows: &mut [(String, String)]) {
             }
             set(&mut rows[i], marks[moved..].join("\n"));
         }
+    }
+}
+
+/// 改正後だけの行（条を置き換えた「第二十五条の八の四」）の次の行の改正前が、同じ条番号の条で末尾に印（「〔新設〕」）
+/// があり、その行の改正後が別の条なら、改正前の条は前の行のもので、印は次の行の新設の条のもの（条の文が置き換わって
+/// 似ていないため、次の新設の条と組まれていた）。
+fn pair_replaced_article(rows: &mut [(String, String)]) {
+    let number = |s: &str| s.trim().lines().take(3).find_map(article_number);
+    for i in 1..rows.len() {
+        let (prev, cur) = (&rows[i - 1], &rows[i]);
+        if prev.0.trim().is_empty() || !prev.1.trim().is_empty() || cur.0.trim().is_empty() {
+            continue;
+        }
+        let (keep, marks) = split_trailing_marks(&cur.1);
+        let (Some(a), Some(b), Some(c)) = (number(&prev.0), number(&keep), number(&cur.0)) else { continue };
+        if marks.is_empty() || a != b || c == b {
+            continue;
+        }
+        rows[i - 1].1 = keep;
+        rows[i].1 = marks.join("\n");
     }
 }
 
@@ -1684,6 +1705,18 @@ mod tests {
         assert!(out.iter().any(|r| r.0.starts_with("二") && r.1.starts_with("一")), "{out:?}");
         assert!(out.iter().any(|r| r.0.starts_with("三") && r.1 == "〔号を加える。〕"), "{out:?}");
         assert!(out.iter().any(|r| r.0.starts_with("四") && r.1.starts_with("二")), "{out:?}");
+    }
+
+    #[test]
+    fn pairs_replaced_article_and_moves_trailing_mark() {
+        let row = |a: &str, b: &str| (a.to_string(), b.to_string());
+        let mut rows = vec![
+            row("（認定書の交付）\n第二十五条の八の四　認定書を交付する。", ""),
+            row("（変更の届出等）\n第二十五条の八の五　届出書を提出する。", "（軽微な変更）\n第二十五条の八の四　軽微な変更は、次に掲げる。\n〔新設〕"),
+        ];
+        pair_replaced_article(&mut rows);
+        assert!(rows[0].1.contains("第二十五条の八の四"), "{rows:?}");
+        assert_eq!(rows[1].1, "〔新設〕");
     }
 
     #[test]
