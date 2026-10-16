@@ -61,13 +61,27 @@ fn is_notice_title(line: &str, prev: Option<&str>) -> bool {
 
 /// 行が記事の `〇` 見出し（「〇総務省令第七十七号」）で始まるか。見出しは「〇」の直後に機関名
 /// （漢字）が続く。漢数字の零（「〇・五ミリリットル」「〇　五〇」、改め文の「…〇」を「…」に」の
-/// 折り返し）や単独の印の「〇」は見出しではない。
+/// 折り返し）や単独の印の「〇」は見出しではない。機関名が漢数字で始まる（「〇九州地方整備局告示
+/// 第九十八号」「〇四国地方整備局…」）ときは、行が「第…号」で終わる見出しの形のときだけ見出しとみなす。
 pub(crate) fn is_heading_mark(t: &str) -> bool {
+    const NUMERALS: &str = "〇一二三四五六七八九十百千";
+    let kanji = |c: char| ('\u{4E00}'..='\u{9FFF}').contains(&c);
     let mut chars = t.chars();
-    chars.next() == Some('〇')
-        && chars
-            .next()
-            .is_some_and(|c| ('\u{4E00}'..='\u{9FFF}').contains(&c) && !"〇一二三四五六七八九十百千".contains(c))
+    if chars.next() != Some('〇') {
+        return false;
+    }
+    match chars.next() {
+        Some(c) if kanji(c) && !NUMERALS.contains(c) => true,
+        Some(c) if NUMERALS.contains(c) => {
+            let t = t.trim_end();
+            chars.next().is_some_and(|c| kanji(c) && !NUMERALS.contains(c))
+                && t.ends_with('号')
+                && t.contains('第')
+                && t.chars().count() <= 40
+                && !t.contains(['、', '。', '「', '」'])
+        }
+        _ => false,
+    }
 }
 
 /// 官報本文に現れる区分（記事カテゴリ）見出し。これらが独立行で現れたら別記事の開始とみなす。
@@ -110,6 +124,19 @@ mod tests {
         assert_eq!(segment_articles(text).len(), 1);
         assert!(is_heading_mark("〇財務省、厚生労働省、令第七号"));
         assert!(!is_heading_mark("〇"));
+    }
+
+    #[test]
+    fn agency_starting_with_numeral_is_heading() {
+        // 九州・四国の地方整備局は機関名が漢数字で始まる。前の告示と 1 つの記事にしない。
+        let text = "〇東北地方整備局告示第百一号\n道路の区域を変更した。\n〇九州地方整備局告示第九十八号\n都市計画事業を認可した。";
+        let arts = segment_articles(text);
+        assert_eq!(arts.len(), 2);
+        assert!(arts[1].starts_with("〇九州地方整備局告示第九十八号"));
+        assert!(is_heading_mark("〇四国地方整備局告示第十二号"));
+        // 漢数字の行（「〇九〇〇から」「〇五、二四〇メートル」）は見出しではない。
+        assert!(!is_heading_mark("〇九〇〇から一七〇〇まで"));
+        assert!(!is_heading_mark("〇五分の地点を中心とする半径一号"));
     }
 
     #[test]

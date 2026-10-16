@@ -79,11 +79,11 @@ test("改め文の項目を選ぶと本文と改正対象の法令が出る", as
   await expect(page).toHaveURL(/#\/laws\/415M60000008005/, { timeout: 15_000 });
 });
 
-test("本文を取り込んでいない項目は PDF への導線を出す", async ({ page }) => {
+test("本文を取り出せなかった項目は PDF への導線を出す", async ({ page }) => {
   await page.goto(new URL("#/kanpo/2026-04-02/0/1", BASE).toString());
 
   await expect(page.getByRole("heading", { name: /共同募金会が募集する寄附金/ })).toBeVisible();
-  await expect(page.getByText("この項目の本文はまだ取り込んでいません。")).toBeVisible();
+  await expect(page.getByText("この項目の本文は取り出せませんでした。")).toBeVisible();
   await expect(page.getByRole("link", { name: /官報PDF（3頁）/ })).toHaveAttribute("href", "https://www.kanpo.go.jp/20260402/y.pdf");
 });
 
