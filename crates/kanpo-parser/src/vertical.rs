@@ -1533,8 +1533,14 @@ fn record_bands(bands: &[Vec<Col>]) -> Option<(usize, Vec<Line>)> {
     let mut n = 0;
     let mut prev_top = f32::NEG_INFINITY;
     for b in bands {
-        if b.len() < 2 {
+        // 字間を空けた欄見出しの 1 字だけの段（「番」）は、表の続きとして数える。
+        let label = b.len() == 1 && b[0].text.chars().count() <= 2;
+        if b.len() < 2 && !label {
             break;
+        }
+        if label {
+            n += 1;
+            continue;
         }
         let (x0, x1, y0, y1) = ext(b);
         let overlap = (x1.min(fx1) - x0.max(fx0)).max(0.0) / (x1 - x0).max(fx1 - fx0).max(1.0);
@@ -1599,10 +1605,13 @@ fn record_bands(bands: &[Vec<Col>]) -> Option<(usize, Vec<Line>)> {
         if anchors.len() < 3 {
             return None;
         }
-        // どの段でも、欄の書き出しの 7 割以上が行の頭にある。
+        // どの段でも、欄の書き出しの 7 割以上が行の頭にある。行の頭より右の書き出し（段ごとにずれて組まれた欄見出し、
+        // 表の前の文）は数えない。
+        let lead = anchors[0];
         let aligned = |k: usize| {
-            let on = starts[k].iter().filter(|&&x| anchors.iter().any(|&a| (a - x).abs() < 3.0)).count();
-            on * 10 >= starts[k].len() * 7
+            let inside: Vec<f32> = starts[k].iter().copied().filter(|&x| x <= lead + 3.0).collect();
+            let on = inside.iter().filter(|&&x| anchors.iter().any(|&a| (a - x).abs() < 3.0)).count();
+            !inside.is_empty() && starts[k].len() - inside.len() <= 2 && on * 10 >= inside.len() * 7
         };
         (0..n).all(aligned).then_some(anchors)
     };
@@ -1610,14 +1619,51 @@ fn record_bands(bands: &[Vec<Col>]) -> Option<(usize, Vec<Line>)> {
     let bands = &all_bands[..n];
     let record_of = |x: f32| anchors.iter().rposition(|&a| x <= a + 3.0).unwrap_or(0);
     let mut lines = Vec::new();
-    for r in 0..anchors.len() {
+    // 行の頭から行の間隔の 1.5 倍より右の列は表の前の文（「次のとおり公告する。」「令和８年７月31日」）。列ごとに
+    // 先に書く。その内側（行の頭の右）は、段ごとにずれて組まれた欄見出しで、行の頭の行（欄見出しの行）に入れる。
+    let pitch = anchors.windows(2).map(|w| w[0] - w[1]).fold(f32::INFINITY, f32::min);
+    // 字の大きさ（縦組みの語の幅の中央値）。
+    let em = {
+        let mut ws: Vec<f32> = bands.iter().flatten().filter(|c| c.y1 - c.y >= (c.x1 - c.x) * 1.5).map(|c| c.x1 - c.x).collect();
+        ws.sort_by(f32::total_cmp);
+        ws.get(ws.len() / 2).copied().unwrap_or(8.0)
+    };
+    let outside = anchors[0] + pitch * 1.5;
+    let mut before: Vec<&Col> = bands.iter().flatten().filter(|c| center(c) > outside).collect();
+    before.sort_by(|a, b| {
+        let (ca, cb) = (center(a), center(b));
+        if (ca - cb).abs() < 3.0 { a.y.total_cmp(&b.y) } else { cb.total_cmp(&ca) }
+    });
+    for col in before.chunk_by(|a, b| (center(a) - center(b)).abs() < 3.0) {
+        lines.push(Line::text(col.iter().map(|c| c.text.as_str()).collect(), col.iter().map(|c| c.id).collect()));
+    }
+    let record_of = |x: f32| if x > outside { usize::MAX } else { record_of(x) };
+    // 行の頭の行のいちばん右の列が日付（「令和八年九月一日」）で始まるなら、表の右上の日付・署名と表の前の見出しで、
+    // 行ではない。列ごとに先に書く。
+    let mut lead_cols: Vec<&Col> = bands.iter().flatten().filter(|c| record_of(center(c)) == 0).collect();
+    lead_cols.sort_by(|a, b| {
+        let (ca, cb) = (center(a), center(b));
+        if (ca - cb).abs() < 3.0 { a.y.total_cmp(&b.y) } else { cb.total_cmp(&ca) }
+    });
+    let dated = lead_cols.first().is_some_and(|c| c.text.starts_with("令和") && c.text.ends_with('日'));
+    let first = if anchors.len() > 3 && dated {
+        for col in lead_cols.chunk_by(|a, b| (center(a) - center(b)).abs() < 3.0) {
+            lines.push(Line::text(col.iter().map(|c| c.text.as_str()).collect(), col.iter().map(|c| c.id).collect()));
+        }
+        1
+    } else {
+        0
+    };
+    for r in first..anchors.len() {
         let mut fields: Vec<String> = Vec::new();
         let mut ids: Vec<usize> = Vec::new();
         for b in bands {
             let mut ws: Vec<&Col> = b.iter().filter(|c| record_of(center(c)) == r).collect();
+            // 同じ列の語（縦中横の「13」は列の中心から少しずれる）は上から。
+            let same = (em * 0.6).max(3.0);
             ws.sort_by(|a, b| {
                 let (ca, cb) = (center(a), center(b));
-                if (ca - cb).abs() < 3.0 { a.y.total_cmp(&b.y) } else { cb.total_cmp(&ca) }
+                if (ca - cb).abs() < same { a.y.total_cmp(&b.y) } else { cb.total_cmp(&ca) }
             });
             if !ws.is_empty() {
                 fields.push(ws.iter().map(|c| c.text.as_str()).collect());
