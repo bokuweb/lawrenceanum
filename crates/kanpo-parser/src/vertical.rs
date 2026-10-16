@@ -2192,6 +2192,33 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
             return;
         }
     }
+    // 1 段の高さほどの領域で、cut より下が短い語（5 字以下）だけで、その多くが上の同じ列の続き（人事異動の
+    // 「（内閣委員会専門員）同」の列の下に寄せた氏名「田中　仁」）なら、段の境目ではないので切らない。
+    if ymax - ymin <= TIER_HEIGHT + 20.0 && ymax - ymin >= TIER_HEIGHT * 0.8 {
+        let lower: Vec<&Col> = cols.iter().filter(|c| (c.y + c.y1) / 2.0 > cut).collect();
+        // 上の同じ列の最後の語が官職・肩書き（「…同」「…官」「…大臣」「…長」「…員」）で終わる（その後の氏名）。
+        let continued = lower
+            .iter()
+            .filter(|c| {
+                cols.iter()
+                    .filter(|u| u.y1 <= cut && (center(u) - center(c)).abs() < 3.0)
+                    .max_by(|a, b| a.y1.total_cmp(&b.y1))
+                    .is_some_and(|u| u.text.ends_with(['同', '官', '臣', '長', '員', '事', '師', '授', '監']))
+            })
+            .count();
+        // 上の部分にも列の跨がない 1 字以上の空き（欄の境目）があれば、欄ごとの段が並ぶ表なので除く。
+        let upper: Vec<&Col> = cols.iter().filter(|c| (c.y + c.y1) / 2.0 <= cut).collect();
+        let em = cols.iter().map(|c| c.x1 - c.x).fold(0.0, f32::max).max(6.0);
+        let banded = upper.iter().any(|a| {
+            let y = a.y1;
+            let below = upper.iter().filter(|c| c.y >= y).map(|c| c.y).fold(f32::INFINITY, f32::min);
+            below.is_finite() && below - y >= em && upper.iter().any(|c| c.y1 <= y) && !upper.iter().any(|c| c.y < y && c.y1 > y)
+        });
+        if !banded && lower.len() >= 3 && lower.iter().all(|c| c.text.chars().count() <= 5) && continued * 10 >= lower.len() * 8 {
+            out.push(cols);
+            return;
+        }
+    }
     // cut で上下に分割（橋渡しカラムは中心 y が属する側へ。ただし上の段の同じ列の語に続く
     // （「第三条」の後の「歯科医師法施行規則…の一部を次のように改正する。」）なら上の段へ）。
     let continues_above = |c: &Col| {
