@@ -269,11 +269,12 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
         let numbered = |t: &str| t.trim().starts_with('第');
         let kind = numbered(&cluster[0].text);
         let same_key = |w: &Col| row_key(&w.text) && numbered(&w.text) == kind;
-        let other_key = |w: &Col| {
-            !cluster.iter().any(|k| k.id == w.id)
-                && same_key(w)
-                && words.iter().filter(|o| o.id != w.id && same_key(o) && (o.x - w.x).abs() < 2.0).count() >= 2
-        };
+        // 同じ種類の見出しの左端（昇順）。左端の揃う見出しの数を二分探索で数える。
+        let mut key_xs: Vec<f32> = words.iter().filter(|w| same_key(w)).map(|w| w.x).collect();
+        key_xs.sort_by(f32::total_cmp);
+        let near = |xs: &[f32], x: f32| xs.partition_point(|&v| v < x + 2.0) - xs.partition_point(|&v| v <= x - 2.0);
+        let cluster_ids: std::collections::HashSet<usize> = cluster.iter().map(|k| k.id).collect();
+        let other_key = |w: &Col| !cluster_ids.contains(&w.id) && same_key(w) && near(&key_xs, w.x) >= 3;
         // 表の右端の柵: 番号の行の高さに掛かる縦の罫線（段の境の線）か、右に並ぶ別の表の番号の列の左端。
         let rule_fence = vrules
             .iter()
@@ -289,20 +290,35 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
         // 多く同じ左端から始まり、そこから始まる表の行が 3 分の 1 未満の x（罫線も溝も無く、日付の欄のすぐ右に
         // 組まれた段の本文）。欄の左端（セルの中の折り返し「ＮＥＰＴＵＮＥ／ＬＥＡＤＥＲ」「進水装置用膨脹／
         // 式救命いかだ」が多く始まる）は、表の行の多くもそこから始まる。
-        let on_row = |w: &Col| cluster.iter().any(|k| (y_center(w) - y_center(k)).abs() <= em * 0.35);
-        let mut flow_starts: Vec<f32> = words
-            .iter()
-            .filter(|w| w.x > cluster[0].x1 + em && w.y >= first - em && w.y1 <= final_y + em && !on_row(w))
-            .map(|w| w.x)
-            .collect();
+        // 語の載る行（番号の行の中心との差が 0.35 em 以内の行の番号）。番号の行の中心は昇順。
+        let centers: Vec<f32> = cluster.iter().map(y_center).collect();
+        let row_at = |w: &Col| {
+            let c = y_center(w);
+            let i = centers.partition_point(|&v| v < c);
+            [i.checked_sub(1), Some(i)]
+                .into_iter()
+                .flatten()
+                .filter(|&j| j < centers.len() && (centers[j] - c).abs() <= em * 0.35)
+                .min_by(|&a, &b| (centers[a] - c).abs().total_cmp(&(centers[b] - c).abs()))
+        };
+        let in_span = |w: &Col| w.x > cluster[0].x1 + em && w.y >= first - em && w.y1 <= final_y + em;
+        let mut flow_starts: Vec<f32> = words.iter().filter(|w| in_span(w) && row_at(w).is_none()).map(|w| w.x).collect();
         flow_starts.sort_by(f32::total_cmp);
+        // 番号の行に載る語の (左端, 行)（左端の昇順）。
+        let mut row_starts: Vec<(f32, usize)> = words.iter().filter_map(|w| row_at(w).map(|r| (w.x, r))).collect();
+        row_starts.sort_by(|a, b| a.0.total_cmp(&b.0));
         let flow_fence = flow_starts
             .iter()
             .copied()
             .filter(|&x| {
-                let flow = flow_starts.iter().filter(|&&f| (f - x).abs() < 2.0).count();
-                let rows = cluster.iter().filter(|k| words.iter().any(|w| on_row(w) && (y_center(w) - y_center(k)).abs() <= em * 0.35 && (w.x - x).abs() < 2.0)).count();
-                flow >= 3 && flow > rows && rows * 3 < cluster.len()
+                let flow = near(&flow_starts, x);
+                if flow < 3 {
+                    return false;
+                }
+                let lo = row_starts.partition_point(|s| s.0 <= x - 2.0);
+                let hi = row_starts.partition_point(|s| s.0 < x + 2.0);
+                let rows = row_starts[lo..hi].iter().map(|s| s.1).collect::<std::collections::HashSet<_>>().len();
+                flow > rows && rows * 3 < cluster.len()
             })
             .map(|x| x - 0.5)
             .reduce(f32::min);
@@ -381,9 +397,10 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
         loop {
             // 次の行（いまの下端から 1 em 以内に始まる語）。番号の列に字があれば表の外（行の間隔より
             // 近ければ最後の行の番号の折り返し）。
+            // 下端より下へ伸びる語だけ（いまの下端の中に収まる語で回り続けない）。
             let next: Vec<&Col> = words
                 .iter()
-                .filter(|w| in_x(w) && w.y >= bottom - em * 0.5 && w.y < bottom + em && w.y > last.y + em * 0.5)
+                .filter(|w| in_x(w) && w.y >= bottom - em * 0.5 && w.y < bottom + em && w.y > last.y + em * 0.5 && w.y1 > bottom)
                 .collect();
             if next.is_empty() || next.iter().any(|w| (w.x < key_end && w.y >= last.y + pitch * 0.75) || other_key(w)) {
                 break;
