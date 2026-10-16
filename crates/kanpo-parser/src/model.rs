@@ -495,6 +495,30 @@ fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
         if let Block::Shinkyu { rows } = block {
             // 片側だけの行が残れば、つないだ表の全体で号・項・条の単位に分けて組み直す（ページの切れ目の
             // 前後で号がずれて組まれた行）。セルに表のある表は文に戻せないので除く。
+            // 前のページの条の続きの行（「附則第四条第五項の…⏎４　…」）の改正前が印だけで、上へ印だけの行が続き、その上に
+            // 改正前の空いた新設の条の行があれば、印は 1 行ずつ上のもの。
+            {
+                // 文の途中から始まる行（「附則第四条第五項の…」は「附則」の見出しではない）。
+                let continued = |runs: &[Run]| {
+                    runs.first().and_then(|r| r.text.lines().next()).is_some_and(|l| {
+                        let t = l.trim();
+                        let compact: String = t.chars().filter(|c| !c.is_whitespace()).collect();
+                        is_row_heading(l).is_none() || (compact.starts_with("附則") && compact != "附則" && article_number(t).is_none())
+                    })
+                };
+                let marks = |r: &ShinkyuRow| !only_marks(&runs_plain(&r.before)).is_empty();
+                for i in 1..rows.len() {
+                    if !(marks(&rows[i]) && !rows[i].after.is_empty() && continued(&rows[i].after)) {
+                        continue;
+                    }
+                    let k = (0..i).rev().find(|&k| !marks(&rows[k]));
+                    if let Some(k) = k.filter(|&k| rows[k].before.is_empty() && !rows[k].after.is_empty() && !continued(&rows[k].after)) {
+                        for t in k..i {
+                            rows[t].before = std::mem::take(&mut rows[t + 1].before);
+                        }
+                    }
+                }
+            }
             // セルに表のある行は文に戻せないので、その行で区切った区間ごとに組み直す。
             let plain = |r: &ShinkyuRow| r.after.iter().chain(&r.before).all(|x| x.table.is_none());
             let mut out_rows: Vec<ShinkyuRow> = Vec::new();
@@ -1077,7 +1101,7 @@ fn realign_weak_windows(rows: Vec<(String, String)>, units: bool) -> Vec<(String
             r.starts_with(['〔', '（', '［']) && r.chars().count() <= 6 && s.trim().lines().count() == 1
         })
     };
-    let eq = |a: &str, b: &str| same_opening(a, b) || sim(a, b) >= 0.5 || (bare_mark(a) && bare_mark(b)) || same_article_alike(a, b);
+    let eq = |a: &str, b: &str| same_opening(a, b) || sim(a, b) >= 0.5 || (bare_mark(a) && bare_mark(b)) || same_article_alike(a, b) || same_caption(a, b);
     let one_sided = |rs: &[(String, String)]| rs.iter().filter(|r| empty(&r.0) != empty(&r.1)).count();
     let mut out: Vec<(String, String)> = Vec::new();
     let mut i = 0;
@@ -1183,7 +1207,7 @@ fn realign_by_units(window: &[(String, String)], peeled: Option<&PeeledMarks>) -
         match (mark(x), mark(y)) {
             (true, true) => 0,
             (true, false) | (false, true) => 1,
-            _ if same_opening(x, y) || crate::shinkyu::bigram_jaccard(x, y) >= 0.5 || (bare_mark(x) && bare_mark(y)) || same_article_alike(x, y) => 3,
+            _ if same_opening(x, y) || crate::shinkyu::bigram_jaccard(x, y) >= 0.5 || (bare_mark(x) && bare_mark(y)) || same_article_alike(x, y) || same_caption(x, y) => 3,
             _ => 0,
         }
     };
@@ -1230,6 +1254,17 @@ fn same_article_alike(a: &str, b: &str) -> bool {
     };
     matches!((number(a), number(b)), (Some(x), Some(y)) if x == y)
         && (crate::shinkyu::bigram_jaccard(a, b) >= 0.3 || marker_only(a) || marker_only(b))
+}
+
+/// 条の見出し（「（雑則）」）が同じ条か（条番号が繰り上がった「第九条」→「第八条」）。
+fn same_caption(a: &str, b: &str) -> bool {
+    let caption = |s: &str| {
+        let first = s.trim().lines().next().unwrap_or("").trim();
+        let ok = first.starts_with('（') && first.ends_with('）') && first.chars().count() >= 4 && is_one_paren(first) && leading_mark(first).is_none();
+        let article = s.trim().lines().nth(1).and_then(article_number);
+        (ok && article.is_some()).then(|| first.to_string())
+    };
+    matches!((caption(a), caption(b)), (Some(x), Some(y)) if x == y)
 }
 
 /// 号・条の番号（「十八　」「第二十条　」）を除いた書き出し 10 字。
