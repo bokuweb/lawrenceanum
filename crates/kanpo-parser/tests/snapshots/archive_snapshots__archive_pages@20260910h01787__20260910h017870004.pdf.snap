@@ -1,6 +1,5 @@
 ---
 source: crates/kanpo-parser/tests/archive_snapshots.rs
-assertion_line: 105
 expression: out
 input_file: crates/kanpo-parser/tests/archive/pages/20260910h01787/20260910h017870004.pdf
 ---
