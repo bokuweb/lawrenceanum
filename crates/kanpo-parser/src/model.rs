@@ -622,7 +622,13 @@ fn join_tables(a: &mut NestedTable, b: &NestedTable) -> bool {
     if let (Some(last), Some(next)) = (a.rows.last_mut(), b.rows.get(skip)) {
         let tail = lead(last);
         let head = lead(next);
-        let cut = tail.ends_with(['、', '，', ',']) || !tail.ends_with(['。', '）', '」', '〕', '］']);
+        // 前の行が文末の記号で終わらないだけなら、次の先頭行の頭の欄が空（あふれた欄だけが続く）ときだけ続きとする。
+        // 頭の欄にも字があれば別の行（段の切れ目で上下に分かれた表の「35」「36」、「…第二十六条の四第三号」
+        // 「…第二十九条の二の三第一号」）。
+        let first_empty = next.first().is_none_or(|c| c.iter().all(|r| r.text.trim().is_empty()));
+        // どれかの欄が読点で終わる（「…の項、」）なら、その欄が切れている。
+        let comma = last.iter().any(|c| c.iter().map(|r| r.text.as_str()).collect::<String>().trim_end().ends_with(['、', '，', ',']));
+        let cut = comma || (!tail.ends_with(['。', '）', '」', '〕', '］']) && first_empty);
         // 次の先頭行が行の見出しの記号（認定番号・信号符字）で始まるなら新しい行。
         if !tail.is_empty() && !head.is_empty() && cut && !crate::vertical::starts_item(&head) && !crate::horizontal::row_key(&head) && !merged_cells {
             for (dst, src) in last.iter_mut().zip(next.iter()) {
@@ -705,9 +711,28 @@ fn splice_tables(runs: Vec<Run>, tables: &[Table]) -> Vec<Run> {
 /// フォールバックする（＝従来挙動、退行なし）。
 fn align_rows(after_lines: &[&str], before_lines: &[&str]) -> Vec<ShinkyuRow> {
     align_rows_by(after_lines, before_lines, is_row_heading, 2)
-        .or_else(|| align_rows_by(after_lines, before_lines, go_heading_key, 2))
-        .or_else(|| align_rows_by(after_lines, before_lines, unit_heading, 1))
+        .or_else(|| {
+            // 号の番号で分けるより条の書き出しで分けたほうが片側だけの行が少なければ、条の書き出しで分ける
+            // （号外第 215 号 372 ページ: ページの頭が前の条の続きで条見出しが 1 つだけ。号を組み替えた条
+            // （改正前の一〜四 → 改正後の一（イ〜ニ）・二）を号の番号で組むと、別の号どうしが組になり片側だけの行が残った）。
+            let by_item = align_rows_by(after_lines, before_lines, go_heading_key, 2);
+            let by_unit = align_rows_by(after_lines, before_lines, unit_heading, 1);
+            match (by_item, by_unit) {
+                (Some(item), Some(unit)) if fewer_one_sided(&row_pairs(&unit), &row_pairs(&item)) && one_sided(&row_pairs(&unit)) == 0 => Some(unit),
+                (item, unit) => item.or(unit),
+            }
+        })
         .unwrap_or_else(|| vec![single_row(after_lines, before_lines)])
+}
+
+/// 行の両側の文。
+fn row_pairs(rows: &[ShinkyuRow]) -> Vec<(String, String)> {
+    rows.iter().map(|r| (runs_plain(&r.after), runs_plain(&r.before))).collect()
+}
+
+/// 片側だけの行の数。
+fn one_sided(rows: &[(String, String)]) -> usize {
+    rows.iter().filter(|r| r.0.trim().is_empty() != r.1.trim().is_empty()).count()
 }
 
 /// 行見出しの判定 `heading`（見出しなら対応付けの鍵を返す）で両帯を区切り、LCS で対応付ける。
@@ -730,7 +755,8 @@ fn align_rows_by(
     }
     let keys_a: Vec<&str> = a.iter().map(|s| s.heading.as_deref().unwrap_or("")).collect();
     let keys_b: Vec<&str> = b.iter().map(|s| s.heading.as_deref().unwrap_or("")).collect();
-    let aln = lcs_align(&keys_a, &keys_b);
+    let marked = |segs: &[Seg]| -> Vec<bool> { segs.iter().map(|s| !split_trailing_marks(&s.text).1.is_empty()).collect() };
+    let aln = lcs_align(&keys_a, &keys_b, &marked(&a), &marked(&b));
     // 共通見出しが 1 つも無ければ対応付け不能としてフォールバック。
     if !aln.iter().any(|(i, j)| i.is_some() && j.is_some()) {
         return None;
@@ -1477,7 +1503,8 @@ fn unit_heading(line: &str) -> Option<String> {
 /// 行が条の書き出し（`第六条の二　…`。条番号の後に全角空白）なら条番号。列の折り返しで
 /// 行頭に来た「第三条の規定により」（空白が無い）は条の書き出しではない。
 fn article_number(line: &str) -> Option<String> {
-    const NUM: &str = "〇一二三四五六七八九十百千";
+    // 横書きの告示は算用数字で書く（「第285条の３　（略）」）。
+    const NUM: &str = "〇一二三四五六七八九十百千0123456789０１２３４５６７８９";
     let t = line.trim();
     let rest = t.strip_prefix('第')?;
     let n = rest.chars().take_while(|c| NUM.contains(*c)).count();
@@ -1535,40 +1562,51 @@ pub(crate) fn starts_with_spaced(text: &str, prefix: &str) -> bool {
 
 /// 2 列の系列を最長共通部分列で対応付ける。返り値は `(a の index, b の index)` の列で、
 /// 片側のみのギャップは `None`。
-fn lcs_align(a: &[&str], b: &[&str]) -> Vec<(Option<usize>, Option<usize>)> {
+///
+/// 長さの同じ共通部分列がいくつもあるときは、片側だけの要素の直前の反対側の要素の末尾に印（「（削る）」
+/// 「（新設）」）があるものを採る（`marked_a[i]`・`marked_b[j]` は要素の末尾に印があるか）。新旧対照表では、
+/// 削った条の改正後の欄・新設の条の改正前の欄に印を置くので、印の次の要素が片側だけの行になる（号外第 174 号
+/// 7 ページ: 改正後「４　（略）」「（削る）」と改正前の第四十六条の二、改正後の第四十八条の二と改正前「（新設）」。
+/// 条見出しの同じ第四十八条の二と第四十六条の二を組むと、第四十七条どうしが組めなかった）。
+fn lcs_align(a: &[&str], b: &[&str], marked_a: &[bool], marked_b: &[bool]) -> Vec<(Option<usize>, Option<usize>)> {
     let (n, m) = (a.len(), b.len());
-    let mut dp = vec![vec![0u32; m + 1]; n + 1];
-    for i in (0..n).rev() {
-        for j in (0..m).rev() {
-            dp[i][j] = if a[i] == b[j] {
-                dp[i + 1][j + 1] + 1
-            } else {
-                dp[i + 1][j].max(dp[i][j + 1])
-            };
+    // 片側だけの要素の直前の反対側の要素に印があるか（a[i] だけの行は b[j - 1]、b[j] だけの行は a[i - 1] を見る）。
+    let gap_a = |i: usize, j: usize| u32::from(i < n && j > 0 && marked_b[j - 1]);
+    let gap_b = |i: usize, j: usize| u32::from(j < m && i > 0 && marked_a[i - 1]);
+    // (共通部分列の長さ, 印に合う片側だけの要素の数)。
+    let mut dp = vec![vec![(0u32, 0u32); m + 1]; n + 1];
+    for i in (0..=n).rev() {
+        for j in (0..=m).rev() {
+            if i == n && j == m {
+                continue;
+            }
+            let mut best = (0, 0);
+            if i < n && j < m && a[i] == b[j] {
+                best = (dp[i + 1][j + 1].0 + 1, dp[i + 1][j + 1].1);
+            }
+            if i < n {
+                best = best.max((dp[i + 1][j].0, dp[i + 1][j].1 + gap_a(i, j)));
+            }
+            if j < m {
+                best = best.max((dp[i][j + 1].0, dp[i][j + 1].1 + gap_b(i, j)));
+            }
+            dp[i][j] = best;
         }
     }
     let mut res = Vec::new();
     let (mut i, mut j) = (0, 0);
-    while i < n && j < m {
-        if a[i] == b[j] {
+    while i < n || j < m {
+        if i < n && j < m && a[i] == b[j] && dp[i][j] == (dp[i + 1][j + 1].0 + 1, dp[i + 1][j + 1].1) {
             res.push((Some(i), Some(j)));
             i += 1;
             j += 1;
-        } else if dp[i + 1][j] >= dp[i][j + 1] {
+        } else if i < n && dp[i][j] == (dp[i + 1][j].0, dp[i + 1][j].1 + gap_a(i, j)) {
             res.push((Some(i), None));
             i += 1;
         } else {
             res.push((None, Some(j)));
             j += 1;
         }
-    }
-    while i < n {
-        res.push((Some(i), None));
-        i += 1;
-    }
-    while j < m {
-        res.push((None, Some(j)));
-        j += 1;
     }
     res
 }
@@ -1764,6 +1802,57 @@ mod tests {
         assert_eq!(rows.len(), 2, "{:?}", rows.iter().map(|r| (text(&r.after), text(&r.before))).collect::<Vec<_>>());
         assert!(text(&rows[1].before).contains("第十三条"));
         assert_eq!(article_number("第九条から第十一条まで　削除"), Some("第九条".to_string()));
+    }
+
+    #[test]
+    fn pairs_deleted_and_new_articles_by_their_marks() {
+        // 号外第 174 号 7 ページ: 第四十六条の二を削り、同じ見出しの第四十八条の二を新設した。見出しの共通部分列は
+        // 「調査官…・就労支援室…」と「調査官…・システム計画官…」が同じ長さで、印（（削る）・（新設））に合うのは前者。
+        let after = [
+            "（調査官）",
+            "第四十三条　（略）",
+            "４　（略）",
+            "（削る）",
+            "（就労支援室）",
+            "第四十七条　（略）",
+            "（システム計画官）",
+            "第四十八条の二　労働市場情報システム課に、システム計画官を置く。",
+            "（人材確保支援企画官）",
+            "第四十八条の三　職業安定局に、人材確保支援企画官を置く。",
+        ];
+        let before = [
+            "（調査官）",
+            "第四十三条　（略）",
+            "４　（略）",
+            "（システム計画官）",
+            "第四十六条の二　労働市場センター業務室に、システム計画官を置く。",
+            "（就労支援室）",
+            "第四十七条　（略）",
+            "（新設）",
+            "（新設）",
+        ];
+        let rows = align_rows(&after, &before);
+        let text = |r: &[Run]| r.iter().map(|x| x.text.as_str()).collect::<String>();
+        let pairs: Vec<(String, String)> = rows.iter().map(|r| (text(&r.after), text(&r.before))).collect();
+        assert_eq!(pairs.len(), 5, "{pairs:?}");
+        assert_eq!(pairs[1].0, "（削る）");
+        assert!(pairs[1].1.contains("第四十六条の二"), "{pairs:?}");
+        assert!(pairs[2].0.contains("第四十七条") && pairs[2].1.contains("第四十七条"), "{pairs:?}");
+        assert!(pairs[3].0.contains("第四十八条の二") && pairs[3].1 == "（新設）", "{pairs:?}");
+        assert!(pairs[4].0.contains("第四十八条の三") && pairs[4].1 == "（新設）", "{pairs:?}");
+    }
+
+    #[test]
+    fn splits_rows_at_arabic_article_numbers() {
+        // 横書きの告示の条番号は算用数字（号外第 215 号 372 ページ）。号を組み替えた条を号の番号で組まず、条で組む。
+        assert_eq!(article_number("第285条の３　（略）"), Some("第285条の３".to_string()));
+        let after = ["二　（略）", "三　鉛蓄電池を備えるものにあっては、次に掲げる基準", "（電気装置）", "第285条の３　（略）", "一　電気装置にあっては、次に掲げる基準", "イ　高電圧回路の配線", "二　鉛蓄電池を備えるもの"];
+        let before = ["二　（略）", "（新設）", "（電気装置）", "第285条の３　（略）", "一　高電圧回路の配線", "二　導電性のバリヤ", "三　原動機用蓄電池の取付け"];
+        let rows = align_rows(&after, &before);
+        let text = |r: &[Run]| r.iter().map(|x| x.text.as_str()).collect::<String>();
+        let pairs: Vec<(String, String)> = rows.iter().map(|r| (text(&r.after), text(&r.before))).collect();
+        assert!(pairs.iter().all(|(a, b)| !a.is_empty() && !b.is_empty()), "{pairs:?}");
+        assert!(pairs.iter().any(|(a, b)| a.contains("第285条の３") && b.contains("三　原動機用蓄電池")), "{pairs:?}");
     }
 
     #[test]

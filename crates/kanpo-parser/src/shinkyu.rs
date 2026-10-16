@@ -800,11 +800,21 @@ impl ShinkyuLayout {
         };
         let after_grids = tables_for(&all_after, &all_before);
         let before_grids = tables_for(&all_before, &all_after);
+        // 表の外の段の罫線の表（帯の語を含まない枠。表の後ろの別の記事の表）も表に組む。号外第 164 号 56 ページ:
+        // 新旧対照表の下の段の厚生労働省告示の年齢階層の表は、これまで改正前の帯に紛れて表になっていた。
+        let outside_grids: Vec<&Grid> = self
+            .trailing
+            .iter()
+            .flat_map(|part| {
+                let banded = |g: &&Grid| all_after.iter().chain(all_before.iter()).any(|c| inside(g, c));
+                inner.iter().copied().filter(move |g| !banded(g) && part.iter().any(|c| inside(g, c)) && crate::vertical::vertical_inside(part, g) && !crate::vertical::prose_cells(part, g))
+            })
+            .collect();
         Unit::Shinkyu {
             preamble: page_lines(self.preamble),
             after: self.after.into_iter().map(|p| lines_with_tables(p, &after_grids)).collect(),
             before: self.before.into_iter().map(|p| lines_with_tables(p, &before_grids)).collect(),
-            outside: self.trailing.into_iter().map(page_lines).collect(),
+            outside: self.trailing.into_iter().map(|p| lines_with_tables_by(p, &outside_grids, page_lines)).collect(),
         }
     }
 }
@@ -825,8 +835,10 @@ pub(crate) fn lines_with_tables_by(cols: Vec<Col>, grids: &[&Grid], rest_lines: 
         rest = others;
         if !mine.is_empty() {
             let t = grid_table(g, mine.clone());
-            // 1 セルだけ（枠で囲んだだけの文）は表にせず本文に戻す。
-            if t.rows * t.cols <= 1 {
+            // 1 セルだけ（枠で囲んだだけの文）は表にせず本文に戻す。2 マスの枠で字のあるセルが 1 つだけのもの（号外第
+            // 160 号 59 ページ: 前のページから続く新旧対照表の欄の枠に、改正前の「〔項を加える。〕」だけ）も同じ。
+            let filled = t.cells.iter().filter(|c| !c.text.trim().is_empty()).count();
+            if t.rows * t.cols <= 1 || (t.rows * t.cols <= 2 && filled <= 1) {
                 rest.extend(mine);
             } else {
                 tables.push(t);
