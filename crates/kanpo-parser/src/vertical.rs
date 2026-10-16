@@ -2140,12 +2140,20 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
                     let words_per_column = side.len() as f32 / ends.len().max(1) as f32;
                     full_above * 5 >= above.len() * 2 && full_below * 5 >= below.len() * 2 && words_per_column <= 4.0
                 };
+                // cut の所にその側の幅いっぱいの横線が 1 本だけあれば、段の境目（列の短い表のような段でも）。
+                // 同じ幅の横線がその側の高さにほかにもあれば、表の行の罫線。
+                let ruled_side = |side: &[Col]| {
+                    let (x0, x1) = (side.iter().map(|c| c.x).fold(f32::INFINITY, f32::min), side.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max));
+                    let (y0, y1) = (side.iter().map(|c| c.y).fold(f32::INFINITY, f32::min), side.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max));
+                    let spans = |rx0: f32, rx1: f32| rx1.min(x1) - rx0.max(x0) >= (x1 - x0) * 0.9;
+                    rules.hrules.iter().any(|&(y, rx0, rx1)| (y - cut).abs() < 12.0 && spans(rx0, rx1))
+                        && rules.hrules.iter().filter(|&&(y, rx0, rx1)| y0 + 4.0 < y && y < y1 - 4.0 && spans(rx0, rx1)).count() == 1
+                };
                 let large = |side: &[Col]| {
                     side.iter().any(|c| c.x1 - c.x > body_em * 1.3)
                         || columns(side, true) < 4
                         || columns(side, false) < 4
-                        || off_tier(side)
-                        || !filled(side)
+                        || (!ruled_side(side) && (off_tier(side) || !filled(side)))
                 };
                 match split_beside_crossing(&right, cut, &spaced) {
                     Some((beyond, crossing_cols, false)) if !large(&beyond) => {
