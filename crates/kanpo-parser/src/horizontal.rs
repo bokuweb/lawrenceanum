@@ -650,6 +650,66 @@ fn y_center(w: &Col) -> f32 {
     (w.y + w.y1) / 2.0
 }
 
+/// 上付き・下付きの小さな字だけの行（式「10⁻⁶」の「−６」。数と符号で、字の高さが隣の行の字の 7 割未満で 4 字まで）が、隣の行と上下に
+/// 重なり、その行のどの語とも左右に重ならなければ、その行に入れる（号外第 217 号 11 ページ: 「（0.2×f×10−６＋15）Hz」の
+/// 「−６」が行の前の別の行になっていた。e-Gov の本文との突き合わせで見つけた）。
+fn attach_small_script_lines(lines: &mut Vec<Line>) {
+    let chars = |l: &Line| l.words.iter().map(|w| w.text.chars().filter(|c| !c.is_whitespace()).count()).sum::<usize>();
+    // 上付き・下付きの字（数と符号）。
+    let script = |l: &Line| {
+        l.words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace()).all(|c| {
+            c.is_ascii_digit() || "−-＋+()（）.０１２３４５６７８９".contains(c)
+        })
+    };
+    // 語の字の高さ（行の高さは段の違う語が混ざると大きくなるので、語で比べる）。
+    let glyph = |l: &Line| l.words.iter().map(|w| w.y1 - w.y).fold(f32::INFINITY, f32::min);
+    let body = |l: &Line| {
+        let mut hs: Vec<f32> = l.words.iter().filter(|w| !w.text.trim().is_empty()).map(|w| w.y1 - w.y).collect();
+        hs.sort_by(f32::total_cmp);
+        hs.get(hs.len() / 2).copied().unwrap_or(0.0)
+    };
+    let mut i = 0;
+    while i < lines.len() {
+        let small = chars(&lines[i]) <= 4 && chars(&lines[i]) > 0 && script(&lines[i]);
+        let target = [i + 1, i.wrapping_sub(1)].into_iter().find(|&j| {
+            lines.get(j).is_some_and(|m| {
+                let l = &lines[i];
+                let overlap = l.y1.min(m.y1) - l.y0.max(m.y0);
+                small
+                    && glyph(l) < body(m) * 0.7
+                    && overlap >= (l.y1 - l.y0) * 0.3
+                    && !l.words.iter().any(|w| m.words.iter().any(|v| v.x1.min(w.x1) - v.x.max(w.x) > 0.5))
+            })
+        });
+        if let Some(j) = target {
+            let l = lines.remove(i);
+            let j = if j > i { j - 1 } else { j };
+            let m = &mut lines[j];
+            m.words.extend(l.words);
+            m.words.sort_by(|a, b| a.x.total_cmp(&b.x));
+            i = i.saturating_sub(1);
+            continue;
+        }
+        i += 1;
+    }
+}
+
+/// 横倒しの縦書きの行の縦中横の単位（「MHz」「kHz」。表示では幅 1 字・高さが字数分の縦長の枠）は、枠が 1 字分（と 1pt）
+/// 右へずれて出るので、左へ戻す（号外第 217 号 11 ページ「一・四MHzのもの」が「一・四　のものMHz」になっていた。
+/// e-Gov の本文との突き合わせで見つけた）。
+fn unshift_upright_latin(words: &mut [Col]) {
+    for w in words.iter_mut() {
+        let (width, height) = (w.x1 - w.x, w.y1 - w.y);
+        // 単位だけ（社名の「Style」なども縦長の枠になるが、縦中横ではない）。
+        const UNITS: [&str; 22] =
+            ["Hz", "kHz", "MHz", "GHz", "THz", "mW", "kW", "dB", "dBm", "dBi", "mA", "kV", "nm", "mm", "cm", "km", "kg", "mg", "mL", "ml", "ppm", "μm"];
+        if UNITS.contains(&w.text.trim()) && width > 0.0 && height >= width * 1.6 {
+            w.x -= width + 1.0;
+            w.x1 -= width + 1.0;
+        }
+    }
+}
+
 /// 表のセルの語を行に束ねる。[`group_lines`] より厳しく、語の中心 y が行の最初の語の中心から行の
 /// 高さの 35% 以内か、行と高さの半分以上重なって行のどの語とも左右に重ならない語だけを同じ行に
 /// する（金額の欄は行送りが字の高さとほぼ同じで、半行ずれて真下に置かれた「0」が上の行の範囲に
@@ -672,13 +732,16 @@ fn group_cell_lines(words: &[Col]) -> Vec<Line> {
             _ => lines.push((c, Line { y0: w.y, y1: w.y1, words: vec![w.clone()] })),
         }
     }
-    lines
+    let mut lines: Vec<Line> = lines
         .into_iter()
         .map(|(_, mut l)| {
+            unshift_upright_latin(&mut l.words);
             l.words.sort_by(|a, b| a.x.total_cmp(&b.x));
             l
         })
-        .collect()
+        .collect();
+    attach_small_script_lines(&mut lines);
+    lines
 }
 
 /// 語を行に束ねる。語の中心 y が直前の行の y 範囲に入れば同じ行とする。
@@ -702,8 +765,10 @@ fn group_lines(words: &[Col]) -> Vec<Line> {
         }
     }
     for l in &mut lines {
+        unshift_upright_latin(&mut l.words);
         l.words.sort_by(|a, b| a.x.total_cmp(&b.x));
     }
+    attach_small_script_lines(&mut lines);
     lines
 }
 

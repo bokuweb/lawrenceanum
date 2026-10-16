@@ -27,6 +27,8 @@ page	stratum
 20260728g00168/20260728g001680003	gougai,horizontal,item
 20260728g00168/20260728g001680004	gougai,horizontal,item
 20260728g00168/20260728g001680005	gougai,horizontal,item
+20260730g00171/20260730g001710009	gougai,sideways,shinkyu,upright-unit
+20260730g00171/20260730g001710024	gougai,sideways,superscript
 20260730g00171/20260730g001710046	gougai,horizontal,shinkyu,table-above-two-columns
 20260731g00172/20260731g001720255	item,horizontal-shinkyu
 20260731g00172/20260731g001720256	item,horizontal-shinkyu
@@ -77,6 +79,7 @@ page	stratum
 20260807t00038/20260807t000380010	tokubetsu,tiers,table,warichu,private-cid
 20260807t00038/20260807t000380011	tokubetsu,tiers,table,warichu,private-cid
 20260807t00038/20260807t000380012	tokubetsu,tiers
+20260810h01765/20260810h017650003	honshi,sideways,upright-unit
 20260812h01766/20260812h017660003	honshi,tiers,repeated-notices
 20260813h01767/20260813h017670006	honshi,sideways,table-beside-notices
 20260814h01768/20260814h017680002	honshi,tiers,shinkyu,private-cid
@@ -118,6 +121,7 @@ page	stratum
 20260904g00198/20260904g001980020	gougai,horizontal,private-cid,item
 20260904g00198/20260904g001980021	gougai,horizontal,warichu,private-cid
 20260904h01783/20260904h017830006	honshi,tiers,table,warichu
+20260910h01787/20260910h017870004	honshi,tiers,unruled-vertical-table,ruby
 20260911h01788/20260911h017880002	honshi,tiers,shinkyu,private-cid,item
 20260911h01788/20260911h017880003	honshi,tiers,shinkyu,private-cid,item
 20260911h01788/20260911h017880004	honshi,tiers,private-cid,item
@@ -196,6 +200,7 @@ page	stratum
 20260930g00215/20260930g002150471	gougai,tiers
 20260930g00215/20260930g002150473	gougai,tiers,table,private-cid
 20260930g00215/20260930g002150474	gougai,tiers,warichu,private-cid
+20261001g00217/20261001g002170011	gougai,sideways,shinkyu,upright-unit,superscript
 20261001g00217/20261001g002170029	gougai,tiers,shinkyu,private-cid,item
 20261001g00217/20261001g002170030	gougai,tiers,shinkyu,private-cid,item
 20261001g00217/20261001g002170031	gougai,tiers,shinkyu,private-cid,item
@@ -347,4 +352,3 @@ page	stratum
 20261016h01809/20261016h018090002	honshi,tiers,borderless-table
 20261016h01809/20261016h018090003	honshi,horizontal,borderless-table
 20261016h01809/20261016h018090004	honshi,horizontal,borderless-table
-20260910h01787/20260910h017870004	honshi,tiers,unruled-vertical-table,ruby
