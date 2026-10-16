@@ -1796,7 +1796,7 @@ fn merge_split_header_tiers(tiers: Vec<Vec<Col>>) -> Vec<Vec<Col>> {
 ///
 /// 段の内部（1 段分の高さ）では切らない。短い列の下端を段の境目と取り違えて段を
 /// 細切れにしないため。新旧対照表の見出しを含む領域も帯の扱いを崩さないよう切らない。
-fn split_beside_crossing(cols: &[Col], cut: f32, spaced: &[(f32, f32, f32)]) -> Option<(Vec<Col>, Vec<Col>, bool)> {
+fn split_beside_crossing(cols: &[Col], cut: f32, spaced: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)]) -> Option<(Vec<Col>, Vec<Col>, bool)> {
     /// 複数の段にまたがる領域とみなす高さ(pt)。官報の 1 段は約 176pt。
     const MIN_REGION_HEIGHT: f32 = 300.0;
     /// 段の境目の空き(pt)。
@@ -1829,7 +1829,9 @@ fn split_beside_crossing(cols: &[Col], cut: f32, spaced: &[(f32, f32, f32)]) -> 
         side.iter().filter(|c| crosses(c)).count() <= MAX_BRIDGE
             && above.len() >= 2
             && below.len() >= 2
-            && gap >= MIN_TIER_GAP
+            // 段の境目の横線（その側の幅いっぱいの 1 本）の上下にちょうど 4pt 空いた段は、浮動小数の誤差で
+            // 4pt をわずかに下回っても段に分ける（表の行の罫線は同じ幅の線が何本もある）。
+            && gap >= MIN_TIER_GAP - if ruled_alone(hrules, side, cut) { 0.01 } else { 0.0 }
             && !in_label
     };
     // またぐ列が右に寄っている: 左側を段に割れるか。
@@ -1854,6 +1856,16 @@ fn split_beside_crossing(cols: &[Col], cut: f32, spaced: &[(f32, f32, f32)]) -> 
         return Some((right, left, false));
     }
     None
+}
+
+/// `cut` の所に `side` の幅いっぱいの横線が 1 本だけあるか（段の境目の線）。同じ幅の横線が `side` の
+/// 高さの中にほかにもあれば、表の行の罫線。
+fn ruled_alone(hrules: &[(f32, f32, f32)], side: &[Col], cut: f32) -> bool {
+    let (x0, x1) = (side.iter().map(|c| c.x).fold(f32::INFINITY, f32::min), side.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max));
+    let (y0, y1) = (side.iter().map(|c| c.y).fold(f32::INFINITY, f32::min), side.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max));
+    let spans = |rx0: f32, rx1: f32| rx1.min(x1) - rx0.max(x0) >= (x1 - x0) * 0.9;
+    hrules.iter().any(|&(y, rx0, rx1)| (y - cut).abs() < 12.0 && spans(rx0, rx1))
+        && hrules.iter().filter(|&&(y, rx0, rx1)| y0 + 4.0 < y && y < y1 - 4.0 && spans(rx0, rx1)).count() == 1
 }
 
 /// 1 字ずつの語が同じ列に同じ間隔で 3 つ以上並ぶ（欄の高さに合わせて字間を空けた見出し
@@ -2075,7 +2087,7 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
         // ページで、本文の上下の段の列が 1 行に連結されるのを防ぐ。
         // またぐ列のある側（表など）は 1 段のまま置き、もう一方だけを段に分ける。
         let spaced = spaced_label_gaps(&cols);
-        if let Some((right, left, crossing_right)) = split_beside_crossing(&cols, cut, &spaced) {
+        if let Some((right, left, crossing_right)) = split_beside_crossing(&cols, cut, &spaced, &rules.hrules) {
             // またがない側は cut で段に割れることを確かめてある。その側の中央域の外に cut が来ると
             // 分け直しでは切れない（短い下の帯（改正前欄の「〔項を加える。〕」だけの帯など）が上の帯の
             // 列に付く）ので、そのときは cut で上下に切ってから分ける。同じ列が全角 1 字ほどの空きで
@@ -2141,21 +2153,14 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
                     full_above * 5 >= above.len() * 2 && full_below * 5 >= below.len() * 2 && words_per_column <= 4.0
                 };
                 // cut の所にその側の幅いっぱいの横線が 1 本だけあれば、段の境目（列の短い表のような段でも）。
-                // 同じ幅の横線がその側の高さにほかにもあれば、表の行の罫線。
-                let ruled_side = |side: &[Col]| {
-                    let (x0, x1) = (side.iter().map(|c| c.x).fold(f32::INFINITY, f32::min), side.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max));
-                    let (y0, y1) = (side.iter().map(|c| c.y).fold(f32::INFINITY, f32::min), side.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max));
-                    let spans = |rx0: f32, rx1: f32| rx1.min(x1) - rx0.max(x0) >= (x1 - x0) * 0.9;
-                    rules.hrules.iter().any(|&(y, rx0, rx1)| (y - cut).abs() < 12.0 && spans(rx0, rx1))
-                        && rules.hrules.iter().filter(|&&(y, rx0, rx1)| y0 + 4.0 < y && y < y1 - 4.0 && spans(rx0, rx1)).count() == 1
-                };
+                let ruled_side = |side: &[Col]| ruled_alone(&rules.hrules, side, cut);
                 let large = |side: &[Col]| {
                     side.iter().any(|c| c.x1 - c.x > body_em * 1.3)
                         || columns(side, true) < 4
                         || columns(side, false) < 4
                         || (!ruled_side(side) && (off_tier(side) || !filled(side)))
                 };
-                match split_beside_crossing(&right, cut, &spaced) {
+                match split_beside_crossing(&right, cut, &spaced, &rules.hrules) {
                     Some((beyond, crossing_cols, false)) if !large(&beyond) => {
                         split_side(beyond, out);
                         out.push(crossing_cols);
