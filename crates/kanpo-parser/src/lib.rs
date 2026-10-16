@@ -221,7 +221,12 @@ fn pick_by_number(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> {
     let open = title.rfind('（')?;
     let inner = title[open + '（'.len_utf8()..].trim_end_matches('）');
     let digit = |c: char| "〇一二三四五六七八九".find(c).map(|i| i / '〇'.len_utf8());
-    let start = inner.find(|c: char| digit(c).is_some())?;
+    // 号数は末尾の漢数字の並び（「防衛二五一～二五三」「同二五四、二五五」のように範囲・列挙のこともあり、
+    // そのときは先頭の号数）。機関名が漢数字で始まる（「九州地方整備局九八」）ので、先頭の漢数字では切らない。
+    let start = inner
+        .char_indices()
+        .find(|&(i, c)| digit(c).is_some() && inner[i..].chars().all(|c| digit(c).is_some() || "～〜、・".contains(c)))?
+        .0;
     let agency = &inner[..start];
     let n = inner[start..].chars().map_while(digit).fold(0u64, |n, d| n * 10 + d as u64);
     let agencies: Vec<&str> = if agency == "同" { Vec::new() } else { agency.split('・').filter(|a| !a.is_empty()).collect() };
@@ -458,5 +463,19 @@ mod tests {
         assert_eq!(pick_article(&title.replace("（同二八五）", "（同二八六）"), &a), None);
         assert_eq!(heading_number("〇国土交通省告示第千百八十七号"), Some(1187));
         assert_eq!(heading_number("人事院公示第26号"), Some(26));
+    }
+
+    #[test]
+    fn picks_article_by_number_when_agency_starts_with_numeral() {
+        // 機関名が漢数字で始まる（「九州地方整備局九八」）。先頭の「九」を号数と取り違えない。
+        let a = arts(&[
+            "〇東北地方整備局告示第百一号\n次のように道路の区域を変更した。",
+            "〇九州地方整備局告示第九十八号\n都市計画事業を認可したので告示する。",
+        ]);
+        assert_eq!(pick_article("都市計画に関する件（九州地方整備局九八）", &a), Some(1));
+        // 範囲・列挙の号数は先頭の号数で選ぶ。
+        let a = arts(&["〇防衛省告示第二百五十一号\n射撃訓練を実施する。", "〇防衛省告示第二百五十四号\n射撃等訓練を実施する。"]);
+        assert_eq!(pick_by_number("訓練の件（防衛二五一～二五三）", &a), Some(0));
+        assert_eq!(pick_by_number("訓練の件（同二五四、二五五）", &a), Some(1));
     }
 }

@@ -1,7 +1,7 @@
 //! `lawpub kanpo-archive` — デジタル官報の全ページ PDF を保存する。
 //!
 //! デジタル官報は直近約 90 日しか公開されないため、パーサの検証・再抽出用に原本を手元
-//! （CI では R2）へ蓄積する。改め文抽出 (`kanpo-fetch`) と違い、項目の種類を問わず号の
+//! （CI では R2）へ蓄積する。項目単位の本文抽出 (`kanpo-fetch`) と違い、目次に無いページも含めて号の
 //! 全ページを対象にし、`pdftotext -bbox-layout` の座標付きテキストも並べて保存する
 //! （playground がブラウザで解析し直せるように）。
 //!
@@ -248,8 +248,8 @@ fn kanpo_date(manifest: &Manifest) -> kanpo_client::KanpoDate {
     kanpo_client::KanpoDate { date: manifest.date.clone(), issues }
 }
 
-/// 1 日分を原本から抽出し直す。戻り値は (改め文の対象項目数, 本文が取れた項目数, 読んだページ数)。
-fn reextract_date(archive: &Archive, date: &str, cache: &Path) -> Result<Option<(usize, usize, usize)>> {
+/// 1 日分を原本から抽出し直す。戻り値は (項目数, 記事を特定できなかった項目数, 本文が取れた項目数, 読んだページ数)。
+fn reextract_date(archive: &Archive, date: &str, cache: &Path) -> Result<Option<(usize, usize, usize, usize)>> {
     let Some(bytes) = archive.get(&format!("{date}/manifest.json"))? else {
         return Ok(None);
     };
@@ -292,12 +292,12 @@ fn reextract_date(archive: &Archive, date: &str, cache: &Path) -> Result<Option<
         };
         Some(Some(pdf::PageInput { xhtml, rules }))
     };
-    let stats = crate::kanpo::fill_amend_texts_with(&mut kd, true, &mut load);
+    let stats = crate::kanpo::fill_amend_texts_with(&mut kd, false, &mut load);
     let extracted = kd.issues.iter().flat_map(|i| &i.items).filter(|i| i.amend_text.is_some()).count();
     let dir = cache.join("kanpo");
     std::fs::create_dir_all(&dir)?;
     std::fs::write(dir.join(format!("{date}.json")), serde_json::to_vec_pretty(&kd)?)?;
-    Ok(Some((stats.amend_items, extracted, read)))
+    Ok(Some((stats.amend_items, stats.unmatched, extracted, read)))
 }
 
 /// `lawpub kanpo-reextract` — 原本 (`kanpo-archive` の出力) から `.cache/kanpo/{date}.json` を作る。
@@ -327,9 +327,9 @@ pub fn run_reextract(archive: &str, cache: &Path, dates: &[String], all: bool) -
             continue;
         }
         match reextract_date(&archive, date, cache) {
-            Ok(Some((items, extracted, read))) => {
+            Ok(Some((items, unmatched, extracted, read))) => {
                 done += 1;
-                tracing::info!("kanpo-reextract {date}: amend items={items} extracted={extracted} pages read={read}");
+                tracing::info!("kanpo-reextract {date}: items={items} unmatched={unmatched} extracted={extracted} pages read={read}");
             }
             Ok(None) => tracing::warn!("kanpo-reextract {date}: 原本に manifest がありません"),
             // 1 日の失敗で他の日を止めない (次回また cache に無い日として拾う)。
@@ -400,7 +400,7 @@ mod tests {
             serde_json::from_slice(&std::fs::read(cache.join("kanpo/2026-10-09.json")).unwrap()).unwrap();
         let items = &kd.issues[0].items;
         assert!(items[0].amend_text.as_deref().is_some_and(|t| !t.is_empty()), "改正の項目は本文を抽出する");
-        assert!(items[1].amend_text.is_none(), "改正・廃止・制定の標題でない項目は抽出しない");
+        assert!(items[1].amend_text.as_deref().is_some_and(|t| !t.is_empty()), "改正・廃止・制定の標題でない項目も抽出する");
         assert!(!cache.join("kanpo/2026-10-08.json").exists(), "原本に manifest が無い日は書かない");
 
         // cache にある日は既定では作り直さず、--all なら作り直す。

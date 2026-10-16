@@ -1,6 +1,6 @@
 // 官報の一覧と項目の表示。左に日付を選んでその日の号・項目（目次）を並べ、右に選んだ項目を出す。
-// 改正・廃止・制定の項目は抽出した改め文（新旧対照表を含む）を HTML で組み、それ以外は標題と
-// 官報 PDF への導線だけを出す（本文はまだ取り込んでいない）。
+// 本文は標題を問わず全項目から抽出しており、改め文（新旧対照表を含む）は HTML で組む。
+// 本文が取れなかった項目は標題と官報 PDF への導線だけを出す。
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { BookOpen, ExternalLink, Newspaper, Scale, Search } from "lucide-react";
@@ -10,7 +10,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
 import { AmendDocumentView } from "../amend-document-view";
 import type { KanpoItem, KanpoLawRef } from "../../data/api";
-import { findKanpoItem, hasKanpoBody, kanpoIssueLabel, useKanpoDates, useKanpoDay } from "../../data/use-kanpo";
+import { findKanpoItem, kanpoIssueLabel, useKanpoDates, useKanpoDay } from "../../data/use-kanpo";
 
 /** 選択中の項目（その日の何号目の何項目目か）。 */
 export type KanpoItemRef = { issue: number; item: number };
@@ -38,9 +38,8 @@ function ItemListRow({ item, selected, onClick }: { item: KanpoItem; selected: b
       <div className="text-sm line-clamp-2">{item.title}</div>
       <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-muted-foreground">
         <span className="tabular-nums">{item.page}頁</span>
-        {hasKanpoBody(item) && (
-          <span className="px-1.5 py-0.5 rounded bg-muted">{format ?? "本文あり"}</span>
-        )}
+        {/* 本文は全項目から取るので「本文あり」は出さず、改め文の形式だけを示す。 */}
+        {format && <span className="px-1.5 py-0.5 rounded bg-muted">{format}</span>}
         {law?.title && (
           <span className="flex items-center gap-0.5 min-w-0">
             <BookOpen className="size-3 shrink-0" />
@@ -111,10 +110,9 @@ function ItemDetail({ date, issueLabel, item }: { date: string; issueLabel: stri
             <pre className="text-sm whitespace-pre-wrap font-sans leading-relaxed">{item.amend_text}</pre>
           ) : (
             <div className="text-sm text-muted-foreground space-y-1.5">
-              <p>この項目の本文はまだ取り込んでいません。</p>
+              <p>この項目の本文は取り出せませんでした。</p>
               <p className="text-xs">
-                本文を抽出しているのは、標題に改正・廃止・制定を含む項目だけです。内容は官報 PDF で確認してください
-                （官報の公式サイトでの無料閲覧は掲載から 90 日間です）。
+                内容は官報 PDF で確認してください（官報の公式サイトでの無料閲覧は掲載から 90 日間です）。
               </p>
             </div>
           )}
