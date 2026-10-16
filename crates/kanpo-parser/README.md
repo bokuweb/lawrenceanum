@@ -136,6 +136,18 @@ diff -r /tmp/before /tmp/after
 cargo run --release -p kanpo-parser --example egov_check -- <bbox.html のディレクトリ> .cache/egov-check
 ```
 
+`egov_rows` は、蓄積した官報（`kanpo-archive` の出力）の改め文の項目を本番と同じく PDF から項目単位で解析し、
+標題の記事の新旧対照表を e-Gov と突き合わせる。欄の各行が改正後・改正前の版の本文に含まれるかに加えて、
+**行の組み**も確かめる: e-Gov の両方の版を条・項・号などの単位に分けて版どうしを組み、表の行の改正後欄と
+改正前欄が当たる単位が組になっていれば「合う」、どちらも別の単位と組になっていれば「組み違い」と数える。
+段階的に施行される改正では、同じ省令の版のうち欄の文がいちばん多く含まれるものを選ぶ。様式の欄・表の注記・
+省略の行は比べない:
+
+```bash
+cargo run --release -p kanpo-parser --example egov_rows -- .cache/kanpo-archive .cache/egov-check
+# 1 項目だけ: … .cache/egov-check 20260918g00209:55
+```
+
 ## 蓄積した官報のスナップショットテスト
 
 `tests/archive/` に、蓄積した官報から層別に選んだページ（号の種類 × 組み方 × 新旧対照表 ×
