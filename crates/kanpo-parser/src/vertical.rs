@@ -2057,6 +2057,16 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
         }
     }
 
+    // 表の脇で縦に切った残りに横線のある cut が無くても、列の重ならない縦の境目の左に記事の見出し（「〇…号」）
+    // があり、左だけならどの列も跨がない cut で段に割れるなら、そこで縦に切る（横倒しのページで、横組みの
+    // 表の左に縦書きの告示が 2 段に組まれたもの。表の右から読む）。
+    if ruled_only && best.is_none() {
+        if let Some((right, left)) = split_beside_tiered_notice(&cols) {
+            split_tiers_rec(right, depth + 1, rules, ruled_only, out);
+            split_tiers_rec(left, depth + 1, rules, false, out);
+            return;
+        }
+    }
     let Some((crossing, touches, cut, _, _)) = best else {
         out.push(cols);
         return;
@@ -2275,6 +2285,41 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
     }
     split_tiers_rec(top, depth + 1, rules, ruled_only, out);
     split_tiers_rec(bottom, depth + 1, rules, ruled_only, out);
+}
+
+/// 列の重ならない縦の境目で `cols` を右と左に分ける。左に記事の見出し（「〇…号」）があり、左だけならどの列も
+/// 跨がない（字間でもない）横の空きで上下に割れ、右は割れず見出しも無いときだけ。境目は見出しの記事に
+/// いちばん近いもの（左から順に試して最初のもの）。
+fn split_beside_tiered_notice(cols: &[Col]) -> Option<(Vec<Col>, Vec<Col>)> {
+    let mut edges: Vec<f32> = cols.iter().map(|c| c.x).collect();
+    edges.sort_by(f32::total_cmp);
+    edges.dedup_by(|a, b| (*a - *b).abs() < 0.5);
+    // 左の部分が、どの列も跨がない横の空き（上下とも 2 列以上、空きは 4pt 以上）で割れるか。
+    let tiered = |side: &[Col]| {
+        let (top, bottom) = (side.iter().map(|c| c.y).fold(f32::INFINITY, f32::min), side.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max));
+        let (lo, hi) = (top + (bottom - top) * 0.2, bottom - (bottom - top) * 0.2);
+        side.iter().map(|c| c.y1).filter(|&y| lo <= y && y <= hi).any(|y| {
+            let next = side.iter().filter(|c| c.y >= y).map(|c| c.y).fold(f32::INFINITY, f32::min);
+            next - y >= 4.0
+                && !side.iter().any(|c| c.y < y + 0.5 && c.y1 > y + 0.5)
+                && side.iter().filter(|c| c.y1 <= y + 0.5).count() >= 2
+                && side.iter().filter(|c| c.y >= next - 0.5).count() >= 2
+        })
+    };
+    for edge in edges {
+        if cols.iter().any(|c| c.x < edge - 0.5 && c.x1 > edge + 0.5) {
+            continue;
+        }
+        let (right, left): (Vec<Col>, Vec<Col>) = cols.iter().cloned().partition(|c| c.x >= edge - 0.5);
+        if right.len() < 4 || left.len() < 8 {
+            continue;
+        }
+        let heading = |side: &[Col]| side.iter().any(|c| crate::segment::is_heading_mark(&c.text));
+        if heading(&left) && !heading(&right) && tiered(&left) && !tiered(&right) {
+            return Some((right, left));
+        }
+    }
+    None
 }
 
 /// `part` の語の右から 3 列までに記事の始まり（「〇…第○号」の標題・「…をここに公布する。」）があるか。
