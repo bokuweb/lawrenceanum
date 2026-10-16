@@ -54,6 +54,10 @@ pub struct PathItem {
     pub fill: bool,
     /// 線幅（ページ座標の pt、CTM の拡大率を掛けた値）。
     pub line_width: f64,
+    /// 描いたときのクリップの外接矩形（ページ座標の `[x0, y0, x1, y1]`）。クリップが無ければ `None`。
+    /// クリップのパスの外接矩形を重ねた範囲なので、実際に見える範囲より狭くはならない。
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub clip: Option<[f64; 4]>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -145,6 +149,7 @@ struct GState {
     rise: f64,
     render: i64,
     line_width: f64,
+    clip: Option<[f64; 4]>,
 }
 
 const MAX_FORM_DEPTH: usize = 12;
@@ -166,6 +171,8 @@ struct Interp<'a> {
     /// 次の字の前の TJ の数値による送り（text space の字の大きさ倍）。
     pending_kern: f64,
     show_count: u32,
+    /// `W`・`W*` の後、次にパスを描く（`n` を含む）ときにクリップを狭める。
+    pending_clip: bool,
 }
 
 /// ページを解釈する。
@@ -193,6 +200,7 @@ pub fn extract_page(doc: &Document, page: &PageRef) -> Page {
             rise: 0.0,
             render: 0,
             line_width: 1.0,
+            clip: None,
         },
         stack: Vec::new(),
         tm: Matrix::IDENTITY,
@@ -206,6 +214,7 @@ pub fn extract_page(doc: &Document, page: &PageRef) -> Page {
         forms: Vec::new(),
         pending_kern: 0.0,
         show_count: 0,
+        pending_clip: false,
     };
     let content = page_content(doc, &page.dict);
     it.run(&content, &page.resources);
@@ -399,8 +408,10 @@ impl Interp<'_> {
             b"f" | b"F" | b"f*" => self.paint(false, true, false),
             b"B" | b"B*" => self.paint(true, true, false),
             b"b" | b"b*" => self.paint(true, true, true),
+            b"W" | b"W*" => self.pending_clip = true,
             b"n" => {
-                self.current = None;
+                self.flush_subpath();
+                self.apply_clip();
                 self.path.clear();
             }
             // ---- XObject ----
@@ -528,6 +539,9 @@ impl Interp<'_> {
             }
         }
         self.flush_subpath();
+        // `W` で狭めたクリップは、同じパスを描いた後から効く。
+        let clip = self.gs.clip;
+        self.apply_clip();
         let subpaths = std::mem::take(&mut self.path);
         if subpaths.is_empty() {
             return;
@@ -538,6 +552,22 @@ impl Interp<'_> {
             stroke,
             fill,
             line_width,
+            clip,
+        });
+    }
+
+    /// `W`・`W*` で指定したクリップを、今のパスの外接矩形で狭める。曲線を含むパスは
+    /// 頂点（終点）だけでは外接矩形が決まらないので狭めない。
+    fn apply_clip(&mut self) {
+        if !std::mem::take(&mut self.pending_clip) || self.path.iter().any(|sp| sp.curved) {
+            return;
+        }
+        let mut pts = self.path.iter().flat_map(|sp| sp.points.iter());
+        let Some(&[x, y]) = pts.next() else { return };
+        let b = pts.fold([x, y, x, y], |b, &[x, y]| [b[0].min(x), b[1].min(y), b[2].max(x), b[3].max(y)]);
+        self.gs.clip = Some(match self.gs.clip {
+            Some(c) => [c[0].max(b[0]), c[1].max(b[1]), c[2].min(b[2]), c[3].min(b[3])],
+            None => b,
         });
     }
 
