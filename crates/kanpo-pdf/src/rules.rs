@@ -2,7 +2,8 @@
 //!
 //! kanpo-parser が `pdftocairo -svg` の出力から拾っていたもの（`M x y L x y` だけのパス）と
 //! 同じものを、コンテンツストリームから直接拾う。同じ向きに一直線に続く線分（`m l l`）は
-//! cairo と同じく 1 本にまとめる。矩形（`re`）や折れ線は含めない。
+//! cairo と同じく 1 本にまとめる。矩形（`re`）や折れ線は含めない。クリップで切り抜かれた線は
+//! 見える範囲だけにする（隣の記事の表の横線が、クリップの外の別の記事の欄まで伸びて見えないように）。
 
 use serde::{Deserialize, Serialize};
 
@@ -35,6 +36,8 @@ pub struct PageRules {
 const SKEW: f64 = 2.0;
 /// 罫線とみなす最短の長さ（pt）。
 const MIN_LEN: f64 = 15.0;
+/// クリップの縁に重なる線を切り落とさないための許容（pt）。
+const CLIP_TOL: f64 = 1.0;
 
 pub fn page_rules(page: &Page) -> PageRules {
     let mut rules = PageRules::default();
@@ -47,18 +50,21 @@ pub fn page_rules(page: &Page) -> PageRules {
             continue;
         };
         let (dx, dy) = ((x2 - x1).abs(), (y2 - y1).abs());
+        let [cx0, cy0, cx1, cy1] = path.clip.unwrap_or([f64::NEG_INFINITY, f64::NEG_INFINITY, f64::INFINITY, f64::INFINITY]);
         if dx < SKEW && dy > MIN_LEN {
-            rules.vertical.push(VRule {
-                x: ((x1 + x2) / 2.0) as f32,
-                y0: y1.min(y2) as f32,
-                y1: y1.max(y2) as f32,
-            });
+            let x = (x1 + x2) / 2.0;
+            let (y0, y1) = (y1.min(y2).max(cy0), y1.max(y2).min(cy1));
+            if x < cx0 - CLIP_TOL || x > cx1 + CLIP_TOL || y1 - y0 <= MIN_LEN {
+                continue;
+            }
+            rules.vertical.push(VRule { x: x as f32, y0: y0 as f32, y1: y1 as f32 });
         } else if dy < SKEW && dx > MIN_LEN {
-            rules.horizontal.push(HRule {
-                y: ((y1 + y2) / 2.0) as f32,
-                x0: x1.min(x2) as f32,
-                x1: x1.max(x2) as f32,
-            });
+            let y = (y1 + y2) / 2.0;
+            let (x0, x1) = (x1.min(x2).max(cx0), x1.max(x2).min(cx1));
+            if y < cy0 - CLIP_TOL || y > cy1 + CLIP_TOL || x1 - x0 <= MIN_LEN {
+                continue;
+            }
+            rules.horizontal.push(HRule { y: y as f32, x0: x0 as f32, x1: x1 as f32 });
         }
     }
     rules

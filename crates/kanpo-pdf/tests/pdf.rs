@@ -130,13 +130,17 @@ fn decrypts_kanpo_pdf_and_maps_japan1_cids() {
     assert!(page.glyphs.iter().any(|g| g.text == "\u{FE11}"));
 }
 
+/// pdftocairo の SVG はクリップを `clip-path` にしてパスの座標はそのまま出すので、クリップを外して比べる。
 #[test]
 fn rules_match_pdftocairo_on_corpus() {
     for pdf in corpus_pages() {
         let expected: kanpo_pdf::PageRules =
             serde_json::from_str(&poppler(&pdf, "rules.json")).unwrap();
-        let page = &kanpo_pdf::extract_pages(&std::fs::read(&pdf).unwrap()).unwrap()[0];
-        let actual = kanpo_pdf::page_rules(page);
+        let mut page = kanpo_pdf::extract_pages(&std::fs::read(&pdf).unwrap()).unwrap().remove(0);
+        for path in &mut page.paths {
+            path.clip = None;
+        }
+        let actual = kanpo_pdf::page_rules(&page);
         let close = |a: f32, b: f32| (a - b).abs() < 0.05;
         assert_eq!(actual.vertical.len(), expected.vertical.len(), "{}", pdf.display());
         assert_eq!(actual.horizontal.len(), expected.horizontal.len(), "{}", pdf.display());
@@ -154,6 +158,28 @@ fn rules_match_pdftocairo_on_corpus() {
                 pdf.display()
             );
         }
+    }
+}
+
+/// クリップ（`re W n`）で切り抜かれた罫線は、見える範囲だけにする。号外第 164 号 41 ページは、表の横線を
+/// クリップの外（左の欄・紙面の右の外）まで引いている。
+#[test]
+fn rules_are_clipped_to_the_clip_path() {
+    let pdf = std::fs::read(corpus().join("2026-07-24-gougai164-p41/page.pdf")).unwrap();
+    let page = &kanpo_pdf::extract_pages(&pdf).unwrap()[0];
+    let rules = kanpo_pdf::page_rules(page);
+    let at = |y: f32, x1: f32| rules.horizontal.iter().find(|h| (h.y - y).abs() < 0.1 && (h.x1 - x1).abs() < 0.1).copied();
+    // pdftocairo の座標では x0 = 170.93（左の欄まで伸びる）。
+    assert!(at(69.5, 371.964).is_some_and(|h| (h.x0 - 222.0).abs() < 0.1), "{rules:?}");
+    // pdftocairo の座標では x1 = 698.96（紙面の外まで伸びる）。
+    assert!(at(437.5, 548.75).is_some_and(|h| (h.x0 - 497.928).abs() < 0.1), "{rules:?}");
+    // 紙面の外に出る罫線は無い。
+    for page in corpus_pages() {
+        let p = &kanpo_pdf::extract_pages(&std::fs::read(&page).unwrap()).unwrap()[0];
+        let r = kanpo_pdf::page_rules(p);
+        let inside = |v: f32, max: f64| v >= -0.5 && f64::from(v) <= max + 0.5;
+        assert!(r.horizontal.iter().all(|h| inside(h.x0, p.width) && inside(h.x1, p.width)), "{}", page.display());
+        assert!(r.vertical.iter().all(|v| inside(v.y0, p.height) && inside(v.y1, p.height)), "{}", page.display());
     }
 }
 
