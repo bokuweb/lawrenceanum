@@ -455,17 +455,18 @@ impl Document {
 fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
     let mut out: Vec<Block> = Vec::new();
     for mut block in blocks {
-        // ページの頭の行の改正後が前のページの条の続き（「４　主務大臣は…」）で、改正前が印（「（新設）」）だけ、次の
-        // 行の改正前が空なら、印は次の行（新設の条）のもの。印を次の行へ移す。
+        // ページの頭の行の改正後が前のページの条の続き（「４　主務大臣は…」）で、改正前が印（「（新設）」）だけなら、
+        // 印は次の行（新設の条）のもの。印だけの行が続いた先に改正前の空いた行があれば、印を 1 行ずつ下へずらす。
         if let Block::Shinkyu { rows } = &mut block {
             let continued = |runs: &[Run]| runs.first().and_then(|r| r.text.lines().next()).is_some_and(|l| is_row_heading(l).is_none());
-            if rows.len() >= 2
-                && !only_marks(&runs_plain(&rows[0].before)).is_empty()
-                && continued(&rows[0].after)
-                && rows[1].before.is_empty()
-                && !rows[1].after.is_empty()
-            {
-                rows[1].before = std::mem::take(&mut rows[0].before);
+            let marks = |r: &ShinkyuRow| !only_marks(&runs_plain(&r.before)).is_empty();
+            if rows.len() >= 2 && marks(&rows[0]) && continued(&rows[0].after) {
+                let j = (1..rows.len()).find(|&j| !marks(&rows[j]));
+                if let Some(j) = j.filter(|&j| rows[j].before.is_empty() && !rows[j].after.is_empty()) {
+                    for t in (1..=j).rev() {
+                        rows[t].before = std::mem::take(&mut rows[t - 1].before);
+                    }
+                }
             }
         }
         let (Some(Block::Shinkyu { rows: prev }), Block::Shinkyu { rows }) = (out.last_mut(), &block) else {
@@ -494,15 +495,31 @@ fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
         if let Block::Shinkyu { rows } = block {
             // 片側だけの行が残れば、つないだ表の全体で号・項・条の単位に分けて組み直す（ページの切れ目の
             // 前後で号がずれて組まれた行）。セルに表のある表は文に戻せないので除く。
-            let plain = rows.iter().all(|r| r.after.iter().chain(&r.before).all(|x| x.table.is_none()));
-            if plain {
-                let texts: Vec<(String, String)> = rows.iter().map(|r| (runs_plain(&r.after), runs_plain(&r.before))).collect();
+            // セルに表のある行は文に戻せないので、その行で区切った区間ごとに組み直す。
+            let plain = |r: &ShinkyuRow| r.after.iter().chain(&r.before).all(|x| x.table.is_none());
+            let mut out_rows: Vec<ShinkyuRow> = Vec::new();
+            let mut segment: Vec<ShinkyuRow> = Vec::new();
+            let flush = |segment: &mut Vec<ShinkyuRow>, out_rows: &mut Vec<ShinkyuRow>| {
+                let seg = std::mem::take(segment);
+                let texts: Vec<(String, String)> = seg.iter().map(|r| (runs_plain(&r.after), runs_plain(&r.before))).collect();
                 let realigned = finish_rows(pair_renumbered(realign_weak_windows(texts.clone(), true)));
-                if fewer_one_sided(&realigned, &texts) {
+                if seg.len() >= 2 && fewer_one_sided(&realigned, &texts) {
                     let cell = |t: String| if t.trim().is_empty() { Vec::new() } else { vec![Run::plain(t)] };
-                    *rows = realigned.into_iter().map(|(a, b)| ShinkyuRow { after: cell(a), before: cell(b), ..Default::default() }).collect();
+                    out_rows.extend(realigned.into_iter().map(|(a, b)| ShinkyuRow { after: cell(a), before: cell(b), ..Default::default() }));
+                } else {
+                    out_rows.extend(seg);
+                }
+            };
+            for row in std::mem::take(rows) {
+                if plain(&row) {
+                    segment.push(row);
+                } else {
+                    flush(&mut segment, &mut out_rows);
+                    out_rows.push(row);
                 }
             }
+            flush(&mut segment, &mut out_rows);
+            *rows = out_rows;
             for planner in [new_item_plan as fn(&[(String, String)]) -> Vec<Option<usize>>, joined_article_plan] {
                 let texts: Vec<(String, String)> = rows.iter().map(|r| (runs_plain(&r.after), runs_plain(&r.before))).collect();
                 let plan = planner(&texts);
