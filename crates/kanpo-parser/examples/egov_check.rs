@@ -91,10 +91,10 @@ fn heading(text: &str) -> Option<String> {
     found
 }
 
-/// 「…（平成十二年総理府令第百二十九号）の一部を次のように改正する」の法令番号（最後のもの）。
+/// 「…（平成十二年総理府令第百二十九号）の一部を次の（表の）ように改正する」の法令番号（最後のもの）。
 fn amended_law(text: &str) -> Option<String> {
-    let marker = "）の一部を次のように改正する";
-    let at = text.rfind(marker)?;
+    // 「次のように改正する」と「次の表のように改正する」。
+    let at = ["）の一部を次のように改正する", "）の一部を次の表のように改正する"].iter().filter_map(|m| text.rfind(m)).max()?;
     let open = text[..at].rfind('（')?;
     let num = &text[open + '（'.len_utf8()..at];
     (["明治", "大正", "昭和", "平成", "令和"].iter().any(|e| num.starts_with(e)) && num.ends_with('号')).then(|| num.to_string())
