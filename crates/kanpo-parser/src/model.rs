@@ -1026,9 +1026,10 @@ fn realign_weak_windows(rows: Vec<(String, String)>, units: bool) -> Vec<(String
             .collect();
         let chosen: Vec<(String, String)> = if one_sided(window) > 0 && one_sided(&realigned) < one_sided(window) { realigned } else { window.to_vec() };
         // 印のある窓は、号ごとに分けて組み直すと片側だけの行がさらに減るなら、そちらを使う（直前の行の末尾の印も含める）。
-        let has_marks = window.iter().any(|r| [&r.0, &r.1].iter().any(|c| c.lines().any(|l| !only_marks(l).is_empty())));
+        let peeled = out.last().map(|r| (split_trailing_marks(&r.0), split_trailing_marks(&r.1)));
+        let has_marks = window.iter().any(|r| [&r.0, &r.1].iter().any(|c| c.lines().any(|l| !only_marks(l).is_empty())))
+            || peeled.as_ref().is_some_and(|((_, a), (_, b))| !a.is_empty() || !b.is_empty());
         if units && has_marks && one_sided(&chosen) > 0 {
-            let peeled = out.last().map(|r| (split_trailing_marks(&r.0), split_trailing_marks(&r.1)));
             if let Some((rows, (after_used, before_used))) = realign_by_units(window, peeled.as_ref()) {
                 if one_sided(&rows) < one_sided(&chosen) {
                     // 直前の行の末尾の印は組み直した行へ移したので、直前の行からは除く。
