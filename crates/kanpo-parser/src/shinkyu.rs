@@ -909,7 +909,8 @@ fn grid_table(g: &Grid, cols: Vec<Col>) -> Table {
     }
     // 縦の帯（x 区間、右から）ごとに行の頭を決める。行の頭はその帯の文字の列（右→左）の
     // 添字の列。帯の中で最初の欄にある列の上端が、最も上の列から 0.5 文字以内なら頭。
-    let strip_records: Vec<Vec<Vec<f32>>> = (0..nx)
+    // 帯ごとの行の頭の列の x と、数の欄で行を決めたか。
+    let strip_info: Vec<(Vec<Vec<f32>>, bool)> = (0..nx)
         .rev()
         .map(|xi| {
             let single: Vec<usize> = (0..g.cells.len()).filter(|&i| g.cells[i].x0 == xi && g.cells[i].x1 == xi + 1).collect();
@@ -933,6 +934,41 @@ fn grid_table(g: &Grid, cols: Vec<Col>) -> Table {
                     in_top.first().map(|c| c.y)
                 })
                 .collect();
+            // 項目の番号で始まる行の頭が無くても、帯の中に字がどれも短い数（「一」「二十」）だけの欄（必要個数の欄）が
+            // あれば、その欄に字のある列を行の頭にする（行の罫線の無い表。数の欄は折り返さない）。
+            let mut counted = false;
+            let tops: Vec<Option<f32>> = if tops.iter().all(Option::is_none) {
+                // 個数の数え方（「一」「五」「二十」「十五」）。位取りの数字（無線の周波数の「一三」）は除く。
+                let numeral = |t: &str| {
+                    let n = t.chars().count();
+                    (1..=3).contains(&n)
+                        && t.chars().all(|c| "一二三四五六七八九十百".contains(c))
+                        && (n == 1 || t.contains(['十', '百']))
+                };
+                // 数の欄の字は、どれも 1 つの列に 1 つだけで、その列のほかの欄にも字がある（行の頭の列）。
+                let count_field = single.iter().copied().find(|&i| {
+                    let ws = &cell_words[i];
+                    let fy = Some(g.cells[i].y0);
+                    let one_each = groups.iter().all(|grp| {
+                        let n = grp.iter().filter(|c| field_of(c) == fy).count();
+                        n == 0 || (n == 1 && grp.iter().any(|c| field_of(c) != fy))
+                    });
+                    ws.len() >= 3 && ws.iter().all(|c| numeral(&c.text)) && fy != top_field && one_each
+                });
+                counted = count_field.is_some();
+                match count_field {
+                    Some(f) => groups
+                        .iter()
+                        .map(|grp| {
+                            let fy = g.cells[f].y0;
+                            grp.iter().any(|c| field_of(c) == Some(fy)).then(|| grp.iter().map(|c| c.y).fold(f32::INFINITY, f32::min)).map(|_| 0.0)
+                        })
+                        .collect(),
+                    None => tops,
+                }
+            } else {
+                tops
+            };
             let base = tops.iter().flatten().copied().reduce(f32::min);
             // 行ごとの文字の列の中心 x（その行に属する列を後で探すため）。
             let mut records: Vec<Vec<f32>> = Vec::new();
@@ -953,9 +989,10 @@ fn grid_table(g: &Grid, cols: Vec<Col>) -> Table {
             if records.is_empty() {
                 records.push(Vec::new());
             }
-            records
+            (records, counted)
         })
         .collect();
+    let strip_records: Vec<Vec<Vec<f32>>> = strip_info.iter().map(|(r, _)| r.clone()).collect();
     // 帯（右から k 番目）の先頭の行番号。
     let mut offset = vec![0usize; nx + 1];
     for k in 0..nx {
@@ -1024,6 +1061,13 @@ fn grid_table(g: &Grid, cols: Vec<Col>) -> Table {
                     .position(|rec| rec.iter().any(|&x| (x - cx).abs() < (w.x1 - w.x).max(6.0) * 0.75))
                     .unwrap_or(0);
                 per[r].push(w);
+            }
+            // 数の欄で行を決めた帯で、初めの数行にだけ字のある欄（「省令別表／第一に掲／げる救助／器具」の区分の欄）は、
+            // 行をまたぐ 1 つのセルの折り返しなので、最初の行にまとめる。
+            let filled = per.iter().take_while(|ws| !ws.is_empty()).count();
+            if strip_info[s_right].1 && filled >= 2 && filled * 3 <= per.len() && per[filled..].iter().all(Vec::is_empty) {
+                let rest: Vec<Col> = per[1..filled].iter_mut().flat_map(std::mem::take).collect();
+                per[0].extend(rest);
             }
             for (r, ws) in per.into_iter().enumerate() {
                 let (x0, x1) = ws
