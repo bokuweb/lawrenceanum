@@ -355,7 +355,7 @@ impl Document {
                         let text: String = runs.iter().map(|x| x.text.as_str()).collect();
                         let t = text.trim();
                         runs.first().map(|x| starts_with_spaced(&x.text, "附則")).unwrap_or(false)
-                            || (!t.contains('\n') && t.contains("を次のように") && ["改める。", "加える。", "定める。"].iter().any(|e| t.ends_with(e)))
+                            || (!t.contains('\n') && amend_sentence(t))
                     };
                     let one_sided = r.after.is_empty() || r.before.is_empty();
                     let side = r.before.is_empty();
@@ -730,7 +730,34 @@ fn align_rows(after_lines: &[&str], before_lines: &[&str]) -> Vec<ShinkyuRow> {
                 (item, unit) => item.or(unit),
             }
         })
+        .or_else(|| marks_per_unit(after_lines, before_lines))
         .unwrap_or_else(|| vec![single_row(after_lines, before_lines)])
+}
+
+/// 片方の欄が印（「（新設）」）だけで、印の数ともう一方の欄の条・号の書き出しの数が同じなら、1 つずつ組む（号外第 187 号
+/// 18 ページ: 改正前の欄は「（新設）」2 つだけで行見出しが無く、新設の第十四条・第十五条が 1 行にまとまっていた）。
+fn marks_per_unit(after_lines: &[&str], before_lines: &[&str]) -> Option<Vec<ShinkyuRow>> {
+    let joined = |lines: &[&str]| lines.join("\n");
+    for (marks_side, text_side) in [(before_lines, after_lines), (after_lines, before_lines)] {
+        let marks = only_marks(&joined(marks_side));
+        if marks.len() < 2 {
+            continue;
+        }
+        let segs = segment_band(text_side, unit_heading);
+        if segs.len() != marks.len() || segs.iter().any(|s| s.heading.is_none()) {
+            continue;
+        }
+        let rows = segs
+            .into_iter()
+            .zip(marks)
+            .map(|(seg, mark)| {
+                let (a, b) = if std::ptr::eq(marks_side, before_lines) { (seg.text, mark) } else { (mark, seg.text) };
+                ShinkyuRow { after: cell_runs_from_str(&a), before: cell_runs_from_str(&b), ..Default::default() }
+            })
+            .collect();
+        return Some(rows);
+    }
+    None
 }
 
 /// 行の両側の文。
@@ -1868,7 +1895,7 @@ fn is_one_paren(s: &str) -> bool {
 fn is_row_heading(line: &str) -> Option<String> {
     let t = line.trim();
     let key = Some(t.to_string());
-    if starts_with_spaced(t, "別表") || starts_with_spaced(t, "附則") {
+    if starts_table_heading(t) || starts_with_spaced(t, "附則") || amend_sentence(t) {
         return key;
     }
     // 見出しの無い条（前の条の見出しを共有する「第六条の二　…」）。鍵は条番号。
@@ -1893,7 +1920,10 @@ fn is_row_heading(line: &str) -> Option<String> {
 /// 条・別表・附則の書き出しなら鍵（見出しが 1 つでも行を分けてよい、はっきりした区切り）。
 fn unit_heading(line: &str) -> Option<String> {
     let t = line.trim();
-    if starts_with_spaced(t, "別表") || starts_with_spaced(t, "附則") {
+    if amend_sentence(t) {
+        return Some(t.to_string());
+    }
+    if starts_table_heading(t) || starts_with_spaced(t, "附則") {
         // 鍵は「別表第一号」のような番号まで（改正後・改正前で後に続く文が違う）。
         let key: String = t.chars().take_while(|c| !c.is_whitespace() && !"（〔［".contains(*c)).collect();
         return Some(key);
@@ -1981,6 +2011,28 @@ fn go_heading_key(line: &str) -> Option<String> {
         return None;
     }
     t[num.len()..].starts_with('\u{3000}').then_some(num)
+}
+
+/// 改め文の 1 文（「別表第一から別表第二十四までを次のように改める。」）か。新旧対照表の後ろに続く改め文で、表の行ではない
+/// （号外第 213 号 15 ページ）。行の区切りにして、片側だけの行として表の外へ出す。
+fn amend_sentence(t: &str) -> bool {
+    t.contains("を次のように") && ["改める。", "加える。", "定める。"].iter().any(|e| t.ends_with(e))
+}
+
+/// 別表の書き出し（「別表」「別表第三」「別表第二の二（第十条関係）」）か。番号の後が空白・括弧・行末でない行
+/// （前のページの文の続き「別表第三事業のみを営む…」）は別表の書き出しではない（号外第 206 号 274 ページ）。
+fn starts_table_heading(t: &str) -> bool {
+    if !starts_with_spaced(t, "別表") {
+        return false;
+    }
+    // 「別表」の後の番号（「第三」「二」「１〜別表４」「第一の二」）を飛ばし、その次が空白・括弧・行末なら書き出し。
+    let num = |c: char| "〇一二三四五六七八九十百千".contains(c) || c.is_ascii_digit() || ('０'..='９').contains(&c);
+    let rest: String = t.trim_start().chars().skip_while(|c| *c != '表').skip(1).collect();
+    let mut chars = rest.chars().peekable();
+    while chars.peek().is_some_and(|&c| num(c) || "第の号〜・別表".contains(c)) {
+        chars.next();
+    }
+    chars.next().is_none_or(|c| c.is_whitespace() || "（(〔［".contains(c))
 }
 
 /// 字間の空白（`附　則`・`別　表` のような均等割り）を無視して `prefix` で始まるか。
@@ -2362,6 +2414,31 @@ mod tests {
         assert!(pairs.iter().all(|(a, b)| !a.is_empty() && !b.is_empty()), "{pairs:?}");
         assert!(pairs.iter().any(|(a, b)| a.starts_with("第二条の三") && b.starts_with("第二条の二")), "{pairs:?}");
         assert!(pairs.iter().any(|(a, b)| a.starts_with("第四章の二の二") && b.starts_with("第四章の二の二")), "{pairs:?}");
+    }
+
+    #[test]
+    fn recognizes_table_headings_but_not_sentences_starting_with_table() {
+        assert!(starts_table_heading("別表第三"));
+        assert!(starts_table_heading("別表二（第三条関係）"));
+        assert!(starts_table_heading("別表１〜別表４　（略）"));
+        assert!(starts_table_heading("別　表"));
+        // 前のページの文の続き（号外第 206 号 274 ページ）。
+        assert!(!starts_table_heading("別表第三事業のみを営む他の会社を除く。）から委託を受けて"));
+        assert!(!starts_table_heading("別表第一）の上欄に掲げる物の種類に応じて"));
+        assert!(amend_sentence("別表第一から別表第二十四までを次のように改める。"));
+    }
+
+    #[test]
+    fn pairs_each_new_article_with_one_of_the_marks() {
+        // 号外第 187 号 18 ページ: 改正前の欄は「（新設）」2 つだけ。
+        let after = ["第十四条　第二条の二第一項の規定は、測定について準用する。", "２　前項の測定は、別表第二による。", "（リスクアセスメント対象物の濃度の測定）", "第十五条　測定は、次に定めるところによる。", "一　試料空気の採取"];
+        let before = ["（新設）", "（新設）"];
+        let rows = align_rows(&after, &before);
+        let text = |r: &[Run]| r.iter().map(|x| x.text.as_str()).collect::<String>();
+        let pairs: Vec<(String, String)> = rows.iter().map(|r| (text(&r.after), text(&r.before))).collect();
+        assert_eq!(pairs.len(), 2, "{pairs:?}");
+        assert!(pairs[0].0.starts_with("第十四条") && pairs[0].1 == "（新設）", "{pairs:?}");
+        assert!(pairs[1].0.starts_with("（リスクアセスメント") && pairs[1].1 == "（新設）", "{pairs:?}");
     }
 
     #[test]
