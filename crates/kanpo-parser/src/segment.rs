@@ -12,8 +12,22 @@ pub fn segment_articles(text: &str) -> Vec<String> {
     for line in text.lines() {
         let prev = cur.iter().rev().find(|l| !l.trim().is_empty()).copied();
         if (is_article_boundary(line) || is_notice_title(line, prev)) && !cur.is_empty() {
-            articles.push(cur.join("\n").trim().to_string());
-            cur = Vec::new();
+            // 公布の件名が長く折り返すと（「…に関する政」＋「令の一部を改正する政令をここに公布する。」）、
+            // 件名の頭の行（文末でない長い行）は前の記事の末尾にある。新しい記事へ移す。
+            let mut carried: Vec<&str> = Vec::new();
+            if line.contains("をここに公布する") && !is_heading_mark(line.trim()) {
+                while carried.len() < 4 {
+                    let Some(last) = cur.last().map(|l| l.trim()) else { break };
+                    if last.chars().count() < 25 || last.ends_with(['。', '」', '）']) || is_article_boundary(last) || last.contains("をここに公布する") {
+                        break;
+                    }
+                    carried.insert(0, cur.pop().unwrap());
+                }
+            }
+            if !cur.is_empty() {
+                articles.push(cur.join("\n").trim().to_string());
+            }
+            cur = carried;
         }
         cur.push(line);
     }
@@ -46,6 +60,12 @@ fn is_article_boundary(line: &str) -> bool {
         }
 }
 
+/// 区分見出し・欄見出しの語か（「その他告示」「法　規　的　告　示」）。
+pub(crate) fn is_section_label(text: &str) -> bool {
+    let compact: String = text.chars().filter(|c| !c.is_whitespace()).collect();
+    SECTION_HEADERS.contains(&compact.as_str()) || FIELD_HEADERS.contains(&compact.as_str())
+}
+
 /// 官庁報告・公告の欄の中で、記事の標題（「指定保安検査機関の廃止に関する公示」）が始まる行か。
 ///
 /// 同じ欄見出しの下に複数の公示が続くため、欄見出しだけでは記事を分けられない。
@@ -63,6 +83,7 @@ fn is_notice_title(line: &str, prev: Option<&str>) -> bool {
 /// （漢字）が続く。漢数字の零（「〇・五ミリリットル」「〇　五〇」、改め文の「…〇」を「…」に」の
 /// 折り返し）や単独の印の「〇」は見出しではない。機関名が漢数字で始まる（「〇九州地方整備局告示
 /// 第九十八号」「〇四国地方整備局…」）ときは、行が「第…号」で終わる見出しの形のときだけ見出しとみなす。
+/// 番号の折り返し（「第二八三六・五〇」＋「号、…」で行頭に来た「〇号、」「〇円」）も見出しではない。
 pub(crate) fn is_heading_mark(t: &str) -> bool {
     const NUMERALS: &str = "〇一二三四五六七八九十百千";
     let kanji = |c: char| ('\u{4E00}'..='\u{9FFF}').contains(&c);
@@ -71,6 +92,9 @@ pub(crate) fn is_heading_mark(t: &str) -> bool {
         return false;
     }
     match chars.next() {
+        Some(c) if "号条項".contains(c) => false,
+        // 助数詞の後に漢字が続かない（「〇円、」「〇年」）のは数。「〇人事院規則」は見出し。
+        Some(c) if "年月日円人件個度倍分時点種級番歳回台".contains(c) => chars.next().is_some_and(kanji),
         Some(c) if kanji(c) && !NUMERALS.contains(c) => true,
         Some(c) if NUMERALS.contains(c) => {
             let t = t.trim_end();
@@ -124,6 +148,9 @@ mod tests {
         assert_eq!(segment_articles(text).len(), 1);
         assert!(is_heading_mark("〇財務省、厚生労働省、令第七号"));
         assert!(!is_heading_mark("〇"));
+        assert!(!is_heading_mark("〇号、第二八三六・五〇号"));
+        assert!(!is_heading_mark("〇円とする。"));
+        assert!(is_heading_mark("〇人事院規則一―七二"));
     }
 
     #[test]
@@ -187,5 +214,15 @@ mod tests {
         assert_eq!(arts.len(), 2);
         assert!(arts[0].contains("労働組合法施行令") && !arts[0].contains("美容師"));
         assert!(arts[1].contains("美容師法施行令") && !arts[1].contains("労働組合"));
+    }
+
+    #[test]
+    fn carries_the_wrapped_head_of_a_promulgated_title() {
+        // 件名が折り返し、頭の行は前の記事の末尾にある。署名（短い行）は前の記事に残す。
+        let text = "この政令は、令和八年九月一日から施行する。\n内閣総理大臣高市早苗\n令和八年熊本地震による災害についての激甚災害及びこれに対し適用すべき措置の指定に関する政\n令の一部を改正する政令をここに公布する。\n御名御璽";
+        let arts = segment_articles(text);
+        assert_eq!(arts.len(), 2, "{arts:?}");
+        assert!(arts[0].ends_with("内閣総理大臣高市早苗"));
+        assert!(arts[1].starts_with("令和八年熊本地震による災害"));
     }
 }

@@ -1,6 +1,5 @@
 ---
 source: crates/kanpo-parser/tests/archive_snapshots.rs
-assertion_line: 98
 expression: out
 input_file: crates/kanpo-parser/tests/archive/pages/20261002t00057/20261002t000570007.pdf
 ---
@@ -8,64 +7,140 @@ layout: tiers
 format: unknown
 
 --- 本文 ---
-767アレクサンドル・スィチュゴフ〇外務省告示第三百二号
+767アレクサンドル・スィチュゴフ
+Aleksandr Sychugov
+生年月日：1962/9/29
+その他の情報：株式会社ヴォスクレセンスキー・アグリゲーション工場ゼネラル・ディレク
+ター
+General Director of JSC Voskresensky Aggregation Factory
+768アレクサンドル・ザハロフ
+Aleksandr Zakharov
+別名：Alexander Zakharov
+生年月日：1965/9/21
+その他の情報：有限会社CSTオーナー
+Owner of LLC CST
+〇外務省告示第三百一号
 ウクライナをめぐる現下の国際情勢に鑑み、ウクライナをめぐる問題の解決を目指す国際平和のた
-Aleksandr Sychugovめの国際的な努力に我が国として寄与するため、主要国が講ずることとした措置の内容に沿って、我
-生年月日：1962/9/29が国が講ずる特定の船舶に関する役務取引等の規制措置の対象となる船舶の国際海事機関船舶識別番
-その他の情報：株式会社ヴォスクレセンスキー・アグリゲーション工場ゼネラル・ディレク号を別表のとおり告示する。
-ター令和八年十月二日
-General Director of JSC Voskresensky Aggregation Factory（別表）
-768アレクサンドル・ザハロフ１．9179842
-Aleksandr Zakharov２．8517839
-別名：Alexander Zakharov３．9339337
-生年月日：1965/9/21４．9318553
-その他の情報：有限会社CSTオーナー５．9318541
-Owner of LLC CST６．9333436
-〇外務省告示第三百一号７．9161003
-ウクライナをめぐる現下の国際情勢に鑑み、ウクライナをめぐる問題の解決を目指す国際平和のた８．9358010
-めの国際的な努力に我が国として寄与するため、主要国が講ずることとした措置の内容に沿って、我９．9312884
-が国が講ずる輸出等に係る禁止措置の対象として、「ウクライナをめぐる国際平和のための国際的な努10．9312896
-力に我が国として寄与するために講ずる輸出等に係る禁止措置の対象となるロシア連邦及びベラルー11．9341067
-シ共和国以外の国の団体を指定する件」（令和五年外務省告示第四百四十七号）の一部を次のように改12．9273052
+めの国際的な努力に我が国として寄与するため、主要国が講ずることとした措置の内容に沿って、我
+が国が講ずる輸出等に係る禁止措置の対象として、「ウクライナをめぐる国際平和のための国際的な努
+力に我が国として寄与するために講ずる輸出等に係る禁止措置の対象となるロシア連邦及びベラルー
+シ共和国以外の国の団体を指定する件」（令和五年外務省告示第四百四十七号）の一部を次のように改
+正する。
+令和八年十月二日外務大臣茂木敏充
+（別表）に次のように加える。
+（別表）
+57ソリド・タリム・イノヴァション株式会社
+Solid Tarim Inovasyon Anonim Sirketi
+所在地：Turktas D: 1, No: 31 Cikcilli Mahallesi, 106 Sokak, Alanya, Antalya 07400, Turkey
+58アメジノFZE
+Amegino FZE
+別称：アメギノFZE
+所在地：T1－9F－6D, RAKEZ Amenity Center, Al Hamra Industrial Zone－FZ, Ras Al Khai‑
+mah, United Arab Emirates
+59オート・パーツ・イーストFZCO
+Auto Parts East FZCO
+所在地：Jebel Ali(JAFZA) RA08 YB－05/YB－06/YB－07, Dubai 17370, United Arab Emi‑
+rates
+60モト・エクスポートDWC有限会社
+MOTO Export DWC LLC
+所在地：Office No: DLC－FC－O6, Building No: DLC－FC－4, Warehouse No: DLC－FC－
+W06, Logistics District, Dubai 390667, United Arab Emirates
+〇外務省告示第三百二号
+ウクライナをめぐる現下の国際情勢に鑑み、ウクライナをめぐる問題の解決を目指す国際平和のた
+めの国際的な努力に我が国として寄与するため、主要国が講ずることとした措置の内容に沿って、我
+が国が講ずる特定の船舶に関する役務取引等の規制措置の対象となる船舶の国際海事機関船舶識別番
+号を別表のとおり告示する。
+令和八年十月二日
+（別表）
+１．9179842
+２．8517839
+３．9339337
+４．9318553
+５．9318541
+６．9333436
+７．9161003
+８．9358010
+９．9312884
+10．9312896
+11．9341067
+12．9273052
 13．9511533
-正する。14．9341081
-令和八年十月二日外務大臣茂木敏充15．9299692
-（別表）に次のように加える。16．9412347
-（別表）17．9610781
-57ソリド・タリム・イノヴァション株式会社18．9422445
+14．9341081
+15．9299692
+16．9412347
+17．9610781
+18．9422445
 19．9271585
-Solid Tarim Inovasyon Anonim Sirketi 20．9842188
-所在地：Turktas D: 1, No: 31 Cikcilli Mahallesi, 106 Sokak, Alanya, Antalya 07400, Turkey 21．9511521
-58アメジノFZE 22．9412335
-Amegino FZE 23．9436941
-別称：アメギノFZE 24．9610793
-所在地：T1－9F－6D, RAKEZ Amenity Center, Al Hamra Industrial Zone－FZ, Ras Al Khai‑25．9577082
-mah, United Arab Emirates 26．9577094
-59オート・パーツ・イーストFZCO 27．9382798
-Auto Parts East FZCO 28．9354301
-所在地：Jebel Ali(JAFZA) RA08 YB－05/YB－06/YB－07, Dubai 17370, United Arab Emi‑29．9354313
+20．9842188
+21．9511521
+22．9412335
+23．9436941
+24．9610793
+25．9577082
+26．9577094
+27．9382798
+28．9354301
+29．9354313
 30．9235713
-rates 31．9321847
-60モト・エクスポートDWC有限会社32．9513139
-MOTO Export DWC LLC 33．9321976
-所在地：Office No: DLC－FC－O6, Building No: DLC－FC－4, Warehouse No: DLC－FC－34．9866380
-W06, Logistics District, Dubai 390667, United Arab Emirates 35．9341079
+31．9321847
+32．9513139
+33．9321976
+34．9866380
+35．9341079
+外務大臣茂木敏充
 
 --- 記事 ---
 ## 0 (unknown)
-  P 767アレクサンドル・スィチュゴフ〇外務省告示第三百二号ウクライナをめぐる現下の国際情勢に鑑み、ウクライナをめぐる問題の解決を目指す国際平和のたAleksandr Sychugovめの国際的な努力に我が国として寄与するため、主要国が講ずることとした措置の内容に沿って、我生年月日：1962/9/29が国が講ずる特定の船舶に関する役務取引等の規制措置の対象となる船舶の国際海事機関船舶識別番その他の情報：株式会社ヴォスクレセンスキー・アグリゲーション工場ゼネラル・ディレク号を別表のとおり告示する。
-    ター令和八年十月二日General Director of JSC Voskresensky Aggregation Factory（別表）
-    768アレクサンドル・ザハロフ１．9179842Aleksandr Zakharov２．8517839
-    別名：Alexander Zakharov３．9339337生年月日：1965/9/21４．9318553その他の情報：有限会社CSTオーナー５．9318541Owner of LLC CST６．9333436
+  P 767アレクサンドル・スィチュゴフAleksandr Sychugov生年月日：1962/9/29その他の情報：株式会社ヴォスクレセンスキー・アグリゲーション工場ゼネラル・ディレク
+    ターGeneral Director of JSC Voskresensky Aggregation Factory
+    768アレクサンドル・ザハロフAleksandr Zakharov
+    別名：Alexander Zakharov生年月日：1965/9/21その他の情報：有限会社CSTオーナーOwner of LLC CST
 ## 1 (unknown)
-  P 〇外務省告示第三百一号７．9161003ウクライナをめぐる現下の国際情勢に鑑み、ウクライナをめぐる問題の解決を目指す国際平和のた８．9358010めの国際的な努力に我が国として寄与するため、主要国が講ずることとした措置の内容に沿って、我９．9312884が国が講ずる輸出等に係る禁止措置の対象として、「ウクライナをめぐる国際平和のための国際的な努10．9312896力に我が国として寄与するために講ずる輸出等に係る禁止措置の対象となるロシア連邦及びベラルー11．9341067シ共和国以外の国の団体を指定する件」（令和五年外務省告示第四百四十七号）の一部を次のように改12．9273052
-    13．9511533正する。14．9341081令和八年十月二日外務大臣茂木敏充15．9299692
-    （別表）に次のように加える。16．9412347
-    （別表）17．9610781
-    57ソリド・タリム・イノヴァション株式会社18．9422445
-    19．9271585Solid Tarim Inovasyon Anonim Sirketi 20．9842188所在地：Turktas D: 1, No: 31 Cikcilli Mahallesi, 106 Sokak, Alanya, Antalya 07400, Turkey 21．9511521
-    58アメジノFZE 22．9412335Amegino FZE 23．9436941
-    別称：アメギノFZE 24．9610793所在地：T1－9F－6D, RAKEZ Amenity Center, Al Hamra Industrial Zone－FZ, Ras Al Khai‑25．9577082mah, United Arab Emirates 26．9577094
-    59オート・パーツ・イーストFZCO 27．9382798Auto Parts East FZCO 28．9354301所在地：Jebel Ali(JAFZA) RA08 YB－05/YB－06/YB－07, Dubai 17370, United Arab Emi‑29．9354313
-    30．9235713rates 31．9321847
-    60モト・エクスポートDWC有限会社32．9513139MOTO Export DWC LLC 33．9321976所在地：Office No: DLC－FC－O6, Building No: DLC－FC－4, Warehouse No: DLC－FC－34．9866380W06, Logistics District, Dubai 390667, United Arab Emirates 35．9341079
+  P 〇外務省告示第三百一号ウクライナをめぐる現下の国際情勢に鑑み、ウクライナをめぐる問題の解決を目指す国際平和のための国際的な努力に我が国として寄与するため、主要国が講ずることとした措置の内容に沿って、我が国が講ずる輸出等に係る禁止措置の対象として、「ウクライナをめぐる国際平和のための国際的な努力に我が国として寄与するために講ずる輸出等に係る禁止措置の対象となるロシア連邦及びベラルーシ共和国以外の国の団体を指定する件」（令和五年外務省告示第四百四十七号）の一部を次のように改正する。
+    令和八年十月二日外務大臣茂木敏充
+    （別表）に次のように加える。
+    （別表）
+    57ソリド・タリム・イノヴァション株式会社Solid Tarim Inovasyon Anonim Sirketi所在地：Turktas D: 1, No: 31 Cikcilli Mahallesi, 106 Sokak, Alanya, Antalya 07400, Turkey
+    58アメジノFZEAmegino FZE
+    別称：アメギノFZE所在地：T1－9F－6D, RAKEZ Amenity Center, Al Hamra Industrial Zone－FZ, Ras Al Khai‑mah, United Arab Emirates
+    59オート・パーツ・イーストFZCOAuto Parts East FZCO所在地：Jebel Ali(JAFZA) RA08 YB－05/YB－06/YB－07, Dubai 17370, United Arab Emi‑rates
+    60モト・エクスポートDWC有限会社MOTO Export DWC LLC所在地：Office No: DLC－FC－O6, Building No: DLC－FC－4, Warehouse No: DLC－FC－W06, Logistics District, Dubai 390667, United Arab Emirates
+## 2 (unknown)
+  P 〇外務省告示第三百二号ウクライナをめぐる現下の国際情勢に鑑み、ウクライナをめぐる問題の解決を目指す国際平和のための国際的な努力に我が国として寄与するため、主要国が講ずることとした措置の内容に沿って、我が国が講ずる特定の船舶に関する役務取引等の規制措置の対象となる船舶の国際海事機関船舶識別番号を別表のとおり告示する。
+    令和八年十月二日
+    （別表）
+    １．9179842
+    ２．8517839
+    ３．9339337
+    ４．9318553
+    ５．9318541
+    ６．9333436
+    ７．9161003
+    ８．9358010
+    ９．9312884
+    10．9312896
+    11．9341067
+    12．9273052
+    13．9511533
+    14．9341081
+    15．9299692
+    16．9412347
+    17．9610781
+    18．9422445
+    19．9271585
+    20．9842188
+    21．9511521
+    22．9412335
+    23．9436941
+    24．9610793
+    25．9577082
+    26．9577094
+    27．9382798
+    28．9354301
+    29．9354313
+    30．9235713
+    31．9321847
+    32．9513139
+    33．9321976
+    34．9866380
+    35．9341079外務大臣茂木敏充

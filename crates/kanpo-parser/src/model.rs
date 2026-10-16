@@ -454,7 +454,21 @@ impl Document {
 /// 前のブロックの最後の行（ページの切れ目で途中まで載った条）の続きとしてつなぐ。
 fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
     let mut out: Vec<Block> = Vec::new();
-    for block in blocks {
+    for mut block in blocks {
+        // ページの頭の行の改正後が前のページの条の続き（「４　主務大臣は…」）で、改正前が印（「（新設）」）だけなら、
+        // 印は次の行（新設の条）のもの。印だけの行が続いた先に改正前の空いた行があれば、印を 1 行ずつ下へずらす。
+        if let Block::Shinkyu { rows } = &mut block {
+            let continued = |runs: &[Run]| runs.first().and_then(|r| r.text.lines().next()).is_some_and(|l| is_row_heading(l).is_none());
+            let marks = |r: &ShinkyuRow| !only_marks(&runs_plain(&r.before)).is_empty();
+            if rows.len() >= 2 && marks(&rows[0]) && continued(&rows[0].after) {
+                let j = (1..rows.len()).find(|&j| !marks(&rows[j]));
+                if let Some(j) = j.filter(|&j| rows[j].before.is_empty() && !rows[j].after.is_empty()) {
+                    for t in (1..=j).rev() {
+                        rows[t].before = std::mem::take(&mut rows[t - 1].before);
+                    }
+                }
+            }
+        }
         let (Some(Block::Shinkyu { rows: prev }), Block::Shinkyu { rows }) = (out.last_mut(), &block) else {
             out.push(block);
             continue;
@@ -475,7 +489,95 @@ fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
         }
         prev.extend(rows);
     }
+    // ページの切れ目でつないだ表でも、新設の条・項の号やまとめて削った条の行をまとめる（ページごとの行の
+    // 対応ではページをまたぐ行が見えない）。
+    for block in &mut out {
+        if let Block::Shinkyu { rows } = block {
+            // 片側だけの行が残れば、つないだ表の全体で号・項・条の単位に分けて組み直す（ページの切れ目の
+            // 前後で号がずれて組まれた行）。セルに表のある表は文に戻せないので除く。
+            // 前のページの条の続きの行（「附則第四条第五項の…⏎４　…」）の改正前が印だけで、上へ印だけの行が続き、その上に
+            // 改正前の空いた新設の条の行があれば、印は 1 行ずつ上のもの。
+            {
+                // 文の途中から始まる行（「附則第四条第五項の…」は「附則」の見出しではない）。
+                let continued = |runs: &[Run]| {
+                    runs.first().and_then(|r| r.text.lines().next()).is_some_and(|l| {
+                        let t = l.trim();
+                        let compact: String = t.chars().filter(|c| !c.is_whitespace()).collect();
+                        is_row_heading(l).is_none() || (compact.starts_with("附則") && compact != "附則" && article_number(t).is_none())
+                    })
+                };
+                let marks = |r: &ShinkyuRow| !only_marks(&runs_plain(&r.before)).is_empty();
+                for i in 1..rows.len() {
+                    if !(marks(&rows[i]) && !rows[i].after.is_empty() && continued(&rows[i].after)) {
+                        continue;
+                    }
+                    let k = (0..i).rev().find(|&k| !marks(&rows[k]));
+                    if let Some(k) = k.filter(|&k| rows[k].before.is_empty() && !rows[k].after.is_empty() && !continued(&rows[k].after)) {
+                        for t in k..i {
+                            rows[t].before = std::mem::take(&mut rows[t + 1].before);
+                        }
+                    }
+                }
+            }
+            // セルに表のある行は文に戻せないので、その行で区切った区間ごとに組み直す。
+            let plain = |r: &ShinkyuRow| r.after.iter().chain(&r.before).all(|x| x.table.is_none());
+            let mut out_rows: Vec<ShinkyuRow> = Vec::new();
+            let mut segment: Vec<ShinkyuRow> = Vec::new();
+            let flush = |segment: &mut Vec<ShinkyuRow>, out_rows: &mut Vec<ShinkyuRow>| {
+                let seg = std::mem::take(segment);
+                let texts: Vec<(String, String)> = seg.iter().map(|r| (runs_plain(&r.after), runs_plain(&r.before))).collect();
+                let realigned = finish_rows(pair_renumbered(realign_weak_windows(texts.clone(), true)));
+                if seg.len() >= 2 && fewer_one_sided(&realigned, &texts) {
+                    let cell = |t: String| if t.trim().is_empty() { Vec::new() } else { vec![Run::plain(t)] };
+                    out_rows.extend(realigned.into_iter().map(|(a, b)| ShinkyuRow { after: cell(a), before: cell(b), ..Default::default() }));
+                } else {
+                    out_rows.extend(seg);
+                }
+            };
+            for row in std::mem::take(rows) {
+                if plain(&row) {
+                    segment.push(row);
+                } else {
+                    flush(&mut segment, &mut out_rows);
+                    out_rows.push(row);
+                }
+            }
+            flush(&mut segment, &mut out_rows);
+            *rows = out_rows;
+            for planner in [new_item_plan as fn(&[(String, String)]) -> Vec<Option<usize>>, joined_article_plan] {
+                let texts: Vec<(String, String)> = rows.iter().map(|r| (runs_plain(&r.after), runs_plain(&r.before))).collect();
+                let plan = planner(&texts);
+                if plan.iter().all(Option::is_none) {
+                    continue;
+                }
+                let mut merged: Vec<ShinkyuRow> = Vec::new();
+                for (row, p) in std::mem::take(rows).into_iter().zip(&plan) {
+                    match (p, merged.last_mut()) {
+                        (Some(0), Some(last)) => append_rows_side(&mut last.after, row.after),
+                        (Some(_), Some(last)) => append_rows_side(&mut last.before, row.before),
+                        _ => merged.push(row),
+                    }
+                }
+                *rows = merged;
+            }
+        }
+    }
     out
+}
+
+/// セルの文（Run の字をつなぐ）。
+fn runs_plain(runs: &[Run]) -> String {
+    runs.iter().map(|r| r.text.as_str()).collect()
+}
+
+/// セルの後ろに、まとめる行のセルを改行してつなぐ。
+fn append_rows_side(dst: &mut Vec<Run>, src: Vec<Run>) {
+    if let (Some(last), Some(first)) = (dst.last_mut(), src.first()) {
+        if last.table.is_none() && first.table.is_none() && !last.text.ends_with('\n') {
+            last.text.push('\n');
+        }
+    }
+    dst.extend(src);
 }
 
 /// セルの Run 列に続きをつなぐ。前の文が文末（。）で終わっていなければ改行せずに連結する
@@ -633,13 +735,33 @@ fn align_rows_by(
     if !aln.iter().any(|(i, j)| i.is_some() && j.is_some()) {
         return None;
     }
+    let raw: Vec<(String, String)> = aln
+        .into_iter()
+        .map(|(ai, bi)| (ai.map(|i| a[i].text.clone()).unwrap_or_default(), bi.map(|j| b[j].text.clone()).unwrap_or_default()))
+        .filter(|(after, before)| !(after.trim().is_empty() && before.trim().is_empty()))
+        .collect();
+    let plain = finish_rows(pair_renumbered(realign_weak_windows(raw.clone(), false)));
+    let units = finish_rows(pair_renumbered(realign_weak_windows(raw, true)));
+    // 号ごとに分けて組み直すと、仕上げた後の片側だけの行が減る（同じなら両側のある行が増える）ときだけ使う。
+    let rows = if fewer_one_sided(&units, &plain) { units } else { plain };
+    Some(rows.into_iter().map(|(a, b)| ShinkyuRow { after: cell_runs_from_str(&a), before: cell_runs_from_str(&b), ..Default::default() }).collect())
+}
+
+/// `a` は `b` より片側だけの行が少ないか（同じ数なら、両側に文のある行が多いか）。
+fn fewer_one_sided(a: &[(String, String)], b: &[(String, String)]) -> bool {
+    let count = |rs: &[(String, String)]| {
+        let one = rs.iter().filter(|r| r.0.trim().is_empty() != r.1.trim().is_empty()).count();
+        let both = rs.iter().filter(|r| !r.0.trim().is_empty() && !r.1.trim().is_empty()).count();
+        (one, both)
+    };
+    let ((one_a, both_a), (one_b, both_b)) = (count(a), count(b));
+    one_a < one_b || (one_a == one_b && both_a > both_b)
+}
+
+/// 対応付けた行を仕上げる（片側だけの行の補い合い・印の配り直し・まとめて削った条や新設の号の行をまとめる）。
+fn finish_rows(aligned: Vec<(String, String)>) -> Vec<(String, String)> {
     let mut rows: Vec<(String, String)> = Vec::new();
-    for (ai, bi) in aln {
-        let after = ai.map(|i| a[i].text.clone()).unwrap_or_default();
-        let before = bi.map(|j| b[j].text.clone()).unwrap_or_default();
-        if after.trim().is_empty() && before.trim().is_empty() {
-            continue;
-        }
+    for (after, before) in aligned {
         // 片側だけの行が、反対側だけの行のすぐ後に続く（見出しの文言が改正で変わった条）なら
         // 1 行にまとめる。新設の条は改正前の欄にも「（新設）」があるので片側が空にはならない。
         if let Some(prev) = rows.last_mut() {
@@ -682,18 +804,533 @@ fn align_rows_by(
             }
         }
     }
-    Some(rows.into_iter().map(|(a, b)| ShinkyuRow { after: cell_runs_from_str(&a), before: cell_runs_from_str(&b), ..Default::default() }).collect())
+    pair_replaced_article(&mut rows);
+    shift_omitted_past_new(&mut rows);
+    spread_marks_back(&mut rows);
+    move_leading_marks_back(&mut rows);
+    let rows = absorb_joined_articles(rows);
+    merge_new_item_runs(rows)
+}
+
+/// 印だけのセルに印がいくつも入り（「（新設）」が 4 つ）、その直前の行の同じ側が空なら、印は直前の新設・
+/// 削った条のもの（下の帯の印を読む順で、続く条の印がまとめて最後の条に付いていた）。1 つを残して
+/// 前の空の行へ後ろから順に移す。
+fn spread_marks_back(rows: &mut [(String, String)]) {
+    for i in 0..rows.len() {
+        for side in [0, 1] {
+            let cell = |r: &(String, String)| if side == 0 { r.0.clone() } else { r.1.clone() };
+            let marks = only_marks(&cell(&rows[i]));
+            if marks.len() < 2 {
+                continue;
+            }
+            let empty = rows[..i].iter().rev().take_while(|r| cell(r).trim().is_empty()).count();
+            let moved = (marks.len() - 1).min(empty);
+            if moved == 0 {
+                continue;
+            }
+            let set = |r: &mut (String, String), v: String| if side == 0 { r.0 = v } else { r.1 = v };
+            for k in 0..moved {
+                set(&mut rows[i - moved + k], marks[k].clone());
+            }
+            set(&mut rows[i], marks[moved..].join("\n"));
+        }
+    }
+}
+
+/// 改正後だけの行（条を置き換えた「第二十五条の八の四」）の次の行の改正前が、同じ条番号の条で末尾に印（「〔新設〕」）
+/// があり、その行の改正後が別の条なら、改正前の条は前の行のもので、印は次の行の新設の条のもの（条の文が置き換わって
+/// 似ていないため、次の新設の条と組まれていた）。
+fn pair_replaced_article(rows: &mut [(String, String)]) {
+    let number = |s: &str| s.trim().lines().take(3).find_map(article_number);
+    for i in 1..rows.len() {
+        let (prev, cur) = (&rows[i - 1], &rows[i]);
+        if prev.0.trim().is_empty() || !prev.1.trim().is_empty() || cur.0.trim().is_empty() {
+            continue;
+        }
+        let (keep, marks) = split_trailing_marks(&cur.1);
+        let (Some(a), Some(b), Some(c)) = (number(&prev.0), number(&keep), number(&cur.0)) else { continue };
+        if marks.is_empty() || a != b || c == b {
+            continue;
+        }
+        rows[i - 1].1 = keep;
+        rows[i].1 = marks.join("\n");
+    }
+}
+
+/// 改正前の欄で「（新設）」の印が k 個続いた後の「三十七　（略）」が、番号の見出しで改正後の新設の
+/// 「三十七　ペルフルオロ…」と組になっていれば、改正前の「三十七」は号の繰り下げで k 行後の改正後の
+/// 「四十一　（略）」（改正前の欄が空）のもの。改正前の行を k 行後へ移し、印を新設の k 行へ配る。
+fn shift_omitted_past_new(rows: &mut [(String, String)]) {
+    let omitted = |s: &str| {
+        let first = s.trim().lines().next().unwrap_or("");
+        first.split_once('　').is_some_and(|(_, rest)| matches!(rest.trim(), "（略）" | "略" | "［略］"))
+    };
+    for i in 1..rows.len() {
+        if !omitted(&rows[i].1) || omitted(&rows[i].0) {
+            continue;
+        }
+        let (keep, marks) = split_trailing_marks(&rows[i - 1].1);
+        let k = marks.len();
+        if k == 0 || i + k >= rows.len() || !rows[i + 1..=i + k].iter().all(|r| r.1.trim().is_empty()) || !omitted(&rows[i + k].0) {
+            continue;
+        }
+        rows[i + k].1 = std::mem::take(&mut rows[i].1);
+        rows[i - 1].1 = keep;
+        for (r, m) in rows[i..i + k].iter_mut().zip(marks) {
+            r.1 = m;
+        }
+    }
+}
+
+/// セルの頭の印（「（新設）」「（削る。）」）の後に文が続き、前の行の同じ側が空なら、印は前の行（新設・削った
+/// 条）のもの（下の帯の印が次の条の文の頭に付いていた）。
+fn move_leading_marks_back(rows: &mut [(String, String)]) {
+    for i in 1..rows.len() {
+        for side in [0, 1] {
+            let cell = |r: &(String, String)| if side == 0 { r.0.clone() } else { r.1.clone() };
+            if !cell(&rows[i - 1]).trim().is_empty() {
+                continue;
+            }
+            let text = cell(&rows[i]);
+            let lines: Vec<&str> = text.lines().collect();
+            let k = lines.iter().take_while(|l| !l.trim().is_empty() && !only_marks(l).is_empty()).count();
+            if k == 0 || k == lines.len() {
+                continue;
+            }
+            let (marks, rest) = (lines[..k].join("\n"), lines[k..].join("\n"));
+            let set = |r: &mut (String, String), v: String| if side == 0 { r.0 = v } else { r.1 = v };
+            set(&mut rows[i - 1], marks);
+            set(&mut rows[i], rest);
+        }
+    }
+}
+
+/// まとめて削った条（改正後「第十二条及び第十三条　削除」）の行の次に、反対の側だけに 2 つ目の条
+/// （改正前「第十三条　削除」）の行があれば、同じ行にまとめる。
+fn absorb_joined_articles(rows: Vec<(String, String)>) -> Vec<(String, String)> {
+    let plan = joined_article_plan(&rows);
+    apply_merge_plan(rows, &plan)
+}
+
+/// [`absorb_joined_articles`] で前の行にまとめる行（まとめる側。0: 改正後）。
+fn joined_article_plan(rows: &[(String, String)]) -> Vec<Option<usize>> {
+    // まとめて削った条の最後の条と、範囲（「から…まで」）か。
+    let last_of = |text: &str| -> Option<(String, bool)> {
+        let first = text.trim().lines().next()?;
+        article_number(first)?;
+        let (rest, range) = match first.split_once("及び") {
+            Some((_, r)) => (r, false),
+            None => (first.split_once("から")?.1, true),
+        };
+        let (head, _) = rest.split_once('\u{3000}')?;
+        article_number(&format!("{}\u{3000}削除", head.trim_end_matches("まで"))).map(|k| (k, range))
+    };
+    // 行の条（見出し「（…）」の後の条の書き出し）。
+    let first_key = |t: &str| t.trim().lines().take(3).find_map(article_number);
+    let mut plan = Vec::with_capacity(rows.len());
+    // まとめている行の側（0: 改正後に「及び」の書き出し）と、最後の条・範囲か。
+    let mut open: Option<(usize, String, bool)> = None;
+    for (after, before) in rows {
+        if let Some((side, last, range)) = open.clone() {
+            let (other_empty, text, into) = if side == 0 { (after.trim().is_empty(), before, 1) } else { (before.trim().is_empty(), after, 0) };
+            let key = first_key(text);
+            if other_empty && (key.as_deref() == Some(last.as_str()) || (range && key.is_some())) {
+                plan.push(Some(into));
+                open = (key.as_deref() != Some(last.as_str())).then_some((side, last, range));
+                continue;
+            }
+        }
+        open = last_of(after).map(|(k, r)| (0, k, r)).or_else(|| last_of(before).map(|(k, r)| (1, k, r)));
+        plan.push(None);
+    }
+    plan
+}
+
+/// 号の番号（「一」〜「二十」）。
+fn item_number(text: &str) -> Option<u32> {
+    let head: String = text.trim_start().chars().take_while(|c| "一二三四五六七八九十".contains(*c)).collect();
+    let rest = text.trim_start()[head.len()..].chars().next();
+    if head.is_empty() || !matches!(rest, Some('　') | Some(' ')) {
+        return None;
+    }
+    let digit = |c: char| "一二三四五六七八九".find(c).map(|i| i as u32 / 3 + 1);
+    let cs: Vec<char> = head.chars().collect();
+    match cs.as_slice() {
+        [a] if *a == '十' => Some(10),
+        [a] => digit(*a),
+        ['十', b] => digit(*b).map(|d| 10 + d),
+        [a, '十'] => digit(*a).map(|d| d * 10),
+        [a, '十', b] => Some(digit(*a)? * 10 + digit(*b)?),
+        _ => None,
+    }
+}
+
+/// 改正前の欄が印 1 つ（「（新設）」）の行の後に、改正前の欄が空で改正後の欄が、印の行の最後の号に続く番号
+/// （印の行が「一　…」なら「二　…」、新設の条の書き出しで終わるなら「一　…」）の行が続けば、新設の項・条の号
+/// なので 1 つの行にまとめる（新設の項の号ごとに行が分かれ、改正前の欄の空いた行になっていた）。
+fn merge_new_item_runs(rows: Vec<(String, String)>) -> Vec<(String, String)> {
+    let plan = new_item_plan(&rows);
+    apply_merge_plan(rows, &plan)
+}
+
+/// [`merge_new_item_runs`] で前の行にまとめる行（まとめる側。0: 改正後）。
+fn new_item_plan(rows: &[(String, String)]) -> Vec<Option<usize>> {
+    let mut plan = Vec::with_capacity(rows.len());
+    // 今まとめている行の、最後の号の番号。
+    let mut open: Option<u32> = None;
+    // 直前の行の改正前の欄が印だけ（新設の条・項）か。
+    let mut in_new = false;
+    // 号・項の書き出し（「三　」「２　」）。条の見出し・条の書き出しではない。
+    let sub_item = |t: &str| {
+        let t = t.trim_start();
+        item_number(t).is_some() || t.chars().next().is_some_and(|c| ('２'..='９').contains(&c)) && t.chars().nth(1) == Some('　')
+    };
+    for (after, before) in rows {
+        if let (Some(n), true) = (open, before.trim().is_empty()) {
+            if item_number(after) == Some(n + 1) {
+                plan.push(Some(0));
+                open = Some(n + 1);
+                continue;
+            }
+        }
+        // 新設の条・項の行の後に、改正前の欄が空で号・項から書き出す行が続けば、印が足りずに分かれた新設の
+        // 条・項の続き。
+        if in_new && before.trim().is_empty() && sub_item(after) {
+            plan.push(Some(0));
+            open = None;
+            continue;
+        }
+        in_new = !only_marks(before).is_empty();
+        // 印の行の改正後の欄の最後の号の番号（その後に新設の条の書き出しがあれば 0。号はその条の号から始まる）。
+        let last_item = after.lines().fold(None, |n, line| {
+            // 横書きの「第145条の７」も条の書き出し。
+            let arabic = line.trim_start().strip_prefix('第').is_some_and(|r| {
+                let digits = r.chars().take_while(|c| c.is_ascii_digit() || ('０'..='９').contains(c)).count();
+                digits > 0 && r.chars().nth(digits) == Some('条')
+            });
+            if article_number(line).is_some() || arabic {
+                Some(0)
+            } else {
+                item_number(line).or(n)
+            }
+        });
+        open = if only_marks(before).len() == 1 { last_item } else { None };
+        plan.push(None);
+    }
+    plan
+}
+
+/// 前の行にまとめる計画を文字列の行に当てる（まとめる側の文を前の行の同じ側の後ろにつなぐ）。
+fn apply_merge_plan(rows: Vec<(String, String)>, plan: &[Option<usize>]) -> Vec<(String, String)> {
+    let mut out: Vec<(String, String)> = Vec::new();
+    for ((after, before), p) in rows.into_iter().zip(plan) {
+        match (p, out.last_mut()) {
+            (Some(side), Some(last)) => {
+                let (cell, text) = if *side == 0 { (&mut last.0, after) } else { (&mut last.1, before) };
+                *cell = format!("{}\n{}", cell.trim_end(), text);
+            }
+            _ => out.push((after, before)),
+        }
+    }
+    out
+}
+
+/// セルが印（「（新設）」「（削る）」など）だけなら、その印の列（1 行に並ぶものも分ける）。印以外があれば空。
+fn only_marks(text: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    for line in text.lines() {
+        let mut rest = line.trim();
+        while let Some(m) = leading_mark(rest) {
+            out.push(m.to_string());
+            rest = rest[m.len()..].trim_start();
+        }
+        if !rest.is_empty() {
+            return Vec::new();
+        }
+    }
+    out
+}
+
+/// 片側だけの行が続くところで、号・条の番号を除いた書き出しが同じ改正後の行と改正前の行を、順序を
+/// 保って 1 行にまとめる。号の繰り下げ（改正後「十八　特定非上場会社…」と改正前「二十二　特定非上場会社…」）
+/// では番号の見出しが揃わず、どちらも片側だけの行になっていた。
+fn pair_renumbered(rows: Vec<(String, String)>) -> Vec<(String, String)> {
+    let empty = |s: &str| s.trim().is_empty();
+    let one_side = |r: &(String, String)| empty(&r.0) != empty(&r.1);
+    let mut out: Vec<(String, String)> = Vec::new();
+    let mut i = 0;
+    while i < rows.len() {
+        if !one_side(&rows[i]) {
+            out.push(rows[i].clone());
+            i += 1;
+            continue;
+        }
+        let end = (i..rows.len()).find(|&k| !one_side(&rows[k])).unwrap_or(rows.len());
+        let seg = &rows[i..end];
+        let a: Vec<&str> = seg.iter().filter(|r| !empty(&r.0)).map(|r| r.0.as_str()).collect();
+        let b: Vec<&str> = seg.iter().filter(|r| !empty(&r.1)).map(|r| r.1.as_str()).collect();
+        // 新設・削った条の印（「（新設）」「〔条を加える。〕」）だけの行がある所では、条番号が同じでも別の条のことが
+        // ある（新設の条が前に入り、元の条が繰り下がった）ので、条番号では組まない。
+        let marked = seg.iter().any(|r| !only_marks(&r.0).is_empty() || !only_marks(&r.1).is_empty());
+        let aln = lcs_align_by(a.len(), b.len(), |x, y| same_opening(a[x], b[y]) || (!marked && same_article_alike(a[x], b[y])));
+        if a.is_empty() || b.is_empty() || !aln.iter().any(|(x, y)| x.is_some() && y.is_some()) {
+            out.extend(seg.iter().cloned());
+        } else {
+            for (x, y) in aln {
+                out.push((x.map(|x| a[x].to_string()).unwrap_or_default(), y.map(|y| b[y].to_string()).unwrap_or_default()));
+            }
+        }
+        i = end;
+    }
+    out
+}
+
+/// 確かに組になった行（両側に文があり、2 字の組の Jaccard 係数 0.4 以上）の間で、片側だけの行のある所を、
+/// 文の似方で組み直す。号の繰り下げ（改正後「十八　特定非上場会社…」、改正前「二十二　特定非上場会社…」）では
+/// 番号で組むと別の号どうしが組になり、片側だけの行が離れた所にいくつも残っていた。組み直して片側だけの行が
+/// 減るときだけ使う。
+/// `units` なら、窓を号・項・条と印の単位に分けて組み直すことも試す（[`realign_by_units`]）。
+fn realign_weak_windows(rows: Vec<(String, String)>, units: bool) -> Vec<(String, String)> {
+    let empty = |s: &str| s.trim().is_empty();
+    let sim = |a: &str, b: &str| crate::shinkyu::bigram_jaccard(a, b);
+    let confident = |r: &(String, String)| !empty(&r.0) && !empty(&r.1) && sim(&r.0, &r.1) >= 0.4;
+    // 番号を除いた書き出しが印だけ（「〔略〕」「〔同上〕」）の号。
+    let bare_mark = |s: &str| {
+        let first = s.trim().lines().next().unwrap_or("");
+        first.split_once('　').is_some_and(|(_, rest)| {
+            let r = rest.trim();
+            r.starts_with(['〔', '（', '［']) && r.chars().count() <= 6 && s.trim().lines().count() == 1
+        })
+    };
+    let eq = |a: &str, b: &str| same_opening(a, b) || sim(a, b) >= 0.5 || (bare_mark(a) && bare_mark(b)) || same_article_alike(a, b) || same_caption(a, b);
+    let one_sided = |rs: &[(String, String)]| rs.iter().filter(|r| empty(&r.0) != empty(&r.1)).count();
+    let mut out: Vec<(String, String)> = Vec::new();
+    let mut i = 0;
+    while i < rows.len() {
+        if confident(&rows[i]) {
+            out.push(rows[i].clone());
+            i += 1;
+            continue;
+        }
+        let end = (i..rows.len()).find(|&k| confident(&rows[k])).unwrap_or(rows.len());
+        let window = &rows[i..end];
+        let a: Vec<&str> = window.iter().filter(|r| !empty(&r.0)).map(|r| r.0.as_str()).collect();
+        let b: Vec<&str> = window.iter().filter(|r| !empty(&r.1)).map(|r| r.1.as_str()).collect();
+        let aln = lcs_align_by(a.len(), b.len(), |x, y| eq(a[x], b[y]));
+        let realigned: Vec<(String, String)> = aln
+            .into_iter()
+            .map(|(x, y)| (x.map(|x| a[x].to_string()).unwrap_or_default(), y.map(|y| b[y].to_string()).unwrap_or_default()))
+            .collect();
+        let chosen: Vec<(String, String)> = if one_sided(window) > 0 && one_sided(&realigned) < one_sided(window) { realigned } else { window.to_vec() };
+        // 号ごとに分けて組み直すと片側だけの行がさらに減る（同じなら両側のある行が増える）なら、そちらを使う
+        // （直前の行の末尾の印も含める）。
+        let peeled = out.last().map(|r| (split_trailing_marks(&r.0), split_trailing_marks(&r.1)));
+        if units && one_sided(&chosen) > 0 {
+            if let Some((rows, (after_used, before_used))) = realign_by_units(window, peeled.as_ref()) {
+                if fewer_one_sided(&rows, &chosen) {
+                    // 直前の行の末尾の印は組み直した行へ移したので、直前の行からは除く。
+                    if let (Some(last), Some(((after_keep, _), (before_keep, _)))) = (out.last_mut(), peeled) {
+                        if after_used {
+                            last.0 = after_keep;
+                        }
+                        if before_used {
+                            last.1 = before_keep;
+                        }
+                    }
+                    out.extend(rows);
+                    i = end;
+                    continue;
+                }
+            }
+        }
+        out.extend(chosen);
+        i = end;
+    }
+    out
+}
+
+/// 号・項・条の書き出しと、印だけの行で区切る鍵（[`realign_by_units`] の単位）。
+fn unit_key(line: &str) -> Option<String> {
+    let t = line.trim();
+    if !only_marks(t).is_empty() || starts_with_spaced(t, "別表") || starts_with_spaced(t, "附則") {
+        return Some(t.to_string());
+    }
+    if let Some(k) = article_number(t).or_else(|| go_heading_key(t)) {
+        return Some(k);
+    }
+    // 号の範囲（「八〜十四　〔略〕」「一・二　（略）」）と項の番号（「２　」）。
+    let (head, rest) = t.split_once('\u{3000}')?;
+    let kanji = |s: &str| !s.is_empty() && s.chars().all(|c| "一二三四五六七八九十".contains(c));
+    let range = head.split_once(['〜', '・']).is_some_and(|(x, y)| kanji(x) && kanji(y));
+    let para = !head.is_empty() && head.chars().all(|c| ('０'..='９').contains(&c)) && head != "１";
+    (range || para).then(|| format!("{head}\u{3000}{}", rest.chars().take(1).collect::<String>()))
+}
+
+/// 直前の行の両側の (印を除いた残り, 末尾の印)。
+type PeeledMarks = ((String, Vec<String>), (String, Vec<String>));
+
+/// 組み直した行と、直前の行の印を使ったか（改正後・改正前）。
+type UnitRows = (Vec<(String, String)>, (bool, bool));
+
+/// 窓の行を号・項・条の書き出しと印（「〔号を加える。〕」）で単位に分け、文の似た単位どうし（重み 3）と、
+/// 印と反対の側の文（重み 1）を、重みの和が最大になるよう順序を保って組む。号を加えて番号が繰り下がった表では、
+/// 1 つのセルに号と印がいくつも入り、セル単位では組めなかった。`peeled` の印は窓の頭に足す。
+fn realign_by_units(window: &[(String, String)], peeled: Option<&PeeledMarks>) -> Option<UnitRows> {
+    let split = |s: &str| -> Vec<String> {
+        let lines: Vec<&str> = s.lines().collect();
+        segment_band(&lines, unit_key).into_iter().map(|seg| seg.text).collect()
+    };
+    let (mut a, mut b): (Vec<String>, Vec<String>) = (Vec::new(), Vec::new());
+    let mut used = (false, false);
+    if let Some(((_, after_marks), (_, before_marks))) = peeled {
+        used = (!after_marks.is_empty(), !before_marks.is_empty());
+        a.extend(after_marks.iter().cloned());
+        b.extend(before_marks.iter().cloned());
+    }
+    for r in window {
+        a.extend(split(&r.0));
+        b.extend(split(&r.1));
+    }
+    if a.is_empty() || b.is_empty() || a.len() + b.len() > 400 {
+        return None;
+    }
+    // 番号を除いた書き出しが印だけ（「五　〔略〕」「二　〔同上〕」）の号。
+    let bare_mark = |s: &str| {
+        let t = s.trim();
+        t.lines().count() == 1
+            && t.split_once('\u{3000}').is_some_and(|(_, r)| {
+                let r = r.trim();
+                r.starts_with(['〔', '（', '［']) && r.chars().count() <= 6
+            })
+    };
+    let mark = |s: &str| !only_marks(s).is_empty();
+    let score = |x: &str, y: &str| -> u32 {
+        match (mark(x), mark(y)) {
+            (true, true) => 0,
+            (true, false) | (false, true) => 1,
+            _ if same_opening(x, y) || crate::shinkyu::bigram_jaccard(x, y) >= 0.5 || (bare_mark(x) && bare_mark(y)) || same_article_alike(x, y) || same_caption(x, y) => 3,
+            _ => 0,
+        }
+    };
+    let (n, m) = (a.len(), b.len());
+    let mut dp = vec![vec![0u32; m + 1]; n + 1];
+    for x in (0..n).rev() {
+        for y in (0..m).rev() {
+            let s = score(&a[x], &b[y]);
+            let diag = if s > 0 { dp[x + 1][y + 1] + s } else { 0 };
+            dp[x][y] = diag.max(dp[x + 1][y]).max(dp[x][y + 1]);
+        }
+    }
+    let mut rows = Vec::new();
+    let (mut x, mut y) = (0, 0);
+    while x < n && y < m {
+        let s = score(&a[x], &b[y]);
+        if s > 0 && dp[x][y] == dp[x + 1][y + 1] + s {
+            rows.push((a[x].clone(), b[y].clone()));
+            x += 1;
+            y += 1;
+        } else if dp[x + 1][y] >= dp[x][y + 1] {
+            rows.push((a[x].clone(), String::new()));
+            x += 1;
+        } else {
+            rows.push((String::new(), b[y].clone()));
+            y += 1;
+        }
+    }
+    rows.extend(a[x..].iter().map(|t| (t.clone(), String::new())));
+    rows.extend(b[y..].iter().map(|t| (String::new(), t.clone())));
+    Some((rows, used))
+}
+
+/// 条番号が同じで、文が似ている（2 字の組の Jaccard 係数 0.3 以上）か。条の見出しが改正で変わった条
+/// （「（審判手続調書の形式的記載事項）第二十五条」→「（審判手続に係る電子調書の形式的記録事項等）第二十五条」）は
+/// 見出しの鍵がそろわず、どちらも片側だけの行になっていた。
+fn same_article_alike(a: &str, b: &str) -> bool {
+    let number = |s: &str| s.trim().lines().take(3).find_map(article_number);
+    // 条の文が印だけ（「第二十五条の四　〔同上〕」「第五条　（略）」。見出しだけ改めた条）なら、条番号だけで組む。
+    let marker_only = |s: &str| {
+        let lines: Vec<&str> = s.trim().lines().collect();
+        let body = lines.iter().find(|l| article_number(l).is_some()).and_then(|l| l.split_once('\u{3000}')).map(|(_, r)| r.trim());
+        lines.len() <= 3 && body.is_some_and(|r| matches!(r, "〔同上〕" | "〔略〕" | "（略）" | "［同左］" | "［略］" | "削除"))
+    };
+    matches!((number(a), number(b)), (Some(x), Some(y)) if x == y)
+        && (crate::shinkyu::bigram_jaccard(a, b) >= 0.3 || marker_only(a) || marker_only(b))
+}
+
+/// 条の見出し（「（雑則）」）が同じ条か（条番号が繰り上がった「第九条」→「第八条」）。
+fn same_caption(a: &str, b: &str) -> bool {
+    let caption = |s: &str| {
+        let first = s.trim().lines().next().unwrap_or("").trim();
+        let ok = first.starts_with('（') && first.ends_with('）') && first.chars().count() >= 4 && is_one_paren(first) && leading_mark(first).is_none();
+        let article = s.trim().lines().nth(1).and_then(article_number);
+        (ok && article.is_some()).then(|| first.to_string())
+    };
+    matches!((caption(a), caption(b)), (Some(x), Some(y)) if x == y)
+}
+
+/// 号・条の番号（「十八　」「第二十条　」）を除いた書き出し 10 字。
+fn opening_of(s: &str) -> Vec<char> {
+    let first = s.trim().lines().next().unwrap_or("");
+    let rest = first.trim_start_matches(|c: char| "第一二三四五六七八九十百千条の0123456789０１２３４５６７８９".contains(c));
+    rest.trim_start().chars().filter(|c| !c.is_whitespace()).take(10).collect()
+}
+
+/// 号・条の番号（「十八　」「第二十条　」）を除いた書き出しが 10 字以上同じか（「〔同上〕」などの印だけの行は除く）。
+fn same_opening(a: &str, b: &str) -> bool {
+    let (x, y) = (opening_of(a), opening_of(b));
+    x.len() >= 10 && x == y && !x.starts_with(&['〔', '（', '［'])
+}
+
+/// [`lcs_align`] の、要素の一致を `eq(i, j)` で決める版。
+fn lcs_align_by(n: usize, m: usize, eq: impl Fn(usize, usize) -> bool) -> Vec<(Option<usize>, Option<usize>)> {
+    let mut dp = vec![vec![0u32; m + 1]; n + 1];
+    for i in (0..n).rev() {
+        for j in (0..m).rev() {
+            dp[i][j] = if eq(i, j) { dp[i + 1][j + 1] + 1 } else { dp[i + 1][j].max(dp[i][j + 1]) };
+        }
+    }
+    let mut res = Vec::new();
+    let (mut i, mut j) = (0, 0);
+    while i < n && j < m {
+        if eq(i, j) && dp[i][j] == dp[i + 1][j + 1] + 1 {
+            res.push((Some(i), Some(j)));
+            i += 1;
+            j += 1;
+        } else if dp[i + 1][j] >= dp[i][j + 1] {
+            res.push((Some(i), None));
+            i += 1;
+        } else {
+            res.push((None, Some(j)));
+            j += 1;
+        }
+    }
+    res.extend((i..n).map(|i| (Some(i), None)));
+    res.extend((j..m).map(|j| (None, Some(j))));
+    res
+}
+
+/// 文字列の頭の、新設・削った条などの印（「（新設）」「〔削る〕」「〔号を加える。〕」「〔項を削る。〕」）。
+fn leading_mark(text: &str) -> Option<&str> {
+    const MARKS: [&str; 7] = ["（新設）", "〔新設〕", "［新設］", "（削る）", "〔削る〕", "［削る］", "（削る。）"];
+    if let Some(m) = MARKS.iter().find(|m| text.starts_with(**m)) {
+        return Some(&text[..m.len()]);
+    }
+    // 「〔号を加える。〕」「〔項を削る。〕」「〔条を加える。〕」など（〔 の後 8 字以内で「を加える。」「を削る。」）。
+    let body = text.strip_prefix('〔')?;
+    let end = body.find('〕')?;
+    let inner = &body[..end];
+    let ok = (inner.ends_with("を加える。") || inner.ends_with("を削る。")) && inner.chars().count() <= 12;
+    ok.then(|| &text[..'〔'.len_utf8() + end + '〕'.len_utf8()])
 }
 
 /// セルの末尾の、印だけの行（「（新設）」「〔新設〕〔新設〕」など）の印を分ける。`(残り, 印)`。
 fn split_trailing_marks(text: &str) -> (String, Vec<String>) {
-    const MARKS: [&str; 6] = ["（新設）", "〔新設〕", "［新設］", "（削る）", "〔削る〕", "［削る］"];
     let mut lines: Vec<&str> = text.trim_end().lines().collect();
     let mut marks: Vec<String> = Vec::new();
     while let Some(last) = lines.last() {
         let mut rest = last.trim();
         let mut found: Vec<String> = Vec::new();
-        while let Some(m) = MARKS.iter().find(|m| rest.starts_with(**m)) {
+        while let Some(m) = leading_mark(rest) {
             found.push(m.to_string());
             rest = rest[m.len()..].trim_start();
         }
@@ -813,8 +1450,9 @@ fn is_row_heading(line: &str) -> Option<String> {
     }
     if let Some(rest) = t.strip_prefix('（') {
         if let Some(inner) = rest.strip_suffix('）') {
-            // 凡例「（傍線部分は…）」は条見出しではない（注記であり、片側だけの偽行を生む）。
-            if inner.starts_with("傍線") {
+            // 凡例「（傍線部分は…）」は条見出しではない（注記であり、片側だけの偽行を生む）。新設・削った条の印
+            // 「（削る。）」も見出しではない。
+            if inner.starts_with("傍線") || leading_mark(t) == Some(t) {
                 return None;
             }
             if inner.chars().count() >= 3 && !inner.contains('）') {
@@ -859,8 +1497,17 @@ fn article_number(line: &str) -> Option<String> {
         }
         end += 1 + m;
     }
+    // 「第十二条及び第十三条　削除」「第九条から第十一条まで　削除」は、まとめて削った条の書き出し（鍵は頭の条）。
     if chars.get(end) != Some(&'\u{3000}') {
-        return None;
+        let tail: String = chars[end..].iter().collect();
+        let joined = ["及び", "から"].iter().any(|j| {
+            tail.strip_prefix(j).and_then(|r| r.split_once('\u{3000}')).is_some_and(|(second, _)| {
+                article_number(&format!("{}\u{3000}削除", second.trim_end_matches("まで"))).is_some()
+            })
+        });
+        if !joined {
+            return None;
+        }
     }
     chars.truncate(end);
     Some(format!("第{}", chars.into_iter().collect::<String>()))
@@ -1000,6 +1647,181 @@ mod tests {
         assert!(rows[1].after[0].text.contains("五重量パーセント"));
         assert!(rows[1].before[0].text.contains("（新設）"));
         assert!(rows[2].before.is_empty());
+    }
+
+    #[test]
+    fn pairs_renumbered_go_rows_by_their_opening() {
+        // 号の繰り下げ（改正前の十八・十九が改正後では二十・二十一）。番号が揃わず片側だけの行に
+        // なっていたが、番号を除いた書き出しが同じ行を組にする。書き出しが違う行は片側のまま。
+        let after = "十七\u{3000}（略）\n二十\u{3000}特定非上場会社の議決権に係る議決権代理行使受任\n\
+                     二十一\u{3000}有価証券の引受けのうち元引受契約に係るもの\n二十二\u{3000}新しく加える号の文である";
+        let before = "十七\u{3000}（略）\n十八\u{3000}特定非上場会社の議決権に係る議決権代理行使受任\n十九\u{3000}有価証券の引受けのうち元引受契約に係るもの";
+        let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
+        let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
+        let text = |r: &[Run]| r.iter().map(|x| x.text.as_str()).collect::<String>();
+        let row = |k: &str| rows.iter().find(|r| text(&r.after).starts_with(k)).unwrap();
+        assert!(text(&row("二十\u{3000}").before).starts_with("十八"), "{rows:?}");
+        assert!(text(&row("二十一").before).starts_with("十九"), "{rows:?}");
+        assert!(row("二十二").before.is_empty(), "{rows:?}");
+    }
+
+    #[test]
+    fn moves_bunched_new_marks_back_to_the_new_articles() {
+        // 新設の条が 3 つ続き、改正前の欄の「（新設）」3 つがまとめて最後の条の行に付いていた。
+        let row = |a: &str, b: &str| (a.to_string(), b.to_string());
+        let mut rows = vec![
+            row("第一条　甲", "第一条　旧甲"),
+            row("第一条の二　乙", ""),
+            row("第一条の三　丙", ""),
+            row("第一条の四　丁", "（新設）\n（新設）\n（新設）"),
+        ];
+        spread_marks_back(&mut rows);
+        assert_eq!(rows[0].1, "第一条　旧甲");
+        for r in &rows[1..] {
+            assert_eq!(r.1, "（新設）", "{rows:?}");
+        }
+        // 印以外の字があるセルは動かさない。
+        let mut rows = vec![row("第一条の二　乙", ""), row("第一条の三　丙", "第一条の三　旧丙\n（新設）\n（新設）")];
+        spread_marks_back(&mut rows);
+        assert_eq!(rows[0].1, "");
+    }
+
+    #[test]
+    fn pairs_same_numbered_articles_with_changed_captions() {
+        // 条の見出しが改正で変わり、見出しの鍵がそろわない条も、条番号が同じで文が似ていれば組にする。
+        let row = |a: &str, b: &str| (a.to_string(), b.to_string());
+        let rows = vec![
+            row("（審判手続に係る電子調書の形式的記録事項等）\n第二十五条　審判手続の事務を行う職員は、審判手続の期日ごとに電子調書を作成し、これに次に掲げる事項を記録しなければならない。", ""),
+            row("（他の電磁的記録の引用）\n第二十七条　審判手続に係る電子調書には、他の電磁的記録を引用することができる。", ""),
+            row("", "（審判手続調書の形式的記載事項）\n第二十五条　審判手続の事務を行う職員は、審判手続の期日ごとに調書を作成しなければならない。調書には、次に掲げる事項を記載しなければならない。"),
+            row("", "（調書への引用）\n第二十七条　審判手続の調書には、書面、写真その他審判官が適当と認めるものを引用し、事件記録に添付して調書の一部とすることができる。"),
+        ];
+        let out = pair_renumbered(rows);
+        assert!(out[0].0.contains("第二十五条") && out[0].1.contains("第二十五条"), "{out:?}");
+        // 新設の印のある所では条番号で組まない（新設の条が前に入り、元の条が繰り下がったことがある）。
+        let rows = vec![
+            row("（選定の方法）\n第九条の二　法第二条第十二号の国土交通省令で定める方法は、公募とする。", ""),
+            row("", "（新設）"),
+            row("", "（選定の方法）\n第九条の二　法第二条第十一号の国土交通省令で定める方法は、公募とする。"),
+        ];
+        let out = pair_renumbered(rows.clone());
+        assert_eq!(out, rows);
+    }
+
+    #[test]
+    fn realigns_renumbered_items_between_confident_rows() {
+        // 号の繰り下げで、番号で組むと別の号が組になる（十七↔十七）。文の似方で組み直す。
+        let row = |a: &str, b: &str| (a.to_string(), b.to_string());
+        let rows = vec![
+            row("十五　特別上場会社等（法第二十六条第一項第三号に掲げるもの）", "十五　特別上場会社等（法第二十六条第一項第三号に掲げるもの）"),
+            row("十六　特定非上場会社の議決権に係る議決権代理行使受任", ""),
+            row("十七　非上場会社の議決権に係る議決権代理行使受任の後における保有", "十七　有価証券の引受けのうち、次に掲げるもの"),
+            row("", "十八　特定非上場会社の議決権に係る議決権代理行使受任"),
+            row("", "十九　非上場会社の議決権に係る議決権代理行使受任の後における保有"),
+        ];
+        let out = realign_weak_windows(rows, false);
+        assert!(out.iter().any(|r| r.0.starts_with("十六") && r.1.starts_with("十八")), "{out:?}");
+        assert!(out.iter().any(|r| r.0.starts_with("十七") && r.1.starts_with("十九")), "{out:?}");
+    }
+
+    #[test]
+    fn realigns_added_items_by_units() {
+        // 号を加えて繰り下げた表で、改正前の欄の 1 つのセルに号と「〔号を加える。〕」がいくつも入る。号と印に分けて組む。
+        let row = |a: &str, b: &str| (a.to_string(), b.to_string());
+        let rows = vec![
+            row("組織は、次のとおりとする。", "組織は、次のとおりとする。\n〔号を加える。〕"),
+            row("一　フィンランドに主たる事務所が所在する団体である　Ａ", "一　ドイツ連邦共和国に主たる事務所が所在する団体である　Ｂ\n〔号を加える。〕"),
+            row("二　ドイツ連邦共和国に主たる事務所が所在する団体である　Ｃ", "二　〔同上〕"),
+            row("三　アイスランドに主たる事務所が所在する団体である　Ｄ", ""),
+            row("四　〔略〕", ""),
+        ];
+        let out = realign_weak_windows(rows, true);
+        assert_eq!(out[0].1, "組織は、次のとおりとする。", "{out:?}");
+        assert!(out.iter().any(|r| r.0.starts_with("一") && r.1 == "〔号を加える。〕"), "{out:?}");
+        assert!(out.iter().any(|r| r.0.starts_with("二") && r.1.starts_with("一")), "{out:?}");
+        assert!(out.iter().any(|r| r.0.starts_with("三") && r.1 == "〔号を加える。〕"), "{out:?}");
+        assert!(out.iter().any(|r| r.0.starts_with("四") && r.1.starts_with("二")), "{out:?}");
+    }
+
+    #[test]
+    fn pairs_replaced_article_and_moves_trailing_mark() {
+        let row = |a: &str, b: &str| (a.to_string(), b.to_string());
+        let mut rows = vec![
+            row("（認定書の交付）\n第二十五条の八の四　認定書を交付する。", ""),
+            row("（変更の届出等）\n第二十五条の八の五　届出書を提出する。", "（軽微な変更）\n第二十五条の八の四　軽微な変更は、次に掲げる。\n〔新設〕"),
+        ];
+        pair_replaced_article(&mut rows);
+        assert!(rows[0].1.contains("第二十五条の八の四"), "{rows:?}");
+        assert_eq!(rows[1].1, "〔新設〕");
+    }
+
+    #[test]
+    fn pairs_jointly_deleted_articles() {
+        let after = ["（調査事項）", "第五条　調査は、次の事項について行う。", "八　法人番号", "第十二条及び第十三条　削除"];
+        let before = ["（調査事項）", "第五条　調査は、次の事項について行う。", "第十二条　前条の入力は、", "第十三条　削除"];
+        let rows = align_rows(&after, &before);
+        let text = |r: &[Run]| r.iter().map(|x| x.text.as_str()).collect::<String>();
+        assert_eq!(rows.len(), 2, "{:?}", rows.iter().map(|r| (text(&r.after), text(&r.before))).collect::<Vec<_>>());
+        assert!(text(&rows[1].before).contains("第十三条"));
+        assert_eq!(article_number("第九条から第十一条まで　削除"), Some("第九条".to_string()));
+    }
+
+    #[test]
+    fn moves_leading_marks_to_the_previous_row() {
+        let row = |a: &str, b: &str| (a.to_string(), b.to_string());
+        let mut rows = vec![row("第十一条の二　新しい条", ""), row("第十二条　甲", "（新設）\n第十二条　旧甲")];
+        move_leading_marks_back(&mut rows);
+        assert_eq!(rows[0].1, "（新設）");
+        assert_eq!(rows[1].1, "第十二条　旧甲");
+        assert_eq!(leading_mark("（削る。）"), Some("（削る。）"));
+    }
+
+    #[test]
+    fn merges_items_of_a_new_paragraph() {
+        let row = |a: &str, b: &str| (a.to_string(), b.to_string());
+        let rows = vec![
+            row("一　被保険者等記号・番号", "（新設）"),
+            row("二　計算期間の始期及び終期", ""),
+            row("三　申請者の氏名", ""),
+            row("（見出し）\n第十条　…", "（見出し）\n第十条　…"),
+        ];
+        let out = merge_new_item_runs(rows);
+        assert_eq!(out.len(), 2, "{out:?}");
+        assert!(out[0].0.contains("三　申請者の氏名"));
+        assert_eq!(item_number("十二　…"), Some(12));
+        assert_eq!(item_number("二十　…"), Some(20));
+        assert_eq!(item_number("一般"), None);
+    }
+
+    #[test]
+    fn shifts_omitted_row_past_new_items() {
+        // 号を 4 つ加えて「三十七」以降を繰り下げた。改正前の「三十七　（略）」は改正後の「四十一　（略）」の行。
+        let row = |a: &str, b: &str| (a.to_string(), b.to_string());
+        let mut rows = vec![
+            row("三十二〜三十六　（略）", "三十二〜三十六　（略）\n（新設）\n（新設）\n（新設）\n（新設）"),
+            row("三十七　ペルフルオロアルカン酸", "三十七　（略）"),
+            row("三十八　長鎖ペルフルオロアルカン酸関連物質", ""),
+            row("三十九　チオりん酸", ""),
+            row("四十　ポリ塩化直鎖パラフィン", ""),
+            row("四十一　（略）\n附　則", ""),
+        ];
+        shift_omitted_past_new(&mut rows);
+        assert_eq!(rows[0].1, "三十二〜三十六　（略）");
+        for r in &rows[1..5] {
+            assert_eq!(r.1, "（新設）", "{rows:?}");
+        }
+        assert_eq!(rows[5].1, "三十七　（略）");
+    }
+
+    #[test]
+    fn recognizes_add_and_delete_marks() {
+        // 新しい書き方の印（「〔号を加える。〕」「〔項を削る。〕」）も新設・削った条の印。
+        assert_eq!(leading_mark("〔号を加える。〕"), Some("〔号を加える。〕"));
+        assert_eq!(leading_mark("〔項を削る。〕〔項を削る。〕"), Some("〔項を削る。〕"));
+        assert_eq!(leading_mark("（新設）"), Some("（新設）"));
+        assert_eq!(leading_mark("〔同上〕"), None);
+        assert_eq!(leading_mark("〔第三条の規定により読み替えて適用する場合を含む。〕"), None);
+        assert_eq!(only_marks("〔号を削る。〕\n〔号を削る。〕"), vec!["〔号を削る。〕", "〔号を削る。〕"]);
     }
 
     #[test]
@@ -1194,3 +2016,4 @@ mod tests {
         assert!(!json.contains("underline"));
     }
 }
+
