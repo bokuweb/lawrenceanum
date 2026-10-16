@@ -15,6 +15,7 @@ laws: ["325AC1000000100","413AC0000000137"]
 stages: [{"date":"2026-06-24","kind":"received","label":"衆議院で受理"},{"date":"2026-06-25","kind":"referred","label":"衆議院 政治改革に関する特別に付託"},{"date":"2026-06-25","kind":"committee","label":"衆議院 委員会で可決"},{"date":"2026-06-26","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-06-26","kind":"received","label":"参議院で受理"},{"date":"2026-07-09","kind":"referred","label":"参議院 政治改革に関する特別に付託"},{"date":"2026-07-10","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-07-13","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-07-17","kind":"promulgated","label":"公布（法律第58号）"}]
 tags: []
 render_version: 2
+llm_latest_date: "2026-07-17"
 ---
 
 # 公職選挙法及び特定電気通信による情報の流通によって発生する権利侵害等への対処に関する法律の一部を改正する法律案
@@ -22,6 +23,30 @@ render_version: 2
 ## 概要と経緯
 
 <!-- llm:begin -->
+**提出理由**: 選挙に関するインターネット等の利用の状況に対応するため、電子メールによる文書図画の頒布規制の廃止や、AI で作成された画像等の表示義務などを定める必要があるとされた[^1]。
+
+**主な内容**
+- 公職選挙法: 電子メールを利用する方法による文書図画の頒布に係る送信主体の制限等の規制を廃止し、ウェブサイト等と同じ規制に統一する[^2]。
+- 公職選挙法: 人工知能関連技術を利用して作成又は改変された画像・映像が載った文書図画をインターネット等で頒布する者に、その旨の表示を義務づける[^3]。
+- 特定電気通信による情報の流通によって発生する権利侵害等への対処に関する法律: 大規模特定電気通信役務提供者に、選挙の公正に対する悪影響を軽減する措置を講じるよう義務づける[^4]。
+- 施行は令和９年３月１日（一部は公布の日）とされた[^5]。
+
+**審議の経過**
+- 2026-06-24 衆議院で受理、2026-06-25 政治改革に関する特別委員会に付託され、同日委員会で可決。
+- 2026-06-26 衆議院本会議で可決（賛成: 自由民主党・無所属の会、中道改革連合・無所属、日本維新の会、国民民主党・無所属クラブ、参政党、チームみらい、日本共産党／反対: なし）。
+- 2026-07-10 参議院の政治改革に関する特別委員会で可決し、附帯決議（指針で具体例を明記し、表現の自由に配慮することなどを求める）[^6]。
+- 附帯決議は、ネット上の有料広告の規制の在り方を引き続き検討するとした[^7]。
+- 2026-07-13 参議院本会議で可決。
+
+**結果**: 2026-07-13 成立、2026-07-17 公布（令和八年法律第五十八号）。
+
+[^1]: [gian:221/1DE2AAA#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22105026.htm) 「電子メールを利用する方法による文書図画の頒布に係る規制の廃止」
+[^2]: [gian:221/1DE2AAA#outline](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/youkou/g22105026.htm) 「電子メールを利用する方法による文書図画の頒布に係る送信主体の制限等の規制を廃止し」
+[^3]: [gian:221/1DE2AAA#outline](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/youkou/g22105026.htm) 「人工知能関連技術を利用して作成され又は改変された画像又は映像」
+[^4]: [gian:221/1DE2AAA#outline](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/youkou/g22105026.htm) 「当該大規模特定電気通信役務の特性に応じ、必要な措置を講じなければならない」
+[^5]: [gian:221/1DE2AAA#outline](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/youkou/g22105026.htm) 「この法律は、令和９年３月１日から施行する。」
+[^6]: [gian:221/1DE2AAA#res-sangiin-221-f435_071002](https://www.sangiin.go.jp/japanese/gianjoho/ketsugi/current/f435_071002.pdf) 「大規模特定電気通信役務提供者が講ずべき措置に関する指針には、大規模特定電気通信役務提供者が」
+[^7]: [gian:221/1DE2AAA#res-sangiin-221-f435_071002](https://www.sangiin.go.jp/japanese/gianjoho/ketsugi/current/f435_071002.pdf) 「いては、引き続き検討するものとすること」
 <!-- llm:end -->
 
 <!-- lawpub:begin meta -->

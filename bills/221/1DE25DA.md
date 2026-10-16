@@ -15,6 +15,7 @@ laws: ["406AC0000000113"]
 stages: [{"date":"2026-04-03","kind":"received","label":"衆議院で受理"},{"date":"2026-05-12","kind":"referred","label":"衆議院 農林水産に付託"},{"date":"2026-06-02","kind":"committee","label":"衆議院 委員会で可決"},{"date":"2026-06-03","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-06-03","kind":"received","label":"参議院で受理"},{"date":"2026-06-17","kind":"referred","label":"参議院 農林水産に付託"},{"date":"2026-07-07","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-07-08","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-07-15","kind":"promulgated","label":"公布（法律第55号）"}]
 tags: []
 render_version: 2
+llm_latest_date: "2026-07-15"
 ---
 
 # 主要食糧の需給及び価格の安定に関する法律の一部を改正する法律案
@@ -22,6 +23,25 @@ render_version: 2
 ## 概要と経緯
 
 <!-- llm:begin -->
+**提出理由**: 米価高騰下で生じた課題に対応し、米穀の備蓄の運営を円滑に行って消費者への供給を安定させるため、事業者への在庫保有の義務付けなどを講ずる必要があるとされた[^1]。
+
+**主な内容**
+- 大規模な米穀の出荷又は販売を行う事業者に、一定量の米穀の在庫の常時保有を義務付ける[^2]。
+- 米穀の生産調整方針に係る規定を廃止する[^3]。
+
+**審議の経過**
+- 2026-04-03 衆議院で受理、2026-05-12 農林水産委員会に付託。2026-06-02 委員会で可決。
+- 2026-06-03 衆議院本会議で可決（賛成: 自由民主党・無所属の会、中道改革連合・無所属、日本維新の会、国民民主党・無所属クラブ、チームみらい／反対: 参政党、日本共産党）。
+- 2026-07-07 参議院農林水産委員会で可決し、附帯決議。需給安定への責任は施行後も変わらないとして政府に施策を求めた[^4]。民間備蓄が政府備蓄を補完する役割を踏まえた検討も求めた[^5]。
+- 2026-07-08 参議院本会議で可決。
+
+**結果**: 2026-07-08 成立、2026-07-15 公布（令和八年法律第五十五号）。
+
+[^1]: [gian:221/1DE25DA#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22109048.htm) 「米穀の備蓄の運営を円滑に行うことを通じて消費者への米穀の供給を安定的に行うため」
+[^2]: [gian:221/1DE25DA#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22109048.htm) 「大規模な米穀の出荷又は販売を行う事業者に対する一定量の米穀の在庫の常時保有」
+[^3]: [gian:221/1DE25DA#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22109048.htm) 「米穀の生産調整方針に係る規定の廃止等の措置を講ずる必要がある」
+[^4]: [gian:221/1DE25DA#res-sangiin-221-f070_070701](https://www.sangiin.go.jp/japanese/gianjoho/ketsugi/current/f070_070701.pdf) 「本法施行後も、需給安定への責任は何ら変わることなく、引き続き、政府は」
+[^5]: [gian:221/1DE25DA#res-sangiin-221-f070_070701](https://www.sangiin.go.jp/japanese/gianjoho/ketsugi/current/f070_070701.pdf) 「民間備蓄については、政府備蓄を補完する重要な役割を果たすものであることに鑑み」
 <!-- llm:end -->
 
 <!-- lawpub:begin meta -->
