@@ -1,5 +1,6 @@
 ---
 source: crates/kanpo-parser/tests/archive_snapshots.rs
+assertion_line: 105
 expression: out
 input_file: crates/kanpo-parser/tests/archive/pages/20260918g00209/20260918g002090109.pdf
 ---
@@ -159,8 +160,8 @@ Province, China
     前 （新設）
    row 5
     後 四十一　（略）
-    附　則
     前 三十七　（略）
+  P 附　則
   P この告示は、令和八年十一月二十二日から施行する。
 ## 1 (unknown)
   P その他告示

@@ -1,5 +1,6 @@
 ---
 source: crates/kanpo-parser/tests/archive_snapshots.rs
+assertion_line: 129
 expression: out
 input_file: crates/kanpo-parser/tests/archive/items/20260918g00209-p108.json
 ---
@@ -42,8 +43,8 @@ picked: Some(1)
     前 （新設）
    row 5
     後 四十一　（略）
-    附　則
     前 三十七　（略）
+  P 附　則
   P この告示は、令和八年十一月二十二日から施行する。
 ## 2: その他告示
 ## 3: 〇国家公安委員会告示第四十三号
