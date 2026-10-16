@@ -12,8 +12,22 @@ pub fn segment_articles(text: &str) -> Vec<String> {
     for line in text.lines() {
         let prev = cur.iter().rev().find(|l| !l.trim().is_empty()).copied();
         if (is_article_boundary(line) || is_notice_title(line, prev)) && !cur.is_empty() {
-            articles.push(cur.join("\n").trim().to_string());
-            cur = Vec::new();
+            // 公布の件名が長く折り返すと（「…に関する政」＋「令の一部を改正する政令をここに公布する。」）、
+            // 件名の頭の行（文末でない長い行）は前の記事の末尾にある。新しい記事へ移す。
+            let mut carried: Vec<&str> = Vec::new();
+            if line.contains("をここに公布する") && !is_heading_mark(line.trim()) {
+                while carried.len() < 4 {
+                    let Some(last) = cur.last().map(|l| l.trim()) else { break };
+                    if last.chars().count() < 25 || last.ends_with(['。', '」', '）']) || is_article_boundary(last) || last.contains("をここに公布する") {
+                        break;
+                    }
+                    carried.insert(0, cur.pop().unwrap());
+                }
+            }
+            if !cur.is_empty() {
+                articles.push(cur.join("\n").trim().to_string());
+            }
+            cur = carried;
         }
         cur.push(line);
     }
@@ -176,5 +190,15 @@ mod tests {
         assert_eq!(arts.len(), 2);
         assert!(arts[0].contains("労働組合法施行令") && !arts[0].contains("美容師"));
         assert!(arts[1].contains("美容師法施行令") && !arts[1].contains("労働組合"));
+    }
+
+    #[test]
+    fn carries_the_wrapped_head_of_a_promulgated_title() {
+        // 件名が折り返し、頭の行は前の記事の末尾にある。署名（短い行）は前の記事に残す。
+        let text = "この政令は、令和八年九月一日から施行する。\n内閣総理大臣高市早苗\n令和八年熊本地震による災害についての激甚災害及びこれに対し適用すべき措置の指定に関する政\n令の一部を改正する政令をここに公布する。\n御名御璽";
+        let arts = segment_articles(text);
+        assert_eq!(arts.len(), 2, "{arts:?}");
+        assert!(arts[0].ends_with("内閣総理大臣高市早苗"));
+        assert!(arts[1].starts_with("令和八年熊本地震による災害"));
     }
 }
