@@ -197,8 +197,11 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
                     (body, doc)
                 }
             };
-            let format = pdf::detect_format_of(&body)
-                .or_else(|| pdf::detect_format_of(&analysis.text))
+            // 形式は選んだ記事だけで決める。項目のページ全体（analysis.text）で判じると、同じページの別の記事の
+            // 新旧対照表につられて、告示の一覧などまで「新旧対照表」になる。
+            let format = Some(doc.format.clone())
+                .filter(|f| f != "unknown")
+                .or_else(|| pdf::detect_format_of(&body))
                 .unwrap_or_else(|| "unknown".to_string());
             *stats.by_format.entry(format.clone()).or_default() += 1;
             item.amend_document = serde_json::to_value(&doc).ok();
