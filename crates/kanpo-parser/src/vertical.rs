@@ -1767,7 +1767,27 @@ fn merge_split_header_tiers(tiers: Vec<Vec<Col>>) -> Vec<Vec<Col>> {
         }
         out.push(tier);
     }
-    out
+    // 帯の中の表が欄ごとの段に割れ、見出しの字（「改」「正」「後」…「前」）が 4 つ以上の段に散ったときは、
+    // 見出しの頭の「改」のある段から、合わせて見出しが揃うまでの段（12 段まで）をまとめる。
+    let mut merged_out: Vec<Vec<Col>> = Vec::new();
+    let mut i = 0;
+    while i < out.len() {
+        let has_head = out[i].iter().any(|c| c.text.starts_with('改') && c.text.chars().count() <= 3);
+        if has_head && detect_shinkyu_header(&out[i]).is_none() {
+            let end = (i + 3..out.len().min(i + 12)).find(|&j| {
+                out[i..=j].iter().skip(1).all(|t| detect_shinkyu_header(t).is_none())
+                    && detect_shinkyu_header(&out[i..=j].concat()).is_some()
+            });
+            if let Some(j) = end {
+                merged_out.push(out[i..=j].concat());
+                i = j + 1;
+                continue;
+            }
+        }
+        merged_out.push(std::mem::take(&mut out[i]));
+        i += 1;
+    }
+    merged_out
 }
 
 /// 段の境目 `cut` をまたぐ列がすべて片側に寄っていれば、その脇で縦に切って
