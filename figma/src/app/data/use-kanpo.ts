@@ -61,8 +61,3 @@ export function findKanpoItem(
   }
   return fallback;
 }
-
-/** 項目に本文（改め文）があるか。 */
-export function hasKanpoBody(item: KanpoItem): boolean {
-  return !!(item.amend_document || item.amend_text);
-}

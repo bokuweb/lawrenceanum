@@ -6,7 +6,7 @@ use serde::Serialize;
 use serde_json::json;
 use std::path::{Path, PathBuf};
 
-/// `lawpub kanpo-fetch` — 指定日の官報を取得し、改正・廃止・制定系の各項目の改め文を
+/// `lawpub kanpo-fetch` — 指定日の官報を取得し、全項目の本文（改正・廃止・制定の項目は改め文）を
 /// 抽出して `.cache/kanpo/{date}.json` に保存する。`provider` は "http"(デジタル官報) /
 /// "mock"。`limit` は1日あたりの PDF ダウンロード上限（負荷ガード）。
 pub fn run_fetch(
@@ -25,10 +25,11 @@ pub fn run_fetch(
             // --save-pdf 指定時のみ生 PDF を `{cache}/kanpo-pdf/{date}/` に保持
             // （抽出精度を上げた際の再抽出用。git 管理外、永続化は R2 等へ別途同期）。
             let pdf_dir = save_pdf.then(|| cache.join("kanpo-pdf").join(date));
-            let stats = fill_amend_texts(&http, &mut kd, true, limit, pdf_dir.as_deref());
+            let stats = fill_amend_texts(&http, &mut kd, false, limit, pdf_dir.as_deref());
             tracing::info!(
-                "extracted amend texts: items={} downloaded={} pdf={:.1}MB formats={:?}{}",
+                "extracted item bodies: items={} unmatched={} downloaded={} pdf={:.1}MB formats={:?}{}",
                 stats.amend_items,
+                stats.unmatched,
                 stats.downloaded,
                 stats.total_pdf_bytes as f64 / 1_048_576.0,
                 stats.by_format,
@@ -54,6 +55,8 @@ pub fn run_fetch(
 #[derive(Default)]
 pub(crate) struct FillStats {
     pub amend_items: usize,
+    /// 標題に合う記事を特定できず、項目のページの本文をまとめて入れた項目数。
+    pub unmatched: usize,
     pub downloaded: usize,
     pub total_pdf_bytes: usize,
     pub by_format: std::collections::BTreeMap<String, usize>,
@@ -119,7 +122,8 @@ fn fill_amend_texts(
 /// `item.amend_text` / `item.amend_format` に詰める。
 ///
 /// 同一ページ(=同一 PDF)を複数項目が共有するためページ単位でキャッシュする。
-/// `amend_only` なら改正/廃止/制定系の標題だけを対象にする。
+/// `amend_only` なら改正/廃止/制定系の標題だけを対象にする（`kanpo-poc --amend-only` 用。取得・再抽出は
+/// 標題を問わず全項目を対象にし、告示・公告なども検索できるようにする）。
 pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: &mut PageLoader) -> FillStats {
     // 1項目が複数ページに跨る（新旧対照表等）ため、項目の開始ページから次項目の
     // 開始ページ手前（最終項目は号の総ページ）までを連結して抽出する。
@@ -187,6 +191,7 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
             let (body, doc) = match picked {
                 Some(i) => (segments[i].clone(), analysis.articles[i].document.clone()),
                 None => {
+                    stats.unmatched += 1;
                     let body = segments.join("\n\n");
                     let doc = pdf::Document::from_text(&body);
                     (body, doc)
@@ -204,8 +209,8 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
     stats
 }
 
-/// 改正・廃止・制定系の標題か（改め文抽出の対象判定）。
-fn is_amend_title(title: &str) -> bool {
+/// 改正・廃止・制定系の標題か（`kanpo-poc --amend-only` の対象・更新フィードに載せる項目の判定）。
+pub(crate) fn is_amend_title(title: &str) -> bool {
     title.contains("改正") || title.contains("廃止") || title.contains("制定")
 }
 

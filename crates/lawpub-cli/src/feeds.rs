@@ -150,7 +150,7 @@ fn collect_pubcomment_items(public: &Path) -> Vec<FeedItem> {
     items
 }
 
-/// 官報の改め文記事: `public/kanpo/{date}/index.json` の amend_text を持つ項目。
+/// 官報の改め文記事: `public/kanpo/{date}/index.json` の改正・廃止・制定の標題で amend_text を持つ項目。
 fn collect_kanpo_items(public: &Path, max_dates: usize) -> Vec<FeedItem> {
     let dir = public.join("kanpo");
     let mut date_dirs: Vec<std::path::PathBuf> = match std::fs::read_dir(&dir) {
@@ -179,12 +179,12 @@ fn collect_kanpo_items(public: &Path, max_dates: usize) -> Vec<FeedItem> {
                 continue;
             };
             for it in its {
-                // 改め文 (法令改正) を持つ項目だけ。公告・公示は対象外。
+                // 改め文 (法令改正) を持つ項目だけ。本文は全項目から取るので、標題で公告・公示などを除く。
+                let title = it.get("title").and_then(|x| x.as_str()).unwrap_or("");
                 let has_amend = it.get("amend_text").and_then(|x| x.as_str()).is_some_and(|s| !s.is_empty());
-                if !has_amend {
+                if !has_amend || !crate::kanpo::is_amend_title(title) {
                     continue;
                 }
-                let title = it.get("title").and_then(|x| x.as_str()).unwrap_or("");
                 let pdf = it.get("pdf_url").and_then(|x| x.as_str()).unwrap_or("");
                 if title.is_empty() || pdf.is_empty() {
                     continue;
@@ -411,7 +411,7 @@ mod tests {
                 "date": "2026-04-02",
                 "issues": [{"issue_no": "第1号", "items": [
                     {"title": "ある省令の一部改正", "pdf_url": "https://x/y.pdf", "agency_hint": "総務一", "amend_text": "改める。"},
-                    {"title": "ただの公告", "pdf_url": "https://x/z.pdf"}
+                    {"title": "ただの公告", "pdf_url": "https://x/z.pdf", "amend_text": "公告する。"}
                 ]}]
             }))
             .unwrap(),
@@ -424,7 +424,7 @@ mod tests {
             serde_json::from_slice(&std::fs::read(root.join("feeds").join("recent.json")).unwrap())
                 .unwrap();
         let items = feed["items"].as_array().unwrap();
-        // law + pubcomment + kanpo(改め文1件、公告は除外) = 3。
+        // law + pubcomment + kanpo(改め文1件、本文があっても公告は除外) = 3。
         assert_eq!(items.len(), 3);
         let kinds: Vec<&str> = items.iter().map(|i| i["kind"].as_str().unwrap()).collect();
         assert!(kinds.contains(&"law"));

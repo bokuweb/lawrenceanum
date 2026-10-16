@@ -304,8 +304,9 @@ enum Cmd {
         /// `http` (デジタル官報) または `mock`。
         #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
         provider: String,
-        /// 1日あたりの PDF ダウンロード上限 (負荷ガード)。
-        #[arg(long, default_value_t = 200)]
+        /// 1日あたりの PDF ダウンロード上限 (負荷ガード)。全項目を取るので号の総ページ数
+        /// (臨時の号が重なる日は数百ページ) を下回らないようにする。
+        #[arg(long, default_value_t = 1000)]
         limit: usize,
         /// 取得した生 PDF を `{cache}/kanpo-pdf/{date}/` に保持する (後の再抽出用)。
         /// 既定オフ (CI のキャッシュ肥大回避)。ローカルでのアーカイブ時に指定。
