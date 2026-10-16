@@ -1948,6 +1948,30 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
     if best_free.is_some_and(|b| b.0 <= MAX_BRIDGE) {
         best = best_free;
     }
+    // どの cut も 2 本以上の列が跨ぐとき、跨ぐ語が cut の上か下に 2pt ほどしか掛からない（段の境目の直前で始まる
+    // 名簿の名の語）ものを数えなければ跨ぐ列が 1 本以下になる cut があれば、そこを段の境目とする（右に段をまたぐ
+    // 名簿の表があり、左の本文の段の境目で名の語の頭がわずかに上の段に掛かる）。
+    if best.is_some_and(|b| b.0 > MAX_BRIDGE) {
+        let slight = cols
+            .iter()
+            .map(|c| c.y1 + 0.5)
+            .filter(|&cut| lo <= cut && cut <= hi && !(ruled_only && !ruled(cut)) && table_at(cut).is_none() && !touching(cut))
+            // 2 段以上の高さの領域で、上端から 1 段の高さの所（段の境目）。
+            .filter(|&cut| ymax - ymin >= 300.0 && (cut - ymin - TIER_HEIGHT).abs() <= 16.0)
+            // わずかに掛かる語は短い語（名簿の名）だけ。
+            .filter(|&cut| {
+                cols.iter()
+                    .filter(|d| d.y < cut && cut < d.y1 && !(d.y < cut - 2.0 && cut + 2.0 < d.y1))
+                    .all(|d| d.text.chars().count() <= 3)
+            })
+            .map(|cut| (cols.iter().filter(|d| d.y < cut - 2.0 && cut + 2.0 < d.y1).count(), cut))
+            .filter(|&(n, _)| n <= MAX_BRIDGE)
+            .min_by(|a, b| a.0.cmp(&b.0).then(a.1.total_cmp(&b.1)));
+        if let Some((_, cut)) = slight {
+            let crossing = cols.iter().filter(|d| d.y < cut && cut < d.y1).count();
+            best = Some((crossing, false, cut, 0.0, 0.0));
+        }
+    }
 
     let Some((crossing, touches, cut, _, _)) = best else {
         out.push(cols);
