@@ -5,10 +5,10 @@ input_file: crates/kanpo-parser/tests/archive/items/20261002t00057-p7.json
 ---
 title: ウクライナをめぐる国際平和のための国際的な努力に我が国として寄与するために講ずる輸出等に係る禁止措置の対象となるロシア連邦及びベラルーシ共和国以外の国の団体を指定する件の一部を改正する件（同三〇一）
 pages: 2
-articles: 2
+articles: 3
 picked: Some(1)
 
-## 0: 767アレクサンドル・スィチュゴフ〇外務省告示第三百二号
+## 0: 767アレクサンドル・スィチュゴフ
 ## 1 (unknown) ← 標題の記事
   P 〇外務省告示第三百一号ウクライナをめぐる現下の国際情勢に鑑み、ウクライナをめぐる問題の解決を目指す国際平和のための国際的な努力に我が国として寄与するため、主要国が講ずることとした措置の内容に沿って、我が国が講ずる輸出等に係る禁止措置の対象として、「ウクライナをめぐる国際平和のための国際的な努力に我が国として寄与するために講ずる輸出等に係る禁止措置の対象となるロシア連邦及びベラルーシ共和国以外の国の団体を指定する件」（令和五年外務省告示第四百四十七号）の一部を次のように改正する。
     令和八年十月二日外務大臣茂木敏充
@@ -18,40 +18,5 @@ picked: Some(1)
     58アメジノFZEAmegino FZE
     別称：アメギノFZE所在地：T1－9F－6D, RAKEZ Amenity Center, Al Hamra Industrial Zone－FZ, Ras Al Khai‑mah, United Arab Emirates
     59オート・パーツ・イーストFZCOAuto Parts East FZCO所在地：Jebel Ali(JAFZA) RA08 YB－05/YB－06/YB－07, Dubai 17370, United Arab Emi‑rates
-    60モト・エクスポートDWC有限会社MOTO Export DWC LLC所在地：Office No: DLC－FC－O6, Building No: DLC－FC－4, Warehouse No: DLC－FC－W06, Logistics District, Dubai 390667, United Arab Emirates令和八年十月二日
-    （別表）
-    １．9179842
-    ２．8517839
-    ３．9339337
-    ４．9318553
-    ５．9318541
-    ６．9333436
-    ７．9161003
-    ８．9358010
-    ９．9312884
-    10．9312896
-    11．9341067
-    12．9273052
-    13．9511533
-    14．9341081
-    15．9299692
-    16．9412347
-    17．9610781
-    18．9422445
-    19．9271585
-    20．9842188
-    21．9511521
-    22．9412335
-    23．9436941
-    24．9610793
-    25．9577082
-    26．9577094
-    27．9382798
-    28．9354301
-    29．9354313
-    30．9235713
-    31．9321847
-    32．9513139
-    33．9321976
-    34．9866380
-    35．9341079外務大臣茂木敏充
+    60モト・エクスポートDWC有限会社MOTO Export DWC LLC所在地：Office No: DLC－FC－O6, Building No: DLC－FC－4, Warehouse No: DLC－FC－W06, Logistics District, Dubai 390667, United Arab Emirates
+## 2: 〇外務省告示第三百二号

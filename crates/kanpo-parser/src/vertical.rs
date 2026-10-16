@@ -334,7 +334,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             // 新旧対照表のあるページ（見出しのある段・帯の組になる段がある）は帯の中の表を帯ごとに
             // 組むので、これまでどおりに切る。
             let hrules: Vec<(f32, f32, f32)> = page_rules.map(|r| r.horizontal.iter().map(|h| (h.y, h.x0, h.x1)).collect()).unwrap_or_default();
-            let plain_tiers = merge_split_header_tiers(split_tiers(cols.clone(), &TierRules { tables: Vec::new(), hrules: hrules.clone() }));
+            let plain_tiers = merge_split_header_tiers(split_tiers(cols.clone(), &TierRules { tables: Vec::new(), hrules: hrules.clone(), sideways }));
             let shinkyu_page = plain_tiers.iter().any(|t| detect_shinkyu_header(t).is_some())
                 || plain_tiers.windows(2).any(|w| tiers_look_like_bands(&w[0], &w[1]));
             let tables: Vec<(f32, f32, f32, f32)> = grids
@@ -356,7 +356,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             let tiers = if shinkyu_page || tables.is_empty() || v_chars < h_chars * 2 {
                 plain_tiers
             } else {
-                merge_split_header_tiers(split_tiers(cols, &TierRules { tables, hrules }))
+                merge_split_header_tiers(split_tiers(cols, &TierRules { tables, hrules, sideways }))
             };
             let mut tiers: Vec<Vec<Col>> = attach_toc_page_numbers(tiers.into_iter().flat_map(split_side_by_side_tables).collect(), &words);
             // 段の中の罫線の表（他の枠を含まない枠で、中の語が全部この段にあり、中の字が縦組みで、
@@ -1462,6 +1462,8 @@ pub(crate) fn col_to_word(c: &Col) -> crate::table::PlacedWord {
 struct TierRules {
     tables: Vec<(f32, f32, f32, f32)>,
     hrules: Vec<(f32, f32, f32)>,
+    /// 横倒しのページ（回した座標で組む）。
+    sideways: bool,
 }
 
 fn split_tiers(cols: Vec<Col>, rules: &TierRules) -> Vec<Vec<Col>> {
@@ -2021,6 +2023,15 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
             continue;
         }
         let crossing = cols.iter().filter(|d| d.y < cut && cut < d.y1).count();
+        // 横倒しのページ全体では、上の語の下端と下の語の上端が 1pt 未満重なるだけで、その間ならどの列も跨がない
+        // なら、そこで切る（表示の左の横組みの表と右の縦書きの告示が、回した座標でわずかに重なる）。
+        let (cut, crossing) = if crossing > 0 {
+            let snug = c.y1 - 0.75;
+            let n = cols.iter().filter(|d| d.y < snug - 0.75 && snug + 0.75 < d.y1).count();
+            if rules.sideways && depth == 0 && n == 0 && cols.iter().filter(|d| d.y < snug && snug < d.y1).all(|d| (d.y1 - snug).abs() < 1.0 || (snug - d.y).abs() < 1.0 || (d.y < snug - 0.75 && snug + 0.75 < d.y1)) { (snug, n) } else { (cut, crossing) }
+        } else {
+            (cut, crossing)
+        };
         let cand = (crossing, touching(cut), cut, c.x, c.y);
         if better(&cand, &best) {
             best = Some(cand);
