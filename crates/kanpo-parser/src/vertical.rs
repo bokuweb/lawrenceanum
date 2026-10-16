@@ -433,6 +433,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 units.push(unit);
             }
         }
+        attach_band_tables(&mut units, &words);
         if sideways {
             unturn_tables(&mut units, width);
         }
@@ -487,6 +488,57 @@ fn unruled_records(g: &Grid, cols: &[Col]) -> bool {
         cell.iter().skip(1).any(|(_, t)| t.starts_with('〃'))
             || cell.iter().enumerate().any(|(i, (_, a))| head(a).chars().count() == 2 && cell[i + 1..].iter().any(|(_, b)| head(a) == head(b)))
     })
+}
+
+/// 表だけの本文の単位（前のページから続く新旧対照表の、改正後の帯の表と改正前の帯の表が段の右に
+/// 並ぶもの）のすぐ後に見出しの無い新旧対照表の単位があれば、上の帯の表を改正後の欄の頭に、下の帯の表を
+/// 改正前の欄の頭に移す（表だけが別の段に分かれ、表の外の本文として前の表の行と組めなかった）。
+fn attach_band_tables(units: &mut Vec<Unit>, words: &[Word]) {
+    let mut i = 0;
+    while i + 1 < units.len() {
+        let (Unit::Plain(lines), Unit::Shinkyu { after, before, preamble, .. }) = (&units[i], &units[i + 1]) else {
+            i += 1;
+            continue;
+        };
+        if !preamble.is_empty() || lines.is_empty() || !lines.iter().all(|l| l.table.is_some()) {
+            i += 1;
+            continue;
+        }
+        let ys = |ls: &[Line]| -> (f32, f32) {
+            ls.iter()
+                .flat_map(|l| l.words.iter().chain(l.table.iter().flat_map(|t| t.cells.iter().flat_map(|c| c.words.iter()))))
+                .filter_map(|&w| words.get(w))
+                .fold((f32::INFINITY, f32::NEG_INFINITY), |(a, b), w| (a.min(w.y0), b.max(w.y1)))
+        };
+        let (Some(a0), Some(b0)) = (after.first(), before.first()) else {
+            i += 1;
+            continue;
+        };
+        let (_, after_bottom) = ys(a0);
+        let (before_top, _) = ys(b0);
+        if !(after_bottom < before_top) {
+            i += 1;
+            continue;
+        }
+        let divider = (after_bottom + before_top) / 2.0;
+        let sides: Vec<Option<bool>> = lines
+            .iter()
+            .map(|l| {
+                let (top, bottom) = ys(std::slice::from_ref(l));
+                if bottom <= divider { Some(true) } else if top >= divider { Some(false) } else { None }
+            })
+            .collect();
+        if sides.iter().any(Option::is_none) || !sides.contains(&Some(true)) || !sides.contains(&Some(false)) {
+            i += 1;
+            continue;
+        }
+        let Unit::Plain(lines) = units.remove(i) else { unreachable!() };
+        if let Unit::Shinkyu { after, before, .. } = &mut units[i] {
+            let (up, down): (Vec<(Line, Option<bool>)>, Vec<(Line, Option<bool>)>) = lines.into_iter().zip(sides).partition(|(_, s)| *s == Some(true));
+            after[0].splice(0..0, up.into_iter().map(|(l, _)| l));
+            before[0].splice(0..0, down.into_iter().map(|(l, _)| l));
+        }
+    }
 }
 
 /// 横倒しのページの表の枠・セルの座標を、回した座標から表示の座標に戻す（語の表示用の座標と重ねるため）。
