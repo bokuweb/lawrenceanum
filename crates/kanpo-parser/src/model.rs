@@ -521,7 +521,8 @@ fn join_tables(a: &mut NestedTable, b: &NestedTable) -> bool {
         let tail = lead(last);
         let head = lead(next);
         let cut = tail.ends_with(['、', '，', ',']) || !tail.ends_with(['。', '）', '」', '〕', '］']);
-        if !tail.is_empty() && !head.is_empty() && cut && !crate::vertical::starts_item(&head) && !merged_cells {
+        // 次の先頭行が行の見出しの記号（認定番号・信号符字）で始まるなら新しい行。
+        if !tail.is_empty() && !head.is_empty() && cut && !crate::vertical::starts_item(&head) && !crate::horizontal::row_key(&head) && !merged_cells {
             for (dst, src) in last.iter_mut().zip(next.iter()) {
                 let add: String = src.iter().map(|r| r.text.as_str()).collect();
                 match dst.last_mut() {

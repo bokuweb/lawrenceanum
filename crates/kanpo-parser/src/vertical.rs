@@ -2,10 +2,10 @@
 
 use scraper::{Html, Selector};
 
-use crate::horizontal::{horizontal_lines, horizontal_lines_with_tables, is_left_strip_header, row_lines, LEFT_STRIP};
+use crate::horizontal::{horizontal_lines, horizontal_lines_with_tables, is_left_strip_header, keyed_tables, row_lines, LEFT_STRIP};
 use crate::normalize::{is_margin_noise, is_toc_page_number, private_cid_glyph, toc_page_numbers, word_text, CidGlyph};
 use crate::shinkyu::{
-    band_pair_unit, detect_shinkyu_bands_headerless, detect_shinkyu_header, lines_with_tables_by, reconstruct_shinkyu, split_side_by_side_tables,
+    band_pair_unit, detect_shinkyu_bands_headerless, detect_shinkyu_header, lines_with_tables_by, place_tables, reconstruct_shinkyu, split_side_by_side_tables,
     tiers_look_like_bands, ShinkyuLayout,
 };
 use crate::grid::{find_grids, Grid};
@@ -194,13 +194,17 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             // 新旧対照表のあるページ（見出しのある段・帯の組になる段がある）は帯の中の表を帯ごとに
             // 組むので、これまでどおりに切る。
             let hrules: Vec<(f32, f32, f32)> = page_rules.map(|r| r.horizontal.iter().map(|h| (h.y, h.x0, h.x1)).collect()).unwrap_or_default();
-            let plain_tiers = merge_split_header_tiers(split_tiers(cols.clone(), &TierRules { tables: Vec::new(), hrules: hrules.clone() }));
+            // 罫線の無い縦組みの表（[`page_lines_keyed`]）は、欄の間の空きで段に切らない（認定番号の表の
+            // 「認定を受けた者」の欄が下の段に分かれていた）。
+            let keyed = keyed_table_boxes(&cols);
+            let plain_tiers = merge_split_header_tiers(split_tiers(cols.clone(), &TierRules { tables: keyed.clone(), hrules: hrules.clone() }));
             let shinkyu_page = plain_tiers.iter().any(|t| detect_shinkyu_header(t).is_some())
                 || plain_tiers.windows(2).any(|w| tiers_look_like_bands(&w[0], &w[1]));
             let tables: Vec<(f32, f32, f32, f32)> = grids
                 .iter()
                 .filter(|g| g.cells.len() >= 2 && !grids.iter().any(|o| g.encloses(o)) && vertical_inside(&cols, g) && !prose_cells(&cols, g))
                 .map(|g| (g.left(), g.right(), g.top(), g.bottom()))
+                .chain(keyed)
                 .collect();
             // 横組みの語の多いページ（横書きの表が並ぶ告示など）は段の組み方が当てにならない。
             let (v_chars, h_chars) = cols.iter().fold((0, 0), |(v, h), c| {
@@ -278,10 +282,10 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         i += 1;
                         band_pair_unit(tier, next, &grids, page_rules)
                     }
-                    // 普通の本文の段でも、罫線の表は表として組む。
+                    // 普通の本文の段でも、罫線の表と、行の見出しの記号が並ぶ罫線の無い表は表として組む。
                     None => {
                         let inner = inner_grids(&tier);
-                        Unit::Plain(drop_stray_labels(lines_with_tables_by(tier, &inner, page_lines)))
+                        Unit::Plain(drop_stray_labels(lines_with_tables_by(tier, &inner, page_lines_keyed)))
                     }
                 };
                 units.push(unit);
@@ -1710,6 +1714,46 @@ pub(crate) fn page_lines(cols: Vec<Col>) -> Vec<Line> {
     }
     lines.extend(blocks.flat_map(|(_, block)| block));
     lines
+}
+
+/// [`page_lines`] の、罫線の無い縦組みの表を表として組む版。行の見出しの記号（自動車の認定番号
+/// 「2026－ＧＥ0002」など）が各行（縦の列）の頭に同じ高さで 3 つ以上並ぶ表は、縦の列のままだと
+/// 欄が切れずに 1 列ずつの行になる。縦組みの表は 90 度回すと横組みの表なので、語を回して
+/// [`keyed_tables`] で組み、表を回し戻して読み順の位置に差し込む。
+pub(crate) fn page_lines_keyed(cols: Vec<Col>) -> Vec<Line> {
+    let tables = vertical_keyed_tables(&cols);
+    if tables.is_empty() {
+        return page_lines(cols);
+    }
+    let used: std::collections::HashSet<usize> = tables.iter().flat_map(|t| t.cells.iter().flat_map(|c| c.words.iter().copied())).collect();
+    let rest: Vec<Col> = cols.into_iter().filter(|c| !used.contains(&c.id)).collect();
+    place_tables(rest, tables, page_lines)
+}
+
+/// 罫線の無い縦組みの表を組む。欄が 3 つ以上のものだけ（縦組みの段では、セルの 2 行目に組まれた型式
+/// （「ＡＳＡＬ263ＡＮ」）が並ぶだけでも番号の列に見えるので、欄の少ないものは表にしない）。
+fn vertical_keyed_tables(cols: &[Col]) -> Vec<crate::trace::Table> {
+    // 右の列が上の行になるように回す（x → y、y → -x）。
+    let turned: Vec<Col> =
+        cols.iter().map(|c| Col { id: c.id, x: c.y, x1: c.y1, y: -c.x1, y1: -c.x, text: c.text.clone() }).collect();
+    let (tables, _) = keyed_tables(turned, &[]);
+    let back = |(x0, x1, y0, y1): (f32, f32, f32, f32)| (-y1, -y0, x0, x1);
+    tables
+        .into_iter()
+        .filter(|t| t.cols >= 3)
+        .map(|mut t| {
+            (t.x0, t.x1, t.y0, t.y1) = back((t.x0, t.x1, t.y0, t.y1));
+            for c in &mut t.cells {
+                (c.x0, c.x1, c.y0, c.y1) = back((c.x0, c.x1, c.y0, c.y1));
+            }
+            t
+        })
+        .collect()
+}
+
+/// 罫線の無い縦組みの表の枠 `(x0, x1, y0, y1)`（段の切り方で表を割らないため）。
+fn keyed_table_boxes(cols: &[Col]) -> Vec<(f32, f32, f32, f32)> {
+    vertical_keyed_tables(cols).into_iter().map(|t| (t.x0, t.x1, t.y0, t.y1)).collect()
 }
 
 /// 縦書きの段の中の横組みの欄を取り出す。`(残りの語, [(欄の右端, 欄の行)])`（欄は右端の降順）。
