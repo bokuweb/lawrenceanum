@@ -86,6 +86,14 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         let mut grids: Vec<Grid> = page_rules.map(|r| find_grids(r, width.max(height), width.max(height))).unwrap_or_default();
         if sideways {
             grids.retain(|g| !unruled_records(g, &cols));
+        } else if rotated || is_horizontal_page(&cols) {
+            // 別の枠を囲む外枠（決算公告の囲み）は、中の枠の行が並ぶだけなので見ない。
+            let cut: Vec<bool> = grids.iter().map(|g| !grids.iter().any(|o| !std::ptr::eq(g, o) && g.encloses(o)) && rows_cut_by_grid(g, &cols, page_rules)).collect();
+            let mut k = 0;
+            grids.retain(|_| {
+                k += 1;
+                !cut[k - 1]
+            });
         }
         // 枠ごとの、中にある語の ID（普通の本文の段で表を組むのは、枠の中の語が全部その段に
         // あるときだけ。段に切ると表が左右に割れることがある）。
@@ -535,6 +543,37 @@ fn unruled_records(g: &Grid, cols: &[Col]) -> bool {
         cell.iter().skip(1).any(|(_, t)| t.starts_with('〃'))
             || cell.iter().enumerate().any(|(i, (_, a))| head(a).chars().count() == 2 && cell[i + 1..].iter().any(|(_, b)| head(a) == head(b)))
     })
+}
+
+/// 横組みのページの罫線の枠が、表の行の途中を切っているか（決算公告の損益計算書で、小計の線と金額の欄の縦線だけで
+/// 枠ができ、左の科目の欄は枠の外になる。号外第 224 号 51 ページ: 「人件費」と「8,572」が別々に組まれていた）。
+/// 1 つのセルに、枠のすぐ左の枠の外の科目（字のある語）と同じ行（高さの中心が 2pt 以内）に並ぶ金額（数字を
+/// 含む語）が 3 つ以上縦に積まれていれば（行を区切る罫線が無く、行は枠の外の科目から続いている）、罫線の表にせず
+/// 行として組む。枠との間に縦の罫線のある語（隣の表の語）は数えない。
+fn rows_cut_by_grid(g: &Grid, cols: &[Col], rules: Option<&PageRules>) -> bool {
+    let Some(&gx0) = g.xs.first() else { return false };
+    let (Some(&gy0), Some(&gy1)) = (g.ys.first(), g.ys.last()) else { return false };
+    let yc = |c: &Col| (c.y + c.y1) / 2.0;
+    let inside = |c: &Col| g.contains((c.x + c.x1) / 2.0, yc(c), 0.5);
+    let figure = |c: &Col| c.text.chars().any(|ch| ch.is_ascii_digit());
+    // 枠の中に科目（字のある語）がある表（決算公告の囲みの表は、科目の欄も枠の中）は見ない。
+    let label = |c: &Col| c.text.chars().any(char::is_alphabetic);
+    if cols.iter().any(|c| inside(c) && label(c)) {
+        return false;
+    }
+    let walled = |c: &Col| rules.is_some_and(|r| r.vertical.iter().any(|v| c.x1 - 1.0 < v.x && v.x < gx0 - 2.0 && v.y0 <= yc(c) && yc(c) <= v.y1));
+    let left: Vec<&Col> = cols.iter().filter(|c| !inside(c) && c.x1 <= gx0 + 1.0 && gy0 < yc(c) && yc(c) < gy1 && !walled(c)).collect();
+    let mut per_cell: std::collections::HashMap<usize, usize> = std::collections::HashMap::new();
+    for c in cols.iter().filter(|c| inside(c) && figure(c)) {
+        // 同じ行で枠のすぐ左にある語が科目か。隣の決算公告の囲みの金額は数えない。
+        if !left.iter().filter(|l| (yc(l) - yc(c)).abs() < 2.0).max_by(|a, b| a.x1.total_cmp(&b.x1)).is_some_and(|l| label(l)) {
+            continue;
+        }
+        if let Some(i) = g.cell_at((c.x + c.x1) / 2.0, yc(c)) {
+            *per_cell.entry(i).or_default() += 1;
+        }
+    }
+    per_cell.values().any(|&n| n >= 3)
 }
 
 /// 表だけの本文の単位（前のページから続く新旧対照表の、改正後の帯の表と改正前の帯の表が段の右に
@@ -1324,7 +1363,7 @@ fn page_words_traced(
 
 /// 枠のセルに文章（200 字を超える、または 2 文以上）が入っているか。公告の囲み記事などの
 /// 枠を表と取り違えないため。
-fn prose_cells(cols: &[Col], g: &Grid) -> bool {
+pub(crate) fn prose_cells(cols: &[Col], g: &Grid) -> bool {
     let mut cells: std::collections::HashMap<usize, (usize, usize)> = std::collections::HashMap::new();
     for c in cols {
         if let Some(i) = g.cell_at((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0) {
@@ -1337,7 +1376,7 @@ fn prose_cells(cols: &[Col], g: &Grid) -> bool {
 }
 
 /// 枠の中の語が縦組みか（縦長の語の字数が横長の語の字数以上）。
-fn vertical_inside(cols: &[Col], g: &Grid) -> bool {
+pub(crate) fn vertical_inside(cols: &[Col], g: &Grid) -> bool {
     let (mut v, mut h) = (0, 0);
     for c in cols.iter().filter(|c| g.contains((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0, 0.5)) {
         let n = c.text.chars().count();
@@ -2460,11 +2499,21 @@ fn partial_rule_edge(cols: &[Col], rules: &TierRules, lo: f32, hi: f32) -> Optio
         .iter()
         .filter(|&&(y, x0, x1)| lo < y && y < hi && x1.min(xmax) - x0.max(xmin) >= (xmax - xmin) * 0.4)
         .filter(|&&(y, x0, x1)| !dividers.iter().any(|&(hx, divider)| (divider - y).abs() < 15.0 && x0 - 5.0 <= hx && hx <= x1 + 5.0))
-        // 横線の側にも外にも新旧対照表の欄見出しがある（別々の記事の表が並ぶ）ときだけ。前の表の
-        // 末尾の帯の境目の線（欄見出しが無い）などで切らないため。
-        .filter(|&&(_, x0, x1)| {
+        // 横線の側に新旧対照表の欄見出しがあり、外にも欄見出しがある（別々の記事の表が並ぶ）か、横線の側の
+        // 表の欄見出しが横線の上か下の一方に収まる（表は横線の段にだけあり、横線は表の上か下の段の境目。
+        // 号外第 178 号 28 ページ: 右半分の下の段に新しい省令の表、上の段に前の記事の附則、左半分は段を
+        // 通して組んだ次の記事）ときだけ。前の表の末尾の帯の境目の線（欄見出しが無い）などで切らないため。
+        .filter(|&&(y, x0, x1)| {
             let inside = |hx: f32| x0 - 5.0 <= hx && hx <= x1 + 5.0;
-            dividers.iter().any(|&(hx, _)| inside(hx)) && dividers.iter().any(|&(hx, _)| !inside(hx))
+            let one_side = |hx: f32| {
+                let label: Vec<&Col> = cols
+                    .iter()
+                    .filter(|c| (c.x - hx).abs() < 6.0 && c.text.chars().count() <= 3 && c.text.chars().all(|ch| matches!(ch, '改' | '正' | '後' | '前')))
+                    .collect();
+                !label.is_empty() && (label.iter().all(|c| c.y > y) || label.iter().all(|c| c.y1 < y))
+            };
+            dividers.iter().any(|&(hx, _)| inside(hx))
+                && (dividers.iter().any(|&(hx, _)| !inside(hx)) || dividers.iter().filter(|&&(hx, _)| inside(hx)).all(|&(hx, _)| one_side(hx)))
         })
         .filter_map(|&(_, x0, x1)| {
             if x1 >= xmax - em * 2.0 && x0 > xmin + em * 2.0 && starts_article(cols, &|c: &Col| center(c) < x0 - 2.0) {
