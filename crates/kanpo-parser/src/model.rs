@@ -479,6 +479,17 @@ fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
     // 対応ではページをまたぐ行が見えない）。
     for block in &mut out {
         if let Block::Shinkyu { rows } = block {
+            // 片側だけの行が残れば、つないだ表の全体で号・項・条の単位に分けて組み直す（ページの切れ目の
+            // 前後で号がずれて組まれた行）。セルに表のある表は文に戻せないので除く。
+            let plain = rows.iter().all(|r| r.after.iter().chain(&r.before).all(|x| x.table.is_none()));
+            if plain {
+                let texts: Vec<(String, String)> = rows.iter().map(|r| (runs_plain(&r.after), runs_plain(&r.before))).collect();
+                let realigned = finish_rows(pair_renumbered(realign_weak_windows(texts.clone(), true)));
+                if fewer_one_sided(&realigned, &texts) {
+                    let cell = |t: String| if t.trim().is_empty() { Vec::new() } else { vec![Run::plain(t)] };
+                    *rows = realigned.into_iter().map(|(a, b)| ShinkyuRow { after: cell(a), before: cell(b), ..Default::default() }).collect();
+                }
+            }
             for planner in [new_item_plan as fn(&[(String, String)]) -> Vec<Option<usize>>, joined_article_plan] {
                 let texts: Vec<(String, String)> = rows.iter().map(|r| (runs_plain(&r.after), runs_plain(&r.before))).collect();
                 let plan = planner(&texts);
