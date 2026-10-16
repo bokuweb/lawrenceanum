@@ -139,9 +139,13 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 let top = cols.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
                 let mut near: Vec<(f32, f32)> = vrules.iter().filter(|&&(x, _, _)| (x - mid).abs() < 15.0).map(|&(_, y0, y1)| (y0, y1)).collect();
                 near.sort_by(|a, b| a.0.total_cmp(&b.0));
+                // 表の枠の下の横線が境目をまたいで引かれていれば、その下の縦線（下の 2 段組の記事の段の間の線）とはつながない。
+                let closed = |y: f32| {
+                    page_rules.is_some_and(|r| r.horizontal.iter().any(|h| (h.y - y).abs() < 3.0 && h.x0 < mid - 50.0 && h.x1 > mid + 50.0))
+                };
                 let mut bottom = f32::NEG_INFINITY;
                 for (y0, y1) in near {
-                    if (!bottom.is_finite() && y0 <= top + 20.0) || (bottom.is_finite() && y0 <= bottom + 6.0) {
+                    if (!bottom.is_finite() && y0 <= top + 20.0) || (bottom.is_finite() && y0 <= bottom + 6.0 && !closed(bottom)) {
                         bottom = bottom.max(y1);
                     }
                 }
@@ -253,17 +257,35 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                     units.push(unit);
                     tail = t;
                 }
-                (None, _) => units.push(match split_horizontal_shinkyu_pairs(&cols, prev_pairs.filter(|_| prev_table)) {
+                (None, _) => match split_horizontal_shinkyu_pairs(&cols, prev_pairs.filter(|_| prev_table)) {
                     Some((unit, rest, geometry)) => {
                         if rest.is_empty() {
                             pairs_here = Some(geometry);
                         } else {
                             tail = Some(Unit::Plain(horizontal_lines_with_tables(rest, &grids, &vrules)));
                         }
-                        unit
+                        units.push(unit);
                     }
-                    None => Unit::Plain(horizontal_lines_with_tables(cols, &grids, &vrules)),
-                }),
+                    // 組が横に 2 組入る幅でも、2 組に分けられなければ（改正後・改正前の表の下に 2 段組の別の記事が
+                    // 続き、ページが広く見えるもの）、1 組の表として組む。
+                    None => match split_horizontal_shinkyu_by(&cols, false, false).filter(|&(mid, label_y, _)| {
+                        // 表の範囲がはっきりしているとき（境目の縦線が欄見出しの所から下へ引かれ、その下端で境目をまたぐ横線が
+                        // 閉じる）だけ。
+                        page_rules.is_some_and(|r| {
+                            r.vertical.iter().filter(|v| (v.x - mid).abs() < 15.0 && v.y0 <= label_y + 20.0 && v.y1 - v.y0 >= 50.0).any(|v| {
+                                r.horizontal.iter().any(|h| (h.y - v.y1).abs() < 3.0 && h.x0 < mid - 50.0 && h.x1 > mid + 50.0)
+                            })
+                        })
+                    }) {
+                        Some((mid, label_y, label_ids)) => {
+                            let (unit, t) = two_columns(cols, mid, label_y, label_ids);
+                            (two_columns_here, mid_here) = (t.is_none(), Some(mid));
+                            units.push(unit);
+                            tail = t;
+                        }
+                        None => units.push(Unit::Plain(horizontal_lines_with_tables(cols, &grids, &vrules))),
+                    },
+                },
             }
             units.extend(tail);
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
@@ -972,18 +994,30 @@ fn shinkyu_labels(cols: &[Col], last: char) -> Vec<(f32, f32, f32, Vec<usize>)> 
 /// 対応する行（同じ文、または改正前欄の「〔同左〕」）が並ぶなら新旧対照表とみなす。前のページが
 /// 横書きの新旧対照表なら（`continuation`）、欄見出しの無い続きのページも同じ文が並べば表とする。
 fn split_horizontal_shinkyu(cols: &[Col], continuation: bool) -> Option<(f32, f32, Vec<usize>)> {
+    split_horizontal_shinkyu_by(cols, continuation, true)
+}
+
+/// [`split_horizontal_shinkyu`] の、組が横に 2 組以上入る幅のページを除くか（`check_pairs`）を選べる版。
+fn split_horizontal_shinkyu_by(cols: &[Col], continuation: bool, check_pairs: bool) -> Option<(f32, f32, Vec<usize>)> {
     if let ([a], [b]) = (shinkyu_labels(cols, '後').as_slice(), shinkyu_labels(cols, '前').as_slice()) {
         let (page_x0, page_x1) = cols.iter().fold((f32::INFINITY, f32::NEG_INFINITY), |(p, q), c| (p.min(c.x), q.max(c.x1)));
         // 改正後・改正前の組が横に 2 組以上入る幅のページは [`split_horizontal_shinkyu_pairs`] が見る。
-        let pairs = page_x1 - page_x0 >= ((a.0 + a.1) - (b.0 + b.1)).abs() / 2.0 * 3.5;
+        let gap = ((a.0 + a.1) - (b.0 + b.1)).abs() / 2.0;
+        let pairs = if check_pairs { page_x1 - page_x0 >= gap * 3.5 } else { gap < (page_x1 - page_x0) * 0.4 };
         if (a.2 - b.2).abs() <= 2.0 && a.1 < b.0 && !pairs {
             let ids: Vec<usize> = a.3.iter().chain(&b.3).copied().collect();
             let below: Vec<&Col> = cols.iter().filter(|c| c.y > a.2 + 1.0 && !ids.contains(&c.id)).collect();
             let center = (a.1 + b.0) / 2.0;
+            // 2 組の判定から回ってきたとき（`check_pairs` が偽）は、改正前の表の頭の「別表」のような短い語 1 つが
+            // 下の 2 段組の本文の段の間にまたがるのは許す。
+            let crossing_ok = |x: f32| {
+                let crossing: Vec<&&Col> = below.iter().filter(|d| d.x < x && x < d.x1).collect();
+                crossing.is_empty() || (!check_pairs && crossing.len() == 1 && crossing[0].text.chars().count() <= 3)
+            };
             let mid = below
                 .iter()
                 .map(|c| c.x1 + 1.0)
-                .filter(|&x| x > a.1 && x < b.0 && !below.iter().any(|d| d.x < x && x < d.x1))
+                .filter(|&x| x > a.1 && x < b.0 && crossing_ok(x))
                 .min_by(|p, q| (p - center).abs().total_cmp(&(q - center).abs()));
             if let Some(mid) = mid {
                 return Some((mid, a.2, ids));
