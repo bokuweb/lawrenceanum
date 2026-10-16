@@ -995,7 +995,7 @@ fn realign_weak_windows(rows: Vec<(String, String)>) -> Vec<(String, String)> {
             r.starts_with(['〔', '（', '［']) && r.chars().count() <= 6 && s.trim().lines().count() == 1
         })
     };
-    let eq = |a: &str, b: &str| same_opening(a, b) || sim(a, b) >= 0.5 || (bare_mark(a) && bare_mark(b));
+    let eq = |a: &str, b: &str| same_opening(a, b) || sim(a, b) >= 0.5 || (bare_mark(a) && bare_mark(b)) || same_article_alike(a, b);
     let one_sided = |rs: &[(String, String)]| rs.iter().filter(|r| empty(&r.0) != empty(&r.1)).count();
     let mut out: Vec<(String, String)> = Vec::new();
     let mut i = 0;
@@ -1033,7 +1033,7 @@ fn same_article_alike(a: &str, b: &str) -> bool {
     let marker_only = |s: &str| {
         let lines: Vec<&str> = s.trim().lines().collect();
         let body = lines.iter().find(|l| article_number(l).is_some()).and_then(|l| l.split_once('\u{3000}')).map(|(_, r)| r.trim());
-        lines.len() <= 3 && body.is_some_and(|r| matches!(r, "〔同上〕" | "〔略〕" | "（略）" | "［同左］" | "［略］"))
+        lines.len() <= 3 && body.is_some_and(|r| matches!(r, "〔同上〕" | "〔略〕" | "（略）" | "［同左］" | "［略］" | "削除"))
     };
     matches!((number(a), number(b)), (Some(x), Some(y)) if x == y)
         && (crate::shinkyu::bigram_jaccard(a, b) >= 0.3 || marker_only(a) || marker_only(b))
