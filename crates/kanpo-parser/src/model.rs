@@ -454,7 +454,20 @@ impl Document {
 /// 前のブロックの最後の行（ページの切れ目で途中まで載った条）の続きとしてつなぐ。
 fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
     let mut out: Vec<Block> = Vec::new();
-    for block in blocks {
+    for mut block in blocks {
+        // ページの頭の行の改正後が前のページの条の続き（「４　主務大臣は…」）で、改正前が印（「（新設）」）だけ、次の
+        // 行の改正前が空なら、印は次の行（新設の条）のもの。印を次の行へ移す。
+        if let Block::Shinkyu { rows } = &mut block {
+            let continued = |runs: &[Run]| runs.first().and_then(|r| r.text.lines().next()).is_some_and(|l| is_row_heading(l).is_none());
+            if rows.len() >= 2
+                && !only_marks(&runs_plain(&rows[0].before)).is_empty()
+                && continued(&rows[0].after)
+                && rows[1].before.is_empty()
+                && !rows[1].after.is_empty()
+            {
+                rows[1].before = std::mem::take(&mut rows[0].before);
+            }
+        }
         let (Some(Block::Shinkyu { rows: prev }), Block::Shinkyu { rows }) = (out.last_mut(), &block) else {
             out.push(block);
             continue;
