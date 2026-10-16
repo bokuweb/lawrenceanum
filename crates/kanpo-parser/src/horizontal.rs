@@ -388,7 +388,13 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
             if next.is_empty() || next.iter().any(|w| (w.x < key_end && w.y >= last.y + pitch * 0.75) || other_key(w)) {
                 break;
             }
-            bottom = next.iter().map(|w| w.y1).fold(bottom, f32::max);
+            // 次の行の語がどれも今の下端より上で終わる（下端の少し上から始まる小さい字）なら、下端は伸びず
+            // 次も同じ語になるので、そこで止める。
+            let grown = next.iter().map(|w| w.y1).fold(bottom, f32::max);
+            if grown <= bottom {
+                break;
+            }
+            bottom = grown;
         }
         let col_of = |w: &Col| columns.iter().rposition(|&c| c <= w.x + 1.0).unwrap_or(0);
         // 見出しの行: 最初の番号のすぐ上（3.5 em 以内）に続く行を下から上へ、どの語も 1 つの欄に収まり、番号の
@@ -1109,6 +1115,25 @@ mod tests {
         }
         let text = read(words);
         assert!(text.starts_with("第2821号\u{3000}第一種膨脹式救\n第2822号\u{3000}〃\n第2823号\u{3000}〃"), "{text}");
+    }
+
+    #[test]
+    fn small_glyphs_below_the_last_row_do_not_stall_the_table_bottom() {
+        // 最後の行のすぐ下のルビ（字の高さが半分の「だい」）が表の下端になると、次の行を探す範囲に
+        // そのルビがまた入り、下端が伸びないまま止まらなかった（官報本紙第1787号 4 ページ）。
+        let mut words = Vec::new();
+        for (k, key) in ["第31860号", "第31861号", "第31862号"].into_iter().enumerate() {
+            let y = 100.0 + 12.0 * k as f32;
+            words.push(w(61.0, 101.0, y, key));
+            words.push(w(130.0, 170.0, y, "ＣａＴＵ"));
+            words.push(w(200.0, 216.0, y, "〃"));
+        }
+        words.push(Col { id: 0, x: 130.0, x1: 138.0, y: 133.0, y1: 136.5, text: "だい".to_string() });
+        let words: Vec<Col> = words.into_iter().enumerate().map(|(id, c)| Col { id, ..c }).collect();
+        let (tables, rest) = keyed_tables(words, &[]);
+        assert_eq!(tables.len(), 1);
+        assert_eq!((tables[0].rows, tables[0].cols, tables[0].y1), (3, 3, 136.5));
+        assert!(rest.is_empty());
     }
 
     #[test]
