@@ -221,6 +221,9 @@ def main():
     ap.add_argument("--max-chars", type=int, default=360)
     ap.add_argument("--clean", type=float, default=0.3, help="崩さない例の割合")
     ap.add_argument("--kanpo-rate", type=float, default=0.4, help="官報のページを使う割合（今の出力にも崩れが残るので減らす）")
+    ap.add_argument("--kanpo-flags", help="breaks の出力（TSV）。確率 0.9 以上の行を含む官報のまとまりは使わない（今の出力に残る崩れを正しい本文として教えない）")
+    ap.add_argument("--extra", nargs="*", default=[], help="real_pairs.py の出力（本物の崩れの例）。学習に混ぜる")
+    ap.add_argument("--extra-repeat", type=int, default=2, help="本物の崩れの例を何回入れるか")
     ap.add_argument("--dev", type=float, default=0.05)
     ap.add_argument("--seed", type=int, default=1)
     args = ap.parse_args()
@@ -232,13 +235,33 @@ def main():
         if rng.random() < 0.6:
             paras = [to_half(p) for p in paras]
         sources.append((f"law:{law['law_id']}", wrap(paras, rng.randint(18, 45))))
+    flagged: set[tuple[str, int]] = set()
+    if args.kanpo_flags:
+        for line in open(args.kanpo_flags, errors="replace"):
+            f = line.rstrip("\n").split("\t")
+            if len(f) >= 3 and float(f[2]) >= 0.9:
+                flagged.add((f[0], int(f[1])))
     if args.kanpo:
         exclude = set(Path(args.exclude).read_text().split()) if args.exclude else set()
         for path in sorted(Path(args.kanpo).iterdir()):
             if path.name in exclude or rng.random() >= args.kanpo_rate:
                 continue
             lines = [l for l in path.read_text().splitlines() if l.strip()]
-            sources.append((f"kanpo:{path.name}", lines))
+            if flagged:
+                # 疑いの強い行の前後 3 行を落とし、残りを続きの行ごとに別の本文にする。
+                bad = {i for i in range(len(lines)) if any((path.name, k) in flagged for k in range(i - 3, i + 4))}
+                run: list[str] = []
+                for i, l in enumerate(lines):
+                    if i in bad:
+                        if run:
+                            sources.append((f"kanpo:{path.name}", run))
+                        run = []
+                    else:
+                        run.append(l)
+                if run:
+                    sources.append((f"kanpo:{path.name}", run))
+            else:
+                sources.append((f"kanpo:{path.name}", lines))
     rng.shuffle(sources)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -254,6 +277,13 @@ def main():
                     text, breaks = labels(idx)
                     f.write(json.dumps({"text": text, "breaks": breaks, "ops": ops, "src": name}, ensure_ascii=False) + "\n")
                     n += 1
+            if split == "train":
+                for path in args.extra:
+                    rows = [l for l in open(path)]
+                    for _ in range(args.extra_repeat):
+                        for l in rows:
+                            f.write(l if l.endswith("\n") else l + "\n")
+                            n += 1
             counts[split] = n
     print(counts)
 

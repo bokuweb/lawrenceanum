@@ -24,6 +24,9 @@ python crates/kanpo-lm/train/gen_data.py --laws /tmp/ft/laws.jsonl --kanpo /tmp/
 # 3. 学習（Apple M 系の GPU で 70 分ほど）。dev の切れ目のトークンの平均適合率がいちばん高い重みを残す
 python crates/kanpo-lm/train/train.py --model ~/.cache/kanpo-lm/modernbert-ja-30m --data /tmp/ft/data --out ~/.cache/kanpo-lm/breaks-30m
 
+# 3'. 小さくする（埋め込み表だけ int8 にして 69MB。kanpo-lm はどちらの重みも読める）
+python crates/kanpo-lm/train/quantize.py --embeddings-only ~/.cache/kanpo-lm/breaks-30m ~/.cache/kanpo-lm/breaks-30m-emb8
+
 # 4. 補正の確かめ（1 行だけを崩したページと崩さないページ）
 python crates/kanpo-lm/train/make_repair_eval.py make /tmp/ft/data/dev.jsonl /tmp/ft/repair --n 200
 cargo run --release -p kanpo-lm --example check -- --tagger ~/.cache/kanpo-lm/breaks-30m ~/.cache/kanpo-lm/modernbert-ja-30m /tmp/ft/repair > /tmp/ft/fixes.tsv

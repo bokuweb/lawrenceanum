@@ -33,7 +33,7 @@ impl BreakTagger {
     pub fn open(dir: &Path) -> anyhow::Result<Self> {
         let device = Device::Cpu;
         let config: Config = serde_json::from_str(&std::fs::read_to_string(dir.join("config.json"))?)?;
-        let vb = unsafe { VarBuilder::from_mmaped_safetensors(&[dir.join("model.safetensors")], DType::F32, &device)? };
+        let vb = load_weights(&dir.join("model.safetensors"), &device)?;
         let model = ModernBert::load(vb.clone(), &config)?;
         let dense = linear_no_bias(config.hidden_size, config.hidden_size, vb.pp("head.dense"))?;
         let norm = layer_norm_no_bias(config.hidden_size, config.layer_norm_eps, vb.pp("head.norm"))?;
@@ -69,6 +69,20 @@ impl BreakTagger {
         }
         Ok(out)
     }
+}
+
+/// 重みを読む。行ごとの int8 にした重み（`train/quantize.py`。`X` が int8 に 128 を足した U8、`X.__scale` が行ごとの倍率）は
+/// fp32 に戻す（計算は fp32 のまま）。fp32 のままの重みもそのまま読める。
+fn load_weights(path: &Path, device: &Device) -> anyhow::Result<VarBuilder<'static>> {
+    let mut tensors = candle_core::safetensors::load(path, device)?;
+    let scaled: Vec<String> = tensors.keys().filter_map(|k| k.strip_suffix(".__scale").map(str::to_string)).collect();
+    for name in scaled {
+        let scale = tensors.remove(&format!("{name}.__scale")).ok_or_else(|| anyhow::anyhow!("{name}.__scale"))?;
+        let q = tensors.get(&name).ok_or_else(|| anyhow::anyhow!("{name}"))?;
+        let w = (q.to_dtype(DType::F32)? - 128.0)?.broadcast_mul(&scale.unsqueeze(1)?)?;
+        tensors.insert(name, w);
+    }
+    Ok(VarBuilder::from_tensors(tensors, DType::F32, device))
 }
 
 /// 行の切れ目の見立て。
