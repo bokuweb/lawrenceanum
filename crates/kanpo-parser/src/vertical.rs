@@ -166,7 +166,9 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 // 上端が下端から 1pt 以内の語まで表の中（表のすぐ下の「附則」は上端が下端の 1.3pt 下。表の最後の行の金額の
                 // 小数点以下は下端の線をまたいで置かれることがあるので、字の中ほどでは見ない）。
                 let (cols, after_table): (Vec<Col>, Vec<Col>) =
-                    cols.into_iter().partition(|c| !bottom.is_finite() || c.y < bottom + 1.0);
+                    // 表の下端に境目をまたぐ横の罫線（表の枠の下の線）があれば、線より下から始まる語は表の外（線のすぐ
+                    // 1pt 下の「備考　表中の〔　〕の記載は注記である。」）。
+                    cols.into_iter().partition(|c| !bottom.is_finite() || c.y < bottom + if closed(bottom) { 0.0 } else { 1.0 });
                 let tail = (!after_table.is_empty()).then(|| Unit::Plain(horizontal_lines_with_tables(after_table, &grids, &vrules, &hrules)));
                 let (left, right): (Vec<Col>, Vec<Col>) = cols.into_iter().partition(|c| c.x1 <= mid);
                 // 欄見出し（「改　正　後」）だけの行は本文ではない。
