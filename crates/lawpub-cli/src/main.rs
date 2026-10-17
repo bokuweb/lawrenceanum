@@ -568,6 +568,10 @@ enum Cmd {
         /// LLM に要約させる官報の項目 (改め文。wiki に法令ページがある法令につながるもの) の上限 (別枠)。
         #[arg(long, default_value_t = 3)]
         max_kanpo: usize,
+        /// 1 回で新しく作る発言者名簿の上限。人物・会議体ページはコーパスの全会議から作るので、
+        /// LLM の上限とは別枠 (会議 1 件あたり HTTP 数回。既に作った名簿は引き直さない)。
+        #[arg(long, env = "WIKI_MAX_ROSTER", default_value_t = 1200)]
+        max_roster: usize,
         /// 自治体例規の配信元 (例: https://…r2.dev/reiki)。空なら例規の照合をしない (週 1 回更新)。
         #[arg(long, env = "WIKI_REIKI_BASE_URL", default_value = "")]
         reiki_base_url: String,
@@ -949,7 +953,7 @@ fn main() -> Result<()> {
         Cmd::GianFetch { cache, provider, session } => gian::run_fetch(&cache, &provider, session),
         Cmd::GianBuildJson { cache, public } => gian::run_build_json(&cache, &public),
         Cmd::BuildEnforcement { public } => enforcement::run_build(&public),
-        Cmd::WikiPlan { base_url, wiki, work, max_items, max_probes, lookback_days, today, max_bills, max_pubcomments, max_kanpo, reiki_base_url, chunk_size } => {
+        Cmd::WikiPlan { base_url, wiki, work, max_items, max_probes, lookback_days, today, max_bills, max_pubcomments, max_kanpo, max_roster, reiki_base_url, chunk_size } => {
             wiki::plan::run_plan(&wiki::plan::PlanArgs {
                 base_url,
                 wiki,
@@ -961,6 +965,7 @@ fn main() -> Result<()> {
                 max_bills,
                 max_pubcomments,
                 max_kanpo,
+                max_roster,
                 reiki_base_url,
                 chunk_size,
             })

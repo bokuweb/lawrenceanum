@@ -27,6 +27,8 @@ pub struct PlanArgs {
     pub max_pubcomments: usize,
     /// 1 回の plan で LLM に要約させる官報の項目 (改め文) の上限 (別枠)。
     pub max_kanpo: usize,
+    /// 1 回の plan で新しく作る発言者名簿の上限 (LLM とは無関係。会議 1 件あたり HTTP 数回)。
+    pub max_roster: usize,
     /// 自治体例規の配信元 (R2 の `{public}/reiki`)。空なら例規の照合をしない。
     pub reiki_base_url: String,
     /// LLM に 1 回で渡すタスク数 (`.wiki-work/chunks/NNN.md` ごとに別々の実行にする)。
@@ -219,6 +221,14 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
         Ok(bill_tasks) => tasks.extend(bill_tasks),
         Err(e) => tracing::warn!("wiki-plan: 議案の要約タスクの作成に失敗: {e:#}"),
     }
+    // 発言者名簿 (人物・会議体ページの元) は LLM と切り離し、コーパスの全会議から作る。
+    match super::roster::sync(&source, &args.wiki, args.max_roster) {
+        Ok(st) => println!(
+            "wiki-plan: roster {} built ({} with speakers), {} pending of {} meeting(s)",
+            st.built, st.with_speakers, st.pending, st.total
+        ),
+        Err(e) => tracing::warn!("wiki-plan: 発言者名簿の更新に失敗: {e:#}"),
+    }
     match super::reiki::sync(&args.reiki_base_url, source.base(), &args.wiki, today) {
         Ok(Some(n)) => println!("wiki-plan: reiki links refreshed ({n} law page(s) updated)"),
         Ok(None) => {}
@@ -373,6 +383,14 @@ fn linked_laws(links: &Value) -> Vec<LinkedLaw> {
         .collect()
 }
 
+/// 会議 → 法令リンクを (law_id, 題名, 照合パターン) に畳む。名簿 (`roster`) 用。
+pub(crate) fn linked_law_entries(links: &Value) -> Vec<(String, String, Vec<String>)> {
+    linked_laws(links)
+        .into_iter()
+        .map(|l| (l.law_id, l.title, l.patterns))
+        .collect()
+}
+
 /// 法令名を含む発言を、マッチ位置の前後を残して抜粋する。
 pub(crate) fn build_excerpts_for(units: &[Unit], laws: &[(String, Vec<String>)]) -> Vec<Excerpt> {
     let mut out = Vec::new();
@@ -479,11 +497,14 @@ pub(crate) fn is_official_label(label: &str) -> bool {
 
 /// 国会の議事進行の発言 (会議録情報、委員長・議長) か。発言冒頭の「○國場委員長　」で判定する。
 pub(crate) fn is_procedural(e: &Excerpt) -> bool {
-    if e.speaker.as_deref() == Some(KOKKAI_HEADER_SPEAKER) {
+    is_procedural_text(e.speaker.as_deref(), &e.text)
+}
+
+pub(crate) fn is_procedural_text(speaker: Option<&str>, text: &str) -> bool {
+    if speaker == Some(KOKKAI_HEADER_SPEAKER) {
         return true;
     }
-    let head: String = e
-        .text
+    let head: String = text
         .trim_start_matches('…')
         .chars()
         .take_while(|c| !c.is_whitespace())
@@ -617,6 +638,32 @@ pub(crate) fn with_context(kind: &str, units: &[Unit], matched: Vec<Excerpt>) ->
     out.into_iter().map(|(_, e)| e).collect()
 }
 
+/// 会議の表示名: (タイトル, 組織, 会議体, 原文 URL)。会議ページと名簿で同じ表記にする。
+pub(crate) fn meeting_labels(kind: &str, id: &str, doc: &Value) -> (String, String, String, String) {
+    match kind {
+        KIND_KOKKAI => {
+            let house = house_ja(doc["house"].as_str().unwrap_or(""));
+            let committee = doc["committee"].as_str().unwrap_or("");
+            let issue = doc["issue"].as_str().unwrap_or("");
+            (
+                format!("{house} {committee} {issue}").trim().to_string(),
+                house.to_string(),
+                committee.to_string(),
+                format!("https://kokkai.ndl.go.jp/txt/{id}"),
+            )
+        }
+        _ => {
+            let ministry = ministry_ja(doc["ministry"].as_str().unwrap_or(""));
+            (
+                doc["title"].as_str().unwrap_or(id).to_string(),
+                ministry.to_string(),
+                doc["committee"].as_str().unwrap_or("").to_string(),
+                doc["source"]["detail_url"].as_str().unwrap_or("").to_string(),
+            )
+        }
+    }
+}
+
 fn house_ja(house: &str) -> &str {
     match house {
         "shugiin" => "衆議院",
@@ -653,31 +700,7 @@ fn write_task(
         .filter(|l| cited.contains(l.law_id.as_str()))
         .collect();
 
-    let (title, organization, committee, resource) = match c.kind {
-        KIND_KOKKAI => {
-            let house = house_ja(doc["house"].as_str().unwrap_or(""));
-            let committee = doc["committee"].as_str().unwrap_or("");
-            let issue = doc["issue"].as_str().unwrap_or("");
-            (
-                format!("{house} {committee} {issue}").trim().to_string(),
-                house.to_string(),
-                committee.to_string(),
-                format!("https://kokkai.ndl.go.jp/txt/{}", c.id),
-            )
-        }
-        _ => {
-            let ministry = ministry_ja(doc["ministry"].as_str().unwrap_or(""));
-            (
-                doc["title"].as_str().unwrap_or(&c.id).to_string(),
-                ministry.to_string(),
-                doc["committee"].as_str().unwrap_or("").to_string(),
-                doc["source"]["detail_url"]
-                    .as_str()
-                    .unwrap_or("")
-                    .to_string(),
-            )
-        }
-    };
+    let (title, organization, committee, resource) = meeting_labels(c.kind, &c.id, doc);
 
     let page = meeting_page(c.kind, &c.id);
     let mut created = Vec::new();
@@ -1174,6 +1197,7 @@ mod tests {
             max_bills: 0,
             max_pubcomments: 0,
             max_kanpo: 0,
+            max_roster: 100,
             reiki_base_url: String::new(),
             chunk_size: 4,
         })
@@ -1260,6 +1284,7 @@ mod tests {
             max_bills: 0,
             max_pubcomments: 0,
             max_kanpo: 0,
+            max_roster: 100,
             reiki_base_url: String::new(),
             chunk_size: 4,
         })
@@ -1307,6 +1332,7 @@ mod tests {
             max_bills: 0,
             max_pubcomments: 0,
             max_kanpo: 0,
+            max_roster: 100,
             reiki_base_url: String::new(),
             chunk_size: 4,
         })
