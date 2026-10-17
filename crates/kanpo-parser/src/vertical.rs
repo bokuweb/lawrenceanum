@@ -3062,6 +3062,8 @@ fn split_off_horizontal_blocks(cols: Vec<Col>) -> (Vec<Col>, Vec<(f32, Vec<Line>
     let center = |c: &Col| ((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0);
     let mut taken = vec![false; cols.len()];
     let mut blocks: Vec<(f32, Vec<Col>)> = Vec::new();
+    // 欄に入れた縦書きの見出し（行に組むときは頭の 1 字分の高さだけを見る）。
+    let mut shrink: std::collections::HashSet<usize> = std::collections::HashSet::new();
     for mut members in groups.into_values() {
         // 先に取り出した欄が広がって取り込んだ語は除く。
         members.retain(|&i| !taken[i]);
@@ -3110,22 +3112,59 @@ fn split_off_horizontal_blocks(cols: Vec<Col>) -> (Vec<Col>, Vec<(f32, Vec<Line>
         if rows < 2 {
             continue;
         }
-        // 欄の中に縦の列が入り込んでいれば（横組みの語が縦書きの表の中に散っているだけ）取り出さない。
+        // 欄の中に縦の列が入り込んでいれば（横組みの語が縦書きの表の中に散っているだけ）取り出さない。ただし入り込んだ
+        // 列がどれも 10 字までで、字数の合計が欄の字数の 5 分の 1 までなら、横組みの表の縦書きの見出し（貸借対照表の
+        // 「資産の部」「負債及び純資産の部」）とみなして欄に入れる（号外の決算公告のページで、縦組みの公告と同居する
+        // 横組みの決算公告の貸借対照表を列ごとに読み、「日資資有形固定資産無形固定資産」のようになっていた）。
         let (x0, y0, x1, y1, _) = bounds(&members);
-        let intruded = cols.iter().enumerate().any(|(i, c)| {
-            let (cx, cy) = center(c);
-            !members.contains(&i) && tall(c) && x0 < cx && cx < x1 && y0 < cy && cy < y1
-        });
-        if intruded {
-            continue;
+        let intruders: Vec<usize> = cols
+            .iter()
+            .enumerate()
+            .filter(|&(i, c)| {
+                let (cx, cy) = center(c);
+                !members.contains(&i) && !taken[i] && tall(c) && x0 < cx && cx < x1 && y0 < cy && cy < y1
+            })
+            .map(|(i, _)| i)
+            .collect();
+        if !intruders.is_empty() {
+            let chars = |i: &usize| cols[*i].text.chars().filter(|c| !c.is_whitespace()).count();
+            let block_chars: usize = members.iter().map(chars).sum();
+            let label_chars: usize = intruders.iter().map(chars).sum();
+            if intruders.iter().any(|i| chars(i) > 10) || label_chars * 5 > block_chars {
+                continue;
+            }
+            // 縦書きの見出しは何行にもまたがるので、行に組むときは頭の 1 字分の高さだけを見る（そのままだと見出しの高さに
+            // 掛かる行が 1 行につながる）。
+            shrink.extend(intruders.iter().copied());
+            members.extend(intruders);
         }
         for &i in &members {
             taken[i] = true;
         }
-        blocks.push((x1, members.iter().map(|&i| cols[i].clone()).collect()));
+        blocks.push((
+            x1,
+            members
+                .iter()
+                .map(|&i| {
+                    let mut c = cols[i].clone();
+                    if shrink.contains(&i) {
+                        c.y1 = c.y + (c.x1 - c.x);
+                    }
+                    c
+                })
+                .collect(),
+        ));
     }
     blocks.sort_by(|a, b| b.0.total_cmp(&a.0));
-    let blocks = blocks.into_iter().map(|(x1, block)| (x1, row_lines(block))).collect();
+    // 幅の広い欄（決算公告の囲みが左右に並ぶもの）は、横組みのページと同じく列の溝で左右に切ってから行に組む（行ごとに
+    // 組むと、左右の囲みの行が 1 行につながる）。
+    let blocks = blocks
+        .into_iter()
+        .map(|(x1, block)| {
+            let x0 = block.iter().map(|c| c.x).fold(f32::INFINITY, f32::min);
+            (x1, if x1 - x0 >= 300.0 { horizontal_lines(block) } else { row_lines(block) })
+        })
+        .collect();
     let rest = cols.into_iter().zip(taken).filter(|(_, t)| !t).map(|(c, _)| c).collect();
     (rest, blocks)
 }
