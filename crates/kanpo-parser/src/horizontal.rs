@@ -999,7 +999,7 @@ fn stacked(words: &[&Col]) -> bool {
     let (x0, x1) = words.iter().fold((f32::INFINITY, f32::NEG_INFINITY), |(a, b), w| (a.min(w.x), b.max(w.x1)));
     let (y0, y1) = words.iter().fold((f32::INFINITY, f32::NEG_INFINITY), |(a, b), w| (a.min(w.y), b.max(w.y1)));
     let upright = |w: &&Col| (w.text.chars().count() <= 2 && w.x1 - w.x <= (w.y1 - w.y) * 1.5) || w.y1 - w.y > (w.x1 - w.x) * 1.5;
-    // 同じ欄に縦に並んだ「〃」（行ごとの繰り返しの印）は欄の名前ではない。
+    // 同じ欄に縦に並んだ「〃」（行ごとの繰り返しの印）も欄の名前ではない。
     let text: String = words.iter().map(|w| w.text.as_str()).collect();
     // 横の行に 1〜2 字の語が 3 つ以上並ぶなら、字間を空けた横組みの項目名（「事　業　収　益」）。
     // 縦長の語（「及び純資産の部」）は行にまとめると何行にも掛かるので数えない。
@@ -1007,6 +1007,8 @@ fn stacked(words: &[&Col]) -> bool {
     words.len() >= 2
         && text.chars().count() >= 3
         && !text.chars().all(|c| c == '〃')
+        // 1 桁の金額の並び（「0」「0」…「△」「—」）は欄の名前ではない。
+        && !text.chars().all(|c| c.is_ascii_digit() || "△▲－—-―,.、\u{E61C}".contains(c))
         && words.iter().all(upright)
         && y1 - y0 >= x1 - x0
         && group_lines(&owned).iter().all(|l| l.words.len() <= 2)
