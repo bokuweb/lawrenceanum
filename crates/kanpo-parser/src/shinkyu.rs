@@ -181,7 +181,8 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
 }
 
 /// 帯が、高さの真ん中あたり（3 割〜7 割）で列のまたがない横の空きにより、それぞれ 4 分の 1 以上の
-/// 語を持つ上下 2 つの段に分かれるか。
+/// 語を持つ上下 2 つの段に分かれるか。段の終わりの列が下の段の頭に少し掛かる（行末のぶら下げ）ことがあるので、
+/// またぐ列は 2 つまで許す（本紙第 1766 号 2 ページ: 保安林の告示が 4 段に並ぶページの上の段の左端の列）。
 fn splits_into_tiers(band: &[Col]) -> bool {
     let top = band.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
     let bottom = band.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
@@ -189,7 +190,7 @@ fn splits_into_tiers(band: &[Col]) -> bool {
     band.iter().map(|c| c.y1 + 0.5).filter(|&y| y > top + h * 0.3 && y < top + h * 0.7).any(|y| {
         let above = band.iter().filter(|c| c.y1 < y).count();
         let below = band.iter().filter(|c| c.y > y).count();
-        above + below == band.len() && above * 4 >= band.len() && below * 4 >= band.len()
+        above + below + 2 >= band.len() && above * 4 >= band.len() && below * 4 >= band.len()
     })
 }
 
