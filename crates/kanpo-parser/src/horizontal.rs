@@ -875,6 +875,25 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
         let band: Vec<usize> = (0..g.cells.len()).filter(|&i| g.cells[i].y0 <= r && r < g.cells[i].y1).collect();
         anchors.push(g.ys[r]);
         let (top, bottom) = (g.ys[r], g.ys[r + 1]);
+        // 罫線で区切った行の中で、どの欄も 1 項目なら（1 項目を折り返して上下中央に置いた欄だけの行）、行をさらに分けない
+        // （欄の 1 行目の高さがたまたま揃って行が割れていた）。
+        // 項目の数: 前の行がセルの右端の 1em 以内まで組まれていない行は項目の頭（狭い欄の「流動負債」「固定負債」は
+        // 右端の 2em 以内に届くので、折り返しの判定より厳しく見る）。
+        let items = |i: usize| {
+            let right = g.xs[g.cells[i].x1];
+            (0..cell_lines[i].len())
+                .filter(|&k| {
+                    k == 0 || {
+                        let p = &cell_lines[i][k - 1];
+                        let end = p.words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
+                        !wraps(i, k) || right - end > (p.y1 - p.y0).max(1.0)
+                    }
+                })
+                .count()
+        };
+        if item_cols == 0 && ny > 1 && band.iter().all(|&i| items(i) <= 1) {
+            continue;
+        }
         for &i in &band {
             let aligned: Vec<bool> = cell_lines[i]
                 .iter()
