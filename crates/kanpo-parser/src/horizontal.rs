@@ -128,18 +128,49 @@ fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)],
     let (keyed, others) = keyed_tables(rest, vrules);
     rest = others;
     tables.extend(keyed);
-    if tables.is_empty() {
+    // 縦組みの欄（号外の決算公告のページの囲みの中の合併公告・資本金の額の減少公告）は、表と同じく先に取り出して
+    // 右の列から縦に読む。横の行に組むと、列が左から順に 1 行につながっていた。
+    let mut verticals: Vec<(Block, Vec<trace::Line>)> = Vec::new();
+    if !one_column {
+        for (block, ids) in vertical_regions(&rest) {
+            let (mine, others): (Vec<Col>, Vec<Col>) = rest.into_iter().partition(|c| ids.contains(&c.id));
+            rest = others;
+            verticals.push((block, vertical_lines(mine)));
+        }
+    }
+    if tables.is_empty() && verticals.is_empty() {
         return if one_column { row_lines(rest) } else { horizontal_lines(rest) };
     }
     let geom: std::collections::HashMap<usize, (f32, f32, f32, f32)> = rest.iter().map(|c| (c.id, (c.x, c.x1, c.y, c.y1))).collect();
     // 2 段抜きの表（本文の段 2 つ分の幅）だけ。決算公告の囲みの中の表は囲みの列ごとに並び、
-    // 囲みの列の溝は本文の段の溝と揃わないので、溝をふさぐと囲みの読み順が崩れる。
-    let blocks: Vec<Block> =
-        tables.iter().filter(|t| t.x1 - t.x0 >= MIN_TEXT_COLUMN_WIDTH * 2.0).map(|t| (t.x0, t.y0, t.x1, t.y1)).collect();
+    // 囲みの列の溝は本文の段の溝と揃わないので、溝をふさぐと囲みの読み順が崩れる。縦組みの欄は、取り出す前の
+    // 列の語と同じく溝・切れ目をふさぐ。
+    let blocks: Vec<Block> = tables
+        .iter()
+        .filter(|t| t.x1 - t.x0 >= MIN_TEXT_COLUMN_WIDTH * 2.0)
+        .map(|t| (t.x0, t.y0, t.x1, t.y1))
+        .chain(verticals.iter().map(|v| v.0))
+        .collect();
     let mut lines = if one_column { row_lines(rest) } else { horizontal_lines_around(rest, &blocks) };
-    let mut placed: Vec<(usize, trace::Table)> = tables
+    // 縦組みの欄は、欄の左に同じ高さで並ぶ最後の行の後ろ（同じ囲みの決算公告の後ろ。囲みの枠は罫線として
+    // 取り出せないことが多い）。
+    let beside = |b: &Block| -> Option<usize> {
+        lines
+            .iter()
+            .rposition(|l| {
+                let g: Vec<(f32, f32, f32, f32)> = l.words.iter().filter_map(|w| geom.get(w)).copied().collect();
+                !g.is_empty() && g.iter().all(|p| p.1 <= b.0 + 1.0 && (p.2 + p.3) / 2.0 >= b.1 && (p.2 + p.3) / 2.0 <= b.3)
+            })
+            .map(|i| i + 1)
+    };
+    let items: Vec<(Block, Vec<trace::Line>, Option<usize>)> = tables
         .into_iter()
-        .map(|t| {
+        .map(|t| ((t.x0, t.y0, t.x1, t.y1), vec![trace::Line { text: t.render(), words: Vec::new(), table: Some(t) }], None))
+        .chain(verticals.into_iter().map(|(b, ls)| (b, ls, beside(&b))))
+        .collect();
+    let mut placed: Vec<(usize, Block, Vec<trace::Line>)> = items
+        .into_iter()
+        .map(|(t, ls, at)| {
             // 表の右か、表の下（行の高さの中ほどが表の下端より下。字の大きい太字の見出しは上端が表の
             // 最後の行に少し掛かる）にある行。
             let after = |l: &trace::Line| {
@@ -148,17 +179,127 @@ fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)],
                 let x1 = g.iter().map(|p| p.1).fold(f32::NEG_INFINITY, f32::max);
                 let y0 = g.iter().map(|p| p.2).fold(f32::INFINITY, f32::min);
                 let y1 = g.iter().map(|p| p.3).fold(f32::NEG_INFINITY, f32::max);
-                !g.is_empty() && (x0 >= t.x1 - 2.0 || (x0 < t.x1 && x1 > t.x0 && (y0 >= t.y1 - 2.0 || (y0 + y1) / 2.0 >= t.y1)))
+                !g.is_empty() && (x0 >= t.2 - 2.0 || (x0 < t.2 && x1 > t.0 && (y0 >= t.3 - 2.0 || (y0 + y1) / 2.0 >= t.3)))
             };
-            (lines.iter().position(after).unwrap_or(lines.len()), t)
+            (at.unwrap_or_else(|| lines.iter().position(after).unwrap_or(lines.len())), t, ls)
         })
         .collect();
-    // 後ろの位置から差し込む。同じ位置には、読み順で後の表（下・右）から差し込む。
-    placed.sort_by(|a, b| b.0.cmp(&a.0).then(b.1.x0.total_cmp(&a.1.x0)).then(b.1.y0.total_cmp(&a.1.y0)));
-    for (at, t) in placed {
-        lines.insert(at, trace::Line { text: t.render(), words: Vec::new(), table: Some(t) });
+    // 後ろの位置から差し込む。同じ位置には、読み順で後の表（下・右）から差し込む。縦組みの欄（行の無い表）は
+    // 上下に並ぶので、下の欄から。
+    let vertical = |ls: &[trace::Line]| ls.first().is_some_and(|l| l.table.is_none());
+    let key = |p: &(usize, Block, Vec<trace::Line>)| if vertical(&p.2) { p.1 .1 } else { f32::NEG_INFINITY };
+    placed.sort_by(|a, b| {
+        b.0.cmp(&a.0).then(key(b).total_cmp(&key(a))).then(b.1 .0.total_cmp(&a.1 .0)).then(b.1 .1.total_cmp(&a.1 .1))
+    });
+    for (at, _, ls) in placed {
+        lines.splice(at..at, ls);
     }
     lines
+}
+
+/// 縦組みの語（縦長で 2 字以上）か。
+fn upright(c: &Col) -> bool {
+    c.text.trim().chars().count() >= 2 && c.y1 - c.y > (c.x1 - c.x) * 1.5
+}
+
+/// 横組みのページの中の縦組みの欄の外枠と、欄の語の ID。縦組みの語（1 列が 1 語）が、列の幅の 2 倍までの
+/// 間隔で左右に並び、上下に重なるものをつなぎ、3 列以上・30 字以上のものだけ（表の欄の縦書きの見出し
+/// 「資産の部」などは欄にしない）。欄の外枠の中の語（1 字の列も）は欄の語。
+fn vertical_regions(words: &[Col]) -> Vec<(Block, Vec<usize>)> {
+    let tall: Vec<&Col> = words.iter().filter(|c| upright(c)).collect();
+    let mut group: Vec<usize> = (0..tall.len()).collect();
+    fn root(g: &mut [usize], i: usize) -> usize {
+        let mut i = i;
+        while g[i] != i {
+            g[i] = g[g[i]];
+            i = g[i];
+        }
+        i
+    }
+    for i in 0..tall.len() {
+        for j in i + 1..tall.len() {
+            let (a, b) = (tall[i], tall[j]);
+            let pitch = (a.x1 - a.x).max(b.x1 - b.x) * 2.0;
+            let gap = (a.x.max(b.x) - a.x1.min(b.x1)).max(0.0);
+            let overlap = a.y1.min(b.y1) - a.y.max(b.y);
+            if gap <= pitch && overlap > 0.0 {
+                let (ra, rb) = (root(&mut group, i), root(&mut group, j));
+                group[ra] = rb;
+            }
+        }
+    }
+    let mut clusters: std::collections::BTreeMap<usize, Vec<&Col>> = std::collections::BTreeMap::new();
+    for (i, c) in tall.iter().enumerate() {
+        let r = root(&mut group, i);
+        clusters.entry(r).or_default().push(c);
+    }
+    let mut out: Vec<(Block, Vec<usize>)> = Vec::new();
+    for cs in clusters.values() {
+        let chars: usize = cs.iter().map(|c| c.text.trim().chars().count()).sum();
+        // 列の数（x の重なる語は同じ列）。
+        let mut xs: Vec<(f32, f32)> = cs.iter().map(|c| (c.x, c.x1)).collect();
+        xs.sort_by(|a, b| a.0.total_cmp(&b.0));
+        let columns = xs.iter().fold(Vec::<(f32, f32)>::new(), |mut acc, &(x0, x1)| {
+            match acc.last_mut() {
+                Some(last) if x0 < last.1 - 0.5 => last.1 = last.1.max(x1),
+                _ => acc.push((x0, x1)),
+            }
+            acc
+        });
+        if columns.len() < 3 || chars < 30 {
+            continue;
+        }
+        let block = (
+            cs.iter().map(|c| c.x).fold(f32::INFINITY, f32::min),
+            cs.iter().map(|c| c.y).fold(f32::INFINITY, f32::min),
+            cs.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max),
+            cs.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max),
+        );
+        let inside = |c: &Col| {
+            let (cx, cy) = (x_center(c), y_center(c));
+            cx >= block.0 - 0.5 && cx <= block.2 + 0.5 && cy >= block.1 - 0.5 && cy <= block.3 + 0.5
+        };
+        // 欄の中に横組みの行（2 字以上の横長の語）があれば、欄ではなく表などの一部とみなす。
+        if words.iter().any(|c| inside(c) && c.text.trim().chars().count() >= 2 && c.x1 - c.x > (c.y1 - c.y) * 1.5) {
+            continue;
+        }
+        out.push((block, words.iter().filter(|c| inside(c)).map(|c| c.id).collect()));
+    }
+    out
+}
+
+/// 縦組みの欄の語を、右の列から順に、各列を上から読んで 1 列 1 行に組む。同じ列で 1 字分以上空いた語の間は
+/// 全角の空白（「代表取締役　田口　貴之」）。
+fn vertical_lines(words: Vec<Col>) -> Vec<trace::Line> {
+    let mut words = words;
+    words.sort_by(|a, b| x_center(b).total_cmp(&x_center(a)));
+    let mut columns: Vec<(f32, f32, Vec<Col>)> = Vec::new();
+    for w in words {
+        match columns.iter_mut().find(|(x0, x1, _)| w.x1.min(*x1) - w.x.max(*x0) > (w.x1 - w.x).min(*x1 - *x0) * 0.5) {
+            Some((x0, x1, ws)) => {
+                *x0 = x0.min(w.x);
+                *x1 = x1.max(w.x1);
+                ws.push(w);
+            }
+            None => columns.push((w.x, w.x1, vec![w])),
+        }
+    }
+    columns.sort_by(|a, b| (b.0 + b.1).total_cmp(&(a.0 + a.1)));
+    columns
+        .into_iter()
+        .map(|(x0, x1, mut ws)| {
+            ws.sort_by(|a, b| a.y.total_cmp(&b.y));
+            let em = (x1 - x0).max(1.0);
+            let mut text = String::new();
+            for (i, w) in ws.iter().enumerate() {
+                if i > 0 && w.y - ws[i - 1].y1 >= em * 0.5 {
+                    text.push('\u{3000}');
+                }
+                text.push_str(w.text.trim());
+            }
+            trace::Line::text(text, ws.iter().map(|w| w.id).collect())
+        })
+        .collect()
 }
 
 /// 表の行の見出しの番号（「第2821号」「第165回」「第Ｐ－280号」）か、英字と数字の混じった記号
