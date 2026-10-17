@@ -38,7 +38,7 @@ pub(crate) fn is_private_use(c: char) -> bool {
 /// 並んだ表の間の溝をふさいで列の切り分けが変わるため、語の中で他の字に続くものだけを戻す。
 /// 小数点・桁区切り（U+EA74・U+EA75）は単独の語でも戻す（前の数字に重ねて置かれ、語が分かれる）。
 pub(crate) fn word_text(raw: &str) -> String {
-    if !raw.is_empty() && raw.chars().all(|c| c == '\u{E61C}' || (is_private_use(c) && private_use_char(c).is_none())) {
+    if !raw.is_empty() && raw.chars().all(|c| c == '\u{E61C}' || (is_private_use(c) && private_use_char(c).is_none() && paren_number(c).is_none())) {
         return String::new();
     }
     let mut out = String::new();
@@ -48,7 +48,10 @@ pub(crate) fn word_text(raw: &str) -> String {
                 Some(g) => out.push_str(&g.text),
                 None => out.extend(text_char(cid_char(cid))),
             },
-            None => out.extend(text_char(c)),
+            None => match paren_number(c) {
+                Some(t) => out.push_str(&t),
+                None => out.extend(text_char(c)),
+            },
         }
     }
     out
@@ -57,6 +60,21 @@ pub(crate) fn word_text(raw: &str) -> String {
 /// kanpo-pdf が ToUnicode の無い `Identity` の CID フォントの字を置く私用領域（U+F0000 + CID）の字なら、その CID。
 fn identity_cid(c: char) -> Option<u32> {
     (c as u32).checked_sub(kanpo_pdf::bbox::IDENTITY_CID_BASE).filter(|&cid| cid <= 0xFFFD)
+}
+
+/// ToUnicode で私用領域に写された項目番号（DF 平成明朝）。U+E7B2〜U+E7BB は括弧付きの数字「（１）」〜「（１０）」、
+/// U+E7D1〜U+E7DA は丸数字「①」〜「⑩」（「上記一［U+E7B3］［U+E7D2］に基づく」が原本では「上記一⑵②に基づく」、
+/// 「［U+E7D5］営業保証金の額」が「⑤営業保証金の額」、「国土交通大臣は、［U+E7B5］の取組状況等が［U+E7B2］の判断」が
+/// 「⑷の取組状況等が⑴の判断」）。原本の字形で確かめた範囲だけ戻す（続きの符号は確かめていない）。落とすと項目番号が
+/// 抜けて「国土交通大臣は、の取組状況等がの判断」になっていた。
+fn paren_number(c: char) -> Option<String> {
+    let code = c as u32;
+    let full = |n: u32| -> String { n.to_string().chars().map(|d| char::from_u32(d as u32 - '0' as u32 + '０' as u32).unwrap_or(d)).collect() };
+    match code {
+        0xE7B2..=0xE7BB => Some(format!("（{}）", full(code - 0xE7B1))),
+        0xE7D1..=0xE7DA => char::from_u32(0x2460 + code - 0xE7D1).map(String::from),
+        _ => None,
+    }
 }
 
 /// 目次のページ番号の数字の字形（ToUnicode の無いフォントの半角の漢数字、CID 25503〜25512）だけの語か。
