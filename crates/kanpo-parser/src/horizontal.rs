@@ -543,9 +543,17 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
         let mut clusters: Vec<Vec<Col>> = Vec::new();
         for k in keys {
             let em = (k.y1 - k.y).max(1.0);
+            // 間に、番号の列の左端から番号の列を越えて延びる、番号でない 5 字以上の語（表の区切りの見出し「有効期間が
+            // 令和14年２月９日となったもの」）があれば別の表。
+            let divided = |l: &Col, k: &Col| {
+                words.iter().any(|w| {
+                    let em = (l.y1 - l.y).max(1.0);
+                    w.y > l.y1 && w.y1 < k.y && w.x <= l.x + em && w.x1 > l.x1 + em * 2.0 && w.text.chars().count() >= 5 && !row_key(&w.text)
+                })
+            };
             let joins = clusters.last().is_some_and(|c| {
                 let l = c.last().unwrap();
-                (k.x - c[0].x).abs() < 2.0 && k.y > l.y && (k.y - l.y < em * 6.0 || continuous(l, &k))
+                (k.x - c[0].x).abs() < 2.0 && k.y > l.y && (k.y - l.y < em * 6.0 || continuous(l, &k)) && !divided(l, &k)
             });
             match clusters.last_mut() {
                 Some(c) if joins => c.push(k),
@@ -645,7 +653,8 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
             let mut end = k.x1;
             for w in row_words(k) {
                 let outside = match fence {
-                    Some(f) => w.x1 > f,
+                    // 柵にわずかに掛かるだけの語（隣の段の頭の 0.1pt 右まで組んだ住所の行）は表の中。
+                    Some(f) => w.x1 > f + em * 0.5,
                     None => w.x - end >= em * 5.0,
                 };
                 if outside || other_key(w) {
