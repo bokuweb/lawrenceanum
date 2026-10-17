@@ -114,6 +114,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             // 表の続きの後ろに同じページで始まる次の記事。
             let mut tail = None;
             let vrules: Vec<(f32, f32, f32)> = page_rules.map(|r| r.vertical.iter().map(|v| (v.x, v.y0, v.y1)).collect()).unwrap_or_default();
+            let hrules: Vec<(f32, f32, f32)> = page_rules.map(|r| r.horizontal.iter().map(|h| (h.y, h.x0, h.x1)).collect()).unwrap_or_default();
             // 前のページが横書きの 2 列の新旧対照表なら、その左右の境目をまたぐ語が無く、左右に語があれば
             // 同じ境目で分ける（続きのページは左右の欄の行の高さがずれていて、同じ文が並ぶとは限らない）。
             // 境目は前のページの境目の近く（±30pt）で、またぐ語の最も少ない所（ページの左右の余白は偶数・奇数
@@ -166,7 +167,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 // 小数点以下は下端の線をまたいで置かれることがあるので、字の中ほどでは見ない）。
                 let (cols, after_table): (Vec<Col>, Vec<Col>) =
                     cols.into_iter().partition(|c| !bottom.is_finite() || c.y < bottom + 1.0);
-                let tail = (!after_table.is_empty()).then(|| Unit::Plain(horizontal_lines_with_tables(after_table, &grids, &vrules)));
+                let tail = (!after_table.is_empty()).then(|| Unit::Plain(horizontal_lines_with_tables(after_table, &grids, &vrules, &hrules)));
                 let (left, right): (Vec<Col>, Vec<Col>) = cols.into_iter().partition(|c| c.x1 <= mid);
                 // 欄見出し（「改　正　後」）だけの行は本文ではない。
                 // 左右の欄の表は欄ごとの枠で組む（左右の別表の罫線がつながって紙面の幅いっぱいの 1 つの
@@ -181,7 +182,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 };
                 let (left_grids, right_grids) = (side_grids(f32::NEG_INFINITY, mid), side_grids(mid, f32::INFINITY));
                 let body = |cols: Vec<Col>, grids: &[Grid]| -> Vec<Line> {
-                    let mut lines = one_column_lines_with_tables(cols, grids, &vrules);
+                    let mut lines = one_column_lines_with_tables(cols, grids, &vrules, &hrules);
                     let label = |l: &Line| matches!(l.text.chars().filter(|c| !c.is_whitespace()).collect::<String>().as_str(), "改正後" | "改正前");
                     if lines.first().is_some_and(label) {
                         lines.remove(0);
@@ -190,7 +191,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 };
                 let unit = Unit::Shinkyu {
                     // 欄見出しより上（前の記事の表の続きが上にあるページも）も罫線の表を組んで読む。
-                    preamble: horizontal_lines_with_tables(pre, &grids, &vrules),
+                    preamble: horizontal_lines_with_tables(pre, &grids, &vrules, &hrules),
                     after: vec![body(left, &left_grids)],
                     before: vec![body(right, &right_grids)],
                     outside: Vec::new(),
@@ -266,7 +267,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         }
                         None => {
                             (two_columns_here, mid_here) = (false, None);
-                            units.push(Unit::Plain(horizontal_lines_with_tables(band, &grids, &vrules)));
+                            units.push(Unit::Plain(horizontal_lines_with_tables(band, &grids, &vrules, &hrules)));
                         }
                     }
                 }
@@ -298,7 +299,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                             units.extend(tail);
                         }
                         if !pre.is_empty() {
-                            units.push(Unit::Plain(horizontal_lines_with_tables(pre, &grids, &vrules)));
+                            units.push(Unit::Plain(horizontal_lines_with_tables(pre, &grids, &vrules, &hrules)));
                         }
                         match split_horizontal_shinkyu(&rest, false) {
                             Some((mid, label_y, label_ids)) => {
@@ -314,10 +315,10 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                                     }
                                     units.push(unit);
                                     if !rest.is_empty() {
-                                        units.push(Unit::Plain(horizontal_lines_with_tables(rest, &grids, &vrules)));
+                                        units.push(Unit::Plain(horizontal_lines_with_tables(rest, &grids, &vrules, &hrules)));
                                     }
                                 }
-                                None => units.push(Unit::Plain(horizontal_lines_with_tables(rest, &grids, &vrules))),
+                                None => units.push(Unit::Plain(horizontal_lines_with_tables(rest, &grids, &vrules, &hrules))),
                             },
                         }
                     }
@@ -332,7 +333,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                             if rest.is_empty() {
                                 pairs_here = Some(geometry);
                             } else {
-                                tail = Some(Unit::Plain(horizontal_lines_with_tables(rest, &grids, &vrules)));
+                                tail = Some(Unit::Plain(horizontal_lines_with_tables(rest, &grids, &vrules, &hrules)));
                             }
                             units.push(unit);
                         }
@@ -353,7 +354,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                                 units.push(unit);
                                 tail = t;
                             }
-                            None => units.push(Unit::Plain(horizontal_lines_with_tables(cols, &grids, &vrules))),
+                            None => units.push(Unit::Plain(horizontal_lines_with_tables(cols, &grids, &vrules, &hrules))),
                         },
                     },
                 }
