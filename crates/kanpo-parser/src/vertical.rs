@@ -308,7 +308,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                                 units.push(unit);
                                 units.extend(tail);
                             }
-                            None => match split_horizontal_shinkyu_pairs(&rest, None) {
+                            None => match split_horizontal_shinkyu_pairs(&rest, None, &vrules) {
                                 Some((unit, rest, geometry)) => {
                                     if rest.is_empty() {
                                         pairs_here = Some(geometry);
@@ -328,7 +328,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         units.push(unit);
                         tail = t;
                     }
-                    (None, _) => match split_horizontal_shinkyu_pairs(&cols, prev_pairs.filter(|_| prev_table)) {
+                    (None, _) => match split_horizontal_shinkyu_pairs(&cols, prev_pairs.filter(|_| prev_table), &vrules) {
                         Some((unit, rest, geometry)) => {
                             if rest.is_empty() {
                                 pairs_here = Some(geometry);
@@ -1184,7 +1184,11 @@ fn split_horizontal_shinkyu_by(cols: &[Col], continuation: bool, check_pairs: bo
 /// 3 列以上あるときだけ（2 列の表は [`split_horizontal_shinkyu`] が見る）。欄見出しの無い続きのページは、
 /// 前のページの列の幅（`prev`）で、左の列から交互に分ける。次の記事の標題（「〇…」）のある列から後ろは
 /// 表の外として返す。戻り値は（表, 表の外の語, 次のページに渡す列の幅）。
-fn split_horizontal_shinkyu_pairs(cols: &[Col], prev: Option<f32>) -> Option<(Unit, Vec<Col>, f32)> {
+///
+/// `vrules` は縦の罫線 `(x, y0, y1)`。最初の組より右で欄見出しより上に終わる縦の罫線（紙面の幅いっぱいの表の欄の線）が
+/// あり、その下端より上の最初の組より右の語が 12 語までなら、それも前文（表の右の欄「令和10年４月１日」を改正前の続きの
+/// 列にしない）。
+fn split_horizontal_shinkyu_pairs(cols: &[Col], prev: Option<f32>, vrules: &[(f32, f32, f32)]) -> Option<(Unit, Vec<Col>, f32)> {
     let labels = |last: char| shinkyu_labels(cols, last);
     let (after, before) = (labels('後'), labels('前'));
     let center = |l: &(f32, f32, f32, Vec<usize>)| (l.0 + l.1) / 2.0;
@@ -1203,7 +1207,15 @@ fn split_horizontal_shinkyu_pairs(cols: &[Col], prev: Option<f32>) -> Option<(Un
         return None;
     }
     // 前文は欄見出しより上で、最初の組の 2 列の中から始まる語（その上の別の記事の表なども）。
-    let is_preamble = |c: &Col| c.y1 <= label_y + 1.0 && c.x < before_x + width / 2.0;
+    let table_bottom = vrules
+        .iter()
+        .filter(|&&(x, y0, y1)| x > before_x + width / 2.0 && y0 < label_y && y1 <= label_y + 1.0)
+        .map(|r| r.2)
+        .fold(f32::NEG_INFINITY, f32::max);
+    // 表の欄は語が少ない（12 語まで）。多ければ改正前の続きの列（上に前の表の罫線がある）。
+    let beside = cols.iter().filter(|c| c.x >= before_x + width / 2.0 && c.y1 <= table_bottom + 2.0).count();
+    let table_bottom = if beside <= 12 { table_bottom } else { f32::NEG_INFINITY };
+    let is_preamble = |c: &Col| c.y1 <= label_y + 1.0 && (c.x < before_x + width / 2.0 || c.y1 <= table_bottom + 2.0);
     let body: Vec<&Col> = cols.iter().filter(|c| !label_ids.contains(&c.id) && !is_preamble(c)).collect();
     // 語の左右の範囲をつないで列にする。
     let mut spans: Vec<(f32, f32)> = body.iter().map(|c| (c.x, c.x1)).collect();
