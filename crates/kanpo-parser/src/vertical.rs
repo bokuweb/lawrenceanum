@@ -1438,6 +1438,10 @@ fn page_words_traced(
 /// 枠を表と取り違えないため。括弧の中の句点（「（…場合を含む。）」）は文の終わりに数えない（読替えの表の
 /// 欄に括弧書きが 2 つあるだけで文章とみなし、表を行ごとに読んでいた。号外第 163 号 61 ページ）。
 pub(crate) fn prose_cells(cols: &[Col], g: &Grid) -> bool {
+    // 縦横とも 2 つ以上に区切られた格子は、セルが長くても文が 2 つ以上無ければ表（号外第 172 号 266 ページ: 「地方公共
+    // 団体」の欄に市町村の一覧、「機能要件の標準」の欄に項の一覧が入る表。表として組まないと上下の欄の列が 1 行に
+    // つながっていた）。段を区切る罫線で格子に見える記事（同 290 ページの下半分の告示）はセルに文がある。
+    let grid = g.xs.len() >= 3 && g.ys.len() >= 3;
     let mut cells: std::collections::HashMap<usize, (usize, usize)> = std::collections::HashMap::new();
     for c in cols {
         if let Some(i) = g.cell_at((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0) {
@@ -1451,7 +1455,7 @@ pub(crate) fn prose_cells(cols: &[Col], g: &Grid) -> bool {
                 .count();
         }
     }
-    cells.values().any(|&(chars, sentences)| chars > 200 || sentences >= 2)
+    cells.values().any(|&(chars, sentences)| (chars > 200 && !grid) || sentences >= 2)
 }
 
 /// 枠の中の語が縦組みか（縦長の語の字数が横長の語の字数以上）。
