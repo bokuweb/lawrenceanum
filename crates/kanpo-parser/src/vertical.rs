@@ -1435,14 +1435,20 @@ fn page_words_traced(
 }
 
 /// 枠のセルに文章（200 字を超える、または 2 文以上）が入っているか。公告の囲み記事などの
-/// 枠を表と取り違えないため。
+/// 枠を表と取り違えないため。括弧の中の句点（「（…場合を含む。）」）は文の終わりに数えない（読替えの表の
+/// 欄に括弧書きが 2 つあるだけで文章とみなし、表を行ごとに読んでいた。号外第 163 号 61 ページ）。
 pub(crate) fn prose_cells(cols: &[Col], g: &Grid) -> bool {
     let mut cells: std::collections::HashMap<usize, (usize, usize)> = std::collections::HashMap::new();
     for c in cols {
         if let Some(i) = g.cell_at((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0) {
             let e = cells.entry(i).or_default();
             e.0 += c.text.chars().count();
-            e.1 += c.text.matches('。').count();
+            let chars: Vec<char> = c.text.chars().collect();
+            e.1 += chars
+                .iter()
+                .enumerate()
+                .filter(|&(k, &ch)| matches!(ch, '。' | '︒') && !chars.get(k + 1).is_some_and(|n| matches!(n, '）' | ')' | '」' | '〕' | '︶' | '﹂' | '︼')))
+                .count();
         }
     }
     cells.values().any(|&(chars, sentences)| chars > 200 || sentences >= 2)
