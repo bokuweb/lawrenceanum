@@ -43,7 +43,7 @@ pub(crate) fn is_left_strip_header(x1: f32, text: &str) -> bool {
 /// `is_margin_noise` は使わない。横組みの日付行「令和８年10月２日」は数字を除くと柱の
 /// 「令和年月日」と同じ骨格になり、本文が消える。
 pub(crate) fn horizontal_lines(cols: Vec<Col>) -> Vec<trace::Line> {
-    horizontal_lines_around(cols, &[], &[])
+    horizontal_lines_around(cols, &[], &[], &[], &[])
 }
 
 /// 語を取り除いた表の外枠 `(x0, y0, x1, y1)`。
@@ -55,9 +55,12 @@ type Block = (f32, f32, f32, f32);
 ///
 /// `vrules`（縦の罫線 `(x, y0, y1)`）のうち、領域の高さの大半に掛かって語をまたがない線は、ほかの溝より先に
 /// 列の境にする（[`rule_cut`]）。
-fn horizontal_lines_around(cols: Vec<Col>, blocks: &[Block], vrules: &[(f32, f32, f32)]) -> Vec<trace::Line> {
+///
+/// `tables` は先に取り出した表の外枠（囲みの段の中で、表と表の間の溝を囲みの境とみなす。[`order_region`]）。
+fn horizontal_lines_around(cols: Vec<Col>, blocks: &[Block], vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)], tables: &[Block]) -> Vec<trace::Line> {
     let mut lines: Vec<trace::Line> = Vec::new();
-    order_region(cols, blocks, vrules, &mut lines);
+    let ctx = Context { vrules, hrules, tables };
+    order_region(cols, blocks, &ctx, false, false, &mut lines);
     lines
 }
 
@@ -158,7 +161,7 @@ fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)],
         }
     }
     if tables.is_empty() && verticals.is_empty() {
-        return if one_column { row_lines(rest) } else { horizontal_lines_around(rest, &[], vrules) };
+        return if one_column { row_lines(rest) } else { horizontal_lines_around(rest, &[], vrules, hrules, &[]) };
     }
     let geom: std::collections::HashMap<usize, (f32, f32, f32, f32)> = rest.iter().map(|c| (c.id, (c.x, c.x1, c.y, c.y1))).collect();
     // 2 段抜きの表（本文の段 2 つ分の幅）だけ。決算公告の囲みの中の表は囲みの列ごとに並び、
@@ -172,7 +175,8 @@ fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)],
         .map(|t| (t.x0, t.y0, t.x1, t.y1))
         .chain(verticals.iter().map(|v| v.0))
         .collect();
-    let mut lines = if one_column { row_lines(rest) } else { horizontal_lines_around(rest, &blocks, vrules) };
+    let rects: Vec<Block> = tables.iter().map(|t| (t.x0, t.y0, t.x1, t.y1)).collect();
+    let mut lines = if one_column { row_lines(rest) } else { horizontal_lines_around(rest, &blocks, vrules, hrules, &rects) };
     // 縦組みの欄は、欄の左に同じ高さで並ぶ最後の行の後ろ（同じ囲みの決算公告の後ろ。囲みの枠は罫線として
     // 取り出せないことが多い）。
     // ただし、欄のすぐ下（30pt 以内）から同じ列で始まる横組みの行があり、間の横の罫線が欄より左へ延びていなければ、
@@ -219,7 +223,23 @@ fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)],
                 let y1 = g.iter().map(|p| p.3).fold(f32::NEG_INFINITY, f32::max);
                 !g.is_empty() && (x0 >= t.2 - 2.0 || (x0 < t.2 && x1 > t.0 && (y0 >= t.3 - 2.0 || (y0 + y1) / 2.0 >= t.3)))
             };
-            (at.unwrap_or_else(|| lines.iter().position(after).unwrap_or(lines.len())), t, ls)
+            // 表のすぐ上の行（表の幅に収まり、表の上端より上 30pt 以内にある行のうち一番下のもの。表の見出し「貸借対照表の要旨」）の
+            // 後ろに置く（囲みごとに読むと、表の右か下にある最初の行は隣の囲みの行のことがある）。無ければ表の右か下にある
+            // 最初の行の前。
+            let heading = lines
+                .iter()
+                .enumerate()
+                .filter_map(|(i, l)| {
+                    let g: Vec<(f32, f32, f32, f32)> = l.words.iter().filter_map(|w| geom.get(w)).copied().collect();
+                    let x0 = g.iter().map(|p| p.0).fold(f32::INFINITY, f32::min);
+                    let x1 = g.iter().map(|p| p.1).fold(f32::NEG_INFINITY, f32::max);
+                    let y1 = g.iter().map(|p| p.3).fold(f32::NEG_INFINITY, f32::max);
+                    // 表の幅に収まる行だけ（隣の損益計算書の見出しと 1 行に組まれた行は見出しにしない）。
+                    (!g.is_empty() && y1 <= t.1 + 2.0 && t.1 - y1 < 30.0 && x0 >= t.0 - 20.0 && x1 <= t.2 + 20.0).then_some((i, y1))
+                })
+                .max_by(|a, b| a.1.total_cmp(&b.1).then(a.0.cmp(&b.0)))
+                .map(|(i, _)| i + 1);
+            (at.or(heading).unwrap_or_else(|| lines.iter().position(after).unwrap_or(lines.len())), t, ls)
         })
         .collect();
     // 後ろの位置から差し込む。同じ位置には、読み順で後の表（下・右）から差し込む。縦組みの欄（行の無い表）は
@@ -1081,17 +1101,34 @@ fn group_lines(words: &[Col]) -> Vec<Line> {
 /// 3. どちらも無ければ 1 本の流れとして行を上→下に出す。
 ///
 /// `blocks`（取り除いた表の外枠）は語と同じく溝・切れ目をふさぎ、中心で左右・上下に振り分ける。
-fn order_region(words: Vec<Col>, blocks: &[Block], vrules: &[(f32, f32, f32)], out: &mut Vec<trace::Line>) {
+///
+/// `hrules`（横の罫線 `(y, x0, x1)`）のうち、領域の幅いっぱいに掛かってさらに領域の外（左右の列）まで延びる線は、
+/// 列の溝より先に上下の境にする（[`box_rule_cut`]）。
+/// `boxed` は囲みの境の線で分けた段（[`is_column_split`]）。
+/// `column` は列の溝で左右に分けた後の領域（囲みの境の線で切るのはその中だけ）。
+fn order_region(words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: bool, column: bool, out: &mut Vec<trace::Line>) {
+    let (vrules, hrules) = (ctx.vrules, ctx.hrules);
     if words.is_empty() {
         return;
     }
     let lines = group_lines(&words);
     if lines.len() >= 2 {
-        if let Some(cut) = rule_cut(&words, blocks, vrules).or_else(|| column_cut(&words, blocks)) {
+        // 囲みの列の間の広い溝で先に列に分け、列の中を囲みの境の横の罫線で上下に分ける。
+        // 囲みの段の中では、表と表の間（囲みの境、囲みの中の貸借対照表と損益計算書の境）の溝を囲みの境とみなす。
+        let gutter = column_gutter(&words, blocks, if boxed { ctx.tables } else { &[] });
+        if let Some(cut) = box_rule_cut(&words, blocks, hrules).filter(|_| column && !gutter.is_some_and(|g| g.1 >= WIDE_GUTTER)) {
+            let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < cut);
+            let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < cut);
+            order_region(top, &bt, ctx, true, true, out);
+            order_region(bottom, &bb, ctx, true, true, out);
+            return;
+        }
+        if let Some(cut) = rule_cut(&words, blocks, vrules).or_else(|| gutter.map(|g| g.0)) {
             let (left, right): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| x_center(w) < cut);
             let (bl, br): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.0 + b.2) / 2.0 < cut);
-            order_region(left, &bl, vrules, out);
-            order_region(right, &br, vrules, out);
+            // 囲みの段として切るのは段の中の最初の溝だけ（囲みの中は普通に読む）。
+            order_region(left, &bl, ctx, false, true, out);
+            order_region(right, &br, ctx, false, true, out);
             return;
         }
         if blocks.is_empty() {
@@ -1103,8 +1140,8 @@ fn order_region(words: Vec<Col>, blocks: &[Block], vrules: &[(f32, f32, f32)], o
         if let Some(cut) = band_cut(&lines, blocks) {
             let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < cut);
             let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < cut);
-            order_region(top, &bt, vrules, out);
-            order_region(bottom, &bb, vrules, out);
+            order_region(top, &bt, ctx, boxed, column, out);
+            order_region(bottom, &bb, ctx, boxed, column, out);
             return;
         }
     }
@@ -1172,6 +1209,26 @@ fn label_cut(words: &[Col]) -> Option<f32> {
     })
 }
 
+/// 決算公告の囲みの列の中で、囲みと囲みを分ける横の罫線の y。領域の語の幅の 95% 以上に掛かり、さらに領域の外へ
+/// 20pt 以上延び（紙面の幅いっぱいの段の境の線を、列に分けた後の領域で見たもの）、語も表もまたがず、上下に語が
+/// あるもののうち一番上。列に分ける前（紙面の幅の領域）では線は外へ延びないので切らない（囲みの段ごとに読むと、
+/// 囲みが並ぶ順と変わる）。
+fn box_rule_cut(words: &[Col], blocks: &[Block], hrules: &[(f32, f32, f32)]) -> Option<f32> {
+    let x0 = words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
+    let x1 = words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
+    hrules
+        .iter()
+        .filter(|r| r.2.min(x1) - r.1.max(x0) >= (x1 - x0) * 0.95 && (r.1 < x0 - 20.0 || r.2 > x1 + 20.0))
+        .map(|r| r.0)
+        .filter(|&y| {
+            !words.iter().any(|w| w.y < y - 1.0 && w.y1 > y + 1.0)
+                && !blocks.iter().any(|b| b.1 < y - 1.0 && b.3 > y + 1.0)
+                && words.iter().any(|w| y_center(w) < y)
+                && words.iter().any(|w| y_center(w) > y)
+        })
+        .reduce(f32::min)
+}
+
 /// 領域を左右に分ける縦の罫線の x（段の境の線・紙面を左右に分ける線）。領域の語の高さの 7 割以上に掛かり、
 /// どの語もまたがず（表をまたいで引かれた線ではない）、左右が別の列（[`is_column_split`]）になる線のうち、
 /// 掛かる高さの最も長いもの。
@@ -1190,7 +1247,7 @@ fn rule_cut(words: &[Col], blocks: &[Block], vrules: &[(f32, f32, f32)]) -> Opti
         })
         .filter(|&&(x, _, _)| {
             let (left, right): (Vec<Col>, Vec<Col>) = words.iter().cloned().partition(|w| x_center(w) < x);
-            is_column_split(&left, &right)
+            is_column_split(&left, &right, false)
         })
         .max_by(|a, b| (a.2.min(y1) - a.1.max(y0)).total_cmp(&(b.2.min(y1) - b.1.max(y0))).then(b.0.total_cmp(&a.0)))
         .map(|r| r.0)
@@ -1202,6 +1259,20 @@ fn rule_cut(words: &[Col], blocks: &[Block], vrules: &[(f32, f32, f32)]) -> Opti
 /// （句読点・括弧）や、回転した縦書き部分の字下げで、隣の列と数 pt 重なることがあるため。
 /// 語は中心 x で左右に振り分ける（[`x_center`]）。`blocks`（取り除いた表の外枠）も溝をふさぐ。
 fn column_cut(words: &[Col], blocks: &[Block]) -> Option<f32> {
+    column_gutter(words, blocks, &[]).map(|g| g.0)
+}
+
+/// [`column_cut`] の溝の `(x, 幅)`。
+///
+/// `tables`（囲みの段の中の表の外枠）が空でなければ、表の右端のすぐ右（20pt 以内）で別の表の左端のすぐ左になる溝を
+/// 囲みの境とみなす（[`is_column_split`] の `boxed`）。
+fn column_gutter(words: &[Col], blocks: &[Block], tables: &[Block]) -> Option<(f32, f32)> {
+    let (y0, y1) = (words.iter().map(|w| w.y).fold(f32::INFINITY, f32::min), words.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max));
+    // 段の中の表（語の下に続く表も。表を取り出した後の段の語は、表の上の見出しの行だけのことがある）。
+    let near: Vec<&Block> = tables.iter().filter(|t| t.1 < y1 + 40.0 && y0 < t.3).collect();
+    let between = |cut: f32| {
+        near.iter().any(|t| t.2 <= cut + 2.0 && cut - t.2 < 20.0) && near.iter().any(|t| t.0 >= cut - 2.0 && t.0 - cut < 20.0)
+    };
     // 字間空けの見出し（「中　間　決　算　公　告」）は 1 字語の並びだが、1 語として溝をふさぐ。
     // 桁区切りで語が割れた数（「225,」「582,」「082,」「247」）も 1 語として溝をふさぐ（右揃えの金額の
     // 桁の切れ目が行をまたいで縦に揃い、列の溝に見える）。
@@ -1223,18 +1294,37 @@ fn column_cut(words: &[Col], blocks: &[Block]) -> Option<f32> {
         .collect();
     spans.sort_by(|a, b| a.0.total_cmp(&b.0));
     let mut right_edge = f32::NEG_INFINITY;
+    // 列の境になる溝（x, 幅, 左右の狭い方の幅）。
+    let mut cuts: Vec<(f32, f32, f32)> = Vec::new();
     for (a, b) in spans {
         if right_edge.is_finite() && a - right_edge >= MIN_GUTTER {
             let cut = (right_edge + a) / 2.0;
             let (left, right): (Vec<Col>, Vec<Col>) = words.iter().cloned().partition(|w| x_center(w) < cut);
-            if !latin_word_gap(words, cut) && !item_numbers(&left, &right) && !repeat_marks(&left, &right) && is_column_split(&left, &right) {
-                return Some(cut);
+            if !latin_word_gap(words, cut) && !item_numbers(&left, &right) && !repeat_marks(&left, &right) && is_column_split(&left, &right, between(cut)) {
+                let width = |ws: &[Col]| ws.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max) - ws.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
+                cuts.push((cut, a - right_edge, width(&left).min(width(&right))));
             }
         }
         right_edge = right_edge.max(b);
     }
-    None
+    // 左の溝から切る。ただし、2 倍以上広い溝（12pt 以上）で左右とも幅 100pt 以上の列に分かれるものがあれば先にそこで
+    // 切る（決算公告の囲みの列の間。左の列の囲みの中の貸借対照表と損益計算書の間の狭い溝で先に切ると、どの囲みも貸借
+    // 対照表だけが先に読まれる。項目名と金額の間の広い溝は、金額の側が狭い）。
+    let first = *cuts.first()?;
+    let widest = cuts.iter().copied().filter(|c| c.2 >= 100.0).max_by(|a, b| a.1.total_cmp(&b.1)).unwrap_or(first);
+    let pick = if widest.1 >= WIDE_GUTTER && widest.1 >= first.1 * 2.0 { widest } else { first };
+    Some((pick.0, pick.1))
 }
+
+/// 横組みの読み順の処理に渡す罫線と表。
+struct Context<'a> {
+    vrules: &'a [(f32, f32, f32)],
+    hrules: &'a [(f32, f32, f32)],
+    tables: &'a [Block],
+}
+
+/// 囲みの列の間とみなす広い溝の幅(pt)。
+const WIDE_GUTTER: f32 = 12.0;
 
 /// 数の続きか（桁区切りで割れた語「35」「,」「952」）。空きが半 em 未満で、前の語が数字か
 /// 桁区切りで終わり、次の語が数字か桁区切りで始まる。
@@ -1326,7 +1416,10 @@ fn x_center(w: &Col) -> f32 {
 ///   両側とも段の幅に近い本文の列なら、行が揃っていても段組とみなす。
 /// - 中央寄せの見出しが上下に並ぶだけ（「公　告」「諸事項」「有権者申出方」）でも溝はできる。
 ///   少なくとも一方に本文の段の幅の行がなければ列とはみなさない。
-fn is_column_split(left: &[Col], right: &[Col]) -> bool {
+///
+/// `boxed`（囲みの段の中の、表と表の間の溝。[`column_gutter`]）なら、金額の欄でも項目名の欄でもなければ囲みの境か、
+/// 囲みの中の貸借対照表と損益計算書の境とみなす（囲みは段の幅より狭く、隣の囲みと行が揃って並ぶ）。
+fn is_column_split(left: &[Col], right: &[Col], boxed: bool) -> bool {
     if left.is_empty() || right.is_empty() {
         return false;
     }
@@ -1344,9 +1437,11 @@ fn is_column_split(left: &[Col], right: &[Col]) -> bool {
     let (wl, wr) = (width(left), width(right));
     // 金額の欄（行の 8 割以上が金額だけの行）なら、欄の幅が広くても（右揃えの金額の欄が 2〜3 列並ぶ）表の列。
     let amounts = |ls: &[Line]| ls.len() >= 2 && ls.iter().filter(|l| amount_line(l)).count() * 10 >= ls.len() * 8;
-    let table_like = (aligned as f32 >= few.len() as f32 * 0.75 && (wl.min(wr) < MIN_TEXT_COLUMN_WIDTH || amounts(&rl)))
-        || (wl < 120.0 && label_column(&ll, &near_lines(right, true)))
-        || (wr < 120.0 && label_column(&rl, &near_lines(left, false)));
+    let labels = (wl < 120.0 && label_column(&ll, &near_lines(right, true))) || (wr < 120.0 && label_column(&rl, &near_lines(left, false)));
+    if boxed {
+        return !labels && !(aligned as f32 >= few.len() as f32 * 0.75 && (amounts(&rl) || amounts(&ll)));
+    }
+    let table_like = (aligned as f32 >= few.len() as f32 * 0.75 && (wl.min(wr) < MIN_TEXT_COLUMN_WIDTH || amounts(&rl))) || labels;
     // 本文の段なら、段の幅いっぱいの行がある。見出しだけの側（「官　庁　事　項」と
     // 「人事院公示第26号」が離れて並ぶ等）は、全体の幅が広くても 1 行ずつは短い。
     let longest_line = |ls: &[Line]| ls.iter().map(|l| width(&l.words)).fold(0.0, f32::max);
@@ -1898,7 +1993,7 @@ mod tests {
                 c
             })
             .collect();
-        let lines = horizontal_lines_around(words, &[], &[(425.0, 46.0, 200.0)]);
+        let lines = horizontal_lines_around(words, &[], &[(425.0, 46.0, 200.0)], &[], &[]);
         let texts: Vec<&str> = lines.iter().map(|l| l.text.as_str()).collect();
         assert_eq!(&texts[..3], ["未払金\u{3000}8,875,868,726", "前受金\u{3000}296,591,444", "預り金\u{3000}43,897,136"]);
     }
