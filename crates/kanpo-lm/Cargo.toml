@@ -11,13 +11,17 @@ publish.workspace = true
 [features]
 # llama.cpp（手元の共有ライブラリ）で GGUF のモデルを動かす。
 llama = []
+# ModernBERT（穴埋め）の擬似対数尤度で採点する（candle、CPU）。
+mlm = ["dep:candle-core", "dep:candle-nn", "dep:candle-transformers", "dep:tokenizers", "dep:serde_json"]
 
 [dependencies]
 anyhow.workspace = true
+candle-core = { version = "0.9", optional = true }
+candle-nn = { version = "0.9", optional = true }
+candle-transformers = { version = "0.9", optional = true }
+tokenizers = { version = "0.21", optional = true, default-features = false, features = ["onig"] }
+serde_json = { workspace = true, optional = true }
 
 [build-dependencies]
 cc = "1"
 
-[[example]]
-name = "check"
-required-features = ["llama"]

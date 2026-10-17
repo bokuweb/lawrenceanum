@@ -6,7 +6,8 @@
 //! - [`correct`] は、怪しい行について、字を入れ替えた書き直しの候補（欄の空白で区切った片の並べ替え、縦中横の
 //!   単位の置き直し）を作り、元の行より十分に自然なものだけを補正として返す
 //!
-//! 採点するモデルは [`Scorer`] で差し替える（`llama` 機能: llama.cpp で Gemma などの GGUF）。
+//! 採点するモデルは [`Scorer`] で差し替える（`llama` 機能: llama.cpp で Gemma などの GGUF、`mlm` 機能: candle で
+//! ModernBERT の穴埋めの擬似対数尤度）。
 //! 言語モデルは「どちらの並びが自然か」を比べるのは得意だが（字を入れ替えた行と元の行の比較で 96〜99%）、
 //! 1 行だけを見て誤りかを決めるのは苦手（表・一覧・行の途中で切れた縦書きの列も読みにくい）なので、
 //! [`scan`] の結果は人が見る順番を決めるためのもの、[`correct`] は書き直しの候補どうしの比較だけに使う。
@@ -14,6 +15,8 @@
 mod candidates;
 #[cfg(feature = "llama")]
 pub mod llama;
+#[cfg(feature = "mlm")]
+pub mod mlm;
 
 pub use candidates::{candidates, Candidate};
 
@@ -44,11 +47,24 @@ pub struct Options {
     pub min_chars: usize,
     /// 書き直しを採る、文脈を含めた負の対数尤度の改善の下限（nat）。
     pub min_gain: f32,
+    /// 全角の空白で区切った片の並べ替え（[`Candidate::rule`] が `segments`）も試すか。
+    pub segments: bool,
 }
 
 impl Default for Options {
+    /// Gemma 4 E2B（llama.cpp）向けの設定。
     fn default() -> Self {
-        Options { chunk_chars: 600, context_lines: 2, suspect_nll: 2.3, min_chars: 8, min_gain: 8.0 }
+        Options { chunk_chars: 600, context_lines: 2, suspect_nll: 2.3, min_chars: 8, min_gain: 8.0, segments: true }
+    }
+}
+
+impl Options {
+    /// ModernBERT-Ja-30m（穴埋めの擬似対数尤度）向けの設定。前後両側の文脈を見るので、近くの行に同じ文があると
+    /// 崩れた行も読みやすく見え（1 字 0.5 nat ほど）、書き直しの改善は Gemma より大きく出る（正しい補正は 33〜64 nat）。
+    /// 表の行の片の並べ替えは、同じ字の並びが隣り合う方を好んで誤る（「資産合計　13,295,943　負債・純資産合計
+    ///　13,295,943」の金額を後ろにまとめる方が 38.8 nat 勝つ）ので試さない。
+    pub fn modernbert() -> Self {
+        Options { suspect_nll: 0.5, min_gain: 25.0, segments: false, ..Options::default() }
     }
 }
 
@@ -132,7 +148,7 @@ pub fn correct(scorer: &mut dyn Scorer, lines: &[&str], opts: &Options) -> anyho
     let mut corrections = Vec::new();
     for s in scores.iter().filter(|s| s.chars >= opts.min_chars && s.per_char() >= opts.suspect_nll) {
         let line = s.line;
-        let cands = candidates(lines[line]);
+        let cands: Vec<Candidate> = candidates(lines[line]).into_iter().filter(|c| opts.segments || c.rule != "segments").collect();
         if cands.is_empty() {
             continue;
         }

@@ -53,3 +53,28 @@ cargo run --release -p kanpo-lm --features llama --example check -- --scan 100 ~
 
 Apple M 系の GPU（Metal）で 1 秒に 300 字ほど。毎日の新しい号なら数分、蓄積した全ページ（約 1 万ページ）は
 半日かかる。パーサを直したときの前後の比較（変わった行だけを採点して、どちらが自然か）にも使える。
+
+### ModernBERT（`mlm` 機能）
+
+[sbintuitions/modernbert-ja-30m](https://huggingface.co/sbintuitions/modernbert-ja-30m)（約 155MB）を candle で CPU で動かす
+（llama.cpp も GPU も要らず、WASM にも載る）。各トークンを隠して前後の両側の文脈から当てる擬似対数尤度で採点する。
+16 トークンおきの位置をまとめて隠す（`MlmScorer::stride`）。
+
+```bash
+mkdir -p ~/.cache/kanpo-lm/modernbert-ja-30m && cd ~/.cache/kanpo-lm/modernbert-ja-30m
+for f in config.json tokenizer.json model.safetensors; do
+  curl -LO https://huggingface.co/sbintuitions/modernbert-ja-30m/resolve/main/$f
+done
+cd -
+# モデルのディレクトリを渡すと ModernBERT 向けの設定（Options::modernbert）で動く
+cargo run --release -p kanpo-lm --features mlm --example check -- ~/.cache/kanpo-lm/modernbert-ja-30m /tmp/after
+```
+
+- 書き直しの候補どうしの比較は Gemma と同じくらい当たる（字を入れ替えた 599 組で 99.0%・98.0%・94.5%）
+- パーサを直す前の 4 ページ: 7 行を補正し、5 行は正しい行に戻った（Gemma と同じ 5 行。改善は 33〜64 nat で Gemma より大きく
+  出る）。残る 2 行も単位は数の直後に入ったが、空白や語の中に入り込んだ単位（「を超GHzえ」）が残った
+- 今の出力の 40 ページ: 補正は 0 行（単位の候補が勝ったのは 1 行で 0.2 nat）。表の行の片の並べ替えは、同じ字の並びが
+  隣り合う方を好んで誤る（「資産合計　13,295,943　負債・純資産合計　13,295,943」の金額を後ろにまとめる方が 38.8 nat 勝つ）ので、
+  ModernBERT では試さない（`Options::modernbert`）
+- 怪しい行の洗い出し（`--scan`）は Gemma より弱い。前後両側を見るので、近くの行に同じ文があると崩れた行もそこから
+  当てられて読みやすく見える

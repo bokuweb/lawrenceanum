@@ -5,9 +5,11 @@
 //! cargo run --release -p kanpo-lm --features llama --example check -- ~/.cache/kanpo-lm/gemma-4-E2B-Q8_0.gguf /tmp/after
 //! # 怪しい行を上から並べる: ファイル, 行, 1 字あたりの負の対数尤度, いちばん読みにくい字, 行
 //! cargo run --release -p kanpo-lm --features llama --example check -- --scan 100 <model.gguf> /tmp/after
+//! # ModernBERT（モデルのディレクトリを渡す）
+//! cargo run --release -p kanpo-lm --features mlm --example check -- ~/.cache/kanpo-lm/modernbert-ja-30m /tmp/after
 //! ```
 
-use kanpo_lm::{correct, scan, LineScore, Options};
+use kanpo_lm::{correct, scan, LineScore, Options, Scorer};
 use std::path::{Path, PathBuf};
 
 fn files(path: &Path) -> anyhow::Result<Vec<PathBuf>> {
@@ -17,6 +19,20 @@ fn files(path: &Path) -> anyhow::Result<Vec<PathBuf>> {
     let mut out: Vec<PathBuf> = std::fs::read_dir(path)?.filter_map(|e| e.ok().map(|e| e.path())).filter(|p| p.is_file()).collect();
     out.sort();
     Ok(out)
+}
+
+/// モデルを開く。ディレクトリなら ModernBERT（`mlm` 機能）、ファイルなら GGUF（`llama` 機能）。
+fn open(model: &Path) -> anyhow::Result<Box<dyn Scorer>> {
+    if model.is_dir() {
+        #[cfg(feature = "mlm")]
+        return Ok(Box::new(kanpo_lm::mlm::MlmScorer::open(model)?));
+        #[cfg(not(feature = "mlm"))]
+        anyhow::bail!("ModernBERT で採点するには --features mlm を付けてビルドする");
+    }
+    #[cfg(feature = "llama")]
+    return Ok(Box::new(kanpo_lm::llama::LlamaScorer::open(model, 4096, 32)?));
+    #[cfg(not(feature = "llama"))]
+    anyhow::bail!("GGUF で採点するには --features llama を付けてビルドする");
 }
 
 fn main() -> anyhow::Result<()> {
@@ -29,7 +45,11 @@ fn main() -> anyhow::Result<()> {
         }
         None => None,
     };
-    let mut opts = Options::default();
+    let mut opts = if args.iter().any(|a| Path::new(a).is_dir() && Path::new(a).join("config.json").exists()) {
+        Options::modernbert()
+    } else {
+        Options::default()
+    };
     // --suspect X（見直す行の 1 字あたりの負の対数尤度の下限）・--gain Y（書き直しを採る改善の下限）
     let mut flag = |name: &str| -> anyhow::Result<Option<f32>> {
         let Some(i) = args.iter().position(|a| a == name) else { return Ok(None) };
@@ -46,7 +66,7 @@ fn main() -> anyhow::Result<()> {
     let [model, path] = args.as_slice() else {
         anyhow::bail!("usage: check [--scan N] [--suspect X] [--gain Y] <model.gguf> <textdump の出力のディレクトリかファイル>");
     };
-    let mut scorer = kanpo_lm::llama::LlamaScorer::open(Path::new(model), 4096, 32)?;
+    let mut scorer = open(Path::new(model))?;
     let mut ranked: Vec<(String, LineScore, String)> = Vec::new();
     for file in files(Path::new(path))? {
         let text = std::fs::read_to_string(&file)?;
@@ -54,7 +74,7 @@ fn main() -> anyhow::Result<()> {
         let name = file.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
         match top {
             Some(_) => {
-                for s in scan(&mut scorer, &lines, &opts)? {
+                for s in scan(scorer.as_mut(), &lines, &opts)? {
                     if s.chars >= opts.min_chars {
                         let line = lines[s.line].to_string();
                         ranked.push((name.clone(), s, line));
@@ -62,7 +82,7 @@ fn main() -> anyhow::Result<()> {
                 }
             }
             None => {
-                for c in correct(&mut scorer, &lines, &opts)?.1 {
+                for c in correct(scorer.as_mut(), &lines, &opts)?.1 {
                     println!("{name}\t{}\t{}\t{:.1}\t{}\t{}", c.line, c.rule, c.gain, c.before, c.after);
                 }
             }
