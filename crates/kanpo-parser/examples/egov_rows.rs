@@ -156,6 +156,8 @@ fn plain_text(runs: &[Run]) -> String {
 fn flatten(v: &Value, out: &mut String) {
     match v {
         Value::String(s) => out.push_str(s),
+        // 振り仮名（Ruby の Rt）は本文に入れない（官報の本文も振り仮名を除いている）。
+        Value::Object(o) if o.get("tag").and_then(Value::as_str) == Some("Rt") => {}
         Value::Object(o) => o.get("children").into_iter().for_each(|c| flatten(c, out)),
         Value::Array(a) => a.iter().for_each(|c| flatten(c, out)),
         _ => {}
@@ -173,7 +175,7 @@ fn units(v: &Value, out: &mut Vec<String>) {
             Value::String(s) => out.push_str(s),
             Value::Object(o) => {
                 let tag = o.get("tag").and_then(Value::as_str).unwrap_or("");
-                if UNIT.contains(&tag) {
+                if UNIT.contains(&tag) || tag == "Rt" {
                     return;
                 }
                 o.get("children").into_iter().for_each(|c| own_text(c, out));
