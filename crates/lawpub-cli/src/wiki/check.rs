@@ -23,7 +23,7 @@ pub struct CheckArgs {
 }
 
 const ROOT_FILES: [&str; 3] = ["index.md", "log.md", "README.md"];
-const DIRS: [&str; 8] = ["laws/", "meetings/", "people/", "topics/", "bills/", "committees/", "pubcomments/", "kanpo/"];
+const DIRS: [&str; 9] = ["laws/", "meetings/", "people/", "topics/", "bills/", "committees/", "parties/", "pubcomments/", "kanpo/"];
 const MIN_QUOTE_CHARS: usize = 8;
 const MAX_QUOTE_CHARS: usize = 200;
 
@@ -333,7 +333,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
         if ty.is_empty() {
             err(1, "OKF の必須フィールド `type` がありません".into());
         }
-        if matches!(ty, "law" | "meeting" | "person" | "topic" | "bill" | "committee" | "pubcomment" | "kanpo") && page.get_str("title").is_empty()
+        if matches!(ty, "law" | "meeting" | "person" | "topic" | "bill" | "committee" | "party" | "pubcomment" | "kanpo") && page.get_str("title").is_empty()
         {
             err(1, "`title` がありません".into());
         }
@@ -371,7 +371,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
 
         let llm_text: String = llm_blocks(&page.body).concat();
         let needs_citation = match ty {
-            "meeting" | "law" | "person" | "committee" | "bill" | "pubcomment" | "kanpo" => !llm_text.trim().is_empty(),
+            "meeting" | "law" | "person" | "committee" | "party" | "bill" | "pubcomment" | "kanpo" => !llm_text.trim().is_empty(),
             "topic" => true,
             _ => false,
         };

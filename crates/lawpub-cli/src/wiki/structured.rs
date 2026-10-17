@@ -20,7 +20,8 @@ const LAW_BILL_TYPES: [&str; 3] = ["閣法", "衆法", "参法"];
 const REVISION_YEARS: i64 = 10;
 const MAX_REVISIONS: usize = 30;
 /// 議案ページの描画形式。変えたら上げると、経過に変化が無い議案も描き直す。
-const BILL_RENDER_VERSION: u64 = 2;
+// 3: 会派の賛否・提出会派を frontmatter にも持たせ、会派 (政党) ページから引けるようにした。
+const BILL_RENDER_VERSION: u64 = 3;
 /// 法令ページの frontmatter `kanpo` の形式・対応付けの規則。変えたら上げると、たまった項目を捨てて引き直す。
 const KANPO_VERSION: u64 = 1;
 /// 1 回の plan で読む官報の日付の上限 (新しい順)。それより古い項目は wiki に残っている分を使う。
@@ -221,6 +222,16 @@ pub(crate) fn bill_stages(fields: &[(String, String)]) -> Vec<Stage> {
     out
 }
 
+/// 「自由民主党・無所属の会; 日本維新の会」を会派ごとに分ける。
+fn split_groups(value: &str) -> Vec<String> {
+    value
+        .split([';', '、'])
+        .map(str::trim)
+        .filter(|g| !g.is_empty())
+        .map(String::from)
+        .collect()
+}
+
 fn render_bill(
     detail: &Value,
     summary: &Value,
@@ -281,19 +292,24 @@ fn render_bill(
     for s in &stages {
         body.push_str(&format!("| {} | {} |\n", s.date, cell(&s.label)));
     }
+    // 会派の賛否は本文に出すだけでなく frontmatter にも持たせる (会派ページの元)。
     let mut votes = String::new();
+    let mut vote_rows: Vec<Value> = Vec::new();
     for house in ["衆議院", "参議院"] {
         for (side, key) in [("賛成", "審議時賛成会派"), ("反対", "審議時反対会派")] {
             let v = field(&format!("{house}{key}"));
-            if !v.is_empty() {
-                votes.push_str(&format!("- {house} {side}: {}\n", v.replace("; ", "、")));
+            if v.is_empty() {
+                continue;
             }
+            votes.push_str(&format!("- {house} {side}: {}\n", v.replace("; ", "、")));
+            vote_rows.push(json!({"house": house, "side": side, "groups": split_groups(v)}));
         }
     }
     if !votes.is_empty() {
         body.push_str("\n## 会派の賛否\n\n");
         body.push_str(&votes);
     }
+    let proposer_groups = split_groups(field("議案提出会派"));
     body.push_str("<!-- lawpub:end meta -->\n");
 
     Ok(Page {
@@ -311,6 +327,8 @@ fn render_bill(
             ("latest_date".into(), json!(summary["latest_date"])),
             ("law_num_text".into(), json!(law_num_text)),
             ("laws".into(), json!(targets)),
+            ("votes".into(), Value::Array(vote_rows)),
+            ("proposer_groups".into(), json!(proposer_groups)),
             (
                 "stages".into(),
                 Value::Array(stages.iter().map(|s| json!({"date": s.date, "kind": s.kind, "label": s.label})).collect()),

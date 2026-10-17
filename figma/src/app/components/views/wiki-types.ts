@@ -6,11 +6,13 @@ export const WIKI_TYPES: Record<string, { label: string; color: string }> = {
   topic: { label: "論点", color: "#a855f7" },
   bill: { label: "議案", color: "#ef4444" },
   committee: { label: "会議体", color: "#06b6d4" },
+  // 会派は他の 8 色と色相で競合しないよう、彩度を落とした中間色にする。
+  party: { label: "会派", color: "#64748b" },
   pubcomment: { label: "パブコメ", color: "#84cc16" },
   kanpo: { label: "官報", color: "#d946ef" },
 };
 
-export const WIKI_TYPE_ORDER = ["law", "topic", "committee", "pubcomment", "bill", "kanpo", "meeting", "person"];
+export const WIKI_TYPE_ORDER = ["law", "topic", "committee", "party", "pubcomment", "bill", "kanpo", "meeting", "person"];
 
 /** wiki ページ (拡張子なし) からの相対リンクを、wiki ルート相対のパス (拡張子なし) に解決する。 */
 export function resolveWikiLink(from: string, href: string): string | null {
