@@ -128,6 +128,49 @@ fn unit_candidates(line: &str) -> Vec<(String, &'static str)> {
     out
 }
 
+/// 行を切れ目（[`crate::tagger`] が当てた、行の中のバイトの位置）で片に分け、片の並べ替えを候補にする（`breaks`）。
+/// 片が `max_pieces` より多い行は、片を逆に並べたもの（縦組みの列を左から読んでつないだ行）だけ。
+pub fn break_candidates(line: &str, cuts: &[usize], max_pieces: usize) -> Vec<Candidate> {
+    let mut cuts: Vec<usize> = cuts.iter().copied().filter(|&c| c > 0 && c < line.len() && line.is_char_boundary(c)).collect();
+    cuts.sort_unstable();
+    cuts.dedup();
+    if cuts.is_empty() {
+        return Vec::new();
+    }
+    let mut pieces: Vec<&str> = Vec::new();
+    let mut at = 0;
+    for &c in &cuts {
+        pieces.push(&line[at..c]);
+        at = c;
+    }
+    pieces.push(&line[at..]);
+    let mut out: Vec<Candidate> = Vec::new();
+    let mut push = |text: String| {
+        if text != line && !out.iter().any(|c| c.text == text) {
+            out.push(Candidate { text, rule: "breaks" });
+        }
+    };
+    if pieces.len() > max_pieces {
+        push(pieces.iter().rev().copied().collect());
+        return out;
+    }
+    let mut order: Vec<usize> = (0..pieces.len()).collect();
+    permute(&mut order, 0, &mut |o| push(o.iter().map(|&i| pieces[i]).collect()));
+    out
+}
+
+fn permute(order: &mut Vec<usize>, k: usize, f: &mut dyn FnMut(&[usize])) {
+    if k == order.len() {
+        f(order);
+        return;
+    }
+    for i in k..order.len() {
+        order.swap(k, i);
+        permute(order, k + 1, f);
+        order.swap(k, i);
+    }
+}
+
 /// `unit-gap` で試す空白の組の数の上限。
 const MAX_GAP_SETS: usize = 20;
 
@@ -188,6 +231,17 @@ mod tests {
         assert!(texts.contains(&"丙　乙　甲"));
         assert!(texts.contains(&"乙　甲　丙"));
         assert!(!texts.contains(&"甲　乙　丙"));
+    }
+
+    #[test]
+    fn break_candidates_permute_pieces() {
+        let line = "なお、最終貸借対照表の要旨は左記のとお告掲載の翌日から";
+        let cut = line.find("告").unwrap();
+        let c = break_candidates(line, &[cut], 5);
+        assert_eq!(c.len(), 1);
+        assert_eq!(c[0].text, "告掲載の翌日からなお、最終貸借対照表の要旨は左記のとお");
+        assert_eq!(break_candidates("甲乙丙丁", &[3, 6, 9], 5).len(), 23);
+        assert_eq!(break_candidates("甲乙丙丁", &[3, 6, 9], 3), vec![Candidate { text: "丁丙乙甲".into(), rule: "breaks" }]);
     }
 
     #[test]
