@@ -1083,6 +1083,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "kanpo-lm"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "cc",
+]
+
+[[package]]
 name = "kanpo-parser"
 version = "0.1.0"
 dependencies = [

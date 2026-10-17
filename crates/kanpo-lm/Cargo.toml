@@ -1,0 +1,23 @@
+[package]
+name = "kanpo-lm"
+description = "官報の本文（kanpo-parser の出力）を言語モデルで見直す後工程（読み順の崩れの洗い出しと補正）"
+repository = "https://github.com/bokuweb/lawrenceanum"
+readme = "README.md"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+publish.workspace = true
+
+[features]
+# llama.cpp（手元の共有ライブラリ）で GGUF のモデルを動かす。
+llama = []
+
+[dependencies]
+anyhow.workspace = true
+
+[build-dependencies]
+cc = "1"
+
+[[example]]
+name = "check"
+required-features = ["llama"]
