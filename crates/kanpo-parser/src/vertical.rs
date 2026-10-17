@@ -1430,6 +1430,7 @@ fn page_words_traced(
             status,
         });
     }
+    drop_ruby(&mut cols, &mut words);
     let merged = merge_warichu(&mut cols);
     (cols, words, rotated, sideways, merged)
 }
@@ -1470,6 +1471,45 @@ pub(crate) fn vertical_inside(cols: &[Col], g: &Grid) -> bool {
         }
     }
     v > 0 && v >= h
+}
+
+/// 振り仮名（常用漢字表にない字などの脇に小さく組んだ読み。「強靱（じん）」「涵（かん）養」）を本文から除く。
+/// 振り仮名の語は、ひらがなだけで 4 字まで、字の大きさ（横組みなら高さ、縦組みなら幅）が隣の本文の語の 6 割以下で、
+/// 本文の語の行の外側（横組みなら上、縦組みなら右）に接し（3pt まで食い込む）、親字の範囲に収まる。本文の行に混ざると
+/// 「強靱じん化」になり、別の行になると「じん」だけの行になっていた。
+fn drop_ruby(cols: &mut Vec<Col>, words: &mut [Word]) {
+    let kana = |t: &str| {
+        let t = t.trim();
+        (1..=4).contains(&t.chars().count()) && t.chars().all(|c| ('ぁ'..='ゖ').contains(&c))
+    };
+    let ruby: std::collections::HashSet<usize> = cols
+        .iter()
+        .filter(|r| kana(&r.text))
+        .filter(|r| {
+            let (rw, rh) = (r.x1 - r.x, r.y1 - r.y);
+            cols.iter().any(|b| {
+                if b.id == r.id || kana(&b.text) {
+                    return false;
+                }
+                let (bw, bh) = (b.x1 - b.x, b.y1 - b.y);
+                // 横組みの本文の語の上（振り仮名の下端が本文の上端に接する）。
+                // 接する所は、本文の字の枠に 3pt まで食い込むことがある（横倒しのページの「強靱（じん）」）。
+                let touches = |gap: f32| (-3.0..=1.5).contains(&gap);
+                let above = bw > bh && rh <= bh * 0.6 && touches(b.y - r.y1) && r.x >= b.x - 1.0 && r.x1 <= b.x1 + 1.0;
+                // 縦組みの本文の語の右（振り仮名の左端が本文の右端に接する）。
+                let right = bh > bw && rw <= bw * 0.6 && touches(r.x - b.x1) && r.y >= b.y - 1.0 && r.y1 <= b.y1 + 1.0;
+                above || right
+            })
+        })
+        .map(|r| r.id)
+        .collect();
+    if ruby.is_empty() {
+        return;
+    }
+    cols.retain(|c| !ruby.contains(&c.id));
+    for w in words.iter_mut().filter(|w| ruby.contains(&w.id)) {
+        w.status = WordStatus::Ruby;
+    }
 }
 
 /// 割注（1 つの列の中に 2 行に割って組んだ部分）を 1 つの語にまとめる。

@@ -128,6 +128,8 @@ pub enum WordStatus {
     HeaderLabel,
     /// 柱と判定した行（発行日・号数など）に含まれていた。
     Noise,
+    /// 振り仮名（親字の脇に小さく組んだ読み）。
+    Ruby,
 }
 
 /// ページ上の 1 語。座標は `pdftotext -bbox-layout` と同じ（pt、左上原点）。

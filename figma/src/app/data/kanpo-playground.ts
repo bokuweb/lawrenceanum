@@ -10,7 +10,7 @@ import type { AmendDocument } from "./api";
 // ---------------------------------------------------------------------------
 
 export type KanpoRole = "body" | "preamble" | "after" | "before" | "outside";
-export type KanpoWordStatus = "used" | "margin" | "empty" | "header_label" | "noise";
+export type KanpoWordStatus = "used" | "margin" | "empty" | "header_label" | "noise" | "ruby";
 
 /** ページ上の 1 語。座標は pt、左上原点（pdf.js の scale=1 viewport と同じ）。 */
 export type KanpoWord = {
@@ -99,6 +99,7 @@ export const STATUS_LABEL: Record<KanpoWordStatus, string> = {
   empty: "正規化後に空",
   header_label: "欄見出し",
   noise: "柱の行",
+  ruby: "振り仮名",
 };
 
 /** 捨てた語の理由（ホバー時の説明）。 */
@@ -108,6 +109,7 @@ export const STATUS_REASON: Record<KanpoWordStatus, string> = {
   empty: "正規化後に空になった（傍線などの私用領域グリフだけの語）",
   header_label: "新旧対照表の欄見出し（改/正/後/前）",
   noise: "柱と判定した行（発行日・号数など）に含まれていた",
+  ruby: "振り仮名（親字の脇に小さく組んだ読み）",
 };
 
 // ---------------------------------------------------------------------------
