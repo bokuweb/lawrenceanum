@@ -1651,9 +1651,11 @@ fn render_line(words: &[Col]) -> String {
                 && number.starts_with(|c: char| c.is_ascii_digit())
                 && number.contains(',')
                 && number.chars().all(|c| c.is_ascii_digit() || c == ',');
+            // 金額の後の科目（T 字の表の「100,068」「流動負債」。金額の後に続く単位「円」は空かない）。
+            let amount_label = tail.contains(',') && w.text.starts_with(|c: char| !c.is_ascii() && c.is_alphanumeric());
             if (em * space_em..wide).contains(&gap) && (latin_word_break(&s, &w.text) || comma_number || number_word) {
                 s.push(' ');
-            } else if gap >= em * 0.75 || (amounts && gap >= em * 0.2) || (label_amount && gap >= em * 0.5) {
+            } else if gap >= em * 0.75 || ((amounts || amount_label) && gap >= em * 0.2) || (label_amount && gap >= em * 0.5) {
                 s.push('\u{3000}');
             }
         }
