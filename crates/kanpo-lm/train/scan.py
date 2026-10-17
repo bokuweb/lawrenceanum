@@ -3,7 +3,8 @@
     python scan.py ~/.cache/kanpo-lm/breaks-30m /tmp/after > breaks.tsv
 
 出力は kanpo-lm の examples/breaks と同じ TSV（ファイル, 行, いちばん高い切れ目の確率, 切れ目（0.5 以上）の前に「|」を入れた行）。
-行は 360 字ほどのまとまりにして流す（examples/breaks と同じ）。
+行は 360 字ほどのまとまりにして流す（examples/breaks と同じ）。空行はまとまりの区切り（表の欄ごとに書いた textdump の
+出力で、欄をまたいで文脈にしない）。
 """
 
 import sys
@@ -36,8 +37,20 @@ def main():
     files = [src] if src.is_file() else sorted(p for p in src.iterdir() if p.is_file())
     jobs = []  # (file, lines, i, j, text, line_starts)
     for path in files:
-        lines = [l for l in path.read_text().splitlines() if l.strip()]
-        for i, j in chunks(lines):
+        raw = path.read_text().splitlines()
+        lines = [l for l in raw if l.strip()]
+        # 空行で区切られたまとまり（表の欄など）は、まとまりをまたいで文脈にしない。
+        blocks, cur, start = [], 0, 0
+        for l in raw:
+            if l.strip():
+                cur += 1
+            elif cur > start:
+                blocks.append((start, cur))
+                start = cur
+        if cur > start:
+            blocks.append((start, cur))
+        spans = [(b0 + i, b0 + j) for b0, b1 in blocks for i, j in chunks(lines[b0:b1])]
+        for i, j in spans:
             starts, at = [], 0
             for l in lines[i:j]:
                 starts.append(at)
