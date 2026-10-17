@@ -81,7 +81,16 @@ fn wrapped(prev: &Line, next: &Line, right: f32) -> bool {
     let numeric = text.chars().filter(|c| c.is_ascii_digit()).count() * 2 >= text.chars().count();
     let end = prev.words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
     let next: String = next.words.iter().map(|w| w.text.as_str()).collect();
-    !numeric && !labeled(&next) && text.chars().count() >= 4 && right - end <= (prev.y1 - prev.y0).max(1.0) * WRAP_EM
+    // 行末の数が欄の間ほど空けて置かれた行（「その団体の数値　1.00」。右揃えの数値の欄）は折り返しではない。
+    let em = (prev.y1 - prev.y0).max(1.0);
+    let trailing_number = prev.words.len() >= 2 && {
+        let (p, w) = (&prev.words[prev.words.len() - 2], &prev.words[prev.words.len() - 1]);
+        // 読点・桁区切りで終わる数（住所の「Langeweg　79,」）は続きがある。
+        w.x - p.x1 >= em * 0.75
+            && w.text.ends_with(|c: char| c.is_ascii_digit())
+            && w.text.chars().all(|c| c.is_ascii_digit() || ".,−－-△".contains(c))
+    };
+    !numeric && !trailing_number && !labeled(&next) && text.chars().count() >= 4 && right - end <= em * WRAP_EM
 }
 
 /// 同じ行の同じセルの中で、欄に収まらずに折り返した金額の続きか（「113,191,23」「1」）。
@@ -123,7 +132,7 @@ fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)],
     for g in grids.iter().filter(|g| g.xs.len() >= 3 && g.ys.len() >= 3 && !grids.iter().any(|o| g.encloses(o))) {
         let (mine, others): (Vec<Col>, Vec<Col>) = rest.into_iter().partition(|c| g.contains(x_center(c), y_center(c), 0.5));
         rest = others;
-        match grid_table(g, &mine, false) {
+        match grid_table(g, &mine, 0) {
             Some(t) => tables.push(t),
             None => rest.extend(mine),
         }
@@ -398,7 +407,7 @@ fn rule_column_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<trace
             let g = Grid { xs: xs.clone(), ys: vec![top, bottom], cells: (0..xs.len() - 1).map(|i| GridCell { x0: i, x1: i + 1, y0: 0, y1: 1 }).collect() };
             let (mine, others): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| inside(w, left, right));
             words = others;
-            match grid_table(&g, &mine, true) {
+            match grid_table(&g, &mine, usize::MAX) {
                 Some(t) => tables.push(t),
                 None => words.extend(mine),
             }
@@ -734,9 +743,9 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
 /// 行を区切る罫線の無い欄（1 つのセルに複数の項目が並ぶ）は、項目ごとの行に分ける。行の頭は、
 /// ほかの欄の行と高さが揃う行（揃わない行はセルの中の折り返し）。
 ///
-/// `every_line` なら、ほかの欄の行と揃わない行も（折り返しの続きでなければ）行の頭にする（行を区切る横線の無い
-/// 表。金額の無い科目の行「財務費用」「経常収益」が前の科目の行につながらないように）。
-fn grid_table(g: &Grid, words: &[Col], every_line: bool) -> Option<trace::Table> {
+/// 左から `item_cols` 欄は、ほかの欄の行と揃わない行も（折り返しの続きでなければ）行の頭にする（行を区切る横線の
+/// 無い表。金額の無い科目の行「財務費用」「経常収益」が前の科目の行につながらないように）。0 なら普通の格子の表。
+fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table> {
     // 2 字以上の語の字数で、横長の語が縦長の語より多いこと。
     let (h_chars, v_chars) = words.iter().fold((0, 0), |(h, v), w| {
         let n = w.text.chars().count();
@@ -769,7 +778,8 @@ fn grid_table(g: &Grid, words: &[Col], every_line: bool) -> Option<trace::Table>
     let prose = cell_lines.iter().any(|ls| {
         let t: String = ls.iter().flat_map(|l| l.words.iter().map(|w| w.text.as_str())).collect();
         // 縦の罫線だけの表の欄は、行を区切る線が無いので 1 つのセルに科目が全部入る（字数では見ない）。
-        (!every_line && t.chars().count() > 200) || t.matches('。').count() >= 2
+        // 項目名｜内容の表の内容の欄は文なので、文の数でも見ない（縦の罫線だけの表は文の無いものだけ）。
+        item_cols == 0 && (t.chars().count() > 200 || t.matches('。').count() >= 2)
     });
     if prose {
         return None;
@@ -802,7 +812,7 @@ fn grid_table(g: &Grid, words: &[Col], every_line: bool) -> Option<trace::Table>
                 .collect();
             // 左端の欄で 3 行以上がほかの欄の行と揃うなら、科目の欄（行を区切る横線の無い財務諸表）なので、揃わない
             // 行（金額の無い科目「財務収益」）も行の頭にする。
-            let rows_of_items = every_line || (g.cells[i].x0 == 0 && aligned.iter().filter(|&&a| a).count() >= 3);
+            let rows_of_items = g.cells[i].x0 < item_cols || (g.cells[i].x0 == 0 && aligned.iter().filter(|&&a| a).count() >= 3);
             // 行間が行の区切りの手掛かりになるのは、行間の空く所と詰まった所の両方があるセルだけ（どの行も行間を
             // 詰めて組んだセルは、行間では科目と折り返しを見分けられない）。
             let spaced = (1..cell_lines[i].len()).any(|k| cell_lines[i][k].y0 - cell_lines[i][k - 1].y1 >= (cell_lines[i][k].y1 - cell_lines[i][k].y0) * 0.25);
@@ -1066,6 +1076,12 @@ fn order_region(words: Vec<Col>, blocks: &[Block], vrules: &[(f32, f32, f32)], o
             order_region(right, &br, vrules, out);
             return;
         }
+        if blocks.is_empty() {
+            if let Some(t) = label_table(&words, &lines) {
+                out.push(trace::Line { text: t.render(), words: Vec::new(), table: Some(t) });
+                return;
+            }
+        }
         if let Some(cut) = band_cut(&lines, blocks) {
             let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < cut);
             let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < cut);
@@ -1079,6 +1095,63 @@ fn order_region(words: Vec<Col>, blocks: &[Block], vrules: &[(f32, f32, f32)], o
             .iter()
             .map(|l| trace::Line::text(render_line(&l.words), l.words.iter().map(|w| w.id).collect())),
     );
+}
+
+/// 項目名｜内容の表（国債の発行条件の「５　募入決定の方法」「（１）　価格競争入札発行」｜「各申込みのうち…」）。
+/// 左の狭い欄（幅 120pt 未満）が項目名の欄（[`label_column`]）なら、2 欄の表に組む。行は項目名の欄の行（行間を
+/// 空けずに続く項目名の折り返しを除く）と、左右で揃う行。内容の折り返しは同じ行のセルにつなぐ。行ごとに左右を
+/// つないで組むと、項目名の折り返し（「者・第Ⅰ非価格競」「争入札発行」）が内容の行に挟まる。
+fn label_table(words: &[Col], lines: &[Line]) -> Option<trace::Table> {
+    if lines.len() < 3 {
+        return None;
+    }
+    let cut = label_cut(words)?;
+    let x0 = words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
+    let x1 = words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
+    let (y0, y1) = (words.iter().map(|w| w.y).fold(f32::INFINITY, f32::min), words.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max));
+    let g = Grid {
+        xs: vec![x0 - 0.5, cut, x1 + 0.5],
+        ys: vec![y0 - 0.5, y1 + 0.5],
+        cells: vec![GridCell { x0: 0, x1: 1, y0: 0, y1: 1 }, GridCell { x0: 1, x1: 2, y0: 0, y1: 1 }],
+    };
+    grid_table(&g, words, 1)
+}
+
+/// 項目名｜内容の表（[`label_table`]）の項目名の欄と内容の欄の境の x。
+fn label_cut(words: &[Col]) -> Option<f32> {
+    let x0 = words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
+    // 左の欄の右端の候補: 語の右端のうち、そこをまたぐ語が無く、右に語があるもの。
+    let mut ends: Vec<f32> = words.iter().map(|w| w.x1).filter(|&e| e - x0 < 120.0).collect();
+    ends.sort_by(f32::total_cmp);
+    ends.dedup_by(|a, b| (*a - *b).abs() < 0.5);
+    ends.into_iter().rev().find_map(|e| {
+        let right_start = words.iter().filter(|w| w.x >= e).map(|w| w.x).fold(f32::INFINITY, f32::min);
+        if !right_start.is_finite() || right_start - e < MIN_GUTTER || words.iter().any(|w| w.x < e - 0.5 && w.x1 > e + 0.5) {
+            return None;
+        }
+        let cut = (e + right_start) / 2.0;
+        let (left, right): (Vec<Col>, Vec<Col>) = words.iter().cloned().partition(|w| x_center(w) < cut);
+        let (ll, rl) = (group_lines(&left), group_lines(&right));
+        let right_width = right.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max) - right_start;
+        // 項目番号だけの欄（「（１）」「ア」「①」。番号を付けた段落のぶら下げ）は項目名の欄ではない。
+        let number = |l: &Line| {
+            let t: String = l.words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace()).collect();
+            t.chars().count() <= 4 && !t.chars().any(|c| ('\u{4E00}'..='\u{9FFF}').contains(&c) && !"一二三四五六七八九十".contains(c))
+        };
+        let numbers = ll.iter().filter(|l| number(l)).count();
+        // 内容の欄は 1 欄の文（行の中に欄の間ほどの空き（1em）のある行が 2 割未満）。欄がさらに分かれる表（地方交付税の
+        // 補正の表の「区分｜数値」）は項目名｜内容の表ではない。
+        let split = rl
+            .iter()
+            .filter(|l| {
+                let em = (l.y1 - l.y0).max(1.0);
+                l.words.windows(2).any(|p| p[1].x - p[0].x1 >= em)
+            })
+            .count();
+        // 内容は文（行の半分以上が 20 字以上）。短い語の並ぶ表（「六十五歳以上人口」「段階補正」）は項目名｜内容の表にしない。
+        let long = rl.iter().filter(|l| l.words.iter().map(|w| w.text.chars().count()).sum::<usize>() >= 20).count();
+        (numbers * 2 < ll.len() && long * 2 >= rl.len() && split * 5 < rl.len() && right_width >= MIN_TEXT_COLUMN_WIDTH && label_column(&ll, &rl)).then_some(cut)
+    })
 }
 
 /// 領域を左右に分ける縦の罫線の x（段の境の線・紙面を左右に分ける線）。領域の語の高さの 7 割以上に掛かり、
@@ -1253,11 +1326,51 @@ fn is_column_split(left: &[Col], right: &[Col]) -> bool {
     let (wl, wr) = (width(left), width(right));
     // 金額の欄（行の 8 割以上が金額だけの行）なら、欄の幅が広くても（右揃えの金額の欄が 2〜3 列並ぶ）表の列。
     let amounts = |ls: &[Line]| ls.len() >= 2 && ls.iter().filter(|l| amount_line(l)).count() * 10 >= ls.len() * 8;
-    let table_like = aligned as f32 >= few.len() as f32 * 0.75 && (wl.min(wr) < MIN_TEXT_COLUMN_WIDTH || amounts(&rl)) ;
+    let table_like = (aligned as f32 >= few.len() as f32 * 0.75 && (wl.min(wr) < MIN_TEXT_COLUMN_WIDTH || amounts(&rl)))
+        || (wl < 120.0 && label_column(&ll, &near_lines(right, true)))
+        || (wr < 120.0 && label_column(&rl, &near_lines(left, false)));
     // 本文の段なら、段の幅いっぱいの行がある。見出しだけの側（「官　庁　事　項」と
     // 「人事院公示第26号」が離れて並ぶ等）は、全体の幅が広くても 1 行ずつは短い。
     let longest_line = |ls: &[Line]| ls.iter().map(|l| width(&l.words)).fold(0.0, f32::max);
     !table_like && longest_line(&ll).max(longest_line(&rl)) >= MIN_TEXT_COLUMN_WIDTH
+}
+
+/// 項目名の欄の隣の内容の欄の行。溝の側の端から 300pt（段 2 つ分）以内に収まる語だけで組む（紙面の右半分の記事の行を
+/// 内容の行に入れない）。`from_left` なら溝は左にある。
+fn near_lines(words: &[Col], from_left: bool) -> Vec<Line> {
+    let reach = MIN_TEXT_COLUMN_WIDTH * 2.0;
+    let near: Vec<Col> = if from_left {
+        let x0 = words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
+        words.iter().filter(|w| w.x1 <= x0 + reach).cloned().collect()
+    } else {
+        let x1 = words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
+        words.iter().filter(|w| w.x >= x1 - reach).cloned().collect()
+    };
+    group_lines(&near)
+}
+
+/// `labels` が項目名の欄（項目名｜内容の表の左の欄）か。どの行も、内容の行と高さが揃うか（項目の最初の行）、
+/// 前の行に行間を空けずに続くか（項目名の折り返し）、内容の行と高さが重ならない（「６　発行額」のような
+/// 見出しの行）。6 行以上で、揃う行が 3 つ以上、項目の頭の行の半分以上が番号で始まり、半分以上が字の名前を持つこと。
+fn label_column(labels: &[Line], contents: &[Line]) -> bool {
+    let aligned = |l: &Line| contents.iter().any(|m| (m.center() - l.center()).abs() <= ALIGN_TOL);
+    let alone = |l: &Line| !contents.iter().any(|m| m.y0 < l.y1 && l.y0 < m.y1);
+    let n = labels.iter().filter(|l| aligned(l)).count();
+    let tight = |k: usize| k > 0 && labels[k].y0 - labels[k - 1].y1 < (labels[k].y1 - labels[k].y0) * 0.25;
+    let explained = labels.iter().enumerate().filter(|&(k, l)| aligned(l) || alone(l) || tight(k)).count();
+    // 項目名は番号付き（「５　募入決定の方法」「（１）　価格競争入札発行」）。番号の無い短い行の並び（決算公告の
+    // 「損益計算書の要旨」「自」「至」、歳入歳出の表の「歳入」「歳出」）を項目名の欄にしない。
+    let heads: Vec<&Line> = labels.iter().enumerate().filter(|&(k, _)| !tight(k)).map(|(_, l)| l).collect();
+    let numbered = heads
+        .iter()
+        .filter(|l| l.words.first().and_then(|w| w.text.chars().next()).is_some_and(|c| c.is_ascii_digit() || ('０'..='９').contains(&c) || "（(①②③④⑤⑥⑦⑧⑨⑩".contains(c)))
+        .count();
+    // 番号だけの欄（登録番号「23740」の並ぶ表）は項目名の欄ではない。項目名は字（漢字・仮名）で書く。
+    let named = heads
+        .iter()
+        .filter(|l| l.words.iter().flat_map(|w| w.text.chars()).filter(|c| ('\u{3040}'..='\u{30FF}').contains(c) || ('\u{4E00}'..='\u{9FFF}').contains(c)).count() >= 2)
+        .count();
+    labels.len() >= 6 && numbered * 2 >= heads.len() && named * 2 >= heads.len() && n >= 3 && explained * 10 >= labels.len() * 9
 }
 
 /// 金額だけの行か（「1,248,173,132」「△13,370,826」「3,028,272　4,123,850,771」）。
@@ -1290,7 +1403,8 @@ fn band_cut(lines: &[Line], blocks: &[Block]) -> Option<f32> {
                     }
                     let ws: Vec<Col> = part_lines.iter().flat_map(|l| l.words.iter().cloned()).collect();
                     let bs: Vec<Block> = blocks.iter().filter(|b| ((b.1 + b.3) / 2.0 < cut) == (k == 0)).copied().collect();
-                    column_cut(&ws, &bs).map(|_| ws.len())
+                    // 項目名｜内容の表になる側（上に告示の前文がある国債の発行条件）も。
+                    column_cut(&ws, &bs).or_else(|| label_cut(&ws)).map(|_| ws.len())
                 })
                 .max();
             if let Some(score) = score {
@@ -1779,6 +1893,43 @@ mod tests {
         // 「第67期」の数は金額ではない。
         let heading = vec![w(100.0, 108.0, 50.0, "第"), w(112.0, 120.0, 50.0, "67"), w(120.0, 128.0, 50.0, "期")];
         assert_eq!(render_line(&heading), "第67期");
+    }
+
+    #[test]
+    fn numbered_labels_beside_sentences_are_read_as_rows() {
+        // 国債の発行条件: 番号付きの項目名の欄（折り返しは行間を空けずに続く）｜内容の文の欄。
+        let mut words = Vec::new();
+        let mut y = 50.0;
+        for (label, wrap, content) in [
+            ("１　名称及び記号", None, vec!["利付国庫債券（10年）（第383回）を発行するものとし、その名称及び記号は次のとおりとする。"]),
+            ("２　発行の根拠法律及び", Some("その条項"), vec!["財政法（昭和22年法律第34号）第４条第１項及び財政運営に必要な財源の", "確保を図るための公債の発行の特例に関する法律第３条第１項"]),
+            ("３　振替法の適用等", None, vec!["社債、株式等の振替に関する法律（平成13年法律第75号）の規定の適用を受ける"]),
+            ("４　発行方法", None, vec!["価格を競争に付して行われる入札による発行及び価格競争入札と同時に行われる", "入札による発行とする。"]),
+            ("５　募入決定の方法", None, vec!["各申込みのうち応募価格の高いものからその応募額を順次割り当てる方法とする。"]),
+            ("６　発行額", None, vec!["額面金額で1,905,900,000,000円とし、その内訳は財務大臣が定めるところによる。"]),
+        ] {
+            words.push(w(61.0, 61.0 + 8.0 * label.chars().count() as f32, y, label));
+            if let Some(wr) = wrap {
+                words.push(w(77.0, 77.0 + 8.0 * wr.chars().count() as f32, y + 8.0, wr));
+            }
+            for (k, c) in content.iter().enumerate() {
+                words.push(w(157.0, 157.0 + 8.0 * c.chars().count().min(32) as f32, y + 10.5 * k as f32, c));
+            }
+            y += 10.5 * content.len().max(2) as f32 + 3.0;
+        }
+        let words: Vec<Col> = words
+            .into_iter()
+            .enumerate()
+            .map(|(id, mut c)| {
+                c.id = id;
+                c
+            })
+            .collect();
+        let lines = horizontal_lines(words);
+        let text: Vec<String> = lines.iter().flat_map(|l| l.text.lines().map(str::to_string).collect::<Vec<_>>()).collect();
+        assert_eq!(text.len(), 6, "{text:?}");
+        assert!(text[1].starts_with("２　発行の根拠法律及びその条項\u{3000}財政法"), "{}", text[1]);
+        assert!(text[1].ends_with("財源の確保を図るための公債の発行の特例に関する法律第３条第１項"), "{}", text[1]);
     }
 
     #[test]
