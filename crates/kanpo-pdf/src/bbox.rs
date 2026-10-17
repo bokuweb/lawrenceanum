@@ -126,7 +126,13 @@ pub fn words(page: &Page) -> Vec<Word> {
         // 横書きで私用領域の字を前の字と同じ位置に重ねたもの（私用 CID の 2 字で 1 字を作る組み方）は、
         // その字だけで 1 語にする（poppler と同じ。縦書きは poppler も切らない）。
         let overlap = !g.vertical && prev.is_some_and(|p| overlaps(p, g));
-        let forced_break = std::mem::replace(&mut break_next, overlap) || overlap;
+        // 横書きの負の印「△」（私用 CID の字も）は、数の後ろに続くなら語の頭にする。表の欄の左端に寄せた印が、左の欄の
+        // 金額のすぐ右に続いて置かれ、左の欄の金額の語に入っていた（「323,360,778△」）。
+        // 前の字が数字・桁区切り・「－」のとき（表の金額の欄の並び）だけ。文の中の「（△は減）」は切らない。
+        let sign = !g.vertical
+            && matches!(g.text.as_str(), "\u{E888}" | "△" | "▲")
+            && prev.is_some_and(|p| p.text.chars().all(|c| c.is_ascii_digit() || matches!(c, ',' | '.' | '\u{E61C}' | '－')));
+        let forced_break = std::mem::replace(&mut break_next, overlap) || overlap || sign;
         let continues = !forced_break && prev.is_some_and(|p| {
             // 縦書きはフォントが変わると語を切る（横書きは切らない）。poppler の出力に合わせた。
             if (g.vertical && p.font != g.font)

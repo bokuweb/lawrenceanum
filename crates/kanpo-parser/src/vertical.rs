@@ -1494,8 +1494,8 @@ pub(crate) fn vertical_inside(cols: &[Col], g: &Grid) -> bool {
 /// 負の金額の印「△」だけの語を取り除き、すぐ後ろ（横組みなら右、縦組みなら下）の語の ID を返す（本文に組んだ後で、その語の
 /// 頭に「△」を付ける。[`prefix_minus`]）。「△」を 1 つの語として残したり語の字に足したりすると、表の金額の欄の間の溝や
 /// 語の字数で見る組み方の判定が変わり、表の列や横組みの欄の読み方が変わっていた。後ろの語は、同じ行（横組みなら上下が
-/// 半分以上重なる、縦組みなら左右が半分以上重なる）で、1 字分以内（重なりも含む。数の語なら 4 字分以内。右揃えの金額の
-/// 欄では「△」が欄の左端に置かれる）に始まるもの。位置は表示用の座標（`words`）で見る（横倒しのページは読み順の復元用に
+/// 半分以上重なる、縦組みなら左右が半分以上重なる）で、1 字分以内（重なりも含む。数の語なら 12 字分以内。右揃えの金額の
+/// 欄では「△」が欄の左端に置かれる）に始まるもの。数の語を先に選ぶ。位置は表示用の座標（`words`）で見る（横倒しのページは読み順の復元用に
 /// 座標を回しているので、回した座標では「△」と数の並びの向きが揃わない）。
 fn attach_minus_signs(cols: &mut Vec<Col>, words: &[Word]) -> std::collections::HashSet<usize> {
     let geom = |id: usize| words.get(id).map(|w| (w.x0, w.y0, w.x1, w.y1));
@@ -1514,14 +1514,16 @@ fn attach_minus_signs(cols: &mut Vec<Col>, words: &[Word]) -> std::collections::
                 let c = &cols[j];
                 let (cx, cy, cx1, cy1) = geom(c.id)?;
                 let number = c.text.trim_start().starts_with(|ch: char| ch.is_ascii_digit() || ('０'..='９').contains(&ch) || matches!(ch, '(' | '（'));
-                let reach = if number { em * 4.0 } else { em };
+                // 右揃えの金額の欄では「△」が欄の左端に置かれ、短い金額とは 10 字分ほど離れることがある。
+                let reach = if number { em * 12.0 } else { em };
                 let right = overlap(my, my1, cy, cy1) >= 0.5 && cx >= mx + em * 0.25 && cx - mx1 <= reach;
                 let below = overlap(mx, mx1, cx, cx1) >= 0.5 && cy >= my + em * 0.25 && cy - my1 <= reach;
                 let gap = if right { cx - mx } else if below { cy - my } else { return None };
-                Some((gap, j))
+                Some((!number, gap, j))
             })
-            .min_by(|a, b| a.0.total_cmp(&b.0))
-            .map(|(_, j)| j);
+            // 数を先に（右の欄の金額より、すぐ下の行の見出しの字が近いことがある）。
+            .min_by(|a, b| a.0.cmp(&b.0).then(a.1.total_cmp(&b.1)))
+            .map(|(_, _, j)| j);
         if let Some(j) = target {
             targets.insert(cols[j].id);
             drop.push(cols[i].id);
