@@ -14,8 +14,9 @@
 
 mod candidates;
 pub mod mlm;
+pub mod tagger;
 
-pub use candidates::{candidates, Candidate};
+pub use candidates::{break_candidates, candidates, Candidate};
 
 /// トークン 1 つの採点。`start..end` は採点した文の中のバイトの範囲。
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -46,6 +47,13 @@ pub struct Options {
     pub min_gain: f32,
     /// 全角の空白で区切った片の並べ替え（[`Candidate::rule`] が `segments`）も試すか。
     pub segments: bool,
+    /// [`repair`] で見直す行（切れ目の確率がこれ以上のトークンがある行）。
+    pub break_threshold: f32,
+    /// [`repair`] で片をすべての順に並べ替える片の数の上限（それより多ければ逆に並べるだけ）。
+    pub max_pieces: usize,
+    /// [`repair`] で書き直しを採る、擬似対数尤度の改善の下限（nat）。候補の行に切れ目が無くなることも条件にするので、
+    /// [`Options::min_gain`] より低くてよい。
+    pub repair_gain: f32,
 }
 
 impl Default for Options {
@@ -54,7 +62,17 @@ impl Default for Options {
     /// 同じ字の並びが隣り合う方を好んで誤る（「資産合計　13,295,943　負債・純資産合計　13,295,943」の金額を後ろに
     /// まとめる方が 38.8 nat 勝つ）ので試さない。
     fn default() -> Self {
-        Options { chunk_chars: 600, context_lines: 2, suspect_nll: 0.5, min_chars: 8, min_gain: 25.0, segments: false }
+        Options {
+            chunk_chars: 600,
+            context_lines: 2,
+            suspect_nll: 0.5,
+            min_chars: 8,
+            min_gain: 25.0,
+            segments: false,
+            break_threshold: 0.9,
+            max_pieces: 5,
+            repair_gain: 15.0,
+        }
     }
 }
 
@@ -171,6 +189,86 @@ pub fn correct(scorer: &mut dyn Scorer, lines: &[&str], opts: &Options) -> anyho
                 rule: cands[best].rule,
                 gain,
             });
+        }
+    }
+    Ok((out, corrections))
+}
+
+/// 前後の行を文脈にした窓の文と、その中の候補の行のバイトの範囲。
+fn window(lines: &[&str], line: usize, context: usize, text: &str) -> (String, std::ops::Range<usize>) {
+    let before = lines[line.saturating_sub(context)..line].join("\n");
+    let after = lines[(line + 1).min(lines.len())..(line + 1 + context).min(lines.len())].join("\n");
+    let mut s = before;
+    if !s.is_empty() {
+        s.push('\n');
+    }
+    let start = s.len();
+    s.push_str(text);
+    let end = s.len();
+    if !after.is_empty() {
+        s.push('\n');
+        s.push_str(&after);
+    }
+    (s, start..end)
+}
+
+/// 切れ目の分類器（[`tagger::BreakTagger`]）で怪しい行（切れ目の確率が [`Options::break_threshold`] 以上）を見つけ、
+/// その行の書き直しの候補（切れ目で分けた片の並べ替え・単位の置き直し）を作る。候補の行に分類器から見て切れ目が
+/// 無くなり（確率 0.5 未満）、擬似対数尤度（`scorer`）でも元の行より [`Options::repair_gain`] 以上自然なもののうち、
+/// いちばん自然なものに書き直す。
+pub fn repair(
+    tagger: &tagger::BreakTagger,
+    scorer: &mut dyn Scorer,
+    lines: &[&str],
+    opts: &Options,
+) -> anyhow::Result<(Vec<String>, Vec<Correction>)> {
+    // 片に分ける位置は、確率が CUT_PROB 以上の切れ目のうち確率の高いもの（片が max_pieces 個まで）。見直す行を選ぶのは
+    // break_threshold 以上の切れ目がある行だけ（語の移動を直すには切れ目が 3 つ要り、1 つ取りこぼすと直せない）。
+    const CUT_PROB: f32 = 0.3;
+    let found = tagger::find_breaks(tagger, lines, opts.chunk_chars.min(360), CUT_PROB)?;
+    let mut out: Vec<String> = lines.iter().map(|l| l.to_string()).collect();
+    let mut corrections = Vec::new();
+    for b in found.iter().filter(|b| b.max_prob >= opts.break_threshold && lines[b.line].chars().count() >= opts.min_chars) {
+        let line = b.line;
+        let mut ranked: Vec<(usize, f32)> = b.breaks.iter().copied().filter(|&(p, _)| p > 0).collect();
+        ranked.sort_by(|a, b| b.1.total_cmp(&a.1));
+        // はっきりした切れ目（0.5 以上）が片の上限より多い行（縦組みの列を左から読んでつないだ行）は、それで全部切って
+        // 逆に並べる候補だけにする。
+        let strong: Vec<usize> = ranked.iter().filter(|&&(_, q)| q >= 0.5).map(|&(p, _)| p).collect();
+        let cuts: Vec<usize> = if strong.len() >= opts.max_pieces {
+            strong
+        } else {
+            ranked.iter().take(opts.max_pieces.saturating_sub(1).max(1)).map(|&(p, _)| p).collect()
+        };
+        let mut cands: Vec<Candidate> = candidates(lines[line]).into_iter().filter(|c| opts.segments || c.rule != "segments").collect();
+        for c in break_candidates(lines[line], &cuts, opts.max_pieces) {
+            if !cands.iter().any(|d| d.text == c.text) {
+                cands.push(c);
+            }
+        }
+        if cands.is_empty() {
+            continue;
+        }
+        let windows: Vec<(String, std::ops::Range<usize>)> = std::iter::once(lines[line])
+            .chain(cands.iter().map(|c| c.text.as_str()))
+            .map(|t| window(lines, line, opts.context_lines, t))
+            .collect();
+        let refs: Vec<&str> = windows.iter().map(|w| w.0.as_str()).collect();
+        // 候補の行の中の切れ目の確率（行頭は前の行からの続きなので見ない）。
+        let tagged = tagger.tag(&refs)?;
+        let clean: Vec<bool> = tagged
+            .iter()
+            .zip(&windows)
+            .map(|(t, (_, r))| !t.iter().any(|b| b.start > r.start && b.start < r.end && b.prob >= 0.5))
+            .collect();
+        let totals: Vec<f32> = scorer.score(&refs)?.iter().map(|t| t.iter().map(|t| t.nll).sum()).collect();
+        let best = (1..totals.len()).filter(|&k| clean[k]).min_by(|&a, &b| totals[a].total_cmp(&totals[b]));
+        let Some(best) = best else { continue };
+        let gain = totals[0] - totals[best];
+        if gain >= opts.repair_gain {
+            let cand = &cands[best - 1];
+            out[line] = cand.text.clone();
+            corrections.push(Correction { line, before: lines[line].to_string(), after: cand.text.clone(), rule: cand.rule, gain });
         }
     }
     Ok((out, corrections))

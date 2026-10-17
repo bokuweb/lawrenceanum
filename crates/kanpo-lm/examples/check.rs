@@ -5,10 +5,12 @@
 //! cargo run --release -p kanpo-lm --example check -- ~/.cache/kanpo-lm/modernbert-ja-30m /tmp/after
 //! # 怪しい行を上から並べる: ファイル, 行, 1 字あたりの負の対数尤度, いちばん読みにくい字, 行
 //! cargo run --release -p kanpo-lm --example check -- --scan 100 ~/.cache/kanpo-lm/modernbert-ja-30m /tmp/after
+//! # 切れ目の分類器（train/ で fine-tune したもの）で怪しい行を見つけて直す
+//! cargo run --release -p kanpo-lm --example check -- --tagger ~/.cache/kanpo-lm/breaks-30m ~/.cache/kanpo-lm/modernbert-ja-30m /tmp/after
 //! ```
 
 use kanpo_lm::mlm::MlmScorer;
-use kanpo_lm::{correct, scan, LineScore, Options};
+use kanpo_lm::{correct, repair, scan, LineScore, Options};
 use std::path::{Path, PathBuf};
 
 fn files(path: &Path) -> anyhow::Result<Vec<PathBuf>> {
@@ -30,6 +32,15 @@ fn main() -> anyhow::Result<()> {
         }
         None => None,
     };
+    // --tagger <dir>: 切れ目の分類器で怪しい行を見つけて直す（repair）。
+    let tagger = match args.iter().position(|a| a == "--tagger") {
+        Some(i) => {
+            let dir = args.get(i + 1).cloned().ok_or_else(|| anyhow::anyhow!("--tagger の値"))?;
+            args.drain(i..i + 2);
+            Some(kanpo_lm::tagger::BreakTagger::open(Path::new(&dir))?)
+        }
+        None => None,
+    };
     let mut opts = Options::default();
     // --suspect X（見直す行の 1 字あたりの負の対数尤度の下限）・--gain Y（書き直しを採る改善の下限）
     let mut flag = |name: &str| -> anyhow::Result<Option<f32>> {
@@ -43,9 +54,10 @@ fn main() -> anyhow::Result<()> {
     }
     if let Some(v) = flag("--gain")? {
         opts.min_gain = v;
+        opts.repair_gain = v;
     }
     let [model, path] = args.as_slice() else {
-        anyhow::bail!("usage: check [--scan N] [--suspect X] [--gain Y] <ModernBERT のディレクトリ> <textdump の出力のディレクトリかファイル>");
+        anyhow::bail!("usage: check [--scan N] [--suspect X] [--gain Y] [--tagger 分類器のディレクトリ] <ModernBERT のディレクトリ> <textdump の出力のディレクトリかファイル>");
     };
     let mut scorer = MlmScorer::open(Path::new(model))?;
     let mut ranked: Vec<(String, LineScore, String)> = Vec::new();
@@ -63,7 +75,11 @@ fn main() -> anyhow::Result<()> {
                 }
             }
             None => {
-                for c in correct(&mut scorer, &lines, &opts)?.1 {
+                let fixes = match &tagger {
+                    Some(t) => repair(t, &mut scorer, &lines, &opts)?.1,
+                    None => correct(&mut scorer, &lines, &opts)?.1,
+                };
+                for c in fixes {
                     println!("{name}\t{}\t{}\t{:.1}\t{}\t{}", c.line, c.rule, c.gain, c.before, c.after);
                 }
             }
