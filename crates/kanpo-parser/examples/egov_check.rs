@@ -44,6 +44,8 @@ fn get(cache: &Path, path: &str) -> anyhow::Result<serde_json::Value> {
 fn flatten(v: &serde_json::Value, out: &mut String) {
     match v {
         serde_json::Value::String(s) => out.push_str(s),
+        // 振り仮名（Ruby の Rt）は本文に入れない（官報の本文も振り仮名を除いている）。
+        serde_json::Value::Object(o) if o.get("tag").and_then(serde_json::Value::as_str) == Some("Rt") => {}
         serde_json::Value::Object(o) => o.get("children").into_iter().for_each(|c| flatten(c, out)),
         serde_json::Value::Array(a) => a.iter().for_each(|c| flatten(c, out)),
         _ => {}
