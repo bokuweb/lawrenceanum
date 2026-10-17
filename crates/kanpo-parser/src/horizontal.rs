@@ -1191,6 +1191,17 @@ fn order_region(words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: bool, c
             return;
         }
         if let Some(cut) = rule_cut(&words, blocks, vrules).or_else(|| gutter.map(|g| g.0)) {
+            if let Some(y) = stray_cut(&words, blocks, hrules, cut) {
+                let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < y);
+                let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < y);
+                order_region(top, &bt, ctx, boxed, column, out);
+                order_region(bottom, &bb, ctx, boxed, column, out);
+                return;
+            }
+            if let Some(t) = blocks.is_empty().then(|| header_table(&words)).flatten() {
+                out.push(trace::Line { text: t.render(), words: Vec::new(), table: Some(t) });
+                return;
+            }
             let (left, right): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| x_center(w) < cut);
             let (bl, br): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.0 + b.2) / 2.0 < cut);
             // 囲みの段として切るのは段の中の最初の溝だけ（囲みの中は普通に読む）。
@@ -1217,6 +1228,167 @@ fn order_region(words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: bool, c
             .iter()
             .map(|l| trace::Line::text(render_line(&l.words), l.words.iter().map(|w| w.id).collect())),
     );
+}
+
+/// 罫線の無い、見出しの行と内容の行 1 つの表（装置型式指定の告示の「型式指定番号｜指定装置の種類、名称及び型式｜
+/// 指定装置を取り付けることができる自動車の範囲｜製作者等の氏名又は名称及び住所」）。欄は語の切れ目（6pt 以上）で
+/// 3〜8 欄に分かれ、見出しはどの欄にもある数字の無い語の行（どの欄も同じ高さから始まる）で、その下の内容の行の間に、
+/// すべての欄を通る行間は無い。内容の行が 3 欄以上で揃って並ぶのは 3 行まで（貸借対照表のような行ごとの表ではない）。
+/// 欄ごとに読む（左右の列に分けると見出しと内容が欄の半分ずつに分かれ、行ごとに読むと欄が 1 行ずつ混ざる）。
+fn header_table(words: &[Col]) -> Option<trace::Table> {
+    let mut spans: Vec<(f32, f32)> = words.iter().map(|w| (w.x, w.x1)).collect();
+    spans.sort_by(|a, b| a.0.total_cmp(&b.0));
+    let mut cols: Vec<(f32, f32)> = Vec::new();
+    for (a, b) in spans {
+        match cols.last_mut() {
+            Some(c) if a - c.1 < 6.0 => c.1 = c.1.max(b),
+            _ => cols.push((a, b)),
+        }
+    }
+    if !(3..=8).contains(&cols.len()) {
+        return None;
+    }
+    let col_of = |w: &Col| cols.iter().position(|c| x_center(w) >= c.0 && x_center(w) <= c.1);
+    // 行間（語の下端 y から下の語の上端まで 1pt 以上空き、そこをまたぐ語の無いもの）の中ほど。
+    let mut edges: Vec<f32> = words.iter().map(|w| w.y1).collect();
+    edges.sort_by(f32::total_cmp);
+    let gap = |y: f32| -> Option<f32> {
+        let next = words.iter().filter(|w| w.y1 > y + 0.5).map(|w| w.y).fold(f32::INFINITY, f32::min);
+        (next.is_finite() && next - y >= 1.0).then_some((y + next) / 2.0)
+    };
+    let every = |pred: &dyn Fn(&Col) -> bool| (0..cols.len()).all(|i| words.iter().any(|w| col_of(w) == Some(i) && pred(w)));
+    let cut = edges.iter().filter_map(|&y| gap(y)).find(|&c| every(&|w: &Col| y_center(w) < c) && every(&|w: &Col| y_center(w) > c))?;
+    let (head, body): (Vec<&Col>, Vec<&Col>) = words.iter().partition(|w| y_center(w) < cut);
+    let digit = |c: char| c.is_ascii_digit() || ('０'..='９').contains(&c);
+    if head.iter().any(|w| w.text.chars().any(digit)) || head.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max) - head.iter().map(|w| w.y).fold(f32::INFINITY, f32::min) > 40.0 {
+        return None;
+    }
+    // 見出しはどの欄も同じ高さから始まる（上の文の行の続き「欄に掲げる金額」を見出しにしない）。
+    let em = head.iter().map(|w| w.y1 - w.y).fold(0.0, f32::max).max(1.0);
+    let tops: Vec<f32> = (0..cols.len()).map(|i| head.iter().filter(|w| col_of(w) == Some(i)).map(|w| w.y).fold(f32::INFINITY, f32::min)).collect();
+    if tops.iter().copied().fold(f32::NEG_INFINITY, f32::max) - tops.iter().copied().fold(f32::INFINITY, f32::min) > em * 1.2 {
+        return None;
+    }
+    // 内容の行が 3 欄以上で高さを揃えて並ぶのは 3 行まで（行ごとに並ぶ表（貸借対照表）ではない）。
+    let body_cols: Vec<Vec<Line>> = (0..cols.len())
+        .map(|i| group_cell_lines(&body.iter().filter(|w| col_of(w) == Some(i)).map(|w| (*w).clone()).collect::<Vec<_>>()))
+        .collect();
+    let rows = body_cols
+        .iter()
+        .flatten()
+        .filter(|l| body_cols.iter().filter(|ls| ls.iter().any(|m| (m.center() - l.center()).abs() <= ALIGN_TOL)).count() >= 3)
+        .map(|l| (l.center() / 2.0).round() as i32)
+        .collect::<std::collections::BTreeSet<_>>();
+    // 欄の内容は行間を空けずに続く（下の告示の見出しを欄に入れない）。見出しの欄の行の中に 1em 以上の空きは無い
+    // （隣の欄と溝が狭くて 1 欄になったもの）。
+    let loose = body_cols.iter().any(|ls| ls.windows(2).any(|p| p[1].y0 - p[0].y1 > (p[1].y1 - p[1].y0) * 0.5));
+    let head_split = (0..cols.len()).any(|i| {
+        let ws: Vec<Col> = head.iter().filter(|w| col_of(w) == Some(i)).map(|w| (*w).clone()).collect();
+        group_cell_lines(&ws).iter().any(|l| l.words.windows(2).any(|p| p[1].x - p[0].x1 >= (l.y1 - l.y0)))
+    });
+    if loose || head_split || rows.len() > 3 || body_cols.iter().any(|ls| ls.len() >= 2 && ls.iter().filter(|l| amount_line(l)).count() * 2 >= ls.len()) {
+        return None;
+    }
+    // 内容は 1 行（すべての欄を通る行間が無い）。
+    let body_y0 = body.iter().map(|w| w.y).fold(f32::INFINITY, f32::min);
+    if edges.iter().filter(|&&y| y > body_y0 + 0.5).filter_map(|&y| gap(y)).any(|c| words.iter().any(|w| y_center(w) > c) && body.iter().any(|w| y_center(w) < c)) {
+        return None;
+    }
+    let (x0, x1) = (cols[0].0, cols[cols.len() - 1].1);
+    let y0 = words.iter().map(|w| w.y).fold(f32::INFINITY, f32::min);
+    let y1 = words.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max);
+    let mut cells = Vec::new();
+    for (row, part) in [&head, &body].into_iter().enumerate() {
+        for (i, c) in cols.iter().enumerate() {
+            let ws: Vec<Col> = part.iter().filter(|w| col_of(w) == Some(i)).map(|w| (*w).clone()).collect();
+            let ls = group_cell_lines(&ws);
+            let mut text = String::new();
+            for (k, l) in ls.iter().enumerate() {
+                if k > 0 && !wrapped(&ls[k - 1], l, c.1 + 0.5) {
+                    text.push('\n');
+                }
+                text.push_str(&render_line(&l.words));
+            }
+            cells.push(trace::TableCell {
+                row,
+                col: i,
+                rowspan: 1,
+                colspan: 1,
+                x0: c.0,
+                y0: if row == 0 { y0 } else { cut },
+                x1: c.1,
+                y1: if row == 0 { cut } else { y1 },
+                text,
+                words: ws.iter().map(|w| w.id).collect(),
+            });
+        }
+    }
+    Some(trace::Table { x0, y0, x1, y1, rows: 2, cols: cols.len(), cells })
+}
+
+/// 左右に分ける前に上下に切る y（`cut` で分けた片側の端に離れて付く行を、もう片側と同じ列に入れない）。
+///
+/// 片側の上端か下端の行が、その側の残りの行から離れ（間にもう片側の行が 3 行以上並ぶ）、もう片側の行がすべてその行より
+/// 下（上端の行）か上（下端の行）にあるもの（表の左の欄の下に続く次の告示の見出し「〇国土交通省告示第…号」）。
+/// 右の上端の行の高さに左の行が揃い、左が日付で右が署名なら、日付と署名の 1 行（「令和八年十月十五日　国土交通大臣　…」）として
+/// その下で切る。どちらも、そこをまたぐ語の無いときだけ。離れた行との間に横の罫線があれば、囲みの列の次の囲み
+/// （決算公告）なので切らない。
+fn stray_cut(words: &[Col], blocks: &[Block], hrules: &[(f32, f32, f32)], cut: f32) -> Option<f32> {
+    let (left, right): (Vec<Col>, Vec<Col>) = words.iter().cloned().partition(|w| x_center(w) < cut);
+    let (ll, rl) = (group_lines(&left), group_lines(&right));
+    if ll.is_empty() || rl.is_empty() {
+        return None;
+    }
+    let clean = |y: f32| {
+        !words.iter().any(|w| w.y < y - 1.0 && w.y1 > y + 1.0)
+            && !blocks.iter().any(|b| b.1 < y && b.3 > y)
+            && words.iter().any(|w| y_center(w) < y)
+            && words.iter().any(|w| y_center(w) > y)
+    };
+    let between = |o: &[Line], a: f32, b: f32| o.iter().filter(|l| l.y0 >= a - 1.0 && l.y1 <= b + 1.0).count();
+    // 離れた行との間に、その側に掛かる横の罫線があれば、囲みの列の次の囲み（決算公告）なので切らない。
+    let ruled = |s: &[Line], a: f32, b: f32| {
+        let x0 = s.iter().flat_map(|l| l.words.iter()).map(|w| w.x).fold(f32::INFINITY, f32::min);
+        let x1 = s.iter().flat_map(|l| l.words.iter()).map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
+        hrules.iter().any(|r| r.0 > a - 2.0 && r.0 < b + 2.0 && r.1 < x1 && r.2 > x0)
+    };
+    for (s, o) in [(&ll, &rl), (&rl, &ll)] {
+        let o_top = o.iter().map(|l| l.y0).fold(f32::INFINITY, f32::min);
+        let o_bottom = o.iter().map(|l| l.y1).fold(f32::NEG_INFINITY, f32::max);
+        // 下端の行。
+        let k = s.iter().position(|l| l.y0 >= o_bottom - 1.0).unwrap_or(s.len());
+        if k > 0 && k < s.len() {
+            let (rest, tail) = (s[k - 1].y1, s[k].y0);
+            let y = (rest.max(o_bottom) + tail) / 2.0;
+            if between(o, rest, tail) >= 3 && !ruled(s, rest, tail) && clean(y) {
+                return Some(y);
+            }
+        }
+        // 上端の行。
+        let k = s.iter().rposition(|l| l.y1 <= o_top + 1.0).map_or(0, |k| k + 1);
+        if k > 0 && k < s.len() {
+            let (head, rest) = (s[k - 1].y1, s[k].y0);
+            let y = (head + rest.min(o_top)) / 2.0;
+            if between(o, head, rest) >= 3 && !ruled(s, head, rest) && clean(y) {
+                return Some(y);
+            }
+        }
+    }
+    // 日付と署名の行。
+    let date = |l: &Line| {
+        let t: String = l.words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace()).collect();
+        (t.starts_with("令和") || t.starts_with("平成")) && t.ends_with('日') && t.contains('年') && t.contains('月') && t.chars().count() <= 14
+    };
+    let i = ll.iter().position(|l| (l.center() - rl[0].center()).abs() <= ALIGN_TOL)?;
+    // 署名は官職（「国土交通大臣」「神奈川労働局長」「長官」）と氏名。
+    let signer = |l: &Line| l.words.len() >= 2 && l.words[0].text.ends_with(['臣', '長', '官']);
+    if i + 1 < ll.len() && rl.len() >= 2 && date(&ll[i]) && signer(&rl[0]) {
+        let y = (ll[i].y1.max(rl[0].y1) + ll[i + 1].y0.min(rl[1].y0)) / 2.0;
+        if clean(y) {
+            return Some(y);
+        }
+    }
+    None
 }
 
 /// 項目名｜内容の表（国債の発行条件の「５　募入決定の方法」「（１）　価格競争入札発行」｜「各申込みのうち…」）。
