@@ -78,7 +78,9 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     let mut prev_mid: Option<f32> = None;
     for (pi, page) in doc.select(&page_sel).enumerate() {
         let (width, height) = page_size(page);
-        let (cols, mut words, rotated, sideways, merged) = page_words_traced(page, width, height, rules.get(pi).and_then(|r| r.as_ref()));
+        let (cols, mut words, rotated, sideways, merged, minus) = page_words_traced(page, width, height, rules.get(pi).and_then(|r| r.as_ref()));
+        // 負の金額の印「△」を付ける語の字（組んだ後で行の中の位置を探す）。
+        let word_texts: std::collections::HashMap<usize, String> = if minus.is_empty() { Default::default() } else { cols.iter().map(|c| (c.id, c.text.clone())).collect() };
         // 横倒しの縦書きページは語の座標を回して使うので、罫線も同じく回す（座標の表・砂防法の土地の表を
         // 罫線の表として組む。回さないと表の欄が 1 語ずつの行になっていた）。
         let turned: Option<PageRules> = rules.get(pi).and_then(|r| r.as_ref()).filter(|_| sideways).map(|r| turn_rules(r, width));
@@ -357,6 +359,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 }
             }
             units.extend(tail);
+            prefix_minus(&mut units, &minus, &word_texts);
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
@@ -553,6 +556,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         if sideways {
             unturn_tables(&mut units, width);
         }
+        prefix_minus(&mut units, &minus, &word_texts);
         let text = units
             .iter()
             .map(Unit::text)
@@ -1259,7 +1263,7 @@ fn page_words_traced(
     page_width: f32,
     height: f32,
     page_rules: Option<&PageRules>,
-) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>) {
+) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>, std::collections::HashSet<usize>) {
     let word_sel = Selector::parse("word").unwrap();
     let line_sel = Selector::parse("line").unwrap();
     // (x0, y0, x1, y1, raw)
@@ -1431,8 +1435,9 @@ fn page_words_traced(
         });
     }
     drop_ruby(&mut cols, &mut words);
+    let minus = attach_minus_signs(&mut cols, &words);
     let merged = merge_warichu(&mut cols);
-    (cols, words, rotated, sideways, merged)
+    (cols, words, rotated, sideways, merged, minus)
 }
 
 /// 枠のセルに文章（200 字を超える、または 2 文以上）が入っているか。公告の囲み記事などの
@@ -1471,6 +1476,103 @@ pub(crate) fn vertical_inside(cols: &[Col], g: &Grid) -> bool {
         }
     }
     v > 0 && v >= h
+}
+
+/// 負の金額の印「△」だけの語を取り除き、すぐ後ろ（横組みなら右、縦組みなら下）の語の ID を返す（本文に組んだ後で、その語の
+/// 頭に「△」を付ける。[`prefix_minus`]）。「△」を 1 つの語として残したり語の字に足したりすると、表の金額の欄の間の溝や
+/// 語の字数で見る組み方の判定が変わり、表の列や横組みの欄の読み方が変わっていた。後ろの語は、同じ行（横組みなら上下が
+/// 半分以上重なる、縦組みなら左右が半分以上重なる）で、1 字分以内（重なりも含む。数の語なら 4 字分以内。右揃えの金額の
+/// 欄では「△」が欄の左端に置かれる）に始まるもの。位置は表示用の座標（`words`）で見る（横倒しのページは読み順の復元用に
+/// 座標を回しているので、回した座標では「△」と数の並びの向きが揃わない）。
+fn attach_minus_signs(cols: &mut Vec<Col>, words: &[Word]) -> std::collections::HashSet<usize> {
+    let geom = |id: usize| words.get(id).map(|w| (w.x0, w.y0, w.x1, w.y1));
+    let mut drop: Vec<usize> = Vec::new();
+    let mut targets: std::collections::HashSet<usize> = std::collections::HashSet::new();
+    for i in 0..cols.len() {
+        if cols[i].text.trim() != "△" {
+            continue;
+        }
+        let Some((mx, my, mx1, my1)) = geom(cols[i].id) else { continue };
+        let em = (mx1 - mx).max(my1 - my).max(1.0);
+        let overlap = |a0: f32, a1: f32, b0: f32, b1: f32| (a1.min(b1) - a0.max(b0)) / (a1 - a0).min(b1 - b0).max(0.1);
+        let target = (0..cols.len())
+            .filter(|&j| j != i && cols[j].text.trim() != "△" && !cols[j].text.trim().is_empty() && !targets.contains(&cols[j].id))
+            .filter_map(|j| {
+                let c = &cols[j];
+                let (cx, cy, cx1, cy1) = geom(c.id)?;
+                let number = c.text.trim_start().starts_with(|ch: char| ch.is_ascii_digit() || ('０'..='９').contains(&ch) || matches!(ch, '(' | '（'));
+                let reach = if number { em * 4.0 } else { em };
+                let right = overlap(my, my1, cy, cy1) >= 0.5 && cx >= mx + em * 0.25 && cx - mx1 <= reach;
+                let below = overlap(mx, mx1, cx, cx1) >= 0.5 && cy >= my + em * 0.25 && cy - my1 <= reach;
+                let gap = if right { cx - mx } else if below { cy - my } else { return None };
+                Some((gap, j))
+            })
+            .min_by(|a, b| a.0.total_cmp(&b.0))
+            .map(|(_, j)| j);
+        if let Some(j) = target {
+            targets.insert(cols[j].id);
+            drop.push(cols[i].id);
+        }
+    }
+    cols.retain(|c| !drop.contains(&c.id));
+    targets
+}
+
+/// 組んだ行（表のセルも）の、[`attach_minus_signs`] で選んだ語の頭に「△」を付ける。行の語を順に行の文の中から探して
+/// 位置を決める（`texts` は語の ID から語の字）。
+fn prefix_minus(units: &mut [Unit], minus: &std::collections::HashSet<usize>, texts: &std::collections::HashMap<usize, String>) {
+    if minus.is_empty() {
+        return;
+    }
+    let insert = |text: &mut String, words: &[usize]| {
+        let mut pos = 0;
+        for id in words {
+            let Some(wt) = texts.get(id).map(|t| t.trim()).filter(|t| !t.is_empty()) else { continue };
+            // 語の並び（表のセルは回した座標の順のことがある）と文の字の順が違えば、文の頭から探し直す。
+            let at = match text[pos..].find(wt) {
+                Some(k) => pos + k,
+                None if minus.contains(id) => match text.find(wt) {
+                    Some(k) => k,
+                    None => continue,
+                },
+                None => continue,
+            };
+            if minus.contains(id) {
+                text.insert(at, '△');
+                pos = at + '△'.len_utf8() + wt.len();
+            } else {
+                pos = at + wt.len();
+            }
+        }
+    };
+    let mut fix = |line: &mut Line| {
+        if let Some(t) = line.table.as_mut() {
+            let mut touched = false;
+            for c in &mut t.cells {
+                if c.words.iter().any(|w| minus.contains(w)) {
+                    insert(&mut c.text, &c.words);
+                    touched = true;
+                }
+            }
+            if touched {
+                line.text = t.render();
+            }
+        } else if line.words.iter().any(|w| minus.contains(w)) {
+            let words = line.words.clone();
+            insert(&mut line.text, &words);
+        }
+    };
+    for u in units.iter_mut() {
+        match u {
+            Unit::Plain(lines) => lines.iter_mut().for_each(&mut fix),
+            Unit::Shinkyu { preamble, after, before, outside } => {
+                preamble.iter_mut().for_each(&mut fix);
+                for part in after.iter_mut().chain(before.iter_mut()).chain(outside.iter_mut()) {
+                    part.iter_mut().for_each(&mut fix);
+                }
+            }
+        }
+    }
 }
 
 /// 振り仮名（常用漢字表にない字などの脇に小さく組んだ読み。「強靱（じん）」「涵（かん）養」）を本文から除く。
