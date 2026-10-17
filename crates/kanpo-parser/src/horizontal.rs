@@ -1663,6 +1663,23 @@ fn is_column_split(left: &[Col], right: &[Col], boxed: bool) -> bool {
         return false;
     }
     let (ll, rl) = (group_lines(left), group_lines(right));
+    // 溝の左が短い語（3em 以内）だけで、右と同じ高さに並ぶ行がどれも 1em ほどしか離れていなければ、1 行の中の空き
+    // （番号「（１）」と項目名「未払金」。1 字の語は溝を探すときに縮めて消え、番号の下に折り返した行の頭までが溝に見える）。
+    let close: Vec<bool> = ll
+        .iter()
+        .filter_map(|a| {
+            let last = a.words.last()?;
+            let b = rl.iter().find(|b| (a.center() - b.center()).abs() <= ALIGN_TOL)?;
+            Some(b.words[0].x - last.x1 <= (last.y1 - last.y).max(1.0) * 1.1)
+        })
+        .collect();
+    let short = ll.iter().all(|l| {
+        let em = (l.y1 - l.y0).max(1.0);
+        l.words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max) - l.words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min) <= em * 3.0
+    });
+    if !boxed && short && close.len() >= 2 && close.iter().all(|&c| c) {
+        return false;
+    }
     let (few, many) = if ll.len() <= rl.len() { (&ll, &rl) } else { (&rl, &ll) };
     let aligned = few
         .iter()
