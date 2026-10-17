@@ -497,6 +497,18 @@ pub fn person_body(name: &str, intro: &str, narrative: &str, table: &str) -> Str
     )
 }
 
+/// 会派 (政党) ページ。国会会議録の会派表記ごとに 1 枚。
+pub fn party_page(name: &str) -> String {
+    format!("parties/{}.md", file_safe(name))
+}
+
+pub fn party_body(title: &str, narrative: &str, block: &str) -> String {
+    format!(
+        "\n# {title}\n\n国会会議録の会派表記ごとのページです（院や会期で表記が変わることがあります）。\n\n## 会派の動き\n\n{}\n\n<!-- lawpub:begin party -->\n{block}<!-- lawpub:end party -->\n",
+        llm_section(narrative)
+    )
+}
+
 pub fn committee_body(title: &str, narrative: &str, block: &str) -> String {
     format!(
         "\n# {title}\n\n## 審議の経緯\n\n{}\n\n<!-- lawpub:begin committee -->\n{block}<!-- lawpub:end committee -->\n",

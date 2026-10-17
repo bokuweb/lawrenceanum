@@ -21,8 +21,12 @@ pub struct ExportArgs {
 
 /// LLM の文章 (要点・経緯・概要) がまだ無く、機械が作った一覧しかないページ。
 /// アプリでは一覧・グラフ・導線から外し、開いたときは要約前であることを示す。
+///
+/// 人物・会議体・会派は対象にしない。これらは「要約待ちの雛形」ではなく、発言者名簿・議案から
+/// 丸ごと生成する一覧そのものがページの中身で、LLM の経緯は付けば嬉しいおまけだからである
+/// (コーパスの全会議を対象にしたことで、経緯の付かないページが大多数になった)。
 pub(crate) fn is_stub(page: &Page) -> bool {
-    matches!(page.get_str("type"), "law" | "bill" | "pubcomment" | "kanpo" | "person" | "committee" | "meeting")
+    matches!(page.get_str("type"), "law" | "bill" | "pubcomment" | "kanpo" | "meeting")
         && llm_blocks(&page.body).iter().all(|b| b.trim().is_empty())
 }
 
@@ -158,27 +162,34 @@ mod tests {
             "meetings/kokkai/M1.md",
             "---\ntype: \"meeting\"\ntitle: \"厚生労働委員会\"\ndate: \"2026-10-01\"\n---\n<!-- llm:begin -->\n要点\n<!-- llm:end -->\n[予防接種法](../../laws/L1.md)\n",
         );
+        // 人物ページは LLM の経緯が無くても一覧そのものが中身なので、グラフに載せる。
+        write(
+            "people/山田太郎.md",
+            "---\ntype: \"person\"\ntitle: \"山田太郎\"\n---\n<!-- llm:begin -->\n<!-- llm:end -->\n[予防接種法](../laws/L1.md)\n",
+        );
         write(".lawpub/state.md", "ignored");
 
         run_export(&ExportArgs { wiki, out: out.clone() }).unwrap();
 
         let index: Value = serde_json::from_slice(&std::fs::read(out.join("index.json")).unwrap()).unwrap();
-        assert_eq!(index["pages"].as_array().unwrap().len(), 4);
+        assert_eq!(index["pages"].as_array().unwrap().len(), 5);
         let stub_of = |path: &str| index["pages"].as_array().unwrap().iter().find(|p| p["path"] == path).unwrap()["stub"].clone();
         assert_eq!(stub_of("bills/221/B1"), json!(true));
         assert_eq!(stub_of("laws/L1"), json!(false));
+        assert_eq!(stub_of("people/山田太郎"), json!(false), "人物ページは経緯が無くても一覧が中身");
         let page: Value = serde_json::from_slice(&std::fs::read(out.join("page/laws/L1.json")).unwrap()).unwrap();
         assert_eq!(page["frontmatter"]["title"], "予防接種法");
         assert!(page["body"].as_str().unwrap().contains("[会議]"));
         let graph: Value = serde_json::from_slice(&std::fs::read(out.join("graph.json")).unwrap()).unwrap();
         let nodes = graph["nodes"].as_array().unwrap();
-        assert_eq!(nodes.len(), 3, "index (ハブ) は除き、要約前の議案は stub 付きで載せる");
+        assert_eq!(nodes.len(), 4, "index (ハブ) は除き、要約前の議案は stub 付きで載せる");
         assert_eq!(nodes.iter().find(|n| n["id"] == "bills/221/B1").unwrap()["stub"], json!(true));
         assert_eq!(
             graph["links"],
             json!([
                 { "source": "bills/221/B1", "target": "laws/L1" },
-                { "source": "laws/L1", "target": "meetings/kokkai/M1" }
+                { "source": "laws/L1", "target": "meetings/kokkai/M1" },
+                { "source": "laws/L1", "target": "people/山田太郎" }
             ])
         );
         std::fs::remove_dir_all(root).ok();

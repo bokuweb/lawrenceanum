@@ -208,7 +208,7 @@ tags: ["犯罪被害者等基本法", "刑事訴訟法"]
 
 ## 書いてよい場所
 
-- `wiki/meetings/**`・`wiki/laws/**`・`wiki/people/**`・`wiki/committees/**`・`wiki/bills/**`・`wiki/pubcomments/**`・`wiki/kanpo/**` の
+- `wiki/meetings/**`・`wiki/laws/**`・`wiki/people/**`・`wiki/committees/**`・`wiki/parties/**`・`wiki/bills/**`・`wiki/pubcomments/**`・`wiki/kanpo/**` の
   `<!-- llm:begin -->` 〜 `<!-- llm:end -->` の間
 - 同じページの frontmatter の `description` と `tags` の値
 - `wiki/topics/*.md`（新規作成・追記）
