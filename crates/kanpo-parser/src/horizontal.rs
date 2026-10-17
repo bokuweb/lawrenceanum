@@ -115,18 +115,19 @@ fn labeled(text: &str) -> bool {
 /// 罫線の表（他の枠を含まない格子で、中の語が横組みのもの）を表として組み、残りの語は
 /// [`horizontal_lines`] で行に組んで、表を読み順の位置（表の下か右にある最初の行の手前）に差し込む。
 /// 表の欄の間の溝を列の溝と取り違えて、表が欄ごとに読まれないようにするため。
-pub(crate) fn horizontal_lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)]) -> Vec<trace::Line> {
-    lines_with_tables(cols, grids, vrules, false)
+pub(crate) fn horizontal_lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)]) -> Vec<trace::Line> {
+    lines_with_tables(cols, grids, vrules, hrules, false)
 }
 
 /// [`horizontal_lines_with_tables`] の、段組みの無い 1 段（横書きの新旧対照表の片側の欄）を読む版。表の外の
 /// 語は段に分けずに上から 1 行ずつ組む（左寄せの短い行「目次」「［略］」と中央寄せの表題の間を段の溝と
 /// 取り違えて、左の行を先に読んでいた）。
-pub(crate) fn one_column_lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)]) -> Vec<trace::Line> {
-    lines_with_tables(cols, grids, vrules, true)
+pub(crate) fn one_column_lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)]) -> Vec<trace::Line> {
+    lines_with_tables(cols, grids, vrules, hrules, true)
 }
 
-fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)], one_column: bool) -> Vec<trace::Line> {
+/// `vrules`・`hrules` は縦・横の罫線（`(x, y0, y1)`・`(y, x0, x1)`）。
+fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)], one_column: bool) -> Vec<trace::Line> {
     let mut rest = cols;
     let mut tables: Vec<trace::Table> = Vec::new();
     for g in grids.iter().filter(|g| g.xs.len() >= 3 && g.ys.len() >= 3 && !grids.iter().any(|o| g.encloses(o))) {
@@ -174,14 +175,31 @@ fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)],
     let mut lines = if one_column { row_lines(rest) } else { horizontal_lines_around(rest, &blocks, vrules) };
     // 縦組みの欄は、欄の左に同じ高さで並ぶ最後の行の後ろ（同じ囲みの決算公告の後ろ。囲みの枠は罫線として
     // 取り出せないことが多い）。
+    // ただし、欄のすぐ下（30pt 以内）から同じ列で始まる横組みの行があり、間の横の罫線が欄より左へ延びていなければ、
+    // その行の前（同じ列の囲みの中の縦組みの合併公告の下に組んだ決算公告。左の囲みとの間には段の境の線がある）。
+    // 間の線が左の囲みまで延びていれば、欄は左の囲みと同じ囲みの中（「左記の」決算公告の右の合併公告）。
     let beside = |b: &Block| -> Option<usize> {
-        lines
-            .iter()
-            .rposition(|l| {
-                let g: Vec<(f32, f32, f32, f32)> = l.words.iter().filter_map(|w| geom.get(w)).copied().collect();
-                !g.is_empty() && g.iter().all(|p| p.1 <= b.0 + 1.0 && (p.2 + p.3) / 2.0 >= b.1 && (p.2 + p.3) / 2.0 <= b.3)
-            })
-            .map(|i| i + 1)
+        let below = lines.iter().position(|l| {
+            let g: Vec<(f32, f32, f32, f32)> = l.words.iter().filter_map(|w| geom.get(w)).copied().collect();
+            let x0 = g.iter().map(|p| p.0).fold(f32::INFINITY, f32::min);
+            let x1 = g.iter().map(|p| p.1).fold(f32::NEG_INFINITY, f32::max);
+            let y0 = g.iter().map(|p| p.2).fold(f32::INFINITY, f32::min);
+            !g.is_empty()
+                && x0 >= b.0 - 10.0
+                && x1 <= b.2 + 10.0
+                && y0 >= b.3 - 2.0
+                && y0 - b.3 < 30.0
+                && !hrules.iter().any(|&(y, hx0, hx1)| y > b.3 - 2.0 && y < y0 + 1.0 && hx0 < b.0 - 20.0 && hx1 > b.0)
+        });
+        below.or_else(|| {
+            lines
+                .iter()
+                .rposition(|l| {
+                    let g: Vec<(f32, f32, f32, f32)> = l.words.iter().filter_map(|w| geom.get(w)).copied().collect();
+                    !g.is_empty() && g.iter().all(|p| p.1 <= b.0 + 1.0 && (p.2 + p.3) / 2.0 >= b.1 && (p.2 + p.3) / 2.0 <= b.3)
+                })
+                .map(|i| i + 1)
+        })
     };
     let items: Vec<(Block, Vec<trace::Line>, Option<usize>)> = tables
         .into_iter()
@@ -1656,7 +1674,7 @@ mod tests {
             c.id = id;
             c
         }).collect();
-        let lines = horizontal_lines_with_tables(words, &[], &[(425.0, 40.0, 500.0)]);
+        let lines = horizontal_lines_with_tables(words, &[], &[(425.0, 40.0, 500.0)], &[]);
         let texts: Vec<&str> = lines.iter().map(|l| l.text.as_str()).collect();
         assert_eq!(
             texts[0],
@@ -1683,7 +1701,7 @@ mod tests {
             c
         }).collect();
         words.push(Col { id: 99, x: 61.0, x1: 200.0, y: 156.0, y1: 164.0, text: "表の下の文".to_string() });
-        let lines = horizontal_lines_with_tables(words, &[grid], &[]);
+        let lines = horizontal_lines_with_tables(words, &[grid], &[], &[]);
         let texts: Vec<&str> = lines.iter().map(|l| l.text.as_str()).collect();
         assert_eq!(texts, ["資産の部\u{3000}流動資産\u{3000}47,934\n固定資産\u{3000}3,865\n合計\u{3000}51,800", "表の下の文"]);
     }
@@ -1851,7 +1869,7 @@ mod tests {
         })
         .collect();
         let rules = [(70.0, 46.0, 140.0), (196.0, 46.0, 140.0), (256.0, 46.0, 140.0), (316.0, 46.0, 140.0), (376.0, 46.0, 140.0)];
-        let lines = horizontal_lines_with_tables(words, &[], &rules);
+        let lines = horizontal_lines_with_tables(words, &[], &rules, &[]);
         assert_eq!(lines.len(), 1);
         assert_eq!(
             lines[0].text,
