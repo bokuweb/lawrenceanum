@@ -465,7 +465,39 @@ pub(crate) fn row_key(text: &str) -> bool {
     let inner = t.strip_prefix('第').and_then(|t| t.strip_suffix(['号', '回']));
     let numbered = inner.is_some_and(|i| (1..=8).contains(&i.chars().count()) && i.chars().any(digit) && i.chars().all(code_char));
     let code = (3..=16).contains(&t.chars().count()) && t.chars().all(code_char) && t.chars().any(digit) && t.chars().any(alpha);
-    numbered || code
+    numbered || code || kanji_code(t)
+}
+
+/// 漢字の付いた登録番号（宅地建物取引業の免許番号「令08全保1384」、肥料の登録番号「生第100209号」「輸第4774号」、
+/// 型式認定番号「交Ｎ26－67」）。漢字 1〜3 字・英数字・漢字 1〜3 字・数字・「号」の並び（前後の漢字と途中の
+/// 漢字は省けるが、漢字は 2 か所まで）で、数字が 4 字以上（住所の「香川55－７」は除く）。日付・金額（年・月・日・円）
+/// と住所（番地・丁目・町など）も除く。
+fn kanji_code(t: &str) -> bool {
+    let digit = |c: char| c.is_ascii_digit() || ('０'..='９').contains(&c);
+    let alnum = |c: char| digit(c) || c.is_ascii_alphabetic() || ('Ａ'..='Ｚ').contains(&c) || "－-".contains(c);
+    let kanji = |c: char| ('\u{4E00}'..='\u{9FFF}').contains(&c) && !"年月日円号番地丁目条町村市区郡県".contains(c);
+    let chars: Vec<char> = t.strip_suffix('号').unwrap_or(t).chars().collect();
+    if !(4..=16).contains(&chars.len()) || chars.iter().filter(|&&c| digit(c)).count() < 4 || !chars.iter().any(|&c| kanji(c)) {
+        return false;
+    }
+    // 漢字の並びと英数字の並びに分ける。
+    let mut runs: Vec<(bool, usize)> = Vec::new();
+    for &c in &chars {
+        let k = if kanji(c) {
+            true
+        } else if alnum(c) {
+            false
+        } else {
+            return false;
+        };
+        match runs.last_mut() {
+            Some(r) if r.0 == k => r.1 += 1,
+            _ => runs.push((k, 1)),
+        }
+    }
+    let kanji_runs: Vec<usize> = runs.iter().filter(|r| r.0).map(|r| r.1).collect();
+    // 英数字で終わり、漢字の並びは 2 つまで・各 3 字まで。
+    runs.last().is_some_and(|r| !r.0) && kanji_runs.len() <= 2 && kanji_runs.iter().all(|&n| n <= 3)
 }
 
 /// 罫線の無い横組みの表で、左端の列に行の見出しの番号（[`row_key`]）が 3 つ以上縦に並ぶものを表に
@@ -2043,6 +2075,16 @@ mod tests {
         assert_eq!(text.len(), 6, "{text:?}");
         assert!(text[1].starts_with("２　発行の根拠法律及びその条項\u{3000}財政法"), "{}", text[1]);
         assert!(text[1].ends_with("財源の確保を図るための公債の発行の特例に関する法律第３条第１項"), "{}", text[1]);
+    }
+
+    #[test]
+    fn kanji_registration_numbers_are_row_keys() {
+        for key in ["令08全保1384", "生第100209号", "輸第4774号", "交Ｎ26－67"] {
+            assert!(row_key(key), "{key}");
+        }
+        for text in ["令和８年７月10日", "1,000円", "第三条", "北海道知事", "(胆振９)661", "香川55－７", "1142番地３", "町１－21－１"] {
+            assert!(!row_key(text), "{text}");
+        }
     }
 
     #[test]
