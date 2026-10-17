@@ -464,7 +464,12 @@ pub(crate) fn row_key(text: &str) -> bool {
     let code_char = |c: char| digit(c) || alpha(c) || "－-".contains(c);
     let inner = t.strip_prefix('第').and_then(|t| t.strip_suffix(['号', '回']));
     let numbered = inner.is_some_and(|i| (1..=8).contains(&i.chars().count()) && i.chars().any(digit) && i.chars().all(code_char));
-    let code = (3..=16).contains(&t.chars().count()) && t.chars().all(code_char) && t.chars().any(digit) && t.chars().any(alpha);
+    // 「－」で始まるもの（折り返した名称の続き「BCM」「－204MD」）は記号ではない。
+    let code = (3..=16).contains(&t.chars().count())
+        && t.chars().all(code_char)
+        && t.chars().any(digit)
+        && t.chars().any(alpha)
+        && !t.starts_with(['－', '-']);
     numbered || code || kanji_code(t)
 }
 
