@@ -2389,7 +2389,7 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
     let mut best_free: Option<Cand> = None;
     for c in &cols {
         let cut = c.y1 + 0.5;
-        if cut < lo || cut > hi || (ruled_only && !ruled(cut)) {
+        if cut < lo || cut > hi || (ruled_only && !ruled(cut)) || label_strip(&cols, cut) {
             continue;
         }
         let crossing = cols.iter().filter(|d| d.y < cut && cut < d.y1).count();
@@ -2671,6 +2671,65 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
 /// 列の重ならない縦の境目で `cols` を右と左に分ける。左に記事の見出し（「〇…号」）があり、左だけならどの列も
 /// 跨がない（字間でもない）横の空きで上下に割れ、右は割れず見出しも無いときだけ。境目は見出しの記事に
 /// いちばん近いもの（左から順に試して最初のもの）。
+/// `cut` の上が縦組みの表の欄見出しの帯（航路標識の表の「灯質」「光度」「光達距離」…）で、各欄の値がそのすぐ下の同じ
+/// 列に続くか。帯で段に切ると、欄見出しを全部読んでから値を全部読む（見出しと値が離れる）。
+///
+/// 帯: `cut` のすぐ上（8em 以内の高さ）に収まる 8 字以下の語の列が 8 本以上あり、半分以上が欄見出しの語（名称・位置・
+/// 年月日…）で終わり、その 7 割以上の真下（2.5em 以内）に同じ列の値が 1 つ始まる。
+fn label_strip(cols: &[Col], cut: f32) -> bool {
+    let em = {
+        let mut ws: Vec<f32> = cols.iter().map(|c| c.x1 - c.x).collect();
+        ws.sort_by(f32::total_cmp);
+        ws.get(ws.len() / 2).copied().unwrap_or(10.0).max(1.0)
+    };
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    let labels: Vec<&Col> = cols.iter().filter(|c| c.y1 <= cut && cut - c.y1 < em * 8.0 && c.text.chars().count() <= 8).collect();
+    // 帯の上には何も無い（帯は段の頭。段の境の上の段の列の末尾の短い語を帯にしない）。帯は縦組み（横組みの語の
+    // ある横組みの表の行の間では切ってよい）。
+    let above: Vec<&Col> = cols.iter().filter(|c| c.y1 <= cut).collect();
+    if above.iter().any(|c| cut - c.y > em * 8.0 || (c.text.chars().count() >= 2 && c.x1 - c.x > c.y1 - c.y)) {
+        return false;
+    }
+    // 字間を空けた欄見出し（「高　さ」）は 1 字ずつの語なので、同じ列の語をまとめて列の下端を見る。
+    let mut groups: Vec<(f32, f32, String)> = Vec::new();
+    let mut sorted = labels.clone();
+    sorted.sort_by(|a, b| center(a).total_cmp(&center(b)).then(a.y.total_cmp(&b.y)));
+    for c in sorted {
+        match groups.last_mut() {
+            Some(g) if (center(c) - g.0).abs() < em * 0.5 => {
+                g.1 = g.1.max(c.y1);
+                g.2.push_str(&c.text);
+            }
+            _ => groups.push((center(c), c.y1, c.text.clone())),
+        }
+    }
+    // 欄見出しは名詞（「灯質」「光達距離」）。記録の欄の末尾の日付（「八、」「（令和）」）や数は欄見出しではない。
+    let label_like = |t: &str| !t.chars().any(|c| "、。，．（）()".contains(c)) && !t.chars().all(|c| "〇一二三四五六七八九十百千".contains(c) || c.is_ascii_digit());
+    if groups.iter().filter(|g| label_like(&g.2)).count() * 10 < groups.len() * 7 {
+        return false;
+    }
+    // 半分以上が欄見出しの語で終わる（記録の欄の値「大路渡」「吉野純子」の並びは欄見出しの帯ではない）。
+    const HEADS: [&str; 24] = [
+        "名称", "位置", "所在地", "年月日", "記事", "種類", "距離", "光度", "灯質", "明孤", "高さ", "北緯", "東経", "周波数", "レベル", "周期", "区域",
+        "型式", "番号", "住所", "氏名", "時間", "電力", "区分",
+    ];
+    if groups.iter().filter(|g| HEADS.iter().any(|h| g.2.ends_with(h))).count() * 2 < groups.len() {
+        return false;
+    }
+    if groups.len() < 8 {
+        return false;
+    }
+    let below = groups
+        .iter()
+        .filter(|&&(x, y1, _)| cols.iter().any(|v| v.y >= cut && v.y - y1 < em * 2.5 && (center(v) - x).abs() < em * 0.5))
+        .count();
+    // 欄見出しの下はそれぞれ 1 つの値（2 つまでの語）。下に記録が何件も並ぶ表（政治団体の名称・代表者の氏名…の欄の
+    // 下に団体ごとの行が続く）は、欄見出しの帯を段に分けて読む（[`record_bands`]）。
+    let values = |x: f32| cols.iter().filter(|v| v.y >= cut && (center(v) - x).abs() < em * 0.5).count();
+    let single = groups.iter().filter(|g| values(g.0) <= 2).count();
+    below * 10 >= groups.len() * 7 && single * 10 >= groups.len() * 7
+}
+
 fn split_beside_tiered_notice(cols: &[Col]) -> Option<(Vec<Col>, Vec<Col>)> {
     let mut edges: Vec<f32> = cols.iter().map(|c| c.x).collect();
     edges.sort_by(f32::total_cmp);
