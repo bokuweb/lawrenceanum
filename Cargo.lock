@@ -1539,7 +1539,6 @@ dependencies = [
  "candle-core",
  "candle-nn",
  "candle-transformers",
- "cc",
  "serde_json",
  "tokenizers",
 ]

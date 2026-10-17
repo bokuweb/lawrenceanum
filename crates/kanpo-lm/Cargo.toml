@@ -1,6 +1,6 @@
 [package]
 name = "kanpo-lm"
-description = "官報の本文（kanpo-parser の出力）を言語モデルで見直す後工程（読み順の崩れの洗い出しと補正）"
+description = "官報の本文（kanpo-parser の出力）を ModernBERT で見直す後工程（読み順の崩れの洗い出しと補正）"
 repository = "https://github.com/bokuweb/lawrenceanum"
 readme = "README.md"
 version.workspace = true
@@ -8,20 +8,11 @@ edition.workspace = true
 license-file.workspace = true
 publish.workspace = true
 
-[features]
-# llama.cpp（手元の共有ライブラリ）で GGUF のモデルを動かす。
-llama = []
-# ModernBERT（穴埋め）の擬似対数尤度で採点する（candle、CPU）。
-mlm = ["dep:candle-core", "dep:candle-nn", "dep:candle-transformers", "dep:tokenizers", "dep:serde_json"]
-
 [dependencies]
 anyhow.workspace = true
-candle-core = { version = "0.9", optional = true }
-candle-nn = { version = "0.9", optional = true }
-candle-transformers = { version = "0.9", optional = true }
-tokenizers = { version = "0.21", optional = true, default-features = false, features = ["onig"] }
-serde_json = { workspace = true, optional = true }
-
-[build-dependencies]
-cc = "1"
+candle-core = "0.9"
+candle-nn = "0.9"
+candle-transformers = "0.9"
+tokenizers = { version = "0.21", default-features = false, features = ["onig"] }
+serde_json.workspace = true
 

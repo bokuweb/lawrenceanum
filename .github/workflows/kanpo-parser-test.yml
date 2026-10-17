@@ -39,6 +39,3 @@ jobs:
           INSTA_UPDATE: "no"
           CI: "true"
         run: cargo test -p kanpo-pdf -p kanpo-parser -p kanpo-parser-wasm -p kanpo-lm --locked
-      # ModernBERT の採点器（candle）がビルドできるか。llama 機能は llama.cpp が要るので CI では見ない。
-      - name: Check kanpo-lm (mlm)
-        run: cargo check -p kanpo-lm --features mlm --examples --locked

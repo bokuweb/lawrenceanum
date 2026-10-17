@@ -1,21 +1,18 @@
-//! 官報の本文（kanpo-parser の出力）を、言語モデルで後から見直す後工程。
+//! 官報の本文（kanpo-parser の出力）を、ModernBERT（穴埋めのモデル）で後から見直す後工程。
 //!
 //! パーサの中には組み込まず、パーサが組んだ本文の行だけを受け取る。
 //!
-//! - [`scan`] は、前後の行を文脈にして各行を採点し（1 字あたりの負の対数尤度）、読み順の崩れの候補を上から並べる
-//! - [`correct`] は、怪しい行について、字を入れ替えた書き直しの候補（欄の空白で区切った片の並べ替え、縦中横の
-//!   単位の置き直し）を作り、元の行より十分に自然なものだけを補正として返す
+//! - [`scan`] は、まとまりの中の前後の行を文脈にして各行を採点し（1 字あたりの負の対数尤度）、読み順の崩れの候補を
+//!   上から並べる
+//! - [`correct`] は、怪しい行について、字を入れ替えた書き直しの候補（縦中横の単位の置き直しなど）を作り、元の行より
+//!   十分に自然なものだけを補正として返す
 //!
-//! 採点するモデルは [`Scorer`] で差し替える（`llama` 機能: llama.cpp で Gemma などの GGUF、`mlm` 機能: candle で
-//! ModernBERT の穴埋めの擬似対数尤度）。
-//! 言語モデルは「どちらの並びが自然か」を比べるのは得意だが（字を入れ替えた行と元の行の比較で 96〜99%）、
+//! 採点するモデルは [`Scorer`] で差し替えられる（既定は [`mlm::MlmScorer`]: candle で ModernBERT-Ja-30m の擬似対数尤度）。
+//! 言語モデルは「どちらの並びが自然か」を比べるのは得意だが（字を入れ替えた行と元の行の比較で 95〜99%）、
 //! 1 行だけを見て誤りかを決めるのは苦手（表・一覧・行の途中で切れた縦書きの列も読みにくい）なので、
 //! [`scan`] の結果は人が見る順番を決めるためのもの、[`correct`] は書き直しの候補どうしの比較だけに使う。
 
 mod candidates;
-#[cfg(feature = "llama")]
-pub mod llama;
-#[cfg(feature = "mlm")]
 pub mod mlm;
 
 pub use candidates::{candidates, Candidate};
@@ -25,7 +22,7 @@ pub use candidates::{candidates, Candidate};
 pub struct Token {
     pub start: usize,
     pub end: usize,
-    /// 前のトークンまでを見たときの、このトークンの負の対数尤度（nat）。
+    /// このトークンの負の対数尤度（nat。ModernBERT ではこのトークンを隠して前後から当てたもの）。
     pub nll: f32,
 }
 
@@ -37,7 +34,7 @@ pub trait Scorer {
 /// 採点の設定。
 #[derive(Debug, Clone)]
 pub struct Options {
-    /// [`scan`] で 1 回に採点する行のまとまりの字数（前の行を文脈にする）。
+    /// [`scan`] で 1 回に採点する行のまとまりの字数（まとまりの中の前後の行を文脈にする）。
     pub chunk_chars: usize,
     /// [`correct`] で候補の前後に置く文脈の行数。
     pub context_lines: usize,
@@ -52,23 +49,16 @@ pub struct Options {
 }
 
 impl Default for Options {
-    /// Gemma 4 E2B（llama.cpp）向けの設定。
+    /// ModernBERT-Ja-30m 向けの設定。前後両側の文脈を見るので、近くの行に同じ文があると崩れた行もそこから当てられて
+    /// 読みやすく見え（1 字 0.5 nat ほど）、見直す行の下限は低くする。正しい補正の改善は 33〜64 nat。表の行の片の並べ替えは、
+    /// 同じ字の並びが隣り合う方を好んで誤る（「資産合計　13,295,943　負債・純資産合計　13,295,943」の金額を後ろに
+    /// まとめる方が 38.8 nat 勝つ）ので試さない。
     fn default() -> Self {
-        Options { chunk_chars: 600, context_lines: 2, suspect_nll: 2.3, min_chars: 8, min_gain: 8.0, segments: true }
+        Options { chunk_chars: 600, context_lines: 2, suspect_nll: 0.5, min_chars: 8, min_gain: 25.0, segments: false }
     }
 }
 
-impl Options {
-    /// ModernBERT-Ja-30m（穴埋めの擬似対数尤度）向けの設定。前後両側の文脈を見るので、近くの行に同じ文があると
-    /// 崩れた行も読みやすく見え（1 字 0.5 nat ほど）、書き直しの改善は Gemma より大きく出る（正しい補正は 33〜64 nat）。
-    /// 表の行の片の並べ替えは、同じ字の並びが隣り合う方を好んで誤る（「資産合計　13,295,943　負債・純資産合計
-    ///　13,295,943」の金額を後ろにまとめる方が 38.8 nat 勝つ）ので試さない。
-    pub fn modernbert() -> Self {
-        Options { suspect_nll: 0.5, min_gain: 25.0, segments: false, ..Options::default() }
-    }
-}
-
-/// 行の採点（前の行を文脈にしたもの）。
+/// 行の採点（まとまりの中の前後の行を文脈にしたもの）。
 #[derive(Debug, Clone, PartialEq)]
 pub struct LineScore {
     pub line: usize,
@@ -86,7 +76,7 @@ impl LineScore {
     }
 }
 
-/// 行ごとの採点。行を [`Options::chunk_chars`] 字ほどのまとまりにして、まとまりの中の前の行を文脈に採点する
+/// 行ごとの採点。行を [`Options::chunk_chars`] 字ほどのまとまりにして、まとまりの中の前後の行を文脈に採点する
 /// （1 行ずつ単独で採点すると、縦書きの列の途中で切れた行の頭が軒並み読みにくく見える）。
 pub fn scan(scorer: &mut dyn Scorer, lines: &[&str], opts: &Options) -> anyhow::Result<Vec<LineScore>> {
     // まとまり: (行の範囲, つないだ文, 各行の開始バイト)
@@ -242,7 +232,7 @@ mod tests {
     fn correct_keeps_good_line() {
         let good = "代表取締役　田口　貴之";
         let mut toy = Toy { good: vec![good.into()] };
-        let opts = Options { suspect_nll: 0.0, min_gain: 1.0, ..Options::default() };
+        let opts = Options { suspect_nll: 0.0, min_gain: 1.0, segments: true, ..Options::default() };
         let (out, fixes) = correct(&mut toy, &[good], &opts).unwrap();
         assert!(fixes.is_empty());
         assert_eq!(out[0], good);
