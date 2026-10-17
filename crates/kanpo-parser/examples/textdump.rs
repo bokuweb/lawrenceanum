@@ -73,10 +73,13 @@ fn main() {
                             .flat_map(|p| &p.regions)
                             .flat_map(|r| &r.lines)
                             .flat_map(|l| match &l.table {
-                                // 欄の前後に空行を入れる（欄の頭は前の欄の続きではない）。
-                                Some(t) => t
-                                    .cells
-                                    .iter()
+                                // 欄の前後に空行を入れる（欄の頭は前の欄の続きではない）。行ごとに左の欄から。
+                                Some(t) => {
+                                    let mut cs: Vec<_> = t.cells.iter().collect();
+                                    cs.sort_by_key(|c| (c.row, c.col));
+                                    cs
+                                }
+                                    .into_iter()
                                     .flat_map(|c| std::iter::once(String::new()).chain(c.text.lines().map(str::to_string)).chain([String::new()]))
                                     .collect(),
                                 None => vec![l.text.clone()],
