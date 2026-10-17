@@ -12,7 +12,7 @@
 //!
 //! 号外の公告・決算公告など、回転せず縦長のページに横書きで組んだページも同じように読む。
 
-use crate::grid::Grid;
+use crate::grid::{Grid, GridCell};
 use crate::trace;
 use crate::vertical::Col;
 
@@ -120,11 +120,17 @@ fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)],
     for g in grids.iter().filter(|g| g.xs.len() >= 3 && g.ys.len() >= 3 && !grids.iter().any(|o| g.encloses(o))) {
         let (mine, others): (Vec<Col>, Vec<Col>) = rest.into_iter().partition(|c| g.contains(x_center(c), y_center(c), 0.5));
         rest = others;
-        match grid_table(g, &mine) {
+        match grid_table(g, &mine, false) {
             Some(t) => tables.push(t),
             None => rest.extend(mine),
         }
     }
+    // 縦の罫線だけの表は、決算公告の囲みの中の表と同じく本文の段の溝をふさがない（上の記事の段が 1 段につながる）。
+    let framed = tables.len();
+    let (ruled, others) = rule_column_tables(rest, vrules);
+    rest = others;
+    let ruled_n = ruled.len();
+    tables.extend(ruled);
     let (keyed, others) = keyed_tables(rest, vrules);
     rest = others;
     tables.extend(keyed);
@@ -147,7 +153,9 @@ fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)],
     // 列の語と同じく溝・切れ目をふさぐ。
     let blocks: Vec<Block> = tables
         .iter()
-        .filter(|t| t.x1 - t.x0 >= MIN_TEXT_COLUMN_WIDTH * 2.0)
+        .enumerate()
+        .filter(|(i, t)| !(framed..framed + ruled_n).contains(i) && t.x1 - t.x0 >= MIN_TEXT_COLUMN_WIDTH * 2.0)
+        .map(|(_, t)| t)
         .map(|t| (t.x0, t.y0, t.x1, t.y1))
         .chain(verticals.iter().map(|v| v.0))
         .collect();
@@ -300,6 +308,101 @@ fn vertical_lines(words: Vec<Col>) -> Vec<trace::Line> {
             trace::Line::text(text, ws.iter().map(|w| w.id).collect())
         })
         .collect()
+}
+
+/// 縦の罫線だけで欄を区切った表（横倒しのページの財務諸表の損益計算書。行を区切る横線も枠の上下の線も無く、
+/// 格子にならない）を表にする。`(表, 表に入らなかった語)`。
+///
+/// 上端と下端の揃う縦の罫線（途中で切れて描かれた線はつなぐ）を、間に別の縦の罫線（隣の表の線）が通らない
+/// 範囲でまとめ、その間を欄とする。両端の字の無い欄は除く。2 欄以上で、罫線をまたぐ語も文（「。」）も無く、
+/// 2 列目より右に金額の欄（行の 8 割以上が金額だけの行）があるものだけ（段の境の線と紙面の枠の線を欄と
+/// 取り違えない）。行は、どの欄の行も（前の行に行間を空けずに続く折り返しでなければ）行の頭にする。
+fn rule_column_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<trace::Table>, Vec<Col>) {
+    // 同じ x で端の接する線分をつなぐ。
+    let mut rules: Vec<(f32, f32, f32)> = vrules.iter().copied().filter(|r| r.0.is_finite()).collect();
+    rules.sort_by(|a, b| a.0.total_cmp(&b.0).then(a.1.total_cmp(&b.1)));
+    let mut joined: Vec<(f32, f32, f32)> = Vec::new();
+    for r in rules {
+        match joined.last_mut() {
+            Some(l) if (l.0 - r.0).abs() <= 1.0 && r.1 <= l.2 + 3.0 => l.2 = l.2.max(r.2),
+            _ => joined.push(r),
+        }
+    }
+    joined.retain(|r| r.2 - r.1 >= 60.0);
+    let mut words = words;
+    let mut tables = Vec::new();
+    let mut seen: Vec<(f32, f32)> = Vec::new();
+    for seed in joined.clone() {
+        if seen.iter().any(|&(y0, y1)| (y0 - seed.1).abs() <= 4.0 && (y1 - seed.2).abs() <= 4.0) {
+            continue;
+        }
+        seen.push((seed.1, seed.2));
+        let (top, bottom) = (seed.1, seed.2);
+        let mut xs: Vec<f32> = joined.iter().filter(|r| (r.1 - top).abs() <= 4.0 && (r.2 - bottom).abs() <= 4.0).map(|r| r.0).collect();
+        xs.dedup_by(|a, b| (*a - *b).abs() < 3.0);
+        let inside = |w: &Col, x0: f32, x1: f32| {
+            let (cx, cy) = (x_center(w), y_center(w));
+            x0 <= cx && cx < x1 && top <= cy && cy < bottom
+        };
+        // 間に高さの違う縦の罫線（別の表の線）が通るところと、字の無い欄（左右に並ぶ 2 つの表の間の二重線・三重線）で
+        // 切る（左右に離れて並ぶ 2 つの表の線を 1 つの表にしない）。
+        // 欄の端に沿う線（15pt 以内。二重線の内側の線や、途中までしか引かれていない欄の枠）は別の表の線ではない。
+        let between = |a: f32, b: f32| joined.iter().any(|r| r.0 > a + 15.0 && r.0 < b - 15.0 && r.2.min(bottom) - r.1.max(top) >= (bottom - top) * 0.5);
+        let mut runs: Vec<Vec<f32>> = vec![Vec::new()];
+        for x in xs {
+            let run = runs.last_mut().unwrap();
+            match run.last() {
+                Some(&a) if between(a, x) || !words.iter().any(|w| inside(w, a, x)) => runs.push(vec![x]),
+                _ => run.push(x),
+            }
+        }
+        for xs in runs {
+            if xs.len() < 3 {
+                continue;
+            }
+            let (left, right) = (xs[0], *xs.last().unwrap());
+            let crossing = words.iter().any(|w| {
+                let cy = y_center(w);
+                top <= cy && cy < bottom && w.x1 > left && w.x < right && xs.iter().any(|&x| w.x < x - 2.0 && w.x1 > x + 2.0)
+            });
+            // 罫線のすぐ外（12pt 以内）に狭い欄の語（幅 40pt 以下）が 2 つ以上あれば、表は罫線の外へ続いている（外枠の
+            // 線が取れなかった表。番号の欄が外に残る）。段の境の線の隣の記事の行（幅が広い）は数えない。
+            let beyond = words
+                .iter()
+                .filter(|w| {
+                    let cy = y_center(w);
+                    top <= cy && cy < bottom && w.x1 - w.x <= 40.0 && ((w.x1 <= left + 1.0 && w.x1 > left - 12.0) || (w.x >= right - 1.0 && w.x < right + 12.0))
+                })
+                .count()
+                >= 2;
+            // 文の入った欄（段の境の線に挟まれた記事）は表ではない。
+            let sentences = words.iter().any(|w| inside(w, left, right) && w.text.contains('。'));
+            // 金額の欄: 行の 8 割以上が金額だけの行（語は桁区切りで切れていることがあるので、行の字で見る）。
+            let numeric = xs.windows(2).skip(1).any(|p| {
+                let ws: Vec<Col> = words.iter().filter(|w| inside(w, p[0], p[1])).cloned().collect();
+                let lines = group_cell_lines(&ws);
+                let amounts = lines
+                    .iter()
+                    .filter(|l| {
+                        let t: String = l.words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace()).collect();
+                        t.chars().any(|c| c.is_ascii_digit()) && t.chars().all(|c| c.is_ascii_digit() || ",.△▲－-()（）".contains(c))
+                    })
+                    .count();
+                amounts >= 2 && amounts * 10 >= lines.len() * 8
+            });
+            if crossing || beyond || sentences || !numeric {
+                continue;
+            }
+            let g = Grid { xs: xs.clone(), ys: vec![top, bottom], cells: (0..xs.len() - 1).map(|i| GridCell { x0: i, x1: i + 1, y0: 0, y1: 1 }).collect() };
+            let (mine, others): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| inside(w, left, right));
+            words = others;
+            match grid_table(&g, &mine, true) {
+                Some(t) => tables.push(t),
+                None => words.extend(mine),
+            }
+        }
+    }
+    (tables, words)
 }
 
 /// 表の行の見出しの番号（「第2821号」「第165回」「第Ｐ－280号」）か、英字と数字の混じった記号
@@ -628,7 +731,10 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
 ///
 /// 行を区切る罫線の無い欄（1 つのセルに複数の項目が並ぶ）は、項目ごとの行に分ける。行の頭は、
 /// ほかの欄の行と高さが揃う行（揃わない行はセルの中の折り返し）。
-fn grid_table(g: &Grid, words: &[Col]) -> Option<trace::Table> {
+///
+/// `every_line` なら、ほかの欄の行と揃わない行も（折り返しの続きでなければ）行の頭にする（行を区切る横線の無い
+/// 表。金額の無い科目の行「財務費用」「経常収益」が前の科目の行につながらないように）。
+fn grid_table(g: &Grid, words: &[Col], every_line: bool) -> Option<trace::Table> {
     // 2 字以上の語の字数で、横長の語が縦長の語より多いこと。
     let (h_chars, v_chars) = words.iter().fold((0, 0), |(h, v), w| {
         let n = w.text.chars().count();
@@ -660,7 +766,8 @@ fn grid_table(g: &Grid, words: &[Col]) -> Option<trace::Table> {
     }
     let prose = cell_lines.iter().any(|ls| {
         let t: String = ls.iter().flat_map(|l| l.words.iter().map(|w| w.text.as_str())).collect();
-        t.chars().count() > 200 || t.matches('。').count() >= 2
+        // 縦の罫線だけの表の欄は、行を区切る線が無いので 1 つのセルに科目が全部入る（字数では見ない）。
+        (!every_line && t.chars().count() > 200) || t.matches('。').count() >= 2
     });
     if prose {
         return None;
@@ -671,20 +778,39 @@ fn grid_table(g: &Grid, words: &[Col]) -> Option<trace::Table> {
     // 行の頭の高さ（格子の行ごと）。
     let ny = g.ys.len() - 1;
     let mut anchors: Vec<f32> = Vec::new();
+    // 科目の欄（行間で行を分けたセル）。
+    let mut item_cells = vec![false; g.cells.len()];
     for r in 0..ny {
         let band: Vec<usize> = (0..g.cells.len()).filter(|&i| g.cells[i].y0 <= r && r < g.cells[i].y1).collect();
         anchors.push(g.ys[r]);
         let (top, bottom) = (g.ys[r], g.ys[r + 1]);
         for &i in &band {
+            let aligned: Vec<bool> = cell_lines[i]
+                .iter()
+                .enumerate()
+                .map(|(k, l)| {
+                    let c = l.center();
+                    // 欄によって字の種類（数字と漢字）で字面の高さが少し違うので、行の高さの 4 割まで。
+                    let tol = ((l.y1 - l.y0) * 0.4).max(ALIGN_TOL);
+                    // 揃う 2 行がどちらも折り返しの続きなら、行の頭ではない（2 つの欄が同時に折り返した）。
+                    band.iter().filter(|&&j| g.cells[j].x0 != g.cells[i].x0).any(|&j| {
+                        cell_lines[j].iter().enumerate().any(|(n, m)| !(wraps(i, k) && wraps(j, n)) && (m.center() - c).abs() <= tol)
+                    })
+                })
+                .collect();
+            // 左端の欄で 3 行以上がほかの欄の行と揃うなら、科目の欄（行を区切る横線の無い財務諸表）なので、揃わない
+            // 行（金額の無い科目「財務収益」）も行の頭にする。
+            let rows_of_items = every_line || (g.cells[i].x0 == 0 && aligned.iter().filter(|&&a| a).count() >= 3);
+            // 行間が行の区切りの手掛かりになるのは、行間の空く所と詰まった所の両方があるセルだけ（どの行も行間を
+            // 詰めて組んだセルは、行間では科目と折り返しを見分けられない）。
+            let spaced = (1..cell_lines[i].len()).any(|k| cell_lines[i][k].y0 - cell_lines[i][k - 1].y1 >= (cell_lines[i][k].y1 - cell_lines[i][k].y0) * 0.25);
+            item_cells[i] |= rows_of_items && spaced;
+            // 科目の行の折り返しは前の行に行間を空けずに続く（科目と科目の間は行間が空く。「有形固定」「資産合計」
+            // 「２無形固定資産」）。
+            let tight = |k: usize| k > 0 && cell_lines[i][k].y0 - cell_lines[i][k - 1].y1 < (cell_lines[i][k].y1 - cell_lines[i][k].y0) * 0.25;
             for (k, l) in cell_lines[i].iter().enumerate() {
                 let c = l.center();
-                // 欄によって字の種類（数字と漢字）で字面の高さが少し違うので、行の高さの 4 割まで。
-                let tol = ((l.y1 - l.y0) * 0.4).max(ALIGN_TOL);
-                // 揃う 2 行がどちらも折り返しの続きなら、行の頭ではない（2 つの欄が同時に折り返した）。
-                let aligned = band.iter().filter(|&&j| g.cells[j].x0 != g.cells[i].x0).any(|&j| {
-                    cell_lines[j].iter().enumerate().any(|(n, m)| !(wraps(i, k) && wraps(j, n)) && (m.center() - c).abs() <= tol)
-                });
-                if top < c && c < bottom && aligned {
+                if top < c && c < bottom && (aligned[k] || (rows_of_items && !tight(k))) {
                     anchors.push(l.y0 - 0.5);
                 }
             }
@@ -725,7 +851,10 @@ fn grid_table(g: &Grid, words: &[Col]) -> Option<trace::Table> {
                     // セルの右端まで組んだ行の次の行は折り返しの続き（「神奈川県横浜市中」「区」）なのでつなぐ。
                     let mut text = String::new();
                     for (k, l) in ls.iter().enumerate() {
-                        if k > 0 && !wrapped(ls[k - 1], l, g.xs[gc.x1]) && !amount_tail(ls[k - 1], l) {
+                        // 科目の欄の同じ行の 2 行目からは、行間を空けずに続く折り返し（右端まで組んでいない「掛金及過去
+                        // 勤務掛金収」「入」も）。
+                        let continued = item_cells[i] && l.y0 - ls[k.max(1) - 1].y1 < (l.y1 - l.y0) * 0.25;
+                        if k > 0 && !wrapped(ls[k - 1], l, g.xs[gc.x1]) && !amount_tail(ls[k - 1], l) && !continued {
                             text.push('\n');
                         }
                         text.push_str(&render_line(&l.words));
@@ -1533,5 +1662,55 @@ mod tests {
         assert_eq!(render_line(&gougai), "（号外）");
         let ryaku = vec![w(100.0, 124.0, 210.0, "（略）"), w(160.0, 184.0, 210.0, "（略）")];
         assert_eq!(render_line(&ryaku), "（略）\u{3000}（略）");
+    }
+
+    #[test]
+    fn columns_between_vertical_rules_only_are_read_as_a_table() {
+        // 損益計算書: 科目｜金額｜金額｜合計の欄を縦の罫線だけで区切る（行の横線も枠の上下の線も無い）。金額の無い
+        // 科目「財務費用」と、行間を空けずに続く科目の折り返し「掛金収」「入」。
+        let words: Vec<Col> = [
+            w(75.0, 139.0, 52.0, "賞与引当金繰入"),
+            w(200.0, 240.0, 52.0, "57,622"),
+            w(75.0, 107.0, 65.0, "財務費用"),
+            w(83.0, 115.0, 78.0, "支払利息"),
+            w(200.0, 240.0, 78.0, "1,248"),
+            w(260.0, 300.0, 78.0, "1,248"),
+            w(83.0, 123.0, 91.0, "掛金及過去"),
+            w(83.0, 91.0, 99.0, "入"),
+            w(200.0, 240.0, 91.0, "484,251"),
+            w(75.0, 123.0, 112.0, "経常費用合計"),
+            w(330.0, 370.0, 112.0, "586,425"),
+        ]
+        .into_iter()
+        .enumerate()
+        .map(|(id, mut c)| {
+            c.id = id;
+            c
+        })
+        .collect();
+        let rules = [(70.0, 46.0, 140.0), (196.0, 46.0, 140.0), (256.0, 46.0, 140.0), (316.0, 46.0, 140.0), (376.0, 46.0, 140.0)];
+        let lines = horizontal_lines_with_tables(words, &[], &rules);
+        assert_eq!(lines.len(), 1);
+        assert_eq!(
+            lines[0].text,
+            "賞与引当金繰入\u{3000}57,622\n財務費用\n支払利息\u{3000}1,248\u{3000}1,248\n掛金及過去入\u{3000}484,251\n経常費用合計\u{3000}586,425"
+        );
+    }
+
+    #[test]
+    fn article_columns_between_rules_are_not_a_table() {
+        // 段の境の線と紙面の枠の線に挟まれた記事（文の入った欄）は表にしない。
+        let words: Vec<Col> = [w(75.0, 180.0, 52.0, "公告します。"), w(200.0, 240.0, 52.0, "1,248"), w(260.0, 300.0, 52.0, "2,000"), w(320.0, 360.0, 52.0, "3,000")]
+            .into_iter()
+            .enumerate()
+            .map(|(id, mut c)| {
+                c.id = id;
+                c
+            })
+            .collect();
+        let rules = [(70.0, 46.0, 140.0), (196.0, 46.0, 140.0), (256.0, 46.0, 140.0), (316.0, 46.0, 140.0), (376.0, 46.0, 140.0)];
+        let (tables, rest) = rule_column_tables(words, &rules);
+        assert!(tables.is_empty());
+        assert_eq!(rest.len(), 4);
     }
 }
