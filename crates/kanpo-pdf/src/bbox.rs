@@ -148,6 +148,15 @@ pub fn words(page: &Page) -> Vec<Word> {
             if p.font != g.font && along < -0.01 * g.size {
                 return false;
             }
+            // 横書きで数字の後に空いて続く漢字・仮名は別の語（T 字の表の金額「100,068」と右の欄の科目「流動負債」）。
+            // 数の後に詰めて続く字（「８条」「1,000円」）は空かない。
+            if !g.vertical
+                && along > 0.15 * g.size
+                && p.text.chars().all(|c| c.is_ascii_digit())
+                && g.text.chars().next().is_some_and(|c| ('\u{3040}'..='\u{30FF}').contains(&c) || ('\u{4E00}'..='\u{9FFF}').contains(&c))
+            {
+                return false;
+            }
             let gap = if g.vertical { GAP_VERTICAL } else { GAP };
             let gap = if letter_spaced(p, g, along) { gap.max(TC_MAX) } else { gap };
             (-OVERLAP * g.size..=gap * g.size).contains(&along)
