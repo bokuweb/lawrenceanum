@@ -93,7 +93,10 @@ fn wrapped(prev: &Line, next: &Line, right: f32) -> bool {
             && w.text.ends_with(|c: char| c.is_ascii_digit())
             && w.text.chars().all(|c| c.is_ascii_digit() || ".,−－-△".contains(c))
     };
-    !numeric && !trailing_number && !labeled(&next) && text.chars().count() >= 4 && right - end <= em * WRAP_EM
+    // 数で終わり、次の行が単位の英字で始まる（「426.0875」「MHz」、「8.5」「kHz」）なら、数の行でも折り返し。
+    const UNITS: [&str; 12] = ["GHz", "MHz", "kHz", "Hz", "dB", "kW", "mW", "W", "mm", "cm", "km", "mL"];
+    let unit_split = text.ends_with(|c: char| c.is_ascii_digit()) && UNITS.iter().any(|u| next.starts_with(u));
+    (unit_split || (!numeric && !trailing_number)) && !labeled(&next) && text.chars().count() >= 4 && right - end <= em * WRAP_EM
 }
 
 /// 幅 4 字分までの狭い欄で、`prev` が 2〜3 字の行で欄の右端の 1 字分以内まで組まれ、数を含まない（様式の表の欄見出し「その／他有／
