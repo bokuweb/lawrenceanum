@@ -1888,7 +1888,8 @@ fn near_lines(words: &[Col], from_left: bool) -> Vec<Line> {
 /// 前の行に行間を空けずに続くか（項目名の折り返し）、内容の行と高さが重ならない（「６　発行額」のような
 /// 見出しの行）。6 行以上で、揃う行が 3 つ以上、項目の頭の行の半分以上が番号で始まり、半分以上が字の名前を持つこと。
 fn label_column(labels: &[Line], contents: &[Line]) -> bool {
-    let aligned = |l: &Line| contents.iter().any(|m| (m.center() - l.center()).abs() <= ALIGN_TOL);
+    // 項目名と内容は字の大きさが違うことがある（行の中ほどが 1pt 余りずれる）ので、行の高さの 4 分の 1 まで。
+    let aligned = |l: &Line| contents.iter().any(|m| (m.center() - l.center()).abs() <= ALIGN_TOL.max((l.y1 - l.y0) * 0.25));
     let alone = |l: &Line| !contents.iter().any(|m| m.y0 < l.y1 && l.y0 < m.y1);
     let n = labels.iter().filter(|l| aligned(l)).count();
     let tight = |k: usize| k > 0 && labels[k].y0 - labels[k - 1].y1 < (labels[k].y1 - labels[k].y0) * 0.25;
