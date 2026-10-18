@@ -498,6 +498,45 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                     }
                 }
             }
+            // 新旧対照表のあるページで、帯の外の罫線の表（行ごとの縦の罫線と欄の境の横の罫線のある表。表の後ろの別の告示の
+            // 型式認定の表）が段の切れ目で欄ごとに割れたものは 1 つの段に戻す（欄ごとの一覧になり、どの番号の型式・者か
+            // 分からなかった）。続く段がどれもほとんど表の中で（表の右の日付・署名の列は残ってよい）、表の語を全部含み、
+            // 戻した段で表として組めるときだけ。改正後・改正前の帯（帯の組に見える段）は戻さない。
+            if shinkyu_page && !prev_table {
+                let center = |c: &Col| ((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0);
+                let paired = |tiers: &[Vec<Col>], k: usize| {
+                    detect_shinkyu_header(&tiers[k]).is_some()
+                        || (k > 0 && tiers_look_like_bands(&tiers[k - 1], &tiers[k]))
+                        || (k + 1 < tiers.len() && tiers_look_like_bands(&tiers[k], &tiers[k + 1]))
+                };
+                let mut i = 0;
+                while i + 1 < tiers.len() {
+                    let run = grids.iter().zip(&grid_words).filter(|(g, _)| g.xs.len() >= 4 && g.ys.len() >= 3 && !grids.iter().any(|o| g.encloses(o))).find_map(|(g, gw)| {
+                        let within = |c: &Col| {
+                            let (x, y) = center(c);
+                            g.contains(x, y, 0.0)
+                        };
+                        let mostly = |t: &[Col]| {
+                            let n = t.iter().filter(|c| within(c)).count();
+                            n >= 3 && n * 10 >= t.len() * 8 && t.iter().all(|c| within(c) || c.x >= g.right())
+                        };
+                        let end = (i..tiers.len()).take_while(|&k| mostly(&tiers[k]) && !paired(&tiers, k)).last()?;
+                        if end == i {
+                            return None;
+                        }
+                        let merged: Vec<Col> = tiers[i..=end].iter().flatten().cloned().collect();
+                        let ids: std::collections::HashSet<usize> = merged.iter().map(|c| c.id).collect();
+                        (gw.iter().all(|id| ids.contains(id)) && vertical_inside(&merged, g) && !prose_cells(&merged, g)).then_some(end)
+                    });
+                    match run {
+                        Some(end) => {
+                            let rest: Vec<Col> = tiers.drain(i + 1..=end).flatten().collect();
+                            tiers[i].extend(rest);
+                        }
+                        None => i += 1,
+                    }
+                }
+            }
             // 変更後・変更前の枠（[`split_label_frames`]）の中の表だけの段は、枠の欄見出しのある前の段に戻す（表が別の段に
             // 分かれると、上の欄と下の欄の見出しを読んだ後に両方の欄の表が続いた）。
             if !shinkyu_page {
