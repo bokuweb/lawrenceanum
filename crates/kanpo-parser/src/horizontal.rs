@@ -1571,9 +1571,54 @@ fn join_wrapped_labels(lines: Vec<Line>) -> Vec<Line> {
                 }
             }
         }
+        if let Some(p) = out.last_mut() {
+            if join_wrapped_cells(p, &l) {
+                continue;
+            }
+        }
         out.push(l);
     }
     out
+}
+
+/// 罫線の無い表の行で、欄の中で折り返した続きの行（「輸第105684号　化成肥料　ポリリン酸アンモニウ　セントラルグリーン」の
+/// 下の「ム　株式会社　3418番地」）を、上の行のそれぞれの欄の語につなぐ。続きの行は、上の行の最初の欄（登録番号）に
+/// 語が無く、行間を空けずに続き、どの語も上の行のどれかの欄の語の左右の範囲に収まる。上の行は 4 欄以上。
+fn join_wrapped_cells(p: &mut Line, l: &Line) -> bool {
+    if p.words.len() < 3 || l.words.is_empty() {
+        return false;
+    }
+    let em = p.words.iter().map(|w| w.y1 - w.y).fold(0.0, f32::max).max(1.0);
+    if l.y0 - p.y1 > em * 0.3 || l.words[0].x < p.words[0].x1 + em {
+        return false;
+    }
+    // 4 欄以上の行（1 字分以上空けて並ぶ語が 4 つ以上）だけ（決算公告の「日付　住所」の下の会社名は欄の続きではない）。
+    let cells = 1 + p.words.windows(2).filter(|q| q[1].x - q[0].x1 >= em).count();
+    if cells < 4 {
+        return false;
+    }
+    // 上の行の欄（語）ごとに、続きの語の入る欄を探す（欄の左端から右端の 1 字先まで）。
+    let slot = |w: &Col| p.words.iter().position(|c| w.x >= c.x - em * 0.5 && w.x1 <= c.x1 + em * 2.0 && w.x < c.x1);
+    let slots: Vec<Option<usize>> = l.words.iter().map(slot).collect();
+    if slots.iter().any(|s| s.is_none()) {
+        return false;
+    }
+    // 同じ欄の語は前の行の語の後ろに続ける。上の行の語の後ろに字を足し、続きの語は字の無い語にして置く。
+    let mut added: Vec<(usize, Col)> = Vec::new();
+    for (w, s) in l.words.iter().zip(slots) {
+        let k = s.unwrap();
+        p.words[k].text.push_str(&w.text);
+        let mut e = w.clone();
+        e.text.clear();
+        e.x = p.words[k].x1;
+        e.x1 = e.x + 0.001;
+        added.push((k, e));
+    }
+    for (k, e) in added.into_iter().rev() {
+        p.words.insert(k + 1, e);
+    }
+    p.y1 = p.y1.max(l.y1);
+    true
 }
 
 /// 損益計算書の見出しの右に 2 行に組んだ期間（「自　令和７年４月１日」「至　令和８年３月31日」）は、見出しと「至」の行が
