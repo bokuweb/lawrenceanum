@@ -2536,6 +2536,13 @@ fn collect_corpus_health(public: &Path) -> serde_json::Value {
             date_fields: &[],
         },
         CorpusSpec {
+            name: "hanrei",
+            collection: "cases",
+            unit: "cases",
+            // 裁判年月日は和暦文字列で日付として比較できないため、鮮度は集計しない。
+            date_fields: &[],
+        },
+        CorpusSpec {
             name: "budget",
             collection: "datasets",
             unit: "datasets",

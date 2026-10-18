@@ -1128,6 +1128,7 @@ name = "hanrei-client"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "kanpo-pdf",
  "reqwest",
  "scraper",
  "serde",

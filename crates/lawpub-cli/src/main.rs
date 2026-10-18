@@ -680,6 +680,11 @@ enum Cmd {
         /// 1 回の実行で保存する最大件数。
         #[arg(long, default_value_t = 200)]
         limit: usize,
+        /// 裁判年月日の範囲 (YYYY-MM-DD)。`--to` と併用で過去分を月ごとに取得する。
+        #[arg(long, requires = "to")]
+        from: Option<String>,
+        #[arg(long, requires = "from")]
+        to: Option<String>,
     },
 
     /// `.cache/hanrei/` → `public/hanrei/{case_id}.json` + `index.json` を書き出す。
@@ -979,7 +984,9 @@ fn main() -> Result<()> {
         Cmd::BuildFeeds { public } => feeds::run_build_feeds(&public),
         Cmd::GianFetch { cache, provider, session } => gian::run_fetch(&cache, &provider, session),
         Cmd::GianBuildJson { cache, public } => gian::run_build_json(&cache, &public),
-        Cmd::HanreiFetch { cache, interval_ms, limit } => hanrei::run_fetch(&cache, interval_ms, limit),
+        Cmd::HanreiFetch { cache, interval_ms, limit, from, to } => {
+            hanrei::run_fetch(&cache, interval_ms, limit, from.as_deref(), to.as_deref())
+        }
         Cmd::HanreiBuildJson { cache, public } => hanrei::run_build_json(&cache, &public),
         Cmd::LinkLawsAndHanrei { public } => linking::run_link_hanrei(&public),
         Cmd::BuildEnforcement { public } => enforcement::run_build(&public),

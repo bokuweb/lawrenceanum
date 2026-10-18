@@ -127,6 +127,20 @@ fn extract_refs(
     out
 }
 
+/// 判決文で多用される略称・通称 → 正式名。
+const ALIASES: &[(&str, &str)] = &[
+    ("憲法", "日本国憲法"),
+    ("刑訴法", "刑事訴訟法"),
+    ("民訴法", "民事訴訟法"),
+    ("行訴法", "行政事件訴訟法"),
+    ("国賠法", "国家賠償法"),
+    ("労基法", "労働基準法"),
+    ("労契法", "労働契約法"),
+    ("道交法", "道路交通法"),
+    ("独禁法", "私的独占の禁止及び公正取引の確保に関する法律"),
+    ("独占禁止法", "私的独占の禁止及び公正取引の確保に関する法律"),
+];
+
 pub fn run_link_hanrei(public: &Path) -> Result<()> {
     let index_path = public.join("laws").join("index.json");
     let v: serde_json::Value = serde_json::from_slice(
@@ -142,6 +156,14 @@ pub fn run_link_hanrei(public: &Path) -> Result<()> {
         if !id.is_empty() && title.chars().count() >= 2 {
             ids.push(id.to_string());
             titles.push(title.to_string());
+            // 判例は「刑訴法」「憲法」のように略称・通称で参照する。索引に正式名があるものだけ
+            // 別名を足す。最長一致なので正式名と別名が重なっても正式名が優先される。
+            for (alias, official) in ALIASES {
+                if *official == title {
+                    ids.push(id.to_string());
+                    titles.push((*alias).to_string());
+                }
+            }
         }
     }
     let ac = aho_corasick::AhoCorasick::builder()
@@ -164,7 +186,17 @@ pub fn run_link_hanrei(public: &Path) -> Result<()> {
         }
         let c: serde_json::Value = serde_json::from_slice(&std::fs::read(&path)?)?;
         let s = |k: &str| c[k].as_str().unwrap_or("").to_string();
-        let text = format!("{}\n{}\n{}", s("referenced_laws"), s("holding"), s("summary"));
+        let body = c["body_citations"]
+            .as_array()
+            .map(|a| a.iter().filter_map(|v| v.as_str()).collect::<Vec<_>>().join("\n"))
+            .unwrap_or_default();
+        let text = format!(
+            "{}\n{}\n{}\n{}",
+            s("referenced_laws"),
+            s("holding"),
+            s("summary"),
+            body
+        );
         let mut per_law: BTreeMap<String, Vec<String>> = BTreeMap::new();
         for (law_id, art) in extract_refs(&text, &ac, &id_refs) {
             per_law.entry(law_id).or_default().push(art);
@@ -243,5 +275,43 @@ mod tests {
                 ("S".to_string(), "14".to_string()),
             ]
         );
+    }
+
+    #[test]
+    fn links_aliases_and_body_citations_end_to_end() {
+        let dir = std::env::temp_dir().join(format!("lawpub_hanrei_link_{}", std::process::id()));
+        std::fs::create_dir_all(dir.join("laws")).unwrap();
+        std::fs::create_dir_all(dir.join("hanrei")).unwrap();
+        std::fs::write(
+            dir.join("laws").join("index.json"),
+            serde_json::to_vec(&serde_json::json!({"laws": [
+                {"law_id": "KEISO", "title": "刑事訴訟法"},
+                {"law_id": "KENPO", "title": "日本国憲法"},
+            ]}))
+            .unwrap(),
+        )
+        .unwrap();
+        // 参照法条は空。PDF 本文由来の引用に略称 (刑訴法) と通称 (憲法) が入っている。
+        std::fs::write(
+            dir.join("hanrei").join("1.json"),
+            serde_json::to_vec(&serde_json::json!({
+                "case_id": 1, "case_number": "令和7(あ)1", "case_name": "X事件",
+                "judged_on": "令和8年1月1日", "court": "最高裁判所第一小法廷",
+                "holding": "", "summary": "", "referenced_laws": "",
+                "body_citations": ["いずれも刑訴法４０５条", "憲法３１条"]
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        run_link_hanrei(&dir).unwrap();
+
+        let read = |id: &str| -> LawToHanrei {
+            let p = dir.join("links").join("law-to-hanrei").join(format!("{id}.json"));
+            serde_json::from_slice(&std::fs::read(p).unwrap()).unwrap()
+        };
+        assert_eq!(read("KEISO").linked_cases[0].articles, vec!["405"]);
+        assert_eq!(read("KENPO").linked_cases[0].articles, vec!["31"]);
+        std::fs::remove_dir_all(&dir).ok();
     }
 }

@@ -12,3 +12,4 @@ serde_json.workspace = true
 reqwest = { workspace = true, features = ["blocking"] }
 scraper.workspace = true
 tracing.workspace = true
+kanpo-pdf = { path = "../kanpo-pdf" }
