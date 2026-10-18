@@ -12,7 +12,8 @@
     "gian": { "available": true, "count": 321, "unit": "bills", "latest_item_date": "2026-06-20" },
     "reiki": { "available": true, "count": 2, "unit": "municipalities", "latest_item_date": null },
     "tsutatsu": { "available": true, "count": 3, "unit": "sets", "latest_item_date": null },
-    "budget": { "available": true, "count": 5, "unit": "datasets", "latest_item_date": null }
+    "budget": { "available": true, "count": 5, "unit": "datasets", "latest_item_date": null },
+    "kanpo": { "available": true, "count": 1, "unit": "days", "latest_item_date": "2026-04-02" }
   },
   "errors": []
 }

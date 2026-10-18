@@ -2541,6 +2541,14 @@ fn collect_corpus_health(public: &Path) -> serde_json::Value {
             unit: "datasets",
             date_fields: &[],
         },
+        // 官報は専用ワークフローが集めるので corpus-status.json には載らない
+        // (収集状況の行は「収集履歴なし」になる)。鮮度は配信済みの最新発行日で見る。
+        CorpusSpec {
+            name: "kanpo",
+            collection: "dates",
+            unit: "days",
+            date_fields: &["date"],
+        },
     ];
 
     let collector_state = std::fs::read(public.join("corpus-status.json"))
@@ -3119,6 +3127,26 @@ mod corpus_health_tests {
         assert_eq!(health["procurement"]["count"], 0);
         assert!(health["procurement"]["latest_item_date"].is_null());
 
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn kanpo_counts_delivered_dates_and_latest_issue_date() {
+        let root = std::env::temp_dir().join(format!("lawpub_corpus_health_kanpo_{}", std::process::id()));
+        let kanpo = root.join("kanpo");
+        std::fs::create_dir_all(&kanpo).unwrap();
+        std::fs::write(
+            kanpo.join("index.json"),
+            r#"{"generated_at":"2026-10-17T00:00:00Z","dates":[{"date":"2026-10-16","items":12,"linked_items":3},{"date":"2026-10-15","items":8,"linked_items":1}]}"#,
+        )
+        .unwrap();
+        let health = collect_corpus_health(&root);
+        assert_eq!(health["kanpo"]["available"], true);
+        assert_eq!(health["kanpo"]["count"], 2);
+        assert_eq!(health["kanpo"]["unit"], "days");
+        assert_eq!(health["kanpo"]["latest_item_date"], "2026-10-16");
+        // 専用ワークフローで集めるので収集状況は入らない。
+        assert!(health["kanpo"]["collection_status"].is_null());
         std::fs::remove_dir_all(root).unwrap();
     }
 
