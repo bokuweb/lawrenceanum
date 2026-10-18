@@ -302,7 +302,8 @@ fn vertical_regions(words: &[Col]) -> Vec<(Block, Vec<usize>)> {
             let pitch = (a.x1 - a.x).max(b.x1 - b.x) * 2.0;
             let gap = (a.x.max(b.x) - a.x1.min(b.x1)).max(0.0);
             let overlap = a.y1.min(b.y1) - a.y.max(b.y);
-            if gap <= pitch && overlap > 0.0 {
+            // 前の列の終わりの高さから始まる列（字下げして組んだ署名「代表取締役　中澤　晴彦」）も同じ欄。
+            if gap <= pitch && overlap > -0.5 {
                 let (ra, rb) = (root(&mut group, i), root(&mut group, j));
                 group[ra] = rb;
             }
@@ -1001,7 +1002,20 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
         let (top, bottom) = (g.ys[r], g.ys[r + 1]);
         // 長い欄のある見出し付きの表（[`headed`]）は罫線の行で行を分ける（折り返した欄の行の高さが隣の欄の行と揃い、
         // 左右の欄の行が 1 行ずつ交互に組まれていた）。
-        if item_cols == 0 && ny > 1 && (long_cells || r < header_rows || band.iter().all(|&i| items(i) <= 1)) {
+        // 4 欄以上に字のある罫線の行で、項目の数がいちばん多い欄が 1 つだけなら、欄ごとに行数の違う 1 件の記録（品種登録の
+        // 表の「第31951号／令和８年10月５日」｜…｜住所と名称を何行も並べた欄）なので、行をさらに分けない（欄の行の高さが
+        // たまたま揃って、1 件が 2〜3 行に割れ、欄の中の字が行をまたいで混ざっていた）。金額だけの行のある行（財務諸表）は見ない。
+        let record = {
+            let counts: Vec<usize> = band.iter().filter(|&&i| !cell_lines[i].is_empty()).map(|&i| items(i)).collect();
+            let max = counts.iter().copied().max().unwrap_or(0);
+            let numeric = |l: &Line| {
+                let t = render_line(&l.words);
+                t.chars().any(|c| c.is_ascii_digit()) && t.chars().all(|c| c.is_ascii_digit() || "△▲,.()（）－-―—　 ".contains(c))
+            };
+            let amounts = band.iter().any(|&i| cell_lines[i].iter().any(numeric));
+            counts.len() >= 4 && max >= 2 && counts.iter().filter(|&&c| c == max).count() < 2 && !amounts
+        };
+        if item_cols == 0 && ny > 1 && (long_cells || r < header_rows || record || band.iter().all(|&i| items(i) <= 1)) {
             continue;
         }
         for &i in &band {
@@ -1044,6 +1058,40 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
     anchors.sort_by(f32::total_cmp);
     anchors.dedup_by(|a, b| (*a - *b).abs() < 2.0);
     let row_of = |y: f32| anchors.iter().rposition(|&a| a <= y).unwrap_or(0);
+    // 左端の欄の、右の欄の行をいくつもまたぐ 1 項目のセル（行をまたいで上下中央に置いた「資産の部」「負債及び純資産の部」、
+    // 1 字ずつ縦に積んだ欄の名前）は、またぐ行の 1 行目に置く（中ほどの行の科目「固定資産」に付いていた）。
+    let group_label_row = |i: usize| -> Option<usize> {
+        let gc = g.cells[i];
+        let ls = &cell_lines[i];
+        let all: Vec<&Col> = ls.iter().flat_map(|l| l.words.iter()).collect();
+        if gc.x0 != 0 || ls.is_empty() || (ls.len() != 1 && !stacked(&all)) || header_cell(i) {
+            return None;
+        }
+        let (top, bottom) = (g.ys[gc.y0], g.ys[gc.y1]);
+        let right: Vec<&Line> = (0..g.cells.len())
+            .filter(|&j| g.cells[j].x0 >= gc.x1)
+            .flat_map(|j| cell_lines[j].iter())
+            .filter(|l| top < l.center() && l.center() < bottom)
+            .collect();
+        let mut rows: Vec<usize> = right.iter().map(|l| row_of(l.center())).collect();
+        rows.sort_unstable();
+        rows.dedup();
+        // 罫線の 1 行の中の 2 行（「(2,738,256)」と「103,045,208」の上下 2 段の金額）だけなら、下の行に付いたままにする。
+        if !(rows.len() >= 3 || (rows.len() >= 2 && gc.y1 - gc.y0 >= 2)) {
+            return None;
+        }
+        // 1 行目が括弧の中の数（内数）だけや、2 字までのルビの行なら、行の頭ではない。
+        let first: Vec<String> = right.iter().filter(|l| row_of(l.center()) == rows[0]).map(|l| render_line(&l.words)).collect();
+        // 表の頭の、数の無い行をまたぐ欄見出し（「大分類」「小分類」の 2 行と「細分類」の下の「番号」「項目名」）は動かさない
+        // （上の欄見出しの下の欄見出しの並びの前に出て、欄の順が崩れる）。
+        let heading = gc.y0 == 0 && !right.iter().any(|l| render_line(&l.words).chars().any(|c| c.is_ascii_digit()));
+        if heading {
+            return None;
+        }
+        let inner = first.iter().all(|t| t.starts_with(['(', '（']));
+        let ruby = first.iter().map(|t| t.chars().count()).sum::<usize>() <= 2;
+        (!inner && !ruby).then(|| rows[0])
+    };
     let mut cells: Vec<trace::TableCell> = Vec::new();
     for (i, ls) in cell_lines.iter().enumerate() {
         let gc = g.cells[i];
@@ -1055,7 +1103,13 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
             // 罫線の行を 2 つ以上またぐ狭い欄で、2 字ずつ折り返した 1 項目（様式の表の欄見出し「株式／引受／金」）も、一番上の
             // 行に置く。
             let narrow = (1..ls.len()).all(|k| narrow_wrapped(&ls[k - 1], g.xs[gc.x0], g.xs[gc.x1]));
-            let row = if whole || (gc.y1 - gc.y0 > 1 && (narrow || header_cell(i))) { row_of(ls[0].center()) } else { row_of(l.center()) };
+            let row = if let Some(first) = group_label_row(i) {
+                first
+            } else if whole || (gc.y1 - gc.y0 > 1 && (narrow || header_cell(i))) {
+                row_of(ls[0].center())
+            } else {
+                row_of(l.center())
+            };
             by_row.entry(row).or_default().push(l);
         }
         for (row, ls) in by_row {
