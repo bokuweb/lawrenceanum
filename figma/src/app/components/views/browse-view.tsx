@@ -12,7 +12,7 @@ import { ARTICLES_V2, TIMELINE_EVENTS, type LawSummary } from "../mock-data";
 import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark, MessageSquare, Newspaper, ScrollText, Network } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 import { useLaws, useLawDetail } from "../../data/use-laws";
-import { api, hanreiUrl, type AppendixTable, type LawToHanrei, type LawToProceedings, type LawToPubcomments, type LawToTsutatsu } from "../../data/api";
+import { api, hanreiUrl, type AppendixTable, type LawToHanrei, type LawToProceedings, type LawToRulemaking, type LawToPubcomments, type LawToTsutatsu } from "../../data/api";
 import { AmendDocumentView } from "../amend-document-view";
 import { getRefsForLaw, type ArticleRef } from "../../data/search-engine";
 import { EgovAttribution, toJstDate } from "../egov-attribution";
@@ -485,6 +485,18 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
   }, [law.law_id]);
   const linkedTsutatsu = tsutatsu?.linked_tsutatsu ?? [];
 
+  // この法令の制定経緯（パブコメ→結果公示→公布→施行）。連鎖が無ければ非表示。
+  const [rulemaking, setRulemaking] = useState<LawToRulemaking | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    setRulemaking(null);
+    api.lawToRulemaking(law.law_id)
+      .then(d => { if (!cancelled) setRulemaking(d); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [law.law_id]);
+  const rulemakingChains = rulemaking?.chains.filter(c => c.resolved) ?? [];
+
   // この法令を参照した判例（law→hanrei クロスリンク）。リンクが無ければ非表示。
   const [hanrei, setHanrei] = useState<LawToHanrei | null>(null);
   useEffect(() => {
@@ -643,6 +655,38 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
             ))}
           </div>
           <p className="text-[10px] text-muted-foreground mt-1.5">国税庁の法令解釈通達（本文の「法」はこの法令を指します）</p>
+        </div>
+      )}
+
+      {rulemakingChains.length > 0 && (
+        <div className="border-b border-border bg-background px-6 py-3">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground mb-2">
+            <ScrollText className="size-3" />
+            制定・改正の経緯 ({rulemakingChains.length})
+          </div>
+          <ul className="space-y-2">
+            {rulemakingChains.slice(0, 5).map(c => (
+              <li key={c.chain_id} className="text-xs">
+                <ol className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
+                  {c.steps.map((s, i) => (
+                    <li key={`${s.kind}-${s.ref_id}-${i}`} className="inline-flex items-center gap-1.5">
+                      {i > 0 && <span className="text-muted-foreground">→</span>}
+                      <span className="whitespace-nowrap">
+                        <span className="text-muted-foreground">{s.date}</span> {s.label}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+                {c.confidence < 0.9 && (
+                  <p className="text-[10px] text-muted-foreground mt-0.5">日付の近さから推定した対応です</p>
+                )}
+                {c.kanpo_pdf_url && (
+                  <a href={c.kanpo_pdf_url} target="_blank" rel="noopener noreferrer"
+                     className="text-[11px] text-primary hover:underline">官報（改め文）</a>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

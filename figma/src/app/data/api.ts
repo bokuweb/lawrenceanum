@@ -442,6 +442,8 @@ export const api = {
   /** 法令 ↔ 通達 クロスリンク (通達集の親法令単位)。 */
   lawToTsutatsu: (lawId: string) => getJson<LawToTsutatsu>(`./links/law-to-tsutatsu/${lawId}.json`),
 
+  /** 法令の制定経緯 (パブコメ → 結果公示 → 公布 → 施行) の連鎖。 */
+  lawToRulemaking: (lawId: string) => getJson<LawToRulemaking>(`./links/law-to-rulemaking/${lawId}.json`),
   /** 法令 ↔ 判例 クロスリンク (判例の参照法条から抽出)。 */
   lawToHanrei: (lawId: string) => getJson<LawToHanrei>(`./links/law-to-hanrei/${lawId}.json`),
 
@@ -766,6 +768,29 @@ export type LawToTsutatsu = {
   schema_version: number
   law_id: string
   linked_tsutatsu: LinkedTsutatsu[]
+}
+
+/** 法令の制定経緯。`steps` は日付昇順。`resolved=false` は公布イベントと突合できなかったパブコメ。 */
+export type RulemakingStep = {
+  /** pubcomment_start | pubcomment_end | pubcomment_result | promulgation | effective */
+  kind: string
+  date: string
+  label: string
+  ref_id: string
+}
+export type RulemakingChain = {
+  chain_id: string
+  confidence: number
+  match_reasons: string[]
+  steps: RulemakingStep[]
+  pubcomment_case_ids: string[]
+  resolved: boolean
+  kanpo_pdf_url?: string | null
+}
+export type LawToRulemaking = {
+  schema_version: number
+  law_id: string
+  chains: RulemakingChain[]
 }
 
 /** 法令 → 判例 クロスリンク。出典は裁判所 裁判例検索 (`/hanrei/{case_id}/detail2/`)。 */

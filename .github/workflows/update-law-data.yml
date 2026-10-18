@@ -561,6 +561,9 @@ jobs:
             || echo "::warning::pubcomment-build-json failed"
           ./target/release/lawpub link-laws-and-pubcomment --public public \
             || echo "::warning::link-laws-and-pubcomment failed"
+          # パブコメ → 結果公示 → 公布 → 施行 の制定経緯を、laws の timeline と結合する。
+          ./target/release/lawpub link-rulemaking --public public \
+            || echo "::warning::link-rulemaking failed"
           # link が法令 current.json に backlink を書くため、何があっても manifest を
           # 実体から作り直す (stale だと後段の Validate が sha 不一致で落ちて deploy ごと止まる)。
           ./target/release/lawpub rebuild-manifest --public public \

@@ -695,6 +695,13 @@ enum Cmd {
         public: PathBuf,
     },
 
+    /// パブコメ → 結果公示 → 公布 → 施行 を法令ごとの制定経緯の連鎖にまとめ、
+    /// `public/links/law-to-rulemaking/{law_id}.json` を生成する (`link-laws-and-pubcomment` の後に実行)。
+    LinkRulemaking {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
     /// 判例の参照法条から `public/links/law-to-hanrei/{law_id}.json` を生成する。
     LinkLawsAndHanrei {
         #[arg(long, default_value = "public")]
@@ -988,6 +995,7 @@ fn main() -> Result<()> {
             hanrei::run_fetch(&cache, interval_ms, limit, from.as_deref(), to.as_deref())
         }
         Cmd::HanreiBuildJson { cache, public } => hanrei::run_build_json(&cache, &public),
+        Cmd::LinkRulemaking { public } => linking::run_link_rulemaking(&public),
         Cmd::LinkLawsAndHanrei { public } => linking::run_link_hanrei(&public),
         Cmd::BuildEnforcement { public } => enforcement::run_build(&public),
         Cmd::WikiPlan { base_url, wiki, work, max_items, max_probes, lookback_days, today, max_bills, max_pubcomments, max_kanpo, max_roster, reiki_base_url, chunk_size } => {
