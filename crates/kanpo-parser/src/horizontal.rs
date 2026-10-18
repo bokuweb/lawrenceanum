@@ -1034,6 +1034,53 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
             });
         }
     }
+    // 科目の欄で折り返した科目（「（役員退任給与引当」「金）」）が、隣の欄の行の頭で 2 行に分かれ、金額が 2 行目に
+    // しか無ければ、1 行目の字を 2 行目の頭へ移す（科目と金額を同じ行にする）。1 行目の科目が欄の右端まで組まれていて、
+    // 2 行目の科目が 3 字以内のときだけ。
+    let at = |cells: &[trace::TableCell], row: usize, col: usize| cells.iter().position(|c| c.row == row && c.col == col);
+    let mut k = 0;
+    while k < cells.len() {
+        let (row, col) = (cells[k].row, cells[k].col);
+        let next = at(&cells, row + 1, col);
+        let amount_here = at(&cells, row, col + 1).is_some_and(|i| !cells[i].text.is_empty());
+        let amount_next = at(&cells, row + 1, col + 1).is_some_and(|i| !cells[i].text.is_empty());
+        let reaches = {
+            let ws: Vec<&Col> = words.iter().filter(|w| cells[k].words.contains(&w.id)).collect();
+            let end = ws.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
+            let em = ws.iter().map(|w| w.y1 - w.y).fold(0.0, f32::max).max(1.0);
+            cells[k].x1 - end <= em * WRAP_EM
+        };
+        // 科目は字で書き（金額の欄を動かさない）、続きは字と括弧だけ。見出しの行（1 行目）は動かさない。
+        let kana_kanji = |c: char| ('\u{3040}'..='\u{30FF}').contains(&c) || ('\u{4E00}'..='\u{9FFF}').contains(&c);
+        // 1 行目は科目の途中で切れている（「販売費及び一般管理」「法人税・住民税及び」）。科目の名前や括弧で終わるもの
+        // （「有形固定資産」「（負債合計）」。金額が離れた欄にある）は動かさない。
+        const TERMS: [&str; 14] = ["負債", "資産", "資本", "利益", "損失", "収益", "費用", "引当金", "剰余金", "準備金", "積立金", "差額金", "合計", "株式"];
+        let t = cells[k].text.trim_end();
+        let label = t.chars().any(kana_kanji) && !t.chars().any(|c| c.is_ascii_digit()) && !TERMS.iter().any(|e| t.ends_with(e)) && !t.ends_with(['）', ')']);
+        let tail = |t: &str| t.chars().all(|c| kana_kanji(c) || "（）()".contains(c));
+        // 折り返しの続きは行間を空けずに続く（別の科目の行は行間が空く）。
+        let bottom = |i: usize| words.iter().filter(|w| cells[i].words.contains(&w.id)).map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max);
+        let top = |i: usize| words.iter().filter(|w| cells[i].words.contains(&w.id)).map(|w| w.y).fold(f32::INFINITY, f32::min);
+        let height = words.iter().filter(|w| cells[k].words.contains(&w.id)).map(|w| w.y1 - w.y).fold(0.0, f32::max).max(1.0);
+        if let Some(n) = next.filter(|&n| {
+            row > 0
+                && label
+                && tail(&cells[n].text)
+                && !amount_here
+                && amount_next
+                && reaches
+                && cells[n].text.chars().count() <= 3
+                && !cells[k].text.contains('\n')
+                && top(n) - bottom(k) < height * 0.25
+        }) {
+            let (text, ids) = (cells[k].text.clone(), cells[k].words.clone());
+            cells[n].text = text + &cells[n].text;
+            cells[n].words.splice(0..0, ids);
+            cells.remove(k);
+            continue;
+        }
+        k += 1;
+    }
     // 字の無い行は詰める。
     let mut used: Vec<usize> = cells.iter().map(|c| c.row).collect();
     used.sort_unstable();
