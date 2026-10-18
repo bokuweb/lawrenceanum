@@ -720,7 +720,11 @@ fn unruled_records(g: &Grid, cols: &[Col]) -> bool {
     let head = |t: &str| t.chars().filter(|c| !c.is_whitespace()).take(2).collect::<String>();
     cells.iter().any(|cell| {
         cell.iter().skip(1).any(|(_, t)| t.starts_with('〃'))
-            || cell.iter().enumerate().any(|(i, (_, a))| head(a).chars().count() == 2 && cell[i + 1..].iter().any(|(_, b)| head(a) == head(b)))
+            // 書き出しの 2 字が同じで、字数もほぼ同じ列（「交Ｎ26－79」「交Ｎ26－80」）。名前と住所（「沖縄県」「沖縄県那覇市泉崎」）は違う。
+            || cell.iter().enumerate().any(|(i, (_, a))| {
+                let n = |t: &str| t.chars().filter(|c| !c.is_whitespace()).count() as i32;
+                head(a).chars().count() == 2 && cell[i + 1..].iter().any(|(_, b)| head(a) == head(b) && (n(a) - n(b)).abs() <= 2)
+            })
     })
 }
 

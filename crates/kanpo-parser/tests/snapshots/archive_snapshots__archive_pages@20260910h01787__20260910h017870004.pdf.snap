@@ -2,88 +2,22 @@
 source: crates/kanpo-parser/tests/archive_snapshots.rs
 expression: out
 input_file: crates/kanpo-parser/tests/archive/pages/20260910h01787/20260910h017870004.pdf
-snapshot_kind: text
 ---
 layout: tiers
 format: unknown
 
 --- 本文 ---
-第31856号〃Suncal 8841サントリーフラ〃〃
-令和８年９月ワーズ株式会社
-10日東京都港区芝四丁
-目17番５号
-第31857号〃Suncal 1792〃〃〃
-令和８年９月
-10日
-第31860号令和８年９月10日　Catharanthusroseus(L.)G.Don　CaTU 195　〃
-第31861号令和８年９月10日　〃　CaTU 1914　〃
-第31862号令和８年９月10日　〃　MYCAT033　号
-〃〃
-〃〃
-株式会社ミヨシ〃〃
-東京都世田谷区八
-幡山２丁目１番８
-第31863号
-令和８年９月
-10日
-第31867号
-令和８年９月
-10日
-第31868号
-令和８年９月
-10日
-第31869号
-令和８年９月
-10日
-第31870号
-令和８年９月
-10日
-第31871号
-令和８年９月
-10日
-Citrullus lanatus
-(Thunb.)
-Matsum.&
-Nakai
-Glycine max(L.)
-Merr.
-Grifola frondosa
-(Fr.) S. F. Gray
-Hylotelephium
-H. Ohba
-〃
-Impatiens New
-Guinea Group
-台じょうぶ鳥取県
-鳥取県鳥取市東町
-一丁目220番地
-島そだち国立大学法人広島
-大学
-広島県東広島市鏡
-山一丁目３番２号
-KM-7株式会社かつらぎ
-産業
-和歌山県橋本市高
-野口町向島123番
-地の１
-Lime Twister Christopher M.
-Hansen
-1507 Shenandoah
-Drive, Zeeland,
-Michigan 49464-
-8358, USA
-Wildfire〃
-SAKIMP072株式会社サカタの
-タネ
-神奈川県横浜市都
-筑区仲町台二丁目
-７番１号
-〃〃
-〃〃
-〃〃
-〃〃
-〃〃
-〃〃
+第31856号令和８年９月10日　〃　Suncal 8841　サントリーフラワーズ株式会社東京都港区芝四丁目17番５号　〃　〃
+第31857号令和８年９月10日　〃　Suncal 1792　〃　〃　〃
+第31860号令和８年９月10日　Catharanthusroseus(L.) G.Don　CaTU 195　〃　〃　〃
+第31861号令和８年９月10日　〃　CaTU 1914　〃　〃　〃
+第31862号令和８年９月10日　〃　MYCAT033　株式会社ミヨシ東京都世田谷区八幡山２丁目１番８号　〃　〃
+第31863号令和８年９月10日　Citrullus lanatus(Thunb.)　Matsum.&　Nakai　台じょうぶ　鳥取県　鳥取県鳥取市東町一丁目220番地　〃　〃
+第31867号令和８年９月10日　Glycine max(L.)Merr.　島そだち　国立大学法人広島大学　広島県東広島市鏡山一丁目３番２号　〃　〃
+第31868号令和８年９月10日　Grifola frondosa(Fr.) S. F. Gray　KM-7　株式会社かつらぎ産業　和歌山県橋本市高野口町向島123番地の１　〃　〃
+第31869号令和８年９月10日　HylotelephiumH. Ohba　Lime Twister　Christopher M.Hansen　1507 ShenandoahDrive, Zeeland,Michigan 49464-8358, USA　〃　〃
+第31870号令和８年９月10日　〃　Wildfire　〃　〃　〃
+第31871号令和８年９月10日　Impatiens NewGuinea Group　SAKIMP072　株式会社サカタのタネ　神奈川県横浜市都筑区仲町台二丁目７番１号　〃　〃
 第31872号令和８年９月10日　〃　SAKIMP073　〃　〃　〃
 第31873号令和８年９月10日　〃　SAKIMP074　〃　〃　〃
 第31876号令和８年９月10日　Ipomoea batatas(L.) Lam.　ひめあずま　国立研究開発法人農業・食品産業技術総合研究機構茨城県つくば市観音台三丁目１番地１　〃　〃
@@ -128,35 +62,18 @@ SAKIMP072株式会社サカタの
 
 --- 記事 ---
 ## 0 (unknown)
-  P 第31856号〃Suncal 8841サントリーフラ〃〃令和８年９月ワーズ株式会社
-    10日東京都港区芝四丁目17番５号
-    第31857号〃Suncal 1792〃〃〃令和８年９月
-    10日
-  P [表 3x4]
-      | 第31860号令和８年９月10日 | Catharanthusroseus(L.)G.Don | CaTU 195 | 〃 |
-      | 第31861号令和８年９月10日 | 〃 | CaTU 1914 | 〃 |
-      | 第31862号令和８年９月10日 | 〃 | MYCAT033 | 号 |
-  P 〃〃〃〃株式会社ミヨシ〃〃東京都世田谷区八幡山２丁目１番８
-    第31863号令和８年９月
-    10日
-    第31867号令和８年９月
-    10日
-    第31868号令和８年９月
-    10日
-    第31869号令和８年９月
-    10日
-    第31870号令和８年９月
-    10日
-    第31871号令和８年９月
-    10日Citrullus lanatus
-    (Thunb.)Matsum.&NakaiGlycine max(L.)Merr.Grifola frondosa
-    (Fr.) S. F. GrayHylotelephiumH. Ohba〃Impatiens NewGuinea Group台じょうぶ鳥取県鳥取県鳥取市東町
-    一丁目220番地島そだち国立大学法人広島大学広島県東広島市鏡山一丁目３番２号KM-7株式会社かつらぎ産業和歌山県橋本市高野口町向島123番地の１Lime Twister Christopher M.Hansen
-    1507 ShenandoahDrive, Zeeland,Michigan 49464-
-    8358, USAWildfire〃SAKIMP072株式会社サカタの
-    タネ神奈川県横浜市都筑区仲町台二丁目
-    ７番１号〃〃〃〃〃〃〃〃〃〃〃〃
-  P [表 3x6]
+  P [表 14x6]
+      | 第31856号令和８年９月10日 | 〃 | Suncal 8841 | サントリーフラワーズ株式会社東京都港区芝四丁目17番５号 | 〃 | 〃 |
+      | 第31857号令和８年９月10日 | 〃 | Suncal 1792 | 〃 | 〃 | 〃 |
+      | 第31860号令和８年９月10日 | Catharanthusroseus(L.) G.Don | CaTU 195 | 〃 | 〃 | 〃 |
+      | 第31861号令和８年９月10日 | 〃 | CaTU 1914 | 〃 | 〃 | 〃 |
+      | 第31862号令和８年９月10日 | 〃 | MYCAT033 | 株式会社ミヨシ東京都世田谷区八幡山２丁目１番８号 | 〃 | 〃 |
+      | 第31863号令和８年９月10日 | Citrullus lanatus(Thunb.)⏎Matsum.&⏎Nakai | 台じょうぶ | 鳥取県⏎鳥取県鳥取市東町一丁目220番地 | 〃 | 〃 |
+      | 第31867号令和８年９月10日 | Glycine max(L.)Merr. | 島そだち | 国立大学法人広島大学⏎広島県東広島市鏡山一丁目３番２号 | 〃 | 〃 |
+      | 第31868号令和８年９月10日 | Grifola frondosa(Fr.) S. F. Gray | KM-7 | 株式会社かつらぎ産業⏎和歌山県橋本市高野口町向島123番地の１ | 〃 | 〃 |
+      | 第31869号令和８年９月10日 | HylotelephiumH. Ohba | Lime Twister | Christopher M.Hansen⏎1507 ShenandoahDrive, Zeeland,Michigan 49464-8358, USA | 〃 | 〃 |
+      | 第31870号令和８年９月10日 | 〃 | Wildfire | 〃 | 〃 | 〃 |
+      | 第31871号令和８年９月10日 | Impatiens NewGuinea Group | SAKIMP072 | 株式会社サカタのタネ⏎神奈川県横浜市都筑区仲町台二丁目７番１号 | 〃 | 〃 |
       | 第31872号令和８年９月10日 | 〃 | SAKIMP073 | 〃 | 〃 | 〃 |
       | 第31873号令和８年９月10日 | 〃 | SAKIMP074 | 〃 | 〃 | 〃 |
       | 第31876号令和８年９月10日 | Ipomoea batatas(L.) Lam. | ひめあずま | 国立研究開発法人農業・食品産業技術総合研究機構茨城県つくば市観音台三丁目１番地１ | 〃 | 〃 |
