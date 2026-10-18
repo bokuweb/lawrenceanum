@@ -498,6 +498,26 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                     }
                 }
             }
+            // 変更後・変更前の枠（[`split_label_frames`]）の中の表だけの段は、枠の欄見出しのある前の段に戻す（表が別の段に
+            // 分かれると、上の欄と下の欄の見出しを読んだ後に両方の欄の表が続いた）。
+            if !shinkyu_page {
+                let mut i = 1;
+                while i < tiers.len() {
+                    let inside = label_frames(&tiers[i - 1], &hrules, &vrules).iter().any(|&(x0, x1, top, bottom, _)| {
+                        !tiers[i].is_empty()
+                            && tiers[i].iter().all(|c| {
+                                let (cx, cy) = ((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0);
+                                cx > x0 && cx < x1 && cy > top && cy < bottom
+                            })
+                    });
+                    if inside {
+                        let t = tiers.remove(i);
+                        tiers[i - 1].extend(t);
+                    } else {
+                        i += 1;
+                    }
+                }
+            }
             // 段の中の罫線の表（他の枠を含まない枠で、中の語が全部この段にあり、中の字が縦組みで、
             // セルに文章の入っていないものだけ。横組みの表は行ごとに読むこれまでの組み方のほうがよい）。
             let inner_grids = |tier: &[Col]| -> Vec<&Grid> {
@@ -564,9 +584,14 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         band_pair_unit(tier, next, &grids, page_rules)
                     }
                     // 普通の本文の段でも、罫線の表と、行の見出しの記号が並ぶ罫線の無い表は表として組む。
+                    // 上下の欄に分けた変更後・変更前の枠（[`split_label_frames`]）は、枠の右・上の欄・下の欄・枠の左の順に読む。
                     None => {
-                        let inner = inner_grids(&tier);
-                        Unit::Plain(drop_stray_labels(lines_with_tables_by(tier, &inner, |c| page_lines_keyed(c, &vrules, &hrules))))
+                        let mut lines = Vec::new();
+                        for part in split_label_frames(tier, &hrules, &vrules) {
+                            let inner = inner_grids(&part);
+                            lines.extend(lines_with_tables_by(part, &inner, |c| page_lines_keyed(c, &vrules, &hrules)));
+                        }
+                        Unit::Plain(drop_stray_labels(lines))
                     }
                 };
                 units.push(unit);
@@ -931,6 +956,93 @@ fn split_off_leading_frame(cols: Vec<Col>, rules: Option<&PageRules>) -> Result<
         }
     }
     Ok((after, before, rest))
+}
+
+/// 縦組みの欄見出し（「変更後」「改正後」。1 字ずつの語「変」「更」「後」も）の左右の範囲と上端・下端。同じ x に
+/// 並ぶ 3 字までの語を、間が 80pt 以内なら上からつないで見る。
+fn vertical_labels(cols: &[Col], last: char) -> Vec<(f32, f32, f32, f32)> {
+    let mut short: Vec<&Col> = cols.iter().filter(|c| c.text.chars().filter(|ch| !ch.is_whitespace()).count() <= 3).collect();
+    short.sort_by(|a, b| a.x.total_cmp(&b.x).then(a.y.total_cmp(&b.y)));
+    let mut out = Vec::new();
+    for (i, c) in short.iter().enumerate() {
+        let mut text = String::new();
+        let mut end = c.y;
+        for d in short[i..].iter().filter(|d| (d.x - c.x).abs() <= 1.5 && d.y >= c.y) {
+            if d.y - end > 80.0 {
+                break;
+            }
+            text.extend(d.text.chars().filter(|ch| !ch.is_whitespace()));
+            end = d.y1;
+            if text.chars().count() >= 3 {
+                break;
+            }
+        }
+        if text == format!("変更{last}") || text == format!("改正{last}") {
+            out.push((c.x, c.x1, c.y, end));
+        }
+    }
+    out
+}
+
+/// [`split_label_frames`] の枠 `(左端, 右端, 上端, 下端, 上下の欄の境)`。
+fn label_frames(tier: &[Col], hrules: &[(f32, f32, f32)], vrules: &[(f32, f32, f32)]) -> Vec<(f32, f32, f32, f32, f32)> {
+    let after = vertical_labels(tier, '後');
+    let before = vertical_labels(tier, '前');
+    after
+        .iter()
+        .filter_map(|a| {
+            let b = before.iter().find(|b| (b.0 - a.0).abs() <= 1.5 && b.2 > a.3)?;
+            let &(y, x0, x1) = hrules
+                .iter()
+                .filter(|&&(y, x0, x1)| y > a.3 && y < b.2 && x0 <= a.0 && x1 >= a.1)
+                .max_by(|p, q| (p.2 - p.1).total_cmp(&(q.2 - q.1)))?;
+            let side = |x: f32| vrules.iter().find(|v| (v.0 - x).abs() <= 3.0 && v.1 < y && v.2 > y).map(|v| (v.1, v.2));
+            let (top, bottom) = match (side(x0), side(x1)) {
+                (Some(l), Some(r)) => (l.0.min(r.0), l.1.max(r.1)),
+                _ => (f32::NEG_INFINITY, f32::INFINITY),
+            };
+            let crosses = tier.iter().any(|c| {
+                let edge = |x: f32| c.x < x - 3.0 && c.x1 > x + 3.0;
+                let inside = c.x1 > x0 && c.x < x1;
+                edge(x0) || edge(x1) || (inside && (c.y < top - 2.0 || c.y1 > bottom + 2.0)) || (inside && c.y < y - 1.0 && c.y1 > y + 1.0)
+            });
+            (!crosses).then_some((x0, x1, top, bottom, y))
+        })
+        .collect()
+}
+
+/// 縦組みの段の中の、横の罫線で上の欄（欄見出し「変更後」）と下の欄（「変更前」）に分けた枠を切り出す（航空灯火の
+/// 告示の変更の表: 上の欄の見出し・表と下の欄の見出し・表が同じ x に並び、同じ x の見出しの列が上下の欄で 1 行に
+/// つながって「変更後変更前」と読まれていた）。
+///
+/// 欄見出しの組が同じ x にあり、その間に見出しの左右に掛かる横の罫線があれば、その線の左右の範囲を枠とする。枠の
+/// 上下の端は、線の両端を通る縦の罫線（無ければ段の上下の端）。枠の左右の境をまたぐ語や、枠の上・下にはみ出す
+/// 語があれば切らない。戻り値は読む順の部分（枠の右・上の欄・下の欄・枠の左）。枠の左右は続けて同じように見る。
+pub(crate) fn split_label_frames(tier: Vec<Col>, hrules: &[(f32, f32, f32)], vrules: &[(f32, f32, f32)]) -> Vec<Vec<Col>> {
+    let found = label_frames(&tier, hrules, vrules).first().map(|f| (f.0, f.1, f.4));
+    let Some((x0, x1, mid)) = found else {
+        return vec![tier];
+    };
+    let (mut right, mut upper, mut lower, mut left) = (Vec::new(), Vec::new(), Vec::new(), Vec::new());
+    for c in tier {
+        let (cx, cy) = ((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0);
+        if cx > x1 {
+            right.push(c);
+        } else if cx < x0 {
+            left.push(c);
+        } else if cy < mid {
+            upper.push(c);
+        } else {
+            lower.push(c);
+        }
+    }
+    let mut parts = if right.is_empty() { Vec::new() } else { split_label_frames(right, hrules, vrules) };
+    parts.push(upper);
+    parts.push(lower);
+    if !left.is_empty() {
+        parts.extend(split_label_frames(left, hrules, vrules));
+    }
+    parts
 }
 
 /// 段の字が紙面の上半分（改正後の帯）にだけあり、新しい記事（「〇」で始まる行）も附則も欄見出しも無いか。

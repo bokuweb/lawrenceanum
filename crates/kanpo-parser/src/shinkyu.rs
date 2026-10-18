@@ -914,7 +914,19 @@ impl ShinkyuLayout {
             preamble: page_lines(self.preamble),
             after: self.after.into_iter().map(|p| lines_with_tables(p, &after_grids)).collect(),
             before: self.before.into_iter().map(|p| lines_with_tables(p, &before_grids)).collect(),
-            outside: self.trailing.into_iter().map(|p| lines_with_tables_by(p, &outside_grids, page_lines)).collect(),
+            // 表の外の記事の変更後・変更前の枠は、上の欄・下の欄の順に読む（[`crate::vertical::split_label_frames`]）。
+            outside: self
+                .trailing
+                .into_iter()
+                .map(|p| {
+                    let hrules: Vec<(f32, f32, f32)> = rules.map(|r| r.horizontal.iter().map(|h| (h.y, h.x0, h.x1)).collect()).unwrap_or_default();
+                    let vrules: Vec<(f32, f32, f32)> = rules.map(|r| r.vertical.iter().map(|v| (v.x, v.y0, v.y1)).collect()).unwrap_or_default();
+                    crate::vertical::split_label_frames(p, &hrules, &vrules)
+                        .into_iter()
+                        .flat_map(|part| lines_with_tables_by(part, &outside_grids, page_lines))
+                        .collect()
+                })
+                .collect(),
         }
     }
 }
