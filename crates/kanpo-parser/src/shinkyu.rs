@@ -181,13 +181,14 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
     // 上下の本文が順序も含めてほぼ同じであること（新旧対照表は改正後 ≒ 改正前）。文字の
     // 集合だけ比べると、似た法令文が続く普通の 2 段組み（政令本文など）も似て見えるので、
     // 最長共通部分列の長さの比で比べる。
-    // 上下の段の列の頭の項番号（「25」「26」…）が重ならず、下の段が上の段の続きの番号なら、改め文の続き（同じ形の項が
+    // 上下の段の列の頭の項番号（「25」「26」…）か条番号が重ならず、下の段が上の段の続きの番号なら、改め文の続き（同じ形の項が
     // 並ぶ「…五年を経過したときは、…審判手続開始の決定をすることができない。」）。新旧対照表の改正前の欄は改正後の欄と
     // 同じ項番号を繰り返す。
-    if let (Some(u), Some(l)) = (item_numbers(&upper), item_numbers(&lower)) {
-        if u.len() >= 3 && l.len() >= 3 && l.iter().min() > u.iter().max() {
-            return None;
-        }
+    let ((ui, ua), (li, la)) = (item_numbers(&upper), item_numbers(&lower));
+    let continues = |u: &[u32], l: &[u32]| u.len() >= 3 && l.len() >= 3 && l.iter().min() > u.iter().max();
+    // 条の見出しは上下で 2 つ以上ずつ（条の中の項番号「２」「３」は条ごとに振り直すので、条番号を先に見る）。
+    if continues(&ui, &li) || (ua.len() >= 2 && la.len() >= 1 && la.iter().min() > ua.iter().max() && ua.len() + la.len() >= 4) {
+        return None;
     }
     let ut = reconstruct_page(upper);
     let lt = reconstruct_page(lower);
@@ -197,18 +198,46 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
     Some(divider)
 }
 
-/// 段の列の頭の項番号（算用数字で始まる列の頭の数）。無ければ `None`。
-fn item_numbers(band: &[Col]) -> Option<Vec<u32>> {
-    let nums: Vec<u32> = column_groups(band.to_vec())
-        .iter()
-        .filter_map(|g| {
-            let top = g.iter().min_by(|a, b| a.y.total_cmp(&b.y))?;
-            let digit = |c: char| c.to_digit(10).or_else(|| ('０'..='９').contains(&c).then(|| c as u32 - '０' as u32));
-            let digits: Vec<u32> = top.text.trim().chars().map_while(digit).collect();
-            (1..=3).contains(&digits.len()).then(|| digits.iter().fold(0, |n, d| n * 10 + d))
-        })
-        .collect();
-    (!nums.is_empty()).then_some(nums)
+/// 段の列の頭の番号（算用数字で始まる列の頭の項番号と、条の見出し「第二十八条」の条番号を別々に。枝番の「の二」は
+/// 同じ条として見る）。
+fn item_numbers(band: &[Col]) -> (Vec<u32>, Vec<u32>) {
+    let (mut items, mut articles) = (Vec::new(), Vec::new());
+    for g in column_groups(band.to_vec()) {
+        let Some(top) = g.iter().min_by(|a, b| a.y.total_cmp(&b.y)) else { continue };
+        let t = top.text.trim();
+        let digit = |c: char| c.to_digit(10).or_else(|| ('０'..='９').contains(&c).then(|| c as u32 - '０' as u32));
+        let digits: Vec<u32> = t.chars().map_while(digit).collect();
+        if (1..=3).contains(&digits.len()) {
+            items.push(digits.iter().fold(0, |n, d| n * 10 + d));
+        } else if let Some(rest) = t.strip_prefix('第') {
+            let kanji: String = rest.chars().take_while(|c| "〇一二三四五六七八九十百千".contains(*c)).collect();
+            if let Some(n) = rest[kanji.len()..].starts_with('条').then(|| kanji_number(&kanji)).flatten() {
+                articles.push(n);
+            }
+        }
+    }
+    (items, articles)
+}
+
+/// 漢数字（「二十八」「百五十六」「千二百」）の値。
+fn kanji_number(s: &str) -> Option<u32> {
+    let digit = |c: char| "〇一二三四五六七八九".find(c).map(|i| (i / '一'.len_utf8()) as u32);
+    let (mut total, mut cur) = (0u32, 0u32);
+    for c in s.chars() {
+        match c {
+            '十' | '百' | '千' => {
+                let unit = match c {
+                    '十' => 10,
+                    '百' => 100,
+                    _ => 1000,
+                };
+                total += cur.max(1) * unit;
+                cur = 0;
+            }
+            _ => cur = cur * 10 + digit(c)?,
+        }
+    }
+    (!s.is_empty()).then_some(total + cur)
 }
 
 /// 帯が、高さの真ん中あたり（3 割〜7 割）で列のまたがない横の空きにより、それぞれ 4 分の 1 以上の
@@ -1257,6 +1286,7 @@ fn column_heads(cols: &[Col]) -> Vec<ColumnHead> {
 
 #[cfg(test)]
 mod tests {
+    use super::kanji_number;
     use crate::format::detect_format;
     use crate::reconstruct_vertical;
 
@@ -1319,6 +1349,14 @@ mod tests {
         let out = reconstruct_vertical(&page_with_lower_tiers(184.0));
         let after = after_block(&out);
         assert!(after.contains("甲0") && !after.contains("丙0"), "{out}");
+    }
+
+    #[test]
+    fn reads_kanji_numbers() {
+        for (s, n) in [("二十八", 28), ("百五十六", 156), ("千二百三十七", 1237), ("十", 10), ("三", 3), ("二〇", 20)] {
+            assert_eq!(kanji_number(s), Some(n), "{s}");
+        }
+        assert_eq!(kanji_number(""), None);
     }
 
     #[test]
