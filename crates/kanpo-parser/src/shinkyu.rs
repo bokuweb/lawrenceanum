@@ -384,7 +384,24 @@ fn find_run(chars: &[char], pat: &[char]) -> Option<usize> {
 /// 見出しの無い継続ページ用: ページ全体が表なので、表の下の別記事を切り離す判定はしない。
 pub(crate) fn reconstruct_shinkyu(cols: Vec<Col>, header_x: f32, divider: f32, grids: &[Grid], rules: Option<&PageRules>) -> Unit {
     let mut layout = ShinkyuLayout::split(cols, header_x, divider);
-    let outside: Vec<Col> = layout.trailing.drain(..).flatten().collect();
+    let mut outside: Vec<Col> = layout.trailing.drain(..).flatten().collect();
+    // 改正後・改正前の帯を囲む表の外枠（帯の境目をまたぎ、帯の語の半分以上を囲む枠）の左の外にある改正後の帯の列（表の後ろ
+    // の「備考」「附則」）は、表の外（改正前の帯の後ろ）に置く（改正後と改正前の間に読まれていた）。
+    if let Some(after) = layout.after.first_mut() {
+        let center = |c: &Col| ((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0);
+        let all: Vec<&Col> = after.iter().chain(layout.before.iter().flatten()).collect();
+        let frame_left = grids
+            .iter()
+            .filter(|g| g.top() < divider && divider < g.bottom())
+            .filter(|g| all.iter().filter(|c| g.contains(center(c).0, center(c).1, 0.5)).count() * 2 >= all.len())
+            .map(|g| g.left())
+            .reduce(f32::min);
+        if let Some(left) = frame_left {
+            let (inside, beyond): (Vec<Col>, Vec<Col>) = std::mem::take(after).into_iter().partition(|c| center(c).0 >= left - 2.0);
+            *after = inside;
+            outside.extend(beyond);
+        }
+    }
     if let Some(before) = layout.before.first_mut() {
         before.extend(outside);
     }
