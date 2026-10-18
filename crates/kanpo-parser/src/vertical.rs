@@ -434,7 +434,10 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             // 罫線の無い縦組みの表（[`page_lines_keyed`]）は、欄の間の空きで段に切らない（認定番号の表の
             // 「認定を受けた者」の欄が下の段に分かれていた）。
             let keyed = keyed_table_boxes(&cols);
-            let plain_tiers = merge_split_header_tiers(split_tiers(cols.clone(), &TierRules { tables: keyed.clone(), hrules: hrules.clone(), sideways }));
+            // 横組みの囲み（決算公告）も、見出しと貸借対照表の間の空きで段に切らない。
+            let boxes = horizontal_block_boxes(&cols);
+            let plain_tiers =
+                merge_split_header_tiers(split_tiers(cols.clone(), &TierRules { tables: keyed.clone(), boxes: boxes.clone(), hrules: hrules.clone(), sideways }));
             let shinkyu_page = plain_tiers.iter().any(|t| detect_shinkyu_header(t).is_some())
                 || plain_tiers.windows(2).any(|w| tiers_look_like_bands(&w[0], &w[1]));
             let tables: Vec<(f32, f32, f32, f32)> = grids
@@ -457,7 +460,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             let tiers = if shinkyu_page || tables.is_empty() || v_chars < h_chars * 2 {
                 plain_tiers
             } else {
-                merge_split_header_tiers(split_tiers(cols, &TierRules { tables, hrules, sideways }))
+                merge_split_header_tiers(split_tiers(cols, &TierRules { tables, boxes, hrules, sideways }))
             };
             let mut tiers: Vec<Vec<Col>> = attach_toc_page_numbers(tiers.into_iter().flat_map(split_side_by_side_tables).collect(), &words);
             // 新旧対照表のページで、行の罫線の無い枠（帯の中の表）の欄の境の横線で切られた段は、前の段に戻す（改正前の
@@ -1809,6 +1812,8 @@ pub(crate) fn col_to_word(c: &Col) -> crate::table::PlacedWord {
 /// 段分けで使う罫線: 割らない表の枠 `(x0, x1, y0, y1)` と横線 `(y, x0, x1)`。
 struct TierRules {
     tables: Vec<(f32, f32, f32, f32)>,
+    /// 横組みの囲み（[`horizontal_block_boxes`]）。縦書きの列の段の境目でない cut は、囲みを横切らない。
+    boxes: Vec<(f32, f32, f32, f32)>,
     hrules: Vec<(f32, f32, f32)>,
     /// 横倒しのページ（回した座標で組む）。
     sideways: bool,
@@ -2348,11 +2353,23 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
     // 境目に見えて、表が上下に割れていた）。
     let center = |c: &Col| (c.x + c.x1) / 2.0;
     let upright = |c: &Col| c.y1 - c.y >= (c.x1 - c.x) * 0.9;
-    let table_at = |cut: f32| {
-        tables.iter().find(|&&(x0, x1, y0, y1)| {
-            y0 + 1.0 < cut && cut < y1 - 1.0 && cols.iter().any(|c| x0 < center(c) && center(c) < x1 && y0 < c.y1 && c.y < y1)
+    let crosses = |cut: f32, &(x0, x1, y0, y1): &(f32, f32, f32, f32)| {
+        y0 + 1.0 < cut && cut < y1 - 1.0 && cols.iter().any(|c| x0 < center(c) && center(c) < x1 && y0 < c.y1 && c.y < y1)
+    };
+    // 囲みの外の縦書きの列（2 字以上）が cut の上（3 字分以内）で終わり、その列の下から cut までに語が無いなら、縦書きの
+    // 段の境目（囲みの横に組んだ合併公告の上下の段）なので、囲みがあっても切る。
+    let in_box = |c: &Col| rules.boxes.iter().any(|&(x0, x1, y0, y1)| x0 < center(c) && center(c) < x1 && y0 < c.y1 && c.y < y1);
+    let column_break = |cut: f32| {
+        cols.iter().any(|c| {
+            c.text.chars().count() >= 2
+                && c.y1 - c.y > (c.x1 - c.x) * 1.5
+                && c.y1 <= cut
+                && cut - c.y1 < (c.x1 - c.x) * 3.0
+                && !in_box(c)
+                && !cols.iter().any(|d| d.x < center(c) && center(c) < d.x1 && d.y1 > c.y1 + 0.5 && d.y < cut)
         })
     };
+    let table_at = |cut: f32| tables.iter().find(|t| crosses(cut, t)).or_else(|| rules.boxes.iter().find(|b| crosses(cut, b) && !column_break(cut)));
     let (xmin, xmax) = (cols.iter().map(|c| c.x).fold(f32::INFINITY, f32::min), cols.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max));
     let ruled = |cut: f32| {
         rules.hrules.iter().any(|&(y, x0, x1)| (y - cut).abs() < 12.0 && x1.min(xmax) - x0.max(xmin) >= (xmax - xmin) * 0.6)
@@ -3097,6 +3114,55 @@ fn keyed_table_boxes(cols: &[Col]) -> Vec<(f32, f32, f32, f32)> {
     vertical_keyed_tables(cols).into_iter().map(|t| (t.x0, t.x1, t.y0, t.y1)).collect()
 }
 
+/// 横組みの欄を、欄の高さいっぱいの溝（16pt 以上）で左右に分けた囲みごとの欄 `[(右端, 語)]`。分けた囲みがどれも
+/// 100pt 以上の幅で、幅がそろい（最も広いものが最も狭いものの 1.2 倍まで）、4 行以上あるときだけ分ける（行の高さの
+/// そろう囲みが横に並ぶと、溝の左右が表の欄に見えて囲みの行が 1 行につながる）。
+fn split_side_by_side_boxes(x1: f32, block: Vec<Col>) -> Vec<(f32, Vec<Col>)> {
+    let mut spans: Vec<(f32, f32)> = block.iter().map(|c| (c.x, c.x1)).collect();
+    spans.sort_by(|a, b| a.0.total_cmp(&b.0));
+    let mut cuts: Vec<f32> = Vec::new();
+    let mut right = f32::NEG_INFINITY;
+    for (a, b) in spans {
+        if right.is_finite() && a - right >= 16.0 {
+            cuts.push((a + right) / 2.0);
+        }
+        right = right.max(b);
+    }
+    if cuts.is_empty() {
+        return vec![(x1, block)];
+    }
+    let mut parts: Vec<Vec<Col>> = vec![Vec::new(); cuts.len() + 1];
+    for c in &block {
+        let k = cuts.iter().filter(|&&cut| cut < c.x).count();
+        parts[k].push(c.clone());
+    }
+    let width = |p: &[Col]| p.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max) - p.iter().map(|c| c.x).fold(f32::INFINITY, f32::min);
+    let widths: Vec<f32> = parts.iter().map(|p| width(p)).collect();
+    let (narrow, wide) = (widths.iter().copied().fold(f32::INFINITY, f32::min), widths.iter().copied().fold(f32::NEG_INFINITY, f32::max));
+    if narrow < 100.0 || wide > narrow * 1.2 || parts.iter().any(|p| row_lines(p.clone()).len() < 4) {
+        return vec![(x1, block)];
+    }
+    parts.into_iter().map(|p| (p.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max), p)).collect()
+}
+
+/// 縦書きの段の中の横組みの欄の枠 `(x0, x1, y0, y1)`（段の切り方で欄を割らないため。下の段に横に並ぶ決算公告の
+/// 囲みが、見出しと貸借対照表の間の空きで上下の段に割れ、見出しと表が離れていた）。
+fn horizontal_block_boxes(cols: &[Col]) -> Vec<(f32, f32, f32, f32)> {
+    let (_, blocks) = split_off_horizontal_blocks(cols.to_vec());
+    // 囲みのように何行もある欄だけ（号外の題字の下の発行者の欄などは、これまでどおり段に切ってから組む）。
+    blocks
+        .iter()
+        .filter(|(_, lines)| lines.len() >= 6)
+        .map(|(_, lines)| {
+            let ids: std::collections::HashSet<usize> = lines.iter().flat_map(|l| l.words.iter().copied()).collect();
+            cols.iter().filter(|c| ids.contains(&c.id)).fold((f32::INFINITY, f32::NEG_INFINITY, f32::INFINITY, f32::NEG_INFINITY), |(x0, x1, y0, y1), c| {
+                (x0.min(c.x), x1.max(c.x1), y0.min(c.y), y1.max(c.y1))
+            })
+        })
+        .filter(|b| b.0 < b.1)
+        .collect()
+}
+
 /// 縦書きの段の中の横組みの欄を取り出す。`(残りの語, [(欄の右端, 欄の行)])`（欄は右端の降順）。
 ///
 /// 横組みの語は 2 字以上で横長のもの。縦の列の途中に挟まった語（縦中横の数字など）は除く。
@@ -3104,21 +3170,25 @@ fn keyed_table_boxes(cols: &[Col]) -> Vec<(f32, f32, f32, f32)> {
 /// 取り出す（1 行だけの横長の語は、表の欄の名前などと区別が付かないので列のまま読む）。
 fn split_off_horizontal_blocks(cols: Vec<Col>) -> (Vec<Col>, Vec<(f32, Vec<Line>)>) {
     // 縦の列（2 字以上の縦長の語）のすぐ上か下（全角空白 1 字ほどの空きまで。「高橋　佑」）に続く語。
-    let in_column = |w: &Col| {
+    // `inside` の中で語のすぐ下から始まる列（欄に入れる縦書きの見出し「資産の部」）は見ない（そのすぐ上の欄見出し
+    // 「科　目」の「科」が欄から外れていた）。
+    let in_column_but = |w: &Col, inside: Option<(f32, f32, f32, f32)>| {
         let em = w.y1 - w.y;
         let near = |gap: f32| -em * 0.5 < gap && gap < em * 1.5;
         cols.iter().any(|c| {
+            let (cx, cy) = ((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0);
+            let label = inside.is_some_and(|(x0, y0, x1, y1)| x0 < cx && cx < x1 && y0 < cy && cy < y1 && c.text.chars().count() <= 10);
             c.text.chars().count() >= 2
                 && c.y1 - c.y > (c.x1 - c.x) * 1.5
                 && w.x < (c.x + c.x1) / 2.0
                 && (c.x + c.x1) / 2.0 < w.x1
-                && (near(w.y - c.y1) || near(c.y - w.y1))
+                && (near(w.y - c.y1) || (near(c.y - w.y1) && !label))
         })
     };
     let wide: Vec<usize> = (0..cols.len())
         .filter(|&i| {
             let c = &cols[i];
-            c.text.chars().count() >= 2 && c.x1 - c.x > (c.y1 - c.y) * 1.5 && !in_column(c)
+            c.text.chars().count() >= 2 && c.x1 - c.x > (c.y1 - c.y) * 1.5 && !in_column_but(c, None)
         })
         .collect();
     if wide.len() < 2 {
@@ -3185,7 +3255,7 @@ fn split_off_horizontal_blocks(cols: Vec<Col>) -> (Vec<Col>, Vec<(f32, Vec<Line>
                     })
             };
             let more: Vec<usize> = (0..cols.len())
-                .filter(|&i| !members.contains(&i) && !taken[i] && !tall(&cols[i]) && !in_column(&cols[i]))
+                .filter(|&i| !members.contains(&i) && !taken[i] && !tall(&cols[i]) && !in_column_but(&cols[i], Some((x0, y0, x1, y1))))
                 .filter(|&i| {
                     let (cx, cy) = center(&cols[i]);
                     (x0 - em * 0.5 < cx && cx < x1 + em * 0.5 && y0 - em * 2.0 < cy && cy < y1 + em * 2.0) || beside(&cols[i])
@@ -3249,6 +3319,9 @@ fn split_off_horizontal_blocks(cols: Vec<Col>) -> (Vec<Col>, Vec<(f32, Vec<Line>
                 .collect(),
         ));
     }
+    // 同じ幅の囲みが左右に並ぶ欄（下の段の決算公告の囲み）は、囲みごとの欄に分ける（右から読む）。
+    let blocks: Vec<(f32, Vec<Col>)> = blocks.into_iter().flat_map(|(x1, block)| split_side_by_side_boxes(x1, block)).collect();
+    let mut blocks = blocks;
     blocks.sort_by(|a, b| b.0.total_cmp(&a.0));
     // 幅の広い欄（決算公告の囲みが左右に並ぶもの）は、横組みのページと同じく列の溝で左右に切ってから行に組む（行ごとに
     // 組むと、左右の囲みの行が 1 行につながる）。
