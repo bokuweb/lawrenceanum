@@ -1433,7 +1433,11 @@ fn split_horizontal_shinkyu_pairs(cols: &[Col], prev: Option<f32>, vrules: &[(f3
     } else {
         columns.len()
     };
-    if end < first + if after_x.is_some() { 3 } else { 2 } {
+    // 欄の 1.4 倍より広い列（表の右の、紙面の半分の幅で組んだ本文。外務省告示の「別表の 185．…を次のように改める。」）
+    // から後ろも表の外。
+    let wide = (first + 2..end).find(|&k| columns[k].1 - columns[k].0 > width * 1.4);
+    let end = wide.unwrap_or(end);
+    if end < first + if after_x.is_some() && wide.is_none() { 3 } else { 2 } {
         return None;
     }
     let rest: Vec<Col> = body.iter().filter(|c| column(c).is_none_or(|k| k >= end)).map(|c| (*c).clone()).collect();
