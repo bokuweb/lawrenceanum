@@ -690,6 +690,12 @@ enum Cmd {
         public: PathBuf,
     },
 
+    /// 判例の参照法条から `public/links/law-to-hanrei/{law_id}.json` を生成する。
+    LinkLawsAndHanrei {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
     /// 今後の施行予定を timeline から集約し `public/enforcement/upcoming.json` を書く。
     BuildEnforcement {
         #[arg(long, default_value = "public")]
@@ -975,6 +981,7 @@ fn main() -> Result<()> {
         Cmd::GianBuildJson { cache, public } => gian::run_build_json(&cache, &public),
         Cmd::HanreiFetch { cache, interval_ms, limit } => hanrei::run_fetch(&cache, interval_ms, limit),
         Cmd::HanreiBuildJson { cache, public } => hanrei::run_build_json(&cache, &public),
+        Cmd::LinkLawsAndHanrei { public } => linking::run_link_hanrei(&public),
         Cmd::BuildEnforcement { public } => enforcement::run_build(&public),
         Cmd::WikiPlan { base_url, wiki, work, max_items, max_probes, lookback_days, today, max_bills, max_pubcomments, max_kanpo, max_roster, reiki_base_url, chunk_size } => {
             wiki::plan::run_plan(&wiki::plan::PlanArgs {
