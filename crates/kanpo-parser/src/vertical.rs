@@ -375,6 +375,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             }
             units.extend(tail);
             prefix_minus(&mut units, &minus, &word_texts);
+            move_trailing_notes(&mut units);
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
@@ -641,6 +642,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             unturn_tables(&mut units, width);
         }
         prefix_minus(&mut units, &minus, &word_texts);
+        move_trailing_notes(&mut units);
         let text = units
             .iter()
             .map(Unit::text)
@@ -1082,6 +1084,39 @@ pub(crate) fn split_label_frames(tier: Vec<Col>, hrules: &[(f32, f32, f32)], vru
         parts.extend(split_label_frames(left, hrules, vrules));
     }
     parts
+}
+
+/// 新旧対照表の改正後の欄の終わりに組まれた、表の後ろの備考（「備考　表中の〔　〕の記載は注記である。」）と附則（「附　則」と
+/// 「…から施行する。」）を、改正前の欄の後ろ（表の外）へ移す（表の続きの欄の左に、上の帯の高さで組まれた備考・附則が
+/// 改正後の欄に入り、改正後と改正前の間に読まれていた）。改正前の欄に字のあるときだけ。
+fn move_trailing_notes(units: &mut [Unit]) {
+    for unit in units.iter_mut() {
+        let Unit::Shinkyu { after, before, outside, .. } = unit else { continue };
+        if before.iter().all(|p| p.iter().all(|l| l.text.trim().is_empty())) {
+            continue;
+        }
+        let Some(last) = after.last_mut() else { continue };
+        let text = |l: &Line| l.text.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+        // 終わりから、備考（折り返した続きの「…は注記である。」も）・附則・施行の行だけが続く所まで。
+        let mut k = last.len();
+        while k > 0 {
+            let t = text(&last[k - 1]);
+            let wrapped = t.ends_with("注記である。") && k >= 2 && text(&last[k - 2]).starts_with("備考");
+            if t.starts_with("備考") || wrapped || t == "附則" || t.contains("から施行する") {
+                k -= 1;
+            } else {
+                break;
+            }
+        }
+        let tail: Vec<String> = last[k..].iter().map(text).collect();
+        let noted = tail.iter().any(|t| t.starts_with("備考") && tail.iter().any(|u| u.contains("注記である")))
+            || tail.windows(2).any(|w| w[0] == "附則" && w[1].contains("施行する"));
+        if k == last.len() || !noted {
+            continue;
+        }
+        let moved: Vec<Line> = last.drain(k..).collect();
+        outside.insert(0, moved);
+    }
 }
 
 /// 段の字が紙面の上半分（改正後の帯）にだけあり、新しい記事（「〇」で始まる行）も附則も欄見出しも無いか。
