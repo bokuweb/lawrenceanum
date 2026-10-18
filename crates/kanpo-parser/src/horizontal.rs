@@ -2379,7 +2379,17 @@ fn is_column_split(left: &[Col], right: &[Col], boxed: bool) -> bool {
     // 左の行と高さの揃う右の行がほとんど金額だけなら、右の上の欄見出しの行が多くても表の列（財政資金対民間収支実績表の
     // 「—」の字の無い欄の空きが溝に見え、科目と 4 月の収入の欄と、ほかの月の欄が別々に読まれていた）。
     let paired: Vec<Line> = rl.iter().filter(|b| ll.iter().any(|a| (a.center() - b.center()).abs() <= ALIGN_TOL)).cloned().collect();
+    // 高さの揃う行がどれも、左の科目（数の無い行）と右の金額だけの行の組なら、科目と金額の表（「当期受入額」「当期支出額」と
+    // 金額。右の下に次の表の標題と日付が中央揃えで続いても列ではない）。
+    let label_amounts = paired.len() >= 2
+        && paired.iter().all(amount_line)
+        && paired.iter().all(|b| {
+            ll.iter()
+                .filter(|a| (a.center() - b.center()).abs() <= ALIGN_TOL)
+                .all(|a| !a.words.iter().any(|w| w.text.chars().any(|c| c.is_ascii_digit())))
+        });
     let table_like = (aligned as f32 >= few.len() as f32 * 0.75 && (wl.min(wr) < MIN_TEXT_COLUMN_WIDTH || amounts(&rl) || (paired.len() >= 5 && amounts(&paired))))
+        || label_amounts
         || labels
         || amount_column;
     // 本文の段なら、段の幅いっぱいの行がある。見出しだけの側（「官　庁　事　項」と
