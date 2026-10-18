@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react'
-import { api, type Health, type LawsIndex, type UpdatesByDate, type UpdateEntry } from './api'
+import {
+  api,
+  type EnforcementUpcoming,
+  type Health,
+  type LawsIndex,
+  type RecentFeed,
+  type UpdatesByDate,
+  type UpdateEntry,
+  type WikiIndex,
+} from './api'
 
 export type UpdateDay = {
   /** MM-DD (表示用) */
@@ -72,6 +81,48 @@ export function useLiveSnapshot(): LiveSnapshot {
         latestUpdates: updatesR.status === 'fulfilled' ? updatesR.value : null,
         trend14,
       })
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  return state
+}
+
+export type DashboardExtras = {
+  loading: boolean
+  /** LLM wiki のページ一覧。未配信なら null。 */
+  wiki: WikiIndex | null
+  /** 規制変化フィード (法令改正・法案・パブコメ・官報の新着)。 */
+  feed: RecentFeed | null
+  /** 今後の施行予定。 */
+  enforcement: EnforcementUpcoming | null
+}
+
+/**
+ * ダッシュボードの追加パネル (wiki / 新着 / 施行予定) 用の静的 JSON。
+ * どれも欠けていても他のパネルを出せるように、1 本ずつ独立に null へ倒す。
+ * 法令の数値 (useLiveSnapshot) は先に描けるので、こちらは別フックに分けている。
+ */
+export function useDashboardExtras(): DashboardExtras {
+  const [state, setState] = useState<DashboardExtras>({
+    loading: true,
+    wiki: null,
+    feed: null,
+    enforcement: null,
+  })
+
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      const [wiki, feed, enforcement] = await Promise.all([
+        api.wikiIndex().catch(() => null),
+        api.recentFeed().catch(() => null),
+        api.enforcementUpcoming().catch(() => null),
+      ])
+      if (cancelled) return
+      setState({ loading: false, wiki, feed, enforcement })
     })()
     return () => {
       cancelled = true

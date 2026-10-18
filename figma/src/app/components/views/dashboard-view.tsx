@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { TrendingUp, Database, FileText, CheckCircle2, ArrowUpRight, ChevronRight, GitCompare } from "lucide-react";
 import { Button } from "../ui/button";
-import { useLiveSnapshot } from "../../data/use-live-data";
+import { useDashboardExtras, useLiveSnapshot } from "../../data/use-live-data";
+import { RecentFeedCard, UpcomingEnforcementCard, WikiSummaryCard } from "./dashboard-panels";
 import { type CorpusHealth } from "../../data/api";
 import { Link } from "react-router";
 import { useReducedMotion } from "../ui/use-reduced-motion";
@@ -144,16 +145,17 @@ function ChartFallback({ height = "h-64" }: { height?: string }) {
   );
 }
 
-// 各タイルは収録済みならそのコーパスの一覧ビューへ遷移する。
+// 各タイルは収録済みならそのコーパスの一覧ビューへ遷移する。並びはサイドバーと揃える。
 const CORPUS_DISPLAY: { key: string; label: string; path: string }[] = [
   { key: "proceedings", label: "国会会議録", path: "/proceedings" },
-  { key: "pubcomment", label: "パブリックコメント", path: "/pubcomment" },
-  { key: "procurement", label: "政府調達", path: "/procurement" },
-  { key: "shingikai", label: "審議会議事録", path: "/shingikai" },
   { key: "gian", label: "議案", path: "/gian" },
-  { key: "reiki", label: "自治体例規", path: "/reiki" },
+  { key: "pubcomment", label: "パブリックコメント", path: "/pubcomment" },
+  { key: "kanpo", label: "官報", path: "/kanpo" },
   { key: "tsutatsu", label: "通達", path: "/tsutatsu" },
+  { key: "shingikai", label: "審議会議事録", path: "/shingikai" },
+  { key: "procurement", label: "政府調達", path: "/procurement" },
   { key: "budget", label: "財政統計", path: "/budget" },
+  { key: "reiki", label: "自治体例規", path: "/reiki" },
 ];
 
 const UNIT_LABELS: Record<string, string> = {
@@ -164,6 +166,7 @@ const UNIT_LABELS: Record<string, string> = {
   municipalities: "自治体",
   sets: "税目",
   datasets: "統計",
+  days: "日分",
 };
 
 function CorpusStatusCard({ corpora }: { corpora?: Record<string, CorpusHealth> }) {
@@ -176,7 +179,7 @@ function CorpusStatusCard({ corpora }: { corpora?: Record<string, CorpusHealth> 
         {!corpora ? (
           <div className="text-xs text-muted-foreground py-3">収録状況は次回のデータ更新後に表示されます</div>
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
             {CORPUS_DISPLAY.map(({ key, label, path }) => {
               const corpus = corpora[key];
               const available = corpus?.available === true;
@@ -243,6 +246,7 @@ function CorpusStatusCard({ corpora }: { corpora?: Record<string, CorpusHealth> 
 
 export function DashboardView() {
   const { laws, health, latestUpdates, trend14, loading, error } = useLiveSnapshot();
+  const extras = useDashboardExtras();
 
   const lawCount = laws?.laws.length ?? null;
   const fileCount = health?.file_count ?? null;
@@ -293,7 +297,7 @@ export function DashboardView() {
         );
       })()}
 
-      <div className="dashboard-stats grid grid-cols-4 gap-4">
+      <div className="dashboard-stats grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard label="登録法令数" value={lawCount} delta={lawCount === null ? "" : `${lawCount}件`} icon={Database} trend={trendForChart} />
         <StatCard label="直近 14 日更新" value={trend14.length ? trendSum : null} delta={latestUpdates?.latest_update_date ?? ""} icon={TrendingUp} trend={trendForChart} />
         <StatCard label="配信ファイル数" value={fileCount} delta={health ? "manifest基準" : ""} icon={FileText} />
@@ -308,7 +312,14 @@ export function DashboardView() {
         </Suspense>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <RecentFeedCard feed={extras.feed} loading={extras.loading} />
+        <UpcomingEnforcementCard data={extras.enforcement} loading={extras.loading} />
+      </div>
+
+      <WikiSummaryCard index={extras.wiki} loading={extras.loading} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <RecentUpdatesCard trend14={trend14} loading={loading} />
 
         <Card>
