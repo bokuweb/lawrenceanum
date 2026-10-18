@@ -1619,9 +1619,12 @@ fn drop_ruby(cols: &mut Vec<Col>, words: &mut [Word]) {
                 // 横組みの本文の語の上（振り仮名の下端が本文の上端に接する）。
                 // 接する所は、本文の字の枠に 3pt まで食い込むことがある（横倒しのページの「強靱（じん）」）。
                 let touches = |gap: f32| (-3.0..=1.5).contains(&gap);
-                let above = bw > bh && rh <= bh * 0.6 && touches(b.y - r.y1) && r.x >= b.x - 1.0 && r.x1 <= b.x1 + 1.0;
+                // 1 字の親字（「春」「恵」）は正方形で、3 字の振り仮名（「めぐみ」）は親字からはみ出すので、振り仮名の中ほどが
+                // 親字の範囲にあればよい。
+                let (rcx, rcy) = ((r.x + r.x1) / 2.0, (r.y + r.y1) / 2.0);
+                let above = bw >= bh * 0.9 && rw > rh && rh <= bh * 0.6 && touches(b.y - r.y1) && rcx >= b.x - 1.0 && rcx <= b.x1 + 1.0;
                 // 縦組みの本文の語の右（振り仮名の左端が本文の右端に接する）。
-                let right = bh > bw && rw <= bw * 0.6 && touches(r.x - b.x1) && r.y >= b.y - 1.0 && r.y1 <= b.y1 + 1.0;
+                let right = bh >= bw * 0.9 && rh > rw && rw <= bw * 0.6 && touches(r.x - b.x1) && rcy >= b.y - 1.0 && rcy <= b.y1 + 1.0;
                 above || right
             })
         })
