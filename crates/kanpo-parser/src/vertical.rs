@@ -205,7 +205,35 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 };
                 let unit = Unit::Shinkyu {
                     // 欄見出しより上（前の記事の表の続きが上にあるページも）も罫線の表を組んで読む。
-                    preamble: horizontal_lines_with_tables(pre, &grids, &vrules, &hrules),
+                    preamble: {
+                        // 前文の中の次の記事の標題（「〇厚生労働省告示第…号」）より上（前の記事の表の続き）と下は別に組む（標題が
+                        // 表の続きの左右の欄の間に読まれていた）。
+                        let marked = pre.iter().filter(|c| crate::segment::is_heading_mark(c.text.trim())).min_by(|a, b| a.y.total_cmp(&b.y));
+                        let heading = marked.map_or(f32::INFINITY, |c| c.y);
+                        let heading_x = marked.map_or(0.0, |c| (c.x + c.x1) / 2.0);
+                        // 標題より上が左右の欄に分かれた表の続き（欄の境目の近くに、またぐ語の無い切れ目があるもの）のときだけ
+                        // （紙面の幅いっぱいの表の途中の標題では切らない）。
+                        let above: Vec<&Col> = pre.iter().filter(|c| c.y < heading - 1.0).collect();
+                        // 標題と反対の側の欄は標題の高さで途切れる（そこで 2 行分以上空く。2 段組の紙面の片方の段の標題では、
+                        // もう片方の段の表の行が続くので切らない）。
+                        let two_sided = above.iter().map(|c| c.x1 + 1.0).filter(|x| (x - mid).abs() <= 40.0).any(|x| {
+                            let other = |c: &&Col| ((c.x + c.x1) / 2.0 < x) != (heading_x < x) && !(c.x < x - 1.0 && c.x1 > x + 1.0);
+                            !above.iter().any(|c| c.x < x - 1.0 && c.x1 > x + 1.0)
+                                && above.iter().any(|c| c.x1 <= x)
+                                && above.iter().any(|c| c.x >= x)
+                                && {
+                                    let end = pre.iter().filter(other).filter(|c| c.y < heading - 1.0).map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+                                    let next = pre.iter().filter(other).filter(|c| c.y >= heading - 1.0).map(|c| c.y).fold(f32::INFINITY, f32::min);
+                                    let em = marked.map_or(8.0, |c| (c.y1 - c.y).min(c.x1 - c.x).max(1.0));
+                                    next - end >= em * 2.0
+                                }
+                        });
+                        let heading = if two_sided { heading } else { f32::INFINITY };
+                        let (head, rest): (Vec<Col>, Vec<Col>) = pre.into_iter().partition(|c| c.y < heading - 1.0);
+                        let mut lines = horizontal_lines_with_tables(head, &grids, &vrules, &hrules);
+                        lines.extend(horizontal_lines_with_tables(rest, &grids, &vrules, &hrules));
+                        lines
+                    },
                     after: vec![body(left, &left_grids)],
                     before: vec![body(right, &right_grids)],
                     outside: Vec::new(),
