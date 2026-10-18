@@ -2283,9 +2283,17 @@ fn column_gutters(words: &[Col], blocks: &[Block], tables: &[Block], boxed: bool
             // 囲みの段の中の 20pt 以上の溝で、左右とも 100pt 以上の幅の組なら囲みの境（3 列に並ぶ決算公告の囲みの見出しが
             // 同じ高さに並び、表の溝とみなされて 1 行ずつ混ざっていた）。
             // 金額の欄（行の半分以上が金額だけの行）は囲みではない（科目と金額の間の広い空き）。
+            // 金額で始まる行（財産目録の「900,787,332,294　普通預金・当座預金　三菱ＵＦＪ銀行外三行」。金額の右に摘要の欄が
+            // 続く）も金額の欄の行。
             let figures = |ws: &[Col]| {
                 let ls = group_lines(ws);
-                ls.iter().filter(|l| amount_line(l)).count() * 2 >= ls.len()
+                let starts = |l: &Line| {
+                    l.words.first().is_some_and(|w| {
+                        let t = w.text.trim();
+                        t.starts_with(|c: char| c.is_ascii_digit() || "△▲".contains(c)) && t.chars().filter(|c| c.is_ascii_digit()).count() >= 3
+                    })
+                };
+                ls.iter().filter(|l| amount_line(l) || starts(l)).count() * 2 >= ls.len()
             };
             let boxes = boxed && a - right_edge >= 20.0 && width(&left) >= 100.0 && width(&right) >= 100.0 && !figures(&left) && !figures(&right);
             if !latin_word_gap(words, cut) && !item_numbers(&left, &right) && !repeat_marks(&left, &right) && (boxes || is_column_split(&left, &right, between(cut))) {
