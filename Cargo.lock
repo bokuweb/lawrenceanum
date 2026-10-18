@@ -1636,6 +1636,7 @@ dependencies = [
  "estat-client",
  "flate2",
  "gian-client",
+ "hanrei-client",
  "hex",
  "kanpo-client",
  "kanpo-linker",
