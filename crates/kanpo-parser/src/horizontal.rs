@@ -143,7 +143,7 @@ fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)],
     }
     // 縦の罫線だけの表は、決算公告の囲みの中の表と同じく本文の段の溝をふさがない（上の記事の段が 1 段につながる）。
     let framed = tables.len();
-    let (ruled, others) = rule_column_tables(rest, vrules);
+    let (ruled, others) = rule_column_tables(rest, vrules, hrules);
     rest = others;
     let ruled_n = ruled.len();
     tables.extend(ruled);
@@ -381,7 +381,7 @@ fn join_vrules(vrules: &[(f32, f32, f32)]) -> Vec<(f32, f32, f32)> {
 /// 範囲でまとめ、その間を欄とする。両端の字の無い欄は除く。2 欄以上で、罫線をまたぐ語も文（「。」）も無く、
 /// 2 列目より右に金額の欄（行の 8 割以上が金額だけの行）があるものだけ（段の境の線と紙面の枠の線を欄と
 /// 取り違えない）。行は、どの欄の行も（前の行に行間を空けずに続く折り返しでなければ）行の頭にする。
-fn rule_column_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<trace::Table>, Vec<Col>) {
+fn rule_column_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)]) -> (Vec<trace::Table>, Vec<Col>) {
     let mut joined = join_vrules(vrules);
     joined.retain(|r| r.2 - r.1 >= 60.0);
     let mut words = words;
@@ -439,7 +439,38 @@ fn rule_column_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<trace
                 let amounts = lines.iter().filter(|l| amount_line(l)).count();
                 amounts >= 2 && amounts * 10 >= lines.len() * 8
             });
-            if crossing || beyond || sentences || !numeric {
+            // 金額の欄が無くても、表の幅いっぱいの横の罫線で行を区切った表（地方交付税の補正係数の表の「十三」の行。
+            // 上下の外枠は前後のページへ続くので無い）は、罫線で囲んだ升ごとに 1 つのセルにする。
+            let rows: Vec<f32> = hrules
+                .iter()
+                .filter(|r| r.0 > top + 5.0 && r.0 < bottom - 5.0 && r.1 <= left + 3.0 && r.2 >= right - 3.0)
+                .map(|r| r.0)
+                .collect();
+            let ys: Vec<f32> = std::iter::once(top).chain(rows.iter().copied()).chain(std::iter::once(bottom)).collect();
+            // 升ごとに読む表は、最後の欄のほかはどの升も 1 項目（折り返して続く 1 つの文）で、2 欄以上に字のある行がある
+            // （科目の並ぶ財務諸表や「〃」の並ぶ表は行ごとに読む）。新旧対照表（欄見出し「改正後」「改正前」）は除く。
+            // 欄見出しは字間を空けて 1 字ずつの語に組まれる（「改　正　後」）ので、一番上の行の字をつないで見る。
+            let shinkyu = {
+                let mut head: Vec<&Col> = words.iter().filter(|w| inside(w, left, right) && rows.first().is_some_and(|&y| y_center(w) < y)).collect();
+                head.sort_by(|a, b| a.x.total_cmp(&b.x));
+                let t: String = head.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace()).collect();
+                ["改正後", "改正前", "訂正後", "訂正前"].iter().any(|k| t.contains(k))
+            };
+            let blocks = !rows.is_empty() && !shinkyu && {
+                let cell = |r: usize, c: usize| -> Vec<Line> {
+                    let ws: Vec<Col> = words.iter().filter(|w| inside(w, xs[c], xs[c + 1]) && ys[r] <= y_center(w) && y_center(w) < ys[r + 1]).cloned().collect();
+                    group_cell_lines(&ws)
+                };
+                (0..ys.len() - 1).all(|r| (0..xs.len() - 2).all(|c| cell(r, c).windows(2).all(|p| wrapped(&p[0], &p[1], xs[c + 1] + 0.5))))
+                    && (0..ys.len() - 1).any(|r| (0..xs.len() - 1).filter(|&c| !cell(r, c).is_empty()).count() >= 2)
+            };
+            if crossing || beyond || sentences || (!numeric && !blocks) {
+                continue;
+            }
+            if !numeric {
+                let (mine, others): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| inside(w, left, right));
+                words = others;
+                tables.push(block_table(&xs, &ys, &mine));
                 continue;
             }
             let g = Grid { xs: xs.clone(), ys: vec![top, bottom], cells: (0..xs.len() - 1).map(|i| GridCell { x0: i, x1: i + 1, y0: 0, y1: 1 }).collect() };
@@ -1294,36 +1325,68 @@ fn header_table(words: &[Col]) -> Option<trace::Table> {
     if edges.iter().filter(|&&y| y > body_y0 + 0.5).filter_map(|&y| gap(y)).any(|c| words.iter().any(|w| y_center(w) > c) && body.iter().any(|w| y_center(w) < c)) {
         return None;
     }
-    let (x0, x1) = (cols[0].0, cols[cols.len() - 1].1);
     let y0 = words.iter().map(|w| w.y).fold(f32::INFINITY, f32::min);
     let y1 = words.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max);
+    // 欄の境は溝の中ほど。
+    let xs: Vec<f32> = std::iter::once(cols[0].0)
+        .chain(cols.windows(2).map(|p| (p[0].1 + p[1].0) / 2.0))
+        .chain(std::iter::once(cols[cols.len() - 1].1))
+        .collect();
+    Some(block_table(&xs, &[y0, cut, y1], words))
+}
+
+/// 欄の境 `xs` と行の境 `ys` で囲んだ升ごとに 1 つのセルにした表（升の中は行を分けない）。升の中の行は、右端まで
+/// 組んだ行の次（折り返し）ならつなぎ（金額で終わる行の次は除く）、ほかは改行で区切る。
+fn block_table(xs: &[f32], ys: &[f32], words: &[Col]) -> trace::Table {
     let mut cells = Vec::new();
-    for (row, part) in [&head, &body].into_iter().enumerate() {
-        for (i, c) in cols.iter().enumerate() {
-            let ws: Vec<Col> = part.iter().filter(|w| col_of(w) == Some(i)).map(|w| (*w).clone()).collect();
+    for row in 0..ys.len() - 1 {
+        for col in 0..xs.len() - 1 {
+            let ws: Vec<Col> = words
+                .iter()
+                .filter(|w| {
+                    let (cx, cy) = (x_center(w), y_center(w));
+                    xs[col] <= cx && (cx < xs[col + 1] || col + 2 == xs.len()) && ys[row] <= cy && (cy < ys[row + 1] || row + 2 == ys.len())
+                })
+                .cloned()
+                .collect();
+            if ws.is_empty() {
+                continue;
+            }
             let ls = group_cell_lines(&ws);
+            // 行末の金額（「…に係るもの　1.000」）の次の行は折り返しではない。
+            // 金額は桁の区切りで語が割れる（「1」「.」「000」）ので、行の字の末尾の数で見る。
+            let amount_end = |l: &Line| {
+                let t = render_line(&l.words);
+                let tail: String = t.chars().rev().take_while(|c| c.is_ascii_digit() || matches!(c, '.' | ',')).collect();
+                tail.starts_with(|c: char| c.is_ascii_digit()) && tail.contains(['.', ','])
+            };
             let mut text = String::new();
             for (k, l) in ls.iter().enumerate() {
-                if k > 0 && !wrapped(&ls[k - 1], l, c.1 + 0.5) {
+                if k > 0 && (amount_end(&ls[k - 1]) || !wrapped(&ls[k - 1], l, xs[col + 1] + 0.5)) {
                     text.push('\n');
                 }
                 text.push_str(&render_line(&l.words));
             }
             cells.push(trace::TableCell {
                 row,
-                col: i,
+                col,
                 rowspan: 1,
                 colspan: 1,
-                x0: c.0,
-                y0: if row == 0 { y0 } else { cut },
-                x1: c.1,
-                y1: if row == 0 { cut } else { y1 },
+                x0: xs[col],
+                y0: ys[row],
+                x1: xs[col + 1],
+                y1: ys[row + 1],
                 text,
                 words: ws.iter().map(|w| w.id).collect(),
             });
         }
     }
-    Some(trace::Table { x0, y0, x1, y1, rows: 2, cols: cols.len(), cells })
+    let mut used: Vec<usize> = cells.iter().map(|c| c.row).collect();
+    used.dedup();
+    for c in &mut cells {
+        c.row = used.iter().position(|&r| r == c.row).unwrap();
+    }
+    trace::Table { x0: xs[0], y0: ys[0], x1: xs[xs.len() - 1], y1: ys[ys.len() - 1], rows: used.len(), cols: xs.len() - 1, cells }
 }
 
 /// 左右に分ける前に上下に切る y（`cut` で分けた片側の端に離れて付く行を、もう片側と同じ列に入れない）。
@@ -2325,7 +2388,7 @@ mod tests {
             })
             .collect();
         let rules = [(70.0, 46.0, 140.0), (196.0, 46.0, 140.0), (256.0, 46.0, 140.0), (316.0, 46.0, 140.0), (376.0, 46.0, 140.0)];
-        let (tables, rest) = rule_column_tables(words, &rules);
+        let (tables, rest) = rule_column_tables(words, &rules, &[]);
         assert!(tables.is_empty());
         assert_eq!(rest.len(), 4);
     }
