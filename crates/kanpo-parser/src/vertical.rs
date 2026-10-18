@@ -2717,7 +2717,34 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
         .collect();
     // cut が同じ列の語と語の間を、字間ほどの空き（[`TOUCH_EM`] 未満）で切るか。字間を空けた
     // 欄見出し（「名　称」）や欧文の語間を段の境目と取り違えないため。
+    // 署名の欄（「内閣総理大臣」の下に字 1 つ分空けて「高市　早苗」）の官職と氏名の間は、3 列以上並ぶなら段の境目の候補に
+    // しない（官職の列と氏名の列が別の段に分かれ、官職の一覧の後に氏名の一覧が読まれていた）。
+    let signers: Vec<(f32, f32)> = by_center
+        .iter()
+        .filter(|a| a.text.ends_with("大臣") || a.text.ends_with("長官") || a.text.ends_with('長'))
+        .filter_map(|&a| {
+            let w = a.x1 - a.x;
+            let next = |p: &Col| {
+                by_center
+                    .iter()
+                    .filter(|b| b.y >= p.y1 - 0.5 && (center(a) - center(b)).abs() < w * 0.5 && b.y - p.y1 < w * 1.6)
+                    .min_by(|p, q| p.y.total_cmp(&q.y))
+                    .copied()
+            };
+            // 官職の下の氏名の語（「井林」「辰憲」）の終わりまで。
+            let first = next(a)?;
+            let mut last = first;
+            for _ in 0..2 {
+                match next(last) {
+                    Some(b) if b.text.chars().count() <= 4 => last = b,
+                    _ => break,
+                }
+            }
+            Some((a.y1, last.y))
+        })
+        .collect();
     let touching = |cut: f32| pairs.iter().any(|&(y1, y, gap)| y1 < cut && cut < y && gap < TOUCH_EM);
+    let signature = |cut: f32| signers.iter().filter(|&&(y1, y)| y1 < cut && cut < y).count() >= 3;
     // 候補の順位。跨ぐカラム数の少ないものを採る。同数のときは、跨ぐ列の無い cut なら字間を
     // 切らないものの中で上のもの、跨ぐ列のある cut なら右の列の下端（語の正規の順で先に来る列）を
     // 採る（語の入力順に左右されないように）。
@@ -2738,7 +2765,7 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
     let mut best_free: Option<Cand> = None;
     for c in &cols {
         let cut = c.y1 + 0.5;
-        if cut < lo || cut > hi || (ruled_only && !ruled(cut)) || label_strip(&cols, cut) {
+        if cut < lo || cut > hi || (ruled_only && !ruled(cut)) || label_strip(&cols, cut) || signature(cut) {
             continue;
         }
         let crossing = cols.iter().filter(|d| d.y < cut && cut < d.y1).count();
