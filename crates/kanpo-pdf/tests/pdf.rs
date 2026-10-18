@@ -131,6 +131,8 @@ fn decrypts_kanpo_pdf_and_maps_japan1_cids() {
 }
 
 /// pdftocairo の SVG はクリップを `clip-path` にしてパスの座標はそのまま出すので、クリップを外して比べる。
+/// pdftocairo から拾っていたのは一直線のパス（`M x y L x y`）だけなので、それはすべて拾い、ほかに拾うのは
+/// 閉じていない折れ線の辺だけ（1 筆で引いた「┐」の表の外枠と列の境）。
 #[test]
 fn rules_match_pdftocairo_on_corpus() {
     for pdf in corpus_pages() {
@@ -142,22 +144,31 @@ fn rules_match_pdftocairo_on_corpus() {
         }
         let actual = kanpo_pdf::page_rules(&page);
         let close = |a: f32, b: f32| (a - b).abs() < 0.05;
-        assert_eq!(actual.vertical.len(), expected.vertical.len(), "{}", pdf.display());
-        assert_eq!(actual.horizontal.len(), expected.horizontal.len(), "{}", pdf.display());
-        for (a, e) in actual.vertical.iter().zip(&expected.vertical) {
+        for e in &expected.vertical {
             assert!(
-                close(a.x, e.x) && close(a.y0, e.y0) && close(a.y1, e.y1),
-                "{}: {a:?} != {e:?}",
+                actual.vertical.iter().any(|a| close(a.x, e.x) && close(a.y0, e.y0) && close(a.y1, e.y1)),
+                "{}: {e:?} が無い",
                 pdf.display()
             );
         }
-        for (a, e) in actual.horizontal.iter().zip(&expected.horizontal) {
+        for e in &expected.horizontal {
             assert!(
-                close(a.y, e.y) && close(a.x0, e.x0) && close(a.x1, e.x1),
-                "{}: {a:?} != {e:?}",
+                actual.horizontal.iter().any(|a| close(a.y, e.y) && close(a.x0, e.x0) && close(a.x1, e.x1)),
+                "{}: {e:?} が無い",
                 pdf.display()
             );
         }
+        // 増えた線は、閉じていない折れ線の辺。
+        let polyline_edges = page
+            .paths
+            .iter()
+            .filter_map(|p| match p.subpaths.as_slice() {
+                [sp] if !sp.closed && !sp.rect && !sp.curved && sp.points.len() >= 3 => Some(sp.points.len() - 1),
+                _ => None,
+            })
+            .sum::<usize>();
+        let extra = actual.vertical.len() + actual.horizontal.len() - expected.vertical.len() - expected.horizontal.len();
+        assert!(extra <= polyline_edges, "{}: {extra} > {polyline_edges}", pdf.display());
     }
 }
 
