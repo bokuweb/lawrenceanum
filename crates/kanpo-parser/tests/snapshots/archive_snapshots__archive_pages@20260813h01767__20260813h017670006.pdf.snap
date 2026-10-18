@@ -2,6 +2,7 @@
 source: crates/kanpo-parser/tests/archive_snapshots.rs
 expression: out
 input_file: crates/kanpo-parser/tests/archive/pages/20260813h01767/20260813h017670006.pdf
+snapshot_kind: text
 ---
 layout: tiers
 format: unknown
@@ -31,31 +32,15 @@ format: unknown
 第31805号
 令和８年８月
 13日
-Medicago sativa
-L.
-Miscanthus
-Andersson x
-Tripsacum L.
-Ocimum
-basilicum L.
-OryzasativaL.
-Physocarpus
-(Cambess.)
-Maxim.
-〃
-Saccharum L.
-Salvia L.
-ほつかいわかば
-北海若葉
-Mammoth
-じつぞん
-実存
-こしかんごう
-越のかおり環1号
-MINALL2
-MINBLA3
-KR12-316
-TL990
+ば
+Medicagosativa北海若葉
+L.MiscanthusAnderssonxTripsacumL.　Mammoth
+OcimumbasilicumL.　実存
+OryzasativaL.　越のかおり環　1号
+Physocarpus(Cambess.)Maxim.　MINALL2
+〃　MINBLA3
+SaccharumL.　KR12-316
+SalviaL.　TL990
 国立研究開発法人
 農業・食品産業技
 術総合研究機構
@@ -129,9 +114,7 @@ Dioscorea L.
 Lentinula edodes
 (Berk.) Pegler
 登録品種の名称
-とつとり
 鳥取1u61
-おおいたりんけん
 大分林研き-2103
 品種登録を受ける指定生産する
 者の氏名又は名称地域行為を制
@@ -193,8 +176,7 @@ Lentinula edodes
     第31803号令和８年８月
     13日
     第31805号令和８年８月
-    13日Medicago sativaL.MiscanthusAndersson xTripsacum L.Ocimumbasilicum L.OryzasativaL.Physocarpus
-    (Cambess.)Maxim.〃Saccharum L.Salvia L.ほつかいわかば北海若葉Mammothじつぞん実存こしかんごう越のかおり環1号MINALL2MINBLA3KR12-316TL990国立研究開発法人農業・食品産業技術総合研究機構茨城県つくば市観音台三丁目１番地
+    13日ばMedicagosativa北海若葉L.MiscanthusAnderssonxTripsacumL.　MammothOcimumbasilicumL.　実存OryzasativaL.　越のかおり環　1号Physocarpus(Cambess.)Maxim.　MINALL2〃　MINBLA3SaccharumL.　KR12-316SalviaL.　TL990国立研究開発法人農業・食品産業技術総合研究機構茨城県つくば市観音台三丁目１番地
     １Dutch PlantForce B. V.Wattstraat 54,
     2723RDZoetermeer, TheNetherlands株式会社あまつち埼玉県さいたま市浦和区領家６－
     ２－22－８国立研究開発法人農業・食品産業技術総合研究機構茨城県つくば市観音台三丁目１番地
@@ -212,7 +194,7 @@ Lentinula edodes
     13日
     第31788号令和８年８月
     13日登録品種の属する農林水産植物の種類Dioscorea L.Lentinula edodes
-    (Berk.) Pegler登録品種の名称とつとり鳥取1u61おおいたりんけん大分林研き-2103品種登録を受ける指定生産する者の氏名又は名称地域行為を制及び住所又は居所限する旨鳥取県鳥取県指定地域鳥取県鳥取市東町以外の地
+    (Berk.) Pegler登録品種の名称鳥取1u61大分林研き-2103品種登録を受ける指定生産する者の氏名又は名称地域行為を制及び住所又は居所限する旨鳥取県鳥取県指定地域鳥取県鳥取市東町以外の地
     一丁目220番地域において種苗を用いることにより得られる収穫物を生産する行為を制限する。
     大分県大分県〃大分県大分市大手町３丁目１番１号
 ## 1 (unknown)

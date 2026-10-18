@@ -2,6 +2,7 @@
 source: crates/kanpo-parser/tests/archive_snapshots.rs
 expression: out
 input_file: crates/kanpo-parser/tests/archive/pages/20260910h01787/20260910h017870004.pdf
+snapshot_kind: text
 ---
 layout: tiers
 format: unknown
@@ -16,7 +17,7 @@ format: unknown
 10日
 第31860号令和８年９月10日　Catharanthusroseus(L.)G.Don　CaTU 195　〃
 第31861号令和８年９月10日　〃　CaTU 1914　〃
-第31862号令和８年９月10日　〃　MYCAT033だい　号
+第31862号令和８年９月10日　〃　MYCAT033　号
 〃〃
 〃〃
 株式会社ミヨシ〃〃
@@ -56,7 +57,6 @@ Guinea Group
 台じょうぶ鳥取県
 鳥取県鳥取市東町
 一丁目220番地
-しま
 島そだち国立大学法人広島
 大学
 広島県東広島市鏡
@@ -135,7 +135,7 @@ SAKIMP072株式会社サカタの
   P [表 3x4]
       | 第31860号令和８年９月10日 | Catharanthusroseus(L.)G.Don | CaTU 195 | 〃 |
       | 第31861号令和８年９月10日 | 〃 | CaTU 1914 | 〃 |
-      | 第31862号令和８年９月10日 | 〃 | MYCAT033だい | 号 |
+      | 第31862号令和８年９月10日 | 〃 | MYCAT033 | 号 |
   P 〃〃〃〃株式会社ミヨシ〃〃東京都世田谷区八幡山２丁目１番８
     第31863号令和８年９月
     10日
@@ -151,7 +151,7 @@ SAKIMP072株式会社サカタの
     10日Citrullus lanatus
     (Thunb.)Matsum.&NakaiGlycine max(L.)Merr.Grifola frondosa
     (Fr.) S. F. GrayHylotelephiumH. Ohba〃Impatiens NewGuinea Group台じょうぶ鳥取県鳥取県鳥取市東町
-    一丁目220番地しま島そだち国立大学法人広島大学広島県東広島市鏡山一丁目３番２号KM-7株式会社かつらぎ産業和歌山県橋本市高野口町向島123番地の１Lime Twister Christopher M.Hansen
+    一丁目220番地島そだち国立大学法人広島大学広島県東広島市鏡山一丁目３番２号KM-7株式会社かつらぎ産業和歌山県橋本市高野口町向島123番地の１Lime Twister Christopher M.Hansen
     1507 ShenandoahDrive, Zeeland,Michigan 49464-
     8358, USAWildfire〃SAKIMP072株式会社サカタの
     タネ神奈川県横浜市都筑区仲町台二丁目

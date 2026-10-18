@@ -78,7 +78,9 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     let mut prev_mid: Option<f32> = None;
     for (pi, page) in doc.select(&page_sel).enumerate() {
         let (width, height) = page_size(page);
-        let (cols, mut words, rotated, sideways, merged) = page_words_traced(page, width, height, rules.get(pi).and_then(|r| r.as_ref()));
+        let (cols, mut words, rotated, sideways, merged, minus) = page_words_traced(page, width, height, rules.get(pi).and_then(|r| r.as_ref()));
+        // 負の金額の印「△」を付ける語の字（組んだ後で行の中の位置を探す）。
+        let word_texts: std::collections::HashMap<usize, String> = if minus.is_empty() { Default::default() } else { cols.iter().map(|c| (c.id, c.text.clone())).collect() };
         // 横倒しの縦書きページは語の座標を回して使うので、罫線も同じく回す（座標の表・砂防法の土地の表を
         // 罫線の表として組む。回さないと表の欄が 1 語ずつの行になっていた）。
         let turned: Option<PageRules> = rules.get(pi).and_then(|r| r.as_ref()).filter(|_| sideways).map(|r| turn_rules(r, width));
@@ -112,6 +114,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             // 表の続きの後ろに同じページで始まる次の記事。
             let mut tail = None;
             let vrules: Vec<(f32, f32, f32)> = page_rules.map(|r| r.vertical.iter().map(|v| (v.x, v.y0, v.y1)).collect()).unwrap_or_default();
+            let hrules: Vec<(f32, f32, f32)> = page_rules.map(|r| r.horizontal.iter().map(|h| (h.y, h.x0, h.x1)).collect()).unwrap_or_default();
             // 前のページが横書きの 2 列の新旧対照表なら、その左右の境目をまたぐ語が無く、左右に語があれば
             // 同じ境目で分ける（続きのページは左右の欄の行の高さがずれていて、同じ文が並ぶとは限らない）。
             // 境目は前のページの境目の近く（±30pt）で、またぐ語の最も少ない所（ページの左右の余白は偶数・奇数
@@ -160,9 +163,13 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 if bottom - top < 50.0 {
                     bottom = f32::NEG_INFINITY;
                 }
+                // 上端が下端から 1pt 以内の語まで表の中（表のすぐ下の「附則」は上端が下端の 1.3pt 下。表の最後の行の金額の
+                // 小数点以下は下端の線をまたいで置かれることがあるので、字の中ほどでは見ない）。
                 let (cols, after_table): (Vec<Col>, Vec<Col>) =
-                    cols.into_iter().partition(|c| !bottom.is_finite() || c.y < bottom + 2.0);
-                let tail = (!after_table.is_empty()).then(|| Unit::Plain(horizontal_lines_with_tables(after_table, &grids, &vrules)));
+                    // 表の下端に境目をまたぐ横の罫線（表の枠の下の線）があれば、線より下から始まる語は表の外（線のすぐ
+                    // 1pt 下の「備考　表中の〔　〕の記載は注記である。」）。
+                    cols.into_iter().partition(|c| !bottom.is_finite() || c.y < bottom + if closed(bottom) { 0.0 } else { 1.0 });
+                let tail = (!after_table.is_empty()).then(|| Unit::Plain(horizontal_lines_with_tables(after_table, &grids, &vrules, &hrules)));
                 let (left, right): (Vec<Col>, Vec<Col>) = cols.into_iter().partition(|c| c.x1 <= mid);
                 // 欄見出し（「改　正　後」）だけの行は本文ではない。
                 // 左右の欄の表は欄ごとの枠で組む（左右の別表の罫線がつながって紙面の幅いっぱいの 1 つの
@@ -177,7 +184,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 };
                 let (left_grids, right_grids) = (side_grids(f32::NEG_INFINITY, mid), side_grids(mid, f32::INFINITY));
                 let body = |cols: Vec<Col>, grids: &[Grid]| -> Vec<Line> {
-                    let mut lines = one_column_lines_with_tables(cols, grids, &vrules);
+                    let mut lines = one_column_lines_with_tables(cols, grids, &vrules, &hrules);
                     let label = |l: &Line| matches!(l.text.chars().filter(|c| !c.is_whitespace()).collect::<String>().as_str(), "改正後" | "改正前");
                     if lines.first().is_some_and(label) {
                         lines.remove(0);
@@ -186,7 +193,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 };
                 let unit = Unit::Shinkyu {
                     // 欄見出しより上（前の記事の表の続きが上にあるページも）も罫線の表を組んで読む。
-                    preamble: horizontal_lines_with_tables(pre, &grids, &vrules),
+                    preamble: horizontal_lines_with_tables(pre, &grids, &vrules, &hrules),
                     after: vec![body(left, &left_grids)],
                     before: vec![body(right, &right_grids)],
                     outside: Vec::new(),
@@ -209,93 +216,153 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                     (ok && !cols.iter().any(|c| c.x < mid - 2.0 && c.x1 > mid + 2.0)).then_some(mid)
                 })
                 .flatten();
-            let split = continued
-                .or(side_by_side)
-                .map(|m| (m, f32::NEG_INFINITY, Vec::new()))
-                .or_else(|| split_horizontal_shinkyu(&cols, prev_table && prev_two_columns));
-            // 続きのページに次の記事・次の表の欄見出しがあれば、そこより上を前の表の続き、下を新しい表か本文として組む。
-            let next_label_y = continued.and(Some(cut_y)).filter(|y| y.is_finite());
-            match (split, next_label_y) {
-                (Some((mid, _, _)), Some(label_y)) => {
-                    let (top, rest): (Vec<Col>, Vec<Col>) = cols.into_iter().partition(|c| c.y1 <= label_y - 1.0);
-                    // 次の表の改正の指示（「第二条　…を次の表のように改正する。」）から下は次の表の前文。
-                    let instruction = top
-                        .iter()
-                        .filter(|c| c.text.contains("ように改正する") || c.text.contains("ように改める"))
-                        .map(|c| c.y)
-                        .reduce(f32::min)
-                        .unwrap_or(f32::INFINITY);
-                    let (top, mut pre): (Vec<Col>, Vec<Col>) = top.into_iter().partition(|c| c.y1 < instruction - 1.0);
-                    // 前の表の続きは改正前の欄（右）の最後の行で終わる。その下の左の語も次の表の前文。
-                    let right_bottom = top.iter().filter(|c| c.x >= mid).map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
-                    let (top, below): (Vec<Col>, Vec<Col>) = top.into_iter().partition(|c| c.x >= mid || c.y <= right_bottom + 4.0);
-                    pre.extend(below);
-                    if !top.is_empty() {
-                        let (unit, tail) = two_columns(top, mid, f32::NEG_INFINITY, Vec::new());
-                        units.push(unit);
-                        units.extend(tail);
-                    }
-                    if !pre.is_empty() {
-                        units.push(Unit::Plain(horizontal_lines_with_tables(pre, &grids, &vrules)));
-                    }
-                    match split_horizontal_shinkyu(&rest, false) {
+            // 1 ページに新旧対照表が 2 つ以上あり（欄見出しの組が上下に 2 組以上）、前のページの表の続きでもないときは、
+            // 各表の改正の指示の行（「…を次の表のように改正する。」）か欄見出しの上でページを上下の帯に分け、帯ごとに
+            // 1 つの表として組む（号外第 202 号 2 ページ: 欄見出しが 2 組あって、どちらの表も左右に分けられなかった）。
+            // 欄見出しの組（上端の y と、改正後の見出しの右端・改正前の見出しの左端）。
+            let label_rows: Vec<(f32, f32, f32)> = {
+                let (after, before) = (shinkyu_labels(&cols, '後'), shinkyu_labels(&cols, '前'));
+                let mut rows: Vec<(f32, f32, f32)> = after
+                    .iter()
+                    .filter_map(|a| before.iter().find(|b| (a.2 - b.2).abs() <= 2.0 && a.1 < b.0).map(|b| (a.2, a.1, b.0)))
+                    .collect();
+                rows.sort_by(|p, q| p.0.total_cmp(&q.0));
+                rows.dedup_by(|p, q| (p.0 - q.0).abs() < 5.0);
+                rows
+            };
+            // 帯の境目は前の表の下端（改正後・改正前の欄の境の縦の罫線の下端）のすぐ下。罫線が無ければ次の表の改正の指示の行。
+            let band_tops: Option<Vec<f32>> = (continued.is_none() && side_by_side.is_none() && label_rows.len() >= 2).then(|| {
+                label_rows
+                    .windows(2)
+                    .map(|w| {
+                        let ((y0, lo, hi), (y1, _, _)) = (w[0], w[1]);
+                        let bottom = vrules
+                            .iter()
+                            .filter(|&&(x, top, end)| x > lo && x < hi && top <= y0 + 30.0 && end > y0 && end < y1)
+                            .map(|&(_, _, end)| end)
+                            .reduce(f32::max);
+                        bottom.map(|b| b + 1.0).unwrap_or_else(|| {
+                            cols.iter()
+                                .filter(|c| c.y > y0 && c.y < y1 && (c.text.contains("ように改正する") || c.text.contains("ように改める")))
+                                .map(|c| c.y)
+                                .reduce(f32::max)
+                                .unwrap_or(y1)
+                                - 1.0
+                        })
+                    })
+                    .collect()
+            });
+            if let Some(tops) = band_tops {
+                let mut bands: Vec<Vec<Col>> = vec![Vec::new(); tops.len() + 1];
+                // 字の中ほどで振り分ける（次の表の前の見出しは、上端が前の表の下端の線より少し上に出ることがある）。
+                for c in cols {
+                    let k = tops.iter().filter(|&&t| (c.y + c.y1) / 2.0 >= t).count();
+                    bands[k].push(c);
+                }
+                for band in bands.into_iter().filter(|b| !b.is_empty()) {
+                    match split_horizontal_shinkyu(&band, false) {
                         Some((mid, label_y, label_ids)) => {
-                            let (unit, tail) = two_columns(rest, mid, label_y, label_ids);
-                            (two_columns_here, mid_here) = (tail.is_none(), Some(mid));
+                            let (unit, t) = two_columns(band, mid, label_y, label_ids);
+                            (two_columns_here, mid_here) = (t.is_none(), Some(mid));
+                            units.push(unit);
+                            units.extend(t);
+                        }
+                        None => {
+                            (two_columns_here, mid_here) = (false, None);
+                            units.push(Unit::Plain(horizontal_lines_with_tables(band, &grids, &vrules, &hrules)));
+                        }
+                    }
+                }
+            } else {
+                let split = continued
+                    .or(side_by_side)
+                    .map(|m| (m, f32::NEG_INFINITY, Vec::new()))
+                    .or_else(|| split_horizontal_shinkyu(&cols, prev_table && prev_two_columns));
+                // 続きのページに次の記事・次の表の欄見出しがあれば、そこより上を前の表の続き、下を新しい表か本文として組む。
+                let next_label_y = continued.and(Some(cut_y)).filter(|y| y.is_finite());
+                match (split, next_label_y) {
+                    (Some((mid, _, _)), Some(label_y)) => {
+                        let (top, rest): (Vec<Col>, Vec<Col>) = cols.into_iter().partition(|c| c.y1 <= label_y - 1.0);
+                        // 次の表の改正の指示（「第二条　…を次の表のように改正する。」）から下は次の表の前文。
+                        let instruction = top
+                            .iter()
+                            .filter(|c| c.text.contains("ように改正する") || c.text.contains("ように改める"))
+                            .map(|c| c.y)
+                            .reduce(f32::min)
+                            .unwrap_or(f32::INFINITY);
+                        let (top, mut pre): (Vec<Col>, Vec<Col>) = top.into_iter().partition(|c| c.y1 < instruction - 1.0);
+                        // 前の表の続きは改正前の欄（右）の最後の行で終わる。その下の左の語も次の表の前文。
+                        let right_bottom = top.iter().filter(|c| c.x >= mid).map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+                        let (top, below): (Vec<Col>, Vec<Col>) = top.into_iter().partition(|c| c.x >= mid || c.y <= right_bottom + 4.0);
+                        pre.extend(below);
+                        if !top.is_empty() {
+                            let (unit, tail) = two_columns(top, mid, f32::NEG_INFINITY, Vec::new());
                             units.push(unit);
                             units.extend(tail);
                         }
-                        None => match split_horizontal_shinkyu_pairs(&rest, None) {
-                            Some((unit, rest, geometry)) => {
-                                if rest.is_empty() {
-                                    pairs_here = Some(geometry);
-                                }
+                        if !pre.is_empty() {
+                            units.push(Unit::Plain(horizontal_lines_with_tables(pre, &grids, &vrules, &hrules)));
+                        }
+                        match split_horizontal_shinkyu(&rest, false) {
+                            Some((mid, label_y, label_ids)) => {
+                                let (unit, tail) = two_columns(rest, mid, label_y, label_ids);
+                                (two_columns_here, mid_here) = (tail.is_none(), Some(mid));
                                 units.push(unit);
-                                if !rest.is_empty() {
-                                    units.push(Unit::Plain(horizontal_lines_with_tables(rest, &grids, &vrules)));
-                                }
+                                units.extend(tail);
                             }
-                            None => units.push(Unit::Plain(horizontal_lines_with_tables(rest, &grids, &vrules))),
-                        },
-                    }
-                }
-                (Some((mid, label_y, label_ids)), None) => {
-                    let (unit, t) = two_columns(cols, mid, label_y, label_ids);
-                    (two_columns_here, mid_here) = (t.is_none(), Some(mid));
-                    units.push(unit);
-                    tail = t;
-                }
-                (None, _) => match split_horizontal_shinkyu_pairs(&cols, prev_pairs.filter(|_| prev_table)) {
-                    Some((unit, rest, geometry)) => {
-                        if rest.is_empty() {
-                            pairs_here = Some(geometry);
-                        } else {
-                            tail = Some(Unit::Plain(horizontal_lines_with_tables(rest, &grids, &vrules)));
+                            None => match split_horizontal_shinkyu_pairs(&rest, None, &vrules) {
+                                Some((unit, rest, geometry)) => {
+                                    if rest.is_empty() {
+                                        pairs_here = Some(geometry);
+                                    }
+                                    units.push(unit);
+                                    if !rest.is_empty() {
+                                        units.push(Unit::Plain(horizontal_lines_with_tables(rest, &grids, &vrules, &hrules)));
+                                    }
+                                }
+                                None => units.push(Unit::Plain(horizontal_lines_with_tables(rest, &grids, &vrules, &hrules))),
+                            },
                         }
+                    }
+                    (Some((mid, label_y, label_ids)), None) => {
+                        let (unit, t) = two_columns(cols, mid, label_y, label_ids);
+                        (two_columns_here, mid_here) = (t.is_none(), Some(mid));
                         units.push(unit);
+                        tail = t;
                     }
-                    // 組が横に 2 組入る幅でも、2 組に分けられなければ（改正後・改正前の表の下に 2 段組の別の記事が
-                    // 続き、ページが広く見えるもの）、1 組の表として組む。
-                    None => match split_horizontal_shinkyu_by(&cols, false, false).filter(|&(mid, label_y, _)| {
-                        // 表の範囲がはっきりしているとき（境目の縦線が欄見出しの所から下へ引かれ、その下端で境目をまたぐ横線が
-                        // 閉じる）だけ。
-                        page_rules.is_some_and(|r| {
-                            r.vertical.iter().filter(|v| (v.x - mid).abs() < 15.0 && v.y0 <= label_y + 20.0 && v.y1 - v.y0 >= 50.0).any(|v| {
-                                r.horizontal.iter().any(|h| (h.y - v.y1).abs() < 3.0 && h.x0 < mid - 50.0 && h.x1 > mid + 50.0)
-                            })
-                        })
-                    }) {
-                        Some((mid, label_y, label_ids)) => {
-                            let (unit, t) = two_columns(cols, mid, label_y, label_ids);
-                            (two_columns_here, mid_here) = (t.is_none(), Some(mid));
+                    (None, _) => match split_horizontal_shinkyu_pairs(&cols, prev_pairs.filter(|_| prev_table), &vrules) {
+                        Some((unit, rest, geometry)) => {
+                            if rest.is_empty() {
+                                pairs_here = Some(geometry);
+                            } else {
+                                tail = Some(Unit::Plain(horizontal_lines_with_tables(rest, &grids, &vrules, &hrules)));
+                            }
                             units.push(unit);
-                            tail = t;
                         }
-                        None => units.push(Unit::Plain(horizontal_lines_with_tables(cols, &grids, &vrules))),
+                        // 組が横に 2 組入る幅でも、2 組に分けられなければ（改正後・改正前の表の下に 2 段組の別の記事が
+                        // 続き、ページが広く見えるもの）、1 組の表として組む。
+                        None => match split_horizontal_shinkyu_by(&cols, false, false).filter(|&(mid, label_y, _)| {
+                            // 表の範囲がはっきりしているとき（境目の縦線が欄見出しの所から下へ引かれ、その下端で境目をまたぐ横線が
+                            // 閉じる）だけ。
+                            page_rules.is_some_and(|r| {
+                                r.vertical.iter().filter(|v| (v.x - mid).abs() < 15.0 && v.y0 <= label_y + 20.0 && v.y1 - v.y0 >= 50.0).any(|v| {
+                                    r.horizontal.iter().any(|h| (h.y - v.y1).abs() < 3.0 && h.x0 < mid - 50.0 && h.x1 > mid + 50.0)
+                                })
+                            })
+                        }) {
+                            Some((mid, label_y, label_ids)) => {
+                                let (unit, t) = two_columns(cols, mid, label_y, label_ids);
+                                (two_columns_here, mid_here) = (t.is_none(), Some(mid));
+                                units.push(unit);
+                                tail = t;
+                            }
+                            None => units.push(Unit::Plain(horizontal_lines_with_tables(cols, &grids, &vrules, &hrules))),
+                        },
                     },
-                },
+                }
             }
             units.extend(tail);
+            prefix_minus(&mut units, &minus, &word_texts);
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
@@ -364,10 +431,14 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             // 新旧対照表のあるページ（見出しのある段・帯の組になる段がある）は帯の中の表を帯ごとに
             // 組むので、これまでどおりに切る。
             let hrules: Vec<(f32, f32, f32)> = page_rules.map(|r| r.horizontal.iter().map(|h| (h.y, h.x0, h.x1)).collect()).unwrap_or_default();
+            let vrules: Vec<(f32, f32, f32)> = page_rules.map(|r| r.vertical.iter().map(|v| (v.x, v.y0, v.y1)).collect()).unwrap_or_default();
             // 罫線の無い縦組みの表（[`page_lines_keyed`]）は、欄の間の空きで段に切らない（認定番号の表の
             // 「認定を受けた者」の欄が下の段に分かれていた）。
             let keyed = keyed_table_boxes(&cols);
-            let plain_tiers = merge_split_header_tiers(split_tiers(cols.clone(), &TierRules { tables: keyed.clone(), hrules: hrules.clone(), sideways }));
+            // 横組みの囲み（決算公告）も、見出しと貸借対照表の間の空きで段に切らない。
+            let boxes = horizontal_block_boxes(&cols);
+            let plain_tiers =
+                merge_split_header_tiers(split_tiers(cols.clone(), &TierRules { tables: keyed.clone(), boxes: boxes.clone(), hrules: hrules.clone(), sideways }));
             let shinkyu_page = plain_tiers.iter().any(|t| detect_shinkyu_header(t).is_some())
                 || plain_tiers.windows(2).any(|w| tiers_look_like_bands(&w[0], &w[1]));
             let tables: Vec<(f32, f32, f32, f32)> = grids
@@ -390,7 +461,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             let tiers = if shinkyu_page || tables.is_empty() || v_chars < h_chars * 2 {
                 plain_tiers
             } else {
-                merge_split_header_tiers(split_tiers(cols, &TierRules { tables, hrules, sideways }))
+                merge_split_header_tiers(split_tiers(cols, &TierRules { tables, boxes, hrules: hrules.clone(), sideways }))
             };
             let mut tiers: Vec<Vec<Col>> = attach_toc_page_numbers(tiers.into_iter().flat_map(split_side_by_side_tables).collect(), &words);
             // 新旧対照表のページで、行の罫線の無い枠（帯の中の表）の欄の境の横線で切られた段は、前の段に戻す（改正前の
@@ -482,7 +553,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                     // 普通の本文の段でも、罫線の表と、行の見出しの記号が並ぶ罫線の無い表は表として組む。
                     None => {
                         let inner = inner_grids(&tier);
-                        Unit::Plain(drop_stray_labels(lines_with_tables_by(tier, &inner, page_lines_keyed)))
+                        Unit::Plain(drop_stray_labels(lines_with_tables_by(tier, &inner, |c| page_lines_keyed(c, &vrules, &hrules))))
                     }
                 };
                 units.push(unit);
@@ -492,6 +563,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         if sideways {
             unturn_tables(&mut units, width);
         }
+        prefix_minus(&mut units, &minus, &word_texts);
         let text = units
             .iter()
             .map(Unit::text)
@@ -1053,9 +1125,21 @@ fn split_horizontal_shinkyu_by(cols: &[Col], continuation: bool, check_pairs: bo
             let center = (a.1 + b.0) / 2.0;
             // 2 組の判定から回ってきたとき（`check_pairs` が偽）は、改正前の表の頭の「別表」のような短い語 1 つが
             // 下の 2 段組の本文の段の間にまたがるのは許す。
+            // 境目をまたぐ語が表の下の紙面の幅いっぱいの行（次の記事・備考。改正後と改正前の欄見出しの間をまるごと横切る）
+            // にしか無ければよい: またぐ語のいちばん上より上に、境目の左右とも 5 語以上ある（号外第 172 号 176 ページ: 表の
+            // 下に次の告示が続き、どこにも境目が取れなかった）。欄の中の語（右端の小数点以下の数）をまたぐ所では切らない。
             let crossing_ok = |x: f32| {
                 let crossing: Vec<&&Col> = below.iter().filter(|d| d.x < x && x < d.x1).collect();
-                crossing.is_empty() || (!check_pairs && crossing.len() == 1 && crossing[0].text.chars().count() <= 3)
+                if crossing.is_empty() || (!check_pairs && crossing.len() == 1 && crossing[0].text.chars().count() <= 3) {
+                    return true;
+                }
+                if !crossing.iter().all(|d| d.x <= a.1 && d.x1 >= b.0) {
+                    return false;
+                }
+                let end = crossing.iter().map(|d| d.y).fold(f32::INFINITY, f32::min);
+                let left = below.iter().filter(|d| d.x1 <= x && d.y1 <= end).count();
+                let right = below.iter().filter(|d| d.x >= x && d.y1 <= end).count();
+                left >= 5 && right >= 5
             };
             let mid = below
                 .iter()
@@ -1077,12 +1161,14 @@ fn split_horizontal_shinkyu_by(cols: &[Col], continuation: bool, check_pairs: bo
     let right = body.iter().map(|c| c.x1).reduce(f32::max)?;
     let (span, center) = (right - left, (left + right) / 2.0);
     let (lo, hi) = (left + span * 0.35, left + span * 0.65);
-    // 候補は語の右端。またぐ語が無い切れ目のうち中央に最も近いもの。
-    let mid = body
-        .iter()
-        .map(|c| c.x1 + 1.0)
-        .filter(|&x| x > lo && x < hi && !body.iter().any(|d| d.x < x && x < d.x1))
-        .min_by(|a, b| (a - center).abs().partial_cmp(&(b - center).abs()).unwrap_or(std::cmp::Ordering::Equal))?;
+    // 候補は語の右端。またぐ語が無い切れ目のうち中央に最も近いもの。中ほどに右端の語が無ければ（改正後の欄が
+    // 「削除」「［略］」だけで短い）、語の左端の手前。
+    let gap = |xs: Vec<f32>| {
+        xs.into_iter()
+            .filter(|&x| x > lo && x < hi && !body.iter().any(|d| d.x < x && x < d.x1))
+            .min_by(|a, b| (a - center).abs().partial_cmp(&(b - center).abs()).unwrap_or(std::cmp::Ordering::Equal))
+    };
+    let mid = gap(body.iter().map(|c| c.x1 + 1.0).collect()).or_else(|| gap(body.iter().map(|c| c.x - 1.0).collect()))?;
     let (l, r): (Vec<&&Col>, Vec<&&Col>) = body.iter().partition(|c| c.x1 <= mid);
     let alike = |a: &str, b: &str| a == b || b.contains("同左");
     let matched = r
@@ -1093,7 +1179,8 @@ fn split_horizontal_shinkyu_by(cols: &[Col], continuation: bool, check_pairs: bo
     // 改正前欄の省略記法「同左」か、欄見出しの「改正後」「改正前」があることも求める。
     let same_left = r.iter().filter(|c| c.text.contains("同左")).count();
     let labels = ["改正後", "改正前"].iter().all(|lb| cols.iter().any(|c| c.text.trim() == *lb));
-    (matched >= 5 && matched * 10 >= r.len() * 3 && (same_left >= 2 || labels || continuation)).then_some((mid, f32::NEG_INFINITY, Vec::new()))
+    // 改正前の欄に長い本文がある（改正後の欄は「削除」だけ）と、揃う行の割合は小さくなる。「同左」が 4 つ以上あれば割合は見ない。
+    (matched >= 5 && (matched * 10 >= r.len() * 3 || same_left >= 4) && (same_left >= 2 || labels || continuation)).then_some((mid, f32::NEG_INFINITY, Vec::new()))
 }
 
 /// 横向きのページで、改正後・改正前の列の組が横に 2 組以上並ぶ新旧対照表（本紙第 1760 号 3 ページ:
@@ -1106,7 +1193,11 @@ fn split_horizontal_shinkyu_by(cols: &[Col], continuation: bool, check_pairs: bo
 /// 3 列以上あるときだけ（2 列の表は [`split_horizontal_shinkyu`] が見る）。欄見出しの無い続きのページは、
 /// 前のページの列の幅（`prev`）で、左の列から交互に分ける。次の記事の標題（「〇…」）のある列から後ろは
 /// 表の外として返す。戻り値は（表, 表の外の語, 次のページに渡す列の幅）。
-fn split_horizontal_shinkyu_pairs(cols: &[Col], prev: Option<f32>) -> Option<(Unit, Vec<Col>, f32)> {
+///
+/// `vrules` は縦の罫線 `(x, y0, y1)`。最初の組より右で欄見出しより上に終わる縦の罫線（紙面の幅いっぱいの表の欄の線）が
+/// あり、その下端より上の最初の組より右の語が 12 語までなら、それも前文（表の右の欄「令和10年４月１日」を改正前の続きの
+/// 列にしない）。
+fn split_horizontal_shinkyu_pairs(cols: &[Col], prev: Option<f32>, vrules: &[(f32, f32, f32)]) -> Option<(Unit, Vec<Col>, f32)> {
     let labels = |last: char| shinkyu_labels(cols, last);
     let (after, before) = (labels('後'), labels('前'));
     let center = |l: &(f32, f32, f32, Vec<usize>)| (l.0 + l.1) / 2.0;
@@ -1125,7 +1216,15 @@ fn split_horizontal_shinkyu_pairs(cols: &[Col], prev: Option<f32>) -> Option<(Un
         return None;
     }
     // 前文は欄見出しより上で、最初の組の 2 列の中から始まる語（その上の別の記事の表なども）。
-    let is_preamble = |c: &Col| c.y1 <= label_y + 1.0 && c.x < before_x + width / 2.0;
+    let table_bottom = vrules
+        .iter()
+        .filter(|&&(x, y0, y1)| x > before_x + width / 2.0 && y0 < label_y && y1 <= label_y + 1.0)
+        .map(|r| r.2)
+        .fold(f32::NEG_INFINITY, f32::max);
+    // 表の欄は語が少ない（12 語まで）。多ければ改正前の続きの列（上に前の表の罫線がある）。
+    let beside = cols.iter().filter(|c| c.x >= before_x + width / 2.0 && c.y1 <= table_bottom + 2.0).count();
+    let table_bottom = if beside <= 12 { table_bottom } else { f32::NEG_INFINITY };
+    let is_preamble = |c: &Col| c.y1 <= label_y + 1.0 && (c.x < before_x + width / 2.0 || c.y1 <= table_bottom + 2.0);
     let body: Vec<&Col> = cols.iter().filter(|c| !label_ids.contains(&c.id) && !is_preamble(c)).collect();
     // 語の左右の範囲をつないで列にする。
     let mut spans: Vec<(f32, f32)> = body.iter().map(|c| (c.x, c.x1)).collect();
@@ -1186,7 +1285,7 @@ fn page_words_traced(
     page_width: f32,
     height: f32,
     page_rules: Option<&PageRules>,
-) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>) {
+) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>, std::collections::HashSet<usize>) {
     let word_sel = Selector::parse("word").unwrap();
     let line_sel = Selector::parse("line").unwrap();
     // (x0, y0, x1, y1, raw)
@@ -1357,22 +1456,36 @@ fn page_words_traced(
             status,
         });
     }
+    drop_ruby(&mut cols, &mut words);
+    let minus = attach_minus_signs(&mut cols, &words);
     let merged = merge_warichu(&mut cols);
-    (cols, words, rotated, sideways, merged)
+    (cols, words, rotated, sideways, merged, minus)
 }
 
 /// 枠のセルに文章（200 字を超える、または 2 文以上）が入っているか。公告の囲み記事などの
-/// 枠を表と取り違えないため。
+/// 枠を表と取り違えないため。括弧の中の句点（「（…場合を含む。）」）は文の終わりに数えない（読替えの表の
+/// 欄に括弧書きが 2 つあるだけで文章とみなし、表を行ごとに読んでいた。号外第 163 号 61 ページ）。
 pub(crate) fn prose_cells(cols: &[Col], g: &Grid) -> bool {
+    // 縦横とも 2 つ以上に区切られた格子は、セルが長くても文が 2 つ以上無ければ表（号外第 172 号 266 ページ: 「地方公共
+    // 団体」の欄に市町村の一覧、「機能要件の標準」の欄に項の一覧が入る表。表として組まないと上下の欄の列が 1 行に
+    // つながっていた）。段を区切る罫線で格子に見える記事（同 290 ページの下半分の告示）はセルに文がある。
+    let grid = g.xs.len() >= 3 && g.ys.len() >= 3;
+    // 表の枠の中の備考の欄（「備考　一　…。二　…。」）は文でも表の欄。
+    let notes: std::collections::HashSet<usize> = cols.iter().filter(|c| c.text.trim_start().starts_with("備考")).filter_map(|c| g.cell_at((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0)).collect();
     let mut cells: std::collections::HashMap<usize, (usize, usize)> = std::collections::HashMap::new();
     for c in cols {
-        if let Some(i) = g.cell_at((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0) {
+        if let Some(i) = g.cell_at((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0).filter(|i| !notes.contains(i)) {
             let e = cells.entry(i).or_default();
             e.0 += c.text.chars().count();
-            e.1 += c.text.matches('。').count();
+            let chars: Vec<char> = c.text.chars().collect();
+            e.1 += chars
+                .iter()
+                .enumerate()
+                .filter(|&(k, &ch)| matches!(ch, '。' | '︒') && !chars.get(k + 1).is_some_and(|n| matches!(n, '）' | ')' | '」' | '〕' | '︶' | '﹂' | '︼')))
+                .count();
         }
     }
-    cells.values().any(|&(chars, sentences)| chars > 200 || sentences >= 2)
+    cells.values().any(|&(chars, sentences)| (chars > 200 && !grid) || sentences >= 2)
 }
 
 /// 枠の中の語が縦組みか（縦長の語の字数が横長の語の字数以上）。
@@ -1387,6 +1500,149 @@ pub(crate) fn vertical_inside(cols: &[Col], g: &Grid) -> bool {
         }
     }
     v > 0 && v >= h
+}
+
+/// 負の金額の印「△」だけの語を取り除き、すぐ後ろ（横組みなら右、縦組みなら下）の語の ID を返す（本文に組んだ後で、その語の
+/// 頭に「△」を付ける。[`prefix_minus`]）。「△」を 1 つの語として残したり語の字に足したりすると、表の金額の欄の間の溝や
+/// 語の字数で見る組み方の判定が変わり、表の列や横組みの欄の読み方が変わっていた。後ろの語は、同じ行（横組みなら上下が
+/// 半分以上重なる、縦組みなら左右が半分以上重なる）で、1 字分以内（重なりも含む。数の語なら 12 字分以内。右揃えの金額の
+/// 欄では「△」が欄の左端に置かれる）に始まるもの。数の語を先に選ぶ。位置は表示用の座標（`words`）で見る（横倒しのページは読み順の復元用に
+/// 座標を回しているので、回した座標では「△」と数の並びの向きが揃わない）。
+fn attach_minus_signs(cols: &mut Vec<Col>, words: &[Word]) -> std::collections::HashSet<usize> {
+    let geom = |id: usize| words.get(id).map(|w| (w.x0, w.y0, w.x1, w.y1));
+    let mut drop: Vec<usize> = Vec::new();
+    let mut targets: std::collections::HashSet<usize> = std::collections::HashSet::new();
+    for i in 0..cols.len() {
+        if cols[i].text.trim() != "△" {
+            continue;
+        }
+        let Some((mx, my, mx1, my1)) = geom(cols[i].id) else { continue };
+        let em = (mx1 - mx).max(my1 - my).max(1.0);
+        let overlap = |a0: f32, a1: f32, b0: f32, b1: f32| (a1.min(b1) - a0.max(b0)) / (a1 - a0).min(b1 - b0).max(0.1);
+        let target = (0..cols.len())
+            // 開き括弧だけの語（「(△785)」の「(」）には付けない（「△」は括弧の中の数に付く。下の行の「△」が、字に合わせて
+            // 下にずれて置かれた上の行の「(」に付いていた）。
+            .filter(|&j| j != i && !matches!(cols[j].text.trim(), "△" | "" | "(" | "（") && !targets.contains(&cols[j].id))
+            .filter_map(|j| {
+                let c = &cols[j];
+                let (cx, cy, cx1, cy1) = geom(c.id)?;
+                let number = c.text.trim_start().starts_with(|ch: char| ch.is_ascii_digit() || ('０'..='９').contains(&ch) || matches!(ch, '(' | '（'));
+                // 右揃えの金額の欄では「△」が欄の左端に置かれ、短い金額とは 10 字分ほど離れることがある。
+                let reach = if number { em * 12.0 } else { em };
+                let right = overlap(my, my1, cy, cy1) >= 0.5 && cx >= mx + em * 0.25 && cx - mx1 <= reach;
+                let below = overlap(mx, mx1, cx, cx1) >= 0.5 && cy >= my + em * 0.25 && cy - my1 <= reach;
+                let gap = if right { cx - mx } else if below { cy - my } else { return None };
+                Some((!number, gap, j))
+            })
+            // 数を先に（右の欄の金額より、すぐ下の行の見出しの字が近いことがある）。
+            .min_by(|a, b| a.0.cmp(&b.0).then(a.1.total_cmp(&b.1)))
+            .map(|(_, _, j)| j);
+        if let Some(j) = target {
+            targets.insert(cols[j].id);
+            drop.push(cols[i].id);
+        }
+    }
+    cols.retain(|c| !drop.contains(&c.id));
+    targets
+}
+
+/// 組んだ行（表のセルも）の、[`attach_minus_signs`] で選んだ語の頭に「△」を付ける。行の語を順に行の文の中から探して
+/// 位置を決める（`texts` は語の ID から語の字）。
+fn prefix_minus(units: &mut [Unit], minus: &std::collections::HashSet<usize>, texts: &std::collections::HashMap<usize, String>) {
+    if minus.is_empty() {
+        return;
+    }
+    let insert = |text: &mut String, words: &[usize]| {
+        let mut pos = 0;
+        for id in words {
+            let Some(wt) = texts.get(id).map(|t| t.trim()).filter(|t| !t.is_empty()) else { continue };
+            // 語の並び（表のセルは回した座標の順のことがある）と文の字の順が違えば、文の頭から探し直す。
+            let at = match text[pos..].find(wt) {
+                Some(k) => pos + k,
+                None if minus.contains(id) => match text.find(wt) {
+                    Some(k) => k,
+                    None => continue,
+                },
+                None => continue,
+            };
+            if minus.contains(id) {
+                text.insert(at, '△');
+                pos = at + '△'.len_utf8() + wt.len();
+            } else {
+                pos = at + wt.len();
+            }
+        }
+    };
+    let mut fix = |line: &mut Line| {
+        if let Some(t) = line.table.as_mut() {
+            let mut touched = false;
+            for c in &mut t.cells {
+                if c.words.iter().any(|w| minus.contains(w)) {
+                    insert(&mut c.text, &c.words);
+                    touched = true;
+                }
+            }
+            if touched {
+                line.text = t.render();
+            }
+        } else if line.words.iter().any(|w| minus.contains(w)) {
+            let words = line.words.clone();
+            insert(&mut line.text, &words);
+        }
+    };
+    for u in units.iter_mut() {
+        match u {
+            Unit::Plain(lines) => lines.iter_mut().for_each(&mut fix),
+            Unit::Shinkyu { preamble, after, before, outside } => {
+                preamble.iter_mut().for_each(&mut fix);
+                for part in after.iter_mut().chain(before.iter_mut()).chain(outside.iter_mut()) {
+                    part.iter_mut().for_each(&mut fix);
+                }
+            }
+        }
+    }
+}
+
+/// 振り仮名（常用漢字表にない字などの脇に小さく組んだ読み。「強靱（じん）」「涵（かん）養」）を本文から除く。
+/// 振り仮名の語は、ひらがなだけで 4 字まで、字の大きさ（横組みなら高さ、縦組みなら幅）が隣の本文の語の 6 割以下で、
+/// 本文の語の行の外側（横組みなら上、縦組みなら右）に接し（3pt まで食い込む）、親字の範囲に収まる。本文の行に混ざると
+/// 「強靱じん化」になり、別の行になると「じん」だけの行になっていた。
+fn drop_ruby(cols: &mut Vec<Col>, words: &mut [Word]) {
+    let kana = |t: &str| {
+        let t = t.trim();
+        (1..=4).contains(&t.chars().count()) && t.chars().all(|c| ('ぁ'..='ゖ').contains(&c))
+    };
+    let ruby: std::collections::HashSet<usize> = cols
+        .iter()
+        .filter(|r| kana(&r.text))
+        .filter(|r| {
+            let (rw, rh) = (r.x1 - r.x, r.y1 - r.y);
+            cols.iter().any(|b| {
+                if b.id == r.id || kana(&b.text) {
+                    return false;
+                }
+                let (bw, bh) = (b.x1 - b.x, b.y1 - b.y);
+                // 横組みの本文の語の上（振り仮名の下端が本文の上端に接する）。
+                // 接する所は、本文の字の枠に 3pt まで食い込むことがある（横倒しのページの「強靱（じん）」）。
+                let touches = |gap: f32| (-3.0..=1.5).contains(&gap);
+                // 1 字の親字（「春」「恵」）は正方形で、3 字の振り仮名（「めぐみ」）は親字からはみ出すので、振り仮名の中ほどが
+                // 親字の範囲にあればよい。
+                let (rcx, rcy) = ((r.x + r.x1) / 2.0, (r.y + r.y1) / 2.0);
+                let above = bw >= bh * 0.9 && rw > rh && rh <= bh * 0.6 && touches(b.y - r.y1) && rcx >= b.x - 1.0 && rcx <= b.x1 + 1.0;
+                // 縦組みの本文の語の右（振り仮名の左端が本文の右端に接する）。
+                let right = bh >= bw * 0.9 && rh > rw && rw <= bw * 0.6 && touches(r.x - b.x1) && rcy >= b.y - 1.0 && rcy <= b.y1 + 1.0;
+                above || right
+            })
+        })
+        .map(|r| r.id)
+        .collect();
+    if ruby.is_empty() {
+        return;
+    }
+    cols.retain(|c| !ruby.contains(&c.id));
+    for w in words.iter_mut().filter(|w| ruby.contains(&w.id)) {
+        w.status = WordStatus::Ruby;
+    }
 }
 
 /// 割注（1 つの列の中に 2 行に割って組んだ部分）を 1 つの語にまとめる。
@@ -1559,6 +1815,8 @@ pub(crate) fn col_to_word(c: &Col) -> crate::table::PlacedWord {
 /// 段分けで使う罫線: 割らない表の枠 `(x0, x1, y0, y1)` と横線 `(y, x0, x1)`。
 struct TierRules {
     tables: Vec<(f32, f32, f32, f32)>,
+    /// 横組みの囲み（[`horizontal_block_boxes`]）。縦書きの列の段の境目でない cut は、囲みを横切らない。
+    boxes: Vec<(f32, f32, f32, f32)>,
     hrules: Vec<(f32, f32, f32)>,
     /// 横倒しのページ（回した座標で組む）。
     sideways: bool,
@@ -2098,11 +2356,23 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
     // 境目に見えて、表が上下に割れていた）。
     let center = |c: &Col| (c.x + c.x1) / 2.0;
     let upright = |c: &Col| c.y1 - c.y >= (c.x1 - c.x) * 0.9;
-    let table_at = |cut: f32| {
-        tables.iter().find(|&&(x0, x1, y0, y1)| {
-            y0 + 1.0 < cut && cut < y1 - 1.0 && cols.iter().any(|c| x0 < center(c) && center(c) < x1 && y0 < c.y1 && c.y < y1)
+    let crosses = |cut: f32, &(x0, x1, y0, y1): &(f32, f32, f32, f32)| {
+        y0 + 1.0 < cut && cut < y1 - 1.0 && cols.iter().any(|c| x0 < center(c) && center(c) < x1 && y0 < c.y1 && c.y < y1)
+    };
+    // 囲みの外の縦書きの列（2 字以上）が cut の上（3 字分以内）で終わり、その列の下から cut までに語が無いなら、縦書きの
+    // 段の境目（囲みの横に組んだ合併公告の上下の段）なので、囲みがあっても切る。
+    let in_box = |c: &Col| rules.boxes.iter().any(|&(x0, x1, y0, y1)| x0 < center(c) && center(c) < x1 && y0 < c.y1 && c.y < y1);
+    let column_break = |cut: f32| {
+        cols.iter().any(|c| {
+            c.text.chars().count() >= 2
+                && c.y1 - c.y > (c.x1 - c.x) * 1.5
+                && c.y1 <= cut
+                && cut - c.y1 < (c.x1 - c.x) * 3.0
+                && !in_box(c)
+                && !cols.iter().any(|d| d.x < center(c) && center(c) < d.x1 && d.y1 > c.y1 + 0.5 && d.y < cut)
         })
     };
+    let table_at = |cut: f32| tables.iter().find(|t| crosses(cut, t)).or_else(|| rules.boxes.iter().find(|b| crosses(cut, b) && !column_break(cut)));
     let (xmin, xmax) = (cols.iter().map(|c| c.x).fold(f32::INFINITY, f32::min), cols.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max));
     let ruled = |cut: f32| {
         rules.hrules.iter().any(|&(y, x0, x1)| (y - cut).abs() < 12.0 && x1.min(xmax) - x0.max(xmin) >= (xmax - xmin) * 0.6)
@@ -2163,7 +2433,7 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
     let mut best_free: Option<Cand> = None;
     for c in &cols {
         let cut = c.y1 + 0.5;
-        if cut < lo || cut > hi || (ruled_only && !ruled(cut)) {
+        if cut < lo || cut > hi || (ruled_only && !ruled(cut)) || label_strip(&cols, cut) {
             continue;
         }
         let crossing = cols.iter().filter(|d| d.y < cut && cut < d.y1).count();
@@ -2231,6 +2501,16 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
     if touches && ymax - ymin < 60.0 {
         out.push(cols);
         return;
+    }
+    // 語の少ない（8 語まで）低い領域（120pt 未満）で、cut の上で終わる列がどれも同じ列で 1.5em 以内に cut の下へ続くなら、
+    // 列の中の空き（表の欄の「二十三」「外国紋章」を 1em 空けて組んだもの）で段の境目ではない。
+    if ymax - ymin < 120.0 && cols.len() <= 8 {
+        let ends: Vec<&Col> = cols.iter().filter(|c| c.y1 < cut && !cols.iter().any(|d| d.y >= c.y1 - 0.5 && d.y1 < cut && (center(d) - center(c)).abs() < (c.x1 - c.x) * 0.5)).collect();
+        let continued = |c: &Col| pairs.iter().any(|&(y1, y, gap)| (y1 - c.y1).abs() < 0.5 && y > cut && gap <= 1.5);
+        if !ends.is_empty() && ends.iter().all(|c| continued(c)) {
+            out.push(cols);
+            return;
+        }
     }
     // それでも表を横切るなら、表を割らずに表の脇で縦に切る。表の左に語があれば表の左端で、
     // 無ければ表の右端で切り、右側から順に段へ分ける。表が段の幅いっぱいなら切らない。
@@ -2445,6 +2725,65 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
 /// 列の重ならない縦の境目で `cols` を右と左に分ける。左に記事の見出し（「〇…号」）があり、左だけならどの列も
 /// 跨がない（字間でもない）横の空きで上下に割れ、右は割れず見出しも無いときだけ。境目は見出しの記事に
 /// いちばん近いもの（左から順に試して最初のもの）。
+/// `cut` の上が縦組みの表の欄見出しの帯（航路標識の表の「灯質」「光度」「光達距離」…）で、各欄の値がそのすぐ下の同じ
+/// 列に続くか。帯で段に切ると、欄見出しを全部読んでから値を全部読む（見出しと値が離れる）。
+///
+/// 帯: `cut` のすぐ上（8em 以内の高さ）に収まる 8 字以下の語の列が 8 本以上あり、半分以上が欄見出しの語（名称・位置・
+/// 年月日…）で終わり、その 7 割以上の真下（2.5em 以内）に同じ列の値が 1 つ始まる。
+fn label_strip(cols: &[Col], cut: f32) -> bool {
+    let em = {
+        let mut ws: Vec<f32> = cols.iter().map(|c| c.x1 - c.x).collect();
+        ws.sort_by(f32::total_cmp);
+        ws.get(ws.len() / 2).copied().unwrap_or(10.0).max(1.0)
+    };
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    let labels: Vec<&Col> = cols.iter().filter(|c| c.y1 <= cut && cut - c.y1 < em * 8.0 && c.text.chars().count() <= 8).collect();
+    // 帯の上には何も無い（帯は段の頭。段の境の上の段の列の末尾の短い語を帯にしない）。帯は縦組み（横組みの語の
+    // ある横組みの表の行の間では切ってよい）。
+    let above: Vec<&Col> = cols.iter().filter(|c| c.y1 <= cut).collect();
+    if above.iter().any(|c| cut - c.y > em * 8.0 || (c.text.chars().count() >= 2 && c.x1 - c.x > c.y1 - c.y)) {
+        return false;
+    }
+    // 字間を空けた欄見出し（「高　さ」）は 1 字ずつの語なので、同じ列の語をまとめて列の下端を見る。
+    let mut groups: Vec<(f32, f32, String)> = Vec::new();
+    let mut sorted = labels.clone();
+    sorted.sort_by(|a, b| center(a).total_cmp(&center(b)).then(a.y.total_cmp(&b.y)));
+    for c in sorted {
+        match groups.last_mut() {
+            Some(g) if (center(c) - g.0).abs() < em * 0.5 => {
+                g.1 = g.1.max(c.y1);
+                g.2.push_str(&c.text);
+            }
+            _ => groups.push((center(c), c.y1, c.text.clone())),
+        }
+    }
+    // 欄見出しは名詞（「灯質」「光達距離」）。記録の欄の末尾の日付（「八、」「（令和）」）や数は欄見出しではない。
+    let label_like = |t: &str| !t.chars().any(|c| "、。，．（）()".contains(c)) && !t.chars().all(|c| "〇一二三四五六七八九十百千".contains(c) || c.is_ascii_digit());
+    if groups.iter().filter(|g| label_like(&g.2)).count() * 10 < groups.len() * 7 {
+        return false;
+    }
+    // 半分以上が欄見出しの語で終わる（記録の欄の値「大路渡」「吉野純子」の並びは欄見出しの帯ではない）。
+    const HEADS: [&str; 24] = [
+        "名称", "位置", "所在地", "年月日", "記事", "種類", "距離", "光度", "灯質", "明孤", "高さ", "北緯", "東経", "周波数", "レベル", "周期", "区域",
+        "型式", "番号", "住所", "氏名", "時間", "電力", "区分",
+    ];
+    if groups.iter().filter(|g| HEADS.iter().any(|h| g.2.ends_with(h))).count() * 2 < groups.len() {
+        return false;
+    }
+    if groups.len() < 8 {
+        return false;
+    }
+    let below = groups
+        .iter()
+        .filter(|&&(x, y1, _)| cols.iter().any(|v| v.y >= cut && v.y - y1 < em * 2.5 && (center(v) - x).abs() < em * 0.5))
+        .count();
+    // 欄見出しの下はそれぞれ 1 つの値（2 つまでの語）。下に記録が何件も並ぶ表（政治団体の名称・代表者の氏名…の欄の
+    // 下に団体ごとの行が続く）は、欄見出しの帯を段に分けて読む（[`record_bands`]）。
+    let values = |x: f32| cols.iter().filter(|v| v.y >= cut && (center(v) - x).abs() < em * 0.5).count();
+    let single = groups.iter().filter(|g| values(g.0) <= 2).count();
+    below * 10 >= groups.len() * 7 && single * 10 >= groups.len() * 7
+}
+
 fn split_beside_tiered_notice(cols: &[Col]) -> Option<(Vec<Col>, Vec<Col>)> {
     let mut edges: Vec<f32> = cols.iter().map(|c| c.x).collect();
     edges.sort_by(f32::total_cmp);
@@ -2711,7 +3050,13 @@ pub(crate) fn reconstruct_page(cols: Vec<Col>) -> String {
 /// 「外）」「（号」と逆になる。そうした横組みの語は横の行に組み、その欄の右端の位置
 /// （右→左の読み順で欄に差し掛かったところ）に置く。
 pub(crate) fn page_lines(cols: Vec<Col>) -> Vec<Line> {
-    let (cols, blocks) = split_off_horizontal_blocks(cols);
+    page_lines_with(cols, &[], &[])
+}
+
+/// [`page_lines`] の、縦の罫線 `vrules`（`(x, y0, y1)`）・横の罫線 `hrules`（`(y, x0, x1)`）で横組みの囲みの中の
+/// 縦書きの見出し（貸借対照表の「負債及び純資産の部」）を見分ける版。
+fn page_lines_with(cols: Vec<Col>, vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)]) -> Vec<Line> {
+    let (cols, blocks) = split_off_horizontal_blocks(cols, vrules, hrules);
     let mut blocks = blocks.into_iter().peekable();
     let mut lines: Vec<Line> = Vec::new();
     for g in column_groups(cols) {
@@ -2742,14 +3087,16 @@ pub(crate) fn page_lines(cols: Vec<Col>) -> Vec<Line> {
 /// 「2026－ＧＥ0002」など）が各行（縦の列）の頭に同じ高さで 3 つ以上並ぶ表は、縦の列のままだと
 /// 欄が切れずに 1 列ずつの行になる。縦組みの表は 90 度回すと横組みの表なので、語を回して
 /// [`keyed_tables`] で組み、表を回し戻して読み順の位置に差し込む。
-pub(crate) fn page_lines_keyed(cols: Vec<Col>) -> Vec<Line> {
+///
+/// `vrules`・`hrules` は [`page_lines_with`] に渡す罫線。
+fn page_lines_keyed(cols: Vec<Col>, vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)]) -> Vec<Line> {
     let tables = vertical_keyed_tables(&cols);
     if tables.is_empty() {
-        return page_lines(cols);
+        return page_lines_with(cols, vrules, hrules);
     }
     let used: std::collections::HashSet<usize> = tables.iter().flat_map(|t| t.cells.iter().flat_map(|c| c.words.iter().copied())).collect();
     let rest: Vec<Col> = cols.into_iter().filter(|c| !used.contains(&c.id)).collect();
-    place_tables(rest, tables, page_lines)
+    place_tables(rest, tables, |c| page_lines_with(c, vrules, hrules))
 }
 
 /// 罫線の無い縦組みの表を組む。欄が 3 つ以上のものだけ（縦組みの段では、セルの 2 行目に組まれた型式
@@ -2778,28 +3125,148 @@ fn keyed_table_boxes(cols: &[Col]) -> Vec<(f32, f32, f32, f32)> {
     vertical_keyed_tables(cols).into_iter().map(|t| (t.x0, t.x1, t.y0, t.y1)).collect()
 }
 
+/// 横組みの囲みの表の左端の、縦の罫線で区切った縦書きの見出し（貸借対照表の「資産の部」「負債及び純資産の部」）の行。
+/// 見出しは 1 字ずつの語か縦長の語で、2 列に分けて組んだもの（「負債及び」と「純資産の部」）は左の列から読む。
+/// 罫線の左の語がどれも見出しの字（10 字までの漢字・仮名の、1 字か縦長の語）で、幅が 4 字分までのときだけ。見出しは
+/// 上下に 1.5 字分より離れているか、間に見出しの欄を横切る横の罫線があれば別の見出しにする。
+fn side_labels(block: &[&Col], vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)]) -> Vec<Line> {
+    let label_like = |c: &Col| {
+        let n = c.text.chars().count();
+        (1..=10).contains(&n)
+            && c.text.chars().all(|ch| ('\u{3040}'..='\u{30FF}').contains(&ch) || ('\u{4E00}'..='\u{9FFF}').contains(&ch))
+            && (n == 1 || c.y1 - c.y > (c.x1 - c.x) * 1.5)
+    };
+    let center = |c: &Col| ((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0);
+    let (bx0, bx1) = (block.iter().map(|c| c.x).fold(f32::INFINITY, f32::min), block.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max));
+    for &(x, ry0, ry1) in vrules {
+        if !(bx0 + 2.0 < x && x < bx1 - 2.0) {
+            continue;
+        }
+        let within = |c: &Col| ry0 < center(c).1 && center(c).1 < ry1;
+        let left: Vec<&Col> = block.iter().copied().filter(|c| within(c) && c.x1 <= x + 1.0).collect();
+        let right = block.iter().filter(|c| within(c) && c.x >= x - 1.0).count();
+        let em = left.iter().map(|c| (c.x1 - c.x).min(c.y1 - c.y)).fold(0f32, f32::max);
+        let span = left.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max) - left.iter().map(|c| c.x).fold(f32::INFINITY, f32::min);
+        if left.len() < 2 || right < 2 || !left.iter().all(|c| label_like(c)) || span > em * 4.0 {
+            continue;
+        }
+        let (lx0, lx1) = (left.iter().map(|c| c.x).fold(f32::INFINITY, f32::min), left.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max));
+        let ruled = |a: f32, b: f32| hrules.iter().any(|&(y, x0, x1)| a - 1.0 <= y && y <= b + 1.0 && x0 <= lx0 + 1.0 && lx1 - 1.0 <= x1);
+        let mut left = left;
+        left.sort_by(|a, b| a.y.total_cmp(&b.y));
+        let mut groups: Vec<Vec<&Col>> = Vec::new();
+        let mut bottom = f32::NEG_INFINITY;
+        for c in left {
+            if c.y - bottom > em * 1.5 || (bottom.is_finite() && ruled(bottom, c.y)) {
+                groups.push(Vec::new());
+            }
+            bottom = bottom.max(c.y1);
+            groups.last_mut().unwrap().push(c);
+        }
+        return groups
+            .into_iter()
+            .map(|mut g| {
+                // 左の列から、列の中は上から。
+                g.sort_by(|a, b| center(a).0.total_cmp(&center(b).0));
+                let mut columns: Vec<Vec<&Col>> = Vec::new();
+                for c in g {
+                    match columns.last_mut() {
+                        Some(col) if center(c).0 - center(col[0]).0 < em * 0.5 => col.push(c),
+                        _ => columns.push(vec![c]),
+                    }
+                }
+                let words: Vec<&Col> = columns
+                    .into_iter()
+                    .flat_map(|mut col| {
+                        col.sort_by(|a, b| a.y.total_cmp(&b.y));
+                        col
+                    })
+                    .collect();
+                Line::text(words.iter().map(|c| c.text.as_str()).collect::<String>(), words.iter().map(|c| c.id).collect())
+            })
+            .collect();
+    }
+    Vec::new()
+}
+
+/// 横組みの欄を、欄の高さいっぱいの溝（16pt 以上）で左右に分けた囲みごとの欄 `[(右端, 語)]`。分けた囲みがどれも
+/// 100pt 以上の幅で、幅がそろい（最も広いものが最も狭いものの 1.2 倍まで）、4 行以上あるときだけ分ける（行の高さの
+/// そろう囲みが横に並ぶと、溝の左右が表の欄に見えて囲みの行が 1 行につながる）。
+fn split_side_by_side_boxes(x1: f32, block: Vec<Col>) -> Vec<(f32, Vec<Col>)> {
+    let mut spans: Vec<(f32, f32)> = block.iter().map(|c| (c.x, c.x1)).collect();
+    spans.sort_by(|a, b| a.0.total_cmp(&b.0));
+    let mut cuts: Vec<f32> = Vec::new();
+    let mut right = f32::NEG_INFINITY;
+    for (a, b) in spans {
+        if right.is_finite() && a - right >= 16.0 {
+            cuts.push((a + right) / 2.0);
+        }
+        right = right.max(b);
+    }
+    if cuts.is_empty() {
+        return vec![(x1, block)];
+    }
+    let mut parts: Vec<Vec<Col>> = vec![Vec::new(); cuts.len() + 1];
+    for c in &block {
+        let k = cuts.iter().filter(|&&cut| cut < c.x).count();
+        parts[k].push(c.clone());
+    }
+    let width = |p: &[Col]| p.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max) - p.iter().map(|c| c.x).fold(f32::INFINITY, f32::min);
+    let widths: Vec<f32> = parts.iter().map(|p| width(p)).collect();
+    let (narrow, wide) = (widths.iter().copied().fold(f32::INFINITY, f32::min), widths.iter().copied().fold(f32::NEG_INFINITY, f32::max));
+    if narrow < 100.0 || wide > narrow * 1.2 || parts.iter().any(|p| row_lines(p.clone()).len() < 4) {
+        return vec![(x1, block)];
+    }
+    parts.into_iter().map(|p| (p.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max), p)).collect()
+}
+
+/// 縦書きの段の中の横組みの欄の枠 `(x0, x1, y0, y1)`（段の切り方で欄を割らないため。下の段に横に並ぶ決算公告の
+/// 囲みが、見出しと貸借対照表の間の空きで上下の段に割れ、見出しと表が離れていた）。
+fn horizontal_block_boxes(cols: &[Col]) -> Vec<(f32, f32, f32, f32)> {
+    let (_, blocks) = split_off_horizontal_blocks(cols.to_vec(), &[], &[]);
+    // 囲みのように何行もある欄だけ（号外の題字の下の発行者の欄などは、これまでどおり段に切ってから組む）。
+    blocks
+        .iter()
+        .filter(|(_, lines)| lines.len() >= 6)
+        .map(|(_, lines)| {
+            let ids: std::collections::HashSet<usize> = lines.iter().flat_map(|l| l.words.iter().copied()).collect();
+            cols.iter().filter(|c| ids.contains(&c.id)).fold((f32::INFINITY, f32::NEG_INFINITY, f32::INFINITY, f32::NEG_INFINITY), |(x0, x1, y0, y1), c| {
+                (x0.min(c.x), x1.max(c.x1), y0.min(c.y), y1.max(c.y1))
+            })
+        })
+        .filter(|b| b.0 < b.1)
+        .collect()
+}
+
 /// 縦書きの段の中の横組みの欄を取り出す。`(残りの語, [(欄の右端, 欄の行)])`（欄は右端の降順）。
 ///
 /// 横組みの語は 2 字以上で横長のもの。縦の列の途中に挟まった語（縦中横の数字など）は除く。
 /// 横組みの語の行が 2 行以上（上下に 1.5 行分以内の間隔で続き、左右が重なる）続く欄だけを
 /// 取り出す（1 行だけの横長の語は、表の欄の名前などと区別が付かないので列のまま読む）。
-fn split_off_horizontal_blocks(cols: Vec<Col>) -> (Vec<Col>, Vec<(f32, Vec<Line>)>) {
+fn split_off_horizontal_blocks(cols: Vec<Col>, vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)]) -> (Vec<Col>, Vec<(f32, Vec<Line>)>) {
     // 縦の列（2 字以上の縦長の語）のすぐ上か下（全角空白 1 字ほどの空きまで。「高橋　佑」）に続く語。
-    let in_column = |w: &Col| {
+    // `inside` の中で語のすぐ下から始まる列（欄に入れる縦書きの見出し「資産の部」）は見ない（そのすぐ上の欄見出し
+    // 「科　目」の「科」が欄から外れていた）。縦の罫線のすぐ左（3 字分以内）の語なら、すぐ上の列も見ない（表の左端の
+    // 縦書きの見出しの欄で、「資産の部」の下の「負債及び純資産の部」の頭の「純」が欄から外れていた）。
+    let in_column_but = |w: &Col, inside: Option<(f32, f32, f32, f32)>| {
         let em = w.y1 - w.y;
         let near = |gap: f32| -em * 0.5 < gap && gap < em * 1.5;
+        let wy = (w.y + w.y1) / 2.0;
+        let label_cell = vrules.iter().any(|&(x, y0, y1)| y0 < wy && wy < y1 && w.x1 <= x + 1.0 && x - w.x1 < em * 3.0);
         cols.iter().any(|c| {
+            let (cx, cy) = ((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0);
+            let label = inside.is_some_and(|(x0, y0, x1, y1)| x0 < cx && cx < x1 && y0 < cy && cy < y1 && c.text.chars().count() <= 10);
             c.text.chars().count() >= 2
                 && c.y1 - c.y > (c.x1 - c.x) * 1.5
                 && w.x < (c.x + c.x1) / 2.0
                 && (c.x + c.x1) / 2.0 < w.x1
-                && (near(w.y - c.y1) || near(c.y - w.y1))
+                && ((near(w.y - c.y1) && !(label && label_cell)) || (near(c.y - w.y1) && !label))
         })
     };
     let wide: Vec<usize> = (0..cols.len())
         .filter(|&i| {
             let c = &cols[i];
-            c.text.chars().count() >= 2 && c.x1 - c.x > (c.y1 - c.y) * 1.5 && !in_column(c)
+            c.text.chars().count() >= 2 && c.x1 - c.x > (c.y1 - c.y) * 1.5 && !in_column_but(c, None)
         })
         .collect();
     if wide.len() < 2 {
@@ -2837,6 +3304,8 @@ fn split_off_horizontal_blocks(cols: Vec<Col>) -> (Vec<Col>, Vec<(f32, Vec<Line>
     let center = |c: &Col| ((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0);
     let mut taken = vec![false; cols.len()];
     let mut blocks: Vec<(f32, Vec<Col>)> = Vec::new();
+    // 欄に入れた縦書きの見出し（行に組むときは頭の 1 字分の高さだけを見る）。
+    let mut shrink: std::collections::HashSet<usize> = std::collections::HashSet::new();
     for mut members in groups.into_values() {
         // 先に取り出した欄が広がって取り込んだ語は除く。
         members.retain(|&i| !taken[i]);
@@ -2864,7 +3333,7 @@ fn split_off_horizontal_blocks(cols: Vec<Col>) -> (Vec<Col>, Vec<(f32, Vec<Line>
                     })
             };
             let more: Vec<usize> = (0..cols.len())
-                .filter(|&i| !members.contains(&i) && !taken[i] && !tall(&cols[i]) && !in_column(&cols[i]))
+                .filter(|&i| !members.contains(&i) && !taken[i] && !tall(&cols[i]) && !in_column_but(&cols[i], Some((x0, y0, x1, y1))))
                 .filter(|&i| {
                     let (cx, cy) = center(&cols[i]);
                     (x0 - em * 0.5 < cx && cx < x1 + em * 0.5 && y0 - em * 2.0 < cy && cy < y1 + em * 2.0) || beside(&cols[i])
@@ -2885,22 +3354,83 @@ fn split_off_horizontal_blocks(cols: Vec<Col>) -> (Vec<Col>, Vec<(f32, Vec<Line>
         if rows < 2 {
             continue;
         }
-        // 欄の中に縦の列が入り込んでいれば（横組みの語が縦書きの表の中に散っているだけ）取り出さない。
+        // 欄の中に縦の列が入り込んでいれば（横組みの語が縦書きの表の中に散っているだけ）取り出さない。ただし入り込んだ
+        // 列がどれも 10 字までで、字数の合計が欄の字数の 5 分の 1 までなら、横組みの表の縦書きの見出し（貸借対照表の
+        // 「資産の部」「負債及び純資産の部」）とみなして欄に入れる（号外の決算公告のページで、縦組みの公告と同居する
+        // 横組みの決算公告の貸借対照表を列ごとに読み、「日資資有形固定資産無形固定資産」のようになっていた）。
         let (x0, y0, x1, y1, _) = bounds(&members);
-        let intruded = cols.iter().enumerate().any(|(i, c)| {
-            let (cx, cy) = center(c);
-            !members.contains(&i) && tall(c) && x0 < cx && cx < x1 && y0 < cy && cy < y1
-        });
-        if intruded {
-            continue;
+        let intruders: Vec<usize> = cols
+            .iter()
+            .enumerate()
+            .filter(|&(i, c)| {
+                let (cx, cy) = center(c);
+                !members.contains(&i) && !taken[i] && tall(c) && x0 < cx && cx < x1 && y0 < cy && cy < y1
+            })
+            .map(|(i, _)| i)
+            .collect();
+        if !intruders.is_empty() {
+            let chars = |i: &usize| cols[*i].text.chars().filter(|c| !c.is_whitespace()).count();
+            let block_chars: usize = members.iter().map(chars).sum();
+            let label_chars: usize = intruders.iter().map(chars).sum();
+            if intruders.iter().any(|i| chars(i) > 10) || label_chars * 5 > block_chars {
+                continue;
+            }
+            // 縦書きの見出しは何行にもまたがるので、行に組むときは頭の 1 字分の高さだけを見る（そのままだと見出しの高さに
+            // 掛かる行が 1 行につながる）。
+            shrink.extend(intruders.iter().copied());
+            members.extend(intruders);
         }
         for &i in &members {
             taken[i] = true;
         }
-        blocks.push((x1, members.iter().map(|&i| cols[i].clone()).collect()));
+        blocks.push((
+            x1,
+            members
+                .iter()
+                .map(|&i| {
+                    let mut c = cols[i].clone();
+                    if shrink.contains(&i) {
+                        c.y1 = c.y + (c.x1 - c.x);
+                    }
+                    c
+                })
+                .collect(),
+        ));
     }
+    // 同じ幅の囲みが左右に並ぶ欄（下の段の決算公告の囲み）は、囲みごとの欄に分ける（右から読む）。
+    let blocks: Vec<(f32, Vec<Col>)> = blocks.into_iter().flat_map(|(x1, block)| split_side_by_side_boxes(x1, block)).collect();
+    let mut blocks = blocks;
     blocks.sort_by(|a, b| b.0.total_cmp(&a.0));
-    let blocks = blocks.into_iter().map(|(x1, block)| (x1, row_lines(block))).collect();
+    // 幅の広い欄（決算公告の囲みが左右に並ぶもの）は、横組みのページと同じく列の溝で左右に切ってから行に組む（行ごとに
+    // 組むと、左右の囲みの行が 1 行につながる）。
+    let by_id: std::collections::HashMap<usize, &Col> = cols.iter().map(|c| (c.id, c)).collect();
+    let blocks = blocks
+        .into_iter()
+        .map(|(x1, block)| {
+            // 囲みの中の縦書きの見出しは、見出しの欄の上端（見出しの上の、見出しの列を横切る横の罫線）より下の最初の行の
+            // 前に 1 行で置く。
+            let originals: Vec<&Col> = block.iter().filter_map(|c| by_id.get(&c.id).copied()).collect();
+            let labels = side_labels(&originals, vrules, hrules);
+            let label_ids: std::collections::HashSet<usize> = labels.iter().flat_map(|l| l.words.iter().copied()).collect();
+            let block: Vec<Col> = block.into_iter().filter(|c| !label_ids.contains(&c.id)).collect();
+            let x0 = block.iter().map(|c| c.x).fold(f32::INFINITY, f32::min);
+            let mut lines = if x1 - x0 >= 300.0 { horizontal_lines(block) } else { row_lines(block) };
+            for label in labels {
+                let ws: Vec<&Col> = label.words.iter().filter_map(|id| by_id.get(id).copied()).collect();
+                let top = ws.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+                let (lx0, lx1) = (ws.iter().map(|c| c.x).fold(f32::INFINITY, f32::min), ws.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max));
+                let rule = hrules.iter().filter(|&&(y, x0, x1)| y <= top && x0 <= lx0 + 1.0 && lx1 - 1.0 <= x1).map(|r| r.0).fold(f32::NEG_INFINITY, f32::max);
+                let top = if rule.is_finite() { rule + 2.0 } else { top };
+                let center = |l: &Line| {
+                    let ys: Vec<f32> = l.words.iter().filter_map(|id| by_id.get(id)).map(|c| (c.y + c.y1) / 2.0).collect();
+                    ys.iter().sum::<f32>() / ys.len().max(1) as f32
+                };
+                let at = lines.iter().position(|l| center(l) >= top - 2.0).unwrap_or(lines.len());
+                lines.insert(at, label);
+            }
+            (x1, lines)
+        })
+        .collect();
     let rest = cols.into_iter().zip(taken).filter(|(_, t)| !t).map(|(c, _)| c).collect();
     (rest, blocks)
 }

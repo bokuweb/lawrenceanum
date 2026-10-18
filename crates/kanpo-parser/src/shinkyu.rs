@@ -118,24 +118,44 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
         return None;
     }
     let center = |c: &Col| (c.y + c.y1) / 2.0;
-    // 中央域 [0.35H, 0.65H] で跨ぎ最小の cut（候補は各列の下端）。
+    // 中央域 [0.35H, 0.65H] で跨ぎ最小の cut（候補は各列の下端。またぐ列がそれより少なくなれば列の上端も。改正後の帯が
+    // 「（削る）」だけだと、中ほどに列の下端が無い）。
     let (lo, hi) = (0.35 * height, 0.65 * height);
-    let mut best: Option<(usize, f32)> = None;
-    for c in cols {
-        let cut = c.y1 + 0.5;
-        if cut < lo || cut > hi {
-            continue;
+    let pick = |cuts: Vec<f32>| -> Option<(usize, f32)> {
+        let mut best: Option<(usize, f32)> = None;
+        for cut in cuts {
+            if cut < lo || cut > hi {
+                continue;
+            }
+            let crossing = cols.iter().filter(|d| d.y < cut && cut < d.y1).count();
+            // またぐ列が同じ数なら、ページ中央（上下の帯の境目）に近い方を採る。
+            let closer = |b: (usize, f32)| crossing == b.0 && (cut - height / 2.0).abs() < (b.1 - height / 2.0).abs();
+            if best.map(|b| crossing < b.0 || closer(b)).unwrap_or(true) {
+                best = Some((crossing, cut));
+            }
         }
-        let crossing = cols.iter().filter(|d| d.y < cut && cut < d.y1).count();
-        // またぐ列が同じ数なら、ページ中央（上下の帯の境目）に近い方を採る。
-        let closer = |b: (usize, f32)| crossing == b.0 && (cut - height / 2.0).abs() < (b.1 - height / 2.0).abs();
-        if best.map(|b| crossing < b.0 || closer(b)).unwrap_or(true) {
-            best = Some((crossing, cut));
-        }
-    }
-    let (_, divider) = best?;
+        best
+    };
+    let bottoms = pick(cols.iter().map(|c| c.y1 + 0.5).collect());
+    let tops = pick(cols.iter().map(|c| c.y - 0.5).collect());
+    let best = match (bottoms, tops) {
+        (Some(b), Some(t)) if t.0 < b.0 => Some(t),
+        (None, t) => t,
+        (b, _) => b,
+    };
+    let (crossing, divider) = best?;
     let upper: Vec<Col> = cols.iter().filter(|c| center(c) < divider).cloned().collect();
     let lower: Vec<Col> = cols.iter().filter(|c| center(c) >= divider).cloned().collect();
+    // 下の帯が「（新設）」「（削る）」の印だけ（改正前の欄が空で、新設した条の頭の高さに印だけがある）か、上の帯が印だけ
+    // （改正後の欄で条を削った）なら、本文は比べられないが新旧対照表の続き。境をまたぐ列が無く、もう片方の帯に本文が
+    // あるときだけ。
+    let mark = |c: &Col| {
+        let t = c.text.trim();
+        t.chars().count() <= 6 && ["新設）", "新設〕", "新設］", "削る）", "削る〕", "削る］"].iter().any(|m| t.ends_with(m))
+    };
+    if crossing == 0 && ((upper.len() >= 8 && !lower.is_empty() && lower.iter().all(mark)) || (lower.len() >= 8 && !upper.is_empty() && upper.iter().all(mark))) {
+        return Some(divider);
+    }
     if upper.len() < 3 || lower.len() < 3 {
         return None;
     }
@@ -172,6 +192,15 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
     // 上下の本文が順序も含めてほぼ同じであること（新旧対照表は改正後 ≒ 改正前）。文字の
     // 集合だけ比べると、似た法令文が続く普通の 2 段組み（政令本文など）も似て見えるので、
     // 最長共通部分列の長さの比で比べる。
+    // 上下の段の列の頭の項番号（「25」「26」…）か条番号が重ならず、下の段が上の段の続きの番号なら、改め文の続き（同じ形の項が
+    // 並ぶ「…五年を経過したときは、…審判手続開始の決定をすることができない。」）。新旧対照表の改正前の欄は改正後の欄と
+    // 同じ項番号を繰り返す。
+    let ((ui, ua), (li, la)) = (item_numbers(&upper), item_numbers(&lower));
+    let continues = |u: &[u32], l: &[u32]| u.len() >= 3 && l.len() >= 3 && l.iter().min() > u.iter().max();
+    // 条の見出しは上下で 2 つ以上ずつ（条の中の項番号「２」「３」は条ごとに振り直すので、条番号を先に見る）。
+    if continues(&ui, &li) || (ua.len() >= 2 && la.len() >= 1 && la.iter().min() > ua.iter().max() && ua.len() + la.len() >= 4) {
+        return None;
+    }
     let ut = reconstruct_page(upper);
     let lt = reconstruct_page(lower);
     if bigram_jaccard(&ut, &lt) < 0.5 || sequence_ratio(&ut, &lt) < 0.5 {
@@ -180,8 +209,51 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
     Some(divider)
 }
 
+/// 段の列の頭の番号（算用数字で始まる列の頭の項番号と、条の見出し「第二十八条」の条番号を別々に。枝番の「の二」は
+/// 同じ条として見る）。
+fn item_numbers(band: &[Col]) -> (Vec<u32>, Vec<u32>) {
+    let (mut items, mut articles) = (Vec::new(), Vec::new());
+    for g in column_groups(band.to_vec()) {
+        let Some(top) = g.iter().min_by(|a, b| a.y.total_cmp(&b.y)) else { continue };
+        let t = top.text.trim();
+        let digit = |c: char| c.to_digit(10).or_else(|| ('０'..='９').contains(&c).then(|| c as u32 - '０' as u32));
+        let digits: Vec<u32> = t.chars().map_while(digit).collect();
+        if (1..=3).contains(&digits.len()) {
+            items.push(digits.iter().fold(0, |n, d| n * 10 + d));
+        } else if let Some(rest) = t.strip_prefix('第') {
+            let kanji: String = rest.chars().take_while(|c| "〇一二三四五六七八九十百千".contains(*c)).collect();
+            if let Some(n) = rest[kanji.len()..].starts_with('条').then(|| kanji_number(&kanji)).flatten() {
+                articles.push(n);
+            }
+        }
+    }
+    (items, articles)
+}
+
+/// 漢数字（「二十八」「百五十六」「千二百」）の値。
+fn kanji_number(s: &str) -> Option<u32> {
+    let digit = |c: char| "〇一二三四五六七八九".find(c).map(|i| (i / '一'.len_utf8()) as u32);
+    let (mut total, mut cur) = (0u32, 0u32);
+    for c in s.chars() {
+        match c {
+            '十' | '百' | '千' => {
+                let unit = match c {
+                    '十' => 10,
+                    '百' => 100,
+                    _ => 1000,
+                };
+                total += cur.max(1) * unit;
+                cur = 0;
+            }
+            _ => cur = cur * 10 + digit(c)?,
+        }
+    }
+    (!s.is_empty()).then_some(total + cur)
+}
+
 /// 帯が、高さの真ん中あたり（3 割〜7 割）で列のまたがない横の空きにより、それぞれ 4 分の 1 以上の
-/// 語を持つ上下 2 つの段に分かれるか。
+/// 語を持つ上下 2 つの段に分かれるか。段の終わりの列が下の段の頭に少し掛かる（行末のぶら下げ）ことがあるので、
+/// またぐ列は 2 つまで許す（本紙第 1766 号 2 ページ: 保安林の告示が 4 段に並ぶページの上の段の左端の列）。
 fn splits_into_tiers(band: &[Col]) -> bool {
     let top = band.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
     let bottom = band.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
@@ -189,7 +261,7 @@ fn splits_into_tiers(band: &[Col]) -> bool {
     band.iter().map(|c| c.y1 + 0.5).filter(|&y| y > top + h * 0.3 && y < top + h * 0.7).any(|y| {
         let above = band.iter().filter(|c| c.y1 < y).count();
         let below = band.iter().filter(|c| c.y > y).count();
-        above + below == band.len() && above * 4 >= band.len() && below * 4 >= band.len()
+        above + below + 2 >= band.len() && above * 4 >= band.len() && below * 4 >= band.len()
     })
 }
 
@@ -323,7 +395,24 @@ fn find_run(chars: &[char], pat: &[char]) -> Option<usize> {
 /// 見出しの無い継続ページ用: ページ全体が表なので、表の下の別記事を切り離す判定はしない。
 pub(crate) fn reconstruct_shinkyu(cols: Vec<Col>, header_x: f32, divider: f32, grids: &[Grid], rules: Option<&PageRules>) -> Unit {
     let mut layout = ShinkyuLayout::split(cols, header_x, divider);
-    let outside: Vec<Col> = layout.trailing.drain(..).flatten().collect();
+    let mut outside: Vec<Col> = layout.trailing.drain(..).flatten().collect();
+    // 改正後・改正前の帯を囲む表の外枠（帯の境目をまたぎ、帯の語の半分以上を囲む枠）の左の外にある改正後の帯の列（表の後ろ
+    // の「備考」「附則」）は、表の外（改正前の帯の後ろ）に置く（改正後と改正前の間に読まれていた）。
+    if let Some(after) = layout.after.first_mut() {
+        let center = |c: &Col| ((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0);
+        let all: Vec<&Col> = after.iter().chain(layout.before.iter().flatten()).collect();
+        let frame_left = grids
+            .iter()
+            .filter(|g| g.top() < divider && divider < g.bottom())
+            .filter(|g| all.iter().filter(|c| g.contains(center(c).0, center(c).1, 0.5)).count() * 2 >= all.len())
+            .map(|g| g.left())
+            .reduce(f32::min);
+        if let Some(left) = frame_left {
+            let (inside, beyond): (Vec<Col>, Vec<Col>) = std::mem::take(after).into_iter().partition(|c| center(c).0 >= left - 2.0);
+            *after = inside;
+            outside.extend(beyond);
+        }
+    }
     if let Some(before) = layout.before.first_mut() {
         before.extend(outside);
     }
@@ -401,10 +490,21 @@ impl ShinkyuLayout {
     /// よう、段ごとに組んで前文より先に出す。
     pub(crate) fn split_off_leading_continuation(&mut self, divider: f32, grids: &[Grid], rules: Option<&PageRules>) -> Vec<Unit> {
         let spans = |c: &Col| c.y < divider && c.y1 > divider;
-        let Some(span_right) = self.preamble.iter().filter(|c| spans(c)).map(|c| c.x1).reduce(f32::max) else {
-            return Vec::new();
+        // 前文が上の帯に収まる（両帯を跨ぐ列が無い）ときは、上下の帯で同じ x に並ぶ列（3 つ以上）を前の表の末尾とし、
+        // その左端を前文の右端とみなす（前の表の末尾の上下の行が 1 行につながっていた）。
+        let paired: Vec<&Col> = self
+            .preamble
+            .iter()
+            .filter(|c| c.y1 <= divider && self.preamble.iter().any(|d| d.y >= divider && (d.x - c.x).abs() <= 2.0))
+            .collect();
+        let (span_right, em) = match self.preamble.iter().filter(|c| spans(c)).map(|c| c.x1).reduce(f32::max) {
+            Some(r) => (r, self.preamble.iter().filter(|c| spans(c)).map(|c| c.x1 - c.x).fold(f32::INFINITY, f32::min)),
+            None if paired.len() >= 3 => (
+                paired.iter().map(|c| c.x).fold(f32::INFINITY, f32::min) - 3.0,
+                paired.iter().map(|c| c.x1 - c.x).fold(f32::INFINITY, f32::min),
+            ),
+            None => return Vec::new(),
         };
-        let em = self.preamble.iter().filter(|c| spans(c)).map(|c| c.x1 - c.x).fold(f32::INFINITY, f32::min);
         // 字の大きさは幅と高さの小さい方で比べる（縦中横の「(120)」は幅だけ広い）。
         let glyph = |c: &Col| (c.x1 - c.x).min(c.y1 - c.y);
         // 表の帯（罫線の外枠があればその上端）より上（段の上の方の前文）は末尾ではない。
@@ -826,7 +926,7 @@ pub(crate) fn lines_with_tables(cols: Vec<Col>, grids: &[&Grid]) -> Vec<Line> {
 }
 
 /// [`lines_with_tables`] の表の外の語の組み方を指定する版（普通の本文の段は [`page_lines`]）。
-pub(crate) fn lines_with_tables_by(cols: Vec<Col>, grids: &[&Grid], rest_lines: fn(Vec<Col>) -> Vec<Line>) -> Vec<Line> {
+pub(crate) fn lines_with_tables_by(cols: Vec<Col>, grids: &[&Grid], rest_lines: impl Fn(Vec<Col>) -> Vec<Line>) -> Vec<Line> {
     let mut tables: Vec<Table> = Vec::new();
     let mut rest = cols;
     for g in grids {
@@ -849,7 +949,7 @@ pub(crate) fn lines_with_tables_by(cols: Vec<Col>, grids: &[&Grid], rest_lines: 
 }
 
 /// 表の外の語 `rest` を `rest_lines` で行に組み、表を読み順（右→左）の位置に差し込む。
-pub(crate) fn place_tables(rest: Vec<Col>, mut tables: Vec<Table>, rest_lines: fn(Vec<Col>) -> Vec<Line>) -> Vec<Line> {
+pub(crate) fn place_tables(rest: Vec<Col>, mut tables: Vec<Table>, rest_lines: impl Fn(Vec<Col>) -> Vec<Line>) -> Vec<Line> {
     let geom: std::collections::HashMap<usize, (f32, f32)> = rest.iter().map(|c| (c.id, ((c.x + c.x1) / 2.0, c.y))).collect();
     let mut lines = rest_lines(rest);
     // 右端の x が大きい表から、その表より左にある最初の行（行の中心が表の左端より左）か、表の
@@ -1214,6 +1314,7 @@ fn column_heads(cols: &[Col]) -> Vec<ColumnHead> {
 
 #[cfg(test)]
 mod tests {
+    use super::kanji_number;
     use crate::format::detect_format;
     use crate::reconstruct_vertical;
 
@@ -1276,6 +1377,14 @@ mod tests {
         let out = reconstruct_vertical(&page_with_lower_tiers(184.0));
         let after = after_block(&out);
         assert!(after.contains("甲0") && !after.contains("丙0"), "{out}");
+    }
+
+    #[test]
+    fn reads_kanji_numbers() {
+        for (s, n) in [("二十八", 28), ("百五十六", 156), ("千二百三十七", 1237), ("十", 10), ("三", 3), ("二〇", 20)] {
+            assert_eq!(kanji_number(s), Some(n), "{s}");
+        }
+        assert_eq!(kanji_number(""), None);
     }
 
     #[test]

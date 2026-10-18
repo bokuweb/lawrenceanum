@@ -38,7 +38,7 @@ pub(crate) fn is_private_use(c: char) -> bool {
 /// 並んだ表の間の溝をふさいで列の切り分けが変わるため、語の中で他の字に続くものだけを戻す。
 /// 小数点・桁区切り（U+EA74・U+EA75）は単独の語でも戻す（前の数字に重ねて置かれ、語が分かれる）。
 pub(crate) fn word_text(raw: &str) -> String {
-    if !raw.is_empty() && raw.chars().all(|c| c == '\u{E61C}' || (is_private_use(c) && private_use_char(c).is_none())) {
+    if !raw.is_empty() && raw.chars().all(|c| c == '\u{E61C}' || (is_private_use(c) && private_use_char(c).is_none() && paren_number(c).is_none())) {
         return String::new();
     }
     let mut out = String::new();
@@ -48,7 +48,10 @@ pub(crate) fn word_text(raw: &str) -> String {
                 Some(g) => out.push_str(&g.text),
                 None => out.extend(text_char(cid_char(cid))),
             },
-            None => out.extend(text_char(c)),
+            None => match paren_number(c) {
+                Some(t) => out.push_str(&t),
+                None => out.extend(text_char(c)),
+            },
         }
     }
     out
@@ -57,6 +60,28 @@ pub(crate) fn word_text(raw: &str) -> String {
 /// kanpo-pdf が ToUnicode の無い `Identity` の CID フォントの字を置く私用領域（U+F0000 + CID）の字なら、その CID。
 fn identity_cid(c: char) -> Option<u32> {
     (c as u32).checked_sub(kanpo_pdf::bbox::IDENTITY_CID_BASE).filter(|&cid| cid <= 0xFFFD)
+}
+
+/// ToUnicode で私用領域に写された項目番号（DF 平成明朝）。U+E7B2〜U+E7BB は括弧付きの数字「（１）」〜「（１０）」、
+/// U+E7D1〜U+E7DA は丸数字「①」〜「⑩」（「上記一［U+E7B3］［U+E7D2］に基づく」が原本では「上記一⑵②に基づく」、
+/// 「［U+E7D5］営業保証金の額」が「⑤営業保証金の額」、「国土交通大臣は、［U+E7B5］の取組状況等が［U+E7B2］の判断」が
+/// 「⑷の取組状況等が⑴の判断」）。U+E9E5〜U+E9EB は括弧付きの片仮名「（ア）」〜「（キ）」（「［U+E9E5］固定資産の用途」が
+/// 「(ア)固定資産の用途」、「［［U+E9E5］〜［U+E9EB］　略］」が「［(ア)〜(キ)　略］」）。U+E741 は「（注）」（「前中期目標期間
+/// 繰越積立金［U+E741］」）、U+E830〜U+E837 は括弧付きのローマ数字「（Ⅱ）」〜「（Ⅸ）」、U+E839〜U+E842 は括弧付きの小文字の
+/// ローマ数字「（ⅰ）」〜「（ⅹ）」（減損の表の番号の欄）。原本の字形で確かめた範囲だけ戻す
+/// （続きの符号は確かめていない）。落とすと項目番号が抜けて「国土交通大臣は、の取組状況等がの判断」になっていた。
+fn paren_number(c: char) -> Option<String> {
+    let code = c as u32;
+    let full = |n: u32| -> String { n.to_string().chars().map(|d| char::from_u32(d as u32 - '0' as u32 + '０' as u32).unwrap_or(d)).collect() };
+    match code {
+        0xE7B2..=0xE7BB => Some(format!("（{}）", full(code - 0xE7B1))),
+        0xE7D1..=0xE7DA => char::from_u32(0x2460 + code - 0xE7D1).map(String::from),
+        0xE9E5..=0xE9EB => "アイウエオカキ".chars().nth((code - 0xE9E5) as usize).map(|k| format!("（{k}）")),
+        0xE741 => Some("（注）".to_string()),
+        0xE830..=0xE837 => char::from_u32(0x2161 + code - 0xE830).map(|r| format!("（{r}）")),
+        0xE839..=0xE842 => char::from_u32(0x2170 + code - 0xE839).map(|r| format!("（{r}）")),
+        _ => None,
+    }
 }
 
 /// 目次のページ番号の数字の字形（ToUnicode の無いフォントの半角の漢数字、CID 25503〜25512）だけの語か。
@@ -85,12 +110,15 @@ pub(crate) fn text_char(c: char) -> Option<char> {
 /// DF 平成明朝（`DFHSMinchoRPro6N-W3`、CID 26064・26065）で U+EA74・U+EA75 に写されている
 /// （「433.795MHz」「2,760,000円」）。蓄積した官報の 1,400 字余りがすべて数字の間に出る。
 /// U+E61C（CID 24952）は全角の「－」（型式「５ＢＡ－ＢＡ１」、項番号「３－１－５」）。
-/// 原本の字形で確かめた。英数字の間に出る。
+/// 原本の字形で確かめた。英数字の間に出る。U+E888（CID 25572）は負の金額の印「△」。
 fn private_use_char(c: char) -> Option<char> {
     match c {
         '\u{EA74}' => Some('.'),
         '\u{EA75}' => Some(','),
         '\u{E61C}' => Some('－'),
+        // CID 25572 は財務諸表の負の金額の印「△」（「△33,291」「利息費用相当累計額（△）」）。蓄積した官報の 1 万 2 千字
+        // 余りのうち 1 万 1 千字余りが数字のすぐ左に置かれる。原本の字形で確かめた。
+        '\u{E888}' => Some('△'),
         _ => None,
     }
 }
