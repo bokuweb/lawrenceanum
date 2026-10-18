@@ -118,31 +118,42 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
         return None;
     }
     let center = |c: &Col| (c.y + c.y1) / 2.0;
-    // 中央域 [0.35H, 0.65H] で跨ぎ最小の cut（候補は各列の下端）。
+    // 中央域 [0.35H, 0.65H] で跨ぎ最小の cut（候補は各列の下端。またぐ列がそれより少なくなれば列の上端も。改正後の帯が
+    // 「（削る）」だけだと、中ほどに列の下端が無い）。
     let (lo, hi) = (0.35 * height, 0.65 * height);
-    let mut best: Option<(usize, f32)> = None;
-    for c in cols {
-        let cut = c.y1 + 0.5;
-        if cut < lo || cut > hi {
-            continue;
+    let pick = |cuts: Vec<f32>| -> Option<(usize, f32)> {
+        let mut best: Option<(usize, f32)> = None;
+        for cut in cuts {
+            if cut < lo || cut > hi {
+                continue;
+            }
+            let crossing = cols.iter().filter(|d| d.y < cut && cut < d.y1).count();
+            // またぐ列が同じ数なら、ページ中央（上下の帯の境目）に近い方を採る。
+            let closer = |b: (usize, f32)| crossing == b.0 && (cut - height / 2.0).abs() < (b.1 - height / 2.0).abs();
+            if best.map(|b| crossing < b.0 || closer(b)).unwrap_or(true) {
+                best = Some((crossing, cut));
+            }
         }
-        let crossing = cols.iter().filter(|d| d.y < cut && cut < d.y1).count();
-        // またぐ列が同じ数なら、ページ中央（上下の帯の境目）に近い方を採る。
-        let closer = |b: (usize, f32)| crossing == b.0 && (cut - height / 2.0).abs() < (b.1 - height / 2.0).abs();
-        if best.map(|b| crossing < b.0 || closer(b)).unwrap_or(true) {
-            best = Some((crossing, cut));
-        }
-    }
+        best
+    };
+    let bottoms = pick(cols.iter().map(|c| c.y1 + 0.5).collect());
+    let tops = pick(cols.iter().map(|c| c.y - 0.5).collect());
+    let best = match (bottoms, tops) {
+        (Some(b), Some(t)) if t.0 < b.0 => Some(t),
+        (None, t) => t,
+        (b, _) => b,
+    };
     let (crossing, divider) = best?;
     let upper: Vec<Col> = cols.iter().filter(|c| center(c) < divider).cloned().collect();
     let lower: Vec<Col> = cols.iter().filter(|c| center(c) >= divider).cloned().collect();
-    // 下の帯が「（新設）」「（削る）」の印だけ（改正前の欄が空で、新設した条の頭の高さに印だけがある）なら、本文は
-    // 比べられないが新旧対照表の続き。境をまたぐ列が無く、上の帯に本文があるときだけ。
+    // 下の帯が「（新設）」「（削る）」の印だけ（改正前の欄が空で、新設した条の頭の高さに印だけがある）か、上の帯が印だけ
+    // （改正後の欄で条を削った）なら、本文は比べられないが新旧対照表の続き。境をまたぐ列が無く、もう片方の帯に本文が
+    // あるときだけ。
     let mark = |c: &Col| {
         let t = c.text.trim();
         t.chars().count() <= 6 && ["新設）", "新設〕", "新設］", "削る）", "削る〕", "削る］"].iter().any(|m| t.ends_with(m))
     };
-    if crossing == 0 && upper.len() >= 8 && !lower.is_empty() && lower.iter().all(mark) {
+    if crossing == 0 && ((upper.len() >= 8 && !lower.is_empty() && lower.iter().all(mark)) || (lower.len() >= 8 && !upper.is_empty() && upper.iter().all(mark))) {
         return Some(divider);
     }
     if upper.len() < 3 || lower.len() < 3 {
