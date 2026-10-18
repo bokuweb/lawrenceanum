@@ -1846,6 +1846,12 @@ fn is_column_split(left: &[Col], right: &[Col], boxed: bool) -> bool {
     if !boxed && short && close.len() >= 2 && close.iter().all(|&c| c) {
         return false;
     }
+    // 金額の欄の上の単位（「（単位：円）」）は欄の行に数えない（表の見出しの行と高さが揃わず、金額でもない）。
+    let unit = |l: &Line| l.words.first().is_some_and(|w| w.text.starts_with("（単位") || w.text.starts_with("(単位"));
+    let (ll, rl): (Vec<Line>, Vec<Line>) = (ll.into_iter().filter(|l| !unit(l)).collect(), rl.into_iter().filter(|l| !unit(l)).collect());
+    if ll.is_empty() || rl.is_empty() {
+        return false;
+    }
     let (few, many) = if ll.len() <= rl.len() { (&ll, &rl) } else { (&rl, &ll) };
     let aligned = few
         .iter()
