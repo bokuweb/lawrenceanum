@@ -3640,7 +3640,7 @@ fn split_off_horizontal_blocks(cols: Vec<Col>, vrules: &[(f32, f32, f32)], hrule
         .into_iter()
         .map(|(x1, block)| {
             // 囲みの中の縦書きの見出しは、見出しの欄の上端（見出しの上の、見出しの列を横切る横の罫線）より下の最初の行の
-            // 前に 1 行で置く。
+            // 頭に置く。
             let originals: Vec<&Col> = block.iter().filter_map(|c| by_id.get(&c.id).copied()).collect();
             let labels = side_labels(&originals, vrules, hrules);
             let label_ids: std::collections::HashSet<usize> = labels.iter().flat_map(|l| l.words.iter().copied()).collect();
@@ -3658,7 +3658,14 @@ fn split_off_horizontal_blocks(cols: Vec<Col>, vrules: &[(f32, f32, f32)], hrule
                     ys.iter().sum::<f32>() / ys.len().max(1) as f32
                 };
                 let at = lines.iter().position(|l| center(l) >= top - 2.0).unwrap_or(lines.len());
-                lines.insert(at, label);
+                // 見出しは欄の 1 行目（金額のある科目の行）の頭に付ける（罫線の表の行をまたぐ欄の名前と同じ）。
+                match lines.get_mut(at) {
+                    Some(first) if first.table.is_none() && first.text.trim_end().ends_with(|c: char| c.is_ascii_digit() || c == ')' || c == '）') => {
+                        let words: Vec<usize> = label.words.iter().chain(&first.words).copied().collect();
+                        *first = Line::text(format!("{}\u{3000}{}", label.text, first.text), words);
+                    }
+                    _ => lines.insert(at, label),
+                }
             }
             (x1, lines)
         })
