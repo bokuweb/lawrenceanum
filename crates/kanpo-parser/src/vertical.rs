@@ -1157,12 +1157,14 @@ fn split_horizontal_shinkyu_by(cols: &[Col], continuation: bool, check_pairs: bo
     let right = body.iter().map(|c| c.x1).reduce(f32::max)?;
     let (span, center) = (right - left, (left + right) / 2.0);
     let (lo, hi) = (left + span * 0.35, left + span * 0.65);
-    // 候補は語の右端。またぐ語が無い切れ目のうち中央に最も近いもの。
-    let mid = body
-        .iter()
-        .map(|c| c.x1 + 1.0)
-        .filter(|&x| x > lo && x < hi && !body.iter().any(|d| d.x < x && x < d.x1))
-        .min_by(|a, b| (a - center).abs().partial_cmp(&(b - center).abs()).unwrap_or(std::cmp::Ordering::Equal))?;
+    // 候補は語の右端。またぐ語が無い切れ目のうち中央に最も近いもの。中ほどに右端の語が無ければ（改正後の欄が
+    // 「削除」「［略］」だけで短い）、語の左端の手前。
+    let gap = |xs: Vec<f32>| {
+        xs.into_iter()
+            .filter(|&x| x > lo && x < hi && !body.iter().any(|d| d.x < x && x < d.x1))
+            .min_by(|a, b| (a - center).abs().partial_cmp(&(b - center).abs()).unwrap_or(std::cmp::Ordering::Equal))
+    };
+    let mid = gap(body.iter().map(|c| c.x1 + 1.0).collect()).or_else(|| gap(body.iter().map(|c| c.x - 1.0).collect()))?;
     let (l, r): (Vec<&&Col>, Vec<&&Col>) = body.iter().partition(|c| c.x1 <= mid);
     let alike = |a: &str, b: &str| a == b || b.contains("同左");
     let matched = r
@@ -1173,7 +1175,8 @@ fn split_horizontal_shinkyu_by(cols: &[Col], continuation: bool, check_pairs: bo
     // 改正前欄の省略記法「同左」か、欄見出しの「改正後」「改正前」があることも求める。
     let same_left = r.iter().filter(|c| c.text.contains("同左")).count();
     let labels = ["改正後", "改正前"].iter().all(|lb| cols.iter().any(|c| c.text.trim() == *lb));
-    (matched >= 5 && matched * 10 >= r.len() * 3 && (same_left >= 2 || labels || continuation)).then_some((mid, f32::NEG_INFINITY, Vec::new()))
+    // 改正前の欄に長い本文がある（改正後の欄は「削除」だけ）と、揃う行の割合は小さくなる。「同左」が 4 つ以上あれば割合は見ない。
+    (matched >= 5 && (matched * 10 >= r.len() * 3 || same_left >= 4) && (same_left >= 2 || labels || continuation)).then_some((mid, f32::NEG_INFINITY, Vec::new()))
 }
 
 /// 横向きのページで、改正後・改正前の列の組が横に 2 組以上並ぶ新旧対照表（本紙第 1760 号 3 ページ:
