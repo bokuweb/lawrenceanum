@@ -133,9 +133,18 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
             best = Some((crossing, cut));
         }
     }
-    let (_, divider) = best?;
+    let (crossing, divider) = best?;
     let upper: Vec<Col> = cols.iter().filter(|c| center(c) < divider).cloned().collect();
     let lower: Vec<Col> = cols.iter().filter(|c| center(c) >= divider).cloned().collect();
+    // 下の帯が「（新設）」「（削る）」の印だけ（改正前の欄が空で、新設した条の頭の高さに印だけがある）なら、本文は
+    // 比べられないが新旧対照表の続き。境をまたぐ列が無く、上の帯に本文があるときだけ。
+    let mark = |c: &Col| {
+        let t = c.text.trim();
+        t.chars().count() <= 6 && ["新設）", "新設〕", "新設］", "削る）", "削る〕", "削る］"].iter().any(|m| t.ends_with(m))
+    };
+    if crossing == 0 && upper.len() >= 8 && !lower.is_empty() && lower.iter().all(mark) {
+        return Some(divider);
+    }
     if upper.len() < 3 || lower.len() < 3 {
         return None;
     }
