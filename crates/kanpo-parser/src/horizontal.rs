@@ -1679,7 +1679,21 @@ fn join_wrapped_labels(lines: Vec<Line>) -> Vec<Line> {
                     let t = t.trim_end_matches(['）', ')']);
                     !t.is_empty() && t.chars().all(digit) && (text.ends_with(['）', ')']))
                 };
-                let tail = (1..=8).contains(&text.chars().count())
+                // 科目の名前の途中で折り返した行（「教育・研究及び診療の質」「の向上及び組織運営改善」「積立金（目的積立金）」、
+                // 「大学改革支援・学位」「授与機構債務負担金」）は 20 字まで。科目の名前で終わる行の次は別の科目のことがあるので
+                // 8 字まで。
+                let head_text: String = p.words[h..after].iter().map(|w| w.text.as_str()).collect();
+                const ENDS: [&str; 22] = [
+                    "金", "額", "費", "益", "失", "債務", "資産", "負債", "資本", "収入", "支出", "勘定", "等", "）", ")", "計", "高", "価", "料", "税", "当", "備",
+                ];
+                // 文の終わり（「。」「：」）の次や、見出しの括弧（「＜払戻しを行う…＞」「【…】」）で始まる行は続きではない。
+                let unfinished = !ENDS.iter().any(|e| head_text.trim_end().ends_with(e)) && !head_text.trim_end().ends_with(['。', '：', ':']);
+                if text.starts_with(['＜', '<', '【', '〈', '〔']) {
+                    out.push(l);
+                    continue;
+                }
+                let n = text.chars().count();
+                let tail = (n >= 1 && (n <= 8 || (n <= 20 && unfinished)))
                     && (!text.chars().any(digit) || note)
                     // 続きの行は 1 つの欄の中（語の間が空かない。表の別の欄の「日」を科目の続きにしない）。
                     && l.words.windows(2).all(|q| q[1].x - q[0].x1 < em * 0.5)
