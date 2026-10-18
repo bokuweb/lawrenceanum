@@ -2095,13 +2095,13 @@ fn render_line(words: &[Col]) -> String {
             // 終わる金額の後に少しでも空いて数が続けば別の金額。
             let tail = s.rsplit(|c: char| !(c.is_ascii_digit() || c == ',')).next().unwrap_or("");
             let amounts = tail.contains(',') && tail.rsplit(',').next().is_some_and(|g| g.len() == 3) && w.text.starts_with(|c: char| c.is_ascii_digit() || c == '△');
-            // 小数点の後に数字の続く数（「0.000860」「0.4380」の係数の欄）の後に空いて数が続けば別の数（日付の「8.6.4」は
+            // 小数点の後に数字の続く数（「0.000860」「0.4380」「−3.0070」の係数の欄）の後に空いて数が続けば別の数（日付の「8.6.4」は
             // 点が 2 つあるので除く）。
             let decimal = s
                 .rsplit(|c: char| !(c.is_ascii_digit() || c == '.'))
                 .next()
                 .is_some_and(|t| t.matches('.').count() == 1 && t.split_once('.').is_some_and(|(a, b)| !a.is_empty() && !b.is_empty()))
-                && w.text.starts_with(|c: char| c.is_ascii_digit());
+                && w.text.starts_with(|c: char| c.is_ascii_digit() || matches!(c, '−' | '－' | '-' | '△' | '▲'));
             // 科目の後の金額（「租税及印紙収入」「80,698,000,000」。字間を詰めた和文の中の数は空かない）。
             // 金額は桁区切りを含む数（語が桁区切りで割れていれば、続く語まで見る）。「第67期」の数は金額ではない。
             let number: String = std::iter::once(w)
