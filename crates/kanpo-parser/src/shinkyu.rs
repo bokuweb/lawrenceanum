@@ -172,12 +172,34 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
     // 上下の本文が順序も含めてほぼ同じであること（新旧対照表は改正後 ≒ 改正前）。文字の
     // 集合だけ比べると、似た法令文が続く普通の 2 段組み（政令本文など）も似て見えるので、
     // 最長共通部分列の長さの比で比べる。
+    // 上下の段の列の頭の項番号（「25」「26」…）が重ならず、下の段が上の段の続きの番号なら、改め文の続き（同じ形の項が
+    // 並ぶ「…五年を経過したときは、…審判手続開始の決定をすることができない。」）。新旧対照表の改正前の欄は改正後の欄と
+    // 同じ項番号を繰り返す。
+    if let (Some(u), Some(l)) = (item_numbers(&upper), item_numbers(&lower)) {
+        if u.len() >= 3 && l.len() >= 3 && l.iter().min() > u.iter().max() {
+            return None;
+        }
+    }
     let ut = reconstruct_page(upper);
     let lt = reconstruct_page(lower);
     if bigram_jaccard(&ut, &lt) < 0.5 || sequence_ratio(&ut, &lt) < 0.5 {
         return None;
     }
     Some(divider)
+}
+
+/// 段の列の頭の項番号（算用数字で始まる列の頭の数）。無ければ `None`。
+fn item_numbers(band: &[Col]) -> Option<Vec<u32>> {
+    let nums: Vec<u32> = column_groups(band.to_vec())
+        .iter()
+        .filter_map(|g| {
+            let top = g.iter().min_by(|a, b| a.y.total_cmp(&b.y))?;
+            let digit = |c: char| c.to_digit(10).or_else(|| ('０'..='９').contains(&c).then(|| c as u32 - '０' as u32));
+            let digits: Vec<u32> = top.text.trim().chars().map_while(digit).collect();
+            (1..=3).contains(&digits.len()).then(|| digits.iter().fold(0, |n, d| n * 10 + d))
+        })
+        .collect();
+    (!nums.is_empty()).then_some(nums)
 }
 
 /// 帯が、高さの真ん中あたり（3 割〜7 割）で列のまたがない横の空きにより、それぞれ 4 分の 1 以上の
