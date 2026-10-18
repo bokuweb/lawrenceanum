@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104006X01220260529",
+  "date": "2026-05-29",
+  "title": "衆議院 環境委員会 第12号",
+  "organization": "衆議院",
+  "committee": "環境委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104006X01220260529",
+  "laws": [
+    {
+      "law_id": "409AC0000000061",
+      "title": "南極地域の環境の保護に関する法律"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "池下卓",
+      "group": "日本維新の会",
+      "role": "kokkai",
+      "laws": [
+        "409AC0000000061"
+      ]
+    },
+    {
+      "name": "輿水恵一",
+      "group": "中道改革連合・無所属",
+      "role": "kokkai",
+      "laws": [
+        "409AC0000000061"
+      ]
+    },
+    {
+      "name": "鍋島勢理",
+      "group": "国民民主党・無所属クラブ",
+      "role": "kokkai",
+      "laws": [
+        "409AC0000000061"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122115389X00320260716",
+  "date": "2026-07-16",
+  "title": "参議院 皇室典範等の一部を改正する法律案特別委員会 第3号",
+  "organization": "参議院",
+  "committee": "皇室典範等の一部を改正する法律案特別委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122115389X00320260716",
+  "laws": [
+    {
+      "law_id": "322AC0000000003",
+      "title": "皇室典範"
+    },
+    {
+      "law_id": "342AC0000000081",
+      "title": "住民基本台帳法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    },
+    {
+      "law_id": "322AC0000000004",
+      "title": "皇室経済法"
+    },
+    {
+      "law_id": "429AC0000000063",
+      "title": "天皇の退位等に関する皇室典範特例法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "伊勢崎賢治",
+      "group": "れいわ新選組",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "322AC0000000003"
+      ]
+    },
+    {
+      "name": "小池晃",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "322AC0000000003"
+      ]
+    },
+    {
+      "name": "岡田直樹",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "322AC0000000003"
+      ]
+    },
+    {
+      "name": "川合孝典",
+      "group": "国民民主党・新緑風会",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000003"
+      ]
+    },
+    {
+      "name": "松田学",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000003"
+      ]
+    },
+    {
+      "name": "谷合正明",
+      "group": "公明党",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000003"
+      ]
+    },
+    {
+      "name": "金子道仁",
+      "group": "日本維新の会",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000003"
+      ]
+    },
+    {
+      "name": "長浜博行",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "322AC0000000003",
+        "322AC0000000004",
+        "342AC0000000081",
+        "429AC0000000063"
+      ]
+    }
+  ]
+}

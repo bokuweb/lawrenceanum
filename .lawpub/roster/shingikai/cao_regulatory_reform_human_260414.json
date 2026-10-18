@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "cao_regulatory_reform_human_260414",
+  "date": "2026-04-14",
+  "title": "働き方・人への投資 ワーキング・グループ 第８回",
+  "organization": "内閣府",
+  "committee": "働き方・人への投資 ワーキング・グループ",
+  "url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_03human/260414/human08_agenda.html",
+  "laws": [
+    {
+      "law_id": "322AC0000000026",
+      "title": "学校教育法"
+    },
+    {
+      "law_id": "322AC0000000049",
+      "title": "労働基準法"
+    },
+    {
+      "law_id": "322M40000100023",
+      "title": "労働基準法施行規則"
+    },
+    {
+      "law_id": "324AC1000000205",
+      "title": "弁護士法"
+    },
+    {
+      "law_id": "347AC0000000057",
+      "title": "労働安全衛生法"
+    },
+    {
+      "law_id": "325AC0000000132",
+      "title": "放送法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "一般社団法人スタートアップ協会（玉木事務局長）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "一般社団法人全国建設業協会（山崎専務理事）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "一般社団法人日本経済団体連合会（鈴木本部長）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "三谷参事官",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "北里大学（堤教授）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "厚生労働省（尾田審議官）",
+      "role": "member",
+      "laws": [
+        "322AC0000000049"
+      ]
+    },
+    {
+      "name": "堀座長代理",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "宇佐川専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "安中専門委員",
+      "role": "member",
+      "laws": [
+        "347AC0000000057"
+      ]
+    },
+    {
+      "name": "山田専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "弁護士法人ALG&Associates（家永弁護士）",
+      "role": "member",
+      "laws": [
+        "324AC1000000205"
+      ]
+    },
+    {
+      "name": "日本商工会議所",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "日本商工会議所（進藤部長）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "株式会社日立製作所（明崎主任）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "水町専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "間下座長",
+      "role": "member",
+      "laws": [
+        "324AC1000000205"
+      ]
+    }
+  ]
+}

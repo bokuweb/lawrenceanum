@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104376X01220260619",
+  "date": "2026-06-19",
+  "title": "衆議院 財務金融委員会 第12号",
+  "organization": "衆議院",
+  "committee": "財務金融委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104376X01220260619",
+  "laws": [
+    {
+      "law_id": "409AC0000000089",
+      "title": "日本銀行法"
+    },
+    {
+      "law_id": "425AC0000000098",
+      "title": "産業競争力強化法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "氷見野良三",
+      "position": "日本銀行副総裁",
+      "role": "kokkai",
+      "laws": [
+        "409AC0000000089"
+      ]
+    },
+    {
+      "name": "牧野俊一",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "425AC0000000098"
+      ]
+    }
+  ]
+}

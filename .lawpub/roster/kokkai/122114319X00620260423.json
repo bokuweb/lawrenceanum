@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114319X00620260423",
+  "date": "2026-04-23",
+  "title": "参議院 国土交通委員会 第6号",
+  "organization": "参議院",
+  "committee": "国土交通委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114319X00620260423",
+  "laws": [
+    {
+      "law_id": "401AC0000000083",
+      "title": "貨物自動車運送事業法"
+    },
+    {
+      "law_id": "417AC0000000085",
+      "title": "物資の流通の効率化に関する法律"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "平山佐知子",
+      "group": "各派に属しない議員",
+      "role": "kokkai",
+      "laws": [
+        "401AC0000000083"
+      ]
+    },
+    {
+      "name": "石原大",
+      "position": "国土交通省物流・自動車局長",
+      "role": "kokkai",
+      "laws": [
+        "401AC0000000083"
+      ]
+    },
+    {
+      "name": "金子恭之",
+      "group": "自由民主党・無所属の会",
+      "position": "国土交通大臣",
+      "role": "kokkai",
+      "laws": [
+        "417AC0000000085"
+      ]
+    }
+  ]
+}

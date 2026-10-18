@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104889X00720260422",
+  "date": "2026-04-22",
+  "title": "衆議院 内閣委員会 第7号",
+  "organization": "衆議院",
+  "committee": "内閣委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104889X00720260422",
+  "laws": [
+    {
+      "law_id": "415AC0000000057",
+      "title": "個人情報の保護に関する法律"
+    },
+    {
+      "law_id": "508AC0000000028",
+      "title": "国家情報会議設置法"
+    },
+    {
+      "law_id": "329AC0000000165",
+      "title": "自衛隊法"
+    },
+    {
+      "law_id": "416AC0000000122",
+      "title": "公益通報者保護法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    },
+    {
+      "law_id": "322AC0000000120",
+      "title": "国家公務員法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "あかま二郎",
+      "group": "自由民主党・無所属の会",
+      "position": "国家公安委員会委員長・内閣府特命担当大臣（防災・海洋政策）",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "416AC0000000122"
+      ]
+    },
+    {
+      "name": "中村はやと",
+      "group": "無所属",
+      "role": "kokkai",
+      "laws": [
+        "508AC0000000028"
+      ]
+    },
+    {
+      "name": "中間秀彦",
+      "position": "内閣官房内閣審議官",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000165"
+      ]
+    },
+    {
+      "name": "塩川鉄也",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "508AC0000000028"
+      ]
+    },
+    {
+      "name": "大島敦",
+      "group": "中道改革連合・無所属",
+      "role": "kokkai",
+      "laws": [
+        "508AC0000000028"
+      ]
+    },
+    {
+      "name": "岡素彦",
+      "position": "内閣官房内閣審議官",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000120",
+        "329AC0000000165",
+        "415AC0000000057"
+      ]
+    },
+    {
+      "name": "後藤祐一",
+      "group": "中道改革連合・無所属",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "322AC0000000120",
+        "508AC0000000028"
+      ]
+    },
+    {
+      "name": "木原稔",
+      "group": "自由民主党・無所属の会",
+      "position": "内閣官房長官",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000120"
+      ]
+    },
+    {
+      "name": "森ようすけ",
+      "group": "国民民主党・無所属クラブ",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "橋本幹彦",
+      "group": "国民民主党・無所属クラブ",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "508AC0000000028"
+      ]
+    },
+    {
+      "name": "野村美穂",
+      "group": "国民民主党・無所属クラブ",
+      "role": "kokkai",
+      "laws": [
+        "508AC0000000028"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121915254X00920251208",
+  "date": "2025-12-08",
+  "title": "参議院 本会議 第9号",
+  "organization": "参議院",
+  "committee": "本会議",
+  "url": "https://kokkai.ndl.go.jp/txt/121915254X00920251208",
+  "laws": [
+    {
+      "law_id": "322AC0000000164",
+      "title": "児童福祉法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "伊藤孝恵",
+      "group": "国民民主党・新緑風会",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000164"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121914260X00720251216",
+  "date": "2025-12-16",
+  "title": "参議院 厚生労働委員会 第7号",
+  "organization": "参議院",
+  "committee": "厚生労働委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121914260X00720251216",
+  "laws": [
+    {
+      "law_id": "507AC1000000096",
+      "title": "高次脳機能障害者支援法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "大串正樹",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "507AC1000000096"
+      ]
+    },
+    {
+      "name": "天畠大輔",
+      "group": "れいわ新選組",
+      "role": "kokkai",
+      "laws": [
+        "507AC1000000096"
+      ]
+    },
+    {
+      "name": "小西洋之",
+      "group": "立憲民主・社民・無所属",
+      "role": "kokkai",
+      "laws": [
+        "507AC1000000096"
+      ]
+    },
+    {
+      "name": "白川容子",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "507AC1000000096"
+      ]
+    }
+  ]
+}

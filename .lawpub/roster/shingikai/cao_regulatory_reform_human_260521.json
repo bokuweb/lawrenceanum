@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "cao_regulatory_reform_human_260521",
+  "date": "2026-05-21",
+  "title": "働き方・人への投資 ワーキング・グループ 第９回",
+  "organization": "内閣府",
+  "committee": "働き方・人への投資 ワーキング・グループ",
+  "url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_03human/260521/human09_agenda.html",
+  "laws": [
+    {
+      "law_id": "322AC0000000026",
+      "title": "学校教育法"
+    },
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
+    },
+    {
+      "law_id": "325CO0000000089",
+      "title": "公職選挙法施行令"
+    },
+    {
+      "law_id": "334M50000010002",
+      "title": "供託規則"
+    },
+    {
+      "law_id": "357M50000040010",
+      "title": "銀行法施行規則"
+    },
+    {
+      "law_id": "413AC0000000050",
+      "title": "確定給付企業年金法"
+    },
+    {
+      "law_id": "414M60000100022",
+      "title": "確定給付企業年金法施行規則"
+    },
+    {
+      "law_id": "418AC0000000120",
+      "title": "教育基本法"
+    },
+    {
+      "law_id": "425AC0000000027",
+      "title": "行政手続における特定の個人を識別するための番号の利用等に関する法律"
+    },
+    {
+      "law_id": "356AC0000000059",
+      "title": "銀行法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "三谷参事官",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "間下座長",
+      "role": "member",
+      "laws": []
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "mhlw_shingi-kousei_206844_20260901_68",
+  "date": "2026-09-01",
+  "title": "疾病対策部会指定難病検討委員会 第68回",
+  "organization": "厚生労働省",
+  "committee": "疾病対策部会指定難病検討委員会",
+  "url": "https://www.mhlw.go.jp/stf/newpage_75704.html",
+  "laws": [
+    {
+      "law_id": "322AC0000000164",
+      "title": "児童福祉法"
+    },
+    {
+      "law_id": "345AC0000000048",
+      "title": "著作権法"
+    },
+    {
+      "law_id": "405AC0000000088",
+      "title": "行政手続法"
+    },
+    {
+      "law_id": "418AC1000000098",
+      "title": "がん対策基本法"
+    },
+    {
+      "law_id": "425AC0100000111",
+      "title": "がん登録等の推進に関する法律"
+    },
+    {
+      "law_id": "426AC0000000050",
+      "title": "難病の患者に対する医療等に関する法律"
+    },
+    {
+      "law_id": "426M60000100121",
+      "title": "難病の患者に対する医療等に関する法律施行規則"
+    },
+    {
+      "law_id": "427CO0000000323",
+      "title": "がん登録等の推進に関する法律施行令"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "古藤補佐",
+      "role": "member",
+      "laws": [
+        "405AC0000000088"
+      ]
+    },
+    {
+      "name": "守本委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "山下委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "張替委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "持田委員長",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "桑名委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "森光局長",
+      "role": "official",
+      "laws": [
+        "426AC0000000050"
+      ]
+    },
+    {
+      "name": "石毛委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "筒井委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "西垣補佐",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "錦織委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "青木委員",
+      "role": "member",
+      "laws": []
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121914183X00120251126",
+  "date": "2025-11-26",
+  "title": "参議院 憲法審査会 第1号",
+  "organization": "参議院",
+  "committee": "憲法審査会",
+  "url": "https://kokkai.ndl.go.jp/txt/121914183X00120251126",
+  "laws": [
+    {
+      "law_id": "329AC0000000165",
+      "title": "自衛隊法"
+    },
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    },
+    {
+      "law_id": "323AC1000000194",
+      "title": "政治資金規正法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "吉田忠智",
+      "group": "立憲民主・社民・無所属",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "塩入清香",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "安達悠司",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "山添拓",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "川合孝典",
+      "group": "国民民主党・新緑風会",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "平木大作",
+      "group": "公明党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "柴田巧",
+      "group": "日本維新の会",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "片山大介",
+      "group": "日本維新の会",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "谷合正明",
+      "group": "公明党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "323AC1000000194",
+        "329AC0000000165"
+      ]
+    }
+  ]
+}

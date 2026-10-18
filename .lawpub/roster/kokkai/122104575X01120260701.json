@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104575X01120260701",
+  "date": "2026-07-01",
+  "title": "衆議院 政治改革に関する特別委員会 第11号",
+  "organization": "衆議院",
+  "committee": "政治改革に関する特別委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104575X01120260701",
+  "laws": [
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "金村龍那",
+      "group": "日本維新の会",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "鹿嶋祐介",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    }
+  ]
+}

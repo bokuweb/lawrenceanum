@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122105124X00320260309",
+  "date": "2026-03-09",
+  "title": "衆議院 文部科学委員会 第3号",
+  "organization": "衆議院",
+  "committee": "文部科学委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122105124X00320260309",
+  "laws": [
+    {
+      "law_id": "422AC0000000018",
+      "title": "高等学校等就学支援金の支給に関する法律"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "松本洋平",
+      "group": "自由民主党・無所属の会",
+      "position": "文部科学大臣",
+      "role": "kokkai",
+      "laws": [
+        "422AC0000000018"
+      ]
+    }
+  ]
+}

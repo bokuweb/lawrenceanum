@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114183X00120260415",
+  "date": "2026-04-15",
+  "title": "参議院 憲法審査会 第1号",
+  "organization": "参議院",
+  "committee": "憲法審査会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114183X00120260415",
+  "laws": [
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "原田大二郎",
+      "group": "公明党",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "塩入清香",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "安達悠司",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "山添拓",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "平井伸治",
+      "position": "全国知事会副会長／鳥取県知事",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "志摩恭臣",
+      "position": "徳島弁護士会合区問題ＰＴ座長／弁護士",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "片山大介",
+      "group": "日本維新の会",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "谷合正明",
+      "group": "公明党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    }
+  ]
+}

@@ -3,7 +3,7 @@ type: "bill"
 title: "所得税法の一部を改正する法律案"
 description: "参法（第221回国会）: 2026-03-27 参議院で受理"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE23BA.htm"
-timestamp: "2026-10-09T00:11:41Z"
+timestamp: "2026-10-18T00:10:47Z"
 date: "2026-03-27"
 session: 221
 bill_id: "1DE23BA"
@@ -12,9 +12,11 @@ result: ""
 latest_date: "2026-03-27"
 law_num_text: null
 laws: ["340AC0000000033"]
+votes: []
+proposer_groups: []
 stages: [{"date":"2026-03-27","kind":"received","label":"参議院で受理"}]
 tags: []
-render_version: 2
+render_version: 3
 ---
 
 # 所得税法の一部を改正する法律案

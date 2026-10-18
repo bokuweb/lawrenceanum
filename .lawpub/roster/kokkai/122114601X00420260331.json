@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114601X00420260331",
+  "date": "2026-03-31",
+  "title": "参議院 総務委員会 第4号",
+  "organization": "参議院",
+  "committee": "総務委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114601X00420260331",
+  "laws": [
+    {
+      "law_id": "325AC0000000226",
+      "title": "地方税法"
+    },
+    {
+      "law_id": "325AC0000000211",
+      "title": "地方交付税法"
+    },
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "安野貴博",
+      "group": "チームみらい・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "山名啓雄",
+      "position": "日本放送協会副会長",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "岸真紀子",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    }
+  ]
+}

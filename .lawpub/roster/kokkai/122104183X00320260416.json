@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104183X00320260416",
+  "date": "2026-04-16",
+  "title": "衆議院 憲法審査会 第3号",
+  "organization": "衆議院",
+  "committee": "憲法審査会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104183X00320260416",
+  "laws": [
+    {
+      "law_id": "336AC0000000223",
+      "title": "災害対策基本法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "浅野哲",
+      "group": "国民民主党・無所属クラブ",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "鬼木誠",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "336AC0000000223"
+      ]
+    }
+  ]
+}

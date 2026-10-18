@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114889X02120260724",
+  "date": "2026-07-24",
+  "title": "参議院 内閣委員会 第21号",
+  "organization": "参議院",
+  "committee": "内閣委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114889X02120260724",
+  "laws": [
+    {
+      "law_id": "425AC0000000108",
+      "title": "特定秘密の保護に関する法律"
+    }
+  ],
+  "speakers": []
+}

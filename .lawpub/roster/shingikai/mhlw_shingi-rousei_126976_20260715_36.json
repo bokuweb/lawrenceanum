@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "mhlw_shingi-rousei_126976_20260715_36",
+  "date": "2026-07-15",
+  "title": "勤労者生活分科会 第36回",
+  "organization": "厚生労働省",
+  "committee": "勤労者生活分科会",
+  "url": "https://www.mhlw.go.jp/stf/newpage_74367.html",
+  "laws": [
+    {
+      "law_id": "332AC0000000026",
+      "title": "租税特別措置法"
+    },
+    {
+      "law_id": "340AC0000000033",
+      "title": "所得税法"
+    },
+    {
+      "law_id": "343AC1000000089",
+      "title": "社会保険労務士法"
+    },
+    {
+      "law_id": "346AC0000000092",
+      "title": "勤労者財産形成促進法"
+    },
+    {
+      "law_id": "346CO0000000332",
+      "title": "勤労者財産形成促進法施行令"
+    },
+    {
+      "law_id": "412CO0000000284",
+      "title": "労働政策審議会令"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "仁平委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "佐保委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "労働金庫連合会",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "大橋委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "安達勤労者生活課長",
+      "role": "official",
+      "laws": [
+        "332AC0000000026"
+      ]
+    },
+    {
+      "name": "山本（眞）分科会長",
+      "role": "member",
+      "laws": [
+        "412CO0000000284"
+      ]
+    },
+    {
+      "name": "山本（陽）委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "戎野委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "木村委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "杉山委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "松田委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "池本様",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "浪波委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "渡辺委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "石井委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "阿久澤委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "鹿住委員",
+      "role": "member",
+      "laws": []
+    }
+  ]
+}

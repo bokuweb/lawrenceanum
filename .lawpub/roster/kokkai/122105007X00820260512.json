@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122105007X00820260512",
+  "date": "2026-05-12",
+  "title": "衆議院 農林水産委員会 第8号",
+  "organization": "衆議院",
+  "committee": "農林水産委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122105007X00820260512",
+  "laws": [
+    {
+      "law_id": "406AC0000000113",
+      "title": "主要食糧の需給及び価格の安定に関する法律"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "鈴木憲和",
+      "group": "自由民主党・無所属の会",
+      "position": "農林水産大臣",
+      "role": "kokkai",
+      "laws": [
+        "406AC0000000113"
+      ]
+    }
+  ]
+}

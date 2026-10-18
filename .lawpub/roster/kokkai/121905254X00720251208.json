@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121905254X00720251208",
+  "date": "2025-12-08",
+  "title": "衆議院 本会議 第7号",
+  "organization": "衆議院",
+  "committee": "本会議",
+  "url": "https://kokkai.ndl.go.jp/txt/121905254X00720251208",
+  "laws": [
+    {
+      "law_id": "507AC1000000096",
+      "title": "高次脳機能障害者支援法"
+    },
+    {
+      "law_id": "323AC1000000194",
+      "title": "政治資金規正法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "大串正樹",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "507AC1000000096"
+      ]
+    },
+    {
+      "name": "高市早苗",
+      "group": "自由民主党・無所属の会",
+      "position": "内閣総理大臣",
+      "role": "kokkai",
+      "laws": [
+        "323AC1000000194"
+      ]
+    }
+  ]
+}

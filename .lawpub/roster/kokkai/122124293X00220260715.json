@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122124293X00220260715",
+  "date": "2026-07-15",
+  "title": "both 国家基本政策委員会合同審査会 第2号",
+  "organization": "both",
+  "committee": "国家基本政策委員会合同審査会",
+  "url": "https://kokkai.ndl.go.jp/txt/122124293X00220260715",
+  "laws": [
+    {
+      "law_id": "508AC0000000028",
+      "title": "国家情報会議設置法"
+    },
+    {
+      "law_id": "322AC0000000003",
+      "title": "皇室典範"
+    },
+    {
+      "law_id": "405AC0000000047",
+      "title": "不正競争防止法"
+    },
+    {
+      "law_id": "363AC0000000108",
+      "title": "消費税法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "小川淳也",
+      "group": "中道改革連合・無所属",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000003"
+      ]
+    },
+    {
+      "name": "水岡俊一",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "322AC0000000003"
+      ]
+    },
+    {
+      "name": "玉木雄一郎",
+      "group": "国民民主党・無所属クラブ",
+      "role": "kokkai",
+      "laws": [
+        "363AC0000000108"
+      ]
+    },
+    {
+      "name": "神谷宗幣",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "508AC0000000028"
+      ]
+    },
+    {
+      "name": "高市早苗",
+      "group": "自由民主党・無所属の会",
+      "position": "内閣総理大臣",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000003",
+        "405AC0000000047",
+        "508AC0000000028"
+      ]
+    }
+  ]
+}

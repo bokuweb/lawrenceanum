@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122103968X01020260513",
+  "date": "2026-05-13",
+  "title": "衆議院 外務委員会 第10号",
+  "organization": "衆議院",
+  "committee": "外務委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122103968X01020260513",
+  "laws": [
+    {
+      "law_id": "336AC0000000223",
+      "title": "災害対策基本法"
+    },
+    {
+      "law_id": "508AC0000000061",
+      "title": "防災庁設置法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "貫名功二",
+      "position": "内閣府大臣官房審議官",
+      "role": "kokkai",
+      "laws": [
+        "336AC0000000223"
+      ]
+    },
+    {
+      "name": "近藤和也",
+      "group": "中道改革連合・無所属",
+      "role": "kokkai",
+      "laws": [
+        "508AC0000000061"
+      ]
+    }
+  ]
+}

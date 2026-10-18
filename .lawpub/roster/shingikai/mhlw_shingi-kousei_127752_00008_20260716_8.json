@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "mhlw_shingi-kousei_127752_00008_20260716_8",
+  "date": "2026-07-16",
+  "title": "受動喫煙対策専門委員会 第８回",
+  "organization": "厚生労働省",
+  "committee": "受動喫煙対策専門委員会",
+  "url": "https://www.mhlw.go.jp/stf/newpage_74683.html",
+  "laws": [
+    {
+      "law_id": "414AC0000000103",
+      "title": "健康増進法"
+    },
+    {
+      "law_id": "414CO0000000361",
+      "title": "健康増進法施行令"
+    }
+  ],
+  "speakers": []
+}

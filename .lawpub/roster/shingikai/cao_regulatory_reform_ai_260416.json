@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "cao_regulatory_reform_ai_260416",
+  "date": "2026-04-16",
+  "title": "デジタル・ＡＩ ワーキング・グループ 第８回",
+  "organization": "内閣府",
+  "committee": "デジタル・ＡＩ ワーキング・グループ",
+  "url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_06ai/260416/ai08_agenda.html",
+  "laws": [
+    {
+      "law_id": "322AC0000000067",
+      "title": "地方自治法"
+    },
+    {
+      "law_id": "322CO0000000016",
+      "title": "地方自治法施行令"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "デジタル庁（北間審議官）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "一般社団法人日本ＩＴ団体連盟（別所常務理事）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "中室座長",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "住田専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "大平参事官",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "富士通株式会社（岡田センター長）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "富士通株式会社（播本部長）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "杉本座長代理",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "村上（将）専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "村上（文）専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "林委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "株式会社Jitera（栁澤代表取締役）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "株式会社ROUTE06（松本取締役）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "株式会社クオンティア（市村シニアコンサルタント）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "株式会社ＮＴＴデータグループ（海浦部長）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "田中専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "落合委員",
+      "role": "member",
+      "laws": []
+    }
+  ]
+}

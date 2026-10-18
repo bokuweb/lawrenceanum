@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104575X00720260623",
+  "date": "2026-06-23",
+  "title": "衆議院 政治改革に関する特別委員会 第7号",
+  "organization": "衆議院",
+  "committee": "政治改革に関する特別委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104575X00720260623",
+  "laws": [
+    {
+      "law_id": "323AC1000000194",
+      "title": "政治資金規正法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "中野洋昌",
+      "group": "中道改革連合・無所属",
+      "role": "kokkai",
+      "laws": [
+        "323AC1000000194"
+      ]
+    },
+    {
+      "name": "長谷川淳二",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "323AC1000000194"
+      ]
+    }
+  ]
+}

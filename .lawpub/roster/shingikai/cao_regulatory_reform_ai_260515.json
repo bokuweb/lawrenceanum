@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "cao_regulatory_reform_ai_260515",
+  "date": "2026-05-15",
+  "title": "デジタル・ＡＩ ワーキング・グループ 第10回",
+  "organization": "内閣府",
+  "committee": "デジタル・ＡＩ ワーキング・グループ",
+  "url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_06ai/260515/ai10_agenda.html",
+  "laws": [
+    {
+      "law_id": "324AC1000000205",
+      "title": "弁護士法"
+    },
+    {
+      "law_id": "325AC0000000201",
+      "title": "建築基準法"
+    },
+    {
+      "law_id": "325CO0000000338",
+      "title": "建築基準法施行令"
+    },
+    {
+      "law_id": "326AC0000000204",
+      "title": "高圧ガス保安法"
+    },
+    {
+      "law_id": "336CO0000000037",
+      "title": "消防法施行令"
+    },
+    {
+      "law_id": "323AC1000000186",
+      "title": "消防法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "グーグル・クラウド・ジャパン合同会社（金井ジャパンリード）",
+      "role": "member",
+      "laws": [
+        "323AC1000000186"
+      ]
+    },
+    {
+      "name": "パナソニックエナジー株式会社（長島部長）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "中室座長",
+      "role": "member",
+      "laws": [
+        "323AC1000000186",
+        "325AC0000000201",
+        "325CO0000000338",
+        "336CO0000000037"
+      ]
+    },
+    {
+      "name": "住田専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "国土交通省（井﨑大臣官房審議官）",
+      "role": "member",
+      "laws": [
+        "323AC1000000186",
+        "325AC0000000201"
+      ]
+    },
+    {
+      "name": "国立情報学研究所（佐藤教授）",
+      "role": "member",
+      "laws": [
+        "323AC1000000186",
+        "325AC0000000201"
+      ]
+    },
+    {
+      "name": "大平参事官",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "戸田専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "杉本座長代理",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "村上（将）専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "村上（文）専門委員",
+      "role": "member",
+      "laws": [
+        "323AC1000000186",
+        "325AC0000000201"
+      ]
+    },
+    {
+      "name": "消防庁（渡辺予防課長）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "消防庁（鳥井審議官）",
+      "role": "member",
+      "laws": [
+        "323AC1000000186"
+      ]
+    },
+    {
+      "name": "片桐専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "特定非営利活動法人日本データセンター協会（増永事務局長）",
+      "role": "member",
+      "laws": [
+        "323AC1000000186",
+        "325AC0000000201",
+        "325CO0000000338",
+        "336CO0000000037"
+      ]
+    },
+    {
+      "name": "田中専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "経済産業省（渡辺",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "落合委員",
+      "role": "member",
+      "laws": [
+        "325AC0000000201"
+      ]
+    }
+  ]
+}

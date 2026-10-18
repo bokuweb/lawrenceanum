@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122113950X01020260528",
+  "date": "2026-05-28",
+  "title": "参議院 外交防衛委員会 第10号",
+  "organization": "参議院",
+  "committee": "外交防衛委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122113950X01020260528",
+  "laws": [
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    },
+    {
+      "law_id": "418AC0000000120",
+      "title": "教育基本法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "福島みずほ",
+      "group": "社会民主党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "418AC0000000120"
+      ]
+    },
+    {
+      "name": "福田かおる",
+      "group": "自由民主党・無所属の会",
+      "position": "文部科学大臣政務官",
+      "role": "kokkai",
+      "laws": [
+        "418AC0000000120"
+      ]
+    }
+  ]
+}

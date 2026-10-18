@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104183X01020260618",
+  "date": "2026-06-18",
+  "title": "衆議院 憲法審査会 第10号",
+  "organization": "衆議院",
+  "committee": "憲法審査会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104183X01020260618",
+  "laws": [
+    {
+      "law_id": "324AC0000000174",
+      "title": "労働組合法"
+    },
+    {
+      "law_id": "419AC1000000051",
+      "title": "日本国憲法の改正手続に関する法律"
+    },
+    {
+      "law_id": "329AC0000000164",
+      "title": "防衛省設置法"
+    },
+    {
+      "law_id": "329AC0000000165",
+      "title": "自衛隊法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "和田政宗",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "329AC0000000165"
+      ]
+    },
+    {
+      "name": "和田義明",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000165"
+      ]
+    },
+    {
+      "name": "國重徹",
+      "group": "中道改革連合・無所属",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "419AC1000000051"
+      ]
+    },
+    {
+      "name": "新藤義孝",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "329AC0000000165"
+      ]
+    },
+    {
+      "name": "有田芳生",
+      "group": "中道改革連合・無所属",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000165"
+      ]
+    },
+    {
+      "name": "池畑浩太朗",
+      "group": "日本維新の会",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "329AC0000000164",
+        "329AC0000000165"
+      ]
+    },
+    {
+      "name": "田野瀬太道",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "畑野君枝",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "阿部圭史",
+      "group": "日本維新の会",
+      "role": "kokkai",
+      "laws": [
+        "324AC0000000174",
+        "329AC0000000164",
+        "329AC0000000165"
+      ]
+    }
+  ]
+}

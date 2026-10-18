@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121904575X00120251024",
+  "date": "2025-10-24",
+  "title": "衆議院 政治改革に関する特別委員会 第1号",
+  "organization": "衆議院",
+  "committee": "政治改革に関する特別委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121904575X00120251024",
+  "laws": [
+    {
+      "law_id": "322AC0000000067",
+      "title": "地方自治法"
+    },
+    {
+      "law_id": "332AC0000000026",
+      "title": "租税特別措置法"
+    },
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
+    },
+    {
+      "law_id": "323AC1000000194",
+      "title": "政治資金規正法"
+    }
+  ],
+  "speakers": []
+}

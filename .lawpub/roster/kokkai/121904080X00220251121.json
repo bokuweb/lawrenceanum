@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121904080X00220251121",
+  "date": "2025-11-21",
+  "title": "衆議院 経済産業委員会 第2号",
+  "organization": "衆議院",
+  "committee": "経済産業委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121904080X00220251121",
+  "laws": [
+    {
+      "law_id": "339AC0000000170",
+      "title": "電気事業法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "山岡達丸",
+      "group": "立憲民主党・無所属",
+      "role": "kokkai",
+      "laws": [
+        "339AC0000000170"
+      ]
+    },
+    {
+      "name": "湯本啓市",
+      "position": "経済産業省大臣官房技術総括・保安審議官",
+      "role": "kokkai",
+      "laws": [
+        "339AC0000000170"
+      ]
+    },
+    {
+      "name": "赤澤亮正",
+      "group": "自由民主党・無所属の会",
+      "position": "経済産業大臣・内閣府特命担当大臣（原子力損害賠償・廃炉等支援機構）",
+      "role": "kokkai",
+      "laws": [
+        "339AC0000000170"
+      ]
+    }
+  ]
+}

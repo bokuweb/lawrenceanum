@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121915254X00220251024",
+  "date": "2025-10-24",
+  "title": "参議院 本会議 第2号",
+  "organization": "参議院",
+  "committee": "本会議",
+  "url": "https://kokkai.ndl.go.jp/txt/121915254X00220251024",
+  "laws": [
+    {
+      "law_id": "322AC0000000003",
+      "title": "皇室典範"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "高市早苗",
+      "group": "自由民主党・無所属の会",
+      "position": "内閣総理大臣",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000003"
+      ]
+    }
+  ]
+}

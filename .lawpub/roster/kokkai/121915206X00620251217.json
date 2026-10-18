@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121915206X00620251217",
+  "date": "2025-12-17",
+  "title": "参議院 法務委員会 第6号",
+  "organization": "参議院",
+  "committee": "法務委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121915206X00620251217",
+  "laws": [
+    {
+      "law_id": "322AC0000000125",
+      "title": "国家賠償法"
+    }
+  ],
+  "speakers": []
+}

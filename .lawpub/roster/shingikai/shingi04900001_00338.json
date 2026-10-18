@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "shingi04900001_00338",
+  "date": "2026-05-27",
+  "title": "法制審議会会社法制（株式・株主総会等関係）部会第１４回会議（令和８年５月２７日開催）",
+  "organization": "法務省",
+  "committee": "法制審議会ー会社法制（株式・株主総会等関係）部会",
+  "url": "https://www.moj.go.jp/shingi1/shingi04900001_00338.html",
+  "laws": [
+    {
+      "law_id": "138AC0000000052",
+      "title": "担保付社債信託法"
+    },
+    {
+      "law_id": "413AC0000000075",
+      "title": "社債、株式等の振替に関する法律"
+    },
+    {
+      "law_id": "140AC0000000045",
+      "title": "刑法"
+    },
+    {
+      "law_id": "417AC0000000086",
+      "title": "会社法"
+    },
+    {
+      "law_id": "418AC0000000108",
+      "title": "信託法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "久保田委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "内田委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "加藤幹事",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "塚田参考人",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "大津参考人",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "宇野幹事",
+      "role": "member",
+      "laws": [
+        "417AC0000000086"
+      ]
+    },
+    {
+      "name": "日置参考人",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "松中幹事",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "松尾幹事",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "森委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "森田参考人",
+      "role": "member",
+      "laws": [
+        "140AC0000000045"
+      ]
+    },
+    {
+      "name": "清田参考人",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "渡邉参考人",
+      "role": "member",
+      "laws": [
+        "417AC0000000086"
+      ]
+    },
+    {
+      "name": "田中委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "矢野幹事",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "神作部会長",
+      "role": "member",
+      "laws": [
+        "417AC0000000086"
+      ]
+    },
+    {
+      "name": "臼井委員",
+      "role": "member",
+      "laws": [
+        "417AC0000000086"
+      ]
+    },
+    {
+      "name": "藤井委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "行岡幹事",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "青委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "鳥海参考人",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "齊藤委員",
+      "role": "member",
+      "laws": []
+    }
+  ]
+}

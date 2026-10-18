@@ -3,7 +3,7 @@ type: "bill"
 title: "公職選挙法の一部を改正する法律案"
 description: "衆法（第221回国会）: 2026-10-05 衆議院 政治改革に関する特別に付託"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE2D2A.htm"
-timestamp: "2026-10-09T00:11:40Z"
+timestamp: "2026-10-18T00:10:47Z"
 date: "2026-10-05"
 session: 221
 bill_id: "1DE2D2A"
@@ -12,9 +12,11 @@ result: ""
 latest_date: "2026-10-05"
 law_num_text: null
 laws: ["325AC1000000100"]
+votes: []
+proposer_groups: ["国民民主党・無所属クラブ"]
 stages: [{"date":"2026-10-05","kind":"referred","label":"衆議院 政治改革に関する特別に付託"}]
 tags: []
-render_version: 2
+render_version: 3
 llm_latest_date: "2026-10-05"
 ---
 

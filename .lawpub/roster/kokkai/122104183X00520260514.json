@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104183X00520260514",
+  "date": "2026-05-14",
+  "title": "衆議院 憲法審査会 第5号",
+  "organization": "衆議院",
+  "committee": "憲法審査会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104183X00520260514",
+  "laws": [
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "古川あおい",
+      "group": "チームみらい",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "橘幸信",
+      "position": "衆議院法制局特別参与",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "畑野君枝",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    }
+  ]
+}

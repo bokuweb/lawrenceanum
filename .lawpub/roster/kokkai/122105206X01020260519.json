@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122105206X01020260519",
+  "date": "2026-05-19",
+  "title": "衆議院 法務委員会 第10号",
+  "organization": "衆議院",
+  "committee": "法務委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122105206X01020260519",
+  "laws": [
+    {
+      "law_id": "326AC0000000045",
+      "title": "社会福祉法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "林俊宏",
+      "position": "厚生労働省大臣官房審議官",
+      "role": "kokkai",
+      "laws": [
+        "326AC0000000045"
+      ]
+    }
+  ]
+}

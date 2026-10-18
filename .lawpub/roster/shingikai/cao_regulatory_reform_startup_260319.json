@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "cao_regulatory_reform_startup_260319",
+  "date": "2026-03-19",
+  "title": "スタートアップ・イノベーション促進 ワーキング・グループ 第12回",
+  "organization": "内閣府",
+  "committee": "スタートアップ・イノベーション促進 ワーキング・グループ",
+  "url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_04startup/260319/startup12_agenda.html",
+  "laws": [
+    {
+      "law_id": "325M50080000014",
+      "title": "電波法施行規則"
+    },
+    {
+      "law_id": "325M50080000015",
+      "title": "無線局免許手続規則"
+    },
+    {
+      "law_id": "356M50001000037",
+      "title": "特定無線設備の技術基準適合証明等に関する規則"
+    },
+    {
+      "law_id": "325AC0000000131",
+      "title": "電波法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "一般社団法人日本経済団体連合会（小野主幹）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "堀委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "岩崎専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "川本専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "幕内参事官",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "株式会社アイシン（小出主幹）",
+      "role": "member",
+      "laws": [
+        "325AC0000000131"
+      ]
+    },
+    {
+      "name": "瀧専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "総務省（小原室長）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "総務省（松宮専門官）",
+      "role": "member",
+      "laws": [
+        "325AC0000000131"
+      ]
+    },
+    {
+      "name": "総務省（翁長部長）",
+      "role": "member",
+      "laws": [
+        "325AC0000000131"
+      ]
+    },
+    {
+      "name": "芦澤委員",
+      "role": "member",
+      "laws": [
+        "325AC0000000131"
+      ]
+    },
+    {
+      "name": "落合座長",
+      "role": "member",
+      "laws": [
+        "325AC0000000131"
+      ]
+    }
+  ]
+}

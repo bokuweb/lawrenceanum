@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104080X01720260724",
+  "date": "2026-07-24",
+  "title": "衆議院 経済産業委員会 第17号",
+  "organization": "衆議院",
+  "committee": "経済産業委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104080X01720260724",
+  "laws": [
+    {
+      "law_id": "322AC0000000067",
+      "title": "地方自治法"
+    },
+    {
+      "law_id": "411AC0100000002",
+      "title": "ものづくり基盤技術振興基本法"
+    },
+    {
+      "law_id": "345AC0000000145",
+      "title": "受託中小企業振興法"
+    }
+  ],
+  "speakers": []
+}

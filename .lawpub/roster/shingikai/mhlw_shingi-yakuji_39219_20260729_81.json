@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "mhlw_shingi-yakuji_39219_20260729_81",
+  "date": "2026-07-29",
+  "title": "適正使用調査会 令和８年度第１回",
+  "organization": "厚生労働省",
+  "committee": "適正使用調査会",
+  "url": "https://www.mhlw.go.jp/stf/newpage_74433.html",
+  "laws": [
+    {
+      "law_id": "331AC0000000160",
+      "title": "安全な血液製剤の安定供給の確保等に関する法律"
+    },
+    {
+      "law_id": "333AC1000000076",
+      "title": "臨床検査技師等に関する法律"
+    },
+    {
+      "law_id": "345AC0000000048",
+      "title": "著作権法"
+    },
+    {
+      "law_id": "323AC0000000205",
+      "title": "医療法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "伊藤座長",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "喜多村委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "堺田委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "宮園参考人",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "小笠原参考人",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "山内委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "梶原委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "田中参考人",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "糸谷血液対策課長補佐",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "藤原参考人",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "長谷川参考人",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "関参考人",
+      "role": "member",
+      "laws": []
+    }
+  ]
+}

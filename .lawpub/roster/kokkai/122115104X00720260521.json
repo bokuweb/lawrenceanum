@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122115104X00720260521",
+  "date": "2026-05-21",
+  "title": "参議院 文教科学委員会 第7号",
+  "organization": "参議院",
+  "committee": "文教科学委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122115104X00720260521",
+  "laws": [
+    {
+      "law_id": "329AC0000000160",
+      "title": "学校給食法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    },
+    {
+      "law_id": "418AC0000000120",
+      "title": "教育基本法"
+    },
+    {
+      "law_id": "322AC0000000049",
+      "title": "労働基準法"
+    },
+    {
+      "law_id": "333AC0000000056",
+      "title": "学校保健安全法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "伊藤孝恵",
+      "group": "国民民主党・新緑風会",
+      "role": "kokkai",
+      "laws": [
+        "333AC0000000056"
+      ]
+    },
+    {
+      "name": "吉良よし子",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "418AC0000000120"
+      ]
+    },
+    {
+      "name": "塩見みづ枝",
+      "position": "文部科学省総合教育政策局長",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000160",
+        "333AC0000000056"
+      ]
+    },
+    {
+      "name": "斎藤嘉隆",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000049"
+      ]
+    },
+    {
+      "name": "望月禎",
+      "position": "文部科学省初等中等教育局長",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000049"
+      ]
+    },
+    {
+      "name": "松本洋平",
+      "group": "自由民主党・無所属の会",
+      "position": "文部科学大臣",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "322AC0000000049",
+        "418AC0000000120"
+      ]
+    }
+  ]
+}

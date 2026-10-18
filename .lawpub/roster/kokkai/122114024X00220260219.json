@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114024X00220260219",
+  "date": "2026-02-19",
+  "title": "参議院 議院運営委員会 第2号",
+  "organization": "参議院",
+  "committee": "議院運営委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114024X00220260219",
+  "laws": [
+    {
+      "law_id": "345AC0000000048",
+      "title": "著作権法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "倉田敬子",
+      "position": "国立国会図書館長",
+      "role": "kokkai",
+      "laws": [
+        "345AC0000000048"
+      ]
+    },
+    {
+      "name": "横沢高徳",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "345AC0000000048"
+      ]
+    }
+  ]
+}

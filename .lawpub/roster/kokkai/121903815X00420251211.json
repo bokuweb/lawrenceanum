@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121903815X00420251211",
+  "date": "2025-12-11",
+  "title": "衆議院 安全保障委員会 第4号",
+  "organization": "衆議院",
+  "committee": "安全保障委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121903815X00420251211",
+  "laws": [
+    {
+      "law_id": "327AC0000000266",
+      "title": "防衛省の職員の給与等に関する法律"
+    }
+  ],
+  "speakers": []
+}

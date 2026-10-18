@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114024X01720260522",
+  "date": "2026-05-22",
+  "title": "参議院 議院運営委員会 第17号",
+  "organization": "参議院",
+  "committee": "議院運営委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114024X01720260522",
+  "laws": [
+    {
+      "law_id": "508AC0000000061",
+      "title": "防災庁設置法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "伊藤文靖",
+      "position": "参議院事務総長",
+      "role": "kokkai",
+      "laws": [
+        "508AC0000000061"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104575X00920260629",
+  "date": "2026-06-29",
+  "title": "衆議院 政治改革に関する特別委員会 第9号",
+  "organization": "衆議院",
+  "committee": "政治改革に関する特別委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104575X00920260629",
+  "laws": [
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "加藤勝信",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121904601X00520251217",
+  "date": "2025-12-17",
+  "title": "衆議院 総務委員会 第5号",
+  "organization": "衆議院",
+  "committee": "総務委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121904601X00520251217",
+  "laws": [
+    {
+      "law_id": "325AC0000000226",
+      "title": "地方税法"
+    },
+    {
+      "law_id": "417AC0000000097",
+      "title": "郵政民営化法"
+    },
+    {
+      "law_id": "325AC0000000261",
+      "title": "地方公務員法"
+    }
+  ],
+  "speakers": []
+}

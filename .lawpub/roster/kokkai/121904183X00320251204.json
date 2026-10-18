@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121904183X00320251204",
+  "date": "2025-12-04",
+  "title": "衆議院 憲法審査会 第3号",
+  "organization": "衆議院",
+  "committee": "憲法審査会",
+  "url": "https://kokkai.ndl.go.jp/txt/121904183X00320251204",
+  "laws": [
+    {
+      "law_id": "419AC1000000051",
+      "title": "日本国憲法の改正手続に関する法律"
+    },
+    {
+      "law_id": "329AC0000000165",
+      "title": "自衛隊法"
+    },
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "中谷元",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "大石あきこ",
+      "group": "れいわ新選組",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "419AC1000000051"
+      ]
+    },
+    {
+      "name": "山花郁夫",
+      "group": "立憲民主党・無所属",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "橘幸信",
+      "position": "衆議院法制局長",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "河西宏一",
+      "group": "公明党",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000165"
+      ]
+    },
+    {
+      "name": "福田徹",
+      "group": "国民民主党・無所属クラブ",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "船田元",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "馬場伸幸",
+      "group": "日本維新の会",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    }
+  ]
+}

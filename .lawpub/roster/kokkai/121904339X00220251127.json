@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121904339X00220251127",
+  "date": "2025-11-27",
+  "title": "衆議院 災害対策特別委員会 第2号",
+  "organization": "衆議院",
+  "committee": "災害対策特別委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121904339X00220251127",
+  "laws": [
+    {
+      "law_id": "336AC0000000223",
+      "title": "災害対策基本法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "あかま二郎",
+      "group": "自由民主党・無所属の会",
+      "position": "国家公安委員会委員長・内閣府特命担当大臣（防災・海洋政策）",
+      "role": "kokkai",
+      "laws": [
+        "336AC0000000223"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122103815X00220260409",
+  "date": "2026-04-09",
+  "title": "衆議院 安全保障委員会 第2号",
+  "organization": "衆議院",
+  "committee": "安全保障委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122103815X00220260409",
+  "laws": [
+    {
+      "law_id": "329AC0000000165",
+      "title": "自衛隊法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "小泉進次郎",
+      "group": "自由民主党・無所属の会",
+      "position": "防衛大臣",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000165"
+      ]
+    },
+    {
+      "name": "山田瑛理",
+      "group": "チームみらい",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000165"
+      ]
+    },
+    {
+      "name": "長島昭久",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000165"
+      ]
+    }
+  ]
+}

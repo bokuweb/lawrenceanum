@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114260X00320260402",
+  "date": "2026-04-02",
+  "title": "参議院 厚生労働委員会 第3号",
+  "organization": "参議院",
+  "committee": "厚生労働委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114260X00320260402",
+  "laws": [
+    {
+      "law_id": "504AC1000000077",
+      "title": "こども基本法"
+    },
+    {
+      "law_id": "211AC0000000070",
+      "title": "健康保険法"
+    },
+    {
+      "law_id": "334AC0000000137",
+      "title": "最低賃金法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "かまやち敏",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070"
+      ]
+    },
+    {
+      "name": "上野賢一郎",
+      "group": "自由民主党・無所属の会",
+      "position": "厚生労働大臣",
+      "role": "kokkai",
+      "laws": [
+        "334AC0000000137"
+      ]
+    },
+    {
+      "name": "津島淳",
+      "group": "自由民主党・無所属の会",
+      "position": "内閣府副大臣",
+      "role": "kokkai",
+      "laws": [
+        "504AC1000000077"
+      ]
+    },
+    {
+      "name": "田村まみ",
+      "group": "国民民主党・新緑風会",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070"
+      ]
+    },
+    {
+      "name": "間隆一郎",
+      "position": "厚生労働省保険局長",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070"
+      ]
+    }
+  ]
+}

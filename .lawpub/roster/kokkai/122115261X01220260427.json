@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122115261X01220260427",
+  "date": "2026-04-27",
+  "title": "参議院 予算委員会 第12号",
+  "organization": "参議院",
+  "committee": "予算委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122115261X01220260427",
+  "laws": [
+    {
+      "law_id": "323AC0000000131",
+      "title": "刑事訴訟法"
+    },
+    {
+      "law_id": "322AC0000000118",
+      "title": "災害救助法"
+    },
+    {
+      "law_id": "322AC0000000003",
+      "title": "皇室典範"
+    },
+    {
+      "law_id": "424AC0000000065",
+      "title": "子ども・子育て支援法"
+    },
+    {
+      "law_id": "329AC0000000165",
+      "title": "自衛隊法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    },
+    {
+      "law_id": "322AC0000000164",
+      "title": "児童福祉法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "三原じゅん子",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000164",
+        "424AC0000000065"
+      ]
+    },
+    {
+      "name": "山添拓",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "片山大介",
+      "group": "日本維新の会",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000003"
+      ]
+    },
+    {
+      "name": "高市早苗",
+      "group": "自由民主党・無所属の会",
+      "position": "内閣総理大臣",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "322AC0000000003",
+        "322AC0000000118",
+        "323AC0000000131",
+        "329AC0000000165"
+      ]
+    }
+  ]
+}

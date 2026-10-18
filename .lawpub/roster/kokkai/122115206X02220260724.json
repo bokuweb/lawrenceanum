@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122115206X02220260724",
+  "date": "2026-07-24",
+  "title": "参議院 法務委員会 第22号",
+  "organization": "参議院",
+  "committee": "法務委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122115206X02220260724",
+  "laws": [
+    {
+      "law_id": "323AC0000000131",
+      "title": "刑事訴訟法"
+    },
+    {
+      "law_id": "322AC0000000125",
+      "title": "国家賠償法"
+    }
+  ],
+  "speakers": []
+}

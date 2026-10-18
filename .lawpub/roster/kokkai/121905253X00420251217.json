@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121905253X00420251217",
+  "date": "2025-12-17",
+  "title": "衆議院 北朝鮮による拉致問題等に関する特別委員会 第4号",
+  "organization": "衆議院",
+  "committee": "北朝鮮による拉致問題等に関する特別委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121905253X00420251217",
+  "laws": [
+    {
+      "law_id": "322AC0000000067",
+      "title": "地方自治法"
+    }
+  ],
+  "speakers": []
+}

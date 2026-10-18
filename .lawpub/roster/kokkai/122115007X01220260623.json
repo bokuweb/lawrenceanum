@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122115007X01220260623",
+  "date": "2026-06-23",
+  "title": "参議院 農林水産委員会 第12号",
+  "organization": "参議院",
+  "committee": "農林水産委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122115007X01220260623",
+  "laws": [
+    {
+      "law_id": "411AC0000000106",
+      "title": "食料・農業・農村基本法"
+    },
+    {
+      "law_id": "406AC0000000113",
+      "title": "主要食糧の需給及び価格の安定に関する法律"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "武本俊彦",
+      "position": "新潟食料農業大学名誉教授",
+      "role": "kokkai",
+      "laws": [
+        "411AC0000000106"
+      ]
+    },
+    {
+      "name": "西川邦夫",
+      "position": "日本大学法学部教授",
+      "role": "kokkai",
+      "laws": [
+        "411AC0000000106"
+      ]
+    }
+  ]
+}

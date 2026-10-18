@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "cao_regulatory_reform_local_260514",
+  "date": "2026-05-14",
+  "title": "地域活性化・人手不足対応 ワーキング・グループ 第10回",
+  "organization": "内閣府",
+  "committee": "地域活性化・人手不足対応 ワーキング・グループ",
+  "url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_01local/260514/local10_agenda.html",
+  "laws": [
+    {
+      "law_id": "326AC0000000185",
+      "title": "道路運送車両法"
+    },
+    {
+      "law_id": "335AC0000000105",
+      "title": "道路交通法"
+    },
+    {
+      "law_id": "335M50004002003",
+      "title": "道路標識、区画線及び道路標示に関する命令"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "Turing",
+      "role": "member",
+      "laws": [
+        "335AC0000000105"
+      ]
+    },
+    {
+      "name": "デジタル庁（岡田審議官）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "佐藤委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "原専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "国土交通省（小磯課長）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "堀委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "林座長",
+      "role": "member",
+      "laws": [
+        "335AC0000000105"
+      ]
+    },
+    {
+      "name": "株式会社ティアフォー（飯田プロダクトマネジメント本部長）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "神田参事官",
+      "role": "official",
+      "laws": [
+        "335AC0000000105"
+      ]
+    },
+    {
+      "name": "芦澤委員",
+      "role": "member",
+      "laws": [
+        "335AC0000000105"
+      ]
+    },
+    {
+      "name": "落合委員",
+      "role": "member",
+      "laws": [
+        "335AC0000000105"
+      ]
+    },
+    {
+      "name": "警察庁（阿部長官官房審議官）",
+      "role": "member",
+      "laws": [
+        "335AC0000000105"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114006X00920260526",
+  "date": "2026-05-26",
+  "title": "参議院 環境委員会 第9号",
+  "organization": "参議院",
+  "committee": "環境委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114006X00920260526",
+  "laws": [
+    {
+      "law_id": "508AC0000000033",
+      "title": "太陽電池廃棄物の再資源化等の推進に関する法律"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "三上えり",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "508AC0000000033"
+      ]
+    }
+  ]
+}

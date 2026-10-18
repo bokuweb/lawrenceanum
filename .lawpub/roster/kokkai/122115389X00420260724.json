@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122115389X00420260724",
+  "date": "2026-07-24",
+  "title": "参議院 皇室典範等の一部を改正する法律案特別委員会 第4号",
+  "organization": "参議院",
+  "committee": "皇室典範等の一部を改正する法律案特別委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122115389X00420260724",
+  "laws": [
+    {
+      "law_id": "322AC0000000003",
+      "title": "皇室典範"
+    }
+  ],
+  "speakers": []
+}

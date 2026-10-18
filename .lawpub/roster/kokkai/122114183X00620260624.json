@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114183X00620260624",
+  "date": "2026-06-24",
+  "title": "参議院 憲法審査会 第6号",
+  "organization": "参議院",
+  "committee": "憲法審査会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114183X00620260624",
+  "laws": [
+    {
+      "law_id": "508AC0000000028",
+      "title": "国家情報会議設置法"
+    },
+    {
+      "law_id": "419AC1000000051",
+      "title": "日本国憲法の改正手続に関する法律"
+    },
+    {
+      "law_id": "329AC0000000164",
+      "title": "防衛省設置法"
+    },
+    {
+      "law_id": "329AC0000000165",
+      "title": "自衛隊法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "塩入清香",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000165"
+      ]
+    },
+    {
+      "name": "奥田ふみよ",
+      "group": "れいわ新選組",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "329AC0000000164",
+        "508AC0000000028"
+      ]
+    },
+    {
+      "name": "小西洋之",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "山添拓",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "川合孝典",
+      "group": "国民民主党・新緑風会",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "新藤義孝",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "419AC1000000051"
+      ]
+    }
+  ]
+}

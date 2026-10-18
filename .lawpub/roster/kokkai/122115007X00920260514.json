@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122115007X00920260514",
+  "date": "2026-05-14",
+  "title": "参議院 農林水産委員会 第9号",
+  "organization": "参議院",
+  "committee": "農林水産委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122115007X00920260514",
+  "laws": [
+    {
+      "law_id": "326AC1000000166",
+      "title": "家畜伝染病予防法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "佐々木りえ",
+      "group": "日本維新の会",
+      "role": "kokkai",
+      "laws": [
+        "326AC1000000166"
+      ]
+    },
+    {
+      "name": "坂勝浩",
+      "position": "農林水産省消費・安全局長",
+      "role": "kokkai",
+      "laws": [
+        "326AC1000000166"
+      ]
+    },
+    {
+      "name": "山本啓介",
+      "group": "自由民主党・無所属の会",
+      "position": "農林水産大臣政務官",
+      "role": "kokkai",
+      "laws": [
+        "326AC1000000166"
+      ]
+    },
+    {
+      "name": "徳永エリ",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "326AC1000000166"
+      ]
+    },
+    {
+      "name": "杉本純子",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "326AC1000000166"
+      ]
+    },
+    {
+      "name": "石垣のりこ",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "326AC1000000166"
+      ]
+    },
+    {
+      "name": "鈴木憲和",
+      "group": "自由民主党・無所属の会",
+      "position": "農林水産大臣",
+      "role": "kokkai",
+      "laws": [
+        "326AC1000000166"
+      ]
+    },
+    {
+      "name": "高橋光男",
+      "group": "公明党",
+      "role": "kokkai",
+      "laws": [
+        "326AC1000000166"
+      ]
+    }
+  ]
+}

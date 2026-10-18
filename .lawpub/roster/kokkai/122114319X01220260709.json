@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114319X01220260709",
+  "date": "2026-07-09",
+  "title": "参議院 国土交通委員会 第12号",
+  "organization": "参議院",
+  "committee": "国土交通委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114319X01220260709",
+  "laws": [
+    {
+      "law_id": "333AC0000000079",
+      "title": "下水道法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "金子恭之",
+      "group": "自由民主党・無所属の会",
+      "position": "国土交通大臣",
+      "role": "kokkai",
+      "laws": [
+        "333AC0000000079"
+      ]
+    }
+  ]
+}

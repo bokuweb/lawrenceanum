@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121915382X00320251205",
+  "date": "2025-12-05",
+  "title": "参議院 沖縄・北方問題及び地方に関する特別委員会 第3号",
+  "organization": "参議院",
+  "committee": "沖縄・北方問題及び地方に関する特別委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121915382X00320251205",
+  "laws": [
+    {
+      "law_id": "414AC0000000014",
+      "title": "沖縄振興特別措置法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "黒瀬敏文",
+      "position": "内閣府政策統括官",
+      "role": "kokkai",
+      "laws": [
+        "414AC0000000014"
+      ]
+    }
+  ]
+}

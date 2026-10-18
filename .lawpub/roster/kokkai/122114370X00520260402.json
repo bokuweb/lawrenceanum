@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114370X00520260402",
+  "date": "2026-04-02",
+  "title": "参議院 財政金融委員会 第5号",
+  "organization": "参議院",
+  "committee": "財政金融委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114370X00520260402",
+  "laws": [
+    {
+      "law_id": "408M50000040005",
+      "title": "保険業法施行規則"
+    },
+    {
+      "law_id": "407AC0000000105",
+      "title": "保険業法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "上田勇",
+      "group": "公明党",
+      "role": "kokkai",
+      "laws": [
+        "407AC0000000105"
+      ]
+    },
+    {
+      "name": "石田晋也",
+      "position": "金融庁監督局長",
+      "role": "kokkai",
+      "laws": [
+        "407AC0000000105",
+        "408M50000040005"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104183X01420260724",
+  "date": "2026-07-24",
+  "title": "衆議院 憲法審査会 第14号",
+  "organization": "衆議院",
+  "committee": "憲法審査会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104183X01420260724",
+  "laws": [
+    {
+      "law_id": "322AC0000000067",
+      "title": "地方自治法"
+    }
+  ],
+  "speakers": []
+}

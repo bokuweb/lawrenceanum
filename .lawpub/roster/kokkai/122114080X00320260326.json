@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114080X00320260326",
+  "date": "2026-03-26",
+  "title": "参議院 経済産業委員会 第3号",
+  "organization": "参議院",
+  "committee": "経済産業委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114080X00320260326",
+  "laws": [
+    {
+      "law_id": "339AC0000000170",
+      "title": "電気事業法"
+    },
+    {
+      "law_id": "329AC0000000051",
+      "title": "ガス事業法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "久米孝",
+      "position": "資源エネルギー庁電力・ガス事業部長",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000051",
+        "339AC0000000170"
+      ]
+    }
+  ]
+}

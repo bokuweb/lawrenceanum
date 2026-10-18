@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114889X01920260714",
+  "date": "2026-07-14",
+  "title": "参議院 内閣委員会 第19号",
+  "organization": "参議院",
+  "committee": "内閣委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114889X01920260714",
+  "laws": [
+    {
+      "law_id": "508AC1000000069",
+      "title": "国旗の損壊等の処罰に関する法律"
+    },
+    {
+      "law_id": "329AC0000000165",
+      "title": "自衛隊法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    },
+    {
+      "law_id": "411AC0000000147",
+      "title": "無差別大量殺人行為を行った団体の規制に関する法律"
+    },
+    {
+      "law_id": "322AC0000000120",
+      "title": "国家公務員法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "伊藤俊幸",
+      "position": "金沢工業大学大学院教授",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000165"
+      ]
+    },
+    {
+      "name": "堂込麻紀子",
+      "group": "国民民主党・新緑風会",
+      "role": "kokkai",
+      "laws": [
+        "411AC0000000147"
+      ]
+    },
+    {
+      "name": "橋本基弘",
+      "position": "中央大学法学部教授",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "322AC0000000120"
+      ]
+    }
+  ]
+}

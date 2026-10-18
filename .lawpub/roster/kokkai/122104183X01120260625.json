@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104183X01120260625",
+  "date": "2026-06-25",
+  "title": "衆議院 憲法審査会 第11号",
+  "organization": "衆議院",
+  "committee": "憲法審査会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104183X01120260625",
+  "laws": [
+    {
+      "law_id": "322AC0000000067",
+      "title": "地方自治法"
+    },
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "上川陽子",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "322AC0000000067"
+      ]
+    },
+    {
+      "name": "古川あおい",
+      "group": "チームみらい",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "國重徹",
+      "group": "中道改革連合・無所属",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "新藤義孝",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "322AC0000000067"
+      ]
+    },
+    {
+      "name": "畑野君枝",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "飯泉嘉門",
+      "group": "国民民主党・無所属クラブ",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    }
+  ]
+}

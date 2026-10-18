@@ -3,7 +3,7 @@ type: "bill"
 title: "公職選挙法及び特定電気通信による情報の流通によって発生する権利侵害等への対処に関する法律の一部を改正する法律案"
 description: "衆法（第221回国会）: 2026-07-17 公布（法律第58号）"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE2AAA.htm"
-timestamp: "2026-10-09T00:11:42Z"
+timestamp: "2026-10-18T00:10:49Z"
 date: "2026-07-17"
 session: 221
 bill_id: "1DE2AAA"
@@ -12,9 +12,11 @@ result: "可決"
 latest_date: "2026-07-17"
 law_num_text: "令和八年法律第五十八号"
 laws: ["325AC1000000100","413AC0000000137"]
+votes: [{"house":"衆議院","side":"賛成","groups":["自由民主党・無所属の会","中道改革連合・無所属","日本維新の会","国民民主党・無所属クラブ","参政党","チームみらい","日本共産党"]}]
+proposer_groups: ["自由民主党・無所属の会","中道改革連合・無所属","日本維新の会","国民民主党・無所属クラブ","参政党","チームみらい"]
 stages: [{"date":"2026-06-24","kind":"received","label":"衆議院で受理"},{"date":"2026-06-25","kind":"referred","label":"衆議院 政治改革に関する特別に付託"},{"date":"2026-06-25","kind":"committee","label":"衆議院 委員会で可決"},{"date":"2026-06-26","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-06-26","kind":"received","label":"参議院で受理"},{"date":"2026-07-09","kind":"referred","label":"参議院 政治改革に関する特別に付託"},{"date":"2026-07-10","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-07-13","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-07-17","kind":"promulgated","label":"公布（法律第58号）"}]
 tags: []
-render_version: 2
+render_version: 3
 llm_latest_date: "2026-07-17"
 ---
 

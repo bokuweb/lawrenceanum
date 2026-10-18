@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114260X00620260519",
+  "date": "2026-05-19",
+  "title": "参議院 厚生労働委員会 第6号",
+  "organization": "参議院",
+  "committee": "厚生労働委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114260X00620260519",
+  "laws": [
+    {
+      "law_id": "418AC1000000098",
+      "title": "がん対策基本法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    },
+    {
+      "law_id": "211AC0000000070",
+      "title": "健康保険法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "城守国斗",
+      "position": "公益社団法人日本医師会常任理事",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070"
+      ]
+    },
+    {
+      "name": "小西洋之",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070"
+      ]
+    },
+    {
+      "name": "桜井なおみ",
+      "position": "一般社団法人全国がん患者団体連合会副理事長",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070",
+        "321CONSTITUTION",
+        "418AC1000000098"
+      ]
+    },
+    {
+      "name": "芳賀道也",
+      "group": "国民民主党・新緑風会",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070"
+      ]
+    }
+  ]
+}

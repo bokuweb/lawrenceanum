@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "shingi03500044_00004",
+  "date": "2024-09-09",
+  "title": "法制審議会第２００回会議（令和６年９月９日開催）",
+  "organization": "法務省",
+  "committee": "法制審議会 - 総会",
+  "url": "https://www.moj.go.jp/shingi1/shingi03500044_00004.html",
+  "laws": [
+    {
+      "law_id": "414M60000010022",
+      "title": "商法施行規則"
+    },
+    {
+      "law_id": "129AC0000000089",
+      "title": "民法"
+    },
+    {
+      "law_id": "132AC0000000048",
+      "title": "商法"
+    }
+  ],
+  "speakers": []
+}

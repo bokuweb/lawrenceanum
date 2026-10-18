@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114601X01320260714",
+  "date": "2026-07-14",
+  "title": "参議院 総務委員会 第13号",
+  "organization": "参議院",
+  "committee": "総務委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114601X01320260714",
+  "laws": [
+    {
+      "law_id": "324AC0000000252",
+      "title": "特別職の職員の給与に関する法律"
+    },
+    {
+      "law_id": "418AC0000000120",
+      "title": "教育基本法"
+    },
+    {
+      "law_id": "322AC0000000049",
+      "title": "労働基準法"
+    },
+    {
+      "law_id": "325M50080000010",
+      "title": "放送法施行規則"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "三木忠一",
+      "position": "文部科学省大臣官房文部科学戦略官",
+      "role": "kokkai",
+      "laws": [
+        "418AC0000000120"
+      ]
+    },
+    {
+      "name": "井上樹彦",
+      "position": "日本放送協会会長",
+      "role": "kokkai",
+      "laws": [
+        "325M50080000010"
+      ]
+    },
+    {
+      "name": "伊波洋一",
+      "group": "沖縄の風",
+      "role": "kokkai",
+      "laws": [
+        "418AC0000000120"
+      ]
+    },
+    {
+      "name": "古賀信行",
+      "position": "日本放送協会経営委員会委員長",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000049"
+      ]
+    },
+    {
+      "name": "山名啓雄",
+      "position": "日本放送協会副会長",
+      "role": "kokkai",
+      "laws": [
+        "418AC0000000120"
+      ]
+    },
+    {
+      "name": "齊藤健一郎",
+      "group": "各派に属しない議員",
+      "role": "kokkai",
+      "laws": [
+        "324AC0000000252"
+      ]
+    }
+  ]
+}

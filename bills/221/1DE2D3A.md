@@ -3,7 +3,7 @@ type: "bill"
 title: "組織的な犯罪の処罰及び犯罪収益の規制等に関する法律及び刑事訴訟法の一部を改正する法律案"
 description: "衆法（第221回国会）: 2026-10-05 衆議院 法務に付託"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE2D3A.htm"
-timestamp: "2026-10-09T00:11:38Z"
+timestamp: "2026-10-18T00:10:44Z"
 date: "2026-10-05"
 session: 221
 bill_id: "1DE2D3A"
@@ -12,9 +12,11 @@ result: ""
 latest_date: "2026-10-05"
 law_num_text: null
 laws: ["411AC0000000136","323AC0000000131"]
+votes: []
+proposer_groups: ["国民民主党・無所属クラブ"]
 stages: [{"date":"2026-10-05","kind":"referred","label":"衆議院 法務に付託"}]
 tags: []
-render_version: 2
+render_version: 3
 llm_latest_date: "2026-10-05"
 ---
 

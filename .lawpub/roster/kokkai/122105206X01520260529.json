@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122105206X01520260529",
+  "date": "2026-05-29",
+  "title": "衆議院 法務委員会 第15号",
+  "organization": "衆議院",
+  "committee": "法務委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122105206X01520260529",
+  "laws": [
+    {
+      "law_id": "323AC0000000131",
+      "title": "刑事訴訟法"
+    },
+    {
+      "law_id": "412AC0000000075",
+      "title": "犯罪被害者等の権利利益の保護を図るための刑事手続に付随する措置に関する法律"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "上谷さくら",
+      "position": "桜みらい法律事務所弁護士",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "井出庸生",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "佐藤淳",
+      "position": "法務省刑事局長",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "和田政宗",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "412AC0000000075"
+      ]
+    },
+    {
+      "name": "平口洋",
+      "group": "自由民主党・無所属の会",
+      "position": "法務大臣",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "池田公博",
+      "position": "京都大学大学院法学研究科教授",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "神田潤一",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "西村智奈美",
+      "group": "中道改革連合・無所属",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "鴨志田祐美",
+      "position": "弁護士（日本弁護士連合会再審法改正推進室長）",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "323AC0000000131"
+      ]
+    }
+  ]
+}

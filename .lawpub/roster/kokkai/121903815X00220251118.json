@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121903815X00220251118",
+  "date": "2025-11-18",
+  "title": "衆議院 安全保障委員会 第2号",
+  "organization": "衆議院",
+  "committee": "安全保障委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121903815X00220251118",
+  "laws": [
+    {
+      "law_id": "329AC0000000165",
+      "title": "自衛隊法"
+    },
+    {
+      "law_id": "330AC1000000186",
+      "title": "原子力基本法"
+    },
+    {
+      "law_id": "349AC0000000101",
+      "title": "防衛施設周辺の生活環境の整備等に関する法律"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "小泉進次郎",
+      "group": "自由民主党・無所属の会",
+      "position": "防衛大臣",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000165"
+      ]
+    },
+    {
+      "name": "森田治男",
+      "position": "防衛省地方協力局長",
+      "role": "kokkai",
+      "laws": [
+        "349AC0000000101"
+      ]
+    },
+    {
+      "name": "篠原豪",
+      "group": "立憲民主党・無所属",
+      "role": "kokkai",
+      "laws": [
+        "330AC1000000186"
+      ]
+    },
+    {
+      "name": "萬浪学",
+      "position": "防衛省防衛政策局長",
+      "role": "kokkai",
+      "laws": [
+        "330AC1000000186"
+      ]
+    }
+  ]
+}

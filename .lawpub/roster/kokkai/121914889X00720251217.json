@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121914889X00720251217",
+  "date": "2025-12-17",
+  "title": "参議院 内閣委員会 第7号",
+  "organization": "参議院",
+  "committee": "内閣委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121914889X00720251217",
+  "laws": [
+    {
+      "law_id": "322AC0000000003",
+      "title": "皇室典範"
+    }
+  ],
+  "speakers": []
+}

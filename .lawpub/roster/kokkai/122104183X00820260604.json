@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104183X00820260604",
+  "date": "2026-06-04",
+  "title": "衆議院 憲法審査会 第8号",
+  "organization": "衆議院",
+  "committee": "憲法審査会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104183X00820260604",
+  "laws": [
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    },
+    {
+      "law_id": "323AC1000000194",
+      "title": "政治資金規正法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "古川あおい",
+      "group": "チームみらい",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "大野敬太郎",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "新藤義孝",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "泉健太",
+      "group": "中道改革連合・無所属",
+      "role": "kokkai",
+      "laws": [
+        "323AC1000000194"
+      ]
+    },
+    {
+      "name": "浅野哲",
+      "group": "国民民主党・無所属クラブ",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "畑野君枝",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "西田薫",
+      "group": "日本維新の会",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    }
+  ]
+}

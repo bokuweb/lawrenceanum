@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122115104X00620260421",
+  "date": "2026-04-21",
+  "title": "参議院 文教科学委員会 第6号",
+  "organization": "参議院",
+  "committee": "文教科学委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122115104X00620260421",
+  "laws": [
+    {
+      "law_id": "325AC0100000214",
+      "title": "文化財保護法"
+    },
+    {
+      "law_id": "326AC1000000285",
+      "title": "博物館法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "後藤翔太",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "325AC0100000214",
+        "326AC1000000285"
+      ]
+    },
+    {
+      "name": "日向信和",
+      "position": "文化庁次長",
+      "role": "kokkai",
+      "laws": [
+        "326AC1000000285"
+      ]
+    }
+  ]
+}

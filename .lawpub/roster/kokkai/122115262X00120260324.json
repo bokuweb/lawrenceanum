@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122115262X00120260324",
+  "date": "2026-03-24",
+  "title": "参議院 予算委員会公聴会 第1号",
+  "organization": "参議院",
+  "committee": "予算委員会公聴会",
+  "url": "https://kokkai.ndl.go.jp/txt/122115262X00120260324",
+  "laws": [
+    {
+      "law_id": "414AC0000000022",
+      "title": "都市再生特別措置法"
+    },
+    {
+      "law_id": "211AC0000000070",
+      "title": "健康保険法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "三原岳",
+      "position": "株式会社ニッセイ基礎研究所上席研究員",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070"
+      ]
+    },
+    {
+      "name": "大門実紀史",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "414AC0000000022"
+      ]
+    }
+  ]
+}

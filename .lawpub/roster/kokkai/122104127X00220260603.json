@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104127X00220260603",
+  "date": "2026-06-03",
+  "title": "衆議院 決算行政監視委員会 第2号",
+  "organization": "衆議院",
+  "committee": "決算行政監視委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104127X00220260603",
+  "laws": [
+    {
+      "law_id": "322AC0000000118",
+      "title": "災害救助法"
+    },
+    {
+      "law_id": "325AC0000000201",
+      "title": "建築基準法"
+    },
+    {
+      "law_id": "340AC0000000034",
+      "title": "法人税法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "なかやめぐ",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "325AC0000000201"
+      ]
+    },
+    {
+      "name": "小林修平",
+      "group": "チームみらい",
+      "role": "kokkai",
+      "laws": [
+        "340AC0000000034"
+      ]
+    },
+    {
+      "name": "片山さつき",
+      "group": "自由民主党・無所属の会",
+      "position": "財務大臣・内閣府特命担当大臣（金融）",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000118"
+      ]
+    },
+    {
+      "name": "豊嶋太朗",
+      "position": "国土交通省大臣官房審議官",
+      "role": "kokkai",
+      "laws": [
+        "325AC0000000201"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122124293X00120260520",
+  "date": "2026-05-20",
+  "title": "both 国家基本政策委員会合同審査会 第1号",
+  "organization": "both",
+  "committee": "国家基本政策委員会合同審査会",
+  "url": "https://kokkai.ndl.go.jp/txt/122124293X00120260520",
+  "laws": [
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "高市早苗",
+      "group": "自由民主党・無所属の会",
+      "position": "内閣総理大臣",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "325AC1000000100"
+      ]
+    }
+  ]
+}

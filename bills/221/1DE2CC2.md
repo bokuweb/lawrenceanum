@@ -1,9 +1,9 @@
 ---
 type: "bill"
 title: "青少年が安全に安心してインターネットを利用できる環境の整備等に関する法律の一部を改正する法律案"
-description: "青少年有害情報を含む広告への措置義務を定める参法案が参議院で受理された（審査前）"
+description: "参法（第221回国会）: 2026-07-15 参議院で受理"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE2CC2.htm"
-timestamp: "2026-10-09T00:11:36Z"
+timestamp: "2026-10-18T00:10:43Z"
 date: "2026-07-15"
 session: 221
 bill_id: "1DE2CC2"
@@ -12,9 +12,11 @@ result: ""
 latest_date: "2026-07-15"
 law_num_text: null
 laws: ["420AC1000000079"]
+votes: []
+proposer_groups: []
 stages: [{"date":"2026-07-15","kind":"received","label":"参議院で受理"}]
 tags: []
-render_version: 2
+render_version: 3
 llm_latest_date: "2026-07-15"
 ---
 

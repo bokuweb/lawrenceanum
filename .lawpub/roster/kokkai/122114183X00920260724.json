@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114183X00920260724",
+  "date": "2026-07-24",
+  "title": "参議院 憲法審査会 第9号",
+  "organization": "参議院",
+  "committee": "憲法審査会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114183X00920260724",
+  "laws": [
+    {
+      "law_id": "419AC1000000051",
+      "title": "日本国憲法の改正手続に関する法律"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    }
+  ],
+  "speakers": []
+}

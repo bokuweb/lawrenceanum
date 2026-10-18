@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104575X00320260615",
+  "date": "2026-06-15",
+  "title": "衆議院 政治改革に関する特別委員会 第3号",
+  "organization": "衆議院",
+  "committee": "政治改革に関する特別委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104575X00320260615",
+  "laws": [
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    },
+    {
+      "law_id": "323AC1000000194",
+      "title": "政治資金規正法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "峰島侑也",
+      "group": "チームみらい",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "林芳正",
+      "group": "自由民主党・無所属の会",
+      "position": "総務大臣",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "323AC1000000194",
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "石川勝",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "福重隆浩",
+      "group": "中道改革連合・無所属",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "臼木秀剛",
+      "group": "国民民主党・無所属クラブ",
+      "role": "kokkai",
+      "laws": [
+        "323AC1000000194"
+      ]
+    },
+    {
+      "name": "落合貴之",
+      "group": "中道改革連合・無所属",
+      "role": "kokkai",
+      "laws": [
+        "323AC1000000194"
+      ]
+    },
+    {
+      "name": "長谷川孝",
+      "position": "総務省自治行政局選挙部長",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    }
+  ]
+}

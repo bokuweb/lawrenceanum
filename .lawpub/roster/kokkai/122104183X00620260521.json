@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104183X00620260521",
+  "date": "2026-05-21",
+  "title": "衆議院 憲法審査会 第6号",
+  "organization": "衆議院",
+  "committee": "憲法審査会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104183X00620260521",
+  "laws": [
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "新藤義孝",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "浅野哲",
+      "group": "国民民主党・無所属クラブ",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "畑野君枝",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "西村智奈美",
+      "group": "中道改革連合・無所属",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    }
+  ]
+}

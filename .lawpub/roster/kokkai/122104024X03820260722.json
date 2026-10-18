@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104024X03820260722",
+  "date": "2026-07-22",
+  "title": "衆議院 議院運営委員会 第38号",
+  "organization": "衆議院",
+  "committee": "議院運営委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104024X03820260722",
+  "laws": [
+    {
+      "law_id": "325AC1000000202",
+      "title": "建築士法"
+    }
+  ],
+  "speakers": []
+}

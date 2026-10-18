@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114319X01620260724",
+  "date": "2026-07-24",
+  "title": "参議院 国土交通委員会 第16号",
+  "organization": "参議院",
+  "committee": "国土交通委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114319X01620260724",
+  "laws": [
+    {
+      "law_id": "325AC0000000201",
+      "title": "建築基準法"
+    }
+  ],
+  "speakers": []
+}

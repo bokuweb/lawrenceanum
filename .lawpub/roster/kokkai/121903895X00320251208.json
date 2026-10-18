@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121903895X00320251208",
+  "date": "2025-12-08",
+  "title": "衆議院 沖縄及び北方問題に関する特別委員会 第3号",
+  "organization": "衆議院",
+  "committee": "沖縄及び北方問題に関する特別委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121903895X00320251208",
+  "laws": [
+    {
+      "law_id": "323AC0000000109",
+      "title": "地方財政法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "橋本憲次郎",
+      "position": "総務省大臣官房審議官",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000109"
+      ]
+    }
+  ]
+}

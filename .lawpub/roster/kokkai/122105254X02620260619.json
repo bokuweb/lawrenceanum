@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122105254X02620260619",
+  "date": "2026-06-19",
+  "title": "衆議院 本会議 第26号",
+  "organization": "衆議院",
+  "committee": "本会議",
+  "url": "https://kokkai.ndl.go.jp/txt/122105254X02620260619",
+  "laws": [
+    {
+      "law_id": "419AC1000000051",
+      "title": "日本国憲法の改正手続に関する法律"
+    },
+    {
+      "law_id": "508AC0000000071",
+      "title": "重要品種の育成及びその種苗の生産の振興に関する法律"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "藤井比早之",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "508AC0000000071"
+      ]
+    }
+  ]
+}

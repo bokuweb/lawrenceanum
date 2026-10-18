@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114103X00320260518",
+  "date": "2026-05-18",
+  "title": "参議院 決算委員会 第3号",
+  "organization": "参議院",
+  "committee": "決算委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114103X00320260518",
+  "laws": [
+    {
+      "law_id": "324AC0000000228",
+      "title": "外国為替及び外国貿易法"
+    },
+    {
+      "law_id": "329AC0000000165",
+      "title": "自衛隊法"
+    },
+    {
+      "law_id": "347AC0000000117",
+      "title": "警備業法"
+    },
+    {
+      "law_id": "325AC0000000149",
+      "title": "火薬類取締法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "三浦信祐",
+      "group": "公明党",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000165"
+      ]
+    },
+    {
+      "name": "伊勢崎賢治",
+      "group": "れいわ新選組",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000165"
+      ]
+    },
+    {
+      "name": "佐藤則夫",
+      "position": "内閣法制局第一部長",
+      "role": "kokkai",
+      "laws": [
+        "324AC0000000228"
+      ]
+    },
+    {
+      "name": "吉田忠智",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "小泉進次郎",
+      "group": "自由民主党・無所属の会",
+      "position": "防衛大臣",
+      "role": "kokkai",
+      "laws": [
+        "325AC0000000149",
+        "329AC0000000165",
+        "347AC0000000117"
+      ]
+    }
+  ]
+}

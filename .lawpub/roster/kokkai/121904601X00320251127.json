@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121904601X00320251127",
+  "date": "2025-11-27",
+  "title": "衆議院 総務委員会 第3号",
+  "organization": "衆議院",
+  "committee": "総務委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121904601X00320251127",
+  "laws": [
+    {
+      "law_id": "503AC0000000035",
+      "title": "デジタル社会形成基本法"
+    },
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
+    },
+    {
+      "law_id": "325M50080000010",
+      "title": "放送法施行規則"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "奥野総一郎",
+      "group": "立憲民主党・無所属",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "林芳正",
+      "group": "自由民主党・無所属の会",
+      "position": "総務大臣",
+      "role": "kokkai",
+      "laws": [
+        "503AC0000000035"
+      ]
+    },
+    {
+      "name": "稲葉延雄",
+      "position": "日本放送協会会長",
+      "role": "kokkai",
+      "laws": [
+        "325M50080000010"
+      ]
+    },
+    {
+      "name": "辰巳孝太郎",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "長谷川孝",
+      "position": "総務省自治行政局選挙部長",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    }
+  ]
+}

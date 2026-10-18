@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "cao_regulatory_reform_human_260407",
+  "date": "2026-04-07",
+  "title": "働き方・人への投資 ワーキング・グループ 第７回",
+  "organization": "内閣府",
+  "committee": "働き方・人への投資 ワーキング・グループ",
+  "url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_03human/260407/human07_agenda.html",
+  "laws": [
+    {
+      "law_id": "324AC1000000205",
+      "title": "弁護士法"
+    },
+    {
+      "law_id": "428AC0000000089",
+      "title": "外国人の技能実習の適正な実施及び技能実習生の保護に関する法律"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "一般社団法人外国人雇用協議会（杉村氏）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "一般社団法人新経済連盟（伊藤副部長）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "一般社団法人新経済連盟（佐名氏）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "一般財団法人外国人材共生支援全国協会（上山事務局長）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "一般財団法人外国人材共生支援全国協会（池邊執行役員）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "一般財団法人外国人材共生支援全国協会（石村代表理事）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "一般財団法人外国人材共生支援全国協会（長澤代表理事）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "一般財団法人外国人材共生支援全国協会（長澤氏）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "三谷参事官",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "中室委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "出入国在留管理庁（菱田課長）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "厚生労働省（佐藤技能実習監理官）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "厚生労働省（大村主任職業能力検定官）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "厚生労働省（蒔苗審議官）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "国土交通省（羽矢課長）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "堀座長代理",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "外務省（権田課長）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "宇佐川専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "安中専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "山田専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "弁護士法人Global",
+      "role": "member",
+      "laws": [
+        "324AC1000000205"
+      ]
+    },
+    {
+      "name": "水町専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "独立行政法人国際交流基金（四ツ谷部長）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "経済産業省（荒川室長）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "間下座長",
+      "role": "member",
+      "laws": [
+        "324AC1000000205"
+      ]
+    }
+  ]
+}

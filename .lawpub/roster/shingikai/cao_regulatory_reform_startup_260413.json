@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "cao_regulatory_reform_startup_260413",
+  "date": "2026-04-13",
+  "title": "スタートアップ・イノベーション促進 ワーキング・グループ 第13回",
+  "organization": "内閣府",
+  "committee": "スタートアップ・イノベーション促進 ワーキング・グループ",
+  "url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_04startup/260413/startup13_agenda.html",
+  "laws": [
+    {
+      "law_id": "337AC0000000134",
+      "title": "不当景品類及び不当表示防止法"
+    },
+    {
+      "law_id": "426AC0000000068",
+      "title": "行政不服審査法"
+    },
+    {
+      "law_id": "132AC0000000048",
+      "title": "商法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "一般社団法人日本フランチャイズチェーン協会（大石氏）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "中本総合法律事務所（大高弁護士）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "堀委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "増島専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "宮下専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "岩崎専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "川本専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "幕内参事官",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "平山法律事務所（平山代表弁護士）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "池田・染谷法律事務所（染谷弁護士）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "消費者庁（岡田課長）",
+      "role": "member",
+      "laws": [
+        "132AC0000000048"
+      ]
+    },
+    {
+      "name": "消費者庁（田中審議官）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "瀧専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "特定非営利活動法人消費者機構日本（鈴木代表理事副理事長）",
+      "role": "member",
+      "laws": [
+        "132AC0000000048"
+      ]
+    },
+    {
+      "name": "落合座長",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "藤本専門委員",
+      "role": "member",
+      "laws": []
+    }
+  ]
+}

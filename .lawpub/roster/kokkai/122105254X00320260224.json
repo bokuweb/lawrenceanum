@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122105254X00320260224",
+  "date": "2026-02-24",
+  "title": "衆議院 本会議 第3号",
+  "organization": "衆議院",
+  "committee": "本会議",
+  "url": "https://kokkai.ndl.go.jp/txt/122105254X00320260224",
+  "laws": [
+    {
+      "law_id": "322AC0000000003",
+      "title": "皇室典範"
+    },
+    {
+      "law_id": "323AC1000000194",
+      "title": "政治資金規正法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "中司宏",
+      "group": "日本維新の会",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000003"
+      ]
+    },
+    {
+      "name": "小川淳也",
+      "group": "中道改革連合・無所属",
+      "role": "kokkai",
+      "laws": [
+        "323AC1000000194"
+      ]
+    },
+    {
+      "name": "高市早苗",
+      "group": "自由民主党・無所属の会",
+      "position": "内閣総理大臣",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000003"
+      ]
+    }
+  ]
+}

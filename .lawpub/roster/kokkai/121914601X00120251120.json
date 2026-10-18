@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121914601X00120251120",
+  "date": "2025-11-20",
+  "title": "参議院 総務委員会 第1号",
+  "organization": "参議院",
+  "committee": "総務委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121914601X00120251120",
+  "laws": [
+    {
+      "law_id": "405AC0000000088",
+      "title": "行政手続法"
+    },
+    {
+      "law_id": "430AC1000000074",
+      "title": "ギャンブル等依存症対策基本法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "林芳正",
+      "group": "自由民主党・無所属の会",
+      "position": "総務大臣",
+      "role": "kokkai",
+      "laws": [
+        "405AC0000000088",
+        "430AC1000000074"
+      ]
+    }
+  ]
+}

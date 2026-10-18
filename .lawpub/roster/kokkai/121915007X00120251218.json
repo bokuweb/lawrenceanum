@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121915007X00120251218",
+  "date": "2025-12-18",
+  "title": "参議院 農林水産委員会 閉会後第1号",
+  "organization": "参議院",
+  "committee": "農林水産委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121915007X00120251218",
+  "laws": [
+    {
+      "law_id": "349AC0000000116",
+      "title": "雇用保険法"
+    },
+    {
+      "law_id": "346AC0000000035",
+      "title": "卸売市場法"
+    },
+    {
+      "law_id": "411AC0000000106",
+      "title": "食料・農業・農村基本法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "岩渕友",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "346AC0000000035"
+      ]
+    },
+    {
+      "name": "横沢高徳",
+      "group": "立憲民主・社民・無所属",
+      "role": "kokkai",
+      "laws": [
+        "411AC0000000106"
+      ]
+    },
+    {
+      "name": "河南健",
+      "position": "農林水産省大臣官房総括審議官",
+      "role": "kokkai",
+      "laws": [
+        "346AC0000000035"
+      ]
+    },
+    {
+      "name": "藤川眞行",
+      "position": "厚生労働省大臣官房高齢・障害者雇用開発審議官",
+      "role": "kokkai",
+      "laws": [
+        "349AC0000000116"
+      ]
+    },
+    {
+      "name": "鈴木憲和",
+      "group": "自由民主党・無所属の会",
+      "position": "農林水産大臣",
+      "role": "kokkai",
+      "laws": [
+        "346AC0000000035"
+      ]
+    },
+    {
+      "name": "高橋光男",
+      "group": "公明党",
+      "role": "kokkai",
+      "laws": [
+        "349AC0000000116"
+      ]
+    }
+  ]
+}

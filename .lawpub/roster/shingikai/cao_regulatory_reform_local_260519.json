@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "cao_regulatory_reform_local_260519",
+  "date": "2026-05-19",
+  "title": "地域活性化・人手不足対応 ワーキング・グループ 第11回",
+  "organization": "内閣府",
+  "committee": "地域活性化・人手不足対応 ワーキング・グループ",
+  "url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_01local/260519/local11_agenda.html",
+  "laws": [
+    {
+      "law_id": "322AC0000000132",
+      "title": "農業協同組合法"
+    },
+    {
+      "law_id": "324AC0000000195",
+      "title": "土地改良法"
+    },
+    {
+      "law_id": "355AC0000000065",
+      "title": "農業経営基盤強化促進法"
+    },
+    {
+      "law_id": "401AC0000000083",
+      "title": "貨物自動車運送事業法"
+    },
+    {
+      "law_id": "425AC0000000101",
+      "title": "農地中間管理事業の推進に関する法律"
+    },
+    {
+      "law_id": "426M60000200015",
+      "title": "農地中間管理事業の推進に関する法律施行規則"
+    },
+    {
+      "law_id": "129AC0000000089",
+      "title": "民法"
+    },
+    {
+      "law_id": "327AC0000000229",
+      "title": "農地法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "井上専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "佐藤委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "宮本参事官",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "小針専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "林座長",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "秋元専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "落合委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "農林水産省（神田大臣官房審議官）",
+      "role": "member",
+      "laws": [
+        "129AC0000000089"
+      ]
+    }
+  ]
+}

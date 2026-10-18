@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121904339X00120251024",
+  "date": "2025-10-24",
+  "title": "衆議院 災害対策特別委員会 第1号",
+  "organization": "衆議院",
+  "committee": "災害対策特別委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121904339X00120251024",
+  "laws": [
+    {
+      "law_id": "410AC0100000066",
+      "title": "被災者生活再建支援法"
+    }
+  ],
+  "speakers": []
+}

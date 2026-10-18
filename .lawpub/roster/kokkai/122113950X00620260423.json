@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122113950X00620260423",
+  "date": "2026-04-23",
+  "title": "参議院 外交防衛委員会 第6号",
+  "organization": "参議院",
+  "committee": "外交防衛委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122113950X00620260423",
+  "laws": [
+    {
+      "law_id": "508AC0000000028",
+      "title": "国家情報会議設置法"
+    },
+    {
+      "law_id": "401CO0000000122",
+      "title": "旅券法施行令"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "福島みずほ",
+      "group": "社会民主党",
+      "role": "kokkai",
+      "laws": [
+        "508AC0000000028"
+      ]
+    },
+    {
+      "name": "茂木敏充",
+      "group": "自由民主党・無所属の会",
+      "position": "外務大臣",
+      "role": "kokkai",
+      "laws": [
+        "401CO0000000122"
+      ]
+    },
+    {
+      "name": "鎌谷陽之",
+      "position": "内閣官房内閣審議官",
+      "role": "kokkai",
+      "laws": [
+        "508AC0000000028"
+      ]
+    }
+  ]
+}

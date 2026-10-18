@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121914601X00420251216",
+  "date": "2025-12-16",
+  "title": "参議院 総務委員会 第4号",
+  "organization": "参議院",
+  "committee": "総務委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121914601X00420251216",
+  "laws": [
+    {
+      "law_id": "418AC0000000048",
+      "title": "一般社団法人及び一般財団法人に関する法律"
+    },
+    {
+      "law_id": "325AC0000000211",
+      "title": "地方交付税法"
+    },
+    {
+      "law_id": "419AC0000000023",
+      "title": "特別会計に関する法律"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "出口和宏",
+      "position": "総務省自治財政局長",
+      "role": "kokkai",
+      "laws": [
+        "325AC0000000211"
+      ]
+    },
+    {
+      "name": "初鹿野裕樹",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "325AC0000000211"
+      ]
+    },
+    {
+      "name": "宮崎勝",
+      "group": "公明党",
+      "role": "kokkai",
+      "laws": [
+        "325AC0000000211"
+      ]
+    },
+    {
+      "name": "林芳正",
+      "group": "自由民主党・無所属の会",
+      "position": "総務大臣",
+      "role": "kokkai",
+      "laws": [
+        "325AC0000000211",
+        "419AC0000000023"
+      ]
+    },
+    {
+      "name": "竹林俊憲",
+      "position": "法務省大臣官房審議官",
+      "role": "kokkai",
+      "laws": [
+        "418AC0000000048"
+      ]
+    }
+  ]
+}

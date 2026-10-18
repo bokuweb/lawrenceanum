@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114319X00920260519",
+  "date": "2026-05-19",
+  "title": "参議院 国土交通委員会 第9号",
+  "organization": "参議院",
+  "committee": "国土交通委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114319X00920260519",
+  "laws": [
+    {
+      "law_id": "414AC0000000022",
+      "title": "都市再生特別措置法"
+    },
+    {
+      "law_id": "343AC0000000100",
+      "title": "都市計画法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "中田裕人",
+      "position": "国土交通省都市局長",
+      "role": "kokkai",
+      "laws": [
+        "414AC0000000022"
+      ]
+    },
+    {
+      "name": "山本佐知子",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "414AC0000000022"
+      ]
+    },
+    {
+      "name": "平山佐知子",
+      "group": "各派に属しない議員",
+      "role": "kokkai",
+      "laws": [
+        "343AC0000000100"
+      ]
+    },
+    {
+      "name": "平戸航太",
+      "group": "国民民主党・新緑風会",
+      "role": "kokkai",
+      "laws": [
+        "414AC0000000022"
+      ]
+    },
+    {
+      "name": "木村英子",
+      "group": "れいわ新選組",
+      "role": "kokkai",
+      "laws": [
+        "414AC0000000022"
+      ]
+    },
+    {
+      "name": "蓮舫",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "414AC0000000022"
+      ]
+    },
+    {
+      "name": "金子恭之",
+      "group": "自由民主党・無所属の会",
+      "position": "国土交通大臣",
+      "role": "kokkai",
+      "laws": [
+        "414AC0000000022"
+      ]
+    }
+  ]
+}

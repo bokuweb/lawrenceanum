@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114889X01720260707",
+  "date": "2026-07-07",
+  "title": "参議院 内閣委員会 第17号",
+  "organization": "参議院",
+  "committee": "内閣委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114889X01720260707",
+  "laws": [
+    {
+      "law_id": "508AC1000000069",
+      "title": "国旗の損壊等の処罰に関する法律"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    },
+    {
+      "law_id": "428AC1000000033",
+      "title": "有人国境離島地域の保全及び特定有人国境離島地域に係る地域社会の維持に関する特別措置法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "山下貴司",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "428AC1000000033"
+      ]
+    },
+    {
+      "name": "松野博一",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "508AC1000000069"
+      ]
+    }
+  ]
+}

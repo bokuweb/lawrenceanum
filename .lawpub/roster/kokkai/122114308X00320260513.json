@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114308X00320260513",
+  "date": "2026-05-13",
+  "title": "参議院 国際問題に関する調査会 第3号",
+  "organization": "参議院",
+  "committee": "国際問題に関する調査会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114308X00320260513",
+  "laws": [
+    {
+      "law_id": "418AC1000000096",
+      "title": "拉致問題その他北朝鮮当局による人権侵害問題への対処に関する法律"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "和田春樹",
+      "position": "東京大学名誉教授",
+      "role": "kokkai",
+      "laws": [
+        "418AC1000000096"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "mhlw_shingi-tingin_127940_20260623_3",
+  "date": "2026-06-23",
+  "title": "目安制度の在り方に関する全員協議会 第３回",
+  "organization": "厚生労働省",
+  "committee": "目安制度の在り方に関する全員協議会",
+  "url": "https://www.mhlw.go.jp/stf/newpage_73994.html",
+  "laws": [
+    {
+      "law_id": "334AC0000000137",
+      "title": "最低賃金法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "仁平委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "八木賃金課長補佐",
+      "role": "member",
+      "laws": [
+        "334AC0000000137"
+      ]
+    },
+    {
+      "name": "新田委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "田上委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "藤村会長",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "進藤委員",
+      "role": "member",
+      "laws": []
+    }
+  ]
+}

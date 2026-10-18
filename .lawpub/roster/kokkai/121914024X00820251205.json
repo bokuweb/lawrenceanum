@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121914024X00820251205",
+  "date": "2025-12-05",
+  "title": "参議院 議院運営委員会 第8号",
+  "organization": "参議院",
+  "committee": "議院運営委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121914024X00820251205",
+  "laws": [
+    {
+      "law_id": "328AC1000000052",
+      "title": "国会における各会派に対する立法事務費の交付に関する法律"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "小林史武",
+      "position": "参議院事務総長",
+      "role": "kokkai",
+      "laws": [
+        "328AC1000000052"
+      ]
+    }
+  ]
+}

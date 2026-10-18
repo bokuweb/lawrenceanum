@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114260X01220260611",
+  "date": "2026-06-11",
+  "title": "参議院 厚生労働委員会 第12号",
+  "organization": "参議院",
+  "committee": "厚生労働委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114260X01220260611",
+  "laws": [
+    {
+      "law_id": "326AC0000000045",
+      "title": "社会福祉法"
+    },
+    {
+      "law_id": "409AC0000000123",
+      "title": "介護保険法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "上野賢一郎",
+      "group": "自由民主党・無所属の会",
+      "position": "厚生労働大臣",
+      "role": "kokkai",
+      "laws": [
+        "326AC0000000045"
+      ]
+    },
+    {
+      "name": "宮出千慧",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "326AC0000000045"
+      ]
+    },
+    {
+      "name": "山内佳菜子",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "326AC0000000045"
+      ]
+    },
+    {
+      "name": "木村英子",
+      "group": "れいわ新選組",
+      "role": "kokkai",
+      "laws": [
+        "326AC0000000045",
+        "409AC0000000123"
+      ]
+    },
+    {
+      "name": "白川容子",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "326AC0000000045"
+      ]
+    },
+    {
+      "name": "秋野公造",
+      "group": "公明党",
+      "role": "kokkai",
+      "laws": [
+        "326AC0000000045"
+      ]
+    },
+    {
+      "name": "鹿沼均",
+      "position": "厚生労働省社会・援護局長",
+      "role": "kokkai",
+      "laws": [
+        "326AC0000000045"
+      ]
+    },
+    {
+      "name": "黒田秀郎",
+      "position": "厚生労働省老健局長",
+      "role": "kokkai",
+      "laws": [
+        "409AC0000000123"
+      ]
+    }
+  ]
+}

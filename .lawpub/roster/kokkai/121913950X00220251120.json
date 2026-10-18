@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121913950X00220251120",
+  "date": "2025-11-20",
+  "title": "参議院 外交防衛委員会 第2号",
+  "organization": "参議院",
+  "committee": "外交防衛委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121913950X00220251120",
+  "laws": [
+    {
+      "law_id": "329AC0000000165",
+      "title": "自衛隊法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "小泉進次郎",
+      "group": "自由民主党・無所属の会",
+      "position": "防衛大臣",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000165"
+      ]
+    }
+  ]
+}

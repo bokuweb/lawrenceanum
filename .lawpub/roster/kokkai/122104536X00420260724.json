@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104536X00420260724",
+  "date": "2026-07-24",
+  "title": "衆議院 消費者問題に関する特別委員会 第4号",
+  "organization": "衆議院",
+  "committee": "消費者問題に関する特別委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104536X00420260724",
+  "laws": [
+    {
+      "law_id": "322AC0000000067",
+      "title": "地方自治法"
+    }
+  ],
+  "speakers": []
+}

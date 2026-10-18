@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "mlit_s204_renkei_20260716",
+  "date": "2026-07-16",
+  "title": "第５回本州・九州連携小委員会（2026年7月16日）",
+  "organization": "国土交通省",
+  "committee": "第５回本州・九州連携小委員会",
+  "url": "https://www.mlit.go.jp/policy/shingikai/road01_sg_000806.html",
+  "laws": [
+    {
+      "law_id": "331AC0000000007",
+      "title": "道路整備特別措置法"
+    },
+    {
+      "law_id": "336CO0000000265",
+      "title": "車両制限令"
+    },
+    {
+      "law_id": "345AC0000000082",
+      "title": "地方道路公社法"
+    },
+    {
+      "law_id": "416AC0000000099",
+      "title": "高速道路株式会社法"
+    },
+    {
+      "law_id": "327AC1000000180",
+      "title": "道路法"
+    },
+    {
+      "law_id": "417AC0000000086",
+      "title": "会社法"
+    }
+  ],
+  "speakers": []
+}

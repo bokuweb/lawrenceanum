@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114183X00520260610",
+  "date": "2026-06-10",
+  "title": "参議院 憲法審査会 第5号",
+  "organization": "参議院",
+  "committee": "憲法審査会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114183X00520260610",
+  "laws": [
+    {
+      "law_id": "336AC0000000223",
+      "title": "災害対策基本法"
+    },
+    {
+      "law_id": "329AC0000000165",
+      "title": "自衛隊法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "只野雅人",
+      "position": "専修大学大学院法務研究科教授",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "336AC0000000223"
+      ]
+    },
+    {
+      "name": "奥田ふみよ",
+      "group": "れいわ新選組",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "安達悠司",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "長谷部恭男",
+      "position": "早稲田大学法学学術院教授",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000165"
+      ]
+    }
+  ]
+}

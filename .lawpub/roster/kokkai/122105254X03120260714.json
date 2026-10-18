@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122105254X03120260714",
+  "date": "2026-07-14",
+  "title": "衆議院 本会議 第31号",
+  "organization": "衆議院",
+  "committee": "本会議",
+  "url": "https://kokkai.ndl.go.jp/txt/122105254X03120260714",
+  "laws": [
+    {
+      "law_id": "503AC0000000081",
+      "title": "医療的ケア児及びその家族に対する支援に関する法律"
+    }
+  ],
+  "speakers": []
+}

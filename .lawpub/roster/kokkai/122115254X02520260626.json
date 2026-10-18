@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122115254X02520260626",
+  "date": "2026-06-26",
+  "title": "参議院 本会議 第25号",
+  "organization": "参議院",
+  "committee": "本会議",
+  "url": "https://kokkai.ndl.go.jp/txt/122115254X02520260626",
+  "laws": [
+    {
+      "law_id": "329AC0000000164",
+      "title": "防衛省設置法"
+    }
+  ],
+  "speakers": []
+}

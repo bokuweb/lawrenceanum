@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104575X01020260630",
+  "date": "2026-06-30",
+  "title": "衆議院 政治改革に関する特別委員会 第10号",
+  "organization": "衆議院",
+  "committee": "政治改革に関する特別委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104575X01020260630",
+  "laws": [
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "浦野靖人",
+      "group": "日本維新の会",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "金村龍那",
+      "group": "日本維新の会",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "長谷川淳二",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    }
+  ]
+}

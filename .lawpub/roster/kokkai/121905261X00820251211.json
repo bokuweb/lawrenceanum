@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121905261X00820251211",
+  "date": "2025-12-11",
+  "title": "衆議院 予算委員会 第8号",
+  "organization": "衆議院",
+  "committee": "予算委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121905261X00820251211",
+  "laws": [
+    {
+      "law_id": "322AC0000000003",
+      "title": "皇室典範"
+    },
+    {
+      "law_id": "324AC0000000100",
+      "title": "建設業法"
+    },
+    {
+      "law_id": "410AC0100000066",
+      "title": "被災者生活再建支援法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "田村貴昭",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "410AC0100000066"
+      ]
+    },
+    {
+      "name": "辰巳孝太郎",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "324AC0000000100"
+      ]
+    },
+    {
+      "name": "金子恭之",
+      "group": "自由民主党・無所属の会",
+      "position": "国土交通大臣",
+      "role": "kokkai",
+      "laws": [
+        "324AC0000000100"
+      ]
+    },
+    {
+      "name": "高市早苗",
+      "group": "自由民主党・無所属の会",
+      "position": "内閣総理大臣",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000003"
+      ]
+    }
+  ]
+}

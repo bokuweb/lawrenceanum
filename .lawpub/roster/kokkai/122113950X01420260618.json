@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122113950X01420260618",
+  "date": "2026-06-18",
+  "title": "参議院 外交防衛委員会 第14号",
+  "organization": "参議院",
+  "committee": "外交防衛委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122113950X01420260618",
+  "laws": [
+    {
+      "law_id": "328AC1000000072",
+      "title": "離島振興法"
+    },
+    {
+      "law_id": "329AC0000000165",
+      "title": "自衛隊法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "宮本新吾",
+      "position": "外務省アジア大洋州局南部アジア部長",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000165"
+      ]
+    },
+    {
+      "name": "山田吉彦",
+      "group": "国民民主党・新緑風会",
+      "role": "kokkai",
+      "laws": [
+        "328AC1000000072"
+      ]
+    },
+    {
+      "name": "平木大作",
+      "group": "公明党",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000165"
+      ]
+    }
+  ]
+}

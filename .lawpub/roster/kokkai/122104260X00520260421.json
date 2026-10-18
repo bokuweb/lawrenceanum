@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104260X00520260421",
+  "date": "2026-04-21",
+  "title": "衆議院 厚生労働委員会 第5号",
+  "organization": "衆議院",
+  "committee": "厚生労働委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104260X00520260421",
+  "laws": [
+    {
+      "law_id": "211AC0000000070",
+      "title": "健康保険法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "中村洋一",
+      "position": "全国保険医団体連合会理事・政策部部長／東京保険医協会副会長",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070"
+      ]
+    },
+    {
+      "name": "早稲田ゆき",
+      "group": "中道改革連合・無所属",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070"
+      ]
+    },
+    {
+      "name": "林鉄兵",
+      "position": "日本労働組合総連合会副事務局長",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070"
+      ]
+    },
+    {
+      "name": "草間剛",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070"
+      ]
+    },
+    {
+      "name": "菊池馨実",
+      "position": "早稲田大学法学学術院教授／早稲田大学理事",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070"
+      ]
+    },
+    {
+      "name": "辰巳孝太郎",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070"
+      ]
+    }
+  ]
+}

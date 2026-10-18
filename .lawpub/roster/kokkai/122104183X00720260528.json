@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104183X00720260528",
+  "date": "2026-05-28",
+  "title": "衆議院 憲法審査会 第7号",
+  "organization": "衆議院",
+  "committee": "憲法審査会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104183X00720260528",
+  "laws": [
+    {
+      "law_id": "322AC1000000085",
+      "title": "国会職員法"
+    },
+    {
+      "law_id": "329AC0000000165",
+      "title": "自衛隊法"
+    },
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "中山泰秀",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "和田政宗",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "329AC0000000165"
+      ]
+    },
+    {
+      "name": "新藤義孝",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "329AC0000000165"
+      ]
+    },
+    {
+      "name": "星野剛士",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "池畑浩太朗",
+      "group": "日本維新の会",
+      "role": "kokkai",
+      "laws": [
+        "322AC1000000085",
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "畑野君枝",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "若林健太",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "飯泉嘉門",
+      "group": "国民民主党・無所属クラブ",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    }
+  ]
+}

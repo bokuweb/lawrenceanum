@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "mhlw_shingi-kousei_472658_00001_20260723_3",
+  "date": "2026-07-23",
+  "title": "科学技術部会ヒト受精胚を用いる研究に関する審査専門委員会 第３回",
+  "organization": "厚生労働省",
+  "committee": "科学技術部会ヒト受精胚を用いる研究に関する審査専門委員会",
+  "url": "https://www.mhlw.go.jp/stf/newpage_74819.html",
+  "laws": [
+    {
+      "law_id": "323M40000100050",
+      "title": "医療法施行規則"
+    },
+    {
+      "law_id": "412AC0000000146",
+      "title": "ヒトに関するクローン技術等の規制に関する法律"
+    },
+    {
+      "law_id": "323AC0000000205",
+      "title": "医療法"
+    }
+  ],
+  "speakers": []
+}

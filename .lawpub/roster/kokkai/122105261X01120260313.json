@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122105261X01120260313",
+  "date": "2026-03-13",
+  "title": "衆議院 予算委員会 第11号",
+  "organization": "衆議院",
+  "committee": "予算委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122105261X01120260313",
+  "laws": [
+    {
+      "law_id": "329AC0000000165",
+      "title": "自衛隊法"
+    },
+    {
+      "law_id": "326AC1000000193",
+      "title": "公営住宅法"
+    },
+    {
+      "law_id": "323AC1000000194",
+      "title": "政治資金規正法"
+    },
+    {
+      "law_id": "211AC0000000070",
+      "title": "健康保険法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "上野賢一郎",
+      "group": "自由民主党・無所属の会",
+      "position": "厚生労働大臣",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070"
+      ]
+    },
+    {
+      "name": "小泉進次郎",
+      "group": "自由民主党・無所属の会",
+      "position": "防衛大臣",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000165"
+      ]
+    },
+    {
+      "name": "林芳正",
+      "group": "自由民主党・無所属の会",
+      "position": "総務大臣",
+      "role": "kokkai",
+      "laws": [
+        "323AC1000000194"
+      ]
+    },
+    {
+      "name": "片山さつき",
+      "group": "自由民主党・無所属の会",
+      "position": "財務大臣・内閣府特命担当大臣（金融）",
+      "role": "kokkai",
+      "laws": [
+        "323AC1000000194"
+      ]
+    },
+    {
+      "name": "金子恭之",
+      "group": "自由民主党・無所属の会",
+      "position": "国土交通大臣",
+      "role": "kokkai",
+      "laws": [
+        "326AC1000000193"
+      ]
+    }
+  ]
+}

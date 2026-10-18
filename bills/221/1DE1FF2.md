@@ -3,7 +3,7 @@ type: "bill"
 title: "産業技術力強化法の一部を改正する法律案"
 description: "閣法（第221回国会）: 2026-06-19 公布（法律第41号）"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE1FF2.htm"
-timestamp: "2026-10-09T00:11:42Z"
+timestamp: "2026-10-18T00:10:49Z"
 date: "2026-06-19"
 session: 221
 bill_id: "1DE1FF2"
@@ -12,9 +12,11 @@ result: "可決"
 latest_date: "2026-06-19"
 law_num_text: "令和八年法律第四十一号"
 laws: ["412AC0000000044"]
+votes: [{"house":"衆議院","side":"賛成","groups":["自由民主党・無所属の会","中道改革連合・無所属","日本維新の会","国民民主党・無所属クラブ","参政党","チームみらい"]},{"house":"衆議院","side":"反対","groups":["日本共産党"]}]
+proposer_groups: []
 stages: [{"date":"2026-03-13","kind":"received","label":"衆議院で受理"},{"date":"2026-05-19","kind":"referred","label":"衆議院 経済産業に付託"},{"date":"2026-05-29","kind":"committee","label":"衆議院 委員会で可決"},{"date":"2026-06-02","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-06-02","kind":"received","label":"参議院で受理"},{"date":"2026-06-08","kind":"referred","label":"参議院 経済産業に付託"},{"date":"2026-06-11","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-06-12","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-06-19","kind":"promulgated","label":"公布（法律第41号）"}]
 tags: []
-render_version: 2
+render_version: 3
 ---
 
 # 産業技術力強化法の一部を改正する法律案

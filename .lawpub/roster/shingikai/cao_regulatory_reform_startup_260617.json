@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "cao_regulatory_reform_startup_260617",
+  "date": "2026-06-17",
+  "title": "スタートアップ・イノベーション促進 ワーキング・グループ 第15回",
+  "organization": "内閣府",
+  "committee": "スタートアップ・イノベーション促進 ワーキング・グループ",
+  "url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_04startup/260617/startup15_agenda.html",
+  "laws": [
+    {
+      "law_id": "323AC0000000025",
+      "title": "金融商品取引法"
+    },
+    {
+      "law_id": "329AC0000000100",
+      "title": "利息制限法"
+    },
+    {
+      "law_id": "340CO0000000321",
+      "title": "金融商品取引法施行令"
+    },
+    {
+      "law_id": "348M50000040005",
+      "title": "企業内容等の開示に関する内閣府令"
+    },
+    {
+      "law_id": "357M50000040010",
+      "title": "銀行法施行規則"
+    },
+    {
+      "law_id": "358AC1000000032",
+      "title": "貸金業法"
+    },
+    {
+      "law_id": "358CO0000000181",
+      "title": "貸金業法施行令"
+    },
+    {
+      "law_id": "411AC0100000004",
+      "title": "特定融資枠契約に関する法律"
+    },
+    {
+      "law_id": "419AC0000000022",
+      "title": "犯罪による収益の移転防止に関する法律"
+    },
+    {
+      "law_id": "419M60000002052",
+      "title": "金融商品取引業等に関する内閣府令"
+    },
+    {
+      "law_id": "129AC0000000089",
+      "title": "民法"
+    },
+    {
+      "law_id": "356AC0000000059",
+      "title": "銀行法"
+    },
+    {
+      "law_id": "417AC0000000086",
+      "title": "会社法"
+    },
+    {
+      "law_id": "418AC0000000108",
+      "title": "信託法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "増島専門委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "幕内参事官",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "落合座長",
+      "role": "member",
+      "laws": []
+    }
+  ]
+}

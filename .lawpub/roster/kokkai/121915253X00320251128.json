@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121915253X00320251128",
+  "date": "2025-11-28",
+  "title": "参議院 北朝鮮による拉致問題等に関する特別委員会 第3号",
+  "organization": "参議院",
+  "committee": "北朝鮮による拉致問題等に関する特別委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121915253X00320251128",
+  "laws": [
+    {
+      "law_id": "346AC0000000034",
+      "title": "預金保険法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "田部真史",
+      "position": "金融庁総合政策局参事官",
+      "role": "kokkai",
+      "laws": [
+        "346AC0000000034"
+      ]
+    }
+  ]
+}

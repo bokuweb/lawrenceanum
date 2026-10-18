@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104889X00520260416",
+  "date": "2026-04-16",
+  "title": "衆議院 内閣委員会 第5号",
+  "organization": "衆議院",
+  "committee": "内閣委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104889X00520260416",
+  "laws": [
+    {
+      "law_id": "508AC0000000028",
+      "title": "国家情報会議設置法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "三谷秀史",
+      "position": "元内閣情報官／元拉致問題対策本部事務局長",
+      "role": "kokkai",
+      "laws": [
+        "508AC0000000028"
+      ]
+    },
+    {
+      "name": "大澤淳",
+      "position": "公益財団法人中曽根康弘世界平和研究所上席研究員",
+      "role": "kokkai",
+      "laws": [
+        "508AC0000000028"
+      ]
+    },
+    {
+      "name": "川裕一郎",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "508AC0000000028"
+      ]
+    }
+  ]
+}

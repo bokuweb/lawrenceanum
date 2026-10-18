@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104889X02320260625",
+  "date": "2026-06-25",
+  "title": "衆議院 内閣委員会 第23号",
+  "organization": "衆議院",
+  "committee": "内閣委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104889X02320260625",
+  "laws": [
+    {
+      "law_id": "503AC1000000064",
+      "title": "自然災害義援金に係る差押禁止等に関する法律"
+    },
+    {
+      "law_id": "508AC1000000069",
+      "title": "国旗の損壊等の処罰に関する法律"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "志田陽子",
+      "position": "武蔵野美術大学造形学部教授・学長補佐",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "508AC1000000069"
+      ]
+    },
+    {
+      "name": "畑野君枝",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "508AC1000000069"
+      ]
+    },
+    {
+      "name": "百地章",
+      "position": "日本大学名誉教授",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "503AC1000000064"
+      ]
+    },
+    {
+      "name": "野村修也",
+      "position": "中央大学法科大学院教授・弁護士",
+      "role": "kokkai",
+      "laws": [
+        "508AC1000000069"
+      ]
+    }
+  ]
+}

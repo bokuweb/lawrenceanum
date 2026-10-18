@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121905206X00320251121",
+  "date": "2025-11-21",
+  "title": "衆議院 法務委員会 第3号",
+  "organization": "衆議院",
+  "committee": "法務委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121905206X00320251121",
+  "laws": [
+    {
+      "law_id": "419AC0000000088",
+      "title": "更生保護法"
+    },
+    {
+      "law_id": "325AC0000000204",
+      "title": "保護司法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "吉川崇",
+      "position": "法務省保護局長",
+      "role": "kokkai",
+      "laws": [
+        "419AC0000000088"
+      ]
+    },
+    {
+      "name": "吉川里奈",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "325AC0000000204"
+      ]
+    },
+    {
+      "name": "小竹凱",
+      "group": "国民民主党・無所属クラブ",
+      "role": "kokkai",
+      "laws": [
+        "325AC0000000204"
+      ]
+    },
+    {
+      "name": "山口良治",
+      "group": "公明党",
+      "role": "kokkai",
+      "laws": [
+        "325AC0000000204"
+      ]
+    },
+    {
+      "name": "平口洋",
+      "group": "自由民主党・無所属の会",
+      "position": "法務大臣",
+      "role": "kokkai",
+      "laws": [
+        "325AC0000000204"
+      ]
+    },
+    {
+      "name": "恩田馨",
+      "position": "総務省大臣官房地域力創造審議官",
+      "role": "kokkai",
+      "laws": [
+        "325AC0000000204"
+      ]
+    },
+    {
+      "name": "篠田奈保子",
+      "group": "立憲民主党・無所属",
+      "role": "kokkai",
+      "laws": [
+        "325AC0000000204",
+        "419AC0000000088"
+      ]
+    },
+    {
+      "name": "藤原規眞",
+      "group": "立憲民主党・無所属",
+      "role": "kokkai",
+      "laws": [
+        "325AC0000000204",
+        "419AC0000000088"
+      ]
+    }
+  ]
+}

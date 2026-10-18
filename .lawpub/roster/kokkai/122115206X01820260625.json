@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122115206X01820260625",
+  "date": "2026-06-25",
+  "title": "参議院 法務委員会 第18号",
+  "organization": "参議院",
+  "committee": "法務委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122115206X01820260625",
+  "laws": [
+    {
+      "law_id": "323AC0000000131",
+      "title": "刑事訴訟法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "安達悠司",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "成瀬剛",
+      "position": "東京大学大学院法学政治学研究科教授",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "田岡直博",
+      "position": "香川県弁護士会弁護士",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "高平奇恵",
+      "position": "一橋大学大学院法学研究科教授／弁護士",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    }
+  ]
+}

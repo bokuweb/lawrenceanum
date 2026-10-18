@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114006X00120260319",
+  "date": "2026-03-19",
+  "title": "参議院 環境委員会 第1号",
+  "organization": "参議院",
+  "committee": "環境委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114006X00120260319",
+  "laws": [
+    {
+      "law_id": "326AC0100000219",
+      "title": "土地収用法"
+    },
+    {
+      "law_id": "409AC0000000081",
+      "title": "環境影響評価法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "永野厚郎",
+      "position": "公害等調整委員会委員長",
+      "role": "kokkai",
+      "laws": [
+        "326AC0100000219"
+      ]
+    },
+    {
+      "name": "石原宏高",
+      "group": "自由民主党・無所属の会",
+      "position": "環境大臣・内閣府特命担当大臣（原子力防災）",
+      "role": "kokkai",
+      "laws": [
+        "409AC0000000081"
+      ]
+    }
+  ]
+}

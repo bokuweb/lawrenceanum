@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122115384X00320260401",
+  "date": "2026-04-01",
+  "title": "参議院 災害対策及び東日本大震災復興特別委員会 第3号",
+  "organization": "参議院",
+  "committee": "災害対策及び東日本大震災復興特別委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122115384X00320260401",
+  "laws": [
+    {
+      "law_id": "333AC0000000056",
+      "title": "学校保健安全法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "橋爪淳",
+      "position": "文部科学省大臣官房審議官",
+      "role": "kokkai",
+      "laws": [
+        "333AC0000000056"
+      ]
+    }
+  ]
+}

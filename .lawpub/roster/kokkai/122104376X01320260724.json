@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104376X01320260724",
+  "date": "2026-07-24",
+  "title": "衆議院 財務金融委員会 第13号",
+  "organization": "衆議院",
+  "committee": "財務金融委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104376X01320260724",
+  "laws": [
+    {
+      "law_id": "322AC0000000067",
+      "title": "地方自治法"
+    },
+    {
+      "law_id": "340AC0000000033",
+      "title": "所得税法"
+    }
+  ],
+  "speakers": []
+}

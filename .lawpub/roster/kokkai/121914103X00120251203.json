@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121914103X00120251203",
+  "date": "2025-12-03",
+  "title": "参議院 決算委員会 第1号",
+  "organization": "参議院",
+  "committee": "決算委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121914103X00120251203",
+  "laws": [
+    {
+      "law_id": "323AC0000000073",
+      "title": "国有財産法"
+    },
+    {
+      "law_id": "419AC0000000023",
+      "title": "特別会計に関する法律"
+    },
+    {
+      "law_id": "322AC0000000073",
+      "title": "会計検査院法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "原田祐平",
+      "position": "会計検査院長",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000073",
+        "419AC0000000023"
+      ]
+    },
+    {
+      "name": "片山さつき",
+      "group": "自由民主党",
+      "position": "財務大臣・内閣府特命担当大臣（金融）",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000073"
+      ]
+    }
+  ]
+}

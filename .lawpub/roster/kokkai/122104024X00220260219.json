@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104024X00220260219",
+  "date": "2026-02-19",
+  "title": "衆議院 議院運営委員会 第2号",
+  "organization": "衆議院",
+  "committee": "議院運営委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104024X00220260219",
+  "laws": [
+    {
+      "law_id": "322AC1000000137",
+      "title": "裁判官弾劾法"
+    },
+    {
+      "law_id": "323AC1000000005",
+      "title": "国立国会図書館法"
+    },
+    {
+      "law_id": "325AC0000000118",
+      "title": "図書館法"
+    },
+    {
+      "law_id": "323AC1000000194",
+      "title": "政治資金規正法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "築山信彦",
+      "position": "衆議院事務総長",
+      "role": "kokkai",
+      "laws": [
+        "322AC1000000137",
+        "323AC1000000194"
+      ]
+    }
+  ]
+}

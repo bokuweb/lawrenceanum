@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122103968X00420260313",
+  "date": "2026-03-13",
+  "title": "衆議院 外務委員会 第4号",
+  "organization": "衆議院",
+  "committee": "外務委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122103968X00420260313",
+  "laws": [
+    {
+      "law_id": "327AC0000000093",
+      "title": "在外公館の名称及び位置並びに在外公館に勤務する外務公務員の給与に関する法律"
+    }
+  ],
+  "speakers": []
+}

@@ -3,7 +3,7 @@ type: "bill"
 title: "公立学校の学校医、学校歯科医及び学校薬剤師の公務災害補償に関する法律の一部を改正する法律案"
 description: "閣法（第222回国会）: 2026-10-09 衆議院で受理"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE34BA.htm"
-timestamp: "2026-10-14T00:09:43Z"
+timestamp: "2026-10-18T00:10:41Z"
 date: "2026-10-09"
 session: 222
 bill_id: "1DE34BA"
@@ -12,9 +12,11 @@ result: ""
 latest_date: "2026-10-09"
 law_num_text: null
 laws: ["332AC0100000143"]
+votes: []
+proposer_groups: []
 stages: [{"date":"2026-10-09","kind":"received","label":"衆議院で受理"}]
 tags: []
-render_version: 2
+render_version: 3
 llm_latest_date: "2026-10-09"
 ---
 

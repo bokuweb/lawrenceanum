@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121903815X00320251209",
+  "date": "2025-12-09",
+  "title": "衆議院 安全保障委員会 第3号",
+  "organization": "衆議院",
+  "committee": "安全保障委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121903815X00320251209",
+  "laws": [
+    {
+      "law_id": "327AC0000000266",
+      "title": "防衛省の職員の給与等に関する法律"
+    },
+    {
+      "law_id": "325AC1000000095",
+      "title": "一般職の職員の給与に関する法律"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "小泉進次郎",
+      "group": "自由民主党・無所属の会",
+      "position": "防衛大臣",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000095",
+        "327AC0000000266"
+      ]
+    }
+  ]
+}

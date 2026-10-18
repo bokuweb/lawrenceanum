@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114024X02620260624",
+  "date": "2026-06-24",
+  "title": "参議院 議院運営委員会 第26号",
+  "organization": "参議院",
+  "committee": "議院運営委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114024X02620260624",
+  "laws": [
+    {
+      "law_id": "329AC0000000164",
+      "title": "防衛省設置法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "伊藤文靖",
+      "position": "参議院事務総長",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000164"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122105254X02220260603",
+  "date": "2026-06-03",
+  "title": "衆議院 本会議 第22号",
+  "organization": "衆議院",
+  "committee": "本会議",
+  "url": "https://kokkai.ndl.go.jp/txt/122105254X02220260603",
+  "laws": [
+    {
+      "law_id": "406AC0000000113",
+      "title": "主要食糧の需給及び価格の安定に関する法律"
+    }
+  ],
+  "speakers": []
+}

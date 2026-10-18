@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121914260X00220251120",
+  "date": "2025-11-20",
+  "title": "参議院 厚生労働委員会 第2号",
+  "organization": "参議院",
+  "committee": "厚生労働委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121914260X00220251120",
+  "laws": [
+    {
+      "law_id": "347AC0000000057",
+      "title": "労働安全衛生法"
+    },
+    {
+      "law_id": "323AC0000000122",
+      "title": "風俗営業等の規制及び業務の適正化等に関する法律"
+    },
+    {
+      "law_id": "405AC0000000088",
+      "title": "行政手続法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    },
+    {
+      "law_id": "357AC0000000080",
+      "title": "高齢者の医療の確保に関する法律"
+    },
+    {
+      "law_id": "322AC0000000049",
+      "title": "労働基準法"
+    },
+    {
+      "law_id": "411AC0000000097",
+      "title": "厚生労働省設置法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "安井省侍郎",
+      "position": "厚生労働省労働基準局安全衛生部長",
+      "role": "kokkai",
+      "laws": [
+        "347AC0000000057"
+      ]
+    },
+    {
+      "name": "宮崎敦文",
+      "position": "厚生労働省大臣官房長",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "411AC0000000097"
+      ]
+    },
+    {
+      "name": "宮本直樹",
+      "position": "厚生労働省医薬局長",
+      "role": "kokkai",
+      "laws": [
+        "405AC0000000088"
+      ]
+    },
+    {
+      "name": "小西洋之",
+      "group": "立憲民主・社民・無所属",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "山田宏",
+      "group": "自由民主党",
+      "role": "kokkai",
+      "laws": [
+        "347AC0000000057"
+      ]
+    },
+    {
+      "name": "庭田幸恵",
+      "group": "国民民主党・新緑風会",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000049"
+      ]
+    },
+    {
+      "name": "田中賢二",
+      "position": "観光庁審議官",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000122"
+      ]
+    },
+    {
+      "name": "石橋通宏",
+      "group": "立憲民主・社民・無所属",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000049"
+      ]
+    },
+    {
+      "name": "間隆一郎",
+      "position": "厚生労働省保険局長",
+      "role": "kokkai",
+      "laws": [
+        "357AC0000000080"
+      ]
+    }
+  ]
+}

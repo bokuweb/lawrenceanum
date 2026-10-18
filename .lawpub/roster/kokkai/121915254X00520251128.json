@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121915254X00520251128",
+  "date": "2025-11-28",
+  "title": "参議院 本会議 第5号",
+  "organization": "参議院",
+  "committee": "本会議",
+  "url": "https://kokkai.ndl.go.jp/txt/121915254X00520251128",
+  "laws": [
+    {
+      "law_id": "332AC0000000026",
+      "title": "租税特別措置法"
+    },
+    {
+      "law_id": "423AC0000000029",
+      "title": "東日本大震災の被災者等に係る国税関係法律の臨時特例に関する法律"
+    }
+  ],
+  "speakers": []
+}

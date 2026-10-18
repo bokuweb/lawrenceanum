@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114006X00420260414",
+  "date": "2026-04-14",
+  "title": "参議院 環境委員会 第4号",
+  "organization": "参議院",
+  "committee": "環境委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114006X00420260414",
+  "laws": [
+    {
+      "law_id": "409AC0000000061",
+      "title": "南極地域の環境の保護に関する法律"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "石原宏高",
+      "group": "自由民主党・無所属の会",
+      "position": "環境大臣・内閣府特命担当大臣（原子力防災）",
+      "role": "kokkai",
+      "laws": [
+        "409AC0000000061"
+      ]
+    }
+  ]
+}

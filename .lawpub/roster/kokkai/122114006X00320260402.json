@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114006X00320260402",
+  "date": "2026-04-02",
+  "title": "参議院 環境委員会 第3号",
+  "organization": "参議院",
+  "committee": "環境委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114006X00320260402",
+  "laws": [
+    {
+      "law_id": "409AC0000000081",
+      "title": "環境影響評価法"
+    },
+    {
+      "law_id": "430AC0000000050",
+      "title": "気候変動適応法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "関谷毅史",
+      "position": "環境省地球環境局長",
+      "role": "kokkai",
+      "laws": [
+        "430AC0000000050"
+      ]
+    },
+    {
+      "name": "青山繁晴",
+      "group": "自由民主党・無所属の会",
+      "position": "環境副大臣",
+      "role": "kokkai",
+      "laws": [
+        "409AC0000000081"
+      ]
+    }
+  ]
+}

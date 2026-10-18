@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121915261X00620251215",
+  "date": "2025-12-15",
+  "title": "参議院 予算委員会 第6号",
+  "organization": "参議院",
+  "committee": "予算委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121915261X00620251215",
+  "laws": [
+    {
+      "law_id": "328AC1000000072",
+      "title": "離島振興法"
+    },
+    {
+      "law_id": "363AC0000000108",
+      "title": "消費税法"
+    },
+    {
+      "law_id": "363AC0000000107",
+      "title": "税制改革法"
+    },
+    {
+      "law_id": "323AC1000000194",
+      "title": "政治資金規正法"
+    },
+    {
+      "law_id": "334AC0000000137",
+      "title": "最低賃金法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "安藤裕",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "363AC0000000107",
+        "363AC0000000108"
+      ]
+    },
+    {
+      "name": "山添拓",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "323AC1000000194"
+      ]
+    },
+    {
+      "name": "河野順",
+      "position": "国土交通省海事局次長",
+      "role": "kokkai",
+      "laws": [
+        "328AC1000000072"
+      ]
+    },
+    {
+      "name": "片山さつき",
+      "group": "自由民主党",
+      "position": "財務大臣・内閣府特命担当大臣（金融）",
+      "role": "kokkai",
+      "laws": [
+        "363AC0000000107"
+      ]
+    },
+    {
+      "name": "田原芳幸",
+      "position": "国税庁次長",
+      "role": "kokkai",
+      "laws": [
+        "363AC0000000107"
+      ]
+    },
+    {
+      "name": "秋野公造",
+      "group": "公明党",
+      "role": "kokkai",
+      "laws": [
+        "328AC1000000072"
+      ]
+    },
+    {
+      "name": "舞立昇治",
+      "group": "自由民主党",
+      "position": "財務副大臣",
+      "role": "kokkai",
+      "laws": [
+        "363AC0000000107",
+        "363AC0000000108"
+      ]
+    },
+    {
+      "name": "高市早苗",
+      "group": "自由民主党・無所属の会",
+      "position": "内閣総理大臣",
+      "role": "kokkai",
+      "laws": [
+        "334AC0000000137"
+      ]
+    }
+  ]
+}

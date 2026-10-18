@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114370X01320260716",
+  "date": "2026-07-16",
+  "title": "参議院 財政金融委員会 第13号",
+  "organization": "参議院",
+  "committee": "財政金融委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114370X01320260716",
+  "laws": [
+    {
+      "law_id": "409AC0000000089",
+      "title": "日本銀行法"
+    },
+    {
+      "law_id": "323AC0000000025",
+      "title": "金融商品取引法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "ラサール石井",
+      "group": "社会民主党",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000025"
+      ]
+    },
+    {
+      "name": "中村康治",
+      "position": "日本銀行理事",
+      "role": "kokkai",
+      "laws": [
+        "409AC0000000089"
+      ]
+    }
+  ]
+}

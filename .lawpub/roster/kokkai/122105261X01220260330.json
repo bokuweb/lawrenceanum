@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122105261X01220260330",
+  "date": "2026-03-30",
+  "title": "衆議院 予算委員会 第12号",
+  "organization": "衆議院",
+  "committee": "予算委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122105261X01220260330",
+  "laws": [
+    {
+      "law_id": "350AC0000000096",
+      "title": "石油の備蓄の確保等に関する法律"
+    },
+    {
+      "law_id": "329AC0000000165",
+      "title": "自衛隊法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "小泉進次郎",
+      "group": "自由民主党・無所属の会",
+      "position": "防衛大臣",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000165"
+      ]
+    },
+    {
+      "name": "赤澤亮正",
+      "group": "自由民主党・無所属の会",
+      "position": "経済産業大臣・内閣府特命担当大臣（原子力損害賠償・廃炉等支援機構）",
+      "role": "kokkai",
+      "laws": [
+        "350AC0000000096"
+      ]
+    },
+    {
+      "name": "高市早苗",
+      "group": "自由民主党・無所属の会",
+      "position": "内閣総理大臣",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000165"
+      ]
+    }
+  ]
+}

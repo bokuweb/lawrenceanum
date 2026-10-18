@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "mlit_s104_kikakumonitoring_20260708",
+  "date": "2026-07-08",
+  "title": "第2回企画・モニタリング専門委員会（2026年7月8日）",
+  "organization": "国土交通省",
+  "committee": "第2回企画・モニタリング専門委員会",
+  "url": "https://www.mlit.go.jp/policy/shingikai/kokudo03_sg_000325.html",
+  "laws": [
+    {
+      "law_id": "336AC0000000223",
+      "title": "災害対策基本法"
+    },
+    {
+      "law_id": "419AC0000000052",
+      "title": "広域的地域活性化のための基盤整備に関する法律"
+    },
+    {
+      "law_id": "323AC0000000205",
+      "title": "医療法"
+    }
+  ],
+  "speakers": []
+}

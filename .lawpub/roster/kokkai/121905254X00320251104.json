@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121905254X00320251104",
+  "date": "2025-11-04",
+  "title": "衆議院 本会議 第3号",
+  "organization": "衆議院",
+  "committee": "本会議",
+  "url": "https://kokkai.ndl.go.jp/txt/121905254X00320251104",
+  "laws": [
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
+    },
+    {
+      "law_id": "426AC1000000104",
+      "title": "サイバーセキュリティ基本法"
+    },
+    {
+      "law_id": "323AC1000000194",
+      "title": "政治資金規正法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "野田佳彦",
+      "group": "立憲民主党・無所属",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "高市早苗",
+      "group": "自由民主党・無所属の会",
+      "position": "内閣総理大臣",
+      "role": "kokkai",
+      "laws": [
+        "323AC1000000194",
+        "426AC1000000104"
+      ]
+    }
+  ]
+}

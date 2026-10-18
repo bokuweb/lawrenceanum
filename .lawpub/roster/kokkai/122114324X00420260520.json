@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114324X00420260520",
+  "date": "2026-05-20",
+  "title": "参議院 国民生活・経済に関する調査会 第4号",
+  "organization": "参議院",
+  "committee": "国民生活・経済に関する調査会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114324X00420260520",
+  "laws": [
+    {
+      "law_id": "340AC0000000033",
+      "title": "所得税法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "諸富徹",
+      "position": "京都大学公共政策大学院院長",
+      "role": "kokkai",
+      "laws": [
+        "340AC0000000033"
+      ]
+    }
+  ]
+}

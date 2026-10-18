@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121915007X00120251118",
+  "date": "2025-11-18",
+  "title": "参議院 農林水産委員会 第1号",
+  "organization": "参議院",
+  "committee": "農林水産委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121915007X00120251118",
+  "laws": [
+    {
+      "law_id": "411AC0000000106",
+      "title": "食料・農業・農村基本法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "鈴木憲和",
+      "group": "自由民主党・無所属の会",
+      "position": "農林水産大臣",
+      "role": "kokkai",
+      "laws": [
+        "411AC0000000106"
+      ]
+    }
+  ]
+}

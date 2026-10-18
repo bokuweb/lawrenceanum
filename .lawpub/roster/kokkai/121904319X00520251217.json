@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121904319X00520251217",
+  "date": "2025-12-17",
+  "title": "衆議院 国土交通委員会 第5号",
+  "organization": "衆議院",
+  "committee": "国土交通委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121904319X00520251217",
+  "laws": [
+    {
+      "law_id": "322AC0000000067",
+      "title": "地方自治法"
+    },
+    {
+      "law_id": "353AC0000000026",
+      "title": "特定空港周辺航空機騒音対策特別措置法"
+    },
+    {
+      "law_id": "423AC1000000101",
+      "title": "運輸事業の振興の助成に関する法律"
+    }
+  ],
+  "speakers": []
+}

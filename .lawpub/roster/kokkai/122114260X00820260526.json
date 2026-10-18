@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114260X00820260526",
+  "date": "2026-05-26",
+  "title": "参議院 厚生労働委員会 第8号",
+  "organization": "参議院",
+  "committee": "厚生労働委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114260X00820260526",
+  "laws": [
+    {
+      "law_id": "426AC1000000100",
+      "title": "過労死等防止対策推進法"
+    },
+    {
+      "law_id": "503AC0000000081",
+      "title": "医療的ケア児及びその家族に対する支援に関する法律"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    },
+    {
+      "law_id": "211AC0000000070",
+      "title": "健康保険法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "上野賢一郎",
+      "group": "自由民主党・無所属の会",
+      "position": "厚生労働大臣",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070"
+      ]
+    },
+    {
+      "name": "天畠大輔",
+      "group": "れいわ新選組",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070"
+      ]
+    },
+    {
+      "name": "岩本麻奈",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070"
+      ]
+    },
+    {
+      "name": "川村雄大",
+      "group": "公明党",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070"
+      ]
+    },
+    {
+      "name": "竹林悟史",
+      "position": "こども家庭庁長官官房審議官",
+      "role": "kokkai",
+      "laws": [
+        "503AC0000000081"
+      ]
+    },
+    {
+      "name": "自見はなこ",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070"
+      ]
+    },
+    {
+      "name": "芳賀道也",
+      "group": "国民民主党・新緑風会",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070"
+      ]
+    },
+    {
+      "name": "郡山りょう",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "426AC1000000100"
+      ]
+    },
+    {
+      "name": "間隆一郎",
+      "position": "厚生労働省保険局長",
+      "role": "kokkai",
+      "laws": [
+        "211AC0000000070",
+        "321CONSTITUTION"
+      ]
+    }
+  ]
+}

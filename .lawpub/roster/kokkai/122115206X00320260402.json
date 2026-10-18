@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122115206X00320260402",
+  "date": "2026-04-02",
+  "title": "参議院 法務委員会 第3号",
+  "organization": "参議院",
+  "committee": "法務委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122115206X00320260402",
+  "laws": [
+    {
+      "law_id": "323AC0000000131",
+      "title": "刑事訴訟法"
+    },
+    {
+      "law_id": "331AC0000000118",
+      "title": "売春防止法"
+    },
+    {
+      "law_id": "323AC0000000039",
+      "title": "軽犯罪法"
+    },
+    {
+      "law_id": "423AC0000000052",
+      "title": "家事事件手続法"
+    },
+    {
+      "law_id": "334AC0000000141",
+      "title": "国民年金法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "佐藤淳",
+      "position": "法務省刑事局長",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000039"
+      ]
+    },
+    {
+      "name": "北村晴男",
+      "group": "日本保守党",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000039"
+      ]
+    },
+    {
+      "name": "小林さやか",
+      "group": "国民民主党・新緑風会",
+      "role": "kokkai",
+      "laws": [
+        "331AC0000000118"
+      ]
+    },
+    {
+      "name": "平口洋",
+      "group": "自由民主党・無所属の会",
+      "position": "法務大臣",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "牧山ひろえ",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "334AC0000000141"
+      ]
+    },
+    {
+      "name": "鈴木宗男",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "馬渡直史",
+      "position": "最高裁判所事務総局家庭局長",
+      "role": "kokkai",
+      "laws": [
+        "423AC0000000052"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122103968X00820260417",
+  "date": "2026-04-17",
+  "title": "衆議院 外務委員会 第8号",
+  "organization": "衆議院",
+  "committee": "外務委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122103968X00820260417",
+  "laws": [
+    {
+      "law_id": "508AC0000000028",
+      "title": "国家情報会議設置法"
+    },
+    {
+      "law_id": "345AC0000000048",
+      "title": "著作権法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "川上敏寛",
+      "position": "文部科学省大臣官房文部科学戦略官",
+      "role": "kokkai",
+      "laws": [
+        "345AC0000000048"
+      ]
+    },
+    {
+      "name": "町田達也",
+      "position": "内閣官房内閣審議官",
+      "role": "kokkai",
+      "laws": [
+        "508AC0000000028"
+      ]
+    },
+    {
+      "name": "近藤和也",
+      "group": "中道改革連合・無所属",
+      "role": "kokkai",
+      "laws": [
+        "345AC0000000048"
+      ]
+    }
+  ]
+}

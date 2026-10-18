@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "shingi03500041_00003",
+  "date": "2021-10-21",
+  "title": "法制審議会第１９２回会議（令和３年１０月２１日開催）",
+  "organization": "法務省",
+  "committee": "法制審議会 - 総会",
+  "url": "https://www.moj.go.jp/shingi1/shingi03500041_00003.html",
+  "laws": [
+    {
+      "law_id": "323AC0000000131",
+      "title": "刑事訴訟法"
+    },
+    {
+      "law_id": "324CO0000000134",
+      "title": "法制審議会令"
+    },
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
+    },
+    {
+      "law_id": "326CO0000000319",
+      "title": "出入国管理及び難民認定法"
+    },
+    {
+      "law_id": "140AC0000000045",
+      "title": "刑法"
+    },
+    {
+      "law_id": "323AC0000000168",
+      "title": "少年法"
+    },
+    {
+      "law_id": "415AC0000000138",
+      "title": "仲裁法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "井田会長",
+      "role": "member",
+      "laws": [
+        "324CO0000000134",
+        "415AC0000000138"
+      ]
+    },
+    {
+      "name": "佐伯委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "佐伯部会長",
+      "role": "member",
+      "laws": [
+        "140AC0000000045"
+      ]
+    },
+    {
+      "name": "保坂関係官",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "加藤司法法制課長",
+      "role": "official",
+      "laws": [
+        "324CO0000000134"
+      ]
+    },
+    {
+      "name": "古川法務大臣",
+      "role": "official",
+      "laws": [
+        "415AC0000000138"
+      ]
+    },
+    {
+      "name": "大内委員",
+      "role": "member",
+      "laws": [
+        "415AC0000000138"
+      ]
+    },
+    {
+      "name": "大村委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "大沢委員",
+      "role": "member",
+      "laws": [
+        "323AC0000000168",
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "大迫委員",
+      "role": "member",
+      "laws": [
+        "140AC0000000045",
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "山本部会長",
+      "role": "member",
+      "laws": [
+        "415AC0000000138"
+      ]
+    },
+    {
+      "name": "早川委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "神津委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "竹内関係官",
+      "role": "member",
+      "laws": [
+        "324CO0000000134"
+      ]
+    },
+    {
+      "name": "落合委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "酒巻部会長",
+      "role": "member",
+      "laws": [
+        "140AC0000000045",
+        "326CO0000000319"
+      ]
+    },
+    {
+      "name": "高田委員",
+      "role": "member",
+      "laws": []
+    }
+  ]
+}

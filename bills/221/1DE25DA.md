@@ -3,7 +3,7 @@ type: "bill"
 title: "主要食糧の需給及び価格の安定に関する法律の一部を改正する法律案"
 description: "閣法（第221回国会）: 2026-07-15 公布（法律第55号）"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE25DA.htm"
-timestamp: "2026-10-09T00:11:41Z"
+timestamp: "2026-10-18T00:10:47Z"
 date: "2026-07-15"
 session: 221
 bill_id: "1DE25DA"
@@ -12,9 +12,11 @@ result: "可決"
 latest_date: "2026-07-15"
 law_num_text: "令和八年法律第五十五号"
 laws: ["406AC0000000113"]
+votes: [{"house":"衆議院","side":"賛成","groups":["自由民主党・無所属の会","中道改革連合・無所属","日本維新の会","国民民主党・無所属クラブ","チームみらい"]},{"house":"衆議院","side":"反対","groups":["参政党","日本共産党"]}]
+proposer_groups: []
 stages: [{"date":"2026-04-03","kind":"received","label":"衆議院で受理"},{"date":"2026-05-12","kind":"referred","label":"衆議院 農林水産に付託"},{"date":"2026-06-02","kind":"committee","label":"衆議院 委員会で可決"},{"date":"2026-06-03","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-06-03","kind":"received","label":"参議院で受理"},{"date":"2026-06-17","kind":"referred","label":"参議院 農林水産に付託"},{"date":"2026-07-07","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-07-08","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-07-15","kind":"promulgated","label":"公布（法律第55号）"}]
 tags: []
-render_version: 2
+render_version: 3
 llm_latest_date: "2026-07-15"
 ---
 

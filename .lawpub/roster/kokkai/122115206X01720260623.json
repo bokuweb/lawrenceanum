@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122115206X01720260623",
+  "date": "2026-06-23",
+  "title": "参議院 法務委員会 第17号",
+  "organization": "参議院",
+  "committee": "法務委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122115206X01720260623",
+  "laws": [
+    {
+      "law_id": "323AC0000000131",
+      "title": "刑事訴訟法"
+    },
+    {
+      "law_id": "322AC0000000059",
+      "title": "裁判所法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "三谷英弘",
+      "group": "自由民主党・無所属の会",
+      "position": "法務副大臣",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "佐藤淳",
+      "position": "法務省刑事局長",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000059",
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "古庄玄知",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "嘉田由紀子",
+      "group": "日本維新の会",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "安達悠司",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "川合孝典",
+      "group": "国民民主党・新緑風会",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "平口洋",
+      "group": "自由民主党・無所属の会",
+      "position": "法務大臣",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "平城文啓",
+      "position": "最高裁判所事務総局刑事局長",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "牧山ひろえ",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    },
+    {
+      "name": "藤原崇",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "323AC0000000131"
+      ]
+    }
+  ]
+}

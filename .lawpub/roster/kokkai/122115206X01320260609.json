@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122115206X01320260609",
+  "date": "2026-06-09",
+  "title": "参議院 法務委員会 第13号",
+  "organization": "参議院",
+  "committee": "法務委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122115206X01320260609",
+  "laws": [
+    {
+      "law_id": "326AC0000000045",
+      "title": "社会福祉法"
+    },
+    {
+      "law_id": "423AC0000000052",
+      "title": "家事事件手続法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "仁比聡平",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "423AC0000000052"
+      ]
+    },
+    {
+      "name": "林俊宏",
+      "position": "厚生労働省大臣官房審議官",
+      "role": "kokkai",
+      "laws": [
+        "326AC0000000045"
+      ]
+    },
+    {
+      "name": "泉房穂",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "326AC0000000045"
+      ]
+    }
+  ]
+}

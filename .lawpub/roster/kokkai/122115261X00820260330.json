@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122115261X00820260330",
+  "date": "2026-03-30",
+  "title": "参議院 予算委員会 第8号",
+  "organization": "参議院",
+  "committee": "予算委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122115261X00820260330",
+  "laws": [
+    {
+      "law_id": "325AC0000000144",
+      "title": "生活保護法"
+    },
+    {
+      "law_id": "329AC0000000165",
+      "title": "自衛隊法"
+    },
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
+    },
+    {
+      "law_id": "348AC0000000122",
+      "title": "石油需給適正化法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "伊藤孝恵",
+      "group": "国民民主党・新緑風会",
+      "role": "kokkai",
+      "laws": [
+        "348AC0000000122"
+      ]
+    },
+    {
+      "name": "小泉進次郎",
+      "group": "自由民主党・無所属の会",
+      "position": "防衛大臣",
+      "role": "kokkai",
+      "laws": [
+        "329AC0000000165"
+      ]
+    },
+    {
+      "name": "石垣のりこ",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "長谷川孝",
+      "position": "総務省自治行政局選挙部長",
+      "role": "kokkai",
+      "laws": [
+        "325AC1000000100"
+      ]
+    },
+    {
+      "name": "鹿沼均",
+      "position": "厚生労働省社会・援護局長",
+      "role": "kokkai",
+      "laws": [
+        "325AC0000000144"
+      ]
+    }
+  ]
+}

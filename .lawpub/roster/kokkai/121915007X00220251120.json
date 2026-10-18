@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121915007X00220251120",
+  "date": "2025-11-20",
+  "title": "参議院 農林水産委員会 第2号",
+  "organization": "参議院",
+  "committee": "農林水産委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121915007X00220251120",
+  "laws": [
+    {
+      "law_id": "429AC0000000035",
+      "title": "農業競争力強化支援法"
+    },
+    {
+      "law_id": "411AC0000000106",
+      "title": "食料・農業・農村基本法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "山口靖",
+      "position": "農林水産省農産局長",
+      "role": "kokkai",
+      "laws": [
+        "411AC0000000106"
+      ]
+    },
+    {
+      "name": "鈴木憲和",
+      "group": "自由民主党・無所属の会",
+      "position": "農林水産大臣",
+      "role": "kokkai",
+      "laws": [
+        "429AC0000000035"
+      ]
+    },
+    {
+      "name": "高橋光男",
+      "group": "公明党",
+      "role": "kokkai",
+      "laws": [
+        "411AC0000000106"
+      ]
+    }
+  ]
+}

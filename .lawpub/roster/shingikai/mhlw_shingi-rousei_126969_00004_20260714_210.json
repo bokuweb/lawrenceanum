@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "mhlw_shingi-rousei_126969_00004_20260714_210",
+  "date": "2026-07-14",
+  "title": "労働条件分科会 第210回",
+  "organization": "厚生労働省",
+  "committee": "労働条件分科会",
+  "url": "https://www.mhlw.go.jp/stf/newpage_74576.html",
+  "laws": [
+    {
+      "law_id": "211AC0000000070",
+      "title": "健康保険法"
+    },
+    {
+      "law_id": "308AC0000000057",
+      "title": "小切手法"
+    },
+    {
+      "law_id": "322AC0000000049",
+      "title": "労働基準法"
+    },
+    {
+      "law_id": "322M40000100023",
+      "title": "労働基準法施行規則"
+    },
+    {
+      "law_id": "325AC0000000205",
+      "title": "国土形成計画法"
+    },
+    {
+      "law_id": "346AC0000000034",
+      "title": "預金保険法"
+    },
+    {
+      "law_id": "347AC0000000057",
+      "title": "労働安全衛生法"
+    },
+    {
+      "law_id": "357M50000040010",
+      "title": "銀行法施行規則"
+    },
+    {
+      "law_id": "359AC0000000086",
+      "title": "電気通信事業法"
+    },
+    {
+      "law_id": "411AC0000000089",
+      "title": "内閣府設置法"
+    },
+    {
+      "law_id": "412CO0000000245",
+      "title": "内閣府本府組織令"
+    },
+    {
+      "law_id": "415AC0000000057",
+      "title": "個人情報の保護に関する法律"
+    },
+    {
+      "law_id": "419AC0000000022",
+      "title": "犯罪による収益の移転防止に関する法律"
+    },
+    {
+      "law_id": "421AC0000000059",
+      "title": "資金決済に関する法律"
+    },
+    {
+      "law_id": "422M60000002004",
+      "title": "資金移動業者に関する内閣府令"
+    },
+    {
+      "law_id": "356AC0000000059",
+      "title": "銀行法"
+    },
+    {
+      "law_id": "419AC0000000053",
+      "title": "統計法"
+    },
+    {
+      "law_id": "420AC0000000056",
+      "title": "保険法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "下田労働条件企画専門官",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "亀田委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "佐藤（好）委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "佐藤（晴）委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "加藤委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "古川委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "大野賃金課賃金支払制度業務室長",
+      "role": "official",
+      "laws": [
+        "322AC0000000049",
+        "322M40000100023",
+        "356AC0000000059"
+      ]
+    },
+    {
+      "name": "山川分科会長",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "春川委員",
+      "role": "member",
+      "laws": [
+        "322AC0000000049"
+      ]
+    },
+    {
+      "name": "松下総務課長",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "松田委員",
+      "role": "member",
+      "laws": [
+        "419AC0000000053"
+      ]
+    },
+    {
+      "name": "椎木委員",
+      "role": "member",
+      "laws": [
+        "322AC0000000049"
+      ]
+    },
+    {
+      "name": "田上委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "田中委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "福本委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "菅村委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "西海監督課長",
+      "role": "official",
+      "laws": [
+        "322AC0000000049",
+        "347AC0000000057"
+      ]
+    },
+    {
+      "name": "鈴木委員",
+      "role": "member",
+      "laws": [
+        "322AC0000000049"
+      ]
+    },
+    {
+      "name": "鳥澤委員",
+      "role": "member",
+      "laws": []
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114024X01620260520",
+  "date": "2026-05-20",
+  "title": "参議院 議院運営委員会 第16号",
+  "organization": "参議院",
+  "committee": "議院運営委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114024X01620260520",
+  "laws": [
+    {
+      "law_id": "425AC0000000098",
+      "title": "産業競争力強化法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "伊藤文靖",
+      "position": "参議院事務総長",
+      "role": "kokkai",
+      "laws": [
+        "425AC0000000098"
+      ]
+    }
+  ]
+}

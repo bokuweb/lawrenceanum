@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122115104X00120260324",
+  "date": "2026-03-24",
+  "title": "参議院 文教科学委員会 第1号",
+  "organization": "参議院",
+  "committee": "文教科学委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122115104X00120260324",
+  "laws": [
+    {
+      "law_id": "423AC1000000078",
+      "title": "スポーツ基本法"
+    },
+    {
+      "law_id": "422AC0000000018",
+      "title": "高等学校等就学支援金の支給に関する法律"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "松本洋平",
+      "group": "自由民主党・無所属の会",
+      "position": "文部科学大臣",
+      "role": "kokkai",
+      "laws": [
+        "422AC0000000018",
+        "423AC1000000078"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121914319X00120251118",
+  "date": "2025-11-18",
+  "title": "参議院 国土交通委員会 第1号",
+  "organization": "参議院",
+  "committee": "国土交通委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121914319X00120251118",
+  "laws": [
+    {
+      "law_id": "324AC0000000187",
+      "title": "海上運送法"
+    },
+    {
+      "law_id": "327AC0000000165",
+      "title": "気象業務法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "金子恭之",
+      "group": "自由民主党・無所属の会",
+      "position": "国土交通大臣",
+      "role": "kokkai",
+      "laws": [
+        "324AC0000000187",
+        "327AC0000000165"
+      ]
+    }
+  ]
+}

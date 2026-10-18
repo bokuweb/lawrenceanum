@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114080X01120260707",
+  "date": "2026-07-07",
+  "title": "参議院 経済産業委員会 第11号",
+  "organization": "参議院",
+  "committee": "経済産業委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114080X01120260707",
+  "laws": [
+    {
+      "law_id": "339AC0000000170",
+      "title": "電気事業法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "赤澤亮正",
+      "group": "自由民主党・無所属の会",
+      "position": "経済産業大臣・内閣府特命担当大臣（原子力損害賠償・廃炉等支援機構）",
+      "role": "kokkai",
+      "laws": [
+        "339AC0000000170"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122115104X00920260609",
+  "date": "2026-06-09",
+  "title": "参議院 文教科学委員会 第9号",
+  "organization": "参議院",
+  "committee": "文教科学委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122115104X00920260609",
+  "laws": [
+    {
+      "law_id": "422AC0000000018",
+      "title": "高等学校等就学支援金の支給に関する法律"
+    },
+    {
+      "law_id": "323M40000100050",
+      "title": "医療法施行規則"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    },
+    {
+      "law_id": "501AC1000000047",
+      "title": "学校教育の情報化の推進に関する法律"
+    },
+    {
+      "law_id": "322AC0000000026",
+      "title": "学校教育法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "下野六太",
+      "group": "公明党",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000026"
+      ]
+    },
+    {
+      "name": "古賀千景",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000026"
+      ]
+    },
+    {
+      "name": "吉良よし子",
+      "group": "日本共産党",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000026"
+      ]
+    },
+    {
+      "name": "後藤翔太",
+      "group": "参政党",
+      "role": "kokkai",
+      "laws": [
+        "501AC1000000047"
+      ]
+    },
+    {
+      "name": "望月禎",
+      "position": "文部科学省初等中等教育局長",
+      "role": "kokkai",
+      "laws": [
+        "422AC0000000018"
+      ]
+    },
+    {
+      "name": "松本洋平",
+      "group": "自由民主党・無所属の会",
+      "position": "文部科学大臣",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION"
+      ]
+    },
+    {
+      "name": "江浪武志",
+      "position": "厚生労働省大臣官房審議官",
+      "role": "kokkai",
+      "laws": [
+        "323M40000100050"
+      ]
+    },
+    {
+      "name": "金子道仁",
+      "group": "日本維新の会",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000026"
+      ]
+    }
+  ]
+}

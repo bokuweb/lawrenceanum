@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122105124X00120260303",
+  "date": "2026-03-03",
+  "title": "衆議院 文部科学委員会 第1号",
+  "organization": "衆議院",
+  "committee": "文部科学委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122105124X00120260303",
+  "laws": [
+    {
+      "law_id": "423AC1000000078",
+      "title": "スポーツ基本法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "松本洋平",
+      "group": "自由民主党・無所属の会",
+      "position": "文部科学大臣",
+      "role": "kokkai",
+      "laws": [
+        "423AC1000000078"
+      ]
+    }
+  ]
+}

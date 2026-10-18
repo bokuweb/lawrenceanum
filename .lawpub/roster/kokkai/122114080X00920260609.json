@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114080X00920260609",
+  "date": "2026-06-09",
+  "title": "参議院 経済産業委員会 第9号",
+  "organization": "参議院",
+  "committee": "経済産業委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114080X00920260609",
+  "laws": [
+    {
+      "law_id": "412AC0000000044",
+      "title": "産業技術力強化法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "赤澤亮正",
+      "group": "自由民主党・無所属の会",
+      "position": "経済産業大臣・内閣府特命担当大臣（原子力損害賠償・廃炉等支援機構）",
+      "role": "kokkai",
+      "laws": [
+        "412AC0000000044"
+      ]
+    }
+  ]
+}

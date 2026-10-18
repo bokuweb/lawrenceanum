@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114370X01420260724",
+  "date": "2026-07-24",
+  "title": "参議院 財政金融委員会 第14号",
+  "organization": "参議院",
+  "committee": "財政金融委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114370X01420260724",
+  "laws": [
+    {
+      "law_id": "340AC0000000033",
+      "title": "所得税法"
+    }
+  ],
+  "speakers": []
+}

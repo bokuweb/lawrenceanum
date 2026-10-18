@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122115254X01820260603",
+  "date": "2026-06-03",
+  "title": "参議院 本会議 第18号",
+  "organization": "参議院",
+  "committee": "本会議",
+  "url": "https://kokkai.ndl.go.jp/txt/122115254X01820260603",
+  "laws": [
+    {
+      "law_id": "419AC0000000059",
+      "title": "地域公共交通の活性化及び再生に関する法律"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "辻元清美",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "419AC0000000059"
+      ]
+    }
+  ]
+}

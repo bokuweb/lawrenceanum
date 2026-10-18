@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "corpus": "shingikai",
+  "id": "shingi03500039",
+  "date": "2021-02-10",
+  "title": "法制審議会第１８９回会議（令和３年２月１０日開催）",
+  "organization": "法務省",
+  "committee": "法制審議会 - 総会",
+  "url": "https://www.moj.go.jp/shingi1/shingi03500039.html",
+  "laws": [
+    {
+      "law_id": "324CO0000000134",
+      "title": "法制審議会令"
+    },
+    {
+      "law_id": "337AC0000000069",
+      "title": "建物の区分所有等に関する法律"
+    },
+    {
+      "law_id": "338AC0000000125",
+      "title": "商業登記法"
+    },
+    {
+      "law_id": "414AC0000000053",
+      "title": "土壌汚染対策法"
+    },
+    {
+      "law_id": "416AC0000000123",
+      "title": "不動産登記法"
+    },
+    {
+      "law_id": "424AC0000000031",
+      "title": "新型インフルエンザ等対策特別措置法"
+    },
+    {
+      "law_id": "129AC0000000089",
+      "title": "民法"
+    },
+    {
+      "law_id": "417AC0000000086",
+      "title": "会社法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "上川法務大臣",
+      "role": "official",
+      "laws": [
+        "129AC0000000089",
+        "416AC0000000123"
+      ]
+    },
+    {
+      "name": "丸山司法法制課長",
+      "role": "official",
+      "laws": [
+        "324CO0000000134"
+      ]
+    },
+    {
+      "name": "佐久間委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "内田会長",
+      "role": "member",
+      "laws": [
+        "129AC0000000089",
+        "416AC0000000123"
+      ]
+    },
+    {
+      "name": "古城委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "小出幹事",
+      "role": "member",
+      "laws": [
+        "129AC0000000089"
+      ]
+    },
+    {
+      "name": "小杉委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "山下委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "山崎委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "山野目部会長",
+      "role": "member",
+      "laws": [
+        "129AC0000000089",
+        "416AC0000000123",
+        "417AC0000000086"
+      ]
+    },
+    {
+      "name": "橋本委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "白田委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "神津委員",
+      "role": "member",
+      "laws": [
+        "129AC0000000089"
+      ]
+    },
+    {
+      "name": "笹井参事官",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "藤田官房参事官",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "金子関係官",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "高田委員",
+      "role": "member",
+      "laws": []
+    }
+  ]
+}

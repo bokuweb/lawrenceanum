@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122104319X00320260408",
+  "date": "2026-04-08",
+  "title": "衆議院 国土交通委員会 第3号",
+  "organization": "衆議院",
+  "committee": "国土交通委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122104319X00320260408",
+  "laws": [
+    {
+      "law_id": "417AC0000000085",
+      "title": "物資の流通の効率化に関する法律"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "金子恭之",
+      "group": "自由民主党・無所属の会",
+      "position": "国土交通大臣",
+      "role": "kokkai",
+      "laws": [
+        "417AC0000000085"
+      ]
+    }
+  ]
+}

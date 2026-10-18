@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122114601X00720260423",
+  "date": "2026-04-23",
+  "title": "参議院 総務委員会 第7号",
+  "organization": "参議院",
+  "committee": "総務委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122114601X00720260423",
+  "laws": [
+    {
+      "law_id": "427AC0000000035",
+      "title": "株式会社海外通信・放送・郵便事業支援機構法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "佐々木雅文",
+      "group": "公明党",
+      "role": "kokkai",
+      "laws": [
+        "427AC0000000035"
+      ]
+    }
+  ]
+}

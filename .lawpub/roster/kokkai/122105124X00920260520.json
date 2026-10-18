@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122105124X00920260520",
+  "date": "2026-05-20",
+  "title": "衆議院 文部科学委員会 第9号",
+  "organization": "衆議院",
+  "committee": "文部科学委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122105124X00920260520",
+  "laws": [
+    {
+      "law_id": "324AC0000000270",
+      "title": "私立学校法"
+    },
+    {
+      "law_id": "333AC0000000056",
+      "title": "学校保健安全法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "塩見みづ枝",
+      "position": "文部科学省総合教育政策局長",
+      "role": "kokkai",
+      "laws": [
+        "333AC0000000056"
+      ]
+    },
+    {
+      "name": "浅野敦行",
+      "position": "スポーツ庁次長",
+      "role": "kokkai",
+      "laws": [
+        "324AC0000000270"
+      ]
+    },
+    {
+      "name": "菊田真紀子",
+      "group": "中道改革連合・無所属",
+      "role": "kokkai",
+      "laws": [
+        "333AC0000000056"
+      ]
+    }
+  ]
+}

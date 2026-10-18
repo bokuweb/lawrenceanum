@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "122115254X00320260225",
+  "date": "2026-02-25",
+  "title": "参議院 本会議 第3号",
+  "organization": "参議院",
+  "committee": "本会議",
+  "url": "https://kokkai.ndl.go.jp/txt/122115254X00320260225",
+  "laws": [
+    {
+      "law_id": "322AC0000000118",
+      "title": "災害救助法"
+    },
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
+    },
+    {
+      "law_id": "321CONSTITUTION",
+      "title": "日本国憲法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "田名部匡代",
+      "group": "立憲民主・無所属",
+      "role": "kokkai",
+      "laws": [
+        "322AC0000000118"
+      ]
+    },
+    {
+      "name": "高市早苗",
+      "group": "自由民主党・無所属の会",
+      "position": "内閣総理大臣",
+      "role": "kokkai",
+      "laws": [
+        "321CONSTITUTION",
+        "325AC1000000100"
+      ]
+    }
+  ]
+}

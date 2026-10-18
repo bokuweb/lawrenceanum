@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "corpus": "kokkai",
+  "id": "121904575X00220251203",
+  "date": "2025-12-03",
+  "title": "衆議院 政治改革に関する特別委員会 第2号",
+  "organization": "衆議院",
+  "committee": "政治改革に関する特別委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/121904575X00220251203",
+  "laws": [
+    {
+      "law_id": "332AC0000000026",
+      "title": "租税特別措置法"
+    },
+    {
+      "law_id": "323AC1000000194",
+      "title": "政治資金規正法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "勝目康",
+      "group": "自由民主党・無所属の会",
+      "role": "kokkai",
+      "laws": [
+        "323AC1000000194"
+      ]
+    },
+    {
+      "name": "臼木秀剛",
+      "group": "国民民主党・無所属クラブ",
+      "role": "kokkai",
+      "laws": [
+        "323AC1000000194"
+      ]
+    }
+  ]
+}
