@@ -2,7 +2,6 @@
 source: crates/kanpo-parser/tests/archive_snapshots.rs
 expression: out
 input_file: crates/kanpo-parser/tests/archive/pages/20260929g00214/20260929g002140070.pdf
-snapshot_kind: text
 ---
 layout: tiers
 format: unknown
@@ -140,8 +139,7 @@ format: unknown
 株主資本
 資本金
 資本剰余金
-資本準備金
-その他資本剰余金
+資本準備金その他資本剰余金
 利益剰余金
 その他利益剰余金
 (うち当期純利益)

@@ -1158,7 +1158,13 @@ fn grid_table(g: &Grid, cols: Vec<Col>) -> Table {
         for (i, l) in lines.iter().enumerate() {
             text.push_str(&l.text);
             let short = bottom(l) < max_bottom - em * 1.5;
-            if i + 1 < lines.len() && (l.text.ends_with('。') || short || spaced(&l.text)) {
+            // 数だけの短い列が並ぶ欄（無線の通信路の「一二」「一四」「六六」）は、列ごとに別の項目。
+            let numeral = |t: &str| {
+                let t = t.trim();
+                (1..=4).contains(&t.chars().count()) && t.chars().all(|c| "〇一二三四五六七八九十百".contains(c) || c.is_ascii_digit() || ('０'..='９').contains(&c))
+            };
+            let numbers = lines.get(i + 1).is_some_and(|n| numeral(&l.text) && numeral(&n.text));
+            if i + 1 < lines.len() && (l.text.ends_with('。') || short || spaced(&l.text) || numbers) {
                 text.push('\n');
             }
         }

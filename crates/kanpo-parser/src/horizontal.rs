@@ -96,6 +96,22 @@ fn wrapped(prev: &Line, next: &Line, right: f32) -> bool {
     !numeric && !trailing_number && !labeled(&next) && text.chars().count() >= 4 && right - end <= em * WRAP_EM
 }
 
+/// 幅 4 字分までの狭い欄で、`prev` が 2〜3 字の行で欄の右端の 1 字分以内まで組まれ、数を含まない（様式の表の欄見出し「その／他有／
+/// 価証／券評／価差／額金」を 2 字ずつ折り返したもの）。[`wrapped`] は 4 字以上の行しか折り返しとみなさない。
+fn narrow_wrapped(prev: &Line, left: f32, right: f32) -> bool {
+    let em = (prev.y1 - prev.y0).max(1.0);
+    let end = prev.words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
+    let chars = prev.words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace()).count();
+    // 2〜3 字（狭い科目の欄の「営業外収益」「営業外費用」は右端まで組まれても別の科目。1 字ずつ縦に積んだ欄の名前
+    // 「負／債／及／び」は [`stacked`] で読む）。
+    // 1 語（2 列に縦に積んだ欄の名前「負債及び／純資産の部」の「負」「純」は 1 字ずつの語）。
+    (2..=3).contains(&chars)
+        && prev.words.len() == 1
+        && right - left <= em * 4.0
+        && right - end <= em
+        && !prev.words.iter().flat_map(|w| w.text.chars()).any(|c| c.is_ascii_digit() || ('０'..='９').contains(&c) || c == '×')
+}
+
 /// 同じ行の同じセルの中で、欄に収まらずに折り返した金額の続きか（「113,191,23」「1」）。
 fn amount_tail(prev: &Line, next: &Line) -> bool {
     let text: String = prev.words.iter().map(|w| w.text.as_str()).collect();
@@ -321,7 +337,17 @@ fn vertical_regions(words: &[Col]) -> Vec<(Block, Vec<usize>)> {
         if words.iter().any(|c| inside(c) && c.text.trim().chars().count() >= 2 && c.x1 - c.x > (c.y1 - c.y) * 1.5) {
             continue;
         }
-        out.push((block, words.iter().filter(|c| inside(c)).map(|c| c.id).collect()));
+        // 縦組みでない語は外枠に収まるものだけ（号の 1 ページ目の題字の下の縦組みの「（原稿作成　国立印刷局）」のすぐ右の、
+        // 目次の項目の頭の「〇」を欄に入れていた）。
+        // 字間を空けて横に組んだ 1 字ずつの見出し（欄のすぐ下の囲みの「決　算　公　告」）は欄に入れない。
+        let spaced_row = |c: &Col| {
+            let em = (c.y1 - c.y).max(1.0);
+            c.text.trim().chars().count() == 1
+                && words.iter().filter(|o| o.id != c.id && o.text.trim().chars().count() == 1 && (y_center(o) - y_center(c)).abs() < 1.0 && (x_center(o) - x_center(c)).abs() < em * 4.0).count() >= 1
+                && words.iter().filter(|o| o.text.trim().chars().count() == 1 && (y_center(o) - y_center(c)).abs() < 1.0).count() >= 3
+        };
+        let within = |c: &Col| upright(c) || (c.x >= block.0 - 0.5 && c.x1 <= block.2 + 0.5 && !spaced_row(c));
+        out.push((block, words.iter().filter(|c| inside(c) && within(c)).map(|c| c.id).collect()));
     }
     out
 }
@@ -897,9 +923,19 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
     let text_of = |i: usize| -> String { cell_lines[i].iter().flat_map(|l| l.words.iter().map(|w| w.text.as_str())).collect() };
     // 縦の罫線だけの表の欄は、行を区切る線が無いので 1 つのセルに科目が全部入る（字数では見ない）。
     // 項目名｜内容の表の内容の欄は文なので、文の数でも見ない（縦の罫線だけの表は文の無いものだけ）。
+    // 1 行目がどの欄も短い見出し（40 字以内）で、どのセルも罫線の 1 行に収まる 3 行以上の表は、一覧の欄なら長くても表
+    // （地方公共団体の名前を並べた欄｜「告示別表第一の…の項の機能要件の欄に掲げる機能要件」の別表。表にしないと欄ごとに
+    // 縦に読んでいた）。科目の欄が罫線の行をまたぐ財務諸表（キャッシュ・フロー計算書の科目の欄が 1 つのセル）は除く。
+    let headed = g.ys.len() >= 4 && g.xs.len() >= 3 && g.cells.iter().all(|c| c.y1 - c.y0 == 1) && {
+        let top: Vec<usize> = (0..g.cells.len()).filter(|&i| g.cells[i].y0 == 0).collect();
+        top.len() == g.xs.len() - 1 && top.iter().all(|&i| g.cells[i].y1 == 1 && !cell_lines[i].is_empty() && text_of(i).chars().count() <= 40)
+    };
     let prose_cell = |i: usize| {
         let t = text_of(i);
-        item_cols == 0 && (t.chars().count() > 200 || t.matches('。').count() >= 2)
+        // 見出し付きの表で長くてもよいのは、読点で区切った一覧の欄（間接法のキャッシュ・フロー計算書の様式の科目を並べた
+        // 欄は行ごとに読む）。
+        let list = headed && t.matches('、').count() >= 5;
+        item_cols == 0 && ((!list && t.chars().count() > 200) || t.matches('。').count() >= 2)
     };
     // 文は最後の欄にだけあり、その行の前の欄に短い項目名（40 字以内）があれば、項目名｜内容の表（遺伝子組換え生物等の
     // 承認の告示の「遺伝子組換え生物等の第一種使用等の方法」｜「…」）。
@@ -915,38 +951,51 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
     let label_rows = (0..g.cells.len()).filter(|&i| g.cells[i].x1 == last && g.cells[i].x0 > 0 && !cell_lines[i].is_empty() && label_of(i)).count();
     let labeled = |i: usize| g.cells[i].x1 == last && g.cells[i].x0 > 0 && (label_of(i) || label_rows >= 2);
     let prose = (0..cell_lines.len()).any(|i| prose_cell(i) && !labeled(i));
+    let long_cells = headed && (0..cell_lines.len()).any(|i| text_of(i).chars().count() > 200 && text_of(i).matches('、').count() >= 5);
     if prose {
         return None;
     }
     // セル i の k 行目が、前の行の折り返しの続きか。前の行が文で、セルの右端まで組まれている
     // （右揃えの金額の行は右端に届くが、折り返しではない）。
-    let wraps = |i: usize, k: usize| k > 0 && wrapped(&cell_lines[i][k - 1], &cell_lines[i][k], g.xs[g.cells[i].x1]);
+    let wraps = |i: usize, k: usize| {
+        k > 0
+            && (wrapped(&cell_lines[i][k - 1], &cell_lines[i][k], g.xs[g.cells[i].x1])
+                || narrow_wrapped(&cell_lines[i][k - 1], g.xs[g.cells[i].x0], g.xs[g.cells[i].x1]))
+    };
     // 行の頭の高さ（格子の行ごと）。
     let ny = g.ys.len() - 1;
+    // 表の頭の欄見出しの行（数を含まない罫線の行が 3 行まで続き、その下に数のある行がある）。欄見出しのセルの
+    // 折り返し（「資本剰余金／合計」「前中期目標期／間繰越積立金」）は 1 つの見出しなので、行を分けずにつなぐ。
+    let digits = |i: usize| text_of(i).chars().any(|c| c.is_ascii_digit());
+    let header_rows = (0..ny).take_while(|&r| !(0..g.cells.len()).any(|i| g.cells[i].y0 <= r && r < g.cells[i].y1 && digits(i))).count();
+    let header_rows = if header_rows <= 3 && header_rows < ny && item_cols == 0 { header_rows } else { 0 };
+    let header_cell = |i: usize| g.cells[i].y1 <= header_rows;
     let mut anchors: Vec<f32> = Vec::new();
     // 科目の欄（行間で行を分けたセル）。
     let mut item_cells = vec![false; g.cells.len()];
+    // 罫線で区切った行の中で、どの欄も 1 項目なら（1 項目を折り返して上下中央に置いた欄だけの行）、行をさらに分けない
+    // （欄の 1 行目の高さがたまたま揃って行が割れていた）。
+    // 項目の数: 前の行がセルの右端の 1em 以内まで組まれていない行は項目の頭（狭い欄の「流動負債」「固定負債」は
+    // 右端の 2em 以内に届くので、折り返しの判定より厳しく見る）。
+    let items = |i: usize| {
+        let right = g.xs[g.cells[i].x1];
+        (0..cell_lines[i].len())
+            .filter(|&k| {
+                k == 0 || {
+                    let p = &cell_lines[i][k - 1];
+                    let end = p.words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
+                    !wraps(i, k) || right - end > (p.y1 - p.y0).max(1.0)
+                }
+            })
+            .count()
+    };
     for r in 0..ny {
         let band: Vec<usize> = (0..g.cells.len()).filter(|&i| g.cells[i].y0 <= r && r < g.cells[i].y1).collect();
         anchors.push(g.ys[r]);
         let (top, bottom) = (g.ys[r], g.ys[r + 1]);
-        // 罫線で区切った行の中で、どの欄も 1 項目なら（1 項目を折り返して上下中央に置いた欄だけの行）、行をさらに分けない
-        // （欄の 1 行目の高さがたまたま揃って行が割れていた）。
-        // 項目の数: 前の行がセルの右端の 1em 以内まで組まれていない行は項目の頭（狭い欄の「流動負債」「固定負債」は
-        // 右端の 2em 以内に届くので、折り返しの判定より厳しく見る）。
-        let items = |i: usize| {
-            let right = g.xs[g.cells[i].x1];
-            (0..cell_lines[i].len())
-                .filter(|&k| {
-                    k == 0 || {
-                        let p = &cell_lines[i][k - 1];
-                        let end = p.words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
-                        !wraps(i, k) || right - end > (p.y1 - p.y0).max(1.0)
-                    }
-                })
-                .count()
-        };
-        if item_cols == 0 && ny > 1 && band.iter().all(|&i| items(i) <= 1) {
+        // 長い欄のある見出し付きの表（[`headed`]）は罫線の行で行を分ける（折り返した欄の行の高さが隣の欄の行と揃い、
+        // 左右の欄の行が 1 行ずつ交互に組まれていた）。
+        if item_cols == 0 && ny > 1 && (long_cells || r < header_rows || band.iter().all(|&i| items(i) <= 1)) {
             continue;
         }
         for &i in &band {
@@ -978,7 +1027,9 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
             let next_item = |k: usize| k > 0 && account_end(&cell_lines[i][k - 1]) && account_end(&cell_lines[i][k]);
             for (k, l) in cell_lines[i].iter().enumerate() {
                 let c = l.center();
-                if top < c && c < bottom && (aligned[k] || next_item(k) || (rows_of_items && !tight(k))) {
+                // 項目番号で始まる行（「10　発行日」の次の「11　発行価格」）は、行間を空けずに続いても次の項目。
+                let numbered = k > 0 && crate::vertical::starts_item(&render_line(&l.words));
+                if top < c && c < bottom && (aligned[k] || next_item(k) || (rows_of_items && (!tight(k) || numbered))) {
                     anchors.push(l.y0 - 0.5);
                 }
             }
@@ -995,7 +1046,10 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
         let all: Vec<&Col> = ls.iter().flat_map(|l| l.words.iter()).collect();
         let whole = stacked(&all);
         for l in ls {
-            let row = if whole { row_of(ls[0].center()) } else { row_of(l.center()) };
+            // 罫線の行を 2 つ以上またぐ狭い欄で、2 字ずつ折り返した 1 項目（様式の表の欄見出し「株式／引受／金」）も、一番上の
+            // 行に置く。
+            let narrow = (1..ls.len()).all(|k| narrow_wrapped(&ls[k - 1], g.xs[gc.x0], g.xs[gc.x1]));
+            let row = if whole || (gc.y1 - gc.y0 > 1 && (narrow || header_cell(i))) { row_of(ls[0].center()) } else { row_of(l.center()) };
             by_row.entry(row).or_default().push(l);
         }
         for (row, ls) in by_row {
@@ -1027,7 +1081,11 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
                         // 行末の金額（「（旧無級地であつた地域）　1.012」）の次の行は折り返しではない（金額の欄の無い升に
                         // 項目と係数を並べた表）。
                         let after_amount = k > 0 && amount_end(ls[k - 1]) && !amount_tail(ls[k - 1], l);
-                        if k > 0 && (items || after_amount || (!wrapped(ls[k - 1], l, g.xs[gc.x1]) && !amount_tail(ls[k - 1], l) && !continued)) {
+                        let narrow = k > 0 && narrow_wrapped(ls[k - 1], g.xs[gc.x0], g.xs[gc.x1]);
+                        // 長い欄のある見出し付きの表の欄は、名前や項の一覧を折り返したもの（行を中央に寄せて組み、右端に届かない）。
+                        // 項目番号で始まる行（内容の欄の「（１）　令和９年９月15日から…」）は折り返しの続きではない。
+                        let numbered = k > 0 && crate::vertical::starts_item(&render_line(&l.words));
+                        if k > 0 && !long_cells && !(header_cell(i) && !numbered) && (items || after_amount || numbered || (!wrapped(ls[k - 1], l, g.xs[gc.x1]) && !narrow && !amount_tail(ls[k - 1], l) && !continued)) {
                             text.push('\n');
                         }
                         text.push_str(&render_line(&l.words));
@@ -1315,7 +1373,7 @@ fn group_line_words(words: Vec<&Col>) -> Vec<Line> {
 /// 列の溝より先に上下の境にする（[`box_rule_cut`]）。
 /// `boxed` は囲みの境の線で分けた段（[`is_column_split`]）。
 /// `column` は列の溝で左右に分けた後の領域（囲みの境の線で切るのはその中だけ）。
-fn order_region(words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: bool, column: bool, out: &mut Vec<trace::Line>) {
+fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: bool, column: bool, out: &mut Vec<trace::Line>) {
     let (vrules, hrules) = (ctx.vrules, ctx.hrules);
     if words.is_empty() {
         return;
@@ -1363,7 +1421,44 @@ fn order_region(words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: bool, c
             order_region(bottom, &bb, ctx, boxed, column, out);
             return;
         }
-        let gutter = column_gutter(&words, blocks, if boxed { ctx.tables } else { &[] });
+        // 紙面の幅いっぱいに 1 本で引いた横の罫線（囲みの段の境）で先に上下に切る（号外の決算公告のページで、横長の囲みの中に
+        // 貸借対照表 2 つと縦組みの合併公告が並ぶ段が上下に重なるもの。列で先に切ると、どの段も左の貸借対照表が先に読まれた）。
+        // 段の中は囲みとして読む（囲みの中の表と表の間の溝で左右に分ける）。
+        if let Some(cut) = band_rule_cut(&words, blocks, hrules) {
+            let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < cut);
+            let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < cut);
+            order_region(top, &bt, ctx, true, column, out);
+            order_region(bottom, &bb, ctx, true, column, out);
+            return;
+        }
+        let gutters = column_gutters(&words, blocks, if boxed { ctx.tables } else { &[] }, boxed);
+        let gutter = gutters.as_ref().map(|g| g.0);
+        // 広い溝（囲みの間）で左右とも 100pt 以上の列に分かれる溝が 2 つ以上並ぶなら、まとめて切る（横に 3 つ並ぶ決算公告の
+        // 囲みの見出しの行。左の溝で切った残りは段の幅に満たず、右の溝が列の境とみなされなかった）。
+        if let Some((_, cuts)) = gutters.as_ref().filter(|(g, cuts)| !boxed && cuts.len() >= 2 && cuts[0].0 == g.0 && cuts.iter().all(|c| c.1 >= WIDE_GUTTER * 2.0 && c.2 >= 100.0)) {
+            if rule_cut(&words, blocks, vrules, hrules).is_none() && box_rule_cut(&words, blocks, hrules).is_none() {
+                let xs: Vec<f32> = cuts.iter().map(|c| c.0).collect();
+                let mut parts: Vec<(Vec<Col>, Vec<Block>)> = vec![(Vec::new(), Vec::new()); xs.len() + 1];
+                for w in std::mem::take(&mut words) {
+                    let k = xs.iter().filter(|&&x| x < x_center(&w)).count();
+                    parts[k].0.push(w);
+                }
+                for b in blocks {
+                    let k = xs.iter().filter(|&&x| x < (b.0 + b.2) / 2.0).count();
+                    parts[k].1.push(*b);
+                }
+                // 囲みは同じくらいの幅（表の欄は幅がまちまち）。
+                let widths: Vec<f32> = parts.iter().map(|(ws, _)| ws.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max) - ws.iter().map(|w| w.x).fold(f32::INFINITY, f32::min)).collect();
+                let (narrow, wide) = (widths.iter().copied().fold(f32::INFINITY, f32::min), widths.iter().copied().fold(f32::NEG_INFINITY, f32::max));
+                if narrow >= 100.0 && wide <= narrow * 1.3 {
+                    for (ws, bs) in parts {
+                        order_region(ws, &bs, ctx, false, true, out);
+                    }
+                    return;
+                }
+                words = parts.into_iter().flat_map(|(ws, _)| ws).collect();
+            }
+        }
         if let Some(cut) = box_rule_cut(&words, blocks, hrules).filter(|_| column && !gutter.is_some_and(|g| g.1 >= WIDE_GUTTER)) {
             let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < cut);
             let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < cut);
@@ -1371,7 +1466,7 @@ fn order_region(words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: bool, c
             order_region(bottom, &bb, ctx, true, true, out);
             return;
         }
-        if let Some(cut) = rule_cut(&words, blocks, vrules).or_else(|| gutter.map(|g| g.0)) {
+        if let Some(cut) = rule_cut(&words, blocks, vrules, hrules).or_else(|| gutter.map(|g| g.0)) {
             if let Some(y) = stray_cut(&words, blocks, hrules, cut) {
                 let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < y);
                 let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < y);
@@ -1385,14 +1480,28 @@ fn order_region(words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: bool, c
             }
             let (left, right): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| x_center(w) < cut);
             let (bl, br): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.0 + b.2) / 2.0 < cut);
-            // 囲みの段として切るのは段の中の最初の溝だけ（囲みの中は普通に読む）。
-            order_region(left, &bl, ctx, false, true, out);
-            order_region(right, &br, ctx, false, true, out);
+            // 囲みの段として切るのは段の中の最初の溝だけ（囲みの中は普通に読む）。紙面の幅いっぱいの罫線で切った段
+            // （[`band_rule_cut`]。列の中ではない）は、左右の残りにも囲みが並ぶので（3 列の決算公告、合併公告の下に
+            // 貸借対照表が 2 つ並ぶ囲み）、左右とも囲みの段として読む。
+            order_region(left, &bl, ctx, boxed && !column, true, out);
+            order_region(right, &br, ctx, boxed && !column, true, out);
             return;
         }
         if blocks.is_empty() {
             if let Some(t) = label_table(&words, &lines) {
                 out.push(trace::Line { text: t.render(), words: Vec::new(), table: Some(t) });
+                return;
+            }
+        } else {
+            // 表の上の語が項目名｜内容の表なら、表の上端で切って先に組む（国債の発行条件の「20　払込期日」の下に
+            // 「（別表）」の罫線の表が続くもの。行間で上下に切ると、「14　利子」の内容の折り返しと算式の下の「15　償還期限」
+            // 〜「17」が項目名と内容に離れていた）。
+            let top = blocks.iter().map(|b| b.1).fold(f32::INFINITY, f32::min);
+            let (above, rest): (Vec<Col>, Vec<Col>) = words.iter().cloned().partition(|w| w.y1 <= top + 1.0);
+            let above_lines = group_lines(&above);
+            if let Some(t) = label_table(&above, &above_lines) {
+                out.push(trace::Line { text: t.render(), words: Vec::new(), table: Some(t) });
+                order_region(rest, blocks, ctx, boxed, column, out);
                 return;
             }
         }
@@ -1405,10 +1514,63 @@ fn order_region(words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: bool, c
         }
     }
     out.extend(
-        period_heading(lines)
+        period_heading(join_wrapped_labels(lines))
             .iter()
             .map(|l| trace::Line::text(render_line(&l.words), l.words.iter().map(|w| w.id).collect())),
     );
+}
+
+/// 罫線の無い財務諸表で、狭い科目の欄に折り返した科目の続きの行（「賞与引当」「金」、「鉄道施設建」「設見返債務」
+/// 「（注）」）を前の行の科目につなぐ。続きの行は、前の行の頭の語と同じ x から始まり、行間を空けずに続き（科目と
+/// 科目の間は行間が空く）、数を含まない短い字（8 字まで）だけで、前の行の 2 つ目の語（金額）より左に収まる。
+/// 前の行は科目の後ろに金額のある行か、科目だけの行（「資産見返負」「債（注）」）。
+fn join_wrapped_labels(lines: Vec<Line>) -> Vec<Line> {
+    let digit = |c: char| c.is_ascii_digit() || ('０'..='９').contains(&c);
+    let amount = |w: &Col| w.text.chars().any(|c| c.is_ascii_digit()) || (!w.text.trim().is_empty() && w.text.trim().chars().all(|c| "△▲,.()（）－―-".contains(c)));
+    // つないだ続きの語は幅を無くして科目の語の後ろに置く（後ろの語との空きを変えない）。
+    let joined = |w: &Col| w.x1 - w.x < 0.01;
+    let mut out: Vec<Line> = Vec::with_capacity(lines.len());
+    for l in lines {
+        if let Some(p) = out.last_mut() {
+            let em = p.words.iter().map(|w| w.y1 - w.y).fold(0.0, f32::max).max(1.0);
+            let text: String = l.words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace()).collect();
+            // 続きの行の頭と同じ x から始まる科目の語（「Ⅲ　法令に基づく」「引当金等」は 2 つ目の語）。
+            let head = l.words.first().and_then(|f| p.words.iter().position(|w| !joined(w) && (w.x - f.x).abs() <= 1.0));
+            if let Some(h) = head {
+                // 科目の語と、それにつないだ語の後ろ。
+                let after = h + 1 + p.words[h + 1..].iter().take_while(|w| joined(w)).count();
+                let limit = p.words.get(after).map(|w| w.x).unwrap_or(f32::INFINITY);
+                let hw = &p.words[h];
+                let tail = (1..=8).contains(&text.chars().count())
+                    && !text.chars().any(digit)
+                    // 続きの行は 1 つの欄の中（語の間が空かない。表の別の欄の「日」を科目の続きにしない）。
+                    && l.words.windows(2).all(|q| q[1].x - q[0].x1 < em * 0.5)
+                    && l.words.iter().all(|w| w.x1 <= limit)
+                    && l.y0 - p.y1 < em * 0.2
+                    && hw.text.chars().count() >= 3
+                    && !hw.text.chars().any(digit)
+                    // 科目の後ろは金額だけ（文の行の折り返しではない）。
+                    && p.words[after..].iter().all(|w| amount(w));
+                if tail {
+                    // 字は科目の語に足し、続きの語は字の無い語にして置く（語の組み先は残す。1 字の続きの「金」が後ろの金額の
+                    // 頭の 1 字の語「2」と字間空けの見出しのようにつながらないように）。
+                    let at = hw.x1;
+                    let added: String = l.words.iter().map(|w| w.text.as_str()).collect();
+                    p.words[after - 1].text.push_str(&added);
+                    for (n, mut w) in l.words.into_iter().enumerate() {
+                        w.x = at + n as f32 * 0.001;
+                        w.x1 = w.x + 0.001;
+                        w.text.clear();
+                        p.words.insert(after + n, w);
+                    }
+                    p.y1 = p.y1.max(l.y1);
+                    continue;
+                }
+            }
+        }
+        out.push(l);
+    }
+    out
 }
 
 /// 損益計算書の見出しの右に 2 行に組んだ期間（「自　令和７年４月１日」「至　令和８年３月31日」）は、見出しと「至」の行が
@@ -1744,9 +1906,12 @@ fn label_cut(words: &[Col]) -> Option<f32> {
                 l.words.windows(2).any(|p| p[1].x - p[0].x1 >= em)
             })
             .count();
-        // 内容は文（行の半分以上が 20 字以上）。短い語の並ぶ表（「六十五歳以上人口」「段階補正」）は項目名｜内容の表にしない。
+        // 内容は文（行の半分以上が 20 字以上。文の行が 6 つ以上あれば 3 分の 1 以上。国債の発行条件の「発行日」｜「令和８年
+        // ８月17日」のような短い内容や算式の行が多いもの）。短い語の並ぶ表（「六十五歳以上人口」「段階補正」）は項目名｜内容の表に
+        // しない。
         let long = rl.iter().filter(|l| l.words.iter().map(|w| w.text.chars().count()).sum::<usize>() >= 20).count();
-        (numbers * 2 < ll.len() && long * 2 >= rl.len() && split * 5 < rl.len() && right_width >= MIN_TEXT_COLUMN_WIDTH && label_column(&ll, &rl)).then_some(cut)
+        let prose = long * 2 >= rl.len() || (long >= 6 && long * 3 >= rl.len());
+        (numbers * 2 < ll.len() && prose && split * 5 < rl.len() && right_width >= MIN_TEXT_COLUMN_WIDTH && label_column(&ll, &rl)).then_some(cut)
     })
 }
 
@@ -1766,6 +1931,25 @@ fn box_rule_cut(words: &[Col], blocks: &[Block], hrules: &[(f32, f32, f32)]) -> 
                 && !blocks.iter().any(|b| b.1 < y - 1.0 && b.3 > y + 1.0)
                 && words.iter().any(|w| y_center(w) < y)
                 && words.iter().any(|w| y_center(w) > y)
+        })
+        .reduce(f32::min)
+}
+
+/// 領域の語の左右の端を両方とも越えて 1 本で引いた横の罫線の y（語も表もまたがず、上下に語のあるもののうち一番上）。
+fn band_rule_cut(words: &[Col], blocks: &[Block], hrules: &[(f32, f32, f32)]) -> Option<f32> {
+    let x0 = words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
+    let x1 = words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
+    hrules
+        .iter()
+        .filter(|r| r.1 <= x0 + 2.0 && r.2 >= x1 - 2.0 && x1 - x0 >= MIN_TEXT_COLUMN_WIDTH * 2.0)
+        .map(|r| r.0)
+        .filter(|&y| {
+            // 上下とも 3 行以上（表の欄見出しの行「変更後　変更前」の下の線では切らない）。
+            let (above, below): (Vec<Col>, Vec<Col>) = words.iter().cloned().partition(|w| y_center(w) < y);
+            !words.iter().any(|w| w.y < y - 1.0 && w.y1 > y + 1.0)
+                && !blocks.iter().any(|b| b.1 < y - 1.0 && b.3 > y + 1.0)
+                && group_lines(&above).len() >= 3
+                && group_lines(&below).len() >= 3
         })
         .reduce(f32::min)
 }
@@ -1799,19 +1983,36 @@ fn table_bottom_cut(words: &[Col], blocks: &[Block], hrules: &[(f32, f32, f32)],
 ///
 /// 溝は左から順に探すので、左の欄の中の溝（貸借対照表の科目と金額の間）で先に切ると、紙面の右半分まで
 /// 金額の側に入って、科目と金額が別々に読まれる。線で左右に分けてから溝を探す。
-fn rule_cut(words: &[Col], blocks: &[Block], vrules: &[(f32, f32, f32)]) -> Option<f32> {
+///
+/// 語の高さいっぱい（95% 以上）に掛かり、横の罫線と交わらず、左右とも段の幅以上の線は、左右の行が揃っていても
+/// 紙面を左右に分ける線（横倒しのページの郵便番号の一覧が左右の段に組まれたもの。表の列とみなすと左右の段の
+/// 行が 1 行ずつ混ざっていた）。
+fn rule_cut(words: &[Col], blocks: &[Block], vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)]) -> Option<f32> {
     let y0 = words.iter().map(|w| w.y).fold(f32::INFINITY, f32::min);
     let y1 = words.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max);
-    join_vrules(vrules)
+    let (wx0, wx1) = (words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min), words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max));
+    let joined = join_vrules(vrules);
+    let vrules = joined.as_slice();
+    vrules
         .iter()
         .filter(|&&(x, ry0, ry1)| {
             ry1.min(y1) - ry0.max(y0) >= (y1 - y0) * 0.7
                 && !words.iter().any(|w| w.x < x - 1.0 && w.x1 > x + 1.0)
                 && !blocks.iter().any(|b| b.0 < x - 1.0 && b.2 > x + 1.0)
         })
-        .filter(|&&(x, _, _)| {
+        .filter(|&&(x, ry0, ry1)| {
             let (left, right): (Vec<Col>, Vec<Col>) = words.iter().cloned().partition(|w| x_center(w) < x);
-            is_column_split(&left, &right, false)
+            let width = |ws: &[Col]| ws.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max) - ws.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
+            let divider = ry0 <= y0 + (y1 - y0) * 0.05
+                && ry1 >= y1 - (y1 - y0) * 0.05
+                && !hrules.iter().any(|&(hy, hx0, hx1)| hy > y0 && hy < y1 && hx0 < x - 5.0 && hx1 > x + 5.0)
+                // 表の列の線は、同じ高さに引いた線が語の範囲にほかにもある（列が上下の罫線の無い表の続き）。
+                && !vrules.iter().any(|&(vx, vy0, vy1)| (vx - x).abs() > 2.0 && vx > wx0 && vx < wx1 && (vy0 - ry0).abs() < 3.0 && (vy1 - ry1).abs() < 3.0)
+                && !left.is_empty()
+                && !right.is_empty()
+                && width(&left) >= MIN_TEXT_COLUMN_WIDTH
+                && width(&right) >= MIN_TEXT_COLUMN_WIDTH;
+            divider || is_column_split(&left, &right, false)
         })
         .max_by(|a, b| (a.2.min(y1) - a.1.max(y0)).total_cmp(&(b.2.min(y1) - b.1.max(y0))).then(b.0.total_cmp(&a.0)))
         .map(|r| r.0)
@@ -1831,6 +2032,13 @@ fn column_cut(words: &[Col], blocks: &[Block]) -> Option<f32> {
 /// `tables`（囲みの段の中の表の外枠）が空でなければ、表の右端のすぐ右（20pt 以内）で別の表の左端のすぐ左になる溝を
 /// 囲みの境とみなす（[`is_column_split`] の `boxed`）。
 fn column_gutter(words: &[Col], blocks: &[Block], tables: &[Block]) -> Option<(f32, f32)> {
+    column_gutters(words, blocks, tables, !tables.is_empty()).map(|(g, _)| g)
+}
+
+/// [`column_gutter`] と、列の境になる溝すべて（x, 幅, 左右の狭い方の幅。左から）。
+///
+/// `boxed`（囲みの段の中）なら、20pt 以上の溝で左右とも 100pt 以上の幅の組は囲みの境。
+fn column_gutters(words: &[Col], blocks: &[Block], tables: &[Block], boxed: bool) -> Option<((f32, f32), Vec<(f32, f32, f32)>)> {
     let (y0, y1) = (words.iter().map(|w| w.y).fold(f32::INFINITY, f32::min), words.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max));
     // 段の中の表（語の下に続く表も。表を取り出した後の段の語は、表の上の見出しの行だけのことがある）。
     let near: Vec<&Block> = tables.iter().filter(|t| t.1 < y1 + 40.0 && y0 < t.3).collect();
@@ -1850,7 +2058,8 @@ fn column_gutter(words: &[Col], blocks: &[Block], tables: &[Block]) -> Option<(f
             }
         }
     }
-    spans.extend(blocks.iter().map(|b| (b.0, b.2)));
+    // 囲みの段の中では、語の上下の範囲に掛からない表（段の上の囲みの中の縦組みの合併公告）は溝をふさがない。
+    spans.extend(blocks.iter().filter(|b| !boxed || (b.1 < y1 && b.3 > y0)).map(|b| (b.0, b.2)));
     let mut spans: Vec<(f32, f32)> = spans
         .into_iter()
         .map(|(x, x1)| (x + GUTTER_OVERLAP, x1 - GUTTER_OVERLAP))
@@ -1864,8 +2073,16 @@ fn column_gutter(words: &[Col], blocks: &[Block], tables: &[Block]) -> Option<(f
         if right_edge.is_finite() && a - right_edge >= MIN_GUTTER {
             let cut = (right_edge + a) / 2.0;
             let (left, right): (Vec<Col>, Vec<Col>) = words.iter().cloned().partition(|w| x_center(w) < cut);
-            if !latin_word_gap(words, cut) && !item_numbers(&left, &right) && !repeat_marks(&left, &right) && is_column_split(&left, &right, between(cut)) {
-                let width = |ws: &[Col]| ws.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max) - ws.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
+            let width = |ws: &[Col]| ws.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max) - ws.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
+            // 囲みの段の中の 20pt 以上の溝で、左右とも 100pt 以上の幅の組なら囲みの境（3 列に並ぶ決算公告の囲みの見出しが
+            // 同じ高さに並び、表の溝とみなされて 1 行ずつ混ざっていた）。
+            // 金額の欄（行の半分以上が金額だけの行）は囲みではない（科目と金額の間の広い空き）。
+            let figures = |ws: &[Col]| {
+                let ls = group_lines(ws);
+                ls.iter().filter(|l| amount_line(l)).count() * 2 >= ls.len()
+            };
+            let boxes = boxed && a - right_edge >= 20.0 && width(&left) >= 100.0 && width(&right) >= 100.0 && !figures(&left) && !figures(&right);
+            if !latin_word_gap(words, cut) && !item_numbers(&left, &right) && !repeat_marks(&left, &right) && (boxes || is_column_split(&left, &right, between(cut))) {
                 cuts.push((cut, a - right_edge, width(&left).min(width(&right))));
             }
         }
@@ -1877,7 +2094,7 @@ fn column_gutter(words: &[Col], blocks: &[Block], tables: &[Block]) -> Option<(f
     let first = *cuts.first()?;
     let widest = cuts.iter().copied().filter(|c| c.2 >= 100.0).max_by(|a, b| a.1.total_cmp(&b.1)).unwrap_or(first);
     let pick = if widest.1 >= WIDE_GUTTER && widest.1 >= first.1 * 2.0 { widest } else { first };
-    Some((pick.0, pick.1))
+    Some(((pick.0, pick.1), cuts))
 }
 
 /// 横組みの読み順の処理に渡す罫線と表。
@@ -2226,7 +2443,10 @@ fn letter_spaced(words: &[Col], spaced_words: bool) -> Vec<bool> {
                 None => gap <= em * 8.0,
                 Some(g) => (gap - g).abs() <= em,
             };
-        spaced_gap = out[i].then_some(gap);
+        // 番号（「Ⅱ　資　本　剰　余　金」の「Ⅱ」）と 1 字目の間の空きは、見出しの字間より狭いことがあるので字間にしない
+        // （「Ⅱ資」と「本剰余金」に割れていた）。
+        let numeral = p.text.trim().chars().all(|c| ('Ⅰ'..='Ⅻ').contains(&c) || c.is_ascii_digit() || ('０'..='９').contains(&c));
+        spaced_gap = out[i].then_some(gap).filter(|_| !(numeral && (i == 1 || !out[i - 1])));
     }
     out
 }

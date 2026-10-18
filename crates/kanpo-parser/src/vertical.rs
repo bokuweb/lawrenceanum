@@ -35,6 +35,8 @@ const MARGIN_NOISE_TOP: f32 = TOP_MARGIN + 4.0;
 /// 中央の印「▷」（私用 CID で「才」に化ける）が本文の右の外（x≈570–588）に刷られている。本文の右端は
 /// x≈553 まで。
 pub(crate) const RIGHT_MARGIN: f32 = 30.0;
+/// 紙面の上の余白の、綴じ穴の印の下端(pt)。
+const PUNCH_MARK_BOTTOM: f32 = 30.0;
 
 /// `-bbox-layout` の XHTML から縦書き読み順（右→左・各カラム上→下）を復元する。
 ///
@@ -121,6 +123,16 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             // ページで数 pt ずれる）。
             let local_mid = prev_mid.map(|m| {
                 let crossing = |x: f32| cols.iter().filter(|c| c.x < x - 2.0 && c.x1 > x + 2.0).count();
+                // 紙面を左右に分ける縦の罫線（ページの高さの半分以上）が近くにあり、またぐ語が無ければその線（語の切れ目で
+                // 選ぶと、小数の「0」と「.24」の間で切れ、小数点から後ろが改正前の欄に入っていた）。
+                let divider = vrules
+                    .iter()
+                    .filter(|&&(x, y0, y1)| (x - m).abs() <= 30.0 && y1 - y0 >= height.min(width) * 0.5 && crossing(x) == 0)
+                    .map(|&(x, _, _)| x)
+                    .min_by(|a, b| (a - m).abs().total_cmp(&(b - m).abs()));
+                if let Some(x) = divider {
+                    return x;
+                }
                 cols.iter()
                     .flat_map(|c| [c.x1 + 1.0, c.x - 1.0])
                     .filter(|x| (x - m).abs() <= 30.0)
@@ -409,16 +421,17 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             // 前のページの新旧対照表の続きが、ページの右端の罫線の欄（上下の欄）に収まり、その左に
             // 別の記事が続くページは、段に切る前に欄の中を表の続きとして切り出す（欄が上下の段を
             // またぐので、段に切ると改正前の欄が次の記事の表に入ってしまう）。
-            let cols = if prev_table {
-                match split_off_leading_frame(cols, page_rules) {
-                    Ok((after, before, rest)) => {
-                        units.push(band_pair_unit(after, before, &grids, page_rules));
-                        rest
-                    }
-                    Err(cols) => cols,
+            // 前のページが分からなくても（ページごとの解析）、欄の左に紙面の高さいっぱいの別の記事（附則・次の省令）が
+            // 上下の欄の境目をまたいで続くなら、同じく表の続きとして欄の上・下・左の順に読む（段に切ると、上の欄と下の
+            // 欄の間に左の記事が挟まっていた）。
+            let original = cols.clone();
+            let cols = match split_off_leading_frame(cols, page_rules) {
+                Ok((after, before, rest)) if prev_table || spans_divider(&rest, &after, &before) => {
+                    units.push(band_pair_unit(after, before, &grids, page_rules));
+                    rest
                 }
-            } else {
-                cols
+                Ok(_) => original,
+                Err(cols) => cols,
             };
             // 通常ページ: まず段組み(tier)に分ける。官報本紙は2段組が多く、段を分けないと
             // 「同 x にある上段の列と下段の列」が1列に連結され混線する。新旧対照表の見出しが
@@ -854,6 +867,14 @@ fn split_off_full_height_left(cols: Vec<Col>, divider: f32, rules: Option<&PageR
 /// [`split_off_leading_frame`] の結果（改正後, 改正前, 残り）。
 type LeadingFrame = (Vec<Col>, Vec<Col>, Vec<Col>);
 
+/// 欄の左の語（`rest`）に、上の欄の下端より下まで続く列と、下の欄の上端より上から始まる列があるか（左の記事が
+/// 上下の欄の境目をまたいで続く）。
+fn spans_divider(rest: &[Col], after: &[Col], before: &[Col]) -> bool {
+    let after_bottom = after.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+    let before_top = before.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+    rest.iter().any(|c| c.y < after_bottom && c.y1 > before_top)
+}
+
 /// ページの右端にある、前のページの新旧対照表の続きの欄を切り出す。`(改正後, 改正前, 残り)`。
 ///
 /// 続きの欄は、紙面の高さのほとんどを通る縦の罫線の右にあり、その縦線から右へ伸びる横の罫線で
@@ -871,19 +892,29 @@ fn split_off_leading_frame(cols: Vec<Col>, rules: Option<&PageRules>) -> Result<
     let center = |c: &Col| ((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0);
     let mut verticals: Vec<_> = rules.vertical.iter().filter(|v| v.y1 - v.y0 >= (bottom - top) * 0.8 && v.x < right_edge).collect();
     verticals.sort_by(|a, b| b.x.total_cmp(&a.x));
+    // 横線は途中で切れて引かれることがあるので、同じ高さで続く線はつなぐ。
+    let mut horizontal: Vec<(f32, f32, f32)> = rules.horizontal.iter().map(|h| (h.y, h.x0, h.x1)).collect();
+    horizontal.sort_by(|a, b| a.0.total_cmp(&b.0).then(a.1.total_cmp(&b.1)));
+    let mut joined: Vec<(f32, f32, f32)> = Vec::new();
+    for h in horizontal {
+        match joined.last_mut() {
+            Some(last) if (last.0 - h.0).abs() <= 1.0 && h.1 <= last.2 + 2.0 => last.2 = last.2.max(h.2),
+            _ => joined.push(h),
+        }
+    }
     let found = verticals.into_iter().find_map(|v| {
         // 縦線の左端から右へ、右端の字の上まで伸びる横線が上下の欄の境目。
-        let h = rules.horizontal.iter().find(|h| (h.x0 - v.x).abs() <= 3.0 && h.x1 >= right_edge - 2.0 && h.y > v.y0 + (v.y1 - v.y0) * 0.25 && h.y < v.y1 - (v.y1 - v.y0) * 0.25)?;
+        let &(hy, _, _) = joined.iter().find(|&&(y, x0, x1)| (x0 - v.x).abs() <= 3.0 && x1 >= right_edge - 2.0 && y > v.y0 + (v.y1 - v.y0) * 0.25 && y < v.y1 - (v.y1 - v.y0) * 0.25)?;
         let right: Vec<&Col> = cols.iter().filter(|c| center(c).0 > v.x && center(c).1 > v.y0 && center(c).1 < v.y1).collect();
         // 境目をまたぐ列は無い（またぐなら上下の欄ではない）。
-        if right.iter().any(|c| c.y < h.y - 2.0 && c.y1 > h.y + 2.0) {
+        if right.iter().any(|c| c.y < hy - 2.0 && c.y1 > hy + 2.0) {
             return None;
         }
-        let upper = right.iter().filter(|c| center(c).1 < h.y).count();
+        let upper = right.iter().filter(|c| center(c).1 < hy).count();
         let lower = right.len() - upper;
         let label = right.iter().any(|c| matches!(c.text.chars().filter(|ch| !ch.is_whitespace()).collect::<String>().as_str(), "改正後" | "改正前" | "改" | "正" | "後" | "前"));
         let left_of = cols.iter().filter(|c| c.x1 < v.x).count();
-        (upper > 0 && lower > 0 && !label && left_of >= 3).then_some((v.x, v.y0, v.y1, h.y))
+        (upper > 0 && lower > 0 && !label && left_of >= 3).then_some((v.x, v.y0, v.y1, hy))
     });
     let Some((x, y0, y1, mid)) = found else {
         return Err(cols);
@@ -1163,12 +1194,13 @@ fn split_horizontal_shinkyu_by(cols: &[Col], continuation: bool, check_pairs: bo
     let (lo, hi) = (left + span * 0.35, left + span * 0.65);
     // 候補は語の右端。またぐ語が無い切れ目のうち中央に最も近いもの。中ほどに右端の語が無ければ（改正後の欄が
     // 「削除」「［略］」だけで短い）、語の左端の手前。
+    // またぐかは 1〜2 字の語でも見る（小数の「0」「.」「24」の小数点と小数部は横長でないので、「0」の右で切れていた）。
     let gap = |xs: Vec<f32>| {
         xs.into_iter()
-            .filter(|&x| x > lo && x < hi && !body.iter().any(|d| d.x < x && x < d.x1))
+            .filter(|&x| x > lo && x < hi && !cols.iter().any(|d| d.x < x && x < d.x1))
             .min_by(|a, b| (a - center).abs().partial_cmp(&(b - center).abs()).unwrap_or(std::cmp::Ordering::Equal))
     };
-    let mid = gap(body.iter().map(|c| c.x1 + 1.0).collect()).or_else(|| gap(body.iter().map(|c| c.x - 1.0).collect()))?;
+    let mid = gap(cols.iter().map(|c| c.x1 + 1.0).collect()).or_else(|| gap(cols.iter().map(|c| c.x - 1.0).collect()))?;
     let (l, r): (Vec<&&Col>, Vec<&&Col>) = body.iter().partition(|c| c.x1 <= mid);
     let alike = |a: &str, b: &str| a == b || b.contains("同左");
     let matched = r
@@ -1417,7 +1449,10 @@ fn page_words_traced(
             (None, Some(g)) => g.text.clone(),
             (None, None) => word_text(&raw),
         };
-        let in_margin = if rotated {
+        // 綴じ穴の印「〇」2 つと中央の印（私用 CID の「△」の字形）は、横組みのページと号の 1 ページ目（横倒しとみなす）
+        // では紙面の上端（本文の上端 y≈47 より上の y≈7–26）に刷られている（本文に「〇」「△」の行が出ていた）。
+        let punch_mark = y1 <= PUNCH_MARK_BOTTOM && matches!(text.trim(), "〇" | "△");
+        let in_margin = punch_mark || if rotated {
             gx1 <= LEFT_STRIP
         } else {
             // 横倒しのページは回した座標の高さが表示の幅（`page_width`）。表示の高さで見ると、表示の右の
@@ -1519,6 +1554,25 @@ fn attach_minus_signs(cols: &mut Vec<Col>, words: &[Word]) -> std::collections::
         let Some((mx, my, mx1, my1)) = geom(cols[i].id) else { continue };
         let em = (mx1 - mx).max(my1 - my).max(1.0);
         let overlap = |a0: f32, a1: f32, b0: f32, b1: f32| (a1.min(b1) - a0.max(b0)) / (a1 - a0).min(b1 - b0).max(0.1);
+        // 括弧の中の「△」（「税金等調整前当期純損失（△）」「（△は減少）」の説明の印）は数に付けず、括弧の間の字として残す。印は縦書き用の
+        // 字形で少し上にずれ、前の語の「（」の右端に重なって置かれるので、括弧の間に置き直す（下の行の頭とみなして前の語の
+        // 頭に付けていた）。
+        let c = &cols[i];
+        let open = cols.iter().find(|o| {
+            (o.text.trim_end().ends_with('（') || o.text.trim_end().ends_with('(')) && overlap(o.y, o.y1, c.y, c.y1) >= 0.3 && o.x1 >= c.x - em && o.x1 <= c.x1 + 1.0
+        });
+        // 括弧の中の次の語（「）」「は減少）」）。
+        let close = cols.iter().filter(|o| o.id != c.id && !o.text.trim().is_empty()).find(|o| {
+            overlap(o.y, o.y1, c.y, c.y1) >= 0.3
+                && o.x >= c.x1 - 1.0
+                && o.x - c.x1 <= em * 1.5
+        });
+        if let (Some(o), Some(cl)) = (open, close) {
+            let (x, x1, y, y1) = (o.x1, cl.x - 0.01, cl.y, cl.y1);
+            let c = &mut cols[i];
+            (c.x, c.x1, c.y, c.y1) = (x, x1.max(x + 0.02), y, y1);
+            continue;
+        }
         let target = (0..cols.len())
             // 開き括弧だけの語（「(△785)」の「(」）には付けない（「△」は括弧の中の数に付く。下の行の「△」が、字に合わせて
             // 下にずれて置かれた上の行の「(」に付いていた）。
@@ -1526,11 +1580,15 @@ fn attach_minus_signs(cols: &mut Vec<Col>, words: &[Word]) -> std::collections::
             .filter_map(|j| {
                 let c = &cols[j];
                 let (cx, cy, cx1, cy1) = geom(c.id)?;
-                let number = c.text.trim_start().starts_with(|ch: char| ch.is_ascii_digit() || ('０'..='９').contains(&ch) || matches!(ch, '(' | '（'));
+                // 様式の金額の欄の「××」も数。
+                let number = c.text.trim_start().starts_with(|ch: char| ch.is_ascii_digit() || ('０'..='９').contains(&ch) || matches!(ch, '(' | '（' | '×'));
                 // 右揃えの金額の欄では「△」が欄の左端に置かれ、短い金額とは 10 字分ほど離れることがある。
                 let reach = if number { em * 12.0 } else { em };
-                let right = overlap(my, my1, cy, cy1) >= 0.5 && cx >= mx + em * 0.25 && cx - mx1 <= reach;
-                let below = overlap(mx, mx1, cx, cx1) >= 0.5 && cy >= my + em * 0.25 && cy - my1 <= reach;
+                // 縦書き用の字形の印（私用 CID）は横組みでは字の半分ほど上にずれて置かれる（様式の表の「△××」）ので、上下は
+                // 3 割の重なりまで見る。
+                let right = overlap(my, my1, cy, cy1) >= 0.3 && cx >= mx + em * 0.25 && cx - mx1 <= reach;
+                // 下の語は縦組みの語（横長の語は、同じ行の前の語に重なって置かれた印の下に見えるだけ）。
+                let below = overlap(mx, mx1, cx, cx1) >= 0.5 && cy >= my + em * 0.25 && cy - my1 <= reach && cx1 - cx <= (cy1 - cy).max(em * 1.5);
                 let gap = if right { cx - mx } else if below { cy - my } else { return None };
                 Some((!number, gap, j))
             })
@@ -2740,7 +2798,9 @@ fn label_strip(cols: &[Col], cut: f32) -> bool {
     let labels: Vec<&Col> = cols.iter().filter(|c| c.y1 <= cut && cut - c.y1 < em * 8.0 && c.text.chars().count() <= 8).collect();
     // 帯の上には何も無い（帯は段の頭。段の境の上の段の列の末尾の短い語を帯にしない）。帯は縦組み（横組みの語の
     // ある横組みの表の行の間では切ってよい）。
-    let above: Vec<&Col> = cols.iter().filter(|c| c.y1 <= cut).collect();
+    // 上の段の語（帯の上端より上で終わる語。表の段が上下に並ぶページの 2 段目の帯）は見ない。
+    let band_top = labels.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+    let above: Vec<&Col> = cols.iter().filter(|c| c.y1 <= cut && c.y1 > band_top + 1.0).collect();
     if above.iter().any(|c| cut - c.y > em * 8.0 || (c.text.chars().count() >= 2 && c.x1 - c.x > c.y1 - c.y)) {
         return false;
     }
@@ -2779,7 +2839,8 @@ fn label_strip(cols: &[Col], cut: f32) -> bool {
         .count();
     // 欄見出しの下はそれぞれ 1 つの値（2 つまでの語）。下に記録が何件も並ぶ表（政治団体の名称・代表者の氏名…の欄の
     // 下に団体ごとの行が続く）は、欄見出しの帯を段に分けて読む（[`record_bands`]）。
-    let values = |x: f32| cols.iter().filter(|v| v.y >= cut && (center(v) - x).abs() < em * 0.5).count();
+    // 値は帯のすぐ下の段の中（下の段の記録の値は数えない）。
+    let values = |x: f32| cols.iter().filter(|v| v.y >= cut && v.y - cut < em * 16.0 && (center(v) - x).abs() < em * 0.5).count();
     let single = groups.iter().filter(|g| values(g.0) <= 2).count();
     below * 10 >= groups.len() * 7 && single * 10 >= groups.len() * 7
 }

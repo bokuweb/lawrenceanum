@@ -1,6 +1,5 @@
 ---
 source: crates/kanpo-parser/tests/archive_snapshots.rs
-assertion_line: 98
 expression: out
 input_file: crates/kanpo-parser/tests/archive/pages/20260831h01779/20260831h017790009.pdf
 ---
@@ -115,14 +114,11 @@ format: prose
 〃〃〃
 摘要
 VERSION1での
-既整備範囲を含
-む。
+既整備範囲を含む。
 VERSION1での
-既整備範囲を含
-む。
+既整備範囲を含む。
 VERSION1での
-既整備範囲を含
-む。
+既整備範囲を含む。
 
 --- 記事 ---
 ## 0 (prose)
