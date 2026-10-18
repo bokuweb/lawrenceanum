@@ -2012,7 +2012,12 @@ fn rule_cut(words: &[Col], blocks: &[Block], vrules: &[(f32, f32, f32)], hrules:
                 && !right.is_empty()
                 && width(&left) >= MIN_TEXT_COLUMN_WIDTH
                 && width(&right) >= MIN_TEXT_COLUMN_WIDTH;
-            divider || is_column_split(&left, &right, false)
+            // 文字の層に見出しだけがあるページ（本文が画像の家裁公告の 4 段組）は、語が少なく段の幅の行が無いので、紙面の
+            // 高さいっぱい（400pt 以上）の段の境の線なら列に分ける（見出しが上から順に読まれ、段の順にならなかった）。
+            // 左右に同じ高さで並ぶ行（表の行）があれば見出しではない。
+            let side_by_side = left.iter().any(|l| right.iter().any(|r| l.y < r.y1 && r.y < l.y1));
+            let sparse = ry1 - ry0 >= 400.0 && !left.is_empty() && !right.is_empty() && group_lines(words).len() <= 12 && !side_by_side;
+            divider || sparse || is_column_split(&left, &right, false)
         })
         .max_by(|a, b| (a.2.min(y1) - a.1.max(y0)).total_cmp(&(b.2.min(y1) - b.1.max(y0))).then(b.0.total_cmp(&a.0)))
         .map(|r| r.0)
