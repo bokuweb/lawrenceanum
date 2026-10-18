@@ -1,0 +1,318 @@
+//! 裁判所 裁判例検索 (https://www.courts.go.jp/hanrei/) のクライアント。
+//!
+//! 取得するのはメタデータ (事件番号・事件名・裁判年月日・法廷名・結果・参照法条など) と
+//! 全文 PDF への URL まで。サイト利用条件は「著作権法上認められている利用」「無断改変禁止」
+//! のため、判示事項・裁判要旨・参照法条は原文のまま保持し、出典 URL を必ず添える。
+//! robots.txt は `/hanrei/` を禁止していない (2026-10 確認)。リクエスト間隔は
+//! [`HttpProvider`] が空ける。
+
+use anyhow::{Context, Result};
+use scraper::{ElementRef, Html, Selector};
+use serde::{Deserialize, Serialize};
+use std::time::Duration;
+
+pub const BASE: &str = "https://www.courts.go.jp";
+
+/// 一覧の 1 行。`case_id` は courts.go.jp 内部の連番 (`/hanrei/{case_id}/detail2/`)。
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CaseListItem {
+    pub case_id: u64,
+    pub case_number: String,
+    pub case_name: String,
+    /// 和暦のまま (例: 令和8年8月28日)。
+    pub judged_on: String,
+    pub court: String,
+    pub detail_url: String,
+    pub pdf_url: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CaseDetail {
+    pub case_id: u64,
+    pub case_number: String,
+    pub case_name: String,
+    pub judged_on: String,
+    pub court: String,
+    pub judgment_type: String,
+    pub result: String,
+    pub reporter: String,
+    pub lower_court: String,
+    pub lower_case_number: String,
+    pub lower_judged_on: String,
+    pub holding: String,
+    pub summary: String,
+    pub referenced_laws: String,
+    pub detail_url: String,
+    pub pdf_url: Option<String>,
+}
+
+fn sel(s: &str) -> Selector {
+    Selector::parse(s).expect("static selector")
+}
+
+fn text_of(e: ElementRef) -> String {
+    e.text().collect::<Vec<_>>().join(" ")
+}
+
+fn squash(s: &str) -> String {
+    s.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+/// `./../../assets/x.pdf` のような相対 URL を `page_url` 基準で絶対 URL にする。
+fn abs_url(page_url: &str, href: &str) -> String {
+    if href.starts_with("http://") || href.starts_with("https://") {
+        return href.to_string();
+    }
+    let after_scheme = page_url.find("://").map(|i| i + 3).unwrap_or(0);
+    let path_start = page_url[after_scheme..]
+        .find('/')
+        .map(|j| after_scheme + j)
+        .unwrap_or(page_url.len());
+    let (origin, path) = page_url.split_at(path_start);
+    if let Some(rest) = href.strip_prefix('/') {
+        return format!("{origin}/{rest}");
+    }
+    let path = path.split(['?', '#']).next().unwrap_or("");
+    let mut segs: Vec<&str> = path.split('/').collect();
+    segs.pop(); // ファイル名 (index.html) を落とす
+    for part in href.split('/') {
+        match part {
+            "." | "" => {}
+            ".." => {
+                if segs.len() > 1 {
+                    segs.pop();
+                }
+            }
+            p => segs.push(p),
+        }
+    }
+    format!("{origin}{}", segs.join("/"))
+}
+
+fn case_id_from_url(url: &str) -> Option<u64> {
+    url.split('/').find_map(|p| p.parse::<u64>().ok())
+}
+
+/// 検索結果一覧 (`search2`〜`search7`) の HTML をパースする。
+pub fn parse_list(html: &str, page_url: &str) -> Vec<CaseListItem> {
+    let doc = Html::parse_document(html);
+    let (tr, th_a, td, p, pdf_a) = (
+        sel("tr"),
+        sel("th a[href]"),
+        sel("td"),
+        sel("td p"),
+        sel("td.file-col a[href]"),
+    );
+    let mut out = Vec::new();
+    for row in doc.select(&tr) {
+        let Some(a) = row.select(&th_a).next() else { continue };
+        let href = a.value().attr("href").unwrap_or_default();
+        let Some(case_id) = case_id_from_url(href) else { continue };
+        let Some(info) = row.select(&td).next() else { continue };
+        let paras: Vec<String> = info.select(&p).map(|e| squash(&text_of(e))).collect();
+        let first = paras.first().cloned().unwrap_or_default();
+        // 1 段落目は「事件番号 事件名」。事件番号は最初の空白まで。
+        let (case_number, case_name) = match first.split_once(' ') {
+            Some((a, b)) => (a.to_string(), b.to_string()),
+            None => (first, String::new()),
+        };
+        // 2 段落目は「裁判年月日 法廷名 種別 結果 …」。
+        let second = paras.get(1).cloned().unwrap_or_default();
+        let mut it = second.split(' ');
+        let judged_on = it.next().unwrap_or_default().to_string();
+        let court = it.next().unwrap_or_default().to_string();
+        out.push(CaseListItem {
+            case_id,
+            case_number,
+            case_name,
+            judged_on,
+            court,
+            detail_url: abs_url(page_url, href),
+            pdf_url: row
+                .select(&pdf_a)
+                .next()
+                .and_then(|a| a.value().attr("href"))
+                .map(|h| abs_url(page_url, h)),
+        });
+    }
+    out
+}
+
+/// 詳細ページ (`/hanrei/{id}/detail2/`) をパースする。見出し (`dt`) と値 (`dd`) が
+/// 項目ごとの `dl` に分かれているため、`dt`/`dd` を文書順に読んで対応づける。
+pub fn parse_detail(html: &str, page_url: &str) -> Result<CaseDetail> {
+    let case_id = case_id_from_url(page_url)
+        .with_context(|| format!("case id not found in {page_url}"))?;
+    let doc = Html::parse_document(html);
+    let mut kv: Vec<(String, String)> = Vec::new();
+    let mut key: Option<String> = None;
+    for e in doc.select(&sel("dl dt, dl dd")) {
+        let t = squash(&text_of(e));
+        if e.value().name() == "dt" {
+            if let Some(k) = key.replace(t) {
+                kv.push((k, String::new()));
+            }
+        } else if let Some(k) = key.take() {
+            kv.push((k, t));
+        }
+    }
+    if let Some(k) = key {
+        kv.push((k, String::new()));
+    }
+    anyhow::ensure!(!kv.is_empty(), "no definition list found in {page_url}");
+    let get = |name: &str| {
+        kv.iter()
+            .find(|(k, _)| k == name)
+            .map(|(_, v)| v.clone())
+            .unwrap_or_default()
+    };
+    Ok(CaseDetail {
+        case_id,
+        case_number: get("事件番号"),
+        case_name: get("事件名"),
+        judged_on: get("裁判年月日"),
+        court: get("法廷名"),
+        judgment_type: get("裁判種別"),
+        result: get("結果"),
+        reporter: get("判例集等巻・号・頁"),
+        lower_court: get("原審裁判所名"),
+        lower_case_number: get("原審事件番号"),
+        lower_judged_on: get("原審裁判年月日"),
+        holding: get("判示事項"),
+        summary: get("裁判要旨"),
+        referenced_laws: get("参照法条"),
+        detail_url: page_url.to_string(),
+        pdf_url: doc
+            .select(&sel("a[href$='.pdf']"))
+            .next()
+            .and_then(|a| a.value().attr("href"))
+            .map(|h| abs_url(page_url, h)),
+    })
+}
+
+/// 一覧ページの「N件中 a～b件を表示」から総件数 N を読む。
+pub fn parse_total(html: &str) -> Option<usize> {
+    let head = &html[..html.find("件中")?];
+    let rev: String = head
+        .chars()
+        .rev()
+        .skip_while(|c| c.is_whitespace())
+        .take_while(|c| c.is_ascii_digit() || *c == ',')
+        .filter(|c| *c != ',')
+        .collect();
+    rev.chars().rev().collect::<String>().parse().ok()
+}
+
+pub struct HttpProvider {
+    client: reqwest::blocking::Client,
+    interval: Duration,
+}
+
+impl HttpProvider {
+    pub fn new(interval: Duration) -> Result<Self> {
+        let client = reqwest::blocking::Client::builder()
+            .user_agent("lawrenceanum/0.1 (+https://github.com/bokuweb/lawrenceanum)")
+            .timeout(Duration::from_secs(60))
+            .build()?;
+        Ok(Self { client, interval })
+    }
+
+    fn get_text(&self, url: &str) -> Result<String> {
+        std::thread::sleep(self.interval);
+        let resp = self.client.get(url).send()?.error_for_status()?;
+        Ok(resp.text()?)
+    }
+
+    /// 分野別ページ (`search{search_page}`: 2=最高裁 3=高裁 4=下級裁 5=行政 6=労働 7=知財)
+    /// の「最近の裁判例」一覧。`court_case_type` はそのページの `courtCaseType` 値。
+    pub fn fetch_recent(&self, search_page: u8, court_case_type: u8) -> Result<Vec<CaseListItem>> {
+        let url = format!(
+            "{BASE}/hanrei/search{search_page}/index.html?courtCaseType={court_case_type}&filter[recent]=1"
+        );
+        let html = self.get_text(&url)?;
+        Ok(parse_list(&html, &url))
+    }
+
+    pub fn fetch_detail(&self, case_id: u64) -> Result<CaseDetail> {
+        let url = format!("{BASE}/hanrei/{case_id}/detail2/index.html");
+        let html = self.get_text(&url)?;
+        parse_detail(&html, &url)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const LIST: &str = r#"
+<p>11件中 1～11件を表示</p>
+<table><tbody>
+<tr>
+  <th><a href="./../96970/detail2/index.html">最高裁判例</a></th>
+  <td>
+    <p>
+      令和6(受)2169
+      建物買取代金請求事件
+    </p>
+    <p>
+      令和8年8月28日
+      最高裁判所第二小法廷
+      判決
+      棄却
+    </p>
+  </td>
+  <td class="file-col"><p><a href="./../../assets/hanrei/hanrei-pdf-96970.pdf">全文</a></p></td>
+</tr>
+</tbody></table>"#;
+
+    #[test]
+    fn parses_list_row() {
+        let url = "https://www.courts.go.jp/hanrei/search2/index.html?courtCaseType=1";
+        let items = parse_list(LIST, url);
+        assert_eq!(items.len(), 1);
+        let it = &items[0];
+        assert_eq!(it.case_id, 96970);
+        assert_eq!(it.case_number, "令和6(受)2169");
+        assert_eq!(it.case_name, "建物買取代金請求事件");
+        assert_eq!(it.judged_on, "令和8年8月28日");
+        assert_eq!(it.court, "最高裁判所第二小法廷");
+        assert_eq!(
+            it.detail_url,
+            "https://www.courts.go.jp/hanrei/96970/detail2/index.html"
+        );
+        assert_eq!(
+            it.pdf_url.as_deref(),
+            Some("https://www.courts.go.jp/assets/hanrei/hanrei-pdf-96970.pdf")
+        );
+        assert_eq!(parse_total(LIST), Some(11));
+    }
+
+    #[test]
+    fn parses_detail() {
+        let html = r#"
+<dl><dt>事件番号</dt><dd><p> 令和6(受)2169 </p></dd></dl>
+<dl><dt>事件名</dt><dd>建物買取代金請求事件</dd></dl>
+<dl><dt>裁判年月日</dt><dd>令和8年8月28日</dd></dl>
+<dl><dt>法廷名</dt><dd>最高裁判所第二小法廷 </dd></dl>
+<dl><dt>裁判種別</dt><dd>判決</dd></dl>
+<dl><dt>結果</dt><dd>棄却</dd></dl>
+<dl><dt>判例集等巻・号・頁</dt><dd></dd></dl>
+<dl><dt>判示事項</dt><dd>借地借家法１４条所定の建物買取請求権は成立しない</dd></dl>
+<dl><dt>裁判要旨</dt><dd></dd></dl>
+<dl><dt>参照法条</dt><dd>借地借家法14条</dd></dl>
+<a href="/assets/hanrei/hanrei-pdf-96970.pdf">全文</a>"#;
+        let d = parse_detail(html, "https://www.courts.go.jp/hanrei/96970/detail2/index.html")
+            .unwrap();
+        assert_eq!(d.case_id, 96970);
+        assert_eq!(d.case_number, "令和6(受)2169");
+        assert_eq!(d.court, "最高裁判所第二小法廷");
+        assert_eq!(d.result, "棄却");
+        assert_eq!(d.reporter, "");
+        assert_eq!(d.summary, "");
+        assert_eq!(d.referenced_laws, "借地借家法14条");
+        assert_eq!(
+            d.pdf_url.as_deref(),
+            Some("https://www.courts.go.jp/assets/hanrei/hanrei-pdf-96970.pdf")
+        );
+    }
+}

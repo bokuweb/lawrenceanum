@@ -20,6 +20,7 @@ members = [
     "crates/shingikai-client",
     "crates/estat-client",
     "crates/gian-client",
+    "crates/hanrei-client",
     "crates/tsutatsu-client",
 ]
 
