@@ -2,41 +2,46 @@
   "version": 2,
   "corpora": {
     "procurement": {
-      "last_attempt_at": "2026-10-17T20:37:50Z",
+      "last_attempt_at": "2026-10-18T20:35:49Z",
       "status": "success",
-      "last_success_at": "2026-10-17T20:37:50Z"
+      "last_success_at": "2026-10-18T20:35:49Z"
     },
     "proceedings": {
-      "last_attempt_at": "2026-10-17T20:37:50Z",
+      "last_attempt_at": "2026-10-18T20:35:49Z",
       "status": "success",
-      "last_success_at": "2026-10-17T20:37:50Z"
+      "last_success_at": "2026-10-18T20:35:49Z"
     },
     "pubcomment": {
-      "last_attempt_at": "2026-10-17T20:37:50Z",
+      "last_attempt_at": "2026-10-18T20:35:49Z",
       "status": "success",
-      "last_success_at": "2026-10-17T20:37:50Z"
+      "last_success_at": "2026-10-18T20:35:49Z"
     },
     "gian": {
-      "last_attempt_at": "2026-10-17T20:37:50Z",
+      "last_attempt_at": "2026-10-18T20:35:49Z",
       "status": "success",
-      "last_success_at": "2026-10-17T20:37:50Z"
+      "last_success_at": "2026-10-18T20:35:49Z"
     },
     "tsutatsu": {
-      "last_attempt_at": "2026-10-17T20:37:50Z",
+      "last_attempt_at": "2026-10-18T20:35:49Z",
       "status": "success",
-      "last_success_at": "2026-10-17T20:37:50Z"
+      "last_success_at": "2026-10-18T20:35:49Z"
     },
     "shingikai": {
-      "last_attempt_at": "2026-10-17T20:37:50Z",
+      "last_attempt_at": "2026-10-18T20:35:49Z",
       "status": "success",
-      "last_success_at": "2026-10-17T20:37:50Z"
+      "last_success_at": "2026-10-18T20:35:49Z"
     },
     "budget": {
-      "last_attempt_at": "2026-10-17T20:37:50Z",
+      "last_attempt_at": "2026-10-18T20:35:49Z",
       "status": "success",
-      "last_success_at": "2026-10-17T20:37:50Z"
+      "last_success_at": "2026-10-18T20:35:49Z"
+    },
+    "hanrei": {
+      "last_attempt_at": "2026-10-18T20:35:49Z",
+      "status": "success",
+      "last_success_at": "2026-10-18T20:35:49Z"
     }
   },
-  "updated_at": "2026-10-17T20:37:50Z",
-  "last_run_domains": "kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget"
+  "updated_at": "2026-10-18T20:35:49Z",
+  "last_run_domains": "kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget,hanrei"
 }
