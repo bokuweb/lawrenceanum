@@ -2376,7 +2376,12 @@ fn is_column_split(left: &[Col], right: &[Col], boxed: bool) -> bool {
     }
     // 右が金額だけの狭い欄（150pt 未満）なら、行が揃わなくても表の欄（合計の金額は科目の無い行に置く）。
     let amount_column = wr < MIN_TEXT_COLUMN_WIDTH && amounts(&rl);
-    let table_like = (aligned as f32 >= few.len() as f32 * 0.75 && (wl.min(wr) < MIN_TEXT_COLUMN_WIDTH || amounts(&rl))) || labels || amount_column;
+    // 左の行と高さの揃う右の行がほとんど金額だけなら、右の上の欄見出しの行が多くても表の列（財政資金対民間収支実績表の
+    // 「—」の字の無い欄の空きが溝に見え、科目と 4 月の収入の欄と、ほかの月の欄が別々に読まれていた）。
+    let paired: Vec<Line> = rl.iter().filter(|b| ll.iter().any(|a| (a.center() - b.center()).abs() <= ALIGN_TOL)).cloned().collect();
+    let table_like = (aligned as f32 >= few.len() as f32 * 0.75 && (wl.min(wr) < MIN_TEXT_COLUMN_WIDTH || amounts(&rl) || (paired.len() >= 5 && amounts(&paired))))
+        || labels
+        || amount_column;
     // 本文の段なら、段の幅いっぱいの行がある。見出しだけの側（「官　庁　事　項」と
     // 「人事院公示第26号」が離れて並ぶ等）は、全体の幅が広くても 1 行ずつは短い。
     let longest_line = |ls: &[Line]| ls.iter().map(|l| width(&l.words)).fold(0.0, f32::max);
@@ -2436,10 +2441,22 @@ fn band_cut(lines: &[Line], blocks: &[Block]) -> Option<f32> {
     let mut items: Vec<(f32, f32, Option<&Line>)> =
         lines.iter().map(|l| (l.y0, l.y1, Some(l))).chain(blocks.iter().map(|b| (b.1, b.3, None))).collect();
     items.sort_by(|a, b| a.0.total_cmp(&b.0));
+    // 数が 5 つ以上並ぶ行（月ごとの欄の並ぶ広い統計の表の行）どうしの間では切らない（財政資金対民間収支実績表で、字の層に
+    // 無い「—」の欄の空きが溝に見え、表の上の数行だけが列組みとして切り出されていた）。
+    let numbers = |l: &Line| {
+        let mut n = 0;
+        for (i, w) in l.words.iter().enumerate() {
+            if w.text.chars().any(|c| c.is_ascii_digit()) && !(i > 0 && number_continues(&l.words[i - 1], w)) {
+                n += 1;
+            }
+        }
+        n
+    };
+    let figures = |it: &(f32, f32, Option<&Line>)| it.2.is_some_and(|l| numbers(l) >= 5);
     let mut best: Option<(usize, f32)> = None;
     let mut bottom_edge = f32::NEG_INFINITY;
     for (i, &(y0, y1, _)) in items.iter().enumerate() {
-        if i > 0 && y0 > bottom_edge {
+        if i > 0 && y0 > bottom_edge && !(figures(&items[i - 1]) && figures(&items[i])) {
             let cut = (bottom_edge + y0) / 2.0;
             let (top, bottom) = items.split_at(i);
             let score = [top, bottom]
