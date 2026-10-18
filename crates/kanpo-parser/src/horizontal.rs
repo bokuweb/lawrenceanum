@@ -954,9 +954,12 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
             // 科目の行の折り返しは前の行に行間を空けずに続く（科目と科目の間は行間が空く。「有形固定」「資産合計」
             // 「２無形固定資産」）。
             let tight = |k: usize| k > 0 && cell_lines[i][k].y0 - cell_lines[i][k - 1].y1 < (cell_lines[i][k].y1 - cell_lines[i][k].y0) * 0.25;
+            // 前の行と次の行がどちらも科目の名前で終われば、行間を空けずに続いても次の科目（金額の「―」が字の層に無い
+            // 科目「固定負債」が上の科目「流動負債」に続いていた）。
+            let next_item = |k: usize| k > 0 && account_end(&cell_lines[i][k - 1]) && account_end(&cell_lines[i][k]);
             for (k, l) in cell_lines[i].iter().enumerate() {
                 let c = l.center();
-                if top < c && c < bottom && (aligned[k] || (rows_of_items && !tight(k))) {
+                if top < c && c < bottom && (aligned[k] || next_item(k) || (rows_of_items && !tight(k))) {
                     anchors.push(l.y0 - 0.5);
                 }
             }
@@ -1000,7 +1003,9 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
                         // 科目の欄の同じ行の 2 行目からは、行間を空けずに続く折り返し（右端まで組んでいない「掛金及過去
                         // 勤務掛金収」「入」も）。
                         let continued = item_cells[i] && l.y0 - ls[k.max(1) - 1].y1 < (l.y1 - l.y0) * 0.25;
-                        if k > 0 && !wrapped(ls[k - 1], l, g.xs[gc.x1]) && !amount_tail(ls[k - 1], l) && !continued {
+                        // 2 行とも科目の名前で終われば別の科目（字間を空けて欄の幅いっぱいに組んだ「流　動　負　債」は右端に届く）。
+                        let items = k > 0 && account_end(ls[k - 1]) && account_end(l);
+                        if k > 0 && (items || (!wrapped(ls[k - 1], l, g.xs[gc.x1]) && !amount_tail(ls[k - 1], l) && !continued)) {
                             text.push('\n');
                         }
                         text.push_str(&render_line(&l.words));
@@ -1027,6 +1032,15 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
         cols: g.xs.len() - 1,
         cells,
     })
+}
+
+/// 行が科目の名前（頭に 2 字以上ある）で終わるか（「流動負債」「固定資産」「営業外収益」「賞与引当金」「その他利益剰余金」）。
+/// 続く 2 行がどちらも科目の名前で終わるなら、折り返し（「固定資産」「売却益」）ではなく別の科目。
+fn account_end(l: &Line) -> bool {
+    const TERMS: [&str; 14] = ["負債", "資産", "資本", "利益", "損失", "収益", "費用", "引当金", "剰余金", "準備金", "積立金", "差額金", "合計", "株式"];
+    let t: String = l.words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace()).collect();
+    // 名前の頭が 2 字以上（「引当金」だけの行は「うち利息返還損失」「引当金」の折り返し）。
+    TERMS.iter().any(|e| t.ends_with(e) && t.chars().count() >= e.chars().count() + 2)
 }
 
 /// 語が縦に積まれているか（縦組みの欄の名前）。2 語・3 字以上で、どの語も 1〜2 字か縦長で、全体が
