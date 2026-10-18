@@ -1669,8 +1669,14 @@ fn join_wrapped_labels(lines: Vec<Line>) -> Vec<Line> {
                 let after = h + 1 + p.words[h + 1..].iter().take_while(|w| joined(w)).count();
                 let limit = p.words.get(after).map(|w| w.x).unwrap_or(f32::INFINITY);
                 let hw = &p.words[h];
+                // 注の番号（「（注１）」「１）」）は数でも科目の続き。
+                let note = {
+                    let t = text.trim_start_matches(['（', '(']).trim_start_matches('注');
+                    let t = t.trim_end_matches(['）', ')']);
+                    !t.is_empty() && t.chars().all(digit) && (text.ends_with(['）', ')']))
+                };
                 let tail = (1..=8).contains(&text.chars().count())
-                    && !text.chars().any(digit)
+                    && (!text.chars().any(digit) || note)
                     // 続きの行は 1 つの欄の中（語の間が空かない。表の別の欄の「日」を科目の続きにしない）。
                     && l.words.windows(2).all(|q| q[1].x - q[0].x1 < em * 0.5)
                     && l.words.iter().all(|w| w.x1 <= limit)
