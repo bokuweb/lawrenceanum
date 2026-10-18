@@ -507,7 +507,7 @@ pub(crate) fn row_key(text: &str) -> bool {
 /// 漢字の付いた登録番号（宅地建物取引業の免許番号「令08全保1384」、肥料の登録番号「生第100209号」「輸第4774号」、
 /// 型式認定番号「交Ｎ26－67」）。漢字 1〜3 字・英数字・漢字 1〜3 字・数字・「号」の並び（前後の漢字と途中の
 /// 漢字は省けるが、漢字は 2 か所まで）で、数字が 4 字以上（住所の「香川55－７」は除く）。日付・金額（年・月・日・円）
-/// と住所（番地・丁目・町など）も除く。
+/// と住所（番地・丁目・町など。漢字の後が数字と「－」だけの「中島５－８－29」も）も除く。
 fn kanji_code(t: &str) -> bool {
     let digit = |c: char| c.is_ascii_digit() || ('０'..='９').contains(&c);
     let alnum = |c: char| digit(c) || c.is_ascii_alphabetic() || ('Ａ'..='Ｚ').contains(&c) || "－-".contains(c);
@@ -532,8 +532,12 @@ fn kanji_code(t: &str) -> bool {
         }
     }
     let kanji_runs: Vec<usize> = runs.iter().filter(|r| r.0).map(|r| r.1).collect();
+    // 漢字の後が数字と「－」だけで「－」を含み、「号」で終わらないものは住所の続き（「中島５－８－29」「大石原200－３」。
+    // 縦組みの表の住所の欄の折り返し）。
+    let tail: Vec<char> = chars.iter().rev().take_while(|&&c| !kanji(c)).copied().collect();
+    let address = !t.ends_with('号') && tail.iter().any(|c| "－-".contains(*c)) && tail.iter().all(|&c| digit(c) || "－-".contains(c));
     // 英数字で終わり、漢字の並びは 2 つまで・各 3 字まで。
-    runs.last().is_some_and(|r| !r.0) && kanji_runs.len() <= 2 && kanji_runs.iter().all(|&n| n <= 3)
+    !address && runs.last().is_some_and(|r| !r.0) && kanji_runs.len() <= 2 && kanji_runs.iter().all(|&n| n <= 3)
 }
 
 /// 罫線の無い横組みの表で、左端の列に行の見出しの番号（[`row_key`]）が 3 つ以上縦に並ぶものを表に
