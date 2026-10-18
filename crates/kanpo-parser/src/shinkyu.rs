@@ -433,10 +433,21 @@ impl ShinkyuLayout {
     /// よう、段ごとに組んで前文より先に出す。
     pub(crate) fn split_off_leading_continuation(&mut self, divider: f32, grids: &[Grid], rules: Option<&PageRules>) -> Vec<Unit> {
         let spans = |c: &Col| c.y < divider && c.y1 > divider;
-        let Some(span_right) = self.preamble.iter().filter(|c| spans(c)).map(|c| c.x1).reduce(f32::max) else {
-            return Vec::new();
+        // 前文が上の帯に収まる（両帯を跨ぐ列が無い）ときは、上下の帯で同じ x に並ぶ列（3 つ以上）を前の表の末尾とし、
+        // その左端を前文の右端とみなす（前の表の末尾の上下の行が 1 行につながっていた）。
+        let paired: Vec<&Col> = self
+            .preamble
+            .iter()
+            .filter(|c| c.y1 <= divider && self.preamble.iter().any(|d| d.y >= divider && (d.x - c.x).abs() <= 2.0))
+            .collect();
+        let (span_right, em) = match self.preamble.iter().filter(|c| spans(c)).map(|c| c.x1).reduce(f32::max) {
+            Some(r) => (r, self.preamble.iter().filter(|c| spans(c)).map(|c| c.x1 - c.x).fold(f32::INFINITY, f32::min)),
+            None if paired.len() >= 3 => (
+                paired.iter().map(|c| c.x).fold(f32::INFINITY, f32::min) - 3.0,
+                paired.iter().map(|c| c.x1 - c.x).fold(f32::INFINITY, f32::min),
+            ),
+            None => return Vec::new(),
         };
-        let em = self.preamble.iter().filter(|c| spans(c)).map(|c| c.x1 - c.x).fold(f32::INFINITY, f32::min);
         // 字の大きさは幅と高さの小さい方で比べる（縦中横の「(120)」は幅だけ広い）。
         let glyph = |c: &Col| (c.x1 - c.x).min(c.y1 - c.y);
         // 表の帯（罫線の外枠があればその上端）より上（段の上の方の前文）は末尾ではない。
