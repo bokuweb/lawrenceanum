@@ -890,12 +890,27 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
     if cell_lines.iter().filter(|l| !l.is_empty()).count() < 2 {
         return None;
     }
-    let prose = cell_lines.iter().any(|ls| {
-        let t: String = ls.iter().flat_map(|l| l.words.iter().map(|w| w.text.as_str())).collect();
-        // 縦の罫線だけの表の欄は、行を区切る線が無いので 1 つのセルに科目が全部入る（字数では見ない）。
-        // 項目名｜内容の表の内容の欄は文なので、文の数でも見ない（縦の罫線だけの表は文の無いものだけ）。
+    let text_of = |i: usize| -> String { cell_lines[i].iter().flat_map(|l| l.words.iter().map(|w| w.text.as_str())).collect() };
+    // 縦の罫線だけの表の欄は、行を区切る線が無いので 1 つのセルに科目が全部入る（字数では見ない）。
+    // 項目名｜内容の表の内容の欄は文なので、文の数でも見ない（縦の罫線だけの表は文の無いものだけ）。
+    let prose_cell = |i: usize| {
+        let t = text_of(i);
         item_cols == 0 && (t.chars().count() > 200 || t.matches('。').count() >= 2)
-    });
+    };
+    // 文は最後の欄にだけあり、その行の前の欄に短い項目名（40 字以内）があれば、項目名｜内容の表（遺伝子組換え生物等の
+    // 承認の告示の「遺伝子組換え生物等の第一種使用等の方法」｜「…」）。
+    // 項目名の下に欄をまたいで組んだ内容の文（項目名の無い行）も、項目名｜内容の行が 2 つ以上ある表なら同じ。
+    let last = g.xs.len() - 1;
+    let label_of = |i: usize| {
+        let gc = g.cells[i];
+        (0..g.cells.len()).any(|j| {
+            let o = g.cells[j];
+            o.x1 <= gc.x0 && o.y0 < gc.y1 && gc.y0 < o.y1 && !cell_lines[j].is_empty() && text_of(j).chars().count() <= 40
+        })
+    };
+    let label_rows = (0..g.cells.len()).filter(|&i| g.cells[i].x1 == last && g.cells[i].x0 > 0 && !cell_lines[i].is_empty() && label_of(i)).count();
+    let labeled = |i: usize| g.cells[i].x1 == last && g.cells[i].x0 > 0 && (label_of(i) || label_rows >= 2);
+    let prose = (0..cell_lines.len()).any(|i| prose_cell(i) && !labeled(i));
     if prose {
         return None;
     }
@@ -1005,7 +1020,10 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
                         let continued = item_cells[i] && l.y0 - ls[k.max(1) - 1].y1 < (l.y1 - l.y0) * 0.25;
                         // 2 行とも科目の名前で終われば別の科目（字間を空けて欄の幅いっぱいに組んだ「流　動　負　債」は右端に届く）。
                         let items = k > 0 && account_end(ls[k - 1]) && account_end(l);
-                        if k > 0 && (items || (!wrapped(ls[k - 1], l, g.xs[gc.x1]) && !amount_tail(ls[k - 1], l) && !continued)) {
+                        // 行末の金額（「（旧無級地であつた地域）　1.012」）の次の行は折り返しではない（金額の欄の無い升に
+                        // 項目と係数を並べた表）。
+                        let after_amount = k > 0 && amount_end(ls[k - 1]) && !amount_tail(ls[k - 1], l);
+                        if k > 0 && (items || after_amount || (!wrapped(ls[k - 1], l, g.xs[gc.x1]) && !amount_tail(ls[k - 1], l) && !continued)) {
                             text.push('\n');
                         }
                         text.push_str(&render_line(&l.words));
@@ -1032,6 +1050,14 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
         cols: g.xs.len() - 1,
         cells,
     })
+}
+
+/// 行が小数点か桁区切りのある数（「1.012」「3,373,355」）で終わるか。金額は桁の区切りで語が割れる（「1」「.」「012」）
+/// ので、行の字の末尾の数で見る。
+fn amount_end(l: &Line) -> bool {
+    let t = render_line(&l.words);
+    let tail: String = t.chars().rev().take_while(|c| c.is_ascii_digit() || matches!(c, '.' | ',')).collect();
+    tail.starts_with(|c: char| c.is_ascii_digit()) && tail.contains(['.', ','])
 }
 
 /// 行が科目の名前（頭に 2 字以上ある）で終わるか（「流動負債」「固定資産」「営業外収益」「賞与引当金」「その他利益剰余金」）。
@@ -1224,6 +1250,10 @@ fn order_region(words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: bool, c
         return;
     }
     let lines = group_lines(&words);
+    // 語の左右の範囲の外にある表（紙面の隣の段いっぱいの表）は、語の領域の切れ目をふさがない。
+    let (wx0, wx1) = (words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min), words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max));
+    let near: Vec<Block> = blocks.iter().filter(|b| b.0 < wx1 && b.2 > wx0).copied().collect();
+    let blocks = near.as_slice();
     if lines.len() >= 2 {
         if let Some((cut, top, bottom)) = paired_tables_cut(&words, ctx.tables) {
             let (above, rest): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < top);
@@ -1394,12 +1424,6 @@ fn block_table(xs: &[f32], ys: &[f32], words: &[Col]) -> trace::Table {
             }
             let ls = group_cell_lines(&ws);
             // 行末の金額（「…に係るもの　1.000」）の次の行は折り返しではない。
-            // 金額は桁の区切りで語が割れる（「1」「.」「000」）ので、行の字の末尾の数で見る。
-            let amount_end = |l: &Line| {
-                let t = render_line(&l.words);
-                let tail: String = t.chars().rev().take_while(|c| c.is_ascii_digit() || matches!(c, '.' | ',')).collect();
-                tail.starts_with(|c: char| c.is_ascii_digit()) && tail.contains(['.', ','])
-            };
             let mut text = String::new();
             for (k, l) in ls.iter().enumerate() {
                 if k > 0 && (amount_end(&ls[k - 1]) || !wrapped(&ls[k - 1], l, xs[col + 1] + 0.5)) {

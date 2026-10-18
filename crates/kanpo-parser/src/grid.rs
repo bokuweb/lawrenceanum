@@ -55,9 +55,15 @@ impl Grid {
     }
     /// 点が入るセル。
     pub fn cell_at(&self, x: f32, y: f32) -> Option<usize> {
-        self.cells.iter().position(|c| {
-            self.xs[c.x0] <= x && x < self.xs[c.x1] && self.ys[c.y0] <= y && y < self.ys[c.y1]
-        })
+        // 線の途切れで L 字につながった升（欄をまたぐ見出しの行と、その下の字下げの細い欄）は外接矩形が隣の升に
+        // 重なるので、点を含む升のうち一番小さいもの。
+        let area = |c: &GridCell| (self.xs[c.x1] - self.xs[c.x0]) * (self.ys[c.y1] - self.ys[c.y0]);
+        self.cells
+            .iter()
+            .enumerate()
+            .filter(|(_, c)| self.xs[c.x0] <= x && x < self.xs[c.x1] && self.ys[c.y0] <= y && y < self.ys[c.y1])
+            .min_by(|a, b| area(a.1).total_cmp(&area(b.1)))
+            .map(|(i, _)| i)
     }
 }
 
