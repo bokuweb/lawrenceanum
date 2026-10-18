@@ -15,7 +15,13 @@ use super::*;
 /// 名簿の置き場所 (wiki からの相対パス)。
 pub const ROSTER_DIR: &str = ".lawpub/roster";
 /// 名簿の形式。上げると既存の名簿も作り直す。
-pub const ROSTER_VERSION: u64 = 1;
+/// 2: 発言者ごとに、法令に言及した発言の抜粋 (`excerpt`) と原文 URL を持たせた。
+///    あわせて両院合同審査会の表記を `both` から「両院」に直した。
+pub const ROSTER_VERSION: u64 = 2;
+
+/// 人物ページに載せる抜粋の長さ (法令名の前後)。
+const EXCERPT_BEFORE: usize = 40;
+const EXCERPT_AFTER: usize = 120;
 
 /// 会議が言及した法令。法令ページがまだ無くても題名を出せるよう、題名も持つ。
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -35,6 +41,12 @@ pub struct RosterSpeaker {
     pub role: String,
     /// この発言者が言及した法令 ID。
     pub laws: Vec<String>,
+    /// その会議で法令に言及した最初の発言の抜粋 (原文のまま)。人物ページに引用として載せる。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub excerpt: Option<String>,
+    /// 抜粋した発言の原文 URL。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub excerpt_url: Option<String>,
 }
 
 /// 1 会議分の名簿。会議ページが無い会議も載るので、原文の URL を持つ。
@@ -248,9 +260,15 @@ pub(crate) fn speakers_from_units(
                 position: unit.position.clone(),
                 role: "kokkai".to_string(),
                 laws: Vec::new(),
+                excerpt: None,
+                excerpt_url: None,
             });
             entry.group = entry.group.take().or_else(|| unit.group.clone());
             entry.position = entry.position.take().or_else(|| unit.position.clone());
+            if entry.excerpt.is_none() {
+                entry.excerpt = excerpt_around(&unit.text, laws);
+                entry.excerpt_url = Some(unit.url.clone()).filter(|u| !u.is_empty());
+            }
             merge_laws(&mut entry.laws, mentioned);
         } else {
             let role = if super::plan::is_official_label(name) { "official" } else { "member" };
@@ -260,11 +278,54 @@ pub(crate) fn speakers_from_units(
                 position: None,
                 role: role.to_string(),
                 laws: Vec::new(),
+                excerpt: None,
+                excerpt_url: None,
             });
+            if entry.excerpt.is_none() && !mentioned.is_empty() {
+                entry.excerpt = excerpt_around(&unit.text, laws);
+                entry.excerpt_url = Some(unit.url.clone()).filter(|u| !u.is_empty());
+            }
             merge_laws(&mut entry.laws, mentioned);
         }
     }
     out.into_values().collect()
+}
+
+/// 法令名が最初に出てくるところの前後を切り出す。原文のまま (言い換えない) で、
+/// 冒頭の話者表記「○田中花子君　」は人物ページでは重複するので落とす。
+fn excerpt_around(text: &str, laws: &[(String, String, Vec<String>)]) -> Option<String> {
+    let body = strip_speaker_prefix(text);
+    let chars: Vec<char> = body.chars().collect();
+    let hit = laws
+        .iter()
+        .flat_map(|(_, _, patterns)| patterns)
+        .filter_map(|p| body.match_indices(p.as_str()).next().map(|(i, _)| (i, p.chars().count())))
+        .min_by_key(|(i, _)| *i)?;
+    let start_char = body[..hit.0].chars().count();
+    let from = start_char.saturating_sub(EXCERPT_BEFORE);
+    let to = (start_char + hit.1 + EXCERPT_AFTER).min(chars.len());
+    let mut out = String::new();
+    if from > 0 {
+        out.push('…');
+    }
+    out.extend(&chars[from..to]);
+    if to < chars.len() {
+        out.push('…');
+    }
+    // 会議録は全角空白で区切られているので、1 行の引用に畳む。
+    let out: String = out.split_whitespace().collect::<Vec<_>>().join(" ");
+    (!out.is_empty()).then_some(out)
+}
+
+/// 「○田中花子君　本題ですが…」の先頭の話者表記を落とす。
+fn strip_speaker_prefix(text: &str) -> &str {
+    let trimmed = text.trim_start();
+    let Some(rest) = trimmed.strip_prefix('○') else { return trimmed };
+    match rest.find(char::is_whitespace) {
+        // 話者表記にしては長すぎるものは本文とみなしてそのまま返す。
+        Some(i) if rest[..i].chars().count() <= 30 => rest[i..].trim_start(),
+        _ => trimmed,
+    }
 }
 
 fn merge_laws(into: &mut Vec<String>, add: Vec<String>) {
@@ -336,6 +397,26 @@ mod tests {
         let tanaka = speakers.iter().find(|s| s.name == "田中花子").unwrap();
         assert_eq!(tanaka.laws, vec!["L1".to_string(), "L2".to_string()]);
         assert_eq!(tanaka.group.as_deref(), Some("会派B"));
+    }
+
+    #[test]
+    fn excerpts_quote_the_original_around_the_law_name() {
+        let units = vec![unit(
+            "田中花子",
+            Some("会派B"),
+            &format!(
+                "○田中花子君　{}　予防接種法の健康被害救済は現場の実態に追いついていないのではないか、{}",
+                "まず大臣に伺います。".repeat(6),
+                "申請から認定までの期間についても厚生労働省の見解を伺います。".repeat(6),
+            ),
+        )];
+        let sp = &speakers_from_units(KIND_KOKKAI, &units, &laws())[0];
+        let excerpt = sp.excerpt.as_deref().unwrap();
+        assert!(excerpt.contains("予防接種法の健康被害救済は現場の実態に追いついていない"), "{excerpt}");
+        assert!(!excerpt.contains("○田中花子君"), "話者表記は落とす: {excerpt}");
+        assert!(excerpt.starts_with('…'), "前を切ったことを示す: {excerpt}");
+        assert!(excerpt.ends_with('…'), "後ろを切ったことを示す: {excerpt}");
+        assert!(excerpt.chars().count() <= EXCERPT_BEFORE + EXCERPT_AFTER + 20, "長すぎる: {excerpt}");
     }
 
     #[test]
@@ -430,6 +511,8 @@ mod tests {
                 position: None,
                 role: "kokkai".to_string(),
                 laws: vec!["L1".to_string()],
+                excerpt: None,
+                excerpt_url: None,
             }],
         };
         assert!(!is_fresh(wiki, KIND_KOKKAI, "M1"));

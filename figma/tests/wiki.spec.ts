@@ -75,6 +75,24 @@ test("wiki トップにナレッジグラフと type 別の件数が出る", asy
   await expect(page.getByTestId("wiki-graph").locator("canvas").first()).toBeVisible({ timeout: 15_000 });
 });
 
+test("グラフは表示範囲を絞って描き、ページからは隣接だけの図を開ける", async ({ page }) => {
+  await mock(page);
+  await page.goto(new URL("#/wiki", BASE).toString());
+
+  // 毛玉にならないよう、既定ではつながりの多い順に一定数だけ描く。
+  const budget = page.getByTestId("wiki-graph-budget");
+  await expect(budget).toBeVisible({ timeout: 15_000 });
+  await expect(budget).toHaveValue("250");
+  await expect(page.getByText("2 件を表示")).toBeVisible();
+
+  // ページを開いて、そのページとつながるぶんだけの図を出す。
+  await page.getByRole("tab", { name: "一覧" }).click();
+  await page.getByRole("button", { name: /参議院 厚生労働委員会 第1号/ }).click();
+  await page.getByRole("button", { name: "つながりを図で見る" }).click();
+  await expect(page.getByTestId("wiki-graph").locator("canvas").first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText("選んだページとつながる 2 件を表示しています。")).toBeVisible();
+});
+
 test("一覧から会議ページを開くと要点・脚注の出典・つながりが表示される", async ({ page }) => {
   await mock(page);
   await page.goto(new URL("#/wiki", BASE).toString());
