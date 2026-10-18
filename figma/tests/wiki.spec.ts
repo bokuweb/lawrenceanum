@@ -85,6 +85,14 @@ test("グラフは表示範囲を絞って描き、ページからは隣接だ�
   await expect(budget).toHaveValue("250");
   await expect(page.getByText("2 件を表示")).toBeVisible();
 
+  // 絞り込みはグラフにも効く (一致したページとその直接のつながりだけを描く)。
+  await page.getByPlaceholder("タイトル・概要・タグで絞り込み（グラフにも効きます）").fill("予防接種法");
+  await expect(page.getByTestId("wiki-graph-note")).toHaveText(
+    "「予防接種法」に一致 1 件とそのつながり、あわせて 2 件を表示",
+  );
+  await page.getByPlaceholder("タイトル・概要・タグで絞り込み（グラフにも効きます）").fill("");
+  await expect(page.getByTestId("wiki-graph-note")).toHaveText("2 件を表示");
+
   // ページを開いて、そのページとつながるぶんだけの図を出す。
   await page.getByRole("tab", { name: "一覧" }).click();
   await page.getByRole("button", { name: /参議院 厚生労働委員会 第1号/ }).click();
