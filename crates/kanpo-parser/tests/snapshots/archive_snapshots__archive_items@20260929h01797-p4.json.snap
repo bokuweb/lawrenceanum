@@ -2,13 +2,14 @@
 source: crates/kanpo-parser/tests/archive_snapshots.rs
 expression: out
 input_file: crates/kanpo-parser/tests/archive/items/20260929h01797-p4.json
+snapshot_kind: text
 ---
 title: 水銀に関する水俣条約の附属書Ａの改正に関する件（外務二九六）
 pages: 2
 articles: 5
 picked: Some(1)
 
-## 0: 一に掲げる点と一北緯四十度五十分四・〇六秒、東経百四十度四十五
+## 0: 　一に掲げる点と二に掲げる点とを結んだ線及びこれらの点を結ぶ海岸線により囲まれた海域　一　北緯四十度五十分四・〇六秒、東
 ## 1 (prose) ← 標題の記事
   P 〇外務省告示第二百九十六号平成二十五年十月十日に熊本で作成された「水銀に関する水俣条約」の附属書Ａの一部は、同条約
     第二十七条３及び４の規定に従い、次のように改正され、その改正は、令和九年三月二十三日に効力を生ずる。

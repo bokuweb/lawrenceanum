@@ -1466,9 +1466,11 @@ pub(crate) fn prose_cells(cols: &[Col], g: &Grid) -> bool {
     // 団体」の欄に市町村の一覧、「機能要件の標準」の欄に項の一覧が入る表。表として組まないと上下の欄の列が 1 行に
     // つながっていた）。段を区切る罫線で格子に見える記事（同 290 ページの下半分の告示）はセルに文がある。
     let grid = g.xs.len() >= 3 && g.ys.len() >= 3;
+    // 表の枠の中の備考の欄（「備考　一　…。二　…。」）は文でも表の欄。
+    let notes: std::collections::HashSet<usize> = cols.iter().filter(|c| c.text.trim_start().starts_with("備考")).filter_map(|c| g.cell_at((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0)).collect();
     let mut cells: std::collections::HashMap<usize, (usize, usize)> = std::collections::HashMap::new();
     for c in cols {
-        if let Some(i) = g.cell_at((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0) {
+        if let Some(i) = g.cell_at((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0).filter(|i| !notes.contains(i)) {
             let e = cells.entry(i).or_default();
             e.0 += c.text.chars().count();
             let chars: Vec<char> = c.text.chars().collect();
