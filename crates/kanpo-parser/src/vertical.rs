@@ -2695,6 +2695,8 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
             .map(|c| c.y1 + 0.5)
             .filter(|&cut| lo <= cut && cut <= hi && table_at(cut).is_none() && !touching(cut))
             .filter(|&cut| !cols.iter().any(|d| d.y < cut && cut < d.y1))
+            // 欄見出しの帯の下（灯台の告示の「名称」「位置」…の帯と値の間）は段の境目ではない。
+            .filter(|&cut| !label_strip(&cols, cut))
             .collect();
         cuts.sort_by(f32::total_cmp);
         let part_of = |c: &Col, cuts: &[f32]| cuts.partition_point(|&cut| cut <= (c.y + c.y1) / 2.0);
