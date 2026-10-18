@@ -262,8 +262,11 @@ fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)],
     // 上下に並ぶので、下の欄から。
     let vertical = |ls: &[trace::Line]| ls.first().is_some_and(|l| l.table.is_none());
     let key = |p: &(usize, Block, Vec<trace::Line>)| if vertical(&p.2) { p.1 .1 } else { f32::NEG_INFINITY };
+    // 左右は 10pt 刻みで比べる（同じ欄の上下に並ぶ表の左端は 1pt 未満ずれることがあり、上下の順より先に効いて
+    // 表が上下ばらばらの順に差し込まれていた）。
+    let column = |p: &(usize, Block, Vec<trace::Line>)| (p.1 .0 / 10.0).round();
     placed.sort_by(|a, b| {
-        b.0.cmp(&a.0).then(key(b).total_cmp(&key(a))).then(b.1 .0.total_cmp(&a.1 .0)).then(b.1 .1.total_cmp(&a.1 .1))
+        b.0.cmp(&a.0).then(key(b).total_cmp(&key(a))).then(column(b).total_cmp(&column(a))).then(b.1 .1.total_cmp(&a.1 .1))
     });
     for (at, _, ls) in placed {
         lines.splice(at..at, ls);
