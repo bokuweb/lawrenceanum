@@ -2692,7 +2692,11 @@ fn letter_spaced(words: &[Col], spaced_words: bool) -> Vec<bool> {
         if inner_gap.is_some() && spaced_gap.is_none() {
             spaced_gap = inner_gap;
         }
-        let single = (glyphs(&p.text) == 1 || inner_gap.is_some()) && glyphs(&w.text) == 1;
+        // 数字 1 字どうし（統計の表の隣り合う欄の「9」と「4,512」の「4」）は字間空けの見出しではない（つなぐと
+        // 「94,512」と別の数になる）。
+        let digit = |t: &str| t.trim().chars().all(|c| c.is_ascii_digit() || ('０'..='９').contains(&c)) && !t.trim().is_empty();
+        let digits = digit(&p.text) && digit(&w.text) && gap > em * 0.5;
+        let single = (glyphs(&p.text) == 1 || inner_gap.is_some()) && glyphs(&w.text) == 1 && !digits;
         out[i] = single
             && match spaced_gap {
                 None => gap <= em * 8.0,
