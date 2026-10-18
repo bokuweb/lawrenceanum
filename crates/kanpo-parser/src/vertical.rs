@@ -404,6 +404,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             units.extend(tail);
             prefix_minus(&mut units, &minus, &word_texts);
             move_trailing_notes(&mut units);
+            merge_split_table_rows(&mut units);
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
@@ -671,6 +672,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         }
         prefix_minus(&mut units, &minus, &word_texts);
         move_trailing_notes(&mut units);
+        merge_split_table_rows(&mut units);
         let text = units
             .iter()
             .map(Unit::text)
@@ -1116,6 +1118,72 @@ pub(crate) fn split_label_frames(tier: Vec<Col>, hrules: &[(f32, f32, f32)], vru
         parts.extend(split_label_frames(left, hrules, vrules));
     }
     parts
+}
+
+/// 上下に続けて組まれた罫線の表（同じ欄の数）で、下の表の 1 行目の頭の欄（登録番号の欄）が空なら、上の表の最後の行の
+/// 欄の中の折り返し（「NCTアグリ株式会」「社」、「東京都千代田区外神田」「一丁目18番13号」）なので、上の表の最後の行の
+/// 各欄の後ろにつなぐ（表の枠が行の途中で切れて 2 つの表になり、折り返しが別の行になっていた）。
+fn merge_split_table_rows(units: &mut [Unit]) {
+    let merge = |lines: &mut Vec<Line>| {
+        let mut i = 1;
+        while i < lines.len() {
+            let (head, tail) = lines.split_at_mut(i);
+            let (Some(a), Some(b)) = (head[i - 1].table.as_mut(), tail[0].table.as_mut()) else {
+                i += 1;
+                continue;
+            };
+            let filled = |t: &crate::trace::Table, row: usize| t.cells.iter().any(|c| c.row == row && c.col == 0 && !c.text.trim().is_empty());
+            let last = a.rows.saturating_sub(1);
+            let first: Vec<usize> = (0..b.cells.len()).filter(|&k| b.cells[k].row == 0 && !b.cells[k].text.trim().is_empty()).collect();
+            let continued = a.cols == b.cols
+                && a.cols >= 3
+                && a.rows >= 2
+                && b.rows >= 2
+                && filled(a, last)
+                && !filled(b, 0)
+                && filled(b, 1)
+                && !first.is_empty()
+                // 上の欄は折り返すほどの長さの字（数だけの欄の下の「乗率」は次の表の見出し）。
+                && first.iter().all(|&k| {
+                    b.cells[k].text.chars().count() <= 20
+                        && a.cells.iter().any(|c| {
+                            c.row == last
+                                && c.col == b.cells[k].col
+                                && c.text.chars().count() >= 6
+                                && !c.text.chars().all(|ch| ch.is_ascii_digit() || ".,△ 　".contains(ch))
+                        })
+                });
+            if !continued {
+                i += 1;
+                continue;
+            }
+            for &k in &first {
+                let (col, text, words) = (b.cells[k].col, b.cells[k].text.clone(), b.cells[k].words.clone());
+                if let Some(c) = a.cells.iter_mut().find(|c| c.row == last && c.col == col) {
+                    c.text.push_str(&text);
+                    c.words.extend(words);
+                }
+            }
+            b.cells.retain(|c| c.row != 0);
+            for c in &mut b.cells {
+                c.row -= 1;
+            }
+            b.rows -= 1;
+            let (ta, tb) = (a.render(), b.render());
+            head[i - 1].text = ta;
+            tail[0].text = tb;
+            i += 1;
+        }
+    };
+    for unit in units.iter_mut() {
+        match unit {
+            Unit::Plain(lines) => merge(lines),
+            Unit::Shinkyu { preamble, after, before, outside } => {
+                merge(preamble);
+                after.iter_mut().chain(before.iter_mut()).chain(outside.iter_mut()).for_each(|p| merge(p));
+            }
+        }
+    }
 }
 
 /// 新旧対照表の改正後の欄の終わりに組まれた、表の後ろの備考（「備考　表中の〔　〕の記載は注記である。」）と附則（「附　則」と
