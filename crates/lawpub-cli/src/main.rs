@@ -10,6 +10,7 @@ mod diffs;
 mod enforcement;
 mod feeds;
 mod gian;
+mod hanrei;
 mod kanpo;
 mod kanpo_archive;
 mod proceedings;
@@ -669,6 +670,26 @@ enum Cmd {
         public: PathBuf,
     },
 
+    /// 裁判所 裁判例検索の「最近の裁判例」を取得し `.cache/hanrei/` に保存する。
+    HanreiFetch {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        /// リクエスト間隔 (ミリ秒)。
+        #[arg(long, default_value_t = 1000)]
+        interval_ms: u64,
+        /// 1 回の実行で保存する最大件数。
+        #[arg(long, default_value_t = 200)]
+        limit: usize,
+    },
+
+    /// `.cache/hanrei/` → `public/hanrei/{case_id}.json` + `index.json` を書き出す。
+    HanreiBuildJson {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
     /// 今後の施行予定を timeline から集約し `public/enforcement/upcoming.json` を書く。
     BuildEnforcement {
         #[arg(long, default_value = "public")]
@@ -952,6 +973,8 @@ fn main() -> Result<()> {
         Cmd::BuildFeeds { public } => feeds::run_build_feeds(&public),
         Cmd::GianFetch { cache, provider, session } => gian::run_fetch(&cache, &provider, session),
         Cmd::GianBuildJson { cache, public } => gian::run_build_json(&cache, &public),
+        Cmd::HanreiFetch { cache, interval_ms, limit } => hanrei::run_fetch(&cache, interval_ms, limit),
+        Cmd::HanreiBuildJson { cache, public } => hanrei::run_build_json(&cache, &public),
         Cmd::BuildEnforcement { public } => enforcement::run_build(&public),
         Cmd::WikiPlan { base_url, wiki, work, max_items, max_probes, lookback_days, today, max_bills, max_pubcomments, max_kanpo, max_roster, reiki_base_url, chunk_size } => {
             wiki::plan::run_plan(&wiki::plan::PlanArgs {
