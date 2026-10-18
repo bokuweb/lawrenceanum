@@ -1204,7 +1204,23 @@ fn group_cell_lines(words: &[Col]) -> Vec<Line> {
 
 /// 語を行に束ねる。語の中心 y が直前の行の y 範囲に入れば同じ行とする。
 fn group_lines(words: &[Col]) -> Vec<Line> {
-    let mut sorted: Vec<&Col> = words.iter().collect();
+    // 行の高さの 2.5 倍を超える縦長の語（表の左の縦組みの欄の名前「負債及び正味財産の部」）は、行の高さを広げて隣の
+    // 行を 1 行にまとめてしまうので、行に入れずに 1 語の行にして、掛かる最初の行の前に置く。
+    let mut heights: Vec<f32> = words.iter().map(|w| w.y1 - w.y).collect();
+    heights.sort_by(f32::total_cmp);
+    let median = heights.get(heights.len() / 2).copied().unwrap_or(0.0);
+    let tall = |w: &Col| median > 0.0 && w.y1 - w.y > median * 2.5 && w.text.trim().chars().count() >= 2 && w.x1 - w.x < (w.y1 - w.y) * 0.5;
+    let (talls, words): (Vec<&Col>, Vec<&Col>) = words.iter().partition(|w| tall(w));
+    let mut lines = group_line_words(words);
+    for t in talls {
+        let at = lines.iter().position(|l| l.y1 > t.y).unwrap_or(lines.len());
+        lines.insert(at, Line { y0: t.y, y1: t.y1, words: vec![t.clone()] });
+    }
+    lines
+}
+
+fn group_line_words(words: Vec<&Col>) -> Vec<Line> {
+    let mut sorted = words;
     sorted.sort_by(|a, b| y_center(a).total_cmp(&y_center(b)));
     let mut lines: Vec<Line> = Vec::new();
     for w in sorted {
