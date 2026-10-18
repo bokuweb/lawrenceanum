@@ -363,6 +363,50 @@ fn vertical_regions(words: &[Col]) -> Vec<(Block, Vec<usize>)> {
 /// 全角の空白（「代表取締役　田口　貴之」）。
 fn vertical_lines(words: Vec<Col>) -> Vec<trace::Line> {
     let mut words = words;
+    // 縦書きの列の中で横倒しに組んだ欧文の語（「PlayStation」「Firewall Ultra」）は横組み用の書体で、縦書き用の書体の列の語
+    // （幅がちょうど整数 pt）より半 em ほど左に出る。すぐ右の、上か下に続く縦書きの語の列に揃える（欧文の語だけが 1 列に
+    // なり、列の後ろに出ていた）。
+    let anchors: Vec<(f32, f32, f32, f32)> = words
+        .iter()
+        .filter(|w| !w.text.is_ascii() && ((w.x1 - w.x) - (w.x1 - w.x).round()).abs() < 0.01)
+        .map(|w| (w.x, w.x1, w.y, w.y1))
+        .collect();
+    let latin = |w: &Col| {
+        let width = w.x1 - w.x;
+        w.text.chars().count() >= 2
+            && w.text.chars().all(|c| c.is_ascii_alphanumeric() || " -'&.,/:@".contains(c))
+            && w.y1 - w.y >= width * 1.8
+            && (width - width.round()).abs() >= 0.01
+    };
+    // 同じ x に上下に続く欧文の語（「Japan」「Longevity」「Trust」）はまとめて寄せる。
+    let mut idx: Vec<usize> = (0..words.len()).filter(|&i| latin(&words[i])).collect();
+    idx.sort_by(|&a, &b| words[a].x.total_cmp(&words[b].x).then(words[a].y.total_cmp(&words[b].y)));
+    let mut runs: Vec<Vec<usize>> = Vec::new();
+    for i in idx {
+        match runs.last_mut() {
+            Some(r) if {
+                let p = &words[*r.last().unwrap()];
+                (p.x - words[i].x).abs() < 0.5 && words[i].y - p.y1 < (p.x1 - p.x) * 2.0
+            } => r.push(i),
+            _ => runs.push(vec![i]),
+        }
+    }
+    for run in runs {
+        let (x, x1) = (words[run[0]].x, words[run[0]].x1);
+        let width = x1 - x;
+        let (top, bottom) = (words[run[0]].y, words[*run.last().unwrap()].y1);
+        // 列の続き（縦書きの語のすぐ上か下）だけ。
+        let adjacent = |&&(ax, _, ay, ay1): &&(f32, f32, f32, f32)| {
+            ax - x >= width * 0.3 && ax - x <= width * 0.8 && ((top - ay1 >= -1.0 && top - ay1 < width * 2.0) || (ay - bottom >= -1.0 && ay - bottom < width * 2.0))
+        };
+        if let Some(&(ax, ax1, _, _)) = anchors.iter().filter(adjacent).min_by(|a, b| a.0.total_cmp(&b.0)) {
+            let dx = (ax + ax1) / 2.0 - (x + x1) / 2.0;
+            for &i in &run {
+                words[i].x += dx;
+                words[i].x1 += dx;
+            }
+        }
+    }
     words.sort_by(|a, b| x_center(b).total_cmp(&x_center(a)));
     let mut columns: Vec<(f32, f32, Vec<Col>)> = Vec::new();
     for w in words {
@@ -385,6 +429,9 @@ fn vertical_lines(words: Vec<Col>) -> Vec<trace::Line> {
             for (i, w) in ws.iter().enumerate() {
                 if i > 0 && w.y - ws[i - 1].y1 >= em * 0.5 {
                     text.push('\u{3000}');
+                } else if i > 0 && ws[i - 1].text.trim().ends_with(|c: char| c.is_ascii_alphanumeric()) && w.text.trim().starts_with(|c: char| c.is_ascii_alphanumeric()) {
+                    // 横倒しの欧文の語の間（「PlayStation」「VR2」）。
+                    text.push(' ');
                 }
                 text.push_str(w.text.trim());
             }
