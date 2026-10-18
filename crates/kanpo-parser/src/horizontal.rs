@@ -67,7 +67,7 @@ fn horizontal_lines_around(cols: Vec<Col>, blocks: &[Block], vrules: &[(f32, f32
 /// 横組みの語を、列に分けずに上から 1 行ずつ組む（縦書きのページの中の小さな横組みの欄用。
 /// 欄は段の幅より狭く、段組みは無い。表の行は左のセルから順に読む）。
 pub(crate) fn row_lines(cols: Vec<Col>) -> Vec<trace::Line> {
-    group_lines(&cols)
+    period_heading(group_lines(&cols))
         .iter()
         .map(|l| trace::Line::text(render_line(&l.words), l.words.iter().map(|w| w.id).collect()))
         .collect()
@@ -1397,10 +1397,42 @@ fn order_region(words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: bool, c
         }
     }
     out.extend(
-        lines
+        period_heading(lines)
             .iter()
             .map(|l| trace::Line::text(render_line(&l.words), l.words.iter().map(|w| w.id).collect())),
     );
+}
+
+/// 損益計算書の見出しの右に 2 行に組んだ期間（「自　令和７年４月１日」「至　令和８年３月31日」）は、見出しと「至」の行が
+/// 同じ高さで 1 行になり、「自」の行が見出しより先になる（「自　令和７年４月１日」「損益計算書の要旨至　令和８年３月31日」）。
+/// 見出し・「自」の行・「至」の行の順にする。
+fn period_heading(lines: Vec<Line>) -> Vec<Line> {
+    let mut out: Vec<Line> = Vec::with_capacity(lines.len());
+    let mut it = lines.into_iter().peekable();
+    while let Some(l) = it.next() {
+        let from = l.words.first().is_some_and(|w| w.text.starts_with('自')) && l.words.len() <= 4;
+        let split = it.peek().and_then(|n| {
+            let at = n.words.iter().position(|w| w.text.starts_with('至'))?;
+            let head: String = n.words[..at].iter().map(|w| w.text.as_str()).collect();
+            (at > 0 && (head.ends_with("要旨") || head.ends_with("計算書")) && (n.words[at].x - l.words[0].x).abs() < 3.0).then_some(at)
+        });
+        match split.filter(|_| from) {
+            Some(at) => {
+                let n = it.next().unwrap();
+                let (head, rest) = n.words.split_at(at);
+                let line = |ws: &[Col]| Line {
+                    y0: ws.iter().map(|w| w.y).fold(f32::INFINITY, f32::min),
+                    y1: ws.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max),
+                    words: ws.to_vec(),
+                };
+                out.push(line(head));
+                out.push(l);
+                out.push(line(rest));
+            }
+            None => out.push(l),
+        }
+    }
+    out
 }
 
 /// 罫線の無い、見出しの行と内容の行 1 つの表（装置型式指定の告示の「型式指定番号｜指定装置の種類、名称及び型式｜
