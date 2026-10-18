@@ -1397,6 +1397,13 @@ fn page_words_traced(
     let sideways = is_sideways_vertical(&raws);
     let rotated = !sideways && raws.iter().any(|(_, _, x1, _, t)| is_left_strip_header(*x1, t));
     let shift_sideways = sideways && (sideways_vertical_font_shifted(&raws) || sideways_words_straddle_rules(&raws, page_rules));
+    // 横倒しに組んだ URL の語（下で半 em 寄せる語）。何列も続く欧文（英字の住所）は寄せない。
+    let rotated_latin = |(x, y, x1, y1, t): &(f32, f32, f32, f32, String)| {
+        let (w, h) = (x1 - x, y1 - y);
+        // URL・メールアドレス（「/」「.」「@」を含む）だけ（表の欄の英字の名称は寄せない）。
+        t.chars().all(|c| c.is_ascii_graphic()) && t.contains(['/', '.', '@']) && h >= w * 3.0 && (w - w.round()).abs() >= 0.01 && t.chars().count() >= 6
+    };
+    let latin_columns = raws.iter().filter(|r| rotated_latin(r)).count();
     let geom: Vec<(f32, f32, f32, f32)> = raws
         .iter()
         .map(|(x, y, x1, y1, t)| {
@@ -1412,6 +1419,13 @@ fn page_words_traced(
                 let vertical_font = (h - h.round()).abs() < 0.01 && !t.is_empty();
                 let dx = if shift_sideways && vertical_font && x > TOP_MARGIN { h } else { 0.0 };
                 (page_width - y1, x + dx, page_width - y, x1 + dx)
+            } else if vertical_page && !rotated {
+                // 縦書きのページの中で横倒しに組んだ欧文（URL「https://…」）の語は横組み用の書体で、縦書き用の書体の列の語
+                // （枠が半 em 右にずれている）より半 em 左に出る。列の並びに合わせて半 em 右へ寄せる（折り返した URL の
+                // 2 行目が左の列の語とつながっていた）。
+                let near = raws.iter().filter(|r| rotated_latin(r) && (r.0 - x).abs() < (x1 - x) * 3.0).count();
+                let dx = if rotated_latin(&(x, y, x1, y1, t.clone())) && latin_columns <= 6 && near <= 2 { (x1 - x) / 2.0 } else { 0.0 };
+                (x + dx, y, x1 + dx, y1)
             } else {
                 (x, y, x1, y1)
             }
