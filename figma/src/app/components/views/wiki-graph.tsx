@@ -89,6 +89,17 @@ export function WikiGraphCanvas({
     };
   }, [graph, visibleTypes, showStubs, budget, focus]);
 
+  // 既定の力は数十ノード向けで、数百だと団子になって読めない。反発と辺の長さを広げる。
+  // 配置が始まる前 (マウント時) に入れ替えて、onEngineStop の zoomToFit がこの配置に合うようにする。
+  useEffect(() => {
+    const g = fg.current;
+    if (!g) return;
+    const charge = g.d3Force("charge") as { strength?: (v: number) => unknown } | undefined;
+    charge?.strength?.(-320);
+    const link = g.d3Force("link") as { distance?: (v: number) => unknown } | undefined;
+    link?.distance?.(70);
+  }, []);
+
   const labelColor = useMemo(() => {
     const v = getComputedStyle(document.documentElement).getPropertyValue("--foreground").trim();
     return v || "#888";
