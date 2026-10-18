@@ -145,6 +145,16 @@ function WikiHome({
             </label>
           )}
 
+          <div className="relative mb-3 max-w-md">
+            <Search className="size-4 absolute left-2.5 top-2.5 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="タイトル・概要・タグで絞り込み（グラフにも効きます）"
+              className="pl-8"
+            />
+          </div>
+
           <Tabs defaultValue="graph">
             <TabsList>
               <TabsTrigger value="graph">グラフ</TabsTrigger>
@@ -153,7 +163,13 @@ function WikiHome({
             <TabsContent value="graph">
               {graph ? (
                 <Suspense fallback={<Skeleton className="h-[560px] w-full" />}>
-                  <WikiGraphCanvas graph={graph} visibleTypes={visible} showStubs={showStubs} onOpen={p => onOpen(p)} />
+                  <WikiGraphCanvas
+                    graph={graph}
+                    visibleTypes={visible}
+                    showStubs={showStubs}
+                    query={query}
+                    onOpen={p => onOpen(p)}
+                  />
                 </Suspense>
               ) : (
                 <Skeleton className="h-[560px] w-full" />
@@ -161,10 +177,6 @@ function WikiHome({
               <p className="text-xs text-muted-foreground mt-2">ノードをクリックするとページを開きます。大きいノードほど多くのページとつながっています。</p>
             </TabsContent>
             <TabsContent value="list">
-              <div className="relative mb-3 max-w-md">
-                <Search className="size-4 absolute left-2.5 top-2.5 text-muted-foreground" />
-                <Input value={query} onChange={e => setQuery(e.target.value)} placeholder="タイトル・概要・タグで絞り込み" className="pl-8" />
-              </div>
               <ul className="divide-y divide-border border border-border rounded-lg">
                 {filtered.slice(0, LIST_LIMIT).map(p => (
                   <li key={p.path}>

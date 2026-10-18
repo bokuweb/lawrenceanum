@@ -28,6 +28,7 @@ export function WikiGraphCanvas({
   visibleTypes,
   showStubs,
   focus,
+  query,
   onOpen,
 }: {
   graph: WikiGraph;
@@ -35,6 +36,8 @@ export function WikiGraphCanvas({
   showStubs: boolean;
   /** 中心に据えるページ (そのページと直接つながるページだけを描く)。 */
   focus?: string | null;
+  /** 絞り込みの語。一致したページと、その直接のつながりだけを描く。 */
+  query?: string;
   onOpen: (path: string) => void;
 }) {
   const box = useRef<HTMLDivElement>(null);
@@ -52,7 +55,7 @@ export function WikiGraphCanvas({
   }, []);
 
   // force-graph はノード/リンクを書き換えるため、毎回コピーを渡す。
-  const { data, total } = useMemo(() => {
+  const { data, total, matched, query: activeQuery } = useMemo(() => {
     const shown = graph.nodes.filter(n => visibleTypes.has(n.type) && (showStubs || !n.stub));
     const shownIds = new Set(shown.map(n => n.id));
     const links = graph.links.filter(l => shownIds.has(l.source) && shownIds.has(l.target));
@@ -68,11 +71,31 @@ export function WikiGraphCanvas({
       neighbors.get(l.target)!.add(l.source);
     }
 
+    const q = (query ?? "").trim();
     let picked: typeof shown;
+    let matched = 0;
     if (focus && shownIds.has(focus)) {
       // 中心が指定されたら、その隣接だけにする (何とつながっているかを読める大きさにする)。
       const keep = new Set<string>([focus, ...(neighbors.get(focus) ?? [])]);
       picked = shown.filter(n => keep.has(n.id));
+    } else if (q) {
+      // 絞り込み: 一致したページと、その直接のつながり (何につながる話なのかが読めるように)。
+      const hits = shown.filter(n => n.title.includes(q) || n.description.includes(q));
+      matched = hits.length;
+      const keep = new Set<string>(hits.map(n => n.id));
+      for (const n of hits) for (const id of neighbors.get(n.id) ?? []) keep.add(id);
+      picked = shown.filter(n => keep.has(n.id));
+      // 一致が多すぎるときは、つながりの多い順に上限で切る。
+      if (Number.isFinite(budget) && picked.length > budget) {
+        picked = [...picked]
+          .sort((a, b) => {
+            const ha = keep.has(a.id) && (a.title.includes(q) || a.description.includes(q)) ? 1 : 0;
+            const hb = keep.has(b.id) && (b.title.includes(q) || b.description.includes(q)) ? 1 : 0;
+            // 一致したページを先に残し、そのあとはつながりの多い順。
+            return hb - ha || (degree.get(b.id) ?? 0) - (degree.get(a.id) ?? 0);
+          })
+          .slice(0, budget);
+      }
     } else {
       picked = [...shown].sort(
         (a, b) => (degree.get(b.id) ?? 0) - (degree.get(a.id) ?? 0) || a.title.localeCompare(b.title, "ja"),
@@ -82,12 +105,14 @@ export function WikiGraphCanvas({
     const ids = new Set(picked.map(n => n.id));
     return {
       total: shown.length,
+      matched,
+      query: q,
       data: {
         nodes: picked.map(n => ({ ...n, degree: degree.get(n.id) ?? 0 })) as Node[],
         links: links.filter(l => ids.has(l.source) && ids.has(l.target)).map(l => ({ ...l })),
       },
     };
-  }, [graph, visibleTypes, showStubs, budget, focus]);
+  }, [graph, visibleTypes, showStubs, budget, focus, query]);
 
   // 既定の力は数十ノード向けで、数百だと団子になって読めない。反発と辺の長さを広げる。
   // 配置が始まる前 (マウント時) に入れ替えて、onEngineStop の zoomToFit がこの配置に合うようにする。
@@ -141,8 +166,12 @@ export function WikiGraphCanvas({
         </label>
         {focus ? (
           <span>選んだページとつながる {data.nodes.length} 件を表示しています。</span>
+        ) : activeQuery ? (
+          <span data-testid="wiki-graph-note">
+            「{activeQuery}」に一致 {matched} 件とそのつながり、あわせて {data.nodes.length} 件を表示
+          </span>
         ) : (
-          <span>
+          <span data-testid="wiki-graph-note">
             {data.nodes.length} 件を表示
             {hidden > 0 && `（つながりの少ない ${hidden} 件は省略。一覧タブから探せます）`}
           </span>
