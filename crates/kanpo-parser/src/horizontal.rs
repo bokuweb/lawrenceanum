@@ -347,9 +347,16 @@ fn vertical_regions(words: &[Col]) -> Vec<(Block, Vec<usize>)> {
         // 縦組みでない語は外枠に収まるものだけ（号の 1 ページ目の題字の下の縦組みの「（原稿作成　国立印刷局）」のすぐ右の、
         // 目次の項目の頭の「〇」を欄に入れていた）。
         // 字間を空けて横に組んだ 1 字ずつの見出し（欄のすぐ下の囲みの「決　算　公　告」）は欄に入れない。
+        // 縦の列の中の 1 字の語（「代表取締役」「巽」「省一」の「巽」。隣の列の同じ高さにも 1 字の語が並ぶ）は、すぐ上か下に
+        // 同じ x の縦長の語があれば列の字。
+        let in_column = |c: &Col| {
+            let em = (c.x1 - c.x).max(1.0);
+            cs.iter().any(|o| o.id != c.id && (o.x - c.x).abs() < em * 0.3 && ((c.y - o.y1).abs() < em * 1.5 || (o.y - c.y1).abs() < em * 1.5))
+        };
         let spaced_row = |c: &Col| {
             let em = (c.y1 - c.y).max(1.0);
-            c.text.trim().chars().count() == 1
+            !in_column(c)
+                && c.text.trim().chars().count() == 1
                 && words.iter().filter(|o| o.id != c.id && o.text.trim().chars().count() == 1 && (y_center(o) - y_center(c)).abs() < 1.0 && (x_center(o) - x_center(c)).abs() < em * 4.0).count() >= 1
                 && words.iter().filter(|o| o.text.trim().chars().count() == 1 && (y_center(o) - y_center(c)).abs() < 1.0).count() >= 3
         };
