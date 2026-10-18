@@ -1162,7 +1162,11 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
             // 罫線の行を 2 つ以上またぐ狭い欄で、2 字ずつ折り返した 1 項目（様式の表の欄見出し「株式／引受／金」）も、一番上の
             // 行に置く。
             let narrow = (1..ls.len()).all(|k| narrow_wrapped(&ls[k - 1], g.xs[gc.x0], g.xs[gc.x1]));
-            let row = if let Some(first) = group_label_row(i) {
+            // 2 行以上の欄見出しで、見出しの最後の行まで掛かるセル（「純資産合計」「積立金」を上下中央に置いたもの）は、見出しの
+            // 最後の行に置く（下の段の欄見出しが欄の順に 1 行に並ぶ。上下中央の高さの行に分かれていた）。
+            let row = if header_rows >= 2 && header_cell(i) && gc.y1 == header_rows && gc.y1 - gc.y0 >= 2 {
+                row_of(g.ys[header_rows - 1] + 0.5)
+            } else if let Some(first) = group_label_row(i) {
                 first
             } else if whole || (gc.y1 - gc.y0 > 1 && (narrow || header_cell(i))) {
                 row_of(ls[0].center())
