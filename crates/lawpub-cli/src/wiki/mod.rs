@@ -490,9 +490,11 @@ fn llm_section(content: &str) -> String {
     }
 }
 
-pub fn person_body(name: &str, intro: &str, narrative: &str, table: &str) -> String {
+/// `quotes` は会議録から切り出した発言の抜粋（原文のまま）。`table` は発言した会議の一覧。
+/// どちらも機械が作るので `lawpub:begin remarks` の中に置き、LLM の経緯とは分ける。
+pub fn person_body(name: &str, intro: &str, narrative: &str, quotes: &str, table: &str) -> String {
     format!(
-        "\n# {name}\n\n{intro}\n\n## 発言と経緯\n\n{}\n\n## 発言した会議（一覧）\n\n<!-- lawpub:begin remarks -->\n{table}<!-- lawpub:end remarks -->\n",
+        "\n# {name}\n\n{intro}\n\n## 発言と経緯\n\n{}\n\n<!-- lawpub:begin remarks -->\n{quotes}## 発言した会議（一覧）\n\n{table}<!-- lawpub:end remarks -->\n",
         llm_section(narrative)
     )
 }
@@ -523,7 +525,7 @@ pub fn ensure_person_page(wiki: &Path, name: &str) -> Result<bool> {
         // 経緯の区間が無い旧形式のページは作り替える (一覧は finalize が埋め直す)。
         let mut page = Page::read(&path)?;
         if !page.body.contains(LLM_BEGIN) {
-            page.body = person_body(name, "", "", "");
+            page.body = person_body(name, "", "", "", "");
             page.write(&path)?;
         }
         return Ok(false);
@@ -534,7 +536,7 @@ pub fn ensure_person_page(wiki: &Path, name: &str) -> Result<bool> {
             ("title".into(), serde_json::json!(name)),
             ("description".into(), serde_json::json!("")),
         ],
-        body: person_body(name, "", "", ""),
+        body: person_body(name, "", "", "", ""),
     }
     .write(&path)?;
     Ok(true)

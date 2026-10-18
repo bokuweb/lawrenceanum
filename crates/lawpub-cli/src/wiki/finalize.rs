@@ -17,6 +17,9 @@ pub struct FinalizeArgs {
     pub work: PathBuf,
 }
 
+/// 人物ページに載せる発言の抜粋の数 (新しい順)。残りは「発言した会議（一覧）」からたどる。
+const MAX_PERSON_QUOTES: usize = 12;
+
 /// 法令の時系列に載せる議案の段階 (付託・委員会採決は議案ページだけに載せる)。
 const TIMELINE_STAGES: [&str; 3] = ["received", "plenary", "promulgated"];
 
@@ -155,6 +158,9 @@ struct Speaker {
     /// `kokkai` (国会議員・政府側・職員) / `official` (審議会の官職者) / `member` (審議会の委員)。
     role: String,
     laws: Vec<String>,
+    /// その会議で法令に言及した発言の抜粋 (原文のまま) と、その発言の原文 URL。
+    excerpt: Option<String>,
+    excerpt_url: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -456,6 +462,28 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
                 rel_link(&rel, &party_page(&affiliation))
             )
         };
+        // 主な発言: 新しい順に、法令に言及した発言の抜粋を原文のまま引用する。
+        let mut quotes = String::new();
+        let quoted: Vec<&Remark> = remarks.iter().filter(|(_, sp)| sp.excerpt.is_some()).take(MAX_PERSON_QUOTES).collect();
+        if !quoted.is_empty() {
+            quotes.push_str(&format!("## 主な発言（{}）\n\n", quoted.len()));
+            for (m, sp) in &quoted {
+                let excerpt = sp.excerpt.as_deref().unwrap_or_default();
+                let source = match sp.excerpt_url.as_deref().filter(|u| !u.is_empty()) {
+                    Some(url) => format!("[{}]({url})", cell(&m.title)),
+                    None => meeting_ref(&rel, m),
+                };
+                // 引用は表のセルではないので `|` を escape しない。改行だけ畳む。
+                let excerpt = excerpt.replace(['\n', '\r'], " ");
+                quotes.push_str(&format!("**{}**　{source}\n\n> {excerpt}\n\n", m.date));
+            }
+            if remarks.len() > quoted.len() {
+                quotes.push_str(&format!(
+                    "ほかの発言は下の一覧から会議録をたどってください（全 {} 会議）。\n\n",
+                    remarks.len()
+                ));
+            }
+        }
         let tags = page.get("tags").cloned().unwrap_or(json!([]));
         let mut fm = vec![
             ("type".to_string(), json!("person")),
@@ -467,7 +495,7 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
             ("timestamp".to_string(), page.get("timestamp").cloned().unwrap_or(json!(now_rfc3339()))),
             ("tags".to_string(), tags),
         ];
-        let body = person_body(name, &intro, &first_llm_block(&page.body), &table);
+        let body = person_body(name, &intro, &first_llm_block(&page.body), &quotes, &table);
         if body != page.body {
             fm[6].1 = json!(now_rfc3339());
         }
@@ -823,6 +851,9 @@ fn load_meetings(wiki: &Path) -> Result<Vec<MeetingInfo>> {
                                 .as_array()
                                 .map(|l| l.iter().filter_map(|x| x.as_str().map(String::from)).collect())
                                 .unwrap_or_default(),
+                            // 抜粋は名簿だけが持つ (会議ページの frontmatter には書かない)。
+                            excerpt: None,
+                            excerpt_url: None,
                         })
                     })
                     .collect()
@@ -872,6 +903,8 @@ fn load_roster_meetings(wiki: &Path, have_pages: &BTreeSet<String>) -> RosterInp
                 position: sp.position.clone(),
                 role: sp.role.clone(),
                 laws: sp.laws.clone(),
+                excerpt: sp.excerpt.clone(),
+                excerpt_url: sp.excerpt_url.clone(),
             })
             .collect();
         let page = meeting_page(&entry.corpus, &entry.id);
@@ -1213,6 +1246,8 @@ mod tests {
                 position: None,
                 role: "kokkai".into(),
                 laws: vec!["L1".into(), "L2".into()],
+                excerpt: Some("予防接種法の救済を拡充すべきでは。".into()),
+                excerpt_url: Some("https://kokkai.ndl.go.jp/txt/M9/3".into()),
             }],
         };
         let dir = wiki.join(super::super::roster::ROSTER_DIR).join(KIND_KOKKAI);
@@ -1234,6 +1269,8 @@ mod tests {
                     position: None,
                     role: "kokkai".into(),
                     laws: vec!["L1".into()],
+                    excerpt: None,
+                    excerpt_url: None,
                 },
                 super::super::roster::RosterSpeaker {
                     name: "佐藤大臣".into(),
@@ -1241,6 +1278,8 @@ mod tests {
                     position: Some("厚生労働大臣".into()),
                     role: "kokkai".into(),
                     laws: vec!["L1".into()],
+                    excerpt: None,
+                    excerpt_url: None,
                 },
             ],
             ..entry.clone()
@@ -1254,6 +1293,13 @@ mod tests {
         // 会議ページが無いので原文へ、法令ページがある L1 だけがリンクになる。
         assert!(person.body.contains("[衆議院 厚生労働委員会 第13号](https://kokkai.ndl.go.jp/txt/M9)"), "{}", person.body);
         assert!(person.body.contains("[予防接種法](../laws/L1.md)、感染症法"), "{}", person.body);
+        // 発言の抜粋は原文のまま引用し、その発言の原文 URL につなぐ。
+        assert!(
+            person.body.contains("**2026-06-16**　[衆議院 厚生労働委員会 第13号](https://kokkai.ndl.go.jp/txt/M9/3)"),
+            "{}",
+            person.body
+        );
+        assert!(person.body.contains("> 予防接種法の救済を拡充すべきでは。"), "{}", person.body);
 
         let committee = std::fs::read_to_string(wiki.join("committees/衆議院厚生労働委員会.md")).unwrap();
         assert!(committee.contains("[田中花子](../people/田中花子.md)"), "{committee}");
@@ -1432,7 +1478,7 @@ mod tests {
         std::fs::create_dir_all(wiki.join("people")).unwrap();
         std::fs::write(
             wiki.join("people/山田太郎.md"),
-            format!("---\ntype: \"person\"\ntitle: \"山田太郎\"\ndescription: \"予防接種の救済拡充を追及\"\n---\n{}", person_body("山田太郎", "", narrative, "")),
+            format!("---\ntype: \"person\"\ntitle: \"山田太郎\"\ndescription: \"予防接種の救済拡充を追及\"\n---\n{}", person_body("山田太郎", "", narrative, "", "")),
         )
         .unwrap();
         run_finalize(&FinalizeArgs { wiki: wiki.clone(), work: work.clone() }).unwrap();

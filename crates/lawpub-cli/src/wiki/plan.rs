@@ -668,6 +668,8 @@ fn house_ja(house: &str) -> &str {
     match house {
         "shugiin" => "衆議院",
         "sangiin" => "参議院",
+        // 国家基本政策委員会合同審査会 (党首討論) などは両院合同。
+        "both" => "両院",
         other => other,
     }
 }

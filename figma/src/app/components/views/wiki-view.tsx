@@ -13,6 +13,11 @@ import { setShowStubs, useShowStubs } from "./wiki-prefs";
 
 const WikiGraphCanvas = lazy(() => import("./wiki-graph").then(m => ({ default: m.WikiGraphCanvas })));
 
+/** 一覧に一度に出す件数。wiki は 1,800 ページを超えるので、残りは絞り込みで探してもらう。 */
+const LIST_LIMIT = 300;
+/** ページ横の「つながっているページ」に出す件数。 */
+const NEIGHBOR_LIMIT = 60;
+
 function useLoad<T>(load: (() => Promise<T>) | null, deps: unknown[]) {
   const [state, setState] = useState<{ data: T | null; loading: boolean; error: boolean }>({
     data: null,
@@ -161,7 +166,7 @@ function WikiHome({
                 <Input value={query} onChange={e => setQuery(e.target.value)} placeholder="タイトル・概要・タグで絞り込み" className="pl-8" />
               </div>
               <ul className="divide-y divide-border border border-border rounded-lg">
-                {filtered.map(p => (
+                {filtered.slice(0, LIST_LIMIT).map(p => (
                   <li key={p.path}>
                     <button
                       type="button"
@@ -181,6 +186,11 @@ function WikiHome({
                   </li>
                 ))}
                 {filtered.length === 0 && <li className="px-4 py-6 text-sm text-muted-foreground">該当するページはありません。</li>}
+                {filtered.length > LIST_LIMIT && (
+                  <li className="px-4 py-3 text-xs text-muted-foreground">
+                    先頭 {LIST_LIMIT} 件を表示しています（該当 {filtered.length} 件）。絞り込むと残りも探せます。
+                  </li>
+                )}
               </ul>
             </TabsContent>
           </Tabs>
@@ -202,6 +212,7 @@ function WikiPageView({
   onOpen: (path: string | null) => void;
 }) {
   const page = useLoad<WikiPage>(() => api.wikiPage(path), [path]);
+  const [showLocalGraph, setShowLocalGraph] = useState(false);
   const fm = page.data?.frontmatter ?? {};
   const str = (k: string) => (typeof fm[k] === "string" ? (fm[k] as string) : "");
   const tags = Array.isArray(fm.tags) ? (fm.tags as string[]) : [];
@@ -227,6 +238,7 @@ function WikiPageView({
 
   useEffect(() => {
     document.querySelector("main")?.scrollTo({ top: 0 });
+    setShowLocalGraph(false);
   }, [path]);
 
   return (
@@ -266,13 +278,35 @@ function WikiPageView({
               {tags.map(t => <Badge key={t} variant="outline" className="text-[11px]">{t}</Badge>)}
             </div>
             <WikiMarkdown body={page.data.body} from={path} onOpen={onOpen} />
+
+            {/* 隣接だけの図。全体のグラフは毛玉になるので、ここでは「このページの周り」だけを描く。 */}
+            {graph && neighbors.length > 0 && (
+              <section className="mt-8">
+                <Button variant="outline" size="sm" className="gap-1" onClick={() => setShowLocalGraph(v => !v)}>
+                  <Network className="size-4" />{showLocalGraph ? "図を閉じる" : "つながりを図で見る"}
+                </Button>
+                {showLocalGraph && (
+                  <div className="mt-3">
+                    <Suspense fallback={<Skeleton className="h-64 w-full" />}>
+                      <WikiGraphCanvas
+                        graph={graph}
+                        visibleTypes={new Set(WIKI_TYPE_ORDER)}
+                        showStubs
+                        focus={path}
+                        onOpen={p => onOpen(p)}
+                      />
+                    </Suspense>
+                  </div>
+                )}
+              </section>
+            )}
           </article>
 
           {neighbors.length > 0 && (
             <aside className="text-sm">
               <div className="text-xs font-semibold text-muted-foreground mb-2">つながっているページ ({neighbors.length})</div>
               <ul className="space-y-1.5">
-                {neighbors.map(n => (
+                {neighbors.slice(0, NEIGHBOR_LIMIT).map(n => (
                   <li key={n.path}>
                     <button type="button" onClick={() => onOpen(n.path)} className="text-left flex items-start gap-1.5 hover:text-primary">
                       <TypeBadge type={n.type} />
@@ -284,6 +318,9 @@ function WikiPageView({
                   </li>
                 ))}
               </ul>
+              {neighbors.length > NEIGHBOR_LIMIT && (
+                <p className="text-xs text-muted-foreground mt-2">ほか {neighbors.length - NEIGHBOR_LIMIT} 件（図で見ると全部たどれます）</p>
+              )}
             </aside>
           )}
         </div>
