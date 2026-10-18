@@ -21,8 +21,10 @@ use std::collections::HashMap;
 use std::path::Path;
 
 mod hanrei;
+mod rulemaking;
 mod shingikai;
 pub use hanrei::run_link_hanrei;
+pub use rulemaking::run_link_rulemaking;
 pub use shingikai::run_link_shingikai;
 
 // ── 公開型 ────────────────────────────────────────────────────────
