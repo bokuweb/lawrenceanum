@@ -2048,21 +2048,29 @@ fn render_line(words: &[Col]) -> String {
             // 終わる金額の後に少しでも空いて数が続けば別の金額。
             let tail = s.rsplit(|c: char| !(c.is_ascii_digit() || c == ',')).next().unwrap_or("");
             let amounts = tail.contains(',') && tail.rsplit(',').next().is_some_and(|g| g.len() == 3) && w.text.starts_with(|c: char| c.is_ascii_digit() || c == '△');
+            // 小数点の後に数字の続く数（「0.000860」「0.4380」の係数の欄）の後に空いて数が続けば別の数（日付の「8.6.4」は
+            // 点が 2 つあるので除く）。
+            let decimal = s
+                .rsplit(|c: char| !(c.is_ascii_digit() || c == '.'))
+                .next()
+                .is_some_and(|t| t.matches('.').count() == 1 && t.split_once('.').is_some_and(|(a, b)| !a.is_empty() && !b.is_empty()))
+                && w.text.starts_with(|c: char| c.is_ascii_digit());
             // 科目の後の金額（「租税及印紙収入」「80,698,000,000」。字間を詰めた和文の中の数は空かない）。
             // 金額は桁区切りを含む数（語が桁区切りで割れていれば、続く語まで見る）。「第67期」の数は金額ではない。
             let number: String = std::iter::once(w)
                 .chain(words[i + 1..].iter().scan(w, |p, n| number_continues(p, n).then(|| { *p = n; n })))
                 .map(|w| w.text.as_str())
                 .collect();
+            // 小数（「その他の市」「0.000040」の係数）も。
             let label_amount = s.chars().last().is_some_and(|c| !c.is_ascii() && c.is_alphanumeric())
                 && number.starts_with(|c: char| c.is_ascii_digit())
-                && number.contains(',')
-                && number.chars().all(|c| c.is_ascii_digit() || c == ',');
+                && (number.contains(',') && number.chars().all(|c| c.is_ascii_digit() || c == ',')
+                    || number.matches('.').count() == 1 && !number.ends_with('.') && number.chars().all(|c| c.is_ascii_digit() || c == '.'));
             // 金額の後の科目（T 字の表の「100,068」「流動負債」。金額の後に続く単位「円」は空かない）。
             let amount_label = tail.contains(',') && w.text.starts_with(|c: char| !c.is_ascii() && c.is_alphanumeric());
             if (em * space_em..wide).contains(&gap) && (latin_word_break(&s, &w.text) || comma_number || number_word) {
                 s.push(' ');
-            } else if gap >= em * 0.75 || ((amounts || amount_label) && gap >= em * 0.2) || (label_amount && gap >= em * 0.5) {
+            } else if gap >= em * 0.75 || ((amounts || amount_label || decimal) && gap >= em * 0.2) || (label_amount && gap >= em * 0.5) {
                 s.push('\u{3000}');
             }
         }
