@@ -12,7 +12,7 @@ import { ARTICLES_V2, TIMELINE_EVENTS, type LawSummary } from "../mock-data";
 import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark, MessageSquare, Newspaper, ScrollText, Network } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 import { useLaws, useLawDetail } from "../../data/use-laws";
-import { api, type AppendixTable, type LawToProceedings, type LawToPubcomments, type LawToTsutatsu } from "../../data/api";
+import { api, hanreiUrl, type AppendixTable, type LawToHanrei, type LawToProceedings, type LawToPubcomments, type LawToTsutatsu } from "../../data/api";
 import { AmendDocumentView } from "../amend-document-view";
 import { getRefsForLaw, type ArticleRef } from "../../data/search-engine";
 import { EgovAttribution, toJstDate } from "../egov-attribution";
@@ -485,6 +485,18 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
   }, [law.law_id]);
   const linkedTsutatsu = tsutatsu?.linked_tsutatsu ?? [];
 
+  // この法令を参照した判例（law→hanrei クロスリンク）。リンクが無ければ非表示。
+  const [hanrei, setHanrei] = useState<LawToHanrei | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    setHanrei(null);
+    api.lawToHanrei(law.law_id)
+      .then(d => { if (!cancelled) setHanrei(d); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [law.law_id]);
+  const linkedCases = hanrei?.linked_cases ?? [];
+
   // この法令の官報掲載。timeline イベントのうち官報リンク済み (pdf_url あり) を拾う。
   // liveEvents は公布日降順ソート済み。
   const kanpoEvents = useMemo(
@@ -631,6 +643,35 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
             ))}
           </div>
           <p className="text-[10px] text-muted-foreground mt-1.5">国税庁の法令解釈通達（本文の「法」はこの法令を指します）</p>
+        </div>
+      )}
+
+      {linkedCases.length > 0 && (
+        <div className="border-b border-border bg-background px-6 py-3">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground mb-2">
+            <ScrollText className="size-3" />
+            この法令を参照した判例 ({linkedCases.length})
+          </div>
+          <ul className="space-y-1.5">
+            {linkedCases.slice(0, 10).map(c => (
+              <li key={c.case_id} className="text-xs">
+                <a
+                  href={hanreiUrl(c.case_id)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 hover:text-primary transition-colors"
+                >
+                  <span className="font-medium">{c.court} {c.judged_on} {c.case_number}</span>
+                  <ArrowUpRight className="size-2.5 opacity-50 shrink-0" />
+                </a>
+                <span className="text-muted-foreground ml-1.5">
+                  {c.articles.map(a => { const [n, ...br] = a.split("_"); return `第${n}条${br.map(b => `の${b}`).join("")}`; }).join("・")}
+                </span>
+                {c.holding && <p className="text-[11px] text-muted-foreground line-clamp-2">{c.holding}</p>}
+              </li>
+            ))}
+          </ul>
+          <p className="text-[10px] text-muted-foreground mt-1.5">出典: 裁判所 裁判例検索（参照法条等から自動抽出。直近の裁判例のみ）</p>
         </div>
       )}
 

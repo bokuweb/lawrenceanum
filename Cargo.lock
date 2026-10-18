@@ -1124,6 +1124,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "hanrei-client"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "kanpo-pdf",
+ "reqwest",
+ "scraper",
+ "serde",
+ "serde_json",
+ "tracing",
+]
+
+[[package]]
 name = "hashbrown"
 version = "0.14.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1624,6 +1637,7 @@ dependencies = [
  "estat-client",
  "flate2",
  "gian-client",
+ "hanrei-client",
  "hex",
  "kanpo-client",
  "kanpo-linker",

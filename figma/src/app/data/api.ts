@@ -442,6 +442,9 @@ export const api = {
   /** 法令 ↔ 通達 クロスリンク (通達集の親法令単位)。 */
   lawToTsutatsu: (lawId: string) => getJson<LawToTsutatsu>(`./links/law-to-tsutatsu/${lawId}.json`),
 
+  /** 法令 ↔ 判例 クロスリンク (判例の参照法条から抽出)。 */
+  lawToHanrei: (lawId: string) => getJson<LawToHanrei>(`./links/law-to-hanrei/${lawId}.json`),
+
   /** 議案 (法案審議トラッキング) 全体インデックス。 */
   gianIndex: () => getJson<GianIndex>('./gian/index.json'),
   /** 個別議案の審議経過。 */
@@ -764,6 +767,25 @@ export type LawToTsutatsu = {
   law_id: string
   linked_tsutatsu: LinkedTsutatsu[]
 }
+
+/** 法令 → 判例 クロスリンク。出典は裁判所 裁判例検索 (`/hanrei/{case_id}/detail2/`)。 */
+export type LinkedCase = {
+  case_id: number
+  case_number: string
+  case_name: string
+  judged_on: string
+  court: string
+  holding: string
+  /** 参照された条番号 (例: "709", "5_2" は第5条の2)。 */
+  articles: string[]
+}
+export type LawToHanrei = {
+  schema_version: number
+  law_id: string
+  linked_cases: LinkedCase[]
+}
+export const hanreiUrl = (caseId: number) =>
+  `https://www.courts.go.jp/hanrei/${caseId}/detail2/index.html`
 
 // ── 規制変化フィード 型定義 ───────────────────────────────────────
 

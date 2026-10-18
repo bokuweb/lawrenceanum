@@ -20,7 +20,9 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
 
+mod hanrei;
 mod shingikai;
+pub use hanrei::run_link_hanrei;
 pub use shingikai::run_link_shingikai;
 
 // ── 公開型 ────────────────────────────────────────────────────────
