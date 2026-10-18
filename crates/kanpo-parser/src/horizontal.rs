@@ -1211,6 +1211,32 @@ fn order_region(words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: bool, c
     }
     let lines = group_lines(&words);
     if lines.len() >= 2 {
+        if let Some((cut, top, bottom)) = paired_tables_cut(&words, ctx.tables) {
+            let (above, rest): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < top);
+            let (zone, below): (Vec<Col>, Vec<Col>) = rest.into_iter().partition(|w| y_center(w) <= bottom);
+            // 損益計算書の期間の「（自」「至」は表の左端より左に出ることがあるので、すぐ右（1.5em 以内）に右の欄の語が
+            // 続く 2 字以内の語は右の欄に入れる。
+            let label = |w: &Col| {
+                let em = (w.y1 - w.y).max(1.0);
+                w.text.trim().chars().filter(|c| !"（）()〔〕".contains(*c)).count() <= 2
+                    && zone.iter().any(|r| x_center(r) >= cut && (y_center(r) - y_center(w)).abs() <= ALIGN_TOL && r.x >= w.x1 - 0.5 && r.x - w.x1 < em * 1.5)
+            };
+            let sides: Vec<bool> = zone.iter().map(|w| x_center(w) < cut && !label(w)).collect();
+            let (mut left, mut right): (Vec<Col>, Vec<Col>) = (Vec::new(), Vec::new());
+            for (w, l) in zone.into_iter().zip(sides) {
+                if l { left.push(w) } else { right.push(w) }
+            }
+            let part = |ws: &[Col]| -> Vec<Block> {
+                let y0 = ws.iter().map(|w| w.y).fold(f32::INFINITY, f32::min);
+                let y1 = ws.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max);
+                blocks.iter().filter(|b| (b.1 + b.3) / 2.0 >= y0 && (b.1 + b.3) / 2.0 <= y1).copied().collect()
+            };
+            for ws in [above, left, right, below] {
+                let bs = part(&ws);
+                order_region(ws, &bs, ctx, boxed, column, out);
+            }
+            return;
+        }
         // 囲みの列の間の広い溝で先に列に分け、列の中を囲みの境の横の罫線で上下に分ける。
         // 囲みの段の中では、表と表の間（囲みの境、囲みの中の貸借対照表と損益計算書の境）の溝を囲みの境とみなす。
         let gutter = column_gutter(&words, blocks, if boxed { ctx.tables } else { &[] });
@@ -1449,6 +1475,69 @@ fn stray_cut(words: &[Col], blocks: &[Block], hrules: &[(f32, f32, f32)], cut: f
         let y = (ll[i].y1.max(rl[0].y1) + ll[i + 1].y0.min(rl[1].y0)) / 2.0;
         if clean(y) {
             return Some(y);
+        }
+    }
+    None
+}
+
+/// 決算公告の囲みの中で左右に並ぶ 2 つの表（貸借対照表と損益計算書。間は 12pt 以内）の間の x と、その上の左右の欄を
+/// 読む範囲 `(x, 上端の y, 下端の y)`。表のすぐ上（120pt 以内）に表の間をまたぐ囲みの見出し（「…公告」の行。字間を空けた
+/// 「第　31　期　決　算　公　告」は 1 つの語とみなす）があり、それより下で表の間をまたぐ語が無ければ、見出しの下から
+/// 表の下端までを左右に分けて読む（見出しが溝をふさぎ、会社名の行と損益計算書の見出しの「自　令和７年４月１日」が
+/// 1 行につながっていた）。見出しから表の下端までの語が 2 つの表の幅（から 20pt 以内）に収まるときだけ。
+fn paired_tables_cut(words: &[Col], tables: &[Block]) -> Option<(f32, f32, f32)> {
+    let x0 = words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
+    let x1 = words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
+    let y0 = words.iter().map(|w| w.y).fold(f32::INFINITY, f32::min);
+    let y1 = words.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max);
+    // 表の中ほどが領域の幅に入るもの（囲みが紙面の段の境をまたぎ、表の左端が段の境より左に出ることがある）。
+    let inside: Vec<&Block> = tables.iter().filter(|t| (t.0 + t.2) / 2.0 >= x0 && t.2 <= x1 + 5.0 && t.1 >= y0 && t.1 < y1).collect();
+    let lines = group_lines(words);
+    for a in &inside {
+        for b in &inside {
+            let gap = b.0 - a.2;
+            let overlap = a.3.min(b.3) - a.1.max(b.1);
+            if !(0.0..=12.0).contains(&gap) || overlap < (a.3 - a.1).min(b.3 - b.1) * 0.5 {
+                continue;
+            }
+            let cut = (a.2 + b.0) / 2.0;
+            let tables_top = a.1.min(b.1);
+            let bottom = a.3.max(b.3);
+            // 行の語を字間空けの見出しはつないで、表の間をまたぐか。
+            let crosses = |l: &Line| {
+                let mut spans: Vec<(f32, f32)> = Vec::new();
+                for (w, joined) in l.words.iter().zip(letter_spaced(&l.words, true)) {
+                    match spans.last_mut() {
+                        Some(span) if joined => span.1 = w.x1,
+                        _ => spans.push((w.x, w.x1)),
+                    }
+                }
+                spans.iter().any(|&(a, b)| a < cut - 1.0 && b > cut + 1.0)
+            };
+            let heading = |l: &Line| l.words.iter().map(|w| w.text.as_str()).collect::<String>().contains("公告");
+            // 見出しが左の欄の上だけにある囲み（「第106期決算公告」の右に「損益計算書の要旨」が並ぶ）は、見出しの行から
+            // 左右に分ける（見出しは左の欄の頭）。
+            let head = lines
+                .iter()
+                .filter(|l| l.y1 <= tables_top + 1.0 && heading(l))
+                .map(|l| {
+                    let left_only = l.words.iter().filter(|w| w.text.contains("公告") || w.text.ends_with('告')).all(|w| w.x1 <= cut - 1.0);
+                    if crosses(l) { l.y1 } else if left_only { l.y0 - 0.5 } else { f32::NEG_INFINITY }
+                })
+                .fold(f32::NEG_INFINITY, f32::max);
+            // 見出しから表の下端までの語は 2 つの表の幅に収まる（左右に並ぶ別の囲みの語があれば、先に囲みの列に分ける）。
+            let outside = words.iter().any(|w| y_center(w) > head && y_center(w) <= bottom && (w.x < a.0 - 20.0 || w.x1 > b.2 + 20.0));
+            // 見出しより下は語のまま見る（字間空けの判定は字の大きい会社名と「至」をつなぐことがある）。
+            // 表の間で語が割れた行（日付の「令和８年８月」「25日」。空きが 0.5em 未満）もまたぐとみなす。
+            let zone_lines: Vec<&Line> = lines.iter().filter(|l| l.center() > head && l.center() <= bottom).collect();
+            let crossed = zone_lines.iter().any(|l| {
+                l.words.iter().any(|w| w.x < cut - 1.0 && w.x1 > cut + 1.0)
+                    || l.words.windows(2).any(|p| x_center(&p[0]) < cut && x_center(&p[1]) >= cut && p[1].x - p[0].x1 < (l.y1 - l.y0) * 0.5)
+            });
+            if !head.is_finite() || tables_top - head > 120.0 || outside || crossed {
+                continue;
+            }
+            return Some((cut, head, bottom));
         }
     }
     None
