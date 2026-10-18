@@ -1098,7 +1098,12 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
             let tight = |k: usize| k > 0 && cell_lines[i][k].y0 - cell_lines[i][k - 1].y1 < (cell_lines[i][k].y1 - cell_lines[i][k].y0) * 0.25;
             // 前の行と次の行がどちらも科目の名前で終われば、行間を空けずに続いても次の科目（金額の「―」が字の層に無い
             // 科目「固定負債」が上の科目「流動負債」に続いていた）。
-            let next_item = |k: usize| k > 0 && account_end(&cell_lines[i][k - 1]) && account_end(&cell_lines[i][k]);
+            let next_item = |k: usize| {
+                k > 0
+                    && ((account_end(&cell_lines[i][k - 1]) && account_end(&cell_lines[i][k]))
+                        || section_heading(&cell_lines[i][k - 1])
+                        || section_heading(&cell_lines[i][k]))
+            };
             for (k, l) in cell_lines[i].iter().enumerate() {
                 let c = l.center();
                 // 項目番号で始まる行（「10　発行日」の次の「11　発行価格」）は、行間を空けずに続いても次の項目。
@@ -1191,7 +1196,7 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
                         // 勤務掛金収」「入」も）。
                         let continued = item_cells[i] && l.y0 - ls[k.max(1) - 1].y1 < (l.y1 - l.y0) * 0.25;
                         // 2 行とも科目の名前で終われば別の科目（字間を空けて欄の幅いっぱいに組んだ「流　動　負　債」は右端に届く）。
-                        let items = k > 0 && account_end(ls[k - 1]) && account_end(l);
+                        let items = k > 0 && ((account_end(ls[k - 1]) && account_end(l)) || section_heading(ls[k - 1]) || section_heading(l));
                         // 行末の金額（「（旧無級地であつた地域）　1.012」）の次の行は折り返しではない（金額の欄の無い升に
                         // 項目と係数を並べた表）。
                         let after_amount = k > 0 && amount_end(ls[k - 1]) && !amount_tail(ls[k - 1], l);
@@ -1281,6 +1286,13 @@ fn amount_end(l: &Line) -> bool {
     let t = render_line(&l.words);
     let tail: String = t.chars().rev().take_while(|c| c.is_ascii_digit() || matches!(c, '.' | ',')).collect();
     tail.starts_with(|c: char| c.is_ascii_digit()) && tail.contains(['.', ','])
+}
+
+/// 科目の欄の区分の見出しの行（「（業務外損益の部）」「(資産の部)」）か。前後の行とは別の行（金額の「—」が字の層に無いと、
+/// 前の「業務損失」と次の「業務外収益」の行と 1 行になっていた）。
+fn section_heading(l: &Line) -> bool {
+    let t: String = l.words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace()).collect();
+    t.starts_with(['（', '(']) && (t.ends_with("の部）") || t.ends_with("の部)")) && t.chars().count() <= 14
 }
 
 /// 行が科目の名前（頭に 2 字以上ある）で終わるか（「流動負債」「固定資産」「営業外収益」「賞与引当金」「その他利益剰余金」）。
