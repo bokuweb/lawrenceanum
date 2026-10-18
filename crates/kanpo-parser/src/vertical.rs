@@ -1520,7 +1520,9 @@ fn attach_minus_signs(cols: &mut Vec<Col>, words: &[Word]) -> std::collections::
         let em = (mx1 - mx).max(my1 - my).max(1.0);
         let overlap = |a0: f32, a1: f32, b0: f32, b1: f32| (a1.min(b1) - a0.max(b0)) / (a1 - a0).min(b1 - b0).max(0.1);
         let target = (0..cols.len())
-            .filter(|&j| j != i && cols[j].text.trim() != "△" && !cols[j].text.trim().is_empty() && !targets.contains(&cols[j].id))
+            // 開き括弧だけの語（「(△785)」の「(」）には付けない（「△」は括弧の中の数に付く。下の行の「△」が、字に合わせて
+            // 下にずれて置かれた上の行の「(」に付いていた）。
+            .filter(|&j| j != i && !matches!(cols[j].text.trim(), "△" | "" | "(" | "（") && !targets.contains(&cols[j].id))
             .filter_map(|j| {
                 let c = &cols[j];
                 let (cx, cy, cx1, cy1) = geom(c.id)?;

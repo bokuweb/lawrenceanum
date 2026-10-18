@@ -1278,8 +1278,12 @@ fn group_line_words(words: Vec<&Col>) -> Vec<Line> {
         let c = y_center(w);
         match lines.last_mut() {
             Some(l) if c > l.y0 && c < l.y1 => {
-                l.y0 = l.y0.min(w.y);
-                l.y1 = l.y1.max(w.y1);
+                // 括弧 1 字の語（負の金額の「(△785)」の「(」は、隣の「△」の字に合わせて下にずれて置かれる）は行の
+                // 高さを広げない（広げると次の行の語の中心が行に入り、2 行が 1 行になる）。
+                if !matches!(w.text.trim(), "(" | ")" | "（" | "）") {
+                    l.y0 = l.y0.min(w.y);
+                    l.y1 = l.y1.max(w.y1);
+                }
                 l.words.push(w.clone());
             }
             _ => lines.push(Line {
