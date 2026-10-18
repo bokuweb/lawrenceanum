@@ -1767,6 +1767,17 @@ fn attach_minus_signs(cols: &mut Vec<Col>, words: &[Word]) -> std::collections::
         if let Some(j) = target {
             targets.insert(cols[j].id);
             drop.push(cols[i].id);
+            // 印に重なる開き括弧だけの語（「(△135)」の「(」）は、印を付けた金額の語のすぐ左に置き直す（括弧だけが金額の
+            // 欄の外の升に入り、次の行の頭に出ていた）。閉じ括弧で終わる金額のときだけ。
+            if cols[j].text.trim_end().ends_with([')', '）']) {
+                let (tx, ty, ty1) = (cols[j].x, cols[j].y, cols[j].y1);
+                if let Some(k) = (0..cols.len()).find(|&k| {
+                    matches!(cols[k].text.trim(), "(" | "（") && overlap(cols[k].y, cols[k].y1, my, my1) >= 0.3 && cols[k].x1 >= mx - 0.5 && cols[k].x <= mx1
+                }) {
+                    let w = (cols[k].x1 - cols[k].x).max(0.02);
+                    (cols[k].x, cols[k].x1, cols[k].y, cols[k].y1) = (tx - w, tx - 0.01, ty, ty1);
+                }
+            }
         }
     }
     cols.retain(|c| !drop.contains(&c.id));
