@@ -2477,6 +2477,16 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
         out.push(cols);
         return;
     }
+    // 語の少ない（8 語まで）低い領域（120pt 未満）で、cut の上で終わる列がどれも同じ列で 1.5em 以内に cut の下へ続くなら、
+    // 列の中の空き（表の欄の「二十三」「外国紋章」を 1em 空けて組んだもの）で段の境目ではない。
+    if ymax - ymin < 120.0 && cols.len() <= 8 {
+        let ends: Vec<&Col> = cols.iter().filter(|c| c.y1 < cut && !cols.iter().any(|d| d.y >= c.y1 - 0.5 && d.y1 < cut && (center(d) - center(c)).abs() < (c.x1 - c.x) * 0.5)).collect();
+        let continued = |c: &Col| pairs.iter().any(|&(y1, y, gap)| (y1 - c.y1).abs() < 0.5 && y > cut && gap <= 1.5);
+        if !ends.is_empty() && ends.iter().all(|c| continued(c)) {
+            out.push(cols);
+            return;
+        }
+    }
     // それでも表を横切るなら、表を割らずに表の脇で縦に切る。表の左に語があれば表の左端で、
     // 無ければ表の右端で切り、右側から順に段へ分ける。表が段の幅いっぱいなら切らない。
     if let Some(&(x0, x1, _, _)) = table_at(cut) {
