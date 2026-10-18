@@ -1389,7 +1389,18 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
     let (wx0, wx1) = (words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min), words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max));
     let near: Vec<Block> = blocks.iter().filter(|b| b.0 < wx1 && b.2 > wx0).copied().collect();
     let blocks = near.as_slice();
-    if lines.len() >= 2 {
+    // 横に並ぶ囲みの見出しどうしが 1 行にまとまった領域（[`multi_row`]）も、列の溝で左右に分ける。
+    if lines.len() >= 2 || multi_row(&words) {
+        // 紙面の幅いっぱいに 1 本で引いた横の罫線（囲みの段の境）で先に上下に切る（号外の決算公告のページで、横長の囲みの中に
+        // 貸借対照表 2 つと縦組みの合併公告が並ぶ段が上下に重なるもの。列で先に切ると、どの段も左の貸借対照表が先に読まれた）。
+        // 段の中は囲みとして読む（囲みの中の表と表の間の溝で左右に分ける）。
+        if let Some(cut) = band_rule_cut(&words, blocks, hrules, ctx.tables) {
+            let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < cut);
+            let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < cut);
+            order_region(top, &bt, ctx, true, column, out);
+            order_region(bottom, &bb, ctx, true, column, out);
+            return;
+        }
         if let Some((cut, top, bottom)) = paired_tables_cut(&words, ctx.tables) {
             let (above, rest): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < top);
             let (zone, below): (Vec<Col>, Vec<Col>) = rest.into_iter().partition(|w| y_center(w) <= bottom);
@@ -1425,16 +1436,6 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
             let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < cut);
             order_region(top, &bt, ctx, boxed, column, out);
             order_region(bottom, &bb, ctx, boxed, column, out);
-            return;
-        }
-        // 紙面の幅いっぱいに 1 本で引いた横の罫線（囲みの段の境）で先に上下に切る（号外の決算公告のページで、横長の囲みの中に
-        // 貸借対照表 2 つと縦組みの合併公告が並ぶ段が上下に重なるもの。列で先に切ると、どの段も左の貸借対照表が先に読まれた）。
-        // 段の中は囲みとして読む（囲みの中の表と表の間の溝で左右に分ける）。
-        if let Some(cut) = band_rule_cut(&words, blocks, hrules) {
-            let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < cut);
-            let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < cut);
-            order_region(top, &bt, ctx, true, column, out);
-            order_region(bottom, &bb, ctx, true, column, out);
             return;
         }
         let gutters = column_gutters(&words, blocks, if boxed { ctx.tables } else { &[] }, boxed);
@@ -1987,22 +1988,40 @@ fn box_rule_cut(words: &[Col], blocks: &[Block], hrules: &[(f32, f32, f32)]) -> 
 }
 
 /// 領域の語の左右の端を両方とも越えて 1 本で引いた横の罫線の y（語も表もまたがず、上下に語のあるもののうち一番上）。
-fn band_rule_cut(words: &[Col], blocks: &[Block], hrules: &[(f32, f32, f32)]) -> Option<f32> {
+fn band_rule_cut(words: &[Col], blocks: &[Block], hrules: &[(f32, f32, f32)], tables: &[Block]) -> Option<f32> {
     let x0 = words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
     let x1 = words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
+    // 取り出した表の行の線（紙面の幅いっぱいの表の枠・行の境）は段の境ではない（表の上の標題だけが切り離され、
+    // 表の下の領域が囲みとして読まれて、キャッシュ・フロー計算書の科目と金額が別々の列に分かれた）。
+    let in_table = |r: &(f32, f32, f32)| {
+        tables.iter().any(|t| r.0 >= t.1 - 2.0 && r.0 <= t.3 + 2.0 && r.2.min(t.2) - r.1.max(t.0) >= (r.2 - r.1) * 0.8)
+    };
     hrules
         .iter()
-        .filter(|r| r.1 <= x0 + 2.0 && r.2 >= x1 - 2.0 && x1 - x0 >= MIN_TEXT_COLUMN_WIDTH * 2.0)
+        .filter(|r| r.1 <= x0 + 2.0 && r.2 >= x1 - 2.0 && x1 - x0 >= MIN_TEXT_COLUMN_WIDTH * 2.0 && !in_table(r))
         .map(|r| r.0)
         .filter(|&y| {
-            // 上下とも 3 行以上（表の欄見出しの行「変更後　変更前」の下の線では切らない）。
+            // 上下とも 2 行以上（表の欄見出しの行「変更後　変更前」の下の線では切らない。表を取り出した後の段は、表の上の
+            // 見出しの 2 行だけのことがある）。
             let (above, below): (Vec<Col>, Vec<Col>) = words.iter().cloned().partition(|w| y_center(w) < y);
             !words.iter().any(|w| w.y < y - 1.0 && w.y1 > y + 1.0)
                 && !blocks.iter().any(|b| b.1 < y - 1.0 && b.3 > y + 1.0)
-                && group_lines(&above).len() >= 3
-                && group_lines(&below).len() >= 3
+                && multi_row(&above)
+                && multi_row(&below)
         })
         .reduce(f32::min)
+}
+
+/// 語が 2 行以上に並ぶか。横に並ぶ段の見出しどうしは 1 行にまとまることがあるので、語の高さの 2 倍以上の高さに
+/// 広がるものも含める。
+fn multi_row(words: &[Col]) -> bool {
+    if group_lines(words).len() >= 2 {
+        return true;
+    }
+    let h = words.iter().map(|w| w.y1 - w.y).fold(f32::INFINITY, f32::min);
+    let y0 = words.iter().map(|w| w.y).fold(f32::INFINITY, f32::min);
+    let y1 = words.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max);
+    words.len() >= 2 && y1 - y0 >= h * 2.0
 }
 
 /// 表の枠の下端の横の罫線の y。領域の語の幅の 9 割以上に掛かり、領域の高さの上の部分の半分以上に掛かる縦の罫線が
