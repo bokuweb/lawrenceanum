@@ -1346,6 +1346,15 @@ fn order_region(words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: bool, c
         }
         // 囲みの列の間の広い溝で先に列に分け、列の中を囲みの境の横の罫線で上下に分ける。
         // 囲みの段の中では、表と表の間（囲みの境、囲みの中の貸借対照表と損益計算書の境）の溝を囲みの境とみなす。
+        // 表の枠の下端（左右の欄を分ける縦の罫線がそこで終わる、領域の幅いっぱいの横の罫線）より下の行（表の備考・
+        // 附則）は、左右の欄より後に読む（左の欄の下に続く短い行が左の欄の続きとして読まれていた）。
+        if let Some(cut) = table_bottom_cut(&words, blocks, hrules, vrules) {
+            let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < cut);
+            let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < cut);
+            order_region(top, &bt, ctx, boxed, column, out);
+            order_region(bottom, &bb, ctx, boxed, column, out);
+            return;
+        }
         let gutter = column_gutter(&words, blocks, if boxed { ctx.tables } else { &[] });
         if let Some(cut) = box_rule_cut(&words, blocks, hrules).filter(|_| column && !gutter.is_some_and(|g| g.1 >= WIDE_GUTTER)) {
             let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < cut);
@@ -1711,6 +1720,29 @@ fn box_rule_cut(words: &[Col], blocks: &[Block], hrules: &[(f32, f32, f32)]) -> 
     hrules
         .iter()
         .filter(|r| r.2.min(x1) - r.1.max(x0) >= (x1 - x0) * 0.95 && (r.1 < x0 - 20.0 || r.2 > x1 + 20.0))
+        .map(|r| r.0)
+        .filter(|&y| {
+            !words.iter().any(|w| w.y < y - 1.0 && w.y1 > y + 1.0)
+                && !blocks.iter().any(|b| b.1 < y - 1.0 && b.3 > y + 1.0)
+                && words.iter().any(|w| y_center(w) < y)
+                && words.iter().any(|w| y_center(w) > y)
+        })
+        .reduce(f32::min)
+}
+
+/// 表の枠の下端の横の罫線の y。領域の語の幅の 9 割以上に掛かり、領域の高さの上の部分の半分以上に掛かる縦の罫線が
+/// そこで終わり（左右の欄の境の線）、語も表もまたがず、上下に語があるもののうち一番上。
+fn table_bottom_cut(words: &[Col], blocks: &[Block], hrules: &[(f32, f32, f32)], vrules: &[(f32, f32, f32)]) -> Option<f32> {
+    let x0 = words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
+    let x1 = words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
+    let y0 = words.iter().map(|w| w.y).fold(f32::INFINITY, f32::min);
+    let vrules = join_vrules(vrules);
+    hrules
+        .iter()
+        .filter(|r| r.2.min(x1) - r.1.max(x0) >= (x1 - x0) * 0.9)
+        .filter(|r| {
+            vrules.iter().any(|v| v.0 > r.1 + 10.0 && v.0 < r.2 - 10.0 && (v.2 - r.0).abs() <= 2.0 && v.2 - v.1.max(y0) >= (r.0 - y0) * 0.5)
+        })
         .map(|r| r.0)
         .filter(|&y| {
             !words.iter().any(|w| w.y < y - 1.0 && w.y1 > y + 1.0)
