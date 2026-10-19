@@ -488,8 +488,11 @@ fn vertical_lines(words: Vec<Col>) -> Vec<trace::Line> {
         .collect();
     let latin = |w: &Col| {
         let width = w.x1 - w.x;
+        // 和字に英字の混じった語（「株式会社Lacicu」）も同じく左に出る（上の「（乙）」と同じ列にならず、左の列の
+        // 「代表取締役」とつながっていた）。
+        let mixed = w.text.chars().filter(|c| c.is_ascii_alphabetic()).count() >= 3;
         w.text.chars().count() >= 2
-            && w.text.chars().all(|c| c.is_ascii_alphanumeric() || " -'&.,/:@".contains(c))
+            && (mixed || w.text.chars().all(|c| c.is_ascii_alphanumeric() || " -'&.,/:@".contains(c)))
             && w.y1 - w.y >= width * 1.8
             && (width - width.round()).abs() >= 0.01
     };
