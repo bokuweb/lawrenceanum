@@ -2971,6 +2971,25 @@ fn is_column_split(left: &[Col], right: &[Col], boxed: bool) -> bool {
                 .filter(|a| (a.center() - b.center()).abs() <= ALIGN_TOL)
                 .all(|a| !a.words.iter().any(|w| w.text.chars().any(|c| c.is_ascii_digit())))
         });
+    // 左右に並べた貸借対照表（資産の科目｜金額｜負債の科目｜金額）の左の科目の欄と、その右（金額で始まり、負債の科目と
+    // 金額が続く行）も、科目と金額の表。左は数の無い狭い（200pt 未満の）科目の欄で、高さの揃う右の行の 8 割以上が金額で
+    // 始まるもの。
+    let starts_amount = |b: &Line| {
+        b.words.first().is_some_and(|w| {
+            let t = w.text.trim();
+            t.chars().any(|c| c.is_ascii_digit()) && t.chars().all(|c| c.is_ascii_digit() || ",△▲()（）".contains(c))
+        })
+    };
+    let leading: Vec<&Line> = paired.iter().filter(|b| starts_amount(b)).collect();
+    let label_leading = wl < 200.0
+        && leading.len() >= 5
+        && leading.len() * 10 >= paired.len() * 8
+        && leading.iter().all(|b| {
+            ll.iter()
+                .filter(|a| (a.center() - b.center()).abs() <= ALIGN_TOL)
+                .all(|a| !a.words.iter().any(|w| w.text.chars().any(|c| c.is_ascii_digit())))
+        });
+    let label_amounts = label_amounts || label_leading;
     let table_like = (aligned as f32 >= few.len() as f32 * 0.75 && (wl.min(wr) < MIN_TEXT_COLUMN_WIDTH || amounts(&rl) || (paired.len() >= 5 && amounts(&paired))))
         || label_amounts
         || labels
