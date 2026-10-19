@@ -2475,7 +2475,21 @@ fn is_column_split(left: &[Col], right: &[Col], boxed: bool) -> bool {
     let (wl, wr) = (width(left), width(right));
     // 金額の欄（行の 8 割以上が金額だけの行）なら、欄の幅が広くても（右揃えの金額の欄が 2〜3 列並ぶ）表の列。
     let amounts = |ls: &[Line]| ls.len() >= 2 && ls.iter().filter(|l| amount_line(l)).count() * 10 >= ls.len() * 8;
-    let labels = (wl < 120.0 && label_column(&ll, &near_lines(right, true))) || (wr < 120.0 && label_column(&rl, &near_lines(left, false)));
+    // 番号付きの項目名が 1〜3 行だけの狭い左の欄（前のページから続く国債の発行条件の「17　中途換金の特例」「18　元利金
+    // 支払場所」）も、右の内容の行と高さが揃えば項目名の欄（項目名を全部読んでから内容を読んでいた）。
+    let few_labels = wl < 120.0 && (1..=3).contains(&ll.len()) && rl.len() >= 3 && {
+        let near = near_lines(right, true);
+        // 項目の下の次の告示の標題（「〇財務省告示第…号」）は数えない。
+        let text = |l: &Line| l.words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace()).collect::<String>();
+        let items: Vec<&Line> = ll.iter().filter(|l| !crate::segment::is_heading_mark(&text(l))).collect();
+        !items.is_empty() && items.iter().all(|l| {
+            let t = text(l);
+            let numbered = t.starts_with(|c: char| c.is_ascii_digit() || ('０'..='９').contains(&c));
+            let named = t.chars().filter(|c| ('\u{4E00}'..='\u{9FFF}').contains(c) || ('\u{3040}'..='\u{30FF}').contains(c)).count() >= 3;
+            numbered && named && near.iter().any(|m| (m.center() - l.center()).abs() <= ALIGN_TOL.max((l.y1 - l.y0) * 0.25))
+        })
+    };
+    let labels = few_labels || (wl < 120.0 && label_column(&ll, &near_lines(right, true))) || (wr < 120.0 && label_column(&rl, &near_lines(left, false)));
     if boxed {
         return !labels && !(aligned as f32 >= few.len() as f32 * 0.75 && (amounts(&rl) || amounts(&ll)));
     }
