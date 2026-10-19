@@ -200,12 +200,18 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
             && Page::read(&path)
                 .map(|p| {
                     !p.get_str("description").trim().is_empty()
+                        && (task.kind != enforcements::KIND || enforcements::explanation_errors(&p).is_empty())
                         && llm_blocks(&p.body)
                             .iter()
                             .any(|b| !citations_in(b).is_empty())
                 })
                 .unwrap_or(false);
-        if done && task.kind == super::kanpo::KIND_KANPO {
+        if done && task.kind == enforcements::KIND {
+            let mut page = Page::read(&path)?;
+            page.set("llm_source_fingerprint", page.get("source_fingerprint").cloned().unwrap_or(Value::Null));
+            page.write(&path)?;
+            completed.push(task.clone());
+        } else if done && task.kind == super::kanpo::KIND_KANPO {
             // 官報の項目は一度要約したら終わり (本文もページ内で固定する)。
             let mut page = Page::read(&path)?;
             page.set("llm_done", json!(true));
