@@ -1997,6 +1997,36 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
             cells.remove(k);
             continue;
         }
+        // 逆に、金額のある行の科目が右端まで組まれて途中で切れ（「前中期目標期間繰越積」）、次の行の同じ欄の続き
+        // （「立金（注）」。8 字まで、字と括弧だけ）の右の欄に金額が無ければ、続きを前の行の科目へ戻す（左右に並べた貸借対照表で、
+        // 左の科目の次の行の高さで行が分かれ、続きが次の行に付いていた）。
+        // 続きが 4 字以上なら、科目の名前で終わらない（「法人税等調整額」「資本剰余金」は次の科目）。見出しの「科目」など、
+        // 前の行が 4 字未満なら科目の途中ではない。
+        let complete = |t: &str| {
+            let core: String = t.chars().filter(|c| !"（）()".contains(*c)).collect();
+            core.chars().count() >= 4 && (TERMS.iter().any(|e| core.ends_with(e)) || core.ends_with(['額', '税', '高', '金', '益', '費', '失', '産', '債', '式']))
+        };
+        if let Some(n) = next.filter(|&n| {
+            label
+                && tail(&cells[n].text)
+                && !complete(&cells[n].text)
+                && cells[k].text.trim().chars().count() >= 4
+                && amount_here
+                && !amount_next
+                && reaches
+                && cells[n].text.chars().count() <= 8
+                && !cells[n].text.contains('\n')
+                && !cells[k].text.contains('\n')
+                && top(n) - bottom(k) < height * 0.25
+        }) {
+            let (text, ids) = (cells[n].text.clone(), cells[n].words.clone());
+            cells[k].text.push_str(&text);
+            cells[k].words.extend(ids);
+            cells.remove(n);
+            if n < k {
+                continue;
+            }
+        }
         k += 1;
     }
     // 字の無い行は詰める。
