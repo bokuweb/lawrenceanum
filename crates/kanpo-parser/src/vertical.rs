@@ -2847,7 +2847,7 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
         let candidates = if pass == 0 { &column_bottoms } else { &table_bottoms };
         for &(c_y1, c_x, c_y) in candidates {
             let cut = c_y1 + 0.5;
-            if cut < lo || cut > hi || (ruled_only && !ruled(cut)) || label_strip(&cols, cut) || signature(cut) {
+            if cut < lo || cut > hi || (ruled_only && !ruled(cut)) || label_strip(&cols, cut) || spaced_label_split(&cols, cut) || signature(cut) {
                 continue;
             }
             let crossing = cols.iter().filter(|d| d.y < cut && cut < d.y1).count();
@@ -3057,7 +3057,7 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
             .filter(|&cut| lo <= cut && cut <= hi && table_at(cut).is_none() && !touching(cut))
             .filter(|&cut| !cols.iter().any(|d| d.y < cut && cut < d.y1))
             // 欄見出しの帯の下（灯台の告示の「名称」「位置」…の帯と値の間）は段の境目ではない。
-            .filter(|&cut| !label_strip(&cols, cut))
+            .filter(|&cut| !label_strip(&cols, cut) && !spaced_label_split(&cols, cut))
             .collect();
         cuts.sort_by(f32::total_cmp);
         let part_of = |c: &Col, cuts: &[f32]| cuts.partition_point(|&cut| cut <= (c.y + c.y1) / 2.0);
@@ -3143,6 +3143,29 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
     split_tiers_rec(bottom, depth + 1, rules, ruled_only, out);
 }
 
+/// `cut` が字間を空けた 1 字ずつの欄見出し（「名　　称」「位　　置」）の字の間を切るか。3 列以上で、同じ列の 1 字の語が
+/// `cut` の上（8em 以内）で終わり、下（8em 以内）から始まり、続けると欄見出しの頭になる。
+fn spaced_label_split(cols: &[Col], cut: f32) -> bool {
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    let single = |c: &&Col| c.text.chars().filter(|ch| !ch.is_whitespace()).count() == 1;
+    // 上と下の字を続けると欄見出しの頭になるもの（「名」「称」、「所」「在」）だけ。
+    const HEADS: [&str; 16] = ["名称", "位置", "所在地", "北緯", "東経", "灯質", "光度", "高さ", "記事", "種類", "番号", "住所", "氏名", "区分", "距離", "周期"];
+    let split = cols
+        .iter()
+        .filter(single)
+        .filter(|a| {
+            let em = (a.x1 - a.x).max(1.0);
+            a.y1 <= cut
+                && cut - a.y1 < em * 8.0
+                && cols.iter().filter(single).any(|b| {
+                    let joined = format!("{}{}", a.text.trim(), b.text.trim());
+                    (center(b) - center(a)).abs() < em * 0.5 && b.y >= cut && b.y - cut < em * 8.0 && HEADS.iter().any(|h| h.starts_with(&joined))
+                })
+        })
+        .count();
+    split >= 3
+}
+
 /// 列の重ならない縦の境目で `cols` を右と左に分ける。左に記事の見出し（「〇…号」）があり、左だけならどの列も
 /// 跨がない（字間でもない）横の空きで上下に割れ、右は割れず見出しも無いときだけ。境目は見出しの記事に
 /// いちばん近いもの（左から順に試して最初のもの）。
@@ -3158,13 +3181,19 @@ fn label_strip(cols: &[Col], cut: f32) -> bool {
         ws.get(ws.len() / 2).copied().unwrap_or(10.0).max(1.0)
     };
     let center = |c: &Col| (c.x + c.x1) / 2.0;
-    let labels: Vec<&Col> = cols.iter().filter(|c| c.y1 <= cut && cut - c.y1 < em * 8.0 && c.text.chars().count() <= 8).collect();
+    // 帯の語は、cut の上の長い語（上の段の本文・値）の終わりより下で始まるもの（上の段の末尾の短い語で帯の上端が上がり、
+    // 上の段の本文を帯の上の語とみなしていた）。
+    let text_end = cols.iter().filter(|c| c.y1 <= cut && c.text.chars().count() > 8).map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+    let labels: Vec<&Col> =
+        cols.iter().filter(|c| c.y1 <= cut && cut - c.y1 < em * 8.0 && c.y >= text_end - 1.0 && c.text.chars().count() <= 8).collect();
     // 帯の上には何も無い（帯は段の頭。段の境の上の段の列の末尾の短い語を帯にしない）。帯は縦組み（横組みの語の
     // ある横組みの表の行の間では切ってよい）。
     // 上の段の語（帯の上端より上で終わる語。表の段が上下に並ぶページの 2 段目の帯）は見ない。
     let band_top = labels.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
     let above: Vec<&Col> = cols.iter().filter(|c| c.y1 <= cut && c.y1 > band_top + 1.0).collect();
-    if above.iter().any(|c| cut - c.y > em * 8.0 || (c.text.chars().count() >= 2 && c.x1 - c.x > c.y1 - c.y)) {
+    // 字間を大きく空けた欄見出し（「名　　　称」）や長い欄見出し（「変更した事項」）の帯は 16em まで高くてよい。
+    let reach = |c: &Col| if c.text.chars().count() <= 8 { em * 16.0 } else { em * 8.0 };
+    if above.iter().any(|c| cut - c.y > reach(c) || (c.text.chars().count() >= 2 && c.x1 - c.x > c.y1 - c.y)) {
         return false;
     }
     // 字間を空けた欄見出し（「高　さ」）は 1 字ずつの語なので、同じ列の語をまとめて列の下端を見る。
@@ -3203,7 +3232,12 @@ fn label_strip(cols: &[Col], cut: f32) -> bool {
     // 欄見出しの下はそれぞれ 1 つの値（2 つまでの語）。下に記録が何件も並ぶ表（政治団体の名称・代表者の氏名…の欄の
     // 下に団体ごとの行が続く）は、欄見出しの帯を段に分けて読む（[`record_bands`]）。
     // 値は帯のすぐ下の段の中（下の段の記録の値は数えない）。
-    let values = |x: f32| cols.iter().filter(|v| v.y >= cut && v.y - cut < em * 16.0 && (center(v) - x).abs() < em * 0.5).count();
+    // 字の間を空けずに続く語（座標の「三四－〇二－」「五〇」…の 1 つの値が語に割れたもの）は 1 つの値と数える。
+    let values = |x: f32| {
+        let mut vs: Vec<&Col> = cols.iter().filter(|v| v.y >= cut && v.y - cut < em * 16.0 && (center(v) - x).abs() < em * 0.5).collect();
+        vs.sort_by(|a, b| a.y.total_cmp(&b.y));
+        vs.iter().enumerate().filter(|&(i, v)| i == 0 || v.y - vs[i - 1].y1 > em * 0.8).count()
+    };
     let single = groups.iter().filter(|g| values(g.0) <= 2).count();
     below * 10 >= groups.len() * 7 && single * 10 >= groups.len() * 7
 }
