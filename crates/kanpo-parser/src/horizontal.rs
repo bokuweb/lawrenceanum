@@ -679,10 +679,14 @@ fn rule_column_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)], hrules: &[(f3
         // 欄の端に沿う線（15pt 以内。二重線の内側の線や、途中までしか引かれていない欄の枠）は別の表の線ではない。
         let between = |a: f32, b: f32| joined.iter().any(|r| r.0 > a + 15.0 && r.0 < b - 15.0 && r.2.min(bottom) - r.1.max(top) >= (bottom - top) * 0.5);
         let mut runs: Vec<Vec<f32>> = vec![Vec::new()];
-        for x in xs {
+        let n = xs.len();
+        for (k, x) in xs.into_iter().enumerate() {
             let run = runs.last_mut().unwrap();
+            // 字の無い広い欄の後ろに 1 欄だけ残る（右端の「法人単位」の欄）なら、字の無い欄（「—」が図形の金額の欄）も表の欄
+            // （切ると右端の欄が表から外れ、金額だけが表の後ろに読まれていた）。
+            let last_one = k + 2 == n;
             match run.last() {
-                Some(&a) if between(a, x) || !words.iter().any(|w| inside(w, a, x)) => runs.push(vec![x]),
+                Some(&a) if between(a, x) || (!words.iter().any(|w| inside(w, a, x)) && !(last_one && x - a >= 20.0)) => runs.push(vec![x]),
                 _ => run.push(x),
             }
         }
