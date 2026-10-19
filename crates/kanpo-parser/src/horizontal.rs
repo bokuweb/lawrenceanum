@@ -1903,7 +1903,10 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
 /// 前の行は科目の後ろに金額のある行か、科目だけの行（「資産見返負」「債（注）」）。
 fn join_wrapped_labels(lines: Vec<Line>) -> Vec<Line> {
     let digit = |c: char| c.is_ascii_digit() || ('０'..='９').contains(&c);
-    let amount = |w: &Col| w.text.chars().any(|c| c.is_ascii_digit()) || (!w.text.trim().is_empty() && w.text.trim().chars().all(|c| "△▲,.()（）－―-".contains(c)));
+    // 金額の後ろに離して置いた単位の「円」（傍線の切れ目で「237,029,519」と「円」が別の語になる）も金額の語。
+    let amount = |w: &Col| {
+        w.text.chars().any(|c| c.is_ascii_digit()) || (!w.text.trim().is_empty() && w.text.trim().chars().all(|c| "△▲,.()（）－―-".contains(c))) || w.text.trim() == "円"
+    };
     // つないだ続きの語は幅を無くして科目の語の後ろに置く（後ろの語との空きを変えない）。
     let joined = |w: &Col| w.x1 - w.x < 0.01;
     let mut out: Vec<Line> = Vec::with_capacity(lines.len());
@@ -3058,7 +3061,9 @@ fn letter_spaced(words: &[Col], spaced_words: bool) -> Vec<bool> {
         // 「94,512」と別の数になる）。
         let digit = |t: &str| t.trim().chars().all(|c| c.is_ascii_digit() || ('０'..='９').contains(&c)) && !t.trim().is_empty();
         let digits = digit(&p.text) && digit(&w.text) && gap > em * 0.5;
-        let single = (glyphs(&p.text) == 1 || inner_gap.is_some()) && glyphs(&w.text) == 1 && !digits;
+        // 金額の単位の「円」と隣の欄の金額の頭の 1 桁（「237,029,519」「円」「2」「,706,…」）もつながない。
+        let unit = p.text.trim() == "円" && digit(&w.text);
+        let single = (glyphs(&p.text) == 1 || inner_gap.is_some()) && glyphs(&w.text) == 1 && !digits && !unit;
         out[i] = single
             && match spaced_gap {
                 None => gap <= em * 8.0,
