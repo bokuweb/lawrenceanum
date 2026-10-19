@@ -1028,7 +1028,13 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
     // 表の頭の欄見出しの行（数を含まない罫線の行が 3 行まで続き、その下に数のある行がある）。欄見出しのセルの
     // 折り返し（「資本剰余金／合計」「前中期目標期／間繰越積立金」）は 1 つの見出しなので、行を分けずにつなぐ。
     let digits = |i: usize| text_of(i).chars().any(|c| c.is_ascii_digit());
-    let header_rows = (0..ny).take_while(|&r| !(0..g.cells.len()).any(|i| g.cells[i].y0 <= r && r < g.cells[i].y1 && digits(i))).count();
+    let digit_row = |r: usize| (0..g.cells.len()).any(|i| g.cells[i].y0 <= r && r < g.cells[i].y1 && digits(i));
+    // 数のある行までまたぐセル（金額の「—」が字の層に無い行から下の科目をまとめた 1 つの科目の欄）の行も欄見出しではない。
+    let header_rows = (0..ny)
+        .take_while(|&r| {
+            !digit_row(r) && !(0..g.cells.len()).any(|i| g.cells[i].y0 <= r && r < g.cells[i].y1 && !cell_lines[i].is_empty() && (r..g.cells[i].y1).any(digit_row))
+        })
+        .count();
     let header_rows = if header_rows <= 3 && header_rows < ny && item_cols == 0 { header_rows } else { 0 };
     let header_cell = |i: usize| g.cells[i].y1 <= header_rows;
     let mut anchors: Vec<f32> = Vec::new();
@@ -1098,11 +1104,27 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
             let tight = |k: usize| k > 0 && cell_lines[i][k].y0 - cell_lines[i][k - 1].y1 < (cell_lines[i][k].y1 - cell_lines[i][k].y0) * 0.25;
             // 前の行と次の行がどちらも科目の名前で終われば、行間を空けずに続いても次の科目（金額の「―」が字の層に無い
             // 科目「固定負債」が上の科目「流動負債」に続いていた）。
+            // 前の行より字が大きければ次の科目（長い科目だけ小さい字で 2 行に組み、次の科目「法人税等調整額」が
+            // 「法人税、住民税及び／事業税」に続いていた）。小さい字の科目の 1 行目は、金額が 2 行目の高さにあるので
+            // 行の頭にしない（隣の表の小さい字の科目の折り返しが割れる）。数や項目番号を含む行（「１２．０／ｍ岸壁」
+            // 「き／二　条鰭亜綱」）は、字の大きさが字の種類で違うだけなので見ない。
+            let resized = |p: &Line, l: &Line| {
+                let (a, b) = (render_line(&p.words), render_line(&l.words));
+                let plain = |t: &str| !t.chars().any(|c| c.is_ascii_digit() || ('０'..='９').contains(&c));
+                (l.y1 - l.y0) > (p.y1 - p.y0) * 1.25
+                    && a.chars().count() >= 2
+                    && plain(&a)
+                    && plain(&b)
+                    && !crate::vertical::starts_item(&b)
+                    // 括弧の閉じていない行の続き（「荷さばき施設（荷さ／ばき地）」）でもない。
+                    && a.matches(['（', '(']).count() <= a.matches(['）', ')']).count()
+            };
             let next_item = |k: usize| {
                 k > 0
                     && ((account_end(&cell_lines[i][k - 1]) && account_end(&cell_lines[i][k]))
                         || section_heading(&cell_lines[i][k - 1])
-                        || section_heading(&cell_lines[i][k]))
+                        || section_heading(&cell_lines[i][k])
+                        || resized(&cell_lines[i][k - 1], &cell_lines[i][k]))
             };
             for (k, l) in cell_lines[i].iter().enumerate() {
                 let c = l.center();
@@ -1316,7 +1338,7 @@ fn section_heading(l: &Line) -> bool {
 /// 行が科目の名前（頭に 2 字以上ある）で終わるか（「流動負債」「固定資産」「営業外収益」「賞与引当金」「その他利益剰余金」）。
 /// 続く 2 行がどちらも科目の名前で終わるなら、折り返し（「固定資産」「売却益」）ではなく別の科目。
 fn account_end(l: &Line) -> bool {
-    const TERMS: [&str; 16] = ["負債", "資産", "資本", "利益", "損失", "収益", "費用", "引当金", "剰余金", "準備金", "積立金", "差額金", "合計", "株式", "原価", "財産"];
+    const TERMS: [&str; 17] = ["負債", "資産", "資本", "利益", "損失", "損益", "収益", "費用", "引当金", "剰余金", "準備金", "積立金", "差額金", "合計", "株式", "原価", "財産"];
     let t: String = l.words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace()).collect();
     // 名前の頭が 2 字以上（「引当金」だけの行は「うち利息返還損失」「引当金」の折り返し）。損益計算書の 1 行目の「売上高」も
     // （金額の「—」が字の層に無いと、次の「売上原価」の行が「売上高」の行につながっていた）。

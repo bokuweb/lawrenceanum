@@ -406,6 +406,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             move_trailing_notes(&mut units);
             merge_split_table_rows(&mut units);
             order_masthead(&mut units);
+            join_joint_ministries(&mut units);
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
@@ -675,6 +676,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         move_trailing_notes(&mut units);
         merge_split_table_rows(&mut units);
         order_masthead(&mut units);
+        join_joint_ministries(&mut units);
         let text = units
             .iter()
             .map(Unit::text)
@@ -1163,6 +1165,63 @@ fn order_masthead(units: &mut [Unit]) {
     ];
     for (k, l) in rebuilt.into_iter().enumerate() {
         lines.insert(at + k, l);
+    }
+}
+
+/// 共同省令の題名（「〇内閣府・総務省・文部科学省令第五号」）は府省の名前を小さい字で 2〜3 列に割って組むので、真ん中の
+/// 名前だけが「〇」「令第五号」の列に入り、ほかの名前が前後の行に分かれる（「内閣府」「〇総務省令第五号」「文部科学省」）。
+/// 前後の行が府省の名前だけなら、「・」でつないで 1 行の題名にする。
+fn join_joint_ministries(units: &mut [Unit]) {
+    fn ministry(t: &str) -> bool {
+        let n = t.chars().count();
+        (2..=8).contains(&n) && (t.ends_with('省') || t.ends_with('府') || t.ends_with('庁')) && !t.chars().any(|c| "〇（）()、。・".contains(c))
+    }
+    let compact = |l: &Line| l.text.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+    for unit in units.iter_mut() {
+        match unit {
+            Unit::Plain(lines) => join_ministry_lines(lines, &compact, ministry),
+            Unit::Shinkyu { preamble, outside, .. } => {
+                join_ministry_lines(preamble, &compact, ministry);
+                outside.iter_mut().for_each(|p| join_ministry_lines(p, &compact, ministry));
+            }
+        }
+    }
+}
+
+fn join_ministry_lines(lines: &mut Vec<Line>, compact: &dyn Fn(&Line) -> String, ministry: fn(&str) -> bool) {
+    let mut i = 0;
+    while i < lines.len() {
+        let t = compact(&lines[i]);
+        let Some(rest) = t.strip_prefix('〇') else {
+            i += 1;
+            continue;
+        };
+        let Some(at) = ["令第", "規則第", "告示第", "訓令第"].iter().filter_map(|k| rest.find(k)).min() else {
+            i += 1;
+            continue;
+        };
+        let (mid, tail) = rest.split_at(at);
+        if !ministry(mid) || !tail.ends_with('号') {
+            i += 1;
+            continue;
+        }
+        let before = i > 0 && lines[i - 1].table.is_none() && ministry(&compact(&lines[i - 1]));
+        let after = i + 1 < lines.len() && lines[i + 1].table.is_none() && ministry(&compact(&lines[i + 1]));
+        if !before && !after {
+            i += 1;
+            continue;
+        }
+        let mut names: Vec<String> = Vec::new();
+        let mut words: Vec<usize> = Vec::new();
+        let first = if before { i - 1 } else { i };
+        let last = if after { i + 1 } else { i };
+        for k in first..=last {
+            words.extend(lines[k].words.iter().copied());
+            names.push(if k == i { mid.to_string() } else { compact(&lines[k]) });
+        }
+        let joined = Line::text(format!("〇{}{}", names.join("・"), tail), words);
+        lines.splice(first..=last, [joined]);
+        i = first + 1;
     }
 }
 
