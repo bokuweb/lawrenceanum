@@ -139,6 +139,30 @@ fn percent_decode(s: &str) -> String {
     String::from_utf8_lossy(&out).into_owned()
 }
 
+/// 国会会議録の発言単位の URL (`https://kokkai.ndl.go.jp/txt/{会議}/{発言番号}`) へのリンクを (行番号, URL) で返す。
+/// 会議単位の URL (`…/txt/{会議}`) は含まない。
+fn speech_links(text: &str) -> Vec<(usize, String)> {
+    const PREFIX: &str = "https://kokkai.ndl.go.jp/txt/";
+    let mut out = Vec::new();
+    for (i, line) in text.lines().enumerate() {
+        // 脚注定義の URL は引用そのもの。
+        if line.trim_start().starts_with("[^") && line.contains("]:") {
+            continue;
+        }
+        let mut rest = line;
+        while let Some(j) = rest.find("](") {
+            let after = &rest[j + 2..];
+            let Some(k) = after.find(')') else { break };
+            let url = after[..k].trim();
+            rest = &after[k + 1..];
+            if url.strip_prefix(PREFIX).is_some_and(|p| p.trim_end_matches('/').contains('/')) {
+                out.push((i + 1, url.to_string()));
+            }
+        }
+    }
+    out
+}
+
 /// 引用元の発言を、作業ディレクトリに残した会議本体 → 配信 JSON の順に引く。
 struct Resolver<'a> {
     work: &'a Path,
@@ -398,6 +422,15 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
             }
         }
 
+        // 要約から発言へのリンクは、検証済みの引用と同じ発言を指すこと (根拠の無いリンクを防ぐ)。
+        let cited_urls: HashSet<&str> = citations.iter().map(|c| c.url.as_str()).collect();
+        // 機械が載せる抜粋 (lawpub 区間) のリンクは対象外。LLM 区間だけを見る。
+        for (_, url) in speech_links(&llm_text) {
+            if !cited_urls.contains(url.as_str()) {
+                err(1, format!("発言へのリンク {url} に対応する引用（脚注）がありません"));
+            }
+        }
+
         if changed.as_ref().is_some_and(|c| !c.contains(&rel)) {
             continue;
         }
@@ -616,6 +649,21 @@ mod tests {
         run_check(&args()).unwrap();
         std::fs::write(wiki.join("bills/221/B1.md"), page("投票所を全面的に廃止する")).unwrap();
         assert!(run_check(&args()).is_err());
+        std::fs::remove_dir_all(root).ok();
+    }
+
+    #[test]
+    fn speech_links_must_point_at_a_cited_speech() {
+        let def = "[^1]: [kokkai:M1_001](https://kokkai.ndl.go.jp/txt/M1/1) 「副反応の救済を拡充すべきです」";
+        let (root, args) = fixture(&format!("- 救済拡充を求めた（[発言](https://kokkai.ndl.go.jp/txt/M1/1)）[^1]。\n\n{def}"));
+        run_check(&args).unwrap();
+        std::fs::remove_dir_all(root).ok();
+        // 会議単位の URL は見出しのリンクに使うので対象外。
+        let (root, args) = fixture(&format!("### [会議](https://kokkai.ndl.go.jp/txt/M1)\n- 求めた[^1]。\n\n{def}"));
+        run_check(&args).unwrap();
+        std::fs::remove_dir_all(root).ok();
+        let (root, args) = fixture(&format!("- 救済拡充を求めた（[発言](https://kokkai.ndl.go.jp/txt/M1/9)）[^1]。\n\n{def}"));
+        assert!(run_check(&args).is_err(), "引用していない発言へのリンクは落とす");
         std::fs::remove_dir_all(root).ok();
     }
 

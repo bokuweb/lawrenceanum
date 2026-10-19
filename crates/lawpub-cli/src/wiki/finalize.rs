@@ -479,11 +479,15 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
                 rel_link(&rel, &party_page(&affiliation))
             )
         };
-        // 主な発言: 新しい順に、法令に言及した発言の抜粋を原文のまま引用する。
+        // 要約前の発言: LLM (人物タスク) がまだ要約していない会議 (`llm_until` より後) だけ、法令に言及した
+        // 発言の抜粋を原文のまま新しい順に載せる。要約済みの会議は「発言と経緯」の要約から発言へリンクする。
+        let llm_until = page.get("llm_until").and_then(Value::as_str).unwrap_or("").to_string();
         let mut quotes = String::new();
-        let quoted: Vec<&Remark> = remarks.iter().filter(|(_, sp)| sp.excerpt.is_some()).take(MAX_PERSON_QUOTES).collect();
+        let unsummarized: Vec<&Remark> = remarks.iter().filter(|(m, _)| m.date.as_str() > llm_until.as_str()).collect();
+        let quoted: Vec<&Remark> = unsummarized.iter().copied().filter(|(_, sp)| sp.excerpt.is_some()).take(MAX_PERSON_QUOTES).collect();
         if !quoted.is_empty() {
-            quotes.push_str(&format!("## 主な発言（{}）\n\n", quoted.len()));
+            let heading = if llm_until.is_empty() { "主な発言" } else { "要約前の発言" };
+            quotes.push_str(&format!("## {heading}（抜粋・{}）\n\n", quoted.len()));
             for (m, sp) in &quoted {
                 let excerpt = sp.excerpt.as_deref().unwrap_or_default();
                 let source = match sp.excerpt_url.as_deref().filter(|u| !u.is_empty()) {
@@ -494,7 +498,7 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
                 let excerpt = excerpt.replace(['\n', '\r'], " ");
                 quotes.push_str(&format!("**{}**　{source}\n\n> {excerpt}\n\n", m.date));
             }
-            if remarks.len() > quoted.len() {
+            if unsummarized.len() > quoted.len() {
                 quotes.push_str(&format!(
                     "ほかの発言は下の一覧から会議録をたどってください（全 {} 会議）。\n\n",
                     remarks.len()
@@ -1309,9 +1313,19 @@ mod tests {
         };
         std::fs::write(dir.join("M1.json"), serde_json::to_vec(&m1).unwrap()).unwrap();
 
-        run_finalize(&FinalizeArgs { wiki: wiki.clone(), work }).unwrap();
+        run_finalize(&FinalizeArgs { wiki: wiki.clone(), work: work.clone() }).unwrap();
 
         let person = Page::read(&wiki.join("people/田中花子.md")).unwrap();
+        assert!(person.body.contains("## 主な発言（抜粋・1）"), "{}", person.body);
+
+        // 人物タスクで要約済み (llm_until) の会議は、抜粋ではなく経緯の要約から発言へリンクする。
+        let mut summarized = person.clone();
+        summarized.set("llm_until", json!("2026-06-16"));
+        summarized.write(&wiki.join("people/田中花子.md")).unwrap();
+        run_finalize(&FinalizeArgs { wiki: wiki.clone(), work }).unwrap();
+        let after = Page::read(&wiki.join("people/田中花子.md")).unwrap();
+        assert!(!after.body.contains("予防接種法の救済を拡充すべきでは。"), "{}", after.body);
+        assert!(after.body.contains("## 発言した会議（一覧）"));
         assert_eq!(person.get_str("affiliation"), "会派B");
         // 会議ページが無いので原文へ、法令ページがある L1 だけがリンクになる。
         assert!(person.body.contains("[衆議院 厚生労働委員会 第13号](https://kokkai.ndl.go.jp/txt/M9)"), "{}", person.body);
@@ -1323,6 +1337,7 @@ mod tests {
             person.body
         );
         assert!(person.body.contains("> 予防接種法の救済を拡充すべきでは。"), "{}", person.body);
+        assert!(after.get("llm_until").is_some(), "llm_until は描き直しでも残る");
 
         let committee = std::fs::read_to_string(wiki.join("committees/衆議院厚生労働委員会.md")).unwrap();
         assert!(committee.contains("[田中花子](../people/田中花子.md)"), "{committee}");
