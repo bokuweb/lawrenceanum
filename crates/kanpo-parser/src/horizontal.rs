@@ -2936,9 +2936,12 @@ fn is_column_split(left: &[Col], right: &[Col], boxed: bool) -> bool {
     let paired: Vec<Line> = rl.iter().filter(|b| ll.iter().any(|a| (a.center() - b.center()).abs() <= ALIGN_TOL)).cloned().collect();
     // 高さの揃う行がどれも、左の科目（数の無い行）と右の金額だけの行の組なら、科目と金額の表（「当期受入額」「当期支出額」と
     // 金額。右の下に次の表の標題と日付が中央揃えで続いても列ではない）。
+    // 金額の行の組が 5 つ以上あれば、表の上の見出しの行（右の「佐賀県佐賀市本庄町１番地」と左の「令和８年10月16日」）が
+    // 高さを揃えて並んでいても（組の 8 割以上が金額なら）科目と金額の表。
+    let amount_pairs: Vec<&Line> = paired.iter().filter(|b| amount_line(b)).collect();
     let label_amounts = paired.len() >= 2
-        && paired.iter().all(amount_line)
-        && paired.iter().all(|b| {
+        && (paired.iter().all(amount_line) || (amount_pairs.len() >= 5 && amount_pairs.len() * 10 >= paired.len() * 8))
+        && amount_pairs.iter().all(|b| {
             ll.iter()
                 .filter(|a| (a.center() - b.center()).abs() <= ALIGN_TOL)
                 .all(|a| !a.words.iter().any(|w| w.text.chars().any(|c| c.is_ascii_digit())))
