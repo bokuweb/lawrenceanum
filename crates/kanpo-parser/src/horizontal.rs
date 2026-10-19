@@ -324,12 +324,19 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
         let mut parts: Vec<Vec<Col>> = vec![Vec::new(); ts.len()];
         for c in ws {
             let x = (c.x + c.x1) / 2.0;
-            let k = ts.iter().position(|&t| x < rects[t].2 + 20.0)?;
+            // 表と表の間の中ほどで分ける。
+            let k = (0..ts.len()).position(|k| ts.get(k + 1).is_none_or(|&n| x < (rects[ts[k]].2 + rects[n].0) / 2.0))?;
             parts[k].push(c.clone());
         }
         let limit = |k: usize| ts.get(k + 1).map_or(rects[ts[k]].2 + 40.0, |&n| rects[n].0);
         let fits = parts.iter().enumerate().all(|(k, p)| !p.is_empty() && p.iter().all(|c| c.x >= rects[ts[k]].0 - 20.0 && c.x1 <= limit(k)));
-        let apart = parts.windows(2).all(|w| w[1].iter().map(|c| c.x).fold(f32::INFINITY, f32::min) - w[0].iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max) > em * 2.5);
+        // 間が表と表の間に掛かる（左の部分が右の表の左端より左で終わり、右の部分が左の表の右端より右から始まる。間の狭い
+        // 囲みの「理事長　松村　寛」と右の囲みの「自　令和７年４月１日」）なら半字分より広ければよい。
+        let apart = (0..parts.len() - 1).all(|k| {
+            let lx1 = parts[k].iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max);
+            let rx0 = parts[k + 1].iter().map(|c| c.x).fold(f32::INFINITY, f32::min);
+            rx0 - lx1 > em * 2.5 || (rx0 - lx1 > em * 0.5 && lx1 <= rects[ts[k + 1]].0 + 1.0 && rx0 >= rects[ts[k]].2 - 1.0)
+        });
         (fits && apart).then_some(parts)
     };
     let mut cuts: Vec<Option<(Vec<usize>, Vec<Vec<Col>>)>> = lines
@@ -368,7 +375,8 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
                 let em = ws.iter().map(|c| c.y1 - c.y).fold(f32::INFINITY, f32::min);
                 let gap = if up { top_of(&here) - bottom_of(&ws) } else { top_of(&ws) - bottom_of(&here) };
                 // 下へは表の上端より上の行だけ。
-                if gap < -1.0 || gap > em * 2.0 || (!up && ts.iter().any(|&t| bottom_of(&ws) > rects[t].1 + 2.0)) {
+                // 左右で行の高さがずれて組まれた囲み（左の「貸借対照表の要旨」と右の「至」）は少し重なる。
+                if gap < -em * 0.6 || gap > em * 2.0 || (!up && ts.iter().any(|&t| bottom_of(&ws) > rects[t].1 + 2.0)) {
                     break;
                 }
                 let Some(parts) = split_at(&ws, &ts) else { break };
@@ -377,19 +385,25 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
             }
         }
     }
-    let to_line = |p: &[Col]| trace::Line::text(render_line(p), p.iter().map(|c| c.id).collect());
+    let to_line = |p: &[Col]| {
+        let mut p = p.to_vec();
+        p.sort_by(|a, b| a.x.total_cmp(&b.x));
+        trace::Line::text(render_line(&p), p.iter().map(|c| c.id).collect())
+    };
     let mut split_lines: Vec<trace::Line> = Vec::new();
     // 分けた行の表ごとの部分と、その下に続く片側だけの行（左の囲みの「(令和８年３月31日現在)　(単位：千円)」。表の上端より上）。
+    // 片側だけの行が分けた部分と同じ高さなら 1 行にする（右の囲みの「自」と「令和７年４月１日」）。表ごとに上から並べる。
     let mut run: Vec<Vec<Vec<Col>>> = Vec::new();
     let mut run_ts: Vec<usize> = Vec::new();
-    let mut extra: Vec<Vec<trace::Line>> = Vec::new();
+    let mut extra: Vec<Vec<Vec<Col>>> = Vec::new();
     // 表ごとの見出しの最後の行（の頭の語）。表はその後ろに置く。
     let mut part_heads: Vec<(Block, usize)> = Vec::new();
-    let mut flush = |run: &mut Vec<Vec<Vec<Col>>>, ts: &[usize], extra: &mut Vec<Vec<trace::Line>>, out: &mut Vec<trace::Line>| {
+    let mut flush = |run: &mut Vec<Vec<Vec<Col>>>, ts: &[usize], extra: &mut Vec<Vec<Vec<Col>>>, out: &mut Vec<trace::Line>| {
         let n = run.first().map_or(0, |r| r.len());
         for k in 0..n {
-            out.extend(run.iter().map(|parts| to_line(&parts[k])));
-            out.append(&mut extra[k]);
+            let mut side: Vec<Vec<Col>> = run.iter().map(|parts| parts[k].clone()).chain(extra[k].drain(..)).collect();
+            side.sort_by(|a, b| top_of(a).total_cmp(&top_of(b)));
+            out.extend(side.iter().map(|p| to_line(p)));
             if let Some(&w) = out.last().and_then(|l| l.words.first()) {
                 part_heads.push((rects[ts[k]], w));
             }
@@ -405,21 +419,48 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
                 }
                 if run.is_empty() {
                     extra = vec![Vec::new(); ts.len()];
+                    // すぐ前の片側だけの行（右の囲みの「損益計算書の要旨」。分けた行の 2 行分上まで）もその側に付ける。表の見出しの行
+                    // だけ（右に寄せて組んだ公告の社名・代表者の行は公告の頭）。
+                    let top = top_of(&parts.concat());
+                    while let Some(prev) = split_lines.last() {
+                        if !["計算書", "対照表", "要旨", "単位"].iter().any(|k| prev.text.contains(k)) {
+                            break;
+                        }
+                        let Some(ws) = ws_of(prev) else { break };
+                        let em = ws.iter().map(|c| c.y1 - c.y).fold(f32::INFINITY, f32::min);
+                        if bottom_of(&ws) > top + em * 0.6 || top - bottom_of(&ws) > em * 2.0 {
+                            break;
+                        }
+                        let Some(k) = ts.iter().position(|&t| ws.iter().all(|c| c.x >= rects[t].0 - 20.0 && c.x1 <= rects[t].2 + 20.0)) else { break };
+                        extra[k].push(ws);
+                        split_lines.pop();
+                    }
                 }
                 run_ts = ts;
                 run.push(parts);
             }
             None => {
-                let side = (!run.is_empty()).then(|| ws_of(&l)).flatten().and_then(|ws| {
-                    let y1 = bottom_of(&ws);
+                let ws = (!run.is_empty()).then(|| ws_of(&l)).flatten();
+                let side = ws.as_ref().and_then(|ws| {
+                    let y1 = bottom_of(ws);
                     run_ts.iter().position(|&t| {
                         let t = &rects[t];
                         y1 <= t.1 + 2.0 && ws.iter().all(|c| c.x >= t.0 - 20.0 && c.x1 <= t.2 + 20.0)
                     })
                 });
-                match side {
-                    Some(k) => extra[k].push(l),
-                    None => {
+                match (side, ws) {
+                    (Some(k), Some(ws)) => {
+                        let (y0, y1) = (top_of(&ws), bottom_of(&ws));
+                        let same = run.iter_mut().map(|parts| &mut parts[k]).find(|p| {
+                            let overlap = bottom_of(p).min(y1) - top_of(p).max(y0);
+                            overlap > (y1 - y0).max(bottom_of(p) - top_of(p)) * 0.5
+                        });
+                        match same {
+                            Some(p) => p.extend(ws),
+                            None => extra[k].push(ws),
+                        }
+                    }
+                    _ => {
                         flush(&mut run, &run_ts, &mut extra, &mut split_lines);
                         split_lines.push(l);
                     }
