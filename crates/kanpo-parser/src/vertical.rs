@@ -3625,8 +3625,8 @@ pub(crate) fn column_groups(mut cols: Vec<Col>) -> Vec<Vec<Col>> {
     // 左にずれた次の列の日付「令和八年十月十六日」と同じ列になり、「令和八年十月十六日p4rtbmpp/」になっていた）。
     let latin = |c: &Col| {
         let n = c.text.chars().count();
-        // 縦中横の数（「684」）は除く。
-        n >= 5 && c.text.chars().filter(|ch| ch.is_ascii_graphic()).count() * 10 >= n * 8
+        // 縦中横の数（「684」）は除く。英字だけの語は 3 字から（「TECH」）。
+        (n >= 5 && c.text.chars().filter(|ch| ch.is_ascii_graphic()).count() * 10 >= n * 8) || (n >= 3 && c.text.chars().all(|ch| ch.is_ascii_alphabetic()))
     };
     for c in cols {
         let em = (c.x1 - c.x).min(rep_em).max(6.0);
