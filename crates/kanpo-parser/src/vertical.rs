@@ -618,7 +618,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             let mut i = 0;
             while i < tiers.len() {
                 // 罫線の無い縦組みの表（欄ごとの低い段が上下に並び、行が同じ x の列に揃う名簿）は行ごとに組む。
-                if let Some((n, lines)) = (!shinkyu_page && !prev_table).then(|| record_bands(&tiers[i..])).flatten() {
+                if let Some((n, lines)) = (!shinkyu_page && !prev_table).then(|| record_bands(&tiers[i..], (!sideways).then_some(height / 2.0))).flatten() {
                     units.push(Unit::Plain(lines));
                     i += n;
                     continue;
@@ -2337,6 +2337,8 @@ fn split_tiers(cols: Vec<Col>, rules: &TierRules) -> Vec<Vec<Col>> {
     split_tiers_rec(cols, 0, rules, false, &mut out);
     rejoin_split_labels(&mut out);
     rejoin_item_numbers(&mut out);
+    rejoin_honoree_names(&mut out);
+    rejoin_value_cells(&mut out);
     out.retain(|t| !t.is_empty());
     out
 }
@@ -2377,11 +2379,75 @@ fn rejoin_item_numbers(tiers: &mut [Vec<Col>]) {
     }
 }
 
+/// 叙位・叙勲の名簿で、位・勲章の列（「正三位に叙する」「瑞宝双光章を授ける」）の間に下揃えで組まれた受ける人の
+/// 氏名（「二橋　正弘」）が、別の段に切られたものを上の段に戻す（氏名がページの段の最後にまとめて並んでいた）。
+/// 下の段は、すぐ下に続く 6 字以下の名前の語（記号・数字の無いもの）だけで、上の段の幅の中にあるもの。
+fn rejoin_honoree_names(tiers: &mut [Vec<Col>]) {
+    let honor = |t: &str| {
+        let t = t.trim_end_matches("（各通）");
+        t.ends_with("に叙する") || t.ends_with("を授ける")
+    };
+    let name = |t: &str| (1..=6).contains(&t.chars().count()) && t.chars().all(|c| !c.is_ascii() && !"、。，．・（）()「」〔〕〇○◎－―〃".contains(c) && !c.is_numeric());
+    for i in 1..tiers.len() {
+        let (above, below) = (&tiers[i - 1], &tiers[i]);
+        if below.len() < 2 || !below.iter().all(|c| name(&c.text) && c.y1 - c.y >= (c.x1 - c.x) * 0.9) || !above.iter().any(|c| honor(&c.text)) {
+            continue;
+        }
+        let ext = |b: &[Col]| b.iter().fold((f32::INFINITY, f32::NEG_INFINITY, f32::INFINITY, f32::NEG_INFINITY), |a, c| (a.0.min(c.x), a.1.max(c.x1), a.2.min(c.y), a.3.max(c.y1)));
+        let (ax0, ax1, _, ay1) = ext(above);
+        let (bx0, bx1, by0, _) = ext(below);
+        let em = below.iter().map(|c| c.x1 - c.x).fold(0.0, f32::max).max(6.0);
+        if bx0 < ax0 - em || bx1 > ax1 + em || by0 > ay1 + em * 2.0 {
+            continue;
+        }
+        let moved = std::mem::take(&mut tiers[i]);
+        tiers[i - 1].extend(moved);
+    }
+}
+
+/// 罫線の無い縦組みの小さな表（道路の区域の告示の「区間」「変更前後別」「敷地の幅員」「延長」）で、数の欄
+/// （「一六・九一〜二四・五六」「〇・〇五五」）が欄の間の空きで下の段に切られたものを上の段に戻す（区間の行の後に
+/// 次の項目「（四）図面縦覧場所」が入り、幅員・延長の数がその後にまとめて並んでいた）。下の段は、すぐ下に続く
+/// 12 語以下の低い段で、数の語が 2 つ以上あり、どの数の語も上の段の列と同じ x にあり、ほかの語は欄見出し・単位の
+/// 短い語（6 字以下）だけのもの。
+fn rejoin_value_cells(tiers: &mut [Vec<Col>]) {
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    let number = value_number;
+    let ext = |b: &[Col]| b.iter().fold((f32::INFINITY, f32::NEG_INFINITY, f32::INFINITY, f32::NEG_INFINITY), |a, c| (a.0.min(c.x), a.1.max(c.x1), a.2.min(c.y), a.3.max(c.y1)));
+    for i in 1..tiers.len() {
+        let Some(j) = (0..i).rev().find(|&j| !tiers[j].is_empty()) else { continue };
+        let (above, below) = (&tiers[j], &tiers[i]);
+        if below.is_empty() || below.len() > 12 {
+            continue;
+        }
+        let (ax0, ax1, _, ay1) = ext(above);
+        let (bx0, bx1, by0, by1) = ext(below);
+        let em = below.iter().map(|c| c.x1 - c.x).fold(0.0, f32::max).max(6.0);
+        if bx0 < ax0 - 1.0 || bx1 > ax1 + 1.0 || by0 < ay1 - 1.0 || by0 - ay1 > em * 2.0 || by1 - by0 > 100.0 {
+            continue;
+        }
+        let values: Vec<&Col> = below.iter().filter(|c| number(&c.text)).collect();
+        let on_column = |v: &Col| above.iter().any(|c| (center(c) - center(v)).abs() < 3.0 && ay1 - c.y1 < em * 3.0);
+        if values.is_empty() || !values.iter().all(|v| on_column(v)) || !below.iter().all(|c| number(&c.text) || c.text.chars().count() <= 6) {
+            continue;
+        }
+        let moved = std::mem::take(&mut tiers[i]);
+        tiers[j].extend(moved);
+    }
+}
+
+/// 表の欄の数だけの語（「一六・九一〜二四・五六」「〇・〇五五」「1,234」）。
+fn value_number(t: &str) -> bool {
+    t.chars().any(|c| "〇一二三四五六七八九".contains(c) || c.is_ascii_digit() || ('０'..='９').contains(&c))
+        && t.chars().all(|c| "〇一二三四五六七八九十百千・〜．.，,－".contains(c) || c.is_ascii_digit() || ('０'..='９').contains(&c))
+}
+
 /// 罫線の無い縦組みの表（政治団体の届出の一覧など）。欄（名称・代表者の氏名・主たる事務所の所在地…）ごとの
 /// 低い段が上下に 3 つ以上並び、各行（団体ごと）の列がどの段でも同じ x から始まる。段ごとに読むと欄ごとの
 /// 一覧になり、どの団体の代表者か分からなくなるので、行の頭の x（半分以上の段に列のある x）で行に分け、
 /// 行ごとに欄を全角空白で区切って 1 行に組む。`bands` の頭からいくつの段を使ったかと、組んだ行を返す。
-fn record_bands(bands: &[Vec<Col>]) -> Option<(usize, Vec<Line>)> {
+/// `mid_line` は縦置きのページの高さの半分（上半分と下半分の表を 1 つの表にしない）。
+fn record_bands(bands: &[Vec<Col>], mid_line: Option<f32>) -> Option<(usize, Vec<Line>)> {
     let center = |c: &Col| (c.x + c.x1) / 2.0;
     let ext = |b: &[Col]| {
         (
@@ -2398,9 +2464,12 @@ fn record_bands(bands: &[Vec<Col>]) -> Option<(usize, Vec<Line>)> {
     let (fx0, fx1, _, _) = ext(first);
     let mut n = 0;
     let mut prev_top = f32::NEG_INFINITY;
+    // 低い段の決まり（130pt 以下、100pt を越えるなら短い語だけ）を越える高い段（長い団体名・所在地の欄）。
+    // 表の段と見るには [`tall_record_band`] の確かめが要る。
+    let mut tall_bands = Vec::new();
     for b in bands {
-        // 字間を空けた欄見出しの 1 字だけの段（「番」）は、表の続きとして数える。
-        let label = b.len() == 1 && b[0].text.chars().count() <= 2;
+        // 字間を空けた欄見出しの 1 字だけの段（「番」、2 つの欄見出しの末字「称」「称」）は、表の続きとして数える。
+        let label = label_band(b) || (n > 0 && label_tail_band(b));
         if b.len() < 2 && !label {
             break;
         }
@@ -2419,12 +2488,19 @@ fn record_bands(bands: &[Vec<Col>]) -> Option<(usize, Vec<Line>)> {
         let first_top = ext(first).2;
         // 100pt を越える段は、短い語（6 字以下。「〃」「2026－ＴＡ」の欄）だけのもの（文の段と取り違えないため）。
         let tall = y1 - y0 > 100.0 && b.iter().any(|c| c.text.chars().count() > 6);
-        if y1 - y0 > 130.0 || tall || overlap < 0.7 || mid <= prev_top || upright * 10 < b.len() * 9 || y1 - first_top > 370.0 {
+        let across = mid_line.is_some_and(|m| (first_top < m) != (y0 < m));
+        if overlap < 0.7 || mid <= prev_top || upright * 10 < b.len() * 9 || y1 - first_top > 370.0 || across {
             break;
         }
-        let _ = y0;
+        if y1 - y0 > 130.0 || tall {
+            tall_bands.push(n);
+        }
         prev_top = mid;
         n += 1;
+    }
+    // 高い段は、確かめられなかった段の手前までを表とする。
+    if let Some(&t) = tall_bands.iter().find(|&&t| t < n && !tall_record_band(&bands[..n], t, &tall_bands)) {
+        n = t;
     }
     if n == 2 {
         return name_pair_bands(&bands[..2]);
@@ -2436,11 +2512,18 @@ fn record_bands(bands: &[Vec<Col>]) -> Option<(usize, Vec<Line>)> {
     // 上下に並ぶ段の頭からの最も長い組で、行の頭が揃うもの（ページの上半分と下半分は別の表のことがある）。
     let fit = |n: usize| -> Option<Vec<f32>> {
         let bands = &all_bands[..n];
-        // 段ごとの列の x（右から）。
+        // 欄見出しの字だけの段は、行の頭を決める段の数に入れない。
+        let real = bands.iter().filter(|b| !label_band(b) && !label_tail_band(b)).count();
+        if real < 2 {
+            return None;
+        }
+        // 段ごとの列の x（右から）。欄見出しの下の元号の注記（「（令和）」）は列に数えない（行が詰んで書き出しの少ない
+        // 段で、行の頭に揃わない書き出しになる）。
+        let era = |c: &&Col| ["（令和）", "（平成）", "（昭和）"].contains(&c.text.as_str());
         let columns: Vec<Vec<f32>> = bands
             .iter()
             .map(|b| {
-                let mut xs: Vec<f32> = b.iter().map(center).collect();
+                let mut xs: Vec<f32> = b.iter().filter(|c| !era(c)).map(center).collect();
                 xs.sort_by(|a, b| b.total_cmp(a));
                 xs.dedup_by(|a, b| (*a - *b).abs() < 3.0);
                 xs
@@ -2463,11 +2546,32 @@ fn record_bands(bands: &[Vec<Col>]) -> Option<(usize, Vec<Line>)> {
         every.dedup_by(|a, b| (*a - *b).abs() < 3.0);
         let mut anchors: Vec<f32> = all
             .into_iter()
-            .filter(|&x| starts.iter().filter(|s| s.iter().any(|&y| (y - x).abs() < 3.0)).count() * 2 >= n.max(4))
-            .chain(every.into_iter().filter(|&x| columns.iter().filter(|c| c.iter().any(|&y| (y - x).abs() < 3.0)).count() * 10 >= n * 8))
+            .filter(|&x| starts.iter().filter(|s| s.iter().any(|&y| (y - x).abs() < 3.0)).count() * 2 >= real.max(4))
+            .chain(every.into_iter().filter(|&x| columns.iter().filter(|c| c.iter().any(|&y| (y - x).abs() < 3.0)).count() * 10 >= real * 8))
             .collect();
         anchors.sort_by(|a, b| b.total_cmp(a));
         anchors.dedup_by(|a, b| (*a - *b).abs() < 3.0);
+        // 詰んだ行の間の 1 行分以上の空きにある、区分の番号（「（二）」）で始まる列（表の途中の「（二）その他の政治団体」
+        // の見出し）も行の頭にする（前の行の欄に入っていた）。
+        let pitch = anchors.windows(2).map(|w| w[0] - w[1]).fold(f32::INFINITY, f32::min);
+        if pitch < em * 2.0 {
+            let gaps: Vec<(f32, f32)> = anchors.windows(2).filter(|w| w[0] - w[1] > pitch * 1.6).map(|w| (w[0] - pitch * 0.6, w[1] + pitch * 0.6)).collect();
+            let section = |t: &str| {
+                t.strip_prefix('（').and_then(|r| r.split_once('）')).is_some_and(|(n, _)| {
+                    (1..=2).contains(&n.chars().count()) && n.chars().all(|c| "一二三四五六七八九十イロハニホヘトチリヌ".contains(c) || c.is_ascii_digit() || ('０'..='９').contains(&c))
+                })
+            };
+            let extra: Vec<f32> = bands
+                .iter()
+                .flatten()
+                .filter(|c| section(&c.text) && !bands.iter().flatten().any(|o| (center(o) - center(c)).abs() < 3.0 && o.y < c.y))
+                .map(center)
+                .filter(|&x| gaps.iter().any(|&(hi, lo)| x < hi && x > lo))
+                .collect();
+            anchors.extend(extra);
+            anchors.sort_by(|a, b| b.total_cmp(a));
+            anchors.dedup_by(|a, b| (*a - *b).abs() < 3.0);
+        }
         if anchors.len() < 3 {
             return None;
         }
@@ -2476,24 +2580,25 @@ fn record_bands(bands: &[Vec<Col>]) -> Option<(usize, Vec<Line>)> {
         let lead = anchors[0];
         let aligned = |k: usize| {
             let inside: Vec<f32> = starts[k].iter().copied().filter(|&x| x <= lead + 3.0).collect();
-            let on = inside.iter().filter(|&&x| anchors.iter().any(|&a| (a - x).abs() < 3.0)).count();
+            // 2 行に組んだ欄見出し（「代表者」「の氏名」）は行の頭から半字ほどずれる。
+            let on = inside.iter().filter(|&&x| anchors.iter().any(|&a| (a - x).abs() < (em * 0.6).max(3.0))).count();
             !inside.is_empty() && starts[k].len() - inside.len() <= 2 && on * 10 >= inside.len() * 7
         };
         (0..n).all(aligned).then_some(anchors)
     };
     let (n, anchors) = (3..=n).rev().find_map(|m| fit(m).map(|a| (m, a)))?;
     let bands = &all_bands[..n];
-    let record_of = |x: f32| anchors.iter().rposition(|&a| x <= a + 3.0).unwrap_or(0);
-    let mut lines = Vec::new();
-    // 行の頭から行の間隔の 1.5 倍より右の列は表の前の文（「次のとおり公告する。」「令和８年７月31日」）。列ごとに
-    // 先に書く。その内側（行の頭の右）は、段ごとにずれて組まれた欄見出しで、行の頭の行（欄見出しの行）に入れる。
-    let pitch = anchors.windows(2).map(|w| w[0] - w[1]).fold(f32::INFINITY, f32::min);
     // 字の大きさ（縦組みの語の幅の中央値）。
     let em = {
         let mut ws: Vec<f32> = bands.iter().flatten().filter(|c| c.y1 - c.y >= (c.x1 - c.x) * 1.5).map(|c| c.x1 - c.x).collect();
         ws.sort_by(f32::total_cmp);
         ws.get(ws.len() / 2).copied().unwrap_or(8.0)
     };
+    let record_of = |x: f32| anchors.iter().rposition(|&a| x <= a + 3.0).unwrap_or(0);
+    let mut lines = Vec::new();
+    // 行の頭から行の間隔の 1.5 倍より右の列は表の前の文（「次のとおり公告する。」「令和８年７月31日」）。列ごとに
+    // 先に書く。その内側（行の頭の右）は、段ごとにずれて組まれた欄見出しで、行の頭の行（欄見出しの行）に入れる。
+    let pitch = anchors.windows(2).map(|w| w[0] - w[1]).fold(f32::INFINITY, f32::min);
     let outside = anchors[0] + pitch * 1.5;
     let mut before: Vec<&Col> = bands.iter().flatten().filter(|c| center(c) > outside).collect();
     before.sort_by(|a, b| {
@@ -2504,9 +2609,27 @@ fn record_bands(bands: &[Vec<Col>]) -> Option<(usize, Vec<Line>)> {
         lines.push(Line::text(col.iter().map(|c| c.text.as_str()).collect(), col.iter().map(|c| c.id).collect()));
     }
     let record_of = |x: f32| if x > outside { usize::MAX } else { record_of(x) };
+    // 2 行に組んだ欄見出し（「代表者」「の氏名」）は行の頭をまたいで組まれ、右の列が行の頭から半字ほど右にずれる。
+    // 同じ段の 1.5 字以内の左に、行の頭の左の欄見出しの列（「名称」「氏名」…で終わる）があれば、右の列もその行に入れる。
+    let anchors = &anchors;
+    let record_of = &record_of;
+    let rows: std::collections::HashMap<usize, usize> = bands
+        .iter()
+        .flat_map(|b| {
+            b.iter().map(move |c| {
+                let x = center(c);
+                let straddle = anchors.iter().position(|&a| x > a + 3.0 && x <= a + (em * 0.6).max(3.0)).filter(|&r| {
+                    b.iter().any(|o| center(o) < anchors[r] - 3.0 && x - center(o) < em * 1.5 && RECORD_HEADS.iter().any(|h| o.text.ends_with(h)))
+                        && x <= outside
+                });
+                (c.id, straddle.unwrap_or_else(|| record_of(x)))
+            })
+        })
+        .collect();
+    let record_of = |c: &Col| rows[&c.id];
     // 行の頭の行のいちばん右の列が日付（「令和八年九月一日」）で始まるなら、表の右上の日付・署名と表の前の見出しで、
     // 行ではない。列ごとに先に書く。
-    let mut lead_cols: Vec<&Col> = bands.iter().flatten().filter(|c| record_of(center(c)) == 0).collect();
+    let mut lead_cols: Vec<&Col> = bands.iter().flatten().filter(|c| record_of(c) == 0).collect();
     lead_cols.sort_by(|a, b| {
         let (ca, cb) = (center(a), center(b));
         if (ca - cb).abs() < 3.0 { a.y.total_cmp(&b.y) } else { cb.total_cmp(&ca) }
@@ -2523,8 +2646,9 @@ fn record_bands(bands: &[Vec<Col>]) -> Option<(usize, Vec<Line>)> {
     for r in first..anchors.len() {
         let mut fields: Vec<String> = Vec::new();
         let mut ids: Vec<usize> = Vec::new();
-        for b in bands {
-            let mut ws: Vec<&Col> = b.iter().filter(|c| record_of(center(c)) == r).collect();
+        let mut last: Option<(usize, f32)> = None;
+        for (k, b) in bands.iter().enumerate() {
+            let mut ws: Vec<&Col> = b.iter().filter(|c| record_of(c) == r).collect();
             // 同じ列の語（縦中横の「13」は列の中心から少しずれる）は上から。
             let same = (em * 0.6).max(3.0);
             ws.sort_by(|a, b| {
@@ -2532,8 +2656,17 @@ fn record_bands(bands: &[Vec<Col>]) -> Option<(usize, Vec<Line>)> {
                 if (ca - cb).abs() < same { a.y.total_cmp(&b.y) } else { cb.total_cmp(&ca) }
             });
             if !ws.is_empty() {
-                fields.push(ws.iter().map(|c| c.text.as_str()).collect());
+                let text: String = ws.iter().map(|c| c.text.as_str()).collect();
+                // 上の段の欄の続き（「八、」と「四、二〇」が別の段に割れた日付、欄見出しの末字だけの段の「称」）は区切らない。
+                let continues = |f: &String| {
+                    last.is_some_and(|(j, x)| j + 1 == k && (f.ends_with('、') || label_tail_band(b) && (center(ws[0]) - x).abs() < 3.0))
+                };
+                match fields.last_mut() {
+                    Some(f) if continues(f) => f.push_str(&text),
+                    _ => fields.push(text),
+                }
                 ids.extend(ws.iter().map(|c| c.id));
+                last = Some((k, center(ws[ws.len() - 1])));
             }
         }
         if !fields.is_empty() {
@@ -2541,6 +2674,86 @@ fn record_bands(bands: &[Vec<Col>]) -> Option<(usize, Vec<Line>)> {
         }
     }
     Some((n, lines))
+}
+
+/// [`record_bands`] の表の欄見出しの末尾の語（「政治団体の名称」「代表者の氏名」「解散年月日」「主たる事務所の所在地」）。
+const RECORD_HEADS: [&str; 4] = ["名称", "氏名", "年月日", "所在地"];
+
+/// [`record_bands`] の、字間を空けた欄見出しの 1 字だけの段（「番」）。
+fn label_band(b: &[Col]) -> bool {
+    b.len() == 1 && b[0].text.chars().count() <= 2
+}
+
+/// [`record_bands`] の、字間を空けた欄見出しの末字（「称」）だけが並ぶ段。
+fn label_tail_band(b: &[Col]) -> bool {
+    b.len() <= 3 && b.iter().all(|c| c.text.chars().count() == 1)
+}
+
+/// [`record_bands`] の高い段（長い団体名・所在地の欄）が、低い段と同じ行の頭で組まれた表の欄か。本文の段も同じ行の
+/// 送りで列が揃うので、次のどれも満たすときだけ表の欄とする。
+/// - 句点（「。」）が無い。
+/// - 隣の低い段（3 列以上）の列の 8 割以上が、この段の同じ x の列と組になる。
+/// - 組になった列の 8 割以上は、途中に空きが無い（1 つの欄だけの段）。
+/// - 2 つ以上の段に欄見出し（[`RECORD_HEADS`] で終わる列）があるか、どの段の列も同じ x に 1 対 1 で並び（ページの
+///   下半分に続く見出しの無い表）、組になった列の半分未満しか段の下端まで届かない（本文の列はどれも段の下端まで
+///   組まれる）。
+fn tall_record_band(bands: &[Vec<Col>], t: usize, tall_bands: &[usize]) -> bool {
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    let columns = |b: &[Col]| -> Vec<(f32, String, f32)> {
+        let mut cs: Vec<&Col> = b.iter().collect();
+        cs.sort_by(|a, b| center(b).total_cmp(&center(a)).then(a.y.total_cmp(&b.y)));
+        let mut out: Vec<(f32, String, f32)> = Vec::new();
+        for c in cs {
+            match out.last_mut() {
+                Some((x, text, y1)) if (*x - center(c)).abs() < 3.0 => {
+                    text.push_str(&c.text);
+                    *y1 = y1.max(c.y1);
+                }
+                _ => out.push((center(c), c.text.clone(), c.y1)),
+            }
+        }
+        out
+    };
+    let band = &bands[t];
+    if band.iter().any(|c| c.text.contains('。')) {
+        return false;
+    }
+    // 隣の低い段（欄見出しの末字だけの段は飛ばす）。
+    let short = |k: &usize| !tall_bands.contains(k) && bands[*k].len() >= 3 && !label_tail_band(&bands[*k]);
+    let Some(k) = (t + 1..bands.len()).find(short).or_else(|| (0..t).rev().find(short)) else {
+        return false;
+    };
+    let own = columns(band);
+    let em = band.iter().map(|c| c.x1 - c.x).fold(0.0, f32::max).max(6.0);
+    // 欄見出しの列（「代表者」「の氏名」は字間を空けた「政治団体の名称」と同じ x に並ばない）は組にしない。
+    let mut other = columns(&bands[k]);
+    let heads: Vec<f32> = other.iter().filter(|(_, text, _)| RECORD_HEADS.iter().any(|h| text.ends_with(h))).map(|c| c.0).collect();
+    other.retain(|(x, ..)| !heads.iter().any(|h| x - h > -1.0 && x - h < em * 1.5));
+    let pairs: Vec<&(f32, String, f32)> = own.iter().filter(|(x, ..)| other.iter().any(|(o, ..)| (o - x).abs() < 3.0)).collect();
+    if other.len() < 3 || pairs.len() * 10 < other.len() * 8 {
+        return false;
+    }
+    // 組になった列は 1 つの欄（団体名、所在地）で、途中に空きが無い。名称・代表者・異動事項…を 1 つの段に重ねた
+    // 表（異動の届出の一覧）は、欄の間の空きで区切れないので段ごとに読む。
+    let solid = pairs
+        .iter()
+        .filter(|(x, ..)| {
+            let mut ws: Vec<&Col> = band.iter().filter(|c| (center(c) - x).abs() < 3.0).collect();
+            ws.sort_by(|a, b| a.y.total_cmp(&b.y));
+            ws.windows(2).all(|w| w[1].y - w[0].y1 < em * 0.75)
+        })
+        .count();
+    if solid * 10 < pairs.len() * 8 {
+        return false;
+    }
+    let labeled = bands.iter().filter(|b| columns(b).iter().any(|(_, text, _)| RECORD_HEADS.iter().any(|h| text.ends_with(h)))).count();
+    let sets: Vec<Vec<(f32, String, f32)>> = bands.iter().filter(|b| b.len() >= 2).map(|b| columns(b)).collect();
+    let bottom = band.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+    let same = sets.len() >= 3
+        && sets[0].len() >= 4
+        && sets.iter().all(|s| s.len() == sets[0].len() && s.iter().zip(&sets[0]).all(|(a, b)| (a.0 - b.0).abs() < 3.0))
+        && pairs.iter().filter(|(_, _, y1)| bottom - y1 < em).count() * 2 < pairs.len();
+    labeled >= 2 || same
 }
 
 /// 氏と名の間の空きで段に切られた名簿（叙位・叙勲の「窪田」の段と「信正」の段）。2 つの低い段（30pt 以下、
