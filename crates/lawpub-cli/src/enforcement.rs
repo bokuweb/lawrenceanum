@@ -29,6 +29,11 @@ struct EnforcementItem {
     /// 附則から読んだ一部施行の対象規定。
     #[serde(skip_serializing_if = "Option::is_none")]
     targets: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    event_id: Option<String>,
+    revision_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    explanation_id: Option<String>,
 }
 
 /// 対象規定の表示は長くなりがちなので切り詰める。
@@ -108,6 +113,9 @@ pub fn run_build(public: &Path) -> Result<()> {
                     title: titles.get(&law_id).cloned().unwrap_or_default(),
                     amending_law_title,
                     date_kind: "supplementary".to_string(),
+                    event_id: None,
+                    revision_id: None,
+                    explanation_id: None,
                     targets: up.targets.map(|t| {
                         if t.chars().count() > MAX_TARGETS_CHARS {
                             format!("{}…", t.chars().take(MAX_TARGETS_CHARS).collect::<String>())
@@ -144,6 +152,9 @@ pub fn run_build(public: &Path) -> Result<()> {
                         .map(String::from),
                     date_kind: kind.to_string(),
                     targets: None,
+                    event_id: ev["event_id"].as_str().map(String::from),
+                    revision_id: ev["revision_id"].as_str().map(String::from),
+                    explanation_id: Some(crate::wiki::enforcements::event_key(&law_id, ev)),
                 });
             }
         }

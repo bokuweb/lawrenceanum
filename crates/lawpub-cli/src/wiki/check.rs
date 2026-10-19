@@ -23,7 +23,7 @@ pub struct CheckArgs {
 }
 
 const ROOT_FILES: [&str; 3] = ["index.md", "log.md", "README.md"];
-const DIRS: [&str; 9] = ["laws/", "meetings/", "people/", "topics/", "bills/", "committees/", "parties/", "pubcomments/", "kanpo/"];
+const DIRS: [&str; 10] = ["laws/", "meetings/", "people/", "topics/", "bills/", "committees/", "parties/", "pubcomments/", "kanpo/", "enforcements/"];
 const MIN_QUOTE_CHARS: usize = 8;
 const MAX_QUOTE_CHARS: usize = 200;
 
@@ -56,7 +56,7 @@ fn parse_citation(rest: &str) -> Option<(String, String, String)> {
     let (url, rest) = rest.split_once(')')?;
     let rest = rest.trim();
     let quote = rest.strip_prefix('「')?.strip_suffix('」')?;
-    if !["kokkai:", "shingikai:", "gian:", "pubcomment:", "kanpo:"].iter().any(|p| reference.starts_with(p)) {
+    if !["kokkai:", "shingikai:", "gian:", "pubcomment:", "kanpo:", "enforcement:"].iter().any(|p| reference.starts_with(p)) {
         return None;
     }
     Some((reference.to_string(), url.to_string(), quote.to_string()))
@@ -162,7 +162,7 @@ impl Resolver<'_> {
                 .map(|(m, _)| m)
                 .unwrap_or(id)
                 .to_string(),
-            KIND_SHINGIKAI | KIND_GIAN | KIND_PUBCOMMENT => id.split('#').next().unwrap_or(id).to_string(),
+            KIND_SHINGIKAI | KIND_GIAN | KIND_PUBCOMMENT | enforcements::KIND => id.split('#').next().unwrap_or(id).to_string(),
             _ => return Ok(None),
         };
         let key = format!("{kind}:{doc_id}");
@@ -172,6 +172,7 @@ impl Resolver<'_> {
                 let units = match kind {
                     KIND_KOKKAI => kokkai_units(&d),
                     KIND_PUBCOMMENT => pubcomment_units(&d),
+                    enforcements::KIND => enforcements::units(&d),
                     KIND_GIAN => gian_units(&d["detail"], d["resolutions"].as_array().map(Vec::as_slice).unwrap_or(&[])),
                     _ => shingikai_units(&d),
                 };
@@ -207,6 +208,9 @@ impl Resolver<'_> {
         let local = self.work.join("docs").join(kind).join(format!("{}.json", id.replace('/', "_")));
         if local.exists() {
             return Ok(Some(serde_json::from_slice(&std::fs::read(&local)?)?));
+        }
+        if kind == enforcements::KIND {
+            return enforcements::load_bundle(&self.source, id);
         }
         if kind == KIND_KOKKAI {
             return self.source.get_json(&format!("proceedings/{id}.json"));
@@ -333,7 +337,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
         if ty.is_empty() {
             err(1, "OKF の必須フィールド `type` がありません".into());
         }
-        if matches!(ty, "law" | "meeting" | "person" | "topic" | "bill" | "committee" | "party" | "pubcomment" | "kanpo") && page.get_str("title").is_empty()
+        if matches!(ty, "law" | "meeting" | "person" | "topic" | "bill" | "committee" | "party" | "pubcomment" | "kanpo" | "enforcement") && page.get_str("title").is_empty()
         {
             err(1, "`title` がありません".into());
         }
@@ -385,6 +389,13 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
                 1,
                 "要約には少なくとも 1 つの引用 (発言 ID + 原文) が必要です".into(),
             );
+        }
+
+        if ty == enforcements::KIND {
+            // 空の未完了ページは再生成待ち。書かれた説明は節ごとに検証する。
+            if !llm_text.trim().is_empty() {
+                for message in enforcements::explanation_errors(&page) { err(1, message); }
+            }
         }
 
         if changed.as_ref().is_some_and(|c| !c.contains(&rel)) {

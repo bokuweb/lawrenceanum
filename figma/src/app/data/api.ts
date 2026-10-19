@@ -433,6 +433,9 @@ export const api = {
   /** 規制変化フィード (法令改正・パブコメ・官報の新着, 逆時系列)。 */
   recentFeed: () => getJson<RecentFeed>('./feeds/recent.json'),
 
+  /** 施行予定ごとの出典付き wiki 解説。 */
+  enforcementExplanations: (lawId: string) =>
+    getJson<EnforcementExplanations>(`./wiki/enforcements/${encodeURIComponent(lawId)}.json`),
   /** 今後の施行予定 (施行期日カレンダー, 施行日昇順)。 */
   enforcementUpcoming: () => getJson<EnforcementUpcoming>('./enforcement/upcoming.json'),
 
@@ -710,7 +713,25 @@ export type GianBill = {
 
 // ── 施行予定 型定義 ───────────────────────────────────────────────
 
+export type EnforcementExplanation = {
+  explanation_id: string
+  event_id: string
+  revision_id: string | null
+  date: string
+  path: string
+  description: string
+  body: string
+}
+export type EnforcementExplanations = {
+  schema_version: number
+  law_id: string
+  items: EnforcementExplanation[]
+}
+
 export type EnforcementItem = {
+  event_id?: string
+  revision_id?: string | null
+  explanation_id?: string
   date: string
   law_id: string
   title: string

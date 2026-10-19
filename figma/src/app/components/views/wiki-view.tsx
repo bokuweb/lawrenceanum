@@ -1,6 +1,4 @@
-import { Suspense, lazy, useEffect, useMemo, useState, type ReactNode } from "react";
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ExternalLink, Network, Search } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -8,8 +6,9 @@ import { Input } from "../ui/input";
 import { Skeleton } from "../ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { api, type WikiGraph, type WikiIndex, type WikiPage, type WikiPageMeta } from "../../data/api";
-import { WIKI_TYPES, WIKI_TYPE_ORDER, resolveWikiLink } from "./wiki-types";
+import { WIKI_TYPES, WIKI_TYPE_ORDER } from "./wiki-types";
 import { setShowStubs, useShowStubs } from "./wiki-prefs";
+import { WikiMarkdown } from "./wiki-markdown";
 
 const WikiGraphCanvas = lazy(() => import("./wiki-graph").then(m => ({ default: m.WikiGraphCanvas })));
 
@@ -338,77 +337,5 @@ function WikiPageView({
         </div>
       )}
     </div>
-  );
-}
-
-/** wiki の Markdown を描画する。相対リンクは SPA 内遷移、脚注はページ内スクロールにする (HashRouter のため)。 */
-function WikiMarkdown({ body, from, onOpen }: { body: string; from: string; onOpen: (path: string) => void }) {
-  return (
-    <div className="text-sm leading-relaxed space-y-3 [&_.footnotes]:mt-8 [&_.footnotes]:pt-3 [&_.footnotes]:border-t [&_.footnotes]:border-border [&_.footnotes]:text-xs [&_.footnotes]:text-muted-foreground">
-      <Markdown
-        remarkPlugins={[remarkGfm]}
-        skipHtml
-        remarkRehypeOptions={{ footnoteLabel: "出典", footnoteBackLabel: "本文へ戻る", footnoteLabelProperties: {} }}
-        components={{
-          // タイトルはヘッダで表示済み。
-          h1: () => null,
-          h2: ({ children, id }) => <h2 id={id} className="text-base font-semibold mt-6 mb-2">{children}</h2>,
-          h3: ({ children }) => <h3 className="text-sm font-semibold mt-4 mb-1">{children}</h3>,
-          h4: ({ children }) => <h4 className="text-sm font-medium text-muted-foreground mt-3 mb-1">{children}</h4>,
-          ul: ({ children }) => <ul className="list-disc pl-5 space-y-1.5">{children}</ul>,
-          ol: ({ children }) => <ol className="list-decimal pl-5 space-y-1">{children}</ol>,
-          table: ({ children }) => (
-            // 日付・種別などの短い列が 1 文字ずつ折り返されないようにする。
-            <div className="overflow-x-auto border border-border rounded-md [&_td:first-child]:whitespace-nowrap [&_td]:min-w-[3.5em]">
-              <table className="w-full text-xs">{children}</table>
-            </div>
-          ),
-          th: ({ children }) => <th className="text-left font-medium bg-muted/50 px-2 py-1.5 border-b border-border">{children}</th>,
-          td: ({ children }) => <td className="px-2 py-1.5 border-b border-border align-top">{children}</td>,
-          // 官報ページの本文 (自動抽出) はコードブロックで載せる。長い行を折り返し、高さを抑える。
-          pre: ({ children }) => (
-            <pre className="whitespace-pre-wrap break-all text-xs leading-relaxed bg-muted/50 border border-border rounded-md p-3 max-h-96 overflow-y-auto [&_code]:bg-transparent [&_code]:p-0">{children}</pre>
-          ),
-          code: ({ children }) => <code className="px-1 py-0.5 rounded bg-muted text-[0.9em]">{children}</code>,
-          a: ({ href = "", children }) => <WikiLink href={href} from={from} onOpen={onOpen}>{children}</WikiLink>,
-        }}
-      >
-        {body}
-      </Markdown>
-    </div>
-  );
-}
-
-function WikiLink({ href, from, onOpen, children }: { href: string; from: string; onOpen: (path: string) => void; children: ReactNode }) {
-  if (/^[a-z]+:/i.test(href)) {
-    return <a href={href} target="_blank" rel="noreferrer" className="text-primary hover:underline">{children}</a>;
-  }
-  if (href.startsWith("#")) {
-    return (
-      <a
-        href={href}
-        className="text-primary hover:underline"
-        onClick={e => {
-          e.preventDefault();
-          document.getElementById(decodeURIComponent(href.slice(1)))?.scrollIntoView({ behavior: "smooth", block: "center" });
-        }}
-      >
-        {children}
-      </a>
-    );
-  }
-  const target = resolveWikiLink(from, href);
-  return (
-    <a
-      href={target ? `#/wiki/${target}` : href}
-      className="text-primary hover:underline"
-      onClick={e => {
-        if (!target) return;
-        e.preventDefault();
-        onOpen(target);
-      }}
-    >
-      {children}
-    </a>
   );
 }

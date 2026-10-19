@@ -581,6 +581,9 @@ enum Cmd {
         /// LLM に 1 回で渡すタスク数。`.wiki-work/chunks/NNN.md` に分けて書き出す。
         #[arg(long, default_value_t = 4)]
         chunk_size: usize,
+        /// 施行予定ごとの解説の上限 (会議・議案とは別枠)。0 で無効。
+        #[arg(long, default_value_t = 5)]
+        max_enforcements: usize,
     },
     /// LLM が書いた後、時系列・人物・index・log を再生成し、未完了タスクを巻き戻す。
     WikiFinalize {
@@ -1032,7 +1035,7 @@ fn main() -> Result<()> {
         Cmd::LinkRulemaking { public } => linking::run_link_rulemaking(&public),
         Cmd::LinkLawsAndHanrei { public } => linking::run_link_hanrei(&public),
         Cmd::BuildEnforcement { public } => enforcement::run_build(&public),
-        Cmd::WikiPlan { base_url, wiki, work, max_items, max_probes, lookback_days, today, max_bills, max_pubcomments, max_kanpo, max_roster, reiki_base_url, chunk_size } => {
+        Cmd::WikiPlan { base_url, wiki, work, max_items, max_probes, lookback_days, today, max_bills, max_pubcomments, max_kanpo, max_roster, reiki_base_url, chunk_size, max_enforcements } => {
             wiki::plan::run_plan(&wiki::plan::PlanArgs {
                 base_url,
                 wiki,
@@ -1047,6 +1050,7 @@ fn main() -> Result<()> {
                 max_roster,
                 reiki_base_url,
                 chunk_size,
+                max_enforcements,
             })
         }
         Cmd::WikiFinalize { wiki, work } => wiki::finalize::run_finalize(&wiki::finalize::FinalizeArgs { wiki, work }),

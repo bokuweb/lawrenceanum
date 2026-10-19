@@ -6,6 +6,8 @@ import { Skeleton } from "../ui/skeleton";
 import { CalendarClock, ArrowUpRight } from "lucide-react";
 import { api, type EnforcementUpcoming, type EnforcementItem } from "../../data/api";
 
+import { EnforcementExplanation } from "./enforcement-explanation";
+
 function useUpcoming() {
   const [data, setData] = useState<EnforcementUpcoming | null>(null);
   const [loading, setLoading] = useState(true);
@@ -74,28 +76,30 @@ export function EnforcementView() {
                 </div>
                 <div className="border border-border rounded-lg overflow-hidden mt-1">
                   {items.map((i, idx) => (
-                    <button
+                    <div className="border-b border-border last:border-0"
                       key={`${i.law_id}-${idx}`}
-                      onClick={() => navigate(`/laws/${i.law_id}`)}
-                      className="w-full text-left px-4 py-2.5 border-b border-border last:border-0 hover:bg-accent/50 transition-colors flex items-start gap-3"
                     >
-                      <div className="min-w-0 flex-1">
-                        <div className="text-sm font-medium truncate">{i.title || i.law_id}</div>
-                        {i.amending_law_title && (
-                          <div className="text-xs text-muted-foreground truncate">{i.amending_law_title}</div>
+                      <button
+                        onClick={() => navigate(`/laws/${i.law_id}`)}
+                        className="w-full text-left px-4 py-2.5 hover:bg-accent/50 transition-colors flex items-start gap-3"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-medium truncate">{i.title || i.law_id}</div>
+                          {i.targets && <div className="text-xs text-muted-foreground truncate">一部施行: {i.targets}</div>}
+                          {i.amending_law_title && (
+                            <div className="text-xs text-muted-foreground truncate">{i.amending_law_title}</div>
+                          )}
+                        </div>
+                        {i.date_kind === "scheduled" && (
+                          <Badge variant="outline" className="text-xs shrink-0">施行予定</Badge>
                         )}
-                        {i.targets && (
-                          <div className="text-xs text-muted-foreground truncate">一部施行: {i.targets}</div>
-                        )}
+                        {i.date_kind === "supplementary" && <Badge variant="outline" className="text-xs shrink-0" title="附則の施行期日の規定から読み取った日付">附則</Badge>}
+                        <ArrowUpRight className="size-4 text-muted-foreground shrink-0 mt-0.5" />
+                      </button>
+                      <div className="px-4">
+                        <EnforcementExplanation lawId={i.law_id} eventId={i.event_id} revisionId={i.revision_id} explanationId={i.explanation_id} date={i.date} />
                       </div>
-                      {i.date_kind === "scheduled" && (
-                        <Badge variant="outline" className="text-xs shrink-0">施行予定</Badge>
-                      )}
-                      {i.date_kind === "supplementary" && (
-                        <Badge variant="outline" className="text-xs shrink-0" title="附則の施行期日の規定から読み取った日付">附則</Badge>
-                      )}
-                      <ArrowUpRight className="size-4 text-muted-foreground shrink-0 mt-0.5" />
-                    </button>
+                    </div>
                   ))}
                 </div>
               </div>

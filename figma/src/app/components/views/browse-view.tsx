@@ -10,6 +10,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ARTICLES_V2, TIMELINE_EVENTS, type LawSummary } from "../mock-data";
 import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark, MessageSquare, Newspaper, ScrollText, Network, MessageCircleQuestion } from "lucide-react";
+import { EnforcementExplanation } from "./enforcement-explanation";
 import { useLocation, useNavigate } from "react-router";
 import { useLaws, useLawDetail } from "../../data/use-laws";
 import { api, hanreiUrl, type AppendixTable, type LawToHanrei, type LawToShitsumon, type LawToProceedings, type LawToRulemaking, type LawToPubcomments, type LawToTsutatsu } from "../../data/api";
@@ -369,6 +370,11 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
       return 0;
     });
   }, [detail.timeline]);
+  const upcomingEvents = useMemo(() => {
+    const today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date());
+    return liveEvents.map(event => ({ event, date: event.scheduled_enforcement_date || event.effective_date || "" }))
+      .filter(item => item.date > today).sort((a, b) => a.date.localeCompare(b.date));
+  }, [liveEvents]);
   const mockEvents = TIMELINE_EVENTS[law.law_id] ?? [];
   const useLiveTimeline = liveEvents.length > 0;
 
@@ -572,6 +578,21 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
           </div>
         </div>
       </div>
+
+      {upcomingEvents.length > 0 && (
+        <section aria-label="施行予定ごとの解説" className="max-h-[40vh] overflow-y-auto shrink-0 border-b border-border bg-background px-6 py-3">
+          <h2 className="text-sm font-semibold mb-2">施行予定ごとの解説</h2>
+          <div className="space-y-3">
+            {upcomingEvents.map(({ event, date }, i) => (
+              <div key={`${event.event_id}-${event.revision_id}-${date}`} className="rounded-md border border-border px-3 py-2">
+                <div className="text-sm font-medium">{date} 施行{event.scheduled_enforcement_date ? "予定" : ""}</div>
+                {event.amending_law_title && <div className="text-xs text-muted-foreground">{event.amending_law_title}</div>}
+                <EnforcementExplanation lawId={law.law_id} eventId={event.event_id} revisionId={event.revision_id} date={date} initialOpen={i === 0} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {wikiDescription !== null && (
         <div className="border-b border-border bg-background px-6 py-3">
