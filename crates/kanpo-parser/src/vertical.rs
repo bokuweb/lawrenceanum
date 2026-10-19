@@ -503,7 +503,9 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                     (v, h)
                 }
             });
-            let tiers = if shinkyu_page || tables.is_empty() || v_chars < h_chars * 2 {
+            // 横倒しのページ（回した座標で組む）は語が横組みでも、罫線の表を段で割らない（型式認定の表の右半分の表が、欄ごとの
+            // 段に分かれて欄ごとに読まれていた）。
+            let tiers = if shinkyu_page || tables.is_empty() || (v_chars < h_chars * 2 && !sideways) {
                 plain_tiers
             } else {
                 merge_split_header_tiers(split_tiers(cols, &TierRules { tables, boxes, hrules: hrules.clone(), vrules: vrules.clone(), sideways }))
@@ -725,11 +727,13 @@ fn unruled_records(g: &Grid, cols: &[Col]) -> bool {
     }
     let head = |t: &str| t.chars().filter(|c| !c.is_whitespace()).take(2).collect::<String>();
     cells.iter().any(|cell| {
-        cell.iter().skip(1).any(|(_, t)| t.starts_with('〃'))
+        // 1 件の欄の「〃」（認定を受けた者の名前も住所も上の件と同じ「〃」「〃」）は除く。
+        (!cell.first().is_some_and(|(_, t)| t.starts_with('〃')) && cell.iter().skip(1).any(|(_, t)| t.starts_with('〃')))
             // 書き出しの 2 字が同じで、字数もほぼ同じ列（「交Ｎ26－79」「交Ｎ26－80」）。名前と住所（「沖縄県」「沖縄県那覇市泉崎」）は違う。
             || cell.iter().enumerate().any(|(i, (_, a))| {
                 let n = |t: &str| t.chars().filter(|c| !c.is_whitespace()).count() as i32;
-                head(a).chars().count() == 2 && cell[i + 1..].iter().any(|(_, b)| head(a) == head(b) && (n(a) - n(b)).abs() <= 2)
+                // 同じ字の語（名称の末尾の「006ＨＺ」と型式の「006ＨＺ」）は 2 件ではない。
+                head(a).chars().count() == 2 && cell[i + 1..].iter().any(|(_, b)| head(a) == head(b) && (n(a) - n(b)).abs() <= 2 && a.trim() != b.trim())
             })
     })
 }
