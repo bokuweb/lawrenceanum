@@ -1368,7 +1368,16 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
         let mut by_row: std::collections::BTreeMap<usize, Vec<&Line>> = std::collections::BTreeMap::new();
         // 縦組みの欄の名前（1 字ずつ縦に積んだ字）は、行に分けずに一番上の行に置く。
         let all: Vec<&Col> = ls.iter().flat_map(|l| l.words.iter()).collect();
-        let whole = stacked(&all);
+        // 欄の多い（6 欄以上の）表の、行を 2 つ以上またぐ左端以外のセルの、行間を詰めた短い 4 行までの字（たばこの小売定価の
+        // 表の製造国「イタリア／ギリシャ／ルーマニア」、製品の区分「Ｆ45　20スティック／ハードパック　5.4ｇ」）も 1 つの
+        // 値なので、またぐ行の一番上の行に置く（行の高さに合わせて 1 行ずつ別の品目の行に分かれていた）。
+        let block = g.xs.len() >= 7
+            && gc.x0 > 0
+            && gc.y1 - gc.y0 >= 2
+            && (2..=4).contains(&ls.len())
+            && ls.iter().all(|l| render_line(&l.words).chars().count() <= 16)
+            && (1..ls.len()).all(|k| ls[k].y0 - ls[k - 1].y1 < (ls[k].y1 - ls[k].y0) * 0.3);
+        let whole = stacked(&all) || block;
         for l in ls {
             // 罫線の行を 2 つ以上またぐ狭い欄で、2 字ずつ折り返した 1 項目（様式の表の欄見出し「株式／引受／金」）も、一番上の
             // 行に置く。
