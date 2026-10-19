@@ -1261,7 +1261,8 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
                     let t = render_line(&m.words);
                     t.chars().any(|ch| ch.is_ascii_digit()) && t.chars().all(|ch| ch.is_ascii_digit() || "△▲,.()（）－-　 ".contains(ch))
                 });
-                let own_row = rowlike_cell(i) && k > 0 && rowlike(l) && !wraps(i, k);
+                // 前の行も項目名と数の行なら、右端まで組まれていても（数は右揃え）折り返しではない。
+                let own_row = rowlike_cell(i) && k > 0 && rowlike(l) && (rowlike(&cell_lines[i][k - 1]) || !wraps(i, k));
                 if top < c && c < bottom && (own_row || aligned[k] || next_item(k) || (rows_of_items && (!tight(k) || numbered)) || (figures && k > 0 && !tight(k) && alone_in_row(l))) {
                     anchors.push(l.y0 - 0.5);
                 }
