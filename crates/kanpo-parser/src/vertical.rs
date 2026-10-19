@@ -1188,6 +1188,9 @@ fn order_masthead(units: &mut [Unit]) {
     // 題字の脇の欄は最初の段にあるとは限らず（横倒しの 1 ページ目では目次の下の段に入る）、段をまたいで分かれることもある。
     // （段の番号, 行の番号, 欄の語）。
     let mut found: Vec<(usize, usize, Vec<usize>)> = Vec::new();
+    // 欄の語の後ろに目次の項目の字が続いた行（「国立印刷局）〇」「国立印刷局）　係」）は、頭の欄の語だけを取る（行の残りはそのまま）。
+    // （段の番号, 行の番号, 欄の語, 頭の字数）。
+    let mut prefixed: Vec<(usize, usize, usize, usize)> = Vec::new();
     let mut seen_lines = 0;
     for (u, unit) in units.iter().enumerate() {
         let Unit::Plain(lines) = unit else { continue };
@@ -1195,11 +1198,42 @@ fn order_masthead(units: &mut [Unit]) {
             if seen_lines + i >= 120 {
                 break;
             }
-            if let Some(p) = split(&compact(l)).filter(|p| !p.is_empty()) {
+            let c = compact(l);
+            if let Some(p) = split(&c).filter(|p| !p.is_empty()) {
                 found.push((u, i, p));
+            } else if let Some(k) = (0..PARTS.len()).find(|&k| {
+                // 欄の語の直後は空白か「〇」。括弧の付いた語だけ（「内閣府」「発行」は目次の項目「内閣府　一三七」にもある）。
+                PARTS[k].contains(['（', '）'])
+                    && l.text.trim_start().strip_prefix(PARTS[k]).is_some_and(|rest| rest.starts_with(['\u{3000}', ' ', '〇']))
+                    && l.words.len() >= 2
+            }) {
+                prefixed.push((u, i, k, PARTS[k].chars().count()));
             }
         }
         seen_lines += lines.len();
+    }
+    let seen_with_prefixed: Vec<usize> = found
+        .iter()
+        .flat_map(|(_, _, p)| p.clone())
+        .chain(prefixed.iter().map(|p| p.2))
+        .flat_map(|k| if k == 0 { vec![1, 2] } else { vec![k] })
+        .collect();
+    let mut all: Vec<usize> = seen_with_prefixed.clone();
+    all.sort_unstable();
+    all.dedup();
+    if all == (1..PARTS.len()).collect::<Vec<_>>() && !prefixed.is_empty() {
+        // 頭の欄の語を行から外し、欄の語だけの行として扱う。
+        for &(u, i, k, n) in prefixed.iter().rev() {
+            if let Unit::Plain(lines) = &mut units[u] {
+                let l = &mut lines[i];
+                let first = l.words.remove(0);
+                let rest: String = l.text.trim_start().chars().skip(n).collect();
+                l.text = rest.trim_start_matches(['\u{3000}', ' ']).to_string();
+                lines.insert(i, Line::text(PARTS[k].to_string(), vec![first]));
+            }
+        }
+        // 外した行を加えて、もう一度集める。
+        return order_masthead(units);
     }
     let mut seen: Vec<usize> = found.iter().flat_map(|(_, _, p)| p.iter().flat_map(|&k| if k == 0 { vec![1, 2] } else { vec![k] })).collect();
     seen.sort_unstable();
