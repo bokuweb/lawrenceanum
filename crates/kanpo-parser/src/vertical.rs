@@ -679,6 +679,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         merge_split_table_rows(&mut units);
         order_masthead(&mut units);
         join_joint_ministries(&mut units);
+        order_section_labels(&mut units);
         let text = units
             .iter()
             .map(Unit::text)
@@ -1132,6 +1133,41 @@ pub(crate) fn split_label_frames(tier: Vec<Col>, hrules: &[(f32, f32, f32)], vru
 /// 逆の向きに組まれ、語の順が崩れて読まれた（「内閣府」「国立印刷局）」「外）」「（原稿作成」「（号発行」）ものを、
 /// 欄の順に組み直す。ページの頭から 40 行の中で、欄の語（「（号」「外）」「発行」「内閣府」「（原稿作成」「国立印刷局）」）
 /// だけでできた行が、どの語もちょうど 1 度ずつ含むときだけ。
+/// 記事の見出し（「〇こども家庭庁告示第十三号」）のすぐ後に区分見出し（「法規的告示」）が来ていれば、区分見出しを先にする
+/// （見出しの下に本文が無いまま次の区分が始まることは無い。区分見出しは本文より大きな字で、見出しの列と上下にずれて
+/// 組まれ、見出しが前の段に、区分見出しが次の段の頭に分かれていた）。段の境をまたぐものも見る。
+fn order_section_labels(units: &mut [Unit]) {
+    let compact = |l: &Line| l.text.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+    // 「〇」で始まり「号」で終わる 1 行（機関名がかなで始まる「〇こども家庭庁告示第十三号」も）。
+    let heading = |l: &Line| {
+        let t = compact(l);
+        crate::segment::is_heading_mark(&t) || (t.starts_with('〇') && t.ends_with('号') && t.contains('第') && t.chars().count() <= 30)
+    };
+    let label = |l: &Line| crate::segment::is_section_label(&compact(l));
+    for u in units.iter_mut() {
+        if let Unit::Plain(lines) = u {
+            for i in 1..lines.len() {
+                if heading(&lines[i - 1]) && label(&lines[i]) {
+                    lines.swap(i - 1, i);
+                }
+            }
+        }
+    }
+    for k in 1..units.len() {
+        let (head, tail) = units.split_at_mut(k);
+        let Unit::Plain(prev) = &mut head[k - 1] else { continue };
+        let next = match &mut tail[0] {
+            Unit::Plain(lines) => lines,
+            Unit::Shinkyu { preamble, .. } => preamble,
+        };
+        if prev.last().is_some_and(|l| heading(l)) && next.first().is_some_and(|l| label(l)) {
+            let l = next.remove(0);
+            let at = prev.len() - 1;
+            prev.insert(at, l);
+        }
+    }
+}
+
 fn order_masthead(units: &mut [Unit]) {
     const PARTS: [&str; 6] = ["（号", "外）", "発行", "内閣府", "（原稿作成", "国立印刷局）"];
     // 行の字を欄の語に分ける（分けられなければ None）。
