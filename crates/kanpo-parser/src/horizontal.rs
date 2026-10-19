@@ -1958,7 +1958,22 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
                 out.push(trace::Line { text: t.render(), words: Vec::new(), table: Some(t) });
                 return;
             }
-            let (left, right): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| x_center(w) < cut);
+            let (left, mut right): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| x_center(w) < cut);
+            // 囲みの中で、右の頭の 1〜2 行が左のどの語よりも上にあり、署名（「代表取締役　中島　勝」）なら、左右の欄より先に
+            // 読む（会社名の下の右寄せの署名が、左の貸借対照表の後の、右の損益計算書の頭に読まれていた）。
+            if boxed {
+                let left_top = left.iter().map(|w| w.y).fold(f32::INFINITY, f32::min);
+                let (head, rest): (Vec<Col>, Vec<Col>) = right.iter().cloned().partition(|w| w.y1 < left_top - 1.0);
+                let head_lines = group_lines(&head);
+                let signer = |l: &Line| {
+                    let t: String = l.words.iter().map(|w| w.text.as_str()).collect();
+                    ["代表取締役", "取締役", "代表社員", "代表理事", "理事長", "清算人", "代表清算人", "執行役"].iter().any(|k| t.starts_with(k))
+                };
+                if !head.is_empty() && !rest.is_empty() && head_lines.len() <= 2 && head_lines.first().is_some_and(signer) {
+                    out.extend(head_lines.iter().map(|l| trace::Line::text(render_line(&l.words), l.words.iter().map(|w| w.id).collect())));
+                    right = rest;
+                }
+            }
             let (bl, br): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.0 + b.2) / 2.0 < cut);
             // 囲みの段として切るのは段の中の最初の溝だけ（囲みの中は普通に読む）。紙面の幅いっぱいの罫線で切った段
             // （[`band_rule_cut`]。列の中ではない）は、左右の残りにも囲みが並ぶので（3 列の決算公告、合併公告の下に
