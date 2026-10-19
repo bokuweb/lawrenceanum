@@ -1172,7 +1172,8 @@ fn order_section_labels(units: &mut [Unit]) {
 }
 
 fn order_masthead(units: &mut [Unit]) {
-    const PARTS: [&str; 6] = ["（号", "外）", "発行", "内閣府", "（原稿作成", "国立印刷局）"];
+    // 「（号外）」は「（号」「外）」の 2 つ分。
+    const PARTS: [&str; 7] = ["（号外）", "（号", "外）", "発行", "内閣府", "（原稿作成", "国立印刷局）"];
     // 行の字を欄の語に分ける（分けられなければ None）。
     fn split(t: &str) -> Option<Vec<usize>> {
         if t.is_empty() {
@@ -1183,31 +1184,55 @@ fn order_masthead(units: &mut [Unit]) {
             rest
         }))
     }
-    let Some(Unit::Plain(lines)) = units.iter_mut().find(|u| matches!(u, Unit::Plain(_))) else { return };
     let compact = |l: &Line| l.text.chars().filter(|c| !c.is_whitespace()).collect::<String>();
-    let found: Vec<(usize, Vec<usize>)> =
-        lines.iter().enumerate().take(40).filter_map(|(i, l)| split(&compact(l)).filter(|p| !p.is_empty()).map(|p| (i, p))).collect();
-    let mut seen: Vec<usize> = found.iter().flat_map(|(_, p)| p.iter().copied()).collect();
+    // 題字の脇の欄は最初の段にあるとは限らず（横倒しの 1 ページ目では目次の下の段に入る）、段をまたいで分かれることもある。
+    // （段の番号, 行の番号, 欄の語）。
+    let mut found: Vec<(usize, usize, Vec<usize>)> = Vec::new();
+    let mut seen_lines = 0;
+    for (u, unit) in units.iter().enumerate() {
+        let Unit::Plain(lines) = unit else { continue };
+        for (i, l) in lines.iter().enumerate() {
+            if seen_lines + i >= 120 {
+                break;
+            }
+            if let Some(p) = split(&compact(l)).filter(|p| !p.is_empty()) {
+                found.push((u, i, p));
+            }
+        }
+        seen_lines += lines.len();
+    }
+    let mut seen: Vec<usize> = found.iter().flat_map(|(_, _, p)| p.iter().flat_map(|&k| if k == 0 { vec![1, 2] } else { vec![k] })).collect();
     seen.sort_unstable();
-    if seen != (0..PARTS.len()).collect::<Vec<_>>() {
+    seen.dedup();
+    if seen != (1..PARTS.len()).collect::<Vec<_>>() {
         return;
     }
-    // 既に欄の順に組めている（「（号外）」の行がある）なら何もしない。
-    if found.iter().any(|(i, _)| compact(&lines[*i]) == "（号外）") {
+    // 既に欄の順に組めている（「（号外）」「発行内閣府」「（原稿作成国立印刷局）」の行が同じ段に続く）なら何もしない。
+    let line_of = |u: usize, i: usize| match &units[u] {
+        Unit::Plain(lines) => compact(&lines[i]),
+        _ => String::new(),
+    };
+    let texts: Vec<String> = found.iter().map(|(u, i, _)| line_of(*u, *i)).collect();
+    let consecutive = found.windows(2).all(|w| w[1].0 == w[0].0 && w[1].1 == w[0].1 + 1);
+    if consecutive && texts == ["（号外）", "発行内閣府", "（原稿作成国立印刷局）"] {
         return;
     }
-    let at = found[0].0;
-    let ids: Vec<usize> = found.iter().flat_map(|(i, _)| lines[*i].words.clone()).collect();
-    for (i, _) in found.iter().rev() {
-        lines.remove(*i);
+    let (at_u, at_i) = (found[0].0, found[0].1);
+    let mut ids: Vec<usize> = Vec::new();
+    for (u, i, _) in found.iter().rev() {
+        if let Unit::Plain(lines) = &mut units[*u] {
+            ids.extend(lines.remove(*i).words);
+        }
     }
     let rebuilt = [
         Line::text("（号外）".to_string(), ids),
         Line::text("発行\u{3000}内閣府".to_string(), Vec::new()),
         Line::text("（原稿作成\u{3000}国立印刷局）".to_string(), Vec::new()),
     ];
-    for (k, l) in rebuilt.into_iter().enumerate() {
-        lines.insert(at + k, l);
+    if let Unit::Plain(lines) = &mut units[at_u] {
+        for (k, l) in rebuilt.into_iter().enumerate() {
+            lines.insert((at_i + k).min(lines.len()), l);
+        }
     }
 }
 
