@@ -3693,9 +3693,16 @@ fn page_lines_with(cols: Vec<Col>, vrules: &[(f32, f32, f32)], hrules: &[(f32, f
             let chars = c.text.chars().filter(|ch| !ch.is_whitespace()).count();
             // 字間を空けた 1 字ずつの見出し（「府　令」「目　次」）は空けない。
             let spaced_heading = chars == 1 && prev_chars == 1;
+            // 列の語と語の間に横の罫線があれば別のセル（縦組みの表の幅員「二五・〇〇〜二七・一三」と延長「〇・〇三四」が
+            // 続けて組まれていた）。
+            // 括弧の字の前後（罫線で描いた「　」の線）は空けない。
+            let ruled = !text.is_empty()
+                && !text.ends_with(['「', '（', '『', '〔'])
+                && !c.text.starts_with(['」', '）', '』', '〕'])
+                && hrules.iter().any(|&(y, x0, x1)| y > prev_end - 0.5 && y < c.y + 0.5 && x0 <= c.x + 1.0 && x1 >= c.x1 - 1.0);
             if latin_space(&text, prev_end, c) {
                 text.push(' ');
-            } else if !text.is_empty() && !spaced_heading && !text.ends_with(char::is_whitespace) && !c.text.starts_with(char::is_whitespace) && c.y - prev_end >= em * 1.5 {
+            } else if !text.is_empty() && !spaced_heading && !text.ends_with(char::is_whitespace) && !c.text.starts_with(char::is_whitespace) && (c.y - prev_end >= em * 1.5 || ruled) {
                 // 列の中で 1.5 字分以上空けて続く語（住所の終わり「〇三号室」と、下にそろえた社名「藍牧科技株式会社」）は
                 // 別の項目なので、全角空白で区切る（「〇三号室藍牧科技株式会社」のようにつながっていた）。
                 text.push('\u{3000}');
