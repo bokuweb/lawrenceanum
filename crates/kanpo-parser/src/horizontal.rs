@@ -1078,7 +1078,12 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
     // 数のある行までまたぐセル（金額の「—」が字の層に無い行から下の科目をまとめた 1 つの科目の欄）の行も欄見出しではない。
     let header_rows = (0..ny)
         .take_while(|&r| {
-            !digit_row(r) && !(0..g.cells.len()).any(|i| g.cells[i].y0 <= r && r < g.cells[i].y1 && !cell_lines[i].is_empty() && (r..g.cells[i].y1).any(digit_row))
+            // 科目の名前の行が 2 つ以上あるセル（金額がどれも「—」の「流動資産」「固定資産」）の行も欄見出しではない。
+            // 1 行目が「科目」の欄見出しの表だけ（純資産変動計算書の欄見出しの折り返し「前中期目標期間繰越積立金」は見ない）。
+            let kamoku = (0..g.cells.len()).any(|j| g.cells[j].y0 == 0 && text_of(j).replace(['　', ' '], "").starts_with("科目"));
+            let accounts = |i: usize| kamoku && g.cells[i].y0 > 0 && cell_lines[i].iter().filter(|l| account_end(l)).count() >= 2;
+            !digit_row(r)
+                && !(0..g.cells.len()).any(|i| g.cells[i].y0 <= r && r < g.cells[i].y1 && !cell_lines[i].is_empty() && ((r..g.cells[i].y1).any(digit_row) || accounts(i)))
         })
         .count();
     let header_rows = if header_rows <= 3 && header_rows < ny && item_cols == 0 { header_rows } else { 0 };
