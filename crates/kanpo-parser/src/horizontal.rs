@@ -845,7 +845,27 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
     // 表にしなかった番号の列の番号。
     let mut rejected: std::collections::HashSet<usize> = std::collections::HashSet::new();
     loop {
-        let mut keys: Vec<Col> = words.iter().filter(|w| row_key(&w.text) && !rejected.contains(&w.id)).cloned().collect();
+        // 行の頭の記号でも、右に空けずに語が続く（型式の並び「ＴＲＪ240Ｌ－ＧＧＴＰ」「ＫＦ、ＴＲＪ240Ｒ－…」の切れ目）なら番号ではない。
+        let glued = |w: &Col| {
+            let em = (w.y1 - w.y).max(1.0);
+            words.iter().any(|o| o.id != w.id && (y_center(o) - y_center(w)).abs() <= em * 0.35 && o.x >= w.x1 - 0.5 && o.x - w.x1 < em * 0.2)
+        };
+        // すぐ上の行（同じ左端）が読点・ハイフンで終わる続き（型式の並びを折り返した行）も番号ではない。
+        let continued = |w: &Col| {
+            let em = (w.y1 - w.y).max(1.0);
+            words.iter().any(|o| {
+                o.id != w.id
+                    && (o.x - w.x).abs() < em
+                    && o.y1 <= w.y + 0.5
+                    && w.y - o.y1 < em * 0.6
+                    && words
+                        .iter()
+                        .filter(|r| (y_center(r) - y_center(o)).abs() <= em * 0.35 && r.x >= o.x - 0.5 && r.x < o.x + em * 30.0)
+                        .max_by(|a, b| a.x1.total_cmp(&b.x1))
+                        .is_some_and(|last| last.text.trim_end().ends_with(['、', '－', '-', '‐']))
+            })
+        };
+        let mut keys: Vec<Col> = words.iter().filter(|w| row_key(&w.text) && !rejected.contains(&w.id) && !glued(w) && !continued(w)).cloned().collect();
         keys.sort_by(|a, b| a.x.total_cmp(&b.x).then(a.y.total_cmp(&b.y)));
         // 左端が 2pt 以内の漢字の付いた登録番号は同じ列として上から並べる（左端が 1pt ずれた番号「輸第100238号」が、x の順で
         // 列の後ろに回って別の短い列になり、表に入らなかった）。
