@@ -29,6 +29,8 @@ pub use shingikai::run_link_shingikai;
 mod law_refs;
 mod shitsumon;
 pub use shitsumon::run_link_shitsumon;
+mod treaty;
+pub use treaty::run_link_treaties;
 
 // ── 公開型 ────────────────────────────────────────────────────────
 

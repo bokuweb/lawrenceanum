@@ -1660,6 +1660,7 @@ dependencies = [
  "shitsumon-client",
  "tracing",
  "tracing-subscriber",
+ "treaty-client",
  "tsutatsu-client",
  "url",
  "walkdir",
@@ -1702,6 +1703,7 @@ version = "0.1.0"
 dependencies = [
  "aho-corasick",
  "anyhow",
+ "rayon",
  "serde",
  "serde_json",
  "tracing",
@@ -3186,6 +3188,19 @@ dependencies = [
  "tracing",
  "tracing-core",
  "tracing-log",
+]
+
+[[package]]
+name = "treaty-client"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "encoding_rs",
+ "reqwest",
+ "scraper",
+ "serde",
+ "serde_json",
+ "tracing",
 ]
 
 [[package]]

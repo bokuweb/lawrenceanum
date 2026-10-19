@@ -1,0 +1,16 @@
+[package]
+name = "treaty-client"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+publish.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+reqwest = { workspace = true, features = ["blocking"] }
+scraper.workspace = true
+tracing.workspace = true
+# 条約データ検索・国会提出条約のページは UTF-8 だが、古いページの文字コードは <meta> で判定する。
+encoding_rs = "0.8"

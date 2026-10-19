@@ -454,6 +454,10 @@ export const api = {
   lawToHanrei: (lawId: string) => getJson<LawToHanrei>(`./links/law-to-hanrei/${lawId}.json`),
   /** 法令 ↔ 質問主意書・答弁書 クロスリンク (件名・本文の法令参照から抽出)。 */
   lawToShitsumon: (lawId: string) => getJson<LawToShitsumon>(`./links/law-to-shitsumon/${lawId}.json`),
+  /** 法令 → 条約 クロスリンク (法令本文の条約名・条約番号から抽出)。 */
+  lawToTreaties: (lawId: string) => getJson<LawToTreaties>(`./links/law-to-treaties/${lawId}.json`),
+  /** 条約 1 件 (外務省 条約データ検索・国会提出条約)。 */
+  treaty: (id: string) => getJson<Treaty>(`./treaties/${encodeURIComponent(id)}.json`),
 
   /** 議案 (法案審議トラッキング) 全体インデックス。 */
   gianIndex: () => getJson<GianIndex>('./gian/index.json'),
@@ -932,6 +936,58 @@ export type LawToShitsumon = {
   schema_version: number
   law_id: string
   linked_questions: LinkedQuestion[]
+}
+
+/** 法令 → 条約 クロスリンク。出典は外務省「条約データ検索」「国会提出条約」。 */
+export type LinkedTreaty = {
+  /** 条約データ検索のファイル名 (例: `A-R4-101`)。未掲載で国会提出条約ページだけのものは `diet-{ページ名}`。 */
+  treaty_id: string
+  title: string
+  short_title: string | null
+  kind: 'bilateral' | 'multilateral' | null
+  effective_on: string | null
+  /** 「平成26年条約第2号」。 */
+  treaty_number_label: string | null
+  /** 参照した条 (`art_2`、附則は `suppl1_art_1` / `suppl1`)。 */
+  articles: string[]
+  /** 法令の題名に条約名が入っている (実施法など)。 */
+  in_title: boolean
+  matched_by: string[]
+  /** 同名の条約が複数あり、条約番号で決められなかった (最新のものを採った)。 */
+  ambiguous: boolean
+  source_url: string | null
+}
+export type LawToTreaties = {
+  schema_version: number
+  law_id: string
+  linked_treaties: LinkedTreaty[]
+}
+export type TreatyEvent = { date: string | null; text: string }
+export type Treaty = {
+  schema_version: number
+  id: string
+  title: string
+  short_title: string | null
+  kind: 'bilateral' | 'multilateral' | null
+  parties: string[]
+  signed_on: string | null
+  diet_approved_on: string | null
+  concluded_on: string | null
+  promulgated_on: string | null
+  effective_on: string | null
+  treaty_number: number | null
+  treaty_number_label: string | null
+  notice_number: string | null
+  diet_session: number | null
+  events: TreatyEvent[]
+  in_database: boolean
+  text: string | null
+  text_lang: string | null
+  text_source: string | null
+  text_url: string | null
+  attachments: { label: string; url: string; sha256?: string; bytes?: number }[]
+  source_url: string
+  diet_url: string | null
 }
 
 // ── 規制変化フィード 型定義 ───────────────────────────────────────

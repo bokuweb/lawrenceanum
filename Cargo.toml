@@ -23,6 +23,7 @@ members = [
     "crates/hanrei-client",
     "crates/tsutatsu-client",
     "crates/shitsumon-client",
+    "crates/treaty-client",
 ]
 
 [workspace.package]

@@ -12,3 +12,4 @@ serde_json.workspace = true
 aho-corasick.workspace = true
 tracing.workspace = true
 walkdir.workspace = true
+rayon.workspace = true

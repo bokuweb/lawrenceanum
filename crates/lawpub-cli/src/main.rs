@@ -26,6 +26,7 @@ mod status;
 mod validate;
 mod wiki;
 mod shitsumon;
+mod treaty;
 
 #[derive(Parser)]
 #[command(name = "lawpub", version, about = "e-Gov 法令データ正規化・配信 CLI")]
@@ -772,6 +773,51 @@ enum Cmd {
         #[arg(long, default_value = "public")]
         public: PathBuf,
     },
+    /// 外務省の条約データ (条約データ検索・国会提出条約) を取得し `.cache/treaty/` に保存する。
+    /// 一覧は `--list-max-age-days` 以内に全ページ取得済みなら取り直さない。条約ページは公布・
+    /// 効力発生まで済んだ保存分を、本文は取得済みのものを飛ばすので、再実行で続きから取れる。
+    TreatyFetch {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
+        provider: String,
+        /// リクエスト間隔 (ミリ秒)。
+        #[arg(long, default_value_t = 2000)]
+        interval_ms: u64,
+        /// 一覧の最大ページ数 (1 ページ 30 件。0 = 全ページ)。
+        #[arg(long, default_value_t = 0)]
+        max_pages: u32,
+        /// 全ページ取得済みの一覧がこの日数より新しければ一覧を取り直さない。
+        #[arg(long, default_value_t = 7)]
+        list_max_age_days: i64,
+        /// 1 回の実行で取得する条約ページ・本文 HTML の最大数。
+        #[arg(long, default_value_t = 500)]
+        limit: usize,
+        /// HTML 版の無い条約の本文を PDF から抜く (要 pdftotext)。
+        #[arg(long)]
+        with_pdf: bool,
+        /// `--with-pdf` で 1 回に処理する条約の最大数。
+        #[arg(long, default_value_t = 50)]
+        pdf_limit: usize,
+        /// 国会提出条約ページ (署名・国会承認・公布・条約番号) を取らない。
+        #[arg(long)]
+        skip_diet: bool,
+    },
+
+    /// `.cache/treaty/` → `public/treaties/{id}.json` + `index.json` を書き出す。
+    TreatyBuildJson {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
+    /// 法令本文の条約名・条約番号から `public/links/law-to-treaties/{law_id}.json` と
+    /// `public/links/treaty-to-laws/{treaty_id}.json` を生成する。
+    LinkLawsAndTreaties {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
 }
 
 fn main() -> Result<()> {
@@ -1071,6 +1117,31 @@ fn main() -> Result<()> {
         }
         Cmd::ShitsumonBuildJson { cache, public } => shitsumon::run_build_json(&cache, &public),
         Cmd::LinkLawsAndShitsumon { public } => linking::run_link_shitsumon(&public),
+        Cmd::TreatyFetch {
+            cache,
+            provider,
+            interval_ms,
+            max_pages,
+            list_max_age_days,
+            limit,
+            with_pdf,
+            pdf_limit,
+            skip_diet,
+        } => treaty::run_fetch(
+            &cache,
+            &provider,
+            &treaty::FetchOptions {
+                interval_ms,
+                max_pages,
+                list_max_age_days,
+                limit,
+                with_pdf,
+                pdf_limit,
+                skip_diet,
+            },
+        ),
+        Cmd::TreatyBuildJson { cache, public } => treaty::run_build_json(&cache, &public),
+        Cmd::LinkLawsAndTreaties { public } => linking::run_link_treaties(&public),
     }
 }
 
