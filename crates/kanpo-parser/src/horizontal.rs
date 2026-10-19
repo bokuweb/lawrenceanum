@@ -2882,6 +2882,17 @@ fn is_column_split(left: &[Col], right: &[Col], boxed: bool) -> bool {
     if !boxed && short && close.len() >= 2 && close.iter().all(|&c| c) {
         return false;
     }
+    // 左が 1 字の語だけ（損益計算書の期間の「自」「至」）で、どれも右の行の高さの範囲にあり、1 字分ほどしか離れていなければ、
+    // 囲みの中でも 1 行の中の空き（右の行に住所の行が重なって高さの中心がずれる）。
+    let singles = ll.len() >= 2 && ll.iter().all(|l| l.words.len() == 1 && l.words[0].text.trim().chars().count() == 1);
+    if singles
+        && ll.iter().all(|a| {
+            let w = &a.words[0];
+            rl.iter().any(|b| b.y0 < a.center() && a.center() < b.y1 && b.words.iter().any(|r| r.x >= w.x1 - 0.5 && r.x - w.x1 <= (w.y1 - w.y).max(1.0) * 1.1 && (y_center(r) - a.center()).abs() <= ALIGN_TOL))
+        })
+    {
+        return false;
+    }
     // 金額の欄の上の単位（「（単位：円）」）は欄の行に数えない（表の見出しの行と高さが揃わず、金額でもない）。
     let unit = |l: &Line| l.words.first().is_some_and(|w| w.text.starts_with("（単位") || w.text.starts_with("(単位"));
     let (ll, rl): (Vec<Line>, Vec<Line>) = (ll.into_iter().filter(|l| !unit(l)).collect(), rl.into_iter().filter(|l| !unit(l)).collect());
@@ -3173,7 +3184,13 @@ fn letter_spaced(words: &[Col], spaced_words: bool) -> Vec<bool> {
         let digits = digit(&p.text) && digit(&w.text) && gap > em * 0.5;
         // 金額の単位の「円」と隣の欄の金額の頭の 1 桁（「237,029,519」「円」「2」「,706,…」）もつながない。
         let unit = p.text.trim() == "円" && digit(&w.text);
-        let single = (glyphs(&p.text) == 1 || inner_gap.is_some()) && glyphs(&w.text) == 1 && !digits && !unit;
+        // 字間空けの見出しの中の期の数（「第　36　期　決　算　公　告」の「36」）は 1 字とみる（数字どうしは除く）。
+        // 「第」の後ろで、次も 1 字の漢字（「期」）のときだけ（字間空けの科目「剰　余　金」「合　計」の後ろの金額の「98」「93」は除く）。
+        let number = |t: &str| (1..=3).contains(&t.trim().chars().count()) && t.trim().chars().all(|c| c.is_ascii_digit());
+        let kanji = |k: usize| words.get(k).is_some_and(|o| o.text.trim().chars().count() == 1 && o.text.trim().chars().all(|c| ('\u{4E00}'..='\u{9FFF}').contains(&c)));
+        let spaced_number = |k: usize| number(&words[k].text) && k > 0 && words[k - 1].text.trim() == "第" && kanji(k + 1);
+        let one = |k: usize| glyphs(&words[k].text) == 1 || spaced_number(k);
+        let single = (one(i - 1) || inner_gap.is_some()) && one(i) && !digits && !unit;
         out[i] = single
             && match spaced_gap {
                 None => gap <= em * 8.0,
