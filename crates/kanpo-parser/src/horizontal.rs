@@ -472,7 +472,9 @@ fn vertical_regions(words: &[Col]) -> Vec<(Block, Vec<usize>)> {
     for i in 0..tall.len() {
         for j in i + 1..tall.len() {
             let (a, b) = (tall[i], tall[j]);
-            let pitch = (a.x1 - a.x).max(b.x1 - b.x) * 2.0;
+            // 2 列分の間隔（間の短い列「二号」が上下に重ならずに挟まる署名の列「株式会社誠和」も。字の箱の端数で 2 字分を
+            // わずかに越える）。
+            let pitch = (a.x1 - a.x).max(b.x1 - b.x) * 2.0 + 0.5;
             let gap = (a.x.max(b.x) - a.x1.min(b.x1)).max(0.0);
             let overlap = a.y1.min(b.y1) - a.y.max(b.y);
             // 前の列の終わりの高さから始まる列（字下げして組んだ署名「代表取締役　中澤　晴彦」）も同じ欄。
