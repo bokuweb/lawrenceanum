@@ -2940,7 +2940,8 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
             Some((a.y1, last.y))
         })
         .collect();
-    let touching = |cut: f32| pairs.iter().any(|&(y1, y, gap)| y1 < cut && cut < y && gap < TOUCH_EM);
+    // 語の境目ちょうど（空きの無い 2 語「令第四条第一項第四号」「に規定する…」の間）の cut も字間を切る。
+    let touching = |cut: f32| pairs.iter().any(|&(y1, y, gap)| y1 - 0.5 < cut && cut < y + 1.0 && gap < TOUCH_EM);
     let signature = |cut: f32| signers.iter().filter(|&&(y1, y)| y1 < cut && cut < y).count() >= 3;
     // 候補の順位。跨ぐカラム数の少ないものを採る。同数のときは、跨ぐ列の無い cut なら字間を
     // 切らないものの中で上のもの、跨ぐ列のある cut なら右の列の下端（語の正規の順で先に来る列）を
@@ -2983,6 +2984,21 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
             // 表の下端の候補は、どの列もまたがないときだけ（表の横の本文の列が表の下まで続くなら段の境目ではない）。
             if pass == 1 && crossing > 0 {
                 continue;
+            }
+            // cut の下（上）の語がどれも cut をまたぐ列の続きなら、1 つの列の途中を切るだけで段の境目ではない（改正前の欄の
+            // 長い 1 列「第四条令第四条第一項第四号／に規定する…」の下の部分だけが次の段になり、隣の〔号を加える。〕の後に
+            // 読まれていた）。
+            // 文の列（またぐ語も続きの語も 6 字以上）だけを見る（日付の列の下の署名、題字の「法」「律」は切る）。
+            if crossing == 1 {
+                let span = cols.iter().find(|d| d.y < cut && cut < d.y1).unwrap();
+                let same = |c: &Col| (center(c) - center(span)).abs() < (span.x1 - span.x) * 0.5;
+                let long = |c: &Col| c.text.chars().count() >= 6;
+                let below: Vec<&Col> = cols.iter().filter(|c| c.y >= cut).collect();
+                // 15 字以上の長い文の語に空けずに続くなら、続きが短い語（行末の「とす」）でもよい。
+                let glued = below.iter().map(|c| c.y).fold(f32::INFINITY, f32::min) - span.y1 < 1.0;
+                if long(span) && below.iter().all(|c| same(c)) && (below.iter().any(|c| long(c)) || (span.text.chars().count() >= 15 && glued)) {
+                    continue;
+                }
             }
             // 横倒しのページ全体では、上の語の下端と下の語の上端が 1pt 未満重なるだけで、その間ならどの列も跨がない
             // なら、そこで切る（表示の左の横組みの表と右の縦書きの告示が、回した座標でわずかに重なる）。
