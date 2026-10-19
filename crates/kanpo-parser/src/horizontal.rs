@@ -2591,8 +2591,15 @@ fn column_gutters(words: &[Col], blocks: &[Block], tables: &[Block], boxed: bool
     for line in group_lines(words) {
         for (i, (w, joined)) in line.words.iter().zip(letter_spaced(&line.words, true)).enumerate() {
             let number = i > 0 && number_continues(&line.words[i - 1], w);
+            // 間を空けずに続く語（傍線の切れ目で割れた本文の行「…第５条の19第２項」「において準用する…」）も溝をふさぐ。
+            // 表の欄の語（短い語）と、隣り合う段の行（罫線の囲みの中で段が空きなく接する。行の高さがずれる）は除く。
+            let touching = i > 0 && {
+                let p = &line.words[i - 1];
+                let prose = |c: &Col| c.text.chars().count() >= 6;
+                (w.x - p.x1).abs() < 0.5 && (w.y - p.y).abs() < 0.1 && (w.y1 - p.y1).abs() < 0.1 && prose(p) && prose(w)
+            };
             match spans.last_mut() {
-                Some(span) if joined || number => span.1 = w.x1,
+                Some(span) if joined || number || touching => span.1 = w.x1,
                 _ => spans.push((w.x, w.x1)),
             }
         }
