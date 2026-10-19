@@ -378,7 +378,12 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
                     let names: Vec<String> = lines[from..to]
                         .iter()
                         .map(|l| plain(&l.text))
-                        .filter(|t| ["会社", "法人", "組合"].iter().any(|n| t.contains(n)) && !t.contains("公告") && t.chars().count() <= 40)
+                        // 名前の途中で折り返した行（「日鉄物産名古屋コイルセンター株式」「会社」）も見る。4 字未満の切れ端（「会社」）は見ない。
+                        .filter(|t| {
+                            (["会社", "法人", "組合"].iter().any(|n| t.contains(n)) || t.ends_with("株式") || t.ends_with("有限") || t.ends_with("合同"))
+                                && !t.contains("公告")
+                                && (4..=40).contains(&t.chars().count())
+                        })
                         .map(|t| t.trim_start_matches(|c: char| "（）()甲乙丙丁".contains(c)).to_string())
                         .collect();
                     names.is_empty() || names.iter().any(|n| notice.contains(n.as_str()))
