@@ -3781,7 +3781,16 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
             && cut < c.y1
             && cols.iter().any(|d| d.id != c.id && d.y1 <= c.y + 0.5 && c.y - d.y1 < w * SPACE_EM && (center(d) - center(c)).abs() < w * 0.5)
     };
-    let upper: std::collections::HashSet<usize> = cols.iter().filter(|c| continues_above(c)).map(|c| c.id).collect();
+    // 隣の列（3 列分以内、同じ字の大きさ。折り返しの 1〜2 字の続き「係」は除く）で cut より上で終わる語と同じ高さから始まり、cut より 3 字分以上上から始まる語（目次の「裁判所」の
+    // 下の「相続、失踪、破産、特別清算、再生、」。隣の「所有者不明関係」と頭がそろう）も上の段へ。
+    let starts_above = |c: &Col| {
+        let w = c.x1 - c.x;
+        c.y < cut
+            && cut < c.y1
+            && cut - c.y >= w * 3.0
+            && cols.iter().any(|d| d.id != c.id && (d.y - c.y).abs() < 1.0 && d.y1 <= cut && (center(d) - center(c)).abs() < w * 3.0 && ((d.x1 - d.x) - w).abs() < 0.5 && d.text.chars().count() >= 3)
+    };
+    let upper: std::collections::HashSet<usize> = cols.iter().filter(|c| continues_above(c) || starts_above(c)).map(|c| c.id).collect();
     let (mut top, mut bottom): (Vec<Col>, Vec<Col>) = (Vec::new(), Vec::new());
     for c in cols {
         if (c.y + c.y1) / 2.0 < cut || upper.contains(&c.id) {
