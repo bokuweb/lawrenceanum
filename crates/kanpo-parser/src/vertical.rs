@@ -405,6 +405,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             prefix_minus(&mut units, &minus, &word_texts);
             move_trailing_notes(&mut units);
             merge_split_table_rows(&mut units);
+            order_masthead(&mut units);
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
@@ -673,6 +674,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         prefix_minus(&mut units, &minus, &word_texts);
         move_trailing_notes(&mut units);
         merge_split_table_rows(&mut units);
+        order_masthead(&mut units);
         let text = units
             .iter()
             .map(Unit::text)
@@ -1118,6 +1120,50 @@ pub(crate) fn split_label_frames(tier: Vec<Col>, hrules: &[(f32, f32, f32)], vru
         parts.extend(split_label_frames(left, hrules, vrules));
     }
     parts
+}
+
+/// 号の 1 ページ目の題字の脇の欄（「（号外）」「発行　内閣府」「（原稿作成　国立印刷局）」）が、横倒しのページで本文と
+/// 逆の向きに組まれ、語の順が崩れて読まれた（「内閣府」「国立印刷局）」「外）」「（原稿作成」「（号発行」）ものを、
+/// 欄の順に組み直す。ページの頭から 40 行の中で、欄の語（「（号」「外）」「発行」「内閣府」「（原稿作成」「国立印刷局）」）
+/// だけでできた行が、どの語もちょうど 1 度ずつ含むときだけ。
+fn order_masthead(units: &mut [Unit]) {
+    const PARTS: [&str; 6] = ["（号", "外）", "発行", "内閣府", "（原稿作成", "国立印刷局）"];
+    // 行の字を欄の語に分ける（分けられなければ None）。
+    fn split(t: &str) -> Option<Vec<usize>> {
+        if t.is_empty() {
+            return Some(Vec::new());
+        }
+        PARTS.iter().enumerate().find_map(|(k, p)| t.strip_prefix(p).and_then(split).map(|mut rest| {
+            rest.insert(0, k);
+            rest
+        }))
+    }
+    let Some(Unit::Plain(lines)) = units.iter_mut().find(|u| matches!(u, Unit::Plain(_))) else { return };
+    let compact = |l: &Line| l.text.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+    let found: Vec<(usize, Vec<usize>)> =
+        lines.iter().enumerate().take(40).filter_map(|(i, l)| split(&compact(l)).filter(|p| !p.is_empty()).map(|p| (i, p))).collect();
+    let mut seen: Vec<usize> = found.iter().flat_map(|(_, p)| p.iter().copied()).collect();
+    seen.sort_unstable();
+    if seen != (0..PARTS.len()).collect::<Vec<_>>() {
+        return;
+    }
+    // 既に欄の順に組めている（「（号外）」の行がある）なら何もしない。
+    if found.iter().any(|(i, _)| compact(&lines[*i]) == "（号外）") {
+        return;
+    }
+    let at = found[0].0;
+    let ids: Vec<usize> = found.iter().flat_map(|(i, _)| lines[*i].words.clone()).collect();
+    for (i, _) in found.iter().rev() {
+        lines.remove(*i);
+    }
+    let rebuilt = [
+        Line::text("（号外）".to_string(), ids),
+        Line::text("発行\u{3000}内閣府".to_string(), Vec::new()),
+        Line::text("（原稿作成\u{3000}国立印刷局）".to_string(), Vec::new()),
+    ];
+    for (k, l) in rebuilt.into_iter().enumerate() {
+        lines.insert(at + k, l);
+    }
 }
 
 /// 上下に続けて組まれた罫線の表（同じ欄の数）で、下の表の 1 行目の頭の欄（登録番号の欄）が空なら、上の表の最後の行の
