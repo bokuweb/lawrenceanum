@@ -303,7 +303,132 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
         .chain(verticals.iter().map(|v| v.0))
         .collect();
     let rects: Vec<Block> = tables.iter().map(|t| (t.x0, t.y0, t.x1, t.y1)).collect();
+    let by_id: std::collections::HashMap<usize, Col> = rest.iter().map(|c| (c.id, c.clone())).collect();
     let mut lines = if one_column { row_lines(rest) } else { horizontal_lines_around(rest, &blocks, vrules, hrules, &rects) };
+    // 左右に並ぶ 2 つの表のすぐ上（30pt 以内）に同じ高さで組まれたそれぞれの見出し（改正後・改正前の「別表第二（第二号関係）」）が
+    // 1 行につながっていれば、表の間で 2 行に分ける（それぞれ表の見出しとして表の前に置く）。
+    // 左右に並ぶ表のすぐ上（30pt 以内）に同じ高さで組まれたそれぞれの見出し（改正後・改正前の「別表第二（第二号関係）」、
+    // 3 つ並ぶ表の路線名）が 1 行につながっていれば、表の間で分ける（それぞれ表の見出しとして表の前に置く）。
+    // 2 行の見出し（「別表第七」「個人事業税に係る率（第19条関係）」）は、左の見出しの行をまとめてから右の見出しの行を置く。
+    // 分けた行のすぐ上下（2 行分以内）の行も、同じ表の間で分かれれば分ける（決算公告の囲みの標題・所在地・社名）。
+    let ws_of = |l: &trace::Line| -> Option<Vec<Col>> {
+        let ws: Vec<Col> = l.words.iter().filter_map(|w| by_id.get(w)).cloned().collect();
+        (l.table.is_none() && !ws.is_empty() && ws.len() == l.words.len()).then_some(ws)
+    };
+    let top_of = |ws: &[Col]| ws.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+    let bottom_of = |ws: &[Col]| ws.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+    // 語を表ごとに分ける（どの表も 1 語以上、表の左端から次の表の左端まで（右端の表は表の右端の 40pt 先まで。表の幅より
+    // 長い見出しの路線名）に収まり、隣どうしの間が 2.5 字分より広い）。
+    let split_at = |ws: &[Col], ts: &[usize]| -> Option<Vec<Vec<Col>>> {
+        let em = ws.iter().map(|c| c.y1 - c.y).fold(f32::INFINITY, f32::min);
+        let mut parts: Vec<Vec<Col>> = vec![Vec::new(); ts.len()];
+        for c in ws {
+            let x = (c.x + c.x1) / 2.0;
+            let k = ts.iter().position(|&t| x < rects[t].2 + 20.0)?;
+            parts[k].push(c.clone());
+        }
+        let limit = |k: usize| ts.get(k + 1).map_or(rects[ts[k]].2 + 40.0, |&n| rects[n].0);
+        let fits = parts.iter().enumerate().all(|(k, p)| !p.is_empty() && p.iter().all(|c| c.x >= rects[ts[k]].0 - 20.0 && c.x1 <= limit(k)));
+        let apart = parts.windows(2).all(|w| w[1].iter().map(|c| c.x).fold(f32::INFINITY, f32::min) - w[0].iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max) > em * 2.5);
+        (fits && apart).then_some(parts)
+    };
+    let mut cuts: Vec<Option<(Vec<usize>, Vec<Vec<Col>>)>> = lines
+        .iter()
+        .map(|l| {
+            let ws = ws_of(l).filter(|ws| ws.len() >= 2)?;
+            let y1 = bottom_of(&ws);
+            // すぐ下の表を左から（左右に重なる表は上のものだけ）。
+            let mut below: Vec<usize> = (0..rects.len()).filter(|&t| rects[t].1 >= y1 - 1.0 && rects[t].1 - y1 < 30.0).collect();
+            below.sort_by(|&a, &b| rects[a].0.total_cmp(&rects[b].0));
+            let mut ts: Vec<usize> = Vec::new();
+            for t in below {
+                if ts.last().is_none_or(|&p| rects[p].2 < rects[t].0) {
+                    ts.push(t);
+                }
+            }
+            // 語の掛かる表だけ。
+            let ts: Vec<usize> = ts.into_iter().filter(|&t| ws.iter().any(|c| c.x1 > rects[t].0 - 20.0 && c.x < rects[t].2 + 20.0)).collect();
+            (ts.len() >= 2).then_some(())?;
+            split_at(&ws, &ts).map(|p| (ts, p))
+        })
+        .collect();
+    // 上下へ広げる。
+    for i in 0..lines.len() {
+        let Some(ts) = cuts[i].as_ref().map(|c| c.0.clone()) else { continue };
+        for up in [true, false] {
+            let mut k = i;
+            loop {
+                let next = if up { k.checked_sub(1) } else { (k + 1 < lines.len()).then_some(k + 1) };
+                let Some(n) = next else { break };
+                if cuts[n].is_some() {
+                    break;
+                }
+                let Some(ws) = ws_of(&lines[n]).filter(|ws| ws.len() >= 2) else { break };
+                let here: Vec<Col> = cuts[k].as_ref().unwrap().1.concat();
+                let em = ws.iter().map(|c| c.y1 - c.y).fold(f32::INFINITY, f32::min);
+                let gap = if up { top_of(&here) - bottom_of(&ws) } else { top_of(&ws) - bottom_of(&here) };
+                // 下へは表の上端より上の行だけ。
+                if gap < -1.0 || gap > em * 2.0 || (!up && ts.iter().any(|&t| bottom_of(&ws) > rects[t].1 + 2.0)) {
+                    break;
+                }
+                let Some(parts) = split_at(&ws, &ts) else { break };
+                cuts[n] = Some((ts.clone(), parts));
+                k = n;
+            }
+        }
+    }
+    let to_line = |p: &[Col]| trace::Line::text(render_line(p), p.iter().map(|c| c.id).collect());
+    let mut split_lines: Vec<trace::Line> = Vec::new();
+    // 分けた行の表ごとの部分と、その下に続く片側だけの行（左の囲みの「(令和８年３月31日現在)　(単位：千円)」。表の上端より上）。
+    let mut run: Vec<Vec<Vec<Col>>> = Vec::new();
+    let mut run_ts: Vec<usize> = Vec::new();
+    let mut extra: Vec<Vec<trace::Line>> = Vec::new();
+    // 表ごとの見出しの最後の行（の頭の語）。表はその後ろに置く。
+    let mut part_heads: Vec<(Block, usize)> = Vec::new();
+    let mut flush = |run: &mut Vec<Vec<Vec<Col>>>, ts: &[usize], extra: &mut Vec<Vec<trace::Line>>, out: &mut Vec<trace::Line>| {
+        let n = run.first().map_or(0, |r| r.len());
+        for k in 0..n {
+            out.extend(run.iter().map(|parts| to_line(&parts[k])));
+            out.append(&mut extra[k]);
+            if let Some(&w) = out.last().and_then(|l| l.words.first()) {
+                part_heads.push((rects[ts[k]], w));
+            }
+        }
+        run.clear();
+        extra.clear();
+    };
+    for (l, cut) in lines.into_iter().zip(cuts) {
+        match cut {
+            Some((ts, parts)) => {
+                if !run.is_empty() && run_ts != ts {
+                    flush(&mut run, &run_ts, &mut extra, &mut split_lines);
+                }
+                if run.is_empty() {
+                    extra = vec![Vec::new(); ts.len()];
+                }
+                run_ts = ts;
+                run.push(parts);
+            }
+            None => {
+                let side = (!run.is_empty()).then(|| ws_of(&l)).flatten().and_then(|ws| {
+                    let y1 = bottom_of(&ws);
+                    run_ts.iter().position(|&t| {
+                        let t = &rects[t];
+                        y1 <= t.1 + 2.0 && ws.iter().all(|c| c.x >= t.0 - 20.0 && c.x1 <= t.2 + 20.0)
+                    })
+                });
+                match side {
+                    Some(k) => extra[k].push(l),
+                    None => {
+                        flush(&mut run, &run_ts, &mut extra, &mut split_lines);
+                        split_lines.push(l);
+                    }
+                }
+            }
+        }
+    }
+    flush(&mut run, &run_ts, &mut extra, &mut split_lines);
+    lines = split_lines;
     // 縦組みの欄は、欄の左に同じ高さで並ぶ最後の行の後ろ（同じ囲みの決算公告の後ろ。囲みの枠は罫線として
     // 取り出せないことが多い）。
     // ただし、欄のすぐ下（30pt 以内）から同じ列で始まる横組みの行があり、間の横の罫線が欄より左へ延びていなければ、
@@ -443,7 +568,8 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
                 })
                 .max_by(|a, b| a.1.total_cmp(&b.1).then(a.0.cmp(&b.0)))
                 .map(|(i, _)| i + 1);
-            (at.or(heading).unwrap_or_else(|| lines.iter().position(after).unwrap_or(lines.len())), t, ls)
+            let split_head = part_heads.iter().find(|(b, _)| *b == t).and_then(|(_, w)| lines.iter().position(|l| l.words.first() == Some(w))).map(|i| i + 1);
+            (at.or(split_head).or(heading).unwrap_or_else(|| lines.iter().position(after).unwrap_or(lines.len())), t, ls)
         })
         .collect();
     // 後ろの位置から差し込む。同じ位置には、読み順で後の表（下・右）から差し込む。縦組みの欄（行の無い表）は
