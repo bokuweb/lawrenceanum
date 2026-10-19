@@ -9,10 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { ScrollArea } from "../ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ARTICLES_V2, TIMELINE_EVENTS, type LawSummary } from "../mock-data";
-import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark, MessageSquare, Newspaper, ScrollText, Network } from "lucide-react";
+import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark, MessageSquare, Newspaper, ScrollText, Network, MessageCircleQuestion } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 import { useLaws, useLawDetail } from "../../data/use-laws";
-import { api, hanreiUrl, type AppendixTable, type LawToHanrei, type LawToProceedings, type LawToRulemaking, type LawToPubcomments, type LawToTsutatsu } from "../../data/api";
+import { api, hanreiUrl, type AppendixTable, type LawToHanrei, type LawToShitsumon, type LawToProceedings, type LawToRulemaking, type LawToPubcomments, type LawToTsutatsu } from "../../data/api";
 import { AmendDocumentView } from "../amend-document-view";
 import { getRefsForLaw, type ArticleRef } from "../../data/search-engine";
 import { EgovAttribution, toJstDate } from "../egov-attribution";
@@ -509,6 +509,21 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
   }, [law.law_id]);
   const linkedCases = hanrei?.linked_cases ?? [];
 
+  // この法令に触れた質問主意書（law→shitsumon クロスリンク）。件名で触れたものを先に出す。
+  const [shitsumon, setShitsumon] = useState<LawToShitsumon | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    setShitsumon(null);
+    api.lawToShitsumon(law.law_id)
+      .then(d => { if (!cancelled) setShitsumon(d); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [law.law_id]);
+  const linkedQuestions = useMemo(() => {
+    const qs = shitsumon?.linked_questions ?? [];
+    return [...qs.filter(q => q.in_title), ...qs.filter(q => !q.in_title)];
+  }, [shitsumon]);
+
   // この法令の官報掲載。timeline イベントのうち官報リンク済み (pdf_url あり) を拾う。
   // liveEvents は公布日降順ソート済み。
   const kanpoEvents = useMemo(
@@ -716,6 +731,40 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
             ))}
           </ul>
           <p className="text-[10px] text-muted-foreground mt-1.5">出典: 裁判所 裁判例検索（参照法条等から自動抽出。直近の裁判例のみ）</p>
+        </div>
+      )}
+
+      {linkedQuestions.length > 0 && (
+        <div className="border-b border-border bg-background px-6 py-3">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground mb-2">
+            <MessageCircleQuestion className="size-3" />
+            この法令に触れた質問主意書 ({linkedQuestions.length})
+          </div>
+          <ul className="space-y-1.5">
+            {linkedQuestions.slice(0, 10).map(q => (
+              <li key={q.id} className="text-xs">
+                <a
+                  href={q.detail_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 hover:text-primary transition-colors"
+                >
+                  <span className="font-medium">{q.title}</span>
+                  <ArrowUpRight className="size-2.5 opacity-50 shrink-0" />
+                </a>
+                {q.in_title && (
+                  <span className="ml-1.5 text-[10px] px-1 rounded bg-muted text-muted-foreground">件名</span>
+                )}
+                <p className="text-[11px] text-muted-foreground">
+                  {q.house === "sangiin" ? "参議院" : "衆議院"} 第{q.session}回 質問第{q.number}号 {q.submitter}
+                  {q.submitted_on && ` · 提出 ${q.submitted_on}`}
+                  {q.answered_on ? ` · 答弁 ${q.answered_on}` : " · 未答弁"}
+                  {q.articles.length > 0 && ` · ${q.articles.map(a => { const [n, ...br] = a.split("_"); return `第${n}条${br.map(b => `の${b}`).join("")}`; }).join("・")}`}
+                </p>
+              </li>
+            ))}
+          </ul>
+          <p className="text-[10px] text-muted-foreground mt-1.5">出典: 衆議院 質問答弁情報・参議院 質問主意書（件名・本文の法令名から自動抽出）</p>
         </div>
       )}
 

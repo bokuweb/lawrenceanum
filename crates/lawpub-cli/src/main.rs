@@ -24,6 +24,7 @@ mod tsutatsu;
 mod status;
 mod validate;
 mod wiki;
+mod shitsumon;
 
 #[derive(Parser)]
 #[command(name = "lawpub", version, about = "e-Gov 法令データ正規化・配信 CLI")]
@@ -732,6 +733,38 @@ enum Cmd {
         #[arg(long, default_value = "public")]
         public: PathBuf,
     },
+    /// 衆参の質問主意書・答弁書を取得し `.cache/shitsumon/{house}/{session}/` に保存する。
+    /// 答弁済みの保存分は飛ばすので、`--limit` で打ち切っても再実行で続きから取れる。
+    ShitsumonFetch {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        /// 回次 (`222` / `219,220` / `210-219`)。省略時は最新と 1 つ前の回次。
+        #[arg(long)]
+        session: Option<String>,
+        /// `shugiin` / `sangiin` / `both`。
+        #[arg(long, default_value = "both")]
+        house: String,
+        /// リクエスト間隔 (ミリ秒)。
+        #[arg(long, default_value_t = 1000)]
+        interval_ms: u64,
+        /// 1 回の実行で保存する最大件数。
+        #[arg(long, default_value_t = 500)]
+        limit: usize,
+    },
+
+    /// `.cache/shitsumon/` → `public/shitsumon/{id}.json` + `index.json` を書き出す。
+    ShitsumonBuildJson {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
+    /// 質問主意書・答弁書の本文から `public/links/law-to-shitsumon/{law_id}.json` を生成する。
+    LinkLawsAndShitsumon {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
 }
 
 fn main() -> Result<()> {
@@ -1024,6 +1057,11 @@ fn main() -> Result<()> {
         Cmd::TsutatsuBuildJson { cache, public } => tsutatsu::run_build_json(&cache, &public),
         Cmd::LinkLawsAndProcurement { public } => linking::run_link_procurement(&public),
         Cmd::LinkLawsAndTsutatsu { public } => linking::run_link_tsutatsu(&public),
+        Cmd::ShitsumonFetch { cache, session, house, interval_ms, limit } => {
+            shitsumon::run_fetch(&cache, session.as_deref(), &house, interval_ms, limit)
+        }
+        Cmd::ShitsumonBuildJson { cache, public } => shitsumon::run_build_json(&cache, &public),
+        Cmd::LinkLawsAndShitsumon { public } => linking::run_link_shitsumon(&public),
     }
 }
 

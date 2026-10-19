@@ -446,6 +446,8 @@ export const api = {
   lawToRulemaking: (lawId: string) => getJson<LawToRulemaking>(`./links/law-to-rulemaking/${lawId}.json`),
   /** 法令 ↔ 判例 クロスリンク (判例の参照法条から抽出)。 */
   lawToHanrei: (lawId: string) => getJson<LawToHanrei>(`./links/law-to-hanrei/${lawId}.json`),
+  /** 法令 ↔ 質問主意書・答弁書 クロスリンク (件名・本文の法令参照から抽出)。 */
+  lawToShitsumon: (lawId: string) => getJson<LawToShitsumon>(`./links/law-to-shitsumon/${lawId}.json`),
 
   /** 議案 (法案審議トラッキング) 全体インデックス。 */
   gianIndex: () => getJson<GianIndex>('./gian/index.json'),
@@ -811,6 +813,30 @@ export type LawToHanrei = {
 }
 export const hanreiUrl = (caseId: number) =>
   `https://www.courts.go.jp/hanrei/${caseId}/detail2/index.html`
+
+/** 法令 → 質問主意書・答弁書 クロスリンク。出典は衆議院「質問答弁情報」/ 参議院「質問主意書」。 */
+export type LinkedQuestion = {
+  /** `{house}-{session}-{number}` (例: `shugiin-219-1`)。 */
+  id: string
+  house: 'shugiin' | 'sangiin' | string
+  session: number
+  number: number
+  title: string
+  submitter: string
+  submitted_on: string | null
+  answered_on: string | null
+  /** 件名に法令名が出てくる (その法令を主題にした質問)。 */
+  in_title: boolean
+  /** 参照された条番号 (例: "74", "5_2" は第5条の2)。条を挙げない言及だけなら空。 */
+  articles: string[]
+  /** 衆議院は経過ページ、参議院は明細ページ。 */
+  detail_url: string
+}
+export type LawToShitsumon = {
+  schema_version: number
+  law_id: string
+  linked_questions: LinkedQuestion[]
+}
 
 // ── 規制変化フィード 型定義 ───────────────────────────────────────
 
