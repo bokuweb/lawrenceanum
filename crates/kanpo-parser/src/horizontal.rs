@@ -1662,6 +1662,15 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
                     };
                     x0(l) < x0(p) - em * 0.5 && x0(n) > x0(l) + em * 0.5 && !wraps(i, k) && !numeric(p) && !numeric(n)
                 };
+                // 前の行より 0.5 字分以上左から、行間を空けて始まる行（キャッシュ・フロー計算書の区分の見出し「Ⅲ　財務活動による
+                // キャッシュ・フロー」。前の区分の合計の科目の折り返しに続いて 1 つの科目になっていた）も次の項目。
+                let outdent = outdent || (k > 0 && {
+                    let p = &cell_lines[i][k - 1];
+                    let em = (l.y1 - l.y0).max(1.0);
+                    let x0 = |m: &Line| m.words.first().map_or(f32::INFINITY, |w| w.x);
+                    // 左端の欄で、ほかの欄に同じ高さの行の無い（金額の無い）見出しの行だけ。
+                    g.cells[i].x0 == 0 && x0(l) < x0(p) - em * 0.5 && l.y0 - p.y1 >= em * 0.3 && !wraps(i, k) && alone_in_row(l)
+                });
                 if top < c && c < bottom && (own_row || aligned[k] || next_item(k) || outdent || (rows_of_items && (!tight(k) || numbered)) || (figures && k > 0 && !tight(k) && alone_in_row(l))) {
                     anchors.push(l.y0 - 0.5);
                 }
