@@ -3700,9 +3700,17 @@ fn page_lines_with(cols: Vec<Col>, vrules: &[(f32, f32, f32)], hrules: &[(f32, f
                 && !text.ends_with(['「', '（', '『', '〔'])
                 && !c.text.starts_with(['」', '）', '』', '〕'])
                 && hrules.iter().any(|&(y, x0, x1)| y > prev_end - 0.5 && y < c.y + 0.5 && x0 <= c.x + 1.0 && x1 >= c.x1 - 1.0);
+            // 数と数が 0.75 字分以上空いて続くなら別の値（縦組みの表の幅員「…二七・一三」と延長「〇・〇三四」）。
+            let numeral = |ch: char| ch.is_ascii_digit() || "〇一二三四五六七八九十・．".contains(ch);
+            // 小数どうし（「…二七・一三」と「〇・〇三四」）か、列の頭の項目番号（「一」「二十六」の後の「一般職の…」）だけ。
+            // 桁区切りの「、」の字形の無い金額（「六七」「四一五」）や、字間を空けた年月日（「八・」「四・二三」）は分けない。
+            let last: String = g.iter().take_while(|w| w.id != c.id).last().map(|w| w.text.clone()).unwrap_or_default();
+            let decimals = last.contains(['・', '．']) && c.text.contains(['・', '．']) && !last.ends_with(['・', '．']);
+            let item = text == last && (1..=4).contains(&last.chars().count()) && last.chars().all(numeral) && !last.contains('・');
+            let values = text.ends_with(numeral) && c.text.starts_with(numeral) && c.y - prev_end >= em * 0.75 && (decimals || item);
             if latin_space(&text, prev_end, c) {
                 text.push(' ');
-            } else if !text.is_empty() && !spaced_heading && !text.ends_with(char::is_whitespace) && !c.text.starts_with(char::is_whitespace) && (c.y - prev_end >= em * 1.5 || ruled) {
+            } else if !text.is_empty() && !spaced_heading && !text.ends_with(char::is_whitespace) && !c.text.starts_with(char::is_whitespace) && (c.y - prev_end >= em * 1.5 || ruled || values) {
                 // 列の中で 1.5 字分以上空けて続く語（住所の終わり「〇三号室」と、下にそろえた社名「藍牧科技株式会社」）は
                 // 別の項目なので、全角空白で区切る（「〇三号室藍牧科技株式会社」のようにつながっていた）。
                 text.push('\u{3000}');
