@@ -323,7 +323,8 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
     let refers_left: Vec<(Block, String)> = verticals
         .iter()
         .map(|v| (v.0, plain(&v.1.iter().map(|l| l.text.as_str()).collect::<String>())))
-        .filter(|(_, t)| t.contains("左記"))
+        // 「貸借対照表の要旨は次のとおり」も（欄のすぐ下に続く貸借対照表は先に `below` で見る）。
+        .filter(|(_, t)| t.contains("左記") || t.contains("要旨は次のとおり"))
         .collect();
     let beside = |b: &Block| -> Option<usize> {
         let below = lines.iter().position(|l| {
