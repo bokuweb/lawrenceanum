@@ -2955,6 +2955,22 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
     // 切らないものの中で上のもの、跨ぐ列のある cut なら右の列の下端（語の正規の順で先に来る列）を
     // 採る（語の入力順に左右されないように）。
     // （跨ぐカラム数, 字間を切るか, cut, 候補を作った列の x, y）。
+    // 短い記事の列のうち 1〜2 本だけが長く続き、cut の下がその続きだけなら、段の境目ではない（「様式第六中「…」を
+    // 「…」に」の 1 行目の続きが、隣の短い列の下の空きで切られて次の段になっていた）。cut の上の列の多く（3 列以上のうち
+    // 続く列以外）は cut より 2 字分以上手前で終わる（段の境目なら、上の段の列はどれも段の下端まで組まれる）。
+    let lone_column = |cut: f32| {
+        let em = cols.iter().map(|c| c.x1 - c.x).fold(f32::INFINITY, f32::min).max(4.0);
+        let below: Vec<&Col> = cols.iter().filter(|c| c.y >= cut).collect();
+        let mut xs: Vec<f32> = cols.iter().filter(|c| c.y1 <= cut).map(|c| center(c)).collect();
+        xs.sort_by(f32::total_cmp);
+        xs.dedup_by(|a, b| (*a - *b).abs() < em * 0.75);
+        let reaching = |x: f32| cols.iter().any(|a| a.y1 <= cut + 1.0 && a.y1 > cut - em * 2.0 && (center(a) - x).abs() < em * 0.75);
+        let mut bx: Vec<f32> = below.iter().map(|c| center(c)).collect();
+        bx.sort_by(f32::total_cmp);
+        bx.dedup_by(|a, b| (*a - *b).abs() < em * 0.75);
+        let reach_n = xs.iter().filter(|&&x| reaching(x)).count();
+        !below.is_empty() && bx.len() <= 2 && xs.len() >= 3 && reach_n <= 2 && bx.iter().all(|&x| reaching(x))
+    };
     type Cand = (usize, bool, f32, f32, f32);
     let better = |a: &Cand, b: &Option<Cand>| {
         b.is_none_or(|b| {
@@ -2996,15 +3012,23 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
             // cut の下（上）の語がどれも cut をまたぐ列の続きなら、1 つの列の途中を切るだけで段の境目ではない（改正前の欄の
             // 長い 1 列「第四条令第四条第一項第四号／に規定する…」の下の部分だけが次の段になり、隣の〔号を加える。〕の後に
             // 読まれていた）。
+            if crossing == 0 && lone_column(cut) {
+                continue;
+            }
             // 文の列（またぐ語も続きの語も 6 字以上）だけを見る（日付の列の下の署名、題字の「法」「律」は切る）。
             if crossing == 1 {
                 let span = cols.iter().find(|d| d.y < cut && cut < d.y1).unwrap();
-                let same = |c: &Col| (center(c) - center(span)).abs() < (span.x1 - span.x) * 0.5;
+                // 括弧の字（「」を「」）は本文の字より少し右に置かれるので、字の幅の 4 分の 3 まで。
+                let same = |c: &Col| (center(c) - center(span)).abs() < (span.x1 - span.x) * 0.75;
                 let long = |c: &Col| c.text.chars().count() >= 6;
                 let below: Vec<&Col> = cols.iter().filter(|c| c.y >= cut).collect();
                 // 15 字以上の長い文の語に空けずに続くなら、続きが短い語（行末の「とす」）でもよい。
                 let glued = below.iter().map(|c| c.y).fold(f32::INFINITY, f32::min) - span.y1 < 1.0;
-                if long(span) && below.iter().all(|c| same(c)) && (below.iter().any(|c| long(c)) || (span.text.chars().count() >= 15 && glued)) {
+                // 短い語（括弧の字「」を「」）でも、同じ列の上下の語に 1.25 字分以内で挟まれていれば列の途中。
+                let w = span.x1 - span.x;
+                let chained = cols.iter().any(|a| a.id != span.id && same(a) && a.y < span.y && a.y1 >= span.y - w * 1.25)
+                    && below.iter().any(|c| c.y <= span.y1 + w * 1.25);
+                if below.iter().all(|c| same(c)) && ((long(span) && (below.iter().any(|c| long(c)) || (span.text.chars().count() >= 15 && glued))) || (chained && below.iter().any(|c| long(c)))) {
                     continue;
                 }
             }
@@ -3036,7 +3060,7 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
         let slight = cols
             .iter()
             .map(|c| c.y1 + 0.5)
-            .filter(|&cut| lo <= cut && cut <= hi && !(ruled_only && !ruled(cut)) && table_at(cut).is_none() && !touching(cut))
+            .filter(|&cut| lo <= cut && cut <= hi && !(ruled_only && !ruled(cut)) && table_at(cut).is_none() && !touching(cut) && !lone_column(cut))
             // 2 段以上の高さの領域で、上端から 1 段の高さの所（段の境目）。
             .filter(|&cut| ymax - ymin >= 300.0 && (cut - ymin - TIER_HEIGHT).abs() <= 16.0)
             // わずかに掛かる語は短い語（名簿の名）だけ。
