@@ -16,6 +16,7 @@ name: Update LLM wiki
 #   Secrets  : CLAUDE_CODE_OAUTH_TOKEN (`claude setup-token` で発行。Pro/Max プランで実行)
 #              または ANTHROPIC_API_KEY (従量課金)
 #   Variables: WIKI_MODEL (既定 claude-sonnet-5-5) / WIKI_MAX_ITEMS (既定 5) / WIKI_MAX_BILLS (既定 5) / WIKI_MAX_PUBCOMMENTS (既定 3) / WIKI_MAX_KANPO (既定 3) / WIKI_MAX_ENFORCEMENTS (既定 5)
+#              / WIKI_MAX_PEOPLE (既定 3。人物ページの全体像と経緯を書かせる人数。発言者名簿から未要約の会議が多い人を選ぶ)
 #              / WIKI_MAX_ROSTER (既定 1200。発言者名簿を作る会議数の上限。LLM は使わない)
 on:
   schedule:
@@ -37,6 +38,10 @@ on:
         type: string
       max_kanpo:
         description: "1 回で要約する官報の項目 (改め文) の上限 (別枠。0 で要約しない)"
+        required: false
+        type: string
+      max_people:
+        description: "1 回で全体像と経緯を書く人物の上限 (別枠。0 で書かない)"
         required: false
         type: string
       max_roster:
@@ -84,6 +89,7 @@ jobs:
       MAX_BILLS: ${{ github.event.inputs.max_bills || vars.WIKI_MAX_BILLS || '5' }}
       MAX_PUBCOMMENTS: ${{ github.event.inputs.max_pubcomments || vars.WIKI_MAX_PUBCOMMENTS || '3' }}
       MAX_KANPO: ${{ github.event.inputs.max_kanpo || vars.WIKI_MAX_KANPO || '3' }}
+      MAX_PEOPLE: ${{ github.event.inputs.max_people || vars.WIKI_MAX_PEOPLE || '3' }}
       MAX_ROSTER: ${{ github.event.inputs.max_roster || vars.WIKI_MAX_ROSTER || '1200' }}
       # 自治体例規は R2 から配信している。Secret が無ければ例規の照合を飛ばす (週 1 回更新)。
       WIKI_REIKI_BASE_URL: ${{ secrets.R2_PUBLIC_URL && format('{0}/reiki', secrets.R2_PUBLIC_URL) || '' }}
@@ -125,7 +131,7 @@ jobs:
           ./target/release/lawpub wiki-plan \
             --wiki wiki --work .wiki-work \
             --max-items "$MAX_ITEMS" --max-bills "$MAX_BILLS" --max-pubcomments "$MAX_PUBCOMMENTS" --max-kanpo "$MAX_KANPO" \
-            --max-enforcements "$MAX_ENFORCEMENTS" --max-roster "$MAX_ROSTER" --lookback-days "$LOOKBACK_DAYS"
+            --max-enforcements "$MAX_ENFORCEMENTS" --max-people "$MAX_PEOPLE" --max-roster "$MAX_ROSTER" --lookback-days "$LOOKBACK_DAYS"
           echo "tasks=$(jq '.tasks | length' .wiki-work/plan.json)" >> "$GITHUB_OUTPUT"
           cat .wiki-work/plan.md >> "$GITHUB_STEP_SUMMARY"
 

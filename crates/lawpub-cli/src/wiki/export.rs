@@ -30,6 +30,36 @@ pub(crate) fn is_stub(page: &Page) -> bool {
         && llm_blocks(&page.body).iter().all(|b| b.trim().is_empty())
 }
 
+/// アプリに出す本文。LLM 区間が空のままの節 (`## 全体像` など、見出しの直後が空の区間) は
+/// 見出しごと落とす。人物ページの大多数は経緯がまだ無く、空の見出しだけが並ぶため。
+pub(crate) fn display_body(body: &str) -> String {
+    let lines: Vec<&str> = body.lines().collect();
+    let mut out: Vec<&str> = Vec::new();
+    let mut i = 0;
+    while i < lines.len() {
+        if lines[i].starts_with("## ") {
+            let mut j = i + 1;
+            while j < lines.len() && lines[j].trim().is_empty() {
+                j += 1;
+            }
+            if lines.get(j).map(|l| l.trim()) == Some(LLM_BEGIN) && lines.get(j + 1).map(|l| l.trim()) == Some(LLM_END) {
+                i = j + 2;
+                while i < lines.len() && lines[i].trim().is_empty() {
+                    i += 1;
+                }
+                continue;
+            }
+        }
+        out.push(lines[i]);
+        i += 1;
+    }
+    let mut s = out.join("\n");
+    if body.ends_with('\n') {
+        s.push('\n');
+    }
+    s
+}
+
 /// グラフに載せないハブページ。
 const HUB_PAGES: [&str; 3] = ["index.md", "log.md", "README.md"];
 
@@ -95,7 +125,7 @@ pub fn run_export(args: &ExportArgs) -> Result<()> {
 
         let dest = args.out.join("page").join(format!("{id}.json"));
         std::fs::create_dir_all(dest.parent().expect("has parent"))?;
-        std::fs::write(&dest, serde_json::to_vec(&json!({ "path": id, "frontmatter": fm, "body": page.body, "stub": is_stub(page) }))?)?;
+        std::fs::write(&dest, serde_json::to_vec(&json!({ "path": id, "frontmatter": fm, "body": display_body(&page.body), "stub": is_stub(page) }))?)?;
 
         if HUB_PAGES.contains(&rel.as_str()) {
             continue;
@@ -145,6 +175,18 @@ mod tests {
         assert_eq!(resolve_link("meetings/kokkai/M1.md", "../../laws/L1.md").as_deref(), Some("laws/L1.md"));
         assert_eq!(resolve_link("index.md", "laws/L1.md").as_deref(), Some("laws/L1.md"));
         assert_eq!(resolve_link("index.md", "../x.md"), None);
+    }
+
+    #[test]
+    fn empty_llm_sections_are_hidden_from_the_app() {
+        let body = person_body("高市早苗", "会派: X", "", "### 2026-07-27 予算委員会\n- 答弁した[^1]。", "", "| 一覧 |\n");
+        let shown = display_body(&body);
+        assert!(!shown.contains("## 全体像"), "{shown}");
+        assert!(shown.contains("## 発言と経緯\n\n<!-- llm:begin -->\n### 2026-07-27"), "{shown}");
+        assert!(shown.contains("会派: X\n\n## 発言と経緯"), "{shown}");
+        assert!(shown.contains("## 発言した会議（一覧）"));
+        let empty = display_body(&person_body("山田太郎", "", "", "", "", ""));
+        assert!(!empty.contains("## 全体像") && !empty.contains("## 発言と経緯"), "{empty}");
     }
 
     #[test]

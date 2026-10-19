@@ -485,6 +485,7 @@ pub fn plan(args: &plan::PlanArgs, source: &Source, today: &str) -> Result<Vec<T
                 people: vec![],
                 committee: None,
                 created,
+                person: None,
             });
         }
     }
@@ -563,6 +564,7 @@ mod tests {
             max_bills: 0,
             max_pubcomments: 0,
             max_kanpo: 0,
+            max_people: 0,
             max_roster: 0,
             reiki_base_url: String::new(),
             chunk_size: 4,
