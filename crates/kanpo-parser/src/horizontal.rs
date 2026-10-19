@@ -525,7 +525,16 @@ fn vertical_lines(words: Vec<Col>) -> Vec<trace::Line> {
     words.sort_by(|a, b| x_center(b).total_cmp(&x_center(a)));
     let mut columns: Vec<(f32, f32, Vec<Col>)> = Vec::new();
     for w in words {
-        match columns.iter_mut().find(|(x0, x1, _)| w.x1.min(*x1) - w.x.max(*x0) > (w.x1 - w.x).min(*x1 - *x0) * 0.5) {
+        // 1 つの列の語は上下に 1.5 字分以上は重ならない（英字の混じった語「株式会社Diversity」は字の箱が右にずれ、
+        // 左隣の列の「代表取締役　山畔　清明」と同じ列になって交互に混ざっていた）。欧文の語の箱は 1 字分ほどはみ出す。
+        let stacked = |ws: &[Col]| ws.iter().any(|o| o.y1.min(w.y1) - o.y.max(w.y) > (o.x1 - o.x).min(w.x1 - w.x) * 1.5);
+        // 重なる列が 2 つあれば（英字の語でずれた列と、その左の列）、x の重なりの大きい方。
+        let overlap = |x0: f32, x1: f32| w.x1.min(x1) - w.x.max(x0);
+        match columns
+            .iter_mut()
+            .filter(|(x0, x1, ws)| overlap(*x0, *x1) > (w.x1 - w.x).min(*x1 - *x0) * 0.5 && !stacked(ws))
+            .max_by(|a, b| overlap(a.0, a.1).total_cmp(&overlap(b.0, b.1)))
+        {
             Some((x0, x1, ws)) => {
                 *x0 = x0.min(w.x);
                 *x1 = x1.max(w.x1);

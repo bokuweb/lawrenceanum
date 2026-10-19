@@ -3959,10 +3959,13 @@ pub(crate) fn column_groups(mut cols: Vec<Col>) -> Vec<Vec<Col>> {
         // 縦中横の数（「684」）は除く。英字だけの語は 3 字から（「TECH」）。
         (n >= 5 && c.text.chars().filter(|ch| ch.is_ascii_graphic()).count() * 10 >= n * 8) || (n >= 3 && c.text.chars().all(|ch| ch.is_ascii_alphabetic()))
     };
+    // 和字に英字の混じった語（「株式会社Diversity」）も、字の箱が右にずれて左隣の列（「代表取締役」）と同じ列になる
+    // （「株式会社Diversity代表取締役山畔Study」）ため、列を分けるときは英字が 3 字以上あれば欧文の語とみる。
+    let lettered = |c: &Col| latin(c) || c.text.chars().filter(|ch| ch.is_ascii_alphabetic()).count() >= 3;
     for c in cols {
         let em = (c.x1 - c.x).min(rep_em).max(6.0);
         let stacked = groups.last().is_some_and(|g| {
-            g.iter().any(|o| (latin(o) || latin(&c)) && o.y1.min(c.y1) - o.y.max(c.y) > em)
+            g.iter().any(|o| (lettered(o) || lettered(&c)) && o.y1.min(c.y1) - o.y.max(c.y) > em)
         });
         if rep_x - center(&c) > em * 0.75 || stacked {
             groups.push(Vec::new());
