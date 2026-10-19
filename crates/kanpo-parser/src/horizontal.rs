@@ -2072,7 +2072,9 @@ fn join_wrapped_labels(lines: Vec<Line>) -> Vec<Line> {
                 let n = text.chars().count();
                 // 後ろの注の印（「額（注１）」の「（注１）」）の数は見ない。
                 let body = text.rfind(['（', '(']).filter(|&k| text[k..].trim_start_matches(['（', '(']).starts_with('注') && text.ends_with(['）', ')'])).map(|k| &text[..k]).unwrap_or(&text);
-                let tail = (n >= 1 && (n <= 8 || (n <= 20 && unfinished)))
+                // 括弧書きだけの続き（「有価証券損益相当累計額」の下の「（確定）（±）（注）」）も 20 字まで。
+                let parens = text.starts_with(['（', '(']) && text.ends_with(['）', ')']) && text.split(['）', ')']).all(|g| g.is_empty() || g.starts_with(['（', '(']));
+                let tail = (n >= 1 && (n <= 8 || (n <= 20 && (unfinished || parens))))
                     && (!body.chars().any(digit) || note)
                     // 続きの行は 1 つの欄の中（語の間が空かない。表の別の欄の「日」を科目の続きにしない）。
                     && l.words.windows(2).all(|q| q[1].x - q[0].x1 < em * 0.5)
