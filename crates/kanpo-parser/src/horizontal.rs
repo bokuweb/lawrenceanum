@@ -319,10 +319,11 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
             })
             .collect()
     };
+    // 列の終わりで折り返した「左／記」も。
     let refers_left: Vec<(Block, String)> = verticals
         .iter()
-        .filter(|v| v.1.iter().any(|l| l.text.contains("左記")))
         .map(|v| (v.0, plain(&v.1.iter().map(|l| l.text.as_str()).collect::<String>())))
+        .filter(|(_, t)| t.contains("左記"))
         .collect();
     let beside = |b: &Block| -> Option<usize> {
         let below = lines.iter().position(|l| {
