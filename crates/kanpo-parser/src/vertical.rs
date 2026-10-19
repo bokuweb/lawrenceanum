@@ -2831,27 +2831,46 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
     // best_free は表を横切らないものの中の最良。
     let mut best: Option<Cand> = None;
     let mut best_free: Option<Cand> = None;
-    for c in &cols {
-        let cut = c.y1 + 0.5;
-        if cut < lo || cut > hi || (ruled_only && !ruled(cut)) || label_strip(&cols, cut) || signature(cut) {
-            continue;
+    // 候補は列の下端と、この段の語を含む罫線の表の下端（表の字は下の枠の線より上で終わるので、表のすぐ下の段の境目が
+    // 列の下端の候補に無く、表の中でしか切れなかった）。
+    // 表の下端は、表を横切らない良い候補が列の下端に無いときだけ見る。
+    let table_bottoms: Vec<(f32, f32, f32)> = tables
+        .iter()
+        .filter(|&&(x0, x1, y0, y1)| cols.iter().any(|c| x0 < center(c) && center(c) < x1 && y0 < c.y1 && c.y < y1))
+        .map(|&(x0, _, y0, y1)| (y1 + 0.5, x0, y0))
+        .collect();
+    let column_bottoms: Vec<(f32, f32, f32)> = cols.iter().map(|c| (c.y1, c.x, c.y)).collect();
+    for pass in 0..2 {
+        if pass == 1 && best_free.is_some_and(|b: Cand| b.0 <= MAX_BRIDGE) {
+            break;
         }
-        let crossing = cols.iter().filter(|d| d.y < cut && cut < d.y1).count();
-        // 横倒しのページ全体では、上の語の下端と下の語の上端が 1pt 未満重なるだけで、その間ならどの列も跨がない
-        // なら、そこで切る（表示の左の横組みの表と右の縦書きの告示が、回した座標でわずかに重なる）。
-        let (cut, crossing) = if crossing > 0 {
-            let snug = c.y1 - 0.75;
-            let n = cols.iter().filter(|d| d.y < snug - 0.75 && snug + 0.75 < d.y1).count();
-            if rules.sideways && depth == 0 && n == 0 && cols.iter().filter(|d| d.y < snug && snug < d.y1).all(|d| (d.y1 - snug).abs() < 1.0 || (snug - d.y).abs() < 1.0 || (d.y < snug - 0.75 && snug + 0.75 < d.y1)) { (snug, n) } else { (cut, crossing) }
-        } else {
-            (cut, crossing)
-        };
-        let cand = (crossing, touching(cut), cut, c.x, c.y);
-        if better(&cand, &best) {
-            best = Some(cand);
-        }
-        if table_at(cut).is_none() && better(&cand, &best_free) {
-            best_free = Some(cand);
+        let candidates = if pass == 0 { &column_bottoms } else { &table_bottoms };
+        for &(c_y1, c_x, c_y) in candidates {
+            let cut = c_y1 + 0.5;
+            if cut < lo || cut > hi || (ruled_only && !ruled(cut)) || label_strip(&cols, cut) || signature(cut) {
+                continue;
+            }
+            let crossing = cols.iter().filter(|d| d.y < cut && cut < d.y1).count();
+            // 表の下端の候補は、どの列もまたがないときだけ（表の横の本文の列が表の下まで続くなら段の境目ではない）。
+            if pass == 1 && crossing > 0 {
+                continue;
+            }
+            // 横倒しのページ全体では、上の語の下端と下の語の上端が 1pt 未満重なるだけで、その間ならどの列も跨がない
+            // なら、そこで切る（表示の左の横組みの表と右の縦書きの告示が、回した座標でわずかに重なる）。
+            let (cut, crossing) = if crossing > 0 {
+                let snug = c_y1 - 0.75;
+                let n = cols.iter().filter(|d| d.y < snug - 0.75 && snug + 0.75 < d.y1).count();
+                if rules.sideways && depth == 0 && n == 0 && cols.iter().filter(|d| d.y < snug && snug < d.y1).all(|d| (d.y1 - snug).abs() < 1.0 || (snug - d.y).abs() < 1.0 || (d.y < snug - 0.75 && snug + 0.75 < d.y1)) { (snug, n) } else { (cut, crossing) }
+            } else {
+                (cut, crossing)
+            };
+            let cand = (crossing, touching(cut), cut, c_x, c_y);
+            if better(&cand, &best) {
+                best = Some(cand);
+            }
+            if table_at(cut).is_none() && better(&cand, &best_free) {
+                best_free = Some(cand);
+            }
         }
     }
     if best_free.is_some_and(|b| b.0 <= MAX_BRIDGE) {
