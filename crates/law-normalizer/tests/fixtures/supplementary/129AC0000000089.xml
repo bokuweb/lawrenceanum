@@ -1,0 +1,183 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Law Era="Meiji" Lang="ja" LawType="Act" Num="089" PromulgateDay="27" PromulgateMonth="04" Year="29">
+  <LawNum>明治二十九年法律第八十九号</LawNum>
+  <LawBody>
+    <LawTitle Abbrev="" AbbrevKana="" Kana="みんぽう">民法</LawTitle>
+    <MainProvision>
+      <Part Num="1">
+        <PartTitle>第一編　総則</PartTitle>
+        <Chapter Num="1">
+          <ChapterTitle>第一章　通則</ChapterTitle>
+          <Article Num="1">
+            <ArticleCaption>（基本原則）</ArticleCaption>
+            <ArticleTitle>第一条</ArticleTitle>
+            <Paragraph Num="1">
+              <ParagraphNum />
+              <ParagraphSentence>
+                <Sentence Num="1" WritingMode="vertical">私権は、公共の福祉に適合しなければならない。</Sentence>
+              </ParagraphSentence>
+            </Paragraph>
+            <Paragraph Num="2">
+              <ParagraphNum>２</ParagraphNum>
+              <ParagraphSentence>
+                <Sentence Num="1" WritingMode="vertical">権利の行使及び義務の履行は、信義に従い誠実に行わなければならない。</Sentence>
+              </ParagraphSentence>
+            </Paragraph>
+            <Paragraph Num="3">
+              <ParagraphNum>３</ParagraphNum>
+              <ParagraphSentence>
+                <Sentence Num="1" WritingMode="vertical">権利の濫用は、これを許さない。</Sentence>
+              </ParagraphSentence>
+            </Paragraph>
+          </Article>
+          <Article Num="2">
+            <ArticleCaption>（解釈の基準）</ArticleCaption>
+            <ArticleTitle>第二条</ArticleTitle>
+            <Paragraph Num="1">
+              <ParagraphNum />
+              <ParagraphSentence>
+                <Sentence Num="1" WritingMode="vertical">この法律は、個人の尊厳と両性の本質的平等を旨として、解釈しなければならない。</Sentence>
+              </ParagraphSentence>
+            </Paragraph>
+          </Article>
+        </Chapter>
+      </Part>
+    </MainProvision>
+    <SupplProvision AmendLawNum="大正一五年四月二四日法律第六九号">
+      <SupplProvisionLabel>附　則</SupplProvisionLabel>
+      <Paragraph Num="1">
+        <ParagraphNum />
+        <ParagraphSentence>
+          <Sentence Num="1" WritingMode="vertical">本法施行ノ期日ハ勅令ヲ以テ之ヲ定ム</Sentence>
+        </ParagraphSentence>
+      </Paragraph>
+    </SupplProvision>
+    <SupplProvision AmendLawNum="令和六年五月二四日法律第三三号" Extract="true">
+      <SupplProvisionLabel>附　則</SupplProvisionLabel>
+      <Article Num="1">
+        <ArticleCaption>（施行期日）</ArticleCaption>
+        <ArticleTitle>第一条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Function="main" Num="1" WritingMode="vertical">この法律は、公布の日から起算して二年を超えない範囲内において政令で定める日から施行する。</Sentence>
+            <Sentence Function="proviso" Num="2" WritingMode="vertical">ただし、附則第十六条から第十八条まで及び第十九条第一項の規定は、公布の日から施行する。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="2">
+        <ArticleCaption>（民法の一部改正に伴う経過措置の原則）</ArticleCaption>
+        <ArticleTitle>第二条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Function="main" Num="1" WritingMode="vertical">第一条の規定による改正後の民法（以下「新民法」という。）の規定は、この附則に特別の定めがある場合を除き、この法律の施行前に生じた事項にも適用する。</Sentence>
+            <Sentence Function="proviso" Num="2" WritingMode="vertical">ただし、同条の規定による改正前の民法（附則第六条において「旧民法」という。）の規定により生じた効力を妨げない。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="3">
+        <ArticleCaption>（子の監護費用に関する経過措置）</ArticleCaption>
+        <ArticleTitle>第三条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">新民法第三百六条第三号及び第三百八条の二の規定は、同条に規定する定期金債権のうちこの法律の施行の日（以下「施行日」という。）以後に生じた各期の定期金について適用する。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+        <Paragraph Num="2">
+          <ParagraphNum>２</ParagraphNum>
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">新民法第七百六十六条の三（新民法第七百四十九条、第七百七十一条及び第七百八十八条において準用する場合を含む。）の規定は、施行日前に離婚し、婚姻が取り消され、又は認知した場合については、適用しない。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="4">
+        <ArticleCaption>（財産分与に関する経過措置）</ArticleCaption>
+        <ArticleTitle>第四条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">施行日前に離婚し、又は婚姻が取り消された場合における財産の分与に関する処分を家庭裁判所に請求することができる期間の制限については、なお従前の例による。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="5">
+        <ArticleCaption>（離婚原因に関する経過措置）</ArticleCaption>
+        <ArticleTitle>第五条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">離婚の訴えに係る事件であって、施行日前に、控訴審の口頭弁論が終結したもの又は第一審の判決に対して上告をする権利を留保して控訴をしない旨の合意をしたものについての離婚の訴えを提起することができる事由については、なお従前の例による。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="6">
+        <ArticleCaption>（親権者の変更の請求に関する経過措置）</ArticleCaption>
+        <ArticleTitle>第六条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">施行日前に旧民法第八百十九条第六項（旧民法第七百四十九条において準用する場合を含む。）の規定によりされた親権者の変更の請求（施行日前に当該請求に係る審判が確定したものを除く。）は、施行日以後は、新民法第八百十九条第六項（新民法第七百四十九条において準用する場合を含む。）の規定によりされた親権者の変更の請求とみなす。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="16">
+        <ArticleCaption>（政令への委任）</ArticleCaption>
+        <ArticleTitle>第十六条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">この附則に定めるもののほか、この法律の施行に関し必要な経過措置は、政令で定める。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="17">
+        <ArticleCaption>（啓発活動）</ArticleCaption>
+        <ArticleTitle>第十七条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">政府は、この法律による改正後のそれぞれの法律（次条及び附則第十九条第二項において「改正後の各法律」という。）の円滑な施行のため、新民法第七百六十六条第一項又は第二項（これらの規定を新民法第七百四十九条、第七百七十一条及び第七百八十八条において準用する場合を含む。）の規定により子の監護について必要な事項を定めることの重要性について父母が理解と関心を深めることができるよう、必要な広報その他の啓発活動を行うものとする。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="18">
+        <ArticleCaption>（周知）</ArticleCaption>
+        <ArticleTitle>第十八条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">政府は、改正後の各法律の円滑な施行のため、新民法第八百十九条各項の規定による親権者の定め方、新民法第八百二十四条の二第一項第三号の急迫の事情の意義、同条第二項の監護及び教育に関する日常の行為の意義その他の改正後の各法律の規定の趣旨及び内容について、国民に周知を図るものとする。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="19">
+        <ArticleCaption>（検討）</ArticleCaption>
+        <ArticleTitle>第十九条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">政府は、施行日までに、父母が協議上の離婚をする場合における新民法第八百十九条第一項の規定による親権者の定めが父母の双方の真意に出たものであることを確認するための措置について検討を加え、その結果に基づいて必要な法制上の措置その他の措置を講ずるものとする。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+        <Paragraph Num="2">
+          <ParagraphNum>２</ParagraphNum>
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">政府は、この法律の施行後五年を目途として、改正後の各法律の施行の状況等を勘案し、父母の離婚後の子の養育に係る制度及び支援施策の在り方等について検討を加え、必要があると認めるときは、その結果に基づいて所要の措置を講ずるものとする。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+    </SupplProvision>
+    <SupplProvision AmendLawNum="令和七年六月六日法律第五七号">
+      <SupplProvisionLabel>附　則</SupplProvisionLabel>
+      <Paragraph Num="1">
+        <ParagraphNum />
+        <ParagraphSentence>
+          <Sentence Function="main" Num="1" WritingMode="vertical">この法律は、譲渡担保契約及び所有権留保契約に関する法律（令和七年法律第五十六号）の施行の日から施行する。</Sentence>
+          <Sentence Function="proviso" Num="2" WritingMode="vertical">ただし、第三十三条の規定は、公布の日から施行する。</Sentence>
+        </ParagraphSentence>
+      </Paragraph>
+    </SupplProvision>
+  </LawBody>
+</Law>

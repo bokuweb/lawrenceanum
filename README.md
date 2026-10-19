@@ -45,15 +45,17 @@ public/
 ├── laws/
 │   ├── index.json
 │   ├── all.ndjson
+│   ├── supplementary-summary.json            # 附則の抽出件数・施行期日の未解決一覧
 │   └── {law_id}/
 │       ├── current.json
 │       ├── versions.json
 │       ├── timeline.json
+│       ├── supplementary.json                 # 附則の施行期日・経過措置・読替え規定
 │       ├── revisions/{rev_id}.json
 │       └── articles/{art_id}.json
 ├── updates/{latest.json,{YYYY-MM-DD}.json}
 ├── kanpo/{YYYY-MM-DD}/index.json
-├── schema/{law-document,manifest,updates}.json
+├── schema/{law-document,manifest,updates,supplementary}.json
 ├── search.db                                  # SQLite + FTS5
 ├── index.html / assets/                       # SPA build output
 state/latest.json                              # cron-managed pointer

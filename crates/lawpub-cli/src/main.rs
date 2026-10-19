@@ -20,6 +20,7 @@ mod reiki;
 mod shingikai;
 mod snapshots;
 mod state;
+mod supplementary;
 mod tsutatsu;
 mod status;
 mod validate;

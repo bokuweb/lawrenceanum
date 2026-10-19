@@ -84,9 +84,15 @@ export function EnforcementView() {
                         {i.amending_law_title && (
                           <div className="text-xs text-muted-foreground truncate">{i.amending_law_title}</div>
                         )}
+                        {i.targets && (
+                          <div className="text-xs text-muted-foreground truncate">一部施行: {i.targets}</div>
+                        )}
                       </div>
                       {i.date_kind === "scheduled" && (
                         <Badge variant="outline" className="text-xs shrink-0">施行予定</Badge>
+                      )}
+                      {i.date_kind === "supplementary" && (
+                        <Badge variant="outline" className="text-xs shrink-0" title="附則の施行期日の規定から読み取った日付">附則</Badge>
                       )}
                       <ArrowUpRight className="size-4 text-muted-foreground shrink-0 mt-0.5" />
                     </button>
