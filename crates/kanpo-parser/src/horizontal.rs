@@ -706,7 +706,8 @@ fn vertical_regions(words: &[Col]) -> Vec<(Block, Vec<usize>)> {
         // 同じ x の縦長の語があれば列の字。
         let in_column = |c: &Col| {
             let em = (c.x1 - c.x).max(1.0);
-            cs.iter().any(|o| o.id != c.id && (o.x - c.x).abs() < em * 0.3 && ((c.y - o.y1).abs() < em * 1.5 || (o.y - c.y1).abs() < em * 1.5))
+            // 縦書き用の書体の列は 1 字分下にずれて組まれることがあり、ずれない 1 字の語（列の頭の「Ａ」）との間が 2 字分ほど空く。
+            cs.iter().any(|o| o.id != c.id && (o.x - c.x).abs() < em * 0.3 && ((c.y - o.y1).abs() < em * 1.5 || (o.y - c.y1).abs() < em * 2.5))
         };
         let spaced_row = |c: &Col| {
             let em = (c.y1 - c.y).max(1.0);
@@ -716,7 +717,13 @@ fn vertical_regions(words: &[Col]) -> Vec<(Block, Vec<usize>)> {
                 && words.iter().filter(|o| o.text.trim().chars().count() == 1 && (y_center(o) - y_center(c)).abs() < 1.0).count() >= 3
         };
         let within = |c: &Col| upright(c) || (c.x >= block.0 - 0.5 && c.x1 <= block.2 + 0.5 && !spaced_row(c));
-        out.push((block, words.iter().filter(|c| inside(c) && within(c)).map(|c| c.id).collect()));
+        // 列の頭の 1 字の語は外枠の上端より 1.5 字分上まで（列のずれ）。
+        let above = |c: &Col| {
+            let em = (c.x1 - c.x).max(1.0);
+            // 括弧（「（仮称）」の「（」）は除く（外の行の並びが変わり、ほかの欄の置き場所がずれた）。
+            c.text.trim().chars().count() == 1 && !c.text.trim().starts_with(['（', '(', '〔', '「']) && x_center(c) >= block.0 && x_center(c) <= block.2 && y_center(c) >= block.1 - em * 1.5 && y_center(c) < block.1 && in_column(c)
+        };
+        out.push((block, words.iter().filter(|c| (inside(c) || above(c)) && within(c)).map(|c| c.id).collect()));
     }
     out
 }
