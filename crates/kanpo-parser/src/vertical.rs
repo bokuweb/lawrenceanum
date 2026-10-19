@@ -3570,6 +3570,22 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
             return;
         }
     }
+    // 低い領域（120pt 未満）で、cut の下になる語（中ほどが cut より下）が 2 語までで、どれも上の語に同じ列で 1.5em 以内に
+    // 続くなら、列の中の空き（改正前の欄の「二十一・二十二」の 1em 下の「（略）」）で段の境目ではない（「（略）」だけが
+    // 次の段になり、帯の終わりに読まれていた）。
+    if ymax - ymin < 120.0 {
+        let below: Vec<&Col> = cols.iter().filter(|c| (c.y + c.y1) / 2.0 >= cut).collect();
+        let continues = |c: &Col| pairs.iter().any(|&(y1, y, gap)| (y - c.y).abs() < 0.5 && y1 < cut && gap <= 1.5);
+        // 上の欄が何列も cut のすぐ上まで組まれている（「神奈川県、新潟県、」… の下の欄「令和八年四／月二十日」）なら、
+        // 帯の表の欄の境目。
+        let em = cols.iter().map(|c| c.x1 - c.x).fold(f32::INFINITY, f32::min).max(4.0);
+        let top = below.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+        let ends = cols.iter().filter(|c| (c.y + c.y1) / 2.0 < cut && c.y1 >= top - em * 1.5).count();
+        if !below.is_empty() && below.len() <= 2 && below.iter().all(|c| continues(c)) && ends <= below.len() + 2 {
+            out.push(cols);
+            return;
+        }
+    }
     // それでも表を横切るなら、表を割らずに表の脇で縦に切る。表の左に語があれば表の左端で、
     // 無ければ表の右端で切り、右側から順に段へ分ける。表が段の幅いっぱいなら切らない。
     if let Some(&(x0, x1, _, _)) = table_at(cut) {
