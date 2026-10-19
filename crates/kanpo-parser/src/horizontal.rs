@@ -309,6 +309,21 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
     // ただし、欄のすぐ下（30pt 以内）から同じ列で始まる横組みの行があり、間の横の罫線が欄より左へ延びていなければ、
     // その行の前（同じ列の囲みの中の縦組みの合併公告の下に組んだ決算公告。左の囲みとの間には段の境の線がある）。
     // 間の線が左の囲みまで延びていれば、欄は左の囲みと同じ囲みの中（「左記の」決算公告の右の合併公告）。
+    // 字の並びを比べるために空白を除き、全角の英数字を半角にする（「ＳＦ」と「SF」）。
+    let plain = |t: &str| -> String {
+        t.chars()
+            .filter(|c| !c.is_whitespace())
+            .map(|c| match c {
+                '０'..='９' | 'Ａ'..='Ｚ' | 'ａ'..='ｚ' => char::from_u32(c as u32 - 0xFEE0).unwrap_or(c),
+                _ => c,
+            })
+            .collect()
+    };
+    let refers_left: Vec<(Block, String)> = verticals
+        .iter()
+        .filter(|v| v.1.iter().any(|l| l.text.contains("左記")))
+        .map(|v| (v.0, plain(&v.1.iter().map(|l| l.text.as_str()).collect::<String>())))
+        .collect();
     let beside = |b: &Block| -> Option<usize> {
         let below = lines.iter().position(|l| {
             let g: Vec<(f32, f32, f32, f32)> = l.words.iter().filter_map(|w| geom.get(w)).copied().collect();
@@ -322,14 +337,63 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
                 && y0 - b.3 < 30.0
                 && !hrules.iter().any(|&(y, hx0, hx1)| y > b.3 - 2.0 && y < y0 + 1.0 && hx0 < b.0 - 20.0 && hx1 > b.0)
         });
+        let left_of = |l: &trace::Line| {
+            let g: Vec<(f32, f32, f32, f32)> = l.words.iter().filter_map(|w| geom.get(w)).copied().collect();
+            !g.is_empty() && g.iter().all(|p| p.1 <= b.0 + 1.0 && (p.2 + p.3) / 2.0 >= b.1 && (p.2 + p.3) / 2.0 <= b.3)
+        };
         below.or_else(|| {
-            lines
-                .iter()
-                .rposition(|l| {
+            let last = lines.iter().rposition(left_of)?;
+            // 「左記の」貸借対照表を指す欄（決算公告の囲みの右の縦組みの合併公告）は、欄の左の囲みの中の行より先（「…貸借対照表の
+            // 要旨は左記のとおりです。」の後に左の貸借対照表が続く）。欄の左に続く行のうち、欄との間に欄の高さほどの縦の罫線
+            // （隣の囲みの境）の無いものの頭へ。
+            // 欄の左の行を列（左右の範囲の重なる行の並び）に分け、右の列から、欄の文に名前の出てこない会社・法人の名前の
+            // 行のある列（同じ高さに並ぶ別の囲みの決算公告）の手前まで。
+            if let Some((_, notice)) = refers_left.iter().find(|(r, _)| r == b) {
+                let fenced = |l: &trace::Line| {
+                    let x1 = l.words.iter().filter_map(|w| geom.get(w)).map(|p| p.1).fold(f32::NEG_INFINITY, f32::max);
+                    vrules.iter().any(|&(x, y0, y1)| x > x1 - 1.0 && x < b.0 - 1.0 && y0 <= b.1 + 10.0 && y1 >= b.3 - 10.0)
+                };
+                let mut first = last;
+                while first > 0 && left_of(&lines[first - 1]) && !fenced(&lines[first - 1]) {
+                    first -= 1;
+                }
+                let span = |l: &trace::Line| {
                     let g: Vec<(f32, f32, f32, f32)> = l.words.iter().filter_map(|w| geom.get(w)).copied().collect();
-                    !g.is_empty() && g.iter().all(|p| p.1 <= b.0 + 1.0 && (p.2 + p.3) / 2.0 >= b.1 && (p.2 + p.3) / 2.0 <= b.3)
-                })
-                .map(|i| i + 1)
+                    (g.iter().map(|p| p.0).fold(f32::INFINITY, f32::min), g.iter().map(|p| p.1).fold(f32::NEG_INFINITY, f32::max))
+                };
+                let mut chunks: Vec<(usize, f32, f32)> = Vec::new();
+                for k in first..=last {
+                    let (x0, x1) = span(&lines[k]);
+                    match chunks.last_mut() {
+                        Some(c) if x0 < c.2 && x1 > c.1 => {
+                            c.1 = c.1.min(x0);
+                            c.2 = c.2.max(x1);
+                        }
+                        _ => chunks.push((k, x0, x1)),
+                    }
+                }
+                let named = |from: usize, to: usize| {
+                    let names: Vec<String> = lines[from..to]
+                        .iter()
+                        .map(|l| plain(&l.text))
+                        .filter(|t| ["会社", "法人", "組合"].iter().any(|n| t.contains(n)) && !t.contains("公告") && t.chars().count() <= 40)
+                        .map(|t| t.trim_start_matches(|c: char| "（）()甲乙丙丁".contains(c)).to_string())
+                        .collect();
+                    names.is_empty() || names.iter().any(|n| notice.contains(n.as_str()))
+                };
+                let mut at = None;
+                for k in (0..chunks.len()).rev() {
+                    let end = chunks.get(k + 1).map(|c| c.0).unwrap_or(last + 1);
+                    if !named(chunks[k].0, end) {
+                        break;
+                    }
+                    at = Some(chunks[k].0);
+                }
+                if let Some(at) = at.filter(|&i| !fenced(&lines[i])) {
+                    return Some(at);
+                }
+            }
+            Some(last + 1)
         })
     };
     let items: Vec<(Block, Vec<trace::Line>, Option<usize>)> = tables
