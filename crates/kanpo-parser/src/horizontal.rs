@@ -875,7 +875,10 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
                 .iter()
                 .filter(|w| in_x(w) && w.y >= bottom - em * 0.5 && w.y < bottom + em && w.y > last.y + em * 0.5)
                 .collect();
-            if next.is_empty() || next.iter().any(|w| (w.x < key_end && w.y >= last.y + pitch * 0.75) || other_key(w)) {
+            // 番号の列から次の欄の先まで延びる、番号でない 5 字以上の語（表の区切りの見出し「有効期間が令和14年６月９日と
+            // なったもの」）も表の外（最後の行の番号に付いていた）。
+            let heading = |w: &Col| w.x < key_end && w.x1 > key_end + em * 2.0 && w.text.chars().count() >= 5 && !row_key(&w.text);
+            if next.is_empty() || next.iter().any(|w| (w.x < key_end && w.y >= last.y + pitch * 0.75) || other_key(w) || heading(w)) {
                 break;
             }
             // 次の行の語がどれも今の下端より上で終わる（下端の少し上から始まる小さい字）なら、下端は伸びず
