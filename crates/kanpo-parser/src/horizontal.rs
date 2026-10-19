@@ -2217,6 +2217,37 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
                 order_region(bottom, &bb, ctx, boxed, column, out);
                 return;
             }
+            // 溝の片側に、もう片側のどの語よりも下（高さの中ほどが下端より下）にある記事の見出し（「〇国土交通省告示第八百六十六号」）があれば、見出しの
+            // 上で先に上下に切る（右の段の頭に続く前の記事の表の欄の溝で切ると、表の左の欄、次の記事の見出し、表の右の欄の順に
+            // 読まれていた）。
+            // 見出しが溝をまたぐ（表の欄より幅が広い）か、見出しより下に溝をまたぐ行（紙面の幅いっぱいの記事）がある
+            // ときだけ（左の段の下に見出しがあり、記事が右の段に続く 2 段組みは段ごとに読む）。
+            let all_lines = group_lines(&words);
+            let crosses = |l: &Line| l.words.iter().any(|w| w.x < cut - 2.0 && w.x1 > cut + 2.0) || (l.words.iter().any(|w| x_center(w) < cut) && l.words.iter().any(|w| x_center(w) >= cut));
+            // 見出しの側（見出しを除く）が段より狭い（250pt 未満。表の欄）ときも。
+            let narrow = |left_side: bool| {
+                let side: Vec<&Col> = words.iter().filter(|w| (x_center(w) < cut) == left_side && !render_line(std::slice::from_ref(*w)).starts_with('〇')).collect();
+                side.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max) - side.iter().map(|w| w.x).fold(f32::INFINITY, f32::min) < 250.0
+            };
+            let heading_top = all_lines.iter().find_map(|l| {
+                let t = render_line(&l.words);
+                let heading = t.starts_with('〇') && t.ends_with('号') && t.chars().count() <= 40 && !t.contains('。');
+                let left_side = l.words.iter().all(|w| x_center(w) < cut);
+                let right_side = l.words.iter().all(|w| x_center(w) >= cut);
+                let other_bottom = words
+                    .iter()
+                    .filter(|w| if left_side { x_center(w) >= cut } else { x_center(w) < cut })
+                    .map(|w| w.y1)
+                    .fold(f32::NEG_INFINITY, f32::max);
+                (heading && (left_side || right_side) && other_bottom.is_finite() && (l.y0 + l.y1) / 2.0 >= other_bottom && words.iter().any(|w| w.y1 <= l.y0) && (narrow(left_side) || l.words.iter().any(|w| w.x < cut - 2.0 && w.x1 > cut + 2.0) || all_lines.iter().any(|m| m.y0 > l.y1 && crosses(m)))).then_some(l.y0)
+            });
+            if let Some(y) = heading_top {
+                let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < y);
+                let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < y);
+                order_region(top, &bt, ctx, boxed, column, out);
+                order_region(bottom, &bb, ctx, boxed, column, out);
+                return;
+            }
             if let Some(t) = blocks.is_empty().then(|| header_table(&words)).flatten() {
                 out.push(trace::Line { text: t.render(), words: Vec::new(), table: Some(t) });
                 return;
