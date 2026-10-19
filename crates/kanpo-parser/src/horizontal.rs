@@ -2356,6 +2356,36 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
                 return;
             }
         }
+        // 欄見出しの行（3 語以上を 1.5 字分以上空けて並べ、数を含まない）から次の記事の見出し（「〇…」）の前までが 1 件の表
+        // （[`header_table`]）なら、表として組む（型式指定の表の折り返した欄の行が、欄をまたいで 1 行ずつ読まれていた）。
+        if blocks.is_empty() {
+            let digit = |c: char| c.is_ascii_digit() || ('０'..='９').contains(&c);
+            let found = (0..lines.len()).find_map(|k| {
+                let l = &lines[k];
+                // 欄見出しは何行かに組まれて 1 行にまとまるので、字の大きさは語の高さで見る。
+                let em = l.words.iter().map(|w| w.y1 - w.y).fold(f32::INFINITY, f32::min).max(1.0);
+                let header = l.words.len() >= 3
+                    && l.words.windows(2).filter(|p| p[1].x - p[0].x1 >= em * 1.5).count() >= 2
+                    && !l.words.iter().any(|w| w.text.chars().any(digit))
+                    // 字間を空けた 1 字ずつの見出し（「届　出　日」「Ａ　Ｂ」）は欄が字ごとに割れる。
+                    && l.words.iter().all(|w| w.text.trim().chars().count() >= 2);
+                if !header {
+                    return None;
+                }
+                let end = (k + 1..lines.len()).find(|&j| render_line(&lines[j].words).starts_with('〇')).unwrap_or(lines.len());
+                let (y0, y1) = (l.y0 - 0.5, lines.get(end).map_or(f32::INFINITY, |n| n.y0 - 0.5));
+                let sub: Vec<Col> = words.iter().filter(|w| y_center(w) >= y0 && y_center(w) < y1).cloned().collect();
+                (end > k + 1).then(|| header_table(&sub)).flatten().map(|t| (y0, y1, t))
+            });
+            if let Some((y0, y1, t)) = found {
+                let (above, rest): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < y0);
+                let below: Vec<Col> = rest.into_iter().filter(|w| y_center(w) >= y1).collect();
+                order_region(above, blocks, ctx, boxed, column, out);
+                out.push(trace::Line { text: t.render(), words: Vec::new(), table: Some(t) });
+                order_region(below, blocks, ctx, boxed, column, out);
+                return;
+            }
+        }
         if let Some(cut) = band_cut(&lines, blocks) {
             let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < cut);
             let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < cut);
