@@ -1368,7 +1368,16 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
                 t.chars().any(|c| c.is_ascii_digit()) && t.chars().all(|c| c.is_ascii_digit() || "△▲,.()（）－-―—　 ".contains(c))
             };
             let amounts = band.iter().any(|&i| cell_lines[i].iter().any(numeric));
-            counts.len() >= 4 && max >= 2 && counts.iter().filter(|&&c| c == max).count() < 2 && !amounts && !band.iter().any(|&i| rowlike_cell(i))
+            // 短い語の項目の並びの欄が 2 つ以上あり、行の高さが互いに揃う（役員の表の氏名・役職。字間を空けて欄の幅いっぱいに
+            // 組んだ氏名は折り返しに見える）なら何件もの行。
+            // 項目の並びの欄: 4 行以上で、どの行も 6 字までの短い語（氏名「斉藤　弘」、役職「理事長」）。
+            let short = |i: usize| cell_lines[i].len() >= 4 && cell_lines[i].iter().all(|l| l.words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace()).count() <= 6);
+            let lined: Vec<usize> = band.iter().copied().filter(|&i| short(i)).collect();
+            let pairs = |i: usize, j: usize| cell_lines[i].iter().filter(|l| cell_lines[j].iter().any(|m| (m.center() - l.center()).abs() <= ALIGN_TOL)).count() >= 3;
+            // 数（任期の日付）を含む行が 3 行以上ある欄もあること（欄見出しの行の短い字の折り返しは除く）。
+            let dated = band.iter().any(|&i| cell_lines[i].iter().filter(|l| l.words.iter().any(|w| w.text.chars().any(|c| c.is_ascii_digit() || ('０'..='９').contains(&c)))).count() >= 3);
+            let aligned_cells = dated && lined.len() >= 2 && lined.iter().all(|&i| lined.iter().any(|&j| j != i && pairs(i, j)));
+            counts.len() >= 4 && max >= 2 && counts.iter().filter(|&&c| c == max).count() < 2 && !amounts && !band.iter().any(|&i| rowlike_cell(i)) && !aligned_cells
         };
         // 左端の欄の行が「第31826号」のような番号で始まる行と、その下に重ねた年月日（「令和８年８月24日」）の行なら、番号の
         // 行だけを行の頭にする（品種登録の表。1 件が 2 行に割れ、2 行目の欄の字（住所の続き・公表の年月日の続き）が別の行に
