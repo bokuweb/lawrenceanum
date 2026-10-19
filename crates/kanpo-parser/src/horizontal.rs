@@ -1228,11 +1228,17 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
         let top: Vec<usize> = (0..g.cells.len()).filter(|&i| g.cells[i].y0 == 0).collect();
         top.len() == g.xs.len() - 1 && top.iter().all(|&i| g.cells[i].y1 == 1 && !cell_lines[i].is_empty() && text_of(i).chars().count() <= 40)
     };
+    // 見出しの無い表（前のページから続く表）でも、句点の無い、読点で区切った短い名前の一覧（地方公共団体の名前「北海道北見市」を
+    // 並べた欄）は文ではない。8 つ以上の名前の 8 割以上が 12 字まで。
+    let name_list = |t: &str| {
+        let items: Vec<&str> = t.split('、').collect();
+        !t.contains('。') && items.len() >= 8 && items.iter().filter(|s| s.chars().count() <= 12).count() * 10 >= items.len() * 8
+    };
     let prose_cell = |i: usize| {
         let t = text_of(i);
         // 見出し付きの表で長くてもよいのは、読点で区切った一覧の欄（間接法のキャッシュ・フロー計算書の様式の科目を並べた
         // 欄は行ごとに読む）。
-        let list = headed && t.matches('、').count() >= 5;
+        let list = (headed && t.matches('、').count() >= 5) || name_list(&t);
         // 5 欄以上の表の句点の無い長い欄は名前の一覧（出資者の「…投資事業有限責任組合」を何行も並べた欄）で文ではない。
         // 数の多い欄（率を並べた「普通態容補正」の欄）は除く。
         let names = g.xs.len() >= 6 && !t.contains('。') && t.chars().filter(|c| c.is_ascii_digit()).count() * 20 <= t.chars().count();
@@ -1252,7 +1258,10 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
     let label_rows = (0..g.cells.len()).filter(|&i| g.cells[i].x1 == last && g.cells[i].x0 > 0 && !cell_lines[i].is_empty() && label_of(i)).count();
     let labeled = |i: usize| g.cells[i].x1 == last && g.cells[i].x0 > 0 && (label_of(i) || label_rows >= 2);
     let prose = (0..cell_lines.len()).any(|i| prose_cell(i) && !labeled(i));
-    let long_cells = headed && (0..cell_lines.len()).any(|i| text_of(i).chars().count() > 200 && text_of(i).matches('、').count() >= 5);
+    let long_cells = (0..cell_lines.len()).any(|i| {
+        let t = text_of(i);
+        t.chars().count() > 200 && ((headed && t.matches('、').count() >= 5) || name_list(&t))
+    });
     if prose {
         return None;
     }
