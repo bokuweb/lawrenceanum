@@ -1039,7 +1039,10 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
         // 見出し付きの表で長くてもよいのは、読点で区切った一覧の欄（間接法のキャッシュ・フロー計算書の様式の科目を並べた
         // 欄は行ごとに読む）。
         let list = headed && t.matches('、').count() >= 5;
-        item_cols == 0 && ((!list && t.chars().count() > 200) || t.matches('。').count() >= 2)
+        // 5 欄以上の表の句点の無い長い欄は名前の一覧（出資者の「…投資事業有限責任組合」を何行も並べた欄）で文ではない。
+        // 数の多い欄（率を並べた「普通態容補正」の欄）は除く。
+        let names = g.xs.len() >= 6 && !t.contains('。') && t.chars().filter(|c| c.is_ascii_digit()).count() * 20 <= t.chars().count();
+        item_cols == 0 && ((!list && !names && t.chars().count() > 200) || t.matches('。').count() >= 2)
     };
     // 文は最後の欄にだけあり、その行の前の欄に短い項目名（40 字以内）があれば、項目名｜内容の表（遺伝子組換え生物等の
     // 承認の告示の「遺伝子組換え生物等の第一種使用等の方法」｜「…」）。
@@ -1636,6 +1639,13 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
         // 表の枠の下端（左右の欄を分ける縦の罫線がそこで終わる、領域の幅いっぱいの横の罫線）より下の行（表の備考・
         // 附則）は、左右の欄より後に読む（左の欄の下に続く短い行が左の欄の続きとして読まれていた）。
         if let Some(cut) = table_bottom_cut(&words, blocks, hrules, vrules) {
+            let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < cut);
+            let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < cut);
+            order_region(top, &bt, ctx, boxed, column, out);
+            order_region(bottom, &bb, ctx, boxed, column, out);
+            return;
+        }
+        if let Some(cut) = divider_end_cut(&words, blocks, vrules) {
             let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < cut);
             let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < cut);
             order_region(top, &bt, ctx, boxed, column, out);
@@ -2268,6 +2278,70 @@ fn table_bottom_cut(words: &[Col], blocks: &[Block], hrules: &[(f32, f32, f32)],
                 && words.iter().any(|w| y_center(w) < y)
                 && words.iter().any(|w| y_center(w) > y)
         })
+        .reduce(f32::min)
+}
+
+/// 紙面を左右に分ける縦の罫線が途中で終わり、その下の語（下の表の標題「純資産変動計算書」と期間）だけが線の x を
+/// またぐなら、線の下端の y（上下に分けてから、上を線で左右に分ける。下の標題が線をふさいで、左の損益計算書の科目の
+/// 欄と金額の欄の間の溝で先に切られ、科目の後に金額だけが読まれていた）。線は領域の上端から始まり、上の部分の高さの
+/// 7 割以上に掛かり、左右とも段の幅以上の語があるもの。
+fn divider_end_cut(words: &[Col], blocks: &[Block], vrules: &[(f32, f32, f32)]) -> Option<f32> {
+    let y0 = words.iter().map(|w| w.y).fold(f32::INFINITY, f32::min);
+    let joined = join_vrules(vrules);
+    // 線の下端に掛かる行（線の下端より 1pt 下で終わる右の欄の注記）の下で切る（10pt まで）。
+    let solid = |w: &&Col| !w.text.trim().is_empty();
+    let end = |ry1: f32| words.iter().filter(solid).filter(|w| w.y < ry1 - 0.5 && w.y1 > ry1 + 0.5).map(|w| w.y1 + 0.5).fold(ry1, f32::max);
+    joined
+        .iter()
+        .map(|&(x, ry0, ry1)| (x, ry0, ry1, end(ry1)))
+        .filter(|&(_, _, ry1, cut)| cut - ry1 <= 10.0)
+        .map(|(x, ry0, _, cut)| (x, ry0, cut))
+        .filter(|&(x, ry0, ry1)| {
+            let above: Vec<&Col> = words.iter().filter(|w| y_center(w) < ry1).collect();
+            let below: Vec<&Col> = words.iter().filter(|w| y_center(w) > ry1).collect();
+            let width = |ws: &[&Col]| ws.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max) - ws.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
+            let left: Vec<&Col> = above.iter().copied().filter(|w| x_center(w) < x).collect();
+            let right: Vec<&Col> = above.iter().copied().filter(|w| x_center(w) > x).collect();
+            let a1 = above.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max);
+            // 紙面を左右に分ける線は領域の幅の中ほど（35〜65%）にある（片側の表の欄の線ではない）。
+            let (wx0, wx1) = (words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min), words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max));
+            let middle = (x - wx0) >= (wx1 - wx0) * 0.35 && (x - wx0) <= (wx1 - wx0) * 0.65;
+            // 左右とも線の下端の近く（3 em 以内）まで字があり（左右の段が線の下端で終わる）、線をまたぐ下の語がすぐ下（3 em
+            // 以内）から始まる（下の表の標題。片側の表の枠の下端で切ると、もう一方の段の上の部分が先に読まれる）。
+            // 字の高さの中央値（縦に組んだ欄の名前の長い語で大きくならない）。
+            let em = {
+                let mut hs: Vec<f32> = words.iter().map(|w| w.y1 - w.y).collect();
+                hs.sort_by(f32::total_cmp);
+                hs[hs.len() / 2].max(1.0)
+            };
+            let ends = |ws: &[&Col]| ws.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max) >= ry1 - em * 3.0;
+            // 線をまたぐ語は線を中ほどにした標題（線の左右とも 40pt 以上に掛かり、中ほどが線から領域の幅の 1 割以内）。
+            // 片側の段の右端まで組んだ注記・囲みの行は線をわずかにまたぐだけ。
+            let title = |w: &&&Col| w.x < x - 40.0 && w.x1 > x + 40.0 && (x_center(w) - x).abs() <= (wx1 - wx0) * 0.1;
+            let titles: Vec<&&Col> = below.iter().filter(title).collect();
+            let ttop = titles.iter().map(|w| w.y).fold(f32::INFINITY, f32::min);
+            let (tx0, tx1) = (titles.iter().map(|w| w.x).fold(f32::INFINITY, f32::min), titles.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max));
+            // 線の下端から標題までの語（字間を空けた標題の字「純　資　産…」）も標題の左右の範囲にある（左右の段が線の下へ
+            // 続くなら段の境ではない）。
+            // 標題の行の語も（右寄せの「（単位：千円）」は除く）。
+            let unit = |w: &Col| w.text.trim_start().starts_with("（単位") || w.text.trim_start().starts_with("(単位");
+            let clear = below.iter().filter(|w| w.y < ttop + em && !unit(w)).all(|w| w.x >= tx0 - em * 2.0 && w.x1 <= tx1 + em * 2.0);
+            let next = ttop <= ry1 + em * 3.0 && clear;
+            middle
+                && ends(&left)
+                && ends(&right)
+                && next
+                && ry0 <= y0 + 2.0
+                && ry1 - ry0 >= (a1 - y0) * 0.7
+                && !above.iter().any(|w| w.x < x - 1.0 && w.x1 > x + 1.0)
+                && below.iter().any(|w| w.x < x - 1.0 && w.x1 > x + 1.0)
+                && !blocks.iter().any(|b| b.1 < ry1 - 1.0 && b.3 > ry1 + 1.0)
+                // 字の無い語（下線の字形）は見ない。
+                && !words.iter().any(|w| !w.text.trim().is_empty() && w.y < ry1 - 0.5 && w.y1 > ry1 + 0.5)
+                && width(&left) >= MIN_TEXT_COLUMN_WIDTH
+                && width(&right) >= MIN_TEXT_COLUMN_WIDTH
+        })
+        .map(|(_, _, cut)| cut)
         .reduce(f32::min)
 }
 
