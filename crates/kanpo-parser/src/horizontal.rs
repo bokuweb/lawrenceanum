@@ -720,7 +720,18 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
                 .count();
             led * 2 >= c.len()
         };
-        let Some(mut cluster) = clusters.into_iter().find(|c| c.len() >= 3 && leads_rows(c)) else {
+        // 2 行だけの列も、すぐ上（2 em 以内）に数を含まない 3 語以上の欄見出しの行（「登録番号　肥料の種類　肥料の名称…」）
+        // があれば表（1 つの区分に 2 件だけの登録の一覧が、セルの中の折り返しで行が割れていた）。
+        let headed = |c: &Vec<Col>| {
+            let k = &c[0];
+            let em = (k.y1 - k.y).max(1.0);
+            let above: Vec<&Col> = words
+                .iter()
+                .filter(|w| w.y1 <= k.y + 0.5 && w.y1 >= k.y - em * 2.0 && w.x >= k.x - em * 2.0 && !w.text.chars().any(|ch| ch.is_ascii_digit() || ('０'..='９').contains(&ch)))
+                .collect();
+            above.len() >= 3 && above.iter().any(|w| (w.x - k.x).abs() <= em * 2.0)
+        };
+        let Some(mut cluster) = clusters.into_iter().find(|c| (c.len() >= 3 || (c.len() == 2 && kanji_code(c[0].text.trim()) && !c[0].text.trim().starts_with('第') && headed(c))) && leads_rows(c)) else {
             break;
         };
         // 数字を含まない記号（信号符字「ＪＩＪＴ」「ＪＫＲＮ」）も、番号の列に左端が揃えば行の見出し。
