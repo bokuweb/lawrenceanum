@@ -3656,6 +3656,22 @@ pub(crate) fn column_groups(mut cols: Vec<Col>) -> Vec<Vec<Col>> {
         groups.insert(at, vec![l]);
     }
     groups.retain(|g| !g.is_empty());
+    // 横倒しの URL の折り返し（「…/corporate/」の続きの「notice/」）が、次の列（次の「（乙）」の列）の、前の列の URL と同じ高さから
+    // 組まれていれば、前の列の URL の後ろへ移す（「（乙）notice/」になっていた）。前の列の URL が「/」「.」「-」「_」で終わるときだけ。
+    for gi in 1..groups.len() {
+        let (head, tail) = groups.split_at_mut(gi);
+        let prev = &mut head[gi - 1];
+        let cur = &mut tail[0];
+        let Some(p) = prev.last().filter(|p| latin(p) && p.text.trim_end().ends_with(['/', '.', '-', '_'])).cloned() else { continue };
+        // 次の URL の頭（「http」「www.」）は続きではない。
+        let fresh = |c: &Col| c.text.trim_start().starts_with("http") || c.text.trim_start().starts_with("www.");
+        if let Some(k) = cur.iter().position(|c| latin(c) && !fresh(c) && (c.y - p.y).abs() < 1.0) {
+            if k > 0 {
+                let c = cur.remove(k);
+                prev.push(c);
+            }
+        }
+    }
     groups
 }
 
