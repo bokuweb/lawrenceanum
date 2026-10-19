@@ -749,6 +749,7 @@ jobs:
       # 判例 (裁判所 裁判例検索) を R2 prebuilt キャッシュから復元して同梱する。
       # corpus workflow が hanrei-cache.tar.zst に上げたものを取得 → hanrei-build-json
       # → link-laws-and-hanrei (参照法条から法令詳細へクロスリンク)。
+      # build-search-db が public/hanrei を索引する (hanrei_fts) ので、それより前に実行する。
       - name: Build hanrei from R2 cache
         if: >-
           steps.detect.outputs.changed == 'true' && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
@@ -808,8 +809,8 @@ jobs:
 
       # 横断検索 DB を全コーパス込みで一度だけ作る。前段の update/build-json には
       # --skip-search-db を渡し、法令のみの 1.6GB 索引を作ってからここで再作成する二重処理を
-      # 避ける。proceedings/kanpo/tsutatsu が出揃ったここで生成し、通達・官報・議事録を
-      # 確実に取り込む。直後の build-feeds が rebuild-manifest するので、search.db の sha
+      # 避ける。proceedings/kanpo/tsutatsu/hanrei が出揃ったここで生成し、通達・官報・
+      # 議事録・判例を確実に取り込む。直後の build-feeds が rebuild-manifest するので、search.db の sha
       # は manifest に反映され validate を通る。
       - name: Rebuild search.db with corpus
         if: steps.detect.outputs.changed == 'true'

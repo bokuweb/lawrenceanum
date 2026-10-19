@@ -146,7 +146,7 @@ mod tests {
             std::fs::write(path, value.to_string()).unwrap();
         }
         let db = root.join("search.db");
-        crate::build_search_db(&db, &[], &Default::default(), None, None, None).unwrap();
+        crate::build_search_db(&db, &[], &Default::default(), None, None, None, None).unwrap();
         let conn = Connection::open(db).unwrap();
         for (needle, route) in [
             ("行政回答", "/pubcomment/case"),
