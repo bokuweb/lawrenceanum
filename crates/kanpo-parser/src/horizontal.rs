@@ -205,7 +205,94 @@ fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)],
     let texts: std::collections::HashMap<usize, String> = cols.iter().map(|c| (c.id, c.text.clone())).collect();
     let mut lines = lines_with_tables_inner(cols, grids, vrules, hrules, one_column);
     rejoin_split_names(&mut lines, &geom, &texts);
+    attach_toc_numbers(&mut lines, &geom, &texts);
     lines
+}
+
+/// 目次のページで、ページ番号（漢数字だけの 1 語の行「一〇」）を、同じ高さで左に並ぶ項目の行（「（財務二七八〜二八五）」）の
+/// 後ろへつなぐ（横倒しの 1 ページ目の目次で、ページ番号が欄の溝で別の列になり、ページの終わりにまとめて読まれていた）。
+fn attach_toc_numbers(lines: &mut Vec<trace::Line>, geom: &std::collections::HashMap<usize, (f32, f32, f32, f32)>, texts: &std::collections::HashMap<usize, String>) {
+    if !lines.iter().any(|l| l.table.is_none() && l.text.trim() == "目次") {
+        return;
+    }
+    // 題字の脇の「（号外）　発行　内閣府　（原稿作成　国立印刷局）」（横倒しの縦組みの小さな語）は、目次の項目の行に紛れ込む
+    // ので、まとまって組まれていれば抜き出して 1 行にし、ページの頭に置く。列は左から、列の中は下から読む（横倒し）。
+    const MASTHEAD: [&str; 10] = ["外）", "（号", "（号外）", "号外", "内閣府", "発行", "（原稿作成", "原稿作成", "国立印刷局）", "国立印刷局"];
+    let mast: Vec<usize> = lines
+        .iter()
+        .filter(|l| l.table.is_none())
+        .flat_map(|l| l.words.iter().copied())
+        .filter(|w| texts.get(w).is_some_and(|t| MASTHEAD.contains(&t.trim())))
+        .collect();
+    let mast_box = mast.iter().filter_map(|w| geom.get(w)).fold((f32::INFINITY, f32::NEG_INFINITY, f32::INFINITY, f32::NEG_INFINITY), |b, p| (b.0.min(p.0), b.1.max(p.1), b.2.min(p.2), b.3.max(p.3)));
+    if mast.len() >= 4 && mast_box.1 - mast_box.0 <= 80.0 && mast_box.3 - mast_box.2 <= 120.0 {
+        let mut ws: Vec<usize> = mast.clone();
+        ws.sort_by(|a, b| {
+            let (pa, pb) = (geom[a], geom[b]);
+            ((pa.0 / 4.0).round()).total_cmp(&(pb.0 / 4.0).round()).then(pb.2.total_cmp(&pa.2))
+        });
+        let text = ws.iter().map(|w| texts[w].trim().to_string()).collect::<Vec<_>>().join("\u{3000}");
+        for l in lines.iter_mut().filter(|l| l.table.is_none()) {
+            if l.words.iter().any(|w| mast.contains(w)) {
+                l.words.retain(|w| !mast.contains(w));
+                let mut cs: Vec<Col> = l
+                    .words
+                    .iter()
+                    .filter_map(|w| geom.get(w).map(|p| Col { id: *w, x: p.0, x1: p.1, y: p.2, y1: p.3, text: texts[w].clone() }))
+                    .collect();
+                cs.sort_by(|a, b| a.x.total_cmp(&b.x));
+                l.text = render_line(&cs);
+            }
+        }
+        lines.retain(|l| l.table.is_some() || !l.words.is_empty());
+        lines.insert(0, trace::Line::text(text, ws));
+    }
+    let numeral = |t: &str| {
+        let t = t.trim();
+        (1..=4).contains(&t.chars().count()) && t.chars().all(|c| "一二三四五六七八九〇十百".contains(c))
+    };
+    let bounds = |l: &trace::Line| {
+        let g: Vec<&(f32, f32, f32, f32)> = l.words.iter().filter_map(|w| geom.get(w)).collect();
+        (!g.is_empty()).then(|| {
+            (
+                g.iter().map(|p| p.0).fold(f32::INFINITY, f32::min),
+                g.iter().map(|p| p.1).fold(f32::NEG_INFINITY, f32::max),
+                g.iter().map(|p| p.2).fold(f32::INFINITY, f32::min),
+                g.iter().map(|p| p.3).fold(f32::NEG_INFINITY, f32::max),
+            )
+        })
+    };
+    let mut i = 0;
+    while i < lines.len() {
+        let l = &lines[i];
+        let single = l.table.is_none() && l.words.len() == 1 && texts.get(&l.words[0]).is_some_and(|t| numeral(t));
+        let Some((nx, _, ny, ny1)) = single.then(|| bounds(l)).flatten() else {
+            i += 1;
+            continue;
+        };
+        let (nc, em) = ((ny + ny1) / 2.0, (ny1 - ny).max(1.0));
+        // 左に同じ高さ（行の高さの半分以内）で並び、200pt 以内に終わる行のうち、いちばん右のもの。
+        let target = (0..lines.len())
+            .filter(|&j| j != i && lines[j].table.is_none())
+            .filter_map(|j| bounds(&lines[j]).map(|b| (j, b)))
+            .filter(|&(j, (_, x1, y0, y1))| {
+                // 折り返しをつないだ項目の行は、最後の行の高さ（下端）で比べる。
+                x1 <= nx + 0.5 && nx - x1 < 200.0 && (((y0 + y1) / 2.0 - nc).abs() < em * 0.5 || (y1 - ny1).abs() < em * 0.5) && !lines[j].words.iter().all(|w| texts.get(w).is_some_and(|t| numeral(t)))
+            })
+            .max_by(|a, b| a.1 .1.total_cmp(&b.1 .1))
+            .map(|(j, _)| j);
+        let Some(j) = target else {
+            i += 1;
+            continue;
+        };
+        let n = lines.remove(i);
+        let j = if j > i { j - 1 } else { j };
+        lines[j].text = format!("{}\u{3000}{}", lines[j].text, n.text.trim());
+        lines[j].words.extend(n.words);
+        if j >= i {
+            i += 0;
+        }
+    }
 }
 
 /// 署名の氏の後ろに同じ高さで続く名（「取締役　北川」の右の「久芳」）が、表と表の間の溝で別の列に分かれて離れた行に
