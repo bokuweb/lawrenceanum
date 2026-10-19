@@ -2800,7 +2800,19 @@ fn is_column_split(left: &[Col], right: &[Col], boxed: bool) -> bool {
             numbered && named && near.iter().any(|m| (m.center() - l.center()).abs() <= ALIGN_TOL.max((l.y1 - l.y0) * 0.25))
         })
     };
-    let labels = few_labels || (wl < 120.0 && label_column(&ll, &near_lines(right, true))) || (wr < 120.0 && label_column(&rl, &near_lines(left, false)));
+    // 狭い左の欄（60pt 未満）の短い区分の名前（「10種地」「９種地」…）が、どれも右の行の高さの範囲（右の行の上下 1 行分の間）に
+    // あり、右の行の方が多いなら、表の区分の欄（交付税の補正係数の表。区分の名前を全部読んでから値の行が読まれていた）。
+    let group_labels = wl < 60.0 && ll.len() >= 3 && rl.len() > ll.len() && {
+        // 数だけの語（目次のページ数「七」「二八」）は区分の名前ではない。
+        let numeral = |c: char| c.is_ascii_digit() || ('０'..='９').contains(&c) || "〇一二三四五六七八九十百".contains(c);
+        let short = ll.iter().all(|l| {
+            let t: String = l.words.iter().map(|w| w.text.as_str()).collect();
+            t.chars().count() <= 8 && !amount_line(l) && t.chars().any(|c| !numeral(c) && !c.is_whitespace())
+        });
+        let beside = ll.iter().filter(|a| rl.iter().any(|b| (a.center() - b.center()).abs() <= (b.y1 - b.y0).max(1.0) * 1.2)).count();
+        short && beside * 10 >= ll.len() * 9
+    };
+    let labels = few_labels || group_labels || (wl < 120.0 && label_column(&ll, &near_lines(right, true))) || (wr < 120.0 && label_column(&rl, &near_lines(left, false)));
     if boxed {
         return !labels && !(aligned as f32 >= few.len() as f32 * 0.75 && (amounts(&rl) || amounts(&ll)));
     }
