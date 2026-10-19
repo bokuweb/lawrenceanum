@@ -388,6 +388,7 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
     let to_line = |p: &[Col]| {
         let mut p = p.to_vec();
         p.sort_by(|a, b| a.x.total_cmp(&b.x));
+        order_stacked_period(&mut p);
         trace::Line::text(render_line(&p), p.iter().map(|c| c.id).collect())
     };
     let mut split_lines: Vec<trace::Line> = Vec::new();
@@ -2089,9 +2090,31 @@ fn group_line_words(words: Vec<&Col>) -> Vec<Line> {
     for l in &mut lines {
         unshift_upright_latin(&mut l.words);
         l.words.sort_by(|a, b| a.x.total_cmp(&b.x));
+        order_stacked_period(&mut l.words);
     }
     attach_small_script_lines(&mut lines);
     lines
+}
+
+/// 損益計算書の期間の「自」「至」を上下に重ねて組み、見出し「損益計算書の要旨」と 1 行にまとまった行（「損益計算書の要旨自至
+/// 2026年４月１日2026年７月31日」）を、重ねた語の左の語、上の段、下の段の順に並べる（「自　2026年４月１日　至　…」）。
+fn order_stacked_period(words: &mut Vec<Col>) {
+    let em = words.iter().map(|w| w.y1 - w.y).fold(f32::INFINITY, f32::min).max(1.0);
+    let Some(from) = words.iter().position(|w| w.text.trim() == "自") else { return };
+    let Some(to) = words.iter().position(|w| w.text.trim() == "至") else { return };
+    let (a, b) = (&words[from], &words[to]);
+    // 「自」の真下に「至」（左右が重なり、1 行分ほど下）。
+    let stacked = a.x < b.x1 && b.x < a.x1 && y_center(b) - y_center(a) > em * 0.6 && y_center(b) - y_center(a) < em * 1.6;
+    if !stacked {
+        return;
+    }
+    let mid = (y_center(a) + y_center(b)) / 2.0;
+    let x = a.x.min(b.x);
+    let (head, rest): (Vec<Col>, Vec<Col>) = words.drain(..).partition(|w| w.x1 <= x + 0.5);
+    let (upper, lower): (Vec<Col>, Vec<Col>) = rest.into_iter().partition(|w| y_center(w) < mid);
+    words.extend(head);
+    words.extend(upper);
+    words.extend(lower);
 }
 
 /// 領域の語を読み順に並べ、行文字列として `out` へ積む（再帰的な XY-cut）。
