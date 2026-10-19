@@ -2906,11 +2906,13 @@ fn is_column_split(left: &[Col], right: &[Col], boxed: bool) -> bool {
         // 項目の下の次の告示の標題（「〇財務省告示第…号」）は数えない。
         let text = |l: &Line| l.words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace()).collect::<String>();
         let items: Vec<&Line> = ll.iter().filter(|l| !crate::segment::is_heading_mark(&text(l))).collect();
-        !items.is_empty() && items.iter().all(|l| {
+        let numbered = |l: &Line| text(l).starts_with(|c: char| c.is_ascii_digit() || ('０'..='９').contains(&c));
+        // 番号の行の下に行間を空けずに折り返した項目名の続き（「２　発行の根拠法律及び」「その条項」）も項目名。
+        let wrapped = |k: usize| k > 0 && numbered(items[k - 1]) && items[k].y0 - items[k - 1].y1 < (items[k].y1 - items[k].y0) * 0.5 && text(items[k]).chars().count() <= 8;
+        !items.is_empty() && items.iter().any(|l| numbered(l)) && items.iter().enumerate().all(|(k, l)| {
             let t = text(l);
-            let numbered = t.starts_with(|c: char| c.is_ascii_digit() || ('０'..='９').contains(&c));
             let named = t.chars().filter(|c| ('\u{4E00}'..='\u{9FFF}').contains(c) || ('\u{3040}'..='\u{30FF}').contains(c)).count() >= 3;
-            numbered && named && near.iter().any(|m| (m.center() - l.center()).abs() <= ALIGN_TOL.max((l.y1 - l.y0) * 0.25))
+            wrapped(k) || (numbered(l) && named && near.iter().any(|m| (m.center() - l.center()).abs() <= ALIGN_TOL.max((l.y1 - l.y0) * 0.25)))
         })
     };
     // 狭い左の欄（60pt 未満）の短い区分の名前（「10種地」「９種地」…）が、どれも右の行の高さの範囲（右の行の上下 1 行分の間）に
