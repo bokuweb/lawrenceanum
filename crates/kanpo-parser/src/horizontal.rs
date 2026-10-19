@@ -1108,7 +1108,15 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
                 let c = l.center();
                 // 項目番号で始まる行（「10　発行日」の次の「11　発行価格」）は、行間を空けずに続いても次の項目。
                 let numbered = k > 0 && crate::vertical::starts_item(&render_line(&l.words));
-                if top < c && c < bottom && (aligned[k] || next_item(k) || (rows_of_items && (!tight(k) || numbered))) {
+                // 金額だけの欄の行は、行間を空けて続けば行の頭（同じ行のほかの欄が字の層に無い「—」だけで、揃う行が無い
+                // 金額「△2」が前の行につながっていた）。
+                // ほかの欄のどの行とも高さが重ならない行だけ（その行のほかの欄は字が無い）。
+                let alone_in_row = |l: &Line| !band.iter().filter(|&&j| j != i).any(|&j| cell_lines[j].iter().any(|m| m.y0 < l.y1 && l.y0 < m.y1));
+                let figures = !cell_lines[i].is_empty() && cell_lines[i].iter().all(|m| {
+                    let t = render_line(&m.words);
+                    t.chars().any(|ch| ch.is_ascii_digit()) && t.chars().all(|ch| ch.is_ascii_digit() || "△▲,.()（）－-　 ".contains(ch))
+                });
+                if top < c && c < bottom && (aligned[k] || next_item(k) || (rows_of_items && (!tight(k) || numbered)) || (figures && k > 0 && !tight(k) && alone_in_row(l))) {
                     anchors.push(l.y0 - 0.5);
                 }
             }
