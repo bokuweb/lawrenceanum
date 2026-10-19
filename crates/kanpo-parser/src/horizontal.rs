@@ -2909,6 +2909,22 @@ fn is_column_split(left: &[Col], right: &[Col], boxed: bool) -> bool {
     if ll.is_empty() || rl.is_empty() {
         return false;
     }
+    // 右が 1 行だけで、左の 1 行目と高さが揃い、1.5 字分までしか離れていなければ、1 行の中の字間（「「Ⅰ」「重要な会計方針」
+    // 「６．収益及び費用の計上基」を全角の空白で区切った行。左の 2 行目「準」に記載…」が間に入っていた）。
+    if !boxed && rl.len() == 1 && (2..=3).contains(&ll.len()) {
+        let b = &rl[0];
+        let start = b.words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
+        let same_line = ll.iter().enumerate().any(|(k, a)| {
+            let em = (a.y1 - a.y0).max(1.0);
+            let end = a.words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
+            (a.center() - b.center()).abs() <= ALIGN_TOL
+                && start - end <= em * 1.5
+                && ll.iter().enumerate().all(|(j, l)| j == k || l.y0 >= a.y1 - 0.5 || l.y1 <= a.y0 + 0.5)
+        });
+        if same_line {
+            return false;
+        }
+    }
     // 2 行までの短い帯で、一方が他方のどの行よりも上の 1 行だけなら、中央寄せの標題とその下の行（「附属明細書」の下の
     // 左寄せの「【船員保険勘定】」「１．有形固定資産…の明細」。標題が後に読まれていた）。
     let above = |a: &[Line], b: &[Line]| a.len() == 1 && b.iter().all(|l| a[0].y1 <= l.y0 + 0.5);
