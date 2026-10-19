@@ -26,6 +26,9 @@ mod shingikai;
 pub use hanrei::run_link_hanrei;
 pub use rulemaking::run_link_rulemaking;
 pub use shingikai::run_link_shingikai;
+mod law_refs;
+mod shitsumon;
+pub use shitsumon::run_link_shitsumon;
 
 // ── 公開型 ────────────────────────────────────────────────────────
 

@@ -18,7 +18,7 @@ on:
         type: choice
         options: ["http", "mock"]
       domains:
-        description: "カンマ区切りドメイン (kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget,hanrei) / 空=全て。自治体例規は collect-reiki.yml"
+        description: "カンマ区切りドメイン (kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget,hanrei,shitsumon) / 空=全て。自治体例規は collect-reiki.yml"
         required: false
         type: string
       kokkai_session:
@@ -31,6 +31,10 @@ on:
         type: string
       hanrei_to:
         description: "判例の取得終了日 YYYY-MM-DD (空=今日)"
+        required: false
+        type: string
+      shitsumon_session:
+        description: "質問主意書の回次 (例: 219 / 210-219。空=最新と1つ前)。過去分のバックフィル用"
         required: false
         type: string
   schedule:
@@ -88,7 +92,7 @@ jobs:
     timeout-minutes: 120
     env:
       LAWPUB_PROVIDER: ${{ github.event.inputs.provider || 'http' }}
-      DOMAINS: ${{ github.event.inputs.domains || 'kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget,hanrei' }}
+      DOMAINS: ${{ github.event.inputs.domains || 'kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget,hanrei,shitsumon' }}
       # 未設定なら budget step は安全に skip。Secret 追加後の次回runから自動収集する。
       LAWPUB_ESTAT_APP_ID: ${{ secrets.ESTAT_APP_ID }}
 
@@ -154,6 +158,7 @@ jobs:
           restore_bundle shingikai-history.tar.zst .cache/shingikai-history
           restore_bundle budget-cache.tar.zst .cache/budget
           restore_bundle hanrei-cache.tar.zst .cache/hanrei
+          restore_bundle shitsumon-cache.tar.zst .cache/shitsumon
 
       - name: Build lawpub
         run: cargo build --release -p lawpub-cli
@@ -436,6 +441,44 @@ jobs:
             --cache-control 'public, max-age=300'
           echo "::notice::uploaded hanrei cache to R2 ($n cases)"
 
+      # ── 質問主意書・答弁書 (衆議院 質問答弁情報 / 参議院 質問主意書) ─────────
+      - name: Fetch shitsumon
+        id: fetch_shitsumon
+        if: contains(env.DOMAINS, 'shitsumon') || env.DOMAINS == ''
+        continue-on-error: true
+        env:
+          SHITSUMON_SESSION: ${{ github.event.inputs.shitsumon_session }}
+        run: |
+          # robots.txt は両院とも不在。サイト規約は出所明示での引用・転載・複製を許し改変を
+          # 禁じるため、本文は原文のまま保持して出典 URL を付ける。
+          # 答弁済みの保存分は飛ばすので、--limit で打ち切っても次回 run が続きから取る。
+          # 1 件につき経過・質問・答弁の最大 3 リクエスト (1 秒間隔) なので 400 件で約 20 分。
+          args=()
+          [ -n "$SHITSUMON_SESSION" ] && args+=(--session "$SHITSUMON_SESSION")
+          ./target/release/lawpub shitsumon-fetch \
+            --cache .cache "${args[@]}" --limit 400 --interval-ms 1000
+
+      - name: Upload shitsumon cache to R2
+        id: upload_shitsumon
+        if: (contains(env.DOMAINS, 'shitsumon') || env.DOMAINS == '') && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        continue-on-error: true
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          [ -d .cache/shitsumon ] || { echo "::notice::no shitsumon cache, skip R2 upload"; exit 0; }
+          n=$(find .cache/shitsumon -name '*.json' | wc -l | tr -d ' ')
+          # top-level を ./{house}/{session}/{number}.json にするため .cache/shitsumon 内から固める。
+          ( cd .cache/shitsumon && tar -cf - . | zstd -19 --long -T0 -o /tmp/shitsumon-cache.tar.zst -f )
+          aws s3 cp /tmp/shitsumon-cache.tar.zst "s3://$R2_BUCKET/shitsumon-cache.tar.zst" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --content-type 'application/zstd' \
+            --cache-control 'public, max-age=300'
+          echo "::notice::uploaded shitsumon cache to R2 ($n questions)"
+
       # ── 調達情報 ─────────────────────────────────────────────────
 
       - name: Fetch procurement (直近 30 日)
@@ -598,6 +641,8 @@ jobs:
           BUDGET_UPLOAD_OUTCOME: ${{ steps.upload_budget.outcome }}
           HANREI_OUTCOME: ${{ steps.fetch_hanrei.outcome }}
           HANREI_UPLOAD_OUTCOME: ${{ steps.upload_hanrei.outcome }}
+          SHITSUMON_OUTCOME: ${{ steps.fetch_shitsumon.outcome }}
+          SHITSUMON_UPLOAD_OUTCOME: ${{ steps.upload_shitsumon.outcome }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -646,6 +691,7 @@ jobs:
           update_domain shingikai shingikai "$SHINGIKAI_OUTCOME" "$SHINGIKAI_UPLOAD_OUTCOME"
           update_domain budget budget "$BUDGET_OUTCOME" "$BUDGET_UPLOAD_OUTCOME"
           update_domain hanrei hanrei "$HANREI_OUTCOME" "$HANREI_UPLOAD_OUTCOME"
+          update_domain shitsumon shitsumon "$SHITSUMON_OUTCOME" "$SHITSUMON_UPLOAD_OUTCOME"
           tmp=$(mktemp)
           jq --arg ts "$ts" --arg domains "$DOMAINS" '
             .version = 2 | .updated_at = $ts | .last_run_domains = $domains

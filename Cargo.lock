@@ -1657,6 +1657,7 @@ dependencies = [
  "serde_json",
  "sha2",
  "shingikai-client",
+ "shitsumon-client",
  "tracing",
  "tracing-subscriber",
  "tsutatsu-client",
@@ -2705,6 +2706,20 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
+ "reqwest",
+ "scraper",
+ "serde",
+ "serde_json",
+ "tracing",
+]
+
+[[package]]
+name = "shitsumon-client"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "encoding_rs",
  "reqwest",
  "scraper",
  "serde",

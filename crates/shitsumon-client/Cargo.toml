@@ -1,0 +1,17 @@
+[package]
+name = "shitsumon-client"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+publish.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+reqwest = { workspace = true, features = ["blocking"] }
+scraper.workspace = true
+tracing.workspace = true
+chrono.workspace = true
+# 衆議院は Shift_JIS、参議院は UTF-8。バイト列から Content-Type / <meta> で復号する。
+encoding_rs = "0.8"
