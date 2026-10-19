@@ -734,7 +734,10 @@ fn unruled_records(g: &Grid, cols: &[Col]) -> bool {
             || cell.iter().enumerate().any(|(i, (_, a))| {
                 let n = |t: &str| t.chars().filter(|c| !c.is_whitespace()).count() as i32;
                 // 同じ字の語（名称の末尾の「006ＨＺ」と型式の「006ＨＺ」）は 2 件ではない。
-                head(a).chars().count() == 2 && cell[i + 1..].iter().any(|(_, b)| head(a) == head(b) && (n(a) - n(b)).abs() <= 2 && a.trim() != b.trim())
+                // 数を含む番号のような短い語だけ（1 件の欄に並べた共同の出願者の住所「茨城県つくば市…」、同じ姓の名前「菅谷嘉晃」
+                // 「菅谷利男」は 2 件ではない）。
+                let numbered = a.chars().any(|c| c.is_ascii_digit() || ('０'..='９').contains(&c));
+                head(a).chars().count() == 2 && n(a) <= 12 && numbered && cell[i + 1..].iter().any(|(_, b)| head(a) == head(b) && (n(a) - n(b)).abs() <= 2 && a.trim() != b.trim())
             })
     })
 }
