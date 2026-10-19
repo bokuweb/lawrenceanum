@@ -2375,7 +2375,12 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
                 let end = (k + 1..lines.len()).find(|&j| render_line(&lines[j].words).starts_with('〇')).unwrap_or(lines.len());
                 let (y0, y1) = (l.y0 - 0.5, lines.get(end).map_or(f32::INFINITY, |n| n.y0 - 0.5));
                 let sub: Vec<Col> = words.iter().filter(|w| y_center(w) >= y0 && y_center(w) < y1).cloned().collect();
-                (end > k + 1).then(|| header_table(&sub)).flatten().map(|t| (y0, y1, t))
+                // 表がその範囲のどの語も含むときだけ（欄見出しの一部の欄だけの表にしない）。
+                (end > k + 1)
+                    .then(|| header_table(&sub))
+                    .flatten()
+                    .filter(|t| t.cells.iter().map(|c| c.words.len()).sum::<usize>() == sub.len())
+                    .map(|t| (y0, y1, t))
             });
             if let Some((y0, y1, t)) = found {
                 let (above, rest): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < y0);
