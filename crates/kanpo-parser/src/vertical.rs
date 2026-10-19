@@ -1241,13 +1241,20 @@ fn join_ministry_lines(lines: &mut Vec<Line>, compact: &dyn Fn(&Line) -> String,
             continue;
         };
         let (mid, tail) = rest.split_at(at);
+        // 府省の名前を読点で並べた行（9 府省の共同告示「内閣府、総務省、財務省、」「〇文部科学省、…農林水産省、告示第一号」
+        // 「経済産業省、国土交通省、環境省」）も名前の並び。
+        let names_of = |t: &str| -> Option<Vec<String>> {
+            let items: Vec<&str> = t.trim_end_matches('、').split('、').collect();
+            items.iter().all(|n| ministry(n)).then(|| items.iter().map(|n| n.to_string()).collect())
+        };
+        let mid_names = if mid.is_empty() { Some(Vec::new()) } else { names_of(mid) };
         // 2 つの府省の名前を割って組んだもの（「デジタル庁」「〇　告示第三十二号」「総務省」）は、真ん中の行に名前が無い。
-        if !(ministry(mid) || mid.is_empty()) || !tail.ends_with('号') {
+        if mid_names.is_none() || !tail.ends_with('号') {
             i += 1;
             continue;
         }
-        let before = i > 0 && lines[i - 1].table.is_none() && ministry(&compact(&lines[i - 1]));
-        let after = i + 1 < lines.len() && lines[i + 1].table.is_none() && ministry(&compact(&lines[i + 1]));
+        let before = i > 0 && lines[i - 1].table.is_none() && names_of(&compact(&lines[i - 1])).is_some();
+        let after = i + 1 < lines.len() && lines[i + 1].table.is_none() && names_of(&compact(&lines[i + 1])).is_some();
         if (!before && !after) || (mid.is_empty() && !(before && after)) {
             i += 1;
             continue;
@@ -1258,11 +1265,20 @@ fn join_ministry_lines(lines: &mut Vec<Line>, compact: &dyn Fn(&Line) -> String,
         let last = if after { i + 1 } else { i };
         for k in first..=last {
             words.extend(lines[k].words.iter().copied());
-            if k != i || !mid.is_empty() {
-                names.push(if k == i { mid.to_string() } else { compact(&lines[k]) });
+            if k == i {
+                names.extend(mid_names.clone().unwrap_or_default());
+            } else {
+                names.extend(names_of(&compact(&lines[k])).unwrap_or_default());
             }
         }
-        let joined = Line::text(format!("〇{}{}", names.join("・"), tail), words);
+        // 読点で並べた名前の行は、そのまま続ける（字を変えない。「内閣府、総務省、財務省、文部科学省、…環境省告示第一号」）。
+        let listed = (first..=last).any(|k| compact(&lines[k]).contains('、'));
+        let joined = if listed {
+            let parts: Vec<String> = (first..=last).map(|k| if k == i { mid.to_string() } else { compact(&lines[k]) }).collect();
+            Line::text(format!("〇{}{}", parts.concat(), tail), words)
+        } else {
+            Line::text(format!("〇{}{}", names.join("・"), tail), words)
+        };
         lines.splice(first..=last, [joined]);
         i = first + 1;
     }
