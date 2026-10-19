@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "corpus": "shingikai",
   "id": "cao_regulatory_reform_startup_260310",
   "date": "2026-03-10",
@@ -89,7 +89,9 @@
       "role": "member",
       "laws": [
         "418AC0000000049"
-      ]
+      ],
+      "excerpt": "…識別の精緻化や減損テストの方法の見直しが必要との御意見があったと認識し 1 公益社団法人及び公益財団法人の認定等に関する法律（平成 18 年法律第 49 号）第３条 の規定により、所管する行政庁（内閣総理大臣）が監督を行うこととされていることか ら、誤解を避けるため「政府」を「金融庁」に修正。 11 ております。先…",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_04startup/260310/startup11_agenda.html"
     },
     {
       "name": "金融庁（新発田審議官）",

@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "corpus": "shingikai",
   "id": "cao_regulatory_reform_startup_260319",
   "date": "2026-03-19",
@@ -56,7 +56,9 @@
       "role": "member",
       "laws": [
         "325AC0000000131"
-      ]
+      ],
+      "excerpt": "…ざいましたが、簡単に制度の建付けを御説明させていただければと思います。日本の 電波法では、電波を利用する時は総務大臣の免許を取得するのが原則でございます。そ して、非常に技適と一般化しておりますけれども、更新リスクの低いもの、比較的低い 無線設備について、免許ではなくて登録証明機関の認証で良しとするものが基準認証制 …",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_04startup/260319/startup12_agenda.html"
     },
     {
       "name": "瀧専門委員",
@@ -73,28 +75,36 @@
       "role": "member",
       "laws": [
         "325AC0000000131"
-      ]
+      ],
+      "excerpt": "…ということに制度上なってござい ますので、まずは表示が付されているということが電波法の第一義的な部分の必要性と 理解しているところでございます。 そして、まずは電波を発する時、簡易的な免許手続を取って良いかどうかを確認する ために、無線局の利用者が確認できるということ、そして、それが問題なく使われてい るというと…",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_04startup/260319/startup12_agenda.html"
     },
     {
       "name": "総務省（翁長部長）",
       "role": "member",
       "laws": [
         "325AC0000000131"
-      ]
+      ],
+      "excerpt": "…て、当時、産業界のニ ーズや既存免許人の意見を聴取して180日を上限とすることを電波法で規定していると ころでございます。当時ですけれども、180日では足りないという意見はなかったと理解 をしているところでございます。 導入時に想定していた利用ケースは下のところに三つぐらい書いておりますけれど も、それぞれ３か月ぐらいかな…",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_04startup/260319/startup12_agenda.html"
     },
     {
       "name": "芦澤委員",
       "role": "member",
       "laws": [
         "325AC0000000131"
-      ]
+      ],
+      "excerpt": "…ル感を どのように考えていますかというのが二点目の質問になります。遅くとも次の電波法改 正のトラックに乗り遅れないようにする必要があるのかなと思うところですけれども、 調査の費用を手当てして、調査を十分にして、更に検討してとなると、通常時間がかか ってくると思う中で、一体どれぐらいの時間軸で本件に対応できるかといった…",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_04startup/260319/startup12_agenda.html"
     },
     {
       "name": "落合座長",
       "role": "member",
       "laws": [
         "325AC0000000131"
-      ]
+      ],
+      "excerpt": "…必要との御指摘があったことを踏まえ、利用期間を十分に 確保・延長することを含む電波法の改正等を検討し、結論を得次第、所要の措置を講じ るようお願いいたします。 外国での認証取得については様々な場合があると思われますが、特定の国、技術及び その検証に関する規制上の要件を評価し、その全部又は一部に日本と相当する部分があ…",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_04startup/260319/startup12_agenda.html"
     }
   ]
 }

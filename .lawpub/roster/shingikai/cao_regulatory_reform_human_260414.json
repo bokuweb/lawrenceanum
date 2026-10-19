@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "corpus": "shingikai",
   "id": "cao_regulatory_reform_human_260414",
   "date": "2026-04-14",
@@ -64,7 +64,9 @@
       "role": "member",
       "laws": [
         "322AC0000000049"
-      ]
+      ],
+      "excerpt": "…でございます。 資料について御説明いたします。まず、３ページ目でございます。労働基準法におい ては二つの裁量労働制が定められております。一つが専門業務型裁量労働制、もう一 つが企画業務型裁量労働制でございます。専門業務型裁量労働制は、業務の性質上、 業務の遂行の手段や時間配分などを大幅に労働者の裁量に委ねる業務として省…",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_03human/260414/human08_agenda.html"
     },
     {
       "name": "堀座長代理",
@@ -81,7 +83,9 @@
       "role": "member",
       "laws": [
         "347AC0000000057"
-      ]
+      ],
+      "excerpt": "…られるのでしょうかというのが一つ。 もう一方で、事後変更という点なのですが、労働安全衛生法では一定の強風、大雨、 大雪などの悪天候の時には作業を中止すべきとしていますし、令和６年７月からは熱 中症対策の義務化も施行されていますけれども、そのような悪天候などを含めた労働 日などの変更を、少なくとも関係法令に抵触するような事情…",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_03human/260414/human08_agenda.html"
     },
     {
       "name": "山田専門委員",
@@ -93,7 +97,9 @@
       "role": "member",
       "laws": [
         "324AC1000000205"
-      ]
+      ],
+      "excerpt": "弁護士法人ALG&Associatesの弁護士の家永と申します。５分程度ですので、少し簡 潔にはなりますが、お話させていただければと思っております。 今日お話をさせていただく前提として、変形労働時間制とはどんな制度なのかという …",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_03human/260414/human08_agenda.html"
     },
     {
       "name": "日本商工会議所",
@@ -120,7 +126,9 @@
       "role": "member",
       "laws": [
         "324AC1000000205"
-      ]
+      ],
+      "excerpt": "ありがとうございました。 続きまして、本件に関する有識者としまして、弁護士法人ALG&Associatesから、本 日の説明者として企業法務担当役員・パートナー弁護士の家永勲様にお越しいただい ています。 それでは、５分程度で御説明をお願いいたします。",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_03human/260414/human08_agenda.html"
     }
   ]
 }

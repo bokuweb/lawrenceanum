@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "corpus": "shingikai",
   "id": "cao_regulatory_reform_medical_260323",
   "date": "2026-03-23",
@@ -40,7 +40,9 @@
       "role": "member",
       "laws": [
         "429AC0000000016"
-      ]
+      ],
+      "excerpt": "…（中村国際開発部門長・病院長特任補佐） ありがとうございます。 これまで臨床研究法の時は本当にトップダウンでSingle IRB強制という形になって、 それは現場がすごく混乱したのですけれども、逆に、それがもう100％に進んだというこ とがあります。 一方、倫理指針の時は原則化にしてあまりそれが進まなかったので、…",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_02medical/260323/medical11_agenda.html"
     },
     {
       "name": "印南専門委員",
@@ -57,7 +59,9 @@
       "role": "member",
       "laws": [
         "429AC0000000016"
-      ]
+      ],
+      "excerpt": "…す。臨床研究に関することでございます。 次のスライドをお願いします。ＣＲＢは、臨床研究法に基づく特定臨床研究等を審査 する委員会になってございますけれども、こちらにつきましては一括審査ができている 状態ということになっております。これは制度的な立付けによるものでございまして、 画面左側下にある統括管理者が一つの研究について一人…",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_02medical/260323/medical11_agenda.html"
     },
     {
       "name": "坂内参事官",
@@ -69,21 +73,27 @@
       "role": "member",
       "laws": [
         "429AC0000000016"
-      ]
+      ],
+      "excerpt": "…えると思います。 審議の質に関してですけれども、20とか50になりますと、今、臨床研究法でやってい るような評価制度というのができると思いますし、将来は認証制度を導入すべきだと思 います。また、Single IRBと実施医療機関を監視する被験者保護局といった規制横断的 な活動も必要ですし、この大きく４つのレギュレーションが縦に…",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_02medical/260323/medical11_agenda.html"
     },
     {
       "name": "日本製薬工業協会（近藤運営幹事）",
       "role": "member",
       "laws": [
         "409M50000100028"
-      ]
+      ],
+      "excerpt": "…ような状況にあるかと存じます。 まず今回、Single IRBをＧＣＰ省令（医薬品の臨床試験の実施の基準に関する省令） 改正で盛り込んでいただけるということで私どもも非常に良いことと考えており、活性 化に向けて最大限御協力させていただきたいと考えております。その上で、今回のＧＣ Ｐ省令改正で盛り込まれる予定のSingle IRBの制度をより有効な形…",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_02medical/260323/medical11_agenda.html"
     },
     {
       "name": "桜井専門委員",
       "role": "member",
       "laws": [
         "429AC0000000016"
-      ]
+      ],
+      "excerpt": "…に関連してお聞きしたいなと思っておりますので、聞かせてくだ さい。 一点目は、臨床研究法に基づくＣＲＢというのは３年ごとの更新だったり、あと一応 第三者評価といったことが要件として定められているかと思うのですけれども、ＩＲＢ や倫理審査委員会については認証制度が全く無いということが現在の質の悪さやバラ バラというところにつなが…",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_02medical/260323/medical11_agenda.html"
     },
     {
       "name": "落合委員",

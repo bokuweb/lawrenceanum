@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "corpus": "kokkai",
   "id": "121904024X00120251021",
   "date": "2025-10-21",
@@ -20,7 +20,9 @@
       "role": "kokkai",
       "laws": [
         "323AC1000000194"
-      ]
+      ],
+      "excerpt": "…出されておりますので、会派の認定をお諮りいただきます。 なお、日本保守党は、政治資金規正法第六条の届出を行っております。",
+      "excerpt_url": "https://kokkai.ndl.go.jp/txt/121904024X00120251021/30"
     }
   ]
 }

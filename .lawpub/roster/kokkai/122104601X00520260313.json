@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "corpus": "kokkai",
   "id": "122104601X00520260313",
   "date": "2026-03-13",
@@ -9,12 +9,12 @@
   "url": "https://kokkai.ndl.go.jp/txt/122104601X00520260313",
   "laws": [
     {
-      "law_id": "325AC0000000226",
-      "title": "地方税法"
-    },
-    {
       "law_id": "325AC0000000211",
       "title": "地方交付税法"
+    },
+    {
+      "law_id": "325AC0000000226",
+      "title": "地方税法"
     }
   ],
   "speakers": []

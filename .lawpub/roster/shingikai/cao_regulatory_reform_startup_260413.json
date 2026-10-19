@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "corpus": "shingikai",
   "id": "cao_regulatory_reform_startup_260413",
   "date": "2026-04-13",
@@ -77,7 +77,9 @@
       "role": "member",
       "laws": [
         "132AC0000000048"
-      ]
+      ],
+      "excerpt": "…ので賛成との意見、消費者団体から、中 小小売店への影響、景品で催事会場に誘う悪徳商法への懸念もある一方、引上げが消費 者利益の確保を中心に据えるなら、消費者の豊かな生活の手段として消極的ながら賛成 との意見などがありました。 引上げに慎重な意見としましては、消費者団体、事業者団体、個別の事業者から、消 費者の商品本体の選…",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_04startup/260413/startup13_agenda.html"
     },
     {
       "name": "消費者庁（田中審議官）",
@@ -94,7 +96,9 @@
       "role": "member",
       "laws": [
         "132AC0000000048"
-      ]
+      ],
+      "excerpt": "…害が無いというわけではないのだろうなと思われます。 今、私が申し上げた形態は特商法などで規制されていたりもしますから、総付景品の規 制としての執行事例がほとんど無いということで景品によって誘引されて消費者が被 害を被っているということが全然無いのかというと、そういうことでもないだろうなと 思いました。 以上でご…",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_04startup/260413/startup13_agenda.html"
     },
     {
       "name": "落合座長",

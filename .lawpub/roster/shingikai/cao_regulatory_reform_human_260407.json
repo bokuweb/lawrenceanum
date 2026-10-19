@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "corpus": "shingikai",
   "id": "cao_regulatory_reform_human_260407",
   "date": "2026-04-07",
@@ -123,7 +123,9 @@
       "role": "member",
       "laws": [
         "324AC1000000205"
-      ]
+      ],
+      "excerpt": "HR Strategy（杉田弁護士） お世話になります。弁護士法人Global HR Strategyの弁護士の杉田と申します。この 分野の出入国管理関係法令と労働関係法令の実務をやっている人間です。 ただ今、それぞれ御発表いただいた中で一点、試験内容の見直しについて、今、育成就 労制度との関係で…",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_03human/260407/human07_agenda.html"
     },
     {
       "name": "水町専門委員",
@@ -145,7 +147,9 @@
       "role": "member",
       "laws": [
         "324AC1000000205"
-      ]
+      ],
+      "excerpt": "…法務省出入国在留管理庁、経済産業省、国土交通省のほか、レバレジー ズ株式会社、弁護士法人Global HR Strategyの杉田昌平弁護士にも御参加いただきます。 御意見、御質問のある方はＺｏｏｍの手を挙げる機能により挙手をお願いいたします。 挙手をしていただいた順にこちらから御指名していきますので、それから発言してい…",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_03human/260407/human07_agenda.html"
     }
   ]
 }

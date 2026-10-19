@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "corpus": "kokkai",
   "id": "122204575X00120261005",
   "date": "2026-10-05",
@@ -9,12 +9,12 @@
   "url": "https://kokkai.ndl.go.jp/txt/122204575X00120261005",
   "laws": [
     {
-      "law_id": "325AC1000000100",
-      "title": "公職選挙法"
-    },
-    {
       "law_id": "323AC1000000194",
       "title": "政治資金規正法"
+    },
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
     }
   ],
   "speakers": []

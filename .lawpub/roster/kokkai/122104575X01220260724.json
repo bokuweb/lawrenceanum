@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "corpus": "kokkai",
   "id": "122104575X01220260724",
   "date": "2026-07-24",
@@ -13,12 +13,12 @@
       "title": "地方自治法"
     },
     {
-      "law_id": "325AC1000000100",
-      "title": "公職選挙法"
-    },
-    {
       "law_id": "323AC1000000194",
       "title": "政治資金規正法"
+    },
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
     }
   ],
   "speakers": []

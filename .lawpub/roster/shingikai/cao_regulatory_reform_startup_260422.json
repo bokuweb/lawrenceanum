@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "corpus": "shingikai",
   "id": "cao_regulatory_reform_startup_260422",
   "date": "2026-04-22",
@@ -153,7 +153,9 @@
         "325AC0000000131",
         "325AC0000000132",
         "325M50080000014"
-      ]
+      ],
+      "excerpt": "…のお話もされていましたが、 放送なども放送事故の考え方みたいなものも総務省様の放送法の基準より放送事業者 27 の自主規制的にやられている方が厳しそうな感じはいたしますが、それでも最近ＴＶｅ ｒなどで配信されたり、そちらの方でも収益が上がってきているようになってきていた …",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_04startup/260422/startup14_agenda.html"
     },
     {
       "name": "藤本専門委員",

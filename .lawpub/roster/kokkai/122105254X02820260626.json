@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "corpus": "kokkai",
   "id": "122105254X02820260626",
   "date": "2026-06-26",
@@ -9,12 +9,12 @@
   "url": "https://kokkai.ndl.go.jp/txt/122105254X02820260626",
   "laws": [
     {
-      "law_id": "325AC1000000100",
-      "title": "公職選挙法"
-    },
-    {
       "law_id": "413AC0000000137",
       "title": "特定電気通信による情報の流通によって発生する権利侵害等への対処に関する法律"
+    },
+    {
+      "law_id": "325AC1000000100",
+      "title": "公職選挙法"
     }
   ],
   "speakers": []

@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "corpus": "shingikai",
   "id": "cao_regulatory_reform_local_260519",
   "date": "2026-05-19",
@@ -82,7 +82,9 @@
       "role": "member",
       "laws": [
         "129AC0000000089"
-      ]
+      ],
+      "excerpt": "…条 10 項が、農地中間管理機構が農地中間管理権を有する農地を貸し付け る際に民法の規定による貸主の承諾を不要とする規定である旨の内容を、地域計画の協 議の場では中間管理機構の活用方針についても議論していくということになっており ますので、実際に市町村が地域計画の協議の際に議論に参加される方に配付される資料 の中に…",
+      "excerpt_url": "https://www8.cao.go.jp/kisei-kaikaku/kisei/meeting/wg/2501_01local/260519/local11_agenda.html"
     }
   ]
 }

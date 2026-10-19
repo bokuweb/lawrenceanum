@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "corpus": "kokkai",
   "id": "121904080X00420251217",
   "date": "2025-12-17",
@@ -9,12 +9,12 @@
   "url": "https://kokkai.ndl.go.jp/txt/121904080X00420251217",
   "laws": [
     {
-      "law_id": "322AC0000000067",
-      "title": "地方自治法"
-    },
-    {
       "law_id": "431AC0000000018",
       "title": "令和七年に開催される国際博覧会の準備及び運営のために必要な特別措置に関する法律"
+    },
+    {
+      "law_id": "322AC0000000067",
+      "title": "地方自治法"
     }
   ],
   "speakers": []
