@@ -1688,10 +1688,11 @@ fn y_center(w: &Col) -> f32 {
 fn attach_small_script_lines(lines: &mut Vec<Line>) {
     let chars = |l: &Line| l.words.iter().map(|w| w.text.chars().filter(|c| !c.is_whitespace()).count()).sum::<usize>();
     // 上付き・下付きの字（数と符号）。
+    // 小さな字の注の印（科目の右肩の「（注）」「（注１）」）も。
     let script = |l: &Line| {
-        l.words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace()).all(|c| {
-            c.is_ascii_digit() || "−-＋+()（）.０１２３４５６７８９".contains(c)
-        })
+        let t: String = l.words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace()).collect();
+        let note = t.starts_with(['（', '(']) && t.ends_with(['）', ')']) && t.chars().nth(1) == Some('注');
+        note || t.chars().all(|c| c.is_ascii_digit() || "−-＋+()（）.０１２３４５６７８９".contains(c))
     };
     // 語の字の高さ（行の高さは段の違う語が混ざると大きくなるので、語で比べる）。
     let glyph = |l: &Line| l.words.iter().map(|w| w.y1 - w.y).fold(f32::INFINITY, f32::min);
