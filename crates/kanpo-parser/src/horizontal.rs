@@ -1585,7 +1585,30 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
             anchors.extend(key_rows.into_iter().filter(|&y| top < y && y < bottom));
             continue;
         }
-        if item_cols == 0 && ny > 1 && (long_cells || r < header_rows || record || band.iter().all(|&i| items(i) <= 1)) && !band.iter().any(|&i| rowlike_cell(i)) {
+        // 何行かのセル（「熊本県熊本市中央区黒髪７丁目763番／学生支援部／寄宿舎男子Ａ棟」）が 1 つだけで、ほかのセルはどれも 1 行で
+        // その高さの範囲の中ほどに置かれているなら、1 件の行（ほかのセルの行の高さで行を分けると、セルの 1 行目だけが前の行に
+        // なっていた）。
+        let centered = {
+            let multi: Vec<usize> = band.iter().copied().filter(|&i| cell_lines[i].len() >= 2).collect();
+            let singles: Vec<usize> = band.iter().copied().filter(|&i| cell_lines[i].len() == 1).collect();
+            // 左端の欄（科目の欄の「基金／指定正味財産／一般正味財産」は項目の並び）は除く。
+            // 科目の名前で終わる行（「指定正味財産」「固定負債」）や金額の行のあるセルも除く。
+            multi.len() == 1
+                && g.cells[multi[0]].x0 > 0
+                && cell_lines[multi[0]].len() <= 4
+                && !cell_lines[multi[0]].iter().any(|l| account_end(l) || amount_line(l))
+                && singles.len() >= 2
+                && {
+                let ls = &cell_lines[multi[0]];
+                let (y0, y1) = (ls[0].y0, ls[ls.len() - 1].y1);
+                let first = ls[0].center();
+                singles.iter().all(|&i| {
+                    let c = cell_lines[i][0].center();
+                    c > y0 && c < y1 && (c - first).abs() > ALIGN_TOL
+                })
+            }
+        };
+        if item_cols == 0 && ny > 1 && (long_cells || r < header_rows || record || centered || band.iter().all(|&i| items(i) <= 1)) && !band.iter().any(|&i| rowlike_cell(i)) {
             continue;
         }
         for &i in &band {
