@@ -201,6 +201,62 @@ fn merge_side_by_side(tables: &mut Vec<trace::Table>) {
 
 /// `vrules`・`hrules` は縦・横の罫線（`(x, y0, y1)`・`(y, x0, x1)`）。
 fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)], one_column: bool) -> Vec<trace::Line> {
+    let geom: std::collections::HashMap<usize, (f32, f32, f32, f32)> = cols.iter().map(|c| (c.id, (c.x, c.x1, c.y, c.y1))).collect();
+    let texts: std::collections::HashMap<usize, String> = cols.iter().map(|c| (c.id, c.text.clone())).collect();
+    let mut lines = lines_with_tables_inner(cols, grids, vrules, hrules, one_column);
+    rejoin_split_names(&mut lines, &geom, &texts);
+    lines
+}
+
+/// 署名の氏の後ろに同じ高さで続く名（「取締役　北川」の右の「久芳」）が、表と表の間の溝で別の列に分かれて離れた行に
+/// 読まれていたら、氏の行の後ろへ戻す（囲みの中の貸借対照表と損益計算書の間の溝が、署名の氏と名の間にも通っていた）。
+/// 名だけの行（1〜3 字の漢字・仮名の 1 語）で、前の行のうち、役職（取締役・理事・社長・清算人・代表者・執行役・社員）を
+/// 含み 1〜3 字の氏で終わる行の、氏の語と上下が揃い 1.5 字分以内の右から始まるものだけ。
+fn rejoin_split_names(lines: &mut Vec<trace::Line>, geom: &std::collections::HashMap<usize, (f32, f32, f32, f32)>, texts: &std::collections::HashMap<usize, String>) {
+    const TITLES: [&str; 7] = ["取締役", "理事", "社長", "清算人", "代表者", "執行役", "社員"];
+    let name = |t: &str| {
+        let t = t.trim();
+        let n = t.chars().count();
+        (1..=3).contains(&n) && t.chars().all(|c| ('\u{4E00}'..='\u{9FFF}').contains(&c) || ('\u{3040}'..='\u{30FF}').contains(&c))
+    };
+    let mut i = 0;
+    while i < lines.len() {
+        let l = &lines[i];
+        // 名は漢字を含む（社名の折り返し「ション」「ングス」は名ではない）。
+        let single = l.table.is_none()
+            && l.words.len() == 1
+            && texts.get(&l.words[0]).is_some_and(|t| name(t) && t.chars().any(|c| ('\u{4E00}'..='\u{9FFF}').contains(&c)));
+        let Some(&(nx, _, ny, ny1)) = single.then(|| geom.get(&l.words[0])).flatten() else {
+            i += 1;
+            continue;
+        };
+        let em = (ny1 - ny).max(1.0);
+        let host = (0..i).rev().take(60).find(|&j| {
+            let m = &lines[j];
+            let Some(&last) = m.words.last() else { return false };
+            let Some(&(_, lx1, ly, _)) = geom.get(&last) else { return false };
+            // 氏の語のすぐ前が役職の語（名まで組まれた行「代表取締役　康本　和正」には付けない）。
+            let titled = m.words.len() >= 2 && texts.get(&m.words[m.words.len() - 2]).is_some_and(|t| TITLES.iter().any(|x| t.contains(x)));
+            m.table.is_none()
+                && titled
+                && texts.get(&last).is_some_and(|t| name(t))
+                && (ly - ny).abs() < 1.0
+                && nx >= lx1 - 0.5
+                && nx - lx1 <= em * 1.5
+        });
+        if let Some(j) = host {
+            let l = lines.remove(i);
+            let m = &mut lines[j];
+            m.text.push('\u{3000}');
+            m.text.push_str(l.text.trim());
+            m.words.extend(l.words);
+            continue;
+        }
+        i += 1;
+    }
+}
+
+fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)], one_column: bool) -> Vec<trace::Line> {
     let mut rest = cols;
     let mut tables: Vec<trace::Table> = Vec::new();
     for g in grids.iter().filter(|g| g.xs.len() >= 3 && g.ys.len() >= 3 && !grids.iter().any(|o| g.encloses(o))) {
