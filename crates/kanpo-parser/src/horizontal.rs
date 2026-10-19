@@ -148,6 +148,57 @@ pub(crate) fn one_column_lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrule
     lines_with_tables(cols, grids, vrules, hrules, true)
 }
 
+/// 左右に離して並べた 2 つの罫線の表で、上端と下端が揃い、右の表のどの行の上端も左の表のいずれかの行の上端と揃うもの
+/// （たばこの小売定価の表の、品名｜寸法｜本数の表と、離れて組んだ定価の 2 欄の表）は、右の表の欄を左の表の行の後ろに
+/// つなぐ（品名の行がすべて読まれた後に、定価だけが並んでいた）。
+fn merge_side_by_side(tables: &mut Vec<trace::Table>) {
+    let tops = |t: &trace::Table| -> Vec<f32> {
+        (0..t.rows).map(|r| t.cells.iter().filter(|c| c.row == r).map(|c| c.y0).fold(f32::INFINITY, f32::min)).collect()
+    };
+    // 上端が y に揃うセルの行（行をまたぐセルは下の行に置かれることがあるので、セルごとに見る）。
+    let row_at = |t: &trace::Table, y: f32| t.cells.iter().filter(|c| (c.y0 - y).abs() <= 2.0).map(|c| c.row).min();
+    let mut i = 0;
+    while i < tables.len() {
+        let partner = (0..tables.len()).find(|&j| {
+            let (a, b) = (&tables[i], &tables[j]);
+            j != i
+                && b.x0 > a.x1
+                && b.x0 - a.x1 < a.x1 - a.x0
+                && (a.y0 - b.y0).abs() <= 3.0
+                && (a.y1 - b.y1).abs() <= 3.0
+                && b.rows >= 3
+                && a.rows >= b.rows
+                // 同じ欄の並びの表（2 つに分けて組んだ座標の一覧の続き）はつながない。
+                && a.cols != b.cols
+                // 右の表は金額だけ（科目の欄のある表どうし（並べて組んだ決算公告の囲み）はつながない）。
+                && b.cells.iter().all(|c| {
+                    let t: String = c.text.chars().filter(|ch| !ch.is_whitespace()).collect();
+                    t.is_empty() || (t.chars().any(|ch| ch.is_ascii_digit()) && t.chars().all(|ch| ch.is_ascii_digit() || ",.△▲－-円%％()（）".contains(ch)))
+                })
+                && {
+                    tops(b).iter().all(|y| y.is_finite() && row_at(a, *y).is_some())
+                }
+        });
+        let Some(j) = partner else {
+            i += 1;
+            continue;
+        };
+        let b = tables.remove(j);
+        let i2 = if j < i { i - 1 } else { i };
+        let a = &mut tables[i2];
+        let tb = tops(&b);
+        for mut c in b.cells {
+            let y = tb[c.row];
+            c.row = row_at(a, y).unwrap_or(c.row);
+            c.col += a.cols;
+            a.cells.push(c);
+        }
+        a.cols += b.cols;
+        a.x1 = b.x1;
+        i = i2 + 1;
+    }
+}
+
 /// `vrules`・`hrules` は縦・横の罫線（`(x, y0, y1)`・`(y, x0, x1)`）。
 fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)], one_column: bool) -> Vec<trace::Line> {
     let mut rest = cols;
@@ -160,6 +211,7 @@ fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)],
             None => rest.extend(mine),
         }
     }
+    merge_side_by_side(&mut tables);
     // 縦の罫線だけの表は、決算公告の囲みの中の表と同じく本文の段の溝をふさがない（上の記事の段が 1 段につながる）。
     let framed = tables.len();
     let (ruled, others) = rule_column_tables(rest, vrules, hrules);
