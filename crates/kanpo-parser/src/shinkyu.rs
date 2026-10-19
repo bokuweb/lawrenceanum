@@ -218,8 +218,15 @@ fn item_numbers(band: &[Col]) -> (Vec<u32>, Vec<u32>) {
         let t = top.text.trim();
         let digit = |c: char| c.to_digit(10).or_else(|| ('０'..='９').contains(&c).then(|| c as u32 - '０' as u32));
         let digits: Vec<u32> = t.chars().map_while(digit).collect();
+        // 漢数字の号の番号（「九十九　アルキル…」「百　アンモニウム…」）も項番号。
+        let kanji: String = t.chars().take_while(|c| "〇一二三四五六七八九十百千".contains(*c)).collect();
+        let after = t[kanji.len()..].chars().next();
         if (1..=3).contains(&digits.len()) {
             items.push(digits.iter().fold(0, |n, d| n * 10 + d));
+        } else if !kanji.is_empty() && kanji.chars().count() <= 6 && matches!(after, None | Some('\u{3000}') | Some(' ')) {
+            if let Some(n) = kanji_number(&kanji) {
+                items.push(n);
+            }
         } else if let Some(rest) = t.strip_prefix('第') {
             let kanji: String = rest.chars().take_while(|c| "〇一二三四五六七八九十百千".contains(*c)).collect();
             if let Some(n) = rest[kanji.len()..].starts_with('条').then(|| kanji_number(&kanji)).flatten() {
