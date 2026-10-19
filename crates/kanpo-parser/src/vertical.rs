@@ -1236,32 +1236,56 @@ fn merge_split_table_rows(units: &mut [Unit]) {
 /// 「…から施行する。」）を、改正前の欄の後ろ（表の外）へ移す（表の続きの欄の左に、上の帯の高さで組まれた備考・附則が
 /// 改正後の欄に入り、改正後と改正前の間に読まれていた）。改正前の欄に字のあるときだけ。
 fn move_trailing_notes(units: &mut [Unit]) {
-    for unit in units.iter_mut() {
-        let Unit::Shinkyu { after, before, outside, .. } = unit else { continue };
-        if before.iter().all(|p| p.iter().all(|l| l.text.trim().is_empty())) {
-            continue;
-        }
-        let Some(last) = after.last_mut() else { continue };
-        let text = |l: &Line| l.text.chars().filter(|c| !c.is_whitespace()).collect::<String>();
-        // 終わりから、備考（折り返した続きの「…は注記である。」も）・附則・施行の行だけが続く所まで。
-        let mut k = last.len();
+    let text = |l: &Line| l.text.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+    // 欄の終わりから、備考（折り返した続きの「…は注記である。」も）・附則・施行の行だけが続く所まで。備考・附則の
+    // 行が無ければ None。
+    let tail_of = |part: &[Line]| -> Option<usize> {
+        let mut k = part.len();
         while k > 0 {
-            let t = text(&last[k - 1]);
-            let wrapped = t.ends_with("注記である。") && k >= 2 && text(&last[k - 2]).starts_with("備考");
+            let t = text(&part[k - 1]);
+            let wrapped = t.ends_with("注記である。") && k >= 2 && text(&part[k - 2]).starts_with("備考");
             if t.starts_with("備考") || wrapped || t == "附則" || t.contains("から施行する") {
                 k -= 1;
             } else {
                 break;
             }
         }
-        let tail: Vec<String> = last[k..].iter().map(text).collect();
+        let tail: Vec<String> = part[k..].iter().map(text).collect();
         let noted = tail.iter().any(|t| t.starts_with("備考") && tail.iter().any(|u| u.contains("注記である")))
             || tail.windows(2).any(|w| w[0] == "附則" && w[1].contains("施行する"));
-        if k == last.len() || !noted {
+        (k < part.len() && noted).then_some(k)
+    };
+    for unit in units.iter_mut() {
+        let Unit::Shinkyu { after, before, outside, .. } = unit else { continue };
+        if before.iter().all(|p| p.iter().all(|l| l.text.trim().is_empty())) {
             continue;
         }
-        let moved: Vec<Line> = last.drain(k..).collect();
-        outside.insert(0, moved);
+        let mut moved: Vec<Line> = Vec::new();
+        if let Some(last) = after.last_mut() {
+            if let Some(k) = tail_of(last) {
+                moved.extend(last.drain(k..));
+            }
+        }
+        // 改正前の欄の終わりの附則（備考は表の外にある）も。
+        if let Some(last) = before.last_mut() {
+            if let Some(k) = tail_of(last) {
+                moved.extend(last.drain(k..));
+            }
+        }
+        if moved.is_empty() {
+            continue;
+        }
+        // 表の外の頭にある備考は附則より前（備考は表のすぐ下、附則はその後ろ）。
+        let notes = outside.first().map_or(0, |p| p.iter().take_while(|l| text(l).starts_with("備考") || text(l).ends_with("注記である。")).count());
+        let moved_has_note = moved.iter().any(|l| text(l).starts_with("備考"));
+        if notes > 0 && !moved_has_note {
+            let first = &mut outside[0];
+            let rest: Vec<Line> = first.drain(notes..).collect();
+            first.extend(moved);
+            first.extend(rest);
+        } else {
+            outside.insert(0, moved);
+        }
     }
 }
 
