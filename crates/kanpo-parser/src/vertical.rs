@@ -3068,6 +3068,9 @@ fn attach_toc_page_numbers(mut tiers: Vec<Vec<Col>>, words: &[Word]) -> Vec<Vec<
     let center = |c: &Col| (c.x + c.x1) / 2.0;
     let mut moves: Vec<(usize, usize, usize)> = Vec::new();
     for (ti, tier) in tiers.iter().enumerate() {
+        // 番号だけの段（目次の欄の下端にそろえて組んだページ番号「九」「三七」「四四」）は、項目の列の下端から離れていても
+        // （12 字分まで）同じ列の項目へ戻す。
+        let only_numbers = tier.len() >= 2 && tier.iter().all(|c| is_number(c));
         let candidates: Vec<(usize, usize)> = tier
             .iter()
             .enumerate()
@@ -3077,13 +3080,19 @@ fn attach_toc_page_numbers(mut tiers: Vec<Vec<Col>>, words: &[Word]) -> Vec<Vec<
             .filter_map(|(ci, c)| {
                 let em = c.x1 - c.x;
                 // すぐ上にある段で、同じ列の語の下端が番号の上にあるもの。
-                let ui = (0..tiers.len()).find(|&ui| {
-                    let up = &tiers[ui];
-                    let bottom = up.iter().map(|d| d.y1).fold(f32::NEG_INFINITY, f32::max);
-                    ui != ti
-                        && (0.0..em * 2.0).contains(&(c.y - bottom))
-                        && up.iter().any(|d| (center(d) - center(c)).abs() < em * 0.5 && d.y1 <= c.y)
-                })?;
+                let reach = if only_numbers { em * 12.0 } else { em * 2.0 };
+                let ui = (0..tiers.len())
+                    .filter(|&ui| {
+                        let up = &tiers[ui];
+                        let bottom = up.iter().map(|d| d.y1).fold(f32::NEG_INFINITY, f32::max);
+                        ui != ti
+                            && (0.0..reach).contains(&(c.y - bottom))
+                            && up.iter().any(|d| (center(d) - center(c)).abs() < em * 0.5 && d.y1 <= c.y)
+                    })
+                    .min_by(|&a, &b| {
+                        let bottom = |ui: usize| tiers[ui].iter().map(|d| d.y1).fold(f32::NEG_INFINITY, f32::max);
+                        (c.y - bottom(a)).total_cmp(&(c.y - bottom(b)))
+                    })?;
                 Some((ci, ui))
             })
             .collect();
