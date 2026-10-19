@@ -3009,9 +3009,11 @@ fn label_column(labels: &[Line], contents: &[Line]) -> bool {
     labels.len() >= 6 && numbered * 2 >= heads.len() && named * 2 >= heads.len() && n >= 3 && explained * 10 >= labels.len() * 9
 }
 
-/// 金額だけの行か（「1,248,173,132」「△13,370,826」「3,028,272　4,123,850,771」）。
+/// 金額だけの行か（「1,248,173,132」「△13,370,826」「3,028,272　4,123,850,771」「1,949,555,027円」）。
 fn amount_line(l: &Line) -> bool {
     let t: String = l.words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace()).collect();
+    // 単位の「円」で終わる金額（「1,949,555,027円」）も。
+    let t = t.strip_suffix('円').filter(|r| r.contains(',')).unwrap_or(&t);
     t.chars().any(|c| c.is_ascii_digit()) && t.chars().all(|c| c.is_ascii_digit() || ",.△▲－-()（）".contains(c))
 }
 
