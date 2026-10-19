@@ -2991,7 +2991,12 @@ fn rule_cut(words: &[Col], blocks: &[Block], vrules: &[(f32, f32, f32)], hrules:
         .iter()
         .filter(|&&(x, ry0, ry1)| {
             ry1.min(y1) - ry0.max(y0) >= (y1 - y0) * 0.7
-                && !words.iter().any(|w| w.x < x - 1.0 && w.x1 > x + 1.0)
+                // 線の左に 5pt 以内だけ出て始まる語（右の段の頭の見出し「〇国土交通省告示…」が線より少し左から組まれる）は
+                // 線をまたがない。すぐ左（半字分以内）に同じ高さの語が続くもの（線の上を通る注記の文「149,538,」「007円です。」）は除く。
+                && !words.iter().any(|w| {
+                    let glued = words.iter().any(|p| p.x1 <= w.x + 0.5 && w.x - p.x1 < (w.y1 - w.y) * 0.5 && (y_center(p) - y_center(w)).abs() < (w.y1 - w.y) * 0.5);
+                    w.x < x - 1.0 && w.x1 > x + 1.0 && !(w.x > x - 5.0 && w.x1 - x > (x - w.x) * 4.0 && !glued)
+                })
                 // 領域の上下の範囲に（2pt より多く）掛かる表だけ（上の表の下端がわずかに掛かるだけなら見ない）。
                 && !blocks.iter().any(|b| b.0 < x - 1.0 && b.2 > x + 1.0 && b.3.min(y1) - b.1.max(y0) > 2.0)
         })
