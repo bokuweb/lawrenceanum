@@ -2645,14 +2645,17 @@ fn rule_cut(words: &[Col], blocks: &[Block], vrules: &[(f32, f32, f32)], hrules:
         .filter(|&&(x, ry0, ry1)| {
             ry1.min(y1) - ry0.max(y0) >= (y1 - y0) * 0.7
                 && !words.iter().any(|w| w.x < x - 1.0 && w.x1 > x + 1.0)
-                && !blocks.iter().any(|b| b.0 < x - 1.0 && b.2 > x + 1.0)
+                // 領域の上下の範囲に（2pt より多く）掛かる表だけ（上の表の下端がわずかに掛かるだけなら見ない）。
+                && !blocks.iter().any(|b| b.0 < x - 1.0 && b.2 > x + 1.0 && b.3.min(y1) - b.1.max(y0) > 2.0)
         })
         .filter(|&&(x, ry0, ry1)| {
             let (left, right): (Vec<Col>, Vec<Col>) = words.iter().cloned().partition(|w| x_center(w) < x);
             let width = |ws: &[Col]| ws.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max) - ws.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
-            let divider = ry0 <= y0 + (y1 - y0) * 0.05
+            // 線の上端は、領域の上端から 6pt までの低さでもよい（上の表の下の枠の線のすぐ下から始まる段の境の線。低い帯では
+            // 高さの 5% が 2pt ほどしかない）。そこの枠の線（領域の上端の 2pt 以内）は線をまたぐ横線に数えない。
+            let divider = ry0 <= y0 + ((y1 - y0) * 0.05).max(6.0)
                 && ry1 >= y1 - (y1 - y0) * 0.05
-                && !hrules.iter().any(|&(hy, hx0, hx1)| hy > y0 && hy < y1 && hx0 < x - 5.0 && hx1 > x + 5.0)
+                && !hrules.iter().any(|&(hy, hx0, hx1)| hy > y0 + 2.0 && hy < y1 && hx0 < x - 5.0 && hx1 > x + 5.0)
                 // 表の列の線は、同じ高さに引いた線が語の範囲にほかにもある（列が上下の罫線の無い表の続き）。
                 && !vrules.iter().any(|&(vx, vy0, vy1)| (vx - x).abs() > 2.0 && vx > wx0 && vx < wx1 && (vy0 - ry0).abs() < 3.0 && (vy1 - ry1).abs() < 3.0)
                 && !left.is_empty()
