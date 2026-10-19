@@ -587,7 +587,9 @@ pub(crate) fn row_key(text: &str) -> bool {
         && t.chars().all(code_char)
         && t.chars().any(digit)
         && t.chars().any(alpha)
-        && !t.starts_with(['－', '-']);
+        && !t.starts_with(['－', '-'])
+        // 数と小文字の単位（「１ppm」「５mg」）は値で記号ではない（残留基準値の表の値が行の見出しになっていた）。
+        && !(t.chars().filter(|c| alpha(*c)).all(|c| c.is_ascii_lowercase()) && t.trim_start_matches(digit).chars().all(|c| c.is_ascii_lowercase()));
     numbered || code || kanji_code(t)
 }
 
@@ -644,6 +646,23 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
     loop {
         let mut keys: Vec<Col> = words.iter().filter(|w| row_key(&w.text) && !rejected.contains(&w.id)).cloned().collect();
         keys.sort_by(|a, b| a.x.total_cmp(&b.x).then(a.y.total_cmp(&b.y)));
+        // 左端が 2pt 以内の漢字の付いた登録番号は同じ列として上から並べる（左端が 1pt ずれた番号「輸第100238号」が、x の順で
+        // 列の後ろに回って別の短い列になり、表に入らなかった）。
+        {
+            // 頭に漢字の付いた登録番号（「生第…号」「令08全保…」。「第…号」だけのものは除く）。
+            let prefixed = |t: &str| kanji_code(t.trim()) && !t.trim().starts_with('第');
+            let mut groups: Vec<Vec<Col>> = Vec::new();
+            for k in keys {
+                match groups.last_mut() {
+                    Some(g) if (k.x - g[0].x).abs() < 2.0 && prefixed(&k.text) && prefixed(&g[0].text) => g.push(k),
+                    _ => groups.push(vec![k]),
+                }
+            }
+            for g in &mut groups {
+                g.sort_by(|a, b| a.y.total_cmp(&b.y));
+            }
+            keys = groups.into_iter().flatten().collect();
+        }
         // 番号 l と次の番号 k の間が、番号の列に字の無い行（折り返しの続き）で 2 em 未満の空きで続くか。
         let continuous = |l: &Col, k: &Col| {
             let em = (k.y1 - k.y).max(1.0);
@@ -761,7 +780,17 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
             .copied()
             .filter(|&x| {
                 let flow = flow_starts.iter().filter(|&&f| (f - x).abs() < 2.0).count();
-                let rows = cluster.iter().filter(|k| words.iter().any(|w| on_row(w) && (y_center(w) - y_center(k)).abs() <= em * 0.35 && (w.x - x).abs() < 2.0)).count();
+                // 漢字の付いた登録番号の表は、欄の 1 行目が x に掛かる行も数える（折り返しの「17937」が、括弧の字「（６）」の分右の
+                // x から始まり、1 行目の「埼玉県知事」はその左から始まる）。
+                let kanji = kanji_code(cluster[0].text.trim());
+                let rows = cluster
+                    .iter()
+                    .filter(|k| {
+                        words.iter().any(|w| {
+                            on_row(w) && (y_center(w) - y_center(k)).abs() <= em * 0.35 && ((w.x - x).abs() < 2.0 || (kanji && w.x < x && w.x1 > x + 1.0))
+                        })
+                    })
+                    .count();
                 flow >= 3 && flow > rows && rows * 3 < cluster.len()
             })
             .map(|x| x - 0.5)
