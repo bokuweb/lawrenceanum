@@ -611,7 +611,16 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
                 .max_by(|a, b| a.1.total_cmp(&b.1).then(a.0.cmp(&b.0)))
                 .map(|(i, _)| i + 1);
             let split_head = part_heads.iter().find(|(b, _)| *b == t).and_then(|(_, w)| lines.iter().position(|l| l.words.first() == Some(w))).map(|i| i + 1);
-            (at.or(split_head).or(heading).unwrap_or_else(|| lines.iter().position(after).unwrap_or(lines.len())), t, ls)
+            // 行がどれも表の下端より下にあるなら（紙面の頭の、前のページから続く表）、表は最初に置く（表の左下から始まる次の
+            // 表の標題「神奈川県道高速湾岸線」が表の幅に掛からず、表が最後に置かれていた）。
+            let all_below = !lines.is_empty()
+                && ls.first().is_some_and(|l| l.table.is_some())
+                && lines.iter().all(|l| {
+                    let y0 = l.words.iter().filter_map(|w| geom.get(w)).map(|p| p.2).fold(f32::INFINITY, f32::min);
+                    y0.is_finite() && y0 >= t.3 - 2.0
+                });
+            let fallback = || if all_below { 0 } else { lines.len() };
+            (at.or(split_head).or(heading).unwrap_or_else(|| lines.iter().position(after).unwrap_or_else(fallback)), t, ls)
         })
         .collect();
     // 後ろの位置から差し込む。同じ位置には、読み順で後の表（下・右）から差し込む。縦組みの欄（行の無い表）は
