@@ -27,6 +27,8 @@ pub struct PlanArgs {
     pub max_pubcomments: usize,
     /// 1 回の plan で LLM に要約させる官報の項目 (改め文) の上限 (別枠)。
     pub max_kanpo: usize,
+    /// 1 回の plan で LLM に全体像と経緯を書かせる人物の上限 (別枠)。
+    pub max_people: usize,
     /// 1 回の plan で新しく作る発言者名簿の上限 (LLM とは無関係。会議 1 件あたり HTTP 数回)。
     pub max_roster: usize,
     /// 自治体例規の配信元 (R2 の `{public}/reiki`)。空なら例規の照合をしない。
@@ -241,6 +243,12 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
     match super::kanpo::plan_tasks(&args.wiki, &args.work, args.max_kanpo) {
         Ok(k_tasks) => tasks.extend(k_tasks),
         Err(e) => tracing::warn!("wiki-plan: 官報の要約タスクの作成に失敗: {e:#}"),
+    }
+    // 人物は名簿 (上で更新済み) から選ぶ。今日の会議タスクで経緯を書き足す人は翌日に回す。
+    let busy: BTreeSet<String> = tasks.iter().flat_map(|t| t.people.iter().cloned()).collect();
+    match super::person::plan_tasks(&source, &args.wiki, &args.work, args.max_people, &busy) {
+        Ok(p_tasks) => tasks.extend(p_tasks),
+        Err(e) => tracing::warn!("wiki-plan: 人物の要約タスクの作成に失敗: {e:#}"),
     }
 
     state.save(&args.wiki)?;
@@ -825,6 +833,7 @@ fn write_task(
         people: task_people,
         committee: task_committee,
         created,
+        person: None,
     })
 }
 
@@ -959,6 +968,7 @@ fn plan_bills(args: &PlanArgs, source: &Source) -> Result<Vec<Task>> {
             people: Vec::new(),
             committee: None,
             created: Vec::new(),
+            person: None,
         });
     }
     Ok(tasks)
@@ -1041,6 +1051,7 @@ fn render_plan_md(plan: &Plan, wiki: &Path, work: &Path) -> String {
             "bill" => "議案ページ",
             "pubcomment" => "パブコメページ",
             "kanpo" => "官報ページ",
+            "person" => "人物ページ",
             _ => "会議ページ",
         };
         out.push_str(&format!("- {page_label}: `{wiki}/{}`{}\n", t.page, new(&t.page)));
@@ -1199,6 +1210,7 @@ mod tests {
             max_bills: 0,
             max_pubcomments: 0,
             max_kanpo: 0,
+            max_people: 0,
             max_roster: 100,
             reiki_base_url: String::new(),
             chunk_size: 4,
@@ -1286,6 +1298,7 @@ mod tests {
             max_bills: 0,
             max_pubcomments: 0,
             max_kanpo: 0,
+            max_people: 0,
             max_roster: 100,
             reiki_base_url: String::new(),
             chunk_size: 4,
@@ -1334,6 +1347,7 @@ mod tests {
             max_bills: 0,
             max_pubcomments: 0,
             max_kanpo: 0,
+            max_people: 0,
             max_roster: 100,
             reiki_base_url: String::new(),
             chunk_size: 4,

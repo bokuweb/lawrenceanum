@@ -26,6 +26,7 @@ pub mod check;
 pub mod export;
 pub mod finalize;
 pub mod kanpo;
+pub mod person;
 pub mod plan;
 pub mod pubcomment;
 pub mod reiki;
@@ -383,6 +384,18 @@ pub struct Task {
     pub committee: Option<String>,
     /// この plan で新規作成したページ (未完了なら finalize が削除する)。
     pub created: Vec<String>,
+    /// 人物タスク (`kind: person`) の完了判定に要る情報。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub person: Option<PersonTask>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PersonTask {
+    /// このタスクで渡した会議の最後の日付。完了したらページの `llm_until` にする。
+    pub until: String,
+    /// plan 時点の LLM 区間の hash。書き足されていなければ未完了とみなす
+    /// (既存の経緯に引用があるだけで完了扱いにしないため)。
+    pub before: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -490,13 +503,39 @@ fn llm_section(content: &str) -> String {
     }
 }
 
-/// `quotes` は会議録から切り出した発言の抜粋（原文のまま）。`table` は発言した会議の一覧。
-/// どちらも機械が作るので `lawpub:begin remarks` の中に置き、LLM の経緯とは分ける。
-pub fn person_body(name: &str, intro: &str, narrative: &str, quotes: &str, table: &str) -> String {
+/// 人物ページの「全体像」(論点ごとの主張・答弁のまとめ) の見出し。
+pub const PERSON_SUMMARY_HEADING: &str = "## 全体像";
+
+/// `summary` は全体像、`narrative` は発言と経緯 (どちらも LLM)。`quotes` は会議録から切り出した
+/// 発言の抜粋（原文のまま）。`table` は発言した会議の一覧。`quotes` と `table` は機械が作るので
+/// `lawpub:begin remarks` の中に置き、LLM の記述とは分ける。
+pub fn person_body(name: &str, intro: &str, summary: &str, narrative: &str, quotes: &str, table: &str) -> String {
     format!(
-        "\n# {name}\n\n{intro}\n\n## 発言と経緯\n\n{}\n\n<!-- lawpub:begin remarks -->\n{quotes}## 発言した会議（一覧）\n\n{table}<!-- lawpub:end remarks -->\n",
+        "\n# {name}\n\n{intro}\n\n{PERSON_SUMMARY_HEADING}\n\n{}\n\n## 発言と経緯\n\n{}\n\n<!-- lawpub:begin remarks -->\n{quotes}## 発言した会議（一覧）\n\n{table}<!-- lawpub:end remarks -->\n",
+        llm_section(summary),
         llm_section(narrative)
     )
+}
+
+/// 人物ページの LLM 区間 (全体像, 発言と経緯)。全体像の無い旧形式のページは、唯一の区間が経緯。
+pub fn person_blocks(body: &str) -> (String, String) {
+    let blocks: Vec<String> = llm_blocks(body).iter().map(|b| b.trim().to_string()).collect();
+    match blocks.as_slice() {
+        [] => (String::new(), String::new()),
+        [narrative] => (String::new(), narrative.clone()),
+        [summary, narrative, ..] => (summary.clone(), narrative.clone()),
+    }
+}
+
+/// LLM 区間の中身の hash (人物タスクで書き足されたかの判定用)。
+pub fn llm_hash(body: &str) -> String {
+    use sha2::{Digest, Sha256};
+    let mut h = Sha256::new();
+    for b in llm_blocks(body) {
+        h.update(b.trim().as_bytes());
+        h.update([0u8]);
+    }
+    hex::encode(&h.finalize()[..8])
 }
 
 /// 会派 (政党) ページ。国会会議録の会派表記ごとに 1 枚。
@@ -523,10 +562,16 @@ pub fn ensure_person_page(wiki: &Path, name: &str) -> Result<bool> {
     let path = wiki.join(person_page(name));
     if path.exists() {
         // 経緯の区間が無い旧形式のページは作り替える (一覧は finalize が埋め直す)。
+        // 全体像の区間が無いページには、経緯の前に区間を足す (LLM が書く場所を見分けられるように)。
         let mut page = Page::read(&path)?;
         if !page.body.contains(LLM_BEGIN) {
-            page.body = person_body(name, "", "", "", "");
+            page.body = person_body(name, "", "", "", "", "");
             page.write(&path)?;
+        } else if !page.body.contains(PERSON_SUMMARY_HEADING) {
+            if let Some(i) = page.body.find("## 発言と経緯") {
+                page.body.insert_str(i, &format!("{PERSON_SUMMARY_HEADING}\n\n{LLM_BEGIN}\n{LLM_END}\n\n"));
+                page.write(&path)?;
+            }
         }
         return Ok(false);
     }
@@ -536,7 +581,7 @@ pub fn ensure_person_page(wiki: &Path, name: &str) -> Result<bool> {
             ("title".into(), serde_json::json!(name)),
             ("description".into(), serde_json::json!("")),
         ],
-        body: person_body(name, "", "", "", ""),
+        body: person_body(name, "", "", "", "", ""),
     }
     .write(&path)?;
     Ok(true)
