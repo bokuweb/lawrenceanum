@@ -1719,7 +1719,42 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
             && (2..=4).contains(&ls.len())
             && ls.iter().all(|l| render_line(&l.words).chars().count() <= 16)
             && (1..ls.len()).all(|k| ls[k].y0 - ls[k - 1].y1 < (ls[k].y1 - ls[k].y0) * 0.3);
-        let whole = stacked(&all) || block;
+        // 折り返した 1 項目の文（独立行政法人の名前、「…に関する事務」）のセルで、同じ行に 3 項目以上の欄（年月ごとの件数の欄）が
+        // あれば、文は 1 つの値なので、その行の一番上に置く（年月の行に 1 行ずつ分かれ、文が年月の行の間に割れていた）。
+        // 同じ字の行の並び（どの行も欄の幅いっぱいの「電気通信回線」）は文ではない。
+        let distinct = {
+            let mut ts: Vec<String> = ls.iter().map(|l| render_line(&l.words)).collect();
+            ts.sort();
+            ts.dedup();
+            ts.len() == ls.len()
+        };
+        // 科目の名前で終わる行（両端揃えの「流動資産」「固定資産」、「経常事業収入」「経常事業支出」）があれば財務諸表の
+        // 科目の欄。2 行目から項目番号で始まる行（「13　償還期限」）があれば項目の並び。
+        let ledger = |l: &Line| {
+            let t: String = l.words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace()).collect();
+            account_end(l) || (["収入", "支出", "差金"].iter().any(|e| t.ends_with(e)) && t.chars().count() >= 4)
+        };
+        let prose = ls.len() >= 2
+            && distinct
+            && !ls.iter().any(|l| ledger(l))
+            && !ls.iter().skip(1).any(|l| crate::vertical::starts_item(&render_line(&l.words)))
+            && items(i) == 1
+            && !header_cell(i)
+            && {
+                // 文の行より項目の多い欄があるか、文が長い（40 字以上）こと（両端揃えで欄の幅いっぱいに組んだ科目「流動資産」
+                // 「固定資産」が金額の行と 1 行ずつ揃う財務諸表を除く）。
+                let chars: usize = ls.iter().map(|l| render_line(&l.words).chars().filter(|c| !c.is_whitespace()).count()).sum();
+                // 文は漢字・かなが 6 割以上（「（1000×ｎ）kHz（注２）」の値の並びを除く）。
+                let kana: usize = ls
+                    .iter()
+                    .map(|l| render_line(&l.words).chars().filter(|c| ('\u{3041}'..='\u{30FF}').contains(c) || ('\u{4E00}'..='\u{9FFF}').contains(c)).count())
+                    .sum();
+                let others: Vec<usize> = (0..g.cells.len()).filter(|&j| j != i && g.cells[j].y0 < gc.y1 && gc.y0 < g.cells[j].y1).map(|j| items(j)).collect();
+                let most = others.iter().copied().max().unwrap_or(0);
+                // 行の数と同じ数の項目の欄があれば、1 行ずつ値の付く項目の並び（「14.00以上18.00未満のもの」と単価の欄）。
+                most >= 3 && (most > ls.len() || chars >= 40) && !others.contains(&ls.len()) && kana * 10 >= chars * 6
+            };
+        let whole = stacked(&all) || block || prose;
         for l in ls {
             // 罫線の行を 2 つ以上またぐ狭い欄で、2 字ずつ折り返した 1 項目（様式の表の欄見出し「株式／引受／金」）も、一番上の
             // 行に置く。
