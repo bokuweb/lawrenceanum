@@ -1052,9 +1052,12 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
 /// 無い表。金額の無い科目の行「財務費用」「経常収益」が前の科目の行につながらないように）。0 なら普通の格子の表。
 fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table> {
     // 2 字以上の語の字数で、横長の語が縦長の語より多いこと。
+    // 欄の多い（7 欄以上の）率の表（桁区切りの無い表）の数だけの語（小数の率「1.47」が「1」「.」「47」に割れたもの）は
+    // 向きを見ない（2 桁の語は縦長）。
+    let rates = g.xs.len() >= 8 && !words.iter().any(|w| w.text.contains(','));
     let (h_chars, v_chars) = words.iter().fold((0, 0), |(h, v), w| {
         let n = w.text.chars().count();
-        if n < 2 {
+        if n < 2 || (rates && w.text.chars().all(|c| c.is_ascii_digit() || ".".contains(c))) {
             (h, v)
         } else if w.x1 - w.x > w.y1 - w.y {
             (h + n, v)
