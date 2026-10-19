@@ -1342,19 +1342,25 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
         // 左端の欄の行が「第31826号」のような番号で始まる行と、その下に重ねた年月日（「令和８年８月24日」）の行なら、番号の
         // 行だけを行の頭にする（品種登録の表。1 件が 2 行に割れ、2 行目の欄の字（住所の続き・公表の年月日の続き）が別の行に
         // なっていた）。
+        // 番号の欄は左端でなくてもよい（品種登録の取下げの表の「品種登録の番号」の欄）。番号の行のある一番左の欄。
+        let key_line = |l: &Line| {
+            let t = render_line(&l.words);
+            let digits = t.chars().skip(1).take_while(|c| c.is_ascii_digit() || ('０'..='９').contains(c)).count();
+            // 番号だけの行（文の折り返し「第183号）第４条に…」は除く）。左端の欄は後ろに字が続いてもよい。
+            t.starts_with('第') && digits >= 3 && t.chars().nth(digits + 1) == Some('号') && (t.trim_end().chars().count() == digits + 2 || l.words.first().is_some_and(|w| w.text.trim().chars().count() == digits + 2))
+        };
+        let key_col = band.iter().filter(|&&i| cell_lines[i].iter().any(|l| key_line(l))).map(|&i| g.cells[i].x0).min();
         let key_rows: Vec<f32> = band
             .iter()
-            .filter(|&&i| g.cells[i].x0 == 0)
+            .filter(|&&i| Some(g.cells[i].x0) == key_col)
             .flat_map(|&i| cell_lines[i].iter())
-            .filter(|l| {
-                let t = render_line(&l.words);
-                let digits = t.chars().skip(1).take_while(|c| c.is_ascii_digit() || ('０'..='９').contains(c)).count();
-                t.starts_with('第') && digits >= 3 && t.chars().nth(digits + 1) == Some('号')
-            })
+            .filter(|l| key_line(l))
             .map(|l| l.y0 - 0.5)
             .collect();
-        let first_lines = band.iter().filter(|&&i| g.cells[i].x0 == 0).map(|&i| cell_lines[i].len()).sum::<usize>();
-        if r >= header_rows && !key_rows.is_empty() && key_rows.len() < first_lines {
+        let first_lines = band.iter().filter(|&&i| Some(g.cells[i].x0) == key_col).map(|&i| cell_lines[i].len()).sum::<usize>();
+        // 左端でない欄では、ほかの欄に番号の行より多く行があるときだけ（1 件が何行にも割れているとき）。
+        let split_record = key_col == Some(0) || band.iter().any(|&i| cell_lines[i].len() > key_rows.len());
+        if r >= header_rows && !key_rows.is_empty() && (key_rows.len() < first_lines || (key_col != Some(0) && split_record)) {
             anchors.extend(key_rows.into_iter().filter(|&y| top < y && y < bottom));
             continue;
         }
