@@ -408,6 +408,7 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
         .map(|t| ((t.x0, t.y0, t.x1, t.y1), vec![trace::Line { text: t.render(), words: Vec::new(), table: Some(t) }], None))
         .chain(verticals.into_iter().map(|(b, ls)| (b, ls, beside(&b))))
         .collect();
+    let blocks: Vec<Block> = items.iter().map(|i| i.0).collect();
     let mut placed: Vec<(usize, Block, Vec<trace::Line>)> = items
         .into_iter()
         .map(|(t, ls, at)| {
@@ -419,7 +420,12 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
                 let x1 = g.iter().map(|p| p.1).fold(f32::NEG_INFINITY, f32::max);
                 let y0 = g.iter().map(|p| p.2).fold(f32::INFINITY, f32::min);
                 let y1 = g.iter().map(|p| p.3).fold(f32::NEG_INFINITY, f32::max);
-                !g.is_empty() && (x0 >= t.2 - 2.0 || (x0 < t.2 && x1 > t.0 && (y0 >= t.3 - 2.0 || (y0 + y1) / 2.0 >= t.3)))
+                // 表の右の行でも、この表の真上にある別の表（この表の幅に掛かる）の上の、その表の幅に掛かる行は、その表の
+                // 見出し（紙面の上の標題「純資産変動計算書」の前に、下の表が置かれていた）。
+                let heads_other = blocks
+                    .iter()
+                    .any(|u| u.1 < t.1 - 2.0 && u.0 < t.2 && u.2 > t.0 && y1 <= u.1 + 2.0 && x0 < u.2 && x1 > u.0);
+                !g.is_empty() && ((x0 >= t.2 - 2.0 && !heads_other) || (x0 < t.2 && x1 > t.0 && (y0 >= t.3 - 2.0 || (y0 + y1) / 2.0 >= t.3)))
             };
             // 表のすぐ上の行（表の幅に収まり、表の上端より上 30pt 以内にある行のうち一番下のもの。表の見出し「貸借対照表の要旨」）の
             // 後ろに置く（囲みごとに読むと、表の右か下にある最初の行は隣の囲みの行のことがある）。無ければ表の右か下にある
