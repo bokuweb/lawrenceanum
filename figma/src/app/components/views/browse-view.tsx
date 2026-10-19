@@ -9,11 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { ScrollArea } from "../ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ARTICLES_V2, TIMELINE_EVENTS, type LawSummary } from "../mock-data";
-import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark, MessageSquare, Newspaper, ScrollText, Network, MessageCircleQuestion } from "lucide-react";
+import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark, MessageSquare, Newspaper, ScrollText, Network, MessageCircleQuestion, Languages } from "lucide-react";
 import { EnforcementExplanation } from "./enforcement-explanation";
 import { useLocation, useNavigate } from "react-router";
 import { useLaws, useLawDetail } from "../../data/use-laws";
-import { api, hanreiUrl, type AppendixTable, type LawToHanrei, type LawToShitsumon, type LawToProceedings, type LawToRulemaking, type LawToPubcomments, type LawToTsutatsu } from "../../data/api";
+import { api, hanreiUrl, type AppendixTable, type LawToHanrei, type LawToShitsumon, type LawEnglish, type LawEnglishArticle, type LawToProceedings, type LawToRulemaking, type LawToPubcomments, type LawToTsutatsu } from "../../data/api";
 import { AmendDocumentView } from "../amend-document-view";
 import { SupplementarySection } from "./supplementary-section";
 import { getRefsForLaw, type ArticleRef } from "../../data/search-engine";
@@ -339,6 +339,34 @@ function AppendixTableView({ table, linkify }: { table: AppendixTable; linkify: 
   );
 }
 
+/** 条文の下に添える英訳（日本法令外国語訳データベースの参考訳）。 */
+function EnglishArticle({ article }: { article: LawEnglishArticle }) {
+  return (
+    <div lang="en" className="mt-3 border-l-2 border-primary/30 pl-3 space-y-1.5 text-sm leading-relaxed text-muted-foreground">
+      <div className="flex items-baseline gap-2 text-xs">
+        {article.title && <span className="font-medium text-foreground shrink-0 whitespace-nowrap">{article.title}</span>}
+        {article.caption && <span>{article.caption}</span>}
+        <a
+          href={article.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-auto inline-flex items-center gap-0.5 hover:text-primary transition-colors"
+          title="日本法令外国語訳データベースで開く"
+        >
+          JLT
+          <ArrowUpRight className="size-2.5 opacity-50" />
+        </a>
+      </div>
+      {article.paragraphs.map((p, i) => (
+        <p key={i} className="flex gap-3">
+          <span className="tabular-nums shrink-0 w-6">{p.num}</span>
+          <span className="whitespace-pre-line">{p.text}</span>
+        </p>
+      ))}
+    </div>
+  );
+}
+
 function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => void; onCompare: () => void }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -530,6 +558,25 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
     const qs = shitsumon?.linked_questions ?? [];
     return [...qs.filter(q => q.in_title), ...qs.filter(q => !q.in_title)];
   }, [shitsumon]);
+
+  // 法令英訳（日本法令外国語訳データベース）。英訳のある法令だけ併記トグルを出す。
+  const [english, setEnglish] = useState<LawEnglish | null>(null);
+  // 英語検索の結果から来たときは最初から併記する。
+  const [showEnglish, setShowEnglish] = useState(
+    () => (location.state as { showEnglish?: boolean } | null)?.showEnglish === true,
+  );
+  useEffect(() => {
+    let cancelled = false;
+    setEnglish(null);
+    api.lawEnglish(law.law_id)
+      .then(d => { if (!cancelled) setEnglish(d); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [law.law_id]);
+  const englishByArt = useMemo(
+    () => new Map((english?.articles ?? []).map(a => [a.article_id, a] as const)),
+    [english],
+  );
 
   // この法令の官報掲載。timeline イベントのうち官報リンク済み (pdf_url あり) を拾う。
   // liveEvents は公布日降順ソート済み。
@@ -860,6 +907,46 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
             </ScrollArea>
             <ScrollArea>
               <div className="max-w-3xl mx-auto px-8 py-8 space-y-8">
+                {english && english.articles.length > 0 && (
+                  <div className="rounded-md border border-border bg-muted/40 px-4 py-3 text-xs space-y-1.5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-1.5 font-semibold text-muted-foreground min-w-0">
+                        <Languages className="size-3 shrink-0" />
+                        <span className="shrink-0">英訳（参考訳）</span>
+                        {english.title_en && <span lang="en" className="font-normal truncate">{english.title_en}</span>}
+                      </div>
+                      <Button variant={showEnglish ? "secondary" : "outline"} size="sm" onClick={() => setShowEnglish(v => !v)}>
+                        {showEnglish ? "英訳を隠す" : "英訳を併記"}
+                      </Button>
+                    </div>
+                    {showEnglish && (
+                      <>
+                        <p className="text-muted-foreground">
+                          {english.source.disclaimer_ja} <span lang="en">{english.source.disclaimer_en}</span>
+                        </p>
+                        {english.translations.map(t => (
+                          <p key={t.jlt_id} className="text-muted-foreground">
+                            <a href={t.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-0.5 hover:text-primary transition-colors">
+                              {t.title_ja}
+                              <ArrowUpRight className="size-2.5 opacity-50 shrink-0" />
+                            </a>
+                            {t.translated_on && ` · 翻訳日 ${t.translated_on}`}
+                            {t.last_version_ja && ` · ${t.last_version_ja}までの改正を反映`}
+                            {t.tentative && (
+                              <span className="ml-1.5 text-[10px] px-1 rounded bg-amber-500/15 text-amber-700 dark:text-amber-400">暫定版</span>
+                            )}
+                          </p>
+                        ))}
+                        <p className="text-[10px] text-muted-foreground">
+                          出典:{" "}
+                          <a href={english.source.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">{english.source.name_ja}</a>
+                          （<a href={english.source.license_url} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">{english.source.license}</a>）。
+                          条単位への分割と法令 ID への対応付けは本サイトが加工。
+                        </p>
+                      </>
+                    )}
+                  </div>
+                )}
                 {detail.loading && articles.length === 0 && (
                   <div className="text-sm text-muted-foreground py-12 text-center">本文を読み込み中…</div>
                 )}
@@ -920,6 +1007,9 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
                           </p>
                         ))}
                       </div>
+                      {showEnglish && englishByArt.has(a.article_id) && (
+                        <EnglishArticle article={englishByArt.get(a.article_id)!} />
+                      )}
                     </article>
                   );
                 })}

@@ -15,6 +15,7 @@ use std::path::Path;
 
 pub mod reiki;
 mod documents;
+mod english;
 
 pub fn is_cjk(c: char) -> bool {
     matches!(
@@ -940,6 +941,8 @@ pub fn build_search_db(
     }
 
     documents::build(&conn, out_path.parent().unwrap_or_else(|| Path::new(".")))?;
+    // 法令英訳 (public/laws/*/en.json) の英語 FTS。merge まで english 側で済ませる。
+    english::build(&conn, out_path.parent().unwrap_or_else(|| Path::new(".")))?;
 
     conn.execute(
         "INSERT INTO meta (key, value) VALUES ('built_at', datetime('now')), \

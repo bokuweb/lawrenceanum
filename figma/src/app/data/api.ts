@@ -454,6 +454,8 @@ export const api = {
   lawToHanrei: (lawId: string) => getJson<LawToHanrei>(`./links/law-to-hanrei/${lawId}.json`),
   /** 法令 ↔ 質問主意書・答弁書 クロスリンク (件名・本文の法令参照から抽出)。 */
   lawToShitsumon: (lawId: string) => getJson<LawToShitsumon>(`./links/law-to-shitsumon/${lawId}.json`),
+  /** 法令英訳 (日本法令外国語訳データベース)。英訳の無い法令は 404。 */
+  lawEnglish: (lawId: string) => getJson<LawEnglish>(`./laws/${lawId}/en.json`),
 
   /** 議案 (法案審議トラッキング) 全体インデックス。 */
   gianIndex: () => getJson<GianIndex>('./gian/index.json'),
@@ -932,6 +934,64 @@ export type LawToShitsumon = {
   schema_version: number
   law_id: string
   linked_questions: LinkedQuestion[]
+}
+
+/**
+ * 法令英訳 (`laws/{law_id}/en.json`)。出典は法務省「日本法令外国語訳データベース」(PDL1.0)。
+ * 翻訳は参考訳で、最終改正を反映していないことがある (`translations[].last_version_*`)。
+ */
+export type LawEnglishParagraph = {
+  /** 英訳の項番号 (例: "(2)")。 */
+  num: string | null
+  /** 号・号の細分は "(i) …" の行として改行で続く。 */
+  text: string
+}
+export type LawEnglishArticle = {
+  /** e-Gov の条 ID (`art_3_2` 等)。current.json の articles[].article_id と対応する。 */
+  article_id: string
+  article_no: string | null
+  /** 例: "Article 3-2"。 */
+  title: string | null
+  caption: string | null
+  paragraphs: LawEnglishParagraph[]
+  jlt_id: number
+  /** JLT の該当条へのリンク。 */
+  url: string
+}
+export type LawEnglishTranslation = {
+  jlt_id: number
+  title_ja: string
+  title_en: string | null
+  law_num_en: string | null
+  last_version_ja: string | null
+  last_version_en: string | null
+  translated_on: string | null
+  dictionary_version: string | null
+  /** 暫定版 (ネイティブ・専門家チェック前)。 */
+  tentative: boolean
+  source_url: string
+  article_count: number
+  matched_article_count: number
+}
+export type LawEnglish = {
+  schema_version: number
+  law_id: string
+  law_num: string | null
+  title: string
+  title_en: string | null
+  source: {
+    name_ja: string
+    name_en: string
+    url: string
+    terms_url: string
+    license: string
+    license_url: string
+    attribution: string
+    disclaimer_ja: string
+    disclaimer_en: string
+  }
+  translations: LawEnglishTranslation[]
+  articles: LawEnglishArticle[]
 }
 
 // ── 規制変化フィード 型定義 ───────────────────────────────────────
