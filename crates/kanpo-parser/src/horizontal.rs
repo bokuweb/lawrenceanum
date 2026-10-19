@@ -1924,7 +1924,17 @@ fn join_wrapped_labels(lines: Vec<Line>) -> Vec<Line> {
                     && l.words.iter().all(|w| w.x1 <= limit)
                     && l.y0 - p.y1 < em * 0.2
                     && hw.text.chars().count() >= 3
-                    && !hw.text.chars().any(digit)
+                    // 数は 6 字以上の科目の 1 字まで（「１年以内回収予定長期貸」。住所「…２－10－14」・型式の記号は科目ではない）。
+                    && match hw.text.chars().filter(|&c| digit(c)).count() {
+                        0 => true,
+                        // 金額のある行だけ（金額の無い住所の行「…二丁目２番地」の下の会社名をつながない）。
+                        1 => {
+                            hw.text.chars().count() >= 6
+                                && p.words.len() > after
+                                && p.words[after..].iter().all(|w| w.text.trim().chars().all(|c| c.is_ascii_digit() || ",.△▲()（）".contains(c)))
+                        }
+                        _ => false,
+                    }
                     // 科目の後ろは金額だけ（文の行の折り返しではない）。
                     && p.words[after..].iter().all(|w| amount(w));
                 if tail {
