@@ -806,6 +806,37 @@ jobs:
           ./target/release/lawpub link-laws-and-shitsumon --public public \
             || echo "::warning::link-laws-and-shitsumon failed"
 
+      # 政府解釈 (金融庁のノーアクションレター・Q&A 等) を R2 prebuilt キャッシュから復元して同梱する。
+      # corpus workflow が guidance-cache.tar.zst に上げたもの (本文抽出済み) を取得 →
+      # guidance-build-json (関連法令を法令 ID に解決) → link-laws-and-guidance。
+      # 添付原本 (guidance-assets) は配信しないので取らない。
+      - name: Build guidance from R2 cache
+        if: >-
+          steps.detect.outputs.changed == 'true' && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        continue-on-error: true
+        run: |
+          set +e
+          if ! aws s3 cp "s3://$R2_BUCKET/guidance-cache.tar.zst" /tmp/guidance-cache.tar.zst --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            echo "::warning::guidance-cache.tar.zst not found in R2 — 政府解釈なしで続行"
+            exit 0
+          fi
+          mkdir -p .cache/guidance
+          zstd -dc --long=31 /tmp/guidance-cache.tar.zst | tar -x -C .cache/guidance
+          rm -f /tmp/guidance-cache.tar.zst
+          n=$(find .cache/guidance -name '*.json' ! -name '._*' | wc -l | tr -d ' ')
+          [ "${n:-0}" -eq 0 ] && { echo "::warning::guidance cache empty"; exit 0; }
+          echo "::notice::guidance cache restored from R2: $n documents"
+          ./target/release/lawpub guidance-build-json --cache .cache --public public \
+            || echo "::warning::guidance-build-json failed"
+          ./target/release/lawpub link-laws-and-guidance --public public \
+            || echo "::warning::link-laws-and-guidance failed"
+
       # 横断検索 DB を全コーパス込みで一度だけ作る。前段の update/build-json には
       # --skip-search-db を渡し、法令のみの 1.6GB 索引を作ってからここで再作成する二重処理を
       # 避ける。proceedings/kanpo/tsutatsu が出揃ったここで生成し、通達・官報・議事録を
