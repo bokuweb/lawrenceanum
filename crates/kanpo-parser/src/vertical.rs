@@ -3621,9 +3621,19 @@ pub(crate) fn column_groups(mut cols: Vec<Col>) -> Vec<Vec<Col>> {
     cols.sort_by(|a, b| center(b).partial_cmp(&center(a)).unwrap_or(std::cmp::Ordering::Equal));
     let mut groups: Vec<Vec<Col>> = Vec::new();
     let (mut rep_x, mut rep_em) = (f32::INFINITY, f32::INFINITY);
+    // 欧文の語（横倒しに組んだ URL）と上下に 1 字分以上重なる語は、同じ列ではない（URL の 2 行目「p4rtbmpp/」が、少し
+    // 左にずれた次の列の日付「令和八年十月十六日」と同じ列になり、「令和八年十月十六日p4rtbmpp/」になっていた）。
+    let latin = |c: &Col| {
+        let n = c.text.chars().count();
+        // 縦中横の数（「684」）は除く。
+        n >= 5 && c.text.chars().filter(|ch| ch.is_ascii_graphic()).count() * 10 >= n * 8
+    };
     for c in cols {
         let em = (c.x1 - c.x).min(rep_em).max(6.0);
-        if rep_x - center(&c) > em * 0.75 {
+        let stacked = groups.last().is_some_and(|g| {
+            g.iter().any(|o| (latin(o) || latin(&c)) && o.y1.min(c.y1) - o.y.max(c.y) > em)
+        });
+        if rep_x - center(&c) > em * 0.75 || stacked {
             groups.push(Vec::new());
             rep_x = center(&c);
             rep_em = c.x1 - c.x;
