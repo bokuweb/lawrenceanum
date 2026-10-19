@@ -2290,10 +2290,71 @@ fn merge_warichu(cols: &mut Vec<Col>) -> Vec<(usize, usize)> {
             .iter()
             .enumerate()
             .any(|(j, p)| j != i && ((p.x + p.x1) / 2.0 - r.x).abs() < w * 0.3 && (p.y1 - r.y).abs() < w * 0.75 && p.y < r.y);
-        // 左半分: 左端が右半分の 1 字分左で、右半分の範囲に掛かる語。
+        // 左半分: 左端が右半分の 1 字分左で、右半分の範囲に掛かる語。字間を空けた右半分と同じ字の幅・同じ上下の
+        // 範囲で、少し（半字分まで）離して組んだ機関名の語（「内　閣　府」と「農林水産省」）も。
+        let organ = |t: &str| t.chars().count() >= 2 && t.ends_with(['省', '庁', '府', '会']) && t.chars().all(|c| name_char(&c.to_string()));
         let left: Vec<usize> = (0..cols.len())
-            .filter(|&j| !spaced.contains(&j) && near(cols[j].x, r.x - w) && cols[j].y < r.y1 - w * 0.5 && cols[j].y1 > r.y + w * 0.5)
+            .filter(|&j| {
+                let c = &cols[j];
+                !spaced.contains(&j)
+                    && (near(c.x, r.x - w)
+                        || (spaced.len() > 1
+                            && organ(&c.text)
+                            && organ(&r.text)
+                            && near(c.x1 - c.x, w)
+                            && c.x1 <= r.x
+                            && c.x1 >= r.x - w * 0.5
+                            && (c.y - r.y).abs() < w * 0.5
+                            && (c.y1 - r.y1).abs() < w * 0.5))
+                    && c.y < r.y1 - w * 0.5
+                    && c.y1 > r.y + w * 0.5
+            })
             .collect();
+        // 三段の割注（「金融庁」「財務省」「経済産業省」）: 上の段（右半分）と中の段が字間を空けた 1 字ずつの語で、
+        // 中の段が親の列に並び、下の段がさらに 1 字分左。上下の範囲がそろうものに限る。
+        let within = |c: &Col| c.y > r.y - w * 0.5 && c.y1 < r.y1 + w * 0.5;
+        let third: Vec<usize> = if spaced.len() > 1 && left.len() > 1 && left.iter().all(|&j| name_char(&cols[j].text) && near(cols[j].x, r.x - w)) {
+            (0..cols.len()).filter(|&j| !spaced.contains(&j) && !left.contains(&j) && near(cols[j].x, r.x - w * 2.0) && near(cols[j].x1, r.x - w) && within(&cols[j])).collect()
+        } else {
+            Vec::new()
+        };
+        if !third.is_empty() && left.iter().all(|&j| within(&cols[j])) {
+            let mid = r.x - w / 2.0;
+            let column_at = |y: f32, above: bool| {
+                cols.iter().enumerate().any(|(j, p)| {
+                    !spaced.contains(&j)
+                        && !left.contains(&j)
+                        && !third.contains(&j)
+                        && ((p.x + p.x1) / 2.0 - mid).abs() < w * 0.3
+                        && if above { (p.y1 - y).abs() < w * 0.75 && p.y < y } else { (p.y - y).abs() < w * 0.75 }
+                })
+            };
+            if column_at(r.y, true) && column_at(r.y1, false) {
+                let text_of = |js: &[usize]| {
+                    let mut v: Vec<&Col> = js.iter().map(|&j| &cols[j]).collect();
+                    v.sort_by(|a, b| a.y.total_cmp(&b.y));
+                    v.iter().flat_map(|c| c.text.chars()).filter(|ch| !ch.is_whitespace()).collect::<String>()
+                };
+                cols[i] = Col {
+                    id: r.id,
+                    x: r.x - w,
+                    x1: r.x,
+                    y: r.y,
+                    y1: r.y1,
+                    text: format!("{}・{}・{}", r.text, text_of(&left), text_of(&third)),
+                };
+                let mut gone: Vec<usize> = left.iter().chain(third.iter()).copied().chain(spaced.iter().skip(1).copied()).collect();
+                gone.sort_unstable();
+                merged.extend(gone.iter().map(|&j| (cols[j].id, r.id)));
+                let removed = gone.iter().filter(|&&j| j < i).count();
+                for &j in gone.iter().rev() {
+                    cols.remove(j);
+                }
+                i -= removed;
+                i += 1;
+                continue;
+            }
+        }
         // 行頭の割注（本文の途中で列が改まった直後）は上に親の列が無い。そのときは右半分が字間を
         // 空けて左半分の長さに合わせてあり（「大　蔵　省」と「農林水産省」）、上下の範囲がそろって
         // いるものに限る（隣り合う本文の列や表の見出しと取り違えないため）。
