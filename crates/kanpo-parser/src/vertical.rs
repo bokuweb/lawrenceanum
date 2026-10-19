@@ -3383,6 +3383,20 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
             let crossing = cols.iter().filter(|d| d.y < cut && cut < d.y1).count();
             // 紙面の高さほどの領域で、領域の上端から下端まで（2 字分以内）延びる 1 列（表の右の前文の列）だけがまたぎ、横の罫線の無い cut だけ（新旧対照表の
             // 改正後・改正前の帯の境目は、帯をまたぐ枠の縦の罫線を横切るが、帯の境の横の罫線がある）。
+            // 罫線の表の縦の線が 4 本以上、cut の上下に 3 字分以上延び、領域の上端から下端まで通っていれば、表の中（新旧対照表の
+            // 改正前の欄の表の「備考」の段の上の空き）で段の境目ではない。
+            let em = cols.iter().map(|c| c.x1 - c.x).fold(f32::INFINITY, f32::min).max(4.0);
+            // 線が領域の上端から下端まで（1 字分の余裕で）通る（領域がまるごと表の中にある）ときだけ。
+            let table_lines = rules
+                .vrules
+                .iter()
+                .filter(|&&(x, y0, y1)| xmin < x && x < xmax && y0 < cut - em * 3.0 && y1 > cut + em * 3.0 && y0 <= ymin + em && y1 >= ymax - em)
+                .count();
+            // 新旧対照表の帯の境目（cut のすぐ上下に欄見出しの「改」「正」「後」「前」の 1 字の語がある）は切る。
+            let band_label = cols.iter().any(|c| matches!(c.text.trim(), "改" | "正" | "後" | "前") && (c.y1 - cut).abs().min((c.y - cut).abs()) <= em * 3.0);
+            if crossing <= MAX_BRIDGE && table_lines >= 4 && !band_label {
+                continue;
+            }
             let through = crossing == 1
                 && ymax - ymin >= 500.0
                 && cols.iter().any(|d| d.y < cut && cut < d.y1 && d.y - ymin <= (d.x1 - d.x) * 2.0 && ymax - d.y1 <= (d.x1 - d.x) * 2.0);
