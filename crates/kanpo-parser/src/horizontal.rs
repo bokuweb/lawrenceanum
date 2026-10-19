@@ -1247,7 +1247,9 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
         // 5 欄以上の表の句点の無い長い欄は名前の一覧（出資者の「…投資事業有限責任組合」を何行も並べた欄）で文ではない。
         // 数の多い欄（率を並べた「普通態容補正」の欄）は除く。
         let names = g.xs.len() >= 6 && !t.contains('。') && t.chars().filter(|c| c.is_ascii_digit()).count() * 20 <= t.chars().count();
-        item_cols == 0 && ((!list && !names && t.chars().count() > 200) || t.matches('。').count() >= 2)
+        // 番号を振った項目の並び（「１　ポック形成単位測定法を用いるとき。」「２　プラーク…とき。」）は文の欄ではない。
+        let items = cell_lines[i].iter().filter(|l| crate::vertical::starts_item(&render_line(&l.words))).count() >= 2;
+        item_cols == 0 && ((!list && !names && t.chars().count() > 200) || (t.matches('。').count() >= 2 && !items))
     };
     // 文は最後の欄にだけあり、その行の前の欄に短い項目名（40 字以内）があれば、項目名｜内容の表（遺伝子組換え生物等の
     // 承認の告示の「遺伝子組換え生物等の第一種使用等の方法」｜「…」）。
