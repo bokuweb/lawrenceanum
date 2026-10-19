@@ -1193,8 +1193,12 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
                     let c = l.center();
                     // 欄によって字の種類（数字と漢字）で字面の高さが少し違うので、行の高さの 4 割まで。
                     let tol = ((l.y1 - l.y0) * 0.4).max(ALIGN_TOL);
+                    // 前の行に行間を空けずに続く行（科目の折り返し「資産見返物品受贈／額」）は、隣の欄の行と揃うときだけ
+                    // 行の頭（左右に並べた貸借対照表の右の表の行と高さが揃い、折り返しが別の行になっていた）。
+                    let snug = k > 0 && l.y0 - cell_lines[i][k - 1].y1 < (l.y1 - l.y0) * 0.25;
+                    let near = |j: usize| !snug || g.cells[j].x0 == g.cells[i].x1 || g.cells[j].x1 == g.cells[i].x0;
                     // 揃う 2 行がどちらも折り返しの続きなら、行の頭ではない（2 つの欄が同時に折り返した）。
-                    band.iter().filter(|&&j| g.cells[j].x0 != g.cells[i].x0).any(|&j| {
+                    band.iter().filter(|&&j| g.cells[j].x0 != g.cells[i].x0 && near(j)).any(|&j| {
                         cell_lines[j].iter().enumerate().any(|(n, m)| !(wraps(i, k) && wraps(j, n)) && (m.center() - c).abs() <= tol)
                     })
                 })
