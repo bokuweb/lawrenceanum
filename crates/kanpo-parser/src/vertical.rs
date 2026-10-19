@@ -483,7 +483,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             // 横組みの囲み（決算公告）も、見出しと貸借対照表の間の空きで段に切らない。
             let boxes = horizontal_block_boxes(&cols);
             let plain_tiers =
-                merge_split_header_tiers(split_tiers(cols.clone(), &TierRules { tables: keyed.clone(), boxes: boxes.clone(), hrules: hrules.clone(), sideways }));
+                merge_split_header_tiers(split_tiers(cols.clone(), &TierRules { tables: keyed.clone(), boxes: boxes.clone(), hrules: hrules.clone(), vrules: vrules.clone(), sideways }));
             let shinkyu_page = plain_tiers.iter().any(|t| detect_shinkyu_header(t).is_some())
                 || plain_tiers.windows(2).any(|w| tiers_look_like_bands(&w[0], &w[1]));
             let tables: Vec<(f32, f32, f32, f32)> = grids
@@ -506,7 +506,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             let tiers = if shinkyu_page || tables.is_empty() || v_chars < h_chars * 2 {
                 plain_tiers
             } else {
-                merge_split_header_tiers(split_tiers(cols, &TierRules { tables, boxes, hrules: hrules.clone(), sideways }))
+                merge_split_header_tiers(split_tiers(cols, &TierRules { tables, boxes, hrules: hrules.clone(), vrules: vrules.clone(), sideways }))
             };
             let mut tiers: Vec<Vec<Col>> = attach_toc_page_numbers(tiers.into_iter().flat_map(split_side_by_side_tables).collect(), &words);
             // 新旧対照表のページで、行の罫線の無い枠（帯の中の表）の欄の境の横線で切られた段は、前の段に戻す（改正前の
@@ -2331,6 +2331,8 @@ struct TierRules {
     /// 横組みの囲み（[`horizontal_block_boxes`]）。縦書きの列の段の境目でない cut は、囲みを横切らない。
     boxes: Vec<(f32, f32, f32, f32)>,
     hrules: Vec<(f32, f32, f32)>,
+    /// 縦の罫線 `(x, y0, y1)`。
+    vrules: Vec<(f32, f32, f32)>,
     /// 横倒しのページ（回した座標で組む）。
     sideways: bool,
 }
@@ -3194,6 +3196,17 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
     let ruled = |cut: f32| {
         rules.hrules.iter().any(|&(y, x0, x1)| (y - cut).abs() < 12.0 && x1.min(xmax) - x0.max(xmin) >= (xmax - xmin) * 0.6)
     };
+    // 領域の中の縦の罫線が 2 本以上、cut の上下に 3 字分以上延びていれば、表の中で段の境目ではない（新旧対照表の改正前の欄の
+    // 表の「市町村」「地域」の欄の間の空きで切られ、表の下の欄見出しの「域」と署名の「簗　和生」が別の段になっていた）。
+    // 横の罫線（左右の表で 2 本に分かれた線も合わせて）が領域の幅の 6 割以上に引かれているか。
+    let ruled_across = |cut: f32| {
+        let covered: f32 = rules.hrules.iter().filter(|&&(y, _, _)| (y - cut).abs() < 24.0).map(|&(_, x0, x1)| (x1.min(xmax) - x0.max(xmin)).max(0.0)).sum();
+        covered >= (xmax - xmin) * 0.6
+    };
+    let ruled_through = |cut: f32| {
+        let em = cols.iter().map(|c| c.x1 - c.x).fold(f32::INFINITY, f32::min).max(4.0);
+        rules.vrules.iter().filter(|&&(x, y0, y1)| xmin < x && x < xmax && y0 < cut - em * 3.0 && y1 > cut + em * 3.0).count() >= 2
+    };
     // 同じ列で上下に続く縦組みの語の組（上の語の下端, 下の語の上端, 空き(em)）。字の大きさの
     // 違う語や横組みの語（見出し「（号外）」の下の発行者の欄など）は、同じ文の続きではない。
     let mut by_center: Vec<&Col> = cols.iter().filter(|c| upright(c)).collect();
@@ -3312,6 +3325,14 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
                 continue;
             }
             let crossing = cols.iter().filter(|d| d.y < cut && cut < d.y1).count();
+            // 紙面の高さほどの領域で、領域の上端から下端まで（2 字分以内）延びる 1 列（表の右の前文の列）だけがまたぎ、横の罫線の無い cut だけ（新旧対照表の
+            // 改正後・改正前の帯の境目は、帯をまたぐ枠の縦の罫線を横切るが、帯の境の横の罫線がある）。
+            let through = crossing == 1
+                && ymax - ymin >= 500.0
+                && cols.iter().any(|d| d.y < cut && cut < d.y1 && d.y - ymin <= (d.x1 - d.x) * 2.0 && ymax - d.y1 <= (d.x1 - d.x) * 2.0);
+            if through && ruled_through(cut) && !ruled_across(cut) {
+                continue;
+            }
             // 表の下端の候補は、どの列もまたがないときだけ（表の横の本文の列が表の下まで続くなら段の境目ではない）。
             if pass == 1 && crossing > 0 {
                 continue;
