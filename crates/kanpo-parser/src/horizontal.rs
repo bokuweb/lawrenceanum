@@ -2492,6 +2492,12 @@ fn is_column_split(left: &[Col], right: &[Col], boxed: bool) -> bool {
     if ll.is_empty() || rl.is_empty() {
         return false;
     }
+    // 2 行までの短い帯で、一方が他方のどの行よりも上の 1 行だけなら、中央寄せの標題とその下の行（「附属明細書」の下の
+    // 左寄せの「【船員保険勘定】」「１．有形固定資産…の明細」。標題が後に読まれていた）。
+    let above = |a: &[Line], b: &[Line]| a.len() == 1 && b.iter().all(|l| a[0].y1 <= l.y0 + 0.5);
+    if !boxed && ll.len() <= 2 && rl.len() <= 2 && (above(&ll, &rl) || above(&rl, &ll)) {
+        return false;
+    }
     let (few, many) = if ll.len() <= rl.len() { (&ll, &rl) } else { (&rl, &ll) };
     let aligned = few
         .iter()
