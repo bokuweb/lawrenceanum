@@ -1262,6 +1262,25 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
             let amounts = band.iter().any(|&i| cell_lines[i].iter().any(numeric));
             counts.len() >= 4 && max >= 2 && counts.iter().filter(|&&c| c == max).count() < 2 && !amounts && !band.iter().any(|&i| rowlike_cell(i))
         };
+        // 左端の欄の行が「第31826号」のような番号で始まる行と、その下に重ねた年月日（「令和８年８月24日」）の行なら、番号の
+        // 行だけを行の頭にする（品種登録の表。1 件が 2 行に割れ、2 行目の欄の字（住所の続き・公表の年月日の続き）が別の行に
+        // なっていた）。
+        let key_rows: Vec<f32> = band
+            .iter()
+            .filter(|&&i| g.cells[i].x0 == 0)
+            .flat_map(|&i| cell_lines[i].iter())
+            .filter(|l| {
+                let t = render_line(&l.words);
+                let digits = t.chars().skip(1).take_while(|c| c.is_ascii_digit() || ('０'..='９').contains(c)).count();
+                t.starts_with('第') && digits >= 3 && t.chars().nth(digits + 1) == Some('号')
+            })
+            .map(|l| l.y0 - 0.5)
+            .collect();
+        let first_lines = band.iter().filter(|&&i| g.cells[i].x0 == 0).map(|&i| cell_lines[i].len()).sum::<usize>();
+        if r >= header_rows && !key_rows.is_empty() && key_rows.len() < first_lines {
+            anchors.extend(key_rows.into_iter().filter(|&y| top < y && y < bottom));
+            continue;
+        }
         if item_cols == 0 && ny > 1 && (long_cells || r < header_rows || record || band.iter().all(|&i| items(i) <= 1)) && !band.iter().any(|&i| rowlike_cell(i)) {
             continue;
         }
@@ -1996,7 +2015,14 @@ fn join_wrapped_cells(p: &mut Line, l: &Line) -> bool {
         return false;
     }
     let em = p.words.iter().map(|w| w.y1 - w.y).fold(0.0, f32::max).max(1.0);
-    if l.y0 - p.y1 > em * 0.3 || l.words[0].x < p.words[0].x1 + em {
+    // 行の頭の欄が「第31826号」のような番号の欄なら、その欄に重ねた年月日（「令和８年８月24日」）から始まる続きの行も
+    // つなぐ（品種登録の表の「品種登録の番号及び年月日」の欄）。次の行の番号から始まる行はつながない。
+    let key = |t: &str| {
+        let t = t.trim();
+        t.starts_with('第') && t.ends_with('号') && t.chars().count() >= 4 && t.chars().skip(1).take_while(|c| c.is_ascii_digit() || ('０'..='９').contains(c)).count() >= 2
+    };
+    let keyed = key(&p.words[0].text) && !key(&l.words[0].text) && l.words[0].x < p.words[0].x1 && l.words[0].x1 > p.words[0].x;
+    if l.y0 - p.y1 > em * 0.3 || (l.words[0].x < p.words[0].x1 + em && !keyed) {
         return false;
     }
     // 4 欄以上の行（1 字分以上空けて並ぶ語が 4 つ以上）だけ（決算公告の「日付　住所」の下の会社名は欄の続きではない）。
