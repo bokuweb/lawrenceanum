@@ -1166,6 +1166,15 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
             })
             .count()
     };
+    // 1 つのセルの中で、項目名と数を空けて並べた行（交付税の補正係数の表の「２級地（旧４級地）　1.118　1.117」。値の欄が
+    // 罫線で分かれていない）。数を含み、語の間に 1.5 字分以上の空きがある。
+    let rowlike = |l: &Line| {
+        let em = (l.y1 - l.y0).max(1.0);
+        let mut ws: Vec<&Col> = l.words.iter().collect();
+        ws.sort_by(|a, b| a.x.total_cmp(&b.x));
+        ws.iter().any(|w| w.text.chars().any(|c| c.is_ascii_digit())) && ws.windows(2).any(|p| p[1].x - p[0].x1 >= em * 1.5)
+    };
+    let rowlike_cell = |i: usize| cell_lines[i].len() >= 3 && cell_lines[i].iter().filter(|l| rowlike(l)).count() * 2 >= cell_lines[i].len();
     for r in 0..ny {
         let band: Vec<usize> = (0..g.cells.len()).filter(|&i| g.cells[i].y0 <= r && r < g.cells[i].y1).collect();
         anchors.push(g.ys[r]);
@@ -1183,9 +1192,9 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
                 t.chars().any(|c| c.is_ascii_digit()) && t.chars().all(|c| c.is_ascii_digit() || "△▲,.()（）－-―—　 ".contains(c))
             };
             let amounts = band.iter().any(|&i| cell_lines[i].iter().any(numeric));
-            counts.len() >= 4 && max >= 2 && counts.iter().filter(|&&c| c == max).count() < 2 && !amounts
+            counts.len() >= 4 && max >= 2 && counts.iter().filter(|&&c| c == max).count() < 2 && !amounts && !band.iter().any(|&i| rowlike_cell(i))
         };
-        if item_cols == 0 && ny > 1 && (long_cells || r < header_rows || record || band.iter().all(|&i| items(i) <= 1)) {
+        if item_cols == 0 && ny > 1 && (long_cells || r < header_rows || record || band.iter().all(|&i| items(i) <= 1)) && !band.iter().any(|&i| rowlike_cell(i)) {
             continue;
         }
         for &i in &band {
@@ -1252,7 +1261,8 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
                     let t = render_line(&m.words);
                     t.chars().any(|ch| ch.is_ascii_digit()) && t.chars().all(|ch| ch.is_ascii_digit() || "△▲,.()（）－-　 ".contains(ch))
                 });
-                if top < c && c < bottom && (aligned[k] || next_item(k) || (rows_of_items && (!tight(k) || numbered)) || (figures && k > 0 && !tight(k) && alone_in_row(l))) {
+                let own_row = rowlike_cell(i) && k > 0 && rowlike(l) && !wraps(i, k);
+                if top < c && c < bottom && (own_row || aligned[k] || next_item(k) || (rows_of_items && (!tight(k) || numbered)) || (figures && k > 0 && !tight(k) && alone_in_row(l))) {
                     anchors.push(l.y0 - 0.5);
                 }
             }
