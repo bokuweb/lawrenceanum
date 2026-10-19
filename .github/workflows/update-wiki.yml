@@ -15,7 +15,7 @@ name: Update LLM wiki
 # 必要な設定:
 #   Secrets  : CLAUDE_CODE_OAUTH_TOKEN (`claude setup-token` で発行。Pro/Max プランで実行)
 #              または ANTHROPIC_API_KEY (従量課金)
-#   Variables: WIKI_MODEL (既定 claude-sonnet-5-5) / WIKI_MAX_ITEMS (既定 5) / WIKI_MAX_BILLS (既定 5) / WIKI_MAX_PUBCOMMENTS (既定 3) / WIKI_MAX_KANPO (既定 3)
+#   Variables: WIKI_MODEL (既定 claude-sonnet-5-5) / WIKI_MAX_ITEMS (既定 5) / WIKI_MAX_BILLS (既定 5) / WIKI_MAX_PUBCOMMENTS (既定 3) / WIKI_MAX_KANPO (既定 3) / WIKI_MAX_ENFORCEMENTS (既定 5)
 #              / WIKI_MAX_PEOPLE (既定 3。人物ページの全体像と経緯を書かせる人数。発言者名簿から未要約の会議が多い人を選ぶ)
 #              / WIKI_MAX_ROSTER (既定 1200。発言者名簿を作る会議数の上限。LLM は使わない)
 on:
@@ -46,6 +46,10 @@ on:
         type: string
       max_roster:
         description: "1 回で発言者名簿を作る会議の上限 (LLM 不要。人物・会議体ページの元)"
+        required: false
+        type: string
+      max_enforcements:
+        description: "1 回で要約する施行予定の上限 (会議・議案とは別枠。0 で無効)"
         required: false
         type: string
       lookback_days:
@@ -89,6 +93,7 @@ jobs:
       MAX_ROSTER: ${{ github.event.inputs.max_roster || vars.WIKI_MAX_ROSTER || '1200' }}
       # 自治体例規は R2 から配信している。Secret が無ければ例規の照合を飛ばす (週 1 回更新)。
       WIKI_REIKI_BASE_URL: ${{ secrets.R2_PUBLIC_URL && format('{0}/reiki', secrets.R2_PUBLIC_URL) || '' }}
+      MAX_ENFORCEMENTS: ${{ github.event.inputs.max_enforcements || vars.WIKI_MAX_ENFORCEMENTS || '5' }}
       LOOKBACK_DAYS: ${{ github.event.inputs.lookback_days || '45' }}
       PUSH_MODE: ${{ github.event.inputs.push_mode || 'direct' }}
       HAS_CLAUDE_AUTH: ${{ secrets.ANTHROPIC_API_KEY != '' || secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
@@ -126,7 +131,7 @@ jobs:
           ./target/release/lawpub wiki-plan \
             --wiki wiki --work .wiki-work \
             --max-items "$MAX_ITEMS" --max-bills "$MAX_BILLS" --max-pubcomments "$MAX_PUBCOMMENTS" --max-kanpo "$MAX_KANPO" \
-            --max-people "$MAX_PEOPLE" --max-roster "$MAX_ROSTER" --lookback-days "$LOOKBACK_DAYS"
+            --max-enforcements "$MAX_ENFORCEMENTS" --max-people "$MAX_PEOPLE" --max-roster "$MAX_ROSTER" --lookback-days "$LOOKBACK_DAYS"
           echo "tasks=$(jq '.tasks | length' .wiki-work/plan.json)" >> "$GITHUB_OUTPUT"
           cat .wiki-work/plan.md >> "$GITHUB_STEP_SUMMARY"
 

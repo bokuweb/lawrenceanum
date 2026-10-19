@@ -35,6 +35,7 @@ pub struct PlanArgs {
     pub reiki_base_url: String,
     /// LLM に 1 回で渡すタスク数 (`.wiki-work/chunks/NNN.md` ごとに別々の実行にする)。
     pub chunk_size: usize,
+    pub max_enforcements: usize,
 }
 
 /// 1 発言から抜き出す文脈幅 (文字数)。
@@ -250,6 +251,8 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
         Ok(p_tasks) => tasks.extend(p_tasks),
         Err(e) => tracing::warn!("wiki-plan: 人物の要約タスクの作成に失敗: {e:#}"),
     }
+
+    tasks.extend(enforcements::plan(args, &source, &today_s)?);
 
     state.save(&args.wiki)?;
     let plan = Plan {
@@ -1052,6 +1055,7 @@ fn render_plan_md(plan: &Plan, wiki: &Path, work: &Path) -> String {
             "pubcomment" => "パブコメページ",
             "kanpo" => "官報ページ",
             "person" => "人物ページ",
+            "enforcement" => "施行予定解説ページ",
             _ => "会議ページ",
         };
         out.push_str(&format!("- {page_label}: `{wiki}/{}`{}\n", t.page, new(&t.page)));
@@ -1208,6 +1212,7 @@ mod tests {
             lookback_days: 30,
             today: Some("2026-10-08".into()),
             max_bills: 0,
+            max_enforcements: 0,
             max_pubcomments: 0,
             max_kanpo: 0,
             max_people: 0,
@@ -1296,6 +1301,7 @@ mod tests {
             lookback_days: 30,
             today: Some("2026-10-08".into()),
             max_bills: 0,
+            max_enforcements: 0,
             max_pubcomments: 0,
             max_kanpo: 0,
             max_people: 0,
@@ -1345,6 +1351,7 @@ mod tests {
             lookback_days: 30,
             today: Some("2026-10-09".into()),
             max_bills: 0,
+            max_enforcements: 0,
             max_pubcomments: 0,
             max_kanpo: 0,
             max_people: 0,

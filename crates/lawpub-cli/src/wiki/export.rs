@@ -101,6 +101,9 @@ pub fn run_export(args: &ExportArgs) -> Result<()> {
         };
         pages.push((rel, page));
     }
+    let published = enforcements::export(&pages, &args.out)?;
+    // 未完了の施行予定解説は通常の wiki 一覧にも公開しない。
+    pages.retain(|(rel, p)| p.get_str("type") != enforcements::KIND || published.contains(rel));
     let known: BTreeSet<&str> = pages.iter().map(|(rel, _)| rel.as_str()).collect();
 
     let mut index = Vec::new();

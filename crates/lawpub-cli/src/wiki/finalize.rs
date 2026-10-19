@@ -200,6 +200,7 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
             && Page::read(&path)
                 .map(|p| {
                     !p.get_str("description").trim().is_empty()
+                        && (task.kind != enforcements::KIND || enforcements::explanation_errors(&p).is_empty())
                         && llm_blocks(&p.body)
                             .iter()
                             .any(|b| !citations_in(b).is_empty())
@@ -214,6 +215,11 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
             // 人物は、渡した最後の会議の日付まで要約済みとして記録する (翌日以降はその後の会議を渡す)。
             let mut page = Page::read(&path)?;
             page.set("llm_until", json!(pt.until));
+            page.write(&path)?;
+            completed.push(task.clone());
+        } else if done && task.kind == enforcements::KIND {
+            let mut page = Page::read(&path)?;
+            page.set("llm_source_fingerprint", page.get("source_fingerprint").cloned().unwrap_or(Value::Null));
             page.write(&path)?;
             completed.push(task.clone());
         } else if done && task.kind == super::kanpo::KIND_KANPO {
