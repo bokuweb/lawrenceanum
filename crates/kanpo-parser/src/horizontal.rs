@@ -3105,7 +3105,9 @@ fn column_gutters(words: &[Col], blocks: &[Block], tables: &[Block], boxed: bool
                 let starts = |l: &Line| {
                     l.words.first().is_some_and(|w| {
                         let t = w.text.trim();
-                        t.starts_with(|c: char| c.is_ascii_digit() || "△▲".contains(c)) && t.chars().filter(|c| c.is_ascii_digit()).count() >= 3
+                        // 桁の少ない金額だけの語（「8」「△18」）も。
+                        t.starts_with(|c: char| c.is_ascii_digit() || "△▲".contains(c))
+                            && (t.chars().filter(|c| c.is_ascii_digit()).count() >= 3 || t.chars().all(|c| c.is_ascii_digit() || ",△▲".contains(c)))
                     })
                 };
                 ls.iter().filter(|l| amount_line(l) || starts(l)).count() * 2 >= ls.len()
@@ -3336,9 +3338,6 @@ fn is_column_split(left: &[Col], right: &[Col], boxed: bool) -> bool {
         short && beside * 10 >= ll.len() * 9
     };
     let labels = few_labels || group_labels || (wl < 120.0 && label_column(&ll, &near_lines(right, true))) || (wr < 120.0 && label_column(&rl, &near_lines(left, false)));
-    if boxed {
-        return !labels && !(aligned as f32 >= few.len() as f32 * 0.75 && (amounts(&rl) || amounts(&ll)));
-    }
     // 右が金額だけの狭い欄（150pt 未満）なら、行が揃わなくても表の欄（合計の金額は科目の無い行に置く）。
     let amount_column = wr < MIN_TEXT_COLUMN_WIDTH && amounts(&rl);
     // 左の行と高さの揃う右の行がほとんど金額だけなら、右の上の欄見出しの行が多くても表の列（財政資金対民間収支実績表の
@@ -3374,6 +3373,11 @@ fn is_column_split(left: &[Col], right: &[Col], boxed: bool) -> bool {
                 .filter(|a| (a.center() - b.center()).abs() <= ALIGN_TOL)
                 .all(|a| !a.words.iter().any(|w| w.text.chars().any(|c| c.is_ascii_digit())))
         });
+    // 囲みの中でも、左右に並べた貸借対照表の科目の欄とその右（[`label_leading`]）は分けない（段の頭に続く貸借対照表の
+    // 資産の科目と金額が別々に読まれていた）。
+    if boxed {
+        return !labels && !label_leading && !(aligned as f32 >= few.len() as f32 * 0.75 && (amounts(&rl) || amounts(&ll)));
+    }
     let label_amounts = label_amounts || label_leading;
     let table_like = (aligned as f32 >= few.len() as f32 * 0.75 && (wl.min(wr) < MIN_TEXT_COLUMN_WIDTH || amounts(&rl) || (paired.len() >= 5 && amounts(&paired))))
         || label_amounts
