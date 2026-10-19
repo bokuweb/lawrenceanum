@@ -225,6 +225,7 @@ cargo run --release -p kanpo-parser --example snapshot_sample -- .cache/kanpo-ar
 | 60 回目 | 20 | 5 | 5 | 83% |
 | 61 回目 | 25 | 5 | 0 | 100% |
 | 62 回目 | 24 | 5 | 1 | 97% |
+| 63 回目 | 23 | 4 | 3 | 90% |
 
 ## 既知の限界
 
