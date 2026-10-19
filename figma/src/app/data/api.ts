@@ -454,6 +454,9 @@ export const api = {
   lawToHanrei: (lawId: string) => getJson<LawToHanrei>(`./links/law-to-hanrei/${lawId}.json`),
   /** 法令 ↔ 質問主意書・答弁書 クロスリンク (件名・本文の法令参照から抽出)。 */
   lawToShitsumon: (lawId: string) => getJson<LawToShitsumon>(`./links/law-to-shitsumon/${lawId}.json`),
+  /** 法令 → この法令を改正した法律案の改め文 (law-diff の版と対応づけ済み)。 */
+  lawToBillAmendments: (lawId: string) =>
+    getJson<LawToBillAmendments>(`./links/law-to-bill-amendments/${lawId}.json`),
 
   /** 議案 (法案審議トラッキング) 全体インデックス。 */
   gianIndex: () => getJson<GianIndex>('./gian/index.json'),
@@ -932,6 +935,42 @@ export type LawToShitsumon = {
   schema_version: number
   law_id: string
   linked_questions: LinkedQuestion[]
+}
+
+// ── 法律案の改め文 ↔ 改正差分 型定義 ──────────────────────────────
+
+export type LinkedAmendmentSentence = {
+  /** 改め文 1 文の原文 (「第二条中「A」を「B」に改める。」)。 */
+  text: string
+  /** 改め文が指す条 (`art_*`)。linked なら差分で実際に変化した条。 */
+  article_ids: string[]
+  /** verified / article / pending / unmatched / skipped、または法令単位の status。 */
+  status: string
+}
+
+export type LinkedBillAmendment = {
+  bill_id: string
+  session: number
+  bill_title: string
+  law_num: string | null
+  amendment_law_id: string | null
+  /** 法案内の位置 (「第一条」「附則第六条」)。 */
+  provision: string | null
+  /** linked / pending / not_promulgated / revision_not_found。 */
+  status: string
+  from_revision_id: string | null
+  to_revision_ids: string[]
+  source_url: string
+  path: string
+  ops: number
+  ops_matched: number
+  sentences: LinkedAmendmentSentence[]
+}
+
+export type LawToBillAmendments = {
+  schema_version: number
+  law_id: string
+  bills: LinkedBillAmendment[]
 }
 
 // ── 規制変化フィード 型定義 ───────────────────────────────────────

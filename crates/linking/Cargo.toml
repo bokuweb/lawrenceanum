@@ -12,3 +12,7 @@ serde_json.workspace = true
 aho-corasick.workspace = true
 tracing.workspace = true
 walkdir.workspace = true
+# 改め文 (gian) と law-diff の差分を対応づける (bill_amendments)。
+gian-client = { path = "../gian-client" }
+law-diff = { path = "../law-diff" }
+law-normalizer = { path = "../law-normalizer" }

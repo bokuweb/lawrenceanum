@@ -20,9 +20,11 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
 
+mod bill_amendments;
 mod hanrei;
 mod rulemaking;
 mod shingikai;
+pub use bill_amendments::{bill_amendments_health, run_link_bill_amendments};
 pub use hanrei::run_link_hanrei;
 pub use rulemaking::run_link_rulemaking;
 pub use shingikai::run_link_shingikai;

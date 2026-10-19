@@ -4,9 +4,18 @@ import { Badge } from "../ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Skeleton } from "../ui/skeleton";
 import { ARTICLES_V1, ARTICLES_V2 } from "../mock-data";
-import { ArrowRight, GitCompare } from "lucide-react";
+import { ArrowRight, FileText, GitCompare } from "lucide-react";
+import { Link } from "react-router";
 import { useLaws } from "../../data/use-laws";
-import { api, type Article, type LawDocumentRaw, type VersionsJson } from "../../data/api";
+import {
+  api,
+  type Article,
+  type LawDocumentRaw,
+  type LawToBillAmendments,
+  type LinkedAmendmentSentence,
+  type LinkedBillAmendment,
+  type VersionsJson,
+} from "../../data/api";
 
 type DiffSeg = { type: "eq" | "add" | "del"; text: string };
 
@@ -93,6 +102,17 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
   }, [fallbackLaw?.law_id]);
 
   const [versions, setVersions] = useState<VersionsJson | null>(null);
+  // この法令を改正した法律案の改め文 (無ければ null)。
+  const [billAmendments, setBillAmendments] = useState<LawToBillAmendments | null>(null);
+  useEffect(() => {
+    if (!lawId) return;
+    let cancelled = false;
+    setBillAmendments(null);
+    api.lawToBillAmendments(lawId)
+      .then(d => { if (!cancelled) setBillAmendments(d); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [lawId]);
   const [versionsLoading, setVersionsLoading] = useState(true);
   const [versionA, setVersionA] = useState<string>("");
   const [versionB, setVersionB] = useState<string>("");
@@ -263,6 +283,24 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
     return d ? `施行 ${fmtDate(d)}${amend ? ` · ${amend}` : ""}` : revId.slice(0, 12);
   };
 
+  // 比較版 (After) を生んだ法律案の改め文と、条ごとの根拠の文。
+  const { basisBills, sentencesByArticle } = useMemo(() => {
+    const basisBills: LinkedBillAmendment[] = (billAmendments?.bills ?? []).filter(
+      b => b.status === "linked" && !!versionB && b.to_revision_ids.includes(versionB),
+    );
+    const sentencesByArticle = new Map<string, LinkedAmendmentSentence[]>();
+    for (const b of basisBills) {
+      for (const s of b.sentences) {
+        for (const id of s.article_ids) {
+          const list = sentencesByArticle.get(id) ?? [];
+          list.push(s);
+          sentencesByArticle.set(id, list);
+        }
+      }
+    }
+    return { basisBills, sentencesByArticle };
+  }, [billAmendments, versionB]);
+
   return (
     <div className="p-6 space-y-6">
       <div>
@@ -353,6 +391,26 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
         </div>
       ) : (
       <>
+      {liveAvailable && basisBills.length > 0 && (
+        <Card>
+          <CardContent className="p-4 space-y-2">
+            <div className="text-sm flex items-center gap-2">
+              <FileText className="size-4" />この改正の根拠となった改め文
+            </div>
+            {basisBills.map(b => (
+              <div key={`${b.session}-${b.bill_id}-${b.provision ?? ""}`} className="text-xs text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1">
+                <Link to={`/gian/${b.session}/${b.bill_id}`} className="text-foreground hover:underline">
+                  第{b.session}回 {b.bill_title}
+                </Link>
+                {b.provision && <span>{b.provision}</span>}
+                {b.law_num && <span>（{b.law_num}）</span>}
+                <span>改正操作 {b.ops} 件中 {b.ops_matched} 件を差分と照合</span>
+                <a href={b.source_url} target="_blank" rel="noreferrer" className="hover:underline">衆議院 提出時法律案</a>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
       <div className="flex gap-2">
         <Badge variant="outline" className="gap-1.5"><span className="size-2 rounded-sm bg-emerald-500" />追加 {stats.added}</Badge>
         <Badge variant="outline" className="gap-1.5"><span className="size-2 rounded-sm bg-amber-500" />変更 {stats.modified}</Badge>
@@ -381,6 +439,15 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
                   {status === "added" ? "追加" : status === "removed" ? "削除" : "変更"}
                 </Badge>
               </div>
+              {(sentencesByArticle.get(id) ?? []).length > 0 && (
+                <div className="px-4 py-2 border-b border-border text-xs text-muted-foreground space-y-1">
+                  {sentencesByArticle.get(id)!.map((s, i) => (
+                    <p key={i} className="whitespace-pre-wrap">
+                      <span className="text-foreground">改め文</span> {s.text}
+                    </p>
+                  ))}
+                </div>
+              )}
               <div className="grid grid-cols-2 divide-x divide-border">
                 <div className="p-4 text-sm leading-relaxed space-y-2">
                   {a ? a.paragraphs.map((p, i) => {

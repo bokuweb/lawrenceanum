@@ -16,6 +16,9 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::time::Duration;
 
+pub mod amendment;
+pub use amendment::{parse_amendment_text, parse_bill_amendments, BillAmendments};
+
 pub const BASE_URL: &str = "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian";
 pub const RESOLUTION_BASE_URL: &str = "https://www.sangiin.go.jp/japanese/gianjoho/ketsugi";
 
