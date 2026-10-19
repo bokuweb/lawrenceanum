@@ -4353,8 +4353,19 @@ fn split_off_horizontal_blocks(cols: Vec<Col>, vrules: &[(f32, f32, f32)], hrule
                         (center(m).1 - cy).abs() < em * 0.5 && m.x.max(c.x) - m.x1.min(c.x1) < em * 4.0
                     })
             };
+            // 欄の右の外の縦の列のすぐ隣（1.5 字分以内）で上下に重なる 1 字の語（住所の列「…一一番一九」の続きの「号」）は、縦組みの
+            // 列の字（欄に入れると欄が広がり、隣の公告の署名の列「（乙）有限会社つる軒」まで欄に取り込んでいた）。
+            let column_char = |c: &Col| {
+                let em = (c.x1 - c.x).max(c.y1 - c.y);
+                c.text.trim().chars().count() == 1
+                    && cols.iter().any(|t| {
+                        let tx = (t.x + t.x1) / 2.0;
+                        // 欄の右の列だけ（表の左端の縦書きの見出し「資産の部」の右の「流動資産」の頭の「流」は欄の字）。
+                        tall(t) && tx > x1 && (tx - center(c).0).abs() <= em * 1.5 && t.y < c.y1 && c.y < t.y1
+                    })
+            };
             let more: Vec<usize> = (0..cols.len())
-                .filter(|&i| !members.contains(&i) && !taken[i] && !tall(&cols[i]) && !in_column_but(&cols[i], Some((x0, y0, x1, y1))))
+                .filter(|&i| !members.contains(&i) && !taken[i] && !tall(&cols[i]) && !in_column_but(&cols[i], Some((x0, y0, x1, y1))) && !column_char(&cols[i]))
                 .filter(|&i| {
                     let (cx, cy) = center(&cols[i]);
                     (x0 - em * 0.5 < cx && cx < x1 + em * 0.5 && y0 - em * 2.0 < cy && cy < y1 + em * 2.0) || beside(&cols[i])
