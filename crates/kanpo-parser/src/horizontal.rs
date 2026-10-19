@@ -1296,7 +1296,13 @@ fn amount_end(l: &Line) -> bool {
 /// 前の「業務損失」と次の「業務外収益」の行と 1 行になっていた）。
 fn section_heading(l: &Line) -> bool {
     let t: String = l.words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace()).collect();
-    t.starts_with(['（', '(']) && (t.ends_with("の部）") || t.ends_with("の部)")) && t.chars().count() <= 14
+    // 大きな区分の番号で始まる行（「Ⅲ　財務活動によるキャッシュ・フロー」）も。
+    (t.starts_with(['（', '(']) && (t.ends_with("の部）") || t.ends_with("の部)")) && t.chars().count() <= 14)
+        || (t.starts_with(|c: char| ('Ⅰ'..='Ⅻ').contains(&c))
+            && !t.chars().any(|c| c.is_ascii_digit())
+            && t.chars().count() <= 24
+            // 名前の終わりまである行だけ（「Ⅱ資本剰余金の当期変」「動額」の折り返しは別の行にしない）。
+            && ["フロー", "額", "益", "失", "用", "等", "計", "高", "金", "費", "産", "債", "本"].iter().any(|e| t.ends_with(e)))
 }
 
 /// 行が科目の名前（頭に 2 字以上ある）で終わるか（「流動負債」「固定資産」「営業外収益」「賞与引当金」「その他利益剰余金」）。
