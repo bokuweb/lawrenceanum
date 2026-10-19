@@ -677,8 +677,12 @@ fn kanji_code(t: &str) -> bool {
     // 縦組みの表の住所の欄の折り返し）。
     let tail: Vec<char> = chars.iter().rev().take_while(|&&c| !kanji(c)).copied().collect();
     let address = !t.ends_with('号') && tail.iter().any(|c| "－-".contains(*c)) && tail.iter().all(|&c| digit(c) || "－-".contains(c));
+    // 漢字 1 字と数字だけ（「名２1121」「寺２１12」。「－」の字形が字の層に無い住所の折り返し）は記号ではない。記号は漢字が
+    // 2 字以上（「生第」「令…全保」）か英字を含む（「交Ｎ26－67」）。
+    let letters = chars.iter().any(|c| c.is_ascii_alphabetic() || ('Ａ'..='Ｚ').contains(c));
+    let short = kanji_runs.iter().sum::<usize>() < 2 && !letters;
     // 英数字で終わり、漢字の並びは 2 つまで・各 3 字まで。
-    !address && runs.last().is_some_and(|r| !r.0) && kanji_runs.len() <= 2 && kanji_runs.iter().all(|&n| n <= 3)
+    !address && !short && runs.last().is_some_and(|r| !r.0) && kanji_runs.len() <= 2 && kanji_runs.iter().all(|&n| n <= 3)
 }
 
 /// 罫線の無い横組みの表で、左端の列に行の見出しの番号（[`row_key`]）が 3 つ以上縦に並ぶものを表に
