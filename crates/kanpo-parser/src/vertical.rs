@@ -2481,7 +2481,12 @@ fn record_bands(bands: &[Vec<Col>], mid_line: Option<f32>) -> Option<(usize, Vec
             continue;
         }
         let (x0, x1, y0, y1) = ext(b);
-        let overlap = (x1.min(fx1) - x0.max(fx0)).max(0.0) / (x1 - x0).max(fx1 - fx0).max(1.0);
+        // 頭の段に表の右の文（告示の本文・日付）が入ることがあるので、2 列以上の段は狭い方の幅に対する重なりで見る。
+        let inter = (x1.min(fx1) - x0.max(fx0)).max(0.0);
+        let mut xs: Vec<f32> = b.iter().map(center).collect();
+        xs.sort_by(f32::total_cmp);
+        xs.dedup_by(|a, b| (*a - *b).abs() < 3.0);
+        let overlap = if xs.len() >= 2 { inter / (x1 - x0).min(fx1 - fx0).max(1.0) } else { inter / (x1 - x0).max(fx1 - fx0).max(1.0) };
         let upright = b.iter().filter(|c| c.y1 - c.y >= (c.x1 - c.x) * 0.9).count();
         let mut mids: Vec<f32> = b.iter().map(|c| (c.y + c.y1) / 2.0).collect();
         mids.sort_by(f32::total_cmp);
@@ -2508,7 +2513,9 @@ fn record_bands(bands: &[Vec<Col>], mid_line: Option<f32>) -> Option<(usize, Vec
     if n == 2 {
         return name_pair_bands(&bands[..2]);
     }
-    if n < 3 {
+    // 字間を空けた 1 字ずつの見出しだけの段（「種　類」「す　る　区　域」）から始まる組は表ではない（1 字の語が
+    // 並ぶ表の段（都道府県名の頭の字「茨」「栃」…）は語が多い）。
+    if n < 3 || (first.len() < 10 && first.iter().all(|c| c.text.chars().count() == 1)) {
         return None;
     }
     let all_bands = bands;
@@ -2637,14 +2644,62 @@ fn record_bands(bands: &[Vec<Col>], mid_line: Option<f32>) -> Option<(usize, Vec
         let (ca, cb) = (center(a), center(b));
         if (ca - cb).abs() < 3.0 { a.y.total_cmp(&b.y) } else { cb.total_cmp(&ca) }
     });
-    let dated = lead_cols.first().is_some_and(|c| c.text.starts_with("令和") && c.text.ends_with('日'));
+    // 表の右の告示の本文の列（「…指定した。」）の後に日付が来ることもある。
+    let dated = lead_cols.iter().take_while(|c| !c.text.starts_with("令和")).all(|c| c.text.ends_with('。') || center(c) - center(lead_cols[0]) > -3.0)
+        && lead_cols.iter().any(|c| c.text.starts_with("令和") && c.text.ends_with('日'));
+    // 欄見出しの列が行の頭の行にあれば（日付・署名の列の左に並ぶ）、その列は見出しの行として残し、右の列だけ先に書く。
+    let mut printed: std::collections::HashSet<usize> = std::collections::HashSet::new();
     let first = if anchors.len() > 3 && dated {
-        for col in lead_cols.chunk_by(|a, b| (center(a) - center(b)).abs() < 3.0) {
+        let cols: Vec<&[&Col]> = lead_cols.chunk_by(|a, b| (center(a) - center(b)).abs() < 3.0).collect();
+        let label = |col: &[&Col]| {
+            let t: String = col.iter().map(|c| c.text.as_str()).collect();
+            RECORD_HEADS.iter().any(|h| t.ends_with(h))
+        };
+        let label_x = cols.iter().filter(|col| label(col)).map(|col| center(col[0])).fold(f32::NEG_INFINITY, f32::max);
+        for col in cols.iter().filter(|col| center(col[0]) > label_x + 3.0) {
             lines.push(Line::text(col.iter().map(|c| c.text.as_str()).collect(), col.iter().map(|c| c.id).collect()));
+            printed.extend(col.iter().map(|c| c.id));
         }
-        1
+        if label_x.is_finite() { 0 } else { 1 }
     } else {
         0
+    };
+    let record_of = |c: &Col| if printed.contains(&c.id) { usize::MAX } else { record_of(c) };
+    // 1 つの段に重ねた欄（指定番号と車名及び型式、名称・代表者の氏名・異動事項…）は、見出しの行の欄見出しの高さで分ける。
+    let bounds: Vec<Vec<f32>> = {
+        let heads = |r: usize| bands.iter().flatten().filter(|c| record_of(c) == r && RECORD_HEADS.iter().any(|h| c.text.ends_with(h))).count();
+        let header = (first..anchors.len()).max_by_key(|&r| heads(r)).filter(|&r| heads(r) >= 2);
+        bands
+            .iter()
+            .map(|b| match header {
+                Some(h) => {
+                    // 欄見出しの列（「名称」「氏名」…で終わる語のある列と、2 行の欄見出しの隣の列）だけ。区分の見出し
+                    // （「（一）政党の支部」）の列は見ない。
+                    let ws: Vec<&Col> = b.iter().filter(|c| record_of(c) == h).collect();
+                    // 字間を空けた欄見出し（「摘　要」）は列ごとにつないで見る。
+                    let column_text = |x: f32| {
+                        let mut cs: Vec<&&Col> = ws.iter().filter(|c| (center(c) - x).abs() < 3.0).collect();
+                        cs.sort_by(|a, b| a.y.total_cmp(&b.y));
+                        cs.iter().map(|c| c.text.as_str()).collect::<String>()
+                    };
+                    let label_x: Vec<f32> = ws
+                        .iter()
+                        .map(|c| center(c))
+                        .filter(|&x| {
+                            let t = column_text(x);
+                            RECORD_HEADS.iter().any(|h| t.ends_with(h) || t.contains(&format!("{h}（")))
+                        })
+                        .collect();
+                    let section: Vec<f32> = ws.iter().filter(|c| c.text.starts_with('（') && c.text.chars().count() <= 4 && c.text.ends_with('）')).map(|c| center(c)).collect();
+                    let ws: Vec<&Col> = ws
+                        .into_iter()
+                        .filter(|c| label_x.iter().any(|&x| (center(c) - x).abs() < em * 1.2) && !section.iter().any(|&x| (center(c) - x).abs() < 3.0))
+                        .collect();
+                    field_tops(&ws, em)
+                }
+                None => Vec::new(),
+            })
+            .collect()
     };
     for r in first..anchors.len() {
         let mut fields: Vec<String> = Vec::new();
@@ -2659,7 +2714,7 @@ fn record_bands(bands: &[Vec<Col>], mid_line: Option<f32>) -> Option<(usize, Vec
                 if (ca - cb).abs() < same { a.y.total_cmp(&b.y) } else { cb.total_cmp(&ca) }
             });
             if !ws.is_empty() {
-                let text: String = ws.iter().map(|c| c.text.as_str()).collect();
+                let text = stacked_fields(&ws, &bounds[k], em);
                 // 上の段の欄の続き（「八、」と「四、二〇」が別の段に割れた日付、欄見出しの末字だけの段の「称」）は区切らない。
                 let continues = |f: &String| {
                     last.is_some_and(|(j, x)| j + 1 == k && (f.ends_with('、') || label_tail_band(b) && (center(ws[0]) - x).abs() < 3.0))
@@ -2679,8 +2734,54 @@ fn record_bands(bands: &[Vec<Col>], mid_line: Option<f32>) -> Option<(usize, Vec
     Some((n, lines))
 }
 
-/// [`record_bands`] の表の欄見出しの末尾の語（「政治団体の名称」「代表者の氏名」「解散年月日」「主たる事務所の所在地」）。
-const RECORD_HEADS: [&str; 4] = ["名称", "氏名", "年月日", "所在地"];
+/// [`record_bands`] の見出しの行の 1 つの段の欄見出しの語から、段の中に重ねた欄の境の高さを求める。
+/// 字間を空けた 1 字ずつの欄見出し（「政　治　団　体」）と 2 行の欄見出し（「代表者」「の氏名」）は 1 つの欄。
+fn field_tops(heads: &[&Col], em: f32) -> Vec<f32> {
+    let mut by_y: Vec<&Col> = heads.to_vec();
+    by_y.sort_by(|a, b| a.y.total_cmp(&b.y));
+    let mut groups: Vec<(f32, f32, bool)> = Vec::new();
+    for c in by_y {
+        let single = c.text.chars().count() == 1;
+        match groups.last_mut() {
+            Some((_, y1, one)) if c.y - *y1 < em * 0.75 || (single && *one) => {
+                *y1 = y1.max(c.y1);
+                *one = *one && single;
+            }
+            _ => groups.push((c.y, c.y1, single)),
+        }
+    }
+    // 欄の境は、前の欄見出しの下端のすぐ後（欄の値は欄見出しより上から始まることがある）。
+    groups.windows(2).map(|w| w[0].1 + em * 0.25).collect()
+}
+
+/// [`record_bands`] の 1 つの行の 1 つの段の語を組む。段に重ねた欄（`tops` は欄の境の高さ）ごとに、列の右
+/// から・列の中は上から並べ、欄を全角空白で区切る（列ごとに読むと「公明党衆議大森江里子会計責任者の天野明美院比例区東…」と
+/// 欄が混ざっていた）。
+fn stacked_fields(ws: &[&Col], tops: &[f32], em: f32) -> String {
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    let same = (em * 0.6).max(3.0);
+    let field = |c: &Col| tops.iter().filter(|&&t| c.y >= t).count();
+    let mut fields: Vec<Vec<&Col>> = vec![Vec::new(); tops.len() + 1];
+    for &c in ws {
+        fields[field(c)].push(c);
+    }
+    fields
+        .into_iter()
+        .filter(|g| !g.is_empty())
+        .map(|mut g| {
+            g.sort_by(|a, b| {
+                let (ca, cb) = (center(a), center(b));
+                if (ca - cb).abs() < same { a.y.total_cmp(&b.y) } else { cb.total_cmp(&ca) }
+            });
+            g.iter().map(|c| c.text.as_str()).collect::<String>()
+        })
+        .collect::<Vec<_>>()
+        .join("\u{3000}")
+}
+
+/// [`record_bands`] の表の欄見出しの末尾の語（「政治団体の名称」「代表者の氏名」「解散年月日」「主たる事務所の所在地」
+/// 「施設名」「指定番号」「車名及び型式」「製作者等の住所」「摘要」）。
+const RECORD_HEADS: [&str; 11] = ["名称", "氏名", "年月日", "所在地", "名", "番号", "型式", "住所", "摘要", "種類", "関係"];
 
 /// [`record_bands`] の、字間を空けた欄見出しの 1 字だけの段（「番」）。
 fn label_band(b: &[Col]) -> bool {
@@ -2694,9 +2795,8 @@ fn label_tail_band(b: &[Col]) -> bool {
 
 /// [`record_bands`] の高い段（長い団体名・所在地の欄）が、低い段と同じ行の頭で組まれた表の欄か。本文の段も同じ行の
 /// 送りで列が揃うので、次のどれも満たすときだけ表の欄とする。
-/// - 句点（「。」）が無い。
-/// - 隣の低い段（3 列以上）の列の 8 割以上が、この段の同じ x の列と組になる。
-/// - 組になった列の 8 割以上は、途中に空きが無い（1 つの欄だけの段）。
+/// - 句点（「。」）が無い（欄見出しのある摘要の欄の段は除く）。表の右の文（告示の本文・日付）は見ない。
+/// - 隣の低い段（欄見出しを除いて 2 列以上）の列の 8 割以上が、この段の同じ x の列と組になる。
 /// - 2 つ以上の段に欄見出し（[`RECORD_HEADS`] で終わる列）があるか、どの段の列も同じ x に 1 対 1 で並び（ページの
 ///   下半分に続く見出しの無い表）、組になった列の半分未満しか段の下端まで届かない（本文の列はどれも段の下端まで
 ///   組まれる）。
@@ -2717,36 +2817,27 @@ fn tall_record_band(bands: &[Vec<Col>], t: usize, tall_bands: &[usize]) -> bool 
         }
         out
     };
-    let band = &bands[t];
-    if band.iter().any(|c| c.text.contains('。')) {
-        return false;
-    }
     // 隣の低い段（欄見出しの末字だけの段は飛ばす）。
     let short = |k: &usize| !tall_bands.contains(k) && bands[*k].len() >= 3 && !label_tail_band(&bands[*k]);
     let Some(k) = (t + 1..bands.len()).find(short).or_else(|| (0..t).rev().find(short)) else {
         return false;
     };
-    let own = columns(band);
-    let em = band.iter().map(|c| c.x1 - c.x).fold(0.0, f32::max).max(6.0);
+    let em = bands[t].iter().map(|c| c.x1 - c.x).fold(0.0, f32::max).max(6.0);
     // 欄見出しの列（「代表者」「の氏名」は字間を空けた「政治団体の名称」と同じ x に並ばない）は組にしない。
     let mut other = columns(&bands[k]);
+    // 表の右の、表の前の文（告示の本文・日付・署名）は見ない。
+    let edge = other.iter().map(|c| c.0).fold(f32::NEG_INFINITY, f32::max) + em * 1.5;
     let heads: Vec<f32> = other.iter().filter(|(_, text, _)| RECORD_HEADS.iter().any(|h| text.ends_with(h))).map(|c| c.0).collect();
     other.retain(|(x, ..)| !heads.iter().any(|h| x - h > -1.0 && x - h < em * 1.5));
-    let pairs: Vec<&(f32, String, f32)> = own.iter().filter(|(x, ..)| other.iter().any(|(o, ..)| (o - x).abs() < 3.0)).collect();
-    if other.len() < 3 || pairs.len() * 10 < other.len() * 8 {
+    let band: Vec<Col> = bands[t].iter().filter(|c| center(c) <= edge).cloned().collect();
+    let own = columns(&band);
+    // 句点のある段は、欄見出しのある摘要の欄（「訓練施設として共同使用する。」）だけ。
+    let labeled_here = own.iter().any(|(_, text, _)| RECORD_HEADS.iter().any(|h| text.ends_with(h)));
+    if band.iter().any(|c| c.text.contains('。')) && !labeled_here {
         return false;
     }
-    // 組になった列は 1 つの欄（団体名、所在地）で、途中に空きが無い。名称・代表者・異動事項…を 1 つの段に重ねた
-    // 表（異動の届出の一覧）は、欄の間の空きで区切れないので段ごとに読む。
-    let solid = pairs
-        .iter()
-        .filter(|(x, ..)| {
-            let mut ws: Vec<&Col> = band.iter().filter(|c| (center(c) - x).abs() < 3.0).collect();
-            ws.sort_by(|a, b| a.y.total_cmp(&b.y));
-            ws.windows(2).all(|w| w[1].y - w[0].y1 < em * 0.75)
-        })
-        .count();
-    if solid * 10 < pairs.len() * 8 {
+    let pairs: Vec<&(f32, String, f32)> = own.iter().filter(|(x, ..)| other.iter().any(|(o, ..)| (o - x).abs() < 3.0)).collect();
+    if other.len() < 2 || pairs.len() * 10 < other.len() * 8 {
         return false;
     }
     let labeled = bands.iter().filter(|b| columns(b).iter().any(|(_, text, _)| RECORD_HEADS.iter().any(|h| text.ends_with(h)))).count();
