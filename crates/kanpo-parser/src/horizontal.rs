@@ -1473,7 +1473,22 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
                 });
                 // 前の行も項目名と数の行なら、右端まで組まれていても（数は右揃え）折り返しではない。
                 let own_row = rowlike_cell(i) && k > 0 && rowlike(l) && (rowlike(&cell_lines[i][k - 1]) || !wraps(i, k));
-                if top < c && c < bottom && (own_row || aligned[k] || next_item(k) || (rows_of_items && (!tight(k) || numbered)) || (figures && k > 0 && !tight(k) && alone_in_row(l))) {
+                // 前の行より 0.5 字分以上左から始まる行（段階補正の表の小見出し「測定単位の数値が…に満たないもの」。値の行は
+                // 1 字下げて組む）は次の項目。
+                // 前後の行は 1 字下げて組まれ（次の行は小見出しより右から始まる）、前の行には隣の欄に値があり、小見出しの行には無い。
+                let outdent = k > 0 && k + 1 < cell_lines[i].len() && {
+                    let p = &cell_lines[i][k - 1];
+                    let n = &cell_lines[i][k + 1];
+                    let em = (l.y1 - l.y0).max(1.0);
+                    let x0 = |m: &Line| m.words.first().map_or(f32::INFINITY, |w| w.x);
+                    // 分数の分子・分母の行（数と演算の記号だけの短い行）に挟まれた算式の行は除く。
+                    let numeric = |m: &Line| {
+                        let t: String = m.words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace()).collect();
+                        !t.is_empty() && t.chars().all(|c| c.is_ascii_digit() || ('０'..='９').contains(&c) || ".,×＋+−-－/／（）()".contains(c))
+                    };
+                    x0(l) < x0(p) - em * 0.5 && x0(n) > x0(l) + em * 0.5 && !wraps(i, k) && !numeric(p) && !numeric(n)
+                };
+                if top < c && c < bottom && (own_row || aligned[k] || next_item(k) || outdent || (rows_of_items && (!tight(k) || numbered)) || (figures && k > 0 && !tight(k) && alone_in_row(l))) {
                     anchors.push(l.y0 - 0.5);
                 }
             }
