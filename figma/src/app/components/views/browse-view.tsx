@@ -14,6 +14,7 @@ import { useLocation, useNavigate } from "react-router";
 import { useLaws, useLawDetail } from "../../data/use-laws";
 import { api, hanreiUrl, type AppendixTable, type LawToHanrei, type LawToProceedings, type LawToRulemaking, type LawToPubcomments, type LawToTsutatsu } from "../../data/api";
 import { AmendDocumentView } from "../amend-document-view";
+import { SupplementarySection } from "./supplementary-section";
 import { getRefsForLaw, type ArticleRef } from "../../data/search-engine";
 import { EgovAttribution, toJstDate } from "../egov-attribution";
 
@@ -689,6 +690,8 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
           </ul>
         </div>
       )}
+
+      <SupplementarySection lawId={law.law_id} />
 
       {linkedCases.length > 0 && (
         <div className="border-b border-border bg-background px-6 py-3">

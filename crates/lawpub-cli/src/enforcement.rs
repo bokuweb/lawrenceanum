@@ -3,6 +3,10 @@
 //!
 //! 既存の timeline.json（effective_date / scheduled_enforcement_date）から導出するだけ
 //! で、新規収集は不要。士業・法務の「この改正はいつ施行か」を一覧できる。
+//!
+//! 加えて、附則 (supplementary.json, #202) から読んだ今後の施行日のうち timeline に
+//! 同じ日の施行が無いもの (ただし書・各号による一部施行が主) を `date_kind = "supplementary"`
+//! として足す。
 
 use anyhow::{Context, Result};
 use chrono::Utc;
@@ -20,9 +24,15 @@ struct EnforcementItem {
     title: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     amending_law_title: Option<String>,
-    /// "scheduled"(施行予定日) / "effective"(施行日)。
+    /// "scheduled"(施行予定日) / "effective"(施行日) / "supplementary"(附則から読んだ施行日)。
     date_kind: String,
+    /// 附則から読んだ一部施行の対象規定。
+    #[serde(skip_serializing_if = "Option::is_none")]
+    targets: Option<String>,
 }
+
+/// 対象規定の表示は長くなりがちなので切り詰める。
+const MAX_TARGETS_CHARS: usize = 200;
 
 fn read_json(path: &Path) -> Option<serde_json::Value> {
     serde_json::from_slice(&std::fs::read(path).ok()?).ok()
@@ -66,6 +76,47 @@ pub fn run_build(public: &Path) -> Result<()> {
             let Some(events) = tl.get("events").and_then(|e| e.as_array()) else {
                 continue;
             };
+            let mut dates: std::collections::HashSet<String> = std::collections::HashSet::new();
+            let mut amending_titles: HashMap<String, String> = HashMap::new();
+            for ev in events {
+                for k in ["scheduled_enforcement_date", "effective_date"] {
+                    if let Some(d) = ev.get(k).and_then(|v| v.as_str()) {
+                        dates.insert(d.to_string());
+                    }
+                }
+                if let (Some(num), Some(title)) = (
+                    ev.get("amending_law_num").and_then(|v| v.as_str()),
+                    ev.get("amending_law_title").and_then(|v| v.as_str()),
+                ) {
+                    if let Some(key) = law_normalizer::supplementary::law_num_key(num) {
+                        amending_titles.insert(key, title.to_string());
+                    }
+                }
+            }
+            for up in crate::supplementary::upcoming(&entry.path(), &today) {
+                if dates.contains(&up.date) {
+                    continue;
+                }
+                let amending_law_title = up.amend_law_num.as_deref().map(|num| {
+                    law_normalizer::supplementary::law_num_key(num)
+                        .and_then(|k| amending_titles.get(&k).cloned())
+                        .unwrap_or_else(|| num.to_string())
+                });
+                items.push(EnforcementItem {
+                    date: up.date,
+                    law_id: law_id.clone(),
+                    title: titles.get(&law_id).cloned().unwrap_or_default(),
+                    amending_law_title,
+                    date_kind: "supplementary".to_string(),
+                    targets: up.targets.map(|t| {
+                        if t.chars().count() > MAX_TARGETS_CHARS {
+                            format!("{}…", t.chars().take(MAX_TARGETS_CHARS).collect::<String>())
+                        } else {
+                            t
+                        }
+                    }),
+                });
+            }
             for ev in events {
                 // 施行予定日を優先、無ければ施行日。未来日付のみ。
                 let (date, kind) = match ev
@@ -92,6 +143,7 @@ pub fn run_build(public: &Path) -> Result<()> {
                         .filter(|s| !s.is_empty())
                         .map(String::from),
                     date_kind: kind.to_string(),
+                    targets: None,
                 });
             }
         }

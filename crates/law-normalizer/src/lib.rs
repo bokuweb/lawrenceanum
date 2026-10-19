@@ -27,6 +27,8 @@ use sha2::{Digest, Sha256};
 
 pub const SCHEMA_VERSION: u32 = 1;
 
+pub mod supplementary;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LawSummary {
     pub law_id: String,
@@ -156,6 +158,11 @@ pub struct SupplProvision {
     pub label: Option<String>,
     /// 附則内の条文。article_id は本則と衝突しないよう `suppl{index}_art_{Num}` で発番。
     pub articles: Vec<Article>,
+    /// 条に分かれない附則 (`<SupplProvision>` 直下の `<Paragraph>`) の項。
+    /// 「この法律は、公布の日から施行する。」だけの改正附則の大半がこの形。
+    /// 後方互換のため、空なら配信 JSON からも省略される。
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub paragraphs: Vec<Paragraph>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -480,6 +487,7 @@ pub fn parse_law_xml(xml: &[u8], law_id: &str) -> Result<LawDocument> {
                             amend_law_num,
                             label: None,
                             articles: Vec::new(),
+                            paragraphs: Vec::new(),
                         });
                         scope_stack.push(Scope::Suppl(suppl_count));
                     }
@@ -658,12 +666,18 @@ pub fn parse_law_xml(xml: &[u8], law_id: &str) -> Result<LawDocument> {
                                 a.paragraphs.push(p);
                             } else if !p.text.trim().is_empty() {
                                 let scope = *scope_stack.last().unwrap_or(&Scope::None);
-                                if matches!(scope, Scope::Main | Scope::None) {
+                                match scope {
                                     // 旧法 (太政官布告等) の MainProvision 直下 Paragraph。
-                                    orphan_paragraphs.push(p);
+                                    Scope::Main | Scope::None => orphan_paragraphs.push(p),
+                                    // 条に分かれない附則の項。
+                                    Scope::Suppl(_) => {
+                                        if let Some(sp) = suppl_provisions.last_mut() {
+                                            sp.paragraphs.push(p);
+                                        }
+                                    }
+                                    // 別表・別紙系の orphan Paragraph は捨てる。
+                                    Scope::Other => {}
                                 }
-                                // Suppl/Other 配下の orphan Paragraph は捨てる
-                                // (現状ユースケース無し)。
                             }
                         }
                     }

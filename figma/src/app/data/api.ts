@@ -90,7 +90,8 @@ export type LawDocumentRaw = {
   effective_date: string | null
   status: 'current' | 'historical' | 'future' | string
   articles: Article[]
-  suppl_provisions?: { index: number; amend_law_num: string | null; label: string | null; articles: Article[] }[]
+  /** `paragraphs` は条に分かれない附則の項 (空なら省略)。 */
+  suppl_provisions?: { index: number; amend_law_num: string | null; label: string | null; articles: Article[]; paragraphs?: Paragraph[] }[]
   /** 旧 JSON には無い。空のときも省略される。 */
   appendix_tables?: AppendixTable[]
   source: { provider: string; raw_xml_sha256: string | null; fetched_at: string }
@@ -444,6 +445,8 @@ export const api = {
 
   /** 法令の制定経緯 (パブコメ → 結果公示 → 公布 → 施行) の連鎖。 */
   lawToRulemaking: (lawId: string) => getJson<LawToRulemaking>(`./links/law-to-rulemaking/${lawId}.json`),
+  /** 附則の構造化 (施行期日・経過措置・読替え規定)。附則の無い法令には無い。 */
+  lawSupplementary: (lawId: string) => getJson<LawSupplementary>(`./laws/${lawId}/supplementary.json`),
   /** 法令 ↔ 判例 クロスリンク (判例の参照法条から抽出)。 */
   lawToHanrei: (lawId: string) => getJson<LawToHanrei>(`./links/law-to-hanrei/${lawId}.json`),
 
@@ -710,8 +713,10 @@ export type EnforcementItem = {
   law_id: string
   title: string
   amending_law_title?: string
-  /** "scheduled"(施行予定日) / "effective"(施行日)。 */
+  /** "scheduled"(施行予定日) / "effective"(施行日) / "supplementary"(附則から読んだ一部施行等)。 */
   date_kind: string
+  /** date_kind = "supplementary" のときの対象規定。 */
+  targets?: string
 }
 
 export type EnforcementUpcoming = {
@@ -791,6 +796,76 @@ export type LawToRulemaking = {
   schema_version: number
   law_id: string
   chains: RulemakingChain[]
+}
+
+/** 附則の参照 (第X条)。`article_id` は同じ法令内の条に解決できたときだけ。 */
+export type SupplementaryRef = {
+  text: string
+  scope: 'main' | 'suppl' | 'amending_law' | 'other_law'
+  article_id?: string | null
+}
+export type SupplementaryLocation = { article_id: string | null; paragraph: string | null; item?: string | null }
+export type EnforcementKind = 'fixed_date' | 'promulgation' | 'after_promulgation' | 'delegated' | 'linked' | 'unknown'
+export type SupplementaryEnforcement = {
+  location: SupplementaryLocation
+  /** whole = 附則を置いた法令全体, partial = ただし書・各号などの一部の規定 */
+  scope: 'whole' | 'partial'
+  targets?: string | null
+  excluding?: string | null
+  target_refs?: SupplementaryRef[]
+  kind: EnforcementKind
+  date: string | null
+  date_source?: 'explicit' | 'promulgation' | 'computed' | null
+  /** 政令委任の期限 (この日までに施行される) */
+  deadline?: string | null
+  delegated_to?: string | null
+  linked_to?: string | null
+  period?: string | null
+  applies_from?: string | null
+  when: string
+  text: string
+}
+export type TransitionalKind = 'prior_law' | 'penalty' | 'continued_effect' | 'deemed' | 'application' | 'delegated' | 'review' | 'repeal' | 'other'
+export type SupplementaryTransitional = {
+  location: SupplementaryLocation
+  kinds: TransitionalKind[]
+  caption?: string | null
+  refs?: SupplementaryRef[]
+  text: string
+}
+export type SupplementaryReading = {
+  location: SupplementaryLocation
+  target: string | null
+  target_refs?: SupplementaryRef[]
+  from: string
+  to: string
+  context?: string | null
+}
+export type SupplementaryProvisionAnalysis = {
+  index: number
+  amend_law_num: string | null
+  label: string | null
+  promulgation_date: string | null
+  enforcement?: SupplementaryEnforcement[]
+  transitional?: SupplementaryTransitional[]
+  readings?: SupplementaryReading[]
+  enforcement_unresolved: boolean
+}
+export type LawSupplementary = {
+  schema_version: number
+  law_id: string
+  law_num: string | null
+  stats: {
+    provisions: number
+    with_enforcement: number
+    enforcement_unresolved: number
+    enforcement_rules: number
+    transitional_measures: number
+    readings: number
+    refs: number
+    refs_resolved: number
+  }
+  provisions: SupplementaryProvisionAnalysis[]
 }
 
 /** 法令 → 判例 クロスリンク。出典は裁判所 裁判例検索 (`/hanrei/{case_id}/detail2/`)。 */

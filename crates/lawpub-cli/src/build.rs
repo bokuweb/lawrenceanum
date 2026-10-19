@@ -917,6 +917,7 @@ fn run_build_json_with_options(
     write_indices(&tmp, &light)?;
     write_per_date_updates(&tmp, &light)?;
     write_seo(&tmp, &light)?;
+    crate::supplementary::write_summary(&tmp)?;
     if build_search_db {
         write_search_db(&tmp, &light)?;
     } else {
@@ -1795,6 +1796,7 @@ fn build_into(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
     write_per_date_updates(&tmp, laws)?;
     write_seo(&tmp, laws)?;
     write_search_db(&tmp, laws)?;
+    crate::supplementary::write_summary(&tmp)?;
     write_manifest_and_health(&tmp, laws)?;
 
     let backup = public.with_file_name(format!(
@@ -1865,6 +1867,12 @@ fn write_law_documents(
         // search.db の article_id と同じ id なので、検索ヒットから同じ規則で引ける。
         for t in &current_doc.appendix_tables {
             write_json_pretty(&articles_dir.join(format!("{}.json", t.appdx_id)), t)?;
+        }
+
+        // 附則の構造化 (#202): 施行期日・経過措置・読替え規定。
+        let supplementary = crate::supplementary::analyze(&current_doc, &law.meta_revisions);
+        if !supplementary.provisions.is_empty() {
+            write_json_pretty(&dir.join("supplementary.json"), &supplementary)?;
         }
 
         // 過去 revision を全部書き出す (Phase 2 §7.6)。ファイル名は本文の版 ID。
@@ -1961,7 +1969,7 @@ fn write_law_documents(
         // そのものは含まれない)。制定イベントは `law_info.promulgation_date`
         // から合成して先頭に挿入する。これがないと「民法は 2016-04-13 改正
         // から始まったように見える」現象が出る。
-        let events: Vec<_> = if !law.meta_revisions.is_empty() {
+        let mut events: Vec<_> = if !law.meta_revisions.is_empty() {
             let mut events: Vec<serde_json::Value> =
                 Vec::with_capacity(law.meta_revisions.len() + 1);
             if let Some(info) = law.meta_law_info.as_ref() {
@@ -2032,6 +2040,7 @@ fn write_law_documents(
                 })
                 .collect()
         };
+        crate::supplementary::attach_to_timeline(&mut events, &supplementary);
         write_json_pretty(
             &dir.join("timeline.json"),
             &json!({
@@ -2473,6 +2482,7 @@ fn write_manifest_and_health(public: &Path, laws: &[LawWithHistory]) -> Result<(
             "law_count": laws.len(),
             "file_count": file_count,
             "corpora": collect_corpus_health(public),
+            "supplementary": crate::supplementary::health(public),
             "errors": [],
         }),
     )?;
@@ -2973,6 +2983,10 @@ fn write_schema(public: &Path) -> Result<()> {
     write_json_pretty(&dir.join("law-document.json"), &law_document)?;
     write_json_pretty(&dir.join("manifest.json"), &manifest)?;
     write_json_pretty(&dir.join("updates.json"), &updates)?;
+    write_json_pretty(
+        &dir.join("supplementary.json"),
+        &law_normalizer::supplementary::json_schema(),
+    )?;
     Ok(())
 }
 

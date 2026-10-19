@@ -1,0 +1,299 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Law Era="Heisei" Lang="ja" LawType="Act" Num="065" PromulgateDay="04" PromulgateMonth="06" Year="09">
+  <LawNum>平成九年法律第六十五号</LawNum>
+  <LawBody>
+    <LawTitle Abbrev="任期付研究員法" AbbrevKana="に" Kana="いっぱんしょくのにんきつきけんきゅういんのさいようきゅうよおよびきんむじかんのとくれいにかんするほうりつ">一般職の任期付研究員の採用、給与及び勤務時間の特例に関する法律</LawTitle>
+    <MainProvision>
+      <Article Num="1">
+        <ArticleCaption>（趣旨）</ArticleCaption>
+        <ArticleTitle>第一条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">この法律は、試験研究機関等の研究業務に従事する一般職の職員について、任期を定めた採用並びに任期を定めて採用された職員の給与の特例及び裁量による勤務に関する事項について定めるものとする。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="2">
+        <ArticleCaption>（定義）</ArticleCaption>
+        <ArticleTitle>第二条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">この法律において、次の各号に掲げる用語の意義は、当該各号に定めるところによる。</Sentence>
+          </ParagraphSentence>
+          <Item Num="1">
+            <ItemTitle>一</ItemTitle>
+            <ItemSentence>
+              <Column Num="1">
+                <Sentence Num="1" WritingMode="vertical">試験研究機関等</Sentence>
+              </Column>
+              <Column Num="2">
+                <Sentence Num="1" WritingMode="vertical">次に掲げる機関であって、試験研究に関する業務を行うものをいう。</Sentence>
+              </Column>
+            </ItemSentence>
+            <Subitem1 Num="1">
+              <Subitem1Title>イ</Subitem1Title>
+              <Subitem1Sentence>
+                <Sentence Num="1" WritingMode="vertical">内閣府設置法（平成十一年法律第八十九号）第三十九条及び第五十五条並びに宮内庁法（昭和二十二年法律第七十号）第十六条第二項並びに国家行政組織法（昭和二十三年法律第百二十号）第八条の二に規定する機関</Sentence>
+              </Subitem1Sentence>
+            </Subitem1>
+            <Subitem1 Num="2">
+              <Subitem1Title>ロ</Subitem1Title>
+              <Subitem1Sentence>
+                <Sentence Num="1" WritingMode="vertical">内閣府設置法第四十条及び第五十六条並びに国家行政組織法第八条の三に規定する特別の機関又は当該機関に置かれる試験所、研究所その他これらに類する機関</Sentence>
+              </Subitem1Sentence>
+            </Subitem1>
+            <Subitem1 Num="3">
+              <Subitem1Title>ハ</Subitem1Title>
+              <Subitem1Sentence>
+                <Sentence Num="1" WritingMode="vertical">内閣府設置法第四十三条及び第五十七条（宮内庁法第十八条第一項において準用する場合を含む。）並びに宮内庁法第十七条第一項並びに国家行政組織法第九条に規定する地方支分部局に置かれる試験所、研究所その他これらに類する機関</Sentence>
+              </Subitem1Sentence>
+            </Subitem1>
+            <Subitem1 Num="4">
+              <Subitem1Title>ニ</Subitem1Title>
+              <Subitem1Sentence>
+                <Sentence Num="1" WritingMode="vertical">独立行政法人通則法（平成十一年法律第百三号）第二条第四項に規定する行政執行法人</Sentence>
+              </Subitem1Sentence>
+            </Subitem1>
+          </Item>
+          <Item Num="2">
+            <ItemTitle>二</ItemTitle>
+            <ItemSentence>
+              <Column Num="1">
+                <Sentence Num="1" WritingMode="vertical">研究業務</Sentence>
+              </Column>
+              <Column Num="2">
+                <Sentence Num="1" WritingMode="vertical">試験研究機関等の試験研究に関する業務をいう。</Sentence>
+              </Column>
+            </ItemSentence>
+          </Item>
+          <Item Num="3">
+            <ItemTitle>三</ItemTitle>
+            <ItemSentence>
+              <Column Num="1">
+                <Sentence Num="1" WritingMode="vertical">職員</Sentence>
+              </Column>
+              <Column Num="2">
+                <Sentence Num="1" WritingMode="vertical">国家公務員法（昭和二十二年法律第百二十号）第二条に規定する一般職に属する職員（試験研究機関等の長その他の人事院規則で定める官職を占める職員及び常時勤務を要しない官職を占める職員を除く。）をいう。</Sentence>
+              </Column>
+            </ItemSentence>
+          </Item>
+        </Paragraph>
+      </Article>
+    </MainProvision>
+    <SupplProvision AmendLawNum="平成一七年一一月七日法律第一一三号" Extract="true">
+      <SupplProvisionLabel>附　則</SupplProvisionLabel>
+      <Article Num="1">
+        <ArticleCaption>（施行期日）</ArticleCaption>
+        <ArticleTitle>第一条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Function="main" Num="1" WritingMode="vertical">この法律は、公布の日の属する月の翌月の初日（公布の日が月の初日であるときは、その日）から施行する。</Sentence>
+            <Sentence Function="proviso" Num="2" WritingMode="vertical">ただし、第二条、第三条、第五条及び第七条並びに附則第六条から第十五条まで及び第十七条から第三十二条までの規定は、平成十八年四月一日から施行する。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="2">
+        <ArticleCaption>（職務の級における最高の号俸を超える俸給月額等の切替え等）</ArticleCaption>
+        <ArticleTitle>第二条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">この法律の施行の日（以下「施行日」という。）の前日において次に掲げる俸給月額を受けていた職員の施行日における俸給月額（第一号に掲げる俸給月額を受けていた職員にあっては、俸給月額及びこれを受ける期間に通算されることとなる期間）は、人事院規則で定める。</Sentence>
+          </ParagraphSentence>
+          <Item Num="1">
+            <ItemTitle>一</ItemTitle>
+            <ItemSentence>
+              <Sentence Num="1" WritingMode="vertical">略</Sentence>
+            </ItemSentence>
+          </Item>
+          <Item Num="2">
+            <ItemTitle>二</ItemTitle>
+            <ItemSentence>
+              <Sentence Num="1" WritingMode="vertical">一般職の任期付研究員の採用、給与及び勤務時間の特例に関する法律（以下「任期付研究員法」という。）第六条第四項の規定による俸給月額</Sentence>
+            </ItemSentence>
+          </Item>
+        </Paragraph>
+      </Article>
+      <Article Num="3">
+        <ArticleCaption>（施行日前の異動者の号俸等の調整）</ArticleCaption>
+        <ArticleTitle>第三条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">施行日前に職務の級を異にして異動した職員及び人事院の定めるこれに準ずる職員の施行日における号俸又は俸給月額及びこれらを受けることとなる期間については、その者が施行日において職務の級を異にする異動等をしたものとした場合との権衡上必要と認められる限度において、人事院の定めるところにより、必要な調整を行うことができる。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="4">
+        <ArticleCaption>（職員が受けていた号俸等の基礎）</ArticleCaption>
+        <ArticleTitle>第四条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">前二条の規定の適用については、これらの規定に規定する職員が属していた職務の級及びその者が受けていた号俸又は俸給月額は、第一条の規定による改正前の給与法若しくは一般職の職員の給与に関する法律及び一般職の任期付研究員の採用、給与及び勤務時間の特例に関する法律の一部を改正する法律（平成十年法律第百二十号。附則第十条において「平成十年改正法」という。）附則第十一項から第十三項まで、第四条の規定による改正前の任期付研究員法又は第六条の規定による改正前の任期付職員法及びこれらに基づく人事院規則の規定に従って定められたものでなければならない。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="5">
+        <ArticleCaption>（平成十七年十二月に支給する期末手当及び期末特別手当に関する特例措置）</ArticleCaption>
+        <ArticleTitle>第五条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">平成十七年十二月に支給する期末手当又は期末特別手当（以下この項において「期末手当等」という。）の額は、第一条の規定による改正後の給与法第十九条の四第二項（同条第三項、第四条の規定による改正後の任期付研究員法第七条第二項又は第六条の規定による改正後の任期付職員法第八条第二項の規定により読み替えて適用する場合を含む。）及び第四項から第六項まで、第十九条の八第二項（同条第三項の規定により読み替えて適用する場合を含む。）及び第四項から第六項まで若しくは第二十三条第一項から第三項まで、第五項若しくは第七項、国際機関等に派遣される一般職の国家公務員の処遇等に関する法律（昭和四十五年法律第百十七号）第五条第一項又は法科大学院への裁判官及び検察官その他の一般職の国家公務員の派遣に関する法律（平成十五年法律第四十号）第十三条第二項の規定にかかわらず、これらの規定により算定される期末手当等の額（以下この項において「基準額」という。）から次に掲げる額の合計額（人事院規則で定める職員にあっては、第一号に掲げる額。以下この項において「調整額」という。）に相当する額を減じた額とする。</Sentence>
+            <Sentence Num="2" WritingMode="vertical">この場合において、調整額が基準額以上となるときは、期末手当等は、支給しない。</Sentence>
+          </ParagraphSentence>
+          <Item Num="1">
+            <ItemTitle>一</ItemTitle>
+            <ItemSentence>
+              <Sentence Num="1" WritingMode="vertical">平成十七年四月一日（同月二日から同年十二月一日までの間に新たに職員となった者（同年四月一日に在職していた職員で任用の事情を考慮して人事院規則で定めるものを除く。）にあっては、その新たに職員となった日（当該日が二以上あるときは、当該日のうち人事院規則で定める日））において職員が受けるべき俸給、俸給の特別調整額、初任給調整手当、扶養手当、調整手当、研究員調整手当、住居手当、単身赴任手当（給与法第十二条の二第二項に規定する人事院規則で定める額を除く。）及び特地勤務手当（給与法第十四条の規定による手当を含む。）並びに一般職の職員の給与に関する法律等の一部を改正する法律（平成八年法律第百十二号）附則第十四項及び第十五項に規定する暫定筑波研究学園都市移転手当の月額の合計額に百分の〇・三六を乗じて得た額に、同年四月から施行日の属する月の前月までの月数（同年四月一日から施行日の前日までの期間において在職しなかった期間、俸給を支給されなかった期間その他の人事院規則で定める期間がある職員にあっては、当該月数から当該期間を考慮して人事院規則で定める月数を減じた月数）を乗じて得た額</Sentence>
+            </ItemSentence>
+          </Item>
+          <Item Num="2">
+            <ItemTitle>二</ItemTitle>
+            <ItemSentence>
+              <Sentence Num="1" WritingMode="vertical">平成十七年六月に支給された期末手当及び勤勉手当の合計額又は期末特別手当の額に百分の〇・三六を乗じて得た額</Sentence>
+            </ItemSentence>
+          </Item>
+        </Paragraph>
+        <Paragraph Num="2">
+          <ParagraphNum>２</ParagraphNum>
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">平成十七年四月一日から同年十二月一日までの間において防衛庁の職員の給与等に関する法律（昭和二十七年法律第二百六十六号）の適用を受ける者その他の人事院規則で定める者であった者から引き続き新たに職員となった者で任用の事情を考慮して人事院規則で定めるものに関する前項の規定の適用については、同項中「次に掲げる額」とあるのは「次に掲げる額及び防衛庁の職員の給与等に関する法律（昭和二十七年法律第二百六十六号）の適用を受ける者その他の人事院規則で定める者との権衡を考慮して人事院規則で定める額」と、「第一号に掲げる額」とあるのは「第一号に掲げる額及び当該人事院規則で定める額の合計額」とする。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="8">
+        <ArticleCaption>（職務の級における最高の号俸を超える俸給月額等の切替え）</ArticleCaption>
+        <ArticleTitle>第八条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">切替日の前日において次に掲げる俸給月額を受けていた職員の切替日における号俸又は俸給月額は、人事院規則で定める。</Sentence>
+          </ParagraphSentence>
+          <Item Num="1">
+            <ItemTitle>一</ItemTitle>
+            <ItemSentence>
+              <Sentence Num="1" WritingMode="vertical">略</Sentence>
+            </ItemSentence>
+          </Item>
+          <Item Num="2">
+            <ItemTitle>二</ItemTitle>
+            <ItemSentence>
+              <Sentence Num="1" WritingMode="vertical">任期付研究員法第六条第四項の規定による俸給月額</Sentence>
+            </ItemSentence>
+          </Item>
+        </Paragraph>
+      </Article>
+      <Article Num="9">
+        <ArticleCaption>（切替日前の異動者の号俸の調整）</ArticleCaption>
+        <ArticleTitle>第九条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">切替日前に職務の級を異にして異動した職員及び人事院の定めるこれに準ずる職員の新号俸については、その者が切替日において職務の級を異にする異動等をしたものとした場合との権衡上必要と認められる限度において、人事院の定めるところにより、必要な調整を行うことができる。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="10">
+        <ArticleCaption>（職員が受けていた号俸等の基礎）</ArticleCaption>
+        <ArticleTitle>第十条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">附則第六条から前条までの規定の適用については、これらの規定に規定する職員が属していた職務の級及びその者が受けていた号俸又は俸給月額は、第二条の規定による改正前の給与法、第五条の規定による改正前の任期付研究員法、第七条の規定による改正前の任期付職員法又は附則第十七条の規定による改正前の平成十年改正法附則第十一項から第十三項まで及びこれらに基づく人事院規則の規定に従って定められたものでなければならない。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="11">
+        <ArticleCaption>（俸給の切替えに伴う経過措置）</ArticleCaption>
+        <ArticleTitle>第十一条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">切替日の前日から引き続き同一の俸給表の適用を受ける職員で、その者の受ける俸給月額が同日において受けていた俸給月額（一般職の職員の給与に関する法律等の一部を改正する法律（平成二十一年法律第八十六号。第一号において「平成二十一年改正法」という。）の施行の日において次の各号に掲げる職員である者にあっては、当該俸給月額に当該各号に定める割合を乗じて得た額とし、その額に一円未満の端数を生じたときはこれを切り捨てた額とする。）に達しないこととなるもの（人事院規則で定める職員を除く。）には、平成二十六年三月三十一日までの間、俸給月額のほか、その差額に相当する額（給与法附則第八項の表の俸給表欄に掲げる俸給表の適用を受ける職員（国家公務員法（昭和二十二年法律第百二十号）第八十一条の四第一項又は第八十一条の五第一項の規定により採用された職員を除く。）のうち、その職務の級が給与法附則第八項の表の職務の級欄に掲げる職務の級以上である者（以下この項において「特定職員」という。）にあっては、五十五歳に達した日後における最初の四月一日（特定職員以外の者が五十五歳に達した日後における最初の四月一日後に特定職員となった場合にあっては、特定職員となった日）以後、当該額に百分の九十八・五を乗じて得た額）を俸給として支給する。</Sentence>
+          </ParagraphSentence>
+          <Item Num="1">
+            <ItemTitle>一</ItemTitle>
+            <ItemSentence>
+              <Column Num="1">
+                <Sentence Num="1" WritingMode="vertical">平成二十一年改正法附則第三条第一項第一号に規定する減額改定対象職員（次号に掲げる職員を除く。）</Sentence>
+              </Column>
+              <Column Num="2">
+                <Sentence Num="1" WritingMode="vertical">百分の九十九・一</Sentence>
+              </Column>
+            </ItemSentence>
+          </Item>
+          <Item Num="2">
+            <ItemTitle>二</ItemTitle>
+            <ItemSentence>
+              <Column Num="1">
+                <Sentence Num="1" WritingMode="vertical">指定職俸給表の適用を受ける職員</Sentence>
+              </Column>
+              <Column Num="2">
+                <Sentence Num="1" WritingMode="vertical">百分の九十八・九四</Sentence>
+              </Column>
+            </ItemSentence>
+          </Item>
+          <Item Num="3">
+            <ItemTitle>三</ItemTitle>
+            <ItemSentence>
+              <Column Num="1">
+                <Sentence Num="1" WritingMode="vertical">前二号に掲げる職員以外の職員（医療職俸給表（一）又は任期付研究員法第六条第二項に規定する俸給表の適用を受ける職員を除く。）</Sentence>
+              </Column>
+              <Column Num="2">
+                <Sentence Num="1" WritingMode="vertical">百分の九十九・三四</Sentence>
+              </Column>
+            </ItemSentence>
+          </Item>
+        </Paragraph>
+        <Paragraph Num="2">
+          <ParagraphNum>２</ParagraphNum>
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">切替日の前日から引き続き俸給表の適用を受ける職員（前項に規定する職員を除く。）について、同項の規定による俸給を支給される職員との権衡上必要があると認められるときは、当該職員には、人事院規則の定めるところにより、同項の規定に準じて、俸給を支給する。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+        <Paragraph Num="3">
+          <ParagraphNum>３</ParagraphNum>
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">切替日以降に新たに俸給表の適用を受けることとなった職員について、任用の事情等を考慮して前二項の規定による俸給を支給される職員との権衡上必要があると認められるときは、当該職員には、人事院規則の定めるところにより、前二項の規定に準じて、俸給を支給する。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="12">
+        <ArticleTitle>第十二条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical" />
+          </ParagraphSentence>
+        </Paragraph>
+        <Paragraph Num="2">
+          <ParagraphNum>２</ParagraphNum>
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">前条の規定による俸給を支給される職員に関する次に掲げる法律の規定の適用については、これらの規定中「俸給月額」とあるのは、「俸給月額と一般職の職員の給与に関する法律等の一部を改正する法律（平成十七年法律第百十三号）附則第十一条の規定による俸給の額との合計額」とする。</Sentence>
+          </ParagraphSentence>
+          <Item Num="1">
+            <ItemTitle>一</ItemTitle>
+            <ItemSentence>
+              <Sentence Num="1" WritingMode="vertical">任期付研究員法第六条第五項</Sentence>
+            </ItemSentence>
+          </Item>
+        </Paragraph>
+      </Article>
+      <Article Num="16">
+        <ArticleCaption>（人事院規則への委任）</ArticleCaption>
+        <ArticleTitle>第十六条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">附則第二条から前条までに定めるもののほか、この法律の施行に関し必要な事項は、人事院規則で定める。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+    </SupplProvision>
+  </LawBody>
+</Law>
