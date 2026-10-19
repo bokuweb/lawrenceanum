@@ -2021,7 +2021,15 @@ fn attach_minus_signs(cols: &mut Vec<Col>, words: &[Word]) -> std::collections::
                 // 3 割の重なりまで見る。
                 let right = overlap(my, my1, cy, cy1) >= 0.3 && cx >= mx + em * 0.25 && cx - mx1 <= reach;
                 // 下の語は縦組みの語（横長の語は、同じ行の前の語に重なって置かれた印の下に見えるだけ）。
-                let below = overlap(mx, mx1, cx, cx1) >= 0.5 && cy >= my + em * 0.25 && cy - my1 <= reach && cx1 - cx <= (cy1 - cy).max(em * 1.5);
+                // 下の行の横組みの数の頭の字（「1,128,902」の「1」。左右の語と接して並ぶ）も下の語ではない（右の短い金額より、すぐ下の
+                // 行の長い金額の頭の字が近く、印が下の行に付いていた）。少し上にずれて数の頭の字の真上に置かれた印は除く。
+                let in_run = || {
+                    cols.iter().any(|o| {
+                        o.id != c.id
+                            && geom(o.id).is_some_and(|(ox, oy, ox1, oy1)| overlap(cy, cy1, oy, oy1) >= 0.5 && (ox - cx1).max(cx - ox1) <= em * 0.1 && !(cx..=cx1).contains(&((ox + ox1) / 2.0)))
+                    })
+                };
+                let below = overlap(mx, mx1, cx, cx1) >= 0.5 && cy >= my + em * 0.25 && cy - my1 <= reach && cx1 - cx <= (cy1 - cy).max(em * 1.5) && !(cy - my1 > em * 0.3 && in_run());
                 let gap = if right { cx - mx } else if below { cy - my } else { return None };
                 Some((!number, gap, j))
             })
