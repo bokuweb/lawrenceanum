@@ -1201,13 +1201,14 @@ fn join_ministry_lines(lines: &mut Vec<Line>, compact: &dyn Fn(&Line) -> String,
             continue;
         };
         let (mid, tail) = rest.split_at(at);
-        if !ministry(mid) || !tail.ends_with('号') {
+        // 2 つの府省の名前を割って組んだもの（「デジタル庁」「〇　告示第三十二号」「総務省」）は、真ん中の行に名前が無い。
+        if !(ministry(mid) || mid.is_empty()) || !tail.ends_with('号') {
             i += 1;
             continue;
         }
         let before = i > 0 && lines[i - 1].table.is_none() && ministry(&compact(&lines[i - 1]));
         let after = i + 1 < lines.len() && lines[i + 1].table.is_none() && ministry(&compact(&lines[i + 1]));
-        if !before && !after {
+        if (!before && !after) || (mid.is_empty() && !(before && after)) {
             i += 1;
             continue;
         }
@@ -1217,7 +1218,9 @@ fn join_ministry_lines(lines: &mut Vec<Line>, compact: &dyn Fn(&Line) -> String,
         let last = if after { i + 1 } else { i };
         for k in first..=last {
             words.extend(lines[k].words.iter().copied());
-            names.push(if k == i { mid.to_string() } else { compact(&lines[k]) });
+            if k != i || !mid.is_empty() {
+                names.push(if k == i { mid.to_string() } else { compact(&lines[k]) });
+            }
         }
         let joined = Line::text(format!("〇{}{}", names.join("・"), tail), words);
         lines.splice(first..=last, [joined]);
