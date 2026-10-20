@@ -1253,7 +1253,10 @@ fn kanji_code(t: &str) -> bool {
     // 漢字の後が数字と「－」だけで「－」を含み、「号」で終わらないものは住所の続き（「中島５－８－29」「大石原200－３」。
     // 縦組みの表の住所の欄の折り返し）。
     let tail: Vec<char> = chars.iter().rev().take_while(|&&c| !kanji(c)).copied().collect();
-    let address = !t.ends_with('号') && tail.iter().any(|c| "－-".contains(*c)) && tail.iter().all(|&c| digit(c) || "－-".contains(c));
+    // 階の「Ｆ」で終わる住所（「小橋１－18－20－１Ｆ」）も。
+    let floor = tail.first().is_some_and(|c| matches!(c, 'Ｆ' | 'F'));
+    let body = if floor { &tail[1..] } else { &tail[..] };
+    let address = !t.ends_with('号') && body.iter().any(|c| "－-".contains(*c)) && body.iter().all(|&c| digit(c) || "－-".contains(c));
     // 漢字 1 字と数字だけ（「名２1121」「寺２１12」。「－」の字形が字の層に無い住所の折り返し）は記号ではない。記号は漢字が
     // 2 字以上（「生第」「令…全保」）か英字を含む（「交Ｎ26－67」）。
     let letters = chars.iter().any(|c| c.is_ascii_alphabetic() || ('Ａ'..='Ｚ').contains(c));
