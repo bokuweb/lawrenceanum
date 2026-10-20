@@ -1,0 +1,1664 @@
+{
+  "stage": "eleventh_integrated_batch",
+  "baseline": "0e341442/after31",
+  "output": "after32",
+  "changed_originals_reviewed": 17,
+  "improvements": 17,
+  "new_regressions": 0,
+  "references": {
+    "reviewer": "headerless_shinkyu androot",
+    "original": [
+      {
+        "page": "20260722g001620007",
+        "impact": "improvement",
+        "original_full_image_viewed": true,
+        "all_before_after_text_and_changes_read": true,
+        "pdf": ".cache/kanpo-archive/2026-07-22/20260722g00162/20260722g001620007.pdf",
+        "pdf_sha256": "29d7a30094977ae87055a1397061b19438de211c8806c0b2bec0e1a4d35b3be8",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/reference-abc-prototype/images/20260722g001620007.png",
+        "image_sha256": "a26abe85ad362bd6a512dc17d7ec23fe06271c63ae3cd9148236d4fca6228f5d",
+        "before_sha256": "50d3dff9cdd59a4f8877e0f79d748dd17b9c1f96f76ac8531393aae443643b69",
+        "after_sha256": "6f799255ec393645c25311496fc306443aa03a872970f92688e4c6fe08ad9b0e",
+        "restored_source_glyph_count": 6,
+        "notes": [
+          "上部継続表L4歳入歳出差引額(A)、L5翌年度財源(B)、L6実質収支額(A)−(B)/(C)、L7(C)のうち基金繰入を原本どおり復元。A/B/C各2個。Aの△32,173,140/456,142等、B26,326/31,425等、C△32,199,466/424,717等の既存数値列と空欄に移動なし。下段平成25〜30年度表は不変。"
+        ],
+        "existing_residuals": [],
+        "native_proof": "native-glyph-owner-proof.json"
+      },
+      {
+        "page": "20260806g001770059",
+        "impact": "improvement",
+        "original_full_image_viewed": true,
+        "all_before_after_text_and_changes_read": true,
+        "pdf": ".cache/kanpo-archive/2026-08-06/20260806g00177/20260806g001770059.pdf",
+        "pdf_sha256": "f947759244542550518c90e525bf2a3f2e897270bc3889fbc6533c1060a2fad7",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/reference-abc-prototype/images/20260806g001770059.png",
+        "image_sha256": "56c9b3823968f78e928ce68f5ed9305a44fc43a509668682cb0bd8caf142a86a",
+        "before_sha256": "b73f2dd5d797626c6a4138e43ed987b6ff581263320dce97044eaaafe164e388",
+        "after_sha256": "956ee5645c121ce910dbe1a22acdb3dbd40b2a796774519076678f8be955f938",
+        "restored_source_glyph_count": 7,
+        "notes": [
+          "左下収入表L28当期収入合計(A)1,424,394,741/30収入合計(B)2,540,338,352、右上支出表L37(C)1,469,087,220、L38(A)−(C)/L39(B)−(C)を復元。原本の予算/決算/差異3金額列・正負を保持し、次の損保保護機構の公告/財産目録には混入しない。"
+        ],
+        "existing_residuals": [
+          "原本左上の大区分II/IIIが既存出力では省略される。今回の追加とは別の既存残件であり、改善評価は追加7記号に限る。"
+        ],
+        "native_proof": "native-glyph-owner-proof.json"
+      },
+      {
+        "page": "20260810g001790112",
+        "impact": "improvement",
+        "original_full_image_viewed": true,
+        "all_before_after_text_and_changes_read": true,
+        "pdf": ".cache/kanpo-archive/2026-08-10/20260810g00179/20260810g001790112.pdf",
+        "pdf_sha256": "253185e298938b2a20d974934c50124f3169f1a7aad0b222e3db8403cf0a4a11",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/reference-abc-prototype/images/20260810g001790112.png",
+        "image_sha256": "ba6d6df602036766ff61800c4436034671b4d5bfe065470abfc02dab1470faa5",
+        "before_sha256": "b6e551bdf33040dbc543b6554af0fba3dfef3d5a7ddb61fb326d709dcdab7ac7",
+        "after_sha256": "84c0b6806e9fb4cda009c776853d550d01ab852145a122fa3f507c0cf777f16c",
+        "restored_source_glyph_count": 6,
+        "notes": [
+          "左中央（5）の5×2表L19〜22で退職債務(A)2,666,356,547/数理差異(B)△362,860,311/過去勤務(C)△309,918,534/引当(A)−(B)−(C)3,339,135,392を復元。各記号は既存の科目セル内、6native Glyphと一意に対応。（3）（4）（6）（7）と右減損表は不変。"
+        ],
+        "existing_residuals": [],
+        "native_proof": "native-glyph-owner-proof.json"
+      },
+      {
+        "page": "20260820g001860075",
+        "impact": "improvement",
+        "original_full_image_viewed": true,
+        "all_before_after_text_and_changes_read": true,
+        "pdf": ".cache/kanpo-archive/2026-08-20/20260820g00186/20260820g001860075.pdf",
+        "pdf_sha256": "e6765a90d4f1bce9de9e214cfd5203d02d3ba847fb6ac66051d1a384687f0204",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/reference-abc-prototype/images/20260820g001860075.png",
+        "image_sha256": "05e95594e6b0991555d045b058ab6d4b73c51ade1f3ba38d7ea18e5338e53e8a",
+        "before_sha256": "dbc5c15baf1402a560dcb1e7e22d589ca95b430ba204893a216b4bf76d9240ab",
+        "after_sha256": "631bf7750282cdf6c5b05b78783c1dd2653cdca40087a46d613bb173f5bfdc81",
+        "restored_source_glyph_count": 11,
+        "notes": [
+          "左上第2表のA56,845,944,525/B6,540,059,381/C852,496,501、第3表A61,403,499,011/B128,374,939/C＝A＋B61,275,124,072、第4表A6,540,059,381/B852,496,501/C568,269,716円の11記号を復元。原本のC＝A＋Bという印刷内容をそのまま保持し、算術上の推測で符号変更しない。"
+        ],
+        "existing_residuals": [
+          "第2表の期末(H)＝(A)＋(B)＋(C)＋(D)−(E)＋(F)＋(G)、第4表(E)合計式は未検証D以降を同じrawWordに含むので部分復元を保留。そこに含まれるABC6個とD以降、右下XIII〜XVIの大ローマ数字欠落は既存残件。"
+        ],
+        "native_proof": "native-glyph-owner-proof.json"
+      },
+      {
+        "page": "20260821g001870074",
+        "impact": "improvement",
+        "original_full_image_viewed": true,
+        "all_before_after_text_and_changes_read": true,
+        "pdf": ".cache/kanpo-archive/2026-08-21/20260821g00187/20260821g001870074.pdf",
+        "pdf_sha256": "309c4f44358ebce0f078ff5f9a8d300e1b2ad23a571b9c9cfa7002a1910cd16b",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/reference-abc-prototype/images/20260821g001870074.png",
+        "image_sha256": "59b0c24a52205dfda3e1e9874b0eb1ff9a02edd8fd5a30406f05d942bc8d6e84",
+        "before_sha256": "bb1ada2ed618ac56160c8981b002c9a70f87399a0f3a211849c62a2c6e78dcb1",
+        "after_sha256": "8715f837de936f1a1b12e1ca3800804b4b4f63e96114e0736e3ab4932e5a5fa2",
+        "restored_source_glyph_count": 3,
+        "notes": [
+          "中日本高速20号の右上（4）本文L45の次表の(A)、(B)及び(C)を3個復元。イ〜ハ3レコードの出発IC/経由路/到着IC、次の（5）割引・料金調整2は不変。"
+        ],
+        "existing_residuals": [
+          "同表の独立見出し(A)(B)(C)3個は、現Tableに見出し行ownerがなく本文行へ無理に付けずEmpty/unownedを維持。したがって表全体の完全修復ではない。"
+        ],
+        "native_proof": "native-glyph-owner-proof.json"
+      },
+      {
+        "page": "20260902g001960128",
+        "impact": "improvement",
+        "original_full_image_viewed": true,
+        "all_before_after_text_and_changes_read": true,
+        "pdf": ".cache/kanpo-archive/2026-09-02/20260902g00196/20260902g001960128.pdf",
+        "pdf_sha256": "883741c4ab38c1e8e7e103857585f6de8f7c88c5d0d63ffbbd5ff98a79cf0a1d",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/reference-abc-prototype/images/20260902g001960128.png",
+        "image_sha256": "18be99e814acf9f09a4d66fbdbeb3175b27f49e53e5227a4ee2b458a931b6f33",
+        "before_sha256": "6b562abb7c72c321d7025bc34e94b252a3f0cacea920a9d30b6ce7d2b0dbf65f",
+        "after_sha256": "eb4487c5b5067e4052ceecd3c733ddbb3e329a1f52076926246961e895303bd3",
+        "restored_source_glyph_count": 3,
+        "notes": [
+          "実質収支の見出しL34「計（実質収支）(A)＋(B)」2個と注3L54「(B)欄」1個を復元。直下一般△3,090/△136,810/△139,900、国債等/短期証券等/各内訳の金額行、次の第2国庫対日銀/第3政府預金の所属を保持。"
+        ],
+        "existing_residuals": [
+          "窓口収支(A)と国庫内振替(B)の独立ヘッダ2個は、一意の既存行ownerがなく未復元。ゼロを示す横棒等の既存欠落にも変化なし。"
+        ],
+        "native_proof": "native-glyph-owner-proof.json"
+      },
+      {
+        "page": "20260902g001960133",
+        "impact": "neutral",
+        "original_full_image_viewed": true,
+        "all_before_after_text_and_changes_read": true,
+        "pdf": ".cache/kanpo-archive/2026-09-02/20260902g00196/20260902g001960133.pdf",
+        "pdf_sha256": "632511cc66289c115bb17d4d912def17d062974c9d8ac22cb5b0c7e2676ae5d8",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/reference-abc-prototype/images/20260902g001960133.png",
+        "image_sha256": "19ddc5b2b1d2bb421476e87a9db49e0c5c9048fdcc69a13c6a1ba6f112576349",
+        "before_sha256": "313619c501b230bd687809bf5353caa604a74658629418b58d2ee6fb3555365d",
+        "after_sha256": "313619c501b230bd687809bf5353caa604a74658629418b58d2ee6fb3555365d",
+        "restored_source_glyph_count": 0,
+        "notes": [
+          "ABCを含む(D)＝(A)＋(B)＋(C)は未知Dを同じrawWordに含むため変更しない。対民間(A)/国庫内(B)/国庫対日銀(C)の独立見出し3個も所属を推測せず未変更。原本全文と前後全文が完全同一。"
+        ],
+        "existing_residuals": [
+          "元から区分見出しが先に分離、無罫線8欄の複数値/調達内訳が列単位に混在するmajorが残る。ABC6個も未復元。不変負例として採用し、正常ページには数えない。"
+        ],
+        "native_proof": "native-glyph-owner-proof.json"
+      },
+      {
+        "page": "20260902g001960134",
+        "impact": "improvement",
+        "original_full_image_viewed": true,
+        "all_before_after_text_and_changes_read": true,
+        "pdf": ".cache/kanpo-archive/2026-09-02/20260902g00196/20260902g001960134.pdf",
+        "pdf_sha256": "4d8604a4981439439c870880fb1cb07e5693a0423813388412138b121d388728",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/reference-abc-prototype/images/20260902g001960134.png",
+        "image_sha256": "9e3917f062a067cb7defaa93ebc32d8f317333defe14720ee318390ba050861c",
+        "before_sha256": "bbe6ede05a8439ff497d070ba042c8df3971c216896d49b504fd5d2bd3b2aeb8",
+        "after_sha256": "e15c6d52176296f5efa9cbc2f86b59796ea5e1fd0b88e532a0f246011258e647",
+        "restored_source_glyph_count": 1,
+        "notes": [
+          "上の財政資金継続表注2L10「(B)欄以下」の1個のみ復元。国債/借入/証券の各金額、次の政府短期証券表、公告見出しは旧出力と同じ順。"
+        ],
+        "existing_residuals": [
+          "既存の上表末尾36,000/△36,000や6,198/21,575/27,774が後の参考表へ割り込む順序問題と多数の横棒欠落は不変。原本下の裁判本文も候補前後とも出ていないが、Glyph0除外の採点はこの影響監査では行わず、今回変更は注記1字のみに限定する。"
+        ],
+        "native_proof": "native-glyph-owner-proof.json"
+      },
+      {
+        "page": "20260916g002060317",
+        "impact": "improvement",
+        "original_full_image_viewed": true,
+        "all_before_after_text_and_changes_read": true,
+        "pdf": ".cache/kanpo-archive/2026-09-16/20260916g00206/20260916g002060317.pdf",
+        "pdf_sha256": "c7866f17670e242ac0746999d16118cccd80db9ad9b84a88b9afb8a56c82c760",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/reference-abc-prototype/images/20260916g002060317.png",
+        "image_sha256": "1f1c81159d9db5f8140e5d1b1519ad4fa72adf48248f1d861dd9a91e7a53d8e3",
+        "before_sha256": "55378ab4a1981bdc5f121f69695148919a5f53c689db8b1f1a256fb5ac96056c",
+        "after_sha256": "9dc02f64ce097dd280fb029943504e8227bd1ccbe40ba2ca8096833d2bedcfad",
+        "restored_source_glyph_count": 6,
+        "notes": [
+          "上の夕張財政表末4行L20〜23のA/B/C各2個を復元。A△32,173,140〜645,363、B26,326〜38,600、C△32,199,466〜606,763と0基金行、斜線空欄の対応を保持。前の歳入/歳出・下の平成25〜30表の既存値/順は完全不変。"
+        ],
+        "existing_residuals": [],
+        "native_proof": "native-glyph-owner-proof.json"
+      },
+      {
+        "page": "20260930g002160063",
+        "impact": "improvement",
+        "original_full_image_viewed": true,
+        "all_before_after_text_and_changes_read": true,
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00216/20260930g002160063.pdf",
+        "pdf_sha256": "50336e11e0a299323f5ba94b51a74260a50e59e4fff8cac4c85ab69476aa64c8",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/reference-abc-prototype/images/20260930g002160063.png",
+        "image_sha256": "8796a3ccf1042db8b863113b16240fb6217ba9163c0c6f1b510114dc7421c8d1",
+        "before_sha256": "d7f1f8a3652e31eca84be5c69355c921aa2fbfafa10d856c863909fa8d09b198",
+        "after_sha256": "5cb6a90f7d4816c460cdfd2ec10f1c2f65b2ac66551d153a13025ab3963001d3",
+        "restored_source_glyph_count": 3,
+        "notes": [
+          "首都高速外環迂回割引の右上本文L38「記の(A)…道路、(B)」/L39「…区間及び(C)…」の3個を復元。原本の物理改行（Bが上一行末）どおりで、迂回/直行料金距離と下の2レコード/22.4kmの値に移動なし。"
+        ],
+        "existing_residuals": [
+          "同じrawWordに未知Dを含む後続C2個と、適用区間表の独立ABC3個は未復元。その他D〜Fおよび「記(ハ)」等も今回の対象外。"
+        ],
+        "native_proof": "native-glyph-owner-proof.json"
+      },
+      {
+        "page": "20261016g002280106",
+        "impact": "improvement",
+        "original_full_image_viewed": true,
+        "all_before_after_text_and_changes_read": true,
+        "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280106.pdf",
+        "pdf_sha256": "b83b8ecf3c49b27c384bdf6faf9d760df6ffe8b07244bc799fbd2341f3125c17",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/reference-abc-prototype/images/20261016g002280106.png",
+        "image_sha256": "a09013b3cff397356e031aa02aca45fac999838a6aeb7b480f045cd51a4753a0",
+        "before_sha256": "bc834c654abff4c809ab38ae2e04d0d9da74c81ef8d163e383c88cd159ffb7ff",
+        "after_sha256": "df52737b916df7d72bc29b0b15cfb1dfe6bd0e1475ab6c9919374a991dac8817",
+        "restored_source_glyph_count": 9,
+        "notes": [
+          "右中央8×5表のA電話加入権1,666千円、Bさくら寮建物36,886/構築1,531/計38,418千円、C吼洋寮A棟2,874/0/計2,874千円の記号セルを復元。既存記号見出しから欠けた同じ物理列を補い、B/Cのrowspan3を原本と一致。",
+          "続く（2）減損兆候と（3）根拠の各A/B/C6個を元の段落頭へ戻し、電話加入権/さくら寮/吼洋寮の説明の参照対応が回復。計9native Glyphすべて復元。（1）以前と土地譲渡（4）以降の全文・横棒・金額は不変。"
+        ],
+        "existing_residuals": [],
+        "native_proof": "native-glyph-owner-proof.json"
+      },
+      {
+        "page": "20261016g002280275",
+        "impact": "improvement",
+        "original_full_image_viewed": true,
+        "all_before_after_text_and_changes_read": true,
+        "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280275.pdf",
+        "pdf_sha256": "088d9b95d679470974364cc36441cea5672a3ed20b1d9a46875a5c045be37fcb",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/reference-abc-prototype/images/20261016g002280275.png",
+        "image_sha256": "9e10d4bb9facace538a6c1263216953f073a43f9a902e92b785a2f8e26392206",
+        "before_sha256": "550504f2b495698b1dc477a4d13a052a1d132af5f7523da6c5ac6a398ab90e8a",
+        "after_sha256": "0326ea8b55df68cbbc03e6a6963d46a19c7013e91430129fb30f28e67c488e11",
+        "restored_source_glyph_count": 1,
+        "notes": [
+          "右下最終表L72の西田地方宿舎(A)1号棟に1個復元。実際の建物名の一部であり、架空の参照属性に変換しない。住所富山市西田地方町2丁目10番39/使用終了令和11年3月31日の翌日を同じセル行に保持。上の減損表/説明には変化なし。"
+        ],
+        "existing_residuals": [],
+        "native_proof": "native-glyph-owner-proof.json"
+      },
+      {
+        "page": "20261016g002280276",
+        "impact": "improvement",
+        "original_full_image_viewed": true,
+        "all_before_after_text_and_changes_read": true,
+        "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280276.pdf",
+        "pdf_sha256": "f65012286d581b57a55ee43e51dc793cc284375387f79bc4ce80983ab5bd9aba",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/reference-abc-prototype/images/20261016g002280276.png",
+        "image_sha256": "aa2bae0092ac6b4e152ab3767c78c99444a3045077905372614f214a41ca08ce",
+        "before_sha256": "bb5f589930a4b27ec3858d67d79f31d2a1e59b6904288d385fbc2d1f35984d40",
+        "after_sha256": "637468eb19b0d24d29ab14ac3f34887e468b9786bbeb52bf9b36c844a030722e",
+        "restored_source_glyph_count": 2,
+        "notes": [
+          "左帳簿価額表L14の西田地方宿舎(A)1号棟3,974,705円/回収－と右上説明L32の同名に各1個復元。職員/五福各宿舎の種類・額・横棒、続く退職債務820,323,299/引当1,410,765,625/費用55,572,468円と3.8%は元行のまま。"
+        ],
+        "existing_residuals": [],
+        "native_proof": "native-glyph-owner-proof.json"
+      }
+    ],
+    "validation": {
+      "baseline": {
+        "commit": "0e3414422d7f1fb695f83576fc941040819b7a1e",
+        "outputs": "after31",
+        "source_sha_manifest": "parser/baseline-after31-manifest.json",
+        "root_sources_still_exact": true
+      },
+      "patch": ".cache/kanpo-227/reference-markers.patch",
+      "fixture_manifest": "fixture-manifest.json",
+      "shared_production_source_modified": false,
+      "source_scan": {
+        "pdfs": 11992,
+        "errors": 0,
+        "hit_pages": 13,
+        "native_glyphs": 80,
+        "cid_25771_25772_25773": "(A)/(B)/(C)",
+        "cff_all_fonts_per_code_identical": true,
+        "proof": "cff-outline-proof.json",
+        "shape_render": "cff-shapes.png"
+      },
+      "algorithm": [
+        "postlayout local insertion/replacement into existing unique Line/TableCell owner; do not rebuild existing Line.text",
+        "mixed source Word must exactly match piecewise normalization of its raw content, have exactly one explicit owner and one exact current-text occurrence",
+        "standalone Empty source glyph must have square native geometry and one uniquely containing physical cell or a nearby baseline anchor; conflicts/ambiguity skip",
+        "only a missing existing first symbol column under explicit 記号 header may gain a cell; physical peer-cell band determines exact contiguous row/rowspan",
+        "unknown D..Z references in the same raw Word block partial formula restoration; source IDs/raw/bboxes remain unchanged"
+      ],
+      "first_red": "baseline-test-after31.log: three realPDF failing, one negative passing",
+      "green": "delivery-tests.log: 436 unit + four realPDF tests passing (3 positive, 1 unchanged unknown formula; road test also checks unowned headers)",
+      "full_corpus": {
+        "pdfs": 11992,
+        "changed_pages": 12,
+        "unchanged_pages": 11980,
+        "added_source_markers": 58,
+        "unrelated_baseline_mismatches": 0,
+        "errors": 0,
+        "proof": "full-impact-after31.json",
+        "old_nonspace_text_order_exact": true,
+        "per_article_old_text_order_exact": true,
+        "original_ids_raw_bboxes_exact": true,
+        "existing_ids_same_exact_owner": true,
+        "duplicate_ids": 0
+      },
+      "all_changed_originals_visual_audit": {
+        "changed_reviewed": 12,
+        "additional_unchanged_negative_reviewed": 1,
+        "counts": {
+          "improvement": 12,
+          "neutral": 1
+        },
+        "report": "impact-audit.json"
+      },
+      "physical_cell_and_source_glyph_proof": {
+        "native80": "native-glyph-owner-proof.json",
+        "restored58": "all map to exactly one changed source Word and unique output owner",
+        "existing_cells": 1478,
+        "new_symbol_cells": 3,
+        "new_tables": 0,
+        "old_table_bounds_dimensions_cell_bounds_spans_and_positions_exact": true,
+        "proof": "cell-article-preservation.json"
+      },
+      "known_unrestored": {
+        "source_glyphs": 22,
+        "unknown_other_reference_in_same_raw_word": 11,
+        "no_unique_existing_geometric_owner": 11,
+        "not_claimed_fully_fixed": [
+          "20260820g001860075",
+          "20260821g001870074",
+          "20260902g001960128",
+          "20260902g001960133",
+          "20260902g001960134",
+          "20260930g002160063"
+        ],
+        "major_existing_table_layout": "196p133 has split category/column order and remains unchanged; not an ok page",
+        "remaining_code_mapping": "D..Z/other PUA/roman numeral/dashes are not inferred by this candidate"
+      },
+      "all_files": "delivery/crates/kanpo-parser/{src/reference_markers.rs,src/lib.rs,src/vertical.rs,tests/reference_marker_fixtures.rs}"
+    }
+  },
+  "blank_area": {
+    "reviewer": "vertical_record_fragments androot",
+    "original": {
+      "baseline": "after31 /0e341442",
+      "changed_originals_full_viewed": 5,
+      "restored_source_glyphs_all_checked": 10,
+      "improvement_pages": 5,
+      "new_regressions": 0,
+      "rows": [
+        {
+          "page": "20260731g001720117",
+          "source_pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720117.pdf",
+          "source_sha256": "fb06eee98740e1ea7e1a1cbab1500a04ac7d42d0b42f53f08adf941b6011ca9c",
+          "before_output_sha256": "f46a281f9b20061e00feff3efca3db6fb6a95c1dbde5427db908acbffefe5e0e",
+          "after_output_sha256": "4d18fad8e9da46beeeed07a984bf68a1e32b6134d4bf613c8fb89de6b6ddad67",
+          "original_image": ".cache/kanpo-227/area-empty-visual/20260731g001720117.png",
+          "image_sha256": "424695fdbdd507803492be73aa86d4d934529a8ad33969fe63cbb6f0c1fe5c4c",
+          "full_original_view_image_checked": true,
+          "all_restored_source_positions_checked": true,
+          "judgement": "improvement",
+          "regression": false,
+          "restored_glyphs": 2,
+          "notes": "左上のマンション床面積欄、延床面積と総専有床面積の2行。右側旧様式・下段注意書へ混入しない。",
+          "placements": [
+            {
+              "word_id": 72,
+              "native_glyph_index": 66,
+              "word_bbox": [
+                199.25,
+                77.4974,
+                207.25,
+                85.6814
+              ],
+              "before_owner_text": "【延床面積】",
+              "after_owner_text": "【延床面積】㎡",
+              "label_source_id": 88,
+              "label_bbox": [
+                95.25,
+                77.4974,
+                143.25,
+                85.6814
+              ],
+              "baseline_delta_y": 0.0,
+              "original_physical_grid_cell": {
+                "grid": 1,
+                "cell": 1,
+                "bbox": [
+                  83.25,
+                  60.57099914550781,
+                  411.25,
+                  100.71399688720703
+                ]
+              }
+            },
+            {
+              "word_id": 73,
+              "native_glyph_index": 86,
+              "word_bbox": [
+                199.242,
+                89.2814,
+                207.242,
+                97.4654
+              ],
+              "before_owner_text": "【総専有床面積】",
+              "after_owner_text": "【総専有床面積】㎡",
+              "label_source_id": 93,
+              "label_bbox": [
+                95.242,
+                89.2814,
+                159.242,
+                97.4654
+              ],
+              "baseline_delta_y": 0.0,
+              "original_physical_grid_cell": {
+                "grid": 1,
+                "cell": 1,
+                "bbox": [
+                  83.25,
+                  60.57099914550781,
+                  411.25,
+                  100.71399688720703
+                ]
+              }
+            }
+          ],
+          "scope": "復元2字と元所有行への接続を原本画像で確認。全既存文字・空白・役割・表構造不変は34関連頁fulltrace、全11992は本文比較で別途証明。新たな読み順正確性100%の主張ではない。"
+        },
+        {
+          "page": "20260731g001720122",
+          "source_pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720122.pdf",
+          "source_sha256": "ddc9e3883808db4042747470bcdd50d0688376ac9e2f3fa1731e6a71735afc4b",
+          "before_output_sha256": "dd73db7d75ef4da5fba1437be37dc3b4b1bac682282d17621b77e1c107b08b0b",
+          "after_output_sha256": "94c1348e19ab67ce9eb037b3bef5c458ef8361d06583b25c663641a99e93d8d8",
+          "original_image": ".cache/kanpo-227/area-empty-visual/20260731g001720122.png",
+          "image_sha256": "f009c7d8401556ee71585e15d5a883ba9e57f6e276c46e924778655ee9a5f1b5",
+          "full_original_view_image_checked": true,
+          "all_restored_source_positions_checked": true,
+          "judgement": "improvement",
+          "regression": false,
+          "restored_glyphs": 2,
+          "notes": "左下の新管理計画様式【6.マンションの床面積】内の2行。上方の戸数3行の戸/階数には付かない。",
+          "placements": [
+            {
+              "word_id": 10,
+              "native_glyph_index": 257,
+              "word_bbox": [
+                199.25,
+                417.5629,
+                207.25,
+                425.7469
+              ],
+              "before_owner_text": "【延床面積】",
+              "after_owner_text": "【延床面積】㎡",
+              "label_source_id": 39,
+              "label_bbox": [
+                95.25,
+                417.5629,
+                143.25,
+                425.7469
+              ],
+              "baseline_delta_y": 0.0,
+              "original_physical_grid_cell": {
+                "grid": 1,
+                "cell": 5,
+                "bbox": [
+                  83.25,
+                  401.4289855957031,
+                  411.25,
+                  440.0
+                ]
+              }
+            },
+            {
+              "word_id": 11,
+              "native_glyph_index": 266,
+              "word_bbox": [
+                199.25,
+                428.9549,
+                207.25,
+                437.1389
+              ],
+              "before_owner_text": "【総専有床面積】",
+              "after_owner_text": "【総専有床面積】㎡",
+              "label_source_id": 40,
+              "label_bbox": [
+                95.25,
+                428.9549,
+                159.25,
+                437.1389
+              ],
+              "baseline_delta_y": 0.0,
+              "original_physical_grid_cell": {
+                "grid": 1,
+                "cell": 5,
+                "bbox": [
+                  83.25,
+                  401.4289855957031,
+                  411.25,
+                  440.0
+                ]
+              }
+            }
+          ],
+          "scope": "復元2字と元所有行への接続を原本画像で確認。全既存文字・空白・役割・表構造不変は34関連頁fulltrace、全11992は本文比較で別途証明。新たな読み順正確性100%の主張ではない。"
+        },
+        {
+          "page": "20260731g001720127",
+          "source_pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720127.pdf",
+          "source_sha256": "53ea1cf665511693587671560e19c77f3707d4571589267ada235c1134c0035e",
+          "before_output_sha256": "554267ead7ab011806d267a41c280b1cd4672d4a7104cac2bcfd4110af4f0ac0",
+          "after_output_sha256": "d734641c9832c2cff8b013ab9b9dbfcfcb204a0e3d6ebe09234987d607ade4be",
+          "original_image": ".cache/kanpo-227/area-empty-visual/20260731g001720127.png",
+          "image_sha256": "37634a2013c5b1602056cf9d07d875270c738c2ecfde6f393292afb514589986",
+          "full_original_view_image_checked": true,
+          "all_restored_source_positions_checked": true,
+          "judgement": "improvement",
+          "regression": false,
+          "restored_glyphs": 2,
+          "notes": "左右比較様式の左中段の新床面積欄2行。右旧様式の建設年月、名称、管理者欄には付かない。",
+          "placements": [
+            {
+              "word_id": 55,
+              "native_glyph_index": 617,
+              "word_bbox": [
+                199.25,
+                256.4249,
+                207.25,
+                264.6089
+              ],
+              "before_owner_text": "【延床面積】",
+              "after_owner_text": "【延床面積】㎡",
+              "label_source_id": 67,
+              "label_bbox": [
+                95.25,
+                256.4249,
+                143.25,
+                264.6089
+              ],
+              "baseline_delta_y": 0.0,
+              "original_physical_grid_cell": {
+                "grid": 1,
+                "cell": 2,
+                "bbox": [
+                  83.25,
+                  239.21400451660156,
+                  411.25,
+                  279.9280090332031
+                ]
+              }
+            },
+            {
+              "word_id": 56,
+              "native_glyph_index": 637,
+              "word_bbox": [
+                199.242,
+                268.3529,
+                207.242,
+                276.5369
+              ],
+              "before_owner_text": "【総専有床面積】",
+              "after_owner_text": "【総専有床面積】㎡",
+              "label_source_id": 72,
+              "label_bbox": [
+                95.242,
+                268.3529,
+                159.242,
+                276.5369
+              ],
+              "baseline_delta_y": 0.0,
+              "original_physical_grid_cell": {
+                "grid": 1,
+                "cell": 2,
+                "bbox": [
+                  83.25,
+                  239.21400451660156,
+                  411.25,
+                  279.9280090332031
+                ]
+              }
+            }
+          ],
+          "scope": "復元2字と元所有行への接続を原本画像で確認。全既存文字・空白・役割・表構造不変は34関連頁fulltrace、全11992は本文比較で別途証明。新たな読み順正確性100%の主張ではない。"
+        },
+        {
+          "page": "20260731g001720133",
+          "source_pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720133.pdf",
+          "source_sha256": "c755c192c220dd077602e96a1502c06cb3cdc7a47a08aad7d9d3233e571dd4a2",
+          "before_output_sha256": "50c876d756dec80ac4c16637261f6547f26c8f1d430b3e859f540bee64e38141",
+          "after_output_sha256": "6215a2efc56bf338d1c0f89aa0a5b379420a0131530397c143a68e81d3d5dbc9",
+          "original_image": ".cache/kanpo-227/area-empty-visual/20260731g001720133.png",
+          "image_sha256": "f0b6df63f8562c9112a566614943b536fb1d8deaebea7eb72b375bb72219c480",
+          "full_original_view_image_checked": true,
+          "all_restored_source_positions_checked": true,
+          "judgement": "improvement",
+          "regression": false,
+          "restored_glyphs": 2,
+          "notes": "左様式中段の床面積欄2行。直上の地上/地下階数欄・直下の竣工年月には付かない。",
+          "placements": [
+            {
+              "word_id": 6,
+              "native_glyph_index": 151,
+              "word_bbox": [
+                199.25,
+                300.1083,
+                207.25,
+                308.2923
+              ],
+              "before_owner_text": "【延床面積】",
+              "after_owner_text": "【延床面積】㎡",
+              "label_source_id": 28,
+              "label_bbox": [
+                95.25,
+                300.1083,
+                143.25,
+                308.2923
+              ],
+              "baseline_delta_y": 0.0,
+              "original_physical_grid_cell": {
+                "grid": 0,
+                "cell": 5,
+                "bbox": [
+                  83.25,
+                  280.39300537109375,
+                  411.25,
+                  326.10699462890625
+                ]
+              }
+            },
+            {
+              "word_id": 7,
+              "native_glyph_index": 160,
+              "word_bbox": [
+                199.25,
+                313.2843,
+                207.25,
+                321.4683
+              ],
+              "before_owner_text": "【総専有床面積】",
+              "after_owner_text": "【総専有床面積】㎡",
+              "label_source_id": 29,
+              "label_bbox": [
+                95.25,
+                313.2843,
+                159.25,
+                321.4683
+              ],
+              "baseline_delta_y": 0.0,
+              "original_physical_grid_cell": {
+                "grid": 0,
+                "cell": 5,
+                "bbox": [
+                  83.25,
+                  280.39300537109375,
+                  411.25,
+                  326.10699462890625
+                ]
+              }
+            }
+          ],
+          "scope": "復元2字と元所有行への接続を原本画像で確認。全既存文字・空白・役割・表構造不変は34関連頁fulltrace、全11992は本文比較で別途証明。新たな読み順正確性100%の主張ではない。"
+        },
+        {
+          "page": "20260731g001720139",
+          "source_pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720139.pdf",
+          "source_sha256": "00823d47299916e1956a763bdfcb763a2364cd6501a17b003265655129ea4d78",
+          "before_output_sha256": "475ad659ae39fcef2f764827a44f92d69a19334abf37f0be615621c381f49e88",
+          "after_output_sha256": "dd96abe0282ff5845d467365ed58614aef979b57b4d404d440eb60e04bea9cd0",
+          "original_image": ".cache/kanpo-227/area-empty-visual/20260731g001720139.png",
+          "image_sha256": "daa62d14a6db460602b997a8fbe1e2ef48f21ddb63d006e7c3fad5070ae70de4",
+          "full_original_view_image_checked": true,
+          "all_restored_source_positions_checked": true,
+          "judgement": "improvement",
+          "regression": false,
+          "restored_glyphs": 2,
+          "notes": "左下の管理計画様式床面積欄2行。受付欄や戸数/階数、下の竣工年月に混入しない。",
+          "placements": [
+            {
+              "word_id": 18,
+              "native_glyph_index": 280,
+              "word_bbox": [
+                199.25,
+                470.7757,
+                207.25,
+                478.9597
+              ],
+              "before_owner_text": "【延床面積】",
+              "after_owner_text": "【延床面積】㎡",
+              "label_source_id": 44,
+              "label_bbox": [
+                95.25,
+                470.7757,
+                143.25,
+                478.9597
+              ],
+              "baseline_delta_y": 0.0,
+              "original_physical_grid_cell": {
+                "grid": 1,
+                "cell": 5,
+                "bbox": [
+                  83.25,
+                  454.2850036621094,
+                  411.25,
+                  493.5710144042969
+                ]
+              }
+            },
+            {
+              "word_id": 19,
+              "native_glyph_index": 289,
+              "word_bbox": [
+                199.25,
+                482.3437,
+                207.25,
+                490.5277
+              ],
+              "before_owner_text": "【総専有床面積】",
+              "after_owner_text": "【総専有床面積】㎡",
+              "label_source_id": 45,
+              "label_bbox": [
+                95.25,
+                482.3437,
+                159.25,
+                490.5277
+              ],
+              "baseline_delta_y": 0.0,
+              "original_physical_grid_cell": {
+                "grid": 1,
+                "cell": 5,
+                "bbox": [
+                  83.25,
+                  454.2850036621094,
+                  411.25,
+                  493.5710144042969
+                ]
+              }
+            }
+          ],
+          "scope": "復元2字と元所有行への接続を原本画像で確認。全既存文字・空白・役割・表構造不変は34関連頁fulltrace、全11992は本文比較で別途証明。新たな読み順正確性100%の主張ではない。"
+        }
+      ],
+      "negative_original": {
+        "page": "20260803g001740106",
+        "remaining_source_symbols": 1,
+        "source_word": {
+          "id": 170,
+          "x0": 701.234,
+          "y0": 186.7054,
+          "x1": 709.234,
+          "y1": 194.8894,
+          "raw": "",
+          "text": "",
+          "status": "empty"
+        },
+        "original_image": ".cache/kanpo-227/area-empty-visual/20260803g001740106.png",
+        "image_sha256": "2450ade25c024166aa0897029d2556bce5088c4b4a5ea213d54db0b88d8bbdc0",
+        "full_original_view_image_checked": true,
+        "judgement": "unchanged; omission remains",
+        "reason": "右財産目録、数量欄の土地20,961/建物延15,751の上に共有㎡1字。既存Table38セルの各bboxは全高共通で幾何による既存セル所属が一意でない。元のfind_gridsのどのGridCellも原Glyphのfullbboxを含まない。Plainの面積ラベル対・同数値の一意suffixもないため補わない。Table/quantity-header reconstruction is a separate future candidate.",
+        "original_physical_cell_matches": 0,
+        "source_font_proof": "area-unit-outline-proof.json /area-unit-occurrences.json",
+        "glyph_bbox": [
+          701.234,
+          186.7054,
+          709.234,
+          194.8894
+        ],
+        "baseline": "after31"
+      }
+    },
+    "validation": {
+      "baseline": "after31 /0e341442",
+      "pages_scanned": 34,
+      "changed_pages": 5,
+      "restored_symbols": 10,
+      "previously_restored33_units_unchanged": true,
+      "remaining_E68D_glyphs": 1,
+      "rows": [
+        {
+          "page": "20260730g001710130",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260730g001710134",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260731g001720117",
+          "restored_symbols": 2,
+          "changed": true,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": true,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260731g001720119",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260731g001720122",
+          "restored_symbols": 2,
+          "changed": true,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": true,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260731g001720125",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260731g001720127",
+          "restored_symbols": 2,
+          "changed": true,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": true,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260731g001720130",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260731g001720133",
+          "restored_symbols": 2,
+          "changed": true,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": true,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260731g001720136",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260731g001720139",
+          "restored_symbols": 2,
+          "changed": true,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": true,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260731g001720143",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260803g001740029",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260803g001740106",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260817g001830033",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260827h017770005",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260831g001930165",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260831g001930166",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260909g002010013",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260909g002010014",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260909g002010015",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260909g002010016",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260910g002020091",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20260915g002050070",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20261009g002230155",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20261016g002280007",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20261016g002280041",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20261016g002280251",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20261016g002280252",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20261016g002280356",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20261016g002280465",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20261016g002280543",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20261016g002280566",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        },
+        {
+          "page": "20261016g002280593",
+          "restored_symbols": 0,
+          "changed": false,
+          "existing_all_text_whitespace_ids_roles_layout_geometry_preserved": true,
+          "only_original_unowned_empty_glyphs_added_to_existing_plain_line_once": true,
+          "native_glyph_bbox_original_word_id_matches": true,
+          "original_unique_physical_grid_cell": null,
+          "baseline_matches_after31": true
+        }
+      ],
+      "failures": []
+    },
+    "all11992": {
+      "baseline": "after31",
+      "scanned": 11992,
+      "changed_pages": 5,
+      "rows": [
+        {
+          "page": "20260731g001720117",
+          "before_chars": 1247,
+          "after_chars": 1249,
+          "only_area_unit_insertions": true,
+          "insertions": {
+            "㎡": 2
+          }
+        },
+        {
+          "page": "20260731g001720122",
+          "before_chars": 369,
+          "after_chars": 371,
+          "only_area_unit_insertions": true,
+          "insertions": {
+            "㎡": 2
+          }
+        },
+        {
+          "page": "20260731g001720127",
+          "before_chars": 949,
+          "after_chars": 951,
+          "only_area_unit_insertions": true,
+          "insertions": {
+            "㎡": 2
+          }
+        },
+        {
+          "page": "20260731g001720133",
+          "before_chars": 439,
+          "after_chars": 441,
+          "only_area_unit_insertions": true,
+          "insertions": {
+            "㎡": 2
+          }
+        },
+        {
+          "page": "20260731g001720139",
+          "before_chars": 356,
+          "after_chars": 358,
+          "only_area_unit_insertions": true,
+          "insertions": {
+            "㎡": 2
+          }
+        }
+      ],
+      "errors": []
+    }
+  },
+  "root_integrated_source_proof": [
+    {
+      "page": "20260722g001620007",
+      "source_sha256": "29d7a30094977ae87055a1397061b19438de211c8806c0b2bec0e1a4d35b3be8",
+      "before_sha256": "50d3dff9cdd59a4f8877e0f79d748dd17b9c1f96f76ac8531393aae443643b69",
+      "after_sha256": "6f799255ec393645c25311496fc306443aa03a872970f92688e4c6fe08ad9b0e",
+      "restored_reference_glyphs": 6,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 5,
+      "new_original_output_IDs": 3,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 6,
+        "A": 2,
+        ")": 6,
+        "C": 2,
+        "B": 2
+      }
+    },
+    {
+      "page": "20260731g001720117",
+      "source_sha256": "fb06eee98740e1ea7e1a1cbab1500a04ac7d42d0b42f53f08adf941b6011ca9c",
+      "before_sha256": "f46a281f9b20061e00feff3efca3db6fb6a95c1dbde5427db908acbffefe5e0e",
+      "after_sha256": "4d18fad8e9da46beeeed07a984bf68a1e32b6134d4bf613c8fb89de6b6ddad67",
+      "restored_reference_glyphs": 0,
+      "restored_area_glyphs": 2,
+      "changed_source_Words": 2,
+      "new_original_output_IDs": 2,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "㎡": 2
+      }
+    },
+    {
+      "page": "20260731g001720122",
+      "source_sha256": "ddc9e3883808db4042747470bcdd50d0688376ac9e2f3fa1731e6a71735afc4b",
+      "before_sha256": "dd73db7d75ef4da5fba1437be37dc3b4b1bac682282d17621b77e1c107b08b0b",
+      "after_sha256": "94c1348e19ab67ce9eb037b3bef5c458ef8361d06583b25c663641a99e93d8d8",
+      "restored_reference_glyphs": 0,
+      "restored_area_glyphs": 2,
+      "changed_source_Words": 2,
+      "new_original_output_IDs": 2,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "㎡": 2
+      }
+    },
+    {
+      "page": "20260731g001720127",
+      "source_sha256": "53ea1cf665511693587671560e19c77f3707d4571589267ada235c1134c0035e",
+      "before_sha256": "554267ead7ab011806d267a41c280b1cd4672d4a7104cac2bcfd4110af4f0ac0",
+      "after_sha256": "d734641c9832c2cff8b013ab9b9dbfcfcb204a0e3d6ebe09234987d607ade4be",
+      "restored_reference_glyphs": 0,
+      "restored_area_glyphs": 2,
+      "changed_source_Words": 2,
+      "new_original_output_IDs": 2,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "㎡": 2
+      }
+    },
+    {
+      "page": "20260731g001720133",
+      "source_sha256": "c755c192c220dd077602e96a1502c06cb3cdc7a47a08aad7d9d3233e571dd4a2",
+      "before_sha256": "50c876d756dec80ac4c16637261f6547f26c8f1d430b3e859f540bee64e38141",
+      "after_sha256": "6215a2efc56bf338d1c0f89aa0a5b379420a0131530397c143a68e81d3d5dbc9",
+      "restored_reference_glyphs": 0,
+      "restored_area_glyphs": 2,
+      "changed_source_Words": 2,
+      "new_original_output_IDs": 2,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "㎡": 2
+      }
+    },
+    {
+      "page": "20260731g001720139",
+      "source_sha256": "00823d47299916e1956a763bdfcb763a2364cd6501a17b003265655129ea4d78",
+      "before_sha256": "475ad659ae39fcef2f764827a44f92d69a19334abf37f0be615621c381f49e88",
+      "after_sha256": "dd96abe0282ff5845d467365ed58614aef979b57b4d404d440eb60e04bea9cd0",
+      "restored_reference_glyphs": 0,
+      "restored_area_glyphs": 2,
+      "changed_source_Words": 2,
+      "new_original_output_IDs": 2,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "㎡": 2
+      }
+    },
+    {
+      "page": "20260806g001770059",
+      "source_sha256": "f947759244542550518c90e525bf2a3f2e897270bc3889fbc6533c1060a2fad7",
+      "before_sha256": "b73f2dd5d797626c6a4138e43ed987b6ff581263320dce97044eaaafe164e388",
+      "after_sha256": "956ee5645c121ce910dbe1a22acdb3dbd40b2a796774519076678f8be955f938",
+      "restored_reference_glyphs": 7,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 5,
+      "new_original_output_IDs": 0,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 7,
+        "C": 3,
+        ")": 7,
+        "A": 2,
+        "B": 2
+      }
+    },
+    {
+      "page": "20260810g001790112",
+      "source_sha256": "253185e298938b2a20d974934c50124f3169f1a7aad0b222e3db8403cf0a4a11",
+      "before_sha256": "b6e551bdf33040dbc543b6554af0fba3dfef3d5a7ddb61fb326d709dcdab7ac7",
+      "after_sha256": "84c0b6806e9fb4cda009c776853d550d01ab852145a122fa3f507c0cf777f16c",
+      "restored_reference_glyphs": 6,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 4,
+      "new_original_output_IDs": 3,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 6,
+        "A": 2,
+        ")": 6,
+        "B": 2,
+        "C": 2
+      }
+    },
+    {
+      "page": "20260820g001860075",
+      "source_sha256": "e6765a90d4f1bce9de9e214cfd5203d02d3ba847fb6ac66051d1a384687f0204",
+      "before_sha256": "dbc5c15baf1402a560dcb1e7e22d589ca95b430ba204893a216b4bf76d9240ab",
+      "after_sha256": "631bf7750282cdf6c5b05b78783c1dd2653cdca40087a46d613bb173f5bfdc81",
+      "restored_reference_glyphs": 11,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 9,
+      "new_original_output_IDs": 0,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 11,
+        "A": 4,
+        ")": 11,
+        "B": 4,
+        "C": 3
+      }
+    },
+    {
+      "page": "20260821g001870074",
+      "source_sha256": "309c4f44358ebce0f078ff5f9a8d300e1b2ad23a571b9c9cfa7002a1910cd16b",
+      "before_sha256": "bb1ada2ed618ac56160c8981b002c9a70f87399a0f3a211849c62a2c6e78dcb1",
+      "after_sha256": "8715f837de936f1a1b12e1ca3800804b4b4f63e96114e0736e3ab4932e5a5fa2",
+      "restored_reference_glyphs": 3,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 1,
+      "new_original_output_IDs": 0,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 3,
+        "A": 1,
+        ")": 3,
+        "B": 1,
+        "C": 1
+      }
+    },
+    {
+      "page": "20260902g001960128",
+      "source_sha256": "883741c4ab38c1e8e7e103857585f6de8f7c88c5d0d63ffbbd5ff98a79cf0a1d",
+      "before_sha256": "6b562abb7c72c321d7025bc34e94b252a3f0cacea920a9d30b6ce7d2b0dbf65f",
+      "after_sha256": "eb4487c5b5067e4052ceecd3c733ddbb3e329a1f52076926246961e895303bd3",
+      "restored_reference_glyphs": 3,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 2,
+      "new_original_output_IDs": 0,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 3,
+        "A": 1,
+        ")": 3,
+        "B": 2
+      }
+    },
+    {
+      "page": "20260902g001960134",
+      "source_sha256": "4d8604a4981439439c870880fb1cb07e5693a0423813388412138b121d388728",
+      "before_sha256": "bbe6ede05a8439ff497d070ba042c8df3971c216896d49b504fd5d2bd3b2aeb8",
+      "after_sha256": "e15c6d52176296f5efa9cbc2f86b59796ea5e1fd0b88e532a0f246011258e647",
+      "restored_reference_glyphs": 1,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 1,
+      "new_original_output_IDs": 0,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 1,
+        "B": 1,
+        ")": 1
+      }
+    },
+    {
+      "page": "20260916g002060317",
+      "source_sha256": "c7866f17670e242ac0746999d16118cccd80db9ad9b84a88b9afb8a56c82c760",
+      "before_sha256": "55378ab4a1981bdc5f121f69695148919a5f53c689db8b1f1a256fb5ac96056c",
+      "after_sha256": "9dc02f64ce097dd280fb029943504e8227bd1ccbe40ba2ca8096833d2bedcfad",
+      "restored_reference_glyphs": 6,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 5,
+      "new_original_output_IDs": 3,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 6,
+        "B": 2,
+        ")": 6,
+        "A": 2,
+        "C": 2
+      }
+    },
+    {
+      "page": "20260930g002160063",
+      "source_sha256": "50336e11e0a299323f5ba94b51a74260a50e59e4fff8cac4c85ab69476aa64c8",
+      "before_sha256": "d7f1f8a3652e31eca84be5c69355c921aa2fbfafa10d856c863909fa8d09b198",
+      "after_sha256": "5cb6a90f7d4816c460cdfd2ec10f1c2f65b2ac66551d153a13025ab3963001d3",
+      "restored_reference_glyphs": 3,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 2,
+      "new_original_output_IDs": 0,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 3,
+        "C": 1,
+        ")": 3,
+        "A": 1,
+        "B": 1
+      }
+    },
+    {
+      "page": "20261016g002280106",
+      "source_sha256": "b83b8ecf3c49b27c384bdf6faf9d760df6ffe8b07244bc799fbd2341f3125c17",
+      "before_sha256": "bc834c654abff4c809ab38ae2e04d0d9da74c81ef8d163e383c88cd159ffb7ff",
+      "after_sha256": "df52737b916df7d72bc29b0b15cfb1dfe6bd0e1475ab6c9919374a991dac8817",
+      "restored_reference_glyphs": 9,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 9,
+      "new_original_output_IDs": 9,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 3,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 9,
+        "A": 3,
+        ")": 9,
+        "B": 3,
+        "C": 3
+      }
+    },
+    {
+      "page": "20261016g002280275",
+      "source_sha256": "088d9b95d679470974364cc36441cea5672a3ed20b1d9a46875a5c045be37fcb",
+      "before_sha256": "550504f2b495698b1dc477a4d13a052a1d132af5f7523da6c5ac6a398ab90e8a",
+      "after_sha256": "0326ea8b55df68cbbc03e6a6963d46a19c7013e91430129fb30f28e67c488e11",
+      "restored_reference_glyphs": 1,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 1,
+      "new_original_output_IDs": 0,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 1,
+        "A": 1,
+        ")": 1
+      }
+    },
+    {
+      "page": "20261016g002280276",
+      "source_sha256": "f65012286d581b57a55ee43e51dc793cc284375387f79bc4ce80983ab5bd9aba",
+      "before_sha256": "bb5f589930a4b27ec3858d67d79f31d2a1e59b6904288d385fbc2d1f35984d40",
+      "after_sha256": "637468eb19b0d24d29ab14ac3f34887e468b9786bbeb52bf9b36c844a030722e",
+      "restored_reference_glyphs": 2,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 2,
+      "new_original_output_IDs": 0,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 2,
+        "A": 2,
+        ")": 2
+      }
+    }
+  ],
+  "root_baseline_actualPDF_tests": [
+    {
+      "fixture": "reference_marker_fixtures",
+      "baseline": "0e341442/after31",
+      "failed": 3,
+      "passed": 1,
+      "log": ".cache/kanpo-227/reference_marker_fixtures-baseline11.log",
+      "sha256": "368daac64a5040f2a920499f06e0fe255100f2c815b9f95c81c034a3b0106846"
+    },
+    {
+      "fixture": "blank_area_fixtures",
+      "baseline": "0e341442/after31",
+      "failed": 5,
+      "passed": 2,
+      "log": ".cache/kanpo-227/blank_area_fixtures-baseline11.log",
+      "sha256": "4000265af603261843a0bfe2d3656292b8ecea7953c3d00d123fde67f5f5928b"
+    }
+  ],
+  "root_snapshot_reviews": [
+    {
+      "page": "20260731g001720117",
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731g00172__20260731g001720117.pdf.snap",
+      "sha256": "2cfd38025ced6ebb19208d9a54a43b5f956f87e029a3414d3965c2a7406fc011",
+      "existing_update": true,
+      "whole_body_and_articles_read": true,
+      "body_matches_after32": true,
+      "review": "Root full body and article snapshot read; native-source proof and agent full original visual audit checked. Known pre-existing layout problems in negative fixtures stay frozen; not whole-page success."
+    },
+    {
+      "page": "20260731g001720122",
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731g00172__20260731g001720122.pdf.snap",
+      "sha256": "bc7670592e3abab6186c32360f44f4414e199da91ecbbe93d31825f41bc02376",
+      "existing_update": false,
+      "whole_body_and_articles_read": true,
+      "body_matches_after32": true,
+      "review": "Root full body and article snapshot read; native-source proof and agent full original visual audit checked. Known pre-existing layout problems in negative fixtures stay frozen; not whole-page success."
+    },
+    {
+      "page": "20260731g001720127",
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731g00172__20260731g001720127.pdf.snap",
+      "sha256": "df135cb17b5987d526e7d83a477ebcb76745f3588d0aad050d9e29c592f4b81a",
+      "existing_update": false,
+      "whole_body_and_articles_read": true,
+      "body_matches_after32": true,
+      "review": "Root full body and article snapshot read; native-source proof and agent full original visual audit checked. Known pre-existing layout problems in negative fixtures stay frozen; not whole-page success."
+    },
+    {
+      "page": "20260731g001720133",
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731g00172__20260731g001720133.pdf.snap",
+      "sha256": "6c4aa5f74c1a3f9000213c873570bdc7cde044b64616263e23de0c1b7383fa9d",
+      "existing_update": false,
+      "whole_body_and_articles_read": true,
+      "body_matches_after32": true,
+      "review": "Root full body and article snapshot read; native-source proof and agent full original visual audit checked. Known pre-existing layout problems in negative fixtures stay frozen; not whole-page success."
+    },
+    {
+      "page": "20260731g001720139",
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731g00172__20260731g001720139.pdf.snap",
+      "sha256": "3e1f0c8e02f39f596077cae284785afebdbdc153724f43b6f6f2d77f60fb1b94",
+      "existing_update": false,
+      "whole_body_and_articles_read": true,
+      "body_matches_after32": true,
+      "review": "Root full body and article snapshot read; native-source proof and agent full original visual audit checked. Known pre-existing layout problems in negative fixtures stay frozen; not whole-page success."
+    },
+    {
+      "page": "20260803g001740106",
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260803g00174__20260803g001740106.pdf.snap",
+      "sha256": "93f57e42d96b9ce57a41f9d4e350b9f71c4fd9d557f30a74ffcb4592bd3ea427",
+      "existing_update": false,
+      "whole_body_and_articles_read": true,
+      "body_matches_after32": true,
+      "review": "Root full body and article snapshot read; native-source proof and agent full original visual audit checked. Known pre-existing layout problems in negative fixtures stay frozen; not whole-page success."
+    },
+    {
+      "page": "20260810g001790112",
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260810g00179__20260810g001790112.pdf.snap",
+      "sha256": "bf7f549ccae0297ff1a0b4ab8c39bcb1e197aa61e4ca01aec01a2a4218787498",
+      "existing_update": false,
+      "whole_body_and_articles_read": true,
+      "body_matches_after32": true,
+      "review": "Root full body and article snapshot read; native-source proof and agent full original visual audit checked. Known pre-existing layout problems in negative fixtures stay frozen; not whole-page success."
+    },
+    {
+      "page": "20260821g001870074",
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260821g00187__20260821g001870074.pdf.snap",
+      "sha256": "a12375e7cc0b18372c02815e5717cff0289e7f756fdf79db61dcd1df62e5fc33",
+      "existing_update": false,
+      "whole_body_and_articles_read": true,
+      "body_matches_after32": true,
+      "review": "Root full body and article snapshot read; native-source proof and agent full original visual audit checked. Known pre-existing layout problems in negative fixtures stay frozen; not whole-page success."
+    },
+    {
+      "page": "20260902g001960133",
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260902g00196__20260902g001960133.pdf.snap",
+      "sha256": "ffa39c0cd3369bcb257344d4139ab03392e3386ab78d8010d448553ab366ba4e",
+      "existing_update": false,
+      "whole_body_and_articles_read": true,
+      "body_matches_after32": true,
+      "review": "Root full body and article snapshot read; native-source proof and agent full original visual audit checked. Known pre-existing layout problems in negative fixtures stay frozen; not whole-page success."
+    },
+    {
+      "page": "20261016g002280106",
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261016g00228__20261016g002280106.pdf.snap",
+      "sha256": "715c40f53e266299e9a38bd0c80dd376e9b154e7b527a454735d62e6e6d8bdbe",
+      "existing_update": false,
+      "whole_body_and_articles_read": true,
+      "body_matches_after32": true,
+      "review": "Root full body and article snapshot read; native-source proof and agent full original visual audit checked. Known pre-existing layout problems in negative fixtures stay frozen; not whole-page success."
+    }
+  ],
+  "root_corpus_golden_review": {
+    "cases": 2,
+    "changed_expectations": 0,
+    "result": "Both corpus tests pass unchanged; final full suite repeats them."
+  },
+  "legacy_area_fixture_change": "117 is now an intended positive. Replaced former unowned glyph negative with174p106, whose actual shared quantity㎡ has no uniquely containing native physical cell and remains unchanged. This is explicit reviewed scope growth, not weakened assertions.",
+  "validator_harness_change": "Initial cumulative validator treated any new ASCII parenthesis as a fraction delimiter and failed5 parts. Now loads independent integrated32 native-source proof; only58 proven reference Glyphs are allowed in addition to153 proven fraction parentheses. Slash count remains153; all8 parts pass. Initial failing logs retained.",
+  "remaining_partial_contexts": [
+    "196p133 cashflow table has pre-existing major category/column order, exact negative output retained",
+    "187p74 unowned table headerABC remains omitted while prose3references restore",
+    "Other22 nativeABC lack a unique owner or share unknown references; other unknown PUA remain un-restored",
+    "174p106 shared㎡ quantity heading remains omitted, financial bond label order also remains",
+    "No claim that an improved page is entirely correct; all earlier audits retain initial grades"
+  ]
+}

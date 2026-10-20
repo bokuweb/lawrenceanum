@@ -441,6 +441,8 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             crate::large_parentheses::restore_large_parentheses(&mut units, &words);
             crate::coordinate_symbols::restore_coordinate_symbols(&mut units, &mut words);
             crate::area_units::restore_area_units(&mut units, &mut words);
+            if !sideways { crate::blank_area_units::restore(&mut units, &mut words, page_rules, width.max(height)); }
+            crate::reference_markers::restore(&mut units, &mut words);
             if let Some(rules) = rules.get(pi).and_then(|r| r.as_ref()) {
                 crate::financial_enclosures::order_financial_enclosures(
                     &mut units, &words, &rules.enclosures, width, height,
@@ -746,6 +748,8 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         crate::large_parentheses::restore_large_parentheses(&mut units, &words);
         crate::coordinate_symbols::restore_coordinate_symbols(&mut units, &mut words);
         crate::area_units::restore_area_units(&mut units, &mut words);
+        if !sideways { crate::blank_area_units::restore(&mut units, &mut words, page_rules, width.max(height)); }
+        crate::reference_markers::restore(&mut units, &mut words);
         let text = units
             .iter()
             .map(Unit::text)

@@ -75,23 +75,23 @@ fn both_compared_form_area_labels_keep_their_own_square_metre_symbols() {
     );
 }
 #[test]
-fn unowned_empty_form_units_are_not_attached_by_guessing() {
+fn ambiguous_shared_area_unit_is_not_attached_by_guessing() {
     let a = kanpo_parser::analyze_item(
         &kanpo_parser::page_inputs(include_bytes!(
-            "archive/pages/20260731g00172/20260731g001720117.pdf"
+            "archive/pages/20260803g00174/20260803g001740106.pdf"
         ))
         .unwrap(),
     );
     assert_eq!(
         a.text.trim_end(),
-        include_str!("archive/expected-area-units/20260731g001720117.txt").trim_end()
+        include_str!("archive/expected-blank-area/20260803g001740106.txt").trim_end()
     );
     let units: Vec<_> = a.pages[0]
         .words
         .iter()
         .filter(|w| w.raw == "\u{E68D}")
         .collect();
-    assert_eq!(units.len(), 2);
+    assert_eq!(units.len(), 1);
     assert!(units
         .iter()
         .all(|w| w.text.is_empty() && w.status == kanpo_parser::trace::WordStatus::Empty));

@@ -1,0 +1,5656 @@
+{
+  "stage": "eleventh_integrated_batch",
+  "baseline": "0e341442/after31",
+  "output": "after32",
+  "reference_markers": {
+    "counts": {
+      "restored": 58,
+      "native": 80,
+      "unknown_other_reference_in_same_raw_word": 11,
+      "no_unique_existing_geometric_owner": 11
+    },
+    "pages": [
+      {
+        "page": "20260722g001620007",
+        "pdf": ".cache/kanpo-archive/2026-07-22/20260722g00162/20260722g001620007.pdf",
+        "pdf_sha256": "29d7a30094977ae87055a1397061b19438de211c8806c0b2bec0e1a4d35b3be8",
+        "before_sha256": "50d3dff9cdd59a4f8877e0f79d748dd17b9c1f96f76ac8531393aae443643b69",
+        "after_sha256": "6f799255ec393645c25311496fc306443aa03a872970f92688e4c6fe08ad9b0e",
+        "glyphs": [
+          {
+            "glyph_index": 385,
+            "raw": "",
+            "cid": 25771,
+            "font": 1,
+            "bbox": [
+              224.02199999999993,
+              97.6223,
+              230.02199999999993,
+              103.7603
+            ],
+            "candidate_word_ids": [
+              1392
+            ],
+            "source_word_id": 1392,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "used",
+            "before_owners": [],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 0,
+                "cell": 74,
+                "row": 3,
+                "col": 0,
+                "text": "歳入歳出差引額　(A)"
+              }
+            ],
+            "decision": "restored_to_unique_physical_owner"
+          },
+          {
+            "glyph_index": 504,
+            "raw": "",
+            "cid": 25772,
+            "font": 1,
+            "bbox": [
+              224.04599999999982,
+              112.7663,
+              230.04599999999982,
+              118.9043
+            ],
+            "candidate_word_ids": [
+              1389
+            ],
+            "source_word_id": 1389,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "used",
+            "before_owners": [],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 0,
+                "cell": 75,
+                "row": 4,
+                "col": 0,
+                "text": "翌年度へ繰り越すべき財源　(B)"
+              }
+            ],
+            "decision": "restored_to_unique_physical_owner"
+          },
+          {
+            "glyph_index": 536,
+            "raw": "",
+            "cid": 25771,
+            "font": 1,
+            "bbox": [
+              104.9960000000001,
+              127.9049,
+              110.9960000000001,
+              134.0429
+            ],
+            "candidate_word_ids": [
+              1736
+            ],
+            "source_word_id": 1736,
+            "source_raw": "実質収支額−",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 0,
+                "cell": 76,
+                "row": 5,
+                "col": 0,
+                "text": "実質収支額−"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 0,
+                "cell": 76,
+                "row": 5,
+                "col": 0,
+                "text": "実質収支額(A)−(B)　(C)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 538,
+            "raw": "",
+            "cid": 25772,
+            "font": 1,
+            "bbox": [
+              116.9960000000001,
+              127.9049,
+              122.9960000000001,
+              134.0429
+            ],
+            "candidate_word_ids": [
+              1736
+            ],
+            "source_word_id": 1736,
+            "source_raw": "実質収支額−",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 0,
+                "cell": 76,
+                "row": 5,
+                "col": 0,
+                "text": "実質収支額−"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 0,
+                "cell": 76,
+                "row": 5,
+                "col": 0,
+                "text": "実質収支額(A)−(B)　(C)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 539,
+            "raw": "",
+            "cid": 25773,
+            "font": 1,
+            "bbox": [
+              223.99580000000014,
+              127.9049,
+              229.99580000000014,
+              134.0429
+            ],
+            "candidate_word_ids": [
+              1394
+            ],
+            "source_word_id": 1394,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "used",
+            "before_owners": [],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 0,
+                "cell": 76,
+                "row": 5,
+                "col": 0,
+                "text": "実質収支額(A)−(B)　(C)"
+              }
+            ],
+            "decision": "restored_to_unique_physical_owner"
+          },
+          {
+            "glyph_index": 579,
+            "raw": "",
+            "cid": 25773,
+            "font": 1,
+            "bbox": [
+              74.99000000000024,
+              143.0489,
+              80.99000000000024,
+              149.1869
+            ],
+            "candidate_word_ids": [
+              1737
+            ],
+            "source_word_id": 1737,
+            "source_raw": "のうち地方自治法第233条の２の規定による基金繰入額",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 0,
+                "cell": 77,
+                "row": 6,
+                "col": 0,
+                "text": "のうち地方自治法第233条の２の規定による基金繰入額"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 0,
+                "cell": 77,
+                "row": 6,
+                "col": 0,
+                "text": "(C)のうち地方自治法第233条の２の規定による基金繰入額"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          }
+        ]
+      },
+      {
+        "page": "20260806g001770059",
+        "pdf": ".cache/kanpo-archive/2026-08-06/20260806g00177/20260806g001770059.pdf",
+        "pdf_sha256": "f947759244542550518c90e525bf2a3f2e897270bc3889fbc6533c1060a2fad7",
+        "before_sha256": "b73f2dd5d797626c6a4138e43ed987b6ff581263320dce97044eaaafe164e388",
+        "after_sha256": "956ee5645c121ce910dbe1a22acdb3dbd40b2a796774519076678f8be955f938",
+        "glyphs": [
+          {
+            "glyph_index": 740,
+            "raw": "",
+            "cid": 25771,
+            "font": 2,
+            "bbox": [
+              184.96799999999985,
+              503.0619999999999,
+              192.96799999999985,
+              511.2459999999999
+            ],
+            "candidate_word_ids": [
+              670
+            ],
+            "source_word_id": 670,
+            "source_raw": "計",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 5,
+                "cell": 29,
+                "row": 5,
+                "col": 0,
+                "text": "当期収入合計"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 5,
+                "cell": 29,
+                "row": 5,
+                "col": 0,
+                "text": "当期収入合計(A)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 820,
+            "raw": "",
+            "cid": 25772,
+            "font": 2,
+            "bbox": [
+              184.95199999999977,
+              536.0219999999999,
+              192.95199999999977,
+              544.2059999999999
+            ],
+            "candidate_word_ids": [
+              671
+            ],
+            "source_word_id": 671,
+            "source_raw": "計",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 5,
+                "cell": 31,
+                "row": 7,
+                "col": 0,
+                "text": "収入合計"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 5,
+                "cell": 31,
+                "row": 7,
+                "col": 0,
+                "text": "収入合計(B)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 1027,
+            "raw": "",
+            "cid": 25773,
+            "font": 2,
+            "bbox": [
+              552.9679999999998,
+              130.9157,
+              560.9679999999998,
+              139.09969999999998
+            ],
+            "candidate_word_ids": [
+              247
+            ],
+            "source_word_id": 247,
+            "source_raw": "計",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 7,
+                "cell": 29,
+                "row": 5,
+                "col": 0,
+                "text": "当期支出合計"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 7,
+                "cell": 29,
+                "row": 5,
+                "col": 0,
+                "text": "当期支出合計(C)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 1071,
+            "raw": "",
+            "cid": 25771,
+            "font": 2,
+            "bbox": [
+              536.9599999999998,
+              147.48369999999997,
+              544.9599999999998,
+              155.66769999999997
+            ],
+            "candidate_word_ids": [
+              252
+            ],
+            "source_word_id": 252,
+            "source_raw": "額−",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 7,
+                "cell": 30,
+                "row": 6,
+                "col": 0,
+                "text": "当期収支差　額−"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 7,
+                "cell": 30,
+                "row": 6,
+                "col": 0,
+                "text": "当期収支差　額(A)−(C)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 1073,
+            "raw": "",
+            "cid": 25773,
+            "font": 2,
+            "bbox": [
+              552.9599999999998,
+              147.48369999999997,
+              560.9599999999998,
+              155.66769999999997
+            ],
+            "candidate_word_ids": [
+              252
+            ],
+            "source_word_id": 252,
+            "source_raw": "額−",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 7,
+                "cell": 30,
+                "row": 6,
+                "col": 0,
+                "text": "当期収支差　額−"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 7,
+                "cell": 30,
+                "row": 6,
+                "col": 0,
+                "text": "当期収支差　額(A)−(C)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 1117,
+            "raw": "",
+            "cid": 25772,
+            "font": 2,
+            "bbox": [
+              536.9519999999998,
+              164.05169999999995,
+              544.9519999999998,
+              172.23569999999995
+            ],
+            "candidate_word_ids": [
+              253
+            ],
+            "source_word_id": 253,
+            "source_raw": "額−",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 7,
+                "cell": 31,
+                "row": 7,
+                "col": 0,
+                "text": "次期繰越収支差額−"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 7,
+                "cell": 31,
+                "row": 7,
+                "col": 0,
+                "text": "次期繰越収支差額(B)−(C)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 1119,
+            "raw": "",
+            "cid": 25773,
+            "font": 2,
+            "bbox": [
+              552.9519999999998,
+              164.05169999999995,
+              560.9519999999998,
+              172.23569999999995
+            ],
+            "candidate_word_ids": [
+              253
+            ],
+            "source_word_id": 253,
+            "source_raw": "額−",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 7,
+                "cell": 31,
+                "row": 7,
+                "col": 0,
+                "text": "次期繰越収支差額−"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 7,
+                "cell": 31,
+                "row": 7,
+                "col": 0,
+                "text": "次期繰越収支差額(B)−(C)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          }
+        ]
+      },
+      {
+        "page": "20260810g001790112",
+        "pdf": ".cache/kanpo-archive/2026-08-10/20260810g00179/20260810g001790112.pdf",
+        "pdf_sha256": "253185e298938b2a20d974934c50124f3169f1a7aad0b222e3db8403cf0a4a11",
+        "before_sha256": "b6e551bdf33040dbc543b6554af0fba3dfef3d5a7ddb61fb326d709dcdab7ac7",
+        "after_sha256": "84c0b6806e9fb4cda009c776853d550d01ab852145a122fa3f507c0cf777f16c",
+        "glyphs": [
+          {
+            "glyph_index": 346,
+            "raw": "",
+            "cid": 25771,
+            "font": 0,
+            "bbox": [
+              241.0,
+              342.8597,
+              249.0,
+              351.0437
+            ],
+            "candidate_word_ids": [
+              280
+            ],
+            "source_word_id": 280,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "used",
+            "before_owners": [],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 8,
+                "cell": 6,
+                "row": 1,
+                "col": 0,
+                "text": "退職給付債務　(A)"
+              }
+            ],
+            "decision": "restored_to_unique_physical_owner"
+          },
+          {
+            "glyph_index": 371,
+            "raw": "",
+            "cid": 25772,
+            "font": 0,
+            "bbox": [
+              241.0,
+              359.8597,
+              249.0,
+              368.0437
+            ],
+            "candidate_word_ids": [
+              281
+            ],
+            "source_word_id": 281,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "used",
+            "before_owners": [],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 8,
+                "cell": 7,
+                "row": 2,
+                "col": 0,
+                "text": "未認識数理計算上の差異　(B)"
+              }
+            ],
+            "decision": "restored_to_unique_physical_owner"
+          },
+          {
+            "glyph_index": 393,
+            "raw": "",
+            "cid": 25773,
+            "font": 0,
+            "bbox": [
+              241.0,
+              376.8597,
+              249.0,
+              385.0437
+            ],
+            "candidate_word_ids": [
+              282
+            ],
+            "source_word_id": 282,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "used",
+            "before_owners": [],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 8,
+                "cell": 8,
+                "row": 3,
+                "col": 0,
+                "text": "未認識過去勤務費用　(C)"
+              }
+            ],
+            "decision": "restored_to_unique_physical_owner"
+          },
+          {
+            "glyph_index": 413,
+            "raw": "",
+            "cid": 25771,
+            "font": 0,
+            "bbox": [
+              241.0,
+              393.8597,
+              249.0,
+              402.0437
+            ],
+            "candidate_word_ids": [
+              283
+            ],
+            "source_word_id": 283,
+            "source_raw": "−−",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 8,
+                "cell": 9,
+                "row": 4,
+                "col": 0,
+                "text": "退職給付引当金　−−"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 8,
+                "cell": 9,
+                "row": 4,
+                "col": 0,
+                "text": "退職給付引当金　(A)−(B)−(C)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 415,
+            "raw": "",
+            "cid": 25772,
+            "font": 0,
+            "bbox": [
+              257.0,
+              393.8597,
+              265.0,
+              402.0437
+            ],
+            "candidate_word_ids": [
+              283
+            ],
+            "source_word_id": 283,
+            "source_raw": "−−",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 8,
+                "cell": 9,
+                "row": 4,
+                "col": 0,
+                "text": "退職給付引当金　−−"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 8,
+                "cell": 9,
+                "row": 4,
+                "col": 0,
+                "text": "退職給付引当金　(A)−(B)−(C)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 417,
+            "raw": "",
+            "cid": 25773,
+            "font": 0,
+            "bbox": [
+              273.0,
+              393.8597,
+              281.0,
+              402.0437
+            ],
+            "candidate_word_ids": [
+              283
+            ],
+            "source_word_id": 283,
+            "source_raw": "−−",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 8,
+                "cell": 9,
+                "row": 4,
+                "col": 0,
+                "text": "退職給付引当金　−−"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 8,
+                "cell": 9,
+                "row": 4,
+                "col": 0,
+                "text": "退職給付引当金　(A)−(B)−(C)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          }
+        ]
+      },
+      {
+        "page": "20260820g001860075",
+        "pdf": ".cache/kanpo-archive/2026-08-20/20260820g00186/20260820g001860075.pdf",
+        "pdf_sha256": "e6765a90d4f1bce9de9e214cfd5203d02d3ba847fb6ac66051d1a384687f0204",
+        "before_sha256": "dbc5c15baf1402a560dcb1e7e22d589ca95b430ba204893a216b4bf76d9240ab",
+        "after_sha256": "631bf7750282cdf6c5b05b78783c1dd2653cdca40087a46d613bb173f5bfdc81",
+        "glyphs": [
+          {
+            "glyph_index": 54,
+            "raw": "",
+            "cid": 25771,
+            "font": 1,
+            "bbox": [
+              169.0,
+              86.07570000000005,
+              177.0,
+              94.25970000000007
+            ],
+            "candidate_word_ids": [
+              226
+            ],
+            "source_word_id": 226,
+            "source_raw": "期首における退職給付債務",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 1,
+                "cell": 10,
+                "row": 1,
+                "col": 0,
+                "text": "期首における退職給付債務"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 1,
+                "cell": 10,
+                "row": 1,
+                "col": 0,
+                "text": "期首における退職給付債務(A)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 74,
+            "raw": "",
+            "cid": 25772,
+            "font": 1,
+            "bbox": [
+              105.0,
+              98.25170000000004,
+              113.0,
+              106.43570000000005
+            ],
+            "candidate_word_ids": [
+              227
+            ],
+            "source_word_id": 227,
+            "source_raw": "勤務費用",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 1,
+                "cell": 11,
+                "row": 2,
+                "col": 0,
+                "text": "勤務費用"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 1,
+                "cell": 11,
+                "row": 2,
+                "col": 0,
+                "text": "勤務費用(B)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 93,
+            "raw": "",
+            "cid": 25773,
+            "font": 1,
+            "bbox": [
+              105.0,
+              109.93170000000005,
+              113.0,
+              118.11570000000006
+            ],
+            "candidate_word_ids": [
+              228
+            ],
+            "source_word_id": 228,
+            "source_raw": "利息費用",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 1,
+                "cell": 12,
+                "row": 3,
+                "col": 0,
+                "text": "利息費用"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 1,
+                "cell": 12,
+                "row": 3,
+                "col": 0,
+                "text": "利息費用(C)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 193,
+            "raw": "",
+            "cid": 25771,
+            "font": 1,
+            "bbox": [
+              185.0,
+              168.4917,
+              193.0,
+              176.6757
+            ],
+            "candidate_word_ids": [
+              233
+            ],
+            "source_word_id": 233,
+            "source_raw": "期末における退職給付債務＝＋＋＋−＋＋",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 1,
+                "cell": 17,
+                "row": 8,
+                "col": 0,
+                "text": "期末における退職給付債務＝＋＋＋−＋＋"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 1,
+                "cell": 17,
+                "row": 8,
+                "col": 0,
+                "text": "期末における退職給付債務＝＋＋＋−＋＋"
+              }
+            ],
+            "decision": "unknown_other_reference_in_same_raw_word"
+          },
+          {
+            "glyph_index": 195,
+            "raw": "",
+            "cid": 25772,
+            "font": 1,
+            "bbox": [
+              201.0,
+              168.4917,
+              209.0,
+              176.6757
+            ],
+            "candidate_word_ids": [
+              233
+            ],
+            "source_word_id": 233,
+            "source_raw": "期末における退職給付債務＝＋＋＋−＋＋",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 1,
+                "cell": 17,
+                "row": 8,
+                "col": 0,
+                "text": "期末における退職給付債務＝＋＋＋−＋＋"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 1,
+                "cell": 17,
+                "row": 8,
+                "col": 0,
+                "text": "期末における退職給付債務＝＋＋＋−＋＋"
+              }
+            ],
+            "decision": "unknown_other_reference_in_same_raw_word"
+          },
+          {
+            "glyph_index": 197,
+            "raw": "",
+            "cid": 25773,
+            "font": 1,
+            "bbox": [
+              217.0,
+              168.4917,
+              225.0,
+              176.6757
+            ],
+            "candidate_word_ids": [
+              233
+            ],
+            "source_word_id": 233,
+            "source_raw": "期末における退職給付債務＝＋＋＋−＋＋",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 1,
+                "cell": 17,
+                "row": 8,
+                "col": 0,
+                "text": "期末における退職給付債務＝＋＋＋−＋＋"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 1,
+                "cell": 17,
+                "row": 8,
+                "col": 0,
+                "text": "期末における退職給付債務＝＋＋＋−＋＋"
+              }
+            ],
+            "decision": "unknown_other_reference_in_same_raw_word"
+          },
+          {
+            "glyph_index": 271,
+            "raw": "",
+            "cid": 25771,
+            "font": 1,
+            "bbox": [
+              121.00800000000004,
+              215.29510000000002,
+              129.00800000000004,
+              223.47910000000002
+            ],
+            "candidate_word_ids": [
+              217
+            ],
+            "source_word_id": 217,
+            "source_raw": "退職給付債務",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 3,
+                "cell": 5,
+                "row": 1,
+                "col": 0,
+                "text": "退職給付債務"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 3,
+                "cell": 5,
+                "row": 1,
+                "col": 0,
+                "text": "退職給付債務(A)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 298,
+            "raw": "",
+            "cid": 25772,
+            "font": 1,
+            "bbox": [
+              161.00800000000004,
+              227.0071,
+              169.00800000000004,
+              235.1911
+            ],
+            "candidate_word_ids": [
+              218
+            ],
+            "source_word_id": 218,
+            "source_raw": "未認識数理計算上の差異",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 3,
+                "cell": 6,
+                "row": 2,
+                "col": 0,
+                "text": "未認識数理計算上の差異"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 3,
+                "cell": 6,
+                "row": 2,
+                "col": 0,
+                "text": "未認識数理計算上の差異(B)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 318,
+            "raw": "",
+            "cid": 25773,
+            "font": 1,
+            "bbox": [
+              129.00800000000004,
+              238.7191,
+              137.00800000000004,
+              246.9031
+            ],
+            "candidate_word_ids": [
+              219
+            ],
+            "source_word_id": 219,
+            "source_raw": "退職給付引当金＝＋",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 3,
+                "cell": 7,
+                "row": 3,
+                "col": 0,
+                "text": "退職給付引当金＝＋"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 3,
+                "cell": 7,
+                "row": 3,
+                "col": 0,
+                "text": "退職給付引当金(C)＝(A)＋(B)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 320,
+            "raw": "",
+            "cid": 25771,
+            "font": 1,
+            "bbox": [
+              145.00800000000004,
+              238.7191,
+              153.00800000000004,
+              246.9031
+            ],
+            "candidate_word_ids": [
+              219
+            ],
+            "source_word_id": 219,
+            "source_raw": "退職給付引当金＝＋",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 3,
+                "cell": 7,
+                "row": 3,
+                "col": 0,
+                "text": "退職給付引当金＝＋"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 3,
+                "cell": 7,
+                "row": 3,
+                "col": 0,
+                "text": "退職給付引当金(C)＝(A)＋(B)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 322,
+            "raw": "",
+            "cid": 25772,
+            "font": 1,
+            "bbox": [
+              161.00800000000004,
+              238.7191,
+              169.00800000000004,
+              246.9031
+            ],
+            "candidate_word_ids": [
+              219
+            ],
+            "source_word_id": 219,
+            "source_raw": "退職給付引当金＝＋",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 3,
+                "cell": 7,
+                "row": 3,
+                "col": 0,
+                "text": "退職給付引当金＝＋"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 3,
+                "cell": 7,
+                "row": 3,
+                "col": 0,
+                "text": "退職給付引当金(C)＝(A)＋(B)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 374,
+            "raw": "",
+            "cid": 25771,
+            "font": 1,
+            "bbox": [
+              105.00800000000004,
+              293.5094,
+              113.00800000000004,
+              301.69340000000005
+            ],
+            "candidate_word_ids": [
+              220
+            ],
+            "source_word_id": 220,
+            "source_raw": "勤務費用",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 5,
+                "cell": 7,
+                "row": 1,
+                "col": 0,
+                "text": "勤務費用"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 5,
+                "cell": 7,
+                "row": 1,
+                "col": 0,
+                "text": "勤務費用(A)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 393,
+            "raw": "",
+            "cid": 25772,
+            "font": 1,
+            "bbox": [
+              105.00800000000004,
+              305.2214,
+              113.00800000000004,
+              313.40540000000004
+            ],
+            "candidate_word_ids": [
+              221
+            ],
+            "source_word_id": 221,
+            "source_raw": "利息費用",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 5,
+                "cell": 8,
+                "row": 2,
+                "col": 0,
+                "text": "利息費用"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 5,
+                "cell": 8,
+                "row": 2,
+                "col": 0,
+                "text": "利息費用(B)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 423,
+            "raw": "",
+            "cid": 25773,
+            "font": 1,
+            "bbox": [
+              209.00800000000004,
+              316.9334,
+              217.00800000000004,
+              325.11740000000003
+            ],
+            "candidate_word_ids": [
+              222
+            ],
+            "source_word_id": 222,
+            "source_raw": "数理計算上の差異の当期の費用処理額",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 5,
+                "cell": 9,
+                "row": 3,
+                "col": 0,
+                "text": "数理計算上の差異の当期の費用処理額"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 5,
+                "cell": 9,
+                "row": 3,
+                "col": 0,
+                "text": "数理計算上の差異の当期の費用処理額(C)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 446,
+            "raw": "",
+            "cid": 25771,
+            "font": 1,
+            "bbox": [
+              105.00800000000004,
+              340.3574,
+              113.00800000000004,
+              348.5414
+            ],
+            "candidate_word_ids": [
+              224
+            ],
+            "source_word_id": 224,
+            "source_raw": "合計＝＋＋＋",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 5,
+                "cell": 11,
+                "row": 5,
+                "col": 0,
+                "text": "合計＝＋＋＋"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 5,
+                "cell": 11,
+                "row": 5,
+                "col": 0,
+                "text": "合計＝＋＋＋"
+              }
+            ],
+            "decision": "unknown_other_reference_in_same_raw_word"
+          },
+          {
+            "glyph_index": 448,
+            "raw": "",
+            "cid": 25772,
+            "font": 1,
+            "bbox": [
+              121.00800000000004,
+              340.3574,
+              129.00800000000004,
+              348.5414
+            ],
+            "candidate_word_ids": [
+              224
+            ],
+            "source_word_id": 224,
+            "source_raw": "合計＝＋＋＋",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 5,
+                "cell": 11,
+                "row": 5,
+                "col": 0,
+                "text": "合計＝＋＋＋"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 5,
+                "cell": 11,
+                "row": 5,
+                "col": 0,
+                "text": "合計＝＋＋＋"
+              }
+            ],
+            "decision": "unknown_other_reference_in_same_raw_word"
+          },
+          {
+            "glyph_index": 450,
+            "raw": "",
+            "cid": 25773,
+            "font": 1,
+            "bbox": [
+              137.00800000000004,
+              340.3574,
+              145.00800000000004,
+              348.5414
+            ],
+            "candidate_word_ids": [
+              224
+            ],
+            "source_word_id": 224,
+            "source_raw": "合計＝＋＋＋",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 5,
+                "cell": 11,
+                "row": 5,
+                "col": 0,
+                "text": "合計＝＋＋＋"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 5,
+                "cell": 11,
+                "row": 5,
+                "col": 0,
+                "text": "合計＝＋＋＋"
+              }
+            ],
+            "decision": "unknown_other_reference_in_same_raw_word"
+          }
+        ]
+      },
+      {
+        "page": "20260821g001870074",
+        "pdf": ".cache/kanpo-archive/2026-08-21/20260821g00187/20260821g001870074.pdf",
+        "pdf_sha256": "309c4f44358ebce0f078ff5f9a8d300e1b2ad23a571b9c9cfa7002a1910cd16b",
+        "before_sha256": "bb1ada2ed618ac56160c8981b002c9a70f87399a0f3a211849c62a2c6e78dcb1",
+        "after_sha256": "8715f837de936f1a1b12e1ca3800804b4b4f63e96114e0736e3ab4932e5a5fa2",
+        "glyphs": [
+          {
+            "glyph_index": 8,
+            "raw": "",
+            "cid": 25771,
+            "font": 0,
+            "bbox": [
+              469.0,
+              159.7191,
+              477.0,
+              167.9031
+            ],
+            "candidate_word_ids": [
+              62
+            ],
+            "source_word_id": 62,
+            "source_raw": "次表の、及びに掲げる区間を連続して通行する経路",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 44,
+                "cell": null
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 44,
+                "cell": null
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 10,
+            "raw": "",
+            "cid": 25772,
+            "font": 0,
+            "bbox": [
+              485.0,
+              159.7191,
+              493.0,
+              167.9031
+            ],
+            "candidate_word_ids": [
+              62
+            ],
+            "source_word_id": 62,
+            "source_raw": "次表の、及びに掲げる区間を連続して通行する経路",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 44,
+                "cell": null
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 44,
+                "cell": null
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 13,
+            "raw": "",
+            "cid": 25773,
+            "font": 0,
+            "bbox": [
+              509.0,
+              159.7191,
+              517.0,
+              167.9031
+            ],
+            "candidate_word_ids": [
+              62
+            ],
+            "source_word_id": 62,
+            "source_raw": "次表の、及びに掲げる区間を連続して通行する経路",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 44,
+                "cell": null
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 44,
+                "cell": null
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 31,
+            "raw": "",
+            "cid": 25771,
+            "font": 0,
+            "bbox": [
+              456.496,
+              176.28709999999998,
+              464.496,
+              184.47109999999998
+            ],
+            "candidate_word_ids": [
+              31
+            ],
+            "source_word_id": 31,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "empty",
+            "before_owners": [],
+            "after_owners": [],
+            "decision": "no_unique_existing_geometric_owner"
+          },
+          {
+            "glyph_index": 32,
+            "raw": "",
+            "cid": 25772,
+            "font": 0,
+            "bbox": [
+              560.496,
+              176.28709999999998,
+              568.496,
+              184.47109999999998
+            ],
+            "candidate_word_ids": [
+              20
+            ],
+            "source_word_id": 20,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "empty",
+            "before_owners": [],
+            "after_owners": [],
+            "decision": "no_unique_existing_geometric_owner"
+          },
+          {
+            "glyph_index": 33,
+            "raw": "",
+            "cid": 25773,
+            "font": 0,
+            "bbox": [
+              680.496,
+              176.28709999999998,
+              688.496,
+              184.47109999999998
+            ],
+            "candidate_word_ids": [
+              0
+            ],
+            "source_word_id": 0,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "empty",
+            "before_owners": [],
+            "after_owners": [],
+            "decision": "no_unique_existing_geometric_owner"
+          }
+        ]
+      },
+      {
+        "page": "20260902g001960128",
+        "pdf": ".cache/kanpo-archive/2026-09-02/20260902g00196/20260902g001960128.pdf",
+        "pdf_sha256": "883741c4ab38c1e8e7e103857585f6de8f7c88c5d0d63ffbbd5ff98a79cf0a1d",
+        "before_sha256": "6b562abb7c72c321d7025bc34e94b252a3f0cacea920a9d30b6ce7d2b0dbf65f",
+        "after_sha256": "eb4487c5b5067e4052ceecd3c733ddbb3e329a1f52076926246961e895303bd3",
+        "glyphs": [
+          {
+            "glyph_index": 386,
+            "raw": "",
+            "cid": 25771,
+            "font": 1,
+            "bbox": [
+              237.0,
+              455.10599999999994,
+              245.0,
+              463.28999999999996
+            ],
+            "candidate_word_ids": [
+              437
+            ],
+            "source_word_id": 437,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "empty",
+            "before_owners": [],
+            "after_owners": [],
+            "decision": "no_unique_existing_geometric_owner"
+          },
+          {
+            "glyph_index": 394,
+            "raw": "",
+            "cid": 25772,
+            "font": 1,
+            "bbox": [
+              309.0,
+              455.10599999999994,
+              317.0,
+              463.28999999999996
+            ],
+            "candidate_word_ids": [
+              358
+            ],
+            "source_word_id": 358,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "empty",
+            "before_owners": [],
+            "after_owners": [],
+            "decision": "no_unique_existing_geometric_owner"
+          },
+          {
+            "glyph_index": 402,
+            "raw": "",
+            "cid": 25771,
+            "font": 1,
+            "bbox": [
+              373.0,
+              455.10599999999994,
+              381.0,
+              463.28999999999996
+            ],
+            "candidate_word_ids": [
+              291
+            ],
+            "source_word_id": 291,
+            "source_raw": "＋",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 33,
+                "cell": null
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 33,
+                "cell": null
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 404,
+            "raw": "",
+            "cid": 25772,
+            "font": 1,
+            "bbox": [
+              389.0,
+              455.10599999999994,
+              397.0,
+              463.28999999999996
+            ],
+            "candidate_word_ids": [
+              291
+            ],
+            "source_word_id": 291,
+            "source_raw": "＋",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 33,
+                "cell": null
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 33,
+                "cell": null
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 1910,
+            "raw": "",
+            "cid": 25772,
+            "font": 1,
+            "bbox": [
+              461.0000000000002,
+              195.60370000000003,
+              469.0000000000002,
+              203.78770000000003
+            ],
+            "candidate_word_ids": [
+              211
+            ],
+            "source_word_id": 211,
+            "source_raw": "３．欄以下の内訳の数字は暫定的なものであって、後に若干変更することがある。",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 53,
+                "cell": null
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 53,
+                "cell": null
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          }
+        ]
+      },
+      {
+        "page": "20260902g001960133",
+        "pdf": ".cache/kanpo-archive/2026-09-02/20260902g00196/20260902g001960133.pdf",
+        "pdf_sha256": "632511cc66289c115bb17d4d912def17d062974c9d8ac22cb5b0c7e2676ae5d8",
+        "before_sha256": "313619c501b230bd687809bf5353caa604a74658629418b58d2ee6fb3555365d",
+        "after_sha256": "313619c501b230bd687809bf5353caa604a74658629418b58d2ee6fb3555365d",
+        "glyphs": [
+          {
+            "glyph_index": 41,
+            "raw": "",
+            "cid": 25771,
+            "font": 2,
+            "bbox": [
+              173.0,
+              118.21170000000002,
+              181.0,
+              126.39570000000003
+            ],
+            "candidate_word_ids": [
+              435
+            ],
+            "source_word_id": 435,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "empty",
+            "before_owners": [],
+            "after_owners": [],
+            "decision": "no_unique_existing_geometric_owner"
+          },
+          {
+            "glyph_index": 49,
+            "raw": "",
+            "cid": 25772,
+            "font": 2,
+            "bbox": [
+              237.0,
+              118.21170000000002,
+              245.0,
+              126.39570000000003
+            ],
+            "candidate_word_ids": [
+              412
+            ],
+            "source_word_id": 412,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "empty",
+            "before_owners": [],
+            "after_owners": [],
+            "decision": "no_unique_existing_geometric_owner"
+          },
+          {
+            "glyph_index": 57,
+            "raw": "",
+            "cid": 25773,
+            "font": 2,
+            "bbox": [
+              333.0,
+              118.21170000000002,
+              341.0,
+              126.39570000000003
+            ],
+            "candidate_word_ids": [
+              355
+            ],
+            "source_word_id": 355,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "empty",
+            "before_owners": [],
+            "after_owners": [],
+            "decision": "no_unique_existing_geometric_owner"
+          },
+          {
+            "glyph_index": 63,
+            "raw": "",
+            "cid": 25771,
+            "font": 2,
+            "bbox": [
+              421.0,
+              118.21170000000002,
+              429.0,
+              126.39570000000003
+            ],
+            "candidate_word_ids": [
+              289
+            ],
+            "source_word_id": 289,
+            "source_raw": "＝＋＋",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 16,
+                "cell": null
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 16,
+                "cell": null
+              }
+            ],
+            "decision": "unknown_other_reference_in_same_raw_word"
+          },
+          {
+            "glyph_index": 65,
+            "raw": "",
+            "cid": 25772,
+            "font": 2,
+            "bbox": [
+              437.0,
+              118.21170000000002,
+              445.0,
+              126.39570000000003
+            ],
+            "candidate_word_ids": [
+              289
+            ],
+            "source_word_id": 289,
+            "source_raw": "＝＋＋",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 16,
+                "cell": null
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 16,
+                "cell": null
+              }
+            ],
+            "decision": "unknown_other_reference_in_same_raw_word"
+          },
+          {
+            "glyph_index": 67,
+            "raw": "",
+            "cid": 25773,
+            "font": 2,
+            "bbox": [
+              453.0,
+              118.21170000000002,
+              461.0,
+              126.39570000000003
+            ],
+            "candidate_word_ids": [
+              289
+            ],
+            "source_word_id": 289,
+            "source_raw": "＝＋＋",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 16,
+                "cell": null
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 16,
+                "cell": null
+              }
+            ],
+            "decision": "unknown_other_reference_in_same_raw_word"
+          }
+        ]
+      },
+      {
+        "page": "20260902g001960134",
+        "pdf": ".cache/kanpo-archive/2026-09-02/20260902g00196/20260902g001960134.pdf",
+        "pdf_sha256": "4d8604a4981439439c870880fb1cb07e5693a0423813388412138b121d388728",
+        "before_sha256": "bbe6ede05a8439ff497d070ba042c8df3971c216896d49b504fd5d2bd3b2aeb8",
+        "after_sha256": "e15c6d52176296f5efa9cbc2f86b59796ea5e1fd0b88e532a0f246011258e647",
+        "glyphs": [
+          {
+            "glyph_index": 73,
+            "raw": "",
+            "cid": 25772,
+            "font": 1,
+            "bbox": [
+              93.0,
+              150.68369999999996,
+              101.0,
+              158.86769999999996
+            ],
+            "candidate_word_ids": [
+              363
+            ],
+            "source_word_id": 363,
+            "source_raw": "２．欄以下の内訳の数字は暫定的なものであって、後に若干変更することがある。",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 9,
+                "cell": null
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 9,
+                "cell": null
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          }
+        ]
+      },
+      {
+        "page": "20260916g002060317",
+        "pdf": ".cache/kanpo-archive/2026-09-16/20260916g00206/20260916g002060317.pdf",
+        "pdf_sha256": "c7866f17670e242ac0746999d16118cccd80db9ad9b84a88b9afb8a56c82c760",
+        "before_sha256": "55378ab4a1981bdc5f121f69695148919a5f53c689db8b1f1a256fb5ac96056c",
+        "after_sha256": "9dc02f64ce097dd280fb029943504e8227bd1ccbe40ba2ca8096833d2bedcfad",
+        "glyphs": [
+          {
+            "glyph_index": 1967,
+            "raw": "",
+            "cid": 25771,
+            "font": 1,
+            "bbox": [
+              224.03999999999996,
+              366.37,
+              230.03999999999996,
+              372.508
+            ],
+            "candidate_word_ids": [
+              1256
+            ],
+            "source_word_id": 1256,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "used",
+            "before_owners": [],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 0,
+                "cell": 314,
+                "row": 19,
+                "col": 0,
+                "text": "歳入歳出差引額　(A)"
+              }
+            ],
+            "decision": "restored_to_unique_physical_owner"
+          },
+          {
+            "glyph_index": 2086,
+            "raw": "",
+            "cid": 25772,
+            "font": 1,
+            "bbox": [
+              224.01999999999998,
+              382.4409,
+              230.01999999999998,
+              388.5789
+            ],
+            "candidate_word_ids": [
+              1265
+            ],
+            "source_word_id": 1265,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "used",
+            "before_owners": [],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 0,
+                "cell": 315,
+                "row": 20,
+                "col": 0,
+                "text": "翌年度へ繰り越すべき財源　(B)"
+              }
+            ],
+            "decision": "restored_to_unique_physical_owner"
+          },
+          {
+            "glyph_index": 2118,
+            "raw": "",
+            "cid": 25771,
+            "font": 1,
+            "bbox": [
+              105.01600000000008,
+              398.5149,
+              111.01600000000008,
+              404.6529
+            ],
+            "candidate_word_ids": [
+              1426
+            ],
+            "source_word_id": 1426,
+            "source_raw": "実質収支額−",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 0,
+                "cell": 316,
+                "row": 21,
+                "col": 0,
+                "text": "実質収支額−"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 0,
+                "cell": 316,
+                "row": 21,
+                "col": 0,
+                "text": "実質収支額(A)−(B)　(C)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 2120,
+            "raw": "",
+            "cid": 25772,
+            "font": 1,
+            "bbox": [
+              117.01600000000008,
+              398.5149,
+              123.01600000000008,
+              404.6529
+            ],
+            "candidate_word_ids": [
+              1426
+            ],
+            "source_word_id": 1426,
+            "source_raw": "実質収支額−",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 0,
+                "cell": 316,
+                "row": 21,
+                "col": 0,
+                "text": "実質収支額−"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 0,
+                "cell": 316,
+                "row": 21,
+                "col": 0,
+                "text": "実質収支額(A)−(B)　(C)"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 2121,
+            "raw": "",
+            "cid": 25773,
+            "font": 1,
+            "bbox": [
+              224.01580000000013,
+              398.5149,
+              230.01580000000013,
+              404.6529
+            ],
+            "candidate_word_ids": [
+              1268
+            ],
+            "source_word_id": 1268,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "used",
+            "before_owners": [],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 0,
+                "cell": 316,
+                "row": 21,
+                "col": 0,
+                "text": "実質収支額(A)−(B)　(C)"
+              }
+            ],
+            "decision": "restored_to_unique_physical_owner"
+          },
+          {
+            "glyph_index": 2161,
+            "raw": "",
+            "cid": 25773,
+            "font": 1,
+            "bbox": [
+              75.01000000000022,
+              414.5889,
+              81.01000000000022,
+              420.7269
+            ],
+            "candidate_word_ids": [
+              1427
+            ],
+            "source_word_id": 1427,
+            "source_raw": "のうち地方自治法第233条の２の規定による基金繰入額",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 0,
+                "cell": 317,
+                "row": 22,
+                "col": 0,
+                "text": "のうち地方自治法第233条の２の規定による基金繰入額"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 0,
+                "cell": 317,
+                "row": 22,
+                "col": 0,
+                "text": "(C)のうち地方自治法第233条の２の規定による基金繰入額"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          }
+        ]
+      },
+      {
+        "page": "20260930g002160063",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00216/20260930g002160063.pdf",
+        "pdf_sha256": "50336e11e0a299323f5ba94b51a74260a50e59e4fff8cac4c85ab69476aa64c8",
+        "before_sha256": "d7f1f8a3652e31eca84be5c69355c921aa2fbfafa10d856c863909fa8d09b198",
+        "after_sha256": "5cb6a90f7d4816c460cdfd2ec10f1c2f65b2ac66551d153a13025ab3963001d3",
+        "glyphs": [
+          {
+            "glyph_index": 691,
+            "raw": "",
+            "cid": 25771,
+            "font": 1,
+            "bbox": [
+              496.504,
+              312.07169999999996,
+              504.504,
+              320.2557
+            ],
+            "candidate_word_ids": [
+              54
+            ],
+            "source_word_id": 54,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "empty",
+            "before_owners": [],
+            "after_owners": [],
+            "decision": "no_unique_existing_geometric_owner"
+          },
+          {
+            "glyph_index": 692,
+            "raw": "",
+            "cid": 25772,
+            "font": 1,
+            "bbox": [
+              544.504,
+              312.07169999999996,
+              552.504,
+              320.2557
+            ],
+            "candidate_word_ids": [
+              44
+            ],
+            "source_word_id": 44,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "empty",
+            "before_owners": [],
+            "after_owners": [],
+            "decision": "no_unique_existing_geometric_owner"
+          },
+          {
+            "glyph_index": 693,
+            "raw": "",
+            "cid": 25773,
+            "font": 1,
+            "bbox": [
+              592.504,
+              312.07169999999996,
+              600.504,
+              320.2557
+            ],
+            "candidate_word_ids": [
+              39
+            ],
+            "source_word_id": 39,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "empty",
+            "before_owners": [],
+            "after_owners": [],
+            "decision": "no_unique_existing_geometric_owner"
+          },
+          {
+            "glyph_index": 1462,
+            "raw": "",
+            "cid": 25771,
+            "font": 1,
+            "bbox": [
+              493.0,
+              155.23109999999994,
+              501.0,
+              163.41509999999994
+            ],
+            "candidate_word_ids": [
+              69
+            ],
+            "source_word_id": 69,
+            "source_raw": "記のに掲げる会社が管理する出入口又は東日本高速道路株式会社が管理する道路、",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 35,
+                "cell": null
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 35,
+                "cell": null
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 1498,
+            "raw": "",
+            "cid": 25772,
+            "font": 1,
+            "bbox": [
+              781.0,
+              155.23109999999994,
+              789.0,
+              163.41509999999994
+            ],
+            "candidate_word_ids": [
+              69
+            ],
+            "source_word_id": 69,
+            "source_raw": "記のに掲げる会社が管理する出入口又は東日本高速道路株式会社が管理する道路、",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 35,
+                "cell": null
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 35,
+                "cell": null
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 1523,
+            "raw": "",
+            "cid": 25773,
+            "font": 1,
+            "bbox": [
+              653.0,
+              166.08709999999994,
+              661.0,
+              174.27109999999993
+            ],
+            "candidate_word_ids": [
+              76
+            ],
+            "source_word_id": 76,
+            "source_raw": "に掲げる東日本高速道路株式会社が管理する区間及びに掲げるジャンクションを連続して",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 36,
+                "cell": null
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 36,
+                "cell": null
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 1582,
+            "raw": "",
+            "cid": 25773,
+            "font": 1,
+            "bbox": [
+              461.0,
+              187.79909999999992,
+              469.0,
+              195.98309999999992
+            ],
+            "candidate_word_ids": [
+              78
+            ],
+            "source_word_id": 78,
+            "source_raw": "に掲げるジャンクションからに掲げる会社が管理する出入口等の相互間の料金距離（以",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 38,
+                "cell": null
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 38,
+                "cell": null
+              }
+            ],
+            "decision": "unknown_other_reference_in_same_raw_word"
+          },
+          {
+            "glyph_index": 1899,
+            "raw": "",
+            "cid": 25773,
+            "font": 1,
+            "bbox": [
+              645.0,
+              263.79109999999986,
+              653.0,
+              271.9750999999999
+            ],
+            "candidate_word_ids": [
+              85
+            ],
+            "source_word_id": 85,
+            "source_raw": "動車に限り、表中に掲げる迂回走行をした場合はに掲げるジャンクションからに掲げ",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 45,
+                "cell": null
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 45,
+                "cell": null
+              }
+            ],
+            "decision": "unknown_other_reference_in_same_raw_word"
+          }
+        ]
+      },
+      {
+        "page": "20261016g002280106",
+        "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280106.pdf",
+        "pdf_sha256": "b83b8ecf3c49b27c384bdf6faf9d760df6ffe8b07244bc799fbd2341f3125c17",
+        "before_sha256": "bc834c654abff4c809ab38ae2e04d0d9da74c81ef8d163e383c88cd159ffb7ff",
+        "after_sha256": "df52737b916df7d72bc29b0b15cfb1dfe6bd0e1475ab6c9919374a991dac8817",
+        "glyphs": [
+          {
+            "glyph_index": 86,
+            "raw": "",
+            "cid": 25771,
+            "font": 1,
+            "bbox": [
+              453.0,
+              175.34999999999994,
+              461.0,
+              183.53399999999993
+            ],
+            "candidate_word_ids": [
+              72
+            ],
+            "source_word_id": 72,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "used",
+            "before_owners": [],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 60,
+                "cell": 25,
+                "row": 1,
+                "col": 0,
+                "text": "(A)"
+              }
+            ],
+            "decision": "restored_to_unique_physical_owner"
+          },
+          {
+            "glyph_index": 118,
+            "raw": "",
+            "cid": 25772,
+            "font": 1,
+            "bbox": [
+              453.0,
+              190.27799999999993,
+              461.0,
+              198.46199999999993
+            ],
+            "candidate_word_ids": [
+              73
+            ],
+            "source_word_id": 73,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "used",
+            "before_owners": [],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 60,
+                "cell": 26,
+                "row": 2,
+                "col": 0,
+                "text": "(B)"
+              }
+            ],
+            "decision": "restored_to_unique_physical_owner"
+          },
+          {
+            "glyph_index": 161,
+            "raw": "",
+            "cid": 25773,
+            "font": 1,
+            "bbox": [
+              453.0,
+              227.11799999999985,
+              461.0,
+              235.30199999999985
+            ],
+            "candidate_word_ids": [
+              74
+            ],
+            "source_word_id": 74,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "used",
+            "before_owners": [],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 60,
+                "cell": 27,
+                "row": 5,
+                "col": 0,
+                "text": "(C)"
+              }
+            ],
+            "decision": "restored_to_unique_physical_owner"
+          },
+          {
+            "glyph_index": 1427,
+            "raw": "",
+            "cid": 25771,
+            "font": 1,
+            "bbox": [
+              445.0,
+              272.4116999999999,
+              453.0,
+              280.5956999999999
+            ],
+            "candidate_word_ids": [
+              101
+            ],
+            "source_word_id": 101,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "used",
+            "before_owners": [],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 62,
+                "cell": null
+              }
+            ],
+            "decision": "restored_to_unique_physical_owner"
+          },
+          {
+            "glyph_index": 1487,
+            "raw": "",
+            "cid": 25772,
+            "font": 1,
+            "bbox": [
+              445.0,
+              292.33169999999984,
+              453.0,
+              300.51569999999987
+            ],
+            "candidate_word_ids": [
+              102
+            ],
+            "source_word_id": 102,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "used",
+            "before_owners": [],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 64,
+                "cell": null
+              }
+            ],
+            "decision": "restored_to_unique_physical_owner"
+          },
+          {
+            "glyph_index": 1545,
+            "raw": "",
+            "cid": 25773,
+            "font": 1,
+            "bbox": [
+              445.0,
+              312.2516999999998,
+              453.0,
+              320.4356999999998
+            ],
+            "candidate_word_ids": [
+              103
+            ],
+            "source_word_id": 103,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "used",
+            "before_owners": [],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 66,
+                "cell": null
+              }
+            ],
+            "decision": "restored_to_unique_physical_owner"
+          },
+          {
+            "glyph_index": 1621,
+            "raw": "",
+            "cid": 25771,
+            "font": 1,
+            "bbox": [
+              445.0,
+              342.13169999999974,
+              453.0,
+              350.31569999999977
+            ],
+            "candidate_word_ids": [
+              104
+            ],
+            "source_word_id": 104,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "used",
+            "before_owners": [],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 69,
+                "cell": null
+              }
+            ],
+            "decision": "restored_to_unique_physical_owner"
+          },
+          {
+            "glyph_index": 1651,
+            "raw": "",
+            "cid": 25772,
+            "font": 1,
+            "bbox": [
+              445.0,
+              352.0916999999998,
+              453.0,
+              360.2756999999998
+            ],
+            "candidate_word_ids": [
+              105
+            ],
+            "source_word_id": 105,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "used",
+            "before_owners": [],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 70,
+                "cell": null
+              }
+            ],
+            "decision": "restored_to_unique_physical_owner"
+          },
+          {
+            "glyph_index": 1707,
+            "raw": "",
+            "cid": 25773,
+            "font": 1,
+            "bbox": [
+              445.0,
+              372.0116999999998,
+              453.0,
+              380.1956999999998
+            ],
+            "candidate_word_ids": [
+              106
+            ],
+            "source_word_id": 106,
+            "source_raw": "",
+            "before_status": "empty",
+            "after_status": "used",
+            "before_owners": [],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 72,
+                "cell": null
+              }
+            ],
+            "decision": "restored_to_unique_physical_owner"
+          }
+        ]
+      },
+      {
+        "page": "20261016g002280275",
+        "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280275.pdf",
+        "pdf_sha256": "088d9b95d679470974364cc36441cea5672a3ed20b1d9a46875a5c045be37fcb",
+        "before_sha256": "550504f2b495698b1dc477a4d13a052a1d132af5f7523da6c5ac6a398ab90e8a",
+        "after_sha256": "0326ea8b55df68cbbc03e6a6963d46a19c7013e91430129fb30f28e67c488e11",
+        "glyphs": [
+          {
+            "glyph_index": 757,
+            "raw": "",
+            "cid": 25771,
+            "font": 0,
+            "bbox": [
+              600.4986,
+              529.1603,
+              608.4986,
+              537.3443
+            ],
+            "candidate_word_ids": [
+              14
+            ],
+            "source_word_id": 14,
+            "source_raw": "西田地方宿舎１号棟",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 58,
+                "cell": 9,
+                "row": 4,
+                "col": 2,
+                "text": "西田地方宿舎１号棟\n（富山県富山市西田地方町２丁目10番39）"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 58,
+                "cell": 9,
+                "row": 4,
+                "col": 2,
+                "text": "西田地方宿舎(A)１号棟\n（富山県富山市西田地方町２丁目10番39）"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          }
+        ]
+      },
+      {
+        "page": "20261016g002280276",
+        "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280276.pdf",
+        "pdf_sha256": "f65012286d581b57a55ee43e51dc793cc284375387f79bc4ce80983ab5bd9aba",
+        "before_sha256": "bb5f589930a4b27ec3858d67d79f31d2a1e59b6904288d385fbc2d1f35984d40",
+        "after_sha256": "637468eb19b0d24d29ab14ac3f34887e468b9786bbeb52bf9b36c844a030722e",
+        "glyphs": [
+          {
+            "glyph_index": 341,
+            "raw": "",
+            "cid": 25771,
+            "font": 1,
+            "bbox": [
+              120.99199999999996,
+              330.19259999999986,
+              128.99199999999996,
+              338.3765999999999
+            ],
+            "candidate_word_ids": [
+              332
+            ],
+            "source_word_id": 332,
+            "source_raw": "西田地方宿舎１号棟",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 3,
+                "cell": 37,
+                "row": 7,
+                "col": 0,
+                "text": "西田地方宿舎１号棟"
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 3,
+                "cell": 37,
+                "row": 7,
+                "col": 0,
+                "text": "西田地方宿舎(A)１号棟"
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          },
+          {
+            "glyph_index": 1660,
+            "raw": "",
+            "cid": 25771,
+            "font": 1,
+            "bbox": [
+              509.0,
+              102.55140000000002,
+              517.0,
+              110.73540000000003
+            ],
+            "candidate_word_ids": [
+              176
+            ],
+            "source_word_id": 176,
+            "source_raw": "西田地方宿舎１号棟、五福宿舎１号棟、五福宿舎２号棟、五福宿舎３号棟、職員宿舎５号",
+            "before_status": "used",
+            "after_status": "used",
+            "before_owners": [
+              {
+                "region": 0,
+                "line": 13,
+                "cell": null
+              }
+            ],
+            "after_owners": [
+              {
+                "region": 0,
+                "line": 13,
+                "cell": null
+              }
+            ],
+            "decision": "restored_in_existing_owner"
+          }
+        ]
+      }
+    ]
+  },
+  "reference_CFF_outline_proof": {
+    "scanned_hit_pages": 13,
+    "errors": [],
+    "summary": {
+      "U+E94F": {
+        "font_glyphs": 12,
+        "outline_variants": {
+          "69dde8d9534953fb516adb8fc7911da5eb74589118ebcf4dfd2016107cf2427f": 12
+        },
+        "font_variants": 12
+      },
+      "U+E950": {
+        "font_glyphs": 11,
+        "outline_variants": {
+          "0ffa6f9bcd9f838046528e79606e3423cbb375c6972fa5fcfdef148b789b927f": 11
+        },
+        "font_variants": 11
+      },
+      "U+E951": {
+        "font_glyphs": 9,
+        "outline_variants": {
+          "ed901e7ae747b40f531dc470cb1b672dfc459774db204b784433c2a6333dff51": 9
+        },
+        "font_variants": 9
+      }
+    },
+    "rows": [
+      {
+        "pdf": ".cache/kanpo-archive/2026-07-22/20260722g00162/20260722g001620007.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "FNKOFK+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E94F",
+        "cid": 25771,
+        "outline_sha256": "69dde8d9534953fb516adb8fc7911da5eb74589118ebcf4dfd2016107cf2427f",
+        "outline_operations": 46,
+        "font_file_sha256": "87eff2e80e2018977b6a1b88d7512d8f08871c795611f20cea576f8e952ea92b"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-07-22/20260722g00162/20260722g001620007.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "FNKOFK+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E950",
+        "cid": 25772,
+        "outline_sha256": "0ffa6f9bcd9f838046528e79606e3423cbb375c6972fa5fcfdef148b789b927f",
+        "outline_operations": 58,
+        "font_file_sha256": "87eff2e80e2018977b6a1b88d7512d8f08871c795611f20cea576f8e952ea92b"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-07-22/20260722g00162/20260722g001620007.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "FNKOFK+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E951",
+        "cid": 25773,
+        "outline_sha256": "ed901e7ae747b40f531dc470cb1b672dfc459774db204b784433c2a6333dff51",
+        "outline_operations": 34,
+        "font_file_sha256": "87eff2e80e2018977b6a1b88d7512d8f08871c795611f20cea576f8e952ea92b"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-08-06/20260806g00177/20260806g001770059.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "ENFLKD+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E94F",
+        "cid": 25771,
+        "outline_sha256": "69dde8d9534953fb516adb8fc7911da5eb74589118ebcf4dfd2016107cf2427f",
+        "outline_operations": 46,
+        "font_file_sha256": "f9f870133ce497833482bdabd12ceebceca05ee293fc9ed7fdf9462f1436b8f3"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-08-06/20260806g00177/20260806g001770059.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "ENFLKD+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E950",
+        "cid": 25772,
+        "outline_sha256": "0ffa6f9bcd9f838046528e79606e3423cbb375c6972fa5fcfdef148b789b927f",
+        "outline_operations": 58,
+        "font_file_sha256": "f9f870133ce497833482bdabd12ceebceca05ee293fc9ed7fdf9462f1436b8f3"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-08-06/20260806g00177/20260806g001770059.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "ENFLKD+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E951",
+        "cid": 25773,
+        "outline_sha256": "ed901e7ae747b40f531dc470cb1b672dfc459774db204b784433c2a6333dff51",
+        "outline_operations": 34,
+        "font_file_sha256": "f9f870133ce497833482bdabd12ceebceca05ee293fc9ed7fdf9462f1436b8f3"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-08-10/20260810g00179/20260810g001790112.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "PGGOPJ+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E94F",
+        "cid": 25771,
+        "outline_sha256": "69dde8d9534953fb516adb8fc7911da5eb74589118ebcf4dfd2016107cf2427f",
+        "outline_operations": 46,
+        "font_file_sha256": "5a1b86aacebd50fe3e7a09d0993e6f2de8420712f9a5b6d35f2a6fe9bcfc0ca1"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-08-10/20260810g00179/20260810g001790112.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "PGGOPJ+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E950",
+        "cid": 25772,
+        "outline_sha256": "0ffa6f9bcd9f838046528e79606e3423cbb375c6972fa5fcfdef148b789b927f",
+        "outline_operations": 58,
+        "font_file_sha256": "5a1b86aacebd50fe3e7a09d0993e6f2de8420712f9a5b6d35f2a6fe9bcfc0ca1"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-08-10/20260810g00179/20260810g001790112.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "PGGOPJ+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E951",
+        "cid": 25773,
+        "outline_sha256": "ed901e7ae747b40f531dc470cb1b672dfc459774db204b784433c2a6333dff51",
+        "outline_operations": 34,
+        "font_file_sha256": "5a1b86aacebd50fe3e7a09d0993e6f2de8420712f9a5b6d35f2a6fe9bcfc0ca1"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-08-20/20260820g00186/20260820g001860075.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "LPLPFG+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E94F",
+        "cid": 25771,
+        "outline_sha256": "69dde8d9534953fb516adb8fc7911da5eb74589118ebcf4dfd2016107cf2427f",
+        "outline_operations": 46,
+        "font_file_sha256": "ba1eba558c5efce498bc99131ad36d95d2ad9ad17380960f6d5e2f9482ec7025"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-08-20/20260820g00186/20260820g001860075.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "LPLPFG+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E950",
+        "cid": 25772,
+        "outline_sha256": "0ffa6f9bcd9f838046528e79606e3423cbb375c6972fa5fcfdef148b789b927f",
+        "outline_operations": 58,
+        "font_file_sha256": "ba1eba558c5efce498bc99131ad36d95d2ad9ad17380960f6d5e2f9482ec7025"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-08-20/20260820g00186/20260820g001860075.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "LPLPFG+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E951",
+        "cid": 25773,
+        "outline_sha256": "ed901e7ae747b40f531dc470cb1b672dfc459774db204b784433c2a6333dff51",
+        "outline_operations": 34,
+        "font_file_sha256": "ba1eba558c5efce498bc99131ad36d95d2ad9ad17380960f6d5e2f9482ec7025"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-08-21/20260821g00187/20260821g001870074.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "OGBDPD+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E94F",
+        "cid": 25771,
+        "outline_sha256": "69dde8d9534953fb516adb8fc7911da5eb74589118ebcf4dfd2016107cf2427f",
+        "outline_operations": 46,
+        "font_file_sha256": "fa5caf681356c5f59aec4eac7d116361951747efeb46ea25e404793db3749ce0"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-08-21/20260821g00187/20260821g001870074.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "OGBDPD+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E950",
+        "cid": 25772,
+        "outline_sha256": "0ffa6f9bcd9f838046528e79606e3423cbb375c6972fa5fcfdef148b789b927f",
+        "outline_operations": 58,
+        "font_file_sha256": "fa5caf681356c5f59aec4eac7d116361951747efeb46ea25e404793db3749ce0"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-08-21/20260821g00187/20260821g001870074.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "OGBDPD+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E951",
+        "cid": 25773,
+        "outline_sha256": "ed901e7ae747b40f531dc470cb1b672dfc459774db204b784433c2a6333dff51",
+        "outline_operations": 34,
+        "font_file_sha256": "fa5caf681356c5f59aec4eac7d116361951747efeb46ea25e404793db3749ce0"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-09-02/20260902g00196/20260902g001960128.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "FAGKGO+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E94F",
+        "cid": 25771,
+        "outline_sha256": "69dde8d9534953fb516adb8fc7911da5eb74589118ebcf4dfd2016107cf2427f",
+        "outline_operations": 46,
+        "font_file_sha256": "88c7d76fdd12849d83bb46b3512dd6288c8ee8f580e6a9658bec1749c6e10932"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-09-02/20260902g00196/20260902g001960128.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "FAGKGO+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E950",
+        "cid": 25772,
+        "outline_sha256": "0ffa6f9bcd9f838046528e79606e3423cbb375c6972fa5fcfdef148b789b927f",
+        "outline_operations": 58,
+        "font_file_sha256": "88c7d76fdd12849d83bb46b3512dd6288c8ee8f580e6a9658bec1749c6e10932"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-09-02/20260902g00196/20260902g001960133.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "FAMCOA+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E94F",
+        "cid": 25771,
+        "outline_sha256": "69dde8d9534953fb516adb8fc7911da5eb74589118ebcf4dfd2016107cf2427f",
+        "outline_operations": 46,
+        "font_file_sha256": "5c79729bb06898384824493f0054032e9a48b2a9d0904456388696c2159568dc"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-09-02/20260902g00196/20260902g001960133.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "FAMCOA+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E950",
+        "cid": 25772,
+        "outline_sha256": "0ffa6f9bcd9f838046528e79606e3423cbb375c6972fa5fcfdef148b789b927f",
+        "outline_operations": 58,
+        "font_file_sha256": "5c79729bb06898384824493f0054032e9a48b2a9d0904456388696c2159568dc"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-09-02/20260902g00196/20260902g001960133.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "FAMCOA+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E951",
+        "cid": 25773,
+        "outline_sha256": "ed901e7ae747b40f531dc470cb1b672dfc459774db204b784433c2a6333dff51",
+        "outline_operations": 34,
+        "font_file_sha256": "5c79729bb06898384824493f0054032e9a48b2a9d0904456388696c2159568dc"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-09-02/20260902g00196/20260902g001960134.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "FAOPCP+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E950",
+        "cid": 25772,
+        "outline_sha256": "0ffa6f9bcd9f838046528e79606e3423cbb375c6972fa5fcfdef148b789b927f",
+        "outline_operations": 58,
+        "font_file_sha256": "94f64af6ddbe3e744dccf4185f74eb8b690009b9858a8079c3b83fff97f58dbf"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-09-16/20260916g00206/20260916g002060317.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "HJEAOA+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E94F",
+        "cid": 25771,
+        "outline_sha256": "69dde8d9534953fb516adb8fc7911da5eb74589118ebcf4dfd2016107cf2427f",
+        "outline_operations": 46,
+        "font_file_sha256": "01fc8c8f02dcd97aa7decd2d6449afd8cc950233c46dda50428bece515c03998"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-09-16/20260916g00206/20260916g002060317.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "HJEAOA+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E950",
+        "cid": 25772,
+        "outline_sha256": "0ffa6f9bcd9f838046528e79606e3423cbb375c6972fa5fcfdef148b789b927f",
+        "outline_operations": 58,
+        "font_file_sha256": "01fc8c8f02dcd97aa7decd2d6449afd8cc950233c46dda50428bece515c03998"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-09-16/20260916g00206/20260916g002060317.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "HJEAOA+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E951",
+        "cid": 25773,
+        "outline_sha256": "ed901e7ae747b40f531dc470cb1b672dfc459774db204b784433c2a6333dff51",
+        "outline_operations": 34,
+        "font_file_sha256": "01fc8c8f02dcd97aa7decd2d6449afd8cc950233c46dda50428bece515c03998"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00216/20260930g002160063.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "JNKHFL+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E94F",
+        "cid": 25771,
+        "outline_sha256": "69dde8d9534953fb516adb8fc7911da5eb74589118ebcf4dfd2016107cf2427f",
+        "outline_operations": 46,
+        "font_file_sha256": "55f5e87f6b1ffe04cb23125371768c6840a82078ed3b5d37ac649104bf1cd9b4"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00216/20260930g002160063.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "JNKHFL+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E950",
+        "cid": 25772,
+        "outline_sha256": "0ffa6f9bcd9f838046528e79606e3423cbb375c6972fa5fcfdef148b789b927f",
+        "outline_operations": 58,
+        "font_file_sha256": "55f5e87f6b1ffe04cb23125371768c6840a82078ed3b5d37ac649104bf1cd9b4"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00216/20260930g002160063.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "JNKHFL+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E951",
+        "cid": 25773,
+        "outline_sha256": "ed901e7ae747b40f531dc470cb1b672dfc459774db204b784433c2a6333dff51",
+        "outline_operations": 34,
+        "font_file_sha256": "55f5e87f6b1ffe04cb23125371768c6840a82078ed3b5d37ac649104bf1cd9b4"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280106.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "INHAMJ+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E94F",
+        "cid": 25771,
+        "outline_sha256": "69dde8d9534953fb516adb8fc7911da5eb74589118ebcf4dfd2016107cf2427f",
+        "outline_operations": 46,
+        "font_file_sha256": "cd785485b56d06c24164e35c5ebb89e07c907e46cf9143176d143988a32d40f2"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280106.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "INHAMJ+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E950",
+        "cid": 25772,
+        "outline_sha256": "0ffa6f9bcd9f838046528e79606e3423cbb375c6972fa5fcfdef148b789b927f",
+        "outline_operations": 58,
+        "font_file_sha256": "cd785485b56d06c24164e35c5ebb89e07c907e46cf9143176d143988a32d40f2"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280106.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "INHAMJ+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E951",
+        "cid": 25773,
+        "outline_sha256": "ed901e7ae747b40f531dc470cb1b672dfc459774db204b784433c2a6333dff51",
+        "outline_operations": 34,
+        "font_file_sha256": "cd785485b56d06c24164e35c5ebb89e07c907e46cf9143176d143988a32d40f2"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280275.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "LKDGED+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E94F",
+        "cid": 25771,
+        "outline_sha256": "69dde8d9534953fb516adb8fc7911da5eb74589118ebcf4dfd2016107cf2427f",
+        "outline_operations": 46,
+        "font_file_sha256": "2ce4f94ea4c9f2723df148cdaf4024bb29dc9c9ad424ec3b0fe3bd449524c270"
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280276.pdf",
+        "font": "/DFHSMinchoRPro6N-W3-Identity-H",
+        "cff_font": "LKEDGF+DFHSMinchoRPro6N-W3",
+        "codepoint": "U+E94F",
+        "cid": 25771,
+        "outline_sha256": "69dde8d9534953fb516adb8fc7911da5eb74589118ebcf4dfd2016107cf2427f",
+        "outline_operations": 46,
+        "font_file_sha256": "3a6313bd5b391bcf60d8be372baf0f172fe09cd54f2dbbeca6cd6d2afbc7500e"
+      }
+    ]
+  },
+  "reference_existing_cell_and_article_preservation": [
+    {
+      "page": "20260722g001620007",
+      "existing_line_count": 3,
+      "existing_table_count": 2,
+      "existing_cell_count": 504,
+      "existing_table_bounds_and_dimensions_exact": true,
+      "all_existing_cell_bounds_spans_and_positions_exact": true,
+      "existing_owner_id_order_exact": true,
+      "article_metadata_exact": true,
+      "added_cells": []
+    },
+    {
+      "page": "20260806g001770059",
+      "existing_line_count": 20,
+      "existing_table_count": 5,
+      "existing_cell_count": 173,
+      "existing_table_bounds_and_dimensions_exact": true,
+      "all_existing_cell_bounds_spans_and_positions_exact": true,
+      "existing_owner_id_order_exact": true,
+      "article_metadata_exact": true,
+      "added_cells": []
+    },
+    {
+      "page": "20260810g001790112",
+      "existing_line_count": 26,
+      "existing_table_count": 5,
+      "existing_cell_count": 127,
+      "existing_table_bounds_and_dimensions_exact": true,
+      "all_existing_cell_bounds_spans_and_positions_exact": true,
+      "existing_owner_id_order_exact": true,
+      "article_metadata_exact": true,
+      "added_cells": []
+    },
+    {
+      "page": "20260820g001860075",
+      "existing_line_count": 56,
+      "existing_table_count": 5,
+      "existing_cell_count": 54,
+      "existing_table_bounds_and_dimensions_exact": true,
+      "all_existing_cell_bounds_spans_and_positions_exact": true,
+      "existing_owner_id_order_exact": true,
+      "article_metadata_exact": true,
+      "added_cells": []
+    },
+    {
+      "page": "20260821g001870074",
+      "existing_line_count": 62,
+      "existing_table_count": 1,
+      "existing_cell_count": 12,
+      "existing_table_bounds_and_dimensions_exact": true,
+      "all_existing_cell_bounds_spans_and_positions_exact": true,
+      "existing_owner_id_order_exact": true,
+      "article_metadata_exact": true,
+      "added_cells": []
+    },
+    {
+      "page": "20260902g001960128",
+      "existing_line_count": 82,
+      "existing_table_count": 0,
+      "existing_cell_count": 0,
+      "existing_table_bounds_and_dimensions_exact": true,
+      "all_existing_cell_bounds_spans_and_positions_exact": true,
+      "existing_owner_id_order_exact": true,
+      "article_metadata_exact": true,
+      "added_cells": []
+    },
+    {
+      "page": "20260902g001960134",
+      "existing_line_count": 29,
+      "existing_table_count": 0,
+      "existing_cell_count": 0,
+      "existing_table_bounds_and_dimensions_exact": true,
+      "all_existing_cell_bounds_spans_and_positions_exact": true,
+      "existing_owner_id_order_exact": true,
+      "article_metadata_exact": true,
+      "added_cells": []
+    },
+    {
+      "page": "20260916g002060317",
+      "existing_line_count": 3,
+      "existing_table_count": 2,
+      "existing_cell_count": 420,
+      "existing_table_bounds_and_dimensions_exact": true,
+      "all_existing_cell_bounds_spans_and_positions_exact": true,
+      "existing_owner_id_order_exact": true,
+      "article_metadata_exact": true,
+      "added_cells": []
+    },
+    {
+      "page": "20260930g002160063",
+      "existing_line_count": 50,
+      "existing_table_count": 3,
+      "existing_cell_count": 26,
+      "existing_table_bounds_and_dimensions_exact": true,
+      "all_existing_cell_bounds_spans_and_positions_exact": true,
+      "existing_owner_id_order_exact": true,
+      "article_metadata_exact": true,
+      "added_cells": []
+    },
+    {
+      "page": "20261016g002280106",
+      "existing_line_count": 90,
+      "existing_table_count": 1,
+      "existing_cell_count": 25,
+      "existing_table_bounds_and_dimensions_exact": true,
+      "all_existing_cell_bounds_spans_and_positions_exact": true,
+      "existing_owner_id_order_exact": true,
+      "article_metadata_exact": true,
+      "added_cells": [
+        {
+          "row": 1,
+          "col": 0,
+          "rowspan": 1,
+          "colspan": 1,
+          "x0": 445.5,
+          "y0": 171.036,
+          "x1": 468.5,
+          "y1": 185.965,
+          "text": "(A)",
+          "words": [
+            72
+          ]
+        },
+        {
+          "row": 2,
+          "col": 0,
+          "rowspan": 3,
+          "colspan": 1,
+          "x0": 445.5,
+          "y0": 185.965,
+          "x1": 468.5,
+          "y1": 222.822,
+          "text": "(B)",
+          "words": [
+            73
+          ]
+        },
+        {
+          "row": 5,
+          "col": 0,
+          "rowspan": 3,
+          "colspan": 1,
+          "x0": 445.5,
+          "y0": 222.822,
+          "x1": 468.5,
+          "y1": 259.679,
+          "text": "(C)",
+          "words": [
+            74
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20261016g002280275",
+      "existing_line_count": 59,
+      "existing_table_count": 3,
+      "existing_cell_count": 64,
+      "existing_table_bounds_and_dimensions_exact": true,
+      "all_existing_cell_bounds_spans_and_positions_exact": true,
+      "existing_owner_id_order_exact": true,
+      "article_metadata_exact": true,
+      "added_cells": []
+    },
+    {
+      "page": "20261016g002280276",
+      "existing_line_count": 52,
+      "existing_table_count": 2,
+      "existing_cell_count": 73,
+      "existing_table_bounds_and_dimensions_exact": true,
+      "all_existing_cell_bounds_spans_and_positions_exact": true,
+      "existing_owner_id_order_exact": true,
+      "article_metadata_exact": true,
+      "added_cells": []
+    }
+  ],
+  "blank_area_original_Glyph_and_owner": [
+    {
+      "page": "20260731g001720117",
+      "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720117.pdf",
+      "source_sha256": "fb06eee98740e1ea7e1a1cbab1500a04ac7d42d0b42f53f08adf941b6011ca9c",
+      "before_output_sha256": "f46a281f9b20061e00feff3efca3db6fb6a95c1dbde5427db908acbffefe5e0e",
+      "after_output_sha256": "4d18fad8e9da46beeeed07a984bf68a1e32b6134d4bf613c8fb89de6b6ddad67",
+      "symbols": [
+        {
+          "word_id": 72,
+          "raw": "",
+          "before_text": "",
+          "after_text": "㎡",
+          "before_status": "empty",
+          "after_status": "used",
+          "word_bbox": [
+            199.25,
+            77.4974,
+            207.25,
+            85.6814
+          ],
+          "native_glyph_index": 66,
+          "native_glyph": {
+            "text": "",
+            "code": 25065,
+            "cid": 25065,
+            "font": 1,
+            "x": 199.25,
+            "y": 83.51339999999993,
+            "end_x": 207.25,
+            "end_y": 83.51339999999993,
+            "size": 8.0,
+            "vertical": false,
+            "bbox": [
+              199.25,
+              77.49739999999993,
+              207.25,
+              85.68139999999994
+            ],
+            "invisible": false,
+            "spacing": 0.0,
+            "kern": 0.0,
+            "show": 6
+          },
+          "native_font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "original_physical_grid_cell": {
+            "grid": 1,
+            "cell": 1,
+            "bbox": [
+              83.25,
+              60.57099914550781,
+              411.25,
+              100.71399688720703
+            ]
+          },
+          "region_unit": 0,
+          "region_part": 0,
+          "region_role": "body",
+          "line": 2,
+          "before_owner_text": "【延床面積】",
+          "after_owner_text": "【延床面積】㎡",
+          "before_owner_ids": [
+            88
+          ],
+          "after_owner_ids": [
+            88,
+            72
+          ],
+          "label_source_id": 88,
+          "label_raw": "【延床面積】",
+          "label_bbox": [
+            95.25,
+            77.4974,
+            143.25,
+            85.6814
+          ],
+          "label_to_unit_x_gap": 56.0,
+          "baseline_delta_y": 0.0,
+          "original_text_insertion_byte_offset": 18
+        },
+        {
+          "word_id": 73,
+          "raw": "",
+          "before_text": "",
+          "after_text": "㎡",
+          "before_status": "empty",
+          "after_status": "used",
+          "word_bbox": [
+            199.242,
+            89.2814,
+            207.242,
+            97.4654
+          ],
+          "native_glyph_index": 86,
+          "native_glyph": {
+            "text": "",
+            "code": 25065,
+            "cid": 25065,
+            "font": 1,
+            "x": 199.24199999999996,
+            "y": 95.29739999999993,
+            "end_x": 207.24199999999996,
+            "end_y": 95.29739999999993,
+            "size": 8.0,
+            "vertical": false,
+            "bbox": [
+              199.24199999999996,
+              89.28139999999992,
+              207.24199999999996,
+              97.46539999999993
+            ],
+            "invisible": false,
+            "spacing": 0.0,
+            "kern": 0.0,
+            "show": 9
+          },
+          "native_font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "original_physical_grid_cell": {
+            "grid": 1,
+            "cell": 1,
+            "bbox": [
+              83.25,
+              60.57099914550781,
+              411.25,
+              100.71399688720703
+            ]
+          },
+          "region_unit": 0,
+          "region_part": 0,
+          "region_role": "body",
+          "line": 3,
+          "before_owner_text": "【総専有床面積】",
+          "after_owner_text": "【総専有床面積】㎡",
+          "before_owner_ids": [
+            93
+          ],
+          "after_owner_ids": [
+            93,
+            73
+          ],
+          "label_source_id": 93,
+          "label_raw": "【総専有床面積】",
+          "label_bbox": [
+            95.242,
+            89.2814,
+            159.242,
+            97.4654
+          ],
+          "label_to_unit_x_gap": 40.0,
+          "baseline_delta_y": 0.0,
+          "original_text_insertion_byte_offset": 24
+        }
+      ]
+    },
+    {
+      "page": "20260731g001720122",
+      "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720122.pdf",
+      "source_sha256": "ddc9e3883808db4042747470bcdd50d0688376ac9e2f3fa1731e6a71735afc4b",
+      "before_output_sha256": "dd73db7d75ef4da5fba1437be37dc3b4b1bac682282d17621b77e1c107b08b0b",
+      "after_output_sha256": "94c1348e19ab67ce9eb037b3bef5c458ef8361d06583b25c663641a99e93d8d8",
+      "symbols": [
+        {
+          "word_id": 10,
+          "raw": "",
+          "before_text": "",
+          "after_text": "㎡",
+          "before_status": "empty",
+          "after_status": "used",
+          "word_bbox": [
+            199.25,
+            417.5629,
+            207.25,
+            425.7469
+          ],
+          "native_glyph_index": 257,
+          "native_glyph": {
+            "text": "",
+            "code": 25065,
+            "cid": 25065,
+            "font": 1,
+            "x": 199.25,
+            "y": 423.5788999999999,
+            "end_x": 207.25,
+            "end_y": 423.5788999999999,
+            "size": 8.0,
+            "vertical": false,
+            "bbox": [
+              199.25,
+              417.5628999999999,
+              207.25,
+              425.7468999999999
+            ],
+            "invisible": false,
+            "spacing": 0.0,
+            "kern": 0.0,
+            "show": 34
+          },
+          "native_font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "original_physical_grid_cell": {
+            "grid": 1,
+            "cell": 5,
+            "bbox": [
+              83.25,
+              401.4289855957031,
+              411.25,
+              440.0
+            ]
+          },
+          "region_unit": 0,
+          "region_part": 0,
+          "region_role": "body",
+          "line": 21,
+          "before_owner_text": "【延床面積】",
+          "after_owner_text": "【延床面積】㎡",
+          "before_owner_ids": [
+            39
+          ],
+          "after_owner_ids": [
+            39,
+            10
+          ],
+          "label_source_id": 39,
+          "label_raw": "【延床面積】",
+          "label_bbox": [
+            95.25,
+            417.5629,
+            143.25,
+            425.7469
+          ],
+          "label_to_unit_x_gap": 56.0,
+          "baseline_delta_y": 0.0,
+          "original_text_insertion_byte_offset": 18
+        },
+        {
+          "word_id": 11,
+          "raw": "",
+          "before_text": "",
+          "after_text": "㎡",
+          "before_status": "empty",
+          "after_status": "used",
+          "word_bbox": [
+            199.25,
+            428.9549,
+            207.25,
+            437.1389
+          ],
+          "native_glyph_index": 266,
+          "native_glyph": {
+            "text": "",
+            "code": 25065,
+            "cid": 25065,
+            "font": 1,
+            "x": 199.25,
+            "y": 434.9708999999999,
+            "end_x": 207.25,
+            "end_y": 434.9708999999999,
+            "size": 8.0,
+            "vertical": false,
+            "bbox": [
+              199.25,
+              428.9548999999999,
+              207.25,
+              437.1388999999999
+            ],
+            "invisible": false,
+            "spacing": 0.0,
+            "kern": 0.0,
+            "show": 36
+          },
+          "native_font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "original_physical_grid_cell": {
+            "grid": 1,
+            "cell": 5,
+            "bbox": [
+              83.25,
+              401.4289855957031,
+              411.25,
+              440.0
+            ]
+          },
+          "region_unit": 0,
+          "region_part": 0,
+          "region_role": "body",
+          "line": 22,
+          "before_owner_text": "【総専有床面積】",
+          "after_owner_text": "【総専有床面積】㎡",
+          "before_owner_ids": [
+            40
+          ],
+          "after_owner_ids": [
+            40,
+            11
+          ],
+          "label_source_id": 40,
+          "label_raw": "【総専有床面積】",
+          "label_bbox": [
+            95.25,
+            428.9549,
+            159.25,
+            437.1389
+          ],
+          "label_to_unit_x_gap": 40.0,
+          "baseline_delta_y": 0.0,
+          "original_text_insertion_byte_offset": 24
+        }
+      ]
+    },
+    {
+      "page": "20260731g001720127",
+      "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720127.pdf",
+      "source_sha256": "53ea1cf665511693587671560e19c77f3707d4571589267ada235c1134c0035e",
+      "before_output_sha256": "554267ead7ab011806d267a41c280b1cd4672d4a7104cac2bcfd4110af4f0ac0",
+      "after_output_sha256": "d734641c9832c2cff8b013ab9b9dbfcfcb204a0e3d6ebe09234987d607ade4be",
+      "symbols": [
+        {
+          "word_id": 55,
+          "raw": "",
+          "before_text": "",
+          "after_text": "㎡",
+          "before_status": "empty",
+          "after_status": "used",
+          "word_bbox": [
+            199.25,
+            256.4249,
+            207.25,
+            264.6089
+          ],
+          "native_glyph_index": 617,
+          "native_glyph": {
+            "text": "",
+            "code": 25065,
+            "cid": 25065,
+            "font": 2,
+            "x": 199.25,
+            "y": 262.44089999999994,
+            "end_x": 207.25,
+            "end_y": 262.44089999999994,
+            "size": 8.0,
+            "vertical": false,
+            "bbox": [
+              199.25,
+              256.4248999999999,
+              207.25,
+              264.60889999999995
+            ],
+            "invisible": false,
+            "spacing": 0.0,
+            "kern": 0.0,
+            "show": 53
+          },
+          "native_font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "original_physical_grid_cell": {
+            "grid": 1,
+            "cell": 2,
+            "bbox": [
+              83.25,
+              239.21400451660156,
+              411.25,
+              279.9280090332031
+            ]
+          },
+          "region_unit": 0,
+          "region_part": 0,
+          "region_role": "body",
+          "line": 16,
+          "before_owner_text": "【延床面積】",
+          "after_owner_text": "【延床面積】㎡",
+          "before_owner_ids": [
+            67
+          ],
+          "after_owner_ids": [
+            67,
+            55
+          ],
+          "label_source_id": 67,
+          "label_raw": "【延床面積】",
+          "label_bbox": [
+            95.25,
+            256.4249,
+            143.25,
+            264.6089
+          ],
+          "label_to_unit_x_gap": 56.0,
+          "baseline_delta_y": 0.0,
+          "original_text_insertion_byte_offset": 18
+        },
+        {
+          "word_id": 56,
+          "raw": "",
+          "before_text": "",
+          "after_text": "㎡",
+          "before_status": "empty",
+          "after_status": "used",
+          "word_bbox": [
+            199.242,
+            268.3529,
+            207.242,
+            276.5369
+          ],
+          "native_glyph_index": 637,
+          "native_glyph": {
+            "text": "",
+            "code": 25065,
+            "cid": 25065,
+            "font": 2,
+            "x": 199.24199999999996,
+            "y": 274.36889999999994,
+            "end_x": 207.24199999999996,
+            "end_y": 274.36889999999994,
+            "size": 8.0,
+            "vertical": false,
+            "bbox": [
+              199.24199999999996,
+              268.3528999999999,
+              207.24199999999996,
+              276.53689999999995
+            ],
+            "invisible": false,
+            "spacing": 0.0,
+            "kern": 0.0,
+            "show": 56
+          },
+          "native_font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "original_physical_grid_cell": {
+            "grid": 1,
+            "cell": 2,
+            "bbox": [
+              83.25,
+              239.21400451660156,
+              411.25,
+              279.9280090332031
+            ]
+          },
+          "region_unit": 0,
+          "region_part": 0,
+          "region_role": "body",
+          "line": 17,
+          "before_owner_text": "【総専有床面積】",
+          "after_owner_text": "【総専有床面積】㎡",
+          "before_owner_ids": [
+            72
+          ],
+          "after_owner_ids": [
+            72,
+            56
+          ],
+          "label_source_id": 72,
+          "label_raw": "【総専有床面積】",
+          "label_bbox": [
+            95.242,
+            268.3529,
+            159.242,
+            276.5369
+          ],
+          "label_to_unit_x_gap": 40.0,
+          "baseline_delta_y": 0.0,
+          "original_text_insertion_byte_offset": 24
+        }
+      ]
+    },
+    {
+      "page": "20260731g001720133",
+      "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720133.pdf",
+      "source_sha256": "c755c192c220dd077602e96a1502c06cb3cdc7a47a08aad7d9d3233e571dd4a2",
+      "before_output_sha256": "50c876d756dec80ac4c16637261f6547f26c8f1d430b3e859f540bee64e38141",
+      "after_output_sha256": "6215a2efc56bf338d1c0f89aa0a5b379420a0131530397c143a68e81d3d5dbc9",
+      "symbols": [
+        {
+          "word_id": 6,
+          "raw": "",
+          "before_text": "",
+          "after_text": "㎡",
+          "before_status": "empty",
+          "after_status": "used",
+          "word_bbox": [
+            199.25,
+            300.1083,
+            207.25,
+            308.2923
+          ],
+          "native_glyph_index": 151,
+          "native_glyph": {
+            "text": "",
+            "code": 25065,
+            "cid": 25065,
+            "font": 1,
+            "x": 199.25,
+            "y": 306.1243,
+            "end_x": 207.25,
+            "end_y": 306.1243,
+            "size": 8.0,
+            "vertical": false,
+            "bbox": [
+              199.25,
+              300.1083,
+              207.25,
+              308.2923
+            ],
+            "invisible": false,
+            "spacing": 0.0,
+            "kern": 0.0,
+            "show": 21
+          },
+          "native_font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "original_physical_grid_cell": {
+            "grid": 0,
+            "cell": 5,
+            "bbox": [
+              83.25,
+              280.39300537109375,
+              411.25,
+              326.10699462890625
+            ]
+          },
+          "region_unit": 0,
+          "region_part": 0,
+          "region_role": "body",
+          "line": 16,
+          "before_owner_text": "【延床面積】",
+          "after_owner_text": "【延床面積】㎡",
+          "before_owner_ids": [
+            28
+          ],
+          "after_owner_ids": [
+            28,
+            6
+          ],
+          "label_source_id": 28,
+          "label_raw": "【延床面積】",
+          "label_bbox": [
+            95.25,
+            300.1083,
+            143.25,
+            308.2923
+          ],
+          "label_to_unit_x_gap": 56.0,
+          "baseline_delta_y": 0.0,
+          "original_text_insertion_byte_offset": 18
+        },
+        {
+          "word_id": 7,
+          "raw": "",
+          "before_text": "",
+          "after_text": "㎡",
+          "before_status": "empty",
+          "after_status": "used",
+          "word_bbox": [
+            199.25,
+            313.2843,
+            207.25,
+            321.4683
+          ],
+          "native_glyph_index": 160,
+          "native_glyph": {
+            "text": "",
+            "code": 25065,
+            "cid": 25065,
+            "font": 1,
+            "x": 199.25,
+            "y": 319.3003,
+            "end_x": 207.25,
+            "end_y": 319.3003,
+            "size": 8.0,
+            "vertical": false,
+            "bbox": [
+              199.25,
+              313.2843,
+              207.25,
+              321.4683
+            ],
+            "invisible": false,
+            "spacing": 0.0,
+            "kern": 0.0,
+            "show": 23
+          },
+          "native_font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "original_physical_grid_cell": {
+            "grid": 0,
+            "cell": 5,
+            "bbox": [
+              83.25,
+              280.39300537109375,
+              411.25,
+              326.10699462890625
+            ]
+          },
+          "region_unit": 0,
+          "region_part": 0,
+          "region_role": "body",
+          "line": 17,
+          "before_owner_text": "【総専有床面積】",
+          "after_owner_text": "【総専有床面積】㎡",
+          "before_owner_ids": [
+            29
+          ],
+          "after_owner_ids": [
+            29,
+            7
+          ],
+          "label_source_id": 29,
+          "label_raw": "【総専有床面積】",
+          "label_bbox": [
+            95.25,
+            313.2843,
+            159.25,
+            321.4683
+          ],
+          "label_to_unit_x_gap": 40.0,
+          "baseline_delta_y": 0.0,
+          "original_text_insertion_byte_offset": 24
+        }
+      ]
+    },
+    {
+      "page": "20260731g001720139",
+      "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720139.pdf",
+      "source_sha256": "00823d47299916e1956a763bdfcb763a2364cd6501a17b003265655129ea4d78",
+      "before_output_sha256": "475ad659ae39fcef2f764827a44f92d69a19334abf37f0be615621c381f49e88",
+      "after_output_sha256": "dd96abe0282ff5845d467365ed58614aef979b57b4d404d440eb60e04bea9cd0",
+      "symbols": [
+        {
+          "word_id": 18,
+          "raw": "",
+          "before_text": "",
+          "after_text": "㎡",
+          "before_status": "empty",
+          "after_status": "used",
+          "word_bbox": [
+            199.25,
+            470.7757,
+            207.25,
+            478.9597
+          ],
+          "native_glyph_index": 280,
+          "native_glyph": {
+            "text": "",
+            "code": 25065,
+            "cid": 25065,
+            "font": 1,
+            "x": 199.25,
+            "y": 476.79170000000005,
+            "end_x": 207.25,
+            "end_y": 476.79170000000005,
+            "size": 8.0,
+            "vertical": false,
+            "bbox": [
+              199.25,
+              470.77570000000003,
+              207.25,
+              478.95970000000005
+            ],
+            "invisible": false,
+            "spacing": 0.0,
+            "kern": 0.0,
+            "show": 34
+          },
+          "native_font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "original_physical_grid_cell": {
+            "grid": 1,
+            "cell": 5,
+            "bbox": [
+              83.25,
+              454.2850036621094,
+              411.25,
+              493.5710144042969
+            ]
+          },
+          "region_unit": 0,
+          "region_part": 0,
+          "region_role": "body",
+          "line": 23,
+          "before_owner_text": "【延床面積】",
+          "after_owner_text": "【延床面積】㎡",
+          "before_owner_ids": [
+            44
+          ],
+          "after_owner_ids": [
+            44,
+            18
+          ],
+          "label_source_id": 44,
+          "label_raw": "【延床面積】",
+          "label_bbox": [
+            95.25,
+            470.7757,
+            143.25,
+            478.9597
+          ],
+          "label_to_unit_x_gap": 56.0,
+          "baseline_delta_y": 0.0,
+          "original_text_insertion_byte_offset": 18
+        },
+        {
+          "word_id": 19,
+          "raw": "",
+          "before_text": "",
+          "after_text": "㎡",
+          "before_status": "empty",
+          "after_status": "used",
+          "word_bbox": [
+            199.25,
+            482.3437,
+            207.25,
+            490.5277
+          ],
+          "native_glyph_index": 289,
+          "native_glyph": {
+            "text": "",
+            "code": 25065,
+            "cid": 25065,
+            "font": 1,
+            "x": 199.25,
+            "y": 488.3597000000001,
+            "end_x": 207.25,
+            "end_y": 488.3597000000001,
+            "size": 8.0,
+            "vertical": false,
+            "bbox": [
+              199.25,
+              482.34370000000007,
+              207.25,
+              490.5277000000001
+            ],
+            "invisible": false,
+            "spacing": 0.0,
+            "kern": 0.0,
+            "show": 36
+          },
+          "native_font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "original_physical_grid_cell": {
+            "grid": 1,
+            "cell": 5,
+            "bbox": [
+              83.25,
+              454.2850036621094,
+              411.25,
+              493.5710144042969
+            ]
+          },
+          "region_unit": 0,
+          "region_part": 0,
+          "region_role": "body",
+          "line": 24,
+          "before_owner_text": "【総専有床面積】",
+          "after_owner_text": "【総専有床面積】㎡",
+          "before_owner_ids": [
+            45
+          ],
+          "after_owner_ids": [
+            45,
+            19
+          ],
+          "label_source_id": 45,
+          "label_raw": "【総専有床面積】",
+          "label_bbox": [
+            95.25,
+            482.3437,
+            159.25,
+            490.5277
+          ],
+          "label_to_unit_x_gap": 40.0,
+          "baseline_delta_y": 0.0,
+          "original_text_insertion_byte_offset": 24
+        }
+      ]
+    }
+  ],
+  "blank_area_native_physical_grid_proof": [
+    {
+      "page": "20260731g001720117",
+      "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720117.pdf",
+      "physical_rules": {
+        "vertical": [
+          {
+            "x": 69.5,
+            "y0": 46.0,
+            "y1": 397.2139892578125
+          },
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 397.2139892578125
+          },
+          {
+            "x": 780.5,
+            "y0": 46.0,
+            "y1": 397.2139892578125
+          },
+          {
+            "x": 83.25,
+            "y0": 46.0,
+            "y1": 395.2139892578125
+          },
+          {
+            "x": 411.25,
+            "y0": 46.0,
+            "y1": 395.2139892578125
+          },
+          {
+            "x": 438.75,
+            "y0": 45.999000549316406,
+            "y1": 354.9280090332031
+          },
+          {
+            "x": 766.75,
+            "y0": 45.999000549316406,
+            "y1": 354.9280090332031
+          },
+          {
+            "x": 69.5,
+            "y0": 397.2139892578125,
+            "y1": 549.0
+          },
+          {
+            "x": 425.0,
+            "y0": 397.2139892578125,
+            "y1": 549.0
+          },
+          {
+            "x": 780.5,
+            "y0": 397.2139892578125,
+            "y1": 549.0
+          },
+          {
+            "x": 57.0,
+            "y0": 37.5,
+            "y1": 557.5
+          },
+          {
+            "x": 793.0,
+            "y0": 37.5,
+            "y1": 557.5
+          }
+        ],
+        "horizontal": [
+          {
+            "y": 48.57099914550781,
+            "x0": 438.75,
+            "x1": 766.75
+          },
+          {
+            "y": 60.57099914550781,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 76.96399688720703,
+            "x0": 438.75,
+            "x1": 766.75
+          },
+          {
+            "y": 100.71399688720703,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 105.32099914550781,
+            "x0": 438.75,
+            "x1": 766.75
+          },
+          {
+            "y": 129.0709991455078,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 133.67799377441406,
+            "x0": 438.75,
+            "x1": 766.75
+          },
+          {
+            "y": 157.42799377441406,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 185.89199829101562,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 221.3560028076172,
+            "x0": 438.75,
+            "x1": 766.75
+          },
+          {
+            "y": 262.1780090332031,
+            "x0": 438.75,
+            "x1": 766.75
+          },
+          {
+            "y": 274.1780090332031,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 302.8210144042969,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 326.4639892578125,
+            "x0": 438.75,
+            "x1": 766.75
+          },
+          {
+            "y": 354.9280090332031,
+            "x0": 438.75,
+            "x1": 766.75
+          },
+          {
+            "y": 366.7489929199219,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 395.2130126953125,
+            "x0": 83.25,
+            "x1": 411.25
+          }
+        ]
+      },
+      "hits": [
+        {
+          "word_id": 72,
+          "enclosing_original_cells": [
+            {
+              "grid": 1,
+              "cell": 1,
+              "bbox": [
+                83.25,
+                60.57099914550781,
+                411.25,
+                100.71399688720703
+              ]
+            }
+          ]
+        },
+        {
+          "word_id": 73,
+          "enclosing_original_cells": [
+            {
+              "grid": 1,
+              "cell": 1,
+              "bbox": [
+                83.25,
+                60.57099914550781,
+                411.25,
+                100.71399688720703
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20260731g001720122",
+      "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720122.pdf",
+      "physical_rules": {
+        "vertical": [
+          {
+            "x": 69.5,
+            "y0": 46.0,
+            "y1": 181.89300537109375
+          },
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 181.89300537109375
+          },
+          {
+            "x": 780.5,
+            "y0": 46.0,
+            "y1": 181.89300537109375
+          },
+          {
+            "x": 83.25,
+            "y0": 72.6780014038086,
+            "y1": 135.8209991455078
+          },
+          {
+            "x": 411.25,
+            "y0": 72.6780014038086,
+            "y1": 135.8209991455078
+          },
+          {
+            "x": 179.25,
+            "y0": 72.6780014038086,
+            "y1": 135.8209991455078
+          },
+          {
+            "x": 315.25,
+            "y0": 72.6780014038086,
+            "y1": 135.8209991455078
+          },
+          {
+            "x": 69.5,
+            "y0": 181.89300537109375,
+            "y1": 549.0
+          },
+          {
+            "x": 425.0,
+            "y0": 181.89300537109375,
+            "y1": 549.0
+          },
+          {
+            "x": 780.5,
+            "y0": 181.89300537109375,
+            "y1": 549.0
+          },
+          {
+            "x": 83.25,
+            "y0": 242.75,
+            "y1": 549.0
+          },
+          {
+            "x": 411.25,
+            "y0": 242.75,
+            "y1": 549.0
+          },
+          {
+            "x": 57.0,
+            "y0": 37.5,
+            "y1": 557.5
+          },
+          {
+            "x": 793.0,
+            "y0": 37.5,
+            "y1": 557.5
+          }
+        ],
+        "horizontal": [
+          {
+            "y": 72.6780014038086,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 88.46399688720703,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 104.25,
+            "x0": 83.25,
+            "x1": 315.25
+          },
+          {
+            "y": 120.03600311279297,
+            "x0": 83.25,
+            "x1": 315.25
+          },
+          {
+            "y": 135.82200622558594,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 549.0,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 242.75,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 281.3210144042969,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 308.5,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 358.4639892578125,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 374.25,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 401.4289855957031,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 440.0,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 467.1789855957031,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 494.4289855957031,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 521.7150268554688,
+            "x0": 83.25,
+            "x1": 411.25
+          }
+        ]
+      },
+      "hits": [
+        {
+          "word_id": 10,
+          "enclosing_original_cells": [
+            {
+              "grid": 1,
+              "cell": 5,
+              "bbox": [
+                83.25,
+                401.4289855957031,
+                411.25,
+                440.0
+              ]
+            }
+          ]
+        },
+        {
+          "word_id": 11,
+          "enclosing_original_cells": [
+            {
+              "grid": 1,
+              "cell": 5,
+              "bbox": [
+                83.25,
+                401.4289855957031,
+                411.25,
+                440.0
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20260731g001720127",
+      "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720127.pdf",
+      "physical_rules": {
+        "vertical": [
+          {
+            "x": 69.5,
+            "y0": 46.0,
+            "y1": 141.4290008544922
+          },
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 141.4290008544922
+          },
+          {
+            "x": 780.5,
+            "y0": 46.0,
+            "y1": 141.4290008544922
+          },
+          {
+            "x": 69.5,
+            "y0": 141.4290008544922,
+            "y1": 549.0
+          },
+          {
+            "x": 425.0,
+            "y0": 141.4290008544922,
+            "y1": 549.0
+          },
+          {
+            "x": 780.5,
+            "y0": 141.4290008544922,
+            "y1": 549.0
+          },
+          {
+            "x": 83.25,
+            "y0": 181.64300537109375,
+            "y1": 549.0
+          },
+          {
+            "x": 411.25,
+            "y0": 181.64300537109375,
+            "y1": 549.0
+          },
+          {
+            "x": 438.75,
+            "y0": 181.64300537109375,
+            "y1": 537.0360107421875
+          },
+          {
+            "x": 766.75,
+            "y0": 181.64300537109375,
+            "y1": 537.0360107421875
+          },
+          {
+            "x": 57.0,
+            "y0": 37.5,
+            "y1": 557.5
+          },
+          {
+            "x": 793.0,
+            "y0": 37.5,
+            "y1": 557.5
+          }
+        ],
+        "horizontal": [
+          {
+            "y": 181.64300537109375,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 181.64300537109375,
+            "x0": 438.75,
+            "x1": 766.75
+          },
+          {
+            "y": 210.46400451660156,
+            "x0": 438.75,
+            "x1": 766.75
+          },
+          {
+            "y": 222.35699462890625,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 227.21400451660156,
+            "x0": 438.75,
+            "x1": 766.75
+          },
+          {
+            "y": 239.21400451660156,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 256.0350036621094,
+            "x0": 438.75,
+            "x1": 766.75
+          },
+          {
+            "y": 279.9280090332031,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 284.8210144042969,
+            "x0": 438.75,
+            "x1": 766.75
+          },
+          {
+            "y": 308.8210144042969,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 313.7139892578125,
+            "x0": 438.75,
+            "x1": 766.75
+          },
+          {
+            "y": 337.7139892578125,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 366.60699462890625,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 402.5,
+            "x0": 438.75,
+            "x1": 766.75
+          },
+          {
+            "y": 443.35699462890625,
+            "x0": 438.75,
+            "x1": 766.75
+          },
+          {
+            "y": 455.3210144042969,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 484.2139892578125,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 508.14300537109375,
+            "x0": 438.75,
+            "x1": 766.75
+          },
+          {
+            "y": 537.0360107421875,
+            "x0": 438.75,
+            "x1": 766.75
+          },
+          {
+            "y": 549.0,
+            "x0": 83.25,
+            "x1": 411.25
+          }
+        ]
+      },
+      "hits": [
+        {
+          "word_id": 55,
+          "enclosing_original_cells": [
+            {
+              "grid": 1,
+              "cell": 2,
+              "bbox": [
+                83.25,
+                239.21400451660156,
+                411.25,
+                279.9280090332031
+              ]
+            }
+          ]
+        },
+        {
+          "word_id": 56,
+          "enclosing_original_cells": [
+            {
+              "grid": 1,
+              "cell": 2,
+              "bbox": [
+                83.25,
+                239.21400451660156,
+                411.25,
+                279.9280090332031
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20260731g001720133",
+      "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720133.pdf",
+      "physical_rules": {
+        "vertical": [
+          {
+            "x": 69.5,
+            "y0": 46.0,
+            "y1": 456.25
+          },
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 456.25
+          },
+          {
+            "x": 780.5,
+            "y0": 46.0,
+            "y1": 456.25
+          },
+          {
+            "x": 83.25,
+            "y0": 91.35700225830078,
+            "y1": 456.25
+          },
+          {
+            "x": 411.25,
+            "y0": 91.35700225830078,
+            "y1": 456.25
+          },
+          {
+            "x": 69.5,
+            "y0": 456.25,
+            "y1": 549.0
+          },
+          {
+            "x": 425.0,
+            "y0": 456.25,
+            "y1": 549.0
+          },
+          {
+            "x": 780.5,
+            "y0": 456.25,
+            "y1": 549.0
+          },
+          {
+            "x": 57.0,
+            "y0": 37.5,
+            "y1": 557.5
+          },
+          {
+            "x": 793.0,
+            "y0": 37.5,
+            "y1": 557.5
+          }
+        ],
+        "horizontal": [
+          {
+            "y": 456.25,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 91.35700225830078,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 137.0709991455078,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 169.60699462890625,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 228.5,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 247.85699462890625,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 280.39300537109375,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 326.10699462890625,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 358.64300537109375,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 391.1789855957031,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 423.7149963378906,
+            "x0": 83.25,
+            "x1": 411.25
+          }
+        ]
+      },
+      "hits": [
+        {
+          "word_id": 6,
+          "enclosing_original_cells": [
+            {
+              "grid": 0,
+              "cell": 5,
+              "bbox": [
+                83.25,
+                280.39300537109375,
+                411.25,
+                326.10699462890625
+              ]
+            }
+          ]
+        },
+        {
+          "word_id": 7,
+          "enclosing_original_cells": [
+            {
+              "grid": 0,
+              "cell": 5,
+              "bbox": [
+                83.25,
+                280.39300537109375,
+                411.25,
+                326.10699462890625
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20260731g001720139",
+      "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720139.pdf",
+      "physical_rules": {
+        "vertical": [
+          {
+            "x": 69.5,
+            "y0": 46.0,
+            "y1": 230.64300537109375
+          },
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 230.64300537109375
+          },
+          {
+            "x": 780.5,
+            "y0": 46.0,
+            "y1": 230.64300537109375
+          },
+          {
+            "x": 83.25,
+            "y0": 119.28600311279297,
+            "y1": 183.85699462890625
+          },
+          {
+            "x": 411.25,
+            "y0": 119.28600311279297,
+            "y1": 183.85699462890625
+          },
+          {
+            "x": 179.25,
+            "y0": 119.28600311279297,
+            "y1": 183.85699462890625
+          },
+          {
+            "x": 315.25,
+            "y0": 119.28600311279297,
+            "y1": 183.85699462890625
+          },
+          {
+            "x": 69.5,
+            "y0": 230.64300537109375,
+            "y1": 549.0
+          },
+          {
+            "x": 425.0,
+            "y0": 230.64300537109375,
+            "y1": 549.0
+          },
+          {
+            "x": 780.5,
+            "y0": 230.64300537109375,
+            "y1": 549.0
+          },
+          {
+            "x": 83.25,
+            "y0": 292.5710144042969,
+            "y1": 549.0
+          },
+          {
+            "x": 411.25,
+            "y0": 292.5710144042969,
+            "y1": 549.0
+          },
+          {
+            "x": 57.0,
+            "y0": 37.5,
+            "y1": 557.5
+          },
+          {
+            "x": 793.0,
+            "y0": 37.5,
+            "y1": 557.5
+          }
+        ],
+        "horizontal": [
+          {
+            "y": 119.28600311279297,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 135.4290008544922,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 151.57200622558594,
+            "x0": 83.25,
+            "x1": 315.25
+          },
+          {
+            "y": 167.71499633789062,
+            "x0": 83.25,
+            "x1": 315.25
+          },
+          {
+            "y": 183.85800170898438,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 292.5710144042969,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 331.85699462890625,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 359.5710144042969,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 410.4280090332031,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 426.5710144042969,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 454.2850036621094,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 493.5710144042969,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 521.2849731445312,
+            "x0": 83.25,
+            "x1": 411.25
+          },
+          {
+            "y": 548.9990234375,
+            "x0": 83.25,
+            "x1": 411.25
+          }
+        ]
+      },
+      "hits": [
+        {
+          "word_id": 18,
+          "enclosing_original_cells": [
+            {
+              "grid": 1,
+              "cell": 5,
+              "bbox": [
+                83.25,
+                454.2850036621094,
+                411.25,
+                493.5710144042969
+              ]
+            }
+          ]
+        },
+        {
+          "word_id": 19,
+          "enclosing_original_cells": [
+            {
+              "grid": 1,
+              "cell": 5,
+              "bbox": [
+                83.25,
+                454.2850036621094,
+                411.25,
+                493.5710144042969
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20260803g001740106",
+      "pdf": ".cache/kanpo-archive/2026-08-03/20260803g00174/20260803g001740106.pdf",
+      "physical_rules": {
+        "vertical": [
+          {
+            "x": 69.5,
+            "y0": 46.0,
+            "y1": 214.5
+          },
+          {
+            "x": 173.0,
+            "y0": 46.0,
+            "y1": 214.5
+          },
+          {
+            "x": 241.5,
+            "y0": 46.0,
+            "y1": 214.5
+          },
+          {
+            "x": 240.5,
+            "y0": 46.0,
+            "y1": 214.5
+          },
+          {
+            "x": 345.0,
+            "y0": 46.0,
+            "y1": 214.5
+          },
+          {
+            "x": 412.5,
+            "y0": 46.0,
+            "y1": 214.5
+          },
+          {
+            "x": 69.5,
+            "y0": 253.3572998046875,
+            "y1": 549.0
+          },
+          {
+            "x": 345.0,
+            "y0": 253.3572998046875,
+            "y1": 549.0
+          },
+          {
+            "x": 412.5,
+            "y0": 253.3572998046875,
+            "y1": 549.0
+          },
+          {
+            "x": 437.5,
+            "y0": 46.25,
+            "y1": 82.96399688720703
+          },
+          {
+            "x": 713.0,
+            "y0": 46.25,
+            "y1": 82.96399688720703
+          },
+          {
+            "x": 780.5,
+            "y0": 46.25,
+            "y1": 82.96399688720703
+          },
+          {
+            "x": 437.5,
+            "y0": 82.96399688720703,
+            "y1": 308.14300537109375
+          },
+          {
+            "x": 713.0,
+            "y0": 82.96399688720703,
+            "y1": 308.14300537109375
+          },
+          {
+            "x": 780.5,
+            "y0": 82.96399688720703,
+            "y1": 308.14300537109375
+          },
+          {
+            "x": 437.5,
+            "y0": 308.14300537109375,
+            "y1": 549.0
+          },
+          {
+            "x": 713.0,
+            "y0": 308.14300537109375,
+            "y1": 549.0
+          },
+          {
+            "x": 780.5,
+            "y0": 308.14300537109375,
+            "y1": 549.0
+          },
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 57.0,
+            "y0": 37.5,
+            "y1": 557.5
+          },
+          {
+            "x": 793.0,
+            "y0": 37.5,
+            "y1": 557.5
+          }
+        ],
+        "horizontal": [
+          {
+            "y": 196.5709991455078,
+            "x0": 69.5,
+            "x1": 240.5
+          },
+          {
+            "y": 196.5709991455078,
+            "x0": 241.5,
+            "x1": 412.5
+          },
+          {
+            "y": 214.5,
+            "x0": 69.5,
+            "x1": 412.5
+          },
+          {
+            "y": 253.35699462890625,
+            "x0": 69.5,
+            "x1": 412.5
+          },
+          {
+            "y": 271.2860107421875,
+            "x0": 69.5,
+            "x1": 412.5
+          }
+        ]
+      },
+      "hits": [
+        {
+          "word_id": 170,
+          "enclosing_original_cells": []
+        }
+      ]
+    }
+  ],
+  "blank_area_remaining": [
+    {
+      "page": "20260803g001740106",
+      "remaining_source_symbols": 1,
+      "source_word": {
+        "id": 170,
+        "x0": 701.234,
+        "y0": 186.7054,
+        "x1": 709.234,
+        "y1": 194.8894,
+        "raw": "",
+        "text": "",
+        "status": "empty"
+      },
+      "original_image": ".cache/kanpo-227/area-empty-visual/20260803g001740106.png",
+      "image_sha256": "2450ade25c024166aa0897029d2556bce5088c4b4a5ea213d54db0b88d8bbdc0",
+      "full_original_view_image_checked": true,
+      "judgement": "unchanged; omission remains",
+      "reason": "右財産目録、数量欄の土地20,961/建物延15,751の上に共有㎡1字。既存Table38セルの各bboxは全高共通で幾何による既存セル所属が一意でない。元のfind_gridsのどのGridCellも原Glyphのfullbboxを含まない。Plainの面積ラベル対・同数値の一意suffixもないため補わない。Table/quantity-header reconstruction is a separate future candidate.",
+      "original_physical_cell_matches": 0,
+      "source_font_proof": "area-unit-outline-proof.json /area-unit-occurrences.json",
+      "glyph_bbox": [
+        701.234,
+        186.7054,
+        709.234,
+        194.8894
+      ],
+      "baseline": "after31"
+    }
+  ],
+  "root_all17_integrated_source_proof": [
+    {
+      "page": "20260722g001620007",
+      "source_sha256": "29d7a30094977ae87055a1397061b19438de211c8806c0b2bec0e1a4d35b3be8",
+      "before_sha256": "50d3dff9cdd59a4f8877e0f79d748dd17b9c1f96f76ac8531393aae443643b69",
+      "after_sha256": "6f799255ec393645c25311496fc306443aa03a872970f92688e4c6fe08ad9b0e",
+      "restored_reference_glyphs": 6,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 5,
+      "new_original_output_IDs": 3,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 6,
+        "A": 2,
+        ")": 6,
+        "C": 2,
+        "B": 2
+      }
+    },
+    {
+      "page": "20260731g001720117",
+      "source_sha256": "fb06eee98740e1ea7e1a1cbab1500a04ac7d42d0b42f53f08adf941b6011ca9c",
+      "before_sha256": "f46a281f9b20061e00feff3efca3db6fb6a95c1dbde5427db908acbffefe5e0e",
+      "after_sha256": "4d18fad8e9da46beeeed07a984bf68a1e32b6134d4bf613c8fb89de6b6ddad67",
+      "restored_reference_glyphs": 0,
+      "restored_area_glyphs": 2,
+      "changed_source_Words": 2,
+      "new_original_output_IDs": 2,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "㎡": 2
+      }
+    },
+    {
+      "page": "20260731g001720122",
+      "source_sha256": "ddc9e3883808db4042747470bcdd50d0688376ac9e2f3fa1731e6a71735afc4b",
+      "before_sha256": "dd73db7d75ef4da5fba1437be37dc3b4b1bac682282d17621b77e1c107b08b0b",
+      "after_sha256": "94c1348e19ab67ce9eb037b3bef5c458ef8361d06583b25c663641a99e93d8d8",
+      "restored_reference_glyphs": 0,
+      "restored_area_glyphs": 2,
+      "changed_source_Words": 2,
+      "new_original_output_IDs": 2,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "㎡": 2
+      }
+    },
+    {
+      "page": "20260731g001720127",
+      "source_sha256": "53ea1cf665511693587671560e19c77f3707d4571589267ada235c1134c0035e",
+      "before_sha256": "554267ead7ab011806d267a41c280b1cd4672d4a7104cac2bcfd4110af4f0ac0",
+      "after_sha256": "d734641c9832c2cff8b013ab9b9dbfcfcb204a0e3d6ebe09234987d607ade4be",
+      "restored_reference_glyphs": 0,
+      "restored_area_glyphs": 2,
+      "changed_source_Words": 2,
+      "new_original_output_IDs": 2,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "㎡": 2
+      }
+    },
+    {
+      "page": "20260731g001720133",
+      "source_sha256": "c755c192c220dd077602e96a1502c06cb3cdc7a47a08aad7d9d3233e571dd4a2",
+      "before_sha256": "50c876d756dec80ac4c16637261f6547f26c8f1d430b3e859f540bee64e38141",
+      "after_sha256": "6215a2efc56bf338d1c0f89aa0a5b379420a0131530397c143a68e81d3d5dbc9",
+      "restored_reference_glyphs": 0,
+      "restored_area_glyphs": 2,
+      "changed_source_Words": 2,
+      "new_original_output_IDs": 2,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "㎡": 2
+      }
+    },
+    {
+      "page": "20260731g001720139",
+      "source_sha256": "00823d47299916e1956a763bdfcb763a2364cd6501a17b003265655129ea4d78",
+      "before_sha256": "475ad659ae39fcef2f764827a44f92d69a19334abf37f0be615621c381f49e88",
+      "after_sha256": "dd96abe0282ff5845d467365ed58614aef979b57b4d404d440eb60e04bea9cd0",
+      "restored_reference_glyphs": 0,
+      "restored_area_glyphs": 2,
+      "changed_source_Words": 2,
+      "new_original_output_IDs": 2,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "㎡": 2
+      }
+    },
+    {
+      "page": "20260806g001770059",
+      "source_sha256": "f947759244542550518c90e525bf2a3f2e897270bc3889fbc6533c1060a2fad7",
+      "before_sha256": "b73f2dd5d797626c6a4138e43ed987b6ff581263320dce97044eaaafe164e388",
+      "after_sha256": "956ee5645c121ce910dbe1a22acdb3dbd40b2a796774519076678f8be955f938",
+      "restored_reference_glyphs": 7,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 5,
+      "new_original_output_IDs": 0,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 7,
+        "C": 3,
+        ")": 7,
+        "A": 2,
+        "B": 2
+      }
+    },
+    {
+      "page": "20260810g001790112",
+      "source_sha256": "253185e298938b2a20d974934c50124f3169f1a7aad0b222e3db8403cf0a4a11",
+      "before_sha256": "b6e551bdf33040dbc543b6554af0fba3dfef3d5a7ddb61fb326d709dcdab7ac7",
+      "after_sha256": "84c0b6806e9fb4cda009c776853d550d01ab852145a122fa3f507c0cf777f16c",
+      "restored_reference_glyphs": 6,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 4,
+      "new_original_output_IDs": 3,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 6,
+        "A": 2,
+        ")": 6,
+        "B": 2,
+        "C": 2
+      }
+    },
+    {
+      "page": "20260820g001860075",
+      "source_sha256": "e6765a90d4f1bce9de9e214cfd5203d02d3ba847fb6ac66051d1a384687f0204",
+      "before_sha256": "dbc5c15baf1402a560dcb1e7e22d589ca95b430ba204893a216b4bf76d9240ab",
+      "after_sha256": "631bf7750282cdf6c5b05b78783c1dd2653cdca40087a46d613bb173f5bfdc81",
+      "restored_reference_glyphs": 11,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 9,
+      "new_original_output_IDs": 0,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 11,
+        "A": 4,
+        ")": 11,
+        "B": 4,
+        "C": 3
+      }
+    },
+    {
+      "page": "20260821g001870074",
+      "source_sha256": "309c4f44358ebce0f078ff5f9a8d300e1b2ad23a571b9c9cfa7002a1910cd16b",
+      "before_sha256": "bb1ada2ed618ac56160c8981b002c9a70f87399a0f3a211849c62a2c6e78dcb1",
+      "after_sha256": "8715f837de936f1a1b12e1ca3800804b4b4f63e96114e0736e3ab4932e5a5fa2",
+      "restored_reference_glyphs": 3,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 1,
+      "new_original_output_IDs": 0,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 3,
+        "A": 1,
+        ")": 3,
+        "B": 1,
+        "C": 1
+      }
+    },
+    {
+      "page": "20260902g001960128",
+      "source_sha256": "883741c4ab38c1e8e7e103857585f6de8f7c88c5d0d63ffbbd5ff98a79cf0a1d",
+      "before_sha256": "6b562abb7c72c321d7025bc34e94b252a3f0cacea920a9d30b6ce7d2b0dbf65f",
+      "after_sha256": "eb4487c5b5067e4052ceecd3c733ddbb3e329a1f52076926246961e895303bd3",
+      "restored_reference_glyphs": 3,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 2,
+      "new_original_output_IDs": 0,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 3,
+        "A": 1,
+        ")": 3,
+        "B": 2
+      }
+    },
+    {
+      "page": "20260902g001960134",
+      "source_sha256": "4d8604a4981439439c870880fb1cb07e5693a0423813388412138b121d388728",
+      "before_sha256": "bbe6ede05a8439ff497d070ba042c8df3971c216896d49b504fd5d2bd3b2aeb8",
+      "after_sha256": "e15c6d52176296f5efa9cbc2f86b59796ea5e1fd0b88e532a0f246011258e647",
+      "restored_reference_glyphs": 1,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 1,
+      "new_original_output_IDs": 0,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 1,
+        "B": 1,
+        ")": 1
+      }
+    },
+    {
+      "page": "20260916g002060317",
+      "source_sha256": "c7866f17670e242ac0746999d16118cccd80db9ad9b84a88b9afb8a56c82c760",
+      "before_sha256": "55378ab4a1981bdc5f121f69695148919a5f53c689db8b1f1a256fb5ac96056c",
+      "after_sha256": "9dc02f64ce097dd280fb029943504e8227bd1ccbe40ba2ca8096833d2bedcfad",
+      "restored_reference_glyphs": 6,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 5,
+      "new_original_output_IDs": 3,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 6,
+        "B": 2,
+        ")": 6,
+        "A": 2,
+        "C": 2
+      }
+    },
+    {
+      "page": "20260930g002160063",
+      "source_sha256": "50336e11e0a299323f5ba94b51a74260a50e59e4fff8cac4c85ab69476aa64c8",
+      "before_sha256": "d7f1f8a3652e31eca84be5c69355c921aa2fbfafa10d856c863909fa8d09b198",
+      "after_sha256": "5cb6a90f7d4816c460cdfd2ec10f1c2f65b2ac66551d153a13025ab3963001d3",
+      "restored_reference_glyphs": 3,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 2,
+      "new_original_output_IDs": 0,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 3,
+        "C": 1,
+        ")": 3,
+        "A": 1,
+        "B": 1
+      }
+    },
+    {
+      "page": "20261016g002280106",
+      "source_sha256": "b83b8ecf3c49b27c384bdf6faf9d760df6ffe8b07244bc799fbd2341f3125c17",
+      "before_sha256": "bc834c654abff4c809ab38ae2e04d0d9da74c81ef8d163e383c88cd159ffb7ff",
+      "after_sha256": "df52737b916df7d72bc29b0b15cfb1dfe6bd0e1475ab6c9919374a991dac8817",
+      "restored_reference_glyphs": 9,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 9,
+      "new_original_output_IDs": 9,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 3,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 9,
+        "A": 3,
+        ")": 9,
+        "B": 3,
+        "C": 3
+      }
+    },
+    {
+      "page": "20261016g002280275",
+      "source_sha256": "088d9b95d679470974364cc36441cea5672a3ed20b1d9a46875a5c045be37fcb",
+      "before_sha256": "550504f2b495698b1dc477a4d13a052a1d132af5f7523da6c5ac6a398ab90e8a",
+      "after_sha256": "0326ea8b55df68cbbc03e6a6963d46a19c7013e91430129fb30f28e67c488e11",
+      "restored_reference_glyphs": 1,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 1,
+      "new_original_output_IDs": 0,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 1,
+        "A": 1,
+        ")": 1
+      }
+    },
+    {
+      "page": "20261016g002280276",
+      "source_sha256": "f65012286d581b57a55ee43e51dc793cc284375387f79bc4ce80983ab5bd9aba",
+      "before_sha256": "bb5f589930a4b27ec3858d67d79f31d2a1e59b6904288d385fbc2d1f35984d40",
+      "after_sha256": "637468eb19b0d24d29ab14ac3f34887e468b9786bbeb52bf9b36c844a030722e",
+      "restored_reference_glyphs": 2,
+      "restored_area_glyphs": 0,
+      "changed_source_Words": 2,
+      "new_original_output_IDs": 0,
+      "all_old_IDs_retained_once": true,
+      "source_raw_ID_bbox_exact": true,
+      "owner_locations_verified": true,
+      "old_structure_exact_after_proven_insertions_undone": true,
+      "new_symbol_cells": 0,
+      "removed_characters": {},
+      "added_characters": {
+        "(": 2,
+        "A": 2,
+        ")": 2
+      }
+    }
+  ],
+  "scope": "58 original reference Glyphs and10 original㎡Glyphs only. Existing source IDs/raw/bboxes exact;28 previously Empty sourceIDs attached once, all old IDs retained once.3 new symbol cells under explicit記号 header and2 derived rowspan3 merges are source-proved.22 nativeABC remain omitted:11 unknown D..Z in same rawWord and11 ambiguous owners. Other D..Z/PUA are not counted as80 ABC. Shared area-unit1glyph remains omitted."
+}
