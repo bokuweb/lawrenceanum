@@ -207,7 +207,52 @@ fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)],
     rejoin_split_names(&mut lines, &geom, &texts);
     attach_toc_numbers(&mut lines, &geom, &texts);
     raise_signer_blocks(&mut lines, &geom);
+    raise_unit_labels(&mut lines, &geom);
     lines
+}
+
+/// 表の右上の「（単位：千円）」だけの行が、同じ高さの左の行（表の標題の下の「（令和８年３月31日）」）より後ろの、
+/// 表の行の間や後ろに読まれていたら、その左の行のすぐ後ろへ戻す（署名の欄と単位の欄の間の溝で列に分かれ、
+/// 単位が左の表を読み終えた後に読まれていた）。
+fn raise_unit_labels(lines: &mut Vec<trace::Line>, geom: &std::collections::HashMap<usize, (f32, f32, f32, f32)>) {
+    let bounds = |l: &trace::Line| {
+        let g: Vec<&(f32, f32, f32, f32)> = l.words.iter().filter_map(|w| geom.get(w)).collect();
+        (!g.is_empty() && l.table.is_none()).then(|| {
+            (
+                g.iter().map(|p| p.0).fold(f32::INFINITY, f32::min),
+                g.iter().map(|p| p.1).fold(f32::NEG_INFINITY, f32::max),
+                g.iter().map(|p| p.2).fold(f32::INFINITY, f32::min),
+                g.iter().map(|p| p.3).fold(f32::NEG_INFINITY, f32::max),
+            )
+        })
+    };
+    let unit = |t: &str| {
+        let t = t.trim();
+        (t.starts_with("（単位") || t.starts_with("(単位")) && (t.ends_with('）') || t.ends_with(')')) && t.chars().count() <= 12
+    };
+    let mut i = 1;
+    while i < lines.len() {
+        let Some(b) = unit(&lines[i].text).then(|| bounds(&lines[i])).flatten() else {
+            i += 1;
+            continue;
+        };
+        let cy = (b.2 + b.3) / 2.0;
+        // 同じ段の中の左の行（隣の段の行と取り違えないよう、120pt 以内）。
+        let same = |l: &trace::Line| bounds(l).is_some_and(|o| ((o.2 + o.3) / 2.0 - cy).abs() < 1.5 && o.1 <= b.0 && b.0 - o.1 < 120.0);
+        // すぐ前の行が同じ高さなら、そのままでよい。
+        if same(&lines[i - 1]) {
+            i += 1;
+            continue;
+        }
+        // 同じ高さの左の行のうち一番後ろのもの。その行から単位の行までの間に、単位より上の行が無いこと
+        // （間の行はどれも単位より下にある表の行）。
+        let found = (0..i - 1).rev().find(|&j| same(&lines[j]));
+        if let Some(j) = found.filter(|&j| lines[j + 1..i].iter().all(|l| bounds(l).is_none_or(|o| o.2 >= b.3 - 1.0))) {
+            let l = lines.remove(i);
+            lines.insert(j + 1, l);
+        }
+        i += 1;
+    }
 }
 
 /// 公告の日付の行の右に寄せて組んだ署名の欄（「滋賀県大津市瀬田月輪町」「国立大学法人滋賀医科大学長」「遠山　育夫」）が、紙面でそれより
