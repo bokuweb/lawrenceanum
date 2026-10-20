@@ -56,7 +56,7 @@ fn canonical(value: Value) -> Value {
     }
 }
 
-fn revision(value: &impl Serialize) -> String {
+pub(super) fn revision(value: &impl Serialize) -> String {
     let bytes = serde_json::to_vec(&canonical(
         serde_json::to_value(value).expect("serializable"),
     ))

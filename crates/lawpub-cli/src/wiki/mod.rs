@@ -136,7 +136,7 @@ pub const KIND_KOKKAI: &str = "kokkai";
 pub const KIND_SHINGIKAI: &str = "shingikai";
 
 /// 引用できる最小単位。国会は 1 発言、審議会は議事録の `○` で始まる 1 ターン。
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Unit {
     /// `kokkai:{speech_id}` / `shingikai:{minutes_id}#{turn}`。
     pub reference: String,
@@ -312,6 +312,9 @@ pub struct State {
     pub schema_version: u32,
     /// `kokkai:{meeting_id}` / `shingikai:{minutes_id}` → 処理結果。
     pub processed: BTreeMap<String, Processed>,
+    /// 再取得を試みた順序。取得失敗も含め、処理済み会議を上限内で巡回する。
+    #[serde(default)]
+    pub meeting_probes: BTreeMap<String, u64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

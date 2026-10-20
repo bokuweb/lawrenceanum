@@ -112,10 +112,10 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
         .format("%Y-%m-%d")
         .to_string();
 
-    let state = State::load(&args.wiki)?;
+    let mut state = State::load(&args.wiki)?;
     let candidates = collect_candidates(&source, &args.wiki, &state, &since)?;
     tracing::info!(
-        "wiki-plan: {} unprocessed meetings since {since}",
+        "wiki-plan: {} candidate meetings since {since}",
         candidates.len()
     );
 
@@ -129,12 +129,15 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
     let mut intake: BTreeMap<String, String> = candidates.iter()
         .map(|c| (format!("{}:{}", c.kind, c.id), "budget_pending".into())).collect();
     let mut probes = 0usize;
+    let mut probe_order = state.meeting_probes.values().copied().max().unwrap_or(0);
     for c in candidates {
         if tasks.len() >= args.max_items || probes >= args.max_probes {
             break;
         }
         probes += 1;
         let key = format!("{}:{}", c.kind, c.id);
+        probe_order += 1;
+        state.meeting_probes.insert(key.clone(), probe_order);
         intake.insert(key.clone(), "source_unavailable".into());
         let link_path = match c.kind {
             KIND_KOKKAI => format!("links/meeting-to-laws/{}.json", c.id),
@@ -168,6 +171,24 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
             KIND_KOKKAI => kokkai_units(&doc),
             _ => shingikai_units(&doc),
         };
+        let fingerprint = meeting_fingerprint(&c, &doc, &laws, &units);
+        let page_path = args.wiki.join(meeting_page(c.kind, &c.id));
+        if page_path.exists() {
+            let mut page = Page::read(&page_path)?;
+            if state.is_processed(&key)
+                && page.get_str("source_fingerprint") == fingerprint
+                && page.get_str("llm_source_fingerprint") == fingerprint
+                && page.get("llm_version").and_then(Value::as_u64).unwrap_or(0) >= NARRATIVE_VERSION
+                && page.get("render_version").and_then(Value::as_u64) == Some(MEETING_RENDER_VERSION)
+            {
+                intake.insert(key, "source_unchanged".into());
+                continue;
+            }
+            // 要約できる本文が無くなった訂正でも、以前の要約を最新版として残さない。
+            page.set("source_fingerprint", json!(fingerprint));
+            page.write(&page_path)?;
+            state.mark(&key, "summary_pending", &today_s);
+        }
         let matched = build_excerpts(c.kind, &units, &laws);
         // 法令名がまだ無い政策形成、議事進行にしか法令名が無い回も会議から取り込む。
         let excerpts = if c.kind == KIND_SHINGIKAI || matched.is_empty()
@@ -254,7 +275,7 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
     std::fs::create_dir_all(args.wiki.join(".lawpub"))?;
     std::fs::write(args.wiki.join(".lawpub/intake.json"), serde_json::to_vec_pretty(&json!({
         "date": today_s, "since": since, "entries": intake,
-        "scope": "日付窓内の未完了会議と旧形式ページ。窓外・未収集資料は集計外。planned は完了ではない。"
+        "scope": "日付窓内の未完了会議・処理済み会議の原資料再取得と旧形式ページ。取得・要約件数に上限があり、窓外の現行形式ページ・未収集資料は集計外。source_unchanged は取得時点の比較結果、planned は完了ではない。"
     }))?)?;
     state.save(&args.wiki)?;
     let plan = Plan {
@@ -294,7 +315,7 @@ fn collect_candidates(source: &Source, wiki: &Path, state: &State, since: &str) 
             let (Some(id), Some(date)) = (m["meeting_id"].as_str(), m["date"].as_str()) else {
                 continue;
             };
-            if date >= since && !state.is_processed(&format!("{KIND_KOKKAI}:{id}")) {
+            if date >= since {
                 out.push(Candidate {
                     kind: KIND_KOKKAI,
                     id: id.into(),
@@ -316,8 +337,7 @@ fn collect_candidates(source: &Source, wiki: &Path, state: &State, since: &str) 
             if !m["has_minutes"].as_bool().unwrap_or(false) {
                 continue;
             }
-            let done = state.is_processed(&format!("{KIND_SHINGIKAI}:{id}"));
-            if date >= since && !done {
+            if date >= since {
                 out.push(Candidate {
                     kind: KIND_SHINGIKAI,
                     id: id.into(),
@@ -327,7 +347,19 @@ fn collect_candidates(source: &Source, wiki: &Path, state: &State, since: &str) 
             }
         }
     }
-    out.sort_by(|a, b| b.date.cmp(&a.date).then_with(|| a.id.cmp(&b.id)));
+    // 新規・未完了を先にし、処理済みは再取得した順が古いものから巡回する。
+    out.sort_by(|a, b| {
+        let ak = format!("{}:{}", a.kind, a.id);
+        let bk = format!("{}:{}", b.kind, b.id);
+        state.is_processed(&ak).cmp(&state.is_processed(&bk))
+            .then_with(|| {
+                if state.is_processed(&ak) {
+                    state.meeting_probes.get(&ak).copied().unwrap_or(0)
+                        .cmp(&state.meeting_probes.get(&bk).copied().unwrap_or(0))
+                } else { std::cmp::Ordering::Equal }
+            })
+            .then_with(|| b.date.cmp(&a.date)).then_with(|| a.id.cmp(&b.id))
+    });
 
     // 新しい会議の後ろに、経緯の形式が古い処理済み会議を新しい順に並べる。
     let mut stale = Vec::new();
@@ -700,6 +732,14 @@ fn ministry_ja(ministry: &str) -> &str {
     }
 }
 
+/// 取得時刻等に影響されず、抜粋外を含む引用単位・帰属・議題・法令対応を比較する。
+fn meeting_fingerprint(c: &Candidate, doc: &Value, laws: &[LinkedLaw], units: &[Unit]) -> String {
+    let labels = meeting_labels(c.kind, &c.id, doc);
+    let laws: BTreeMap<_, _> = laws.iter().map(|l| (&l.law_id, (&l.title, &l.patterns))).collect();
+    super::report::revision(&json!({"version": 1, "kind": c.kind, "date": c.date,
+        "labels": labels, "agenda": doc["agenda"], "units": units, "laws": laws}))
+}
+
 fn write_task(
     args: &PlanArgs,
     source: &Source,
@@ -708,6 +748,8 @@ fn write_task(
     laws: &[LinkedLaw],
     excerpts: &[Excerpt],
 ) -> Result<Task> {
+    let units = if c.kind == KIND_KOKKAI { kokkai_units(doc) } else { shingikai_units(doc) };
+    let fingerprint = meeting_fingerprint(c, doc, laws, &units);
     // 実際に抜粋に現れた法令だけをページ化する (リンク判定はタイトル一致なので広め)。
     let cited: BTreeSet<&str> = excerpts
         .iter()
@@ -734,11 +776,12 @@ fn write_task(
         Page::default()
     };
     let speakers_json = speakers_from_excerpts(c.kind, excerpts);
-    let units = if c.kind == KIND_KOKKAI { kokkai_units(doc) } else { shingikai_units(doc) };
     let scope = super::evidence::source_scope(&units, excerpts);
     // 以前の主張との対応を保持する。本文の更新と claims の構造検査を満たすまで完了にはしない。
 
     let existing_claims = meeting.get("claims").cloned().unwrap_or(json!([]));
+    let previous_fingerprint = meeting.get("llm_source_fingerprint").cloned().unwrap_or(json!(""));
+    let llm_version = meeting.get("llm_version").cloned().unwrap_or(json!(0));
     let description = meeting.get_str("description").to_string();
     let tags = meeting.get("tags").cloned().unwrap_or(json!([]));
     meeting.frontmatter = vec![
@@ -759,6 +802,9 @@ fn write_task(
         ("tags".into(), tags),
         ("render_version".into(), json!(MEETING_RENDER_VERSION)),
         ("evidence_version".into(), json!(1)),
+        ("source_fingerprint".into(), json!(fingerprint)),
+        ("llm_source_fingerprint".into(), previous_fingerprint.clone()),
+        ("llm_version".into(), llm_version),
         ("source_scope".into(), scope.clone()),
         ("claims".into(), existing_claims),
         ("evidence_sources".into(), json!(units.iter().filter(|u| excerpts.iter().any(|e| e.reference == u.reference))
@@ -836,6 +882,8 @@ fn write_task(
         "scope": scope,
         "attributions": units.iter().filter(|u| excerpts.iter().any(|e| e.reference == u.reference))
             .map(|u| super::evidence::attribution(u, &c.date)).collect::<Vec<_>>(),
+        "source_fingerprint": fingerprint,
+        "previous_summary_fingerprint": previous_fingerprint,
     });
     std::fs::write(
         args.work.join(&source_rel),
@@ -1373,7 +1421,122 @@ mod tests {
         assert_eq!(exported["claim_assessments"][0]["sources"][0]["date"], "2026-10-02");
         let index: Value = serde_json::from_slice(&std::fs::read(out.join("index.json")).unwrap()).unwrap();
         assert_eq!(index["intake"]["entries"]["kokkai:M4"], "budget_pending");
+
+        // 処理済みでも日付窓内は再取得する。取得時刻だけの変更ではページの版を動かさない。
+        write("proceedings/index.json", json!({"meetings": [{"meeting_id": "M1", "date": "2026-10-02"}]}));
+        let mut doc: Value = serde_json::from_slice(&std::fs::read(public.join("proceedings/M1.json")).unwrap()).unwrap();
+        doc["fetched_at"] = json!("2026-10-09T00:00:00Z");
+        write("proceedings/M1.json", doc.clone());
+        let original = std::fs::read(&path).unwrap();
+        run_plan(&args).unwrap();
+        assert!(Plan::load(&work).unwrap().unwrap().tasks.is_empty());
+        assert_eq!(std::fs::read(&path).unwrap(), original);
+        assert_eq!(intake()["entries"]["kokkai:M1"], "source_unchanged");
+
+        // 以前は未収録だった発言の訂正も検出し、旧判定と新しい話者情報を混ぜない。
+        doc["speeches"][2]["speech"] = json!("○田中委員長　実施に当たっては慎重に条件を検討し、次回に改めて議論を続けます。");
+        write("proceedings/M1.json", doc.clone());
+        run_plan(&args).unwrap();
+        let refreshed = Plan::load(&work).unwrap().unwrap();
+        assert_eq!(refreshed.tasks.len(), 1);
+        assert!(refreshed.tasks[0].created.is_empty());
+        let pending = Page::read(&path).unwrap();
+        assert_ne!(pending.get("source_fingerprint"), pending.get("llm_source_fingerprint"));
+        let assessment = super::super::evidence::assessments(&pending);
+        assert_eq!(assessment[0]["review_status"], "indeterminate");
+        assert_eq!(assessment[0]["sources"], json!([]));
+        super::super::finalize::run_finalize(&finalize).unwrap();
+        assert!(path.exists(), "未更新の既存ページは残す");
+        assert!(!State::load(&wiki).unwrap().is_processed("kokkai:M1"));
+        assert_eq!(intake()["entries"]["kokkai:M1"], "summary_pending");
+        assert!(std::fs::read_to_string(wiki.join(refreshed.tasks[0].committee.as_ref().unwrap())).unwrap().contains("原資料更新・要再確認"));
+
+        // 完了マーカーを LLM が先に進めても受理しない。正しい再要約後は繰り返し finalize できる。
+        let mut updated = pending.clone();
+        updated.body = updated.body.replace("政府は財源確保を条件に検討し、実施時期は未定とした", "政府は実施時期は未定と説明した");
+        updated.set("claims", json!([{"text": "政府は実施時期は未定と説明した", "kind": "government_view", "attribution": "kokkai:M1_002", "evidence": ["1"], "review_status": "needs_review", "review_note": "条件と時期の関係は追加確認が必要。"}]));
+        let mut forged = updated.clone();
+        forged.set("llm_source_fingerprint", forged.get("source_fingerprint").cloned().unwrap());
+        forged.write(&path).unwrap();
+        assert!(super::super::check::run_check(&check).is_err());
+        super::super::finalize::run_finalize(&finalize).unwrap();
+        assert!(!State::load(&wiki).unwrap().is_processed("kokkai:M1"));
+        updated.write(&path).unwrap();
+        super::super::finalize::run_finalize(&finalize).unwrap();
+        super::super::finalize::run_finalize(&finalize).unwrap();
+        let current = Page::read(&path).unwrap();
+        assert_eq!(super::super::evidence::summary_source_status(&current), "current");
+        assert!(State::load(&wiki).unwrap().is_processed("kokkai:M1"));
+        super::super::check::run_check(&check).unwrap();
+
+        // 原資料の本文が無くなった場合も、旧要約を処理済みのままにしない。
+        doc["speeches"] = json!([]);
+        write("proceedings/M1.json", doc);
+        run_plan(&args).unwrap();
+        assert!(Plan::load(&work).unwrap().unwrap().tasks.is_empty());
+        assert_eq!(intake()["entries"]["kokkai:M1"], "no_substantive_text");
+        assert!(!State::load(&wiki).unwrap().is_processed("kokkai:M1"));
+        assert_eq!(super::super::evidence::summary_source_status(&Page::read(&path).unwrap()), "stale");
         std::fs::remove_dir_all(root).ok();
+    }
+
+    #[test]
+    fn processed_meeting_probes_rotate_within_budget_and_ignore_outside_window() {
+        let root = temp_dir("meeting_probe_rotation");
+        let public = root.join("public");
+        let wiki = root.join("wiki");
+        let work = root.join("work");
+        std::fs::create_dir_all(public.join("proceedings")).unwrap();
+        std::fs::write(public.join("proceedings/index.json"), serde_json::to_vec(&json!({"meetings": [
+            {"meeting_id": "M1", "date": "2026-10-03"},
+            {"meeting_id": "M2", "date": "2026-10-02"},
+            {"meeting_id": "M0", "date": "2025-10-01"}
+        ]})).unwrap()).unwrap();
+        let mut state = State::default();
+        for id in ["M1", "M2", "M0"] { state.mark(&format!("kokkai:{id}"), "linked", "2026-10-03"); }
+        state.save(&wiki).unwrap();
+        let args = PlanArgs { base_url: public.display().to_string(), wiki: wiki.clone(), work: work.clone(),
+            max_items: 1, max_probes: 1, lookback_days: 30, today: Some("2026-10-08".into()),
+            max_bills: 0, max_enforcements: 0, max_pubcomments: 0, max_kanpo: 0,
+            max_people: 0, max_roster: 0, reiki_base_url: String::new(), chunk_size: 4 };
+        // 取得失敗も巡回順を進める。欠けた資料を毎回先頭で試すことを避ける。
+        run_plan(&args).unwrap();
+        let first = State::load(&wiki).unwrap();
+        assert_eq!(first.meeting_probes.keys().collect::<Vec<_>>(), vec!["kokkai:M1"]);
+        run_plan(&args).unwrap();
+        let second = State::load(&wiki).unwrap();
+        assert_eq!(second.meeting_probes["kokkai:M2"], 2);
+        assert!(!second.meeting_probes.contains_key("kokkai:M0"));
+        let intake: Value = serde_json::from_slice(&std::fs::read(wiki.join(".lawpub/intake.json")).unwrap()).unwrap();
+        assert_eq!(intake["entries"]["kokkai:M1"], "budget_pending");
+        assert_eq!(intake["entries"]["kokkai:M2"], "source_unavailable");
+        let mut disabled = args;
+        disabled.max_probes = 0;
+        run_plan(&disabled).unwrap();
+        assert_eq!(State::load(&wiki).unwrap().meeting_probes, second.meeting_probes);
+        std::fs::remove_dir_all(root).ok();
+    }
+
+    #[test]
+    fn meeting_fingerprint_tracks_attribution_agenda_and_law_mapping_in_both_corpora() {
+        for kind in [KIND_KOKKAI, KIND_SHINGIKAI] {
+            let c = Candidate { kind, id: "M1".into(), date: "2026-10-02".into(), ministry: None };
+            let doc = json!({"agenda": ["制度の見直し"]});
+            let units = vec![unit("ref:1", "政策を検討します。ただし実施は未定です。")];
+            let original = meeting_fingerprint(&c, &doc, &[], &units);
+            let mut changed = units.clone();
+            changed[0].speaker = Some("別の発言者".into());
+            assert_ne!(original, meeting_fingerprint(&c, &doc, &[], &changed));
+            changed = units.clone();
+            changed[0].position = Some("参考人".into());
+            assert_ne!(original, meeting_fingerprint(&c, &doc, &[], &changed));
+            changed = units.clone();
+            changed[0].text.push_str("反対意見もあります。");
+            assert_ne!(original, meeting_fingerprint(&c, &doc, &[], &changed));
+            assert_ne!(original, meeting_fingerprint(&c, &json!({"agenda": ["決定事項"]}), &[], &units));
+            let laws = linked_laws(&json!({"linked_laws": [{"law_id": "L1", "title": "予防接種法"}]}));
+            assert_ne!(original, meeting_fingerprint(&c, &doc, &laws, &units));
+        }
     }
 
     #[test]

@@ -316,6 +316,7 @@ fn changed_pages(wiki: &Path) -> Option<HashSet<String>> {
 pub fn run_check(args: &CheckArgs) -> Result<()> {
     let wiki = &args.wiki;
     let plan = Plan::load(&args.work)?;
+    let state = State::load(wiki)?;
     let changed = if args.changed_only {
         changed_pages(wiki)
     } else {
@@ -420,7 +421,8 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
             for message in evidence::claim_errors(&page) { err(1, message); }
         }
         // LLM が編集しないソースバンドルを基準に、日付・抽出範囲の書き換えも検出する。
-        if page.get("evidence_version").is_some() {
+        if page.get("evidence_version").is_some() || plan.as_ref().is_some_and(|p| p.tasks.iter()
+            .any(|t| t.page == rel && matches!(t.kind.as_str(), KIND_KOKKAI | KIND_SHINGIKAI))) {
             if let Some(task) = plan.as_ref().and_then(|p| p.tasks.iter().find(|t| t.page == rel)) {
                 let bundle = std::fs::read(args.work.join(&task.source))
                     .with_context(|| format!("read source bundle {}", task.source))?;
@@ -429,6 +431,10 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
                     if page.get(field) != bundle.get(original) {
                         err(1, format!("機械生成の {field} がソースバンドルと一致しません"));
                     }
+                }
+                if bundle.get("source_fingerprint").is_some()
+                    && !evidence::source_fields_match(&page, &bundle, state.is_processed(&task.key)) {
+                    err(1, "機械生成の原資料・要約の版がソースバンドルと一致しません".into());
                 }
             }
         }
