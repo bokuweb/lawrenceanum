@@ -6,7 +6,7 @@ const BASE = process.env.HISTORY_BASE ?? "http://127.0.0.1:8799/";
 const FEED = {
   schema_version: 1,
   generated_at: "2026-06-19T00:00:00Z",
-  count: 4,
+  count: 7,
   items: [
     {
       kind: "bill",
@@ -24,6 +24,29 @@ const FEED = {
       internal: true,
       ministry: "法務省",
       summary: "関連: 民法",
+    },
+    {
+      kind: "shingikai",
+      date: "2026-06-18",
+      title: "テスト審議会の議事録",
+      href: "/shingikai/moj/test-meeting",
+      internal: true,
+      ministry: "法務省",
+    },
+    {
+      kind: "proceedings",
+      date: "2026-06-17",
+      title: "衆議院 · テスト委員会 · 第1号",
+      href: "/proceedings/test-meeting",
+      internal: true,
+    },
+    {
+      kind: "procurement",
+      date: "2026-06-16",
+      title: "テスト情報システム調達",
+      href: "/procurement/test-notice",
+      internal: true,
+      ministry: "総務省",
     },
     {
       kind: "law",
@@ -59,17 +82,20 @@ test("新着フィードが横断アイテムとRSS購読を表示する", async
   await expect(page.getByRole("heading", { name: /規制変化フィード/ })).toBeVisible({ timeout: 15_000 });
   await expect(page.getByRole("link", { name: /RSS購読/ })).toBeVisible();
 
-  // 4 種別のアイテムが出る（法案・パブコメ・法令・官報）。
-  await expect(page.getByText("テスト法案（審議トラッキング）")).toBeVisible();
-  await expect(page.getByText("テスト民法改正パブコメ")).toBeVisible();
-  await expect(page.getByText("テスト改正法")).toBeVisible();
-  await expect(page.getByText("ある省令の一部を改正する省令")).toBeVisible();
+  const latest = page.getByRole("region", { name: "種類別の最新" });
+  const list = page.getByRole("region", { name: "新着一覧", exact: true });
+  await expect(latest.getByRole("button")).toHaveCount(7);
+  for (const item of FEED.items) {
+    await expect(latest.getByText(item.title)).toBeVisible();
+    await expect(list.getByText(item.title)).toHaveCount(1);
+  }
+  await expect(list.getByRole("button").first()).toContainText("テスト民法改正パブコメ");
 });
 
 test("法案フィルタで法案だけに絞れる", async ({ page }) => {
   await mockFeed(page);
   await page.goto(new URL("#/feed", BASE).toString());
-  await expect(page.getByText("テスト改正法")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole("region", { name: "種類別の最新" })).toBeVisible({ timeout: 15_000 });
 
   await page.getByLabel("フィルタ-法案").click();
   await expect(page.getByText("テスト法案（審議トラッキング）")).toBeVisible();
@@ -80,7 +106,7 @@ test("法案フィルタで法案だけに絞れる", async ({ page }) => {
 test("種別フィルタで官報だけに絞れる", async ({ page }) => {
   await mockFeed(page);
   await page.goto(new URL("#/feed", BASE).toString());
-  await expect(page.getByText("テスト改正法")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole("region", { name: "種類別の最新" })).toBeVisible({ timeout: 15_000 });
 
   // 「官報」フィルタチップを押す (aria-label で一意化)。
   await page.getByLabel("フィルタ-官報").click();
@@ -94,8 +120,48 @@ test("内部アイテムをクリックすると該当ページへ遷移する",
   await mockFeed(page);
   await page.goto(new URL("#/feed", BASE).toString());
 
-  await page.getByText("テスト改正法").click();
+  await page.getByRole("region", { name: "新着一覧", exact: true }).getByText("テスト改正法").click();
   await expect(page).toHaveURL(/#\/laws\/TESTLAW1/, { timeout: 15_000 });
+});
+
+test("追加した種別は複数選択でき、クリアで全種類に戻る", async ({ page }) => {
+  await mockFeed(page);
+  await page.goto(new URL("#/feed", BASE).toString());
+  const shingikai = page.getByLabel("フィルタ-審議会");
+  await shingikai.click();
+  await expect(shingikai).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("region", { name: "種類別の最新" })).toHaveCount(0);
+  const list = page.getByRole("region", { name: "新着一覧", exact: true });
+  await expect(list.getByRole("button")).toHaveCount(1);
+  await page.getByLabel("フィルタ-政府調達").click();
+  await expect(list.getByRole("button")).toHaveCount(2);
+  await expect(list.getByText("テスト情報システム調達")).toBeVisible();
+  await page.getByRole("button", { name: "クリア", exact: true }).click();
+  await expect(list.getByRole("button")).toHaveCount(7);
+  await expect(page.getByRole("region", { name: "種類別の最新" })).toBeVisible();
+});
+
+for (const [title, href] of [
+  ["テスト審議会の議事録", "/shingikai/moj/test-meeting"],
+  ["衆議院 · テスト委員会 · 第1号", "/proceedings/test-meeting"],
+  ["テスト情報システム調達", "/procurement/test-notice"],
+]) {
+  test(`種類別の最新から詳細に遷移: ${href}`, async ({ page }) => {
+    await mockFeed(page);
+    await page.goto(new URL("#/feed", BASE).toString());
+    await page.getByRole("region", { name: "種類別の最新" }).getByText(title, { exact: true }).click();
+    await expect(page).toHaveURL(new URL(`#${href}`, BASE).toString());
+  });
+}
+
+test("狭い画面でも種類別の最新とフィルタが収まる", async ({ page }) => {
+  await page.setViewportSize({ width: 768, height: 844 });
+  await mockFeed(page);
+  await page.goto(new URL("#/feed", BASE).toString());
+  await expect(page.getByRole("region", { name: "種類別の最新" })).toBeVisible();
+  await expect(page.getByLabel("フィルタ-政府調達")).toBeVisible();
+  const widths = await page.evaluate(() => ({ content: document.documentElement.scrollWidth, viewport: window.innerWidth }));
+  expect(widths.content).toBeLessThanOrEqual(widths.viewport);
 });
 
 test("官報項目の逆引きチップから改正対象法令へ遷移する", async ({ page }) => {
