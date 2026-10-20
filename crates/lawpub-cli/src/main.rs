@@ -28,6 +28,7 @@ mod validate;
 mod wiki;
 mod shitsumon;
 mod jlt;
+mod treaty;
 
 #[derive(Parser)]
 #[command(name = "lawpub", version, about = "e-Gov 法令データ正規化・配信 CLI")]
@@ -839,8 +840,54 @@ enum Cmd {
         public: PathBuf,
     },
 
+    /// 外務省の条約データ (条約データ検索・国会提出条約) を取得し `.cache/treaty/` に保存する。
+    /// 一覧は `--list-max-age-days` 以内に全ページ取得済みなら取り直さない。条約ページは公布・
+    /// 効力発生まで済んだ保存分を、本文は取得済みのものを飛ばすので、再実行で続きから取れる。
+    TreatyFetch {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
+        provider: String,
+        /// リクエスト間隔 (ミリ秒)。
+        #[arg(long, default_value_t = 2000)]
+        interval_ms: u64,
+        /// 一覧の最大ページ数 (1 ページ 30 件。0 = 全ページ)。
+        #[arg(long, default_value_t = 0)]
+        max_pages: u32,
+        /// 全ページ取得済みの一覧がこの日数より新しければ一覧を取り直さない。
+        #[arg(long, default_value_t = 7)]
+        list_max_age_days: i64,
+        /// 1 回の実行で取得する条約ページ・本文 HTML の最大数。
+        #[arg(long, default_value_t = 500)]
+        limit: usize,
+        /// HTML 版の無い条約の本文を PDF から抜く (要 pdftotext)。
+        #[arg(long)]
+        with_pdf: bool,
+        /// `--with-pdf` で 1 回に処理する条約の最大数。
+        #[arg(long, default_value_t = 50)]
+        pdf_limit: usize,
+        /// 国会提出条約ページ (署名・国会承認・公布・条約番号) を取らない。
+        #[arg(long)]
+        skip_diet: bool,
+    },
+
+    /// `.cache/treaty/` → `public/treaties/{id}.json` + `index.json` を書き出す。
+    TreatyBuildJson {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
     /// 政府解釈の関連法令・文書名・本文から `public/links/law-to-guidance/{law_id}.json` を生成する。
     LinkLawsAndGuidance {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
+    /// 法令本文の条約名・条約番号から `public/links/law-to-treaties/{law_id}.json` と
+    /// `public/links/treaty-to-laws/{treaty_id}.json` を生成する。
+    LinkLawsAndTreaties {
         #[arg(long, default_value = "public")]
         public: PathBuf,
     },
@@ -1166,6 +1213,31 @@ fn main() -> Result<()> {
             jlt::run_fetch(&cache, &provider, categories.as_deref(), interval_ms, limit, refresh)
         }
         Cmd::JltBuildJson { cache, public } => jlt::run_build_json(&cache, &public),
+        Cmd::TreatyFetch {
+            cache,
+            provider,
+            interval_ms,
+            max_pages,
+            list_max_age_days,
+            limit,
+            with_pdf,
+            pdf_limit,
+            skip_diet,
+        } => treaty::run_fetch(
+            &cache,
+            &provider,
+            &treaty::FetchOptions {
+                interval_ms,
+                max_pages,
+                list_max_age_days,
+                limit,
+                with_pdf,
+                pdf_limit,
+                skip_diet,
+            },
+        ),
+        Cmd::TreatyBuildJson { cache, public } => treaty::run_build_json(&cache, &public),
+        Cmd::LinkLawsAndTreaties { public } => linking::run_link_treaties(&public),
     }
 }
 
@@ -1173,9 +1245,26 @@ fn main() -> Result<()> {
 mod cli_tests {
     use super::*;
 
+    /// clap の derive が組み立てるコマンド定義はサブコマンドが増えると大きくなり、
+    /// テストスレッドの既定スタック (2 MiB) を debug ビルドで溢れる。本番の main スレッドは
+    /// 8 MiB あるので、テストでも広いスタックのスレッドでパースする。
+    fn parse<I, T>(args: I) -> Result<Cli, clap::Error>
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<std::ffi::OsString>,
+    {
+        let args: Vec<std::ffi::OsString> = args.into_iter().map(Into::into).collect();
+        std::thread::Builder::new()
+            .stack_size(16 << 20)
+            .spawn(move || Cli::try_parse_from(args))
+            .expect("spawn parser thread")
+            .join()
+            .expect("parser thread panicked")
+    }
+
     #[test]
     fn fetch_update_accepts_explicit_provider() {
-        let cli = Cli::try_parse_from([
+        let cli = parse([
             "lawpub",
             "fetch-update",
             "--date",
@@ -1192,7 +1281,7 @@ mod cli_tests {
 
     #[test]
     fn deployment_commands_accept_skip_search_db() {
-        let build = Cli::try_parse_from(["lawpub", "build-json", "--skip-search-db"]).unwrap();
+        let build = parse(["lawpub", "build-json", "--skip-search-db"]).unwrap();
         assert!(matches!(
             build.cmd,
             Cmd::BuildJson {
@@ -1201,7 +1290,7 @@ mod cli_tests {
             }
         ));
 
-        let update = Cli::try_parse_from([
+        let update = parse([
             "lawpub",
             "update",
             "--skip-search-db",
@@ -1224,7 +1313,7 @@ mod cli_tests {
 
     #[test]
     fn shingikai_command_accepts_limit_and_legacy_alias() {
-        let current = Cli::try_parse_from([
+        let current = parse([
             "lawpub",
             "shingikai-fetch",
             "--ministry",
@@ -1241,16 +1330,16 @@ mod cli_tests {
             }
         ));
 
-        let legacy = Cli::try_parse_from(["lawpub", "shingiakai-build-json"]).unwrap();
+        let legacy = parse(["lawpub", "shingiakai-build-json"]).unwrap();
         assert!(matches!(legacy.cmd, Cmd::ShingikaiBuildJson { .. }));
 
-        let link = Cli::try_parse_from(["lawpub", "link-laws-and-shingikai"]).unwrap();
+        let link = parse(["lawpub", "link-laws-and-shingikai"]).unwrap();
         assert!(matches!(link.cmd, Cmd::LinkLawsAndShingikai { .. }));
     }
 
     #[test]
     fn guidance_commands_parse() {
-        let fetch = Cli::try_parse_from([
+        let fetch = parse([
             "lawpub",
             "guidance-fetch",
             "--ministry",
@@ -1269,9 +1358,9 @@ mod cli_tests {
                 ..
             }
         ));
-        let build = Cli::try_parse_from(["lawpub", "guidance-build-json"]).unwrap();
+        let build = parse(["lawpub", "guidance-build-json"]).unwrap();
         assert!(matches!(build.cmd, Cmd::GuidanceBuildJson { .. }));
-        let link = Cli::try_parse_from(["lawpub", "link-laws-and-guidance"]).unwrap();
+        let link = parse(["lawpub", "link-laws-and-guidance"]).unwrap();
         assert!(matches!(link.cmd, Cmd::LinkLawsAndGuidance { .. }));
     }
 }
