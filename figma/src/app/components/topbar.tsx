@@ -11,17 +11,34 @@ export function Topbar({ value, onChange }: { value: string; onChange: (q: strin
   // ローカル state を持ち、composition 終了時に親へ通知する。
   const [local, setLocal] = useState(value);
   const composing = useRef(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!composing.current) setLocal(value);
   }, [value]);
+  useEffect(() => {
+    const focusSearch = (event: KeyboardEvent) => {
+      if (event.defaultPrevented || event.isComposing || composing.current || event.altKey || event.shiftKey) return;
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }
+    };
+    window.addEventListener("keydown", focusSearch);
+    return () => window.removeEventListener("keydown", focusSearch);
+  }, []);
   return (
     <header className="h-16 shrink-0 border-b border-border bg-background/80 backdrop-blur flex items-center px-3 md:px-6 gap-2 md:gap-4 sticky top-0 z-10">
       <div className="relative flex-1 min-w-0 max-w-xl">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
         <Input
+          ref={inputRef}
+          type="search"
+          aria-label="横断検索"
+          aria-keyshortcuts="Meta+K Control+K"
           value={local}
           placeholder="法令・資料名・本文を検索..."
-          className="pl-9 h-9"
+          className="pl-9 sm:pr-14 h-9"
           onCompositionStart={() => { composing.current = true; }}
           onCompositionEnd={e => {
             composing.current = false;

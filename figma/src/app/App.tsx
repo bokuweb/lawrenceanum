@@ -187,9 +187,9 @@ function AppShell() {
             if (onSearchPage) {
               if (q) setParams({ q }, { replace: true });
               else setParams({}, { replace: true });
-            } else {
-              const url = q ? `/search?q=${encodeURIComponent(q)}` : "/search";
-              navigate(url, { replace: true });
+            } else if (q) {
+              // 検索開始時は元の画面を履歴に残す。入力中の更新だけを上で置換する。
+              navigate(`/search?q=${encodeURIComponent(q)}`);
             }
           }}
         />

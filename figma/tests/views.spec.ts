@@ -24,6 +24,91 @@ test("search shows thesaurus synonyms for a legal term query", async ({ page }) 
   await expect(page.getByText("BIS規制", { exact: true })).toBeVisible();
 });
 
+test("ヘッダー検索から戻ると検索前の画面へ戻れる", async ({ page }) => {
+  await page.goto(new URL("#/laws", BASE).toString());
+  const search = page.getByPlaceholder("法令・資料名・本文を検索...");
+  await search.fill("民法");
+  await expect(page).toHaveURL(/#\/search\?q=/);
+  await search.fill("民法 改正");
+  await expect(search).toHaveValue("民法 改正");
+  await page.goBack();
+  await expect(page).toHaveURL(/#\/laws$/);
+  await expect(search).toHaveValue("");
+  await page.goForward();
+  await expect(page).toHaveURL(/#\/search\?q=/);
+  await expect(search).toHaveValue("民法 改正");
+});
+
+for (const shortcut of ["Control+k", "Meta+k"]) {
+  test(`${shortcut} で検索へ移動し、既存の検索語を置き換えられる`, async ({ page }) => {
+    await page.goto(new URL("#/search?q=民法", BASE).toString());
+    await page.getByRole("heading", { name: "検索", exact: true }).click();
+    await page.keyboard.press(shortcut);
+    const search = page.getByRole("searchbox", { name: "横断検索" });
+    await expect(search).toBeFocused();
+    await page.keyboard.insertText("労働基準");
+    await expect(search).toHaveValue("労働基準");
+    await expect(page).toHaveURL(new URL("#/search?q=労働基準", BASE).toString());
+  });
+}
+
+test("日本語変換中は検索やショートカットを確定せず、変換後に検索する", async ({ page }) => {
+  await page.goto(new URL("#/laws", BASE).toString());
+  const search = page.getByPlaceholder("法令・資料名・本文を検索...");
+  await search.focus();
+  await search.dispatchEvent("compositionstart");
+  await search.fill("みん");
+  await search.fill("");
+  await search.dispatchEvent("compositionend", { data: "" });
+  await expect(page).toHaveURL(/#\/laws$/);
+  await search.dispatchEvent("compositionstart");
+  await search.fill("みん");
+  await page.keyboard.press("Control+k");
+  await expect(page).toHaveURL(/#\/laws$/);
+  expect(await search.evaluate((input: HTMLInputElement) => input.selectionStart)).toBe(2);
+  await search.fill("民法");
+  await search.dispatchEvent("compositionend", { data: "民法" });
+  await expect(page).toHaveURL(new URL("#/search?q=民法", BASE).toString());
+  await expect(search).toHaveValue("民法");
+});
+
+test("不正な保存テーマはOSの設定へ戻し、切り替えた設定を再読み込み後も保持する", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.addInitScript(() => {
+    if (!sessionStorage.getItem("theme-initialized")) {
+      localStorage.setItem("theme", "invalid-theme");
+      sessionStorage.setItem("theme-initialized", "1");
+    }
+  });
+  await page.goto(new URL("#/laws", BASE).toString());
+  await expect(page.locator("html")).toHaveClass(/dark/);
+  await page.getByRole("button", { name: "ライトモードに切り替え" }).click();
+  await expect(page.locator("html")).toHaveClass(/light/);
+  await page.reload();
+  await expect(page.locator("html")).toHaveClass(/light/);
+  await expect(page.getByRole("button", { name: "ダークモードに切り替え" })).toBeVisible();
+});
+
+for (const operation of ["getItem", "setItem"] as const) {
+  test(`テーマの ${operation} が拒否されても画面を表示し切り替えられる`, async ({ page }) => {
+    const errors: string[] = [];
+    page.on("pageerror", error => errors.push(error.message));
+    await page.emulateMedia({ colorScheme: "light" });
+    await page.addInitScript(method => {
+      const original = Storage.prototype[method];
+      Storage.prototype[method] = function(key: string, ...args: string[]) {
+        if (key === "theme") throw new DOMException("theme-storage-denied", "SecurityError");
+        return Reflect.apply(original, this, [key, ...args]);
+      };
+    }, operation);
+    await page.goto(new URL("#/laws", BASE).toString());
+    await page.getByRole("button", { name: "ダークモードに切り替え" }).click();
+    await expect(page.locator("html")).toHaveClass(/dark/);
+    await expect(page.getByPlaceholder("法令・資料名・本文を検索...")).toBeVisible();
+    expect(errors.filter(error => error.includes("theme-storage-denied"))).toEqual([]);
+  });
+}
+
 // サイドバー左下の「最新同期」は health.json の generated_at から動的表示する
 // (以前はハードコードで固定だった)。fixture health = 2026-06-14T03:58:50Z → JST 12:58。
 test("sidebar last-sync is derived from health.json (not hardcoded)", async ({ page }) => {
