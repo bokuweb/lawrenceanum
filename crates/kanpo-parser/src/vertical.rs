@@ -2318,6 +2318,16 @@ fn drop_ruby(cols: &mut Vec<Col>, words: &mut [Word]) {
 /// 行頭の割注（上に親の列が無い）は、そのように字間を空けた右半分と左半分の上下がそろうものを
 /// 割注とする。
 fn merge_warichu(cols: &mut Vec<Col>) -> Vec<(usize, usize)> {
+    let mut merged = merge_warichu_pass(cols, false);
+    merged.extend(merge_warichu_pass(cols, true));
+    merged
+}
+
+/// [`merge_warichu`] の 1 回分。`ext` のときは、残った語から三段の割注だけを、字間を空けた段の語を広く
+/// （読点を挟んだ「府、総」も）、中の段を字間を空けずに組んだ 1 語（「文部科学省、厚生労働省、農林水産省、」）も
+/// 見て探す（本文の中の「（平成二十六年内閣府、総務省、…環境省告示第一号）」）。先に広く見ると、標題の
+/// 「〇内閣府、総務省、…」の割注が崩れた。
+fn merge_warichu_pass(cols: &mut Vec<Col>, ext: bool) -> Vec<(usize, usize)> {
     let mut merged = Vec::new();
     let mut i = 0;
     while i < cols.len() {
@@ -2330,10 +2340,14 @@ fn merge_warichu(cols: &mut Vec<Col>) -> Vec<(usize, usize)> {
             let mut cs = t.chars();
             matches!((cs.next(), cs.next()), (Some(c), None) if ('\u{4E00}'..='\u{9FFF}').contains(&c) || ('\u{3041}'..='\u{30FF}').contains(&c))
         };
-        // 字間を空けた続きの語（「総」の後の「務」「省、」）。読点の付いた 2 字まで。
+        // 字間を空けた続きの語（「総」の後の「務」「省、」、読点を挟んだ「府、総」）。読点の付いた 3 字まで
+        // （縦組みの読点「︑」も）。
+        let comma = |c: char| matches!(c, '、' | '・' | '，' | '︑' | '︐');
         let spaced_part = |t: &str| {
             let cs: Vec<char> = t.chars().collect();
-            name_char(t) || (cs.len() == 2 && name_char(&cs[0].to_string()) && matches!(cs[1], '、' | '・' | '，'))
+            name_char(t)
+                || (cs.len() == 2 && name_char(&cs[0].to_string()) && (matches!(cs[1], '、' | '・' | '，') || (ext && comma(cs[1]))))
+                || (ext && cs.len() == 3 && name_char(&cs[0].to_string()) && comma(cs[1]) && name_char(&cs[2].to_string()))
         };
         let mut spaced = vec![i];
         // 右半分の頭が複数字の語（「国家公安委員会、総」）でも、続きが字間を空けた語なら同じようにまとめる。
@@ -2400,7 +2414,10 @@ fn merge_warichu(cols: &mut Vec<Col>) -> Vec<(usize, usize)> {
         // 三段の割注（「金融庁」「財務省」「経済産業省」）: 上の段（右半分）と中の段が字間を空けた 1 字ずつの語で、
         // 中の段が親の列に並び、下の段がさらに 1 字分左。上下の範囲がそろうものに限る。
         let within = |c: &Col| c.y > r.y - w * 0.5 && c.y1 < r.y1 + w * 0.5;
-        let third: Vec<usize> = if spaced.len() > 1 && left.len() > 1 && left.iter().all(|&j| name_char(&cols[j].text) && near(cols[j].x, r.x - w)) {
+        // 中の段は、字間を空けずに組んだ 1 語（「文部科学省、厚生労働省、農林水産省、」）のこともある。
+        let middle = (left.len() > 1 && left.iter().all(|&j| name_char(&cols[j].text) && near(cols[j].x, r.x - w)))
+            || (ext && left.len() == 1 && cols[left[0]].text.chars().count() >= 3 && near(cols[left[0]].x, r.x - w));
+        let third: Vec<usize> = if spaced.len() > 1 && middle {
             (0..cols.len()).filter(|&j| !spaced.contains(&j) && !left.contains(&j) && near(cols[j].x, r.x - w * 2.0) && near(cols[j].x1, r.x - w) && within(&cols[j])).collect()
         } else {
             Vec::new()
@@ -2416,7 +2433,16 @@ fn merge_warichu(cols: &mut Vec<Col>) -> Vec<(usize, usize)> {
                         && if above { (p.y1 - y).abs() < w * 0.75 && p.y < y } else { (p.y - y).abs() < w * 0.75 }
                 })
             };
-            if column_at(r.y, true) && column_at(r.y1, false) {
+            // 広く見るときは、上の親の列が本文（4 字以上で「〇」で始まらない。標題の割注は別に組む）のものだけ。
+            let body_above = !ext
+                || cols.iter().any(|p| {
+                    ((p.x + p.x1) / 2.0 - mid).abs() < w * 0.3
+                        && (p.y1 - r.y).abs() < w * 0.75
+                        && p.y < r.y
+                        && p.text.chars().count() >= 4
+                        && !p.text.trim_start().starts_with('〇')
+                });
+            if body_above && column_at(r.y, true) && column_at(r.y1, false) {
                 let text_of = |js: &[usize]| {
                     let mut v: Vec<&Col> = js.iter().map(|&j| &cols[j]).collect();
                     v.sort_by(|a, b| a.y.total_cmp(&b.y));
@@ -2428,7 +2454,14 @@ fn merge_warichu(cols: &mut Vec<Col>) -> Vec<(usize, usize)> {
                     x1: r.x,
                     y: r.y,
                     y1: r.y1,
-                    text: format!("{}・{}・{}", r.text, text_of(&left), text_of(&third)),
+                    // 読点で終わる段（「…財務省、」）の後ろには「・」を挟まない。
+                    text: [r.text.clone(), text_of(&left), text_of(&third)].iter().fold(String::new(), |mut acc, part| {
+                        if !acc.is_empty() && !(ext && acc.ends_with(comma)) {
+                            acc.push('・');
+                        }
+                        acc.push_str(part);
+                        acc
+                    }),
                 };
                 let mut gone: Vec<usize> = left.iter().chain(third.iter()).copied().chain(spaced.iter().skip(1).copied()).collect();
                 gone.sort_unstable();
@@ -2441,6 +2474,10 @@ fn merge_warichu(cols: &mut Vec<Col>) -> Vec<(usize, usize)> {
                 i += 1;
                 continue;
             }
+        }
+        if ext {
+            i += 1;
+            continue;
         }
         // 行頭の割注（本文の途中で列が改まった直後）は上に親の列が無い。そのときは右半分が字間を
         // 空けて左半分の長さに合わせてあり（「大　蔵　省」と「農林水産省」）、上下の範囲がそろって
