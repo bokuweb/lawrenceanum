@@ -3612,7 +3612,7 @@ fn column_gutters(words: &[Col], blocks: &[Block], tables: &[Block], boxed: bool
             };
             let boxes = boxed && a - right_edge >= 20.0 && width(&left) >= 100.0 && width(&right) >= 100.0 && !figures(&left) && !figures(&right);
             // 文字の層に見出しだけがある段組みのページ（本文が画像の家裁公告の 4 段組）は、語が少なく（12 行・40 語まで）紙面の
-            // 高さほど（240pt 以上。上半分だけに見出しのある横倒しのページも）に散らばるので、40pt 以上の溝なら列に分ける
+            // 高さほど（200pt 以上。上半分だけに見出しのある横倒しのページも）に散らばるので、40pt 以上の溝なら列に分ける
             // （見出しが高さの順に段をまたいで読まれていた）。
             // どの語も 3 字以上の見出し（字間を空けた「公　告」、路線の表の駅名「台場」は除く）。
             // 表のある領域（路線の表の路線名）は除く。
@@ -3620,7 +3620,7 @@ fn column_gutters(words: &[Col], blocks: &[Block], tables: &[Block], boxed: bool
             let digitless = |w: &Col| !w.text.chars().any(|c| c.is_ascii_digit() || ('０'..='９').contains(&c));
             let sparse = a - right_edge >= 40.0
                 && blocks.is_empty()
-                && y1 - y0 >= 240.0
+                && y1 - y0 >= 200.0
                 && words.len() <= 40
                 && group_lines(words).len() <= 12
                 && words.iter().all(|w| w.text.trim().chars().count() >= 2 && digitless(w))
