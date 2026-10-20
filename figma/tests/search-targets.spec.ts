@@ -185,7 +185,7 @@ test("タブはキーボードで切り替えられ、切り替えても検索�
   await page.goto(new URL("#/search?q=索引照合", BASE).toString());
   await expect(page.getByText("試験法", { exact: true })).toBeInViewport();
   await expect(page.getByRole("status")).toHaveCount(0);
-  await expect(page.getByRole("tab")).toHaveCount(8);
+  await expect(page.getByRole("tab")).toHaveCount(9);
   await expect(page.getByRole("tabpanel")).toHaveCount(1);
   const workersBefore = await page.evaluate(() => (window as any).searchWorkersCreated);
   const lawTab = page.getByRole("tab", { name: "法令・条文 1件", exact: true });
@@ -274,8 +274,8 @@ test("表示タブの検索が停止しても1秒後には残りの検索を開�
   try {
     await flushQueue();
     expect(started).toEqual(["laws"]);
-    await expect.poll(() => started.length, { timeout: 2500 }).toBe(8);
-    expect(new Set(started).size).toBe(8);
+    await expect.poll(() => started.length, { timeout: 2500 }).toBe(9);
+    expect(new Set(started).size).toBe(9);
   } finally { queue.cancel(); finish.forEach(resolve => resolve()); }
 });
 
