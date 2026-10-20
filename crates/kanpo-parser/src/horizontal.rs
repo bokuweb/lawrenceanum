@@ -230,15 +230,31 @@ fn raise_unit_labels(lines: &mut Vec<trace::Line>, geom: &std::collections::Hash
         let t = t.trim();
         (t.starts_with("（単位") || t.starts_with("(単位")) && (t.ends_with('）') || t.ends_with(')')) && t.chars().count() <= 12
     };
+    // 日付の行の右に同じ高さで組んだ署名の行（「外務大臣　茂木　敏充」。日付との間が広く空き、溝で列に分かれて表の後に
+    // 読まれていた）も、日付の行の後ろへ戻す。
+    let signer = |t: &str| {
+        let t: String = t.chars().filter(|c| !c.is_whitespace()).collect();
+        t.chars().count() <= 20
+            && ["大臣", "長官", "委員長", "総裁"].iter().any(|k| t.find(k).is_some_and(|at| t[at + k.len()..].chars().count() >= 2 && !t[..at].contains(['。', '、'])))
+    };
+    let date = |t: &str| {
+        let t = t.trim();
+        t.starts_with("令和") && t.ends_with('日') && t.chars().count() <= 12
+    };
     let mut i = 1;
     while i < lines.len() {
-        let Some(b) = unit(&lines[i].text).then(|| bounds(&lines[i])).flatten() else {
+        let is_signer = signer(&lines[i].text);
+        let Some(b) = (unit(&lines[i].text) || is_signer).then(|| bounds(&lines[i])).flatten() else {
             i += 1;
             continue;
         };
         let cy = (b.2 + b.3) / 2.0;
-        // 同じ段の中の左の行（隣の段の行と取り違えないよう、120pt 以内）。
-        let same = |l: &trace::Line| bounds(l).is_some_and(|o| ((o.2 + o.3) / 2.0 - cy).abs() < 1.5 && o.1 <= b.0 && b.0 - o.1 < 120.0);
+        // 同じ段の中の左の行（隣の段の行と取り違えないよう、120pt 以内）。署名は日付の行（段の幅の中、300pt 以内）。
+        let same = |l: &trace::Line| {
+            bounds(l).is_some_and(|o| {
+                ((o.2 + o.3) / 2.0 - cy).abs() < 1.5 && o.1 <= b.0 && (if is_signer { date(&l.text) && b.0 - o.1 < 300.0 } else { b.0 - o.1 < 120.0 })
+            })
+        };
         // すぐ前の行が同じ高さなら、そのままでよい。
         if same(&lines[i - 1]) {
             i += 1;
