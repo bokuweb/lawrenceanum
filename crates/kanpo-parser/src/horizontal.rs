@@ -2309,7 +2309,9 @@ fn account_end(l: &Line) -> bool {
     let t: String = l.words.iter().flat_map(|w| w.text.chars()).filter(|c| !c.is_whitespace()).collect();
     // 名前の頭が 2 字以上（「引当金」だけの行は「うち利息返還損失」「引当金」の折り返し）。損益計算書の 1 行目の「売上高」も
     // （金額の「—」が字の層に無いと、次の「売上原価」の行が「売上高」の行につながっていた）。
-    t == "売上高" || t == "基金" || TERMS.iter().any(|e| t.ends_with(e) && t.chars().count() >= e.chars().count() + 2)
+    // 「資本金」「その他」だけの行も科目（金額の「—」が字の層に無いと、次の「資本剰余金」「固定負債」の行が前の行に
+    // つながっていた）。
+    t == "売上高" || t == "基金" || t == "資本金" || t == "その他" || TERMS.iter().any(|e| t.ends_with(e) && t.chars().count() >= e.chars().count() + 2)
 }
 
 /// 語が縦に積まれているか（縦組みの欄の名前）。2 語・3 字以上で、どの語も 1〜2 字か縦長で、全体が
