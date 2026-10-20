@@ -148,3 +148,115 @@ test("同じPDF頁の他項目の本文を開き、項目へ移動できる", as
   await expect(page.getByRole("region", { name: "内閣の本文", exact: true })).toContainText("国務大臣藤井比早之");
   await expect(others.getByText("旭日小綬章を授ける（各通）")).not.toBeVisible();
 });
+
+test("官報の日付一覧は取得失敗から絞り込みを保って再試行できる", async ({ page }) => {
+  let failed = true;
+  await page.route("**/kanpo/index.json*", route => failed
+    ? route.fulfill({ status: 503 }) : route.continue());
+  await page.goto(new URL("#/kanpo", BASE).toString());
+  const alert = page.getByRole("alert");
+  await expect(alert).toContainText("発行日を読み込めませんでした");
+  const query = page.getByRole("textbox", { name: "この日の項目を絞り込む" });
+  await query.fill("共同募金");
+  failed = false;
+  await alert.getByRole("button", { name: "再試行" }).click();
+  await expect(page.getByRole("status", { name: "表示中の項目数" })).toHaveText("1件");
+  await expect(page.getByRole("button", { name: /共同募金会が募集する寄附金/ })).toBeVisible();
+  await expect(query).toHaveValue("共同募金");
+  await expect(alert).toHaveCount(0);
+});
+
+test("官報の項目は取得失敗から選択中のURLと絞り込みを保って再試行できる", async ({ page }) => {
+  let failed = true;
+  await page.route("**/kanpo/2026-04-02/index.json*", route => failed
+    ? route.fulfill({ status: 503 }) : route.continue());
+  await page.goto(new URL("#/kanpo/2026-04-02/0/0", BASE).toString());
+  const alert = page.getByRole("alert");
+  await expect(alert).toContainText("この日の官報を読み込めませんでした");
+  const query = page.getByRole("textbox", { name: "この日の項目を絞り込む" });
+  await query.fill("郵便法");
+  failed = false;
+  await alert.getByRole("button", { name: "再試行" }).click();
+  await expect(page.getByRole("heading", { name: "郵便法施行規則の一部を改正する省令（総務五八）" })).toBeVisible();
+  await expect(page.getByRole("status", { name: "表示中の項目数" })).toHaveText("1件");
+  await expect(query).toHaveValue("郵便法");
+  await expect(page).toHaveURL(/#\/kanpo\/2026-04-02\/0\/0$/);
+  await expect(alert).toHaveCount(0);
+});
+
+test("発行日一覧が失敗してもURLの日付の官報は読める", async ({ page }) => {
+  await page.route("**/kanpo/index.json*", route => route.fulfill({ status: 503 }));
+  await page.goto(new URL("#/kanpo/2026-04-02/0/0", BASE).toString());
+  await expect(page.getByRole("alert")).toContainText("発行日を読み込めませんでした");
+  await expect(page.getByRole("heading", { name: "郵便法施行規則の一部を改正する省令（総務五八）" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /共同募金会が募集する寄附金/ })).toBeVisible();
+});
+
+test("発行日一覧の応答を待たずにURLの日付の官報一覧と本文を読める", async ({ page }) => {
+  let release!: () => void;
+  const pending = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/kanpo/index.json*", async route => { await pending; await route.continue(); });
+  try {
+    await page.goto(new URL("#/kanpo/2026-04-02/0/0", BASE).toString());
+    await expect(page.getByRole("heading", { name: "郵便法施行規則の一部を改正する省令（総務五八）" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /共同募金会が募集する寄附金/ })).toBeVisible();
+  } finally {
+    release();
+  }
+});
+
+test("スマートフォンで官報の一覧と長い題名・本文を画面内で読める", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const title = "長い官報の標題".repeat(40);
+  const body = "LONG_KANPO_BODY_".repeat(80);
+  await page.route("**/kanpo/2026-04-02/index.json*", route => route.request().url().endsWith(".gz")
+    ? route.fulfill({ status: 404 }) : route.fulfill({ json: {
+      date: "2026-04-02", issues: [{ issue_type: "regular", issue_no: "第1678号", items: [{
+        title, page: 1, agency_hint: "AGENCY_".repeat(50), amend_text: body,
+      }] }],
+    } }));
+  await page.goto(new URL("#/kanpo", BASE).toString());
+  const row = page.getByRole("button", { name: new RegExp(title) });
+  await expect(row).toBeInViewport();
+  const bounds = await row.boundingBox();
+  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(390);
+  await row.click();
+  await expect(page.getByRole("textbox", { name: "この日の項目を絞り込む" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: title, exact: true })).toBeInViewport();
+  const text = page.getByRole("region", { name: `${title}の本文`, exact: true }).locator("pre");
+  await text.scrollIntoViewIfNeeded();
+  await expect(text).toBeInViewport();
+  const viewport = text.locator("xpath=ancestor::*[@data-slot='scroll-area-viewport'][1]");
+  const size = await viewport.evaluate(el => ({ client: el.clientWidth, scroll: el.scrollWidth }));
+  expect(size.scroll).toBeLessThanOrEqual(size.client + 1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});
+
+test("官報の幅広い表はスマートフォンで表の中を横スクロールできる", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route("**/kanpo/2026-04-02/index.json*", route => route.request().url().endsWith(".gz")
+    ? route.fulfill({ status: 404 }) : route.fulfill({ json: {
+      date: "2026-04-02", issues: [{ issue_type: "regular", issue_no: "第1678号", items: [{
+        title: "別表を改正する件", page: 1, amend_document: { format: "prose", blocks: [{
+          kind: "paragraph", runs: [{ text: "", table: {
+            rows: [Array.from({ length: 12 }, (_, i) => [{ text: `項目${i + 1}` }])],
+          } }],
+        }] },
+      }] }],
+    } }));
+  await page.goto(new URL("#/kanpo/2026-04-02/0/0", BASE).toString());
+  const table = page.getByRole("region", { name: "別表を改正する件の本文" }).getByRole("table");
+  await expect(table).toBeVisible();
+  const viewport = table.locator("xpath=ancestor::*[@data-slot='scroll-area-viewport'][1]");
+  const size = await viewport.evaluate(el => ({ client: el.clientWidth, scroll: el.scrollWidth }));
+  expect(size.scroll).toBeLessThanOrEqual(size.client + 1);
+  const canScroll = await table.evaluate(el => {
+    for (let parent = el.parentElement; parent && !parent.dataset.slot; parent = parent.parentElement) {
+      if (getComputedStyle(parent).overflowX !== "auto") continue;
+      parent.scrollLeft = parent.scrollWidth;
+      return parent.scrollLeft > 0;
+    }
+    return false;
+  });
+  expect(canScroll).toBe(true);
+});

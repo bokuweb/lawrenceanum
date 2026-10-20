@@ -1,39 +1,52 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api, type KanpoDates, type KanpoDay, type KanpoIssue, type KanpoItem } from "./api";
 
 /** `kanpo/index.json`（配信している日付の一覧）。 */
 export function useKanpoDates() {
   const [data, setData] = useState<KanpoDates | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const retry = useCallback(() => setAttempt(n => n + 1), []);
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
+    setError(false);
     api.kanpoDates()
       .then(d => { if (!cancelled) { setData(d); setLoading(false); } })
-      .catch(() => { if (!cancelled) setLoading(false); });
+      .catch(() => { if (!cancelled) { setError(true); setLoading(false); } });
     return () => { cancelled = true; };
-  }, []);
+  }, [attempt]);
 
-  return { data, loading };
+  return { data, loading, error, retry };
 }
 
 /** `kanpo/{date}/index.json`（その日の号と項目）。 */
 export function useKanpoDay(date: string | null) {
-  const [data, setData] = useState<KanpoDay | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [state, setState] = useState<{
+    date: string | null; data: KanpoDay | null; loading: boolean; error: boolean;
+  }>({ date: null, data: null, loading: false, error: false });
+  const [attempt, setAttempt] = useState(0);
+  const retry = useCallback(() => setAttempt(n => n + 1), []);
 
   useEffect(() => {
-    if (!date) { setData(null); return; }
+    if (!date) { setState({ date: null, data: null, loading: false, error: false }); return; }
     let cancelled = false;
-    setLoading(true);
-    setData(null);
+    setState({ date, data: null, loading: true, error: false });
     api.kanpoOnDate(date)
-      .then(d => { if (!cancelled) { setData(d); setLoading(false); } })
-      .catch(() => { if (!cancelled) setLoading(false); });
+      .then(data => { if (!cancelled) setState({ date, data, loading: false, error: false }); })
+      .catch(() => { if (!cancelled) setState({ date, data: null, loading: false, error: true }); });
     return () => { cancelled = true; };
-  }, [date]);
+  }, [date, attempt]);
 
-  return { data, loading };
+  // 日付変更直後の描画にも、前の日付の本文やエラーを混ぜない。
+  return {
+    data: date && state.date === date ? state.data : null,
+    loading: !!date && (state.date !== date || state.loading),
+    error: !!date && state.date === date && state.error,
+    retry,
+  };
 }
 
 /** 号の種別の表示名。 */

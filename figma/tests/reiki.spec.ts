@@ -137,3 +137,139 @@ test("サイドバーの自治体例規から例規ビューを開ける", async
   await expect(page).toHaveURL(/#\/reiki$/);
   await expect(page.getByRole("heading", { name: "自治体例規" })).toBeVisible();
 });
+
+for (const target of [
+  { name: "自治体一覧", path: "reiki/index.json", hash: "#/reiki", query: "自治体名…", text: "千葉", result: "千葉市" },
+  { name: "例規一覧", path: "reiki/121002/index.json", hash: "#/reiki/121002", query: "題名で絞り込み（Enter で本文検索）", text: "個人情報", result: "千葉市個人情報保護条例" },
+]) {
+  test(`${target.name}は取得失敗から絞り込みを保って再試行できる`, async ({ page }) => {
+    let failed = true;
+    await page.route(`**/${target.path}`, route => failed
+      ? route.fulfill({ status: 503 }) : route.continue());
+    await page.goto(new URL(target.hash, BASE).toString());
+    const alert = page.getByRole("alert");
+    await expect(alert).toContainText("読み込めませんでした");
+    const query = page.getByPlaceholder(target.query);
+    await query.fill(target.text);
+    failed = false;
+    await alert.getByRole("button", { name: "再試行" }).click();
+    await expect(page.getByRole("button", { name: new RegExp(target.result) })).toBeVisible();
+    await expect(query).toHaveValue(target.text);
+    await expect(alert).toHaveCount(0);
+  });
+}
+
+test("例規本文は取得失敗から同じURLで再試行できる", async ({ page }) => {
+  let failed = true;
+  await page.route("**/reiki/121002/121002_jourei_sample.json", route => failed
+    ? route.fulfill({ status: 503 }) : route.continue());
+  await page.goto(new URL("#/reiki/121002/121002_jourei_sample?a=art_1", BASE).toString());
+  const alert = page.getByRole("alert");
+  await expect(alert).toContainText("本文を読み込めませんでした");
+  failed = false;
+  await alert.getByRole("button", { name: "再試行" }).click();
+  await expect(page.getByTestId("reiki-title")).toHaveText("千葉市個人情報保護条例");
+  await expect(page).toHaveURL(/#\/reiki\/121002\/121002_jourei_sample\?a=art_1$/);
+});
+
+test("附則への直接リンクは折りたたみを開いて該当条を表示する", async ({ page }) => {
+  await page.route("**/reiki/121002/121002_g002RG00000853.json", route => route.fulfill({ json: RICH_DOC }));
+  await page.goto(new URL("#/reiki/121002/121002_g002RG00000853?a=s1_p1", BASE).toString());
+  await expect(page.locator("section#s1_p1")).toBeVisible();
+  await expect(page.locator("section#s1_p1")).toHaveClass(/bg-amber/);
+});
+
+test("スマートフォンで例規一覧と長い題名・本文を画面内に表示する", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route("**/reiki/121002/121002_g002RG00000853.json", route => route.fulfill({ json: {
+    ...RICH_DOC, title: "長い題名".repeat(40), reiki_number: "条例第" + "1234567890".repeat(15) + "号",
+  } }));
+  await page.goto(new URL("#/reiki/121002/121002_g002RG00000853", BASE).toString());
+  const title = page.getByTestId("reiki-title");
+  await expect(title).toBeVisible();
+  const bounds = await title.boundingBox();
+  expect(bounds!.x).toBeGreaterThanOrEqual(0);
+  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(390);
+  await expect(page.getByPlaceholder("題名で絞り込み（Enter で本文検索）")).toBeVisible();
+  const body = page.getByText("本市は、次のとおりスケート場を設置する。", { exact: true });
+  await body.scrollIntoViewIfNeeded();
+  await expect(body).toBeInViewport();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});
+
+test("本文検索中に入力を変えたら古い結果を表示しない", async ({ page }) => {
+  let release!: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/reiki-search.db*", async route => {
+    await gate;
+    await route.continue().catch(() => {});
+  });
+  try {
+    await page.goto(new URL("#/reiki/121002", BASE).toString());
+    const box = page.getByPlaceholder("題名で絞り込み（Enter で本文検索）");
+    await expect(page.getByTestId("reiki-list-count")).toHaveText("1件");
+    await box.fill("個人情報");
+    const started = page.waitForRequest(/reiki-search\.db/);
+    await box.press("Enter");
+    await started;
+    await box.fill("一致しない題名");
+    await expect(page.getByText("該当する例規がありません")).toBeVisible();
+    release();
+    await box.fill("個人情報");
+    await box.press("Enter");
+    await expect(page.getByTestId("reiki-list-count")).toHaveText(/^本文 [1-9]\d*件$/, { timeout: 30_000 });
+  } finally {
+    release();
+  }
+});
+
+test("本文検索の失敗を該当なしと区別して再試行できる", async ({ page }) => {
+  let failed = true;
+  await page.route("**/reiki-search.db*", route => failed ? route.fulfill({ status: 503 }) : route.continue());
+  await page.goto(new URL("#/reiki/121002", BASE).toString());
+  const box = page.getByPlaceholder("題名で絞り込み（Enter で本文検索）");
+  await box.fill("個人情報");
+  await box.press("Enter");
+  const alert = page.getByRole("alert");
+  await expect(alert).toContainText("本文検索に失敗しました", { timeout: 20_000 });
+  await expect(page.getByText("本文に該当する例規がありません")).toHaveCount(0);
+  failed = false;
+  await alert.getByRole("button", { name: "再試行" }).click();
+  await expect(page.getByTestId("reiki-list-count")).toHaveText(/^本文 [1-9]\d*件$/, { timeout: 30_000 });
+  await expect(box).toHaveValue("個人情報");
+});
+
+test("例規の本文検索は日本語変換中のEnterでは実行しない", async ({ page }) => {
+  await page.goto(new URL("#/reiki/121002", BASE).toString());
+  const box = page.getByPlaceholder("題名で絞り込み（Enter で本文検索）");
+  await expect(page.getByTestId("reiki-list-count")).toHaveText("1件");
+  await box.fill("個人情報");
+  await box.dispatchEvent("keydown", { key: "Enter", isComposing: true });
+  await expect(page.getByRole("button", { name: "本文検索", exact: true })).toBeEnabled();
+  await box.dispatchEvent("keydown", { key: "Enter", keyCode: 229 });
+  await expect(page.getByRole("button", { name: "本文検索", exact: true })).toBeEnabled();
+  await box.press("Enter");
+  await expect(page.getByTestId("reiki-list-count")).toHaveText(/^本文 [1-9]\d*件$/, { timeout: 30_000 });
+});
+
+test("例規の本文検索結果でも選択した種別を保つ", async ({ page }) => {
+  await page.route("**/reiki/121002/index.json", async route => {
+    const response = await route.fetch();
+    const index = await response.json();
+    await route.fulfill({ json: { ...index, count: 2, reiki: [
+      ...index.reiki,
+      { ...index.reiki[0], reiki_id: "rule", title: "千葉市個人情報保護規則", kind: "規則" },
+    ] } });
+  });
+  await page.goto(new URL("#/reiki/121002", BASE).toString());
+  await page.getByRole("combobox").click();
+  await page.getByRole("option", { name: "規則", exact: true }).click();
+  const box = page.getByPlaceholder("題名で絞り込み（Enter で本文検索）");
+  await box.fill("個人情報");
+  await box.press("Enter");
+  await expect(page.getByTestId("reiki-list-count")).toHaveText("本文 0件", { timeout: 30_000 });
+  await expect(page.getByRole("button", { name: /千葉市個人情報保護条例/ })).toHaveCount(0);
+  await page.getByRole("combobox").click();
+  await page.getByRole("option", { name: "全種別", exact: true }).click();
+  await expect(page.getByTestId("reiki-list-count")).toHaveText(/^本文 [1-9]\d*件$/);
+});

@@ -65,3 +65,77 @@ test("番号・見出しで絞り込める", async ({ page }) => {
   await expect(page.getByText("再入国した場合の居住期間")).toBeVisible();
   await expect(page.getByText("住所の意義")).toHaveCount(0);
 });
+
+test("通達集の選択をURL・再読み込み・戻る進むで復元する", async ({ page }) => {
+  await mock(page);
+  await page.route("**/tsutatsu/index.json", r => r.fulfill({ json: {
+    ...INDEX,
+    count: 2,
+    sets: [...INDEX.sets, { tax: "hojin", name: "法人税基本通達", count: 1 }],
+  } }));
+  await page.route("**/tsutatsu/hojin.json", r => r.fulfill({ json: {
+    ...SET,
+    tax: "hojin",
+    name: "法人税基本通達",
+    items: [{ ...SET.items[0], caption: "法人税の項目" }],
+  } }));
+  await page.goto(new URL("#/tsutatsu?source=test", BASE).toString());
+  await expect(page.getByText("住所の意義")).toBeVisible();
+  await expect(page).toHaveURL(/#\/tsutatsu\?source=test&tax=shotoku$/);
+
+  await page.getByRole("combobox", { name: "通達集" }).click();
+  await page.getByRole("option", { name: /法人税基本通達/ }).click();
+  await expect(page.getByText("法人税の項目")).toBeVisible();
+  await expect(page).toHaveURL(/source=test&tax=hojin$/);
+
+  await page.goBack();
+  await expect(page.getByText("住所の意義")).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "通達集" })).toContainText("所得税基本通達");
+  await page.goForward();
+  await expect(page.getByText("法人税の項目")).toBeVisible();
+  await page.reload();
+  await expect(page.getByText("法人税の項目")).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "通達集" })).toContainText("法人税基本通達");
+});
+
+for (const [reference, articleId] of [["法第２条の３", "art_2_3"], ["法第2条の3の4", "art_2_3_4"]]) {
+  test(`枝番号付きの参照 ${reference} を正しい条文へリンクする`, async ({ page }) => {
+    await mock(page);
+    await page.route("**/tsutatsu/shotoku.json", r => r.fulfill({ json: {
+      ...SET,
+      items: [{ ...SET.items[0], text: `${reference}による。民法第22条の2及び措置法第3条の2は対象外。` }],
+    } }));
+    await page.goto(new URL("#/tsutatsu?tax=shotoku", BASE).toString());
+    await expect(page.getByRole("button", { name: "法第22条の2", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "法第3条の2", exact: true })).toHaveCount(0);
+    await page.getByRole("button", { name: reference, exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`#${articleId}$`));
+  });
+}
+
+for (const resource of ["index", "shotoku"]) {
+  test(`通達の${resource}読み込み失敗を表示し再試行できる`, async ({ page }) => {
+    await mock(page);
+    let attempts = 0;
+    await page.route(`**/tsutatsu/${resource}.json`, r => {
+      attempts++;
+      return attempts === 1 ? r.fulfill({ status: 503, body: "unavailable" }) :
+        r.fulfill({ json: resource === "index" ? INDEX : SET });
+    });
+    await page.goto(new URL("#/tsutatsu?tax=shotoku", BASE).toString());
+    await expect(page.getByRole("alert")).toContainText("読み込めませんでした");
+    await expect(page.getByText("該当する通達がありません")).toHaveCount(0);
+    await page.getByRole("button", { name: "再試行" }).click();
+    await expect(page.getByText("住所の意義")).toBeVisible();
+    await expect(page.getByRole("alert")).toHaveCount(0);
+    expect(attempts).toBe(2);
+  });
+}
+
+test("本文末まで表示した検索抜粋に省略記号を付けない", async ({ page }) => {
+  await mock(page);
+  await page.goto(new URL("#/tsutatsu?tax=shotoku", BASE).toString());
+  await expect(page.getByText("住所の意義")).toBeVisible();
+  await page.getByPlaceholder("番号・見出し・本文で絞り込み…").fill("生活の本拠");
+  await expect(page.locator("p").filter({ hasText: "生活の本拠" })).toHaveText(SET.items[0].text);
+});

@@ -19,6 +19,7 @@ const LIST_LIMIT = 300;
 const NEIGHBOR_LIMIT = 60;
 
 function useLoad<T>(load: (() => Promise<T>) | null, deps: unknown[]) {
+  const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState<{ data: T | null; loading: boolean; error: boolean }>({
     data: null,
     loading: !!load,
@@ -36,8 +37,8 @@ function useLoad<T>(load: (() => Promise<T>) | null, deps: unknown[]) {
       .catch(() => { if (!cancelled) setState({ data: null, loading: false, error: true }); });
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
-  return state;
+  }, [...deps, attempt]);
+  return { ...state, retry: () => setAttempt(n => n + 1) };
 }
 
 function TypeBadge({ type }: { type: string }) {
@@ -57,7 +58,7 @@ export function WikiView({ path, onOpen }: { path: string | null; onOpen: (path:
   const index = useLoad<WikiIndex>(() => api.wikiIndex(), []);
   const graph = useLoad<WikiGraph>(() => api.wikiGraph(), []);
   if (path) return <WikiPageView path={path} graph={graph.data} index={index.data} onOpen={onOpen} />;
-  return <WikiHome index={index} graph={graph.data} onOpen={onOpen} />;
+  return <WikiHome index={index} graph={graph} onOpen={onOpen} />;
 }
 
 function WikiHome({
@@ -65,8 +66,8 @@ function WikiHome({
   graph,
   onOpen,
 }: {
-  index: { data: WikiIndex | null; loading: boolean; error: boolean };
-  graph: WikiGraph | null;
+  index: { data: WikiIndex | null; loading: boolean; error: boolean; retry: () => void };
+  graph: { data: WikiGraph | null; loading: boolean; error: boolean; retry: () => void };
   onOpen: (path: string | null) => void;
 }) {
   const [query, setQuery] = useState("");
@@ -123,7 +124,10 @@ function WikiHome({
       )}
       {index.loading && <Skeleton className="h-64 w-full" />}
       {index.error && (
-        <p className="text-sm text-muted-foreground">wiki はまだ配信されていません。</p>
+        <div role="alert" className="text-sm text-muted-foreground">
+          <p>Wiki の一覧を読み込めませんでした。</p>
+          <Button variant="outline" size="sm" className="mt-2" onClick={index.retry}>再試行</Button>
+        </div>
       )}
 
       {index.data && (
@@ -171,10 +175,15 @@ function WikiHome({
               <TabsTrigger value="list">一覧</TabsTrigger>
             </TabsList>
             <TabsContent value="graph">
-              {graph ? (
+              {graph.error ? (
+                <div role="alert" className="p-6 text-sm text-muted-foreground border rounded-lg">
+                  <p>グラフを読み込めませんでした。一覧タブからページを開けます。</p>
+                  <Button variant="outline" size="sm" className="mt-2" onClick={graph.retry}>再試行</Button>
+                </div>
+              ) : graph.data ? (
                 <Suspense fallback={<Skeleton className="h-[560px] w-full" />}>
                   <WikiGraphCanvas
-                    graph={graph}
+                    graph={graph.data}
                     visibleTypes={visible}
                     showStubs={showStubs}
                     query={query}
@@ -270,7 +279,12 @@ function WikiPageView({
       </Button>
 
       {page.loading && <Skeleton className="h-64 w-full" />}
-      {page.error && <p className="text-sm text-muted-foreground">ページが見つかりません: {path}</p>}
+      {page.error && (
+        <div role="alert" className="text-sm text-muted-foreground">
+          <p>ページを読み込めませんでした: {path}</p>
+          <Button variant="outline" size="sm" className="mt-2" onClick={page.retry}>再試行</Button>
+        </div>
+      )}
 
       {page.data && (
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_260px]">

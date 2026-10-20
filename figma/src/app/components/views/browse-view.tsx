@@ -8,10 +8,10 @@ import { Skeleton } from "../ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { ScrollArea } from "../ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { ARTICLES_V2, TIMELINE_EVENTS, type LawSummary } from "../mock-data";
+import { type LawSummary } from "../mock-data";
 import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark, MessageSquare, Newspaper, ScrollText, Network, MessageCircleQuestion, FileQuestion, Languages, Globe } from "lucide-react";
 import { EnforcementExplanation } from "./enforcement-explanation";
-import { useLocation, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { useLaws, useLawDetail } from "../../data/use-laws";
 import { api, hanreiUrl, GUIDANCE_KIND_LABELS, type AppendixTable, type LawToGuidance, type LawToHanrei, type LawToShitsumon, type LawEnglish, type LawEnglishArticle, type LawToProceedings, type LawToRulemaking, type LawToPubcomments, type LawToTsutatsu, type LawToTreaties, type Treaty, type LinkedTreaty } from "../../data/api";
 import { AmendDocumentView } from "../amend-document-view";
@@ -52,7 +52,7 @@ function parseShinkyu(text: string): { preamble: string; rows: { after: string; 
 }
 
 export function BrowseView({ lawId, onSelect, onCompare }: { lawId: string | null; onSelect: (id: string | null) => void; onCompare: (id: string) => void }) {
-  const { laws, live, loading } = useLaws();
+  const { laws, loading, error, retry } = useLaws();
   if (lawId) {
     const matched = laws.find(l => l.law_id === lawId);
     // 一覧に居なければ最小限の LawSummary を仮組み — 詳細は useLawDetail が JSON を埋める。
@@ -71,12 +71,12 @@ export function BrowseView({ lawId, onSelect, onCompare }: { lawId: string | nul
     return <LawDetail key={lawId} law={law} onBack={() => onSelect(null)} onCompare={() => onCompare(lawId)} />;
   }
 
-  return <LawList laws={laws} live={live} loading={loading} onSelect={onSelect} />;
+  return <LawList laws={laws} loading={loading} error={error} retry={retry} />;
 }
 
 type SortKey = "updated" | "title";
 
-function LawList({ laws, live, loading, onSelect }: { laws: LawSummary[]; live: boolean; loading: boolean; onSelect: (id: string) => void }) {
+function LawList({ laws, loading, error, retry }: { laws: LawSummary[]; loading: boolean; error: boolean; retry: () => void }) {
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("updated");
 
@@ -100,30 +100,31 @@ function LawList({ laws, live, loading, onSelect }: { laws: LawSummary[]; live: 
   }, [laws, query, sortKey]);
 
   return (
-    <div className="p-6">
-      <div className="mb-4 flex items-end justify-between">
+    <div className="p-4 sm:p-6">
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
         <div>
           <h1 className="text-2xl">法令閲覧</h1>
           <p className="text-sm text-muted-foreground mt-1">登録されている全法令を一覧で参照</p>
         </div>
         <div className="text-xs text-muted-foreground">
-          {loading ? "読み込み中…" : `${filtered.length} / ${laws.length} 件${live ? "" : " (モック)"}`}
+          {loading ? "読み込み中…" : error ? "取得失敗" : `${filtered.length} / ${laws.length} 件`}
         </div>
       </div>
 
-      <div className="mb-6 flex items-center gap-3">
-        <div className="relative flex-1 max-w-md">
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="relative w-full min-w-0 sm:flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
           <Input
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="タイトル・法令番号で絞り込み"
+            aria-label="タイトル・法令番号で絞り込み"
             className="pl-9"
             disabled={loading}
           />
         </div>
         <Select value={sortKey} onValueChange={v => setSortKey(v as SortKey)}>
-          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-36" aria-label="法令の並び順"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="updated">更新順</SelectItem>
             <SelectItem value="title">名称順</SelectItem>
@@ -132,7 +133,7 @@ function LawList({ laws, live, loading, onSelect }: { laws: LawSummary[]; live: 
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
           {Array.from({ length: 12 }).map((_, i) => (
             <Card key={i}>
               <CardContent className="p-5 space-y-3">
@@ -150,27 +151,34 @@ function LawList({ laws, live, loading, onSelect }: { laws: LawSummary[]; live: 
             </Card>
           ))}
         </div>
+      ) : error ? (
+        <div role="alert" className="rounded-md border border-border p-4 space-y-3 text-sm">
+          <p>法令一覧を取得できませんでした。</p>
+          <Button variant="outline" size="sm" onClick={retry}>再試行</Button>
+        </div>
       ) : filtered.length === 0 ? (
-        <div className="text-sm text-muted-foreground py-12 text-center">「{query}」に一致する法令はありません</div>
+        <div className="text-sm text-muted-foreground py-12 text-center">{query.trim() ? `「${query}」に一致する法令はありません` : "法令はありません"}</div>
       ) : (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map(l => (
-            <Card key={l.law_id} className="hover:border-primary/50 hover:shadow-md transition-all cursor-pointer" onClick={() => onSelect(l.law_id)}>
-              <CardContent className="p-5">
-                <div className="flex items-start justify-between mb-3">
-                  <Badge variant="outline">{l.category}</Badge>
-                  <Badge variant={l.status === "scheduled" ? "default" : l.status === "amended" ? "secondary" : "outline"} className="text-xs">
-                    {l.status === "scheduled" ? "施行待ち" : l.status === "amended" ? "改正" : "現行"}
-                  </Badge>
-                </div>
-                <div className="text-base mb-1">{l.title}</div>
-                <div className="text-xs text-muted-foreground mb-4 truncate">{l.law_num}</div>
-                <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border">
-                  <span>{l.article_count > 0 ? `${l.article_count} 条` : ""}</span>
-                  <span>更新 {l.last_updated || "—"}</span>
-                </div>
-              </CardContent>
-            </Card>
+            <Link key={l.law_id} to={`/laws/${encodeURIComponent(l.law_id)}`} className="block min-w-0 rounded-xl focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2">
+              <Card className="h-full hover:border-primary/50 hover:shadow-md transition-all">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between mb-3">
+                    <Badge variant="outline">{l.category}</Badge>
+                    <Badge variant={l.status === "scheduled" ? "default" : l.status === "amended" ? "secondary" : "outline"} className="text-xs">
+                      {l.status === "scheduled" ? "施行待ち" : l.status === "amended" ? "改正" : "現行"}
+                    </Badge>
+                  </div>
+                  <div className="text-base mb-1 [overflow-wrap:anywhere]">{l.title}</div>
+                  <div className="text-xs text-muted-foreground mb-4 truncate">{l.law_num}</div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border">
+                    <span>{l.article_count > 0 ? `${l.article_count} 条` : ""}</span>
+                    <span>更新 {l.last_updated || "—"}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       )}
@@ -459,12 +467,8 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
   const navigate = useNavigate();
   const location = useLocation();
   const detail = useLawDetail(law.law_id);
-  // ライブ取得結果を尊重: doc が来たらたとえ articles=[] でもライブを採用し、
-  // mock にフォールバックして「中身がチラ見えして消える」現象を回避する。
-  // 完全 offline (doc も error も無い) のときだけ mock を使う。
   const liveAvailable = !!detail.doc;
-  const offlineFallback = !detail.loading && !detail.doc;
-  const articles = detail.doc?.articles ?? (offlineFallback ? ARTICLES_V2 : []);
+  const articles = detail.doc?.articles ?? [];
   const articlesEmpty = liveAvailable && articles.length === 0;
   const appendixTables: AppendixTable[] = detail.doc?.appendix_tables ?? [];
   const [activeArt, setActiveArt] = useState(articles[0]?.article_id ?? "");
@@ -491,8 +495,6 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
     return liveEvents.map(event => ({ event, date: event.scheduled_enforcement_date || event.effective_date || "" }))
       .filter(item => item.date > today).sort((a, b) => a.date.localeCompare(b.date));
   }, [liveEvents]);
-  const mockEvents = TIMELINE_EVENTS[law.law_id] ?? [];
-  const useLiveTimeline = liveEvents.length > 0;
 
   // URL の hash (#art_X) で初期スクロール対象を受け取る。
   // detail.doc が来た後でないと DOM が無いので、両者揃ったタイミングで scroll する。
@@ -711,17 +713,17 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-2xl">{law.title}</h1>
+              <h1 className="text-2xl">{detail.doc?.title || law.title}</h1>
               <Badge variant="outline">{law.category}</Badge>
               <Badge variant={law.status === "scheduled" ? "default" : "secondary"}>
                 {law.status === "scheduled" ? "施行待ち" : law.status === "amended" ? "改正" : "現行"}
               </Badge>
             </div>
-            <div className="text-sm text-muted-foreground">{law.law_num}</div>
+            <div className="text-sm text-muted-foreground">{detail.doc?.law_num ?? law.law_num}</div>
             <div className="flex gap-4 mt-3 text-xs text-muted-foreground">
               <span className="flex items-center gap-1"><Hash className="size-3" />{law.law_id}</span>
-              <span className="flex items-center gap-1"><Calendar className="size-3" />公布 {law.promulgation_date}</span>
-              <span className="flex items-center gap-1"><Calendar className="size-3" />施行 {law.effective_date}</span>
+              <span className="flex items-center gap-1"><Calendar className="size-3" />公布 {detail.doc?.promulgation_date || "—"}</span>
+              <span className="flex items-center gap-1"><Calendar className="size-3" />施行 {detail.doc?.effective_date || "—"}</span>
               <span className="flex items-center gap-1"><Tag className="size-3" />{detail.doc ? articles.length : law.article_count} 条</span>
             </div>
             <EgovAttribution asOf={toJstDate(detail.doc?.source?.fetched_at)} className="mt-2" />
@@ -1123,6 +1125,12 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
                 {detail.loading && articles.length === 0 && (
                   <div className="text-sm text-muted-foreground py-12 text-center">本文を読み込み中…</div>
                 )}
+                {detail.error && (
+                  <div role="alert" className="rounded-md border border-border p-4 space-y-3 text-sm">
+                    <p>法令本文を取得できませんでした。再試行するか、e-Govで原文を確認してください。</p>
+                    <Button variant="outline" size="sm" onClick={detail.retry}>再試行</Button>
+                  </div>
+                )}
                 {articlesEmpty && (
                   <Card>
                     <CardContent className="p-6 space-y-3">
@@ -1201,7 +1209,7 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
         <TabsContent value="timeline" className="flex-1 min-h-0 m-0 p-6 overflow-auto">
           <div className="max-w-3xl">
             <div className="space-y-4">
-              {useLiveTimeline ? (
+              {liveEvents.length > 0 ? (
                 liveEvents.map((e, i) => {
                   // event_type → ラベルとカラー。
                   const typeLabel =
@@ -1319,34 +1327,14 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
                 })
               ) : (
                 <>
-                  {mockEvents.length === 0 && <div className="text-sm text-muted-foreground">改正履歴はありません</div>}
-                  {mockEvents.map((e, i) => (
-                    <div key={e.event_id} className="flex gap-4">
-                      <div className="flex flex-col items-center">
-                        <div className={`size-3 rounded-full ${e.status === "effective" ? "bg-emerald-500" : "bg-amber-500"} ring-4 ring-background`} />
-                        {i < mockEvents.length - 1 && <div className="w-px flex-1 bg-border mt-1" />}
-                      </div>
-                      <Card className="flex-1 mb-2">
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <Badge variant={e.status === "effective" ? "secondary" : "default"}>
-                                {e.status === "effective" ? "施行済" : "施行待ち"}
-                              </Badge>
-                              <span className="text-xs text-muted-foreground">{e.event_type}</span>
-                            </div>
-                            {e.kanpo_linked && <Badge variant="outline" className="text-xs">官報リンク済</Badge>}
-                          </div>
-                          <div className="text-sm">{e.summary}</div>
-                          <div className="text-xs text-muted-foreground mt-2">{e.amending_law_num}</div>
-                          <div className="flex gap-4 text-xs text-muted-foreground mt-2">
-                            <span>公布 {e.promulgation_date}</span>
-                            <span>施行 {e.effective_date}</span>
-                          </div>
-                        </CardContent>
-                      </Card>
+                  {detail.timelineLoading ? (
+                    <div className="text-sm text-muted-foreground">改正履歴を読み込み中…</div>
+                  ) : detail.timelineError ? (
+                    <div role="alert" className="rounded-md border border-border p-4 space-y-3 text-sm">
+                      <p>改正履歴を取得できませんでした。</p>
+                      <Button variant="outline" size="sm" onClick={detail.retryTimeline}>再試行</Button>
                     </div>
-                  ))}
+                  ) : <div className="text-sm text-muted-foreground">改正履歴はありません</div>}
                 </>
               )}
             </div>
@@ -1354,7 +1342,14 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
         </TabsContent>
 
         <TabsContent value="versions" className="flex-1 m-0 p-6 overflow-auto">
-          {detail.versions ? (
+          {detail.versionsLoading ? (
+            <div className="text-sm text-muted-foreground">バージョン情報を読み込み中…</div>
+          ) : detail.versionsError ? (
+            <div role="alert" className="rounded-md border border-border p-4 space-y-3 text-sm">
+              <p>バージョン情報を取得できませんでした。</p>
+              <Button variant="outline" size="sm" onClick={detail.retryVersions}>再試行</Button>
+            </div>
+          ) : detail.versions && detail.versions.versions.length > 0 ? (
             <div className="max-w-3xl space-y-2">
               <div className="text-xs text-muted-foreground">
                 current: {detail.versions.current_revision_id ?? "(未指定)"}
@@ -1376,7 +1371,7 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
               ))}
             </div>
           ) : (
-            <div className="text-sm text-muted-foreground">バージョン情報を取得できませんでした</div>
+            <div className="text-sm text-muted-foreground">バージョン情報はありません</div>
           )}
         </TabsContent>
         <TabsContent value="meta" className="flex-1 m-0 p-6 overflow-auto">

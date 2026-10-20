@@ -17,19 +17,22 @@ function billTypeColor(t?: string | null) {
 function useGianIndex() {
   const [data, setData] = useState<GianIndex | null>(null);
   const [loading, setLoading] = useState(true);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
     api.gianIndex()
       .then(d => { if (!cancelled) { setData(d); setLoading(false); } })
       .catch(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, []);
-  return { data, loading };
+  }, [attempt]);
+  return { data, loading, retry: () => setAttempt(n => n + 1) };
 }
 
 function BillDetail({ session, billId }: { session: string; billId: string }) {
   const [bill, setBill] = useState<GianBill | null>(null);
   const [loading, setLoading] = useState(true);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     let cancelled = false;
     setLoading(true); setBill(null);
@@ -37,15 +40,20 @@ function BillDetail({ session, billId }: { session: string; billId: string }) {
       .then(d => { if (!cancelled) { setBill(d); setLoading(false); } })
       .catch(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [session, billId]);
+  }, [session, billId, attempt]);
 
   if (loading) return <div className="p-6 space-y-3">{[...Array(6)].map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>;
-  if (!bill) return <div className="p-6 text-sm text-muted-foreground">読み込めませんでした</div>;
+  if (!bill) return (
+    <div role="alert" className="p-6 text-sm text-muted-foreground">
+      <p>議案の詳細を読み込めませんでした</p>
+      <button type="button" onClick={() => setAttempt(n => n + 1)} className="mt-2 text-primary hover:underline">再試行</button>
+    </div>
+  );
 
   // 空でない審議経過のみ表示。
   const rows = bill.fields.filter(f => f.value && f.value !== "／");
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="flex flex-col h-full min-h-0 [overflow-wrap:anywhere]">
       <div className="px-5 py-4 border-b border-border shrink-0">
         <div className="flex items-center gap-2 mb-1 flex-wrap">
           {bill.bill_type && <span className={["text-xs font-bold px-1.5 py-0.5 rounded", billTypeColor(bill.bill_type)].join(" ")}>{bill.bill_type}</span>}
@@ -63,8 +71,8 @@ function BillDetail({ session, billId }: { session: string; billId: string }) {
           </a>
         )}
       </div>
-      <ScrollArea className="flex-1 min-h-0">
-        <table className="w-full text-sm">
+      <ScrollArea className="flex-1 min-h-0 [&>[data-slot=scroll-area-viewport]>div]:!block">
+        <table className="w-full table-fixed text-sm">
           <tbody>
             {rows.map((f, i) => (
               <tr key={i} className="border-b border-border last:border-0">
@@ -83,7 +91,7 @@ export function GianView({ billRef, onSelect }: {
   billRef: { session: string; billId: string } | null;
   onSelect: (session: string, billId: string) => void;
 }) {
-  const { data, loading } = useGianIndex();
+  const { data, loading, retry } = useGianIndex();
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
 
@@ -102,8 +110,8 @@ export function GianView({ billRef, onSelect }: {
   }, [data, query, typeFilter]);
 
   return (
-    <div className="flex h-full min-h-0">
-      <div className="w-96 shrink-0 border-r border-border flex flex-col min-h-0">
+    <div className="flex h-full min-h-0 flex-col md:flex-row">
+      <div className="w-full max-h-64 md:max-h-none md:w-96 min-h-0 shrink-0 border-b md:border-b-0 md:border-r border-border flex flex-col">
         <div className="px-4 py-3 border-b border-border shrink-0 space-y-2">
           <div className="flex items-center gap-2">
             <h2 className="text-sm font-semibold flex-1">議案（法案審議）</h2>
@@ -121,11 +129,16 @@ export function GianView({ billRef, onSelect }: {
             </SelectContent>
           </Select>
         </div>
-        <ScrollArea className="flex-1 min-h-0">
+        <ScrollArea className="flex-1 min-h-0 [&>[data-slot=scroll-area-viewport]>div]:!block">
           {loading ? (
             <div className="p-4 space-y-2">{[...Array(8)].map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}</div>
+          ) : !data ? (
+            <div role="alert" className="p-6 text-center text-sm text-muted-foreground">
+              <p>議案一覧を読み込めませんでした</p>
+              <button type="button" onClick={retry} className="mt-2 text-primary hover:underline">再試行</button>
+            </div>
           ) : filtered.length === 0 ? (
-            <p className="p-6 text-center text-sm text-muted-foreground">{data ? "該当する議案がありません" : "データがありません"}</p>
+            <p className="p-6 text-center text-sm text-muted-foreground">該当する議案がありません</p>
           ) : (
             filtered.map(b => {
               const sess = String(b.session);
@@ -137,7 +150,7 @@ export function GianView({ billRef, onSelect }: {
                     {b.bill_type && <span className={["text-xs font-bold px-1.5 py-0.5 rounded shrink-0", billTypeColor(b.bill_type)].join(" ")}>{b.bill_type}</span>}
                     <span className="text-xs text-muted-foreground">第{b.session}回 {b.number}号</span>
                   </div>
-                  <div className="text-sm font-medium line-clamp-2">{b.title}</div>
+                  <div className="text-sm font-medium line-clamp-2 [overflow-wrap:anywhere]">{b.title}</div>
                   <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                     {b.latest_event && <span className="text-xs text-muted-foreground">{b.latest_event}{b.latest_date ? ` ${b.latest_date}` : ""}</span>}
                     {b.committee && <span className="text-xs text-muted-foreground truncate">{b.committee}</span>}

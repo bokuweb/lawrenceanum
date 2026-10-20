@@ -4,6 +4,129 @@ import { test, expect } from "@playwright/test";
 // 検証: ロード中は skeleton (mock を出さない) / 既定は更新順ソート / タイトル絞り込み。
 const BASE = process.env.HISTORY_BASE ?? "http://127.0.0.1:8799/";
 
+const recoveredLaw = {
+  schema_version: 1, law_id: "129AC0000000089", title: "取得した法令の正式名称",
+  law_num: "取得した法令番号", revision_id: null, status: "current",
+  promulgation_date: "1896-04-27", effective_date: "1898-07-16",
+  articles: [{ article_id: "art_2", article_no: "第二条", caption: null,
+    paragraphs: [{ paragraph_no: null, text: "取得に成功した本文です。" }] }],
+};
+
+test("law index failure offers retry without sample laws and keeps the filter", async ({ page }) => {
+  let failed = true;
+  await page.route("**/laws/index.json", route => failed
+    ? route.fulfill({ status: 503, body: "unavailable" }) : route.continue());
+  await page.goto(new URL("#/laws", BASE).toString());
+  await expect(page.getByRole("alert")).toContainText("法令一覧を取得できませんでした");
+  await expect(page.getByText("労働基準法", { exact: true })).toHaveCount(0);
+  await page.getByPlaceholder("タイトル・法令番号で絞り込み").fill("ベータ");
+  failed = false;
+  await page.getByRole("button", { name: "再試行", exact: true }).click();
+  await expect(page.locator(".grid .text-base")).toHaveText(["ベータ法"]);
+  await expect(page.getByPlaceholder("タイトル・法令番号で絞り込み")).toHaveValue("ベータ");
+});
+
+test("law body failure retries at the same URL without fabricated articles", async ({ page }) => {
+  let failed = true;
+  await page.route("**/laws/index.json", route => route.fulfill({ status: 503 }));
+  await page.route("**/laws/129AC0000000089/current.json", route => failed
+    ? route.fulfill({ status: 503 }) : route.fulfill({ json: recoveredLaw }));
+  await page.goto(new URL("#/laws/129AC0000000089#art_2", BASE).toString());
+  await expect(page.getByRole("alert")).toContainText("法令本文を取得できませんでした");
+  await expect(page.locator("article")).toHaveCount(0);
+  failed = false;
+  await page.getByRole("button", { name: "再試行", exact: true }).click();
+  await expect(page.getByRole("heading", { name: recoveredLaw.title })).toBeVisible();
+  await expect(page.getByText(recoveredLaw.law_num, { exact: true })).toBeVisible();
+  await expect(page.locator("#art_2")).toContainText("取得に成功した本文です。");
+  await expect(page).toHaveURL(/#\/laws\/129AC0000000089#art_2$/);
+});
+
+test("law body is readable while optional history and versions are pending", async ({ page }) => {
+  let release = () => {};
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/laws/129AC0000000089/current.json", route => route.fulfill({ json: recoveredLaw }));
+  await page.route(/\/laws\/129AC0000000089\/(timeline|versions)\.json$/, async route => {
+    await gate;
+    await route.fulfill({ status: 503 });
+  });
+  try {
+    await page.goto(new URL("#/laws/129AC0000000089", BASE).toString());
+    await expect(page.locator("#art_2")).toContainText("取得に成功した本文です。");
+    await expect(page.getByText("本文を読み込み中…")).toHaveCount(0);
+    await page.getByRole("tab", { name: "改正履歴", exact: true }).click();
+    await expect(page.getByRole("tabpanel")).toContainText("改正履歴を読み込み中…");
+    await page.getByRole("tab", { name: "バージョン", exact: true }).click();
+    await expect(page.getByRole("tabpanel")).toContainText("バージョン情報を読み込み中…");
+  } finally { release(); }
+});
+
+test("empty law timeline and failed timeline never fall back to sample amendments", async ({ page }) => {
+  let failed = true;
+  await page.route("**/laws/129AC0000000089/timeline.json", route => failed
+    ? route.fulfill({ status: 503 }) : route.fulfill({ json: { law_id: recoveredLaw.law_id, events: [] } }));
+  await page.goto(new URL("#/laws/129AC0000000089", BASE).toString());
+  await page.getByRole("tab", { name: "改正履歴", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("改正履歴を取得できませんでした");
+  await expect(page.getByRole("tabpanel").locator('[data-slot="card"]')).toHaveCount(0);
+  failed = false;
+  await page.getByRole("button", { name: "再試行", exact: true }).click();
+  await expect(page.getByRole("tabpanel")).toContainText("改正履歴はありません");
+  await expect(page.getByRole("tabpanel").locator('[data-slot="card"]')).toHaveCount(0);
+});
+
+test("version failure retries independently of the loaded law body", async ({ page }) => {
+  let failed = true;
+  let bodyRequests = 0;
+  await page.route("**/laws/129AC0000000089/current.json", route => {
+    bodyRequests++;
+    return route.fulfill({ json: recoveredLaw });
+  });
+  await page.route("**/laws/129AC0000000089/versions.json", route => failed
+    ? route.fulfill({ status: 503 }) : route.fulfill({ json: { current_revision_id: null, versions: [] } }));
+  await page.goto(new URL("#/laws/129AC0000000089", BASE).toString());
+  await expect(page.locator("#art_2")).toBeVisible();
+  await page.getByRole("tab", { name: "バージョン", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("バージョン情報を取得できませんでした");
+  failed = false;
+  await page.getByRole("button", { name: "再試行", exact: true }).click();
+  await expect(page.getByRole("tabpanel")).toContainText("バージョン情報はありません");
+  await page.getByRole("tab", { name: "本文", exact: true }).click();
+  await expect(page.locator("#art_2")).toBeVisible();
+  expect(bodyRequests).toBe(1);
+});
+
+test("law cards fit a phone and can be opened with the keyboard", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(new URL("#/laws", BASE).toString());
+  const card = page.getByRole("link", { name: /アルファ法/ });
+  await expect(card).toHaveAttribute("href", "#/laws/900AC0000000001");
+  const bounds = await card.boundingBox();
+  expect(bounds!.width).toBeGreaterThan(300);
+  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(390);
+  await card.focus();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/#\/laws\/900AC0000000001$/);
+});
+
+test("title search can recover its law index while full text search is unavailable", async ({ page }) => {
+  let failed = true;
+  await page.route("**/search.db", route => route.abort());
+  await page.route("**/laws/index.json", route => failed
+    ? route.fulfill({ status: 503 }) : route.continue());
+  await page.goto(new URL("#/search", BASE).toString());
+  await page.getByRole("button", { name: "解除", exact: true }).click();
+  await page.getByRole("checkbox", { name: "法令・条文", exact: true }).check();
+  await page.getByPlaceholder("法令・資料名・本文を検索...").fill("ベータ");
+  const indexError = page.getByRole("alert").filter({ hasText: "法令一覧を取得できませんでした" });
+  await expect(indexError).toBeVisible();
+  failed = false;
+  await indexError.getByRole("button", { name: "再試行", exact: true }).click();
+  await expect(page.getByText("ベータ法", { exact: true })).toBeVisible();
+  await expect(indexError).toHaveCount(0);
+  await expect(page.getByPlaceholder("法令・資料名・本文を検索...")).toHaveValue("ベータ");
+});
+
 test("law list shows skeleton (not mock) while index.json is loading", async ({ page }) => {
   // index.json のレスポンスをゲートで保留し、ロード中状態を観測可能にする。
   let release: () => void = () => {};
@@ -57,7 +180,7 @@ test("law list filters by title", async ({ page }) => {
 
 // 法令詳細の「この法令の官報掲載」ブロック。timeline.json の官報リンク済み
 // イベント (kanpo.linked && pdf_url) を拾って表示する。current.json は fixture に
-// 無く 404 → offlineFallback だが、timeline は独立取得されるのでブロックは出る。
+// 無く 404 だが、timeline は独立取得されるのでブロックは出る。
 test("法令詳細に「この法令の官報掲載」が出て官報PDFへリンクする", async ({ page }) => {
   const lawId = "129AC0000000089"; // fixture index に居る民法
   await page.route(`**/laws/${lawId}/timeline.json`, (route) =>

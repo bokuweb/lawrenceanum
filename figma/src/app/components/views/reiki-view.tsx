@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -18,17 +18,29 @@ import { searchReiki, reikiGenericTitle, type ReikiHit } from "../../data/search
 function useAsync<T>(fn: (() => Promise<T>) | null, deps: unknown[]) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(!!fn);
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
+    setError(false);
     if (!fn) { setData(null); setLoading(false); return; }
     let cancelled = false;
     setLoading(true); setData(null);
     fn()
       .then(d => { if (!cancelled) { setData(d); setLoading(false); } })
-      .catch(() => { if (!cancelled) setLoading(false); });
+      .catch(() => { if (!cancelled) { setError(true); setLoading(false); } });
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
-  return { data, loading };
+  }, [...deps, attempt]);
+  return { data, loading, error, retry: () => setAttempt(n => n + 1) };
+}
+
+function LoadError({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div role="alert" className="p-6 text-sm text-muted-foreground">
+      <p>{message}</p>
+      <button type="button" onClick={onRetry} className="mt-2 text-primary hover:underline">再試行</button>
+    </div>
+  );
 }
 
 /** 段落テキスト。表（タブ区切り行）は表として描画する。 */
@@ -100,20 +112,23 @@ function Article({ a, focused }: { a: ReikiArticle; focused: boolean }) {
 
 function ReikiDetail({ code, reikiId, articleId }: { code: string; reikiId: string; articleId: string | null }) {
   const navigate = useNavigate();
-  const { data: doc, loading } = useAsync<ReikiDocument>(() => api.reikiDoc(code, reikiId), [code, reikiId]);
+  const { data: doc, loading, retry } = useAsync<ReikiDocument>(() => api.reikiDoc(code, reikiId), [code, reikiId]);
 
   useEffect(() => {
     if (!doc || !articleId) return;
-    document.getElementById(articleId)?.scrollIntoView({ block: "start" });
+    const target = document.getElementById(articleId);
+    const details = target?.closest("details");
+    if (details) details.open = true;
+    target?.scrollIntoView({ block: "start" });
   }, [doc, articleId]);
 
   if (loading) return <div className="p-6 space-y-3">{[...Array(6)].map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>;
-  if (!doc) return <div className="p-6 text-sm text-muted-foreground">読み込めませんでした</div>;
+  if (!doc) return <LoadError message="例規の本文を読み込めませんでした" onRetry={retry} />;
 
   const generic = reikiGenericTitle(doc.title, doc.municipality_name);
   let lastHeading: string | null | undefined = null;
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <ScrollArea className="h-full min-h-0 [overflow-wrap:anywhere] [&>[data-slot=scroll-area-viewport]>div]:!block">
       <div className="px-5 py-4 border-b border-border shrink-0">
         <div className="flex items-center gap-2 mb-1 flex-wrap">
           <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{doc.prefecture} {doc.municipality_name}</span>
@@ -138,50 +153,48 @@ function ReikiDetail({ code, reikiId, articleId }: { code: string; reikiId: stri
           </button>
         </div>
       </div>
-      <ScrollArea className="flex-1 min-h-0 [&>[data-slot=scroll-area-viewport]>div]:!block">
-        <div className="px-5 py-4 space-y-3">
-          {doc.preamble && doc.preamble.length > 0 && (
-            <div className="text-sm text-muted-foreground space-y-1">
-              {doc.preamble.map((p, i) => <div key={i}><TextBlock text={p} /></div>)}
+      <div className="px-5 py-4 space-y-3">
+        {doc.preamble && doc.preamble.length > 0 && (
+          <div className="text-sm text-muted-foreground space-y-1">
+            {doc.preamble.map((p, i) => <div key={i}><TextBlock text={p} /></div>)}
+          </div>
+        )}
+        {doc.articles.map(a => {
+          const showHeading = a.heading && a.heading !== lastHeading;
+          lastHeading = a.heading;
+          return (
+            <div key={a.article_id}>
+              {showHeading && <h3 className="text-sm font-semibold mt-4 mb-1">{a.heading}</h3>}
+              <Article a={a} focused={a.article_id === articleId} />
             </div>
-          )}
-          {doc.articles.map(a => {
-            const showHeading = a.heading && a.heading !== lastHeading;
-            lastHeading = a.heading;
-            return (
-              <div key={a.article_id}>
-                {showHeading && <h3 className="text-sm font-semibold mt-4 mb-1">{a.heading}</h3>}
-                <Article a={a} focused={a.article_id === articleId} />
-              </div>
-            );
-          })}
-          {doc.supplementary && doc.supplementary.length > 0 && (
-            <details className="pt-2 border-t border-border">
-              <summary className="text-xs font-semibold text-muted-foreground cursor-pointer select-none py-1">
-                附則（{doc.supplementary.length}）
-              </summary>
-              <div className="space-y-3 mt-2">
-                {doc.supplementary.map((s, i) => (
-                  <div key={i}>
-                    <div className="text-xs font-semibold mb-1">{s.title}</div>
-                    {s.articles.map(a => <Article key={a.article_id} a={a} focused={a.article_id === articleId} />)}
-                  </div>
-                ))}
-              </div>
-            </details>
-          )}
-          <p className="text-xs text-muted-foreground pt-4 border-t border-border">
-            自治体が公開する例規集から自動取得した非公式の写しです。正確な内容は原文で確認してください。
-            {doc.source?.checked_at && <> 取得 {doc.source.checked_at.slice(0, 10)}</>}
-          </p>
-        </div>
-      </ScrollArea>
-    </div>
+          );
+        })}
+        {doc.supplementary && doc.supplementary.length > 0 && (
+          <details className="pt-2 border-t border-border">
+            <summary className="text-xs font-semibold text-muted-foreground cursor-pointer select-none py-1">
+              附則（{doc.supplementary.length}）
+            </summary>
+            <div className="space-y-3 mt-2">
+              {doc.supplementary.map((s, i) => (
+                <div key={i}>
+                  <div className="text-xs font-semibold mb-1">{s.title}</div>
+                  {s.articles.map(a => <Article key={a.article_id} a={a} focused={a.article_id === articleId} />)}
+                </div>
+              ))}
+            </div>
+          </details>
+        )}
+        <p className="text-xs text-muted-foreground pt-4 border-t border-border">
+          自治体が公開する例規集から自動取得した非公式の写しです。正確な内容は原文で確認してください。
+          {doc.source?.checked_at && <> 取得 {doc.source.checked_at.slice(0, 10)}</>}
+        </p>
+      </div>
+    </ScrollArea>
   );
 }
 
 function MunicipalityList({ onSelect }: { onSelect: (code: string) => void }) {
-  const { data, loading } = useAsync<ReikiIndex>(() => api.reikiIndex(), []);
+  const { data, loading, error, retry } = useAsync<ReikiIndex>(() => api.reikiIndex(), []);
   const [query, setQuery] = useState("");
   const [pref, setPref] = useState("all");
   const prefectures = useMemo(() => {
@@ -217,6 +230,8 @@ function MunicipalityList({ onSelect }: { onSelect: (code: string) => void }) {
       <ScrollArea className="flex-1 min-h-0 [&>[data-slot=scroll-area-viewport]>div]:!block">
         {loading ? (
           <div className="p-4 space-y-2">{[...Array(8)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
+        ) : error ? (
+          <LoadError message="自治体一覧を読み込めませんでした" onRetry={retry} />
         ) : filtered.length === 0 ? (
           <p className="p-6 text-center text-sm text-muted-foreground">{data ? "該当する自治体がありません" : "データがありません"}</p>
         ) : (
@@ -245,12 +260,17 @@ function ReikiList({ code, reikiId, onBack, onSelect }: {
   onBack: () => void;
   onSelect: (id: string, articleId?: string) => void;
 }) {
-  const { data, loading } = useAsync<ReikiMunicipalityIndex>(() => api.reikiMunicipality(code), [code]);
+  const { data, loading, error, retry } = useAsync<ReikiMunicipalityIndex>(() => api.reikiMunicipality(code), [code]);
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState("all");
   const [hits, setHits] = useState<ReikiHit[] | null>(null);
   const [searching, setSearching] = useState(false);
-  useEffect(() => { setQuery(""); setKind("all"); setHits(null); }, [code]);
+  const [searchError, setSearchError] = useState(false);
+  const searchController = useRef<AbortController | null>(null);
+  useEffect(() => {
+    setQuery(""); setKind("all"); setHits(null); setSearching(false); setSearchError(false);
+    return () => { searchController.current?.abort(); searchController.current = null; };
+  }, [code]);
 
   const kinds = useMemo(() => {
     const count = new Map<string, number>();
@@ -261,12 +281,33 @@ function ReikiList({ code, reikiId, onBack, onSelect }: {
     const q = query.trim();
     return (data?.reiki ?? []).filter(r => (kind === "all" || r.kind === kind) && (!q || r.title.includes(q)));
   }, [data, query, kind]);
+  const filteredHits = useMemo(() => {
+    if (kind === "all") return hits;
+    const ids = new Set(data?.reiki.filter(r => r.kind === kind).map(r => r.reiki_id));
+    return hits?.filter(h => ids.has(h.reiki_id)) ?? null;
+  }, [data, hits, kind]);
 
   const runFullText = async () => {
     if (query.trim().length < 2) return;
+    searchController.current?.abort();
+    const controller = new AbortController();
+    searchController.current = controller;
     setSearching(true);
-    setHits(await searchReiki(query, { scope: { kind: "municipality", code }, limit: 50 }));
-    setSearching(false);
+    setSearchError(false);
+    setHits(null);
+    try {
+      const results = await searchReiki(query, {
+        scope: { kind: "municipality", code }, limit: 50, strict: true, signal: controller.signal,
+      });
+      if (!controller.signal.aborted) setHits(results);
+    } catch {
+      if (!controller.signal.aborted) setSearchError(true);
+    } finally {
+      if (searchController.current === controller) {
+        searchController.current = null;
+        setSearching(false);
+      }
+    }
   };
 
   return (
@@ -279,7 +320,7 @@ function ReikiList({ code, reikiId, onBack, onSelect }: {
           <h2 className="text-sm font-semibold flex-1 truncate">{data ? `${data.prefecture} ${data.name}` : "…"}</h2>
           {data && (
             <span className="text-xs text-muted-foreground tabular-nums" data-testid="reiki-list-count">
-              {hits ? `本文 ${hits.length.toLocaleString()}件` : `${filtered.length.toLocaleString()}件`}
+              {filteredHits ? `本文 ${filteredHits.length.toLocaleString()}件` : `${filtered.length.toLocaleString()}件`}
             </span>
           )}
         </div>
@@ -287,8 +328,11 @@ function ReikiList({ code, reikiId, onBack, onSelect }: {
         <div className="relative">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
           <Input value={query}
-            onChange={e => { setQuery(e.target.value); setHits(null); }}
-            onKeyDown={e => { if (e.key === "Enter") runFullText(); }}
+            onChange={e => {
+              searchController.current?.abort(); searchController.current = null;
+              setQuery(e.target.value); setHits(null); setSearching(false); setSearchError(false);
+            }}
+            onKeyDown={e => { if (e.key === "Enter" && !e.nativeEvent.isComposing && e.keyCode !== 229) runFullText(); }}
             placeholder="題名で絞り込み（Enter で本文検索）" className="pl-8 h-8 text-sm" />
         </div>
         <div className="flex gap-2">
@@ -308,11 +352,15 @@ function ReikiList({ code, reikiId, onBack, onSelect }: {
       <ScrollArea className="flex-1 min-h-0 [&>[data-slot=scroll-area-viewport]>div]:!block">
         {loading || searching ? (
           <div className="p-4 space-y-2">{[...Array(8)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
-        ) : hits ? (
-          hits.length === 0 ? (
+        ) : error ? (
+          <LoadError message="例規一覧を読み込めませんでした" onRetry={retry} />
+        ) : searchError ? (
+          <LoadError message="本文検索に失敗しました" onRetry={runFullText} />
+        ) : filteredHits ? (
+          filteredHits.length === 0 ? (
             <p className="p-6 text-center text-sm text-muted-foreground">本文に該当する例規がありません</p>
           ) : (
-            hits.map((h, i) => (
+            filteredHits.map((h, i) => (
               <button key={`${h.reiki_id}/${h.article_id}/${i}`} onClick={() => onSelect(h.reiki_id, h.article_id || undefined)}
                 className="w-full text-left px-4 py-2.5 border-b border-border hover:bg-accent/50 transition-colors">
                 <div className="text-sm font-medium line-clamp-1">{h.title}</div>
@@ -349,15 +397,15 @@ export function ReikiView({ muniCode, reikiId, articleId, onSelectMunicipality, 
   onBack: () => void;
 }) {
   return (
-    <div className="flex h-full">
-      <div className="w-96 shrink-0 border-r border-border flex flex-col">
+    <div className="flex h-full min-h-0 flex-col md:flex-row">
+      <div className={`w-full md:w-96 shrink-0 border-b md:border-b-0 md:border-r border-border flex flex-col min-h-0 ${reikiId ? "max-h-64 md:max-h-none" : "flex-1 md:flex-none"}`}>
         {muniCode ? (
           <ReikiList code={muniCode} reikiId={reikiId} onBack={onBack} onSelect={(id, a) => onSelectReiki(muniCode, id, a)} />
         ) : (
           <MunicipalityList onSelect={onSelectMunicipality} />
         )}
       </div>
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className={`flex-1 flex flex-col min-w-0 min-h-0 ${reikiId ? "" : "hidden md:flex"}`}>
         {muniCode && reikiId ? (
           <ReikiDetail code={muniCode} reikiId={reikiId} articleId={articleId} />
         ) : (
