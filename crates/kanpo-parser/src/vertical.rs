@@ -620,7 +620,23 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             let mut i = 0;
             while i < tiers.len() {
                 // 罫線の無い縦組みの表（欄ごとの低い段が上下に並び、行が同じ x の列に揃う名簿）は行ごとに組む。
-                if let Some((n, lines)) = (!shinkyu_page && !prev_table).then(|| record_bands(&tiers[i..], (!sideways).then_some(height / 2.0))).flatten() {
+                // 新旧対照表のあるページでも、新旧対照表の欄見出しの無い段（同じページの別の告示の名簿）なら見る。
+                let plain_tier = !shinkyu_page || detect_shinkyu_header(&tiers[i]).is_none();
+                if let Some((n, lines)) = (plain_tier && !prev_table)
+                    .then(|| record_bands(&tiers[i..], (!sideways).then_some(height / 2.0)))
+                    .flatten()
+                    // 新旧対照表のページでは、届出年月日などの日付で始まる行が 3 行以上あり、
+                    // 「（略）」の無い名簿だけ（新旧対照表の帯の続きを名簿にしない）。
+                    .filter(|(_, lines)| {
+                        !shinkyu_page
+                            || (!lines.iter().any(|l| l.text.contains("（略）"))
+                                && lines
+                                    .iter()
+                                    .filter(|l| ["令和", "平成", "昭和"].iter().any(|e| l.text.starts_with(e)))
+                                    .count()
+                                    >= 3)
+                    })
+                {
                     units.push(Unit::Plain(lines));
                     i += n;
                     continue;
