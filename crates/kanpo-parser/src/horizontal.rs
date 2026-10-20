@@ -2828,6 +2828,12 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
             order_region(bottom, &bb, ctx, boxed, column, out);
             return;
         }
+        if blocks.is_empty() {
+            if let Some(records) = crate::unruled_records::repeated_header_records(&words, vrules, hrules, ctx.tables) {
+                out.extend(records);
+                return;
+            }
+        }
         let gutters = column_gutters(&words, blocks, if boxed { ctx.tables } else { &[] }, boxed, ctx.tables.is_empty());
         // 領域の左端から溝まで引いた長い横の罫線（囲みの中の上下の組の境の線）が終わる溝は囲みの境なので、先にそこで切る
         // （囲みの中の貸借対照表の列と合併公告の列の間の狭い溝で先に切ると、上下の組の貸借対照表が先にまとめて読まれた）。

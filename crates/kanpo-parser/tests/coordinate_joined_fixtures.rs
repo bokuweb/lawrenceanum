@@ -183,11 +183,15 @@ fn unheaded_continuations_restore_only_the_proven_angle_suffixes() {
     );
 }
 #[test]
-fn vertical_numeric_geometry_is_not_widened() {
+fn rotated_suffixes_restore_without_widening_original_numeric_geometry() {
     unchanged(
         include_bytes!("archive/pages/20260717h01750/20260717h017500006.pdf"),
         include_str!("archive/expected-coordinate-symbols/20260717h017500006.txt"),
     );
+    let a = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(include_bytes!("archive/pages/20260717h01750/20260717h017500006.pdf")).unwrap());
+    let trace: serde_json::Value = serde_json::from_str(&serde_json::to_string(&a.pages[0]).unwrap()).unwrap();
+    let expected: serde_json::Value = serde_json::from_str(include_str!("archive/expected-coordinate-rotated/20260717h017500006-page.json")).unwrap();
+    assert_eq!(trace, expected, "all original Word geometry and every numeric/suffix owner stay exact");
 }
 #[test]
 fn existing_spaced_coordinates_keep_all_existing_recovered_symbols() {

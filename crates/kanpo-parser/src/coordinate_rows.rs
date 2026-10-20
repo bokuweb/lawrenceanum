@@ -112,7 +112,175 @@ fn decimal(s: &str) -> Option<u32> {
         s.parse().ok()
     }
 }
+/// Final Tables keep native geometry even when the printed cells run downwards.
+/// Verify a temporary clockwise-unturned frame, then transfer only text and IDs
+/// to the same existing owners. Source metadata and prior repairs stay native.
 pub(crate) fn restore_coordinate_rows(
+    units: &mut [Unit],
+    words: &mut [Word],
+    rules: Option<&PageRules>,
+    extent: f32,
+) {
+    restore_horizontal_coordinate_rows(units, words, rules, extent);
+    if !extent.is_finite()
+        || extent <= 0.
+        || !words.iter().any(|w| {
+            w.status == WordStatus::Empty
+                && matches!(w.raw.as_str(), "\u{EA6F}" | "\u{EA6D}" | "\u{EA6E}")
+        })
+    {
+        return;
+    }
+    let turn = |x0: f32, y0: f32, x1: f32, y1: f32| (y0, extent - x1, y1, extent - x0);
+    let mut rotated_words = words.to_vec();
+    for w in &mut rotated_words {
+        (w.x0, w.y0, w.x1, w.y1) = turn(w.x0, w.y0, w.x1, w.y1);
+    }
+    let mut rotated: Vec<Unit> = units
+        .iter()
+        .map(|u| match u {
+            Unit::Plain(ls) => Unit::Plain(ls.clone()),
+            Unit::Shinkyu {
+                preamble,
+                after,
+                before,
+                outside,
+            } => Unit::Shinkyu {
+                preamble: preamble.clone(),
+                after: after.clone(),
+                before: before.clone(),
+                outside: outside.clone(),
+            },
+        })
+        .collect();
+    visit_mut(&mut rotated, |_, l| {
+        if let Some(t) = &mut l.table {
+            (t.x0, t.y0, t.x1, t.y1) = turn(t.x0, t.y0, t.x1, t.y1);
+            for c in &mut t.cells {
+                (c.x0, c.y0, c.x1, c.y1) = turn(c.x0, c.y0, c.x1, c.y1);
+            }
+        }
+    });
+    let rotated_rules = rules.map(|r| PageRules {
+        vertical: r
+            .horizontal
+            .iter()
+            .map(|h| crate::lines::VRule {
+                x: h.y,
+                y0: extent - h.x1,
+                y1: extent - h.x0,
+            })
+            .collect(),
+        horizontal: r
+            .vertical
+            .iter()
+            .map(|v| crate::lines::HRule {
+                y: extent - v.x,
+                x0: v.y0,
+                x1: v.y1,
+            })
+            .collect(),
+        enclosures: vec![],
+    });
+    crate::coordinate_symbols::restore_coordinate_symbols(&mut rotated, &mut rotated_words);
+    restore_horizontal_coordinate_rows(
+        &mut rotated,
+        &mut rotated_words,
+        rotated_rules.as_ref(),
+        extent,
+    );
+    let mut restored = HashSet::new();
+    for (a, b) in words.iter().zip(&rotated_words) {
+        if a.text != b.text || a.status != b.status {
+            let expected = match a.raw.as_str() {
+                "\u{EA6F}" => "°",
+                "\u{EA6D}" => "′",
+                "\u{EA6E}" => "″",
+                _ => return,
+            };
+            if a.status != WordStatus::Empty
+                || !a.text.is_empty()
+                || b.status != WordStatus::Used
+                || b.text != expected
+            {
+                return;
+            }
+            restored.insert(a.id);
+        }
+    }
+    if restored.is_empty() {
+        return;
+    }
+    // Reject a stale owner or text mismatch instead of rebuilding a prior repair.
+    let insertion_only = |old: &str, new: &str| {
+        let mut old = old.chars().peekable();
+        for c in new.chars() {
+            if old.peek() == Some(&c) {
+                old.next();
+            } else if !['°', '′', '″'].contains(&c) {
+                return false;
+            }
+        }
+        old.next().is_none()
+    };
+    let mut old_lines = vec![];
+    visit(units, |_, l| old_lines.push(l.clone()));
+    let mut valid = true;
+    let mut attachments = HashSet::new();
+    let mut new_lines = vec![];
+    visit(&rotated, |i, l| {
+        let old = &old_lines[i];
+        let mut owner = |a: &[usize], b: &[usize]| {
+            if b.len() < a.len() || b[..a.len()] != *a {
+                return false;
+            }
+            for id in &b[a.len()..] {
+                if !restored.contains(id) || !attachments.insert(*id) {
+                    return false;
+                }
+            }
+            true
+        };
+        valid &= owner(&old.words, &l.words);
+        if !insertion_only(&old.text, &l.text) {
+            valid = false;
+        }
+        match (&old.table, &l.table) {
+            (Some(a), Some(b)) if a.cells.len() == b.cells.len() => {
+                for (ac, bc) in a.cells.iter().zip(&b.cells) {
+                    valid &= owner(&ac.words, &bc.words);
+                    if !insertion_only(&ac.text, &bc.text) {
+                        valid = false;
+                    }
+                }
+            }
+            (None, None) => {}
+            _ => valid = false,
+        }
+        new_lines.push(l.clone());
+    });
+    if !valid || attachments != restored {
+        return;
+    }
+    visit_mut(units, |i, l| {
+        let n = &new_lines[i];
+        l.text = n.text.clone();
+        l.words = n.words.clone();
+        if let (Some(a), Some(b)) = (&mut l.table, &n.table) {
+            for (ac, bc) in a.cells.iter_mut().zip(&b.cells) {
+                ac.text = bc.text.clone();
+                ac.words = bc.words.clone();
+            }
+        }
+    });
+    for (a, b) in words.iter_mut().zip(rotated_words) {
+        if restored.contains(&a.id) {
+            a.text = b.text;
+            a.status = b.status;
+        }
+    }
+}
+fn restore_horizontal_coordinate_rows(
     units: &mut [Unit],
     words: &mut [Word],
     rules: Option<&PageRules>,
@@ -704,6 +872,189 @@ mod tests {
             let old = snap(&u, &w);
             restore_coordinate_rows(&mut u, &mut w, Some(&r), 200.);
             assert_eq!(snap(&u, &w), old);
+        }
+    }
+
+    // A test-only inverse of the native sideways frame. Source metadata must stay in it.
+    fn sideways_fixture(table: bool, headed: bool) -> (Vec<Unit>, Vec<Word>, PageRules) {
+        let (mut u, mut w, mut r) = fixture(table);
+        if headed {
+            for word in &mut w {
+                word.y0 += 18.;
+                word.y1 += 18.;
+            }
+            for rule in &mut r.vertical {
+                rule.y1 += 18.;
+            }
+            for rule in &mut r.horizontal {
+                rule.y += 18.;
+            }
+            r.horizontal.insert(
+                0,
+                HRule {
+                    y: 0.,
+                    x0: 0.,
+                    x1: 159.,
+                },
+            );
+            visit_mut(&mut u, |_, l| {
+                let t = l.table.as_mut().unwrap();
+                t.y1 += 18.;
+                t.rows += 1;
+                for c in &mut t.cells {
+                    c.y0 += 18.;
+                    c.y1 += 18.;
+                    c.row += 1;
+                }
+                for (col, text) in ["点", "北緯", "東経"].iter().enumerate() {
+                    t.cells.push(TableCell {
+                        row: 0,
+                        col,
+                        rowspan: 1,
+                        colspan: 1,
+                        x0: [0., 23., 91.][col],
+                        x1: [23., 91., 159.][col],
+                        y0: 0.,
+                        y1: 18.,
+                        text: text.to_string(),
+                        words: vec![],
+                    });
+                }
+                l.text = t.render();
+            });
+        }
+        let turn = |x0: f32, y0: f32, x1: f32, y1: f32| (200. - y1, x0, 200. - y0, x1);
+        for word in &mut w {
+            (word.x0, word.y0, word.x1, word.y1) = turn(word.x0, word.y0, word.x1, word.y1);
+        }
+        visit_mut(&mut u, |_, l| {
+            if let Some(t) = &mut l.table {
+                (t.x0, t.y0, t.x1, t.y1) = turn(t.x0, t.y0, t.x1, t.y1);
+                for c in &mut t.cells {
+                    (c.x0, c.y0, c.x1, c.y1) = turn(c.x0, c.y0, c.x1, c.y1);
+                }
+            }
+        });
+        let old = r.clone();
+        r.horizontal = old
+            .vertical
+            .iter()
+            .map(|v| HRule {
+                y: v.x,
+                x0: 200. - v.y1,
+                x1: 200. - v.y0,
+            })
+            .collect();
+        r.vertical = old
+            .horizontal
+            .iter()
+            .map(|h| VRule {
+                x: 200. - h.y,
+                y0: h.x0,
+                y1: h.x1,
+            })
+            .collect();
+        (u, w, r)
+    }
+    #[test]
+    fn sideways_unheaded_table_keeps_original_metadata_and_prior_owner_ids() {
+        let (mut u, mut w, r) = sideways_fixture(true, false);
+        let mut old = vec![];
+        visit(&u, |_, l| old.push(l.clone()));
+        let oldw = w.clone();
+        restore_coordinate_rows(&mut u, &mut w, Some(&r), 200.);
+        assert_eq!(
+            w.iter()
+                .filter(|x| ["°", "′", "″"].contains(&x.text.as_str()))
+                .count(),
+            12
+        );
+        visit(&u, |li, l| {
+            let ot = old[li].table.as_ref().unwrap();
+            let t = l.table.as_ref().unwrap();
+            assert_eq!(
+                (t.x0, t.y0, t.x1, t.y1, t.rows, t.cols),
+                (ot.x0, ot.y0, ot.x1, ot.y1, ot.rows, ot.cols)
+            );
+            for (c, oc) in t.cells.iter().zip(&ot.cells) {
+                assert_eq!(
+                    (c.row, c.col, c.rowspan, c.colspan, c.x0, c.y0, c.x1, c.y1),
+                    (oc.row, oc.col, oc.rowspan, oc.colspan, oc.x0, oc.y0, oc.x1, oc.y1)
+                );
+                assert_eq!(&c.words[..oc.words.len()], oc.words);
+                assert_eq!(c.text.replace(['°', '′', '″'], ""), oc.text);
+            }
+        });
+        for (a, b) in w.iter().zip(oldw) {
+            assert_eq!(
+                (a.id, &a.raw, a.x0, a.y0, a.x1, a.y1),
+                (b.id, &b.raw, b.x0, b.y0, b.x1, b.y1)
+            );
+            if !b.text.is_empty() {
+                assert_eq!(
+                    serde_json::to_string(a).unwrap(),
+                    serde_json::to_string(&b).unwrap()
+                );
+            }
+        }
+        let once = snap(&u, &w);
+        restore_coordinate_rows(&mut u, &mut w, Some(&r), 200.);
+        assert_eq!(snap(&u, &w), once);
+    }
+    #[test]
+    fn sideways_plain_rows_insert_suffixes_without_rebuilding_existing_spacing() {
+        let (mut u, mut w, r) = sideways_fixture(false, false);
+        let old = unit_snapshot(&u);
+        restore_coordinate_rows(&mut u, &mut w, Some(&r), 200.);
+        assert!(u[0].text().contains("34°53′19.8544″"));
+        visit_mut(&mut u, |_, l| {
+            l.text = l.text.replace(['°', '′', '″'], "");
+            l.words
+                .retain(|&id| !matches!(w[id].raw.as_str(), "\u{EA6F}" | "\u{EA6D}" | "\u{EA6E}"));
+        });
+        assert_eq!(unit_snapshot(&u), old);
+    }
+    #[test]
+    fn sideways_formal_headers_reuse_cell_proof_without_fabricating_headings() {
+        let (mut u, mut w, r) = sideways_fixture(true, true);
+        restore_coordinate_rows(&mut u, &mut w, Some(&r), 200.);
+        assert_eq!(
+            w.iter()
+                .filter(|x| ["°", "′", "″"].contains(&x.text.as_str()))
+                .count(),
+            12
+        );
+        assert!(u[0].text().contains("点　北緯　東経"));
+        assert!(u[0].text().contains("34° 53′ 19.8544″"));
+    }
+    #[test]
+    fn sideways_rows_reject_missing_rules_split_owners_noncoordinate_or_ambiguous_glyphs() {
+        for table in [false, true] {
+            for mode in 0..7 {
+                let (mut u, mut w, mut r) = sideways_fixture(table, false);
+                match mode {
+                    0 => r.vertical.clear(),
+                    1 => w[2].raw = "\u{EA70}".into(),
+                    2 => {
+                        let mut g = w[2].clone();
+                        g.id = w.len();
+                        w.push(g);
+                    }
+                    3 => w[1].text = "99".into(),
+                    4 => w[0].status = WordStatus::Noise,
+                    5 => {
+                        let id = w.iter().position(|x| x.raw == "\u{EA6F}").unwrap();
+                        u.push(Unit::Plain(vec![Line::text(
+                            "other article".into(),
+                            vec![id],
+                        )]))
+                    }
+                    _ => w[0].text = "9".into(),
+                };
+                let before = snap(&u, &w);
+                restore_coordinate_rows(&mut u, &mut w, Some(&r), 200.);
+                assert_eq!(snap(&u, &w), before, "table={table} mode={mode}");
+            }
         }
     }
 }

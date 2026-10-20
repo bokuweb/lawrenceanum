@@ -753,6 +753,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         crate::inline_quotes::restore(&mut units, &mut words);
         crate::circled_numbers::restore(&mut units, &mut words);
         if sideways { if let Some(native_rules) = rules.get(pi).and_then(|r| r.as_ref()) { crate::framed_amount_rows::restore(&mut units, &words, native_rules); } }
+        if !sideways && !rotated { crate::facility_continuations::restore(&mut units, &words, page_rules, width, height); }
         let text = units
             .iter()
             .map(Unit::text)

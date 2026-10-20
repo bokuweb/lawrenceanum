@@ -1,0 +1,458 @@
+{
+  "stage": "fifteenth_integrated_batch",
+  "date": "2026-10-21",
+  "baseline_commit": "c8353335aae18e8c91f891f1ff4e96f0569ceac8",
+  "output": "after36",
+  "population_pdf_pages": 11992,
+  "comparison_against_fourteenth_batch": {
+    "changed_pages": 25,
+    "unchanged_pages_exact_text": 11967,
+    "added_nonspace_characters": {
+      "°": 990,
+      "′": 990,
+      "″": 990
+    },
+    "removed_nonspace_characters": {},
+    "changed_source_Words_text_and_status_only": 2970,
+    "new_output_IDs": 2970,
+    "new_source_Words": 0,
+    "native_Glyphs_proven": 4923,
+    "new_pesticide_tables": 6,
+    "pesticide_records": 36,
+    "pesticide_original_Words": 314,
+    "pesticide_native_Glyphs": 1741,
+    "facility_records": 2,
+    "facility_original_Words": 26,
+    "facility_native_Glyphs": 212
+  },
+  "comparison_against_original_baseline": {
+    "changed_pages": 2888,
+    "character_change_pages": 1291,
+    "source_backed_dashes": 10920,
+    "fractions": 153,
+    "square_cm": 2,
+    "surname_characters": 6,
+    "ordinal_pairs": 121,
+    "table_parenthesis_pairs": 377,
+    "plain_period_parenthesis_pairs": 706,
+    "coordinate_symbols": 13464,
+    "removed_false_inferred_characters": {
+      "改": 9,
+      "正": 9,
+      "後": 4,
+      "前": 5
+    },
+    "actual_comparison_baseline_character_loss": 0,
+    "square_metre": 43,
+    "reference_markers": 58,
+    "curly_quotes_restored": 32,
+    "circled11_restored": 32,
+    "circled21_restored": 21,
+    "parenthesized_RomanI_restored": 2,
+    "leading_empty_column_U3000_restored": 439
+  },
+  "source_validation": {
+    "fresh_textdump_original_PDFs": 11992,
+    "textdump_uses_pdf_flag": true,
+    "textdump_log_sha256": "89d6fe31283914ab3c4335a10b2ca852512bf2328c4f6b4257a4cd9ea62d5f60",
+    "all25_fresh_fullAnalysis_match_independent_candidates": true,
+    "all61_source_SHA_verified": true,
+    "cumulative_validator": {
+      "counts": {
+        "period_pairs": 706,
+        "ordinal_pairs": 121,
+        "bracket_cells": 377,
+        "existing_unattached_used_diagnostic": 50,
+        "pages": 2888,
+        "native_dash_glyphs": 10920,
+        "fractions": 153,
+        "surnames": 6,
+        "plain_dashes": 228,
+        "duplicate_word_ids": 0
+      },
+      "logs": [
+        ".cache/kanpo-227/validate36-part0.log",
+        ".cache/kanpo-227/validate36-part1.log",
+        ".cache/kanpo-227/validate36-part2.log",
+        ".cache/kanpo-227/validate36-part3.log",
+        ".cache/kanpo-227/validate36-part4.log",
+        ".cache/kanpo-227/validate36-part5.log",
+        ".cache/kanpo-227/validate36-part6.log",
+        ".cache/kanpo-227/validate36-part7.log"
+      ],
+      "all_parts_exit0": true
+    },
+    "all_previous_period_ordinal_bracket_bindings_preserved": true,
+    "duplicate_word_IDs": 0,
+    "original_character_loss": 0,
+    "existing_unattached_Used_diagnostic": 50,
+    "baseline_fake_label_removal_caveat": "Previous intentional27false newoldlabel characters remain the only original-baseline removals; no oldoriginal text lost in this batch."
+  },
+  "tests": {
+    "crates": [
+      "kanpo-parser",
+      "kanpo-pdf",
+      "kanpo-parser-wasm",
+      "kanpo-lm"
+    ],
+    "passed": 920,
+    "failed": 0,
+    "INSTA_UPDATE": "no",
+    "CI": "true",
+    "CARGO_BUILD_JOBS": 1,
+    "archive_PDFs": 565,
+    "new_actual_test_functions": 32,
+    "new_geometry_unit_tests": 36,
+    "root_actual_baseline_failures": 21,
+    "root_actual_baseline_preservation_passes": 11,
+    "parser_unit_tests": 607,
+    "new_reviewed_archive_snapshots": 23,
+    "updated_reviewed_archive_snapshots": 6,
+    "existing_corpus_tests_passed": 2,
+    "full_log_sha256": "af86ffe58e5966bb678d53545d0ec7a323ffb6481fe1b0baa67310bff0fc681a",
+    "git_diff_check": "PASS",
+    "pending_snapshots": 0,
+    "old_oracle_updates": "Six existing files from4test groups source-proved and updated; added1 complete page trace guard. Another facility negative retains119originalWords/1027nativeGlyphs while adding144nativeangles. Failed logs and old copies preserved; no blanketUPDATE_EXPECT."
+  },
+  "previous_commit_CI": {
+    "headRefOid": "c8353335aae18e8c91f891f1ff4e96f0569ceac8",
+    "isDraft": true,
+    "state": "OPEN",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-20T18:22:35Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bokuweb/lawrenceanum/actions/runs/39473420157/job/118803106426",
+        "name": "test",
+        "startedAt": "2026-10-20T18:17:28Z",
+        "status": "COMPLETED",
+        "workflowName": "kanpo-parser test"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-20T18:26:10Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bokuweb/lawrenceanum/actions/runs/39473420155/job/118803107417",
+        "name": "check",
+        "startedAt": "2026-10-20T18:17:29Z",
+        "status": "COMPLETED",
+        "workflowName": "rust-ci"
+      }
+    ],
+    "url": "https://github.com/bokuweb/lawrenceanum/pull/228"
+  },
+  "audit126_initial": {
+    "counts": {
+      "minor": 4,
+      "ok": 24,
+      "major": 2
+    },
+    "initial_grades_fixed": true,
+    "all30_root_fresh_before35_after36_fullAnalysis_exact": true,
+    "all30_PDF_output_image_SHA_verified": true,
+    "native0_rectangles": 5,
+    "root_fresh_native_PDFs": 3,
+    "explicit_nonzero_contexts": 2,
+    "scope": "All initial findings preexist this batch; no100percent claim."
+  },
+  "visual_scope": {
+    "changed_originals": 25,
+    "improvement": 25,
+    "regression": 0,
+    "whole_page_success_not_implied": true
+  },
+  "rejected_attempts": {
+    "environment": "First integrated build stopped ENOSPC before assertions; only completed regenerable build artifacts removed; source/PDF/log/proof retained.",
+    "composition_negative": "607units+3coordinate actualPASS, facility7PASS1FAIL fromold144symbol-loss oracle. Strictly proved144angle insertions and119protectedWords/1027nativeGlyph before scopedupdate.",
+    "first_fullsuite": "915passed5failed:29pending archive snapshots,2oldcoordinate negatives,2corpus case oracles in1test,and1pesticide negative. Updated only source-proved scope; original PDF/bbox/rules/case inputs unchanged; extra complete trace/table shape guards added. Four nonarchive groups16PASS afterwards."
+  },
+  "remaining_known_issues": [
+    "181p67 Ennet date placement;171p155/174p142 each3 absent bars.",
+    "194p50/p55 upper hierarchy;194p51 four empty account records joined;194p70 article combines two IC records.",
+    "174p46 and14other native RomanXIII remain unmapped;186p19 JIS wrapping/code mixing.",
+    "CF196p133(A)..(G)14 reference Glyphs and other unverified reference markers remain; amount/detail alignment was fixed in batch14.",
+    "206p75 form fields detached;20260814t000410002 agencytable/附則 interleaving;175h1 company/name columns.",
+    "6ambiguous⑪/4ambiguous㉑ and51unpaired components of other circled20s are not guessed.",
+    "198p21 rotated newoldtable row interleaving;206p248 two△ amounts assigned one row above.",
+    "Article-only165p694 finalleft1.099/rightfirst1.018 concatenate though all18right pairs are present in Page/Trace;179p113 old⑰/⑱ building/1円 rows concatenate only in Article Table.",
+    "Audit125major225p7 nested fraction structure and1799p4 after-cell continuation interrupted by before-cell新設 remain. Cache-only next candidates are not accepted fixes.",
+    "Audit125minor174p153 surname櫛田;183p48瀀/䙐;170p60 onebar/176p121 twobars;212p6 delayed signatures;1767p4 Latin spaces.1761p2 missing144angles resolved in batch15.",
+    "1773p4 missing126angles resolved, but preexisting land/marker line interleaving remains; audit124 repair stays29ok1minor0major, initial27ok3minor0major fixed.",
+    "1774p3 other pesticide manufacturers detached;1790p4 economic-notice period endingで crosses city list.",
+    "1762p5 approval manufacturer/signature/type description interrupt sand-control points10/11; road94/199/61 fields interleave.",
+    "1798p6 road1175 unit/width/length78 appears inside sand-control1176;1802p5 road221/95 wrapped intervals cross inspection-place columns.",
+    "Audit126major174p87 next-article heading prefix belongs to preceding Article;192p30 three micro-volume μ symbols and four chemical line-end hyphens absent.",
+    "Audit126minor165p715 and226p108 table header line concatenation;215p457 circled⑮⑯⑰ absent;169p84 newold first-article display row joined while separate source cells remain.",
+    "Further unreconstructed coordinate/surname/unit candidates remain; no overall100percent claim."
+  ],
+  "changed_page_manifest": [
+    {
+      "page": "20260717h017500006",
+      "added": {
+        "°": 46,
+        "′": 46,
+        "″": 46
+      },
+      "removed": {},
+      "before_sha256": "0b8ef233639fb408bbb13576ee094417048dd947cd919c331817c3e9b069a2e1",
+      "after_sha256": "80d3f3ce50894d42877f415d2af51baa082731bb48a98808732cdc9023da393e"
+    },
+    {
+      "page": "20260722h017520005",
+      "added": {
+        "°": 88,
+        "′": 88,
+        "″": 88
+      },
+      "removed": {},
+      "before_sha256": "6ae32d6c6341c941a6fbb7e836cf8167bcea3f7c4ebe72ef735a295a457d5b85",
+      "after_sha256": "c0bc53e218105e65f6c9d620523703b688720854f9442327da824e814e5c78af"
+    },
+    {
+      "page": "20260724h017540004",
+      "added": {
+        "°": 14,
+        "′": 14,
+        "″": 14
+      },
+      "removed": {},
+      "before_sha256": "4eb705c7af96461e24b5e0ff090694550501bc40cf773259b29d05cdaf6f1e38",
+      "after_sha256": "5bf4ea6128a1c6c08200df332ac2e127a0b44518d73344511439efe29390045d"
+    },
+    {
+      "page": "20260724h017540006",
+      "added": {
+        "°": 64,
+        "′": 64,
+        "″": 64
+      },
+      "removed": {},
+      "before_sha256": "3f90b88c5b309b3bc57d1b48a3893b342051698de6867de591707b257a391d45",
+      "after_sha256": "95fd4ae3cf8a82a2abad7a3cac99cd5814a474848ac87bd9f3b937e7ecec3b37"
+    },
+    {
+      "page": "20260728h017560004",
+      "added": {
+        "°": 40,
+        "′": 40,
+        "″": 40
+      },
+      "removed": {},
+      "before_sha256": "e5f11abd38338ee4619490853678b19712b038a493566f964075e023b3585730",
+      "after_sha256": "c4e930825d1e01a841cf0cf8d14a9d4e279a3b3b869831a36b9fc961514764ea"
+    },
+    {
+      "page": "20260728h017560006",
+      "added": {
+        "°": 32,
+        "′": 32,
+        "″": 32
+      },
+      "removed": {},
+      "before_sha256": "334ed2287e341a83238eed785fe55c8f4019e391c48e5b9ce18769bd9fd330e4",
+      "after_sha256": "9932c42fb14fc57d087e9502e92c3499bbfb4bc6d0d497924bbb3e378135a2ac"
+    },
+    {
+      "page": "20260731h017590004",
+      "added": {
+        "°": 8,
+        "′": 8,
+        "″": 8
+      },
+      "removed": {},
+      "before_sha256": "afee3a2c02716fd9e4ff4258d2f1a4d3ea5df10b68373ac7c994b07fabb7ec1e",
+      "after_sha256": "0d2da4b50c64c94e680d1999efad3be15e14833428c7001846d6bbdcead16514"
+    },
+    {
+      "page": "20260804h017610001",
+      "added": {
+        "°": 10,
+        "′": 10,
+        "″": 10
+      },
+      "removed": {},
+      "before_sha256": "5fad14e3917358d73c294c47a6f349996923823ae59c5f4a593358445b14fec0",
+      "after_sha256": "25b74c43ec58c48dddf53f7e3c622fb7f44d0761a9a462ca28fc8bb2b958ab3b"
+    },
+    {
+      "page": "20260804h017610002",
+      "added": {
+        "°": 48,
+        "′": 48,
+        "″": 48
+      },
+      "removed": {},
+      "before_sha256": "9a88a98d8a5cc7b26e4818dc1db6197001f8905a05c80a4af83bff17fd08c332",
+      "after_sha256": "f2313a05ed624f5b940ca5bccc78fcf379b74a8b5a271e731c567a102fee13c5"
+    },
+    {
+      "page": "20260805h017620005",
+      "added": {
+        "°": 42,
+        "′": 42,
+        "″": 42
+      },
+      "removed": {},
+      "before_sha256": "0018a7c768aac2f14c1cdd163f5053937d7415370421cf3b59a9b4f0f3396235",
+      "after_sha256": "c90602efe71887b97ebb922c654b57d7f238272e96e1ed7c90fc3cb96839a721"
+    },
+    {
+      "page": "20260814h017680007",
+      "added": {
+        "°": 34,
+        "′": 34,
+        "″": 34
+      },
+      "removed": {},
+      "before_sha256": "7bf52aacc84c2c558011a4b07ae4e1e5fca5ead2c50c0a657c5d51ccd54706d4",
+      "after_sha256": "d861c2d8b9328df7be5f5ed89303926fa14918aa805882a4567080a259fdd7d3"
+    },
+    {
+      "page": "20260821h017730004",
+      "added": {
+        "°": 42,
+        "′": 42,
+        "″": 42
+      },
+      "removed": {},
+      "before_sha256": "ad72abff96bf7cb53b6a8ef22f26e08d57b55902bc5f1ec1e80325ed24423873",
+      "after_sha256": "7df945890ea80f44f21161a7dd2a1a6d9aac063ecc44923f62fc04ef313727e1"
+    },
+    {
+      "page": "20260821h017730005",
+      "added": {
+        "°": 38,
+        "′": 38,
+        "″": 38
+      },
+      "removed": {},
+      "before_sha256": "fc08703bdc4453f86470d2a7d008331d39e546fd261c9e1a91315efa1627abe9",
+      "after_sha256": "221249ff41dda28cafc0be0a0fb208bd67f80ab7f5685cff4814fbcf9048dd09"
+    },
+    {
+      "page": "20260824h017740004",
+      "added": {},
+      "removed": {},
+      "before_sha256": "b263b390f66c3273e78736400817e81da8121491b0d543bc0bd2e67782bbdff0",
+      "after_sha256": "47311e7b296a93a8cae56eecd2a2f6e79dee9efaf94fec15d5da76012b16b119"
+    },
+    {
+      "page": "20260826h017760005",
+      "added": {
+        "°": 14,
+        "′": 14,
+        "″": 14
+      },
+      "removed": {},
+      "before_sha256": "2427268239060d72fa92348337b47809ecad211c209c2a6cee3316444d962082",
+      "after_sha256": "e801f84a3c2860089c2fd8e1085928a1558f45c08c6317abd658fef17a0fd5ad"
+    },
+    {
+      "page": "20260826h017760006",
+      "added": {
+        "°": 38,
+        "′": 38,
+        "″": 38
+      },
+      "removed": {},
+      "before_sha256": "53315de0f6eda684e794481569a2d05e65452a4cb41d0fd6cb17a99307d63117",
+      "after_sha256": "a4734e41698a500d24002694ae00d7bdfaaf71a83c9e40205254126c5ef79fc0"
+    },
+    {
+      "page": "20260904h017830006",
+      "added": {
+        "°": 86,
+        "′": 86,
+        "″": 86
+      },
+      "removed": {},
+      "before_sha256": "f62b82496e5bcbd13b26f0e31864e6a5d51ca185098001cb62752c9d4805293a",
+      "after_sha256": "6e90dc52fae44dfa9c22616fda63248365844a85c4aafd8b7dc7c2b831d342d5"
+    },
+    {
+      "page": "20260914h017890007",
+      "added": {
+        "°": 24,
+        "′": 24,
+        "″": 24
+      },
+      "removed": {},
+      "before_sha256": "4f543d4203158b24e6a74e7b91901925e7922d5f44bc25a72461d07f39778ac6",
+      "after_sha256": "ef9976f464da53334528ed2d3efbdef7fb521921a8bc902b792a535816888b9c"
+    },
+    {
+      "page": "20260915h017900005",
+      "added": {},
+      "removed": {},
+      "before_sha256": "df5d9021f27c46d1b0f8a39f3d0f4c6e9eb15640254b4341babccbf1f92228da",
+      "after_sha256": "8f7295cdddc736e8ff46427cd1892b36dfa4f71cf3c21772a549982ea0e7ffd2"
+    },
+    {
+      "page": "20260917g002080012",
+      "added": {
+        "°": 64,
+        "′": 64,
+        "″": 64
+      },
+      "removed": {},
+      "before_sha256": "d3a6db7c724db836de490cef43280abc15e52c719abf4a039a43b9224506e500",
+      "after_sha256": "6643e1a360b91cb1cbc91f7477cb57344c0e5af2fb6a4f7b1edfc9f9d346ea4d"
+    },
+    {
+      "page": "20260925g002120010",
+      "added": {
+        "°": 48,
+        "′": 48,
+        "″": 48
+      },
+      "removed": {},
+      "before_sha256": "1e05d04672fe30fa6e03533aca663b752c87a463417763c1d0ffc241fb7416a8",
+      "after_sha256": "3b43f4d96d235e99b9bafdf46044c1bf6358dc9c7d4b9e9000afbf5afb386198"
+    },
+    {
+      "page": "20260930h017980006",
+      "added": {
+        "°": 20,
+        "′": 20,
+        "″": 20
+      },
+      "removed": {},
+      "before_sha256": "07c995283ba987ad4b5090e87f5ee910895ec2fa50a9d5048f157c5231a04200",
+      "after_sha256": "86d0ebf37b1c25567e9e755d8a107977b378dbb028056a0bc06a80db314f0117"
+    },
+    {
+      "page": "20260930h017980007",
+      "added": {
+        "°": 58,
+        "′": 58,
+        "″": 58
+      },
+      "removed": {},
+      "before_sha256": "90c70fdb877dbc638ceb73fc6df7ddd8d9edfb622d4983ae8ee3ed09e79918d3",
+      "after_sha256": "da9cea8b553773c4ca3a64d645761f1a941b6b3f8dced73b1ab3485b26eeb523"
+    },
+    {
+      "page": "20261006h018020005",
+      "added": {
+        "°": 52,
+        "′": 52,
+        "″": 52
+      },
+      "removed": {},
+      "before_sha256": "ae9eef25800dce4078882ae26128ecb4cf2040449bcf143b54c4dc9f19c7bef6",
+      "after_sha256": "94ed28c46f61136177ccccc7f6d45fb05295136a85fd33810704b52a7e51305f"
+    },
+    {
+      "page": "20261019h018100004",
+      "added": {
+        "°": 80,
+        "′": 80,
+        "″": 80
+      },
+      "removed": {},
+      "before_sha256": "3ff4f1e552906e83a391fdd99e509042dd199d549f7d3be056d1980c37b09103",
+      "after_sha256": "5a645d950ebe2a3837de17796dba23cbf8ba32c3d2903e8d39139ce0fb7ab1d0"
+    }
+  ]
+}

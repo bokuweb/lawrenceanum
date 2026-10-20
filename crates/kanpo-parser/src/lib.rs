@@ -31,6 +31,7 @@
 //! ```
 
 use anyhow::Result;
+mod facility_continuations;
 mod coordinate_symbols;
 mod coordinate_rows;
 mod area_units;
@@ -521,3 +522,5 @@ mod large_parentheses;
 mod financial_flow;
 
 mod circled_numbers;
+
+mod unruled_records;

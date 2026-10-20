@@ -288,6 +288,7 @@ cargo run --release -p kanpo-parser --example snapshot_sample -- .cache/kanpo-ar
 | 123 回目（独立・初回） | 23 | 7 | 0 | 100% |
 | 124 回目（独立・初回） | 27 | 3 | 0 | 100% |
 | 125 回目（独立・初回） | 21 | 7 | 2 | 93.3% |
+| 126 回目（独立・初回） | 24 | 4 | 2 | 93.3% |
 
 110 回目から、対象ページ ID・原本 SHA-256・採点の理由を [`tests/audits/`](tests/audits/) に残す。
 110 回目は本文に文字層のある 30 ページで校正し、見つかった分数式・金額の空欄位置の崩れを修正して同じ原本で再照合した結果。
@@ -537,3 +538,27 @@ URL の U+2011 は原 PDF の文字層にも存在して保持されており、
 変更影響と原字の証明は [`tests/audits/issue227-fourteenth-batch-reviews.json`](tests/audits/issue227-fourteenth-batch-reviews.json)、
 [`tests/audits/issue227-fourteenth-batch-provenance.json`](tests/audits/issue227-fourteenth-batch-provenance.json) に保存した。
 検証の集計は [`tests/audits/issue227-validation-14.json`](tests/audits/issue227-validation-14.json) に保存した。
+
+
+第 15 次修正では、農薬登録失効一覧 1 ページの繰返し見出しと原座標から、6 表・36 件・4 欄を復元した。
+314 語・1,741 原 Glyph を各欄へ照合し、同じ製造者を示す「〃」22 字も原文のまま保持した。
+施設一覧の続き 1 ページでは、2 件の施設番号・施設名・市・所有関係・摘要を同じレコードへまとめ、26 語・212 原 Glyph と全摘要を保持した。
+回転した座標表 23 ページには度・分・秒の各 990 字、計 2,970 原字を元の数値セルへ復元した。
+語の ID・raw・位置は変えず、旧数値列と空白を保持し、原字形・元の数値セル・唯一の所属を個別に検証した。
+
+全 11,992 原 PDF を再抽出し、第 14 次から 25 ページが変わり、11,967 ページは本文が完全一致した。
+変更 25 原本の評価は改善 25・退行 0。全解析結果を各独立候補と照合し、旧原字の欠落なし、追加は原座標記号のみ。
+累計 2,888 ページでは、横棒 10,920 字、分数 153 件、番号対 121 件、括弧セル 377 件、期間 706 組を保持し、原 ID の重複はない。
+実 PDF は修正前 21 失敗・保存用 11 成功から 32 成功へ、追加の形状 36 テストも成功した。
+関連 4 クレートの全 920 テストが成功し、アーカイブ PDF は 565 件。新規 23・更新 6 snapshot を全本文・全記事・原本と照合して採用した。
+従来の欠落・分断を前提としていた 4 テスト群の期待値も、原字・ID・所属の証明後に範囲を限定して更新し、全 trace・6 表の形状を検証するチェックを加えた。
+コーパス 2 例は本文と構造 JSON の座標記号だけを更新し、原 PDF・bbox・罫線・case と語の並び替えテストは保持した。
+
+126 回目の未見 30 ページは 24 ok / 4 minor / 2 major。次の記事見出しの前半が前の記事に入る問題と、体積の接頭単位 μ 3 字が欠ける問題が残る。
+全 30 ページの修正前後の解析結果は完全一致し、初回評価を固定した。文字層のない 5 矩形は 3 原 PDF の全 Glyph を再検査し、隣字と交わる 2 範囲は非零として別記した。
+124 回目の座標欠落は解消したが、同じページの既存の土地・標柱一覧の折返しが残るため、修正後の全体評価は 29 ok / 1 minor / 0 major のままとした。
+新規 snapshot にある農薬住所・期間・船舶認定・道路表の既存重大欠陥も残件として記録し、snapshot 採用を完全抽出とは数えない。
+初回監査は [`tests/audits/126.json`](tests/audits/126.json)、変更影響と原字の証明は
+[`tests/audits/issue227-fifteenth-batch-reviews.json`](tests/audits/issue227-fifteenth-batch-reviews.json)、
+[`tests/audits/issue227-fifteenth-batch-provenance.json`](tests/audits/issue227-fifteenth-batch-provenance.json)、
+検証集計は [`tests/audits/issue227-validation-15.json`](tests/audits/issue227-validation-15.json) に保存した。

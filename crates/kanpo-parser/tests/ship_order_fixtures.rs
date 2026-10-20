@@ -55,15 +55,19 @@ fn preserves_mixed_negative_20260928h017960004() {
     );
 }
 #[test]
-fn preserves_mixed_negative_20260824h017740004() {
+fn pesticide_records_preserve_all_source_words_and_the_complete_composed_trace() {
     let a = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(include_bytes!("archive/pages/20260824h01774/20260824h017740004.pdf")).unwrap());
     let before: serde_json::Value = serde_json::from_str(include_str!("archive/expected-ship-order/20260824h017740004.json")).unwrap();
     assert_eq!(a.text, before["text"].as_str().unwrap());
     let trace: serde_json::Value = serde_json::from_str(&serde_json::to_string(&a.pages[0]).unwrap()).unwrap();
     assert!(
         trace == before,
-        "mixed-layout negative must retain the entire trace, source IDs and original ownership"
+        "six complete pesticide tables must retain the exact composed trace and original source metadata"
     );
+    let tables: Vec<_> = a.pages[0].regions.iter().flat_map(|r| &r.lines).filter_map(|l| l.table.as_ref()).collect();
+    assert_eq!(tables.len(), 6);
+    assert_eq!(tables.iter().map(|t| t.rows - 1).sum::<usize>(), 36);
+    assert!(tables.iter().all(|t| t.cols == 4));
 }
 
 #[test]

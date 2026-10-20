@@ -128,11 +128,15 @@ fn unreconstructed_columns_stay_exact_while_the_ruled_continuation_restores() {
     assert!(out.text.contains("99　34°43′47.4662″　136°25′45.7983″"));
 }
 #[test]
-fn vertical_trace_numeric_geometry_is_not_treated_as_horizontal_suffixes() {
+fn rotated_trace_retains_exact_numeric_geometry_and_native_suffix_owners() {
     let pdf = include_bytes!("archive/pages/20260717h01750/20260717h017500006.pdf");
     let out = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(pdf).unwrap());
     assert_eq!(
         out.text.trim_end(),
         include_str!("archive/expected-coordinate-symbols/20260717h017500006.txt").trim_end()
     );
+    let trace: serde_json::Value = serde_json::from_str(&serde_json::to_string(&out.pages[0]).unwrap()).unwrap();
+    let expected: serde_json::Value = serde_json::from_str(include_str!("archive/expected-coordinate-rotated/20260717h017500006-page.json")).unwrap();
+    assert_eq!(trace, expected);
+    for symbol in ['°', '′', '″'] { assert_eq!(out.text.matches(symbol).count(), 46); }
 }
