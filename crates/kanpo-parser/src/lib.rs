@@ -55,6 +55,7 @@ pub mod model;
 pub mod normalize;
 pub mod segment;
 pub mod shinkyu;
+mod headerless_four_bands;
 pub mod table;
 mod table_dashes;
 mod owned_dashes;

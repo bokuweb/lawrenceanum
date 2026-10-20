@@ -4,7 +4,7 @@ fn canonical(a:&Analysis)->serde_json::Value{serde_json::from_str(&serde_json::t
 const PDF0:&[u8]=include_bytes!("archive/pages/20261001h01799/20261001h017990004.pdf");
 const BASE0:&str=include_str!("expected/framed_after_continuation/20261001h017990004.analysis.json");
 const PDF1:&[u8]=include_bytes!("archive/pages/20261001h01799/20261001h017990003.pdf");
-const BASE1:&str=include_str!("expected/framed_after_continuation/20261001h017990003.analysis.json");
+const BASE1:&str=include_str!("expected/framed_after_continuation/20261001h017990003-after39.analysis.json");
 const PDF2:&[u8]=include_bytes!("archive/pages/20261001h01799/20261001h017990005.pdf");
 const BASE2:&str=include_str!("expected/framed_after_continuation/20261001h017990005.analysis.json");
 const PDF3:&[u8]=include_bytes!("archive/pages/20260810g00179/20260810g001790057.pdf");
