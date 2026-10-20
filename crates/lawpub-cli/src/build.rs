@@ -2565,6 +2565,12 @@ fn collect_corpus_health(public: &Path) -> serde_json::Value {
             date_fields: &["submitted_on"],
         },
         CorpusSpec {
+            name: "guidance",
+            collection: "documents",
+            unit: "documents",
+            date_fields: &["issued_on"],
+        },
+        CorpusSpec {
             name: "treaties",
             collection: "treaties",
             unit: "treaties",
@@ -2661,10 +2667,10 @@ fn normalize_date_prefix(value: &str) -> Option<String> {
 /// 担保する (実体は SPA だが OG 情報は同一の index.html がメタを返す)。
 /// `public/` から search.db を再構築する。
 ///
-/// `build-json` 時点では `public/{proceedings,kanpo,tsutatsu}` がまだ配置されておらず
+/// `build-json` 時点では `public/{proceedings,kanpo,tsutatsu,hanrei}` がまだ配置されておらず
 /// (それらは後続ステップで R2 から復元・生成される)、その時に作られる search.db は
 /// 法令しか索引していない。全コーパスが `public/` に出揃った後にこのコマンドを呼ぶことで、
-/// 議事録・官報・通達を横断検索 DB に確実に取り込む。法令本文は各 `current.json` から、
+/// 議事録・官報・通達・判例を横断検索 DB に確実に取り込む。法令本文は各 `current.json` から、
 /// 分類は `laws/index.json` から復元する。
 pub fn run_build_search_db(public: &Path) -> Result<()> {
     let docs = read_existing_law_documents(public)?;
@@ -2688,14 +2694,25 @@ pub fn run_build_search_db(public: &Path) -> Result<()> {
     let kanpo_dir_opt = if kanpo_dir.is_dir() { Some(kanpo_dir.as_path()) } else { None };
     let tsutatsu_dir = public.join("tsutatsu");
     let tsutatsu_dir_opt = if tsutatsu_dir.is_dir() { Some(tsutatsu_dir.as_path()) } else { None };
+    let hanrei_dir = public.join("hanrei");
+    let hanrei_dir_opt = if hanrei_dir.is_dir() { Some(hanrei_dir.as_path()) } else { None };
     tracing::info!(
-        "build-search-db: {} laws, proceedings={} kanpo={} tsutatsu={}",
+        "build-search-db: {} laws, proceedings={} kanpo={} tsutatsu={} hanrei={}",
         docs.len(),
         proc_dir_opt.is_some(),
         kanpo_dir_opt.is_some(),
         tsutatsu_dir_opt.is_some(),
+        hanrei_dir_opt.is_some(),
     );
-    search_index::build_search_db(&path, &docs, &categories, proc_dir_opt, kanpo_dir_opt, tsutatsu_dir_opt)?;
+    search_index::build_search_db(
+        &path,
+        &docs,
+        &categories,
+        proc_dir_opt,
+        kanpo_dir_opt,
+        tsutatsu_dir_opt,
+        hanrei_dir_opt,
+    )?;
     Ok(())
 }
 
@@ -2720,7 +2737,17 @@ fn write_search_db(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
     let kanpo_dir_opt = if kanpo_dir.is_dir() { Some(kanpo_dir.as_path()) } else { None };
     let tsutatsu_dir = public.join("tsutatsu");
     let tsutatsu_dir_opt = if tsutatsu_dir.is_dir() { Some(tsutatsu_dir.as_path()) } else { None };
-    search_index::build_search_db(&path, &docs, &categories, proc_dir_opt, kanpo_dir_opt, tsutatsu_dir_opt)?;
+    let hanrei_dir = public.join("hanrei");
+    let hanrei_dir_opt = if hanrei_dir.is_dir() { Some(hanrei_dir.as_path()) } else { None };
+    search_index::build_search_db(
+        &path,
+        &docs,
+        &categories,
+        proc_dir_opt,
+        kanpo_dir_opt,
+        tsutatsu_dir_opt,
+        hanrei_dir_opt,
+    )?;
     Ok(())
 }
 

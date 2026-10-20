@@ -10,6 +10,7 @@ mod diffs;
 mod enforcement;
 mod feeds;
 mod gian;
+mod guidance;
 mod hanrei;
 mod kanpo;
 mod kanpo_archive;
@@ -773,6 +774,42 @@ enum Cmd {
         #[arg(long, default_value = "public")]
         public: PathBuf,
     },
+
+    /// 所管省庁の政府解釈 (金融庁のノーアクションレター・書面照会・相談事例・Q&A・ガイドライン) を
+    /// 取得し `.cache/guidance/{ministry}/{id}.json` に保存する。添付原本は
+    /// `.cache/guidance-assets/{ministry}/{sha256}.{ext}`。取得済みで変化の無いものは飛ばす。
+    GuidanceFetch {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
+        provider: String,
+        /// 省庁アダプタ (現状 `fsa` のみ)。
+        #[arg(long, default_value = "fsa")]
+        ministry: String,
+        /// 種別の絞り込み (カンマ区切り: no_action_letter / written_inquiry / consultation_cases /
+        /// qa / guideline / interpretation_cases、または nal / inquiry / cases)。省略時は全て。
+        #[arg(long)]
+        kinds: Option<String>,
+        /// リクエスト間隔 (ミリ秒)。
+        #[arg(long, default_value_t = 1000)]
+        interval_ms: u64,
+        /// 1 回の実行で取得する最大文書数。
+        #[arg(long, default_value_t = 200)]
+        limit: usize,
+        /// Q&A・ガイドライン (同じ URL のまま改訂される) を取り直す間隔 (日)。
+        #[arg(long, default_value_t = 7)]
+        refresh_days: i64,
+    },
+
+    /// `.cache/guidance/` → `public/guidance/{id}.json` + `index.json` を書き出す
+    /// (`public/laws/index.json` があれば関連法令を法令 ID に解決する)。
+    GuidanceBuildJson {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
     /// 外務省の条約データ (条約データ検索・国会提出条約) を取得し `.cache/treaty/` に保存する。
     /// 一覧は `--list-max-age-days` 以内に全ページ取得済みなら取り直さない。条約ページは公布・
     /// 効力発生まで済んだ保存分を、本文は取得済みのものを飛ばすので、再実行で続きから取れる。
@@ -808,6 +845,12 @@ enum Cmd {
     TreatyBuildJson {
         #[arg(long, default_value = ".cache")]
         cache: PathBuf,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
+    /// 政府解釈の関連法令・文書名・本文から `public/links/law-to-guidance/{law_id}.json` を生成する。
+    LinkLawsAndGuidance {
         #[arg(long, default_value = "public")]
         public: PathBuf,
     },
@@ -1117,6 +1160,25 @@ fn main() -> Result<()> {
         }
         Cmd::ShitsumonBuildJson { cache, public } => shitsumon::run_build_json(&cache, &public),
         Cmd::LinkLawsAndShitsumon { public } => linking::run_link_shitsumon(&public),
+        Cmd::GuidanceFetch {
+            cache,
+            provider,
+            ministry,
+            kinds,
+            interval_ms,
+            limit,
+            refresh_days,
+        } => guidance::run_fetch(
+            &cache,
+            &provider,
+            &ministry,
+            kinds.as_deref(),
+            interval_ms,
+            limit,
+            refresh_days,
+        ),
+        Cmd::GuidanceBuildJson { cache, public } => guidance::run_build_json(&cache, &public),
+        Cmd::LinkLawsAndGuidance { public } => linking::run_link_guidance(&public),
         Cmd::TreatyFetch {
             cache,
             provider,
@@ -1222,5 +1284,32 @@ mod cli_tests {
 
         let link = Cli::try_parse_from(["lawpub", "link-laws-and-shingikai"]).unwrap();
         assert!(matches!(link.cmd, Cmd::LinkLawsAndShingikai { .. }));
+    }
+
+    #[test]
+    fn guidance_commands_parse() {
+        let fetch = Cli::try_parse_from([
+            "lawpub",
+            "guidance-fetch",
+            "--ministry",
+            "fsa",
+            "--kinds",
+            "nal,qa",
+            "--interval-ms",
+            "2000",
+        ])
+        .unwrap();
+        assert!(matches!(
+            fetch.cmd,
+            Cmd::GuidanceFetch {
+                interval_ms: 2000,
+                limit: 200,
+                ..
+            }
+        ));
+        let build = Cli::try_parse_from(["lawpub", "guidance-build-json"]).unwrap();
+        assert!(matches!(build.cmd, Cmd::GuidanceBuildJson { .. }));
+        let link = Cli::try_parse_from(["lawpub", "link-laws-and-guidance"]).unwrap();
+        assert!(matches!(link.cmd, Cmd::LinkLawsAndGuidance { .. }));
     }
 }

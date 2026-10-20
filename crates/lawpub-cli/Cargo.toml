@@ -46,4 +46,5 @@ gian-client = { path = "../gian-client" }
 hanrei-client = { path = "../hanrei-client" }
 tsutatsu-client = { path = "../tsutatsu-client" }
 shitsumon-client = { path = "../shitsumon-client" }
+guidance-client = { path = "../guidance-client" }
 treaty-client = { path = "../treaty-client" }
