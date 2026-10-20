@@ -3544,6 +3544,36 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
         let reach_n = xs.iter().filter(|&&x| reaching(x)).count();
         !below.is_empty() && bx.len() <= 2 && xs.len() >= 3 && reach_n <= 2 && bx.iter().all(|&x| reaching(x))
     };
+    let name_foot = |cut: f32| {
+        let em = cols.iter().map(|c| c.x1 - c.x).fold(f32::INFINITY, f32::min).max(4.0);
+        let below: Vec<&Col> = cols.iter().filter(|c| c.y >= cut && c.y - cut < em * 3.0).collect();
+        let named = below
+            .iter()
+            .filter(|c| {
+                let n = c.text.trim().chars().count();
+                // 同じ列で cut より上の一番下の語。
+                let above_of = |y: f32| cols.iter().filter(|a| a.y1 <= y + 0.5 && (center(a) - center(c)).abs() < em * 0.5).max_by(|p, q| p.y1.total_cmp(&q.y1));
+                let above = above_of(cut);
+                // 氏名は漢字だけの 2〜5 字。
+                let kanji = c.text.trim().chars().all(|ch| ('\u{4E00}'..='\u{9FFF}').contains(&ch) || ch == '々');
+                // 上の語は官職（「…判事」「…事務局長」「…審議官」、折り返しの「記官」）。
+                let post = |t: &str| {
+                    let t = t.trim();
+                    ["官", "長", "事", "員", "監", "補", "佐"].iter().any(|e| t.ends_with(e)) || ["裁判所", "省", "庁", "局"].iter().any(|k| t.contains(k))
+                };
+                let is_kanji = |t: &str| t.trim().chars().all(|ch| ('\u{4E00}'..='\u{9FFF}').contains(&ch) || ch == '々');
+                // 上の語が官職か、官職の下の姓（「家令」の下の「和典」）。
+                let titled = |a: &Col| {
+                    (a.text.chars().count() >= 2 && post(&a.text))
+                        || (is_kanji(&a.text) && a.text.trim().chars().count() <= 4 && above_of(a.y).is_some_and(|b| post(&b.text)))
+                };
+                (2..=5).contains(&n) && kanji && above.is_some_and(titled)
+            })
+            .count();
+        // 新旧対照表の帯の境目（欄見出しの「改」「正」「後」「前」）では見ない。
+        let band = cols.iter().any(|c| matches!(c.text.trim(), "改" | "正" | "後" | "前" | "改正後" | "改正前"));
+        !band && named >= 5 && named * 2 >= below.len()
+    };
     type Cand = (usize, bool, f32, f32, f32);
     let better = |a: &Cand, b: &Option<Cand>| {
         b.is_none_or(|b| {
@@ -3608,6 +3638,11 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
             // 長い 1 列「第四条令第四条第一項第四号／に規定する…」の下の部分だけが次の段になり、隣の〔号を加える。〕の後に
             // 読まれていた）。
             if crossing == 0 && lone_column(cut) {
+                continue;
+            }
+            // cut のすぐ下（3 字分以内）の語の半分以上が、同じ列の上の官職の語（折り返しの「記官」も）の下に組んだ短い氏名
+            // （「家令」「和典」。漢字だけの 2〜5 字が 5 つ以上）なら、名簿の氏名の手前で段の境目ではない（官職の一覧の後に、氏名が下の段の列と 1 行ずつつながっていた）。
+            if crossing == 0 && name_foot(cut) {
                 continue;
             }
             // 文の列（またぐ語も続きの語も 6 字以上）だけを見る（日付の列の下の署名、題字の「法」「律」は切る）。
