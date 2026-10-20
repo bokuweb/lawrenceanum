@@ -34,6 +34,8 @@ mod shitsumon;
 pub use guidance::run_link_guidance;
 pub use law_refs::LawRefResolver;
 pub use shitsumon::run_link_shitsumon;
+mod treaty;
+pub use treaty::run_link_treaties;
 
 // ── 公開型 ────────────────────────────────────────────────────────
 

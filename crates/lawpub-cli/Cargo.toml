@@ -48,3 +48,4 @@ tsutatsu-client = { path = "../tsutatsu-client" }
 shitsumon-client = { path = "../shitsumon-client" }
 guidance-client = { path = "../guidance-client" }
 jlt-client = { path = "../jlt-client" }
+treaty-client = { path = "../treaty-client" }

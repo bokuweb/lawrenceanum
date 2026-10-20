@@ -2579,6 +2579,12 @@ fn collect_corpus_health(public: &Path) -> serde_json::Value {
             unit: "translations",
             date_fields: &["translated_on"],
         },
+        CorpusSpec {
+            name: "treaties",
+            collection: "treaties",
+            unit: "treaties",
+            date_fields: &["effective_on"],
+        },
         // 官報は専用ワークフローが集めるので corpus-status.json には載らない
         // (収集状況の行は「収集履歴なし」になる)。鮮度は配信済みの最新発行日で見る。
         CorpusSpec {

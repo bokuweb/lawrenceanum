@@ -9,11 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { ScrollArea } from "../ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ARTICLES_V2, TIMELINE_EVENTS, type LawSummary } from "../mock-data";
-import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark, MessageSquare, Newspaper, ScrollText, Network, MessageCircleQuestion, FileQuestion, Languages } from "lucide-react";
+import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark, MessageSquare, Newspaper, ScrollText, Network, MessageCircleQuestion, FileQuestion, Languages, Globe } from "lucide-react";
 import { EnforcementExplanation } from "./enforcement-explanation";
 import { useLocation, useNavigate } from "react-router";
 import { useLaws, useLawDetail } from "../../data/use-laws";
-import { api, hanreiUrl, GUIDANCE_KIND_LABELS, type AppendixTable, type LawToGuidance, type LawToHanrei, type LawToShitsumon, type LawEnglish, type LawEnglishArticle, type LawToProceedings, type LawToRulemaking, type LawToPubcomments, type LawToTsutatsu } from "../../data/api";
+import { api, hanreiUrl, GUIDANCE_KIND_LABELS, type AppendixTable, type LawToGuidance, type LawToHanrei, type LawToShitsumon, type LawEnglish, type LawEnglishArticle, type LawToProceedings, type LawToRulemaking, type LawToPubcomments, type LawToTsutatsu, type LawToTreaties, type Treaty, type LinkedTreaty } from "../../data/api";
 import { AmendDocumentView } from "../amend-document-view";
 import { SupplementarySection } from "./supplementary-section";
 import { getRefsForLaw, type ArticleRef } from "../../data/search-engine";
@@ -367,6 +367,94 @@ function EnglishArticle({ article }: { article: LawEnglishArticle }) {
   );
 }
 
+/** 条約の行。クリックで経過と本文の冒頭を開く (`treaties/{id}.json` を遅延取得)。 */
+function LinkedTreatyItem({ treaty: t }: { treaty: LinkedTreaty }) {
+  const [open, setOpen] = useState(false);
+  const [detail, setDetail] = useState<Treaty | null>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    if (!open || detail || failed) return;
+    let cancelled = false;
+    api.treaty(t.treaty_id)
+      .then(d => { if (!cancelled) setDetail(d); })
+      .catch(() => { if (!cancelled) setFailed(true); });
+    return () => { cancelled = true; };
+  }, [open, detail, failed, t.treaty_id]);
+  const articleLabel = (a: string) => {
+    const m = a.match(/^(?:suppl(\d+)_)?art_(.+)$/);
+    if (!m) return a.startsWith("suppl") ? "附則" : a;
+    const [n, ...br] = m[2].split("_");
+    return `${m[1] ? "附則" : ""}第${n}条${br.map(b => `の${b}`).join("")}`;
+  };
+  const dates: [string, string | null | undefined][] = detail
+    ? [
+        ["署名", detail.signed_on],
+        ["国会承認", detail.diet_approved_on],
+        ["締結", detail.concluded_on],
+        ["公布", detail.promulgated_on],
+        ["効力発生", detail.effective_on],
+      ]
+    : [];
+  return (
+    <li className="text-xs">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="text-left font-medium hover:text-primary transition-colors"
+        aria-expanded={open}
+      >
+        {t.title}
+      </button>
+      {t.in_title && (
+        <span className="ml-1.5 text-[10px] px-1 rounded bg-muted text-muted-foreground">題名</span>
+      )}
+      <p className="text-[11px] text-muted-foreground">
+        {t.short_title && t.short_title !== t.title && `${t.short_title} · `}
+        {t.kind === "bilateral" ? "二国間" : t.kind === "multilateral" ? "多数国間" : "国会提出条約"}
+        {t.treaty_number_label && ` · ${t.treaty_number_label}`}
+        {t.effective_on && ` · 効力発生 ${t.effective_on}`}
+        {t.articles.length > 0 && ` · ${t.articles.slice(0, 6).map(articleLabel).join("・")}${t.articles.length > 6 ? " ほか" : ""}`}
+        {t.ambiguous && " · 同名の条約あり"}
+      </p>
+      {open && (
+        <div className="mt-1 ml-2 border-l border-border pl-2 space-y-1">
+          {failed && <p className="text-[11px] text-muted-foreground">条約データを読み込めませんでした。</p>}
+          {detail && (
+            <>
+              {dates.some(([, v]) => v) && (
+                <p className="text-[11px] text-muted-foreground">
+                  {dates.filter(([, v]) => v).map(([k, v]) => `${k} ${v}`).join(" · ")}
+                  {detail.parties.length > 0 && ` · 相手国 ${detail.parties.join("、")}`}
+                </p>
+              )}
+              {detail.text && (
+                <pre className="text-[11px] whitespace-pre-wrap font-sans max-h-48 overflow-y-auto bg-muted/40 rounded p-2">
+                  {detail.text.length > 1200 ? `${detail.text.slice(0, 1200)}…` : detail.text}
+                </pre>
+              )}
+              <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px]">
+                <a href={detail.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-0.5 hover:text-primary">
+                  外務省 条約データ <ArrowUpRight className="size-2.5 opacity-50" />
+                </a>
+                {detail.diet_url && detail.diet_url !== detail.source_url && (
+                  <a href={detail.diet_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-0.5 hover:text-primary">
+                    国会提出条約 <ArrowUpRight className="size-2.5 opacity-50" />
+                  </a>
+                )}
+                {detail.attachments.slice(0, 4).map(a => (
+                  <a key={a.url} href={a.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-0.5 hover:text-primary">
+                    {a.label} (PDF) <ArrowUpRight className="size-2.5 opacity-50" />
+                  </a>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </li>
+  );
+}
+
 function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => void; onCompare: () => void }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -594,6 +682,18 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
     () => new Map((english?.articles ?? []).map(a => [a.article_id, a] as const)),
     [english],
   );
+
+  // この法令が参照する条約（law→treaties クロスリンク）。題名に出る条約を先に出す（リンク側で並べ済み）。
+  const [treaties, setTreaties] = useState<LawToTreaties | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    setTreaties(null);
+    api.lawToTreaties(law.law_id)
+      .then(d => { if (!cancelled) setTreaties(d); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [law.law_id]);
+  const linkedTreaties = treaties?.linked_treaties ?? [];
 
   // この法令の官報掲載。timeline イベントのうち官報リンク済み (pdf_url あり) を拾う。
   // liveEvents は公布日降順ソート済み。
@@ -894,6 +994,21 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
           <p className="text-[10px] text-muted-foreground mt-1.5">
             出典: {guidanceMinistries || "金融庁"}ウェブサイト（公共データ利用規約 PDL1.0）。照会対象の条文・文書名・本文の条番号から自動で紐付け、要旨は公表 PDF から機械抽出して加工
           </p>
+        </div>
+      )}
+
+      {linkedTreaties.length > 0 && (
+        <div className="border-b border-border bg-background px-6 py-3">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground mb-2">
+            <Globe className="size-3" />
+            この法令が参照する条約 ({linkedTreaties.length})
+          </div>
+          <ul className="space-y-1.5">
+            {linkedTreaties.slice(0, 20).map(t => (
+              <LinkedTreatyItem key={t.treaty_id} treaty={t} />
+            ))}
+          </ul>
+          <p className="text-[10px] text-muted-foreground mt-1.5">出典: 外務省ウェブサイト「条約データ検索」「国会提出条約」（法令本文の条約名・条約番号から自動抽出）</p>
         </div>
       )}
 

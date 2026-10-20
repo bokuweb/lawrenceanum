@@ -25,6 +25,7 @@ members = [
     "crates/shitsumon-client",
     "crates/guidance-client",
     "crates/jlt-client",
+    "crates/treaty-client",
 ]
 
 [workspace.package]

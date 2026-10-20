@@ -871,6 +871,36 @@ jobs:
           ./target/release/lawpub jlt-build-json --cache .cache --public public \
             || echo "::warning::jlt-build-json failed"
 
+      # 条約 (外務省) を R2 prebuilt キャッシュから復元して同梱する。
+      # corpus workflow が treaty-cache.tar.zst に上げたものを取得 → treaty-build-json
+      # → link-laws-and-treaties (法令本文の条約名・条約番号から法令詳細へクロスリンク)。
+      - name: Build treaties from R2 cache
+        if: >-
+          steps.detect.outputs.changed == 'true' && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        continue-on-error: true
+        run: |
+          set +e
+          if ! aws s3 cp "s3://$R2_BUCKET/treaty-cache.tar.zst" /tmp/treaty-cache.tar.zst --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            echo "::warning::treaty-cache.tar.zst not found in R2 — 条約なしで続行"
+            exit 0
+          fi
+          mkdir -p .cache/treaty
+          zstd -dc --long=31 /tmp/treaty-cache.tar.zst | tar -x -C .cache/treaty
+          rm -f /tmp/treaty-cache.tar.zst
+          n=$(find .cache/treaty/search -name '*.json' 2>/dev/null | wc -l | tr -d ' ')
+          [ "${n:-0}" -eq 0 ] && [ ! -d .cache/treaty/diet ] && { echo "::warning::treaty cache empty"; exit 0; }
+          echo "::notice::treaty cache restored from R2"
+          ./target/release/lawpub treaty-build-json --cache .cache --public public \
+            || echo "::warning::treaty-build-json failed"
+          ./target/release/lawpub link-laws-and-treaties --public public \
+            || echo "::warning::link-laws-and-treaties failed"
+
       # 横断検索 DB を全コーパス込みで一度だけ作る。前段の update/build-json には
       # --skip-search-db を渡し、法令のみの 1.6GB 索引を作ってからここで再作成する二重処理を
       # 避ける。proceedings/kanpo/tsutatsu/hanrei が出揃ったここで生成し、通達・官報・
