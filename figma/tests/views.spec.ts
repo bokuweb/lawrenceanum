@@ -39,6 +39,32 @@ test("ヘッダー検索から戻ると検索前の画面へ戻れる", async ({
   await expect(search).toHaveValue("民法 改正");
 });
 
+test("検索画面の読み込み中に入力を続けても検索前の画面へ戻れる", async ({ page }) => {
+  let releaseSearch!: () => void;
+  const searchReady = new Promise<void>((resolve) => { releaseSearch = resolve; });
+  await page.route("**/assets/search-view-*.js", async (route) => {
+    await searchReady;
+    await route.continue();
+  });
+  await page.goto(new URL("#/laws", BASE).toString());
+  const search = page.getByRole("searchbox", { name: "横断検索" });
+  try {
+    await search.fill("民法");
+    await expect(page).toHaveURL(new URL("#/search?q=民法", BASE).toString());
+    await search.fill("民法 改正");
+    await expect(page).toHaveURL(new URL("#/search?q=民法 改正", BASE).toString());
+  } finally {
+    releaseSearch();
+  }
+  await expect(page.getByRole("heading", { name: "検索", exact: true })).toBeVisible();
+  await page.goBack();
+  await expect(page).toHaveURL(new URL("#/laws", BASE).toString());
+  await expect(search).toHaveValue("");
+  await page.goForward();
+  await expect(page).toHaveURL(new URL("#/search?q=民法 改正", BASE).toString());
+  await expect(search).toHaveValue("民法 改正");
+});
+
 for (const shortcut of ["Control+k", "Meta+k"]) {
   test(`${shortcut} で検索へ移動し、既存の検索語を置き換えられる`, async ({ page }) => {
     await page.goto(new URL("#/search?q=民法", BASE).toString());
