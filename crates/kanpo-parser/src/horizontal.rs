@@ -789,6 +789,7 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
             // 表のすぐ上の行（表の幅に収まり、表の上端より上 30pt 以内にある行のうち一番下のもの。表の見出し「貸借対照表の要旨」）の
             // 後ろに置く（囲みごとに読むと、表の右か下にある最初の行は隣の囲みの行のことがある）。無ければ表の右か下にある
             // 最初の行の前。
+            let first_after = lines.iter().position(after).unwrap_or(lines.len());
             let heading = lines
                 .iter()
                 .enumerate()
@@ -797,8 +798,12 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
                     let x0 = g.iter().map(|p| p.0).fold(f32::INFINITY, f32::min);
                     let x1 = g.iter().map(|p| p.1).fold(f32::NEG_INFINITY, f32::max);
                     let y1 = g.iter().map(|p| p.3).fold(f32::NEG_INFINITY, f32::max);
-                    // 表の幅に収まる行だけ（隣の損益計算書の見出しと 1 行に組まれた行は見出しにしない）。
-                    (!g.is_empty() && y1 <= t.1 + 2.0 && t.1 - y1 < 30.0 && x0 >= t.0 - 20.0 && x1 <= t.2 + 20.0).then_some((i, y1))
+                    // 表の幅に収まる行だけ（隣の損益計算書の見出しと 1 行に組まれた行は見出しにしない）。表の幅から右に
+                    // はみ出す行でも、はみ出した所の下に別の表が無く、表の右か下の行より前に読む行なら、表の前の文
+                    // （「…状況は次のとおりである。」）。
+                    let other_below = blocks.iter().any(|u| *u != t && u.0 < x1 && u.2 > t.2 && u.1 >= y1 - 2.0 && u.1 - y1 < 40.0);
+                    let fits = x1 <= t.2 + 20.0 || (x0 < t.2 && !other_below && i < first_after);
+                    (!g.is_empty() && y1 <= t.1 + 2.0 && t.1 - y1 < 30.0 && x0 >= t.0 - 20.0 && fits).then_some((i, y1))
                 })
                 .max_by(|a, b| a.1.total_cmp(&b.1).then(a.0.cmp(&b.0)))
                 .map(|(i, _)| i + 1);
