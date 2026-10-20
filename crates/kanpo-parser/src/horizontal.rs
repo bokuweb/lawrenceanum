@@ -5658,7 +5658,7 @@ pub(crate) fn repair_native_ledger_tables(units: &mut [trace::Unit], words: &[tr
             let top = populated.iter().map(|c| c.y0).fold(f32::INFINITY, f32::min);
             let bottom = populated.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
             let clipped = crate::lines::PageRules {
-                enclosures: Vec::new(),
+                enclosures: Vec::new(), short_fraction_bars: Vec::new(),
                 vertical: rules
                     .vertical
                     .iter()

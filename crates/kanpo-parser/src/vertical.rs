@@ -429,6 +429,8 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             join_joint_ministries(&mut units);
             crate::shared_table_labels::order_shared_table_labels(&mut units, &words);
             crate::fractions::restore_fraction_lines(&mut units, &words, &hrules);
+            let short_bars: Vec<_> = page_rules.map(|r| r.short_fraction_bars.iter().map(|h| (h.y,h.x0,h.x1)).collect()).unwrap_or_default();
+            crate::parallel_fractions::restore(&mut units, &words, &hrules, &short_bars);
             crate::table_dashes::restore_table_dashes(&mut units, &mut words);
             crate::table_dashes::restore_ruled_table_dashes(&mut units, &mut words, &grids);
             crate::table_dashes::restore_plain_numeric_dashes(&mut units, &mut words, &vrules);
@@ -758,6 +760,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         crate::circled_numbers::restore(&mut units, &mut words);
         if sideways { if let Some(native_rules) = rules.get(pi).and_then(|r| r.as_ref()) { crate::framed_amount_rows::restore(&mut units, &words, native_rules); } }
         if !sideways && !rotated { crate::facility_continuations::restore(&mut units, &words, page_rules, width, height); }
+        if !sideways && !rotated { crate::framed_band_continuations::restore(&mut units, &words, page_rules, width, height); }
         let text = units
             .iter()
             .map(Unit::text)
@@ -933,7 +936,7 @@ fn unturn_tables(units: &mut [Unit], page_width: f32) {
 /// 横倒しのページの罫線を、語と同じく 90° 回す（表示の上端 → 元のページの右端、左端 → 上端）。
 fn turn_rules(r: &PageRules, page_width: f32) -> PageRules {
     PageRules {
-        enclosures: Vec::new(),
+        enclosures: Vec::new(), short_fraction_bars: Vec::new(),
         vertical: r.horizontal.iter().map(|h| crate::lines::VRule { x: page_width - h.y, y0: h.x0, y1: h.x1 }).collect(),
         horizontal: r.vertical.iter().map(|v| crate::lines::HRule { y: v.x, x0: page_width - v.y1, x1: page_width - v.y0 }).collect(),
     }
@@ -942,7 +945,7 @@ fn turn_rules(r: &PageRules, page_width: f32) -> PageRules {
 /// 罫線を x の範囲 `lo..=hi` で切り取る（範囲の端の縦線は残す）。
 fn clip_rules(r: &PageRules, lo: f32, hi: f32) -> PageRules {
     PageRules {
-        enclosures: Vec::new(),
+        enclosures: Vec::new(), short_fraction_bars: Vec::new(),
         vertical: r.vertical.iter().filter(|v| lo - 3.0 <= v.x && v.x <= hi + 3.0).copied().collect(),
         horizontal: r
             .horizontal
@@ -5645,7 +5648,7 @@ mod tests {
             col(4, 426.0, 80.0, 410.0, "表の本体の左の列"),
         ];
         let rules = PageRules {
-            enclosures: Vec::new(),
+            enclosures: Vec::new(), short_fraction_bars: Vec::new(),
             vertical: vec![crate::lines::VRule { x: 532.0, y0: 60.0, y1: 790.0 }],
             horizontal: vec![crate::lines::HRule { y: 430.0, x0: 532.0, x1: 553.0 }],
         };

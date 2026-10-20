@@ -180,7 +180,7 @@ pub(crate) fn restore_coordinate_rows(
                 x1: v.y1,
             })
             .collect(),
-        enclosures: vec![],
+        enclosures: vec![], short_fraction_bars: vec![],
     });
     crate::coordinate_symbols::restore_coordinate_symbols(&mut rotated, &mut rotated_words);
     restore_horizontal_coordinate_rows(

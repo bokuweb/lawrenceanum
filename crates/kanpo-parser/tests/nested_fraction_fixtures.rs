@@ -39,16 +39,17 @@ fn ordinary_numeric_cell_fractions_keep_the_complete_previous_output(){
  assert_eq!(a.text,include_str!("fixtures/nested_fraction/20261014g002250002-after35.txt"));
 }
 #[test]
-fn wrapped_numeric_fractions_keep_the_complete_previous_output(){
+fn wrapped_numeric_cells_survive_the_separate_parallel_fraction_repair(){
  let a=analyze_item(&page_inputs(include_bytes!("archive/pages/20261014g00225/20261014g002250011.pdf")).unwrap());
- assert_eq!(a.text,include_str!("fixtures/nested_fraction/20261014g002250011-after35.txt"));
+ assert_eq!(a.text,include_str!("fixtures/nested_fraction/20261014g002250011-after38.txt"));
 }
 #[test]
 fn two_side_by_side_fraction_bars_are_not_a_nested_tree(){
- // This page still has an older unsupported text-numerator fraction. Freeze
- // its layout as a negative for this narrowly nested pass, not as complete success.
+ // The separately certified parallel pass now restores both independent fractions.
+ // Keep the whole output and reject treating either bar as a nested denominator.
  let a=analyze_item(&page_inputs(include_bytes!("archive/pages/20261014g00225/20261014g002250008.pdf")).unwrap());
- assert_eq!(a.text,include_str!("fixtures/nested_fraction/20261014g002250008-after35.txt"));
+ assert_eq!(a.text,include_str!("fixtures/nested_fraction/20261014g002250008-after38.txt"));
+ assert!(!compact(&a.text).contains(FORMULA));
 }
 #[test]
 fn without_the_outer_bar_the_inner_fraction_does_not_imply_a_parent(){let mut p=inputs();remove_bar(&mut p,true);rejected(p)}

@@ -33,6 +33,7 @@
 use anyhow::Result;
 mod wrapped_notice_titles;
 mod facility_continuations;
+mod framed_band_continuations;
 mod coordinate_symbols;
 mod coordinate_rows;
 mod area_units;
@@ -531,3 +532,6 @@ mod financial_flow;
 mod circled_numbers;
 
 mod unruled_records;
+
+mod parallel_fraction_geometry;
+mod parallel_fractions;

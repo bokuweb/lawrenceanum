@@ -209,7 +209,7 @@ fn find(p: &mut [usize], mut i: usize) -> usize {
 pub fn find_grids_inside(rules: &PageRules, x0: f32, x1: f32, y0: f32, y1: f32) -> Vec<Grid> {
     let near = |a: f32, b: f32| (a - b).abs() < MERGE;
     let inside = PageRules {
-        enclosures: Vec::new(),
+        enclosures: Vec::new(), short_fraction_bars: Vec::new(),
         vertical: rules
             .vertical
             .iter()
@@ -319,7 +319,7 @@ mod tests {
 
     fn rules(vs: &[(f32, f32, f32)], hs: &[(f32, f32, f32)]) -> PageRules {
         PageRules {
-            enclosures: Vec::new(),
+            enclosures: Vec::new(), short_fraction_bars: Vec::new(),
             vertical: vs.iter().map(|&(x, y0, y1)| VRule { x, y0, y1 }).collect(),
             horizontal: hs.iter().map(|&(y, x0, x1)| HRule { y, x0, x1 }).collect(),
         }

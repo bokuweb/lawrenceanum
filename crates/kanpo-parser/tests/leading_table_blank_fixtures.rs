@@ -23,6 +23,7 @@ fn numeric_input(filled_first: bool) -> kanpo_parser::PageInput {
         vertical: [70., 140., 210., 280.].into_iter().map(|x| VRule { x, y0: 100., y1: 160. }).collect(),
         horizontal: [100., 120., 140., 160.].into_iter().map(|y| HRule { y, x0: 70., x1: 280. }).collect(),
         enclosures: vec![],
+        short_fraction_bars: vec![],
     };
     kanpo_parser::PageInput { xhtml: x, rules: Some(rules) }
 }

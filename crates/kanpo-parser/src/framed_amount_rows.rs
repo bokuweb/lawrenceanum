@@ -304,7 +304,7 @@ mod tests {
                 x0: 0.,
                 x1: 200.,
             }],
-            enclosures: vec![],
+            enclosures: vec![], short_fraction_bars: vec![],
         };
         (u, w, r)
     }

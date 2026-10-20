@@ -35,6 +35,9 @@ pub struct PageRules {
     /// Kept apart from table rules; missing in older serialized inputs.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub enclosures: Vec<[f32; 4]>,
+    /// Short native stroked horizontal segments; consumed only by fraction geometry.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub short_fraction_bars: Vec<HRule>,
 }
 
 /// 線の向きのずれの許容（pt）。
@@ -54,6 +57,9 @@ pub fn page_rules(page: &Page) -> PageRules {
             if let Some(rect) = enclosure_rect(&sp.points, path.clip) {
                 rules.enclosures.push(rect);
             }
+        }
+        if let Some(bar) = short_fraction_bar(path) {
+            rules.short_fraction_bars.push(bar);
         }
         if sp.curved || sp.rect {
             continue;
@@ -98,6 +104,46 @@ pub fn page_rules(page: &Page) -> PageRules {
         }
     }
     rules
+}
+
+// This list records candidates, not inferred fractions. Underlines/dashes must be
+// rejected by the consuming numerator/denominator and same-owner proof.
+fn short_fraction_bar(path: &crate::page::PathItem) -> Option<HRule> {
+    let [sp] = path.subpaths.as_slice() else {
+        return None;
+    };
+    if !path.stroke
+        || path.fill
+        || !path.line_width.is_finite()
+        || !(0.0..=0.75).contains(&path.line_width)
+        || path.line_width == 0.0
+        || sp.closed
+        || sp.curved
+        || sp.rect
+    {
+        return None;
+    }
+    let [[ax, ay], [bx, by]] = straight(&sp.points)?;
+    if ![ax, ay, bx, by].iter().all(|x| x.is_finite()) || (ay - by).abs() > 0.01 {
+        return None;
+    }
+    let y = (ay + by) / 2.0;
+    let (mut x0, mut x1) = (ax.min(bx), ax.max(bx));
+    if let Some([cx0, cy0, cx1, cy1]) = path.clip {
+        if y < cy0 || y > cy1 {
+            return None;
+        }
+        x0 = x0.max(cx0);
+        x1 = x1.min(cx1);
+    }
+    if !(3.0..=MIN_LEN).contains(&(x1 - x0)) {
+        return None;
+    }
+    Some(HRule {
+        y: y as f32,
+        x0: x0 as f32,
+        x1: x1 as f32,
+    })
 }
 
 // Require all four corners and axis-aligned edges. No bounding-box inference
@@ -248,3 +294,7 @@ mod enclosure_tests {
         );
     }
 }
+
+#[cfg(test)]
+#[path="short_fraction_bar_tests.rs"]
+mod short_fraction_bar_tests;
