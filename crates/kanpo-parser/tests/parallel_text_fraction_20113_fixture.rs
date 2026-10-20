@@ -7,5 +7,5 @@ use kanpo_parser::{analyze_item,page_inputs};
  let other:Vec<_>=cells.iter().filter(|c|c.words!=vec![127,128,102,71,129,73,89,72]).map(|c|c.text.as_str()).collect();
  let expected:Vec<String>=serde_json::from_str(include_str!("expected/parallel_text_fraction/20260909g002010013-other-cells37.json")).unwrap();assert_eq!(other,expected);
 let lines:Vec<_>=a.pages.iter().flat_map(|p|&p.regions).flat_map(|r|&r.lines).filter(|l|l.table.is_none()).map(|l|(l.text.clone(),l.words.clone())).collect();
- let expected:Vec<(String,Vec<usize>)>=serde_json::from_str(include_str!("expected/parallel_text_fraction/20260909g002010013-plain-lines37.json")).unwrap();assert_eq!(lines,expected);
+ let expected:Vec<(String,Vec<usize>)>=serde_json::from_str(include_str!("expected/numeric_compound_fraction/20260909g002010013-plain-lines.json")).unwrap();assert_eq!(lines,expected);
 }

@@ -431,6 +431,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             crate::fractions::restore_fraction_lines(&mut units, &words, &hrules);
             let short_bars: Vec<_> = page_rules.map(|r| r.short_fraction_bars.iter().map(|h| (h.y,h.x0,h.x1)).collect()).unwrap_or_default();
             crate::parallel_fractions::restore(&mut units, &words, &hrules, &short_bars);
+            crate::numeric_fractions::restore(&mut units, &words, &hrules, &short_bars);
             crate::table_dashes::restore_table_dashes(&mut units, &mut words);
             crate::table_dashes::restore_ruled_table_dashes(&mut units, &mut words, &grids);
             crate::table_dashes::restore_plain_numeric_dashes(&mut units, &mut words, &vrules);

@@ -118,7 +118,7 @@ fn normal_unicode_square_metres_are_unchanged() {
         ))
         .unwrap(),
     );
-    let expected = include_str!("archive/expected-area-units/20260909g002010013.txt");
+    let expected = include_str!("archive/expected-area-units/20260909g002010013-after40.txt");
     assert_eq!(a.text.trim_end(), expected.trim_end());
     assert!(expected.contains('㎡'));
 }

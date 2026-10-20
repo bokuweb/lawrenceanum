@@ -1,0 +1,1273 @@
+{
+  "batch": 19,
+  "baseline_commit": "04b290bfece3d6a061f1b097fa942afede6e746c",
+  "candidate": "after40/frozen94",
+  "fresh_original_PDF_pages": 11992,
+  "complete_Analysis_changes": 6,
+  "complete_Analysis_exact": 11986,
+  "body_changes": 6,
+  "body_exact": 11986,
+  "all_original_Word_fields_including_text_status_ID_raw_bbox_exact": true,
+  "all_old_output_owners_once": true,
+  "duplicate_IDs": 0,
+  "new_output_IDs": 0,
+  "new_source_Words": 0,
+  "original_nonspace_character_loss": 0,
+  "native_Glyph_restorations": 0,
+  "source_Used_Words": 57,
+  "Empty_unowned_structural_bracket_Words": 6,
+  "native_Glyphs_bound": 114,
+  "native_bracket_Glyph_components_included_in114": 12,
+  "native_fraction_bar_paths": 15,
+  "formulas": 6,
+  "semantic_Fraction_nodes": 15,
+  "native_parenthesis_pairs": 3,
+  "serialization_parenthesis_pairs": 18,
+  "serialization_slashes": 15,
+  "serialization_added_characters": 51,
+  "original_whitespace_outside_expression_preserved": true,
+  "Empty_bracket_Word_status_and_unowned_state_preserved": true,
+  "root_native_proof": {
+    "baseline": "accepted18/after39",
+    "candidate": "after40/source94",
+    "fresh_original_PDFs": 6,
+    "all114_Glyphs_include12_native_bracket_components": true,
+    "all_native_Glyph_fields_code_CID_font_raw_bbox_visibility_exact": true,
+    "original_Word_fields_exact": true,
+    "old_output_owners_once": true,
+    "native_Glyph_restorations": 0,
+    "counts": {
+      "used_words": 57,
+      "empty_structural_words": 6,
+      "Glyphs": 114,
+      "bar_paths": 15,
+      "fraction_nodes": 15,
+      "native_parenthesis_pairs": 3
+    },
+    "rows": [
+      {
+        "page": "20260812g001800015",
+        "PDF": ".cache/kanpo-archive/2026-08-12/20260812g00180/20260812g001800015.pdf",
+        "PDF_sha256": "01135b8590c6b7239e62ed9dfda808d462f35a42005ab576c820e5f6c76e49f7",
+        "fresh_native": ".cache/kanpo-227/root19-native/20260812g001800015-native.json",
+        "fresh_native_sha256": "16751f2427dfdb9d966c2d0c8f1247c7ef75f693cd99f7b745cf4810b63a0f0c",
+        "all_original_Word_fields_exact": true,
+        "original_owners_exact": true,
+        "root_old_new_complete_Analysis_matches_independent_candidate_with_f32_tolerance_pt": 0.0002,
+        "native_f64_tolerance_pt": 1e-09,
+        "used_Word_ids": [
+          216,
+          203,
+          202,
+          200,
+          204,
+          196,
+          192,
+          193
+        ],
+        "Empty_unowned_bracket_Word_ids": [],
+        "native_Glyph_ids": [
+          654,
+          655,
+          656,
+          657,
+          658,
+          659,
+          660,
+          661,
+          662,
+          663,
+          664,
+          665,
+          666,
+          667
+        ],
+        "native_bar_path_ids": [
+          5,
+          6
+        ],
+        "formula_rect": [
+          157.0,
+          117.85970306396484,
+          231.0,
+          137.04769897460938
+        ],
+        "closed_all_native_rectangle_coverage_exact": true,
+        "unknown_or_extra_Glyphs": 0,
+        "canonical": "額面金額×(3.7/100)×(１/２)",
+        "fraction_nodes": 2,
+        "native_parenthesis_pairs": 0
+      },
+      {
+        "page": "20260909g002010005",
+        "PDF": ".cache/kanpo-archive/2026-09-09/20260909g00201/20260909g002010005.pdf",
+        "PDF_sha256": "39421ca396cab561523c9a505fd31834d949b49098be2955e5b69eeed5fa12ab",
+        "fresh_native": ".cache/kanpo-227/root19-native/20260909g002010005-native.json",
+        "fresh_native_sha256": "adf49307f64e3faa7bdc72c0e9f9b1563d83cf6d0aab5abbc910556c80661fb2",
+        "all_original_Word_fields_exact": true,
+        "original_owners_exact": true,
+        "root_old_new_complete_Analysis_matches_independent_candidate_with_f32_tolerance_pt": 0.0002,
+        "native_f64_tolerance_pt": 1e-09,
+        "used_Word_ids": [
+          45,
+          24,
+          23,
+          21,
+          25,
+          19,
+          15,
+          16
+        ],
+        "Empty_unowned_bracket_Word_ids": [],
+        "native_Glyph_ids": [
+          1156,
+          1157,
+          1158,
+          1159,
+          1160,
+          1161,
+          1162,
+          1163,
+          1164,
+          1165,
+          1166,
+          1167,
+          1168,
+          1169
+        ],
+        "native_bar_path_ids": [
+          5,
+          6
+        ],
+        "formula_rect": [
+          525.0,
+          131.714599609375,
+          599.0,
+          150.9049072265625
+        ],
+        "closed_all_native_rectangle_coverage_exact": true,
+        "unknown_or_extra_Glyphs": 0,
+        "canonical": "額面金額×(2.7/100)×(１/２)",
+        "fraction_nodes": 2,
+        "native_parenthesis_pairs": 0
+      },
+      {
+        "page": "20260909g002010011",
+        "PDF": ".cache/kanpo-archive/2026-09-09/20260909g00201/20260909g002010011.pdf",
+        "PDF_sha256": "66f639bd40b8a8e26898ffadd8051300cb67547be344eb3f243d5f4e3f9982ce",
+        "fresh_native": ".cache/kanpo-227/root19-native/20260909g002010011-native.json",
+        "fresh_native_sha256": "c6ee0897f86261275abcb3f47b54ea89a155e3ac81a5663347773b5e857d99b4",
+        "all_original_Word_fields_exact": true,
+        "original_owners_exact": true,
+        "root_old_new_complete_Analysis_matches_independent_candidate_with_f32_tolerance_pt": 0.0002,
+        "native_f64_tolerance_pt": 1e-09,
+        "used_Word_ids": [
+          66,
+          29,
+          27,
+          26,
+          28,
+          23,
+          18,
+          19,
+          15,
+          13,
+          14
+        ],
+        "Empty_unowned_bracket_Word_ids": [
+          21,
+          12
+        ],
+        "native_Glyph_ids": [
+          2193,
+          2194,
+          2195,
+          2196,
+          2197,
+          2198,
+          2199,
+          2200,
+          2201,
+          2202,
+          2203,
+          2204,
+          2205,
+          2206,
+          2207,
+          2208,
+          2209,
+          2210,
+          2211,
+          2212,
+          2213,
+          2214,
+          2215,
+          2216
+        ],
+        "native_bar_path_ids": [
+          12,
+          13,
+          14
+        ],
+        "formula_rect": [
+          525.0,
+          257.3434143066406,
+          644.043701171875,
+          276.5476989746094
+        ],
+        "closed_all_native_rectangle_coverage_exact": true,
+        "unknown_or_extra_Glyphs": 0,
+        "canonical": "額面金額×(1.56/100)×((１/２)−(２/365))",
+        "fraction_nodes": 3,
+        "native_parenthesis_pairs": 1
+      },
+      {
+        "page": "20260909g002010012",
+        "PDF": ".cache/kanpo-archive/2026-09-09/20260909g00201/20260909g002010012.pdf",
+        "PDF_sha256": "1eb8b2bbab3bc23a69b2206f353a36bc3e9c118e46583ec2904c937692141316",
+        "fresh_native": ".cache/kanpo-227/root19-native/20260909g002010012-native.json",
+        "fresh_native_sha256": "13c39a4e6691cf79de1901b2649b9cf7e1b6e68d791269ecd834feca55bcadf2",
+        "all_original_Word_fields_exact": true,
+        "original_owners_exact": true,
+        "root_old_new_complete_Analysis_matches_independent_candidate_with_f32_tolerance_pt": 0.0002,
+        "native_f64_tolerance_pt": 1e-09,
+        "used_Word_ids": [
+          181,
+          141,
+          139,
+          138,
+          140,
+          135,
+          130,
+          131,
+          127,
+          125,
+          126
+        ],
+        "Empty_unowned_bracket_Word_ids": [
+          133,
+          124
+        ],
+        "native_Glyph_ids": [
+          1649,
+          1650,
+          1651,
+          1652,
+          1653,
+          1654,
+          1655,
+          1656,
+          1657,
+          1658,
+          1659,
+          1660,
+          1661,
+          1662,
+          1663,
+          1664,
+          1665,
+          1666,
+          1667,
+          1668,
+          1669,
+          1670,
+          1671,
+          1672
+        ],
+        "native_bar_path_ids": [
+          8,
+          9,
+          10
+        ],
+        "formula_rect": [
+          157.0,
+          390.4173889160156,
+          276.043701171875,
+          409.6191101074219
+        ],
+        "closed_all_native_rectangle_coverage_exact": true,
+        "unknown_or_extra_Glyphs": 0,
+        "canonical": "額面金額×(1.95/100)×((１/２)−(２/365))",
+        "fraction_nodes": 3,
+        "native_parenthesis_pairs": 1
+      },
+      {
+        "page": "20260909g002010013",
+        "PDF": ".cache/kanpo-archive/2026-09-09/20260909g00201/20260909g002010013.pdf",
+        "PDF_sha256": "9f3612c2714fe5cb7ba5e6020684eb92c8d07ac0277d731f700038df660f9ec7",
+        "fresh_native": ".cache/kanpo-227/root19-native/20260909g002010013-native.json",
+        "fresh_native_sha256": "27b4f0244ed311768f56d7f964b2fffcbf5356c143040f05eb63eb4e3da6b0e2",
+        "all_original_Word_fields_exact": true,
+        "original_owners_exact": true,
+        "root_old_new_complete_Analysis_matches_independent_candidate_with_f32_tolerance_pt": 0.0002,
+        "native_f64_tolerance_pt": 1e-09,
+        "used_Word_ids": [
+          126,
+          100,
+          99,
+          98,
+          101,
+          97,
+          94,
+          95,
+          93,
+          91,
+          92
+        ],
+        "Empty_unowned_bracket_Word_ids": [
+          96,
+          90
+        ],
+        "native_Glyph_ids": [
+          352,
+          353,
+          354,
+          355,
+          356,
+          357,
+          358,
+          359,
+          360,
+          361,
+          362,
+          363,
+          364,
+          365,
+          366,
+          367,
+          368,
+          369,
+          370,
+          371,
+          372,
+          373,
+          374
+        ],
+        "native_bar_path_ids": [
+          43,
+          44,
+          45
+        ],
+        "formula_rect": [
+          157.0,
+          82.96369934082031,
+          274.043701171875,
+          102.15489959716797
+        ],
+        "closed_all_native_rectangle_coverage_exact": true,
+        "unknown_or_extra_Glyphs": 0,
+        "canonical": "額面金額×(1.8/100)×((１/２)−(２/365))",
+        "fraction_nodes": 3,
+        "native_parenthesis_pairs": 1
+      },
+      {
+        "page": "20261014g002250011",
+        "PDF": ".cache/kanpo-archive/2026-10-14/20261014g00225/20261014g002250011.pdf",
+        "PDF_sha256": "e165be8173e2436b3d571b36ebc617de06ce1d2c07697d7e2ee61785b9fa5bf7",
+        "fresh_native": ".cache/kanpo-227/root19-native/20261014g002250011-native.json",
+        "fresh_native_sha256": "febeb7e9159d67ead1c6ba0d786fa9b39f4dc98fddbe7c5f65296e3fbdce97b7",
+        "all_original_Word_fields_exact": true,
+        "original_owners_exact": true,
+        "root_old_new_complete_Analysis_matches_independent_candidate_with_f32_tolerance_pt": 0.0002,
+        "native_f64_tolerance_pt": 1e-09,
+        "used_Word_ids": [
+          61,
+          28,
+          26,
+          24,
+          27,
+          23,
+          21,
+          22
+        ],
+        "Empty_unowned_bracket_Word_ids": [],
+        "native_Glyph_ids": [
+          1063,
+          1064,
+          1065,
+          1066,
+          1067,
+          1068,
+          1069,
+          1070,
+          1071,
+          1072,
+          1073,
+          1074,
+          1075,
+          1076,
+          1077
+        ],
+        "native_bar_path_ids": [
+          7,
+          8
+        ],
+        "formula_rect": [
+          525.0,
+          130.29229736328125,
+          601.0,
+          149.4989013671875
+        ],
+        "closed_all_native_rectangle_coverage_exact": true,
+        "unknown_or_extra_Glyphs": 0,
+        "canonical": "額面金額×(1.87/100)×(１/２)",
+        "fraction_nodes": 2,
+        "native_parenthesis_pairs": 0
+      }
+    ]
+  },
+  "root_all11992_fullAnalysis": {
+    "pages": 11992,
+    "baseline": "accepted18/after39",
+    "candidate": "after40",
+    "complete_Analysis_exact": 11986,
+    "body_exact": 11986,
+    "changed": 6,
+    "changes": [
+      {
+        "page": "20260812g001800015",
+        "body_changed": true,
+        "new_output_IDs": [],
+        "changed_Words": [],
+        "artifacts": [
+          {
+            "path": ".cache/kanpo-227/integrated40-allAnalysis/20260812g001800015-39.json.gz",
+            "sha256": "ed734aaa9d42256b64f0cc7ac670ce500374db335ea6ef271006aa17d7c1894a",
+            "uncompressed_sha256": "ab0d82f13bc582e3b905b9c396919c519bda070440c4537ad00e29822091f237"
+          },
+          {
+            "path": ".cache/kanpo-227/integrated40-allAnalysis/20260812g001800015-40.json.gz",
+            "sha256": "d98c281485270f261bb60dbb59180c7764116b1dc75f8aa738f833ca9f5cd4dc",
+            "uncompressed_sha256": "f685744b4622cb1d463e644eab37be0d5f05f563d958e1f914923a0fa179910a"
+          }
+        ]
+      },
+      {
+        "page": "20260909g002010005",
+        "body_changed": true,
+        "new_output_IDs": [],
+        "changed_Words": [],
+        "artifacts": [
+          {
+            "path": ".cache/kanpo-227/integrated40-allAnalysis/20260909g002010005-39.json.gz",
+            "sha256": "8942e911042514756d8e967a46aee0793bd0eb221a4d8dd8f9279693b51ffc65",
+            "uncompressed_sha256": "7a7957ec6c58c0183db6b9c12917b5f54b389d6c8ce4eb536cbdcde62790208f"
+          },
+          {
+            "path": ".cache/kanpo-227/integrated40-allAnalysis/20260909g002010005-40.json.gz",
+            "sha256": "7a9272b3deabe823e59b0266d211e58059ff2d7341ff519f1b0aceeed81a120d",
+            "uncompressed_sha256": "0ed2d7cad345a402e5e27134ec01bbc3fc87d152c3fa1c32ff19c806b629e3d2"
+          }
+        ]
+      },
+      {
+        "page": "20260909g002010011",
+        "body_changed": true,
+        "new_output_IDs": [],
+        "changed_Words": [],
+        "artifacts": [
+          {
+            "path": ".cache/kanpo-227/integrated40-allAnalysis/20260909g002010011-39.json.gz",
+            "sha256": "49ec3d4f29edb6b9e6626d651810f6da78f234d5b042c0de6cb859ae10f010e1",
+            "uncompressed_sha256": "674620ddde1b0a719ac712f9ce4e53ac655d618c63905c69e6070ecad00c1418"
+          },
+          {
+            "path": ".cache/kanpo-227/integrated40-allAnalysis/20260909g002010011-40.json.gz",
+            "sha256": "626e722a0678db07c5cdf91cc71c206fa6b7e4a1573d43cfbac53216c5712f1a",
+            "uncompressed_sha256": "6144dd4c072c69e568c77093a7822fbb4b643301e87550811725e125af03acd8"
+          }
+        ]
+      },
+      {
+        "page": "20260909g002010012",
+        "body_changed": true,
+        "new_output_IDs": [],
+        "changed_Words": [],
+        "artifacts": [
+          {
+            "path": ".cache/kanpo-227/integrated40-allAnalysis/20260909g002010012-39.json.gz",
+            "sha256": "a86e0a8cc90d00f646706fa5b1dc6f4d656476c7e9480e8bf42ad97c18038a7c",
+            "uncompressed_sha256": "ef3f0c166cec4e7be410bdfcccbdc4d71c7fef6d88568ee6525075f7ae888aa2"
+          },
+          {
+            "path": ".cache/kanpo-227/integrated40-allAnalysis/20260909g002010012-40.json.gz",
+            "sha256": "e1ce554ca0a63b32c4309b195e1573f1db6a9ad890b4c1fe0634976cb2c04bc6",
+            "uncompressed_sha256": "996b8b8f6d14b7e198756b0e43e2a40e7c40e0a1a5d91324a489e894c7f12272"
+          }
+        ]
+      },
+      {
+        "page": "20260909g002010013",
+        "body_changed": true,
+        "new_output_IDs": [],
+        "changed_Words": [],
+        "artifacts": [
+          {
+            "path": ".cache/kanpo-227/integrated40-allAnalysis/20260909g002010013-39.json.gz",
+            "sha256": "e0c7945b48b780f229418ead52f4b2711c26c63283c8fce1b21951d66bd0150c",
+            "uncompressed_sha256": "2e160ae753b97eba8192f0b80a71a69b1e4c7962083c7add914682e4663d9973"
+          },
+          {
+            "path": ".cache/kanpo-227/integrated40-allAnalysis/20260909g002010013-40.json.gz",
+            "sha256": "54de73b445145590debeec68abba021c434e545c06b3aa1e3a0010e39692eed0",
+            "uncompressed_sha256": "3ccb800b06a68898ae8ed7bf72b9d8b6f2d64a21810ab0b2db4115348cf6b9f2"
+          }
+        ]
+      },
+      {
+        "page": "20261014g002250011",
+        "body_changed": true,
+        "new_output_IDs": [],
+        "changed_Words": [],
+        "artifacts": [
+          {
+            "path": ".cache/kanpo-227/integrated40-allAnalysis/20261014g002250011-39.json.gz",
+            "sha256": "dc9d979151ca75664f28399adbd4a6720c39f6119f7eaad073226a6a2578ae31",
+            "uncompressed_sha256": "b2fcd01e64fabe407b119c6272a48970a0fe9f8f3ad35173741cf1b8844cf0d9"
+          },
+          {
+            "path": ".cache/kanpo-227/integrated40-allAnalysis/20261014g002250011-40.json.gz",
+            "sha256": "53a446a7ac46535a679a367f01fcec56f8d9562957bc30ad753fa8adc9cfb900",
+            "uncompressed_sha256": "edbc0185f7c1220fcb44f1b924199f32e1fbdba4f1942b6eb22a1287b45f730a"
+          }
+        ]
+      }
+    ],
+    "all_original_Word_fields_including_text_status_exact": true,
+    "all_old_output_owners_once": true,
+    "original_character_loss": 0,
+    "part_results": [
+      {
+        "part": 0,
+        "pages": 5996,
+        "exact_fullAnalysis": 5991,
+        "exact_body": 5991,
+        "changes": [
+          {
+            "page": "20260812g001800015",
+            "body_changed": true,
+            "new_output_IDs": [],
+            "changed_Words": [],
+            "artifacts": [
+              {
+                "path": ".cache/kanpo-227/integrated40-allAnalysis/20260812g001800015-39.json.gz",
+                "sha256": "ed734aaa9d42256b64f0cc7ac670ce500374db335ea6ef271006aa17d7c1894a",
+                "uncompressed_sha256": "ab0d82f13bc582e3b905b9c396919c519bda070440c4537ad00e29822091f237"
+              },
+              {
+                "path": ".cache/kanpo-227/integrated40-allAnalysis/20260812g001800015-40.json.gz",
+                "sha256": "d98c281485270f261bb60dbb59180c7764116b1dc75f8aa738f833ca9f5cd4dc",
+                "uncompressed_sha256": "f685744b4622cb1d463e644eab37be0d5f05f563d958e1f914923a0fa179910a"
+              }
+            ]
+          },
+          {
+            "page": "20260909g002010005",
+            "body_changed": true,
+            "new_output_IDs": [],
+            "changed_Words": [],
+            "artifacts": [
+              {
+                "path": ".cache/kanpo-227/integrated40-allAnalysis/20260909g002010005-39.json.gz",
+                "sha256": "8942e911042514756d8e967a46aee0793bd0eb221a4d8dd8f9279693b51ffc65",
+                "uncompressed_sha256": "7a7957ec6c58c0183db6b9c12917b5f54b389d6c8ce4eb536cbdcde62790208f"
+              },
+              {
+                "path": ".cache/kanpo-227/integrated40-allAnalysis/20260909g002010005-40.json.gz",
+                "sha256": "7a9272b3deabe823e59b0266d211e58059ff2d7341ff519f1b0aceeed81a120d",
+                "uncompressed_sha256": "0ed2d7cad345a402e5e27134ec01bbc3fc87d152c3fa1c32ff19c806b629e3d2"
+              }
+            ]
+          },
+          {
+            "page": "20260909g002010011",
+            "body_changed": true,
+            "new_output_IDs": [],
+            "changed_Words": [],
+            "artifacts": [
+              {
+                "path": ".cache/kanpo-227/integrated40-allAnalysis/20260909g002010011-39.json.gz",
+                "sha256": "49ec3d4f29edb6b9e6626d651810f6da78f234d5b042c0de6cb859ae10f010e1",
+                "uncompressed_sha256": "674620ddde1b0a719ac712f9ce4e53ac655d618c63905c69e6070ecad00c1418"
+              },
+              {
+                "path": ".cache/kanpo-227/integrated40-allAnalysis/20260909g002010011-40.json.gz",
+                "sha256": "626e722a0678db07c5cdf91cc71c206fa6b7e4a1573d43cfbac53216c5712f1a",
+                "uncompressed_sha256": "6144dd4c072c69e568c77093a7822fbb4b643301e87550811725e125af03acd8"
+              }
+            ]
+          },
+          {
+            "page": "20260909g002010013",
+            "body_changed": true,
+            "new_output_IDs": [],
+            "changed_Words": [],
+            "artifacts": [
+              {
+                "path": ".cache/kanpo-227/integrated40-allAnalysis/20260909g002010013-39.json.gz",
+                "sha256": "e0c7945b48b780f229418ead52f4b2711c26c63283c8fce1b21951d66bd0150c",
+                "uncompressed_sha256": "2e160ae753b97eba8192f0b80a71a69b1e4c7962083c7add914682e4663d9973"
+              },
+              {
+                "path": ".cache/kanpo-227/integrated40-allAnalysis/20260909g002010013-40.json.gz",
+                "sha256": "54de73b445145590debeec68abba021c434e545c06b3aa1e3a0010e39692eed0",
+                "uncompressed_sha256": "3ccb800b06a68898ae8ed7bf72b9d8b6f2d64a21810ab0b2db4115348cf6b9f2"
+              }
+            ]
+          },
+          {
+            "page": "20261014g002250011",
+            "body_changed": true,
+            "new_output_IDs": [],
+            "changed_Words": [],
+            "artifacts": [
+              {
+                "path": ".cache/kanpo-227/integrated40-allAnalysis/20261014g002250011-39.json.gz",
+                "sha256": "dc9d979151ca75664f28399adbd4a6720c39f6119f7eaad073226a6a2578ae31",
+                "uncompressed_sha256": "b2fcd01e64fabe407b119c6272a48970a0fe9f8f3ad35173741cf1b8844cf0d9"
+              },
+              {
+                "path": ".cache/kanpo-227/integrated40-allAnalysis/20261014g002250011-40.json.gz",
+                "sha256": "53a446a7ac46535a679a367f01fcec56f8d9562957bc30ad753fa8adc9cfb900",
+                "uncompressed_sha256": "edbc0185f7c1220fcb44f1b924199f32e1fbdba4f1942b6eb22a1287b45f730a"
+              }
+            ]
+          }
+        ],
+        "seconds": 130.582206709
+      },
+      {
+        "part": 1,
+        "pages": 5996,
+        "exact_fullAnalysis": 5995,
+        "exact_body": 5995,
+        "changes": [
+          {
+            "page": "20260909g002010012",
+            "body_changed": true,
+            "new_output_IDs": [],
+            "changed_Words": [],
+            "artifacts": [
+              {
+                "path": ".cache/kanpo-227/integrated40-allAnalysis/20260909g002010012-39.json.gz",
+                "sha256": "a86e0a8cc90d00f646706fa5b1dc6f4d656476c7e9480e8bf42ad97c18038a7c",
+                "uncompressed_sha256": "ef3f0c166cec4e7be410bdfcccbdc4d71c7fef6d88568ee6525075f7ae888aa2"
+              },
+              {
+                "path": ".cache/kanpo-227/integrated40-allAnalysis/20260909g002010012-40.json.gz",
+                "sha256": "e1ce554ca0a63b32c4309b195e1573f1db6a9ad890b4c1fe0634976cb2c04bc6",
+                "uncompressed_sha256": "996b8b8f6d14b7e198756b0e43e2a40e7c40e0a1a5d91324a489e894c7f12272"
+              }
+            ]
+          }
+        ],
+        "seconds": 137.274018458
+      }
+    ]
+  },
+  "independent_numeric_full11992_based17": {
+    "baseline": "after38/17cb442dca48865c9915f880de02a63a78a6989d",
+    "done": 11992,
+    "affected": 6,
+    "formulas": 6,
+    "unchanged_fullAnalysis": 11986,
+    "same_immutable_PDF_inputs_all_pages": 11992,
+    "optional_short_fraction_API_retained_pages": 11992,
+    "short_pages": 595,
+    "elapsed_seconds": 543.142241417,
+    "changes": [
+      {
+        "page": "20260812g001800015",
+        "pdf": ".cache/kanpo-archive/2026-08-12/20260812g00180/20260812g001800015.pdf",
+        "formulas": 1,
+        "added": {
+          "(": 2,
+          ")": 2,
+          "/": 2
+        },
+        "article_count": 3,
+        "all_word_metadata_exact": true,
+        "all_old_line_ID_order_exact": true,
+        "all_old_tables_geometry_IDs_exact": true,
+        "all_unmodified_cells_exact": true,
+        "all_article_ownership_and_Document_nontext_structure_exact": true,
+        "owner_local_replay_and_idempotence_exact": true,
+        "native_source_proof": "changes/20260812g001800015-proof.json"
+      },
+      {
+        "page": "20260909g002010005",
+        "pdf": ".cache/kanpo-archive/2026-09-09/20260909g00201/20260909g002010005.pdf",
+        "formulas": 1,
+        "added": {
+          "(": 2,
+          ")": 2,
+          "/": 2
+        },
+        "article_count": 2,
+        "all_word_metadata_exact": true,
+        "all_old_line_ID_order_exact": true,
+        "all_old_tables_geometry_IDs_exact": true,
+        "all_unmodified_cells_exact": true,
+        "all_article_ownership_and_Document_nontext_structure_exact": true,
+        "owner_local_replay_and_idempotence_exact": true,
+        "native_source_proof": "changes/20260909g002010005-proof.json"
+      },
+      {
+        "page": "20260909g002010011",
+        "pdf": ".cache/kanpo-archive/2026-09-09/20260909g00201/20260909g002010011.pdf",
+        "formulas": 1,
+        "added": {
+          "(": 4,
+          ")": 4,
+          "/": 3
+        },
+        "article_count": 3,
+        "all_word_metadata_exact": true,
+        "all_old_line_ID_order_exact": true,
+        "all_old_tables_geometry_IDs_exact": true,
+        "all_unmodified_cells_exact": true,
+        "all_article_ownership_and_Document_nontext_structure_exact": true,
+        "owner_local_replay_and_idempotence_exact": true,
+        "native_source_proof": "changes/20260909g002010011-proof.json"
+      },
+      {
+        "page": "20260909g002010012",
+        "pdf": ".cache/kanpo-archive/2026-09-09/20260909g00201/20260909g002010012.pdf",
+        "formulas": 1,
+        "added": {
+          "(": 4,
+          ")": 4,
+          "/": 3
+        },
+        "article_count": 3,
+        "all_word_metadata_exact": true,
+        "all_old_line_ID_order_exact": true,
+        "all_old_tables_geometry_IDs_exact": true,
+        "all_unmodified_cells_exact": true,
+        "all_article_ownership_and_Document_nontext_structure_exact": true,
+        "owner_local_replay_and_idempotence_exact": true,
+        "native_source_proof": "changes/20260909g002010012-proof.json"
+      },
+      {
+        "page": "20260909g002010013",
+        "pdf": ".cache/kanpo-archive/2026-09-09/20260909g00201/20260909g002010013.pdf",
+        "formulas": 1,
+        "added": {
+          "(": 4,
+          ")": 4,
+          "/": 3
+        },
+        "article_count": 3,
+        "all_word_metadata_exact": true,
+        "all_old_line_ID_order_exact": true,
+        "all_old_tables_geometry_IDs_exact": true,
+        "all_unmodified_cells_exact": true,
+        "all_article_ownership_and_Document_nontext_structure_exact": true,
+        "owner_local_replay_and_idempotence_exact": true,
+        "native_source_proof": "changes/20260909g002010013-proof.json"
+      },
+      {
+        "page": "20261014g002250011",
+        "pdf": ".cache/kanpo-archive/2026-10-14/20261014g00225/20261014g002250011.pdf",
+        "formulas": 1,
+        "added": {
+          "(": 2,
+          ")": 2,
+          "/": 2
+        },
+        "article_count": 2,
+        "all_word_metadata_exact": true,
+        "all_old_line_ID_order_exact": true,
+        "all_old_tables_geometry_IDs_exact": true,
+        "all_unmodified_cells_exact": true,
+        "all_article_ownership_and_Document_nontext_structure_exact": true,
+        "owner_local_replay_and_idempotence_exact": true,
+        "native_source_proof": "changes/20261014g002250011-proof.json"
+      }
+    ]
+  },
+  "independent_rebase_to18": "Root6fresh before39/after40 completeAnalysis match independently reviewed candidate within explicitf32 tolerance0.0002pt; all other11986 completeAnalysis exactly unchanged from accepted18.",
+  "native_f64_tolerance_pt": 1e-09,
+  "external_candidate_f32_tolerance_pt": 0.0002,
+  "root_20113_local_native_zero": {
+    "page": "20260909g002010013",
+    "native": ".cache/kanpo-227/root19-native/20260909g002010013-native.json",
+    "native_sha256": "27b4f0244ed311768f56d7f964b2fffcbf5356c143040f05eb63eb4e3da6b0e2",
+    "nativeGlyphs": 1766,
+    "zero_rect": [
+      430,
+      110,
+      790,
+      281
+    ],
+    "closed_all_native_count": 0,
+    "neighbor_formula_rect": [
+      157,
+      82.9,
+      274.1,
+      102.2
+    ],
+    "neighbor_Glyph_ids": [
+      352,
+      353,
+      354,
+      355,
+      356,
+      357,
+      358,
+      359,
+      360,
+      361,
+      362,
+      363,
+      364,
+      365,
+      366,
+      367,
+      368,
+      369,
+      370,
+      371,
+      372,
+      373,
+      374
+    ],
+    "neighbor_Glyph_count": 23,
+    "includes_emptyUnicode_invisible_zeroDimensions_edgeTouch": true,
+    "whole_page_exclusion": false,
+    "no_outline_or_image_mechanism_inferred": true
+  },
+  "integrated_source_manifest": {
+    "baseline_commit": "04b290bfece3d6a061f1b097fa942afede6e746c",
+    "baseline": "accepted18/after39",
+    "candidate": "after40",
+    "source_files": 94,
+    "parser_source_files": 81,
+    "pdf_source_files": 13,
+    "files": [
+      {
+        "path": "crates/kanpo-parser/src/area_units.rs",
+        "sha256": "85ec9fc9caa87213acb707c5f4cf50a7afe46a92729d524fcb4c4b7579ee6219"
+      },
+      {
+        "path": "crates/kanpo-parser/src/blank_area_units.rs",
+        "sha256": "95a8fd379b4d0ca6d42fbffb1558a8ef765c662b7c60b21e480d8b9c63d8e619"
+      },
+      {
+        "path": "crates/kanpo-parser/src/cell_row_dash_tests.rs",
+        "sha256": "94401049dfc8a127b95395866e8fc7056849f7749db081c6fca6c1875d39e7a9"
+      },
+      {
+        "path": "crates/kanpo-parser/src/cell_row_dashes.rs",
+        "sha256": "2f01614cb315422228078757774f4399727c58495e626affd60d1dcc0cec2be7"
+      },
+      {
+        "path": "crates/kanpo-parser/src/chemical_line_end.rs",
+        "sha256": "38c79e61032fd7e038830fd15a40d29ea290b1827b99bd70590bcb9d191eb612"
+      },
+      {
+        "path": "crates/kanpo-parser/src/chemical_line_end_tests.rs",
+        "sha256": "473e1c55fac7a9e3be13cf06d9ef0fbf3e8432028aa5716508b8ecc82df05582"
+      },
+      {
+        "path": "crates/kanpo-parser/src/circled_numbers.rs",
+        "sha256": "ea58c40bdbb664e44aa3ff25c1ce9441ef1a288d061e0ba77839612b8e3bb25f"
+      },
+      {
+        "path": "crates/kanpo-parser/src/composite_numbers.rs",
+        "sha256": "097b1d9b82d2e03b7997b2793ad31e65fa73d5c871d3479e4a5522af8fe20f28"
+      },
+      {
+        "path": "crates/kanpo-parser/src/coordinate_rows.rs",
+        "sha256": "0fa04e51fa53be8d4df8a56711569984fb89c122bc212b69e62c670d1c89b680"
+      },
+      {
+        "path": "crates/kanpo-parser/src/coordinate_symbols.rs",
+        "sha256": "284a3f359db7afab91d9ca3302fe759fd1ad559cf3064f5a50f40eb3cfc4a342"
+      },
+      {
+        "path": "crates/kanpo-parser/src/empty_amount_record_tests.rs",
+        "sha256": "7bf82dc603459fbf8e278b55b32c90b8b47d0177c8c3051693a5459fbf55f04d"
+      },
+      {
+        "path": "crates/kanpo-parser/src/facility_continuation_shape_tests.rs",
+        "sha256": "2d8657e545c589e0e0d6f550d2b0ec6592045c69300676ca656f8d443188cb81"
+      },
+      {
+        "path": "crates/kanpo-parser/src/facility_continuations.rs",
+        "sha256": "610e5ad97f23465467a219e9f7dca2d9ccd8d7587600d3263f016cf0ff747862"
+      },
+      {
+        "path": "crates/kanpo-parser/src/financial_enclosure_tests.rs",
+        "sha256": "cfb13b057437accacce2aac4fc30102fb56afe7f34f44025b3066380c9fe2a01"
+      },
+      {
+        "path": "crates/kanpo-parser/src/financial_enclosures.rs",
+        "sha256": "2ca8740726cadd29cacee91d0c63222b5ae95d80097001f5856e87eb7f969399"
+      },
+      {
+        "path": "crates/kanpo-parser/src/financial_flow.rs",
+        "sha256": "25542fef77d59dbacb760c729586ae9ed4c3b2d34f8ac38cfa4dc31a8a567b3a"
+      },
+      {
+        "path": "crates/kanpo-parser/src/financial_flow_tests.rs",
+        "sha256": "e681722fb022e1ce721b719247a8bf21e0486d6460c2ae5004362d1102608b75"
+      },
+      {
+        "path": "crates/kanpo-parser/src/format.rs",
+        "sha256": "11a24e7e6f7291f8d26234a92a6814c853580a3edc56a3c2c32b3c2dff56566c"
+      },
+      {
+        "path": "crates/kanpo-parser/src/fractions.rs",
+        "sha256": "14f81b155047ceb32c403157d570acbe0d889bb3a8039415a5263956ede700a1"
+      },
+      {
+        "path": "crates/kanpo-parser/src/framed_amount_rows.rs",
+        "sha256": "401e682e8dc2b95bc7114995b6a56fb2758a00ec95291b9a0823006a5e52f29c"
+      },
+      {
+        "path": "crates/kanpo-parser/src/framed_band_continuations.rs",
+        "sha256": "11153d3a84ffd1edd1aae60b94ecd701d8e9f028d9ef2405fc6f7b75462f958a"
+      },
+      {
+        "path": "crates/kanpo-parser/src/grid.rs",
+        "sha256": "2d43c35a023c49b4692d6a9d5e7a6e556b3c0fcef11b46baa1207a34829afa3d"
+      },
+      {
+        "path": "crates/kanpo-parser/src/headerless_four_bands.rs",
+        "sha256": "b5a334e037133ce18bb646a05c7d91f029c7743b4c23274499c557ab641560a0"
+      },
+      {
+        "path": "crates/kanpo-parser/src/horizontal.rs",
+        "sha256": "ef60d23fd6bd5a22b7704436b2492aa63a42fc1fcd3e510bb8b76adaa9780070"
+      },
+      {
+        "path": "crates/kanpo-parser/src/horizontal_covering_edge_tests.rs",
+        "sha256": "0d47761bea8ecd32ddffc58c39e1825ad7739e436ed0d2b18f0edcf868147577"
+      },
+      {
+        "path": "crates/kanpo-parser/src/horizontal_fullwidth_section_tests.rs",
+        "sha256": "40e3636cad799f08430db5c4223ea7a473bdee16f2fbfb0ccab120f955ad4cf6"
+      },
+      {
+        "path": "crates/kanpo-parser/src/inline_quotes.rs",
+        "sha256": "173611d0c314c5ba7adfadf9def7d182c04ba4577fe2bd048f9033efcda5f753"
+      },
+      {
+        "path": "crates/kanpo-parser/src/large_parentheses.rs",
+        "sha256": "a0284e03cb23ff92951001ad9474f0b477506ac09e804d22447be6fb0f8fd7f8"
+      },
+      {
+        "path": "crates/kanpo-parser/src/leading_dash_tests.rs",
+        "sha256": "4404e7b76346208928f91afdef28d7824aa4cddc0b02090078078825fecdc655"
+      },
+      {
+        "path": "crates/kanpo-parser/src/leading_numeric_table_tests.rs",
+        "sha256": "d8e8832176621c6f76437ae9aea9f1f93fb3c8192472282f7dd061c92606b240"
+      },
+      {
+        "path": "crates/kanpo-parser/src/leading_table_blank_tests.rs",
+        "sha256": "360fa0eb054cc4a56b30f55324aad4e154538883d99501eeb67298ad9aae8141"
+      },
+      {
+        "path": "crates/kanpo-parser/src/lib.rs",
+        "sha256": "12a1928e1c1bedf9fa987e3a673dca8da810eef67471a445bf412daab1d9a171"
+      },
+      {
+        "path": "crates/kanpo-parser/src/lines.rs",
+        "sha256": "c277b260081e9b35c53964098c3b39ac2cbccf054bbaf8cb083898a5f862853c"
+      },
+      {
+        "path": "crates/kanpo-parser/src/micro_prefixes.rs",
+        "sha256": "0430a55657b8c5bc635ee43270ea65b5a4e0277c30b516af3fb92fa26e490021"
+      },
+      {
+        "path": "crates/kanpo-parser/src/micro_prefixes_tests.rs",
+        "sha256": "798c937df84a5e4306322854a03bf4563a62d58c7c51707909cb43929c709e51"
+      },
+      {
+        "path": "crates/kanpo-parser/src/mixed_native_bbox_tests.rs",
+        "sha256": "039f1a0a0d4d8bc1bf4075895ca9dcee2d69810eb8156cd9a22094aae9549942"
+      },
+      {
+        "path": "crates/kanpo-parser/src/model.rs",
+        "sha256": "34ff7218594c9f98a8b607fb38c062cfedd9242295e0045d87909bdfbfb66474"
+      },
+      {
+        "path": "crates/kanpo-parser/src/native_ledger_tests.rs",
+        "sha256": "ca5dd35101465c11b98617f214589bc052fc2cc71f0972e163a8db513246d432"
+      },
+      {
+        "path": "crates/kanpo-parser/src/nested_fraction_geometry.rs",
+        "sha256": "20467eff6afd052a95fbb13b760d92e5371fa75d3a3a94a961d0b2a9787e37a0"
+      },
+      {
+        "path": "crates/kanpo-parser/src/nested_fraction_geometry_tests.rs",
+        "sha256": "bb866d3e29705d1a2978b70a5f7bc60db314b8724958e7dce68f89bc24f27b29"
+      },
+      {
+        "path": "crates/kanpo-parser/src/nested_fractions.rs",
+        "sha256": "e6f88aa6bf9c73c4eb7e2e9a62ba70beac38e8cf3ed36f0c2ce1b5337bb0e1db"
+      },
+      {
+        "path": "crates/kanpo-parser/src/nested_fractions_tests.rs",
+        "sha256": "095c65426f463aeb1ab352779f2181a22fae58a5408104b8e7906de86c5b213a"
+      },
+      {
+        "path": "crates/kanpo-parser/src/normalize.rs",
+        "sha256": "4c7a14e744d1647b6ebf2d8c8c9b21ad622fe3cbbf464e20e9e76b53e5bf4224"
+      },
+      {
+        "path": "crates/kanpo-parser/src/numeric_fraction_adapter_tests.rs",
+        "sha256": "76e6fd5feb5b2a421e42769946394016c99f5b63580fe866e7fe6eb04a299ac0"
+      },
+      {
+        "path": "crates/kanpo-parser/src/numeric_fraction_geometry.rs",
+        "sha256": "5b87a35a5c823ed50460463739d6f8b31a948324cac5708b893c64541e71fd77"
+      },
+      {
+        "path": "crates/kanpo-parser/src/numeric_fraction_geometry_tests.rs",
+        "sha256": "c83c2e18e21541c635e848be0328f0bcb0c9f333042cfc390c59924d5a38debb"
+      },
+      {
+        "path": "crates/kanpo-parser/src/numeric_fractions.rs",
+        "sha256": "7f4fc1d34db1f66c10eff17720d8c08194c1f69c93128f66fbdb3af5003b8f1d"
+      },
+      {
+        "path": "crates/kanpo-parser/src/numeric_grid_orientation.rs",
+        "sha256": "5503e37a7d49f4d7350c5cad8c8fb40f526e901310b3acd47c6c41ce9b43de4e"
+      },
+      {
+        "path": "crates/kanpo-parser/src/owned_dash_tests.rs",
+        "sha256": "4054dfb3f501276d54cb0f6b16d08f4eade227d3e3d5a5b707f845c4b4465af2"
+      },
+      {
+        "path": "crates/kanpo-parser/src/owned_dashes.rs",
+        "sha256": "0fb5cbfb2d2d21b855fcc74dc461a58e3ff0ce334eb45be6c0a5e0d275c03b33"
+      },
+      {
+        "path": "crates/kanpo-parser/src/paired_shinkyu_grid_tests.rs",
+        "sha256": "32d3d084cc12909c3dd2319f8f621526b41f1c2f88dde574e15d53b168a6afe5"
+      },
+      {
+        "path": "crates/kanpo-parser/src/parallel_fraction_adapter_tests.rs",
+        "sha256": "4a97c8acab7f2f25dbf691e8cd9840afde754465b2aeb597719441a314d9eab5"
+      },
+      {
+        "path": "crates/kanpo-parser/src/parallel_fraction_geometry.rs",
+        "sha256": "dee1abb3868ca63672333aa70caffc6abafba18a2abc0f305e012bb605882d98"
+      },
+      {
+        "path": "crates/kanpo-parser/src/parallel_fraction_geometry_tests.rs",
+        "sha256": "9fa0da416a260998dd361bb452dee3937a00c8de6828c6d120acab95dae9f1f8"
+      },
+      {
+        "path": "crates/kanpo-parser/src/parallel_fractions.rs",
+        "sha256": "5f2bd4e2635069ede150e2ca75af0f5c451611d8d9c94d03409b121669f11c85"
+      },
+      {
+        "path": "crates/kanpo-parser/src/prose_label_values_tests.rs",
+        "sha256": "2ba2d80b953f26b93d8166ad096285ea27b2affa5f4dc9286625c46dba82f3b9"
+      },
+      {
+        "path": "crates/kanpo-parser/src/quantity_tables.rs",
+        "sha256": "ffb65b9a00c7b0c2781ed076bdd060b687bc052814289b548ba96011605adfb5"
+      },
+      {
+        "path": "crates/kanpo-parser/src/record_suffix.rs",
+        "sha256": "43997ade6e3b8842daaf727494852e903333be2558b7831aa689de6ab72f1b3a"
+      },
+      {
+        "path": "crates/kanpo-parser/src/record_suffix_tests.rs",
+        "sha256": "bfe5838796837ba3279df09f684abc6c2eefecd02274e98d12478bf31dc29b98"
+      },
+      {
+        "path": "crates/kanpo-parser/src/reference_markers.rs",
+        "sha256": "b06a95fe2087407773c1aef85ed7c8681adb2ee7eb9ed39f435557acc14a4ce0"
+      },
+      {
+        "path": "crates/kanpo-parser/src/repeated_key_column_tests.rs",
+        "sha256": "58a46c1c69157d6c3619efdf245107180fbe7b3191accb03c7d08cec96057578"
+      },
+      {
+        "path": "crates/kanpo-parser/src/segment.rs",
+        "sha256": "05aef0a20c3f1793883d8fc8152d12261f2b5f5336a3864756d080727fb262e7"
+      },
+      {
+        "path": "crates/kanpo-parser/src/shared_physical_label_tests.rs",
+        "sha256": "691fd4c66ba25a5d3da052f340e77389f251a98e35ea67d1c185ffc2759a88d1"
+      },
+      {
+        "path": "crates/kanpo-parser/src/shared_table_labels.rs",
+        "sha256": "a9a4afe53cf2d662239a1fe1219147cbd983747830aba23cee8fd0d00028a42b"
+      },
+      {
+        "path": "crates/kanpo-parser/src/shinkyu.rs",
+        "sha256": "66f86602fc7b9e41365f2b042aad727dc14dbc902b52c996c908c97780a2b5e4"
+      },
+      {
+        "path": "crates/kanpo-parser/src/ship_record_tests.rs",
+        "sha256": "b4e7c35ee920544993a2585594e8ff338889376c2a93f82546c7eb4928796bcb"
+      },
+      {
+        "path": "crates/kanpo-parser/src/shorthand_tier_tests.rs",
+        "sha256": "0b30159ec56155d4047712d4607be7f40d6f07a10540224a6589915900c217cd"
+      },
+      {
+        "path": "crates/kanpo-parser/src/signer_block_tests.rs",
+        "sha256": "776e829693431b7766e21af2efb7cbaf12216722d57c984bf334e48798624a66"
+      },
+      {
+        "path": "crates/kanpo-parser/src/table.rs",
+        "sha256": "2ebcef0d19ba3e56dc5ce751ab63fe3bf5486c55b6e0fa91e8267b3561b92f45"
+      },
+      {
+        "path": "crates/kanpo-parser/src/table_dashes.rs",
+        "sha256": "97c2d1d7dc25eafac99495b0a87c813721dd0fe798084176037a845cdd9e9671"
+      },
+      {
+        "path": "crates/kanpo-parser/src/table_dashes_physical_cells_tests.rs",
+        "sha256": "736e613d72504ba0c571c57a5456da7362d7d881131cd90c18f2eb3c46e85c44"
+      },
+      {
+        "path": "crates/kanpo-parser/src/table_text_column_tests.rs",
+        "sha256": "7df4228068dda4b48900dcb3c87a53420d323b805364559e1b873111a8622f3d"
+      },
+      {
+        "path": "crates/kanpo-parser/src/trace.rs",
+        "sha256": "1f21f7f40ed424d32aa2cc33052ae26ec0fd2dd0f01bbba63ec211481eb6e3aa"
+      },
+      {
+        "path": "crates/kanpo-parser/src/trailing_code_tables.rs",
+        "sha256": "e59b3e0e3e86b5547db1cecd1bc4550bb50e798f2f9720c3ec8d9584c53e25ce"
+      },
+      {
+        "path": "crates/kanpo-parser/src/unruled_record_tests.rs",
+        "sha256": "049caf72c44f37e52db2521eacad7ccac9bf1aad226de411cd5735368f64139d"
+      },
+      {
+        "path": "crates/kanpo-parser/src/unruled_records.rs",
+        "sha256": "f905f325ecbfe3eae8e7c7461a1b627708aab5c4f8850808a84547d6b1eaa75b"
+      },
+      {
+        "path": "crates/kanpo-parser/src/unruled_road.rs",
+        "sha256": "8b6e1880ca914490eb976c3fc852760eb485d90c2f4a65002c262d1f911fa70b"
+      },
+      {
+        "path": "crates/kanpo-parser/src/vertical.rs",
+        "sha256": "bfb214e5da36d99706312f77c59fbeffc72b94b47003dbdcaf667701e3a2881c"
+      },
+      {
+        "path": "crates/kanpo-parser/src/wrapped_native_quote_tests.rs",
+        "sha256": "68a732e65692bfe1bc5b50aeafe5e3b6935f12fcd9d53ca0791c029fa21f1fb7"
+      },
+      {
+        "path": "crates/kanpo-parser/src/wrapped_notice_title_tests.rs",
+        "sha256": "ba6b69428c49911036bd0ffe7f368a9e3d6454b33b2c07558b8dd486b493035e"
+      },
+      {
+        "path": "crates/kanpo-parser/src/wrapped_notice_titles.rs",
+        "sha256": "ee1316e253e58d73efa0100366a36244b02794561da9a67286e3ceae00e393fe"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/bbox.rs",
+        "sha256": "3488a8c9425562ba8161fafdc7f4c84fadb7770b097b1f07de8d119fc28621b2"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/cmap.rs",
+        "sha256": "ae8de5b85d27afd6d2bb2f5541f9b477fd163fc9155b71ab858fa44951701796"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/crypt.rs",
+        "sha256": "71ff6cff3f5680f1d32330b42d312d896d61b1f9f28ce8c6ee799501426098ca"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/document.rs",
+        "sha256": "eb955b1fe352e8552b1422e2755fd77eeeb9b289674532617e2740d80d4a3143"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/filter.rs",
+        "sha256": "16c3abd9992971c8cdc6aa25231a98ede9da11937019cc7f6100b763d2d05cea"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/font.rs",
+        "sha256": "3c30d51258ae02368088461ee182b5ea296d7dfaf9f2e849765c61121e8e7ab8"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/lexer.rs",
+        "sha256": "501609f620f60105fc70f53d98bd5b283091abacfea3b8e48e262f9d01590b11"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/lib.rs",
+        "sha256": "ecef6341d2f1f2281828432672778dbdee1da7f4b883b518c1ef935c19f611df"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/native_vertical_bbox_tests.rs",
+        "sha256": "d7ec99599e7f1b609c66f505bb05fbcd152dc72224d734ab8dbda42848514205"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/object.rs",
+        "sha256": "a387f5ec34b17a109ae44963123076a72fe827b4f8999a579ea38f13bbb3c0bd"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/page.rs",
+        "sha256": "ed7d29314f9318cc19f82315df17126b45bf03f290938c860504507bd0d2ed1d"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/rules.rs",
+        "sha256": "03187d799f007724086d1437326fa24c7ee4bc2b08c18774d3e40ec47c5e7265"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/short_fraction_bar_tests.rs",
+        "sha256": "701116b53a0a7e208383e551658b7c6130242e4850915694ee6e4f4b695d41d8"
+      }
+    ]
+  },
+  "integrated_source_manifest_sha256": "a8d02dd519f72a987d0cfb215834e0c5642d6f0bd3b574a970c323bbea11b767",
+  "immutable_root40_closure": {
+    "path": ".cache/kanpo-227/immutable-root40-deps-manifest.json",
+    "sha256": "7059210e4bbde082d5a42a9e2df2a117cdb30728f3bce207f435d4803c9bd9d8"
+  },
+  "immutable_baseline39_closure": {
+    "path": ".cache/kanpo-227/immutable-root39-deps-manifest.json",
+    "sha256": "7a65952feb162cb7e1784dc89387b1b2ed76c89764e0684703f772c2094befd2"
+  },
+  "cumulative_validator": {
+    "counts": {
+      "period_pairs": 706,
+      "ordinal_pairs": 121,
+      "bracket_cells": 377,
+      "existing_unattached_used_diagnostic": 50,
+      "pages": 2896,
+      "native_dash_glyphs": 10924,
+      "fractions": 153,
+      "surnames": 6,
+      "plain_dashes": 232,
+      "duplicate_word_ids": 0,
+      "nested_formulas": 6,
+      "parallel_formulas": 9,
+      "numeric_formulas": 6
+    },
+    "nested_semantic_fraction_nodes": 12,
+    "nested_serialization_pairs": 24,
+    "nested_slashes": 12,
+    "parallel_semantic_fraction_nodes": 18,
+    "parallel_serialization_pairs": 18,
+    "parallel_slashes": 18,
+    "numeric_semantic_fraction_nodes": 15,
+    "numeric_serialization_pairs": 18,
+    "numeric_native_parenthesis_pairs": 3,
+    "numeric_slashes": 15,
+    "logs": [
+      ".cache/kanpo-227/validate40-part0.log",
+      ".cache/kanpo-227/validate40-part1.log",
+      ".cache/kanpo-227/validate40-part2.log",
+      ".cache/kanpo-227/validate40-part3.log",
+      ".cache/kanpo-227/validate40-part4.log",
+      ".cache/kanpo-227/validate40-part5.log",
+      ".cache/kanpo-227/validate40-part6.log",
+      ".cache/kanpo-227/validate40-part7.log"
+    ],
+    "all_parts_exit0": true
+  }
+}

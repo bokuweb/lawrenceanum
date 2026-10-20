@@ -41,7 +41,7 @@ fn ordinary_numeric_cell_fractions_keep_the_complete_previous_output(){
 #[test]
 fn wrapped_numeric_cells_survive_the_separate_parallel_fraction_repair(){
  let a=analyze_item(&page_inputs(include_bytes!("archive/pages/20261014g00225/20261014g002250011.pdf")).unwrap());
- assert_eq!(a.text,include_str!("fixtures/nested_fraction/20261014g002250011-after38.txt"));
+ assert_eq!(a.text,include_str!("expected/numeric_compound_fraction/20261014g002250011.txt"));
 }
 #[test]
 fn two_side_by_side_fraction_bars_are_not_a_nested_tree(){

@@ -292,6 +292,7 @@ cargo run --release -p kanpo-parser --example snapshot_sample -- .cache/kanpo-ar
 | 127 回目（独立・初回、評価範囲変更） | 12 | 1 | 17 | 比較対象外 |
 | 128 回目（独立・初回、全体品質） | 11 | 6 | 13 | 比較対象外 |
 | 129 回目（独立・初回、全体品質） | 11 | 7 | 12 | 比較対象外 |
+| 130 回目（独立・初回、全体品質） | 9 | 4 | 17 | 比較対象外 |
 
 110 回目から、対象ページ ID・原本 SHA-256・採点の理由を [`tests/audits/`](tests/audits/) に残す。
 110 回目は本文に文字層のある 30 ページで校正し、見つかった分数式・金額の空欄位置の崩れを修正して同じ原本で再照合した結果。
@@ -652,3 +653,32 @@ URL の U+2011 は原 PDF の文字層にも存在して保持されており、
 [`tests/audits/issue227-eighteenth-batch-reviews.json`](tests/audits/issue227-eighteenth-batch-reviews.json)、
 [`tests/audits/issue227-eighteenth-batch-provenance.json`](tests/audits/issue227-eighteenth-batch-provenance.json)、
 検証集計は[`tests/audits/issue227-validation-18.json`](tests/audits/issue227-validation-18.json)に保存した。全体100%は未達である。
+
+第 19 次修正では、6ページの数値分子を含む複合分数を、57原語・114原Glyph・15原罫線から構造化した。
+114Glyphには実括弧12部品も含む。括弧を構成する6語はEmpty・未所属のまま保持し、Usedへの原字復元とは数えない。
+6式の分数節15個と実括弧3組を保持し、括弧18組・斜線15字、計51字を直列化した。
+元の語・ID/raw/状態/座標と表のセル・他の式を保持し、数値と原罫線・実括弧・演算子の一意な対応がある場合だけ適用する。
+
+全11,992原PDFを再抽出し、本文・解析結果全体とも6変更・11,986完全一致を確認した。
+全旧Wordの属性・旧IDの所有数を保持し、元の文字の欠落・ID重複はない。独立候補の全件結果とも照合した。
+変更6原本の全図・修正前339行/修正後335行・全16Article/Documentを照合して改善6・観測退行0。
+累計2,896変更ページの横棒10,924字、平分数153件、番号121組、括弧セル377件、期間706組、入れ子6式・並列9式も保持した。
+201p12の別の単一分数、201p13の農地表のレコード・所有者セル等は既存重大欠陥として残す。
+
+追加の実PDF10テストは、実装前6失敗・保存用4成功から全件成功へ進めた。
+実際のproduction内の非公開型を使うgeometry20件・adapter6件も実行し、パーサ単体743件を含む関連4クレート全1,217テストが成功した。
+全94統合対象・4ライブラリ・4doc-testを同じ設定で分割実行し、全4クレートのexamplesも型検査した。
+アーカイブ原本は596件。新規4・更新2snapshotを全本文・全Article/Document・原本と照合して採用した。
+旧テスト3か所は古い分数を含む期待値を保持したまま新ファイルへ切り替え、新期待値が修正前に失敗することも確認した。アサーションは緩めていない。
+容量不足によるビルド中断はログを保持し、可逆圧縮・同一出力のAPFS共有で回復してから全対象を完走した。失敗・未完了の試行を成功件数へ含めない。
+
+130回目の未見30件は、選定前に評価範囲を固定し、初回の全体品質9ok/4minor/17major、本文・文字・読順17ok/9minor/4majorを保存した。
+全30件の新旧解析結果は完全一致し、全2,182行・70Article/Documentを照合した。今回の退行は0件で、見つかった問題は既存残件である。
+文字層のない8矩形を4原本の全nativeGlyphから再検査し、近接する非零6範囲と区別した。ページ全体の除外はない。
+引用節の後送り、別表の連結、肥料17レコードの列分断、項番号・チェック枠の原字欠落等を記録した。
+未採用の△修正候補では、説明文の△が正の金額へ付く退行を原図照合で検出したため採用せず、新たな負例テストから見直している。
+会社公告候補も既存の境界を失う検査で停止し、失敗版と旧964ページの確認範囲・初回評点を保持して別候補を検証中である。
+初回監査は[`tests/audits/130.json`](tests/audits/130.json)、変更影響と原字の証明は
+[`tests/audits/issue227-nineteenth-batch-reviews.json`](tests/audits/issue227-nineteenth-batch-reviews.json)、
+[`tests/audits/issue227-nineteenth-batch-provenance.json`](tests/audits/issue227-nineteenth-batch-provenance.json)、
+検証集計は[`tests/audits/issue227-validation-19.json`](tests/audits/issue227-validation-19.json)に保存した。全体100%は未達で、改善を継続する。
