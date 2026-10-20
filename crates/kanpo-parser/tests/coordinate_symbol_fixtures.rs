@@ -112,13 +112,20 @@ fn airport_coordinate_letters_and_unheaded_decimal_minutes_remain_unchanged() {
     );
 }
 #[test]
-fn headerless_fragmented_coordinates_are_not_rebuilt_from_raw_words() {
+fn unreconstructed_columns_stay_exact_while_the_ruled_continuation_restores() {
     let pdf = include_bytes!("archive/pages/20260728h01756/20260728h017560005.pdf");
     let out = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(pdf).unwrap());
     assert_eq!(
         out.text.trim_end(),
-        include_str!("archive/expected-coordinate-symbols/20260728h017560005.txt").trim_end()
+        include_str!(
+            "archive/expected-coordinate-joined/20260728h017560005-after-continuation.txt"
+        )
+        .trim_end()
     );
+    let before = include_str!("archive/expected-coordinate-symbols/20260728h017560005.txt");
+    let unchanged_columns = before.split("\n99　").next().unwrap();
+    assert!(out.text.starts_with(unchanged_columns));
+    assert!(out.text.contains("99　34°43′47.4662″　136°25′45.7983″"));
 }
 #[test]
 fn vertical_trace_numeric_geometry_is_not_treated_as_horizontal_suffixes() {

@@ -438,8 +438,10 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             crate::table_dashes::restore_ruled_table_dashes(&mut units, &mut words, &grids);
             crate::table_dashes::restore_plain_numeric_dashes(&mut units, &mut words, &vrules);
             crate::cell_row_dashes::restore_cell_record_dashes(&mut units, &mut words, &grids);
+            crate::owned_dashes::restore_owned_dashes(&mut units, &mut words, &grids, &vrules);
             crate::large_parentheses::restore_large_parentheses(&mut units, &words);
             crate::coordinate_symbols::restore_coordinate_symbols(&mut units, &mut words);
+            crate::coordinate_rows::restore_coordinate_rows(&mut units, &mut words, rules.get(pi).and_then(|r| r.as_ref()), width.max(height));
             crate::area_units::restore_area_units(&mut units, &mut words);
             if !sideways { crate::blank_area_units::restore(&mut units, &mut words, page_rules, width.max(height)); }
             crate::reference_markers::restore(&mut units, &mut words);
@@ -747,9 +749,11 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         crate::unruled_road::restore(&mut units, &words);
         crate::large_parentheses::restore_large_parentheses(&mut units, &words);
         crate::coordinate_symbols::restore_coordinate_symbols(&mut units, &mut words);
+        crate::coordinate_rows::restore_coordinate_rows(&mut units, &mut words, rules.get(pi).and_then(|r| r.as_ref()), width.max(height));
         crate::area_units::restore_area_units(&mut units, &mut words);
         if !sideways { crate::blank_area_units::restore(&mut units, &mut words, page_rules, width.max(height)); }
         crate::reference_markers::restore(&mut units, &mut words);
+        if sideways { if let Some(native_rules) = rules.get(pi).and_then(|r| r.as_ref()) { crate::framed_amount_rows::restore(&mut units, &words, native_rules); } }
         let text = units
             .iter()
             .map(Unit::text)
@@ -4264,7 +4268,25 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
     // 次の段になり、帯の終わりに読まれていた）。
     if ymax - ymin < 120.0 {
         let below: Vec<&Col> = cols.iter().filter(|c| (c.y + c.y1) / 2.0 >= cut).collect();
-        let continues = |c: &Col| pairs.iter().any(|&(y1, y, gap)| (y - c.y).abs() < 0.5 && y1 < cut && gap <= 1.5);
+        let continues = |c: &Col| {
+            pairs.iter().any(|&(y1, y, gap)| (y - c.y).abs() < 0.5 && y1 < cut && gap <= 1.5)
+                // A permitted bridging column is assigned above by its midpoint.
+                // Its bottom may cross the candidate cut; the following word is
+                // still its continuation when their original column and gap agree.
+                || cols.iter().any(|a| {
+                    let em = (a.x1 - a.x).min(c.x1 - c.x).max(1.0);
+                    a.id != c.id
+                        && upright(a) && upright(c)
+                        && (a.y + a.y1) / 2.0 < cut && a.y1 >= cut
+                        && (center(a) - center(c)).abs() < em * 0.5
+                        && ((a.x1 - a.x) - (c.x1 - c.x)).abs() <= em * 0.05
+                        && c.y >= a.y1 - 0.5 && c.y - a.y1 <= em * 1.5
+                        && !rules.hrules.iter().any(|&(y,x0,x1)| {
+                            a.y1 + 0.5 < y && y < c.y - 0.5
+                                && x0 < center(c) && center(c) < x1
+                        })
+                })
+        };
         // 上の欄が何列も cut のすぐ上まで組まれている（「神奈川県、新潟県、」… の下の欄「令和八年四／月二十日」）なら、
         // 帯の表の欄の境目。
         let em = cols.iter().map(|c| c.x1 - c.x).fold(f32::INFINITY, f32::min).max(4.0);
@@ -5953,3 +5975,7 @@ fn rejoin_prose_label_values(tiers: &mut [Vec<Col>], rules: &TierRules) {
 #[cfg(test)]
 #[path = "prose_label_values_tests.rs"]
 mod prose_label_values_tests;
+
+#[cfg(test)]
+#[path = "shorthand_tier_tests.rs"]
+mod shorthand_tier_tests;

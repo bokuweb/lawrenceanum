@@ -32,9 +32,11 @@
 
 use anyhow::Result;
 mod coordinate_symbols;
+mod coordinate_rows;
 mod area_units;
 mod blank_area_units;
 mod reference_markers;
+mod framed_amount_rows;
 
 pub mod format;
 pub mod grid;
@@ -48,6 +50,7 @@ pub mod segment;
 pub mod shinkyu;
 pub mod table;
 mod table_dashes;
+mod owned_dashes;
 mod cell_row_dashes;
 mod shared_table_labels;
 mod quantity_tables;

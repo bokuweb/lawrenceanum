@@ -164,11 +164,11 @@ pub(crate) fn restore_coordinate_symbols(units: &mut [Unit], words: &mut [Word])
         }
     }
 }
-struct Edit {
-    text: String,
-    symbols: Vec<(usize, char)>,
+pub(crate) struct Edit {
+    pub(crate) text: String,
+    pub(crate) symbols: Vec<(usize, char)>,
 }
-fn restore_cell(
+pub(crate) fn restore_cell(
     cell: &TableCell,
     words: &[Word],
     degree_limit: u32,

@@ -1,4 +1,4 @@
-fn verify(pdf: &[u8], expected: &str, source: &str, rows: usize) {
+fn verify(pdf: &[u8], expected: &str, source: &str, continuation: &str, rows: usize) {
     use kanpo_parser::trace::WordStatus;
     let a = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(pdf).unwrap());
     let p = &a.pages[0];
@@ -90,6 +90,48 @@ fn verify(pdf: &[u8], expected: &str, source: &str, rows: usize) {
         }
     }
     assert_eq!(ids.len(), rows * 6);
+    // The explicitly headed cells above keep their original proof. Additional
+    // restored suffixes must also match the literal continuation owner bindings.
+    let continuation: serde_json::Value = serde_json::from_str(continuation).unwrap();
+    assert_eq!(a.text, continuation["expected_text"].as_str().unwrap());
+    for binding in continuation["bindings"].as_array().unwrap() {
+        let id = binding["word_id"].as_u64().unwrap() as usize;
+        assert!(ids.insert(id));
+        let w = &p.words[id];
+        let symbol = match w.raw.as_str() {
+            "\u{EA6F}" => "°",
+            "\u{EA6D}" => "′",
+            "\u{EA6E}" => "″",
+            _ => panic!("unproved continuation symbol"),
+        };
+        assert_eq!(w.text, symbol);
+        assert_eq!(w.status, WordStatus::Used);
+        let owner = &binding["owner"];
+        let region = &p.regions[owner["region"].as_u64().unwrap() as usize];
+        assert_eq!(region.unit, owner["unit"].as_u64().unwrap() as usize);
+        assert_eq!(region.part, owner["part"].as_u64().unwrap() as usize);
+        assert_eq!(serde_json::to_value(region.role).unwrap(), owner["role"]);
+        let line = &region.lines[owner["line"].as_u64().unwrap() as usize];
+        assert!(owner["cell"].is_null() && line.table.is_none());
+        assert!(line.words.contains(&id));
+        for numeric in binding["source_numeric_ids"].as_array().unwrap() {
+            assert!(line.words.contains(&(numeric.as_u64().unwrap() as usize)));
+        }
+        let owners = p
+            .regions
+            .iter()
+            .flat_map(|r| &r.lines)
+            .map(|l| {
+                usize::from(l.words.contains(&id))
+                    + l.table
+                        .iter()
+                        .flat_map(|t| &t.cells)
+                        .filter(|c| c.words.contains(&id))
+                        .count()
+            })
+            .sum::<usize>();
+        assert_eq!(owners, 1);
+    }
     let old = proof["baseline_words"].as_array().unwrap();
     assert_eq!(p.words.len(), old.len());
     for (w, b) in p.words.iter().zip(old) {
@@ -113,6 +155,7 @@ fn twelve_paired_coordinates_restore_all_seventy_two_original_symbols() {
         include_bytes!("archive/pages/20260824h01774/20260824h017740007.pdf"),
         include_str!("archive/expected-coordinate-joined/20260824h017740007.tsv"),
         include_str!("archive/expected-coordinate-joined/20260824h017740007-source.json"),
+        include_str!("archive/expected-coordinate-continuation/20260824h017740007.json"),
         12,
     );
 }
@@ -122,6 +165,7 @@ fn sixteen_paired_coordinates_restore_all_ninety_six_original_symbols() {
         include_bytes!("archive/pages/20261014h01807/20261014h018070005.pdf"),
         include_str!("archive/expected-coordinate-joined/20261014h018070005.tsv"),
         include_str!("archive/expected-coordinate-joined/20261014h018070005-source.json"),
+        include_str!("archive/expected-coordinate-continuation/20261014h018070005.json"),
         16,
     );
 }
@@ -130,17 +174,19 @@ fn unchanged(pdf: &[u8], expected: &str) {
     assert_eq!(a.text.trim_end(), expected.trim_end());
 }
 #[test]
-fn unheaded_continuation_tables_are_unchanged() {
+fn unheaded_continuations_restore_only_the_proven_angle_suffixes() {
     unchanged(
         include_bytes!("archive/pages/20260824h01774/20260824h017740006.pdf"),
-        include_str!("archive/expected-coordinate-joined/20260824h017740006.txt"),
+        include_str!(
+            "archive/expected-coordinate-joined/20260824h017740006-after-continuation.txt"
+        ),
     );
 }
 #[test]
 fn vertical_numeric_geometry_is_not_widened() {
     unchanged(
-        include_bytes!("archive/pages/20260728h01756/20260728h017560005.pdf"),
-        include_str!("archive/expected-coordinate-joined/20260728h017560005.txt"),
+        include_bytes!("archive/pages/20260717h01750/20260717h017500006.pdf"),
+        include_str!("archive/expected-coordinate-symbols/20260717h017500006.txt"),
     );
 }
 #[test]
