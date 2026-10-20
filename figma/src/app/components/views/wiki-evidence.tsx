@@ -6,8 +6,17 @@ const kinds: Record<string, string> = { government_view: "政府見解", opinion
 
 export function WikiEvidence({ page }: { page: WikiPage }) {
   const scope = page.frontmatter.source_scope as { total_units: number; included_units: number; partial_refs: string[]; omitted_refs: string[]; limitations: string } | undefined;
+  const source = page.frontmatter.source_fingerprint;
+  const summarySource = page.frontmatter.llm_source_fingerprint;
+  const stale = typeof source === "string" && source !== "" && source !== summarySource;
   return (
     <section className="text-xs border border-border rounded-md p-3 mb-5 space-y-2" data-testid="wiki-evidence">
+      {page.frontmatter.type === "meeting" && (
+        <p role={stale ? "alert" : undefined}>{stale
+          ? "原資料の版に対応する要約の更新が未完了です。本文・引用・発言者の立場を原資料で再確認してください。"
+          : source ? "要約は最後に取得した資料の版に対応しています。原サイトでの最新性や主張の支持関係を保証するものではありません。"
+          : "この要約には原資料の版の記録がありません。取得後の訂正への追随状況は未確認です。"}</p>
+      )}
       <p>引用の原文一致は、主張の正しさや意味的な支持を保証しません。以下に記録のない主張の支持関係も未確認です。判定は生成時の LLM の自己点検で、独立レビューではありません。</p>
       {scope ? (
         <details>

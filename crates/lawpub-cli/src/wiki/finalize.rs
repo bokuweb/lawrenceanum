@@ -202,6 +202,13 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
                     !p.get_str("description").trim().is_empty()
                         && (p.get("evidence_version").is_none() || evidence::claim_errors(&p).is_empty())
                         && (task.kind != enforcements::KIND || enforcements::explanation_errors(&p).is_empty())
+                        && (!matches!(task.kind.as_str(), KIND_KOKKAI | KIND_SHINGIKAI)
+                            || std::fs::read(args.work.join(&task.source)).ok()
+                                .and_then(|bytes| serde_json::from_slice::<Value>(&bytes).ok())
+                                .map(|bundle| if bundle.get("source_fingerprint").is_some() {
+                                    evidence::source_fields_match(&p, &bundle, state.is_processed(&task.key))
+                                } else { p.get("source_fingerprint").is_none() })
+                                .unwrap_or(p.get("source_fingerprint").is_none()))
                         && llm_blocks(&p.body)
                             .iter()
                             .any(|b| !citations_in(b).is_empty())
@@ -253,6 +260,9 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
             // 経緯の形式を満たしたので、再投入の対象から外す。
             let mut page = Page::read(&path)?;
             page.set("llm_version", json!(NARRATIVE_VERSION));
+            if matches!(task.kind.as_str(), KIND_KOKKAI | KIND_SHINGIKAI) && page.get("source_fingerprint").is_some() {
+                page.set("llm_source_fingerprint", page.get("source_fingerprint").cloned().unwrap());
+            }
             page.write(&path)?;
             completed.push(task.clone());
         } else {
@@ -912,7 +922,9 @@ fn load_meetings(wiki: &Path) -> Result<Vec<MeetingInfo>> {
             corpus,
             organization: page.get_str("organization").to_string(),
             committee: page.get_str("committee").to_string(),
-            description: page.get_str("description").to_string(),
+            description: if evidence::summary_source_status(&page) == "stale" {
+                format!("【原資料更新・要再確認】{}", page.get_str("description"))
+            } else { page.get_str("description").to_string() },
             laws,
             speakers,
         });

@@ -113,10 +113,10 @@ function WikiHome({
 
       {index.data?.intake && (
         <details className="text-xs text-muted-foreground border rounded-md p-3 mb-4" data-testid="wiki-intake">
-          <summary>会議の取り込み範囲（{index.data.intake.since} 以降・{index.data.intake.date} 更新）：未完了 {Object.values(index.data.intake.entries).filter(s => s !== "completed").length} 件</summary>
+          <summary>会議の取り込み範囲（{index.data.intake.since} 以降・{index.data.intake.date} 更新）：未完了 {Object.values(index.data.intake.entries).filter(s => s !== "completed" && s !== "source_unchanged").length} 件</summary>
           <p className="mt-2">{index.data.intake.scope}</p>
           <p>未完了の先頭50件までを表示します。</p>
-          <ul>{Object.entries(index.data.intake.entries).filter(([,s]) => s !== "completed").slice(0, 50).map(([id,s]) => (
+          <ul>{Object.entries(index.data.intake.entries).filter(([,s]) => s !== "completed" && s !== "source_unchanged").slice(0, 50).map(([id,s]) => (
             <li key={id}>{id}：{({ budget_pending: "上限により繰り越し", source_unavailable: "資料取得待ち", no_substantive_text: "引用可能な本文なし", planned: "要約待ち", summary_pending: "要約未完了" } as Record<string,string>)[s] ?? "未確認"}</li>
           ))}</ul>
         </details>

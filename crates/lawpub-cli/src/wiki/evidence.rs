@@ -177,21 +177,40 @@ pub fn claim_errors(page: &Page) -> Vec<String> {
     errors
 }
 
-/// 機械生成の出典情報に引用本文をつなぐ。旧ページの主張は未検証のまま公開する。
+/// 比較対象は最後に取得したコーパス。原サイトの現在の版を保証するものではない。
+pub fn summary_source_status(page: &Page) -> &'static str {
+    let source = page.get_str("source_fingerprint");
+    if source.is_empty() { return "untracked"; }
+    if source == page.get_str("llm_source_fingerprint") { return "current"; }
+    if llm_blocks(&page.body).iter().all(|b| b.trim().is_empty()) { "pending" } else { "stale" }
+}
+
+pub fn source_fields_match(page: &Page, bundle: &Value, completed: bool) -> bool {
+    page.get("evidence_version").and_then(Value::as_u64) == Some(1)
+        && !page.get_str("source_fingerprint").is_empty()
+        && page.get("source_fingerprint") == bundle.get("source_fingerprint")
+        && (page.get("llm_source_fingerprint") == bundle.get("previous_summary_fingerprint")
+            || (completed && page.get("llm_source_fingerprint") == bundle.get("source_fingerprint")))
+}
+
+/// 機械生成の出典情報に引用本文をつなぐ。原資料更新後の旧判定・帰属を引き継がない。
 pub fn assessments(page: &Page) -> Value {
     let citations = citations_in(&llm_blocks(&page.body).join("\n"));
     let sources = page.get("evidence_sources").and_then(Value::as_array);
     let valid = claim_errors(page).is_empty();
+    let stale = matches!(summary_source_status(page), "stale" | "pending");
     json!(claims(page).unwrap_or_default().iter().map(|c| {
         let evidence: Vec<Value> = c.evidence.iter().filter_map(|label| {
+            if stale { return None; }
             let q = citations.iter().find(|q| q.label == *label)?;
             let mut s = sources?.iter().find(|s| s["ref"] == q.reference)?.clone();
             s["quote"] = json!(q.quote);
             Some(s)
         }).collect();
         json!({"text": c.text, "kind": c.kind, "attribution": c.attribution,
-            "review_status": if valid { c.review_status.as_str() } else { "indeterminate" },
-            "review_note": if valid { c.review_note.as_str() } else { "根拠情報の形式が不完全です" }, "sources": evidence})
+            "review_status": if valid && !stale { c.review_status.as_str() } else { "indeterminate" },
+            "review_note": if stale { "原資料の版に対応する要約の更新が未完了です。引用・帰属・支持関係を再確認してください" }
+                else if valid { c.review_note.as_str() } else { "根拠情報の形式が不完全です" }, "sources": evidence})
     }).collect::<Vec<_>>())
 }
 
@@ -219,6 +238,30 @@ mod tests {
         );
         page.set("claims", json!([{"text": "政府は実施を決めた", "kind": "government_view", "attribution": "kokkai:M1_001", "evidence": ["1"], "review_status": "unsupported", "review_note": "引用は未決定と述べており、主張を支持しない。"}]));
         page
+    }
+
+    #[test]
+    fn updated_sources_invalidate_prior_reviews_until_machine_finalization() {
+        let mut p = page();
+        p.set("evidence_version", json!(1));
+        assert_eq!(summary_source_status(&p), "untracked");
+        p.set("source_fingerprint", json!("new"));
+        p.set("llm_source_fingerprint", json!("old"));
+        assert_eq!(summary_source_status(&p), "stale");
+        let assessment = assessments(&p);
+        assert_eq!(assessment[0]["review_status"], "indeterminate");
+        assert!(assessment[0]["sources"].as_array().unwrap().is_empty());
+        let bundle = json!({"source_fingerprint": "new", "previous_summary_fingerprint": "old"});
+        assert!(source_fields_match(&p, &bundle, false));
+        p.set("llm_source_fingerprint", json!("new"));
+        assert!(!source_fields_match(&p, &bundle, false));
+        assert!(source_fields_match(&p, &bundle, true));
+        assert_eq!(summary_source_status(&p), "current");
+        assert_eq!(assessments(&p)[0]["review_status"], "unsupported");
+        p.set("source_fingerprint", json!("forged"));
+        assert!(!source_fields_match(&p, &bundle, true));
+        p.body = format!("{LLM_BEGIN}\n{LLM_END}");
+        assert_eq!(summary_source_status(&p), "pending");
     }
 
     #[test]

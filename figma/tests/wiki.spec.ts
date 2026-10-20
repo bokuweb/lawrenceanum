@@ -79,7 +79,7 @@ test("会議の未完了理由と集計範囲が読める", async ({ page }) => 
   await mock(page);
   await page.route("**/wiki/index.json", (r) => r.fulfill({ json: { ...INDEX, intake: {
     date: "2026-10-08", since: "2026-09-01", scope: "窓外・未収集資料は集計外。",
-    entries: { "kokkai:M1": "completed", "kokkai:M2": "budget_pending", "kokkai:M3": "source_unavailable", "kokkai:M4": "summary_pending" },
+    entries: { "kokkai:M1": "completed", "kokkai:M2": "budget_pending", "kokkai:M3": "source_unavailable", "kokkai:M4": "summary_pending", "kokkai:M5": "source_unchanged" },
   } } }));
   await page.goto(new URL("#/wiki", BASE).toString());
   const intake = page.getByTestId("wiki-intake");
@@ -90,6 +90,24 @@ test("会議の未完了理由と集計範囲が読める", async ({ page }) => 
   await expect(intake).toContainText("kokkai:M3：資料取得待ち");
   await expect(intake).toContainText("kokkai:M4：要約未完了");
   await expect(intake).not.toContainText("kokkai:M1");
+  await expect(intake).not.toContainText("kokkai:M5");
+});
+
+test("会議の原資料と要約の版の不一致を表示する", async ({ page }) => {
+  await mock(page);
+  for (const [source, summary, message] of [
+    ["sha256:new", "sha256:old", "原資料の版に対応する要約の更新が未完了です"],
+    ["sha256:new", "sha256:new", "最後に取得した資料の版に対応しています"],
+    [undefined, undefined, "原資料の版の記録がありません"],
+  ] as const) {
+    await page.route("**/wiki/page/meetings/kokkai/M1.json", (r) => r.fulfill({ json: {
+      ...MEETING, frontmatter: { ...MEETING.frontmatter, source_fingerprint: source, llm_source_fingerprint: summary },
+    } }));
+    await page.goto(new URL("#/wiki/meetings/kokkai/M1", BASE).toString());
+    await page.reload();
+    await expect(page.getByTestId("wiki-evidence")).toContainText(message);
+    if (source && source !== summary) await expect(page.getByRole("alert")).toContainText(message);
+  }
 });
 
 test("主張ごとに留保・意味の判定状態と立場を区別して原文へ戻れる", async ({ page }) => {
