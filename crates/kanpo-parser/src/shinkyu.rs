@@ -187,6 +187,18 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
     if has_heading(&upper) && has_heading(&lower) && splits_into_tiers(&upper) && splits_into_tiers(&lower) {
         return None;
     }
+    // 上下の帯の記事の見出しがどれも違えば、上下に別の告示が並ぶページ（同じ形の商標の告示が上下に並び、
+    // 本文が似て見える）。新旧対照表なら改正後と改正前の欄に同じ見出しが並ぶ。
+    let headings = |g: &[Col]| -> Vec<String> {
+        g.iter()
+            .filter(|c| c.text.starts_with('〇') && (c.text.contains("告示第") || c.text.contains("令第")))
+            .map(|c| c.text.chars().filter(|ch| !ch.is_whitespace()).collect())
+            .collect()
+    };
+    let (upper_heads, lower_heads) = (headings(&upper), headings(&lower));
+    if !upper_heads.is_empty() && !lower_heads.is_empty() && !upper_heads.iter().any(|h| lower_heads.contains(h)) {
+        return None;
+    }
     // 内容類似（改正後 ≒ 改正前）。新旧対照表は両欄がほぼ同一テキストで差分のみ異なる。
     // 人事異動一覧のように上下で別内容のページはここで弾かれる。
     // 上下の本文が順序も含めてほぼ同じであること（新旧対照表は改正後 ≒ 改正前）。文字の
