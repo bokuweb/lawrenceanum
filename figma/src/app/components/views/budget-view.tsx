@@ -60,17 +60,26 @@ function DatasetDetail({ statsId }: { statsId: string }) {
     return { timeKey, filterDims };
   }, [dataset]);
 
-  // 未選択の次元は先頭レコードの値 (e-Stat は合計・全国などの集計行が先頭に来ることが多い)。
-  const selected = (d: { key: string; options: string[] }) => selection[d.key] ?? d.options[0];
+  // 先に選んだ次元に存在する選択肢だけを示す。上流を切り替えた場合も
+  // 有効な系列へ補正し、実在しない組み合わせで空の表になるのを防ぐ。
+  const filters = useMemo(() => {
+    let candidates = dataset?.values ?? [];
+    return filterDims.map(d => {
+      const options = [...new Set(candidates.map(v => v.dimensions[d.key]).filter(v => v !== undefined))];
+      const value = options.includes(selection[d.key]) ? selection[d.key] : options[0];
+      candidates = candidates.filter(v => v.dimensions[d.key] === value);
+      return { key: d.key, options, value };
+    });
+  }, [dataset, filterDims, selection]);
 
   const rows = useMemo(() => {
     const values = (dataset?.values ?? []).filter(v =>
-      filterDims.every(d => v.dimensions[d.key] === selected(d)),
+      filters.every(d => v.dimensions[d.key] === d.value),
     );
     return values.slice().sort((a, b) =>
       (b.time ?? "").localeCompare(a.time ?? "", "ja", { numeric: true }),
     );
-  }, [dataset, filterDims, selection]);
+  }, [dataset, filters]);
 
   if (loading) return <div className="p-6 space-y-3">{[...Array(6)].map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>;
   if (!dataset) return <div className="p-6 text-sm text-muted-foreground">読み込めませんでした</div>;
@@ -90,13 +99,13 @@ function DatasetDetail({ statsId }: { statsId: string }) {
             e-Stat で見る <ExternalLink className="size-2.5" />
           </a>
         </div>
-        {filterDims.length > 0 && (
+        {filters.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {filterDims.map(d => (
+            {filters.map(d => (
               <label key={d.key} className="space-y-1 min-w-0">
                 <span className="text-xs text-muted-foreground block truncate">{d.key}</span>
-                <Select value={selected(d)} onValueChange={v => setSelection(s => ({ ...s, [d.key]: v }))}>
-                  <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
+                <Select value={d.value ?? ""} onValueChange={v => setSelection(s => ({ ...s, [d.key]: v }))}>
+                  <SelectTrigger aria-label={d.key} className="h-7 text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {d.options.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
                   </SelectContent>

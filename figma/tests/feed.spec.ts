@@ -173,3 +173,20 @@ test("官報項目の逆引きチップから改正対象法令へ遷移する",
   await lawChip.click();
   await expect(page).toHaveURL(/#\/laws\/TESTLAW2/, { timeout: 15_000 });
 });
+
+test("フィード取得失敗から再試行でき、選択中のフィルタを維持する", async ({ page }) => {
+  let fail = true;
+  await page.route("**/feeds/recent.json", route => fail
+    ? route.fulfill({ status: 503, body: "unavailable" })
+    : route.fulfill({ json: FEED }));
+  await page.goto(new URL("#/feed", BASE).toString());
+  await expect(page.getByRole("alert")).toContainText("フィードを読み込めませんでした");
+  await page.getByLabel("フィルタ-政府調達").click();
+  fail = false;
+  await page.getByRole("button", { name: "再試行", exact: true }).click();
+  const list = page.getByRole("region", { name: "新着一覧", exact: true });
+  await expect(list.getByText("テスト情報システム調達")).toBeVisible();
+  await expect(list.getByRole("button")).toHaveCount(1);
+  await expect(page.getByLabel("フィルタ-政府調達")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("alert")).toHaveCount(0);
+});

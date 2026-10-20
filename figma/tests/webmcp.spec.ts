@@ -407,3 +407,14 @@ test('WebMCP: cancelling an in-flight request returns before the response arrive
   // Other tool calls remain usable after cancellation.
   expect((await call(page, 'list_data_sources')).isError).toBe(false)
 })
+
+test('WebMCP: synonym expansion preserves additional search conditions in real SQLite', async ({ page }) => {
+  await install(page)
+  await open(page)
+  const alias = await call(page, 'search_legal_data', { corpus: 'tsutatsu', query: '事案の概要' })
+  expect(alias.isError).toBe(false)
+  expect(alias.data.items.length).toBeGreaterThan(0)
+  const narrowed = await call(page, 'search_legal_data', { corpus: 'tsutatsu', query: '事案の概要 zzunmatchedcontext' })
+  expect(narrowed.isError).toBe(false)
+  expect(narrowed.data.items).toEqual([])
+})

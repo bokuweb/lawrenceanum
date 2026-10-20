@@ -382,3 +382,68 @@ test("官報ページは type「官報」で一覧に出て、要約・出典・
   await page.getByRole("link", { name: "予防接種法" }).click();
   await expect(page).toHaveURL(/#\/wiki\/laws\/L1$/);
 });
+
+for (const fixture of [
+  { endpoint: "index.json", json: INDEX, path: "", message: "Wiki の一覧を読み込めませんでした。", heading: "wiki" },
+  { endpoint: "graph.json", json: GRAPH, path: "", message: "グラフを読み込めませんでした。", heading: "wiki" },
+  { endpoint: "page/laws/L1.json", json: LAW, path: "/laws/L1", message: "ページを読み込めませんでした:", heading: "予防接種法" },
+]) {
+  test(`Wiki の取得失敗から再試行できる: ${fixture.endpoint}`, async ({ page }) => {
+    await mock(page);
+    let fail = true;
+    await page.route(`**/wiki/${fixture.endpoint}`, route => fail
+      ? route.fulfill({ status: 503, body: "unavailable" })
+      : route.fulfill({ json: fixture.json }));
+    await page.goto(new URL(`#/wiki${fixture.path}`, BASE).toString());
+    const alert = page.getByRole("alert").filter({ hasText: fixture.message });
+    await expect(alert).toBeVisible();
+    if (fixture.endpoint === "graph.json") {
+      await page.getByRole("tab", { name: "一覧" }).click();
+      await expect(page.getByRole("button", { name: /予防接種法/ })).toBeVisible();
+      await page.getByRole("tab", { name: "グラフ" }).click();
+    }
+    fail = false;
+    await alert.getByRole("button", { name: "再試行", exact: true }).click();
+    await expect(alert).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: fixture.heading, exact: true, level: 1 })).toBeVisible();
+    if (fixture.endpoint === "graph.json") {
+      await expect(page.getByTestId("wiki-graph").locator("canvas").first()).toBeVisible();
+    } else if (fixture.endpoint === "index.json") {
+      await expect(page.getByRole("button", { name: "法令 1", exact: true })).toBeVisible();
+    }
+  });
+}
+
+test("Wiki の外部リンクと不正なフラグメントを安全に扱う", async ({ page }) => {
+  await mock(page);
+  await page.route("**/wiki/page/laws/L1.json", route => route.fulfill({ json: {
+    ...LAW, body: "[外部資料](//example.com/source)\n\n[壊れた参照](#%E0%A4%A)",
+  } }));
+  const errors: string[] = [];
+  page.on("pageerror", error => errors.push(error.message));
+  await page.goto(new URL("#/wiki/laws/L1", BASE).toString());
+  const external = page.getByRole("link", { name: "外部資料" });
+  await expect(external).toHaveAttribute("href", "//example.com/source");
+  await expect(external).toHaveAttribute("target", "_blank");
+  await page.getByRole("link", { name: "壊れた参照" }).click();
+  await expect(page).toHaveURL(/#\/wiki\/laws\/L1$/);
+  expect(errors).toEqual([]);
+});
+
+test("動きを抑える設定では Wiki の脚注へ即座に移動する", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await mock(page);
+  await page.goto(new URL("#/wiki/meetings/kokkai/M1", BASE).toString());
+  await expect(page.locator("sup a").first()).toBeVisible();
+  await page.evaluate(() => {
+    const original = Element.prototype.scrollIntoView;
+    (window as any).__scrollBehaviors = [];
+    Element.prototype.scrollIntoView = function (options) {
+      (window as any).__scrollBehaviors.push(typeof options === "object" ? options?.behavior : null);
+      return original.call(this, options);
+    };
+  });
+  await page.locator("sup a").first().click();
+  expect(await page.evaluate(() => (window as any).__scrollBehaviors)).toContain("instant");
+  await expect(page).toHaveURL(/#\/wiki\/meetings\/kokkai\/M1$/);
+});

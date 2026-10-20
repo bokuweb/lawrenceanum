@@ -23,14 +23,16 @@ function kindMeta(kind: string) {
 function useRecentFeed() {
   const [data, setData] = useState<RecentFeed | null>(null);
   const [loading, setLoading] = useState(true);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
     api.recentFeed()
       .then(d => { if (!cancelled) { setData(d); setLoading(false); } })
       .catch(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, []);
-  return { data, loading };
+  }, [attempt]);
+  return { data, loading, retry: () => setAttempt(n => n + 1) };
 }
 
 function FeedRow({ item, onOpen, onLaw }: {
@@ -77,7 +79,7 @@ function FeedRow({ item, onOpen, onLaw }: {
 }
 
 export function FeedView() {
-  const { data, loading } = useRecentFeed();
+  const { data, loading, retry } = useRecentFeed();
   const navigate = useNavigate();
   const [active, setActive] = useState<Set<string>>(new Set());
   const items = useMemo(() => [...(data?.items ?? [])].sort((a, b) => b.date.localeCompare(a.date)), [data]);
@@ -188,9 +190,14 @@ export function FeedView() {
             <div className="p-4 space-y-2">
               {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}
             </div>
+          ) : !data ? (
+            <div role="alert" className="p-8 text-center text-sm text-muted-foreground">
+              <p>フィードを読み込めませんでした</p>
+              <button type="button" onClick={retry} className="mt-3 text-primary hover:underline">再試行</button>
+            </div>
           ) : filtered.length === 0 ? (
             <p className="p-8 text-center text-sm text-muted-foreground">
-              {data ? "該当する新着がありません" : "フィードを読み込めませんでした"}
+              該当する新着がありません
             </p>
           ) : (
             filtered.map((item, i) => (

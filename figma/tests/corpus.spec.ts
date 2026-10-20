@@ -130,3 +130,30 @@ test("財政統計: 統計を選ぶと既定の系列の時系列が出て、次
   await expect(page.getByRole("cell", { name: "900,000" })).toBeVisible();
   await expect(page.getByRole("cell", { name: "1,065,891" })).toHaveCount(0);
 });
+
+test("財政統計: 区分変更時に地域を有効な組み合わせへ補正する", async ({ page }) => {
+  await mock(page);
+  await page.route("**/budget/0003360064.json", r => r.fulfill({ json: {
+    ...BUDGET_DATASET,
+    values: [
+      { ...value("政府出資", "2024年度", "100"), dimensions: { 区分: "政府出資", 地域: "東京", 年度: "2024年度" } },
+      { ...value("有価証券", "2024年度", "200"), dimensions: { 区分: "有価証券", 地域: "大阪", 年度: "2024年度" } },
+    ],
+  } }));
+  await page.goto(new URL("#/budget/0003360064", BASE).toString());
+  await expect(page.getByRole("cell", { name: "100", exact: true })).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "地域", exact: true })).toContainText("東京");
+
+  await page.getByRole("combobox", { name: "区分", exact: true }).click();
+  await page.getByRole("option", { name: "有価証券", exact: true }).click();
+  await expect(page.getByRole("cell", { name: "200", exact: true })).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "地域", exact: true })).toContainText("大阪");
+  await page.getByRole("combobox", { name: "地域", exact: true }).click();
+  await expect(page.getByRole("option", { name: "東京", exact: true })).toHaveCount(0);
+  await page.keyboard.press("Escape");
+
+  await page.getByRole("combobox", { name: "区分", exact: true }).click();
+  await page.getByRole("option", { name: "政府出資", exact: true }).click();
+  await expect(page.getByRole("cell", { name: "100", exact: true })).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "地域", exact: true })).toContainText("東京");
+});
