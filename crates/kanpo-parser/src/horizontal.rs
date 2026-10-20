@@ -2598,7 +2598,7 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
             order_region(bottom, &bb, ctx, boxed, column, out);
             return;
         }
-        let gutters = column_gutters(&words, blocks, if boxed { ctx.tables } else { &[] }, boxed);
+        let gutters = column_gutters(&words, blocks, if boxed { ctx.tables } else { &[] }, boxed, ctx.tables.is_empty());
         let gutter = gutters.as_ref().map(|g| g.0);
         // 広い溝（囲みの間）で左右とも 100pt 以上の列に分かれる溝が 2 つ以上並ぶなら、まとめて切る（横に 3 つ並ぶ決算公告の
         // 囲みの見出しの行。左の溝で切った残りは段の幅に満たず、右の溝が列の境とみなされなかった）。
@@ -3576,13 +3576,14 @@ fn column_cut(words: &[Col], blocks: &[Block]) -> Option<f32> {
 /// `tables`（囲みの段の中の表の外枠）が空でなければ、表の右端のすぐ右（20pt 以内）で別の表の左端のすぐ左になる溝を
 /// 囲みの境とみなす（[`is_column_split`] の `boxed`）。
 fn column_gutter(words: &[Col], blocks: &[Block], tables: &[Block]) -> Option<(f32, f32)> {
-    column_gutters(words, blocks, tables, !tables.is_empty()).map(|(g, _)| g)
+    column_gutters(words, blocks, tables, !tables.is_empty(), tables.is_empty()).map(|(g, _)| g)
 }
 
 /// [`column_gutter`] と、列の境になる溝すべて（x, 幅, 左右の狭い方の幅。左から）。
 ///
 /// `boxed`（囲みの段の中）なら、20pt 以上の溝で左右とも 100pt 以上の幅の組は囲みの境。
-fn column_gutters(words: &[Col], blocks: &[Block], tables: &[Block], boxed: bool) -> Option<((f32, f32), Vec<(f32, f32, f32)>)> {
+/// `no_tables` はページに表が無いか（見出しだけのページの溝の判定に使う）。
+fn column_gutters(words: &[Col], blocks: &[Block], tables: &[Block], boxed: bool, no_tables: bool) -> Option<((f32, f32), Vec<(f32, f32, f32)>)> {
     let (y0, y1) = (words.iter().map(|w| w.y).fold(f32::INFINITY, f32::min), words.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max));
     // 段の中の表（語の下に続く表も。表を取り出した後の段の語は、表の上の見出しの行だけのことがある）。
     let near: Vec<&Block> = tables.iter().filter(|t| t.1 < y1 + 40.0 && y0 < t.3).collect();
@@ -3655,7 +3656,7 @@ fn column_gutters(words: &[Col], blocks: &[Block], tables: &[Block], boxed: bool
             };
             let boxes = boxed && a - right_edge >= 20.0 && width(&left) >= 100.0 && width(&right) >= 100.0 && !figures(&left) && !figures(&right);
             // 文字の層に見出しだけがある段組みのページ（本文が画像の家裁公告の 4 段組）は、語が少なく（12 行・40 語まで）紙面の
-            // 高さほど（200pt 以上。上半分だけに見出しのある横倒しのページも）に散らばるので、40pt 以上の溝なら列に分ける
+            // 高さほど（150pt 以上。上半分だけに見出しのある横倒しのページも）に散らばるので、40pt 以上の溝なら列に分ける
             // （見出しが高さの順に段をまたいで読まれていた）。
             // どの語も 3 字以上の見出し（字間を空けた「公　告」、路線の表の駅名「台場」は除く）。
             // 表のある領域（路線の表の路線名）は除く。
@@ -3663,7 +3664,8 @@ fn column_gutters(words: &[Col], blocks: &[Block], tables: &[Block], boxed: bool
             let digitless = |w: &Col| !w.text.chars().any(|c| c.is_ascii_digit() || ('０'..='９').contains(&c));
             let sparse = a - right_edge >= 40.0
                 && blocks.is_empty()
-                && y1 - y0 >= 200.0
+                // 低め（150〜200pt）の領域は、表の無いページだけ（路線の表の路線名を除く）。
+                && (y1 - y0 >= 200.0 || (y1 - y0 >= 150.0 && no_tables))
                 && words.len() <= 40
                 && group_lines(words).len() <= 12
                 && words.iter().all(|w| w.text.trim().chars().count() >= 2 && digitless(w))
