@@ -762,6 +762,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         if sideways { if let Some(native_rules) = rules.get(pi).and_then(|r| r.as_ref()) { crate::framed_amount_rows::restore(&mut units, &words, native_rules); } }
         if !sideways && !rotated { crate::facility_continuations::restore(&mut units, &words, page_rules, width, height); }
         if !sideways && !rotated { crate::framed_band_continuations::restore(&mut units, &words, page_rules, width, height); }
+        if !sideways && !rotated { crate::paired_framed_continuations::restore(&mut units, &words, page_rules, width, height); }
         if !sideways && !rotated { crate::headerless_four_bands::restore(&mut units, &words, page_rules, width); }
         let text = units
             .iter()

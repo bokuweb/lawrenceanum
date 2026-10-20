@@ -34,6 +34,10 @@ use anyhow::Result;
 mod wrapped_notice_titles;
 mod facility_continuations;
 mod framed_band_continuations;
+mod paired_framed_continuations;
+#[cfg(test)]
+#[path = "paired_framed_continuation_shape_tests.rs"]
+mod paired_framed_continuation_shape_tests;
 mod coordinate_symbols;
 mod coordinate_rows;
 mod area_units;

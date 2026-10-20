@@ -293,6 +293,7 @@ cargo run --release -p kanpo-parser --example snapshot_sample -- .cache/kanpo-ar
 | 128 回目（独立・初回、全体品質） | 11 | 6 | 13 | 比較対象外 |
 | 129 回目（独立・初回、全体品質） | 11 | 7 | 12 | 比較対象外 |
 | 130 回目（独立・初回、全体品質） | 9 | 4 | 17 | 比較対象外 |
+| 131 回目（独立・初回、全体品質） | 10 | 6 | 14 | 比較対象外 |
 
 110 回目から、対象ページ ID・原本 SHA-256・採点の理由を [`tests/audits/`](tests/audits/) に残す。
 110 回目は本文に文字層のある 30 ページで校正し、見つかった分数式・金額の空欄位置の崩れを修正して同じ原本で再照合した結果。
@@ -682,3 +683,28 @@ URL の U+2011 は原 PDF の文字層にも存在して保持されており、
 [`tests/audits/issue227-nineteenth-batch-reviews.json`](tests/audits/issue227-nineteenth-batch-reviews.json)、
 [`tests/audits/issue227-nineteenth-batch-provenance.json`](tests/audits/issue227-nineteenth-batch-provenance.json)、
 検証集計は[`tests/audits/issue227-validation-19.json`](tests/audits/issue227-validation-19.json)に保存した。全体100%は未達で、改善を継続する。
+
+第 20 次修正では、167号21頁の新旧対照表の下段継続を、上段の対応する欄へ接続した。
+改正後27+7行、改正前23+15行を、それぞれ34行・38行として附則の前に保つ。
+原本の明示的な見出し・上下の閉じた枠・等しい行高・段間隔・列位置・一意な所有が揃う場合だけ適用する。
+下段の枠幅が上段より狭い配置を扱い、元の112行オブジェクト・175語・152所有数をそのまま保持する。
+155 Used語の2,513原Glyphと既存見出し6Glyph、クリップを反映した原罫線13部分を照合した。文字の追加・削除・原字復元はない。
+
+全11,992原PDFの再抽出と解析結果全体の比較は、対象1ページ変更・11,991完全一致だった。
+変更原本の全図・114出力行・全3Article/Documentと、負例4原本の全図・全文・記事構造を照合し、観測退行0。
+累計2,897変更ページで既存の全修正を保持した。未所属Usedの診断値53には、今回初めて集計対象となった既存3語を含む。新たな所有欠落はない。
+
+追加の実PDF8テストは実装前2失敗・保存用6成功から全件成功へ進めた。
+実際のproduction内で形状33件を実行し、パーサ単体776件を含む関連4クレート全1,258テストが成功した。
+全95統合対象・4ライブラリ・4doc-testと全4クレートのexamplesを検査した。アーカイブ原本は599件。
+新規3snapshotを全本文・全Article/Document・原本と照合して採用し、既存snapshotや旧期待値は更新していない。
+
+131回目の未見30件は選定前に評価範囲を固定し、初回の全体品質10ok/6minor/14major、本文・文字・読順20ok/7minor/3majorを保存した。
+全30件の新旧解析結果は完全一致し、全1,960行・43Article/Documentを照合した。今回の退行は0件である。
+文字層のない9矩形を3原本の全nativeGlyphから再検査し、近接する非零4範囲と区別した。ページ全体の除外はない。
+署名の別記事混入、名簿下段の日付分離、登録名称の分断、表の引用順や新旧役割の欠落を既存残件として記録した。
+△候補・会社公告候補・肥料一覧候補は別途検証中で、この修正には含めない。会社公告候補の固定原図レビュー範囲は1,286ページで、機械検証だけでは採用しない。
+初回監査は[`tests/audits/131.json`](tests/audits/131.json)、変更影響と原字の証明は
+[`tests/audits/issue227-twentieth-batch-reviews.json`](tests/audits/issue227-twentieth-batch-reviews.json)、
+[`tests/audits/issue227-twentieth-batch-provenance.json`](tests/audits/issue227-twentieth-batch-provenance.json)、
+検証集計は[`tests/audits/issue227-validation-20.json`](tests/audits/issue227-validation-20.json)に保存した。全体100%は未達で、改善を継続する。
