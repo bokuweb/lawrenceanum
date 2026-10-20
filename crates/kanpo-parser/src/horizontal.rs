@@ -2599,7 +2599,24 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
             return;
         }
         let gutters = column_gutters(&words, blocks, if boxed { ctx.tables } else { &[] }, boxed, ctx.tables.is_empty());
-        let gutter = gutters.as_ref().map(|g| g.0);
+        // 領域の左端から溝まで引いた長い横の罫線（囲みの中の上下の組の境の線）が終わる溝は囲みの境なので、先にそこで切る
+        // （囲みの中の貸借対照表の列と合併公告の列の間の狭い溝で先に切ると、上下の組の貸借対照表が先にまとめて読まれた）。
+        let (wx0, wy0, wy1) = (
+            words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min),
+            words.iter().map(|w| w.y).fold(f32::INFINITY, f32::min),
+            words.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max),
+        );
+        let box_edge = (!boxed)
+            .then(|| {
+                gutters.as_ref().and_then(|(first, cuts)| {
+                    cuts.iter()
+                        .filter(|c| c.0 > first.0 + 1.0)
+                        .find(|c| hrules.iter().any(|&(y, hx0, hx1)| y > wy0 + 20.0 && y < wy1 - 20.0 && hx0 <= wx0 + 20.0 && (hx1 - c.0).abs() < 12.0 && hx1 - hx0 >= 200.0))
+                        .map(|c| (c.0, c.1))
+                })
+            })
+            .flatten();
+        let gutter = box_edge.or(gutters.as_ref().map(|g| g.0));
         // 広い溝（囲みの間）で左右とも 100pt 以上の列に分かれる溝が 2 つ以上並ぶなら、まとめて切る（横に 3 つ並ぶ決算公告の
         // 囲みの見出しの行。左の溝で切った残りは段の幅に満たず、右の溝が列の境とみなされなかった）。
         if let Some((_, cuts)) = gutters.as_ref().filter(|(g, cuts)| !boxed && cuts.len() >= 2 && cuts[0].0 == g.0 && cuts.iter().all(|c| c.1 >= WIDE_GUTTER * 2.0 && c.2 >= 100.0)) {
