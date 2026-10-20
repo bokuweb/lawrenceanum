@@ -206,7 +206,77 @@ fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)],
     let mut lines = lines_with_tables_inner(cols, grids, vrules, hrules, one_column);
     rejoin_split_names(&mut lines, &geom, &texts);
     attach_toc_numbers(&mut lines, &geom, &texts);
+    raise_signer_blocks(&mut lines, &geom);
     lines
+}
+
+/// 公告の日付の行の右に寄せて組んだ署名の欄（「滋賀県大津市瀬田月輪町」「国立大学法人滋賀医科大学長」「遠山　育夫」）が、紙面でそれより
+/// 下にある財務諸表の行の後ろに読まれていたら、すぐ上の日付の行の後ろへ戻す（日付の行と署名の欄の間の溝で列に分かれていた）。
+/// 署名の欄は、長の肩書き（学長・総長・理事長・機構長）の行を含み 4 行までの、上下に続く行の並び。
+fn raise_signer_blocks(lines: &mut Vec<trace::Line>, geom: &std::collections::HashMap<usize, (f32, f32, f32, f32)>) {
+    let bounds = |l: &trace::Line| {
+        let g: Vec<&(f32, f32, f32, f32)> = l.words.iter().filter_map(|w| geom.get(w)).collect();
+        (!g.is_empty() && l.table.is_none()).then(|| {
+            (
+                g.iter().map(|p| p.0).fold(f32::INFINITY, f32::min),
+                g.iter().map(|p| p.1).fold(f32::NEG_INFINITY, f32::max),
+                g.iter().map(|p| p.2).fold(f32::INFINITY, f32::min),
+                g.iter().map(|p| p.3).fold(f32::NEG_INFINITY, f32::max),
+            )
+        })
+    };
+    let head = |t: &str| ["学長", "総長", "理事長", "機構長"].iter().any(|k| t.contains(k)) && t.chars().count() <= 30;
+    let date = |t: &str| t.starts_with("令和") && t.contains('年') && t.contains('日') && t.chars().count() <= 12;
+    let mut i = 0;
+    while i < lines.len() {
+        if !head(&lines[i].text) {
+            i += 1;
+            continue;
+        }
+        // 肩書きの行を含む、上下に（1.5 行分以内で）続く 4 行までの並び。
+        let Some(b) = bounds(&lines[i]) else {
+            i += 1;
+            continue;
+        };
+        let em = (b.3 - b.2).max(1.0);
+        let mut start = i;
+        while start > 0 && i - start < 3 {
+            match bounds(&lines[start - 1]) {
+                Some(p) if p.3 <= bounds(&lines[start]).unwrap().2 + 1.0 && bounds(&lines[start]).unwrap().2 - p.3 < em * 1.5 && p.0 >= b.0 - em * 6.0 => start -= 1,
+                _ => break,
+            }
+        }
+        // 肩書きの下の氏名の行（8 字まで、すぐ下）も欄に含める。
+        let mut end = i;
+        while end + 1 < lines.len() && end - i < 2 {
+            let (Some(p), Some(q)) = (bounds(&lines[end]), bounds(&lines[end + 1])) else { break };
+            if q.2 >= p.3 - 1.0 && q.2 - p.3 < em * 1.5 && lines[end + 1].text.trim().chars().count() <= 8 && q.0 >= b.0 - em * 2.0 {
+                end += 1;
+            } else {
+                break;
+            }
+        }
+        let top = bounds(&lines[start]).unwrap().2;
+        // 欄のすぐ上（3 行分以内）で左にある日付の行。
+        let d = (0..start).filter(|&j| date(lines[j].text.trim())).filter(|&j| bounds(&lines[j]).is_some_and(|p| p.3 <= top + em && top - p.3 < em * 3.0 && p.1 < b.1)).last();
+        // 日付の行と欄の間に、紙面で欄より下の行がある（欄が後ろに読まれている）なら、その間の欄より上の最後の行の後ろへ。
+        let at = d.and_then(|d| {
+            let between = d + 1..start;
+            let late = between.clone().any(|j| bounds(&lines[j]).is_some_and(|p| p.2 > b.3 + em));
+            late.then(|| between.filter(|&j| bounds(&lines[j]).is_some_and(|p| p.3 <= top + em)).last().unwrap_or(d))
+        });
+        match (true, at) {
+            (true, Some(j)) if j + 1 < start => {
+                let block: Vec<trace::Line> = lines.drain(start..=end).collect();
+                let n = block.len();
+                for (k, l) in block.into_iter().enumerate() {
+                    lines.insert(j + 1 + k, l);
+                }
+                i = j + 1 + n;
+            }
+            _ => i += 1,
+        }
+    }
 }
 
 /// 目次のページで、ページ番号（漢数字だけの 1 語の行「一〇」）を、同じ高さで左に並ぶ項目の行（「（財務二七八〜二八五）」）の
