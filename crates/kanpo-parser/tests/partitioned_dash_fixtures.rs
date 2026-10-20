@@ -10,7 +10,8 @@ fn check(pdf:&[u8],expected:usize,excerpt:&str) {
     }
     for w in restored {assert_eq!(w.status,kanpo_parser::trace::WordStatus::Used);assert!(seen.contains(&w.id));}
 }
-#[test]fn continuation_first_column_and_leading_bar_only_slots(){check(include_bytes!("archive/pages/20261016g00228/20261016g002280370.pdf"),29,"－　－　－　－　－　－　−432,811\n－　－　－　－　－　－　8");}
+// 継続表の29字に加え、表外CFの原字横棒1字も復元する。
+#[test]fn continuation_first_column_and_leading_bar_only_slots(){check(include_bytes!("archive/pages/20261016g00228/20261016g002280370.pdf"),30,"－　－　－　－　－　－　−432,811\n－　－　－　－　－　－　8");}
 #[test]fn merged_header_preserves_nine_column_all_bar_rows(){check(include_bytes!("archive/pages/20261016g00228/20261016g002280015.pdf"),170,"－　－　－　－　－　－　－　－　－\n－　－　－　－　－　－　－　－　－");}
 #[test]fn long_total_strip_uses_original_logical_row_positions(){check(include_bytes!("archive/pages/20261016g00228/20261016g002280678.pdf"),19,"固定資産の減損　　　　　　　　　　　－");}
 #[test]fn two_column_profit_tables_keep_their_missing_amount_rows(){check(include_bytes!("archive/pages/20261001g00217/20261001g002170155.pdf"),3,"営業外費用　－");}

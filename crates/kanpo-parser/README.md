@@ -277,6 +277,7 @@ cargo run --release -p kanpo-parser --example snapshot_sample -- .cache/kanpo-ar
 | 112 回目（独立・初回） | 24 | 2 | 4 | 87% |
 | 113 回目（独立・初回） | 22 | 7 | 1 | 97% |
 | 114 回目（独立・初回） | 24 | 4 | 2 | 93% |
+| 115 回目（独立・初回） | 21 | 7 | 2 | 93% |
 
 110 回目から、対象ページ ID・原本 SHA-256・採点の理由を [`tests/audits/`](tests/audits/) に残す。
 110 回目は本文に文字層のある 30 ページで校正し、見つかった分数式・金額の空欄位置の崩れを修正して同じ原本で再照合した結果。
@@ -293,6 +294,15 @@ cargo run --release -p kanpo-parser --example snapshot_sample -- .cache/kanpo-ar
 再照合は 28 ok / 2 minor / 0 major で、横棒 2 件は未修正のまま。
 [全件検証](tests/audits/issue227-validation-3.json)・[原本照合](tests/audits/issue227-third-batch-reviews.json)・
 [引用の座標補正](tests/audits/issue227-native-quote-reviews.json)に、部分改善で重大な崩れが残るページや未実施範囲も記録する。
+
+115 回目は第 3 次修正後の未見 30 ページを照合した。重大な 2 件は植物名簿の備考列・署名の分離と、
+左右段をまたぐ資産明細の先読み。軽微な 7 件と、Glyph が存在しない画像等の本文の除外範囲も
+[`tests/audits/115.json`](tests/audits/115.json) に初回評点のまま記録した。
+第 4 次修正では先頭が横棒だけの継続表 6 ページの 193 字と、表にならない数値行 126 ページの 205 字を復元した。
+前者は 6 ページ全体、後者は 31 ページ・84 字の原本の行対応を照合し、残り 95 ページ・121 字は自動検査までと区別する。
+114 回目の修正後再照合は 30 ok / 0 minor / 0 major、115 回目は 22 / 6 / 2。いずれも新たな独立監査ではない。
+[全件検証](tests/audits/issue227-validation-4.json)・[原本照合](tests/audits/issue227-fourth-batch-reviews.json)・
+[表外の横棒](tests/audits/issue227-plain-dash-pages.json)に検証範囲と残存問題を残す。
 
 横書きの算式では、分子・分母の数字と乗算記号の位置、短い分数線が一致する場合に `(分子/分母)` として式へ戻す。
 横組みの表の金額欄の単独の「－」は、段・列を決める間は空きとして扱い、表が確定してから原本の既知グリフだけを元のセルへ戻す。

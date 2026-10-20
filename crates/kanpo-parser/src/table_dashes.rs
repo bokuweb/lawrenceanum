@@ -354,9 +354,18 @@ fn restore_ruled_body(t: &mut Table, words: &mut [Word], g: &crate::grid::Grid) 
         }
         Some(p.y0)
     };
-    let Some(first_physical) = body.iter().filter_map(|c| physical(c)).min() else {
+    let Some(mut first_physical) = body.iter().filter_map(|c| physical(c)).min() else {
         return;
     };
+    // 科目・見出しのない数値だけの継続表では、先頭の全横棒行もデータ行。
+    // 既存セルが全て数値/横棒で、全物理升目が未結合の一意な格子の場合だけ先頭まで読む。
+    let numeric_continuation = first == 0
+        && t.cells.iter().all(|c| c.text.trim().is_empty() || c.text.trim() == "－" || amount(&c.text))
+        && g.cells.len() == (g.xs.len() - 1) * (g.ys.len() - 1)
+        && g.cells.iter().all(|p| p.x1 - p.x0 == 1 && p.y1 - p.y0 == 1);
+    if numeric_continuation {
+        first_physical = 0;
+    }
     if g.cells.iter().filter(|p| p.y1 > first_physical).any(|p| p.y0 < first_physical || p.y1 - p.y0 != 1 || p.x1 - p.x0 != 1) {
         return;
     }
@@ -366,6 +375,11 @@ fn restore_ruled_body(t: &mut Table, words: &mut [Word], g: &crate::grid::Grid) 
     let mut mapping = Vec::new();
     for row in first..t.rows {
         let cells: Vec<_> = body.iter().filter(|c| c.row == row).collect();
+        // 数値継続表の実在する完全空行には、対応させる語セルがない。
+        if numeric_continuation && cells.is_empty() {
+            mapping.push(None);
+            continue;
+        }
         let mut rows = Vec::new();
         for c in cells {
             let Some(r) = physical(c) else {
@@ -378,9 +392,10 @@ fn restore_ruled_body(t: &mut Table, words: &mut [Word], g: &crate::grid::Grid) 
         if rows.len() != 1 {
             return;
         }
-        mapping.push(rows[0]);
+        mapping.push(Some(rows[0]));
     }
-    if !mapping.windows(2).all(|m| m[0] < m[1]) {
+    let mapped: Vec<_> = mapping.iter().flatten().copied().collect();
+    if !mapped.windows(2).all(|m| m[0] < m[1]) {
         return;
     }
     let candidates: Vec<_> = words
@@ -433,7 +448,7 @@ fn restore_ruled_body(t: &mut Table, words: &mut [Word], g: &crate::grid::Grid) 
     }
     for c in &mut t.cells {
         if c.row >= first {
-            c.row = first + mapping[c.row - first] - first_physical;
+            c.row = first + mapping[c.row - first].expect("every occupied row was mapped") - first_physical;
         }
     }
     t.rows = first + g.ys.len() - 1 - first_physical;
@@ -597,3 +612,317 @@ mod partitioned_dash_tests {
         unchanged(u, w, g);
     }
 }
+
+/// 格子のない財務諸表でも、既存の横組み行と数値の右揃え位置が一意なら原字の横棒を戻す。
+/// 表は推定せず、確定した行の後ろ（単位だけ残った場合はその直前）へ戻す。
+pub(crate) fn restore_plain_numeric_dashes(units: &mut [Unit], words: &mut [Word], vrules: &[(f32, f32, f32)]) {
+    if !words.iter().any(|w| w.status == WordStatus::Empty && w.raw == "\u{E61C}") {
+        return;
+    }
+    let proposals = {
+        let lines: Vec<_> = units
+            .iter()
+            .enumerate()
+            .flat_map(|(u, unit)| match unit {
+                Unit::Plain(ls) => ls
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, l)| l.table.is_none() && !l.words.is_empty())
+                    .map(move |(i, l)| (u, i, l))
+                    .collect::<Vec<_>>(),
+                _ => Vec::new(),
+            })
+            .collect();
+        let mut proposals = Vec::new();
+        for (id, dash) in words.iter().enumerate() {
+            let em = dash.y1 - dash.y0;
+            if dash.status != WordStatus::Empty
+                || dash.raw != "\u{E61C}"
+                || !(3.0..=20.0).contains(&em)
+                || !(em * 0.7..=em * 1.3).contains(&(dash.x1 - dash.x0))
+            {
+                continue;
+            }
+            let (x, y) = ((dash.x0 + dash.x1) / 2., (dash.y0 + dash.y1) / 2.);
+            let rails: Vec<_> = vrules.iter().filter(|r| r.1 <= dash.y0 && r.2 >= dash.y1).collect();
+            let Some(left) = rails.iter().filter(|r| r.0 < x).max_by(|a, b| a.0.total_cmp(&b.0)) else {
+                continue;
+            };
+            let Some(right) = rails.iter().filter(|r| r.0 > x).min_by(|a, b| a.0.total_cmp(&b.0)) else {
+                continue;
+            };
+            if !(150.0..=450.0).contains(&(right.0 - left.0)) {
+                continue;
+            }
+            let (top, bottom) = (left.1.max(right.1), left.2.min(right.2));
+            let row_words = |l: &Line| -> Option<Vec<&Word>> {
+                let ws: Option<Vec<_>> = l.words.iter().map(|&i| words.get(i)).collect();
+                let ws: Vec<_> = ws?.into_iter().filter(|w| !w.text.trim().is_empty()).collect();
+                (!ws.is_empty()
+                    && ws
+                        .iter()
+                        .all(|w| w.x0 >= left.0 - 1. && w.x1 <= right.0 + 1. && w.y0 >= top - 1. && w.y1 <= bottom + 1.))
+                .then_some(ws)
+            };
+            let named = |w: &&Word, cy: f32| {
+                w.x1 - w.x0 >= (w.y1 - w.y0) * 1.5
+                    && w.text
+                        .chars()
+                        .filter(|c| ('\u{3040}'..='\u{30FF}').contains(c) || ('\u{4E00}'..='\u{9FFF}').contains(c))
+                        .count()
+                        >= 2
+                    && ((w.y0 + w.y1) / 2. - cy).abs() <= (em.min(w.y1 - w.y0) * 0.4).max(1.)
+            };
+            let mut targets = Vec::new();
+            for &(u, i, line) in &lines {
+                if line.text.contains(['。', '、', '：', ':']) || line.text.chars().filter(|c| !c.is_whitespace()).count() > 60 {
+                    continue;
+                }
+                let Some(ws) = row_words(line) else { continue };
+                if !ws.iter().any(|w| w.x1 < dash.x0 && named(w, y)) {
+                    continue;
+                }
+                let last = ws.iter().max_by(|a, b| a.x1.total_cmp(&b.x1)).unwrap();
+                let unit = matches!(last.text.as_str(), "円" | "千円" | "百万円").then_some(last.text.as_str());
+                let clear = ws
+                    .iter()
+                    .all(|w| w.x1 <= dash.x0 + 0.5 || (unit.is_some() && w.id == last.id && (w.x0 - dash.x1).abs() <= 1.));
+                if !clear || unit.is_none() && last.x1 > dash.x0 {
+                    continue;
+                }
+                let unit_end = last.x1;
+                let mut anchors = Vec::new();
+                for &(_, _, other) in &lines {
+                    if other.text.contains(['。', '、', '：', ':']) {
+                        continue;
+                    }
+                    let Some(vs) = row_words(other) else { continue };
+                    let last = vs.iter().max_by(|a, b| a.x1.total_cmp(&b.x1)).unwrap();
+                    let cy = (last.y0 + last.y1) / 2.;
+                    if (cy - y).abs() > em * 10.
+                        || last.text.chars().filter(|c| c.is_ascii_digit()).count() < 2
+                        || !vs.iter().any(|w| w.x1 < last.x0 - em && named(w, cy))
+                    {
+                        continue;
+                    }
+                    let numeric = match unit {
+                        Some(unit) => (last.x1 - unit_end).abs() <= 1. && last.text.strip_suffix(unit).is_some_and(amount),
+                        None => (last.x1 - dash.x1).abs() <= 1. && amount(&last.text),
+                    };
+                    if numeric {
+                        anchors.push(cy);
+                    }
+                }
+                anchors.sort_by(f32::total_cmp);
+                anchors.dedup_by(|a, b| (*a - *b).abs() < em);
+                if anchors.len() >= 2 {
+                    targets.push((u, i, unit.map(|s| (s.to_string(), last.id))));
+                }
+            }
+            if targets.len() == 1 {
+                let (u, i, unit) = targets.pop().unwrap();
+                proposals.push((id, u, i, unit));
+            }
+        }
+        proposals
+    };
+    for (id, u, i, unit) in &proposals {
+        // 同じ行・右揃え位置に複数の原字があれば一意ではない。
+        if proposals
+            .iter()
+            .filter(|(j, v, k, _)| v == u && k == i && (words[*j].x1 - words[*id].x1).abs() < 1.)
+            .count()
+            != 1
+        {
+            continue;
+        }
+        let Unit::Plain(lines) = &mut units[*u] else { continue };
+        let line = &mut lines[*i];
+        if let Some((unit, unit_id)) = unit {
+            let Some(at) = line.text.strip_suffix(unit).map(str::len) else {
+                continue;
+            };
+            let Some(pos) = line.words.iter().position(|&w| w == *unit_id) else {
+                continue;
+            };
+            line.text.insert(at, '－');
+            line.words.insert(pos, *id);
+        } else {
+            line.text.push('　');
+            line.text.push('－');
+            line.words.push(*id);
+        }
+        words[*id].text = "－".into();
+        words[*id].status = WordStatus::Used;
+    }
+}
+
+#[cfg(test)]
+mod plain_numeric_dash_tests {
+    use super::*;
+    fn fixture(unit: bool) -> (Vec<Unit>, Vec<Word>, Vec<(f32, f32, f32)>) {
+        let mut words = Vec::new();
+        for (x0, x1, y0, text) in [
+            (10., 74., 8., "収入"),
+            (270., 302., 8., "100"),
+            (10., 74., 28., "費用"),
+            (10., 74., 48., "合計"),
+            (270., 302., 48., "200"),
+        ] {
+            let id = words.len();
+            words.push(Word {
+                id,
+                x0,
+                x1,
+                y0,
+                y1: y0 + 8.,
+                raw: text.into(),
+                text: text.into(),
+                status: WordStatus::Used,
+            });
+        }
+        words.push(Word {
+            id: 5,
+            x0: 294.,
+            x1: 302.,
+            y0: 28.,
+            y1: 36.,
+            raw: "\u{E61C}".into(),
+            text: String::new(),
+            status: WordStatus::Empty,
+        });
+        let mut lines = vec![
+            Line::text("収入　100".into(), vec![0, 1]),
+            Line::text("費用".into(), vec![2]),
+            Line::text("合計　200".into(), vec![3, 4]),
+        ];
+        if unit {
+            for id in [1, 4] {
+                words[id].text.push_str("千円");
+                words[id].x0 = 290.;
+                words[id].x1 = 318.;
+            }
+            words.push(Word {
+                id: 6,
+                x0: 302.,
+                x1: 318.,
+                y0: 28.,
+                y1: 36.,
+                raw: "千円".into(),
+                text: "千円".into(),
+                status: WordStatus::Used,
+            });
+            lines[0].text.push_str("千円");
+            lines[1].text.push_str("　千円");
+            lines[1].words.push(6);
+            lines[2].text.push_str("千円");
+        }
+        (vec![Unit::Plain(lines)], words, vec![(0., 0., 64.), (320., 0., 64.)])
+    }
+    #[test]
+    fn plain_rows_recover_an_existing_bar_at_the_numeric_edge_once() {
+        for unit in [false, true] {
+            let (mut u, mut w, r) = fixture(unit);
+            restore_plain_numeric_dashes(&mut u, &mut w, &r);
+            assert!(u[0].text().contains(if unit { "費用　－千円" } else { "費用　－" }));
+            assert_eq!(w[5].status, WordStatus::Used);
+            let before = u[0].text();
+            restore_plain_numeric_dashes(&mut u, &mut w, &r);
+            assert_eq!(u[0].text(), before);
+            let Unit::Plain(lines) = &u[0] else { unreachable!() };
+            assert_eq!(lines.iter().flat_map(|l| &l.words).filter(|&&id| id == 5).count(), 1);
+            if unit {
+                assert_eq!(lines[1].words, vec![2, 5, 6]);
+            }
+        }
+    }
+    #[test]
+    fn reconstructed_formula_label_and_unit_text_are_only_locally_extended() {
+        for (unit, text, expected) in [
+            (false, "費用　(1)/(2)", "費用　(1)/(2)　－"),
+            (false, "１　保険契約準備金への繰入額", "１　保険契約準備金への繰入額　－"),
+            (true, "費用（換算後）　千円", "費用（換算後）　－千円"),
+        ] {
+            let (mut u, mut w, r) = fixture(unit);
+            if let Unit::Plain(ls) = &mut u[0] {
+                ls[1].text = text.into();
+            }
+            let before = u[0].text();
+            restore_plain_numeric_dashes(&mut u, &mut w, &r);
+            let Unit::Plain(ls) = &u[0] else { unreachable!() };
+            assert_eq!(ls[1].text, expected);
+            let strip = |s: &str| s.chars().filter(|c| !c.is_whitespace() && *c != '－').collect::<String>();
+            assert_eq!(strip(&before), strip(&u[0].text()));
+        }
+    }
+    #[test]
+    fn uncertain_columns_rows_glyphs_and_existing_values_are_not_changed() {
+        for case in 0..12 {
+            let (mut u, mut w, mut r) = fixture(false);
+            match case {
+                0 => w[5].raw = "\u{E999}".into(),
+                1 => r.clear(),
+                2 => w[4].text = "不明".into(),
+                3 => w[4].x1 += 8.,
+                4 => {
+                    if let Unit::Plain(ls) = &mut u[0] {
+                        ls.insert(2, ls[1].clone());
+                    }
+                }
+                5 => {
+                    let mut d = w[5].clone();
+                    d.id = 6;
+                    w.push(d);
+                }
+                6 => {
+                    w.push(Word {
+                        id: 6,
+                        x0: 294.,
+                        x1: 302.,
+                        y0: 28.,
+                        y1: 36.,
+                        raw: "0".into(),
+                        text: "0".into(),
+                        status: WordStatus::Used,
+                    });
+                    if let Unit::Plain(ls) = &mut u[0] {
+                        ls[1].words.push(6);
+                        ls[1].text.push('0');
+                    }
+                }
+                7 => {
+                    if let Unit::Plain(ls) = &mut u[0] {
+                        ls[1].text = "費用を説明する。".into();
+                    }
+                }
+                8 => r[0].2 = 24.,
+                9 => {
+                    w[2].x1 = w[2].x0 + 8.;
+                    w[2].y1 = w[2].y0 + 16.;
+                }
+                10 => {
+                    w[1].text = "1".into();
+                    w[4].text = "2".into();
+                }
+                11 => w[5].x0 -= 24.,
+                _ => unreachable!(),
+            }
+            let before = u[0].text();
+            restore_plain_numeric_dashes(&mut u, &mut w, &r);
+            assert_eq!(u[0].text(), before, "negative {case}");
+            assert_eq!(w[5].status, WordStatus::Empty);
+        }
+        let (mut u, mut w, r) = fixture(true);
+        w[6].text = "円".into();
+        if let Unit::Plain(ls) = &mut u[0] {
+            ls[1].text = "費用　円".into();
+        }
+        let before = u[0].text();
+        restore_plain_numeric_dashes(&mut u, &mut w, &r);
+        assert_eq!(u[0].text(), before, "different units cannot anchor the missing amount");
+    }
+}
+
+#[cfg(test)]
+#[path = "leading_dash_tests.rs"]
+mod leading_dash_tests;

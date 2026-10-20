@@ -301,9 +301,21 @@ fn raise_signer_blocks(lines: &mut Vec<trace::Line>, geom: &std::collections::Ha
         };
         let em = (b.3 - b.2).max(1.0);
         let mut start = i;
+        let mut wider_address = false;
         while start > 0 && i - start < 3 {
             match bounds(&lines[start - 1]) {
-                Some(p) if p.3 <= bounds(&lines[start]).unwrap().2 + 1.0 && bounds(&lines[start]).unwrap().2 - p.3 < em * 1.5 && p.0 >= b.0 - em * 6.0 => start -= 1,
+                Some(p) if p.3 <= bounds(&lines[start]).unwrap().2 + 1.0 && bounds(&lines[start]).unwrap().2 - p.3 < em * 1.5 => {
+                    // 法人行のすぐ上の住所が肩書きから左へ長く出る場合だけ、同じ右端を条件に含める。
+                    let text = lines[start - 1].text.trim();
+                    let address = lines[start].text.contains("法人") && lines[start].text.chars().count() <= 30
+                        && text.chars().count() <= 40 && !text.contains(['。', '、'])
+                        && text.contains(['都', '道', '府', '県']) && text.contains(['市', '区', '町', '村'])
+                        && text.chars().any(|c| c.is_numeric()) && p.0 >= b.0 - em * 20.0
+                        && (p.1 - b.1).abs() < em && (bounds(&lines[start]).unwrap().1 - b.1).abs() < em;
+                    if p.0 >= b.0 - em * 6.0 { start -= 1; }
+                    else if address { start -= 1; wider_address = true; }
+                    else { break; }
+                },
                 _ => break,
             }
         }
@@ -319,7 +331,9 @@ fn raise_signer_blocks(lines: &mut Vec<trace::Line>, geom: &std::collections::Ha
         }
         let top = bounds(&lines[start]).unwrap().2;
         // 欄のすぐ上（3 行分以内）で左にある日付の行。
-        let d = (0..start).filter(|&j| date(lines[j].text.trim())).filter(|&j| bounds(&lines[j]).is_some_and(|p| p.3 <= top + em && top - p.3 < em * 3.0 && p.1 < b.1)).last();
+        let d = (0..start).filter(|&j| date(lines[j].text.trim())).filter(|&j| bounds(&lines[j]).is_some_and(|p| p.3 <= top + em + 0.01 && top - p.3 < em * 3.0 && p.1 < b.1
+            // 幅の長い住所を含める例外では、左の日付が住所と同じ高さにあることも確認する。
+            && (!wider_address || ((p.2 + p.3) / 2.0 - (top + bounds(&lines[start]).unwrap().3) / 2.0).abs() < 1.5))).last();
         // 日付の行と欄の間に、紙面で欄より下の行がある（欄が後ろに読まれている）なら、その間の欄より上の最後の行の後ろへ。
         let at = d.and_then(|d| {
             let between = d + 1..start;
@@ -5436,3 +5450,239 @@ pub(crate) fn repair_native_ledger_tables(units: &mut [trace::Unit], words: &[tr
 #[cfg(test)]
 #[path = "native_ledger_tests.rs"]
 mod native_ledger_tests;
+
+/// 告示直後の全幅の前文が短い横倒し数字を境に段と誤認されたとき、同じ行の断片だけを戻す。
+/// 既存行の本文を維持し、間に挟まった次の行や日付自体の順序は変えない。
+pub(crate) fn rejoin_split_preamble_numerals(lines: &mut Vec<trace::Line>, cols: &[Col]) {
+    let compact = |s: &str| s.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+    let prose = |w: &Col| {
+        w.text.chars().count() >= 12
+            && w.text
+                .chars()
+                .filter(|c| ('\u{3040}'..='\u{30ff}').contains(c) || ('\u{4e00}'..='\u{9fff}').contains(c))
+                .count()
+                >= 8
+            && w.x1 - w.x >= (w.y1 - w.y) * 8.0
+    };
+    let mut cursor = 1;
+    while cursor < lines.len() {
+        let i = cursor;
+        cursor += 1;
+        if !crate::segment::is_heading_mark(lines[i - 1].text.trim()) || lines[i].table.is_some() || lines[i].words.len() != 1 {
+            continue;
+        }
+        let Some(head) = cols.iter().find(|c| c.id == lines[i].words[0]) else {
+            continue;
+        };
+        if !prose(head) || head.text.ends_with(['。', '）', '」']) || compact(&lines[i].text) != compact(&head.text) {
+            continue;
+        }
+        let em = (head.y1 - head.y).max(1.0);
+        let heading: Vec<_> = lines[i - 1].words.iter().filter_map(|id| cols.iter().find(|c| c.id == *id)).collect();
+        if heading.is_empty()
+            || heading
+                .iter()
+                .any(|w| w.y1 > head.y || head.y - w.y1 > em * 3.0 || w.x > head.x + em * 2.0)
+        {
+            continue;
+        }
+        let mut matches = Vec::new();
+        for tail in cols.iter().filter(|w| {
+            w.id != head.id && prose(w) && (w.y - head.y).abs() < 0.1 && (w.y1 - head.y1).abs() < 0.1 && w.x >= head.x1 && w.x - head.x1 <= em * 1.5
+        }) {
+            let numerals: Vec<_> = cols
+                .iter()
+                .filter(|n| {
+                    n.id != head.id
+                        && n.id != tail.id
+                        && (1..=3).contains(&n.text.chars().count())
+                        && n.text.chars().all(|c| c.is_ascii_digit())
+                        && n.x1 - n.x >= em * 0.3
+                        && n.x1 - n.x <= em * 1.5
+                        && n.x >= head.x1 - em * 0.1
+                        && n.x <= tail.x + em * 0.5
+                        && x_center(n) > head.x1
+                        && x_center(n) < tail.x + em * 1.5
+                        && (y_center(n) - y_center(head)).abs() <= em * 0.55
+                })
+                .collect();
+            let [number] = numerals.as_slice() else { continue };
+            let Some(j) = lines.iter().position(|l| l.words.contains(&tail.id)) else {
+                continue;
+            };
+            let Some(k) = lines.iter().position(|l| l.words.contains(&number.id)) else {
+                continue;
+            };
+            if j <= i || k <= i || j.max(k) > i + 5 {
+                continue;
+            }
+            let joined = if j == k {
+                let line = &lines[j];
+                if line.table.is_some()
+                    || line.words != [number.id, tail.id]
+                    || compact(&line.text) != format!("{}{}", compact(&number.text), compact(&tail.text))
+                {
+                    continue;
+                }
+                line.text.clone()
+            } else {
+                if lines[j].table.is_some()
+                    || lines[k].table.is_some()
+                    || lines[j].words != [tail.id]
+                    || lines[k].words != [number.id]
+                    || compact(&lines[j].text) != compact(&tail.text)
+                    || compact(&lines[k].text) != compact(&number.text)
+                {
+                    continue;
+                }
+                format!("{}{}", lines[k].text, lines[j].text)
+            };
+            let clear = (i + 1..=j.max(k)).filter(|&at| at != j && at != k).all(|at| {
+                let l = &lines[at];
+                l.table.is_none()
+                    && !l.words.is_empty()
+                    && !crate::segment::is_heading_mark(l.text.trim())
+                    && l.words.iter().all(|id| {
+                        cols.iter()
+                            .find(|c| c.id == *id)
+                            .is_some_and(|w| w.x1 <= tail.x && w.y >= head.y1 + em * 0.25 && w.y < head.y1 + em * 5.0)
+                    })
+            });
+            if clear {
+                matches.push((j, k, number.id, tail.id, joined));
+            }
+        }
+        let [(j, k, number, tail, text)] = matches.as_slice() else { continue };
+        lines[i].text.push_str(text);
+        lines[i].words.extend([*number, *tail]);
+        let (j, k) = (*j, *k);
+        lines.remove(j.max(k));
+        if j != k {
+            lines.remove(j.min(k));
+        }
+    }
+}
+
+#[cfg(test)]
+mod split_preamble_number_tests {
+    use super::*;
+    fn fixture(legacy: bool) -> (Vec<Col>, Vec<trace::Line>) {
+        let data = [
+            (60., 180., 80., 88., "〇関係省告示第一号"),
+            (68., 332., 92., 100., "関係法令（平成二年法律第一号）附属表第一"),
+            (340., 790., 92., 100., "の規定に基づき、関係告示（施設の設備の定めに関する件）"),
+            (333., 341., if legacy { 96. } else { 92. }, if legacy { 104. } else { 100. }, "28"),
+            (60., 172., 104., 112., "の一部を次のように改正する。"),
+            (84., 156., 116., 124., "令和八年七月三十日"),
+            (684., 764., 116., 124., "関係大臣　甲　乙"),
+        ];
+        let cols: Vec<_> = data
+            .into_iter()
+            .enumerate()
+            .map(|(id, (x, x1, y, y1, t))| Col {
+                id,
+                x,
+                x1,
+                y,
+                y1,
+                text: t.into(),
+            })
+            .collect();
+        let line = |ids: Vec<usize>| trace::Line::text(ids.iter().map(|&i| cols[i].text.as_str()).collect(), ids);
+        let mut ls = vec![line(vec![0]), line(vec![1]), line(vec![4]), line(vec![5])];
+        if legacy {
+            ls.push(line(vec![2]));
+            ls.push(line(vec![3]));
+        } else {
+            ls.push(line(vec![3, 2]));
+        }
+        ls.push(line(vec![6]));
+        (cols, ls)
+    }
+    #[test]
+    fn the_same_prose_row_is_rejoined_in_legacy_and_native_coordinates() {
+        for legacy in [false, true] {
+            let (cols, mut ls) = fixture(legacy);
+            let before_ids: std::collections::HashSet<_> = ls.iter().flat_map(|l| l.words.iter().copied()).collect();
+            rejoin_split_preamble_numerals(&mut ls, &cols);
+            assert_eq!(
+                ls.iter().map(|l| l.words.clone()).collect::<Vec<_>>(),
+                vec![vec![0], vec![1, 3, 2], vec![4], vec![5], vec![6]]
+            );
+            assert_eq!(ls[1].text, format!("{}28{}", cols[1].text, cols[2].text));
+            let ids: Vec<_> = ls.iter().flat_map(|l| l.words.iter().copied()).collect();
+            assert_eq!(ids.len(), before_ids.len());
+            assert_eq!(ids.into_iter().collect::<std::collections::HashSet<_>>(), before_ids);
+            let before = ls.clone();
+            rejoin_split_preamble_numerals(&mut ls, &cols);
+            assert_eq!(ls, before);
+        }
+    }
+    #[test]
+    fn columns_tables_other_articles_and_reconstructed_text_are_not_reordered() {
+        for case in 0..14 {
+            let (mut cs, mut ls) = fixture(false);
+            match case {
+                0 => ls[0].text = "前の記事の末尾。".into(),
+                1 => {
+                    cs[2].x += 20.;
+                    cs[2].x1 += 20.;
+                }
+                2 => {
+                    cs[2].y += 1.;
+                    cs[2].y1 += 1.;
+                }
+                3 => {
+                    cs[3].text = "2026".into();
+                    ls[4].text = format!("2026{}", cs[2].text);
+                }
+                4 => {
+                    cs[3].y += 8.;
+                    cs[3].y1 += 8.;
+                }
+                5 => {
+                    cs[1].text.push('。');
+                    ls[1].text = cs[1].text.clone();
+                }
+                6 => ls[1].text.push_str(" (1)/(2)"),
+                7 => ls[1].words.push(0),
+                8 => {
+                    ls[2].table = Some(trace::Table {
+                        x0: 60.,
+                        y0: 100.,
+                        x1: 790.,
+                        y1: 116.,
+                        rows: 0,
+                        cols: 0,
+                        cells: vec![],
+                    })
+                }
+                9 => ls[2].text = "〇別省告示第二号".into(),
+                10 => {
+                    cs[4].x1 = 790.;
+                }
+                11 => {
+                    let mut n = cs[3].clone();
+                    n.id = 7;
+                    cs.push(n);
+                }
+                12 => {
+                    cs[2].text = "短い欄名".into();
+                    ls[4].text = format!("28{}", cs[2].text);
+                }
+                13 => {
+                    cs[0].y -= 100.;
+                    cs[0].y1 -= 100.;
+                }
+                _ => unreachable!(),
+            }
+            let before = ls.clone();
+            rejoin_split_preamble_numerals(&mut ls, &cs);
+            assert_eq!(ls, before, "negative {case}");
+        }
+    }
+}
+
+#[cfg(test)]
+#[path = "signer_block_tests.rs"]
+mod signer_block_tests;

@@ -218,6 +218,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 let unit = Unit::Shinkyu {
                     // 欄見出しより上（前の記事の表の続きが上にあるページも）も罫線の表を組んで読む。
                     preamble: {
+                        let pre_geom = pre.clone();
                         // 前文の中の次の記事の標題（「〇厚生労働省告示第…号」）より上（前の記事の表の続き）と下は別に組む（標題が
                         // 表の続きの左右の欄の間に読まれていた）。
                         let marked = pre.iter().filter(|c| crate::segment::is_heading_mark(c.text.trim())).min_by(|a, b| a.y.total_cmp(&b.y));
@@ -244,6 +245,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         let (head, rest): (Vec<Col>, Vec<Col>) = pre.into_iter().partition(|c| c.y < heading - 1.0);
                         let mut lines = horizontal_lines_with_tables(head, &grids, &vrules, &hrules);
                         lines.extend(horizontal_lines_with_tables(rest, &grids, &vrules, &hrules));
+                        crate::horizontal::rejoin_split_preamble_numerals(&mut lines, &pre_geom);
                         lines
                     },
                     after: vec![body(left, &left_grids)],
@@ -434,6 +436,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             crate::fractions::restore_fraction_lines(&mut units, &words, &hrules);
             crate::table_dashes::restore_table_dashes(&mut units, &mut words);
             crate::table_dashes::restore_ruled_table_dashes(&mut units, &mut words, &grids);
+            crate::table_dashes::restore_plain_numeric_dashes(&mut units, &mut words, &vrules);
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
@@ -2013,6 +2016,92 @@ fn retain_inline_native_quotes(
                 continue;
             }
             selected.insert((*akey, atext.clone()));
+            selected.insert((*bkey, btext.clone()));
+        }
+    }
+    // A second quotation may wrap once to the proven prose left margin,
+    // allowing the first line to have a one-em paragraph indent. Both ordinary-font fragments must touch
+    // the surrounding native brackets; the baseline advance must be one line.
+    for (akey, atext, a, an) in &candidates {
+        if !selected.contains(&(*akey, atext.clone()))
+            || !an.starts_with('」')
+            || !an.ends_with('「')
+        {
+            continue;
+        }
+        let em = a[3] - a[1];
+        let anchors: Vec<_> = candidates
+            .iter()
+            .filter(|(k, t, c, cn)| {
+                selected.contains(&(*k, t.clone()))
+                    && japanese(cn) >= 3
+                    && !cn.starts_with('」')
+                    && cn.ends_with('「')
+                    && c[0] < a[0]
+                    && ((c[1] + c[3]) - (a[1] + a[3])).abs() <= em * 0.5
+            })
+            .collect();
+        if anchors.len() != 1 {
+            continue;
+        }
+        let left = anchors[0].2[0];
+        for (bkey, btext, b, bn) in &candidates {
+            if !bn.starts_with('」')
+                || bn.contains('「')
+                || japanese(bn) < 3
+                || ((b[3] - b[1]) - em).abs() > em * 0.2
+            {
+                continue;
+            }
+            let dy = (b[1] + b[3] - a[1] - a[3]) * 0.5;
+            if !(em * 1.0..=em * 1.75).contains(&dy) {
+                continue;
+            }
+            let mut first: Vec<_> = plain
+                .iter()
+                .copied()
+                .filter(|r| {
+                    r.0 >= a[2] - em * 0.25
+                        && ((r.3 - r.1) - em).abs() <= em * 0.2
+                        && ((r.1 + r.3) - (a[1] + a[3])).abs() <= em * 0.5
+                })
+                .collect();
+            first.sort_by(|r, s| r.0.total_cmp(&s.0));
+            let mut second: Vec<_> = plain
+                .iter()
+                .copied()
+                .filter(|r| {
+                    r.0 >= left - em * 1.25
+                        && r.2 <= b[0] + em * 0.25
+                        && ((r.3 - r.1) - em).abs() <= em * 0.2
+                        && ((r.1 + r.3) - (b[1] + b[3])).abs() <= em * 0.5
+                })
+                .collect();
+            second.sort_by(|r, s| r.0.total_cmp(&s.0));
+            let (Some(f), Some(l), Some(sf), Some(sl)) =
+                (first.first(), first.last(), second.first(), second.last())
+            else {
+                continue;
+            };
+            if (f.0 - a[2]).abs() > em * 0.25
+                || sf.0 > left + em * 0.25
+                || sf.0 < left - em * 1.25
+                || (sl.2 - b[0]).abs() > em * 0.25
+                || l.2 - f.0 < em * 3.
+                || sl.2 - sf.0 < em * 3.
+                || first
+                    .windows(2)
+                    .chain(second.windows(2))
+                    .any(|p| p[1].0 - p[0].2 > em * 0.5)
+                || first
+                    .iter()
+                    .chain(&second)
+                    .map(|r| japanese(&r.4))
+                    .sum::<usize>()
+                    < 3
+            {
+                continue;
+            }
             selected.insert((*bkey, btext.clone()));
         }
     }
@@ -5573,3 +5662,7 @@ mod low_line_url_tests {
 #[cfg(test)]
 #[path = "mixed_native_bbox_tests.rs"]
 mod mixed_native_bbox_tests;
+
+#[cfg(test)]
+#[path = "wrapped_native_quote_tests.rs"]
+mod wrapped_native_quote_tests;
