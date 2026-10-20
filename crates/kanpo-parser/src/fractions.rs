@@ -22,6 +22,13 @@ pub(crate) fn restore_fraction_lines(
         restore_cell_fractions(lines, &by_id, hrules);
         let mut i = 0;
         while i + 2 < lines.len() {
+            if i + 3 < lines.len() {
+                if let Some(line) = wrapped_fraction_line(&lines[i..i + 4], &by_id, hrules) {
+                    lines.splice(i..i + 4, [line]);
+                    i += 1;
+                    continue;
+                }
+            }
             if let Some(line) = fraction_line(&lines[i..i + 3], &by_id, hrules) {
                 lines.splice(i..i + 3, [line]);
             }
@@ -43,6 +50,12 @@ fn restore_cell_fractions(lines: &mut [Line], by_id: &HashMap<usize, &Word>, hru
             let Some(rows) = cell_word_lines(&cell.words, by_id) else { continue };
             for group in rows.windows(3) {
                 if let Some(formula) = fraction_line(group, by_id, hrules) {
+                    let original: String = group.iter().flat_map(|l| l.text.chars()).filter(|c| !c.is_whitespace()).collect();
+                    changed |= replace_unique_compact(&mut cell.text, &original, &formula.text);
+                }
+            }
+            for group in rows.windows(4) {
+                if let Some(formula) = wrapped_fraction_line(group, by_id, hrules) {
                     let original: String = group.iter().flat_map(|l| l.text.chars()).filter(|c| !c.is_whitespace()).collect();
                     changed |= replace_unique_compact(&mut cell.text, &original, &formula.text);
                 }
@@ -268,6 +281,63 @@ fn fraction_line(
         .then(|| Line::text(text, ids))
 }
 
+/// 前行の末尾の×に続く分数だけが次行の左端へ折り返した算式。
+/// 幾何検査用の仮の×を行頭に置いて既存のfraction_lineを通し、検査後に仮語を除く。
+/// 仮語のIDと文字は返さず、元の4行の全IDを1回ずつ保つ。
+fn wrapped_fraction_line(
+    lines: &[Line], by_id: &HashMap<usize, &Word>, hrules: &[(f32,f32,f32)],
+) -> Option<Line> {
+    if lines.len()!=4 || lines.iter().any(|l| l.table.is_some() || l.words.is_empty())
+        || !lines[0].text.trim_end().ends_with('×') { return None; }
+    let rows: Vec<Vec<&Word>>=lines.iter().map(|l| l.words.iter()
+        .map(|id|by_id.get(id).copied()).collect::<Option<Vec<_>>>()).collect::<Option<_>>()?;
+    let mut heights: Vec<f32>=rows[2].iter().map(|w|w.y1-w.y0).collect();
+    heights.sort_by(f32::total_cmp);
+    let em=heights[heights.len()/2];
+    if !(3.0..=20.0).contains(&em) { return None; }
+    let cy=|w:&&Word|(w.y0+w.y1)/2.0;
+    let center=|r:&[&Word]|r.iter().map(cy).sum::<f32>()/r.len() as f32;
+    let (prev, body)=(&rows[0],&rows[2]);
+    if !(em*1.0..=em*2.2).contains(&(center(body)-center(prev)))
+        || prev.iter().any(|w| (cy(w)-center(prev)).abs()>em*0.2
+            || !(em*0.8..=em*1.2).contains(&(w.y1-w.y0))) { return None; }
+    let nums=number_groups(&rows[1],em)?;
+    let dens=number_groups(&rows[3],em)?;
+    if nums.is_empty() || nums.len()!=dens.len() { return None; }
+    let (num,den)=(&nums[0],&dens[0]);
+    let (left,right)=(num.x0.min(den.x0),num.x1.max(den.x1));
+    let prev_left=prev.iter().map(|w|w.x0).fold(f32::INFINITY,f32::min);
+    let prev_right=prev.iter().map(|w|w.x1).fold(f32::NEG_INFINITY,f32::max);
+    // 折返し元は十分長い1行で、分数は同じ書出し位置へ戻る。
+    // 次行の同じ分数の前に×が既にあれば既存の3行処理へ任せる。
+    if (left-prev_left).abs()>em*1.5 || prev_right-prev_left<em*12.0
+        || body.iter().any(|w|w.x0<right-em*0.2) { return None; }
+    let num_bottom=num.words.iter().map(|w|w.y1).fold(f32::NEG_INFINITY,f32::max);
+    let den_top=den.words.iter().map(|w|w.y0).fold(f32::INFINITY,f32::min);
+    // 折返した最初の分数自身に実短線が必要。別の兄弟分数の線だけでは復元しない。
+    if !hrules.iter().any(|&(y,x0,x1)|y>=num_bottom-0.5 && y<=den_top+0.5
+        && (y-center(body)).abs()<=em*0.3 && x0<=left+0.5 && x1>=right-0.5
+        && x1-x0<=right-left+em*1.5) { return None; }
+    let virtual_id=usize::MAX;
+    if by_id.contains_key(&virtual_id) { return None; }
+    let virtual_word=Word {id:virtual_id,x0:left-em,x1:left-em*0.25,
+        y0:center(body)-em/2.0,y1:center(body)+em/2.0,
+        raw:"×".into(),text:"×".into(),status:crate::trace::WordStatus::Used};
+    let mut virtual_words: HashMap<usize,&Word>=by_id.iter().map(|(id,w)|(*id,*w)).collect();
+    virtual_words.insert(virtual_id,&virtual_word);
+    let mut group=lines[1..].to_vec();
+    group[1].text.insert(0,'×');
+    group[1].words.push(virtual_id);
+    let formula=fraction_line(&group,&virtual_words,hrules)?;
+    let text=format!("{}{}",lines[0].text,formula.text.strip_prefix('×')?);
+    let ids: Vec<usize>=lines[0].words.iter().copied().chain(formula.words.into_iter()
+        .filter(|id|*id!=virtual_id)).collect();
+    let original: HashSet<usize>=lines.iter().flat_map(|l|l.words.iter().copied()).collect();
+    (original.len()==lines.iter().map(|l|l.words.len()).sum::<usize>()
+        && ids.len()==original.len() && ids.iter().copied().collect::<HashSet<_>>()==original)
+        .then(||Line::text(text,ids))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -403,5 +473,69 @@ mod tests {
         lines[2].words.push(0);
         restore_fraction_lines(&mut units, &words, &[(168.821, 589.0, 605.0)]);
         assert_eq!(plain(&units).len(), 3);
+    }
+    fn wrapped_sample() -> (Vec<Unit>,Vec<Word>) {
+        let words=vec![
+            word(0,165.0,420.994,81.86,"額面金額＋経過利子に相当する金額−（初期利子に相当する金額×"),
+            word(1,167.0,189.0,89.86,"79.685"),
+            word(2,305.0,327.0,89.864,"79.685"),
+            word(3,191.0,303.0,95.36,"＋第２期利子に相当する金額×"),
+            word(4,329.0,337.0,95.36,"）"),
+            word(5,172.0,184.0,100.86,"100"),
+            word(6,310.0,322.0,100.864,"100"),
+        ];
+        let lines=vec![Line::text(words[0].text.clone(),vec![0]),
+            Line::text("79.685　79.685".into(),vec![1,2]),
+            Line::text("＋第２期利子に相当する金額×）".into(),vec![3,4]),
+            Line::text("100　100".into(),vec![5,6])];
+        (vec![Unit::Plain(lines)],words)
+    }
+
+    #[test]
+    fn restores_a_fraction_wrapped_after_a_long_line_ending_in_multiplication() {
+        let (mut units,words)=wrapped_sample();
+        restore_fraction_lines(&mut units,&words,&[(98.5,165.0,191.0),(98.5,303.0,329.0)]);
+        let l=&plain(&units)[0];
+        assert_eq!(plain(&units).len(),1);
+        assert_eq!(l.text,"額面金額＋経過利子に相当する金額−（初期利子に相当する金額×(79.685/100)＋第２期利子に相当する金額×(79.685/100)）");
+        let mut ids=l.words.clone();ids.sort_unstable();assert_eq!(ids,(0..7).collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn wrapped_fraction_requires_its_own_bar_and_a_matching_long_previous_line() {
+        let (mut units,words)=wrapped_sample();
+        restore_fraction_lines(&mut units,&words,&[(98.5,303.0,329.0)]);
+        assert_eq!(plain(&units).len(),4);
+        for mode in 0..3 {
+            let (mut units,mut words)=wrapped_sample();
+            let Unit::Plain(lines)=&mut units[0] else {unreachable!()};
+            match mode {
+                0=>{words[0].text="行末の説明。".into();lines[0].text=words[0].text.clone();}
+                1=>words[0].x0=200.0,
+                _=>words[0].x1=190.0,
+            }
+            restore_fraction_lines(&mut units,&words,&[(98.5,165.0,191.0),(98.5,303.0,329.0)]);
+            assert_eq!(plain(&units).len(),4);
+        }
+    }
+
+    #[test]
+    fn wrapped_cell_fraction_replaces_only_a_unique_contiguous_span() {
+        let (units,words)=wrapped_sample();
+        let original=plain(&units).iter().map(|l|l.text.as_str()).collect::<Vec<_>>().join("　");
+        let expected="額面金額＋経過利子に相当する金額−（初期利子に相当する金額×(79.685/100)＋第２期利子に相当する金額×(79.685/100)）";
+        for duplicate in [false,true] {
+            let text=if duplicate {format!("{original}。{original}")} else {format!("前の文章。\n{original}\n後の文章。")};
+            let table=crate::trace::Table {x0:150.0,x1:430.0,y0:70.0,y1:120.0,rows:1,cols:1,
+                cells:vec![crate::trace::TableCell {row:0,col:0,rowspan:1,colspan:1,
+                    x0:150.0,x1:430.0,y0:70.0,y1:120.0,text:text.clone(),words:(0..7).collect()}]};
+            let mut units=vec![Unit::Plain(vec![Line {text:table.render(),words:Vec::new(),table:Some(table)}])];
+            restore_fraction_lines(&mut units,&words,&[(98.5,165.0,191.0),(98.5,303.0,329.0)]);
+            let line=&plain(&units)[0];let table=line.table.as_ref().unwrap();
+            assert_eq!(table.cells[0].words,(0..7).collect::<Vec<_>>());
+            assert_eq!(line.text,table.render());
+            if duplicate {assert_eq!(table.cells[0].text,text);}
+            else {assert_eq!(table.cells[0].text,format!("前の文章。\n{expected}\n後の文章。"));}
+        }
     }
 }

@@ -1450,7 +1450,32 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
                 .collect();
             above.len() >= 3 && above.iter().any(|w| (w.x - k.x).abs() <= em * 2.0)
         };
-        let Some(mut cluster) = clusters.into_iter().find(|c| (c.len() >= 3 || (c.len() == 2 && kanji_code(c[0].text.trim()) && !c[0].text.trim().starts_with('第') && headed(c))) && leads_rows(c)) else {
+        // Two records are enough when three independent header columns are
+        // present. A few words belonging to one heading are not three columns.
+        let header_columns = |c: &Vec<Col>| {
+            let k = &c[0];
+            let em = (k.y1 - k.y).max(1.0);
+            let mut spans: Vec<(f32, f32)> = words.iter()
+                .filter(|w| w.y1 <= k.y + 0.5 && w.y1 >= k.y - em * 2.0 && w.x >= k.x - em * 2.0
+                    && !w.text.chars().any(|ch| ch.is_ascii_digit() || ('０'..='９').contains(&ch)))
+                .map(|w| (w.x, w.x1)).collect();
+            spans.sort_by(|a,b| a.0.total_cmp(&b.0));
+            let mut end = f32::NEG_INFINITY;
+            let mut columns = 0;
+            for (x,x1) in spans {
+                if x - end >= em { columns += 1; }
+                end = end.max(x1);
+            }
+            columns
+        };
+        let consistent_pair = |c: &Vec<Col>| {
+            let digit = |ch: char| ch.is_ascii_digit() || ('０'..='９').contains(&ch);
+            let shape = |t: &str| t.chars().map(|ch| if digit(ch) { '#' } else { ch }).collect::<String>();
+            c.iter().all(|k| k.text.chars().filter(|&ch| digit(ch)).count() >= 3)
+                && shape(&c[0].text) == shape(&c[1].text)
+        };
+        let Some(mut cluster) = clusters.into_iter().find(|c| (c.len() >= 3 || (c.len() == 2 && headed(c)
+            && ((kanji_code(c[0].text.trim()) && !c[0].text.trim().starts_with('第')) || (header_columns(c) >= 3 && consistent_pair(c))))) && leads_rows(c)) else {
             break;
         };
         // 数字を含まない記号（信号符字「ＪＩＪＴ」「ＪＫＲＮ」）も、番号の列に左端が揃えば行の見出し。
@@ -1583,7 +1608,8 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
             }
         }
         // 欄が 1 つ（記号が縦に並ぶだけ。表の途中の型式の欄など）なら表にしない。
-        if columns.len() < 2 {
+        let geometric_two = cluster.len() == 2 && !(kanji_code(cluster[0].text.trim()) && !cluster[0].text.trim().starts_with('第'));
+        if columns.len() < 2 || (geometric_two && (columns.len() < 3 || header_columns(&cluster) != columns.len())) {
             rejected.extend(cluster.iter().map(|k| k.id));
             continue;
         }
@@ -1625,7 +1651,13 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
         // ある欄が 2 つ以上のときだけ見出しの行にする。
         let fits = |w: &Col| {
             columns.iter().rposition(|&c| c <= w.x + em * 0.5).is_some_and(|i| {
-                w.x >= left - em && w.x1 <= columns.get(i + 1).map_or(right + 2.0, |&c| c + em * 0.5)
+                let regular = w.x1 <= columns.get(i + 1).map_or(right + 2.0, |&c| c + em * 0.5);
+                // A centered last-column heading may be wider than every body
+                // value. Its center must remain inside that column, and no fence
+                // may be crossed.
+                let overhang = geometric_two && i + 1 == columns.len() && x_center(w) <= right && w.x1 <= right + em * 4.0
+                    && fence.is_none_or(|f| w.x1 <= f + 0.5);
+                w.x >= left - em && (regular || overhang)
             })
         };
         // 字の小さい語（日付の欄の上の「令和」）は見出しではない。
@@ -1662,7 +1694,15 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
             head.clear();
             head_top = cluster[0].y;
         }
+        let right = if geometric_two { head.iter().map(|w| w.x1).fold(right, f32::max) } else { right };
         let head_ids: std::collections::HashSet<usize> = head.iter().map(|w| w.id).collect();
+        if geometric_two && words.iter().any(|w| {
+            (head_ids.contains(&w.id) || (in_x(w) && w.y >= top && w.y1 <= bottom + 0.5))
+                && (w.text.contains('。') || crate::segment::is_heading_mark(w.text.trim()))
+        }) {
+            rejected.extend(cluster.iter().map(|k| k.id));
+            continue;
+        }
         let off = usize::from(!head.is_empty());
         let (mine, others): (Vec<Col>, Vec<Col>) =
             words.into_iter().partition(|w| head_ids.contains(&w.id) || (in_x(w) && w.y >= top && w.y1 <= bottom + 0.5));
@@ -2935,12 +2975,12 @@ fn join_wrapped_labels(lines: Vec<Line>) -> Vec<Line> {
                     && l.words.iter().all(|w| w.x1 <= limit)
                     && l.y0 - p.y1 < em * 0.2
                     && hw.text.chars().count() >= 3
-                    // 数は 6 字以上の科目の 1 字まで（「１年以内回収予定長期貸」。住所「…２－10－14」・型式の記号は科目ではない）。
+                    // 数は長い科目の 1 字まで。5 字なら全幅を使った未完の科目に限る（「１年以内償／還予定機構債」）。
                     && match hw.text.chars().filter(|&c| digit(c)).count() {
                         0 => true,
                         // 金額のある行だけ（金額の無い住所の行「…二丁目２番地」の下の会社名をつながない）。
                         1 => {
-                            hw.text.chars().count() >= 6
+                            (hw.text.chars().count() >= 6 || (hw.text.chars().count() == 5 && unfinished && hw.x1 - hw.x >= em * 4.5))
                                 && p.words.len() > after
                                 && p.words[after..].iter().all(|w| w.text.trim().chars().all(|c| c.is_ascii_digit() || ",.△▲()（）".contains(c)))
                         }
@@ -3516,9 +3556,24 @@ fn divider_end_cut(words: &[Col], blocks: &[Block], vrules: &[(f32, f32, f32)]) 
             // 線をまたぐ語は線を中ほどにした標題（線の左右とも 40pt 以上に掛かり、中ほどが線から領域の幅の 1 割以内）。
             // 片側の段の右端まで組んだ注記・囲みの行は線をわずかにまたぐだけ。
             let title = |w: &&&Col| w.x < x - 40.0 && w.x1 > x + 40.0 && (x_center(w) - x).abs() <= (wx1 - wx0) * 0.1;
-            let titles: Vec<&&Col> = below.iter().filter(title).collect();
-            let ttop = titles.iter().map(|w| w.y).fold(f32::INFINITY, f32::min);
-            let (tx0, tx1) = (titles.iter().map(|w| w.x).fold(f32::INFINITY, f32::min), titles.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max));
+            let mut titles: Vec<(f32, f32, f32)> = below.iter().filter(title).map(|w| (w.x, w.x1, w.y)).collect();
+            // 字間を空けて一字ずつ置いた短い標題も、同じ行の範囲で判定する。段の本文を結ばないよう、
+            // すべて一字語で5字以上、字間は3em以内、線を中央にして左右40pt以上に掛かる行だけ。
+            let below_words: Vec<Col> = below.iter().map(|w| (*w).clone()).collect();
+            for line in group_lines(&below_words) {
+                if line.words.len() < 5 || !line.words.iter().all(|w| w.text.trim().chars().count() == 1) {
+                    continue;
+                }
+                let (first, last) = (line.words.first().unwrap(), line.words.last().unwrap());
+                if first.x < x - 40.0 && last.x1 > x + 40.0
+                    && ((first.x + last.x1) / 2.0 - x).abs() <= (wx1 - wx0) * 0.1
+                    && line.words.windows(2).all(|pair| pair[1].x - pair[0].x1 <= em * 3.0)
+                {
+                    titles.push((first.x, last.x1, line.y0));
+                }
+            }
+            let ttop = titles.iter().map(|t| t.2).fold(f32::INFINITY, f32::min);
+            let (tx0, tx1) = (titles.iter().map(|t| t.0).fold(f32::INFINITY, f32::min), titles.iter().map(|t| t.1).fold(f32::NEG_INFINITY, f32::max));
             // 線の下端から標題までの語（字間を空けた標題の字「純　資　産…」）も標題の左右の範囲にある（左右の段が線の下へ
             // 続くなら段の境ではない）。
             // 標題の行の語も（右寄せの「（単位：千円）」は除く）。
@@ -3795,14 +3850,65 @@ fn item_numbers(left: &[Col], right: &[Col]) -> bool {
 /// 溝のすぐ右の列が「〃」（上の行と同じの印）だけで、どれも左の欄の語と同じ高さに並ぶか（表の欄）。
 fn repeat_marks(left: &[Col], right: &[Col]) -> bool {
     let edge = right.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
-    let column: Vec<&Col> = right.iter().filter(|w| w.x - edge < (w.y1 - w.y).max(1.0) * 3.0).collect();
-    column.len() >= 3
+    let column: Vec<&Col> = right
+        .iter()
+        .filter(|w| w.x - edge < (w.y1 - w.y).max(1.0) * 3.0)
+        .collect();
+    let pure = column.len() >= 3
         && column.iter().all(|n| {
             let em = (n.y1 - n.y).max(1.0);
             !n.text.trim().is_empty()
                 && n.text.trim().chars().all(|c| c == '〃' || c == '\u{3000}')
-                && left.iter().any(|w| (y_center(w) - y_center(n)).abs() <= ALIGN_TOL && w.x1 <= n.x && n.x - w.x1 < em * 12.0)
+                && left.iter().any(|w| {
+                    (y_center(w) - y_center(n)).abs() <= ALIGN_TOL
+                        && w.x1 <= n.x
+                        && n.x - w.x1 < em * 12.0
+                })
+        });
+    if pure {
+        return true;
+    }
+    // When both columns repeat the same values, the initial actual value and
+    // header are allowed above the aligned run of ditto marks. The other column
+    // may be wide, so match the repeated rows rather than its text width.
+    let mark = |w: &Col| {
+        !w.text.trim().is_empty() && w.text.trim().chars().all(|c| c == '〃' || c == '\u{3000}')
+    };
+    let marks: Vec<&&Col> = column.iter().filter(|w| mark(w)).collect();
+    let Some(first) = marks.iter().min_by(|a, b| a.y.total_cmp(&b.y)) else {
+        return false;
+    };
+    let em = (first.y1 - first.y).max(1.0);
+    if marks.len() < 3
+        || column.iter().filter(|w| !mark(w)).count() > 2
+        || column.iter().any(|w| !mark(w) && w.y1 > first.y + 0.5)
+        || marks.iter().any(|w| (w.x - first.x).abs() > em * 0.5)
+    {
+        return false;
+    }
+    let partner = left
+        .iter()
+        .filter(|w| mark(w) && (y_center(w) - y_center(first)).abs() <= ALIGN_TOL)
+        .max_by(|a, b| a.x1.total_cmp(&b.x1));
+    let Some(partner) = partner else { return false };
+    if left
+        .iter()
+        .filter(|w| !mark(w) && (w.x - partner.x).abs() <= em * 0.5 && w.y < first.y)
+        .count()
+        > 2
+    {
+        return false;
+    }
+    marks.iter().all(|n| {
+        left.iter().any(|w| {
+            mark(w)
+                && (w.x - partner.x).abs() <= em * 0.5
+                && (y_center(w) - y_center(n)).abs() <= ALIGN_TOL
+                && ((w.y1 - w.y) - em).abs() <= em * 0.2
+                && w.x1 <= n.x
+                && n.x - w.x1 < em * 32.0
         })
+    })
 }
 
 /// 溝が欧文の語間か。両端揃えの欧文の段落では、語間がたまたま行をまたいで縦に揃い、列の溝に
@@ -3985,7 +4091,38 @@ fn is_column_split(left: &[Col], right: &[Col], boxed: bool) -> bool {
         return !labels && !label_leading && !(aligned as f32 >= few.len() as f32 * 0.75 && (amounts(&rl) || amounts(&ll)));
     }
     let label_amounts = label_amounts || label_leading;
+    // 3 欄以上の表で狭い欄に複数行の折返しがあると、物理行の一致率だけでは本文の段に見える。
+    // 共通行頭と反対側のセル境界が 2 行以上で揃い、同じ左端の密接な折返しだけなら分割しない。
+    let wrapped = |folded: &[Line], other: &[Line], width: f32| {
+        if width >= MIN_TEXT_COLUMN_WIDTH { return false; }
+        let start = |l: &Line| l.words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
+        let end = |l: &Line| l.words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
+        let matched: Vec<bool> = folded.iter().map(|a| other.iter().any(|b| (a.center() - b.center()).abs() <= ALIGN_TOL)).collect();
+        if matched.iter().filter(|&&m| m).count() < 2 { return false; }
+        let first = matched.iter().position(|&m| m).unwrap();
+        let edge = folded.iter().map(end).fold(f32::NEG_INFINITY, f32::max);
+        let mut covered = matched.clone();
+        for i in first + 1..folded.len() {
+            let (prev, line) = (&folded[i - 1], &folded[i]);
+            let em = (line.y1 - line.y0).max(1.0);
+            if !matched[i] && covered[i - 1] && line.y0 - prev.y1 <= em * 0.5
+                && (start(line) - start(prev)).abs() <= em * 0.5 && edge - end(prev) <= em
+            {
+                covered[i] = true;
+            }
+        }
+        let cells: Vec<f32> = other.iter().filter(|b| folded.iter().any(|a| (a.center() - b.center()).abs() <= ALIGN_TOL))
+            .filter_map(|l| l.words.windows(2).rev().find(|w| w[1].x - w[0].x1 >= (l.y1 - l.y0).max(1.0) * 0.75).map(|w| w[1].x)).collect();
+        // 折返し側にも同じセル境界が複数行で現れるなら、一つの折返し欄ではなく複数欄の組。
+        // その組の一部だけを結ぶと、上の結合見出しや下の備考の順を壊すためここでは扱わない。
+        let folded_cells: Vec<f32> = folded.iter().filter(|l| other.iter().any(|b| (l.center() - b.center()).abs() <= ALIGN_TOL))
+            .filter_map(|l| l.words.windows(2).rev().find(|w| w[1].x - w[0].x1 >= (l.y1 - l.y0).max(1.0) * 0.75).map(|w| w[1].x)).collect();
+        let multiple_columns = folded_cells.iter().any(|&x| folded_cells.iter().filter(|&&y| (x - y).abs() < 3.0).count() >= 2);
+        covered.iter().all(|&m| m) && !multiple_columns && cells.len() >= 2 && cells.iter().all(|&x| (x - cells[0]).abs() < 3.0)
+    };
+    let wrapped_rows = wrapped(&ll, &rl, wl) || wrapped(&rl, &ll, wr);
     let table_like = (aligned as f32 >= few.len() as f32 * 0.75 && (wl.min(wr) < MIN_TEXT_COLUMN_WIDTH || amounts(&rl) || (paired.len() >= 5 && amounts(&paired))))
+        || wrapped_rows
         || label_amounts
         || labels
         || amount_column;
@@ -4047,25 +4184,76 @@ fn amount_line(l: &Line) -> bool {
 /// 切らず、切った側の列組みの判定にも入れる。
 fn band_cut(lines: &[Line], blocks: &[Block]) -> Option<f32> {
     // 行と表を上端の順に並べ、そのどちらも跨がない行間で切る。
-    let mut items: Vec<(f32, f32, Option<&Line>)> =
-        lines.iter().map(|l| (l.y0, l.y1, Some(l))).chain(blocks.iter().map(|b| (b.1, b.3, None))).collect();
+    let mut items: Vec<(f32, f32, Option<&Line>)> = lines
+        .iter()
+        .map(|l| (l.y0, l.y1, Some(l)))
+        .chain(blocks.iter().map(|b| (b.1, b.3, None)))
+        .collect();
     items.sort_by(|a, b| a.0.total_cmp(&b.0));
     // 数が 5 つ以上並ぶ行（月ごとの欄の並ぶ広い統計の表の行）どうしの間では切らない（財政資金対民間収支実績表で、字の層に
     // 無い「—」の欄の空きが溝に見え、表の上の数行だけが列組みとして切り出されていた）。
     let numbers = |l: &Line| {
         let mut n = 0;
         for (i, w) in l.words.iter().enumerate() {
-            if w.text.chars().any(|c| c.is_ascii_digit()) && !(i > 0 && number_continues(&l.words[i - 1], w)) {
+            if w.text.chars().any(|c| c.is_ascii_digit())
+                && !(i > 0 && number_continues(&l.words[i - 1], w))
+            {
                 n += 1;
             }
         }
         n
     };
     let figures = |it: &(f32, f32, Option<&Line>)| it.2.is_some_and(|l| numbers(l) >= 5);
+    // Guard only single-line initial values followed by stable repeated columns.
+    // Wrapped headers/values need cell grouping rather than this row heuristic.
+    let mark = |w: &Col| w.text.trim() == "〃";
+    let simple_run = |n: &Col, wide: bool| {
+        let em = (n.y1 - n.y).max(1.0);
+        let same_column =
+            |w: &&Col| (w.x - n.x).abs() <= em * 0.5 && ((w.y1 - w.y) - em).abs() <= em * 0.2;
+        let column: Vec<&Col> = lines
+            .iter()
+            .flat_map(|l| &l.words)
+            .filter(same_column)
+            .collect();
+        let repeated: Vec<&&Col> = column.iter().filter(|w| mark(w)).collect();
+        let Some(first) = repeated.iter().min_by(|a, b| a.y.total_cmp(&b.y)) else {
+            return false;
+        };
+        repeated.len() >= 3
+            && column.iter().filter(|w| !mark(w)).count() <= 2
+            && column.iter().all(|w| mark(w) || w.y1 <= first.y + 0.5)
+            && (!wide
+                || column
+                    .iter()
+                    .any(|w| !mark(w) && w.x1 - w.x >= em * 12.0 && first.y - w.y1 <= em * 0.5))
+    };
+    let repeated_rows = |a: &(f32, f32, Option<&Line>), b: &(f32, f32, Option<&Line>)| {
+        let (Some(a), Some(b)) = (a.2, b.2) else {
+            return false;
+        };
+        let paired: Vec<&Col> = b
+            .words
+            .iter()
+            .filter(|n| {
+                mark(n)
+                    && simple_run(n, false)
+                    && a.words.iter().any(|w| {
+                        (w.x - n.x).abs() <= (n.y1 - n.y).max(1.0) * 0.5
+                            && ((w.y1 - w.y) - (n.y1 - n.y)).abs() <= (n.y1 - n.y).max(1.0) * 0.2
+                    })
+            })
+            .collect();
+        paired.len() >= 2 && paired.iter().any(|n| simple_run(n, true))
+    };
     let mut best: Option<(usize, f32)> = None;
     let mut bottom_edge = f32::NEG_INFINITY;
     for (i, &(y0, y1, _)) in items.iter().enumerate() {
-        if i > 0 && y0 > bottom_edge && !(figures(&items[i - 1]) && figures(&items[i])) {
+        if i > 0
+            && y0 > bottom_edge
+            && !(figures(&items[i - 1]) && figures(&items[i]))
+            && !repeated_rows(&items[i - 1], &items[i])
+        {
             let cut = (bottom_edge + y0) / 2.0;
             let (top, bottom) = items.split_at(i);
             let score = [top, bottom]
@@ -4076,10 +4264,19 @@ fn band_cut(lines: &[Line], blocks: &[Block]) -> Option<f32> {
                     if part_lines.len() < 2 {
                         return None;
                     }
-                    let ws: Vec<Col> = part_lines.iter().flat_map(|l| l.words.iter().cloned()).collect();
-                    let bs: Vec<Block> = blocks.iter().filter(|b| ((b.1 + b.3) / 2.0 < cut) == (k == 0)).copied().collect();
+                    let ws: Vec<Col> = part_lines
+                        .iter()
+                        .flat_map(|l| l.words.iter().cloned())
+                        .collect();
+                    let bs: Vec<Block> = blocks
+                        .iter()
+                        .filter(|b| ((b.1 + b.3) / 2.0 < cut) == (k == 0))
+                        .copied()
+                        .collect();
                     // 項目名｜内容の表になる側（上に告示の前文がある国債の発行条件）も。
-                    column_cut(&ws, &bs).or_else(|| label_cut(&ws)).map(|_| ws.len())
+                    column_cut(&ws, &bs)
+                        .or_else(|| label_cut(&ws))
+                        .map(|_| ws.len())
                 })
                 .max();
             if let Some(score) = score {
@@ -4808,4 +5005,250 @@ fn statistics_lines(words: &[Col]) -> Vec<Line> {
         }
     }
     lines.into_iter().map(|(_,mut l)| {l.words.sort_by(|a,b|a.x.total_cmp(&b.x));l}).collect()
+}
+
+#[cfg(test)]
+mod headed_pair_tests {
+    use super::*;
+    fn word(id: usize, x: f32, y: f32, width: f32, text: &str) -> Col {
+        Col {
+            id,
+            x,
+            x1: x + width,
+            y,
+            y1: y + 8.0,
+            text: text.into(),
+        }
+    }
+    fn body() -> Vec<Col> {
+        vec![
+            word(10, 0.0, 20.0, 48.0, "第6001号"),
+            word(11, 80.0, 20.0, 48.0, "試験内容Ａ"),
+            word(12, 160.0, 20.0, 24.0, "受付済"),
+            word(20, 0.0, 40.0, 48.0, "第6002号"),
+            word(21, 80.0, 40.0, 48.0, "試験内容Ｂ"),
+            word(22, 160.0, 40.0, 24.0, "受付済"),
+        ]
+    }
+    fn headed() -> Vec<Col> {
+        let mut v = body();
+        v.extend([
+            word(0, 0.0, 0.0, 32.0, "登録番号"),
+            word(1, 80.0, 0.0, 32.0, "物件名称"),
+            word(2, 160.0, 0.0, 40.0, "受付の状態"),
+        ]);
+        v
+    }
+    #[test]
+    fn two_rows_preserve_wide_last_header_and_each_cell() {
+        let mut v = headed();
+        v.push(word(30, 0.0, -24.0, 64.0, "上段の日付署名"));
+        let (ts, rest) = keyed_tables(v, &[]);
+        assert_eq!(ts.len(), 1);
+        let t = &ts[0];
+        assert_eq!((t.rows, t.cols), (3, 3));
+        assert_eq!(
+            t.cells
+                .iter()
+                .find(|c| c.row == 0 && c.col == 2)
+                .unwrap()
+                .text,
+            "受付の状態"
+        );
+        assert_eq!(
+            t.cells
+                .iter()
+                .find(|c| c.row == 2 && c.col == 1)
+                .unwrap()
+                .text,
+            "試験内容Ｂ"
+        );
+        let mut ids: Vec<usize> = t
+            .cells
+            .iter()
+            .flat_map(|c| c.words.iter().copied())
+            .collect();
+        ids.sort();
+        assert_eq!(ids, vec![0, 1, 2, 10, 11, 12, 20, 21, 22]);
+        assert_eq!(rest.iter().map(|c| c.id).collect::<Vec<_>>(), vec![30]);
+    }
+    #[test]
+    fn two_records_without_headers_are_not_a_table() {
+        assert!(keyed_tables(body(), &[]).0.is_empty());
+    }
+    #[test]
+    fn three_words_in_one_heading_are_not_three_columns() {
+        let mut v = body();
+        v.extend([
+            word(0, 0.0, 0.0, 16.0, "登録"),
+            word(1, 16.0, 0.0, 16.0, "番号"),
+            word(2, 32.0, 0.0, 16.0, "一覧"),
+        ]);
+        assert!(keyed_tables(v, &[]).0.is_empty());
+    }
+    #[test]
+    fn three_headers_with_only_two_repeated_body_columns_are_rejected() {
+        let v: Vec<Col> = headed()
+            .into_iter()
+            .filter(|c| c.id != 12 && c.id != 22)
+            .collect();
+        assert!(keyed_tables(v, &[]).0.is_empty());
+    }
+    #[test]
+    fn a_header_may_not_overhang_a_real_fence() {
+        let (ts, rest) = keyed_tables(headed(), &[(192.0, -10.0, 60.0)]);
+        assert!(!ts
+            .iter()
+            .flat_map(|t| &t.cells)
+            .flat_map(|c| &c.words)
+            .any(|&id| id == 2));
+        assert!(rest.iter().any(|c| c.id == 2));
+    }
+    #[test]
+    fn a_word_whose_center_is_outside_the_body_column_is_not_a_header() {
+        let mut v = headed();
+        v.retain(|c| c.id != 2);
+        v.push(word(2, 184.0, 0.0, 48.0, "隣の記事の文"));
+        let (ts, rest) = keyed_tables(v, &[]);
+        assert!(!ts
+            .iter()
+            .flat_map(|t| &t.cells)
+            .flat_map(|c| &c.words)
+            .any(|&id| id == 2));
+        assert!(rest.iter().any(|c| c.id == 2));
+    }
+}
+
+#[cfg(test)]
+mod wrapped_column_tests {
+    use super::*;
+    #[test]
+    fn wrapped_column_geometry() {
+        let make = || {
+            let mut cols = Vec::new();
+            let mut put = |x: f32, x1: f32, y: f32, text: &str| {
+                cols.push(Col {
+                    id: cols.len(),
+                    x,
+                    x1,
+                    y,
+                    y1: y + 8.0,
+                    text: text.into(),
+                });
+            };
+            for y in [0.0, 20.0, 48.0] {
+                put(0.0, 56.0, y, "First field");
+                put(80.0, 220.0, y, "Second long field");
+            }
+            put(0.0, 8.0, 8.0, "a");
+            put(0.0, 8.0, 56.0, "b");
+            put(240.0, 296.0, 0.0, "Third field");
+            put(240.0, 352.0, 20.0, "Third field full width");
+            put(240.0, 352.0, 28.0, "Wrapped full width line");
+            put(240.0, 272.0, 36.0, "Last wrap");
+            put(240.0, 296.0, 48.0, "Third field");
+            cols
+        };
+        let split = |cols: Vec<Col>, boxed| {
+            let (left, right): (Vec<_>, Vec<_>) = cols.into_iter().partition(|c| c.x < 230.0);
+            is_column_split(&left, &right, boxed)
+        };
+        assert!(!split(make(), false), "positive: 3 columns with 3 records");
+        assert!(
+            !split(make().into_iter().filter(|c| c.y < 48.0).collect(), false),
+            "positive: recursive prefix with 2 records"
+        );
+        let mut short = make();
+        for c in &mut short {
+            if c.x == 240.0 && c.y == 20.0 {
+                c.x1 = 280.0;
+            }
+        }
+        assert!(split(short, false), "short preceding line is not a wrap");
+        let no_cells: Vec<_> = make()
+            .into_iter()
+            .filter(|c| c.x != 80.0)
+            .map(|mut c| {
+                if c.x == 0.0 && c.x1 > 8.0 {
+                    c.x1 = 220.0;
+                }
+                c
+            })
+            .collect();
+        assert!(
+            split(no_cells, false),
+            "independent prose has no opposite cell boundary"
+        );
+        let mut shifted = make();
+        for c in &mut shifted {
+            if c.x == 80.0 && c.y == 20.0 {
+                c.x = 88.0;
+            }
+        }
+        assert!(split(shifted, false), "cell boundary must match");
+        let mut wide = make();
+        for c in &mut wide {
+            if c.x == 240.0 && c.x1 == 352.0 {
+                c.x1 = 420.0;
+            }
+        }
+        assert!(split(wide, false), "wide prose columns excluded");
+        assert!(split(make(), true), "boxed independent notices excluded");
+        let split_cell = |cols: &mut Vec<Col>, y: f32| {
+            let word = cols.iter_mut().find(|c| c.x == 240.0 && c.y == y).unwrap();
+            let end = word.x1;
+            word.x1 = 272.0;
+            cols.push(Col { id: cols.len(), x: 280.0, x1: end, y, y1: y + 8.0, text: "remaining text".into() });
+        };
+        let mut once = make();
+        split_cell(&mut once, 20.0);
+        assert!(!split(once, false), "one token break in a single cell is allowed");
+        let mut multiple = make();
+        split_cell(&mut multiple, 0.0);
+        split_cell(&mut multiple, 20.0);
+        assert!(split(multiple, false), "repeated opposite cell boundaries represent multiple columns");
+    }
+}
+
+#[cfg(test)]
+mod fragmented_divider_title_tests {
+    use super::*;
+#[test]
+fn spaced_titles_do_not_hide_a_two_column_divider() {
+    let word=|x,x1,y,y1,text:&str| Col{id:0,x,x1,y,y1,text:text.into()};
+    let base=|| {
+        let mut ws=vec![word(70.,330.,50.,58.,"左の独立した段"),word(430.,730.,50.,58.,"右の独立した段"),word(70.,330.,338.,346.,"左の段の最後"),word(430.,730.,338.,346.,"右の段の最後"),word(324.,476.,375.,383.,"（会計年度と単位）")];
+        for k in 0..9 { ws.push(word(300.+24.*k as f32,308.+24.*k as f32,357.,365.,"字")); } ws
+    };
+    let cut=|w:&[Col],b:&[Block],rules:&[(f32,f32,f32)]|divider_end_cut(w,b,rules);
+    let rule=[(400.,50.,350.)]; let w=base();
+    assert_eq!(cut(&w,&[],&rule),Some(350.));
+    let mut old=base();old.retain(|w| w.y!=357.);old.last_mut().unwrap().y=365.;old.last_mut().unwrap().y1=373.; assert_eq!(cut(&old,&[],&rule),Some(350.));
+    let mut multi=base();multi.iter_mut().filter(|w|w.y==357.).for_each(|w|w.text="本文".into());assert_eq!(cut(&multi,&[],&rule),None);
+    let mut wide=base();wide.iter_mut().filter(|w|w.y==357.).for_each(|w|{w.x=400.+(w.x-400.)*2.;w.x1=w.x+8.;});assert_eq!(cut(&wide,&[],&rule),None);
+    let mut shifted=base();shifted.iter_mut().filter(|w|w.y==357.).for_each(|w|{w.x+=100.;w.x1+=100.;});assert_eq!(cut(&shifted,&[],&rule),None);
+    let mut early=base();early.iter_mut().filter(|w|w.y==338.).for_each(|w|{w.y=280.;w.y1=288.;});assert_eq!(cut(&early,&[],&rule),None);
+    let mut continuing=base();continuing.push(word(70.,200.,357.,365.,"左段の続き"));assert_eq!(cut(&continuing,&[],&rule),None);
+    assert_eq!(cut(&base(),&[(300.,330.,500.,380.)],&rule),None);
+    assert_eq!(cut(&base(),&[],&[(400.,70.,350.)]),None);
+}
+}
+
+#[cfg(test)]
+mod paired_ditto_tests {
+use super::*;
+fn w(id:usize,x:f32,y:f32,width:f32,text:&str)->Col{Col{id,x,x1:x+width,y,y1:y+8.0,text:text.into()}}
+fn sides()->(Vec<Col>,Vec<Col>){let mut l=vec![w(0,40.0,0.0,16.0,"種類"),w(1,0.0,12.0,160.0,"図式タイルの種類と条件")];let mut r=vec![w(2,200.0,0.0,32.0,"情報水準"),w(3,200.0,12.0,72.0,"詳細レベル10〜16")];for i in 0..3{let y=24.0+12.0*i as f32;l.push(w(10+i,0.0,y,8.0,"〃"));r.push(w(20+i,200.0,y,8.0,"〃"));}(l,r)}
+#[test]fn wide_columns_with_header_and_initial_values_keep_paired_rows(){let(l,r)=sides();assert!(repeat_marks(&l,&r));}
+#[test]fn one_sided_ditto_with_headers_does_not_establish_a_table(){let(mut l,r)=sides();for c in &mut l{if c.text=="〃"{c.text="別".into();}}assert!(!repeat_marks(&l,&r));}
+#[test]fn two_repeated_rows_are_insufficient_for_paired_columns(){let(mut l,mut r)=sides();l.pop();r.pop();assert!(!repeat_marks(&l,&r));}
+#[test]fn mismatched_row_heights_are_not_paired(){let(l,mut r)=sides();r[3].y+=4.0;r[3].y1+=4.0;assert!(!repeat_marks(&l,&r));}
+#[test]fn later_actual_value_breaks_the_run(){let(l,mut r)=sides();r.push(w(50,200.0,60.0,32.0,"別記事"));assert!(!repeat_marks(&l,&r));}
+#[test]fn a_pair_cannot_jump_to_a_different_left_column(){let(mut l,r)=sides();l[3].x=30.0;l[3].x1=38.0;assert!(!repeat_marks(&l,&r));}
+#[test]fn very_distant_columns_are_not_linked(){let(l,mut r)=sides();for c in &mut r{c.x+=200.0;c.x1+=200.0;}assert!(!repeat_marks(&l,&r));}
+#[test]fn a_small_font_column_does_not_pair_with_body_marks(){let(mut l,r)=sides();for c in &mut l{if c.text=="〃"{c.y1=c.y+4.0;c.y+=2.0;}}assert!(!repeat_marks(&l,&r));}
+#[test]fn first_value_and_all_repeated_rows_remain_in_full_lines(){let(l,r)=sides();let mut words=l;words.extend(r);for i in 0..4{words.push(w(60+i,320.0,12.0+12.0*i as f32,16.0,"区域"));}let ls=horizontal_lines(words);assert_eq!(ls.len(),5);assert!(ls[1].text.contains("図式タイル")&&ls[1].text.contains("レベル10"));for line in &ls[2..]{assert_eq!(line.text.matches('〃').count(),2);assert!(line.text.contains("区域"));}}
+#[test]fn wrapped_initial_column_is_not_a_simple_paired_run(){let(l,mut r)=sides();r[0].y=-12.0;r[0].y1=-4.0;r.push(w(70,200.0,0.0,32.0,"水準の続き"));assert!(!repeat_marks(&l,&r));}
+#[test]fn wrapped_partner_is_not_a_simple_paired_run(){let(mut l,r)=sides();l.push(w(70,0.0,-12.0,32.0,"種類の続き"));l.push(w(71,0.0,-24.0,32.0,"種類の前段"));assert!(!repeat_marks(&l,&r));}
+
 }

@@ -291,7 +291,18 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         let bottom = vrules
                             .iter()
                             .filter(|&&(x, top, end)| x > lo && x < hi && top <= y0 + 30.0 && end > y0 && end < y1)
-                            .map(|&(_, _, end)| end)
+                            .map(|&(x, _, mut end)| {
+                                // 同じ境界線が表の行ごとに分割されている場合は、接続する線分の末尾まで追う。
+                                // 左右の行数が違う表で途中の行境界を表末とすると、旧欄だけの行が次の前文へ落ちる。
+                                loop {
+                                    let next = vrules.iter()
+                                        .filter(|&&(nx, top, bottom)| (nx - x).abs() < 1.0 && top <= end + 2.0 && bottom > end + 1.0 && bottom < y1)
+                                        .map(|&(_, _, bottom)| bottom).fold(end, f32::max);
+                                    if next <= end + 1.0 { break; }
+                                    end = next;
+                                }
+                                end
+                            })
                             .reduce(f32::max);
                         bottom.map(|b| b + 1.0).unwrap_or_else(|| {
                             cols.iter()
@@ -421,6 +432,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             join_joint_ministries(&mut units);
             crate::fractions::restore_fraction_lines(&mut units, &words, &hrules);
             crate::table_dashes::restore_table_dashes(&mut units, &mut words);
+            crate::table_dashes::restore_ruled_table_dashes(&mut units, &mut words, &grids);
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
@@ -2946,7 +2958,29 @@ fn record_bands(bands: &[Vec<Col>], mid_line: Option<f32>) -> Option<(usize, Vec
         };
         (0..n).all(aligned).then_some(anchors)
     };
-    let (n, anchors) = (3..=n).rev().find_map(|m| fit(m).map(|a| (m, a)))?;
+    let limit = n;
+    let (mut n, anchors) = (3..=n).rev().find_map(|m| fit(m).map(|a| (m, a)))?;
+    // 行頭の確かめでは、複数の変更事項の小行も独立した行として保つ。末尾に日付だけの帯が
+    // 余った場合は、既に決めた行頭と同じ列の日付だけをその行へ足す（小行をまとめ直さない）。
+    if n < limit {
+        let mut dates: Vec<&Col> = all_bands[n].iter().collect();
+        dates.sort_by(|a, b| {
+            let (ax, bx) = (center(a), center(b));
+            if (ax - bx).abs() < 3.0 { a.y.total_cmp(&b.y) } else { bx.total_cmp(&ax) }
+        });
+        let columns: Vec<_> = dates.chunk_by(|a, b| (center(a) - center(b)).abs() < 3.0).collect();
+        let date_only = columns.len() >= 3 && columns.len() * 2 >= anchors.len() && columns.iter().all(|column| {
+            let x = center(column[0]);
+            let text: String = column.iter().flat_map(|c| c.text.chars()).filter(|c| !c.is_whitespace()).collect();
+            let parts: Vec<_> = text.split('、').collect();
+            anchors.iter().any(|&a| (a - x).abs() < 3.0)
+                && parts.len() == 3
+                && parts.iter().all(|p| !p.is_empty() && p.chars().count() <= 3 && p.chars().all(|c| "〇零一二三四五六七八九十0123456789０１２３４５６７８９".contains(c)))
+        });
+        if date_only {
+            n += 1;
+        }
+    }
     let bands = &all_bands[..n];
     // 字の大きさ（縦組みの語の幅の中央値）。
     let em = {
@@ -3709,7 +3743,19 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
         .filter(|&&(x0, x1, y0, y1)| cols.iter().any(|c| x0 < center(c) && center(c) < x1 && y0 < c.y1 && c.y < y1))
         .map(|&(x0, _, y0, y1)| (y1 + 0.5, x0, y0))
         .collect();
-    let column_bottoms: Vec<(f32, f32, f32)> = cols.iter().map(|c| (c.y1, c.x, c.y)).collect();
+    // A sparse text layer can leave its last upper column outside the central
+    // search window. An actual tier rule inside a large empty gap is still a
+    // candidate; ordinary table row gaps do not qualify.
+    let ruled_gaps = rules.hrules.iter().filter_map(|&(y, x0, x1)| {
+        let above = cols.iter().filter(|c| c.y1 <= y).map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+        let below = cols.iter().filter(|c| c.y >= y).map(|c| c.y).fold(f32::INFINITY, f32::min);
+        (above.is_finite() && below.is_finite()
+            && below - above >= TIER_HEIGHT * 0.5
+            && !cols.iter().any(|c| c.y < y && y < c.y1)
+            && x1.min(xmax) - x0.max(xmin) >= (xmax - xmin) * 0.9)
+            .then_some((y - 0.5, xmin, above))
+    });
+    let column_bottoms: Vec<(f32, f32, f32)> = cols.iter().map(|c| (c.y1, c.x, c.y)).chain(ruled_gaps).collect();
     for pass in 0..2 {
         if pass == 1 && best_free.is_some_and(|b: Cand| b.0 <= MAX_BRIDGE) {
             break;

@@ -1,0 +1,133 @@
+{
+  "stage": "second_integrated_batch",
+  "date": "2026-10-20",
+  "baseline_commit": "7ec5792b",
+  "population_pdf_pages": 11992,
+  "archive_period": [
+    "2026-07-16",
+    "2026-10-20"
+  ],
+  "outputs": "after16",
+  "comparison_against_original_baseline": {
+    "changed_pages": 2594,
+    "pages_with_character_changes": 601,
+    "source_backed_dashes": 9991,
+    "restored_fractions": 153,
+    "square_centimeter_units": 2,
+    "removed_characters": "Only 21 characters in 4 false inferred before/after labels, retained from the first batch; no additional loss."
+  },
+  "second_batch_additions": {
+    "source_backed_dashes": 5042,
+    "fractions": 27,
+    "square_centimeter_units": 2
+  },
+  "checks": {
+    "all_pdf_manifest_hashes": "11992 checked; no mismatch (first batch)",
+    "all_page_word_id_uniqueness": "textdump after16: no duplicate warnings",
+    "changed_page_source_provenance": {
+      "pages": 2594,
+      "restored_raw_E61C_words": 9991,
+      "fractions": 153,
+      "duplicate_word_ids": 0,
+      "unattached_restored_words": 0,
+      "output_mismatch": 0
+    },
+    "archive_pdf_fixtures": 393
+  },
+  "changes": [
+    "Sparse actual tier rules separate unrelated headings.",
+    "Political change dates attach to the original record without regrouping subrows.",
+    "Long wrapped formulas retain fractions with actual bars.",
+    "Connected rule segments keep old-only amendment rows inside the original table.",
+    "Two-record headed tables preserve the last column and separate date/signature.",
+    "Wrapped road-record qualifiers remain beside the correct row.",
+    "Paired ditto runs retain map kind and level on each area row.",
+    "Full-width spaced titles protect profit-and-loss columns.",
+    "Verified private E68C unit restores two square-centimeter labels.",
+    "Short unfinished numbered account labels join before their amounts.",
+    "Physical table cells restore known E61C bars after empty-row removal or logical row splitting."
+  ],
+  "independent_initial_audits": {
+    "111": {
+      "ok": 23,
+      "minor": 3,
+      "major": 4
+    },
+    "112": {
+      "ok": 24,
+      "minor": 2,
+      "major": 4
+    },
+    "113": {
+      "ok": 22,
+      "minor": 7,
+      "major": 1
+    }
+  },
+  "corrected_audit_major_pages": [
+    "20260901g001950018",
+    "20260722h017520029",
+    "20260724h017540006",
+    "20261009g002230089",
+    "20261016g002280540"
+  ],
+  "pending_candidates": [
+    "20261015h018080002: TA0006 company/address column remains detached; next candidate prepared.",
+    "20260909h017860009: section/field heading order.",
+    "20260821g001870087: URL tail after next heading.",
+    "20260724g001650725: shared two-row heading appears late.",
+    "20261016g002280051: late signature.",
+    "20261016g002280516 / 20260914g002040066: no inferred table for unrestored CF dash glyphs.",
+    "20261016g002280332: all-dash rows before first numeric row remain protected as a header."
+  ],
+  "source_sha256": {
+    "format.rs": "11a24e7e6f7291f8d26234a92a6814c853580a3edc56a3c2c32b3c2dff56566c",
+    "fractions.rs": "7f9fb956774b4993ecb509edfaebf35dcfe0e43d188de180971fd4c45a88680a",
+    "grid.rs": "657cb3c5ffba6ad10e4bef35809b4b4d7a52abe9b1e5884ca7c6fb7adaa966e8",
+    "horizontal.rs": "b7f48c607af97638bbb99d3ce2680bc65969cfee2916d2b55b5a8cc8e8ddcec6",
+    "lib.rs": "6e108219d767a4db17de37d62cb6a1bb159de4a4ded2719e5f47f9657eed7009",
+    "lines.rs": "c277b260081e9b35c53964098c3b39ac2cbccf054bbaf8cb083898a5f862853c",
+    "model.rs": "34ff7218594c9f98a8b607fb38c062cfedd9242295e0045d87909bdfbfb66474",
+    "normalize.rs": "d6224008ecc6c32d6a6b14cb4700ff2af015eb70b98472fb19dfc557b647ff0c",
+    "quantity_tables.rs": "ffb65b9a00c7b0c2781ed076bdd060b687bc052814289b548ba96011605adfb5",
+    "segment.rs": "05aef0a20c3f1793883d8fc8152d12261f2b5f5336a3864756d080727fb262e7",
+    "shinkyu.rs": "70a997671fd799cb72e8dadf4053b0654d5544dc074b87bb4736050ef2eb2940",
+    "table.rs": "f1accd264feb5d36886dce6be606e7e6fd6f143ecab8655514e0ba76777b4a94",
+    "table_dashes.rs": "152adbb43ae73b85b5941214d26a93b5e2b0ae5f02be3ae4b94eb7c646321d2a",
+    "trace.rs": "725c767b3fe3609b17f84aea3b290f637fa341684e243aae07394441116dee15",
+    "vertical.rs": "02a3d429af1ed3cbab9871df76824d772ceda01369a16886b6d9a0fd7ff94771"
+  },
+  "tests": {
+    "command": "cargo test -p kanpo-pdf -p kanpo-parser -p kanpo-parser-wasm -p kanpo-lm --locked",
+    "passed_tests": 257,
+    "failed_tests": 0,
+    "archive_pdf_fixtures": 393,
+    "snapshot_updates_reviewed": 26,
+    "corpus_and_word_order_invariance": "passed"
+  },
+  "visual_verification": {
+    "ruled_table_dashes_initial_extension": {
+      "pages": 63,
+      "new_glyphs": 1664,
+      "all_new_glyph_crops_checked": true,
+      "full_table_context_pages": 24
+    },
+    "partitioned_table_dashes": {
+      "affected_pages": 311,
+      "new_glyphs": 3378,
+      "known_glyph_crops_checked": 664,
+      "additional_sample_pages": 30,
+      "additional_full_tables": 39,
+      "additional_glyphs": 950,
+      "regressions": 0,
+      "full_table_context_not_separately_reviewed_pages": 248
+    },
+    "additional_fractions": {
+      "pages": 7,
+      "fractions": 27,
+      "all_source_expressions_checked": true
+    },
+    "source_order_changes": "Date subrows, sparse tier headings, connected amendment bands, map rows, type tables, financial labels and full-width titles inspected against source PDFs."
+  },
+  "limitations": "Outlined body text without a text layer remains outside reading-order audits. Initial audit grades stay fixed after repair; these samples do not prove population-wide 100%."
+}

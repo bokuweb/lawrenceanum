@@ -1,0 +1,2336 @@
+{
+  "cohort2-ruled-dash-audit.json": {
+    "scope": "Only the new ruled-table U+E61C restorations from after10 to after12; excludes fraction changes and whole-page completeness.",
+    "pages": 63,
+    "added_dashes": 1664,
+    "verified_source_glyphs": 1664,
+    "unverified_added_glyphs": 0,
+    "physical_slot_matches": 1664,
+    "regressions_found": 0,
+    "full_table_context_pages": 24,
+    "full_table_context_not_separately_reviewed_pages": 39,
+    "method": [
+      "Classified all pages by addition count; systematic sample from page-sorted indices [0,6,12,18,24,30,36,42,48,54,60,62], plus maximum, both minima, original bug cases and additional shapes.",
+      "Independently compared cell bounds with the original PDF rules. Physical borders include repeated horizontal endpoints or vertical endpoints at intentionally open continuation edges. This separates all 1664 new cells from 1301 earlier anchor restorations, exactly matching every per-page change count.",
+      "Visually inspected the original rendered glyph crop for all 1664 additions on seven contact sheets. Every added glyph is a printed horizontal bar.",
+      "Compared whole-table source images and changed output rows for 24 pages, covering 3-column open continuation, all-dash impairment tables, sparse rows, textual notes, and tables up to 20 columns."
+    ],
+    "limitations": [
+      "Thirty-nine pages had complete added-glyph and physical-slot review, but their full-table narrative context was not separately reviewed.",
+      "This audit establishes correctness of added dashes, not that all printed dashes on each page have been restored. Across these 63 pages, 677 known E61C glyphs on 39 pages remain outside restored cells; see cohort2-ruled-dash-remaining.json."
+    ],
+    "by_addition_count": [
+      {
+        "added_per_page": 1,
+        "pages": 2,
+        "total_added": 2,
+        "page_ids": [
+          "20261016g002280104",
+          "20261016g002280207"
+        ]
+      },
+      {
+        "added_per_page": 2,
+        "pages": 5,
+        "total_added": 10,
+        "page_ids": [
+          "20260910g002020091",
+          "20261016g002280017",
+          "20261016g002280386",
+          "20261016g002280464",
+          "20261016g002280622"
+        ]
+      },
+      {
+        "added_per_page": 3,
+        "pages": 1,
+        "total_added": 3,
+        "page_ids": [
+          "20260820g001860073"
+        ]
+      },
+      {
+        "added_per_page": 4,
+        "pages": 4,
+        "total_added": 16,
+        "page_ids": [
+          "20260731g001730090",
+          "20260911g002030071",
+          "20260911g002030073",
+          "20261016g002280068"
+        ]
+      },
+      {
+        "added_per_page": 6,
+        "pages": 8,
+        "total_added": 48,
+        "page_ids": [
+          "20260911g002030067",
+          "20261013g002240038",
+          "20261013g002240042",
+          "20261013g002240046",
+          "20261016g002280193",
+          "20261016g002280243",
+          "20261016g002280434",
+          "20261016g002280467"
+        ]
+      },
+      {
+        "added_per_page": 8,
+        "pages": 5,
+        "total_added": 40,
+        "page_ids": [
+          "20260717g001600103",
+          "20260731g001730085",
+          "20260911g002030080",
+          "20261016g002280556",
+          "20261016g002280621"
+        ]
+      },
+      {
+        "added_per_page": 9,
+        "pages": 4,
+        "total_added": 36,
+        "page_ids": [
+          "20260825g001890059",
+          "20260828g001920050",
+          "20261016g002280483",
+          "20261019g002290039"
+        ]
+      },
+      {
+        "added_per_page": 10,
+        "pages": 2,
+        "total_added": 20,
+        "page_ids": [
+          "20260812g001800023",
+          "20261016g002280271"
+        ]
+      },
+      {
+        "added_per_page": 12,
+        "pages": 1,
+        "total_added": 12,
+        "page_ids": [
+          "20261016g002280046"
+        ]
+      },
+      {
+        "added_per_page": 14,
+        "pages": 3,
+        "total_added": 42,
+        "page_ids": [
+          "20261016g002280098",
+          "20261016g002280240",
+          "20261016g002280299"
+        ]
+      },
+      {
+        "added_per_page": 16,
+        "pages": 3,
+        "total_added": 48,
+        "page_ids": [
+          "20261016g002280136",
+          "20261016g002280454",
+          "20261016g002280547"
+        ]
+      },
+      {
+        "added_per_page": 17,
+        "pages": 1,
+        "total_added": 17,
+        "page_ids": [
+          "20261016g002280322"
+        ]
+      },
+      {
+        "added_per_page": 18,
+        "pages": 1,
+        "total_added": 18,
+        "page_ids": [
+          "20260911g002030081"
+        ]
+      },
+      {
+        "added_per_page": 20,
+        "pages": 3,
+        "total_added": 60,
+        "page_ids": [
+          "20260731g001730063",
+          "20260911g002030076",
+          "20261016g002280206"
+        ]
+      },
+      {
+        "added_per_page": 23,
+        "pages": 1,
+        "total_added": 23,
+        "page_ids": [
+          "20260911g002030082"
+        ]
+      },
+      {
+        "added_per_page": 24,
+        "pages": 1,
+        "total_added": 24,
+        "page_ids": [
+          "20261016g002280038"
+        ]
+      },
+      {
+        "added_per_page": 25,
+        "pages": 1,
+        "total_added": 25,
+        "page_ids": [
+          "20261016g002280406"
+        ]
+      },
+      {
+        "added_per_page": 26,
+        "pages": 1,
+        "total_added": 26,
+        "page_ids": [
+          "20260930g002160068"
+        ]
+      },
+      {
+        "added_per_page": 27,
+        "pages": 1,
+        "total_added": 27,
+        "page_ids": [
+          "20261016g002280354"
+        ]
+      },
+      {
+        "added_per_page": 31,
+        "pages": 1,
+        "total_added": 31,
+        "page_ids": [
+          "20260911g002030074"
+        ]
+      },
+      {
+        "added_per_page": 33,
+        "pages": 1,
+        "total_added": 33,
+        "page_ids": [
+          "20261016g002280205"
+        ]
+      },
+      {
+        "added_per_page": 35,
+        "pages": 1,
+        "total_added": 35,
+        "page_ids": [
+          "20261016g002280447"
+        ]
+      },
+      {
+        "added_per_page": 40,
+        "pages": 1,
+        "total_added": 40,
+        "page_ids": [
+          "20261016g002280599"
+        ]
+      },
+      {
+        "added_per_page": 45,
+        "pages": 1,
+        "total_added": 45,
+        "page_ids": [
+          "20260911g002030072"
+        ]
+      },
+      {
+        "added_per_page": 49,
+        "pages": 2,
+        "total_added": 98,
+        "page_ids": [
+          "20260820g001860079",
+          "20260911g002030078"
+        ]
+      },
+      {
+        "added_per_page": 53,
+        "pages": 1,
+        "total_added": 53,
+        "page_ids": [
+          "20261016g002280615"
+        ]
+      },
+      {
+        "added_per_page": 64,
+        "pages": 1,
+        "total_added": 64,
+        "page_ids": [
+          "20261016g002280015"
+        ]
+      },
+      {
+        "added_per_page": 70,
+        "pages": 1,
+        "total_added": 70,
+        "page_ids": [
+          "20260911g002030070"
+        ]
+      },
+      {
+        "added_per_page": 85,
+        "pages": 1,
+        "total_added": 85,
+        "page_ids": [
+          "20261016g002280430"
+        ]
+      },
+      {
+        "added_per_page": 126,
+        "pages": 1,
+        "total_added": 126,
+        "page_ids": [
+          "20261016g002280331"
+        ]
+      },
+      {
+        "added_per_page": 156,
+        "pages": 1,
+        "total_added": 156,
+        "page_ids": [
+          "20261016g002280062"
+        ]
+      },
+      {
+        "added_per_page": 163,
+        "pages": 1,
+        "total_added": 163,
+        "page_ids": [
+          "20261016g002280446"
+        ]
+      },
+      {
+        "added_per_page": 168,
+        "pages": 1,
+        "total_added": 168,
+        "page_ids": [
+          "20261016g002280014"
+        ]
+      }
+    ],
+    "entries": [
+      {
+        "page": "20260717g001600103",
+        "grade": "ok_for_added_dashes",
+        "added": 8,
+        "source_glyphs_visually_checked": 8,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "systematic12",
+        "notes": "Four fair-value rows: two dash columns bracket the existing numeric column.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-01.png",
+        "original_image": "cohort2-ruled-dash-images/20260717g001600103.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 2
+      },
+      {
+        "page": "20260731g001730063",
+        "grade": "ok_for_added_dashes",
+        "added": 20,
+        "source_glyphs_visually_checked": 20,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-01.png",
+        "original_image": "cohort2-ruled-dash-images/20260731g001730063.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 15
+      },
+      {
+        "page": "20260731g001730085",
+        "grade": "ok_for_added_dashes",
+        "added": 8,
+        "source_glyphs_visually_checked": 8,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-01.png",
+        "original_image": "cohort2-ruled-dash-images/20260731g001730085.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20260731g001730090",
+        "grade": "ok_for_added_dashes",
+        "added": 4,
+        "source_glyphs_visually_checked": 4,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-01.png",
+        "original_image": "cohort2-ruled-dash-images/20260731g001730090.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 1
+      },
+      {
+        "page": "20260812g001800023",
+        "grade": "ok_for_added_dashes",
+        "added": 10,
+        "source_glyphs_visually_checked": 10,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-01.png",
+        "original_image": "cohort2-ruled-dash-images/20260812g001800023.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20260820g001860073",
+        "grade": "ok_for_added_dashes",
+        "added": 3,
+        "source_glyphs_visually_checked": 3,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-01.png",
+        "original_image": "cohort2-ruled-dash-images/20260820g001860073.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 1
+      },
+      {
+        "page": "20260820g001860079",
+        "grade": "ok_for_added_dashes",
+        "added": 49,
+        "source_glyphs_visually_checked": 49,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "systematic12",
+        "notes": "Eleven numeric columns; all-dash rows and rows with one numeric value; blank section rows retained.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-01.png",
+        "original_image": "cohort2-ruled-dash-images/20260820g001860079.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20260825g001890059",
+        "grade": "ok_for_added_dashes",
+        "added": 9,
+        "source_glyphs_visually_checked": 9,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-01.png",
+        "original_image": "cohort2-ruled-dash-images/20260825g001890059.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 10
+      },
+      {
+        "page": "20260828g001920050",
+        "grade": "ok_for_added_dashes",
+        "added": 9,
+        "source_glyphs_visually_checked": 9,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-01.png",
+        "original_image": "cohort2-ruled-dash-images/20260828g001920050.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 1
+      },
+      {
+        "page": "20260910g002020091",
+        "grade": "ok_for_added_dashes",
+        "added": 2,
+        "source_glyphs_visually_checked": 2,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-01.png",
+        "original_image": "cohort2-ruled-dash-images/20260910g002020091.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20260911g002030067",
+        "grade": "ok_for_added_dashes",
+        "added": 6,
+        "source_glyphs_visually_checked": 6,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-01.png",
+        "original_image": "cohort2-ruled-dash-images/20260911g002030067.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20260911g002030070",
+        "grade": "ok_for_added_dashes",
+        "added": 70,
+        "source_glyphs_visually_checked": 70,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-01.png",
+        "original_image": "cohort2-ruled-dash-images/20260911g002030070.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20260911g002030071",
+        "grade": "ok_for_added_dashes",
+        "added": 4,
+        "source_glyphs_visually_checked": 4,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "systematic12",
+        "notes": "Continuation table: four trailing dashes on long-term prepaid expense.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-02.png",
+        "original_image": "cohort2-ruled-dash-images/20260911g002030071.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 20
+      },
+      {
+        "page": "20260911g002030072",
+        "grade": "ok_for_added_dashes",
+        "added": 45,
+        "source_glyphs_visually_checked": 45,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "maximum_minimum_or_shape",
+        "notes": "Open-left three-column continuation; middle and first-column dashes align with unchanged amounts.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-02.png",
+        "original_image": "cohort2-ruled-dash-images/20260911g002030072.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20260911g002030073",
+        "grade": "ok_for_added_dashes",
+        "added": 4,
+        "source_glyphs_visually_checked": 4,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "maximum_minimum_or_shape",
+        "notes": "Open-left continuation; two rows restore both first and middle dash columns.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-02.png",
+        "original_image": "cohort2-ruled-dash-images/20260911g002030073.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 25
+      },
+      {
+        "page": "20260911g002030074",
+        "grade": "ok_for_added_dashes",
+        "added": 31,
+        "source_glyphs_visually_checked": 31,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-02.png",
+        "original_image": "cohort2-ruled-dash-images/20260911g002030074.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20260911g002030076",
+        "grade": "ok_for_added_dashes",
+        "added": 20,
+        "source_glyphs_visually_checked": 20,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "maximum_minimum_or_shape",
+        "notes": "Open-left three-column continuation; ten one-amount rows restore twenty dashes.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-02.png",
+        "original_image": "cohort2-ruled-dash-images/20260911g002030076.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20260911g002030078",
+        "grade": "ok_for_added_dashes",
+        "added": 49,
+        "source_glyphs_visually_checked": 49,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-02.png",
+        "original_image": "cohort2-ruled-dash-images/20260911g002030078.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20260911g002030080",
+        "grade": "ok_for_added_dashes",
+        "added": 8,
+        "source_glyphs_visually_checked": 8,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "systematic12",
+        "notes": "Open-left continuation: the first two numeric columns retain their dashes before the total.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-02.png",
+        "original_image": "cohort2-ruled-dash-images/20260911g002030080.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 30
+      },
+      {
+        "page": "20260911g002030081",
+        "grade": "ok_for_added_dashes",
+        "added": 18,
+        "source_glyphs_visually_checked": 18,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-02.png",
+        "original_image": "cohort2-ruled-dash-images/20260911g002030081.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 23
+      },
+      {
+        "page": "20260911g002030082",
+        "grade": "ok_for_added_dashes",
+        "added": 23,
+        "source_glyphs_visually_checked": 23,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "maximum_minimum_or_shape",
+        "notes": "Two open-left numeric continuation fragments; dashes in the correct first/middle columns.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-02.png",
+        "original_image": "cohort2-ruled-dash-images/20260911g002030082.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20260930g002160068",
+        "grade": "ok_for_added_dashes",
+        "added": 26,
+        "source_glyphs_visually_checked": 26,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-02.png",
+        "original_image": "cohort2-ruled-dash-images/20260930g002160068.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 7
+      },
+      {
+        "page": "20261013g002240038",
+        "grade": "ok_for_added_dashes",
+        "added": 6,
+        "source_glyphs_visually_checked": 6,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-03.png",
+        "original_image": "cohort2-ruled-dash-images/20261013g002240038.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20261013g002240042",
+        "grade": "ok_for_added_dashes",
+        "added": 6,
+        "source_glyphs_visually_checked": 6,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-03.png",
+        "original_image": "cohort2-ruled-dash-images/20261013g002240042.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 3
+      },
+      {
+        "page": "20261013g002240046",
+        "grade": "ok_for_added_dashes",
+        "added": 6,
+        "source_glyphs_visually_checked": 6,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "systematic12",
+        "notes": "Two maturity rows: three future-period dashes after 300,000,000.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-03.png",
+        "original_image": "cohort2-ruled-dash-images/20261013g002240046.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 3
+      },
+      {
+        "page": "20261016g002280014",
+        "grade": "ok_for_added_dashes",
+        "added": 168,
+        "source_glyphs_visually_checked": 168,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "maximum_minimum_or_shape",
+        "notes": "Largest change, 168 dashes in a twelve-column net-asset table. Existing numeric values and blank section rows match.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-03.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280014.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20261016g002280015",
+        "grade": "ok_for_added_dashes",
+        "added": 64,
+        "source_glyphs_visually_checked": 64,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-03.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280015.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 95
+      },
+      {
+        "page": "20261016g002280017",
+        "grade": "ok_for_added_dashes",
+        "added": 2,
+        "source_glyphs_visually_checked": 2,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-03.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280017.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 3
+      },
+      {
+        "page": "20261016g002280038",
+        "grade": "ok_for_added_dashes",
+        "added": 24,
+        "source_glyphs_visually_checked": 24,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-03.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280038.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 49
+      },
+      {
+        "page": "20261016g002280046",
+        "grade": "ok_for_added_dashes",
+        "added": 12,
+        "source_glyphs_visually_checked": 12,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-04.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280046.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 8
+      },
+      {
+        "page": "20261016g002280062",
+        "grade": "ok_for_added_dashes",
+        "added": 156,
+        "source_glyphs_visually_checked": 156,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "systematic12",
+        "notes": "Thirteen-column net-asset table with all-dash rows, one-value rows, and blank section headings.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-04.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280062.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20261016g002280068",
+        "grade": "ok_for_added_dashes",
+        "added": 4,
+        "source_glyphs_visually_checked": 4,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-04.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280068.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20261016g002280098",
+        "grade": "ok_for_added_dashes",
+        "added": 14,
+        "source_glyphs_visually_checked": 14,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-04.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280098.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 25
+      },
+      {
+        "page": "20261016g002280104",
+        "grade": "ok_for_added_dashes",
+        "added": 1,
+        "source_glyphs_visually_checked": 1,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "maximum_minimum_or_shape",
+        "notes": "Minimum one-character change on the carried-over-reserve drawdown row in its final amount column.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-04.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280104.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 2
+      },
+      {
+        "page": "20261016g002280136",
+        "grade": "ok_for_added_dashes",
+        "added": 16,
+        "source_glyphs_visually_checked": 16,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-04.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280136.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 31
+      },
+      {
+        "page": "20261016g002280193",
+        "grade": "ok_for_added_dashes",
+        "added": 6,
+        "source_glyphs_visually_checked": 6,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-04.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280193.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 2
+      },
+      {
+        "page": "20261016g002280205",
+        "grade": "ok_for_added_dashes",
+        "added": 33,
+        "source_glyphs_visually_checked": 33,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "systematic12",
+        "notes": "Asset impairment list: dash columns stay separate from facility descriptions and note markers.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-04.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280205.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20261016g002280206",
+        "grade": "ok_for_added_dashes",
+        "added": 20,
+        "source_glyphs_visually_checked": 20,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-04.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280206.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20261016g002280207",
+        "grade": "ok_for_added_dashes",
+        "added": 1,
+        "source_glyphs_visually_checked": 1,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "maximum_minimum_or_shape",
+        "notes": "Minimum one-character change in the financial-instrument table. Other unsupported printed dashes remain.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-05.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280207.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 13
+      },
+      {
+        "page": "20261016g002280240",
+        "grade": "ok_for_added_dashes",
+        "added": 14,
+        "source_glyphs_visually_checked": 14,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "maximum_minimum_or_shape",
+        "notes": "Sixteen-column table: fourteen additions in the all-dash fixed-asset transfer row. One unsupported dash remains.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-05.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280240.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 1
+      },
+      {
+        "page": "20261016g002280243",
+        "grade": "ok_for_added_dashes",
+        "added": 6,
+        "source_glyphs_visually_checked": 6,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-05.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280243.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 4
+      },
+      {
+        "page": "20261016g002280271",
+        "grade": "ok_for_added_dashes",
+        "added": 10,
+        "source_glyphs_visually_checked": 10,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-05.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280271.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 4
+      },
+      {
+        "page": "20261016g002280299",
+        "grade": "ok_for_added_dashes",
+        "added": 14,
+        "source_glyphs_visually_checked": 14,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "systematic12",
+        "notes": "Two all-dash loss-treatment rows, seven amount columns each.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-05.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280299.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 24
+      },
+      {
+        "page": "20261016g002280322",
+        "grade": "ok_for_added_dashes",
+        "added": 17,
+        "source_glyphs_visually_checked": 17,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-05.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280322.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 3
+      },
+      {
+        "page": "20261016g002280331",
+        "grade": "ok_for_added_dashes",
+        "added": 126,
+        "source_glyphs_visually_checked": 126,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "maximum_minimum_or_shape",
+        "notes": "Thirteen-column table with fund movements and all-dash rows; 126 additions match the source.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-05.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280331.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20261016g002280354",
+        "grade": "ok_for_added_dashes",
+        "added": 27,
+        "source_glyphs_visually_checked": 27,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-05.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280354.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 34
+      },
+      {
+        "page": "20261016g002280386",
+        "grade": "ok_for_added_dashes",
+        "added": 2,
+        "source_glyphs_visually_checked": 2,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-05.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280386.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 1
+      },
+      {
+        "page": "20261016g002280406",
+        "grade": "ok_for_added_dashes",
+        "added": 25,
+        "source_glyphs_visually_checked": 25,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "maximum_minimum_or_shape",
+        "notes": "Twenty-column table: numeric/negative amounts retain their positions; twenty-five additions match the printed slots.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-05.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280406.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 4
+      },
+      {
+        "page": "20261016g002280430",
+        "grade": "ok_for_added_dashes",
+        "added": 85,
+        "source_glyphs_visually_checked": 85,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "systematic12",
+        "notes": "Wide net-asset table; sparse one-value rows, blank section rows, and trailing dashes.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-06.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280430.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 60
+      },
+      {
+        "page": "20261016g002280434",
+        "grade": "ok_for_added_dashes",
+        "added": 6,
+        "source_glyphs_visually_checked": 6,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-06.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280434.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20261016g002280446",
+        "grade": "ok_for_added_dashes",
+        "added": 163,
+        "source_glyphs_visually_checked": 163,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "maximum_minimum_or_shape",
+        "notes": "Full-width 25x10 table: 163 new dashes plus two previously restored; no dashes invented in blank section rows.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-06.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280446.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20261016g002280447",
+        "grade": "ok_for_added_dashes",
+        "added": 35,
+        "source_glyphs_visually_checked": 35,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-06.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280447.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 78
+      },
+      {
+        "page": "20261016g002280454",
+        "grade": "ok_for_added_dashes",
+        "added": 16,
+        "source_glyphs_visually_checked": 16,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-06.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280454.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 30
+      },
+      {
+        "page": "20261016g002280464",
+        "grade": "ok_for_added_dashes",
+        "added": 2,
+        "source_glyphs_visually_checked": 2,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-06.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280464.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 1
+      },
+      {
+        "page": "20261016g002280467",
+        "grade": "ok_for_added_dashes",
+        "added": 6,
+        "source_glyphs_visually_checked": 6,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "systematic12",
+        "notes": "Two impairment rows, three dash amount columns each.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-06.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280467.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20261016g002280483",
+        "grade": "ok_for_added_dashes",
+        "added": 9,
+        "source_glyphs_visually_checked": 9,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "maximum_minimum_or_shape",
+        "notes": "Three all-dash impairment rows, three amount columns; exactly nine additions.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-07.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280483.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20261016g002280547",
+        "grade": "ok_for_added_dashes",
+        "added": 16,
+        "source_glyphs_visually_checked": 16,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-07.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280547.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 40
+      },
+      {
+        "page": "20261016g002280556",
+        "grade": "ok_for_added_dashes",
+        "added": 8,
+        "source_glyphs_visually_checked": 8,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-07.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280556.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20261016g002280599",
+        "grade": "ok_for_added_dashes",
+        "added": 40,
+        "source_glyphs_visually_checked": 40,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-07.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280599.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 12
+      },
+      {
+        "page": "20261016g002280615",
+        "grade": "ok_for_added_dashes",
+        "added": 53,
+        "source_glyphs_visually_checked": 53,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-07.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280615.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 0
+      },
+      {
+        "page": "20261016g002280621",
+        "grade": "ok_for_added_dashes",
+        "added": 8,
+        "source_glyphs_visually_checked": 8,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "systematic12",
+        "notes": "Sparse net-asset table: printed dashes preserved while genuinely blank cells stay blank.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-07.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280621.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 7
+      },
+      {
+        "page": "20261016g002280622",
+        "grade": "ok_for_added_dashes",
+        "added": 2,
+        "source_glyphs_visually_checked": 2,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": false,
+        "selection": "all_glyphs_and_geometry",
+        "notes": "All added source glyph images are horizontal bars, with source-rule-backed physical cells. Whole-table context was not separately inspected.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-07.png",
+        "original_image": "cohort2-ruled-dash-images/20261016g002280622.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 3
+      },
+      {
+        "page": "20261019g002290039",
+        "grade": "ok_for_added_dashes",
+        "added": 9,
+        "source_glyphs_visually_checked": 9,
+        "physical_slot_check": "pass",
+        "full_table_context_reviewed": true,
+        "selection": "systematic12",
+        "notes": "Nine new dashes on the capital-surplus change row; numerical and cash-flow rows unchanged.",
+        "glyph_sheet": "cohort2-ruled-dash-images/new-glyph-sheet-07.png",
+        "original_image": "cohort2-ruled-dash-images/20261019g002290039.pdf.png",
+        "remaining_known_glyphs_outside_this_change": 2
+      }
+    ]
+  },
+  "cohort2-fraction-audit.json": {
+    "scope": "Full audit of 7 pages changed by wrapped numeric fractions, after10 to after11; changed expressions only.",
+    "method": "Original Quick Look images, enlarged crops of all 18 changed expressions, and full before/after changed-line comparison. New page 20260909g002010012 was rendered and reviewed in full.",
+    "pages": 7,
+    "expressions": 18,
+    "new_fractions": 27,
+    "ok": 7,
+    "regressions": 0,
+    "entries": [
+      {
+        "page": "20260812g001800020",
+        "grade": "ok",
+        "new_fractions": 5,
+        "expressions": 3,
+        "formula": "Every new fraction is 79.685/100. Parentheses retain initial-period interest plus either second-period interest times the same fraction, or elapsed interest. Multiplication order and preceding/following case text match the source.",
+        "original_image": ".cache/kanpo-227/fraction-images/20260812g001800020.png",
+        "crop_regions": [
+          [
+            0,
+            384.6
+          ],
+          [
+            1,
+            95.2
+          ],
+          [
+            1,
+            485.9
+          ]
+        ],
+        "nonwhitespace_character_changes": {
+          "added": {
+            "(": 5,
+            "/": 5,
+            ")": 5
+          },
+          "removed": {}
+        },
+        "after10_sha256": "b32b7abd9912c8896011d85b3b0f4f0051215c8dd8119f9cc216ef951fd1570d",
+        "after11_sha256": "735695581188f843ecdb7cfa6e7773c858014d17a655e70f2d9d770e308be4af"
+      },
+      {
+        "page": "20260812g001800021",
+        "grade": "ok",
+        "new_fractions": 4,
+        "expressions": 3,
+        "formula": "Every new fraction is 79.685/100. Parentheses retain initial-period interest plus either second-period interest times the same fraction, or elapsed interest. Multiplication order and preceding/following case text match the source.",
+        "original_image": ".cache/kanpo-227/cell-fraction-audit-images/20260812g001800021.pdf.png",
+        "crop_regions": [
+          [
+            0,
+            199.6
+          ],
+          [
+            1,
+            202.7
+          ],
+          [
+            1,
+            484.8
+          ]
+        ],
+        "nonwhitespace_character_changes": {
+          "added": {
+            "(": 4,
+            "/": 4,
+            ")": 4
+          },
+          "removed": {}
+        },
+        "after10_sha256": "e7fe1121add15f3b22a278ca67f1885c88103a0178c01cdff8c43c981373f35e",
+        "after11_sha256": "30891a3e515255cd42d67b2688150c84017bb78cc80385a9ce397119f3eec6c4"
+      },
+      {
+        "page": "20260909g002010011",
+        "grade": "ok",
+        "new_fractions": 2,
+        "expressions": 1,
+        "formula": "Every new fraction is 79.685/100. Parentheses retain initial-period interest plus either second-period interest times the same fraction, or elapsed interest. Multiplication order and preceding/following case text match the source.",
+        "original_image": ".cache/kanpo-227/fraction-images/20260909g002010011.png",
+        "crop_regions": [
+          [
+            1,
+            384.6
+          ]
+        ],
+        "nonwhitespace_character_changes": {
+          "added": {
+            "(": 2,
+            "/": 2,
+            ")": 2
+          },
+          "removed": {}
+        },
+        "after10_sha256": "3667451ab635dcbec9f5ac596952d435efde5a189d50b7e59d64d8c652007c71",
+        "after11_sha256": "f3594a024eca1689f923ee383f4fdb5683d34fa37ccb7467cc658945bbf9f765"
+      },
+      {
+        "page": "20260909g002010012",
+        "grade": "ok",
+        "new_fractions": 4,
+        "expressions": 3,
+        "formula": "Every new fraction is 79.685/100. Parentheses retain initial-period interest plus either second-period interest times the same fraction, or elapsed interest. Multiplication order and preceding/following case text match the source.",
+        "original_image": ".cache/kanpo-227/cell-fraction-audit-images/20260909g002010012.pdf.png",
+        "crop_regions": [
+          [
+            0,
+            99.8
+          ],
+          [
+            0,
+            527.0
+          ],
+          [
+            1,
+            247.8
+          ]
+        ],
+        "nonwhitespace_character_changes": {
+          "added": {
+            "(": 4,
+            "/": 4,
+            ")": 4
+          },
+          "removed": {}
+        },
+        "after10_sha256": "276af0304c7b260ba10d65bfcd0c5db2a7904dd89f4b69808d761bf48eebf3e0",
+        "after11_sha256": "d5a18654c890de37b93bbb7e2f0250d8bae53d88c51e5a90433a6c07cccb6200"
+      },
+      {
+        "page": "20260909g002010013",
+        "grade": "ok",
+        "new_fractions": 3,
+        "expressions": 2,
+        "formula": "Every new fraction is 79.685/100. Parentheses retain initial-period interest plus either second-period interest times the same fraction, or elapsed interest. Multiplication order and preceding/following case text match the source.",
+        "original_image": ".cache/kanpo-227/cell-fraction-audit-images/20260909g002010013.pdf.png",
+        "crop_regions": [
+          [
+            0,
+            241.4
+          ],
+          [
+            0,
+            490.9
+          ]
+        ],
+        "nonwhitespace_character_changes": {
+          "added": {
+            "(": 3,
+            "/": 3,
+            ")": 3
+          },
+          "removed": {}
+        },
+        "after10_sha256": "1a2ccc36a5a09e7fe5b3a69044201ef2665b31a053c3f08b89a341e0d8b94d32",
+        "after11_sha256": "34286d2b6b426d8d25ede6d40326ec56b7de50f822cba041f657e0baea729432"
+      },
+      {
+        "page": "20261014g002250010",
+        "grade": "ok",
+        "new_fractions": 3,
+        "expressions": 2,
+        "formula": "Every new fraction is 79.685/100. Parentheses retain initial-period interest plus either second-period interest times the same fraction, or elapsed interest. Multiplication order and preceding/following case text match the source.",
+        "original_image": ".cache/kanpo-227/cell-fraction-audit-images/20261014g002250010.pdf.png",
+        "crop_regions": [
+          [
+            0,
+            448.9
+          ],
+          [
+            1,
+            171.4
+          ]
+        ],
+        "nonwhitespace_character_changes": {
+          "added": {
+            "(": 3,
+            "/": 3,
+            ")": 3
+          },
+          "removed": {}
+        },
+        "after10_sha256": "3ccc3690ec242af584396e2fa692c99679d3476fee83adf52370b9229079e73d",
+        "after11_sha256": "ec8f2985f0fa8b11aff7a30e06f49366b0946b161ca2f3f65287562fdddd274d"
+      },
+      {
+        "page": "20261014g002250011",
+        "grade": "ok",
+        "new_fractions": 6,
+        "expressions": 4,
+        "formula": "Every new fraction is 79.685/100. Parentheses retain initial-period interest plus either second-period interest times the same fraction, or elapsed interest. Multiplication order and preceding/following case text match the source.",
+        "original_image": ".cache/kanpo-227/fraction-images/20261014g002250011.png",
+        "crop_regions": [
+          [
+            0,
+            86.0
+          ],
+          [
+            0,
+            310.0
+          ],
+          [
+            1,
+            271.2
+          ],
+          [
+            1,
+            495.6
+          ]
+        ],
+        "nonwhitespace_character_changes": {
+          "added": {
+            "(": 6,
+            "/": 6,
+            ")": 6
+          },
+          "removed": {}
+        },
+        "after10_sha256": "d752a6b79624015dda51699455d70b7fbc6dc900fa61231de6ede7b6d10a3c65",
+        "after11_sha256": "bb1dc29e283f7fd57eaa05777ba07b0217d6bcbaf6490a33fc14726ce70e3cd4"
+      }
+    ]
+  },
+  "cohort2-date-audit.json": [
+    {
+      "page": "20260901g001950008",
+      "verdict": "improvement",
+      "dates": "日付対応の評価対象ではない、公安委員会の文書管理の新旧別表。",
+      "record_boundaries": "原本上段の〔別表を削る。〕と下段左の旧別表第二（第十二条関係）は別領域。after10の同一行連結からafter11の独立2行（7〜8行）となり、原本に対応する。全15行と画像を照合し、他の項目・保存期間・措置に混入なし。",
+      "regression": false,
+      "notes": "after10→after11で非空白文字は同一。今回の変化は別表削除注と旧表見出しの行境界のみ。"
+    },
+    {
+      "page": "20260901g001950020",
+      "verdict": "mixed_improvement_and_regression",
+      "dates": "上段12個の変更日が各対象列に戻る。田中（斉藤）八、四、二五、田中（田中）八、五、八、中国七、一〇、一七、忠政八、三、三一、つばさ区分六、五、一・会計八、三、二五、強い福島八、三、二三、定期健康診断七、一二、三一、TKC八、四、二二、東京公司八、一、七、闘心八、三、一〇、呑舟八、三、一を全件原本照合。下段は不変。",
+      "record_boundaries": "団体間の境界と所在地の折返しは維持。田中（斉藤・田中）の別2件は混ざらない。",
+      "regression": true,
+      "grade_of_regression": "major",
+      "notes": "複数変更の小行が無区切り連結される。after10 3〜6行では田中（田中）の所在地・代表者・会計責任者・区分を分けていたが、after11 2行は欄名を連結し、新値を東京都千代田区永田町二－一－二田中昌史内藤貴司法第…、旧値も東京都品川区南品川二－一七－三五斉藤秀之友清直樹法第…と連結。住所末尾と氏名・複数氏名の境界を復元できない。同様に1行の田中（斉藤）の氏名＋区分、4行の忠政会の代表者＋会計責任者も連結する。日付は改善するが小行の意味対応は退行のため現patch単体採用不可。after10→11非空白文字multisetは同一。",
+      "revised_prototype": {
+        "patch": "dated-record-subrows.patch",
+        "verdict": "improvement_without_regression",
+        "checks": "未緩和のfitと行頭を維持し、日付帯だけを追加する新版。p20の12変更日対応とp18の13団体日付を全件照合。両ページで日付を除いた全文小行はafter10と完全同一、所在地/氏名/会計/区分の連結退行なし。p16/p21全文不変。",
+        "regression": false
+      }
+    }
+  ],
+  "chain-rule-audit.json": [
+    {
+      "page": "20261009g002230084",
+      "verdict": "improvement",
+      "regression": false,
+      "notes": "原本とafter10→after12の全40行を照合。上表の改正後の放送業務用区分2・削除2・略注記が改正前に混入していたが、9〜13行で改正後へ戻る。旧欄の見出し1も後欄末尾の重複から前欄15行へ戻る。旧878の栃木2地点と旧放送2の東京2地点は対応範囲とともに前欄に保たれ、備考の後から次の八改正指示となる。新たな所属崩れなし。",
+      "existing_issue": "下表の旧欄の見出し1が改正後31行末に付く局所誤りはafter10から不変。最終表の左右境界判定に残る。",
+      "non_whitespace_characters_preserved": true
+    },
+    {
+      "page": "20261009g002230086",
+      "verdict": "improvement",
+      "regression": false,
+      "notes": "原本とafter10→after12差分を再照合。改正後の削除6/12、7〜11略、13〜130略、2・3略が後欄へまとまる。改正前には旧6北見/訓子府と旧12千歳の行・同左注記が残る。旧欄の見出し1も後欄末尾から前欄へ戻る。備考・次の十改正指示の順も正しい。",
+      "non_whitespace_characters_preserved": true
+    },
+    {
+      "page": "20261009g002230089",
+      "verdict": "improvement",
+      "regression": false,
+      "notes": "原本とafter10→after12差分を再照合。旧区分10の逗子市池子・横浜市磯子区と対応範囲が、備考の後の次表前文から改正前表へ戻る。備考17行・十六改正指示18行より先に読み、改正後には区分9のみ。実PDF回帰でunit0 Beforeのセル10所属も確認済み。",
+      "non_whitespace_characters_preserved": true
+    }
+  ],
+  "cohort2-rule-audit.json": [
+    {
+      "page": "20260722h017520029",
+      "verdict": "improvement",
+      "notes": "原本左列下部の土地管理見出しを右端合併公告の甲住所から分離。after11 1–2行が土地見出し、3–4行が建物見出しとなり、合併公告の日付11行→住所12行へ連続する。全出力と原本照合済み。家裁本文の文字層なしは修正範囲外。"
+    },
+    {
+      "page": "20260724g001640050",
+      "verdict": "improvement",
+      "notes": "原本は上下2段、各段右→左の外国紋章25/26、27/28。after10は25+27、26+28を同行へ連結。after11は25→26→27→28の4行へ分離し、原本の図ごとの並びに一致する。紋章図の色注記は画像内で文字層なし。"
+    },
+    {
+      "page": "20260817h017690025",
+      "verdict": "improvement",
+      "notes": "原本左列中段の土地管理見出し末尾と右端下部の会社その他の公告は別区画。after10 2行で両者を同行へ連結していたが、after11 2行末「する異議の催告」、3行「会社その他の公告」へ分離。合併公告全本文・甲乙の官報掲載日頁・署名の対応は維持。原本の家裁本文は文字層なしで評価対象外。"
+    }
+  ],
+  "two_record_tables": {
+    "patch": ".cache/kanpo-227/two-record-headed-table-narrow.patch",
+    "basis": "Original keyed_tables after root reverted the first proposal",
+    "guards": [
+      "Overhang and bbox expansion apply only to newly accepted geometric_two tables. Existing >=3 record tables and legacy 2-record exception keep the exact former behavior.",
+      "Both keys have >=3 digits and identical non-digit/digit-position pattern. This prevents unrelated type/name fragments from becoming a pair.",
+      "Distinct independent header columns >=3, and the inferred repeated body-column count must exactly equal the header-column count.",
+      "Any separate article heading recognized by segment::is_heading_mark or sentence terminator inside the proposed table rejects the geometric pair."
+    ],
+    "observed": "All 4 reported regressions (1765p4,161p57,1749p2,207p69) are byte-identical to after12 after strip. 1754p6 remains correct, full 3x5 table and date/signer ahead.",
+    "previous_17_pages_changed": [
+      "20260724h017540006",
+      "20260901g001950018",
+      "20260901g001950020",
+      "20261008h018040004",
+      "20261015h018080002"
+    ],
+    "note": "195p18/20 differences in cache copy are inherited dated-record changes; not part of the horizontal-only patch. Broad 11992-page revalidation still needed.",
+    "visual_validation": [
+      {
+        "page": "20261008h018040004",
+        "verdict": "improvement",
+        "table": {
+          "rows": 3,
+          "cols": 5,
+          "word_ids": 24,
+          "unique_word_ids": 24
+        },
+        "page_word_ids": {
+          "used": 288,
+          "rendered": 288,
+          "unique": 288,
+          "missing_used_ids": [],
+          "duplicate_ids": []
+        },
+        "image": "/tmp/20261008h018040004.png",
+        "text": ".cache/kanpo-227/type-narrow/20261008h018040004.txt",
+        "evidence": "原本右中段、告示1205の2件×5欄を照合。P280の藤倉コンポジット株式会社と東京都品川区西五反田八丁目4番13号五反田JPビルディングの折返しが各セルへ戻り、P281はFNB-1型と3つの同上記号がそれぞれ対応。ヘッダ5欄も一致。令和八年十月八日と国土交通大臣井林辰憲は表前、次の告示1206と1745表は表外のまま。左の前表全件・右上継続9件も変更なし。"
+      },
+      {
+        "page": "20261015h018080002",
+        "verdict": "improvement",
+        "table": {
+          "rows": 3,
+          "cols": 4,
+          "word_ids": 19,
+          "unique_word_ids": 19
+        },
+        "page_word_ids": {
+          "used": 267,
+          "rendered": 267,
+          "unique": 267,
+          "missing_used_ids": [],
+          "duplicate_ids": []
+        },
+        "image": "/tmp/20261015h018080002.png",
+        "text": ".cache/kanpo-227/type-narrow/20261015h018080002.txt",
+        "evidence": "原本右下、告示1223のTA0007-1/2を照合。番号の枝番、トヨタ7AW-AXUH78R、ステーションワゴン、会社・愛知県豊田市トヨタ町1番地が4欄の対応を保つ（会社名と住所は同一欄内の空白区切り）。第二行3欄の同上記号も一致。令和八年十月十五日と大臣署名は表前に揃い、告示1223本文を表へ取り込まない。左TA0005-16..42と右上TA0006-1..18は既存出力どおり。既存TA0006の会社住所列の別出しは未修正のmajorで、この変更による新規悪化ではない。"
+      }
+    ]
+  },
+  "map_table": {
+    "page": "20260831h017790010",
+    "patch": ".cache/kanpo-227/paired-ditto-columns.patch",
+    "output": ".cache/kanpo-227/1779-map-final.txt",
+    "guards": [
+      "Existing pure ditto path unchanged. New paired path requires >=3 stable same-x ditto marks in the right leading column, matching >=3 marks in the same left column, sizes within 20%, same y, gap below 32em. All actual values must precede marks; at most two prefix words per column. Wrapped headers/values remain under existing logic.",
+      "band_cut suppresses an adjacent row cut only when >=2 stable simple repeated columns align, and one has an initial value >=12em wide immediately before the run (gap <=0.5em). Short ordinary cells and wrapped starts do not qualify. This wide initial value is what creates the long gutter and makes short prefixes falsely look like independent columns."
+    ],
+    "rows": [
+      "小郡",
+      "矢田",
+      "山口",
+      "仁保",
+      "那古",
+      "保田",
+      "金束",
+      "上総湊",
+      "鬼泪山",
+      "浅虫"
+    ],
+    "validation": {
+      "data_rows": 10,
+      "data_word_ids": 52,
+      "unique_data_word_ids": 52,
+      "tests": "11 paired_ditto_tests passed: 2 positives (including full horizontal_lines), 9 negatives including wrapped right header/initial value and wrapped left partner.",
+      "test_file": ".cache/kanpo-227/paired_ditto_tests.rs",
+      "page_word_ids": {
+        "used": 71,
+        "rendered": 71,
+        "unique": 71,
+        "missing_used_ids": [],
+        "duplicates": []
+      }
+    },
+    "remaining": "Court notice body is image-only; available notice headings stay after map notes. Spacing between the last ditto and area name follows the existing render_line behavior.",
+    "similar_page_probes": [
+      {
+        "page": "20260831h017790009",
+        "result": "unchanged after strip compared with after12"
+      },
+      {
+        "page": "20260730h017580007",
+        "result": "unchanged after strip compared with after12"
+      },
+      {
+        "page": "20260929h017970007",
+        "result": "unchanged after strip compared with after12"
+      },
+      {
+        "page": "20260911g002030035",
+        "result": "unchanged after strip compared with after12"
+      },
+      {
+        "page": "20261001h017990008",
+        "result": "unchanged after strip compared with after12"
+      }
+    ],
+    "discarded_prototype": "Broad adjacent-ditto band protection regressed preceding p9: it fixed last upper-row summary ditto but detached lower table header/species and first wrapped value. Revised >=12em-wide initial-value guard restores p9 byte-identical after strip, with p10 all10 rows still correct.",
+    "status": "Ready for parent whole-corpus comparison; patch contains repeat_marks and band_cut only. No production files edited."
+  },
+  "character_unit": {
+    "scope": "11992 original PDFs scanned; U+E68C occurs only twice in the same area-unit phrase; both source crops inspected.",
+    "pages": [
+      "20260831g001930165",
+      "20260831g001930166"
+    ],
+    "mapping": "U+E68C → ㎠"
+  },
+  "spaced_title_additional_page": {
+    "page": "20261016g002280170",
+    "result": "Full source page inspected: only the full-width net-asset title/date moved after both upper columns. No character change."
+  },
+  "partitioned_dash_extension": {
+    "scope": "after15相当の既存解析＋拡張prototype。後半30頁のtable previewはroot統合後の現rlibでも再取得。ページ全体の独立ok率採点ではなく、今回変更した表の行列対応の退行監査。",
+    "full_corpus": {
+      "pages": 11992,
+      "changed_pages": 311,
+      "added_known_E61C": 3378,
+      "non_dash_non_whitespace_text_changed": 0,
+      "old_word_ids_lost": 0,
+      "duplicate_word_ids": 0,
+      "word_source": "追加は元raw E61CでEmpty→Usedの語のみ。物理セル内包はhelperガードが確認。元字形未取得の推測補完なし。"
+    },
+    "visual_scope": {
+      "known_glyph_crop_audit": 664,
+      "new_whole_table_pages": 30,
+      "new_whole_table_tables": 39,
+      "new_whole_table_glyphs": 950,
+      "new_page_pool": 278,
+      "new_page_pool_glyphs": 2714,
+      "unseen_whole_table_pages": 248,
+      "whole_changed_table_check_regressions": 0,
+      "note": "既知664字は字形cropを全数目視（全表目視と同義ではない）。追加30頁は変更対象表を端から端まで原本照合。全3378字を全表目視したとは主張しない。"
+    },
+    "selection": {
+      "pool": 278,
+      "pool_new_glyphs": 2714,
+      "excluded_known_pages": 33,
+      "systematic_indices": [
+        0,
+        25,
+        50,
+        76,
+        101,
+        126,
+        151,
+        176,
+        201,
+        227,
+        252,
+        277
+      ],
+      "seed": 227113
+    },
+    "pages": [
+      {
+        "page": "20261016g002280429",
+        "added": 173,
+        "reason": "new glyph count top6",
+        "table_shapes": [
+          {
+            "rows": 25,
+            "cols": 12,
+            "merged": 2,
+            "bbox": [
+              69.5,
+              68.42900085449219,
+              780.5,
+              549.0
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "12列の純資産変動表全体を照合。政府出資金〜大学運営基金の11数値欄へ173字を復元。結合見出しを保ち、出資金/減資/各資産変動と繰越・振替・積立の行へ元の横棒が対応する。固定資産取得2,531,281、減価償却△2,386,166、利息△10を保持。区分名の本当の空欄は空欄のまま。"
+      },
+      {
+        "page": "20261016g002280332",
+        "added": 143,
+        "reason": "new glyph count top6",
+        "table_shapes": [
+          {
+            "rows": 20,
+            "cols": 9,
+            "merged": 0,
+            "bbox": [
+              69.5,
+              46.0,
+              501.5,
+              548.9990234375
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "継続9列の表全体を照合。143字は右端4,171,157〜△54,703/△5,093,090等と同じ原罫行、及び後半の全横棒行へ正しい列で復元。△378,349三連と414,123/3,722,853/△4,136,976も不変。範囲外残件として、最初の数値より上の全横棒2行は引き続き出力されない。"
+      },
+      {
+        "page": "20261016g002280063",
+        "added": 134,
+        "reason": "new glyph count top6",
+        "table_shapes": [
+          {
+            "rows": 20,
+            "cols": 9,
+            "merged": 3,
+            "bbox": [
+              69.5,
+              59.17900085449219,
+              501.5,
+              549.0
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "3段の結合見出しをもつ9列継続表全体を照合。134字は最初の28,310/1,912/57,665/△223/87,664/288,363の位置を動かさず、800/1,652/△3/△5,824/0/△868/352/5,500の各行と全横棒行へ対応。"
+      },
+      {
+        "page": "20261016g002280005",
+        "added": 111,
+        "reason": "new glyph count top6",
+        "table_shapes": [
+          {
+            "rows": 27,
+            "cols": 16,
+            "merged": 4,
+            "bbox": [
+              69.5,
+              67.5,
+              780.5,
+              549.0
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "16列の純資産変動表全体を照合。資本金/資本剰余金/利益剰余金の結合見出しを保ち111字復元。1,343の取得、△1の除売却、△0の債務増加、604の純利益、0の積立金取崩を区別。区分名の空欄へは足していない。"
+      },
+      {
+        "page": "20261016g002280064",
+        "added": 72,
+        "reason": "new glyph count top6",
+        "table_shapes": [
+          {
+            "rows": 15,
+            "cols": 9,
+            "merged": 0,
+            "bbox": [
+              69.5,
+              46.0,
+              501.5,
+              330.85699462890625
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "上部9列継続表全体を照合。72字は全横棒行と△223/223、4,051四連、△1,139/1,069/△70等の疎な行の同じ欄に対応。最終行26,947〜293,215を保持し、下の財源別増減表との混入なし。"
+      },
+      {
+        "page": "20261016g002280330",
+        "added": 72,
+        "reason": "new glyph count top6",
+        "table_shapes": [
+          {
+            "rows": 18,
+            "cols": 13,
+            "merged": 2,
+            "bbox": [
+              69.5,
+              178.5,
+              780.5,
+              548.99951171875
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "13列純資産変動表全体を照合。72字は出資金受入/減資と土地譲渡/有価証券/出えん等の行へ対応。3段見出しと4,171,157/115,470/△170,173/4,595/631の欄位置を保持。表外の行政コスト本文2横棒は対象外のまま。"
+      },
+      {
+        "page": "20260716g001590064",
+        "added": 1,
+        "reason": "new glyph count bottom4",
+        "table_shapes": [
+          {
+            "rows": 14,
+            "cols": 3,
+            "merged": 1,
+            "bbox": [
+              56.75,
+              298.75,
+              199.25,
+              416.25
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "変更したモビテラ社の3列貸借対照表全体を照合。追加1字は固定負債の欄に対応し、流動負債1,835/株主資本△835/合計1,000不変。固定資産の別の横棒は今回対象外のまま。"
+      },
+      {
+        "page": "20260716g001590075",
+        "added": 1,
+        "reason": "new glyph count bottom4",
+        "table_shapes": [
+          {
+            "rows": 13,
+            "cols": 3,
+            "merged": 1,
+            "bbox": [
+              56.75,
+              120.75,
+              199.25,
+              230.25
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "変更したMRF社3列貸借対照表全体を照合。追加1字は固定負債で、流動負債95,741/株主資本729,142/合計824,884を保持。他社との混入なし。"
+      },
+      {
+        "page": "20260716g001590098",
+        "added": 1,
+        "reason": "new glyph count bottom4",
+        "table_shapes": [
+          {
+            "rows": 15,
+            "cols": 2,
+            "merged": 0,
+            "bbox": [
+              266.75,
+              471.75,
+              369.25,
+              598.25
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "医療法人社団明日佳の2列PL全体を照合。追加1字は特別利益の横棒で、経常利益1,192/特別損失0/法人税等調整額△28/純利益922の順と対応を保持。0を横棒へ置換していない。"
+      },
+      {
+        "page": "20260716g001590103",
+        "added": 1,
+        "reason": "new glyph count bottom4",
+        "table_shapes": [
+          {
+            "rows": 13,
+            "cols": 3,
+            "merged": 1,
+            "bbox": [
+              61.25,
+              306.75,
+              203.75,
+              416.25
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "高岡電装3列BS全体を照合。固定負債の1字を復元、流動負債2,614/株主資本87,332/合計89,947不変。合併公告・他会社の表はそのまま。"
+      },
+      {
+        "page": "20260716g001590045",
+        "added": 3,
+        "reason": "systematic12 index0",
+        "table_shapes": [
+          {
+            "rows": 5,
+            "cols": 4,
+            "merged": 0,
+            "bbox": [
+              621.5,
+              84.0,
+              780.5,
+              170.71400451660156
+            ]
+          },
+          {
+            "rows": 5,
+            "cols": 4,
+            "merged": 0,
+            "bbox": [
+              621.5,
+              208.60699462890625,
+              780.5,
+              295.3210144042969
+            ]
+          },
+          {
+            "rows": 5,
+            "cols": 4,
+            "merged": 0,
+            "bbox": [
+              621.5,
+              337.6789855957031,
+              780.5,
+              424.39300537109375
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "業務経理BS/PLと保健経理BSの変更3表全体を照合。3字は固定負債、特別損失、固定負債にそれぞれ対応。4列借貸配置を保ち実際の空欄へ補完していない。特別利益等の未復元横棒は範囲外のまま。"
+      },
+      {
+        "page": "20260721g001610154",
+        "added": 1,
+        "reason": "systematic12 index25",
+        "table_shapes": [
+          {
+            "rows": 9,
+            "cols": 2,
+            "merged": 0,
+            "bbox": [
+              266.75,
+              703.75,
+              369.25,
+              782.25
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "NTT TEPCOデータセンター社の2列PL全体を照合。先頭営業収益の1字を復元、営業費用/損失115,406、経常損失109,808、純損失111,018不変。"
+      },
+      {
+        "page": "20260724g001660101",
+        "added": 1,
+        "reason": "systematic12 index50",
+        "table_shapes": [
+          {
+            "rows": 12,
+            "cols": 4,
+            "merged": 0,
+            "bbox": [
+              309.75,
+              323.75,
+              540.25,
+              414.25
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "慶友会の4列PL全体を照合。右半分の法人税等調整額1字を復元。左側本来/附帯の内訳及び右側特別利益6,799/特別損失2,368/純利益577,322を保持。"
+      },
+      {
+        "page": "20260731g001730062",
+        "added": 30,
+        "reason": "systematic12 index76",
+        "table_shapes": [
+          {
+            "rows": 15,
+            "cols": 11,
+            "merged": 4,
+            "bbox": [
+              69.5,
+              297.4649963378906,
+              780.5,
+              548.99951171875
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "11列純資産変動表全体を照合。多段の結合見出しの下の繰越/積立/国庫納付の3行10欄=30字を復元。元の空の区分行は空のまま、990,751,550や除売却・減価償却の行不変。"
+      },
+      {
+        "page": "20260807g001780121",
+        "added": 8,
+        "reason": "systematic12 index101",
+        "table_shapes": [
+          {
+            "rows": 14,
+            "cols": 4,
+            "merged": 0,
+            "bbox": [
+              225.75,
+              116.75,
+              432.25,
+              232.25
+            ]
+          },
+          {
+            "rows": 15,
+            "cols": 2,
+            "merged": 0,
+            "bbox": [
+              437.75,
+              101.75,
+              540.25,
+              232.25
+            ]
+          },
+          {
+            "rows": 14,
+            "cols": 4,
+            "merged": 0,
+            "bbox": [
+              225.75,
+              300.75,
+              432.25,
+              416.25
+            ]
+          },
+          {
+            "rows": 15,
+            "cols": 2,
+            "merged": 0,
+            "bbox": [
+              437.75,
+              285.75,
+              540.25,
+              416.25
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "エスアイエル/UH Partners3のBS/PL計4表全体を照合。8字は利益準備金1、PL特別利益/損失2、BS資本剰余金/準備金/その他3、別PL特別利益/損失2へ正しく対応。既知の営業総利益1,419,551と販売費及び一般管理費の分離を維持。ただし小文字折返しの販売費欄の横棒は今回も対象外。"
+      },
+      {
+        "page": "20260827g001910046",
+        "added": 1,
+        "reason": "systematic12 index126",
+        "table_shapes": [
+          {
+            "rows": 15,
+            "cols": 3,
+            "merged": 1,
+            "bbox": [
+              395.75,
+              474.75,
+              538.25,
+              600.25
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "ワークス・ジャパンの3列BS全体を照合。追加1字は固定負債。賞与引当金(77,000)/株主資本2,000,663/合計2,600,606不変。"
+      },
+      {
+        "page": "20260911g002030107",
+        "added": 3,
+        "reason": "systematic12 index151",
+        "table_shapes": [
+          {
+            "rows": 12,
+            "cols": 2,
+            "merged": 0,
+            "bbox": [
+              437.75,
+              491.75,
+              540.25,
+              598.25
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "アリナミン製薬2列PL全体を照合。売上高・原価・総利益の先頭3行を復元。販売費92、営業外収益1,883/費用8,808、純損失7,017の対応を保持。"
+      },
+      {
+        "page": "20261001g002170157",
+        "added": 4,
+        "reason": "systematic12 index176",
+        "table_shapes": [
+          {
+            "rows": 13,
+            "cols": 2,
+            "merged": 0,
+            "bbox": [
+              437.75,
+              119.75,
+              540.25,
+              230.25
+            ]
+          },
+          {
+            "rows": 14,
+            "cols": 2,
+            "merged": 0,
+            "bbox": [
+              437.75,
+              295.75,
+              540.25,
+              414.25
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "JDP3と八千代4の2列PL2表全体を照合。営業収益2字、営業外費用1字、特別利益1字を復元。両社の営業損失5,098/5,155及び期末繰越29,774/155,092を保持。"
+      },
+      {
+        "page": "20261016g002280016",
+        "added": 64,
+        "reason": "systematic12 index201",
+        "table_shapes": [
+          {
+            "rows": 11,
+            "cols": 9,
+            "merged": 0,
+            "bbox": [
+              69.5,
+              46.0,
+              573.5,
+              549.0
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "9列継続表全体を照合。64字は最初の数値行から下の全横棒行/192,919の行/△5,000・1,138の行へ対応。最終44,685,935の欄を保持。数値より上の全横棒行群はガード対象外で引き続き未復元。"
+      },
+      {
+        "page": "20261016g002280272",
+        "added": 6,
+        "reason": "systematic12 index227",
+        "table_shapes": [
+          {
+            "rows": 6,
+            "cols": 7,
+            "merged": 0,
+            "bbox": [
+              69.5,
+              46.0,
+              573.5,
+              153.0
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "上部7列継続表全体を照合。中間3行の右端2欄、計6字を復元。左5欄は元から空なので空のまま。初行△1,013,265,257と最終53,372,960,160の位置を保持。"
+      },
+      {
+        "page": "20261020g002300086",
+        "added": 3,
+        "reason": "systematic12 index277",
+        "table_shapes": [
+          {
+            "rows": 11,
+            "cols": 2,
+            "merged": 0,
+            "bbox": [
+              351.0,
+              676.75,
+              453.5,
+              779.25
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "MC1社の2列PL全体を照合。売上高/原価/総利益3字を復元。営業外収益0はそのまま。既存の法人税等/調整額の小さい折返し箇所は横棒未復元・ラベル連結のままで今回変更なし。"
+      },
+      {
+        "page": "20260716g001590095",
+        "added": 3,
+        "reason": "new table shape",
+        "table_shapes": [
+          {
+            "rows": 11,
+            "cols": 4,
+            "merged": 3,
+            "bbox": [
+              225.75,
+              134.75,
+              432.25,
+              230.25
+            ]
+          },
+          {
+            "rows": 10,
+            "cols": 2,
+            "merged": 0,
+            "bbox": [
+              437.75,
+              329.75,
+              540.25,
+              416.25
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "Tokyo24社の4列BSとBCJ51社の2列PL全体を照合。特定資産/固定資産と営業収益の3字を復元。BS結合見出し、負債合計125,392、PL営業費用/損失545、純損失18,419不変。"
+      },
+      {
+        "page": "20260810g001790119",
+        "added": 20,
+        "reason": "new table shape",
+        "table_shapes": [
+          {
+            "rows": 12,
+            "cols": 6,
+            "merged": 0,
+            "bbox": [
+              69.5,
+              46.0,
+              501.5,
+              285.0
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "上部6列継続表全体を照合。先頭4行の左5欄=20字を復元し、右端567,893,151/△10,520,117/△855,267,395/△1,349,352へ対応。元の空行は出力へ足さず、後続382,425,585や1,690,239,870の行不変。"
+      },
+      {
+        "page": "20260820g001860085",
+        "added": 1,
+        "reason": "new table shape",
+        "table_shapes": [
+          {
+            "rows": 9,
+            "cols": 6,
+            "merged": 2,
+            "bbox": [
+              69.5,
+              349.7860107421875,
+              780.5,
+              549.0
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "下部6列純資産表全体を照合。右端の不要財産減資1字だけ復元。利益剰余金の結合見出し、国庫納付準備金12,204,504,629、総計115,474,200,187や取得3,298,613/除売却△2,729,537を保持し、他の実空欄へ補完していない。"
+      },
+      {
+        "page": "20260911g002030069",
+        "added": 30,
+        "reason": "new table shape",
+        "table_shapes": [
+          {
+            "rows": 21,
+            "cols": 8,
+            "merged": 1,
+            "bbox": [
+              69.5,
+              151.78599548339844,
+              780.5,
+              548.99951171875
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "JOGMEC8列BS全体を照合。30字は前渡金、未収消費税、関係会社・民間備蓄融資貸付、立替金等の各7勘定欄へ対応。多額1,230,378,530,198や負号付き累計額等を保持し、結合資産見出し不変。"
+      },
+      {
+        "page": "20260911g002030075",
+        "added": 30,
+        "reason": "new table shape",
+        "table_shapes": [
+          {
+            "rows": 26,
+            "cols": 3,
+            "merged": 0,
+            "bbox": [
+              69.5,
+              57.9640007019043,
+              309.5,
+              549.0
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "3列継続表全体を照合。石炭経過勘定/調整/法人単位の各欄30字を復元。先頭353,780,694/−2,146,970,355/1,212,374,612,045、69,000/10相当の少額行、末尾92,764,433,250まで行対応を保持。元から文字として出る−との混同なし。"
+      },
+      {
+        "page": "20260911g002030077",
+        "added": 12,
+        "reason": "new table shape",
+        "table_shapes": [
+          {
+            "rows": 12,
+            "cols": 8,
+            "merged": 0,
+            "bbox": [
+              69.5,
+              46.0,
+              780.5,
+              197.6790008544922
+            ]
+          },
+          {
+            "rows": 16,
+            "cols": 3,
+            "merged": 0,
+            "bbox": [
+              69.5,
+              210.25,
+              309.5,
+              443.0360107421875
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "上部8列行政コスト表と中央3列継続表全体を照合。12字は元の数値帯の同じ論理行へ復元。3,329,686/51,845,541や127,827,154,426等の欄位置不変。横罫のない長い列中の横棒には今回も対象外が残るが、誤補完なし。"
+      },
+      {
+        "page": "20261016g002280031",
+        "added": 16,
+        "reason": "new table shape",
+        "table_shapes": [
+          {
+            "rows": 19,
+            "cols": 7,
+            "merged": 2,
+            "bbox": [
+              69.5,
+              57.92900085449219,
+              517.5,
+              406.0
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "7列継続表全体を照合。16字は利益剰余金合計・純資産合計の末尾2欄へ対応。左側の大きな実空欄は維持。820,797/△0/△977,959/△328、585,995及び期末26,441,821の対応不変。"
+      },
+      {
+        "page": "20261008g002220069",
+        "added": 3,
+        "reason": "fixed seed227113 random supplement",
+        "table_shapes": [
+          {
+            "rows": 6,
+            "cols": 2,
+            "merged": 0,
+            "bbox": [
+              69.5,
+              58.28499984741211,
+              412.5,
+              146.5709991455078
+            ]
+          },
+          {
+            "rows": 4,
+            "cols": 2,
+            "merged": 0,
+            "bbox": [
+              69.5,
+              321.9280090332031,
+              412.5,
+              396.2139892578125
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "2列退職給付表と資産除去債務増減表全体を照合。過去勤務費用1字、時の経過/履行額2字の計3字を復元。526/27/△730/△177、期首・期末55はそのまま。"
+      },
+      {
+        "page": "20261016g002280620",
+        "added": 2,
+        "reason": "fixed seed227113 random supplement",
+        "table_shapes": [
+          {
+            "rows": 8,
+            "cols": 9,
+            "merged": 2,
+            "bbox": [
+              69.5,
+              387.7139892578125,
+              780.5,
+              549.00048828125
+            ]
+          }
+        ],
+        "change_grade": "ok",
+        "whole_changed_tables_visually_checked": true,
+        "notes": "下部9列純資産表全体を照合。当期変動額行の政府出資金ではなく資本金合計と資本剰余金合計の2字を復元。その他欄は元から空。多段見出し、取得2,048,442,780、除売却△964,800/43,909,135/△44,429,155を保持。"
+      }
+    ]
+  }
+}
