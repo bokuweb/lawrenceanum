@@ -28,8 +28,11 @@ pub use bill_amendments::{bill_amendments_health, run_link_bill_amendments};
 pub use hanrei::run_link_hanrei;
 pub use rulemaking::run_link_rulemaking;
 pub use shingikai::run_link_shingikai;
+mod guidance;
 mod law_refs;
 mod shitsumon;
+pub use guidance::run_link_guidance;
+pub use law_refs::LawRefResolver;
 pub use shitsumon::run_link_shitsumon;
 
 // ── 公開型 ────────────────────────────────────────────────────────

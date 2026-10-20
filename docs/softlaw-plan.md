@@ -23,9 +23,17 @@
 ## 実装状況 / 次
 - ✅ `tsutatsu-client`（国税庁・所得税基本通達）MVP: 目次→本文ページ→通達項目(番号/見出し/本文)抽出。
   CLI `tsutatsu-fetch`/`tsutatsu-build-json` → `public/tsutatsu/{tax}.json`。ライブ検証済(73頁)。
+- ✅ `guidance-client`（政府解釈, #198）: 省庁アダプタ方式で共通スキーマ（発出日・発出元・関連法令・本文/添付）に正規化。
+  初手は金融庁 (`fsa`): ノーアクションレター・一般的な法令解釈に係る書面照会・相談事例（Excel）・
+  「告示・ガイドライン・Q&A・法令解釈事例集一覧」の Q&A/ガイドライン PDF。PDL1.0（出典＋加工の旨を各文書に記載）、
+  robots.txt 不在。添付は SHA-256 で content-addressed 保存＋pdftotext。CLI `guidance-fetch`/`guidance-build-json`、
+  `link-laws-and-guidance` → `links/law-to-guidance/{law_id}.json`、法令詳細に「政府解釈」パネル。
+  金融庁のパブコメ回答は e-Gov 結果公示なので `pubcomment-client` 側（重複取得しない）。
+  残: スキャン PDF の照会書・回答書（OCR はしない）、証券法令解釈事例集など索引 HTML 配下の深い巡回、他省庁アダプタ。
 - 次: (a) 他税目(法人税/相続税/消費税)へ拡張、(b) フロント「通達」ビュー＋検索索引取り込み、
   (c) 法令↔通達クロスリンク（通達本文の「法第N条」参照）、(d) CI接続、(e) 個情委ガイドライン。
 
 ## 出典
 国税庁通達 https://www.nta.go.jp/law/tsutatsu/kihon/shotoku/01.htm ／ 利用規約 https://www.nta.go.jp/chuijiko/copy.htm ／
+金融庁 法令適用事前確認手続 https://www.fsa.go.jp/common/noact/index.html ／ 金融庁 利用規約 https://www.fsa.go.jp/rules/index.html ／
 e-Gov法令API(硬法令のみ) https://laws.e-gov.go.jp/docs/law-data-basic/8529371-law-api-v1/ ／ 著作権法13条 https://laws.e-gov.go.jp/law/345AC0000000048

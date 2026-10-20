@@ -2,46 +2,51 @@
   "version": 2,
   "corpora": {
     "procurement": {
-      "last_attempt_at": "2026-10-18T20:35:49Z",
-      "status": "success",
+      "last_attempt_at": "2026-10-19T20:45:45Z",
+      "status": "failure",
       "last_success_at": "2026-10-18T20:35:49Z"
     },
     "proceedings": {
-      "last_attempt_at": "2026-10-18T20:35:49Z",
+      "last_attempt_at": "2026-10-19T20:45:45Z",
       "status": "success",
-      "last_success_at": "2026-10-18T20:35:49Z"
+      "last_success_at": "2026-10-19T20:45:45Z"
     },
     "pubcomment": {
-      "last_attempt_at": "2026-10-18T20:35:49Z",
+      "last_attempt_at": "2026-10-19T20:45:45Z",
       "status": "success",
-      "last_success_at": "2026-10-18T20:35:49Z"
+      "last_success_at": "2026-10-19T20:45:45Z"
     },
     "gian": {
-      "last_attempt_at": "2026-10-18T20:35:49Z",
+      "last_attempt_at": "2026-10-19T20:45:45Z",
       "status": "success",
-      "last_success_at": "2026-10-18T20:35:49Z"
+      "last_success_at": "2026-10-19T20:45:45Z"
     },
     "tsutatsu": {
-      "last_attempt_at": "2026-10-18T20:35:49Z",
+      "last_attempt_at": "2026-10-19T20:45:45Z",
       "status": "success",
-      "last_success_at": "2026-10-18T20:35:49Z"
+      "last_success_at": "2026-10-19T20:45:45Z"
     },
     "shingikai": {
-      "last_attempt_at": "2026-10-18T20:35:49Z",
+      "last_attempt_at": "2026-10-19T20:45:45Z",
       "status": "success",
-      "last_success_at": "2026-10-18T20:35:49Z"
+      "last_success_at": "2026-10-19T20:45:45Z"
     },
     "budget": {
-      "last_attempt_at": "2026-10-18T20:35:49Z",
+      "last_attempt_at": "2026-10-19T20:45:45Z",
       "status": "success",
-      "last_success_at": "2026-10-18T20:35:49Z"
+      "last_success_at": "2026-10-19T20:45:45Z"
     },
     "hanrei": {
-      "last_attempt_at": "2026-10-18T20:35:49Z",
+      "last_attempt_at": "2026-10-19T20:45:45Z",
       "status": "success",
-      "last_success_at": "2026-10-18T20:35:49Z"
+      "last_success_at": "2026-10-19T20:45:45Z"
+    },
+    "shitsumon": {
+      "last_attempt_at": "2026-10-19T20:45:45Z",
+      "status": "success",
+      "last_success_at": "2026-10-19T20:45:45Z"
     }
   },
-  "updated_at": "2026-10-18T20:35:49Z",
-  "last_run_domains": "kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget,hanrei"
+  "updated_at": "2026-10-19T20:45:45Z",
+  "last_run_domains": "kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget,hanrei,shitsumon"
 }

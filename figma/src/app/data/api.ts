@@ -454,6 +454,8 @@ export const api = {
   lawToHanrei: (lawId: string) => getJson<LawToHanrei>(`./links/law-to-hanrei/${lawId}.json`),
   /** 法令 ↔ 質問主意書・答弁書 クロスリンク (件名・本文の法令参照から抽出)。 */
   lawToShitsumon: (lawId: string) => getJson<LawToShitsumon>(`./links/law-to-shitsumon/${lawId}.json`),
+  /** 法令 ↔ 政府解釈 (ノーアクションレター・Q&A・ガイドライン等) クロスリンク。 */
+  lawToGuidance: (lawId: string) => getJson<LawToGuidance>(`./links/law-to-guidance/${lawId}.json`),
   /** 法令 → この法令を改正した法律案の改め文 (law-diff の版と対応づけ済み)。 */
   lawToBillAmendments: (lawId: string) =>
     getJson<LawToBillAmendments>(`./links/law-to-bill-amendments/${lawId}.json`),
@@ -935,6 +937,54 @@ export type LawToShitsumon = {
   schema_version: number
   law_id: string
   linked_questions: LinkedQuestion[]
+}
+
+/** 政府解釈の種別。 */
+export type GuidanceKind =
+  | 'no_action_letter'
+  | 'written_inquiry'
+  | 'consultation_cases'
+  | 'qa'
+  | 'guideline'
+  | 'interpretation_cases'
+  | 'other'
+
+export const GUIDANCE_KIND_LABELS: Record<string, string> = {
+  no_action_letter: 'ノーアクションレター',
+  written_inquiry: '書面照会への回答',
+  consultation_cases: '相談事例',
+  qa: 'Q&A',
+  guideline: 'ガイドライン',
+  interpretation_cases: '法令解釈事例集',
+  other: 'その他',
+}
+
+/** 法令 → 政府解釈 クロスリンク。出典は所管省庁のウェブサイト (金融庁: PDL1.0)。 */
+export type LinkedGuidance = {
+  /** 例: `fsa-nal-ginkou-10`。 */
+  id: string
+  ministry: string
+  ministry_name: string
+  kind: GuidanceKind | string
+  title: string
+  issued_on: string | null
+  /** 発出元 (例: 金融庁監督局 銀行第一課長)。 */
+  issuer: string | null
+  /** 回答の要旨 (回答書の「１．回答」の冒頭)。 */
+  summary: string | null
+  /** subject = 照会対象・分野の法令、title = 文書名に出る、mention = 本文で条番号付きで参照。 */
+  relation: 'subject' | 'title' | 'mention'
+  /** 参照された条番号 (例: "10", "52_36" は第52条の36)。 */
+  articles: string[]
+  /** 一覧ページ (出典)。 */
+  source_url: string
+  /** 回答書・本文 PDF の URL。 */
+  document_url: string | null
+}
+export type LawToGuidance = {
+  schema_version: number
+  law_id: string
+  linked_guidance: LinkedGuidance[]
 }
 
 // ── 法律案の改め文 ↔ 改正差分 型定義 ──────────────────────────────
