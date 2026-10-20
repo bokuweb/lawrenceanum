@@ -200,6 +200,7 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
             && Page::read(&path)
                 .map(|p| {
                     !p.get_str("description").trim().is_empty()
+                        && (p.get("evidence_version").is_none() || evidence::claim_errors(&p).is_empty())
                         && (task.kind != enforcements::KIND || enforcements::explanation_errors(&p).is_empty())
                         && llm_blocks(&p.body)
                             .iter()
@@ -267,6 +268,19 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
                 .filter(|p| p.starts_with("laws/"))
                 .cloned(),
         );
+    }
+
+    let intake_path = wiki.join(".lawpub/intake.json");
+    if intake_path.exists() {
+        let mut intake: Value = serde_json::from_slice(&std::fs::read(&intake_path)?)?;
+        if let Some(entries) = intake["entries"].as_object_mut() {
+            for task in &plan.tasks {
+                if let Some(status) = entries.get_mut(&task.key) {
+                    *status = json!(if completed.iter().any(|t| t.key == task.key) { "completed" } else { "summary_pending" });
+                }
+            }
+        }
+        std::fs::write(&intake_path, serde_json::to_vec_pretty(&intake)?)?;
     }
 
     // 2. 会議ページを集める。人物・会議体ページ用には、LLM がまだ要点を書いていない会議も

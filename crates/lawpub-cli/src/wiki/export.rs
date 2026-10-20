@@ -125,7 +125,7 @@ pub fn run_export(args: &ExportArgs) -> Result<()> {
 
         let dest = args.out.join("page").join(format!("{id}.json"));
         std::fs::create_dir_all(dest.parent().expect("has parent"))?;
-        std::fs::write(&dest, serde_json::to_vec(&json!({ "path": id, "frontmatter": fm, "body": display_body(&page.body), "stub": is_stub(page) }))?)?;
+        std::fs::write(&dest, serde_json::to_vec(&json!({ "path": id, "frontmatter": fm, "body": display_body(&page.body), "stub": is_stub(page), "claim_assessments": evidence::assessments(page) }))?)?;
 
         if HUB_PAGES.contains(&rel.as_str()) {
             continue;
@@ -153,9 +153,11 @@ pub fn run_export(args: &ExportArgs) -> Result<()> {
         .map(|(a, b)| json!({ "source": a.trim_end_matches(".md"), "target": b.trim_end_matches(".md") }))
         .collect();
 
+    let intake_path = wiki.join(".lawpub/intake.json");
+    let intake: Value = if intake_path.exists() { serde_json::from_slice(&std::fs::read(intake_path)?)? } else { Value::Null };
     std::fs::write(
         args.out.join("index.json"),
-        serde_json::to_vec(&json!({ "schema_version": 1, "generated_at": now_rfc3339(), "pages": index }))?,
+        serde_json::to_vec(&json!({ "schema_version": 1, "generated_at": now_rfc3339(), "pages": index, "intake": intake }))?,
     )?;
     std::fs::write(
         args.out.join("graph.json"),

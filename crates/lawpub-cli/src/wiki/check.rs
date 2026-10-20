@@ -315,6 +315,7 @@ fn changed_pages(wiki: &Path) -> Option<HashSet<String>> {
 
 pub fn run_check(args: &CheckArgs) -> Result<()> {
     let wiki = &args.wiki;
+    let plan = Plan::load(&args.work)?;
     let changed = if args.changed_only {
         changed_pages(wiki)
     } else {
@@ -415,6 +416,23 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
             );
         }
 
+        if page.get("evidence_version").is_some() && !llm_text.trim().is_empty() {
+            for message in evidence::claim_errors(&page) { err(1, message); }
+        }
+        // LLM が編集しないソースバンドルを基準に、日付・抽出範囲の書き換えも検出する。
+        if page.get("evidence_version").is_some() {
+            if let Some(task) = plan.as_ref().and_then(|p| p.tasks.iter().find(|t| t.page == rel)) {
+                let bundle = std::fs::read(args.work.join(&task.source))
+                    .with_context(|| format!("read source bundle {}", task.source))?;
+                let bundle: Value = serde_json::from_slice(&bundle)?;
+                for (field, original) in [("date", "date"), ("source_scope", "scope"), ("evidence_sources", "attributions")] {
+                    if page.get(field) != bundle.get(original) {
+                        err(1, format!("機械生成の {field} がソースバンドルと一致しません"));
+                    }
+                }
+            }
+        }
+
         if ty == enforcements::KIND {
             // 空の未完了ページは再生成待ち。書かれた説明は節ごとに検証する。
             if !llm_text.trim().is_empty() {
@@ -434,6 +452,17 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
         if changed.as_ref().is_some_and(|c| !c.contains(&rel)) {
             continue;
         }
+        // 主張用の出典は発言単位で厳密に照合する。審議会の全文 fallback は誤帰属を起こすため使わない。
+        if let Some(sources) = page.get("evidence_sources").and_then(Value::as_array) {
+            for source in sources {
+                let reference = source["ref"].as_str().unwrap_or("");
+                match resolver.unit(reference) {
+                    Ok(Some(u)) if *source == evidence::attribution(&u, page.get_str("date")) => {}
+                    Ok(_) => err(1, format!("出典の発言者・役職・URL・役割が原資料と一致しません: {reference}")),
+                    Err(e) => err(1, format!("出典情報を取得できません: {reference}: {e:#}")),
+                }
+            }
+        }
         for c in &citations {
             checked_citations += 1;
             let quote = normalize_for_quote(&c.quote);
@@ -445,7 +474,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
             let unit = match resolver.unit(&c.reference) {
                 Ok(Some(u)) => u,
                 // 審議会は発言の区切り方を改めたことがあるので、番号が合わなくても同じ議事録に引用文があればよい。
-                Ok(None) if resolver.in_shingikai_minutes(&c.reference, &quote) => continue,
+                Ok(None) if page.get("evidence_version").is_none() && resolver.in_shingikai_minutes(&c.reference, &quote) => continue,
                 Ok(None) => {
                     err(c.line, format!("発言 {} が見つかりません", c.reference));
                     continue;
@@ -467,7 +496,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
                     ),
                 );
             }
-            if !normalize_for_quote(&unit.text).contains(&quote) && !resolver.in_shingikai_minutes(&c.reference, &quote) {
+            if !normalize_for_quote(&unit.text).contains(&quote) && !(page.get("evidence_version").is_none() && resolver.in_shingikai_minutes(&c.reference, &quote)) {
                 err(c.line, format!("引用「{}」は {} の本文にありません（要約ではなく原文をそのまま引用してください）", c.quote, c.reference));
             }
         }
@@ -552,6 +581,28 @@ mod tests {
     }
 
     #[test]
+    fn matching_quote_cannot_forge_the_speakers_government_role() {
+        let (root, args) = fixture("救済拡充を求めた[^1]。\n\n[^1]: [kokkai:M1_001](https://kokkai.ndl.go.jp/txt/M1/1) 「副反応の救済を拡充すべきです」");
+        let path = args.wiki.join("meetings/kokkai/M1.md");
+        let doc: Value = serde_json::from_slice(&std::fs::read(args.work.join("docs/kokkai/M1.json")).unwrap()).unwrap();
+        let u = kokkai_units(&doc).remove(0);
+        let mut p = Page::read(&path).unwrap();
+        p.set("evidence_version", json!(1));
+        p.set("date", json!("2026-10-01"));
+        p.set("evidence_sources", json!([evidence::attribution(&u, "2026-10-01")]));
+        p.set("claims", json!([{"text": "救済拡充を求めた", "kind": "request", "attribution": u.reference, "evidence": ["1"], "review_status": "unreviewed", "review_note": ""}]));
+        p.write(&path).unwrap();
+        run_check(&args).unwrap();
+        let mut forged = p.get("evidence_sources").unwrap().clone();
+        forged[0]["role"] = json!("government");
+        p.set("evidence_sources", forged);
+        p.write(&path).unwrap();
+        assert!(run_check(&args).is_err());
+        assert!(std::fs::read_to_string(args.work.join("check-report.md")).unwrap().contains("役割が原資料と一致しません"));
+        std::fs::remove_dir_all(root).ok();
+    }
+
+    #[test]
     fn shingikai_quote_with_stale_turn_number_passes_if_in_same_minutes() {
         let root = temp_dir("check_shingikai");
         let wiki = root.join("wiki");
@@ -578,6 +629,17 @@ mod tests {
         // 議事録に無い文は従来どおり落とす。
         std::fs::write(wiki.join("meetings/shingikai/S1.md"), page("S1#0", "医療費助成を全面的に廃止する")).unwrap();
         assert!(run_check(&args()).is_err());
+        // 主張の帰属情報がある新形式では、別の発言者の引用を全文一致で通さない。
+        let path = wiki.join("meetings/shingikai/S1.md");
+        let mut p = Page::parse(&page("S1#0", "公平かつ安定的な医療費助成の制度確立")).unwrap();
+        p.set("evidence_version", json!(1));
+        let doc: Value = serde_json::from_slice(&std::fs::read(work.join("docs/shingikai/S1.json")).unwrap()).unwrap();
+        let u = shingikai_units(&doc).remove(0);
+        p.set("evidence_sources", json!([evidence::attribution(&u, "")]));
+        p.set("claims", json!([{"text": "述べた", "kind": "unknown", "attribution": "shingikai:S1#0", "evidence": ["1"], "review_status": "unreviewed", "review_note": ""}]));
+        p.write(&path).unwrap();
+        assert!(run_check(&args()).is_err());
+        assert!(std::fs::read_to_string(work.join("check-report.md")).unwrap().contains("S1#0 の本文にありません"));
         std::fs::remove_dir_all(root).ok();
     }
 

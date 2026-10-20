@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { api, type WikiGraph, type WikiIndex, type WikiPage, type WikiPageMeta } from "../../data/api";
 import { WIKI_TYPES, WIKI_TYPE_ORDER } from "./wiki-types";
 import { setShowStubs, useShowStubs } from "./wiki-prefs";
+import { WikiEvidence } from "./wiki-evidence";
 import { WikiMarkdown } from "./wiki-markdown";
 
 const WikiGraphCanvas = lazy(() => import("./wiki-graph").then(m => ({ default: m.WikiGraphCanvas })));
@@ -106,10 +107,20 @@ function WikiHome({
         <h1 className="text-2xl flex items-center gap-2"><Network className="size-6" />wiki</h1>
         <p className="text-sm text-muted-foreground mt-1">
           審議会・パブコメ・国会・議案・公布/施行をまたいで、「きっかけ → 議論 → 意思決定 → 結果 → その後」をたどれる wiki（OKF 形式）。
-          文章は LLM が書き、すべての記述を会議録・議案文書の原文引用で検証しています。
+          文章は LLM が生成しています。引用の原文一致と出典 URL を照合しますが、引用が主張を支えるか、抜粋外に条件や反対意見がないかは別途確認が必要です。
         </p>
       </div>
 
+      {index.data?.intake && (
+        <details className="text-xs text-muted-foreground border rounded-md p-3 mb-4" data-testid="wiki-intake">
+          <summary>会議の取り込み範囲（{index.data.intake.since} 以降・{index.data.intake.date} 更新）：未完了 {Object.values(index.data.intake.entries).filter(s => s !== "completed").length} 件</summary>
+          <p className="mt-2">{index.data.intake.scope}</p>
+          <p>未完了の先頭50件までを表示します。</p>
+          <ul>{Object.entries(index.data.intake.entries).filter(([,s]) => s !== "completed").slice(0, 50).map(([id,s]) => (
+            <li key={id}>{id}：{({ budget_pending: "上限により繰り越し", source_unavailable: "資料取得待ち", no_substantive_text: "引用可能な本文なし", planned: "要約待ち", summary_pending: "要約未完了" } as Record<string,string>)[s] ?? "未確認"}</li>
+          ))}</ul>
+        </details>
+      )}
       {index.loading && <Skeleton className="h-64 w-full" />}
       {index.error && (
         <p className="text-sm text-muted-foreground">wiki はまだ配信されていません。</p>
@@ -288,6 +299,7 @@ function WikiPageView({
               )}
               {tags.map(t => <Badge key={t} variant="outline" className="text-[11px]">{t}</Badge>)}
             </div>
+            <WikiEvidence page={page.data} />
             <WikiMarkdown body={page.data.body} from={path} onOpen={onOpen} />
 
             {/* 隣接だけの図。全体のグラフは毛玉になるので、ここでは「このページの周り」だけを描く。 */}
