@@ -4,11 +4,11 @@
   "source_raw_E61C_glyphs": 205,
   "source_provenance": "Every glyph is Used in one Plain line, raw U+E61C; current after21 full source checker validated unique attachment and exact saved output.",
   "visual_scope": {
-    "checked_pages": 31,
-    "checked_glyphs": 84,
-    "unchecked_pages": 95,
-    "unchecked_glyphs": 121,
-    "note": "All remaining glyphs have automated source/attachment/character checks. Non-dash sequence is identical except for the six separately reviewed intentional order repairs in validation4. Remaining page contexts are not claimed visually inspected."
+    "checked_pages": 61,
+    "checked_glyphs": 123,
+    "unchecked_pages": 65,
+    "unchecked_glyphs": 82,
+    "note": "Fourth batch31pages84glyphs plus a fifth-batch additional30pages39glyphs. Supplemental known-page checks are not added to these totals. All remaining82glyphs have automated source/attachment/character checks; full original contexts not claimed checked."
   },
   "page_details": [
     {
@@ -715,7 +715,7 @@
       "before_sha256": "15a4d27fc27b3407f2fe1ee9d69c99f530b47e15070f981feb35560cae2a896b",
       "after_sha256": "24428f382f6738b4ca22d0ccfe41677f8d7b5aab8cfc40dc8d2e423851792758",
       "new_plain_bars": 3,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261001g002170124",
@@ -753,7 +753,8 @@
           "line": "資産除去債務の履行による減少額　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261001g002170125",
@@ -902,7 +903,7 @@
       "before_sha256": "ca7a1feb390ed8350a744f05f5b9f6ba8120e543b8c70e0371582b3f5052ad63",
       "after_sha256": "c4f3a3b122e65641a5ea39d5251c8e3c05b76ce461374408123b0d0c6cbb0bc6",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280011",
@@ -916,7 +917,8 @@
           "line": "貸倒引当金　△5,703　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280013",
@@ -1029,7 +1031,7 @@
       "before_sha256": "6a81b03e4664ceed1e42338a20d400aee4df0c6b14b91b0dcfb2c5ec6f2df011",
       "after_sha256": "486668e804737722453ba771b759109663ca85626a1c23987c596d965cc595b2",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280030",
@@ -1043,7 +1045,8 @@
           "line": "減損損失相当額　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280032",
@@ -1075,7 +1078,7 @@
       "before_sha256": "2b7b0cbbdbdd830461b13f3b3ffe583f0d09b7d6a28391a22f4326ac6a1153b2",
       "after_sha256": "f288475cc3d130506c4107164a2ae4685aa22b307f6b4302fad9e821da0d7968",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280035",
@@ -1089,7 +1092,8 @@
           "line": "貸倒引当金　△35,589　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280039",
@@ -1214,7 +1218,7 @@
       "before_sha256": "6919a3a3a05d8fe9f7fa7bff9cfcedb5f5738e4a73b8623dde4a8cafc7d5b292",
       "after_sha256": "aa2dfca4eccd26cf6e2281ca419f2887417c58b28aa217e0f3800ed4375239b6",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280057",
@@ -1228,7 +1232,8 @@
           "line": "Ⅳ　（控除）国庫納付額　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280058",
@@ -1306,7 +1311,7 @@
       "before_sha256": "71d484443f631723a3d36e4db765a199e3acb41a802f56cc4afb12570ccd1715",
       "after_sha256": "d474780fa71e58cb72bb4268a64620a205a92d4b5ce94c5bcd6e6c41c7da1ea4",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280091",
@@ -1320,7 +1325,8 @@
           "line": "Ⅳ　資金に係る換算差額　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280108",
@@ -1329,7 +1335,7 @@
       "before_sha256": "b379aedce2d197d90750c9cf0541711212c8878ae75739dae7c6cd7bb91dcb54",
       "after_sha256": "5f9025f28935e4c484d987182ba78622c2a6d10f75d87b5cb02d267e912c123a",
       "new_plain_bars": 2,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280108",
@@ -1355,7 +1361,8 @@
           "line": "徴収不能引当金　△16,182　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280119",
@@ -1387,7 +1394,7 @@
       "before_sha256": "065e6907184ce07be8096f6f590e8e46ba52107a56b658b18d87ed49341bd0af",
       "after_sha256": "75e8745f4e5a9ed6311c074c203d842bd54bb4d90718698f0dab2361232194f8",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280139",
@@ -1401,7 +1408,8 @@
           "line": "Ⅳ．（控除）国庫納付額　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280147",
@@ -1410,7 +1418,7 @@
       "before_sha256": "aa51d2d5974b3f5439ee91157629f83abf44e9ef044ab2e99fee38a0876c0982",
       "after_sha256": "2087d00be91ff8eb831ccaf665dc847f260a1bf5a3639e25f855faabd043a3dc",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280147",
@@ -1424,7 +1432,8 @@
           "line": "徴収不能引当金　△9,355　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280157",
@@ -1537,7 +1546,7 @@
       "before_sha256": "699e303ab718cfc71af664eb6b535e63928c8e2755bb24e2f2ed0b9c2afcffbe",
       "after_sha256": "4391a194184b150eeeae41460ca643c89c10ffe25f923455732ac82ac68883a8",
       "new_plain_bars": 2,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280209",
@@ -1563,7 +1572,8 @@
           "line": "貸倒引当金　△4,185,408　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280220",
@@ -1595,7 +1605,7 @@
       "before_sha256": "55021a49ff547a644fb0dbfc020a8977e814a9b849be46fea90c99201ff29fa3",
       "after_sha256": "662150ea94316ac9a26a0b47aeda2dbd109c766fe1a2fff12ceb412d06c3fda4",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280221",
@@ -1609,7 +1619,8 @@
           "line": "Ⅳ　（控除）国庫納付額　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280239",
@@ -1826,7 +1837,7 @@
       "before_sha256": "a2ee60875e01338788eea57e6e3c676cd6743f31b4671d8715c41cacec2d37d0",
       "after_sha256": "0cf4433de53808ecf7e68e19928304129ba382259f4237d748dd70eb602aac79",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280267",
@@ -1840,7 +1851,8 @@
           "line": "Ⅳ　（控除）国庫納付額　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280268",
@@ -1895,7 +1907,7 @@
       "before_sha256": "23b7681f1d377bf39cea8bf2417b2aa32da19697d5255ab9f5fdbe60c309af68",
       "after_sha256": "609e5219b1a5e1e9925556acdcd53386fe7351a84d845c2d05a5b89ecf09e9ba",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280277",
@@ -1909,7 +1921,8 @@
           "line": "Ⅳ　（控除）国庫納付額　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280278",
@@ -1941,7 +1954,7 @@
       "before_sha256": "eaafebc64cd43a77eb1fb912440f322136d88bfa7d3184f3acdf40559df38b69",
       "after_sha256": "039d3dcfc3ffe34f81677fe9fb07f07a08926dab4a3608d6e39dba136c91200c",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280290",
@@ -1955,7 +1968,8 @@
           "line": "減損損失相当額　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280296",
@@ -1987,7 +2001,7 @@
       "before_sha256": "e40ef04bbbcf7e8dbcc7c29ff65ad5f6e2b2ad8e098dbdaa93d94a3e8e7e8efb",
       "after_sha256": "3f4955d2fbc00d50368c6e482a2dc603a6a2341c7cdd2728c67c9d0dba18f060",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280298",
@@ -2001,7 +2015,8 @@
           "line": "利息費用相当額　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280300",
@@ -2358,7 +2373,7 @@
       "before_sha256": "01edc8b55dea75cad9467dddb4d9e0730858e603caea17da6f6cb442169b6d6b",
       "after_sha256": "5da50273dd134280a494091317a607b57de2286acf76691f47f49d6235a2f9d6",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280355",
@@ -2372,7 +2387,8 @@
           "line": "Ⅳ　資金に係る換算差額　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280356",
@@ -2381,7 +2397,7 @@
       "before_sha256": "cf7f541da7c30cde95ac31d3252116b0f381ba48c2f54617430f0cb5e54333cb",
       "after_sha256": "81e49f52d191e3cc5f4068a003957aced5826f4e8ff46bcffa03fd224c1d30da",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280356",
@@ -2395,7 +2411,8 @@
           "line": "Ⅳ　（控除）国庫納付額　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280358",
@@ -2600,7 +2617,7 @@
       "before_sha256": "da8a169b8e89e40a1d84f1071c2293629f3ae4d95ea4abc798d3a17cbd7a1eab",
       "after_sha256": "f9415ff97e1d37eca02ba6e58a4071e38802985e3dceb32a42dabe89de351cc0",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280380",
@@ -2614,7 +2631,8 @@
           "line": "Ⅳ　（控除）国庫納付額　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280396",
@@ -2623,7 +2641,7 @@
       "before_sha256": "938e73dbc12c04ff2f2c102ee34f1605539c5d098ae3608afc29e1a51a1b7499",
       "after_sha256": "5a49dfa822f15891d5ff06e04e0eb678db1774b8ae3ab4f78bf6a9928c690d20",
       "new_plain_bars": 2,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280396",
@@ -2649,7 +2667,8 @@
           "line": "Ⅳ．（控除）国庫納付額　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280402",
@@ -2797,7 +2816,7 @@
       "before_sha256": "a080f8fa8f828aabcd7686d15b37576cc93f252cebd46cb39dc3523e106f05f8",
       "after_sha256": "b6efbada28ba48996c69dd260f044a583f6918c8f54b44ceae076d4164f01529",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280444",
@@ -2811,7 +2830,8 @@
           "line": "徴収不能引当金　△1,000,000　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280445",
@@ -2958,7 +2978,7 @@
       "before_sha256": "ec5f8259bb7751fa5ae62cdf99dfc4af6ff846ece0f7ff4ce6d922f63488e885",
       "after_sha256": "7201f4cbf435c8c81fd106697836c4476ce22870f8dc1600b1ba3e32b008363c",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280511",
@@ -2972,7 +2992,8 @@
           "line": "Ⅳ　（控除）国庫納付額　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280516",
@@ -3016,7 +3037,7 @@
       "before_sha256": "c2fd7c4e5bf8be651eb41e513fdc0dd80c990f27f89ffb67a21c31eae7f03c3d",
       "after_sha256": "94209fb27b8f387b643f404bae2dd295c8df3086a27a0045744fa204f9e99378",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280518",
@@ -3030,7 +3051,8 @@
           "line": "の減価償却費が診療経費に分類されるものに関する当該負債の収益化額　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280523",
@@ -3062,7 +3084,7 @@
       "before_sha256": "3293ddb947270243eaaee3028320ee93a84b0c77eccff422611d305a90c750f2",
       "after_sha256": "3150c91c49c9e45178078b8d45af04108728f32a6ace4bc28c0ff796a6ccd41c",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280529",
@@ -3076,7 +3098,8 @@
           "line": "減価償却費が診療経費に分類されるものに関する当該負債の収益化額　－円",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280548",
@@ -3155,7 +3178,7 @@
       "before_sha256": "fac6d17ad227b178221115b907d37616a0dbfbf65ba38ad47eaa526b11f44e3f",
       "after_sha256": "caf1cc9853b9904ee2fb054daac02a07337bc48cad1fcd5cafb1b6d6236851b5",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280564",
@@ -3169,7 +3192,8 @@
           "line": "Ⅳ　資金に係る換算差額　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280565",
@@ -3247,7 +3271,7 @@
       "before_sha256": "faf7aa4163235b273745990623353f4eabfdd5ac32889450be3631795a40ea1f",
       "after_sha256": "f166a81a37c2ef619ef270e3dc1011660febe7f6ae363c9f2032dd28c2be0723",
       "new_plain_bars": 2,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280592",
@@ -3273,7 +3297,8 @@
           "line": "積立金　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280596",
@@ -3305,7 +3330,7 @@
       "before_sha256": "40dd53ab3ef73e9fbbd3dc7fddd1499951b1ee6b2366e961449fb81683b9bad0",
       "after_sha256": "ecacaee0bd6059bf14b902e1738093ac049fd60b30137cc93adb3177ba02ab32",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280604",
@@ -3319,7 +3344,8 @@
           "line": "国又は地方公共団体の無償又は減額された使用料による貸借取引の機会費用　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280607",
@@ -3421,7 +3447,7 @@
       "before_sha256": "a65a4335753bdf47bea842232e616f1f85fe5a2b4bb3cdf3a4aeb413589b6178",
       "after_sha256": "ea64017b69cb49c78442cae9333b6b6cce1d0670ab170174d9c007606d6d3b66",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280619",
@@ -3435,7 +3461,8 @@
           "line": "教育・研究・診療・積立金（注）　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280620",
@@ -3595,7 +3622,7 @@
       "before_sha256": "9a1a80e559a8bb8380b50ccc7d80b556be7b0fe5950ddd6dccf0687743345102",
       "after_sha256": "e9c137aa868e9b8b76c0c074c12a4529ab374dac89646ec0f3b3c393ffadd099",
       "new_plain_bars": 1,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280656",
@@ -3609,7 +3636,8 @@
           "line": "Ⅳ．資金に係る換算差額　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280658",
@@ -3641,7 +3669,7 @@
       "before_sha256": "b668ae4dd8108f2fb16880c293923193d25b3cd5ec35028a3626e93c556f5ba0",
       "after_sha256": "24c1ea481d346fba4d55a665330a187c5f568769f36ccda42fcf7092c1cda6d6",
       "new_plain_bars": 3,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280661",
@@ -3679,7 +3707,8 @@
           "line": "有価証券損益相当額（その他）　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280677",
@@ -3747,7 +3776,7 @@
       "before_sha256": "f999738b9a2beeb9dde2829842f32430ede4419ac322dd2ae7d1ea24e53dd47c",
       "after_sha256": "77d62d71557dccbf8a0605185f3ee16371f0ed8f6cc423078e071d442ca41a15",
       "new_plain_bars": 2,
-      "original_context_checked": false,
+      "original_context_checked": true,
       "glyphs": [
         {
           "page": "20261016g002280679",
@@ -3773,7 +3802,8 @@
           "line": "積立金　－",
           "raw": "U+E61C"
         }
-      ]
+      ],
+      "additional_review": "issue227-fifth-batch-reviews.json: additional_previous_batch_plain_contexts"
     },
     {
       "page": "20261016g002280680",

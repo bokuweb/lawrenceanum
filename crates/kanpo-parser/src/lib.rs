@@ -500,3 +500,7 @@ mod tests {
         assert_eq!(pick_by_number("訓練の件（同二五四、二五五）", &a), Some(1));
     }
 }
+
+mod composite_numbers;
+
+mod large_parentheses;

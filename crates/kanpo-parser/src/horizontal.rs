@@ -489,6 +489,16 @@ fn rejoin_split_names(lines: &mut Vec<trace::Line>, geom: &std::collections::Has
 }
 
 fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)], one_column: bool) -> Vec<trace::Line> {
+    if !one_column {
+        if let Some(cut) = table_text_column_cut(&cols, grids, vrules, hrules) {
+            let (left, right): (Vec<_>, Vec<_>) = cols.into_iter().partition(|c| x_center(c) < cut);
+            let lg: Vec<_> = grids.iter().filter(|g| g.right() <= cut).cloned().collect();
+            let rg: Vec<_> = grids.iter().filter(|g| g.left() >= cut).cloned().collect();
+            let mut lines = lines_with_tables_inner(left, &lg, vrules, hrules, false);
+            lines.extend(lines_with_tables_inner(right, &rg, vrules, hrules, false));
+            return lines;
+        }
+    }
     let mut rest = cols;
     let mut tables: Vec<trace::Table> = Vec::new();
     for g in grids.iter().filter(|g| g.xs.len() >= 3 && g.ys.len() >= 3 && !grids.iter().any(|o| g.encloses(o))) {
@@ -5686,3 +5696,40 @@ mod split_preamble_number_tests {
 #[cfg(test)]
 #[path = "signer_block_tests.rs"]
 mod signer_block_tests;
+
+/// 表を抜いた後に片段の本文が単位欄だけになるページも、元の中央実罫で先に段を分ける。
+fn table_text_column_cut(cols: &[Col], grids: &[Grid], vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)]) -> Option<f32> {
+    let (left, right, top, bottom) = (
+        cols.iter().map(|c| c.x).reduce(f32::min)?,
+        cols.iter().map(|c| c.x1).reduce(f32::max)?,
+        cols.iter().map(|c| c.y).reduce(f32::min)?,
+        cols.iter().map(|c| c.y1).reduce(f32::max)?,
+    );
+    let candidates: Vec<_> = vrules
+        .iter()
+        .filter(|&&(x, y0, y1)| {
+            y1 - y0 >= 300.
+                && y0 <= top + 2.
+                && y1 >= bottom - 2.
+                && x - left >= (right - left) * 0.35
+                && x - left <= (right - left) * 0.65
+                && !cols.iter().any(|c| c.x < x - 1. && c.x1 > x + 1.)
+                && !grids.iter().any(|g| g.left() < x - 1. && g.right() > x + 1.)
+                && !hrules
+                    .iter()
+                    .any(|&(y, a, b)| y > top + 2. && y < bottom - 2. && a < x - 5. && b > x + 5.)
+                && grids
+                    .iter()
+                    .any(|g| g.right() <= x && g.right() - g.left() >= MIN_TEXT_COLUMN_WIDTH * 2. && g.ys.len() >= 3)
+                && grids
+                    .iter()
+                    .any(|g| g.left() >= x && g.right() - g.left() >= MIN_TEXT_COLUMN_WIDTH * 2. && g.ys.len() >= 3)
+        })
+        .map(|r| r.0)
+        .collect();
+    (candidates.len() == 1).then(|| candidates[0])
+}
+
+#[cfg(test)]
+#[path = "table_text_column_tests.rs"]
+mod table_text_column_tests;

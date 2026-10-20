@@ -437,6 +437,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             crate::table_dashes::restore_table_dashes(&mut units, &mut words);
             crate::table_dashes::restore_ruled_table_dashes(&mut units, &mut words, &grids);
             crate::table_dashes::restore_plain_numeric_dashes(&mut units, &mut words, &vrules);
+            crate::large_parentheses::restore_large_parentheses(&mut units, &words);
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
@@ -544,6 +545,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             // 新旧対照表のページで、行の罫線の無い枠（帯の中の表）の欄の境の横線で切られた段は、前の段に戻す（改正前の
             // 帯の救助器具の表の「性能等」の欄が別の段になり、表から外れていた）。
             if shinkyu_page {
+                rejoin_split_shinkyu_grid_tiers(&mut tiers, &grids);
                 let center = |c: &Col| ((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0);
                 let mut i = 1;
                 while i < tiers.len() {
@@ -732,6 +734,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         order_masthead(&mut units);
         join_joint_ministries(&mut units);
         order_section_labels(&mut units, &words);
+        crate::large_parentheses::restore_large_parentheses(&mut units, &words);
         let text = units
             .iter()
             .map(Unit::text)
@@ -2284,6 +2287,7 @@ fn page_words_traced(
             }
         })
         .collect();
+    let composed_numbers = crate::composite_numbers::overlaid_private_numbers(&raws);
     let glyphs: Vec<Option<CidGlyph>> = raws.iter().map(|(x, y, x1, y1, raw)| private_cid_glyph(raw, x1 - x, y1 - y)).collect();
     // 紛れのない私用 CID 記号が出ている系統。常用漢字と同じ符号はこの系統があるページで、
     // しかも前後の語と間を空けずに続く（「（イ）及び（ロ）に掲げる」）ときだけ写像する。
@@ -2311,11 +2315,11 @@ fn page_words_traced(
     for (((((x, y, x1, y1, raw), glyph), (gx, gy, gx1, gy1)), toc_number), dx) in raws.into_iter().zip(glyphs).zip(geom).zip(toc_numbers).zip(display_dx) {
         // scraper が実体参照は復号済み。私用 CID の括弧付き数字等を復元し、約物を正規化し、
         // 私用領域(傍線等のフォント固有グリフ)を除去する。
-        let text: String = match (toc_number, glyph) {
+        let text: String = composed_numbers[words.len()].clone().unwrap_or_else(|| match (toc_number, glyph) {
             (Some(n), _) => n,
             (None, Some(g)) => g.text.clone(),
             (None, None) => word_text(&raw),
-        };
+        });
         // 綴じ穴の印「〇」2 つと中央の印（私用 CID の「△」の字形）は、横組みのページと号の 1 ページ目（横倒しとみなす）
         // では紙面の上端（本文の上端 y≈47 より上の y≈7–26）に刷られている（本文に「〇」「△」の行が出ていた）。
         let punch_mark = y1 <= PUNCH_MARK_BOTTOM && matches!(text.trim(), "〇" | "△");
@@ -3601,6 +3605,92 @@ fn attach_toc_page_numbers(mut tiers: Vec<Vec<Col>>, words: &[Word]) -> Vec<Vec<
     tiers.retain(|t| !t.is_empty());
     tiers
 }
+
+/// 新旧欄の対応する格子表が段切りで割れた場合、閉じた表と同じ前文列の短い署名だけを元の段へ戻す。
+fn rejoin_split_shinkyu_grid_tiers(tiers: &mut Vec<Vec<Col>>, grids: &[Grid]) {
+    let mut i = 1;
+    while i < tiers.len() {
+        let Some((header_x, divider)) = detect_shinkyu_header(&tiers[i - 1]) else {
+            i += 1;
+            continue;
+        };
+        if detect_shinkyu_header(&tiers[i]).is_some() {
+            i += 1;
+            continue;
+        }
+        let Some(frame) = grids
+            .iter()
+            .filter(|g| g.left() <= header_x && header_x <= g.right() + 1. && g.top() < divider && divider < g.bottom())
+            .min_by(|a, b| ((a.right() - a.left()) * (a.bottom() - a.top())).total_cmp(&((b.right() - b.left()) * (b.bottom() - b.top()))))
+        else {
+            i += 1;
+            continue;
+        };
+        let mid = frame
+            .ys
+            .iter()
+            .copied()
+            .min_by(|a, b| (a - divider).abs().total_cmp(&(b - divider).abs()))
+            .unwrap_or(divider);
+        let pitch = (frame.bottom() - frame.top()) / 2.;
+        let inner = |g: &Grid| {
+            g.cells.len() >= 4
+                && g.xs.len() >= 3
+                && g.ys.len() >= 3
+                && g.left() >= frame.left() - 0.5
+                && g.right() < header_x - 1.
+                && g.top() > frame.top() + 1.
+                && g.bottom() < frame.bottom() - 1.
+                && (g.bottom() < mid - 1. || g.top() > mid + 1.)
+        };
+        let matched = grids.iter().filter(|g| inner(g)).any(|g| {
+            let twin = grids.iter().any(|other| {
+                inner(other)
+                    && (other.top() < mid) != (g.top() < mid)
+                    && other.xs.len() == g.xs.len()
+                    && other.ys.len() == g.ys.len()
+                    && other.xs.iter().zip(&g.xs).all(|(a, b)| (a - b).abs() < 1.)
+                    && ((other.top() - g.top()).abs() - pitch).abs() < 2.
+                    && ((other.bottom() - other.top()) - (g.bottom() - g.top())).abs() < 1.
+            });
+            if !twin {
+                return false;
+            }
+            let inside = |c: &Col| g.contains((c.x + c.x1) / 2., (c.y + c.y1) / 2., 0.5);
+            if tiers[i - 1].iter().filter(|c| inside(c)).count() < 3 || tiers[i].iter().filter(|c| inside(c)).count() < 3 {
+                return false;
+            }
+            // 二段の合計で表全体がそろうときだけ。さらに別の段に残る格子の語は巻き込まない。
+            if tiers.iter().enumerate().any(|(j, t)| j != i - 1 && j != i && t.iter().any(inside)) {
+                return false;
+            }
+            tiers[i].iter().all(|c| {
+                if inside(c) {
+                    return true;
+                }
+                let em = (c.x1 - c.x).max(1.);
+                c.x > frame.right() + em * 0.25
+                    && c.y1 - c.y >= em * 0.9
+                    && c.text.chars().count() <= 12
+                    && !c.text.contains(['。', '、'])
+                    && !crate::segment::is_heading_mark(c.text.trim())
+                    && tiers[i - 1].iter().any(|p| {
+                        p.x > frame.right() && ((p.x + p.x1) - (c.x + c.x1)).abs() < em && p.y1 < c.y - em * 3. && p.y1 - p.y >= (p.x1 - p.x) * 0.9
+                    })
+            })
+        });
+        if matched {
+            let tail = tiers.remove(i);
+            tiers[i - 1].extend(tail);
+        } else {
+            i += 1;
+        }
+    }
+}
+
+#[cfg(test)]
+#[path = "paired_shinkyu_grid_tests.rs"]
+mod paired_shinkyu_grid_tests;
 
 /// 改正後帯と改正前帯が別々の段に割れた新旧対照表を 1 段に戻す。
 ///

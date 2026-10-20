@@ -131,6 +131,7 @@ pub(crate) fn restore_ruled_table_dashes(
         }
     }
     restore_partitioned_table_dashes(units, words, grids);
+    restore_existing_physical_table_dashes(units, words, grids);
 }
 
 fn ruled_geometry_matches(table: &Table, g: &crate::grid::Grid, words: &[Word]) -> bool {
@@ -926,3 +927,140 @@ mod plain_numeric_dash_tests {
 #[cfg(test)]
 #[path = "leading_dash_tests.rs"]
 mod leading_dash_tests;
+
+/// 結合された見出しを含む確定表で、未結合の空の物理升目だけに既知の原字を戻す。
+/// 横組みの罫線表の復元後に呼ぶ。表全体を組み直さず、既存セル/語順/結合ラベルを保つ。
+pub(crate) fn restore_existing_physical_table_dashes(units: &mut [Unit], words: &mut [Word], grids: &[crate::grid::Grid]) {
+    let restore = |lines: &mut [Line], words: &mut [Word]| {
+        for line in lines {
+            let Some(t) = &mut line.table else {
+                continue;
+            };
+            let matched: Vec<_> = grids.iter().filter(|g| exact_physical_table(t, g, words)).collect();
+            if matched.len() != 1 {
+                continue;
+            }
+            let g = matched[0];
+            let candidates: Vec<_> = words
+                .iter()
+                .filter_map(|w| {
+                    let (width, height) = (w.x1 - w.x0, w.y1 - w.y0);
+                    if w.status != WordStatus::Empty
+                        || w.raw != "\u{E61C}"
+                        || !(3.0..=20.0).contains(&height)
+                        || !(height * 0.7..=height * 1.3).contains(&width)
+                    {
+                        return None;
+                    }
+                    let (cx, cy) = ((w.x0 + w.x1) / 2., (w.y0 + w.y1) / 2.);
+                    // L字の結合升目など、外接枠が重なる場所は最小セルを選ばず除外する。
+                    let containing: Vec<_> = g
+                        .cells
+                        .iter()
+                        .filter(|p| g.xs[p.x0] <= cx && cx < g.xs[p.x1] && g.ys[p.y0] <= cy && cy < g.ys[p.y1])
+                        .collect();
+                    if containing.len() != 1 {
+                        return None;
+                    }
+                    let c = *containing[0];
+                    if c.x1 - c.x0 != 1 || c.y1 - c.y0 != 1 || w.x0 < g.xs[c.x0] || w.x1 > g.xs[c.x1] || w.y0 < g.ys[c.y0] || w.y1 > g.ys[c.y1] {
+                        return None;
+                    }
+                    Some((w.id, c))
+                })
+                .collect();
+            for &(id, p) in &candidates {
+                // 復元済みの原字も含めて数える。同じ物理升目に複数ある場合は選ばない。
+                if words
+                    .iter()
+                    .filter(|w| {
+                        w.raw == "\u{E61C}"
+                            && (w.x0 + w.x1) / 2. >= g.xs[p.x0]
+                            && (w.x0 + w.x1) / 2. < g.xs[p.x1]
+                            && (w.y0 + w.y1) / 2. >= g.ys[p.y0]
+                            && (w.y0 + w.y1) / 2. < g.ys[p.y1]
+                    })
+                    .count()
+                    != 1
+                {
+                    continue;
+                }
+                // logical 行列も物理行列と同じ。既存の値や結合セルを上書きしない。
+                let occupying: Vec<_> = t
+                    .cells
+                    .iter()
+                    .filter(|c| c.row <= p.y0 && p.y0 < c.row + c.rowspan && c.col <= p.x0 && p.x0 < c.col + c.colspan)
+                    .collect();
+                if occupying.len() > 1
+                    || occupying
+                        .iter()
+                        .any(|c| c.rowspan != 1 || c.colspan != 1 || !c.text.trim().is_empty() || !c.words.is_empty())
+                {
+                    continue;
+                }
+                if let Some(c) = t
+                    .cells
+                    .iter_mut()
+                    .find(|c| c.row == p.y0 && c.col == p.x0 && c.rowspan == 1 && c.colspan == 1)
+                {
+                    c.text = "－".into();
+                    c.words.push(id);
+                } else {
+                    t.cells.push(TableCell {
+                        row: p.y0,
+                        col: p.x0,
+                        rowspan: 1,
+                        colspan: 1,
+                        x0: g.xs[p.x0],
+                        x1: g.xs[p.x1],
+                        y0: g.ys[p.y0],
+                        y1: g.ys[p.y1],
+                        text: "－".into(),
+                        words: vec![id],
+                    });
+                }
+                words[id].text = "－".into();
+                words[id].status = WordStatus::Used;
+            }
+            line.text = t.render();
+        }
+    };
+    for u in units {
+        match u {
+            Unit::Plain(l) => restore(l, words),
+            Unit::Shinkyu {
+                preamble,
+                after,
+                before,
+                outside,
+            } => {
+                restore(preamble, words);
+                for l in after.iter_mut().chain(before).chain(outside) {
+                    restore(l, words);
+                }
+            }
+        }
+    }
+}
+
+fn exact_physical_table(t: &Table, g: &crate::grid::Grid, words: &[Word]) -> bool {
+    let near = |a: f32, b: f32| (a - b).abs() <= 1.;
+    t.cols>=2&&t.rows>=2&&t.cols+1==g.xs.len()&&t.rows+1==g.ys.len()
+        &&near(t.x0,g.left())&&near(t.x1,g.right())&&near(t.y0,g.top())&&near(t.y1,g.bottom())
+        &&t.cells.iter().all(|c| {
+            if c.row+c.rowspan>t.rows||c.col+c.colspan>t.cols {return false;}
+            let matches:Vec<_>=g.cells.iter().filter(|p| {
+                p.x0==c.col&&p.x1==c.col+c.colspan&&near(c.x0,g.xs[p.x0])&&near(c.x1,g.xs[p.x1])
+                    // 結合科目は見た目の行ごとに論理セル化されることがある。その語と枠が
+                    // 同じ物理結合セル内に収まれば保持し、対象の1x1セルには影響させない。
+                    &&c.row>=p.y0&&c.row+c.rowspan<=p.y1
+                    &&((near(c.y0,g.ys[p.y0])&&near(c.y1,g.ys[p.y1]))||(c.text=="－"&&!c.words.is_empty()&&c.words.iter().all(|&id|words.get(id).is_some_and(|w|w.raw=="\u{E61C}"))))
+                    &&c.words.iter().all(|&id|words.get(id).is_some_and(|w|w.x0>=g.xs[p.x0]-1.&&w.x1<=g.xs[p.x1]+1.&&w.y0>=g.ys[p.y0]-1.&&w.y1<=g.ys[p.y1]+1.))
+            }).collect();
+            matches.len()==1
+        })
+}
+
+#[cfg(test)]
+#[path = "table_dashes_physical_cells_tests.rs"]
+mod physical_cells_tests;
