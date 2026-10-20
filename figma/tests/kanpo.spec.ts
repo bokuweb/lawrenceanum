@@ -107,3 +107,44 @@ test("官報の検索結果から項目の表示へ移れる", async ({ page }) 
   await expect(page).toHaveURL(/#\/kanpo\/2026-04-02\/0\/0$/, { timeout: 15_000 });
   await expect(page.getByRole("heading", { name: "郵便法施行規則の一部を改正する省令（総務五八）" })).toBeVisible();
 });
+
+// 同じ PDF 頁に国会事項・人事異動・叙勲などが同居する場合も、現在の画面で本文を読める。
+test("同じPDF頁の他項目の本文を開き、項目へ移動できる", async ({ page }) => {
+  const pdf = "https://www.kanpo.go.jp/20261019/20261019h01810/pdf/20261019h018100007.pdf";
+  await page.route("**/kanpo/2026-10-19/index.json*", async route => {
+    if (route.request().url().endsWith(".gz")) return route.fulfill({ status: 404 });
+    await route.fulfill({ json: {
+      date: "2026-10-19",
+      issues: [{
+        issue_type: "regular", issue_no: "第1810号", titles: [],
+        items: [
+          ...Array.from({ length: 4 }, (_, i) => ({ title: `前の項目${i}`, page: i + 1, pdf_url: `${pdf}?other=${i}` })),
+          { title: "国会事項", page: 7, pdf_url: pdf,
+            amend_text: "衆議院\n質問書提出\n十月十五日議員から提出した質問主意書は次のとおりである。\n政府提出の「消費税・支援金法案」に関する質問主意書（田村智子外三名提出）" },
+          { title: "内閣", page: 7, pdf_url: pdf,
+            amend_text: "財務大臣臨時代理\n国務大臣藤井比早之" },
+          { title: "叙位・叙勲", page: 7, pdf_url: pdf,
+            amend_document: { format: "prose", blocks: [{ kind: "paragraph", runs: [{ text: "旭日小綬章を授ける（各通）" }] }] } },
+          // 頁番号だけが同じでも、別 PDF は同居項目に含めない。
+          { title: "別のPDFの項目", page: 7, pdf_url: `${pdf}?other=7`, amend_text: "別のPDFの本文" },
+        ],
+      }],
+    } });
+  });
+  await page.goto(new URL("#/kanpo/2026-10-19/0/4", BASE).toString());
+  const own = page.getByRole("region", { name: "国会事項の本文", exact: true });
+  await expect(own).toContainText("田村智子外三名提出");
+  await expect(own).not.toContainText("財務大臣臨時代理");
+  const others = page.getByRole("region", { name: "同じPDF頁の他の掲載内容" });
+  await expect(others.locator("summary")).toHaveText(["内閣", "叙位・叙勲"]);
+  await expect(others.getByText("国務大臣藤井比早之")).not.toBeVisible();
+  await others.locator("summary").filter({ hasText: "内閣" }).click();
+  await expect(others.getByText(/国務大臣藤井比早之/)).toBeVisible();
+  await others.locator("summary").filter({ hasText: "叙位・叙勲" }).click();
+  await expect(others.getByText("旭日小綬章を授ける（各通）")).toBeVisible();
+  await others.locator("details").filter({ has: page.locator("summary", { hasText: "内閣" }) })
+    .getByRole("button", { name: "この項目を開く" }).click();
+  await expect(page).toHaveURL(/#\/kanpo\/2026-10-19\/0\/5$/);
+  await expect(page.getByRole("region", { name: "内閣の本文", exact: true })).toContainText("国務大臣藤井比早之");
+  await expect(others.getByText("旭日小綬章を授ける（各通）")).not.toBeVisible();
+});

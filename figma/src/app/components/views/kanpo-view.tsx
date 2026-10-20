@@ -69,7 +69,26 @@ function LawChips({ label, laws, onOpen }: { label: string; laws: KanpoLawRef[];
   );
 }
 
-function ItemDetail({ date, issueLabel, item }: { date: string; issueLabel: string; item: KanpoItem }) {
+function ItemBody({ item }: { item: KanpoItem }) {
+  if (item.amend_document) return <AmendDocumentView doc={item.amend_document} className="" />;
+  if (item.amend_text) return <pre className="text-sm whitespace-pre-wrap font-sans leading-relaxed">{item.amend_text}</pre>;
+  return (
+    <div className="text-sm text-muted-foreground space-y-1.5">
+      <p>この項目の本文は取り出せませんでした。</p>
+      <p className="text-xs">
+        内容は官報 PDF で確認してください（官報の公式サイトでの無料閲覧は掲載から 90 日間です）。
+      </p>
+    </div>
+  );
+}
+
+function ItemDetail({ date, issueLabel, item, pageItems, onOpenItem }: {
+  date: string;
+  issueLabel: string;
+  item: KanpoItem;
+  pageItems: { item: KanpoItem; index: number }[];
+  onOpenItem: (index: number) => void;
+}) {
   const navigate = useNavigate();
   const format = formatLabel(item.amend_format);
   return (
@@ -101,20 +120,30 @@ function ItemDetail({ date, issueLabel, item }: { date: string; issueLabel: stri
         )}
       </div>
       <ScrollArea className="flex-1 min-h-0">
-        <div className="px-5 py-4">
-          {item.amend_document ? (
-            // 既定の max-h-96（法令閲覧の改正履歴に埋め込む用）を外し、右の欄の高さいっぱいに使う。
-            // スクロールは右の欄の ScrollArea だけにする（入れ子のスクロールを作らない）。
-            <AmendDocumentView doc={item.amend_document} className="" />
-          ) : item.amend_text ? (
-            <pre className="text-sm whitespace-pre-wrap font-sans leading-relaxed">{item.amend_text}</pre>
-          ) : (
-            <div className="text-sm text-muted-foreground space-y-1.5">
-              <p>この項目の本文は取り出せませんでした。</p>
-              <p className="text-xs">
-                内容は官報 PDF で確認してください（官報の公式サイトでの無料閲覧は掲載から 90 日間です）。
+        <div className="px-5 py-4 space-y-6">
+          <section aria-label={`${item.title}の本文`}>
+            <h3 className="text-sm font-semibold mb-3">本文</h3>
+            <ItemBody item={item} />
+          </section>
+          {pageItems.length > 0 && (
+            <section aria-label="同じPDF頁の他の掲載内容" className="border-t border-border pt-4 space-y-3">
+              <h3 className="text-sm font-semibold">同じPDF頁の他の掲載内容</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                本文は目次の項目ごとに表示しています。官報PDF（{item.page}頁）には、以下の項目も掲載されています。
+                見出しを開くと、それぞれの本文を読めます。本文が次の頁に続く項目もあります。
               </p>
-            </div>
+              {pageItems.map(({ item: other, index }) => (
+                <details key={index} className="rounded border border-border p-3">
+                  <summary className="cursor-pointer text-sm font-medium">{other.title}</summary>
+                  <div className="mt-3 space-y-3">
+                    <button className="text-xs underline hover:text-primary" onClick={() => onOpenItem(index)}>
+                      この項目を開く
+                    </button>
+                    <ItemBody item={other} />
+                  </div>
+                </details>
+              ))}
+            </section>
           )}
         </div>
       </ScrollArea>
@@ -243,7 +272,16 @@ export function KanpoView({
 
       <div className="flex-1 flex flex-col min-w-0 min-h-0">
         {current && currentIssue && activeDate ? (
-          <ItemDetail date={activeDate} issueLabel={kanpoIssueLabel(currentIssue)} item={current} />
+          <ItemDetail
+            key={`${activeDate}/${selected!.issue}/${selected!.item}`}
+            date={activeDate}
+            issueLabel={kanpoIssueLabel(currentIssue)}
+            item={current}
+            pageItems={currentIssue.items
+              .map((item, index) => ({ item, index }))
+              .filter(({ item, index }) => index !== selected!.item && !!current.pdf_url && item.pdf_url === current.pdf_url)}
+            onOpenItem={index => onSelect(activeDate, { issue: selected!.issue, item: index })}
+          />
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground gap-3">
             <Scale className="size-10 opacity-30" />

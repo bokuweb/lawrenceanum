@@ -11,7 +11,12 @@ pub fn segment_articles(text: &str) -> Vec<String> {
     let mut cur: Vec<&str> = Vec::new();
     for line in text.lines() {
         let prev = cur.iter().rev().find(|l| !l.trim().is_empty()).copied();
-        if (is_article_boundary(line) || is_notice_title(line, prev)) && !cur.is_empty() {
+        // 区分見出しに直結する丸印の小見出しも本文に含める。
+        // 「人事異動 / 内閣 / 〇財務大臣臨時代理」「叙位・叙勲 / 〇叙勲」を分断しない。
+        let heading_prefix = is_heading_mark(line.trim())
+            && cur.iter().find(|l| !l.trim().is_empty()).is_some_and(|l| matches!(l.trim(), "人事異動" | "叙位・叙勲"))
+            && cur.iter().all(|l| l.trim().is_empty() || is_section_label(l) || l.trim() == "内閣");
+        if (is_article_boundary(line) || is_notice_title(line, prev)) && !cur.is_empty() && !heading_prefix {
             // 公布の件名が長く折り返すと（「…に関する政」＋「令の一部を改正する政令をここに公布する。」）、
             // 件名の頭の行（文末でない長い行）は前の記事の末尾にある。新しい記事へ移す。
             let mut carried: Vec<&str> = Vec::new();
@@ -122,6 +127,7 @@ const SECTION_HEADERS: &[&str] = &[
     "国会事項",
     "官庁報告",
     "皇室事項",
+    "叙位・叙勲",
 ];
 
 /// 官庁報告・公告の中の欄見出し（目次の小見出し）。独立行で現れたら別記事の開始とみなす。
@@ -139,6 +145,17 @@ mod tests {
         assert_eq!(arts.len(), 2);
         assert!(arts[0].contains("電波法"));
         assert!(arts[1].contains("規格を廃止"));
+    }
+
+    #[test]
+    fn personnel_heading_stays_with_its_body() {
+        let text = "国会事項\n質問書提出\n本文。\n人事異動\n内閣\n〇財務大臣臨時代理\n指定する。\n叙位・叙勲\n〇叙勲\n章を授ける。\n皇室事項\n行幸啓";
+        let arts = segment_articles(text);
+        assert_eq!(arts.len(), 4);
+        assert!(arts[1].starts_with("人事異動\n内閣\n〇財務"));
+        assert!(arts[2].starts_with("叙位・叙勲\n〇叙勲"));
+        // 告示は号数による照合のため、従来どおり丸印の見出しから分ける。
+        assert_eq!(segment_articles("告示\n〇総務省告示第一号\n本文")[1], "〇総務省告示第一号\n本文");
     }
 
     #[test]
