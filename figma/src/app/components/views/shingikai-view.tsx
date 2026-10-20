@@ -21,14 +21,16 @@ const MINUTES_PREVIEW_CHARS = 3000;
 function useShingikaiIndex() {
   const [data, setData] = useState<ShingikaiIndex | null>(null);
   const [loading, setLoading] = useState(true);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
     api.shingikaiIndex()
       .then(d => { if (!cancelled) { setData(d); setLoading(false); } })
       .catch(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, []);
-  return { data, loading };
+  }, [attempt]);
+  return { data, loading, retry: () => setAttempt(n => n + 1) };
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -54,6 +56,7 @@ function AttachmentRow({ a }: { a: ShingikaiAttachment }) {
 function MeetingDetail({ ministry, minutesId }: { ministry: string; minutesId: string }) {
   const [meeting, setMeeting] = useState<ShingikaiMeeting | null>(null);
   const [loading, setLoading] = useState(true);
+  const [attempt, setAttempt] = useState(0);
   const [expanded, setExpanded] = useState(false);
   useEffect(() => {
     let cancelled = false;
@@ -62,15 +65,20 @@ function MeetingDetail({ ministry, minutesId }: { ministry: string; minutesId: s
       .then(d => { if (!cancelled) { setMeeting(d); setLoading(false); } })
       .catch(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [ministry, minutesId]);
+  }, [ministry, minutesId, attempt]);
 
   if (loading) return <div className="p-6 space-y-3">{[...Array(6)].map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>;
-  if (!meeting) return <div className="p-6 text-sm text-muted-foreground">読み込めませんでした</div>;
+  if (!meeting) return (
+    <div role="alert" className="p-6 text-sm text-muted-foreground">
+      <p>会議の詳細を読み込めませんでした</p>
+      <button type="button" onClick={() => setAttempt(n => n + 1)} className="mt-2 text-primary hover:underline">再試行</button>
+    </div>
+  );
 
   const minutes = meeting.minutes_text?.trim() || "";
   const truncated = !expanded && minutes.length > MINUTES_PREVIEW_CHARS;
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="flex flex-col h-full min-h-0 [overflow-wrap:anywhere]">
       <div className="px-5 py-4 border-b border-border shrink-0">
         <div className="flex items-center gap-2 mb-1 flex-wrap">
           <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{ministryLabel(meeting.ministry)}</span>
@@ -137,7 +145,7 @@ export function ShingikaiView({ meetingRef, onSelect }: {
   meetingRef: { ministry: string; minutesId: string } | null;
   onSelect: (ministry: string, minutesId: string) => void;
 }) {
-  const { data, loading } = useShingikaiIndex();
+  const { data, loading, retry } = useShingikaiIndex();
   const [query, setQuery] = useState("");
   const [ministryFilter, setMinistryFilter] = useState("all");
 
@@ -156,8 +164,8 @@ export function ShingikaiView({ meetingRef, onSelect }: {
   }, [data, query, ministryFilter]);
 
   return (
-    <div className="flex h-full">
-      <div className="w-96 shrink-0 border-r border-border flex flex-col">
+    <div className="flex h-full min-h-0 flex-col md:flex-row">
+      <div className="w-full max-h-64 md:max-h-none md:w-96 min-h-0 shrink-0 border-b md:border-b-0 md:border-r border-border flex flex-col">
         <div className="px-4 py-3 border-b border-border shrink-0 space-y-2">
           <div className="flex items-center gap-2">
             <h2 className="text-sm font-semibold flex-1">審議会議事録</h2>
@@ -178,8 +186,13 @@ export function ShingikaiView({ meetingRef, onSelect }: {
         <ScrollArea className="flex-1 min-h-0 [&>[data-slot=scroll-area-viewport]>div]:!block">
           {loading ? (
             <div className="p-4 space-y-2">{[...Array(8)].map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}</div>
+          ) : !data ? (
+            <div role="alert" className="p-6 text-center text-sm text-muted-foreground">
+              <p>会議一覧を読み込めませんでした</p>
+              <button type="button" onClick={retry} className="mt-2 text-primary hover:underline">再試行</button>
+            </div>
           ) : filtered.length === 0 ? (
-            <p className="p-6 text-center text-sm text-muted-foreground">{data ? "該当する会議がありません" : "データがありません"}</p>
+            <p className="p-6 text-center text-sm text-muted-foreground">該当する会議がありません</p>
           ) : (
             filtered.map(m => {
               const selected = meetingRef?.ministry === m.ministry && meetingRef?.minutesId === m.minutes_id;
@@ -203,7 +216,7 @@ export function ShingikaiView({ meetingRef, onSelect }: {
           )}
         </ScrollArea>
       </div>
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0">
         {meetingRef ? (
           <MeetingDetail ministry={meetingRef.ministry} minutesId={meetingRef.minutesId} />
         ) : (

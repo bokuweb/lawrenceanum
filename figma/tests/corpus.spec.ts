@@ -204,3 +204,63 @@ test("財政統計: 狭い画面でも一覧と時系列表を画面内で操作
   expect(bounds!.x).toBeGreaterThanOrEqual(0);
   expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(390);
 });
+
+for (const config of [
+  { label: "政府調達", path: "procurement", detailPath: "procurement/aXRlbTE", index: PROCUREMENT_INDEX, detail: PROCUREMENT_ITEM,
+    indexURL: "**/procurement/index.json", detailURL: "**/procurement/aXRlbTE.json", placeholder: "件名・調達機関…",
+    query: "庁舎", title: PROCUREMENT_ITEM.title, otherTitle: PROCUREMENT_INDEX.items[1].title, detailText: "2026-10-20", source: "公告原文" },
+  { label: "審議会", path: "shingikai", detailPath: "shingikai/moj/shingi06100001_00164", index: SHINGIKAI_INDEX, detail: SHINGIKAI_MEETING,
+    indexURL: "**/shingikai/index.json", detailURL: "**/shingikai/moj/shingi06100001_00164.json", placeholder: "会議名・審議会…",
+    query: "刑事法", title: SHINGIKAI_MEETING.title, otherTitle: SHINGIKAI_INDEX.minutes[0].title, detailText: "法務大臣からの諮問について説明がなされた。", source: "法務省 会議ページ" },
+]) {
+  test(`${config.label}: 一覧の取得失敗を表示し、絞り込みを維持して再試行できる`, async ({ page }) => {
+    let fail = true;
+    await page.route(config.indexURL, route => fail
+      ? route.fulfill({ status: 503, body: "unavailable" })
+      : route.fulfill({ json: config.index }));
+    await page.goto(new URL(`#/${config.path}`, BASE).toString());
+    await expect(page.getByRole("alert")).toContainText("読み込めませんでした");
+    await page.getByPlaceholder(config.placeholder).fill(config.query);
+    fail = false;
+    await page.getByRole("button", { name: "再試行", exact: true }).click();
+    await expect(page.getByRole("button", { name: new RegExp(config.title) })).toBeVisible();
+    await expect(page.getByText(config.otherTitle, { exact: true })).toHaveCount(0);
+    await expect(page.getByPlaceholder(config.placeholder)).toHaveValue(config.query);
+    await expect(page.getByRole("alert")).toHaveCount(0);
+  });
+
+  test(`${config.label}: 詳細の取得失敗からその場で再試行できる`, async ({ page }) => {
+    let fail = true;
+    await page.route(config.indexURL, route => route.fulfill({ json: config.index }));
+    await page.route(config.detailURL, route => fail
+      ? route.fulfill({ status: 503, body: "unavailable" })
+      : route.fulfill({ json: config.detail }));
+    await page.goto(new URL(`#/${config.detailPath}`, BASE).toString());
+    await expect(page.getByRole("alert")).toContainText("読み込めませんでした");
+    fail = false;
+    await page.getByRole("button", { name: "再試行", exact: true }).click();
+    await expect(page.getByText(config.detailText, { exact: true })).toBeVisible();
+    await expect(page.getByRole("alert")).toHaveCount(0);
+    await expect(page).toHaveURL(new URL(`#/${config.detailPath}`, BASE).toString());
+  });
+
+  test(`${config.label}: スマートフォンでも一覧と詳細が画面内で操作できる`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.route(config.indexURL, route => route.fulfill({ json: config.index }));
+    await page.route(config.detailURL, route => route.fulfill({ json: config.detail }));
+    await page.goto(new URL(`#/${config.path}`, BASE).toString());
+    const row = page.getByRole("button", { name: new RegExp(config.title) });
+    await expect(row).toBeVisible();
+    const box = await row.boundingBox();
+    expect(box!.x + box!.width).toBeLessThanOrEqual(390);
+    await row.click();
+    const source = page.getByRole("link", { name: config.source, exact: true });
+    await expect(source).toBeVisible();
+    const detailBox = await source.boundingBox();
+    expect(detailBox!.x).toBeGreaterThanOrEqual(0);
+    expect(detailBox!.x + detailBox!.width).toBeLessThanOrEqual(390);
+    expect(detailBox!.y + detailBox!.height).toBeLessThanOrEqual(844);
+    await expect(page.getByText(config.detailText, { exact: true })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  });
+}
