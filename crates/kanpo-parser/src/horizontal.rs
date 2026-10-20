@@ -1535,8 +1535,9 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
         let numbered = |t: &str| t.trim().starts_with('第');
         let kind = numbered(&cluster[0].text);
         let same_key = |w: &Col| row_key(&w.text) && numbered(&w.text) == kind;
+        let embedded_keys = crate::headed_data_columns::embedded_key_ids(&words, &cluster, vrules);
         let other_key = |w: &Col| {
-            !cluster.iter().any(|k| k.id == w.id)
+            !embedded_keys.contains(&w.id) && !cluster.iter().any(|k| k.id == w.id)
                 && same_key(w)
                 && words.iter().filter(|o| o.id != w.id && same_key(o) && (o.x - w.x).abs() < 2.0).count() >= 2
         };

@@ -53,6 +53,9 @@ mod framed_amount_rows;
 pub mod format;
 pub mod grid;
 mod horizontal;
+mod headed_data_columns;
+#[cfg(test)]
+mod headed_data_column_tests;
 mod numeric_grid_orientation;
 mod record_suffix;
 mod financial_enclosures;

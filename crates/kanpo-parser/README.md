@@ -295,6 +295,7 @@ cargo run --release -p kanpo-parser --example snapshot_sample -- .cache/kanpo-ar
 | 130 回目（独立・初回、全体品質） | 9 | 4 | 17 | 比較対象外 |
 | 131 回目（独立・初回、全体品質） | 10 | 6 | 14 | 比較対象外 |
 | 132 回目（独立・初回、全体品質） | 15 | 3 | 12 | 比較対象外 |
+| 133 回目（独立・初回、全体品質） | 11 | 8 | 11 | 比較対象外 |
 
 110 回目から、対象ページ ID・原本 SHA-256・採点の理由を [`tests/audits/`](tests/audits/) に残す。
 110 回目は本文に文字層のある 30 ページで校正し、見つかった分数式・金額の空欄位置の崩れを修正して同じ原本で再照合した結果。
@@ -737,3 +738,32 @@ production内の非公開型による追加18件も実行し、パーサ単体79
 [`tests/audits/issue227-twenty-first-batch-reviews.json`](tests/audits/issue227-twenty-first-batch-reviews.json)、
 [`tests/audits/issue227-twenty-first-batch-provenance.json`](tests/audits/issue227-twenty-first-batch-provenance.json)、
 検証集計は[`tests/audits/issue227-validation-21.json`](tests/audits/issue227-validation-21.json)に保存した。全体100%は未達で、改善を継続する。
+
+第 22 次修正では、230号11頁の肥料表で品名中のS－６/S－20/B027を別の主キー列と誤認し、会社名・住所を表外へ押し出す問題を修復した。
+見出し、3列以上の配置、原罫線、全主行の一意な値と後続列、折返しが過半数かつ2件以上あることを確認して、既存品名欄内のコードを区別する。
+左17件の5項目と、従来どおりの右6件の続表を保持し、Documentでは見出しを含む24行になる。
+原Word289語の文字・raw・ID・座標・状態、旧所有275件を保持し、36本文行の語から54セルを復元した。
+旧36セルの文字・ID順・行列番号・spanを保持し、19セルの右端・下端だけを折返し原字を含む範囲へ拡げた。旧セル座標が全て不変という主張ではない。
+原図と全69出力行・2Article/Document、左17×5項目と右6×5項目、原132Used語と950Glyphへの一意な対応を照合した。
+混合フォント10語ではGlyphの外接矩形と公開bbox::wordsの語矩形に差があるため、両者を区別して全289原語を再抽出し、幾何の許容誤差は広げていない。
+
+全11,992原PDFを再抽出し、本文・解析結果全体とも1変更・11,991完全一致を確認した。文字集合の増減・元語の所属喪失・重複IDは0。
+累計2,899変更ページ、文字変化ページ1,298で、従来の原字・表・分数修復も維持した。
+実PDF8テストは実装前3失敗・保存用5成功から全件成功へ進め、production内の非公開型による形状テスト24件も実行した。
+パーサ単体818件を含む関連4クレート全1,316テスト、全98統合対象・4ライブラリ・4doc-test・全4examplesが成功した。アーカイブ原本610件。
+新規4snapshotを原図・全文・全Article/Documentと照合してから採用した。既存snapshot更新0、既存テスト期待値の変更0、アサーションの緩和0。
+初回のtest module hook適用失敗、ID配列順と表示順を取り違えた検査、Glyph外接矩形を語矩形とした検査の失敗履歴を保持し、修正後の証拠だけを採用した。
+全テスト中の容量不足では87番のテスト本体は未実行だった。完了済みcache実行物をSHA検証付き可逆圧縮で退避し、同じソースと設定で再試行して全107コマンドの終了0を確認した。
+
+133回目の未見30件は範囲・画像・出力・全解析・ソースを選定前に固定した。
+初回の全体品質11ok/8minor/11major、本文・文字・読順25ok/3minor/2majorを保存し、修正後も書き換えない。
+全2,373行・88Article/Documentを原図と照合し、全30件の新旧解析結果は完全一致、今回の退行0。
+文字層のない7矩形を3原本の全nativeGlyphから再検査し、近接する非零3範囲と区別した。ページ全体の除外はない。
+新旧表の対応、科目表の別行合成、独立公告の未分割、228号152頁の利益剰余合計とPFI額の誤順等は既存の不具合として残す。
+230号9頁の見出しなし19件表、169号181頁の短いコード、230号12頁のJIS表と対象頁のJIS文章構造も別の未修復項目である。
+会社公告候補は固定1,286頁のレビュー中で未採用。既読122という旧集計は166号94頁を二重計数していたため、履歴を残して既読121・未読1,165へ訂正した。
+CF表の原横棒109字の候補は別検証で、実装前のcacheテスト1失敗・保存用4成功を確認した。この肥料表修正には含めない。
+初回監査は[`tests/audits/133.json`](tests/audits/133.json)、変更影響と原字の証明は
+[`tests/audits/issue227-twenty-second-batch-reviews.json`](tests/audits/issue227-twenty-second-batch-reviews.json)、
+[`tests/audits/issue227-twenty-second-batch-provenance.json`](tests/audits/issue227-twenty-second-batch-provenance.json)、
+検証集計は[`tests/audits/issue227-validation-22.json`](tests/audits/issue227-validation-22.json)に保存した。全体100%は未達で、改善を継続する。
