@@ -241,6 +241,13 @@ pub fn run_build_json(cache: &Path, public: &Path) -> Result<()> {
     std::fs::create_dir_all(&out)?;
 
     let mut global: Vec<serde_json::Value> = Vec::new();
+    // 改め文の構造化 (gian/amendments/{session}/{bill_id}.json)。毎回作り直す
+    // (link-bill-amendments が law-diff との対応を書き足すので、古い結果を残さない)。
+    let amendments_dir = out.join("amendments");
+    if amendments_dir.exists() {
+        std::fs::remove_dir_all(&amendments_dir)?;
+    }
+    let mut amendment_entries: Vec<serde_json::Value> = Vec::new();
     for sess_entry in std::fs::read_dir(&src)? {
         let sess_path = sess_entry?.path();
         if !sess_path.is_dir() {
@@ -269,7 +276,8 @@ pub fn run_build_json(cache: &Path, public: &Path) -> Result<()> {
                 out_sess.join(format!("{bill_id}.json")),
                 serde_json::to_string_pretty(&bill)?,
             )?;
-            let entry = serde_json::json!({
+            let amendments = write_amendments(&amendments_dir, &bill, &mut amendment_entries)?;
+            let mut entry = serde_json::json!({
                 "bill_id": bill_id,
                 "session": bill["session"],
                 "bill_type": bill["bill_type"],
@@ -283,6 +291,9 @@ pub fn run_build_json(cache: &Path, public: &Path) -> Result<()> {
                 "latest_event": bill["latest_event"],
                 "detail_url": bill["source"]["detail_url"],
             });
+            if let Some(path) = amendments {
+                entry["amendments"] = serde_json::Value::String(path);
+            }
             entries.push(entry.clone());
             global.push(entry);
         }
@@ -311,19 +322,74 @@ pub fn run_build_json(cache: &Path, public: &Path) -> Result<()> {
         sb.cmp(&sa)
     });
     let resolution_count = build_resolution_json(cache, public, &global)?;
+    let amendment_count = amendment_entries.len();
+    if amendment_count > 0 {
+        amendment_entries.sort_by(|a, b| {
+            b["session"]
+                .as_u64()
+                .cmp(&a["session"].as_u64())
+                .then_with(|| a["bill_id"].as_str().cmp(&b["bill_id"].as_str()))
+        });
+        std::fs::write(
+            amendments_dir.join("index.json"),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "schema_version": gian_client::amendment::AMENDMENT_SCHEMA_VERSION,
+                "count": amendment_count,
+                "bills": amendment_entries,
+            }))?,
+        )?;
+    }
     let idx = serde_json::json!({
         "schema_version": 1,
         "count": global.len(),
         "supplementary_resolution_count": resolution_count,
+        "amendment_count": amendment_count,
         "bills": global,
     });
     std::fs::write(out.join("index.json"), serde_json::to_string_pretty(&idx)?)?;
     tracing::info!(
-        "gian-build-json: {} bills / {} supplementary resolutions written",
+        "gian-build-json: {} bills / {} supplementary resolutions / {} amendment texts written",
         global.len(),
-        resolution_count
+        resolution_count,
+        amendment_count
     );
     Ok(())
+}
+
+/// 提出時法律案の改め文を条単位の改正操作に構造化して書き出す。改正対象が無ければ None。
+/// 戻り値は配信パス (`gian/amendments/{session}/{bill_id}.json`)。
+fn write_amendments(
+    dir: &Path,
+    bill: &serde_json::Value,
+    entries: &mut Vec<serde_json::Value>,
+) -> Result<Option<String>> {
+    let Ok(bill) = serde_json::from_value::<gian_client::Bill>(bill.clone()) else {
+        return Ok(None);
+    };
+    let Some(amendments) = gian_client::parse_bill_amendments(&bill) else {
+        return Ok(None);
+    };
+    let session_dir = dir.join(amendments.session.to_string());
+    std::fs::create_dir_all(&session_dir)?;
+    std::fs::write(
+        session_dir.join(format!("{}.json", amendments.bill_id)),
+        serde_json::to_string_pretty(&amendments)?,
+    )?;
+    let path = format!(
+        "gian/amendments/{}/{}.json",
+        amendments.session, amendments.bill_id
+    );
+    entries.push(serde_json::json!({
+        "bill_id": amendments.bill_id,
+        "session": amendments.session,
+        "title": amendments.title,
+        "law_num": amendments.law_num,
+        "amendment_law_id": amendments.amendment_law_id,
+        "targets": amendments.targets.iter().map(|t| &t.law_title).collect::<Vec<_>>(),
+        "stats": amendments.stats,
+        "path": path,
+    }));
+    Ok(Some(path))
 }
 
 fn normalize_title(value: &str) -> String {
@@ -544,6 +610,54 @@ mod tests {
         )
         .unwrap();
         assert_eq!(link["count"], 1);
+
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn build_json_writes_structured_amendments() {
+        let root = std::env::temp_dir().join(format!(
+            "lawpub-gian-amendments-{}-{}",
+            std::process::id(),
+            chrono::Utc::now().timestamp_nanos_opt().unwrap_or_default()
+        ));
+        let provider = MockProvider;
+        let meta = provider.list_bills(221).unwrap().remove(0);
+        let mut bill = provider.fetch_bill(&meta).unwrap();
+        bill.bill_id = "1DE1F02".into();
+        bill.title = "裁判所職員定員法の一部を改正する法律案".into();
+        bill.promulgation_date = Some("令和 8年 5月 7日".into());
+        bill.law_num = Some("14".into());
+        bill.documents[0].text = "裁判所職員定員法の一部を改正する法律案\n裁判所職員定員法（昭和二十六年法律第五十三号）の一部を次のように改正する。\n第二条中「二万千六百六十六人」を「二万千五百四十人」に改める。\n附 則\nこの法律は、公布の日から施行する。\n理 由\n必要がある。".into();
+        let dir = root.join("gian/221");
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("1DE1F02.json"), serde_json::to_vec(&bill).unwrap()).unwrap();
+
+        let public = root.join("public");
+        run_build_json(&root, &public).unwrap();
+        let a: gian_client::BillAmendments = serde_json::from_slice(
+            &std::fs::read(public.join("gian/amendments/221/1DE1F02.json")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(a.amendment_law_id.as_deref(), Some("508AC0000000014"));
+        assert_eq!(a.law_num.as_deref(), Some("令和八年法律第十四号"));
+        assert_eq!(
+            a.targets[0].law_num.as_deref(),
+            Some("昭和二十六年法律第五十三号")
+        );
+        assert_eq!(a.stats.ops, 1);
+        let index: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(public.join("gian/221/index.json")).unwrap())
+                .unwrap();
+        assert_eq!(
+            index["bills"][0]["amendments"],
+            "gian/amendments/221/1DE1F02.json"
+        );
+        let amendments_index: serde_json::Value = serde_json::from_slice(
+            &std::fs::read(public.join("gian/amendments/index.json")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(amendments_index["count"], 1);
 
         std::fs::remove_dir_all(root).unwrap();
     }

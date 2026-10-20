@@ -2335,6 +2335,8 @@ pub fn run_refresh_health(public: &Path) -> Result<()> {
     object.insert("generated_at".to_string(), json!(Utc::now().to_rfc3339()));
     object.insert("file_count".to_string(), json!(file_count));
     object.insert("corpora".to_string(), collect_corpus_health(public));
+    // 法律案の改め文と law-diff の対応率 (#200)。link-bill-amendments 未実行なら null。
+    object.insert("bill_amendments".to_string(), linking::bill_amendments_health(public));
     write_json_pretty(&health_path, &health)?;
     tracing::info!("refreshed health.json from corpus indexes");
     Ok(())

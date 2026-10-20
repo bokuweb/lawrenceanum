@@ -462,6 +462,9 @@ export const api = {
   lawToTreaties: (lawId: string) => getJson<LawToTreaties>(`./links/law-to-treaties/${lawId}.json`),
   /** 条約 1 件 (外務省 条約データ検索・国会提出条約)。 */
   treaty: (id: string) => getJson<Treaty>(`./treaties/${encodeURIComponent(id)}.json`),
+  /** 法令 → この法令を改正した法律案の改め文 (law-diff の版と対応づけ済み)。 */
+  lawToBillAmendments: (lawId: string) =>
+    getJson<LawToBillAmendments>(`./links/law-to-bill-amendments/${lawId}.json`),
 
   /** 議案 (法案審議トラッキング) 全体インデックス。 */
   gianIndex: () => getJson<GianIndex>('./gian/index.json'),
@@ -1098,6 +1101,42 @@ export type Treaty = {
   attachments: { label: string; url: string; sha256?: string; bytes?: number }[]
   source_url: string
   diet_url: string | null
+}
+
+// ── 法律案の改め文 ↔ 改正差分 型定義 ──────────────────────────────
+
+export type LinkedAmendmentSentence = {
+  /** 改め文 1 文の原文 (「第二条中「A」を「B」に改める。」)。 */
+  text: string
+  /** 改め文が指す条 (`art_*`)。linked なら差分で実際に変化した条。 */
+  article_ids: string[]
+  /** verified / article / pending / unmatched / skipped、または法令単位の status。 */
+  status: string
+}
+
+export type LinkedBillAmendment = {
+  bill_id: string
+  session: number
+  bill_title: string
+  law_num: string | null
+  amendment_law_id: string | null
+  /** 法案内の位置 (「第一条」「附則第六条」)。 */
+  provision: string | null
+  /** linked / pending / not_promulgated / revision_not_found。 */
+  status: string
+  from_revision_id: string | null
+  to_revision_ids: string[]
+  source_url: string
+  path: string
+  ops: number
+  ops_matched: number
+  sentences: LinkedAmendmentSentence[]
+}
+
+export type LawToBillAmendments = {
+  schema_version: number
+  law_id: string
+  bills: LinkedBillAmendment[]
 }
 
 // ── 規制変化フィード 型定義 ───────────────────────────────────────

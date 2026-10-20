@@ -1734,6 +1734,9 @@ version = "0.1.0"
 dependencies = [
  "aho-corasick",
  "anyhow",
+ "gian-client",
+ "law-diff",
+ "law-normalizer",
  "rayon",
  "serde",
  "serde_json",

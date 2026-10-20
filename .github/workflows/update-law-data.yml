@@ -666,6 +666,10 @@ jobs:
           restore_gian_bundle gian-resolution-assets.tar.zst .cache/gian-resolution-assets
           ./target/release/lawpub gian-build-json --cache .cache --public public \
             || echo "::warning::gian-build-json failed"
+          # 提出時法律案の改め文 (gian-build-json が gian/amendments に構造化) を、公布後の
+          # 法令の版の差分 (law-diff) と条単位で対応づける。対応率は refresh-health が health.json に載せる。
+          ./target/release/lawpub link-bill-amendments --public public \
+            || echo "::warning::link-bill-amendments failed"
 
       # 自治体例規の本文・検索 DB は collect-reiki.yml が R2 から直接配信する（Pages に
       # 収まらない規模のため）。ここでは全国一覧だけを同梱し、ダッシュボードの収録状況に使う。
