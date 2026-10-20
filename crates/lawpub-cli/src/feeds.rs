@@ -1,4 +1,4 @@
-//! `lawpub build-feeds` — 法令改正・パブコメ・官報(改め文)の新着を 1 本の
+//! `lawpub build-feeds` — 法令・法案・パブコメ・官報・会議録・調達の新着を 1 本の
 //! 逆時系列ストリームに集約し `public/feeds/recent.json` と RSS `recent.xml` を書く。
 //!
 //! 規制変化アラート (T0: 認証ゼロ) の心臓部。RSS リーダーで購読でき、アプリ内
@@ -8,13 +8,16 @@
 use anyhow::{Context, Result};
 use chrono::{NaiveDate, Utc};
 use serde::Serialize;
-use std::path::Path;
+use std::{
+    collections::{HashMap, HashSet},
+    path::Path,
+};
 
-const MAX_ITEMS: usize = 200;
+const MAX_ITEMS_PER_KIND: usize = 50;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct FeedItem {
-    /// "law" | "pubcomment" | "kanpo"
+    /// law / bill / pubcomment / kanpo / proceedings / shingikai / procurement
     pub kind: String,
     pub date: String,
     pub title: String,
@@ -103,7 +106,7 @@ fn collect_law_items(public: &Path, max_dates: usize) -> Vec<FeedItem> {
     items
 }
 
-/// パブコメ: `public/pubcomment/index.json` の結果公示済み案件。
+/// パブコメ: 募集開始または結果公示を新着イベントとして扱う。
 fn collect_pubcomment_items(public: &Path) -> Vec<FeedItem> {
     let Some(v) = read_json(&public.join("pubcomment").join("index.json")) else {
         return Vec::new();
@@ -120,20 +123,37 @@ fn collect_pubcomment_items(public: &Path) -> Vec<FeedItem> {
         }
         let status = c.get("status").and_then(|x| x.as_str()).unwrap_or("");
         let open = status == "open";
-        // 募集中は締切(reception_end)を日付に、結果公示は公示日(result_published)。
+        // 締切は将来の予定であり、新着日には使わない。
         let date = c
-            .get(if open { "reception_end" } else { "result_published" })
+            .get(if open {
+                "reception_start"
+            } else {
+                "result_published"
+            })
             .and_then(|x| x.as_str())
             .unwrap_or("")
             .to_string();
         let ministry = c.get("ministry").and_then(|x| x.as_str()).map(String::from);
         let related = c.get("related_law_name").and_then(|x| x.as_str());
-        // 募集中は「意見募集中・締切」を前面に（締切アラート）。
         let summary = if open {
-            let base = "意見募集中（締切）".to_string();
-            Some(related.map(|r| format!("{base} · 関連: {r}")).unwrap_or(base))
+            let deadline = c
+                .get("reception_end")
+                .and_then(|x| x.as_str())
+                .filter(|s| !s.is_empty());
+            let base = deadline
+                .map(|d| format!("意見募集中 · 締切: {d}"))
+                .unwrap_or_else(|| "意見募集中".into());
+            Some(
+                related
+                    .map(|r| format!("{base} · 関連: {r}"))
+                    .unwrap_or(base),
+            )
         } else {
-            related.map(|r| format!("関連: {r}"))
+            Some(
+                related
+                    .map(|r| format!("結果公示 · 関連: {r}"))
+                    .unwrap_or_else(|| "結果公示".into()),
+            )
         };
         items.push(FeedItem {
             kind: "pubcomment".into(),
@@ -170,7 +190,11 @@ fn collect_kanpo_items(public: &Path, max_dates: usize) -> Vec<FeedItem> {
         let Some(v) = read_json(&ddir.join("index.json")) else {
             continue;
         };
-        let date = v.get("date").and_then(|x| x.as_str()).unwrap_or("").to_string();
+        let date = v
+            .get("date")
+            .and_then(|x| x.as_str())
+            .unwrap_or("")
+            .to_string();
         let Some(issues) = v.get("issues").and_then(|x| x.as_array()) else {
             continue;
         };
@@ -181,7 +205,10 @@ fn collect_kanpo_items(public: &Path, max_dates: usize) -> Vec<FeedItem> {
             for it in its {
                 // 改め文 (法令改正) を持つ項目だけ。本文は全項目から取るので、標題で公告・公示などを除く。
                 let title = it.get("title").and_then(|x| x.as_str()).unwrap_or("");
-                let has_amend = it.get("amend_text").and_then(|x| x.as_str()).is_some_and(|s| !s.is_empty());
+                let has_amend = it
+                    .get("amend_text")
+                    .and_then(|x| x.as_str())
+                    .is_some_and(|s| !s.is_empty());
                 if !has_amend || !crate::kanpo::is_amend_title(title) {
                     continue;
                 }
@@ -189,11 +216,23 @@ fn collect_kanpo_items(public: &Path, max_dates: usize) -> Vec<FeedItem> {
                 if title.is_empty() || pdf.is_empty() {
                     continue;
                 }
-                let agency = it.get("agency_hint").and_then(|x| x.as_str()).map(String::from);
+                let agency = it
+                    .get("agency_hint")
+                    .and_then(|x| x.as_str())
+                    .map(String::from);
                 // 逆引き: linked_laws の先頭 (改正対象法令)。
-                let first_law = it.get("linked_laws").and_then(|x| x.as_array()).and_then(|a| a.first());
-                let law_id = first_law.and_then(|l| l.get("law_id")).and_then(|x| x.as_str()).map(String::from);
-                let law_title = first_law.and_then(|l| l.get("title")).and_then(|x| x.as_str()).map(String::from);
+                let first_law = it
+                    .get("linked_laws")
+                    .and_then(|x| x.as_array())
+                    .and_then(|a| a.first());
+                let law_id = first_law
+                    .and_then(|l| l.get("law_id"))
+                    .and_then(|x| x.as_str())
+                    .map(String::from);
+                let law_title = first_law
+                    .and_then(|l| l.get("title"))
+                    .and_then(|x| x.as_str())
+                    .map(String::from);
                 items.push(FeedItem {
                     kind: "kanpo".into(),
                     date: date.clone(),
@@ -211,19 +250,25 @@ fn collect_kanpo_items(public: &Path, max_dates: usize) -> Vec<FeedItem> {
     items
 }
 
-/// 「YYYY年M月D日…」→「YYYY-MM-DD」。既に ISO ならそのまま。パース不能は元のまま返す。
+/// ISO 日時・「YYYY年M月D日…」→「YYYY-MM-DD」。パース不能は元のまま返す。
 /// パブコメは和式日付 (例「2026年6月19日」「2026年3月27日18時0分」)、法令/官報は ISO。
 fn normalize_date(s: &str) -> String {
     let s = s.trim();
-    if NaiveDate::parse_from_str(s, "%Y-%m-%d").is_ok() {
-        return s.to_string();
+    if let Some(date) = s
+        .get(..10)
+        .filter(|date| NaiveDate::parse_from_str(date, "%Y-%m-%d").is_ok())
+    {
+        return date.to_string();
     }
     if let (Some(yi), Some(mi), Some(di)) = (s.find('年'), s.find('月'), s.find('日')) {
+        if yi >= mi || mi >= di {
+            return s.to_string();
+        }
         let y: i32 = s[..yi].trim().parse().unwrap_or(0);
         let m: u32 = s[yi + '年'.len_utf8()..mi].trim().parse().unwrap_or(0);
         let d: u32 = s[mi + '月'.len_utf8()..di].trim().parse().unwrap_or(0);
-        if y > 0 && m > 0 && d > 0 {
-            return format!("{y:04}-{m:02}-{d:02}");
+        if let Some(date) = NaiveDate::from_ymd_opt(y, m, d) {
+            return date.format("%Y-%m-%d").to_string();
         }
     }
     s.to_string()
@@ -235,6 +280,9 @@ fn kind_label(k: &str) -> &str {
         "pubcomment" => "パブコメ",
         "kanpo" => "官報",
         "bill" => "法案",
+        "proceedings" => "国会会議録",
+        "shingikai" => "審議会",
+        "procurement" => "政府調達",
         _ => k,
     }
 }
@@ -256,7 +304,14 @@ fn collect_gian_items(public: &Path) -> Vec<FeedItem> {
             continue;
         }
         let bill_id = b.get("bill_id").and_then(|x| x.as_str()).unwrap_or("");
-        let session = b.get("session").and_then(|x| x.as_str().map(String::from).or_else(|| x.as_u64().map(|n| n.to_string()))).unwrap_or_default();
+        let session = b
+            .get("session")
+            .and_then(|x| {
+                x.as_str()
+                    .map(String::from)
+                    .or_else(|| x.as_u64().map(|n| n.to_string()))
+            })
+            .unwrap_or_default();
         if bill_id.is_empty() || session.is_empty() {
             continue;
         }
@@ -285,6 +340,166 @@ fn collect_gian_items(public: &Path) -> Vec<FeedItem> {
     items
 }
 
+fn index_entries(public: &Path, source: &str, key: &str) -> Vec<serde_json::Value> {
+    read_json(&public.join(source).join("index.json"))
+        .and_then(|v| v.get(key).and_then(|v| v.as_array()).cloned())
+        .unwrap_or_default()
+}
+
+fn text_field<'a>(value: &'a serde_json::Value, key: &str) -> &'a str {
+    value.get(key).and_then(|v| v.as_str()).unwrap_or("")
+}
+
+fn internal_item(kind: &str, date: &str, title: String, href: String) -> FeedItem {
+    FeedItem {
+        kind: kind.into(),
+        date: date.into(),
+        title,
+        href,
+        internal: true,
+        law_id: None,
+        law_title: None,
+        ministry: None,
+        summary: None,
+    }
+}
+
+fn collect_proceedings_items(public: &Path) -> Vec<FeedItem> {
+    index_entries(public, "proceedings", "meetings")
+        .iter()
+        .filter_map(|meeting| {
+            let id = text_field(meeting, "meeting_id");
+            let house = match text_field(meeting, "house") {
+                "shugiin" => "衆議院",
+                "sangiin" => "参議院",
+                other => other,
+            };
+            let committee = text_field(meeting, "committee");
+            if id.is_empty() || house.is_empty() {
+                return None;
+            }
+            let title = [house, committee, text_field(meeting, "issue")]
+                .into_iter()
+                .filter(|s| !s.is_empty())
+                .collect::<Vec<_>>()
+                .join(" · ");
+            let mut item = internal_item(
+                "proceedings",
+                text_field(meeting, "date"),
+                title,
+                format!("/proceedings/{id}"),
+            );
+            item.summary = meeting["speech_count"]
+                .as_u64()
+                .map(|n| format!("{n}件の発言"));
+            Some(item)
+        })
+        .collect()
+}
+
+fn collect_shingikai_items(public: &Path) -> Vec<FeedItem> {
+    index_entries(public, "shingikai", "minutes")
+        .iter()
+        .filter_map(|meeting| {
+            let id = text_field(meeting, "minutes_id");
+            let ministry = text_field(meeting, "ministry");
+            let title = text_field(meeting, "title");
+            // 開催予定は新着とは別。開催済みの会議・資料を表示する。
+            if id.is_empty()
+                || ministry.is_empty()
+                || title.is_empty()
+                || text_field(meeting, "status") == "scheduled"
+            {
+                return None;
+            }
+            let mut item = internal_item(
+                "shingikai",
+                text_field(meeting, "date"),
+                title.into(),
+                format!("/shingikai/{ministry}/{id}"),
+            );
+            item.ministry = Some(
+                match ministry {
+                    "moj" => "法務省",
+                    "cao" => "内閣府",
+                    "mlit" => "国土交通省",
+                    "mhlw" => "厚生労働省",
+                    other => other,
+                }
+                .into(),
+            );
+            let content = if meeting["has_minutes"].as_bool() == Some(true) {
+                "議事録あり"
+            } else {
+                "会議資料"
+            };
+            item.summary = Some(
+                [text_field(meeting, "committee"), content]
+                    .into_iter()
+                    .filter(|s| !s.is_empty())
+                    .collect::<Vec<_>>()
+                    .join(" · "),
+            );
+            Some(item)
+        })
+        .collect()
+}
+
+fn collect_procurement_items(public: &Path) -> Vec<FeedItem> {
+    index_entries(public, "procurement", "items")
+        .iter()
+        .filter_map(|notice| {
+            let id = text_field(notice, "item_id");
+            let title = text_field(notice, "title");
+            if id.is_empty() || title.is_empty() {
+                return None;
+            }
+            let mut item = internal_item(
+                "procurement",
+                text_field(notice, "publish_date"),
+                title.into(),
+                format!("/procurement/{id}"),
+            );
+            item.ministry = notice["organization"]
+                .as_str()
+                .filter(|s| !s.is_empty())
+                .map(String::from);
+            item.summary = notice["notice_type"]
+                .as_str()
+                .filter(|s| !s.is_empty())
+                .map(String::from);
+            Some(item)
+        })
+        .collect()
+}
+
+/// 各種別の最新50件を残す。大量の同種データで他の種別を押し出さない。
+fn recent_items(mut items: Vec<FeedItem>, today: NaiveDate) -> Vec<FeedItem> {
+    for item in &mut items {
+        item.date = normalize_date(&item.date);
+    }
+    items.retain(|item| {
+        NaiveDate::parse_from_str(&item.date, "%Y-%m-%d").is_ok_and(|date| date <= today)
+    });
+    items.sort_by(|a, b| {
+        b.date
+            .cmp(&a.date)
+            .then(a.kind.cmp(&b.kind))
+            .then(a.href.cmp(&b.href))
+    });
+    let mut seen = HashSet::new();
+    let mut counts = HashMap::new();
+    items.retain(|item| {
+        if !seen.insert((item.kind.clone(), item.date.clone(), item.href.clone())) {
+            return false;
+        }
+        let count = counts.entry(item.kind.clone()).or_insert(0);
+        *count += 1;
+        *count <= MAX_ITEMS_PER_KIND
+    });
+    items
+}
+
 fn xml_escape(s: &str) -> String {
     s.replace('&', "&amp;")
         .replace('<', "&lt;")
@@ -301,14 +516,18 @@ fn rfc822(date: &str) -> Option<String> {
 
 fn write_rss(public: &Path, items: &[FeedItem]) -> Result<()> {
     let base = std::env::var("LAWPUB_BASE_URL").unwrap_or_else(|_| "/".to_string());
-    let base_norm = if base.ends_with('/') { base.clone() } else { format!("{base}/") };
+    let base_norm = if base.ends_with('/') {
+        base.clone()
+    } else {
+        format!("{base}/")
+    };
 
     let mut rss = String::from(
         r#"<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
 <channel>
 <title>Lawrenceanum 規制変化フィード</title>
-<description>法令改正・パブリックコメント・官報(改め文)の新着</description>
+<description>法令改正・法案・パブリックコメント・官報・国会会議録・審議会・政府調達の新着</description>
 "#,
     );
     rss.push_str(&format!("<link>{}</link>\n", xml_escape(&base_norm)));
@@ -322,7 +541,10 @@ fn write_rss(public: &Path, items: &[FeedItem]) -> Result<()> {
         rss.push_str("<item>\n");
         rss.push_str(&format!("<title>{}</title>\n", xml_escape(&title)));
         rss.push_str(&format!("<link>{}</link>\n", xml_escape(&link)));
-        rss.push_str(&format!("<guid isPermaLink=\"false\">{}</guid>\n", xml_escape(&format!("{}:{}:{}", it.kind, it.date, it.href))));
+        rss.push_str(&format!(
+            "<guid isPermaLink=\"false\">{}</guid>\n",
+            xml_escape(&format!("{}:{}:{}", it.kind, it.date, it.href))
+        ));
         if let Some(p) = rfc822(&it.date) {
             rss.push_str(&format!("<pubDate>{p}</pubDate>\n"));
         }
@@ -347,15 +569,14 @@ pub fn run_build_feeds(public: &Path) -> Result<()> {
     items.extend(collect_pubcomment_items(public));
     items.extend(collect_kanpo_items(public, 30));
     items.extend(collect_gian_items(public));
+    items.extend(collect_proceedings_items(public));
+    items.extend(collect_shingikai_items(public));
+    items.extend(collect_procurement_items(public));
 
-    // 日付を ISO に正規化 (パブコメの和式日付を揃え、横断ソートを正しくする)。
-    for it in items.iter_mut() {
-        it.date = normalize_date(&it.date);
-    }
-
-    // 日付降順。日付が同じなら kind 安定。
-    items.sort_by(|a, b| b.date.cmp(&a.date).then(a.kind.cmp(&b.kind)));
-    items.truncate(MAX_ITEMS);
+    let today = Utc::now()
+        .with_timezone(&chrono::FixedOffset::east_opt(9 * 3600).unwrap())
+        .date_naive();
+    let items = recent_items(items, today);
 
     let feed = Feed {
         schema_version: 1,
@@ -371,13 +592,65 @@ pub fn run_build_feeds(public: &Path) -> Result<()> {
 
     write_rss(public, &items)?;
 
-    tracing::info!("build-feeds: {} items (feeds/recent.json + recent.xml)", items.len());
+    tracing::info!(
+        "build-feeds: {} items (feeds/recent.json + recent.xml)",
+        items.len()
+    );
     Ok(())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn keeps_latest_items_for_each_kind_without_future_or_invalid_dates() {
+        let today = NaiveDate::from_ymd_opt(2026, 10, 20).unwrap();
+        let mut items: Vec<_> = (0..300)
+            .map(|n| {
+                internal_item(
+                    "pubcomment",
+                    "2026-10-20",
+                    format!("意見募集{n}"),
+                    format!("/pubcomment/{n:03}"),
+                )
+            })
+            .collect();
+        items.push(internal_item(
+            "law",
+            "2026-10-19",
+            "改正法".into(),
+            "/laws/L1".into(),
+        ));
+        items.push(internal_item(
+            "law",
+            "2026-10-19",
+            "改正法".into(),
+            "/laws/L1".into(),
+        ));
+        for date in ["", "不明", "2026-02-30", "2026年2月30日", "2026-10-21"] {
+            items.push(internal_item(
+                "law",
+                date,
+                "除外".into(),
+                format!("/laws/{date}"),
+            ));
+        }
+        let selected = recent_items(items, today);
+        assert_eq!(selected.len(), MAX_ITEMS_PER_KIND + 1);
+        assert_eq!(selected.last().unwrap().kind, "law");
+        assert!(selected.windows(2).all(|pair| pair[0].date >= pair[1].date));
+        assert_eq!(selected[0].href, "/pubcomment/000");
+        assert_eq!(selected[MAX_ITEMS_PER_KIND - 1].href, "/pubcomment/049");
+    }
+
+    #[test]
+    fn normalizes_japanese_dates_and_iso_timestamps() {
+        assert_eq!(normalize_date("2026-10-16 23:59"), "2026-10-16");
+        assert_eq!(normalize_date("2026-10-16T12:00:00+09:00"), "2026-10-16");
+        assert_eq!(normalize_date("2026年3月7日18時0分"), "2026-03-07");
+        assert_eq!(normalize_date("月年日"), "月年日");
+    }
 
     #[test]
     fn builds_feed_from_public_artifacts() {
@@ -400,7 +673,11 @@ mod tests {
             root.join("pubcomment").join("index.json"),
             serde_json::to_string(&serde_json::json!({
                 "schema_version": 1, "count": 1,
-                "cases": [{"case_id": "c1", "title": "テストパブコメ", "ministry": "法務省", "result_published": "2026-06-01", "related_law_name": "民法"}]
+                "cases": [
+                    {"case_id": "c1", "title": "テストパブコメ", "ministry": "法務省", "result_published": "2026-06-01", "related_law_name": "民法"},
+                    {"case_id": "c2", "title": "募集中のパブコメ", "status": "open", "reception_start": "2026-05-30 10:00", "reception_end": "2099-01-01 23:59"},
+                    {"case_id": "c3", "title": "開始日不明", "status": "open", "reception_end": "2099-01-01"}
+                ]
             }))
             .unwrap(),
         )
@@ -418,25 +695,76 @@ mod tests {
         )
         .unwrap();
 
+        for (source, value) in [
+            (
+                "gian",
+                serde_json::json!({"bills": [{"bill_id": "b1", "session": 221, "title": "テスト法案", "latest_date": "2026-05-29"}]}),
+            ),
+            (
+                "proceedings",
+                serde_json::json!({"meetings": [{"meeting_id": "m1", "house": "shugiin", "committee": "法務委員会", "issue": "第1号", "date": "2026-05-28", "speech_count": 12}]}),
+            ),
+            (
+                "shingikai",
+                serde_json::json!({"minutes": [
+                    {"minutes_id": "s1", "ministry": "moj", "title": "法制審議会", "committee": "民法部会", "date": "2026-05-27", "has_minutes": true},
+                    {"minutes_id": "s2", "ministry": "moj", "title": "開催予定", "date": "2026-05-29", "status": "scheduled"},
+                    {"minutes_id": "s3", "ministry": "moj", "title": "将来の会議", "date": "2099-05-29"}
+                ]}),
+            ),
+            (
+                "procurement",
+                serde_json::json!({"items": [{"item_id": "p1", "title": "情報システム調達", "publish_date": "2026-05-26", "organization": "法務省", "notice_type": "役務"}]}),
+            ),
+        ] {
+            std::fs::create_dir_all(root.join(source)).unwrap();
+            std::fs::write(
+                root.join(source).join("index.json"),
+                serde_json::to_vec(&value).unwrap(),
+            )
+            .unwrap();
+        }
+
         run_build_feeds(&root).unwrap();
 
         let feed: serde_json::Value =
             serde_json::from_slice(&std::fs::read(root.join("feeds").join("recent.json")).unwrap())
                 .unwrap();
         let items = feed["items"].as_array().unwrap();
-        // law + pubcomment + kanpo(改め文1件、本文があっても公告は除外) = 3。
-        assert_eq!(items.len(), 3);
+        // 7種類 + 募集開始1件。予定・日付不明・本文のある公告も除外。
+        assert_eq!(items.len(), 8);
         let kinds: Vec<&str> = items.iter().map(|i| i["kind"].as_str().unwrap()).collect();
         assert!(kinds.contains(&"law"));
         assert!(kinds.contains(&"pubcomment"));
         assert!(kinds.contains(&"kanpo"));
+        assert!(kinds.contains(&"bill"));
+        assert!(kinds.contains(&"proceedings"));
+        assert!(kinds.contains(&"shingikai"));
+        assert!(kinds.contains(&"procurement"));
         // 日付降順: 先頭は 2026-06-01 (pubcomment)。
         assert_eq!(items[0]["date"].as_str().unwrap(), "2026-06-01");
+        assert_eq!(items[1]["date"], "2026-05-30");
+        assert!(items[1]["summary"]
+            .as_str()
+            .unwrap()
+            .contains("締切: 2099-01-01 23:59"));
+        for href in [
+            "/proceedings/m1",
+            "/shingikai/moj/s1",
+            "/procurement/p1",
+            "/gian/221/b1",
+        ] {
+            assert!(items
+                .iter()
+                .any(|item| item["href"] == href && item["internal"] == true));
+        }
 
         // RSS も生成される。
         let rss = std::fs::read_to_string(root.join("feeds").join("recent.xml")).unwrap();
         assert!(rss.contains("<rss version=\"2.0\">"));
         assert!(rss.contains("[パブコメ] テストパブコメ"));
+        assert!(rss.contains("[審議会] 法制審議会"));
+        assert!(rss.contains("[政府調達] 情報システム調達"));
 
         let _ = std::fs::remove_dir_all(&root);
     }
