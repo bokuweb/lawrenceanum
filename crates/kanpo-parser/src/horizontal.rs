@@ -2594,7 +2594,8 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
                 (nums.len() >= 3 && width < 40.0 && nums.len() * 10 >= side.len() * 8 && aligned * 10 >= nums.len() * 7)
                     // 欄見出しの多い所（「収入」「歩合」「又は」）でも、どの語も反対側の行と同じ高さにあれば表の欄。
                     || (nums.len() >= 2 && width < 40.0 && all_aligned * 10 >= side.len() * 7)
-                    || (nums.len() >= 6 && rows && nums.len() * 10 >= side.len() * 8 && short_aligned * 10 >= nums.len() * 7)
+                    // 欄見出し（「歳入予算額と収納済歳入額との差…」「収入」「歩合」）が混ざってもよい（数が 4 分の 3 以上）。
+                    || (nums.len() >= 6 && rows && nums.len() * 4 >= side.len() * 3 && short_aligned * 10 >= nums.len() * 7)
             })
         };
         if let Some(cut) = rule_cut(&words, blocks, vrules, hrules).or_else(|| gutter.map(|g| g.0).filter(|&g| boxed || ((!blocks.is_empty() || !table_column(g)) && !numeric_strip(g)))) {
