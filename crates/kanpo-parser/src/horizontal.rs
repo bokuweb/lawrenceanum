@@ -3616,12 +3616,15 @@ fn column_gutters(words: &[Col], blocks: &[Block], tables: &[Block], boxed: bool
             // （見出しが高さの順に段をまたいで読まれていた）。
             // どの語も 3 字以上の見出し（字間を空けた「公　告」、路線の表の駅名「台場」は除く）。
             // 表のある領域（路線の表の路線名）は除く。
+            // 折り返した見出しの 2 字の続き（「…包括的禁止」の下の「命令」）は 1 つまで。
+            let digitless = |w: &Col| !w.text.chars().any(|c| c.is_ascii_digit() || ('０'..='９').contains(&c));
             let sparse = a - right_edge >= 40.0
                 && blocks.is_empty()
                 && y1 - y0 >= 240.0
                 && words.len() <= 40
                 && group_lines(words).len() <= 12
-                && words.iter().all(|w| w.text.trim().chars().count() >= 3 && !w.text.chars().any(|c| c.is_ascii_digit() || ('０'..='９').contains(&c)));
+                && words.iter().all(|w| w.text.trim().chars().count() >= 2 && digitless(w))
+                && words.iter().filter(|w| w.text.trim().chars().count() < 3).count() <= 1;
             if !latin_word_gap(words, cut) && !item_numbers(&left, &right) && !repeat_marks(&left, &right) && (boxes || sparse || is_column_split(&left, &right, between(cut))) {
                 cuts.push((cut, a - right_edge, width(&left).min(width(&right))));
             }
