@@ -3097,7 +3097,14 @@ fn band_rule_cut(words: &[Col], blocks: &[Block], hrules: &[(f32, f32, f32)], ta
     };
     hrules
         .iter()
-        .filter(|r| r.1 <= x0 + 2.0 && r.2 >= x1 - 2.0 && x1 - x0 >= MIN_TEXT_COLUMN_WIDTH * 2.0 && !in_table(r))
+        // 線の上にある、囲みの枠の外に少し（10pt まで）出た勘定の見出し（枠の左の「【廃炉等積立金勘定】」）は、線の左右の範囲に数えない。
+        .filter(|r| {
+            let (wx0, wx1) = words
+                .iter()
+                .filter(|w| !(w.y1 <= r.0 && w.text.trim().starts_with('【') && (w.x < r.1 - 2.0 || w.x1 > r.2 + 2.0) && w.x >= r.1 - 10.0 && w.x1 <= r.2 + 10.0))
+                .fold((f32::INFINITY, f32::NEG_INFINITY), |(a, b), w| (a.min(w.x), b.max(w.x1)));
+            r.1 <= wx0 + 2.0 && r.2 >= wx1 - 2.0 && x1 - x0 >= MIN_TEXT_COLUMN_WIDTH * 2.0 && !in_table(r)
+        })
         .map(|r| r.0)
         .filter(|&y| {
             // 上下とも 2 行以上（表の欄見出しの行「変更後　変更前」の下の線では切らない。表を取り出した後の段は、表の上の
