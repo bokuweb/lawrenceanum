@@ -38,6 +38,8 @@ mod paired_framed_continuations;
 #[cfg(test)]
 #[path = "paired_framed_continuation_shape_tests.rs"]
 mod paired_framed_continuation_shape_tests;
+
+mod native_triangle_cells;
 mod coordinate_symbols;
 mod coordinate_rows;
 mod area_units;

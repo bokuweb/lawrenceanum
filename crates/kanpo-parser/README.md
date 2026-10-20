@@ -294,6 +294,7 @@ cargo run --release -p kanpo-parser --example snapshot_sample -- .cache/kanpo-ar
 | 129 回目（独立・初回、全体品質） | 11 | 7 | 12 | 比較対象外 |
 | 130 回目（独立・初回、全体品質） | 9 | 4 | 17 | 比較対象外 |
 | 131 回目（独立・初回、全体品質） | 10 | 6 | 14 | 比較対象外 |
+| 132 回目（独立・初回、全体品質） | 15 | 3 | 12 | 比較対象外 |
 
 110 回目から、対象ページ ID・原本 SHA-256・採点の理由を [`tests/audits/`](tests/audits/) に残す。
 110 回目は本文に文字層のある 30 ページで校正し、見つかった分数式・金額の空欄位置の崩れを修正して同じ原本で再照合した結果。
@@ -708,3 +709,31 @@ URL の U+2011 は原 PDF の文字層にも存在して保持されており、
 [`tests/audits/issue227-twentieth-batch-reviews.json`](tests/audits/issue227-twentieth-batch-reviews.json)、
 [`tests/audits/issue227-twentieth-batch-provenance.json`](tests/audits/issue227-twentieth-batch-provenance.json)、
 検証集計は[`tests/audits/issue227-validation-20.json`](tests/audits/issue227-validation-20.json)に保存した。全体100%は未達で、改善を継続する。
+
+第 21 次修正では、4ページの原字△5個を、元の行と金額欄へ戻した。
+193号183頁では、歳入128,613,201,090の原Word268をNoiseからUsedへ戻し、正の歳出165,844,651,302へ誤って合成された△を除いた。
+他の4個は元のUsed語のまま、既存表の一意な空き金額セルへ移す。説明文中の△や曖昧な複数科目セルは負例として保持する。
+新しい語・IDの推測や語の文字・座標変更はない。元から存在するID268の出力所属が1件増えることと、架空IDの生成を区別する。
+原字1個の復元と偽合成1個の除去により、本文の文字数・文字集合の増減は0だった。
+
+全11,992原PDFを再抽出し、本文・解析結果全体とも4変更・11,988完全一致を確認した。
+全原Wordの文字・ID/raw/座標を保持し、状態変更は上記1語だけ。旧所有数と非△の所有位置・ID順、全旧表枠と他セルの文字・空白を保持した。
+全4原図・319出力行・全4Article/Documentを照合して改善4・観測退行0。原字5GlyphのCID・bbox・字送り・元語への一意な対応を原PDFから再確認した。
+全Documentも、△とその区切り空白、既存空欄の△だけのRun以外は、構造・全文字・改行・空白を保持することを検査した。
+累計2,898変更ページで従来の原字・表・分数修復を保持した。193号183頁の横棒8字欠落と統計Doc平文化、複数科目の既存表形状等は未修復である。
+
+追加の実PDF8テストは実装前4失敗・保存用4成功から全件成功へ進めた。
+production内の非公開型による追加18件も実行し、パーサ単体794件を含む関連4クレート全1,284テストが成功した。
+全97統合対象・4ライブラリ・4doc-testと全4クレートのexamplesを検査した。アーカイブ原本は606件。
+新規7・更新1snapshotを全本文・全Article/Document・原図と照合し、更新差分を原字△の所属移動に限定した。更新前snapshotもcacheに保持し、既存テストの期待値やアサーションは緩めていない。
+過去の広い候補では説明文の△を正の14,653へ付ける退行を検出したため採用せず、その失敗版と原本を新しい負例として残した。
+
+132回目の未見30件は評価範囲を選定前に固定した。
+初回の全体品質15ok/3minor/12major、本文・文字・読順21ok/5minor/4majorを保存し、修正後も書き換えない。
+全30件の新旧解析結果は完全一致し、全2,307行・72Article/Documentを照合した。今回の退行は0件である。
+文字層のない20矩形を3原本の全nativeGlyphから再検査し、近接する非零4範囲と区別した。ページ全体の除外はない。
+会社公告候補は固定1,286ページの原図・全記事構造レビューを継続中で未採用。肥料表候補も別検証であり、この△修正には含めない。
+初回監査は[`tests/audits/132.json`](tests/audits/132.json)、変更影響と原字の証明は
+[`tests/audits/issue227-twenty-first-batch-reviews.json`](tests/audits/issue227-twenty-first-batch-reviews.json)、
+[`tests/audits/issue227-twenty-first-batch-provenance.json`](tests/audits/issue227-twenty-first-batch-provenance.json)、
+検証集計は[`tests/audits/issue227-validation-21.json`](tests/audits/issue227-validation-21.json)に保存した。全体100%は未達で、改善を継続する。

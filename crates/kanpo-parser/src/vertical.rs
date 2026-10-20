@@ -423,6 +423,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             units.extend(tail);
             crate::financial_flow::restore(&mut units, &mut words);
             prefix_minus(&mut units, &minus, &word_texts);
+            if !sideways { crate::native_triangle_cells::restore(&mut units, &words, page); }
             move_trailing_notes(&mut units);
             merge_split_table_rows(&mut units);
             order_masthead(&mut units);
@@ -743,6 +744,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             units.push(Unit::Plain(mixed_statistics));
         }
         prefix_minus(&mut units, &minus, &word_texts);
+        if !sideways { crate::native_triangle_cells::restore(&mut units, &words, page); }
         move_trailing_notes(&mut units);
         merge_split_table_rows(&mut units);
         order_masthead(&mut units);
@@ -2506,6 +2508,28 @@ fn attach_minus_signs(cols: &mut Vec<Col>, words: &[Word]) -> std::collections::
             .min_by(|a, b| a.0.cmp(&b.0).then(a.1.total_cmp(&b.1)))
             .map(|(_, _, j)| j);
         if let Some(j) = target {
+            // A smaller-font horizontal amount may be farther right than the
+            // next row is below. Keep the source sign in its native row rather
+            // than synthesizing a prefix on the closer lower amount.
+            let selected = &cols[j];
+            if let Some((sx,sy,sx1,_)) = geom(selected.id) {
+                let selected_below = overlap(mx,mx1,sx,sx1) >= 0.5
+                    && sy >= my + em*0.25;
+                let horizontal_amount = |k: usize| {
+                    let n=&cols[k];
+                    let Some((x,y,x1,y1))=geom(n.id) else {return false};
+                    let numeric = !n.text.is_empty() && n.text.chars().all(|ch| ch.is_ascii_digit() || matches!(ch,','|'.'))
+                        && n.text.chars().any(|ch|ch.is_ascii_digit());
+                    numeric && x>=mx1 && x-mx1<=em*3.0
+                        && overlap(my,my1,y,y1)>=0.8
+                        && (((my+my1)-(y+y1))/2.0).abs()<=em*0.15
+                        && cols.iter().enumerate().any(|(h,o)| h!=k && o.id!=cols[i].id
+                            && o.text.chars().all(|ch|ch.is_ascii_digit() || matches!(ch,','|'.'))
+                            && geom(o.id).is_some_and(|(u,v,u1,v1)| overlap(y,y1,v,v1)>=0.8
+                                && (u-x1).max(x-u1)<=em*0.25 && u>=x))
+                };
+                if selected_below && (0..cols.len()).any(horizontal_amount) {continue;}
+            }
             targets.insert(cols[j].id);
             drop.push(cols[i].id);
             // 印に重なる開き括弧だけの語（「(△135)」の「(」）は、印を付けた金額の語のすぐ左に置き直す（括弧だけが金額の
@@ -5989,3 +6013,7 @@ mod prose_label_values_tests;
 #[cfg(test)]
 #[path = "shorthand_tier_tests.rs"]
 mod shorthand_tier_tests;
+
+#[cfg(test)]
+#[path = "triangle_sign_tests.rs"]
+mod triangle_sign_tests;
