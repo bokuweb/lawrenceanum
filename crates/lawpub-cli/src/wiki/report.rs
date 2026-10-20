@@ -261,12 +261,22 @@ fn diff(previous: &Manifest, current: &Manifest) -> Diff {
             },
         );
     }
-    let mut reverse: BTreeMap<&str, BTreeSet<&str>> = BTreeMap::new();
+    let mut reverse: BTreeMap<String, BTreeSet<&str>> = BTreeMap::new();
     // 削除された参照先・外されたリンクも再確認できるよう、両版の参照を使う。
     for m in [previous, current] {
         for (id, page) in &m.pages {
             for target in &page.content.references {
-                reverse.entry(target).or_default().insert(id);
+                reverse.entry(target.clone()).or_default().insert(id);
+            }
+            // 既存の保存版にある citations から導出する。保存形式・内容ハッシュは変えない。
+            for citation in &page.content.citations {
+                if let Some(target) = citation["reference"]
+                    .as_str()
+                    .and_then(evidence::citation_meeting_path)
+                    .filter(|target| target != id)
+                {
+                    reverse.entry(target).or_default().insert(id);
+                }
             }
         }
     }
@@ -293,7 +303,7 @@ fn diff(previous: &Manifest, current: &Manifest) -> Diff {
         schema_version: SCHEMA_VERSION,
         previous_generated_at: previous.generated_at.clone(),
         current_generated_at: current.generated_at.clone(),
-        limitations: "Wiki 保存版間の差分です。review_candidates は新旧の本文リンクを逆にたどった再確認候補であり、主張の矛盾・政策の変化・資料の書換えの必要性を判定しません。本文を書き換えた主張は removed / added として扱います。".into(),
+        limitations: "Wiki 保存版間の差分です。review_candidates は新旧の本文リンクと、LLM 区間の国会・審議会の脚注から識別した引用元会議を逆にたどった再確認候補です。引用先の存在・主張の支持関係・政策の変化・資料の書換えの必要性を判定しません。本文を書き換えた主張は removed / added として扱います。".into(),
         changes, review_candidates,
     }
 }
@@ -493,6 +503,82 @@ mod tests {
         assert!(!m.pages["meetings/M"].content.claim_errors.is_empty());
         assert!(m.pages["meetings/M"].content.frontmatter["claims"].is_object());
         assert!(m.pages["meetings/stub"].content.stub);
+    }
+
+    #[test]
+    fn direct_citations_trigger_transitive_review_without_wiki_links() {
+        for (reference, meeting) in [
+            ("kokkai:M1_001", "meetings/kokkai/M1"),
+            (
+                "shingikai:committee_20261001#0",
+                "meetings/shingikai/committee_20261001",
+            ),
+        ] {
+            let mut law = linked(&format!("{LLM_BEGIN}\n検討中[^1]。\n\n[^1]: [{reference}](https://example.com) 「検討中」\n[^2]: [{reference}](https://example.com) 「検討中」\n{LLM_END}"));
+            law.set("type", json!("law"));
+            let topic = linked("[law](../laws/L.md)");
+            // 引用と本文リンクを混ぜた循環。会議自身を自分の再確認候補にはしない。
+            let mut source = page("検討中");
+            source.body.push_str("\n[topic](../../topics/T.md)");
+            let make = |p| {
+                manifest(&[
+                    (format!("{meeting}.md"), p),
+                    ("laws/L.md".into(), law.clone()),
+                    ("topics/T.md".into(), topic.clone()),
+                ])
+            };
+            let before = make(source.clone());
+            let original_revision = before.pages["laws/L"].revision.clone();
+            assert!(before.pages["laws/L"].content.references.is_empty());
+            source.set("source_fingerprint", json!("corrected"));
+            let after = make(source);
+            assert_eq!(after.pages["laws/L"].revision, original_revision);
+            let d = diff(&before, &after);
+            assert_eq!(
+                d.review_candidates["laws/L"],
+                BTreeSet::from([meeting.to_owned()])
+            );
+            assert_eq!(
+                d.review_candidates["topics/T"],
+                BTreeSet::from([meeting.to_owned()])
+            );
+            assert!(!d.review_candidates.contains_key(meeting));
+
+            // 未収録の会議の追加と、引用元会議の削除も拾う。
+            let absent = manifest(&[
+                ("laws/L.md".into(), law.clone()),
+                ("topics/T.md".into(), topic.clone()),
+            ]);
+            for d in [diff(&absent, &before), diff(&before, &absent)] {
+                assert!(d.review_candidates["laws/L"].contains(meeting));
+                assert!(d.review_candidates["topics/T"].contains(meeting));
+            }
+            // 新版で引用を外していても、旧版にあった依存は再確認する。
+            let removed = manifest(&[
+                ("laws/L.md".into(), linked("引用を削除")),
+                ("topics/T.md".into(), topic.clone()),
+            ]);
+            assert!(diff(&before, &removed).review_candidates["laws/L"].contains(meeting));
+        }
+    }
+
+    #[test]
+    fn existing_snapshot_citations_are_read_without_schema_or_revision_changes() {
+        let root = temp_dir("report-citation-compat");
+        let path = root.join("saved.json");
+        let before = manifest(&[
+            ("laws/L.md".into(), page("検討中")),
+            ("meetings/kokkai/M1.md".into(), page("検討中")),
+        ]);
+        std::fs::write(&path, serde_json::to_vec(&before).unwrap()).unwrap();
+        let loaded = read_manifest(&path).unwrap();
+        assert_eq!(loaded.schema_version, 1);
+        let after = manifest(&[
+            ("laws/L.md".into(), page("検討中")),
+            ("meetings/kokkai/M1.md".into(), page("変更")),
+        ]);
+        assert!(diff(&loaded, &after).review_candidates["laws/L"].contains("meetings/kokkai/M1"));
+        std::fs::remove_dir_all(root).unwrap();
     }
 
     #[test]

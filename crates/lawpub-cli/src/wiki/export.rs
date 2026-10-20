@@ -80,6 +80,29 @@ pub(crate) fn resolve_link(from: &str, target: &str) -> Option<String> {
     Some(parts.join("/"))
 }
 
+/// 本文の直接引用を会議単位にまとめる。要約の版との一致や意味的な支持は推定しない。
+fn citation_sources(rel: &str, page: &Page, known: &BTreeMap<&str, &Page>) -> Vec<Value> {
+    let mut grouped: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
+    for citation in check::citations_in(&llm_blocks(&page.body).join("\n")) {
+        if let Some(path) = evidence::citation_meeting_path(&citation.reference)
+            .filter(|path| path != rel.trim_end_matches(".md"))
+        {
+            grouped.entry(path).or_default().insert(citation.reference);
+        }
+    }
+    grouped.into_iter().map(|(path, refs)| {
+        let target = known.get(format!("{path}.md").as_str())
+            .filter(|p| p.get_str("type") == "meeting");
+        json!({
+            "path": path, "refs": refs,
+            "title": target.map(|p| p.get_str("title")),
+            "date": target.and_then(|p| p.get("date")),
+            "availability": match target { None => "missing", Some(p) if is_stub(p) => "stub", _ => "available" },
+            "summary_source_status": target.map(|p| evidence::summary_source_status(p)),
+        })
+    }).collect()
+}
+
 pub fn run_export(args: &ExportArgs) -> Result<()> {
     let wiki = &args.wiki;
     if args.out.exists() {
@@ -107,6 +130,7 @@ pub fn run_export(args: &ExportArgs) -> Result<()> {
     pages.retain(|(rel, p)| p.get_str("type") != enforcements::KIND || published.contains(rel));
     report::write_manifest(&pages, &args.out.join("report-manifest.json"))?;
     let known: BTreeSet<&str> = pages.iter().map(|(rel, _)| rel.as_str()).collect();
+    let page_lookup: BTreeMap<&str, &Page> = pages.iter().map(|(rel, page)| (rel.as_str(), page)).collect();
 
     let mut index = Vec::new();
     let mut nodes = Vec::new();
@@ -127,7 +151,7 @@ pub fn run_export(args: &ExportArgs) -> Result<()> {
 
         let dest = args.out.join("page").join(format!("{id}.json"));
         std::fs::create_dir_all(dest.parent().expect("has parent"))?;
-        std::fs::write(&dest, serde_json::to_vec(&json!({ "path": id, "frontmatter": fm, "body": display_body(&page.body), "stub": is_stub(page), "claim_assessments": evidence::assessments(page) }))?)?;
+        std::fs::write(&dest, serde_json::to_vec(&json!({ "path": id, "frontmatter": fm, "body": display_body(&page.body), "stub": is_stub(page), "claim_assessments": evidence::assessments(page), "citation_sources": citation_sources(rel, page, &page_lookup) }))?)?;
 
         if HUB_PAGES.contains(&rel.as_str()) {
             continue;
@@ -248,5 +272,54 @@ mod tests {
         assert_eq!(report["pages"]["laws/L1"]["content"]["references"], json!(["bills/221/B1", "laws/none", "meetings/kokkai/M1"]));
         assert_eq!(report["pages"]["laws/L1"]["content"]["body"], page["body"]);
         std::fs::remove_dir_all(root).ok();
+    }
+
+    #[test]
+    fn exported_citation_sources_group_refs_and_preserve_source_availability() {
+        let root = temp_dir("export-citation-sources");
+        let wiki = root.join("wiki");
+        let out = root.join("out");
+        let mut law = Page {
+            body: format!("{LLM_BEGIN}\n経緯[^1][^2][^3][^4][^5]。\n\n[^1]: [kokkai:M1_001](https://example.com/1) 「引用」\n[^2]: [kokkai:M1_002](https://example.com/2) 「引用」\n[^3]: [shingikai:S1#0](https://example.com/3) 「引用」\n[^4]: [shingikai:missing#0](https://example.com/4) 「引用」\n[^5]: [gian:B1#0](https://example.com/5) 「引用」\n{LLM_END}\n[^6]: [kokkai:outside_001](https://example.com/6) 「機械区間」"),
+            ..Page::default()
+        };
+        law.set("type", json!("law"));
+        law.write(&wiki.join("laws/L.md")).unwrap();
+        let mut source = Page { body: format!("{LLM_BEGIN}\n要点\n{LLM_END}"), ..Page::default() };
+        source.set("type", json!("meeting"));
+        source.set("title", json!("国会の会議"));
+        source.set("date", json!("2026-10-01"));
+        source.set("source_fingerprint", json!("new"));
+        source.set("llm_source_fingerprint", json!("old"));
+        source.write(&wiki.join("meetings/kokkai/M1.md")).unwrap();
+        let mut stub = Page::default();
+        stub.set("type", json!("meeting"));
+        stub.set("source_fingerprint", json!("new"));
+        stub.write(&wiki.join("meetings/shingikai/S1.md")).unwrap();
+        run_export(&ExportArgs { wiki: wiki.clone(), out: out.clone() }).unwrap();
+        let read = || -> Value { serde_json::from_slice(&std::fs::read(out.join("page/laws/L.json")).unwrap()).unwrap() };
+        let exported = read();
+        let sources = exported["citation_sources"].as_array().unwrap();
+        assert_eq!(sources.len(), 3, "議案や機械区間の脚注から会議を推測しない");
+        assert_eq!(sources[0]["refs"], json!(["kokkai:M1_001", "kokkai:M1_002"]));
+        assert_eq!(sources[0]["title"], "国会の会議");
+        assert_eq!(sources[0]["date"], "2026-10-01");
+        assert_eq!(sources[0]["availability"], "available");
+        assert_eq!(sources[0]["summary_source_status"], "stale");
+        assert_eq!(sources[1]["availability"], "stub");
+        assert_eq!(sources[1]["summary_source_status"], "pending");
+        assert_eq!(sources[2]["availability"], "missing");
+        assert!(sources[2]["summary_source_status"].is_null());
+        // 自分の発言の引用で、自分への導線は作らない。
+        assert!(citation_sources("meetings/kokkai/M1.md", &law, &BTreeMap::new())
+            .iter().all(|s| s["path"] != "meetings/kokkai/M1"));
+        // 会議の更新状態だけが変わっても法令の本文には手を入れない。
+        source.set("llm_source_fingerprint", json!("new"));
+        source.write(&wiki.join("meetings/kokkai/M1.md")).unwrap();
+        run_export(&ExportArgs { wiki, out: out.clone() }).unwrap();
+        let updated = read();
+        assert_eq!(updated["citation_sources"][0]["summary_source_status"], "current");
+        assert_eq!(updated["body"], exported["body"]);
+        std::fs::remove_dir_all(root).unwrap();
     }
 }

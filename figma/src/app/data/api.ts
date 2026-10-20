@@ -390,7 +390,13 @@ export type WikiClaim = {
   text: string; kind: string; attribution: string; review_status: string; review_note: string;
   sources: { ref: string; url: string; quote: string; speaker: string | null; group: string | null; position: string | null; date: string; role: string }[];
 }
-export type WikiPage = { path: string; frontmatter: Record<string, unknown>; body: string; stub?: boolean; claim_assessments?: WikiClaim[] }
+export type WikiCitationSource = {
+  path: string; refs: string[]; title: string | null; date: string | null;
+  availability: "available" | "stub" | "missing";
+  /** 引用元会議の要約の状態。このページの記述がその版に対応するとは限らない。 */
+  summary_source_status: "current" | "stale" | "pending" | "untracked" | null;
+}
+export type WikiPage = { path: string; frontmatter: Record<string, unknown>; body: string; stub?: boolean; claim_assessments?: WikiClaim[]; citation_sources?: WikiCitationSource[] }
 
 export const api = {
   index: () => getJson<IndexJson>('./index.json'),

@@ -299,7 +299,7 @@ function WikiPageView({
               )}
               {tags.map(t => <Badge key={t} variant="outline" className="text-[11px]">{t}</Badge>)}
             </div>
-            <WikiEvidence page={page.data} />
+            <WikiEvidence page={page.data} onOpen={onOpen} />
             <WikiMarkdown body={page.data.body} from={path} onOpen={onOpen} />
 
             {/* 隣接だけの図。全体のグラフは毛玉になるので、ここでは「このページの周り」だけを描く。 */}
