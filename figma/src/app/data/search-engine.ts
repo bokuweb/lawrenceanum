@@ -219,7 +219,8 @@ async function exec<T = Record<string, unknown>>(sql: string, params: unknown[] 
     : sql.includes("speeches_fts") ? "speeches"
     : sql.includes("kanpo_fts") ? "kanpo"
     : sql.includes("tsutatsu_fts") ? "tsutatsu"
-    : sql.includes("laws_en_fts") ? "english" : "laws";
+    : sql.includes("laws_en_fts") ? "english"
+    : sql.includes("hanrei_fts") ? "hanrei" : "laws";
   return client(source).query<T>(sql, params, request);
 }
 
@@ -539,6 +540,68 @@ export async function searchEnglish(q: string, limit = 10, strict = false, offse
       };
     });
   } catch (error) {
+    if (strict) throw error;
+    return [];
+  }
+}
+
+export type HanreiHit = {
+  case_id: number;
+  case_number: string;
+  case_name: string;
+  /** 和暦のまま (例: 令和8年8月28日)。 */
+  judged_on: string;
+  court: string;
+  result: string;
+  /** 判示事項 (原文のまま)。 */
+  holding: string;
+  /** 出典: 裁判所 裁判例検索の詳細ページ。 */
+  detail_url: string;
+  pdf_url: string | null;
+  snippet: string;
+};
+
+/**
+ * 判例の全文検索 (hanrei_fts)。事件名・事件番号・判示事項・裁判要旨・参照法条・
+ * 全文 PDF 由来の引用を横断する。索引は新しい事件順 (case_id 降順) に並ぶ。
+ * 旧 search.db（hanrei_fts 未作成）では strict でも空配列にフォールバック。
+ */
+export async function searchHanrei(q: string, limit = 10, strict = false, offset = 0, request?: SearchRequest): Promise<HanreiHit[]> {
+  const match = buildFtsMatchExpanded(q.trim());
+  if (!match) return [];
+  const compact = request?.includeSnippet === false;
+  try {
+    const rows = await exec<{
+      case_id: number; case_number: string; case_name: string; judged_on: string;
+      court: string; result: string; holding: string; detail_url: string;
+      pdf_url: string | null; snippet: string;
+    }>(
+      `SELECT ${compact
+        ? "c.c0 AS case_id, c.c1 AS case_number, c.c2 AS case_name, c.c3 AS judged_on, c.c4 AS court, c.c5 AS result, c.c6 AS holding, c.c7 AS detail_url, c.c8 AS pdf_url"
+        : "case_id, case_number, case_name, judged_on, court, result, holding, detail_url, pdf_url"},
+              ${compact ? "''" : "snippet(hanrei_fts, -1, '<mark>', '</mark>', '...', 10)"} AS snippet
+         FROM hanrei_fts
+         ${compact ? "JOIN hanrei_fts_content c ON c.id = hanrei_fts.rowid" : ""}
+        WHERE hanrei_fts MATCH ?
+        ORDER BY hanrei_fts.rowid
+        LIMIT ? OFFSET ?`,
+      [match, limit, offset], request,
+    );
+    return rows.map(r => ({
+      case_id: Number(r.case_id ?? 0),
+      case_number: String(r.case_number ?? ""),
+      case_name: String(r.case_name ?? ""),
+      judged_on: String(r.judged_on ?? ""),
+      court: String(r.court ?? ""),
+      result: String(r.result ?? ""),
+      holding: String(r.holding ?? ""),
+      detail_url: String(r.detail_url ?? ""),
+      pdf_url: r.pdf_url ? String(r.pdf_url) : null,
+      snippet: String(r.snippet ?? ""),
+    }));
+  } catch (error) {
+    // hanrei_fts 追加前に作られた search.db では判例タブを空にするだけでエラーにしない。
+    if (String(error).includes("no such table")) return [];
     if (strict) throw error;
     return [];
   }

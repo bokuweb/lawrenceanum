@@ -23,6 +23,7 @@ fn main() -> anyhow::Result<()> {
         None,
         Some(Path::new(&kanpo_dir)),
         tsutatsu_path,
+        None,
     )?;
     println!("built {out}");
     Ok(())
