@@ -157,3 +157,50 @@ test("財政統計: 区分変更時に地域を有効な組み合わせへ補正
   await expect(page.getByRole("cell", { name: "100", exact: true })).toBeVisible();
   await expect(page.getByRole("combobox", { name: "地域", exact: true })).toContainText("東京");
 });
+
+test("財政統計: 小数・大きな整数・欠測表記を元の精度のまま表示する", async ({ page }) => {
+  await mock(page);
+  const numbers = ["1234.567890", "9007199254740993", "-1234567.89012", "***", "-", "1.23e20"];
+  await page.route("**/budget/0003360064.json", r => r.fulfill({ json: {
+    ...BUDGET_DATASET, values: numbers.map((n, i) => value("合計", `${2024 - i}年度`, n)),
+  } }));
+  await page.goto(new URL("#/budget/0003360064", BASE).toString());
+  for (const formatted of ["1,234.567890", "9,007,199,254,740,993", "-1,234,567.89012", "***", "-", "1.23e20"]) {
+    await expect(page.getByRole("cell", { name: formatted, exact: true })).toBeVisible();
+  }
+});
+
+for (const resource of ["index", "0003360064"]) {
+  test(`財政統計: ${resource} の取得失敗を区別し再試行できる`, async ({ page }) => {
+    await mock(page);
+    let attempts = 0;
+    await page.route(`**/budget/${resource}.json`, r => ++attempts === 1
+      ? r.fulfill({ status: 503, body: "unavailable" })
+      : r.fulfill({ json: resource === "index" ? BUDGET_INDEX : BUDGET_DATASET }));
+    await page.goto(new URL(`#/budget${resource === "index" ? "" : "/0003360064"}`, BASE).toString());
+    const alert = page.getByRole("alert");
+    await expect(alert).toContainText("読み込めませんでした");
+    await expect(page.getByText("データがありません", { exact: true })).toHaveCount(0);
+    await alert.getByRole("button", { name: "再試行", exact: true }).click();
+    await expect(alert).toHaveCount(0);
+    if (resource === "index") {
+      await expect(page.getByRole("button", { name: /国有財産統計/ })).toBeVisible();
+    } else {
+      await expect(page.getByRole("cell", { name: "1,065,891", exact: true })).toBeVisible();
+    }
+    expect(attempts).toBe(2);
+  });
+}
+
+test("財政統計: 狭い画面でも一覧と時系列表を画面内で操作できる", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await mock(page);
+  await page.goto(new URL("#/budget", BASE).toString());
+  await page.getByRole("button", { name: /国有財産統計/ }).click();
+  const table = page.getByRole("table");
+  await expect(page.getByRole("cell", { name: "1,065,891", exact: true })).toBeVisible();
+  const bounds = await table.boundingBox();
+  expect(bounds).not.toBeNull();
+  expect(bounds!.x).toBeGreaterThanOrEqual(0);
+  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(390);
+});

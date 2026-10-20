@@ -187,7 +187,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
         )}
       </div>
 
-      <div className="grid grid-cols-[260px_minmax(0,1fr)] gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] gap-6">
         <aside className="space-y-5">
           <Card>
             <CardContent className="p-4 space-y-4">

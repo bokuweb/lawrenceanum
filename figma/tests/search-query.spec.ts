@@ -33,3 +33,22 @@ test("入れ子の表記は最長一致にし、表示する同義語と検索�
 test("検索スニペットはハイライトと省略位置を保って復元する", () => {
   expect(unbigramSnippet("第三 三十 十一 一条 <mark>民法</mark> 法施 施行...hello world")).toBe("第三十一条<mark>民法</mark>施行...hello world");
 });
+
+test("英字略語は大文字小文字によらず同じ別表記へ展開する", () => {
+  expect(synonymExpansions("gmp zzafter")).toEqual(synonymExpansions("GMP zzafter"));
+  expect(buildFtsMatchExpanded("gmp zzafter")).toBe(buildFtsMatchExpanded("GMP zzafter"));
+  expect(synonymExpansions("haccpに沿った衛生管理")).toEqual(["HACCP", "危害分析重要管理点"]);
+});
+
+test("英字略語を別の英単語や識別子の途中では展開しない", () => {
+  for (const query of ["preGMP", "GMPpost", "GMP_2026", "preGMP GMP"]) {
+    if (query === "preGMP GMP") {
+      expect(buildFtsMatchExpanded(query)).toContain('("pregmp")');
+      expect(synonymExpansions(query).length).toBeGreaterThan(0);
+    } else {
+      expect(synonymExpansions(query)).toEqual([]);
+      expect(buildFtsMatchExpanded(query)).toBe(buildFtsMatch(query));
+    }
+  }
+  expect(synonymExpansions("GMPの適用").length).toBeGreaterThan(0);
+});

@@ -64,19 +64,19 @@ export function SidebarNav() {
   const { sync: lastSync, egovDate } = useLastSync();
   const kanpoParser = useKanpoParserEnabled();
   return (
-    <aside className="w-60 shrink-0 border-r border-border bg-sidebar flex flex-col">
+    <aside className="w-14 md:w-60 shrink-0 border-r border-border bg-sidebar flex flex-col">
       {/* ヘッダー・フッターは shrink-0 で固定し、縦に収まらない分はナビだけをスクロールさせる。
           shrink-0 が無いと低い画面でヘッダーが潰れ、ロゴの上下の余白が消える。 */}
-      <div className="h-16 shrink-0 flex items-center gap-2 px-5 border-b border-border">
+      <div className="h-16 shrink-0 flex items-center gap-2 px-3 md:px-5 border-b border-border">
         <div className="size-8 shrink-0 rounded-md bg-primary flex items-center justify-center">
           <Scale className="size-4 text-primary-foreground" />
         </div>
-        <div className="flex flex-col leading-tight">
+        <div className="hidden md:flex flex-col leading-tight">
           <span className="text-sidebar-foreground">Lawrenceanum</span>
           <span className="text-xs text-muted-foreground">e-Gov 法令データ</span>
         </div>
       </div>
-      <nav className="flex-1 min-h-0 overflow-y-auto p-3 space-y-1">
+      <nav aria-label="メインナビゲーション" className="flex-1 min-h-0 overflow-y-auto p-2 md:p-3 space-y-1">
         {items.filter(it => !it.kanpoParser || kanpoParser).map(it => {
           const Icon = it.icon;
           // `/` is exact-match only; everything else matches by prefix so that
@@ -90,20 +90,22 @@ export function SidebarNav() {
               key={it.path}
               to={it.path}
               end={exact}
+              aria-label={it.label}
+              title={it.label}
               className={cn(
-                "flex items-center gap-3 h-9 px-3 rounded-md text-sm transition-colors",
+                "flex items-center justify-center md:justify-start gap-3 h-9 md:px-3 rounded-md text-sm transition-colors",
                 isActive
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : "hover:bg-accent text-foreground/80",
               )}
             >
-              <Icon className="size-4" />
-              {it.label}
+              <Icon className="size-4 shrink-0" />
+              <span className="hidden md:inline">{it.label}</span>
             </NavLink>
           );
         })}
       </nav>
-      <div className="shrink-0 p-3 border-t border-border">
+      <div className="hidden md:block shrink-0 p-3 border-t border-border">
         <div className="rounded-md bg-muted/50 p-3 text-xs text-muted-foreground">
           <div className="flex items-center gap-1 text-foreground mb-1">
             最新同期

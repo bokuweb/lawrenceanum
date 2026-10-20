@@ -89,20 +89,34 @@ const THESAURUS_ENTRIES: string[][] = (() => {
   return out;
 })();
 
+// ASCII だけを小文字化し、元の文字位置を維持する。
+const foldAscii = (s: string) => s.replace(/[A-Z]/g, c => c.toLowerCase());
+const isAsciiWord = (c: string) => /[a-z0-9_]/i.test(c);
+const MATCH_TERMS = THESAURUS_ENTRIES.flatMap(forms => forms.map(term => ({
+  term, folded: foldAscii(term), forms,
+})));
+
 /** 左から最長一致で用語を区切り、重複・入れ子の同義語展開を避ける。 */
 function queryParts(query: string): { text: string; alternatives: string[] }[] {
   const parts: { text: string; alternatives: string[] }[] = [];
+  const foldedQuery = foldAscii(query);
   let cursor = 0;
   let remaining = 12;
   while (cursor < query.length) {
     let next: { index: number; term: string; forms: string[] } | undefined;
-    for (const forms of THESAURUS_ENTRIES) {
-      for (const term of forms) {
-        const index = query.indexOf(term, cursor);
-        if (index < 0) continue;
-        if (!next || index < next.index || (index === next.index && term.length > next.term.length)) {
-          next = { index, term, forms };
-        }
+    for (const { term, folded, forms } of MATCH_TERMS) {
+      let index = foldedQuery.indexOf(folded, cursor);
+      while (index >= 0) {
+        // GMP を preGMP や GMP_2026 の一部として展開しない。
+        // 「GMPの適用」のような和文との境界では展開する。
+        const embedded = (isAsciiWord(term[0]) && isAsciiWord(query[index - 1] ?? "")) ||
+          (isAsciiWord(term[term.length - 1]) && isAsciiWord(query[index + term.length] ?? ""));
+        if (!embedded) break;
+        index = foldedQuery.indexOf(folded, index + 1);
+      }
+      if (index < 0) continue;
+      if (!next || index < next.index || (index === next.index && term.length > next.term.length)) {
+        next = { index, term, forms };
       }
     }
     if (!next || remaining === 0) {

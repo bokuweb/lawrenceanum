@@ -139,3 +139,27 @@ test("updates view shows skeleton (not mock) while loading", async ({ page }) =>
 
   release();
 });
+
+test("狭い画面でもナビゲーション・検索・テーマ切り替えを操作できる", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(new URL("#/", BASE).toString());
+  const nav = page.getByRole("navigation", { name: "メインナビゲーション" });
+  await nav.getByRole("link", { name: "検索", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "検索", exact: true })).toBeVisible();
+  const search = page.getByPlaceholder("法令・資料名・本文を検索...");
+  await search.fill("バーゼル規制");
+  await expect(page).toHaveURL(/q=/);
+  const mode = page.getByRole("button", { name: /モードに切り替え/ });
+  const previous = await mode.getAttribute("aria-label");
+  await mode.click();
+  await expect(mode).not.toHaveAttribute("aria-label", previous!);
+  const results = page.getByRole("tablist", { name: "検索結果の種類" });
+  await expect(results).toBeVisible();
+  for (const control of [search, mode, page.getByRole("link", { name: "GitHub リポジトリ" }), results]) {
+    const bounds = await control.boundingBox();
+    expect(bounds).not.toBeNull();
+    expect(bounds!.width).toBeGreaterThan(30);
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(390);
+  }
+  await expect(nav.getByRole("link", { name: "財政統計", exact: true })).toBeVisible();
+});
