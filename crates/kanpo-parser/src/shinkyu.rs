@@ -976,7 +976,57 @@ pub(crate) fn lines_with_tables_by(cols: Vec<Col>, grids: &[&Grid], rest_lines: 
             }
         }
     }
-    place_tables(rest, tables, rest_lines)
+    // 表の脇（左か右）の語が、表の高さの中ほどにある、どの語もまたがない横の空きで上下 2 つの段に分かれるなら、段ごとに
+    // 組む（表の左の告示の本文が上下 2 段に組まれたもの。表の字が段の境をまたぐので段に分けられず、上の段の列と下の段の
+    // 列が 1 行ずつつながっていた）。
+    let cut = beside_table_cut(&rest, &tables);
+    place_tables(rest, tables, |r: Vec<Col>| match cut {
+        Some((y, left_edge)) => {
+            // 表の右の語（先に読む）は上の段に入れる。
+            let (top, bottom): (Vec<Col>, Vec<Col>) = r.into_iter().partition(|c| c.x1 > left_edge + 1.0 || (c.y + c.y1) / 2.0 < y);
+            let mut lines = rest_lines(top);
+            lines.extend(rest_lines(bottom));
+            lines
+        }
+        None => rest_lines(r),
+    })
+}
+
+/// [`lines_with_tables_by`] の表の左の語を上下の段に分ける y と表の左端。表の左の語の、表の上端と下端の間の横の空き
+/// （どの語もまたがず、上下の語の間が字の半分以上空く）で、上下とも 2 字以上の縦組みの列が 3 列以上あるもの。
+fn beside_table_cut(all: &[Col], tables: &[Table]) -> Option<(f32, f32)> {
+    let t = tables.iter().min_by(|a, b| a.x0.total_cmp(&b.x0))?;
+    let rest: Vec<Col> = all.iter().filter(|c| c.x1 <= t.x0 + 1.0).cloned().collect();
+    let rest = rest.as_slice();
+    if rest.is_empty() {
+        return None;
+    }
+    let upright = |c: &Col| c.text.chars().count() >= 2 && c.y1 - c.y > (c.x1 - c.x) * 1.5;
+    let em = rest.iter().filter(|c| upright(c)).map(|c| c.x1 - c.x).fold(f32::INFINITY, f32::min);
+    if !em.is_finite() {
+        return None;
+    }
+    let columns = |sel: &dyn Fn(&Col) -> bool| {
+        let mut v: Vec<f32> = rest.iter().filter(|c| upright(c) && sel(c)).map(|c| (c.x + c.x1) / 2.0).collect();
+        v.sort_by(f32::total_cmp);
+        v.dedup_by(|a, b| (*a - *b).abs() < em * 0.5);
+        v
+    };
+    // 上と下の段の列の x がほとんど揃わない（列の間隔の違う別の組。帯の表「都道府県名」「市区町村名」の上下の欄は
+    // 列が揃う）。
+    let misaligned = |up: &[f32], down: &[f32]| down.iter().filter(|&&x| up.iter().any(|&u| (u - x).abs() < 1.0)).count() * 2 < down.len();
+    rest.iter()
+        .map(|c| c.y1)
+        .filter(|&y1| y1 > t.y0 + em * 3.0 && y1 < t.y1 - em * 3.0)
+        .filter_map(|y1| {
+            let next = rest.iter().filter(|c| c.y >= y1).map(|c| c.y).fold(f32::INFINITY, f32::min);
+            let cut = (y1 + next) / 2.0;
+            let (up, down) = (columns(&|c: &Col| c.y1 <= cut), columns(&|c: &Col| c.y >= cut));
+            (next - y1 >= em * 0.5 && !rest.iter().any(|c| c.y < cut && cut < c.y1) && up.len() >= 3 && down.len() >= 3 && misaligned(&up, &down))
+                .then_some((next - y1, cut))
+        })
+        .max_by(|a, b| a.0.total_cmp(&b.0))
+        .map(|(_, cut)| (cut, t.x0))
 }
 
 /// 表の外の語 `rest` を `rest_lines` で行に組み、表を読み順（右→左）の位置に差し込む。
