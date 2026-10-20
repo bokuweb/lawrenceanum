@@ -185,7 +185,7 @@ test("タブはキーボードで切り替えられ、切り替えても検索�
   await page.goto(new URL("#/search?q=索引照合", BASE).toString());
   await expect(page.getByText("試験法", { exact: true })).toBeInViewport();
   await expect(page.getByRole("status")).toHaveCount(0);
-  await expect(page.getByRole("tab")).toHaveCount(8);
+  await expect(page.getByRole("tab")).toHaveCount(9);
   await expect(page.getByRole("tabpanel")).toHaveCount(1);
   const workersBefore = await page.evaluate(() => (window as any).searchWorkersCreated);
   const lawTab = page.getByRole("tab", { name: "法令・条文 1件", exact: true });
@@ -229,7 +229,7 @@ test("待機中のタブへ切り替えると、最初の検索の完了を待�
     await page.goto(new URL("#/search?q=検索テスト", BASE).toString());
     await firstRequest;
     await expect(page.getByRole("tab", { name: "法令・条文 検索中", exact: true })).toBeVisible();
-    await expect(page.getByRole("tab", { name: /待機中$/ })).toHaveCount(7);
+    await expect(page.getByRole("tab", { name: /待機中$/ })).toHaveCount(8);
     expect(await page.evaluate(() => (window as any).searchWorkersCreated)).toBe(1);
     await page.getByRole("tab", { name: "議案 待機中", exact: true }).click();
     await expect(page.getByText("検索テストの法律案", { exact: true })).toBeVisible({ timeout: 2500 });
@@ -243,7 +243,7 @@ test("待機中のタブへ切り替えると、最初の検索の完了を待�
 function controlledSearches() {
   const started: string[] = [];
   const finish = new Map<string, () => void>();
-  const tasks = new Map(["laws", "speeches", "kanpo", "tsutatsu", "reiki", "pubcomment", "gian", "shingikai"].map(key => [key, () => new Promise<void>(resolve => {
+  const tasks = new Map(["laws", "speeches", "kanpo", "tsutatsu", "reiki", "english", "pubcomment", "gian", "shingikai"].map(key => [key, () => new Promise<void>(resolve => {
     started.push(key);
     finish.set(key, resolve);
   })] as const));
@@ -263,8 +263,8 @@ test("検索キューは表示タブを先行し、選択したタブを重複�
     expect(started).toEqual(["laws", "gian"]);
     finish.get("gian")!();
     await flushQueue();
-    expect(started).toHaveLength(8);
-    expect(new Set(started).size).toBe(8);
+    expect(started).toHaveLength(9);
+    expect(new Set(started).size).toBe(9);
   } finally { queue.cancel(); finish.forEach(resolve => resolve()); }
 });
 
@@ -274,8 +274,8 @@ test("表示タブの検索が停止しても1秒後には残りの検索を開�
   try {
     await flushQueue();
     expect(started).toEqual(["laws"]);
-    await expect.poll(() => started.length, { timeout: 2500 }).toBe(8);
-    expect(new Set(started).size).toBe(8);
+    await expect.poll(() => started.length, { timeout: 2500 }).toBe(9);
+    expect(new Set(started).size).toBe(9);
   } finally { queue.cancel(); finish.forEach(resolve => resolve()); }
 });
 
