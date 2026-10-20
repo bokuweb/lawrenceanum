@@ -557,7 +557,42 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
         }
     }
     flush(&mut run, &run_ts, &mut extra, &mut split_lines);
-    lines = split_lines;
+    // 表が 1 つだけでも、表のすぐ上（30pt 以内）の行のうち表の幅の中の語（表の見出し「※資本剰余金の財源別増減明細」）と、
+    // 表の幅の外（3 字分より離れた右か左）の語（隣の段の標題「キャッシュ・フロー計算書」）が 1 行につながっていれば分ける。
+    let mut one_split: Vec<trace::Line> = Vec::new();
+    for l in split_lines {
+        let Some(ws) = ws_of(&l).filter(|ws| ws.len() >= 2) else {
+            one_split.push(l);
+            continue;
+        };
+        let y1 = bottom_of(&ws);
+        let em = ws.iter().map(|c| c.y1 - c.y).fold(f32::INFINITY, f32::min).max(1.0);
+        let below: Vec<usize> = (0..rects.len()).filter(|&t| rects[t].1 >= y1 - 1.0 && rects[t].1 - y1 < 30.0).collect();
+        let split = (below.len() == 1).then(|| below[0]).and_then(|t| {
+            let r = rects[t];
+            let (inside, outside): (Vec<Col>, Vec<Col>) = ws.iter().cloned().partition(|c| c.x >= r.0 - 20.0 && c.x1 <= r.2 + 20.0);
+            let apart = outside.iter().all(|c| c.x >= r.2 + em * 3.0 || c.x1 <= r.0 - em * 3.0);
+            // 数を含む行（項目名と金額、日付と署名）は分けない。
+            let digits = ws.iter().any(|c| c.text.chars().any(|ch| ch.is_ascii_digit() || ('０'..='９').contains(&ch)));
+            // 表の幅の中が 1 字だけ（「記」）なら、表の見出しではなく行の続き（「…売払い　記」）。
+            let inside_chars: usize = inside.iter().map(|c| c.text.trim().chars().count()).sum();
+            (!inside.is_empty() && !outside.is_empty() && apart && !digits && inside_chars >= 2).then(|| (t, inside, outside))
+        });
+        match split {
+            Some((t, inside, outside)) => {
+                let right = outside[0].x > rects[t].2;
+                // 表の見出しは表のすぐ上の行（その下の表の題名の行も）から選ぶので、ここでは決めない。
+                let (a, b) = (to_line(&inside), to_line(&outside));
+                if right {
+                    one_split.extend([a, b]);
+                } else {
+                    one_split.extend([b, a]);
+                }
+            }
+            None => one_split.push(l),
+        }
+    }
+    lines = one_split;
     // 縦組みの欄は、欄の左に同じ高さで並ぶ最後の行の後ろ（同じ囲みの決算公告の後ろ。囲みの枠は罫線として
     // 取り出せないことが多い）。
     // ただし、欄のすぐ下（30pt 以内）から同じ列で始まる横組みの行があり、間の横の罫線が欄より左へ延びていなければ、
