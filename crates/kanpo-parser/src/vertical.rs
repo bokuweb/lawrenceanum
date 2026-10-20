@@ -2259,30 +2259,42 @@ fn drop_ruby(cols: &mut Vec<Col>, words: &mut [Word]) {
         let t = t.trim();
         (1..=4).contains(&t.chars().count()) && t.chars().all(|c| ('ぁ'..='ゖ').contains(&c))
     };
-    let ruby: std::collections::HashSet<usize> = cols
-        .iter()
-        .filter(|r| kana(&r.text))
-        .filter(|r| {
-            let (rw, rh) = (r.x1 - r.x, r.y1 - r.y);
-            cols.iter().any(|b| {
-                if b.id == r.id || kana(&b.text) {
-                    return false;
-                }
-                let (bw, bh) = (b.x1 - b.x, b.y1 - b.y);
-                // 横組みの本文の語の上（振り仮名の下端が本文の上端に接する）。
-                // 接する所は、本文の字の枠に 3pt まで食い込むことがある（横倒しのページの「強靱（じん）」）。
-                let touches = |gap: f32| (-3.0..=1.5).contains(&gap);
-                // 1 字の親字（「春」「恵」）は正方形で、3 字の振り仮名（「めぐみ」）は親字からはみ出すので、振り仮名の中ほどが
-                // 親字の範囲にあればよい。
-                let (rcx, rcy) = ((r.x + r.x1) / 2.0, (r.y + r.y1) / 2.0);
-                let above = bw >= bh * 0.9 && rw > rh && rh <= bh * 0.6 && touches(b.y - r.y1) && rcx >= b.x - 1.0 && rcx <= b.x1 + 1.0;
-                // 縦組みの本文の語の右（振り仮名の左端が本文の右端に接する）。
-                let right = bh >= bw * 0.9 && rh > rw && rw <= bw * 0.6 && touches(r.x - b.x1) && rcy >= b.y - 1.0 && rcy <= b.y1 + 1.0;
-                above || right
-            })
+    let over_parent = |r: &Col| {
+        let (rw, rh) = (r.x1 - r.x, r.y1 - r.y);
+        cols.iter().any(|b| {
+            if b.id == r.id || kana(&b.text) {
+                return false;
+            }
+            let (bw, bh) = (b.x1 - b.x, b.y1 - b.y);
+            // 横組みの本文の語の上（振り仮名の下端が本文の上端に接する）。
+            // 接する所は、本文の字の枠に 3pt まで食い込むことがある（横倒しのページの「強靱（じん）」）。
+            let touches = |gap: f32| (-3.0..=1.5).contains(&gap);
+            // 1 字の親字（「春」「恵」）は正方形で、3 字の振り仮名（「めぐみ」）は親字からはみ出すので、振り仮名の中ほどが
+            // 親字の範囲にあればよい。1 字の振り仮名（「じ」）は正方形になる。
+            let (rcx, rcy) = ((r.x + r.x1) / 2.0, (r.y + r.y1) / 2.0);
+            let above = bw >= bh * 0.9 && rw >= rh * 0.9 && rh <= bh * 0.6 && touches(b.y - r.y1) && rcx >= b.x - 1.0 && rcx <= b.x1 + 1.0;
+            // 縦組みの本文の語の右（振り仮名の左端が本文の右端に接する）。
+            let right = bh >= bw * 0.9 && rh >= rw * 0.9 && rw <= bw * 0.6 && touches(r.x - b.x1) && rcy >= b.y - 1.0 && rcy <= b.y1 + 1.0;
+            above || right
         })
-        .map(|r| r.id)
-        .collect();
+    };
+    // 1 字の振り仮名は、同じ大きさで同じ行に字間を空けて並ぶ小さいかな（欄の見出しの「ふ　り　が　な」）の
+    // 1 字が、たまたま親字の上に来たものでないこと。並びの中に親字の上に無い字があれば振り仮名ではない。
+    let spaced = |r: &Col| {
+        let (rw, rh) = (r.x1 - r.x, r.y1 - r.y);
+        r.text.trim().chars().count() == 1
+            && cols.iter().any(|s| {
+                s.id != r.id
+                    && kana(&s.text)
+                    && ((s.x1 - s.x) - rw).abs() < 0.5
+                    && ((s.y1 - s.y) - rh).abs() < 0.5
+                    && (((s.y - r.y).abs() < 1.0 && (s.x - r.x).abs() < rw * 5.0)
+                        || ((s.x - r.x).abs() < 1.0 && (s.y - r.y).abs() < rh * 5.0))
+                    && !over_parent(s)
+            })
+    };
+    let ruby: std::collections::HashSet<usize> =
+        cols.iter().filter(|r| kana(&r.text) && over_parent(r) && !spaced(r)).map(|r| r.id).collect();
     if ruby.is_empty() {
         return;
     }
