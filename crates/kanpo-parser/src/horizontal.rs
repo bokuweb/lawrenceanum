@@ -3670,7 +3670,21 @@ fn column_gutters(words: &[Col], blocks: &[Block], tables: &[Block], boxed: bool
                 && group_lines(words).len() <= 12
                 && words.iter().all(|w| w.text.trim().chars().count() >= 2 && digitless(w))
                 && words.iter().filter(|w| w.text.trim().chars().count() < 3).count() <= 1;
-            if !latin_word_gap(words, cut) && !item_numbers(&left, &right) && !repeat_marks(&left, &right) && (boxes || sparse || is_column_split(&left, &right, between(cut))) {
+            // 表の無いページで、2 行に折り返した見出しが左右に並ぶだけの低い領域（「給与所得者等再生による再生／手続開始」
+            // 「…／計画認可」）。日付と署名（「令和…日」「…大臣」）の行は除く。
+            let heading_pair = a - right_edge >= 40.0
+                && blocks.is_empty()
+                && no_tables
+                && words.len() <= 12
+                && group_lines(words).len() <= 3
+                && group_lines(&left).len() >= 2
+                && group_lines(&right).len() >= 2
+                && words.iter().all(|w| w.text.trim().chars().count() >= 2 && digitless(w))
+                && !words.iter().any(|w| w.text.trim().starts_with("令和") || ["大臣", "長官", "知事", "長"].iter().any(|k| w.text.trim().ends_with(k)))
+                // 見出しの 1 行目は長い（8 字以上）。英字や括弧のある語（表の欄の「（新設）」「ＳＡＷ（弾」）は除く。
+                && [&left, &right].iter().all(|side| group_lines(side).first().is_some_and(|l| render_line(&l.words).chars().count() >= 8))
+                && !words.iter().any(|w| w.text.chars().any(|c| c.is_ascii_alphabetic() || ('Ａ'..='Ｚ').contains(&c) || "（）()".contains(c)));
+            if !latin_word_gap(words, cut) && !item_numbers(&left, &right) && !repeat_marks(&left, &right) && (boxes || sparse || heading_pair || is_column_split(&left, &right, between(cut))) {
                 cuts.push((cut, a - right_edge, width(&left).min(width(&right))));
             }
         }
