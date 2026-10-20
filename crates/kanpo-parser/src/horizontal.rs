@@ -2616,6 +2616,34 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
             })
         };
         if let Some(cut) = rule_cut(&words, blocks, vrules, hrules).or_else(|| gutter.map(|g| g.0).filter(|&g| boxed || ((!blocks.is_empty() || !table_column(g)) && !numeric_strip(g)))) {
+            // 段の境の縦の罫線が表の下から始まり、罫線の上端より上で罫線の右にある語が、左の表の行と同じ高さに並ぶ数だけ
+            // （紙面の幅の途中まで組んだ前のページから続く表の右端の欄「355,650」「79,361,278」）なら、先に罫線の上端で
+            // 上下に切る（表の右端の欄が右の段の頭に読まれていた）。
+            let table_above = vrules
+                .iter()
+                // 段の境の近く（15pt 以内）の、領域の下端まで延びる長い縦の罫線（段の境の線）のうち一番上から始まるもの
+                // （表の欄の線は表の下端で終わる）。
+                .filter(|r| (r.0 - cut).abs() < 15.0 && r.2 - r.1 > 100.0 && r.2 >= words.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max) - 20.0)
+                .map(|r| r.1)
+                .reduce(f32::min)
+                .filter(|&top| {
+                    // 字の層の私用領域の字（桁区切り U+EA75・「△」U+E888・罫の「－」U+E61C）も。
+                    let num = |t: &str| {
+                        !t.is_empty() && t.chars().all(|c| c.is_ascii_digit() || matches!(c, ',' | '.' | '△' | '▲' | '－' | '-' | '\u{EA75}' | '\u{E888}' | '\u{E61C}'))
+                    };
+                    let right: Vec<&Col> = words.iter().filter(|w| w.y1 <= top + 1.0 && x_center(w) >= cut).collect();
+                    right.len() >= 2
+                        && right.iter().all(|w| {
+                            num(w.text.trim()) && words.iter().any(|o| x_center(o) < cut && (y_center(o) - y_center(w)).abs() < 2.0 && num(o.text.trim()))
+                        })
+                });
+            if let Some(y) = table_above {
+                let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < y);
+                let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < y);
+                order_region(top, &bt, ctx, boxed, column, out);
+                order_region(bottom, &bb, ctx, boxed, column, out);
+                return;
+            }
             if let Some(y) = stray_cut(&words, blocks, hrules, cut) {
                 let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < y);
                 let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < y);
