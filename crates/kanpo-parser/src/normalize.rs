@@ -118,6 +118,8 @@ fn private_use_char(c: char) -> Option<char> {
         '\u{E61C}' => Some('－'),
         // 医療材料価格の面積単位。全 11,992 ページ中の 2 字を原本画像で照合。
         '\u{E68C}' => Some('㎠'),
+        // 法人署名の姓。全 11,992 ページ中の 6 字を原本画像で照合。
+        '\u{E469}' => Some('鄭'),
         // CID 25572 は財務諸表の負の金額の印「△」（「△33,291」「利息費用相当累計額（△）」）。蓄積した官報の 1 万 2 千字
         // 余りのうち 1 万 1 千字余りが数字のすぐ左に置かれる。原本の字形で確かめた。
         '\u{E888}' => Some('△'),
@@ -503,6 +505,14 @@ mod tests {
         assert_eq!(toc_page_numbers(&[w(327.7, 221.1, 230.1, "掠")]), vec![None]);
         // 3 桁（1 字 0.67em）は 1 つでも写像する。掟は〇。
         assert_eq!(toc_page_numbers(&[w(489.5, 212.1, 230.1, "掣掠掟")]), vec![Some("四一〇".into())]);
+    }
+
+    #[test]
+    fn restores_the_verified_surname_glyph() {
+        assert_eq!(word_text("\u{E469}"), "鄭");
+        assert_eq!(normalize_text("取締役\u{E469}武壽"), "取締役鄭武壽");
+        assert_eq!(word_text("\u{E468}"), "");
+        assert_eq!(word_text("\u{E46A}"), "");
     }
 
     #[test]

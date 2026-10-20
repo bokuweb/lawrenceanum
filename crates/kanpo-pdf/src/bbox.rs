@@ -256,6 +256,24 @@ fn advance_axes(p: &Glyph, dx: f64, dy: f64) -> (f64, f64) {
     (dx * ux + dy * uy, -dx * uy + dy * ux)
 }
 
+/// Keep the historical Poppler-compatible rectangle while exposing the
+/// original glyph rectangle in display/page coordinates and its writing direction.
+fn native_vertical_attrs(page: &Page, word: &Word) -> String {
+    let Some(first) = word.glyphs.first().and_then(|&i| page.glyphs.get(i)) else { return String::new() };
+    if !first.vertical {
+        return if word.glyphs.iter().all(|&i| page.glyphs.get(i).is_some_and(|g| !g.vertical)) { " data-wmode=\"0\"".into() } else { String::new() };
+    }
+    if !word.glyphs.iter().all(|&i| page.glyphs.get(i).is_some_and(|g| g.vertical)) { return String::new(); }
+    let mut b = [f64::INFINITY, f64::INFINITY, f64::NEG_INFINITY, f64::NEG_INFINITY];
+    for &i in &word.glyphs {
+        let g = &page.glyphs[i];
+        b[0] = b[0].min(g.bbox[0]); b[1] = b[1].min(g.bbox[1]);
+        b[2] = b[2].max(g.bbox[2]); b[3] = b[3].max(g.bbox[3]);
+    }
+    format!(" data-wmode=\"1\" data-advance-x=\"{:.6}\" data-advance-y=\"{:.6}\" data-native-xmin=\"{:.6}\" data-native-ymin=\"{:.6}\" data-native-xmax=\"{:.6}\" data-native-ymax=\"{:.6}\"",
+        first.end_x-first.x, first.end_y-first.y, b[0],b[1],b[2],b[3])
+}
+
 /// ページを `pdftotext -bbox-layout` 形式の XHTML にする。語ごとに 1 つの flow・block・line に入れる。
 pub fn bbox_layout(pages: &[Page]) -> String {
     let mut s = String::from(
@@ -275,9 +293,10 @@ pub fn bbox_layout(pages: &[Page]) -> String {
                 "xMin=\"{:.6}\" yMin=\"{:.6}\" xMax=\"{:.6}\" yMax=\"{:.6}\"",
                 word.x_min, word.y_min, word.x_max, word.y_max
             );
+            let native = native_vertical_attrs(page, &word);
             let _ = writeln!(
                 s,
-                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}>{}</word>\n        </line>\n      </block>\n    </flow>",
+                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}>{}</word>\n        </line>\n      </block>\n    </flow>",
                 escape(&word.text)
             );
         }
@@ -364,3 +383,7 @@ mod tests {
         assert_eq!(texts(&p), ["度\u{EAD6}", "\u{EADF}", "」"]);
     }
 }
+
+#[cfg(test)]
+#[path = "native_vertical_bbox_tests.rs"]
+mod native_vertical_bbox_tests;

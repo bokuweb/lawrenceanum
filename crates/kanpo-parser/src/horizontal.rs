@@ -1559,6 +1559,21 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
         };
         // 表の右端: 番号の行で番号から右へ続く語の右端の最大。〃 だけの行のように欄の間が大きく空く行が
         // あっても、ほかの行で欄が続いていれば表の中。
+        // A wide empty interval may precede the last column of a headed table.
+        // Keep the 5em boundary unless every record proves the same ditto column.
+        // This applies only to existing tables with at least three records.
+        let repeat_headed = cluster.len() >= 3 && header_columns(&cluster) >= 3;
+        let repeated_column = |w: &Col| {
+            if !repeat_headed { return false; }
+            let header = words.iter().any(|h| h.y1 <= first + 0.5 && h.y1 >= first - em*2.0
+                && h.x <= w.x + em*2.0 && h.x1 >= w.x + em
+                && !h.text.chars().any(|c| c.is_ascii_digit() || ('０'..='９').contains(&c)));
+            header && cluster.iter().enumerate().all(|(i,k)| words.iter().any(|v|
+                (v.x-w.x).abs() < 2.0 && (y_center(v)-y_center(k)).abs() <= em*0.35
+                    && ((v.y1-v.y)-em).abs() <= em*0.2
+                    && if i == 0 { !v.text.trim().is_empty() && v.text.trim() != "〃" && !v.text.contains('。') && !row_key(&v.text) }
+                       else { v.text.trim() == "〃" }))
+        };
         let mut right = cluster.iter().map(|k| k.x1).fold(f32::NEG_INFINITY, f32::max);
         for k in &cluster {
             let mut end = k.x1;
@@ -1566,7 +1581,7 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
                 let outside = match fence {
                     // 柵にわずかに掛かるだけの語（隣の段の頭の 0.1pt 右まで組んだ住所の行）は表の中。
                     Some(f) => w.x1 > f + em * 0.5,
-                    None => w.x - end >= em * 5.0,
+                    None => w.x - end >= em * 5.0 && !(w.x-end < em*12.0 && repeated_column(w)),
                 };
                 if outside || other_key(w) {
                     break;
@@ -2237,9 +2252,11 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
     let mut k = 0;
     while k < cells.len() {
         let (row, col) = (cells[k].row, cells[k].col);
-        let next = at(&cells, row + 1, col);
+        // 格子の途中の横線からできた、どの欄にも字のない行番号は越えてよい。
+        let next_row = cells.iter().filter(|c| c.row > row).map(|c| c.row).min().unwrap_or(row + 1);
+        let next = at(&cells, next_row, col);
         let amount_here = at(&cells, row, col + 1).is_some_and(|i| !cells[i].text.is_empty());
-        let amount_next = at(&cells, row + 1, col + 1).is_some_and(|i| !cells[i].text.is_empty());
+        let amount_next = at(&cells, next_row, col + 1).is_some_and(|i| !cells[i].text.is_empty());
         // 右の金額の欄（科目の欄の右の、字のある最初のセル。「△」の狭い列や科目の欄がまたぐ列の先）。
         let right_amount = |r: usize| {
             cells
@@ -2297,16 +2314,26 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
             let core: String = t.chars().filter(|c| !"（）()".contains(*c)).collect();
             core.chars().count() >= 4 && (TERMS.iter().any(|e| core.ends_with(e)) || core.ends_with(['額', '税', '高', '金', '益', '費', '失', '産', '債', '式']))
         };
+        // 「２ 未収…・」のように中黒で途切れた番号付き科目は、長い続きも同じセルの字下げへ戻す。
+        // 別の科目・隣の欄は、番号の後の語と同じ左端で行間なく続く場合だけなので結ばない。
+        let connected_tail = |n: usize| {
+            let mut chars = t.trim_start().chars();
+            let numbered = chars.next().is_some_and(|c| c.is_ascii_digit() || ('０'..='９').contains(&c)) && chars.next().is_some_and(char::is_whitespace);
+            let same_cell = (cells[k].x0, cells[k].y0, cells[k].x1, cells[k].y1) == (cells[n].x0, cells[n].y0, cells[n].x1, cells[n].y1);
+            let label_x = words.iter().filter(|w| cells[k].words.contains(&w.id) && w.text.chars().any(kana_kanji)).map(|w|w.x).fold(f32::INFINITY,f32::min);
+            let tail_x = words.iter().filter(|w| cells[n].words.contains(&w.id)).map(|w|w.x).fold(f32::INFINITY,f32::min);
+            numbered && t.ends_with('・') && same_cell && (label_x-tail_x).abs() <= 1.0 && cells[n].text.chars().count() <= 20
+        };
         if let Some(n) = next.filter(|&n| {
             label
                 && tail(&cells[n].text)
-                && !complete(&cells[n].text)
+                && (!complete(&cells[n].text) || connected_tail(n))
                 && cells[k].text.trim().chars().count() >= 4
                 && (amount_here || right_amount(row) || cells[k].words.iter().any(|w| smaller_account_words.contains(w)))
                 && !amount_next
-                && !right_amount(row + 1)
+                && !right_amount(next_row)
                 && reaches
-                && cells[n].text.chars().count() <= 8
+                && (cells[n].text.chars().count() <= 8 || connected_tail(n))
                 && !cells[n].text.contains('\n')
                 && !cells[k].text.contains('\n')
                 && top(n) - bottom(k) < height * 0.25
@@ -5252,3 +5279,160 @@ fn sides()->(Vec<Col>,Vec<Col>){let mut l=vec![w(0,40.0,0.0,16.0,"種類"),w(1,0
 #[test]fn wrapped_partner_is_not_a_simple_paired_run(){let(mut l,r)=sides();l.push(w(70,0.0,-12.0,32.0,"種類の続き"));l.push(w(71,0.0,-24.0,32.0,"種類の前段"));assert!(!repeat_marks(&l,&r));}
 
 }
+
+#[cfg(test)]
+#[path = "repeated_key_column_tests.rs"]
+mod repeated_key_column_tests;
+
+#[cfg(test)]
+mod grid_label_continuation_tests {
+    use super::*;
+    fn table(head: &str, long: bool, shift: f32, extra_amount: bool, split_cell: bool) -> trace::Table {
+        let mut words=vec![
+            Col{id:0,x:10.,x1:18.,y:10.,y1:18.,text:"２".into()},
+            Col{id:1,x:26.,x1:90.,y:10.,y1:18.,text:head.into()},
+            Col{id:2,x:26.+shift,x1:90.+shift,y:18.,y1:26.,text:if long {"地域支援事業支援"}else{"付金"}.into()},
+            Col{id:3,x:110.,x1:152.,y:10.,y1:18.,text:"122,567,217".into()},
+            Col{id:4,x:10.,x1:74.,y:40.,y1:48.,text:"３ 未収収益".into()},
+            Col{id:5,x:120.,x1:152.,y:40.,y1:48.,text:"345,755".into()},
+        ];
+        if long {words.push(Col{id:6,x:26.+shift,x1:50.+shift,y:26.,y1:34.,text:"納付金".into()});}
+        if extra_amount {words.push(Col{id:7,x:110.,x1:152.,y:18.,y1:26.,text:"8,067,480".into()});}
+        let mut cells=vec![GridCell{x0:0,x1:1,y0:0,y1:4},GridCell{x0:1,x1:2,y0:0,y1:4}];
+        if split_cell {cells[0].y1=3;cells.push(GridCell{x0:0,x1:1,y0:3,y1:4});}
+        grid_table(&Grid{xs:vec![0.,100.,160.],ys:vec![0.,14.,16.,20.,60.],cells},&words,usize::MAX).unwrap()
+    }
+    #[test]
+    fn empty_anchor_rows_do_not_separate_a_short_account_tail() {
+        let t=table("未払介護給付費交",false,0.,false,false);
+        assert!(t.render().contains("未払介護給付費交付金"),"{}",t.render());
+    }
+    #[test]
+    fn numbered_middle_dot_account_accepts_its_long_indented_tail() {
+        let t=table("未収介護給付費・",true,0.,false,false);
+        assert!(t.render().contains("未収介護給付費・地域支援事業支援納付金"),"{}",t.render());
+        for (head,shift,amount,cell) in [("未収介護給付費",0.,false,false),("未収介護給付費・",5.,false,false),("未収介護給付費・",0.,true,false),("未収介護給付費・",0.,false,true)] {
+            let t=table(head,true,shift,amount,cell);
+            assert!(!t.render().contains(&format!("{head}地域支援事業支援納付金")),"{head} {shift} {amount} {cell}: {}",t.render());
+        }
+    }
+}
+
+/// 横倒し縦本文の経路で、native横組みの数値表を物理升目のまま連結した場合だけ組み直す。
+/// sideways の unturn_tables の直後に、原座標の rules/words を渡す。
+pub(crate) fn repair_native_ledger_tables(units: &mut [trace::Unit], words: &[trace::Word], rules: &crate::lines::PageRules) {
+    let repair = |lines: &mut [trace::Line]| {
+        for line in lines {
+            let Some(t) = &line.table else {
+                continue;
+            };
+            let populated: Vec<_> = t.cells.iter().filter(|c| !c.text.trim().is_empty()).collect();
+            let labels: Vec<_> = populated.iter().filter(|c| c.col == 0 && c.rowspan >= 2 && c.colspan == 1).collect();
+            if labels.len() != 1 || t.cols < 3 || t.rows < 3 {
+                continue;
+            }
+            let amount = |s: &str| {
+                s.chars().any(|c| c.is_ascii_digit()) && s.chars().all(|c| c.is_ascii_digit() || c.is_whitespace() || ",.△▲－−-()（）".contains(c))
+            };
+            if populated.iter().any(|c| c.col > 0 && !amount(&c.text)) {
+                continue;
+            }
+            let numeric_columns: std::collections::HashSet<_> = populated.iter().filter(|c| c.col > 0 && amount(&c.text)).map(|c| c.col).collect();
+            if numeric_columns.len() < 2 {
+                continue;
+            }
+            let mut ids: Vec<_> = populated.iter().flat_map(|c| &c.words).copied().collect();
+            ids.sort();
+            if ids.windows(2).any(|p| p[0] == p[1]) {
+                continue;
+            }
+            let Some(cols): Option<Vec<Col>> = ids
+                .iter()
+                .map(|&id| {
+                    words.get(id).filter(|w| !w.text.trim().is_empty()).map(|w| Col {
+                        id: w.id,
+                        x: w.x0,
+                        x1: w.x1,
+                        y: w.y0,
+                        y1: w.y1,
+                        text: w.text.clone(),
+                    })
+                })
+                .collect()
+            else {
+                continue;
+            };
+            // native横組みの科目に文章・縦向き語を混ぜない。通常の縦組み一覧は修復対象外。
+            let label_ids = &labels[0].words;
+            let label_cols: Vec<_> = cols.iter().filter(|w| label_ids.contains(&w.id)).cloned().collect();
+            if label_cols.iter().any(|w| w.text.contains(['。', '︒']) || (w.text.chars().count() >= 3 && w.x1 - w.x < w.y1 - w.y)) {
+                continue;
+            }
+            let label_lines = group_cell_lines(&label_cols);
+            if label_lines.len() < 3 || label_lines.iter().filter(|l| account_end(l)).count() < 2 {
+                continue;
+            }
+            // 原罫が下の別記事の囲みへつながることがある。本文語を持つ升目の範囲だけを読む。
+            let top = populated.iter().map(|c| c.y0).fold(f32::INFINITY, f32::min);
+            let bottom = populated.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+            let clipped = crate::lines::PageRules {
+                vertical: rules
+                    .vertical
+                    .iter()
+                    .filter(|v| v.x >= t.x0 - 1. && v.x <= t.x1 + 1.)
+                    .map(|v| crate::lines::VRule { x: v.x, y0: v.y0.max(top), y1: v.y1.min(bottom) })
+                    .filter(|v| v.y1 > v.y0)
+                    .collect(),
+                horizontal: rules
+                    .horizontal
+                    .iter()
+                    .filter(|h| h.y >= top - 1. && h.y <= bottom + 1.)
+                    .map(|h| crate::lines::HRule { y: h.y, x0: h.x0.max(t.x0), x1: h.x1.min(t.x1) })
+                    .filter(|h| h.x1 > h.x0)
+                    .collect(),
+            };
+            // 幅高はクリップ専用。既に絞った原罫を +1pt の許容端まで残す。外枠の補完は罫線端点に従う。
+            let grids = crate::grid::find_grids(&clipped, t.x1 + 2., bottom + 2.);
+            let matching: Vec<_> = grids
+                .iter()
+                .filter(|g| {
+                    (g.left() - t.x0).abs() < 1. && (g.right() - t.x1).abs() < 1. && (g.top() - top).abs() < 1. && (g.bottom() - bottom).abs() < 1.
+                })
+                .collect();
+            if matching.len() != 1 {
+                continue;
+            }
+            let Some(rebuilt) = grid_table(matching[0], &cols, 1) else {
+                continue;
+            };
+            let mut after: Vec<_> = rebuilt.cells.iter().flat_map(|c| &c.words).copied().collect();
+            after.sort();
+            let rows: std::collections::HashSet<_> =
+                rebuilt.cells.iter().filter(|c| c.col == 0 && !c.text.trim().is_empty()).map(|c| c.row).collect();
+            if after != ids
+                || rows.len() < 3
+                || rebuilt.cols < 3
+                || rebuilt.cells.iter().any(|c| c.col > 0 && !c.text.trim().is_empty() && !amount(&c.text))
+            {
+                continue;
+            }
+            line.text = rebuilt.render();
+            line.table = Some(rebuilt);
+        }
+    };
+    for unit in units {
+        match unit {
+            trace::Unit::Plain(lines) => repair(lines),
+            trace::Unit::Shinkyu { preamble, after, before, outside } => {
+                repair(preamble);
+                for lines in after.iter_mut().chain(before).chain(outside) {
+                    repair(lines);
+                }
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+#[path = "native_ledger_tests.rs"]
+mod native_ledger_tests;

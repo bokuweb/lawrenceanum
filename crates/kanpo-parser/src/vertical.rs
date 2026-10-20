@@ -430,6 +430,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             merge_split_table_rows(&mut units);
             order_masthead(&mut units);
             join_joint_ministries(&mut units);
+            crate::shared_table_labels::order_shared_table_labels(&mut units, &words);
             crate::fractions::restore_fraction_lines(&mut units, &words, &hrules);
             crate::table_dashes::restore_table_dashes(&mut units, &mut words);
             crate::table_dashes::restore_ruled_table_dashes(&mut units, &mut words, &grids);
@@ -715,6 +716,9 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         attach_band_tables(&mut units, &words);
         if sideways {
             unturn_tables(&mut units, width);
+            if let Some(native_rules) = rules.get(pi).and_then(|r| r.as_ref()) {
+                crate::horizontal::repair_native_ledger_tables(&mut units, &words, native_rules);
+            }
         }
         if !mixed_statistics.is_empty() {
             units.push(Unit::Plain(mixed_statistics));
@@ -724,7 +728,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         merge_split_table_rows(&mut units);
         order_masthead(&mut units);
         join_joint_ministries(&mut units);
-        order_section_labels(&mut units);
+        order_section_labels(&mut units, &words);
         let text = units
             .iter()
             .map(Unit::text)
@@ -1212,7 +1216,7 @@ pub(crate) fn split_label_frames(tier: Vec<Col>, hrules: &[(f32, f32, f32)], vru
 /// 記事の見出し（「〇こども家庭庁告示第十三号」）のすぐ後に区分見出し（「法規的告示」）が来ていれば、区分見出しを先にする
 /// （見出しの下に本文が無いまま次の区分が始まることは無い。区分見出しは本文より大きな字で、見出しの列と上下にずれて
 /// 組まれ、見出しが前の段に、区分見出しが次の段の頭に分かれていた）。段の境をまたぐものも見る。
-fn order_section_labels(units: &mut [Unit]) {
+fn order_section_labels(units: &mut [Unit], words: &[Word]) {
     let compact = |l: &Line| l.text.chars().filter(|c| !c.is_whitespace()).collect::<String>();
     // 「〇」で始まり「号」で終わる 1 行（機関名がかなで始まる「〇こども家庭庁告示第十三号」も）。
     let heading = |l: &Line| {
@@ -1236,6 +1240,32 @@ fn order_section_labels(units: &mut [Unit]) {
             Unit::Plain(lines) => lines,
             Unit::Shinkyu { preamble, .. } => preamble,
         };
+        // 大きな区分見出しが小さな欄見出しのすぐ右に組まれ、上下にずれて別の段になった場合。
+        // 直前の欄見出しと短い標題だけの前へ移す（本文や離れた別記事は越えない）。
+        let bounds = |l: &Line| {
+            let ws: Option<Vec<_>> = l.words.iter().map(|&id| words.get(id).filter(|w| w.id == id)).collect();
+            let ws = ws.filter(|ws| !ws.is_empty())?;
+            Some(ws.iter().fold((f32::INFINITY, f32::INFINITY, f32::NEG_INFINITY, f32::NEG_INFINITY),
+                |(x0,y0,x1,y1), w| (x0.min(w.x0), y0.min(w.y0), x1.max(w.x1), y1.max(w.y1))))
+        };
+        let raised = next.first().filter(|l| label(l)).and_then(|primary| {
+            let at = prev.iter().rposition(|l| label(l))?;
+            if prev.len() - at > 3 || compact(primary) == compact(&prev[at]) { return None; }
+            let (a, b) = (bounds(primary)?, bounds(&prev[at])?);
+            let (large, em) = (a.2-a.0, b.2-b.0);
+            let overlap = |a: (f32,f32,f32,f32), b: (f32,f32,f32,f32)| a.3.min(b.3)-a.1.max(b.1);
+            if large < em*1.3 || a.3-a.1 < large*2.0 || b.3-b.1 < em*2.0
+                || a.0 < b.2 || a.0-b.2 > em*3.0 || overlap(a,b) < em { return None; }
+            prev[at+1..].iter().all(|l| {
+                let t=compact(l);
+                bounds(l).is_some_and(|h| t.chars().count() <= 30 && !t.contains(['。','、','：',':'])
+                    && h.2 <= b.0+em*0.5 && b.0-h.0 <= em*3.0 && overlap(h,b) >= em)
+            }).then_some(at)
+        });
+        if let Some(at) = raised {
+            prev.insert(at, next.remove(0));
+            continue;
+        }
         if prev.last().is_some_and(|l| heading(l)) && next.first().is_some_and(|l| label(l)) {
             let l = next.remove(0);
             let at = prev.len() - 1;
@@ -1912,6 +1942,86 @@ fn split_horizontal_shinkyu_pairs(cols: &[Col], prev: Option<f32>, vrules: &[(f3
     Some((Unit::Shinkyu { preamble: horizontal_lines(preamble), after, before, outside: Vec::new() }, rest, width))
 }
 
+/// Keep only font runs enclosing ordinary-font Japanese prose quotations.
+/// Isolated headings, margin marks, units and mathematical symbols cannot
+/// establish this two-sided inline relationship.
+fn retain_inline_native_quotes(
+    raws: &[(f32, f32, f32, f32, String)],
+    horizontal: &std::collections::HashSet<([u32; 4], String)>,
+    native: &mut std::collections::HashMap<[u32; 4], Vec<(String, [f32; 4])>>,
+) {
+    let key = |r: &(f32, f32, f32, f32, String)| {
+        [r.0.to_bits(), r.1.to_bits(), r.2.to_bits(), r.3.to_bits()]
+    };
+    let japanese = |t: &str| {
+        t.chars()
+            .filter(|c| {
+                ('\u{3040}'..='\u{30ff}').contains(c) || ('\u{3400}'..='\u{9fff}').contains(c)
+            })
+            .count()
+    };
+    let candidates: Vec<_> = native
+        .iter()
+        .flat_map(|(key, values)| {
+            values
+                .iter()
+                .map(move |(text, b)| (*key, text.clone(), *b, word_text(text)))
+        })
+        .collect();
+    let plain: Vec<_> = raws
+        .iter()
+        .filter(|r| horizontal.contains(&(key(r), r.4.clone())))
+        .collect();
+    let mut selected = std::collections::HashSet::new();
+    for (akey, atext, a, an) in &candidates {
+        let opening = an.rsplit_once('「').is_some_and(|(_, tail)| {
+            tail.chars()
+                .all(|c| c.is_whitespace() || matches!(c, '（' | '('))
+        });
+        if !opening {
+            continue;
+        }
+        let em = a[3] - a[1];
+        for (bkey, btext, b, bn) in &candidates {
+            if !bn.trim_start_matches(['）', ')']).starts_with('」')
+                || japanese(an).max(japanese(bn)) < 3
+                || b[0] - a[2] < em * 1.5
+                || ((b[3] - b[1]) - em).abs() > em * 0.2
+                || ((a[1] + a[3]) - (b[1] + b[3])).abs() > em * 0.5
+            {
+                continue;
+            }
+            let mut quoted: Vec<_> = plain
+                .iter()
+                .copied()
+                .filter(|r| {
+                    r.0 >= a[2] - em * 0.25
+                        && r.2 <= b[0] + em * 0.25
+                        && ((r.3 - r.1) - em).abs() <= em * 0.2
+                        && ((r.1 + r.3) - (a[1] + a[3])).abs() <= em * 0.5
+                })
+                .collect();
+            quoted.sort_by(|r, s| r.0.total_cmp(&s.0));
+            let (Some(first), Some(last)) = (quoted.first(), quoted.last()) else {
+                continue;
+            };
+            if (first.0 - a[2]).abs() > em * 0.25
+                || (last.2 - b[0]).abs() > em * 0.25
+                || quoted.windows(2).any(|p| p[1].0 - p[0].2 > em * 0.5)
+                || quoted.iter().map(|r| japanese(&r.4)).sum::<usize>() < 2
+            {
+                continue;
+            }
+            selected.insert((*akey, atext.clone()));
+            selected.insert((*bkey, btext.clone()));
+        }
+    }
+    native.retain(|k, values| {
+        values.retain(|(t, _)| selected.contains(&(*k, t.clone())));
+        !values.is_empty()
+    });
+}
+
 /// 1 ページの `<word>` を縦書きカラム語として読み出す。可視化用に全語の一覧と、回転ページ
 /// （横組みの本文を `/Rotate 270` で置いたページ）かどうかも返す（カラム語の `id` は語の添字）。
 ///
@@ -1935,12 +2045,31 @@ fn page_words_traced(
     let line_sel = Selector::parse("line").unwrap();
     // (x0, y0, x1, y1, raw)
     let mut raws: Vec<(f32, f32, f32, f32, String)> = Vec::new();
+    let mut native_vertical: std::collections::HashMap<[u32; 4], Vec<(String, [f32; 4])>> = Default::default();
+    let mut native_horizontal_chars = 0usize;
+    let mut horizontal_font_chars = 0usize;
+    let mut horizontal_font_words: std::collections::HashSet<([u32; 4], String)> = Default::default();
     let mut push = |w: scraper::ElementRef| {
         let v = w.value();
         // scraper は HTML パーサのため属性名を小文字化する（xMin -> xmin）。
         let num = |k: &str| v.attr(k).and_then(|s| s.parse::<f32>().ok());
         if let (Some(x), Some(x1), Some(y), Some(y1)) = (num("xmin"), num("xmax"), num("ymin"), num("ymax")) {
-            raws.push((x, y, x1, y1, w.text().collect()));
+            let text: String = w.text().collect();
+            if v.attr("data-wmode") == Some("0") && x1-x > (y1-y)*1.5 {
+                horizontal_font_chars += text.chars().count();
+                horizontal_font_words.insert(([x.to_bits(),y.to_bits(),x1.to_bits(),y1.to_bits()],text.clone()));
+            }
+            if v.attr("data-wmode") == Some("1") {
+                if let (Some(ax), Some(ay), Some(nx), Some(ny), Some(nx1), Some(ny1)) =
+                    (num("data-advance-x"), num("data-advance-y"), num("data-native-xmin"), num("data-native-ymin"), num("data-native-xmax"), num("data-native-ymax"))
+                {
+                    if [ax,ay,nx,ny,nx1,ny1].iter().all(|n| n.is_finite()) && ax.abs() > ay.abs()*1.5 && ax.abs() > 0.0 && nx1 > nx && ny1 > ny {
+                        if x1-x > (y1-y)*1.5 { native_horizontal_chars += text.chars().count(); }
+                        native_vertical.entry([x.to_bits(),y.to_bits(),x1.to_bits(),y1.to_bits()]).or_default().push((text.clone(),[nx,ny,nx1,ny1]));
+                    }
+                }
+            }
+            raws.push((x, y, x1, y1, text));
         }
     };
     if page.select(&line_sel).next().is_some() {
@@ -2009,6 +2138,28 @@ fn page_words_traced(
     }
     let sideways = is_sideways_vertical(&raws);
     let rotated = !sideways && raws.iter().any(|(_, _, x1, _, t)| is_left_strip_header(*x1, t));
+    // Poppler's WMode-1 rectangle is intentionally offset from the glyph
+    // rectangle. In horizontally set mixed pages, use the original rectangle
+    // only when font metadata proves a horizontal advance. Pure vertical and
+    // sideways pages retain their existing normalization.
+    if !vertical_page && !sideways && horizontal_font_chars > native_horizontal_chars {
+        // A coordinate/text key can occur more than once (overprinted text or
+        // distinct font runs). Use it only when every source occurrence has a
+        // valid native rectangle and all occurrences agree on that rectangle.
+        // An unannotated word must never inherit another word's font metadata.
+        native_vertical.retain(|key, values| values.iter().all(|(text, b)| {
+            let declared = values.iter().filter(|(t, _)| t == text).count();
+            let sources = raws.iter().filter(|(x, y, x1, y1, t)|
+                [x.to_bits(), y.to_bits(), x1.to_bits(), y1.to_bits()] == *key && t == text).count();
+            declared == sources && values.iter().filter(|(t, _)| t == text).all(|(_, other)| other == b)
+        }));
+        retain_inline_native_quotes(&raws, &horizontal_font_words, &mut native_vertical);
+        for (x,y,x1,y1,text) in &mut raws {
+            if let Some((_,b)) = native_vertical.get(&[x.to_bits(),y.to_bits(),x1.to_bits(),y1.to_bits()]).and_then(|xs| xs.iter().find(|(t,_)| t == text)) {
+                (*x,*y,*x1,*y1) = (b[0],b[1],b[2],b[3]);
+            }
+        }
+    }
     let shift_sideways = sideways && (sideways_vertical_font_shifted(&raws) || sideways_words_straddle_rules(&raws, page_rules));
     // 横倒しに組んだ URL の語（下で半 em 寄せる語）。何列も続く欧文（英字の住所）は寄せない。
     let rotated_latin = |(x, y, x1, y1, t): &(f32, f32, f32, f32, String)| {
@@ -4599,7 +4750,10 @@ pub(crate) fn column_groups(mut cols: Vec<Col>) -> Vec<Vec<Col>> {
         let (head, tail) = groups.split_at_mut(gi);
         let prev = &mut head[gi - 1];
         let cur = &mut tail[0];
-        let Some(p) = prev.last().filter(|p| latin(p) && p.text.trim_end().ends_with(['/', '.', '-', '_'])).cloned() else { continue };
+        // URL の下線が combining low line で符号化されたものも区切りとみなす。一般の英字名は広げない。
+        let path_end = |p: &Col| p.text.trim_end().ends_with(['/', '.', '-', '_'])
+            || (p.text.trim_end().ends_with('\u{0332}') && p.text.contains(['/', '.', '@']));
+        let Some(p) = prev.last().filter(|p| latin(p) && path_end(p)).cloned() else { continue };
         // 次の URL の頭（「http」「www.」）は続きではない。
         let fresh = |c: &Col| c.text.trim_start().starts_with("http") || c.text.trim_start().starts_with("www.");
         if let Some(k) = cur.iter().position(|c| latin(c) && !fresh(c) && (c.y - p.y).abs() < 1.0) {
@@ -5344,3 +5498,78 @@ mod tests {
         assert_eq!(reconstruct_vertical(xhtml), "上右\n上左\n下右\n下左");
     }
 }
+
+#[cfg(test)]
+mod raised_section_label_tests {
+    use super::*;
+    fn fixture() -> (Vec<Unit>, Vec<Word>) {
+        let words = [(500.,480.,509.,545.,"官庁事項"),(484.,428.,492.,501.,"関東地方整備局公示"),(525.,528.,539.,668.,"官庁報告")]
+            .into_iter().enumerate().map(|(id,(x0,y0,x1,y1,text))| Word{id,x0,y0,x1,y1,raw:text.into(),text:text.into(),status:WordStatus::Used}).collect();
+        let units=vec![Unit::Plain(vec![Line::text("官庁事項".into(),vec![0]),Line::text("関東地方整備局公示".into(),vec![1])]), Unit::Plain(vec![Line::text("官庁報告".into(),vec![2])])];
+        (units,words)
+    }
+    fn texts(units: &[Unit]) -> String {units.iter().map(Unit::text).filter(|s|!s.is_empty()).collect::<Vec<_>>().join("\n")}
+    #[test]
+    fn adjacent_larger_vertical_section_precedes_its_field_and_short_title() {
+        let (mut u,w)=fixture();order_section_labels(&mut u,&w);assert_eq!(texts(&u),"官庁報告\n官庁事項\n関東地方整備局公示");
+        let (mut u,w)=fixture();if let Unit::Plain(p)=&mut u[0]{p.insert(0,Line::text("前の記事の終わり。".into(),vec![]));}order_section_labels(&mut u,&w);assert!(texts(&u).starts_with("前の記事の終わり。\n官庁報告\n官庁事項"));
+        let (mut u,w)=fixture();if let Unit::Plain(p)=&mut u[0]{p.pop();}order_section_labels(&mut u,&w);assert_eq!(texts(&u),"官庁報告\n官庁事項");
+    }
+    #[test]
+    fn separated_equal_sized_horizontal_and_body_lines_are_not_reordered() {
+        for case in 0..8 {
+            let (mut u,mut w)=fixture();
+            match case {
+                0=>w[2].x1=w[2].x0+9.,
+                1=>{w[2].x0=450.;w[2].x1=464.;},
+                2=>{w[2].y0=700.;w[2].y1=840.;},
+                3=>{w[2].x0=600.;w[2].x1=614.;},
+                4=>if let Unit::Plain(p)=&mut u[0]{p[1].text="本文が始まる。".into();},
+                5=>if let Unit::Plain(p)=&mut u[1]{p[0].words=vec![99];},
+                6=>if let Unit::Plain(p)=&mut u[0]{p[0].text="通常の本文".into();},
+                7=>{w[0].x1=550.;w[0].y1=489.;},
+                _=>unreachable!(),
+            }
+            let before=texts(&u);order_section_labels(&mut u,&w);assert_eq!(texts(&u),before,"negative {case}");
+        }
+        let mut u=vec![Unit::Plain(vec![Line::text("〇総務省告示第三号".into(),vec![])]),Unit::Plain(vec![Line::text("その他告示".into(),vec![])])];
+        order_section_labels(&mut u,&[]);assert_eq!(texts(&u),"その他告示\n〇総務省告示第三号");
+    }
+}
+
+#[cfg(test)]
+mod low_line_url_tests {
+    use super::*;
+    fn columns(prev: &str, tail: &str, dy: f32) -> Vec<Vec<Col>> {
+        column_groups(vec![
+            Col{id:0,x:100.,x1:108.,y:40.,y1:160.,text:prev.into()},
+            Col{id:1,x:84.,x1:92.,y:0.,y1:39.,text:"五、意見書の提出".into()},
+            Col{id:2,x:89.,x1:97.,y:40.+dy,y1:100.+dy,text:tail.into()},
+        ])
+    }
+    #[test]
+    fn low_line_delimiter_keeps_url_tail_before_the_next_heading() {
+        for prev in ["business/wind̲power/kankyo̲", "https://example.test/path_", "https://example.test/path/"] {
+            let groups=columns(prev,"assessment/",0.);
+            assert_eq!(groups[0].iter().map(|c|c.id).collect::<Vec<_>>(),vec![0,2],"{prev}");
+            assert_eq!(groups[1].iter().map(|c|c.id).collect::<Vec<_>>(),vec![1]);
+        }
+    }
+    #[test]
+    fn independent_urls_shifted_lines_and_identifiers_are_not_carried() {
+        for (prev,tail,dy) in [
+            ("business/wind̲power/kankyo̲","https://other.test/",0.),
+            ("business/wind̲power/kankyo̲","www.other.test/",0.),
+            ("business/wind̲power/kankyo̲","assessment/",3.),
+            ("https://example.test/path","assessment/",0.),
+            ("identifier̲","assessment/",0.),
+        ] {
+            let groups=columns(prev,tail,dy);
+            assert!(!groups[0].iter().any(|c|c.id==2),"{prev} {tail} {dy}");
+        }
+    }
+}
+
+#[cfg(test)]
+#[path = "mixed_native_bbox_tests.rs"]
+mod mixed_native_bbox_tests;

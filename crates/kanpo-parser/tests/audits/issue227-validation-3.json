@@ -1,0 +1,301 @@
+{
+  "stage": "third_integrated_batch",
+  "date": "2026-10-20",
+  "baseline_commit": "1ff97c63",
+  "outputs": "after20",
+  "population_pdf_pages": 11992,
+  "archive_period": [
+    "2026-07-16",
+    "2026-10-20"
+  ],
+  "comparison_against_original_baseline": {
+    "changed_pages": 2599,
+    "pages_with_character_changes": 606,
+    "source_backed_dashes": 9991,
+    "restored_fractions": 153,
+    "square_centimeter_units": 2,
+    "surname_characters": 6,
+    "removed_characters": "Only the previously reviewed21 characters in false inferred before/after labels; no additional loss."
+  },
+  "comparison_against_committed_second_batch": {
+    "changed_pages": 20,
+    "pages_with_character_changes": 6,
+    "added_characters": {
+      "鄭": 6
+    },
+    "removed_characters": 0,
+    "all_other_pages_byte_identical": 11972
+  },
+  "checks": {
+    "all_page_word_id_uniqueness": "Fresh PDF textdump:11992 pages; no duplicate warnings",
+    "changed_page_source_provenance": {
+      "pages": 2599,
+      "restored_raw_E61C_words": 9991,
+      "fractions": 153,
+      "restored_raw_E469_words": 6,
+      "duplicate_word_ids": 0,
+      "unattached_restored_words": 0,
+      "output_mismatch": 0
+    },
+    "archive_pdf_fixtures": 404,
+    "corpus_inputs": {
+      "pages": 24,
+      "change": "Optional writing-mode, native-advance and glyph-rectangle attributes only; removing these reproduces every saved pre-change XHTML byte exactly. Standard boxes, text, rules and corpus expected outputs unchanged.",
+      "proof": ".cache/kanpo-227/corpus-bbox20-attribute-refresh.json"
+    }
+  },
+  "independent_initial_audit114": {
+    "ok": 24,
+    "minor": 4,
+    "major": 2,
+    "grades_preserved": true
+  },
+  "audit114_after20_recheck": {
+    "ok": 28,
+    "minor": 2,
+    "major": 0,
+    "scope": "24 originally ok pages are byte-identical to audit114 after17; four changed originals rechecked. Not a new independent audit.",
+    "fixed": [
+      "20260806g001770079: surname",
+      "20260831g001940076: continued account labels",
+      "20260724g001660039: five-row native balance table",
+      "20260727g001670029: seven inline quotation instructions"
+    ],
+    "remaining": [
+      "20261016g002280278: one native dash outside a table",
+      "20261016g002280379: one native dash before a unit"
+    ]
+  },
+  "changes": [
+    {
+      "page": "20260724g001650725",
+      "removed": {},
+      "added": {},
+      "before_sha256": "8cd6b6765a9342e014a52b02b148d05229d74e32088240083c451b74ad5a4be1",
+      "after_sha256": "4bf5251617faf26d818d4a45dd4bed86227a13c16052adc6b9ff6fe3de1fcd32",
+      "archive_path": "2026-07-24/20260724g00165/20260724g001650725.pdf",
+      "original_sha256": "3ac1edaf7045caf8cc498b5a6ce694628fe12717a248c0bf834bde7244a551be"
+    },
+    {
+      "page": "20260724g001660039",
+      "removed": {},
+      "added": {},
+      "before_sha256": "4ac26f238a205c8373783a37986b82e6dae40ba4081136ddca65e63081a54a5b",
+      "after_sha256": "c8b25d9432f43f6522499c6a9131332d3596a4ce281ab821e3fcd6018a89e330",
+      "archive_path": "2026-07-24/20260724g00166/20260724g001660039.pdf",
+      "original_sha256": "52bd521890c634bc519c08b17e310bc09c6341308bab2100ea0d56d1bfed7c0d"
+    },
+    {
+      "page": "20260727g001670029",
+      "removed": {},
+      "added": {},
+      "before_sha256": "85e0bc9bcce6a65bf1c490fb5ba5fca8ed1632bc2f1086e4e2232d5d73699f7b",
+      "after_sha256": "0507f53a8c92dd322a6eeae22243db5758c09e40f717f44f81a6b3c48861a7c3",
+      "archive_path": "2026-07-27/20260727g00167/20260727g001670029.pdf",
+      "original_sha256": "9fd63134e896d819dfebb4d8c2ff778c1a526b5faa1e83247e25ebbb5427ae14"
+    },
+    {
+      "page": "20260727g001670097",
+      "removed": {},
+      "added": {
+        "鄭": 1
+      },
+      "before_sha256": "cdead051ddfd72736b22cd754808636f8bceaefde2e61260efcfc6951ac5fc6d",
+      "after_sha256": "a70a7e65d997d507d701a596f7157889d19048b52a18181fb278efd7313e3a45",
+      "archive_path": "2026-07-27/20260727g00167/20260727g001670097.pdf",
+      "original_sha256": "a594e486707f79e211b219bc47a6dd8dfc91776edcf75f2a5e76665e873c9189"
+    },
+    {
+      "page": "20260806g001770060",
+      "removed": {},
+      "added": {},
+      "before_sha256": "614c264ec3ed4f8e0a36ef763832fc58fc1a311fa5996bb80557aea15aa9df66",
+      "after_sha256": "2c86bee5bbdb6c803292dd89f183c8803b124a728acedbf004c97b7b382305f9",
+      "archive_path": "2026-08-06/20260806g00177/20260806g001770060.pdf",
+      "original_sha256": "e13173596bdf1068b9f7134eef4094bb36e8b7b15735e7229f76edf6d1c073e2"
+    },
+    {
+      "page": "20260806g001770079",
+      "removed": {},
+      "added": {
+        "鄭": 1
+      },
+      "before_sha256": "4544e5461b3632b72fa50e8b23481cb3baf95bf5c14e7c70e951dca46bb37c54",
+      "after_sha256": "0445227169a4604415c222b1e7926210e882e2160a546ed11d013744a6edc0de",
+      "archive_path": "2026-08-06/20260806g00177/20260806g001770079.pdf",
+      "original_sha256": "81f9a87c7768f342640bd54db87df5d6df126e04ad05b4a4160cd635eba69733"
+    },
+    {
+      "page": "20260810g001790116",
+      "removed": {},
+      "added": {},
+      "before_sha256": "59be914247858728b6444c6c7d504fd0ae1c42b42ebf51ae0623c234118f0473",
+      "after_sha256": "dd74f64a8cda9806df43387914e4bc129174a6e0cda2913b824c9697dd0dbea6",
+      "archive_path": "2026-08-10/20260810g00179/20260810g001790116.pdf",
+      "original_sha256": "4b3ce62646b13fc01960d777a6e336320018784c2494c0066f606d0c3f0e3cc7"
+    },
+    {
+      "page": "20260810h017650004",
+      "removed": {},
+      "added": {},
+      "before_sha256": "ea6a4cf0627b6f3441111ebfef7de60082e324b757f0cd152ca41dd64bc04b07",
+      "after_sha256": "c6832806934d3f54e13e594b042b70a1a182a28c9eaaea0c176e6b9a5a56c87e",
+      "archive_path": "2026-08-10/20260810h01765/20260810h017650004.pdf",
+      "original_sha256": "3fe78f749e262d5c58ad654f5e3e4f250e601084095a604ac929187e2ccf8cd8"
+    },
+    {
+      "page": "20260821g001870087",
+      "removed": {},
+      "added": {},
+      "before_sha256": "f1c3b688b0658654e234008630954089ec4f8c263d44cb24b607fd6130e13379",
+      "after_sha256": "0e7e205a150ea4f8d7eed94019f8bf56faf8d4dabfd3632480c0b8de8af00e35",
+      "archive_path": "2026-08-21/20260821g00187/20260821g001870087.pdf",
+      "original_sha256": "b31ac42146ea93e31222076c0343ac6f86b1ce288224f4d39e9b56c77c77d08e"
+    },
+    {
+      "page": "20260824g001880112",
+      "removed": {},
+      "added": {
+        "鄭": 1
+      },
+      "before_sha256": "1e675e50d4d60a60dde220bba22e543b891f32b2088ab7deb561e176a3cf7f38",
+      "after_sha256": "cb714fd57fd671586cb172aeaf0c8f65986253f39487958eda82298439e2a245",
+      "archive_path": "2026-08-24/20260824g00188/20260824g001880112.pdf",
+      "original_sha256": "a9b9f4aa2ed6619a3625ef59d043cd7c314d1546fbace6d5450a82b39b69db1f"
+    },
+    {
+      "page": "20260831g001940073",
+      "removed": {},
+      "added": {},
+      "before_sha256": "538ff5ea8d436c841fdcad0f1be4e386a333870811303ab4fb3d45be8ed55b6c",
+      "after_sha256": "ec2dc169ccc88cfd657eb10c85228ce2879a1d6334e705d368ed626027d3851b",
+      "archive_path": "2026-08-31/20260831g00194/20260831g001940073.pdf",
+      "original_sha256": "4df3db32494117f31f08a4f095b0db68d27ee5ab9b5fdaad500a21410c0d9949"
+    },
+    {
+      "page": "20260831g001940076",
+      "removed": {},
+      "added": {},
+      "before_sha256": "ae549e6acf74c286aca039dd5c9b5bfaaa842095087cdfdfc505c8eaf00ce29c",
+      "after_sha256": "007dbc77d9683aee96de28996f996b5e983a91d4dd7749d4498c1b3668ad30c1",
+      "archive_path": "2026-08-31/20260831g00194/20260831g001940076.pdf",
+      "original_sha256": "dd00544ae36701ec9ed088986b1d7342fef2be23a8b56f1873473d71e0b41d90"
+    },
+    {
+      "page": "20260909h017860009",
+      "removed": {},
+      "added": {},
+      "before_sha256": "584b8567685310032e5f36c265bdabcdbd71ffb96d77747c40e2ff5a83a18591",
+      "after_sha256": "cda93e9e68c0eacdf1ab629b4def291d1caa09768023b9886d68eb7f47dd6ccc",
+      "archive_path": "2026-09-09/20260909h01786/20260909h017860009.pdf",
+      "original_sha256": "d321b907cff7608895ddbb8aa2ee4c3d17cdad2fff0adf17e22d4883ba77bd78"
+    },
+    {
+      "page": "20260930g002160047",
+      "removed": {},
+      "added": {},
+      "before_sha256": "5f1dc249b3841621fdbd8c585555aeb83beeab77a65b4edbe4bf314a5f1c22fb",
+      "after_sha256": "989643995f2439c683eb6d65f26076cb776173b1b84448e2ef2e155fb240bdc6",
+      "archive_path": "2026-09-30/20260930g00216/20260930g002160047.pdf",
+      "original_sha256": "fe0f9ac123edc0d2eb2eb6b6f942e6fc22566e28d343decb3f0d08437287b13c"
+    },
+    {
+      "page": "20261001g002170018",
+      "removed": {},
+      "added": {},
+      "before_sha256": "f3bce6d522a72c8c6e957c056a607ad900d69734193e4f168d8dae5b3ea2dc21",
+      "after_sha256": "e846d7539c4e87591d4d43d3a4ee3d6f5ad2c6c94fc6938926ee79b41b721a76",
+      "archive_path": "2026-10-01/20261001g00217/20261001g002170018.pdf",
+      "original_sha256": "c1baf8b7456af02cb68af823cb712ab833589a35b53171dd0739a10227031b81"
+    },
+    {
+      "page": "20261007g002210051",
+      "removed": {},
+      "added": {
+        "鄭": 1
+      },
+      "before_sha256": "970ab3d269e4e4109e1319c9f9d04594e10800c8a7d5537b3bb67ad653b3e3f8",
+      "after_sha256": "352b22c744ed15ddcff9cd456f362f14ed7267dcbf7c6c0481d48e3133262289",
+      "archive_path": "2026-10-07/20261007g00221/20261007g002210051.pdf",
+      "original_sha256": "0bdab40b7e9d956d5336fbfeb7b18825827a5483fc90e7d02418d5454dc77509"
+    },
+    {
+      "page": "20261008g002220091",
+      "removed": {},
+      "added": {
+        "鄭": 1
+      },
+      "before_sha256": "9df63251e2030f40584f134ff2f4e5a60a049c8b93182ee1cc17417b346e937d",
+      "after_sha256": "ce987311c7a69461b1ec050ee1cf1ab6e1526f35607a8363487791f89825036e",
+      "archive_path": "2026-10-08/20261008g00222/20261008g002220091.pdf",
+      "original_sha256": "d3a4a13754de92a9ab5ff3036bbb3eb423de6312b0f7807207e71702134e2469"
+    },
+    {
+      "page": "20261009h018050004",
+      "removed": {},
+      "added": {},
+      "before_sha256": "b87fa9ee79fcbee798522b542450b5c833d9c7ea691c19934f8262c58801a08f",
+      "after_sha256": "04ce7bd521ca1d87a75d9831b3175812ee867c29c8b541bdeee962cd05486438",
+      "archive_path": "2026-10-09/20261009h01805/20261009h018050004.pdf",
+      "original_sha256": "497ff12f49ba0e01a1127bc50839877ed51436273d2a2775c3aa4dededd25527"
+    },
+    {
+      "page": "20261015g002260139",
+      "removed": {},
+      "added": {
+        "鄭": 1
+      },
+      "before_sha256": "0fba52c79d2643098dd2d5156c340708f87ad36b46aed67005640bbf25dcfc3c",
+      "after_sha256": "294600b9fa161ea20a8a6e79527c07b3744bf3603ffe932bd64604cdb3377997",
+      "archive_path": "2026-10-15/20261015g00226/20261015g002260139.pdf",
+      "original_sha256": "dbde9f29efcf4b407987e8c3ac2096c7d4bcd329c019f1948138f826d3f32fd2"
+    },
+    {
+      "page": "20261015h018080002",
+      "removed": {},
+      "added": {},
+      "before_sha256": "08cc326ee607b9453876fc010024e6d6c20a0d4546f47abbce62120c2495f298",
+      "after_sha256": "8a6d5d63c199f5860b23f2cd8010bd9167e245b4c3e0710601134e6d6352afdb",
+      "archive_path": "2026-10-15/20261015h01808/20261015h018080002.pdf",
+      "original_sha256": "de7f01471912c754aa0af20a3830cb264b43fb18cf8542f8dc5526c2ecec8585"
+    }
+  ],
+  "source_sha256": {
+    "crates/kanpo-parser/src/format.rs": "11a24e7e6f7291f8d26234a92a6814c853580a3edc56a3c2c32b3c2dff56566c",
+    "crates/kanpo-parser/src/table_dashes.rs": "152adbb43ae73b85b5941214d26a93b5e2b0ae5f02be3ae4b94eb7c646321d2a",
+    "crates/kanpo-parser/src/normalize.rs": "6f6def84bc727b943e4d62fa0b3e0c5eed8fa85b2256b0f1d1827d1aa7a2721f",
+    "crates/kanpo-parser/src/horizontal.rs": "c4847d9448bbef581363e00472d4e9768fa8ab7b73c1346aed97307c3262e3cc",
+    "crates/kanpo-parser/src/lib.rs": "a7d284ad168eb69017d2ce7372a985f9e654d066b48788fc1958dfc789768423",
+    "crates/kanpo-parser/src/vertical.rs": "4e8613e670defa23948b65a1bbffda34d4450cbf00e1fa1bc66406eb60e74c3e",
+    "crates/kanpo-parser/src/quantity_tables.rs": "ffb65b9a00c7b0c2781ed076bdd060b687bc052814289b548ba96011605adfb5",
+    "crates/kanpo-parser/src/trace.rs": "725c767b3fe3609b17f84aea3b290f637fa341684e243aae07394441116dee15",
+    "crates/kanpo-parser/src/grid.rs": "657cb3c5ffba6ad10e4bef35809b4b4d7a52abe9b1e5884ca7c6fb7adaa966e8",
+    "crates/kanpo-parser/src/segment.rs": "05aef0a20c3f1793883d8fc8152d12261f2b5f5336a3864756d080727fb262e7",
+    "crates/kanpo-parser/src/table.rs": "f1accd264feb5d36886dce6be606e7e6fd6f143ecab8655514e0ba76777b4a94",
+    "crates/kanpo-parser/src/fractions.rs": "7f9fb956774b4993ecb509edfaebf35dcfe0e43d188de180971fd4c45a88680a",
+    "crates/kanpo-parser/src/shared_table_labels.rs": "841d89aa1281f33038b4fff1966fc53b9650876e70392888e75c9904fed481b1",
+    "crates/kanpo-parser/src/shinkyu.rs": "70a997671fd799cb72e8dadf4053b0654d5544dc074b87bb4736050ef2eb2940",
+    "crates/kanpo-parser/src/model.rs": "34ff7218594c9f98a8b607fb38c062cfedd9242295e0045d87909bdfbfb66474",
+    "crates/kanpo-parser/src/lines.rs": "c277b260081e9b35c53964098c3b39ac2cbccf054bbaf8cb083898a5f862853c",
+    "crates/kanpo-pdf/src/bbox.rs": "3488a8c9425562ba8161fafdc7f4c84fadb7770b097b1f07de8d119fc28621b2"
+  },
+  "tests": {
+    "status": "passed",
+    "command": "INSTA_UPDATE=no CI=true cargo test -p kanpo-parser -p kanpo-pdf -p kanpo-parser-wasm -p kanpo-lm --locked",
+    "passed": 319,
+    "failed": 0,
+    "archive_pdf_fixtures": 404,
+    "corpus_and_input_word_order": "passed",
+    "log": ".cache/kanpo-227/test-batch3-final-pass4.log"
+  },
+  "remaining_candidates": [
+    "20261009h018050004: quote-only fix improves the middle but multiple-line quotation remains major",
+    "20260730g001710024: preamble split around a rotated numeral; cache proposal ready",
+    "20261016g002280051 /157 /312 /486: delayed signature; cache proposal ready",
+    "Plain financial bars: five pages/six glyphs cache proposal ready",
+    "Leading all-dash rows in numeric continuation tables:193 glyphs/six pages under original review",
+    "Other long wrapped account labels in177p60/179p116/216p47 remain split",
+    "Independent audit115 prepared:30 original pages selected/rendered, in progress; initial major record/column issues identified"
+  ],
+  "full_accuracy": "Not achieved or claimed. Initial audit and repair rechecks are separate; outlined bodies without text layer are outside reading-order scope."
+}

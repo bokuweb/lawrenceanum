@@ -1,0 +1,614 @@
+{
+  "stage": "third_integrated_batch",
+  "outputs": "after20",
+  "changed_pages": 20,
+  "review_scope": "All20 change locations inspected in source originals:14 complete page contexts plus six isolated surname glyph crops. Newly exposed existing defects are recorded; no new reading-order regression found.",
+  "repeated_key_columns": {
+    "patch": ".cache/kanpo-227/repeated-key-column.patch",
+    "cause": "Runtime keyed_tables has TA0006 cluster of18 records, no rule/key/flow fence. right discovery stops on gap>=5em: body x589..629 to company x685 gap56pt (6.84em), or body ditto x589..597 to company ditto x685 gap88pt (10.75em). right629 excludes company/address and17ditto words.",
+    "guards": [
+      "Only cluster>=3 and >=3 independent digitless header columns. Newly accepted geometric_two tables retain exact previous code path.",
+      "Keep existing5em boundary except gap<12em and a matching digitless header in the candidate column <=2em above first row.",
+      "Each record must have a same-x (2pt)/same-height (20%)/same-y aligned word at that column: first actual nonempty value, later every record has exactly the ditto mark.",
+      "A real fence remains authoritative; ordinary later actual values, missing marks, mismatched fonts, large distances, missing headers and two-record tables cannot use the exception."
+    ],
+    "unit_tests": {
+      "file": ".cache/kanpo-227/repeated_key_column_tests.rs",
+      "result": "11 targeted unit tests passed (1 positive,10 negatives); final all57 horizontal unit tests passed, including paired-ditto and narrow-two-record tests."
+    },
+    "visual_validation": [
+      {
+        "page": "20261015h018080002",
+        "verdict": "improvement",
+        "table_rows": 19,
+        "table_cols": 4,
+        "table_ids": 99,
+        "table_unique_ids": 99,
+        "page_used_ids": 267,
+        "page_rendered_ids": 267,
+        "missing_ids": [],
+        "duplicate_ids": []
+      },
+      {
+        "page": "20260810h017650004",
+        "verdict": "improvement",
+        "table_rows": 4,
+        "table_cols": 5,
+        "table_ids": 23,
+        "table_unique_ids": 23,
+        "page_used_ids": 451,
+        "page_rendered_ids": 451,
+        "missing_ids": [],
+        "duplicate_ids": []
+      }
+    ],
+    "probes": [
+      {
+        "page": "20260716h017490002",
+        "changed": false
+      },
+      {
+        "page": "20260721g001610057",
+        "changed": false
+      },
+      {
+        "page": "20260724h017540006",
+        "changed": false
+      },
+      {
+        "page": "20260807h017640003",
+        "changed": false
+      },
+      {
+        "page": "20260810h017650003",
+        "changed": false
+      },
+      {
+        "page": "20260810h017650004",
+        "changed": true
+      },
+      {
+        "page": "20260812h017660004",
+        "changed": false
+      },
+      {
+        "page": "20260916g002070069",
+        "changed": false
+      },
+      {
+        "page": "20260918g002090109",
+        "changed": false
+      },
+      {
+        "page": "20260918g002090110",
+        "changed": false
+      },
+      {
+        "page": "20261005h018010003",
+        "changed": false
+      },
+      {
+        "page": "20261008h018040004",
+        "changed": false
+      },
+      {
+        "page": "20261015h018080001",
+        "changed": false
+      },
+      {
+        "page": "20261015h018080002",
+        "changed": true
+      },
+      {
+        "page": "20261015h018080003",
+        "changed": false
+      },
+      {
+        "page": "20261016h018090001",
+        "changed": false
+      },
+      {
+        "page": "20261016h018090002",
+        "changed": false
+      }
+    ],
+    "evidence": [
+      "1808p2 original right upper table: TA0006-1 to18 all have a company/name/address column. Result 19x4 retains first company+address and subsequent17ditto in corresponding rows. Notice1222 text/date/signer ahead, notice1223 and its two-record TA0007 table remain outside/unchanged. Left TA0005 continuation remains unchanged.",
+      "1765p4 original left-middle notice1040: three rows4972/4997/4998 have model06002F/04003F/05003F, manufacturer Suzuki and crankshaft material change. Result4x5 restores company/change cell text and ditto pairs. Notice1039 F838/F839 table and1041/1042/1043/1044, ship lists stay unchanged. This is separate from the earlier two-record regression on this PDF."
+    ],
+    "status": "17 targeted real PDFs: 2 improvements,15 unchanged versus after15 (strip); parent whole11992comparison still required.",
+    "copyable_tests": {
+      "root": ".cache/kanpo-227/repeated-key-column/repo-files",
+      "instructions": "README-integration.md",
+      "unit": "src/repeated_key_column_tests.rs",
+      "integration": "tests/repeated_key_column_fixtures.rs",
+      "integration_result": "3 real-PDF tests passed in cache parser",
+      "pdfs": [
+        "tests/archive/pages/20261015h01808/20261015h018080002.pdf",
+        "tests/archive/pages/20260810h01765/20260810h017650004.pdf"
+      ]
+    },
+    "known_remaining_candidates": [
+      {
+        "page": "20261015h018080002",
+        "grade": "major",
+        "symptom": "TA0006会社住所欄18件分の別出し",
+        "status": "after15で確認、今回cache修正済、root次batch待ち"
+      },
+      {
+        "page": "20260810h017650004",
+        "grade": "major",
+        "symptom": "告示1040の3件型式表の会社・変更内容の別出し",
+        "status": "after15で確認、今回cache修正済、root次batch待ち"
+      },
+      {
+        "page": "20261016g002280540",
+        "grade": "major",
+        "symptom": "無罫線損益計算書で科目と多数の金額列が別出し",
+        "status": "audit113の既知指摘、after15全文にも残存を確認。after16/root金融修正の結果を待つ",
+        "source": "audit113-part3.json"
+      },
+      {
+        "page": "20261016g002280051",
+        "grade": "minor",
+        "symptom": "日付44行→表題45–46行→法人/学長署名47–49行の割込み",
+        "status": "audit111の既知指摘、after15全文にも残存。after16で要再判定",
+        "source": "audit111-part2.json"
+      },
+      {
+        "page": "20260909h017860009",
+        "grade": "minor",
+        "symptom": "官庁事項/関東地方整備局公示の後に上位見出し官庁報告が出る",
+        "status": "audit113の既知指摘、after15の83–85行にも残存。after16で要再判定",
+        "source": "audit113-part3.json"
+      },
+      {
+        "page": "20260925g002120051",
+        "grade": "minor",
+        "symptom": "1年以内償還予定機構債/1年以内返済予定長期借入金の科目折返しを金額が分断",
+        "status": "audit113の既知指摘、after15の57/60行にも残存。after16で要再判定",
+        "source": "audit113-part3.json"
+      },
+      {
+        "page": "20260831g001930166",
+        "grade": "minor",
+        "symptom": "織布型1㎠当たり48円の㎠字形欠損",
+        "status": "audit113の既知指摘、after15の１当たり48円にも残存。root単位正規化のafter16結果を待つ",
+        "source": "audit113-part3.json"
+      },
+      {
+        "pages": [
+          "20261016g002280370",
+          "20261001g002170155",
+          "20261016g002280678",
+          "20261016g002280516"
+        ],
+        "grade": "minor",
+        "symptom": "原本PUA横棒の局所欠損",
+        "status": "audit113既知指摘。個々のafter16再検証は未実施、金融担当/root結果を待つ",
+        "sources": [
+          "audit113-part1.json",
+          "audit113-part2.json"
+        ]
+      }
+    ],
+    "previous_major_status": [
+      {
+        "pages": [
+          "20260909g002010004",
+          "20261014g002250002"
+        ],
+        "resolution": "Plain/表内分数復元をroot統合済、今回修正の未対応候補には数えない"
+      },
+      {
+        "pages": [
+          "20260825g001890097",
+          "20260722h017520029",
+          "20260724h017540006",
+          "20260901g001950029",
+          "20261009g002230089"
+        ],
+        "resolution": "既存提案をroot統合済、今回未対応候補には数えない"
+      },
+      {
+        "page": "20260831h017790010",
+        "resolution": "map patch root after16全件検証中、追加source変更しない"
+      }
+    ],
+    "extraction_limitations": {
+      "note": "読み順okと100%本文抽出は別。本文文字層のないページは読み順分母から除外したが、全文抽出目標には未解決として残る。",
+      "examples": [
+        "20261016h018090019",
+        "20260724g001650466",
+        "20260724g001650051",
+        "20260805g001760076",
+        "20260831h017790010の相続公告本文"
+      ]
+    },
+    "freeze": "Parent requested no further source changes while after16 runs. Cache proposal/test bundle is ready; waiting."
+  },
+  "raised_section_label": {
+    "page": "20260909h017860009",
+    "before": "官庁事項→関東地方整備局公示→官庁報告→本文",
+    "after": "官庁報告→官庁事項→関東地方整備局公示→本文",
+    "production_scope": "adjacent units only; recognized section labels, larger vertical font, right-adjacent within 3 em, vertical overlap >=1 em; crosses only up to 2 short nearby punctuation-free title lines",
+    "geometry_positive_cases": 3,
+    "geometry_negative_cases": 8,
+    "existing_circle_heading_rule_preserved": true,
+    "real_pdf_integration_test": "PASS",
+    "only_one_section_line_moved": true,
+    "character_multiset_preserved": true,
+    "duplicate_word_ids": 0,
+    "text_candidates": 6,
+    "other_candidates_unchanged": 5,
+    "full_corpus_comparison": "root to run after integration"
+  },
+  "url_continuation": {
+    "page": "20260821g001870087",
+    "cause": "previous URL path ends in U+0332, excluded from existing slash/dot/hyphen/underscore continuation delimiter guard",
+    "fix": "allow U+0332 only when previous Latin word contains slash/dot/at; retain existing adjacent-column, same-start-height, existing-prior-text and fresh-http/www exclusions",
+    "production_diff_lines": 4,
+    "candidate_scope": "all 34 pages whose after12 text contains U+0332",
+    "changed_pages": [
+      "20260821g001870087"
+    ],
+    "unchanged_pages": 33,
+    "character_multiset_preserved": true,
+    "duplicate_word_ids": 0,
+    "geometry_positive_cases": 3,
+    "geometry_negative_cases": 5,
+    "real_pdf_test": "PASS",
+    "shared_sources_edited": false
+  },
+  "native_ledger": {
+    "page": "20260724g001660039",
+    "diagnosis": "sideways 経路の native 横組み BS が物理行で組まれ、先頭科目升目内の３行が連結した。下の文字層なしの囲みにつながる罫線で x=241 の不要な境界も付加されていた。",
+    "proposal": "unturn_tables 直後の既存表だけを検査。第１列の３行以上の横組み科目、２列以上の数値、科目末尾を確認し、非空升目の原座標範囲で原罫を clip して既存 grid_table(item_cols=1) へ渡す。語 ID 一致と全金額列の内容を検証してから表だけ置換。",
+    "find_grids_bounds": {
+      "chosen": "width=t.x1+2, height=bottom+2",
+      "reason": "find_grids の width/height は線のクリップ専用（grid.rs:72..86）。ページ端へ新しい罫線を足す機能ではない。build_grid の外枠補完は残った横罫の x 端点・縦罫の y 端点から行う。",
+      "margin": "事前 clip は v.x<=t.x1+1、h.y<=bottom+1 の境界許容を残すため、幅高側でそれを再び切らないよう +2pt とする。水平線の x1<=t.x1、垂直線の y1<=bottom は事前に制限済み。",
+      "equivalence_to_full_run": "全件 runner は幅高とも max(t.x1,bottom)+2 で実行した。事前 clip 後の全縦線は x<=t.x1+1 かつ y1<=bottom、全横線は y<=bottom+1 かつ x1<=t.x1。したがって旧値・新値のどちらでも全く同じ線を find_grids へ残し、全候補で計算結果は等しい。新値に変更後の実PDF・空金額実PDF probe・unit６本も再実行 PASS。",
+      "no_artificial_closure": "原罫の線分のみで格子を作り、表外周を新しい線で閉鎖しない。"
+    },
+    "full_corpus": {
+      "pages": 11992,
+      "changed_pages": [
+        "20260724g001660039"
+      ],
+      "changed_count": 1,
+      "invariants": [
+        "既存 word ID 集合保存",
+        "word ID 重複なし",
+        "非空白文字 multiset 保存"
+      ]
+    },
+    "tests": {
+      "unit_passed": 6,
+      "unit_cases": [
+        "科目３行の分離・ID 保存・冪等",
+        "金額が全空の中間科目も独立行",
+        "通常の住所等の独立段を維持",
+        "縦向き本文を除外",
+        "金額欄内の文章を除外",
+        "物理縦境界なしを除外"
+      ],
+      "real_pdf": "原本の５行４列の科目/数値対応と右７件の解散公告保存を確認。独立integration fixture ２本を同梱。",
+      "empty_amount_probe": "実PDF XHTML から特定資産への充当額の３金額だけを除去し、科目単独行の維持と次行 subtotal を確認 PASS。",
+      "patch_check": "git apply --check PASS"
+    },
+    "limits": "native 横組みかつ科目と金額だけの既存表に限定。下の教育免許・死亡・無縁墳墓等は原本本文がアウトラインであり、211 source words に本文がないため対象外。共有ソースは未編集。"
+  },
+  "grid_label_extra_impacts": [
+    {
+      "page": "20260806g001770060",
+      "verdict": "improvement",
+      "regression": false,
+      "changed_cells": [
+        {
+          "location": "原本右上、保険特別勘定 財産目録の負債側",
+          "after_lines": [
+            42,
+            43
+          ],
+          "before": "外国再保険／借 と 賠償責任保険／等 が別の論理行へ落ち、106,908,745が不完全な科目・摘要の行に付いていた。",
+          "after": "外国再保険借／賠償責任保険等／106,908,745 が同じ行へ結合。次のその他資産583,662へ借・等が混入しなくなる。"
+        },
+        {
+          "location": "同じ財産目録の特別法上の準備金",
+          "after_lines": [
+            45,
+            46
+          ],
+          "before": "特別法上の準／備金 の折返しが再保険貸192,730の行まで分離。",
+          "after": "特別法上の準備金／12,858,360 が一行になり、再保険貸192,730の資産側はそのまま。"
+        }
+      ],
+      "full_page_check": "左上の一般勘定貸借対照表継続・会計方針→左中央一般勘定PL→左下から右上の財産目録→右中央BS→右下PLの順を原本と全文照合。左右の科目・摘要・金額、特にその他負債117,084,849、再保険借235,787、未払金9,940,317、価格変動準備金12,858,360、負債計6,870,616,405を確認。変更以外は無差分。",
+      "residual_existing": "財産目録の左側「その他の有／形固定資産」はL41/42に分離したまま。原本は1,553,218に対応する同一科目。今回の変更前から同じ。",
+      "before": ".cache/kanpo-227/after18/20260806g001770060.txt",
+      "after": ".cache/kanpo-227/after20/20260806g001770060.txt",
+      "original_image_read": true,
+      "all_before_after_output_read": true,
+      "image": ".cache/kanpo-227/grid-label-wrap-prototype/full-impact-images/20260806g001770060.png",
+      "pdf": ".cache/kanpo-archive/2026-08-06/20260806g00177/20260806g001770060.pdf",
+      "nonspace_character_multiset_preserved": true,
+      "all_numeric_tokens_in_same_order": true,
+      "line_count": {
+        "before": 79,
+        "after": 79
+      }
+    },
+    {
+      "page": "20260810g001790116",
+      "verdict": "improvement",
+      "regression": false,
+      "changed_cells": [
+        {
+          "location": "原本左半分、貸借対照表の固定負債・資産見返負債の内訳",
+          "after_lines": [
+            22,
+            23
+          ],
+          "before": "L22 資産見返物品受贈額237、L23（注）と分離し、左側の減価償却累計額の行に（注）が残った。",
+          "after": "資産見返物品受贈額（注）／237 と同じ科目に復帰。左側の構築物4,036,839,097、減価償却累計額△3,284,189,339はそのまま。"
+        }
+      ],
+      "full_page_check": "左上から右上へ継続するBSと右下の行政コスト計算書を全文照合。対象の上下の資産見返補助金等5,970,389、建設仮勘定見返運営費交付金15,957,600、建設仮勘定見返施設費287,430,000を含め額が保持され、注記を他科目へ接合していない。BS総額46,200,881,521、行政コスト27,022,683,602を確認。",
+      "residual_existing": "右上の利息費用相当累計額の（△）（注）、除売却差額相当累計額（△）（注）はL46/47、L48/49等の折返しが残る。今回無差分で、注記（注）の今回の移動と区別。",
+      "before": ".cache/kanpo-227/after18/20260810g001790116.txt",
+      "after": ".cache/kanpo-227/after20/20260810g001790116.txt",
+      "original_image_read": true,
+      "all_before_after_output_read": true,
+      "image": ".cache/kanpo-227/grid-label-wrap-prototype/full-impact-images/20260810g001790116.png",
+      "pdf": ".cache/kanpo-archive/2026-08-10/20260810g00179/20260810g001790116.pdf",
+      "nonspace_character_multiset_preserved": true,
+      "all_numeric_tokens_in_same_order": true,
+      "line_count": {
+        "before": 79,
+        "after": 79
+      }
+    },
+    {
+      "page": "20260831g001940073",
+      "verdict": "improvement",
+      "regression": false,
+      "changed_cells": [
+        {
+          "location": "原本右下、後期高齢者医療特別会計・事業費勘定の貸借対照表、資産第3項",
+          "after_lines": [
+            72,
+            73
+          ],
+          "before": "未収後期高齢者関係事務費拠出／金 がL72/73に分離。L72の29,665は不完全な科目名に付いていた。",
+          "after": "３ 未収後期高齢者関係事務費拠出金／29,665 と同じ科目へ復帰。右欄の流動負債合計658,515,077、次の負債合計658,515,077は維持。"
+        }
+      ],
+      "full_page_check": "左上PL→左下から右上へ継続する財産目録→負債部→右下BSを全文照合。財産目録の同名科目29,665と内訳5団体（12,749/7,871/34/924/8,087）、資産計838,575,878、未払後期高齢者交付金637,931,804、その他未払金20,583,273との対応を確認。PL費用・収入・利益、財産目録の横棒と△28,787も維持。",
+      "residual_existing": "変更対象の第3項は科目名・金額の対応まで復帰。ページ内に今回新たな残存問題は発生していない。",
+      "before": ".cache/kanpo-227/after18/20260831g001940073.txt",
+      "after": ".cache/kanpo-227/after20/20260831g001940073.txt",
+      "original_image_read": true,
+      "all_before_after_output_read": true,
+      "image": ".cache/kanpo-227/grid-label-wrap-prototype/full-impact-images/20260831g001940073.png",
+      "pdf": ".cache/kanpo-archive/2026-08-31/20260831g00194/20260831g001940073.pdf",
+      "nonspace_character_multiset_preserved": true,
+      "all_numeric_tokens_in_same_order": true,
+      "line_count": {
+        "before": 73,
+        "after": 73
+      }
+    },
+    {
+      "page": "20260930g002160047",
+      "verdict": "improvement",
+      "regression": false,
+      "changed_cells": [
+        {
+          "location": "原本左上、法人単位PLの経常収益内訳・石綿健康被害救済基金預り金取崩益の次の項",
+          "after_lines": [
+            13,
+            14
+          ],
+          "before": "石綿健康被害救済事業／4,290,230,292 の後に交付金収益（注）が次の費用側の行へ分離。",
+          "after": "石綿健康被害救済事業交付金収益（注）／4,290,230,292 と同じ収益科目に結合。左のポリ塩化ビフェニル廃棄物処理基金業務費2,301,365,430はそのまま。"
+        }
+      ],
+      "full_page_check": "左上PLが右上の財務収益以下へ続き、右下の勘定別利益処分表へ至る順を全文照合。直前の基金預り金取崩益4,708,099,672、対象4,290,230,292、直後の拠出金収益417,869,380は別科目として維持。経常収益49,012,571,142、費用48,983,020,482、当期総利益613,002,187、勘定別6列の4行を確認。",
+      "residual_existing": "費用側の環境保全研究・技術開発／業務費と、収益側のポリ塩化ビフェニル廃棄／物処理基金預り金取崩益／（注）は折返しが残存（L10/11、L17..19）。元から同じで今回の結合による誤りではない。",
+      "before": ".cache/kanpo-227/after18/20260930g002160047.txt",
+      "after": ".cache/kanpo-227/after20/20260930g002160047.txt",
+      "original_image_read": true,
+      "all_before_after_output_read": true,
+      "image": ".cache/kanpo-227/grid-label-wrap-prototype/full-impact-images/20260930g002160047.png",
+      "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00216/20260930g002160047.pdf",
+      "nonspace_character_multiset_preserved": true,
+      "all_numeric_tokens_in_same_order": true,
+      "line_count": {
+        "before": 67,
+        "after": 67
+      }
+    }
+  ],
+  "audit114_major_recheck": [
+    {
+      "page": "20260724g001660039",
+      "initial_grade": "major",
+      "initial_output": "after17",
+      "recheck_grade": "ok",
+      "rechecked_output": "after19",
+      "image": ".cache/kanpo-227/audit114/20260724g001660039.png",
+      "trace_json": ".cache/kanpo-227/20260724g001660039-after19.json",
+      "whole_text": {
+        "before_lines": 81,
+        "after_lines": 83,
+        "non_whitespace_character_multiset_preserved": true,
+        "current_source_json_text_matches_after19": true,
+        "following_notice_text_exactly_preserved": true
+      },
+      "word_id_check": {
+        "total_source_words": 211,
+        "used_words": 197,
+        "rendered_word_ids": 197,
+        "unique_rendered_ids": 197,
+        "missing_used_ids": [],
+        "duplicate_ids": []
+      },
+      "table_check": {
+        "original_logical_rows": 5,
+        "after19_lines": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "columns": "科目・当期・前期・増減の4欄（原本継続表の列所属）",
+        "rows": [
+          [
+            "２．一般正味財産",
+            "9,733,153,074",
+            "9,346,891,666",
+            "386,261,408"
+          ],
+          [
+            "（うち基本財産への充当額）",
+            "(4,293,035,920)",
+            "(4,293,035,920)",
+            "(0)"
+          ],
+          [
+            "（うち特定資産への充当額）",
+            "(3,672,380,214)",
+            "(3,423,686,524)",
+            "(248,693,690)"
+          ],
+          [
+            "正味財産合計",
+            "9,733,153,074",
+            "9,346,891,666",
+            "386,261,408"
+          ],
+          [
+            "負債及び正味財産合計",
+            "10,279,866,987",
+            "9,876,014,881",
+            "403,852,106"
+          ]
+        ],
+        "result": "原本上部表5行×4欄を全て照合。括弧内数値を含め全15金額が各科目と同じ行・正しい列に戻った。"
+      },
+      "notes": "原本右側の解散7件を全文照合。トレジャー・イン・マインド、LAUGHPRODUCT、REXVAIL、美幌みどりの村振興公社、美水庵、ヒラノ、かしま楽園倶楽部の本文・決議日・公告日・住所・清算人は各公告内に所属。表5行の後に会社その他→解散公告が続き、表の金額が公告へ混ざらない。",
+      "exclusions": "原本左下〜中央の教育職員免許状失効、行旅死亡人、無縁墳墓改葬、押収物還付公告は元211語に本文語がなく、初回同様アウトライン等の文字層無し本文として読み順再採点から除外。今回okはそれらを含む全文抽出100%を意味しない。"
+    },
+    {
+      "page": "20260727g001670029",
+      "initial_grade": "major",
+      "initial_output": "after17",
+      "recheck_grade": "ok",
+      "rechecked_output": "after19",
+      "image": ".cache/kanpo-227/audit114/20260727g001670029.png",
+      "trace_json": ".cache/kanpo-227/20260727g001670029-after19.json",
+      "whole_text": {
+        "before_lines": 94,
+        "after_lines": 87,
+        "non_whitespace_character_multiset_preserved": true,
+        "current_source_json_text_matches_after19": true,
+        "left_column_40_lines_exactly_preserved": true,
+        "right_column_40_lines_exactly_preserved": true
+      },
+      "word_id_check": {
+        "total_source_words": 251,
+        "used_words": 200,
+        "rendered_word_ids": 200,
+        "unique_rendered_ids": 200,
+        "missing_used_ids": [],
+        "duplicate_ids": []
+      },
+      "quotation_check": {
+        "count": 7,
+        "after19_lines": [
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87
+        ],
+        "all_exact_sentences_match_original": true,
+        "instructions": [
+          "別表第１中「全角文字コード表」の次に「（第２及び第４関係）」を加える。",
+          "別表第２中「第１及び第３関係」を「第２及び第４関係」に改める。",
+          "別表第３中「第１関係」を「第２関係」に改める。",
+          "別表第８中「第３関係」を「第４関係」に改め、同表を別表第９とする。",
+          "別表第７中「第３関係」を「第４関係」に改め、同表を別表第８とする。",
+          "別表第６中「第３関係」を「第４関係」に改め、同表を別表第７とする。",
+          "別表第５中「抹消登録）」の次に「（第２関係）」を加え、同表を別表第６とする。"
+        ],
+        "order": "原本左改正後40行→右改正前40行→表外下部7本。元の下部14行は7つの完全な引用付き命令へ戻り、改正前の途中に入らない。",
+        "source_spelling_note": "最終行の引用「抹消登録）」は元の字形/文字列どおり保持。"
+      },
+      "notes": "原本上部の2欄全文と下部7本を独立に照合。別表1の全角文字コード表＋（第2及び第4関係）、別表2/3の旧新関係、別表8/7/6の関係と繰下げ番号、別表5の追加文言と繰下げがそれぞれ開閉引用の内側に所属。空引用・引用内容の別行・本文と表外の混線は解消。"
+    }
+  ],
+  "outline_scope_evidence": {
+    "20260820g001860113_missing_surname_character": {
+      "glyphs_in_missing_8pt_slot": 0,
+      "painted_paths_inside_slot": 304,
+      "reason": "The omitted first surname glyph is painted as paths rather than a Glyph text object. Neighbor glyphs 池/攻 are regular Japan1 text. This is outside reading-order extraction.",
+      "glyph_objects_in_slot": [],
+      "painted_path_bounds_extent": [
+        499.366,
+        461.077,
+        506.87699999999995,
+        468.508
+      ],
+      "slot_bbox": [
+        499,
+        461,
+        507,
+        470
+      ]
+    },
+    "20260724g001660039_native_body_region": {
+      "glyph_count_in_body_sample": 0,
+      "page_rotate": 270,
+      "note": "Sample region chosen inside the native education-notice body, outside the ledger and rotated dissolution notices."
+    }
+  },
+  "private_surname": {
+    "raw": "U+E469",
+    "normalized": "鄭",
+    "occurrences": 6,
+    "original_crop_atlas": ".cache/kanpo-227/E469-all-source-crops.png",
+    "pages": [
+      "20260727g001670097",
+      "20260806g001770079",
+      "20260824g001880112",
+      "20261007g002210051",
+      "20261008g002220091",
+      "20261015g002260139"
+    ],
+    "finding": "All six original glyph shapes checked; one private source character restored per page, no other text change."
+  },
+  "shared_brace_label": {
+    "page": "20260724g001650725",
+    "raw_brace_parts": [
+      "U+E7A4",
+      "U+EB2E",
+      "U+E7A5"
+    ],
+    "rows": "Only two shared10種地 headings move before their a/b numeric pairs. Both brace shapes and value ownership checked against original.",
+    "negative_cases": 11,
+    "character_multiset_and_word_ids": "unchanged"
+  },
+  "rejected_native_broad_candidate": {
+    "outputs": "after19",
+    "changed_from_after18": 107,
+    "reason": "Non-quote native coordinates were too broad and regressed some financial tables/signatures. Replaced with two-sided quote geometry; all non-quote native corrections disabled in after20.",
+    "evidence": ".cache/kanpo-227/rejected-native-broad.json"
+  },
+  "quote_only": "See issue227-native-quote-reviews.json; three quote pages checked, two complete fixes, one partial improvement with existing major retained.",
+  "prototype_records": "Nested proposal reports describe their cache validation before integration; the root after20 validation supersedes pending full-corpus fields."
+}

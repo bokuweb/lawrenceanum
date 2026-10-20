@@ -42,6 +42,7 @@ pub mod segment;
 pub mod shinkyu;
 pub mod table;
 mod table_dashes;
+mod shared_table_labels;
 mod quantity_tables;
 mod fractions;
 pub mod trace;

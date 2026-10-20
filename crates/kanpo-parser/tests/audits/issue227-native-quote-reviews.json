@@ -1,0 +1,591 @@
+{
+  "patch": ".cache/kanpo-227/mixed-native-quote-only.patch",
+  "scope": "Broad after19 -> quote-only guard; compatible Poppler attributes unchanged, WMode0 explicitly proves Hfont.",
+  "tests": {
+    "parser_unit": {
+      "passed": 195,
+      "failed": 0
+    },
+    "pdf_unit": {
+      "passed": 16,
+      "failed": 0
+    },
+    "real_pdf_integration": {
+      "passed": 3,
+      "failed": 0
+    }
+  },
+  "probe": {
+    "pages": 121,
+    "errors": [],
+    "all_14_neighbors_same_after18": true,
+    "narrow_changed_from_after18": [
+      "20260724g001660039",
+      "20260727g001670029",
+      "20260806g001770060",
+      "20260810g001790116",
+      "20260831g001940073",
+      "20260831g001940076",
+      "20260930g002160047",
+      "20261001g002170018",
+      "20261009h018050004"
+    ],
+    "metadata_only_changed_from_after18": [
+      "20260724g001660039",
+      "20260806g001770060",
+      "20260810g001790116",
+      "20260831g001940073",
+      "20260831g001940076",
+      "20260930g002160047"
+    ],
+    "note": "Metadata-only disables native application while retaining all XHTML attributes. Six remaining changes come from independently integrated ledger1/grid5. Parent whole11992 confirms only nine total changed pages; this agent did not independently rescore whole11992."
+  },
+  "quote_pages": [
+    {
+      "page": "20260727g001670029",
+      "comparison": "native disabled, all metadata retained",
+      "source_words": 251,
+      "used_words": 200,
+      "rendered_word_references": 200,
+      "duplicate_ids": [],
+      "all_used_ids_rendered_once": true,
+      "used_id_set_unchanged": true,
+      "source_raw_texts_and_ids_unchanged": true,
+      "non_whitespace_character_multiset_unchanged": true,
+      "moved_words": [
+        {
+          "id": 112,
+          "raw": "︶﹂を加える︒",
+          "legacy": [
+            276.8399,
+            478.4999,
+            324.8399,
+            486.4999
+          ],
+          "native": [
+            284.8399,
+            482.4999,
+            332.8399,
+            490.4999
+          ]
+        },
+        {
+          "id": 115,
+          "raw": "﹂に改める︒",
+          "legacy": [
+            260.8398,
+            488.2499,
+            308.8398,
+            496.2499
+          ],
+          "native": [
+            268.8398,
+            492.2499,
+            316.8398,
+            500.2499
+          ]
+        },
+        {
+          "id": 124,
+          "raw": "︶﹂を加え︑同表を別表第６とする︒",
+          "legacy": [
+            212.8398,
+            536.9999,
+            340.8398,
+            544.9999
+          ],
+          "native": [
+            220.8398,
+            540.9999,
+            348.8398,
+            548.9999
+          ]
+        },
+        {
+          "id": 126,
+          "raw": "﹂に改める︒",
+          "legacy": [
+            196.8399,
+            497.9999,
+            244.8399,
+            505.9999
+          ],
+          "native": [
+            204.8399,
+            501.9999,
+            252.8399,
+            509.9999
+          ]
+        },
+        {
+          "id": 127,
+          "raw": "﹂に改め︑同表を別表第９とする︒",
+          "legacy": [
+            196.8399,
+            507.7499,
+            324.8399,
+            515.7499
+          ],
+          "native": [
+            204.8399,
+            511.7499,
+            332.8399,
+            519.7499
+          ]
+        },
+        {
+          "id": 128,
+          "raw": "﹂に改め︑同表を別表第８とする︒",
+          "legacy": [
+            196.8399,
+            517.4999,
+            324.8399,
+            525.4999
+          ],
+          "native": [
+            204.8399,
+            521.4999,
+            332.8399,
+            529.4999
+          ]
+        },
+        {
+          "id": 129,
+          "raw": "﹂に改め︑同表を別表第７とする︒",
+          "legacy": [
+            196.8399,
+            527.2499,
+            324.8399,
+            535.2499
+          ],
+          "native": [
+            204.8399,
+            531.2499,
+            332.8399,
+            539.2499
+          ]
+        },
+        {
+          "id": 136,
+          "raw": "﹂の次に﹁︵",
+          "legacy": [
+            172.8399,
+            478.4999,
+            212.8399,
+            486.4999
+          ],
+          "native": [
+            180.8399,
+            482.4999,
+            220.8399,
+            490.4999
+          ]
+        },
+        {
+          "id": 137,
+          "raw": "﹂を﹁",
+          "legacy": [
+            172.8399,
+            488.2499,
+            196.8399,
+            496.2499
+          ],
+          "native": [
+            180.8399,
+            492.2499,
+            204.8399,
+            500.2499
+          ]
+        },
+        {
+          "id": 141,
+          "raw": "﹂を﹁",
+          "legacy": [
+            140.8398,
+            497.9999,
+            164.8398,
+            505.9999
+          ],
+          "native": [
+            148.8398,
+            501.9999,
+            172.8398,
+            509.9999
+          ]
+        },
+        {
+          "id": 142,
+          "raw": "﹂を﹁",
+          "legacy": [
+            140.8398,
+            507.7499,
+            164.8398,
+            515.7499
+          ],
+          "native": [
+            148.8398,
+            511.7499,
+            172.8398,
+            519.7499
+          ]
+        },
+        {
+          "id": 143,
+          "raw": "﹂を﹁",
+          "legacy": [
+            140.8398,
+            517.4999,
+            164.8398,
+            525.4999
+          ],
+          "native": [
+            148.8398,
+            521.4999,
+            172.8398,
+            529.4999
+          ]
+        },
+        {
+          "id": 144,
+          "raw": "﹂を﹁",
+          "legacy": [
+            140.8398,
+            527.2499,
+            164.8398,
+            535.2499
+          ],
+          "native": [
+            148.8398,
+            531.2499,
+            172.8398,
+            539.2499
+          ]
+        },
+        {
+          "id": 145,
+          "raw": "︶﹂の次に﹁︵",
+          "legacy": [
+            140.8398,
+            536.9999,
+            180.8398,
+            544.9999
+          ],
+          "native": [
+            148.8398,
+            540.9999,
+            188.8398,
+            548.9999
+          ]
+        },
+        {
+          "id": 230,
+          "raw": "別表第２中﹁",
+          "legacy": [
+            60.8399,
+            488.2519,
+            108.8399,
+            496.2519
+          ],
+          "native": [
+            68.8399,
+            492.2519,
+            116.8399,
+            500.2519
+          ]
+        },
+        {
+          "id": 231,
+          "raw": "別表第８中﹁",
+          "legacy": [
+            60.8399,
+            507.7519,
+            108.8399,
+            515.7519
+          ],
+          "native": [
+            68.8399,
+            511.7519,
+            116.8399,
+            519.7519
+          ]
+        },
+        {
+          "id": 232,
+          "raw": "別表第７中﹁",
+          "legacy": [
+            60.8399,
+            517.5019,
+            108.8399,
+            525.5019
+          ],
+          "native": [
+            68.8399,
+            521.5019,
+            116.8399,
+            529.5019
+          ]
+        },
+        {
+          "id": 233,
+          "raw": "別表第６中﹁",
+          "legacy": [
+            60.8399,
+            527.2519,
+            108.8399,
+            535.2519
+          ],
+          "native": [
+            68.8399,
+            531.2519,
+            116.8399,
+            539.2519
+          ]
+        },
+        {
+          "id": 234,
+          "raw": "別表第５中﹁",
+          "legacy": [
+            60.8399,
+            537.0019,
+            108.8399,
+            545.0019
+          ],
+          "native": [
+            68.8399,
+            541.0019,
+            116.8399,
+            549.0019
+          ]
+        },
+        {
+          "id": 235,
+          "raw": "別表第１中﹁",
+          "legacy": [
+            60.8398,
+            478.4999,
+            108.8398,
+            486.4999
+          ],
+          "native": [
+            68.8398,
+            482.4999,
+            116.8398,
+            490.4999
+          ]
+        },
+        {
+          "id": 236,
+          "raw": "別表第３中﹁",
+          "legacy": [
+            60.8398,
+            498.0019,
+            108.8398,
+            506.0019
+          ],
+          "native": [
+            68.8398,
+            502.0019,
+            116.8398,
+            510.0019
+          ]
+        }
+      ],
+      "diff": [
+        "--- \n",
+        "+++ \n",
+        "@@ -39,18 +39,4 @@\n",
+        " 様式省令第７条第３項に定める記載事項は次のとおりとする。",
+        " ①〜④　（略）",
+        "-別表第１中「　」の次に「（　）」を加える。",
+        "-全角文字コード表　第２及び第４関係",
+        "-別表第２中「　」を「　」に改める。",
+        "-第１及び第３関係　第２及び第４関係",
+        "-別表第３中「　」を「　」に改める。",
+        "-第１関係　第２関係",
+        "-別表第８中「　」を「　」に改め、同表を別表第９とする。",
+        "-第３関係　第４関係",
+        "-別表第７中「　」を「　」に改め、同表を別表第８とする。",
+        "-第３関係　第４関係",
+        "-別表第６中「　」を「　」に改め、同表を別表第７とする。",
+        "-第３関係　第４関係",
+        "-別表第５中「　）」の次に「（　）」を加え、同表を別表第６とする。",
+        "-抹消登録　第２関係",
+        " ２　記載方法",
+        " （１）〜（３）　（略）",
+        "@@ -93,2 +79,9 @@\n",
+        " 様式省令第７条第４項に定める記載事項は次のとおりとする。",
+        " ①〜④　（略）",
+        "+別表第１中「全角文字コード表」の次に「（第２及び第４関係）」を加える。",
+        "+別表第２中「第１及び第３関係」を「第２及び第４関係」に改める。",
+        "+別表第３中「第１関係」を「第２関係」に改める。",
+        "+別表第８中「第３関係」を「第４関係」に改め、同表を別表第９とする。",
+        "+別表第７中「第３関係」を「第４関係」に改め、同表を別表第８とする。",
+        "+別表第６中「第３関係」を「第４関係」に改め、同表を別表第７とする。",
+        "+別表第５中「抹消登録）」の次に「（第２関係）」を加え、同表を別表第６とする。"
+      ],
+      "grade_before": "major",
+      "grade_after": "ok",
+      "verdict": "improvement",
+      "original_location": "Seven amendment sentences below the two left/right revised/previous text columns.",
+      "output_location": "after20 lines81..87",
+      "details": "All seven sentences and fourteen inline Hfont quotations now follow the complete left40/right40 text columns. Eighty column-text lines retained unchanged. Exact seven sentences match audit114-major-recheck.json. Initial audit114 major grade remains unchanged.",
+      "original_png": ".cache/kanpo-227/audit114/20260727g001670029.png"
+    },
+    {
+      "page": "20261001g002170018",
+      "comparison": "native disabled, all metadata retained",
+      "source_words": 23,
+      "used_words": 9,
+      "rendered_word_references": 9,
+      "duplicate_ids": [],
+      "all_used_ids_rendered_once": true,
+      "used_id_set_unchanged": true,
+      "source_raw_texts_and_ids_unchanged": true,
+      "non_whitespace_character_multiset_unchanged": true,
+      "moved_words": [
+        {
+          "id": 0,
+          "raw": "﹂に改め︑備考を次のように改める︒",
+          "legacy": [
+            228.8399,
+            514.9999,
+            364.8399,
+            522.9999
+          ],
+          "native": [
+            236.8399,
+            518.9999,
+            372.8399,
+            526.9999
+          ]
+        },
+        {
+          "id": 2,
+          "raw": "﹂を﹁",
+          "legacy": [
+            180.8399,
+            514.9999,
+            204.8399,
+            522.9999
+          ],
+          "native": [
+            188.8399,
+            518.9999,
+            212.8399,
+            526.9999
+          ]
+        },
+        {
+          "id": 8,
+          "raw": "第十号様式︵その二︶中﹁",
+          "legacy": [
+            68.8398,
+            514.9999,
+            164.8398,
+            522.9999
+          ],
+          "native": [
+            76.8398,
+            518.9999,
+            172.8398,
+            526.9999
+          ]
+        }
+      ],
+      "diff": [
+        "--- \n",
+        "+++ \n",
+        "@@ -1,4 +1,3 @@\n",
+        "-第十号様式（その二）中「　」を「　」に改め、備考を次のように改める。",
+        "-国籍　国籍等",
+        "+第十号様式（その二）中「国籍」を「国籍等」に改め、備考を次のように改める。",
+        " 備考１　日本船舶及び外国船舶のそれぞれについて水先をした日を追って記載すること。",
+        " ２　国籍等の欄には、住民基本台帳法（昭和42年法律第81号）第30条の45に規定する国籍等を記載すること。"
+      ],
+      "grade_before": "major",
+      "grade_after": "ok",
+      "verdict": "improvement",
+      "original_location": "Amendment sentence at the bottom left of the printed form.",
+      "output_location": "after20 line1; remarks lines2..3 unchanged",
+      "details": "Both nationality quotations restored inside the original sentence. Original form body inside the large frame is outlined, absent from native text; excluded from reading-order score, not a claim of complete text extraction.",
+      "original_png": ".cache/kanpo-227/mixed-quotes-prototype/narrow-probes/20261001g002170018.png"
+    },
+    {
+      "page": "20261009h018050004",
+      "comparison": "native disabled, all metadata retained",
+      "source_words": 307,
+      "used_words": 293,
+      "rendered_word_references": 293,
+      "duplicate_ids": [],
+      "all_used_ids_rendered_once": true,
+      "used_id_set_unchanged": true,
+      "source_raw_texts_and_ids_unchanged": true,
+      "non_whitespace_character_multiset_unchanged": true,
+      "moved_words": [
+        {
+          "id": 115,
+          "raw": "﹂を﹁",
+          "legacy": [
+            340.8399,
+            527.1785,
+            364.8399,
+            535.1785
+          ],
+          "native": [
+            348.8399,
+            531.1785,
+            372.8399,
+            539.1785
+          ]
+        },
+        {
+          "id": 288,
+          "raw": "指定営業所として指定する青森事務所の所在地中﹁",
+          "legacy": [
+            60.8399,
+            527.1888,
+            244.8399,
+            535.1888
+          ],
+          "native": [
+            68.8399,
+            531.1888,
+            252.8399,
+            539.1888
+          ]
+        }
+      ],
+      "diff": [
+        "--- \n",
+        "+++ \n",
+        "@@ -42,6 +42,5 @@\n",
+        " 」に改める。",
+        " 丁目10番３号",
+        "-」を「",
+        "-青森市中央一丁目22番８号　青森市長島二",
+        "+青森市中央一丁目22番８号」を「青森市長島二",
+        " 〇財務省・農林水産省・経済産業省告示第七号",
+        " 株式会社日本政策金融公庫法（平成十九年法律第五十七号）第十七条第二項の規定に基づき、危機"
+      ],
+      "grade_before": "major",
+      "grade_after": "major",
+      "verdict": "partial_improvement_no_new_regression",
+      "original_location": "Bottom left, Ministry of Finance notice276 address amendment spanning two physical lines.",
+      "output_location": "after20 lines41..44; changed line44",
+      "details": "The formerly independent close-quote/open-quote connective (old45) is now placed between the old address and the first portion of the new address (old46 -> new44). Both address associations are correct. The prefix (line41), final connective (line42), and next-line address suffix (line43) were already disconnected and misordered; these remain unresolved. All other articles, including upper bond terms and the top-right notice7 change-before/change-after table, retain their complete previous text and order. Existing major remains visible.",
+      "remaining_candidate": "Recover the quoted Hfont address continuation on the next physical line and reconnect both native prose ends. Separate future batch; no new guard/source changes now.",
+      "original_png": ".cache/kanpo-227/mixed-quotes-prototype/narrow-probes/20261009h018050004.png"
+    }
+  ],
+  "root_integration": {
+    "outputs": "after20",
+    "whole_corpus_pages": 11992,
+    "quote_only_changed_pages": [
+      "20260727g001670029",
+      "20261001g002170018",
+      "20261009h018050004"
+    ],
+    "root_additional_pdf_regression": "20261001g002170018 added as fourth integration test",
+    "major_recheck_after19_equals_after20": true
+  }
+}

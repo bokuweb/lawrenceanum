@@ -23,9 +23,12 @@ fn address_number_fragments_stay_in_their_records() {
 #[test]
 fn ditto_is_not_an_address_number_fragment() {
     // 数字に見える位置でも、同上記号を 1 字断片として前の所在地に足さない。
-    let numeric_word = "<word xMin=\"480.256100\" yMin=\"228.839900\" xMax=\"488.256100\" yMax=\"244.839900\">一四</word>";
-    assert_eq!(PAGE.matches(numeric_word).count(), 1);
-    let page = PAGE.replace(numeric_word, &numeric_word.replace("一四", "〃"));
+    // 任意のフォント属性が追加されても、対象語は座標と元の本文で一意に選ぶ。
+    let bounds = "<word xMin=\"480.256100\" yMin=\"228.839900\" xMax=\"488.256100\" yMax=\"244.839900\"";
+    let matching: Vec<_> = PAGE.lines().filter(|line| line.contains(bounds) && line.contains(">一四</word>")).collect();
+    assert_eq!(matching.len(), 1);
+    let numeric_word = matching[0];
+    let page = PAGE.replace(numeric_word, &numeric_word.replace(">一四</word>", ">〃</word>"));
     let out = kanpo_parser::reconstruct_vertical(&page);
     assert!(out.contains("〃"), "同上記号が失われた: {out}");
     assert!(!out.contains("埼玉県富士見市東みずほ台二－〃"), "同上記号を番地として連結した: {out}");
