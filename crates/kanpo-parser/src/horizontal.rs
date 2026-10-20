@@ -2589,13 +2589,16 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
                     .iter()
                     .filter(|w| other.iter().any(|o| (y_center(o) - y_center(w)).abs() < 2.0 && o.text.trim().chars().count() <= 14))
                     .count();
+                let top = nums.iter().map(|w| w.y).fold(f32::INFINITY, f32::min);
+                let interleaved = side.iter().filter(|w| !num(w.text.trim()) && y_center(w) >= top).count();
                 let rows = nums.iter().filter(|w| other.iter().any(|o| (y_center(o) - y_center(w)).abs() < 2.0 && o.text.trim().chars().count() > 14)).count() == 0;
                 let all_aligned = side.iter().filter(|w| other.iter().any(|o| (y_center(o) - y_center(w)).abs() < 2.0)).count();
                 (nums.len() >= 3 && width < 40.0 && nums.len() * 10 >= side.len() * 8 && aligned * 10 >= nums.len() * 7)
                     // 欄見出しの多い所（「収入」「歩合」「又は」）でも、どの語も反対側の行と同じ高さにあれば表の欄。
                     || (nums.len() >= 2 && width < 40.0 && all_aligned * 10 >= side.len() * 7)
-                    // 欄見出し（「歳入予算額と収納済歳入額との差…」「収入」「歩合」）が混ざってもよい（数が 4 分の 3 以上）。
-                    || (nums.len() >= 6 && rows && nums.len() * 4 >= side.len() * 3 && short_aligned * 10 >= nums.len() * 7)
+                    // 欄見出し（「歳入予算額と収納済歳入額との差…」「収入」「歩合」。最初の数より上の語）は数えない。
+                    // 数の間に混ざる語は 4 分の 1 まで。
+                    || (nums.len() >= 6 && rows && nums.len() * 4 >= (nums.len() + interleaved) * 3 && short_aligned * 10 >= nums.len() * 7)
             })
         };
         if let Some(cut) = rule_cut(&words, blocks, vrules, hrules).or_else(|| gutter.map(|g| g.0).filter(|&g| boxed || ((!blocks.is_empty() || !table_column(g)) && !numeric_strip(g)))) {
