@@ -138,3 +138,48 @@ test("解説の取得失敗は再試行できる", async ({ page }) => {
   await page.getByRole("button", { name: "再試行", exact: true }).click();
   await expect(page.getByText("この施行予定の出典付き解説はまだありません。")).toBeVisible();
 });
+
+test("施行予定の取得失敗から再試行でき、入力済みの絞り込みを保つ", async ({ page }) => {
+  let fail = true;
+  await page.route("**/enforcement/upcoming.json", route => fail
+    ? route.fulfill({ status: 503, body: "unavailable" })
+    : route.fulfill({ json: UPCOMING }));
+  await page.goto(new URL("#/enforcement", BASE).toString());
+  await expect(page.getByRole("alert")).toContainText("施行予定を読み込めませんでした");
+  await page.getByPlaceholder("法令名・改正名で絞り込み…").fill("農薬");
+  fail = false;
+  await page.getByRole("button", { name: "再試行", exact: true }).click();
+  await expect(page.getByRole("link", { name: /農薬取締法/ })).toBeVisible();
+  await expect(page.getByText("テスト施行予定法")).toHaveCount(0);
+  await expect(page.getByRole("alert")).toHaveCount(0);
+});
+
+test("入力順によらず施行日が近い順にグループ化する", async ({ page }) => {
+  await page.route("**/enforcement/upcoming.json", route => route.fulfill({ json: {
+    ...UPCOMING, items: [...UPCOMING.items].reverse(),
+  } }));
+  await page.goto(new URL("#/enforcement", BASE).toString());
+  const dates = page.getByText(/^2026-(07|09)-01$/);
+  await expect(dates).toHaveCount(2);
+  await expect(dates.first()).toHaveText("2026-07-01");
+  await expect(dates.last()).toHaveText("2026-09-01");
+});
+
+test("施行予定の修飾クリックを妨げず元の画面を保つ", async ({ page }) => {
+  await mock(page);
+  await page.goto(new URL("#/enforcement", BASE).toString());
+  const link = page.getByRole("link", { name: /農薬取締法/ });
+  await expect(link).toHaveAttribute("href", "#/laws/323AC0000000082");
+  // document まで到達した時点の状態を記録し、テスト中のタブ生成だけを抑える。
+  const prevented = await link.evaluate(element => {
+    let prevented = false;
+    document.addEventListener("click", event => {
+      prevented = event.defaultPrevented;
+      event.preventDefault();
+    }, { once: true });
+    element.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, metaKey: true }));
+    return prevented;
+  });
+  expect(prevented).toBe(false);
+  await expect(page).toHaveURL(/#\/enforcement$/);
+});

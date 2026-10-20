@@ -84,12 +84,12 @@ test("新着フィードが横断アイテムとRSS購読を表示する", async
 
   const latest = page.getByRole("region", { name: "種類別の最新" });
   const list = page.getByRole("region", { name: "新着一覧", exact: true });
-  await expect(latest.getByRole("button")).toHaveCount(7);
+  await expect(latest.getByRole("link")).toHaveCount(7);
   for (const item of FEED.items) {
     await expect(latest.getByText(item.title)).toBeVisible();
     await expect(list.getByText(item.title)).toHaveCount(1);
   }
-  await expect(list.getByRole("button").first()).toContainText("テスト民法改正パブコメ");
+  await expect(list.getByRole("link").first()).toContainText("テスト民法改正パブコメ");
 });
 
 test("法案フィルタで法案だけに絞れる", async ({ page }) => {
@@ -132,12 +132,12 @@ test("追加した種別は複数選択でき、クリアで全種類に戻る",
   await expect(shingikai).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("region", { name: "種類別の最新" })).toHaveCount(0);
   const list = page.getByRole("region", { name: "新着一覧", exact: true });
-  await expect(list.getByRole("button")).toHaveCount(1);
+  await expect(list.getByRole("link")).toHaveCount(1);
   await page.getByLabel("フィルタ-政府調達").click();
-  await expect(list.getByRole("button")).toHaveCount(2);
+  await expect(list.getByRole("link")).toHaveCount(2);
   await expect(list.getByText("テスト情報システム調達")).toBeVisible();
   await page.getByRole("button", { name: "クリア", exact: true }).click();
-  await expect(list.getByRole("button")).toHaveCount(7);
+  await expect(list.getByRole("link")).toHaveCount(8);
   await expect(page.getByRole("region", { name: "種類別の最新" })).toBeVisible();
 });
 
@@ -186,7 +186,37 @@ test("フィード取得失敗から再試行でき、選択中のフィルタ�
   await page.getByRole("button", { name: "再試行", exact: true }).click();
   const list = page.getByRole("region", { name: "新着一覧", exact: true });
   await expect(list.getByText("テスト情報システム調達")).toBeVisible();
-  await expect(list.getByRole("button")).toHaveCount(1);
+  await expect(list.getByRole("link")).toHaveCount(1);
   await expect(page.getByLabel("フィルタ-政府調達")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("alert")).toHaveCount(0);
+});
+
+test("最新カードと新着一覧がコピー可能な内部・外部リンクを持つ", async ({ page }) => {
+  await mockFeed(page);
+  await page.goto(new URL("#/feed", BASE).toString());
+  for (const name of ["種類別の最新", "新着一覧"]) {
+    const region = page.getByRole("region", { name, exact: true });
+    await expect(region.getByRole("link", { name: /テスト改正法/ })).toHaveAttribute("href", "#/laws/TESTLAW1");
+    const external = region.getByRole("link", { name: /テスト法案（審議トラッキング）/ });
+    await expect(external).toHaveAttribute("href", FEED.items[0].href);
+    await expect(external).toHaveAttribute("target", "_blank");
+    await expect(external).toHaveAttribute("rel", /noopener/);
+  }
+});
+
+test("官報の対象法令の修飾クリックを妨げず元の画面を保つ", async ({ page }) => {
+  await mockFeed(page);
+  await page.goto(new URL("#/feed", BASE).toString());
+  // document まで到達した時点の状態を記録し、テスト中のタブ生成だけを抑える。
+  const prevented = await page.getByRole("link", { name: "テスト対象法", exact: true }).evaluate(element => {
+    let prevented = false;
+    document.addEventListener("click", event => {
+      prevented = event.defaultPrevented;
+      event.preventDefault();
+    }, { once: true });
+    element.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, metaKey: true }));
+    return prevented;
+  });
+  expect(prevented).toBe(false);
+  await expect(page).toHaveURL(/#\/feed$/);
 });
