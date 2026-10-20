@@ -747,7 +747,9 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
             let g: Vec<(f32, f32, f32, f32)> = l.words.iter().filter_map(|w| geom.get(w)).copied().collect();
             !g.is_empty() && g.iter().all(|p| p.1 <= b.0 + 1.0 && (p.2 + p.3) / 2.0 >= b.1 && (p.2 + p.3) / 2.0 <= b.3)
         };
-        below.or_else(|| {
+        // 「左記」の会社を指す欄は、欄のすぐ下の行（乙の決算公告）より先に、左の囲みの行の頭を見る。
+        let left_first = refers_left.iter().any(|(r, t)| r == b && t.contains("左記"));
+        let left = || {
             let last = lines.iter().rposition(left_of)?;
             // 「左記の」貸借対照表を指す欄（決算公告の囲みの右の縦組みの合併公告）は、欄の左の囲みの中の行より先（「…貸借対照表の
             // 要旨は左記のとおりです。」の後に左の貸借対照表が続く）。欄の左に続く行のうち、欄との間に欄の高さほどの縦の罫線
@@ -790,7 +792,10 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
                         })
                         .map(|t| t.trim_start_matches(|c: char| "（）()甲乙丙丁".contains(c)).to_string())
                         .collect();
-                    names.is_empty() || names.iter().any(|n| notice.contains(n.as_str()))
+                    // 外字の落ちた名前（「ひかり味株式会社」と「ひかり味婫株式会社」）も、会社の種類を除いた 3 字以上の名前で比べる。
+                    let core = |n: &str| -> String { ["株式会社", "有限会社", "合同会社", "株式", "有限", "合同"].iter().fold(n.to_string(), |acc, k| acc.replace(k, "")) };
+                    names.is_empty()
+                        || names.iter().any(|n| notice.contains(n.as_str()) || (core(n).chars().count() >= 3 && notice.contains(core(n).as_str())))
                 };
                 let mut at = None;
                 for k in (0..chunks.len()).rev() {
@@ -801,11 +806,28 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
                     at = Some(chunks[k].0);
                 }
                 if let Some(at) = at.filter(|&i| !fenced(&lines[i])) {
-                    return Some(at);
+                    // 欄のすぐ下の行より先に置くのは、置く先の行に欄の文に出てくる会社の名前があるときだけ（名前の無い損益計算書の
+                    // 行だけの列は、隣の囲みのことがある）。
+                    let core = |n: &str| -> String { ["株式会社", "有限会社", "合同会社", "株式", "有限", "合同"].iter().fold(n.to_string(), |acc, k| acc.replace(k, "")) };
+                    let confirmed = lines[at..=last].iter().map(|l| plain(&l.text)).any(|t| {
+                        (["会社", "法人", "組合"].iter().any(|n| t.contains(n)) || t.ends_with("株式"))
+                            && !t.contains("公告")
+                            && {
+                                let n = t.trim_start_matches(|c: char| "（）()甲乙丙丁".contains(c));
+                                notice.contains(n) || (core(n).chars().count() >= 3 && notice.contains(core(n).as_str()))
+                            }
+                    });
+                    return Some((at, confirmed));
                 }
             }
-            Some(last + 1)
-        })
+            Some((last + 1, false))
+        };
+        if left_first {
+            if let Some((at, true)) = left() {
+                return Some(at);
+            }
+        }
+        below.or_else(|| left().map(|(at, _)| at))
     };
     let items: Vec<(Block, Vec<trace::Line>, Option<usize>)> = tables
         .into_iter()
