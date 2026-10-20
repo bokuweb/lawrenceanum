@@ -437,7 +437,9 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             crate::table_dashes::restore_table_dashes(&mut units, &mut words);
             crate::table_dashes::restore_ruled_table_dashes(&mut units, &mut words, &grids);
             crate::table_dashes::restore_plain_numeric_dashes(&mut units, &mut words, &vrules);
+            crate::cell_row_dashes::restore_cell_record_dashes(&mut units, &mut words, &grids);
             crate::large_parentheses::restore_large_parentheses(&mut units, &words);
+            crate::coordinate_symbols::restore_coordinate_symbols(&mut units, &mut words);
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
@@ -734,7 +736,9 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         order_masthead(&mut units);
         join_joint_ministries(&mut units);
         order_section_labels(&mut units, &words);
+        crate::unruled_road::restore(&mut units, &words);
         crate::large_parentheses::restore_large_parentheses(&mut units, &words);
+        crate::coordinate_symbols::restore_coordinate_symbols(&mut units, &mut words);
         let text = units
             .iter()
             .map(Unit::text)

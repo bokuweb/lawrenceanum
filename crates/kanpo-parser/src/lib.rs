@@ -31,6 +31,7 @@
 //! ```
 
 use anyhow::Result;
+mod coordinate_symbols;
 
 pub mod format;
 pub mod grid;
@@ -42,9 +43,11 @@ pub mod segment;
 pub mod shinkyu;
 pub mod table;
 mod table_dashes;
+mod cell_row_dashes;
 mod shared_table_labels;
 mod quantity_tables;
 mod fractions;
+mod unruled_road;
 pub mod trace;
 pub mod vertical;
 
