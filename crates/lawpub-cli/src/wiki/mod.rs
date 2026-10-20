@@ -32,6 +32,7 @@ pub mod person;
 pub mod plan;
 pub mod pubcomment;
 pub mod reiki;
+pub mod report;
 pub mod roster;
 pub mod structured;
 

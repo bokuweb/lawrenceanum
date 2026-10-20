@@ -109,6 +109,7 @@ LLM が要点を書けるのは 1 日数件 (`WIKI_MAX_ITEMS`) で、対象も `
 ```
 public/wiki/index.json                 全ページの一覧 (type / title / description / date / tags)
 public/wiki/graph.json                 ナレッジグラフ (ノード = ページ、エッジ = ページ間リンク)
+public/wiki/report-manifest.json       資料用保存版 (ページ・主張・引用・参照関係と版)
 public/wiki/page/{path}.json           frontmatter と本文 (Markdown)
 public/wiki/enforcements/{law_id}.json 施行予定ごとの出典付き解説
 ```
@@ -116,6 +117,41 @@ public/wiki/enforcements/{law_id}.json 施行予定ごとの出典付き解説
 SPA の `#/wiki` で、type 別に色分けしたナレッジグラフと一覧、各ページ（要点・出典の脚注・
 つながっているページ）を閲覧できる。法令詳細画面には、wiki ページがある法令だけ「wiki」への導線が出る。
 wiki の更新 (JST 09:00) は、次の法令ワークフローのデプロイ (JST 12:30 など) で反映される。
+
+## 資料で使った根拠の保存と更新候補
+
+`wiki-export` は配信用ページと同じ公開対象から `report-manifest.json` も生成する。
+未完了の施行予定解説とハブページは含めず、要約待ちのページは `stub: true` として残す。
+これは公開対象の Wiki の保存版であり、原文コーパス全体の保存・収集漏れの検査・原文の再照合は行わない。
+
+`pages` は配信用ページと共通の ID（例 `meetings/kokkai/M1`）をキーとし、次を持つ。
+
+- `revision`: `content` 全体の SHA-256。本文、frontmatter、抜粋範囲・留保、引用、確認状態、参照先を含む。
+- `content`: 表示用 Markdown、frontmatter、`stub`、脚注 `citations`、本文の有向リンク `references`、構造化された `claims`。
+- `content.claim_structure`: `unstructured`（旧形式など）、`invalid`（構造エラーあり）、`structured`。意味的な裏づけの検証状態とは別で、構造エラーは `claim_errors` に残す。
+- `content.claims`: ページ ID・主張の文・種別・帰属先から計算した ID ごとの記録。`revision` は引用・発言者情報・レビュー状態を含む `records` の SHA-256。同じ主張が複数登録された場合も全記録を残す。
+
+主張を書き換えたり帰属先を変えた場合は、旧主張の削除と新主張の追加になる。文面が同じまま根拠や確認状態が変わった場合は同じ ID の更新になる。
+`generated_at` と JSON オブジェクトのキー順は版の判定に影響しない。`llm_supported` などのレビュー状態、`unsupported`、抜粋外の未確認範囲はそのまま保持し、検証済みへ昇格させない。
+
+資料の作成時に保存版を **export 先の外** にコピーする（次の `wiki-export` は出力ディレクトリを作り直す）。
+たとえば前回保存したものと今回のものを比較するには:
+
+```sh
+lawpub wiki-report-diff \
+  --previous reports/2026-09/report-manifest.json \
+  --current public/wiki/report-manifest.json \
+  --out reports/2026-10/wiki-diff.json
+```
+
+結果の `changes` はページごとの `added` / `removed` / `updated`、新旧の版、主張ごとの変更種別を返す。
+`review_candidates` は新旧の本文リンクを逆にたどった直接・間接の再確認候補で、値は変更のあった参照先の ID。
+削除されたリンク先や新たに公開されたリンク先も対象になり、循環参照でも終了する。リンクは主張の支持関係ではなく、結論の変更や資料の自動書換えを指示するものではない。
+入力の schema / scope と内容ハッシュを検査し、対応しない版や保存後に内容だけ変更されたファイルを拒否する。
+
+PPTX など資料側での利用時は、スライド・図形の ID とともに **ページ ID・ページ revision・主張 ID・主張 revision** を保存する。
+主張のない旧ページを使う場合もページ ID と revision を保存する。抜粋範囲などページ側だけの変更を拾うため、主張の版だけでは判定しない。
+これにより前回使った本文・引用・留保と今回との差分を追える。PPTX の生成・図形への対応付け・顧客による編集との統合は、この CLI には含めない。
 
 ## 自治体の対応（例規）
 
