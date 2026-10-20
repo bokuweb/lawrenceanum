@@ -2786,13 +2786,21 @@ fn header_table(words: &[Col]) -> Option<trace::Table> {
     let cut = edges.iter().filter_map(|&y| gap(y)).find(|&c| every(&|w: &Col| y_center(w) < c) && every(&|w: &Col| y_center(w) > c))?;
     let (head, body): (Vec<&Col>, Vec<&Col>) = words.iter().partition(|w| y_center(w) < cut);
     let digit = |c: char| c.is_ascii_digit() || ('０'..='９').contains(&c);
-    if head.iter().any(|w| w.text.chars().any(digit)) || head.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max) - head.iter().map(|w| w.y).fold(f32::INFINITY, f32::min) > 40.0 {
+    if head.iter().any(|w| w.text.chars().any(digit)) || head.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max) - head.iter().map(|w| w.y).fold(f32::INFINITY, f32::min) > 60.0 {
         return None;
     }
     // 見出しはどの欄も同じ高さから始まる（上の文の行の続き「欄に掲げる金額」を見出しにしない）。
     let em = head.iter().map(|w| w.y1 - w.y).fold(0.0, f32::max).max(1.0);
     let tops: Vec<f32> = (0..cols.len()).map(|i| head.iter().filter(|w| col_of(w) == Some(i)).map(|w| w.y).fold(f32::INFINITY, f32::min)).collect();
-    if tops.iter().copied().fold(f32::NEG_INFINITY, f32::max) - tops.iter().copied().fold(f32::INFINITY, f32::min) > em * 1.2 {
+    // 上下中央に組んだ見出し（1 行の「型式指定番号」と 4 行の「特定装置を取り付けることができる…」）は、高さの中ほどがそろう。
+    let mids: Vec<f32> = (0..cols.len())
+        .map(|i| {
+            let ws: Vec<&&Col> = head.iter().filter(|w| col_of(w) == Some(i)).collect();
+            (ws.iter().map(|w| w.y).fold(f32::INFINITY, f32::min) + ws.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max)) / 2.0
+        })
+        .collect();
+    let spread = |v: &[f32]| v.iter().copied().fold(f32::NEG_INFINITY, f32::max) - v.iter().copied().fold(f32::INFINITY, f32::min);
+    if spread(&tops) > em * 1.2 && spread(&mids) > em * 1.2 {
         return None;
     }
     // 内容の行が 3 欄以上で高さを揃えて並ぶのは 3 行まで（行ごとに並ぶ表（貸借対照表）ではない）。
@@ -2807,17 +2815,36 @@ fn header_table(words: &[Col]) -> Option<trace::Table> {
         .collect::<std::collections::BTreeSet<_>>();
     // 欄の内容は行間を空けずに続く（下の告示の見出しを欄に入れない）。見出しの欄の行の中に 1em 以上の空きは無い
     // （隣の欄と溝が狭くて 1 欄になったもの）。
-    let loose = body_cols.iter().any(|ls| ls.windows(2).any(|p| p[1].y0 - p[0].y1 > (p[1].y1 - p[1].y0) * 0.5));
+    // 内容はすべての欄を通る行間で何件かの記録に分かれる（型式指定の表の「自Ｇ－3332」「自Ｇ－3333」）。どの記録も左端の欄の
+    // 語から始まる。
+    let body_y0 = body.iter().map(|w| w.y).fold(f32::INFINITY, f32::min);
+    let mut records: Vec<f32> = edges
+        .iter()
+        .filter(|&&y| y > body_y0 + 0.5)
+        .filter_map(|&y| gap(y))
+        .filter(|&c| words.iter().any(|w| y_center(w) > c) && body.iter().any(|w| y_center(w) < c))
+        .collect();
+    records.dedup_by(|a, b| (*a - *b).abs() < 1.0);
+    // 記録の頭の左端の欄の語は、数を含む 15 字までの番号（「自Ｇ－3332」「Ｅ43＊155Ｒ」）。文の段落の間の空きを記録の境に
+    // しない。
+    let key = |w: &Col| {
+        let t = w.text.trim();
+        t.chars().count() <= 15 && t.chars().any(|c| c.is_ascii_digit() || ('０'..='９').contains(&c))
+    };
+    let first_col_starts = |c: f32| {
+        let next = body.iter().filter(|w| w.y > c).map(|w| w.y).fold(f32::INFINITY, f32::min);
+        body.iter().any(|w| col_of(w) == Some(0) && (w.y - next).abs() < 1.0 && key(w))
+    };
+    if !records.is_empty() && !(first_col_starts(cut) && records.iter().all(|&c| first_col_starts(c))) {
+        return None;
+    }
+    // 記録の境（すべての欄を通る行間）をまたぐ行間は数えない。
+    let loose = body_cols.iter().any(|ls| ls.windows(2).any(|p| p[1].y0 - p[0].y1 > (p[1].y1 - p[1].y0) * 0.5 && !records.iter().any(|&c| p[0].y1 <= c && c <= p[1].y0)));
     let head_split = (0..cols.len()).any(|i| {
         let ws: Vec<Col> = head.iter().filter(|w| col_of(w) == Some(i)).map(|w| (*w).clone()).collect();
         group_cell_lines(&ws).iter().any(|l| l.words.windows(2).any(|p| p[1].x - p[0].x1 >= (l.y1 - l.y0)))
     });
-    if loose || head_split || rows.len() > 3 || body_cols.iter().any(|ls| ls.len() >= 2 && ls.iter().filter(|l| amount_line(l)).count() * 2 >= ls.len()) {
-        return None;
-    }
-    // 内容は 1 行（すべての欄を通る行間が無い）。
-    let body_y0 = body.iter().map(|w| w.y).fold(f32::INFINITY, f32::min);
-    if edges.iter().filter(|&&y| y > body_y0 + 0.5).filter_map(|&y| gap(y)).any(|c| words.iter().any(|w| y_center(w) > c) && body.iter().any(|w| y_center(w) < c)) {
+    if loose || head_split || rows.len() > 3 * (records.len() + 1) || body_cols.iter().any(|ls| ls.len() >= 2 && ls.iter().filter(|l| amount_line(l)).count() * 2 >= ls.len()) {
         return None;
     }
     let y0 = words.iter().map(|w| w.y).fold(f32::INFINITY, f32::min);
@@ -2827,7 +2854,8 @@ fn header_table(words: &[Col]) -> Option<trace::Table> {
         .chain(cols.windows(2).map(|p| (p[0].1 + p[1].0) / 2.0))
         .chain(std::iter::once(cols[cols.len() - 1].1))
         .collect();
-    Some(block_table(&xs, &[y0, cut, y1], words))
+    let ys: Vec<f32> = [y0, cut].into_iter().chain(records).chain([y1]).collect();
+    Some(block_table(&xs, &ys, words))
 }
 
 /// 欄の境 `xs` と行の境 `ys` で囲んだ升ごとに 1 つのセルにした表（升の中は行を分けない）。升の中の行は、右端まで
