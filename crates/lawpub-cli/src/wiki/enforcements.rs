@@ -684,6 +684,9 @@ mod tests {
             .join("page")
             .join(tasks[0].page.replace(".md", ".json"))
             .exists());
+        let report: Value = serde_json::from_slice(&std::fs::read(out.join("report-manifest.json")).unwrap()).unwrap();
+        assert!(report["pages"].get(tasks[0].page.trim_end_matches(".md")).is_none());
+        assert!(report["pages"].get(tasks[1].page.trim_end_matches(".md")).is_some());
         let retry = plan(&args, &source, "2026-10-19").unwrap();
         assert_eq!(retry.len(), 1);
         assert!(!ready(

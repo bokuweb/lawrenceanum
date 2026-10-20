@@ -3,6 +3,7 @@
 //! ```text
 //! {out}/index.json                 全ページの一覧 (type / title / description / date / tags)
 //! {out}/graph.json                 ナレッジグラフ (ノード = ページ、エッジ = ページ間リンク)
+//! {out}/report-manifest.json       資料用保存版 (ページ・主張・根拠の版と参照関係)
 //! {out}/page/{path 拡張子なし}.json frontmatter と本文 (Markdown)
 //! ```
 //!
@@ -61,7 +62,7 @@ pub(crate) fn display_body(body: &str) -> String {
 }
 
 /// グラフに載せないハブページ。
-const HUB_PAGES: [&str; 3] = ["index.md", "log.md", "README.md"];
+pub(crate) const HUB_PAGES: [&str; 3] = ["index.md", "log.md", "README.md"];
 
 /// `from` ページ (wiki ルート相対) からの相対リンクを wiki ルート相対のパスに解決する。
 pub(crate) fn resolve_link(from: &str, target: &str) -> Option<String> {
@@ -104,6 +105,7 @@ pub fn run_export(args: &ExportArgs) -> Result<()> {
     let published = enforcements::export(&pages, &args.out)?;
     // 未完了の施行予定解説は通常の wiki 一覧にも公開しない。
     pages.retain(|(rel, p)| p.get_str("type") != enforcements::KIND || published.contains(rel));
+    report::write_manifest(&pages, &args.out.join("report-manifest.json"))?;
     let known: BTreeSet<&str> = pages.iter().map(|(rel, _)| rel.as_str()).collect();
 
     let mut index = Vec::new();
@@ -239,6 +241,12 @@ mod tests {
                 { "source": "laws/L1", "target": "people/山田太郎" }
             ])
         );
+        let report: Value = serde_json::from_slice(&std::fs::read(out.join("report-manifest.json")).unwrap()).unwrap();
+        assert_eq!(report["pages"].as_object().unwrap().len(), 4);
+        assert!(report["pages"].get("index").is_none());
+        assert_eq!(report["pages"]["bills/221/B1"]["content"]["stub"], true);
+        assert_eq!(report["pages"]["laws/L1"]["content"]["references"], json!(["bills/221/B1", "laws/none", "meetings/kokkai/M1"]));
+        assert_eq!(report["pages"]["laws/L1"]["content"]["body"], page["body"]);
         std::fs::remove_dir_all(root).ok();
     }
 }

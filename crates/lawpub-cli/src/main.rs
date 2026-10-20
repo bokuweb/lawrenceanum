@@ -605,6 +605,15 @@ enum Cmd {
         #[arg(long, default_value = "public/wiki")]
         out: PathBuf,
     },
+    /// 保存した Wiki 資料用スナップショットを比較し、変更と関連ページの再確認候補を出す。
+    WikiReportDiff {
+        #[arg(long)]
+        previous: PathBuf,
+        #[arg(long)]
+        current: PathBuf,
+        #[arg(long)]
+        out: PathBuf,
+    },
     /// wiki の OKF frontmatter・リンク・引用 (発言 ID と原文一致) を検証する。
     WikiCheck {
         #[arg(long, env = "WIKI_BASE_URL", default_value = "https://bokuweb.github.io/lawrenceanum")]
@@ -1187,6 +1196,7 @@ fn main() -> Result<()> {
         }
         Cmd::WikiFinalize { wiki, work } => wiki::finalize::run_finalize(&wiki::finalize::FinalizeArgs { wiki, work }),
         Cmd::WikiExport { wiki, out } => wiki::export::run_export(&wiki::export::ExportArgs { wiki, out }),
+        Cmd::WikiReportDiff { previous, current, out } => wiki::report::run_diff(&previous, &current, &out),
         Cmd::WikiCheck { base_url, wiki, work, changed } => {
             wiki::check::run_check(&wiki::check::CheckArgs { wiki, work, base_url, changed_only: changed })
         }
