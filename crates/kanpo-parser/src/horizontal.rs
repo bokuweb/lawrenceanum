@@ -1962,6 +1962,18 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
         let next = at(&cells, row + 1, col);
         let amount_here = at(&cells, row, col + 1).is_some_and(|i| !cells[i].text.is_empty());
         let amount_next = at(&cells, row + 1, col + 1).is_some_and(|i| !cells[i].text.is_empty());
+        // 右の金額の欄（科目の欄の右の、字のある最初のセル。「△」の狭い列や科目の欄がまたぐ列の先）。
+        let right_amount = |r: usize| {
+            cells
+                .iter()
+                .filter(|c| c.row == r && c.col > col && c.col <= col + cells[k].colspan.max(1) + 1 && !c.text.trim().is_empty())
+                .min_by_key(|c| c.col)
+                .is_some_and(|c| {
+                    // 金額だけの字（「992,738」「△24」「(1,234)」）。「10月」などは金額ではない。
+                    let t = c.text.trim();
+                    t.chars().any(|ch| ch.is_ascii_digit()) && t.chars().all(|ch| ch.is_ascii_digit() || ",.△▲()（）円 　".contains(ch))
+                })
+        };
         let reaches = {
             let ws: Vec<&Col> = words.iter().filter(|w| cells[k].words.contains(&w.id)).collect();
             let end = ws.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
@@ -2011,8 +2023,9 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
                 && tail(&cells[n].text)
                 && !complete(&cells[n].text)
                 && cells[k].text.trim().chars().count() >= 4
-                && amount_here
+                && (amount_here || right_amount(row))
                 && !amount_next
+                && !right_amount(row + 1)
                 && reaches
                 && cells[n].text.chars().count() <= 8
                 && !cells[n].text.contains('\n')
