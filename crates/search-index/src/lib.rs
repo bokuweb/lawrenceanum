@@ -309,6 +309,8 @@ impl Thesaurus {
 const LAW_INDEX_BATCH_SIZE: usize = 100;
 const PROCEEDINGS_INDEX_BATCH_SIZE: usize = 25;
 const FILE_INDEX_BATCH_SIZE: usize = 14;
+/// 判例 JSON は 1 件数 KB (PDF 本文は持たない) なので大きめに束ねる。
+const HANREI_INDEX_BATCH_SIZE: usize = 200;
 
 /// `laws`: 索引対象の現行版 LawDocument 群。
 /// `categories`: law_id → e-Gov 法令分類 (「民事」「行政組織」など) の対応表。
@@ -316,6 +318,8 @@ const FILE_INDEX_BATCH_SIZE: usize = 14;
 ///   未知の law_id は NULL になる。
 /// `proceedings_dir`: `public/proceedings/` へのパス。Some の場合は発言 FTS も構築。
 /// `kanpo_dir`: `public/kanpo/` へのパス。Some の場合は官報記事 FTS も構築。
+/// `tsutatsu_dir`: `public/tsutatsu/` へのパス。Some の場合は通達 FTS も構築。
+/// `hanrei_dir`: `public/hanrei/` へのパス。Some の場合は判例 FTS も構築。
 /// 出力先と同じディレクトリの `pubcomment/`, `gian/`, `shingikai/` も索引する。
 pub fn build_search_db(
     out_path: &Path,
@@ -324,6 +328,7 @@ pub fn build_search_db(
     proceedings_dir: Option<&Path>,
     kanpo_dir: Option<&Path>,
     tsutatsu_dir: Option<&Path>,
+    hanrei_dir: Option<&Path>,
 ) -> Result<()> {
     if let Some(parent) = out_path.parent() {
         std::fs::create_dir_all(parent)?;
@@ -440,6 +445,28 @@ pub fn build_search_db(
             source_url UNINDEXED,
             caption_tokens,
             text_tokens,
+            tokenize='unicode61'
+        );
+
+        -- 判例 FTS5。事件名(+事件番号)・判示事項・裁判要旨・参照法条・PDF 由来の引用を
+        -- 列ごとに bigram 索引する (`hanrei_tokens : ...` で列を絞れる)。表示用メタは
+        -- UNINDEXED で同居させ、UI は hanrei_fts_content の先頭列だけを読む。
+        -- 判示事項は原文のまま保持する (出典の規約上、改変しない)。
+        CREATE VIRTUAL TABLE hanrei_fts USING fts5(
+            case_id UNINDEXED,
+            case_number UNINDEXED,
+            case_name UNINDEXED,
+            judged_on UNINDEXED,
+            court UNINDEXED,
+            result UNINDEXED,
+            holding UNINDEXED,
+            detail_url UNINDEXED,
+            pdf_url UNINDEXED,
+            case_name_tokens,
+            holding_tokens,
+            summary_tokens,
+            referenced_laws_tokens,
+            citations_tokens,
             tokenize='unicode61'
         );
 
@@ -939,17 +966,24 @@ pub fn build_search_db(
         }
     }
 
+    // ── 判例 FTS (hanrei_dir が Some のとき) ────────────────────────────────
+    let total_hanrei = match hanrei_dir {
+        Some(hdir) => index_hanrei(&conn, hdir)?,
+        None => 0,
+    };
+
     documents::build(&conn, out_path.parent().unwrap_or_else(|| Path::new(".")))?;
 
     conn.execute(
         "INSERT INTO meta (key, value) VALUES ('built_at', datetime('now')), \
          ('law_count', ?1), ('article_count', ?2), ('ref_count', ?3), \
-         ('speech_count', ?4), ('tokenizer', 'bigram')",
+         ('speech_count', ?4), ('hanrei_count', ?5), ('tokenizer', 'bigram')",
         params![
             laws.len() as i64,
             total_articles as i64,
             total_refs as i64,
             total_speeches as i64,
+            total_hanrei as i64,
         ],
     )?;
     // PRAGMA optimize only updates planner statistics; it does not merge FTS5
@@ -969,12 +1003,85 @@ pub fn build_search_db(
     Ok(())
 }
 
+/// `public/hanrei/{case_id}.json` (index.json 以外) を新しい順 (case_id 降順) に
+/// hanrei_fts へ入れる。UI は rowid 順に読むので、新しい判例が先に出る。
+fn index_hanrei(conn: &Connection, hdir: &Path) -> Result<usize> {
+    let mut files: Vec<(u64, std::path::PathBuf)> = std::fs::read_dir(hdir)
+        .map(|rd| {
+            rd.filter_map(|e| e.ok())
+                .map(|e| e.path())
+                .filter_map(|p| {
+                    if p.extension().and_then(|x| x.to_str()) != Some("json") {
+                        return None;
+                    }
+                    // `{case_id}.json` だけ。index.json や macOS の `._*` は数値にならない。
+                    let id: u64 = p.file_stem()?.to_str()?.parse().ok()?;
+                    Some((id, p))
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+    files.sort_by_key(|f| std::cmp::Reverse(f.0));
+    let mut total = 0usize;
+    for batch in files.chunks(HANREI_INDEX_BATCH_SIZE) {
+        let tx = conn.unchecked_transaction()?;
+        {
+            let mut stmt = tx.prepare(
+                "INSERT INTO hanrei_fts \
+                 (case_id, case_number, case_name, judged_on, court, result, holding, detail_url, pdf_url, \
+                  case_name_tokens, holding_tokens, summary_tokens, referenced_laws_tokens, citations_tokens) \
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)",
+            )?;
+            for (case_id, f) in batch {
+                // 1 件壊れていても横断検索 DB 全体は作る (通達と同じく読めないものは飛ばす)。
+                let v: serde_json::Value = match std::fs::read(f)
+                    .map_err(anyhow::Error::from)
+                    .and_then(|raw| Ok(serde_json::from_slice(&raw)?))
+                {
+                    Ok(v) => v,
+                    Err(e) => {
+                        tracing::warn!("search.db: skip hanrei {}: {e:#}", f.display());
+                        continue;
+                    }
+                };
+                let s = |k: &str| v.get(k).and_then(|x| x.as_str()).unwrap_or("");
+                let citations = v
+                    .get("body_citations")
+                    .and_then(|x| x.as_array())
+                    .map(|a| a.iter().filter_map(|c| c.as_str()).collect::<Vec<_>>().join(" "))
+                    .unwrap_or_default();
+                stmt.execute(params![
+                    *case_id as i64,
+                    s("case_number"),
+                    s("case_name"),
+                    s("judged_on"),
+                    s("court"),
+                    s("result"),
+                    s("holding"),
+                    s("detail_url"),
+                    s("pdf_url"),
+                    tokenize_for_fts(&format!("{} {}", s("case_name"), s("case_number"))),
+                    tokenize_for_fts(s("holding")),
+                    tokenize_for_fts(s("summary")),
+                    tokenize_for_fts(s("referenced_laws")),
+                    tokenize_for_fts(&citations),
+                ])?;
+                total += 1;
+            }
+        }
+        tx.commit()?;
+        tracing::info!("search.db: indexed {} hanrei cases", total);
+    }
+    Ok(total)
+}
+
 fn optimize_fts(conn: &Connection) -> Result<()> {
     for table in [
         "search_fts",
         "speeches_fts",
         "kanpo_fts",
         "tsutatsu_fts",
+        "hanrei_fts",
         "documents_fts",
     ] {
         conn.execute_batch(&format!("INSERT INTO {table}({table}) VALUES('optimize');"))
@@ -995,6 +1102,7 @@ mod tests {
             "speeches_fts",
             "kanpo_fts",
             "tsutatsu_fts",
+            "hanrei_fts",
             "documents_fts",
         ];
         for table in tables {
@@ -1075,6 +1183,7 @@ mod tests {
             None,
             Some(&root.join("kanpo")),
             None,
+            None,
         );
 
         assert!(result.is_err());
@@ -1145,7 +1254,7 @@ mod tests {
 
         let db_path = root.join("search.db");
         let cats = std::collections::HashMap::new();
-        build_search_db(&db_path, &[], &cats, None, Some(&root.join("kanpo")), None).unwrap();
+        build_search_db(&db_path, &[], &cats, None, Some(&root.join("kanpo")), None, None).unwrap();
 
         let conn = Connection::open(&db_path).unwrap();
         // 「施行規則」を bigram トークン化して MATCH。
@@ -1213,7 +1322,7 @@ mod tests {
             source: SourceMeta { provider: "test".into(), raw_xml_sha256: None, fetched_at: "2026-01-01".into() },
         };
         let cats = std::collections::HashMap::new();
-        build_search_db(&db, &[law], &cats, None, None, None).unwrap();
+        build_search_db(&db, &[law], &cats, None, None, None, None).unwrap();
 
         let conn = Connection::open(&db).unwrap();
         // 「バーゼル規制」(= BIS規制 の同義語) で本文がヒット = 同義語索引が効いている。
@@ -1289,7 +1398,7 @@ mod tests {
             }],
         );
         let keiho = doc("140AC0000000045", "刑法", vec![]);
-        build_search_db(&db, &[whistle, keiho], &Default::default(), None, None, None).unwrap();
+        build_search_db(&db, &[whistle, keiho], &Default::default(), None, None, None, None).unwrap();
 
         let conn = Connection::open(&db).unwrap();
         let (law_id, article_id, article_no, caption): (String, String, String, String) = conn
@@ -1364,6 +1473,7 @@ mod tests {
             None,
             None,
             None,
+            None,
         )
         .unwrap();
 
@@ -1403,7 +1513,7 @@ mod tests {
 
         let db = root.join("search.db");
         let cats = std::collections::HashMap::new();
-        build_search_db(&db, &[], &cats, None, None, Some(&tdir)).unwrap();
+        build_search_db(&db, &[], &cats, None, None, Some(&tdir), None).unwrap();
 
         let conn = Connection::open(&db).unwrap();
         let caption: String = conn
@@ -1423,6 +1533,87 @@ mod tests {
             )
             .unwrap();
         assert!(n >= 1);
+
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn hanrei_fts_indexes_case_name_and_referenced_laws() {
+        let root = std::env::temp_dir().join(format!("lawpub_hanrei_fts_test_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        let hdir = root.join("hanrei");
+        std::fs::create_dir_all(&hdir).unwrap();
+        let case = |id: u64, name: &str, laws: &str, citations: Vec<&str>| {
+            serde_json::json!({
+                "case_id": id,
+                "case_number": format!("令和5(受){id}"),
+                "case_name": name,
+                "judged_on": "令和6年3月1日",
+                "court": "最高裁判所第二小法廷",
+                "judgment_type": "判決",
+                "result": "棄却",
+                "reporter": "",
+                "lower_court": "",
+                "lower_case_number": "",
+                "lower_judged_on": "",
+                "holding": "使用者責任の成否",
+                "summary": "被用者の加害行為について使用者は損害賠償責任を負う。",
+                "referenced_laws": laws,
+                "body_citations": citations,
+                "detail_url": format!("https://www.courts.go.jp/hanrei/{id}/detail2/index.html"),
+                "pdf_url": format!("https://www.courts.go.jp/assets/hanrei/hanrei-pdf-{id}.pdf"),
+            })
+        };
+        for (id, v) in [
+            (92001u64, case(92001, "損害賠償請求事件", "民法715条1項", vec![])),
+            (92002, case(92002, "覚醒剤取締法違反被告事件", "", vec!["刑事訴訟法第三百二十一条"])),
+        ] {
+            std::fs::write(hdir.join(format!("{id}.json")), v.to_string()).unwrap();
+        }
+        // index.json と macOS の AppleDouble は索引しない。
+        std::fs::write(hdir.join("index.json"), r#"{"cases":[]}"#).unwrap();
+        std::fs::write(hdir.join("._92001.json"), b"\x00\x05\x16\x07").unwrap();
+        // 壊れた 1 件があっても DB 全体の生成は止めない。
+        std::fs::write(hdir.join("91999.json"), "not-json").unwrap();
+
+        let db = root.join("search.db");
+        build_search_db(&db, &[], &Default::default(), None, None, None, Some(&hdir)).unwrap();
+
+        let conn = Connection::open(&db).unwrap();
+        let find = |q: &str| -> Vec<(i64, String, String)> {
+            conn.prepare(
+                "SELECT case_id, case_name, detail_url FROM hanrei_fts \
+                 WHERE hanrei_fts MATCH ?1 ORDER BY rowid",
+            )
+            .unwrap()
+            .query_map(params![q], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)))
+            .unwrap()
+            .collect::<rusqlite::Result<Vec<_>>>()
+            .unwrap()
+        };
+
+        // 事件名で引ける。出典 URL が同居している。
+        let hits = find(&tokenize_for_fts("損害賠償請求"));
+        assert_eq!(hits.len(), 1, "{hits:?}");
+        assert_eq!(hits[0].0, 92001);
+        assert_eq!(hits[0].2, "https://www.courts.go.jp/hanrei/92001/detail2/index.html");
+
+        // 参照法条で引ける (列を絞っても当たる)。
+        let hits = find(&format!("referenced_laws_tokens : ({})", tokenize_for_fts("民法715条")));
+        assert_eq!(hits.iter().map(|h| h.0).collect::<Vec<_>>(), vec![92001]);
+
+        // 参照法条が空の判決は PDF 由来の引用 (body_citations) で引ける。
+        let hits = find(&tokenize_for_fts("刑事訴訟法第三百二十一条"));
+        assert_eq!(hits.iter().map(|h| h.0).collect::<Vec<_>>(), vec![92002]);
+
+        // 共通の裁判要旨では両方当たり、新しい事件 (case_id 大) が先に並ぶ。
+        let hits = find(&tokenize_for_fts("使用者責任"));
+        assert_eq!(hits.iter().map(|h| h.0).collect::<Vec<_>>(), vec![92002, 92001]);
+
+        let count: String = conn
+            .query_row("SELECT value FROM meta WHERE key='hanrei_count'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(count, "2");
 
         let _ = std::fs::remove_dir_all(&root);
     }
