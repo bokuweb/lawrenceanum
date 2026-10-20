@@ -1,0 +1,101 @@
+{
+  "issue": 227,
+  "stage": "first_integrated_batch",
+  "date": "2026-10-20",
+  "baseline_commit": "d9354cea",
+  "archive": {
+    "first": "2026-07-16",
+    "last": "2026-10-20",
+    "days": 63,
+    "pdf_pages": 11992,
+    "manifest_size_and_sha256_mismatches": 0
+  },
+  "full_archive_diff": {
+    "changed_pages": 2573,
+    "character_changed_pages": 392,
+    "source_E61C_dashes_restored": 4949,
+    "numeric_fractions_restored": 126,
+    "false_header_label_characters_removed": 21,
+    "other_character_losses": 0,
+    "duplicate_word_ids": 0,
+    "checks": [
+      "Re-extracted all 11992 original PDFs before and after the change.",
+      "Reparsed all 2573 changed pages: identical saved output; each word ID used at most once.",
+      "Each restored dash uses its original E61C word ID, attached once inside its original table.",
+      "Exactly 126 matching pairs of fraction parentheses and 126 division operators were added."
+    ]
+  },
+  "visual_checks": {
+    "plain_fractions": {
+      "pages": 17,
+      "fractions": 69,
+      "regressions": 0
+    },
+    "cell_fractions": {
+      "pages": 20,
+      "fractions": 57,
+      "regressions": 0
+    },
+    "dash_sample": {
+      "pages": 12,
+      "dashes": 117,
+      "regressions": 0
+    },
+    "numeric_first_column_sample": {
+      "pages": 11,
+      "dashes": 30,
+      "regressions": 0
+    },
+    "partial_rules_and_leading_frames": {
+      "pages": 11,
+      "improved": 9,
+      "whitespace_only": 2,
+      "regressions": 0
+    },
+    "mixed_statistics_wind_farms_and_trailing_frame": {
+      "changed_pages": 6,
+      "regressions": 0,
+      "additional_guard_control_unchanged": 1
+    }
+  },
+  "audit_files": [
+    "110.json",
+    "111.json",
+    "112.json"
+  ],
+  "accuracy_note": "110 is calibration and recheck. 111 and 112 retain their independent first-pass grades even when subsequent fixes address their failures. No claim of population-wide 100% reading accuracy.",
+  "known_remaining": [
+    "20260901g001950018: dates separated from 13 political-organization records; next patch prepared.",
+    "20260722h017520029: heading mixed into a merger notice; next patch prepared.",
+    "20260724h017540006: final column separated from the type-change table.",
+    "20261009g002230089: old-only category 10 separated from its amendment table.",
+    "20260901g001950029: third-column wrapped values read separately.",
+    "20260831h017790010: map-information type column separated.",
+    "20261014g002250011: wrapped numeric fraction unsupported.",
+    "20261016g002280483: dash-only rows remain outside conservative restoration."
+  ],
+  "scope": "Glyphless outlined body text is outside the reading-order audit. Mixed statistics retains flattened multirow headings and some unrestored dash-only amounts.",
+  "source_sha256": {
+    "format.rs": "11a24e7e6f7291f8d26234a92a6814c853580a3edc56a3c2c32b3c2dff56566c",
+    "fractions.rs": "07af8b765e547074abeadc99c93c8cf374f2be69ccdcc494845e5e5c58e82bf4",
+    "grid.rs": "657cb3c5ffba6ad10e4bef35809b4b4d7a52abe9b1e5884ca7c6fb7adaa966e8",
+    "horizontal.rs": "5ee031e3d4c35d2c7b0d72711eea8ab58e7316ea6250e78686de2593961aaee7",
+    "lib.rs": "6e108219d767a4db17de37d62cb6a1bb159de4a4ded2719e5f47f9657eed7009",
+    "lines.rs": "c277b260081e9b35c53964098c3b39ac2cbccf054bbaf8cb083898a5f862853c",
+    "model.rs": "34ff7218594c9f98a8b607fb38c062cfedd9242295e0045d87909bdfbfb66474",
+    "normalize.rs": "4f39c6a97fc864c09d13417eb61aa73359cc8ee4ed36f7833e0b0843ca4927c8",
+    "quantity_tables.rs": "ffb65b9a00c7b0c2781ed076bdd060b687bc052814289b548ba96011605adfb5",
+    "segment.rs": "05aef0a20c3f1793883d8fc8152d12261f2b5f5336a3864756d080727fb262e7",
+    "shinkyu.rs": "70a997671fd799cb72e8dadf4053b0654d5544dc074b87bb4736050ef2eb2940",
+    "table.rs": "f1accd264feb5d36886dce6be606e7e6fd6f143ecab8655514e0ba76777b4a94",
+    "table_dashes.rs": "e8b5c1010da3128f5b5e423ed4b8dc28279eafa95e3ec14c36029525ad6c283d",
+    "trace.rs": "725c767b3fe3609b17f84aea3b290f637fa341684e243aae07394441116dee15",
+    "vertical.rs": "e4f4352b91e10438e27aec33f469fd0562e7ecb32b12193a5f2b73eb84c47024"
+  },
+  "tests": {
+    "command": "cargo test -p kanpo-pdf -p kanpo-parser -p kanpo-parser-wasm -p kanpo-lm --locked",
+    "passed_tests": 202,
+    "failed_tests": 0,
+    "archive_pdf_fixtures": 374
+  }
+}

@@ -54,14 +54,28 @@ pub struct TableCell {
 impl Table {
     /// テキスト出力用に、行ごとにセルを全角空白で区切って書き下す（セルの中の改行も全角空白に
     /// する。「大管工業㈱」「代表取締役　中島　栄一」のような項目を続けて書かないため）。
+    /// 値のない列も区切りを残し、見出しと金額の列位置を保つ。結合セルは開始列にだけ書く。
     pub fn render(&self) -> String {
         (0..self.rows)
-            .map(|r| {
-                let mut cells: Vec<&TableCell> = self.cells.iter().filter(|c| c.row == r).collect();
-                cells.sort_by_key(|c| c.col);
-                cells.iter().map(|c| c.text.replace('\n', "\u{3000}")).collect::<Vec<_>>().join("\u{3000}")
+            .filter_map(|r| {
+                let cells: Vec<&TableCell> = self.cells.iter().filter(|c| c.row == r).collect();
+                // 従来と同じく、セルなし・空セル一つだけの行は出力しない。
+                if cells.is_empty() || (cells.len() == 1 && cells[0].text.is_empty()) {
+                    return None;
+                }
+                let mut columns = vec![String::new(); self.cols];
+                for cell in cells {
+                    // 不規則な結合罫線では同じ開始列に複数セルが残ることがある。
+                    // 後のセル（空セルも含む）で先の本文を上書きしない。
+                    let text = cell.text.replace('\n', "\u{3000}");
+                    let column = &mut columns[cell.col];
+                    if !column.is_empty() && !text.is_empty() {
+                        column.push('\u{3000}');
+                    }
+                    column.push_str(&text);
+                }
+                Some(columns.join("\u{3000}").trim_end().to_string())
             })
-            .filter(|l| !l.is_empty())
             .collect::<Vec<_>>()
             .join("\n")
     }
@@ -180,6 +194,84 @@ pub(crate) const SHINKYU_END: &str = "\u{E002}";
 /// 文字列が表の目印だけの行なら、その通し番号。
 pub(crate) fn parse_table_marker(s: &str) -> Option<usize> {
     s.trim().strip_prefix('\u{E000}')?.strip_suffix('\u{E001}')?.parse().ok()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Table, TableCell};
+
+    fn cell(row: usize, col: usize, text: &str) -> TableCell {
+        TableCell {
+            row,
+            col,
+            rowspan: 1,
+            colspan: 1,
+            x0: 0.0,
+            y0: 0.0,
+            x1: 1.0,
+            y1: 1.0,
+            text: text.to_string(),
+            words: Vec::new(),
+        }
+    }
+
+    fn table(rows: usize, cols: usize, cells: Vec<TableCell>) -> Table {
+        Table {
+            x0: 0.0,
+            y0: 0.0,
+            x1: 1.0,
+            y1: 1.0,
+            rows,
+            cols,
+            cells,
+        }
+    }
+
+    #[test]
+    fn render_keeps_leading_and_internal_empty_columns() {
+        let table = table(
+            2,
+            5,
+            vec![
+                cell(0, 3, "20"),
+                cell(0, 1, "10"),
+                cell(1, 0, "合計\n額"),
+                cell(1, 4, "30"),
+            ],
+        );
+        assert_eq!(table.render(), "　10　　20\n合計　額　　　　30");
+    }
+
+    #[test]
+    fn render_writes_merged_cells_only_at_their_start() {
+        let mut merged = cell(0, 0, "見出し");
+        merged.colspan = 2;
+        merged.rowspan = 2;
+        let table = table(2, 4, vec![merged, cell(0, 3, "甲"), cell(1, 2, "乙")]);
+        assert_eq!(table.render(), "見出し　　　甲\n　　乙");
+        assert_eq!(table.to_nested().merges.len(), 1);
+    }
+
+    #[test]
+    fn render_keeps_existing_empty_row_policy() {
+        let table = table(
+            4,
+            3,
+            vec![
+                cell(1, 1, ""),
+                cell(2, 0, ""),
+                cell(2, 1, ""),
+                cell(3, 0, "値"),
+            ],
+        );
+        assert_eq!(table.render(), "\n値");
+    }
+
+    #[test]
+    fn render_keeps_multiple_cells_with_the_same_logical_start() {
+        let table = table(1, 3, vec![cell(0, 1, "レギュラー"), cell(0, 1, "リッチ"), cell(0, 1, "")]);
+        assert_eq!(table.render(), "　レギュラー　リッチ");
+    }
 }
 
 /// 段（または表）1 つ分の復元結果。テキストと領域の両方をここから作る。

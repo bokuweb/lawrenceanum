@@ -41,6 +41,9 @@ pub mod normalize;
 pub mod segment;
 pub mod shinkyu;
 pub mod table;
+mod table_dashes;
+mod quantity_tables;
+mod fractions;
 pub mod trace;
 pub mod vertical;
 

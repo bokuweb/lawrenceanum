@@ -213,12 +213,91 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
     if continues(&ui, &li) || (ua.len() >= 2 && la.len() >= 1 && la.iter().min() > ua.iter().max() && ua.len() + la.len() >= 4) {
         return None;
     }
+    // 料金表などの行名「第四項第一号…第四項第七号」「第四項第八号…」も、項と号を合わせて
+    // 比べる。条番号だけを拾うと、似た金額が上下に続く通常の表を新旧対照表と取り違える。
+    let (ur, lr) = (provision_references(&upper), provision_references(&lower));
+    if ur.len() >= 3 && lr.len() >= 3 && lr.iter().min() > ur.iter().max() {
+        return None;
+    }
+    let (uk, lk) = (kana_headings(&upper), kana_headings(&lower));
+    let lower_starts_heading = lower
+        .iter()
+        .max_by(|a, b| a.x.total_cmp(&b.x).then_with(|| b.y.total_cmp(&a.y)))
+        .is_some_and(|c| kana_number(&c.text).is_some());
     let ut = reconstruct_page(upper);
     let lt = reconstruct_page(lower);
+    // 同じ小項目を持つ説明（イの下にもロの下にも（イ）〜（ホ）がある等）は上下で似る。
+    // 大項目のカナ番号が進み、帯の切れ目でカタカナ語まで続いているなら、通常の段送り。
+    // カナ番号の変更だけでは新旧対照表の号の繰下げと区別できないので、両方を求める。
+    let katakana = |c: char| ('ァ'..='ヶ').contains(&c) || c == 'ー';
+    if !uk.is_empty()
+        && !lk.is_empty()
+        && lk.iter().min() > uk.iter().max()
+        && !lower_starts_heading
+        && ut.trim_end().chars().rev().take_while(|&c| katakana(c)).count() >= 2
+        && (1..=2).contains(&lt.trim_start().chars().take_while(|&c| katakana(c)).count())
+    {
+        return None;
+    }
     if bigram_jaccard(&ut, &lt) < 0.5 || sequence_ratio(&ut, &lt) < 0.5 {
         return None;
     }
     Some(divider)
+}
+
+/// 列頭の条・項・号を合わせた参照番号（「第二条第四項第八号」など）。
+/// 同じ参照の「ただし書」の列は一度だけ数える。
+fn provision_references(band: &[Col]) -> Vec<[u32; 3]> {
+    let mut refs = Vec::new();
+    for g in column_groups(band.to_vec()) {
+        let Some(top) = g.iter().min_by(|a, b| a.y.total_cmp(&b.y)) else { continue };
+        let mut rest = top.text.trim();
+        let mut numbers = [0; 3];
+        let mut last = None;
+        while let Some(s) = rest.strip_prefix('第') {
+            let n: String = s.chars().take_while(|c| "〇一二三四五六七八九十百千".contains(*c)).collect();
+            let Some(value) = kanji_number(&n) else { break };
+            let Some(unit) = s[n.len()..].chars().next() else { break };
+            let index = match unit {
+                '条' => 0,
+                '項' => 1,
+                '号' => 2,
+                _ => break,
+            };
+            if last.is_some_and(|i| index <= i) {
+                break;
+            }
+            numbers[index] = value;
+            last = Some(index);
+            rest = &s[n.len() + unit.len_utf8()..];
+        }
+        if last == Some(2) && numbers[..2] != [0, 0] {
+            refs.push(numbers);
+        }
+    }
+    refs.sort_unstable();
+    refs.dedup();
+    refs
+}
+
+/// 括弧の無いカナの号見出し。本文の語頭「ローカル」等は数えない。
+fn kana_headings(band: &[Col]) -> Vec<usize> {
+    column_groups(band.to_vec())
+        .iter()
+        .filter_map(|g| {
+            let top = g.iter().min_by(|a, b| a.y.total_cmp(&b.y))?;
+            kana_number(&top.text)
+        })
+        .collect()
+}
+
+fn kana_number(text: &str) -> Option<usize> {
+    let mut chars = text.trim_start().chars();
+    let c = chars.next()?;
+    if chars.next().is_some_and(|next| !next.is_whitespace()) {
+        return None;
+    }
+    "イロハニホヘトチリヌルヲワカヨタレソツネナラムウヰノオクヤマケフコエテアサキユメミシヱヒモセス".chars().position(|k| k == c)
 }
 
 /// 段の列の頭の番号（算用数字で始まる列の頭の項番号と、条の見出し「第二十八条」の条番号を別々に。枝番の「の二」は
@@ -1472,6 +1551,26 @@ mod tests {
             assert_eq!(kanji_number(s), Some(n), "{s}");
         }
         assert_eq!(kanji_number(""), None);
+    }
+
+    #[test]
+    fn headerless_table_may_renumber_kana_items() {
+        // 改正後のイと改正前のロが対応する。上帯の末尾がカタカナでも、下帯は号見出しから
+        // 始まるので、前の語の続きとして扱わない。
+        use crate::vertical::Col;
+        let mut cols = Vec::new();
+        for (y, label) in [(80.0, "イ"), (450.0, "ロ")] {
+            for (x, offset, end, text) in [
+                (540.0, 0.0, 8.0, label),
+                (540.0, 16.0, 320.0, "事業を継続するために必要な措置を実施するものとする。"),
+                (520.0, 0.0, 320.0, "事業を実施するときは計画を策定し適切な実施体制を整備する。"),
+                (500.0, 0.0, 320.0, "事業計画に基づく取組を実施した者はその結果を報告する。"),
+                (480.0, 0.0, 320.0, "事業の種別については次のとおりとするカタカナ"),
+            ] {
+                cols.push(Col { id: cols.len(), x, x1: x + 8.0, y: y + offset, y1: y + end, text: text.into() });
+            }
+        }
+        assert!(super::detect_shinkyu_bands_headerless(&cols, 842.0).is_some());
     }
 
     #[test]

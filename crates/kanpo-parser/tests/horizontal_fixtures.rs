@@ -5,6 +5,43 @@
 
 use kanpo_parser::{reconstruct_vertical, segment_articles};
 
+#[test]
+fn smaller_wrapped_account_with_a_dash_amount_starts_a_new_row() {
+    // 令和8年8月7日 号外第178号 p121。エスアイエルの損益計算書は「販売費及び一般管理／費」だけ
+    // 小さい字で2行に組み、その金額「－」は字の層から除かれる。直前の「営業総利益」とは別の科目。
+    let pdf = include_bytes!("archive/pages/20260807g00178/20260807g001780121.pdf");
+    let pages = kanpo_parser::page_inputs(pdf).unwrap();
+    let out = kanpo_parser::analyze_item(&pages).text;
+    assert!(out.contains("営業総利益　1,419,551\n販売費及び一般管理費\n営業利益　1,419,551"), "{out}");
+    // 末尾の「費」は同じ科目に戻り、数のあるほかの損益計算書でも折り返しを保持する。
+    assert!(out.contains("販売費及び一般管理費　19,236"), "{out}");
+    assert!(!out.contains("営業総利益販売費"), "{out}");
+}
+
+#[test]
+fn smaller_accounts_with_amounts_keep_parallel_rows_and_wrapped_tails() {
+    for (pdf, expected) in [
+        (include_bytes!("archive/pages/20260814g00182/20260814g001820096.pdf").as_slice(), "売上総利益　4,406　税引前当期純利益　2,468"),
+        (include_bytes!("archive/pages/20260907g00199/20260907g001990063.pdf").as_slice(), "売上総利益　4,014　法人税、住民税及び事業税　439"),
+        (include_bytes!("archive/pages/20261008g00222/20261008g002220095.pdf").as_slice(), "売上総利益　3,757　法人税等調整額　92"),
+    ] {
+        let out = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(pdf).unwrap()).text;
+        assert!(out.lines().any(|line| line == expected), "{expected}: {out}");
+    }
+}
+
+#[test]
+fn smaller_account_without_an_amount_keeps_its_wrapped_final_character() {
+    let pdf = include_bytes!("archive/pages/20260825g00189/20260825g001890116.pdf");
+    let out = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(pdf).unwrap()).text;
+    let out = out.lines().map(str::trim_start).collect::<Vec<_>>().join("\n");
+    assert!(out.contains("一般正味財産　401,606\nその他有価証券評価差額金"), "{out}");
+    for amount in ["68,803", "23,593"] {
+        assert!(out.contains(&format!("一般純資産　{amount}\nその他有価証券差額金\n")), "{out}");
+    }
+    assert!(!out.lines().any(|line| line == "金"), "{out}");
+}
+
 /// `kanpo-fetch` の標題突合と同じく、標題（対象の公示名）を含む記事セグメントを返す。
 /// ちょうど 1 つでなければ失敗させる。
 fn segment_with<'a>(segments: &'a [String], title: &str) -> &'a str {
@@ -140,4 +177,14 @@ fn heading_only_page_keeps_heading_and_drops_running_header() {
     // 令和8年10月5日 本紙第1801号 p7。テキスト層にあるのは柱と家裁公告の標題だけ。
     let out = reconstruct_vertical(include_str!("fixtures/souzoku_heading_only_p7.bbox.html"));
     assert_eq!(out, "相続財産清算人の選任及び相続権主張の催告");
+}
+
+#[test]
+fn wind_farm_names_stay_with_their_capacity_before_the_next_notice() {
+    let pdf = include_bytes!("archive/pages/20260825g00189/20260825g001890097.pdf");
+    let out = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(pdf).unwrap());
+    let compact: String = out.text.chars().filter(|c| !c.is_whitespace()).collect();
+    let items = &compact[compact.find("二、第一種事業の名称").unwrap()..];
+    let positions: Vec<_> = ["深見町", "三二、四〇〇", "島牧美川", "一三〇、〇〇〇", "二四〇、〇〇〇", "配当"].iter().map(|s| items.find(s).unwrap()).collect();
+    assert!(positions.windows(2).all(|p| p[0] < p[1]), "{}", out.text);
 }

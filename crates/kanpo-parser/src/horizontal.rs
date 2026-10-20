@@ -968,7 +968,7 @@ fn vertical_regions(words: &[Col]) -> Vec<(Block, Vec<usize>)> {
             let (a, b) = (tall[i], tall[j]);
             // 2 列分の間隔（間の短い列「二号」が上下に重ならずに挟まる署名の列「株式会社誠和」も。字の箱の端数で 2 字分を
             // わずかに越える）。
-            let pitch = (a.x1 - a.x).max(b.x1 - b.x) * 2.0 + 0.5;
+            let pitch = (a.x1 - a.x).max(b.x1 - b.x) * 2.0 + 1.0;
             let gap = (a.x.max(b.x) - a.x1.min(b.x1)).max(0.0);
             let overlap = a.y1.min(b.y1) - a.y.max(b.y);
             // 前の列の終わりの高さから始まる列（字下げして組んだ署名「代表取締役　中澤　晴彦」）も同じ欄。
@@ -1822,6 +1822,7 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
     let header_rows = if header_rows <= 3 && header_rows < ny && item_cols == 0 { header_rows } else { 0 };
     let header_cell = |i: usize| g.cells[i].y1 <= header_rows;
     let mut anchors: Vec<f32> = Vec::new();
+    let mut smaller_account_words = std::collections::HashSet::new();
     // 科目の欄（行間で行を分けたセル）。
     let mut item_cells = vec![false; g.cells.len()];
     // 罫線で区切った行の中で、どの欄も 1 項目なら（1 項目を折り返して上下中央に置いた欄だけの行）、行をさらに分けない
@@ -1959,28 +1960,44 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
             // 前の行と次の行がどちらも科目の名前で終われば、行間を空けずに続いても次の科目（金額の「―」が字の層に無い
             // 科目「固定負債」が上の科目「流動負債」に続いていた）。
             // 前の行より字が大きければ次の科目（長い科目だけ小さい字で 2 行に組み、次の科目「法人税等調整額」が
-            // 「法人税、住民税及び／事業税」に続いていた）。小さい字の科目の 1 行目は、金額が 2 行目の高さにあるので
-            // 行の頭にしない（隣の表の小さい字の科目の折り返しが割れる）。数や項目番号を含む行（「１２．０／ｍ岸壁」
+            // 「法人税、住民税及び／事業税」に続いていた）。逆に小さくなるときも、前の科目が完結していれば別の科目
+            // （「営業総利益」に、金額が「－」の小さい字の「販売費及び一般管理／費」が続いていた）。小さい字の科目の
+            // 1 行目は金額が 2 行目の高さにあるので、前の科目が完結しているときだけ。数や項目番号を含む行（「１２．０／ｍ岸壁」
             // 「き／二　条鰭亜綱」）は、字の大きさが字の種類で違うだけなので見ない。
-            let resized = |p: &Line, l: &Line| {
+            let resized = |k: usize| {
+                let (p, l) = (&cell_lines[i][k - 1], &cell_lines[i][k]);
                 let (a, b) = (render_line(&p.words), render_line(&l.words));
                 let plain = |t: &str| !t.chars().any(|c| c.is_ascii_digit() || ('０'..='９').contains(&c));
-                (l.y1 - l.y0) > (p.y1 - p.y0) * 1.25
-                    && a.chars().count() >= 2
+                let em = l.y1 - l.y0;
+                // 金額のある小字科目は金額の行が既に行の頭になる。さらに小字の1行目で切ると、左右に並べた
+                // 表の同じ行や、2行目に続く「事業税」が割れるので、金額の無い科目だけを補う。
+                let bottom = cell_lines[i].get(k + 1).filter(|n| {
+                    (n.y1 - n.y0 - em).abs() < em * 0.1 && n.y0 - l.y1 < em * 0.25 && wraps(i, k + 1)
+                }).map_or(l.y1, |n| n.y1);
+                let amount = band.iter().any(|&j| {
+                    g.cells[j].x0 == g.cells[i].x1
+                        && cell_lines[j].iter().any(|m| l.y0 <= m.center() && m.center() <= bottom && amount_line(m))
+                });
+                let smaller_account = account_end(p) && b.chars().count() >= 4 && !b.starts_with(['（', '(']) && (p.y1 - p.y0) > em * 1.25 && !amount;
+                let valid = a.chars().count() >= 2
                     && plain(&a)
                     && plain(&b)
                     && !crate::vertical::starts_item(&b)
                     // 括弧の閉じていない行の続き（「荷さばき施設（荷さ／ばき地）」）でもない。
-                    && a.matches(['（', '(']).count() <= a.matches(['）', ')']).count()
+                    && a.matches(['（', '(']).count() <= a.matches(['）', ')']).count();
+                (((l.y1 - l.y0) > (p.y1 - p.y0) * 1.25 || smaller_account) && valid, smaller_account && valid)
             };
             let next_item = |k: usize| {
                 k > 0
                     && ((account_end(&cell_lines[i][k - 1]) && account_end(&cell_lines[i][k]))
                         || section_heading(&cell_lines[i][k - 1])
                         || section_heading(&cell_lines[i][k])
-                        || resized(&cell_lines[i][k - 1], &cell_lines[i][k]))
+                        || resized(k).0)
             };
             for (k, l) in cell_lines[i].iter().enumerate() {
+                if k > 0 && resized(k).1 {
+                    smaller_account_words.extend(l.words.iter().map(|w| w.id));
+                }
                 let c = l.center();
                 // 項目番号で始まる行（「10　発行日」の次の「11　発行価格」）は、行間を空けずに続いても次の項目。
                 let numbered = k > 0 && crate::vertical::starts_item(&render_line(&l.words));
@@ -2232,7 +2249,8 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
         }
         // 逆に、金額のある行の科目が右端まで組まれて途中で切れ（「前中期目標期間繰越積」）、次の行の同じ欄の続き
         // （「立金（注）」。8 字まで、字と括弧だけ）の右の欄に金額が無ければ、続きを前の行の科目へ戻す（左右に並べた貸借対照表で、
-        // 左の科目の次の行の高さで行が分かれ、続きが次の行に付いていた）。
+        // 左の科目の次の行の高さで行が分かれ、続きが次の行に付いていた）。上で新しい行に分けた、金額の無い小字科目も
+        // 同じように続きだけを戻す（「その他有価証券差額／金」の「金」が独立していた）。
         // 続きが 4 字以上なら、科目の名前で終わらない（「法人税等調整額」「資本剰余金」は次の科目）。見出しの「科目」など、
         // 前の行が 4 字未満なら科目の途中ではない。
         let complete = |t: &str| {
@@ -2244,7 +2262,7 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
                 && tail(&cells[n].text)
                 && !complete(&cells[n].text)
                 && cells[k].text.trim().chars().count() >= 4
-                && (amount_here || right_amount(row))
+                && (amount_here || right_amount(row) || cells[k].words.iter().any(|w| smaller_account_words.contains(w)))
                 && !amount_next
                 && !right_amount(row + 1)
                 && reaches
@@ -4367,7 +4385,7 @@ mod tests {
         words.push(Col { id: 99, x: 61.0, x1: 200.0, y: 156.0, y1: 164.0, text: "表の下の文".to_string() });
         let lines = horizontal_lines_with_tables(words, &[grid], &[], &[]);
         let texts: Vec<&str> = lines.iter().map(|l| l.text.as_str()).collect();
-        assert_eq!(texts, ["資産の部\u{3000}流動資産\u{3000}47,934\n固定資産\u{3000}3,865\n合計\u{3000}51,800", "表の下の文"]);
+        assert_eq!(texts, ["資産の部\u{3000}流動資産\u{3000}47,934\n\u{3000}固定資産\u{3000}3,865\n\u{3000}合計\u{3000}51,800", "表の下の文"]);
     }
 
     #[test]
@@ -4537,7 +4555,7 @@ mod tests {
         assert_eq!(lines.len(), 1);
         assert_eq!(
             lines[0].text,
-            "賞与引当金繰入\u{3000}57,622\n財務費用\n支払利息\u{3000}1,248\u{3000}1,248\n掛金及過去入\u{3000}484,251\n経常費用合計\u{3000}586,425"
+            "賞与引当金繰入\u{3000}57,622\n財務費用\n支払利息\u{3000}1,248\u{3000}1,248\n掛金及過去入\u{3000}484,251\n経常費用合計\u{3000}\u{3000}\u{3000}586,425"
         );
     }
 
@@ -4640,4 +4658,154 @@ mod tests {
         assert!(tables.is_empty());
         assert_eq!(rest.len(), 4);
     }
+}
+
+/// 横倒しの縦本文と、通常の横組みの統計表が長い罫線で分かれたページ。
+/// 戻す行と表の座標は表示のままなので、呼び出し元は unturn_tables 後に差し込む。
+/// 一般の短い囲み・金額のない一覧・境界をまたぐ記事は対象にしない。
+pub(crate) fn split_mixed_statistics(
+    cols: Vec<Col>, words: &[trace::Word], rules: &crate::lines::PageRules,
+) -> (Vec<Col>, Vec<trace::Line>) {
+    let native: Vec<Col> = cols.iter().filter_map(|c| words.get(c.id).map(|w| Col {
+        id: c.id, x: w.x0, x1: w.x1, y: w.y0, y1: w.y1, text: c.text.clone(),
+    })).collect();
+    let top = native.iter().map(|w| w.y).fold(f32::INFINITY, f32::min);
+    let bottom = native.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max);
+    let vforms = |ws: &[&Col]| ws.iter().filter_map(|c| words.get(c.id))
+        .flat_map(|w| w.raw.chars()).filter(|c| ('\u{FE10}'..='\u{FE48}').contains(c)).count();
+    for rule in &rules.vertical {
+        if rule.y1 - rule.y0 < (bottom - top) * 0.8
+            || native.iter().any(|w| w.x < rule.x - 0.5 && rule.x + 0.5 < w.x1) { continue; }
+        let (left, right): (Vec<&Col>, Vec<&Col>) = native.iter().partition(|w| x_center(w) < rule.x);
+        if vforms(&left) < 5 || vforms(&right) != 0 || right.len() < 100 { continue; }
+        if right.iter().any(|w| words.get(w.id).is_none_or(|source| source.text != w.text)) { continue; }
+        let right: Vec<Col> = right.into_iter().cloned().collect();
+        let Some(g) = statistics_grid(&right) else { continue; };
+        // 罫線で囲まれた別の表には干渉しない（区切り罫と柱は含まない）。
+        if rules.vertical.iter().any(|r| r.x > g.left() + 1.0 && r.x < g.right() - 1.0
+            && r.y0 < g.bottom() && g.top() < r.y1) { continue; }
+        let mut cells = Vec::new();
+        for gc in &g.cells {
+            let ws: Vec<Col> = right.iter().filter(|w| g.cell_at(x_center(w), y_center(w))
+                .is_some_and(|i| g.cells[i] == *gc)).cloned().collect();
+            let text = group_cell_lines(&ws).into_iter().map(|l| {
+                if gc.x0 == 0 { l.words.iter().map(|w| w.text.as_str()).collect() }
+                else { render_line(&l.words) }
+            }).collect::<Vec<String>>().join(if gc.x0 == 0 { "" } else { "\n" });
+            cells.push(trace::TableCell { row: gc.y0, col: gc.x0, rowspan: 1, colspan: 1,
+                x0: g.xs[gc.x0], x1: g.xs[gc.x1], y0: g.ys[gc.y0], y1: g.ys[gc.y1],
+                text, words: ws.iter().map(|w| w.id).collect() });
+        }
+        let table = trace::Table { x0: g.left(), x1: g.right(), y0: g.top(), y1: g.bottom(),
+            rows: g.ys.len() - 1, cols: g.xs.len() - 1, cells };
+        let used: std::collections::HashSet<usize> = table.cells.iter().flat_map(|c| c.words.iter().copied()).collect();
+        let rest: Vec<Col> = right.iter().filter(|w| !used.contains(&w.id)).cloned().collect();
+        let geom: std::collections::HashMap<usize, f32> = rest.iter().map(|w| (w.id, w.y)).collect();
+        let block = (table.x0, table.y0, table.x1, table.y1);
+        let mut lines = horizontal_lines_around(rest, &[block], &[], &[], &[block]);
+        let at = lines.iter().position(|l| l.words.iter().any(|id| geom.get(id).is_some_and(|y| *y >= table.y0))).unwrap_or(lines.len());
+        lines.insert(at, trace::Line { text: table.render(), words: Vec::new(), table: Some(table) });
+        let native_ids: std::collections::HashSet<usize> = right.iter().map(|w| w.id).collect();
+        return (cols.into_iter().filter(|w| !native_ids.contains(&w.id)).collect(), lines);
+    }
+    (cols, Vec::new())
+}
+
+/// 数値の右端が揃う6欄以上と、左側の短い科目が8行以上ある統計表。
+/// 数値の行を厳しく分けてから調べる。二段の月分は行中心の上下に収まるので、
+/// まず科目と単行の数値の揃いを見てからセルを決め、最後にセル内の二段を読む。
+fn statistics_grid(words: &[Col]) -> Option<Grid> {
+    let numeric = |t: &str| t.chars().any(|c| c.is_ascii_digit())
+        && t.chars().all(|c| c.is_ascii_digit() || ",.△▲－-()%％".contains(c));
+    let lines = statistics_lines(words);
+    let runs = |l: &Line| -> Vec<Col> {
+        let mut out: Vec<Col> = Vec::new();
+        for w in &l.words {
+            match out.last_mut() {
+                Some(r) if w.x - r.x1 < (w.y1 - w.y) * 0.2 => {
+                    r.x1 = r.x1.max(w.x1); r.text.push_str(&w.text);
+                }
+                _ => out.push(w.clone()),
+            }
+        }
+        out
+    };
+    let anchors: Vec<(f32,f32)> = lines.iter().filter_map(|l| {
+        let rs = runs(l);
+        let ns: Vec<&Col> = rs.iter().filter(|w| numeric(&w.text)).collect();
+        if ns.len() < 4 || !rs.iter().any(|w| !numeric(&w.text) && w.x1 <= ns[0].x) { return None; }
+        // 近い月分の上段が同じ行に入っても、4欄以上の数値の本体が揃う中心を使う。
+        let w = ns.iter().max_by_key(|w| ns.iter().filter(|n| (y_center(n)-y_center(w)).abs()<0.5).count())?;
+        (ns.iter().filter(|n| (y_center(n)-y_center(w)).abs()<0.5).count() >= 4)
+            .then_some((y_center(w), w.y1-w.y))
+    }).collect();
+    if anchors.len() < 8 { return None; }
+    let mut gaps: Vec<f32> = anchors.windows(2).map(|p| p[1].0 - p[0].0).collect();
+    gaps.sort_by(f32::total_cmp);
+    let pitch = gaps[gaps.len() / 2];
+    let em = anchors[0].1;
+    if pitch < em * 1.5 || pitch > em * 3.0 { return None; }
+    let (top, bottom) = (anchors[0].0 - pitch / 2.0, anchors[anchors.len()-1].0 + pitch / 2.0);
+    let body: Vec<Col> = words.iter().filter(|w| top <= y_center(w) && y_center(w) < bottom).cloned().collect();
+    let mut edge_groups: Vec<Vec<Col>> = Vec::new();
+    for l in statistics_lines(&body) {
+        for r in runs(&l).into_iter().filter(|w| numeric(&w.text)) {
+            match edge_groups.iter_mut().find(|g| (g[0].x1 - r.x1).abs() < 0.5) {
+                Some(g) => g.push(r), _ => edge_groups.push(vec![r]),
+            }
+        }
+    }
+    edge_groups.retain(|g| g.len() >= 3 && g.len() * 4 >= anchors.len());
+    edge_groups.sort_by(|a,b| a[0].x1.total_cmp(&b[0].x1));
+    if !(6..=12).contains(&edge_groups.len()) { return None; }
+    let bounds: Vec<(f32,f32)> = edge_groups.iter().map(|g| (
+        g.iter().map(|w| w.x).fold(f32::INFINITY, f32::min), g[0].x1)).collect();
+    // すべての数値を1欄へ一意に入れられる、実際の空きだけを欄の境にする。
+    if bounds.windows(2).any(|p| p[1].0 - p[0].1 < 1.0) { return None; }
+    let label_right = body.iter().filter(|w| w.x1 <= bounds[0].0 && !numeric(&w.text))
+        .map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
+    if !label_right.is_finite() || bounds[0].0 - label_right < 1.0 { return None; }
+    let mut xs = vec![body.iter().map(|w| w.x).fold(f32::INFINITY, f32::min) - 1.0,
+        (label_right + bounds[0].0) / 2.0];
+    xs.extend(bounds.windows(2).map(|p| (p[0].1 + p[1].0) / 2.0));
+    xs.push(bounds.last()?.1 + 1.0);
+    let label_words: Vec<Col> = body.iter().filter(|w| x_center(w) < xs[1]).cloned().collect();
+    if label_words.iter().any(|w| w.text.contains(['。','、']) || numeric(&w.text)) { return None; }
+    let mut label_lines: Vec<(f32,f32)> = Vec::new();
+    for l in group_cell_lines(&label_words) {
+        if l.words.iter().map(|w| w.text.chars().count()).sum::<usize>() > 32 { return None; }
+        match label_lines.last_mut() {
+            Some(p) if l.y0 - p.1 < em * 0.25 => p.1 = l.y1,
+            _ => label_lines.push((l.y0, l.y1)),
+        }
+    }
+    if label_lines.len() < 8 { return None; }
+    let centers: Vec<f32> = label_lines.iter().map(|p| (p.0 + p.1) / 2.0).collect();
+    if centers.windows(2).any(|p| p[1] - p[0] < pitch * 0.7 || p[1] - p[0] > pitch * 1.3)
+        || anchors.iter().any(|l| !centers.iter().any(|c| (*c-l.0).abs() < em * 0.2)) { return None; }
+    let mut ys = vec![top];
+    ys.extend(centers.windows(2).map(|p| (p[0] + p[1]) / 2.0));
+    ys.push(bottom);
+    // 見出し以外のどの語も枠内へ入ること。外側へのはみ出しは推定失敗として扱う。
+    if body.iter().any(|w| w.x < xs[0] || w.x1 > *xs.last().unwrap()) { return None; }
+    let cells = (0..ys.len()-1).flat_map(|y| (0..xs.len()-1).map(move |x|
+        GridCell { x0:x, x1:x+1, y0:y, y1:y+1 })).collect();
+    Some(Grid { xs, ys, cells })
+}
+
+// 欄を分ける前の表全幅では、隣の欄の半行ずれた数値へ行の範囲を広げない。
+// 字面の重なりを許す group_cell_lines は、欄を確定してから使う。
+fn statistics_lines(words: &[Col]) -> Vec<Line> {
+    let mut sorted: Vec<&Col> = words.iter().collect();
+    sorted.sort_by(|a,b| y_center(a).total_cmp(&y_center(b)));
+    let mut lines: Vec<(f32,Line)> = Vec::new();
+    for w in sorted {
+        match lines.last_mut() {
+            Some((c,l)) if (y_center(w)-*c).abs() < (w.y1-w.y).max(1.0)*0.15 => {
+                l.y0=l.y0.min(w.y); l.y1=l.y1.max(w.y1); l.words.push(w.clone());
+            }
+            _ => lines.push((y_center(w),Line {y0:w.y,y1:w.y1,words:vec![w.clone()]})),
+        }
+    }
+    lines.into_iter().map(|(_,mut l)| {l.words.sort_by(|a,b|a.x.total_cmp(&b.x));l}).collect()
 }
