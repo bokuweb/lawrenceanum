@@ -30,7 +30,7 @@ SPA を開くと、対応ブラウザの `document.modelContext` に読み取り
 | `get_upcoming_enforcements` | 施行予定 |
 | `get_data_status` | 更新日時・収集状況・件数・収集エラー |
 
-すべて `readOnlyHint: true`、`untrustedContentHint: true`。画面遷移は行わず、既存の公開 JSON と SQLite 検索 DB を利用する。ツールの登録は非同期で、ページ内の画面切り替えをまたいで利用できる。
+すべて `readOnlyHint: true`、`untrustedContentHint: true`。画面遷移は行わず、既存の公開 JSON と SQLite 検索 DB を利用する。ツールの登録はそれぞれ非同期で行い、1つの登録が応答しなくても他のツールを利用できる。ページ内の画面切り替えをまたいで利用できる。
 
 ## 一覧から詳細へ
 
@@ -52,6 +52,8 @@ SPA を開くと、対応ブラウザの `document.modelContext` に読み取り
 | `kanpo` | 官報 | 不要 | `date`（YYYY-MM-DD） |
 
 `reiki` の一覧にも `municipality_code`、`kanpo` の一覧にも `date` が必要。通達の詳細は通達集を返し、官報の詳細は指定日の号と記事を返す。パブコメ・議案・審議会の全文検索結果には `document_id` と画面の `route` が含まれ、議案の回次・審議会の府省も `document_args` に設定される。会議録・通達・例規の項目ヒットは `entry_args`、法令の条文ヒットは `article_args` を返す。
+
+詳細・文書内項目の取得では、別の `corpus` 専用の引数を指定するとエラーを返す。例えば `revision_id` は `laws` 専用で、会議録には指定できない。官報は `id` を指定せず `date` を使う。引数を無視して意図と異なる本文を返すことを防ぐ。
 
 一覧系ツールの `query` はメタデータの部分一致、空白区切りは AND 条件。`filters` はフィールド名と文字列値の完全一致条件（例: `{"category":"民事"}`）。ネストした値は `{"dimensions.category":"教育"}` のように指定できる。`sort_by` と `sort_order`（`asc` / `desc`）で並べ替え可能。数値フィールドは数値順、文字列は日本語の文字列順。`limit` は1〜100（既定20）、`offset` は0以上。応答の `total` は絞り込み後の件数で、`next_offset` が `null` になるまで続きを取得できる。版一覧・引用リンクはページングのみ対応する。
 
@@ -76,6 +78,8 @@ SPA を開くと、対応ブラウザの `document.modelContext` に読み取り
 | `kanpo` | `items`（当日の各号の記事） |
 
 応答には文書のメタデータと出典を `document` として含める。附則には親区分の情報、官報記事には号の情報も付く。`entry_index` はフィルター・並べ替え前の区分内の0始まりの位置で固定。`get_document_entry` には `entry_index` または `entry_id` の一方を渡す。意見・統計値・官報記事などIDがない項目、同じIDが複数ある項目は `entry_index` を使う。添付は配信済みのメタデータ・抽出本文を返し、外部ファイルの新規ダウンロードや抽出は行わない。
+
+項目一覧の各項目には `entry_args` も含まれる。そのまま `get_document_entry` に渡すと、同じ `corpus`・文書・`section`・`revision_id` の項目を元の `entry_index` で取得できる。ページング・絞り込み・並べ替えの条件は含まれない。`revision_id` 省略時は再取得時点の `current.json` を読む。
 
 ## 履歴・関連資料
 
@@ -114,9 +118,12 @@ if (speeches.next_offset !== null) {
 }
 await call('get_related_documents', { id: law.law_id, target: 'proceedings', limit: 5 });
 await call('list_document_entries', { corpus: 'budget', id: '配信済みのstats_data_id', filters: { area: '東京都' }, limit: 10 });
+
+const supplementary = await call('list_document_entries', { id: law.law_id, revision_id: law.revision_id, section: 'supplementary', limit: 5 });
+if (supplementary.items[0]) await call('get_document_entry', supplementary.items[0].entry_args);
 ```
 
-成功時は `content[0].text` に JSON、失敗時は `isError: true` と `{"error":"..."}` を返す。未配信の詳細、引数不備、DB取得失敗を空の検索結果と区別できる。
+成功時は `content[0].text` に JSON、失敗時は `isError: true` と `{"error":"..."}` を返す。未配信の詳細、引数不備、DB取得失敗を空の検索結果と区別できる。型・空文字・ページング範囲・配列要素・フィルター値の不備は、JSONや検索DBの取得を開始する前に検出する。
 
 実行コンテキストの `AbortSignal` に対応する。開始前の中止はデータ取得を行わず、実行中の中止は応答を待たずにエラーを返す。共有DB処理や開始済みの取得処理はバックグラウンドで完了する場合がある。
 

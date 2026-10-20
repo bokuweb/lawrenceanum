@@ -5,7 +5,7 @@ const LAW_ID = '129AC0000000089'
 const REVISION = `${LAW_ID}_20251001_505AC0000000053`
 
 // Browser API harness only: production code never installs a WebMCP polyfill.
-async function install(page: Page, mode: 'document' | 'navigator' | 'both' | 'reject' = 'document') {
+async function install(page: Page, mode: 'document' | 'navigator' | 'both' | 'reject' | 'delay' = 'document') {
   await page.addInitScript(mode => {
     const state = window as any
     state.webMcpTools = {}
@@ -13,6 +13,7 @@ async function install(page: Page, mode: 'document' | 'navigator' | 'both' | 're
     const context = {
       async registerTool(tool: any, options?: { signal?: AbortSignal }) {
         if (mode === 'reject' && tool.name === 'search_legal_data') throw new Error('registration denied')
+        if (mode === 'delay' && tool.name === 'search_legal_data') await new Promise<void>(resolve => { state.releaseRegistration = resolve })
         state.webMcpTools[tool.name] = tool
         options?.signal?.addEventListener('abort', () => { delete state.webMcpTools[tool.name] }, { once: true })
       },
@@ -75,6 +76,87 @@ test('WebMCP: a rejected registration does not block other tools or the app', as
   await page.goto(new URL('#/settings', BASE).toString())
   await page.waitForFunction(() => Object.keys((window as any).webMcpTools ?? {}).length === 18)
   expect((await call(page, 'get_data_status')).isError).toBe(false)
+})
+
+test('WebMCP: a pending registration does not block the remaining tools', async ({ page }) => {
+  await install(page, 'delay')
+  await page.goto(new URL('#/settings', BASE).toString())
+  try {
+    await expect.poll(() => page.evaluate(() => Object.keys((window as any).webMcpTools).length), { timeout: 3000 }).toBe(18)
+    expect((await call(page, 'get_data_status')).data.ok).toBe(true)
+  } finally {
+    await page.evaluate(() => (window as any).releaseRegistration())
+  }
+  await page.waitForFunction(() => Object.keys((window as any).webMcpTools).length === 19)
+})
+
+test('WebMCP: schema and article selector errors are rejected before data requests', async ({ page }) => {
+  await install(page)
+  await open(page)
+  const result = await page.evaluate(async ({ lawId }) => {
+    const state = window as any
+    const requests: string[] = []
+    const fetch = window.fetch
+    window.fetch = (...args) => { requests.push(String(args[0])); return fetch(...args) }
+    const results = []
+    try {
+      for (const [name, args] of [
+        ['list_legal_data', { limit: 101 }],
+        ['list_legal_data', { offset: -1 }],
+        ['list_legal_data', { filters: { category: 3 } }],
+        ['list_legal_data', { query: ' ' }],
+        ['list_document_entries', { id: lawId, limit: 0 }],
+        ['get_document_entry', { id: lawId, entry_index: -1 }],
+        ['list_law_versions', { law_id: lawId, offset: -1 }],
+        ['get_law_article', { law_id: lawId, article_id: '../invalid' }],
+        ['search_legal_data', { query: '教育', categories: [' '] }],
+      ] as const) results.push(await state.webMcpTools[name].execute(args))
+    } finally { window.fetch = fetch }
+    return { requests, results }
+  }, { lawId: LAW_ID })
+  for (const response of result.results) expect(response.isError).toBe(true)
+  expect(result.requests).toEqual([])
+})
+
+test('WebMCP: document selectors cannot silently request another corpus or edition', async ({ page }) => {
+  await install(page)
+  await open(page)
+  for (const args of [
+    { corpus: 'proceedings', id: 'meeting1', revision_id: REVISION },
+    { id: LAW_ID, date: '2026-01-01' },
+    { id: LAW_ID, session: '217' },
+    { id: LAW_ID, ministry: 'moj' },
+    { id: LAW_ID, municipality_code: '012122' },
+    { corpus: 'kanpo', date: '2026-01-01', id: 'unexpected' },
+  ]) {
+    const result = await call(page, 'get_legal_document', args)
+    expect(result.isError, JSON.stringify(args)).toBe(true)
+    expect(result.data.error).toMatch(/だけで指定|date で指定/)
+  }
+  const invalidDate = await call(page, 'get_law_snapshot', { law_id: LAW_ID, date: '2026-99-99' })
+  expect(invalidDate.data.error).toContain('有効な YYYY-MM-DD')
+})
+
+test('WebMCP: entry arguments round-trip missing and duplicate IDs and retain section and revision', async ({ page }) => {
+  await install(page)
+  await page.route('**/gian/217/bill1.json', route => route.fulfill({ json: {
+    bill_id: 'bill1', fields: [{ key: '審議状況', value: '衆議院' }, { key: '審議状況', value: '参議院' }],
+  } }))
+  await page.route('**/budget/stats1.json', route => route.fulfill({ json: { stats_data_id: 'stats1', values: [{ value: '10' }, { value: '20' }] } }))
+  await open(page)
+  for (const args of [
+    { corpus: 'gian', id: 'bill1', session: '217', offset: 1 },
+    { corpus: 'budget', id: 'stats1', sort_by: 'value', sort_order: 'desc' },
+    { id: LAW_ID, revision_id: REVISION, section: 'supplementary', filters: { article_id: 'suppl3_art_1' } },
+  ]) {
+    const listing = await call(page, 'list_document_entries', { ...args, limit: 1 })
+    expect(listing.isError).toBe(false)
+    const item = listing.data.items[0]
+    expect(item.entry_args).toMatchObject({ corpus: args.corpus ?? 'laws', id: args.id, section: args.section ?? (args.corpus === 'gian' ? 'fields' : 'values'), entry_index: item.entry_index })
+    expect(item.entry_args).not.toHaveProperty('limit')
+    if (args.revision_id) expect(item.entry_args.revision_id).toBe(REVISION)
+    expect((await call(page, 'get_document_entry', item.entry_args)).data.entry).toEqual(item)
+  }
 })
 
 test('WebMCP: law metadata filtering and pagination preserve total and next offset', async ({ page }) => {

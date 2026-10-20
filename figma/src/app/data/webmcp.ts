@@ -79,7 +79,8 @@ function corpusArg(args: Args): Corpus {
 
 function dateArg(args: Args): string {
   const value = stringArg(args, 'date', true)!
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || new Date(value).toISOString().slice(0, 10) !== value) {
+  const date = new Date(value)
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || !Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== value) {
     throw new Error('date は有効な YYYY-MM-DD 形式の日付が必要です。')
   }
   return value
@@ -105,7 +106,7 @@ function pageItems<T>(items: T[], args: Args) {
     throw new Error('filters はフィールド名と文字列値のオブジェクトが必要です。')
   }
   const filtered = items.filter(item => {
-    const searchable = searchableText(item).toLocaleLowerCase()
+    const searchable = terms.length ? searchableText(item).toLocaleLowerCase() : ''
     return terms.every(term => searchable.includes(term)) &&
       Object.entries(filters).every(([key, value]) => {
         const actual = fieldValue(item, key)
@@ -174,6 +175,14 @@ function lawDocument(args: Args) {
 
 async function getDocument(args: Args) {
   const corpus = corpusArg(args)
+  // Reject irrelevant selectors instead of silently returning another corpus or edition.
+  const selectors: Record<string, Corpus[]> = {
+    session: ['gian'], ministry: ['shingikai'], municipality_code: ['reiki'], revision_id: ['laws'], date: ['kanpo'],
+  }
+  for (const [key, corpora] of Object.entries(selectors)) {
+    if (args[key] !== undefined && !corpora.includes(corpus)) throw new Error(`${key} は ${corpora.join(', ')} だけで指定できます。`)
+  }
+  if (corpus === 'kanpo' && args.id !== undefined) throw new Error('kanpo は id ではなく date で指定してください。')
   // 官報は日付で取得。Wiki はスラッシュ区切りのページパスで取得する。
   if (corpus === 'kanpo') return api.kanpoOnDate(dateArg(args))
   if (corpus === 'wiki') {
@@ -222,6 +231,11 @@ async function documentEntries(args: Args) {
   return { corpus, section, document: meta, entries: indexed }
 }
 
+function entryWithArgs(entry: Args, args: Args, section: string) {
+  const selectors = Object.fromEntries(Object.keys(documentProperties).filter(key => args[key] !== undefined).map(key => [key, args[key]]))
+  return { ...entry, entry_args: { ...selectors, corpus: corpusArg(args), section, entry_index: entry.entry_index } }
+}
+
 async function cancellable<T>(work: Promise<T>, signal?: AbortSignal): Promise<T> {
   if (!signal) return work
   let abort!: () => void
@@ -247,9 +261,7 @@ function tool(name: string, description: string, properties: Record<string, Sche
         if (unknown) throw new Error(`不明な引数: ${unknown}`)
         for (const key of required) if (args[key] === undefined) throw new Error(`${key} が必要です。`)
         for (const [key, value] of Object.entries(args)) {
-          const schema = properties[key]
-          const validType = schema.type === 'array' ? Array.isArray(value) : schema.type === 'integer' ? Number.isSafeInteger(value) : schema.type === 'object' ? value !== null && typeof value === 'object' && !Array.isArray(value) : typeof value === schema.type
-          if (!validType || (Array.isArray(schema.enum) && !schema.enum.includes(value))) throw new Error(`${key} が不正です。`)
+          validateArg(value, properties[key], key)
         }
         const result = await cancellable(Promise.resolve().then(() => {
           options?.signal?.throwIfAborted()
@@ -261,6 +273,20 @@ function tool(name: string, description: string, properties: Record<string, Sche
         return { isError: true, content: [{ type: 'text', text: JSON.stringify({ error: error instanceof Error ? error.message : String(error) }) }] }
       }
     },
+  }
+}
+
+/** Validate schema constraints before starting JSON downloads or initializing SQLite. */
+function validateArg(value: unknown, schema: Schema, key: string): void {
+  const validType = schema.type === 'array' ? Array.isArray(value) : schema.type === 'integer' ? Number.isSafeInteger(value) : schema.type === 'object' ? value !== null && typeof value === 'object' && !Array.isArray(value) : typeof value === schema.type
+  if (!validType || (Array.isArray(schema.enum) && !schema.enum.includes(value))) throw new Error(`${key} が不正です。`)
+  if (typeof value === 'number' && ((typeof schema.minimum === 'number' && value < schema.minimum) || (typeof schema.maximum === 'number' && value > schema.maximum))) {
+    throw new Error(`${key} が許容範囲外です。`)
+  }
+  if (typeof value === 'string' && typeof schema.minLength === 'number' && value.trim().length < schema.minLength) throw new Error(`${key} は空でない文字列が必要です。`)
+  if (Array.isArray(value) && schema.items) value.forEach((item, index) => validateArg(item, schema.items as Schema, `${key}[${index}]`))
+  if (schema.type === 'object' && typeof schema.additionalProperties === 'object' && schema.additionalProperties !== null) {
+    for (const [field, item] of Object.entries(value as Args)) validateArg(item, schema.additionalProperties as Schema, `${key}.${field}`)
   }
 }
 
@@ -325,13 +351,14 @@ export function createWebMcpTools(): Tool[] {
       date: text('kanpo の発行日 YYYY-MM-DD。'),
     }, [], listData),
     tool('get_legal_document', '一覧・検索の document_args をそのまま渡して詳細・本文・出典を取得する。IDと追加必須引数は list_data_sources で確認可能。laws は revision_id で過去版も取得可能。', documentProperties, [], getDocument),
-    tool('list_document_entries', '文書内の条文・附則・別表、会議録の発言、パブコメ意見・添付、議案項目、通達、例規、審議会添付、統計値、官報記事を検索・絞り込み・並べ替え・ページングして取得する。entry_index は元の区分内で固定。section は list_data_sources で確認。', {
+    tool('list_document_entries', '文書内の条文・附則・別表、会議録の発言、パブコメ意見・添付、議案項目、通達、例規、審議会添付、統計値、官報記事を検索・絞り込み・並べ替え・ページングして取得する。各項目の entry_args を get_document_entry に渡せる。entry_index は元の区分内で固定。section は list_data_sources で確認。', {
       ...entryProperties, ...listing,
     }, [], async args => {
       const { entries, ...meta } = await documentEntries(args)
-      return { ...meta, ...pageItems(entries, args) }
+      const page = pageItems(entries, args)
+      return { ...meta, ...page, items: page.items.map(entry => entryWithArgs(entry, args, meta.section)) }
     }),
-    tool('get_document_entry', '文書内の1項目を取得する。検索結果の entry_args または一覧の entry_index / entry_id を使う。entry_index と entry_id はいずれか一方が必須。ID重複時は entry_index を使う。', {
+    tool('get_document_entry', '文書内の1項目を取得する。検索結果・項目一覧の entry_args をそのまま渡せる。手動指定では entry_index と entry_id はいずれか一方が必須。ID重複時は entry_index を使う。', {
       ...entryProperties, entry_index: { type: 'integer', minimum: 0 }, entry_id: text('条文・発言・添付 ID、通達番号、議案項目の key。'),
     }, [], async args => {
       if ((args.entry_index === undefined) === (args.entry_id === undefined)) throw new Error('entry_index または entry_id のどちらか一方を指定してください。')
@@ -345,13 +372,13 @@ export function createWebMcpTools(): Tool[] {
         entry = matches[0]
       }
       if (!entry) throw new Error('指定した項目が見つかりません。')
-      return { ...meta, entry }
+      return { ...meta, entry: entryWithArgs(entry, args, meta.section) }
     }),
     tool('get_law_article', '法令の特定の条文（附則を含む）または別表を取得する。article_id は詳細または全文検索で取得。revision_id 省略時は current.json の版。', {
       law_id: text('法令 ID。'), article_id: text('条文 ID。'), revision_id: text('過去版の revision_id。'),
     }, ['law_id', 'article_id'], async args => {
-      const law = await lawDocument({ id: idArg(args, 'law_id'), revision_id: args.revision_id })
       const articleId = idArg(args, 'article_id')
+      const law = await lawDocument({ id: idArg(args, 'law_id'), revision_id: args.revision_id })
       const article = [...law.articles, ...(law.suppl_provisions ?? []).flatMap(section => section.articles)].find(item => item.article_id === articleId)
       const appendix = law.appendix_tables?.find(item => item.appdx_id === articleId)
       if (!article && !appendix) throw new Error(`条文・別表が見つかりません: ${articleId}`)
@@ -453,9 +480,9 @@ export function registerWebMcp(): () => void {
     try { context.unregisterTool?.(name) } catch (error) { console.warn('[webmcp] cleanup failed', name, error) }
   }
   // Start immediately; registration may be asynchronous in modern browsers.
-  void (async () => {
-    for (const definition of createWebMcpTools()) {
-      if (controller.signal.aborted) break
+  for (const definition of createWebMcpTools()) {
+    // A delayed registration must not prevent unrelated tools from becoming available.
+    void (async () => {
       try {
         await context.registerTool(definition, { signal: controller.signal })
         if (controller.signal.aborted) removeLegacy(definition.name)
@@ -463,8 +490,8 @@ export function registerWebMcp(): () => void {
       } catch (error) {
         if (!controller.signal.aborted) console.warn('[webmcp] registration failed', definition.name, error)
       }
-    }
-  })()
+    })()
+  }
   return () => {
     controller.abort()
     for (const name of registered) removeLegacy(name)
