@@ -36,11 +36,13 @@ mod coordinate_rows;
 mod area_units;
 mod blank_area_units;
 mod reference_markers;
+mod inline_quotes;
 mod framed_amount_rows;
 
 pub mod format;
 pub mod grid;
 mod horizontal;
+mod numeric_grid_orientation;
 mod record_suffix;
 mod financial_enclosures;
 pub mod lines;

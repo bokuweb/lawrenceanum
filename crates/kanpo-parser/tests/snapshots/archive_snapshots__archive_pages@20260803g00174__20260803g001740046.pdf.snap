@@ -1,0 +1,60 @@
+---
+source: crates/kanpo-parser/tests/archive_snapshots.rs
+assertion_line: 105
+expression: out
+input_file: crates/kanpo-parser/tests/archive/pages/20260803g00174/20260803g001740046.pdf
+---
+layout: horizontal
+format: unknown
+
+--- 本文 ---
+（４）　契約予定日　令和８年９月28日
+（５）　随意契約によることとした場合の「政府調
+達に関する協定」の規定上の理由　第13条第
+１項⒝（ⅲ）「技術的な理由により競争が存在し
+ない」
+（６）　その他詳細は、公募説明書による。
+７．Summary
+（１）　Subject matter of contract: Adjustment
+of the Aerodrome Control Training System,
+1set.
+（２）　Time‑limit to express interests:5:00
+P.M.24August,2026
+（３）　Contract point for documentation relat‑
+ing to the proposal: Contract section, Budg‑
+et and Property Administration Office, Inf‑
+rastructure, Transport and Tourism, 2－
+1－3　Kasumigaseki Chiyoda‑ku, Tokyo,
+100－8918Japan.TEL03－5253－8111(Ext.
+47186)
+（４）　Expected date of the contract award:28
+September, 2026
+（５）　Reason for the use of the single tendering
+procedure as provided for in the Agreement
+on Government Procurement: Article　1.
+b.ⅲ“Due to an absence of competition for
+technical reasons”
+（６）　Name of administrator in charge of the
+contract and division which he or she be‑
+longs: MIYAZAYA Koichi, Director‑Ge‑
+neral of the Civil Aviation Bureau, Ministry
+of Land, Infrastructure, Transport and
+Tourism.
+破産手続開始及び免責許可申立てに関する意見申述期間
+
+--- 記事 ---
+## 0 (unknown)
+  P （４）　契約予定日　令和８年９月28日
+    （５）　随意契約によることとした場合の「政府調達に関する協定」の規定上の理由　第13条第１項⒝（ⅲ）「技術的な理由により競争が存在しない」
+    （６）　その他詳細は、公募説明書による。
+    ７．Summary
+    （１）　Subject matter of contract: Adjustmentof the Aerodrome Control Training System,
+    1set.
+    （２）　Time‑limit to express interests:5:00P.M.24August,2026
+    （３）　Contract point for documentation relat‑ing to the proposal: Contract section, Budg‑et and Property Administration Office, Inf‑rastructure, Transport and Tourism, 2－
+    1－3　Kasumigaseki Chiyoda‑ku, Tokyo,
+    100－8918Japan.TEL03－5253－8111(Ext.
+    47186)
+    （４）　Expected date of the contract award:28September, 2026
+    （５）　Reason for the use of the single tenderingprocedure as provided for in the Agreementon Government Procurement: Article　1.b.ⅲ“Due to an absence of competition fortechnical reasons”
+    （６）　Name of administrator in charge of thecontract and division which he or she be‑longs: MIYAZAYA Koichi, Director‑Ge‑neral of the Civil Aviation Bureau, Ministryof Land, Infrastructure, Transport andTourism.破産手続開始及び免責許可申立てに関する意見申述期間

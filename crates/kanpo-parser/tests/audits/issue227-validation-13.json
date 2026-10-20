@@ -1,0 +1,334 @@
+{
+  "stage": "thirteenth_integrated_batch",
+  "date": "2026-10-21",
+  "baseline_commit": "58e193f13b37e1674ce8d56fd637be46b0e4e69c",
+  "output": "after34",
+  "population_pdf_pages": 11992,
+  "comparison_against_twelfth_batch": {
+    "changed_pages": 22,
+    "unchanged_pages_exact_text": 11970,
+    "added_characters": {
+      "“": 16,
+      "”": 16
+    },
+    "removed_characters": {},
+    "all_old_owner_ID_multiplicities_exact": true,
+    "duplicate_IDs": 0,
+    "changed_source_Words_text_only": 20,
+    "small_BS_new_tables": 2,
+    "numbered_labels_joined": 5,
+    "empty_record_bands_split": 3,
+    "ship_new_tables": 1,
+    "nativeGlyphs_proven": 222
+  },
+  "comparison_against_original_baseline": {
+    "changed_pages": 2837,
+    "character_change_pages": 1244,
+    "source_backed_dashes": 10904,
+    "fractions": 153,
+    "square_cm": 2,
+    "surname_characters": 6,
+    "ordinal_pairs": 121,
+    "table_parenthesis_pairs": 377,
+    "plain_period_parenthesis_pairs": 706,
+    "coordinate_symbols": 10494,
+    "removed_false_inferred_characters": {
+      "改": 9,
+      "正": 9,
+      "後": 4,
+      "前": 5
+    },
+    "actual_comparison_baseline_character_loss": 0,
+    "square_metre": 43,
+    "reference_markers": 58,
+    "curly_quotes_restored": 32
+  },
+  "source_validation": {
+    "fresh_textdump_original_PDFs": 11992,
+    "textdump_uses_pdf_flag": true,
+    "textdump_log_sha256": "89d6fe31283914ab3c4335a10b2ca852512bf2328c4f6b4257a4cd9ea62d5f60",
+    "all22_fresh_outputs_match_direct_PDF_source_analysis": true,
+    "all53_source_files_sha_verified_unchanged_after_full_extraction": true,
+    "cumulative_changed_pages_exact_saved_text_matches": 2837,
+    "all8_validator_parts": "PASS",
+    "validator_sha256": "c639b61b41294cbfe4f2227f682a2c1f067addbe48cc73d74d8ed1ea5a1c5d7d",
+    "cumulative_counts": {
+      "period_pairs": 706,
+      "ordinal_pairs": 121,
+      "table_parenthesis_cells": 377,
+      "dashes": 10904,
+      "fractions": 153,
+      "surnames": 6,
+      "Plain_dash_words": 228
+    },
+    "existing_unattached_Used_IDs_diagnostic": {
+      "words": 50,
+      "pages": 14,
+      "scope": "unchanged existing merged ministry source IDs; not lost text or restored-symbol IDs"
+    },
+    "duplicate_word_IDs": 0,
+    "period_line_relocation": "181p67 original period lines47/48→38/39 after preceding smallTable. All original fields/IDs exact; permanent test asserts pair text and IDs115,68/116,69 adjacent.",
+    "native_proofs": [
+      "issue227-thirteenth-batch-provenance.json",
+      "issue227-twelfth-coordinate-glyphs.jsonl",
+      "issue227-eleventh-batch-provenance.json"
+    ],
+    "original_character_loss": 0
+  },
+  "tests": {
+    "crates": [
+      "kanpo-parser",
+      "kanpo-pdf",
+      "kanpo-parser-wasm",
+      "kanpo-lm"
+    ],
+    "passed": 782,
+    "failed": 0,
+    "INSTA_UPDATE": "no",
+    "CI": "true",
+    "CARGO_BUILD_JOBS": 2,
+    "archive_PDFs": 512,
+    "new_actual_PDF_test_functions": 27,
+    "new_parser_geometry_units": 42,
+    "root_before_fix_actual_PDF_tests_failed": 14,
+    "root_before_fix_actual_PDF_negative_tests_passed": 13,
+    "new_reviewed_archive_snapshots": 32,
+    "updated_reviewed_archive_snapshots": 3,
+    "existing_corpus_tests_passed_unchanged": 2,
+    "pending_snapshots": 0,
+    "final_log_sha256": "f47477fd39c3a78d801e96af8518f503faeae243c957a3de5429107135a1f177",
+    "git_diff_check": "PASS",
+    "workspace_formatting": "No repository-wide reformat; existing fmt differences retained.",
+    "existing_coordinate_test_oracle": "Reviewed fulltext update and208 exact coordinate-line owner relocations; all156symbol bindings/52fields numeric IDs/text unchanged;252nativeglyph Word checks retained."
+  },
+  "previous_commit_CI": {
+    "headRefOid": "58e193f13b37e1674ce8d56fd637be46b0e4e69c",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-20T16:14:13Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bokuweb/lawrenceanum/actions/runs/39454640258/job/118738157078",
+        "name": "test",
+        "startedAt": "2026-10-20T16:07:29Z",
+        "status": "COMPLETED",
+        "workflowName": "kanpo-parser test"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-20T16:16:04Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bokuweb/lawrenceanum/actions/runs/39454640714/job/118738159484",
+        "name": "check",
+        "startedAt": "2026-10-20T16:07:30Z",
+        "status": "COMPLETED",
+        "workflowName": "rust-ci"
+      }
+    ]
+  },
+  "visual_scope": {
+    "changed_originals_reviewed": 22,
+    "improvement": 22,
+    "regression": 0,
+    "whole_page_success_not_implied": true
+  },
+  "audit122_repair_recheck": {
+    "ok": 24,
+    "minor": 6,
+    "major": 0,
+    "initial_counts_unchanged": {
+      "ok": 23,
+      "minor": 6,
+      "major": 1
+    },
+    "scope": "194p71 numbered account tail repaired; native0 surname exclusion retained.230p62 remainsminor."
+  },
+  "audit123_repair_recheck": {
+    "ok": 25,
+    "minor": 5,
+    "major": 0,
+    "initial_counts_unchanged": {
+      "ok": 23,
+      "minor": 7,
+      "major": 0
+    },
+    "scope": "186p20 two quotes and194p49 empty record repaired. Full original/output reviewed; other original defects remain."
+  },
+  "audit124_initial": {
+    "file": "124.json",
+    "counts": {
+      "ok": 27,
+      "minor": 3,
+      "major": 0
+    },
+    "initial_grades_fixed": true,
+    "all30_PDF_output_image_hashes_root_verified": true,
+    "nativeGlyph0_boxes_root_fresh_reparsed_and_recounted": 5,
+    "explicit_nonzero_expanded_context": 1,
+    "scope": "1797p2 expanded signature context hits native梨 by1.1601pt; only exact nominal葉 cell excludes0. No OCR/full extraction claim."
+  },
+  "rejected_or_environment_attempts": {
+    "missing_test_module": "First combined target compile omitted separate ship_record_tests.rs, restored before524+27PASS; no source behavior change.",
+    "ENOSPC": "First combined target compilation ran out of disk; removed only own obsolete completed generated binaries, reran terminal0. No failed assertion discarded.",
+    "initial_full_test": "Old coordinate literal expected known wrong ship order; 1of6 tests RED. Reviewed native116glyph4field proof, full old/new coordinate lines exact, then updated fulltext and208 ownerindices with unchanged156bindings/52field text/numeric IDs. Final fullsuite782PASS.",
+    "supplementary_stale_ship_trace": "One supplementary candidate fulltrace linked old top-level instrument.rlib, invalid result discarded. Correct explicit --lib candidate only1/11992 fullAnalysis changed. Root source34 direct proof matches correctcandidate.",
+    "native_cache": "An earlier circled diagnostic overwrote one old native dump to0bytes under ENOSPC; regenerated atomically from same original. Audits122/123 referenced native dump hashes rechecked all MATCH. All current proof uses verified directPDF source."
+  },
+  "remaining_known_issues": [
+    "1774p4 manufacturer/address detached from16 registration records (existing major; unchanged full Analysis; negative snapshot is not a correct reference).",
+    "196p133 cash-flow account/detail amounts detached (existing major; next geometry candidate).",
+    "181p67 Ennet date placement; 171p155/174p142 each3 dashes still absent.",
+    "194p50/p55 upper hierarchy;194p51 four empty account records remain joined;194p70 article combines two IC records.",
+    "174p46 XIII; other unknown article hierarchy and186p19 JIS wrapping/code mixing.",
+    "audit124:171p49 Roman(I),1773p4 coordinate126symbols,228p473 first table empty leading column lost.",
+    "Existing coordinate4968symbols,22 reference markers, one ambiguous square-metre remain; no100% claim."
+  ],
+  "changed_page_manifest": [
+    {
+      "page": "20260727g001670074",
+      "added": {},
+      "removed": {}
+    },
+    {
+      "page": "20260730g001710060",
+      "added": {
+        "“": 1,
+        "”": 1
+      },
+      "removed": {}
+    },
+    {
+      "page": "20260803g001740016",
+      "added": {
+        "“": 1,
+        "”": 1
+      },
+      "removed": {}
+    },
+    {
+      "page": "20260803g001740017",
+      "added": {
+        "“": 1,
+        "”": 1
+      },
+      "removed": {}
+    },
+    {
+      "page": "20260803g001740018",
+      "added": {
+        "“": 4,
+        "”": 4
+      },
+      "removed": {}
+    },
+    {
+      "page": "20260803g001740019",
+      "added": {
+        "“": 1,
+        "”": 1
+      },
+      "removed": {}
+    },
+    {
+      "page": "20260803g001740020",
+      "added": {
+        "“": 2,
+        "”": 2
+      },
+      "removed": {}
+    },
+    {
+      "page": "20260803g001740021",
+      "added": {
+        "“": 1,
+        "”": 1
+      },
+      "removed": {}
+    },
+    {
+      "page": "20260803g001740028",
+      "added": {
+        "“": 1,
+        "”": 1
+      },
+      "removed": {}
+    },
+    {
+      "page": "20260803g001740034",
+      "added": {
+        "“": 1,
+        "”": 1
+      },
+      "removed": {}
+    },
+    {
+      "page": "20260803g001740046",
+      "added": {
+        "“": 1,
+        "”": 1
+      },
+      "removed": {}
+    },
+    {
+      "page": "20260813g001810067",
+      "added": {},
+      "removed": {}
+    },
+    {
+      "page": "20260820g001860020",
+      "added": {
+        "“": 1,
+        "”": 1
+      },
+      "removed": {}
+    },
+    {
+      "page": "20260831g001940049",
+      "added": {},
+      "removed": {}
+    },
+    {
+      "page": "20260831g001940050",
+      "added": {},
+      "removed": {}
+    },
+    {
+      "page": "20260831g001940055",
+      "added": {},
+      "removed": {}
+    },
+    {
+      "page": "20260831g001940071",
+      "added": {},
+      "removed": {}
+    },
+    {
+      "page": "20260831g001940079",
+      "added": {},
+      "removed": {}
+    },
+    {
+      "page": "20260831g001940080",
+      "added": {},
+      "removed": {}
+    },
+    {
+      "page": "20260831g001940082",
+      "added": {},
+      "removed": {}
+    },
+    {
+      "page": "20261006g002200013",
+      "added": {
+        "“": 1,
+        "”": 1
+      },
+      "removed": {}
+    },
+    {
+      "page": "20261014h018070005",
+      "added": {},
+      "removed": {}
+    }
+  ]
+}

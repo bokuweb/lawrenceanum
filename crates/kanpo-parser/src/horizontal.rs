@@ -1792,6 +1792,99 @@ pub(crate) fn keyed_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)]) -> (Vec<
     (tables, words)
 }
 
+/// 数値列のある表の、区分見出しの下で金額が全て空の科目帯を補う。
+/// 科目が右端まで続く本当の折返しと、数値を伴う通常の明細は既存の判定を使う。
+fn empty_amount_record_anchors(g: &Grid, cells: &[Vec<Line>]) -> Vec<f32> {
+    if g.xs.len() < 5 || cells.len() != g.cells.len() {
+        return Vec::new();
+    }
+    let japanese = |ch: char| matches!(ch,'\u{3040}'..='\u{30ff}'|'\u{3400}'..='\u{9fff}');
+    let left: Vec<&Line> = g
+        .cells
+        .iter()
+        .enumerate()
+        .filter(|(_, c)| c.x0 == 0 && c.x1 == 1)
+        .flat_map(|(i, _)| cells[i].iter())
+        .filter(|l| l.words.iter().flat_map(|w| w.text.chars()).any(japanese))
+        .collect();
+    let mut aligned = Vec::new();
+    let mut columns = std::collections::BTreeSet::new();
+    for (i, c) in g.cells.iter().enumerate() {
+        if c.x0 == 0 || c.x1 != c.x0 + 1 {
+            continue;
+        }
+        for l in cells[i].iter().filter(|l| amount_line(l)) {
+            if left.iter().any(|p| (p.center() - l.center()).abs() <= 1.0) {
+                aligned.push(l.center());
+                columns.insert(c.x0);
+            }
+        }
+    }
+    aligned.sort_by(f32::total_cmp);
+    aligned.dedup_by(|a, b| (*a - *b).abs() < 2.0);
+    if aligned.len() < 3 || columns.len() < 2 {
+        return Vec::new();
+    }
+    let mut out = Vec::new();
+    for (i, c) in g.cells.iter().enumerate() {
+        let ls = &cells[i];
+        if c.x0 != 0
+            || c.x1 != 1
+            || c.y1 != c.y0 + 1
+            || !(3..=8).contains(&ls.len())
+            || !section_heading(&ls[0])
+        {
+            continue;
+        }
+        // 全欄が空の実罫帯だけ。数値や隣の説明のある帯には行を補わない。
+        if g.cells
+            .iter()
+            .enumerate()
+            .any(|(j, o)| j != i && o.y0 < c.y1 && c.y0 < o.y1 && !cells[j].is_empty())
+        {
+            continue;
+        }
+        let x0 = |l: &Line| l.words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
+        let x1 = |l: &Line| {
+            l.words
+                .iter()
+                .map(|w| w.x1)
+                .fold(f32::NEG_INFINITY, f32::max)
+        };
+        let em = ls[1].y1 - ls[1].y0;
+        if !(3.0..=20.0).contains(&em) || x0(&ls[1]) - x0(&ls[0]) < em * 1.5 {
+            continue;
+        }
+        if !ls.iter().skip(1).all(|l| {
+            let chars: Vec<_> = l
+                .words
+                .iter()
+                .flat_map(|w| w.text.chars())
+                .filter(|c| !c.is_whitespace())
+                .collect();
+            (2..=40).contains(&chars.len())
+                && chars
+                    .iter()
+                    .all(|ch| japanese(*ch) || "（）()・".contains(*ch))
+        }) {
+            continue;
+        }
+        for pair in ls[1..].windows(2) {
+            let (p, n) = (&pair[0], &pair[1]);
+            if (x0(p) - x0(n)).abs() <= 1.0
+                && ((p.y1 - p.y0) - (n.y1 - n.y0)).abs() <= em * 0.15
+                && n.y0 - p.y1 >= em * 0.4
+                && g.xs[1] - x1(p) >= em * 2.0
+                && !wrapped(p, n, g.xs[1])
+                && !narrow_wrapped(p, g.xs[0], g.xs[1])
+            {
+                out.push(n.y0 - 0.5);
+            }
+        }
+    }
+    out
+}
+
 /// 格子のセルに語を割り当てて横組みの表にする。中の語が横組みでなければ（縦組みの表）、
 /// 字が 1 つのセルにしか無ければ、文章の入ったセル（囲み記事）があれば `None`。
 ///
@@ -1815,8 +1908,23 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
             (h, v + n)
         }
     });
-    if words.is_empty() || h_chars <= v_chars {
+    if words.is_empty() {
         return None;
+    }
+    if h_chars <= v_chars {
+        // 実罫の科目・金額が3行以上同じ高さに揃う小型表では、幅がほぼ1字の半角2桁を
+        // 縦組みの証拠にしない。横長の数の票はそのまま残し、既に認識した横表は変えない。
+        let square_numbers: usize = if crate::numeric_grid_orientation::horizontal_numeric_rows(g, words) {
+            words.iter().filter(|w| {
+                w.text.chars().count() >= 2
+                    && w.text.chars().all(|c| c.is_ascii_digit() || ".".contains(c))
+                    && w.x1 - w.x <= w.y1 - w.y
+                    && w.x1 - w.x >= (w.y1 - w.y) * 0.75
+            }).map(|w| w.text.chars().count()).sum()
+        } else { 0 };
+        if h_chars <= v_chars.saturating_sub(square_numbers) {
+            return None;
+        }
     }
     let mut cell_lines: Vec<Vec<Line>> = vec![Vec::new(); g.cells.len()];
     {
@@ -2128,6 +2236,7 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
             }
         }
     }
+    anchors.extend(empty_amount_record_anchors(g, &cell_lines));
     anchors.sort_by(f32::total_cmp);
     anchors.dedup_by(|a, b| (*a - *b).abs() < 2.0);
     let row_of = |y: f32| anchors.iter().rposition(|&a| a <= y).unwrap_or(0);
@@ -2354,7 +2463,11 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
             let same_cell = (cells[k].x0, cells[k].y0, cells[k].x1, cells[k].y1) == (cells[n].x0, cells[n].y0, cells[n].x1, cells[n].y1);
             let label_x = words.iter().filter(|w| cells[k].words.contains(&w.id) && w.text.chars().any(kana_kanji)).map(|w|w.x).fold(f32::INFINITY,f32::min);
             let tail_x = words.iter().filter(|w| cells[n].words.contains(&w.id)).map(|w|w.x).fold(f32::INFINITY,f32::min);
-            numbered && t.ends_with('・') && same_cell && (label_x-tail_x).abs() <= 1.0 && cells[n].text.chars().count() <= 20
+            // 番号付きの長い未完科目は、完成形で終わる4〜8字の続きも同じ物理セルへ戻す。
+            // 額のない次の科目は、番号/字下げ/右端/密接な行送り/物理セル境界の条件で除く。
+            let cut_word = t.chars().filter(|c| !c.is_whitespace()).count() >= 9
+                && !complete(t) && (4..=8).contains(&cells[n].text.chars().count());
+            numbered && (t.ends_with('・') || cut_word) && same_cell && (label_x-tail_x).abs() <= 1.0 && cells[n].text.chars().count() <= 20
         };
         if let Some(n) = next.filter(|&n| {
             label
@@ -2815,6 +2928,20 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
             })
         };
         if let Some(cut) = rule_cut(&words, blocks, vrules, hrules).or_else(|| gutter.map(|g| g.0).filter(|&g| boxed || ((!blocks.is_empty() || !table_column(g)) && !numeric_strip(g)))) {
+            // A compact, complete unruled record above the start of a long divider
+            // belongs before both lower columns, even when the next notice heading
+            // is centered on the divider start and its glyph bbox slightly overlaps it.
+            if !boxed && blocks.is_empty() {
+                if let Some(table) = record_above_divider(&words, cut, vrules, hrules) {
+                    let ids: std::collections::HashSet<_> = table.cells.iter().flat_map(|c| c.words.iter().copied()).collect();
+                    let (left, right): (Vec<Col>, Vec<Col>) = words.into_iter().filter(|w| !ids.contains(&w.id)).partition(|w| x_center(w) < cut);
+                    out.push(trace::Line { text: table.render(), words: Vec::new(), table: Some(table) });
+                    order_region(left, &[], ctx, false, true, out);
+                    order_region(right, &[], ctx, false, true, out);
+                    return;
+                }
+            }
+
             // 段の境の縦の罫線が表の下から始まり、罫線の上端より上で罫線の右にある語が、左の表の行と同じ高さに並ぶ数だけ
             // （紙面の幅の途中まで組んだ前のページから続く表の右端の欄「355,650」「79,361,278」）なら、先に罫線の上端で
             // 上下に切る（表の右端の欄が右の段の頭に読まれていた）。
@@ -3151,6 +3278,80 @@ fn period_heading(lines: Vec<Line>) -> Vec<Line> {
         }
     }
     out
+}
+
+/// A single headed record spans the future divider, with its final text ending
+/// within one em above the line start. All source Words above that transition
+/// must be accounted for by the record; body prose cannot be absorbed as a field.
+fn record_above_divider(words: &[Col], cut: f32, vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)]) -> Option<trace::Table> {
+    let em = words
+        .iter()
+        .map(|w| w.y1 - w.y)
+        .filter(|h| h.is_finite() && *h > 0.)
+        .min_by(f32::total_cmp)?
+        .max(1.);
+    let top = words.iter().map(|w| w.y).min_by(f32::total_cmp)?;
+    let bottom = words.iter().map(|w| w.y1).max_by(f32::total_cmp)?;
+    for &(x, start, end) in vrules {
+        if (x - cut).abs() > 1. || start <= top + em * 2. || end - start < em * 10. || end < bottom - em * 2. {
+            continue;
+        }
+        let before: Vec<_> = words.iter().filter(|w| y_center(w) < start - 0.5).cloned().collect();
+        let after: Vec<_> = words.iter().filter(|w| y_center(w) >= start - 0.5).collect();
+        if before.is_empty() || after.is_empty() {
+            continue;
+        }
+        let heading = |w: &Col| {
+            let t = w.text.trim();
+            t.starts_with('〇') && t.ends_with('号') && t.chars().count() <= 40 && !t.contains('。')
+        };
+        // The only tolerated straddler is the whole following notice heading,
+        // centered on the start of the actual divider. Never divide a Word.
+        if after.iter().any(|w| w.y < start - 0.5 && !(heading(w) && (y_center(w) - start).abs() <= 0.5)) {
+            continue;
+        }
+        if !after.iter().any(|w| heading(w) && (y_center(w) - start).abs() <= 0.5) {
+            continue;
+        }
+        let Some(table) = header_table(&before) else { continue };
+        if table.rows != 2
+            || !(3..=6).contains(&table.cols)
+            || table.x0 >= cut - em * 4.
+            || table.x1 <= cut + em * 4.
+            || table.y1 > start
+            || start - table.y1 > em
+            || table.y1 - table.y0 > em * 6.
+        {
+            continue;
+        }
+        // Separate fenced articles and unrelated columns are not a shared record.
+        if vrules
+            .iter()
+            .any(|&(vx, y0, y1)| vx > table.x0 + 1. && vx < table.x1 - 1. && y0 < table.y1 - 1. && y1 > table.y0 + 1.)
+            || hrules
+                .iter()
+                .any(|&(y, x0, x1)| y > table.y0 + 1. && y < table.y1 - 1. && x0 < cut - 1. && x1 > cut + 1.)
+        {
+            continue;
+        }
+        let ids: Vec<_> = table.cells.iter().flat_map(|c| c.words.iter().copied()).collect();
+        if ids.len() != before.len()
+            || before.iter().any(|w| ids.iter().filter(|&&id| id == w.id).count() != 1)
+            || words.iter().filter(|w| ids.contains(&w.id)).count() != before.len()
+        {
+            continue;
+        }
+        // Both lower columns continue below the transition; a record whose last
+        // field merely lies beside unrelated upper prose must not be regrouped.
+        if [true, false].iter().any(|&left| {
+            let side: Vec<_> = after.iter().filter(|w| (x_center(w) < cut) == left).collect();
+            side.len() < 2 || side.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max) - side.iter().map(|w| w.x).fold(f32::INFINITY, f32::min) < em * 8.
+        }) {
+            continue;
+        }
+        return Some(table);
+    }
+    None
 }
 
 /// 罫線の無い、見出しの行と内容の行 1 つの表（装置型式指定の告示の「型式指定番号｜指定装置の種類、名称及び型式｜
@@ -5362,6 +5563,26 @@ mod grid_label_continuation_tests {
         let t=table("未払介護給付費交",false,0.,false,false);
         assert!(t.render().contains("未払介護給付費交付金"),"{}",t.render());
     }
+    fn numbered_cut_table(head: &str, tail: &str, shift: f32, extra: bool, split: bool, numbered: bool) -> trace::Table {
+        let mut words=vec![Col{id:1,x:26.,x1:90.,y:10.,y1:18.,text:head.into()},Col{id:2,x:26.+shift,x1:82.+shift,y:18.,y1:26.,text:tail.into()},Col{id:3,x:110.,x1:152.,y:10.,y1:18.,text:"24,637".into()},Col{id:4,x:10.,x1:74.,y:40.,y1:48.,text:"４ 未収収益".into()},Col{id:5,x:120.,x1:152.,y:40.,y1:48.,text:"15,209".into()}];
+        if numbered{words.push(Col{id:0,x:10.,x1:18.,y:10.,y1:18.,text:"３".into()});}
+        if extra{words.push(Col{id:6,x:110.,x1:152.,y:18.,y1:26.,text:"1,234".into()});}
+        let mut cells=vec![GridCell{x0:0,x1:1,y0:0,y1:4},GridCell{x0:1,x1:2,y0:0,y1:4}];
+        if split{cells[0].y1=3;cells.push(GridCell{x0:0,x1:1,y0:3,y1:4});}
+        grid_table(&Grid{xs:vec![0.,100.,160.],ys:vec![0.,14.,16.,20.,60.],cells},&words,usize::MAX).unwrap()
+    }
+    #[test]
+    fn numbered_unfinished_long_head_accepts_complete_tail_within_same_physical_cell(){
+        let t=numbered_cut_table("未収前期高齢者関","係事務費拠出金",0.,false,false,true);
+        assert!(t.render().contains("未収前期高齢者関係事務費拠出金"),"{}",t.render());
+        let c=t.cells.iter().find(|c|c.words.contains(&1)).unwrap();assert_eq!(c.words,vec![0,1,2]);assert!(t.cells.iter().any(|v|v.row==c.row && v.col==1 && v.text=="24,637"));
+    }
+    #[test]
+    fn complete_or_short_or_unaligned_or_separately_valued_accounts_do_not_join(){
+        for (head,shift,extra,split,numbered) in [("未収前期高齢者関",4.,false,false,true),("未収前期高齢者関",0.,true,false,true),("未収前期高齢者関",0.,false,true,true),("未収前期高齢者関",0.,false,false,false),("その他固定資産",0.,false,false,true),("未収関",0.,false,false,true)]{
+            let t=numbered_cut_table(head,"係事務費拠出金",shift,extra,split,numbered);assert!(!t.render().contains(&format!("{head}係事務費拠出金")),"{}",t.render());
+        }
+    }
     #[test]
     fn numbered_middle_dot_account_accepts_its_long_indented_tail() {
         let t=table("未収介護給付費・",true,0.,false,false);
@@ -5902,6 +6123,10 @@ fn covering_numeric_table_edges(
 }
 
 #[cfg(test)]
+#[path = "ship_record_tests.rs"]
+mod ship_record_tests;
+
+#[cfg(test)]
 #[path = "horizontal_covering_edge_tests.rs"]
 mod covering_table_edge_tests;
 
@@ -5911,3 +6136,7 @@ mod fullwidth_section_tests;
 
 #[path = "trailing_code_tables.rs"]
 mod trailing_code_tables;
+
+#[cfg(test)]
+#[path = "empty_amount_record_tests.rs"]
+mod empty_amount_record_tests;

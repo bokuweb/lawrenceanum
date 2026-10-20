@@ -49,7 +49,7 @@ fn verify(pdf: &[u8], source: &str, expected_total: usize, unchanged: bool) {
     assert_eq!(
         a.text,
         before["expected_text"].as_str().unwrap(),
-        "full literal text, including pre-existing unresolved article ordering"
+        "full literal text, including original-reviewed article ordering"
     );
     for binding in before["bindings"].as_array().unwrap() {
         let id = binding["word_id"].as_u64().unwrap() as usize;
