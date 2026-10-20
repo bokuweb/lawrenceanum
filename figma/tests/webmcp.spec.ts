@@ -255,6 +255,71 @@ test('WebMCP: timeline, references, recent changes, and enforcement schedules ar
   expect((await call(page, 'get_upcoming_enforcements', { query: '民法' })).data.items[0].effective_date).toBe('2027-04-01')
 })
 
+test('WebMCP: recent feed documents open with the correct corpus and route selectors', async ({ page }) => {
+  await install(page)
+  const cases = [
+    { kind: 'law', href: `/laws/${LAW_ID}`, path: `laws/${LAW_ID}/current.json`, args: { corpus: 'laws', id: LAW_ID } },
+    { kind: 'bill', href: '/gian/217/bill1', path: 'gian/217/bill1.json', args: { corpus: 'gian', id: 'bill1', session: '217' } },
+    { kind: 'pubcomment', href: '/pubcomment/case1', path: 'pubcomment/case1.json', args: { corpus: 'pubcomment', id: 'case1' } },
+    { kind: 'proceedings', href: '/proceedings/meeting1', path: 'proceedings/meeting1.json', args: { corpus: 'proceedings', id: 'meeting1' } },
+    { kind: 'shingikai', href: '/shingikai/moj/minutes1', ministry: '法務省', path: 'shingikai/moj/minutes1.json', args: { corpus: 'shingikai', id: 'minutes1', ministry: 'moj' } },
+    { kind: 'procurement', href: '/procurement/item1', path: 'procurement/item1.json', args: { corpus: 'procurement', id: 'item1' } },
+    { kind: 'kanpo', href: 'https://example.org/issue.pdf', internal: false, law_id: LAW_ID, path: 'kanpo/2026-10-10/index.json', args: { corpus: 'kanpo', date: '2026-10-10' } },
+  ]
+  const items = cases.map((item, index) => ({ date: '2026-10-10', title: `資料${index}`, internal: true, ...item, path: undefined, args: undefined }))
+  await page.route('**/feeds/recent.json', route => route.fulfill({ json: { generated_at: '2026-10-10', count: items.length, items } }))
+  for (const [index, item] of cases.entries()) {
+    await page.route(`**/${item.path}`, route => route.fulfill({ json: { marker: index } }))
+  }
+  await open(page)
+  const first = await call(page, 'get_recent_changes', { limit: 3 })
+  const second = await call(page, 'get_recent_changes', { offset: first.data.next_offset })
+  expect(first.data).toMatchObject({ total: 7, next_offset: 3 })
+  for (const [index, item] of [...first.data.items, ...second.data.items].entries()) {
+    expect(item.document_args).toEqual(cases[index].args)
+    expect((await call(page, 'get_legal_document', item.document_args)).data.marker).toBe(index)
+  }
+  // Generated navigation arguments must not change metadata query matching.
+  expect((await call(page, 'get_recent_changes', { query: 'corpus' })).data.total).toBe(0)
+})
+
+test('WebMCP: unsupported or malformed feed links have no misleading document arguments', async ({ page }) => {
+  await install(page)
+  const items = [
+    { kind: 'law', internal: false, href: `/laws/${LAW_ID}` },
+    { kind: 'law', internal: true, href: 'https://example.org/laws/other' },
+    { kind: 'bill', internal: true, href: '/gian/bill1' },
+    { kind: 'shingikai', internal: true, href: '/shingikai/moj/../minutes1' },
+    { kind: 'law', internal: true, href: '/pubcomment/case1' },
+    { kind: 'law', internal: true, href: `/laws/${LAW_ID}/extra` },
+    { kind: 'kanpo', date: '2026-02-30', href: 'https://example.org/issue.pdf' },
+    { kind: 'future', internal: true, href: '/future/item1' },
+  ]
+  await page.route('**/feeds/recent.json', route => route.fulfill({ json: { items } }))
+  await open(page)
+  const recent = await call(page, 'get_recent_changes')
+  expect(recent.isError).toBe(false)
+  expect(recent.data.items).toEqual(items)
+})
+
+test('WebMCP: enforcement document arguments preserve the scheduled revision', async ({ page }) => {
+  await install(page)
+  const items = [
+    { law_id: LAW_ID, title: '対象版', revision_id: REVISION, date: '2027-04-01', date_kind: 'supplementary', targets: '第1条' },
+    { law_id: LAW_ID, title: '現行版', revision_id: null, date: '2027-05-01', date_kind: 'scheduled' },
+  ]
+  await page.route('**/enforcement/upcoming.json', route => route.fulfill({ json: { as_of: '2026-10-10', items } }))
+  await page.route(`**/laws/${LAW_ID}/current.json`, route => route.fulfill({ json: { revision_id: 'current_revision' } }))
+  await open(page)
+  const upcoming = await call(page, 'get_upcoming_enforcements', { sort_by: 'date', sort_order: 'desc' })
+  expect(upcoming.data).toMatchObject({ as_of: '2026-10-10', total: 2 })
+  const [current, scheduled] = upcoming.data.items
+  expect(current.document_args).toEqual({ corpus: 'laws', id: LAW_ID })
+  expect(scheduled).toMatchObject({ targets: '第1条', document_args: { corpus: 'laws', id: LAW_ID, revision_id: REVISION } })
+  expect((await call(page, 'get_legal_document', current.document_args)).data.revision_id).toBe('current_revision')
+  expect((await call(page, 'get_legal_document', scheduled.document_args)).data.revision_id).toBe(REVISION)
+})
+
 test('WebMCP: rejects invalid inputs and reports unavailable detail data', async ({ page }) => {
   await install(page)
   await page.route('**/laws/missing/current.json', route => route.fulfill({ status: 404, body: 'missing' }))

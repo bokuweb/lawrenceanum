@@ -141,6 +141,23 @@ function documentArgs(corpus: Corpus, row: Args): Args | undefined {
   return args
 }
 
+function feedDocumentArgs(row: Args): Args | undefined {
+  if (row.kind === 'kanpo') {
+    try { return { corpus: 'kanpo', date: dateArg(row) } } catch { return undefined }
+  }
+  if (row.internal !== true || typeof row.href !== 'string') return undefined
+  // Feed ministry labels can be Japanese display names; use the route's actual ID.
+  const match = /^\/(laws|proceedings|pubcomment|gian|shingikai|procurement)\/([a-zA-Z0-9_-]+)(?:\/([a-zA-Z0-9_-]+))?$/.exec(row.href)
+  if (!match) return undefined
+  const [, corpus, first, second] = match
+  if (row.kind !== (corpus === 'laws' ? 'law' : corpus === 'gian' ? 'bill' : corpus)) return undefined
+  if (corpus === 'gian' || corpus === 'shingikai') {
+    if (!second) return undefined
+    return { corpus, id: second, [corpus === 'gian' ? 'session' : 'ministry']: first }
+  }
+  return second ? undefined : { corpus, id: first }
+}
+
 async function listDataRaw(args: Args) {
   const corpus = corpusArg(args)
   switch (corpus) {
@@ -456,13 +473,21 @@ export function createWebMcpTools(): Tool[] {
       const refs = direction === 'incoming' ? await engine.getIncomingRefs(lawId, articleId) : await engine.getOutgoingRefs(lawId, articleId)
       return { law_id: lawId, direction, ...pageItems(refs, args) }
     }),
-    tool('get_recent_changes', '法令改正・議案・パブコメ・官報の新着フィードを取得する。', listing, [], async args => {
+    tool('get_recent_changes', '法令・議案・パブコメ・官報・会議録・審議会・調達の新着フィードを取得する。対応する項目に本文取得用 document_args を返す。官報は発行日単位。', listing, [], async args => {
       const { items, ...meta } = await api.recentFeed()
-      return { ...meta, ...pageItems(items, args) }
+      const page = pageItems(items, args)
+      return { ...meta, ...page, items: page.items.map(row => {
+        const detail = feedDocumentArgs(row)
+        return { ...row, ...(detail ? { document_args: detail } : {}) }
+      }) }
     }),
-    tool('get_upcoming_enforcements', '公開データの今後の施行予定を取得する。', listing, [], async args => {
+    tool('get_upcoming_enforcements', '公開データの今後の施行予定を取得する。本文取得用 document_args は施行対象の revision_id があればその版を指定する。', listing, [], async args => {
       const { items, ...meta } = await api.enforcementUpcoming()
-      return { ...meta, ...pageItems(items, args) }
+      const page = pageItems(items, args)
+      return { ...meta, ...page, items: page.items.map(row => {
+        const detail = documentArgs('laws', row)
+        return { ...row, ...(detail ? { document_args: { ...detail, ...(row.revision_id ? { revision_id: row.revision_id } : {}) } } : {}) }
+      }) }
     }),
     tool('get_data_status', '公開データの更新日時・収集状況・各コーパスの件数とエラーを取得する。', {}, [], () => api.health()),
   ]
