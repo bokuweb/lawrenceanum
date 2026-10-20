@@ -2947,6 +2947,7 @@ fn split_tiers(cols: Vec<Col>, rules: &TierRules) -> Vec<Vec<Col>> {
     rejoin_item_numbers(&mut out);
     rejoin_honoree_names(&mut out);
     rejoin_value_cells(&mut out);
+    rejoin_prose_label_values(&mut out, rules);
     out.extend(trailing);
     out.retain(|t| !t.is_empty());
     out
@@ -5756,3 +5757,167 @@ mod mixed_native_bbox_tests;
 #[cfg(test)]
 #[path = "wrapped_native_quote_tests.rs"]
 mod wrapped_native_quote_tests;
+
+/// 横倒しの縦組みで、連続する番号付きの短い欄見出しと、その直下の本文だけを同じ段へ戻す。
+/// 次記事が上段の左側にあるときも、移す範囲は見出し群の横幅の中に限る。
+fn rejoin_prose_label_values(tiers: &mut [Vec<Col>], rules: &TierRules) {
+    if !rules.sideways {
+        return;
+    }
+    fn ordinal(t: &str) -> Option<usize> {
+        let t = t.strip_prefix('（')?.strip_suffix('）')?;
+        ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"]
+            .iter()
+            .position(|&n| n == t)
+            .map(|n| n + 1)
+    }
+    fn japanese(c: char) -> bool {
+        ('\u{3040}'..='\u{30ff}').contains(&c)
+            || ('\u{3400}'..='\u{9fff}').contains(&c)
+            || c == '々'
+    }
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    for i in 1..tiers.len() {
+        let Some(j) = (0..i).rev().find(|&j| !tiers[j].is_empty()) else {
+            continue;
+        };
+        let (above, below) = (&tiers[j], &tiers[i]);
+        let mut groups: Vec<Vec<&Col>> = Vec::new();
+        let mut ordered: Vec<_> = above.iter().collect();
+        ordered.sort_by(|a, b| center(b).total_cmp(&center(a)).then(a.y.total_cmp(&b.y)));
+        for c in ordered {
+            if let Some(g) = groups
+                .last_mut()
+                .filter(|g| (center(g[0]) - center(c)).abs() <= 1.0)
+            {
+                g.push(c);
+            } else {
+                groups.push(vec![c]);
+            }
+        }
+        for g in &mut groups {
+            g.sort_by(|a, b| a.y.total_cmp(&b.y));
+        }
+        let labels: Vec<_> = groups
+            .iter()
+            .enumerate()
+            .filter_map(|(k, g)| {
+                let n = ordinal(&g[0].text)?;
+                let suffix: String = g.iter().skip(1).map(|c| c.text.as_str()).collect();
+                let length = suffix.chars().count();
+                if !(2..=24).contains(&length) || !suffix.chars().all(japanese) {
+                    return None;
+                }
+                // 見出しの字同士は、字間を空けた組み方を含めて同じ狭い列にある。
+                if g.windows(2)
+                    .any(|w| w[1].y < w[0].y1 - 1.0 || w[1].y - w[0].y1 > 16.0)
+                {
+                    return None;
+                }
+                Some((
+                    k,
+                    n,
+                    g[0].x,
+                    g[0].x1,
+                    g[0].y,
+                    g.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max),
+                ))
+            })
+            .collect();
+        if labels.len() < 3
+            || labels.len() > 10
+            || labels
+                .windows(2)
+                .any(|w| w[1].0 != w[0].0 + 1 || w[1].1 != w[0].1 + 1)
+        {
+            continue;
+        }
+        let x0 = labels.iter().map(|l| l.2).fold(f32::INFINITY, f32::min);
+        let x1 = labels.iter().map(|l| l.3).fold(f32::NEG_INFINITY, f32::max);
+        let top = labels[0].4;
+        let bottom = labels[0].5;
+        let em = labels.iter().map(|l| l.3 - l.2).fold(0.0, f32::max);
+        if !(6.0..=14.0).contains(&em)
+            || labels.iter().any(|l| {
+                (l.4 - top).abs() > 1.0
+                    || (l.5 - bottom).abs() > 1.0
+                    || (l.3 - l.2 - em).abs() > 1.0
+            })
+        {
+            continue;
+        }
+        let values: Vec<_> = below
+            .iter()
+            .filter(|c| c.x1 > x0 + 0.5 && c.x < x1 - 0.5)
+            .collect();
+        if values.len() < labels.len() || values.len() > 24 {
+            continue;
+        }
+        let start = values[0].y;
+        let gap = start - bottom;
+        if gap < em * 0.75 - 0.1 || gap > em * 2.0 + 0.1 {
+            continue;
+        }
+        if values.iter().any(|c| {
+            c.x < x0 - 1.0
+                || c.x1 > x1 + 1.0
+                || (c.y - start).abs() > 1.0
+                || (c.x1 - c.x - em).abs() > 1.0
+                || c.y1 - c.y < em * 0.9
+                || c.y1 - c.y > em * 40.0
+                || c.text.starts_with(['○', '〇', '◎'])
+                || crate::segment::is_section_label(&c.text)
+                || ordinal(&c.text).is_some()
+        }) {
+            continue;
+        }
+        if !values.iter().any(|c| {
+            c.text.chars().count() >= 12 && c.text.chars().any(japanese) && !value_number(&c.text)
+        }) {
+            continue;
+        }
+        if labels.iter().any(|l| {
+            !values
+                .iter()
+                .any(|c| (center(c) - (l.2 + l.3) / 2.0).abs() <= 1.0)
+        }) {
+            continue;
+        }
+        if values.iter().enumerate().any(|(k, a)| {
+            values[k + 1..]
+                .iter()
+                .any(|b| (center(a) - center(b)).abs() < em * 0.9)
+        }) {
+            continue;
+        }
+        // 見出しと値の橋渡しの範囲に原罫・確定した枠があれば、段の境界を保つ。
+        if rules
+            .hrules
+            .iter()
+            .any(|&(y, a, b)| y > bottom + 0.5 && y < start - 0.5 && b > x0 && a < x1)
+            || rules.vrules.iter().any(|&(x, a, b)| {
+                x > x0 + 0.5 && x < x1 - 0.5 && b > bottom + 0.5 && a < start - 0.5
+            })
+            || rules
+                .tables
+                .iter()
+                .chain(&rules.boxes)
+                .any(|&(a, b, c, d)| b > x0 && a < x1 && d > bottom + 0.5 && c < start - 0.5)
+        {
+            continue;
+        }
+        let ids: std::collections::HashSet<_> = values.iter().map(|c| c.id).collect();
+        let old = std::mem::take(&mut tiers[i]);
+        for c in old {
+            if ids.contains(&c.id) {
+                tiers[j].push(c);
+            } else {
+                tiers[i].push(c);
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+#[path = "prose_label_values_tests.rs"]
+mod prose_label_values_tests;

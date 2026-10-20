@@ -1,0 +1,1170 @@
+{
+  "audit": 118,
+  "kind": "independent_first_pass",
+  "date": "2026-10-20",
+  "baseline_commit": "d844e3d229f6779b5577632e9dc5d538a943a15c",
+  "candidate": "seventh integrated candidate after28",
+  "archive_url": "https://pub-9a1139569b5342689fb7724ede56e113.r2.dev/kanpo-pdf",
+  "population_pages": 11992,
+  "selection": {
+    "seed": "issue227-audit118",
+    "ordering": "SHA256(seed + colon + full18-characterpageID), ascending",
+    "candidate": "after28",
+    "population": 11992,
+    "excluded": 1723,
+    "eligible": 5388,
+    "body_nonspace_minimum": 150,
+    "exclusion_scope": "all117 exclusions, all prior independent audit selections, rendered original contexts, archive fixtures, current6 changed pages; full population includes g/h/t issue types",
+    "exclusion_list_sha256": "6d7f07de4e8b6c6a0ed95f166d6d77a17b707f395f6295841234b790ee93719f"
+  },
+  "counts": {
+    "ok": 25,
+    "major": 2,
+    "minor": 3
+  },
+  "initial_grades_fixed": true,
+  "source_output_image_hashes_root_verified": 30,
+  "pages": [
+    {
+      "index": 0,
+      "page": "20260826g001900047",
+      "pdf": ".cache/kanpo-archive/2026-08-26/20260826g00190/20260826g001900047.pdf",
+      "pdf_sha256": "cbf32e8991c53f0d0d2ef6556c0150f305455e7f0500e846cd32bf1ef2dc1b37",
+      "output": ".cache/kanpo-227/after28/20260826g001900047.txt",
+      "output_sha256": "19e95f8139d35cf2b0aed35628d076848b880cbfc8dcdb0ed6ba74fe51ca34c9",
+      "image": ".cache/kanpo-227/audit118/20260826g001900047.png",
+      "image_sha256": "ea75b6d64895c0fc3828fa4b8ce5c512c25b186ace9caae8c774c5c47237ac97",
+      "image_size": [
+        1190,
+        1684
+      ],
+      "grade": "ok",
+      "initial_grade_frozen": true,
+      "lines_reviewed": [
+        1,
+        175
+      ],
+      "notes": [
+        "原本4段×4記事、解散公告16件を右→左・上→下で全文照合。各解散日・債権申出期限・住所・法人・清算人はそれぞれの公告に所属する。",
+        "1〜44行は母子健康手帳ドットコム、パピユー掃除機、Creati AI Tech、Mitsuba。45〜85行はSH&W、蘭跡、宏地、INRYU。86〜132行は蘭、日本美術市場再生ファンド社団/合同会社、Lifegoeson。133〜175行はSUNCHOI、Oneoreight、日本ジェネシス、クオンツ。原本の番地・氏名・日付も確認、混線/脱落なし。"
+      ],
+      "native_exclusions": [],
+      "initial_grade_fixed": true
+    },
+    {
+      "index": 1,
+      "page": "20260901g001950043",
+      "pdf": ".cache/kanpo-archive/2026-09-01/20260901g00195/20260901g001950043.pdf",
+      "pdf_sha256": "8d0efcf14e3aaa88f79bb1c24b32597c01d574e63e1823db53f7326300f390a3",
+      "output": ".cache/kanpo-227/after28/20260901g001950043.txt",
+      "output_sha256": "b272188aebcec2271d0f4d51fc042c85df3b4de3b9e12dca20723a888c3e689a",
+      "image": ".cache/kanpo-227/audit118/20260901g001950043.png",
+      "image_sha256": "cc40c5ae01f7e7b3dfe5ebbeb090d490ff6ad792f9121a0d4f21e61d8bb4d174",
+      "image_size": [
+        1684,
+        1190
+      ],
+      "grade": "ok",
+      "initial_grade_frozen": true,
+      "lines_reviewed": [
+        1,
+        177
+      ],
+      "notes": [
+        "原本横組4段を左→右に全177行照合。前記事の6合格発表〜8照会先が先に終わり、きゅう師国家試験の新記事へ進む。",
+        "郵便110－0005、電話03(5811)1666/FAX1667、試験令和9年2月28日、修業証明期限3月15日、願書12月1〜18日、手数料19,500円、受験票1月27日を確認。昭和22法217号/学校教育法26号/昭和63法71号/沖縄46法129号等の条文参照も保持。列またぎでア/イ/ウと各説明は正しい順。"
+      ],
+      "native_exclusions": [],
+      "initial_grade_fixed": true
+    },
+    {
+      "index": 2,
+      "page": "20260909g002010057",
+      "pdf": ".cache/kanpo-archive/2026-09-09/20260909g00201/20260909g002010057.pdf",
+      "pdf_sha256": "2345bce9273de2f7f689407ff5ba8eaae8adf17acf12162ebf8c2037bf98a3d1",
+      "output": ".cache/kanpo-227/after28/20260909g002010057.txt",
+      "output_sha256": "94bdf5368bddd7e756c726b14644ce8361fa151abb64f50d441a2b486c00fdb7",
+      "image": ".cache/kanpo-227/audit118/20260909g002010057.png",
+      "image_sha256": "660a4b0e086b656b2ea7e7880fac098d9b5ab4a728e4b6f61efa3272cb00841b",
+      "image_size": [
+        1190,
+        1684
+      ],
+      "grade": "ok",
+      "initial_grade_frozen": true,
+      "lines_reviewed": [
+        1,
+        26
+      ],
+      "notes": [
+        "文字層のある解散公告第三回（1〜13行）と第17期決算公告（14〜26行）を全文照合。福岡地裁小倉支部/宗教法人/清算人の対応と第一回9月4日→第三回9月9日が正しい。",
+        "BSは資産35,288,818、負債32,862,355、正味財産2,426,463、負債正味財産35,288,818（円）。日付・NPO名称/住所/代表理事も原本通り。",
+        "画像の他14件の相続公告は指定した二範囲でnative Glyphが空文字も含め0。文字層なしとして対象外。画像からoutlinedとは断定しない。"
+      ],
+      "native_exclusions": [
+        {
+          "bbox": [
+            50,
+            60,
+            263,
+            240
+          ],
+          "all_native_glyphs": 0,
+          "empty_native_glyphs": 0
+        },
+        {
+          "bbox": [
+            50,
+            244,
+            550,
+            792
+          ],
+          "all_native_glyphs": 0,
+          "empty_native_glyphs": 0
+        }
+      ],
+      "native_evidence": ".cache/kanpo-227/20260909g002010057-glyphs.json",
+      "initial_grade_fixed": true
+    },
+    {
+      "index": 3,
+      "page": "20260803g001740090",
+      "pdf": ".cache/kanpo-archive/2026-08-03/20260803g00174/20260803g001740090.pdf",
+      "pdf_sha256": "9cf5cbb692f1facd5f94fb1d070fb73fed6bcac923202719ace4acf0b58fd0cb",
+      "output": ".cache/kanpo-227/after28/20260803g001740090.txt",
+      "output_sha256": "208b47884b0cc59f8803c3a5cbba1f98b8d44b518357877b0b1a2edf936e2ac7",
+      "image": ".cache/kanpo-227/audit118/20260803g001740090.png",
+      "image_sha256": "f49bd7941148b46e1731ad90133708d0ccd38c5172ecc70434091f8844cdbe05",
+      "image_size": [
+        1684,
+        1190
+      ],
+      "grade": "ok",
+      "initial_grade_frozen": true,
+      "lines_reviewed": [
+        1,
+        66
+      ],
+      "notes": [
+        "原本の左右段のBS継続を左66行中1〜31→右32〜66で全文照合。未収金・貸倒引当金の総額と控除後額、建物等の取得価額/償却/減損/残額の対応を維持。",
+        "有形固定資産280,650,102,847、無形1,803,075,994、投資その他29,933,879,842、固定資産312,387,058,683、資産362,028,144,982。負債19,366,427,560、資産見返の末尾17,017,680,411/314,094,634/679,214,231まで全値確認。",
+        "固定資産・流動負債・固定負債の前に見えるRoman分類番号3個は各狭い原本範囲にnative Glyph自体が0。文字層なしの記号として除外。科目/数値/注記の欠落や混線なし。"
+      ],
+      "native_exclusions": [
+        {
+          "bbox": [
+            70,
+            138,
+            88,
+            149
+          ],
+          "all_native_glyphs": 0,
+          "empty_native_glyphs": 0
+        },
+        {
+          "bbox": [
+            440,
+            290,
+            455,
+            303
+          ],
+          "all_native_glyphs": 0,
+          "empty_native_glyphs": 0
+        },
+        {
+          "bbox": [
+            440,
+            456,
+            455,
+            470
+          ],
+          "all_native_glyphs": 0,
+          "empty_native_glyphs": 0
+        }
+      ],
+      "native_evidence": ".cache/kanpo-227/20260803g001740090-glyphs.json",
+      "initial_grade_fixed": true
+    },
+    {
+      "index": 4,
+      "page": "20260828g001920078",
+      "pdf": ".cache/kanpo-archive/2026-08-28/20260828g00192/20260828g001920078.pdf",
+      "pdf_sha256": "bd7427e6417ab23c46fe2c8f211ae295c75dbcfc1cbf13c5a2137d86f2edd91e",
+      "output": ".cache/kanpo-227/after28/20260828g001920078.txt",
+      "output_sha256": "313360a6543ba77974bac64af3657f81ca0438cf93f2dbd996d507fcd9c31c9e",
+      "image": ".cache/kanpo-227/audit118/20260828g001920078.png",
+      "image_sha256": "332c6cd00ae135353ef04b2caea95933d1f9e919445fd29470bda4cb7754f9a2",
+      "image_size": [
+        1190,
+        1684
+      ],
+      "grade": "major",
+      "initial_grade_frozen": true,
+      "lines_reviewed": [
+        1,
+        204
+      ],
+      "notes": [
+        "major: 原本下段の共通外枠内の金融公告・決算表の順序が崩れる。出力110〜138行で第40期BSアルプスビジネスサービス（原本左下）を先読みし、139〜154行に新設分割（原本中央上）、155〜168行に資本減少（原本右上）、169〜185行に合併（原本右下）、186〜204行に第8期BSアルプスアグリキャリア（原本中央下）となる。",
+        "下の共通枠の右から始まる公告本文よりBSが前に置かれ、直前の別外枠ヤマナミ合併の後へ割り込む。法人/署名/公告本文と関連表のまとまりが崩れるため跨記事順序major。各記事の文章と6表の数値自体は全て原本一致。",
+        "上段は山口金属曲板/山金の合併とBS777,332/2,599,645。中段はヤマナミ/和洋食品とBS2,676,951/317,616。下段のBS1,931,327/255,543、自己株式△34,491/△51,300、資本金三億円減少、農業生産事業の新設分割と全署名も確認。文字欠落は認めない。"
+      ],
+      "native_exclusions": [],
+      "initial_grade_fixed": true
+    },
+    {
+      "index": 5,
+      "page": "20260918g002090092",
+      "pdf": ".cache/kanpo-archive/2026-09-18/20260918g00209/20260918g002090092.pdf",
+      "pdf_sha256": "a3615ff276b56b908fd6e50cd73be3211722df0500d3ca6371b704f9743c2d54",
+      "output": ".cache/kanpo-227/after28/20260918g002090092.txt",
+      "output_sha256": "65accfa1ddf33326d94db0b06f00bf0a6d68181ea444ad77b06e9317ac8d114f",
+      "image": ".cache/kanpo-227/audit118/20260918g002090092.png",
+      "image_sha256": "5fa2f7b1fb8fbfa0c45b7f5fc22444c388786a9a2dd8bcd3f26a018175b65120",
+      "image_size": [
+        1190,
+        1684
+      ],
+      "grade": "ok",
+      "initial_grade_frozen": true,
+      "lines_reviewed": [
+        1,
+        66
+      ],
+      "notes": [
+        "原本二組の新旧対照表を右組の第四条→左組の第五条の順に全66行照合。導入文/傍線注記/改正後/改正前の所属が明確で、表の公表内容・公表単位の欄関係も保持。",
+        "第四条の法第三十条の三第二項第七号→旧第六号、第五条の新第九号イ/ロ・第十二号・第五項に対する旧第十一号イ/ロ・第十四号・第六項を一つずつ確認。十六順位、四で除す、四捨五入の記述まで欠落なし。"
+      ],
+      "native_exclusions": [],
+      "initial_grade_fixed": true
+    },
+    {
+      "index": 6,
+      "page": "20260810g001790137",
+      "pdf": ".cache/kanpo-archive/2026-08-10/20260810g00179/20260810g001790137.pdf",
+      "pdf_sha256": "1fc5764675fbcc021fe0dd22824661d89231dacbf86864137fe070c12abb8a3a",
+      "output": ".cache/kanpo-227/after28/20260810g001790137.txt",
+      "output_sha256": "e77e2aa48f298f981619366e624e515ebf013a37ff158e12b980d032c3bcb6b9",
+      "image": ".cache/kanpo-227/audit118/20260810g001790137.png",
+      "image_sha256": "82d1d246a0d6310c43547a4820a7b57827904ab54bdbee02a71dd37a9168b6c7",
+      "image_size": [
+        1190,
+        1684
+      ],
+      "grade": "ok",
+      "initial_grade_frozen": true,
+      "lines_reviewed": [
+        1,
+        188
+      ],
+      "notes": [
+        "原本10件の決算公告と全BS値を全188行照合。上2段各3社、下2段各2社の社名・期日・単位・代表者・表のまとまりを保持。",
+        "住化レーデル1,271,981、コアソフト668,567,011円、オークス20,000、AIAI13,503,220、CHaiLD194,035、テロワール8,496,551円、工機12,928百万円、オクサリス12,397百万円、一富士392,102、JERA182,198の全科目/数値対応を確認。",
+        "固定資産7、テロワール負債0、各△符号・当期利益/損失の括弧、各資本準備金/自己株式、後半4欄BSの内部空欄も原本通り。字/金額/注記の脱落なし。"
+      ],
+      "native_exclusions": [],
+      "initial_grade_fixed": true
+    },
+    {
+      "index": 7,
+      "page": "20260724g001640049",
+      "pdf": ".cache/kanpo-archive/2026-07-24/20260724g00164/20260724g001640049.pdf",
+      "pdf_sha256": "d0ffacfb8713f27a2c53eae1b4e07df1f914ef8ab796cb37defc299fe2932761",
+      "output": ".cache/kanpo-227/after28/20260724g001640049.txt",
+      "output_sha256": "16c8b85348685902525956906a405ba86474973a1706c372dc39a27277843887",
+      "image": ".cache/kanpo-227/audit118/20260724g001640049.png",
+      "image_sha256": "2d86e154466748b4de1909b218cb81aec26cd1bfa198452bce8e12d89f7ad7bb",
+      "image_size": [
+        1190,
+        1684
+      ],
+      "grade": "ok",
+      "initial_grade_frozen": true,
+      "lines_reviewed": [
+        1,
+        18
+      ],
+      "notes": [
+        "原本の経産省令62号、改正前の省令平成6年36号と不正競争防止法の条文参照、赤澤亮正大臣、別表第二カナダの項への追加指示を全文18行照合。",
+        "二十一/二十二/二十三/二十四の外国紋章見出しは図番号に対応して順に保持。四つの紋章画像と図内の黒/白/赤/青/金色/銀色/橙色などの色名は指定図範囲のnative Glyphが0（空文字Glyphも0）。文字層なしの図として除外しoutlinedとは断定しない。"
+      ],
+      "native_exclusions": [
+        {
+          "bbox": [
+            46,
+            220,
+            390,
+            340
+          ],
+          "all_native_glyphs": 0,
+          "empty_native_glyphs": 0
+        },
+        {
+          "bbox": [
+            70,
+            580,
+            530,
+            710
+          ],
+          "all_native_glyphs": 0,
+          "empty_native_glyphs": 0
+        }
+      ],
+      "native_evidence": ".cache/kanpo-227/20260724g001640049-glyphs.json",
+      "initial_grade_fixed": true
+    },
+    {
+      "index": 8,
+      "page": "20260828g001920057",
+      "pdf": ".cache/kanpo-archive/2026-08-28/20260828g00192/20260828g001920057.pdf",
+      "pdf_sha256": "31c065f64376e52621275dd1741ed1700a8becfbb80a96b0ad280afc6529e853",
+      "output": ".cache/kanpo-227/after28/20260828g001920057.txt",
+      "output_sha256": "1ebbc4793adabd7bc3876b582b65d5f7735474e276cd79dd5b0500ac1ef254b7",
+      "image": ".cache/kanpo-227/audit118/20260828g001920057.png",
+      "image_sha256": "84e40b2e887570ad20aeb4e7a98d05a7e16af834e3d456119a81c6a2a379847d",
+      "image_size": [
+        1190,
+        1684
+      ],
+      "grade": "minor",
+      "initial_grade_frozen": true,
+      "lines_reviewed": [
+        1,
+        137
+      ],
+      "notes": [
+        "minor: 原本左の三段目・第25期ウィズワンBSの結合ラベル「資産の部」が、出力84行でBS見出し85行より前に分離する。正しくは見出し/法人/貸借対照表/科目の後、流動資産3,926,853・固定資産1,957,592・繰延資産13,274の資産欄に属する。",
+        "欠字や数値/法人の取り違えはないが、ラベルの所属が遅延した既知と同種の軽度の組立て問題。原本4公告と4BSは全文137行照合、TAKT2,684・東洋2,508,837・ウィズワン5,897,720・H-LUXE351,769、準備金119,908,662円/804,610,407円、資本金減少10,000,000円→50,000,000円を含め一致。",
+        "右側相続公告群は指定した全高列内のnative Glyphが空文字も含め0で、文字層なしとして除外。"
+      ],
+      "native_exclusions": [
+        {
+          "bbox": [
+            385,
+            60,
+            551,
+            793
+          ],
+          "all_native_glyphs": 0,
+          "empty_native_glyphs": 0
+        }
+      ],
+      "native_evidence": ".cache/kanpo-227/20260828g001920057-glyphs.json",
+      "initial_grade_fixed": true
+    },
+    {
+      "index": 9,
+      "page": "20261020g002300087",
+      "pdf": ".cache/kanpo-archive/2026-10-20/20261020g00230/20261020g002300087.pdf",
+      "pdf_sha256": "e1b887d3d85f57eb3fc147135ae7158ebde65970c2a5c4637679da6aa08c4fe3",
+      "output": ".cache/kanpo-227/after28/20261020g002300087.txt",
+      "output_sha256": "e6319e311ce31a2c25535a4a90537ac25fba6bc5dec03c1cb453f650f8e9cbc2",
+      "image": ".cache/kanpo-227/audit118/20261020g002300087.png",
+      "image_sha256": "fa1646515e8228601b0bc3aedd0f2f5774914d276a3856e735851fa7ae8fd78d",
+      "image_size": [
+        1190,
+        1684
+      ],
+      "grade": "major",
+      "initial_grade_frozen": true,
+      "lines_reviewed": [
+        1,
+        197
+      ],
+      "notes": [
+        "major: 原本下段右の共通外枠は上に新設分割及び合併公告、下に関連するBS48期櫻町殖産/BS24期ミュージアム一九九九。出力100〜122行で右公告本文を出した後、外枠外の独立BS10期バスケットボール123〜141行とBS50期荒川建設142〜160行が割込み、161〜197行で右公告のBSへ復帰する。",
+        "一つの共通公告枠を離れて別外枠へ移り、また戻る跨記事の読順崩れ。全公告本文・署名・8BSの各表値自体は原本通りで、文字欠落/数字の取り違えとは区別する。",
+        "グッドライフ486,484、BizMagic14,194、キャトル984,562、KTCM47,487、バスケット513,370、荒川471,987、櫻町430,761、ミュージアム2,862,970の全科目/値/単位/△/当期欄を確認。",
+        "住所120/163行の「三丁日」は拡大原本にも「日」が印字され、raw wordも同じ字。原本の誤植を保っておりパーサの誤認字と判定しない。"
+      ],
+      "native_exclusions": [],
+      "initial_grade_fixed": true
+    },
+    {
+      "index": 10,
+      "page": "20261014h018070006",
+      "pdf": ".cache/kanpo-archive/2026-10-14/20261014h01807/20261014h018070006.pdf",
+      "pdf_sha256": "7cd994ea4b4e5ed25c53ce911ed262acf1904b7deb6b31d8e23a8f7deb4bb548",
+      "output": ".cache/kanpo-227/after28/20261014h018070006.txt",
+      "output_sha256": "f8440ea815076f6babd51f651c9d4f7bdeba9b58c9b24d6b6728121ce3a0fc20",
+      "image": ".cache/kanpo-227/audit118/20261014h018070006.png",
+      "image_sha256": "e1c398f97f62907f46651efb8b8b2458729ed3c84318c8351bdf7abc1ff51d1d",
+      "image_size": [
+        1190,
+        1684
+      ],
+      "original": ".cache/kanpo-archive/2026-10-14/20261014h01807/20261014h018070006.pdf",
+      "original_sha256": "7cd994ea4b4e5ed25c53ce911ed262acf1904b7deb6b31d8e23a8f7deb4bb548",
+      "snapshot": "after28",
+      "grade": "minor",
+      "notes": "原本4段組みと全163行を全文照合。防衛省251〜255号の日時・予備日・緯度経度・高度/艦船/注意事項、東北101号→九州98号の順序と所属を保持。軽微な崩れは下段中央の101号道路表で、原本の共通区間名（岩手県九戸郡洋野町種市第二四地割字横手三五番一から同町種市第二五地割字サンニヤ五三番一八まで）がL148の前行・L149の後行・L150の末尾へ分かれ、欄見出し変更前後別もL145/146へ割れる点。前66.86〜260.05/0.146、後68.19〜261.70/0.146という幅員/延長の対応は明瞭に保持し、区分コードや備考との文字順混乱はないためminor。原字はnativeGlyph1982〜1986の変更前後別5字と2004〜2049の共通区間46字で確実に存在し、文字層欠如の除外ではない。",
+      "initial_grade_fixed": true,
+      "all_output_read": true,
+      "original_image_read": true,
+      "output_lines": 163,
+      "exclusions": [],
+      "glyph_evidence": {
+        "native_dump": ".cache/kanpo-227/20261014h018070006-glyphs.json",
+        "native_glyph_count": 2379,
+        "native_paths_count": 5,
+        "text_layer": "原本全体の採点した本文/数値に元Glyphあり。文字層なし本文を評価から除外した範囲はない。"
+      },
+      "issues": [
+        {
+          "type": "minor_wrapped_shared_label",
+          "output_lines": [
+            145,
+            146,
+            148,
+            149,
+            150
+          ],
+          "original_location": "最下段中央の東北地方整備局101号（三）区域表",
+          "source_glyph_present": true,
+          "native_regions": [
+            {
+              "bbox": [
+                217,
+                612,
+                234,
+                638
+              ],
+              "glyph_count": 5,
+              "indices": [
+                1982,
+                1983,
+                1984,
+                1985,
+                1986
+              ],
+              "text": "変更前後別"
+            },
+            {
+              "bbox": [
+                184,
+                428,
+                209,
+                606
+              ],
+              "glyph_count": 46,
+              "indices": [
+                2004,
+                2049
+              ],
+              "text": "共通区間名46字"
+            }
+          ],
+          "parser_trace": ".cache/kanpo-227/audit118/20261014h018070006-analysis.json",
+          "trace_matches_saved_after28": true,
+          "repair_candidate": "結合した共通区間と折り返した変更前後別を1セルとして維持。前後の数値は既に一致。"
+        }
+      ]
+    },
+    {
+      "index": 11,
+      "page": "20260916g002060070",
+      "pdf": ".cache/kanpo-archive/2026-09-16/20260916g00206/20260916g002060070.pdf",
+      "pdf_sha256": "a181a7a9cb597b649eb6ce8bd87ebcf5febb7b2a4eb7166249dbc37301bbc4f6",
+      "output": ".cache/kanpo-227/after28/20260916g002060070.txt",
+      "output_sha256": "06bd2441b3f9a4441be1b860ae22383f9566e9d86c581057c553cf221fce837a",
+      "image": ".cache/kanpo-227/audit118/20260916g002060070.png",
+      "image_sha256": "228e18a894456454ffed05b8e12eff39dcfc8abf1f01d872aef898523efcfdce",
+      "image_size": [
+        1190,
+        1684
+      ],
+      "original": ".cache/kanpo-archive/2026-09-16/20260916g00206/20260916g002060070.pdf",
+      "original_sha256": "a181a7a9cb597b649eb6ce8bd87ebcf5febb7b2a4eb7166249dbc37301bbc4f6",
+      "snapshot": "after28",
+      "grade": "ok",
+      "notes": "原本上下の別表第三（第六条の二関係）新旧対照と全10長行を照合。各段の一/二と第一〜第四欄、改正後の第三条第四項/第六項・対象法人・別紙様式第二十四/二十五、改正前の第三条第三項・第十一/第十一の二を各セルに保持。共有する第一/第二欄の〔略〕/〔同上〕と行二の空欄位置も原本どおり。改正後行二末尾の事業は原本が左端で次ページへ続く箇所であり、欠落に数えない。",
+      "initial_grade_fixed": true,
+      "all_output_read": true,
+      "original_image_read": true,
+      "output_lines": 10,
+      "exclusions": [],
+      "glyph_evidence": {
+        "native_dump": ".cache/kanpo-227/20260916g002060070-glyphs.json",
+        "native_glyph_count": 635,
+        "native_paths_count": 40,
+        "text_layer": "原本全体の採点した本文/数値に元Glyphあり。文字層なし本文を評価から除外した範囲はない。"
+      }
+    },
+    {
+      "index": 12,
+      "page": "20260724g001650687",
+      "pdf": ".cache/kanpo-archive/2026-07-24/20260724g00165/20260724g001650687.pdf",
+      "pdf_sha256": "df8fa740f49ec77483373abc3e2a7849e2ece8cf3af2a9d73ece4c92be160dc7",
+      "output": ".cache/kanpo-227/after28/20260724g001650687.txt",
+      "output_sha256": "d84b189e9aca411629153563d3490bb0c0712f999e862f18586496499f196981",
+      "image": ".cache/kanpo-227/audit118/20260724g001650687.png",
+      "image_sha256": "ee90a9c709da24d1d96b74c3f924a6979480c8df9a2058f79cd79458a5bfc537",
+      "image_size": [
+        1684,
+        1190
+      ],
+      "original": ".cache/kanpo-archive/2026-07-24/20260724g00165/20260724g001650687.pdf",
+      "original_sha256": "df8fa740f49ec77483373abc3e2a7849e2ece8cf3af2a9d73ece4c92be160dc7",
+      "snapshot": "after28",
+      "grade": "ok",
+      "notes": "原本左右の補正率表継続と全74行を照合。左37行を終えて右37行へ進み、各側の4公園費・人口・種地I/IIのA/B係数、給与差等0.495/0.489、5下水道費Iの10〜7種地の対応を保持。公園費I10種地の左0.002480/−1.3900、右0.002480/−1.3840、下水道費I10種地の左0.028300/−24.6160と右0.030100/−26.1850を含め全係数と負号を照合。上端の級地7行各4値も取り違えなし。ページ内にない改正ラベルの補足は評価条件にせず、原本左右の内容分離と各行の値対応を確認した。",
+      "initial_grade_fixed": true,
+      "all_output_read": true,
+      "original_image_read": true,
+      "output_lines": 74,
+      "exclusions": [],
+      "glyph_evidence": {
+        "native_dump": ".cache/kanpo-227/20260724g001650687-glyphs.json",
+        "native_glyph_count": 1812,
+        "native_paths_count": 47,
+        "text_layer": "原本全体の採点した本文/数値に元Glyphあり。文字層なし本文を評価から除外した範囲はない。"
+      }
+    },
+    {
+      "index": 13,
+      "page": "20260930g002150362",
+      "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150362.pdf",
+      "pdf_sha256": "1a0cfffce25c1d7e2ec57bc735eec88b01a7223be041786932a6ca4e00fd8111",
+      "output": ".cache/kanpo-227/after28/20260930g002150362.txt",
+      "output_sha256": "790d9015386f19759a196f46047dd6f783271da78d037ea394a358fa3b79005f",
+      "image": ".cache/kanpo-227/audit118/20260930g002150362.png",
+      "image_sha256": "991a778cdededb4d849564c1109e693dc7697057de8a8725323b09a22c393dd6",
+      "image_size": [
+        1684,
+        1190
+      ],
+      "original": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150362.pdf",
+      "original_sha256": "1a0cfffce25c1d7e2ec57bc735eec88b01a7223be041786932a6ca4e00fd8111",
+      "snapshot": "after28",
+      "grade": "ok",
+      "notes": "原本左右の協定規則対照表継続と全56行を照合。左側の13〜183号の対応を終えて第10条本文/一二（略）、右側の13〜178号を終えて同条本文へ進む。48号補足第3対第2、79号第10対第9、140号第7対第6、154号第4改訂対第3改訂補足第2、177号改訂版対初版、左だけにある182/183号を正しい側へ保持。各セルの略と原動機/動力伝達装置の見出しも混在しない。",
+      "initial_grade_fixed": true,
+      "all_output_read": true,
+      "original_image_read": true,
+      "output_lines": 56,
+      "exclusions": [],
+      "glyph_evidence": {
+        "native_dump": ".cache/kanpo-227/20260930g002150362-glyphs.json",
+        "native_glyph_count": 1230,
+        "native_paths_count": 72,
+        "text_layer": "原本全体の採点した本文/数値に元Glyphあり。文字層なし本文を評価から除外した範囲はない。"
+      }
+    },
+    {
+      "index": 14,
+      "page": "20261009g002230094",
+      "pdf": ".cache/kanpo-archive/2026-10-09/20261009g00223/20261009g002230094.pdf",
+      "pdf_sha256": "3283a3ce3e7c8c4e4455f8ffd17089de01a709f0681475b8e5525fda5bda9db9",
+      "output": ".cache/kanpo-227/after28/20261009g002230094.txt",
+      "output_sha256": "9ee903d4f7cf3a189949bb8e0d7f5628e0c18680149cdc3e6ea196ece82da35a",
+      "image": ".cache/kanpo-227/audit118/20261009g002230094.png",
+      "image_sha256": "3fe85b88ddb9898417479ad71286e1de310025105e974b8e9642dd70ed69ec55",
+      "image_size": [
+        1190,
+        1684
+      ],
+      "original": ".cache/kanpo-archive/2026-10-09/20261009g00223/20261009g002230094.pdf",
+      "original_sha256": "3283a3ce3e7c8c4e4455f8ffd17089de01a709f0681475b8e5525fda5bda9db9",
+      "snapshot": "after28",
+      "grade": "ok",
+      "notes": "原本の作品目録継続と全25行を照合。先頭の前行から続く名古屋市美術館・館長津坂昌樹・住所、大阪市立美術館・館長内藤栄・住所を保持。その後ルイージ・ケルビーニから羊飼いと羊たちまで24作品を右→左の原本順に読み、各作品4欄の同右を対応させる。ハルツ城からの皇帝ハインリヒ4世の脱出、岩の上に座る女羊飼い（編み物をする女性）の長い題名/折返しも他の作品へ混ぜない。",
+      "initial_grade_fixed": true,
+      "all_output_read": true,
+      "original_image_read": true,
+      "output_lines": 25,
+      "exclusions": [],
+      "glyph_evidence": {
+        "native_dump": ".cache/kanpo-227/20261009g002230094-glyphs.json",
+        "native_glyph_count": 508,
+        "native_paths_count": 42,
+        "text_layer": "原本全体の採点した本文/数値に元Glyphあり。文字層なし本文を評価から除外した範囲はない。"
+      }
+    },
+    {
+      "index": 15,
+      "page": "20260924g002110007",
+      "pdf": ".cache/kanpo-archive/2026-09-24/20260924g00211/20260924g002110007.pdf",
+      "pdf_sha256": "a868d883996d8d41539ed06018d3041090a4b4994f2fde90fb0239e795e691cd",
+      "output": ".cache/kanpo-227/after28/20260924g002110007.txt",
+      "output_sha256": "8bd296e364b58169fd8c23f21b35ac9ca0847b06024f94ca3280a5e90b08279f",
+      "image": ".cache/kanpo-227/audit118/20260924g002110007.png",
+      "image_sha256": "c51a4b936a708304431b862034029cc31690e123c48368873c8589f9c95c9dac",
+      "image_size": [
+        1684,
+        1190
+      ],
+      "original": ".cache/kanpo-archive/2026-09-24/20260924g00211/20260924g002110007.pdf",
+      "original_sha256": "a868d883996d8d41539ed06018d3041090a4b4994f2fde90fb0239e795e691cd",
+      "snapshot": "after28",
+      "grade": "ok",
+      "notes": "原本左右2段の横組み本文と全88行を照合。定義4利用者用ソフトウェアから20ファイルまで左段、21ドキュメント〜24重要機能室と第2、第3が右段へ続く。各番号の定義文を完結させ、ファイル列挙・USB等媒体・第2の1〜3と各（1）（2）、第3の4（3）除外と責任体制/監視体制の説明を維持。見出しや右段本文の先読み、項番の混入、本文欠落を認めない。",
+      "initial_grade_fixed": true,
+      "all_output_read": true,
+      "original_image_read": true,
+      "output_lines": 88,
+      "exclusions": [],
+      "glyph_evidence": {
+        "native_dump": ".cache/kanpo-227/20260924g002110007-glyphs.json",
+        "native_glyph_count": 2221,
+        "native_paths_count": 3,
+        "text_layer": "原本全体の採点した本文/数値に元Glyphあり。文字層なし本文を評価から除外した範囲はない。"
+      }
+    },
+    {
+      "index": 16,
+      "page": "20261016g002280397",
+      "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280397.pdf",
+      "pdf_sha256": "8c0caa157719bed26f46cebb2ac413983b6a549d6f741bf895c53731180ab638",
+      "output": ".cache/kanpo-227/after28/20261016g002280397.txt",
+      "output_sha256": "e600a7d576c6894073e40aa683b5e378ff1d385342ebc40befaf399d95f5f4b3",
+      "image": ".cache/kanpo-227/audit118/20261016g002280397.png",
+      "image_sha256": "ac0dadd67450bfa235bb6edf0f379b3c9587125d80207195f9ff5f1ee5607f42",
+      "image_size": [
+        1684,
+        1190
+      ],
+      "original": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280397.pdf",
+      "original_sha256": "8c0caa157719bed26f46cebb2ac413983b6a549d6f741bf895c53731180ab638",
+      "snapshot": "after28",
+      "grade": "ok",
+      "notes": "原本京都工芸繊維大学公告・BSと全82行を照合。公告→日付/住所/学長→BS、左の固定/流動資産から右上の有価証券等へ継続し負債/純資産へ進む。土地原価21,499,508/減損△4,500/純額21,495,008、建物△13,125,958/8,281,033、車両純額0、未収学生151,368/引当△1,733/149,635を含む3段金額を対応保持。資産39,180,916、負債2,821,284、資本剰余金合計△802,577と各注の科目折返しも正しい。",
+      "initial_grade_fixed": true,
+      "all_output_read": true,
+      "original_image_read": true,
+      "output_lines": 82,
+      "exclusions": [],
+      "glyph_evidence": {
+        "native_dump": ".cache/kanpo-227/20261016g002280397-glyphs.json",
+        "native_glyph_count": 1341,
+        "native_paths_count": 15,
+        "text_layer": "原本全体の採点した本文/数値に元Glyphあり。文字層なし本文を評価から除外した範囲はない。"
+      }
+    },
+    {
+      "index": 17,
+      "page": "20261016g002280538",
+      "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280538.pdf",
+      "pdf_sha256": "b84c79edaa78069ccf1b28b0ae6a838ee3d71e9dee352e1f1eb4b27b04e7a3c3",
+      "output": ".cache/kanpo-227/after28/20261016g002280538.txt",
+      "output_sha256": "af3e03f2ba7545e2f412a09a5c2d9c7d30168f6bb67cd341da357062a7cbe1a0",
+      "image": ".cache/kanpo-227/audit118/20261016g002280538.png",
+      "image_sha256": "951a29d7d070bc99142c79d80c7a34f4831e2800bbbacfe94d4db712ed888930",
+      "image_size": [
+        1684,
+        1190
+      ],
+      "original": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280538.pdf",
+      "original_sha256": "b84c79edaa78069ccf1b28b0ae6a838ee3d71e9dee352e1f1eb4b27b04e7a3c3",
+      "snapshot": "after28",
+      "grade": "ok",
+      "notes": "原本左の時価評価注2→賃貸不動産7→除去債務8と右の国民コスト9→収益10→後発11→福岡教育大学公告/BSを全87行照合。除去債務表の25,758千円・増加額－千円・調整573千円・履行減少－千円・26,331千円の横棒2字と行対応を保持。コスト費用41,348,422・控除△29,175,212・合計12,173,209・最終14,089,349、利率2.345％を正しい説明に付す。新記事の学長石丸哲史、土地23,331,782/減損△28,059/23,303,722も混在せず、署名/単位/表題の順が正しい。",
+      "initial_grade_fixed": true,
+      "all_output_read": true,
+      "original_image_read": true,
+      "output_lines": 87,
+      "exclusions": [],
+      "glyph_evidence": {
+        "native_dump": ".cache/kanpo-227/20261016g002280538-glyphs.json",
+        "native_glyph_count": 2109,
+        "native_paths_count": 9,
+        "text_layer": "原本全体の採点した本文/数値に元Glyphあり。文字層なし本文を評価から除外した範囲はない。"
+      }
+    },
+    {
+      "index": 18,
+      "page": "20260917h017920005",
+      "pdf": ".cache/kanpo-archive/2026-09-17/20260917h01792/20260917h017920005.pdf",
+      "pdf_sha256": "c1158a0d942fc7be44eac1c3c7b018d83098a9e8c73a2a611eb36ac5298c03c9",
+      "output": ".cache/kanpo-227/after28/20260917h017920005.txt",
+      "output_sha256": "80e0980438363e50f24d269ac79a850e9e341ff54c4307f4fdaa252caac3aaaf",
+      "image": ".cache/kanpo-227/audit118/20260917h017920005.png",
+      "image_sha256": "3bc00a2c834f9614a24f3cc4a6ddece7b3f432a9abd7e6168d167f2f5923122b",
+      "image_size": [
+        1190,
+        1684
+      ],
+      "original": ".cache/kanpo-archive/2026-09-17/20260917h01792/20260917h017920005.pdf",
+      "original_sha256": "c1158a0d942fc7be44eac1c3c7b018d83098a9e8c73a2a611eb36ac5298c03c9",
+      "snapshot": "after28",
+      "grade": "ok",
+      "notes": "原本4段組みの保安林指定1432〜1438号と全175行を全文照合。1432栃木県那珂川、1433岡山県赤磐、1434岡山県新見、1435岩手県花巻、1436一関大東、1437一関藤沢、1438盛岡簗川の7告示を、1433号の施業条件の段またぎを含め各本文→省略書類縦覧まで保って読む。原本1432の長い地番列、1434の択伐2筆と地番、各目的土砂流出/水源涵養、各市役場/県庁を原記事へ保持。本文は原字が存在し、画像化本文の除外はない。",
+      "initial_grade_fixed": true,
+      "all_output_read": true,
+      "original_image_read": true,
+      "output_lines": 175,
+      "exclusions": [],
+      "glyph_evidence": {
+        "native_dump": ".cache/kanpo-227/20260917h017920005-glyphs.json",
+        "native_glyph_count": 2736,
+        "native_paths_count": 254,
+        "text_layer": "原本全体の採点した本文/数値に元Glyphあり。文字層なし本文を評価から除外した範囲はない。"
+      }
+    },
+    {
+      "index": 19,
+      "page": "20261016g002280075",
+      "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280075.pdf",
+      "pdf_sha256": "17841ab9dce5778628fa61fa4aad0ab30fb336d8c4e8797439134a74883553bd",
+      "output": ".cache/kanpo-227/after28/20261016g002280075.txt",
+      "output_sha256": "5c399b7531686b5f711f0875f236ee3845e572fa0ecafd8b150d2ac774010b64",
+      "image": ".cache/kanpo-227/audit118/20261016g002280075.png",
+      "image_sha256": "5b3165167203ed58be38f9fb2a06e53339867011d937a98a8b6ee92ab3ff1ed2",
+      "image_size": [
+        1684,
+        1190
+      ],
+      "original": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280075.pdf",
+      "original_sha256": "17841ab9dce5778628fa61fa4aad0ab30fb336d8c4e8797439134a74883553bd",
+      "snapshot": "after28",
+      "grade": "ok",
+      "notes": "原本純資産変動計算書の上段継続と下段利益剰余金7欄表を全22行照合。上段当期変動額/末残高の7値と負号を保ち、下段7見出し・期首552,693,986/277,573,582/1,746,090,972/194,054,309/0/2,770,412,849/25,362,434,309を正しい欄へ対応。下段155,940,229と38,114,080、減少△194,054,309、147,247,546の4欄、最終△4,999,104/3,734,104/3,734,104/△1,265,000/△1,265,000を空欄込みで保持。空の物理行の省略を値移動や欠落と取り違えず、原本にない左の前ページ行名は補わない。",
+      "initial_grade_fixed": true,
+      "all_output_read": true,
+      "original_image_read": true,
+      "output_lines": 22,
+      "exclusions": [],
+      "glyph_evidence": {
+        "native_dump": ".cache/kanpo-227/20261016g002280075-glyphs.json",
+        "native_glyph_count": 627,
+        "native_paths_count": 51,
+        "text_layer": "原本全体の採点した本文/数値に元Glyphあり。文字層なし本文を評価から除外した範囲はない。"
+      }
+    },
+    {
+      "page": "20261009g002230162",
+      "index": 20,
+      "grade": "ok",
+      "notes": "原本全4段の解散公告16件とafter28全169行を照合。各段を右→左、段を上→下に読み、三戸工務店→藤田住設→INDEY TIME→宇和市売木材、ミヤコ計機→大喜→FSアシスト→大平テクノ、前田産業→スワン産業→貴龍建設→Atelier、安藤牧場→ニチア→佐藤クリニック→渋谷コーポラスの順。住所・解散日・清算人の所属を保持。番地の一〇－一〇〇二号（114行）等の数字断片も欠落なし。",
+      "evaluation_version": "after28 (fixed initial assessment)",
+      "initial_grade_immutable": true,
+      "original_sha256": "47e730ce75626ea552b9ac5f4f7e89aef6301b491eae91bac6cb64a3a0371d01",
+      "output_sha256": "47c0462532e846cb85d180c2191f6e44ae1cb6e93bdcca2ccfd46dc6489ea72b",
+      "original_png_sha256": "5eef7d4469d4cbb695ff8e0e5e994cf3a477fd04c919f08f84fa3daf1cd5fcae",
+      "original_pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-10-09/20261009g00223/20261009g002230162.pdf",
+      "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20261009g002230162.png",
+      "output_file": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/after28/20261009g002230162.txt",
+      "output_lines": 169,
+      "full_original_image_and_output_reviewed": true,
+      "all_three_sha_verified": true,
+      "native_glyphs": 2376,
+      "native_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20261009g002230162-native-summary.json",
+      "source_text_presence": "本文文字層あり。除外なし。",
+      "pdf": ".cache/kanpo-archive/2026-10-09/20261009g00223/20261009g002230162.pdf",
+      "pdf_sha256": "47e730ce75626ea552b9ac5f4f7e89aef6301b491eae91bac6cb64a3a0371d01",
+      "output": ".cache/kanpo-227/after28/20261009g002230162.txt",
+      "image": ".cache/kanpo-227/audit118/20261009g002230162.png",
+      "image_sha256": "5eef7d4469d4cbb695ff8e0e5e994cf3a477fd04c919f08f84fa3daf1cd5fcae",
+      "image_size": [
+        1190,
+        1684
+      ],
+      "initial_grade_fixed": true
+    },
+    {
+      "page": "20260806g001770068",
+      "index": 21,
+      "grade": "ok",
+      "notes": "原本全体とafter28全54行を照合。文字層のある下部3社は左アリエス→中央福岡赤坂→右福島二本松の各18行で保持。流動資産689/689/688、資産合計789/789/788、負債64、基金1,000、利益剰余金及びその他利益剰余金△275、純資産724の行対応を全件確認。上部の相続・不在者財産管理等の公告は文字層なし本文のため読み順採点から除外（範囲nativeGlyph0の証拠あり、画像/outlineの内訳は未判定）。このokは下部の文字層だけの評価でありページ全文抽出成功を意味しない。",
+      "evaluation_version": "after28 (fixed initial assessment)",
+      "initial_grade_immutable": true,
+      "original_sha256": "955830032dc02551c5e397507adc3d2c446000073c86fa95922179a7d5b9e5e6",
+      "output_sha256": "87d961b0720257e51f094120231d76336d9c89cfda6d4f26b38785fcb09d0134",
+      "original_png_sha256": "afab765fe9133f1fe45e0f9c7354fbaeb38f581451d5785134ea0b842dc9d94e",
+      "original_pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-08-06/20260806g00177/20260806g001770068.pdf",
+      "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20260806g001770068.png",
+      "output_file": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/after28/20260806g001770068.txt",
+      "output_lines": 54,
+      "full_original_image_and_output_reviewed": true,
+      "all_three_sha_verified": true,
+      "native_glyphs": 600,
+      "native_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20260806g001770068-native-summary.json",
+      "source_text_presence": "部分的に文字層なし本文あり。指定範囲nativeGlyph0を別証拠で確認し、その範囲だけ読み順採点対象外。path/画像/outline内訳は未判定。",
+      "partial_exclusion_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20260806g001770068-native-proof.json",
+      "pdf": ".cache/kanpo-archive/2026-08-06/20260806g00177/20260806g001770068.pdf",
+      "pdf_sha256": "955830032dc02551c5e397507adc3d2c446000073c86fa95922179a7d5b9e5e6",
+      "output": ".cache/kanpo-227/after28/20260806g001770068.txt",
+      "image": ".cache/kanpo-227/audit118/20260806g001770068.png",
+      "image_sha256": "afab765fe9133f1fe45e0f9c7354fbaeb38f581451d5785134ea0b842dc9d94e",
+      "image_size": [
+        1190,
+        1684
+      ],
+      "initial_grade_fixed": true
+    },
+    {
+      "page": "20260916g002060020",
+      "index": 22,
+      "grade": "ok",
+      "notes": "原本全上下段とafter28全90行を全文照合。上段の第三条第二項第一号改正→一イ(1)(2)ロ→次の二号追加を1～45行、下段の第三条第四項以下の改正→15項追加→5/6/7/8項→19項一二三を46～90行に保持。長い入れ子引用、番号、外国政府等の末尾まで順序と所属が一致。",
+      "evaluation_version": "after28 (fixed initial assessment)",
+      "initial_grade_immutable": true,
+      "original_sha256": "1717b09a51d7c20ecf97cd68d0424de2b581790cb1ddb7a0c84b7ac555121149",
+      "output_sha256": "308ea245a3abcb9d7a5e71329456083c0fc1f4baeddfda7df24b0857b2dc6c40",
+      "original_png_sha256": "960d2c606c356ec3f0980cfddd1169c997c8f71d63e8404cf96b56d4b27d1d92",
+      "original_pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-09-16/20260916g00206/20260916g002060020.pdf",
+      "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20260916g002060020.png",
+      "output_file": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/after28/20260916g002060020.txt",
+      "output_lines": 90,
+      "full_original_image_and_output_reviewed": true,
+      "all_three_sha_verified": true,
+      "native_glyphs": 3362,
+      "native_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20260916g002060020-native-summary.json",
+      "source_text_presence": "本文文字層あり。除外なし。",
+      "pdf": ".cache/kanpo-archive/2026-09-16/20260916g00206/20260916g002060020.pdf",
+      "pdf_sha256": "1717b09a51d7c20ecf97cd68d0424de2b581790cb1ddb7a0c84b7ac555121149",
+      "output": ".cache/kanpo-227/after28/20260916g002060020.txt",
+      "image": ".cache/kanpo-227/audit118/20260916g002060020.png",
+      "image_sha256": "960d2c606c356ec3f0980cfddd1169c997c8f71d63e8404cf96b56d4b27d1d92",
+      "image_size": [
+        1190,
+        1684
+      ],
+      "initial_grade_fixed": true
+    },
+    {
+      "page": "20261016g002280006",
+      "index": 23,
+      "grade": "minor",
+      "notes": "原本全体とafter28全84行を照合。左CFのⅠ～Ⅲ→右上Ⅳ～Ⅶ（43～46行）、利益処分表（47～56行）→注記事項（57～84行）の順を保持。CF各金額/△、期末13,815、耐用年数2～50/75/20/14年は対応。ただし右上利益処分表の「積立金」の金額欄にある横棒1字が52行「積立金」から欠落。原本native E61C/CID24952/font2/8pt/bbox[713,173.1914,721,181.3754]、visible=trueを確認。科目や金額の別所属・順序崩れは認めずminor。",
+      "evaluation_version": "after28 (fixed initial assessment)",
+      "initial_grade_immutable": true,
+      "original_sha256": "67688afa6e753ab527a7a89baa22f605402e2afebc1e6cac6df5d283c04b8cd5",
+      "output_sha256": "12959893e0d745c78cf0b861df4ed663d0475fe091a3fcb57e06433f9b1744d7",
+      "original_png_sha256": "63836034942c7a5881ded148fd38558b186edf0a4594deb6cdeb4f5d02d4c672",
+      "original_pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280006.pdf",
+      "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20261016g002280006.png",
+      "output_file": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/after28/20261016g002280006.txt",
+      "output_lines": 84,
+      "full_original_image_and_output_reviewed": true,
+      "all_three_sha_verified": true,
+      "native_glyphs": 1749,
+      "native_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20261016g002280006-native-summary.json",
+      "source_text_presence": "本文文字層あり。除外なし。",
+      "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280006.pdf",
+      "pdf_sha256": "67688afa6e753ab527a7a89baa22f605402e2afebc1e6cac6df5d283c04b8cd5",
+      "output": ".cache/kanpo-227/after28/20261016g002280006.txt",
+      "image": ".cache/kanpo-227/audit118/20261016g002280006.png",
+      "image_sha256": "63836034942c7a5881ded148fd38558b186edf0a4594deb6cdeb4f5d02d4c672",
+      "image_size": [
+        1684,
+        1190
+      ],
+      "initial_grade_fixed": true
+    },
+    {
+      "page": "20261016g002280285",
+      "index": 24,
+      "grade": "ok",
+      "notes": "原本左右段の注記とafter28全82行を照合。左は貸借対照表注記1～27行→損益注記28～34行→CF注記35～44行、右はコスト注記45～75行→電話加入権の減損76～82行。各差引金額、期首/期末7科目の全2列、合計63,043,457,764/62,658,401,457、平均62,850,929,611、利率2.345%、機会費用1,473,854,299、末尾損失処理額/損益外処理額の横棒2字を原本と照合し保持。",
+      "evaluation_version": "after28 (fixed initial assessment)",
+      "initial_grade_immutable": true,
+      "original_sha256": "77caed598c46204c4f66ad25526547f260ae5c6df3a365a2e64dcbc417afd94a",
+      "output_sha256": "20c88f68f48cecd4f911a2efc00fac70b5c88864193fe5b9323e49ae59fac3b1",
+      "original_png_sha256": "ea95b299e4068f2181622ce4393e2cfce0980df308e82cde0ab1c531bc16f173",
+      "original_pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280285.pdf",
+      "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20261016g002280285.png",
+      "output_file": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/after28/20261016g002280285.txt",
+      "output_lines": 82,
+      "full_original_image_and_output_reviewed": true,
+      "all_three_sha_verified": true,
+      "native_glyphs": 2457,
+      "native_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20261016g002280285-native-summary.json",
+      "source_text_presence": "本文文字層あり。除外なし。",
+      "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280285.pdf",
+      "pdf_sha256": "77caed598c46204c4f66ad25526547f260ae5c6df3a365a2e64dcbc417afd94a",
+      "output": ".cache/kanpo-227/after28/20261016g002280285.txt",
+      "image": ".cache/kanpo-227/audit118/20261016g002280285.png",
+      "image_sha256": "ea95b299e4068f2181622ce4393e2cfce0980df308e82cde0ab1c531bc16f173",
+      "image_size": [
+        1684,
+        1190
+      ],
+      "initial_grade_fixed": true
+    },
+    {
+      "page": "20261009g002230079",
+      "index": 25,
+      "grade": "ok",
+      "notes": "原本全新旧表とafter28全22行を照合。右上/右下の改正後/前の電気供給業務用・住所・海抜高・距離欄・幅・地域名→備考→第二の改正文→左上/左下の改正後/前の長い表ヘッダ、という記事順を保持。3/6行の「〇　五　五〇」は、原本の別々の縦列の距離値〇/五と次欄の縦書き五〇に対応する。native Vfontの〇/五は同y231.0899（旧586.5859）で別x522.0612/508.9172、五〇は同x522.0612でy255.0899/263.0899（旧610.5859/618.5859）。横書きの五〇を反転したものではない。数値・新旧側の取り違えなし。",
+      "evaluation_version": "after28 (fixed initial assessment)",
+      "initial_grade_immutable": true,
+      "original_sha256": "f015d1e1a48500dddcbc7bb093e907d296c483011a359e12accb4fc563cb95b1",
+      "output_sha256": "a6c7992c9383ef6b47ca3d6cf6daa6f9f7a32e7aea9f5f68f4323191a7303730",
+      "original_png_sha256": "c7b18a98d8173e214f1b093399dd7712c5fd83ed8cdafcf757acde289eed3fa2",
+      "original_pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-10-09/20261009g00223/20261009g002230079.pdf",
+      "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20261009g002230079.png",
+      "output_file": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/after28/20261009g002230079.txt",
+      "output_lines": 22,
+      "full_original_image_and_output_reviewed": true,
+      "all_three_sha_verified": true,
+      "native_glyphs": 907,
+      "native_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20261009g002230079-native-summary.json",
+      "source_text_presence": "本文文字層あり。除外なし。",
+      "pdf": ".cache/kanpo-archive/2026-10-09/20261009g00223/20261009g002230079.pdf",
+      "pdf_sha256": "f015d1e1a48500dddcbc7bb093e907d296c483011a359e12accb4fc563cb95b1",
+      "output": ".cache/kanpo-227/after28/20261009g002230079.txt",
+      "image": ".cache/kanpo-227/audit118/20261009g002230079.png",
+      "image_sha256": "c7b18a98d8173e214f1b093399dd7712c5fd83ed8cdafcf757acde289eed3fa2",
+      "image_size": [
+        1190,
+        1684
+      ],
+      "initial_grade_fixed": true
+    },
+    {
+      "page": "20261016g002280581",
+      "index": 26,
+      "grade": "ok",
+      "notes": "原本横組み継続表とafter28全15行を照合。7列の利益剰余金関連5列・利益剰余金合計・純資産合計の所属を確認。本文5～9行の単独金額は全て右端の純資産合計列（先行6空欄）に残る。10行の目的積立金1,130,238,941/積立金1,062,180,847/当期未処分△2,192,419,788/純資産－、12～14行の△と空欄、最終行8,476,268,865～97,885,900,443も原本7列通り。前頁にしかない行名は補わず、ページ内の値・横棒・負号欠落なし。",
+      "evaluation_version": "after28 (fixed initial assessment)",
+      "initial_grade_immutable": true,
+      "original_sha256": "fd1843117acc40bb6463137998a62dd400b5a097930ce99f2412e6e94d96c90c",
+      "output_sha256": "f5191f0272a35742f07c6addb34cbfc5d45d914670802bb71361c293c10531e4",
+      "original_png_sha256": "e391a2c2c3b5588edcead46c0446640eca7e9f9c064c45faf5361f5941290baa",
+      "original_pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280581.pdf",
+      "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20261016g002280581.png",
+      "output_file": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/after28/20261016g002280581.txt",
+      "output_lines": 15,
+      "full_original_image_and_output_reviewed": true,
+      "all_three_sha_verified": true,
+      "native_glyphs": 566,
+      "native_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20261016g002280581-native-summary.json",
+      "source_text_presence": "本文文字層あり。除外なし。",
+      "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280581.pdf",
+      "pdf_sha256": "fd1843117acc40bb6463137998a62dd400b5a097930ce99f2412e6e94d96c90c",
+      "output": ".cache/kanpo-227/after28/20261016g002280581.txt",
+      "image": ".cache/kanpo-227/audit118/20261016g002280581.png",
+      "image_sha256": "e391a2c2c3b5588edcead46c0446640eca7e9f9c064c45faf5361f5941290baa",
+      "image_size": [
+        1684,
+        1190
+      ],
+      "initial_grade_fixed": true
+    },
+    {
+      "page": "20260825g001890077",
+      "index": 27,
+      "grade": "ok",
+      "notes": "原本全体とafter28全163行を全文照合。文字層のある会社その他の公告は、上段2件から各段右→左・次段右端へ続く解散公告15件で、日付・住所・会社・清算人のまとまりを保持。札幌シホーの三号（75～76行）、ゴーフォワードジャパン（87～88行）、ファインドミー（97～98行）、木漏れ日一一一号（150～151行）、最後SAKURA及び清算人（161～163行）まで確認。右上の行旅死亡人・押収物還付公告はnativeGlyph0の文字層なし本文として読み順採点から除外。path/画像内訳は未判定で、ページ全文成功とは数えない。",
+      "evaluation_version": "after28 (fixed initial assessment)",
+      "initial_grade_immutable": true,
+      "original_sha256": "a514686b58789d18c3523401ca5dab7ff073744ee29b735169bd248b00a8832e",
+      "output_sha256": "e804cfdfafd73d26e02c6910ed9ff9d2371cfe3e0b5214b82baa217558b996b7",
+      "original_png_sha256": "c3788c742e30e1ed26163f9a88eed5e26dfe8355916d42a05bee2f3a4f07e518",
+      "original_pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-08-25/20260825g00189/20260825g001890077.pdf",
+      "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20260825g001890077.png",
+      "output_file": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/after28/20260825g001890077.txt",
+      "output_lines": 163,
+      "full_original_image_and_output_reviewed": true,
+      "all_three_sha_verified": true,
+      "native_glyphs": 2259,
+      "native_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20260825g001890077-native-summary.json",
+      "source_text_presence": "部分的に文字層なし本文あり。指定範囲nativeGlyph0を別証拠で確認し、その範囲だけ読み順採点対象外。path/画像/outline内訳は未判定。",
+      "partial_exclusion_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20260825g001890077-native-proof.json",
+      "pdf": ".cache/kanpo-archive/2026-08-25/20260825g00189/20260825g001890077.pdf",
+      "pdf_sha256": "a514686b58789d18c3523401ca5dab7ff073744ee29b735169bd248b00a8832e",
+      "output": ".cache/kanpo-227/after28/20260825g001890077.txt",
+      "image": ".cache/kanpo-227/audit118/20260825g001890077.png",
+      "image_sha256": "c3788c742e30e1ed26163f9a88eed5e26dfe8355916d42a05bee2f3a4f07e518",
+      "image_size": [
+        1190,
+        1684
+      ],
+      "initial_grade_fixed": true
+    },
+    {
+      "page": "20260731g001720018",
+      "index": 28,
+      "grade": "ok",
+      "notes": "原本全上下段とafter28全83行を照合。上段5～8項→第七章→第六十四条の十/十一/十二→改正文、下段罰則追加→主務大臣→登録章→読替表の順を保持。下段左の全7行3欄読替表は77～83行に対応し、適合性判定員→認証員、判定業務規程→認証業務規程など各旧語/新語の対応と長い条文番号を保持。",
+      "evaluation_version": "after28 (fixed initial assessment)",
+      "initial_grade_immutable": true,
+      "original_sha256": "3edae19b40f16991589359471d4acd722170eb6edafffe386cbc70f14b4803d4",
+      "output_sha256": "164f99850fbe271409b7cd162e50fd3623b6d6b3a87864c387a3225283202969",
+      "original_png_sha256": "16258056ec5ad01be97774ef5a8d440862e6bf7b9d14030b08854b3b8ef9d53b",
+      "original_pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720018.pdf",
+      "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20260731g001720018.png",
+      "output_file": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/after28/20260731g001720018.txt",
+      "output_lines": 83,
+      "full_original_image_and_output_reviewed": true,
+      "all_three_sha_verified": true,
+      "native_glyphs": 2716,
+      "native_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20260731g001720018-native-summary.json",
+      "source_text_presence": "本文文字層あり。除外なし。",
+      "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720018.pdf",
+      "pdf_sha256": "3edae19b40f16991589359471d4acd722170eb6edafffe386cbc70f14b4803d4",
+      "output": ".cache/kanpo-227/after28/20260731g001720018.txt",
+      "image": ".cache/kanpo-227/audit118/20260731g001720018.png",
+      "image_sha256": "16258056ec5ad01be97774ef5a8d440862e6bf7b9d14030b08854b3b8ef9d53b",
+      "image_size": [
+        1190,
+        1684
+      ],
+      "initial_grade_fixed": true
+    },
+    {
+      "page": "20260723g001630067",
+      "index": 29,
+      "grade": "ok",
+      "notes": "原本全上下段とafter28全93行を全文照合。上段第二百十一条の二から二百十七条の改正（1～46行）→下段二百十八条/二百十九条の一連の調書改正→二百二十条/二百二十一条/二百二十二条（47～93行）の順を保持。各一二三号・2/3/4/5項、書面/電磁的記録の引用と署名押印の帰属を確認。段をまたぐ混入や引用の空洞化、原字欠落を認めない。",
+      "evaluation_version": "after28 (fixed initial assessment)",
+      "initial_grade_immutable": true,
+      "original_sha256": "e8ce87f5fecf649b9431051b4bf2eda5a7fab58d80e9bbca2a85e9c7f368b24c",
+      "output_sha256": "2df70c75e1c8c96c4846dedaeabce65ce8debd7115aac700a3a1ed216ea60950",
+      "original_png_sha256": "4e71e8ddbd677ac6534077395be981ef1aad9c3c5c0827812a3fcb1728ec02f7",
+      "original_pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-07-23/20260723g00163/20260723g001630067.pdf",
+      "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20260723g001630067.png",
+      "output_file": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/after28/20260723g001630067.txt",
+      "output_lines": 93,
+      "full_original_image_and_output_reviewed": true,
+      "all_three_sha_verified": true,
+      "native_glyphs": 3238,
+      "native_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit118/20260723g001630067-native-summary.json",
+      "source_text_presence": "本文文字層あり。除外なし。",
+      "pdf": ".cache/kanpo-archive/2026-07-23/20260723g00163/20260723g001630067.pdf",
+      "pdf_sha256": "e8ce87f5fecf649b9431051b4bf2eda5a7fab58d80e9bbca2a85e9c7f368b24c",
+      "output": ".cache/kanpo-227/after28/20260723g001630067.txt",
+      "image": ".cache/kanpo-227/audit118/20260723g001630067.png",
+      "image_sha256": "4e71e8ddbd677ac6534077395be981ef1aad9c3c5c0827812a3fcb1728ec02f7",
+      "image_size": [
+        1190,
+        1684
+      ],
+      "initial_grade_fixed": true
+    }
+  ],
+  "supplemental_native_Glyph0_evidence_part1": {
+    "pages": [
+      {
+        "page": "20260909g002010057",
+        "source": ".cache/kanpo-227/20260909g002010057-glyphs.json",
+        "native_size": [
+          595.0,
+          842.0
+        ],
+        "rotate": 0,
+        "total_glyphs": 399,
+        "total_empty_glyphs": 0,
+        "boxes": [
+          {
+            "bbox": [
+              50,
+              60,
+              263,
+              240
+            ],
+            "all_native_glyphs": 0,
+            "empty_native_glyphs": 0
+          },
+          {
+            "bbox": [
+              50,
+              244,
+              550,
+              792
+            ],
+            "all_native_glyphs": 0,
+            "empty_native_glyphs": 0
+          }
+        ]
+      },
+      {
+        "page": "20260803g001740090",
+        "source": ".cache/kanpo-227/20260803g001740090-glyphs.json",
+        "native_size": [
+          842.0,
+          595.0
+        ],
+        "rotate": 270,
+        "total_glyphs": 1339,
+        "boxes": [
+          {
+            "bbox": [
+              70,
+              138,
+              88,
+              149
+            ],
+            "all_native_glyphs": 0,
+            "empty_native_glyphs": 0
+          },
+          {
+            "bbox": [
+              440,
+              290,
+              455,
+              303
+            ],
+            "all_native_glyphs": 0,
+            "empty_native_glyphs": 0
+          },
+          {
+            "bbox": [
+              440,
+              456,
+              455,
+              470
+            ],
+            "all_native_glyphs": 0,
+            "empty_native_glyphs": 0
+          }
+        ]
+      },
+      {
+        "page": "20260724g001640049",
+        "source": ".cache/kanpo-227/20260724g001640049-glyphs.json",
+        "native_size": [
+          595.0,
+          842.0
+        ],
+        "rotate": 0,
+        "total_glyphs": 534,
+        "boxes": [
+          {
+            "bbox": [
+              46,
+              220,
+              390,
+              340
+            ],
+            "all_native_glyphs": 0,
+            "empty_native_glyphs": 0
+          },
+          {
+            "bbox": [
+              70,
+              580,
+              530,
+              710
+            ],
+            "all_native_glyphs": 0,
+            "empty_native_glyphs": 0
+          }
+        ]
+      },
+      {
+        "page": "20260828g001920057",
+        "source": ".cache/kanpo-227/20260828g001920057-glyphs.json",
+        "native_size": [
+          595.0,
+          842.0
+        ],
+        "rotate": 0,
+        "total_glyphs": 1873,
+        "boxes": [
+          {
+            "bbox": [
+              385,
+              60,
+              551,
+              793
+            ],
+            "all_native_glyphs": 0,
+            "empty_native_glyphs": 0
+          }
+        ]
+      }
+    ]
+  },
+  "scope_note": "Glyph0 areas are excluded only as documented in each page/evidence. ok on such a page is a partial text-layer grade. Absence of Glyphs alone does not prove outlines. Previous independent audits and repair rechecks remain separate."
+}

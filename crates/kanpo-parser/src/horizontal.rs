@@ -499,6 +499,11 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
             return lines;
         }
     }
+    if !one_column {
+        if let Some(tables) = trailing_code_tables::paired(&cols, vrules, hrules) {
+            return tables.into_iter().map(|t| trace::Line { text: t.render(), words: Vec::new(), table: Some(t) }).collect();
+        }
+    }
     let mut rest = cols;
     let mut tables: Vec<trace::Table> = Vec::new();
     for g in grids.iter().filter(|g| g.xs.len() >= 3 && g.ys.len() >= 3 && !grids.iter().any(|o| g.encloses(o))) {
@@ -3634,14 +3639,37 @@ fn divider_end_cut(words: &[Col], blocks: &[Block], vrules: &[(f32, f32, f32)]) 
             let unit = |w: &Col| w.text.trim_start().starts_with("（単位") || w.text.trim_start().starts_with("(単位");
             let clear = below.iter().filter(|w| w.y < ttop + em && !unit(w)).all(|w| w.x >= tx0 - em * 2.0 && w.x1 <= tx1 + em * 2.0);
             let next = ttop <= ry1 + em * 3.0 && clear;
+            // 段間の線が終わった直下に、左寄せの番号見出しと段抜きの表が続く場合も、
+            // 表の前で左右の段を読み切る。表を抜いた跡では短い見出しが左段の続きに見える。
+            let table_caption = blocks.iter().any(|b| {
+                if b.1 < ry1 || b.1 > ry1 + em * 4.0
+                    || b.0 > wx0 + em * 2.0 || b.2 < wx1 - em * 2.0
+                    || b.0 >= x - 40.0 || b.2 <= x + 40.0 {
+                    return false;
+                }
+                let captions: Vec<Col> = below.iter().filter(|w| w.y < b.1).map(|w| (*w).clone()).collect();
+                let caption_lines = group_lines(&captions);
+                !caption_lines.is_empty() && caption_lines.len() <= 3
+                    && caption_lines[0].y0 <= ry1 + em
+                    && caption_lines.iter().all(|l| {
+                        let text = render_line(&l.words);
+                        let mut chars = text.trim().chars();
+                        let Some(first) = chars.next() else { return false; };
+                        let numbered = ('Ⅰ'..='Ⅻ').contains(&first) || first.is_ascii_digit() || ('０'..='９').contains(&first);
+                        numbered && chars.next().is_some_and(char::is_whitespace)
+                            && text.chars().count() <= 40 && !text.contains(['。', '、', '円', '%', '％'])
+                            && l.words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min) <= b.0 + em
+                            && l.words.iter().all(|w| w.x1 < x - em)
+                    })
+            });
             middle
                 && ends(&left)
                 && ends(&right)
-                && next
+                && (next || table_caption)
                 && ry0 <= y0 + 2.0
                 && ry1 - ry0 >= (a1 - y0) * 0.7
                 && !above.iter().any(|w| w.x < x - 1.0 && w.x1 > x + 1.0)
-                && below.iter().any(|w| w.x < x - 1.0 && w.x1 > x + 1.0)
+                && (table_caption || below.iter().any(|w| w.x < x - 1.0 && w.x1 > x + 1.0))
                 && !blocks.iter().any(|b| b.1 < ry1 - 1.0 && b.3 > ry1 + 1.0)
                 // 字の無い語（下線の字形）は見ない。
                 && !words.iter().any(|w| !w.text.trim().is_empty() && w.y < ry1 - 0.5 && w.y1 > ry1 + 0.5)
@@ -5875,3 +5903,10 @@ fn covering_numeric_table_edges(
 #[cfg(test)]
 #[path = "horizontal_covering_edge_tests.rs"]
 mod covering_table_edge_tests;
+
+#[cfg(test)]
+#[path = "horizontal_fullwidth_section_tests.rs"]
+mod fullwidth_section_tests;
+
+#[path = "trailing_code_tables.rs"]
+mod trailing_code_tables;
