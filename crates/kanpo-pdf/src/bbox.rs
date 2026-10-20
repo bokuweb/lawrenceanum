@@ -129,9 +129,13 @@ pub fn words(page: &Page) -> Vec<Word> {
         // 横書きの負の印「△」（私用 CID の字も）は、数の後ろに続くなら語の頭にする。表の欄の左端に寄せた印が、左の欄の
         // 金額のすぐ右に続いて置かれ、左の欄の金額の語に入っていた（「323,360,778△」）。
         // 前の字が数字・桁区切り・「－」のとき（表の金額の欄の並び）だけ。文の中の「（△は減）」は切らない。
+        // 次の字が数字のとき（科目のすぐ右に置いた印「利益剰余金△1,053,214」）も、印は次の金額の頭。
+        // 前の字は科目の漢字（文の中の「うち、△12,091,223円は」は切らない）。
+        let digit_next = page.glyphs.get(i + 1).is_some_and(|n| !n.vertical && n.text.chars().next().is_some_and(|c| c.is_ascii_digit()))
+            && prev.is_some_and(|p| p.text.chars().last().is_some_and(|c| ('\u{4E00}'..='\u{9FFF}').contains(&c)));
         let sign = !g.vertical
             && matches!(g.text.as_str(), "\u{E888}" | "△" | "▲")
-            && prev.is_some_and(|p| p.text.chars().all(|c| c.is_ascii_digit() || matches!(c, ',' | '.' | '\u{E61C}' | '－')));
+            && (digit_next || prev.is_some_and(|p| p.text.chars().all(|c| c.is_ascii_digit() || matches!(c, ',' | '.' | '\u{E61C}' | '－'))));
         let forced_break = std::mem::replace(&mut break_next, overlap) || overlap || sign;
         let continues = !forced_break && prev.is_some_and(|p| {
             // 縦書きはフォントが変わると語を切る（横書きは切らない）。poppler の出力に合わせた。

@@ -187,6 +187,18 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
     if has_heading(&upper) && has_heading(&lower) && splits_into_tiers(&upper) && splits_into_tiers(&lower) {
         return None;
     }
+    // 上下の帯の記事の見出しがどれも違えば、上下に別の告示が並ぶページ（同じ形の商標の告示が上下に並び、
+    // 本文が似て見える）。新旧対照表なら改正後と改正前の欄に同じ見出しが並ぶ。
+    let headings = |g: &[Col]| -> Vec<String> {
+        g.iter()
+            .filter(|c| c.text.starts_with('〇') && (c.text.contains("告示第") || c.text.contains("令第")))
+            .map(|c| c.text.chars().filter(|ch| !ch.is_whitespace()).collect())
+            .collect()
+    };
+    let (upper_heads, lower_heads) = (headings(&upper), headings(&lower));
+    if !upper_heads.is_empty() && !lower_heads.is_empty() && !upper_heads.iter().any(|h| lower_heads.contains(h)) {
+        return None;
+    }
     // 内容類似（改正後 ≒ 改正前）。新旧対照表は両欄がほぼ同一テキストで差分のみ異なる。
     // 人事異動一覧のように上下で別内容のページはここで弾かれる。
     // 上下の本文が順序も含めてほぼ同じであること（新旧対照表は改正後 ≒ 改正前）。文字の
@@ -218,8 +230,15 @@ fn item_numbers(band: &[Col]) -> (Vec<u32>, Vec<u32>) {
         let t = top.text.trim();
         let digit = |c: char| c.to_digit(10).or_else(|| ('０'..='９').contains(&c).then(|| c as u32 - '０' as u32));
         let digits: Vec<u32> = t.chars().map_while(digit).collect();
+        // 漢数字の号の番号（「九十九　アルキル…」「百　アンモニウム…」）も項番号。
+        let kanji: String = t.chars().take_while(|c| "〇一二三四五六七八九十百千".contains(*c)).collect();
+        let after = t[kanji.len()..].chars().next();
         if (1..=3).contains(&digits.len()) {
             items.push(digits.iter().fold(0, |n, d| n * 10 + d));
+        } else if !kanji.is_empty() && kanji.chars().count() <= 6 && matches!(after, None | Some('\u{3000}') | Some(' ')) {
+            if let Some(n) = kanji_number(&kanji) {
+                items.push(n);
+            }
         } else if let Some(rest) = t.strip_prefix('第') {
             let kanji: String = rest.chars().take_while(|c| "〇一二三四五六七八九十百千".contains(*c)).collect();
             if let Some(n) = rest[kanji.len()..].starts_with('条').then(|| kanji_number(&kanji)).flatten() {
@@ -914,7 +933,19 @@ impl ShinkyuLayout {
             preamble: page_lines(self.preamble),
             after: self.after.into_iter().map(|p| lines_with_tables(p, &after_grids)).collect(),
             before: self.before.into_iter().map(|p| lines_with_tables(p, &before_grids)).collect(),
-            outside: self.trailing.into_iter().map(|p| lines_with_tables_by(p, &outside_grids, page_lines)).collect(),
+            // 表の外の記事の変更後・変更前の枠は、上の欄・下の欄の順に読む（[`crate::vertical::split_label_frames`]）。
+            outside: self
+                .trailing
+                .into_iter()
+                .map(|p| {
+                    let hrules: Vec<(f32, f32, f32)> = rules.map(|r| r.horizontal.iter().map(|h| (h.y, h.x0, h.x1)).collect()).unwrap_or_default();
+                    let vrules: Vec<(f32, f32, f32)> = rules.map(|r| r.vertical.iter().map(|v| (v.x, v.y0, v.y1)).collect()).unwrap_or_default();
+                    crate::vertical::split_label_frames(p, &hrules, &vrules)
+                        .into_iter()
+                        .flat_map(|part| lines_with_tables_by(part, &outside_grids, page_lines))
+                        .collect()
+                })
+                .collect(),
         }
     }
 }
@@ -945,7 +976,57 @@ pub(crate) fn lines_with_tables_by(cols: Vec<Col>, grids: &[&Grid], rest_lines: 
             }
         }
     }
-    place_tables(rest, tables, rest_lines)
+    // 表の脇（左か右）の語が、表の高さの中ほどにある、どの語もまたがない横の空きで上下 2 つの段に分かれるなら、段ごとに
+    // 組む（表の左の告示の本文が上下 2 段に組まれたもの。表の字が段の境をまたぐので段に分けられず、上の段の列と下の段の
+    // 列が 1 行ずつつながっていた）。
+    let cut = beside_table_cut(&rest, &tables);
+    place_tables(rest, tables, |r: Vec<Col>| match cut {
+        Some((y, left_edge)) => {
+            // 表の右の語（先に読む）は上の段に入れる。
+            let (top, bottom): (Vec<Col>, Vec<Col>) = r.into_iter().partition(|c| c.x1 > left_edge + 1.0 || (c.y + c.y1) / 2.0 < y);
+            let mut lines = rest_lines(top);
+            lines.extend(rest_lines(bottom));
+            lines
+        }
+        None => rest_lines(r),
+    })
+}
+
+/// [`lines_with_tables_by`] の表の左の語を上下の段に分ける y と表の左端。表の左の語の、表の上端と下端の間の横の空き
+/// （どの語もまたがず、上下の語の間が字の半分以上空く）で、上下とも 2 字以上の縦組みの列が 3 列以上あるもの。
+fn beside_table_cut(all: &[Col], tables: &[Table]) -> Option<(f32, f32)> {
+    let t = tables.iter().min_by(|a, b| a.x0.total_cmp(&b.x0))?;
+    let rest: Vec<Col> = all.iter().filter(|c| c.x1 <= t.x0 + 1.0).cloned().collect();
+    let rest = rest.as_slice();
+    if rest.is_empty() {
+        return None;
+    }
+    let upright = |c: &Col| c.text.chars().count() >= 2 && c.y1 - c.y > (c.x1 - c.x) * 1.5;
+    let em = rest.iter().filter(|c| upright(c)).map(|c| c.x1 - c.x).fold(f32::INFINITY, f32::min);
+    if !em.is_finite() {
+        return None;
+    }
+    let columns = |sel: &dyn Fn(&Col) -> bool| {
+        let mut v: Vec<f32> = rest.iter().filter(|c| upright(c) && sel(c)).map(|c| (c.x + c.x1) / 2.0).collect();
+        v.sort_by(f32::total_cmp);
+        v.dedup_by(|a, b| (*a - *b).abs() < em * 0.5);
+        v
+    };
+    // 上と下の段の列の x がほとんど揃わない（列の間隔の違う別の組。帯の表「都道府県名」「市区町村名」の上下の欄は
+    // 列が揃う）。
+    let misaligned = |up: &[f32], down: &[f32]| down.iter().filter(|&&x| up.iter().any(|&u| (u - x).abs() < 1.0)).count() * 2 < down.len();
+    rest.iter()
+        .map(|c| c.y1)
+        .filter(|&y1| y1 > t.y0 + em * 3.0 && y1 < t.y1 - em * 3.0)
+        .filter_map(|y1| {
+            let next = rest.iter().filter(|c| c.y >= y1).map(|c| c.y).fold(f32::INFINITY, f32::min);
+            let cut = (y1 + next) / 2.0;
+            let (up, down) = (columns(&|c: &Col| c.y1 <= cut), columns(&|c: &Col| c.y >= cut));
+            (next - y1 >= em * 0.5 && !rest.iter().any(|c| c.y < cut && cut < c.y1) && up.len() >= 3 && down.len() >= 3 && misaligned(&up, &down))
+                .then_some((next - y1, cut))
+        })
+        .max_by(|a, b| a.0.total_cmp(&b.0))
+        .map(|(_, cut)| (cut, t.x0))
 }
 
 /// 表の外の語 `rest` を `rest_lines` で行に組み、表を読み順（右→左）の位置に差し込む。
@@ -1158,7 +1239,13 @@ fn grid_table(g: &Grid, cols: Vec<Col>) -> Table {
         for (i, l) in lines.iter().enumerate() {
             text.push_str(&l.text);
             let short = bottom(l) < max_bottom - em * 1.5;
-            if i + 1 < lines.len() && (l.text.ends_with('。') || short || spaced(&l.text)) {
+            // 数だけの短い列が並ぶ欄（無線の通信路の「一二」「一四」「六六」）は、列ごとに別の項目。
+            let numeral = |t: &str| {
+                let t = t.trim();
+                (1..=4).contains(&t.chars().count()) && t.chars().all(|c| "〇一二三四五六七八九十百".contains(c) || c.is_ascii_digit() || ('０'..='９').contains(&c))
+            };
+            let numbers = lines.get(i + 1).is_some_and(|n| numeral(&l.text) && numeral(&n.text));
+            if i + 1 < lines.len() && (l.text.ends_with('。') || short || spaced(&l.text) || numbers) {
                 text.push('\n');
             }
         }

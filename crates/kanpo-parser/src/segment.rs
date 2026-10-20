@@ -101,6 +101,11 @@ pub(crate) fn is_heading_mark(t: &str) -> bool {
         // 助数詞の後に漢字が続かない（「〇円、」「〇年」）のは数。「〇人事院規則」は見出し。
         Some(c) if "年月日円人件個度倍分時点種級番歳回台".contains(c) => chars.next().is_some_and(kanji),
         Some(c) if kanji(c) && !NUMERALS.contains(c) => true,
+        // 機関名がかなで始まる見出し（「〇こども家庭庁告示第十三号」）は、見出しの形（「第…号」で終わる 1 行）のときだけ。
+        Some(c) if ('\u{3041}'..='\u{3096}').contains(&c) => {
+            let t = t.trim_end();
+            t.ends_with('号') && t.contains('第') && t.chars().count() <= 40 && !t.contains(['、', '。', '「', '」'])
+        }
         Some(c) if NUMERALS.contains(c) => {
             let t = t.trim_end();
             chars.next().is_some_and(|c| kanji(c) && !NUMERALS.contains(c))

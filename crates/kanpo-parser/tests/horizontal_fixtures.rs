@@ -139,5 +139,5 @@ fn notice_title_splits_notices_under_same_field_header() {
 fn heading_only_page_keeps_heading_and_drops_running_header() {
     // 令和8年10月5日 本紙第1801号 p7。テキスト層にあるのは柱と家裁公告の標題だけ。
     let out = reconstruct_vertical(include_str!("fixtures/souzoku_heading_only_p7.bbox.html"));
-    assert_eq!(out, "相続財産清算人の選任及び相\n続権主張の催告");
+    assert_eq!(out, "相続財産清算人の選任及び相続権主張の催告");
 }

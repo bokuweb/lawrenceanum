@@ -2,7 +2,6 @@
 source: crates/kanpo-parser/tests/archive_snapshots.rs
 expression: out
 input_file: crates/kanpo-parser/tests/archive/pages/20260930g00215/20260930g002150418.pdf
-snapshot_kind: text
 ---
 layout: headerless_shinkyu
 format: shinkyu
@@ -51,4 +50,4 @@ format: shinkyu
       |  | 「北九州交通圏」及び「長崎交通圏」 | 令和五年十月一日から令和八年九月三十日まで |
       |  | 「久留米市」、「筑豊交通圏」、「大牟田市」、「佐賀市」、「唐津市」、「佐世保市」、「諫早市」、「大分市」、「別府市」、「都城交通圏」、「延岡市」、「鹿児島市」及び「鹿児島空港交通圏」 | 令和七年十月一日から令和十年九月三十日まで |
       |  | 「宮崎交通圏」 | 令和六年十月一日から令和九年九月三十日まで |
-    前 附　則この告示は、令和八年十月一日から施行する。
+  P 附　則この告示は、令和八年十月一日から施行する。
