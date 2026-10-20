@@ -206,6 +206,11 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
                             .any(|b| !citations_in(b).is_empty())
                 })
                 .unwrap_or(false);
+        // 前の要約に引用があっても、今回のタスクで書き直していなければ未完了。
+        // before のない旧 plan も引き続き読み込める。
+        let done = done && plan.before.get(&task.page).is_none_or(|before| {
+            Page::read(&path).is_ok_and(|p| llm_hash(&p.body) != *before)
+        });
         // 人物ページは前の経緯に引用があるだけでは完了にならない (書き足されたかを見る)。
         let done = done
             && task.person.as_ref().is_none_or(|pt| {
@@ -1186,6 +1191,7 @@ mod tests {
         std::fs::write(wiki.join("laws/L1.md"), law()).unwrap();
         let plan = Plan {
             schema_version: 1,
+            before: BTreeMap::new(),
             date: "2026-10-08".into(),
             base_url: "x".into(),
             tasks: vec![Task {
@@ -1582,6 +1588,56 @@ mod tests {
         assert_eq!(person_blocks(&person.body).0, "- **救済制度**: 副反応の救済拡充を求めた[^1]。");
         assert!(std::fs::read_to_string(wiki.join("log.md")).unwrap().contains("山田太郎"));
         std::fs::remove_dir_all(root).ok();
+    }
+
+    #[test]
+    fn unchanged_summaries_do_not_advance_meeting_bill_or_pubcomment_state() {
+        let summary = "救済拡充を求めた[^1]。\n\n[^1]: [kokkai:M1_001](https://kokkai.ndl.go.jp/txt/M1/1) 「副反応の救済を拡充すべき」";
+        for kind in ["kokkai", "bill", "pubcomment"] {
+            let (root, wiki, work) = setup("救済拡充を質疑", summary);
+            let mut plan = Plan::load(&work).unwrap().unwrap();
+            let task = &mut plan.tasks[0];
+            task.kind = kind.into();
+            task.created.clear(); // 以前の要約がある既存ページ。
+            let old_path = wiki.join(&task.page);
+            let mut page = Page::read(&old_path).unwrap();
+            if kind != "kokkai" {
+                task.page = format!("{kind}s/test.md");
+                page.set("type", json!(kind));
+                std::fs::create_dir_all(wiki.join(format!("{kind}s"))).unwrap();
+                std::fs::remove_file(&old_path).unwrap();
+            }
+            let path = wiki.join(&task.page);
+            page.set("latest_date", json!("2026-10-08"));
+            page.set("llm_latest_date", json!("2026-10-01"));
+            page.set("result_date", json!("2026-10-08"));
+            page.set("llm_result_date", json!("2026-10-01"));
+            plan.before.insert(task.page.clone(), llm_hash(&page.body));
+            plan.schema_version = 2;
+            // メタデータだけ変わっても、本文を読んで更新したことにはならない。
+            page.set("description", json!("更新された説明文"));
+            page.body.push_str("\n<!-- lawpub:begin meta -->\n更新された機械データ\n<!-- lawpub:end meta -->\n");
+            page.write(&path).unwrap();
+            std::fs::write(work.join("plan.json"), serde_json::to_vec(&plan).unwrap()).unwrap();
+            let args = FinalizeArgs { wiki: wiki.clone(), work: work.clone() };
+            run_finalize(&args).unwrap();
+            let page = Page::read(&path).unwrap();
+            assert!(!State::load(&wiki).unwrap().is_processed("kokkai:M1"), "{kind}");
+            assert_eq!(page.get_str("llm_latest_date"), "2026-10-01", "{kind}");
+            assert_eq!(page.get_str("llm_result_date"), "2026-10-01", "{kind}");
+
+            let mut page = page;
+            page.body = page.body.replace("救済拡充を求めた[^1]", "山田議員が救済拡充を求めた[^1]");
+            page.write(&path).unwrap();
+            run_finalize(&args).unwrap();
+            let page = Page::read(&path).unwrap();
+            match kind {
+                "bill" => assert_eq!(page.get_str("llm_latest_date"), "2026-10-08"),
+                "pubcomment" => assert_eq!(page.get_str("llm_result_date"), "2026-10-08"),
+                _ => assert!(State::load(&wiki).unwrap().is_processed("kokkai:M1")),
+            }
+            std::fs::remove_dir_all(root).ok();
+        }
     }
 
     #[test]

@@ -362,6 +362,9 @@ pub struct Plan {
     pub date: String,
     pub base_url: String,
     pub tasks: Vec<Task>,
+    /// plan 時点の各タスクの LLM 区間。以前の引用だけで更新済みにならないようにする。
+    #[serde(default)]
+    pub before: BTreeMap<String, String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -472,7 +475,7 @@ pub fn ensure_law_synthesis(wiki: &Path, law_id: &str) -> Result<()> {
 
 /// LLM が書く「経緯」の形式。上げると、処理済みの会議も翌日以降に処理し直して
 /// 人物・会議体・法令ページの経緯を書き足す (1 回の上限は max_items)。
-pub const NARRATIVE_VERSION: u64 = 1;
+pub const NARRATIVE_VERSION: u64 = 2;
 
 /// 会議体ページの名前。国会は「衆議院 予算委員会」、審議会は部会・委員会名。
 pub fn committee_title(corpus: &str, organization: &str, committee: &str) -> Option<String> {
@@ -528,7 +531,7 @@ pub fn person_blocks(body: &str) -> (String, String) {
     }
 }
 
-/// LLM 区間の中身の hash (人物タスクで書き足されたかの判定用)。
+/// LLM 区間の中身の hash (タスクで書き足されたかの判定用)。
 pub fn llm_hash(body: &str) -> String {
     use sha2::{Digest, Sha256};
     let mut h = Sha256::new();
@@ -814,6 +817,14 @@ mod tests {
         let out = page.render();
         assert!(out.ends_with("description: \"説明\"\n---\n# 民法\n"));
         assert_eq!(Page::parse(&out).unwrap().get_str("description"), "説明");
+    }
+
+    #[test]
+    fn old_plans_without_before_remain_readable() {
+        let plan: Plan = serde_json::from_value(serde_json::json!({
+            "schema_version": 1, "date": "2026-10-01", "base_url": "local", "tasks": []
+        })).unwrap();
+        assert!(plan.before.is_empty());
     }
 
     #[test]
