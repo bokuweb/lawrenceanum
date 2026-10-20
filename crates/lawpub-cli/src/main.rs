@@ -27,6 +27,7 @@ mod status;
 mod validate;
 mod wiki;
 mod shitsumon;
+mod jlt;
 
 #[derive(Parser)]
 #[command(name = "lawpub", version, about = "e-Gov 法令データ正規化・配信 CLI")]
@@ -816,6 +817,35 @@ enum Cmd {
         #[arg(long, default_value = "public")]
         public: PathBuf,
     },
+    /// 日本法令外国語訳データベース (法務省 JLT) の英訳を取得し `.cache/jlt/` に保存する。
+    /// 保存済みの翻訳版 ID は取り直さないので、`--limit` で打ち切っても再実行で続きから取れる。
+    JltFetch {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
+        provider: String,
+        /// 分野 (`bu`) のカンマ区切り (2,4,…,4096)。省略時は全 12 分野。
+        #[arg(long)]
+        categories: Option<String>,
+        /// リクエスト間隔 (ミリ秒)。
+        #[arg(long, default_value_t = 2000)]
+        interval_ms: u64,
+        /// 1 回の実行で本文を取得する最大件数。
+        #[arg(long, default_value_t = 200)]
+        limit: usize,
+        /// 保存済みの翻訳版も取り直す。
+        #[arg(long)]
+        refresh: bool,
+    },
+
+    /// `.cache/jlt/` → `public/laws/{law_id}/en.json` + 対応表 `public/jlt/index.json` を書き出す。
+    /// law_id は `public/laws/index.json` の法令番号で引くので、法令の build-json の後に実行する。
+    JltBuildJson {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
 
     /// 政府解釈の関連法令・文書名・本文から `public/links/law-to-guidance/{law_id}.json` を生成する。
     LinkLawsAndGuidance {
@@ -1141,6 +1171,10 @@ fn main() -> Result<()> {
         ),
         Cmd::GuidanceBuildJson { cache, public } => guidance::run_build_json(&cache, &public),
         Cmd::LinkLawsAndGuidance { public } => linking::run_link_guidance(&public),
+        Cmd::JltFetch { cache, provider, categories, interval_ms, limit, refresh } => {
+            jlt::run_fetch(&cache, &provider, categories.as_deref(), interval_ms, limit, refresh)
+        }
+        Cmd::JltBuildJson { cache, public } => jlt::run_build_json(&cache, &public),
     }
 }
 

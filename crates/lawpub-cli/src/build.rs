@@ -2572,6 +2572,13 @@ fn collect_corpus_health(public: &Path) -> serde_json::Value {
             unit: "documents",
             date_fields: &["issued_on"],
         },
+        // 法令英訳 (日本法令外国語訳データベース)。鮮度は最新の翻訳日。
+        CorpusSpec {
+            name: "jlt",
+            collection: "translations",
+            unit: "translations",
+            date_fields: &["translated_on"],
+        },
         // 官報は専用ワークフローが集めるので corpus-status.json には載らない
         // (収集状況の行は「収集履歴なし」になる)。鮮度は配信済みの最新発行日で見る。
         CorpusSpec {

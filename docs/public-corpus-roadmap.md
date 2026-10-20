@@ -41,6 +41,7 @@
 
 - ✅ **法令**（e-Gov 法令 API v2）: `egov-client` → `law-normalizer` → diff/snapshot → `search-index` → `public/` 静的 JSON → SPA。
 - ✅ **官報**: `kanpo-client` / `kanpo-linker`。
+- ✅ **法令英訳**（法務省 日本法令外国語訳データベース, PDL1.0）: `jlt-client` → `laws/{law_id}/en.json` + 英語 FTS。詳細は [`jlt-translations.md`](jlt-translations.md)。
 - 📋 **国会/議事録**: `proceedings-plan.md` に設計あり（未実装）。
 - 📋 **例規**: `reiki-plan.md` に設計あり（未実装）。
 - 🆕 **パブコメ**: 未計画。本書 §5 で新規提案。
