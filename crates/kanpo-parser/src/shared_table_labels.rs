@@ -100,11 +100,147 @@ fn raise_braced_row_label(t: &mut Table, words: &[Word]) -> usize {
     count
 }
 
+/// 同一の物理セルから別の論理行へ割れた、左揃えの密な２行の折り返し見出しを戻す。
+/// 隣の２行の数値はより広い行間で別々のセルにあり、見出しの２行目はどちらにも揃わないこと。
+fn join_wrapped_physical_label(t: &mut Table, words: &[Word]) -> usize {
+    let mut count = 0;
+    let mut i = 0;
+    while i < t.cells.len() {
+        let a = &t.cells[i];
+        if a.col != 0 || a.colspan != 1 || a.rowspan != 1 || a.text.chars().count() < 4 {
+            i += 1;
+            continue;
+        }
+        let same_box =
+            |c: &TableCell| (c.x0 - a.x0).abs() < 0.1 && (c.x1 - a.x1).abs() < 0.1 && (c.y0 - a.y0).abs() < 0.1 && (c.y1 - a.y1).abs() < 0.1;
+        let group: Vec<usize> = t
+            .cells
+            .iter()
+            .enumerate()
+            .filter(|(_, c)| c.col == a.col && c.colspan == 1 && c.rowspan == 1 && same_box(c))
+            .map(|(j, _)| j)
+            .collect();
+        let other = (group.len() == 2).then(|| group.iter().copied().find(|&j| j != i)).flatten();
+        let Some(j) = other else {
+            i += 1;
+            continue;
+        };
+        let b = &t.cells[j];
+        if b.row != a.row + 1
+            || b.text.chars().count() < 2
+            || t.cells.iter().any(|c| c.col == 0 && (c.row == a.row || c.row == b.row) && !same_box(c))
+        {
+            i += 1;
+            continue;
+        }
+        let label = |c: &TableCell| !c.text.is_empty() && !c.text.chars().any(|ch| ch.is_numeric() || "。．.,，、:：;；()（）".contains(ch));
+        let (Some(aa), Some(bb)) = (bounds(a, words), bounds(b, words)) else {
+            i += 1;
+            continue;
+        };
+        let em = (aa.3 - aa.1).max(bb.3 - bb.1);
+        let ac = (aa.1 + aa.3) / 2.0;
+        let bc = (bb.1 + bb.3) / 2.0;
+        if !label(a)
+            || !label(b)
+            || !(4.0..=16.0).contains(&em)
+            || (aa.3 - aa.1).min(bb.3 - bb.1) < em * 0.8
+            || (aa.0 - bb.0).abs() > em * 0.4
+            || aa.0 < a.x0 - 0.5
+            || aa.0 - a.x0 > em
+            || aa.2 > a.x1 + 0.5
+            || a.x1 - aa.2 > em
+            || aa.1 < a.y0 - 0.5
+            || bb.3 > a.y1 + 0.5
+            || bc - ac < em * 0.8
+            || bc - ac > em * 1.3
+        {
+            i += 1;
+            continue;
+        }
+        // 物理行の異なる数値セルが２列以上で上下に対応していること。
+        let anchor = |r: usize| -> Option<(f32, std::collections::BTreeSet<usize>)> {
+            let cells: Vec<_> = t
+                .cells
+                .iter()
+                .filter(|c| {
+                    c.row == r
+                        && c.col > 0
+                        && c.rowspan == 1
+                        && c.y0 >= a.y0 - 0.5
+                        && c.y1 <= a.y1 + 0.5
+                        && c.y1 - c.y0 < (a.y1 - a.y0) * 0.75
+                        && c.text.chars().any(|ch| ch.is_numeric())
+                })
+                .collect();
+            let cols = cells.iter().map(|c| c.col).collect::<std::collections::BTreeSet<_>>();
+            if cols.len() < 2 {
+                return None;
+            }
+            let mut ys: Vec<_> = cells
+                .iter()
+                .flat_map(|c| c.words.iter())
+                .map(|&id| words.get(id).map(center))
+                .collect::<Option<Vec<_>>>()?;
+            if ys.is_empty() {
+                return None;
+            }
+            ys.sort_by(f32::total_cmp);
+            let y = ys[ys.len() / 2];
+            (ys.iter().all(|v| (v - y).abs() <= em * 0.4)).then_some((y, cols))
+        };
+        let (Some((ay, acol)), Some((by, bcol))) = (anchor(a.row), anchor(b.row)) else {
+            i += 1;
+            continue;
+        };
+        if acol.intersection(&bcol).count() < 2 || by - ay < em * 1.5 || (ac - ay).abs() > em * 0.4 || bc - ay < em * 0.5 || by - bc < em * 0.5 {
+            i += 1;
+            continue;
+        }
+        // 同じ見出しが３行以上の記録にも掛かる場合、字の２行ではなく物理セル全体の範囲を戻す。
+        let covered: std::collections::BTreeSet<usize> = t
+            .cells
+            .iter()
+            .filter(|c| c.col > 0 && c.y0 >= a.y0 - 0.5 && c.y1 <= a.y1 + 0.5)
+            .flat_map(|c| c.row..c.row + c.rowspan)
+            .collect();
+        let end = covered.last().copied().map_or(a.row, |r| r + 1);
+        if end > t.rows
+            || end < a.row + 2
+            || (a.row..end).any(|r| !covered.contains(&r))
+            || covered.first().copied() != Some(a.row)
+            || t.cells
+                .iter()
+                .enumerate()
+                .any(|(k, c)| k != i && k != j && c.col == 0 && c.row < end && c.row + c.rowspan > a.row)
+        {
+            i += 1;
+            continue;
+        }
+        let span = end - a.row;
+        let mut ids = a.words.clone();
+        ids.extend(&b.words);
+        let mut unique = std::collections::HashSet::new();
+        if !ids.iter().all(|id| unique.insert(*id)) {
+            i += 1;
+            continue;
+        }
+        let text = format!("{}{}", a.text.trim_end(), b.text.trim_start());
+        t.cells[i].text = text;
+        t.cells[i].words = ids;
+        t.cells[i].rowspan = span;
+        t.cells.remove(j);
+        count += 1;
+        i = if j < i { i - 1 } else { i + 1 };
+    }
+    count
+}
+
 pub(crate) fn order_shared_table_labels(units: &mut [crate::trace::Unit], words: &[Word]) {
     let visit = |lines: &mut [crate::trace::Line]| {
         for line in lines {
             if let Some(table) = &mut line.table {
-                if raise_braced_row_label(table, words) > 0 {
+                if raise_braced_row_label(table, words) + join_wrapped_physical_label(table, words) > 0 {
                     line.text = table.render();
                 }
             }
@@ -237,3 +373,7 @@ mod tests {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "shared_physical_label_tests.rs"]
+mod shared_physical_label_tests;

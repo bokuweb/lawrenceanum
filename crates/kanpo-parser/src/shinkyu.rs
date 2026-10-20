@@ -517,6 +517,52 @@ pub(crate) fn reconstruct_shinkyu(cols: Vec<Col>, header_x: f32, divider: f32, g
     layout.into_unit(grids, rules)
 }
 
+/// 上下の数表の行番号が順に続くなら、前の記事の通常表の段送り。新旧帯なら同じ番号を繰り返す。
+/// 各段の右端から整数見出しが3列以上連続し、上段全体が連番、下段先頭がその次の番号であること。
+/// 本文が数値だけの列に限り、略・新設などの新旧表の印がある場合は従来の判定に残す。
+fn continues_numbered_numeric_table(after: &[Col], before: &[Col]) -> bool {
+    if after.iter().chain(before).any(|c| has_shinkyu_marks(&c.text)) {
+        return false;
+    }
+    let rows = |band: &[Col], complete: bool| -> Option<Vec<(u32, f32)>> {
+        let mut out = Vec::new();
+        let mut top = None;
+        for g in column_groups(band.to_vec()) {
+            let head = g.iter().min_by(|a, b| a.y.total_cmp(&b.y))?;
+            let text = head.text.trim();
+            let integer = !text.is_empty() && text.chars().count() <= 4 && text.chars().all(|c| c.is_ascii_digit() || ('０'..='９').contains(&c));
+            if !integer {
+                if complete {
+                    return None;
+                }
+                break;
+            }
+            let n = text
+                .chars()
+                .fold(0, |n, c| n * 10 + c.to_digit(10).unwrap_or_else(|| c as u32 - '０' as u32));
+            // 説明文の項番号や、次の列へ折り返した数値を見出しにしない。
+            if top.is_some_and(|y: f32| (head.y - y).abs() > 2.0)
+                || g.len() < 4
+                || !g.iter().filter(|c| c.id != head.id).all(|c| {
+                    !c.text.is_empty()
+                        && c.text
+                            .chars()
+                            .all(|ch| ch.is_whitespace() || ch.is_ascii_digit() || ('０'..='９').contains(&ch) || ".．,，＋+－-−△()（）".contains(ch))
+                })
+            {
+                return None;
+            }
+            top = Some(head.y);
+            out.push((n, (head.x + head.x1) / 2.0));
+        }
+        (out.len() >= 3 && out.windows(2).all(|w| w[1].0 == w[0].0 + 1)).then_some(out)
+    };
+    let (Some(a), Some(b)) = (rows(after, true), rows(before, false)) else {
+        return false;
+    };
+    b[0].0 == a.last().unwrap().0 + 1 && (a[0].1 - b[0].1).abs() <= 2.0
+}
+
 /// 新旧対照表 1 件分のカラム配置。
 ///
 /// 帯ごとのカラム群をページ内の段ごとに分けて持つ（同じ x に別の段の列があるため、
@@ -722,16 +768,20 @@ impl ShinkyuLayout {
             }
             return units;
         }
-        units.push(
-            ShinkyuLayout {
-                band_boxes: None,
-                preamble: Vec::new(),
-                after: vec![after],
-                before: vec![before],
-                trailing: Vec::new(),
-            }
-            .into_unit(grids, rules),
-        );
+        let numbered_continuation = continues_numbered_numeric_table(&after, &before);
+        let unit = ShinkyuLayout {
+            band_boxes: None,
+            preamble: Vec::new(),
+            after: vec![after],
+            before: vec![before],
+            trailing: Vec::new(),
+        }.into_unit(grids, rules);
+        // 罫線や数値の類似だけでは前の記事の表を新旧表にしない。通常の数表と分かったときは、
+        // 組み上がった行・Table・語IDはそのままに、新旧属性だけを外す。
+        units.push(if numbered_continuation {
+            let Unit::Shinkyu { preamble, after, before, outside } = unit else { unreachable!() };
+            Unit::Plain(preamble.into_iter().chain(after.into_iter().flatten()).chain(before.into_iter().flatten()).chain(outside.into_iter().flatten()).collect())
+        } else { unit });
         if !outside.is_empty() {
             units.push(Unit::Plain(outside));
         }
@@ -1642,3 +1692,7 @@ mod tests {
         assert_eq!(text(&outside), "");
     }
 }
+
+#[cfg(test)]
+#[path = "leading_numeric_table_tests.rs"]
+mod leading_numeric_table_tests;

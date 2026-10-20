@@ -1194,6 +1194,9 @@ fn rule_column_tables(words: Vec<Col>, vrules: &[(f32, f32, f32)], hrules: &[(f3
         let (top, bottom) = (seed.1, seed.2);
         let mut xs: Vec<f32> = joined.iter().filter(|r| (r.1 - top).abs() <= 4.0 && (r.2 - bottom).abs() <= 4.0).map(|r| r.0).collect();
         xs.dedup_by(|a, b| (*a - *b).abs() < 3.0);
+        if let Some(expanded) = covering_numeric_table_edges(&xs, &words, &joined, hrules, top, bottom) {
+            xs = expanded;
+        }
         let inside = |w: &Col, x0: f32, x1: f32| {
             let (cx, cy) = (x_center(w), y_center(w));
             x0 <= cx && cx < x1 && top <= cy && cy < bottom
@@ -5733,3 +5736,142 @@ fn table_text_column_cut(cols: &[Col], grids: &[Grid], vrules: &[(f32, f32, f32)
 #[cfg(test)]
 #[path = "table_text_column_tests.rs"]
 mod table_text_column_tests;
+
+/// 同じ高さの内罫より長い外枠が注記等へ続く数値表で、欠けた端の欄を保つ。
+/// 原罫が両側を囲み、複数の横罫が新しい右端まで通る場合だけ候補にする。
+fn covering_table_edge_bounds(
+    xs: &[f32],
+    joined: &[(f32, f32, f32)],
+    hrules: &[(f32, f32, f32)],
+    top: f32,
+    bottom: f32,
+) -> Option<(f32, f32)> {
+    if xs.len() < 4 || bottom - top < 60. {
+        return None;
+    }
+    let (first, last) = (xs[0], *xs.last()?);
+    let covers = |v: &&(f32, f32, f32)| v.1 <= top + 1. && v.2 >= bottom - 1.;
+    let left = joined
+        .iter()
+        .filter(covers)
+        .filter(|v| v.0 < first - 2.)
+        .max_by(|a, b| a.0.total_cmp(&b.0))?;
+    let right = joined
+        .iter()
+        .filter(covers)
+        .filter(|v| v.0 > last + 2.)
+        .min_by(|a, b| a.0.total_cmp(&b.0))?;
+    // 同じ高さの単なる隣の欄や、紙面全体の囲みへ広げない。
+    if (left.1 - top).abs() <= 4. && (left.2 - bottom).abs() <= 4. {
+        return None;
+    }
+    if (right.1 - top).abs() <= 4. && (right.2 - bottom).abs() <= 4. {
+        return None;
+    }
+    let mut widths: Vec<_> = xs.windows(2).map(|p| p[1] - p[0]).collect();
+    widths.sort_by(f32::total_cmp);
+    let em = widths[widths.len() / 2];
+    if [first - left.0, right.0 - last]
+        .iter()
+        .any(|&w| w < 10. || w > em * 1.5)
+    {
+        return None;
+    }
+    if joined.iter().any(|v| {
+        ((v.0 > left.0 + 2. && v.0 < first - 2.) || (v.0 > last + 2. && v.0 < right.0 - 2.))
+            && v.2.min(bottom) - v.1.max(top) >= (bottom - top) * 0.5
+    }) {
+        return None;
+    }
+    let mut rows: Vec<_> = hrules
+        .iter()
+        .filter(|h| {
+            h.0 > top + 5.
+                && h.0 < bottom - 5.
+                && (h.2 - right.0).abs() <= 1.
+                && h.1 <= first + 1.
+                && h.1 >= left.0 - 1.
+        })
+        .map(|h| h.0)
+        .collect();
+    rows.sort_by(f32::total_cmp);
+    rows.dedup_by(|a, b| (*a - *b).abs() < 1.);
+    if rows.len() < 3 {
+        return None;
+    }
+    Some((left.0, right.0))
+}
+
+fn covering_numeric_table_edges(
+    xs: &[f32],
+    words: &[Col],
+    joined: &[(f32, f32, f32)],
+    hrules: &[(f32, f32, f32)],
+    top: f32,
+    bottom: f32,
+) -> Option<Vec<f32>> {
+    let (left, right) = covering_table_edge_bounds(xs, joined, hrules, top, bottom)?;
+    let (first, last) = (xs[0], *xs.last()?);
+    let band = |a: f32, b: f32| {
+        words
+            .iter()
+            .filter(|w| {
+                let (cx, cy) = (x_center(w), y_center(w));
+                a <= cx && cx < b && top <= cy && cy < bottom
+            })
+            .cloned()
+            .collect::<Vec<_>>()
+    };
+    let numeric = |a: f32, b: f32| {
+        let ws = band(a, b);
+        let ls = group_cell_lines(&ws);
+        let n = ls.iter().filter(|l| amount_line(l)).count();
+        n >= 3 && n * 10 >= ls.len() * 8
+    };
+    if xs.windows(2).filter(|p| numeric(p[0], p[1])).count() < 3 {
+        return None;
+    }
+    let mut nonempty = 0;
+    for (a, b, na, nb) in [
+        (left, first, first, xs[1]),
+        (last, right, xs[xs.len() - 2], last),
+    ] {
+        let ws = band(a, b);
+        if ws.is_empty() {
+            continue;
+        }
+        let ls = group_cell_lines(&ws);
+        // 追加する欄は数だけ。文章・名称・折返しや、罫をまたぐ文字は吸い込まない。
+        if ws.iter().any(|w| w.x < a - 1. || w.x1 > b + 1.)
+            || ls.len() < 3
+            || !ls.iter().all(amount_line)
+        {
+            return None;
+        }
+        let neighbors = group_cell_lines(&band(na, nb));
+        if ls
+            .iter()
+            .filter(|l| {
+                neighbors
+                    .iter()
+                    .any(|n| amount_line(n) && (n.center() - l.center()).abs() <= 1.)
+            })
+            .count()
+            < 3
+        {
+            return None;
+        }
+        nonempty += 1;
+    }
+    if nonempty == 0 {
+        return None;
+    }
+    let mut expanded = vec![left];
+    expanded.extend_from_slice(xs);
+    expanded.push(right);
+    Some(expanded)
+}
+
+#[cfg(test)]
+#[path = "horizontal_covering_edge_tests.rs"]
+mod covering_table_edge_tests;

@@ -77,7 +77,10 @@ pub(crate) fn restore_large_parentheses(units: &mut [Unit], words: &[Word]) {
     }
     for unit in units {
         match unit {
-            Unit::Plain(p) => lines(p, words),
+            Unit::Plain(p) => {
+                restore_plain_period_parentheses(p, words);
+                lines(p, words);
+            }
             Unit::Shinkyu {
                 preamble,
                 after,
@@ -92,6 +95,118 @@ pub(crate) fn restore_large_parentheses(units: &mut [Unit], words: &[Word]) {
         }
     }
 }
+/// The existing Plain lines and their word IDs are final. Only enclose a
+/// two-line period when its four raw bracket corners occupy one rectangle.
+fn restore_plain_period_parentheses(lines: &mut [Line], words: &[Word]) {
+    fn compact(s: &str) -> String {
+        s.chars().filter(|c| !c.is_whitespace()).collect()
+    }
+    fn digits(s: &str) -> Option<u32> {
+        if s.is_empty() {
+            return None;
+        }
+        s.chars().try_fold(0u32, |n, c| {
+            let d = if c.is_ascii_digit() {
+                c as u32 - '0' as u32
+            } else if ('０'..='９').contains(&c) {
+                c as u32 - '０' as u32
+            } else {
+                return None;
+            };
+            n.checked_mul(10)?.checked_add(d)
+        })
+    }
+    fn date(s: &str) -> bool {
+        let Some((y, rest)) = s.split_once('年') else {
+            return false;
+        };
+        let Some((m, rest)) = rest.split_once('月') else {
+            return false;
+        };
+        let Some(d) = rest.strip_suffix('日') else {
+            return false;
+        };
+        let year = ["令和", "平成", "昭和", "大正", "明治"]
+            .iter()
+            .find_map(|era| y.strip_prefix(era))
+            .unwrap_or(y);
+        (year == "元" || digits(year).is_some_and(|n| n > 0 && n <= 9999))
+            && digits(m).is_some_and(|n| (1..=12).contains(&n))
+            && digits(d).is_some_and(|n| (1..=31).contains(&n))
+    }
+    fn corner(w: &Word, ch: char, start: bool) -> bool {
+        let found = if start { w.raw.starts_with(ch) } else { w.raw.ends_with(ch) };
+        found && w.raw.chars().filter(|c| ('\u{EAED}'..='\u{EAF0}').contains(c)).count() == 1 && w.status == crate::trace::WordStatus::Used
+    }
+    for i in 0..lines.len().saturating_sub(1) {
+        let (top_lines, bottom_lines) = lines.split_at_mut(i + 1);
+        let top_line = &mut top_lines[i];
+        let bottom_line = &mut bottom_lines[0];
+        if top_line.table.is_some() || bottom_line.table.is_some() || top_line.words.len() != 2 || !(2..=3).contains(&bottom_line.words.len()) {
+            continue;
+        }
+        let ids = [top_line.words[0], top_line.words[1], bottom_line.words[0], bottom_line.words[1]];
+        if ids.iter().any(|&id| words.get(id).is_none_or(|w| w.id != id)) || ids.iter().enumerate().any(|(k, id)| ids[k + 1..].contains(id)) {
+            continue;
+        }
+        let [a, b, c, d] = ids.map(|id| &words[id]);
+        if !corner(a, '\u{EAED}', true)
+            || !corner(b, '\u{EAEF}', false)
+            || !corner(c, '\u{EAEE}', true)
+            || !corner(d, '\u{EAF0}', false)
+            || a.text != "自"
+            || c.text != "至"
+            || !date(&b.text)
+            || !date(&d.text)
+        {
+            continue;
+        }
+        let em = a.y1 - a.y0;
+        if em <= 0.
+            || (a.x0 - c.x0).abs() > em * 0.05
+            || (b.x1 - d.x1).abs() > em * 0.05
+            || !(em * 0.8..=em * 1.3).contains(&(c.y0 - a.y0))
+            || (a.y0 - b.y0).abs() > em * 0.05
+            || (c.y0 - d.y0).abs() > em * 0.05
+            || [b, c, d].iter().any(|w| ((w.y1 - w.y0) - em).abs() > em * 0.1)
+            || b.x0 < a.x1
+            || d.x0 < c.x1
+        {
+            continue;
+        }
+        let suffix = if bottom_line.words.len() == 3 {
+            let Some(w) = words.get(bottom_line.words[2]) else {
+                continue;
+            };
+            if w.x0 < d.x1
+                || (w.y0 - d.y0).abs() > em * 0.05
+                || !(w.text.starts_with("(単位：") || w.text.starts_with("（単位："))
+                || !(w.text.ends_with(')') || w.text.ends_with('）'))
+            {
+                continue;
+            }
+            compact(&w.text)
+        } else {
+            String::new()
+        };
+        if compact(&top_line.text) != format!("自{}", b.text) || compact(&bottom_line.text) != format!("至{}{}", d.text, suffix) {
+            continue;
+        }
+        let matches: Vec<_> = bottom_line.text.match_indices(&d.text).collect();
+        if matches.len() != 1 {
+            continue;
+        }
+        let close = matches[0].0 + d.text.len();
+        let Some(open) = top_line.text.find(|ch: char| !ch.is_whitespace()) else {
+            continue;
+        };
+        // No words, word IDs, line boundaries or article/table roles are changed.
+        // Keep the original strings, including whitespace and the unit suffix.
+        top_line.text.insert(open, '（');
+        bottom_line.text.insert(close, '）');
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -205,5 +320,120 @@ mod tests {
         let before = line(&u).clone();
         restore_large_parentheses(&mut u, &w);
         assert_eq!(line(&u), &before);
+    }
+}
+
+#[cfg(test)]
+mod period_tests {
+    use super::*;
+    use crate::trace::WordStatus;
+    fn fixture() -> (Vec<Line>, Vec<Word>) {
+        let w = |id, x0, y0, x1, raw: &str, text: &str| Word {
+            id,
+            x0,
+            y0,
+            x1,
+            y1: y0 + 8.,
+            raw: raw.into(),
+            text: text.into(),
+            status: WordStatus::Used,
+        };
+        let words = vec![
+            w(0, 20., 100., 36., "\u{EAED}自", "自"),
+            w(1, 44., 100., 116., "令和７年５月１日\u{EAEF}", "令和７年５月１日"),
+            w(2, 20., 108., 36., "\u{EAEE}至", "至"),
+            w(3, 44., 108., 116., "令和８年４月30日\u{EAF0}", "令和８年４月30日"),
+            w(4, 120., 108., 180., "(単位：百万円)", "(単位：百万円)"),
+        ];
+        (
+            vec![
+                Line::text("自　令和７年５月１日".into(), vec![0, 1]),
+                Line::text("至　令和８年４月30日(単位：百万円)".into(), vec![2, 3, 4]),
+            ],
+            words,
+        )
+    }
+    #[test]
+    fn proven_period_changes_only_local_text() {
+        let (mut lines, words) = fixture();
+        let before = lines.clone();
+        restore_plain_period_parentheses(&mut lines, &words);
+        assert_eq!(lines[0].text, "（自　令和７年５月１日");
+        assert_eq!(lines[1].text, "至　令和８年４月30日）(単位：百万円)");
+        for (line, old) in lines.iter_mut().zip(&before) {
+            line.text = old.text.clone();
+        }
+        assert_eq!(lines, before);
+    }
+    #[test]
+    fn all_four_corners_are_required_and_geometrically_aligned() {
+        for case in 0..9 {
+            let (mut lines, mut words) = fixture();
+            match case {
+                0..=3 => words[case].raw = words[case].text.clone(),
+                4 => words[2].x0 += 4.,
+                5 => words[3].x1 += 4.,
+                6 => words[2].y0 += 8.,
+                7 => words[1].y0 += 4.,
+                _ => words[0].status = WordStatus::Margin,
+            };
+            let before = lines.clone();
+            restore_plain_period_parentheses(&mut lines, &words);
+            assert_eq!(lines, before, "case {case}");
+        }
+    }
+    #[test]
+    fn adjacent_prose_signatures_and_other_dates_are_not_periods() {
+        for case in 0..6 {
+            let (mut lines, mut words) = fixture();
+            match case {
+                0 => {
+                    words[0].text = "代表者".into();
+                    lines[0].text = "代表者　令和７年５月１日".into();
+                }
+                1 => words[1].text = "令和７年13月１日".into(),
+                2 => lines[0].text.push_str("別記事"),
+                3 => lines[1].text.push_str("別記事"),
+                4 => words[4].text = "他社代表者".into(),
+                _ => lines[0].words = vec![0, 0],
+            };
+            let before = lines.clone();
+            restore_plain_period_parentheses(&mut lines, &words);
+            assert_eq!(lines, before, "case {case}");
+        }
+    }
+    #[test]
+    fn separate_units_cannot_be_combined() {
+        let (lines, words) = fixture();
+        let mut units = vec![Unit::Plain(vec![lines[0].clone()]), Unit::Plain(vec![lines[1].clone()])];
+        restore_large_parentheses(&mut units, &words);
+        for (u, expected) in units.iter().zip(&lines) {
+            let Unit::Plain(l) = u else { panic!() };
+            assert_eq!(l[0], *expected);
+        }
+    }
+    #[test]
+    fn shinkyu_lines_are_not_changed() {
+        let (lines, words) = fixture();
+        let mut units = vec![Unit::Shinkyu {
+            preamble: lines.clone(),
+            after: vec![],
+            before: vec![],
+            outside: vec![],
+        }];
+        restore_large_parentheses(&mut units, &words);
+        let Unit::Shinkyu { preamble, .. } = &units[0] else { panic!() };
+        assert_eq!(*preamble, lines);
+    }
+    #[test]
+    fn restoration_is_idempotent_and_optional_units_are_not_enclosed() {
+        let (mut lines, words) = fixture();
+        lines[1].words.pop();
+        lines[1].text = "至　令和８年４月30日".into();
+        restore_plain_period_parentheses(&mut lines, &words);
+        assert_eq!(lines[1].text, "至　令和８年４月30日）");
+        let once = lines.clone();
+        restore_plain_period_parentheses(&mut lines, &words);
+        assert_eq!(lines, once);
     }
 }
