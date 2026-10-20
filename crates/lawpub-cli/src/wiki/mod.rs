@@ -3,10 +3,10 @@
 //! 配信済みの正規化コーパス (Pages の静的 JSON) を正本とし、wiki はその下流の派生物とする。
 //! LLM はこの CLI を呼ばない。役割分担は次のとおり:
 //!
-//! - `wiki-plan`: 未処理の会議から法令リンクのあるものを上限付きで選び、LLM 用の
+//! - `wiki-plan`: 未処理の会議を法令リンクの有無によらず上限付きで選び、LLM 用の
 //!   ソースバンドル (言及箇所の抜粋) とページの雛形を作る。
 //! - (LLM): `<!-- llm:begin -->` ～ `<!-- llm:end -->` 区間と frontmatter の
-//!   `description` / `tags` だけを書く。topics/ は丸ごと書いてよい。
+//!   `description` / `tags` / 会議の `claims` だけを書く。topics/ は丸ごと書いてよい。
 //! - `wiki-finalize`: 時系列表・人物ページ・index.md・log.md を frontmatter から再生成し、
 //!   未完了タスクの雛形を巻き戻して state を進める。
 //! - `wiki-check`: OKF frontmatter、相対リンク、引用 (発言 ID の実在と原文一致) を検証する。
@@ -23,6 +23,7 @@ use std::io::Read;
 use std::path::{Path, PathBuf};
 
 pub mod check;
+pub mod evidence;
 pub mod enforcements;
 pub mod export;
 pub mod finalize;
@@ -340,7 +341,7 @@ impl State {
     }
 
     pub fn is_processed(&self, key: &str) -> bool {
-        self.processed.contains_key(key)
+        self.processed.get(key).is_some_and(|p| p.status == "linked")
     }
 
     pub fn mark(&mut self, key: &str, status: &str, date: &str) {
@@ -475,7 +476,7 @@ pub fn ensure_law_synthesis(wiki: &Path, law_id: &str) -> Result<()> {
 
 /// LLM が書く「経緯」の形式。上げると、処理済みの会議も翌日以降に処理し直して
 /// 人物・会議体・法令ページの経緯を書き足す (1 回の上限は max_items)。
-pub const NARRATIVE_VERSION: u64 = 2;
+pub const NARRATIVE_VERSION: u64 = 3;
 
 /// 会議体ページの名前。国会は「衆議院 予算委員会」、審議会は部会・委員会名。
 pub fn committee_title(corpus: &str, organization: &str, committee: &str) -> Option<String> {

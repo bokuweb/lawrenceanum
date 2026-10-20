@@ -380,13 +380,17 @@ export type WikiPageMeta = {
   /** LLM の文章がまだ無く、機械が作った一覧しかないページ (一覧・グラフ・導線では出さない)。 */
   stub?: boolean
 }
-export type WikiIndex = { schema_version: number; generated_at: string; pages: WikiPageMeta[] }
+export type WikiIndex = { schema_version: number; generated_at: string; pages: WikiPageMeta[]; intake?: { date: string; since: string; scope: string; entries: Record<string, string> } | null }
 export type WikiGraph = {
   schema_version: number
   nodes: { id: string; type: string; title: string; description: string; stub?: boolean }[]
   links: { source: string; target: string }[]
 }
-export type WikiPage = { path: string; frontmatter: Record<string, unknown>; body: string; stub?: boolean }
+export type WikiClaim = {
+  text: string; kind: string; attribution: string; review_status: string; review_note: string;
+  sources: { ref: string; url: string; quote: string; speaker: string | null; group: string | null; position: string | null; date: string; role: string }[];
+}
+export type WikiPage = { path: string; frontmatter: Record<string, unknown>; body: string; stub?: boolean; claim_assessments?: WikiClaim[] }
 
 export const api = {
   index: () => getJson<IndexJson>('./index.json'),

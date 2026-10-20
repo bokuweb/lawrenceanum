@@ -75,6 +75,57 @@ test("wiki トップにナレッジグラフと type 別の件数が出る", asy
   await expect(page.getByTestId("wiki-graph").locator("canvas").first()).toBeVisible({ timeout: 15_000 });
 });
 
+test("会議の未完了理由と集計範囲が読める", async ({ page }) => {
+  await mock(page);
+  await page.route("**/wiki/index.json", (r) => r.fulfill({ json: { ...INDEX, intake: {
+    date: "2026-10-08", since: "2026-09-01", scope: "窓外・未収集資料は集計外。",
+    entries: { "kokkai:M1": "completed", "kokkai:M2": "budget_pending", "kokkai:M3": "source_unavailable", "kokkai:M4": "summary_pending" },
+  } } }));
+  await page.goto(new URL("#/wiki", BASE).toString());
+  const intake = page.getByTestId("wiki-intake");
+  await expect(intake.locator("summary")).toContainText("未完了 3 件");
+  await intake.locator("summary").click();
+  await expect(intake).toContainText("窓外・未収集資料は集計外");
+  await expect(intake).toContainText("kokkai:M2：上限により繰り越し");
+  await expect(intake).toContainText("kokkai:M3：資料取得待ち");
+  await expect(intake).toContainText("kokkai:M4：要約未完了");
+  await expect(intake).not.toContainText("kokkai:M1");
+});
+
+test("主張ごとに留保・意味の判定状態と立場を区別して原文へ戻れる", async ({ page }) => {
+  await mock(page);
+  const statuses = ["unreviewed", "needs_review", "unsupported", "indeterminate", "llm_supported"];
+  const roles = ["government", "industry", "expert", "witness", "unknown"];
+  await page.route("**/wiki/page/meetings/kokkai/M1.json", (r) => r.fulfill({ json: {
+    ...MEETING,
+    frontmatter: { ...MEETING.frontmatter, source_scope: { total_units: 8, included_units: 5, partial_refs: ["kokkai:M1_001"], omitted_refs: ["kokkai:M1_006", "kokkai:M1_007", "kokkai:M1_008"], limitations: "抜粋外の条件と反対意見は未確認。" } },
+    claim_assessments: statuses.map((status, i) => ({
+      text: `主張${i + 1}`, kind: i === 0 ? "government_view" : "opinion", attribution: `kokkai:M1_00${i + 1}`,
+      review_status: status, review_note: "実施には条件があるため原文の確認が必要。",
+      sources: [{ ref: `kokkai:M1_00${i + 1}`, url: `https://kokkai.ndl.go.jp/txt/M1/${i + 1}`, speaker: `発言者${i + 1}`, group: i === 1 ? "業界協会" : null, position: i === 0 ? "国務大臣" : null, date: "2026-10-01", role: roles[i], quote: "ただし財源の確保が条件です。" }],
+    })),
+  } }));
+  await page.goto(new URL("#/wiki/meetings/kokkai/M1", BASE).toString());
+  const evidence = page.getByTestId("wiki-evidence");
+  await expect(evidence).toContainText("意味的な支持を保証しません");
+  await expect(evidence).toContainText("独立レビューではありません");
+  await evidence.getByText(/抜粋の確認範囲/).click();
+  await expect(evidence).toContainText("全 8 発言中 5 発言、部分収録 1、未収録 3");
+  await expect(evidence.getByText("未収録：kokkai:M1_006、kokkai:M1_007、kokkai:M1_008")).toBeVisible();
+  const labels = ["支持関係は未審査", "要確認", "根拠が支持しないとの判定", "判定不能", "LLM は支持と判定（暫定・人による確認なし）"];
+  for (let i = 0; i < labels.length; i++) {
+    const summary = evidence.locator("summary").filter({ hasText: `主張${i + 1} — ${labels[i]}` });
+    await expect(summary).toBeVisible();
+    await summary.click();
+  }
+  await expect(evidence).toContainText("国務大臣 / 政府側（役職表記による） / 2026-10-01");
+  await expect(evidence).toContainText("業界協会 / 役職未確認 / 業界側（所属表記による）");
+  await expect(evidence).toContainText("有識者（役職表記による）");
+  await expect(evidence).toContainText("参考人（立場未特定）");
+  await expect(evidence).toContainText("立場未確認");
+  await expect(evidence.getByRole("link", { name: "原文（kokkai:M1_002）" })).toHaveAttribute("href", "https://kokkai.ndl.go.jp/txt/M1/2");
+});
+
 test("グラフは表示範囲を絞って描き、ページからは隣接だけの図を開ける", async ({ page }) => {
   await mock(page);
   await page.goto(new URL("#/wiki", BASE).toString());
@@ -111,6 +162,7 @@ test("一覧から会議ページを開くと要点・脚注の出典・つな�
   await expect(page).toHaveURL(/#\/wiki\/meetings\/kokkai\/M1$/);
   await expect(page.getByRole("heading", { name: "参議院 厚生労働委員会 第1号" })).toBeVisible();
   await expect(page.getByText("山田太郎（無所属）は副反応の救済拡充を求めた")).toBeVisible();
+  await expect(page.getByTestId("wiki-evidence")).toContainText("取得範囲・主張ごとの根拠情報は未整備");
   // 脚注は「出典」として表示され、HTML コメント (lawpub マーカー) は出ない。
   await expect(page.getByRole("heading", { name: "出典" })).toBeVisible();
   await expect(page.getByText("「副反応の救済を拡充すべきです」")).toBeVisible();

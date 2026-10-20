@@ -2,8 +2,8 @@
 //!
 //! 1. 国会会議録・審議会議事録の index から、未処理かつ `lookback_days` 以内の会議を新しい順に並べる。
 //! 2. 会議 → 法令リンク (`links/meeting-to-laws`, `links/shingikai-to-laws`) を引き、
-//!    リンクが無ければ `no_link` として処理済みにする (以後は引かない)。
-//! 3. リンクがあれば会議本体を取得し、法令名を含む発言だけを前後の文脈付きで抜粋する。
+//!    リンクが無い会議も政策形成の入口として、同じ件数上限内で読む。
+//! 3. 会議本体を取得し、法令名を含む発言と前後の文脈、または会議全体のダイジェストを抜粋する。
 //!    LLM は会議全文ではなくこの抜粋 (ソースバンドル) だけを読む。
 //! 4. 会議ページ・法令ページの雛形を作り、`plan.json` / `plan.md` を書く。
 //!
@@ -47,6 +47,7 @@ const MAX_CHARS_PER_MEETING: usize = 8_000;
 /// 答弁・締めの発言として足す文脈の上限 (1 発言あたり / 1 会議あたり)。
 const CONTEXT_CHARS: usize = 600;
 const MAX_CONTEXT_CHARS_PER_MEETING: usize = 3_000;
+const QUALIFIERS: [&str; 8] = ["ただし", "但し", "一方", "しかし", "もっとも", "条件", "反対", "慎重"];
 /// 審議会の議事録を要点化するときの上限 (1 会議あたり) と、法令に触れない発言 1 つあたりの長さ。
 const DIGEST_CHARS_PER_MEETING: usize = 12_000;
 const DIGEST_MIN_TURN_CHARS: usize = 80;
@@ -67,8 +68,6 @@ struct Candidate {
     id: String,
     date: String,
     ministry: Option<String>,
-    /// 処理済みだが経緯の形式 (NARRATIVE_VERSION) が古く、書き足しのために再投入した会議。
-    stale: bool,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -113,7 +112,7 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
         .format("%Y-%m-%d")
         .to_string();
 
-    let mut state = State::load(&args.wiki)?;
+    let state = State::load(&args.wiki)?;
     let candidates = collect_candidates(&source, &args.wiki, &state, &since)?;
     tracing::info!(
         "wiki-plan: {} unprocessed meetings since {since}",
@@ -127,6 +126,8 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
     std::fs::create_dir_all(args.work.join("docs"))?;
 
     let mut tasks = Vec::new();
+    let mut intake: BTreeMap<String, String> = candidates.iter()
+        .map(|c| (format!("{}:{}", c.kind, c.id), "budget_pending".into())).collect();
     let mut probes = 0usize;
     for c in candidates {
         if tasks.len() >= args.max_items || probes >= args.max_probes {
@@ -134,6 +135,7 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
         }
         probes += 1;
         let key = format!("{}:{}", c.kind, c.id);
+        intake.insert(key.clone(), "source_unavailable".into());
         let link_path = match c.kind {
             KIND_KOKKAI => format!("links/meeting-to-laws/{}.json", c.id),
             _ => format!("links/shingikai-to-laws/{}.json", c.id),
@@ -146,14 +148,6 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
                 continue;
             }
         };
-        // 審議会は資料だけでは中身がわからないので、法令リンクが無くても議事録を要点化する。
-        // 国会は会議数が多いので、法令に言及した会議だけを扱う。
-        if laws.is_empty() && c.kind == KIND_KOKKAI {
-            state.mark(&key, "no_link", &today_s);
-            retire_stale(&args.wiki, &c)?;
-            continue;
-        }
-
         let doc_path = match (c.kind, &c.ministry) {
             (KIND_KOKKAI, _) => format!("proceedings/{}.json", c.id),
             (_, Some(ministry)) => format!("shingikai/{ministry}/{}.json", c.id),
@@ -174,27 +168,20 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
             KIND_KOKKAI => kokkai_units(&doc),
             _ => shingikai_units(&doc),
         };
-        let excerpts = if c.kind == KIND_SHINGIKAI {
-            shingikai_digest(&units, &laws)
-        } else {
-            build_excerpts(c.kind, &units, &laws)
-        };
-        // 会議録情報 (付議案件の一覧) と委員長・議長の議事進行にしか法令名が出ない会議は、
-        // LLM に渡しても「形式的言及」にしかならないので渡さない (トークン節約)。
-        if c.kind == KIND_KOKKAI
-            && !excerpts.is_empty()
-            && excerpts.iter().filter(|e| e.context.is_none()).all(is_procedural)
+        let matched = build_excerpts(c.kind, &units, &laws);
+        // 法令名がまだ無い政策形成、議事進行にしか法令名が無い回も会議から取り込む。
+        let excerpts = if c.kind == KIND_SHINGIKAI || matched.is_empty()
+            || matched.iter().filter(|e| e.context.is_none()).all(is_procedural)
         {
-            state.mark(&key, "formal_only", &today_s);
-            retire_stale(&args.wiki, &c)?;
-            continue;
-        }
+            meeting_digest(c.kind, &units, &laws)
+        } else {
+            matched
+        };
         if excerpts.is_empty() {
-            // 法令名が添付資料にだけ現れる等、発言として引用できる言及が無い。
-            state.mark(&key, "no_excerpt", &today_s);
-            retire_stale(&args.wiki, &c)?;
+            intake.insert(key, "no_substantive_text".into());
             continue;
         }
+        intake.insert(key, "planned".into());
 
         // wiki-check がオフラインで引用を照合できるよう会議本体を残す。
         let doc_dir = args.work.join("docs").join(c.kind);
@@ -264,6 +251,11 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
             Ok((t.page.clone(), llm_hash(&page.body)))
         })
         .collect::<Result<BTreeMap<_, _>>>()?;
+    std::fs::create_dir_all(args.wiki.join(".lawpub"))?;
+    std::fs::write(args.wiki.join(".lawpub/intake.json"), serde_json::to_vec_pretty(&json!({
+        "date": today_s, "since": since, "entries": intake,
+        "scope": "日付窓内の未完了会議と旧形式ページ。窓外・未収集資料は集計外。planned は完了ではない。"
+    }))?)?;
     state.save(&args.wiki)?;
     let plan = Plan {
         schema_version: 2,
@@ -308,7 +300,6 @@ fn collect_candidates(source: &Source, wiki: &Path, state: &State, since: &str) 
                     id: id.into(),
                     date: date.into(),
                     ministry: None,
-                    stale: false,
                 });
             }
         }
@@ -325,18 +316,13 @@ fn collect_candidates(source: &Source, wiki: &Path, state: &State, since: &str) 
             if !m["has_minutes"].as_bool().unwrap_or(false) {
                 continue;
             }
-            // 以前は法令リンクの無い回を no_link として飛ばしていたが、今は要点化するので拾い直す。
-            let done = state
-                .processed
-                .get(&format!("{KIND_SHINGIKAI}:{id}"))
-                .is_some_and(|p| p.status != "no_link" && p.status != "no_excerpt");
+            let done = state.is_processed(&format!("{KIND_SHINGIKAI}:{id}"));
             if date >= since && !done {
                 out.push(Candidate {
                     kind: KIND_SHINGIKAI,
                     id: id.into(),
                     date: date.into(),
                     ministry: m["ministry"].as_str().map(String::from),
-                    stale: false,
                 });
             }
         }
@@ -356,25 +342,13 @@ fn collect_candidates(source: &Source, wiki: &Path, state: &State, since: &str) 
             KIND_SHINGIKAI => (KIND_SHINGIKAI, ministries.get(&id).cloned()),
             _ => continue,
         };
-        stale.push(Candidate { kind, id, date: page.get_str("date").to_string(), ministry, stale: true });
+        stale.push(Candidate { kind, id, date: page.get_str("date").to_string(), ministry });
     }
     stale.sort_by(|a, b| b.date.cmp(&a.date).then_with(|| a.id.cmp(&b.id)));
     out.extend(stale);
+    let mut seen = BTreeSet::new();
+    out.retain(|c| seen.insert((c.kind, c.id.clone())));
     Ok(out)
-}
-
-/// 再投入した会議を LLM に渡さずに終える場合は、印を進めて毎日再投入されないようにする。
-fn retire_stale(wiki: &Path, c: &Candidate) -> Result<()> {
-    if !c.stale {
-        return Ok(());
-    }
-    let path = wiki.join(meeting_page(c.kind, &c.id));
-    if path.exists() {
-        let mut page = Page::read(&path)?;
-        page.set("llm_version", json!(NARRATIVE_VERSION));
-        page.write(&path)?;
-    }
-    Ok(())
 }
 
 fn linked_laws(links: &Value) -> Vec<LinkedLaw> {
@@ -441,6 +415,12 @@ pub(crate) fn build_excerpts_for(units: &[Unit], laws: &[(String, Vec<String>)])
         if spans.is_empty() {
             continue;
         }
+        // 法令名の近傍だけでは、後半の留保・結論を落とす。全文の最初の留保候補と末尾も足す。
+        if let Some(byte_pos) = QUALIFIERS.iter().filter_map(|m| unit.text.find(m)).min() {
+            let start = unit.text[..byte_pos].chars().count();
+            spans.push((start.saturating_sub(60), (start + 240).min(chars.len())));
+        }
+        spans.push((chars.len().saturating_sub(300), chars.len()));
         spans.sort();
         let mut merged: Vec<(usize, usize)> = Vec::new();
         for (s, e) in spans {
@@ -463,10 +443,10 @@ pub(crate) fn build_excerpts_for(units: &[Unit], laws: &[(String, Vec<String>)])
         {
             text.push('…');
         }
+        let remaining = MAX_CHARS_PER_MEETING.saturating_sub(total);
+        if remaining < 80 { break; }
+        let text = context_text(&text, remaining);
         let len = text.chars().count();
-        if total + len > MAX_CHARS_PER_MEETING && !out.is_empty() {
-            break;
-        }
         total += len;
         out.push(Excerpt {
             reference: unit.reference.clone(),
@@ -544,9 +524,8 @@ fn build_excerpts(kind: &str, units: &[Unit], laws: &[LinkedLaw]) -> Vec<Excerpt
     with_context(kind, units, matched)
 }
 
-/// 審議会の議事録を、会議全体の要点がわかる大きさに縮める。法令名を含む発言は前後の文脈付きで、
-/// それ以外の発言は冒頭だけ、会議の最後の 2 発言 (結論・次回予定) は末尾を残し、発言順に並べる。
-fn shingikai_digest(units: &[Unit], laws: &[LinkedLaw]) -> Vec<Excerpt> {
+/// 会議全体を上限付きで抜粋する。冒頭・留保候補・末尾を残し、最後の 2 発言に予算を予約する。
+fn meeting_digest(kind: &str, units: &[Unit], laws: &[LinkedLaw]) -> Vec<Excerpt> {
     let pairs: Vec<(String, Vec<String>)> = laws.iter().map(|l| (l.law_id.clone(), l.patterns.clone())).collect();
     let matched: HashMap<String, Excerpt> = build_excerpts_for(units, &pairs)
         .into_iter()
@@ -560,6 +539,7 @@ fn shingikai_digest(units: &[Unit], laws: &[LinkedLaw]) -> Vec<Excerpt> {
     let mut out = Vec::new();
     let mut total = 0usize;
     for (i, u) in units.iter().enumerate() {
+        if kind == KIND_KOKKAI && is_procedural_text(u.speaker.as_deref(), &u.text) { continue; }
         let (text, context, laws) = if let Some(e) = matched.get(&u.reference) {
             (e.text.clone(), None, e.laws.clone())
         } else {
@@ -567,18 +547,11 @@ fn shingikai_digest(units: &[Unit], laws: &[LinkedLaw]) -> Vec<Excerpt> {
             if chars.len() < 12 {
                 continue;
             }
-            if i >= closing_from {
-                let n = CONTEXT_CHARS.min(chars.len());
-                let tail: String = chars[chars.len() - n..].iter().collect();
-                (if n < chars.len() { format!("…{tail}") } else { tail }, Some("closing".to_string()), vec![])
-            } else {
-                let n = per_turn.min(chars.len());
-                let head: String = chars[..n].iter().collect();
-                (if n < chars.len() { format!("{head}…") } else { head }, Some("turn".to_string()), vec![])
-            }
+            let limit = if i >= closing_from { CONTEXT_CHARS } else { per_turn };
+            (context_text(&u.text, limit), Some(if i >= closing_from { "closing" } else { "turn" }.to_string()), vec![])
         };
         let n = text.chars().count();
-        if total + n > DIGEST_CHARS_PER_MEETING + CONTEXT_CHARS * 2 && i < closing_from {
+        if total + n > DIGEST_CHARS_PER_MEETING.saturating_sub(if i < closing_from { CONTEXT_CHARS * 2 } else { 0 }) {
             continue;
         }
         total += n;
@@ -641,15 +614,8 @@ pub(crate) fn with_context(kind: &str, units: &[Unit], matched: Vec<Excerpt>) ->
     let mut budget = MAX_CONTEXT_CHARS_PER_MEETING;
     for (i, (ctx, refs)) in extra {
         let u = &units[i];
-        let chars: Vec<char> = u.text.chars().collect();
-        // 直後の発言は冒頭、直前と締めは末尾を残す。
-        let text: String = if chars.len() <= CONTEXT_CHARS {
-            u.text.clone()
-        } else if ctx == "reply" {
-            chars[..CONTEXT_CHARS].iter().collect::<String>() + "…"
-        } else {
-            "…".to_string() + &chars[chars.len() - CONTEXT_CHARS..].iter().collect::<String>()
-        };
+        // 冒頭・留保候補・末尾を残す。全文確認の代わりにはならない。
+        let text = context_text(&u.text, CONTEXT_CHARS);
         let n = text.chars().count();
         if n > budget {
             continue;
@@ -670,6 +636,22 @@ pub(crate) fn with_context(kind: &str, units: &[Unit], matched: Vec<Excerpt>) ->
     }
     out.sort_by_key(|(i, _)| *i);
     out.into_iter().map(|(_, e)| e).collect()
+}
+
+/// 予算内で冒頭・末尾と最初の留保候補を保持する。候補が無いことは留保が無い証明ではない。
+pub(crate) fn context_text(text: &str, limit: usize) -> String {
+    let chars: Vec<char> = text.chars().collect();
+    if chars.len() <= limit { return text.to_string(); }
+    if limit < 6 { return chars.into_iter().take(limit).collect(); }
+    let width = (limit - 3) / 3;
+    let pivot = QUALIFIERS
+        .iter().filter_map(|m| text.find(m)).min()
+        .map(|i| text[..i].chars().count()).unwrap_or(width);
+    let mut spans = vec![(0, width), (pivot.saturating_sub(width / 4), (pivot + width * 3 / 4).min(chars.len())), (chars.len() - width, chars.len())];
+    spans.sort();
+    let mut merged: Vec<(usize, usize)> = Vec::new();
+    for (a,b) in spans { if let Some(last) = merged.last_mut().filter(|last| a <= last.1) { last.1 = last.1.max(b); } else { merged.push((a,b)); } }
+    merged.iter().map(|(a,b)| chars[*a..*b].iter().collect::<String>()).collect::<Vec<_>>().join("…")
 }
 
 /// 会議の表示名: (タイトル, 組織, 会議体, 原文 URL)。会議ページと名簿で同じ表記にする。
@@ -752,6 +734,11 @@ fn write_task(
         Page::default()
     };
     let speakers_json = speakers_from_excerpts(c.kind, excerpts);
+    let units = if c.kind == KIND_KOKKAI { kokkai_units(doc) } else { shingikai_units(doc) };
+    let scope = super::evidence::source_scope(&units, excerpts);
+    // 以前の主張との対応を保持する。本文の更新と claims の構造検査を満たすまで完了にはしない。
+
+    let existing_claims = meeting.get("claims").cloned().unwrap_or(json!([]));
     let description = meeting.get_str("description").to_string();
     let tags = meeting.get("tags").cloned().unwrap_or(json!([]));
     meeting.frontmatter = vec![
@@ -771,6 +758,11 @@ fn write_task(
         ("speakers".into(), Value::Array(speakers_json.clone())),
         ("tags".into(), tags),
         ("render_version".into(), json!(MEETING_RENDER_VERSION)),
+        ("evidence_version".into(), json!(1)),
+        ("source_scope".into(), scope.clone()),
+        ("claims".into(), existing_claims),
+        ("evidence_sources".into(), json!(units.iter().filter(|u| excerpts.iter().any(|e| e.reference == u.reference))
+            .map(|u| super::evidence::attribution(u, &c.date)).collect::<Vec<_>>())),
     ];
     let law_links: Vec<String> = laws
         .iter()
@@ -841,6 +833,9 @@ fn write_task(
         "url": resource,
         "laws": task_laws,
         "excerpts": excerpts,
+        "scope": scope,
+        "attributions": units.iter().filter(|u| excerpts.iter().any(|e| e.reference == u.reference))
+            .map(|u| super::evidence::attribution(u, &c.date)).collect::<Vec<_>>(),
     });
     std::fs::write(
         args.work.join(&source_rel),
@@ -1131,8 +1126,9 @@ mod tests {
         assert_eq!(out.len(), 1);
         assert_eq!(out[0].reference, "kokkai:b");
         assert_eq!(out[0].laws, vec!["L1"]);
-        assert!(out[0].text.starts_with('…') && out[0].text.ends_with('…'));
+        assert!(out[0].text.starts_with('…'));
         assert!(out[0].text.contains("予防接種法の改正について伺います。"));
+        assert!(out[0].text.ends_with(&"あ".repeat(300)), "発言の末尾も残す");
         assert!(out[0].text.chars().count() < 1100);
     }
 
@@ -1269,6 +1265,118 @@ mod tests {
     }
 
     #[test]
+    fn long_law_matched_answer_keeps_late_qualification_and_conclusion_within_budget() {
+        let text = format!("○佐藤大臣　予防接種法について説明します。{}ただし財源の確保が条件です。{}実施時期は未定です。", "背景説明。".repeat(300), "検討過程。".repeat(300));
+        let out = build_excerpts_for(&[unit("k:1", &text)], &[("L1".into(), vec!["予防接種法".into()])]);
+        assert_eq!(out.len(), 1);
+        for fragment in ["予防接種法", "ただし財源の確保が条件です", "実施時期は未定です"] {
+            assert!(out[0].text.contains(fragment));
+        }
+        assert!(out[0].text.chars().count() <= MAX_CHARS_PER_MEETING);
+        for fragment in out[0].text.split('…').filter(|s| !s.is_empty()) {
+            assert!(text.contains(fragment), "原文の連続した部分だけを使う");
+        }
+        // 大量の法令言及があっても、最初の発言だけで予算を超過しない。
+        let repeated = unit("k:2", &"予防接種法に言及する非常に長い説明。".repeat(2_000));
+        let out = build_excerpts_for(&[repeated], &[("L1".into(), vec!["予防接種法".into()])]);
+        assert!(out.iter().map(|e| e.text.chars().count()).sum::<usize>() <= MAX_CHARS_PER_MEETING);
+    }
+
+    #[test]
+    fn policy_meeting_without_laws_keeps_scope_provenance_and_pending_work() {
+        let root = temp_dir("policy_intake");
+        let public = root.join("public");
+        let wiki = root.join("wiki");
+        let work = root.join("work");
+        let write = |rel: &str, v: Value| {
+            let path = public.join(rel);
+            std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+            std::fs::write(path, serde_json::to_vec(&v).unwrap()).unwrap();
+        };
+        write("proceedings/index.json", json!({"meetings": [
+            {"meeting_id": "M2", "date": "2026-10-04"},
+            {"meeting_id": "M3", "date": "2026-10-03"},
+            {"meeting_id": "M1", "date": "2026-10-02"},
+            {"meeting_id": "M4", "date": "2026-10-01"}
+        ]}));
+        write("proceedings/M1.json", json!({"meeting_id": "M1", "house": "shugiin", "committee": "政策委員会", "issue": "第1号", "speeches": [
+            {"speech_id": "M1_001", "order": 1, "speaker": "山田", "speech": "○山田委員　新しい政策の実施時期について伺います。"},
+            {"speech_id": "M1_002", "order": 2, "speaker": "佐藤", "speaker_position": "国務大臣", "speech": format!("○佐藤大臣　検討しています。{}ただし財源の確保が条件です。{}実施時期は未定です。", "背景説明。".repeat(200), "検討過程。".repeat(200))},
+            {"speech_id": "M1_003", "order": 3, "speaker": "田中", "speech": "○田中委員長　本日はこれにて散会いたします。"}
+        ]}));
+        write("proceedings/M3.json", json!({"meeting_id": "M3", "speeches": [
+            {"speech_id": "M3_001", "speaker": "田中", "speech": "○田中委員長　本日はこれにて散会いたします。"}
+        ]}));
+        let mut state = State::default();
+        state.mark("kokkai:M1", "no_link", "2026-10-02");
+        state.mark("kokkai:M3", "formal_only", "2026-10-03");
+        state.save(&wiki).unwrap();
+        let args = PlanArgs { base_url: public.display().to_string(), wiki: wiki.clone(), work: work.clone(),
+            max_items: 1, max_probes: 3, lookback_days: 30, today: Some("2026-10-08".into()),
+            max_bills: 0, max_enforcements: 0, max_pubcomments: 0, max_kanpo: 0,
+            max_people: 0, max_roster: 0, reiki_base_url: String::new(), chunk_size: 4 };
+        run_plan(&args).unwrap();
+        let intake = || -> Value { serde_json::from_slice(&std::fs::read(wiki.join(".lawpub/intake.json")).unwrap()).unwrap() };
+        assert_eq!(intake()["entries"], json!({"kokkai:M1": "planned", "kokkai:M2": "source_unavailable", "kokkai:M3": "no_substantive_text", "kokkai:M4": "budget_pending"}));
+        let plan = Plan::load(&work).unwrap().unwrap();
+        assert_eq!(plan.tasks.len(), 1);
+        assert!(plan.tasks[0].laws.is_empty(), "法令を捏造しない");
+        let bundle: Value = serde_json::from_slice(&std::fs::read(work.join(&plan.tasks[0].source)).unwrap()).unwrap();
+        assert_eq!(bundle["scope"]["total_units"], 3);
+        assert_eq!(bundle["scope"]["included_units"], 2);
+        assert_eq!(bundle["scope"]["partial_refs"], json!(["kokkai:M1_002"]));
+        assert_eq!(bundle["scope"]["omitted_refs"], json!(["kokkai:M1_003"]));
+        let answer = bundle["excerpts"][1]["text"].as_str().unwrap();
+        assert!(answer.contains("ただし財源の確保が条件です"));
+        assert!(answer.contains("実施時期は未定です"));
+        assert!(answer.chars().count() <= CONTEXT_CHARS);
+        assert_eq!(bundle["attributions"][1]["role"], "government");
+
+        // 引用が存在しても、主張との対応が無ければ処理済みにしない。
+        let path = wiki.join(&plan.tasks[0].page);
+        let summarize = |claims: bool| {
+            let mut page = Page::read(&path).unwrap();
+            page.set("description", json!("政府は財源確保を条件に検討し、実施時期は未定とした。"));
+            page.body = page.body.replace(&format!("{LLM_BEGIN}\n{LLM_END}"), &format!("{LLM_BEGIN}\n政府は財源確保を条件に検討し、実施時期は未定とした[^1]。\n\n[^1]: [kokkai:M1_002](https://kokkai.ndl.go.jp/txt/M1/2) 「ただし財源の確保が条件です」\n{LLM_END}"));
+            if claims { page.set("claims", json!([{"text": "政府は財源確保を条件に検討し、実施時期は未定とした", "kind": "government_view", "attribution": "kokkai:M1_002", "evidence": ["1"], "review_status": "needs_review", "review_note": "条件の引用はあるが時期未定の根拠も追加確認する。"}])); }
+            page.write(&path).unwrap();
+        };
+        summarize(false);
+        let finalize = super::super::finalize::FinalizeArgs { wiki: wiki.clone(), work: work.clone() };
+        super::super::finalize::run_finalize(&finalize).unwrap();
+        assert!(!State::load(&wiki).unwrap().is_processed("kokkai:M1"));
+        assert_eq!(intake()["entries"]["kokkai:M1"], "summary_pending");
+        assert!(!path.exists());
+        run_plan(&args).unwrap();
+        summarize(true);
+        super::super::finalize::run_finalize(&finalize).unwrap();
+        assert!(State::load(&wiki).unwrap().is_processed("kokkai:M1"));
+        assert_eq!(intake()["entries"]["kokkai:M1"], "completed");
+        assert!(!State::load(&wiki).unwrap().is_processed("kokkai:M3"));
+        let check = super::super::check::CheckArgs { wiki: wiki.clone(), work: work.clone(), base_url: public.display().to_string(), changed_only: false };
+        super::super::check::run_check(&check).unwrap();
+        let good_page = Page::read(&path).unwrap();
+        for field in ["date", "source_scope", "evidence_sources"] {
+            let mut changed = good_page.clone();
+            changed.set(field, json!("改変"));
+            changed.write(&path).unwrap();
+            assert!(super::super::check::run_check(&check).is_err());
+            let report = std::fs::read_to_string(work.join("check-report.md")).unwrap();
+            assert!(report.contains(&format!("機械生成の {field} がソースバンドルと一致しません")));
+        }
+        good_page.write(&path).unwrap();
+        super::super::check::run_check(&check).unwrap();
+        let out = root.join("export");
+        super::super::export::run_export(&super::super::export::ExportArgs { wiki: wiki.clone(), out: out.clone() }).unwrap();
+        let exported: Value = serde_json::from_slice(&std::fs::read(out.join("page/meetings/kokkai/M1.json")).unwrap()).unwrap();
+        assert_eq!(exported["claim_assessments"][0]["review_status"], "needs_review");
+        assert_eq!(exported["claim_assessments"][0]["sources"][0]["date"], "2026-10-02");
+        let index: Value = serde_json::from_slice(&std::fs::read(out.join("index.json")).unwrap()).unwrap();
+        assert_eq!(index["intake"]["entries"]["kokkai:M4"], "budget_pending");
+        std::fs::remove_dir_all(root).ok();
+    }
+
+    #[test]
     fn shingikai_without_law_links_is_summarized_from_a_digest() {
         let root = temp_dir("plan_shingikai");
         let public = root.join("public");
@@ -1316,7 +1424,7 @@ mod tests {
         let ex = bundle["excerpts"].as_array().unwrap();
         let speakers: Vec<&str> = ex.iter().filter_map(|e| e["speaker"].as_str()).collect();
         assert_eq!(speakers, vec!["持田委員長", "西垣補佐", "山田委員", "持田委員長"]);
-        // 長い説明は冒頭だけ、締めは全文 (短い) が入る。
+        // 長い説明は予算内、締めは全文 (短い) が入る。
         assert!(ex[1]["text"].as_str().unwrap().chars().count() <= DIGEST_MAX_TURN_CHARS + 1);
         assert_eq!(ex[3]["context"], "closing");
         assert!(ex[3]["text"].as_str().unwrap().contains("次回は12月に開催します"));
@@ -1414,7 +1522,7 @@ mod tests {
             .contains("[予防接種法](../../laws/323AC0000000068.md)"));
         assert!(wiki.join("laws/323AC0000000068.md").exists());
         let state = State::load(&wiki).unwrap();
-        assert_eq!(state.processed["kokkai:M2"].status, "no_link");
+        assert!(!state.is_processed("kokkai:M2"));
         assert!(
             !state.is_processed("kokkai:M1"),
             "linked はfinalize まで未処理のまま"

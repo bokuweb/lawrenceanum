@@ -1,12 +1,12 @@
 name: Update LLM wiki
 
-# 配信済みコーパス (Pages の静的 JSON) から、法令に言及した国会・審議会の発言を
+# 配信済みコーパス (Pages の静的 JSON) から、国会・審議会の政策議論を
 # OKF 形式の wiki (専用の orphan ブランチ `wiki`) に日次で積み上げる。
 #
-#   wiki-plan (決定的)    : 未処理の会議から法令リンクのあるものを最大 N 件選び、抜粋と雛形を作る
+#   wiki-plan (決定的)    : 法令リンクの有無を問わず未処理の会議を最大 N 件選び、抜粋と雛形を作る
 #   Claude Code (LLM)     : 抜粋だけを読み、要約・経緯・論点ページを引用付きで書く
 #   wiki-finalize (決定的): 時系列・人物・index・log を再生成し、未完了タスクは巻き戻す
-#   wiki-check (決定的)   : 引用 (発言 ID の実在・原文一致)・リンク・OKF frontmatter を検証
+#   wiki-check (決定的)   : 引用・URL・主張と脚注の対応・発言者/役職を照合（意味的支持の保証ではない）
 #                           → 失敗したら 1 回だけ LLM に修正させ、それでも駄目なら push しない
 #
 # wiki は main と履歴を分けるため orphan ブランチに置く (日次コミットで main を汚さない)。
@@ -134,6 +134,8 @@ jobs:
             --max-enforcements "$MAX_ENFORCEMENTS" --max-people "$MAX_PEOPLE" --max-roster "$MAX_ROSTER" --lookback-days "$LOOKBACK_DAYS"
           echo "tasks=$(jq '.tasks | length' .wiki-work/plan.json)" >> "$GITHUB_OUTPUT"
           cat .wiki-work/plan.md >> "$GITHUB_STEP_SUMMARY"
+          echo '### 会議取り込みの状態（完了は finalize 後）' >> "$GITHUB_STEP_SUMMARY"
+          jq -r '.scope, (.entries | to_entries | group_by(.value)[] | "\(.[0].value): \(length) 件")' wiki/.lawpub/intake.json >> "$GITHUB_STEP_SUMMARY"
 
       # Claude には wiki/ の編集と読み取りだけを許す。Bash とネットワークは渡さない
       # (会議録は外部由来のテキストなので、プロンプトインジェクションの影響範囲を最小にする)。
@@ -163,7 +165,7 @@ jobs:
           [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ] || unset CLAUDE_CODE_OAUTH_TOKEN
           echo "### Claude Code (チャンクごと)" >> "$GITHUB_STEP_SUMMARY"
           for f in .wiki-work/chunks/*.md; do
-            prompt="\`.github/wiki-agent.md\` の指示に従い、\`$f\` に載っている全タスクを最後まで処理して wiki を更新してください。
+            prompt="\`.github/wiki-agent.md\` の指示に従い、\`$f\` に載っている全タスクを最後まで処理して wiki を更新してください。会議の claims と支持関係の暫定評価も必ず保存してください。
           ソースバンドル (\`.wiki-work/sources/\`) の抜粋だけを根拠にし、引用ルールを厳守してください。途中で作業を切り上げないこと。"
             if claude -p "$prompt" \
                 --model "$WIKI_MODEL" \
