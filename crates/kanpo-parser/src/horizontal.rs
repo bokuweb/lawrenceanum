@@ -2515,7 +2515,15 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
             order_region(bottom, &bb, ctx, true, true, out);
             return;
         }
-        if let Some(cut) = rule_cut(&words, blocks, vrules, hrules).or_else(|| gutter.map(|g| g.0)) {
+        // 罫線の表のすぐ上（20pt まで）の、表と同じ幅に収まる行（前の段から続く表の行で、罫線の外に出たもの）の溝は、
+        // 左右とも段の幅に満たない（250pt 未満）なら表の欄の境で、段の境ではない（溝で左右に切ると、行の右の欄
+        // 「氏名又は名称」「住所」が表の後に読まれていた）。
+        let table_column = |g: f32| {
+            let (x0, x1) = (words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min), words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max));
+            let y1 = words.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max);
+            g - x0 < 250.0 && x1 - g < 250.0 && ctx.tables.iter().any(|t| t.1 >= y1 - 2.0 && t.1 - y1 <= 20.0 && t.0 <= x0 + 5.0 && t.2 >= x1 - 5.0)
+        };
+        if let Some(cut) = rule_cut(&words, blocks, vrules, hrules).or_else(|| gutter.map(|g| g.0).filter(|&g| boxed || !blocks.is_empty() || !table_column(g))) {
             if let Some(y) = stray_cut(&words, blocks, hrules, cut) {
                 let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < y);
                 let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < y);
