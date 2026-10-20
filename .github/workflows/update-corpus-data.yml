@@ -158,6 +158,9 @@ jobs:
           restore_bundle shingikai-history.tar.zst .cache/shingikai-history
           restore_bundle budget-cache.tar.zst .cache/budget
           restore_bundle hanrei-cache.tar.zst .cache/hanrei
+          # 過去分は backfill-hanrei.yml が別オブジェクトに貯める。ここで合わせて復元し、
+          # 日次の hanrei-cache にも取り込む。
+          restore_bundle hanrei-backfill.tar.zst .cache/hanrei
           restore_bundle shitsumon-cache.tar.zst .cache/shitsumon
           restore_bundle guidance-cache.tar.zst .cache/guidance
           restore_bundle guidance-assets.tar.zst .cache/guidance-assets

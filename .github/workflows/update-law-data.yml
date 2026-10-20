@@ -769,6 +769,11 @@ jobs:
           mkdir -p .cache/hanrei
           zstd -dc --long=31 /tmp/hanrei-cache.tar.zst | tar -x -C .cache/hanrei
           rm -f /tmp/hanrei-cache.tar.zst
+          # 過去分 (backfill-hanrei.yml) は日次 run が取り込むまで別オブジェクトにあるので合わせる。
+          if aws s3 cp "s3://$R2_BUCKET/hanrei-backfill.tar.zst" /tmp/hanrei-backfill.tar.zst --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            zstd -dc --long=31 /tmp/hanrei-backfill.tar.zst | tar -x --skip-old-files -C .cache/hanrei
+            rm -f /tmp/hanrei-backfill.tar.zst
+          fi
           n=$(find .cache/hanrei -name '*.json' | wc -l | tr -d ' ')
           [ "${n:-0}" -eq 0 ] && { echo "::warning::hanrei cache empty"; exit 0; }
           echo "::notice::hanrei cache restored from R2: $n cases"
