@@ -16,6 +16,7 @@ pub(crate) fn restore_fraction_lines(
     if hrules.is_empty() {
         return;
     }
+    crate::nested_fractions::restore(units, words, hrules);
     let by_id: HashMap<usize, &Word> = words.iter().map(|w| (w.id, w)).collect();
     for unit in units {
         let Unit::Plain(lines) = unit else { continue };

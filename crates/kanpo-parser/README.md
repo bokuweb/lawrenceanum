@@ -289,6 +289,7 @@ cargo run --release -p kanpo-parser --example snapshot_sample -- .cache/kanpo-ar
 | 124 回目（独立・初回） | 27 | 3 | 0 | 100% |
 | 125 回目（独立・初回） | 21 | 7 | 2 | 93.3% |
 | 126 回目（独立・初回） | 24 | 4 | 2 | 93.3% |
+| 127 回目（独立・初回、評価範囲変更） | 12 | 1 | 17 | 比較対象外 |
 
 110 回目から、対象ページ ID・原本 SHA-256・採点の理由を [`tests/audits/`](tests/audits/) に残す。
 110 回目は本文に文字層のある 30 ページで校正し、見つかった分数式・金額の空欄位置の崩れを修正して同じ原本で再照合した結果。
@@ -562,3 +563,30 @@ URL の U+2011 は原 PDF の文字層にも存在して保持されており、
 [`tests/audits/issue227-fifteenth-batch-reviews.json`](tests/audits/issue227-fifteenth-batch-reviews.json)、
 [`tests/audits/issue227-fifteenth-batch-provenance.json`](tests/audits/issue227-fifteenth-batch-provenance.json)、
 検証集計は [`tests/audits/issue227-validation-15.json`](tests/audits/issue227-validation-15.json) に保存した。
+
+
+第 16 次修正では、6 ページの入れ子分数を2本の原罫線・42語・282原Glyphから構造化した。
+内側の分数、実括弧、外側の分母内の乗算を保持し、6式へASCII括弧24組・斜線12字を直列化した。
+原括弧24部品を含む12語はEmpty・未所属のまま保持し、Usedへの復元とは数えない。
+別の5ページでは、2行の公告見出しを同じ記事へ戻し、本文・原語・位置は完全に保持した。
+μL3字とμm2字、化学名の行末ハイフン4字も原字形と元の所属から復元した。
+
+全11,992原PDFを再抽出し、本文8ページが変わり11,984ページが一致した。
+記事だけが変わる5ページも含め、全11,992件の解析結果全体を比較し、13変更・11,979完全一致を確認した。
+変更13原本の評価は改善13・退行0。全結果が独立候補と一致し、441原Glyph・12原罫線・全旧ID/raw/座標/所属を照合した。
+累計2,893ページで、横棒10,924字、既存の平分数153件、番号対121件、括弧セル377件、期間706組等を保持した。
+新しい入れ子6式の分数節12個と直列化括弧24組は、既存平分数の計数とは分けた。
+
+実PDFは修正前15失敗・保存用20成功から35成功へ、追加の形状74テストも成功した。
+関連4クレートの全1,029テストが成功し、アーカイブPDFは586件。ディスク容量に合わせ、同じソース・設定で全85統合テスト対象/4ライブラリ/4doc-testを分割実行し、examplesは全4クレートで型検査した。
+新規21snapshotを全本文・全記事・原本と照合して採用し、既存期待値の更新はない。
+
+127回目の未見30件は、初回評点12ok/1minor/17majorを固定保存した。
+独立した会社公告の未分割やDocumentの新旧役割・セル所属も評価する厳密全体では9ok/1minor/20major、元issueの本文・文字・順序の軸では25ok/2minor/3majorとなった。
+評価範囲の共有直前に固定された1担当の初回評点は書き換えず、追加診断を別欄へ保存したため、過去の監査率とは単純比較しない。
+全30件の修正前後の解析結果は完全一致し、見つかった問題は既存残件である。文字層のない16矩形を全原Glyph（空Unicode・不可視・内側の零寸法を含む）から再検証し、近接する非零7範囲と区別した。
+初回監査は[`tests/audits/127.json`](tests/audits/127.json)、変更影響と原字の証明は
+[`tests/audits/issue227-sixteenth-batch-reviews.json`](tests/audits/issue227-sixteenth-batch-reviews.json)、
+[`tests/audits/issue227-sixteenth-batch-provenance.json`](tests/audits/issue227-sixteenth-batch-provenance.json)、
+検証集計は[`tests/audits/issue227-validation-16.json`](tests/audits/issue227-validation-16.json)に保存した。
+14号の別形式分数、1799p4の新旧欄継続、会社公告の未分割、複合式番号等は残っており、全体100%とはしていない。

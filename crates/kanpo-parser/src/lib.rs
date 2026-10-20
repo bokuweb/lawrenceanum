@@ -31,6 +31,7 @@
 //! ```
 
 use anyhow::Result;
+mod wrapped_notice_titles;
 mod facility_continuations;
 mod coordinate_symbols;
 mod coordinate_rows;
@@ -38,6 +39,8 @@ mod area_units;
 mod blank_area_units;
 mod reference_markers;
 mod inline_quotes;
+mod micro_prefixes;
+mod chemical_line_end;
 mod framed_amount_rows;
 
 pub mod format;
@@ -58,6 +61,8 @@ mod cell_row_dashes;
 mod shared_table_labels;
 mod quantity_tables;
 mod fractions;
+mod nested_fractions;
+mod nested_fraction_geometry;
 mod unruled_road;
 pub mod trace;
 pub mod vertical;
@@ -124,7 +129,9 @@ pub fn analyze_with_rules(xhtml: &str, rules: &[Option<lines::PageRules>]) -> An
     let text = join(&|p| p.text.as_str());
     let doc_text = join(&|p| p.doc_text.as_str());
     let tables: Vec<trace::Table> = pages.iter().flat_map(|p| p.tables.iter().cloned()).collect();
-    let articles = segment_articles(&doc_text)
+    let mut segments = segment_articles(&doc_text);
+    wrapped_notice_titles::repair_wrapped_notice_titles(&mut segments, &pages);
+    let articles = segments
         .into_iter()
         .map(|seg| ArticleAnalysis {
             document: Document::from_text_with_tables(&seg, &tables),

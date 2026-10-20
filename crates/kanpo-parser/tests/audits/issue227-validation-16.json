@@ -1,0 +1,217 @@
+{
+  "stage": "sixteenth_integrated_batch",
+  "date": "2026-10-21",
+  "baseline_commit": "476878c807c769f17a4a5105854f5dbaa8643536",
+  "output": "after37",
+  "population_pdf_pages": 11992,
+  "comparison_against_fifteenth_batch": {
+    "changed_fullAnalysis_pages": 13,
+    "unchanged_fullAnalysis_exact": 11979,
+    "changed_body_pages": 8,
+    "unchanged_exact_text": 11984,
+    "article_only_changed_pages": 5,
+    "added_nonspace_characters": {
+      "(": 24,
+      ")": 24,
+      "/": 12,
+      "μ": 5,
+      "－": 4
+    },
+    "removed_nonspace_characters": {},
+    "changed_source_Words_text_and_status_only": 9,
+    "new_output_IDs": 4,
+    "new_source_Words": 0,
+    "native_Glyphs_proven": 441,
+    "native_bar_paths": 12,
+    "structural_native_parenthesis_components": 24
+  },
+  "comparison_against_original_baseline": {
+    "changed_pages": 2893,
+    "character_change_pages": 1296,
+    "source_backed_dashes": 10924,
+    "fractions": 153,
+    "square_cm": 2,
+    "surname_characters": 6,
+    "ordinal_pairs": 121,
+    "table_parenthesis_pairs": 377,
+    "plain_period_parenthesis_pairs": 706,
+    "coordinate_symbols": 13464,
+    "removed_false_inferred_characters": {
+      "改": 9,
+      "正": 9,
+      "後": 4,
+      "前": 5
+    },
+    "actual_comparison_baseline_character_loss": 0,
+    "square_metre": 43,
+    "reference_markers": 58,
+    "curly_quotes_restored": 32,
+    "circled11_restored": 32,
+    "circled21_restored": 21,
+    "parenthesized_RomanI_restored": 2,
+    "leading_empty_column_U3000_restored": 439,
+    "flat_fractions_legacy": 153,
+    "nested_expressions": 6,
+    "nested_semantic_fraction_nodes": 12,
+    "nested_serialization_parenthesis_pairs": 24,
+    "micro_prefixes": 5
+  },
+  "source_validation": {
+    "fresh_textdump_original_PDFs": 11992,
+    "textdump_uses_pdf_flag": true,
+    "textdump_log_sha256": "89d6fe31283914ab3c4335a10b2ca852512bf2328c4f6b4257a4cd9ea62d5f60",
+    "fresh_all11992_fullAnalysis_compared": true,
+    "all13_fresh_fullAnalysis_match_independent_candidates": true,
+    "independent_candidate_float_serialization_tolerance_pt": 0.0002,
+    "root_before_after_original_ID_raw_bbox_exact": true,
+    "all71_source_SHA_verified": true,
+    "cumulative_validator": {
+      "counts": {
+        "period_pairs": 706,
+        "ordinal_pairs": 121,
+        "bracket_cells": 377,
+        "existing_unattached_used_diagnostic": 50,
+        "pages": 2893,
+        "native_dash_glyphs": 10924,
+        "fractions": 153,
+        "surnames": 6,
+        "plain_dashes": 232,
+        "nested_formulas": 6,
+        "duplicate_word_ids": 0
+      },
+      "nested_semantic_fraction_nodes": 12,
+      "nested_serialization_pairs": 24,
+      "nested_slashes": 12,
+      "logs": [
+        ".cache/kanpo-227/validate37-part0.log",
+        ".cache/kanpo-227/validate37-part1.log",
+        ".cache/kanpo-227/validate37-part2.log",
+        ".cache/kanpo-227/validate37-part3.log",
+        ".cache/kanpo-227/validate37-part4.log",
+        ".cache/kanpo-227/validate37-part5.log",
+        ".cache/kanpo-227/validate37-part6.log",
+        ".cache/kanpo-227/validate37-part7.log"
+      ],
+      "all_parts_exit0": true
+    },
+    "all_previous_period_ordinal_bracket_bindings_preserved": true,
+    "duplicate_word_IDs": 0,
+    "original_character_loss": 0,
+    "existing_unattached_Used_diagnostic": 50,
+    "baseline_fake_label_removal_caveat": "Previous intentional27 false inferred newoldlabel removals remain; no original text lost in batch16."
+  },
+  "tests": {
+    "crates": [
+      "kanpo-parser",
+      "kanpo-pdf",
+      "kanpo-parser-wasm",
+      "kanpo-lm"
+    ],
+    "passed": 1029,
+    "failed": 0,
+    "INSTA_UPDATE": "no",
+    "CI": "true",
+    "CARGO_BUILD_JOBS": 1,
+    "method": "Complete metadata-derived default test suite partitioned for disk capacity; no test filtering or omitted target. Examples checked separately.",
+    "target_inventory_sha256": "96e5b6bc99891290cfffbfec86d5c1d35b45a01350f8ea8079fd0c568bf4f1c0",
+    "all85_integration_targets_and4libs_and4doctests": true,
+    "default_examples": "cargo check --examples acrossall4; default test code execution complete, partitioned for disk capacity. Full log contains all commands and unfiltered terminal results.",
+    "archive_PDFs": 586,
+    "new_actual_test_functions": 35,
+    "new_geometry_unit_tests": 74,
+    "root_actual_baseline_failures": 15,
+    "root_actual_baseline_preservation_passes": 20,
+    "parser_unit_tests": 681,
+    "new_reviewed_archive_snapshots": 21,
+    "updated_reviewed_archive_snapshots": 0,
+    "existing_corpus_tests_passed": 2,
+    "full_log_sha256": "7e1e1636b15873f8c1c357570b587d6b1c8f666ab4a22d019087b9d6c2d417f6",
+    "git_diff_check": "PASS",
+    "pending_snapshots": 0,
+    "existing_oracle_updates": 0
+  },
+  "previous_commit_CI": {
+    "headRefOid": "476878c807c769f17a4a5105854f5dbaa8643536",
+    "isDraft": true,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-20T19:11:32Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bokuweb/lawrenceanum/actions/runs/39480119704/job/118826174226",
+        "name": "test",
+        "startedAt": "2026-10-20T19:03:16Z",
+        "status": "COMPLETED",
+        "workflowName": "kanpo-parser test"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-20T19:11:55Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bokuweb/lawrenceanum/actions/runs/39480119753/job/118826175009",
+        "name": "check",
+        "startedAt": "2026-10-20T19:03:16Z",
+        "status": "COMPLETED",
+        "workflowName": "rust-ci"
+      }
+    ]
+  },
+  "audit127_initial": {
+    "counts": {
+      "ok": 12,
+      "major": 17,
+      "minor": 1
+    },
+    "strict_fullquality_counts": {
+      "ok": 9,
+      "major": 20,
+      "minor": 1
+    },
+    "body_character_order_counts": {
+      "ok": 25,
+      "minor": 2,
+      "major": 3
+    },
+    "initial_grades_fixed": true,
+    "all30_root_fresh_before36_after37_fullAnalysis_exact": true,
+    "all30_PDF_output_image_SHA_verified": true,
+    "native0_rectangles": 16,
+    "root_fresh_native_PDFs": 30,
+    "scope": "Full Article/Document quality is explicitly added to the original issue reading-order metric. Part1 first8ok2major was frozen immediately before scope clarification; preserved unchanged, with3 additional structural major diagnoses on a separate uniform fullquality axis. Original reviewer initial decisions12ok1minor17major are immutable; uniform strict9ok1minor20major/body25ok2minor3major are separately named. No numerical comparability claim with prior audit rates. All30 complete before36/after37 Analysis results exact; every finding preexists batch16."
+  },
+  "visual_scope": {
+    "changed_originals": 13,
+    "improvement": 13,
+    "regression": 0,
+    "whole_page_success_not_implied": true
+  },
+  "rejected_attempts": {
+    "environment": "Stage67 initialbuild ENOSPC beforeassertions; completed regenerable build executables only cleaned with SHA journals. Complete4crate suite partitioned with identical flags/default features to bound disk; no target/test omitted.",
+    "old_micro_gate": "Superseded L-only interrupted4368 +continued partial8368 never counted toward finalgate. FinalL/m same frozen source/executable fresh11992from0,6parts allterminal0 unique11992.",
+    "root_proof_harness": "Empty-string Article concatenation assertion corrected to source-contract newlinejoin; AST numeric-denominator rendering assertion corrected to production serialization. Failed logs preserved, production/source unchanged."
+  },
+  "remaining_known_issues": [
+    "181p67 Ennet date placement;171p155/174p142 each3 absent bars.",
+    "194p50/p55 upper hierarchy;194p51 four empty account records joined;194p70 article combines two IC records.",
+    "174p46 and14other native RomanXIII remain unmapped;186p19 JIS wrapping/code mixing.",
+    "CF196p133(A)..(G)14 reference Glyphs and other unverified reference markers remain; amount/detail alignment was fixed in batch14.",
+    "206p75 form fields detached;20260814t000410002 agencytable/附則 interleaving;175h1 company/name columns.",
+    "6ambiguous⑪/4ambiguous㉑ and51unpaired components of other circled20s are not guessed.",
+    "198p21 rotated newoldtable row interleaving;206p248 two△ amounts assigned one row above.",
+    "Article-only165p694 finalleft1.099/rightfirst1.018 concatenate though all18right pairs are present in Page/Trace;179p113 old⑰/⑱ building/1円 rows concatenate only in Article Table.",
+    "Audit125minor174p153 surname櫛田;183p48瀀/䙐;170p60 onebar/176p121 twobars;212p6 delayed signatures;1767p4 Latin spaces.1761p2 missing144angles resolved in batch15.",
+    "1773p4 missing126angles resolved, but preexisting land/marker line interleaving remains; audit124 repair stays29ok1minor0major, initial27ok3minor0major fixed.",
+    "1774p3 other pesticide manufacturers detached;1790p4 economic-notice period endingで crosses city list.",
+    "1762p5 approval manufacturer/signature/type description interrupt sand-control points10/11; road94/199/61 fields interleave.",
+    "1798p6 road1175 unit/width/length78 appears inside sand-control1176;1802p5 road221/95 wrapped intervals cross inspection-place columns.",
+    "Audit126minor165p715 and226p108 table header line concatenation;215p457 circled⑮⑯⑰ absent;169p84 newold first-article display row joined while separate source cells remain.",
+    "Further unreconstructed coordinate/surname/unit candidates remain; no overall100percent claim.",
+    "Nested16 repairs audit125225p7 complete nested price formula; initial grade fixed. Other5 affected pages still have the separate14 interest parallel-text numerator fraction, as does225p8;225p7 ends at13 and has no14 remaining.",
+    "Audit1251799p4 after-cell continuation remains interrupted by before-cell新設. Cache-only29shape/9actual4RED5GREEN prototype is not an accepted fix.",
+    "Audit126174p87 title boundary and192p30 microvolume/chemical hyphens repaired. Initial audit12624ok4minor2major remains fixed, not retrospectively rescored.",
+    "215p376 printed reference83/equation93 composite Glyphs remain missing despite both0.3μm repaired. Neighbor215p375 has16rho and12m3 native symbols missing;215p377 references83/94 remain;192p31 multiline fractions and192p29 Document column join remain.",
+    "Audit127 initial12ok1minor17major and separately scoped strict9ok1minor20major/body25ok2minor3major are frozen. All30 full before36/after37 Analysis exact. Independent company/approval notices often remain unsplit; no overall100percent claim.",
+    "Audit1271784p7 plant registration31883 continuation six-column association and附則 order;203p85 upper continuation31 actual E61C dashes absent;188p91 common remarks rowspan split;1802p6Article template bullet/section mixing;226p9 headerless after/before Document role absent.",
+    "Audit127161p50 joint ministries shared notice number interleaves;1766p31 e_combiningLowline URL instead of source underscore-like glyph has native4pt advance. Unverified missing surname visible box is native0 and is not guessed."
+  ]
+}
