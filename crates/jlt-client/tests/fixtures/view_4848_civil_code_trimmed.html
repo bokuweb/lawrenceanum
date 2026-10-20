@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>民法 - 日本語／英語 - 日本法令外国語訳DBシステム</title>
+    <link href="/favicon.ico" type="image/x-icon" rel="icon"><link href="/favicon.ico" type="image/x-icon" rel="shortcut icon">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    
+	<link rel="stylesheet" href="/css/color.css">
+    
+	<link rel="stylesheet" href="/css/light.css" id="colorMode">
+    
+	<script src="/js/main.js"></script>
+    
+	<script src="/js/setting.js"></script>
+    
+	<script src="/js/color.js"></script>
+    
+	<link rel="stylesheet" href="/css/main.css">
+    
+	<script src="/js/font.js" defer="defer"></script>
+        <link rel="stylesheet" href="/css/laws.css"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/toc.css">    <script src="/js/laws.js"></script><script src="/js/balloon.js"></script>    
+	<link rel="stylesheet" href="/css/law_contents.css">
+</head>
+
+<body class="ja">
+    <header>
+        <nav>
+            <div class="top-header">
+    <div class="site-name">
+        <a id="pageTop" href="/ja" class="title">Japanese Law Translation</a>
+    </div>
+    <div class="top-links">
+        <a href="#" class="language" onclick="langChange(event, '/en/laws/view/4848')">
+            <span class="material-icons">language</span>
+            <span class="menu-label">English</span>
+        </a>
+        <a class="pc" href="/help/ja" target="_blank">
+            <span class="material-icons">menu_book</span>
+            <span class="menu-label">利用案内</span>
+        </a>
+        <div class="font-size pc">
+            <div class="icon">
+                <a id="fstSmall" href="#" class="small" onclick="applyFontSize(event, 1)">A</a>
+                <a id="fstMedium" href="#" class="medium" onclick="applyFontSize(event, 2)">A</a>
+                <a id="fstLarge" href="#" class="large" onclick="applyFontSize(event, 3)">A</a>
+            </div>
+            <script>
+                if (fontSize == 2) {
+                    document.getElementById('fstSmall').classList.remove('selected');
+                    document.getElementById('fstMedium').classList.add('selected');
+                    document.getElementById('fstLarge').classList.remove('selected');
+                } else if (fontSize == 3) {
+                    document.getElementById('fstSmall').classList.remove('selected');
+                    document.getElementById('fstMedium').classList.remove('selected');
+                    document.getElementById('fstLarge').classList.add('selected');
+                } else {
+                    document.getElementById('fstSmall').classList.add('selected');
+                    document.getElementById('fstMedium').classList.remove('selected');
+                    document.getElementById('fstLarge').classList.remove('selected');
+                }
+            </script>
+            <div class="menu-label">文字サイズ</div>
+        </div>
+        <a href="#" class="invert pc" onclick="changeColor(event)">
+            <span class="material-icons">invert_colors</span>
+            <span class="menu-label">反転</span>
+        </a>
+    </div>
+</div>        </nav>
+    </header>
+    <main class="main law-contents" id="main">
+        <script>
+            if (this.window.innerWidth <= 768) {
+                hideMenuOnMain();
+            }
+        </script>
+        <div class="main-contents laws">
+    <div class="submenu">
+                    <div class="mode">
+                <button id="modeButton" type="button" class="mode-button" onclick="openModeSwitch()"><span class="material-icons">translate</span></button>
+                <div class="mode-switch" id="modeSwitch">
+                    <div class="switch">
+                        <a href="/ja/laws/view/4848/ja" >日本語</a>
+                        <a href="/ja/laws/view/4848/en" >英語</a>
+                        <a href="/ja/laws/view/4848/je" class="selected">日英併記</a>
+                        <a href="/ja/laws/view/4848/tb" >日英対照表</a>
+                    </div>
+                    <button type="button" class="close" onclick="closeModeSwitch()"><span class="material-icons">close</span></button>
+                </div>
+            </div>
+                            <div id="file" class="file">
+                    <button type="button" class="download-button" onclick="openFileDownload()"><span class="material-icons">download</span></button>
+                    <div class="file-download" id="fileDownload">
+                        <div class="download">
+                            <a id="textDownload" href="/ja/laws/download/4848/13/m29Aa000890504je15.0_r3A37.txt">テキスト (.txt)</a>
+                            <a id="wordDownload" href="/ja/laws/download/4848/15/m29Aa000890504je15.0_r3A37.docx">Word (.docx)</a>
+                            <a id="pdfDownload" href="/ja/laws/download/4848/14/m29Aa000890504je15.0_r3A37.pdf">PDF (.pdf)</a>
+                                                            <a id="tmxDownload" href="/ja/laws/download/4848/23/8994.tmx">TMX (.tmx)</a>
+                                                                                </div>
+                        <button type="button" class="close" onclick="closeFileDownload()"><span class="material-icons">close</span></button>
+                    </div>
+                </div>
+                                </div>
+    <div class="law-contents">
+        <div id="lawInfo" class="law-info">
+                            <div class="title">
+                    民法（明治二十九年法律第八十九号）
+                </div>
+                                        <div class="title">
+                    Civil Code（Act No. 89 of 1896）
+                </div>
+                                        <div class="last-version">
+                                            <span class="label">最終更新：</span>令和三年法律第三十七号                                    </div>
+                                        <div class="last-version">
+                                            <span class="label">Last Version： </span>Act No. 37 of 2021                                    </div>
+                        <div class="tab">
+                <div id="tocTab" class="tab-item active" onclick="changeInfoArea(event)">目次</div>
+                <div id="historyTab" class="tab-item" onclick="changeInfoArea(event)">履歴</div>
+            </div>
+            <div class="info-area active">
+                <div id="tocArea" class="info-area-item active">
+                                                                        <div class="check-all">
+                                <a href="#" onclick="checkAll(event)">全選択</a>
+                                <a href="#" onclick="uncheckAll(event)">全解除</a>
+                            </div>
+                <div id="historyArea" class="info-area-item">
+                </div>
+                <script>
+                    let historyLoaded = false;
+                    document.addEventListener('click', function (e) {
+                        if (e.target.id === 'tocTab' || e.target.id === 'historyTab') {
+                            if (historyLoaded) {
+                                return;
+                            }
+
+                            historyLoaded = true;
+                            fetch('/ja/laws/history/4848', {
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            })
+                            .then(res => {
+                                if (!res.ok) {
+                                    window.location.href = '/ja/error';
+                                    return;
+                                }
+                                return res.text();
+                            })
+                            .then(html => {
+                                document.getElementById('historyArea').innerHTML = html;
+                            });
+                        }
+                    });
+                </script>
+            </div>
+        </div>
+        <div id="lawBody" class="law-body">
+                                            ﻿<div class="Laws">
+  <div class="LawBody anchor">
+    <div class="LawTitle"><span class="LawTitle_text">民法</span>（第一編第二編第三編）<span><br><span class="LawTitle_text">Civil Code</span> (Part I, Part II and Part III)</span></div>
+    <div class="LawNum">明治二十九年四月二十七日法律第八十九号<span><br>Act No. 89 of April 27, 1896</span></div>
+    <div class="MainProvision anchor" id="mp">
+      <div class="Part anchor" id="je_pt1">
+        <div class="PartTitle" id="ja_pt1">第一編　総則</div>
+        <div class="PartTitle" id="en_pt1">Part I General Provisions</div>
+        <div class="Chapter anchor" id="je_pt1ch1">
+          <div class="ChapterTitle">第一章　通則</div>
+          <div class="ChapterTitle">Chapter I Common Provisions</div>
+          <div class="Article anchor" id="je_pt1ch1at1">
+            <div class="ArticleCaption">（基本原則）</div>
+            <div class="ArticleCaption">(Fundamental Principles)</div>
+            <div class="Paragraph">
+              <div class="ParagraphSentence"><span class="ArticleTitle">第一条</span>私権は、公共の福祉に適合しなければならない。</div>
+              <div class="ParagraphSentence"><span class="ArticleTitle">Article 1</span><span class="ParagraphNum">(1)</span>Private rights must be congruent with the public welfare.</div>
+            </div>
+            <div class="Paragraph">
+              <div class="ParagraphSentence"><span class="ParagraphNum">２</span>権利の行使及び義務の履行は、信義に従い誠実に行わなければならない。</div>
+              <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>The exercise of rights and performance of duties must be done in good faith.</div>
+            </div>
+            <div class="Paragraph">
+              <div class="ParagraphSentence"><span class="ParagraphNum">３</span>権利の濫用は、これを許さない。</div>
+              <div class="ParagraphSentence"><span class="ParagraphNum">(3)</span>Abuse of rights is not permitted.</div>
+            </div>
+          </div>
+          <div class="Article anchor" id="je_pt1ch1at2">
+            <div class="ArticleCaption">（解釈の基準）</div>
+            <div class="ArticleCaption">(Standards for Construction)</div>
+            <div class="Paragraph">
+              <div class="ParagraphSentence"><span class="ArticleTitle">第二条</span>この法律は、個人の尊厳と両性の本質的平等を旨として、解釈しなければならない。</div>
+              <div class="ParagraphSentence"><span class="ArticleTitle">Article 2</span>This Code must be construed so as to honor the dignity of individuals and the essential equality of both sexes.</div>
+            </div>
+          </div>
+        </div>
+        <div class="Chapter anchor" id="je_pt1ch2">
+          <div class="ChapterTitle">第二章　人</div>
+          <div class="ChapterTitle">Chapter II Persons</div>
+          <div class="Section anchor" id="je_pt1ch2sc1">
+            <div class="SectionTitle">第一節　権利能力</div>
+            <div class="SectionTitle">Section 1 Capacity to Hold Rights</div>
+            <div class="Article anchor" id="je_pt1ch2sc1at1">
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第三条</span>私権の享有は、出生に始まる。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 3</span><span class="ParagraphNum">(1)</span>The enjoyment of private rights commences at birth.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">２</span>外国人は、法令又は条約の規定により禁止される場合を除き、私権を享有する。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>Unless otherwise prohibited by applicable laws, regulations, or treaties, foreign nationals enjoy private rights.</div>
+              </div>
+            </div>
+          </div>
+          <div class="Section anchor" id="je_pt1ch2sc2">
+            <div class="SectionTitle">第二節　意思能力</div>
+            <div class="SectionTitle">Section 2 Mental Capacity</div>
+            <div class="Article anchor" id="je_pt1ch2sc2at1">
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第三条の二</span>法律行為の当事者が意思表示をした時に意思能力を有しなかったときは、その法律行為は、無効とする。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 3-2</span>If the person performing a juridical act did not have mental capacity when manifesting the relevant intention, the juridical act is void.</div>
+              </div>
+            </div>
+          </div>
+          <div class="Section anchor" id="je_pt1ch2sc3">
+            <div class="SectionTitle">第三節　行為能力</div>
+            <div class="SectionTitle">Section 3 Capacity to Act</div>
+            <div class="Article anchor" id="je_pt1ch2sc3at1">
+              <div class="ArticleCaption">（成年）</div>
+              <div class="ArticleCaption">(Age of Majority)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第四条</span>年齢十八歳をもって、成年とする。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 4</span>The age of majority is 18 years of age.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc3at2">
+              <div class="ArticleCaption">（未成年者の法律行為）</div>
+              <div class="ArticleCaption">(Juridical Acts by Minors)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第五条</span>未成年者が法律行為をするには、その法定代理人の同意を得なければならない。ただし、単に権利を得、又は義務を免れる法律行為については、この限りでない。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 5</span><span class="ParagraphNum">(1)</span>A minor must obtain the consent of the minor's legal representative to perform a juridical act; provided, however, that this does not apply to a juridical act for merely acquiring a right or being released from an obligation.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">２</span>前項の規定に反する法律行為は、取り消すことができる。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>A juridical act in contravention of the provisions of the preceding paragraph may be revoked.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">３</span>第一項の規定にかかわらず、法定代理人が目的を定めて処分を許した財産は、その目的の範囲内において、未成年者が自由に処分することができる。目的を定めないで処分を許した財産を処分するときも、同様とする。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(3)</span>Notwithstanding the provisions of paragraph (1), a minor may freely dispose of property that the legal representative has permitted the minor to dispose of for a specified purpose, to an extent that falls within the scope of that purpose. The same applies if the minor disposes of property that the legal representative has permitted the minor to dispose of without specifying a purpose.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc3at3">
+              <div class="ArticleCaption">（未成年者の営業の許可）</div>
+              <div class="ArticleCaption">(Permission for Minors to Conduct Business)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第六条</span>一種又は数種の営業を許された未成年者は、その営業に関しては、成年者と同一の行為能力を有する。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 6</span><span class="ParagraphNum">(1)</span>A minor who is permitted to conduct one or multiple types of business has the same capacity to act as an adult as far as that business is concerned.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">２</span>前項の場合において、未成年者がその営業に堪えることができない事由があるときは、その法定代理人は、第四編（親族）の規定に従い、その許可を取り消し、又はこれを制限することができる。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>In a case referred to in the preceding paragraph, if there are grounds that make the minor unable to sustain that business, the legal representative may revoke or limit the permission therefor in accordance with the provisions of Part IV (Relatives).</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc3at4">
+              <div class="ArticleCaption">（後見開始の審判）</div>
+              <div class="ArticleCaption">(Decisions for Commencement of Guardianship)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第七条</span>精神上の障害により事理を弁識する能力を欠く常況にある者については、家庭裁判所は、本人、配偶者、四親等内の親族、未成年後見人、未成年後見監督人、保佐人、保佐監督人、補助人、補助監督人又は検察官の請求により、後見開始の審判をすることができる。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 7</span>The family court may decide to commence a guardianship in respect of a person who constantly lacks the capacity to appreciate the person's own situation due to a mental disorder or disability, at the request of the person in question, that person's spouse, that person's relative within the fourth degree of kinship, the guardian of a minor, the supervisor of a minor's guardian, the curator, the curator's supervisor, the assistant, the assistant's supervisor, or a public prosecutor.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc3at5">
+              <div class="ArticleCaption">（成年被後見人及び成年後見人）</div>
+              <div class="ArticleCaption">(Adult Wards; Adult Guardians)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第八条</span>後見開始の審判を受けた者は、成年被後見人とし、これに成年後見人を付する。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 8</span>A person subject to a decision for commencement of guardianship becomes an adult ward, and an adult guardian is appointed for that person.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc3at6">
+              <div class="ArticleCaption">（成年被後見人の法律行為）</div>
+              <div class="ArticleCaption">(Juridical Acts by Adult Wards Under Guardianship)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第九条</span>成年被後見人の法律行為は、取り消すことができる。ただし、日用品の購入その他日常生活に関する行為については、この限りでない。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 9</span>A juridical act performed by an adult ward may be revoked; provided, however, that this does not apply to the purchase of daily necessities or to any other act involved in day-to-day life.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc3at7">
+              <div class="ArticleCaption">（後見開始の審判の取消し）</div>
+              <div class="ArticleCaption">(Setting Aside of Decisions for Commencement of Guardianship)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第十条</span>第七条に規定する原因が消滅したときは、家庭裁判所は、本人、配偶者、四親等内の親族、後見人（未成年後見人及び成年後見人をいう。以下同じ。）、後見監督人（未成年後見監督人及び成年後見監督人をいう。以下同じ。）又は検察官の請求により、後見開始の審判を取り消さなければならない。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 10</span>If the grounds prescribed in Article 7 cease to exist, the family court must set aside the decision for the commencement of guardianship at the request of the person in question, that person's spouse, that person's relative within the fourth degree of kinship, the guardian (meaning a minor's guardian or an adult guardian; the same applies below), the guardian's supervisor (meaning the supervisor of a minor's guardian or the adult guardian's supervisor; the same applies below), or a public prosecutor.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc3at8">
+              <div class="ArticleCaption">（保佐開始の審判）</div>
+              <div class="ArticleCaption">(Decisions for Commencement of Curatorship)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第十一条</span>精神上の障害により事理を弁識する能力が著しく不十分である者については、家庭裁判所は、本人、配偶者、四親等内の親族、後見人、後見監督人、補助人、補助監督人又は検察官の請求により、保佐開始の審判をすることができる。ただし、第七条に規定する原因がある者については、この限りでない。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 11</span>The family court may decide to commence a curatorship in respect of a person whose capacity to appreciate their own situation is extremely inadequate due to a mental disorder or disability, at the request of the person in question, the person's spouse, the person's relative within the fourth degree of kinship, the guardian, the guardian's supervisor, the assistant, the assistant's supervisor, or a public prosecutor; provided, however, that this does not apply to a person in respect of whom a cause stated in Article 7 exists.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc3at9">
+              <div class="ArticleCaption">（被保佐人及び保佐人）</div>
+              <div class="ArticleCaption">(Persons Under Curatorship; Curators)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第十二条</span>保佐開始の審判を受けた者は、被保佐人とし、これに保佐人を付する。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 12</span>A person subject to a decision for commencement of curatorship becomes a person under curatorship, and a curator is appointed for that person.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc3at10">
+              <div class="ArticleCaption">（保佐人の同意を要する行為等）</div>
+              <div class="ArticleCaption">(Acts Requiring Consent of Curator)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第十三条</span>被保佐人が次に掲げる行為をするには、その保佐人の同意を得なければならない。ただし、第九条ただし書に規定する行為については、この限りでない。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 13</span><span class="ParagraphNum">(1)</span>A person under curatorship must obtain the consent of the curator in order to perform any of the following acts; provided, however, that this does not apply to an act provided for in the proviso of Article 9:</div>
+                <div class="Item">
+                  <div class="ItemSentence"><span class="ItemTitle">一</span>元本を領収し、又は利用すること。</div>
+                  <div class="ItemSentence"><span class="ItemTitle">(i)</span>receiving or using principal;</div>
+                </div>
+                <div class="Item">
+                  <div class="ItemSentence"><span class="ItemTitle">二</span>借財又は保証をすること。</div>
+                  <div class="ItemSentence"><span class="ItemTitle">(ii)</span>borrowing money or guaranteeing an obligation;</div>
+                </div>
+                <div class="Item">
+                  <div class="ItemSentence"><span class="ItemTitle">三</span>不動産その他重要な財産に関する権利の得喪を目的とする行為をすること。</div>
+                  <div class="ItemSentence"><span class="ItemTitle">(iii)</span>performing an act with the purpose of acquiring or losing any right regarding immovables or other significant property;</div>
+                </div>
+                <div class="Item">
+                  <div class="ItemSentence"><span class="ItemTitle">四</span>訴訟行為をすること。</div>
+                  <div class="ItemSentence"><span class="ItemTitle">(iv)</span>performing a procedural act;</div>
+                </div>
+                <div class="Item">
+                  <div class="ItemSentence"><span class="ItemTitle">五</span>贈与、和解又は仲裁合意（<a href="/ja/laws/link/4440" target="_blank">仲裁法</a>（平成十五年法律第百三十八号）第二条第一項に規定する仲裁合意をいう。）をすること。</div>
+                  <div class="ItemSentence"><span class="ItemTitle">(v)</span>giving a gift, reaching a settlement, or entering into an arbitration agreement (meaning an arbitration agreement as provided in Article 2, paragraph (1) of the <a href="/ja/laws/link/4440" target="_blank">Arbitration Act</a> (Act No. 138 of 2003));</div>
+                </div>
+                <div class="Item">
+                  <div class="ItemSentence"><span class="ItemTitle">六</span>相続の承認若しくは放棄又は遺産の分割をすること。</div>
+                  <div class="ItemSentence"><span class="ItemTitle">(vi)</span>accepting or renouncing a succession or dividing an estate;</div>
+                </div>
+                <div class="Item">
+                  <div class="ItemSentence"><span class="ItemTitle">七</span>贈与の申込みを拒絶し、遺贈を放棄し、負担付贈与の申込みを承諾し、又は負担付遺贈を承認すること。</div>
+                  <div class="ItemSentence"><span class="ItemTitle">(vii)</span>refusing an offer of a gift, renouncing a legacy, accepting an offer of gift with burden, or accepting a legacy with burden;</div>
+                </div>
+                <div class="Item">
+                  <div class="ItemSentence"><span class="ItemTitle">八</span>新築、改築、増築又は大修繕をすること。</div>
+                  <div class="ItemSentence"><span class="ItemTitle">(viii)</span>constructing a new building, renovating, expanding, or undertaking major repairs;</div>
+                </div>
+                <div class="Item">
+                  <div class="ItemSentence"><span class="ItemTitle">九</span>第六百二条に定める期間を超える賃貸借をすること。</div>
+                  <div class="ItemSentence"><span class="ItemTitle">(ix)</span>granting a lease for a term that exceeds the period stated in Article 602; or</div>
+                </div>
+                <div class="Item">
+                  <div class="ItemSentence"><span class="ItemTitle">十</span>前各号に掲げる行為を制限行為能力者（未成年者、成年被後見人、被保佐人及び第十七条第一項の審判を受けた被補助人をいう。以下同じ。）の法定代理人としてすること。</div>
+                  <div class="ItemSentence"><span class="ItemTitle">(x)</span>performing any of the acts stated in the preceding items as a legal representative of a person with qualified legal capacity (meaning a minor, adult ward, or person under curatorship or a person under assistantship who is subject to a decision referred to in Article 17, paragraph (1); the same applies below).</div>
+                </div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">２</span>家庭裁判所は、第十一条本文に規定する者又は保佐人若しくは保佐監督人の請求により、被保佐人が前項各号に掲げる行為以外の行為をする場合であってもその保佐人の同意を得なければならない旨の審判をすることができる。ただし、第九条ただし書に規定する行為については、この限りでない。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>At the request of a person referred to in the main clause of Article 11 or the curator or curator's supervisor, the family court may decide that the person under curatorship must also obtain the consent of the curator before performing an act other than those stated in each of the items of the preceding paragraph; provided, however, that this does not apply to an act provided for in the proviso to Article 9.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">３</span>保佐人の同意を得なければならない行為について、保佐人が被保佐人の利益を害するおそれがないにもかかわらず同意をしないときは、家庭裁判所は、被保佐人の請求により、保佐人の同意に代わる許可を与えることができる。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(3)</span>If the curator does not consent to an act for which the person under curatorship must obtain the curator's consent even though it is unlikely to prejudice the interests of the person under curatorship, the family court may grant permission that operates in lieu of the curator's consent at the request of the person under curatorship.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">４</span>保佐人の同意を得なければならない行為であって、その同意又はこれに代わる許可を得ないでしたものは、取り消すことができる。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(4)</span>An act for which the person under curatorship must obtain the curator's consent may be revoked if the person performs it without obtaining the curator's consent or a permission that operates in lieu of it.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc3at11">
+              <div class="ArticleCaption">（保佐開始の審判等の取消し）</div>
+              <div class="ArticleCaption">(Setting Aside of Decisions for Commencement of Curatorship)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第十四条</span>第十一条本文に規定する原因が消滅したときは、家庭裁判所は、本人、配偶者、四親等内の親族、未成年後見人、未成年後見監督人、保佐人、保佐監督人又は検察官の請求により、保佐開始の審判を取り消さなければならない。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 14</span><span class="ParagraphNum">(1)</span>If the grounds prescribed in the main clause of Article 11 cease to exist, the family court must set aside the decision for the commencement of curatorship at the request of the person in question, that person's spouse, that person's relative within the fourth degree of kinship, the guardian of a minor, the supervisor of a minor's guardian, the curator, the curator's supervisor, or a public prosecutor.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">２</span>家庭裁判所は、前項に規定する者の請求により、前条第二項の審判の全部又は一部を取り消すことができる。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>At the request of a person provided for in the preceding paragraph, the family court may set aside all or part of the decision referred to in paragraph (2) of the preceding Article.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc3at12">
+              <div class="ArticleCaption">（補助開始の審判）</div>
+              <div class="ArticleCaption">(Decisions for Commencement of Assistance)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第十五条</span>精神上の障害により事理を弁識する能力が不十分である者については、家庭裁判所は、本人、配偶者、四親等内の親族、後見人、後見監督人、保佐人、保佐監督人又は検察官の請求により、補助開始の審判をすることができる。ただし、第七条又は第十一条本文に規定する原因がある者については、この限りでない。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 15</span><span class="ParagraphNum">(1)</span>The family court may decide to commence an assistance in respect of a person whose capacity to appreciate their own situation is inadequate due to a mental disorder or disability, at the request of the person in question, that person's spouse, that person's relative within the fourth degree of kinship, the guardian, the guardian's supervisor, the curator, the curator's supervisor, or a public prosecutor; provided, however, that this does not apply to a person with respect to whom there are grounds as prescribed in Article 7 or the main clause of Article 11.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">２</span>本人以外の者の請求により補助開始の審判をするには、本人の同意がなければならない。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>The issuance of a decision for commencement of assistance at the request of a person other than the person in question requires the consent of the person in question.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">３</span>補助開始の審判は、第十七条第一項の審判又は第八百七十六条の九第一項の審判とともにしなければならない。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(3)</span>A decision for commencement of assistance must be made concurrent with a decision referred to in Article 17, paragraph (1) or a decision referred to in Article 876-9, paragraph (1).</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc3at13">
+              <div class="ArticleCaption">（被補助人及び補助人）</div>
+              <div class="ArticleCaption">(Persons under Assistantship; Assistants)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第十六条</span>補助開始の審判を受けた者は、被補助人とし、これに補助人を付する。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 16</span>A person subject to a decision for commencement of assistance becomes a person under assistantship, and an assistant is appointed for that person.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc3at14">
+              <div class="ArticleCaption">（補助人の同意を要する旨の審判等）</div>
+              <div class="ArticleCaption">(Decisions Requiring Person to Obtain Consent of Assistant)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第十七条</span>家庭裁判所は、第十五条第一項本文に規定する者又は補助人若しくは補助監督人の請求により、被補助人が特定の法律行為をするにはその補助人の同意を得なければならない旨の審判をすることができる。ただし、その審判によりその同意を得なければならないものとすることができる行為は、第十三条第一項に規定する行為の一部に限る。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 17</span><span class="ParagraphNum">(1)</span>At the request of the person referred to in the main clause of Article 15, paragraph (1) or the assistant or assistant's supervisor, the family court may decide that the person under assistantship must obtain the consent of the person's assistant in order to perform a specific juridical act; provided, however, that the acts that such a decision may establish as those for which the person must obtain the consent of the assistant are restricted to a part of the acts provided for in Article 13, paragraph (1).</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">２</span>本人以外の者の請求により前項の審判をするには、本人の同意がなければならない。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>The issuance of a decision referred to in the preceding paragraph at the request of a person other than the person in question requires the consent of the person in question.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">３</span>補助人の同意を得なければならない行為について、補助人が被補助人の利益を害するおそれがないにもかかわらず同意をしないときは、家庭裁判所は、被補助人の請求により、補助人の同意に代わる許可を与えることができる。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(3)</span>If the assistant does not consent to an act for which the person under assistantship must obtain the assistant's consent even though it is unlikely to prejudice the interests of the person under assistantship, the family court may grant permission that operates in lieu of the assistant's consent, at the request of the person under assistantship.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">４</span>補助人の同意を得なければならない行為であって、その同意又はこれに代わる許可を得ないでしたものは、取り消すことができる。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(4)</span>An act for which the person under assistantship must obtain the assistant's consent may be revoked if the person performs it without obtaining the assistance's consent or a permission that operates in lieu of it.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc3at15">
+              <div class="ArticleCaption">（補助開始の審判等の取消し）</div>
+              <div class="ArticleCaption">(Setting Aside of Decisions for Commencement of Assistance)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第十八条</span>第十五条第一項本文に規定する原因が消滅したときは、家庭裁判所は、本人、配偶者、四親等内の親族、未成年後見人、未成年後見監督人、補助人、補助監督人又は検察官の請求により、補助開始の審判を取り消さなければならない。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 18</span><span class="ParagraphNum">(1)</span>If the grounds prescribed in the main clause of Article 15, paragraph (1) cease to exist, the family court must set aside the decision for commencement of assistance at the request of the person in question, that person's spouse, that person's relative within the fourth degree of kinship, the guardian of a minor, the supervisor of a minor's guardian, the assistant, the assistant's supervisor, or a public prosecutor.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">２</span>家庭裁判所は、前項に規定する者の請求により、前条第一項の審判の全部又は一部を取り消すことができる。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>At the request of a person as prescribed in the preceding paragraph, the family court may set aside all or part of the decision referred to in paragraph (1) of the preceding Article.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">３</span>前条第一項の審判及び第八百七十六条の九第一項の審判をすべて取り消す場合には、家庭裁判所は、補助開始の審判を取り消さなければならない。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(3)</span>If setting aside the decision referred to in paragraph (1) of the preceding Article and the decision referred to in Article 876-9, paragraph (1) in their entirety, the family court must set aside the decision for commencement of assistance.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc3at16">
+              <div class="ArticleCaption">（審判相互の関係）</div>
+              <div class="ArticleCaption">(Relationship between Decisions)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第十九条</span>後見開始の審判をする場合において、本人が被保佐人又は被補助人であるときは、家庭裁判所は、その本人に係る保佐開始又は補助開始の審判を取り消さなければならない。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 19</span><span class="ParagraphNum">(1)</span>If the family court decides to commence a guardianship and the person in question is a person under curatorship or a person under assistantship, it must set aside the decision for commencement of the curatorship or commencement of assistance respecting that person.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">２</span>前項の規定は、保佐開始の審判をする場合において本人が成年被後見人若しくは被補助人であるとき、又は補助開始の審判をする場合において本人が成年被後見人若しくは被保佐人であるときについて準用する。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>The provisions of the preceding paragraph apply mutatis mutandis if the court decides to commence a curatorship and the person in question is an adult ward or a person under assistantship or if the court decides to commence an assistance and the person in question is an adult ward or a person under curatorship.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc3at17">
+              <div class="ArticleCaption">（制限行為能力者の相手方の催告権）</div>
+              <div class="ArticleCaption">(Right to Demand of the Other Party to Dealings Involving a Person with Qualified Legal Capacity)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第二十条</span>制限行為能力者の相手方は、その制限行為能力者が行為能力者（行為能力の制限を受けない者をいう。以下同じ。）となった後、その者に対し、一箇月以上の期間を定めて、その期間内にその取り消すことができる行為を追認するかどうかを確答すべき旨の催告をすることができる。この場合において、その者がその期間内に確答を発しないときは、その行為を追認したものとみなす。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 20</span><span class="ParagraphNum">(1)</span>After a person with qualified legal capacity who is involved in dealings with another party becomes a person with the legal capacity to act (meaning a person whose legal capacity to act is not subject to restrictions; the same applies below), the other party to those dealings may fix a period of one month or longer and demand that the person give a definite answer within that period of time as to whether the person will ratify an act that the person may revoke. In such a case, if the person fails to send a definite answer within that period of time, the person is deemed to have ratified that act.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">２</span>制限行為能力者の相手方が、制限行為能力者が行為能力者とならない間に、その法定代理人、保佐人又は補助人に対し、その権限内の行為について前項に規定する催告をした場合において、これらの者が同項の期間内に確答を発しないときも、同項後段と同様とする。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>The second sentence of the preceding paragraph also applies if, before the person with qualified legal capacity becomes a person with the legal capacity to act, the other party to dealings involving the person with qualified legal capacity lodges the demand prescribed in the preceding paragraph with the legal representative, curator, or assistant of that person with respect to an act within the scope of their authority, and they fail to send a definite answer within the fixed period of time referred to in that paragraph.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">３</span>特別の方式を要する行為については、前二項の期間内にその方式を具備した旨の通知を発しないときは、その行為を取り消したものとみなす。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(3)</span>If a person does not send notice within the period of time stated in the preceding two paragraphs indicating that the person has completed any special formalities that an act requires, the person is deemed to have revoked that act.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">４</span>制限行為能力者の相手方は、被保佐人又は第十七条第一項の審判を受けた被補助人に対しては、第一項の期間内にその保佐人又は補助人の追認を得るべき旨の催告をすることができる。この場合において、その被保佐人又は被補助人がその期間内にその追認を得た旨の通知を発しないときは、その行為を取り消したものとみなす。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(4)</span>The other party to dealings involving a person with qualified legal capacity may lodge a demand with a person under curatorship or with a person under assistantship who is subject to a decision referred to in Article 17, paragraph (1) to demand that the person get the curator or assistant to ratify an act within the fixed period referred to in paragraph (1). In such a case, if the person under curatorship or person under assistantship does not send notice within that period indicating that the person has gotten the curator or assistant to ratify the act in question, the person is deemed to have revoked that act.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc3at18">
+              <div class="ArticleCaption">（制限行為能力者の詐術）</div>
+              <div class="ArticleCaption">(Use of Fraudulent Means by Persons with Qualified Legal Capacity)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第二十一条</span>制限行為能力者が行為能力者であることを信じさせるため詐術を用いたときは、その行為を取り消すことができない。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 21</span>If a person with qualified legal capacity uses fraudulent means to induce another person to believe that the person is a person with legal capacity to act, the person may not revoke the act in question.</div>
+              </div>
+            </div>
+          </div>
+          <div class="Section anchor" id="je_pt1ch2sc4">
+            <div class="SectionTitle">第四節　住所</div>
+            <div class="SectionTitle">Section 4 Domicile</div>
+            <div class="Article anchor" id="je_pt1ch2sc4at1">
+              <div class="ArticleCaption">（住所）</div>
+              <div class="ArticleCaption">(Domicile)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第二十二条</span>各人の生活の本拠をその者の住所とする。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 22</span>A person's principal place of daily activity is that person's domicile.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc4at2">
+              <div class="ArticleCaption">（居所）</div>
+              <div class="ArticleCaption">(Residence)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第二十三条</span>住所が知れない場合には、居所を住所とみなす。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 23</span><span class="ParagraphNum">(1)</span>If a person's domicile is unknown, the person's residence is deemed to be the person's domicile.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">２</span>日本に住所を有しない者は、その者が日本人又は外国人のいずれであるかを問わず、日本における居所をその者の住所とみなす。ただし、準拠法を定める法律に従いその者の住所地法によるべき場合は、この限りでない。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>If a person does not have a domicile in Japan, the person's residence is deemed to be the person's domicile, regardless of whether the person is a Japanese national or a foreign national; provided, however, that this does not apply if the law of domicile is to be applied in accordance with the provisions of the laws that establish the governing law.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc4at3">
+              <div class="ArticleCaption">（仮住所）</div>
+              <div class="ArticleCaption">(Temporary Addresses)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第二十四条</span>ある行為について仮住所を選定したときは、その行為に関しては、その仮住所を住所とみなす。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 24</span>If a temporary address is selected for an act, that temporary address is deemed to be the domicile as far as that act is concerned.</div>
+              </div>
+            </div>
+          </div>
+          <div class="Section anchor" id="je_pt1ch2sc5">
+            <div class="SectionTitle">第五節　不在者の財産の管理及び失踪の宣告</div>
+            <div class="SectionTitle">Section 5 Administration of Absentee Property; Declarations of Presumed Death</div>
+            <div class="Article anchor" id="je_pt1ch2sc5at1">
+              <div class="ArticleCaption">（不在者の財産の管理）</div>
+              <div class="ArticleCaption">(Administration of Absentee Property)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第二十五条</span>従来の住所又は居所を去った者（以下「不在者」という。）がその財産の管理人（以下この節において単に「管理人」という。）を置かなかったときは、家庭裁判所は、利害関係人又は検察官の請求により、その財産の管理について必要な処分を命ずることができる。本人の不在中に管理人の権限が消滅したときも、同様とする。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 25</span><span class="ParagraphNum">(1)</span>If a person who has taken leave of the domicile or residence up until then (referred to as an "absentee" below) has not appointed an administrator for the person's property (in this Section referred to simply as an "administrator" below), the family court, at the request of an interested person or a public prosecutor, may order the necessary dispositions with regard to the administration of that property. The same applies if the administrator's authority is extinguished during the absence of the absentee.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">２</span>前項の規定による命令後、本人が管理人を置いたときは、家庭裁判所は、その管理人、利害関係人又は検察官の請求により、その命令を取り消さなければならない。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>If an absentee appoints an administrator after an order under the provisions of the preceding paragraph has been issued, the family court must set aside that order at the request of the person's administrator, an interested person, or a public prosecutor.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc5at2">
+              <div class="ArticleCaption">（管理人の改任）</div>
+              <div class="ArticleCaption">(Replacing Administrators)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第二十六条</span>不在者が管理人を置いた場合において、その不在者の生死が明らかでないときは、家庭裁判所は、利害関係人又は検察官の請求により、管理人を改任することができる。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 26</span>If an absentee has appointed an administrator but it is unclear whether the absentee is dead or alive, the family court may replace that administrator with another at the request of an interested person or a public prosecutor.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc5at3">
+              <div class="ArticleCaption">（管理人の職務）</div>
+              <div class="ArticleCaption">(Duties of Administrators)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第二十七条</span>前二条の規定により家庭裁判所が選任した管理人は、その管理すべき財産の目録を作成しなければならない。この場合において、その費用は、不在者の財産の中から支弁する。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 27</span><span class="ParagraphNum">(1)</span>An administrator appointed by the family court pursuant to the provisions of the preceding two Articles must prepare a list of the property that the administrator is to administer. In such a case, the expenses incurred are paid from the property of the absentee.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">２</span>不在者の生死が明らかでない場合において、利害関係人又は検察官の請求があるときは、家庭裁判所は、不在者が置いた管理人にも、前項の目録の作成を命ずることができる。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>If it is unclear whether an absentee is dead or alive and an interested person or a public prosecutor so requests, the family court may also order the administrator appointed by the absentee to prepare the list referred to in the preceding paragraph.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">３</span>前二項に定めるもののほか、家庭裁判所は、管理人に対し、不在者の財産の保存に必要と認める処分を命ずることができる。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(3)</span>Beyond what is provided for in the preceding two paragraphs, the family court may order the administrator to make the dispositions that the court finds to be necessary to preserve the property of the absentee.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc5at4">
+              <div class="ArticleCaption">（管理人の権限）</div>
+              <div class="ArticleCaption">(Administrators' Authority)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第二十八条</span>管理人は、第百三条に規定する権限を超える行為を必要とするときは、家庭裁判所の許可を得て、その行為をすることができる。不在者の生死が明らかでない場合において、その管理人が不在者が定めた権限を超える行為を必要とするときも、同様とする。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 28</span>If an administrator needs to perform an act exceeding the authority provided for in Article 103, the administrator may perform that act after obtaining the permission of the family court. The same applies if it is unclear whether the absentee is dead or alive and the administrator needs to perform an act exceeding the authority established by the absentee.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc5at5">
+              <div class="ArticleCaption">（管理人の担保提供及び報酬）</div>
+              <div class="ArticleCaption">(Provision of Security by and Remuneration of Administrators)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第二十九条</span>家庭裁判所は、管理人に財産の管理及び返還について相当の担保を立てさせることができる。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 29</span><span class="ParagraphNum">(1)</span>The family court may require an administrator to provide reasonable security with respect to the administration and return of the property.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">２</span>家庭裁判所は、管理人と不在者との関係その他の事情により、不在者の財産の中から、相当な報酬を管理人に与えることができる。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>The family court may grant reasonable remuneration to the administrator from the property of the absentee based on the relationship between the administrator and absentee and other circumstances.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc5at6">
+              <div class="ArticleCaption">（失踪の宣告）</div>
+              <div class="ArticleCaption">(Declarations of Presumed Death)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第三十条</span>不在者の生死が七年間明らかでないときは、家庭裁判所は、利害関係人の請求により、失踪の宣告をすることができる。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 30</span><span class="ParagraphNum">(1)</span>If it has been unclear for seven years whether an absentee is dead or alive, the family court may enter a declaration of presumed death at the request of an interested person.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">２</span>戦地に臨んだ者、沈没した船舶の中に在った者その他死亡の原因となるべき危難に遭遇した者の生死が、それぞれ、戦争が止んだ後、船舶が沈没した後又はその他の危難が去った後一年間明らかでないときも、前項と同様とする。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>The provisions of the preceding paragraph also apply if it has been unclear whether a person who has entered a war zone, was aboard a vessel that has sunk, or was otherwise exposed to a danger likely to result in a person's death is dead or alive, for one year after the war has ended, the vessel sank, or other danger has passed.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc5at7">
+              <div class="ArticleCaption">（失踪の宣告の効力）</div>
+              <div class="ArticleCaption">(Effect of Declarations of Presumed Death)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第三十一条</span>前条第一項の規定により失踪の宣告を受けた者は同項の期間が満了した時に、同条第二項の規定により失踪の宣告を受けた者はその危難が去った時に、死亡したものとみなす。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 31</span>A person subject to a declaration of presumed death pursuant to the provisions of paragraph (1) of the preceding Article is deemed to have died when the period of time referred to in that paragraph ended, and a person subject to a declaration of presumed death pursuant to the provisions of paragraph (2) of that Article is deemed to have died when that danger had passed.</div>
+              </div>
+            </div>
+            <div class="Article anchor" id="je_pt1ch2sc5at8">
+              <div class="ArticleCaption">（失踪の宣告の取消し）</div>
+              <div class="ArticleCaption">(Revocation of Declarations of Presumed Death)</div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第三十二条</span>失踪者が生存すること又は前条に規定する時と異なる時に死亡したことの証明があったときは、家庭裁判所は、本人又は利害関係人の請求により、失踪の宣告を取り消さなければならない。この場合において、その取消しは、失踪の宣告後その取消し前に善意でした行為の効力に影響を及ぼさない。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 32</span><span class="ParagraphNum">(1)</span>Having received proof that a person presumed dead is alive or they died at a time that is different from the time provided for in the preceding Article, the family court must revoke the declaration of presumed death, at the request of the person themselves or an interested party. In this case, the revocation does not affect the validity of any act performed in good faith after the declaration of presumed death but before its revocation.</div>
+              </div>
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ParagraphNum">２</span>失踪の宣告によって財産を得た者は、その取消しによって権利を失う。ただし、現に利益を受けている限度においてのみ、その財産を返還する義務を負う。</div>
+                <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>A person who has acquired property due to a declaration of presumed death loses the rights in question due to its revocation; provided, however, that the person has the obligation to return that property only to the extent that the person has actually been enriched.</div>
+              </div>
+            </div>
+          </div>
+          <div class="Section anchor" id="je_pt1ch2sc6">
+            <div class="SectionTitle">第六節　同時死亡の推定</div>
+            <div class="SectionTitle">Section 6 Presumption of Simultaneous Death</div>
+            <div class="Article anchor" id="je_pt1ch2sc6at1">
+              <div class="Paragraph">
+                <div class="ParagraphSentence"><span class="ArticleTitle">第三十二条の二</span>数人の者が死亡した場合において、そのうちの一人が他の者の死亡後になお生存していたことが明らかでないときは、これらの者は、同時に死亡したものと推定する。</div>
+                <div class="ParagraphSentence"><span class="ArticleTitle">Article 32-2</span>If more than one person dies and it is unclear whether one of them was still alive after the death of another, it is presumed that they all died at the same time.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="Chapter anchor" id="je_pt1ch3">
+          <div class="ChapterTitle">第三章　法人</div>
+          <div class="ChapterTitle">Chapter III Corporations</div>
+          <div class="Article anchor" id="je_pt1ch3at1">
+            <div class="ArticleCaption">（法人の成立等）</div>
+            <div class="ArticleCaption">(Formation of Corporations)</div>
+            <div class="Paragraph">
+              <div class="ParagraphSentence"><span class="ArticleTitle">第三十三条</span>法人は、この法律その他の法律の規定によらなければ、成立しない。</div>
+              <div class="ParagraphSentence"><span class="ArticleTitle">Article 33</span><span class="ParagraphNum">(1)</span>No corporation can be formed unless it is formed pursuant to the provisions of this Code and other laws.</div>
+            </div>
+            <div class="Paragraph">
+              <div class="ParagraphSentence"><span class="ParagraphNum">２</span>学術、技芸、慈善、祭祀、宗教その他の公益を目的とする法人、営利事業を営むことを目的とする法人その他の法人の設立、組織、運営及び管理については、この法律その他の法律のところによる。</div>
+              <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>The formation, organization, operation, and management of corporations including corporations formed for academic activities, art, charity, worship, religion and other public interests, and corporations formed for engaging in business for profit are governed by the provisions of this Code and other laws.</div>
+            </div>
+          </div>
+          <div class="Article anchor" id="je_pt1ch3at2">
+            <div class="ArticleCaption">（法人の能力）</div>
+            <div class="ArticleCaption">(Capacity of Corporations)</div>
+            <div class="Paragraph">
+              <div class="ParagraphSentence"><span class="ArticleTitle">第三十四条</span>法人は、法令の規定に従い、定款その他の基本約款で定められた目的の範囲内において、権利を有し、義務を負う。</div>
+              <div class="ParagraphSentence"><span class="ArticleTitle">Article 34</span>A corporation has rights and is subject to duties, subject to the provisions of laws and regulations and within the scope of the purpose stated in its articles of incorporation and other basic provisions.</div>
+            </div>
+          </div>
+          <div class="Article anchor" id="je_pt1ch3at3">
+            <div class="ArticleCaption">（外国法人）</div>
+            <div class="ArticleCaption">(Foreign Corporations)</div>
+            <div class="Paragraph">
+              <div class="ParagraphSentence"><span class="ArticleTitle">第三十五条</span>外国法人は、国、国の行政区画及び外国会社を除き、その成立を認許しない。ただし、法律又は条約の規定により認許された外国法人は、この限りでない。</div>
+              <div class="ParagraphSentence"><span class="ArticleTitle">Article 35</span><span class="ParagraphNum">(1)</span>With the exception of states, any administrative division of states, and foreign companies, the formation of a foreign corporation is not recognized; provided, however, that, this does not apply to any foreign corporation that are recognized pursuant to the provisions of a law or treaty.</div>
+            </div>
+            <div class="Paragraph">
+              <div class="ParagraphSentence"><span class="ParagraphNum">２</span>前項の規定により認許された外国法人は、日本において成立する同種の法人と同一の私権を有する。ただし、外国人が享有することのできない権利及び法律又は条約中に特別の規定がある権利については、この限りでない。</div>
+              <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>A foreign corporation recognized pursuant to the provisions of the preceding paragraph possesses the same private rights as those possessed by a corporation of the same kind which can be formed in Japan; provided, however, that, this does not apply to any right that a foreign national is not entitled to enjoy or to any right for which there are special provisions in a law or treaty.</div>
+            </div>
+          </div>
+          <div class="Article anchor" id="je_pt1ch3at4">
+            <div class="ArticleCaption">（登記）</div>
+            <div class="ArticleCaption">(Registration)</div>
+            <div class="Paragraph">
+              <div class="ParagraphSentence"><span class="ArticleTitle">第三十六条</span>法人及び外国法人は、この法律その他の法令の定めるところにより、登記をするものとする。</div>
+              <div class="ParagraphSentence"><span class="ArticleTitle">Article 36</span>Corporations and foreign corporations are to complete their registration pursuant to the provisions of this Code and other laws and regulations.</div>
+            </div>
+          </div>
+          <div class="Article anchor" id="je_pt1ch3at5">
+            <div class="ArticleCaption">（外国法人の登記）</div>
+            <div class="ArticleCaption">(Registration of Foreign Corporations)</div>
+            <div class="Paragraph">
+              <div class="ParagraphSentence"><span class="ArticleTitle">第三十七条</span>外国法人（第三十五条第一項ただし書に規定する外国法人に限る。以下この条において同じ。）が日本に事務所を設けたときは、三週間以内に、その事務所の所在地において、次に掲げる事項を登記しなければならない。</div>
+              <div class="ParagraphSentence"><span class="ArticleTitle">Article 37</span><span class="ParagraphNum">(1)</span>If a foreign corporation (limited to the foreign corporation prescribed in the proviso to Article 35, paragraph (1); the same applies in this Article below) establishes an office in Japan, the registration of the foreign corporation must be completed by registering the following particulars at the location of the office, within three weeks:</div>
+              <div class="Item">
+                <div class="ItemSentence"><span class="ItemTitle">一</span>外国法人の設立の準拠法</div>
+                <div class="ItemSentence"><span class="ItemTitle">(i)</span>the law governing the incorporation of the foreign corporations;</div>
+              </div>
+              <div class="Item">
+                <div class="ItemSentence"><span class="ItemTitle">二</span>目的</div>
+                <div class="ItemSentence"><span class="ItemTitle">(ii)</span>the purpose;</div>
+              </div>
+              <div class="Item">
+                <div class="ItemSentence"><span class="ItemTitle">三</span>名称</div>
+                <div class="ItemSentence"><span class="ItemTitle">(iii)</span>the name;</div>
+              </div>
+              <div class="Item">
+                <div class="ItemSentence"><span class="ItemTitle">四</span>事務所の所在場所</div>
+                <div class="ItemSentence"><span class="ItemTitle">(iv)</span>the address of the office;</div>
+              </div>
+              <div class="Item">
+                <div class="ItemSentence"><span class="ItemTitle">五</span>存続期間を定めたときは、その定め</div>
+                <div class="ItemSentence"><span class="ItemTitle">(v)</span>the duration, if it is specified; and</div>
+              </div>
+              <div class="Item">
+                <div class="ItemSentence"><span class="ItemTitle">六</span>代表者の氏名及び住所</div>
+                <div class="ItemSentence"><span class="ItemTitle">(vi)</span>the name and address of its representative.</div>
+              </div>
+            </div>
+            <div class="Paragraph">
+              <div class="ParagraphSentence"><span class="ParagraphNum">２</span>前項各号に掲げる事項に変更を生じたときは、三週間以内に、変更の登記をしなければならない。この場合において、登記前にあっては、その変更をもって第三者に対抗することができない。</div>
+              <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>If there is a change in any of the particulars stated in the items of the preceding paragraph, a registration of the change must be completed for within three weeks. In this case, the change may not be asserted against any third party before it is registered.</div>
+            </div>
+            <div class="Paragraph">
+              <div class="ParagraphSentence"><span class="ParagraphNum">３</span>代表者の職務の執行を停止し、若しくはその職務を代行する者を選任する仮処分命令又はその仮処分命令を変更し、若しくは取り消す決定がされたときは、その登記をしなければならない。この場合においては、前項後段の規定を準用する。</div>
+              <div class="ParagraphSentence"><span class="ParagraphNum">(3)</span>If a provisional disposition order suspending the execution of duties by the representative or appointing a person who will perform those duties on behalf of the representative is issued or a ruling changing or setting aside that provisional disposition order is made, its registration must be completed. In this case, the provisions of the second sentence of the preceding paragraph apply mutatis mutandis.</div>
+            </div>
+            <div class="Paragraph">
+              <div class="ParagraphSentence"><span class="ParagraphNum">４</span>前二項の規定により登記すべき事項が外国において生じたときは、登記の期間は、その通知が到達した日から起算する。</div>
+              <div class="ParagraphSentence"><span class="ParagraphNum">(4)</span>If particulars that must be registered pursuant to the provisions of the preceding two paragraphs arises in a foreign country, the period for registration is counted from the day on which the notice of these particulars reached.</div>
+            </div>
+            <div class="Paragraph">
+              <div class="ParagraphSentence"><span class="ParagraphNum">５</span>外国法人が初めて日本に事務所を設けたときは、その事務所の所在地において登記するまでは、第三者は、その法人の成立を否認することができる。</div>
+              <div class="ParagraphSentence"><span class="ParagraphNum">(5)</span>If a foreign corporation established an office in Japan for the first time, a third party may decline to recognize that corporation's formation until it has been registered in the location of that office.</div>
+            </div>
+            <div class="Paragraph">
+              <div class="ParagraphSentence"><span class="ParagraphNum">６</span>外国法人が事務所を移転したときは、旧所在地においては三週間以内に移転の登記をし、新所在地においては四週間以内に第一項各号に掲げる事項を登記しなければならない。</div>
+              <div class="ParagraphSentence"><span class="ParagraphNum">(6)</span>If a foreign corporation relocates its office, the registration of relocation must be completed at the former location within three weeks and the registration of the foreign corporation must be completed by registering the items of paragraph (1) at the new location within four weeks.</div>
+            </div>
+            <div class="Paragraph">
+              <div class="ParagraphSentence"><span class="ParagraphNum">７</span>同一の登記所の管轄区域内において事務所を移転したときは、その移転を登記すれば足りる。</div>
+              <div class="ParagraphSentence"><span class="ParagraphNum">(7)</span>If a foreign corporation relocates its office within the jurisdictional district of the same registry office, it is sufficient for it to register its relocation.</div>
+            </div>
+            <div class="Paragraph">
+              <div class="ParagraphSentence"><span class="ParagraphNum">８</span>外国法人の代表者が、この条に規定する登記を怠ったときは、五十万円以下の過料に処する。</div>
+              <div class="ParagraphSentence"><span class="ParagraphNum">(8)</span>If a representative of a foreign corporation fails to complete a registration provided for in this Article, the representative is subject to a civil fine of not more than 500,000 yen.</div>
+            </div>
+          </div>
+          <div class="Article anchor" id="je_pt1ch3at6">
+            <div class="Paragraph">
+              <div class="ParagraphSentence"><span class="ArticleTitle">第三十八条から第八十四条まで</span>削除</div>
+              <div class="ParagraphSentence"><span class="ArticleTitle">Articles 38 through 84</span>Deleted</div>
+            </div>
+          </div>
+        </div>
+                <div class="Article anchor" id="je_pt3ch1sc3sb5ss3at1">
+                  <div class="ArticleCaption">（公正証書の作成と保証の効力）</div>
+                  <div class="ArticleCaption">(Preparation of Notarial Instrument and Effect of Guarantee)</div>
+                  <div class="Paragraph">
+                    <div class="ParagraphSentence"><span class="ArticleTitle">第四百六十五条の六</span>事業のために負担した貸金等債務を主たる債務とする保証契約又は主たる債務の範囲に事業のために負担する貸金等債務が含まれる根保証契約は、その契約の締結に先立ち、その締結の日前一箇月以内に作成された公正証書で保証人になろうとする者が保証債務を履行する意思を表示していなければ、その効力を生じない。</div>
+                    <div class="ParagraphSentence"><span class="ArticleTitle">Article 465-6</span><span class="ParagraphNum">(1)</span>A guarantee contract under which the principal obligation is a loan obligation assumed for business or a contract for a revolving guarantee under which the scope of the principal obligation includes a loan obligation assumed for business does not become effective unless the person intending to become a guarantor manifests, before the conclusion of the contract, the intention to perform the guarantee obligation by means of a notarial instrument prepared within one month before the day of conclusion of the contract.</div>
+                  </div>
+                  <div class="Paragraph">
+                    <div class="ParagraphSentence"><span class="ParagraphNum">２</span>前項の公正証書を作成するには、次に掲げる方式に従わなければならない。</div>
+                    <div class="ParagraphSentence"><span class="ParagraphNum">(2)</span>The notarial instrument referred to in the preceding paragraph must be prepared in compliance with the following formalities:</div>
+                    <div class="Item">
+                      <div class="ItemSentence"><span class="ItemTitle">一</span>保証人になろうとする者が、次のイ又はロに掲げる契約の区分に応じ、それぞれ当該イ又はロに定める事項を公証人に口授すること。</div>
+                      <div class="ItemSentence"><span class="ItemTitle">(i)</span>the person intending to become a guarantor gives the notary oral instructions regarding the particulars specified in (a) or (b) below for the category of contract stated in this:</div>
+                      <div class="Subitem1Sentence"><span class="Subitem1Title">イ</span>保証契約（ロに掲げるものを除く。）　主たる債務の債権者及び債務者、主たる債務の元本、主たる債務に関する利息、違約金、損害賠償その他その債務に従たる全てのものの定めの有無及びその内容並びに主たる債務者がその債務を履行しないときには、その債務の全額について履行する意思（保証人になろうとする者が主たる債務者と連帯して債務を負担しようとするものである場合には、債権者が主たる債務者に対して催告をしたかどうか、主たる債務者がその債務を履行することができるかどうか、又は他に保証人があるかどうかにかかわらず、その全額について履行する意思）を有していること。</div>
+                      <div class="Subitem1Sentence"><span class="Subitem1Title">(a)</span>a guarantee contract (excluding the one stated in (b)): the obligee and obligor of the principal obligation, the principal of the principal obligation, whether any interest, penalty or damages in connection with the principal obligation or any other charges secondary to the obligation are provided for in the contract and, if so, its details, as well as the fact that the person intending to become a guarantor has the intention to pay the entire amount of the obligation if the principal obligor fails to perform the obligation (if the person intending to become a guarantor intends to assume the obligation jointly and severally with the principal obligor, the intention to pay the entire amount of the obligation, regardless of whether the obligee has made a demand to the principal obligor, whether the principal obligor is able to perform the obligation, or whether the principal obligor has any other guarantor); or</div>
+                      <div class="Subitem1Sentence"><span class="Subitem1Title">ロ</span>根保証契約　主たる債務の債権者及び債務者、主たる債務の範囲、根保証契約における極度額、元本確定期日の定めの有無及びその内容並びに主たる債務者がその債務を履行しないときには、極度額の限度において元本確定期日又は第四百六十五条の四第一項各号若しくは第二項各号に掲げる事由その他の元本を確定すべき事由が生ずる時までに生ずべき主たる債務の元本及び主たる債務に関する利息、違約金、損害賠償その他その債務に従たる全てのものの全額について履行する意思（保証人になろうとする者が主たる債務者と連帯して債務を負担しようとするものである場合には、債権者が主たる債務者に対して催告をしたかどうか、主たる債務者がその債務を履行することができるかどうか、又は他に保証人があるかどうかにかかわらず、その全額について履行する意思）を有していること。</div>
+                      <div class="Subitem1Sentence"><span class="Subitem1Title">(b)</span>a contract for a revolving guarantee: the obligee and obligor of the principal obligation, the scope of the principal obligation, the maximum amount under the contract for revolving guarantee, whether the principal fixed date is provided for in the contract and, if so, its details, as well as the fact that the person intending to become a guarantor has the intention to pay the entire amount of the obligation with regard to the principal of the principal obligation and any interest, penalty, and damages in connection with the principal obligation and any other charges secondary to the obligation, which are to arise by the principal fixed date or the time when an event that causes the crystallization of the principal takes place, such as the events stated in the items of Article 465-4, paragraph (1) or the items of paragraph (2) of that Article, up to the maximum amount, if the principal obligor fails to perform the obligation (if the person intending to become a guarantor s to assume the obligation jointly and severally with the principal obligor, the intention to pay the entire amount of the obligation, regardless of whether the obligee has made a demand to the principal obligor, whether the principal obligor is able to perform the obligation, or whether the principal obligor has any other guarantor);</div>
+                    </div>
+                    <div class="Item">
+                      <div class="ItemSentence"><span class="ItemTitle">二</span>公証人が、保証人になろうとする者の口述を筆記し、これを保証人になろうとする者に読み聞かせ、又は閲覧させること。</div>
+                      <div class="ItemSentence"><span class="ItemTitle">(ii)</span>the notary takes dictation from the person intending to become the guarantor, and reads this aloud to, or allows its inspection by, the person intending to become the guarantor;</div>
+                    </div>
+                    <div class="Item">
+                      <div class="ItemSentence"><span class="ItemTitle">三</span>保証人になろうとする者が、筆記の正確なことを承認した後、署名し、印を押すこと。ただし、保証人になろうとする者が署名することができない場合は、公証人がその事由を付記して、署名に代えることができる。</div>
+                      <div class="ItemSentence"><span class="ItemTitle">(iii)</span>the person intending to become a guarantor signs and seals the instrument after having approved the accuracy of the dictation taken by the notary; provided, however, that if the person intending to become a guarantor is unable to sign, the notary may include a supplementary note giving the reason therefor in lieu of the signature of that person; and</div>
+                    </div>
+                    <div class="Item">
+                      <div class="ItemSentence"><span class="ItemTitle">四</span>公証人が、その証書は前三号に掲げる方式に従って作ったものである旨を付記して、これに署名し、印を押すこと。</div>
+                      <div class="ItemSentence"><span class="ItemTitle">(iv)</span>the notary includes a supplementary note to the effect that the instrument has been prepared in compliance with the formalities stated in the preceding three items, and signs and seals the instrument.</div>
+                    </div>
+                  </div>
+                  <div class="Paragraph">
+                    <div class="ParagraphSentence"><span class="ParagraphNum">３</span>前二項の規定は、保証人になろうとする者が法人である場合には、適用しない。</div>
+                    <div class="ParagraphSentence"><span class="ParagraphNum">(3)</span>The provisions of the preceding two paragraphs do not apply if the person intending to become a guarantor is a corporation.</div>
+                  </div>
+                </div>
+            <div class="Paragraph">
+              <div class="ParagraphSentence"><span class="ArticleTitle">第七百二十四条の二</span>人の生命又は身体を害する不法行為による損害賠償請求権の消滅時効についての前条第一号の規定の適用については、同号中「三年間」とあるのは、「五年間」とする。</div>
+              <div class="ParagraphSentence"><span class="ArticleTitle">Article 724-2</span>For the purpose of the application of the provisions of item (i) of the preceding Article with regard to the extinctive prescription of the claim for damages for death or injury to person caused by tort, the term "three years" in the same item is deemed to be replaced with "five years".</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>                    </div>
+    </div>
+</div>        <form id="hiddenForm" action="" method="post">
+            <input type="hidden" name="_csrfToken" autocomplete="off" value="bkB8gbDIoZDKMCwW+i2yErUp/ftOldnjPn5XFNxvnAFaSSjeuskQJ2qC2t+qE2OkxBbzImWncSsvmF4CrR4qfl9qjAO3glN2gErFwnul7dddTWAj5ViuMG1/Te6CqiZCDrfuupxwVZb2d8tBA5ZIHA==">                    </form>
+    </main>
+    <footer>
+        <div class="copyright">日本法令外国語訳データベースシステム<br/>Copyright &copy; 2026 Ministry of Justice, Japan. All Rights Reserved.</div>
+        <nav>
+            <div class="footer-tab">
+                <div id="fti1" class="footer-tab-item active" onclick="showContents()">本文</div>
+                <div id="fti2" class="footer-tab-item" onclick="showInfo()">目次・履歴</div>
+            </div>
+        </nav>
+        <script>
+            updateVisitCount();
+            showEnqMessage();
+
+            function showContents() {
+                if (window.innerWidth < 768) {
+                    let fti1 = document.getElementById('fti1');
+                    let fti2 = document.getElementById('fti2');
+                    fti1.classList.add('active');
+                    fti2.classList.remove('active');
+                    let lawBody = document.getElementById('lawBody');
+                    let lawInfo = document.getElementById('lawInfo');
+                    lawBody.style.display = 'block';
+                    lawInfo.style.display = 'none';
+                }
+            }
+
+            function showInfo() {
+                let fti1 = document.getElementById('fti1');
+                let fti2 = document.getElementById('fti2');
+                fti1.classList.remove('active');
+                fti2.classList.add('active');
+                let lawBody = document.getElementById('lawBody');
+                let lawInfo = document.getElementById('lawInfo');
+                lawBody.style.display = 'none';
+                lawInfo.style.display = 'block';
+            }
+
+            function toggleCheckboxes(el, id) {
+                toggleDescendant(el, id);
+                toggleAncestor(el, id);
+            }
+
+            function toggleDescendant(el, id) {
+                if (el.checked) {
+                    checkDescendant(id)
+                } else {
+                    uncheckDescendant(id)
+                }
+            }
+
+            function toggleAncestor(el, id) {
+                if (el.checked) {
+                    checkAncestor(el, id)
+                } else {
+                    // do nothing
+                }
+            }
+
+            function checkAll(ev) {
+                ev.preventDefault();
+                let checkboxes = document.getElementsByClassName('toc-checkbox');
+                for (chk of checkboxes) {
+                    chk.checked = true;
+                }
+                toggleContents();
+            }
+
+            function checkDescendant(id) {
+                let checkboxes
+                if (id == 'mp') {
+                    checkboxes = document.querySelectorAll('input[id*="mp"]');
+                } else {
+                    checkboxes = document.querySelectorAll('input[id^=' + id + ']');
+                }
+                for (chk of checkboxes) {
+                    let re = new RegExp(id + '[0-9]');
+                    if (re.test(chk.id) == false) {
+                        chk.checked = true;
+                    }
+                }
+                toggleContents();
+            }
+
+            function checkAncestor(el) {
+                let selfId = el.id;
+                // main provisionのチェック
+                if (selfId.indexOf('-mp') > -1) {
+                    let mpChk = document.getElementById('mp-chk');
+                    mpChk.checked = true;
+                }
+                checkboxes = document.getElementsByClassName('toc-checkbox');
+                for (chk of checkboxes) {
+                    let ancId = chk.id;
+                    let ancIdShort = ancId.replace(/-.+/, '');
+                    if (selfId.indexOf(ancIdShort) == 0) {
+                        chk.checked = true;
+                    }
+                }
+                toggleContents();
+            }
+
+            function uncheckAll(ev) {
+                ev.preventDefault();
+                let checkboxes = document.getElementsByClassName('toc-checkbox');
+                for (chk of checkboxes) {
+                    chk.checked = false;
+                }
+                toggleContents();
+            }
+
+            function uncheckDescendant(id) {
+                let checkboxes
+                if (id == 'mp') {
+                    checkboxes = document.querySelectorAll('input[id*="mp"]');
+                } else {
+                    checkboxes = document.querySelectorAll('input[id^=' + id + ']');
+                }
+                for (chk of checkboxes) {
+                    let re = new RegExp(id + '[0-9]');
+                    if (re.test(chk.id) == false) {
+                        chk.checked = false;
+                    }
+                }
+                toggleContents();
+            }
+
+            function toggleContents() {
+                let checkboxes = document.getElementsByClassName('toc-checkbox');
+                for (chk of checkboxes) {
+                    let id = chk.id;
+                    id = id.replace('-chk', '');
+                    id = id.replace('-mp', '');
+                    let elem = document.getElementById(id);
+                    if (elem) {
+                        if (chk.checked) {
+                            elem.style.display = 'block';
+                        } else {
+                            elem.style.display = 'none';
+                        }
+                    }
+                }
+            }
+
+            function showMemo(el) {
+                console.log(el);
+                let memo = el.getElementsByClassName('balloon');
+                console.log(memo[0]);
+                memo[0].style.display = 'inline-block';
+            }
+
+            function hideMemo(el) {
+                let memo = el.getElementsByClassName('balloon');
+                memo[0].style.display = 'none';
+            }
+
+        </script>
+    </footer id="footer">
+    <script>
+        if (this.window.innerWidth <= 768) {
+            hideMenuOnFooter();
+        }
+    </script>
+</body>
+
+</html>

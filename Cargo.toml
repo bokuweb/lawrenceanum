@@ -24,6 +24,7 @@ members = [
     "crates/tsutatsu-client",
     "crates/shitsumon-client",
     "crates/guidance-client",
+    "crates/jlt-client",
     "crates/treaty-client",
 ]
 

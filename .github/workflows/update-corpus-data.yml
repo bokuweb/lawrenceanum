@@ -18,7 +18,7 @@ on:
         type: choice
         options: ["http", "mock"]
       domains:
-        description: "カンマ区切りドメイン (kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget,hanrei,shitsumon,guidance,treaty) / 空=全て。自治体例規は collect-reiki.yml"
+        description: "カンマ区切りドメイン (kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget,hanrei,shitsumon,guidance,jlt,treaty) / 空=全て。自治体例規は collect-reiki.yml"
         required: false
         type: string
       kokkai_session:
@@ -92,7 +92,7 @@ jobs:
     timeout-minutes: 120
     env:
       LAWPUB_PROVIDER: ${{ github.event.inputs.provider || 'http' }}
-      DOMAINS: ${{ github.event.inputs.domains || 'kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget,hanrei,shitsumon,guidance,treaty' }}
+      DOMAINS: ${{ github.event.inputs.domains || 'kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget,hanrei,shitsumon,guidance,jlt,treaty' }}
       # 未設定なら budget step は安全に skip。Secret 追加後の次回runから自動収集する。
       LAWPUB_ESTAT_APP_ID: ${{ secrets.ESTAT_APP_ID }}
 
@@ -161,6 +161,7 @@ jobs:
           restore_bundle shitsumon-cache.tar.zst .cache/shitsumon
           restore_bundle guidance-cache.tar.zst .cache/guidance
           restore_bundle guidance-assets.tar.zst .cache/guidance-assets
+          restore_bundle jlt-cache.tar.zst .cache/jlt
           restore_bundle treaty-cache.tar.zst .cache/treaty
 
       - name: Build lawpub
@@ -524,6 +525,40 @@ jobs:
           upload_bundle .cache/guidance-assets guidance-assets.tar.zst
           echo "::notice::uploaded guidance cache to R2 ($n documents)"
 
+      # ── 法令英訳 (法務省 日本法令外国語訳データベース) ─────────────────────
+      - name: Fetch jlt
+        id: fetch_jlt
+        if: contains(env.DOMAINS, 'jlt') || env.DOMAINS == ''
+        continue-on-error: true
+        run: |
+          # 利用規約は PDL1.0 (出典・加工の旨の記載で再配布可)。robots.txt は不在。
+          # 一覧 (12 分野・約 25 ページ) は毎回引き直し、本文は未取得の翻訳版 ID だけ取る
+          # (翻訳が更新されると ID が変わる)。2 秒間隔・1 run 200 件までで、全約 1,000 件の
+          # バックフィルは数日の定期 run で終わる。
+          ./target/release/lawpub jlt-fetch \
+            --cache .cache --limit 200 --interval-ms 2000
+
+      - name: Upload jlt cache to R2
+        id: upload_jlt
+        if: (contains(env.DOMAINS, 'jlt') || env.DOMAINS == '') && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        continue-on-error: true
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          [ -f .cache/jlt/list.json ] || { echo "::notice::no jlt cache, skip R2 upload"; exit 0; }
+          n=$(find .cache/jlt/laws -name '*.json' | wc -l | tr -d ' ')
+          # top-level を ./list.json + ./laws/{jlt_id}.json にするため .cache/jlt 内から固める。
+          ( cd .cache/jlt && tar -cf - . | zstd -19 --long -T0 -o /tmp/jlt-cache.tar.zst -f )
+          aws s3 cp /tmp/jlt-cache.tar.zst "s3://$R2_BUCKET/jlt-cache.tar.zst" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --content-type 'application/zstd' \
+            --cache-control 'public, max-age=300'
+          echo "::notice::uploaded jlt cache to R2 ($n translations)"
+
       # ── 条約 (外務省 条約データ検索・国会提出条約) ───────────────────
       - name: Fetch treaty
         id: fetch_treaty
@@ -729,6 +764,8 @@ jobs:
           SHITSUMON_UPLOAD_OUTCOME: ${{ steps.upload_shitsumon.outcome }}
           GUIDANCE_OUTCOME: ${{ steps.fetch_guidance.outcome }}
           GUIDANCE_UPLOAD_OUTCOME: ${{ steps.upload_guidance.outcome }}
+          JLT_OUTCOME: ${{ steps.fetch_jlt.outcome }}
+          JLT_UPLOAD_OUTCOME: ${{ steps.upload_jlt.outcome }}
           TREATY_OUTCOME: ${{ steps.fetch_treaty.outcome }}
           TREATY_UPLOAD_OUTCOME: ${{ steps.upload_treaty.outcome }}
         run: |
@@ -781,6 +818,7 @@ jobs:
           update_domain hanrei hanrei "$HANREI_OUTCOME" "$HANREI_UPLOAD_OUTCOME"
           update_domain shitsumon shitsumon "$SHITSUMON_OUTCOME" "$SHITSUMON_UPLOAD_OUTCOME"
           update_domain guidance guidance "$GUIDANCE_OUTCOME" "$GUIDANCE_UPLOAD_OUTCOME"
+          update_domain jlt jlt "$JLT_OUTCOME" "$JLT_UPLOAD_OUTCOME"
           update_domain treaties treaty "$TREATY_OUTCOME" "$TREATY_UPLOAD_OUTCOME"
           tmp=$(mktemp)
           jq --arg ts "$ts" --arg domains "$DOMAINS" '

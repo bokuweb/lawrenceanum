@@ -2570,6 +2570,13 @@ fn collect_corpus_health(public: &Path) -> serde_json::Value {
             unit: "documents",
             date_fields: &["issued_on"],
         },
+        // 法令英訳 (日本法令外国語訳データベース)。鮮度は最新の翻訳日。
+        CorpusSpec {
+            name: "jlt",
+            collection: "translations",
+            unit: "translations",
+            date_fields: &["translated_on"],
+        },
         CorpusSpec {
             name: "treaties",
             collection: "treaties",
