@@ -4518,12 +4518,13 @@ fn record_continuations(groups: &[Vec<Col>]) -> std::collections::HashMap<usize,
             }
             let x = center(g);
             // すぐ左の列（2 字分まで）で、欄が頭の列より少なく、列の頭が頭の列のどれかの欄の上端にそろう。
-            // 続きの列は、頭の列の最初の欄（団体の名称。6 字以上で欄の下端まで組まれたもの）の上端から始まる。
             let first: usize = head[0].2.iter().map(|c| c.text.chars().count()).sum();
             // 続きの語は欄の中で折り返した短い語（2〜14 字。英字の無いもの）。頭の列が日付（署名の列）なら除く。
             let fragment = |c: &Col| (2..=14).contains(&c.text.chars().count()) && !c.text.chars().any(|ch| ch.is_ascii_alphabetic());
             let dated = head[0].2.first().is_some_and(|c| c.text.starts_with("令和"));
-            if prev - x > em * 2.0 || record_cells(g).len() >= head.len() || (head[0].0 - g[0].y).abs() >= 1.0 || first < 5 || dated || !g.iter().all(fragment) {
+            // 続きの列の頭は、頭の列の長い欄（名称・所在地）の上端にそろう。
+            let starts_cell = head.iter().any(|hc| (hc.0 - g[0].y).abs() < 1.0 && hc.2.iter().map(|c| c.text.chars().count()).sum::<usize>() >= 4);
+            if prev - x > em * 2.0 || record_cells(g).len() >= head.len() || !starts_cell || first < 5 || dated || !g.iter().all(fragment) {
                 break;
             }
             // 続きの語の入る欄は、欄の中で折り返す長い欄（4 字以上の名称・所在地。2 字の氏の欄に別の行の氏名をつながない）。
