@@ -285,13 +285,52 @@ pub(crate) enum Unit {
     },
 }
 
-/// 行列を改行で連結する（前後の空白は落とす）。
+/// 行列を改行で連結する（本文の前後空白は落とし、表の先頭空欄の区切りは残す）。
 pub(crate) fn join_lines(lines: &[Line]) -> String {
     join_lines_with(lines, &mut |l| l.text.clone())
 }
 
+// Only a coherent first printed Table can certify positional leading columns.
+// An ordinary line, even one beginning with ideographic spaces and digits,
+// remains subject to the existing boundary-whitespace policy.
+fn first_rendered_table<'a>(mut lines: impl Iterator<Item = &'a Line>) -> Option<&'a Table> {
+    let first = lines.find(|line| !line.text.trim().is_empty())?;
+    first.table.as_ref().filter(|table| {
+        // Stale or deliberately unsupported metadata must not make boundary trim
+        // call Table::render with an out-of-range column index.
+        table.rows > 0
+            && table.cols > 0
+            && table.cells.iter().all(|cell| cell.row < table.rows && cell.col < table.cols)
+            && table.render() == first.text
+    })
+}
+
+fn trim_rendered_boundary(text: &str, table: Option<&Table>) -> String {
+    let trimmed = text.trim();
+    let leading = table.and_then(|table| {
+        let row = table.cells.iter().filter(|cell| !cell.text.trim().is_empty()).map(|cell| cell.row).min()?;
+        let col = table.cells.iter().filter(|cell| cell.row == row && !cell.text.trim().is_empty()).map(|cell| cell.col).min()?;
+        if col == 0 || col >= table.cols { return None; }
+        let rendered = table.render();
+        let expected = rendered.lines().find(|line| !line.trim().is_empty())?;
+        let actual = text.lines().find(|line| !line.trim().is_empty())?;
+        // Callback-rendered document markers, stale text and source indentation
+        // are not table-column evidence. Never infer columns from numbers alone.
+        (actual == expected).then_some(col)
+    }).unwrap_or(0);
+    format!("{}{}", "\u{3000}".repeat(leading), trimmed)
+}
+
+pub(crate) fn join_page_texts(pages: &[PageTrace], value: &dyn Fn(&PageTrace) -> &str) -> String {
+    let first = pages.iter().find(|page| !value(page).trim().is_empty());
+    let table = first.and_then(|page| first_rendered_table(page.regions.iter().flat_map(|region| &region.lines)));
+    let text = pages.iter().map(value).filter(|text| !text.is_empty()).collect::<Vec<_>>().join("\n");
+    trim_rendered_boundary(&text, table)
+}
+
 fn join_lines_with(lines: &[Line], render: &mut dyn FnMut(&Line) -> String) -> String {
-    lines.iter().map(render).collect::<Vec<_>>().join("\n").trim().to_string()
+    let text = lines.iter().map(render).collect::<Vec<_>>().join("\n");
+    trim_rendered_boundary(&text, first_rendered_table(lines.iter()))
 }
 
 impl Unit {
@@ -327,6 +366,7 @@ impl Unit {
                 outside,
             } => {
                 let mut out: Vec<String> = Vec::new();
+                let (after_parts, before_parts) = (after, before);
                 let pre = join_lines_with(preamble, render);
                 let mut join = |parts: &[Vec<Line>]| -> String {
                     parts
@@ -353,7 +393,10 @@ impl Unit {
                 if !rest.is_empty() {
                     out.push(rest);
                 }
-                out.join("\n").trim().to_string()
+                let table = first_rendered_table(
+                    preamble.iter().chain(after_parts.iter().flatten()).chain(before_parts.iter().flatten()).chain(outside.iter().flatten()),
+                );
+                trim_rendered_boundary(&out.join("\n"), table)
             }
         }
     }
@@ -389,3 +432,7 @@ impl Unit {
         out
     }
 }
+
+#[cfg(test)]
+#[path = "leading_table_blank_tests.rs"]
+mod leading_table_blank_tests;

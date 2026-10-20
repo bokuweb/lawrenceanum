@@ -67,7 +67,7 @@ fn identity_cid(c: char) -> Option<u32> {
 /// 「［U+E7D5］営業保証金の額」が「⑤営業保証金の額」、「国土交通大臣は、［U+E7B5］の取組状況等が［U+E7B2］の判断」が
 /// 「⑷の取組状況等が⑴の判断」）。U+E9E5〜U+E9EB は括弧付きの片仮名「（ア）」〜「（キ）」（「［U+E9E5］固定資産の用途」が
 /// 「(ア)固定資産の用途」、「［［U+E9E5］〜［U+E9EB］　略］」が「［(ア)〜(キ)　略］」）。U+E741 は「（注）」（「前中期目標期間
-/// 繰越積立金［U+E741］」）、U+E830〜U+E837 は括弧付きのローマ数字「（Ⅱ）」〜「（Ⅸ）」、U+E839〜U+E842 は括弧付きの小文字の
+/// 繰越積立金［U+E741］」）、U+E82F〜U+E837 は括弧付きのローマ数字「（Ⅰ）」〜「（Ⅸ）」、U+E839〜U+E842 は括弧付きの小文字の
 /// ローマ数字「（ⅰ）」〜「（ⅹ）」（減損の表の番号の欄）。原本の字形で確かめた範囲だけ戻す
 /// （続きの符号は確かめていない）。落とすと項目番号が抜けて「国土交通大臣は、の取組状況等がの判断」になっていた。
 fn paren_number(c: char) -> Option<String> {
@@ -78,7 +78,7 @@ fn paren_number(c: char) -> Option<String> {
         0xE7D1..=0xE7DA => char::from_u32(0x2460 + code - 0xE7D1).map(String::from),
         0xE9E5..=0xE9EB => "アイウエオカキ".chars().nth((code - 0xE9E5) as usize).map(|k| format!("（{k}）")),
         0xE741 => Some("（注）".to_string()),
-        0xE830..=0xE837 => char::from_u32(0x2161 + code - 0xE830).map(|r| format!("（{r}）")),
+        0xE82F..=0xE837 => char::from_u32(0x2160 + code - 0xE82F).map(|r| format!("（{r}）")),
         0xE839..=0xE842 => char::from_u32(0x2170 + code - 0xE839).map(|r| format!("（{r}）")),
         _ => None,
     }
@@ -635,5 +635,21 @@ mod tests {
         assert!(!out.contains('\u{E0A8}'));
         assert!(out.contains("本文"));
         assert!(out.contains("令和八年"));
+    }
+}
+
+#[cfg(test)]
+mod parenthesized_roman_one_tests {
+    #[test]
+    fn native_roman_one_and_preexisting_two_through_nine_keep_their_values() {
+        for (raw,number) in ('\u{E82F}'..='\u{E837}').zip("ⅠⅡⅢⅣⅤⅥⅦⅧⅨ".chars()) {
+            assert_eq!(super::word_text(&raw.to_string()),format!("（{number}）"));
+        }
+    }
+    #[test]
+    fn unverified_neighbors_stay_unmapped_and_mixed_text_stays_in_place() {
+        assert_eq!(super::word_text("\u{E82E}"),"");
+        assert_eq!(super::word_text("\u{E838}"),"");
+        assert_eq!(super::word_text("目標\u{E82F}本文"),"目標（Ⅰ）本文");
     }
 }

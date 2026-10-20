@@ -59,7 +59,14 @@ fn two_line_parentheses_enclose_only_their_own_account_names() {
 fn an_unanchored_marker_after_a_continued_table_cannot_prefix_the_previous_record() {
     let pdf = include_bytes!("archive/pages/20260930g00216/20260930g002160004.pdf");
     let out = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(pdf).unwrap());
-    assert!(out.text.starts_with("変更内容\n変更年月日"));
+    // The continued header spans the two change-content columns; the date and
+    // change-item columns precede it, even at the start of the extracted page.
+    assert!(out.text.starts_with("　　変更内容\n変更年月日"));
+    let header_table = out.pages[0].regions[0].lines[0].table.as_ref().unwrap();
+    assert_eq!((header_table.rows, header_table.cols), (3, 5));
+    let header = header_table.cells.iter().find(|cell| cell.text == "変更内容").unwrap();
+    assert_eq!((header.row, header.col, header.colspan), (0, 2, 2));
+    assert_eq!(header.words, vec![63, 55, 43, 36]);
     assert!(!out.text.contains("（１２）"));
     assert!(out.text.contains("2026年８月10日　役員の氏名"));
     assert!(out.text.contains("届出日　2026年８月25日"));

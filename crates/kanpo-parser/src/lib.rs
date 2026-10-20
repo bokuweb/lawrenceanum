@@ -118,7 +118,7 @@ pub fn analyze(xhtml: &str) -> Analysis {
 pub fn analyze_with_rules(xhtml: &str, rules: &[Option<lines::PageRules>]) -> Analysis {
     let pages = vertical::analyze_pages_with_rules(xhtml, rules);
     let join = |f: &dyn Fn(&trace::PageTrace) -> &str| {
-        pages.iter().map(f).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n").trim().to_string()
+        trace::join_page_texts(&pages, f)
     };
     let text = join(&|p| p.text.as_str());
     let doc_text = join(&|p| p.doc_text.as_str());
@@ -517,3 +517,7 @@ mod tests {
 mod composite_numbers;
 
 mod large_parentheses;
+
+mod financial_flow;
+
+mod circled_numbers;

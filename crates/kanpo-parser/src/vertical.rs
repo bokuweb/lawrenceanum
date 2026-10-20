@@ -45,14 +45,8 @@ const PUNCH_MARK_BOTTOM: f32 = 30.0;
 /// だけで正しい読み順が復元でき、`-layout` で起きる「別記事の横方向への混線」を解消できる。
 /// 複数ページの PDF はページごとに復元して連結する。
 pub fn reconstruct_vertical(xhtml: &str) -> String {
-    analyze_pages(xhtml)
-        .iter()
-        .map(|p| p.text.as_str())
-        .filter(|t| !t.is_empty())
-        .collect::<Vec<_>>()
-        .join("\n")
-        .trim()
-        .to_string()
+    let pages = analyze_pages(xhtml);
+    crate::trace::join_page_texts(&pages, &|page| page.text.as_str())
 }
 
 /// ページごとに読み順を復元し、各語の割り当て（どの領域のどの行か）も返す。
@@ -427,6 +421,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 }
             }
             units.extend(tail);
+            crate::financial_flow::restore(&mut units, &mut words);
             prefix_minus(&mut units, &minus, &word_texts);
             move_trailing_notes(&mut units);
             merge_split_table_rows(&mut units);
@@ -446,6 +441,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             if !sideways { crate::blank_area_units::restore(&mut units, &mut words, page_rules, width.max(height)); }
             crate::reference_markers::restore(&mut units, &mut words);
             crate::inline_quotes::restore(&mut units, &mut words);
+            crate::circled_numbers::restore(&mut units, &mut words);
             if let Some(rules) = rules.get(pi).and_then(|r| r.as_ref()) {
                 crate::financial_enclosures::order_financial_enclosures(
                     &mut units, &words, &rules.enclosures, width, height,
@@ -755,6 +751,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         if !sideways { crate::blank_area_units::restore(&mut units, &mut words, page_rules, width.max(height)); }
         crate::reference_markers::restore(&mut units, &mut words);
         crate::inline_quotes::restore(&mut units, &mut words);
+        crate::circled_numbers::restore(&mut units, &mut words);
         if sideways { if let Some(native_rules) = rules.get(pi).and_then(|r| r.as_ref()) { crate::framed_amount_rows::restore(&mut units, &words, native_rules); } }
         let text = units
             .iter()
