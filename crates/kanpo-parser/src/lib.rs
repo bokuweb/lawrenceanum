@@ -159,6 +159,16 @@ pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> 
     let loose = |s: &str| -> String {
         unify(s).chars().filter(|c| !c.is_ascii_digit() && !"０１２３４５６７８９〇一二三四五六七八九十百千－".contains(*c)).collect()
     };
+    // 短い目次名（「内閣」）は本文中の部分一致には使えないが、独立した冒頭見出しなら照合できる。
+    let exact = unify(title);
+    let headings: Vec<usize> = articles.iter().enumerate().filter(|(_, a)| {
+        a.text.lines().filter(|l| !l.trim().is_empty()).take_while(|l| {
+            segment::is_section_label(l) || unify(l) == exact
+        }).any(|l| unify(l) == exact)
+    }).map(|(i, _)| i).collect();
+    if headings.len() == 1 {
+        return Some(headings[0]);
+    }
     let mut core = unify(&title_core(title));
     if core.chars().count() < 4 {
         core = unify(title.rfind('（').map_or(title, |p| &title[..p]));
@@ -427,6 +437,13 @@ mod tests {
 
     fn arts(texts: &[&str]) -> Vec<ArticleAnalysis> {
         texts.iter().map(|t| ArticleAnalysis { text: t.to_string(), document: model::Document::from_text(t) }).collect()
+    }
+
+    #[test]
+    fn short_title_requires_an_independent_leading_heading() {
+        let a = arts(&["国会事項\n内閣に関する質問", "人事異動\n内閣\n〇財務大臣臨時代理\n指定する"]);
+        assert_eq!(pick_article("内閣", &a), Some(1));
+        assert_eq!(pick_article("内閣", &a[..1]), None);
     }
 
     #[test]

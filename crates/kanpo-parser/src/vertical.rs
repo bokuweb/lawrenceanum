@@ -2348,6 +2348,15 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
     }
     let ymin = cols.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
     let ymax = cols.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+    // 頁の片側だけに区分見出しへ続く横線がある場合、先に左右へ分ける。
+    // 反対側の長い本文や表が横線をまたぐため、列の下端だけでは段の境目を選べない。
+    // 分割後も横線のある所だけで切り、叙勲の氏名の列や表のセルを細分化しない。
+    if let Some(edge) = section_rule_edge(&cols, rules, ymin, ymax) {
+        let (right, left): (Vec<Col>, Vec<Col>) = cols.into_iter().partition(|c| (c.x + c.x1) / 2.0 >= edge);
+        split_tiers_rec(right, depth + 1, rules, true, out);
+        split_tiers_rec(left, depth + 1, rules, true, out);
+        return;
+    }
     let margin = (ymax - ymin) * 0.2;
     let (lo, hi) = (ymin + margin, ymax - margin);
 
@@ -2821,6 +2830,37 @@ fn starts_article(cols: &[Col], part: &dyn Fn(&Col) -> bool) -> bool {
     column_groups(cols.iter().filter(|c| part(c)).cloned().collect()).iter().take(3).any(|g| {
         let text: String = g.iter().map(|c| c.text.as_str()).collect();
         crate::segment::is_heading_mark(&text) || text.contains("をここに公布する")
+    })
+}
+
+/// 片側の上下段の間に横線があり、下段が区分見出しから始まる領域の左右の境目。
+fn section_rule_edge(cols: &[Col], rules: &TierRules, ymin: f32, ymax: f32) -> Option<f32> {
+    let xmin = cols.iter().map(|c| c.x).fold(f32::INFINITY, f32::min);
+    let xmax = cols.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max);
+    let width = xmax - xmin;
+    // まず頁幅の横線で上下を分ける。先に左右を分けると上段の読み順が変わる。
+    if rules.hrules.iter().any(|&(y, x0, x1)| ymin < y && y < ymax && x1.min(xmax) - x0.max(xmin) > width * 0.8) {
+        return None;
+    }
+    rules.hrules.iter().find_map(|&(y, x0, x1)| {
+        if y <= ymin + (ymax - ymin) * 0.2 || y >= ymax - (ymax - ymin) * 0.2 || x1 - x0 < width * 0.25 {
+            return None;
+        }
+        let edge = if x1 >= xmax - 5.0 && x0 > xmin + 20.0 {
+            x0
+        } else if x0 <= xmin + 5.0 && x1 < xmax - 20.0 {
+            x1
+        } else {
+            return None;
+        };
+        let inside = |c: &&Col| x0 - 1.0 <= c.x && c.x1 <= x1 + 1.0;
+        let side: Vec<&Col> = cols.iter().filter(inside).collect();
+        // 横線が本文や表のセルを横切らず、その下に独立した区分見出しがあることを確認。
+        let label = side.iter().any(|c| c.y > y && c.y - y < 120.0 && crate::segment::is_section_label(&c.text));
+        (label && side.iter().any(|c| c.y1 < y)
+            && !side.iter().any(|c| c.y < y && y < c.y1)
+            && !cols.iter().any(|c| c.x < edge - 1.0 && edge + 1.0 < c.x1))
+            .then_some(edge)
     })
 }
 
