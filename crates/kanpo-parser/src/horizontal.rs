@@ -3340,7 +3340,18 @@ fn column_gutters(words: &[Col], blocks: &[Block], tables: &[Block], boxed: bool
                 let prose = |c: &Col| c.text.chars().count() >= 6;
                 (w.x - p.x1).abs() < 0.5 && (w.y - p.y).abs() < 0.1 && (w.y1 - p.y1).abs() < 0.1 && prose(p) && prose(w)
             };
+            // 字間を空けて組んだ日付の数と「年」「月」「日」（「令和８年」「10」「月９日」）も 1 語として溝をふさぐ（幅の狭い数の語は
+            // 溝を探すときに縮めて消え、日付が 2 列に割れていた）。縮める分だけ右端を延ばしておく（右の下の行の語との間に、縮めた
+            // 分の空きが新しくできないように）。
+            let date = i > 0 && {
+                let p = &line.words[i - 1];
+                let em = (w.y1 - w.y).max(1.0);
+                let digits = |t: &str| !t.is_empty() && t.chars().all(|c| c.is_ascii_digit() || ('０'..='９').contains(&c));
+                let unit = |t: &str| t.starts_with(['年', '月', '日']);
+                w.x - p.x1 < em * 0.5 && ((digits(p.text.trim()) && unit(w.text.trim())) || (p.text.trim().ends_with(['年', '月']) && digits(w.text.trim())))
+            };
             match spans.last_mut() {
+                Some(span) if date => span.1 = w.x1 + GUTTER_OVERLAP,
                 Some(span) if joined || number || touching => span.1 = w.x1,
                 _ => spans.push((w.x, w.x1)),
             }
