@@ -10,6 +10,165 @@ const BASE = process.env.HISTORY_BASE ?? "http://127.0.0.1:8799/";
 // 複数版を持つ法令 (民法)。fixture/本番いずれにも versions.json + revisions がある想定。
 const LAW = process.env.HISTORY_LAW ?? "129AC0000000089";
 
+const OTHER_LAW = "comparison-other";
+const comparisonVersions = (lawId: string) => ({ law_id: lawId, versions: ["20200101_old", "20210101_new"].map(suffix => ({
+  revision_id: `${lawId}_${suffix}`, path: `laws/${lawId}/revisions/${lawId}_${suffix}.json`,
+})) });
+const comparisonBody = (lawId: string, revision: string) => ({
+  law_id: lawId, title: lawId === LAW ? "比較用アルファ法" : "比較用ベータ法", revision_id: revision,
+  articles: [{ article_id: "art_1", article_no: "第一条", caption: "比較", paragraphs: [{ paragraph_no: "1", text: `${lawId} ${revision.endsWith("old") ? "改正前" : "改正後"}の条文です。` }] }],
+});
+async function comparisonFixture(page: import("@playwright/test").Page) {
+  await page.route("**/laws/index.json", route => route.fulfill({ json: { laws: [
+    { law_id: LAW, title: "比較用アルファ法" }, { law_id: OTHER_LAW, title: "比較用ベータ法" },
+  ] } }));
+  await page.route("**/laws/*/versions.json", route => {
+    const lawId = new URL(route.request().url()).pathname.split("/").at(-2)!;
+    return route.fulfill({ json: comparisonVersions(lawId) });
+  });
+  await page.route("**/laws/*/revisions/*.json", route => {
+    const parts = new URL(route.request().url()).pathname.split("/");
+    return route.fulfill({ json: comparisonBody(parts.at(-3)!, parts.at(-1)!.replace(/\.json$/, "")) });
+  });
+}
+
+test("比較の版一覧を再試行し、取得失敗をサンプル条文に置き換えない", async ({ page }) => {
+  await comparisonFixture(page);
+  let failed = true;
+  await page.route(`**/laws/${LAW}/versions.json`, route => failed
+    ? route.fulfill({ status: 503 }) : route.fulfill({ json: comparisonVersions(LAW) }));
+  await page.goto(new URL(`#/laws/${LAW}/compare`, BASE).toString());
+  await expect(page.getByRole("alert")).toContainText("版一覧を取得できませんでした");
+  await expect(page.getByText(/条を比較/)).toHaveCount(0);
+  await expect(page.getByText(/モック/)).toHaveCount(0);
+  failed = false;
+  await page.getByRole("alert").getByRole("button", { name: "再試行", exact: true }).click();
+  await expect(page.getByText(/条を比較/)).toContainText("比較用アルファ法 · 1 条を比較");
+});
+
+for (const failBoth of [false, true]) {
+  test(`比較本文の${failBoth ? "両方" : "片方"}の取得失敗を再試行できる`, async ({ page }) => {
+    await comparisonFixture(page);
+    let failed = true;
+    const requests: string[] = [];
+    await page.route(`**/laws/${LAW}/revisions/*.json`, route => {
+      const revision = new URL(route.request().url()).pathname.split("/").at(-1)!.replace(/\.json$/, "");
+      requests.push(revision);
+      return failed && (failBoth || revision.endsWith("old"))
+        ? route.fulfill({ status: 503 }) : route.fulfill({ json: comparisonBody(LAW, revision) });
+    });
+    await page.goto(new URL(`#/laws/${LAW}/compare`, BASE).toString());
+    await expect(page.getByRole("alert")).toContainText("比較する本文を取得できませんでした");
+    await expect(page.getByText(/条を比較/)).toHaveCount(0);
+    await expect(page.getByText(/モック/)).toHaveCount(0);
+    failed = false;
+    await page.getByRole("alert").getByRole("button", { name: "再試行", exact: true }).click();
+    await expect(page.getByText(/条を比較/)).toContainText("1 条を比較");
+    if (!failBoth) expect(requests.filter(id => id.endsWith("new"))).toHaveLength(1);
+  });
+}
+
+test("比較可能な版が1つの場合はサンプル差分ではなく空状態を表示する", async ({ page }) => {
+  await comparisonFixture(page);
+  await page.route(`**/laws/${LAW}/versions.json`, route => route.fulfill({ json: {
+    law_id: LAW, versions: comparisonVersions(LAW).versions.slice(0, 1),
+  } }));
+  const bodies: string[] = [];
+  page.on("request", req => { if (req.url().includes("/revisions/")) bodies.push(req.url()); });
+  await page.goto(new URL(`#/laws/${LAW}/compare`, BASE).toString());
+  await expect(page.getByText("比較には本文を取得できる版が2つ以上必要です。")).toBeVisible();
+  await expect(page.getByText(/条を比較/)).toHaveCount(0);
+  await expect(page.getByText(/モック/)).toHaveCount(0);
+  expect(bodies).toHaveLength(0);
+});
+
+test("他方の比較本文が応答しなくても失敗を表示して再試行できる", async ({ page }) => {
+  await comparisonFixture(page);
+  let release = () => {};
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  let failed = true;
+  await page.route(`**/laws/${LAW}/revisions/*.json`, async route => {
+    const revision = new URL(route.request().url()).pathname.split("/").at(-1)!.replace(/\.json$/, "");
+    if (revision.endsWith("new")) await gate;
+    return failed && revision.endsWith("old") ? route.fulfill({ status: 503 })
+      : route.fulfill({ json: comparisonBody(LAW, revision) });
+  });
+  try {
+    await page.goto(new URL(`#/laws/${LAW}/compare`, BASE).toString());
+    await expect(page.getByRole("alert")).toContainText("比較する本文を取得できませんでした");
+  } finally {
+    release();
+  }
+  failed = false;
+  await page.getByRole("alert").getByRole("button", { name: "再試行", exact: true }).click();
+  await expect(page.getByText(/条を比較/)).toContainText("1 条を比較");
+});
+
+test("比較トップで法令一覧の取得を再試行して比較を開始できる", async ({ page }) => {
+  await comparisonFixture(page);
+  let failed = true;
+  await page.route("**/laws/index.json", route => failed ? route.fulfill({ status: 503 }) : route.fulfill({ json: {
+    laws: [{ law_id: LAW, title: "比較用アルファ法" }],
+  } }));
+  await page.goto(new URL("#/compare", BASE).toString());
+  await expect(page.getByRole("alert")).toContainText("法令一覧を取得できませんでした");
+  await expect(page.locator('[data-slot="skeleton"]')).toHaveCount(0);
+  failed = false;
+  await page.getByRole("button", { name: "再試行", exact: true }).click();
+  await expect(page.getByText(/条を比較/)).toContainText("比較用アルファ法 · 1 条を比較");
+});
+
+test("比較する法令の選択をURLと戻る・進むへ反映する", async ({ page }) => {
+  await comparisonFixture(page);
+  await page.goto(new URL(`#/laws/${LAW}/compare`, BASE).toString());
+  await expect(page.getByText(/条を比較/)).toContainText("比較用アルファ法");
+  await page.getByRole("combobox", { name: "法令", exact: true }).click();
+  await page.getByRole("option", { name: "比較用ベータ法", exact: true }).click();
+  await expect(page).toHaveURL(new URL(`#/laws/${OTHER_LAW}/compare`, BASE).toString());
+  await expect(page.getByText(/条を比較/)).toContainText("比較用ベータ法");
+  await page.goBack();
+  await expect(page.getByText(/条を比較/)).toContainText("比較用アルファ法");
+  await page.goForward();
+  await expect(page.getByText(/条を比較/)).toContainText("比較用ベータ法");
+  await page.reload();
+  await expect(page.getByText(/条を比較/)).toContainText("比較用ベータ法");
+});
+
+test("比較対象の一覧が取得できなくても直接指定した法令を比較できる", async ({ page }) => {
+  await comparisonFixture(page);
+  let failed = true;
+  await page.route("**/laws/index.json", route => failed ? route.fulfill({ status: 503 }) : route.fulfill({ json: {
+    laws: [{ law_id: LAW, title: "比較用アルファ法" }],
+  } }));
+  await page.goto(new URL(`#/laws/${LAW}/compare`, BASE).toString());
+  await expect(page.getByText(/条を比較/)).toContainText("比較用アルファ法 · 1 条を比較");
+  await expect(page.getByRole("alert")).toContainText("法令一覧を取得できませんでした");
+  await expect(page.getByRole("combobox", { name: "法令", exact: true })).toContainText("比較用アルファ法");
+  failed = false;
+  await page.getByRole("alert").getByRole("button", { name: "再試行", exact: true }).click();
+  await expect(page.getByRole("alert")).toHaveCount(0);
+  await expect(page.getByRole("combobox", { name: "法令", exact: true })).toContainText("比較用アルファ法");
+});
+
+test("小画面でも比較の選択欄と長い条文を画面内で読める", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await comparisonFixture(page);
+  await page.route(`**/laws/${LAW}/revisions/*.json`, route => {
+    const revision = new URL(route.request().url()).pathname.split("/").at(-1)!.replace(/\.json$/, "");
+    const doc = comparisonBody(LAW, revision);
+    doc.articles[0].paragraphs[0].text += "a".repeat(400);
+    return route.fulfill({ json: doc });
+  });
+  await page.goto(new URL(`#/laws/${LAW}/compare`, BASE).toString());
+  await expect(page.getByText(/条を比較/)).toContainText("1 条を比較");
+  expect(await page.locator("main").evaluate(el => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
+  for (const name of ["法令", "基準版 (Before)", "比較版 (After)"]) {
+    const box = await page.getByRole("combobox", { name, exact: true }).boundingBox();
+    expect(box!.width).toBeGreaterThan(150);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(390);
+  }
+});
+
 test("compare view fetches per-revision JSON and diffs two revisions", async ({ page }) => {
   // 版一覧 (versions.json) と、選択 2 版の本文 (revisions/*.json) が fetch される。
   const versions = page.waitForResponse(
@@ -74,7 +233,7 @@ test("compare view defaults to a non-empty diff (differing revisions)", async ({
   // 「差分はありません」の空状態に陥っていない。
   await expect(page.locator("text=差分はありません")).toHaveCount(0);
   // 差分カード (2 カラムの条文比較) が 1 つ以上描画されている。
-  await expect(page.locator(".grid.grid-cols-2").first()).toBeVisible();
+  await expect(page.getByText(/^(追加|変更|削除)$/).first()).toBeVisible();
   // 追加/変更/削除 の合計が 0 でない (= 中身の違う版を既定選択している)。
   const s = await readSummary(page);
   expect(s.added + s.modified + s.removed).toBeGreaterThan(0);
