@@ -8,16 +8,17 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs";
 import { type LawSummary } from "../mock-data";
-import { Search, SlidersHorizontal, ChevronRight, FileText, Database, Landmark, LoaderCircle, Newspaper, ExternalLink, BookOpen, ScrollText, Building2 } from "lucide-react";
+import { Search, SlidersHorizontal, ChevronRight, FileText, Database, Landmark, LoaderCircle, Newspaper, ExternalLink, BookOpen, ScrollText, Building2, Gavel, Languages } from "lucide-react";
 import { useLaws } from "../../data/use-laws";
-import { search as ftsSearch, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, searchSpeeches, searchKanpo, searchTsutatsu, searchReiki, synonymExpansions, type SearchHit, type SpeechHit, type KanpoHit, type TsutatsuHit, type ReikiHit, searchDocuments, type DocumentHit, type DocumentKind } from "../../data/search-engine";
+import { search as ftsSearch, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, searchSpeeches, searchKanpo, searchTsutatsu, searchHanrei, searchReiki, searchEnglish, synonymExpansions, type SearchHit, type SpeechHit, type KanpoHit, type TsutatsuHit, type HanreiHit, type ReikiHit, type EnglishHit, searchDocuments, type DocumentHit, type DocumentKind } from "../../data/search-engine";
+import { hanreiUrl } from "../../data/api";
 import { useNavigate } from "react-router";
 import { createSearchQueue } from "../../data/search-queue";
 
 const SEARCH_TARGETS = [
   ["laws", "法令・条文"], ["speeches", "国会会議録"], ["kanpo", "官報"],
-  ["tsutatsu", "通達"], ["reiki", "自治体例規"], ["pubcomment", "パブコメ"],
-  ["gian", "議案"], ["shingikai", "審議会資料"],
+  ["tsutatsu", "通達"], ["hanrei", "判例"], ["reiki", "自治体例規"], ["pubcomment", "パブコメ"],
+  ["gian", "議案"], ["shingikai", "審議会資料"], ["english", "法令英訳"],
 ] as const;
 type SearchTarget = typeof SEARCH_TARGETS[number][0];
 const DOCUMENT_LABELS: Record<DocumentKind, string> = {
@@ -50,7 +51,9 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   const [speechHits, setSpeechHits] = useState<SpeechHit[]>([]);
   const [kanpoHits, setKanpoHits] = useState<KanpoHit[]>([]);
   const [tsutatsuHits, setTsutatsuHits] = useState<TsutatsuHit[]>([]);
+  const [hanreiHits, setHanreiHits] = useState<HanreiHit[]>([]);
   const [reikiHits, setReikiHits] = useState<ReikiHit[]>([]);
+  const [englishHits, setEnglishHits] = useState<EnglishHit[]>([]);
   const [documentHits, setDocumentHits] = useState<Record<DocumentKind, DocumentHit[]>>({ pubcomment: [], gian: [], shingikai: [] });
   const [ftsAvailable, setFtsAvailable] = useState<boolean | null>(null);
   const [ftsMeta, setFtsMeta] = useState<Record<string, string> | null>(null);
@@ -68,7 +71,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
     const controller = new AbortController();
     let active = true;
     const query = q.trim();
-    setHits([]); setSpeechHits([]); setKanpoHits([]); setTsutatsuHits([]); setReikiHits([]);
+    setHits([]); setSpeechHits([]); setKanpoHits([]); setTsutatsuHits([]); setHanreiHits([]); setReikiHits([]); setEnglishHits([]);
     setDocumentHits({ pubcomment: [], gian: [], shingikai: [] });
     setFailures({});
     setRunning(new Set());
@@ -87,7 +90,10 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
         ["speeches", async () => { const rows = await searchSpeeches(query, 10, 0, request); if (active) setSpeechHits(rows); }],
         ["kanpo", async () => { const rows = await searchKanpo(query, 10, true, 0, request); if (active) setKanpoHits(rows); }],
         ["tsutatsu", async () => { const rows = await searchTsutatsu(query, 10, true, 0, request); if (active) setTsutatsuHits(rows); }],
+        ["hanrei", async () => { const rows = await searchHanrei(query, 10, true, 0, request); if (active) setHanreiHits(rows); }],
         ["reiki", async () => { const rows = await searchReiki(query, { limit: 20, strict: true, ...request }); if (active) setReikiHits(rows); }],
+        // 英訳 (laws_en_fts) は英単語を含むクエリだけ。旧 search.db (表なし) では空で返す。
+        ["english", async () => { const rows = await searchEnglish(query, 10, false, 0, request); if (active) setEnglishHits(rows); }],
         ...(["pubcomment", "gian", "shingikai"] as const).map(kind => [kind, async () => {
           const rows = await searchDocuments(query, kind, 10, true, 0, { ...request, includeSnippet: false });
           if (active) setDocumentHits(prev => ({ ...prev, [kind]: rows }));
@@ -148,9 +154,9 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
   const resultCount = useFts ? hits.length : filteredLaws.length;
   const resultCounts: Record<SearchTarget, number> = {
     laws: resultCount, speeches: speechHits.length, kanpo: kanpoHits.length,
-    tsutatsu: tsutatsuHits.length, reiki: reikiHits.length,
+    tsutatsu: tsutatsuHits.length, hanrei: hanreiHits.length, reiki: reikiHits.length,
     pubcomment: documentHits.pubcomment.length, gian: documentHits.gian.length,
-    shingikai: documentHits.shingikai.length,
+    shingikai: documentHits.shingikai.length, english: englishHits.length,
   };
   // bigram index は 2 文字以上でないと検索できない。クエリはあるが
   // 使えるトークン (2 文字以上) が 1 つも無いとき = 短すぎ。
@@ -163,7 +169,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
       <div className="mb-6">
         <h1 className="text-2xl">検索</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          法令・会議録・官報・通達・例規・パブコメ・議案・審議会資料を横断検索
+          法令・会議録・官報・通達・判例・例規・パブコメ・議案・審議会資料を横断検索
           {useFts && ftsMeta && (
             <span className="ml-2 inline-flex items-center gap-1 text-xs text-muted-foreground">
               <Database className="size-3" />
@@ -464,6 +470,110 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
                           </CardContent>
                         </Card>
                       ))}
+                    </div>
+                  )}
+
+                  {/* 法令英訳 (日本法令外国語訳データベース) FTS セクション */}
+                  {key === "english" && englishHits.length > 0 && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Languages className="size-3.5" />
+                        <span>法令英訳 ({englishHits.length}件)</span>
+                      </div>
+                      {englishHits.map((h, i) => (
+                        <Card
+                          key={`${h.law_id}-${h.article_id}-${i}`}
+                          className="hover:border-primary/50 transition-colors cursor-pointer"
+                          onClick={() => navigate(`/laws/${h.law_id}#${h.article_id}`, { state: { showEnglish: true } })}
+                        >
+                          <CardContent className="p-3 flex items-start gap-3">
+                            <div className="size-8 rounded-md bg-muted flex items-center justify-center shrink-0 mt-0.5">
+                              <Languages className="size-4 text-muted-foreground" />
+                            </div>
+                            <div className="min-w-0 flex-1" lang="en">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-sm font-medium">{h.law_title}</span>
+                                <span className="text-xs text-muted-foreground">{h.title}{h.caption && ` ${h.caption}`}</span>
+                                {h.article_no && <Badge variant="outline" className="text-xs" lang="ja">{h.article_no}</Badge>}
+                              </div>
+                              {h.snippet && (
+                                <div
+                                  className="text-sm mt-1.5 leading-relaxed [&>mark]:bg-amber-300/40 [&>mark]:rounded-sm [&>mark]:px-0.5"
+                                  dangerouslySetInnerHTML={{ __html: h.snippet }}
+                                />
+                              )}
+                            </div>
+                            {h.url && (
+                              <a
+                                href={h.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={ev => ev.stopPropagation()}
+                                className="text-muted-foreground hover:text-primary shrink-0 mt-1"
+                                title="日本法令外国語訳データベースで開く"
+                              >
+                                <ExternalLink className="size-4" />
+                              </a>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                      <p className="text-[10px] text-muted-foreground">
+                        出典: 日本法令外国語訳データベース（法務省, PDL1.0）。翻訳は参考訳で、法的効力は日本語の法令のみ。
+                      </p>
+                    </div>
+                  )}
+
+                  {/* 判例 FTS セクション。リンク先は出典 (裁判所 裁判例検索) */}
+                  {key === "hanrei" && hanreiHits.length > 0 && (
+                    <div className="space-y-2" data-testid="hanrei-hits">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Gavel className="size-3.5" />
+                        <span>判例 ({hanreiHits.length}件)</span>
+                      </div>
+                      {hanreiHits.map((h, i) => (
+                        <Card key={`${h.case_id}-${i}`} className="hover:border-primary/50 transition-colors">
+                          <CardContent className="p-3 flex items-start gap-3">
+                            <div className="size-8 rounded-md bg-muted flex items-center justify-center shrink-0 mt-0.5">
+                              <Gavel className="size-4 text-muted-foreground" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <a href={h.detail_url || hanreiUrl(h.case_id)} target="_blank" rel="noopener noreferrer"
+                                  className="text-sm font-medium hover:text-primary hover:underline" title="裁判所 裁判例検索で開く">
+                                  {h.case_name || h.case_number}
+                                </a>
+                                {h.court && <Badge variant="outline" className="text-xs">{h.court}</Badge>}
+                                {h.result && <Badge variant="outline" className="text-xs">{h.result}</Badge>}
+                              </div>
+                              <div className="text-xs text-muted-foreground mt-0.5">
+                                {[h.judged_on, h.case_number].filter(Boolean).join(" · ")}
+                              </div>
+                              {h.snippet ? (
+                                <div
+                                  className="text-sm mt-1.5 leading-relaxed [&>mark]:bg-amber-300/40 [&>mark]:rounded-sm [&>mark]:px-0.5"
+                                  dangerouslySetInnerHTML={{ __html: unbigramSnippet(h.snippet) }}
+                                />
+                              ) : h.holding && (
+                                <div className="text-sm mt-1.5 leading-relaxed text-muted-foreground line-clamp-2">{h.holding}</div>
+                              )}
+                              {h.pdf_url && (
+                                <a href={h.pdf_url} target="_blank" rel="noopener noreferrer"
+                                  className="mt-1.5 inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded border border-border hover:border-primary hover:text-primary transition-colors"
+                                  title="判決全文 (PDF) を開く">
+                                  <FileText className="size-3 shrink-0" />
+                                  全文PDF
+                                </a>
+                              )}
+                            </div>
+                            <a href={h.detail_url || hanreiUrl(h.case_id)} target="_blank" rel="noopener noreferrer"
+                              className="text-muted-foreground hover:text-primary shrink-0 mt-1" title="裁判所 裁判例検索で開く">
+                              <ExternalLink className="size-4" />
+                            </a>
+                          </CardContent>
+                        </Card>
+                      ))}
+                      <p className="text-[10px] text-muted-foreground">出典: 裁判所 裁判例検索</p>
                     </div>
                   )}
 

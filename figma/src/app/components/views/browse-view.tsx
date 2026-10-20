@@ -9,11 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { ScrollArea } from "../ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ARTICLES_V2, TIMELINE_EVENTS, type LawSummary } from "../mock-data";
-import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark, MessageSquare, Newspaper, ScrollText, Network } from "lucide-react";
+import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark, MessageSquare, Newspaper, ScrollText, Network, MessageCircleQuestion, FileQuestion, Languages, Globe } from "lucide-react";
+import { EnforcementExplanation } from "./enforcement-explanation";
 import { useLocation, useNavigate } from "react-router";
 import { useLaws, useLawDetail } from "../../data/use-laws";
-import { api, hanreiUrl, type AppendixTable, type LawToHanrei, type LawToProceedings, type LawToRulemaking, type LawToPubcomments, type LawToTsutatsu } from "../../data/api";
+import { api, hanreiUrl, GUIDANCE_KIND_LABELS, type AppendixTable, type LawToGuidance, type LawToHanrei, type LawToShitsumon, type LawEnglish, type LawEnglishArticle, type LawToProceedings, type LawToRulemaking, type LawToPubcomments, type LawToTsutatsu, type LawToTreaties, type Treaty, type LinkedTreaty } from "../../data/api";
 import { AmendDocumentView } from "../amend-document-view";
+import { SupplementarySection } from "./supplementary-section";
 import { getRefsForLaw, type ArticleRef } from "../../data/search-engine";
 import { EgovAttribution, toJstDate } from "../egov-attribution";
 
@@ -337,6 +339,122 @@ function AppendixTableView({ table, linkify }: { table: AppendixTable; linkify: 
   );
 }
 
+/** 条文の下に添える英訳（日本法令外国語訳データベースの参考訳）。 */
+function EnglishArticle({ article }: { article: LawEnglishArticle }) {
+  return (
+    <div lang="en" className="mt-3 border-l-2 border-primary/30 pl-3 space-y-1.5 text-sm leading-relaxed text-muted-foreground">
+      <div className="flex items-baseline gap-2 text-xs">
+        {article.title && <span className="font-medium text-foreground shrink-0 whitespace-nowrap">{article.title}</span>}
+        {article.caption && <span>{article.caption}</span>}
+        <a
+          href={article.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-auto inline-flex items-center gap-0.5 hover:text-primary transition-colors"
+          title="日本法令外国語訳データベースで開く"
+        >
+          JLT
+          <ArrowUpRight className="size-2.5 opacity-50" />
+        </a>
+      </div>
+      {article.paragraphs.map((p, i) => (
+        <p key={i} className="flex gap-3">
+          <span className="tabular-nums shrink-0 w-6">{p.num}</span>
+          <span className="whitespace-pre-line">{p.text}</span>
+        </p>
+      ))}
+    </div>
+  );
+}
+
+/** 条約の行。クリックで経過と本文の冒頭を開く (`treaties/{id}.json` を遅延取得)。 */
+function LinkedTreatyItem({ treaty: t }: { treaty: LinkedTreaty }) {
+  const [open, setOpen] = useState(false);
+  const [detail, setDetail] = useState<Treaty | null>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    if (!open || detail || failed) return;
+    let cancelled = false;
+    api.treaty(t.treaty_id)
+      .then(d => { if (!cancelled) setDetail(d); })
+      .catch(() => { if (!cancelled) setFailed(true); });
+    return () => { cancelled = true; };
+  }, [open, detail, failed, t.treaty_id]);
+  const articleLabel = (a: string) => {
+    const m = a.match(/^(?:suppl(\d+)_)?art_(.+)$/);
+    if (!m) return a.startsWith("suppl") ? "附則" : a;
+    const [n, ...br] = m[2].split("_");
+    return `${m[1] ? "附則" : ""}第${n}条${br.map(b => `の${b}`).join("")}`;
+  };
+  const dates: [string, string | null | undefined][] = detail
+    ? [
+        ["署名", detail.signed_on],
+        ["国会承認", detail.diet_approved_on],
+        ["締結", detail.concluded_on],
+        ["公布", detail.promulgated_on],
+        ["効力発生", detail.effective_on],
+      ]
+    : [];
+  return (
+    <li className="text-xs">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="text-left font-medium hover:text-primary transition-colors"
+        aria-expanded={open}
+      >
+        {t.title}
+      </button>
+      {t.in_title && (
+        <span className="ml-1.5 text-[10px] px-1 rounded bg-muted text-muted-foreground">題名</span>
+      )}
+      <p className="text-[11px] text-muted-foreground">
+        {t.short_title && t.short_title !== t.title && `${t.short_title} · `}
+        {t.kind === "bilateral" ? "二国間" : t.kind === "multilateral" ? "多数国間" : "国会提出条約"}
+        {t.treaty_number_label && ` · ${t.treaty_number_label}`}
+        {t.effective_on && ` · 効力発生 ${t.effective_on}`}
+        {t.articles.length > 0 && ` · ${t.articles.slice(0, 6).map(articleLabel).join("・")}${t.articles.length > 6 ? " ほか" : ""}`}
+        {t.ambiguous && " · 同名の条約あり"}
+      </p>
+      {open && (
+        <div className="mt-1 ml-2 border-l border-border pl-2 space-y-1">
+          {failed && <p className="text-[11px] text-muted-foreground">条約データを読み込めませんでした。</p>}
+          {detail && (
+            <>
+              {dates.some(([, v]) => v) && (
+                <p className="text-[11px] text-muted-foreground">
+                  {dates.filter(([, v]) => v).map(([k, v]) => `${k} ${v}`).join(" · ")}
+                  {detail.parties.length > 0 && ` · 相手国 ${detail.parties.join("、")}`}
+                </p>
+              )}
+              {detail.text && (
+                <pre className="text-[11px] whitespace-pre-wrap font-sans max-h-48 overflow-y-auto bg-muted/40 rounded p-2">
+                  {detail.text.length > 1200 ? `${detail.text.slice(0, 1200)}…` : detail.text}
+                </pre>
+              )}
+              <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px]">
+                <a href={detail.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-0.5 hover:text-primary">
+                  外務省 条約データ <ArrowUpRight className="size-2.5 opacity-50" />
+                </a>
+                {detail.diet_url && detail.diet_url !== detail.source_url && (
+                  <a href={detail.diet_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-0.5 hover:text-primary">
+                    国会提出条約 <ArrowUpRight className="size-2.5 opacity-50" />
+                  </a>
+                )}
+                {detail.attachments.slice(0, 4).map(a => (
+                  <a key={a.url} href={a.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-0.5 hover:text-primary">
+                    {a.label} (PDF) <ArrowUpRight className="size-2.5 opacity-50" />
+                  </a>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </li>
+  );
+}
+
 function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => void; onCompare: () => void }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -368,6 +486,11 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
       return 0;
     });
   }, [detail.timeline]);
+  const upcomingEvents = useMemo(() => {
+    const today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date());
+    return liveEvents.map(event => ({ event, date: event.scheduled_enforcement_date || event.effective_date || "" }))
+      .filter(item => item.date > today).sort((a, b) => a.date.localeCompare(b.date));
+  }, [liveEvents]);
   const mockEvents = TIMELINE_EVENTS[law.law_id] ?? [];
   const useLiveTimeline = liveEvents.length > 0;
 
@@ -509,6 +632,69 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
   }, [law.law_id]);
   const linkedCases = hanrei?.linked_cases ?? [];
 
+  // この法令に触れた質問主意書（law→shitsumon クロスリンク）。件名で触れたものを先に出す。
+  const [shitsumon, setShitsumon] = useState<LawToShitsumon | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    setShitsumon(null);
+    api.lawToShitsumon(law.law_id)
+      .then(d => { if (!cancelled) setShitsumon(d); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [law.law_id]);
+  const linkedQuestions = useMemo(() => {
+    const qs = shitsumon?.linked_questions ?? [];
+    return [...qs.filter(q => q.in_title), ...qs.filter(q => !q.in_title)];
+  }, [shitsumon]);
+
+  // この法令に関する政府解釈（law→guidance クロスリンク）。照会対象・文書名で触れたものを先に出す
+  // (linking 側で subject → title → mention、同順位は新しい順に並べ済み)。
+  const [guidance, setGuidance] = useState<LawToGuidance | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    setGuidance(null);
+    api.lawToGuidance(law.law_id)
+      .then(d => { if (!cancelled) setGuidance(d); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [law.law_id]);
+  const linkedGuidance = useMemo(() => guidance?.linked_guidance ?? [], [guidance]);
+  const guidanceMinistries = useMemo(
+    () => [...new Set(linkedGuidance.map(g => g.ministry_name))].join("・"),
+    [linkedGuidance],
+  );
+
+  // 法令英訳（日本法令外国語訳データベース）。英訳のある法令だけ併記トグルを出す。
+  const [english, setEnglish] = useState<LawEnglish | null>(null);
+  // 英語検索の結果から来たときは最初から併記する。
+  const [showEnglish, setShowEnglish] = useState(
+    () => (location.state as { showEnglish?: boolean } | null)?.showEnglish === true,
+  );
+  useEffect(() => {
+    let cancelled = false;
+    setEnglish(null);
+    api.lawEnglish(law.law_id)
+      .then(d => { if (!cancelled) setEnglish(d); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [law.law_id]);
+  const englishByArt = useMemo(
+    () => new Map((english?.articles ?? []).map(a => [a.article_id, a] as const)),
+    [english],
+  );
+
+  // この法令が参照する条約（law→treaties クロスリンク）。題名に出る条約を先に出す（リンク側で並べ済み）。
+  const [treaties, setTreaties] = useState<LawToTreaties | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    setTreaties(null);
+    api.lawToTreaties(law.law_id)
+      .then(d => { if (!cancelled) setTreaties(d); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [law.law_id]);
+  const linkedTreaties = treaties?.linked_treaties ?? [];
+
   // この法令の官報掲載。timeline イベントのうち官報リンク済み (pdf_url あり) を拾う。
   // liveEvents は公布日降順ソート済み。
   const kanpoEvents = useMemo(
@@ -556,6 +742,21 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
           </div>
         </div>
       </div>
+
+      {upcomingEvents.length > 0 && (
+        <section aria-label="施行予定ごとの解説" className="max-h-[40vh] overflow-y-auto shrink-0 border-b border-border bg-background px-6 py-3">
+          <h2 className="text-sm font-semibold mb-2">施行予定ごとの解説</h2>
+          <div className="space-y-3">
+            {upcomingEvents.map(({ event, date }, i) => (
+              <div key={`${event.event_id}-${event.revision_id}-${date}`} className="rounded-md border border-border px-3 py-2">
+                <div className="text-sm font-medium">{date} 施行{event.scheduled_enforcement_date ? "予定" : ""}</div>
+                {event.amending_law_title && <div className="text-xs text-muted-foreground">{event.amending_law_title}</div>}
+                <EnforcementExplanation lawId={law.law_id} eventId={event.event_id} revisionId={event.revision_id} date={date} initialOpen={i === 0} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {wikiDescription !== null && (
         <div className="border-b border-border bg-background px-6 py-3">
@@ -690,6 +891,8 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
         </div>
       )}
 
+      <SupplementarySection lawId={law.law_id} />
+
       {linkedCases.length > 0 && (
         <div className="border-b border-border bg-background px-6 py-3">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground mb-2">
@@ -716,6 +919,96 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
             ))}
           </ul>
           <p className="text-[10px] text-muted-foreground mt-1.5">出典: 裁判所 裁判例検索（参照法条等から自動抽出。直近の裁判例のみ）</p>
+        </div>
+      )}
+
+      {linkedQuestions.length > 0 && (
+        <div className="border-b border-border bg-background px-6 py-3">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground mb-2">
+            <MessageCircleQuestion className="size-3" />
+            この法令に触れた質問主意書 ({linkedQuestions.length})
+          </div>
+          <ul className="space-y-1.5">
+            {linkedQuestions.slice(0, 10).map(q => (
+              <li key={q.id} className="text-xs">
+                <a
+                  href={q.detail_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 hover:text-primary transition-colors"
+                >
+                  <span className="font-medium">{q.title}</span>
+                  <ArrowUpRight className="size-2.5 opacity-50 shrink-0" />
+                </a>
+                {q.in_title && (
+                  <span className="ml-1.5 text-[10px] px-1 rounded bg-muted text-muted-foreground">件名</span>
+                )}
+                <p className="text-[11px] text-muted-foreground">
+                  {q.house === "sangiin" ? "参議院" : "衆議院"} 第{q.session}回 質問第{q.number}号 {q.submitter}
+                  {q.submitted_on && ` · 提出 ${q.submitted_on}`}
+                  {q.answered_on ? ` · 答弁 ${q.answered_on}` : " · 未答弁"}
+                  {q.articles.length > 0 && ` · ${q.articles.map(a => { const [n, ...br] = a.split("_"); return `第${n}条${br.map(b => `の${b}`).join("")}`; }).join("・")}`}
+                </p>
+              </li>
+            ))}
+          </ul>
+          <p className="text-[10px] text-muted-foreground mt-1.5">出典: 衆議院 質問答弁情報・参議院 質問主意書（件名・本文の法令名から自動抽出）</p>
+        </div>
+      )}
+
+      {linkedGuidance.length > 0 && (
+        <div className="border-b border-border bg-background px-6 py-3">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground mb-2">
+            <FileQuestion className="size-3" />
+            この法令に関する政府解釈 ({linkedGuidance.length})
+          </div>
+          <ul className="space-y-1.5">
+            {linkedGuidance.slice(0, 10).map(g => (
+              <li key={g.id} className="text-xs">
+                <span className="mr-1.5 text-[10px] px-1 rounded bg-muted text-muted-foreground">
+                  {GUIDANCE_KIND_LABELS[g.kind] ?? g.kind}
+                </span>
+                <a
+                  href={g.document_url ?? g.source_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 hover:text-primary transition-colors"
+                >
+                  <span className="font-medium">{g.title}</span>
+                  <ArrowUpRight className="size-2.5 opacity-50 shrink-0" />
+                </a>
+                <p className="text-[11px] text-muted-foreground">
+                  {g.issuer ?? g.ministry_name}
+                  {g.issued_on && ` · ${g.issued_on}`}
+                  {g.articles.length > 0 && ` · ${g.articles.slice(0, 8).map(a => { const [n, ...br] = a.split("_"); return `第${n}条${br.map(b => `の${b}`).join("")}`; }).join("・")}${g.articles.length > 8 ? " ほか" : ""}`}
+                  {g.relation === "mention" && " · 本文で参照"}
+                  {" · "}
+                  <a href={g.source_url} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">一覧</a>
+                </p>
+                {g.summary && (
+                  <p className="text-[11px] text-muted-foreground line-clamp-2">{g.summary}</p>
+                )}
+              </li>
+            ))}
+          </ul>
+          <p className="text-[10px] text-muted-foreground mt-1.5">
+            出典: {guidanceMinistries || "金融庁"}ウェブサイト（公共データ利用規約 PDL1.0）。照会対象の条文・文書名・本文の条番号から自動で紐付け、要旨は公表 PDF から機械抽出して加工
+          </p>
+        </div>
+      )}
+
+      {linkedTreaties.length > 0 && (
+        <div className="border-b border-border bg-background px-6 py-3">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground mb-2">
+            <Globe className="size-3" />
+            この法令が参照する条約 ({linkedTreaties.length})
+          </div>
+          <ul className="space-y-1.5">
+            {linkedTreaties.slice(0, 20).map(t => (
+              <LinkedTreatyItem key={t.treaty_id} treaty={t} />
+            ))}
+          </ul>
+          <p className="text-[10px] text-muted-foreground mt-1.5">出典: 外務省ウェブサイト「条約データ検索」「国会提出条約」（法令本文の条約名・条約番号から自動抽出）</p>
         </div>
       )}
 
@@ -787,6 +1080,46 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
             </ScrollArea>
             <ScrollArea>
               <div className="max-w-3xl mx-auto px-8 py-8 space-y-8">
+                {english && english.articles.length > 0 && (
+                  <div className="rounded-md border border-border bg-muted/40 px-4 py-3 text-xs space-y-1.5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-1.5 font-semibold text-muted-foreground min-w-0">
+                        <Languages className="size-3 shrink-0" />
+                        <span className="shrink-0">英訳（参考訳）</span>
+                        {english.title_en && <span lang="en" className="font-normal truncate">{english.title_en}</span>}
+                      </div>
+                      <Button variant={showEnglish ? "secondary" : "outline"} size="sm" onClick={() => setShowEnglish(v => !v)}>
+                        {showEnglish ? "英訳を隠す" : "英訳を併記"}
+                      </Button>
+                    </div>
+                    {showEnglish && (
+                      <>
+                        <p className="text-muted-foreground">
+                          {english.source.disclaimer_ja} <span lang="en">{english.source.disclaimer_en}</span>
+                        </p>
+                        {english.translations.map(t => (
+                          <p key={t.jlt_id} className="text-muted-foreground">
+                            <a href={t.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-0.5 hover:text-primary transition-colors">
+                              {t.title_ja}
+                              <ArrowUpRight className="size-2.5 opacity-50 shrink-0" />
+                            </a>
+                            {t.translated_on && ` · 翻訳日 ${t.translated_on}`}
+                            {t.last_version_ja && ` · ${t.last_version_ja}までの改正を反映`}
+                            {t.tentative && (
+                              <span className="ml-1.5 text-[10px] px-1 rounded bg-amber-500/15 text-amber-700 dark:text-amber-400">暫定版</span>
+                            )}
+                          </p>
+                        ))}
+                        <p className="text-[10px] text-muted-foreground">
+                          出典:{" "}
+                          <a href={english.source.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">{english.source.name_ja}</a>
+                          （<a href={english.source.license_url} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">{english.source.license}</a>）。
+                          条単位への分割と法令 ID への対応付けは本サイトが加工。
+                        </p>
+                      </>
+                    )}
+                  </div>
+                )}
                 {detail.loading && articles.length === 0 && (
                   <div className="text-sm text-muted-foreground py-12 text-center">本文を読み込み中…</div>
                 )}
@@ -847,6 +1180,9 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
                           </p>
                         ))}
                       </div>
+                      {showEnglish && englishByArt.has(a.article_id) && (
+                        <EnglishArticle article={englishByArt.get(a.article_id)!} />
+                      )}
                     </article>
                   );
                 })}

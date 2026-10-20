@@ -10,6 +10,7 @@ mod diffs;
 mod enforcement;
 mod feeds;
 mod gian;
+mod guidance;
 mod hanrei;
 mod kanpo;
 mod kanpo_archive;
@@ -20,10 +21,14 @@ mod reiki;
 mod shingikai;
 mod snapshots;
 mod state;
+mod supplementary;
 mod tsutatsu;
 mod status;
 mod validate;
 mod wiki;
+mod shitsumon;
+mod jlt;
+mod treaty;
 
 #[derive(Parser)]
 #[command(name = "lawpub", version, about = "e-Gov 法令データ正規化・配信 CLI")]
@@ -569,6 +574,9 @@ enum Cmd {
         /// LLM に要約させる官報の項目 (改め文。wiki に法令ページがある法令につながるもの) の上限 (別枠)。
         #[arg(long, default_value_t = 3)]
         max_kanpo: usize,
+        /// LLM に人物ページの全体像と経緯を書かせる人物の上限 (別枠)。発言者名簿から、未要約の会議が多い人を選ぶ。
+        #[arg(long, default_value_t = 3)]
+        max_people: usize,
         /// 1 回で新しく作る発言者名簿の上限。人物・会議体ページはコーパスの全会議から作るので、
         /// LLM の上限とは別枠 (会議 1 件あたり HTTP 数回。既に作った名簿は引き直さない)。
         #[arg(long, env = "WIKI_MAX_ROSTER", default_value_t = 1200)]
@@ -579,6 +587,9 @@ enum Cmd {
         /// LLM に 1 回で渡すタスク数。`.wiki-work/chunks/NNN.md` に分けて書き出す。
         #[arg(long, default_value_t = 4)]
         chunk_size: usize,
+        /// 施行予定ごとの解説の上限 (会議・議案とは別枠)。0 で無効。
+        #[arg(long, default_value_t = 5)]
+        max_enforcements: usize,
     },
     /// LLM が書いた後、時系列・人物・index・log を再生成し、未完了タスクを巻き戻す。
     WikiFinalize {
@@ -592,6 +603,15 @@ enum Cmd {
         #[arg(long, default_value = "wiki")]
         wiki: PathBuf,
         #[arg(long, default_value = "public/wiki")]
+        out: PathBuf,
+    },
+    /// 保存した Wiki 資料用スナップショットを比較し、変更と関連ページの再確認候補を出す。
+    WikiReportDiff {
+        #[arg(long)]
+        previous: PathBuf,
+        #[arg(long)]
+        current: PathBuf,
+        #[arg(long)]
         out: PathBuf,
     },
     /// wiki の OKF frontmatter・リンク・引用 (発言 ID と原文一致) を検証する。
@@ -702,6 +722,14 @@ enum Cmd {
         public: PathBuf,
     },
 
+    /// 法律案の改め文 (`public/gian/amendments/`) を公布後の法令改正差分 (law-diff) と対応づけ、
+    /// `public/links/law-to-bill-amendments/{law_id}.json` と `_summary.json` を生成する
+    /// (`gian-build-json` と法令の build-json の後に実行)。
+    LinkBillAmendments {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
     /// 判例の参照法条から `public/links/law-to-hanrei/{law_id}.json` を生成する。
     LinkLawsAndHanrei {
         #[arg(long, default_value = "public")]
@@ -729,6 +757,154 @@ enum Cmd {
     TsutatsuBuildJson {
         #[arg(long, default_value = ".cache")]
         cache: PathBuf,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+    /// 衆参の質問主意書・答弁書を取得し `.cache/shitsumon/{house}/{session}/` に保存する。
+    /// 答弁済みの保存分は飛ばすので、`--limit` で打ち切っても再実行で続きから取れる。
+    ShitsumonFetch {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        /// 回次 (`222` / `219,220` / `210-219`)。省略時は最新と 1 つ前の回次。
+        #[arg(long)]
+        session: Option<String>,
+        /// `shugiin` / `sangiin` / `both`。
+        #[arg(long, default_value = "both")]
+        house: String,
+        /// リクエスト間隔 (ミリ秒)。
+        #[arg(long, default_value_t = 1000)]
+        interval_ms: u64,
+        /// 1 回の実行で保存する最大件数。
+        #[arg(long, default_value_t = 500)]
+        limit: usize,
+    },
+
+    /// `.cache/shitsumon/` → `public/shitsumon/{id}.json` + `index.json` を書き出す。
+    ShitsumonBuildJson {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
+    /// 質問主意書・答弁書の本文から `public/links/law-to-shitsumon/{law_id}.json` を生成する。
+    LinkLawsAndShitsumon {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
+    /// 所管省庁の政府解釈 (金融庁のノーアクションレター・書面照会・相談事例・Q&A・ガイドライン) を
+    /// 取得し `.cache/guidance/{ministry}/{id}.json` に保存する。添付原本は
+    /// `.cache/guidance-assets/{ministry}/{sha256}.{ext}`。取得済みで変化の無いものは飛ばす。
+    GuidanceFetch {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
+        provider: String,
+        /// 省庁アダプタ (現状 `fsa` のみ)。
+        #[arg(long, default_value = "fsa")]
+        ministry: String,
+        /// 種別の絞り込み (カンマ区切り: no_action_letter / written_inquiry / consultation_cases /
+        /// qa / guideline / interpretation_cases、または nal / inquiry / cases)。省略時は全て。
+        #[arg(long)]
+        kinds: Option<String>,
+        /// リクエスト間隔 (ミリ秒)。
+        #[arg(long, default_value_t = 1000)]
+        interval_ms: u64,
+        /// 1 回の実行で取得する最大文書数。
+        #[arg(long, default_value_t = 200)]
+        limit: usize,
+        /// Q&A・ガイドライン (同じ URL のまま改訂される) を取り直す間隔 (日)。
+        #[arg(long, default_value_t = 7)]
+        refresh_days: i64,
+    },
+
+    /// `.cache/guidance/` → `public/guidance/{id}.json` + `index.json` を書き出す
+    /// (`public/laws/index.json` があれば関連法令を法令 ID に解決する)。
+    GuidanceBuildJson {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+    /// 日本法令外国語訳データベース (法務省 JLT) の英訳を取得し `.cache/jlt/` に保存する。
+    /// 保存済みの翻訳版 ID は取り直さないので、`--limit` で打ち切っても再実行で続きから取れる。
+    JltFetch {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
+        provider: String,
+        /// 分野 (`bu`) のカンマ区切り (2,4,…,4096)。省略時は全 12 分野。
+        #[arg(long)]
+        categories: Option<String>,
+        /// リクエスト間隔 (ミリ秒)。
+        #[arg(long, default_value_t = 2000)]
+        interval_ms: u64,
+        /// 1 回の実行で本文を取得する最大件数。
+        #[arg(long, default_value_t = 200)]
+        limit: usize,
+        /// 保存済みの翻訳版も取り直す。
+        #[arg(long)]
+        refresh: bool,
+    },
+
+    /// `.cache/jlt/` → `public/laws/{law_id}/en.json` + 対応表 `public/jlt/index.json` を書き出す。
+    /// law_id は `public/laws/index.json` の法令番号で引くので、法令の build-json の後に実行する。
+    JltBuildJson {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
+    /// 外務省の条約データ (条約データ検索・国会提出条約) を取得し `.cache/treaty/` に保存する。
+    /// 一覧は `--list-max-age-days` 以内に全ページ取得済みなら取り直さない。条約ページは公布・
+    /// 効力発生まで済んだ保存分を、本文は取得済みのものを飛ばすので、再実行で続きから取れる。
+    TreatyFetch {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "http", env = "LAWPUB_PROVIDER")]
+        provider: String,
+        /// リクエスト間隔 (ミリ秒)。
+        #[arg(long, default_value_t = 2000)]
+        interval_ms: u64,
+        /// 一覧の最大ページ数 (1 ページ 30 件。0 = 全ページ)。
+        #[arg(long, default_value_t = 0)]
+        max_pages: u32,
+        /// 全ページ取得済みの一覧がこの日数より新しければ一覧を取り直さない。
+        #[arg(long, default_value_t = 7)]
+        list_max_age_days: i64,
+        /// 1 回の実行で取得する条約ページ・本文 HTML の最大数。
+        #[arg(long, default_value_t = 500)]
+        limit: usize,
+        /// HTML 版の無い条約の本文を PDF から抜く (要 pdftotext)。
+        #[arg(long)]
+        with_pdf: bool,
+        /// `--with-pdf` で 1 回に処理する条約の最大数。
+        #[arg(long, default_value_t = 50)]
+        pdf_limit: usize,
+        /// 国会提出条約ページ (署名・国会承認・公布・条約番号) を取らない。
+        #[arg(long)]
+        skip_diet: bool,
+    },
+
+    /// `.cache/treaty/` → `public/treaties/{id}.json` + `index.json` を書き出す。
+    TreatyBuildJson {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
+    /// 政府解釈の関連法令・文書名・本文から `public/links/law-to-guidance/{law_id}.json` を生成する。
+    LinkLawsAndGuidance {
+        #[arg(long, default_value = "public")]
+        public: PathBuf,
+    },
+
+    /// 法令本文の条約名・条約番号から `public/links/law-to-treaties/{law_id}.json` と
+    /// `public/links/treaty-to-laws/{treaty_id}.json` を生成する。
+    LinkLawsAndTreaties {
         #[arg(long, default_value = "public")]
         public: PathBuf,
     },
@@ -996,9 +1172,10 @@ fn main() -> Result<()> {
         }
         Cmd::HanreiBuildJson { cache, public } => hanrei::run_build_json(&cache, &public),
         Cmd::LinkRulemaking { public } => linking::run_link_rulemaking(&public),
+        Cmd::LinkBillAmendments { public } => linking::run_link_bill_amendments(&public),
         Cmd::LinkLawsAndHanrei { public } => linking::run_link_hanrei(&public),
         Cmd::BuildEnforcement { public } => enforcement::run_build(&public),
-        Cmd::WikiPlan { base_url, wiki, work, max_items, max_probes, lookback_days, today, max_bills, max_pubcomments, max_kanpo, max_roster, reiki_base_url, chunk_size } => {
+        Cmd::WikiPlan { base_url, wiki, work, max_items, max_probes, lookback_days, today, max_bills, max_pubcomments, max_kanpo, max_people, max_roster, reiki_base_url, chunk_size, max_enforcements } => {
             wiki::plan::run_plan(&wiki::plan::PlanArgs {
                 base_url,
                 wiki,
@@ -1010,13 +1187,16 @@ fn main() -> Result<()> {
                 max_bills,
                 max_pubcomments,
                 max_kanpo,
+                max_people,
                 max_roster,
                 reiki_base_url,
                 chunk_size,
+                max_enforcements,
             })
         }
         Cmd::WikiFinalize { wiki, work } => wiki::finalize::run_finalize(&wiki::finalize::FinalizeArgs { wiki, work }),
         Cmd::WikiExport { wiki, out } => wiki::export::run_export(&wiki::export::ExportArgs { wiki, out }),
+        Cmd::WikiReportDiff { previous, current, out } => wiki::report::run_diff(&previous, &current, &out),
         Cmd::WikiCheck { base_url, wiki, work, changed } => {
             wiki::check::run_check(&wiki::check::CheckArgs { wiki, work, base_url, changed_only: changed })
         }
@@ -1024,6 +1204,59 @@ fn main() -> Result<()> {
         Cmd::TsutatsuBuildJson { cache, public } => tsutatsu::run_build_json(&cache, &public),
         Cmd::LinkLawsAndProcurement { public } => linking::run_link_procurement(&public),
         Cmd::LinkLawsAndTsutatsu { public } => linking::run_link_tsutatsu(&public),
+        Cmd::ShitsumonFetch { cache, session, house, interval_ms, limit } => {
+            shitsumon::run_fetch(&cache, session.as_deref(), &house, interval_ms, limit)
+        }
+        Cmd::ShitsumonBuildJson { cache, public } => shitsumon::run_build_json(&cache, &public),
+        Cmd::LinkLawsAndShitsumon { public } => linking::run_link_shitsumon(&public),
+        Cmd::GuidanceFetch {
+            cache,
+            provider,
+            ministry,
+            kinds,
+            interval_ms,
+            limit,
+            refresh_days,
+        } => guidance::run_fetch(
+            &cache,
+            &provider,
+            &ministry,
+            kinds.as_deref(),
+            interval_ms,
+            limit,
+            refresh_days,
+        ),
+        Cmd::GuidanceBuildJson { cache, public } => guidance::run_build_json(&cache, &public),
+        Cmd::LinkLawsAndGuidance { public } => linking::run_link_guidance(&public),
+        Cmd::JltFetch { cache, provider, categories, interval_ms, limit, refresh } => {
+            jlt::run_fetch(&cache, &provider, categories.as_deref(), interval_ms, limit, refresh)
+        }
+        Cmd::JltBuildJson { cache, public } => jlt::run_build_json(&cache, &public),
+        Cmd::TreatyFetch {
+            cache,
+            provider,
+            interval_ms,
+            max_pages,
+            list_max_age_days,
+            limit,
+            with_pdf,
+            pdf_limit,
+            skip_diet,
+        } => treaty::run_fetch(
+            &cache,
+            &provider,
+            &treaty::FetchOptions {
+                interval_ms,
+                max_pages,
+                list_max_age_days,
+                limit,
+                with_pdf,
+                pdf_limit,
+                skip_diet,
+            },
+        ),
+        Cmd::TreatyBuildJson { cache, public } => treaty::run_build_json(&cache, &public),
+        Cmd::LinkLawsAndTreaties { public } => linking::run_link_treaties(&public),
     }
 }
 
@@ -1031,9 +1264,26 @@ fn main() -> Result<()> {
 mod cli_tests {
     use super::*;
 
+    /// clap の derive が組み立てるコマンド定義はサブコマンドが増えると大きくなり、
+    /// テストスレッドの既定スタック (2 MiB) を debug ビルドで溢れる。本番の main スレッドは
+    /// 8 MiB あるので、テストでも広いスタックのスレッドでパースする。
+    fn parse<I, T>(args: I) -> Result<Cli, clap::Error>
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<std::ffi::OsString>,
+    {
+        let args: Vec<std::ffi::OsString> = args.into_iter().map(Into::into).collect();
+        std::thread::Builder::new()
+            .stack_size(16 << 20)
+            .spawn(move || Cli::try_parse_from(args))
+            .expect("spawn parser thread")
+            .join()
+            .expect("parser thread panicked")
+    }
+
     #[test]
     fn fetch_update_accepts_explicit_provider() {
-        let cli = Cli::try_parse_from([
+        let cli = parse([
             "lawpub",
             "fetch-update",
             "--date",
@@ -1050,7 +1300,7 @@ mod cli_tests {
 
     #[test]
     fn deployment_commands_accept_skip_search_db() {
-        let build = Cli::try_parse_from(["lawpub", "build-json", "--skip-search-db"]).unwrap();
+        let build = parse(["lawpub", "build-json", "--skip-search-db"]).unwrap();
         assert!(matches!(
             build.cmd,
             Cmd::BuildJson {
@@ -1059,7 +1309,7 @@ mod cli_tests {
             }
         ));
 
-        let update = Cli::try_parse_from([
+        let update = parse([
             "lawpub",
             "update",
             "--skip-search-db",
@@ -1082,7 +1332,7 @@ mod cli_tests {
 
     #[test]
     fn shingikai_command_accepts_limit_and_legacy_alias() {
-        let current = Cli::try_parse_from([
+        let current = parse([
             "lawpub",
             "shingikai-fetch",
             "--ministry",
@@ -1099,10 +1349,37 @@ mod cli_tests {
             }
         ));
 
-        let legacy = Cli::try_parse_from(["lawpub", "shingiakai-build-json"]).unwrap();
+        let legacy = parse(["lawpub", "shingiakai-build-json"]).unwrap();
         assert!(matches!(legacy.cmd, Cmd::ShingikaiBuildJson { .. }));
 
-        let link = Cli::try_parse_from(["lawpub", "link-laws-and-shingikai"]).unwrap();
+        let link = parse(["lawpub", "link-laws-and-shingikai"]).unwrap();
         assert!(matches!(link.cmd, Cmd::LinkLawsAndShingikai { .. }));
+    }
+
+    #[test]
+    fn guidance_commands_parse() {
+        let fetch = parse([
+            "lawpub",
+            "guidance-fetch",
+            "--ministry",
+            "fsa",
+            "--kinds",
+            "nal,qa",
+            "--interval-ms",
+            "2000",
+        ])
+        .unwrap();
+        assert!(matches!(
+            fetch.cmd,
+            Cmd::GuidanceFetch {
+                interval_ms: 2000,
+                limit: 200,
+                ..
+            }
+        ));
+        let build = parse(["lawpub", "guidance-build-json"]).unwrap();
+        assert!(matches!(build.cmd, Cmd::GuidanceBuildJson { .. }));
+        let link = parse(["lawpub", "link-laws-and-guidance"]).unwrap();
+        assert!(matches!(link.cmd, Cmd::LinkLawsAndGuidance { .. }));
     }
 }

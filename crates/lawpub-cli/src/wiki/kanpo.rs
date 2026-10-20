@@ -358,6 +358,7 @@ pub fn plan_tasks(wiki: &Path, work: &Path, max: usize) -> Result<Vec<Task>> {
             people: Vec::new(),
             committee: None,
             created: Vec::new(),
+            person: None,
         });
     }
     Ok(tasks)

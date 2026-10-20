@@ -3,10 +3,10 @@
 //! 配信済みの正規化コーパス (Pages の静的 JSON) を正本とし、wiki はその下流の派生物とする。
 //! LLM はこの CLI を呼ばない。役割分担は次のとおり:
 //!
-//! - `wiki-plan`: 未処理の会議から法令リンクのあるものを上限付きで選び、LLM 用の
+//! - `wiki-plan`: 未処理の会議を法令リンクの有無によらず上限付きで選び、LLM 用の
 //!   ソースバンドル (言及箇所の抜粋) とページの雛形を作る。
 //! - (LLM): `<!-- llm:begin -->` ～ `<!-- llm:end -->` 区間と frontmatter の
-//!   `description` / `tags` だけを書く。topics/ は丸ごと書いてよい。
+//!   `description` / `tags` / 会議の `claims` だけを書く。topics/ は丸ごと書いてよい。
 //! - `wiki-finalize`: 時系列表・人物ページ・index.md・log.md を frontmatter から再生成し、
 //!   未完了タスクの雛形を巻き戻して state を進める。
 //! - `wiki-check`: OKF frontmatter、相対リンク、引用 (発言 ID の実在と原文一致) を検証する。
@@ -23,12 +23,16 @@ use std::io::Read;
 use std::path::{Path, PathBuf};
 
 pub mod check;
+pub mod evidence;
+pub mod enforcements;
 pub mod export;
 pub mod finalize;
 pub mod kanpo;
+pub mod person;
 pub mod plan;
 pub mod pubcomment;
 pub mod reiki;
+pub mod report;
 pub mod roster;
 pub mod structured;
 
@@ -132,7 +136,7 @@ pub const KIND_KOKKAI: &str = "kokkai";
 pub const KIND_SHINGIKAI: &str = "shingikai";
 
 /// 引用できる最小単位。国会は 1 発言、審議会は議事録の `○` で始まる 1 ターン。
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Unit {
     /// `kokkai:{speech_id}` / `shingikai:{minutes_id}#{turn}`。
     pub reference: String,
@@ -308,6 +312,9 @@ pub struct State {
     pub schema_version: u32,
     /// `kokkai:{meeting_id}` / `shingikai:{minutes_id}` → 処理結果。
     pub processed: BTreeMap<String, Processed>,
+    /// 再取得を試みた順序。取得失敗も含め、処理済み会議を上限内で巡回する。
+    #[serde(default)]
+    pub meeting_probes: BTreeMap<String, u64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -338,7 +345,7 @@ impl State {
     }
 
     pub fn is_processed(&self, key: &str) -> bool {
-        self.processed.contains_key(key)
+        self.processed.get(key).is_some_and(|p| p.status == "linked")
     }
 
     pub fn mark(&mut self, key: &str, status: &str, date: &str) {
@@ -360,6 +367,9 @@ pub struct Plan {
     pub date: String,
     pub base_url: String,
     pub tasks: Vec<Task>,
+    /// plan 時点の各タスクの LLM 区間。以前の引用だけで更新済みにならないようにする。
+    #[serde(default)]
+    pub before: BTreeMap<String, String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -383,6 +393,18 @@ pub struct Task {
     pub committee: Option<String>,
     /// この plan で新規作成したページ (未完了なら finalize が削除する)。
     pub created: Vec<String>,
+    /// 人物タスク (`kind: person`) の完了判定に要る情報。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub person: Option<PersonTask>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PersonTask {
+    /// このタスクで渡した会議の最後の日付。完了したらページの `llm_until` にする。
+    pub until: String,
+    /// plan 時点の LLM 区間の hash。書き足されていなければ未完了とみなす
+    /// (既存の経緯に引用があるだけで完了扱いにしないため)。
+    pub before: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -458,7 +480,7 @@ pub fn ensure_law_synthesis(wiki: &Path, law_id: &str) -> Result<()> {
 
 /// LLM が書く「経緯」の形式。上げると、処理済みの会議も翌日以降に処理し直して
 /// 人物・会議体・法令ページの経緯を書き足す (1 回の上限は max_items)。
-pub const NARRATIVE_VERSION: u64 = 1;
+pub const NARRATIVE_VERSION: u64 = 3;
 
 /// 会議体ページの名前。国会は「衆議院 予算委員会」、審議会は部会・委員会名。
 pub fn committee_title(corpus: &str, organization: &str, committee: &str) -> Option<String> {
@@ -490,13 +512,39 @@ fn llm_section(content: &str) -> String {
     }
 }
 
-/// `quotes` は会議録から切り出した発言の抜粋（原文のまま）。`table` は発言した会議の一覧。
-/// どちらも機械が作るので `lawpub:begin remarks` の中に置き、LLM の経緯とは分ける。
-pub fn person_body(name: &str, intro: &str, narrative: &str, quotes: &str, table: &str) -> String {
+/// 人物ページの「全体像」(論点ごとの主張・答弁のまとめ) の見出し。
+pub const PERSON_SUMMARY_HEADING: &str = "## 全体像";
+
+/// `summary` は全体像、`narrative` は発言と経緯 (どちらも LLM)。`quotes` は会議録から切り出した
+/// 発言の抜粋（原文のまま）。`table` は発言した会議の一覧。`quotes` と `table` は機械が作るので
+/// `lawpub:begin remarks` の中に置き、LLM の記述とは分ける。
+pub fn person_body(name: &str, intro: &str, summary: &str, narrative: &str, quotes: &str, table: &str) -> String {
     format!(
-        "\n# {name}\n\n{intro}\n\n## 発言と経緯\n\n{}\n\n<!-- lawpub:begin remarks -->\n{quotes}## 発言した会議（一覧）\n\n{table}<!-- lawpub:end remarks -->\n",
+        "\n# {name}\n\n{intro}\n\n{PERSON_SUMMARY_HEADING}\n\n{}\n\n## 発言と経緯\n\n{}\n\n<!-- lawpub:begin remarks -->\n{quotes}## 発言した会議（一覧）\n\n{table}<!-- lawpub:end remarks -->\n",
+        llm_section(summary),
         llm_section(narrative)
     )
+}
+
+/// 人物ページの LLM 区間 (全体像, 発言と経緯)。全体像の無い旧形式のページは、唯一の区間が経緯。
+pub fn person_blocks(body: &str) -> (String, String) {
+    let blocks: Vec<String> = llm_blocks(body).iter().map(|b| b.trim().to_string()).collect();
+    match blocks.as_slice() {
+        [] => (String::new(), String::new()),
+        [narrative] => (String::new(), narrative.clone()),
+        [summary, narrative, ..] => (summary.clone(), narrative.clone()),
+    }
+}
+
+/// LLM 区間の中身の hash (タスクで書き足されたかの判定用)。
+pub fn llm_hash(body: &str) -> String {
+    use sha2::{Digest, Sha256};
+    let mut h = Sha256::new();
+    for b in llm_blocks(body) {
+        h.update(b.trim().as_bytes());
+        h.update([0u8]);
+    }
+    hex::encode(&h.finalize()[..8])
 }
 
 /// 会派 (政党) ページ。国会会議録の会派表記ごとに 1 枚。
@@ -523,10 +571,16 @@ pub fn ensure_person_page(wiki: &Path, name: &str) -> Result<bool> {
     let path = wiki.join(person_page(name));
     if path.exists() {
         // 経緯の区間が無い旧形式のページは作り替える (一覧は finalize が埋め直す)。
+        // 全体像の区間が無いページには、経緯の前に区間を足す (LLM が書く場所を見分けられるように)。
         let mut page = Page::read(&path)?;
         if !page.body.contains(LLM_BEGIN) {
-            page.body = person_body(name, "", "", "", "");
+            page.body = person_body(name, "", "", "", "", "");
             page.write(&path)?;
+        } else if !page.body.contains(PERSON_SUMMARY_HEADING) {
+            if let Some(i) = page.body.find("## 発言と経緯") {
+                page.body.insert_str(i, &format!("{PERSON_SUMMARY_HEADING}\n\n{LLM_BEGIN}\n{LLM_END}\n\n"));
+                page.write(&path)?;
+            }
         }
         return Ok(false);
     }
@@ -536,7 +590,7 @@ pub fn ensure_person_page(wiki: &Path, name: &str) -> Result<bool> {
             ("title".into(), serde_json::json!(name)),
             ("description".into(), serde_json::json!("")),
         ],
-        body: person_body(name, "", "", "", ""),
+        body: person_body(name, "", "", "", "", ""),
     }
     .write(&path)?;
     Ok(true)
@@ -768,6 +822,14 @@ mod tests {
         let out = page.render();
         assert!(out.ends_with("description: \"説明\"\n---\n# 民法\n"));
         assert_eq!(Page::parse(&out).unwrap().get_str("description"), "説明");
+    }
+
+    #[test]
+    fn old_plans_without_before_remain_readable() {
+        let plan: Plan = serde_json::from_value(serde_json::json!({
+            "schema_version": 1, "date": "2026-10-01", "base_url": "local", "tasks": []
+        })).unwrap();
+        assert!(plan.before.is_empty());
     }
 
     #[test]

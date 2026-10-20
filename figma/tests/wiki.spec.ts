@@ -65,6 +65,45 @@ async function mock(page: import("@playwright/test").Page) {
   await page.route("**/wiki/page/laws/L1.json", (r) => r.fulfill({ json: LAW }));
 }
 
+test("本文に会議リンクがなくても引用元へ移動でき、未収録と要約前を区別する", async ({ page }) => {
+  await mock(page);
+  await page.route("**/wiki/page/laws/L1.json", r => r.fulfill({ json: {
+    ...LAW, body: "救済拡充を求めた[^1]。\n\n[^1]: [kokkai:M1_001](https://kokkai.ndl.go.jp/txt/M1/1) 「救済を拡充すべきです」",
+    citation_sources: [
+      { path: "meetings/kokkai/M1", title: MEETING.frontmatter.title, date: "2026-10-01", refs: ["kokkai:M1_001", "kokkai:M1_002"], availability: "available", summary_source_status: "stale" },
+      { path: "meetings/shingikai/S1", title: "要約前の会議", date: null, refs: ["shingikai:S1#0"], availability: "stub", summary_source_status: "pending" },
+      { path: "meetings/shingikai/missing", title: null, date: null, refs: ["shingikai:missing#0"], availability: "missing", summary_source_status: null },
+    ],
+  } }));
+  await page.goto(new URL("#/wiki/laws/L1", BASE).toString());
+  const sources = page.getByTestId("wiki-citation-sources");
+  await expect(sources).toContainText("このページの記述・引用がその版に対応するとは限りません");
+  await expect(sources).toContainText("kokkai:M1_001、kokkai:M1_002");
+  await expect(sources.getByRole("alert")).toHaveCount(2);
+  await expect(sources).toContainText("会議ページ未公開・未収録");
+  await expect(sources).toContainText("会議の要約前");
+  await expect(sources.getByRole("button")).toHaveCount(2);
+  await sources.getByRole("button", { name: MEETING.frontmatter.title, exact: true }).click();
+  await expect(page).toHaveURL(/#\/wiki\/meetings\/kokkai\/M1$/);
+  await expect(page.getByRole("heading", { level: 1, name: MEETING.frontmatter.title, exact: true })).toBeVisible();
+});
+
+for (const status of ["current", "untracked"] as const) {
+  test(`引用元の状態 ${status} から引用する側の版対応を推定しない`, async ({ page }) => {
+    await mock(page);
+    await page.route("**/wiki/page/laws/L1.json", r => r.fulfill({ json: {
+      ...LAW, citation_sources: [{ path: "meetings/kokkai/M1", title: MEETING.frontmatter.title, date: "2026-10-01", refs: ["kokkai:M1_001"], availability: "available", summary_source_status: status }],
+    } }));
+    await page.goto(new URL("#/wiki/laws/L1", BASE).toString());
+    const sources = page.getByTestId("wiki-citation-sources");
+    await expect(sources).toBeVisible();
+    await expect(sources.getByRole("alert")).toHaveCount(0);
+    await expect(sources).toContainText("このページの記述・引用がその版に対応するとは限りません");
+    if (status === "untracked") await expect(sources).toContainText("原資料の版は未記録");
+    await expect(sources).not.toContainText("対応しています");
+  });
+}
+
 test("wiki トップにナレッジグラフと type 別の件数が出る", async ({ page }) => {
   await mock(page);
   await page.goto(new URL("#/wiki", BASE).toString());
@@ -73,6 +112,75 @@ test("wiki トップにナレッジグラフと type 別の件数が出る", asy
   await expect(page.getByRole("button", { name: "法令 1" })).toBeVisible();
   await expect(page.getByRole("button", { name: "会議 1" })).toBeVisible();
   await expect(page.getByTestId("wiki-graph").locator("canvas").first()).toBeVisible({ timeout: 15_000 });
+});
+
+test("会議の未完了理由と集計範囲が読める", async ({ page }) => {
+  await mock(page);
+  await page.route("**/wiki/index.json", (r) => r.fulfill({ json: { ...INDEX, intake: {
+    date: "2026-10-08", since: "2026-09-01", scope: "窓外・未収集資料は集計外。",
+    entries: { "kokkai:M1": "completed", "kokkai:M2": "budget_pending", "kokkai:M3": "source_unavailable", "kokkai:M4": "summary_pending", "kokkai:M5": "source_unchanged" },
+  } } }));
+  await page.goto(new URL("#/wiki", BASE).toString());
+  const intake = page.getByTestId("wiki-intake");
+  await expect(intake.locator("summary")).toContainText("未完了 3 件");
+  await intake.locator("summary").click();
+  await expect(intake).toContainText("窓外・未収集資料は集計外");
+  await expect(intake).toContainText("kokkai:M2：上限により繰り越し");
+  await expect(intake).toContainText("kokkai:M3：資料取得待ち");
+  await expect(intake).toContainText("kokkai:M4：要約未完了");
+  await expect(intake).not.toContainText("kokkai:M1");
+  await expect(intake).not.toContainText("kokkai:M5");
+});
+
+test("会議の原資料と要約の版の不一致を表示する", async ({ page }) => {
+  await mock(page);
+  for (const [source, summary, message] of [
+    ["sha256:new", "sha256:old", "原資料の版に対応する要約の更新が未完了です"],
+    ["sha256:new", "sha256:new", "最後に取得した資料の版に対応しています"],
+    [undefined, undefined, "原資料の版の記録がありません"],
+  ] as const) {
+    await page.route("**/wiki/page/meetings/kokkai/M1.json", (r) => r.fulfill({ json: {
+      ...MEETING, frontmatter: { ...MEETING.frontmatter, source_fingerprint: source, llm_source_fingerprint: summary },
+    } }));
+    await page.goto(new URL("#/wiki/meetings/kokkai/M1", BASE).toString());
+    await page.reload();
+    await expect(page.getByTestId("wiki-evidence")).toContainText(message);
+    if (source && source !== summary) await expect(page.getByRole("alert")).toContainText(message);
+  }
+});
+
+test("主張ごとに留保・意味の判定状態と立場を区別して原文へ戻れる", async ({ page }) => {
+  await mock(page);
+  const statuses = ["unreviewed", "needs_review", "unsupported", "indeterminate", "llm_supported"];
+  const roles = ["government", "industry", "expert", "witness", "unknown"];
+  await page.route("**/wiki/page/meetings/kokkai/M1.json", (r) => r.fulfill({ json: {
+    ...MEETING,
+    frontmatter: { ...MEETING.frontmatter, source_scope: { total_units: 8, included_units: 5, partial_refs: ["kokkai:M1_001"], omitted_refs: ["kokkai:M1_006", "kokkai:M1_007", "kokkai:M1_008"], limitations: "抜粋外の条件と反対意見は未確認。" } },
+    claim_assessments: statuses.map((status, i) => ({
+      text: `主張${i + 1}`, kind: i === 0 ? "government_view" : "opinion", attribution: `kokkai:M1_00${i + 1}`,
+      review_status: status, review_note: "実施には条件があるため原文の確認が必要。",
+      sources: [{ ref: `kokkai:M1_00${i + 1}`, url: `https://kokkai.ndl.go.jp/txt/M1/${i + 1}`, speaker: `発言者${i + 1}`, group: i === 1 ? "業界協会" : null, position: i === 0 ? "国務大臣" : null, date: "2026-10-01", role: roles[i], quote: "ただし財源の確保が条件です。" }],
+    })),
+  } }));
+  await page.goto(new URL("#/wiki/meetings/kokkai/M1", BASE).toString());
+  const evidence = page.getByTestId("wiki-evidence");
+  await expect(evidence).toContainText("意味的な支持を保証しません");
+  await expect(evidence).toContainText("独立レビューではありません");
+  await evidence.getByText(/抜粋の確認範囲/).click();
+  await expect(evidence).toContainText("全 8 発言中 5 発言、部分収録 1、未収録 3");
+  await expect(evidence.getByText("未収録：kokkai:M1_006、kokkai:M1_007、kokkai:M1_008")).toBeVisible();
+  const labels = ["支持関係は未審査", "要確認", "根拠が支持しないとの判定", "判定不能", "LLM は支持と判定（暫定・人による確認なし）"];
+  for (let i = 0; i < labels.length; i++) {
+    const summary = evidence.locator("summary").filter({ hasText: `主張${i + 1} — ${labels[i]}` });
+    await expect(summary).toBeVisible();
+    await summary.click();
+  }
+  await expect(evidence).toContainText("国務大臣 / 政府側（役職表記による） / 2026-10-01");
+  await expect(evidence).toContainText("業界協会 / 役職未確認 / 業界側（所属表記による）");
+  await expect(evidence).toContainText("有識者（役職表記による）");
+  await expect(evidence).toContainText("参考人（立場未特定）");
+  await expect(evidence).toContainText("立場未確認");
+  await expect(evidence.getByRole("link", { name: "原文（kokkai:M1_002）" })).toHaveAttribute("href", "https://kokkai.ndl.go.jp/txt/M1/2");
 });
 
 test("グラフは表示範囲を絞って描き、ページからは隣接だけの図を開ける", async ({ page }) => {
@@ -111,6 +219,7 @@ test("一覧から会議ページを開くと要点・脚注の出典・つな�
   await expect(page).toHaveURL(/#\/wiki\/meetings\/kokkai\/M1$/);
   await expect(page.getByRole("heading", { name: "参議院 厚生労働委員会 第1号" })).toBeVisible();
   await expect(page.getByText("山田太郎（無所属）は副反応の救済拡充を求めた")).toBeVisible();
+  await expect(page.getByTestId("wiki-evidence")).toContainText("取得範囲・主張ごとの根拠情報は未整備");
   // 脚注は「出典」として表示され、HTML コメント (lawpub マーカー) は出ない。
   await expect(page.getByRole("heading", { name: "出典" })).toBeVisible();
   await expect(page.getByText("「副反応の救済を拡充すべきです」")).toBeVisible();

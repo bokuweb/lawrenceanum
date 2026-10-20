@@ -666,6 +666,10 @@ jobs:
           restore_gian_bundle gian-resolution-assets.tar.zst .cache/gian-resolution-assets
           ./target/release/lawpub gian-build-json --cache .cache --public public \
             || echo "::warning::gian-build-json failed"
+          # 提出時法律案の改め文 (gian-build-json が gian/amendments に構造化) を、公布後の
+          # 法令の版の差分 (law-diff) と条単位で対応づける。対応率は refresh-health が health.json に載せる。
+          ./target/release/lawpub link-bill-amendments --public public \
+            || echo "::warning::link-bill-amendments failed"
 
       # 自治体例規の本文・検索 DB は collect-reiki.yml が R2 から直接配信する（Pages に
       # 収まらない規模のため）。ここでは全国一覧だけを同梱し、ダッシュボードの収録状況に使う。
@@ -749,6 +753,7 @@ jobs:
       # 判例 (裁判所 裁判例検索) を R2 prebuilt キャッシュから復元して同梱する。
       # corpus workflow が hanrei-cache.tar.zst に上げたものを取得 → hanrei-build-json
       # → link-laws-and-hanrei (参照法条から法令詳細へクロスリンク)。
+      # build-search-db が public/hanrei を索引する (hanrei_fts) ので、それより前に実行する。
       - name: Build hanrei from R2 cache
         if: >-
           steps.detect.outputs.changed == 'true' && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
@@ -768,6 +773,11 @@ jobs:
           mkdir -p .cache/hanrei
           zstd -dc --long=31 /tmp/hanrei-cache.tar.zst | tar -x -C .cache/hanrei
           rm -f /tmp/hanrei-cache.tar.zst
+          # 過去分 (backfill-hanrei.yml) は日次 run が取り込むまで別オブジェクトにあるので合わせる。
+          if aws s3 cp "s3://$R2_BUCKET/hanrei-backfill.tar.zst" /tmp/hanrei-backfill.tar.zst --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            zstd -dc --long=31 /tmp/hanrei-backfill.tar.zst | tar -x --skip-old-files -C .cache/hanrei
+            rm -f /tmp/hanrei-backfill.tar.zst
+          fi
           n=$(find .cache/hanrei -name '*.json' | wc -l | tr -d ' ')
           [ "${n:-0}" -eq 0 ] && { echo "::warning::hanrei cache empty"; exit 0; }
           echo "::notice::hanrei cache restored from R2: $n cases"
@@ -776,10 +786,130 @@ jobs:
           ./target/release/lawpub link-laws-and-hanrei --public public \
             || echo "::warning::link-laws-and-hanrei failed"
 
+      # 質問主意書・答弁書を R2 prebuilt キャッシュから復元して同梱する。
+      # corpus workflow が shitsumon-cache.tar.zst に上げたものを取得 → shitsumon-build-json
+      # → link-laws-and-shitsumon (件名・本文の法令参照から法令詳細へクロスリンク)。
+      - name: Build shitsumon from R2 cache
+        if: >-
+          steps.detect.outputs.changed == 'true' && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        continue-on-error: true
+        run: |
+          set +e
+          if ! aws s3 cp "s3://$R2_BUCKET/shitsumon-cache.tar.zst" /tmp/shitsumon-cache.tar.zst --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            echo "::warning::shitsumon-cache.tar.zst not found in R2 — 質問主意書なしで続行"
+            exit 0
+          fi
+          mkdir -p .cache/shitsumon
+          zstd -dc --long=31 /tmp/shitsumon-cache.tar.zst | tar -x -C .cache/shitsumon
+          rm -f /tmp/shitsumon-cache.tar.zst
+          n=$(find .cache/shitsumon -name '*.json' | wc -l | tr -d ' ')
+          [ "${n:-0}" -eq 0 ] && { echo "::warning::shitsumon cache empty"; exit 0; }
+          echo "::notice::shitsumon cache restored from R2: $n questions"
+          ./target/release/lawpub shitsumon-build-json --cache .cache --public public \
+            || echo "::warning::shitsumon-build-json failed"
+          ./target/release/lawpub link-laws-and-shitsumon --public public \
+            || echo "::warning::link-laws-and-shitsumon failed"
+
+      # 政府解釈 (金融庁のノーアクションレター・Q&A 等) を R2 prebuilt キャッシュから復元して同梱する。
+      # corpus workflow が guidance-cache.tar.zst に上げたもの (本文抽出済み) を取得 →
+      # guidance-build-json (関連法令を法令 ID に解決) → link-laws-and-guidance。
+      # 添付原本 (guidance-assets) は配信しないので取らない。
+      - name: Build guidance from R2 cache
+        if: >-
+          steps.detect.outputs.changed == 'true' && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        continue-on-error: true
+        run: |
+          set +e
+          if ! aws s3 cp "s3://$R2_BUCKET/guidance-cache.tar.zst" /tmp/guidance-cache.tar.zst --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            echo "::warning::guidance-cache.tar.zst not found in R2 — 政府解釈なしで続行"
+            exit 0
+          fi
+          mkdir -p .cache/guidance
+          zstd -dc --long=31 /tmp/guidance-cache.tar.zst | tar -x -C .cache/guidance
+          rm -f /tmp/guidance-cache.tar.zst
+          n=$(find .cache/guidance -name '*.json' ! -name '._*' | wc -l | tr -d ' ')
+          [ "${n:-0}" -eq 0 ] && { echo "::warning::guidance cache empty"; exit 0; }
+          echo "::notice::guidance cache restored from R2: $n documents"
+          ./target/release/lawpub guidance-build-json --cache .cache --public public \
+            || echo "::warning::guidance-build-json failed"
+          ./target/release/lawpub link-laws-and-guidance --public public \
+            || echo "::warning::link-laws-and-guidance failed"
+
+      # 法令英訳 (日本法令外国語訳データベース) を R2 キャッシュから復元して同梱する。
+      # corpus workflow が jlt-cache.tar.zst に上げたものを取得 → jlt-build-json
+      # (法令番号で law_id に対応付け、laws/{law_id}/en.json と jlt/index.json)。
+      # build-search-db が laws/*/en.json を英語 FTS に取り込むので、それより前に実行する。
+      - name: Build jlt from R2 cache
+        if: >-
+          steps.detect.outputs.changed == 'true' && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        continue-on-error: true
+        run: |
+          set +e
+          if ! aws s3 cp "s3://$R2_BUCKET/jlt-cache.tar.zst" /tmp/jlt-cache.tar.zst --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            echo "::warning::jlt-cache.tar.zst not found in R2 — 英訳なしで続行"
+            exit 0
+          fi
+          mkdir -p .cache/jlt
+          zstd -dc --long=31 /tmp/jlt-cache.tar.zst | tar -x -C .cache/jlt
+          rm -f /tmp/jlt-cache.tar.zst
+          [ -f .cache/jlt/list.json ] || { echo "::warning::jlt cache empty"; exit 0; }
+          n=$(find .cache/jlt/laws -name '*.json' | wc -l | tr -d ' ')
+          echo "::notice::jlt cache restored from R2: $n translations"
+          ./target/release/lawpub jlt-build-json --cache .cache --public public \
+            || echo "::warning::jlt-build-json failed"
+
+      # 条約 (外務省) を R2 prebuilt キャッシュから復元して同梱する。
+      # corpus workflow が treaty-cache.tar.zst に上げたものを取得 → treaty-build-json
+      # → link-laws-and-treaties (法令本文の条約名・条約番号から法令詳細へクロスリンク)。
+      - name: Build treaties from R2 cache
+        if: >-
+          steps.detect.outputs.changed == 'true' && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        continue-on-error: true
+        run: |
+          set +e
+          if ! aws s3 cp "s3://$R2_BUCKET/treaty-cache.tar.zst" /tmp/treaty-cache.tar.zst --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+            echo "::warning::treaty-cache.tar.zst not found in R2 — 条約なしで続行"
+            exit 0
+          fi
+          mkdir -p .cache/treaty
+          zstd -dc --long=31 /tmp/treaty-cache.tar.zst | tar -x -C .cache/treaty
+          rm -f /tmp/treaty-cache.tar.zst
+          n=$(find .cache/treaty/search -name '*.json' 2>/dev/null | wc -l | tr -d ' ')
+          [ "${n:-0}" -eq 0 ] && [ ! -d .cache/treaty/diet ] && { echo "::warning::treaty cache empty"; exit 0; }
+          echo "::notice::treaty cache restored from R2"
+          ./target/release/lawpub treaty-build-json --cache .cache --public public \
+            || echo "::warning::treaty-build-json failed"
+          ./target/release/lawpub link-laws-and-treaties --public public \
+            || echo "::warning::link-laws-and-treaties failed"
+
       # 横断検索 DB を全コーパス込みで一度だけ作る。前段の update/build-json には
       # --skip-search-db を渡し、法令のみの 1.6GB 索引を作ってからここで再作成する二重処理を
-      # 避ける。proceedings/kanpo/tsutatsu が出揃ったここで生成し、通達・官報・議事録を
-      # 確実に取り込む。直後の build-feeds が rebuild-manifest するので、search.db の sha
+      # 避ける。proceedings/kanpo/tsutatsu/hanrei が出揃ったここで生成し、通達・官報・
+      # 議事録・判例を確実に取り込む。直後の build-feeds が rebuild-manifest するので、search.db の sha
       # は manifest に反映され validate を通る。
       - name: Rebuild search.db with corpus
         if: steps.detect.outputs.changed == 'true'

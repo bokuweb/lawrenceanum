@@ -1,12 +1,12 @@
 name: Update LLM wiki
 
-# 配信済みコーパス (Pages の静的 JSON) から、法令に言及した国会・審議会の発言を
+# 配信済みコーパス (Pages の静的 JSON) から、国会・審議会の政策議論を
 # OKF 形式の wiki (専用の orphan ブランチ `wiki`) に日次で積み上げる。
 #
-#   wiki-plan (決定的)    : 未処理の会議から法令リンクのあるものを最大 N 件選び、抜粋と雛形を作る
+#   wiki-plan (決定的)    : 未処理・原資料が変わった会議を法令リンクの有無を問わず最大 N 件選び、抜粋と雛形を作る
 #   Claude Code (LLM)     : 抜粋だけを読み、要約・経緯・論点ページを引用付きで書く
 #   wiki-finalize (決定的): 時系列・人物・index・log を再生成し、未完了タスクは巻き戻す
-#   wiki-check (決定的)   : 引用 (発言 ID の実在・原文一致)・リンク・OKF frontmatter を検証
+#   wiki-check (決定的)   : 引用・URL・主張と脚注の対応・発言者/役職を照合（意味的支持の保証ではない）
 #                           → 失敗したら 1 回だけ LLM に修正させ、それでも駄目なら push しない
 #
 # wiki は main と履歴を分けるため orphan ブランチに置く (日次コミットで main を汚さない)。
@@ -15,7 +15,8 @@ name: Update LLM wiki
 # 必要な設定:
 #   Secrets  : CLAUDE_CODE_OAUTH_TOKEN (`claude setup-token` で発行。Pro/Max プランで実行)
 #              または ANTHROPIC_API_KEY (従量課金)
-#   Variables: WIKI_MODEL (既定 claude-sonnet-5-5) / WIKI_MAX_ITEMS (既定 5) / WIKI_MAX_BILLS (既定 5) / WIKI_MAX_PUBCOMMENTS (既定 3) / WIKI_MAX_KANPO (既定 3)
+#   Variables: WIKI_MODEL (既定 claude-sonnet-5-5) / WIKI_MAX_ITEMS (既定 5) / WIKI_MAX_BILLS (既定 5) / WIKI_MAX_PUBCOMMENTS (既定 3) / WIKI_MAX_KANPO (既定 3) / WIKI_MAX_ENFORCEMENTS (既定 5)
+#              / WIKI_MAX_PEOPLE (既定 3。人物ページの全体像と経緯を書かせる人数。発言者名簿から未要約の会議が多い人を選ぶ)
 #              / WIKI_MAX_ROSTER (既定 1200。発言者名簿を作る会議数の上限。LLM は使わない)
 on:
   schedule:
@@ -39,8 +40,16 @@ on:
         description: "1 回で要約する官報の項目 (改め文) の上限 (別枠。0 で要約しない)"
         required: false
         type: string
+      max_people:
+        description: "1 回で全体像と経緯を書く人物の上限 (別枠。0 で書かない)"
+        required: false
+        type: string
       max_roster:
         description: "1 回で発言者名簿を作る会議の上限 (LLM 不要。人物・会議体ページの元)"
+        required: false
+        type: string
+      max_enforcements:
+        description: "1 回で要約する施行予定の上限 (会議・議案とは別枠。0 で無効)"
         required: false
         type: string
       lookback_days:
@@ -80,9 +89,11 @@ jobs:
       MAX_BILLS: ${{ github.event.inputs.max_bills || vars.WIKI_MAX_BILLS || '5' }}
       MAX_PUBCOMMENTS: ${{ github.event.inputs.max_pubcomments || vars.WIKI_MAX_PUBCOMMENTS || '3' }}
       MAX_KANPO: ${{ github.event.inputs.max_kanpo || vars.WIKI_MAX_KANPO || '3' }}
+      MAX_PEOPLE: ${{ github.event.inputs.max_people || vars.WIKI_MAX_PEOPLE || '3' }}
       MAX_ROSTER: ${{ github.event.inputs.max_roster || vars.WIKI_MAX_ROSTER || '1200' }}
       # 自治体例規は R2 から配信している。Secret が無ければ例規の照合を飛ばす (週 1 回更新)。
       WIKI_REIKI_BASE_URL: ${{ secrets.R2_PUBLIC_URL && format('{0}/reiki', secrets.R2_PUBLIC_URL) || '' }}
+      MAX_ENFORCEMENTS: ${{ github.event.inputs.max_enforcements || vars.WIKI_MAX_ENFORCEMENTS || '5' }}
       LOOKBACK_DAYS: ${{ github.event.inputs.lookback_days || '45' }}
       PUSH_MODE: ${{ github.event.inputs.push_mode || 'direct' }}
       HAS_CLAUDE_AUTH: ${{ secrets.ANTHROPIC_API_KEY != '' || secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
@@ -120,9 +131,11 @@ jobs:
           ./target/release/lawpub wiki-plan \
             --wiki wiki --work .wiki-work \
             --max-items "$MAX_ITEMS" --max-bills "$MAX_BILLS" --max-pubcomments "$MAX_PUBCOMMENTS" --max-kanpo "$MAX_KANPO" \
-            --max-roster "$MAX_ROSTER" --lookback-days "$LOOKBACK_DAYS"
+            --max-enforcements "$MAX_ENFORCEMENTS" --max-people "$MAX_PEOPLE" --max-roster "$MAX_ROSTER" --lookback-days "$LOOKBACK_DAYS"
           echo "tasks=$(jq '.tasks | length' .wiki-work/plan.json)" >> "$GITHUB_OUTPUT"
           cat .wiki-work/plan.md >> "$GITHUB_STEP_SUMMARY"
+          echo '### 会議取り込みの状態（完了は finalize 後）' >> "$GITHUB_STEP_SUMMARY"
+          jq -r '.scope, (.entries | to_entries | group_by(.value)[] | "\(.[0].value): \(length) 件")' wiki/.lawpub/intake.json >> "$GITHUB_STEP_SUMMARY"
 
       # Claude には wiki/ の編集と読み取りだけを許す。Bash とネットワークは渡さない
       # (会議録は外部由来のテキストなので、プロンプトインジェクションの影響範囲を最小にする)。
@@ -152,7 +165,7 @@ jobs:
           [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ] || unset CLAUDE_CODE_OAUTH_TOKEN
           echo "### Claude Code (チャンクごと)" >> "$GITHUB_STEP_SUMMARY"
           for f in .wiki-work/chunks/*.md; do
-            prompt="\`.github/wiki-agent.md\` の指示に従い、\`$f\` に載っている全タスクを最後まで処理して wiki を更新してください。
+            prompt="\`.github/wiki-agent.md\` の指示に従い、\`$f\` に載っている全タスクを最後まで処理して wiki を更新してください。会議の claims と支持関係の暫定評価も必ず保存してください。
           ソースバンドル (\`.wiki-work/sources/\`) の抜粋だけを根拠にし、引用ルールを厳守してください。途中で作業を切り上げないこと。"
             if claude -p "$prompt" \
                 --model "$WIKI_MODEL" \

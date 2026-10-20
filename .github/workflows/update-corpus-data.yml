@@ -18,7 +18,7 @@ on:
         type: choice
         options: ["http", "mock"]
       domains:
-        description: "カンマ区切りドメイン (kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget,hanrei) / 空=全て。自治体例規は collect-reiki.yml"
+        description: "カンマ区切りドメイン (kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget,hanrei,shitsumon,guidance,jlt,treaty) / 空=全て。自治体例規は collect-reiki.yml"
         required: false
         type: string
       kokkai_session:
@@ -31,6 +31,10 @@ on:
         type: string
       hanrei_to:
         description: "判例の取得終了日 YYYY-MM-DD (空=今日)"
+        required: false
+        type: string
+      shitsumon_session:
+        description: "質問主意書の回次 (例: 219 / 210-219。空=最新と1つ前)。過去分のバックフィル用"
         required: false
         type: string
   schedule:
@@ -88,7 +92,7 @@ jobs:
     timeout-minutes: 120
     env:
       LAWPUB_PROVIDER: ${{ github.event.inputs.provider || 'http' }}
-      DOMAINS: ${{ github.event.inputs.domains || 'kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget,hanrei' }}
+      DOMAINS: ${{ github.event.inputs.domains || 'kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget,hanrei,shitsumon,guidance,jlt,treaty' }}
       # 未設定なら budget step は安全に skip。Secret 追加後の次回runから自動収集する。
       LAWPUB_ESTAT_APP_ID: ${{ secrets.ESTAT_APP_ID }}
 
@@ -154,11 +158,19 @@ jobs:
           restore_bundle shingikai-history.tar.zst .cache/shingikai-history
           restore_bundle budget-cache.tar.zst .cache/budget
           restore_bundle hanrei-cache.tar.zst .cache/hanrei
+          # 過去分は backfill-hanrei.yml が別オブジェクトに貯める。ここで合わせて復元し、
+          # 日次の hanrei-cache にも取り込む。
+          restore_bundle hanrei-backfill.tar.zst .cache/hanrei
+          restore_bundle shitsumon-cache.tar.zst .cache/shitsumon
+          restore_bundle guidance-cache.tar.zst .cache/guidance
+          restore_bundle guidance-assets.tar.zst .cache/guidance-assets
+          restore_bundle jlt-cache.tar.zst .cache/jlt
+          restore_bundle treaty-cache.tar.zst .cache/treaty
 
       - name: Build lawpub
         run: cargo build --release -p lawpub-cli
 
-      # パブコメ添付 PDF の原本保存・全文抽出に使用する。
+      # パブコメ・政府解釈の添付 PDF の原本保存・全文抽出に使用する。
       - name: Install poppler (pdftotext)
         run: sudo apt-get update && sudo apt-get install -y poppler-utils
 
@@ -436,6 +448,159 @@ jobs:
             --cache-control 'public, max-age=300'
           echo "::notice::uploaded hanrei cache to R2 ($n cases)"
 
+      # ── 質問主意書・答弁書 (衆議院 質問答弁情報 / 参議院 質問主意書) ─────────
+      - name: Fetch shitsumon
+        id: fetch_shitsumon
+        if: contains(env.DOMAINS, 'shitsumon') || env.DOMAINS == ''
+        continue-on-error: true
+        env:
+          SHITSUMON_SESSION: ${{ github.event.inputs.shitsumon_session }}
+        run: |
+          # robots.txt は両院とも不在。サイト規約は出所明示での引用・転載・複製を許し改変を
+          # 禁じるため、本文は原文のまま保持して出典 URL を付ける。
+          # 答弁済みの保存分は飛ばすので、--limit で打ち切っても次回 run が続きから取る。
+          # 1 件につき経過・質問・答弁の最大 3 リクエスト (1 秒間隔) なので 400 件で約 20 分。
+          args=()
+          [ -n "$SHITSUMON_SESSION" ] && args+=(--session "$SHITSUMON_SESSION")
+          ./target/release/lawpub shitsumon-fetch \
+            --cache .cache "${args[@]}" --limit 400 --interval-ms 1000
+
+      - name: Upload shitsumon cache to R2
+        id: upload_shitsumon
+        if: (contains(env.DOMAINS, 'shitsumon') || env.DOMAINS == '') && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        continue-on-error: true
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          [ -d .cache/shitsumon ] || { echo "::notice::no shitsumon cache, skip R2 upload"; exit 0; }
+          n=$(find .cache/shitsumon -name '*.json' | wc -l | tr -d ' ')
+          # top-level を ./{house}/{session}/{number}.json にするため .cache/shitsumon 内から固める。
+          ( cd .cache/shitsumon && tar -cf - . | zstd -19 --long -T0 -o /tmp/shitsumon-cache.tar.zst -f )
+          aws s3 cp /tmp/shitsumon-cache.tar.zst "s3://$R2_BUCKET/shitsumon-cache.tar.zst" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --content-type 'application/zstd' \
+            --cache-control 'public, max-age=300'
+          echo "::notice::uploaded shitsumon cache to R2 ($n questions)"
+
+      # ── 政府解釈 (金融庁 ノーアクションレター・書面照会・相談事例・Q&A・ガイドライン) ──
+      - name: Fetch guidance
+        id: fetch_guidance
+        if: contains(env.DOMAINS, 'guidance') || env.DOMAINS == ''
+        continue-on-error: true
+        run: |
+          # 金融庁サイトは PDL1.0 (出典明記・加工の旨を記載すれば再配布可)、robots.txt は不在。
+          # 一覧の巡回が約 22 リクエスト、文書ごとに照会書・回答書の最大 2 ファイル。
+          # 取得済みのノーアクションレターは取り直さず、Q&A・ガイドラインは 7 日ごとに取り直す。
+          # 2 秒間隔・1 run 120 文書まで (初回は約 10 分、以後は数分)。
+          ./target/release/lawpub guidance-fetch \
+            --cache .cache --ministry fsa --interval-ms 2000 --limit 120 --refresh-days 7
+
+      - name: Upload guidance cache to R2
+        id: upload_guidance
+        if: (contains(env.DOMAINS, 'guidance') || env.DOMAINS == '') && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        continue-on-error: true
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          [ -d .cache/guidance ] || { echo "::notice::no guidance cache, skip R2 upload"; exit 0; }
+          upload_bundle() {
+            source="$1"
+            object="$2"
+            [ -d "$source" ] || { echo "::notice::no $source, skip $object"; return; }
+            archive="/tmp/$object"
+            ( cd "$source" && tar -cf - . | zstd -19 --long -T0 -o "$archive" -f )
+            aws s3 cp "$archive" "s3://$R2_BUCKET/$object" \
+              --endpoint-url "$R2_ENDPOINT" \
+              --content-type 'application/zstd' \
+              --cache-control 'public, max-age=300'
+          }
+          n=$(find .cache/guidance -name '*.json' ! -name '._*' | wc -l | tr -d ' ')
+          # top-level を ./{ministry}/{id}.json / ./{ministry}/{sha256}.{ext} にする。
+          upload_bundle .cache/guidance guidance-cache.tar.zst
+          upload_bundle .cache/guidance-assets guidance-assets.tar.zst
+          echo "::notice::uploaded guidance cache to R2 ($n documents)"
+
+      # ── 法令英訳 (法務省 日本法令外国語訳データベース) ─────────────────────
+      - name: Fetch jlt
+        id: fetch_jlt
+        if: contains(env.DOMAINS, 'jlt') || env.DOMAINS == ''
+        continue-on-error: true
+        run: |
+          # 利用規約は PDL1.0 (出典・加工の旨の記載で再配布可)。robots.txt は不在。
+          # 一覧 (12 分野・約 25 ページ) は毎回引き直し、本文は未取得の翻訳版 ID だけ取る
+          # (翻訳が更新されると ID が変わる)。2 秒間隔・1 run 200 件までで、全約 1,000 件の
+          # バックフィルは数日の定期 run で終わる。
+          ./target/release/lawpub jlt-fetch \
+            --cache .cache --limit 200 --interval-ms 2000
+
+      - name: Upload jlt cache to R2
+        id: upload_jlt
+        if: (contains(env.DOMAINS, 'jlt') || env.DOMAINS == '') && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        continue-on-error: true
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          [ -f .cache/jlt/list.json ] || { echo "::notice::no jlt cache, skip R2 upload"; exit 0; }
+          n=$(find .cache/jlt/laws -name '*.json' | wc -l | tr -d ' ')
+          # top-level を ./list.json + ./laws/{jlt_id}.json にするため .cache/jlt 内から固める。
+          ( cd .cache/jlt && tar -cf - . | zstd -19 --long -T0 -o /tmp/jlt-cache.tar.zst -f )
+          aws s3 cp /tmp/jlt-cache.tar.zst "s3://$R2_BUCKET/jlt-cache.tar.zst" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --content-type 'application/zstd' \
+            --cache-control 'public, max-age=300'
+          echo "::notice::uploaded jlt cache to R2 ($n translations)"
+
+      # ── 条約 (外務省 条約データ検索・国会提出条約) ───────────────────
+      - name: Fetch treaty
+        id: fetch_treaty
+        if: contains(env.DOMAINS, 'treaty') || env.DOMAINS == ''
+        continue-on-error: true
+        run: |
+          # 条約は著作権法13条で著作権の対象外、外務省サイトは PDL1.0 (出典明記)。robots.txt は無い。
+          # 本文 HTML は <meta name="ROBOTS" content="none"> なのでリンクは辿らず、一覧と
+          # 国会提出条約ページに載った URL だけを取る。2 秒間隔。
+          # 一覧 (約 333 ページ) は全ページ取得から 7 日以内なら取り直さない。条約ページは公布・
+          # 効力発生まで済んだ保存分を、本文は取得済みを飛ばすので、--limit で打ち切っても次回 run が
+          # 続きから取る。HTML 版の無い条約は PDF (pdftotext) から 1 回 30 件まで。
+          # 注: 2026-10 時点で外務省の配信網 (Akamai) は非ブラウザのクライアントに 403 を返すことがある。
+          # その場合このステップは失敗扱いで続行する (回避の細工はしない)。
+          ./target/release/lawpub treaty-fetch --cache .cache \
+            --interval-ms 2000 --limit 200 --with-pdf --pdf-limit 30
+
+      - name: Upload treaty cache to R2
+        id: upload_treaty
+        if: (contains(env.DOMAINS, 'treaty') || env.DOMAINS == '') && steps.fetch_treaty.outcome == 'success' && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        continue-on-error: true
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          [ -d .cache/treaty ] || { echo "::notice::no treaty cache, skip R2 upload"; exit 0; }
+          n=$(find .cache/treaty/text -name '*.json' 2>/dev/null | wc -l | tr -d ' ')
+          # top-level を ./search ./diet ./text にするため .cache/treaty 内から固める。
+          # PDF 原本 (.cache/treaty-assets) は SHA-256 を JSON に残し、R2 には上げない。
+          ( cd .cache/treaty && tar -cf - . | zstd -19 --long -T0 -o /tmp/treaty-cache.tar.zst -f )
+          aws s3 cp /tmp/treaty-cache.tar.zst "s3://$R2_BUCKET/treaty-cache.tar.zst" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --content-type 'application/zstd' \
+            --cache-control 'public, max-age=300'
+          echo "::notice::uploaded treaty cache to R2 ($n texts)"
+
       # ── 調達情報 ─────────────────────────────────────────────────
 
       - name: Fetch procurement (直近 30 日)
@@ -598,6 +763,14 @@ jobs:
           BUDGET_UPLOAD_OUTCOME: ${{ steps.upload_budget.outcome }}
           HANREI_OUTCOME: ${{ steps.fetch_hanrei.outcome }}
           HANREI_UPLOAD_OUTCOME: ${{ steps.upload_hanrei.outcome }}
+          SHITSUMON_OUTCOME: ${{ steps.fetch_shitsumon.outcome }}
+          SHITSUMON_UPLOAD_OUTCOME: ${{ steps.upload_shitsumon.outcome }}
+          GUIDANCE_OUTCOME: ${{ steps.fetch_guidance.outcome }}
+          GUIDANCE_UPLOAD_OUTCOME: ${{ steps.upload_guidance.outcome }}
+          JLT_OUTCOME: ${{ steps.fetch_jlt.outcome }}
+          JLT_UPLOAD_OUTCOME: ${{ steps.upload_jlt.outcome }}
+          TREATY_OUTCOME: ${{ steps.fetch_treaty.outcome }}
+          TREATY_UPLOAD_OUTCOME: ${{ steps.upload_treaty.outcome }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -646,6 +819,10 @@ jobs:
           update_domain shingikai shingikai "$SHINGIKAI_OUTCOME" "$SHINGIKAI_UPLOAD_OUTCOME"
           update_domain budget budget "$BUDGET_OUTCOME" "$BUDGET_UPLOAD_OUTCOME"
           update_domain hanrei hanrei "$HANREI_OUTCOME" "$HANREI_UPLOAD_OUTCOME"
+          update_domain shitsumon shitsumon "$SHITSUMON_OUTCOME" "$SHITSUMON_UPLOAD_OUTCOME"
+          update_domain guidance guidance "$GUIDANCE_OUTCOME" "$GUIDANCE_UPLOAD_OUTCOME"
+          update_domain jlt jlt "$JLT_OUTCOME" "$JLT_UPLOAD_OUTCOME"
+          update_domain treaties treaty "$TREATY_OUTCOME" "$TREATY_UPLOAD_OUTCOME"
           tmp=$(mktemp)
           jq --arg ts "$ts" --arg domains "$DOMAINS" '
             .version = 2 | .updated_at = $ts | .last_run_domains = $domains

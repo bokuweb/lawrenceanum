@@ -200,12 +200,42 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
             && Page::read(&path)
                 .map(|p| {
                     !p.get_str("description").trim().is_empty()
+                        && (p.get("evidence_version").is_none() || evidence::claim_errors(&p).is_empty())
+                        && (task.kind != enforcements::KIND || enforcements::explanation_errors(&p).is_empty())
+                        && (!matches!(task.kind.as_str(), KIND_KOKKAI | KIND_SHINGIKAI)
+                            || std::fs::read(args.work.join(&task.source)).ok()
+                                .and_then(|bytes| serde_json::from_slice::<Value>(&bytes).ok())
+                                .map(|bundle| if bundle.get("source_fingerprint").is_some() {
+                                    evidence::source_fields_match(&p, &bundle, state.is_processed(&task.key))
+                                } else { p.get("source_fingerprint").is_none() })
+                                .unwrap_or(p.get("source_fingerprint").is_none()))
                         && llm_blocks(&p.body)
                             .iter()
                             .any(|b| !citations_in(b).is_empty())
                 })
                 .unwrap_or(false);
-        if done && task.kind == super::kanpo::KIND_KANPO {
+        // 前の要約に引用があっても、今回のタスクで書き直していなければ未完了。
+        // before のない旧 plan も引き続き読み込める。
+        let done = done && plan.before.get(&task.page).is_none_or(|before| {
+            Page::read(&path).is_ok_and(|p| llm_hash(&p.body) != *before)
+        });
+        // 人物ページは前の経緯に引用があるだけでは完了にならない (書き足されたかを見る)。
+        let done = done
+            && task.person.as_ref().is_none_or(|pt| {
+                Page::read(&path).is_ok_and(|p| llm_hash(&p.body) != pt.before)
+            });
+        if let (true, Some(pt)) = (done, &task.person) {
+            // 人物は、渡した最後の会議の日付まで要約済みとして記録する (翌日以降はその後の会議を渡す)。
+            let mut page = Page::read(&path)?;
+            page.set("llm_until", json!(pt.until));
+            page.write(&path)?;
+            completed.push(task.clone());
+        } else if done && task.kind == enforcements::KIND {
+            let mut page = Page::read(&path)?;
+            page.set("llm_source_fingerprint", page.get("source_fingerprint").cloned().unwrap_or(Value::Null));
+            page.write(&path)?;
+            completed.push(task.clone());
+        } else if done && task.kind == super::kanpo::KIND_KANPO {
             // 官報の項目は一度要約したら終わり (本文もページ内で固定する)。
             let mut page = Page::read(&path)?;
             page.set("llm_done", json!(true));
@@ -230,6 +260,9 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
             // 経緯の形式を満たしたので、再投入の対象から外す。
             let mut page = Page::read(&path)?;
             page.set("llm_version", json!(NARRATIVE_VERSION));
+            if matches!(task.kind.as_str(), KIND_KOKKAI | KIND_SHINGIKAI) && page.get("source_fingerprint").is_some() {
+                page.set("llm_source_fingerprint", page.get("source_fingerprint").cloned().unwrap());
+            }
             page.write(&path)?;
             completed.push(task.clone());
         } else {
@@ -245,6 +278,19 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
                 .filter(|p| p.starts_with("laws/"))
                 .cloned(),
         );
+    }
+
+    let intake_path = wiki.join(".lawpub/intake.json");
+    if intake_path.exists() {
+        let mut intake: Value = serde_json::from_slice(&std::fs::read(&intake_path)?)?;
+        if let Some(entries) = intake["entries"].as_object_mut() {
+            for task in &plan.tasks {
+                if let Some(status) = entries.get_mut(&task.key) {
+                    *status = json!(if completed.iter().any(|t| t.key == task.key) { "completed" } else { "summary_pending" });
+                }
+            }
+        }
+        std::fs::write(&intake_path, serde_json::to_vec_pretty(&intake)?)?;
     }
 
     // 2. 会議ページを集める。人物・会議体ページ用には、LLM がまだ要点を書いていない会議も
@@ -413,7 +459,7 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
     // 対象から外れた人物のページは、LLM の経緯が無ければ消す。
     for path in walk_md(wiki, "people") {
         let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("");
-        let narrative_empty = Page::read(&path).map(|p| first_llm_block(&p.body).is_empty()).unwrap_or(true);
+        let narrative_empty = Page::read(&path).map(|p| llm_blocks(&p.body).iter().all(|b| b.trim().is_empty())).unwrap_or(true);
         if !people.keys().any(|n| file_safe(n) == stem) && narrative_empty {
             std::fs::remove_file(&path)?;
         }
@@ -462,11 +508,15 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
                 rel_link(&rel, &party_page(&affiliation))
             )
         };
-        // 主な発言: 新しい順に、法令に言及した発言の抜粋を原文のまま引用する。
+        // 要約前の発言: LLM (人物タスク) がまだ要約していない会議 (`llm_until` より後) だけ、法令に言及した
+        // 発言の抜粋を原文のまま新しい順に載せる。要約済みの会議は「発言と経緯」の要約から発言へリンクする。
+        let llm_until = page.get("llm_until").and_then(Value::as_str).unwrap_or("").to_string();
         let mut quotes = String::new();
-        let quoted: Vec<&Remark> = remarks.iter().filter(|(_, sp)| sp.excerpt.is_some()).take(MAX_PERSON_QUOTES).collect();
+        let unsummarized: Vec<&Remark> = remarks.iter().filter(|(m, _)| m.date.as_str() > llm_until.as_str()).collect();
+        let quoted: Vec<&Remark> = unsummarized.iter().copied().filter(|(_, sp)| sp.excerpt.is_some()).take(MAX_PERSON_QUOTES).collect();
         if !quoted.is_empty() {
-            quotes.push_str(&format!("## 主な発言（{}）\n\n", quoted.len()));
+            let heading = if llm_until.is_empty() { "主な発言" } else { "要約前の発言" };
+            quotes.push_str(&format!("## {heading}（抜粋・{}）\n\n", quoted.len()));
             for (m, sp) in &quoted {
                 let excerpt = sp.excerpt.as_deref().unwrap_or_default();
                 let source = match sp.excerpt_url.as_deref().filter(|u| !u.is_empty()) {
@@ -477,7 +527,7 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
                 let excerpt = excerpt.replace(['\n', '\r'], " ");
                 quotes.push_str(&format!("**{}**　{source}\n\n> {excerpt}\n\n", m.date));
             }
-            if remarks.len() > quoted.len() {
+            if unsummarized.len() > quoted.len() {
                 quotes.push_str(&format!(
                     "ほかの発言は下の一覧から会議録をたどってください（全 {} 会議）。\n\n",
                     remarks.len()
@@ -495,7 +545,12 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
             ("timestamp".to_string(), page.get("timestamp").cloned().unwrap_or(json!(now_rfc3339()))),
             ("tags".to_string(), tags),
         ];
-        let body = person_body(name, &intro, &first_llm_block(&page.body), &quotes, &table);
+        // 人物タスクで要約済みの会議の日付 (wiki-plan が次に渡す会議を決める)。
+        if let Some(until) = page.get("llm_until").cloned() {
+            fm.push(("llm_until".to_string(), until));
+        }
+        let (summary, narrative) = person_blocks(&page.body);
+        let body = person_body(name, &intro, &summary, &narrative, &quotes, &table);
         if body != page.body {
             fm[6].1 = json!(now_rfc3339());
         }
@@ -867,7 +922,9 @@ fn load_meetings(wiki: &Path) -> Result<Vec<MeetingInfo>> {
             corpus,
             organization: page.get_str("organization").to_string(),
             committee: page.get_str("committee").to_string(),
-            description: page.get_str("description").to_string(),
+            description: if evidence::summary_source_status(&page) == "stale" {
+                format!("【原資料更新・要再確認】{}", page.get_str("description"))
+            } else { page.get_str("description").to_string() },
             laws,
             speakers,
         });
@@ -1160,6 +1217,7 @@ mod tests {
         std::fs::write(wiki.join("laws/L1.md"), law()).unwrap();
         let plan = Plan {
             schema_version: 1,
+            before: BTreeMap::new(),
             date: "2026-10-08".into(),
             base_url: "x".into(),
             tasks: vec![Task {
@@ -1174,6 +1232,7 @@ mod tests {
                 people: vec![],
                 committee: None,
                 created: vec!["meetings/kokkai/M1.md".into(), "laws/L1.md".into()],
+                person: None,
             }],
         };
         std::fs::write(work.join("plan.json"), serde_json::to_vec(&plan).unwrap()).unwrap();
@@ -1286,9 +1345,19 @@ mod tests {
         };
         std::fs::write(dir.join("M1.json"), serde_json::to_vec(&m1).unwrap()).unwrap();
 
-        run_finalize(&FinalizeArgs { wiki: wiki.clone(), work }).unwrap();
+        run_finalize(&FinalizeArgs { wiki: wiki.clone(), work: work.clone() }).unwrap();
 
         let person = Page::read(&wiki.join("people/田中花子.md")).unwrap();
+        assert!(person.body.contains("## 主な発言（抜粋・1）"), "{}", person.body);
+
+        // 人物タスクで要約済み (llm_until) の会議は、抜粋ではなく経緯の要約から発言へリンクする。
+        let mut summarized = person.clone();
+        summarized.set("llm_until", json!("2026-06-16"));
+        summarized.write(&wiki.join("people/田中花子.md")).unwrap();
+        run_finalize(&FinalizeArgs { wiki: wiki.clone(), work }).unwrap();
+        let after = Page::read(&wiki.join("people/田中花子.md")).unwrap();
+        assert!(!after.body.contains("予防接種法の救済を拡充すべきでは。"), "{}", after.body);
+        assert!(after.body.contains("## 発言した会議（一覧）"));
         assert_eq!(person.get_str("affiliation"), "会派B");
         // 会議ページが無いので原文へ、法令ページがある L1 だけがリンクになる。
         assert!(person.body.contains("[衆議院 厚生労働委員会 第13号](https://kokkai.ndl.go.jp/txt/M9)"), "{}", person.body);
@@ -1300,6 +1369,7 @@ mod tests {
             person.body
         );
         assert!(person.body.contains("> 予防接種法の救済を拡充すべきでは。"), "{}", person.body);
+        assert!(after.get("llm_until").is_some(), "llm_until は描き直しでも残る");
 
         let committee = std::fs::read_to_string(wiki.join("committees/衆議院厚生労働委員会.md")).unwrap();
         assert!(committee.contains("[田中花子](../people/田中花子.md)"), "{committee}");
@@ -1476,16 +1546,18 @@ mod tests {
         std::fs::write(wiki.join("meetings/kokkai/M1.md"), meeting).unwrap();
         let narrative = "### 2026-10-01 参議院 厚生労働委員会\n- 副反応の救済拡充を求めた[^1]。\n\n[^1]: [kokkai:M1_001](https://kokkai.ndl.go.jp/txt/M1/1) 「副反応の救済を拡充すべき」";
         std::fs::create_dir_all(wiki.join("people")).unwrap();
+        // 全体像の区間が無い旧形式のページ (唯一の LLM 区間が経緯)。
         std::fs::write(
             wiki.join("people/山田太郎.md"),
-            format!("---\ntype: \"person\"\ntitle: \"山田太郎\"\ndescription: \"予防接種の救済拡充を追及\"\n---\n{}", person_body("山田太郎", "", narrative, "", "")),
+            format!("---\ntype: \"person\"\ntitle: \"山田太郎\"\ndescription: \"予防接種の救済拡充を追及\"\n---\n\n# 山田太郎\n\n## 発言と経緯\n\n{LLM_BEGIN}\n{narrative}\n{LLM_END}\n"),
         )
         .unwrap();
         run_finalize(&FinalizeArgs { wiki: wiki.clone(), work: work.clone() }).unwrap();
         run_finalize(&FinalizeArgs { wiki: wiki.clone(), work }).unwrap();
 
         let person = Page::read(&wiki.join("people/山田太郎.md")).unwrap();
-        assert_eq!(first_llm_block(&person.body), narrative, "LLM の経緯は描き直しでも残る");
+        assert_eq!(person_blocks(&person.body), (String::new(), narrative.to_string()), "LLM の経緯は描き直しでも残る");
+        assert!(person.body.contains(PERSON_SUMMARY_HEADING), "全体像の区間を足す");
         assert_eq!(person.get_str("description"), "予防接種の救済拡充を追及", "LLM の 1 行を優先");
         assert!(person.body.contains("## 発言した会議（一覧）"));
         assert!(person.body.contains("[参議院 厚生労働委員会 第1号](../meetings/kokkai/M1.md)"));
@@ -1496,6 +1568,102 @@ mod tests {
         let meeting = Page::read(&wiki.join("meetings/kokkai/M1.md")).unwrap();
         assert_eq!(meeting.get("llm_version"), Some(&json!(NARRATIVE_VERSION)));
         std::fs::remove_dir_all(root).ok();
+    }
+
+    #[test]
+    fn person_task_completes_only_when_the_page_was_written() {
+        let quote = "[^1]: [kokkai:M1_001](https://kokkai.ndl.go.jp/txt/M1/1) 「副反応の救済を拡充すべき」";
+        let (root, wiki, work) = setup("救済拡充を質疑", &format!("質疑[^1]。\n\n{quote}"));
+        let old = format!("### 2026-10-01 参議院 厚生労働委員会\n- 救済拡充を求めた[^1]。\n\n{quote}");
+        let write_person = |summary: &str| {
+            std::fs::create_dir_all(wiki.join("people")).unwrap();
+            std::fs::write(
+                wiki.join("people/山田太郎.md"),
+                format!("---\ntype: \"person\"\ntitle: \"山田太郎\"\ndescription: \"予防接種の救済拡充を追及\"\n---\n{}", person_body("山田太郎", "", summary, &old, "", "")),
+            )
+            .unwrap();
+        };
+        write_person("");
+        let before = llm_hash(&std::fs::read_to_string(wiki.join("people/山田太郎.md")).unwrap());
+        let mut plan = Plan::load(&work).unwrap().unwrap();
+        plan.tasks.push(Task {
+            key: "person:山田太郎".into(),
+            kind: "person".into(),
+            id: "山田太郎".into(),
+            date: "2026-10-01".into(),
+            title: "山田太郎".into(),
+            page: "people/山田太郎.md".into(),
+            source: "sources/person_山田太郎.json".into(),
+            laws: vec![],
+            people: vec![],
+            committee: None,
+            created: vec![],
+            person: Some(PersonTask { until: "2026-10-01".into(), before }),
+        });
+        std::fs::write(work.join("plan.json"), serde_json::to_vec(&plan).unwrap()).unwrap();
+
+        // 前の経緯に引用があっても、書き足していなければ未完了。
+        run_finalize(&FinalizeArgs { wiki: wiki.clone(), work: work.clone() }).unwrap();
+        assert_eq!(Page::read(&wiki.join("people/山田太郎.md")).unwrap().get("llm_until"), None);
+
+        // 全体像を書いたら完了し、llm_until が進む (描き直しでも残る)。
+        write_person("- **救済制度**: 副反応の救済拡充を求めた[^1]。");
+        run_finalize(&FinalizeArgs { wiki: wiki.clone(), work: work.clone() }).unwrap();
+        let person = Page::read(&wiki.join("people/山田太郎.md")).unwrap();
+        assert_eq!(person.get("llm_until"), Some(&json!("2026-10-01")));
+        assert_eq!(person_blocks(&person.body).0, "- **救済制度**: 副反応の救済拡充を求めた[^1]。");
+        assert!(std::fs::read_to_string(wiki.join("log.md")).unwrap().contains("山田太郎"));
+        std::fs::remove_dir_all(root).ok();
+    }
+
+    #[test]
+    fn unchanged_summaries_do_not_advance_meeting_bill_or_pubcomment_state() {
+        let summary = "救済拡充を求めた[^1]。\n\n[^1]: [kokkai:M1_001](https://kokkai.ndl.go.jp/txt/M1/1) 「副反応の救済を拡充すべき」";
+        for kind in ["kokkai", "bill", "pubcomment"] {
+            let (root, wiki, work) = setup("救済拡充を質疑", summary);
+            let mut plan = Plan::load(&work).unwrap().unwrap();
+            let task = &mut plan.tasks[0];
+            task.kind = kind.into();
+            task.created.clear(); // 以前の要約がある既存ページ。
+            let old_path = wiki.join(&task.page);
+            let mut page = Page::read(&old_path).unwrap();
+            if kind != "kokkai" {
+                task.page = format!("{kind}s/test.md");
+                page.set("type", json!(kind));
+                std::fs::create_dir_all(wiki.join(format!("{kind}s"))).unwrap();
+                std::fs::remove_file(&old_path).unwrap();
+            }
+            let path = wiki.join(&task.page);
+            page.set("latest_date", json!("2026-10-08"));
+            page.set("llm_latest_date", json!("2026-10-01"));
+            page.set("result_date", json!("2026-10-08"));
+            page.set("llm_result_date", json!("2026-10-01"));
+            plan.before.insert(task.page.clone(), llm_hash(&page.body));
+            plan.schema_version = 2;
+            // メタデータだけ変わっても、本文を読んで更新したことにはならない。
+            page.set("description", json!("更新された説明文"));
+            page.body.push_str("\n<!-- lawpub:begin meta -->\n更新された機械データ\n<!-- lawpub:end meta -->\n");
+            page.write(&path).unwrap();
+            std::fs::write(work.join("plan.json"), serde_json::to_vec(&plan).unwrap()).unwrap();
+            let args = FinalizeArgs { wiki: wiki.clone(), work: work.clone() };
+            run_finalize(&args).unwrap();
+            let page = Page::read(&path).unwrap();
+            assert!(!State::load(&wiki).unwrap().is_processed("kokkai:M1"), "{kind}");
+            assert_eq!(page.get_str("llm_latest_date"), "2026-10-01", "{kind}");
+            assert_eq!(page.get_str("llm_result_date"), "2026-10-01", "{kind}");
+
+            let mut page = page;
+            page.body = page.body.replace("救済拡充を求めた[^1]", "山田議員が救済拡充を求めた[^1]");
+            page.write(&path).unwrap();
+            run_finalize(&args).unwrap();
+            let page = Page::read(&path).unwrap();
+            match kind {
+                "bill" => assert_eq!(page.get_str("llm_latest_date"), "2026-10-08"),
+                "pubcomment" => assert_eq!(page.get_str("llm_result_date"), "2026-10-08"),
+                _ => assert!(State::load(&wiki).unwrap().is_processed("kokkai:M1")),
+            }
+            std::fs::remove_dir_all(root).ok();
+        }
     }
 
     #[test]

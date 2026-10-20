@@ -1,0 +1,273 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Law Era="Showa" Lang="ja" LawType="Act" Num="068" PromulgateDay="30" PromulgateMonth="06" Year="23">
+  <LawNum>昭和二十三年法律第六十八号</LawNum>
+  <LawBody>
+    <LawTitle Abbrev="" AbbrevKana="" Kana="よぼうせっしゅほう">予防接種法</LawTitle>
+    <MainProvision>
+      <Chapter Num="1">
+        <ChapterTitle>第一章　総則</ChapterTitle>
+        <Article Num="1">
+          <ArticleCaption>（目的）</ArticleCaption>
+          <ArticleTitle>第一条</ArticleTitle>
+          <Paragraph Num="1">
+            <ParagraphNum />
+            <ParagraphSentence>
+              <Sentence Num="1" WritingMode="vertical">この法律は、伝染のおそれがある疾病の発生及びまん延を予防するために公衆衛生の見地から予防接種の実施その他必要な措置を講ずることにより、国民の健康の保持に寄与するとともに、予防接種による健康被害の迅速な救済を図ることを目的とする。</Sentence>
+            </ParagraphSentence>
+          </Paragraph>
+        </Article>
+        <Article Num="2">
+          <ArticleCaption>（定義）</ArticleCaption>
+          <ArticleTitle>第二条</ArticleTitle>
+          <Paragraph Num="1">
+            <ParagraphNum />
+            <ParagraphSentence>
+              <Sentence Num="1" WritingMode="vertical">この法律において「予防接種」とは、疾病に対して免疫の効果を得させるため、疾病の予防に有効であることが確認されているワクチンを、人体に注射し、又は接種することをいう。</Sentence>
+            </ParagraphSentence>
+          </Paragraph>
+          <Paragraph Num="2">
+            <ParagraphNum>２</ParagraphNum>
+            <ParagraphSentence>
+              <Sentence Num="1" WritingMode="vertical">この法律において「Ａ類疾病」とは、次に掲げる疾病をいう。</Sentence>
+            </ParagraphSentence>
+            <Item Num="1">
+              <ItemTitle>一</ItemTitle>
+              <ItemSentence>
+                <Sentence Num="1" WritingMode="vertical">ジフテリア</Sentence>
+              </ItemSentence>
+            </Item>
+            <Item Num="2">
+              <ItemTitle>二</ItemTitle>
+              <ItemSentence>
+                <Sentence Num="1" WritingMode="vertical">百日せき</Sentence>
+              </ItemSentence>
+            </Item>
+            <Item Num="3">
+              <ItemTitle>三</ItemTitle>
+              <ItemSentence>
+                <Sentence Num="1" WritingMode="vertical">急性灰白髄炎</Sentence>
+              </ItemSentence>
+            </Item>
+            <Item Num="4">
+              <ItemTitle>四</ItemTitle>
+              <ItemSentence>
+                <Sentence Num="1" WritingMode="vertical">麻しん</Sentence>
+              </ItemSentence>
+            </Item>
+            <Item Num="5">
+              <ItemTitle>五</ItemTitle>
+              <ItemSentence>
+                <Sentence Num="1" WritingMode="vertical">風しん</Sentence>
+              </ItemSentence>
+            </Item>
+            <Item Num="6">
+              <ItemTitle>六</ItemTitle>
+              <ItemSentence>
+                <Sentence Num="1" WritingMode="vertical">日本脳炎</Sentence>
+              </ItemSentence>
+            </Item>
+            <Item Num="7">
+              <ItemTitle>七</ItemTitle>
+              <ItemSentence>
+                <Sentence Num="1" WritingMode="vertical">破傷風</Sentence>
+              </ItemSentence>
+            </Item>
+            <Item Num="8">
+              <ItemTitle>八</ItemTitle>
+              <ItemSentence>
+                <Sentence Num="1" WritingMode="vertical">結核</Sentence>
+              </ItemSentence>
+            </Item>
+            <Item Num="9">
+              <ItemTitle>九</ItemTitle>
+              <ItemSentence>
+                <Sentence Num="1" WritingMode="vertical">Ｈｉｂ感染症</Sentence>
+              </ItemSentence>
+            </Item>
+            <Item Num="10">
+              <ItemTitle>十</ItemTitle>
+              <ItemSentence>
+                <Sentence Num="1" WritingMode="vertical">肺炎球菌感染症（小児がかかるものに限る。）</Sentence>
+              </ItemSentence>
+            </Item>
+            <Item Num="11">
+              <ItemTitle>十一</ItemTitle>
+              <ItemSentence>
+                <Sentence Num="1" WritingMode="vertical">ヒトパピローマウイルス感染症</Sentence>
+              </ItemSentence>
+            </Item>
+            <Item Num="12">
+              <ItemTitle>十二</ItemTitle>
+              <ItemSentence>
+                <Sentence Num="1" WritingMode="vertical">新型インフルエンザ等感染症（感染症の予防及び感染症の患者に対する医療に関する法律（平成十年法律第百十四号。以下「感染症法」という。）第六条第七項に規定する新型インフルエンザ等感染症をいう。次項第二号及び第五十三条第一項第一号において同じ。）、指定感染症（感染症法第六条第八項に規定する指定感染症をいう。次項第二号及び第五十三条第一項第二号において同じ。）又は新感染症（感染症法第六条第九項に規定する新感染症をいう。次項第二号及び第五十三条第一項第三号において同じ。）であって、その全国的かつ急速なまん延により国民の生命及び健康に重大な影響を与えるおそれがあると認められる疾病として政令で定める疾病</Sentence>
+              </ItemSentence>
+            </Item>
+            <Item Num="13">
+              <ItemTitle>十三</ItemTitle>
+              <ItemSentence>
+                <Sentence Num="1" WritingMode="vertical">前各号に掲げる疾病のほか、人から人に伝染することによるその発生及びまん延を予防するため、又はかかった場合の病状の程度が重篤になり、若しくは重篤になるおそれがあることからその発生及びまん延を予防するため特に予防接種を行う必要があると認められる疾病として政令で定める疾病</Sentence>
+              </ItemSentence>
+            </Item>
+          </Paragraph>
+          <Paragraph Num="3">
+            <ParagraphNum>３</ParagraphNum>
+            <ParagraphSentence>
+              <Sentence Num="1" WritingMode="vertical">この法律において「Ｂ類疾病」とは、次に掲げる疾病をいう。</Sentence>
+            </ParagraphSentence>
+            <Item Num="1">
+              <ItemTitle>一</ItemTitle>
+              <ItemSentence>
+                <Sentence Num="1" WritingMode="vertical">インフルエンザ</Sentence>
+              </ItemSentence>
+            </Item>
+            <Item Num="2">
+              <ItemTitle>二</ItemTitle>
+              <ItemSentence>
+                <Sentence Num="1" WritingMode="vertical">新型インフルエンザ等感染症、指定感染症又は新感染症であって政令で定める疾病</Sentence>
+              </ItemSentence>
+            </Item>
+            <Item Num="3">
+              <ItemTitle>三</ItemTitle>
+              <ItemSentence>
+                <Sentence Num="1" WritingMode="vertical">前二号に掲げる疾病のほか、個人の発病又はその重症化を防止し、併せてこれによりそのまん延の予防に資するため特に予防接種を行う必要があると認められる疾病として政令で定める疾病</Sentence>
+              </ItemSentence>
+            </Item>
+          </Paragraph>
+          <Paragraph Num="4">
+            <ParagraphNum>４</ParagraphNum>
+            <ParagraphSentence>
+              <Sentence Num="1" WritingMode="vertical">この法律において「定期の予防接種」とは、第五条第一項の規定による予防接種をいう。</Sentence>
+            </ParagraphSentence>
+          </Paragraph>
+          <Paragraph Num="5">
+            <ParagraphNum>５</ParagraphNum>
+            <ParagraphSentence>
+              <Sentence Num="1" WritingMode="vertical">この法律において「臨時の予防接種」とは、第六条第一項から第三項までの規定による予防接種をいう。</Sentence>
+            </ParagraphSentence>
+          </Paragraph>
+          <Paragraph Num="6">
+            <ParagraphNum>６</ParagraphNum>
+            <ParagraphSentence>
+              <Sentence Num="1" WritingMode="vertical">この法律において「定期の予防接種等」とは、定期の予防接種又は臨時の予防接種をいう。</Sentence>
+            </ParagraphSentence>
+          </Paragraph>
+          <Paragraph Num="7">
+            <ParagraphNum>７</ParagraphNum>
+            <ParagraphSentence>
+              <Sentence Num="1" WritingMode="vertical">この法律において「保護者」とは、親権を行う者又は後見人をいう。</Sentence>
+            </ParagraphSentence>
+          </Paragraph>
+        </Article>
+      </Chapter>
+    </MainProvision>
+    <SupplProvision AmendLawNum="令和四年一二月九日法律第九六号" Extract="true">
+      <SupplProvisionLabel>附　則</SupplProvisionLabel>
+      <Article Num="1">
+        <ArticleCaption>（施行期日）</ArticleCaption>
+        <ArticleTitle>第一条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Function="main" Num="1" WritingMode="vertical">この法律は、令和六年四月一日から施行する。</Sentence>
+            <Sentence Function="proviso" Num="2" WritingMode="vertical">ただし、次の各号に掲げる規定は、当該各号に定める日から施行する。</Sentence>
+          </ParagraphSentence>
+          <Item Num="1">
+            <ItemTitle>一</ItemTitle>
+            <ItemSentence>
+              <Column Num="1">
+                <Sentence Num="1" WritingMode="vertical">第一条の規定（次号に掲げる改正規定を除く。）、第四条中地域保健法第六条の改正規定、第五条の規定、第八条中医療法第六条の五、第七条、第七条の二、第二十七条の二及び第三十条の四第十項の改正規定、第九条及び第十二条の規定並びに第十七条中高齢者の医療の確保に関する法律第百二十一条第一項第一号イの改正規定並びに次条第一項から第三項まで、附則第三条、第四条、第八条から第十二条まで、第十四条及び第十六条から第十八条までの規定、附則第十九条の規定（次号に掲げる改正規定を除く。）、附則第二十四条の規定、附則第三十一条中住民基本台帳法（昭和四十二年法律第八十一号）別表第二の四の項、別表第三の五の五の項、別表第四の三の項及び別表第五第六号の三の改正規定並びに附則第三十六条から第三十八条まで及び第四十二条の規定</Sentence>
+              </Column>
+              <Column Num="2">
+                <Sentence Num="1" WritingMode="vertical">公布の日</Sentence>
+              </Column>
+            </ItemSentence>
+          </Item>
+          <Item Num="2:3">
+            <ItemTitle>二及び三</ItemTitle>
+            <ItemSentence>
+              <Sentence Num="1" WritingMode="vertical">略</Sentence>
+            </ItemSentence>
+          </Item>
+          <Item Num="4">
+            <ItemTitle>四</ItemTitle>
+            <ItemSentence>
+              <Column Num="1">
+                <Sentence Num="1" WritingMode="vertical">第六条及び第七条の規定並びに第十三条中新型インフルエンザ等対策特別措置法第二十八条第五項から第七項までの改正規定並びに附則第十五条の規定、附則第二十一条中地方自治法別表第一予防接種法（昭和二十三年法律第六十八号）の項の改正規定並びに附則第三十二条及び第三十三条の規定</Sentence>
+              </Column>
+              <Column Num="2">
+                <Sentence Num="1" WritingMode="vertical">公布の日から起算して三年六月を超えない範囲内において政令で定める日</Sentence>
+              </Column>
+            </ItemSentence>
+          </Item>
+        </Paragraph>
+      </Article>
+      <Article Num="2">
+        <ArticleCaption>（検討）</ArticleCaption>
+        <ArticleTitle>第二条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">政府は、新型コロナウイルス感染症（病原体がベータコロナウイルス属のコロナウイルス（令和二年一月に、中華人民共和国から世界保健機関に対して、人に伝染する能力を有することが新たに報告されたものに限る。）であるものに限る。以下同じ。）の<Ruby>罹<Rt>り</Rt>
+              </Ruby>患後症状に係る医療の在り方について、科学的知見に基づく適切な医療の確保を図る観点から速やかに検討を加え、その結果に基づいて必要な措置を講ずるものとする。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+        <Paragraph Num="2">
+          <ParagraphNum>２</ParagraphNum>
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">政府は、新型コロナウイルス感染症に関する状況の変化を勘案し、当該感染症の新型インフルエンザ等感染症（感染症法第六条第七項に規定する新型インフルエンザ等感染症をいう。附則第六条において同じ。）への位置付けの在り方について、感染症法第六条に規定する他の感染症の類型との比較等の観点から速やかに検討を加え、その結果に基づいて必要な措置を講ずるものとする。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+        <Paragraph Num="3">
+          <ParagraphNum>３</ParagraphNum>
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">政府は、予防接種の有効性及び安全性に関する情報（副反応に関する情報を含む。）の公表の在り方について検討を加え、その結果に基づいて必要な措置を講ずるものとする。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+        <Paragraph Num="4">
+          <ParagraphNum>４</ParagraphNum>
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">政府は、この法律の施行後五年を目途として、この法律による改正後のそれぞれの法律（以下この項において「改正後の各法律」という。）の施行の状況等を勘案し、必要があると認めるときは、改正後の各法律の規定について検討を加え、その結果に基づいて所要の措置を講ずるものとする。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="14">
+        <ArticleCaption>（予防接種法の一部改正に伴う経過措置）</ArticleCaption>
+        <ArticleTitle>第十四条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">新型コロナウイルス感染症に係る予防接種については、附則第一条第一号に掲げる規定の施行の日前に行われた第五条の規定による改正前の予防接種法（以下「旧予防接種法」という。）附則第七条第一項の規定による厚生労働大臣の指定及び指示は第五条の規定による改正後の予防接種法（以下「新予防接種法」という。）第六条第三項の規定により行われた厚生労働大臣の指定及び指示とみなし、かつ、附則第一条第一号に掲げる規定の施行の日前に行われた当該感染症に係る旧予防接種法附則第七条第一項の規定による予防接種は新予防接種法第六条第三項の規定により行われた予防接種とみなして、新予防接種法の規定を適用する。</Sentence>
+            <Sentence Num="2" WritingMode="vertical">この場合において、新予防接種法第十六条第一項中「Ａ類疾病に係る定期の予防接種等又はＢ類疾病」とあるのは「新型コロナウイルス感染症」と、新予防接種法第二十五条第一項中「定期の予防接種については市町村、臨時の予防接種については都道府県又は市町村」とあるのは「市町村」と、新予防接種法第二十七条第二項中「都道府県又は市町村の支弁する額（第六条第三項の規定による予防接種に係るものに限る。）」とあるのは「市町村の支弁する額」とする。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+        <Paragraph Num="2">
+          <ParagraphNum>２</ParagraphNum>
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">厚生労働大臣が新型コロナウイルス感染症に係るワクチンの供給に関する契約を締結する当該感染症に係るワクチン製造販売業者（新予防接種法第十三条第四項に規定するワクチン製造販売業者をいう。）又はそれ以外の当該感染症に係るワクチンの開発若しくは製造に関係する者を相手方として政府が締結する当該ワクチンを使用する予防接種による健康被害に係る損害を賠償することにより生ずる損失その他当該契約に係るワクチンの性質等を踏まえ国が補償することが必要な損失を政府が補償することを約する契約については、旧予防接種法附則第八条の規定は、なおその効力を有する。</Sentence>
+            <Sentence Num="2" WritingMode="vertical">この場合において、新予防接種法第二十九条の規定は、適用しない。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="15">
+        <ArticleTitle>第十五条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">附則第一条第四号に掲げる規定の施行の日が刑法施行日前である場合には、刑法施行日の前日までの間における第六条の規定による改正後の予防接種法第五十八条から第六十条までの規定の適用については、これらの規定中「拘禁刑」とあるのは、「懲役」とする。</Sentence>
+            <Sentence Num="2" WritingMode="vertical">刑法施行日以後における刑法施行日前にした行為に対するこれらの規定の適用についても、同様とする。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+      <Article Num="42">
+        <ArticleCaption>（政令への委任）</ArticleCaption>
+        <ArticleTitle>第四十二条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum />
+          <ParagraphSentence>
+            <Sentence Num="1" WritingMode="vertical">この附則に規定するもののほか、この法律の施行に伴い必要な経過措置（罰則に関する経過措置を含む。）は、政令で定める。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+    </SupplProvision>
+  </LawBody>
+</Law>

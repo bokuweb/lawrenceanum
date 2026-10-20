@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>検索結果 - 法令検索 - 日本法令外国語訳DBシステム</title>
+    <link href="/favicon.ico" type="image/x-icon" rel="icon"><link href="/favicon.ico" type="image/x-icon" rel="shortcut icon">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    
+	<link rel="stylesheet" href="/css/color.css">
+    
+	<link rel="stylesheet" href="/css/light.css" id="colorMode">
+    
+	<script src="/js/main.js"></script>
+    
+	<script src="/js/setting.js"></script>
+    
+	<script src="/js/color.js"></script>
+    
+	<script src="/js/font.js"></script>
+    
+	<link rel="stylesheet" href="/css/main.css">
+        <link rel="stylesheet" href="/css/laws.css">    <script src="/js/laws.js"></script><script src="/js/pagination.js"></script>
+    </head>
+
+<body class="ja">
+    <header>
+        <nav>
+            <div class="top-header">
+    <div class="site-name">
+        <a id="pageTop" href="/ja" class="title">Japanese Law Translation</a>
+    </div>
+    <div class="top-links">
+        <a href="#" class="language" onclick="langChange(event, '/en/laws/result')">
+            <span class="material-icons">language</span>
+            <span class="menu-label">English</span>
+        </a>
+        <a class="pc" href="/help/ja" target="_blank">
+            <span class="material-icons">menu_book</span>
+            <span class="menu-label">利用案内</span>
+        </a>
+        <div class="font-size pc">
+            <div class="icon">
+                <a id="fstSmall" href="#" class="small" onclick="applyFontSize(event, 1)">A</a>
+                <a id="fstMedium" href="#" class="medium" onclick="applyFontSize(event, 2)">A</a>
+                <a id="fstLarge" href="#" class="large" onclick="applyFontSize(event, 3)">A</a>
+            </div>
+            <script>
+                if (fontSize == 2) {
+                    document.getElementById('fstSmall').classList.remove('selected');
+                    document.getElementById('fstMedium').classList.add('selected');
+                    document.getElementById('fstLarge').classList.remove('selected');
+                } else if (fontSize == 3) {
+                    document.getElementById('fstSmall').classList.remove('selected');
+                    document.getElementById('fstMedium').classList.remove('selected');
+                    document.getElementById('fstLarge').classList.add('selected');
+                } else {
+                    document.getElementById('fstSmall').classList.add('selected');
+                    document.getElementById('fstMedium').classList.remove('selected');
+                    document.getElementById('fstLarge').classList.remove('selected');
+                }
+            </script>
+            <div class="menu-label">文字サイズ</div>
+        </div>
+        <a href="#" class="invert pc" onclick="changeColor(event)">
+            <span class="material-icons">invert_colors</span>
+            <span class="menu-label">反転</span>
+        </a>
+    </div>
+</div>        </nav>
+        <nav>
+            <div class="main-menu-control">
+    <a href="#" class="toggle x" id="toggleButton" onclick="toggleMainMenu(event)">
+        <s class="bar"></s>
+        <s class="bar"></s>
+    </a>
+</div>
+<script>
+    if (this.window.innerWidth <= 768) {
+        hideMenuOnToggleButton();
+    }
+</script>
+<div class="main-menu" id="mainMenu">
+    <script>
+        if (this.window.innerWidth <= 768) {
+            hideMenuOnMainMenu();
+        }
+    </script>
+    <ul>
+        <li>
+            <a href="/ja/">TOP</a>
+        </li>
+        <li>
+            <a href="/ja/laws">法令検索</a>
+        </li>
+        <li>
+            <a href="/ja/dicts">辞書検索</a>
+        </li>
+        <li>
+            <a href="/ja/kwic">文脈検索</a>
+        </li>
+        <li>
+            <a href="/ja/outlines">概要情報</a>
+        </li>
+        <li>
+            <a href="/ja/sitemap">サイトマップ</a>
+        </li>
+        <li onmouseenter="slideToggleEnter(this)" onmouseleave="slideToggleLeave(this)">
+            <a class="accordion-item" href="#" onclick="slideToggleClick(event)">その他</a>
+            <ul class="accordion-menu">
+                <li>
+                    <a href="/ja/news">新着情報</a>
+                </li>
+                <li>
+                    <a href="/ja/infos/guidelines">関連情報</a>
+                </li>
+                <li>
+                    <a href="/ja/links">リンク</a>
+                </li>
+            </ul>
+        </li>
+        <li class="sp">
+            <a href="/help/ja" target="_blank">
+                <span class="material-icons">menu_book</span>
+                <span class="menu-label">
+                    利用案内                </span>
+            </a>
+        </li>
+        <li class="sp">
+            <div class="font-size">
+                <div class="icon">
+                    <a id="fsmSmall" href="#" class="small" onclick="applyFontSize(event, 1)">A</a>
+                    <a id="fsmMedium" href="#" class="medium" onclick="applyFontSize(event, 2)">A</a>
+                    <a id="fsmLarge" href="#" class="large" onclick="applyFontSize(event, 3)">A</a>
+                </div>
+                <script>
+                    if (fontSize == 2) {
+                        document.getElementById('fsmSmall').classList.remove('selected');
+                        document.getElementById('fsmMedium').classList.add('selected');
+                        document.getElementById('fsmLarge').classList.remove('selected');
+                    } else if (fontSize == 3) {
+                        document.getElementById('fsmSmall').classList.remove('selected');
+                        document.getElementById('fsmMedium').classList.remove('selected');
+                        document.getElementById('fsmLarge').classList.add('selected');
+                    } else {
+                        document.getElementById('fsmSmall').classList.add('selected');
+                        document.getElementById('fsmMedium').classList.remove('selected');
+                        document.getElementById('fsmLarge').classList.remove('selected');
+                    }
+                </script>
+            </div>
+        </li>
+        <li class="sp">
+            <a href="#" class="invert" onclick="changeColor(event)">
+                <span class="material-icons">invert_colors</span>
+                <span class="menu-label">反転</span>
+            </a>
+        </li>
+    </ul>
+</div>        </nav>
+    </header>
+    <div class="menu-bg" id="menuBg" onclick="toggleMainMenu(event)">
+    </div>
+    <script>
+        if (this.window.innerWidth <= 768) {
+            hideMenuOnMenuBg();
+        }
+    </script>
+    <main class="main" id="main">
+        <script>
+            if (this.window.innerWidth <= 768) {
+                hideMenuOnMain();
+            }
+        </script>
+                    <div class="container wide">
+                <div class="main-contents laws">
+    <div class="title">法令検索</div>
+    <div class="exp">法令に含まれる用語（キーワード）、法令名、法令番号、法令の分野、法令の翻訳担当機関を入力することにより、法令データを検索・表示します。</div>
+    <div class="tab-menu">
+    <a href="/ja/laws" id="index"><span class="pc">法令名で検索</span><span class="sp">法令名</span></a>
+    <a href="/ja/laws/search-ft" id="searchFt"><span class="pc">全文検索</span><span class="sp">全文</span></a>
+    <a href="/ja/laws/search-no" id="searchNo"><span class="pc">法令番号で検索</span><span class="sp">番号</span></a>
+    <a href="/ja/laws/search-cat" id="searchCat"><span class="pc">分野で検索</span><span class="sp">分野</span></a>
+    <a href="/ja/laws/search-org" id="searchOrg"><span class="pc">担当機関で検索</span><span class="sp">機関</span></a>
+</div>
+<script>
+    let action = 'result';
+    let tab = document.getElementById(action);
+    if (tab != null) {
+        tab.classList.add('selected');
+    }
+</script>    <div class="search-area result">
+        <div class="result-control-menu">
+            <div id="refineTab" class="refine-tab" onclick="toggleRefine(this)">
+                <span class="material-icons">filter_alt</span>
+                <span class="refine-label">絞込検索</span>
+            </div>
+            <div class="sort-result">
+                <select id="sortResult" name="sr" class="sort-result">
+                    <option value="access" selected>人気順</option>
+                                            <option value="kana" >五十音順</option>
+                                        <option value="number" >種別・法令番号順</option>
+                </select>
+            </div>
+        </div>
+        <div class="result-number">
+            <span class="label">検索結果：</span>98件中1〜50件を表示        </div>
+        <div class="search-condition">
+                            <div class="main-condition"><span class="search-key">『憲法・行政一般』</span><span class="search-method">(分野で検索)</span></div>
+                        <div class="optional-condition">
+                            </div>
+        </div>
+        <div class="result-icon">
+                                                                            <div><span class="material-icons" style="color:red">error</span>...廃止された法令</div>
+                                </div>
+                            <ul class="search-result">
+                                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4241" target="_blank" rel="noopener noreferrer">
+                                    個人情報の保護に関する法律                                     (一部未施行)                                </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成十五年法律第五十七号</div>
+                            <div class="result-info-item">翻訳日：令和3年11月5日</div>
+                            <div class="result-info-item">辞書バージョン：14.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">府省令</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/5025" target="_blank" rel="noopener noreferrer">
+                                    食品衛生法施行規則                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和二十三年厚生省令第二十三号</div>
+                            <div class="result-info-item">翻訳日：令和7年1月9日</div>
+                            <div class="result-info-item">辞書バージョン：16.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/5024" target="_blank" rel="noopener noreferrer">
+                                    食品衛生法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和二十二年法律第二百三十三号</div>
+                            <div class="result-info-item">翻訳日：令和7年1月9日</div>
+                            <div class="result-info-item">辞書バージョン：16.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4519" target="_blank" rel="noopener noreferrer">
+                                    国家公務員法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和二十二年法律第百二十号</div>
+                            <div class="result-info-item">翻訳日：令和5年3月14日</div>
+                            <div class="result-info-item">辞書バージョン：15.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">憲法</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/174" target="_blank" rel="noopener noreferrer">
+                                    日本国憲法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和二十一年憲法</div>
+                            <div class="result-info-item">翻訳日：平成21年4月1日</div>
+                            <div class="result-info-item">辞書バージョン：0.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/3772" target="_blank" rel="noopener noreferrer">
+                                    消防法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和二十三年法律第百八十六号</div>
+                            <div class="result-info-item">翻訳日：令和3年6月30日</div>
+                            <div class="result-info-item">辞書バージョン：14.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4952" target="_blank" rel="noopener noreferrer">
+                                    総合法律支援法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成十六年法律第七十四号</div>
+                            <div class="result-info-item">翻訳日：令和7年1月17日</div>
+                            <div class="result-info-item">辞書バージョン：17.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4765" target="_blank" rel="noopener noreferrer">
+                                    行政手続法                                     (第１５条第１項、第３項及び第４項、第１６条第１項、第２２条第３項、第３１条未施行)                                </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成五年法律第八十八号</div>
+                            <div class="result-info-item">翻訳日：令和6年3月12日</div>
+                            <div class="result-info-item">辞書バージョン：16.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/5012" target="_blank" rel="noopener noreferrer">
+                                    不当景品類及び不当表示防止法                                     (第１５条第２項未施行)                                </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和三十七年法律第百三十四号</div>
+                            <div class="result-info-item">翻訳日：令和7年1月31日</div>
+                            <div class="result-info-item">辞書バージョン：17.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4713" target="_blank" rel="noopener noreferrer">
+                                    国籍法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和二十五年法律第百四十七号</div>
+                            <div class="result-info-item">翻訳日：令和6年1月5日</div>
+                            <div class="result-info-item">辞書バージョン：16.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/3152" target="_blank" rel="noopener noreferrer">
+                                    行政機関の保有する個人情報の保護に関する法律                                                                    </a>
+                                                                                                                                <span class="material-icons" style="color:red">error</span>                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成十五年法律第五十八号</div>
+                            <div class="result-info-item">翻訳日：平成30年1月12日</div>
+                            <div class="result-info-item">辞書バージョン：12.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">政令</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/5026" target="_blank" rel="noopener noreferrer">
+                                    食品衛生法施行令                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和二十八年政令第二百二十九号</div>
+                            <div class="result-info-item">翻訳日：令和7年1月9日</div>
+                            <div class="result-info-item">辞書バージョン：16.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/3803" target="_blank" rel="noopener noreferrer">
+                                    国家公務員倫理法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成十一年法律第百二十九号</div>
+                            <div class="result-info-item">翻訳日：令和3年7月9日</div>
+                            <div class="result-info-item">辞書バージョン：14.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4777" target="_blank" rel="noopener noreferrer">
+                                    行政機関の保有する情報の公開に関する法律                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成十一年法律第四十二号</div>
+                            <div class="result-info-item">翻訳日：令和6年3月12日</div>
+                            <div class="result-info-item">辞書バージョン：16.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4116" target="_blank" rel="noopener noreferrer">
+                                    行政機関が行う政策の評価に関する法律                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成十三年法律第八十六号</div>
+                            <div class="result-info-item">翻訳日：令和4年2月18日</div>
+                            <div class="result-info-item">辞書バージョン：14.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/3890" target="_blank" rel="noopener noreferrer">
+                                    運輸安全委員会設置法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和四十八年法律第百十三号</div>
+                            <div class="result-info-item">翻訳日：令和3年8月31日</div>
+                            <div class="result-info-item">辞書バージョン：14.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/2755" target="_blank" rel="noopener noreferrer">
+                                    行政手続における特定の個人を識別するための番号の利用等に関する法律                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成二十五年法律第二十七号</div>
+                            <div class="result-info-item">翻訳日：平成26年6月10日</div>
+                            <div class="result-info-item">辞書バージョン：8.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4171" target="_blank" rel="noopener noreferrer">
+                                    災害対策基本法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和三十六年法律第二百二十三号</div>
+                            <div class="result-info-item">翻訳日：令和4年2月8日</div>
+                            <div class="result-info-item">辞書バージョン：14.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/5050" target="_blank" rel="noopener noreferrer">
+                                    サイバーセキュリティ基本法                                     (一部未施行)                                </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成二十六年法律第百四号</div>
+                            <div class="result-info-item">翻訳日：令和7年6月4日</div>
+                            <div class="result-info-item">辞書バージョン：18.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/3518" target="_blank" rel="noopener noreferrer">
+                                    特定複合観光施設区域整備法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成三十年法律第八十号</div>
+                            <div class="result-info-item">翻訳日：令和1年11月27日</div>
+                            <div class="result-info-item">辞書バージョン：11.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/3783" target="_blank" rel="noopener noreferrer">
+                                    法の適用に関する通則法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成十八年法律第七十八号</div>
+                            <div class="result-info-item">翻訳日：令和3年6月30日</div>
+                            <div class="result-info-item">辞書バージョン：14.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/148" target="_blank" rel="noopener noreferrer">
+                                    統計法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成十九年法律第五十三号</div>
+                            <div class="result-info-item">翻訳日：平成21年4月1日</div>
+                            <div class="result-info-item">辞書バージョン：2.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/2754" target="_blank" rel="noopener noreferrer">
+                                    独立行政法人通則法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成十一年法律第百三号</div>
+                            <div class="result-info-item">翻訳日：平成26年12月24日</div>
+                            <div class="result-info-item">辞書バージョン：9.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/5042" target="_blank" rel="noopener noreferrer">
+                                    会計検査院法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和二十二年法律第七十三号</div>
+                            <div class="result-info-item">翻訳日：令和7年6月24日</div>
+                            <div class="result-info-item">辞書バージョン：18.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/2842" target="_blank" rel="noopener noreferrer">
+                                    行政書士法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和二十六年法律第四号</div>
+                            <div class="result-info-item">翻訳日：平成25年5月28日</div>
+                            <div class="result-info-item">辞書バージョン：7.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/3028" target="_blank" rel="noopener noreferrer">
+                                    特定非営利活動促進法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成十年法律第七号</div>
+                            <div class="result-info-item">翻訳日：平成29年8月28日</div>
+                            <div class="result-info-item">辞書バージョン：12.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4757" target="_blank" rel="noopener noreferrer">
+                                    行政不服審査法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成二十六年法律第六十八号</div>
+                            <div class="result-info-item">翻訳日：令和6年3月12日</div>
+                            <div class="result-info-item">辞書バージョン：16.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/5006" target="_blank" rel="noopener noreferrer">
+                                    公文書等の管理に関する法律                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成二十一年法律第六十六号</div>
+                            <div class="result-info-item">翻訳日：令和6年11月28日</div>
+                            <div class="result-info-item">辞書バージョン：17.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/2887" target="_blank" rel="noopener noreferrer">
+                                    消費者安全法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成二十一年法律第五十号</div>
+                            <div class="result-info-item">翻訳日：平成28年12月28日</div>
+                            <div class="result-info-item">辞書バージョン：10.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">政令</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4172" target="_blank" rel="noopener noreferrer">
+                                    災害対策基本法施行令                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和三十七年政令第二百八十八号</div>
+                            <div class="result-info-item">翻訳日：令和4年2月8日</div>
+                            <div class="result-info-item">辞書バージョン：14.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/3397" target="_blank" rel="noopener noreferrer">
+                                    独立行政法人等の保有する個人情報の保護に関する法律                                                                    </a>
+                                                                                                                                <span class="material-icons" style="color:red">error</span>                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成十五年法律第五十九号</div>
+                            <div class="result-info-item">翻訳日：平成31年3月20日</div>
+                            <div class="result-info-item">辞書バージョン：13.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4160" target="_blank" rel="noopener noreferrer">
+                                    行政相談委員法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和四十一年法律第九十九号</div>
+                            <div class="result-info-item">翻訳日：令和4年2月16日</div>
+                            <div class="result-info-item">辞書バージョン：14.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4967" target="_blank" rel="noopener noreferrer">
+                                    消費者基本法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和四十三年法律第七十八号</div>
+                            <div class="result-info-item">翻訳日：令和7年5月1日</div>
+                            <div class="result-info-item">辞書バージョン：17.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4937" target="_blank" rel="noopener noreferrer">
+                                    民間公益活動を促進するための休眠預金等に係る資金の活用に関する法律                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成二十八年法律第百一号</div>
+                            <div class="result-info-item">翻訳日：令和6年12月4日</div>
+                            <div class="result-info-item">辞書バージョン：17.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">府省令</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/5014" target="_blank" rel="noopener noreferrer">
+                                    不当景品類及び不当表示防止法施行規則                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成二十八年内閣府令第六号</div>
+                            <div class="result-info-item">翻訳日：令和7年1月31日</div>
+                            <div class="result-info-item">辞書バージョン：17.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4613" target="_blank" rel="noopener noreferrer">
+                                    預託等取引に関する法律                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和六十一年法律第六十二号</div>
+                            <div class="result-info-item">翻訳日：令和5年10月18日</div>
+                            <div class="result-info-item">辞書バージョン：16.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/2543" target="_blank" rel="noopener noreferrer">
+                                    特定秘密の保護に関する法律                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成二十五年法律第百八号</div>
+                            <div class="result-info-item">翻訳日：平成26年4月22日</div>
+                            <div class="result-info-item">辞書バージョン：8.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">政令</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4758" target="_blank" rel="noopener noreferrer">
+                                    行政不服審査法施行令                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成二十七年政令第三百九十一号</div>
+                            <div class="result-info-item">翻訳日：令和6年3月12日</div>
+                            <div class="result-info-item">辞書バージョン：16.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">政令</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/2952" target="_blank" rel="noopener noreferrer">
+                                    国家公務員倫理規程                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成十二年政令第百一号</div>
+                            <div class="result-info-item">翻訳日：平成29年3月17日</div>
+                            <div class="result-info-item">辞書バージョン：11.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/2802" target="_blank" rel="noopener noreferrer">
+                                    国民生活安定緊急措置法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和四十八年法律第百二十一号</div>
+                            <div class="result-info-item">翻訳日：平成28年7月22日</div>
+                            <div class="result-info-item">辞書バージョン：10.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">政令</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4614" target="_blank" rel="noopener noreferrer">
+                                    預託等取引に関する法律施行令                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和六十一年政令第三百四十号</div>
+                            <div class="result-info-item">翻訳日：令和5年10月18日</div>
+                            <div class="result-info-item">辞書バージョン：16.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4960" target="_blank" rel="noopener noreferrer">
+                                    情報通信技術を活用した行政の推進等に関する法律                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成十四年法律第百五十一号</div>
+                            <div class="result-info-item">翻訳日：令和6年12月27日</div>
+                            <div class="result-info-item">辞書バージョン：17.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/2800" target="_blank" rel="noopener noreferrer">
+                                    国立研究開発法人科学技術振興機構法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成十四年法律第百五十八号</div>
+                            <div class="result-info-item">翻訳日：平成27年10月1日</div>
+                            <div class="result-info-item">辞書バージョン：4.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/2801" target="_blank" rel="noopener noreferrer">
+                                    国立研究開発法人理化学研究所法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成十四年法律第百六十号</div>
+                            <div class="result-info-item">翻訳日：平成28年4月1日</div>
+                            <div class="result-info-item">辞書バージョン：4.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4854" target="_blank" rel="noopener noreferrer">
+                                    交通安全対策基本法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和四十五年法律第百十号</div>
+                            <div class="result-info-item">翻訳日：令和6年12月10日</div>
+                            <div class="result-info-item">辞書バージョン：17.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/2968" target="_blank" rel="noopener noreferrer">
+                                    独立行政法人日本学術振興会法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成十四年法律第百五十九号</div>
+                            <div class="result-info-item">翻訳日：平成28年5月28日</div>
+                            <div class="result-info-item">辞書バージョン：11.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4128" target="_blank" rel="noopener noreferrer">
+                                    被災者生活再建支援法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成十年法律第六十六号</div>
+                            <div class="result-info-item">翻訳日：令和4年2月8日</div>
+                            <div class="result-info-item">辞書バージョン：14.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">府省令</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4173" target="_blank" rel="noopener noreferrer">
+                                    災害対策基本法施行規則                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和三十七年総理府令第五十二号</div>
+                            <div class="result-info-item">翻訳日：令和4年2月8日</div>
+                            <div class="result-info-item">辞書バージョン：14.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">法律</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/3785" target="_blank" rel="noopener noreferrer">
+                                    国家賠償法                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：昭和二十二年法律第百二十五号</div>
+                            <div class="result-info-item">翻訳日：令和3年6月30日</div>
+                            <div class="result-info-item">辞書バージョン：14.0</div>
+                        </div>
+                    </li>
+                                    <li>
+                        <div class="result-title">
+                            <div class="result-law-type">政令</div>
+                            <div class="result-title-text">
+                                <a href="/ja/laws/view/4766" target="_blank" rel="noopener noreferrer">
+                                    行政手続法施行令                                                                    </a>
+                                                                                                                                                                                                                            </div>
+                        </div>
+                        <div class="result-info">
+                            <div class="result-info-item">法令番号：平成六年政令第二百六十五号</div>
+                            <div class="result-info-item">翻訳日：令和6年3月12日</div>
+                            <div class="result-info-item">辞書バージョン：16.0</div>
+                        </div>
+                    </li>
+                            </ul>
+                <div class="pagination">
+            <ul>
+                <li class="current">1</li><li><a href="#" onclick="paginationPost(event, '2')">2</a></li><li><a href="#" onclick="paginationPost(event, '0', 'next')">&gt;</a></li>            </ul>
+            <script>
+                let currentPageNumber = 1;
+            </script>
+        </div>
+    </div>
+    <div class="pc">
+        <div class="disclaimer">
+            <div class="wrapper">
+            <div class="title">ご利用上の注意</div>
+            <dl>
+                <dt>翻訳について</dt>
+                <dd>この「日本法令外国語訳データベースシステム」に掲載している法令翻訳は、正文ではなく、最終改正版でない法令も含まれています。法的効力を有するのは日本語の法令自体であり、翻訳はあくまでその理解を助けるための参考資料です。<br>このページの利用に伴って発生した問題について、一切の責任を負いかねますので、法律上の問題に関しては、官報に掲載された日本語の法令を参照してください。<br>なお、法令の翻訳整備は、「法令外国語訳推進のための基盤整備に関する関係省庁連絡会議」で決定される計画（<a href="/ja/infos/index">翻訳整備計画</a>）に基づいて行っています。</dd>
+                <dt>「等」について</dt>
+                <dd>「等」は特定の事項に限定されるのでなく他の類似の事項も含まれる可能性を示すために使用されています。</dd>
+                <dt>「暫定版」について</dt>
+                <dd>法令名に「（暫定版）」と表示されている翻訳は、ネイティブや法令翻訳専門家によるチェック及び修正前の翻訳であり、今後、修正される場合があります。</dd>
+                <dt>引用、複製、転載について</dt>
+                <dd>この「日本法令外国語訳データベースシステム」に掲載しているデータは、<a href="/ja/index/terms">利用規約</a>に従い、引用し、複製し又は転載して差し支えありません。</dd>
+            </dl>
+        </div>
+    </div>    </div>
+</div>
+<div id="refine" class="refine">
+    <div class="close-refine" onclick="closeRefine()"><span class="material-icons">cancel</span></div>
+    <form id="refineForm" action="/ja/laws/result" name="refine" method="post">
+        <input type="hidden" name="_csrfToken" autocomplete="off" value="KkCQ5VoT1fagu9dCGqsSJ09KpAQHEj2waV1b74o3yvyGaqbLh0yIdcn/xfzL3y3SbICkEiX3eOzFozi+Icl/tt8HfIus8YVKfHmTNzZ0D4JZPGvf7AXymbFSnqm/frlH/8nyxa7vGuoP5JEgFs9A2A==">                        <div class="title">絞込検索</div>
+        <div class="exp">絞込み検索：現在表示されている検索結果をさらに絞り込めます。</div>
+        <div class="refine-area">
+            <div class="search-ky">
+                <div class="search-label"><span class="pc">全文検索</span><span class="sp">全文</span></div>
+                <div class="keyword">
+    <input id="ky" class="keyword-input" type="text" name="ky" value="" maxlength="150">
+    <div class="submit">
+        <input class="search" type="submit" value="検索">
+    </div>
+</div>                <div class="search-cond-label">検索条件:</div>
+<div class="search-cond">
+    <div class="search-cond-items">
+                    <div class="search-cond-item">
+                                    <input id="co1" type="radio" name="co" value="1" checked>
+                    <label for="co1">すべてのキーワードを含む</label>
+                            </div>
+                    <div class="search-cond-item">
+                                    <input id="co2" type="radio" name="co" value="2">
+                    <label for="co2">いずれかのキーワードを含む</label>
+                            </div>
+            </div>
+</div>                <div class="act-range-label">検索範囲: </div>
+<div class="act-range">
+    <div class="act-range-items">
+                                            <div class="act-range-item">
+                                                                        <input type="checkbox" id="ha" name="ha" value="02">
+                                                                <label for="ha">過去の法令データを含む</label>
+                </div>
+                                                <div class="act-range-item">
+                                                                        <input type="checkbox" id="la" name="la" value="01">
+                                                                <label for="la">未翻訳法令の法令名を含む</label>
+                </div>
+                                                <div class="act-range-item">
+                                                                        <input type="checkbox" id="ia" name="ia" value="03">
+                                                                <label for="ia">暫定版を含む</label>
+                </div>
+                                                <div class="act-range-item">
+                                                                        <input type="checkbox" id="ja" name="ja" value="04">
+                                                                <label for="ja">概要情報を含む</label>
+                </div>
+                        </div>
+</div>            </div>
+            <div class="search-ft">
+                <div class="search-label"><span class="pc">法令名で検索</span><span class="sp">法令名</span></div>
+                <div class="keyword">
+    <input id="yo" class="keyword-input" type="text" name="yo" value="" maxlength="150">
+    <div class="submit">
+        <input class="search" type="submit" value="検索">
+    </div>
+</div>                <div class="amb-option">
+                    <input type="checkbox" name="amb" id="ambSearch" >
+                    <label for="ambSearch">あいまい検索</label>
+                </div>
+                <div class="char-btn-area">
+    <div class="btn-changers">
+        <div id="btnChangerJa" class="btn-changer active">
+            <a href="#" onclick="toggleCharBtn(event)">五十音</a>
+        </div>
+        <div id="btnChangerEn" class="btn-changer ">
+            <a href="#" onclick="toggleCharBtn(event)">アルファベット</a>
+        </div>
+    </div>
+    <script>
+        function toggleCharBtn(event) {
+            event.preventDefault();
+            document.getElementById('btnChangerJa').classList.toggle('active');
+            document.getElementById('btnChangerEn').classList.toggle('active');
+            document.getElementById('charBtnAreaJa').classList.toggle('active');
+            document.getElementById('charBtnAreaEn').classList.toggle('active');
+        }
+    </script>
+    <div id="charBtnAreaJa" class="char-btn-area-ja active">
+        <div class="kana-area">
+                                            <ul>                <li class="no-link">
+                                        <div class="kana">あ</div>
+                    <div class="roman">a</div>
+                                    </li>
+                                                                                            <li class="no-link">
+                                        <div class="kana">い</div>
+                    <div class="roman">i</div>
+                                    </li>
+                                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'kn[]', 'う')">                    <div class="kana">う</div>
+                    <div class="roman">u</div>
+                    </button>                </li>
+                                                                                            <li class="no-link">
+                                        <div class="kana">え</div>
+                    <div class="roman">e</div>
+                                    </li>
+                                                                                            <li class="no-link">
+                                        <div class="kana">お</div>
+                    <div class="roman">o</div>
+                                    </li>
+                </ul>                                                            <ul>                <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'kn[]', 'か')">                    <div class="kana">か</div>
+                    <div class="roman">ka</div>
+                    </button>                </li>
+                                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'kn[]', 'き')">                    <div class="kana">き</div>
+                    <div class="roman">ki</div>
+                    </button>                </li>
+                                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'kn[]', 'く')">                    <div class="kana">く</div>
+                    <div class="roman">ku</div>
+                    </button>                </li>
+                                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'kn[]', 'け')">                    <div class="kana">け</div>
+                    <div class="roman">ke</div>
+                    </button>                </li>
+                                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'kn[]', 'こ')">                    <div class="kana">こ</div>
+                    <div class="roman">ko</div>
+                    </button>                </li>
+                </ul>                                                            <ul>                <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'kn[]', 'さ')">                    <div class="kana">さ</div>
+                    <div class="roman">sa</div>
+                    </button>                </li>
+                                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'kn[]', 'し')">                    <div class="kana">し</div>
+                    <div class="roman">shi</div>
+                    </button>                </li>
+                                                                                            <li class="no-link">
+                                        <div class="kana">す</div>
+                    <div class="roman">su</div>
+                                    </li>
+                                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'kn[]', 'せ')">                    <div class="kana">せ</div>
+                    <div class="roman">se</div>
+                    </button>                </li>
+                                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'kn[]', 'そ')">                    <div class="kana">そ</div>
+                    <div class="roman">so</div>
+                    </button>                </li>
+                </ul>                                                            <ul>                <li class="no-link">
+                                        <div class="kana">た</div>
+                    <div class="roman">ta</div>
+                                    </li>
+                                                                                            <li class="no-link">
+                                        <div class="kana">ち</div>
+                    <div class="roman">chi</div>
+                                    </li>
+                                                                                            <li class="no-link">
+                                        <div class="kana">つ</div>
+                    <div class="roman">tsu</div>
+                                    </li>
+                                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'kn[]', 'て')">                    <div class="kana">て</div>
+                    <div class="roman">te</div>
+                    </button>                </li>
+                                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'kn[]', 'と')">                    <div class="kana">と</div>
+                    <div class="roman">to</div>
+                    </button>                </li>
+                </ul>                                                            <ul>                <li class="no-link">
+                                        <div class="kana">な</div>
+                    <div class="roman">na</div>
+                                    </li>
+                                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'kn[]', 'に')">                    <div class="kana">に</div>
+                    <div class="roman">ni</div>
+                    </button>                </li>
+                                                                                            <li class="no-link">
+                                        <div class="kana">ぬ</div>
+                    <div class="roman">nu</div>
+                                    </li>
+                                                                                            <li class="no-link">
+                                        <div class="kana">ね</div>
+                    <div class="roman">ne</div>
+                                    </li>
+                                                                                            <li class="no-link">
+                                        <div class="kana">の</div>
+                    <div class="roman">no</div>
+                                    </li>
+                </ul>                </div><div class="kana-area">                                            <ul>                <li class="no-link">
+                                        <div class="kana">は</div>
+                    <div class="roman">ha</div>
+                                    </li>
+                                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'kn[]', 'ひ')">                    <div class="kana">ひ</div>
+                    <div class="roman">hi</div>
+                    </button>                </li>
+                                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'kn[]', 'ふ')">                    <div class="kana">ふ</div>
+                    <div class="roman">fu</div>
+                    </button>                </li>
+                                                                                            <li class="no-link">
+                                        <div class="kana">へ</div>
+                    <div class="roman">he</div>
+                                    </li>
+                                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'kn[]', 'ほ')">                    <div class="kana">ほ</div>
+                    <div class="roman">ho</div>
+                    </button>                </li>
+                </ul>                                                            <ul>                <li class="no-link">
+                                        <div class="kana">ま</div>
+                    <div class="roman">ma</div>
+                                    </li>
+                                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'kn[]', 'み')">                    <div class="kana">み</div>
+                    <div class="roman">mi</div>
+                    </button>                </li>
+                                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'kn[]', 'む')">                    <div class="kana">む</div>
+                    <div class="roman">mu</div>
+                    </button>                </li>
+                                                                                            <li class="no-link">
+                                        <div class="kana">め</div>
+                    <div class="roman">me</div>
+                                    </li>
+                                                                                            <li class="no-link">
+                                        <div class="kana">も</div>
+                    <div class="roman">mo</div>
+                                    </li>
+                </ul>                                                            <ul>                <li class="no-link">
+                                        <div class="kana">や</div>
+                    <div class="roman">ya</div>
+                                    </li>
+                                                                                            <li class="skip">
+                                        <div class="kana"></div>
+                    <div class="roman"></div>
+                                    </li>
+                                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'kn[]', 'ゆ')">                    <div class="kana">ゆ</div>
+                    <div class="roman">yu</div>
+                    </button>                </li>
+                                                                                            <li class="skip">
+                                        <div class="kana"></div>
+                    <div class="roman"></div>
+                                    </li>
+                                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'kn[]', 'よ')">                    <div class="kana">よ</div>
+                    <div class="roman">yo</div>
+                    </button>                </li>
+                </ul>                                                            <ul>                <li class="no-link">
+                                        <div class="kana">ら</div>
+                    <div class="roman">ra</div>
+                                    </li>
+                                                                                            <li class="no-link">
+                                        <div class="kana">り</div>
+                    <div class="roman">ri</div>
+                                    </li>
+                                                                                            <li class="no-link">
+                                        <div class="kana">る</div>
+                    <div class="roman">ru</div>
+                                    </li>
+                                                                                            <li class="no-link">
+                                        <div class="kana">れ</div>
+                    <div class="roman">re</div>
+                                    </li>
+                                                                                            <li class="no-link">
+                                        <div class="kana">ろ</div>
+                    <div class="roman">ro</div>
+                                    </li>
+                </ul>                                                            <ul>                <li class="no-link">
+                                        <div class="kana">わ</div>
+                    <div class="roman">wa</div>
+                                    </li>
+                                                                                            <li class="no-link">
+                                        <div class="kana">を</div>
+                    <div class="roman">wo</div>
+                                    </li>
+                                                                                            <li class="no-link">
+                                        <div class="kana">ん</div>
+                    <div class="roman">nn</div>
+                                    </li>
+                                                                                            <li class="no-link">
+                                        <div class="kana">ー</div>
+                    <div class="roman">-</div>
+                                    </li>
+                                                                                            <li class="skip">
+                                        <div class="kana"></div>
+                    <div class="roman"></div>
+                                    </li>
+                </ul>                                    </div>
+    </div>
+    <div id="charBtnAreaEn" class="char-btn-area-en">
+        <div class="alpha-area">
+                                            <ul>                <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'al[]', 'A')">                    <div class="alpha">A</div>
+                    </a>                </li>
+                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'al[]', 'B')">                    <div class="alpha">B</div>
+                    </a>                </li>
+                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'al[]', 'C')">                    <div class="alpha">C</div>
+                    </a>                </li>
+                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'al[]', 'D')">                    <div class="alpha">D</div>
+                    </a>                </li>
+                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'al[]', 'E')">                    <div class="alpha">E</div>
+                    </a>                </li>
+                </ul>                                            <ul>                <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'al[]', 'F')">                    <div class="alpha">F</div>
+                    </a>                </li>
+                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'al[]', 'G')">                    <div class="alpha">G</div>
+                    </a>                </li>
+                                                                            <li class="no-link">
+                                        <div class="alpha">H</div>
+                                    </li>
+                                                                            <li class="no-link">
+                                        <div class="alpha">I</div>
+                                    </li>
+                                                                            <li class="no-link">
+                                        <div class="alpha">J</div>
+                                    </li>
+                </ul>                                            <ul>                <li class="no-link">
+                                        <div class="alpha">K</div>
+                                    </li>
+                                                                            <li class="no-link">
+                                        <div class="alpha">L</div>
+                                    </li>
+                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'al[]', 'M')">                    <div class="alpha">M</div>
+                    </a>                </li>
+                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'al[]', 'N')">                    <div class="alpha">N</div>
+                    </a>                </li>
+                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'al[]', 'O')">                    <div class="alpha">O</div>
+                    </a>                </li>
+                </ul>                                            <ul>                <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'al[]', 'P')">                    <div class="alpha">P</div>
+                    </a>                </li>
+                                                                            <li class="no-link">
+                                        <div class="alpha">Q</div>
+                                    </li>
+                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'al[]', 'R')">                    <div class="alpha">R</div>
+                    </a>                </li>
+                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'al[]', 'S')">                    <div class="alpha">S</div>
+                    </a>                </li>
+                                                                            <li class="normal">
+                    <button type="submit" 
+                                    onclick="set_hidden('hiddenNm', 'al[]', 'T')">                    <div class="alpha">T</div>
+                    </a>                </li>
+                </ul>                                            <ul>                <li class="no-link">
+                                        <div class="alpha">U</div>
+                                    </li>
+                                                                            <li class="no-link">
+                                        <div class="alpha">V</div>
+                                    </li>
+                                                                            <li class="no-link">
+                                        <div class="alpha">W</div>
+                                    </li>
+                                                                            <li class="no-link">
+                                        <div class="alpha">X</div>
+                                    </li>
+                                                                            <li class="no-link">
+                                        <div class="alpha">Y</div>
+                                    </li>
+                </ul>                                            <ul>                <li class="no-link">
+                                        <div class="alpha">Z</div>
+                                    </li>
+                                                                            <li class="skip">
+                                        <div class="alpha"></div>
+                                    </li>
+                                                                            <li class="skip">
+                                        <div class="alpha"></div>
+                                    </li>
+                                                                            <li class="skip">
+                                        <div class="alpha"></div>
+                                    </li>
+                                                                            <li class="skip">
+                                        <div class="alpha"></div>
+                                    </li>
+                </ul>                    </div>
+        <div class="num-area">
+                                            <ul>                <li class="no-link">
+                                        <div class="num">0</div>
+                                    </li>
+                                                                            <li class="no-link">
+                                        <div class="num">1</div>
+                                    </li>
+                                                                            <li class="no-link">
+                                        <div class="num">2</div>
+                                    </li>
+                                                                            <li class="no-link">
+                                        <div class="num">3</div>
+                                    </li>
+                                                                            <li class="no-link">
+                                        <div class="num">4</div>
+                                    </li>
+                </ul>                                            <ul>                <li class="no-link">
+                                        <div class="num">5</div>
+                                    </li>
+                                                                            <li class="no-link">
+                                        <div class="num">6</div>
+                                    </li>
+                                                                            <li class="no-link">
+                                        <div class="num">7</div>
+                                    </li>
+                                                                            <li class="no-link">
+                                        <div class="num">8</div>
+                                    </li>
+                                                                            <li class="no-link">
+                                        <div class="num">9</div>
+                                    </li>
+                </ul>                    </div>
+    </div>
+</div>            </div>
+            <div class="search-no">
+                <div class="search-label"><span class="pc">法令番号で検索</span><span class="sp">番号</span></div>
+                <div class="law-number">
+                    <div class="year">
+                        <select name="gn" id="gn">
+                            <option value="">--元号--</option>
+                                                                                                <option value="1">明治</option>
+                                                                                                                                <option value="2">大正</option>
+                                                                                                                                <option value="3">昭和</option>
+                                                                                                                                <option value="4">平成</option>
+                                                                                                                                <option value="5">令和</option>
+                                                                                                                                <option value="99">西暦</option>
+                                                                                    </select>
+                        <input id="sy" type="number" name="sy" min="1" max="8" value="">
+                        <span>年</span>
+                    </div>
+                    <div class="number">
+                        <select id="ht" name="ht">
+                            <option value="">--種別--</option>
+                                                                                                <option value="A">憲法・法律</option>
+                                                                                                                                <option value="B">政令・勅令</option>
+                                                                                                                                <option value="C">府省令</option>
+                                                                                                                                <option value="Z">その他</option>
+                                                                                    </select>
+                        <span>第</span>
+                        <input id="no" type="number" name="no" min="1" max="999" value="">
+                        <span>号</span>
+                    </div>
+                    <div class="submit">
+                        <input class="search" type="submit" value="検索">
+                    </div>
+                    <script>
+                        function setYear(eraCode) {
+                            let startYear = 1;
+                            let endYear = 1;
+                            if (eraCode == 1) {
+                                // Meiji
+                                endYear = 45;
+                            } else if (eraCode == 2) {
+                                // Taisho
+                                endYear = 15;
+                            } else if (eraCode == 3) {
+                                // Showa
+                                endYear = 64;
+                            } else if (eraCode == 4) {
+                                // Heisei
+                                endYear = 31;
+                            } else if (eraCode == 5) {
+                                // Reiwa
+                                endYear = 8;
+                            } else {
+                                // Year
+                                startYear = 1868;
+                                endYear = 2026;
+                            }
+
+                            let yearInput = document.getElementById('sy');
+                            yearInput.setAttribute('min', startYear);
+                            yearInput.setAttribute('max', endYear);
+                            yearInput.value = "";
+                        }
+
+                        let gn = document.getElementById('gn');
+                        gn.addEventListener('change', function(event) {
+                            setYear(event.target.value);
+                        });
+                    </script>
+                </div>
+            </div>
+            <div class="search-cat">
+                <div class="search-label"><span class="pc">分野で検索</span><span class="sp">分野</span></div>
+                <select name="bu" id="categorySelect">
+                                            <option value="" selected></option>
+                                                                                            <option value="2" selected>憲法・行政一般</option>
+                                                                                                <option value="4">司法</option>
+                                                                                                <option value="8">民事・商事</option>
+                                                                                                <option value="16">刑事・警察</option>
+                                                                                                <option value="32">建設・環境</option>
+                                                                                                <option value="64">租税・財務</option>
+                                                                                                <option value="128">教育・文化</option>
+                                                                                                <option value="256">産業</option>
+                                                                                                <option value="512">金融・保険</option>
+                                                                                                <option value="1024">輸送・通信</option>
+                                                                                                <option value="2048">労働・厚生・社会福祉</option>
+                                                                                                <option value="4096">外事・防衛</option>
+                                                            </select>
+            </div>
+            <div class="search-org">
+                <div class="search-label"><span class="pc">担当機関で検索</span><span class="sp">機関</span></div>
+                <select name="ta" id="orgSelect">
+                                            <option value=""></option>
+                                                                                            <option value="a0">内閣官房</option>
+                                                                                                <option value="b0">内閣府</option>
+                                                                                                <option value="n0">公正取引委員会</option>
+                                                                                                <option value="o0">警察庁</option>
+                                                                                                <option value="w0">個人情報保護委員会</option>
+                                                                                                <option value="x0">カジノ管理委員会</option>
+                                                                                                <option value="b1">サイバー通信情報監理委員会</option>
+                                                                                                <option value="p0">金融庁</option>
+                                                                                                <option value="a1">こども家庭庁</option>
+                                                                                                <option value="t0">消費者庁</option>
+                                                                                                <option value="y0">デジタル庁</option>
+                                                                                                <option value="u0">復興庁</option>
+                                                                                                <option value="c0">総務省</option>
+                                                                                                <option value="d0">法務省</option>
+                                                                                                <option value="e0">外務省</option>
+                                                                                                <option value="f0">財務省</option>
+                                                                                                <option value="g0">文部科学省</option>
+                                                                                                <option value="h0">厚生労働省</option>
+                                                                                                <option value="i0">農林水産省</option>
+                                                                                                <option value="j0">経済産業省</option>
+                                                                                                <option value="k0">国土交通省</option>
+                                                                                                <option value="l0">環境省</option>
+                                                                                                <option value="v0">原子力規制委員会</option>
+                                                                                                <option value="m0">防衛省</option>
+                                                                                                <option value="q0">最高裁判所</option>
+                                                                                                <option value="r0">人事院</option>
+                                                                                                <option value="s0">会計検査院</option>
+                                                                                                <option value="z0">その他</option>
+                                                            </select>
+            </div>
+            <div class="submit">
+                <input class="search" type="submit" value="検索">
+            </div>
+        </div>
+        <input type="hidden" id="hiddenNm" name="ph" value="">
+    </form>
+</div>
+<script>
+    document.getElementById('sortResult').addEventListener('change', function(event) {
+        form = document.getElementById('hiddenForm');
+        sr = document.getElementById('srHidden');
+        if (sr != null) {
+            sr.setAttribute('value', event.target.value);
+        }
+        form.submit();
+    })
+
+    function toggleRefine(el) {
+        if (el.classList.contains('disabled')) {
+            closeRefine();
+        } else {
+            openRefine();
+        }
+    }
+
+    function openRefine() {
+        let refine = document.getElementById('refine');
+        refine.style.display = 'block';
+        let refineTab = document.getElementById('refineTab');
+        refineTab.classList.add('disabled');
+        if (window.innerWidth > 768) {
+            closeMainMenu();
+        }
+    }
+
+    function closeRefine() {
+        let refine = document.getElementById('refine');
+        refine.style.display = 'none';
+        let refineTab = document.getElementById('refineTab');
+        refineTab.classList.remove('disabled');
+        if (window.innerWidth > 768) {
+            openMainMenu();
+        }
+    }
+</script>            </div>
+            <div class="sp">
+                <div class="disclaimer">
+            <div class="wrapper">
+            <div class="title">ご利用上の注意</div>
+            <dl>
+                <dt>翻訳について</dt>
+                <dd>この「日本法令外国語訳データベースシステム」に掲載している法令翻訳は、正文ではなく、最終改正版でない法令も含まれています。法的効力を有するのは日本語の法令自体であり、翻訳はあくまでその理解を助けるための参考資料です。<br>このページの利用に伴って発生した問題について、一切の責任を負いかねますので、法律上の問題に関しては、官報に掲載された日本語の法令を参照してください。<br>なお、法令の翻訳整備は、「法令外国語訳推進のための基盤整備に関する関係省庁連絡会議」で決定される計画（<a href="/ja/infos/index">翻訳整備計画</a>）に基づいて行っています。</dd>
+                <dt>「等」について</dt>
+                <dd>「等」は特定の事項に限定されるのでなく他の類似の事項も含まれる可能性を示すために使用されています。</dd>
+                <dt>「暫定版」について</dt>
+                <dd>法令名に「（暫定版）」と表示されている翻訳は、ネイティブや法令翻訳専門家によるチェック及び修正前の翻訳であり、今後、修正される場合があります。</dd>
+                <dt>引用、複製、転載について</dt>
+                <dd>この「日本法令外国語訳データベースシステム」に掲載しているデータは、<a href="/ja/index/terms">利用規約</a>に従い、引用し、複製し又は転載して差し支えありません。</dd>
+            </dl>
+        </div>
+    </div>            </div>
+                <form id="hiddenForm" action="" method="post">
+            <input type="hidden" name="_csrfToken" autocomplete="off" value="KkCQ5VoT1fagu9dCGqsSJ09KpAQHEj2waV1b74o3yvyGaqbLh0yIdcn/xfzL3y3SbICkEiX3eOzFozi+Icl/tt8HfIus8YVKfHmTNzZ0D4JZPGvf7AXymbFSnqm/frlH/8nyxa7vGuoP5JEgFs9A2A==">                                                                        <input id="buHidden" type="hidden" name="bu" value="2">
+                                                                                <input id="srHidden" type="hidden" name="sr" value="access">
+                                                        </form>
+    </main>
+    <footer id="footer">
+        <div class="copyright">日本法令外国語訳データベースシステム<br/>Copyright &copy; 2026 Ministry of Justice, Japan. All Rights Reserved.</div>
+    </footer>
+    <script>
+        if (this.window.innerWidth <= 768) {
+            hideMenuOnFooter();
+        }
+    </script>
+</body>
+
+</html>

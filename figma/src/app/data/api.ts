@@ -90,7 +90,8 @@ export type LawDocumentRaw = {
   effective_date: string | null
   status: 'current' | 'historical' | 'future' | string
   articles: Article[]
-  suppl_provisions?: { index: number; amend_law_num: string | null; label: string | null; articles: Article[] }[]
+  /** `paragraphs` は条に分かれない附則の項 (空なら省略)。 */
+  suppl_provisions?: { index: number; amend_law_num: string | null; label: string | null; articles: Article[]; paragraphs?: Paragraph[] }[]
   /** 旧 JSON には無い。空のときも省略される。 */
   appendix_tables?: AppendixTable[]
   source: { provider: string; raw_xml_sha256: string | null; fetched_at: string }
@@ -379,13 +380,23 @@ export type WikiPageMeta = {
   /** LLM の文章がまだ無く、機械が作った一覧しかないページ (一覧・グラフ・導線では出さない)。 */
   stub?: boolean
 }
-export type WikiIndex = { schema_version: number; generated_at: string; pages: WikiPageMeta[] }
+export type WikiIndex = { schema_version: number; generated_at: string; pages: WikiPageMeta[]; intake?: { date: string; since: string; scope: string; entries: Record<string, string> } | null }
 export type WikiGraph = {
   schema_version: number
   nodes: { id: string; type: string; title: string; description: string; stub?: boolean }[]
   links: { source: string; target: string }[]
 }
-export type WikiPage = { path: string; frontmatter: Record<string, unknown>; body: string; stub?: boolean }
+export type WikiClaim = {
+  text: string; kind: string; attribution: string; review_status: string; review_note: string;
+  sources: { ref: string; url: string; quote: string; speaker: string | null; group: string | null; position: string | null; date: string; role: string }[];
+}
+export type WikiCitationSource = {
+  path: string; refs: string[]; title: string | null; date: string | null;
+  availability: "available" | "stub" | "missing";
+  /** 引用元会議の要約の状態。このページの記述がその版に対応するとは限らない。 */
+  summary_source_status: "current" | "stale" | "pending" | "untracked" | null;
+}
+export type WikiPage = { path: string; frontmatter: Record<string, unknown>; body: string; stub?: boolean; claim_assessments?: WikiClaim[]; citation_sources?: WikiCitationSource[] }
 
 export const api = {
   index: () => getJson<IndexJson>('./index.json'),
@@ -432,6 +443,9 @@ export const api = {
   /** 規制変化フィード (法令改正・パブコメ・官報の新着, 逆時系列)。 */
   recentFeed: () => getJson<RecentFeed>('./feeds/recent.json'),
 
+  /** 施行予定ごとの出典付き wiki 解説。 */
+  enforcementExplanations: (lawId: string) =>
+    getJson<EnforcementExplanations>(`./wiki/enforcements/${encodeURIComponent(lawId)}.json`),
   /** 今後の施行予定 (施行期日カレンダー, 施行日昇順)。 */
   enforcementUpcoming: () => getJson<EnforcementUpcoming>('./enforcement/upcoming.json'),
 
@@ -444,8 +458,23 @@ export const api = {
 
   /** 法令の制定経緯 (パブコメ → 結果公示 → 公布 → 施行) の連鎖。 */
   lawToRulemaking: (lawId: string) => getJson<LawToRulemaking>(`./links/law-to-rulemaking/${lawId}.json`),
+  /** 附則の構造化 (施行期日・経過措置・読替え規定)。附則の無い法令には無い。 */
+  lawSupplementary: (lawId: string) => getJson<LawSupplementary>(`./laws/${lawId}/supplementary.json`),
   /** 法令 ↔ 判例 クロスリンク (判例の参照法条から抽出)。 */
   lawToHanrei: (lawId: string) => getJson<LawToHanrei>(`./links/law-to-hanrei/${lawId}.json`),
+  /** 法令 ↔ 質問主意書・答弁書 クロスリンク (件名・本文の法令参照から抽出)。 */
+  lawToShitsumon: (lawId: string) => getJson<LawToShitsumon>(`./links/law-to-shitsumon/${lawId}.json`),
+  /** 法令 ↔ 政府解釈 (ノーアクションレター・Q&A・ガイドライン等) クロスリンク。 */
+  lawToGuidance: (lawId: string) => getJson<LawToGuidance>(`./links/law-to-guidance/${lawId}.json`),
+  /** 法令英訳 (日本法令外国語訳データベース)。英訳の無い法令は 404。 */
+  lawEnglish: (lawId: string) => getJson<LawEnglish>(`./laws/${lawId}/en.json`),
+  /** 法令 → 条約 クロスリンク (法令本文の条約名・条約番号から抽出)。 */
+  lawToTreaties: (lawId: string) => getJson<LawToTreaties>(`./links/law-to-treaties/${lawId}.json`),
+  /** 条約 1 件 (外務省 条約データ検索・国会提出条約)。 */
+  treaty: (id: string) => getJson<Treaty>(`./treaties/${encodeURIComponent(id)}.json`),
+  /** 法令 → この法令を改正した法律案の改め文 (law-diff の版と対応づけ済み)。 */
+  lawToBillAmendments: (lawId: string) =>
+    getJson<LawToBillAmendments>(`./links/law-to-bill-amendments/${lawId}.json`),
 
   /** 議案 (法案審議トラッキング) 全体インデックス。 */
   gianIndex: () => getJson<GianIndex>('./gian/index.json'),
@@ -705,13 +734,33 @@ export type GianBill = {
 
 // ── 施行予定 型定義 ───────────────────────────────────────────────
 
+export type EnforcementExplanation = {
+  explanation_id: string
+  event_id: string
+  revision_id: string | null
+  date: string
+  path: string
+  description: string
+  body: string
+}
+export type EnforcementExplanations = {
+  schema_version: number
+  law_id: string
+  items: EnforcementExplanation[]
+}
+
 export type EnforcementItem = {
+  event_id?: string
+  revision_id?: string | null
+  explanation_id?: string
   date: string
   law_id: string
   title: string
   amending_law_title?: string
-  /** "scheduled"(施行予定日) / "effective"(施行日)。 */
+  /** "scheduled"(施行予定日) / "effective"(施行日) / "supplementary"(附則から読んだ一部施行等)。 */
   date_kind: string
+  /** date_kind = "supplementary" のときの対象規定。 */
+  targets?: string
 }
 
 export type EnforcementUpcoming = {
@@ -793,6 +842,76 @@ export type LawToRulemaking = {
   chains: RulemakingChain[]
 }
 
+/** 附則の参照 (第X条)。`article_id` は同じ法令内の条に解決できたときだけ。 */
+export type SupplementaryRef = {
+  text: string
+  scope: 'main' | 'suppl' | 'amending_law' | 'other_law'
+  article_id?: string | null
+}
+export type SupplementaryLocation = { article_id: string | null; paragraph: string | null; item?: string | null }
+export type EnforcementKind = 'fixed_date' | 'promulgation' | 'after_promulgation' | 'delegated' | 'linked' | 'unknown'
+export type SupplementaryEnforcement = {
+  location: SupplementaryLocation
+  /** whole = 附則を置いた法令全体, partial = ただし書・各号などの一部の規定 */
+  scope: 'whole' | 'partial'
+  targets?: string | null
+  excluding?: string | null
+  target_refs?: SupplementaryRef[]
+  kind: EnforcementKind
+  date: string | null
+  date_source?: 'explicit' | 'promulgation' | 'computed' | null
+  /** 政令委任の期限 (この日までに施行される) */
+  deadline?: string | null
+  delegated_to?: string | null
+  linked_to?: string | null
+  period?: string | null
+  applies_from?: string | null
+  when: string
+  text: string
+}
+export type TransitionalKind = 'prior_law' | 'penalty' | 'continued_effect' | 'deemed' | 'application' | 'delegated' | 'review' | 'repeal' | 'other'
+export type SupplementaryTransitional = {
+  location: SupplementaryLocation
+  kinds: TransitionalKind[]
+  caption?: string | null
+  refs?: SupplementaryRef[]
+  text: string
+}
+export type SupplementaryReading = {
+  location: SupplementaryLocation
+  target: string | null
+  target_refs?: SupplementaryRef[]
+  from: string
+  to: string
+  context?: string | null
+}
+export type SupplementaryProvisionAnalysis = {
+  index: number
+  amend_law_num: string | null
+  label: string | null
+  promulgation_date: string | null
+  enforcement?: SupplementaryEnforcement[]
+  transitional?: SupplementaryTransitional[]
+  readings?: SupplementaryReading[]
+  enforcement_unresolved: boolean
+}
+export type LawSupplementary = {
+  schema_version: number
+  law_id: string
+  law_num: string | null
+  stats: {
+    provisions: number
+    with_enforcement: number
+    enforcement_unresolved: number
+    enforcement_rules: number
+    transitional_measures: number
+    readings: number
+    refs: number
+    refs_resolved: number
+  }
+  provisions: SupplementaryProvisionAnalysis[]
+}
+
 /** 法令 → 判例 クロスリンク。出典は裁判所 裁判例検索 (`/hanrei/{case_id}/detail2/`)。 */
 export type LinkedCase = {
   case_id: number
@@ -811,6 +930,224 @@ export type LawToHanrei = {
 }
 export const hanreiUrl = (caseId: number) =>
   `https://www.courts.go.jp/hanrei/${caseId}/detail2/index.html`
+
+/** 法令 → 質問主意書・答弁書 クロスリンク。出典は衆議院「質問答弁情報」/ 参議院「質問主意書」。 */
+export type LinkedQuestion = {
+  /** `{house}-{session}-{number}` (例: `shugiin-219-1`)。 */
+  id: string
+  house: 'shugiin' | 'sangiin' | string
+  session: number
+  number: number
+  title: string
+  submitter: string
+  submitted_on: string | null
+  answered_on: string | null
+  /** 件名に法令名が出てくる (その法令を主題にした質問)。 */
+  in_title: boolean
+  /** 参照された条番号 (例: "74", "5_2" は第5条の2)。条を挙げない言及だけなら空。 */
+  articles: string[]
+  /** 衆議院は経過ページ、参議院は明細ページ。 */
+  detail_url: string
+}
+export type LawToShitsumon = {
+  schema_version: number
+  law_id: string
+  linked_questions: LinkedQuestion[]
+}
+
+/** 政府解釈の種別。 */
+export type GuidanceKind =
+  | 'no_action_letter'
+  | 'written_inquiry'
+  | 'consultation_cases'
+  | 'qa'
+  | 'guideline'
+  | 'interpretation_cases'
+  | 'other'
+
+export const GUIDANCE_KIND_LABELS: Record<string, string> = {
+  no_action_letter: 'ノーアクションレター',
+  written_inquiry: '書面照会への回答',
+  consultation_cases: '相談事例',
+  qa: 'Q&A',
+  guideline: 'ガイドライン',
+  interpretation_cases: '法令解釈事例集',
+  other: 'その他',
+}
+
+/** 法令 → 政府解釈 クロスリンク。出典は所管省庁のウェブサイト (金融庁: PDL1.0)。 */
+export type LinkedGuidance = {
+  /** 例: `fsa-nal-ginkou-10`。 */
+  id: string
+  ministry: string
+  ministry_name: string
+  kind: GuidanceKind | string
+  title: string
+  issued_on: string | null
+  /** 発出元 (例: 金融庁監督局 銀行第一課長)。 */
+  issuer: string | null
+  /** 回答の要旨 (回答書の「１．回答」の冒頭)。 */
+  summary: string | null
+  /** subject = 照会対象・分野の法令、title = 文書名に出る、mention = 本文で条番号付きで参照。 */
+  relation: 'subject' | 'title' | 'mention'
+  /** 参照された条番号 (例: "10", "52_36" は第52条の36)。 */
+  articles: string[]
+  /** 一覧ページ (出典)。 */
+  source_url: string
+  /** 回答書・本文 PDF の URL。 */
+  document_url: string | null
+}
+export type LawToGuidance = {
+  schema_version: number
+  law_id: string
+  linked_guidance: LinkedGuidance[]
+}
+
+/**
+ * 法令英訳 (`laws/{law_id}/en.json`)。出典は法務省「日本法令外国語訳データベース」(PDL1.0)。
+ * 翻訳は参考訳で、最終改正を反映していないことがある (`translations[].last_version_*`)。
+ */
+export type LawEnglishParagraph = {
+  /** 英訳の項番号 (例: "(2)")。 */
+  num: string | null
+  /** 号・号の細分は "(i) …" の行として改行で続く。 */
+  text: string
+}
+export type LawEnglishArticle = {
+  /** e-Gov の条 ID (`art_3_2` 等)。current.json の articles[].article_id と対応する。 */
+  article_id: string
+  article_no: string | null
+  /** 例: "Article 3-2"。 */
+  title: string | null
+  caption: string | null
+  paragraphs: LawEnglishParagraph[]
+  jlt_id: number
+  /** JLT の該当条へのリンク。 */
+  url: string
+}
+export type LawEnglishTranslation = {
+  jlt_id: number
+  title_ja: string
+  title_en: string | null
+  law_num_en: string | null
+  last_version_ja: string | null
+  last_version_en: string | null
+  translated_on: string | null
+  dictionary_version: string | null
+  /** 暫定版 (ネイティブ・専門家チェック前)。 */
+  tentative: boolean
+  source_url: string
+  article_count: number
+  matched_article_count: number
+}
+export type LawEnglish = {
+  schema_version: number
+  law_id: string
+  law_num: string | null
+  title: string
+  title_en: string | null
+  source: {
+    name_ja: string
+    name_en: string
+    url: string
+    terms_url: string
+    license: string
+    license_url: string
+    attribution: string
+    disclaimer_ja: string
+    disclaimer_en: string
+  }
+  translations: LawEnglishTranslation[]
+  articles: LawEnglishArticle[]
+}
+
+/** 法令 → 条約 クロスリンク。出典は外務省「条約データ検索」「国会提出条約」。 */
+export type LinkedTreaty = {
+  /** 条約データ検索のファイル名 (例: `A-R4-101`)。未掲載で国会提出条約ページだけのものは `diet-{ページ名}`。 */
+  treaty_id: string
+  title: string
+  short_title: string | null
+  kind: 'bilateral' | 'multilateral' | null
+  effective_on: string | null
+  /** 「平成26年条約第2号」。 */
+  treaty_number_label: string | null
+  /** 参照した条 (`art_2`、附則は `suppl1_art_1` / `suppl1`)。 */
+  articles: string[]
+  /** 法令の題名に条約名が入っている (実施法など)。 */
+  in_title: boolean
+  matched_by: string[]
+  /** 同名の条約が複数あり、条約番号で決められなかった (最新のものを採った)。 */
+  ambiguous: boolean
+  source_url: string | null
+}
+export type LawToTreaties = {
+  schema_version: number
+  law_id: string
+  linked_treaties: LinkedTreaty[]
+}
+export type TreatyEvent = { date: string | null; text: string }
+export type Treaty = {
+  schema_version: number
+  id: string
+  title: string
+  short_title: string | null
+  kind: 'bilateral' | 'multilateral' | null
+  parties: string[]
+  signed_on: string | null
+  diet_approved_on: string | null
+  concluded_on: string | null
+  promulgated_on: string | null
+  effective_on: string | null
+  treaty_number: number | null
+  treaty_number_label: string | null
+  notice_number: string | null
+  diet_session: number | null
+  events: TreatyEvent[]
+  in_database: boolean
+  text: string | null
+  text_lang: string | null
+  text_source: string | null
+  text_url: string | null
+  attachments: { label: string; url: string; sha256?: string; bytes?: number }[]
+  source_url: string
+  diet_url: string | null
+}
+
+// ── 法律案の改め文 ↔ 改正差分 型定義 ──────────────────────────────
+
+export type LinkedAmendmentSentence = {
+  /** 改め文 1 文の原文 (「第二条中「A」を「B」に改める。」)。 */
+  text: string
+  /** 改め文が指す条 (`art_*`)。linked なら差分で実際に変化した条。 */
+  article_ids: string[]
+  /** verified / article / pending / unmatched / skipped、または法令単位の status。 */
+  status: string
+}
+
+export type LinkedBillAmendment = {
+  bill_id: string
+  session: number
+  bill_title: string
+  law_num: string | null
+  amendment_law_id: string | null
+  /** 法案内の位置 (「第一条」「附則第六条」)。 */
+  provision: string | null
+  /** linked / pending / not_promulgated / revision_not_found。 */
+  status: string
+  from_revision_id: string | null
+  to_revision_ids: string[]
+  source_url: string
+  path: string
+  ops: number
+  ops_matched: number
+  sentences: LinkedAmendmentSentence[]
+}
+
+export type LawToBillAmendments = {
+  schema_version: number
+  law_id: string
+  bills: LinkedBillAmendment[]
+}
 
 // ── 規制変化フィード 型定義 ───────────────────────────────────────
 

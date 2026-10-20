@@ -23,7 +23,7 @@ pub struct CheckArgs {
 }
 
 const ROOT_FILES: [&str; 3] = ["index.md", "log.md", "README.md"];
-const DIRS: [&str; 9] = ["laws/", "meetings/", "people/", "topics/", "bills/", "committees/", "parties/", "pubcomments/", "kanpo/"];
+const DIRS: [&str; 10] = ["laws/", "meetings/", "people/", "topics/", "bills/", "committees/", "parties/", "pubcomments/", "kanpo/", "enforcements/"];
 const MIN_QUOTE_CHARS: usize = 8;
 const MAX_QUOTE_CHARS: usize = 200;
 
@@ -56,7 +56,7 @@ fn parse_citation(rest: &str) -> Option<(String, String, String)> {
     let (url, rest) = rest.split_once(')')?;
     let rest = rest.trim();
     let quote = rest.strip_prefix('「')?.strip_suffix('」')?;
-    if !["kokkai:", "shingikai:", "gian:", "pubcomment:", "kanpo:"].iter().any(|p| reference.starts_with(p)) {
+    if !["kokkai:", "shingikai:", "gian:", "pubcomment:", "kanpo:", "enforcement:"].iter().any(|p| reference.starts_with(p)) {
         return None;
     }
     Some((reference.to_string(), url.to_string(), quote.to_string()))
@@ -139,6 +139,30 @@ fn percent_decode(s: &str) -> String {
     String::from_utf8_lossy(&out).into_owned()
 }
 
+/// 国会会議録の発言単位の URL (`https://kokkai.ndl.go.jp/txt/{会議}/{発言番号}`) へのリンクを (行番号, URL) で返す。
+/// 会議単位の URL (`…/txt/{会議}`) は含まない。
+fn speech_links(text: &str) -> Vec<(usize, String)> {
+    const PREFIX: &str = "https://kokkai.ndl.go.jp/txt/";
+    let mut out = Vec::new();
+    for (i, line) in text.lines().enumerate() {
+        // 脚注定義の URL は引用そのもの。
+        if line.trim_start().starts_with("[^") && line.contains("]:") {
+            continue;
+        }
+        let mut rest = line;
+        while let Some(j) = rest.find("](") {
+            let after = &rest[j + 2..];
+            let Some(k) = after.find(')') else { break };
+            let url = after[..k].trim();
+            rest = &after[k + 1..];
+            if url.strip_prefix(PREFIX).is_some_and(|p| p.trim_end_matches('/').contains('/')) {
+                out.push((i + 1, url.to_string()));
+            }
+        }
+    }
+    out
+}
+
 /// 引用元の発言を、作業ディレクトリに残した会議本体 → 配信 JSON の順に引く。
 struct Resolver<'a> {
     work: &'a Path,
@@ -162,7 +186,7 @@ impl Resolver<'_> {
                 .map(|(m, _)| m)
                 .unwrap_or(id)
                 .to_string(),
-            KIND_SHINGIKAI | KIND_GIAN | KIND_PUBCOMMENT => id.split('#').next().unwrap_or(id).to_string(),
+            KIND_SHINGIKAI | KIND_GIAN | KIND_PUBCOMMENT | enforcements::KIND => id.split('#').next().unwrap_or(id).to_string(),
             _ => return Ok(None),
         };
         let key = format!("{kind}:{doc_id}");
@@ -172,6 +196,7 @@ impl Resolver<'_> {
                 let units = match kind {
                     KIND_KOKKAI => kokkai_units(&d),
                     KIND_PUBCOMMENT => pubcomment_units(&d),
+                    enforcements::KIND => enforcements::units(&d),
                     KIND_GIAN => gian_units(&d["detail"], d["resolutions"].as_array().map(Vec::as_slice).unwrap_or(&[])),
                     _ => shingikai_units(&d),
                 };
@@ -207,6 +232,9 @@ impl Resolver<'_> {
         let local = self.work.join("docs").join(kind).join(format!("{}.json", id.replace('/', "_")));
         if local.exists() {
             return Ok(Some(serde_json::from_slice(&std::fs::read(&local)?)?));
+        }
+        if kind == enforcements::KIND {
+            return enforcements::load_bundle(&self.source, id);
         }
         if kind == KIND_KOKKAI {
             return self.source.get_json(&format!("proceedings/{id}.json"));
@@ -287,6 +315,8 @@ fn changed_pages(wiki: &Path) -> Option<HashSet<String>> {
 
 pub fn run_check(args: &CheckArgs) -> Result<()> {
     let wiki = &args.wiki;
+    let plan = Plan::load(&args.work)?;
+    let state = State::load(wiki)?;
     let changed = if args.changed_only {
         changed_pages(wiki)
     } else {
@@ -333,7 +363,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
         if ty.is_empty() {
             err(1, "OKF の必須フィールド `type` がありません".into());
         }
-        if matches!(ty, "law" | "meeting" | "person" | "topic" | "bill" | "committee" | "party" | "pubcomment" | "kanpo") && page.get_str("title").is_empty()
+        if matches!(ty, "law" | "meeting" | "person" | "topic" | "bill" | "committee" | "party" | "pubcomment" | "kanpo" | "enforcement") && page.get_str("title").is_empty()
         {
             err(1, "`title` がありません".into());
         }
@@ -387,8 +417,57 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
             );
         }
 
+        if page.get("evidence_version").is_some() && !llm_text.trim().is_empty() {
+            for message in evidence::claim_errors(&page) { err(1, message); }
+        }
+        // LLM が編集しないソースバンドルを基準に、日付・抽出範囲の書き換えも検出する。
+        if page.get("evidence_version").is_some() || plan.as_ref().is_some_and(|p| p.tasks.iter()
+            .any(|t| t.page == rel && matches!(t.kind.as_str(), KIND_KOKKAI | KIND_SHINGIKAI))) {
+            if let Some(task) = plan.as_ref().and_then(|p| p.tasks.iter().find(|t| t.page == rel)) {
+                let bundle = std::fs::read(args.work.join(&task.source))
+                    .with_context(|| format!("read source bundle {}", task.source))?;
+                let bundle: Value = serde_json::from_slice(&bundle)?;
+                for (field, original) in [("date", "date"), ("source_scope", "scope"), ("evidence_sources", "attributions")] {
+                    if page.get(field) != bundle.get(original) {
+                        err(1, format!("機械生成の {field} がソースバンドルと一致しません"));
+                    }
+                }
+                if bundle.get("source_fingerprint").is_some()
+                    && !evidence::source_fields_match(&page, &bundle, state.is_processed(&task.key)) {
+                    err(1, "機械生成の原資料・要約の版がソースバンドルと一致しません".into());
+                }
+            }
+        }
+
+        if ty == enforcements::KIND {
+            // 空の未完了ページは再生成待ち。書かれた説明は節ごとに検証する。
+            if !llm_text.trim().is_empty() {
+                for message in enforcements::explanation_errors(&page) { err(1, message); }
+            }
+        }
+
+        // 要約から発言へのリンクは、検証済みの引用と同じ発言を指すこと (根拠の無いリンクを防ぐ)。
+        let cited_urls: HashSet<&str> = citations.iter().map(|c| c.url.as_str()).collect();
+        // 機械が載せる抜粋 (lawpub 区間) のリンクは対象外。LLM 区間だけを見る。
+        for (_, url) in speech_links(&llm_text) {
+            if !cited_urls.contains(url.as_str()) {
+                err(1, format!("発言へのリンク {url} に対応する引用（脚注）がありません"));
+            }
+        }
+
         if changed.as_ref().is_some_and(|c| !c.contains(&rel)) {
             continue;
+        }
+        // 主張用の出典は発言単位で厳密に照合する。審議会の全文 fallback は誤帰属を起こすため使わない。
+        if let Some(sources) = page.get("evidence_sources").and_then(Value::as_array) {
+            for source in sources {
+                let reference = source["ref"].as_str().unwrap_or("");
+                match resolver.unit(reference) {
+                    Ok(Some(u)) if *source == evidence::attribution(&u, page.get_str("date")) => {}
+                    Ok(_) => err(1, format!("出典の発言者・役職・URL・役割が原資料と一致しません: {reference}")),
+                    Err(e) => err(1, format!("出典情報を取得できません: {reference}: {e:#}")),
+                }
+            }
         }
         for c in &citations {
             checked_citations += 1;
@@ -401,7 +480,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
             let unit = match resolver.unit(&c.reference) {
                 Ok(Some(u)) => u,
                 // 審議会は発言の区切り方を改めたことがあるので、番号が合わなくても同じ議事録に引用文があればよい。
-                Ok(None) if resolver.in_shingikai_minutes(&c.reference, &quote) => continue,
+                Ok(None) if page.get("evidence_version").is_none() && resolver.in_shingikai_minutes(&c.reference, &quote) => continue,
                 Ok(None) => {
                     err(c.line, format!("発言 {} が見つかりません", c.reference));
                     continue;
@@ -423,7 +502,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
                     ),
                 );
             }
-            if !normalize_for_quote(&unit.text).contains(&quote) && !resolver.in_shingikai_minutes(&c.reference, &quote) {
+            if !normalize_for_quote(&unit.text).contains(&quote) && !(page.get("evidence_version").is_none() && resolver.in_shingikai_minutes(&c.reference, &quote)) {
                 err(c.line, format!("引用「{}」は {} の本文にありません（要約ではなく原文をそのまま引用してください）", c.quote, c.reference));
             }
         }
@@ -508,6 +587,28 @@ mod tests {
     }
 
     #[test]
+    fn matching_quote_cannot_forge_the_speakers_government_role() {
+        let (root, args) = fixture("救済拡充を求めた[^1]。\n\n[^1]: [kokkai:M1_001](https://kokkai.ndl.go.jp/txt/M1/1) 「副反応の救済を拡充すべきです」");
+        let path = args.wiki.join("meetings/kokkai/M1.md");
+        let doc: Value = serde_json::from_slice(&std::fs::read(args.work.join("docs/kokkai/M1.json")).unwrap()).unwrap();
+        let u = kokkai_units(&doc).remove(0);
+        let mut p = Page::read(&path).unwrap();
+        p.set("evidence_version", json!(1));
+        p.set("date", json!("2026-10-01"));
+        p.set("evidence_sources", json!([evidence::attribution(&u, "2026-10-01")]));
+        p.set("claims", json!([{"text": "救済拡充を求めた", "kind": "request", "attribution": u.reference, "evidence": ["1"], "review_status": "unreviewed", "review_note": ""}]));
+        p.write(&path).unwrap();
+        run_check(&args).unwrap();
+        let mut forged = p.get("evidence_sources").unwrap().clone();
+        forged[0]["role"] = json!("government");
+        p.set("evidence_sources", forged);
+        p.write(&path).unwrap();
+        assert!(run_check(&args).is_err());
+        assert!(std::fs::read_to_string(args.work.join("check-report.md")).unwrap().contains("役割が原資料と一致しません"));
+        std::fs::remove_dir_all(root).ok();
+    }
+
+    #[test]
     fn shingikai_quote_with_stale_turn_number_passes_if_in_same_minutes() {
         let root = temp_dir("check_shingikai");
         let wiki = root.join("wiki");
@@ -534,6 +635,17 @@ mod tests {
         // 議事録に無い文は従来どおり落とす。
         std::fs::write(wiki.join("meetings/shingikai/S1.md"), page("S1#0", "医療費助成を全面的に廃止する")).unwrap();
         assert!(run_check(&args()).is_err());
+        // 主張の帰属情報がある新形式では、別の発言者の引用を全文一致で通さない。
+        let path = wiki.join("meetings/shingikai/S1.md");
+        let mut p = Page::parse(&page("S1#0", "公平かつ安定的な医療費助成の制度確立")).unwrap();
+        p.set("evidence_version", json!(1));
+        let doc: Value = serde_json::from_slice(&std::fs::read(work.join("docs/shingikai/S1.json")).unwrap()).unwrap();
+        let u = shingikai_units(&doc).remove(0);
+        p.set("evidence_sources", json!([evidence::attribution(&u, "")]));
+        p.set("claims", json!([{"text": "述べた", "kind": "unknown", "attribution": "shingikai:S1#0", "evidence": ["1"], "review_status": "unreviewed", "review_note": ""}]));
+        p.write(&path).unwrap();
+        assert!(run_check(&args()).is_err());
+        assert!(std::fs::read_to_string(work.join("check-report.md")).unwrap().contains("S1#0 の本文にありません"));
         std::fs::remove_dir_all(root).ok();
     }
 
@@ -605,6 +717,21 @@ mod tests {
         run_check(&args()).unwrap();
         std::fs::write(wiki.join("bills/221/B1.md"), page("投票所を全面的に廃止する")).unwrap();
         assert!(run_check(&args()).is_err());
+        std::fs::remove_dir_all(root).ok();
+    }
+
+    #[test]
+    fn speech_links_must_point_at_a_cited_speech() {
+        let def = "[^1]: [kokkai:M1_001](https://kokkai.ndl.go.jp/txt/M1/1) 「副反応の救済を拡充すべきです」";
+        let (root, args) = fixture(&format!("- 救済拡充を求めた（[発言](https://kokkai.ndl.go.jp/txt/M1/1)）[^1]。\n\n{def}"));
+        run_check(&args).unwrap();
+        std::fs::remove_dir_all(root).ok();
+        // 会議単位の URL は見出しのリンクに使うので対象外。
+        let (root, args) = fixture(&format!("### [会議](https://kokkai.ndl.go.jp/txt/M1)\n- 求めた[^1]。\n\n{def}"));
+        run_check(&args).unwrap();
+        std::fs::remove_dir_all(root).ok();
+        let (root, args) = fixture(&format!("- 救済拡充を求めた（[発言](https://kokkai.ndl.go.jp/txt/M1/9)）[^1]。\n\n{def}"));
+        assert!(run_check(&args).is_err(), "引用していない発言へのリンクは落とす");
         std::fs::remove_dir_all(root).ok();
     }
 

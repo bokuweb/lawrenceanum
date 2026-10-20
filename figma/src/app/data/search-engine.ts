@@ -218,7 +218,9 @@ async function exec<T = Record<string, unknown>>(sql: string, params: unknown[] 
   const source = sql.includes("documents_fts") ? String(params[1])
     : sql.includes("speeches_fts") ? "speeches"
     : sql.includes("kanpo_fts") ? "kanpo"
-    : sql.includes("tsutatsu_fts") ? "tsutatsu" : "laws";
+    : sql.includes("tsutatsu_fts") ? "tsutatsu"
+    : sql.includes("laws_en_fts") ? "english"
+    : sql.includes("hanrei_fts") ? "hanrei" : "laws";
   return client(source).query<T>(sql, params, request);
 }
 
@@ -467,6 +469,139 @@ export async function searchTsutatsu(q: string, limit = 10, strict = false, offs
       snippet: String(r.snippet ?? ""),
     }));
   } catch (error) {
+    if (strict) throw error;
+    return [];
+  }
+}
+
+export type EnglishHit = {
+  law_id: string;
+  article_id: string;
+  article_no: string;
+  /** 英訳の法令名 (例: "Civil Code")。 */
+  law_title: string;
+  /** JLT の該当条 URL。 */
+  url: string;
+  title: string;
+  caption: string;
+  /** HTML エスケープ済み。一致箇所だけ <mark> で囲む。 */
+  snippet: string;
+};
+
+/** 英語クエリの AND から外す機能語 ("guardian of minors" → guardian AND minors)。 */
+const ENGLISH_STOPWORDS = new Set([
+  "a", "an", "the", "of", "to", "in", "on", "for", "by", "with", "as", "at", "from",
+  "and", "or", "is", "are", "be", "that", "this", "which", "its",
+]);
+
+/** 英語クエリを FTS5 の MATCH 式にする (英単語だけを拾って AND)。英単語が無ければ空文字。 */
+export function buildEnglishMatch(q: string): string {
+  const words: string[] = Array.from(q.toLowerCase().match(/[a-z0-9]+(?:[-'][a-z0-9]+)*/g) ?? []);
+  const useful = words.filter(w => /[a-z]/.test(w) && w.length >= 2 && !ENGLISH_STOPWORDS.has(w));
+  return useful.map(w => `"${w.replace(/"/g, "")}"`).join(" ");
+}
+
+const escapeHtml = (s: string) =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+/**
+ * 法令英訳 (日本法令外国語訳データベース) の条単位英語検索 (laws_en_fts, porter 語幹化)。
+ * 旧 search.db（laws_en_fts 未作成）や英単語を含まないクエリでは空配列。
+ */
+export async function searchEnglish(q: string, limit = 10, strict = false, offset = 0, request?: SearchRequest): Promise<EnglishHit[]> {
+  const match = buildEnglishMatch(q);
+  if (!match) return [];
+  try {
+    const rows = await exec<{
+      law_id: string; article_id: string; article_no: string | null; law_title: string | null;
+      url: string | null; title_en: string | null; caption_en: string | null; snippet: string | null;
+    }>(
+      `SELECT law_id, article_id, article_no, law_title, url, title_en, caption_en,
+              snippet(laws_en_fts, 7, char(1), char(2), '...', 16) AS snippet
+         FROM laws_en_fts
+        WHERE laws_en_fts MATCH ?
+        ORDER BY rank
+        LIMIT ? OFFSET ?`,
+      [match, limit, offset], request,
+    );
+    return rows.map(r => {
+      const lawTitle = String(r.law_title ?? "");
+      const title = String(r.title_en ?? "");
+      return {
+        law_id: String(r.law_id ?? ""),
+        article_id: String(r.article_id ?? ""),
+        article_no: String(r.article_no ?? ""),
+        law_title: lawTitle,
+        url: String(r.url ?? ""),
+        // title_en 列は「法令名 + 条名」で索引しているので、表示は条名だけにする。
+        title: lawTitle && title.startsWith(lawTitle) ? title.slice(lawTitle.length).trim() : title,
+        caption: String(r.caption_en ?? ""),
+        snippet: escapeHtml(String(r.snippet ?? "")).replace(/\u0001/g, "<mark>").replace(/\u0002/g, "</mark>"),
+      };
+    });
+  } catch (error) {
+    if (strict) throw error;
+    return [];
+  }
+}
+
+export type HanreiHit = {
+  case_id: number;
+  case_number: string;
+  case_name: string;
+  /** 和暦のまま (例: 令和8年8月28日)。 */
+  judged_on: string;
+  court: string;
+  result: string;
+  /** 判示事項 (原文のまま)。 */
+  holding: string;
+  /** 出典: 裁判所 裁判例検索の詳細ページ。 */
+  detail_url: string;
+  pdf_url: string | null;
+  snippet: string;
+};
+
+/**
+ * 判例の全文検索 (hanrei_fts)。事件名・事件番号・判示事項・裁判要旨・参照法条・
+ * 全文 PDF 由来の引用を横断する。索引は新しい事件順 (case_id 降順) に並ぶ。
+ * 旧 search.db（hanrei_fts 未作成）では strict でも空配列にフォールバック。
+ */
+export async function searchHanrei(q: string, limit = 10, strict = false, offset = 0, request?: SearchRequest): Promise<HanreiHit[]> {
+  const match = buildFtsMatchExpanded(q.trim());
+  if (!match) return [];
+  const compact = request?.includeSnippet === false;
+  try {
+    const rows = await exec<{
+      case_id: number; case_number: string; case_name: string; judged_on: string;
+      court: string; result: string; holding: string; detail_url: string;
+      pdf_url: string | null; snippet: string;
+    }>(
+      `SELECT ${compact
+        ? "c.c0 AS case_id, c.c1 AS case_number, c.c2 AS case_name, c.c3 AS judged_on, c.c4 AS court, c.c5 AS result, c.c6 AS holding, c.c7 AS detail_url, c.c8 AS pdf_url"
+        : "case_id, case_number, case_name, judged_on, court, result, holding, detail_url, pdf_url"},
+              ${compact ? "''" : "snippet(hanrei_fts, -1, '<mark>', '</mark>', '...', 10)"} AS snippet
+         FROM hanrei_fts
+         ${compact ? "JOIN hanrei_fts_content c ON c.id = hanrei_fts.rowid" : ""}
+        WHERE hanrei_fts MATCH ?
+        ORDER BY hanrei_fts.rowid
+        LIMIT ? OFFSET ?`,
+      [match, limit, offset], request,
+    );
+    return rows.map(r => ({
+      case_id: Number(r.case_id ?? 0),
+      case_number: String(r.case_number ?? ""),
+      case_name: String(r.case_name ?? ""),
+      judged_on: String(r.judged_on ?? ""),
+      court: String(r.court ?? ""),
+      result: String(r.result ?? ""),
+      holding: String(r.holding ?? ""),
+      detail_url: String(r.detail_url ?? ""),
+      pdf_url: r.pdf_url ? String(r.pdf_url) : null,
+      snippet: String(r.snippet ?? ""),
+    }));
+  } catch (error) {
+    // hanrei_fts 追加前に作られた search.db では判例タブを空にするだけでエラーにしない。
+    if (String(error).includes("no such table")) return [];
     if (strict) throw error;
     return [];
   }

@@ -917,6 +917,7 @@ fn run_build_json_with_options(
     write_indices(&tmp, &light)?;
     write_per_date_updates(&tmp, &light)?;
     write_seo(&tmp, &light)?;
+    crate::supplementary::write_summary(&tmp)?;
     if build_search_db {
         write_search_db(&tmp, &light)?;
     } else {
@@ -1795,6 +1796,7 @@ fn build_into(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
     write_per_date_updates(&tmp, laws)?;
     write_seo(&tmp, laws)?;
     write_search_db(&tmp, laws)?;
+    crate::supplementary::write_summary(&tmp)?;
     write_manifest_and_health(&tmp, laws)?;
 
     let backup = public.with_file_name(format!(
@@ -1865,6 +1867,12 @@ fn write_law_documents(
         // search.db の article_id と同じ id なので、検索ヒットから同じ規則で引ける。
         for t in &current_doc.appendix_tables {
             write_json_pretty(&articles_dir.join(format!("{}.json", t.appdx_id)), t)?;
+        }
+
+        // 附則の構造化 (#202): 施行期日・経過措置・読替え規定。
+        let supplementary = crate::supplementary::analyze(&current_doc, &law.meta_revisions);
+        if !supplementary.provisions.is_empty() {
+            write_json_pretty(&dir.join("supplementary.json"), &supplementary)?;
         }
 
         // 過去 revision を全部書き出す (Phase 2 §7.6)。ファイル名は本文の版 ID。
@@ -1961,7 +1969,7 @@ fn write_law_documents(
         // そのものは含まれない)。制定イベントは `law_info.promulgation_date`
         // から合成して先頭に挿入する。これがないと「民法は 2016-04-13 改正
         // から始まったように見える」現象が出る。
-        let events: Vec<_> = if !law.meta_revisions.is_empty() {
+        let mut events: Vec<_> = if !law.meta_revisions.is_empty() {
             let mut events: Vec<serde_json::Value> =
                 Vec::with_capacity(law.meta_revisions.len() + 1);
             if let Some(info) = law.meta_law_info.as_ref() {
@@ -2032,6 +2040,7 @@ fn write_law_documents(
                 })
                 .collect()
         };
+        crate::supplementary::attach_to_timeline(&mut events, &supplementary);
         write_json_pretty(
             &dir.join("timeline.json"),
             &json!({
@@ -2326,6 +2335,8 @@ pub fn run_refresh_health(public: &Path) -> Result<()> {
     object.insert("generated_at".to_string(), json!(Utc::now().to_rfc3339()));
     object.insert("file_count".to_string(), json!(file_count));
     object.insert("corpora".to_string(), collect_corpus_health(public));
+    // 法律案の改め文と law-diff の対応率 (#200)。link-bill-amendments 未実行なら null。
+    object.insert("bill_amendments".to_string(), linking::bill_amendments_health(public));
     write_json_pretty(&health_path, &health)?;
     tracing::info!("refreshed health.json from corpus indexes");
     Ok(())
@@ -2473,6 +2484,7 @@ fn write_manifest_and_health(public: &Path, laws: &[LawWithHistory]) -> Result<(
             "law_count": laws.len(),
             "file_count": file_count,
             "corpora": collect_corpus_health(public),
+            "supplementary": crate::supplementary::health(public),
             "errors": [],
         }),
     )?;
@@ -2547,6 +2559,31 @@ fn collect_corpus_health(public: &Path) -> serde_json::Value {
             collection: "datasets",
             unit: "datasets",
             date_fields: &[],
+        },
+        CorpusSpec {
+            name: "shitsumon",
+            collection: "questions",
+            unit: "questions",
+            date_fields: &["submitted_on"],
+        },
+        CorpusSpec {
+            name: "guidance",
+            collection: "documents",
+            unit: "documents",
+            date_fields: &["issued_on"],
+        },
+        // 法令英訳 (日本法令外国語訳データベース)。鮮度は最新の翻訳日。
+        CorpusSpec {
+            name: "jlt",
+            collection: "translations",
+            unit: "translations",
+            date_fields: &["translated_on"],
+        },
+        CorpusSpec {
+            name: "treaties",
+            collection: "treaties",
+            unit: "treaties",
+            date_fields: &["effective_on"],
         },
         // 官報は専用ワークフローが集めるので corpus-status.json には載らない
         // (収集状況の行は「収集履歴なし」になる)。鮮度は配信済みの最新発行日で見る。
@@ -2639,10 +2676,10 @@ fn normalize_date_prefix(value: &str) -> Option<String> {
 /// 担保する (実体は SPA だが OG 情報は同一の index.html がメタを返す)。
 /// `public/` から search.db を再構築する。
 ///
-/// `build-json` 時点では `public/{proceedings,kanpo,tsutatsu}` がまだ配置されておらず
+/// `build-json` 時点では `public/{proceedings,kanpo,tsutatsu,hanrei}` がまだ配置されておらず
 /// (それらは後続ステップで R2 から復元・生成される)、その時に作られる search.db は
 /// 法令しか索引していない。全コーパスが `public/` に出揃った後にこのコマンドを呼ぶことで、
-/// 議事録・官報・通達を横断検索 DB に確実に取り込む。法令本文は各 `current.json` から、
+/// 議事録・官報・通達・判例を横断検索 DB に確実に取り込む。法令本文は各 `current.json` から、
 /// 分類は `laws/index.json` から復元する。
 pub fn run_build_search_db(public: &Path) -> Result<()> {
     let docs = read_existing_law_documents(public)?;
@@ -2666,14 +2703,25 @@ pub fn run_build_search_db(public: &Path) -> Result<()> {
     let kanpo_dir_opt = if kanpo_dir.is_dir() { Some(kanpo_dir.as_path()) } else { None };
     let tsutatsu_dir = public.join("tsutatsu");
     let tsutatsu_dir_opt = if tsutatsu_dir.is_dir() { Some(tsutatsu_dir.as_path()) } else { None };
+    let hanrei_dir = public.join("hanrei");
+    let hanrei_dir_opt = if hanrei_dir.is_dir() { Some(hanrei_dir.as_path()) } else { None };
     tracing::info!(
-        "build-search-db: {} laws, proceedings={} kanpo={} tsutatsu={}",
+        "build-search-db: {} laws, proceedings={} kanpo={} tsutatsu={} hanrei={}",
         docs.len(),
         proc_dir_opt.is_some(),
         kanpo_dir_opt.is_some(),
         tsutatsu_dir_opt.is_some(),
+        hanrei_dir_opt.is_some(),
     );
-    search_index::build_search_db(&path, &docs, &categories, proc_dir_opt, kanpo_dir_opt, tsutatsu_dir_opt)?;
+    search_index::build_search_db(
+        &path,
+        &docs,
+        &categories,
+        proc_dir_opt,
+        kanpo_dir_opt,
+        tsutatsu_dir_opt,
+        hanrei_dir_opt,
+    )?;
     Ok(())
 }
 
@@ -2698,7 +2746,17 @@ fn write_search_db(public: &Path, laws: &[LawWithHistory]) -> Result<()> {
     let kanpo_dir_opt = if kanpo_dir.is_dir() { Some(kanpo_dir.as_path()) } else { None };
     let tsutatsu_dir = public.join("tsutatsu");
     let tsutatsu_dir_opt = if tsutatsu_dir.is_dir() { Some(tsutatsu_dir.as_path()) } else { None };
-    search_index::build_search_db(&path, &docs, &categories, proc_dir_opt, kanpo_dir_opt, tsutatsu_dir_opt)?;
+    let hanrei_dir = public.join("hanrei");
+    let hanrei_dir_opt = if hanrei_dir.is_dir() { Some(hanrei_dir.as_path()) } else { None };
+    search_index::build_search_db(
+        &path,
+        &docs,
+        &categories,
+        proc_dir_opt,
+        kanpo_dir_opt,
+        tsutatsu_dir_opt,
+        hanrei_dir_opt,
+    )?;
     Ok(())
 }
 
@@ -2973,6 +3031,10 @@ fn write_schema(public: &Path) -> Result<()> {
     write_json_pretty(&dir.join("law-document.json"), &law_document)?;
     write_json_pretty(&dir.join("manifest.json"), &manifest)?;
     write_json_pretty(&dir.join("updates.json"), &updates)?;
+    write_json_pretty(
+        &dir.join("supplementary.json"),
+        &law_normalizer::supplementary::json_schema(),
+    )?;
     Ok(())
 }
 
