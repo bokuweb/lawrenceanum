@@ -182,8 +182,7 @@ fn infer(head: &Word, words: &[Word]) -> Option<Table> {
             });
         if crosses
             && first.is_some_and(letter)
-            && digits
-            && n <= 4
+            && ((digits && n <= 4) || range(&rest))
             && w.raw == w.text
             && h >= em * (n + 1) as f32
             && h <= em * ((n + 1) as f32 + 0.5)
@@ -540,6 +539,36 @@ pub(crate) fn restore(units: &mut [Unit], words: &[Word]) {
         }
     }
 }
+#[cfg(test)]
+mod full_range_fragment_tests {
+    use super::*;
+    fn source() -> Vec<Word> {
+        let pdf = include_bytes!("../tests/archive/pages/20261001h01799/20261001h017990008.pdf");
+        crate::analyze_item(&crate::page_inputs(pdf).unwrap())
+            .pages
+            .remove(0)
+            .words
+    }
+    #[test]
+    fn a_full_range_fragment_requires_native_raw_text_geometry_and_complete_decimals() {
+        let w = source();
+        assert!(infer(&w[3], &w).is_some());
+        let mut changed = w.clone();
+        changed[40].raw = "unknown".into();
+        assert!(infer(&changed[3], &changed).is_none());
+        let mut changed = w.clone();
+        changed[40].y1 += 8.;
+        assert!(infer(&changed[3], &changed).is_none());
+        let mut changed = w.clone();
+        changed[40].text = "Ｄ一五・六一〜八四".into();
+        changed[40].raw = changed[40].text.clone();
+        assert!(infer(&changed[3], &changed).is_none());
+        let mut changed = w.clone();
+        changed[18].text = "センチメートル".into();
+        assert!(infer(&changed[3], &changed).is_none());
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

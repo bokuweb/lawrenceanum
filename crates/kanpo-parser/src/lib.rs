@@ -37,6 +37,7 @@ mod area_units;
 pub mod format;
 pub mod grid;
 mod horizontal;
+mod record_suffix;
 mod financial_enclosures;
 pub mod lines;
 pub mod model;

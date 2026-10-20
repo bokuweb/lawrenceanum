@@ -9,12 +9,23 @@ pub(crate) fn restore_coordinate_symbols(units: &mut [Unit], words: &mut [Word])
         return;
     }
     let mut attached = HashSet::new();
+    let mut owner_counts = vec![0usize; words.len()];
     let mut collect = |lines: &[Line]| {
         for line in lines {
-            attached.extend(line.words.iter().copied());
+            for &id in &line.words {
+                if let Some(n) = owner_counts.get_mut(id) {
+                    *n += 1;
+                }
+                attached.insert(id);
+            }
             if let Some(t) = &line.table {
                 for c in &t.cells {
-                    attached.extend(c.words.iter().copied());
+                    for &id in &c.words {
+                        if let Some(n) = owner_counts.get_mut(id) {
+                            *n += 1;
+                        }
+                        attached.insert(id);
+                    }
                 }
             }
         }
@@ -35,7 +46,12 @@ pub(crate) fn restore_coordinate_symbols(units: &mut [Unit], words: &mut [Word])
             }
         }
     }
-    fn lines(lines: &mut [Line], words: &mut [Word], attached: &mut HashSet<usize>) {
+    fn lines(
+        lines: &mut [Line],
+        words: &mut [Word],
+        attached: &mut HashSet<usize>,
+        owner_counts: &[usize],
+    ) {
         for line in lines {
             let Some(table) = line.table.as_mut() else {
                 continue;
@@ -96,8 +112,8 @@ pub(crate) fn restore_coordinate_symbols(units: &mut [Unit], words: &mut [Word])
                 }
                 // Both halves of one named coordinate must be proven before either is edited.
                 let (Some(a), Some(b)) = (
-                    restore_cell(&table.cells[lat], words, 90),
-                    restore_cell(&table.cells[lon], words, 180),
+                    restore_cell(&table.cells[lat], words, 90, owner_counts),
+                    restore_cell(&table.cells[lon], words, 180, owner_counts),
                 ) else {
                     continue;
                 };
@@ -133,16 +149,16 @@ pub(crate) fn restore_coordinate_symbols(units: &mut [Unit], words: &mut [Word])
     }
     for unit in units {
         match unit {
-            Unit::Plain(p) => lines(p, words, &mut attached),
+            Unit::Plain(p) => lines(p, words, &mut attached, &owner_counts),
             Unit::Shinkyu {
                 preamble,
                 after,
                 before,
                 outside,
             } => {
-                lines(preamble, words, &mut attached);
+                lines(preamble, words, &mut attached, &owner_counts);
                 for p in after.iter_mut().chain(before).chain(outside) {
-                    lines(p, words, &mut attached);
+                    lines(p, words, &mut attached, &owner_counts);
                 }
             }
         }
@@ -152,9 +168,52 @@ struct Edit {
     text: String,
     symbols: Vec<(usize, char)>,
 }
-fn restore_cell(cell: &TableCell, words: &[Word], degree_limit: u32) -> Option<Edit> {
-    // Three numeric components, not a price, identifier, label, or existing DMS string.
-    let fields: Vec<_> = cell.text.split_whitespace().collect();
+fn restore_cell(
+    cell: &TableCell,
+    words: &[Word],
+    degree_limit: u32,
+    owner_counts: &[usize],
+) -> Option<Edit> {
+    // Use original numeric Word boundaries only when the final cell omitted spacing.
+    // The five proven source fields remain the layout anchors and keep their IDs.
+    if cell.words.len() != 5 {
+        return None;
+    }
+    let mut source: Vec<_> = cell
+        .words
+        .iter()
+        .map(|&id| words.get(id).filter(|w| w.id == id))
+        .collect::<Option<_>>()?;
+    if cell
+        .words
+        .iter()
+        .enumerate()
+        .any(|(i, id)| cell.words[i + 1..].contains(id))
+    {
+        return None;
+    }
+    source.sort_by(|a, b| a.x0.total_cmp(&b.x0));
+    let original_fields: Vec<_> = cell.text.split_whitespace().collect();
+    let joined = original_fields.len() == 1;
+    let joined_second = format!("{}{}{}", source[2].text, source[3].text, source[4].text);
+    let fields: Vec<&str> = if joined {
+        if cell
+            .words
+            .iter()
+            .any(|&id| owner_counts.get(id) != Some(&1))
+            || cell.words.iter().zip(&source).any(|(&id, w)| id != w.id)
+            || cell.text.trim() != source.iter().map(|w| w.text.as_str()).collect::<String>()
+        {
+            return None;
+        }
+        vec![
+            source[0].text.as_str(),
+            source[1].text.as_str(),
+            &joined_second,
+        ]
+    } else {
+        original_fields
+    };
     if fields.len() != 3
         || !fields[0].chars().all(|c| c.is_ascii_digit())
         || !fields[1].chars().all(|c| c.is_ascii_digit())
@@ -176,24 +235,9 @@ fn restore_cell(cell: &TableCell, words: &[Word], degree_limit: u32) -> Option<E
             .chain(fraction.chars())
             .all(|c| c.is_ascii_digit())
         || whole.parse::<u32>().ok()? >= 60
-        || cell.words.len() != 5
     {
         return None;
     }
-    let mut source: Vec<_> = cell
-        .words
-        .iter()
-        .map(|&id| words.get(id).filter(|w| w.id == id))
-        .collect::<Option<_>>()?;
-    if cell
-        .words
-        .iter()
-        .enumerate()
-        .any(|(i, id)| cell.words[i + 1..].contains(id))
-    {
-        return None;
-    }
-    source.sort_by(|a, b| a.x0.total_cmp(&b.x0));
     let expected = [fields[0], fields[1], whole, ".", fraction];
     let em = source[0].y1 - source[0].y0;
     if !em.is_finite() || em <= 0. {
@@ -268,21 +312,31 @@ fn restore_cell(cell: &TableCell, words: &[Word], degree_limit: u32) -> Option<E
         symbols.push((w.id, symbol));
     }
     // Insert only into the existing text. Preserve every original byte, including whitespace.
-    let mut ends = Vec::new();
-    let mut inside = false;
-    for (i, ch) in cell.text.char_indices() {
-        if ch.is_whitespace() {
-            if inside {
-                ends.push(i);
-                inside = false;
+    let ends = if joined {
+        let offset = cell.text.len() - cell.text.trim_start().len();
+        vec![
+            offset + source[0].text.len(),
+            offset + source[0].text.len() + source[1].text.len(),
+            cell.text.trim_end().len(),
+        ]
+    } else {
+        let mut ends = Vec::new();
+        let mut inside = false;
+        for (i, ch) in cell.text.char_indices() {
+            if ch.is_whitespace() {
+                if inside {
+                    ends.push(i);
+                    inside = false;
+                }
+            } else {
+                inside = true;
             }
-        } else {
-            inside = true;
         }
-    }
-    if inside {
-        ends.push(cell.text.len());
-    }
+        if inside {
+            ends.push(cell.text.len());
+        }
+        ends
+    };
     if ends.len() != 3 {
         return None;
     }
@@ -592,6 +646,62 @@ mod tests {
                 restore_coordinate_symbols(&mut u, &mut w);
                 assert_eq!(snapshot(&u, &w), before);
             }
+        }
+    }
+    #[test]
+    fn restores_joined_numeric_components_at_original_word_boundaries() {
+        let (mut u, mut w) = fixture();
+        table(&mut u).cells[4].text = "345319.8544".into();
+        table(&mut u).cells[5].text = "1375319.8544".into();
+        let old = table(&mut u).clone();
+        let old_words = w.clone();
+        restore_coordinate_symbols(&mut u, &mut w);
+        let t = table(&mut u);
+        assert_eq!(t.cells[4].text, "34°53′19.8544″");
+        assert_eq!(t.cells[5].text, "137°53′19.8544″");
+        for (a, b) in t.cells.iter().zip(&old.cells) {
+            assert_eq!(a.text.replace(['°', '′', '″'], ""), b.text);
+            assert_eq!(&a.words[..b.words.len()], b.words);
+        }
+        for (a, b) in w.iter().zip(old_words) {
+            if !b.text.is_empty() {
+                assert_eq!(
+                    serde_json::to_string(a).unwrap(),
+                    serde_json::to_string(&b).unwrap()
+                );
+            }
+        }
+        let once = snapshot(&u, &w);
+        restore_coordinate_symbols(&mut u, &mut w);
+        assert_eq!(snapshot(&u, &w), once);
+    }
+    #[test]
+    fn joined_cells_preserve_outer_whitespace_and_equal_numeric_parts() {
+        let (mut u, mut w) = fixture();
+        table(&mut u).cells[4].text = " \t345353.8544 ".into();
+        w[4].text = "53".into();
+        w[4].raw = "53".into();
+        table(&mut u).cells[5].text = "1375319.8544".into();
+        restore_coordinate_symbols(&mut u, &mut w);
+        assert_eq!(table(&mut u).cells[4].text, " \t34°53′53.8544″ ");
+    }
+    #[test]
+    fn joined_cells_reject_mismatched_text_reordered_ids_and_other_pua() {
+        for mode in 0..6 {
+            let (mut u, mut w) = fixture();
+            table(&mut u).cells[4].text = "345319.8544".into();
+            table(&mut u).cells[5].text = "1375319.8544".into();
+            match mode {
+                0 => table(&mut u).cells[4].text = "345319.85440".into(),
+                1 => table(&mut u).cells[4].words.swap(0, 1),
+                2 => w[1].raw = "\u{EA70}".into(),
+                3 => table(&mut u).cells[4].text = "345319.8544円".into(),
+                4 => table(&mut u).cells[4].text = "34°5319.8544".into(),
+                _ => table(&mut u).cells[0].words.push(0),
+            }
+            let old = snapshot(&u, &w);
+            restore_coordinate_symbols(&mut u, &mut w);
+            assert_eq!(snapshot(&u, &w), old);
         }
     }
 }

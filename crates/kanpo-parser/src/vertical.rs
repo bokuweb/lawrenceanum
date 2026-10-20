@@ -663,7 +663,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 // 新旧対照表のあるページでも、新旧対照表の欄見出しの無い段（同じページの別の告示の名簿）なら見る。
                 let plain_tier = !shinkyu_page || detect_shinkyu_header(&tiers[i]).is_none();
                 if let Some((n, lines)) = (plain_tier && !prev_table)
-                    .then(|| record_bands(&tiers[i..], (!sideways).then_some(height / 2.0)))
+                    .then(|| record_bands_with_suffix_context(&tiers[i..], (!sideways).then_some(height / 2.0), &units, &hrules))
                     .flatten()
                     // 新旧対照表のページでは、届出年月日などの日付で始まる行が 3 行以上あり、
                     // 「（略）」の無い名簿だけ（新旧対照表の帯の続きを名簿にしない）。
@@ -3070,7 +3070,11 @@ fn value_number(t: &str) -> bool {
 /// 一覧になり、どの団体の代表者か分からなくなるので、行の頭の x（半分以上の段に列のある x）で行に分け、
 /// 行ごとに欄を全角空白で区切って 1 行に組む。`bands` の頭からいくつの段を使ったかと、組んだ行を返す。
 /// `mid_line` は縦置きのページの高さの半分（上半分と下半分の表を 1 つの表にしない）。
+#[cfg(test)]
 fn record_bands(bands: &[Vec<Col>], mid_line: Option<f32>) -> Option<(usize, Vec<Line>)> {
+    record_bands_with_suffix_context(bands,mid_line,&[],&[])
+}
+fn record_bands_with_suffix_context(bands: &[Vec<Col>], mid_line: Option<f32>, header_units: &[Unit], hrules: &[(f32,f32,f32)]) -> Option<(usize, Vec<Line>)> {
     let center = |c: &Col| (c.x + c.x1) / 2.0;
     let ext = |b: &[Col]| {
         (
@@ -3127,8 +3131,12 @@ fn record_bands(bands: &[Vec<Col>], mid_line: Option<f32>) -> Option<(usize, Vec
         n += 1;
     }
     // 高い段は、確かめられなかった段の手前までを表とする。
+    let mut suffix_tops = None;
     if let Some(&t) = tall_bands.iter().find(|&&t| t < n && !tall_record_band(&bands[..n], t, &tall_bands)) {
-        n = t;
+        if t+1==n && crate::record_suffix::has_prior_record_header(header_units) {
+            suffix_tops = crate::record_suffix::infer_stacked_suffix(&bands[..n],t,hrules).map(|tops|(t,tops));
+        }
+        if suffix_tops.is_none() { n=t; }
     }
     if n == 2 {
         return name_pair_bands(&bands[..2]);
@@ -3313,7 +3321,12 @@ fn record_bands(bands: &[Vec<Col>], mid_line: Option<f32>) -> Option<(usize, Vec
         let header = (first..anchors.len()).max_by_key(|&r| heads(r)).filter(|&r| heads(r) >= 2);
         bands
             .iter()
-            .map(|b| match header {
+            .enumerate()
+            .map(|(k,b)| {
+                if let Some((_,tops))=suffix_tops.as_ref().filter(|(t,_)|*t==k) {
+                    return tops.clone();
+                }
+                match header {
                 Some(h) => {
                     // 欄見出しの列（「名称」「氏名」…で終わる語のある列と、2 行の欄見出しの隣の列）だけ。区分の見出し
                     // （「（一）政党の支部」）の列は見ない。
@@ -3340,6 +3353,7 @@ fn record_bands(bands: &[Vec<Col>], mid_line: Option<f32>) -> Option<(usize, Vec
                     field_tops(&ws, em)
                 }
                 None => Vec::new(),
+                }
             })
             .collect()
     };
