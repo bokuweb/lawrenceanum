@@ -478,7 +478,32 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
     let mut rest = cols;
     let mut tables: Vec<trace::Table> = Vec::new();
     for g in grids.iter().filter(|g| g.xs.len() >= 3 && g.ys.len() >= 3 && !grids.iter().any(|o| g.encloses(o))) {
-        let (mine, others): (Vec<Col>, Vec<Col>) = rest.into_iter().partition(|c| g.contains(x_center(c), y_center(c), 0.5));
+        // 枠の左右の線にまたがる語（字間を空けた科目「現　金　及　び…」の頭の字が枠の線の左に出たもの）も表の語。
+        let (left, right) = (g.xs[0], *g.xs.last().unwrap());
+        let (top, bottom) = (g.ys[0], *g.ys.last().unwrap());
+        let straddles = |c: &Col| {
+            let w = c.x1 - c.x;
+            // 縦組みの区分の欄（縦長の「教育費」）は除く。
+            y_center(c) > top && y_center(c) < bottom && w < (c.y1 - c.y) * 1.5 && c.y1 - c.y < w * 1.5 && ((c.x < left && c.x1 > left + 1.0) || (c.x < right - 1.0 && c.x1 > right))
+        };
+        let (mine, others): (Vec<Col>, Vec<Col>) = rest.into_iter().partition(|c| g.contains(x_center(c), y_center(c), 0.5) || straddles(c));
+        // またぐ語は、字の中ほどが枠の中に入るように枠の線まで寄せる（セルに入らない語は表から落ちる）。
+        let mine: Vec<Col> = mine
+            .into_iter()
+            .map(|mut c| {
+                if !g.contains(x_center(&c), y_center(&c), 0.5) {
+                    let w = c.x1 - c.x;
+                    if c.x < left {
+                        c.x = left + 0.5;
+                        c.x1 = c.x1.max(c.x + w * 0.5);
+                    } else {
+                        c.x1 = right - 0.5;
+                        c.x = c.x.min(c.x1 - w * 0.5);
+                    }
+                }
+                c
+            })
+            .collect();
         rest = others;
         match grid_table(g, &mine, 0) {
             Some(t) => tables.push(t),
