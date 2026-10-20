@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { api, type LawDocumentRaw, type LawsIndex, type TimelineJson, type VersionsJson } from './api'
-import { LAWS, type LawCategory, type LawSummary } from '../components/mock-data'
+import { type LawCategory, type LawSummary } from '../components/mock-data'
 
 /** Live JSON のフィールドを mock-data の `LawSummary` 形に寄せる。 */
 function adapt(raw: {
@@ -11,17 +11,6 @@ function adapt(raw: {
   last_updated?: string | null
   article_count?: number
 }): LawSummary {
-  const matched = LAWS.find((m) => m.law_id === raw.law_id)
-  if (matched) {
-    return {
-      ...matched,
-      title: raw.title || matched.title,
-      law_num: raw.law_num || matched.law_num,
-      // index に更新日があれば優先 (mock の値より実データを尊重)。
-      last_updated: raw.last_updated || matched.last_updated,
-      article_count: raw.article_count ?? matched.article_count,
-    }
-  }
   return {
     law_id: raw.law_id,
     law_num: raw.law_num ?? '',
@@ -36,72 +25,81 @@ function adapt(raw: {
   }
 }
 
-export function useLaws(): { loading: boolean; laws: LawSummary[]; live: boolean } {
-  const [state, setState] = useState<{ loading: boolean; laws: LawSummary[]; live: boolean }>({
+export function useLaws() {
+  const [attempt, setAttempt] = useState(0)
+  const retry = useCallback(() => setAttempt(n => n + 1), [])
+  const [state, setState] = useState<{ loading: boolean; laws: LawSummary[]; live: boolean; error: boolean }>({
     loading: true,
-    laws: LAWS,
+    laws: [],
     live: false,
+    error: false,
   })
   useEffect(() => {
     let cancelled = false
+    setState({ loading: true, laws: [], live: false, error: false })
     api
       .lawsIndex()
       .then((idx: LawsIndex) => {
         if (cancelled) return
-        setState({ loading: false, laws: idx.laws.map(adapt), live: true })
+        setState({ loading: false, laws: idx.laws.map(adapt), live: true, error: false })
       })
       .catch(() => {
         if (cancelled) return
-        setState({ loading: false, laws: LAWS, live: false })
+        setState({ loading: false, laws: [], live: false, error: true })
       })
     return () => {
       cancelled = true
     }
-  }, [])
-  return state
+  }, [attempt])
+  return { ...state, retry }
 }
 
-export type LawDetail = {
-  loading: boolean
-  doc: LawDocumentRaw | null
-  versions: VersionsJson | null
-  timeline: TimelineJson | null
-  error: string | null
-}
-
-export function useLawDetail(lawId: string | null | undefined): LawDetail {
-  const [state, setState] = useState<LawDetail>({
+/** Each request settles independently, so optional metadata cannot hold up the body. */
+function useLawResource<T>(lawId: string | null | undefined, fetcher: (id: string) => Promise<T>) {
+  const [attempt, setAttempt] = useState(0)
+  const retry = useCallback(() => setAttempt(n => n + 1), [])
+  const [state, setState] = useState<{
+    lawId: typeof lawId; loading: boolean; data: T | null; error: string | null
+  }>({
+    lawId,
     loading: !!lawId,
-    doc: null,
-    versions: null,
-    timeline: null,
+    data: null,
     error: null,
   })
   useEffect(() => {
     if (!lawId) {
-      setState({ loading: false, doc: null, versions: null, timeline: null, error: null })
+      setState({ lawId, loading: false, data: null, error: null })
       return
     }
     let cancelled = false
-    // lawId が変わったら前の law の doc を即破棄する。
-    // そうしないと BrowseView 側で「前回開いた法令の中身が一瞬チラ見えする」現象が出る。
-    setState({ loading: true, doc: null, versions: null, timeline: null, error: null })
-    Promise.allSettled([api.law(lawId), api.versions(lawId), api.timeline(lawId)]).then(
-      ([docR, vR, tR]) => {
-        if (cancelled) return
-        setState({
-          loading: false,
-          doc: docR.status === 'fulfilled' ? docR.value : null,
-          versions: vR.status === 'fulfilled' ? vR.value : null,
-          timeline: tR.status === 'fulfilled' ? tR.value : null,
-          error:
-            docR.status === 'rejected' ? String(docR.reason) : null,
-        })
-      },
-    )
+    setState({ lawId, loading: true, data: null, error: null })
+    fetcher(lawId)
+      .then(data => {
+        if (!cancelled) setState({ lawId, loading: false, data, error: null })
+      })
+      .catch(error => {
+        if (!cancelled) setState({ lawId, loading: false, data: null, error: String(error) })
+      })
     return () => {
       cancelled = true
     }
-  }, [lawId])
-  return state
+  }, [lawId, fetcher, attempt])
+  // Also hide the previous law on the render before the effect runs.
+  return {
+    ...(state.lawId === lawId ? state : { loading: !!lawId, data: null, error: null }),
+    retry,
+  }
+}
+
+export function useLawDetail(lawId: string | null | undefined) {
+  const doc = useLawResource<LawDocumentRaw>(lawId, api.law)
+  const versions = useLawResource<VersionsJson>(lawId, api.versions)
+  const timeline = useLawResource<TimelineJson>(lawId, api.timeline)
+  return {
+    loading: doc.loading, doc: doc.data, error: doc.error, retry: doc.retry,
+    versions: versions.data, versionsLoading: versions.loading,
+    versionsError: versions.error, retryVersions: versions.retry,
+    timeline: timeline.data, timelineLoading: timeline.loading,
+    timelineError: timeline.error, retryTimeline: timeline.retry,
+  }
 }
