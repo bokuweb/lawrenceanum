@@ -9,11 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { ScrollArea } from "../ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ARTICLES_V2, TIMELINE_EVENTS, type LawSummary } from "../mock-data";
-import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark, MessageSquare, Newspaper, ScrollText, Network, MessageCircleQuestion, Languages } from "lucide-react";
+import { ArrowLeft, Download, GitCompare, ExternalLink, Calendar, Hash, Tag, Link2, Check, ArrowUpRight, Search, Landmark, MessageSquare, Newspaper, ScrollText, Network, MessageCircleQuestion, FileQuestion, Languages } from "lucide-react";
 import { EnforcementExplanation } from "./enforcement-explanation";
 import { useLocation, useNavigate } from "react-router";
 import { useLaws, useLawDetail } from "../../data/use-laws";
-import { api, hanreiUrl, type AppendixTable, type LawToHanrei, type LawToShitsumon, type LawEnglish, type LawEnglishArticle, type LawToProceedings, type LawToRulemaking, type LawToPubcomments, type LawToTsutatsu } from "../../data/api";
+import { api, hanreiUrl, GUIDANCE_KIND_LABELS, type AppendixTable, type LawToGuidance, type LawToHanrei, type LawToShitsumon, type LawEnglish, type LawEnglishArticle, type LawToProceedings, type LawToRulemaking, type LawToPubcomments, type LawToTsutatsu } from "../../data/api";
 import { AmendDocumentView } from "../amend-document-view";
 import { SupplementarySection } from "./supplementary-section";
 import { getRefsForLaw, type ArticleRef } from "../../data/search-engine";
@@ -559,6 +559,23 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
     return [...qs.filter(q => q.in_title), ...qs.filter(q => !q.in_title)];
   }, [shitsumon]);
 
+  // この法令に関する政府解釈（law→guidance クロスリンク）。照会対象・文書名で触れたものを先に出す
+  // (linking 側で subject → title → mention、同順位は新しい順に並べ済み)。
+  const [guidance, setGuidance] = useState<LawToGuidance | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    setGuidance(null);
+    api.lawToGuidance(law.law_id)
+      .then(d => { if (!cancelled) setGuidance(d); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [law.law_id]);
+  const linkedGuidance = useMemo(() => guidance?.linked_guidance ?? [], [guidance]);
+  const guidanceMinistries = useMemo(
+    () => [...new Set(linkedGuidance.map(g => g.ministry_name))].join("・"),
+    [linkedGuidance],
+  );
+
   // 法令英訳（日本法令外国語訳データベース）。英訳のある法令だけ併記トグルを出す。
   const [english, setEnglish] = useState<LawEnglish | null>(null);
   // 英語検索の結果から来たときは最初から併記する。
@@ -836,6 +853,47 @@ function LawDetail({ law, onBack, onCompare }: { law: LawSummary; onBack: () => 
             ))}
           </ul>
           <p className="text-[10px] text-muted-foreground mt-1.5">出典: 衆議院 質問答弁情報・参議院 質問主意書（件名・本文の法令名から自動抽出）</p>
+        </div>
+      )}
+
+      {linkedGuidance.length > 0 && (
+        <div className="border-b border-border bg-background px-6 py-3">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground mb-2">
+            <FileQuestion className="size-3" />
+            この法令に関する政府解釈 ({linkedGuidance.length})
+          </div>
+          <ul className="space-y-1.5">
+            {linkedGuidance.slice(0, 10).map(g => (
+              <li key={g.id} className="text-xs">
+                <span className="mr-1.5 text-[10px] px-1 rounded bg-muted text-muted-foreground">
+                  {GUIDANCE_KIND_LABELS[g.kind] ?? g.kind}
+                </span>
+                <a
+                  href={g.document_url ?? g.source_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 hover:text-primary transition-colors"
+                >
+                  <span className="font-medium">{g.title}</span>
+                  <ArrowUpRight className="size-2.5 opacity-50 shrink-0" />
+                </a>
+                <p className="text-[11px] text-muted-foreground">
+                  {g.issuer ?? g.ministry_name}
+                  {g.issued_on && ` · ${g.issued_on}`}
+                  {g.articles.length > 0 && ` · ${g.articles.slice(0, 8).map(a => { const [n, ...br] = a.split("_"); return `第${n}条${br.map(b => `の${b}`).join("")}`; }).join("・")}${g.articles.length > 8 ? " ほか" : ""}`}
+                  {g.relation === "mention" && " · 本文で参照"}
+                  {" · "}
+                  <a href={g.source_url} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">一覧</a>
+                </p>
+                {g.summary && (
+                  <p className="text-[11px] text-muted-foreground line-clamp-2">{g.summary}</p>
+                )}
+              </li>
+            ))}
+          </ul>
+          <p className="text-[10px] text-muted-foreground mt-1.5">
+            出典: {guidanceMinistries || "金融庁"}ウェブサイト（公共データ利用規約 PDL1.0）。照会対象の条文・文書名・本文の条番号から自動で紐付け、要旨は公表 PDF から機械抽出して加工
+          </p>
         </div>
       )}
 

@@ -1109,6 +1109,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "guidance-client"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "encoding_rs",
+ "hex",
+ "reqwest",
+ "scraper",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tracing",
+]
+
+[[package]]
 name = "half"
 version = "2.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1650,6 +1666,7 @@ dependencies = [
  "estat-client",
  "flate2",
  "gian-client",
+ "guidance-client",
  "hanrei-client",
  "hex",
  "jlt-client",

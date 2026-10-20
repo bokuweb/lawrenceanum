@@ -320,7 +320,9 @@ fn hydrate_attachments(
     }
 }
 
-fn extract_attachment_text(
+/// 添付原本から本文テキストを抽出する。PDF は `pdftotext -layout`、DOCX/XLSX は XML から、
+/// HTML/テキストはそのまま。政府解釈 (`guidance`) の添付でも共用する。
+pub(crate) fn extract_attachment_text(
     path: &Path,
     media_type: Option<&str>,
     filename: Option<&str>,
@@ -352,6 +354,10 @@ fn extract_attachment_text(
             extract_docx_text(bytes)?,
             "docx-wordprocessingml".to_string(),
         ));
+    }
+
+    if is_xlsx_attachment(media_type, filename, bytes) {
+        return Ok((extract_xlsx_text(bytes)?, "xlsx-sharedstrings".to_string()));
     }
 
     let leading = bytes
@@ -404,6 +410,59 @@ fn is_docx_attachment(media_type: Option<&str>, filename: Option<&str>, bytes: &
         || filename.is_some_and(|name| name.to_ascii_lowercase().ends_with(".docx"))
         || (bytes.starts_with(b"PK\x03\x04")
             && filename.is_some_and(|name| name.to_ascii_lowercase().contains(".docx")))
+}
+
+fn is_xlsx_attachment(media_type: Option<&str>, filename: Option<&str>, bytes: &[u8]) -> bool {
+    media_type == Some("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        || (bytes.starts_with(b"PK\x03\x04")
+            && filename.is_some_and(|name| name.to_ascii_lowercase().ends_with(".xlsx")))
+}
+
+/// XLSX の共有文字列表 (`xl/sharedStrings.xml`) を出現順に 1 セル 1 行で並べる。
+/// 相談事例集のような「文字だけの表」は本文がほぼ全て共有文字列に入る。
+fn extract_xlsx_text(bytes: &[u8]) -> Result<String> {
+    let mut archive = zip::ZipArchive::new(Cursor::new(bytes)).context("open XLSX zip")?;
+    let mut shared = archive
+        .by_name("xl/sharedStrings.xml")
+        .context("XLSX is missing xl/sharedStrings.xml")?;
+    let mut xml = String::new();
+    shared
+        .read_to_string(&mut xml)
+        .context("read XLSX sharedStrings.xml")?;
+
+    let mut reader = quick_xml::Reader::from_str(&xml);
+    reader.config_mut().trim_text(false);
+    let mut cells: Vec<String> = Vec::new();
+    let mut cur = String::new();
+    // ふりがな (<rPh>) の中のテキストは本文ではないので飛ばす。
+    let mut in_phonetic = false;
+    loop {
+        use quick_xml::events::Event;
+        match reader
+            .read_event()
+            .context("parse XLSX sharedStrings.xml")?
+        {
+            Event::Start(tag) if tag.name().as_ref() == b"rPh" => in_phonetic = true,
+            Event::End(tag) if tag.name().as_ref() == b"rPh" => in_phonetic = false,
+            Event::Text(value) if !in_phonetic => {
+                cur.push_str(&value.unescape().context("decode XLSX text")?)
+            }
+            Event::End(tag) if tag.name().as_ref() == b"si" => {
+                let cell = cur.trim().to_string();
+                if !cell.is_empty() {
+                    cells.push(cell);
+                }
+                cur.clear();
+            }
+            Event::Eof => break,
+            _ => {}
+        }
+    }
+    let text = cells.join("\n");
+    if text.is_empty() {
+        anyhow::bail!("XLSX contains no shared strings");
+    }
+    Ok(text)
 }
 
 fn extract_docx_text(bytes: &[u8]) -> Result<String> {

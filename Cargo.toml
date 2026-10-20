@@ -23,6 +23,7 @@ members = [
     "crates/hanrei-client",
     "crates/tsutatsu-client",
     "crates/shitsumon-client",
+    "crates/guidance-client",
     "crates/jlt-client",
 ]
 
