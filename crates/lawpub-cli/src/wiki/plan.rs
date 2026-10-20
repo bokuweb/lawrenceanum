@@ -84,9 +84,12 @@ pub struct Excerpt {
     pub position: Option<String>,
     /// この発言が言及した法令 ID。
     pub laws: Vec<String>,
-    /// 法令名を含まないが経緯に要る発言: `reply` (直後の答弁) / `closing` (会議の締め)。
+    /// 補った文脈: `preceding` / `reply` (前後の実質的発言)、`closing` (締め)、`turn` (審議会の発言)。
     #[serde(skip_serializing_if = "Option::is_none")]
     pub context: Option<String>,
+    /// この抜粋の前後関係を調べる起点の発言 ID。応答・因果関係の確定ではない。
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub context_for: Vec<String>,
     pub text: String,
 }
 
@@ -254,9 +257,17 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
 
     tasks.extend(enforcements::plan(args, &source, &today_s)?);
 
+    let before = tasks
+        .iter()
+        .map(|t| {
+            let page = Page::read(&args.wiki.join(&t.page))?;
+            Ok((t.page.clone(), llm_hash(&page.body)))
+        })
+        .collect::<Result<BTreeMap<_, _>>>()?;
     state.save(&args.wiki)?;
     let plan = Plan {
-        schema_version: 1,
+        schema_version: 2,
+        before,
         date: today_s,
         base_url: source.base().to_string(),
         tasks,
@@ -465,6 +476,7 @@ pub(crate) fn build_excerpts_for(units: &[Unit], laws: &[(String, Vec<String>)])
             position: unit.position.clone(),
             laws: hit_laws,
             context: None,
+            context_for: Vec::new(),
             text,
         });
         if out.len() >= MAX_EXCERPTS_PER_MEETING {
@@ -578,45 +590,59 @@ fn shingikai_digest(units: &[Unit], laws: &[LinkedLaw]) -> Vec<Excerpt> {
             position: u.position.clone(),
             laws,
             context,
+            context_for: Vec::new(),
             text,
         });
     }
     out
 }
 
-/// 「どうなったか」は法令名を繰り返さない発言にあることが多いので、文脈を足す。
-/// 国会は法令名を含む発言の直後の発言 (答弁)、審議会は会議の最後の 2 発言 (結論・次回予定)。
-/// 足した後は会議の発言順に並べ直す。
+/// 法令名を繰り返さない質問・答弁を、議事進行を飛ばして前後から補う。
+/// 近接しているだけでは応答と確定できないため、起点の発言 ID を明示する。
+/// 探索は片側 4 発言まで。別の議題への横断とソース量の増大を抑える。
 pub(crate) fn with_context(kind: &str, units: &[Unit], matched: Vec<Excerpt>) -> Vec<Excerpt> {
     if matched.is_empty() {
         return matched;
     }
     let index: HashMap<&str, usize> = units.iter().enumerate().map(|(i, u)| (u.reference.as_str(), i)).collect();
     let included: BTreeSet<usize> = matched.iter().filter_map(|e| index.get(e.reference.as_str()).copied()).collect();
-    let mut extra: BTreeSet<(usize, &'static str)> = BTreeSet::new();
+    let mut extra: BTreeMap<usize, (&str, BTreeSet<String>)> = BTreeMap::new();
     if kind == KIND_KOKKAI {
         for e in matched.iter().filter(|e| !is_procedural(e)) {
             let Some(&i) = index.get(e.reference.as_str()) else { continue };
-            if i + 1 < units.len() && !included.contains(&(i + 1)) {
-                extra.insert((i + 1, "reply"));
+            for (ctx, candidates) in [
+                ("preceding", (i.saturating_sub(4)..i).rev().collect::<Vec<_>>()),
+                ("reply", (i + 1..units.len().min(i + 5)).collect::<Vec<_>>()),
+            ] {
+                if let Some(j) = candidates.into_iter().find(|&j| {
+                    !is_procedural_text(units[j].speaker.as_deref(), &units[j].text)
+                }) {
+                    extra.entry(j).or_insert_with(|| (ctx, BTreeSet::new())).1.insert(e.reference.clone());
+                }
             }
         }
     } else {
         for i in units.len().saturating_sub(2)..units.len() {
             if !included.contains(&i) {
-                extra.insert((i, "closing"));
+                extra.insert(i, ("closing", BTreeSet::new()));
             }
         }
     }
     let mut out: Vec<(usize, Excerpt)> = matched
         .into_iter()
-        .map(|e| (index.get(e.reference.as_str()).copied().unwrap_or(usize::MAX), e))
+        .map(|mut e| {
+            let i = index.get(e.reference.as_str()).copied().unwrap_or(usize::MAX);
+            if let Some((_, refs)) = extra.remove(&i) {
+                e.context_for = refs.into_iter().collect();
+            }
+            (i, e)
+        })
         .collect();
     let mut budget = MAX_CONTEXT_CHARS_PER_MEETING;
-    for (i, ctx) in extra {
+    for (i, (ctx, refs)) in extra {
         let u = &units[i];
         let chars: Vec<char> = u.text.chars().collect();
-        // 答弁は冒頭、締めは末尾が肝心。
+        // 直後の発言は冒頭、直前と締めは末尾を残す。
         let text: String = if chars.len() <= CONTEXT_CHARS {
             u.text.clone()
         } else if ctx == "reply" {
@@ -624,26 +650,23 @@ pub(crate) fn with_context(kind: &str, units: &[Unit], matched: Vec<Excerpt>) ->
         } else {
             "…".to_string() + &chars[chars.len() - CONTEXT_CHARS..].iter().collect::<String>()
         };
-        let e = Excerpt {
+        let n = text.chars().count();
+        if n > budget {
+            continue;
+        }
+        budget -= n;
+        out.push((i, Excerpt {
             reference: u.reference.clone(),
             url: u.url.clone(),
             speaker: u.speaker.clone(),
             group: u.group.clone(),
             position: u.position.clone(),
+            // 文脈から法令との直接のリンクを捏造しない。
             laws: vec![],
             context: Some(ctx.to_string()),
+            context_for: refs.into_iter().collect(),
             text,
-        };
-        // 議事進行 (委員長の「次に〜君」等) は文脈にならない。
-        if ctx == "reply" && is_procedural(&e) {
-            continue;
-        }
-        let n = e.text.chars().count();
-        if n > budget {
-            break;
-        }
-        budget -= n;
-        out.push((i, e));
+        }));
     }
     out.sort_by_key(|(i, _)| *i);
     out.into_iter().map(|(_, e)| e).collect()
@@ -1123,6 +1146,7 @@ mod tests {
             position: position.map(String::from),
             laws: vec!["L1".into()],
             context: None,
+            context_for: Vec::new(),
             text: text.into(),
         };
         let kokkai = speakers_from_excerpts(
@@ -1178,6 +1202,70 @@ mod tests {
         let refs: Vec<&str> = out.iter().map(|e| e.reference.as_str()).collect();
         assert_eq!(refs, vec!["s:1", "s:2", "s:3"]);
         assert_eq!(out[2].context.as_deref(), Some("closing"));
+    }
+
+    #[test]
+    fn context_skips_chair_turns_and_links_the_question_to_the_answer() {
+        let mut units = vec![
+            unit("k:1", "○山田委員　予防接種法の対象拡充はいつ判断するのですか。"),
+            unit("k:2", "○田中委員長　佐藤大臣。"),
+            unit("k:3", "○田中委員長　どうぞ。"),
+            unit("k:4", "○佐藤大臣　専門家会議で年度内に検討します。"),
+        ];
+        units[0].speaker = Some("山田".into());
+        units[3].speaker = Some("佐藤".into());
+        units[3].position = Some("厚生労働大臣".into());
+        let laws = vec![("L1".into(), vec!["予防接種法".into()])];
+        let out = with_context(KIND_KOKKAI, &units, build_excerpts_for(&units, &laws));
+        assert_eq!(out.iter().map(|e| e.reference.as_str()).collect::<Vec<_>>(), vec!["k:1", "k:4"]);
+        assert_eq!(out[1].context.as_deref(), Some("reply"));
+        assert_eq!(out[1].context_for, vec!["k:1"]);
+        assert_eq!(out[1].position.as_deref(), Some("厚生労働大臣"));
+        assert!(out[1].laws.is_empty(), "近接だけで法令との直接リンクを作らない");
+        assert_eq!(serde_json::to_value(&out[1]).unwrap()["context_for"], json!(["k:1"]));
+    }
+
+    #[test]
+    fn a_matching_answer_keeps_its_preceding_question_without_duplicating_it() {
+        let units = vec![
+            unit("k:1", "○山田委員　対象を拡充すべきではないですか。"),
+            unit("k:2", "○田中委員長　佐藤大臣。"),
+            unit("k:3", "○佐藤大臣　予防接種法の対象拡充は専門家会議で検討します。"),
+        ];
+        let laws = vec![("L1".into(), vec!["予防接種法".into()])];
+        let out = with_context(KIND_KOKKAI, &units, build_excerpts_for(&units, &laws));
+        assert_eq!(out.len(), 2);
+        assert_eq!(out[0].reference, "k:1");
+        assert_eq!(out[0].context.as_deref(), Some("preceding"));
+        assert_eq!(out[0].context_for, vec!["k:3"]);
+
+        let laws = vec![("L1".into(), vec!["拡充".into()])];
+        let out = with_context(KIND_KOKKAI, &units, build_excerpts_for(&units, &laws));
+        assert_eq!(out.len(), 2, "両方が法令言及に当たっても重複させない");
+        assert_eq!(out[0].context_for, vec!["k:3"]);
+        assert_eq!(out[1].context_for, vec!["k:1"]);
+        assert_eq!(out[1].laws, vec!["L1"]);
+    }
+
+    #[test]
+    fn context_search_and_character_budget_are_bounded() {
+        let mut units = vec![unit("k:0", "○山田委員　予防接種法について伺います。")];
+        for _ in 0..4 {
+            units.push(unit("chair", "○田中委員長　暫時休憩します。"));
+        }
+        units.push(unit("k:5", "○佐藤大臣　検討します。"));
+        let laws = vec![("L1".into(), vec!["予防接種法".into()])];
+        let out = with_context(KIND_KOKKAI, &units, build_excerpts_for(&units, &laws));
+        assert_eq!(out.len(), 1, "遠くの発言まで探索しない");
+
+        let mut units = Vec::new();
+        for n in 0..12 {
+            units.push(unit(&format!("q:{n}"), "○山田委員　予防接種法について伺います。"));
+            units.push(unit(&format!("a:{n}"), &format!("○佐藤大臣　{}", "検討中です。".repeat(150))));
+        }
+        let out = with_context(KIND_KOKKAI, &units, build_excerpts_for(&units, &laws));
+        let chars: usize = out.iter().filter(|e| e.context.is_some()).map(|e| e.text.chars().count()).sum();
+        assert!(chars > 0 && chars <= MAX_CONTEXT_CHARS_PER_MEETING);
     }
 
     #[test]
@@ -1246,6 +1334,7 @@ mod tests {
             position: None,
             laws: vec![],
             context: None,
+            context_for: Vec::new(),
             text: text.into(),
         };
         assert!(is_procedural(&ex("会議録情報", "本日の会議に付した案件 地方自治法")));
@@ -1333,6 +1422,8 @@ mod tests {
 
         // 人物 (議事進行・会議録情報を除く) と会議体のページも作業対象に入る。
         let t = &plan.tasks[0];
+        assert_eq!(plan.schema_version, 2);
+        assert_eq!(plan.before.get(&t.page), Some(&llm_hash(&meeting.body)));
         assert_eq!(t.people, vec!["people/山田太郎.md"]);
         assert_eq!(t.committee.as_deref(), Some("committees/参議院厚生労働委員会.md"));
         assert!(wiki.join("people/山田太郎.md").exists());

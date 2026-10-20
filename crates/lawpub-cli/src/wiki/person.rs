@@ -314,6 +314,7 @@ pub(crate) fn person_excerpts(corpus: &str, units: &[Unit], name: &str, laws: &[
             position: u.position.clone(),
             laws: vec![],
             context: Some(ctx.to_string()),
+            context_for: Vec::new(),
             text,
         };
         // 委員長の「次に〜君」のような議事進行は文脈にならない。

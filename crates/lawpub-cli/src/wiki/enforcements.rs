@@ -631,6 +631,7 @@ mod tests {
         assert_ne!(tasks[0].page, tasks[1].page);
         let p = Plan {
             schema_version: 1,
+            before: BTreeMap::new(),
             date: "2026-10-19".into(),
             base_url: args.base_url.clone(),
             tasks: tasks.clone(),
