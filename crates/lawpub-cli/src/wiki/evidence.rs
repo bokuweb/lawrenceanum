@@ -94,6 +94,27 @@ pub fn claims(page: &Page) -> Result<Vec<Claim>> {
         .context("claims の形式が不正")
 }
 
+/// 発言の引用 ID から会議ページ ID へ。名前・URL の類似や文字の除去では結び付けない。
+/// コーパスを読まないので、該当会議・発言の存在や引用内容を検証したことにはならない。
+pub(super) fn citation_meeting_path(reference: &str) -> Option<String> {
+    let (kind, rest) = reference.split_once(':')?;
+    let (id, turn) = match kind {
+        KIND_KOKKAI => rest.rsplit_once('_')?,
+        KIND_SHINGIKAI => rest.split_once('#')?,
+        _ => return None,
+    };
+    if id.is_empty()
+        || matches!(id, "." | "..")
+        || id != file_safe(id)
+        || id.chars().any(char::is_control)
+        || turn.is_empty()
+        || !turn.bytes().all(|c| c.is_ascii_digit())
+    {
+        return None;
+    }
+    Some(meeting_page(kind, id).strip_suffix(".md")?.to_owned())
+}
+
 /// 構造だけの検査。意味的支持を検証済みにはしない。finalize と check の両方で使用する。
 pub fn claim_errors(page: &Page) -> Vec<String> {
     let claims = match claims(page) {
@@ -217,6 +238,24 @@ pub fn assessments(page: &Page) -> Value {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn meeting_paths_use_exact_supported_citation_ids_only() {
+        for (reference, path) in [
+            ("kokkai:M1_001", "meetings/kokkai/M1"),
+            ("kokkai:meeting_with_underscores_12", "meetings/kokkai/meeting_with_underscores"),
+            ("shingikai:mhlw_example_20261001#0", "meetings/shingikai/mhlw_example_20261001"),
+            ("shingikai:日本語#12", "meetings/shingikai/日本語"),
+        ] {
+            assert_eq!(citation_meeting_path(reference).as_deref(), Some(path));
+        }
+        for reference in ["kokkai:M1", "kokkai:M1_", "kokkai:M1_bad", "kokkai:_1",
+            "shingikai:S1", "shingikai:S1#", "shingikai:S1#1#2", "shingikai:../S1#1",
+            "shingikai:..#1", "shingikai:S 1#1", "shingikai:S:1#1", "shingikai:S\u{0}1#1",
+            "gian:S1#1", "pubcomment:S1#1", "kanpo:S1#1"] {
+            assert_eq!(citation_meeting_path(reference), None, "{reference:?}");
+        }
+    }
 
     fn unit(speaker: &str, position: &str, group: &str) -> Unit {
         Unit {

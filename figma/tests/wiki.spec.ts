@@ -65,6 +65,45 @@ async function mock(page: import("@playwright/test").Page) {
   await page.route("**/wiki/page/laws/L1.json", (r) => r.fulfill({ json: LAW }));
 }
 
+test("本文に会議リンクがなくても引用元へ移動でき、未収録と要約前を区別する", async ({ page }) => {
+  await mock(page);
+  await page.route("**/wiki/page/laws/L1.json", r => r.fulfill({ json: {
+    ...LAW, body: "救済拡充を求めた[^1]。\n\n[^1]: [kokkai:M1_001](https://kokkai.ndl.go.jp/txt/M1/1) 「救済を拡充すべきです」",
+    citation_sources: [
+      { path: "meetings/kokkai/M1", title: MEETING.frontmatter.title, date: "2026-10-01", refs: ["kokkai:M1_001", "kokkai:M1_002"], availability: "available", summary_source_status: "stale" },
+      { path: "meetings/shingikai/S1", title: "要約前の会議", date: null, refs: ["shingikai:S1#0"], availability: "stub", summary_source_status: "pending" },
+      { path: "meetings/shingikai/missing", title: null, date: null, refs: ["shingikai:missing#0"], availability: "missing", summary_source_status: null },
+    ],
+  } }));
+  await page.goto(new URL("#/wiki/laws/L1", BASE).toString());
+  const sources = page.getByTestId("wiki-citation-sources");
+  await expect(sources).toContainText("このページの記述・引用がその版に対応するとは限りません");
+  await expect(sources).toContainText("kokkai:M1_001、kokkai:M1_002");
+  await expect(sources.getByRole("alert")).toHaveCount(2);
+  await expect(sources).toContainText("会議ページ未公開・未収録");
+  await expect(sources).toContainText("会議の要約前");
+  await expect(sources.getByRole("button")).toHaveCount(2);
+  await sources.getByRole("button", { name: MEETING.frontmatter.title, exact: true }).click();
+  await expect(page).toHaveURL(/#\/wiki\/meetings\/kokkai\/M1$/);
+  await expect(page.getByRole("heading", { level: 1, name: MEETING.frontmatter.title, exact: true })).toBeVisible();
+});
+
+for (const status of ["current", "untracked"] as const) {
+  test(`引用元の状態 ${status} から引用する側の版対応を推定しない`, async ({ page }) => {
+    await mock(page);
+    await page.route("**/wiki/page/laws/L1.json", r => r.fulfill({ json: {
+      ...LAW, citation_sources: [{ path: "meetings/kokkai/M1", title: MEETING.frontmatter.title, date: "2026-10-01", refs: ["kokkai:M1_001"], availability: "available", summary_source_status: status }],
+    } }));
+    await page.goto(new URL("#/wiki/laws/L1", BASE).toString());
+    const sources = page.getByTestId("wiki-citation-sources");
+    await expect(sources).toBeVisible();
+    await expect(sources.getByRole("alert")).toHaveCount(0);
+    await expect(sources).toContainText("このページの記述・引用がその版に対応するとは限りません");
+    if (status === "untracked") await expect(sources).toContainText("原資料の版は未記録");
+    await expect(sources).not.toContainText("対応しています");
+  });
+}
+
 test("wiki トップにナレッジグラフと type 別の件数が出る", async ({ page }) => {
   await mock(page);
   await page.goto(new URL("#/wiki", BASE).toString());

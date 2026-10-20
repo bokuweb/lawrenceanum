@@ -4,7 +4,7 @@ const roles: Record<string, string> = { government: "政府側（役職表記に
 const statuses: Record<string, string> = { unreviewed: "支持関係は未審査", needs_review: "要確認", unsupported: "根拠が支持しないとの判定", indeterminate: "判定不能", llm_supported: "LLM は支持と判定（暫定・人による確認なし）" };
 const kinds: Record<string, string> = { government_view: "政府見解", opinion: "意見", request: "要望", question: "質問", decision: "決定・結果", unknown: "区分未確認" };
 
-export function WikiEvidence({ page }: { page: WikiPage }) {
+export function WikiEvidence({ page, onOpen }: { page: WikiPage; onOpen: (path: string) => void }) {
   const scope = page.frontmatter.source_scope as { total_units: number; included_units: number; partial_refs: string[]; omitted_refs: string[]; limitations: string } | undefined;
   const source = page.frontmatter.source_fingerprint;
   const summarySource = page.frontmatter.llm_source_fingerprint;
@@ -26,6 +26,28 @@ export function WikiEvidence({ page }: { page: WikiPage }) {
           <p>未収録：{scope.omitted_refs.join("、") || "なし"}</p>
         </details>
       ) : <p>このページの取得範囲・主張ごとの根拠情報は未整備です。全文・留保・反対意見を原資料で確認してください。</p>}
+      {!!page.citation_sources?.length && (
+        <div className="border-t border-border pt-2" data-testid="wiki-citation-sources">
+          <p>引用元の会議（国会・審議会の脚注から対応付け）</p>
+          <p>会議の要約が更新されても、このページの記述・引用がその版に対応するとは限りません。発言の存在や支持関係を検証した表示ではありません。</p>
+          <ul className="mt-2 space-y-2">
+            {page.citation_sources.map(source => (
+              <li key={source.path}>
+                {source.availability === "missing"
+                  ? <span>{source.title || source.path} — 会議ページ未公開・未収録</span>
+                  : <button type="button" className="text-primary underline text-left" onClick={() => onOpen(source.path)}>{source.title || source.path}</button>}
+                {source.date && <span> / {source.date}</span>}
+                {source.availability === "stub" && <span> — 会議の要約前</span>}
+                {(["stale", "pending"] as const).some(status => status === source.summary_source_status) && (
+                  <p role="alert">引用元会議の要約が原資料の版に対して更新待ちです。このページの記述・引用も原資料で再確認してください。</p>
+                )}
+                {source.summary_source_status === "untracked" && <p>引用元会議の原資料の版は未記録です。</p>}
+                <p className="text-muted-foreground break-all">{source.refs.join("、")}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {(page.claim_assessments ?? []).map((claim, i) => (
         <details key={i} className="border-t border-border pt-2">
           <summary>{claim.text} — {statuses[claim.review_status] ?? "支持関係は未確認"}</summary>
