@@ -4378,11 +4378,33 @@ fn page_lines_with(cols: Vec<Col>, vrules: &[(f32, f32, f32)], hrules: &[(f32, f
     let (cols, blocks) = split_off_horizontal_blocks(cols, vrules, hrules);
     let mut blocks = blocks.into_iter().peekable();
     let mut lines: Vec<Line> = Vec::new();
-    for g in column_groups(cols) {
+    let groups = column_groups(cols);
+    let continued = record_continuations(&groups);
+    for (gi, g) in groups.iter().enumerate() {
         let x = g.iter().map(|c| (c.x + c.x1) / 2.0).fold(f32::NEG_INFINITY, f32::max);
         while let Some((_, block)) = blocks.next_if(|(right, _)| *right > x) {
             lines.extend(block);
         }
+        // 罫線の無い縦組みの名簿で、欄の字を次の列へ折り返した行（「中道改革連／合衆議院比／例区南関東…」）は、続きの列の
+        // 字を欄ごとにつないで 1 行にする。
+        if let Some(conts) = continued.get(&gi) {
+            if conts.is_empty() {
+                continue;
+            }
+            let heads = record_cells(g);
+            let mut cells: Vec<String> = heads.iter().map(|(_, _, ws)| ws.iter().map(|c| c.text.as_str()).collect()).collect();
+            let mut ids: Vec<usize> = g.iter().map(|c| c.id).collect();
+            for &k in conts {
+                for c in &groups[k] {
+                    let at = heads.iter().rposition(|h| h.0 <= c.y + 1.0).unwrap_or(0);
+                    cells[at].push_str(&c.text);
+                    ids.push(c.id);
+                }
+            }
+            lines.push(Line::text(cells.join("\u{3000}"), ids));
+            continue;
+        }
+        let g = g.clone();
         let mut text = String::new();
         let mut prev_end = f32::MIN;
         let mut prev_chars = 0;
@@ -4425,6 +4447,101 @@ fn page_lines_with(cols: Vec<Col>, vrules: &[(f32, f32, f32)], hrules: &[(f32, f
     }
     lines.extend(blocks.flat_map(|(_, block)| block));
     lines
+}
+
+/// 縦組みの列の語を欄に分ける（0.75 字分以上空いた所で区切る）。欄ごとの (上端, 下端, 語)。
+fn record_cells(g: &[Col]) -> Vec<(f32, f32, Vec<&Col>)> {
+    let mut cells: Vec<(f32, f32, Vec<&Col>)> = Vec::new();
+    for c in g {
+        let em = (c.x1 - c.x).max(1.0);
+        match cells.last_mut() {
+            Some(last) if c.y - last.1 < em * 0.75 => {
+                last.1 = last.1.max(c.y1);
+                last.2.push(c);
+            }
+            _ => cells.push((c.y, c.y1, vec![c])),
+        }
+    }
+    cells
+}
+
+/// [`page_lines_with`] の、罫線の無い縦組みの名簿の行（列）の欄を次の列へ折り返したもの。行の頭の列（欄が 4 つ以上）の
+/// すぐ左に続く、欄の少ない列で、どの語も頭の列の欄の上端から次の欄の上端までに収まり、列の頭が頭の列の欄の上端に
+/// そろうものを、頭の列の続きとする。頭の列の添字から続きの列の添字への対応（続きの列は空の対応）。頭の列が 2 つ以上
+/// ある組（名簿）だけ。
+fn record_continuations(groups: &[Vec<Col>]) -> std::collections::HashMap<usize, Vec<usize>> {
+    let mut out = std::collections::HashMap::new();
+    // 欄が 5 つ以上（名称・代表者・会計責任者・所在地・…）で、1 字だけの欄（字間を空けた欄見出しの字）は 2 つまで。
+    let cands: Vec<usize> = (0..groups.len())
+        .filter(|&i| {
+            let cells = record_cells(&groups[i]);
+            // 数の欄（届出年月日「八、四、二七」、延長「〇・〇六九」、番号「2026－ＴＡ0003」）のある行（氏名だけの名簿は除く）。
+            let numbered = cells.iter().any(|c| {
+                let t: String = c.2.iter().map(|w| w.text.as_str()).collect();
+                t.chars().any(|ch| ch.is_ascii_digit() || ('０'..='９').contains(&ch))
+                    || (t.chars().any(|ch| "〇一二三四五六七八九十".contains(ch)) && t.chars().any(|ch| "、・･〜︑".contains(ch)))
+            });
+            numbered && cells.len() >= 5 && cells.iter().filter(|c| c.2.iter().map(|w| w.text.chars().count()).sum::<usize>() == 1).count() <= 2
+        })
+        .collect();
+    // 名簿の行の頭の列は、ほかの行の頭の列と欄の上端が 4 つ以上そろう（欄の段がそろう表）。
+    let tops = |i: usize| record_cells(&groups[i]).iter().map(|c| c.0).collect::<Vec<f32>>();
+    let heads: Vec<usize> = cands
+        .iter()
+        .copied()
+        .filter(|&i| {
+            let ti = tops(i);
+            cands.iter().any(|&j| j != i && tops(j).iter().filter(|&&t| ti.iter().any(|&u| (u - t).abs() < 1.0)).count() >= 4)
+        })
+        .collect();
+    if heads.len() < 2 {
+        return out;
+    }
+    let center = |g: &[Col]| g.iter().map(|c| (c.x + c.x1) / 2.0).sum::<f32>() / g.len().max(1) as f32;
+    for &h in &heads {
+        let head = record_cells(&groups[h]);
+        let em = groups[h].iter().map(|c| c.x1 - c.x).fold(0.0, f32::max).max(1.0);
+        // 欄 i の範囲は、欄の上端から次の欄の上端まで（最後の欄は下端まで）。
+        let band = |y0: f32, y1: f32| {
+            (0..head.len()).find(|&i| {
+                let lo = head[i].0 - 1.0;
+                let hi = head.get(i + 1).map_or(head[i].1 + 1.0, |n| n.0 + 1.0);
+                y0 >= lo && y1 <= hi
+            })
+        };
+        let mut conts = Vec::new();
+        let mut prev = center(&groups[h]);
+        for k in h + 1..groups.len() {
+            let g = &groups[k];
+            if g.is_empty() || heads.contains(&k) {
+                break;
+            }
+            let x = center(g);
+            // すぐ左の列（2 字分まで）で、欄が頭の列より少なく、列の頭が頭の列のどれかの欄の上端にそろう。
+            // 続きの列は、頭の列の最初の欄（団体の名称。6 字以上で欄の下端まで組まれたもの）の上端から始まる。
+            let first: usize = head[0].2.iter().map(|c| c.text.chars().count()).sum();
+            // 続きの語は欄の中で折り返した短い語（2〜14 字。英字の無いもの）。頭の列が日付（署名の列）なら除く。
+            let fragment = |c: &Col| (2..=14).contains(&c.text.chars().count()) && !c.text.chars().any(|ch| ch.is_ascii_alphabetic());
+            let dated = head[0].2.first().is_some_and(|c| c.text.starts_with("令和"));
+            if prev - x > em * 2.0 || record_cells(g).len() >= head.len() || (head[0].0 - g[0].y).abs() >= 1.0 || first < 5 || dated || !g.iter().all(fragment) {
+                break;
+            }
+            // 続きの語の入る欄は、欄の中で折り返す長い欄（4 字以上の名称・所在地。2 字の氏の欄に別の行の氏名をつながない）。
+            let long = |i: usize| head[i].2.iter().map(|c| c.text.chars().count()).sum::<usize>() >= 4;
+            if !g.iter().all(|c| band(c.y, c.y1).is_some_and(long)) {
+                break;
+            }
+            conts.push(k);
+            prev = x;
+        }
+        if !conts.is_empty() {
+            for &k in &conts {
+                out.insert(k, Vec::new());
+            }
+            out.insert(h, conts);
+        }
+    }
+    out
 }
 
 /// [`page_lines`] の、罫線の無い縦組みの表を表として組む版。行の見出しの記号（自動車の認定番号
