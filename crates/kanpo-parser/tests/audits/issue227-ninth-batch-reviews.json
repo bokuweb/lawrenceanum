@@ -1,0 +1,4339 @@
+{
+  "stage": "ninth_integrated_batch",
+  "baseline": "cd64a9f3/after29",
+  "output": "after30",
+  "visual_totals": {
+    "changed_originals_reviewed": 35,
+    "improvement": 34,
+    "neutral": 1,
+    "regression": 0,
+    "whole_page_success_not_implied": true
+  },
+  "halfwidth_road": {
+    "reviewer": "headerless_shinkyu",
+    "pages": [
+      {
+        "page": "20260729h017570005",
+        "pdf": ".cache/kanpo-archive/2026-07-29/20260729h01757/20260729h017570005.pdf",
+        "source_words_exact": true,
+        "all_original_word_ids_retained": true,
+        "added_originally_merged_used_source_ids": [],
+        "no_duplicate_word_ids": true,
+        "nonspace_multiset_exact": true,
+        "per_article_character_multiset_exact": true,
+        "all_existing_tables_exact": true,
+        "new_table_count": 1,
+        "classification": "improvement",
+        "all_original_image_viewed": true,
+        "all_changed_before_after_lines_read": true,
+        "notes": "下段関東195号国道6号。共通区間（茨城町長岡新田3523番73〜長岡矢頭3529番1）をrowspan2へ、前49.01〜236.68m/0.452km、後39.61〜195.44m/0.452kmを個別列へ統合。半角中点原字をそのまま保持し変更前後別とメートル/キロメートルの見出しを復元。（四）縦覧・次九州79号は表外、既存関東192号表は不変。",
+        "changed_line_ranges": [
+          {
+            "before_start": 73,
+            "before_end": 77,
+            "after_start": 73,
+            "after_end": 75
+          }
+        ],
+        "original_sha256": "cfa9db2e1d46a4612031832ae27c0970f4a8d33b05456109e09d2af2ffafe1ea",
+        "before_sha256": "450b61d9d25233185b52c9c0241b8156407c41d09d4424d0acc8a3c34c13df9f",
+        "after_sha256": "f4d26c99481bc3e748af5071e6bea7d7ddd11ef14bfe051a3de9db50eea9f3cf",
+        "png_sha256": "bcaa8bc64765d8e0791670942ea9618b8e5fa76f29295f44971d6fc69eaf219d",
+        "native_dots_preserved_without_global_normalization": true,
+        "original_context_outside_changed_tables_unchanged": true
+      },
+      {
+        "page": "20260731h017590006",
+        "pdf": ".cache/kanpo-archive/2026-07-31/20260731h01759/20260731h017590006.pdf",
+        "source_words_exact": true,
+        "all_original_word_ids_retained": true,
+        "added_originally_merged_used_source_ids": [],
+        "no_duplicate_word_ids": true,
+        "nonspace_multiset_exact": true,
+        "per_article_character_multiset_exact": true,
+        "all_existing_tables_exact": true,
+        "new_table_count": 1,
+        "classification": "improvement",
+        "all_original_image_viewed": true,
+        "all_changed_before_after_lines_read": true,
+        "notes": "下段右の四国54号国道55号。安田町向ヱ140番1〜安芸伊尾木374番1の共通区間rowspan4、備考rowspan4。前A=9.77〜42.36m/9.097km、BC=12.64〜157.25m/3.413km、後A=9.77〜42.36m/9.097km、BCD=12.64〜157.25m/4.656kmと全4record対応を原本照合。元行で後Aから離れていた2小数点を元語座標に基づき同じセルへ戻した。既存隣55号3x4表/縦覧・次56号・人事は不変。",
+        "changed_line_ranges": [
+          {
+            "before_start": 67,
+            "before_end": 75,
+            "after_start": 67,
+            "after_end": 71
+          }
+        ],
+        "original_sha256": "726a5f577b7054957c801e942a6308ad90e42a269eea8839a49db858d1b1c00c",
+        "before_sha256": "9b258db9edc32871e2e5f770c20d54184fef3868c0978c733dce89f2b08535d7",
+        "after_sha256": "5e4d133e69744854bf640ee4be8f28b8a59a115c66030492dd6b118c5a094fcf",
+        "png_sha256": "0ea9593c8e3a2015f25f3d4389435df8192fff9158ad43038637721c7033b631",
+        "native_dots_preserved_without_global_normalization": true,
+        "original_context_outside_changed_tables_unchanged": true
+      },
+      {
+        "page": "20260806h017630005",
+        "pdf": ".cache/kanpo-archive/2026-08-06/20260806h01763/20260806h017630005.pdf",
+        "source_words_exact": true,
+        "all_original_word_ids_retained": true,
+        "added_originally_merged_used_source_ids": [],
+        "no_duplicate_word_ids": true,
+        "nonspace_multiset_exact": true,
+        "per_article_character_multiset_exact": true,
+        "all_existing_tables_exact": true,
+        "new_table_count": 1,
+        "classification": "improvement",
+        "all_original_image_viewed": true,
+        "all_changed_before_after_lines_read": true,
+        "notes": "下段左の四国57号高速阿南四万十線。阿南下大野564番1〜羽ノ浦岩脇83番1の区間rowspan2、前21.28〜158.57m/1.638km、後17.96〜75.24m/1.638kmの対応を原本全桁照合。半角小数点・幅員/延長単位を保持。中国59/60号の既存表は不変、末尾（三）縦覧を混入させない。",
+        "changed_line_ranges": [
+          {
+            "before_start": 77,
+            "before_end": 81,
+            "after_start": 77,
+            "after_end": 79
+          }
+        ],
+        "original_sha256": "29966e59f1fff66e35b33d1e5415fe53c0c46fee0b9f1a96e361df4e76e9f7a1",
+        "before_sha256": "e90ccfe3a1a419589bb4d4bc82c3c47f22fa6622525013fa8687982e6a4a3811",
+        "after_sha256": "280de60f0f04e495f87eb94a9b0cffc57b2eee1a371dbba5a5242bd8cae85b26",
+        "png_sha256": "66be78addc2fd62a7a985f8c23a47e27fdfa5e58beebcc6e5c0d7c0717798eb7",
+        "native_dots_preserved_without_global_normalization": true,
+        "original_context_outside_changed_tables_unchanged": true
+      },
+      {
+        "page": "20260818h017700007",
+        "pdf": ".cache/kanpo-archive/2026-08-18/20260818h01770/20260818h017700007.pdf",
+        "source_words_exact": true,
+        "all_original_word_ids_retained": true,
+        "added_originally_merged_used_source_ids": [],
+        "no_duplicate_word_ids": true,
+        "nonspace_multiset_exact": true,
+        "per_article_character_multiset_exact": true,
+        "all_existing_tables_exact": true,
+        "new_table_count": 1,
+        "classification": "improvement",
+        "all_original_image_viewed": true,
+        "all_changed_before_after_lines_read": true,
+        "notes": "上段左の関東202号国道20号。笛吹広瀬早稲田736番1〜甲斐宇津谷大ノ田122番1、前後A/B/Cの6小行を対応。前後A22.03〜99.02/16.396、前後B0.00〜62.37/0.062、前C0.00〜85.72/2.188→後C0.00〜119.43/2.188を全桁照合。後Aから離れていた3半角小数点も各セル内へ、共通区間/備考をrowspan6。下段関東203/近畿168/167号の既存Table・別記事/縦覧は不変。",
+        "changed_line_ranges": [
+          {
+            "before_start": 67,
+            "before_end": 76,
+            "after_start": 67,
+            "after_end": 73
+          }
+        ],
+        "original_sha256": "b3f6b832a98775f7816c305153b51684f9ab4ef03c3e724dd0cb2d262100f958",
+        "before_sha256": "984f680d8c64edda14f8486d9608446ca12967aea4e36a6dd5f4b48fb44c8729",
+        "after_sha256": "635745fe359ea34921be2d8429f913839634781998cc49013b2da473dea3f1cd",
+        "png_sha256": "77e399f4675fb2a6cef008b1ba261bb5b83136821539934a5f86286ea961b744",
+        "native_dots_preserved_without_global_normalization": true,
+        "original_context_outside_changed_tables_unchanged": true
+      },
+      {
+        "page": "20260915h017900005",
+        "pdf": ".cache/kanpo-archive/2026-09-15/20260915h01790/20260915h017900005.pdf",
+        "source_words_exact": true,
+        "all_original_word_ids_retained": true,
+        "added_originally_merged_used_source_ids": [],
+        "no_duplicate_word_ids": true,
+        "nonspace_multiset_exact": true,
+        "per_article_character_multiset_exact": true,
+        "all_existing_tables_exact": true,
+        "new_table_count": 2,
+        "classification": "improvement",
+        "all_original_image_viewed": true,
+        "all_changed_before_after_lines_read": true,
+        "notes": "下段中央関東211号国道6号と左九州92号国道210号。211号区間石岡田島5589番1〜石岡三面寺5591番1は前66.54〜112.33m/0.045km、後63.70〜68.26m/0.045km。92号区間久留米上原305番3〜うきは浮羽山北613番3は前後A7.00〜25.00m/13.000km、前後B17.00〜146.00m/13.989km。両表の見出し/単位・区間・備考・変更前後/コードを正しく結合。国交1152号の最大/最小表や防衛236号の3施設記載、縦覧/次記事は不変。",
+        "changed_line_ranges": [
+          {
+            "before_start": 64,
+            "before_end": 68,
+            "after_start": 64,
+            "after_end": 66
+          },
+          {
+            "before_start": 78,
+            "before_end": 85,
+            "after_start": 76,
+            "after_end": 80
+          }
+        ],
+        "original_sha256": "c2ca1c3f1e9b4612d0c1270d2d8808f6e2254b704a2a71f159dda3f5cdc5a3fa",
+        "before_sha256": "503369f4f8fc6a50aad8c3332e5855be34d7af549775baf3b4531bc23aa30de2",
+        "after_sha256": "e402f8e20f604b81750ac82318bae93fb217fc6358f1a8102e7fb04fad90fa24",
+        "png_sha256": "18f1f9b6afb794316836e8f113f3a3f712f5ee0016cf812a12bb953497b304a1",
+        "native_dots_preserved_without_global_normalization": true,
+        "original_context_outside_changed_tables_unchanged": true
+      }
+    ],
+    "tests": {
+      "baseline_red": "baseline-test.log",
+      "candidate_green": "candidate-test.log",
+      "unit_suite": 348,
+      "new_unit_tests": 3,
+      "target_real_pdf": 1,
+      "existing_road_real_pdf": 3,
+      "other_negative_real_pdf": 5,
+      "all_tests_log": "all-tests.log",
+      "delivery_logs": [
+        "delivery-test.log",
+        "delivery-fixture-test.log"
+      ],
+      "verified_target_values": [
+        "beforeA 9.77–42.36/9.097",
+        "beforeBC12.64–157.25/3.413",
+        "afterA9.77–42.36/9.097",
+        "afterBCD12.64–157.25/4.656"
+      ],
+      "nearby_negative": "Same-PDF55号四欄表 expected22.52–29.36→23.70–29.36/0.005 exact and existing tables immutable; first road3 fixtures+five other layouts pass.",
+      "failure_guards": [
+        "raw must be literal U+FF65 for center correction",
+        "native dot must have halfwidth dimensions",
+        "range requires both decimals/digits; doubled/leading/trailing separators refused",
+        "missing actual decimal glyph refuses table, no interpolation",
+        "state2pt above header refuses table"
+      ]
+    }
+  },
+  "area_units": {
+    "reviewer": "vertical_record_fragments",
+    "visual_audit": {
+      "baseline": "after29 / eighth batch source",
+      "candidate": "area-unit-restoration.patch",
+      "changed_pages_originals_viewed": 20,
+      "changed_source_symbols_checked": 33,
+      "improvement_pages": 20,
+      "new_regressions": 0,
+      "rows": [
+        {
+          "page": "20260730g001710130",
+          "source_pdf": ".cache/kanpo-archive/2026-07-30/20260730g00171/20260730g001710130.pdf",
+          "source_sha256": "f4dabdd6791c5fc0176b86cdaa42088e98df44cd080bef90ed38eb5f136fd6ca",
+          "before_output_sha256": "8784c3c4dc4acf6de9fad875bc92755e7a7695ddccbb54695b86ddb2a8431f40",
+          "after_output_sha256": "e0538197f637a4687e07d776b1e12b3e4b5d9ba74ea54175b4cb41278fa87f73",
+          "image": ".cache/kanpo-227/area-unit-visual/20260730g001710130.png",
+          "image_sha256": "8ac9bdd12ccc6ed44cd8e211eb649eec16a47754b286d7c1d3439ef20285d36d",
+          "image_full_page_viewed": true,
+          "after_owner_text_reviewed": true,
+          "judgement": "improvement",
+          "restored_symbols": 1,
+          "placement_notes": "右下職員宿舎床面積21,140.60㎡。Word119末尾・元セルに1字。",
+          "owners": [
+            {
+              "word_id": 119,
+              "output_line_zero_based": 44,
+              "role": "body",
+              "cell_row": 1,
+              "cell_col": 4,
+              "text": "21,140.60㎡",
+              "source_glyph_bbox": [
+                488.504,
+                413.2597,
+                496.504,
+                421.44370000000004
+              ]
+            }
+          ],
+          "new_regression": false,
+          "scope": "復元字形と元所有行/セルへの位置対応を原本で確認。既存本文/構造不変は34頁trace/11992本文比較で別途検証。既存未修復問題を解決済とは扱わない。"
+        },
+        {
+          "page": "20260730g001710134",
+          "source_pdf": ".cache/kanpo-archive/2026-07-30/20260730g00171/20260730g001710134.pdf",
+          "source_sha256": "e29af953c05139344809a3acc6593402d40afc8095c4f51c1bfad70f4b0e50fe",
+          "before_output_sha256": "f8d41ebc905b1d9b671d69f1e26062fd8028405f55ae2b5e779f2015bcc533a6",
+          "after_output_sha256": "10a4f422693a7bace9e6e80db8d0a0d39628fb2f407e2f400515a47283cd9f48",
+          "image": ".cache/kanpo-227/area-unit-visual/20260730g001710134.png",
+          "image_sha256": "39140c44b7857372e800113cedfbb2e832746ad9e1c11a0ca519317382e4e258",
+          "image_full_page_viewed": true,
+          "after_owner_text_reviewed": true,
+          "judgement": "improvement",
+          "restored_symbols": 2,
+          "placement_notes": "中央下家屋2番8の1/2の延床面積256.29㎡・244.61㎡。別公告/住所へ混入なし。",
+          "owners": [
+            {
+              "word_id": 112,
+              "output_line_zero_based": 22,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "延床面積　256.29㎡",
+              "source_glyph_bbox": [
+                339.0,
+                494.5716999999999,
+                347.0,
+                502.75569999999993
+              ]
+            },
+            {
+              "word_id": 113,
+              "output_line_zero_based": 26,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "延床面積　244.61㎡",
+              "source_glyph_bbox": [
+                339.0,
+                541.8677,
+                347.0,
+                550.0517
+              ]
+            }
+          ],
+          "new_regression": false,
+          "scope": "復元字形と元所有行/セルへの位置対応を原本で確認。既存本文/構造不変は34頁trace/11992本文比較で別途検証。既存未修復問題を解決済とは扱わない。"
+        },
+        {
+          "page": "20260731g001720119",
+          "source_pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720119.pdf",
+          "source_sha256": "4d9ed834a0fb34e4c902f2124d670b6b89bf750be8ed149d72e1a0b0e4d18033",
+          "before_output_sha256": "caf6af2835756b51d0f8129ee4fc5100c717ebf6f0180b61c98c963457d66b74",
+          "after_output_sha256": "f3ad46634c1b005e54a5f70976fc7311ee05ed25af818ffe1e62ae54d6d7de6f",
+          "image": ".cache/kanpo-227/area-unit-visual/20260731g001720119.png",
+          "image_sha256": "2a0c094d56d7d020366e66f3624669db171fc5abf9d38add561a482297dd8dce",
+          "image_full_page_viewed": true,
+          "after_owner_text_reviewed": true,
+          "judgement": "improvement",
+          "restored_symbols": 2,
+          "placement_notes": "左右比較様式のＸ：マンションの総専有床面積（㎡）各括弧内1字。",
+          "owners": [
+            {
+              "word_id": 59,
+              "output_line_zero_based": 55,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "Ｘ：マンションの総専有床面積（㎡）",
+              "source_glyph_bbox": [
+                566.742,
+                377.37370000000004,
+                574.742,
+                385.55770000000007
+              ]
+            },
+            {
+              "word_id": 161,
+              "output_line_zero_based": 23,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "Ｘ：マンションの総専有床面積（㎡）",
+              "source_glyph_bbox": [
+                211.23799999999994,
+                377.37370000000004,
+                219.23799999999994,
+                385.55770000000007
+              ]
+            }
+          ],
+          "new_regression": false,
+          "scope": "復元字形と元所有行/セルへの位置対応を原本で確認。既存本文/構造不変は34頁trace/11992本文比較で別途検証。既存未修復問題を解決済とは扱わない。"
+        },
+        {
+          "page": "20260731g001720125",
+          "source_pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720125.pdf",
+          "source_sha256": "5c6a474a7a0a63c6ec819a65596ba3bdcddcfbb18115e0f215480445f3f4229d",
+          "before_output_sha256": "0810b131498144d0136695478aa2ec50a779b5d0b7b9a06330541e27d037cbf4",
+          "after_output_sha256": "c5fb0641ecd8ee1f44dc3a9548b60168b3ccaeebf3204a495a45b7d6d1da072a",
+          "image": ".cache/kanpo-227/area-unit-visual/20260731g001720125.png",
+          "image_sha256": "8769b8bfde41160dcf6566f9a05ffa883cd3d6c4d9710681966b4773ce6f8c2b",
+          "image_full_page_viewed": true,
+          "after_owner_text_reviewed": true,
+          "judgement": "improvement",
+          "restored_symbols": 1,
+          "placement_notes": "左様式Ｘ：総専有床面積（㎡）の括弧内。Ｙ/Ｚに付かない。",
+          "owners": [
+            {
+              "word_id": 10,
+              "output_line_zero_based": 14,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "Ｘ：マンションの総専有床面積（㎡）",
+              "source_glyph_bbox": [
+                211.25,
+                223.43539999999987,
+                219.25,
+                231.61939999999987
+              ]
+            }
+          ],
+          "new_regression": false,
+          "scope": "復元字形と元所有行/セルへの位置対応を原本で確認。既存本文/構造不変は34頁trace/11992本文比較で別途検証。既存未修復問題を解決済とは扱わない。"
+        },
+        {
+          "page": "20260731g001720130",
+          "source_pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720130.pdf",
+          "source_sha256": "103a3a8c0ec6325bc216ee1261ed01e3fa1935a00f5312def2a27a5aa1200e26",
+          "before_output_sha256": "de5fc1f28864f556d7df30781c8edeaa2397c5e4c45221ad162c8e222d17fb1c",
+          "after_output_sha256": "3286158384980739531e95730fadc31a877835d9510991cc47df92fa60c4ee0c",
+          "image": ".cache/kanpo-227/area-unit-visual/20260731g001720130.png",
+          "image_sha256": "ff16bac0f3377d3eb0ad91ca2f5b8e4b85d273fab7dc3945af98c5af4bab121c",
+          "image_full_page_viewed": true,
+          "after_owner_text_reviewed": true,
+          "judgement": "improvement",
+          "restored_symbols": 2,
+          "placement_notes": "左右比較様式のＸ：総専有床面積（㎡）各括弧内。番号・説明順維持。",
+          "owners": [
+            {
+              "word_id": 60,
+              "output_line_zero_based": 48,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "Ｘ：マンションの総専有床面積（㎡）",
+              "source_glyph_bbox": [
+                566.746,
+                194.37599999999983,
+                574.746,
+                202.55999999999983
+              ]
+            },
+            {
+              "word_id": 155,
+              "output_line_zero_based": 12,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "Ｘ：マンションの総専有床面積（㎡）",
+              "source_glyph_bbox": [
+                211.24199999999996,
+                194.37599999999983,
+                219.24199999999996,
+                202.55999999999983
+              ]
+            }
+          ],
+          "new_regression": false,
+          "scope": "復元字形と元所有行/セルへの位置対応を原本で確認。既存本文/構造不変は34頁trace/11992本文比較で別途検証。既存未修復問題を解決済とは扱わない。"
+        },
+        {
+          "page": "20260731g001720136",
+          "source_pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720136.pdf",
+          "source_sha256": "eca1c462f1083a607123dbf28ba2faa6eb9c83b38a93bf531ccd6924c15dd3cd",
+          "before_output_sha256": "7f25415a3c78b919df3e77c0a1add04cf4b744a1f01dbe6f8920535202cdfc16",
+          "after_output_sha256": "806f51ca1f6d6ea49c984160cf5cb0f028cc95b16fa3c41d31e4f6c7e0fbe477",
+          "image": ".cache/kanpo-227/area-unit-visual/20260731g001720136.png",
+          "image_sha256": "5ad2c71971cfc8c2b074dc3e608eebcef845b0e9dd5e4b385b73b2b108815ee3",
+          "image_full_page_viewed": true,
+          "after_owner_text_reviewed": true,
+          "judgement": "improvement",
+          "restored_symbols": 1,
+          "placement_notes": "左様式Ｘ：総専有床面積（㎡）の括弧内。右欄の位置維持。",
+          "owners": [
+            {
+              "word_id": 10,
+              "output_line_zero_based": 10,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "Ｘ：マンションの総専有床面積（㎡）",
+              "source_glyph_bbox": [
+                211.25,
+                190.5505999999999,
+                219.25,
+                198.7345999999999
+              ]
+            }
+          ],
+          "new_regression": false,
+          "scope": "復元字形と元所有行/セルへの位置対応を原本で確認。既存本文/構造不変は34頁trace/11992本文比較で別途検証。既存未修復問題を解決済とは扱わない。"
+        },
+        {
+          "page": "20260731g001720143",
+          "source_pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720143.pdf",
+          "source_sha256": "ca1063b49b8418d8c9e2a3e9c12ed8c88e80353cac1600a562fbcdf7b7f8ed84",
+          "before_output_sha256": "b4547fb06f60d00552cec979a4adfb4da95065e5f282130d1b82c1567ca80763",
+          "after_output_sha256": "ff626564183b3c70c36e0fc8c4076a8ae82819d7a4e57245791780ade1e9a9ad",
+          "image": ".cache/kanpo-227/area-unit-visual/20260731g001720143.png",
+          "image_sha256": "ea25e7b1658bbcaff418e9cd4de282c2176e382c85899f4750ea06dc41352ceb",
+          "image_full_page_viewed": true,
+          "after_owner_text_reviewed": true,
+          "judgement": "improvement",
+          "restored_symbols": 1,
+          "placement_notes": "左様式Ｘ：総専有床面積（㎡）の括弧内。Ｙ/Ｚに付かない。",
+          "owners": [
+            {
+              "word_id": 41,
+              "output_line_zero_based": 10,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "Ｘ：マンションの総専有床面積（㎡）",
+              "source_glyph_bbox": [
+                211.25,
+                171.25539999999992,
+                219.25,
+                179.43939999999992
+              ]
+            }
+          ],
+          "new_regression": false,
+          "scope": "復元字形と元所有行/セルへの位置対応を原本で確認。既存本文/構造不変は34頁trace/11992本文比較で別途検証。既存未修復問題を解決済とは扱わない。"
+        },
+        {
+          "page": "20260817g001830033",
+          "source_pdf": ".cache/kanpo-archive/2026-08-17/20260817g00183/20260817g001830033.pdf",
+          "source_sha256": "cf5d9ce01db2265128fb238d63edf233f98eacdc4eea9df69b46ea09fc8ef509",
+          "before_output_sha256": "d854fa9efdf7d85486cebc92de54b0ec137f65c702589a506df1cd6ec9e1a4c8",
+          "after_output_sha256": "4338e6b4d6bd1fc69451fff84eeb3fb14e3198f1dd4ea152584ad5b952b7b63e",
+          "image": ".cache/kanpo-227/area-unit-visual/20260817g001830033.png",
+          "image_sha256": "5e4281708fa88357f0ffb94bc2ce9b21f5e0444d20cff5b6be36d4e7fe82f3be",
+          "image_full_page_viewed": true,
+          "after_owner_text_reviewed": true,
+          "judgement": "improvement",
+          "restored_symbols": 2,
+          "placement_notes": "右中下、使用面積1,578.50㎡の叙述と1578.50㎡×120,515円＝190,232,928円の式。式の単価120,515円には付かない。",
+          "owners": [
+            {
+              "word_id": 66,
+              "output_line_zero_based": 66,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "国有財産の使用面積は、1,578.50㎡であります。",
+              "source_glyph_bbox": [
+                577.0,
+                325.1325999999999,
+                585.0,
+                333.31659999999994
+              ]
+            },
+            {
+              "word_id": 110,
+              "output_line_zero_based": 67,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "1578.50㎡×120,515円＝190,232,928円",
+              "source_glyph_bbox": [
+                487.0,
+                336.2765999999999,
+                495.0,
+                344.46059999999994
+              ]
+            }
+          ],
+          "new_regression": false,
+          "scope": "復元字形と元所有行/セルへの位置対応を原本で確認。既存本文/構造不変は34頁trace/11992本文比較で別途検証。既存未修復問題を解決済とは扱わない。"
+        },
+        {
+          "page": "20260910g002020091",
+          "source_pdf": ".cache/kanpo-archive/2026-09-10/20260910g00202/20260910g002020091.pdf",
+          "source_sha256": "de231462eac19d811551c0b0816dc799b212c98e9edd8d88a9d5c1a9f733bcc6",
+          "before_output_sha256": "e01ab6dfc9fb295b28ee64bfd9d9879d7c9c1256eb718819e073e406920e880f",
+          "after_output_sha256": "b9634d1f58f71c1db00d5d136388f2b57c1464d07cf53bef5e338874b42b65bf",
+          "image": ".cache/kanpo-227/area-unit-visual/20260910g002020091.png",
+          "image_sha256": "664476bbbb47b2ce53c2e533e5907f6025493f51134d838508caf2606f663bfd",
+          "image_full_page_viewed": true,
+          "after_owner_text_reviewed": true,
+          "judgement": "improvement",
+          "restored_symbols": 3,
+          "placement_notes": "左上土地3行の面積383.47㎡・100.06㎡・100.06㎡。建物3行の―/帳簿価額は不変。",
+          "owners": [
+            {
+              "word_id": 302,
+              "output_line_zero_based": 3,
+              "role": "body",
+              "cell_row": 2,
+              "cell_col": 4,
+              "text": "383.47㎡",
+              "source_glyph_bbox": [
+                344.504,
+                151.13970000000015,
+                352.504,
+                159.32370000000014
+              ]
+            },
+            {
+              "word_id": 303,
+              "output_line_zero_based": 3,
+              "role": "body",
+              "cell_row": 4,
+              "cell_col": 4,
+              "text": "100.06㎡",
+              "source_glyph_bbox": [
+                344.496,
+                193.28370000000015,
+                352.496,
+                201.46770000000015
+              ]
+            },
+            {
+              "word_id": 304,
+              "output_line_zero_based": 3,
+              "role": "body",
+              "cell_row": 6,
+              "cell_col": 4,
+              "text": "100.06㎡",
+              "source_glyph_bbox": [
+                344.48799999999994,
+                227.35570000000016,
+                352.48799999999994,
+                235.53970000000015
+              ]
+            }
+          ],
+          "new_regression": false,
+          "scope": "復元字形と元所有行/セルへの位置対応を原本で確認。既存本文/構造不変は34頁trace/11992本文比較で別途検証。既存未修復問題を解決済とは扱わない。"
+        },
+        {
+          "page": "20260915g002050070",
+          "source_pdf": ".cache/kanpo-archive/2026-09-15/20260915g00205/20260915g002050070.pdf",
+          "source_sha256": "ebba415d32b72a9842b739c625a705f12f010e620840afcf1bddf0de28e59431",
+          "before_output_sha256": "b6a916674b3a33f7b8d776162fb61d87ebb8e5d8a9748d4fc1999a97684d2e64",
+          "after_output_sha256": "9ea70cacd8644cdf368984f7b725da0e1ae87c05bb16bcb397cfa41ddb71753a",
+          "image": ".cache/kanpo-227/area-unit-visual/20260915g002050070.png",
+          "image_sha256": "1e676412dedf2a6a61f74945f7b1864bbf5825aeaf6ea29453ec139b5f79a5c2",
+          "image_full_page_viewed": true,
+          "after_owner_text_reviewed": true,
+          "judgement": "improvement",
+          "restored_symbols": 2,
+          "placement_notes": "左下建物6棟（延10,988.74㎡）・土地5箇所（8,353.59㎡）。各資産金額と数量の対応維持。",
+          "owners": [
+            {
+              "word_id": 236,
+              "output_line_zero_based": 32,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "建物　2,067,698,005　6棟（延10,988.74㎡）",
+              "source_glyph_bbox": [
+                363.0,
+                408.64259999999996,
+                371.0,
+                416.8266
+              ]
+            },
+            {
+              "word_id": 238,
+              "output_line_zero_based": 37,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "土地　6,612,073,027　5箇所（8,353.59㎡）",
+              "source_glyph_bbox": [
+                351.0,
+                475.2425999999999,
+                359.0,
+                483.42659999999995
+              ]
+            }
+          ],
+          "new_regression": false,
+          "scope": "復元字形と元所有行/セルへの位置対応を原本で確認。既存本文/構造不変は34頁trace/11992本文比較で別途検証。既存未修復問題を解決済とは扱わない。"
+        },
+        {
+          "page": "20261009g002230155",
+          "source_pdf": ".cache/kanpo-archive/2026-10-09/20261009g00223/20261009g002230155.pdf",
+          "source_sha256": "3ad4df7d6a2aedc66685d6200878c640614339e91f5ac86e0c448e1307eb7840",
+          "before_output_sha256": "6499440058f9f5a51007857c7c2179b59308a43c620d7c730bcf65054b506573",
+          "after_output_sha256": "f6aeb0de666106806b1bde909686e7414e47c8777bf55cbafc9cfab2a1d6670e",
+          "image": ".cache/kanpo-227/area-unit-visual/20261009g002230155.png",
+          "image_sha256": "2d4dd23ff8602b9fe20d24213b915675a0bb71f0e7f5ad9942c3082bf7a464c4",
+          "image_full_page_viewed": true,
+          "after_owner_text_reviewed": true,
+          "judgement": "improvement",
+          "restored_symbols": 2,
+          "placement_notes": "第三欄特定空家2件の延面積57.24㎡・54.3㎡。所在・構造/別公告と混入なし。",
+          "owners": [
+            {
+              "word_id": 54,
+              "output_line_zero_based": 33,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "延面積　57.24㎡",
+              "source_glyph_bbox": [
+                503.0,
+                384.33569999999986,
+                511.0,
+                392.5196999999999
+              ]
+            },
+            {
+              "word_id": 55,
+              "output_line_zero_based": 38,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "延面積　54.3㎡",
+              "source_glyph_bbox": [
+                499.0,
+                440.5756999999998,
+                507.0,
+                448.75969999999984
+              ]
+            }
+          ],
+          "new_regression": false,
+          "scope": "復元字形と元所有行/セルへの位置対応を原本で確認。既存本文/構造不変は34頁trace/11992本文比較で別途検証。既存未修復問題を解決済とは扱わない。"
+        },
+        {
+          "page": "20261016g002280007",
+          "source_pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280007.pdf",
+          "source_sha256": "a404b84c6b7b90e6d1b19498e34ee834aedc276c0d74028be76c3a133d3d3fa5",
+          "before_output_sha256": "1afbf7f10b35ca734adff0c796cb566c1698c744b644368cf4184f8cf9506fb2",
+          "after_output_sha256": "cc35ba3fe469f5909f8b18aab62421d72c91763b0a3c6a9f4449a8fc03cf6960",
+          "image": ".cache/kanpo-227/area-unit-visual/20261016g002280007.png",
+          "image_sha256": "0e09378ffb0bbb41c70f8b59227697a51b41721bf89a18411139b94bee1f7f25",
+          "image_full_page_viewed": true,
+          "after_owner_text_reviewed": true,
+          "judgement": "improvement",
+          "restored_symbols": 1,
+          "placement_notes": "右下土地譲渡表面積317,279.13㎡。同セル所在地/帳簿価額2,281千円との位置維持。",
+          "owners": [
+            {
+              "word_id": 55,
+              "output_line_zero_based": 75,
+              "role": "body",
+              "cell_row": 2,
+              "cell_col": 1,
+              "text": "面積：317,279.13㎡\n所在地：北海道中川郡音威子府村・中川町",
+              "source_glyph_bbox": [
+                644.504,
+                487.50309999999996,
+                652.504,
+                495.6871
+              ]
+            }
+          ],
+          "new_regression": false,
+          "scope": "復元字形と元所有行/セルへの位置対応を原本で確認。既存本文/構造不変は34頁trace/11992本文比較で別途検証。既存未修復問題を解決済とは扱わない。"
+        },
+        {
+          "page": "20261016g002280041",
+          "source_pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280041.pdf",
+          "source_sha256": "c47aabcfa1d1991c253020867f4396a2d512e2994b0c1fd455b45a37be1ccef4",
+          "before_output_sha256": "fe10cc90ed0128be49d445d004e2a954f4f0d2377acd40fc44a8149cbd0d5ca2",
+          "after_output_sha256": "25184fdebb1dd8926aa405911a13e00166ba38b40510d9258b759000b2b57b01",
+          "image": ".cache/kanpo-227/area-unit-visual/20261016g002280041.png",
+          "image_sha256": "55e5facfec008adfd35dd46a5cca94dc3383874899585bb32f934c35807ecf51",
+          "image_full_page_viewed": true,
+          "after_owner_text_reviewed": true,
+          "judgement": "improvement",
+          "restored_symbols": 1,
+          "placement_notes": "左上職員宿舎用地表面積15,939㎡。帳簿価額0千円/譲渡収入5,038千円と区別。",
+          "owners": [
+            {
+              "word_id": 156,
+              "output_line_zero_based": 1,
+              "role": "body",
+              "cell_row": 2,
+              "cell_col": 1,
+              "text": "15,939㎡",
+              "source_glyph_bbox": [
+                310.496,
+                103.93970000000009,
+                318.496,
+                112.1237000000001
+              ]
+            }
+          ],
+          "new_regression": false,
+          "scope": "復元字形と元所有行/セルへの位置対応を原本で確認。既存本文/構造不変は34頁trace/11992本文比較で別途検証。既存未修復問題を解決済とは扱わない。"
+        },
+        {
+          "page": "20261016g002280251",
+          "source_pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280251.pdf",
+          "source_sha256": "9748ad01e442a656b421d134b6226b9349e657f905f3c21100c9c2825a444f71",
+          "before_output_sha256": "aab9b806133c96599b513f29e23844655d6b8529a26feb02e46a640b0f637a8b",
+          "after_output_sha256": "0c655f7cd80a7fd50c5280e7892d6281e521cb6a47c8990b12e39c787627e78f",
+          "image": ".cache/kanpo-227/area-unit-visual/20261016g002280251.png",
+          "image_sha256": "9947acac21f79433c426ab9218ed73206fb829c06be3c1b35947616414784b3c",
+          "image_full_page_viewed": true,
+          "after_owner_text_reviewed": true,
+          "judgement": "improvement",
+          "restored_symbols": 2,
+          "placement_notes": "右下学生寮Ａ男子3,603.17㎡・Ｂ女子3,655.82㎡の数量セル。各帳簿価額41,941,201/41,224,332円維持。",
+          "owners": [
+            {
+              "word_id": 50,
+              "output_line_zero_based": 67,
+              "role": "body",
+              "cell_row": 1,
+              "cell_col": 4,
+              "text": "3,603.17㎡",
+              "source_glyph_bbox": [
+                705.496,
+                377.32599999999996,
+                713.496,
+                385.51
+              ]
+            },
+            {
+              "word_id": 52,
+              "output_line_zero_based": 77,
+              "role": "body",
+              "cell_row": 1,
+              "cell_col": 4,
+              "text": "3,655.82㎡",
+              "source_glyph_bbox": [
+                705.496,
+                528.8557000000001,
+                713.496,
+                537.0397
+              ]
+            }
+          ],
+          "new_regression": false,
+          "scope": "復元字形と元所有行/セルへの位置対応を原本で確認。既存本文/構造不変は34頁trace/11992本文比較で別途検証。既存未修復問題を解決済とは扱わない。"
+        },
+        {
+          "page": "20261016g002280252",
+          "source_pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280252.pdf",
+          "source_sha256": "92938a13a4826cc8dca644211d44535383907537f82bbd90fe6275e0b94a6147",
+          "before_output_sha256": "5e5180c1c0de0e2884f87c8021f676fad0b7ca8d58b66e6befcd0db2a0c05aaa",
+          "after_output_sha256": "79783013e0a2cd257838871a8e310cf3caa2592e9359f35bfb899779a74c0f38",
+          "image": ".cache/kanpo-227/area-unit-visual/20261016g002280252.png",
+          "image_sha256": "007f65d9403c4da6913c78701b4a18143d1b4cbea743218288910c4563892ece",
+          "image_full_page_viewed": true,
+          "after_owner_text_reviewed": true,
+          "judgement": "improvement",
+          "restored_symbols": 2,
+          "placement_notes": "左上国際交流会館1,724.11㎡・左中有朋会館611.12㎡。右側テレビ会議システム255回線と混入なし。",
+          "owners": [
+            {
+              "word_id": 144,
+              "output_line_zero_based": 9,
+              "role": "body",
+              "cell_row": 1,
+              "cell_col": 4,
+              "text": "1,724.11㎡",
+              "source_glyph_bbox": [
+                337.496,
+                181.0737,
+                345.496,
+                189.2577
+              ]
+            },
+            {
+              "word_id": 146,
+              "output_line_zero_based": 20,
+              "role": "body",
+              "cell_row": 1,
+              "cell_col": 4,
+              "text": "611.12㎡",
+              "source_glyph_bbox": [
+                337.496,
+                352.6483,
+                345.496,
+                360.83230000000003
+              ]
+            }
+          ],
+          "new_regression": false,
+          "scope": "復元字形と元所有行/セルへの位置対応を原本で確認。既存本文/構造不変は34頁trace/11992本文比較で別途検証。既存未修復問題を解決済とは扱わない。"
+        },
+        {
+          "page": "20261016g002280356",
+          "source_pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280356.pdf",
+          "source_sha256": "7a3167adbf6e56d8ef85a2d9606b39565425bd62adf53febeb90b4dd41be239b",
+          "before_output_sha256": "81e49f52d191e3cc5f4068a003957aced5826f4e8ff46bcffa03fd224c1d30da",
+          "after_output_sha256": "afe8d816a3bf84d404ee63d19a5750d8ba7928c11a99e9de14bbce755aebb91c",
+          "image": ".cache/kanpo-227/area-unit-visual/20261016g002280356.png",
+          "image_sha256": "8fbe699927adeaf23ca3377d6fd3d6a575b1dfbb71bd2ddc22288a5ed3309f67",
+          "image_full_page_viewed": true,
+          "after_owner_text_reviewed": true,
+          "judgement": "improvement",
+          "restored_symbols": 1,
+          "placement_notes": "右上牛川町団地表639.74㎡。39,000千円・所在地の位置維持。",
+          "owners": [
+            {
+              "word_id": 96,
+              "output_line_zero_based": 44,
+              "role": "body",
+              "cell_row": 1,
+              "cell_col": 1,
+              "text": "帳簿価額：39,000千円\n面　積：639.74㎡\n所在地：愛知県豊橋市牛川通１丁目17－７",
+              "source_glyph_bbox": [
+                670.496,
+                89.35570000000003,
+                678.496,
+                97.53970000000004
+              ]
+            }
+          ],
+          "new_regression": false,
+          "scope": "復元字形と元所有行/セルへの位置対応を原本で確認。既存本文/構造不変は34頁trace/11992本文比較で別途検証。既存未修復問題を解決済とは扱わない。"
+        },
+        {
+          "page": "20261016g002280465",
+          "source_pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280465.pdf",
+          "source_sha256": "5153268854945fa36b84d51e3d82b8afc35221f0703fdfb26361876a62cd0b97",
+          "before_output_sha256": "d5c025aa532c2ac1467b6267de78b259684537e2bb163e595613f3539475aaa8",
+          "after_output_sha256": "160e4528bae89e963800120b0515892c659a3320d14e3e4465625aaf0a8a3d0e",
+          "image": ".cache/kanpo-227/area-unit-visual/20261016g002280465.png",
+          "image_sha256": "0c34baea7e9c4485a680629b0c828ef997c692b645905dce6c006316b5b0fa6e",
+          "image_full_page_viewed": true,
+          "after_owner_text_reviewed": true,
+          "judgement": "improvement",
+          "restored_symbols": 4,
+          "placement_notes": "左下①40.32㎡/3,554千円、②241.11㎡/8,270千円と後続説明内40.32㎡・241.11㎡計4字。①→②→説明順維持。",
+          "owners": [
+            {
+              "word_id": 98,
+              "output_line_zero_based": 48,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "土地の一部40.32㎡及び２号物件（体育館等、陸上競技場、野球場）の一部241.11㎡について譲",
+              "source_glyph_bbox": [
+                373.0,
+                531.6276999999995,
+                381.0,
+                539.8116999999995
+              ]
+            },
+            {
+              "word_id": 106,
+              "output_line_zero_based": 46,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "②　島根県松江市西川津町1033番５　241.11㎡　8,270千円",
+              "source_glyph_bbox": [
+                243.0,
+                511.4196999999995,
+                251.0,
+                519.6036999999995
+              ]
+            },
+            {
+              "word_id": 108,
+              "output_line_zero_based": 45,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "①　島根県松江市西川津町855番１　40.32㎡　3,554千円",
+              "source_glyph_bbox": [
+                235.0,
+                501.31569999999954,
+                243.0,
+                509.49969999999956
+              ]
+            },
+            {
+              "word_id": 116,
+              "output_line_zero_based": 48,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "土地の一部40.32㎡及び２号物件（体育館等、陸上競技場、野球場）の一部241.11㎡について譲",
+              "source_glyph_bbox": [
+                143.0,
+                531.6276999999995,
+                151.0,
+                539.8116999999995
+              ]
+            }
+          ],
+          "new_regression": false,
+          "scope": "復元字形と元所有行/セルへの位置対応を原本で確認。既存本文/構造不変は34頁trace/11992本文比較で別途検証。既存未修復問題を解決済とは扱わない。"
+        },
+        {
+          "page": "20261016g002280543",
+          "source_pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280543.pdf",
+          "source_sha256": "8fe70d4379068abfb5fc6d35442e789061c4b6310bcc1ed20679990884ada7b1",
+          "before_output_sha256": "596e9b0d72dda226f7291fbc3f1e10476d1cec6fc5acd536062e8235da59656b",
+          "after_output_sha256": "d174644f6cafffcb00615ee40e82dd646f5d6974d0ceb1a659b24e1fd67c1ec5",
+          "image": ".cache/kanpo-227/area-unit-visual/20261016g002280543.png",
+          "image_sha256": "2adee204ba155f6ad7bf47795a27e7a0302db29754280d5ebce1014bb3c4e7e2",
+          "image_full_page_viewed": true,
+          "after_owner_text_reviewed": true,
+          "judgement": "improvement",
+          "restored_symbols": 1,
+          "placement_notes": "左下宗像校舎土地（16,775.15㎡）。右側九州大学の新記事に混入なし。",
+          "owners": [
+            {
+              "word_id": 164,
+              "output_line_zero_based": 33,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "宗像校舎に保有する土地（16,775.15㎡）を県立特別支援学校の設置及び管理運営に供するため",
+              "source_glyph_bbox": [
+                213.0,
+                530.3251,
+                221.0,
+                538.5091
+              ]
+            }
+          ],
+          "new_regression": false,
+          "scope": "復元字形と元所有行/セルへの位置対応を原本で確認。既存本文/構造不変は34頁trace/11992本文比較で別途検証。既存未修復問題を解決済とは扱わない。"
+        },
+        {
+          "page": "20261016g002280566",
+          "source_pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280566.pdf",
+          "source_sha256": "b88f744ac6b2cc9b73492f7a9f1de8fd9599724f96a503f47b7673539729c137",
+          "before_output_sha256": "716e7f366354f399af321a8715e8293cead676955c5b5e49a437bba90490cd4b",
+          "after_output_sha256": "c95e521759ea985569f7d225ff20d8b7ce91fea20388c2a14e8a723a73bc820c",
+          "image": ".cache/kanpo-227/area-unit-visual/20261016g002280566.png",
+          "image_sha256": "9ea33a7c63ab487bb6d14c961f70d979244e94aa379baf112b1b31907a0bc4c3",
+          "image_full_page_viewed": true,
+          "after_owner_text_reviewed": true,
+          "judgement": "improvement",
+          "restored_symbols": 1,
+          "placement_notes": "右下ボート艇庫土地表441.09㎡。帳簿価額7,565千円・所在地・譲渡理由の所属維持。",
+          "owners": [
+            {
+              "word_id": 29,
+              "output_line_zero_based": 47,
+              "role": "body",
+              "cell_row": 1,
+              "cell_col": 1,
+              "text": "帳簿価額：7,565千円\n面　積：441.09㎡\n所在地：佐賀市諸富町大字為重字石塚分外搦四角174番２",
+              "source_glyph_bbox": [
+                662.496,
+                416.7813999999999,
+                670.496,
+                424.96539999999993
+              ]
+            }
+          ],
+          "new_regression": false,
+          "scope": "復元字形と元所有行/セルへの位置対応を原本で確認。既存本文/構造不変は34頁trace/11992本文比較で別途検証。既存未修復問題を解決済とは扱わない。"
+        },
+        {
+          "page": "20261016g002280593",
+          "source_pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280593.pdf",
+          "source_sha256": "99b69a9bc985748d22ca20583db4d6f12a2c5bf5ffae310bbaccd4a7d20cabe5",
+          "before_output_sha256": "993ec6bd0aca425136cd8895a4d0a5d1e2b3bde31ace9a8779245cbb65726648",
+          "after_output_sha256": "91fc107a4ee17b8392fcc8cde826bb9dac3c7f535e295ec1c1ebb848650f25c0",
+          "image": ".cache/kanpo-227/area-unit-visual/20261016g002280593.png",
+          "image_sha256": "2e8b2b12c58239ab929b52a016f88bdc90a9bacb201ba31eb2271e7d3790e563",
+          "image_full_page_viewed": true,
+          "after_owner_text_reviewed": true,
+          "judgement": "improvement",
+          "restored_symbols": 1,
+          "placement_notes": "左中鶴見臨海研修所面積3,897㎡。帳簿価額2,036千円/所在地と区別、右側別府宿泊施設に移らない。",
+          "owners": [
+            {
+              "word_id": 119,
+              "output_line_zero_based": 23,
+              "role": "body",
+              "cell_row": null,
+              "cell_col": null,
+              "text": "面積：3,897㎡",
+              "source_glyph_bbox": [
+                127.0,
+                283.8357000000001,
+                135.0,
+                292.0197000000001
+              ]
+            }
+          ],
+          "new_regression": false,
+          "scope": "復元字形と元所有行/セルへの位置対応を原本で確認。既存本文/構造不変は34頁trace/11992本文比較で別途検証。既存未修復問題を解決済とは扱わない。"
+        }
+      ],
+      "negative_originals": [
+        {
+          "page": "20260731g001720117",
+          "image_sha256": "424695fdbdd507803492be73aa86d4d934529a8ad33969fe63cbb6f0c1fe5c4c",
+          "full_page_viewed": true,
+          "judgement": "unchanged",
+          "note": "左上延床面積/総専有床面積の空欄単位㎡2字は原本にあるが独立Empty/unownedのため未復元を維持。"
+        },
+        {
+          "page": "20260803g001740029",
+          "image_sha256": "1a3bc1f37d583e0ba714f8e3a67693562e7ed8e02853a443244ca4da41ec86fd",
+          "full_page_viewed": true,
+          "judgement": "unchanged",
+          "note": "左下脚注11の4,000人/km²。E68Eのkm²は㎡へ変えない。欠落は未解決の別記号。"
+        },
+        {
+          "page": "20260909g002010013",
+          "image_sha256": "d5e0e2b52c4d30d57629ffb73ce70168647e34f1c85ab17e44c5a4f014017533",
+          "full_page_viewed": true,
+          "judgement": "unchanged",
+          "note": "右下国有財産表の279/719/73/246/198/1,630㎡等の既知Unicode㎡は原数値との対応を保持し変更しない。"
+        },
+        {
+          "page": "20260831g001930165",
+          "image_sha256": "29475411745d78c116c9bf670cadb9bfd4f528c4e4c515dc81fe7681f4e2e0f3",
+          "full_page_viewed": true,
+          "judgement": "unchanged",
+          "note": "左上綿布型1㎠当たり48円。既存E68C→㎠写像を㎡へ変えず右旧表も不変。"
+        }
+      ]
+    },
+    "validation": {
+      "baseline": "after29",
+      "pages_scanned": 34,
+      "restored_pages": 20,
+      "restored_units": 33,
+      "remaining_units": 11,
+      "rows": [
+        {
+          "page": "20260730g001710130",
+          "native_E68D": 1,
+          "native_standard_square_metre": 0,
+          "restored": 1,
+          "changed": true,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20260730g001710134",
+          "native_E68D": 2,
+          "native_standard_square_metre": 0,
+          "restored": 2,
+          "changed": true,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20260731g001720117",
+          "native_E68D": 2,
+          "native_standard_square_metre": 0,
+          "restored": 0,
+          "changed": false,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 2
+        },
+        {
+          "page": "20260731g001720119",
+          "native_E68D": 2,
+          "native_standard_square_metre": 0,
+          "restored": 2,
+          "changed": true,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20260731g001720122",
+          "native_E68D": 2,
+          "native_standard_square_metre": 0,
+          "restored": 0,
+          "changed": false,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 2
+        },
+        {
+          "page": "20260731g001720125",
+          "native_E68D": 1,
+          "native_standard_square_metre": 0,
+          "restored": 1,
+          "changed": true,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20260731g001720127",
+          "native_E68D": 2,
+          "native_standard_square_metre": 0,
+          "restored": 0,
+          "changed": false,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 2
+        },
+        {
+          "page": "20260731g001720130",
+          "native_E68D": 2,
+          "native_standard_square_metre": 0,
+          "restored": 2,
+          "changed": true,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20260731g001720133",
+          "native_E68D": 2,
+          "native_standard_square_metre": 0,
+          "restored": 0,
+          "changed": false,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 2
+        },
+        {
+          "page": "20260731g001720136",
+          "native_E68D": 1,
+          "native_standard_square_metre": 0,
+          "restored": 1,
+          "changed": true,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20260731g001720139",
+          "native_E68D": 2,
+          "native_standard_square_metre": 0,
+          "restored": 0,
+          "changed": false,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 2
+        },
+        {
+          "page": "20260731g001720143",
+          "native_E68D": 1,
+          "native_standard_square_metre": 0,
+          "restored": 1,
+          "changed": true,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20260803g001740029",
+          "native_E68D": 0,
+          "native_standard_square_metre": 0,
+          "restored": 0,
+          "changed": false,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20260803g001740106",
+          "native_E68D": 1,
+          "native_standard_square_metre": 0,
+          "restored": 0,
+          "changed": false,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 1
+        },
+        {
+          "page": "20260817g001830033",
+          "native_E68D": 2,
+          "native_standard_square_metre": 0,
+          "restored": 2,
+          "changed": true,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20260827h017770005",
+          "native_E68D": 0,
+          "native_standard_square_metre": 0,
+          "restored": 0,
+          "changed": false,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20260831g001930165",
+          "native_E68D": 0,
+          "native_standard_square_metre": 0,
+          "restored": 0,
+          "changed": false,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20260831g001930166",
+          "native_E68D": 0,
+          "native_standard_square_metre": 0,
+          "restored": 0,
+          "changed": false,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20260909g002010013",
+          "native_E68D": 0,
+          "native_standard_square_metre": 6,
+          "restored": 0,
+          "changed": false,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20260909g002010014",
+          "native_E68D": 0,
+          "native_standard_square_metre": 21,
+          "restored": 0,
+          "changed": false,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20260909g002010015",
+          "native_E68D": 0,
+          "native_standard_square_metre": 22,
+          "restored": 0,
+          "changed": false,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20260909g002010016",
+          "native_E68D": 0,
+          "native_standard_square_metre": 3,
+          "restored": 0,
+          "changed": false,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20260910g002020091",
+          "native_E68D": 3,
+          "native_standard_square_metre": 0,
+          "restored": 3,
+          "changed": true,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20260915g002050070",
+          "native_E68D": 2,
+          "native_standard_square_metre": 0,
+          "restored": 2,
+          "changed": true,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20261009g002230155",
+          "native_E68D": 2,
+          "native_standard_square_metre": 0,
+          "restored": 2,
+          "changed": true,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20261016g002280007",
+          "native_E68D": 1,
+          "native_standard_square_metre": 0,
+          "restored": 1,
+          "changed": true,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20261016g002280041",
+          "native_E68D": 1,
+          "native_standard_square_metre": 0,
+          "restored": 1,
+          "changed": true,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20261016g002280251",
+          "native_E68D": 2,
+          "native_standard_square_metre": 0,
+          "restored": 2,
+          "changed": true,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20261016g002280252",
+          "native_E68D": 2,
+          "native_standard_square_metre": 0,
+          "restored": 2,
+          "changed": true,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20261016g002280356",
+          "native_E68D": 1,
+          "native_standard_square_metre": 0,
+          "restored": 1,
+          "changed": true,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20261016g002280465",
+          "native_E68D": 4,
+          "native_standard_square_metre": 0,
+          "restored": 4,
+          "changed": true,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20261016g002280543",
+          "native_E68D": 1,
+          "native_standard_square_metre": 0,
+          "restored": 1,
+          "changed": true,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20261016g002280566",
+          "native_E68D": 1,
+          "native_standard_square_metre": 0,
+          "restored": 1,
+          "changed": true,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        },
+        {
+          "page": "20261016g002280593",
+          "native_E68D": 1,
+          "native_standard_square_metre": 0,
+          "restored": 1,
+          "changed": true,
+          "baseline_matches_after29": true,
+          "all_existing_ids_status_raw_bbox_geometry_roles_preserved": true,
+          "new_unit_insertions_only": true,
+          "source_original_word_and_owner_once": true,
+          "unresolved": 0
+        }
+      ],
+      "failures": []
+    }
+  },
+  "financial_enclosures": {
+    "reviewer": "financial_dash",
+    "impact_audit": {
+      "baseline": "after28 initial impact audit; immutable grades retained for after29 recheck",
+      "pages": 10,
+      "counts": {
+        "improvement": 9,
+        "neutral": 1,
+        "regression": 0
+      },
+      "all_changed_original_pages_reviewed": true,
+      "pages_not_visually_reviewed": 0,
+      "results": [
+        {
+          "page": "20260722g001620112",
+          "classification": "improvement",
+          "scope": "原本全体画像と前後全文差分の照合。全Line/Table内容・Word属性/IDの全件一致は別の機械検証。独立BSの左右全体順は採点条件にしない。",
+          "notes": "左共通外枠内の4公告を、原本上段右の新設分割→上段左の吸収分割(乙)→下段右の吸収分割(丙)→下段左の吸収分割(丁)に戻す。続けて同じ枠のBS22(圭楽)・BS8(DELIFE)・BS15(GLOW)・BS16(オアシア)。各公告の住所/甲乙丙丁/署名を一緒に移し、外側右のBS48/37は割り込まない。",
+          "source_figures_and_notes_spot_check": "561,259,515 / 2,586,474,486 / 666,809,460 / 863,111,850; 右独立BS2,022/18,701,492",
+          "pdf": ".cache/kanpo-archive/2026-07-22/20260722g00162/20260722g001620112.pdf",
+          "pdf_sha256": "095ebb07130e081b73fa6f6d1836023678677cea1a99da4a2d360f7b97b575bf",
+          "png": ".cache/kanpo-227/enclosure-flow-proposal/images/20260722g001620112.pdf.png",
+          "png_sha256": "65302240827f35a05986ebf3c5a24d1b025747afa2aa2643f8f45af316a65a30",
+          "before_sha256": "9def5263eb241cbc0f28c4160977a29e752f7b673d48efad801fd961dfac018c",
+          "after_sha256": "fd33190dcf6c1c2380bb7d816c5b4640f69ca3e7ca18651e1a73a3c6ca6f7a27",
+          "before_titles": [
+            {
+              "line": 1,
+              "text": "吸収分割公告"
+            },
+            {
+              "line": 16,
+              "text": "吸収分割公告"
+            },
+            {
+              "line": 31,
+              "text": "第22期決算公告"
+            },
+            {
+              "line": 50,
+              "text": "新設分割公告"
+            },
+            {
+              "line": 64,
+              "text": "吸収分割公告"
+            },
+            {
+              "line": 79,
+              "text": "第８期決算公告"
+            },
+            {
+              "line": 98,
+              "text": "第15期決算公告"
+            },
+            {
+              "line": 117,
+              "text": "第16期決算公告"
+            },
+            {
+              "line": 136,
+              "text": "第48期決算公告"
+            },
+            {
+              "line": 161,
+              "text": "第37期決算公告"
+            }
+          ],
+          "after_titles": [
+            {
+              "line": 1,
+              "text": "新設分割公告"
+            },
+            {
+              "line": 15,
+              "text": "吸収分割公告"
+            },
+            {
+              "line": 30,
+              "text": "吸収分割公告"
+            },
+            {
+              "line": 45,
+              "text": "吸収分割公告"
+            },
+            {
+              "line": 60,
+              "text": "第22期決算公告"
+            },
+            {
+              "line": 79,
+              "text": "第８期決算公告"
+            },
+            {
+              "line": 98,
+              "text": "第15期決算公告"
+            },
+            {
+              "line": 117,
+              "text": "第16期決算公告"
+            },
+            {
+              "line": 136,
+              "text": "第48期決算公告"
+            },
+            {
+              "line": 161,
+              "text": "第37期決算公告"
+            }
+          ],
+          "native_enclosures": [
+            [
+              47.143001556396484,
+              62.143001556396484,
+              376.85699462890625,
+              787.8569946289062
+            ],
+            [
+              49.2140007019043,
+              64.21399688720703,
+              374.7850036621094,
+              785.7849731445312
+            ],
+            [
+              222.0,
+              494.75,
+              364.5,
+              596.25
+            ],
+            [
+              222.0,
+              671.75,
+              364.5,
+              773.25
+            ],
+            [
+              59.5,
+              494.75,
+              202.0,
+              596.25
+            ],
+            [
+              59.5,
+              671.75,
+              202.0,
+              773.25
+            ],
+            [
+              386.14300537109375,
+              62.143001556396484,
+              547.8569946289062,
+              419.85699462890625
+            ],
+            [
+              388.2139892578125,
+              64.21399688720703,
+              545.7849731445312,
+              417.7850036621094
+            ],
+            [
+              395.75,
+              216.75,
+              538.25,
+              414.25
+            ],
+            [
+              386.14300537109375,
+              430.14300537109375,
+              547.8569946289062,
+              787.8569946289062
+            ],
+            [
+              388.2139892578125,
+              432.2139892578125,
+              545.7849731445312,
+              785.7849731445312
+            ],
+            [
+              395.75,
+              537.75,
+              538.25,
+              782.25
+            ]
+          ],
+          "provenance": {
+            "word_metadata_exact": true,
+            "source_ID_multiset_exact": true,
+            "all_lines_and_tables_exact": true,
+            "char_multiset_exact": true
+          },
+          "all_original_line_and_table_records_unchanged": true,
+          "existing_issue_remains": false
+        },
+        {
+          "page": "20260728g001680085",
+          "classification": "improvement",
+          "scope": "原本全体画像と前後全文差分の照合。全Line/Table内容・Word属性/IDの全件一致は別の機械検証。独立BSの左右全体順は採点条件にしない。",
+          "notes": "右下共通枠の合併公告とBS51岩室車体・BS20イエストサービスの間へ入っていた左下の独立BS57を、共通枠の後へ出す。右上の別共通枠と左上BS29は元の順のまま。",
+          "source_figures_and_notes_spot_check": "93,721 / 174,857; 独立BS12,086,014",
+          "pdf": ".cache/kanpo-archive/2026-07-28/20260728g00168/20260728g001680085.pdf",
+          "pdf_sha256": "867ee840b657b562dea0b0d98c153c5bfb5989f419b8271b0d1d0bcd8075278e",
+          "png": ".cache/kanpo-227/enclosure-flow-proposal/images/20260728g001680085.pdf.png",
+          "png_sha256": "acd60dc5b96d036f93a9004a1fa9199ab9d7b4e238853cbebffaf4e15a92d066",
+          "before_sha256": "862b76a31108b80cb361e50461915224410405c688bfd8f3c1d0c4a20d9e51a8",
+          "after_sha256": "96f420f5a76e9b483e73e20bb1dce77e1bc9781a36ccbb9b6fef805de65f599f",
+          "before_titles": [
+            {
+              "line": 1,
+              "text": "第29期決算公告"
+            },
+            {
+              "line": 29,
+              "text": "合併公告"
+            },
+            {
+              "line": 49,
+              "text": "第20期決算公告　令和８年７月28日"
+            },
+            {
+              "line": 68,
+              "text": "第23期決算公告　令和８年７月28日"
+            },
+            {
+              "line": 88,
+              "text": "合併公告"
+            },
+            {
+              "line": 107,
+              "text": "第57期決算公告"
+            },
+            {
+              "line": 141,
+              "text": "第51期決算公告"
+            },
+            {
+              "line": 161,
+              "text": "第20期決算公告"
+            }
+          ],
+          "after_titles": [
+            {
+              "line": 1,
+              "text": "第29期決算公告"
+            },
+            {
+              "line": 29,
+              "text": "合併公告"
+            },
+            {
+              "line": 49,
+              "text": "第20期決算公告　令和８年７月28日"
+            },
+            {
+              "line": 68,
+              "text": "第23期決算公告　令和８年７月28日"
+            },
+            {
+              "line": 88,
+              "text": "合併公告"
+            },
+            {
+              "line": 107,
+              "text": "第51期決算公告"
+            },
+            {
+              "line": 127,
+              "text": "第20期決算公告"
+            },
+            {
+              "line": 146,
+              "text": "第57期決算公告"
+            }
+          ],
+          "native_enclosures": [
+            [
+              218.14300537109375,
+              62.143001556396484,
+              547.8569946289062,
+              419.85699462890625
+            ],
+            [
+              220.21400451660156,
+              64.21399688720703,
+              545.7849731445312,
+              417.7850036621094
+            ],
+            [
+              393.0,
+              294.75,
+              535.5,
+              415.25
+            ],
+            [
+              230.5,
+              290.75,
+              373.0,
+              411.25
+            ],
+            [
+              47.143001556396484,
+              62.143001556396484,
+              208.85699462890625,
+              419.85699462890625
+            ],
+            [
+              49.2140007019043,
+              64.21399688720703,
+              206.78500366210938,
+              417.7850036621094
+            ],
+            [
+              56.75,
+              169.75,
+              199.25,
+              414.25
+            ],
+            [
+              218.14300537109375,
+              430.14300537109375,
+              547.8569946289062,
+              787.8569946289062
+            ],
+            [
+              220.21400451660156,
+              432.2139892578125,
+              545.7849731445312,
+              785.7849731445312
+            ],
+            [
+              393.0,
+              677.75,
+              535.5,
+              779.25
+            ],
+            [
+              230.5,
+              665.75,
+              373.0,
+              783.25
+            ],
+            [
+              47.143001556396484,
+              430.14300537109375,
+              208.85699462890625,
+              787.8569946289062
+            ],
+            [
+              49.2140007019043,
+              432.2139892578125,
+              206.78500366210938,
+              785.7849731445312
+            ],
+            [
+              56.75,
+              525.75,
+              199.25,
+              782.25
+            ]
+          ],
+          "provenance": {
+            "word_metadata_exact": true,
+            "source_ID_multiset_exact": true,
+            "all_lines_and_tables_exact": true,
+            "char_multiset_exact": true
+          },
+          "all_original_line_and_table_records_unchanged": true,
+          "existing_issue_remains": false
+        },
+        {
+          "page": "20260824g001880111",
+          "classification": "improvement",
+          "scope": "原本全体画像と前後全文差分の照合。全Line/Table内容・Word属性/IDの全件一致は別の機械検証。独立BSの左右全体順は採点条件にしない。",
+          "notes": "3段目右共通枠の資本金及び準備金減少公告とBS4(エス・シー・シー・マネジメント)の間に左独立BS22が割込む旧順を、公告→同BS4→左BS22へ直す。他3段の原文・表は不変。",
+          "source_figures_and_notes_spot_check": "BS4合計2,361/純資産722; 左BS22合計211,252",
+          "pdf": ".cache/kanpo-archive/2026-08-24/20260824g00188/20260824g001880111.pdf",
+          "pdf_sha256": "c87fdc496a72baf3fa4dd1095b597c2657daa32fe4589a7ed50c0fba5a994623",
+          "png": ".cache/kanpo-227/enclosure-flow-proposal/images/20260824g001880111.pdf.png",
+          "png_sha256": "c5da2af1346d00abe750405902bbacf429c912aa87e3a019bd23f01ab9f4f65e",
+          "before_sha256": "aa4937762fc763b34bbfbec17bb35ba5bf10db8ccec53f70201a3d9a264eccc0",
+          "after_sha256": "65d74c0d5431e2ab661218943555f4ca321712fc24ac3405ee066395425c4293",
+          "before_titles": [
+            {
+              "line": 1,
+              "text": "第12期決算公告　令和８年８月24日"
+            },
+            {
+              "line": 20,
+              "text": "資本金の額の減少公告"
+            },
+            {
+              "line": 36,
+              "text": "第64期決算公告　令和８年８月24日"
+            },
+            {
+              "line": 54,
+              "text": "第62期決算公告"
+            },
+            {
+              "line": 72,
+              "text": "新設分割公告"
+            },
+            {
+              "line": 88,
+              "text": "第15期決算公告　令和８年８月24日"
+            },
+            {
+              "line": 107,
+              "text": "資本金及び準備金の額の減少公告"
+            },
+            {
+              "line": 120,
+              "text": "第22期決算公告"
+            },
+            {
+              "line": 140,
+              "text": "第４期決算公告"
+            },
+            {
+              "line": 159,
+              "text": "第64期決算公告　2026年８月24日"
+            },
+            {
+              "line": 178,
+              "text": "第12期決算公告"
+            }
+          ],
+          "after_titles": [
+            {
+              "line": 1,
+              "text": "第12期決算公告　令和８年８月24日"
+            },
+            {
+              "line": 20,
+              "text": "資本金の額の減少公告"
+            },
+            {
+              "line": 36,
+              "text": "第64期決算公告　令和８年８月24日"
+            },
+            {
+              "line": 54,
+              "text": "第62期決算公告"
+            },
+            {
+              "line": 72,
+              "text": "新設分割公告"
+            },
+            {
+              "line": 88,
+              "text": "第15期決算公告　令和８年８月24日"
+            },
+            {
+              "line": 107,
+              "text": "資本金及び準備金の額の減少公告"
+            },
+            {
+              "line": 120,
+              "text": "第４期決算公告"
+            },
+            {
+              "line": 139,
+              "text": "第22期決算公告"
+            },
+            {
+              "line": 159,
+              "text": "第64期決算公告　2026年８月24日"
+            },
+            {
+              "line": 178,
+              "text": "第12期決算公告"
+            }
+          ],
+          "native_enclosures": [
+            [
+              218.14300537109375,
+              62.143001556396484,
+              547.8569946289062,
+              235.85699462890625
+            ],
+            [
+              220.21400451660156,
+              64.21399688720703,
+              545.7849731445312,
+              233.78500366210938
+            ],
+            [
+              230.5,
+              118.75,
+              373.0,
+              228.25
+            ],
+            [
+              47.143001556396484,
+              62.143001556396484,
+              208.85699462890625,
+              235.85699462890625
+            ],
+            [
+              49.2140007019043,
+              64.21399688720703,
+              206.78500366210938,
+              233.78500366210938
+            ],
+            [
+              56.75,
+              112.75,
+              199.25,
+              230.25
+            ],
+            [
+              218.14300537109375,
+              246.14300537109375,
+              547.8569946289062,
+              419.85699462890625
+            ],
+            [
+              220.21400451660156,
+              248.21400451660156,
+              545.7849731445312,
+              417.7850036621094
+            ],
+            [
+              230.5,
+              298.75,
+              373.0,
+              416.25
+            ],
+            [
+              47.143001556396484,
+              246.14300537109375,
+              208.85699462890625,
+              419.85699462890625
+            ],
+            [
+              49.2140007019043,
+              248.21400451660156,
+              206.78500366210938,
+              417.7850036621094
+            ],
+            [
+              56.75,
+              312.75,
+              199.25,
+              414.25
+            ],
+            [
+              218.14300537109375,
+              430.14300537109375,
+              547.8569946289062,
+              603.8569946289062
+            ],
+            [
+              220.21400451660156,
+              432.2139892578125,
+              545.7849731445312,
+              601.7849731445312
+            ],
+            [
+              230.5,
+              487.75,
+              373.0,
+              600.25
+            ],
+            [
+              47.143001556396484,
+              430.14300537109375,
+              208.85699462890625,
+              603.8569946289062
+            ],
+            [
+              49.2140007019043,
+              432.2139892578125,
+              206.78500366210938,
+              601.7849731445312
+            ],
+            [
+              56.75,
+              498.75,
+              199.25,
+              600.25
+            ],
+            [
+              218.14300537109375,
+              614.1430053710938,
+              547.8569946289062,
+              787.8569946289062
+            ],
+            [
+              220.21400451660156,
+              616.2139892578125,
+              545.7849731445312,
+              785.7849731445312
+            ],
+            [
+              437.75,
+              699.75,
+              540.25,
+              782.25
+            ],
+            [
+              225.75,
+              687.75,
+              432.25,
+              782.25
+            ],
+            [
+              47.143001556396484,
+              614.1430053710938,
+              208.85699462890625,
+              787.8569946289062
+            ],
+            [
+              49.2140007019043,
+              616.2139892578125,
+              206.78500366210938,
+              785.7849731445312
+            ],
+            [
+              56.75,
+              672.75,
+              199.25,
+              782.25
+            ]
+          ],
+          "provenance": {
+            "word_metadata_exact": true,
+            "source_ID_multiset_exact": true,
+            "all_lines_and_tables_exact": true,
+            "char_multiset_exact": true
+          },
+          "all_original_line_and_table_records_unchanged": true,
+          "existing_issue_remains": false
+        },
+        {
+          "page": "20260827g001910056",
+          "classification": "improvement",
+          "scope": "原本全体画像と前後全文差分の照合。全Line/Table内容・Word属性/IDの全件一致は別の機械検証。独立BSの左右全体順は採点条件にしない。",
+          "notes": "左の縦長共通枠の吸収分割公告を関連BS群の前へ戻す。BS83名古屋青果・BS3名青グループHD・BS60エムティ・BS43グリーンヒル・BS48名古屋西流通が同一実枠内で連続。右側の独立BS12/21/49は巻き込まない。",
+          "source_figures_and_notes_spot_check": "6,841,126 / 64,828 / 1,234,688 / 555,231 / 1,153,634",
+          "pdf": ".cache/kanpo-archive/2026-08-27/20260827g00191/20260827g001910056.pdf",
+          "pdf_sha256": "272568055e98ecb4195228b46187da3eaa9cb91125a7b1813051ae8c86fca2da",
+          "png": ".cache/kanpo-227/enclosure-flow-proposal/images/20260827g001910056.pdf.png",
+          "png_sha256": "3b798f96d95192119fd2d409d4ce5b791e834d663759b565b2e4d4f61087f3c8",
+          "before_sha256": "3021a4169d979c43f7efe873906e1cf48c2b8b568c2d9c38358fd20af3690039",
+          "after_sha256": "de628216dc699e76df37de1a0bd1108ad2b51b948219331accde837730a7f5d2",
+          "before_titles": [
+            {
+              "line": 1,
+              "text": "第83期決算公告"
+            },
+            {
+              "line": 30,
+              "text": "第60期決算公告"
+            },
+            {
+              "line": 56,
+              "text": "吸収分割公告"
+            },
+            {
+              "line": 74,
+              "text": "第３期決算公告"
+            },
+            {
+              "line": 94,
+              "text": "第43期決算公告"
+            },
+            {
+              "line": 114,
+              "text": "第48期決算公告　令和８年８月27日"
+            },
+            {
+              "line": 134,
+              "text": "第12期決算公告　2026年７月30日"
+            },
+            {
+              "line": 154,
+              "text": "第21期決算公告　2026年７月30日"
+            },
+            {
+              "line": 174,
+              "text": "第49期決算公告"
+            }
+          ],
+          "after_titles": [
+            {
+              "line": 1,
+              "text": "吸収分割公告"
+            },
+            {
+              "line": 19,
+              "text": "第83期決算公告"
+            },
+            {
+              "line": 48,
+              "text": "第60期決算公告"
+            },
+            {
+              "line": 74,
+              "text": "第３期決算公告"
+            },
+            {
+              "line": 94,
+              "text": "第43期決算公告"
+            },
+            {
+              "line": 114,
+              "text": "第48期決算公告　令和８年８月27日"
+            },
+            {
+              "line": 134,
+              "text": "第12期決算公告　2026年７月30日"
+            },
+            {
+              "line": 154,
+              "text": "第21期決算公告　2026年７月30日"
+            },
+            {
+              "line": 174,
+              "text": "第49期決算公告"
+            }
+          ],
+          "native_enclosures": [
+            [
+              222.0,
+              300.75,
+              364.5,
+              418.25
+            ],
+            [
+              222.0,
+              481.75,
+              364.5,
+              599.25
+            ],
+            [
+              222.0,
+              652.75,
+              364.5,
+              778.25
+            ],
+            [
+              59.5,
+              553.75,
+              202.0,
+              778.25
+            ],
+            [
+              47.143001556396484,
+              62.143001556396484,
+              376.85699462890625,
+              787.8569946289062
+            ],
+            [
+              49.2140007019043,
+              64.21399688720703,
+              374.7850036621094,
+              785.7849731445312
+            ],
+            [
+              59.5,
+              165.75,
+              202.0,
+              418.25
+            ],
+            [
+              386.14300537109375,
+              62.143001556396484,
+              547.8569946289062,
+              235.85699462890625
+            ],
+            [
+              388.2139892578125,
+              64.21399688720703,
+              545.7849731445312,
+              233.78500366210938
+            ],
+            [
+              395.75,
+              106.75,
+              538.25,
+              232.25
+            ],
+            [
+              386.14300537109375,
+              246.14300537109375,
+              547.8569946289062,
+              419.85699462890625
+            ],
+            [
+              388.2139892578125,
+              248.21400451660156,
+              545.7849731445312,
+              417.7850036621094
+            ],
+            [
+              395.75,
+              290.75,
+              538.25,
+              416.25
+            ],
+            [
+              386.14300537109375,
+              430.14300537109375,
+              547.8569946289062,
+              787.8569946289062
+            ],
+            [
+              388.2139892578125,
+              432.2139892578125,
+              545.7849731445312,
+              785.7849731445312
+            ],
+            [
+              395.75,
+              541.75,
+              538.25,
+              782.25
+            ]
+          ],
+          "provenance": {
+            "word_metadata_exact": true,
+            "source_ID_multiset_exact": true,
+            "all_lines_and_tables_exact": true,
+            "char_multiset_exact": true
+          },
+          "all_original_line_and_table_records_unchanged": true,
+          "existing_issue_remains": false
+        },
+        {
+          "page": "20260828g001920063",
+          "classification": "improvement",
+          "scope": "原本全体画像と前後全文差分の照合。全Line/Table内容・Word属性/IDの全件一致は別の機械検証。独立BSの左右全体順は採点条件にしない。",
+          "notes": "最上段右共通枠の資本金減少公告とBS4ドライバーテクノロジーズの間に左独立BS24が割込む旧順を、共通枠を連続させて修正。2〜4段目の別枠も元のまま。",
+          "source_figures_and_notes_spot_check": "BS4合計524,987; 独立BS24合計20,011,666",
+          "pdf": ".cache/kanpo-archive/2026-08-28/20260828g00192/20260828g001920063.pdf",
+          "pdf_sha256": "874e5f7dbbc835d4cc49d98c8dfdc5f12b4bab1b1c8395698a45182f089357ea",
+          "png": ".cache/kanpo-227/enclosure-flow-proposal/images/20260828g001920063.pdf.png",
+          "png_sha256": "e1d60962bbde6a957087571dc8feed615c47338c5c2ecb52a901869b34eb8d92",
+          "before_sha256": "f197e273ba4a09370ea678042b2644b5100bdaaf1032169a828bc756ba298d5f",
+          "after_sha256": "b7899741156be065d4edce6ba387cb8cb78ac988c4eb98b80787276fecc986bb",
+          "before_titles": [
+            {
+              "line": 1,
+              "text": "資本金の額の減少公告"
+            },
+            {
+              "line": 14,
+              "text": "第24期決算公告"
+            },
+            {
+              "line": 31,
+              "text": "第４期決算公告　令和８年８月28日"
+            },
+            {
+              "line": 50,
+              "text": "第19期決算公告　令和８年８月28日"
+            },
+            {
+              "line": 69,
+              "text": "合併公告"
+            },
+            {
+              "line": 88,
+              "text": "第10期決算公告"
+            },
+            {
+              "line": 107,
+              "text": "第47期決算公告"
+            },
+            {
+              "line": 126,
+              "text": "準備金の額の減少公告"
+            },
+            {
+              "line": 139,
+              "text": "第56期決算公告"
+            },
+            {
+              "line": 158,
+              "text": "第26期決算公告　令和７年11月19日"
+            },
+            {
+              "line": 177,
+              "text": "資本金の額の減少公告"
+            },
+            {
+              "line": 190,
+              "text": "第１期決算公告　令和８年８月28日"
+            }
+          ],
+          "after_titles": [
+            {
+              "line": 1,
+              "text": "資本金の額の減少公告"
+            },
+            {
+              "line": 14,
+              "text": "第４期決算公告　令和８年８月28日"
+            },
+            {
+              "line": 33,
+              "text": "第24期決算公告"
+            },
+            {
+              "line": 50,
+              "text": "第19期決算公告　令和８年８月28日"
+            },
+            {
+              "line": 69,
+              "text": "合併公告"
+            },
+            {
+              "line": 88,
+              "text": "第10期決算公告"
+            },
+            {
+              "line": 107,
+              "text": "第47期決算公告"
+            },
+            {
+              "line": 126,
+              "text": "準備金の額の減少公告"
+            },
+            {
+              "line": 139,
+              "text": "第56期決算公告"
+            },
+            {
+              "line": 158,
+              "text": "第26期決算公告　令和７年11月19日"
+            },
+            {
+              "line": 177,
+              "text": "資本金の額の減少公告"
+            },
+            {
+              "line": 190,
+              "text": "第１期決算公告　令和８年８月28日"
+            }
+          ],
+          "native_enclosures": [
+            [
+              218.14300537109375,
+              62.143001556396484,
+              547.8569946289062,
+              235.85699462890625
+            ],
+            [
+              220.21400451660156,
+              64.21399688720703,
+              545.7849731445312,
+              233.78500366210938
+            ],
+            [
+              230.5,
+              114.75,
+              373.0,
+              232.25
+            ],
+            [
+              47.143001556396484,
+              62.143001556396484,
+              208.85699462890625,
+              235.85699462890625
+            ],
+            [
+              49.2140007019043,
+              64.21399688720703,
+              206.78500366210938,
+              233.78500366210938
+            ],
+            [
+              56.75,
+              144.75,
+              199.25,
+              230.25
+            ],
+            [
+              218.14300537109375,
+              246.14300537109375,
+              547.8569946289062,
+              419.85699462890625
+            ],
+            [
+              220.21400451660156,
+              248.21400451660156,
+              545.7849731445312,
+              417.7850036621094
+            ],
+            [
+              230.5,
+              306.75,
+              373.0,
+              416.25
+            ],
+            [
+              47.143001556396484,
+              246.14300537109375,
+              208.85699462890625,
+              419.85699462890625
+            ],
+            [
+              49.2140007019043,
+              248.21400451660156,
+              206.78500366210938,
+              417.7850036621094
+            ],
+            [
+              56.75,
+              294.75,
+              199.25,
+              414.25
+            ],
+            [
+              218.14300537109375,
+              430.14300537109375,
+              547.8569946289062,
+              603.8569946289062
+            ],
+            [
+              220.21400451660156,
+              432.2139892578125,
+              545.7849731445312,
+              601.7849731445312
+            ],
+            [
+              230.5,
+              498.75,
+              373.0,
+              600.25
+            ],
+            [
+              47.143001556396484,
+              430.14300537109375,
+              208.85699462890625,
+              603.8569946289062
+            ],
+            [
+              49.2140007019043,
+              432.2139892578125,
+              206.78500366210938,
+              601.7849731445312
+            ],
+            [
+              56.75,
+              496.75,
+              199.25,
+              598.25
+            ],
+            [
+              218.14300537109375,
+              614.1430053710938,
+              547.8569946289062,
+              787.8569946289062
+            ],
+            [
+              220.21400451660156,
+              616.2139892578125,
+              545.7849731445312,
+              785.7849731445312
+            ],
+            [
+              230.5,
+              674.75,
+              373.0,
+              784.25
+            ],
+            [
+              47.143001556396484,
+              614.1430053710938,
+              208.85699462890625,
+              787.8569946289062
+            ],
+            [
+              49.2140007019043,
+              616.2139892578125,
+              206.78500366210938,
+              785.7849731445312
+            ],
+            [
+              56.75,
+              664.75,
+              199.25,
+              782.25
+            ]
+          ],
+          "provenance": {
+            "word_metadata_exact": true,
+            "source_ID_multiset_exact": true,
+            "all_lines_and_tables_exact": true,
+            "char_multiset_exact": true
+          },
+          "all_original_line_and_table_records_unchanged": true,
+          "existing_issue_remains": false
+        },
+        {
+          "page": "20260828g001920078",
+          "classification": "improvement",
+          "scope": "原本全体画像と前後全文差分の照合。全Line/Table内容・Word属性/IDの全件一致は別の機械検証。独立BSの左右全体順は採点条件にしない。",
+          "notes": "最下段共通外枠[47.143,430.143,547.857,787.857]の資本金減少→新設分割→下側合併公告→関連BS40アルプスビジネス→BS8アルプスアグリへ戻す。旧BS40先読みと資本金/新設分割の左右逆順を共に修正。上2段の別枠は不変。",
+          "source_figures_and_notes_spot_check": "BS40資産1,931,327/純資産1,311,830; BS8合計255,543",
+          "pdf": ".cache/kanpo-archive/2026-08-28/20260828g00192/20260828g001920078.pdf",
+          "pdf_sha256": "bd7427e6417ab23c46fe2c8f211ae295c75dbcfc1cbf13c5a2137d86f2edd91e",
+          "png": ".cache/kanpo-227/audit118/20260828g001920078.png",
+          "png_sha256": "332c6cd00ae135353ef04b2caea95933d1f9e919445fd29470bda4cb7754f9a2",
+          "before_sha256": "313360a6543ba77974bac64af3657f81ca0438cf93f2dbd996d507fcd9c31c9e",
+          "after_sha256": "36cfd548670d54274c1bcf9088850211aad285b9c3c09f291d823da9e726679d",
+          "before_titles": [
+            {
+              "line": 1,
+              "text": "合併公告"
+            },
+            {
+              "line": 18,
+              "text": "第38期決算公告"
+            },
+            {
+              "line": 37,
+              "text": "第51期決算公告　令和８年８月28日"
+            },
+            {
+              "line": 56,
+              "text": "合併公告"
+            },
+            {
+              "line": 73,
+              "text": "第63期決算公告　令和８年８月28日"
+            },
+            {
+              "line": 93,
+              "text": "第31期決算公告　令和８年８月28日"
+            },
+            {
+              "line": 110,
+              "text": "第40期決算公告"
+            },
+            {
+              "line": 139,
+              "text": "新設分割公告"
+            },
+            {
+              "line": 155,
+              "text": "資本金の額の減少公告"
+            },
+            {
+              "line": 169,
+              "text": "合併公告"
+            },
+            {
+              "line": 186,
+              "text": "第８期決算公告"
+            }
+          ],
+          "after_titles": [
+            {
+              "line": 1,
+              "text": "合併公告"
+            },
+            {
+              "line": 18,
+              "text": "第38期決算公告"
+            },
+            {
+              "line": 37,
+              "text": "第51期決算公告　令和８年８月28日"
+            },
+            {
+              "line": 56,
+              "text": "合併公告"
+            },
+            {
+              "line": 73,
+              "text": "第63期決算公告　令和８年８月28日"
+            },
+            {
+              "line": 93,
+              "text": "第31期決算公告　令和８年８月28日"
+            },
+            {
+              "line": 110,
+              "text": "資本金の額の減少公告"
+            },
+            {
+              "line": 124,
+              "text": "新設分割公告"
+            },
+            {
+              "line": 140,
+              "text": "合併公告"
+            },
+            {
+              "line": 157,
+              "text": "第40期決算公告"
+            },
+            {
+              "line": 186,
+              "text": "第８期決算公告"
+            }
+          ],
+          "native_enclosures": [
+            [
+              47.143001556396484,
+              62.143001556396484,
+              547.8569946289062,
+              235.85699462890625
+            ],
+            [
+              49.2140007019043,
+              64.21399688720703,
+              545.7849731445312,
+              233.78500366210938
+            ],
+            [
+              226.25,
+              114.75,
+              368.75,
+              232.25
+            ],
+            [
+              61.25,
+              122.75,
+              203.75,
+              232.25
+            ],
+            [
+              47.143001556396484,
+              246.14300537109375,
+              547.8569946289062,
+              419.85699462890625
+            ],
+            [
+              49.2140007019043,
+              248.21400451660156,
+              545.7849731445312,
+              417.7850036621094
+            ],
+            [
+              226.25,
+              310.75,
+              368.75,
+              412.25
+            ],
+            [
+              61.25,
+              290.75,
+              203.75,
+              416.25
+            ],
+            [
+              47.143001556396484,
+              430.14300537109375,
+              547.8569946289062,
+              787.8569946289062
+            ],
+            [
+              49.2140007019043,
+              432.2139892578125,
+              545.7849731445312,
+              785.7849731445312
+            ],
+            [
+              226.25,
+              685.75,
+              368.75,
+              779.25
+            ],
+            [
+              61.25,
+              535.75,
+              203.75,
+              780.25
+            ]
+          ],
+          "provenance": {
+            "word_metadata_exact": true,
+            "source_ID_multiset_exact": true,
+            "all_lines_and_tables_exact": true,
+            "char_multiset_exact": true
+          },
+          "all_original_line_and_table_records_unchanged": true,
+          "existing_issue_remains": false
+        },
+        {
+          "page": "20260925g002120073",
+          "classification": "improvement",
+          "scope": "原本全体画像と前後全文差分の照合。全Line/Table内容・Word属性/IDの全件一致は別の機械検証。独立BSの左右全体順は採点条件にしない。",
+          "notes": "最上段右の新設分割公告とBS5 KRMの間へ入った左独立BS25青山リアルティを共通枠の後へ出す。右枠の社名・日付・署名を保持。下3段は不変。",
+          "source_figures_and_notes_spot_check": "BS5資産330,236,190; 独立BS25合計4,136,921",
+          "pdf": ".cache/kanpo-archive/2026-09-25/20260925g00212/20260925g002120073.pdf",
+          "pdf_sha256": "308ba059873a973f563c61616d6c1db040ed77dbf8f391726e776769fb813f22",
+          "png": ".cache/kanpo-227/enclosure-flow-proposal/images/20260925g002120073.pdf.png",
+          "png_sha256": "f425228cb8df840e7e5c67fe13fe9e246f55534eb2b77bbd91f7facf663486a7",
+          "before_sha256": "4dc9f8e70643e21e3ee77a1d86af601929f3c28dab4e04eb01e5a151fd4b6f5f",
+          "after_sha256": "e691e316ff94d10fbd000537050d7104a2e8c4cee1ba45541476b07cfe413bf1",
+          "before_titles": [
+            {
+              "line": 1,
+              "text": "新設分割公告"
+            },
+            {
+              "line": 18,
+              "text": "第25期決算公告　令和８年８月24日"
+            },
+            {
+              "line": 38,
+              "text": "第５期決算公告"
+            },
+            {
+              "line": 59,
+              "text": "第28期決算公告　令和８年６月30日"
+            },
+            {
+              "line": 76,
+              "text": "資本金の額の減少公告"
+            },
+            {
+              "line": 88,
+              "text": "第３期決算公告　令和８年９月25日"
+            },
+            {
+              "line": 108,
+              "text": "第34期決算公告　令和８年６月30日"
+            },
+            {
+              "line": 126,
+              "text": "資本金及び準備金の額の減少公告"
+            },
+            {
+              "line": 142,
+              "text": "第12期決算公告　令和８年９月25日"
+            },
+            {
+              "line": 162,
+              "text": "第７期決算公告　令和８年６月30日"
+            },
+            {
+              "line": 198,
+              "text": "新設分割公告"
+            }
+          ],
+          "after_titles": [
+            {
+              "line": 1,
+              "text": "新設分割公告"
+            },
+            {
+              "line": 18,
+              "text": "第５期決算公告"
+            },
+            {
+              "line": 38,
+              "text": "第25期決算公告　令和８年８月24日"
+            },
+            {
+              "line": 59,
+              "text": "第28期決算公告　令和８年６月30日"
+            },
+            {
+              "line": 76,
+              "text": "資本金の額の減少公告"
+            },
+            {
+              "line": 88,
+              "text": "第３期決算公告　令和８年９月25日"
+            },
+            {
+              "line": 108,
+              "text": "第34期決算公告　令和８年６月30日"
+            },
+            {
+              "line": 126,
+              "text": "資本金及び準備金の額の減少公告"
+            },
+            {
+              "line": 142,
+              "text": "第12期決算公告　令和８年９月25日"
+            },
+            {
+              "line": 162,
+              "text": "第７期決算公告　令和８年６月30日"
+            },
+            {
+              "line": 198,
+              "text": "新設分割公告"
+            }
+          ],
+          "native_enclosures": [
+            [
+              218.14300537109375,
+              62.143001556396484,
+              547.8569946289062,
+              235.85699462890625
+            ],
+            [
+              220.21400451660156,
+              64.21399688720703,
+              545.7849731445312,
+              233.78500366210938
+            ],
+            [
+              230.5,
+              122.75,
+              373.0,
+              232.25
+            ],
+            [
+              47.143001556396484,
+              62.143001556396484,
+              208.85699462890625,
+              235.85699462890625
+            ],
+            [
+              49.2140007019043,
+              64.21399688720703,
+              206.78500366210938,
+              233.78500366210938
+            ],
+            [
+              56.75,
+              114.75,
+              199.25,
+              232.25
+            ],
+            [
+              218.14300537109375,
+              246.14300537109375,
+              547.8569946289062,
+              419.85699462890625
+            ],
+            [
+              220.21400451660156,
+              248.21400451660156,
+              545.7849731445312,
+              417.7850036621094
+            ],
+            [
+              230.5,
+              290.75,
+              373.0,
+              416.25
+            ],
+            [
+              47.143001556396484,
+              246.14300537109375,
+              208.85699462890625,
+              419.85699462890625
+            ],
+            [
+              49.2140007019043,
+              248.21400451660156,
+              206.78500366210938,
+              417.7850036621094
+            ],
+            [
+              56.75,
+              312.75,
+              199.25,
+              414.25
+            ],
+            [
+              218.14300537109375,
+              430.14300537109375,
+              547.8569946289062,
+              603.8569946289062
+            ],
+            [
+              220.21400451660156,
+              432.2139892578125,
+              545.7849731445312,
+              601.7849731445312
+            ],
+            [
+              230.5,
+              474.75,
+              373.0,
+              600.25
+            ],
+            [
+              47.143001556396484,
+              430.14300537109375,
+              208.85699462890625,
+              603.8569946289062
+            ],
+            [
+              49.2140007019043,
+              432.2139892578125,
+              206.78500366210938,
+              601.7849731445312
+            ],
+            [
+              56.75,
+              488.75,
+              199.25,
+              598.25
+            ],
+            [
+              218.14300537109375,
+              614.1430053710938,
+              547.8569946289062,
+              787.8569946289062
+            ],
+            [
+              220.21400451660156,
+              616.2139892578125,
+              545.7849731445312,
+              785.7849731445312
+            ],
+            [
+              230.5,
+              666.75,
+              373.0,
+              784.25
+            ],
+            [
+              47.143001556396484,
+              614.1430053710938,
+              208.85699462890625,
+              787.8569946289062
+            ],
+            [
+              49.2140007019043,
+              616.2139892578125,
+              206.78500366210938,
+              785.7849731445312
+            ],
+            [
+              56.75,
+              680.75,
+              199.25,
+              782.25
+            ]
+          ],
+          "provenance": {
+            "word_metadata_exact": true,
+            "source_ID_multiset_exact": true,
+            "all_lines_and_tables_exact": true,
+            "char_multiset_exact": true
+          },
+          "all_original_line_and_table_records_unchanged": true,
+          "existing_issue_remains": false
+        },
+        {
+          "page": "20261008g002220093",
+          "classification": "improvement",
+          "scope": "原本全体画像と前後全文差分の照合。全Line/Table内容・Word属性/IDの全件一致は別の機械検証。独立BSの左右全体順は採点条件にしない。",
+          "notes": "3段目共通枠の合併公告を関連BS11生活プロデュースリーシングとBS20生活プロデュースの前へ戻す。両BS直下の(注)当期純利益1,747千円/30,867千円も元BSに付いたまま。最上/2段/最下段の独立外枠を変えない。",
+          "source_figures_and_notes_spot_check": "BS11合計540,785/注1,747千円; BS20合計1,555,357/注30,867千円",
+          "pdf": ".cache/kanpo-archive/2026-10-08/20261008g00222/20261008g002220093.pdf",
+          "pdf_sha256": "e0137c416f55811bdd2ff6e257adf59caa28d5eb5aeb4dca6cf86452ccbb02bc",
+          "png": ".cache/kanpo-227/enclosure-flow-proposal/images/20261008g002220093.pdf.png",
+          "png_sha256": "251cefef81ce49ab1b6c200bfa1f526fd67c916fa187fe9aca058cefccb31b23",
+          "before_sha256": "605b9398f3d3e34ce97797395783a6bbc9d1aa8e59e62ed9b17915cb8d467e98",
+          "after_sha256": "ffe708bfee89b74c9ea39012a98472ff086d32164084d9abc67b0dea3a518d1b",
+          "before_titles": [
+            {
+              "line": 1,
+              "text": "第36期決算公告"
+            },
+            {
+              "line": 26,
+              "text": "資本金の額の減少公告"
+            },
+            {
+              "line": 38,
+              "text": "第28期決算公告　令和８年10月８日"
+            },
+            {
+              "line": 57,
+              "text": "資本金の額の減少公告"
+            },
+            {
+              "line": 87,
+              "text": "第11期決算公告　令和８年10月８日"
+            },
+            {
+              "line": 107,
+              "text": "合併公告"
+            },
+            {
+              "line": 125,
+              "text": "第20期決算公告　令和８年10月８日"
+            },
+            {
+              "line": 144,
+              "text": "合併公告"
+            },
+            {
+              "line": 162,
+              "text": "第６期決算公告　令和８年10月８日"
+            },
+            {
+              "line": 181,
+              "text": "第27期決算公告"
+            }
+          ],
+          "after_titles": [
+            {
+              "line": 1,
+              "text": "第36期決算公告"
+            },
+            {
+              "line": 26,
+              "text": "資本金の額の減少公告"
+            },
+            {
+              "line": 38,
+              "text": "第28期決算公告　令和８年10月８日"
+            },
+            {
+              "line": 57,
+              "text": "資本金の額の減少公告"
+            },
+            {
+              "line": 87,
+              "text": "合併公告"
+            },
+            {
+              "line": 105,
+              "text": "第11期決算公告　令和８年10月８日"
+            },
+            {
+              "line": 125,
+              "text": "第20期決算公告　令和８年10月８日"
+            },
+            {
+              "line": 144,
+              "text": "合併公告"
+            },
+            {
+              "line": 162,
+              "text": "第６期決算公告　令和８年10月８日"
+            },
+            {
+              "line": 181,
+              "text": "第27期決算公告"
+            }
+          ],
+          "native_enclosures": [
+            [
+              47.143001556396484,
+              62.143001556396484,
+              208.85699462890625,
+              419.85699462890625
+            ],
+            [
+              49.2140007019043,
+              64.21399688720703,
+              206.78500366210938,
+              417.7850036621094
+            ],
+            [
+              56.75,
+              228.75,
+              199.25,
+              414.25
+            ],
+            [
+              218.14300537109375,
+              62.143001556396484,
+              547.8569946289062,
+              235.85699462890625
+            ],
+            [
+              220.21400451660156,
+              64.21399688720703,
+              545.7849731445312,
+              233.78500366210938
+            ],
+            [
+              230.5,
+              111.75,
+              373.0,
+              232.25
+            ],
+            [
+              218.14300537109375,
+              246.14300537109375,
+              547.8569946289062,
+              419.85699462890625
+            ],
+            [
+              220.21400451660156,
+              248.21400451660156,
+              545.7849731445312,
+              417.7850036621094
+            ],
+            [
+              230.5,
+              318.75,
+              373.0,
+              412.25
+            ],
+            [
+              47.143001556396484,
+              430.14300537109375,
+              547.8569946289062,
+              603.8569946289062
+            ],
+            [
+              49.2140007019043,
+              432.2139892578125,
+              545.7849731445312,
+              601.7849731445312
+            ],
+            [
+              226.25,
+              482.75,
+              368.75,
+              592.25
+            ],
+            [
+              61.25,
+              474.75,
+              203.75,
+              592.25
+            ],
+            [
+              47.143001556396484,
+              614.1430053710938,
+              547.8569946289062,
+              787.8569946289062
+            ],
+            [
+              49.2140007019043,
+              616.2139892578125,
+              545.7849731445312,
+              785.7849731445312
+            ],
+            [
+              226.25,
+              682.75,
+              368.75,
+              784.25
+            ],
+            [
+              61.25,
+              670.75,
+              203.75,
+              780.25
+            ]
+          ],
+          "provenance": {
+            "word_metadata_exact": true,
+            "source_ID_multiset_exact": true,
+            "all_lines_and_tables_exact": true,
+            "char_multiset_exact": true
+          },
+          "all_original_line_and_table_records_unchanged": true,
+          "existing_issue_remains": false
+        },
+        {
+          "page": "20261014g002250072",
+          "classification": "neutral",
+          "scope": "原本全体画像と前後全文差分の照合。全Line/Table内容・Word属性/IDの全件一致は別の機械検証。独立BSの左右全体順は採点条件にしない。",
+          "notes": "上側左共通枠の合併公告と関連BS33/BS46の間へ入っていた下側枠の末尾署名5行を、上側枠の後へ出す。対象上側枠の連続性は改善するが、5行(岸野竹流〜丙フィールド・コーポレーション〜岸野竹流)はなお下側合併公告タイトルより前で、旧来の所属/順の乱れが残るため中立とする。既存残存を新規退行と扱わない。",
+          "source_figures_and_notes_spot_check": "上BS33合計2,142,481/BS46合計287,366; 下BS13合計364,559/BS51合計7,421,066",
+          "pdf": ".cache/kanpo-archive/2026-10-14/20261014g00225/20261014g002250072.pdf",
+          "pdf_sha256": "74c7f82731b1c58c38ce72b2df9ff1f3e660a67b06c743b96c3e05eaf81a6459",
+          "png": ".cache/kanpo-227/enclosure-flow-proposal/images/20261014g002250072.pdf.png",
+          "png_sha256": "f5667f5e53cfc87b3a619c34de0318df07cf3f77aa032886380d4227414b2b86",
+          "before_sha256": "acae86fb1aa0e86d49b635bb8d8a21348f40f1eb44fe786646043883f2c23800",
+          "after_sha256": "0e2a451bba54696edb742172470d7863b55c3ddd26f53da7f963235cd93c78a3",
+          "before_titles": [
+            {
+              "line": 1,
+              "text": "合併公告"
+            },
+            {
+              "line": 20,
+              "text": "第33期決算公告"
+            },
+            {
+              "line": 49,
+              "text": "第46期決算公告"
+            },
+            {
+              "line": 69,
+              "text": "合併公告"
+            },
+            {
+              "line": 87,
+              "text": "第65期決算公告　令和８年８月28日"
+            },
+            {
+              "line": 107,
+              "text": "第50期決算公告"
+            },
+            {
+              "line": 127,
+              "text": "第13期決算公告　令和８年10月14日"
+            },
+            {
+              "line": 144,
+              "text": "第51期決算公告　令和８年10月14日"
+            },
+            {
+              "line": 164,
+              "text": "第64期決算公告"
+            }
+          ],
+          "after_titles": [
+            {
+              "line": 1,
+              "text": "合併公告"
+            },
+            {
+              "line": 20,
+              "text": "第33期決算公告"
+            },
+            {
+              "line": 44,
+              "text": "第46期決算公告"
+            },
+            {
+              "line": 69,
+              "text": "合併公告"
+            },
+            {
+              "line": 87,
+              "text": "第65期決算公告　令和８年８月28日"
+            },
+            {
+              "line": 107,
+              "text": "第50期決算公告"
+            },
+            {
+              "line": 127,
+              "text": "第13期決算公告　令和８年10月14日"
+            },
+            {
+              "line": 144,
+              "text": "第51期決算公告　令和８年10月14日"
+            },
+            {
+              "line": 164,
+              "text": "第64期決算公告"
+            }
+          ],
+          "native_enclosures": [
+            [
+              47.143001556396484,
+              62.143001556396484,
+              376.85699462890625,
+              419.85699462890625
+            ],
+            [
+              49.2140007019043,
+              64.21399688720703,
+              374.7850036621094,
+              417.7850036621094
+            ],
+            [
+              222.0,
+              305.75,
+              364.5,
+              415.25
+            ],
+            [
+              59.5,
+              199.75,
+              202.0,
+              412.25
+            ],
+            [
+              386.14300537109375,
+              62.143001556396484,
+              547.8569946289062,
+              235.85699462890625
+            ],
+            [
+              388.2139892578125,
+              64.21399688720703,
+              545.7849731445312,
+              233.78500366210938
+            ],
+            [
+              395.75,
+              106.75,
+              538.25,
+              232.25
+            ],
+            [
+              386.14300537109375,
+              246.14300537109375,
+              547.8569946289062,
+              419.85699462890625
+            ],
+            [
+              388.2139892578125,
+              248.21400451660156,
+              545.7849731445312,
+              417.7850036621094
+            ],
+            [
+              395.75,
+              306.75,
+              538.25,
+              416.25
+            ],
+            [
+              386.14300537109375,
+              430.14300537109375,
+              547.8569946289062,
+              787.8569946289062
+            ],
+            [
+              388.2139892578125,
+              432.2139892578125,
+              545.7849731445312,
+              785.7849731445312
+            ],
+            [
+              395.75,
+              533.75,
+              538.25,
+              782.25
+            ],
+            [
+              47.143001556396484,
+              430.14300537109375,
+              376.85699462890625,
+              787.8569946289062
+            ],
+            [
+              49.2140007019043,
+              432.2139892578125,
+              374.7850036621094,
+              785.7849731445312
+            ],
+            [
+              222.0,
+              657.75,
+              364.5,
+              783.25
+            ],
+            [
+              59.5,
+              677.75,
+              202.0,
+              779.25
+            ]
+          ],
+          "provenance": {
+            "word_metadata_exact": true,
+            "source_ID_multiset_exact": true,
+            "all_lines_and_tables_exact": true,
+            "char_multiset_exact": true
+          },
+          "all_original_line_and_table_records_unchanged": true,
+          "existing_issue_remains": true
+        },
+        {
+          "page": "20261020g002300087",
+          "classification": "improvement",
+          "scope": "原本全体画像と前後全文差分の照合。全Line/Table内容・Word属性/IDの全件一致は別の機械検証。独立BSの左右全体順は採点条件にしない。",
+          "notes": "右下共通枠の新設分割及び合併公告→関連BS48櫻町殖産→BS24ミュージアムを連続させる。枠外左の独立BS10/BS50をその後へ出す。右上/左上各独立枠は元順。住所の三丁日は原字のまま。",
+          "source_figures_and_notes_spot_check": "関連BS430,761/2,862,970; 独立BS513,370/471,987",
+          "pdf": ".cache/kanpo-archive/2026-10-20/20261020g00230/20261020g002300087.pdf",
+          "pdf_sha256": "e1b887d3d85f57eb3fc147135ae7158ebde65970c2a5c4637679da6aa08c4fe3",
+          "png": ".cache/kanpo-227/audit118/20261020g002300087.png",
+          "png_sha256": "fa1646515e8228601b0bc3aedd0f2f5774914d276a3856e735851fa7ae8fd78d",
+          "before_sha256": "e6319e311ce31a2c25535a4a90537ac25fba6bc5dec03c1cb453f650f8e9cbc2",
+          "after_sha256": "a90ae9b794d0872fe7a83bdc06eacc0c78522020e5dd11ba8008cc0f5061d507",
+          "before_titles": [
+            {
+              "line": 1,
+              "text": "第11期決算公告　令和８年10月20日"
+            },
+            {
+              "line": 20,
+              "text": "第４期決算公告"
+            },
+            {
+              "line": 39,
+              "text": "合併公告"
+            },
+            {
+              "line": 56,
+              "text": "第27期決算公告"
+            },
+            {
+              "line": 80,
+              "text": "第２期決算公告"
+            },
+            {
+              "line": 100,
+              "text": "新設分割公告及び合併公告"
+            },
+            {
+              "line": 123,
+              "text": "第10期決算公告　令和８年10月20日"
+            },
+            {
+              "line": 142,
+              "text": "第50期決算公告　令和８年９月28日"
+            },
+            {
+              "line": 161,
+              "text": "第48期決算公告"
+            },
+            {
+              "line": 179,
+              "text": "第24期決算公告"
+            }
+          ],
+          "after_titles": [
+            {
+              "line": 1,
+              "text": "第11期決算公告　令和８年10月20日"
+            },
+            {
+              "line": 20,
+              "text": "第４期決算公告"
+            },
+            {
+              "line": 39,
+              "text": "合併公告"
+            },
+            {
+              "line": 56,
+              "text": "第27期決算公告"
+            },
+            {
+              "line": 80,
+              "text": "第２期決算公告"
+            },
+            {
+              "line": 100,
+              "text": "新設分割公告及び合併公告"
+            },
+            {
+              "line": 123,
+              "text": "第48期決算公告"
+            },
+            {
+              "line": 141,
+              "text": "第24期決算公告"
+            },
+            {
+              "line": 160,
+              "text": "第10期決算公告　令和８年10月20日"
+            },
+            {
+              "line": 179,
+              "text": "第50期決算公告　令和８年９月28日"
+            }
+          ],
+          "native_enclosures": [
+            [
+              218.14300537109375,
+              62.143001556396484,
+              547.8569946289062,
+              419.85699462890625
+            ],
+            [
+              220.21400451660156,
+              64.21399688720703,
+              545.7849731445312,
+              417.7850036621094
+            ],
+            [
+              393.0,
+              313.75,
+              535.5,
+              415.25
+            ],
+            [
+              230.5,
+              238.75,
+              373.0,
+              412.25
+            ],
+            [
+              47.143001556396484,
+              62.143001556396484,
+              208.85699462890625,
+              235.85699462890625
+            ],
+            [
+              49.2140007019043,
+              64.21399688720703,
+              206.78500366210938,
+              233.78500366210938
+            ],
+            [
+              56.75,
+              114.75,
+              199.25,
+              232.25
+            ],
+            [
+              47.143001556396484,
+              246.14300537109375,
+              208.85699462890625,
+              419.85699462890625
+            ],
+            [
+              49.2140007019043,
+              248.21400451660156,
+              206.78500366210938,
+              417.7850036621094
+            ],
+            [
+              56.75,
+              312.75,
+              199.25,
+              414.25
+            ],
+            [
+              218.14300537109375,
+              430.14300537109375,
+              547.8569946289062,
+              787.8569946289062
+            ],
+            [
+              220.21400451660156,
+              432.2139892578125,
+              545.7849731445312,
+              785.7849731445312
+            ],
+            [
+              393.0,
+              669.75,
+              535.5,
+              779.25
+            ],
+            [
+              230.5,
+              677.75,
+              373.0,
+              779.25
+            ],
+            [
+              47.143001556396484,
+              430.14300537109375,
+              208.85699462890625,
+              603.8569946289062
+            ],
+            [
+              49.2140007019043,
+              432.2139892578125,
+              206.78500366210938,
+              601.7849731445312
+            ],
+            [
+              56.75,
+              488.75,
+              199.25,
+              598.25
+            ],
+            [
+              47.143001556396484,
+              614.1430053710938,
+              208.85699462890625,
+              787.8569946289062
+            ],
+            [
+              49.2140007019043,
+              616.2139892578125,
+              206.78500366210938,
+              785.7849731445312
+            ],
+            [
+              56.75,
+              664.75,
+              199.25,
+              782.25
+            ]
+          ],
+          "provenance": {
+            "word_metadata_exact": true,
+            "source_ID_multiset_exact": true,
+            "all_lines_and_tables_exact": true,
+            "char_multiset_exact": true
+          },
+          "all_original_line_and_table_records_unchanged": true,
+          "existing_issue_remains": false
+        }
+      ]
+    },
+    "after29_recheck": {
+      "baseline": "cd64a9f3/after29",
+      "same_changed_pages": true,
+      "same_original_PDFs": true,
+      "same_before_and_after_full_text": true,
+      "grades_preserved": {
+        "improvement": 9,
+        "neutral": 1,
+        "regression": 0
+      },
+      "checks": [
+        {
+          "page": "20260722g001620112",
+          "before_identical_to_after28": true,
+          "after_identical_to_after28_candidate": true,
+          "source_proof29": ".cache/kanpo-227/enclosure-flow-proposal/20260722g001620112-source-proof29.json"
+        },
+        {
+          "page": "20260728g001680085",
+          "before_identical_to_after28": true,
+          "after_identical_to_after28_candidate": true,
+          "source_proof29": ".cache/kanpo-227/enclosure-flow-proposal/20260728g001680085-source-proof29.json"
+        },
+        {
+          "page": "20260824g001880111",
+          "before_identical_to_after28": true,
+          "after_identical_to_after28_candidate": true,
+          "source_proof29": ".cache/kanpo-227/enclosure-flow-proposal/20260824g001880111-source-proof29.json"
+        },
+        {
+          "page": "20260827g001910056",
+          "before_identical_to_after28": true,
+          "after_identical_to_after28_candidate": true,
+          "source_proof29": ".cache/kanpo-227/enclosure-flow-proposal/20260827g001910056-source-proof29.json"
+        },
+        {
+          "page": "20260828g001920063",
+          "before_identical_to_after28": true,
+          "after_identical_to_after28_candidate": true,
+          "source_proof29": ".cache/kanpo-227/enclosure-flow-proposal/20260828g001920063-source-proof29.json"
+        },
+        {
+          "page": "20260828g001920078",
+          "before_identical_to_after28": true,
+          "after_identical_to_after28_candidate": true,
+          "source_proof29": ".cache/kanpo-227/enclosure-flow-proposal/20260828g001920078-source-proof29.json"
+        },
+        {
+          "page": "20260925g002120073",
+          "before_identical_to_after28": true,
+          "after_identical_to_after28_candidate": true,
+          "source_proof29": ".cache/kanpo-227/enclosure-flow-proposal/20260925g002120073-source-proof29.json"
+        },
+        {
+          "page": "20261008g002220093",
+          "before_identical_to_after28": true,
+          "after_identical_to_after28_candidate": true,
+          "source_proof29": ".cache/kanpo-227/enclosure-flow-proposal/20261008g002220093-source-proof29.json"
+        },
+        {
+          "page": "20261014g002250072",
+          "before_identical_to_after28": true,
+          "after_identical_to_after28_candidate": true,
+          "source_proof29": ".cache/kanpo-227/enclosure-flow-proposal/20261014g002250072-source-proof29.json"
+        },
+        {
+          "page": "20261020g002300087",
+          "before_identical_to_after28": true,
+          "after_identical_to_after28_candidate": true,
+          "source_proof29": ".cache/kanpo-227/enclosure-flow-proposal/20261020g002300087-source-proof29.json"
+        }
+      ]
+    },
+    "validation": {
+      "status": "ready; cache-only prototype, full after29 corpus/provenance/original audit and tests complete",
+      "baseline_commit": "cd64a9f39d80ce34d9dea1bb85f1f863eed19b99",
+      "baseline_output": "after29",
+      "shared_source_edited_by_this_agent": false,
+      "patch": "financial-enclosures.patch",
+      "patch_sha256": "8eadae7b47b0c7b89f30bc394aed1c93885a15d530de00628b5ca8fb98f79194",
+      "native_path_evidence": "native-enclosures-provenance.json",
+      "scope": [
+        "native closed stroked unfilled axis-aligned rectangle, fully unclipped; optional PageRules.enclosures",
+        "horizontal Plain units only; original Lines and Tables moved intact",
+        "financial vertical notices explicitly referring to balance sheets; each existing BS company matches an enclosed notice, every notice matched",
+        "smallest article enclosure, double border dedup, no giant page frame or crossed line/table",
+        "preserve independent-frame relative sequence; only enclosure contiguity and notice-reference order are constrained"
+      ],
+      "tests": {
+        "new_shape_units": 16,
+        "new_pdf_rules_units": 6,
+        "existing_plus_new_pdf_rules_units": 22,
+        "real_pdf_test_functions": 4,
+        "real_pdf_pages": 4,
+        "target_baseline_red": 2,
+        "target_after29_green": 2,
+        "nearby_pages_unchanged": 2,
+        "table_crossing_negative_red_before_guard": 1,
+        "all_shape_tests_green_after_guard": 16,
+        "all_candidate_parser_units": 392,
+        "all_candidate_parser_units_green": 392,
+        "all_candidate_parser_units_log": "parser-units.log"
+      },
+      "corpus": {
+        "pages": 11992,
+        "changed": 10,
+        "baseline_mismatches": 0,
+        "seconds": 240.14759278297424,
+        "invariants": [
+          "all Word fields exact",
+          "all Lines and Tables exact as multiset",
+          "source ID multiset exact, no duplicates",
+          "non-whitespace characters exact"
+        ]
+      },
+      "visual_audit": {
+        "pages": 10,
+        "improvement": 9,
+        "neutral": 1,
+        "regression": 0,
+        "remaining_unaudited": 0,
+        "record": "impact-audit.json",
+        "after29_recheck": "after29-audit-recheck.json"
+      },
+      "remaining": [
+        "225p72 remains neutral: lower notice last five signer/address lines precede their own title in both baselines; upper frame is merely made contiguous",
+        "BS company names split across horizontal lines, absent tables or incomplete notice runs are conservative no-ops",
+        "derived/turned/clipped table-rule values carry no enclosure identity; original native page rules are used for the horizontal ordering step only"
+      ],
+      "repo_fixture_paths": [
+        "tests/archive/pages/20260828g00192/20260828g001920078.pdf",
+        "tests/archive/pages/20261020g00230/20261020g002300087.pdf",
+        "tests/archive/pages/20260828g00192/20260828g001920077.pdf",
+        "tests/archive/pages/20261020g00230/20261020g002300086.pdf"
+      ]
+    }
+  },
+  "root_before_fix_tests": {
+    "halfwidth_actual_PDF": "1 RED; halfwidth-road-root-baseline-red.log",
+    "area_new_actual_PDF": "3 RED/4 negative GREEN; area-unit-root-baseline-red.log",
+    "area_existing_fullwidth_actual_PDF": "1 RED/2 negative GREEN; area-unit-fullwidth-root-baseline-red.log",
+    "financial_actual_PDF": "2 RED; enclosure-flow-proposal/baseline-red-root9.log",
+    "total_positive_PDF_failures": 7,
+    "all_after_fix_green": true
+  },
+  "root_final_integrated_source_checks": [
+    {
+      "page": "20260722g001620112",
+      "source_sha256": "095ebb07130e081b73fa6f6d1836023678677cea1a99da4a2d360f7b97b575bf",
+      "baseline_output_sha256": "9def5263eb241cbc0f28c4160977a29e752f7b673d48efad801fd961dfac018c",
+      "final_output_sha256": "fd33190dcf6c1c2380bb7d816c5b4640f69ca3e7ca18651e1a73a3c6ca6f7a27",
+      "restored_area_words": 0,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": true
+    },
+    {
+      "page": "20260728g001680085",
+      "source_sha256": "867ee840b657b562dea0b0d98c153c5bfb5989f419b8271b0d1d0bcd8075278e",
+      "baseline_output_sha256": "862b76a31108b80cb361e50461915224410405c688bfd8f3c1d0c4a20d9e51a8",
+      "final_output_sha256": "96f420f5a76e9b483e73e20bb1dce77e1bc9781a36ccbb9b6fef805de65f599f",
+      "restored_area_words": 0,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": true
+    },
+    {
+      "page": "20260729h017570005",
+      "source_sha256": "cfa9db2e1d46a4612031832ae27c0970f4a8d33b05456109e09d2af2ffafe1ea",
+      "baseline_output_sha256": "450b61d9d25233185b52c9c0241b8156407c41d09d4424d0acc8a3c34c13df9f",
+      "final_output_sha256": "f4d26c99481bc3e748af5071e6bea7d7ddd11ef14bfe051a3de9db50eea9f3cf",
+      "restored_area_words": 0,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 1,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20260730g001710130",
+      "source_sha256": "f4dabdd6791c5fc0176b86cdaa42088e98df44cd080bef90ed38eb5f136fd6ca",
+      "baseline_output_sha256": "8784c3c4dc4acf6de9fad875bc92755e7a7695ddccbb54695b86ddb2a8431f40",
+      "final_output_sha256": "e0538197f637a4687e07d776b1e12b3e4b5d9ba74ea54175b4cb41278fa87f73",
+      "restored_area_words": 1,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20260730g001710134",
+      "source_sha256": "e29af953c05139344809a3acc6593402d40afc8095c4f51c1bfad70f4b0e50fe",
+      "baseline_output_sha256": "f8d41ebc905b1d9b671d69f1e26062fd8028405f55ae2b5e779f2015bcc533a6",
+      "final_output_sha256": "10a4f422693a7bace9e6e80db8d0a0d39628fb2f407e2f400515a47283cd9f48",
+      "restored_area_words": 2,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20260731g001720119",
+      "source_sha256": "4d9ed834a0fb34e4c902f2124d670b6b89bf750be8ed149d72e1a0b0e4d18033",
+      "baseline_output_sha256": "caf6af2835756b51d0f8129ee4fc5100c717ebf6f0180b61c98c963457d66b74",
+      "final_output_sha256": "f3ad46634c1b005e54a5f70976fc7311ee05ed25af818ffe1e62ae54d6d7de6f",
+      "restored_area_words": 2,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20260731g001720125",
+      "source_sha256": "5c6a474a7a0a63c6ec819a65596ba3bdcddcfbb18115e0f215480445f3f4229d",
+      "baseline_output_sha256": "0810b131498144d0136695478aa2ec50a779b5d0b7b9a06330541e27d037cbf4",
+      "final_output_sha256": "c5fb0641ecd8ee1f44dc3a9548b60168b3ccaeebf3204a495a45b7d6d1da072a",
+      "restored_area_words": 1,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20260731g001720130",
+      "source_sha256": "103a3a8c0ec6325bc216ee1261ed01e3fa1935a00f5312def2a27a5aa1200e26",
+      "baseline_output_sha256": "de5fc1f28864f556d7df30781c8edeaa2397c5e4c45221ad162c8e222d17fb1c",
+      "final_output_sha256": "3286158384980739531e95730fadc31a877835d9510991cc47df92fa60c4ee0c",
+      "restored_area_words": 2,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20260731g001720136",
+      "source_sha256": "eca1c462f1083a607123dbf28ba2faa6eb9c83b38a93bf531ccd6924c15dd3cd",
+      "baseline_output_sha256": "7f25415a3c78b919df3e77c0a1add04cf4b744a1f01dbe6f8920535202cdfc16",
+      "final_output_sha256": "806f51ca1f6d6ea49c984160cf5cb0f028cc95b16fa3c41d31e4f6c7e0fbe477",
+      "restored_area_words": 1,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20260731g001720143",
+      "source_sha256": "ca1063b49b8418d8c9e2a3e9c12ed8c88e80353cac1600a562fbcdf7b7f8ed84",
+      "baseline_output_sha256": "b4547fb06f60d00552cec979a4adfb4da95065e5f282130d1b82c1567ca80763",
+      "final_output_sha256": "ff626564183b3c70c36e0fc8c4076a8ae82819d7a4e57245791780ade1e9a9ad",
+      "restored_area_words": 1,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20260731h017590006",
+      "source_sha256": "726a5f577b7054957c801e942a6308ad90e42a269eea8839a49db858d1b1c00c",
+      "baseline_output_sha256": "9b258db9edc32871e2e5f770c20d54184fef3868c0978c733dce89f2b08535d7",
+      "final_output_sha256": "5e4d133e69744854bf640ee4be8f28b8a59a115c66030492dd6b118c5a094fcf",
+      "restored_area_words": 0,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 1,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20260806h017630005",
+      "source_sha256": "29966e59f1fff66e35b33d1e5415fe53c0c46fee0b9f1a96e361df4e76e9f7a1",
+      "baseline_output_sha256": "e90ccfe3a1a419589bb4d4bc82c3c47f22fa6622525013fa8687982e6a4a3811",
+      "final_output_sha256": "280de60f0f04e495f87eb94a9b0cffc57b2eee1a371dbba5a5242bd8cae85b26",
+      "restored_area_words": 0,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 1,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20260817g001830033",
+      "source_sha256": "cf5d9ce01db2265128fb238d63edf233f98eacdc4eea9df69b46ea09fc8ef509",
+      "baseline_output_sha256": "d854fa9efdf7d85486cebc92de54b0ec137f65c702589a506df1cd6ec9e1a4c8",
+      "final_output_sha256": "4338e6b4d6bd1fc69451fff84eeb3fb14e3198f1dd4ea152584ad5b952b7b63e",
+      "restored_area_words": 2,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20260818h017700007",
+      "source_sha256": "b3f6b832a98775f7816c305153b51684f9ab4ef03c3e724dd0cb2d262100f958",
+      "baseline_output_sha256": "984f680d8c64edda14f8486d9608446ca12967aea4e36a6dd5f4b48fb44c8729",
+      "final_output_sha256": "635745fe359ea34921be2d8429f913839634781998cc49013b2da473dea3f1cd",
+      "restored_area_words": 0,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 1,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20260824g001880111",
+      "source_sha256": "c87fdc496a72baf3fa4dd1095b597c2657daa32fe4589a7ed50c0fba5a994623",
+      "baseline_output_sha256": "aa4937762fc763b34bbfbec17bb35ba5bf10db8ccec53f70201a3d9a264eccc0",
+      "final_output_sha256": "65d74c0d5431e2ab661218943555f4ca321712fc24ac3405ee066395425c4293",
+      "restored_area_words": 0,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": true
+    },
+    {
+      "page": "20260827g001910056",
+      "source_sha256": "272568055e98ecb4195228b46187da3eaa9cb91125a7b1813051ae8c86fca2da",
+      "baseline_output_sha256": "3021a4169d979c43f7efe873906e1cf48c2b8b568c2d9c38358fd20af3690039",
+      "final_output_sha256": "de628216dc699e76df37de1a0bd1108ad2b51b948219331accde837730a7f5d2",
+      "restored_area_words": 0,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": true
+    },
+    {
+      "page": "20260828g001920063",
+      "source_sha256": "874e5f7dbbc835d4cc49d98c8dfdc5f12b4bab1b1c8395698a45182f089357ea",
+      "baseline_output_sha256": "f197e273ba4a09370ea678042b2644b5100bdaaf1032169a828bc756ba298d5f",
+      "final_output_sha256": "b7899741156be065d4edce6ba387cb8cb78ac988c4eb98b80787276fecc986bb",
+      "restored_area_words": 0,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": true
+    },
+    {
+      "page": "20260828g001920078",
+      "source_sha256": "bd7427e6417ab23c46fe2c8f211ae295c75dbcfc1cbf13c5a2137d86f2edd91e",
+      "baseline_output_sha256": "313360a6543ba77974bac64af3657f81ca0438cf93f2dbd996d507fcd9c31c9e",
+      "final_output_sha256": "36cfd548670d54274c1bcf9088850211aad285b9c3c09f291d823da9e726679d",
+      "restored_area_words": 0,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": true
+    },
+    {
+      "page": "20260910g002020091",
+      "source_sha256": "de231462eac19d811551c0b0816dc799b212c98e9edd8d88a9d5c1a9f733bcc6",
+      "baseline_output_sha256": "e01ab6dfc9fb295b28ee64bfd9d9879d7c9c1256eb718819e073e406920e880f",
+      "final_output_sha256": "b9634d1f58f71c1db00d5d136388f2b57c1464d07cf53bef5e338874b42b65bf",
+      "restored_area_words": 3,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20260915g002050070",
+      "source_sha256": "ebba415d32b72a9842b739c625a705f12f010e620840afcf1bddf0de28e59431",
+      "baseline_output_sha256": "b6a916674b3a33f7b8d776162fb61d87ebb8e5d8a9748d4fc1999a97684d2e64",
+      "final_output_sha256": "9ea70cacd8644cdf368984f7b725da0e1ae87c05bb16bcb397cfa41ddb71753a",
+      "restored_area_words": 2,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20260915h017900005",
+      "source_sha256": "c2ca1c3f1e9b4612d0c1270d2d8808f6e2254b704a2a71f159dda3f5cdc5a3fa",
+      "baseline_output_sha256": "503369f4f8fc6a50aad8c3332e5855be34d7af549775baf3b4531bc23aa30de2",
+      "final_output_sha256": "e402f8e20f604b81750ac82318bae93fb217fc6358f1a8102e7fb04fad90fa24",
+      "restored_area_words": 0,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 2,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20260925g002120073",
+      "source_sha256": "308ba059873a973f563c61616d6c1db040ed77dbf8f391726e776769fb813f22",
+      "baseline_output_sha256": "4dc9f8e70643e21e3ee77a1d86af601929f3c28dab4e04eb01e5a151fd4b6f5f",
+      "final_output_sha256": "e691e316ff94d10fbd000537050d7104a2e8c4cee1ba45541476b07cfe413bf1",
+      "restored_area_words": 0,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": true
+    },
+    {
+      "page": "20261008g002220093",
+      "source_sha256": "e0137c416f55811bdd2ff6e257adf59caa28d5eb5aeb4dca6cf86452ccbb02bc",
+      "baseline_output_sha256": "605b9398f3d3e34ce97797395783a6bbc9d1aa8e59e62ed9b17915cb8d467e98",
+      "final_output_sha256": "ffe708bfee89b74c9ea39012a98472ff086d32164084d9abc67b0dea3a518d1b",
+      "restored_area_words": 0,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": true
+    },
+    {
+      "page": "20261009g002230155",
+      "source_sha256": "3ad4df7d6a2aedc66685d6200878c640614339e91f5ac86e0c448e1307eb7840",
+      "baseline_output_sha256": "6499440058f9f5a51007857c7c2179b59308a43c620d7c730bcf65054b506573",
+      "final_output_sha256": "f6aeb0de666106806b1bde909686e7414e47c8777bf55cbafc9cfab2a1d6670e",
+      "restored_area_words": 2,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20261014g002250072",
+      "source_sha256": "74c7f82731b1c58c38ce72b2df9ff1f3e660a67b06c743b96c3e05eaf81a6459",
+      "baseline_output_sha256": "acae86fb1aa0e86d49b635bb8d8a21348f40f1eb44fe786646043883f2c23800",
+      "final_output_sha256": "0e2a451bba54696edb742172470d7863b55c3ddd26f53da7f963235cd93c78a3",
+      "restored_area_words": 0,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": true
+    },
+    {
+      "page": "20261016g002280007",
+      "source_sha256": "a404b84c6b7b90e6d1b19498e34ee834aedc276c0d74028be76c3a133d3d3fa5",
+      "baseline_output_sha256": "1afbf7f10b35ca734adff0c796cb566c1698c744b644368cf4184f8cf9506fb2",
+      "final_output_sha256": "cc35ba3fe469f5909f8b18aab62421d72c91763b0a3c6a9f4449a8fc03cf6960",
+      "restored_area_words": 1,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20261016g002280041",
+      "source_sha256": "c47aabcfa1d1991c253020867f4396a2d512e2994b0c1fd455b45a37be1ccef4",
+      "baseline_output_sha256": "fe10cc90ed0128be49d445d004e2a954f4f0d2377acd40fc44a8149cbd0d5ca2",
+      "final_output_sha256": "25184fdebb1dd8926aa405911a13e00166ba38b40510d9258b759000b2b57b01",
+      "restored_area_words": 1,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20261016g002280251",
+      "source_sha256": "9748ad01e442a656b421d134b6226b9349e657f905f3c21100c9c2825a444f71",
+      "baseline_output_sha256": "aab9b806133c96599b513f29e23844655d6b8529a26feb02e46a640b0f637a8b",
+      "final_output_sha256": "0c655f7cd80a7fd50c5280e7892d6281e521cb6a47c8990b12e39c787627e78f",
+      "restored_area_words": 2,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20261016g002280252",
+      "source_sha256": "92938a13a4826cc8dca644211d44535383907537f82bbd90fe6275e0b94a6147",
+      "baseline_output_sha256": "5e5180c1c0de0e2884f87c8021f676fad0b7ca8d58b66e6befcd0db2a0c05aaa",
+      "final_output_sha256": "79783013e0a2cd257838871a8e310cf3caa2592e9359f35bfb899779a74c0f38",
+      "restored_area_words": 2,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20261016g002280356",
+      "source_sha256": "7a3167adbf6e56d8ef85a2d9606b39565425bd62adf53febeb90b4dd41be239b",
+      "baseline_output_sha256": "81e49f52d191e3cc5f4068a003957aced5826f4e8ff46bcffa03fd224c1d30da",
+      "final_output_sha256": "afe8d816a3bf84d404ee63d19a5750d8ba7928c11a99e9de14bbce755aebb91c",
+      "restored_area_words": 1,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20261016g002280465",
+      "source_sha256": "5153268854945fa36b84d51e3d82b8afc35221f0703fdfb26361876a62cd0b97",
+      "baseline_output_sha256": "d5c025aa532c2ac1467b6267de78b259684537e2bb163e595613f3539475aaa8",
+      "final_output_sha256": "160e4528bae89e963800120b0515892c659a3320d14e3e4465625aaf0a8a3d0e",
+      "restored_area_words": 4,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20261016g002280543",
+      "source_sha256": "8fe70d4379068abfb5fc6d35442e789061c4b6310bcc1ed20679990884ada7b1",
+      "baseline_output_sha256": "596e9b0d72dda226f7291fbc3f1e10476d1cec6fc5acd536062e8235da59656b",
+      "final_output_sha256": "d174644f6cafffcb00615ee40e82dd646f5d6974d0ceb1a659b24e1fd67c1ec5",
+      "restored_area_words": 1,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20261016g002280566",
+      "source_sha256": "b88f744ac6b2cc9b73492f7a9f1de8fd9599724f96a503f47b7673539729c137",
+      "baseline_output_sha256": "716e7f366354f399af321a8715e8293cead676955c5b5e49a437bba90490cd4b",
+      "final_output_sha256": "c95e521759ea985569f7d225ff20d8b7ce91fea20388c2a14e8a723a73bc820c",
+      "restored_area_words": 1,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20261016g002280593",
+      "source_sha256": "99b69a9bc985748d22ca20583db4d6f12a2c5bf5ffae310bbaccd4a7d20cabe5",
+      "baseline_output_sha256": "993ec6bd0aca425136cd8895a4d0a5d1e2b3bde31ace9a8779245cbb65726648",
+      "final_output_sha256": "91fc107a4ee17b8392fcc8cde826bb9dac3c7f535e295ec1c1ebb848650f25c0",
+      "restored_area_words": 1,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": false
+    },
+    {
+      "page": "20261020g002300087",
+      "source_sha256": "e1b887d3d85f57eb3fc147135ae7158ebde65970c2a5c4637679da6aa08c4fe3",
+      "baseline_output_sha256": "e6319e311ce31a2c25535a4a90537ac25fba6bc5dec03c1cb453f650f8e9cbc2",
+      "final_output_sha256": "a90ae9b794d0872fe7a83bdc06eacc0c78522020e5dd11ba8008cc0f5061d507",
+      "restored_area_words": 0,
+      "existing_source_ID_multiset_exact": true,
+      "source_status_raw_bbox_exact": true,
+      "duplicate_IDs": 0,
+      "removed_characters": {},
+      "new_road_tables": 0,
+      "financial_lines_and_tables_exact": true
+    }
+  ],
+  "root_snapshot_reviews": [
+    {
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260730g00171__20260730g001710130.pdf.snap",
+      "previous": true,
+      "sha256": "8f4e5592393a5f27656fd5777c6603299aa49e394825327b0846c560bf6b8d42",
+      "review": "Full article structure/diff read by root; body matches freshafter30; financial originals and area/road originals all reviewed. Known unchanged negative layouts remain partial as documented."
+    },
+    {
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731g00172__20260731g001720117.pdf.snap",
+      "previous": false,
+      "sha256": "3358ef227aa42185f7f4d482d1e3f466e7ee5aa80ef13a22fb8cf80d9e232bcb",
+      "review": "Full article structure/diff read by root; body matches freshafter30; financial originals and area/road originals all reviewed. Known unchanged negative layouts remain partial as documented."
+    },
+    {
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731g00172__20260731g001720119.pdf.snap",
+      "previous": false,
+      "sha256": "bc087e0a96270fd3e7c2ea3a73ade60893172645a9d0323d72903cb1603e1fdb",
+      "review": "Full article structure/diff read by root; body matches freshafter30; financial originals and area/road originals all reviewed. Known unchanged negative layouts remain partial as documented."
+    },
+    {
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731h01759__20260731h017590006.pdf.snap",
+      "previous": true,
+      "sha256": "94134c6af46cb2fbd2d421b67fd53f90785f56f3c754d28fa53d3ee491356181",
+      "review": "Full article structure/diff read by root; body matches freshafter30; financial originals and area/road originals all reviewed. Known unchanged negative layouts remain partial as documented."
+    },
+    {
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260817g00183__20260817g001830033.pdf.snap",
+      "previous": false,
+      "sha256": "12a773890256e3a7780833482b5f9e7990d844c83671a2ccfe7e27d6d0ac7aa0",
+      "review": "Full article structure/diff read by root; body matches freshafter30; financial originals and area/road originals all reviewed. Known unchanged negative layouts remain partial as documented."
+    },
+    {
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260828g00192__20260828g001920077.pdf.snap",
+      "previous": false,
+      "sha256": "1bf78d767c0afcb604bc2a319bfeb357446adf661426d5d46fe9da9becad0a08",
+      "review": "Full article structure/diff read by root; body matches freshafter30; financial originals and area/road originals all reviewed. Known unchanged negative layouts remain partial as documented."
+    },
+    {
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260828g00192__20260828g001920078.pdf.snap",
+      "previous": false,
+      "sha256": "a17612e8611366faebcf9cad2e9c613819f08ebf0131379a63d9215b88c995f4",
+      "review": "Full article structure/diff read by root; body matches freshafter30; financial originals and area/road originals all reviewed. Known unchanged negative layouts remain partial as documented."
+    },
+    {
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260909g00201__20260909g002010013.pdf.snap",
+      "previous": false,
+      "sha256": "c65f7d00884740f45fc5772bb16843f1a9bab00079782738dac23310f85fdcbd",
+      "review": "Full article structure/diff read by root; body matches freshafter30; financial originals and area/road originals all reviewed. Known unchanged negative layouts remain partial as documented."
+    },
+    {
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261020g00230__20261020g002300086.pdf.snap",
+      "previous": false,
+      "sha256": "85903f194e3759e8be56b3335fbf4e924e381f31f38c45b897efa2e0107464ee",
+      "review": "Full article structure/diff read by root; body matches freshafter30; financial originals and area/road originals all reviewed. Known unchanged negative layouts remain partial as documented."
+    },
+    {
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261020g00230__20261020g002300087.pdf.snap",
+      "previous": false,
+      "sha256": "02d5bbee36422acbfe2fb1ebb60606c8f9020ca778a749313200c2be8950fa5b",
+      "review": "Full article structure/diff read by root; body matches freshafter30; financial originals and area/road originals all reviewed. Known unchanged negative layouts remain partial as documented."
+    }
+  ],
+  "existing_corpus_goldens": {
+    "count": 2,
+    "updated": 0,
+    "tests_passed": 2,
+    "log": "test-batch9-corpus-review.log"
+  },
+  "remaining_scope": [
+    "225p72 five lower-notice signer/address lines still precede their own title; neutral contiguity change only",
+    "1790p5 other defense multi-facility/max-min tables remain",
+    "Unowned standalone area symbols11 on6 pages not guessed",
+    "Existing diagnostic50 merged-source Used Word IDs on14 cumulative-changed pages do not own separate output IDs; restored source glyphs all attached; no claim of full original text extraction"
+  ]
+}

@@ -70,6 +70,7 @@ fn seed() -> (Vec<trace::Unit>, Vec<trace::Word>, crate::lines::PageRules) {
         table: Some(t),
     }])];
     let rules = crate::lines::PageRules {
+        enclosures: Vec::new(),
         vertical: [0., 40., 80., 120.]
             .into_iter()
             .map(|x| crate::lines::VRule { x, y0: 0., y1: 60. })

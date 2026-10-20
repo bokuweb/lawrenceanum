@@ -440,6 +440,12 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             crate::cell_row_dashes::restore_cell_record_dashes(&mut units, &mut words, &grids);
             crate::large_parentheses::restore_large_parentheses(&mut units, &words);
             crate::coordinate_symbols::restore_coordinate_symbols(&mut units, &mut words);
+            crate::area_units::restore_area_units(&mut units, &mut words);
+            if let Some(rules) = rules.get(pi).and_then(|r| r.as_ref()) {
+                crate::financial_enclosures::order_financial_enclosures(
+                    &mut units, &words, &rules.enclosures, width, height,
+                );
+            }
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
@@ -739,6 +745,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         crate::unruled_road::restore(&mut units, &words);
         crate::large_parentheses::restore_large_parentheses(&mut units, &words);
         crate::coordinate_symbols::restore_coordinate_symbols(&mut units, &mut words);
+        crate::area_units::restore_area_units(&mut units, &mut words);
         let text = units
             .iter()
             .map(Unit::text)
@@ -914,6 +921,7 @@ fn unturn_tables(units: &mut [Unit], page_width: f32) {
 /// 横倒しのページの罫線を、語と同じく 90° 回す（表示の上端 → 元のページの右端、左端 → 上端）。
 fn turn_rules(r: &PageRules, page_width: f32) -> PageRules {
     PageRules {
+        enclosures: Vec::new(),
         vertical: r.horizontal.iter().map(|h| crate::lines::VRule { x: page_width - h.y, y0: h.x0, y1: h.x1 }).collect(),
         horizontal: r.vertical.iter().map(|v| crate::lines::HRule { y: v.x, x0: page_width - v.y1, x1: page_width - v.y0 }).collect(),
     }
@@ -922,6 +930,7 @@ fn turn_rules(r: &PageRules, page_width: f32) -> PageRules {
 /// 罫線を x の範囲 `lo..=hi` で切り取る（範囲の端の縦線は残す）。
 fn clip_rules(r: &PageRules, lo: f32, hi: f32) -> PageRules {
     PageRules {
+        enclosures: Vec::new(),
         vertical: r.vertical.iter().filter(|v| lo - 3.0 <= v.x && v.x <= hi + 3.0).copied().collect(),
         horizontal: r
             .horizontal
@@ -5592,6 +5601,7 @@ mod tests {
             col(4, 426.0, 80.0, 410.0, "表の本体の左の列"),
         ];
         let rules = PageRules {
+            enclosures: Vec::new(),
             vertical: vec![crate::lines::VRule { x: 532.0, y0: 60.0, y1: 790.0 }],
             horizontal: vec![crate::lines::HRule { y: 430.0, x0: 532.0, x1: 553.0 }],
         };

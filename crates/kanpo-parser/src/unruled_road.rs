@@ -2,7 +2,16 @@
 use crate::trace::{Line, Table, TableCell, Unit, Word};
 use std::collections::{BTreeMap, BTreeSet};
 fn cx(w: &Word) -> f32 {
-    (w.x0 + w.x1) / 2.
+    // A horizontal halfwidth dot is reboxed into the left half of a vertical em.
+    // Its right edge is the center of the containing full-width glyph column.
+    if w.text == "･"
+        && w.raw == "･"
+        && (2. * (w.x1 - w.x0) - (w.y1 - w.y0)).abs() < (w.y1 - w.y0) * 0.1
+    {
+        w.x1
+    } else {
+        (w.x0 + w.x1) / 2.
+    }
 }
 fn cy(w: &Word) -> f32 {
     (w.y0 + w.y1) / 2.
@@ -12,11 +21,11 @@ fn numeric(t: &str) -> bool {
         && t.chars().all(|c| {
             c.is_ascii_digit()
                 || ('０'..='９').contains(&c)
-                || "〇零一二三四五六七八九・．.〜～".contains(c)
+                || "〇零一二三四五六七八九・･．.〜～".contains(c)
         })
 }
 fn decimal(t: &str) -> bool {
-    let p = t.split(['・', '．', '.']).collect::<Vec<_>>();
+    let p = t.split(['・', '･', '．', '.']).collect::<Vec<_>>();
     p.len() == 2
         && p.iter().all(|s| {
             !s.is_empty()
@@ -35,10 +44,10 @@ fn letter(c: char) -> bool {
     c.is_ascii_uppercase() || ('Ａ'..='Ｚ').contains(&c)
 }
 fn codes(t: &str) -> bool {
-    !t.is_empty() && t.chars().all(|c| letter(c) || c == '・')
+    !t.is_empty() && t.chars().all(|c| letter(c) || c == '・' || c == '･')
 }
 fn valid_codes(t: &str) -> bool {
-    let p = t.split('・').collect::<Vec<_>>();
+    let p = t.split(['・', '･']).collect::<Vec<_>>();
     !p.is_empty()
         && p.iter()
             .all(|s| s.chars().count() == 1 && s.chars().all(letter))
@@ -317,7 +326,10 @@ fn infer(head: &Word, words: &[Word]) -> Option<Table> {
         .iter()
         .copied()
         .filter(|w| {
-            (w.text == "前" || w.text == "後") && w.y0 >= head.y0 && cy(w) < b3 && cx(w) < cx(meter)
+            (w.text == "前" || w.text == "後")
+                && w.y0 >= head.y0 - em * 0.1
+                && cy(w) < b3
+                && cx(w) < cx(meter)
         })
         .collect::<Vec<_>>();
     if states.len() != 2 {
@@ -644,5 +656,56 @@ mod tests {
         assert!(!common.contains("（四）"));
         assert!(!common.contains("九州"));
         assert_eq!(t.cols, 4);
+    }
+}
+
+#[cfg(test)]
+mod halfwidth_tests {
+    use super::*;
+    fn source() -> Vec<Word> {
+        let pdf = include_bytes!("../tests/archive/pages/20260731h01759/20260731h017590006.pdf");
+        crate::analyze_item(&crate::page_inputs(pdf).unwrap())
+            .pages
+            .remove(0)
+            .words
+    }
+    #[test]
+    fn a_halfwidth_dot_requires_its_native_shape_and_raw_character() {
+        let w = source();
+        assert!((cx(&w[56]) - cx(&w[50])).abs() < 0.01);
+        let mut dot = w[56].clone();
+        dot.raw = "unknown".into();
+        assert!((cx(&dot) - cx(&w[50])).abs() > 1.9);
+        dot.raw = "･".into();
+        dot.x1 = dot.x0 + 8.;
+        assert!((cx(&dot) - ((dot.x0 + dot.x1) / 2.)).abs() < 0.01);
+    }
+    #[test]
+    fn missing_decimal_or_a_state_above_the_header_does_not_make_a_table() {
+        let w = source();
+        assert!(infer(&w[4], &w).is_some());
+        let mut changed = w.clone();
+        changed[56].text.clear();
+        assert!(infer(&changed[4], &changed).is_none());
+        let mut changed = w.clone();
+        changed[60].y0 -= 2.;
+        changed[60].y1 -= 2.;
+        assert!(infer(&changed[4], &changed).is_none());
+    }
+    #[test]
+    fn halfwidth_decimal_and_code_separators_do_not_accept_missing_digits_or_punctuation() {
+        assert!(range("九･七七〜四二･三六"));
+        assert!(valid_codes("Ｂ･Ｃ･Ｄ"));
+        for bad in [
+            "九七七〜四二三六",
+            "九･･七七〜四二･三六",
+            "･七七〜四二･三六",
+            "九･〜四二･三六",
+        ] {
+            assert!(!range(bad), "{bad}");
+        }
+        for bad in ["Ｂ･Ｃ･", "･Ｂ", "Ｂ･･Ｃ", "ＢＣ"] {
+            assert!(!valid_codes(bad), "{bad}");
+        }
     }
 }

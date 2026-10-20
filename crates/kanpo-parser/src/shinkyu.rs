@@ -1666,6 +1666,7 @@ mod tests {
         use crate::trace::Unit;
         use crate::vertical::Col;
         let rules = PageRules {
+            enclosures: Vec::new(),
             vertical: [74.0, 111.25, 310.9, 333.5].iter().map(|&x| VRule { x, y0: 69.5, y1: 412.5 }).collect(),
             horizontal: vec![
                 HRule { y: 69.5, x0: 74.0, x1: 333.5 },
