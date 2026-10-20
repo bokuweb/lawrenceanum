@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { ScrollArea } from "../ui/scroll-area";
@@ -23,7 +23,7 @@ function CaseListItem({ meta, selected, onClick }: {
         selected ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
       ].join(" ")}
     >
-      <div className="text-sm font-medium line-clamp-2">{meta.title}</div>
+      <div className="text-sm font-medium line-clamp-2 [overflow-wrap:anywhere]">{meta.title}</div>
       <div className="flex items-center gap-2 mt-1 flex-wrap">
         {meta.status === "open" && (
           <span className="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 font-medium">募集中</span>
@@ -113,8 +113,9 @@ function CaseDetail({ caseId, onLawClick }: {
   caseId: string;
   onLawClick: (lawName: string) => void;
 }) {
-  const { data, loading } = usePubcommentCase(caseId);
+  const { data, loading, retry } = usePubcommentCase(caseId);
   const [opinionQuery, setOpinionQuery] = useState("");
+  useEffect(() => { setOpinionQuery(""); }, [caseId]);
 
   const filtered = useMemo(() => {
     if (!data) return [];
@@ -150,10 +151,15 @@ function CaseDetail({ caseId, onLawClick }: {
       </div>
     );
   }
-  if (!data) return <div className="p-6 text-sm text-muted-foreground">読み込めませんでした</div>;
+  if (!data) return (
+    <div role="alert" className="p-6 text-sm text-muted-foreground">
+      <p>案件の詳細を読み込めませんでした</p>
+      <button type="button" onClick={retry} className="mt-2 text-primary hover:underline">再試行</button>
+    </div>
+  );
 
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="flex flex-col h-full min-h-0 [overflow-wrap:anywhere]">
       {/* ヘッダー */}
       <div className="px-5 py-4 border-b border-border shrink-0">
         <h2 className="text-base font-semibold leading-snug">{data.title}</h2>
@@ -234,7 +240,7 @@ function CaseDetail({ caseId, onLawClick }: {
       </div>
 
       {/* 意見リスト */}
-      <ScrollArea className="flex-1 min-h-0">
+      <ScrollArea className="flex-1 min-h-0 [&>[data-slot=scroll-area-viewport]>div]:!block">
         <div className="px-5">
           {data.opinions.length === 0 && extractedAttachments.length > 0 ? (
             filteredAttachments.length > 0 ? (
@@ -280,7 +286,7 @@ export function PubcommentView({
   caseId: string | null;
   onSelectCase: (id: string | null) => void;
 }) {
-  const { data, loading } = usePubcommentIndex();
+  const { data, loading, retry } = usePubcommentIndex();
   const navigate = useNavigate();
 
   const [query, setQuery] = useState("");
@@ -309,9 +315,9 @@ export function PubcommentView({
   }, [data, query, ministryFilter]);
 
   return (
-    <div className="flex h-full min-h-0">
+    <div className="flex h-full min-h-0 flex-col md:flex-row">
       {/* 左: 一覧 */}
-      <div className="w-80 shrink-0 border-r border-border flex flex-col min-h-0">
+      <div className="w-full max-h-64 md:max-h-none md:w-80 min-h-0 shrink-0 border-b md:border-b-0 md:border-r border-border flex flex-col">
         <div className="px-4 py-3 border-b border-border shrink-0 space-y-2">
           <div className="flex items-center gap-2">
             <h2 className="text-sm font-semibold flex-1">パブリックコメント</h2>
@@ -339,14 +345,19 @@ export function PubcommentView({
           </Select>
         </div>
 
-        <ScrollArea className="flex-1 min-h-0">
+        <ScrollArea className="flex-1 min-h-0 [&>[data-slot=scroll-area-viewport]>div]:!block">
           {loading ? (
             <div className="p-4 space-y-2">
               {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
             </div>
+          ) : !data ? (
+            <div role="alert" className="p-6 text-center text-sm text-muted-foreground">
+              <p>パブリックコメント一覧を読み込めませんでした</p>
+              <button type="button" onClick={retry} className="mt-2 text-primary hover:underline">再試行</button>
+            </div>
           ) : filtered.length === 0 ? (
             <p className="p-6 text-center text-sm text-muted-foreground">
-              {data ? "該当する案件がありません" : "データがありません"}
+              該当する案件がありません
             </p>
           ) : (
             filtered.map(c => (
