@@ -18,7 +18,7 @@ on:
         type: choice
         options: ["http", "mock"]
       domains:
-        description: "カンマ区切りドメイン (kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget,hanrei,shitsumon) / 空=全て。自治体例規は collect-reiki.yml"
+        description: "カンマ区切りドメイン (kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget,hanrei,shitsumon,guidance) / 空=全て。自治体例規は collect-reiki.yml"
         required: false
         type: string
       kokkai_session:
@@ -92,7 +92,7 @@ jobs:
     timeout-minutes: 120
     env:
       LAWPUB_PROVIDER: ${{ github.event.inputs.provider || 'http' }}
-      DOMAINS: ${{ github.event.inputs.domains || 'kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget,hanrei,shitsumon' }}
+      DOMAINS: ${{ github.event.inputs.domains || 'kokkai,pubcomment,procurement,gian,tsutatsu,shingikai,budget,hanrei,shitsumon,guidance' }}
       # 未設定なら budget step は安全に skip。Secret 追加後の次回runから自動収集する。
       LAWPUB_ESTAT_APP_ID: ${{ secrets.ESTAT_APP_ID }}
 
@@ -159,11 +159,13 @@ jobs:
           restore_bundle budget-cache.tar.zst .cache/budget
           restore_bundle hanrei-cache.tar.zst .cache/hanrei
           restore_bundle shitsumon-cache.tar.zst .cache/shitsumon
+          restore_bundle guidance-cache.tar.zst .cache/guidance
+          restore_bundle guidance-assets.tar.zst .cache/guidance-assets
 
       - name: Build lawpub
         run: cargo build --release -p lawpub-cli
 
-      # パブコメ添付 PDF の原本保存・全文抽出に使用する。
+      # パブコメ・政府解釈の添付 PDF の原本保存・全文抽出に使用する。
       - name: Install poppler (pdftotext)
         run: sudo apt-get update && sudo apt-get install -y poppler-utils
 
@@ -479,6 +481,48 @@ jobs:
             --cache-control 'public, max-age=300'
           echo "::notice::uploaded shitsumon cache to R2 ($n questions)"
 
+      # ── 政府解釈 (金融庁 ノーアクションレター・書面照会・相談事例・Q&A・ガイドライン) ──
+      - name: Fetch guidance
+        id: fetch_guidance
+        if: contains(env.DOMAINS, 'guidance') || env.DOMAINS == ''
+        continue-on-error: true
+        run: |
+          # 金融庁サイトは PDL1.0 (出典明記・加工の旨を記載すれば再配布可)、robots.txt は不在。
+          # 一覧の巡回が約 22 リクエスト、文書ごとに照会書・回答書の最大 2 ファイル。
+          # 取得済みのノーアクションレターは取り直さず、Q&A・ガイドラインは 7 日ごとに取り直す。
+          # 2 秒間隔・1 run 120 文書まで (初回は約 10 分、以後は数分)。
+          ./target/release/lawpub guidance-fetch \
+            --cache .cache --ministry fsa --interval-ms 2000 --limit 120 --refresh-days 7
+
+      - name: Upload guidance cache to R2
+        id: upload_guidance
+        if: (contains(env.DOMAINS, 'guidance') || env.DOMAINS == '') && env.R2_BUCKET != '' && env.R2_ENDPOINT != ''
+        continue-on-error: true
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          [ -d .cache/guidance ] || { echo "::notice::no guidance cache, skip R2 upload"; exit 0; }
+          upload_bundle() {
+            source="$1"
+            object="$2"
+            [ -d "$source" ] || { echo "::notice::no $source, skip $object"; return; }
+            archive="/tmp/$object"
+            ( cd "$source" && tar -cf - . | zstd -19 --long -T0 -o "$archive" -f )
+            aws s3 cp "$archive" "s3://$R2_BUCKET/$object" \
+              --endpoint-url "$R2_ENDPOINT" \
+              --content-type 'application/zstd' \
+              --cache-control 'public, max-age=300'
+          }
+          n=$(find .cache/guidance -name '*.json' ! -name '._*' | wc -l | tr -d ' ')
+          # top-level を ./{ministry}/{id}.json / ./{ministry}/{sha256}.{ext} にする。
+          upload_bundle .cache/guidance guidance-cache.tar.zst
+          upload_bundle .cache/guidance-assets guidance-assets.tar.zst
+          echo "::notice::uploaded guidance cache to R2 ($n documents)"
+
       # ── 調達情報 ─────────────────────────────────────────────────
 
       - name: Fetch procurement (直近 30 日)
@@ -643,6 +687,8 @@ jobs:
           HANREI_UPLOAD_OUTCOME: ${{ steps.upload_hanrei.outcome }}
           SHITSUMON_OUTCOME: ${{ steps.fetch_shitsumon.outcome }}
           SHITSUMON_UPLOAD_OUTCOME: ${{ steps.upload_shitsumon.outcome }}
+          GUIDANCE_OUTCOME: ${{ steps.fetch_guidance.outcome }}
+          GUIDANCE_UPLOAD_OUTCOME: ${{ steps.upload_guidance.outcome }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -692,6 +738,7 @@ jobs:
           update_domain budget budget "$BUDGET_OUTCOME" "$BUDGET_UPLOAD_OUTCOME"
           update_domain hanrei hanrei "$HANREI_OUTCOME" "$HANREI_UPLOAD_OUTCOME"
           update_domain shitsumon shitsumon "$SHITSUMON_OUTCOME" "$SHITSUMON_UPLOAD_OUTCOME"
+          update_domain guidance guidance "$GUIDANCE_OUTCOME" "$GUIDANCE_UPLOAD_OUTCOME"
           tmp=$(mktemp)
           jq --arg ts "$ts" --arg domains "$DOMAINS" '
             .version = 2 | .updated_at = $ts | .last_run_domains = $domains

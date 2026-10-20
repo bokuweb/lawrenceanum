@@ -141,6 +141,40 @@ impl LawMatcher {
     }
 }
 
+/// 法令名＋該当条文の文字列を法令 ID と条番号に解決する公開窓口。
+///
+/// 他クレート (lawpub-cli の build-json など) が [`LawMatcher`] の辞書を使って、
+/// 文書に添えられた関連法令 (「銀行法」「第10条第２項、第12条」) を解決するためのもの。
+pub struct LawRefResolver {
+    matcher: LawMatcher,
+}
+
+impl LawRefResolver {
+    /// `public/laws/index.json` から辞書を作る。
+    pub fn from_index(public: &Path) -> Result<Self> {
+        Ok(Self {
+            matcher: LawMatcher::from_index(public)?,
+        })
+    }
+
+    pub fn new(laws: &[(String, String)]) -> Result<Self> {
+        Ok(Self {
+            matcher: LawMatcher::new(laws)?,
+        })
+    }
+
+    /// 法令名 `name` (と該当条文 `provisions`) を (law_id, 条番号) に解決する。
+    /// 法令名が索引に無ければ None。条文が読めなければ条番号は空。
+    pub fn resolve(&self, name: &str, provisions: Option<&str>) -> Option<(String, Vec<String>)> {
+        let text = format!("{name}{}", provisions.unwrap_or(""));
+        let found = self.matcher.scan(&text, Some(0));
+        // 先頭に名前が一致した法令を優先する (条文側に別法令の名前が出ることがあるため)。
+        let first = self.matcher.scan(name, Some(0)).into_keys().next()?;
+        let arts = found.get(&first).cloned().unwrap_or_default();
+        Some((first, arts.into_iter().collect()))
+    }
+}
+
 fn kanji_digit(c: char) -> Option<u32> {
     "〇一二三四五六七八九"
         .chars()
@@ -350,6 +384,32 @@ mod tests {
         assert!(m.scan("同法第三条", None).is_empty());
         // 「同法人」は条番号が続かないので拾わない。
         assert_eq!(m.scan("国会法第七十四条 同法人", None)["KOK"].len(), 1);
+    }
+
+    #[test]
+    fn resolver_resolves_name_and_provisions() {
+        let laws = vec![
+            ("GINKO".to_string(), "銀行法".to_string()),
+            ("KINSHO".to_string(), "金融商品取引法".to_string()),
+            ("KINSHO_REI".to_string(), "金融商品取引法施行令".to_string()),
+        ];
+        let r = LawRefResolver::new(&laws).unwrap();
+        assert_eq!(
+            r.resolve("銀行法", Some("第10条第２項、第12条")),
+            Some((
+                "GINKO".to_string(),
+                vec!["10".to_string(), "12".to_string()]
+            ))
+        );
+        assert_eq!(
+            r.resolve("金融商品取引法", Some("第77条の３第１項等")),
+            Some(("KINSHO".to_string(), vec!["77_3".to_string()]))
+        );
+        assert_eq!(
+            r.resolve("金融商品取引法施行令", None),
+            Some(("KINSHO_REI".to_string(), vec![]))
+        );
+        assert_eq!(r.resolve("保険業法", None), None);
     }
 
     #[test]
