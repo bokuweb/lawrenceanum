@@ -1,0 +1,153 @@
+# 判例 (裁判所 裁判例検索) の過去分を年単位で遡って取得するバックフィル。
+#
+# 日次の update-corpus-data は直近 60 日だけを取る。過去分は件数が多い (1950 年代の
+# 最高裁だけで年 1,000〜3,000 件) ので、この workflow が `to_year` から `from_year` まで
+# 1 年ずつ遡り、時間予算 (`budget_minutes`) を使い切ったら R2 に保存して、続きの年を
+# 引数にして自分自身を dispatch し直す (chain)。保存済みの事件は hanrei-fetch が飛ばすので、
+# 途中で切れた年は次の run が続きから取る。
+#
+# 保存先は日次とは別の `hanrei-backfill.tar.zst`。日次 run と同じオブジェクトを書くと、
+# 互いに古い版を復元してから上書きし合って取得分が消えるため。日次 run (update-corpus-data)
+# と配信 build (update-law-data) は両方を復元して合わせて使う。
+name: Backfill hanrei
+
+on:
+  workflow_dispatch:
+    inputs:
+      to_year:
+        description: "この年から過去へ遡る (空=今年)"
+        required: false
+        type: string
+      from_year:
+        description: "ここまで遡ったら終了 (裁判例検索の収録は 1947 年から)"
+        required: false
+        default: "1947"
+        type: string
+      budget_minutes:
+        description: "1 run で取得に使う時間 (分)。超えたら保存して続きを dispatch する"
+        required: false
+        default: "300"
+        type: string
+      chain:
+        description: "時間切れのとき続きの run を自動で dispatch する"
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: backfill-hanrei
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    # 取得予算 (既定 300 分) + build・復元・保存の余裕。
+    timeout-minutes: 350
+    env:
+      R2_BUCKET: ${{ secrets.R2_BUCKET }}
+      R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build lawpub
+        run: cargo build --release -p lawpub-cli
+
+      - name: Restore hanrei caches from R2
+        run: |
+          [ -n "$R2_BUCKET" ] && [ -n "$R2_ENDPOINT" ] || { echo "::error::R2 secrets are required"; exit 1; }
+          mkdir -p .cache/hanrei
+          # 保存済みの事件は取り直さないので、日次分とバックフィル分の両方を入れておく。
+          for object in hanrei-backfill.tar.zst hanrei-cache.tar.zst; do
+            if aws s3 cp "s3://$R2_BUCKET/$object" "/tmp/$object" --endpoint-url "$R2_ENDPOINT" 2>/dev/null; then
+              zstd -dc --long=31 "/tmp/$object" | tar -x --skip-old-files -C .cache/hanrei
+              rm -f "/tmp/$object"
+              echo "::notice::restored $object"
+            else
+              echo "::notice::$object not found in R2"
+            fi
+          done
+          echo "::notice::$(find .cache/hanrei -name '*.json' | wc -l | tr -d ' ') cases before backfill"
+
+      - name: Fetch hanrei by year
+        id: fetch
+        env:
+          TO_YEAR: ${{ github.event.inputs.to_year }}
+          FROM_YEAR: ${{ github.event.inputs.from_year || '1947' }}
+          BUDGET_MINUTES: ${{ github.event.inputs.budget_minutes || '300' }}
+        run: |
+          # robots.txt は /hanrei/ を許可。リクエスト間隔は日次と同じ 1 秒。
+          set +e
+          y="${TO_YEAR:-$(date -u +%Y)}"
+          start=$(date +%s)
+          budget=$((BUDGET_MINUTES * 60))
+          next=""
+          failed=""
+          while [ "$y" -ge "$FROM_YEAR" ]; do
+            left=$((budget - ($(date +%s) - start)))
+            # 1 年分の一覧を引き始めるだけで数分かかるので、残りが少なければ次の run に回す。
+            if [ "$left" -lt 600 ]; then next="$y"; break; fi
+            before=$(find .cache/hanrei -name '*.json' | wc -l)
+            touch /tmp/fetch-start
+            timeout "${left}s" ./target/release/lawpub hanrei-fetch \
+              --cache .cache --from "$y-01-01" --to "$y-12-31" --limit 1000000 --interval-ms 1000
+            rc=$?
+            # timeout で書きかけのまま止まった JSON を残すと、保存済み扱いで二度と取られず
+            # build-json も読めないので消す。
+            find .cache/hanrei -name '*.json' -newer /tmp/fetch-start -print0 |
+              xargs -0 -r -n1 sh -c 'jq empty "$0" 2>/dev/null || { echo "drop broken $0"; rm -f "$0"; }'
+            after=$(find .cache/hanrei -name '*.json' | wc -l)
+            echo "::notice::$y: +$((after - before)) cases (exit $rc)"
+            if [ "$rc" -eq 124 ]; then next="$y"; break; fi
+            # 一覧の取得失敗などで年の途中で止まったものは記録だけして先へ進む
+            # (同じ年で chain が回り続けないように)。後で to_year/from_year を指定して取り直せる。
+            [ "$rc" -ne 0 ] && failed="$failed $y"
+            y=$((y - 1))
+          done
+          echo "next=$next" >> "$GITHUB_OUTPUT"
+          {
+            echo "### 判例バックフィル"
+            echo "- 範囲: ${TO_YEAR:-$(date -u +%Y)} → $FROM_YEAR"
+            echo "- 保存済み: $(find .cache/hanrei -name '*.json' | wc -l | tr -d ' ') 件"
+            echo "- 次の run: ${next:-なし (完了)}"
+            [ -n "$failed" ] && echo "- 途中で失敗した年:$failed"
+          } >> "$GITHUB_STEP_SUMMARY"
+          [ -n "$failed" ] && echo "::warning::years with errors:$failed"
+          exit 0
+
+      - name: Upload backfill cache to R2
+        if: always() && steps.fetch.outcome != 'skipped'
+        run: |
+          [ -d .cache/hanrei ] || exit 0
+          n=$(find .cache/hanrei -name '*.json' | wc -l | tr -d ' ')
+          ( cd .cache/hanrei && tar -cf - . | zstd -19 --long -T0 -o /tmp/hanrei-backfill.tar.zst -f )
+          aws s3 cp /tmp/hanrei-backfill.tar.zst "s3://$R2_BUCKET/hanrei-backfill.tar.zst" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --content-type 'application/zstd' \
+            --cache-control 'public, max-age=300'
+          echo "::notice::uploaded hanrei-backfill.tar.zst ($n cases)"
+
+      - name: Dispatch the next run
+        if: steps.fetch.outputs.next != '' && github.event.inputs.chain != 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NEXT: ${{ steps.fetch.outputs.next }}
+          FROM_YEAR: ${{ github.event.inputs.from_year || '1947' }}
+          BUDGET_MINUTES: ${{ github.event.inputs.budget_minutes || '300' }}
+        run: |
+          gh workflow run backfill-hanrei.yml --repo "$GITHUB_REPOSITORY" --ref "$GITHUB_REF_NAME" \
+            -f to_year="$NEXT" -f from_year="$FROM_YEAR" -f budget_minutes="$BUDGET_MINUTES" -f chain=true
+          echo "::notice::dispatched the next run from $NEXT"
