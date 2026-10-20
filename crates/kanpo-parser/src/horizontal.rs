@@ -2596,6 +2596,17 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
                 (nums.len() >= 3 && width < 40.0 && nums.len() * 10 >= side.len() * 8 && aligned * 10 >= nums.len() * 7)
                     // 欄見出しの多い所（「収入」「歩合」「又は」）でも、どの語も反対側の行と同じ高さにあれば表の欄。
                     || (nums.len() >= 2 && width < 40.0 && all_aligned * 10 >= side.len() * 7)
+                    // 表の左端の短い区分の欄（「10種地」「９種地」…。下の区分は小区分の行のまん中に置く）。区分の 4 割以上が
+                    // 数のある行と同じ高さにあるもの。
+                    || (width < 40.0
+                        && side.iter().all(|w| (2..=6).contains(&w.text.trim().chars().count()))
+                        && {
+                            let valued = side
+                                .iter()
+                                .filter(|w| other.iter().any(|o| (y_center(o) - y_center(w)).abs() < 2.0 && o.text.chars().any(|c| c.is_ascii_digit())))
+                                .count();
+                            valued >= 3 && valued * 10 >= side.len() * 4
+                        })
                     // 欄見出し（「歳入予算額と収納済歳入額との差…」「収入」「歩合」。最初の数より上の語）は数えない。
                     // 数の間に混ざる語は 4 分の 1 まで。
                     || (nums.len() >= 6 && rows && nums.len() * 4 >= (nums.len() + interleaved) * 3 && short_aligned * 10 >= nums.len() * 7)
