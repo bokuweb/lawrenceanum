@@ -1,0 +1,39 @@
+name: e2e-kanpo-playground
+
+on:
+  pull_request:
+    paths:
+      - "figma/**"
+      - "crates/kanpo-*/**"
+      - "Cargo.lock"
+      - ".github/workflows/e2e-kanpo-playground.yml"
+  push:
+    branches: [main]
+    paths:
+      - "figma/**"
+      - "crates/kanpo-*/**"
+      - "Cargo.lock"
+      - ".github/workflows/e2e-kanpo-playground.yml"
+  workflow_dispatch:
+
+jobs:
+  kanpo-playground:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: figma
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: figma/pnpm-lock.yaml
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec playwright test --config playwright.kanpo.config.ts
