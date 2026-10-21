@@ -446,6 +446,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             if !sideways { crate::blank_area_units::restore(&mut units, &mut words, page_rules, width.max(height)); }
             crate::reference_markers::restore(&mut units, &mut words);
             crate::inline_quotes::restore(&mut units, &mut words);
+            crate::range_endpoints::restore(&mut units, &mut words);
             crate::micro_prefixes::restore(&mut units, &mut words);
             crate::chemical_line_end::restore(&mut units, &mut words);
             crate::circled_numbers::restore(&mut units, &mut words);
@@ -759,6 +760,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         if !sideways { crate::blank_area_units::restore(&mut units, &mut words, page_rules, width.max(height)); }
         crate::reference_markers::restore(&mut units, &mut words);
         crate::inline_quotes::restore(&mut units, &mut words);
+        crate::range_endpoints::restore(&mut units, &mut words);
         crate::micro_prefixes::restore(&mut units, &mut words);
         crate::chemical_line_end::restore(&mut units, &mut words);
         crate::circled_numbers::restore(&mut units, &mut words);

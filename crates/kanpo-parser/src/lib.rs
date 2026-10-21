@@ -46,6 +46,7 @@ mod area_units;
 mod blank_area_units;
 mod reference_markers;
 mod inline_quotes;
+mod range_endpoints;
 mod micro_prefixes;
 mod chemical_line_end;
 mod framed_amount_rows;

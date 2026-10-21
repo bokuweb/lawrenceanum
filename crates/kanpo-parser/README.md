@@ -297,6 +297,7 @@ cargo run --release -p kanpo-parser --example snapshot_sample -- .cache/kanpo-ar
 | 132 回目（独立・初回、全体品質） | 15 | 3 | 12 | 比較対象外 |
 | 133 回目（独立・初回、全体品質） | 11 | 8 | 11 | 比較対象外 |
 | 134 回目（独立・初回、全体品質） | 9 | 15 | 6 | 比較対象外 |
+| 135 回目（独立・初回、全体品質） | 16 | 4 | 10 | 比較対象外 |
 
 110 回目から、対象ページ ID・原本 SHA-256・採点の理由を [`tests/audits/`](tests/audits/) に残す。
 110 回目は本文に文字層のある 30 ページで校正し、見つかった分数式・金額の空欄位置の崩れを修正して同じ原本で再照合した結果。
@@ -799,3 +800,37 @@ production内の非公開型による追加25件も実行し、パーサ単体84
 [`tests/audits/issue227-twenty-third-batch-reviews.json`](tests/audits/issue227-twenty-third-batch-reviews.json)、
 [`tests/audits/issue227-twenty-third-batch-provenance.json`](tests/audits/issue227-twenty-third-batch-provenance.json)、
 検証集計は[`tests/audits/issue227-validation-23.json`](tests/audits/issue227-validation-23.json)に保存した。全体100%は未達で、改善を継続する。
+
+
+第 24 次修正では、215号29〜36・53・55頁で欠落していた数値範囲末尾（21）（20）（17）（16）の20組を復元した。
+元の範囲開始番号・波線と同じ文字枠へ重ねて印字された40Glyphを、既存20語と元からある空20語へ対応付ける。
+元の行・新旧の側・セルの所属を保ち、開始番号以下の終端、別枠、複数候補、既に所属する語、未知の私用字等は負例で拒否する。
+全原Wordのraw・ID・座標、旧所有IDの行と相対順、全行数・セル座標・新旧役割を保持し、架空の語・IDは増やさない。
+本文・Article本文・Documentの差は、原字から確認した20箇所の80文字挿入だけで、既存文字・改行・空白・構造は保たれる。
+全10原図・801行・全10Article/Documentを照合し、改善10・観測した新退行0。残る（18）（19）（22）や様式・新旧表の既存不具合を全頁成功とは数えない。
+
+実装前に実PDF6テストで2失敗・保存用4成功を確認し、同じassertionで全6成功へ進めた。
+production内の非公開型による形状テスト20件も実行し、パーサ単体863件を含む関連4クレート全1,373テストが成功した。
+全100統合対象・4ライブラリ・4doc-test・全4examples、109コマンドの終了0を確認した。アーカイブ原本624件。
+新規11snapshotを原図・全文・全Article/Documentと照合して採用し、既存snapshot更新0である。
+既存コーパス33頁の本文・Document期待値は、原図の（17）（21）（16）の3組挿入だけを確認して2ファイル更新した。
+旧期待値・Git blob・最初の失敗ログを保存し、上段の未対応（22）等をそのまま残した。既存アサーションの緩和は0。
+
+全11,992原PDFと旧本文、ソース104件、実行物、依存物を再解析前後にSHA照合した。
+本文と解析結果全体は10変更・11,982完全一致、元文字欠落・旧所有喪失・重複IDは0。
+累計2,910変更頁・文字変化1,309頁。従来の原横棒11,033字、分数153件、期間・番号・括弧・数式・姓名等の検証も維持した。
+40原Glyphのf64座標・CID・fontは独立再抽出と完全一致し、public Wordからf32 parser座標への対応には従来通り0.0002ptを用いる。
+Article本文とDocumentの重複を一緒に数えた検査や、監査の欠陥なし頁にも既存欠陥フラグを求めた検査等の準備失敗履歴も残した。
+
+135回目の未見30件は範囲・原本・画像・全文・全解析・ソースを採点前に固定した。
+初回の全体品質16ok/4minor/10major、本文・文字・読順23ok/3minor/4majorを保持し、再採点しない。
+全2,184行・75Article/Documentを原図と照合し、全30件のbefore44/after45解析は完全一致、今回の退行0。
+全nativeGlyphの閉区間交差で3限定矩形の文字層なしと3陽性範囲を再確認した。ページ全体の除外はない。
+160号101頁の横棒欠落は原Glyph839/CID24952と元Empty Word0がある陽性不具合として残す。
+228号496頁の負債見出し先読み、192号32頁の分数・新旧対応、226号5頁の別表本文遅延、独立公告の未分割等も未修復である。
+会社公告候補は固定1,286頁のうち重複除外後211頁をレビュー済み、残り1,075頁で未採用。初回評点・重複履歴は保持する。
+checkbox247原Glyph/30頁と姓名4字の候補は原図・native字形・実PDFテストを別途検証中で、この修正に含めない。
+初回監査は[`tests/audits/135.json`](tests/audits/135.json)、変更影響と原字の証明は
+[`tests/audits/issue227-twenty-fourth-batch-reviews.json`](tests/audits/issue227-twenty-fourth-batch-reviews.json)、
+[`tests/audits/issue227-twenty-fourth-batch-provenance.json`](tests/audits/issue227-twenty-fourth-batch-provenance.json)、
+検証集計は[`tests/audits/issue227-validation-24.json`](tests/audits/issue227-validation-24.json)に保存した。全体100%は未達で、改善を継続する。

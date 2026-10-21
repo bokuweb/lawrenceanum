@@ -1,0 +1,265 @@
+{
+  "page": "20260930g002150030",
+  "native": ".cache/kanpo-227/audit132-root-native/20260930g002150030.json",
+  "native_sha256": "c6727b01068a37daa70a0ab8f1e13400bae4c146adcf909389e188ac77f64609",
+  "Empty_suffix_Words": 4,
+  "native_component_Glyphs": 8,
+  "pairs": [
+    {
+      "printed_endpoint_from_whole_original_review": "21",
+      "Empty_component_Word": {
+        "id": 149,
+        "x0": 115.25,
+        "y0": 131.6137,
+        "x1": 123.25,
+        "y1": 139.7977,
+        "raw": "",
+        "text": "",
+        "status": "empty"
+      },
+      "native_Glyph_ids": [
+        155,
+        156
+      ],
+      "native_Glyphs": [
+        {
+          "text": "",
+          "code": 26142,
+          "cid": 26142,
+          "font": 1,
+          "x": 115.25,
+          "y": 137.62970000000013,
+          "end_x": 123.25,
+          "end_y": 137.62970000000013,
+          "size": 8.0,
+          "vertical": false,
+          "bbox": [
+            115.25,
+            131.61370000000014,
+            123.25,
+            139.79770000000013
+          ],
+          "invisible": false,
+          "spacing": 0.0,
+          "kern": 0.0,
+          "show": 23
+        },
+        {
+          "text": "",
+          "code": 26151,
+          "cid": 26151,
+          "font": 1,
+          "x": 115.25,
+          "y": 137.62970000000013,
+          "end_x": 123.25,
+          "end_y": 137.62970000000013,
+          "size": 8.0,
+          "vertical": false,
+          "bbox": [
+            115.25,
+            131.61370000000014,
+            123.25,
+            139.79770000000013
+          ],
+          "invisible": false,
+          "spacing": 0.0,
+          "kern": -8.0,
+          "show": 23
+        }
+      ],
+      "zero_text_layer_exclusion": false
+    },
+    {
+      "printed_endpoint_from_whole_original_review": "20",
+      "Empty_component_Word": {
+        "id": 61,
+        "x0": 470.754,
+        "y0": 131.6137,
+        "x1": 478.754,
+        "y1": 139.7977,
+        "raw": "",
+        "text": "",
+        "status": "empty"
+      },
+      "native_Glyph_ids": [
+        167,
+        168
+      ],
+      "native_Glyphs": [
+        {
+          "text": "",
+          "code": 26142,
+          "cid": 26142,
+          "font": 1,
+          "x": 470.754,
+          "y": 137.62970000000013,
+          "end_x": 478.754,
+          "end_y": 137.62970000000013,
+          "size": 8.0,
+          "vertical": false,
+          "bbox": [
+            470.754,
+            131.61370000000014,
+            478.754,
+            139.79770000000013
+          ],
+          "invisible": false,
+          "spacing": 0.0,
+          "kern": 0.0,
+          "show": 28
+        },
+        {
+          "text": "",
+          "code": 26160,
+          "cid": 26160,
+          "font": 1,
+          "x": 470.754,
+          "y": 137.62970000000013,
+          "end_x": 478.754,
+          "end_y": 137.62970000000013,
+          "size": 8.0,
+          "vertical": false,
+          "bbox": [
+            470.754,
+            131.61370000000014,
+            478.754,
+            139.79770000000013
+          ],
+          "invisible": false,
+          "spacing": 0.0,
+          "kern": -8.0,
+          "show": 28
+        }
+      ],
+      "zero_text_layer_exclusion": false
+    },
+    {
+      "printed_endpoint_from_whole_original_review": "17",
+      "Empty_component_Word": {
+        "id": 147,
+        "x0": 115.266,
+        "y0": 515.4457,
+        "x1": 123.266,
+        "y1": 523.6297,
+        "raw": "",
+        "text": "",
+        "status": "empty"
+      },
+      "native_Glyph_ids": [
+        674,
+        675
+      ],
+      "native_Glyphs": [
+        {
+          "text": "",
+          "code": 26141,
+          "cid": 26141,
+          "font": 1,
+          "x": 115.26600000000008,
+          "y": 521.4617000000001,
+          "end_x": 123.26600000000008,
+          "end_y": 521.4617000000001,
+          "size": 8.0,
+          "vertical": false,
+          "bbox": [
+            115.26600000000008,
+            515.4457000000001,
+            123.26600000000008,
+            523.6297000000001
+          ],
+          "invisible": false,
+          "spacing": 0.0,
+          "kern": 0.0,
+          "show": 109
+        },
+        {
+          "text": "",
+          "code": 26157,
+          "cid": 26157,
+          "font": 1,
+          "x": 115.26600000000008,
+          "y": 521.4617000000001,
+          "end_x": 123.26600000000008,
+          "end_y": 521.4617000000001,
+          "size": 8.0,
+          "vertical": false,
+          "bbox": [
+            115.26600000000008,
+            515.4457000000001,
+            123.26600000000008,
+            523.6297000000001
+          ],
+          "invisible": false,
+          "spacing": 0.0,
+          "kern": -8.0,
+          "show": 109
+        }
+      ],
+      "zero_text_layer_exclusion": false
+    },
+    {
+      "printed_endpoint_from_whole_original_review": "16",
+      "Empty_component_Word": {
+        "id": 60,
+        "x0": 470.77,
+        "y0": 515.4457,
+        "x1": 478.77,
+        "y1": 523.6297,
+        "raw": "",
+        "text": "",
+        "status": "empty"
+      },
+      "native_Glyph_ids": [
+        686,
+        687
+      ],
+      "native_Glyphs": [
+        {
+          "text": "",
+          "code": 26141,
+          "cid": 26141,
+          "font": 1,
+          "x": 470.7700000000001,
+          "y": 521.4617000000001,
+          "end_x": 478.7700000000001,
+          "end_y": 521.4617000000001,
+          "size": 8.0,
+          "vertical": false,
+          "bbox": [
+            470.7700000000001,
+            515.4457000000001,
+            478.7700000000001,
+            523.6297000000001
+          ],
+          "invisible": false,
+          "spacing": 0.0,
+          "kern": 0.0,
+          "show": 114
+        },
+        {
+          "text": "",
+          "code": 26156,
+          "cid": 26156,
+          "font": 1,
+          "x": 470.7700000000001,
+          "y": 521.4617000000001,
+          "end_x": 478.7700000000001,
+          "end_y": 521.4617000000001,
+          "size": 8.0,
+          "vertical": false,
+          "bbox": [
+            470.7700000000001,
+            515.4457000000001,
+            478.7700000000001,
+            523.6297000000001
+          ],
+          "invisible": false,
+          "spacing": 0.0,
+          "kern": -8.0,
+          "show": 114
+        }
+      ],
+      "zero_text_layer_exclusion": false
+    }
+  ]
+}
