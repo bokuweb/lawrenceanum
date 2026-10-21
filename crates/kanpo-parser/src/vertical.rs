@@ -438,6 +438,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             crate::table_dashes::restore_plain_numeric_dashes(&mut units, &mut words, &vrules);
             crate::cell_row_dashes::restore_cell_record_dashes(&mut units, &mut words, &grids);
             crate::owned_dashes::restore_owned_dashes(&mut units, &mut words, &grids, &vrules);
+            crate::ruled_plain_dashes::restore(&mut units, &mut words, &grids);
             crate::large_parentheses::restore_large_parentheses(&mut units, &words);
             crate::coordinate_symbols::restore_coordinate_symbols(&mut units, &mut words);
             crate::coordinate_rows::restore_coordinate_rows(&mut units, &mut words, rules.get(pi).and_then(|r| r.as_ref()), width.max(height));

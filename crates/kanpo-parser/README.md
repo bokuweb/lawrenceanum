@@ -296,6 +296,7 @@ cargo run --release -p kanpo-parser --example snapshot_sample -- .cache/kanpo-ar
 | 131 回目（独立・初回、全体品質） | 10 | 6 | 14 | 比較対象外 |
 | 132 回目（独立・初回、全体品質） | 15 | 3 | 12 | 比較対象外 |
 | 133 回目（独立・初回、全体品質） | 11 | 8 | 11 | 比較対象外 |
+| 134 回目（独立・初回、全体品質） | 9 | 15 | 6 | 比較対象外 |
 
 110 回目から、対象ページ ID・原本 SHA-256・採点の理由を [`tests/audits/`](tests/audits/) に残す。
 110 回目は本文に文字層のある 30 ページで校正し、見つかった分数式・金額の空欄位置の崩れを修正して同じ原本で再照合した結果。
@@ -767,3 +768,34 @@ CF表の原横棒109字の候補は別検証で、実装前のcacheテスト1失
 [`tests/audits/issue227-twenty-second-batch-reviews.json`](tests/audits/issue227-twenty-second-batch-reviews.json)、
 [`tests/audits/issue227-twenty-second-batch-provenance.json`](tests/audits/issue227-twenty-second-batch-provenance.json)、
 検証集計は[`tests/audits/issue227-validation-22.json`](tests/audits/issue227-validation-22.json)に保存した。全体100%は未達で、改善を継続する。
+
+第 23 次修正では、203号83頁のキャッシュ・フロー表で原字のある横棒109字が落ちる問題を修復した。
+原罫線に囲まれた見出し・全科目行・各数値列の右端・空欄原字を確認し、既存Plainの列グループと元行を保ったまま戻す。
+既存14行へ14字、原横棒だけの58行へ95字を戻し、原7数値列の内訳は4/10/11/19/20/21/24字となる。
+全909原Wordのraw・ID・座標を保持し、109語だけをEmptyからUsedと原字－へ戻す。他800語は全項目一致。
+元786IDの行所属・順序・内容を保ち、元から存在する109IDの所属が増える。架空の語・ID・金額・空欄の推測補完はない。
+原図、旧107行・新165行、全1Article/Document、109GlyphのCID24952・bbox・元科目行への一意な対応を独立照合した。
+7勘定の列が分かれ、Documentが1paragraph/1Runへ平文化する既存majorは未修復である。84頁の下段31横棒も今回対象外のままである。
+
+Document照合では、横棒を先頭に戻した金額行の既存整形により、15,808,200,000直前の改行1個が連結される差も検出した。
+この28→27改行の差を明示し、他の全文字・旧空白・残る27改行・構造を保持する追加の実PDFテストを作った。全Document空白が不変という主張はしない。
+先行実PDF5テストは実装前1失敗・保存用4成功から全5成功。既存5件のassertionは変えず、上記検査を加えた6件では旧版2失敗・保存用4成功から全6成功を確認した。
+production内の非公開型による追加25件も実行し、パーサ単体843件を含む関連4クレート全1,347テストが成功した。
+全99統合対象・4ライブラリ・4doc-test・全4examples、108コマンドの終了0を確認した。
+アーカイブ613原本、新規3snapshotを原図・全文・全Article/Documentと照合して採用し、既存snapshot更新0・既存期待値変更0・assertion緩和0である。
+
+全11,992原PDFと旧本文、ソース103件、実行物、依存物を再解析前にSHA固定し、処理後も全一致を確認した。
+全本文と解析結果全体は1変更・11,991完全一致で、追加は原横棒109字、元文字欠落・旧所有喪失・重複IDは0。
+累計2,900変更ページ・文字変化1,299ページ。従来の横棒10,924字を保持したうえで11,033字となり、他の分数・期間・番号・括弧・姓名の修復も維持した。
+元科目だけのID集合を行全体と取り違えた検査、Document全改行の不変を仮定した検査、準備スクリプトの失敗も保持した。
+追加テスト後は該当統合対象だけを同じソースで再実行し、他の成功ログとSHAを保持して全テストの最終集計に重複加算していない。
+
+134回目の未見30件は、範囲・原PDF・画像・出力・全解析・ソースを選定前に固定した。
+初回の全体品質9ok/15minor/6major、本文・文字・読順26ok/4minor/0majorを保存し、修正後も書き換えない。
+全1,840行・52Article/Documentを原図と照合し、全30件の新旧解析結果は完全一致、今回の退行0。
+文字層のない8矩形を3原本の全nativeGlyphから再確認し、非零3範囲と区別した。ページ全体の除外はない。
+会社公告候補は固定1,286頁の原図・全記事構造レビュー中で未採用。数値範囲末尾(21)/(20)/(17)/(16)の候補も別途テスト先行で検証中で、この修正には含めない。
+初回監査は[`tests/audits/134.json`](tests/audits/134.json)、変更影響と原字の証明は
+[`tests/audits/issue227-twenty-third-batch-reviews.json`](tests/audits/issue227-twenty-third-batch-reviews.json)、
+[`tests/audits/issue227-twenty-third-batch-provenance.json`](tests/audits/issue227-twenty-third-batch-provenance.json)、
+検証集計は[`tests/audits/issue227-validation-23.json`](tests/audits/issue227-validation-23.json)に保存した。全体100%は未達で、改善を継続する。

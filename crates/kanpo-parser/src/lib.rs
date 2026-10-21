@@ -68,6 +68,7 @@ mod headerless_four_bands;
 pub mod table;
 mod table_dashes;
 mod owned_dashes;
+mod ruled_plain_dashes;
 mod cell_row_dashes;
 mod shared_table_labels;
 mod quantity_tables;
@@ -548,3 +549,6 @@ mod parallel_fractions;
 
 mod numeric_fraction_geometry;
 mod numeric_fractions;
+
+#[cfg(test)]
+mod ruled_plain_dash_tests;
