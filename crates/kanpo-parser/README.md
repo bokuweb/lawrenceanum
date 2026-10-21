@@ -1184,3 +1184,12 @@ recordはTOP40Word/181Glyph＋RIGHT13Word/40Glyphで、旧記録の元Glyph集�
 [`tests/audits/issue227-thirty-fifth-batch-provenance.json`](tests/audits/issue227-thirty-fifth-batch-provenance.json)、
 [`tests/audits/issue227-thirty-fifth-batch-reviews.json`](tests/audits/issue227-thirty-fifth-batch-reviews.json)、
 [`tests/audits/issue227-validation-35.json`](tests/audits/issue227-validation-35.json)に保存した。
+
+
+### 第36次: 継続名簿の末尾欄をbboxの共通部分で整列（#227、一般化は未完了）
+
+末尾の列中心と欄の開始点を固定3ptで揃える条件を、元Col矩形の正の共通区間へ置き換えた。接触のみ・全員共通部分のない連鎖・複数列をまたぐ曖昧な語は棄却し、各欄の間には実際の空白を要求する。入力bboxと戻す境界は有限かつ正の領域内とし、平均のoverflowや端点への丸めも棄却する。通常の中点計算は保ち、元の日付文法・header・他のtier/anchor/fence guardは変更していない。
+
+回帰13関数を追加。独立した同じ1022単体は旧59の1013成功/9失敗から1022成功へ変化し、既存実PDF3関数も成功。全4関連crateの1693テスト、108統合target・4library・4doc-testと全4examplesを含む117コマンドを確認した。独立候補と本番Cargo releaseの全11992解析は59と完全一致し、textdump11992本文bytesも一致。既存778snapshotは新規/更新0、資産1127も同一。今回の官報品質改善件数は0、累計2957変更頁/文字変化1373頁を維持する。監査144も全30解析一致後に初回55評点を継承し、新採点や率の向上とは数えない。
+
+前段anchorの3pt、fenceの位置許容、em floor、必要な列/支持band数とheaderのscope対応は残る。派生Colの矩形は字形の可視範囲や記事所有の証明ではなく、特定姓名・会社名・頁番号・期待本文を条件にしたproduction分岐も追加していない。会社公告の長さ制限撤去、描画状態収集、描画除去の比較と柱ラベルの調査は別候補で未採用。旧会社source58の再確認は422/1286頁へ進んだが864頁未確認、184p38の別会社結合majorも残る。RURI/ModernBERTのopt-in許可は保持し、今回の取得・学習・推論は0。詳細と停止試行は監査JSON第36次に記録する。

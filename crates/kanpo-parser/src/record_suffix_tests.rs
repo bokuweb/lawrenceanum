@@ -440,3 +440,286 @@ fn calendar59_unsupported_grammar_and_wrong_separators_remain_rejected() {
         calendar59_reject(s);
     }
 }
+
+// Geometry contract probes: real private production Col/Unit, no mirror types.
+mod overlap59 {
+    use super::*;
+    fn transform(mut bs: Vec<Vec<Col>>, scale: f32, dx: f32, dy: f32) -> Vec<Vec<Col>> {
+        for c in bs.iter_mut().flatten() {
+            c.x = c.x * scale + dx;
+            c.x1 = c.x1 * scale + dx;
+            c.y = c.y * scale + dy;
+            c.y1 = c.y1 * scale + dy;
+        }
+        bs
+    }
+    fn expect_scaled(bs: Vec<Vec<Col>>, scale: f32, dx: f32, dy: f32) {
+        let expected = infer_stacked_suffix(&fixture(), 3, &[]).unwrap();
+        let got = infer_stacked_suffix(&transform(bs, scale, dx, dy), 3, &[]);
+        assert_eq!(
+            got,
+            Some(expected.iter().map(|y| y * scale + dy).collect()),
+            "scale={scale} dx={dx} dy={dy}"
+        );
+    }
+    #[test]
+    fn unchanged_fixture_uniform_half_one_double() {
+        for s in [0.5, 1., 2.] {
+            expect_scaled(fixture(), s, 0., 0.);
+        }
+    }
+    #[test]
+    fn fixture_translation_is_not_an_absolute_position() {
+        for (dx, dy) in [(64., 128.), (-64., -64.), (1024., 2048.)] {
+            expect_scaled(fixture(), 1., dx, dy);
+        }
+    }
+    #[test]
+    fn opaque_short_long_latin_numeric_payloads_keep_same_geometry() {
+        for p in [
+            "部".to_string(),
+            "部".repeat(100),
+            "A19Z".into(),
+            "12345".into(),
+        ] {
+            for s in [0.5, 1., 2.] {
+                expect_scaled(generality_office(&p), s, 64., 128.);
+            }
+        }
+    }
+    fn jittered_axes() -> Vec<Vec<Col>> {
+        let mut b = fixture();
+        for c in &mut b[3] {
+            let dx = match c.text.as_str() {
+                "〇" => 2.,
+                "八、" | "二、一六" => 1.,
+                _ => 0.,
+            };
+            c.x += dx;
+            c.x1 += dx;
+        }
+        b
+    }
+    #[test]
+    fn positive_common_x_interval_survives_half_one_double() {
+        for s in [0.5, 1., 2.] {
+            expect_scaled(jittered_axes(), s, 0., 0.);
+        }
+    }
+    #[test]
+    fn positive_common_field_rows_survive_half_one_double() {
+        let mut b = fixture();
+        for (i, c) in b[3].iter_mut().enumerate() {
+            let dy = [0., 1., 2., 1.][i / 4];
+            c.y += dy;
+            c.y1 += dy;
+        }
+        // The largest office bottom shifts2; the smallest marker/date start does not.
+        let original = infer_stacked_suffix(&b, 3, &[]).unwrap();
+        for s in [0.5, 1., 2.] {
+            assert_eq!(
+                infer_stacked_suffix(&transform(b.clone(), s, 64., 128.), 3, &[]),
+                Some(original.iter().map(|y| y * s + 128.).collect()),
+                "scale{s}"
+            );
+        }
+    }
+    #[test]
+    fn x_contact_only_is_not_a_shared_column() {
+        let mut b = fixture();
+        for c in &mut b[3] {
+            let x = (c.x + c.x1) / 2.;
+            match c.text.as_str() {
+                "衆議院議員" => {
+                    c.x = x - 4.;
+                    c.x1 = x;
+                }
+                "〇" => {
+                    c.x = x;
+                    c.x1 = x + 4.;
+                }
+                _ => {
+                    c.x = x - 2.;
+                    c.x1 = x + 2.;
+                }
+            }
+        }
+        for s in [0.5, 1., 2.] {
+            assert!(
+                infer_stacked_suffix(&transform(b.clone(), s, 0., 0.), 3, &[]).is_none(),
+                "scale{s}"
+            );
+        }
+    }
+    #[test]
+    fn x_overlap_chain_without_all_member_intersection_is_rejected() {
+        let mut b = fixture();
+        for c in &mut b[3] {
+            let x = (c.x + c.x1) / 2.;
+            let dx = match c.text.as_str() {
+                "衆議院議員" => 0.,
+                "〇" => 2.,
+                _ => 4.,
+            };
+            c.x = x + dx - 1.5;
+            c.x1 = x + dx + 1.5;
+        }
+        for s in [0.5, 1., 2.] {
+            assert!(
+                infer_stacked_suffix(&transform(b.clone(), s, 0., 0.), 3, &[]).is_none(),
+                "scale{s}"
+            );
+        }
+    }
+    #[test]
+    fn wide_source_spanning_multiple_columns_is_ambiguous() {
+        let mut b = fixture();
+        let mut c = col(999, 200., 236., 240., "X");
+        c.x = -120.;
+        c.x1 = 520.;
+        b[3].push(c);
+        for s in [0.5, 1., 2.] {
+            assert!(
+                infer_stacked_suffix(&transform(b.clone(), s, 0., 0.), 3, &[]).is_none(),
+                "scale{s}"
+            );
+        }
+    }
+    #[test]
+    fn field_row_contact_without_positive_common_height_is_rejected() {
+        let mut b = fixture();
+        let mut n = 0;
+        for c in &mut b[3] {
+            if c.text == "〇" {
+                let shift = if n == 1 { 4. } else { 0. };
+                c.y = 296. + shift;
+                c.y1 = c.y + 4.;
+                n += 1;
+            }
+        }
+        for s in [0.5, 1., 2.] {
+            assert!(
+                infer_stacked_suffix(&transform(b.clone(), s, 0., 0.), 3, &[]).is_none(),
+                "scale{s}"
+            );
+        }
+    }
+    #[test]
+    fn every_source_bbox_requires_finite_coordinates() {
+        for band in 0..4 {
+            for field in 0..4 {
+                for value in [f32::NAN, f32::INFINITY, f32::NEG_INFINITY] {
+                    let mut b = fixture();
+                    let c = &mut b[band][0];
+                    match field {
+                        0 => c.x = value,
+                        1 => c.y = value,
+                        2 => c.x1 = value,
+                        _ => c.y1 = value,
+                    };
+                    assert!(
+                        infer_stacked_suffix(&b, 3, &[]).is_none(),
+                        "band{band} field{field} value{value}"
+                    );
+                }
+            }
+        }
+    }
+    #[test]
+    fn every_source_bbox_requires_strictly_positive_width_and_height() {
+        for band in 0..4 {
+            for dimension in 0..2 {
+                for reverse in [false, true] {
+                    let mut b = fixture();
+                    let c = &mut b[band][0];
+                    if dimension == 0 {
+                        c.x1 = c.x - if reverse { 1. } else { 0. };
+                    } else {
+                        c.y1 = c.y - if reverse { 1. } else { 0. };
+                    }
+                    assert!(
+                        infer_stacked_suffix(&b, 3, &[]).is_none(),
+                        "band{band} dimension{dimension} reverse{reverse}"
+                    );
+                }
+            }
+        }
+    }
+}
+
+mod cut_addendum {
+    use super::*;
+    fn assert_safe_optional_cuts(b: &[Vec<Col>]) {
+        if let Some(tops) = infer_stacked_suffix(b, 3, &[]) {
+            assert_eq!(tops.len(), 2);
+            let office = b[3]
+                .iter()
+                .filter(|c| c.text == "衆議院議員")
+                .map(|c| c.y1)
+                .fold(f32::NEG_INFINITY, f32::max);
+            let marks = b[3].iter().filter(|c| c.text == "〇").collect::<Vec<_>>();
+            let mark_top = marks.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+            let mark_bottom = marks.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+            let date = b[3]
+                .iter()
+                .filter(|c| c.text == "八、")
+                .map(|c| c.y)
+                .fold(f32::INFINITY, f32::min);
+            assert!(
+                tops[0].is_finite() && office < tops[0] && tops[0] < mark_top,
+                "first cut {:?} not within [{office},{mark_top}]",
+                tops
+            );
+            assert!(
+                tops[1].is_finite() && mark_bottom < tops[1] && tops[1] < date,
+                "second cut {:?} not within [{mark_bottom},{date}]",
+                tops
+            );
+        }
+    }
+    #[test]
+    fn finite_binary_scale_translation_cannot_return_an_infinite_cut() {
+        let mut b = fixture();
+        let scale = 2f32.powi(115);
+        let dy = 2f32.powi(127);
+        for c in b.iter_mut().flatten() {
+            c.x *= scale;
+            c.x1 *= scale;
+            c.y = c.y * scale + dy;
+            c.y1 = c.y1 * scale + dy;
+        }
+        assert!(b
+            .iter()
+            .flatten()
+            .all(|c| [c.x, c.x1, c.y, c.y1].iter().all(|v| v.is_finite())
+                && c.x < c.x1
+                && c.y < c.y1));
+        assert_safe_optional_cuts(&b);
+    }
+    #[test]
+    fn finite_mean_rounded_to_field_edge_is_not_a_gap_cut() {
+        let mut b = fixture();
+        let dy = 2f32.powi(26);
+        for c in &mut b[2] {
+            c.y = dy - 24.;
+            c.y1 = dy + 8.;
+        }
+        for c in &mut b[3] {
+            let (y, y1) = match c.text.as_str() {
+                "衆議院議員" => (16., 32.),
+                "〇" => (40., 48.),
+                "八、" => (56., 72.),
+                _ => (80., 96.),
+            };
+            c.y = dy + y;
+            c.y1 = dy + y1;
+        }
+        assert!(b
+            .iter()
+            .flatten()
+            .all(|c| [c.x, c.x1, c.y, c.y1].iter().all(|v| v.is_finite())
+                && c.x < c.x1
+                && c.y < c.y1));
+        assert_safe_optional_cuts(&b);
+    }
+}

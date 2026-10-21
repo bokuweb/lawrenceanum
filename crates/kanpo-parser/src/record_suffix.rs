@@ -107,29 +107,62 @@ pub(crate) fn infer_stacked_suffix(
     if t < 3 || t + 1 != bands.len() {
         return None;
     }
+    // Every participating source rectangle must define finite positive area.
+    // Non-finite comparisons cannot be used as fail-open alignment evidence.
+    if !bands.iter().flatten().all(|c| {
+        [c.x, c.x1, c.y, c.y1].iter().all(|v| v.is_finite())
+            && (c.x1 - c.x).is_finite()
+            && c.x < c.x1
+            && (c.y1 - c.y).is_finite()
+            && c.y < c.y1
+    }) {
+        return None;
+    }
     let tail = &bands[t];
     let mut seen = std::collections::HashSet::new();
     if !bands.iter().flatten().all(|c| seen.insert(c.id)) {
         return None;
     }
     let center = |c: &Col| (c.x + c.x1) / 2.;
+    if !bands.iter().flatten().all(|c| center(c).is_finite()) {
+        return None;
+    }
     let mut ws: Vec<_> = tail.iter().collect();
-    ws.sort_by(|a, b| center(b).total_cmp(&center(a)).then(a.y.total_cmp(&b.y)));
+    ws.sort_by(|a, b| {
+        a.x.total_cmp(&b.x)
+            .then(a.x1.total_cmp(&b.x1))
+            .then(a.y.total_cmp(&b.y))
+            .then(a.id.cmp(&b.id))
+    });
+    // Connected components of CLOSED source intervals. A contact connects the
+    // component but cannot by itself supply the required positive common core.
     let mut columns: Vec<Vec<&Col>> = Vec::new();
+    let mut union_right = f32::NEG_INFINITY;
     for c in ws {
-        if let Some(cs) = columns
-            .last_mut()
-            .filter(|cs| (center(cs[0]) - center(c)).abs() < 3.)
-        {
-            cs.push(c);
+        if !columns.is_empty() && c.x <= union_right {
+            columns.last_mut().unwrap().push(c);
+            union_right = union_right.max(c.x1);
         } else {
+            union_right = c.x1;
             columns.push(vec![c]);
         }
     }
+    let mut columns: Vec<(f32, Vec<&Col>)> = columns
+        .into_iter()
+        .map(|cs| {
+            let lo = cs.iter().map(|c| c.x).fold(f32::NEG_INFINITY, f32::max);
+            let hi = cs.iter().map(|c| c.x1).fold(f32::INFINITY, f32::min);
+            // A transitive overlap chain or a source spanning multiple columns has
+            // no one shared positive axis interval and is not partitioned by guess.
+            (lo < hi).then(|| (lo + (hi - lo) / 2., cs))
+        })
+        .collect::<Option<_>>()?;
+    columns.sort_by(|a, b| b.0.total_cmp(&a.0));
     if columns.len() < 3 {
         return None;
     }
-    let anchors: Vec<f32> = columns.iter().map(|cs| center(cs[0])).collect();
+    let anchors: Vec<f32> = columns.iter().map(|(axis, _)| *axis).collect();
+    let columns: Vec<Vec<&Col>> = columns.into_iter().map(|(_, cs)| cs).collect();
     let em = tail
         .iter()
         .map(|c| c.x1 - c.x)
@@ -143,6 +176,7 @@ pub(crate) fn infer_stacked_suffix(
         return None;
     }
     let mut starts = Vec::new();
+    let mut field_heads = [Vec::new(), Vec::new(), Vec::new()];
     let mut marks = Vec::new();
     let mut dates = Vec::new();
     let mut office_bottom = f32::NEG_INFINITY;
@@ -177,17 +211,28 @@ pub(crate) fn infer_stacked_suffix(
         if cs[m].y - bottom < em * 0.5 || cs[m + 1].y - cs[m].y1 < em * 0.5 {
             return None;
         }
+        field_heads[0].push((cs[0].y, cs[0].y1));
+        field_heads[1].push((cs[m].y, cs[m].y1));
+        field_heads[2].push((cs[m + 1].y, cs[m + 1].y1));
         starts.push(cs[0].y);
         marks.push(cs[m].y);
         dates.push(cs[m + 1].y);
         office_bottom = office_bottom.max(bottom);
         mark_bottom = mark_bottom.max(cs[m].y1);
     }
-    let span = |v: &[f32]| {
-        v.iter().copied().fold(f32::NEG_INFINITY, f32::max)
-            - v.iter().copied().fold(f32::INFINITY, f32::min)
-    };
-    if span(&starts) > 3. || span(&marks) > 3. || span(&dates) > 3. {
+    // The same field's original first fragments must share positive vertical
+    // extent across all records, not merely pairwise overlap or close starts.
+    for row in &field_heads {
+        let lo = row.iter().map(|p| p.0).fold(f32::NEG_INFINITY, f32::max);
+        let hi = row.iter().map(|p| p.1).fold(f32::INFINITY, f32::min);
+        if lo >= hi {
+            return None;
+        }
+    }
+    // Both inferred cuts must fit real whitespace between the whole fields.
+    if office_bottom >= marks.iter().copied().fold(f32::INFINITY, f32::min)
+        || mark_bottom >= dates.iter().copied().fold(f32::INFINITY, f32::min)
+    {
         return None;
     }
     let top = starts.iter().copied().fold(f32::INFINITY, f32::min);
@@ -225,10 +270,22 @@ pub(crate) fn infer_stacked_suffix(
     if supporting < 2 {
         return None;
     }
-    Some(vec![
-        (office_bottom + marks.iter().copied().fold(f32::INFINITY, f32::min)) / 2.,
-        (mark_bottom + dates.iter().copied().fold(f32::INFINITY, f32::min)) / 2.,
-    ])
+    // Preserve the existing midpoint arithmetic for ordinary cut bits, but
+    // never return an overflowed value or a rounded endpoint as a gap cut.
+    let mark_top = marks.iter().copied().fold(f32::INFINITY, f32::min);
+    let date_top = dates.iter().copied().fold(f32::INFINITY, f32::min);
+    let tops = vec![
+        (office_bottom + mark_top) / 2.,
+        (mark_bottom + date_top) / 2.,
+    ];
+    if !tops[0].is_finite()
+        || !(office_bottom < tops[0] && tops[0] < mark_top)
+        || !tops[1].is_finite()
+        || !(mark_bottom < tops[1] && tops[1] < date_top)
+    {
+        return None;
+    }
+    Some(tops)
 }
 
 #[cfg(test)]
