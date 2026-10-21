@@ -11,7 +11,7 @@ use crate::object::{Dict, Object};
 /// Adobe-Japan1 の CID → Unicode（`data/aj1-unicode.bin`、`examples/gen_aj1.rs` で生成）。
 static AJ1_BYTES: &[u8] = include_bytes!("../data/aj1-unicode.bin");
 
-pub(crate) fn aj1(cid: u32) -> Option<char> {
+pub fn aj1(cid: u32) -> Option<char> {
     static TABLE: OnceLock<Vec<u32>> = OnceLock::new();
     let t = TABLE.get_or_init(|| {
         AJ1_BYTES
@@ -60,6 +60,11 @@ pub struct Font {
     default_vmetrics: (f64, f64),
     /// Type3 の FontMatrix の x 倍率（他は 0.001）。
     scale: f64,
+    // Private source evidence; never changes Glyph/FontInfo or unicode priority.
+    identity_encoding: bool,
+    declared_to_unicode: bool,
+    source_cff: Option<crate::object::Stream>,
+    source_charset: OnceLock<Option<Vec<u16>>>,
 }
 
 /// 文字列中の 1 文字。
@@ -100,11 +105,16 @@ impl Font {
             vmetrics: HashMap::new(),
             default_vmetrics: (880.0, -1000.0),
             scale: 0.001,
+            identity_encoding: false,
+            declared_to_unicode: dict.contains_key(&b"ToUnicode"[..]),
+            source_cff: None,
+            source_charset: OnceLock::new(),
         };
         if subtype == "Type0" {
             font.composite = true;
             match doc.dict_get(dict, b"Encoding") {
                 Some(Object::Name(n)) => {
+                    font.identity_encoding = matches!(n.as_slice(), b"Identity-H" | b"Identity-V");
                     font.encoding = CMap::identity();
                     font.vertical = n.ends_with(b"-V");
                     // Identity 以外の定義済み CMap（UniJIS-UCS2-H など）は持っていないので、
@@ -185,6 +195,16 @@ impl Font {
 
     fn load_descriptor(&mut self, doc: &Document, fd: Option<&Dict>) {
         let Some(fd) = fd else { return };
+        if let Some(Object::Stream(stream)) = doc.dict_get(fd, b"FontFile3") {
+            if doc
+                .dict_get(&stream.dict, b"Subtype")
+                .and_then(|o| o.as_name().map(Vec::from))
+                .as_deref()
+                == Some(b"CIDFontType0C")
+            {
+                self.source_cff = Some(stream);
+            }
+        }
         let num = |k: &[u8]| doc.dict_get(fd, k).and_then(|o| o.as_f64());
         if let (Some(a), Some(d)) = (num(b"Ascent"), num(b"Descent")) {
             // 0 や上下逆の壊れた値は使わない。
@@ -307,6 +327,37 @@ impl Font {
         }
     }
 
+    /// A separate candidate only for a real unresolved Identity encoding.
+    /// Explicit/partial/broken ToUnicode declarations always keep priority.
+    pub(crate) fn source_aj1_fallback(&self, doc: &Document, code: u32, cid: u32) -> Option<char> {
+        if !self.composite
+            || self.ordering.as_deref() != Some("Identity")
+            || !self.identity_encoding
+            || self.declared_to_unicode
+            || self.has_to_unicode
+            || self.to_unicode.is_some()
+            || code != cid
+        {
+            return None;
+        }
+        let c = aj1(cid)?;
+        if c.is_control()
+            || c.is_whitespace()
+            || matches!(c as u32,0xE000..=0xF8FF|0xF0000..=0xFFFFD|0x100000..=0x10FFFD)
+        {
+            return None;
+        }
+        let set = self
+            .source_charset
+            .get_or_init(|| {
+                let bytes = doc.decode_stream(self.source_cff.as_ref()?).ok()?;
+                crate::cff_aj1::standard_cids(&bytes)
+            })
+            .as_ref()?;
+        set.binary_search(&u16::try_from(cid).ok()?).ok()?;
+        Some(c)
+    }
+
     /// 1 文字の Unicode。対応が分からなければ空文字列。
     pub(crate) fn unicode(&self, c: &CharCode) -> String {
         if let Some(s) = self.to_unicode.as_ref().and_then(|m| m.unicode(c.code, c.len)) {
@@ -325,7 +376,9 @@ impl Font {
             }
         }
         match c.code {
-            0x20..=0x7e | 0xa0..=0xff => char::from_u32(c.code).map(String::from).unwrap_or_default(),
+            0x20..=0x7e | 0xa0..=0xff => {
+                char::from_u32(c.code).map(String::from).unwrap_or_default()
+            }
             _ => String::new(),
         }
     }
@@ -413,3 +466,7 @@ mod tests {
         assert_eq!(aj1(7651), Some('\u{559D}'));
     }
 }
+
+#[cfg(test)]
+#[path = "source_aj1_font_tests.rs"]
+mod source_aj1_font_tests;

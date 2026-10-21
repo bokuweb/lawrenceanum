@@ -31,53 +31,53 @@
 //! ```
 
 use anyhow::Result;
-mod wrapped_notice_titles;
 mod facility_continuations;
 mod framed_band_continuations;
-mod paired_framed_continuations;
 #[cfg(test)]
 #[path = "paired_framed_continuation_shape_tests.rs"]
 mod paired_framed_continuation_shape_tests;
-
-mod native_triangle_cells;
-mod coordinate_symbols;
-mod coordinate_rows;
+mod paired_framed_continuations;
+mod wrapped_notice_titles;
 mod area_units;
 mod blank_area_units;
-mod reference_markers;
-mod inline_quotes;
-mod range_endpoints;
-mod micro_prefixes;
 mod chemical_line_end;
+mod coordinate_rows;
+mod coordinate_symbols;
 mod framed_amount_rows;
+mod inline_quotes;
+mod micro_prefixes;
+mod native_triangle_cells;
+mod range_endpoints;
+mod reference_markers;
 
+mod cell_row_dashes;
+mod financial_enclosures;
 pub mod format;
+mod fractions;
 pub mod grid;
-mod horizontal;
-mod headed_data_columns;
 #[cfg(test)]
 mod headed_data_column_tests;
-mod numeric_grid_orientation;
-mod record_suffix;
-mod financial_enclosures;
+mod headed_data_columns;
+mod headerless_four_bands;
+mod horizontal;
+
 pub mod lines;
 pub mod model;
+mod nested_fraction_geometry;
+mod nested_fractions;
 pub mod normalize;
+mod numeric_grid_orientation;
+mod owned_dashes;
+mod quantity_tables;
+mod record_suffix;
+mod ruled_plain_dashes;
 pub mod segment;
+mod shared_table_labels;
 pub mod shinkyu;
-mod headerless_four_bands;
 pub mod table;
 mod table_dashes;
-mod owned_dashes;
-mod ruled_plain_dashes;
-mod cell_row_dashes;
-mod shared_table_labels;
-mod quantity_tables;
-mod fractions;
-mod nested_fractions;
-mod nested_fraction_geometry;
-mod unruled_road;
 pub mod trace;
+mod unruled_road;
 pub mod vertical;
 
 pub use format::detect_format_of;
@@ -364,18 +364,17 @@ fn render_table_markers(text: &str, tables: &[trace::Table]) -> String {
 /// PDF バイト列から、`pdftotext -bbox-layout` と同じ形の座標付き XHTML を得る（kanpo-pdf）。
 /// [`analyze`] / [`reconstruct_vertical`] の入力になる。
 pub fn bbox_xhtml(pdf: &[u8]) -> Result<String> {
-    let pages = kanpo_pdf::extract_pages(pdf)?;
-    Ok(kanpo_pdf::bbox::bbox_layout(&pages))
+    let sources= kanpo_pdf::extract_pages_with_aj1_sources(pdf)?;
+    Ok(kanpo_pdf::bbox::bbox_layout_with_aj1_sources(&sources))
 }
 
 /// PDF の各ページを [`analyze_item`] の入力（座標付きテキストと罫線）にする。
 pub fn page_inputs(pdf: &[u8]) -> Result<Vec<PageInput>> {
-    let pages = kanpo_pdf::extract_pages(pdf)?;
-    Ok(pages
+    Ok(kanpo_pdf::extract_pages_with_aj1_sources(pdf)?
         .into_iter()
-        .map(|p| PageInput {
-            rules: Some(kanpo_pdf::page_rules(&p)),
-            xhtml: kanpo_pdf::bbox::bbox_layout(std::slice::from_ref(&p)),
+        .map(|source| PageInput {
+            rules: Some(kanpo_pdf::page_rules(source.page())),
+            xhtml: kanpo_pdf::bbox::bbox_layout_with_aj1_sources(std::slice::from_ref(&source)),
         })
         .collect())
 }
@@ -474,12 +473,14 @@ mod tests {
     use super::*;
 
     fn arts(texts: &[&str]) -> Vec<ArticleAnalysis> {
-        texts.iter().map(|t| ArticleAnalysis { text: t.to_string(), document: model::Document::from_text(t) }).collect()
+        texts.iter().map(|t| ArticleAnalysis { text: t.to_string(), document: model::Document::from_text(t),
+            }).collect()
     }
 
     #[test]
     fn short_title_requires_an_independent_leading_heading() {
-        let a = arts(&["国会事項\n内閣に関する質問", "人事異動\n内閣\n〇財務大臣臨時代理\n指定する"]);
+        let a = arts(&["国会事項\n内閣に関する質問", "人事異動\n内閣\n〇財務大臣臨時代理\n指定する",
+        ]);
         assert_eq!(pick_article("内閣", &a), Some(1));
         assert_eq!(pick_article("内閣", &a[..1]), None);
     }
@@ -492,7 +493,8 @@ mod tests {
 
     #[test]
     fn picks_article_with_short_law_name() {
-        let a = arts(&["〇農林水産省令第五十号\n種苗法施行規則の一部を次のように改正する。", "種苗法の一部を改正する法律をここに公布する。\n御名御璽"]);
+        let a = arts(&["〇農林水産省令第五十号\n種苗法施行規則の一部を次のように改正する。", "種苗法の一部を改正する法律をここに公布する。\n御名御璽",
+        ]);
         assert_eq!(pick_article("種苗法の一部を改正する法律（七二）", &a), Some(1));
     }
 
@@ -529,7 +531,8 @@ mod tests {
         ]);
         assert_eq!(pick_article("都市計画に関する件（九州地方整備局九八）", &a), Some(1));
         // 範囲・列挙の号数は先頭の号数で選ぶ。
-        let a = arts(&["〇防衛省告示第二百五十一号\n射撃訓練を実施する。", "〇防衛省告示第二百五十四号\n射撃等訓練を実施する。"]);
+        let a = arts(&["〇防衛省告示第二百五十一号\n射撃訓練を実施する。", "〇防衛省告示第二百五十四号\n射撃等訓練を実施する。",
+        ]);
         assert_eq!(pick_by_number("訓練の件（防衛二五一～二五三）", &a), Some(0));
         assert_eq!(pick_by_number("訓練の件（同二五四、二五五）", &a), Some(1));
     }
@@ -555,3 +558,5 @@ mod numeric_fractions;
 mod ruled_plain_dash_tests;
 
 mod quoted_inline_tables;
+
+mod source_aj1;

@@ -52,3 +52,21 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[cfg(test)]
 #[path="aj1_provenance_pdf_tests.rs"]
 mod aj1_provenance_pdf_tests;
+
+mod cff_aj1;
+mod source_aj1;
+pub use source_aj1::Aj1PageSources;
+/// Extract opaque owned pages with source evidence. The read-only native page
+/// is available through `Aj1PageSources::page`; it cannot be re-paired with
+/// evidence from another extraction. Legacy public values remain unchanged.
+pub fn extract_pages_with_aj1_sources(pdf: &[u8]) -> Result<Vec<Aj1PageSources>> {
+    let doc = Document::load(pdf.to_vec())?;
+    Ok(doc
+        .pages()
+        .iter()
+        .map(|page| page::extract_page_source_aj1(&doc, page))
+        .collect())
+}
+#[cfg(test)]
+#[path = "source_aj1_api_tests.rs"]
+mod source_aj1_api_tests;

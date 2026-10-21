@@ -1038,3 +1038,33 @@ RURI/ModernBERTのopt-inは有用性を未見データ・元ID/罫線との対�
 [`tests/audits/issue227-thirtieth-batch-provenance.json`](tests/audits/issue227-thirtieth-batch-provenance.json)、
 [`tests/audits/issue227-thirtieth-batch-reviews.json`](tests/audits/issue227-thirtieth-batch-reviews.json)、
 [`tests/audits/issue227-validation-30.json`](tests/audits/issue227-validation-30.json)に保存した。
+
+第 31 次修正では、未解決Identity CIDを実際の埋込みCFF1のAdobe/Japan1宣言・charset・元Glyphと照合し、標準対応表で22字を訂正した。
+姓名・会社名・頁番号・期待本文では分岐しない。通常Unicode/ToUnicodeと既存の明示的な復号を優先し、混在Wordの部分的な上書きも拒否する。
+元WordのID/raw/bbox/status/所属を保持し、推測Word/IDを追加しない。原本の字体まで推定する完全なType2アウトライン検証ではなく、対応するCFF1の構造と符号集合に適用範囲を限定する。
+
+初期候補は全頁比較を通過したが、不正FDSelectと、公開Pageが同値の別PDFに証拠を組み合わせられる反例が見つかったため採用を保留した。
+修正版は全GID（.notdefを含む）のFDSelect0/3→FDArray→Private/相対Subrsを検査し、Top DICT先頭ROS、有限な実数構文と48オペランド制限も確認する。
+元Pageと証拠を非公開の内部フィールドを持つ所有バンドルにまとめ、参照専用page()を提供する。描画APIは別のPageを受け取らず、旧extract_pages/bbox_layoutと公開Page/Glyph/FontInfoは維持する。
+同じ最終CFF17テストは旧候補で10失敗/7成功から、PDF84テスト内ですべて成功した。旧2スライスAPIを拒否するcompile_fail doc-testも追加した。実PDFを含む69検査は修復前52で18失敗/51成功、最終55で69成功である。
+
+全4クレート1,617テスト、108統合対象・4ライブラリ・4doc-test・全4examplesを含む117コマンドが終了0。パーサ979件、PDF84件、アーカイブ719原PDFで、合成Unicode/構造対照PDFを原本アーカイブへ混ぜない。
+独立候補55と最終release55で全11,992原本を再解析し、直前52に対して18変更・11,974解析全体完全一致を確認した。本番textdump --pdfも全本文が一致する。
+全頁のnative Page/Glyph/Font/Pathとf64ビット、全元Wordの文字/座標ビット/Glyph IDsも保持する。152頁242候補のproducer証拠は独立した以前の全JSONと一致する。
+原22Wordのparser所有座標は、元f64→6桁XHTML→f32と既存の縦表示演算を同じ順序で再現し、全4座標ビット一致で検査する。数値全般への許容差は導入しない。
+累計2,957変更頁・文字変化1,373頁。原横棒11,033字、分数153件、期間706組・番号121組・括弧377セル等は累積頁の8分割再検査で保持した。検査値は全13項目（対象頁数を除く12項目は直前と一致）であり、旧候補の「13非scope」というラベル誤記は明示的に訂正した。
+
+18正例の原図全体・全3,033行・全Article/Documentの独立既読証拠を、最終55の完全な前後解析とPDF/画像SHAで継承し、rootも4陰性対照の原図全体・全648行・全Article/Documentを読了した。
+14改善/4部分改善・今回退行0で、正例のstrict品質は1ok/1minor/16major、本文・文字・読順は15ok/2minor/1major。文字訂正を頁全体の成功とは数えない。独立公告/住所の混在、AJ1範囲外符号の誤字、邦/í等の欠落を残件へ保持した。
+新規22snapshotは全文・全Article/Docに照合後確定し、既存756期待値はGit blobと完全一致、更新0である。既存コーパス24PDFの全解析も保持し、1頁のbbox入力に元CFF由来属性4件だけを追加した。期待本文/JSON/assertionは変更していない。
+
+未見監査143は採点前に52親・画像・全解析を固定し、30原図・全2,165行・60Article/Documentを確認した。初回strict10ok/6minor/14major、本文・文字・読順27ok/1minor/2majorを保持し、最終release55の全30解析が親52と完全一致してから評価を継承した。異なる監査間の率比較はしない。
+native Glyph 0は2原本の限定8矩形だけで、近隣9陽性矩形と除外外側の17Glyphも検査した。矢印内部7矩形と上段書式1矩形だけを範囲とし、隣接本文・頁全体は除外しない。
+初回のログ用ディレクトリ未作成、監査レポートのキー形状取り違え、以前の可視証拠/座標の反例と停止ログを保持した。初回採点や失敗期待値を後から修復結果へ書き換えない。
+
+財務の罫線可視性、gridと縦小レコードの同時復元、会社1,286頁中未確認865頁は未採用の残件である。縦小レコードの座標依存を拒否する限定1,059テストは成功したが、実送り幅をsizeへ固定すると正当入力を拒否する例が残り、全頁検査前に採用しない。RURI/ModernBERTのopt-in許可は保持するが、この修正ではモデルを取得/学習/推論していない。
+全体100%は未達で、改善を続ける。証拠は[`tests/audits/143.json`](tests/audits/143.json)、
+[`tests/audits/issue227-generality-audit-31.json`](tests/audits/issue227-generality-audit-31.json)、
+[`tests/audits/issue227-thirty-first-batch-provenance.json`](tests/audits/issue227-thirty-first-batch-provenance.json)、
+[`tests/audits/issue227-thirty-first-batch-reviews.json`](tests/audits/issue227-thirty-first-batch-reviews.json)、
+[`tests/audits/issue227-validation-31.json`](tests/audits/issue227-validation-31.json)に保存した。

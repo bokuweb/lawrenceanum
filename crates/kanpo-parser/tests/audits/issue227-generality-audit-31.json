@@ -1,0 +1,48 @@
+{
+  "batch": 31,
+  "parent": "issue227-generality-audit-30.json",
+  "source_manifest": {
+    "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated55-source-manifest.json",
+    "sha256": "8620f18ff28d8d30c64ac2c185301b0a2a4752b04353175306edae2d200003de"
+  },
+  "general_rule": "Use supplemental AJ1 Unicode only for a still-unresolved Identity CID route whose actual embedded CFF1 declares Adobe/Japan1, has validated supported charset/CID routing/Private dictionaries, includes the original CID, and whose entire original Word has ordered unique source Glyphs matching the standard table. Keep ordinary Unicode, ToUnicode and explicit legacy decoders ahead of this fallback.",
+  "source_identity": "Opaque owned original Page+evidence bundle; read-only page() accessor; renderer cannot accept a separately paired Page. Original occurrence pairing before Word sort is retained; no text/bbox-key association.",
+  "no_name_page_company_or_expected_output_branch_added": true,
+  "no_three_surname_static_mapping_added": true,
+  "no_font_name_alone_authority": true,
+  "no_ad_hoc_length_line_count_or_gap_limit_added": true,
+  "standard_collection_literals": "Adobe/Japan1 and CFF operator/index limits are format/encoding evidence; observed names appear only in tests/reviews.",
+  "supported_structures": "CFF1 CID charset0/1/2, FDSelect0/3, valid nonempty FDArray, every FD Private dictionary in bounds, supported Private operators and valid relative local Subrs INDEX; Top DICT ROS first; complete finite DICT real grammar and48-operand limit.",
+  "remaining_applicability_limits": [
+    "No full Type2 outline/raster validation or visual proof against malicious font declarations. Unsupported or malformed checked structures abstain.",
+    "Only the existing AJ1 table and supported CFF1 routes are recognized; arbitrary unknown fonts and missing native text are not inferred.",
+    "Mixed Words with any prior explicit decoder remain on the complete legacy route; partial source overrides are rejected.",
+    "This batch repairs22 scalar characters in18 pages. Independent notice, row/cell/role and missing native glyph defects remain."
+  ],
+  "testfirst": {
+    "actual69_baseline52_RED": 18,
+    "actual69_baseline52_GREEN": 51,
+    "candidate69_GREEN": 69,
+    "final_CFF17_same_assertions_held53_RED": 10,
+    "held53_GREEN": 7,
+    "candidate_PDF84_GREEN": 84,
+    "candidate_parser979_GREEN": 979,
+    "owned_API_compile_fail_doctest_GREEN": 1,
+    "old_two_slice_API_doctest_RED_because_compiled": true,
+    "read_only_mutation_compile_rejected": true
+  },
+  "broad_parser_all_ad_hoc_free_claim": false,
+  "held_generality_counterexamples": {
+    "financial_source_visibility16_tests": "11RED/5GREEN; conservative PathItem.clip cannot certify visible ink through disjoint/hole/curve/alpha/dash/softmask/overpaint cases. Candidate held.",
+    "paired_subcell_coordinate_translation": "Same2 production counterexamples at dx0 correctly abstain but dx1,000,000 wrongly split; old977GREEN+2RED preserved.",
+    "corrected_grid": "All original Glyph/Word ownership and raw-derived exact display anchors required; corrected grid-only final has not passed a fresh11992 gate.",
+    "native_certificate_v5": "Limited1059 tests passed; no full/actual7 gate. Separate4probe proves unnecessary endadvance==size rejection; not adopted."
+  },
+  "models": {
+    "user_allowed_RURI_and_ModernBERT_opt_in": true,
+    "download_training_inference_performed": false,
+    "default_behavior_changed": false,
+    "utility_not_established": true,
+    "prior_evaluation_plan": "issue227-generality-audit-29.json"
+  }
+}

@@ -2,14 +2,20 @@
 
 use scraper::{Html, Selector};
 
-use crate::horizontal::{horizontal_lines, horizontal_lines_with_tables, is_left_strip_header, keyed_tables, one_column_lines_with_tables, row_lines, LEFT_STRIP};
-use crate::normalize::{is_margin_noise, is_toc_page_number, private_cid_glyph, toc_page_numbers, word_text, CidGlyph};
-use crate::shinkyu::{
-    band_pair_unit, detect_shinkyu_bands_headerless, detect_shinkyu_header, lines_with_tables_by, place_tables, reconstruct_shinkyu, split_side_by_side_tables,
-    tiers_look_like_bands, ShinkyuLayout,
-};
 use crate::grid::{find_grids, Grid};
+use crate::horizontal::{
+    horizontal_lines, horizontal_lines_with_tables, is_left_strip_header, keyed_tables,
+    one_column_lines_with_tables, row_lines, LEFT_STRIP,
+};
 use crate::lines::PageRules;
+use crate::normalize::{
+    is_margin_noise, is_toc_page_number, private_cid_glyph, toc_page_numbers, word_text, CidGlyph,
+};
+use crate::shinkyu::{
+    band_pair_unit, detect_shinkyu_bands_headerless, detect_shinkyu_header, lines_with_tables_by,
+    place_tables, reconstruct_shinkyu, split_side_by_side_tables, tiers_look_like_bands,
+    ShinkyuLayout,
+};
 use crate::trace::{join_lines, Line, PageTrace, Unit, Word, WordStatus};
 
 /// 縦書き1カラム = 1 word とみなした語。`y`/`y1` は上端/下端。
@@ -2169,12 +2175,14 @@ fn page_words_traced(
     page_width: f32,
     height: f32,
     page_rules: Option<&PageRules>,
-) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>, std::collections::HashSet<usize>) {
+) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>, std::collections::HashSet<usize>,
+) {
     let word_sel = Selector::parse("word").unwrap();
     let line_sel = Selector::parse("line").unwrap();
     // (x0, y0, x1, y1, raw)
     let mut raws: Vec<(f32, f32, f32, f32, String)> = Vec::new();
     let mut resolved_aj1 = Vec::new();
+    let mut source_candidates = Vec::new();
     let mut native_vertical: std::collections::HashMap<[u32; 4], Vec<(String, [f32; 4])>> = Default::default();
     let mut native_horizontal_chars = 0usize;
     let mut horizontal_font_chars = 0usize;
@@ -2187,11 +2195,13 @@ fn page_words_traced(
             let text: String = w.text().collect();
             if v.attr("data-wmode") == Some("0") && x1-x > (y1-y)*1.5 {
                 horizontal_font_chars += text.chars().count();
-                horizontal_font_words.insert(([x.to_bits(),y.to_bits(),x1.to_bits(),y1.to_bits()],text.clone()));
+                horizontal_font_words.insert(([x.to_bits(),y.to_bits(),x1.to_bits(),y1.to_bits()],text.clone(),
+                ));
             }
             if v.attr("data-wmode") == Some("1") {
                 if let (Some(ax), Some(ay), Some(nx), Some(ny), Some(nx1), Some(ny1)) =
-                    (num("data-advance-x"), num("data-advance-y"), num("data-native-xmin"), num("data-native-ymin"), num("data-native-xmax"), num("data-native-ymax"))
+                    (num("data-advance-x"), num("data-advance-y"), num("data-native-xmin"), num("data-native-ymin"), num("data-native-xmax"), num("data-native-ymax"),
+                )
                 {
                     if [ax,ay,nx,ny,nx1,ny1].iter().all(|n| n.is_finite()) && ax.abs() > ay.abs()*1.5 && ax.abs() > 0.0 && nx1 > nx && ny1 > ny {
                         if x1-x > (y1-y)*1.5 { native_horizontal_chars += text.chars().count(); }
@@ -2199,6 +2209,10 @@ fn page_words_traced(
                     }
                 }
             }
+            source_candidates.push(
+                v.attr("data-source-aj1-text")
+                    .and_then(|value| crate::source_aj1::candidate(&text, value)),
+            );
             raws.push((x, y, x1, y1, text));
             resolved_aj1.push(v.attr("data-unicode-aj1") == Some("1"));
         }
@@ -2220,7 +2234,9 @@ fn page_words_traced(
     // 同点の扱いなどに入力順が出ないようにする。
     // Keep provenance attached to its own source occurrence, including exact
     // bbox/text ties with a word from another extractor or font.
-    let mut sources: Vec<_> = raws.into_iter().zip(resolved_aj1).collect();
+    let mut sources: Vec<_> = raws.into_iter().zip(resolved_aj1).zip(source_candidates)
+        .map(|((raw, flag), source)| (raw, (flag, source)))
+        .collect();
     sources.sort_by(|(a, _), (b, _)| {
         b.0.total_cmp(&a.0)
             .then(a.1.total_cmp(&b.1))
@@ -2228,7 +2244,8 @@ fn page_words_traced(
             .then(a.3.total_cmp(&b.3))
             .then_with(|| a.4.cmp(&b.4))
     });
-    let (mut raws, resolved_aj1): (Vec<_>, Vec<_>) = sources.into_iter().unzip();
+    let (mut raws, evidence): (Vec<_>, Vec<_>) = sources.into_iter().unzip();
+    let (resolved_aj1, source_candidates): (Vec<_>, Vec<_>) = evidence.into_iter().unzip();
     // 縦書きのページが /Rotate で横倒しに表示されている（座標上は縦の列が横の行に見える）
     // なら、復元に使う座標を 90° 回して縦書きに戻す。語の表示用の座標（`Word`）は
     // PDF の表示と重なるよう元のまま残す。
@@ -2282,16 +2299,19 @@ fn page_words_traced(
         // distinct font runs). Use it only when every source occurrence has a
         // valid native rectangle and all occurrences agree on that rectangle.
         // An unannotated word must never inherit another word's font metadata.
-        native_vertical.retain(|key, values| values.iter().all(|(text, b)| {
+        native_vertical.retain(|key, values| {
+            values.iter().all(|(text, b)| {
             let declared = values.iter().filter(|(t, _)| t == text).count();
-            let sources = raws.iter().filter(|(x, y, x1, y1, t)|
-                [x.to_bits(), y.to_bits(), x1.to_bits(), y1.to_bits()] == *key && t == text).count();
+            let sources = raws.iter().filter(|(x, y, x1, y1, t)| {
+                        [x.to_bits(), y.to_bits(), x1.to_bits(), y1.to_bits()] == *key && t == text
+                    }).count();
             declared == sources && values.iter().filter(|(t, _)| t == text).all(|(_, other)| other == b)
-        }));
+        })
+        });
         retain_inline_native_quotes(&raws, &horizontal_font_words, &mut native_vertical);
         for (x,y,x1,y1,text) in &mut raws {
             if let Some((_,b)) = native_vertical.get(&[x.to_bits(),y.to_bits(),x1.to_bits(),y1.to_bits()]).and_then(|xs| xs.iter().find(|(t,_)| t == text)) {
-                (*x,*y,*x1,*y1) = (b[0],b[1],b[2],b[3]);
+                (*x, *y, *x1, *y1) = (b[0],b[1],b[2],b[3]);
             }
         }
     }
@@ -2334,8 +2354,9 @@ fn page_words_traced(
     // The PDF bridge has proved these characters against actual AJ1 CID
     // mappings. Only the legacy untagged-CID guess is bypassed; word_text
     // still handles punctuation/PUA and tagged Identity glyphs normally.
-    let glyphs: Vec<Option<CidGlyph>> = raws.iter().zip(&resolved_aj1).map(|((x, y, x1, y1, raw), resolved)| {
-        if *resolved { None } else { private_cid_glyph(raw, x1 - x, y1 - y) }
+    let glyphs: Vec<Option<CidGlyph>> = raws.iter().zip(&resolved_aj1).zip(&source_candidates)
+        .map(|(((x, y, x1, y1, raw), resolved), source)| {
+        if *resolved || source.is_some() { None } else { private_cid_glyph(raw, x1 - x, y1 - y) }
     }).collect();
     // 紛れのない私用 CID 記号が出ている系統。常用漢字と同じ符号はこの系統があるページで、
     // しかも前後の語と間を空けずに続く（「（イ）及び（ロ）に掲げる」）ときだけ写像する。
@@ -2355,7 +2376,9 @@ fn page_words_traced(
     let glyphs: Vec<Option<CidGlyph>> = glyphs
         .into_iter()
         .enumerate()
-        .map(|(i, g)| g.filter(|g| !g.ambiguous || (families.contains(&g.family) && touches_neighbor(i))))
+        .map(|(i, g)| {
+            g.filter(|g| !g.ambiguous || (families.contains(&g.family) && touches_neighbor(i)))
+        })
         .collect();
 
     let mut cols: Vec<Col> = Vec::new();
@@ -2363,20 +2386,25 @@ fn page_words_traced(
     for (((((x, y, x1, y1, raw), glyph), (gx, gy, gx1, gy1)), toc_number), dx) in raws.into_iter().zip(glyphs).zip(geom).zip(toc_numbers).zip(display_dx) {
         // scraper が実体参照は復号済み。私用 CID の括弧付き数字等を復元し、約物を正規化し、
         // 私用領域(傍線等のフォント固有グリフ)を除去する。
-        let text: String = composed_numbers[words.len()].clone().unwrap_or_else(|| match (toc_number, glyph) {
+        let text: String = source_candidates[words.len()]
+            .as_ref()
+            .map(|source| word_text(source))
+            .unwrap_or_else(|| {
+                composed_numbers[words.len()].clone().unwrap_or_else(|| match (toc_number, glyph) {
             (Some(n), _) => n,
             (None, Some(g)) => g.text.clone(),
             (None, None) => word_text(&raw),
-        });
+                    })
+            });
         // 綴じ穴の印「〇」2 つと中央の印（私用 CID の「△」の字形）は、横組みのページと号の 1 ページ目（横倒しとみなす）
         // では紙面の上端（本文の上端 y≈47 より上の y≈7–26）に刷られている（本文に「〇」「△」の行が出ていた）。
         let punch_mark = y1 <= PUNCH_MARK_BOTTOM && matches!(text.trim(), "〇" | "△");
         let in_margin = punch_mark || if rotated {
             gx1 <= LEFT_STRIP
         } else {
-            // 横倒しのページは回した座標の高さが表示の幅（`page_width`）。表示の高さで見ると、表示の右の
-            // 3 割ほど（号外226 p25 の 4 段目、座標の表の右端の欄）が余白として捨てられていた。
-            let bottom = if sideways { page_width } else { height };
+                // 横倒しのページは回した座標の高さが表示の幅（`page_width`）。表示の高さで見ると、表示の右の
+                // 3 割ほど（号外226 p25 の 4 段目、座標の表の右端の欄）が余白として捨てられていた。
+                let bottom = if sideways { page_width } else { height };
             gy1 <= TOP_MARGIN || gy >= bottom - BOTTOM_MARGIN || (!sideways && gx >= page_width - RIGHT_MARGIN)
         };
         let status = if in_margin {
@@ -3494,7 +3522,8 @@ fn stacked_fields(ws: &[&Col], tops: &[f32], em: f32) -> String {
 
 /// [`record_bands`] の表の欄見出しの末尾の語（「政治団体の名称」「代表者の氏名」「解散年月日」「主たる事務所の所在地」
 /// 「施設名」「指定番号」「車名及び型式」「製作者等の住所」「摘要」）。
-const RECORD_HEADS: [&str; 11] = ["名称", "氏名", "年月日", "所在地", "名", "番号", "型式", "住所", "摘要", "種類", "関係"];
+const RECORD_HEADS: [&str; 11] = ["名称", "氏名", "年月日", "所在地", "名", "番号", "型式", "住所", "摘要", "種類", "関係",
+];
 
 /// [`record_bands`] の、字間を空けた欄見出しの 1 字だけの段（「番」）。
 fn label_band(b: &[Col]) -> bool {
@@ -5629,7 +5658,8 @@ mod tests {
     fn warichu_right_half_continues_with_letter_spaced_words() {
         // 割注の右半分が複数字の語の後に字間を空けた語で続く（「国家公安委員会、総」「務」「省、」）。
         // 左半分も字間を空けた 1 字の語（「文」「部」「科」「学」）と続きの語。
-        let col = |id: usize, x: f32, y: f32, y1: f32, text: &str| Col { id, x, x1: x + 8.0, y, y1, text: text.to_string() };
+        let col = |id: usize, x: f32, y: f32, y1: f32, text: &str| Col { id, x, x1: x + 8.0, y, y1, text: text.to_string(),
+        };
         let mut cols = vec![
             col(0, 403.6, 188.8, 236.8, "（令和二年"),
             col(1, 407.6, 236.8, 308.8, "国家公安委員会、総"),
@@ -5640,7 +5670,8 @@ mod tests {
             col(6, 399.6, 260.8, 268.8, "科"),
             col(7, 399.6, 272.8, 280.8, "学"),
             col(8, 399.6, 284.8, 340.8, "省、国土交通省"),
-            col(9, 403.6, 348.8, 508.8, "告示第一号）の一部を次のように改正する。"),
+            col(9, 403.6, 348.8, 508.8, "告示第一号）の一部を次のように改正する。",
+            ),
         ];
         merge_warichu(&mut cols);
         let texts: Vec<&str> = cols.iter().map(|c| c.text.as_str()).collect();
@@ -5650,15 +5681,19 @@ mod tests {
     #[test]
     fn letter_spaced_horizontal_labels_do_not_make_a_horizontal_page() {
         // 縦書きの本文（縦長の語）の中に、字間を空けた横書きの表の欄の名前が多いページ。
-        let col = |x: f32, y: f32, x1: f32, y1: f32, text: &str| Col { id: 0, x, x1, y, y1, text: text.to_string() };
-        let mut cols = vec![col(500.0, 60.0, 508.0, 140.0, "縦書きの本文の一行"), col(490.0, 60.0, 498.0, 140.0, "縦書きの本文の二行")];
+        let col = |x: f32, y: f32, x1: f32, y1: f32, text: &str| Col { id: 0, x, x1, y, y1, text: text.to_string(),
+        };
+        let mut cols = vec![col(500.0, 60.0, 508.0, 140.0, "縦書きの本文の一行"), col(490.0, 60.0, 498.0, 140.0, "縦書きの本文の二行"),
+        ];
         for i in 0..4 {
             // 5 字を 0.5em 空けて 1 語にしたもの（幅 56pt、高さ 8pt）。
-            cols.push(col(100.0, 200.0 + 10.0 * i as f32, 156.0, 208.0 + 10.0 * i as f32, "利益剰余金"));
+            cols.push(col(100.0, 200.0 + 10.0 * i as f32, 156.0, 208.0 + 10.0 * i as f32, "利益剰余金",
+            ));
         }
         assert!(!is_horizontal_page(&cols));
         // 字間を空けていない横書きの語なら横組みのページ。
-        cols.push(col(100.0, 300.0, 260.0, 308.0, "横書きの本文の一行に並ぶ二十字の文字列です"));
+        cols.push(col(100.0, 300.0, 260.0, 308.0, "横書きの本文の一行に並ぶ二十字の文字列です",
+        ));
         assert!(is_horizontal_page(&cols));
     }
 
@@ -5681,7 +5716,8 @@ mod tests {
     #[test]
     fn a_frame_containing_only_header_labels_is_not_a_leading_table() {
         // 右端の狭いラベル欄の内部罫線を、表全体の左端として切り出さない。
-        let col = |id, x, y, y1, text: &str| Col { id, x, x1: x + 8.0, y, y1, text: text.into() };
+        let col = |id, x, y, y1, text: &str| Col { id, x, x1: x + 8.0, y, y1, text: text.into(),
+        };
         let cols = vec![
             col(0, 540.0, 240.0, 264.0, "改正後"),
             col(1, 540.0, 600.0, 624.0, "改正前"),
@@ -5691,15 +5727,18 @@ mod tests {
         ];
         let rules = PageRules {
             enclosures: Vec::new(), short_fraction_bars: Vec::new(),
-            vertical: vec![crate::lines::VRule { x: 532.0, y0: 60.0, y1: 790.0 }],
-            horizontal: vec![crate::lines::HRule { y: 430.0, x0: 532.0, x1: 553.0 }],
+            vertical: vec![crate::lines::VRule { x: 532.0, y0: 60.0, y1: 790.0,
+            }],
+            horizontal: vec![crate::lines::HRule { y: 430.0, x0: 532.0, x1: 553.0,
+            }],
         };
         assert!(split_off_leading_frame(cols, Some(&rules)).is_err());
     }
 
     #[test]
     fn trailing_frame_requires_a_closed_frame_and_a_numbered_bridging_intro() {
-        let col = |x, y, y1, text: &str| Col { id: 0, x, x1: x + 8.0, y, y1, text: text.into() };
+        let col = |x, y, y1, text: &str| Col { id: 0, x, x1: x + 8.0, y, y1, text: text.into(),
+        };
         let cols = vec![
             col(100.0, 200.0, 224.0, "変更後"), col(100.0, 600.0, 624.0, "変更前"),
             col(5.0, 50.0, 300.0, "上欄本文"), col(5.0, 450.0, 750.0, "下欄本文"),
@@ -5707,7 +5746,8 @@ mod tests {
             col(162.0, 0.0, 350.0, "前記事末尾"), col(178.0, 0.0, 350.0, "前記事本文"), col(194.0, 0.0, 350.0, "前記事先頭"),
             col(170.0, 420.0, 700.0, "次記事末尾"), col(186.0, 420.0, 700.0, "次記事本文"), col(202.0, 420.0, 700.0, "次記事先頭"),
         ];
-        let mut rules = TierRules { tables: vec![], boxes: vec![], hrules: vec![(400.0, 0.0, 120.0)], vrules: vec![(0.0, 0.0, 800.0), (120.0, 0.0, 800.0)], sideways: false };
+        let mut rules = TierRules { tables: vec![], boxes: vec![], hrules: vec![(400.0, 0.0, 120.0)], vrules: vec![(0.0, 0.0, 800.0), (120.0, 0.0, 800.0)], sideways: false,
+        };
         let Ok((rest, frame)) = split_off_trailing_label_frame(cols.clone(), &rules) else { panic!("閉じた全高枠") };
         assert!(rest.iter().any(|c| c.text == "前記事末尾"));
         assert!(frame.iter().any(|c| c.text == "二変更した事項"));
@@ -5728,9 +5768,11 @@ mod tests {
     #[test]
     fn finds_lower_band_of_only_marks() {
         // 新設の条が続く新旧対照表の続きのページ: 上の帯に改正後の条文、下の帯に改正前の「（新設）」だけ。
-        let col = |x: f32, y: f32, y1: f32, t: &str| Col { id: 0, x, x1: x + 8.0, y, y1, text: t.to_string() };
+        let col = |x: f32, y: f32, y1: f32, t: &str| Col { id: 0, x, x1: x + 8.0, y, y1, text: t.to_string(),
+        };
         let mut cols = vec![
-            col(500.0, 60.0, 380.0, "第九十八条の十四　医薬部外品の製造業者は"),
+            col(500.0, 60.0, 380.0, "第九十八条の十四　医薬部外品の製造業者は",
+            ),
             col(488.0, 60.0, 380.0, "号のいずれかに該当する責任技術者を"),
             col(476.0, 60.0, 300.0, "一　薬剤師"),
             col(500.0, 440.0, 472.0, "（新設）"),
@@ -5786,17 +5828,21 @@ mod tests {
 mod raised_section_label_tests {
     use super::*;
     fn fixture() -> (Vec<Unit>, Vec<Word>) {
-        let words = [(500.,480.,509.,545.,"官庁事項"),(484.,428.,492.,501.,"関東地方整備局公示"),(525.,528.,539.,668.,"官庁報告")]
-            .into_iter().enumerate().map(|(id,(x0,y0,x1,y1,text))| Word{id,x0,y0,x1,y1,raw:text.into(),text:text.into(),status:WordStatus::Used}).collect();
-        let units=vec![Unit::Plain(vec![Line::text("官庁事項".into(),vec![0]),Line::text("関東地方整備局公示".into(),vec![1])]), Unit::Plain(vec![Line::text("官庁報告".into(),vec![2])])];
+        let words = [(500.,480.,509.,545.,"官庁事項"),(484.,428.,492.,501.,"関東地方整備局公示"),(525.,528.,539.,668.,"官庁報告"),
+        ]
+            .into_iter().enumerate().map(|(id,(x0,y0,x1,y1,text))| Word{id,x0,y0,x1,y1,raw:text.into(),text:text.into(),status:WordStatus::Used,
+        }).collect();
+        let units=vec![Unit::Plain(vec![Line::text("官庁事項".into(),vec![0]),Line::text("関東地方整備局公示".into(),vec![1]),
+            ]), Unit::Plain(vec![Line::text("官庁報告".into(),vec![2])]),
+        ];
         (units,words)
     }
-    fn texts(units: &[Unit]) -> String {units.iter().map(Unit::text).filter(|s|!s.is_empty()).collect::<Vec<_>>().join("\n")}
+    fn texts(units: &[Unit]) -> String {units.iter().map(Unit::text).filter(|s| !s.is_empty()).collect::<Vec<_>>().join("\n")}
     #[test]
     fn adjacent_larger_vertical_section_precedes_its_field_and_short_title() {
-        let (mut u,w)=fixture();order_section_labels(&mut u,&w);assert_eq!(texts(&u),"官庁報告\n官庁事項\n関東地方整備局公示");
-        let (mut u,w)=fixture();if let Unit::Plain(p)=&mut u[0]{p.insert(0,Line::text("前の記事の終わり。".into(),vec![]));}order_section_labels(&mut u,&w);assert!(texts(&u).starts_with("前の記事の終わり。\n官庁報告\n官庁事項"));
-        let (mut u,w)=fixture();if let Unit::Plain(p)=&mut u[0]{p.pop();}order_section_labels(&mut u,&w);assert_eq!(texts(&u),"官庁報告\n官庁事項");
+        let (mut u,w)=fixture();order_section_labels(&mut u, &w);assert_eq!(texts(&u),"官庁報告\n官庁事項\n関東地方整備局公示");
+        let (mut u,w)=fixture();if let Unit::Plain(p) = &mut u[0]{p.insert(0,Line::text("前の記事の終わり。".into(),vec![]));}order_section_labels(&mut u, &w);assert!(texts(&u).starts_with("前の記事の終わり。\n官庁報告\n官庁事項"));
+        let (mut u,w)=fixture();if let Unit::Plain(p) = &mut u[0]{p.pop();}order_section_labels(&mut u, &w);assert_eq!(texts(&u),"官庁報告\n官庁事項");
     }
     #[test]
     fn separated_equal_sized_horizontal_and_body_lines_are_not_reordered() {
@@ -5804,19 +5850,26 @@ mod raised_section_label_tests {
             let (mut u,mut w)=fixture();
             match case {
                 0=>w[2].x1=w[2].x0+9.,
-                1=>{w[2].x0=450.;w[2].x1=464.;},
-                2=>{w[2].y0=700.;w[2].y1=840.;},
-                3=>{w[2].x0=600.;w[2].x1=614.;},
-                4=>if let Unit::Plain(p)=&mut u[0]{p[1].text="本文が始まる。".into();},
-                5=>if let Unit::Plain(p)=&mut u[1]{p[0].words=vec![99];},
-                6=>if let Unit::Plain(p)=&mut u[0]{p[0].text="通常の本文".into();},
-                7=>{w[0].x1=550.;w[0].y1=489.;},
+                1=>{w[2].x0=450.;w[2].x1=464.;}
+                2=>{w[2].y0=700.;w[2].y1=840.;}
+                3=>{w[2].x0=600.;w[2].x1=614.;}
+                4=> {
+                    if let Unit::Plain(p) = &mut u[0]{p[1].text="本文が始まる。".into();}
+                }
+                5=> {
+                    if let Unit::Plain(p) = &mut u[1]{p[0].words=vec![99];}
+                }
+                6=> {
+                    if let Unit::Plain(p) = &mut u[0]{p[0].text="通常の本文".into();}
+                }
+                7=>{w[0].x1=550.;w[0].y1=489.;}
                 _=>unreachable!(),
             }
-            let before=texts(&u);order_section_labels(&mut u,&w);assert_eq!(texts(&u),before,"negative {case}");
+            let before=texts(&u);order_section_labels(&mut u, &w);assert_eq!(texts(&u),before,"negative {case}");
         }
-        let mut u=vec![Unit::Plain(vec![Line::text("〇総務省告示第三号".into(),vec![])]),Unit::Plain(vec![Line::text("その他告示".into(),vec![])])];
-        order_section_labels(&mut u,&[]);assert_eq!(texts(&u),"その他告示\n〇総務省告示第三号");
+        let mut u=vec![Unit::Plain(vec![Line::text("〇総務省告示第三号".into(),vec![])]),Unit::Plain(vec![Line::text("その他告示".into(),vec![])]),
+        ];
+        order_section_labels(&mut u, &[]);assert_eq!(texts(&u),"その他告示\n〇総務省告示第三号");
     }
 }
 
@@ -5825,14 +5878,18 @@ mod low_line_url_tests {
     use super::*;
     fn columns(prev: &str, tail: &str, dy: f32) -> Vec<Vec<Col>> {
         column_groups(vec![
-            Col{id:0,x:100.,x1:108.,y:40.,y1:160.,text:prev.into()},
-            Col{id:1,x:84.,x1:92.,y:0.,y1:39.,text:"五、意見書の提出".into()},
-            Col{id:2,x:89.,x1:97.,y:40.+dy,y1:100.+dy,text:tail.into()},
+            Col{id:0,x:100.,x1:108.,y:40.,y1:160.,text:prev.into(),
+            },
+            Col{id:1,x:84.,x1:92.,y:0.,y1:39.,text:"五、意見書の提出".into(),
+            },
+            Col{id:2,x:89.,x1:97.,y:40.+dy,y1:100.+dy,text:tail.into(),
+            },
         ])
     }
     #[test]
     fn low_line_delimiter_keeps_url_tail_before_the_next_heading() {
-        for prev in ["business/wind̲power/kankyo̲", "https://example.test/path_", "https://example.test/path/"] {
+        for prev in ["business/wind̲power/kankyo̲", "https://example.test/path_", "https://example.test/path/",
+        ] {
             let groups=columns(prev,"assessment/",0.);
             assert_eq!(groups[0].iter().map(|c|c.id).collect::<Vec<_>>(),vec![0,2],"{prev}");
             assert_eq!(groups[1].iter().map(|c|c.id).collect::<Vec<_>>(),vec![1]);
@@ -6036,3 +6093,7 @@ mod triangle_sign_tests;
 #[cfg(test)]
 #[path="aj1_provenance_parser_tests.rs"]
 mod aj1_provenance_parser_tests;
+
+#[cfg(test)]
+#[path = "source_aj1_parser_tests.rs"]
+mod source_aj1_parser_tests;

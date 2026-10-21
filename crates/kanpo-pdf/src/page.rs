@@ -177,6 +177,14 @@ struct Interp<'a> {
 
 /// ページを解釈する。
 pub fn extract_page(doc: &Document, page: &PageRef) -> Page {
+    interpret_page(doc, page, false).0
+}
+pub(crate) fn extract_page_source_aj1(doc: &Document, page: &PageRef) -> crate::Aj1PageSources {
+    let (page, resolved) = interpret_page(doc, page, true);
+    crate::source_aj1::Aj1PageSources { original: page, resolved }
+}
+
+fn interpret_page(doc: &Document, page: &PageRef, source: bool) -> (Page, Vec<Option<char>>) {
     let [x0, y0, x1, y1] = page.crop_box;
     let device = match page.rotate {
         90 => Matrix([0.0, 1.0, 1.0, 0.0, -y0, -x0]),
@@ -218,7 +226,20 @@ pub fn extract_page(doc: &Document, page: &PageRef) -> Page {
     };
     let content = page_content(doc, &page.dict);
     it.run(&content, &page.resources);
-    Page {
+    let resolved = if source {
+        it.glyphs
+            .iter()
+            .map(|g| {
+                it.fonts
+                    .get(g.font)
+                    .and_then(|f| f.source_aj1_fallback(doc, g.code, g.cid))
+            })
+            .collect()
+    } else {
+        Vec::new()
+    };
+    (
+        Page {
         width,
         height,
         rotate: page.rotate,
@@ -234,7 +255,9 @@ pub fn extract_page(doc: &Document, page: &PageRef) -> Page {
                 has_to_unicode: f.has_to_unicode,
             })
             .collect(),
-    }
+    },
+        resolved,
+    )
 }
 
 fn page_content(doc: &Document, page: &Dict) -> Vec<u8> {
@@ -564,9 +587,12 @@ impl Interp<'_> {
         }
         let mut pts = self.path.iter().flat_map(|sp| sp.points.iter());
         let Some(&[x, y]) = pts.next() else { return };
-        let b = pts.fold([x, y, x, y], |b, &[x, y]| [b[0].min(x), b[1].min(y), b[2].max(x), b[3].max(y)]);
+        let b = pts.fold([x, y, x, y], |b, &[x, y]| {
+            [b[0].min(x), b[1].min(y), b[2].max(x), b[3].max(y)]
+        });
         self.gs.clip = Some(match self.gs.clip {
-            Some(c) => [c[0].max(b[0]), c[1].max(b[1]), c[2].min(b[2]), c[3].min(b[3])],
+            Some(c) => [c[0].max(b[0]), c[1].max(b[1]), c[2].min(b[2]), c[3].min(b[3]),
+            ],
             None => b,
         });
     }
@@ -583,7 +609,8 @@ impl Interp<'_> {
             return;
         }
         let obj = self.doc.resolve(&entry);
-        let Some(stream) = obj.as_stream() else { return };
+        let Some(stream) = obj.as_stream() else { return;
+        };
         if self
             .doc
             .dict_get(&stream.dict, b"Subtype")

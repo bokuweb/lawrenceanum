@@ -289,11 +289,28 @@ fn resolved_aj1_word(page: &Page, word: &Word) -> bool {
 
 /// ページを `pdftotext -bbox-layout` 形式の XHTML にする。語ごとに 1 つの flow・block・line に入れる。
 pub fn bbox_layout(pages: &[Page]) -> String {
+    layout(pages.iter().map(|p| (p,None)))
+}
+/// Render only owned original pages with their own source evidence.
+/// There is no external Page argument to which evidence could be transferred.
+///
+/// The old paired-slices call cannot attach one extraction's evidence to
+/// another native page:
+///
+/// ```compile_fail
+/// let pages: &[kanpo_pdf::Page] = &[];
+/// let sources: &[kanpo_pdf::Aj1PageSources] = &[];
+/// let _ = kanpo_pdf::bbox::bbox_layout_with_aj1_sources(pages, sources);
+/// ```
+pub fn bbox_layout_with_aj1_sources(sources: &[crate::Aj1PageSources]) -> String {
+    layout(sources.iter().map(|s| (s.page(),Some(s.resolved()))))
+}
+fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>)>) -> String {
     let mut s = String::from(
         "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\
          <html xmlns=\"http://www.w3.org/1999/xhtml\">\n<head>\n<title></title>\n</head>\n<body>\n<doc>\n",
     );
-    for page in pages {
+    for (page, resolved_source) in pages {
         // poppler は /Rotate の前の幅・高さを書く。
         let (w, h) = if page.rotate % 180 == 90 {
             (page.height, page.width)
@@ -307,10 +324,14 @@ pub fn bbox_layout(pages: &[Page]) -> String {
                 word.x_min, word.y_min, word.x_max, word.y_max
             );
             let native = native_vertical_attrs(page, &word);
+            let source_attr = resolved_source
+                .and_then(|source| crate::source_aj1::word_candidate(page, &word, source))
+                .map(|text| format!(" data-source-aj1-text=\"{}\"", escape(&text)))
+                .unwrap_or_default();
             let resolved = if resolved_aj1_word(page, &word) { " data-unicode-aj1=\"1\"" } else { "" };
             let _ = writeln!(
                 s,
-                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}>{}</word>\n        </line>\n      </block>\n    </flow>",
+                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}>{}</word>\n        </line>\n      </block>\n    </flow>",
                 escape(&word.text)
             );
         }
@@ -362,8 +383,10 @@ mod tests {
     }
 
     fn page(glyphs: Vec<Glyph>) -> Page {
-        let font = FontInfo { name: "F".into(), vertical: false, ordering: Some("Japan1".into()), has_to_unicode: false };
-        Page { width: 595.0, height: 842.0, rotate: 0, glyphs, paths: Vec::new(), fonts: vec![font.clone(), font] }
+        let font = FontInfo { name: "F".into(), vertical: false, ordering: Some("Japan1".into()), has_to_unicode: false,
+        };
+        Page { width: 595.0, height: 842.0, rotate: 0, glyphs, paths: Vec::new(), fonts: vec![font.clone(), font],
+        }
     }
 
     fn texts(p: &Page) -> Vec<String> {
@@ -372,14 +395,16 @@ mod tests {
 
     #[test]
     fn joins_adjacent_glyphs_and_splits_at_gaps() {
-        let p = page(vec![glyph("令", 10.0, 0), glyph("和", 18.0, 0), glyph("八", 40.0, 0)]);
+        let p = page(vec![glyph("令", 10.0, 0), glyph("和", 18.0, 0), glyph("八", 40.0, 0),
+        ]);
         assert_eq!(texts(&p), ["令和", "八"]);
     }
 
     #[test]
     fn drops_duplicated_glyph_drawn_on_top() {
         // 同じ字を 0.04pt ずらして重ね描きしたものは 1 字にする。
-        let p = page(vec![glyph("太", 10.0, 0), glyph("太", 10.04, 0), glyph("字", 18.0, 0)]);
+        let p = page(vec![glyph("太", 10.0, 0), glyph("太", 10.04, 0), glyph("字", 18.0, 0),
+        ]);
         assert_eq!(texts(&p), ["太字"]);
         assert_eq!(words(&p)[0].glyphs, vec![0, 2]);
     }
