@@ -38,7 +38,12 @@ pub(crate) fn is_private_use(c: char) -> bool {
 /// 並んだ表の間の溝をふさいで列の切り分けが変わるため、語の中で他の字に続くものだけを戻す。
 /// 小数点・桁区切り（U+EA74・U+EA75）は単独の語でも戻す（前の数字に重ねて置かれ、語が分かれる）。
 pub(crate) fn word_text(raw: &str) -> String {
-    if !raw.is_empty() && raw.chars().all(|c| c == '\u{E61C}' || (is_private_use(c) && private_use_char(c).is_none() && paren_number(c).is_none())) {
+    if !raw.is_empty()
+        && raw.chars().all(|c| {
+            c == '\u{E61C}'
+                || (is_private_use(c) && private_use_char(c).is_none() && paren_number(c).is_none())
+        })
+    {
         return String::new();
     }
     let mut out = String::new();
@@ -59,7 +64,9 @@ pub(crate) fn word_text(raw: &str) -> String {
 
 /// kanpo-pdf が ToUnicode の無い `Identity` の CID フォントの字を置く私用領域（U+F0000 + CID）の字なら、その CID。
 fn identity_cid(c: char) -> Option<u32> {
-    (c as u32).checked_sub(kanpo_pdf::bbox::IDENTITY_CID_BASE).filter(|&cid| cid <= 0xFFFD)
+    (c as u32)
+        .checked_sub(kanpo_pdf::bbox::IDENTITY_CID_BASE)
+        .filter(|&cid| cid <= 0xFFFD)
 }
 
 /// ToUnicode で私用領域に写された項目番号（DF 平成明朝）。U+E7B2〜U+E7BB は括弧付きの数字「（１）」〜「（１０）」、
@@ -72,11 +79,21 @@ fn identity_cid(c: char) -> Option<u32> {
 /// （続きの符号は確かめていない）。落とすと項目番号が抜けて「国土交通大臣は、の取組状況等がの判断」になっていた。
 fn paren_number(c: char) -> Option<String> {
     let code = c as u32;
-    let full = |n: u32| -> String { n.to_string().chars().map(|d| char::from_u32(d as u32 - '0' as u32 + '０' as u32).unwrap_or(d)).collect() };
+    let full = |n: u32| -> String {
+        n.to_string()
+            .chars()
+            .map(|d| char::from_u32(d as u32 - '0' as u32 + '０' as u32).unwrap_or(d))
+            .collect()
+    };
     match code {
         0xE7B2..=0xE7BB => Some(format!("（{}）", full(code - 0xE7B1))),
         0xE7D1..=0xE7DA => char::from_u32(0x2460 + code - 0xE7D1).map(String::from),
-        0xE9E5..=0xE9EB => "アイウエオカキ".chars().nth((code - 0xE9E5) as usize).map(|k| format!("（{k}）")),
+        0xE9E5..=0xE9EB => "アイウエオカキ"
+            .chars()
+            .nth((code - 0xE9E5) as usize)
+            .map(|k| format!("（{k}）")),
+        // Source CFF/ToUnicode establish this legacy parenthesized-katakana entry.
+        0xE9F5 => Some("（チ）".to_string()),
         0xE741 => Some("（注）".to_string()),
         0xE82F..=0xE837 => char::from_u32(0x2160 + code - 0xE82F).map(|r| format!("（{r}）")),
         0xE839..=0xE842 => char::from_u32(0x2170 + code - 0xE839).map(|r| format!("（{r}）")),
@@ -87,8 +104,13 @@ fn paren_number(c: char) -> Option<String> {
 /// 目次のページ番号の数字の字形（ToUnicode の無いフォントの半角の漢数字、CID 25503〜25512）だけの語か。
 /// `text` は語の本文の文字列。タグの無い入力では、[`toc_page_numbers`] が漢数字にしたものだけ。
 pub(crate) fn is_toc_page_number(raw: &str, text: &str) -> bool {
-    let tagged = raw.chars().all(|c| identity_cid(c).is_some_and(|cid| (25503..=25512).contains(&cid)));
-    let untagged = raw.chars().all(|c| (TOC_DIGIT_ZERO..=TOC_DIGIT_ZERO + 9).contains(&(c as u32))) && text != raw;
+    let tagged = raw
+        .chars()
+        .all(|c| identity_cid(c).is_some_and(|cid| (25503..=25512).contains(&cid)));
+    let untagged = raw
+        .chars()
+        .all(|c| (TOC_DIGIT_ZERO..=TOC_DIGIT_ZERO + 9).contains(&(c as u32)))
+        && text != raw;
     !raw.is_empty() && (tagged || untagged)
 }
 
@@ -174,7 +196,10 @@ pub(crate) fn private_cid_glyph(text: &str, width: f32, height: f32) -> Option<C
     let chars: Vec<char> = text.trim().chars().collect();
     // kanpo-pdf の出力では、ToUnicode の無いフォントの字が私用領域に分けてあるので紛れが無い。
     if !chars.is_empty() && chars.iter().all(|&c| identity_cid(c).is_some()) {
-        let chars: Vec<char> = chars.iter().map(|&c| identity_cid(c).map_or(c, cid_char)).collect();
+        let chars: Vec<char> = chars
+            .iter()
+            .map(|&c| identity_cid(c).map_or(c, cid_char))
+            .collect();
         return cid_glyph(&chars, width, height, true);
     }
     cid_glyph(&chars, width, height, false)
@@ -186,13 +211,22 @@ fn cid_glyph(chars: &[char], width: f32, height: f32, sure: bool) -> Option<CidG
     if !sure && chars.len() < 3 && height > width * 1.3 {
         return None;
     }
-    let fw = |n: u32| -> String { n.to_string().chars().map(|d| char::from_u32('０' as u32 + d.to_digit(10).unwrap()).unwrap()).collect() };
+    let fw = |n: u32| -> String {
+        n.to_string()
+            .chars()
+            .map(|d| char::from_u32('０' as u32 + d.to_digit(10).unwrap()).unwrap())
+            .collect()
+    };
     let nth = |s: &str, i: u32| s.chars().nth(i as usize);
     let (family, mapped) = match chars {
         // 目次のページ番号の数字（〇〜九。半角の字を縦に重ねて 1 em に 2 桁）
-        _ if sure && chars.iter().all(|c| ('\u{639F}'..='\u{63A8}').contains(c)) => {
-            (FAM_SINGLE, chars.iter().filter_map(|&c| nth("〇一二三四五六七八九", c as u32 - 0x639F)).collect())
-        }
+        _ if sure && chars.iter().all(|c| ('\u{639F}'..='\u{63A8}').contains(c)) => (
+            FAM_SINGLE,
+            chars
+                .iter()
+                .filter_map(|&c| nth("〇一二三四五六七八九", c as u32 - 0x639F))
+                .collect(),
+        ),
         [c] if sure && identity_only_glyph(*c as u32).is_some() => identity_only_glyph(*c as u32)?,
         [c] => {
             let code = *c as u32;
@@ -200,20 +234,33 @@ fn cid_glyph(chars: &[char], width: f32, height: f32, sure: bool) -> Option<CidG
                 // (1)〜(10)
                 0x630E..=0x6317 => (FAM_PAREN_NUM, format!("（{}）", fw(code - 0x630D))),
                 // ①〜⑳
-                0x632D..=0x6340 => (FAM_CIRCLED, char::from_u32(0x2460 + code - 0x632D)?.to_string()),
+                0x632D..=0x6340 => (
+                    FAM_CIRCLED,
+                    char::from_u32(0x2460 + code - 0x632D)?.to_string(),
+                ),
                 // (i)〜(x)
                 0x6395..=0x639E => {
-                    const ROMAN: [&str; 10] = ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x"];
-                    (FAM_ROMAN, format!("（{}）", ROMAN[(code - 0x6395) as usize]))
+                    const ROMAN: [&str; 10] =
+                        ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x"];
+                    (
+                        FAM_ROMAN,
+                        format!("（{}）", ROMAN[(code - 0x6395) as usize]),
+                    )
                 }
                 // ㈠〜㈩
-                0x63B4..=0x63BD => (FAM_PAREN_KANJI, format!("（{}）", nth("一二三四五六七八九十", code - 0x63B4)?)),
+                0x63B4..=0x63BD => (
+                    FAM_PAREN_KANJI,
+                    format!("（{}）", nth("一二三四五六七八九十", code - 0x63B4)?),
+                ),
                 // (ア)〜(ン)（五十音順）
                 0x6541..=0x656E => (
                     FAM_PAREN_KANA,
                     format!(
                         "（{}）",
-                        nth("アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン", code - 0x6541)?
+                        nth(
+                            "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン",
+                            code - 0x6541
+                        )?
                     ),
                 ),
                 // 縦組み数字の小数点
@@ -242,7 +289,9 @@ fn cid_glyph(chars: &[char], width: f32, height: f32, sure: bool) -> Option<CidG
             }
         }
         // (11)〜(99): 「(十の位」U+661D..=U+6625 +「一の位)」U+6627..=U+6630（1..9,0 の順）
-        [t, o] if ('\u{661D}'..='\u{6625}').contains(t) && ('\u{6627}'..='\u{6630}').contains(o) => {
+        [t, o]
+            if ('\u{661D}'..='\u{6625}').contains(t) && ('\u{6627}'..='\u{6630}').contains(o) =>
+        {
             let tens = *t as u32 - 0x661C;
             let ones = (*o as u32 - 0x6626) % 10;
             (FAM_PAREN_NUM, format!("（{}）", fw(tens * 10 + ones)))
@@ -283,11 +332,19 @@ fn identity_only_glyph(code: u32) -> Option<(u8, String)> {
     let text = match code {
         // (あ)〜(わ)（五十音順。(と)・(ぬ)・(る) で確かめた）
         0x650E..=0x6538 => {
-            let kana = nth("あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわ", code - 0x650E)?;
+            let kana = nth(
+                "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわ",
+                code - 0x650E,
+            )?;
             return Some((FAM_PAREN_KANA, format!("（{kana}）")));
         }
         // ㈩ に続く (十一)〜(十五)
-        0x63BF..=0x63C3 => return Some((FAM_PAREN_KANJI, format!("（十{}）", nth("一二三四五", code - 0x63BF)?))),
+        0x63BF..=0x63C3 => {
+            return Some((
+                FAM_PAREN_KANJI,
+                format!("（十{}）", nth("一二三四五", code - 0x63BF)?),
+            ));
+        }
         // 化学名のプライム（「N・N′－」）
         0x65C9 => "′",
         // 2 行にまたがる大きな括弧の上半分・下半分（「（自令和七年四月一日／至令和八年三月三十一日）」）
@@ -299,7 +356,12 @@ fn identity_only_glyph(code: u32) -> Option<(u8, String)> {
         0x664B | 0x6656 => "）",
         0x664A | 0x664C | 0x6654 | 0x6655 | 0x6657 | 0x6658 => "",
         // ⑩（U+6336）に続く ⑪〜⑯（「⑩　市原市…⑪　木更津市…」）
-        0x6318..=0x631D => return Some((FAM_CIRCLED, char::from_u32(0x246A + code - 0x6318)?.to_string())),
+        0x6318..=0x631D => {
+            return Some((
+                FAM_CIRCLED,
+                char::from_u32(0x246A + code - 0x6318)?.to_string(),
+            ));
+        }
         // 複数行にまたがる大きな括弧の部品・飾り罫（字ではない）。表の中で行をくくる波括弧の
         // 上端・下端・中央・つなぎ（「挀暍暍暊暍暍持」「挂暒暒暏暒暒挃」）も
         0x62FC..=0x62FF | 0x6699..=0x669F => "",
@@ -380,7 +442,17 @@ pub(crate) fn toc_page_numbers(words: &[(f32, f32, f32, f32, String)]) -> Vec<Op
             j != i && (v1 - y1).abs() < 1.0 && ((u1 - u) - w).abs() < 0.5
         });
         if packed || aligned {
-            out[i] = Some(t.trim().chars().map(|c| "〇一二三四五六七八九".chars().nth((c as u32 - TOC_DIGIT_ZERO) as usize).unwrap()).collect());
+            out[i] = Some(
+                t.trim()
+                    .chars()
+                    .map(|c| {
+                        "〇一二三四五六七八九"
+                            .chars()
+                            .nth((c as u32 - TOC_DIGIT_ZERO) as usize)
+                            .unwrap()
+                    })
+                    .collect(),
+            );
         }
     }
     out
@@ -389,7 +461,9 @@ pub(crate) fn toc_page_numbers(words: &[(f32, f32, f32, f32, String)]) -> Vec<Op
 /// 文脈なしで写像してよいものだけを写像する（常用漢字と同じ符号は `None`）。
 #[cfg(test)]
 fn fix_private_cid_glyphs(text: &str, width: f32, height: f32) -> Option<String> {
-    private_cid_glyph(text, width, height).filter(|g| !g.ambiguous).map(|g| g.text)
+    private_cid_glyph(text, width, height)
+        .filter(|g| !g.ambiguous)
+        .map(|g| g.text)
 }
 
 /// 縦書き presentation form を通常の全角約物に写像する。
@@ -487,13 +561,34 @@ mod tests {
     #[test]
     fn maps_variant_glyphs_checked_against_the_originals() {
         // 原本の画像と突き合わせた異体字（宮城県塩竈市・心筋梗塞・鍼灸・奈良県葛城市・鹿児島県薩摩郡・樋口）。
-        for (cid, want) in [("伽", "竈"), ("伷", "梗"), ("伮", "灸"), ("佁", "斧"), ("佅", "籾"), ("娱", "葛"), ("婒", "薩"), ("婻", "鄭"), ("媑", "樋"), ("嬽", "德")] {
-            assert_eq!(fix_private_cid_glyphs(cid, 9.0, 9.0).as_deref(), Some(want), "{cid}");
+        for (cid, want) in [
+            ("伽", "竈"),
+            ("伷", "梗"),
+            ("伮", "灸"),
+            ("佁", "斧"),
+            ("佅", "籾"),
+            ("娱", "葛"),
+            ("婒", "薩"),
+            ("婻", "鄭"),
+            ("媑", "樋"),
+            ("嬽", "德"),
+        ] {
+            assert_eq!(
+                fix_private_cid_glyphs(cid, 9.0, 9.0).as_deref(),
+                Some(want),
+                "{cid}"
+            );
         }
-        assert_eq!(fix_private_cid_glyphs("掋", 9.0, 9.0).as_deref(), Some("（Ⅰ）"));
+        assert_eq!(
+            fix_private_cid_glyphs("掋", 9.0, 9.0).as_deref(),
+            Some("（Ⅰ）")
+        );
         // 「掌」は常用漢字なので文脈なしでは写像しない。
         assert_eq!(fix_private_cid_glyphs("掌", 9.0, 9.0), None);
-        assert_eq!(private_cid_glyph("掌", 9.0, 9.0).map(|g| g.text).as_deref(), Some("（Ⅱ）"));
+        assert_eq!(
+            private_cid_glyph("掌", 9.0, 9.0).map(|g| g.text).as_deref(),
+            Some("（Ⅱ）")
+        );
     }
 
     #[test]
@@ -509,11 +604,26 @@ mod tests {
             w(300.0, 400.0, 409.0, "接"),
         ];
         let got = toc_page_numbers(&words);
-        assert_eq!(got, vec![Some("一".into()), Some("一三".into()), Some("六六".into()), Some("七二".into()), None]);
+        assert_eq!(
+            got,
+            vec![
+                Some("一".into()),
+                Some("一三".into()),
+                Some("六六".into()),
+                Some("七二".into()),
+                None
+            ]
+        );
         // 1 字の語が 1 つだけなら写像しない（字間を空けた見出しの「接」と区別できない）。
-        assert_eq!(toc_page_numbers(&[w(327.7, 221.1, 230.1, "掠")]), vec![None]);
+        assert_eq!(
+            toc_page_numbers(&[w(327.7, 221.1, 230.1, "掠")]),
+            vec![None]
+        );
         // 3 桁（1 字 0.67em）は 1 つでも写像する。掟は〇。
-        assert_eq!(toc_page_numbers(&[w(489.5, 212.1, 230.1, "掣掠掟")]), vec![Some("四一〇".into())]);
+        assert_eq!(
+            toc_page_numbers(&[w(489.5, 212.1, 230.1, "掣掠掟")]),
+            vec![Some("四一〇".into())]
+        );
     }
 
     #[test]
@@ -563,25 +673,64 @@ mod tests {
     #[test]
     fn restores_private_cid_numbered_items() {
         // 1em 四方の独立語だけを写像する。
-        assert_eq!(fix_private_cid_glyphs("挎", 8.0, 8.0).as_deref(), Some("（１）"));
-        assert_eq!(fix_private_cid_glyphs("挗", 8.0, 8.0).as_deref(), Some("（１０）"));
-        assert_eq!(fix_private_cid_glyphs("昝昫", 8.0, 8.0).as_deref(), Some("（１５）"));
-        assert_eq!(fix_private_cid_glyphs("昡昰", 8.0, 8.0).as_deref(), Some("（５０）"));
-        assert_eq!(fix_private_cid_glyphs("慺", 8.0, 8.0).as_deref(), Some("－"));
+        assert_eq!(
+            fix_private_cid_glyphs("挎", 8.0, 8.0).as_deref(),
+            Some("（１）")
+        );
+        assert_eq!(
+            fix_private_cid_glyphs("挗", 8.0, 8.0).as_deref(),
+            Some("（１０）")
+        );
+        assert_eq!(
+            fix_private_cid_glyphs("昝昫", 8.0, 8.0).as_deref(),
+            Some("（１５）")
+        );
+        assert_eq!(
+            fix_private_cid_glyphs("昡昰", 8.0, 8.0).as_deref(),
+            Some("（５０）")
+        );
+        assert_eq!(
+            fix_private_cid_glyphs("慺", 8.0, 8.0).as_deref(),
+            Some("－")
+        );
         assert_eq!(fix_private_cid_glyphs("挭", 8.0, 8.0).as_deref(), Some("①"));
         // 続けて組まれた「（３９）(i)」「（４０）(vii)」（(vii) は常用漢字「掛」と同じ符号）。
-        assert_eq!(fix_private_cid_glyphs("星是掕", 8.0, 16.0).as_deref(), Some("（３９）（i）"));
-        assert_eq!(fix_private_cid_glyphs("映昰掛", 8.0, 16.0).as_deref(), Some("（４０）（vii）"));
+        assert_eq!(
+            fix_private_cid_glyphs("星是掕", 8.0, 16.0).as_deref(),
+            Some("（３９）（i）")
+        );
+        assert_eq!(
+            fix_private_cid_glyphs("映昰掛", 8.0, 16.0).as_deref(),
+            Some("（４０）（vii）")
+        );
         assert_eq!(fix_private_cid_glyphs("掛挑振", 8.0, 24.0), None);
         assert_eq!(fix_private_cid_glyphs("星是掕", 8.0, 40.0), None);
         // 常用漢字と同じ符号は文脈が無ければ写像しない（呼び出し側が判断する）。
         assert_eq!(fix_private_cid_glyphs("振", 8.0, 8.0), None);
-        assert_eq!(private_cid_glyph("振", 8.0, 8.0).map(|g| g.text).as_deref(), Some("③"));
-        assert_eq!(fix_private_cid_glyphs("敫", 8.0, 8.0).as_deref(), Some("（ロ）"));
-        assert_eq!(fix_private_cid_glyphs("掝", 8.0, 8.0).as_deref(), Some("（ix）"));
-        assert_eq!(fix_private_cid_glyphs("掴", 8.0, 8.0).as_deref(), Some("（一）"));
-        assert_eq!(fix_private_cid_glyphs("敁", 8.0, 8.0).as_deref(), Some("（ア）"));
-        assert_eq!(fix_private_cid_glyphs("无", 8.0, 8.0).as_deref(), Some("・"));
+        assert_eq!(
+            private_cid_glyph("振", 8.0, 8.0).map(|g| g.text).as_deref(),
+            Some("③")
+        );
+        assert_eq!(
+            fix_private_cid_glyphs("敫", 8.0, 8.0).as_deref(),
+            Some("（ロ）")
+        );
+        assert_eq!(
+            fix_private_cid_glyphs("掝", 8.0, 8.0).as_deref(),
+            Some("（ix）")
+        );
+        assert_eq!(
+            fix_private_cid_glyphs("掴", 8.0, 8.0).as_deref(),
+            Some("（一）")
+        );
+        assert_eq!(
+            fix_private_cid_glyphs("敁", 8.0, 8.0).as_deref(),
+            Some("（ア）")
+        );
+        assert_eq!(
+            fix_private_cid_glyphs("无", 8.0, 8.0).as_deref(),
+            Some("・")
+        );
         // 語の中の「振」（通常の本文）は触らない。
         assert_eq!(fix_private_cid_glyphs("振替", 8.0, 16.0), None);
         // 通常の本文（2 文字で 2em の高さ・常用漢字の語）は触らない。
@@ -597,7 +746,8 @@ mod tests {
     #[test]
     fn decodes_glyphs_tagged_as_unmapped_identity_font() {
         let word = |cids: &[u32]| cids.iter().map(|&c| tagged(c)).collect::<String>();
-        let glyph = |cids: &[u32], w: f32, h: f32| private_cid_glyph(&word(cids), w, h).map(|g| g.text);
+        let glyph =
+            |cids: &[u32], w: f32, h: f32| private_cid_glyph(&word(cids), w, h).map(|g| g.text);
         // 目次のページ番号の数字（半角の字を縦に重ねた「一〇」は 1 em より高い）。
         assert_eq!(glyph(&[25505], 9.0, 9.0).as_deref(), Some("二"));
         assert_eq!(glyph(&[25504, 25503], 9.0, 13.5).as_deref(), Some("一〇"));
@@ -617,7 +767,10 @@ mod tests {
         assert_eq!(glyph(&[0x6318], 8.0, 8.0).as_deref(), Some("⑪"));
         assert_eq!(glyph(&[0x631D], 8.0, 8.0).as_deref(), Some("⑯"));
         // 表の中で行をくくる波括弧の部品は落とし、2 行・3 行にまたがる括弧は 1 つの括弧にする。
-        assert_eq!(word_text(&word(&[0x6300, 0x668D, 0x668D, 0x668A, 0x668D, 0x6301])), "");
+        assert_eq!(
+            word_text(&word(&[0x6300, 0x668D, 0x668D, 0x668A, 0x668D, 0x6301])),
+            ""
+        );
         assert_eq!(word_text(&word(&[0x6649, 0x664A])), "（");
         assert_eq!(word_text(&word(&[0x6656, 0x6657, 0x6658])), "）");
         // 飾り罫は落とす。対応の分からない字は poppler と同じ字にする。
@@ -651,25 +804,34 @@ mod tests {
 mod parenthesized_roman_one_tests {
     #[test]
     fn native_roman_one_and_preexisting_two_through_nine_keep_their_values() {
-        for (raw,number) in ('\u{E82F}'..='\u{E837}').zip("ⅠⅡⅢⅣⅤⅥⅦⅧⅨ".chars()) {
-            assert_eq!(super::word_text(&raw.to_string()),format!("（{number}）"));
+        for (raw, number) in ('\u{E82F}'..='\u{E837}').zip("ⅠⅡⅢⅣⅤⅥⅦⅧⅨ".chars()) {
+            assert_eq!(super::word_text(&raw.to_string()), format!("（{number}）"));
         }
     }
     #[test]
     fn unverified_neighbors_stay_unmapped_and_mixed_text_stays_in_place() {
-        assert_eq!(super::word_text("\u{E82E}"),"");
-        assert_eq!(super::word_text("\u{E838}"),"");
-        assert_eq!(super::word_text("目標\u{E82F}本文"),"目標（Ⅰ）本文");
+        assert_eq!(super::word_text("\u{E82E}"), "");
+        assert_eq!(super::word_text("\u{E838}"), "");
+        assert_eq!(super::word_text("目標\u{E82F}本文"), "目標（Ⅰ）本文");
     }
 }
 
 #[cfg(test)]
 mod identity_surname_tests {
     use super::*;
-    fn tagged(cid: u32) -> String { char::from_u32(kanpo_pdf::bbox::IDENTITY_CID_BASE + cid).unwrap().to_string() }
+    fn tagged(cid: u32) -> String {
+        char::from_u32(kanpo_pdf::bbox::IDENTITY_CID_BASE + cid)
+            .unwrap()
+            .to_string()
+    }
     #[test]
     fn identity_surname_cids_keep_source_glyphs() {
-        for (cid, expected) in [(0x5A72, "樽"), (0x4239, "濰"), (0x5347, "團"), (0x5AA1, "蓬")] {
+        for (cid, expected) in [
+            (0x5A72, "樽"),
+            (0x4239, "濰"),
+            (0x5347, "團"),
+            (0x5AA1, "蓬"),
+        ] {
             let raw = tagged(cid);
             assert_eq!(word_text(&raw), expected);
             assert_eq!(private_cid_glyph(&raw, 8.0, 8.0).unwrap().text, expected);
@@ -691,11 +853,13 @@ mod identity_surname_tests {
 #[cfg(test)]
 mod checkbox_source_tests {
     use super::*;
-    #[test] fn verified_square_is_preserved_standalone_and_inline() {
+    #[test]
+    fn verified_square_is_preserved_standalone_and_inline() {
         assert_eq!(word_text("\u{E712}"), "□");
         assert_eq!(word_text("有\u{E712}無"), "有□無");
     }
-    #[test] fn neighboring_unverified_pua_are_not_guessed_as_squares() {
+    #[test]
+    fn neighboring_unverified_pua_are_not_guessed_as_squares() {
         assert_eq!(word_text("\u{E711}\u{E713}"), "");
         assert_eq!(word_text("□■"), "□■");
         assert_eq!(word_text("\u{E005}"), "");
@@ -705,26 +869,74 @@ mod checkbox_source_tests {
 #[cfg(test)]
 mod tsuji_source_glyph_tests {
     use super::*;
-    fn tagged(cid:u32)->String{char::from_u32(kanpo_pdf::bbox::IDENTITY_CID_BASE+cid).unwrap().to_string()}
-    #[test]
-    fn restores_source_proven_tounicode_tsuji_in_standalone_and_mixed_words(){
-        assert_eq!(word_text("\u{E467}"),"辻");
-        assert_eq!(word_text("\u{E467}田広人"),"辻田広人");
-        assert_eq!(word_text("湘南\u{E467}堂"),"湘南辻堂");
-        assert_eq!(normalize_text("代表者\u{E467}潤一郎"),"代表者辻潤一郎");
+    fn tagged(cid: u32) -> String {
+        char::from_u32(kanpo_pdf::bbox::IDENTITY_CID_BASE + cid)
+            .unwrap()
+            .to_string()
     }
     #[test]
-    fn preserves_preexisting_identity_cid_23161_mapping(){
-        let raw=tagged(23161);assert_eq!(word_text(&raw),"辻");
-        assert_eq!(private_cid_glyph(&raw,8.,8.).unwrap().text,"辻");
+    fn restores_source_proven_tounicode_tsuji_in_standalone_and_mixed_words() {
+        assert_eq!(word_text("\u{E467}"), "辻");
+        assert_eq!(word_text("\u{E467}田広人"), "辻田広人");
+        assert_eq!(word_text("湘南\u{E467}堂"), "湘南辻堂");
+        assert_eq!(normalize_text("代表者\u{E467}潤一郎"), "代表者辻潤一郎");
     }
     #[test]
-    fn preserves_genuine_unicode_untagged_cid_and_unverified_neighbors(){
-        assert_eq!(word_text("婹辻田広人湘南辻堂"),"婹辻田広人湘南辻堂");
+    fn preserves_preexisting_identity_cid_23161_mapping() {
+        let raw = tagged(23161);
+        assert_eq!(word_text(&raw), "辻");
+        assert_eq!(private_cid_glyph(&raw, 8., 8.).unwrap().text, "辻");
+    }
+    #[test]
+    fn preserves_genuine_unicode_untagged_cid_and_unverified_neighbors() {
+        assert_eq!(word_text("婹辻田広人湘南辻堂"), "婹辻田広人湘南辻堂");
         // 未タグUnicodeのword_textは不変。既存poppler幾何fallbackも維持。
-        assert_eq!(private_cid_glyph("婹",8.,8.).unwrap().text,"辻");
-        assert_eq!(word_text("\u{E466}\u{E468}\u{E500}"),"");
-        assert_eq!(word_text(&tagged(23162)),"婺");
-        assert_eq!(word_text("\u{E469}"),"鄭");
+        assert_eq!(private_cid_glyph("婹", 8., 8.).unwrap().text, "辻");
+        assert_eq!(word_text("\u{E466}\u{E468}\u{E500}"), "");
+        assert_eq!(word_text(&tagged(23162)), "婺");
+        assert_eq!(word_text("\u{E469}"), "鄭");
+    }
+}
+
+#[cfg(test)]
+mod verified_chi_tests {
+    use super::*;
+    #[test]
+    fn original_E9F5_only_maps_to_parenthesized_chi() {
+        assert_eq!(word_text("\u{E9F5}"), "（チ）");
+    }
+    #[test]
+    fn original_mixed_PUA_range_and_following_text_are_preserved() {
+        assert_eq!(
+            word_text("\u{E9E6}〜\u{E9F5}のほか"),
+            "（イ）〜（チ）のほか"
+        );
+    }
+    #[test]
+    fn unverified_adjacent_PUA_are_not_guessed() {
+        for c in ['\u{E9F4}', '\u{E9F6}', '\u{E9EC}', '\u{E9ED}'] {
+            assert_eq!(word_text(&c.to_string()), "");
+            assert_eq!(word_text(&format!("前{c}後")), "前後");
+        }
+    }
+    #[test]
+    fn existing_parenthesized_katakana_are_unchanged() {
+        assert_eq!(
+            word_text("\u{E9E5}\u{E9E6}\u{E9E7}\u{E9E8}\u{E9E9}\u{E9EA}\u{E9EB}"),
+            "（ア）（イ）（ウ）（エ）（オ）（カ）（キ）"
+        );
+    }
+    #[test]
+    fn ordinary_unicode_parentheses_and_number_text_stay_exact() {
+        assert_eq!(word_text("（チ）第３号"), "（チ）第３号");
+    }
+    #[test]
+    fn ordinary_unicode_rescue_is_preserved_by_word_normalization() {
+        assert_eq!(word_text("救"), "救");
+    }
+    #[test]
+    fn text_character_global_normalizer_does_not_expand_PUA_words() {
+        assert_eq!(text_char('\u{E9F5}'), None);
+        assert_eq!(normalize_text("前\u{E9F5}後"), "前後");
     }
 }

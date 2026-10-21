@@ -1000,3 +1000,41 @@ RURI/ModernBERTのopt-inは有用性を未見データ・元ID/罫線との対�
 [`tests/audits/issue227-twenty-ninth-batch-provenance.json`](tests/audits/issue227-twenty-ninth-batch-provenance.json)、
 [`tests/audits/issue227-twenty-ninth-batch-reviews.json`](tests/audits/issue227-twenty-ninth-batch-reviews.json)、
 [`tests/audits/issue227-validation-29.json`](tests/audits/issue227-validation-29.json)に保存した。
+
+第 30 次修正では、施設表の継続を固定の件数・文字数・Word/Line/Unit分割から切り離した。
+原図の5欄見出し、既存の上段レコード、元罫線の継続帯、番号の軸と元Wordの一意所属を根拠にする。
+同名の施設も番号と原軸が異なれば別レコードとして扱い、重複番号・重なる軸・未知の欄は拒否する。
+元領域に未割当Wordが閉区間で接触すれば、Empty/Noise/Margin・空raw・反転/ゼロ寸法でも適用せず、非有限座標からは無関係だと推測しない。
+1〜3レコード、1字/31字の名前、見出し/値のWord分割、Unit再分割を含む追加31私有テストを導入した。
+そのうち最後の2件は、拡大縮小・平行移動と件数/名前長の90組、および境界接触を拒否する10組を検査し、旧施設処理で2失敗してから同じassertionで成功を確認した。
+明示的な5欄スキーマとem比例の幾何許容差は適用範囲として残り、独立した複数継続帯や任意の表を解決したとは扱わない。
+
+別に、元CFF/ToUnicode/原図で確認した既存私用符号E9F5の「（チ）」対応を復号表へ追加した。
+2原本の元3Glyph/CID25937だけを復元し、通常Unicode「救」の元CID1657は従来のAJ1由来証明により保護する。
+本文やページ名で分岐せず、未確認の隣接符号・3つの姓名の手動対応は追加していない。未知の任意フォントまで同じ私用符号で解釈できるとは主張しない。
+実PDFを含む43検査は実装前7失敗/36成功から43成功、パーサ956検査は20失敗/936成功から956成功となり、追加の幾何2検査も成功した。
+
+全4クレート1,530テスト、107統合対象・全4examplesを含む116コマンドが成功。パーサ958件、PDF45件、アーカイブ697原本である。
+独立キャッシュ候補と最終release52のそれぞれで全11,992原本を新規解析し、施設表1頁と「（チ）」2頁の3変更、残る11,989頁の解析全体完全一致を確認した。
+最終textdump --pdfの全本文も一致し、109ソース・119依存物・原本等37,275ファイルのSHAを実行前後で照合した。
+累計2,942変更頁・文字変化1,355頁。原横棒11,033字、分数153件、期間706組・番号121組・括弧377セル等は8分割再検査で保持した。
+施設表は元20Word/179Glyphと非空白文字順、全Word属性/所属、後続の道路告示2Article/全Docを保持する。
+「（チ）」は元ID/raw/bboxを保持し、2Empty WordのUsed化/一意所属と既存混在Word内の復元だけを許す。元文字の消失・推測Word/ID追加はない。
+5原図全体・全649出力行・8Article/Documentの全Table/Runを読了し、3新規/2更新snapshotを確定した。更新前の2期待値も別に保存した。
+施設75号の道路表、法令のあらましの未分割、他の14項目ラベル欠落は残り、3頁とも部分改善である。
+
+施設の独立成果JSONとの904座標差は、to_valueによるf32のf64展開とto_stringの表記差だった。
+初回全件比較を停止して保存し、全差分を型付きf32のビット完全一致で証明した。元JSONは変更せず、独立した最終libraryから同じ直列化でoracleを作成後、全11,992頁を最初から再実行した。数値全般の許容誤差は導入していない。
+追加テストの初回ビルド/比較用ハーネスの誤り、native成果のwrapper取り違え、累積頁数だけを旧2,940と期待した集計停止も保存した。検証本体8分割は全終了0で、独立集計の新規2頁に合わせ2,942とし、他の検査値は変更していない。
+
+未見監査142は30原図・全2,019行・75Article/Documentを確認した。
+初回全体品質12ok/6minor/12major、本文・文字・読順22ok/1minor/7majorを固定し、全30頁のbefore51/after52解析全体完全一致・今回退行0を記録した。
+2原本の15限定内側矩形がnative Glyph 0で、全1,096Glyphと近隣5陽性領域308Glyphで検査した。
+うち書式2矩形だけを対象除外とし、破産公告の13内側矩形は診断に留めた。12公告が未復元の1頁はstrict/body majorのまま残し、ページ全体は除外しない。
+最初の3広矩形には境界装飾Glyphが交差したため0主張を拒否し、その帯は陽性証拠に保存した。文字層全体の不存在や全文復元は主張しない。
+行/セル/新旧役割の欠落、署名・姓名や独立公告の混在は既存majorとして残る。RURI/ModernBERTは有用性未検証のopt-in候補であり、今回モデル取得/学習/推論や既定動作の変更は行っていない。
+全体100%は未達で、改善を続ける。証拠は[`tests/audits/142.json`](tests/audits/142.json)、
+[`tests/audits/issue227-generality-audit-30.json`](tests/audits/issue227-generality-audit-30.json)、
+[`tests/audits/issue227-thirtieth-batch-provenance.json`](tests/audits/issue227-thirtieth-batch-provenance.json)、
+[`tests/audits/issue227-thirtieth-batch-reviews.json`](tests/audits/issue227-thirtieth-batch-reviews.json)、
+[`tests/audits/issue227-validation-30.json`](tests/audits/issue227-validation-30.json)に保存した。

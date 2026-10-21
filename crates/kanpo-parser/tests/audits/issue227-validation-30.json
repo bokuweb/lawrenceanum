@@ -1,0 +1,370 @@
+{
+  "stage": "thirtieth_integrated_batch",
+  "date": "2026-10-21",
+  "batch": 30,
+  "baseline_commit": "bb77dc137e7536246973fcdfe534df30524089b6",
+  "source52_manifest": {
+    "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated52-source-manifest.json",
+    "sha256": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd"
+  },
+  "population_pages": 11992,
+  "changed": 3,
+  "complete_Analysis_exact": 11989,
+  "changed_pages": [
+    "20260723g001630002",
+    "20260731g001720008",
+    "20261015h018080006"
+  ],
+  "comparison_against_original_baseline": {
+    "fresh_pages": 11992,
+    "changed": 3,
+    "unchanged": 11989,
+    "added": {
+      "（": 3,
+      "）": 3,
+      "チ": 3
+    },
+    "removed": {},
+    "cumulative": 2942,
+    "cumulative_charpages": 1355,
+    "previous_cumulative_pages": 2940,
+    "new_cumulative_pages": [
+      "20260723g001630002",
+      "20260731g001720008"
+    ]
+  },
+  "source_character_delta": {
+    "added": {
+      "（": 3,
+      "チ": 3,
+      "）": 3
+    },
+    "removed": {},
+    "facility_whole_body_nonspace_order_preserved": true,
+    "chi_source_Glyphs": 3,
+    "body_U3000_gaps_added": 2,
+    "Document_LF_added": 1,
+    "all_deltas_compared_to_independent_complete_Analysis": true
+  },
+  "source_validation": {
+    "frozen_files": 37275,
+    "all_prepost_SHA_exact": true,
+    "fresh_original_PDF_textdump11992": true,
+    "textdump_log": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/textdump52.log",
+      "sha256": "89d6fe31283914ab3c4335a10b2ca852512bf2328c4f6b4257a4cd9ea62d5f60"
+    },
+    "all11992_fresh_full_Analysis": true,
+    "independent_cache11992_also_terminal0": true,
+    "legacy": {
+      "counts": {
+        "period_pairs": 706,
+        "ordinal_pairs": 121,
+        "bracket_cells": 377,
+        "existing_unattached_used_diagnostic": 53,
+        "pages": 2942,
+        "native_dash_glyphs": 11033,
+        "fractions": 153,
+        "surnames": 6,
+        "plain_dashes": 341,
+        "duplicate_word_ids": 0,
+        "nested_formulas": 6,
+        "parallel_formulas": 9,
+        "numeric_formulas": 6
+      },
+      "nested_semantic_fraction_nodes": 12,
+      "nested_serialization_pairs": 24,
+      "nested_slashes": 12,
+      "parallel_semantic_fraction_nodes": 18,
+      "parallel_serialization_pairs": 18,
+      "parallel_slashes": 18,
+      "numeric_semantic_fraction_nodes": 15,
+      "numeric_serialization_pairs": 18,
+      "numeric_native_parenthesis_pairs": 3,
+      "numeric_slashes": 15,
+      "previously_counted_unattached_Used": 50,
+      "newly_counted_existing_target_unowned_Used": 3,
+      "new_target_unowned_IDs": [
+        87,
+        88,
+        93
+      ],
+      "logs": [
+        ".cache/kanpo-227/validate52-part0.log",
+        ".cache/kanpo-227/validate52-part1.log",
+        ".cache/kanpo-227/validate52-part2.log",
+        ".cache/kanpo-227/validate52-part3.log",
+        ".cache/kanpo-227/validate52-part4.log",
+        ".cache/kanpo-227/validate52-part5.log",
+        ".cache/kanpo-227/validate52-part6.log",
+        ".cache/kanpo-227/validate52-part7.log"
+      ],
+      "all_parts_exit0": true
+    }
+  },
+  "tests": {
+    "passed": 1530,
+    "failed": 0,
+    "crates": [
+      "kanpo-parser",
+      "kanpo-pdf",
+      "kanpo-parser-wasm",
+      "kanpo-lm"
+    ],
+    "parser_unit_tests": 958,
+    "PDF_unit_tests": 45,
+    "integration_targets": 107,
+    "commands": 116,
+    "all4_libraries_and_doc_tests": true,
+    "all4_default_examples_typechecked": true,
+    "archive_input_PDFs": 697,
+    "archive_input_count_not_test_function_count": true,
+    "actual_combined43_baseline_RED": 7,
+    "actual_combined43_baseline_GREEN": 36,
+    "actual_combined43_candidate_GREEN": 43,
+    "parser_testonly956_baseline_RED": 20,
+    "parser_testonly956_baseline_GREEN": 936,
+    "parser_candidate956_GREEN": true,
+    "additional_geometry2_baseline_RED": 2,
+    "additional_geometry2_candidate_GREEN": 2,
+    "final_added_private_tests": 38,
+    "final_added_actual_tests": 12,
+    "all_terminal0": true,
+    "INSTA_UPDATE": "no",
+    "CI": true,
+    "report": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/full30-generic-partitioned-status.json",
+      "sha256": "7b8ec4c68ca27d587c69d34d71c8daffac320a32d23e30880456c005ed786723"
+    },
+    "log": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/test-batch30-generic-full.log",
+      "sha256": "240485fe8a4290af70bf409c98ca0a2a3778ae789d043bdfd34396d560a6eea2"
+    }
+  },
+  "snapshots": {
+    "new": 3,
+    "updated": 2,
+    "old_updated_goldens_losslessly_retained": true,
+    "rows": [
+      {
+        "page": "20260723g001630002",
+        "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260723g00163__20260723g001630002.pdf.snap.new",
+        "new_sha256": "3b713f6b5c7a6cc3dec2a2f209d6e2793755063216b717d292fad947d17435f0",
+        "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260723g00163__20260723g001630002.pdf.snap",
+        "old_sha256": "b439e25b53449c69de6e11fa40f253bd62900d3a6615427c34fcc291554f1d45",
+        "type": "update",
+        "fullbody_all_Article_Document_Table_Run_render_exact": true,
+        "source_PDF_sha256": "bca429a7c7e30f8aa43822c9d49ca30f1563e8e1551729d349ef77611f9656bc",
+        "whole_original_review_sha256": "5d0abb6759f14a9208fd1447e2f7b54d6f498e5ab36a64a2f04943a989167916"
+      },
+      {
+        "page": "20260731g001720008",
+        "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731g00172__20260731g001720008.pdf.snap.new",
+        "new_sha256": "34375c52d6157bfd4d498dcbcd1556b9373fdce14c306d3b590d7996d9847ed7",
+        "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731g00172__20260731g001720008.pdf.snap",
+        "old_sha256": "863137dcabd8893d6c96ee979559969b82cf9e0be685a43c84c8b781de9798ca",
+        "type": "update",
+        "fullbody_all_Article_Document_Table_Run_render_exact": true,
+        "source_PDF_sha256": "f77e9e30a6b376c0a9dc30b4df55899fdd192cc2c8bbc720bbc65fd8c53b21db",
+        "whole_original_review_sha256": "5d0abb6759f14a9208fd1447e2f7b54d6f498e5ab36a64a2f04943a989167916"
+      },
+      {
+        "page": "20261015h018080005",
+        "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261015h01808__20261015h018080005.pdf.snap.new",
+        "new_sha256": "77ab06dcfb6ceaa8bc665b839e6e924ef75ddd21c42fc01672130c9c6115972f",
+        "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261015h01808__20261015h018080005.pdf.snap",
+        "old_sha256": null,
+        "type": "new",
+        "fullbody_all_Article_Document_Table_Run_render_exact": true,
+        "source_PDF_sha256": "efcdbf19d05a46b9db48915703fe94f082f3a2318198ddd35fb62ad917f6df0a",
+        "whole_original_review_sha256": "fe9bb8d262efe65c7574d739ecd11881f926c08ee5b3c4784dd00081c64ada66"
+      },
+      {
+        "page": "20261015h018080006",
+        "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261015h01808__20261015h018080006.pdf.snap.new",
+        "new_sha256": "f07722ff819c9d7cb09e2fdcd5416cb6e56c906bd2fa5c52deb4ee43a611ad4b",
+        "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261015h01808__20261015h018080006.pdf.snap",
+        "old_sha256": null,
+        "type": "new",
+        "fullbody_all_Article_Document_Table_Run_render_exact": true,
+        "source_PDF_sha256": "f5afafb48e11542b9ff8f7ae80f3b8370ac328cde3507633d31484df48a162a4",
+        "whole_original_review_sha256": "5d0abb6759f14a9208fd1447e2f7b54d6f498e5ab36a64a2f04943a989167916"
+      },
+      {
+        "page": "20261015h018080007",
+        "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261015h01808__20261015h018080007.pdf.snap.new",
+        "new_sha256": "b3f3f630ef9f23e713d25b2836dc490d131164791f71c1a61e98012e682a50b4",
+        "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261015h01808__20261015h018080007.pdf.snap",
+        "old_sha256": null,
+        "type": "new",
+        "fullbody_all_Article_Document_Table_Run_render_exact": true,
+        "source_PDF_sha256": "f2cb22d9cc3284f8de08e12b1716059203bbf3e521d9fb334a0051392734e6f1",
+        "whole_original_review_sha256": "fe9bb8d262efe65c7574d739ecd11881f926c08ee5b3c4784dd00081c64ada66"
+      }
+    ],
+    "all5_originals_all649bodylines_all8Article_Documents_read_by_root": true,
+    "existing_major_negative_controls_retained": true,
+    "all_fullbody_and_every_Document_Table_Run_render_exact": true,
+    "source_manifest_sha256": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+    "full11992_report_sha256": "1547c320499cd5f43998acdc6065502bb5c1942bc4193c505f19bf3122888433",
+    "generation_terminal": 101,
+    "INSTA_UPDATE_new_only_pending_files": true,
+    "promoted": true
+  },
+  "unseen_audit142": {
+    "strict": {
+      "ok": 12,
+      "minor": 6,
+      "major": 12
+    },
+    "body": {
+      "ok": 22,
+      "major": 7,
+      "minor": 1
+    },
+    "lines": 2019,
+    "Articles_Documents": 75,
+    "new_regressions": 0,
+    "native": {
+      "limited_zero_interior_rectangles": 15,
+      "grade_exclusion_rectangles": 2,
+      "diagnostic_only_zero_interiors_not_grade_excluded": 13,
+      "source_PDFs": 2,
+      "positive_contexts": 5,
+      "positive_Glyphs": 308,
+      "all_native_Glyphs_scanned": 1096,
+      "whole_page_exclusions": 0
+    },
+    "all_initial_grades_retained": true
+  },
+  "rejected_attempts": {
+    "cache_first_full11992": {
+      "error": "AssertionError(('20261015h018080006', 'whole independent oracle differs'))",
+      "processed": 10933,
+      "changed": [
+        "20260723g001630002",
+        "20260731g001720008",
+        "20261015h018080006"
+      ],
+      "not_accepted": true
+    },
+    "f32_serializer_not_numeric_tolerance": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root30-facility-chi/facility-oracle-serializer-proof.json",
+      "sha256": "bd29debbc04691d937758c36c5f595fa8c61241b02a343dc455e7dcfb4ef6e66"
+    },
+    "geometry_test_harness_compile_and_Shinkyu_unreachable_failures_retained": true,
+    "native_fixture_wrapper_initial_assumption": {
+      "accepted": false,
+      "comparison_stopped_at_first_page": true,
+      "reason": "Initial proof compared Vec<Page> to the facility wrapper object {native_pages,native_rules}; comparison repaired to its native_pages field. Initial dump retained, no production change."
+    },
+    "audit_native_rectangle_border_Glyph_rejection": {
+      "rectangles": [
+        [
+          245,
+          174,
+          418,
+          283
+        ],
+        [
+          245,
+          287,
+          418,
+          409
+        ],
+        [
+          245,
+          413,
+          418,
+          549
+        ],
+        [
+          430,
+          45,
+          605,
+          159
+        ],
+        [
+          430,
+          162,
+          605,
+          276
+        ],
+        [
+          430,
+          279,
+          605,
+          382
+        ],
+        [
+          430,
+          385,
+          605,
+          486
+        ],
+        [
+          430,
+          489,
+          605,
+          549
+        ],
+        [
+          612,
+          45,
+          789,
+          87
+        ],
+        [
+          612,
+          90,
+          789,
+          193
+        ],
+        [
+          612,
+          198,
+          789,
+          312
+        ],
+        [
+          612,
+          318,
+          789,
+          430
+        ],
+        [
+          612,
+          436,
+          789,
+          550
+        ]
+      ],
+      "reason": "First rectangle intersects14original Glyphs. No native0 claim accepted. Inspect source coordinates before excluding any region."
+    },
+    "legacy_aggregation_initial_count": {
+      "all8_validators_terminal0": true,
+      "all13_legacy_provenance_AST_diagnostic_counts_preserved": true,
+      "initial_aggregator_retained": ".cache/kanpo-227/finish-validate52.py",
+      "initial_wrong_pages_expectation": 2940,
+      "new_cumulative_pages": [
+        "20260723g001630002",
+        "20260731g001720008"
+      ],
+      "correct_cumulative": 2942,
+      "production_executable_inputs_assertions_not_changed": true
+    }
+  },
+  "recoverable_completed_tests": {
+    "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/completed-root30-tests-gzip/complete.json",
+    "sha256": "fdd10d396edf4028e8de03f3db996dd99a71d4b3b092cb9e58eb070b9f56d855"
+  },
+  "known_remaining": [
+    "New/old role and inner row/cell association losses",
+    "Independent notices merged or split at addresses",
+    "Financial amount/header/rowspan/signature association",
+    "Unrestored printed text in limited native-Glyph-zero regions",
+    "Company fixed1286 scope still865 unreviewed"
+  ],
+  "whole_page_perfection_not_implied": true,
+  "goal_complete": false
+}
