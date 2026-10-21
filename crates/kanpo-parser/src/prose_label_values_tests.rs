@@ -401,3 +401,93 @@ fn nonfinite_frame_coordinates_cannot_authorize_label_value_join() {
         }
     }
 }
+
+// Preserve the independent review's original specification unchanged.
+#[test]
+fn value_vector_order_does_not_change_geometric_decision() {
+    let (mut t, r) = fixture();
+    for c in &mut t[1] {
+        c.y += 8.;
+        c.y1 += 8.;
+    }
+    t[1][1].y += 0.75;
+    t[1][1].y1 += 0.75;
+    let mut other = t.clone();
+    other[1].swap(0, 1);
+    rejoin_prose_label_values(&mut t, &r);
+    rejoin_prose_label_values(&mut other, &r);
+    let contains = |tiers: &[Vec<Col>]| {
+        tiers
+            .iter()
+            .map(|v| {
+                let mut ids: Vec<_> = v.iter().map(|c| c.id).collect();
+                ids.sort();
+                ids
+            })
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(contains(&t), contains(&other));
+}
+fn ordered_value_tops(order: [usize; 3], starts: [f32; 3]) -> (Vec<Vec<Col>>, TierRules) {
+    let (mut t, r) = fixture();
+    for (c, y) in t[1].iter_mut().take(3).zip(starts) {
+        c.y1 += y - c.y;
+        c.y = y;
+    }
+    let originals = t[1][..3].to_vec();
+    for (i, source) in order.into_iter().enumerate() {
+        t[1][i] = originals[source].clone();
+    }
+    (t, r)
+}
+const SOURCE_PERMUTATIONS: [[usize; 3]; 6] = [
+    [0, 1, 2],
+    [0, 2, 1],
+    [1, 0, 2],
+    [1, 2, 0],
+    [2, 0, 1],
+    [2, 1, 0],
+];
+#[test]
+fn all_value_permutations_use_the_same_earliest_geometric_boundary() {
+    for order in SOURCE_PERMUTATIONS {
+        let (t, r) = ordered_value_tops(order, [162., 162.75, 162.]);
+        size_contract_expected(t, r);
+    }
+}
+#[test]
+fn incompatible_value_tops_abstain_for_every_source_permutation() {
+    // A middle-first anchor can conceal a total spread larger than the existing
+    // one-point alignment allowance. No permutation may invent that agreement.
+    for order in SOURCE_PERMUTATIONS {
+        let (t, r) = ordered_value_tops(order, [161., 162.5, 161.75]);
+        size_contract_abstains(t, r);
+    }
+}
+#[test]
+fn wholly_late_value_band_abstains_for_every_source_permutation() {
+    for order in SOURCE_PERMUTATIONS {
+        let (t, r) = ordered_value_tops(order, [162.25, 163., 162.5]);
+        size_contract_abstains(t, r);
+    }
+}
+#[test]
+fn wholly_early_value_band_abstains_for_every_source_permutation() {
+    for order in SOURCE_PERMUTATIONS {
+        let (t, r) = ordered_value_tops(order, [148., 148.75, 148.25]);
+        size_contract_abstains(t, r);
+    }
+}
+#[test]
+fn translated_value_permutations_preserve_all_source_fields_and_membership() {
+    for order in SOURCE_PERMUTATIONS {
+        let (mut t, r) = ordered_value_tops(order, [162., 162.75, 162.]);
+        for c in t.iter_mut().flatten() {
+            c.x -= 1024.;
+            c.x1 -= 1024.;
+            c.y -= 1024.;
+            c.y1 -= 1024.;
+        }
+        size_contract_expected(t, r);
+    }
+}

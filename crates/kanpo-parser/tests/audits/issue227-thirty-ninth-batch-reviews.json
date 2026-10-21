@@ -1,0 +1,196 @@
+{
+  "issue": 227,
+  "batch": 39,
+  "source": 63,
+  "parent_commit": "1c0c558c1e68ce24483b4998d6d873f9bf1f7811",
+  "goal_complete": false,
+  "canonical_quality_improvement_pages": 0,
+  "cumulative_changed_pages": 2957,
+  "cumulative_character_changed_pages": 1373,
+  "references": [
+    {
+      "path": ".cache/kanpo-227/checkpoint38-accepted62.json",
+      "sha256": "d90fcd90e6e91b5b54bf9996970a73d6f3026e4c36dd47a4b121f2a6b6cc2d68",
+      "kind": "accepted_parent62_all_local_all3CI_success"
+    },
+    {
+      "path": ".cache/kanpo-227/root39-prose-order63/baseline-prefreeze.json",
+      "sha256": "c25fdee6e29c047dc2b2d013ca3aa7010608c94aa38f3fc2ff13950b3676fe5d",
+      "kind": "six_assertions_frozen_before_production_edit"
+    },
+    {
+      "path": ".cache/kanpo-227/root39-prose-order63/baseline-result.json",
+      "sha256": "906608fa02747d992a3dab21810d51dfc7bb6e970d744ff35665f5f7a6770afc",
+      "kind": "same1052_source62_1048GREEN4RED"
+    },
+    {
+      "path": ".cache/kanpo-227/root39-prose-order63/candidate120-source-manifest.json",
+      "sha256": "6ee172753db088e7d1746a6cadbeefdb432f3e635e17f2310bfaf3fc8e1da456",
+      "kind": "private_candidate120_source"
+    },
+    {
+      "path": ".cache/kanpo-227/root39-prose-order63/candidate-result.json",
+      "sha256": "577b7cdebf6c543f4c4a24a2490a0434cd231eb7b4c09b57753f5971641b2fd7",
+      "kind": "candidate1052GREEN_actual5GREEN"
+    },
+    {
+      "path": ".cache/kanpo-227/root39-prose-order63/full-result.json",
+      "sha256": "f0b098cde7e11fbdc099649177442f2c6e11bc2d0effcd69951675dabafb7d57",
+      "kind": "private11992_complete_Analysis_exact62"
+    },
+    {
+      "path": ".cache/kanpo-227/root39-order63-review-verified.json",
+      "sha256": "3939b0c8c0c2092c7b9e378498b97b8d61134638da6d83cfa0a3b7f4dcd093da",
+      "kind": "same41_private_probes_35G6R_to40G1R"
+    },
+    {
+      "path": ".cache/kanpo-227/integrated63-source-manifest.json",
+      "sha256": "55fb52385d054043f2fc6e1fc4c75da6114b0dd34ad9dd4649c1455ce170a670",
+      "kind": "integrated_source120"
+    },
+    {
+      "path": ".cache/kanpo-227/integrated63-test-assets-manifest.json",
+      "sha256": "e5377bbd14cf8ae875d228a582392f80d8fe11046b5909447496cb478e8dad15",
+      "kind": "assets1127_exact62"
+    },
+    {
+      "path": ".cache/kanpo-227/full39-final63-generic-partitioned-status.json",
+      "sha256": "fe0de84607cc29b4faff727971d68b0d05095e79d8287d08ea777a9dcd2ad969",
+      "kind": "all4_default1723_117commands"
+    },
+    {
+      "path": ".cache/kanpo-227/integrated63-fullAnalysis-report.json",
+      "sha256": "ee598eb942ec08b954e4b14338d91b8ea2c1853b22442417b569658961be7767",
+      "kind": "fresh_Cargo_release11992_Analysis_textdump_exact62"
+    },
+    {
+      "path": ".cache/kanpo-227/immutable-root63-deps-manifest.json",
+      "sha256": "5f2dc2215ef90f80ce6427729e79c20c626f23ca25b00af756a00545105baac3",
+      "kind": "immutable119_dependencies"
+    },
+    {
+      "path": ".cache/kanpo-227/completed-debug-deps-cache39-cleanup.json",
+      "sha256": "a27cc934748a06b9f12cd54feb77d15c2fa8ce23febf5b02d439035f631aed18",
+      "kind": "completed_default_debug_cache_regenerable_not_lossless"
+    },
+    {
+      "path": ".cache/kanpo-227/snapshot39-source63-preserved.json",
+      "sha256": "c781de7992b7371251c1d5bbac150b81f7a71733fcbafcb519f51ec59a53daaa",
+      "kind": "snapshots778_new0_updated0"
+    },
+    {
+      "path": ".cache/kanpo-227/audit144-source63-inheritance.json",
+      "sha256": "8f42011cd4916cebb96d9cd3a46d48c57eba5883758f20566919be4ed3ec7b2e",
+      "kind": "all30_Analysis_rebound_initial55grades_only"
+    },
+    {
+      "path": ".cache/kanpo-227/root39-ocr-alternative-availability62-verified.json",
+      "sha256": "c1a1fd61497828eecd3473d229b0ef70fd889d5cfa492be3225e7797e3c747ea",
+      "kind": "bounded_preinstall_runtime_survey_not_machine_absence_proof"
+    },
+    {
+      "path": ".cache/kanpo-227/root38-local-vision-ocr61-feasibility-verified.json",
+      "sha256": "23a740c3c77f7a804438240cf50c24698eda397d90ce45c0d05cc08aa105d3f6",
+      "kind": "prior_Vision_first_request_runtime_failure_retained"
+    },
+    {
+      "path": ".cache/kanpo-227/root39-tesseract62-verified.json",
+      "sha256": "eed7e6b17f813069feb1da47ff83c5f65c4ba2e8b148e26d9fb331912cfbcc41",
+      "kind": "new_Tesseract57artifacts270external295prefrozen_refs_independent_CER"
+    },
+    {
+      "path": ".cache/kanpo-227/root39-tesseract62-pixels-and-visual.json",
+      "sha256": "2aab74fd8477342f12ac3d42ec14c3e953860d7f56c210b8dd3abbe9f5729361",
+      "kind": "all4_crop_pixels_and_oldgold_exact_2visual_paragraph_reviews"
+    },
+    {
+      "path": ".cache/kanpo-227/tesseractjs-ocr62-frozen2/delivery/delivery-manifest.json",
+      "sha256": "f96cd04c404a3c80a317a9c6b9f4e52166f460d40686b270fba4a67551764efe",
+      "kind": "separate_optin_OCR_frozen2paragraph4case_authority"
+    }
+  ],
+  "quality": "Canonical11992 original outputs unchanged; no new canonical manual quality score.",
+  "audit144": {
+    "all30_complete_Analysis_exact": true,
+    "initial55_grades_inherited_after_comparison_only": true,
+    "strict": {
+      "ok": 6,
+      "minor": 5,
+      "major": 19
+    },
+    "body": {
+      "ok": 17,
+      "minor": 3,
+      "major": 10
+    },
+    "full_body_lines": 2175,
+    "Articles_Documents": 40,
+    "whole_page_exclusions": 0,
+    "selected_pages_not_used_as_repair_targets": true
+  },
+  "held_company": {
+    "source58_changed_pages": 1913,
+    "fixed_visual_review_population": 1286,
+    "reviewed": 422,
+    "pending": 864,
+    "initial_grades_unchanged": true,
+    "not_adopted": true,
+    "unresolved": "Issuer/quotation/counterparty ownership, independent field boundaries, legitimate folded-name dropout, fixed0.5pt enclosures."
+  },
+  "optional_models": {
+    "RURI_ModernBERT_permission_retained": true,
+    "RURI_ModernBERT_download_train_infer": 0,
+    "prior_Apple_Vision": "first ja-JP144DPI request failed runtime -5;3remaining not executed; accuracy unevaluated; authority preserved",
+    "Tesseract_experiment": {
+      "engine": "Tesseract.js6.0.1 Node/WASM; official pinned tessdata_fast",
+      "downloaded_models": [
+        "jpn",
+        "jpn_vert"
+      ],
+      "inference_language": "jpn",
+      "jpn_vert_inferences": 0,
+      "training": 0,
+      "inferences": 4,
+      "successful": 4,
+      "independent_pages": 2,
+      "scope": "Fixed old-gold paragraphs at144/288DPI; PSM6; fresh worker per case; exact pixel crops only; config/scoring/models frozen before inference; no case selection, custom vocabulary, normalization except separately reported whitespace-only metric, expected-word replacements or confidence filtering",
+      "all_cases": [
+        {
+          "page": "20261016h018090019",
+          "dpi": 144,
+          "raw_edit_distance": 3,
+          "raw_gold_codepoints": 22,
+          "nonspace_edit_distance": 2,
+          "nonspace_gold_codepoints": 20
+        },
+        {
+          "page": "20261016h018090019",
+          "dpi": 288,
+          "raw_edit_distance": 2,
+          "raw_gold_codepoints": 22,
+          "nonspace_edit_distance": 1,
+          "nonspace_gold_codepoints": 20
+        },
+        {
+          "page": "20260831h017790010",
+          "dpi": 144,
+          "raw_edit_distance": 16,
+          "raw_gold_codepoints": 102,
+          "nonspace_edit_distance": 15,
+          "nonspace_gold_codepoints": 98
+        },
+        {
+          "page": "20260831h017790010",
+          "dpi": 288,
+          "raw_edit_distance": 1,
+          "raw_gold_codepoints": 102,
+          "nonspace_edit_distance": 0,
+          "nonspace_gold_codepoints": 98
+        }
+      ],
+      "unfixed_error": "288DPI first paragraph 債→償 retained verbatim. Second paragraph differs by terminal LF only, not raw exact.",
+      "limitations": "Only two previously selected paragraph controls; no full-page detection/reading order/Article ownership/nativeGlyph provenance or generalization proof. No canonical adoption/quality gain. Existing kanpo-lm correct reorders existing characters; it is not an OCR image recognizer or arbitrary character repair oracle."
+    }
+  },
+  "no_initial_grade_overwrites": true
+}

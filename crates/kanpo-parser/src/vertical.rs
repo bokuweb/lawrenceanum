@@ -6041,7 +6041,9 @@ fn rejoin_prose_label_values(tiers: &mut [Vec<Col>], rules: &TierRules) {
         if values.len() < labels.len() || values.len() > 24 {
             continue;
         }
-        let start = values[0].y;
+        // The band begins at its earliest geometric top, regardless of source
+        // vector order. Transferred columns still keep their original order.
+        let start = values.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
         let gap = start - bottom;
         if gap < em * 0.75 - 0.1 || gap > em * 2.0 + 0.1 {
             continue;
