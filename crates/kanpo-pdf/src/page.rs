@@ -285,7 +285,11 @@ impl Interp<'_> {
                 Ok(o) => operands.push(o),
                 Err(op) => {
                     if op == b"BI" {
-                        skip_inline_image(&mut parser);
+                        if !operands.is_empty()
+                            || !crate::inline_image::skip_raw(&mut parser, self.doc, resources)
+                        {
+                            skip_inline_image(&mut parser);
+                        }
                     } else {
                         self.op(&op, &operands, resources);
                     }

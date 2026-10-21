@@ -13,6 +13,11 @@ mod cmap;
 mod crypt;
 mod filter;
 mod lexer;
+mod inline_image;
+
+#[cfg(test)]
+#[path = "inline_image_tests.rs"]
+mod inline_image_tests;
 
 pub use document::{Document, PageRef};
 pub use object::{Dict, ObjRef, Object, Stream};

@@ -1,0 +1,49 @@
+{
+  "batch": 32,
+  "production_literals": "Only PDF operators/keys, standard aliases/component counts and BPC grammar; no page/name/company/Japanese text, output fragment length or neighbor line-count branches.",
+  "specific_test_literals": "Fixture filenames, geometry, byte offsets and SHA goldens occur only in tests.",
+  "general_evidence": [
+    "exact declared sample length and row padding",
+    "transactional parser position",
+    "same suffix across CR/LF boundary interpretations",
+    "real suffix and multiple images preserved",
+    "varied dimensions/components/bit depth/ID sample whitespace",
+    "unsupported cases explicitly preserve legacy behavior"
+  ],
+  "not_a_universal_certificate": [
+    "No arbitrary filter/named color-space/mask/Decode support",
+    "No unique CR/LF pixel-start claim",
+    "No visibility/contrast/cell-membership certificate",
+    "No whole-page quality improvement from synthetic cases"
+  ],
+  "held_grid": {
+    "source121_unadopted": true,
+    "root_actual7": "accepted55:6GREEN1RED, grid121:1GREEN6RED",
+    "causes": [
+      "alpha0/disjoint clip/later white erase",
+      "wide stroke contains source Glyph centers",
+      "black backdrop removes contrast"
+    ]
+  },
+  "held_owned_stroke_collector": {
+    "source125_unadopted": true,
+    "root_private_GREEN": 154,
+    "root_oracle_GREEN": 172,
+    "scope": "SourceStrokeSurvival only. Does not prove source center membership, outer stroke envelope or visible contrast; no consumer/full/native adoption.",
+    "counterexamples": "3 actual rendering/phantom failures,3 unsupported-font policy guards,7 positive controls; actual failures and policy guards kept distinct."
+  },
+  "company_candidate": {
+    "selected": 1286,
+    "reviewed": 421,
+    "pending": 865,
+    "adopted": false
+  },
+  "models": {
+    "RURI_ModernBERT_opt_in_permission_retained": true,
+    "downloaded": false,
+    "trained": false,
+    "inferred": false
+  },
+  "whole_implementation_free_of_heuristics_claim": false,
+  "goal_complete": false
+}

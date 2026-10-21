@@ -1,0 +1,99 @@
+{
+  "batch": 32,
+  "synthetic_scope": "4 source-generated PDFs, never counted as original Kanpo pages or quality improvements.",
+  "initial_raw_pair": {
+    "PDFs": [
+      {
+        "path": "crates/kanpo-pdf/src/inline-image-fixtures/inline_raw_fake_EI_phantom.pdf",
+        "sha256": "1e9c54fc6197f370dde514c82014472f87f1ee2156d41285dd0159f17fd1d3db"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/inline-image-fixtures/inline_raw_true_suffix_control.pdf",
+        "sha256": "86029c1785f07b475f9816ce74867a8ce922ea34442be45f51abdfb177650f30"
+      }
+    ],
+    "original_root_rasters": "native-stroke-source55-static-review/root-inline-render; whole original views and SHA receipts retained in private evidence; 0 phantom vs840 true-suffix dark pixels in frozen strips"
+  },
+  "CR_LF_pair": {
+    "PDFs": [
+      {
+        "path": "crates/kanpo-pdf/src/inline-image-fixtures/single_cr_lf_pixel_phantom.pdf",
+        "sha256": "81fb28e8fe8d764044a6a4eb4fcacaba507708e1b36f9549aec29369e1eceae9"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/inline-image-fixtures/single_cr_lf_pixel_true_suffix.pdf",
+        "sha256": "13b8bceeb1e4705050894cec5446da7afd4f2654d3aadbb9fad24d3b63a1550f"
+      }
+    ],
+    "root_measurements": {
+      "results": [
+        {
+          "pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/legacy-inline-raw55-v2/fixtures/single_cr_lf_pixel_phantom.pdf",
+          "pdf_sha256": "81fb28e8fe8d764044a6a4eb4fcacaba507708e1b36f9549aec29369e1eceae9",
+          "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root32-inline-crlf-render/single_cr_lf_pixel_phantom.png",
+          "png_sha256": "2c99a3e5cbd8386534b0aef0324652270d2ab45d1cc32aea1b0c66ad34c12911",
+          "size": [
+            600,
+            600
+          ],
+          "phantom_rule_dark_pixels": 0,
+          "true_suffix_rule_dark_pixels": 0,
+          "PDFium_text": ""
+        },
+        {
+          "pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/legacy-inline-raw55-v2/fixtures/single_cr_lf_pixel_true_suffix.pdf",
+          "pdf_sha256": "13b8bceeb1e4705050894cec5446da7afd4f2654d3aadbb9fad24d3b63a1550f",
+          "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root32-inline-crlf-render/single_cr_lf_pixel_true_suffix.png",
+          "png_sha256": "9a652809f39dc7d853d2d4d3a5631226568c2b5732e6a22216f6234cceb8c83c",
+          "size": [
+            600,
+            600
+          ],
+          "phantom_rule_dark_pixels": 0,
+          "true_suffix_rule_dark_pixels": 1920,
+          "PDFium_text": ""
+        }
+      ],
+      "all_PDF_prepost_SHA_exact": true,
+      "whole_PNG_view_pending": true,
+      "scope": "two source-generated raw CR delimiter/LF-first-pixel fixtures only; not a whole corpus or arbitrary renderer theorem"
+    },
+    "root_whole_views": {
+      "measurements_sha256": "ec8d8f47ef2f0240e6b843c29654e062074c4b41744e2fc6419d016f7a65d480",
+      "whole_original_PNGs_root_viewed": [
+        {
+          "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root32-inline-crlf-render/single_cr_lf_pixel_phantom.png",
+          "sha256": "2c99a3e5cbd8386534b0aef0324652270d2ab45d1cc32aea1b0c66ad34c12911"
+        },
+        {
+          "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root32-inline-crlf-render/single_cr_lf_pixel_true_suffix.png",
+          "sha256": "9a652809f39dc7d853d2d4d3a5631226568c2b5732e6a22216f6234cceb8c83c"
+        }
+      ],
+      "finding": "Both source PDFs show no phantom x31 rule. Only the true-suffix control shows the x80 vertical rule, 1920 dark pixels in the frozen test strip. Small inline image remains at bottom-left in both.",
+      "not_a_corpus_quality_rate": true
+    }
+  },
+  "same_final_public_assertions": {
+    "accepted55": "8GREEN9RED",
+    "unadopted_v1": "14GREEN3RED",
+    "final_v2": "17GREEN",
+    "source": {
+      "path": "crates/kanpo-pdf/src/inline_image_tests.rs",
+      "sha256": "2aa4b68270a401faec34a3abd54ba760a2c10f76af2767e0b1040c424a5fe866"
+    }
+  },
+  "boundary_testfirst": "Same extra boundary assertions on v1:104GREEN2RED in106 tests, before final two PDF assertions were added; final108 GREEN. Do not call this the final108 baseline run.",
+  "matrix": "504 ID delimiter/initial sample/EI-gap combinations inside one test function; 504 is not the test count.",
+  "unsupported_goldens": "30 fixed synthetic unsupported/malformed inputs captured from accepted55; full Page, rules and XHTML remain exact. These preserved results can still be wrong.",
+  "readonly": {
+    "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/legacy-inline-raw55-v2-readonly-review/manifest.json",
+    "sha256": "d86ff601bc9f908790d9708a4d7b50dc3cfb6aa1d1af8d3f0b38525c31c38675"
+  },
+  "audit144": {
+    "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit144-source56-inheritance.json",
+    "sha256": "ccaffe7142cd189735c4df82482bcb317243ac4146e7a4517806eeb775245f2c"
+  },
+  "root_tooling_errors": "Initial standalone harness crate aliases, explicit serde extern and one existing parser testdata staging path were corrected in runners only. Failed compile logs remain; assertions/production inputs were not changed to pass.",
+  "superseded_v1_full": "Stopped only its remaining native worker after the new CR/LF RED case. Incomplete gzip/EOF/stop receipts retained; never counted as full success. Final v2 reruns all gates."
+}

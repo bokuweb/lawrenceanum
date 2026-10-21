@@ -302,6 +302,11 @@ cargo run --release -p kanpo-parser --example snapshot_sample -- .cache/kanpo-ar
 | 137 回目（独立・初回、全体品質） | 15 | 6 | 9 | 比較対象外 |
 | 138 回目（独立・初回、全体品質） | 14 | 2 | 14 | 比較対象外 |
 | 139 回目（独立・初回、全体品質） | 5 | 4 | 21 | 比較対象外 |
+| 140 回目（独立・初回、全体品質） | 17 | 1 | 12 | 比較対象外 |
+| 141 回目（独立・初回、全体品質） | 13 | 4 | 13 | 比較対象外 |
+| 142 回目（独立・初回、全体品質） | 12 | 6 | 12 | 比較対象外 |
+| 143 回目（独立・初回、全体品質） | 10 | 6 | 14 | 比較対象外 |
+| 144 回目（独立・初回、全体品質） | 6 | 5 | 19 | 比較対象外 |
 
 110 回目から、対象ページ ID・原本 SHA-256・採点の理由を [`tests/audits/`](tests/audits/) に残す。
 110 回目は本文に文字層のある 30 ページで校正し、見つかった分数式・金額の空欄位置の崩れを修正して同じ原本で再照合した結果。
@@ -1068,3 +1073,33 @@ native Glyph 0は2原本の限定8矩形だけで、近隣9陽性矩形と除外
 [`tests/audits/issue227-thirty-first-batch-provenance.json`](tests/audits/issue227-thirty-first-batch-provenance.json)、
 [`tests/audits/issue227-thirty-first-batch-reviews.json`](tests/audits/issue227-thirty-first-batch-reviews.json)、
 [`tests/audits/issue227-validation-31.json`](tests/audits/issue227-validation-31.json)に保存した。
+
+
+第 32 次修正では、rawインライン画像のデータ中にある「EI」や描画命令を、画像の外の罫線として解釈する問題を修復した。
+画像の正の幅・高さ、DeviceGray/RGB/CMYKの成分数、ビット深度、行ごとのbyte詰めからサンプル長をchecked演算で求め、計算した位置の後にEI終端がある場合だけ読み飛ばす。
+掲載文言・頁番号・会社名・期待出力の形による分岐はない。独立Parserで先読みし、未対応時には呼出元の位置を動かさず既存scannerへ戻る。
+フィルタ・名前付き色空間・画像マスク・Decode等をすべて修復したとは扱わず、未対応30入力の従来Page/罫線/XHTMLを固定して保存する。
+
+初期候補のCRLF固定解釈には、CR区切りの直後がLF画素の場合に偽罫線を残す反例が見つかった。
+1byte区切りとCRLF互換の開始位置をそれぞれ計算し、成功候補が同じEI終端に収束する場合だけ確定する修正へ置き換えた。画素開始位置の解釈の一意性までは主張しない。
+最終の同一公開API17テストは採用済み55で9失敗/8成功、初期候補で3失敗/14成功から17成功となった。
+区切り・先頭の空白画素・EI前の空白数504組を1テスト内で検査し、別の2合成PDFは同じbuilderのbytesと一致させた。rootの独立した全体描画で偽罫線なし・本物の後続罫線だけ陽性を確認した。
+合成4PDFは官報原本719件へ混ぜず、通常Cargoテストに旧実装の別名libraryや外部rendererを必要としない。
+
+全4クレート1,641テスト、108統合対象・4ライブラリ・4doc-test・全4examplesを含む117コマンドが終了0。パーサ979件、PDF108件で、既存PDF/CFF84件と新24件を含む。
+独立候補と最終release56で全11,992原本を解析し、55に対して変更0・解析全体11,992件完全一致、本番textdump --pdfも全本文bytes一致を確認した。
+native Page/Glyph/Font/Pathとf64ビット、元Wordの文字/座標/Glyph IDs、152頁242候補のCFF証拠も全件一致する。
+官報コーパスの改善件数は0で、累計2,957変更頁・文字変化1,373頁のまま。合成PDFの修復を全体精度の上昇とは数えない。
+既存778snapshotはGit blobと完全一致、新規/更新0。既存13検査値は全Analysisと元Glyphの完全一致から継承し、新たな8分割再検査をしたとは主張しない。
+
+監査144は採用済み55で初回採点を固定し、30原図・全2,175行・40Article/Documentを読了した。
+初回strict6ok/5minor/19major、本文・文字・読順17ok/3minor/10majorを保存し、release56の全30解析が完全一致してから継承した。見える文字の欠落をnative Glyph 0で免責せず、頁全体の除外は0である。
+異なる監査の率を比較せず、独立公告・新旧役割・行/セルの対応・未抽出文字等の既存majorを残す。
+
+罫線の可視性・元Glyph中心と太い罫線の関係・黒背景の反例が残るgrid候補は未採用。別の描画状態収集候補は私有154/独立172テストに成功したが、可視性やセル所属の証明とみなさず取り込まない。
+会社候補の未確認865頁も残る。RURI/ModernBERTのopt-in許可は保持し、この修正ではモデルを取得/学習/推論していない。
+全体100%は未達で、改善を続ける。証拠は[`tests/audits/144.json`](tests/audits/144.json)、
+[`tests/audits/issue227-generality-audit-32.json`](tests/audits/issue227-generality-audit-32.json)、
+[`tests/audits/issue227-thirty-second-batch-provenance.json`](tests/audits/issue227-thirty-second-batch-provenance.json)、
+[`tests/audits/issue227-thirty-second-batch-reviews.json`](tests/audits/issue227-thirty-second-batch-reviews.json)、
+[`tests/audits/issue227-validation-32.json`](tests/audits/issue227-validation-32.json)に保存した。
