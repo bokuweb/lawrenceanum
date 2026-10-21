@@ -1,0 +1,36 @@
+{
+  "issue": 227,
+  "batch": 41,
+  "native_runtime_source": 63,
+  "OCR_tool_revision": 2,
+  "parent_commit": "ca1645133e1a838e8d0852825884e0a92ee3add5",
+  "goal_complete": false,
+  "canonical_quality_improvement_pages": 0,
+  "cumulative_changed_pages": 2957,
+  "cumulative_character_changed_pages": 1373,
+  "review_scope": "Root-only visual annotation, original source comparison and independent numerical implementation. No new independent subagent review or random30-page audit.",
+  "original_views": {
+    "original167p103": "existing fullpage144DPI",
+    "original171p163": "existing fullpage144DPI",
+    "original184p38": "existing144 plus new fullpage288DPI; new render used to read small names before inference",
+    "printed_text_not_replaced_from_low_resolution_guesses": true
+  },
+  "numerical_verification": {
+    "phase1_all122_vectors_from_saved_hidden_mean_and_scores_checked": true,
+    "phase2_all180_vectors_from_saved_hidden_mean_checked": true,
+    "all7_prototypes_and115_scores_predictions_recomputed_separately": true,
+    "mean_direction_check_minimum_cosine": 0.9999999999,
+    "score_numeric_tolerance_absolute": 1e-12,
+    "tolerances_are_computation_checks_not_classification_thresholds": true,
+    "all2610_and2621_prefrozen_inputs_SHA_exact": true
+  },
+  "known_failures_retained": [
+    "Initial runtime import lacked optional native sharp binaries; same locked dependencies installed with platform optionals before any model initialization/inference.",
+    "Descriptions37wrong and class prototypes12wrong on supplied correct fields.",
+    "Necessary publicAPI17Article test fails1versus17; it is separate from two passing source contract tests."
+  ],
+  "review_artifact_manifest_SHA256": "13eb98f547ea0d0e958a92fbaecda2ca1fe8fadbcce51e3aecec9135d9482d33",
+  "artifacts_verified": 679,
+  "research_bytes": 20794460,
+  "production_delta_blocking_findings": "No production delta; failed role classifiers are held."
+}
