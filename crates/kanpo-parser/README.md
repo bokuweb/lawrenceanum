@@ -968,3 +968,35 @@ BS純額が控除科目へ割り当たる誤り、数値先頭4の誤列所属�
 [`tests/audits/issue227-twenty-eighth-batch-provenance.json`](tests/audits/issue227-twenty-eighth-batch-provenance.json)、
 [`tests/audits/issue227-twenty-eighth-batch-reviews.json`](tests/audits/issue227-twenty-eighth-batch-reviews.json)、
 [`tests/audits/issue227-validation-28.json`](tests/audits/issue227-validation-28.json)に保存した。
+
+第 29 次修正では、160号48頁の引用中の表の継続と、194号91頁の通常Unicode「救」2字の誤変換を修復した。
+引用の開閉、元の罫線で囲まれた2つの離れたセル断片、元Wordの一意な所属を根拠にする。固有の機関名、文字種・文字数、固定のUnit数・周辺行数・Word分割には依存しない。
+初期候補の「日本語2〜12文字」「前2行・次3行」等は一般則の根拠が弱いため採用せず、文字種/長さ、Word/Unitの再分割、拡大縮小/平行移動、3セル、独立した複数候補を試すテストへ置き換えた。
+括弧の順序、別欄の閉括弧、原罫端に重なる未知/既存Word、反転/ゼロ寸法のbbox、断片の逆順、交錯する候補も拒否する。追加24テストを含むパーサ920件が成功した。
+幾何のem比例許容差と、引用構文・単一の縦継続帯という適用範囲は残る。一般の任意グリッドを解決したとは扱わない。
+継続セルの公開bboxは2断片の外接和であり、間に別の表を含む。その全矩形が同じセルの印字領域だとはみなさない。
+
+「救」は元CID1657の実AJ1対応と抽出済みUnicodeが一致することをPDF側で証明し、その由来をWordの並べ替え前から保持して旧私用CID推測を避ける。
+「救」という文言では分岐せず、Japan1・実CID対応・全元GlyphのUnicode一致を要求する。ToUnicodeの有無やフォント名だけでは認定しない。未知私用字や従来のIdentity/bare入力の処理は保存する。
+実PDF14テストは実装前6失敗/8成功から14成功。PDF私有テストは4失敗/41成功、パーサのAJ1私有テストは6失敗/877成功を先に確認した。
+既存コーパス24頁は実AJ1由来の属性4,629件だけをbbox入力へ追加し、原Glyph/罫線/公開Word/解析全体が変わらないことを確認した。期待本文・期待JSON・assertionは変更していない。
+
+全4クレート1,480テスト成功、105統合対象・4ライブラリ・4doc-test・全4examples、114コマンドが終了0。PDF単体45件、アーカイブ694原PDFである。
+本番ビルドから全11,992原本をtextdump --pdfで再解析し、28次に対して2変更・11,990解析全体完全一致。累計2,940変更頁・文字変化1,353頁となった。
+引用5行と対応Docの修正、誤「（チ）」2件から原「救」への訂正を、fresh baselineだけから組み立てた完全oracleへ照合した。元Wordのraw/ID/bbox/status/所属と本文改行数を保持し、新しい推測Word/IDや元文字の消失はない。
+一般化前後でも全11,992頁の解析全体が完全一致し、最終109ソース・119依存物・原本・実行物等25,118ファイルのSHAを前後で照合した。
+正例/近隣/保存用の6原図全体・全698行・7Article/Document・全Table/Runを読み、6新規snapshotを確定した。既存snapshotの更新は0、一般化後の期待値更新も0である。
+原横棒11,033字、分数153件、期間706組・番号121組・括弧377セル等も累積2,940頁の8分割再検査で保持した。
+
+一般化前の監査140の初回採点を保存し、最終ソース固定後には別の未見監査141を行った。監査141は30原図・全1,957行・46Article/Documentを確認し、初回の全体品質13ok/4minor/13major、本文・文字・読順22ok/6minor/2major、今回の退行0を記録した。
+native Glyphが0の印刷領域は6原本の限定20矩形だけを明記し、全6,507Glyphと近隣10陽性領域2,027Glyphで再検査した。空Unicode・不可視・反転/ゼロ寸法・端接触も数え、ページ全体は除外しない。印刷文字の完全回復や、異なる範囲の監査間の率向上とは数えない。
+原図で見える乙の署名がBSのセルへ混ざる例、独立公告の未分割、金融表/新旧役割の欠落等は既存不具合として残る。193号152頁のArticle末尾だけにある既存改行1字も診断へ残し、前後の完全一致oracleは正規化しない。
+会社公告候補は固定1,286頁中421頁確認・865頁未確認で未採用。追加60頁の初回22改善/38部分改善・新退行0と、以前の初回採点・後の反証を保持した。
+
+変更箇所を対象とする一般則監査20項目も保存した。施設表の固定件数・長さ等は別候補でテスト先行の一般化を進めており、他の経験的な適用範囲も検証が残る。実装全体に恣意的な仮定がないとは宣言しない。
+RURI/ModernBERTのopt-inは有用性を未見データ・元ID/罫線との対応・退行・処理時間で比較する方針とし、この修正ではモデル取得/学習/推論や既定動作の変更は行っていない。
+全体100%は未達で、改善を続ける。証拠は[`tests/audits/141.json`](tests/audits/141.json)、
+[`tests/audits/issue227-generality-audit-29.json`](tests/audits/issue227-generality-audit-29.json)、
+[`tests/audits/issue227-twenty-ninth-batch-provenance.json`](tests/audits/issue227-twenty-ninth-batch-provenance.json)、
+[`tests/audits/issue227-twenty-ninth-batch-reviews.json`](tests/audits/issue227-twenty-ninth-batch-reviews.json)、
+[`tests/audits/issue227-validation-29.json`](tests/audits/issue227-validation-29.json)に保存した。

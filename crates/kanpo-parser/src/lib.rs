@@ -553,3 +553,5 @@ mod numeric_fractions;
 
 #[cfg(test)]
 mod ruled_plain_dash_tests;
+
+mod quoted_inline_tables;

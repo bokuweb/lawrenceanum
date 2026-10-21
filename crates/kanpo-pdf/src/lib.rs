@@ -48,3 +48,7 @@ impl std::fmt::Display for Error {
 impl std::error::Error for Error {}
 
 pub type Result<T> = std::result::Result<T, Error>;
+
+#[cfg(test)]
+#[path="aj1_provenance_pdf_tests.rs"]
+mod aj1_provenance_pdf_tests;

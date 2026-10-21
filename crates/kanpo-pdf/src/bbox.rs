@@ -274,6 +274,19 @@ fn native_vertical_attrs(page: &Page, word: &Word) -> String {
         first.end_x-first.x, first.end_y-first.y, b[0],b[1],b[2],b[3])
 }
 
+/// Prove Unicode resolution from each original AJ1 CID, rather than treating
+/// an arbitrary CJK scalar as a legacy Identity CID. A partial ToUnicode map
+/// or its presence alone is insufficient: the actual emitted text must equal
+/// the existing AJ1 mapping. No public Glyph/Word fields are changed.
+fn resolved_aj1_word(page: &Page, word: &Word) -> bool {
+    !word.glyphs.is_empty() && word.glyphs.iter().all(|&id| {
+        page.glyphs.get(id).is_some_and(|g| {
+            page.fonts.get(g.font).is_some_and(|f| f.ordering.as_deref() == Some("Japan1"))
+                && crate::font::aj1(g.cid).is_some_and(|c| g.text.chars().eq(std::iter::once(c)))
+        })
+    })
+}
+
 /// ページを `pdftotext -bbox-layout` 形式の XHTML にする。語ごとに 1 つの flow・block・line に入れる。
 pub fn bbox_layout(pages: &[Page]) -> String {
     let mut s = String::from(
@@ -294,9 +307,10 @@ pub fn bbox_layout(pages: &[Page]) -> String {
                 word.x_min, word.y_min, word.x_max, word.y_max
             );
             let native = native_vertical_attrs(page, &word);
+            let resolved = if resolved_aj1_word(page, &word) { " data-unicode-aj1=\"1\"" } else { "" };
             let _ = writeln!(
                 s,
-                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}>{}</word>\n        </line>\n      </block>\n    </flow>",
+                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}>{}</word>\n        </line>\n      </block>\n    </flow>",
                 escape(&word.text)
             );
         }

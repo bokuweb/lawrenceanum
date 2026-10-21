@@ -1,0 +1,1592 @@
+{
+  "scope": "Changed production sources and existing optional LM, frozen source50 audit; final source51 changes quoted module and test formatting only.",
+  "current_source_manifest": {
+    "path": ".cache/kanpo-227/integrated51-source-manifest.json",
+    "sha256": "f3d469cc9aff70a4d9f7760196595f1eb4421dba5f8f7f31fb5b1f69b78d0246"
+  },
+  "quoted_caps_removed": {
+    "label_script_and_length": true,
+    "absolute_font_size": true,
+    "fixed_Plain_Unit_count": true,
+    "fixed_surrounding_line_counts": true,
+    "single_fragment_Word": true,
+    "fixed_two_cell_stack": true
+  },
+  "remaining_quoted_applicability": {
+    "grammar": "Original Word boundaries support を「 and balanced quotation syntax; one native vertical continuation strip and a compatible open table stack.",
+    "geometry": "Relative em tolerances remain geometric heuristics, verified under scale/translation; arbitrary grids are not claimed supported.",
+    "source": "Closed bbox intersection includes Empty/unknown/edge/inverted/zero; complete cell coverage, unique source ownership, monotone fragment order and nonoverlapping quotation ranges required."
+  },
+  "metamorphic24": {
+    "baseline": "v3 + 8 new tests: 7 RED / 913 GREEN",
+    "candidate": "920 GREEN",
+    "test_assertions_byte_exact_before_after": true,
+    "private_original896_retained": true,
+    "prior16_metamorphic_retained": true,
+    "new8_test_functions": true,
+    "separate_final_tree_preserves_all_baseline_raw_sources": true,
+    "baseline_delivery_manifest_sha256": "4af9cac07e890fd8f9b14946c7d4aeec90f74d26f55375150f1cad66848a4809",
+    "candidate_source_manifest_sha256": "2cdcaca76a9615b6210588432f9a411aa675f45906ceac9c619501262e898648",
+    "candidate_production_sha256": "ff4c28f2e5cd7766f35907c62ffedc162dc23bd4299556b1ec0aee05bb7ff759",
+    "candidate_test_log_sha256": "adac01b8d9a1276bec62bc18b5042023c2860568de78ce927e6248c6fc00fcb9",
+    "production_not_applied_to_shared_source": true
+  },
+  "frozen_candidate_before_after_11992": {
+    "pages": 11992,
+    "changed": [],
+    "whole_Analysis_exact": 11992,
+    "fresh_independent_PDF_page_inputs_both_sides": true,
+    "all_source_inputs_exe_deps_prepostSHA_exact": true,
+    "seconds": 208.707518709,
+    "not_adopted": true
+  },
+  "static_review": {
+    "schema": "independent-readonly-source-review-v2",
+    "reviewed_at": "2026-10-21T04:46:23.677395+00:00",
+    "version": "generic-quoted-inline-v4-with-closing-x-guard",
+    "source_pre_sha256": {
+      "module": "439fdc3e9472d3e1f73ae1eaf06d4d077b1e7dd7f99d8e683bf9e576bed42c73",
+      "tests": "2c4c68337a84f3c582bab600a04bcfa1857e3d0e75af4627d8cf807c11fe5e93",
+      "new7": "d0fa2c12fda8c76444a006b9ff0a3b2f658db15b0934ebd7fd917cc691179f48"
+    },
+    "source_post_sha256": {
+      "module": "439fdc3e9472d3e1f73ae1eaf06d4d077b1e7dd7f99d8e683bf9e576bed42c73",
+      "tests": "2c4c68337a84f3c582bab600a04bcfa1857e3d0e75af4627d8cf807c11fe5e93",
+      "new7": "d0fa2c12fda8c76444a006b9ff0a3b2f658db15b0934ebd7fd917cc691179f48"
+    },
+    "module": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/quoted-general-source50/candidate-module-v4.rs",
+    "read_flags": {
+      "initial_entire_module_396_lines": true,
+      "current_entire_module_400_lines_by_exact_four_line_delta": true,
+      "whole_tests_98_lines": true,
+      "v3_prefix_62_lines_exact": true,
+      "new7_suffix_36_lines_exact": true,
+      "no_build": true,
+      "no_source_mutation": true,
+      "no_runtime_counterexample_claim": true
+    },
+    "review_version_history": {
+      "initial_sha256": "bbd98438ba51f6fcdf57b26482e6f72a1997ddfa49c4941c0c8bb28687e3778c",
+      "initial_module_preserved": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/quoted-general-source50/independent-review-v4-initial-module.rs",
+      "initial_module_reconstruction": "Current bytes minus exactly the four new closing-x guards; reconstructed bytes SHA-exact to first-read source. Parent independently confirmed only these four lines changed.",
+      "postread_change_detected": true,
+      "stale_review_not_finalized": true,
+      "current_sha256": "439fdc3e9472d3e1f73ae1eaf06d4d077b1e7dd7f99d8e683bf9e576bed42c73",
+      "prior_v3_review_preserved": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/quoted-general-source50/independent-review-v3.json"
+    },
+    "resolved_v3_findings": [
+      {
+        "id": "QG-V3-01",
+        "lines": [
+          168,
+          182,
+          227
+        ],
+        "assessment": "Fixed statically: depth-zero closing rejects, nested matching is accepted, final nonzero depth rejects; equal counts alone are no longer sufficient."
+      },
+      {
+        "id": "QG-V3-02",
+        "lines": [
+          184,
+          200,
+          310
+        ],
+        "assessment": "Fixed statically: every raw Word regardless of status/text is tested with normalized closed bbox intersection, including inverted endpoints, zero dimensions and edge touching. Extra overlapping Empty or independently-owned Used sources reject the repair."
+      },
+      {
+        "id": "primary-cell-coverage",
+        "lines": [
+          309,
+          311
+        ],
+        "assessment": "Fixed for the target primary first cell as well as its disjoint overflow fragment. Unrelated old/other table cells remain untouched; no source reconstruction is performed."
+      },
+      {
+        "id": "fragment-physical-order",
+        "lines": [
+          202,
+          209,
+          312
+        ],
+        "assessment": "Moved fragment IDs must have nondecreasing y0 and y1 and strictly advancing centers. The earlier span check dominates this indexing and rejects invalid IDs/nonfinite or nonpositive source bboxes. This deliberately does not normalize source order inside untouched multi-column cells."
+      },
+      {
+        "id": "overlapping-source-ranges",
+        "lines": [
+          352,
+          365,
+          368,
+          371
+        ],
+        "assessment": "Fixed conservatively: any shared source IDs or half-open source interval intersection rejects both plans, even with otherwise independent physical frames."
+      }
+    ],
+    "historical_findings": [
+      {
+        "id": "QG-V4-01",
+        "priority": "P2",
+        "initial_file_sha256": "bbd98438ba51f6fcdf57b26482e6f72a1997ddfa49c4941c0c8bb28687e3778c",
+        "initial_lines": [
+          263,
+          264
+        ],
+        "title": "Closing quote horizontal attachment was not checked",
+        "static_counterexamples": [
+          "Shift only sample Word29.x0/x1 by +100 (or -100): old closing quote leaves its native table column while all old predicates remain unchanged.",
+          "Shift only sample Word35.x0/x1 by +100 (or -100): new closing quote leaves its native table column while all old predicates remain unchanged."
+        ],
+        "status": "Resolved statically in current439fdc3e source by four x bounds at lines263-266. Far closing-quote negatives are now rejected; normal and mixed closing-prose Word geometry remains within the permitted original strip width. Parent has requested separate runtime RED/GREEN from Financial; those results are not independently claimed here."
+      }
+    ],
+    "findings": [],
+    "range_conflict_assessment": {
+      "lines": [
+        352,
+        365,
+        368,
+        371
+      ],
+      "interval": "ai..ci+2 includes the opener, ordinary line, both table groups, the final closing line, and every skipped line between them.",
+      "positive_nonoverlap": "Sequential independent continuations with disjoint ID sets and second opener at or after the first interval end remain eligible. Half-open endpoint equality is not overlap, so existing sequential two-continuation positive is distinct from the new interleaved negative.",
+      "conservative_overlap": "Physically independent continuations with interleaved source line ranges are both refused despite disjoint IDs. This is intentional conservative non-selection, not proof that their articles or native physical regions coincide; it reduces recall relative to v3.",
+      "transitive_conflicts": "A overlapping B and B overlapping C rejects all three, including A/C if mutually disjoint. This is safe all-ambiguous refusal, not a maximal-independent-set solver.",
+      "remaining_scope_limit": "A single accepted plan can still span unselected intervening lines. The interval rule rejects competing complete plans, not every possible intervening quote token. No concrete native-valid wrong repair from this fact alone was established, so it remains a coverage question rather than an observed regression."
+    },
+    "non_findings": [
+      "No same-line double-write or duplicate-owner hole found: all edited/read evidence IDs are included in conflicts, and global owners() sees Plain and Shinkyu regions.",
+      "No fragment indexing panic found: valid span and stack checks dominate helper calls.",
+      "Physical completeness checks use the two actual disjoint regions, not the broad outer union bbox.",
+      "The character-bag transaction over three clones remains valid, despite plan_at receiving the same source slice three times.",
+      "Unknown/nonfinite sources anywhere on the page cause conservative rejection; this can reduce applicability but does not introduce corruption.",
+      "Closed boundary touch can reject otherwise separable neighboring overhangs. Parent should measure resulting recall and preserve ambiguity rather than count it as restoration."
+    ],
+    "runtime_status": "Static review only. No new builds/test execution and no candidate-v4 tree/shared file mutation. Existing seven additional tests were read, not executed here.",
+    "recommendation": "No remaining concrete static correctness finding in current439fdc3e. Proceed only with the planned runtime negatives/positives and full corpus all-change review; this review is not a corpus acceptance claim."
+  },
+  "broader_original20_findings": {
+    "schema_version": 1,
+    "scope": "read-only production-rule generality audit for Issue 227, frozen source50/109",
+    "source_manifest": ".cache/kanpo-227/integrated50-source-manifest.json",
+    "source_manifest_sha256": "d547cab89e9fdfbf398e760f51c5214d1f07e1b01baca22ffe5a89c9e9e4b8d3",
+    "comparison_git_baseline": "d9354cea",
+    "summary": {
+      "page_id_or_known_company_or_expected_amount_branch_found": false,
+      "absence_claim_scope": "listed changed production files, textual searches plus inspected predicate context; excludes tests/comments. This is not a formal proof about every possible encoded literal.",
+      "main_result": "No observed page-ID/gold-value switch. Several repairs combine valid source evidence with fixed record/field/Word/Unit/character-count shapes. These shapes restrict generality and need metamorphic REDs; fixed-corpus regression gates alone do not prove generality.",
+      "do_not_conflate": [
+        "verified CID dictionary value with page-specific expected answer",
+        "native geometry tolerance with semantic rule",
+        "performance budget with evidence for meaning/role",
+        "strict source/ID preservation with correct Article/role/cell assignment",
+        "test-only literal with production branch"
+      ],
+      "changed_files_in_matrix": 53,
+      "findings": 20,
+      "production_or_tests_modified": false,
+      "new_code_execution_or_model_download": false
+    },
+    "interpretation": {
+      "empirical_gate": "A conservative applicability gate is not itself proof of a wrong output. The identified bound is not entailed by the cited geometry/syntax; its false-negative/false-positive tradeoff has to be tested instead of being presented as a universal rule.",
+      "geometry_tolerances": "Finite/positive boxes, non-overlap, actual native paths, unique matching and normalized-em proximity are explainable evidence. Exact tolerances still need scale/font/tokenization perturbation calibration.",
+      "dictionary_scope": "CFF-verified glyph identity may justify a finite mapping; source50 audit did not independently rerun historical all-font CFF proofs. Future-font provenance should remain explicit."
+    },
+    "findings": [
+      {
+        "id": "quoted-unit-shape",
+        "classification": "empirical_layout_gate",
+        "priority": "first",
+        "evidence": [
+          {
+            "file": "crates/kanpo-parser/src/quoted_inline_tables.rs",
+            "line": 8,
+            "end_line": 29,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/quoted_inline_tables.rs",
+            "sha256": "4c0089f0fa3dba9109d2cb70797869e474e1fc160b38691ecf10938c0755b152"
+          },
+          {
+            "file": "crates/kanpo-parser/src/quoted_inline_tables.rs",
+            "line": 33,
+            "end_line": 55,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/quoted_inline_tables.rs",
+            "sha256": "4c0089f0fa3dba9109d2cb70797869e474e1fc160b38691ecf10938c0755b152"
+          }
+        ],
+        "observed_condition": "letters=2..12日本語字、Plain3Unit、行数2/3/>=2、引用符1Word、本文1Word、橋渡し3Words、1行2列表を要求。",
+        "explainable_evidence": "開閉括弧、「を」、実罫の開いたセル折返し、同じセル幅、唯一の帯、原語一意所有は根拠になる。",
+        "generality_gap": "同じ元罫・構文でも文字数、Word分割、Unit分割、列数が変わると拒否される。これらの整数は引用構文から導けない。rootが別cacheで再設計中。",
+        "proposed_test_first": "罫/本文/引用構文を保ち1・13字、同一本文のWord分割/結合、余分な無関係Unit、3列を変形して元IDのセル所属を比較。",
+        "general_rule_direction": "tokenization非依存の括弧構文＋原罫接続グラフで候補区間を取り、一意対応だけ局所移動する。",
+        "executed": false
+      },
+      {
+        "id": "facility-fixed-shape",
+        "classification": "schema_plus_empirical_layout_gate",
+        "priority": "first",
+        "evidence": [
+          {
+            "file": "crates/kanpo-parser/src/facility_continuations.rs",
+            "line": 39,
+            "end_line": 59,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/facility_continuations.rs",
+            "sha256": "610e5ad97f23465467a219e9f7dca2d9ccd8d7587600d3263f016cf0ff747862"
+          },
+          {
+            "file": "crates/kanpo-parser/src/facility_continuations.rs",
+            "line": 79,
+            "end_line": 117,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/facility_continuations.rs",
+            "sha256": "610e5ad97f23465467a219e9f7dca2d9ccd8d7587600d3263f016cf0ff747862"
+          }
+        ],
+        "observed_condition": "施設番号/施設名/所在地名/所有関係/摘要というexact5欄、4Unit、最初3帯は各2行、2レコード、名前2..30字・他欄2..24字・一部1Word。",
+        "explainable_evidence": "元見出しの欄名/順、元実罫、両レコードの同じ欄位置、全語ID/文字集合/所有者は説明可能。欄名は実在会社名の決め打ちではない。",
+        "generality_gap": "2レコードや4Unitは施設表の文法ではない。5欄schemaを使う場合も識別/能力範囲として明示する必要がある。",
+        "proposed_test_first": "同じ5欄を1/3/10レコードに増減し、名前1/31字、住所のWord分割、見出し同義/追加欄を別々に検証。",
+        "general_rule_direction": "欄見出しが定める可変数のanchorへ各帯を対応付け、全原語が一意に覆われる最大連続範囲を組む。",
+        "executed": false
+      },
+      {
+        "id": "financial-flow-shape",
+        "classification": "empirical_layout_gate",
+        "priority": "first",
+        "evidence": [
+          {
+            "file": "crates/kanpo-parser/src/financial_flow.rs",
+            "line": 110,
+            "end_line": 120,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/financial_flow.rs",
+            "sha256": "25542fef77d59dbacb760c729586ae9ed4c3b2d34f8ac38cfa4dc31a8a567b3a"
+          },
+          {
+            "file": "crates/kanpo-parser/src/financial_flow.rs",
+            "line": 193,
+            "end_line": 229,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/financial_flow.rs",
+            "sha256": "25542fef77d59dbacb760c729586ae9ed4c3b2d34f8ac38cfa4dc31a8a567b3a"
+          }
+        ],
+        "observed_condition": "同じ数値端位置signature長4..12が6回以上、fields9..12、複数共通見出し字と2空白帯を要求。",
+        "explainable_evidence": "反復する数値の右端、共通欄の幾何、金額の桁構文、全元IDの被覆は根拠になる。",
+        "generality_gap": "9..12欄や6反復は財務表の必要条件ではなく、この形に近い原本の適用範囲。少行/多欄で不変にする理由はコード上ない。",
+        "proposed_test_first": "幾何と行対応を保った5/6/7反復、8/9/12/13欄、共通見出しのWord分割を評価。",
+        "general_rule_direction": "反復の支持/競合候補との差と原罫/欄の全被覆を分離し、可変行列にする。信頼度閾値は検証集合で校正する。",
+        "executed": false
+      },
+      {
+        "id": "quantity-count-width",
+        "classification": "empirical_layout_gate",
+        "priority": "first",
+        "evidence": [
+          {
+            "file": "crates/kanpo-parser/src/quantity_tables.rs",
+            "line": 12,
+            "end_line": 43,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/quantity_tables.rs",
+            "sha256": "ffb65b9a00c7b0c2781ed076bdd060b687bc052814289b548ba96011605adfb5"
+          }
+        ],
+        "observed_condition": "数量は1字の算用数字/漢数字のみ、数量8件以上を要求する。",
+        "explainable_evidence": "同じ実罫幅の3帯、数量列と品名列の整列、均等pitch/全語対応は根拠。",
+        "generality_gap": "数量10/100や7件も表になり得る。単字/8件は数量の構文からは導けない。",
+        "proposed_test_first": "7/8/9レコード、数量9/10/100、複数字の同一数値Word分割を用意。",
+        "general_rule_direction": "漢数字/算用数字の数値構文を元Word列上で解析し、行anchorと罫の支持から対応を決める。",
+        "executed": false
+      },
+      {
+        "id": "article-title-length",
+        "classification": "empirical_layout_gate",
+        "priority": "first",
+        "evidence": [
+          {
+            "file": "crates/kanpo-parser/src/wrapped_notice_titles.rs",
+            "line": 60,
+            "end_line": 84,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/wrapped_notice_titles.rs",
+            "sha256": "ee1316e253e58d73efa0100366a36244b02794561da9a67286e3ceae00e393fe"
+          }
+        ],
+        "observed_condition": "公告/公示に続くprefix<=3行、題字12..120字、次本文>=20字、prefix末尾「に関する」。",
+        "explainable_evidence": "次Article題字、直前Article末尾と元IDの一意一致、字体の大きさ/隣接/他語なしは強い根拠。「に関する」は正当な構文だが題字全体を網羅しない。",
+        "generality_gap": "行数や120/20字は題字と本文の意味上の必要条件ではない。既存分割器由来の分割数にも依存する。",
+        "proposed_test_first": "題字11/12/120/121字、prefix1/4行、本文19/20字、同じ題字のWord/行分割、独立した隣公告を負例にする。",
+        "general_rule_direction": "元幾何上の連続した題字領域と題字終端構文を用い、既存ArticleのIDアンカーに対応する最小区間だけ境界を移す。",
+        "executed": false
+      },
+      {
+        "id": "headerless-role-evidence",
+        "classification": "semantic_role_heuristic_plus_geometry",
+        "priority": "first",
+        "evidence": [
+          {
+            "file": "crates/kanpo-parser/src/headerless_four_bands.rs",
+            "line": 70,
+            "end_line": 111,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/headerless_four_bands.rs",
+            "sha256": "b5a334e037133ce18bb646a05c7d91f029c7743b4c23274499c557ab641560a0"
+          },
+          {
+            "file": "crates/kanpo-parser/src/headerless_four_bands.rs",
+            "line": 263,
+            "end_line": 310,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/headerless_four_bands.rs",
+            "sha256": "b5a334e037133ce18bb646a05c7d91f029c7743b4c23274499c557ab641560a0"
+          },
+          {
+            "file": "crates/kanpo-parser/src/headerless_four_bands.rs",
+            "line": 332,
+            "end_line": 336,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/headerless_four_bands.rs",
+            "sha256": "b5a334e037133ce18bb646a05c7d91f029c7743b4c23274499c557ab641560a0"
+          }
+        ],
+        "observed_condition": "exact4Plain、各6行以上、比較本文100..2000字、Jaccard/LCS>=0.6、下2帯に各略2件以上・共通末尾3行/40字以上。その後a,cをafter、b,dをbeforeにする。",
+        "explainable_evidence": "4実帯の等しい枠/字幅・対応座標、削る/新設等の改正記号、全語被覆は根拠になる。",
+        "generality_gap": "単なる類似度は新旧roleの向きの証明ではない。100/2000字の一部はLCS計算量制約として説明できるが、role採用の意味条件とは分けるべき。Unit/6行/略2/末尾40字も経験的。",
+        "proposed_test_first": "同じ原罫でUnit分割だけ変更、短い改正、長い改正、左右を反転、反復する通常一覧/削除を含む本文を負例にする。",
+        "general_rule_direction": "原見出し/前後記事接続などでrole方向を一意に証明できない場合は、対応候補を保持してroleを未確定にする。類似度は候補順位に限定する。",
+        "executed": false
+      },
+      {
+        "id": "coordinates-tokenization",
+        "classification": "verified_dictionary_plus_tokenization_gate",
+        "priority": "first",
+        "evidence": [
+          {
+            "file": "crates/kanpo-parser/src/coordinate_rows.rs",
+            "line": 98,
+            "end_line": 113,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/coordinate_rows.rs",
+            "sha256": "0fa04e51fa53be8d4df8a56711569984fb89c122bc212b69e62c670d1c89b680"
+          },
+          {
+            "file": "crates/kanpo-parser/src/coordinate_rows.rs",
+            "line": 359,
+            "end_line": 420,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/coordinate_rows.rs",
+            "sha256": "0fa04e51fa53be8d4df8a56711569984fb89c122bc212b69e62c670d1c89b680"
+          },
+          {
+            "file": "crates/kanpo-parser/src/coordinate_symbols.rs",
+            "line": 100,
+            "end_line": 118,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/coordinate_symbols.rs",
+            "sha256": "284a3f359db7afab91d9ca3302fe759fd1ad559cf3064f5a50f40eb3cfc4a342"
+          }
+        ],
+        "observed_condition": "点番号4桁まで、3列格子、点1Word/各座標8Words、うち既存数値5Words。",
+        "explainable_evidence": "EA6F/EA6D/EA6Eの原字、度分秒3単位、緯度90/経度180上限、実セル・原owner・隣接数値は説明可能。3欄は点/緯度/経度の対応として説明できる。",
+        "generality_gap": "8Words/5Wordsと点番号4桁は意味上の必要条件ではない。小数の分かれ方や追加欄に依存する。",
+        "proposed_test_first": "度分秒の数値を分割/結合、秒の精度桁変更、5桁点番号、補助欄追加、緯経度を反転/単位欠損の負例。",
+        "general_rule_direction": "DMS構文をWord列の連結ではなくID付きspanとして解析し、既存セル/幾何からunitを一意挿入する。",
+        "executed": false
+      },
+      {
+        "id": "financial-label-wrap",
+        "classification": "syntax_lexicon_plus_empirical_lengths",
+        "priority": "first",
+        "evidence": [
+          {
+            "file": "crates/kanpo-parser/src/horizontal.rs",
+            "line": 2453,
+            "end_line": 2485,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/horizontal.rs",
+            "sha256": "8d4e62c35ebc9af6557376ddd0319c9fd82d6f1b353a3eaf18d42f80e585bff1"
+          },
+          {
+            "file": "crates/kanpo-parser/src/horizontal.rs",
+            "line": 2523,
+            "end_line": 2545,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/horizontal.rs",
+            "sha256": "8d4e62c35ebc9af6557376ddd0319c9fd82d6f1b353a3eaf18d42f80e585bff1"
+          },
+          {
+            "file": "crates/kanpo-parser/src/shared_table_labels.rs",
+            "line": 59,
+            "end_line": 79,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/shared_table_labels.rs",
+            "sha256": "a9a4afe53cf2d662239a1fe1219147cbd983747830aba23cee8fd0d00028a42b"
+          },
+          {
+            "file": "crates/kanpo-parser/src/shared_table_labels.rs",
+            "line": 192,
+            "end_line": 215,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/shared_table_labels.rs",
+            "sha256": "a9a4afe53cf2d662239a1fe1219147cbd983747830aba23cee8fd0d00028a42b"
+          }
+        ],
+        "observed_condition": "科目4字以上、番号付き先頭>=9字、続き4..8字/最大20字、区分14/24字上限等。括弧付き共通見出し2..16字かつa/b各2数値。",
+        "explainable_evidence": "同一物理セル、字下げ/近い行送り、次額なし、共通cell範囲、原組括弧、科目接尾辞の語彙は説明可能。共有ラベルのrowspanは元セル全体へ可変に延長している。",
+        "generality_gap": "語の長さを科目の完成/未完成の代わりにする部分は一般文法ではない。a/b2数値は組括弧の意味より狭い。",
+        "proposed_test_first": "同じセル/字下げで長い/短い任意科目、4/8/9/20字の境界、3行以上の共通label、数値1/3欄を変形し独立科目を負例に。",
+        "general_rule_direction": "元セルと行baseline/数値anchorを先に固定し、科目の継続は未完構文を補助情報にする。字数は候補探索の予算と意味判定から分離。",
+        "executed": false
+      },
+      {
+        "id": "financial-frame-title-scope",
+        "classification": "semantic_schema_plus_empirical_lengths",
+        "priority": "next",
+        "evidence": [
+          {
+            "file": "crates/kanpo-parser/src/financial_enclosures.rs",
+            "line": 54,
+            "end_line": 75,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/financial_enclosures.rs",
+            "sha256": "2ca8740726cadd29cacee91d0c63222b5ae95d80097001f5856e87eb7f969399"
+          },
+          {
+            "file": "crates/kanpo-parser/src/financial_enclosures.rs",
+            "line": 85,
+            "end_line": 134,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/financial_enclosures.rs",
+            "sha256": "2ca8740726cadd29cacee91d0c63222b5ae95d80097001f5856e87eb7f969399"
+          },
+          {
+            "file": "crates/kanpo-parser/src/financial_enclosures.rs",
+            "line": 170,
+            "end_line": 201,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/financial_enclosures.rs",
+            "sha256": "2ca8740726cadd29cacee91d0c63222b5ae95d80097001f5856e87eb7f969399"
+          }
+        ],
+        "observed_condition": "通知題字<=30字、会社名5..60字、財務題字は第…期決算公告のみ、selected>=6/通知>=4行。",
+        "explainable_evidence": "原閉枠、別枠を混同しない最小包絡、元公告内会社名と財務枠会社名の一意一致/貸借対照表は説明できる。同じ原文の会社名照合は固有会社のliteral分岐ではない。",
+        "generality_gap": "第N期の有無/字数/行数に依存し、年度題字や期番号無しBS/PLは対象外。会社境界の一般化と異なる。",
+        "proposed_test_first": "同じ原枠の年度/期無し題字、短/長会社名、BS+PL関連/別会社隣枠、減資+左記財務の関連群を対に。",
+        "general_rule_direction": "元閉枠と独立題字/会社/署名/日付の領域グラフを使い、同じsource上の参照関係だけ関連群として保持する。未採用会社prototypeの結果はこのauditに混ぜない。",
+        "executed": false
+      },
+      {
+        "id": "dash-logical-row-counts",
+        "classification": "verified_dictionary_plus_empirical_layout_gate",
+        "priority": "next",
+        "evidence": [
+          {
+            "file": "crates/kanpo-parser/src/ruled_plain_dashes.rs",
+            "line": 17,
+            "end_line": 27,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/ruled_plain_dashes.rs",
+            "sha256": "3b39b9833af9e529f71581e49a882ef738d62e7ef40ade37875a02f3b69da01b"
+          },
+          {
+            "file": "crates/kanpo-parser/src/ruled_plain_dashes.rs",
+            "line": 51,
+            "end_line": 78,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/ruled_plain_dashes.rs",
+            "sha256": "3b39b9833af9e529f71581e49a882ef738d62e7ef40ade37875a02f3b69da01b"
+          },
+          {
+            "file": "crates/kanpo-parser/src/cell_row_dashes.rs",
+            "line": 100,
+            "end_line": 110,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/cell_row_dashes.rs",
+            "sha256": "2f01614cb315422228078757774f4399727c58495e626affd60d1dcc0cec2be7"
+          },
+          {
+            "file": "crates/kanpo-parser/src/cell_row_dashes.rs",
+            "line": 165,
+            "end_line": 174,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/cell_row_dashes.rs",
+            "sha256": "2f01614cb315422228078757774f4399727c58495e626affd60d1dcc0cec2be7"
+          },
+          {
+            "file": "crates/kanpo-parser/src/cell_row_dashes.rs",
+            "line": 208,
+            "end_line": 256,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/cell_row_dashes.rs",
+            "sha256": "2f01614cb315422228078757774f4399727c58495e626affd60d1dcc0cec2be7"
+          },
+          {
+            "file": "crates/kanpo-parser/src/owned_dashes.rs",
+            "line": 293,
+            "end_line": 327,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/owned_dashes.rs",
+            "sha256": "0fb5cbfb2d2d21b855fcc74dc461a58e3ff0ce334eb45be6c0a5e0d275c03b33"
+          }
+        ],
+        "observed_condition": "Plain復元4..16欄/2物理行/5論理行以上、cell_rowは同一cell3件以上・2小行・数値3..6件、label40字まで。ownedは隣label2件等。",
+        "explainable_evidence": "E61C原字、一意空スロット、数値右端反復、同一原物理cell、他owner/未知原字を拒否、局所挿入は強い証拠。",
+        "generality_gap": "元字の位置が一意でも件数/字数によって拒否される。反復下限は信頼度として説明可能だが、具体閾値の一般性は未校正。",
+        "proposed_test_first": "行4/5/6、欄3/4/16/17、1/2/3小行、2/3/6/7数値、長label。別baselineの額・下線・既存分数は負例。",
+        "general_rule_direction": "原罫cell＋論理baselineと数値runから空スロットを一意対応し、件数ではなく競合無しを主条件にする。反復支持が不足ならabstain。",
+        "executed": false
+      },
+      {
+        "id": "numeric-grid-orientation-size",
+        "classification": "geometry_plus_empirical_extent",
+        "priority": "next",
+        "evidence": [
+          {
+            "file": "crates/kanpo-parser/src/numeric_grid_orientation.rs",
+            "line": 6,
+            "end_line": 10,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/numeric_grid_orientation.rs",
+            "sha256": "5503e37a7d49f4d7350c5cad8c8fb40f526e901310b3acd47c6c41ce9b43de4e"
+          },
+          {
+            "file": "crates/kanpo-parser/src/numeric_grid_orientation.rs",
+            "line": 43,
+            "end_line": 79,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/numeric_grid_orientation.rs",
+            "sha256": "5503e37a7d49f4d7350c5cad8c8fb40f526e901310b3acd47c6c41ce9b43de4e"
+          }
+        ],
+        "observed_condition": "2..4列/4..30行のgrid、label2..30字、日本語2字以上、3行以上の整列を要求。",
+        "explainable_evidence": "数値が同じbaseline上で横に並び、左の科目と同じ原行・文字方向を持つことは説明可能。",
+        "generality_gap": "31行/5列や1字labelでも横組は成立する。最大行列数は向きの必要条件でない。",
+        "proposed_test_first": "同じ向きの31行/5列、1字/31字label、縦組数値列を負例。",
+        "general_rule_direction": "native advance方向・cell内baseline整合/競合する縦組支持を比較し、行列数は計算予算扱いにする。",
+        "executed": false
+      },
+      {
+        "id": "unruled-table-extent",
+        "classification": "schema_plus_empirical_extent",
+        "priority": "next",
+        "evidence": [
+          {
+            "file": "crates/kanpo-parser/src/unruled_records.rs",
+            "line": 57,
+            "end_line": 100,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/unruled_records.rs",
+            "sha256": "f905f325ecbfe3eae8e7c7461a1b627708aab5c4f8850808a84547d6b1eaa75b"
+          },
+          {
+            "file": "crates/kanpo-parser/src/unruled_records.rs",
+            "line": 179,
+            "end_line": 187,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/unruled_records.rs",
+            "sha256": "f905f325ecbfe3eae8e7c7461a1b627708aab5c4f8850808a84547d6b1eaa75b"
+          },
+          {
+            "file": "crates/kanpo-parser/src/unruled_records.rs",
+            "line": 277,
+            "end_line": 317,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/unruled_records.rs",
+            "sha256": "f905f325ecbfe3eae8e7c7461a1b627708aab5c4f8850808a84547d6b1eaa75b"
+          },
+          {
+            "file": "crates/kanpo-parser/src/trailing_code_tables.rs",
+            "line": 15,
+            "end_line": 35,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/trailing_code_tables.rs",
+            "sha256": "e59b3e0e3e86b5547db1cecd1bc4550bb50e798f2f9720c3ec8d9584c53e25ce"
+          },
+          {
+            "file": "crates/kanpo-parser/src/trailing_code_tables.rs",
+            "line": 82,
+            "end_line": 85,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/trailing_code_tables.rs",
+            "sha256": "e59b3e0e3e86b5547db1cecd1bc4550bb50e798f2f9720c3ec8d9584c53e25ce"
+          }
+        ],
+        "observed_condition": "反復見出し3..8欄/label2..40字/caption8..48字、2..64records/総6件/24Words以上。末尾code表6件以上/品名3行以下、code字数形固定。",
+        "explainable_evidence": "反復する同じ元見出し、列anchor/行開始、全原語被覆・他罫を越えない条件は説明できる。codeはコード文法としての仮説で、正式規格の根拠はここでは確認していない。",
+        "generality_gap": "64レコード上限等は意味に由来しない。3行を越す品名やWordの細分化で同一表を拒否し得る。",
+        "proposed_test_first": "1/2/64/65件、欄2/3/8/9、4行品名、異なる正当code形、同見出しの独立2表を負例。",
+        "general_rule_direction": "原見出しが定める動的schemaを使用し、罫/見出しの再出現/列整合で境界を決める。探索上限は未処理理由として記録する。",
+        "executed": false
+      },
+      {
+        "id": "road-headers-word-count",
+        "classification": "schema_plus_tokenization_gate",
+        "priority": "next",
+        "evidence": [
+          {
+            "file": "crates/kanpo-parser/src/unruled_road.rs",
+            "line": 119,
+            "end_line": 156,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/unruled_road.rs",
+            "sha256": "8b6e1880ca914490eb976c3fc852760eb485d90c2f4a65002c262d1f911fa70b"
+          },
+          {
+            "file": "crates/kanpo-parser/src/unruled_road.rs",
+            "line": 221,
+            "end_line": 254,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/unruled_road.rs",
+            "sha256": "8b6e1880ca914490eb976c3fc852760eb485d90c2f4a65002c262d1f911fa70b"
+          },
+          {
+            "file": "crates/kanpo-parser/src/unruled_road.rs",
+            "line": 334,
+            "end_line": 350,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/unruled_road.rs",
+            "sha256": "8b6e1880ca914490eb976c3fc852760eb485d90c2f4a65002c262d1f911fa70b"
+          }
+        ],
+        "observed_condition": "「区間敷地の幅員延長[備考]」に対応するhs9/11Words、2..20行かつ偶数、英字区分ありなら4anchor以上、前/後2語。",
+        "explainable_evidence": "区間/幅員/延長/備考とメートル/キロメートル、前/後、元x位置・区間群の全bbox中心、文字/ID被覆はドメイン文法と幾何で説明可能。",
+        "generality_gap": "9/11Words、20行上限、偶数/英字4anchorは元表の正当性より狭い。前後件数が不均等な変更や見出しのWord分割を扱えない。",
+        "proposed_test_first": "見出しWord分割、前後1:2/2:3行、22行、英字区分1件、同じnative区間の長さ変形を評価。",
+        "general_rule_direction": "見出しをID付き文字spanで解析し、前/後別に各数値baselineを列へ対応。rowspanは元interval範囲から導く。",
+        "executed": false
+      },
+      {
+        "id": "tier-prose-lengths",
+        "classification": "syntax_plus_empirical_extent",
+        "priority": "next",
+        "evidence": [
+          {
+            "file": "crates/kanpo-parser/src/vertical.rs",
+            "line": 2985,
+            "end_line": 3003,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/vertical.rs",
+            "sha256": "47eaad51d8d6cbe5f30508b76135160bdc61b89ace69dd5cf396afa28a964302"
+          },
+          {
+            "file": "crates/kanpo-parser/src/vertical.rs",
+            "line": 3093,
+            "end_line": 3112,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/vertical.rs",
+            "sha256": "47eaad51d8d6cbe5f30508b76135160bdc61b89ace69dd5cf396afa28a964302"
+          },
+          {
+            "file": "crates/kanpo-parser/src/vertical.rs",
+            "line": 5866,
+            "end_line": 6036,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/vertical.rs",
+            "sha256": "47eaad51d8d6cbe5f30508b76135160bdc61b89ace69dd5cf396afa28a964302"
+          },
+          {
+            "file": "crates/kanpo-parser/src/horizontal.rs",
+            "line": 5726,
+            "end_line": 5747,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/horizontal.rs",
+            "sha256": "8d4e62c35ebc9af6557376ddd0319c9fd82d6f1b353a3eaf18d42f80e585bff1"
+          },
+          {
+            "file": "crates/kanpo-parser/src/horizontal.rs",
+            "line": 5763,
+            "end_line": 5787,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/horizontal.rs",
+            "sha256": "8d4e62c35ebc9af6557376ddd0319c9fd82d6f1b353a3eaf18d42f80e585bff1"
+          }
+        ],
+        "observed_condition": "L字節題字16字/番号3字、下段value12語/短語6字、proseラベル2..24字/3..10個/value<=24語、前文1Word/12字/日本語8字/番号<=3字/5行以内等。",
+        "explainable_evidence": "連続する番号、日本語題字/本文の構文、原実罫をまたがない接続、同じx/字体、本文を遮らない幾何は説明可能。",
+        "generality_gap": "語数/字数/既存Line距離はtokenizationや本文長に依存する。多数の個別範囲が同じ幾何証拠に重ねられている。",
+        "proposed_test_first": "同幾何で長短題字・番号/値のWord分割・追加列、無関係な短い別記事、行数が増えた前文。",
+        "general_rule_direction": "元領域の接続と番号構文を共通primitiveへ集約し、原語の覆い/境界競合が一意な候補だけを採る。",
+        "executed": false
+      },
+      {
+        "id": "framed-continuation-partition",
+        "classification": "source_geometry_plus_partition_gate",
+        "priority": "next",
+        "evidence": [
+          {
+            "file": "crates/kanpo-parser/src/framed_band_continuations.rs",
+            "line": 182,
+            "end_line": 203,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/framed_band_continuations.rs",
+            "sha256": "11153d3a84ffd1edd1aae60b94ecd701d8e9f028d9ef2405fc6f7b75462f958a"
+          },
+          {
+            "file": "crates/kanpo-parser/src/framed_band_continuations.rs",
+            "line": 247,
+            "end_line": 283,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/framed_band_continuations.rs",
+            "sha256": "11153d3a84ffd1edd1aae60b94ecd701d8e9f028d9ef2405fc6f7b75462f958a"
+          },
+          {
+            "file": "crates/kanpo-parser/src/paired_framed_continuations.rs",
+            "line": 265,
+            "end_line": 288,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/paired_framed_continuations.rs",
+            "sha256": "8c4a0dbd186cc0f90843a647c83d79838781dea9741634b74be0b7dd426d56ee"
+          },
+          {
+            "file": "crates/kanpo-parser/src/paired_framed_continuations.rs",
+            "line": 353,
+            "end_line": 360,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/paired_framed_continuations.rs",
+            "sha256": "8c4a0dbd186cc0f90843a647c83d79838781dea9741634b74be0b7dd426d56ee"
+          }
+        ],
+        "observed_condition": "after/before各1part、各3行以上、後続Plain1/2Unit、短い括弧注1行3..10字、source格子2行。",
+        "explainable_evidence": "正式改正後/改正前見出しと同位置格子、開閉括弧stack、原罫終端/次枠の接続、全原語唯一ownerは説明可能。2行は上下新旧の物理形として意味がある。",
+        "generality_gap": "Unit/part/Line個数と括弧10字上限は解析器の中間表現に依存する。物理新旧2欄そのものと同じではない。",
+        "proposed_test_first": "元枠/括弧同一のまま各sideを2part/Word再分割、括弧11字、本文2行/4行を作る。",
+        "general_rule_direction": "元枠のsideごとにID付き語を収集して括弧状態を解析し、既存part数から独立したcontinuation接続を証明する。",
+        "executed": false
+      },
+      {
+        "id": "fraction-expression-arity",
+        "classification": "source_geometry_plus_grammar_subset",
+        "priority": "next",
+        "evidence": [
+          {
+            "file": "crates/kanpo-parser/src/fractions.rs",
+            "line": 174,
+            "end_line": 246,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/fractions.rs",
+            "sha256": "14f81b155047ceb32c403157d570acbe0d889bb3a8039415a5263956ede700a1"
+          },
+          {
+            "file": "crates/kanpo-parser/src/numeric_fraction_geometry.rs",
+            "line": 144,
+            "end_line": 150,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/numeric_fraction_geometry.rs",
+            "sha256": "5b87a35a5c823ed50460463739d6f8b31a948324cac5708b893c64541e71fd77"
+          },
+          {
+            "file": "crates/kanpo-parser/src/parallel_fraction_geometry.rs",
+            "line": 91,
+            "end_line": 115,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/parallel_fraction_geometry.rs",
+            "sha256": "dee1abb3868ca63672333aa70caffc6abafba18a2abc0f305e012bb605882d98"
+          }
+        ],
+        "observed_condition": "既存単純分数<=8個/数16字以内、numeric分数2..4個、parallelは6atoms固定。",
+        "explainable_evidence": "実分数線、分子/分母の上下中央揃え、演算子、同一owner、未知/重複原字拒否は説明可能。3幾何段は分子/本体/分母の文法上の形。",
+        "generality_gap": "numeric4個/parallel6atomsなどは有限の式部分集合であり一般的算式parserではない。6atomsはprefix+×+2分子+2分母という特定grammarのarityとして説明できるがWord単位変化には弱い。",
+        "proposed_test_first": "式数1/2/4/5/8/9、分子/分母Word分割、同じ式ASTの左右追加、下線/表罫/別ownerを負例。",
+        "general_rule_direction": "実線と数式atomから再帰ASTを構成し、Word数でなく演算子/分数線の構文を認識。深さ/候補数上限は明示予算とし未処理を報告。",
+        "executed": false
+      },
+      {
+        "id": "name-and-label-limits",
+        "classification": "syntax_plus_empirical_lengths",
+        "priority": "next",
+        "evidence": [
+          {
+            "file": "crates/kanpo-parser/src/horizontal.rs",
+            "line": 443,
+            "end_line": 477,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/horizontal.rs",
+            "sha256": "8d4e62c35ebc9af6557376ddd0319c9fd82d6f1b353a3eaf18d42f80e585bff1"
+          },
+          {
+            "file": "crates/kanpo-parser/src/vertical.rs",
+            "line": 3062,
+            "end_line": 3084,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/vertical.rs",
+            "sha256": "47eaad51d8d6cbe5f30508b76135160bdc61b89ace69dd5cf396afa28a964302"
+          },
+          {
+            "file": "crates/kanpo-parser/src/record_suffix.rs",
+            "line": 108,
+            "end_line": 118,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/record_suffix.rs",
+            "sha256": "43997ade6e3b8842daaf727494852e903333be2558b7831aa689de6ab72f1b3a"
+          }
+        ],
+        "observed_condition": "署名の姓/名1..3字かつ名は漢字を含む1Word、叙勲名1..6字、事務所等2..24字という条件。",
+        "explainable_evidence": "役職語彙、叙する/授ける終端、同じ印刷baseline/元番号/日付欄の対応は説明できる。",
+        "generality_gap": "名前は漢字/3字以内という必要条件を持たない。安全な対象範囲ではあっても姓名一般の解法ではない。",
+        "proposed_test_first": "長い姓/仮名名/複数Word名、同じ役職と別会社署名、原表で複数変更日を持つ負例。",
+        "general_rule_direction": "元署名/名簿の幾何と役職/文終端を主証拠にし、名前文字種/長さは校正された補助情報にする。",
+        "executed": false
+      },
+      {
+        "id": "verified-cid-dictionaries",
+        "classification": "source_dictionary_and_ownership",
+        "priority": "retain",
+        "evidence": [
+          {
+            "file": "crates/kanpo-parser/src/normalize.rs",
+            "line": 114,
+            "end_line": 127,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/normalize.rs",
+            "sha256": "54dad8c318f95d30ad46d87b141896d889ee3523e7b7549d9e4dd065ee31afe9"
+          },
+          {
+            "file": "crates/kanpo-parser/src/inline_quotes.rs",
+            "line": 1,
+            "end_line": 202,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/inline_quotes.rs",
+            "sha256": "173611d0c314c5ba7adfadf9def7d182c04ba4577fe2bd048f9033efcda5f753"
+          },
+          {
+            "file": "crates/kanpo-parser/src/micro_prefixes.rs",
+            "line": 1,
+            "end_line": 203,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/micro_prefixes.rs",
+            "sha256": "0430a55657b8c5bc635ee43270ea65b5a4e0277c30b516af3fb92fa26e490021"
+          },
+          {
+            "file": "crates/kanpo-parser/src/circled_numbers.rs",
+            "line": 1,
+            "end_line": 88,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/circled_numbers.rs",
+            "sha256": "ea58c40bdbb664e44aa3ff25c1ce9441ef1a288d061e0ba77839612b8e3bb25f"
+          },
+          {
+            "file": "crates/kanpo-parser/src/reference_markers.rs",
+            "line": 1,
+            "end_line": 82,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/reference_markers.rs",
+            "sha256": "b06a95fe2087407773c1aef85ed7c8681adb2ee7eb9ed39f435557acc14a4ce0"
+          }
+        ],
+        "observed_condition": "有限のPUA/CID→□/辻/鄭/㎠/引用符/μ/⑪/㉑/A〜C対応と元字の局所復元。μは数値+μ+L/mだけ。",
+        "explainable_evidence": "字形/CFF/同bbox合成と元字の一意ownerを証明する辞書は、特定頁の期待文字/値を照合する分岐と異なる。㉑=2+1等の有限文字も辞書の値。",
+        "generality_gap": "この監査では全既存CFF証明を再実行していない。PUA符号だけのglobal mappingは将来別fontでの意味同一性を自動保証しない。μL/mのwhitelistは確認範囲で、全SI単位を直す規則ではない。",
+        "proposed_test_first": "同じ辞書の検証済font/同字形positiveと、別字形同CID・未知PUA混在・第三重ね字・二重owner・同本文複数出現のnegative。",
+        "general_rule_direction": "辞書はglyph/font provenanceと検証済範囲を版管理。原字がある場合だけID付きspanを局所挿入し、他の既修復textを再生成しない。",
+        "executed": false
+      },
+      {
+        "id": "native-geometry-structural-rendering",
+        "classification": "source_geometry_and_structural_invariant",
+        "priority": "retain",
+        "evidence": [
+          {
+            "file": "crates/kanpo-parser/src/trace.rs",
+            "line": 54,
+            "end_line": 81,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/trace.rs",
+            "sha256": "1f21f7f40ed424d32aa2cc33052ae26ec0fd2dd0f01bbba63ec211481eb6e3aa"
+          },
+          {
+            "file": "crates/kanpo-pdf/src/bbox.rs",
+            "line": 259,
+            "end_line": 300,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-pdf/src/bbox.rs",
+            "sha256": "883db809fb339186f5fd1d2c439e0075caf576cbcda34c254c822c5ae0159772"
+          },
+          {
+            "file": "crates/kanpo-pdf/src/rules.rs",
+            "line": 108,
+            "end_line": 187,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-pdf/src/rules.rs",
+            "sha256": "03187d799f007724086d1437326fa24c7ee4bc2b08c18774d3e40ec47c5e7265"
+          }
+        ],
+        "observed_condition": "Tableの論理col位置の空欄を保持し、native Glyph advance/axis-aligned四隅/clip内の線を根拠にする。",
+        "explainable_evidence": "元列番号/rowspan/colspanをそのままrenderすること、実pathで閉枠を証明すること、AJ1文字と実出力一致を確認することは説明可能。",
+        "generality_gap": "native短線の長さ3pt/線幅0.75pt、閉枠最小50ptなどは抽出の数値許容/適用範囲。辞書/構造上の必要条件と分けて座標変形で校正する余地がある。",
+        "proposed_test_first": "論理先頭/内部/末尾空欄、結合cell、同開始col複数cell、翻訳/回転/scale、clipped/open/filled pathとglyph-size四角を負例。",
+        "general_rule_direction": "構造保存を共通rendererに維持し、geometry許容はlocal em/線幅から導く。候補抽出と意味確定は分離する。",
+        "executed": false
+      },
+      {
+        "id": "local-glyph-context-caps",
+        "classification": "source_dictionary_plus_empirical_context_gate",
+        "priority": "next",
+        "evidence": [
+          {
+            "file": "crates/kanpo-parser/src/blank_area_units.rs",
+            "line": 42,
+            "end_line": 54,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/blank_area_units.rs",
+            "sha256": "95a8fd379b4d0ca6d42fbffb1558a8ef765c662b7c60b21e480d8b9c63d8e619"
+          },
+          {
+            "file": "crates/kanpo-parser/src/blank_area_units.rs",
+            "line": 89,
+            "end_line": 119,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/blank_area_units.rs",
+            "sha256": "95a8fd379b4d0ca6d42fbffb1558a8ef765c662b7c60b21e480d8b9c63d8e619"
+          },
+          {
+            "file": "crates/kanpo-parser/src/composite_numbers.rs",
+            "line": 51,
+            "end_line": 72,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/composite_numbers.rs",
+            "sha256": "097b1d9b82d2e03b7997b2793ad31e65fa73d5c871d3479e4a5522af8fe20f28"
+          },
+          {
+            "file": "crates/kanpo-parser/src/chemical_line_end.rs",
+            "line": 8,
+            "end_line": 32,
+            "frozen_source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/chemical_line_end.rs",
+            "sha256": "38c79e61032fd7e038830fd15a40d29ea290b1827b99bd70590bcb9d191eb612"
+          }
+        ],
+        "observed_condition": "面積ラベルは英字8字以内/1Word、孤立括弧数字の隣語はCJK3字以上、L/D行末ハイフンの次行は先頭カナ2字などを要求。",
+        "explainable_evidence": "原㎡/括弧数字/E61C字形、一意なownerとnative隣接・同baseline/行継続は説明可能。L/Dは化学接頭辞という構文上の意味がある。",
+        "generality_gap": "8字/1Word/3字/カナ2字は元字の意味や一意な原字位置の必要条件ではない。狭い安全範囲として説明できるが、全文復元の一般則ではない。",
+        "proposed_test_first": "同じ元字/配置でラベル9字・2Words、隣語2/3字、化学語のWord分割・カナ1字+次Wordなど。別単位/別行/下線を負例に。",
+        "general_rule_direction": "原字辞書とID付き構文spanを分離し、最小原位置への一意な局所対応を主条件にする。文脈長は検証済み適用範囲として明示する。",
+        "executed": false
+      }
+    ],
+    "module_matrix": [
+      {
+        "path": "crates/kanpo-parser/src/area_units.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/area_units.rs",
+        "sha256": "85ec9fc9caa87213acb707c5f4cf50a7afe46a92729d524fcb4c4b7579ee6219",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "dictionary_local_insert",
+        "main_finding": "verified-cid-dictionaries"
+      },
+      {
+        "path": "crates/kanpo-parser/src/blank_area_units.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/blank_area_units.rs",
+        "sha256": "95a8fd379b4d0ca6d42fbffb1558a8ef765c662b7c60b21e480d8b9c63d8e619",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "dictionary_geometry_with_word_gate",
+        "main_finding": "verified-cid-dictionaries"
+      },
+      {
+        "path": "crates/kanpo-parser/src/cell_row_dashes.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/cell_row_dashes.rs",
+        "sha256": "2f01614cb315422228078757774f4399727c58495e626affd60d1dcc0cec2be7",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "dictionary_row_geometry_with_count_gates",
+        "main_finding": "dash-logical-row-counts"
+      },
+      {
+        "path": "crates/kanpo-parser/src/chemical_line_end.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/chemical_line_end.rs",
+        "sha256": "38c79e61032fd7e038830fd15a40d29ea290b1827b99bd70590bcb9d191eb612",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "dictionary_and_chemical_syntax_subset",
+        "main_finding": "verified-cid-dictionaries"
+      },
+      {
+        "path": "crates/kanpo-parser/src/circled_numbers.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/circled_numbers.rs",
+        "sha256": "ea58c40bdbb664e44aa3ff25c1ce9441ef1a288d061e0ba77839612b8e3bb25f",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "dictionary_geometry_unique_owner",
+        "main_finding": "verified-cid-dictionaries"
+      },
+      {
+        "path": "crates/kanpo-parser/src/composite_numbers.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/composite_numbers.rs",
+        "sha256": "097b1d9b82d2e03b7997b2793ad31e65fa73d5c871d3479e4a5522af8fe20f28",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "dictionary_pair_geometry_with_context_gate",
+        "main_finding": "verified-cid-dictionaries"
+      },
+      {
+        "path": "crates/kanpo-parser/src/coordinate_rows.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/coordinate_rows.rs",
+        "sha256": "0fa04e51fa53be8d4df8a56711569984fb89c122bc212b69e62c670d1c89b680",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "dictionary_geometry_tokenization_gate",
+        "main_finding": "coordinates-tokenization"
+      },
+      {
+        "path": "crates/kanpo-parser/src/coordinate_symbols.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/coordinate_symbols.rs",
+        "sha256": "284a3f359db7afab91d9ca3302fe759fd1ad559cf3064f5a50f40eb3cfc4a342",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "dictionary_DMS_grammar_tokenization_gate",
+        "main_finding": "coordinates-tokenization"
+      },
+      {
+        "path": "crates/kanpo-parser/src/facility_continuations.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/facility_continuations.rs",
+        "sha256": "610e5ad97f23465467a219e9f7dca2d9ccd8d7587600d3263f016cf0ff747862",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "exact_schema_fixed_layout",
+        "main_finding": "facility-fixed-shape"
+      },
+      {
+        "path": "crates/kanpo-parser/src/financial_enclosures.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/financial_enclosures.rs",
+        "sha256": "2ca8740726cadd29cacee91d0c63222b5ae95d80097001f5856e87eb7f969399",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "native_frame_identity_schema_extent",
+        "main_finding": "financial-frame-title-scope"
+      },
+      {
+        "path": "crates/kanpo-parser/src/financial_flow.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/financial_flow.rs",
+        "sha256": "25542fef77d59dbacb760c729586ae9ed4c3b2d34f8ac38cfa4dc31a8a567b3a",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "repeated_geometry_fixed_extent",
+        "main_finding": "financial-flow-shape"
+      },
+      {
+        "path": "crates/kanpo-parser/src/fractions.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/fractions.rs",
+        "sha256": "14f81b155047ceb32c403157d570acbe0d889bb3a8039415a5263956ede700a1",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "fraction_grammar_subset_geometry",
+        "main_finding": "fraction-expression-arity"
+      },
+      {
+        "path": "crates/kanpo-parser/src/framed_amount_rows.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/framed_amount_rows.rs",
+        "sha256": "401e682e8dc2b95bc7114995b6a56fb2758a00ec95291b9a0823006a5e52f29c",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "closed_frame_unique_baseline_lexicon_extent",
+        "main_finding": "financial-label-wrap"
+      },
+      {
+        "path": "crates/kanpo-parser/src/framed_band_continuations.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/framed_band_continuations.rs",
+        "sha256": "11153d3a84ffd1edd1aae60b94ecd701d8e9f028d9ef2405fc6f7b75462f958a",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "formal_role_native_frame_partition_gates",
+        "main_finding": "framed-continuation-partition"
+      },
+      {
+        "path": "crates/kanpo-parser/src/grid.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/grid.rs",
+        "sha256": "2d43c35a023c49b4692d6a9d5e7a6e556b3c0fcef11b46baa1207a34829afa3d",
+        "change": "modified",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "new_PageRules_fields_only",
+        "main_finding": "native-geometry-structural-rendering"
+      },
+      {
+        "path": "crates/kanpo-parser/src/headed_data_columns.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/headed_data_columns.rs",
+        "sha256": "00e907576242ef48a6d56dcd9d7f48235b93c1de8e903ec94599bac224a97a7f",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "repeated_header_geometry_support_thresholds",
+        "main_finding": "unruled-table-extent"
+      },
+      {
+        "path": "crates/kanpo-parser/src/headerless_four_bands.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/headerless_four_bands.rs",
+        "sha256": "b5a334e037133ce18bb646a05c7d91f029c7743b4c23274499c557ab641560a0",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "headerless_role_similarity_fixed_shape",
+        "main_finding": "headerless-role-evidence"
+      },
+      {
+        "path": "crates/kanpo-parser/src/horizontal.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/horizontal.rs",
+        "sha256": "8d4e62c35ebc9af6557376ddd0319c9fd82d6f1b353a3eaf18d42f80e585bff1",
+        "change": "modified",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "layout_core_added_hunks",
+        "main_finding": "financial-label-wrap"
+      },
+      {
+        "path": "crates/kanpo-parser/src/inline_quotes.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/inline_quotes.rs",
+        "sha256": "173611d0c314c5ba7adfadf9def7d182c04ba4577fe2bd048f9033efcda5f753",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "dictionary_local_insert_unique_owner",
+        "main_finding": "verified-cid-dictionaries"
+      },
+      {
+        "path": "crates/kanpo-parser/src/large_parentheses.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/large_parentheses.rs",
+        "sha256": "a0284e03cb23ff92951001ad9474f0b477506ac09e804d22447be6fb0f8fd7f8",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "dictionary_geometry_calendar_grammar",
+        "main_finding": "verified-cid-dictionaries"
+      },
+      {
+        "path": "crates/kanpo-parser/src/lib.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/lib.rs",
+        "sha256": "29b18ba5c95e87fec4f3da089febd605bd2e3a6355eda921266244b405744e9c",
+        "change": "modified",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "pipeline_hooks_and_Article_title_repair",
+        "main_finding": "article-title-length"
+      },
+      {
+        "path": "crates/kanpo-parser/src/micro_prefixes.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/micro_prefixes.rs",
+        "sha256": "0430a55657b8c5bc635ee43270ea65b5a4e0277c30b516af3fb92fa26e490021",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "dictionary_numeric_unit_context",
+        "main_finding": "verified-cid-dictionaries"
+      },
+      {
+        "path": "crates/kanpo-parser/src/native_triangle_cells.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/native_triangle_cells.rs",
+        "sha256": "5bcf8fa1e475331bf37be4aee025f019d269606f001720cbc53c714b29241ac1",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "native_advance_unique_amount_row_geometry",
+        "main_finding": "native-geometry-structural-rendering"
+      },
+      {
+        "path": "crates/kanpo-parser/src/nested_fraction_geometry.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/nested_fraction_geometry.rs",
+        "sha256": "20467eff6afd052a95fbb13b760d92e5371fa75d3a3a94a961d0b2a9787e37a0",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "native_bar_and_bracket_AST_subset",
+        "main_finding": "fraction-expression-arity"
+      },
+      {
+        "path": "crates/kanpo-parser/src/nested_fractions.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/nested_fractions.rs",
+        "sha256": "e6f88aa6bf9c73c4eb7e2e9a62ba70beac38e8cf3ed36f0c2ce1b5337bb0e1db",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "unique_owner_substring_adapter",
+        "main_finding": "fraction-expression-arity"
+      },
+      {
+        "path": "crates/kanpo-parser/src/normalize.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/normalize.rs",
+        "sha256": "54dad8c318f95d30ad46d87b141896d889ee3523e7b7549d9e4dd065ee31afe9",
+        "change": "modified",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "CID_and_character_dictionary",
+        "main_finding": "verified-cid-dictionaries"
+      },
+      {
+        "path": "crates/kanpo-parser/src/numeric_fraction_geometry.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/numeric_fraction_geometry.rs",
+        "sha256": "5b87a35a5c823ed50460463739d6f8b31a948324cac5708b893c64541e71fd77",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "numeric_fraction_AST_bounded_arity",
+        "main_finding": "fraction-expression-arity"
+      },
+      {
+        "path": "crates/kanpo-parser/src/numeric_fractions.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/numeric_fractions.rs",
+        "sha256": "7f4fc1d34db1f66c10eff17720d8c08194c1f69c93128f66fbdb3af5003b8f1d",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "unique_owner_substring_adapter",
+        "main_finding": "fraction-expression-arity"
+      },
+      {
+        "path": "crates/kanpo-parser/src/numeric_grid_orientation.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/numeric_grid_orientation.rs",
+        "sha256": "5503e37a7d49f4d7350c5cad8c8fb40f526e901310b3acd47c6c41ce9b43de4e",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "baseline_geometry_fixed_extent",
+        "main_finding": "numeric-grid-orientation-size"
+      },
+      {
+        "path": "crates/kanpo-parser/src/owned_dashes.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/owned_dashes.rs",
+        "sha256": "0fb5cbfb2d2d21b855fcc74dc461a58e3ff0ce334eb45be6c0a5e0d275c03b33",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "dictionary_amount_anchor_geometry",
+        "main_finding": "dash-logical-row-counts"
+      },
+      {
+        "path": "crates/kanpo-parser/src/paired_framed_continuations.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/paired_framed_continuations.rs",
+        "sha256": "8c4a0dbd186cc0f90843a647c83d79838781dea9741634b74be0b7dd426d56ee",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "formal_role_native_frame_partition_gates",
+        "main_finding": "framed-continuation-partition"
+      },
+      {
+        "path": "crates/kanpo-parser/src/parallel_fraction_geometry.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/parallel_fraction_geometry.rs",
+        "sha256": "dee1abb3868ca63672333aa70caffc6abafba18a2abc0f305e012bb605882d98",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "native_bar_fixed_grammar_arity",
+        "main_finding": "fraction-expression-arity"
+      },
+      {
+        "path": "crates/kanpo-parser/src/parallel_fractions.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/parallel_fractions.rs",
+        "sha256": "5f2bd4e2635069ede150e2ca75af0f5c451611d8d9c94d03409b121669f11c85",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "unique_owner_substring_adapter",
+        "main_finding": "fraction-expression-arity"
+      },
+      {
+        "path": "crates/kanpo-parser/src/quantity_tables.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/quantity_tables.rs",
+        "sha256": "ffb65b9a00c7b0c2781ed076bdd060b687bc052814289b548ba96011605adfb5",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "quantity_schema_fixed_count_and_width",
+        "main_finding": "quantity-count-width"
+      },
+      {
+        "path": "crates/kanpo-parser/src/quoted_inline_tables.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/quoted_inline_tables.rs",
+        "sha256": "4c0089f0fa3dba9109d2cb70797869e474e1fc160b38691ecf10938c0755b152",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "native_wrap_and_syntax_fixed_partition",
+        "main_finding": "quoted-unit-shape"
+      },
+      {
+        "path": "crates/kanpo-parser/src/range_endpoints.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/range_endpoints.rs",
+        "sha256": "e201bec3dc7394c29c5d3c18a2abe1a1c4508831d921ccaf545850590a3faf00",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "verified_CID_pair_range_grammar",
+        "main_finding": "verified-cid-dictionaries"
+      },
+      {
+        "path": "crates/kanpo-parser/src/record_suffix.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/record_suffix.rs",
+        "sha256": "43997ade6e3b8842daaf727494852e903333be2558b7831aa689de6ab72f1b3a",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "date_office_schema_geometry_extent",
+        "main_finding": "name-and-label-limits"
+      },
+      {
+        "path": "crates/kanpo-parser/src/reference_markers.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/reference_markers.rs",
+        "sha256": "b06a95fe2087407773c1aef85ed7c8681adb2ee7eb9ed39f435557acc14a4ce0",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "verified_dictionary_unique_owner",
+        "main_finding": "verified-cid-dictionaries"
+      },
+      {
+        "path": "crates/kanpo-parser/src/ruled_plain_dashes.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/ruled_plain_dashes.rs",
+        "sha256": "3b39b9833af9e529f71581e49a882ef738d62e7ef40ade37875a02f3b69da01b",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "dictionary_native_grid_fixed_extent",
+        "main_finding": "dash-logical-row-counts"
+      },
+      {
+        "path": "crates/kanpo-parser/src/shared_table_labels.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/shared_table_labels.rs",
+        "sha256": "a9a4afe53cf2d662239a1fe1219147cbd983747830aba23cee8fd0d00028a42b",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "native_shared_cell_with_length_gates",
+        "main_finding": "financial-label-wrap"
+      },
+      {
+        "path": "crates/kanpo-parser/src/shinkyu.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/shinkyu.rs",
+        "sha256": "66f86602fc7b9e41365f2b042aad727dc14dbc902b52c996c908c97780a2b5e4",
+        "change": "modified",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "formal_header_numeric_continuation_syntax",
+        "main_finding": "headerless-role-evidence"
+      },
+      {
+        "path": "crates/kanpo-parser/src/table.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/table.rs",
+        "sha256": "2ebcef0d19ba3e56dc5ce751ab63fe3bf5486c55b6e0fa91e8267b3561b92f45",
+        "change": "modified",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "test_only_field_initialization",
+        "main_finding": null
+      },
+      {
+        "path": "crates/kanpo-parser/src/table_dashes.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/table_dashes.rs",
+        "sha256": "97c2d1d7dc25eafac99495b0a87c813721dd0fe798084176037a845cdd9e9671",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "dictionary_row_numeric_anchor_geometry",
+        "main_finding": "dash-logical-row-counts"
+      },
+      {
+        "path": "crates/kanpo-parser/src/trace.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/trace.rs",
+        "sha256": "1f21f7f40ed424d32aa2cc33052ae26ec0fd2dd0f01bbba63ec211481eb6e3aa",
+        "change": "modified",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "structural_col_position_renderer",
+        "main_finding": "native-geometry-structural-rendering"
+      },
+      {
+        "path": "crates/kanpo-parser/src/trailing_code_tables.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/trailing_code_tables.rs",
+        "sha256": "e59b3e0e3e86b5547db1cecd1bc4550bb50e798f2f9720c3ec8d9584c53e25ce",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "code_schema_geometry_fixed_extent",
+        "main_finding": "unruled-table-extent"
+      },
+      {
+        "path": "crates/kanpo-parser/src/unruled_records.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/unruled_records.rs",
+        "sha256": "f905f325ecbfe3eae8e7c7461a1b627708aab5c4f8850808a84547d6b1eaa75b",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "repeated_schema_geometry_fixed_extent",
+        "main_finding": "unruled-table-extent"
+      },
+      {
+        "path": "crates/kanpo-parser/src/unruled_road.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/unruled_road.rs",
+        "sha256": "8b6e1880ca914490eb976c3fc852760eb485d90c2f4a65002c262d1f911fa70b",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "road_schema_geometry_fixed_word_count",
+        "main_finding": "road-headers-word-count"
+      },
+      {
+        "path": "crates/kanpo-parser/src/vertical.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/vertical.rs",
+        "sha256": "47eaad51d8d6cbe5f30508b76135160bdc61b89ace69dd5cf396afa28a964302",
+        "change": "modified",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "layout_core_added_hunks",
+        "main_finding": "tier-prose-lengths"
+      },
+      {
+        "path": "crates/kanpo-parser/src/wrapped_notice_titles.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-parser/src/wrapped_notice_titles.rs",
+        "sha256": "ee1316e253e58d73efa0100366a36244b02794561da9a67286e3ceae00e393fe",
+        "change": "new",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "title_syntax_geometry_fixed_length",
+        "main_finding": "article-title-length"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/bbox.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-pdf/src/bbox.rs",
+        "sha256": "883db809fb339186f5fd1d2c439e0075caf576cbcda34c254c822c5ae0159772",
+        "change": "modified",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "native_bbox_advance_and_AJ1_provenance",
+        "main_finding": "native-geometry-structural-rendering"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/font.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-pdf/src/font.rs",
+        "sha256": "63cc274c069379b526f42b652453458a3b0aa2a3a0253f0b9f748adf1bb7ea52",
+        "change": "modified",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "AJ1_dictionary_visibility_only",
+        "main_finding": "native-geometry-structural-rendering"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/lib.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-pdf/src/lib.rs",
+        "sha256": "702cf11321cc9ff9ff3be51d5ea28a62c523035cc5284683b74c5e30754734b1",
+        "change": "modified",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "test_module_declaration_only",
+        "main_finding": null
+      },
+      {
+        "path": "crates/kanpo-pdf/src/rules.rs",
+        "source": ".cache/kanpo-227/combined-quoted-aj1-rebase49/candidate109/crates/kanpo-pdf/src/rules.rs",
+        "sha256": "03187d799f007724086d1437326fa24c7ee4bc2b08c18774d3e40ec47c5e7265",
+        "change": "modified",
+        "review_mode": "production predicates/entry points/mutation guards; core files use added-hunk context; test-only literals excluded",
+        "classification": "native_path_primitive_with_extent_tolerances",
+        "main_finding": "native-geometry-structural-rendering"
+      }
+    ],
+    "cross_cutting_test_first": [
+      "Keep literal actual-PDF regression tests as observed counterexamples, but add invariance tests derived from the intended source rule before changing a guard.",
+      "Preserve the physical source graph while splitting/merging Words and changing irrelevant Unit/Line partitions; compare source-ID mapping rather than fixed strings alone.",
+      "Vary record/field counts and label/title lengths across the current boundary, with arbitrary unseen names/amounts and exact expected bindings generated from source geometry.",
+      "Translate/scale/rotate valid native geometry with expected corresponding ID transforms; include near-overlap, clipped/open/filled rules, multiple plausible owners and separate adjacent articles as abstain negatives.",
+      "Run current11992 wholeAnalysis invariants and inspect every changed original; preserve old literal/regression results and distinguish previously known defects from new regressions."
+    ],
+    "limitations": [
+      "Static inspection only; no metamorphic test, parser run, new codegen, new company render, CFF re-scan, training or inference was performed.",
+      "Module matrix records predicate/changed-hunk coverage, not a claim of line-by-line semantic verification of all old parser code.",
+      "Unadopted company prototypes and frozen initial audit grades were not changed or treated as accepted production."
+    ]
+  },
+  "broader_status": "Quoted shape gates replaced. Facility generalization is cache-only and not adopted; other empirical applicability limits remain review work. No blanket claim that the entire parser has no ad hoc assumptions.",
+  "model_opt_in": {
+    "user_permitted": true,
+    "default_model_behavior_changed": false,
+    "model_download_training_inference_performed": false,
+    "RURI_utility_not_established": true,
+    "ModernBERT_utility_not_established": true,
+    "evaluation_plan": {
+      "schema_version": 1,
+      "status": "proposal_only_no_model_facts_or_accuracy_claims_verified_externally",
+      "local_evidence": [
+        {
+          "file": "crates/kanpo-lm/README.md",
+          "lines": [
+            3,
+            9,
+            19,
+            25,
+            39,
+            54
+          ],
+          "finding": "standalone line-text postprocess; local historical results concern corrupted text, not current Article/newold/rowspan correctness; README already documents a wrong financial-table permutation preference."
+        },
+        {
+          "file": "crates/kanpo-lm/src/lib.rs",
+          "lines": [
+            37,
+            74,
+            141,
+            153,
+            219
+          ],
+          "finding": "Options has segments=false, min_gain25, repair_gain15, max_pieces5; API returns strings/byte ranges, not Word IDs or Article/Document structures."
+        },
+        {
+          "file": "crates/kanpo-lm/src/tagger.rs",
+          "lines": [
+            33,
+            42,
+            49,
+            66,
+            86,
+            113
+          ],
+          "finding": "CPU local-file model loader; tag() slices token IDs to max_tokens512. Tail has no Break scores and line max can become0. Track exact scored-byte coverage; do not interpret unscored text as clean."
+        },
+        {
+          "file": "crates/kanpo-lm/src/candidates.rs",
+          "lines": [
+            15,
+            39,
+            97,
+            115,
+            133,
+            175
+          ],
+          "finding": "bounded string permutations/unit moves; non-whitespace character preservation is weaker than exact original-ID/DocToken/LF/ASCII/U3000 preservation."
+        },
+        {
+          "file": "crates/kanpo-lm/train/gen_data.py",
+          "lines": [
+            219,
+            247
+          ],
+          "finding": "law/page group split and explicit optional --exclude exist; adjacent pages of one announcement and near duplicates are not explicitly grouped."
+        },
+        {
+          "file": "crates/kanpo-lm/train/train.py",
+          "lines": [
+            32,
+            33,
+            144,
+            148
+          ],
+          "finding": "512-token truncation; dev tokenAP selects the checkpoint. dev-derived repair evaluation is not an untouched final test."
+        },
+        {
+          "file": "crates/kanpo-lm/train/make_repair_eval.py",
+          "lines": [
+            20,
+            44,
+            48,
+            78
+          ],
+          "finding": "synthetic one-line corruption/clean exact-string metrics; no Article group/newold-role/cell-span metric."
+        }
+      ],
+      "availability": {
+        "checked_only": [
+          {
+            "path": "/Users/bokuweb/.cache/kanpo-lm/modernbert-ja-30m",
+            "exists": false
+          },
+          {
+            "path": "/Users/bokuweb/.cache/kanpo-lm/breaks-30m",
+            "exists": false
+          }
+        ],
+        "model_load_or_download": false,
+        "ruri_integration_found_in_inspected_kanpo_lm_and_parser": false,
+        "policy": "Explicit opt-in and explicit local model path/revision/hash; missing model returns a clear unavailable result. Default parser output remains byte-identical. Do not silently fetch/fallback/relabel unscored pages."
+      },
+      "useful_experiments_not_proven_capability": [
+        {
+          "task": "Article boundary / related-company groups",
+          "method": "Geometry generates original-ID-bound candidate cuts/groups; score text continuity and title/body/name references only to rank them. Keep ambiguous cases unchanged. Existing independent-company/BS+PL/reduction+left-financial actuals are development/guard cases, not final unseen evaluation."
+        },
+        {
+          "task": "newold roles and continuation",
+          "method": "Native/formal headers and source geometry determine permissible roles and article scope. Optional semantic score ranks continuations within those constraints; it must not invent after/before from similar wording alone."
+        },
+        {
+          "task": "body interruption and label wrapping",
+          "method": "Rank physically permissible ID-preserving permutations; use a suspiciousness score first for human-review ordering. Never choose a financially plausible amount grouping solely from language likelihood."
+        },
+        {
+          "task": "RURI",
+          "method": "No local implementation or evidence of task benefit found. If investigated later, treat as a separate opt-in candidate-ranking/relatedness hypothesis against the same frozen gold and no-model baseline; do not assume embeddings establish reading direction, role or company identity."
+        }
+      ],
+      "minimal_evaluation": {
+        "before_any_run": "Freeze parent/source hashes, original PDF hashes, model/config/tokenizer hashes, revision, runtime/device, candidate generator and thresholds. Model-less structured candidate tests run first.",
+        "split": "Development uses already reviewed defects and clean/ambiguous negatives. Before threshold selection, freeze an untouched source-PDF test split grouped by announcement/document across adjacent pages and duplicate templates; exclude training/dev source IDs/content overlaps. Do not reuse dev or already read company1286 pages as new unseen evidence.",
+        "arms": [
+          "geometry/syntax only",
+          "same candidates + existing local ModernBERT scorer/tagger",
+          "optional separately implemented RURI scorer; only if model is deliberately supplied"
+        ],
+        "gold": "Read whole original, whole body, all Articles/Document/Tables/Runs; label exact original-ID cuts/groups, related pairs/continuations, newold role/scope and correct cells. Fix strict/body initial grades before showing model suggestions.",
+        "metrics": [
+          "boundary precision/recall plus whole-page exact Article grouping",
+          "related-pair/continuation preservation and false split/merge count",
+          "newold role/scope exact and abstention/coverage",
+          "table row/col/rowspan and amount/sign/name exact",
+          "strict/body ok-minor-major separately; partial improvement distinct from full success",
+          "all old ID/raw/bbox/status, Page/body and DocToken/LF/ASCII/U3000 exact for boundary-only changes; glyph additions require separate native proof"
+        ],
+        "runtime": "Measure cold model load plus warm per-page p50/p95/worst latency, peak RSS, token/byte scored coverage, candidate/inference counts and CPU threads on a fixed machine. Stop or abstain on time/token budgets, do not treat skipped text as correct.",
+        "acceptance": "Keep default unchanged. For optional automatic adoption require zero proven new strict-major/cell/value/owner regressions in frozen tests and changed-original review, with exact preservation gates; report uncertainty/sample size and abstentions instead of claiming100%. First phase can be suggestions-only.",
+        "full_regression": "After the model/generator/threshold are frozen, all11992 mechanically verify preservation and identity of untouched outputs; every changed original is reviewed with whole text/Articles/Doc. No inference attempted in this audit."
+      },
+      "local_source_sha256": [
+        {
+          "path": "crates/kanpo-lm/Cargo.toml",
+          "sha256": "1c496ce02613a83e7e1b21ee20cc29f21cdece13b881ba22fd2c33b4900ba4df"
+        },
+        {
+          "path": "crates/kanpo-lm/README.md",
+          "sha256": "cf6a298c495b9cdfee628c713c69233b3623809da4c202ff2b9ff0a653478028"
+        },
+        {
+          "path": "crates/kanpo-lm/examples/breaks.rs",
+          "sha256": "8e41a8407aad092a1c26f50d9e852746643837c1ef6c5cff6294f19a944c61f5"
+        },
+        {
+          "path": "crates/kanpo-lm/examples/check.rs",
+          "sha256": "aaf0dba000a91b4029dcd28358350fd10f1927264a4ac4f86d51ae9d2a24153e"
+        },
+        {
+          "path": "crates/kanpo-lm/src/candidates.rs",
+          "sha256": "93c89d85551c8e86ae3dcd007c5232b7e033859daeef5ccf8895af8f3c622171"
+        },
+        {
+          "path": "crates/kanpo-lm/src/lib.rs",
+          "sha256": "d1983f8046603edc110a71cd4b9dd99e89d03d35ede2ceca6bbff0c84567b7a1"
+        },
+        {
+          "path": "crates/kanpo-lm/src/mlm.rs",
+          "sha256": "a0679f589775a50f869f9bbe366b35c72f70de34ec466ce8f17fb3c4ee858f3b"
+        },
+        {
+          "path": "crates/kanpo-lm/src/tagger.rs",
+          "sha256": "f723c2363ec42e8a5313c00e375df8865d2f9b35c9c70f0dd2a67755f6454f77"
+        },
+        {
+          "path": "crates/kanpo-lm/train/README.md",
+          "sha256": "f5384ab93935139fa45c5da4a889701ad01f4f6d3a5d8b6072d99d35133c584c"
+        },
+        {
+          "path": "crates/kanpo-lm/train/extract_laws.py",
+          "sha256": "897b0fdc00f4ff0916c49f35e03b77c1a3f977c5f9a737b727f47a37c20c65df"
+        },
+        {
+          "path": "crates/kanpo-lm/train/gen_data.py",
+          "sha256": "79d069a9aba49fab9a909ccb6538b230114cb011313f8399aaeb2e64375c943b"
+        },
+        {
+          "path": "crates/kanpo-lm/train/make_repair_eval.py",
+          "sha256": "469af4940aec7f29e3f6cf0631142cc3f99ab10e04684e2eaaa19b70fb072bd8"
+        },
+        {
+          "path": "crates/kanpo-lm/train/train.py",
+          "sha256": "26a254470c5d100bf12cd38e68435d704c0be5e212cdf73f4299e088aaf56127"
+        }
+      ]
+    }
+  }
+}

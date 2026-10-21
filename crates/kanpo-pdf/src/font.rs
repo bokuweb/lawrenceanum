@@ -11,7 +11,7 @@ use crate::object::{Dict, Object};
 /// Adobe-Japan1 の CID → Unicode（`data/aj1-unicode.bin`、`examples/gen_aj1.rs` で生成）。
 static AJ1_BYTES: &[u8] = include_bytes!("../data/aj1-unicode.bin");
 
-fn aj1(cid: u32) -> Option<char> {
+pub(crate) fn aj1(cid: u32) -> Option<char> {
     static TABLE: OnceLock<Vec<u32>> = OnceLock::new();
     let t = TABLE.get_or_init(|| {
         AJ1_BYTES

@@ -769,6 +769,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         if !sideways && !rotated { crate::framed_band_continuations::restore(&mut units, &words, page_rules, width, height); }
         if !sideways && !rotated { crate::paired_framed_continuations::restore(&mut units, &words, page_rules, width, height); }
         if !sideways && !rotated { crate::headerless_four_bands::restore(&mut units, &words, page_rules, width); }
+        if !sideways && !rotated { crate::quoted_inline_tables::restore(&mut units, &words, page_rules); }
         let text = units
             .iter()
             .map(Unit::text)
@@ -2173,6 +2174,7 @@ fn page_words_traced(
     let line_sel = Selector::parse("line").unwrap();
     // (x0, y0, x1, y1, raw)
     let mut raws: Vec<(f32, f32, f32, f32, String)> = Vec::new();
+    let mut resolved_aj1 = Vec::new();
     let mut native_vertical: std::collections::HashMap<[u32; 4], Vec<(String, [f32; 4])>> = Default::default();
     let mut native_horizontal_chars = 0usize;
     let mut horizontal_font_chars = 0usize;
@@ -2198,6 +2200,7 @@ fn page_words_traced(
                 }
             }
             raws.push((x, y, x1, y1, text));
+            resolved_aj1.push(v.attr("data-unicode-aj1") == Some("1"));
         }
     };
     if page.select(&line_sel).next().is_some() {
@@ -2215,13 +2218,17 @@ fn page_words_traced(
     // 語は座標の正規の順（x 降順・y 昇順）に並べ替えてから使う。`<word>` の並びは抽出器によって
     // 違い（poppler は段組みの解析順、kanpo-pdf はコンテンツストリームの順）、以降の処理の
     // 同点の扱いなどに入力順が出ないようにする。
-    raws.sort_by(|a, b| {
+    // Keep provenance attached to its own source occurrence, including exact
+    // bbox/text ties with a word from another extractor or font.
+    let mut sources: Vec<_> = raws.into_iter().zip(resolved_aj1).collect();
+    sources.sort_by(|(a, _), (b, _)| {
         b.0.total_cmp(&a.0)
             .then(a.1.total_cmp(&b.1))
             .then(b.2.total_cmp(&a.2))
             .then(a.3.total_cmp(&b.3))
             .then_with(|| a.4.cmp(&b.4))
     });
+    let (mut raws, resolved_aj1): (Vec<_>, Vec<_>) = sources.into_iter().unzip();
     // 縦書きのページが /Rotate で横倒しに表示されている（座標上は縦の列が横の行に見える）
     // なら、復元に使う座標を 90° 回して縦書きに戻す。語の表示用の座標（`Word`）は
     // PDF の表示と重なるよう元のまま残す。
@@ -2324,7 +2331,12 @@ fn page_words_traced(
         })
         .collect();
     let composed_numbers = crate::composite_numbers::overlaid_private_numbers(&raws);
-    let glyphs: Vec<Option<CidGlyph>> = raws.iter().map(|(x, y, x1, y1, raw)| private_cid_glyph(raw, x1 - x, y1 - y)).collect();
+    // The PDF bridge has proved these characters against actual AJ1 CID
+    // mappings. Only the legacy untagged-CID guess is bypassed; word_text
+    // still handles punctuation/PUA and tagged Identity glyphs normally.
+    let glyphs: Vec<Option<CidGlyph>> = raws.iter().zip(&resolved_aj1).map(|((x, y, x1, y1, raw), resolved)| {
+        if *resolved { None } else { private_cid_glyph(raw, x1 - x, y1 - y) }
+    }).collect();
     // 紛れのない私用 CID 記号が出ている系統。常用漢字と同じ符号はこの系統があるページで、
     // しかも前後の語と間を空けずに続く（「（イ）及び（ロ）に掲げる」）ときだけ写像する。
     let families: std::collections::HashSet<u8> =
@@ -6020,3 +6032,7 @@ mod shorthand_tier_tests;
 #[cfg(test)]
 #[path = "triangle_sign_tests.rs"]
 mod triangle_sign_tests;
+
+#[cfg(test)]
+#[path="aj1_provenance_parser_tests.rs"]
+mod aj1_provenance_parser_tests;
