@@ -1130,3 +1130,29 @@ native Page/Glyph/Font/Pathとf64ビット、元Wordの文字/座標/Glyph IDs�
 [`tests/audits/issue227-thirty-third-batch-provenance.json`](tests/audits/issue227-thirty-third-batch-provenance.json)、
 [`tests/audits/issue227-thirty-third-batch-reviews.json`](tests/audits/issue227-thirty-third-batch-reviews.json)、
 [`tests/audits/issue227-validation-33.json`](tests/audits/issue227-validation-33.json)に保存した。
+
+第 34 次修正では、縦組みの継続レコードの職名欄から、2〜24文字・ASCII/全角数字禁止という制限を外した。
+欄内容は空白でない文字列として扱い、既存の「。、〇○」による区切りの拒否は保つ。日付構文・元ID一意性・列軸・前段の支持・最後の帯・罫線・呼出元の見出し条件は変更しない。
+特定の姓名・役職・会社名をproductionで照合せず、1字/25字/数字入り/Latinの例はテスト入力だけに置く。空白だけのCRLFが旧条件を通る内部入力も、陰性テストで拒否する。
+これはprivate関数の欄内容の契約を整理する修正で、実PDFの空白職名による誤りや、一般的な欄所有の完全証明を得たとは主張しない。
+
+既存14テストのprefixをbyte単位で保持し、9関数を追加した。同じ職名欄23テストは旧57で18成功/5失敗から候補23成功となり、rootも全988単体を無フィルタで旧983成功/5失敗→候補988成功と再現した。既存実PDF3関数も成功した。
+全4クレート1,659テスト、108統合対象・4ライブラリ・4doc-test・全4examplesを含む117コマンドが終了0。パーサ988件、PDF117件を含む。
+独立候補と最終release58で全11,992原本を再解析し、直前57に対して変更0・全解析完全一致、本番textdumpの全本文bytesも一致した。
+PDF23ソース・全include資産が不変で、release58のPDF rlib/rmetaも57とbyte一致する。全native値/座標bit/元Word/152頁242Glyph証拠は同一producerから継承し、新たな全頁native probeを実行したとは数えない。
+既存778snapshotは親57と一致、新規/更新0。累計2,957変更頁・文字変化1,373頁を保ち、13検査値と監査144の初回評点も完全一致から継承する。官報の品質改善件数は今回0である。
+
+一般性監査は旧56の実private型を使い、既存979成功を保って追加18関数中14失敗/4成功を記録し、rootの独立無フィルタ997実行でも再現した。
+これはCol入力での文字置換・平行移動・拡大縮小の性質の検査であり、実PDF14件の欠陥とは数えない。今回取り込んだ職名欄以外の失敗を、後から修復済みへ書き換えない。
+別途、既存正例2PDFの元全bytes・content参照・Resources・埋込みFontを保つincremental updateで0.5/1/2倍の6対照を作った。
+原本を含む8公開API入力で元Glyphの文字/CID/Font/flags/show・全変換座標f64bitsとnative Word分割を保持し、scale1の全解析と観測hook版8件は通常57と一致した。
+元Glyphを保っても0.5/2倍では共通Used Glyphの出力順が変わる。proseの原/halfを同じ画素寸法で描くとPNG bytesまで一致し、rootも両全体画像を確認した。
+半縮尺は先にMarginへ文字が落ち、recordは見出し組み立て等が変わりsuffix関数へ到達しない。出力差全部をem上限や職名文字数だけへ帰属させず、今回の職名修正で尺度依存を解決したとは扱わない。
+
+固定2,930PDFの追加メタデータ診断では、StructTreeRoot・MarkInfo・page StructParentsは各0だった。MarkInfo不在をMarked=falseとせず、本文stream未走査なのでActualText不存在も主張しない。
+既存proseの日本語/文字数制限、固定pt・欄外判定・見出しのscope、罫線可視性/grid・未確認会社865頁等を残件へ保持する。
+RURI/ModernBERTのopt-in許可を保持し、今回モデル取得/学習/推論や既定featureの変更は行っていない。全体100%は未達で、改善を続ける。
+証拠は[`tests/audits/issue227-generality-audit-34.json`](tests/audits/issue227-generality-audit-34.json)、
+[`tests/audits/issue227-thirty-fourth-batch-provenance.json`](tests/audits/issue227-thirty-fourth-batch-provenance.json)、
+[`tests/audits/issue227-thirty-fourth-batch-reviews.json`](tests/audits/issue227-thirty-fourth-batch-reviews.json)、
+[`tests/audits/issue227-validation-34.json`](tests/audits/issue227-validation-34.json)に保存した。

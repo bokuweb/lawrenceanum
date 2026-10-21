@@ -113,11 +113,7 @@ pub(crate) fn infer_stacked_suffix(
             return None;
         }
         let office: String = cs[..m].iter().map(|c| c.text.as_str()).collect();
-        if !(2..=24).contains(&office.chars().count())
-            || office
-                .chars()
-                .any(|c| c.is_ascii_digit() || ('０'..='９').contains(&c) || "。、〇○".contains(c))
-        {
+        if office.trim().is_empty() || office.chars().any(|c| "。、〇○".contains(c)) {
             return None;
         }
         let dt: String = cs[m + 1..].iter().map(|c| c.text.trim()).collect();

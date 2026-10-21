@@ -144,3 +144,105 @@ fn duplicate_source_ids_are_rejected() {
     b[3][1].id = b[3][0].id;
     assert!(infer_stacked_suffix(&b, 3, &[]).is_none());
 }
+
+fn generality_office(t: &str) -> Vec<Vec<Col>> {
+    let mut b = fixture();
+    for c in &mut b[3] {
+        if c.text == "衆議院議員" {
+            c.text = t.into();
+        }
+    }
+    b
+}
+#[test]
+fn generality_office_latin_is_already_supported_control() {
+    assert_eq!(
+        infer_stacked_suffix(&generality_office("OfficeAlpha"), 3, &[]),
+        infer_stacked_suffix(&fixture(), 3, &[])
+    );
+}
+#[test]
+fn generality_office_short_payload_same_source_geometry() {
+    assert_eq!(
+        infer_stacked_suffix(&generality_office("部"), 3, &[]),
+        infer_stacked_suffix(&fixture(), 3, &[])
+    );
+}
+#[test]
+fn generality_office_long_payload_same_source_geometry() {
+    assert_eq!(
+        infer_stacked_suffix(&generality_office(&"部".repeat(25)), 3, &[]),
+        infer_stacked_suffix(&fixture(), 3, &[])
+    );
+}
+#[test]
+fn generality_office_numeric_mixed_payload_same_source_geometry() {
+    assert_eq!(
+        infer_stacked_suffix(&generality_office("第2部"), 3, &[]),
+        infer_stacked_suffix(&fixture(), 3, &[])
+    );
+}
+
+// Opaque office payload regressions. Coordinates/IDs/date/markers stay fixed.
+#[test]
+fn opaque_office_fullwidth_digits_preserve_the_same_field() {
+    assert_eq!(
+        infer_stacked_suffix(&generality_office("第２部"), 3, &[]),
+        infer_stacked_suffix(&fixture(), 3, &[])
+    );
+}
+#[test]
+fn opaque_office_empty_payload_is_rejected() {
+    assert!(infer_stacked_suffix(&generality_office(""), 3, &[]).is_none());
+}
+#[test]
+fn opaque_office_whitespace_only_payload_is_rejected() {
+    for text in [" ", "　", "\t", "\r\n", "\u{2003}", "　 \t"] {
+        assert!(
+            infer_stacked_suffix(&generality_office(text), 3, &[]).is_none(),
+            "blank payload {:?}",
+            text
+        );
+    }
+}
+#[test]
+fn opaque_office_sentence_delimiters_and_embedded_markers_are_rejected() {
+    for text in [
+        "部署。",
+        "部署、",
+        "部〇署",
+        "部○署",
+        "第2部。",
+        "Office,。",
+    ] {
+        assert!(
+            infer_stacked_suffix(&generality_office(text), 3, &[]).is_none(),
+            "structural punctuation {:?}",
+            text
+        );
+    }
+}
+#[test]
+fn opaque_office_payload_does_not_relax_the_date_syntax() {
+    for text in [
+        "本文です",
+        "八、二",
+        "八、、二",
+        "abc、def、ghi",
+        "八、二、一六。",
+    ] {
+        let mut bands = generality_office("OfficeAlpha");
+        for col in &mut bands[3] {
+            if col.text == "八、" {
+                col.text = text.into();
+            } else if col.text == "二、一六" {
+                col.text.clear();
+            }
+        }
+        assert!(
+            infer_stacked_suffix(&bands, 3, &[]).is_none(),
+            "non-date {:?}",
+            text
+        );
+    }
+}
