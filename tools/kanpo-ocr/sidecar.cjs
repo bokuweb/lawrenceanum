@@ -24,7 +24,7 @@ function writeAtomicJson(filename,value,io=fs) {
 function recordFailure(output,error,writer=writeAtomicJson) {
   const filename=path.join(output,'terminal.json');
   if (!fs.existsSync(filename)) {
-    try {writer(filename,{status:'failed',error:String(error),stack:error?.stack,code:error?.code,partial_output:error?.partial_output,recognition_retry:false,canonical_integration:false});}
+    try {writer(filename,{status:'failed',error:String(error),stack:error?.stack,code:error?.code,partial_output:error?.partial_output,cleanup_recording_error:error?.cleanup_recording_error,recognition_retry:false,canonical_integration:false});}
     catch (recordingError) {if (error && typeof error==='object') {try {error.recording_error=String(recordingError);} catch {}}}
   }
   return error;
@@ -88,11 +88,17 @@ function sidecar(result,source,frame) {
 }
 async function recognizeBuffers(createWorker,image,model,dpi,onEvent) {
   let worker;
+  let recognitionFailed=false,recognitionError;
+  let cleanupDiagnosticFailed=false,cleanupDiagnosticError;
+  const reportCleanup=event=>{
+    try {onEvent(event);}
+    catch (error) {if (!cleanupDiagnosticFailed) {cleanupDiagnosticFailed=true;cleanupDiagnosticError=error;}}
+  };
   const imageSnapshot=Buffer.from(image);
   const modelDirectory=fs.mkdtempSync(path.join(os.tmpdir(),'kanpo-ocr-model-'));
   const cleanupModel=()=>{
     try { fs.rmSync(modelDirectory,{recursive:true,force:true}); }
-    catch (error) { onEvent({status:'model_cleanup_error',path:modelDirectory,error:String(error)}); }
+    catch (error) { reportCleanup({status:'model_cleanup_error',path:modelDirectory,error:String(error)}); }
   };
   process.once('exit',cleanupModel);
   try {
@@ -104,13 +110,19 @@ async function recognizeBuffers(createWorker,image,model,dpi,onEvent) {
     });
     await worker.setParameters({tessedit_pageseg_mode:'3',user_defined_dpi:String(dpi)});
     return await worker.recognize(imageSnapshot,{rotateAuto:false,rotateRadians:0},{text:true,blocks:true});
-  } finally {
+  } catch (error) {recognitionFailed=true;recognitionError=error;throw error;}
+  finally {
     if (worker) {
       try { await worker.terminate(); }
-      catch (error) { onEvent({status:'terminate_error',error:String(error)}); }
+      catch (error) { reportCleanup({status:'terminate_error',error:String(error)}); }
     }
     process.removeListener('exit',cleanupModel);
     cleanupModel();
+    if (cleanupDiagnosticFailed) {
+      if (recognitionFailed) {
+        if (recognitionError && typeof recognitionError==='object') {try {recognitionError.cleanup_recording_error=String(cleanupDiagnosticError);} catch {}}
+      } else {throw cleanupDiagnosticError;}
+    }
   }
 }
 async function run(options) {

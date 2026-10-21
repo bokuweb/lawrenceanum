@@ -141,3 +141,35 @@ test('non-Error engine rejections survive a second journal failure',()=>{
   try {for(const error of ['engine rejected',null])assert.equal(recordFailure(d,error,()=>{throw new Error('journal failed');}),error);}
   finally {fs.rmSync(d,{recursive:true,force:true});}
 });
+
+for (const primary of [new Error('primary recognition failure'),null]) {
+  test(`recognizer rejection ${primary===null?'null':'Error'} survives cleanup observer failure and model snapshot is removed`,async()=>{
+    let directory;
+    const diagnostic=new Error('diagnostic append failed');
+    const create=async(_language,_oem,options)=>{
+      directory=options.langPath;
+      return {setParameters:async()=>{},recognize:async()=>{throw primary;},terminate:async()=>{throw new Error('terminate failed');}};
+    };
+    let caught=false,observed;
+    try {await recognizeBuffers(create,Buffer.from('image'),Buffer.from('model'),144,()=>{throw diagnostic;});}
+    catch(error) {caught=true;observed=error;}
+    // Cleanup assertions run even on the old error-identity failure.
+    const cleaned=!fs.existsSync(directory);
+    if (!cleaned) fs.rmSync(directory,{recursive:true,force:true});
+    assert.equal(caught,true);assert.equal(observed,primary);assert.equal(cleaned,true);
+  });
+}
+test('a sole cleanup diagnostic failure is reported after removing the model snapshot',async()=>{
+  let directory;
+  const diagnostic=new Error('diagnostic append failed');
+  const create=async(_language,_oem,options)=>{
+    directory=options.langPath;
+    return {setParameters:async()=>{},recognize:async()=>({data:{text:'unchanged'}}),terminate:async()=>{throw new Error('terminate failed');}};
+  };
+  let observed;
+  try {await recognizeBuffers(create,Buffer.from('image'),Buffer.from('model'),144,()=>{throw diagnostic;});}
+  catch(error) {observed=error;}
+  const cleaned=!fs.existsSync(directory);
+  if (!cleaned) fs.rmSync(directory,{recursive:true,force:true});
+  assert.equal(observed,diagnostic);assert.equal(cleaned,true);
+});

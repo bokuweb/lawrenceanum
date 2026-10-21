@@ -2,14 +2,14 @@
   "issue": 227,
   "batch": 40,
   "source": 63,
-  "tool_revision": 1,
+  "tool_revision": 2,
   "parent_commit": "a29a13f7d25294706130d58946f6ee5ee7a30b05",
   "goal_complete": false,
   "canonical_quality_improvement_pages": 0,
   "cumulative_changed_pages": 2957,
   "cumulative_character_changed_pages": 1373,
   "new_CLI_contract_tests": {
-    "passed": 28,
+    "passed": 31,
     "failed": 0,
     "models_used": false,
     "CI_command": "node --test tools/kanpo-ocr/sidecar.test.cjs"
@@ -25,7 +25,8 @@
     "words": 7581,
     "invalid_boxes": 0,
     "existing_output_rejected_without_mutation_or_new_OCR": true,
-    "wholepage_accuracy_unproven": true
+    "wholepage_accuracy_unproven": true,
+    "authority": ".cache/kanpo-227/node-sidecar40-real4-tool2/results.json"
   },
   "native_source120_live_and_parent_Gitblob_exact": true,
   "assets1127_exact": true,
@@ -40,5 +41,13 @@
     "audit144_initial55_grades_inherited_not_new_scoring": true
   },
   "held_private1062_and16_parser_executions_not_counted_as_default_or_quality_gain": true,
-  "CI": "pending_push_of_batch40_commit; expected playground/test/rust-ci/ocr-contract"
+  "CI": "pending_push_of_batch40_commit; expected playground/test/rust-ci/ocr-contract",
+  "tool_parent_commit": "524b59b4b941a15b947a098d91ab7e5dcdaac1b7",
+  "same31_before_cleanup_fix": {
+    "passed": 28,
+    "failed": 3,
+    "old_source_commit": "524b59b4b941a15b947a098d91ab7e5dcdaac1b7"
+  },
+  "prior_independent5_unchanged_root_rerun_pass": true,
+  "new_independent_review_of_all31_not_run": true
 }

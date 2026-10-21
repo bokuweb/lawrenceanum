@@ -2,7 +2,7 @@
   "issue": 227,
   "batch": 40,
   "source": 63,
-  "tool_revision": 1,
+  "tool_revision": 2,
   "parent_commit": "a29a13f7d25294706130d58946f6ee5ee7a30b05",
   "goal_complete": false,
   "canonical_quality_improvement_pages": 0,
@@ -153,6 +153,61 @@
       "path": ".cache/kanpo-227/root40-ocr-cli-final-review-verified.json",
       "sha256": "33681e39814338c97150ac5b87b825b25c95ff3cf8dde9b2febb16c17a7578ab",
       "kind": "final29artifacts7sources_root_verified"
+    },
+    {
+      "path": ".cache/kanpo-227/batch40-ocr-tool2-source-manifest.json",
+      "sha256": "1fe8a7a119d93c08983bbd0420c6198b987baac09429fc310cda235def3b79b6",
+      "kind": "final_tool2_sources7"
+    },
+    {
+      "path": ".cache/kanpo-227/cleanup-observer40-before-fix/prefreeze.json",
+      "sha256": "a13d6bae6cad61a2eaf7e3cee3d2f4af279df1b85a47b437baf74efe8fc87750",
+      "kind": "three_cleanup_observer_assertions_before_edit"
+    },
+    {
+      "path": ".cache/kanpo-227/cleanup-observer40-baseline.log",
+      "sha256": "8b6aaace181de7fa219077d39d5084818131f6281ee56c0c5a865b9b6a07abbc",
+      "kind": "three_root_probes_RED_before_edit"
+    },
+    {
+      "path": ".cache/kanpo-227/cleanup-observer40-old31/prefreeze.json",
+      "sha256": "422f73cdb85d6fe27c5ed85c1aae521a6b83604e97ed9866d03680e5416542b9",
+      "kind": "same31_tests_old_source_frozen"
+    },
+    {
+      "path": ".cache/kanpo-227/cleanup-observer40-old31/result.log",
+      "sha256": "09d2c0efe5f75e87cdcfcd22e290f656f1c6515fa08ed30ac08187899099c306",
+      "kind": "same31_old28GREEN3RED"
+    },
+    {
+      "path": ".cache/kanpo-227/node-sidecar40-tests31.log",
+      "sha256": "ea0e8d586a91da7edcd23f6a0636da68e221517383a8af327cb870e67a376f02",
+      "kind": "final31GREEN"
+    },
+    {
+      "path": ".cache/kanpo-227/node-sidecar40-real4-tool2/prefreeze.json",
+      "sha256": "19bfc61260bea9402edaac140c7dfebe29c127395325387fe1efb194b88a8876",
+      "kind": "tool2_final4_preexecution_binding"
+    },
+    {
+      "path": ".cache/kanpo-227/node-sidecar40-real4-tool2/results.json",
+      "sha256": "4a32fb195aa34bde40bd9406090bcbb63e726e99e37340a993bf7bbd9290055d",
+      "kind": "tool2_final4_exact_old_text_hierarchy"
+    },
+    {
+      "path": ".cache/kanpo-227/ocr-cli-tool2-root-probes/prefreeze.json",
+      "sha256": "194b98214ec57d57a14027a609bf1e7506afc672f3ef7e94ef8911f8a8fdb630",
+      "kind": "unchanged_independent5_root_reexecution_binding"
+    },
+    {
+      "path": ".cache/kanpo-227/ocr-cli-tool2-root-probes/result.log",
+      "sha256": "a108f37c857b0a0f1336a82b0b65900d4a792ad9739c434bca32d38939583e9a",
+      "kind": "root5GREEN_not_fresh_independent_review"
+    },
+    {
+      "path": ".cache/kanpo-227/root40-tool2-delta-verified.json",
+      "sha256": "6a4bae227537c187d8b5945c0cb3a1208a7923d72f2c970b944739dbdeeae6da",
+      "kind": "root_verification_current_delta"
     }
   ],
   "scope": "New standalone opt-in OCR observations CLI only; native Rust/PDF source63 unchanged.",
@@ -170,10 +225,13 @@
     "jpn_vert_inference": 0,
     "successful_new_recognitions": {
       "supported_snapshot_revision": 4,
-      "final_revision": 4
+      "tool1_final_revision": 4,
+      "tool2_final_revision": 4
     },
     "failed_initialization_attempts_before_recognition": 1,
     "independent_original_pages": 2,
     "old_paragraph_and_fullpage_experiments_are_separate_history": true
-  }
+  },
+  "tool_parent_commit": "524b59b4b941a15b947a098d91ab7e5dcdaac1b7",
+  "review_scope": "Independent review covers tool1/28 tests; root verified the subsequent cleanup observer delta, all31 tests and unchanged5 probes on tool2."
 }

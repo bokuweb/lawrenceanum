@@ -2,7 +2,7 @@
   "issue": 227,
   "batch": 40,
   "source": 63,
-  "tool_revision": 1,
+  "tool_revision": 2,
   "parent_commit": "a29a13f7d25294706130d58946f6ee5ee7a30b05",
   "goal_complete": false,
   "canonical_quality_improvement_pages": 0,
@@ -35,5 +35,7 @@
     "Source image membership does not prove arbitrary clip/mask/overpaint visibility.",
     "Existing native text/count/distance heuristics, issuer ownership, company mixed articles, and scale counterexamples remain unresolved."
   ],
-  "RURI_ModernBERT_optin_allowed_if_useful": true
+  "RURI_ModernBERT_optin_allowed_if_useful": true,
+  "tool_parent_commit": "524b59b4b941a15b947a098d91ab7e5dcdaac1b7",
+  "additional_cleanup_contract": "After recognizer rejection, diagnostic observer failure during worker termination never replaces the original rejection, including null; remaining model cleanup is attempted. Without a recognizer failure the observer error is reported after cleanup."
 }

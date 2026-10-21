@@ -2,7 +2,7 @@
   "issue": 227,
   "batch": 40,
   "source": 63,
-  "tool_revision": 1,
+  "tool_revision": 2,
   "parent_commit": "a29a13f7d25294706130d58946f6ee5ee7a30b05",
   "goal_complete": false,
   "canonical_quality_improvement_pages": 0,
@@ -21,7 +21,9 @@
     ],
     "old_sources_probes_failures_retained": true
   },
-  "final_review": {
+  "held_candidate64_blocker_retained": true,
+  "tool_parent_commit": "524b59b4b941a15b947a098d91ab7e5dcdaac1b7",
+  "reviewed_tool1": {
     "manifest_sha256": "47c60865e93f71b4a19fdfaec0f1af9bd7f5caaedddae69b4c48b24eca387bf9",
     "artifacts_verified": 29,
     "source_files_verified": 7,
@@ -30,7 +32,22 @@
     "partial_write_injection_adapted_to_fd_tmp_assertions_unchanged": true,
     "blocking_findings_in_current_tool_delta": 0,
     "reviewer_model_downloads_or_inferences": 0,
-    "wholepage_quality_and_Article_ownership_not_proven": true
+    "wholepage_quality_and_Article_ownership_not_proven": true,
+    "not_current_tool2_source_review": true
   },
-  "held_candidate64_blocker_retained": true
+  "tool2_root_delta_verification": {
+    "scope": "Root verification after additional cleanup observer failures, not a fresh independent review.",
+    "old28_test_prefix_byte_exact": true,
+    "new3_assertions_byte_exact_frozen_probe": true,
+    "same31_old28GREEN3RED_new31GREEN": true,
+    "same_prior_independent5_probes_root_rerun_GREEN": true,
+    "final4_actual_CLI_old_text_and_hierarchy_exact": true,
+    "all_final_actual_prepost_inputs_sources_runtime_SHA_exact": true,
+    "current7_source_manifest_sha256": "1fe8a7a119d93c08983bbd0420c6198b987baac09429fc310cda235def3b79b6",
+    "recognition_primary_Error_and_null_preserved_on_cleanup_observer_failure": true,
+    "model_snapshot_cleanup_attempted_even_after_observer_failure": true,
+    "standalone_observer_failure_reported_after_cleanup": true,
+    "canonical_integration": false
+  },
+  "historical_harness_error": "First private3 probe file had an incorrect require path and did not run assertions; retained in cleanup-observer40-harness-error. Corrected only the import path before freezing actual3 RED probes."
 }

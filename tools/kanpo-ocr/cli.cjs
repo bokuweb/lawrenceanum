@@ -15,4 +15,4 @@ async function main() {
   await run({image:positionals[0],model:values.model,output:values.output,width_points:Number(values['width-points']),height_points:Number(values['height-points']),dpi:Number(values.dpi)});
   process.stdout.write(values.output+'\n',()=>process.exit(0));
 }
-main().catch(error=>process.stderr.write(String(error)+(error?.recording_error?'\nTerminal journal: '+error.recording_error:'')+'\n',()=>process.exit(1)));
+main().catch(error=>process.stderr.write(String(error)+(error?.cleanup_recording_error?'\nCleanup journal: '+error.cleanup_recording_error:'')+(error?.recording_error?'\nTerminal journal: '+error.recording_error:'')+'\n',()=>process.exit(1)));
