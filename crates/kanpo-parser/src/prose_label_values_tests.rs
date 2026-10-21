@@ -192,3 +192,212 @@ fn subpoint_label_center_rounding_keeps_reading_order() {
     assert_eq!(t[0].len(), 10);
     assert_eq!(t[1].len(), 1);
 }
+
+// A change of page units alone must not change which source columns move.
+// Other fixed-distance guards are deliberately not generalized in these tests.
+fn size_contract_expected(mut t: Vec<Vec<Col>>, r: TierRules) {
+    let before = t.clone();
+    let mut expected = vec![before[0].clone(), Vec::new()];
+    for col in &before[1] {
+        if [20, 21, 22].contains(&col.id) {
+            expected[0].push(col.clone());
+        } else {
+            expected[1].push(col.clone());
+        }
+    }
+    rejoin_prose_label_values(&mut t, &r);
+    let signature = |tiers: &[Vec<Col>]| {
+        tiers
+            .iter()
+            .map(|tier| {
+                tier.iter()
+                    .map(|c| {
+                        (
+                            c.id,
+                            c.x.to_bits(),
+                            c.x1.to_bits(),
+                            c.y.to_bits(),
+                            c.y1.to_bits(),
+                            c.text.clone(),
+                        )
+                    })
+                    .collect::<Vec<_>>()
+            })
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(signature(&t), signature(&expected));
+}
+fn scaled_size_contract(scale: f32, close_heading_gap: bool) -> (Vec<Vec<Col>>, TierRules) {
+    let (mut t, r) = fixture();
+    for c in t.iter_mut().flatten() {
+        if close_heading_gap && [1, 3, 5].contains(&c.id) {
+            c.y = 58.;
+        }
+        c.x *= scale;
+        c.x1 *= scale;
+        c.y *= scale;
+        c.y1 *= scale;
+    }
+    (t, r)
+}
+#[test]
+fn half_scale_keeps_label_value_source_membership() {
+    let (t, r) = scaled_size_contract(0.5, false);
+    size_contract_expected(t, r);
+}
+#[test]
+fn double_scale_keeps_label_value_source_membership() {
+    let (t, r) = scaled_size_contract(2., false);
+    size_contract_expected(t, r);
+}
+#[test]
+fn eighth_scale_positive_columns_keep_label_value_source_membership() {
+    let (t, r) = scaled_size_contract(0.125, true);
+    size_contract_expected(t, r);
+}
+#[test]
+fn eightfold_scale_positive_columns_keep_label_value_source_membership() {
+    let (t, r) = scaled_size_contract(8., true);
+    size_contract_expected(t, r);
+}
+#[test]
+fn finite_negative_page_coordinates_keep_label_value_source_membership() {
+    let (mut t, r) = fixture();
+    for c in t.iter_mut().flatten() {
+        c.x -= 1024.;
+        c.x1 -= 1024.;
+        c.y -= 1024.;
+        c.y1 -= 1024.;
+    }
+    size_contract_expected(t, r);
+}
+// Unknown/degenerate source geometry cannot authorize a transfer. Keep the
+// entire source inventory byte-for-byte even when NaN makes PartialEq unusable.
+fn size_contract_abstains(mut t: Vec<Vec<Col>>, r: TierRules) {
+    let signature = |tiers: &[Vec<Col>]| {
+        tiers
+            .iter()
+            .map(|tier| {
+                tier.iter()
+                    .map(|c| {
+                        (
+                            c.id,
+                            c.x.to_bits(),
+                            c.x1.to_bits(),
+                            c.y.to_bits(),
+                            c.y1.to_bits(),
+                            c.text.clone(),
+                        )
+                    })
+                    .collect::<Vec<_>>()
+            })
+            .collect::<Vec<_>>()
+    };
+    let before = signature(&t);
+    rejoin_prose_label_values(&mut t, &r);
+    assert_eq!(signature(&t), before);
+}
+#[test]
+fn nonfinite_source_rectangle_cannot_authorize_label_value_join() {
+    for (tier, index) in [(0, 0), (0, 1), (0, 6), (1, 0), (1, 3)] {
+        for value in [f32::NAN, f32::INFINITY, f32::NEG_INFINITY] {
+            for coordinate in 0..4 {
+                let (mut t, r) = fixture();
+                let c = &mut t[tier][index];
+                match coordinate {
+                    0 => c.x = value,
+                    1 => c.x1 = value,
+                    2 => c.y = value,
+                    _ => c.y1 = value,
+                }
+                size_contract_abstains(t, r);
+            }
+        }
+    }
+}
+#[test]
+fn nonpositive_source_rectangle_cannot_authorize_label_value_join() {
+    for (tier, index) in [(0, 0), (0, 1), (0, 6), (1, 0), (1, 3)] {
+        for inverted in [false, true] {
+            for along in [false, true] {
+                let (mut t, r) = fixture();
+                let c = &mut t[tier][index];
+                let delta = if inverted { 1. } else { 0. };
+                if along {
+                    c.y1 = c.y - delta;
+                } else {
+                    c.x1 = c.x - delta;
+                }
+                size_contract_abstains(t, r);
+            }
+        }
+    }
+}
+#[test]
+fn repeated_id_within_heading_tier_cannot_authorize_label_value_join() {
+    let (mut t, r) = fixture();
+    t[0][1].id = t[0][0].id;
+    size_contract_abstains(t, r);
+}
+#[test]
+fn repeated_id_across_tiers_cannot_authorize_label_value_join() {
+    let (mut t, r) = fixture();
+    t[1][0].id = t[0][0].id;
+    size_contract_abstains(t, r);
+}
+#[test]
+fn repeated_id_in_outside_value_cannot_authorize_label_value_join() {
+    let (mut t, r) = fixture();
+    t[1][3].id = t[1][0].id;
+    size_contract_abstains(t, r);
+}
+
+#[test]
+fn nonfinite_rule_coordinates_cannot_authorize_label_value_join() {
+    for scale in [1., 2.] {
+        for vertical in [false, true] {
+            for coordinate in 0..3 {
+                for value in [f32::NAN, f32::INFINITY, f32::NEG_INFINITY] {
+                    let (t, mut r) = scaled_size_contract(scale, false);
+                    let mut rule = (0., 200., 300.);
+                    match coordinate {
+                        0 => rule.0 = value,
+                        1 => rule.1 = value,
+                        _ => rule.2 = value,
+                    }
+                    if vertical {
+                        r.vrules.push(rule);
+                    } else {
+                        r.hrules.push(rule);
+                    }
+                    size_contract_abstains(t, r);
+                }
+            }
+        }
+    }
+}
+#[test]
+fn nonfinite_frame_coordinates_cannot_authorize_label_value_join() {
+    for scale in [1., 2.] {
+        for table in [false, true] {
+            for coordinate in 0..4 {
+                for value in [f32::NAN, f32::INFINITY, f32::NEG_INFINITY] {
+                    let (t, mut r) = scaled_size_contract(scale, false);
+                    let mut frame = (200., 220., 0., 20.);
+                    match coordinate {
+                        0 => frame.0 = value,
+                        1 => frame.1 = value,
+                        2 => frame.2 = value,
+                        _ => frame.3 = value,
+                    }
+                    if table {
+                        r.tables.push(frame);
+                    } else {
+                        r.boxes.push(frame);
+                    }
+                    size_contract_abstains(t, r);
+                }
+            }
+        }
+    }
+}

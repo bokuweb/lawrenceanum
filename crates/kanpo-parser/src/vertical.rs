@@ -5924,6 +5924,20 @@ fn rejoin_prose_label_values(tiers: &mut [Vec<Col>], rules: &TierRules) {
     if !rules.sideways {
         return;
     }
+    // An unknown separator location cannot establish an unbroken bridge.
+    if rules
+        .hrules
+        .iter()
+        .chain(&rules.vrules)
+        .any(|&(a, b, c)| ![a, b, c].iter().all(|v| v.is_finite()))
+        || rules
+            .tables
+            .iter()
+            .chain(&rules.boxes)
+            .any(|&(a, b, c, d)| ![a, b, c, d].iter().all(|v| v.is_finite()))
+    {
+        return;
+    }
     fn ordinal(t: &str) -> Option<usize> {
         let t = t.strip_prefix('（')?.strip_suffix('）')?;
         ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"]
@@ -5942,6 +5956,17 @@ fn rejoin_prose_label_values(tiers: &mut [Vec<Col>], rules: &TierRules) {
             continue;
         };
         let (above, below) = (&tiers[j], &tiers[i]);
+        // A transfer needs known source rectangles and distinct occurrences.
+        // Unknown geometry or a repeated ID cannot establish membership.
+        let mut source_ids = std::collections::HashSet::new();
+        if above.iter().chain(below).any(|c| {
+            ![c.x, c.x1, c.y, c.y1].iter().all(|v| v.is_finite())
+                || c.x >= c.x1
+                || c.y >= c.y1
+                || !source_ids.insert(c.id)
+        }) {
+            continue;
+        }
         let mut groups: Vec<Vec<&Col>> = Vec::new();
         let mut ordered: Vec<_> = above.iter().collect();
         ordered.sort_by(|a, b| center(b).total_cmp(&center(a)).then(a.y.total_cmp(&b.y)));
@@ -5997,7 +6022,10 @@ fn rejoin_prose_label_values(tiers: &mut [Vec<Col>], rules: &TierRules) {
         let top = labels[0].4;
         let bottom = labels[0].5;
         let em = labels.iter().map(|l| l.3 - l.2).fold(0.0, f32::max);
-        if !(6.0..=14.0).contains(&em)
+        // Column width is a source measure, not an absolute page-point class.
+        // The remaining alignment, spacing and fence checks still apply.
+        if !em.is_finite()
+            || em <= 0.0
             || labels.iter().any(|l| {
                 (l.4 - top).abs() > 1.0
                     || (l.5 - bottom).abs() > 1.0
