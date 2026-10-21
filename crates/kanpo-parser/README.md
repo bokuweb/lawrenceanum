@@ -298,6 +298,7 @@ cargo run --release -p kanpo-parser --example snapshot_sample -- .cache/kanpo-ar
 | 133 回目（独立・初回、全体品質） | 11 | 8 | 11 | 比較対象外 |
 | 134 回目（独立・初回、全体品質） | 9 | 15 | 6 | 比較対象外 |
 | 135 回目（独立・初回、全体品質） | 16 | 4 | 10 | 比較対象外 |
+| 136 回目（独立・初回、全体品質） | 14 | 5 | 11 | 比較対象外 |
 
 110 回目から、対象ページ ID・原本 SHA-256・採点の理由を [`tests/audits/`](tests/audits/) に残す。
 110 回目は本文に文字層のある 30 ページで校正し、見つかった分数式・金額の空欄位置の崩れを修正して同じ原本で再照合した結果。
@@ -834,3 +835,44 @@ checkbox247原Glyph/30頁と姓名4字の候補は原図・native字形・実PDF
 [`tests/audits/issue227-twenty-fourth-batch-reviews.json`](tests/audits/issue227-twenty-fourth-batch-reviews.json)、
 [`tests/audits/issue227-twenty-fourth-batch-provenance.json`](tests/audits/issue227-twenty-fourth-batch-provenance.json)、
 検証集計は[`tests/audits/issue227-validation-24.json`](tests/audits/issue227-validation-24.json)に保存した。全体100%は未達で、改善を継続する。
+
+
+第 25 次修正では、159号48頁・163号196頁・1757号30/31頁の姓名4字を、原Glyphの樽・濰・團・蓬へ戻した。
+ToUnicodeのないIdentity-VフォントのCIDをUnicode値として解釈し、婲・䈹・升・媡と誤表示していた。
+元のIdentityタグ付き4CIDだけを既存のsure写像へ加え、通常のUnicode・未タグ本文・未知CID/PUAの扱いは保つ。
+全11,992原本のnative走査で各CIDは各1出現、埋込CFF輪郭も各1種類と確認した。未知の別フォントへの一般化はしない。
+元4Wordのraw・ID・座標・使用状態・所属は完全一致し、本文・Article本文・Documentの差は上記4字のUnicode置換だけである。
+誤Unicode4字の削除と原字4字への置換を明記し、他の文字・改行・空白・行・表・記事構造は保持した。
+Identity-Vの元Word座標は単独Glyphの縦書き属性から補正され、public bboxWordの論理矩形とは異なる。両者を別々に原PDFから再抽出して対応を確認した。
+
+実PDF8テストは実装前4失敗・保存用4成功から、同じassertionで全8成功へ進めた。
+production内の正規化テストも追加箇所1失敗・既存/負例13成功から全14成功を確認した。
+パーサ単体865件を含む関連4クレート全1,383テスト、全101統合対象・4ライブラリ・4doc-test・全4examples、110コマンドの終了0を確認した。
+アーカイブ632原本。新規8snapshotを原図・全文・全Article/Documentと照合して採用し、既存snapshot・期待値変更0、assertion緩和0。
+変更4原図の735行・全5Article/Documentに加え、近接する保存用4原図も561行・全4Article/Documentを読み、解析全体の完全一致を確認した。
+独立公告の未分割、英字語間や1757号29頁の司法本文欠落等の既存不具合を残し、部分修復を全頁成功と数えない。保存用原図に未証明のnative0除外はない。
+納品fixtureの13文字ディレクトリ名は、assertionを保ったまま既存の14文字page[:14]へ揃えてから実装前後のテストを行った。
+
+全11,992原PDF・旧本文・104ソース・実行物・依存物を再解析前後にSHA照合した。
+本文と解析全体は4変更・11,988完全一致。累計2,914変更頁・文字変化1,313頁。
+従来の原横棒11,033字・分数153件・期間706組・番号121組・括弧377セル・各数式・20組の範囲末尾等も保持した。
+準備時にSHA固定処理の完了前に再抽出を起動したため、最初の実行を明示的に中止して4,141途中出力を不採用で隔離した。
+失敗履歴と途中結果を残し、SHA固定の終了0を確認してから全11,992原本を新しい出力先へ再抽出した。初回の途中出力は再利用していない。
+
+136回目の未見30件は範囲・原本・画像・全文・全解析・ソースを採点前に固定した。
+初回の全体品質14ok/5minor/11major、本文・文字・読順23ok/3minor/4majorを保存し、書き換えない。
+全2,513行・108Article/Documentを原図と照合し、全30件のbefore45/after46解析は完全一致、今回の退行0。
+1789号21頁のHigh＆Dryの空白欠落という初回minorは、全角8Glyphが8pt刻み・spacing/kern0で連続するnative証拠により誤検出と分かった。
+元notes・初回評点を保持したうえで反証を別保存し、補足の本文評価24ok/2minor/4majorと区別する。この誤検出を真の空白残件へ流用しない。
+全nativeGlyphの閉区間交差で9限定矩形と陽性7範囲を再確認した。ページ全体の除外はない。
+160号48頁の引用中の新旧表分裂、223号7頁の新旧role分裂、1800号3頁の表レコード分離、財務Docや訂正の対応消失等は既存残件である。
+
+会社公告候補v3bは固定1,286頁のうち重複を除く301頁を全原図・記事構造まで確認、未読985頁で未採用。
+178号124頁でシナネン第101期の題字と本文を別会社Articleへ分ける退行を検出し、実PDFで現行候補2成功・未採用v3b1失敗/保存用1成功を再現した。
+同じ誤境界は未採用の旧v2にも既にあり、accepted baselineとの退行とv3bだけの新規変更を区別した。初回評点・旧候補・固定scope・重複訂正履歴は保持する。
+閉枠内の題字と本文を跨ぐ誤境界だけを原図の根拠付きで撤回する別v3cを検証中で、他の旧境界・本文・全Word・DocTokenを保つ条件を維持する。
+追加範囲末尾14組・checkbox247Glyph/30頁・辻のPUA欠字等の候補も別途テスト先行で検証中で、この修正に含めない。
+初回監査は[`tests/audits/136.json`](tests/audits/136.json)、変更影響と原字の証明は
+[`tests/audits/issue227-twenty-fifth-batch-reviews.json`](tests/audits/issue227-twenty-fifth-batch-reviews.json)、
+[`tests/audits/issue227-twenty-fifth-batch-provenance.json`](tests/audits/issue227-twenty-fifth-batch-provenance.json)、
+検証集計は[`tests/audits/issue227-validation-25.json`](tests/audits/issue227-validation-25.json)に保存した。全体100%は未達で、改善を継続する。

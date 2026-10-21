@@ -333,6 +333,11 @@ fn identity_only_glyph(code: u32) -> Option<(u8, String)> {
         0x5A53 => "鯖",
         0x5A70 => "蛸",
         0x5A7B => "鄭",
+        // Identity CID の字形を原本・埋込 CFF で確認した姓名。タグの無い通常本文は対象外。
+        0x5A72 => "樽",
+        0x4239 => "濰",
+        0x5347 => "團",
+        0x5AA1 => "蓬",
         0x5B12 | 0x5B3D => "德",
         _ => return None,
     };
@@ -651,5 +656,30 @@ mod parenthesized_roman_one_tests {
         assert_eq!(super::word_text("\u{E82E}"),"");
         assert_eq!(super::word_text("\u{E838}"),"");
         assert_eq!(super::word_text("目標\u{E82F}本文"),"目標（Ⅰ）本文");
+    }
+}
+
+#[cfg(test)]
+mod identity_surname_tests {
+    use super::*;
+    fn tagged(cid: u32) -> String { char::from_u32(kanpo_pdf::bbox::IDENTITY_CID_BASE + cid).unwrap().to_string() }
+    #[test]
+    fn identity_surname_cids_keep_source_glyphs() {
+        for (cid, expected) in [(0x5A72, "樽"), (0x4239, "濰"), (0x5347, "團"), (0x5AA1, "蓬")] {
+            let raw = tagged(cid);
+            assert_eq!(word_text(&raw), expected);
+            assert_eq!(private_cid_glyph(&raw, 8.0, 8.0).unwrap().text, expected);
+        }
+    }
+
+    #[test]
+    fn identity_surname_mapping_preserves_untagged_text_and_unknown_cids() {
+        let text = "婲䈹升媡樽濰團蓬";
+        assert_eq!(word_text(text), text);
+        for text in ["婲", "䈹", "升", "媡"] {
+            assert!(private_cid_glyph(text, 8.0, 8.0).is_none());
+        }
+        assert_eq!(word_text("\u{E500}"), "");
+        assert_eq!(word_text(&tagged(0x4238)), "䈸");
     }
 }
