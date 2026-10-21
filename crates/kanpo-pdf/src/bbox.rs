@@ -289,7 +289,7 @@ fn resolved_aj1_word(page: &Page, word: &Word) -> bool {
 
 /// ページを `pdftotext -bbox-layout` 形式の XHTML にする。語ごとに 1 つの flow・block・line に入れる。
 pub fn bbox_layout(pages: &[Page]) -> String {
-    layout(pages.iter().map(|p| (p,None)))
+    layout(pages.iter().map(|p| (p,None)), false)
 }
 /// Render only owned original pages with their own source evidence.
 /// There is no external Page argument to which evidence could be transferred.
@@ -303,9 +303,34 @@ pub fn bbox_layout(pages: &[Page]) -> String {
 /// let _ = kanpo_pdf::bbox::bbox_layout_with_aj1_sources(pages, sources);
 /// ```
 pub fn bbox_layout_with_aj1_sources(sources: &[crate::Aj1PageSources]) -> String {
-    layout(sources.iter().map(|s| (s.page(),Some(s.resolved()))))
+    layout(sources.iter().map(|s| (s.page(),Some(s.resolved()))), false)
 }
-fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>)>) -> String {
+/// Original source font/size identities. These are provenance, not inferred boldness.
+/// Each style is bound to the glyphs of its own emitted word.
+pub fn bbox_layout_with_native_styles(sources: &[crate::Aj1PageSources]) -> String {
+    layout(sources.iter().map(|s| (s.page(), Some(s.resolved()))), true)
+}
+fn native_styles(page: &Page, word: &Word) -> Option<String> {
+    let mut styles = std::collections::BTreeSet::new();
+    for &id in &word.glyphs {
+        let g = page.glyphs.get(id)?;
+        if !g.size.is_finite() || g.size <= 0.0 || page.fonts.get(g.font).is_none() {
+            return None;
+        }
+        styles.insert((g.font, g.size.to_bits()));
+    }
+    if styles.is_empty() {
+        return None;
+    }
+    Some(
+        styles
+            .into_iter()
+            .map(|(f, b)| format!("{f}:{b:016x}"))
+            .collect::<Vec<_>>()
+            .join(" "),
+    )
+}
+fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>)>, emit_styles:bool) -> String {
     let mut s = String::from(
         "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\
          <html xmlns=\"http://www.w3.org/1999/xhtml\">\n<head>\n<title></title>\n</head>\n<body>\n<doc>\n",
@@ -324,6 +349,7 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
                 word.x_min, word.y_min, word.x_max, word.y_max
             );
             let native = native_vertical_attrs(page, &word);
+            let styles=if emit_styles { native_styles(page,&word).map(|s|format!(" data-native-styles=\"{s}\"")).unwrap_or_default() }else{String::new()};
             let source_attr = resolved_source
                 .and_then(|source| crate::source_aj1::word_candidate(page, &word, source))
                 .map(|text| format!(" data-source-aj1-text=\"{}\"", escape(&text)))
@@ -331,7 +357,7 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
             let resolved = if resolved_aj1_word(page, &word) { " data-unicode-aj1=\"1\"" } else { "" };
             let _ = writeln!(
                 s,
-                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}>{}</word>\n        </line>\n      </block>\n    </flow>",
+                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}>{}</word>\n        </line>\n      </block>\n    </flow>",
                 escape(&word.text)
             );
         }
@@ -426,3 +452,121 @@ mod tests {
 #[cfg(test)]
 #[path = "native_vertical_bbox_tests.rs"]
 mod native_vertical_bbox_tests;
+#[cfg(test)]
+mod native_style_tests {
+    use super::*;
+    fn glyph(text: &str, x: f64, font: usize, size: f64) -> Glyph {
+        Glyph {
+            text: text.into(),
+            code: 0,
+            cid: 0,
+            font,
+            x,
+            y: 100.,
+            end_x: x + 8.,
+            end_y: 100.,
+            size,
+            vertical: false,
+            bbox: [x, 93., x + 8., 102.],
+            invisible: false,
+            spacing: 0.,
+            kern: 0.,
+            show: 0,
+        }
+    }
+    fn page(glyphs: Vec<Glyph>) -> Page {
+        let f = crate::page::FontInfo {
+            name: "arbitrary".into(),
+            vertical: false,
+            ordering: None,
+            has_to_unicode: false,
+        };
+        Page {
+            width: 595.,
+            height: 842.,
+            rotate: 0,
+            glyphs,
+            paths: vec![],
+            fonts: vec![f.clone(), f],
+        }
+    }
+    #[test]
+    fn style_identity_belongs_to_each_source_word_not_its_text() {
+        let p = page(vec![glyph("同", 10., 0, 8.), glyph("同", 40., 1, 9.)]);
+        let ws = words(&p);
+        assert_eq!(ws.len(), 2);
+        assert_eq!(
+            native_styles(&p, &ws[0]).as_deref(),
+            Some("0:4020000000000000")
+        );
+        assert_eq!(
+            native_styles(&p, &ws[1]).as_deref(),
+            Some("1:4022000000000000")
+        );
+    }
+    #[test]
+    fn a_multi_glyph_word_keeps_all_source_style_identities() {
+        let p = page(vec![glyph("甲", 10., 0, 8.), glyph("乙", 18., 1, 8.)]);
+        let w = Word {
+            text: "甲乙".into(),
+            x_min: 10.,
+            y_min: 93.,
+            x_max: 26.,
+            y_max: 102.,
+            glyphs: vec![0, 1],
+        };
+        assert_eq!(
+            native_styles(&p, &w).as_deref(),
+            Some("0:4020000000000000 1:4020000000000000")
+        );
+    }
+    #[test]
+    fn incomplete_or_invalid_source_styles_are_not_partially_emitted() {
+        let p = page(vec![glyph("甲", 10., 0, 8.)]);
+        let mut w = words(&p).remove(0);
+        w.glyphs.push(10);
+        assert_eq!(native_styles(&p, &w), None);
+        w.glyphs.clear();
+        assert_eq!(native_styles(&p, &w), None);
+        for size in [0., -1., f64::NAN, f64::INFINITY] {
+            let p = page(vec![glyph("甲", 10., 0, size)]);
+            let w = Word {
+                text: "甲".into(),
+                x_min: 10.,
+                y_min: 93.,
+                x_max: 18.,
+                y_max: 102.,
+                glyphs: vec![0],
+            };
+            assert_eq!(native_styles(&p, &w), None);
+        }
+        let p = page(vec![glyph("甲", 10., 20, 8.)]);
+        let w = Word {
+            text: "甲".into(),
+            x_min: 10.,
+            y_min: 93.,
+            x_max: 18.,
+            y_max: 102.,
+            glyphs: vec![0],
+        };
+        assert_eq!(native_styles(&p, &w), None);
+    }
+    #[test]
+    fn source_style_renderer_only_adds_metadata_to_the_legacy_rendering() {
+        let p = page(vec![glyph("同", 10., 0, 8.), glyph("同", 40., 1, 9.)]);
+        let sources = vec![crate::Aj1PageSources {
+            resolved: vec![None, None],
+            original: p.clone(),
+        }];
+        let old = bbox_layout_with_aj1_sources(&sources);
+        let mut new = bbox_layout_with_native_styles(&sources);
+        assert_eq!(new.matches(" data-native-styles=\"").count(), 2);
+        while let Some(start) = new.find(" data-native-styles=\"") {
+            let from = start + " data-native-styles=\"".len();
+            let end = from + new[from..].find('"').unwrap() + 1;
+            new.replace_range(start..end, "");
+        }
+        assert_eq!(old, new);
+        assert_eq!(old, bbox_layout(&[p]));
+    }
+}

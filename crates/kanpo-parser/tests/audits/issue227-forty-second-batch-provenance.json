@@ -1,0 +1,124 @@
+{
+  "issue": 227,
+  "batch": 42,
+  "parent_commit": "9d93160eca20b9eea5f57dedba2bb628cd8f2521",
+  "native_runtime_source": 67,
+  "native_parent_source": 63,
+  "OCR_tool_revision": 2,
+  "goal_complete": false,
+  "whole_corpus_strict_quality_not_reestimated": true,
+  "whole_Analysis_changed_pages_vs63": 1951,
+  "character_changed_pages_vs63": 0,
+  "adopted_scope": "Additional native Article boundaries using source font/size identities, complete source-owned lines, closed frames, publication-date syntax, role prefixes and quote scope. Generic paragraph Run repartition preserves all old bytes/styles/whole tables. No issuer classifier or image OCR correction adopted.",
+  "source_files": 124,
+  "source_manifest_sha256": "f58778216436486e832204380ef1c969a2c938e3e19b7ca1cf2cc81147168d4b",
+  "parser_source_files": 101,
+  "PDF_source_files": 23,
+  "native_source_evidence": {
+    "original_PDFs": 11992,
+    "native_Page_Glyph_FontInfo_Path_fields_exact63": true,
+    "glyphs": 14859045,
+    "source_Words": 2403403,
+    "glyph_f64_bits_exact63": true,
+    "legacy_AJ1_XHTML_exact63": true,
+    "new_XHTML_minus_only_native_style_attributes_exact_legacy": true,
+    "PDF_producer_source_exact_validated_notice42_scope_v2": true,
+    "later_source65_66_67_changes_parser_only": true
+  },
+  "manual_Article_source_membership_controls": [
+    {
+      "page": "20260818g001840038",
+      "old": 1,
+      "new": 17
+    },
+    {
+      "page": "20260730g001710163",
+      "old": 1,
+      "new": 4,
+      "related_BS": 8
+    },
+    {
+      "page": "20260727g001670103",
+      "old": 1,
+      "new": 7
+    },
+    {
+      "page": "20260813g001810062",
+      "old": 1,
+      "new": 12,
+      "signatureless_financial_notice_retained": true
+    },
+    {
+      "page": "20260925g002120067",
+      "old": 1,
+      "new": 3,
+      "scope": "All native-source Words at bottom; image-only upper legal notices not recovered."
+    }
+  ],
+  "five_controls_all_Used_Word_memberships_exact_once": true,
+  "all_five_actual_Word_emission_reversals_whole_Analysis_exact": true,
+  "new_model_weight_files": 0,
+  "new_RURI_inferences": 0,
+  "new_separate_ModernBERT_inferences": 0,
+  "new_Tesseract_inferences": 0,
+  "RURI_batch41_two_pilots_remain_held": true,
+  "historical_trials": "Source65 and66 were not shipped. Initial stub1080 tests:1068 passed12 RED. Quote/role/scope/source-tie counterexamples were frozen RED before fixes. Source65 frame-tail leak led to generic independently dated/signed framed statements, then cross-page quote guard. End-of-frame-only proposal was not implemented because a separate table enclosure alone cannot prove another announcement.",
+  "local_evidence": [
+    {
+      "path": ".cache/kanpo-227/notice42/native67-full-r2/result.json",
+      "sha256": "4bb7f4c1f205d57223a6a872c4800da9951fce90f3db0a3461d8d0a77ae814f9"
+    },
+    {
+      "path": ".cache/kanpo-227/notice42/native-result.json",
+      "sha256": "c24ddcfb21f4e04510da82be576b30ebefe70b51be0d25de3cff3491f0063584"
+    },
+    {
+      "path": ".cache/kanpo-227/notice42/textdump67-result.json",
+      "sha256": "32a7e072f67984b494ef94bc823b9954dde6e509c82a932f6d1e57c37e4e5955"
+    },
+    {
+      "path": ".cache/kanpo-227/notice42/default67-final-all-green.json",
+      "sha256": "ed25f831c056bc2d5b9d075fb2afd5d406f6b12ac09a42234b8242c5a4408f24"
+    },
+    {
+      "path": ".cache/kanpo-227/notice42/snapshot67-promoted.json",
+      "sha256": "7a34cb41b2729e8bcba558b0b19a3da34344a6671ba237a5f50ed0549c9ffcf4"
+    },
+    {
+      "path": ".cache/kanpo-227/notice42/snapshot67-partition-review.json",
+      "sha256": "202aac8c33382fff3aff0f11842352ddca0e797509be3d7e0b74c4e4fb1f8503"
+    },
+    {
+      "path": ".cache/kanpo-227/notice42/corpus-metadata-update-result.json",
+      "sha256": "2f2f366ba119bbb42012bfad496ae7529e2b52706839180f2dc411a0e07c45e0"
+    },
+    {
+      "path": ".cache/kanpo-227/notice42/legacy-partition-proposals66.json",
+      "sha256": "def4458a48f9b6f0d03cb1c6d65852d6f771dc6f71df7151e228ae11874c93e6"
+    },
+    {
+      "path": ".cache/kanpo-227/notice42/legacy-tsuji-partition-proposals67.json",
+      "sha256": "2c185e873ca5e0fb6dceff0be68fa00311b89ffb3f3d8cd14d8960440f1b9b1a"
+    },
+    {
+      "path": ".cache/kanpo-227/notice42/review/final67-findings.json",
+      "sha256": "4907ab75e47829106b78c824a548c865bccfe45fe4d05affa879adbee11a654a"
+    },
+    {
+      "path": ".cache/kanpo-227/notice42/remaining-boundaries67-RED.log",
+      "sha256": "9ff6d36d1649005ad9a96599fa585aa1d404ce25ef6a87d9ce5b7c22397197a3"
+    },
+    {
+      "path": ".cache/kanpo-227/notice42/audit144-source67-inheritance.json",
+      "sha256": "43d4b016ec85fb5a325193bf6b3b3115a1bbd166fa7620e0c23d1e38872dfd4b"
+    },
+    {
+      "path": ".cache/kanpo-227/notice42/gzip-output-storage-dedup-result.json",
+      "sha256": "7928d026e224ddb1253bf220483dd2d01b5d8d5acf91c2ba9bf87b8fa16df5e7"
+    },
+    {
+      "path": ".cache/kanpo-227/notice42/completed-build-backups/manifest.json",
+      "sha256": "029b7274e25fd5ef1c714ef90ac880f2e0a3cf5a6178756facd5c02771844298"
+    }
+  ]
+}

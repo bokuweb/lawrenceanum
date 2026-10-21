@@ -31,6 +31,8 @@
 //! ```
 
 use anyhow::Result;
+mod notice_boundaries;
+mod company_document_parts;
 mod facility_continuations;
 mod framed_band_continuations;
 #[cfg(test)]
@@ -144,13 +146,18 @@ pub fn analyze_with_rules(xhtml: &str, rules: &[Option<lines::PageRules>]) -> An
     let tables: Vec<trace::Table> = pages.iter().flat_map(|p| p.tables.iter().cloned()).collect();
     let mut segments = segment_articles(&doc_text);
     wrapped_notice_titles::repair_wrapped_notice_titles(&mut segments, &pages);
-    let articles = segments
-        .into_iter()
-        .map(|seg| ArticleAnalysis {
-            document: Document::from_text_with_tables(&seg, &tables),
-            text: render_table_markers(&seg, &tables),
-        })
-        .collect();
+    let groups=notice_boundaries::groups(&segments,&doc_text,&pages,rules);
+    let mut articles=Vec::new();
+    for (segment,parts)in segments.into_iter().zip(groups){
+        let original=Document::from_text_with_tables(&segment,&tables);
+        if parts.len()>1 {
+            let desired:Vec<_>=parts.iter().map(|p|Document::from_text_with_tables(&p.text,&tables)).collect();
+            if let Some(documents)=company_document_parts::repartition(&original,&desired){
+                articles.extend(parts.into_iter().zip(documents).map(|(p,document)|ArticleAnalysis{text:render_table_markers(&p.text,&tables),document}));continue;
+            }
+        }
+        articles.push(ArticleAnalysis{text:render_table_markers(&segment,&tables),document:original});
+    }
     Analysis {
         format: format::detect_format(&text),
         pages,
@@ -365,7 +372,7 @@ fn render_table_markers(text: &str, tables: &[trace::Table]) -> String {
 /// [`analyze`] / [`reconstruct_vertical`] の入力になる。
 pub fn bbox_xhtml(pdf: &[u8]) -> Result<String> {
     let sources= kanpo_pdf::extract_pages_with_aj1_sources(pdf)?;
-    Ok(kanpo_pdf::bbox::bbox_layout_with_aj1_sources(&sources))
+    Ok(kanpo_pdf::bbox::bbox_layout_with_native_styles(&sources))
 }
 
 /// PDF の各ページを [`analyze_item`] の入力（座標付きテキストと罫線）にする。
@@ -374,7 +381,7 @@ pub fn page_inputs(pdf: &[u8]) -> Result<Vec<PageInput>> {
         .into_iter()
         .map(|source| PageInput {
             rules: Some(kanpo_pdf::page_rules(source.page())),
-            xhtml: kanpo_pdf::bbox::bbox_layout_with_aj1_sources(std::slice::from_ref(&source)),
+            xhtml: kanpo_pdf::bbox::bbox_layout_with_native_styles(std::slice::from_ref(&source)),
         })
         .collect())
 }

@@ -1,3 +1,5 @@
+#[path = "support/expected_article_partitions.rs"]
+mod expected_article_partitions;
 use serde_json::Value;
 fn actual(pdf: &[u8]) -> Value {
     serde_json::from_str(
@@ -38,6 +40,10 @@ fn page_20260818g001840038() {
     assert_eq!(a["pages"][0]["words"][57]["text"], "嬴");
     assert!(a["text"].as_str().unwrap().contains("代表清算人劉嬴"));
     replace_text(&mut b, '\u{446E}', '\u{5B34}');
+    let b = expected_article_partitions::with_articles(
+        b,
+        include_str!("expected-native-article-partitions/20260818g001840038.json"),
+    );
     assert_eq!(a, b);
 }
 #[test]
@@ -52,6 +58,10 @@ fn page_20260817g001830048() {
     assert_eq!(a["pages"][0]["words"][157]["text"], "瀀");
     assert!(a["text"].as_str().unwrap().contains("清算人高田瀀資"));
     replace_text(&mut b, '\u{4650}', '\u{7000}');
+    let b = expected_article_partitions::with_articles(
+        b,
+        include_str!("expected-native-article-partitions/20260817g001830048.json"),
+    );
     assert_eq!(a, b);
 }
 #[test]
@@ -66,6 +76,10 @@ fn page_20260819g001850040() {
     assert_eq!(a["pages"][0]["words"][49]["text"], "釬");
     assert!(a["text"].as_str().unwrap().contains("代表清算人金釬泳"));
     replace_text(&mut b, '\u{497D}', '\u{91EC}');
+    let b = expected_article_partitions::with_articles(
+        b,
+        include_str!("expected-native-article-partitions/20260819g001850040.json"),
+    );
     assert_eq!(a, b);
 }
 #[test]
@@ -77,6 +91,10 @@ fn page_20260818g001840037() {
         "expected-source-aj1/20260818g001840037-before49.json"
     ))
     .unwrap();
+    let b = expected_article_partitions::with_articles(
+        b,
+        include_str!("expected-native-article-partitions/20260818g001840037.json"),
+    );
     assert_eq!(a, b);
 }
 #[test]
@@ -88,6 +106,10 @@ fn page_20260817g001830047() {
         "expected-source-aj1/20260817g001830047-before49.json"
     ))
     .unwrap();
+    let b = expected_article_partitions::with_articles(
+        b,
+        include_str!("expected-native-article-partitions/20260817g001830047.json"),
+    );
     assert_eq!(a, b);
 }
 #[test]
@@ -99,6 +121,10 @@ fn page_20260819g001850039() {
         "expected-source-aj1/20260819g001850039-before49.json"
     ))
     .unwrap();
+    let b = expected_article_partitions::with_articles(
+        b,
+        include_str!("expected-native-article-partitions/20260819g001850039.json"),
+    );
     assert_eq!(a, b);
 }
 #[test]
@@ -112,6 +138,10 @@ fn unicode_control_18000() {
     .unwrap();
     assert_eq!(a["pages"][0]["words"][157]["raw"], "瀀");
     assert_eq!(a["pages"][0]["words"][157]["text"], "瀀");
+    let b = expected_article_partitions::with_articles(
+        b,
+        include_str!("expected-native-article-partitions/20260817g001830048-unicode-control.json"),
+    );
     assert_eq!(a, b);
 }
 #[test]
@@ -125,6 +155,10 @@ fn unicode_control_17518() {
     .unwrap();
     assert_eq!(a["pages"][0]["words"][57]["raw"], "嬴");
     assert_eq!(a["pages"][0]["words"][57]["text"], "嬴");
+    let b = expected_article_partitions::with_articles(
+        b,
+        include_str!("expected-native-article-partitions/20260818g001840038-unicode-control.json"),
+    );
     assert_eq!(a, b);
 }
 #[test]
@@ -138,6 +172,10 @@ fn unicode_control_18813() {
     .unwrap();
     assert_eq!(a["pages"][0]["words"][49]["raw"], "釬");
     assert_eq!(a["pages"][0]["words"][49]["text"], "釬");
+    let b = expected_article_partitions::with_articles(
+        b,
+        include_str!("expected-native-article-partitions/20260819g001850040-unicode-control.json"),
+    );
     assert_eq!(a, b);
 }
 
@@ -152,6 +190,10 @@ fn source_20260730g001710139_complete_original() {
     ))
     .unwrap();
     assert_eq!(a["pages"][0]["words"][48],serde_json::from_str::<Value>("{\"id\": 48, \"x0\": 444.1921, \"y0\": 404.8399, \"x1\": 452.1921, \"y1\": 412.8399, \"raw\": \"󴧴\", \"text\": \"頔\", \"status\": \"used\"}").unwrap());
+    let e = expected_article_partitions::with_articles(
+        e,
+        include_str!("expected-native-article-partitions/20260730g001710139.json"),
+    );
     assert_eq!(a, e);
 }
 #[test]
@@ -164,6 +206,10 @@ fn source_20260812g001800058_complete_original() {
     ))
     .unwrap();
     assert_eq!(a["pages"][0]["words"][161],serde_json::from_str::<Value>("{\"id\": 161, \"x0\": 175.7361, \"y0\": 580.8399, \"x1\": 183.7361, \"y1\": 588.8399, \"raw\": \"󴜾\", \"text\": \"禕\", \"status\": \"used\"}").unwrap());
+    let e = expected_article_partitions::with_articles(
+        e,
+        include_str!("expected-native-article-partitions/20260812g001800058.json"),
+    );
     assert_eq!(a, e);
 }
 #[test]
@@ -176,6 +222,10 @@ fn source_20260814g001820078_complete_original() {
     ))
     .unwrap();
     assert_eq!(a["pages"][0]["words"][174],serde_json::from_str::<Value>("{\"id\": 174, \"x0\": 167.2481, \"y0\": 772.8399, \"x1\": 175.2481, \"y1\": 780.8399, \"raw\": \"󴙳\", \"text\": \"熠\", \"status\": \"used\"}").unwrap());
+    let e = expected_article_partitions::with_articles(
+        e,
+        include_str!("expected-native-article-partitions/20260814g001820078.json"),
+    );
     assert_eq!(a, e);
 }
 #[test]
@@ -189,6 +239,10 @@ fn source_20260828g001920071_complete_original() {
     .unwrap();
     assert_eq!(a["pages"][0]["words"][59],serde_json::from_str::<Value>("{\"id\": 59, \"x0\": 417.8001, \"y0\": 388.8399, \"x1\": 425.8001, \"y1\": 396.8399, \"raw\": \"󴽎\", \"text\": \"寬\", \"status\": \"used\"}").unwrap());
     assert_eq!(a["pages"][0]["words"][78],serde_json::from_str::<Value>("{\"id\": 78, \"x0\": 388.0161, \"y0\": 388.8399, \"x1\": 396.0161, \"y1\": 396.8399, \"raw\": \"󴽎\", \"text\": \"寬\", \"status\": \"used\"}").unwrap());
+    let e = expected_article_partitions::with_articles(
+        e,
+        include_str!("expected-native-article-partitions/20260828g001920071.json"),
+    );
     assert_eq!(a, e);
 }
 #[test]
@@ -201,6 +255,10 @@ fn source_20260909g002010054_complete_original() {
     ))
     .unwrap();
     assert_eq!(a["pages"][0]["words"][51],serde_json::from_str::<Value>("{\"id\": 51, \"x0\": 437.2538, \"y0\": 772.8398, \"x1\": 445.2538, \"y1\": 780.8398, \"raw\": \"󵨍\", \"text\": \"龑\", \"status\": \"used\"}").unwrap());
+    let e = expected_article_partitions::with_articles(
+        e,
+        include_str!("expected-native-article-partitions/20260909g002010054.json"),
+    );
     assert_eq!(a, e);
 }
 #[test]
@@ -213,6 +271,10 @@ fn source_20260910g002020104_complete_original() {
     ))
     .unwrap();
     assert_eq!(a["pages"][0]["words"][133],serde_json::from_str::<Value>("{\"id\": 133, \"x0\": 252.40811, \"y0\": 404.8399, \"x1\": 260.4081, \"y1\": 412.8399, \"raw\": \"󴧈\", \"text\": \"阳\", \"status\": \"used\"}").unwrap());
+    let e = expected_article_partitions::with_articles(
+        e,
+        include_str!("expected-native-article-partitions/20260910g002020104.json"),
+    );
     assert_eq!(a, e);
 }
 #[test]
@@ -238,6 +300,10 @@ fn source_20260915g002050081_complete_original() {
     .unwrap();
     assert_eq!(a["pages"][0]["words"][50],serde_json::from_str::<Value>("{\"id\": 50, \"x0\": 439.8801, \"y0\": 372.8399, \"x1\": 447.8801, \"y1\": 380.8399, \"raw\": \"󴚦\", \"text\": \"玥\", \"status\": \"used\"}").unwrap());
     assert_eq!(a["pages"][0]["words"][77],serde_json::from_str::<Value>("{\"id\": 77, \"x0\": 394.9761, \"y0\": 772.8399, \"x1\": 402.9761, \"y1\": 780.8399, \"raw\": \"󵛓\", \"text\": \"繥\", \"status\": \"used\"}").unwrap());
+    let e = expected_article_partitions::with_articles(
+        e,
+        include_str!("expected-native-article-partitions/20260915g002050081.json"),
+    );
     assert_eq!(a, e);
 }
 #[test]
@@ -250,6 +316,10 @@ fn source_20260917g002080094_complete_original() {
     ))
     .unwrap();
     assert_eq!(a["pages"][0]["words"][122],serde_json::from_str::<Value>("{\"id\": 122, \"x0\": 343.5482, \"y0\": 172.8398, \"x1\": 351.5482, \"y1\": 180.8398, \"raw\": \"󴼧\", \"text\": \"笈\", \"status\": \"used\"}").unwrap());
+    let e = expected_article_partitions::with_articles(
+        e,
+        include_str!("expected-native-article-partitions/20260917g002080094.json"),
+    );
     assert_eq!(a, e);
 }
 #[test]
@@ -262,6 +332,10 @@ fn source_20260924g002110102_complete_original() {
     ))
     .unwrap();
     assert_eq!(a["pages"][0]["words"][213],serde_json::from_str::<Value>("{\"id\": 213, \"x0\": 110.6641, \"y0\": 220.8399, \"x1\": 118.6641, \"y1\": 228.8399, \"raw\": \"󴑍\", \"text\": \"妮\", \"status\": \"used\"}").unwrap());
+    let e = expected_article_partitions::with_articles(
+        e,
+        include_str!("expected-native-article-partitions/20260924g002110102.json"),
+    );
     assert_eq!(a, e);
 }
 #[test]
@@ -274,6 +348,10 @@ fn source_20260930g002160104_complete_original() {
     ))
     .unwrap();
     assert_eq!(a["pages"][0]["words"][106],serde_json::from_str::<Value>("{\"id\": 106, \"x0\": 317.9841, \"y0\": 196.8398, \"x1\": 325.9841, \"y1\": 204.8398, \"raw\": \"󴼹\", \"text\": \"叉\", \"status\": \"used\"}").unwrap());
+    let e = expected_article_partitions::with_articles(
+        e,
+        include_str!("expected-native-article-partitions/20260930g002160104.json"),
+    );
     assert_eq!(a, e);
 }
 #[test]
@@ -286,6 +364,10 @@ fn source_20261001g002170140_complete_original() {
     ))
     .unwrap();
     assert_eq!(a["pages"][0]["words"][53],serde_json::from_str::<Value>("{\"id\": 53, \"x0\": 434.9441, \"y0\": 164.8399, \"x1\": 442.9441, \"y1\": 172.8399, \"raw\": \"󴗸\", \"text\": \"汛\", \"status\": \"used\"}").unwrap());
+    let e = expected_article_partitions::with_articles(
+        e,
+        include_str!("expected-native-article-partitions/20261001g002170140.json"),
+    );
     assert_eq!(a, e);
 }
 #[test]
@@ -299,6 +381,10 @@ fn source_20261007g002210046_complete_original() {
     .unwrap();
     assert_eq!(a["pages"][0]["words"][41],serde_json::from_str::<Value>("{\"id\": 41, \"x0\": 455.0401, \"y0\": 532.8399, \"x1\": 463.0401, \"y1\": 540.8399, \"raw\": \"󴧕\", \"text\": \"隽\", \"status\": \"used\"}").unwrap());
     assert_eq!(a["pages"][0]["words"][49],serde_json::from_str::<Value>("{\"id\": 49, \"x0\": 444.2881, \"y0\": 588.8399, \"x1\": 452.2881, \"y1\": 596.8399, \"raw\": \"󴧕\", \"text\": \"隽\", \"status\": \"used\"}").unwrap());
+    let e = expected_article_partitions::with_articles(
+        e,
+        include_str!("expected-native-article-partitions/20261007g002210046.json"),
+    );
     assert_eq!(a, e);
 }
 #[test]
@@ -311,6 +397,10 @@ fn source_20261009h018050030_complete_original() {
     ))
     .unwrap();
     assert_eq!(a["pages"][0]["words"][210],serde_json::from_str::<Value>("{\"id\": 210, \"x0\": 144.9681, \"y0\": 572.8399, \"x1\": 152.9681, \"y1\": 580.8399, \"raw\": \"󴚦\", \"text\": \"玥\", \"status\": \"used\"}").unwrap());
+    let e = expected_article_partitions::with_articles(
+        e,
+        include_str!("expected-native-article-partitions/20261009h018050030.json"),
+    );
     assert_eq!(a, e);
 }
 #[test]
@@ -335,6 +425,10 @@ fn trusted_20260729h017570030_whole_original_unchanged() {
         "expected-source-aj1/20260729h017570030-trusted-before51.json"
     ))
     .unwrap();
+    let e = expected_article_partitions::with_articles(
+        e,
+        include_str!("expected-native-article-partitions/20260729h017570030.json"),
+    );
     assert_eq!(a, e);
 }
 #[test]
@@ -346,5 +440,9 @@ fn trusted_20261008g002220080_whole_original_unchanged() {
         "expected-source-aj1/20261008g002220080-trusted-before51.json"
     ))
     .unwrap();
+    let e = expected_article_partitions::with_articles(
+        e,
+        include_str!("expected-native-article-partitions/20261008g002220080.json"),
+    );
     assert_eq!(a, e);
 }

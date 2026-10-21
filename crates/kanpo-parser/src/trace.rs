@@ -161,9 +161,13 @@ pub struct Word {
     pub status: WordStatus,
 }
 
+pub(crate) type NativeStyles = std::collections::BTreeSet<(usize, u64)>;
+
 /// 1 ページの復元結果。
 #[derive(Debug, Clone, Serialize)]
 pub struct PageTrace {
+    #[serde(skip)]
+    pub(crate) native_styles: Vec<Option<NativeStyles>>,
     pub width: f32,
     pub height: f32,
     /// ページ全体をどう扱ったか: `"tiers"`（段に分けて復元）/ `"headerless_shinkyu"`

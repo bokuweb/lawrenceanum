@@ -1,8 +1,8 @@
 //! Source evidence for the still-open company notice segmentation problem.
 //!
 //! The correct source fields are supplied by a manual original-PDF annotation.
-//! These tests protect every Word while a future splitter is developed; they do
-//! not claim that the current Article output has those 17 notice boundaries.
+//! These tests protect every source Word and manually annotated role. Article
+//! boundary and exact group membership assertions live in notice_boundaries_tests.
 
 use std::collections::HashSet;
 

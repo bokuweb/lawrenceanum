@@ -1,0 +1,58 @@
+{
+  "issue": 227,
+  "batch": 42,
+  "parent_commit": "9d93160eca20b9eea5f57dedba2bb628cd8f2521",
+  "native_runtime_source": 67,
+  "native_parent_source": 63,
+  "OCR_tool_revision": 2,
+  "goal_complete": false,
+  "whole_corpus_strict_quality_not_reestimated": true,
+  "whole_Analysis_changed_pages_vs63": 1951,
+  "character_changed_pages_vs63": 0,
+  "review_method": "Engineering delta QA, not blind accuracy evaluation or an independent reviewer. Some discovered failures became new source-owned control tests.",
+  "original_images": {
+    "initial_deterministic_delta_samples": 24,
+    "financial_table_witness_delta_samples": 8,
+    "unknown_title_rule_delta_pages_all_reviewed": 8,
+    "unique_delta_sample_images": 39,
+    "three_additional_preexisting_manual_control_images": 3,
+    "unique_full_original_images_reviewed_this_batch": 42
+  },
+  "observed_added_cut_errors": 0,
+  "remaining_mixed_units_not_counted_as_repaired": [
+    "Ordinal/parenthesized medical notices in20261005g002190067 and20261020g002300070",
+    "Adjacent bank notices in20260803g001740136",
+    "Fundraising notice in20260903g001970080",
+    "Inherited old address-fragment Article endpoints, including20260716g001590048 and20260828g001920071"
+  ],
+  "native_coverage_limitations": [
+    "Publisher advertisement in20260819g001850057 remains absent from both old and new native text.",
+    "Upper image-only legal notices in20260925g002120067 are not claimed recovered."
+  ],
+  "snapshot_structural_review": {
+    "existing": 778,
+    "unchanged": 672,
+    "updated": 106,
+    "new": 2,
+    "total": 780,
+    "all108_full_contents_equal_fresh_default_native_API": true,
+    "all106_existing_body_bytes_equal_old": true,
+    "all108_heading_partition_summaries_reviewed": true,
+    "not_all1951_original_PDFs_visually_reviewed": true
+  },
+  "initial_selection_schema_correction": "The audit144 exclusion regex initially had one digit too few. Rechecking all30 exact IDs found zero overlap with the selected24; their eligibility did not change.",
+  "audit144": {
+    "source67_full_native_gate": "native67-full-r2/result.json",
+    "source63_audit_inheritance": "../audit144-source63-inheritance.json",
+    "initial_grades_fixed_no_regrade": true,
+    "all30_native_PageTrace_and_body_text_exact63": true,
+    "whole_Analysis_changed_pages": [],
+    "whole_Analysis_exact_pages": 30,
+    "source67_new_Article_partitioning_does_not_change_initial_grade_counts": true,
+    "audit_pages_not_repair_targets": true
+  },
+  "full_review_data": {
+    "path": ".cache/kanpo-227/notice42/review/final67-findings.json",
+    "sha256": "4907ab75e47829106b78c824a548c865bccfe45fe4d05affa879adbee11a654a"
+  }
+}

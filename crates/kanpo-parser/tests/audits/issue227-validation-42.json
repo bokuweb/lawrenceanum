@@ -1,0 +1,76 @@
+{
+  "issue": 227,
+  "batch": 42,
+  "parent_commit": "9d93160eca20b9eea5f57dedba2bb628cd8f2521",
+  "native_runtime_source": 67,
+  "native_parent_source": 63,
+  "OCR_tool_revision": 2,
+  "goal_complete": false,
+  "whole_corpus_strict_quality_not_reestimated": true,
+  "whole_Analysis_changed_pages_vs63": 1951,
+  "character_changed_pages_vs63": 0,
+  "local_required_tests": {
+    "passed": 1774,
+    "failed": 0,
+    "ignored": 0,
+    "groups": 117,
+    "integration_targets": 109,
+    "libraries": 4,
+    "doctests": 4,
+    "all4_examples_typechecked": true,
+    "commands": 118,
+    "new_parser_tests": 45,
+    "new_PDF_tests": 4,
+    "all_test_filters_absent": true
+  },
+  "whole_native_Analysis": {
+    "terminal": 0,
+    "pages": 11992,
+    "changed": 1951,
+    "whole_Analysis_exact": 10041,
+    "all_pages_and_text_exact": true,
+    "all_source_words": 2403403,
+    "document_run_bytes_styles_tables_and_old_article_endpoints_preserved": true,
+    "frozen_inputs_unchanged": true,
+    "seconds": 282.274592958
+  },
+  "fresh_actual_textdump_CLI": {
+    "terminal": 0,
+    "all11992_text_file_bytes_exact63": true,
+    "fresh_default_CLI_from_original_PDFs": true,
+    "binary_sha256": "bd9442b23f7db9c0fdd337a16ee67cd4f8697d72f5f6adf3b54aa049ed2a98cf",
+    "only_private_test_include_paths_differ_from_shared_source": true
+  },
+  "old_assets": {
+    "count": 1127,
+    "unchanged": 1100,
+    "updated": 27,
+    "updated_test_sources": 3,
+    "updated_XHTML": 24,
+    "XHTML_diff_only_added_native_style_attributes": true,
+    "all_old_historical_full_Analysis_JSON_oracles_unchanged": true,
+    "all_corpus_expected_text_rules_and_Docs_unchanged": true
+  },
+  "legacy_regression_coverage": {
+    "new_static_Article_partition_files": 37,
+    "whole_Analysis_assertions_rebound": 38,
+    "families": [
+      "identity_surname_fixtures",
+      "source_aj1_fixtures",
+      "tsuji_glyph_fixtures"
+    ],
+    "every_old_corrected_Run_byte_style_table_and_Article_endpoint_rechecked_before_composition": true,
+    "whole_default_Analysis_comparison_and_original_glyph_assertions_retained": true
+  },
+  "snapshot_updates": {
+    "existing_updated": 106,
+    "new": 2,
+    "all_old_body_bytes_exact": true,
+    "all_new_rendering_exact_fresh_native_API": true,
+    "pending_snap_new": 0
+  },
+  "earlier_attempts": "Corpus metadata and old whole-Analysis Article expectations first failed; historical oracles were preserved and only reviewed split partitions were added. ENOSPC compiler/archive attempts and interrupted native67 first stream were retained separately; no failed attempt is counted as success. Later successful default gates use real Cargo/rustc without the optional cache frontend.",
+  "storage_cleanup": "Only task-created completed build caches were compressed with verified restore hashes; duplicate gzip output storage was hardlinked only after verifying identical decoded JSON, with original gzip headers/SHA retained for restoration. No source/PDF/reference text was deleted.",
+  "advisory_checks": "No whole-repository fmt/clippy-clean claim. git diff --check passed.",
+  "PR_checks_at_preparation": "Fresh implementation commit CI has not run at this record's preparation. Final commit checks are recorded separately in the PR and local accepted checkpoint."
+}
