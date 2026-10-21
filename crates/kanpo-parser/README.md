@@ -301,6 +301,7 @@ cargo run --release -p kanpo-parser --example snapshot_sample -- .cache/kanpo-ar
 | 136 回目（独立・初回、全体品質） | 14 | 5 | 11 | 比較対象外 |
 | 137 回目（独立・初回、全体品質） | 15 | 6 | 9 | 比較対象外 |
 | 138 回目（独立・初回、全体品質） | 14 | 2 | 14 | 比較対象外 |
+| 139 回目（独立・初回、全体品質） | 5 | 4 | 21 | 比較対象外 |
 
 110 回目から、対象ページ ID・原本 SHA-256・採点の理由を [`tests/audits/`](tests/audits/) に残す。
 110 回目は本文に文字層のある 30 ページで校正し、見つかった分数式・金額の空欄位置の崩れを修正して同じ原本で再照合した結果。
@@ -936,3 +937,34 @@ ToUnicodeがPUA E712を返す原Glyph/CID25198について、30頁の原CFF輪�
 [`tests/audits/issue227-twenty-seventh-batch-provenance.json`](tests/audits/issue227-twenty-seventh-batch-provenance.json)、
 [`tests/audits/issue227-twenty-seventh-batch-reviews.json`](tests/audits/issue227-twenty-seventh-batch-reviews.json)、
 [`tests/audits/issue227-validation-27.json`](tests/audits/issue227-validation-27.json)に保存した。
+
+
+第 28 次修正では、22頁の姓名・地名等にある原「辻」23字を復元した。
+ToUnicodeのPUA E467/CID23161を埋込CFF・原図・元Glyphへ照合して限定正規化を追加し、以前から正しかった同CIDのIdentity54字と通常Unicode辻97字は変更しない。
+元77GlyphのCFFは明朝・ゴシックの2輪郭だけであり、全11,992頁の出現分類と対応を保存した。
+実装前の同じ実PDF12テストは8失敗・保存用4成功、実装後12成功。通常Unicode・旧Identity/bare fallback・未確認隣CID/PUAを守る私有3テストも先に失敗させ、既存16件と合わせ1失敗18成功から19成功を確認した。以前のcheckbox実PDF5件も同一assertionで成功した。
+全4関連クレート1,408テスト成功、103統合対象・4ライブラリ・4doc-test・全4examples、112コマンド終了0。パーサ単体873件、PDF単体34件、アーカイブ688原PDFである。
+
+全11,992原本のtextdump --pdfを再実行し、解析全体は22変更・11,970完全一致。累計2,939変更頁・文字変化1,352頁。
+元23Wordのraw・ID・座標・他属性を保持し、17既存Used Wordの文字復元と6既存Empty WordのUsed化/一意所属だけを許した。推測Word/IDの追加・元文字の消失は0、旧所有は一度ずつである。
+本文に原辻23字と局所の全角空白6字を追加し、本文改行数を保持した。移動のない21頁は全text葉の編集を原辻/局所全角空白へ個別照合し、他の文字・改行・ASCII空白を保持した。
+171号163頁は横書きの会社名「辻蔵」が戻ることで既存の財務枠処理が働き、第三の同枠の合併公告19行を、その公告自身の2つのBSより前へ移した。
+この1頁は単なる文字挿入とは扱わず、fresh baseline48だけから元19行の順列とDocRun8/10/12の移動を再構成し、解析全体がcandidate49に完全一致することをrootで証明した。全8表・他3枠・内部の元相対順・原IDは保持する。4独立合併が1Articleに混在する既存majorは残る。
+203号97/98/102頁の原所属セル内の地名も、baselineだけから元Word・セル・対応するDocセルの辻挿入を再構成し、他の全セル/結合/座標/役割を保持した完全oracleに固定した。その他の非text構造も6元IDの所属追加と明示した19行順列以外は完全一致する。
+
+22正例の原図全体・全文・全Article/Documentは独立既読証拠とfresh root画像SHA/全解析を再照合し、保存用4頁の原図・全669行・全Article/Document/Table/Runはrootでも読了した。全26頁で4,767行・26Article/Documentである。
+原23Glyphのf64値は全てliteral完全一致。独立証拠のWord座標がjson!(f32)でf64へ展開されていた相違は、同じ元f32のビット完全一致で検証した。数値全般の許容差へ置き換えず、fresh全解析と独立の全解析oracleの比較も完全一致を要求する。
+新規26snapshotを全本文・全Article/Documentへ照合後に確定し、INSTA_UPDATE=noで688原本を再検査した。既存snapshot/期待値の変更・assertion緩和は0である。
+影響頁の既存native0主張は4原本の限定7矩形だけをrootの全9,850Glyphで再検査し、11陽性領域も確認した。203号97頁の初回「禮」欠落minorの反証と、102頁の広矩形に上行「代」が1字交差する事実/狭いink矩形0は別adjudicationに保持し、初回採点を書き換えない。ページ全体は除外しない。
+従来の原横棒11,033字、分数153件、期間706組、番号121組、括弧377セル、各数式等も累積2,939頁の再検査で保持した。
+集計スクリプトが新26原本を26個の追加Rustテストと誤算し、全112コマンドの終了0後に誤った総数assertionで停止した履歴を保存した。archive_pagesは1関数内で全原本を検査するため、正しい総数は以前の1,393+実PDF12+単体3=1,408である。同じ全終了0ログ/ソースSHAを再照合して集計を完了し、入力数とテスト関数数を混同しない。
+
+139回目の未見30頁は、範囲・原本・画像・全解析を採点前に固定した。初回の全体品質5ok/4minor/21major、本文・文字・読順21ok/1minor/8majorを保存し、全2,300行・54Article/Documentを読了した。
+全30頁のbefore48/after49解析は完全一致、今回の退行0である。native0除外は3原本の限定8矩形だけで、全5,098Glyphと近隣4陽性領域633Glyphを確認した。空Unicode・不可視・ゼロ寸法・反転座標・端接触も数え、ページ全体は除外しない。
+BS純額が控除科目へ割り当たる誤り、数値先頭4の誤列所属、氏名/職名・住所との混在、価格/新旧のrowspanや役割の欠落は既存majorとして残る。初回採点を後の修復で上書きせず、異なる監査範囲の率比較もしない。
+会社候補は固定1,286頁中361頁確認・925頁未確認で未採用。追加60頁の初回16改善/44部分改善・新退行0を保存し、後の姓名誤字発見307は初回okを保った別major/partialとして残す。旧候補の履歴を維持し、機械検証を視覚監査へ置き換えない。
+160号48頁の引用中の表と通常Unicode「救」の旧CID混同は、それぞれ現行49への別候補として全頁比較・実PDF失敗先行テストを終え、共存を検証中である。新たに観察した補助平面CID姓名の誤字も原CFFと全出現を調査する。全体100%は未達で、改善を続ける。
+証拠は[`tests/audits/139.json`](tests/audits/139.json)、
+[`tests/audits/issue227-twenty-eighth-batch-provenance.json`](tests/audits/issue227-twenty-eighth-batch-provenance.json)、
+[`tests/audits/issue227-twenty-eighth-batch-reviews.json`](tests/audits/issue227-twenty-eighth-batch-reviews.json)、
+[`tests/audits/issue227-validation-28.json`](tests/audits/issue227-validation-28.json)に保存した。

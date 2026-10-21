@@ -120,6 +120,8 @@ fn private_use_char(c: char) -> Option<char> {
         '\u{E61C}' => Some('－'),
         // 医療材料価格の面積単位。全 11,992 ページ中の 2 字を原本画像で照合。
         '\u{E68C}' => Some('㎠'),
+        // 元のToUnicodeと埋込CFF輪郭で確認した辻（CID23161）。
+        '\u{E467}' => Some('辻'),
         // 法人署名の姓。全 11,992 ページ中の 6 字を原本画像で照合。
         '\u{E469}' => Some('鄭'),
         // CID 25572 は財務諸表の負の金額の印「△」（「△33,291」「利息費用相当累計額（△）」）。蓄積した官報の 1 万 2 千字
@@ -697,5 +699,32 @@ mod checkbox_source_tests {
         assert_eq!(word_text("\u{E711}\u{E713}"), "");
         assert_eq!(word_text("□■"), "□■");
         assert_eq!(word_text("\u{E005}"), "");
+    }
+}
+
+#[cfg(test)]
+mod tsuji_source_glyph_tests {
+    use super::*;
+    fn tagged(cid:u32)->String{char::from_u32(kanpo_pdf::bbox::IDENTITY_CID_BASE+cid).unwrap().to_string()}
+    #[test]
+    fn restores_source_proven_tounicode_tsuji_in_standalone_and_mixed_words(){
+        assert_eq!(word_text("\u{E467}"),"辻");
+        assert_eq!(word_text("\u{E467}田広人"),"辻田広人");
+        assert_eq!(word_text("湘南\u{E467}堂"),"湘南辻堂");
+        assert_eq!(normalize_text("代表者\u{E467}潤一郎"),"代表者辻潤一郎");
+    }
+    #[test]
+    fn preserves_preexisting_identity_cid_23161_mapping(){
+        let raw=tagged(23161);assert_eq!(word_text(&raw),"辻");
+        assert_eq!(private_cid_glyph(&raw,8.,8.).unwrap().text,"辻");
+    }
+    #[test]
+    fn preserves_genuine_unicode_untagged_cid_and_unverified_neighbors(){
+        assert_eq!(word_text("婹辻田広人湘南辻堂"),"婹辻田広人湘南辻堂");
+        // 未タグUnicodeのword_textは不変。既存poppler幾何fallbackも維持。
+        assert_eq!(private_cid_glyph("婹",8.,8.).unwrap().text,"辻");
+        assert_eq!(word_text("\u{E466}\u{E468}\u{E500}"),"");
+        assert_eq!(word_text(&tagged(23162)),"婺");
+        assert_eq!(word_text("\u{E469}"),"鄭");
     }
 }
