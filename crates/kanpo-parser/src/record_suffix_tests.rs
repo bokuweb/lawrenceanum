@@ -723,3 +723,164 @@ mod cut_addendum {
         assert_safe_optional_cuts(&b);
     }
 }
+
+// Pre-frozen source-column support contracts. Only earlier-band rectangles move.
+mod support61 {
+    use super::*;
+    fn shift_inner(mut bs: Vec<Vec<Col>>, dx: f32) -> Vec<Vec<Col>> {
+        for b in &mut bs[..2] {
+            for c in b {
+                if (100. ..180.).contains(&((c.x + c.x1) / 2.)) {
+                    c.x += dx;
+                    c.x1 += dx;
+                }
+            }
+        }
+        bs
+    }
+    fn scale(mut bs: Vec<Vec<Col>>, s: f32, dx: f32, dy: f32) -> Vec<Vec<Col>> {
+        for c in bs.iter_mut().flatten() {
+            c.x = c.x * s + dx;
+            c.x1 = c.x1 * s + dx;
+            c.y = c.y * s + dy;
+            c.y1 = c.y1 * s + dy;
+        }
+        bs
+    }
+    fn thin(mut bs: Vec<Vec<Col>>, width: f32) -> Vec<Vec<Col>> {
+        for c in bs.iter_mut().flatten() {
+            let mid = (c.x + c.x1) / 2.;
+            c.x = mid - width / 2.;
+            c.x1 = mid + width / 2.;
+        }
+        bs
+    }
+    fn accepted(bs: &[Vec<Col>]) {
+        assert_eq!(
+            infer_stacked_suffix(bs, 3, &[]),
+            infer_stacked_suffix(&fixture(), 3, &[])
+        );
+    }
+    #[test]
+    fn mutual_interior_axes_can_differ_more_than_three_points() {
+        accepted(&shift_inner(fixture(), 3.5));
+    }
+    #[test]
+    fn exactly_three_points_has_no_special_alignment_meaning() {
+        accepted(&shift_inner(fixture(), 3.));
+    }
+    #[test]
+    fn valid_axis_membership_is_covariant_under_safe_binary_scales() {
+        let expected = infer_stacked_suffix(&fixture(), 3, &[]).unwrap();
+        for s in [0.5, 1., 2.] {
+            let b = scale(shift_inner(fixture(), 2.), s, 16., 32.);
+            assert_eq!(
+                infer_stacked_suffix(&b, 3, &[]),
+                Some(expected.iter().map(|y| y * s + 32.).collect())
+            );
+        }
+    }
+    #[test]
+    fn narrow_nonoverlapping_axes_are_not_three_point_matches() {
+        assert!(infer_stacked_suffix(&shift_inner(thin(fixture(), 1.), 1.), 3, &[]).is_none());
+    }
+    #[test]
+    fn invalid_axis_membership_is_covariant_under_safe_binary_scales() {
+        for s in [0.5, 1., 2.] {
+            let b = scale(shift_inner(thin(fixture(), 1.), 1.), s, 16., 32.);
+            assert!(infer_stacked_suffix(&b, 3, &[]).is_none());
+        }
+    }
+    #[test]
+    fn a_prior_midpoint_on_a_tail_core_edge_is_not_interior_evidence() {
+        assert!(infer_stacked_suffix(&shift_inner(fixture(), 4.), 3, &[]).is_none());
+    }
+    #[test]
+    fn a_tail_axis_on_a_prior_rectangle_edge_is_not_interior_evidence() {
+        let mut b = fixture();
+        for band in &mut b[..2] {
+            for c in band {
+                let mid = (c.x + c.x1) / 2.;
+                if (100. ..180.).contains(&mid) {
+                    c.x = mid;
+                    c.x1 = mid + 2.;
+                }
+            }
+        }
+        assert!(infer_stacked_suffix(&b, 3, &[]).is_none());
+    }
+    #[test]
+    fn a_prior_rectangle_crossing_competing_record_cores_cannot_supply_support() {
+        let mut b = fixture();
+        for band in &mut b[..2] {
+            for c in band {
+                if (c.x + c.x1) / 2. == 160. {
+                    c.x = 115.;
+                    c.x1 = 205.;
+                }
+            }
+        }
+        assert!(infer_stacked_suffix(&b, 3, &[]).is_none());
+    }
+    #[test]
+    fn separate_prior_fragments_can_support_the_same_unique_record_core() {
+        let mut b = fixture();
+        let mut id = 9000;
+        for band in &mut b[..2] {
+            let mut extras = Vec::new();
+            for c in band.iter() {
+                let mut n = c.clone();
+                n.id = id;
+                id += 1;
+                n.x += 1.;
+                n.x1 += 1.;
+                extras.push(n);
+            }
+            band.extend(extras);
+        }
+        accepted(&b);
+    }
+    #[test]
+    fn source_order_does_not_choose_a_different_supporting_fragment() {
+        let mut b = fixture();
+        for band in &mut b[..2] {
+            band.reverse();
+        }
+        accepted(&b);
+    }
+}
+
+// Additional discriminating narrow-prior contracts. Tail geometry is unchanged.
+mod support61_narrow {
+    use super::*;
+    fn narrow_prior() -> Vec<Vec<Col>> {
+        let mut b = fixture();
+        for band in &mut b[..2] {
+            for c in band {
+                let mid = (c.x + c.x1) / 2.;
+                if (100. ..180.).contains(&mid) {
+                    c.x = mid + 1.5;
+                    c.x1 = mid + 2.5;
+                }
+            }
+        }
+        b
+    }
+    #[test]
+    fn a_narrow_prior_rectangle_cannot_borrow_an_outside_tail_axis() {
+        assert!(infer_stacked_suffix(&narrow_prior(), 3, &[]).is_none());
+    }
+    #[test]
+    fn narrow_prior_axis_rejection_is_covariant_under_safe_binary_scales() {
+        for s in [0.5, 1., 2.] {
+            let mut b = narrow_prior();
+            for c in b.iter_mut().flatten() {
+                c.x = c.x * s + 16.;
+                c.x1 = c.x1 * s + 16.;
+                c.y = c.y * s + 32.;
+                c.y1 = c.y1 * s + 32.;
+            }
+            assert!(infer_stacked_suffix(&b, 3, &[]).is_none());
+        }
+    }
+}

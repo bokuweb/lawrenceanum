@@ -161,6 +161,16 @@ pub(crate) fn infer_stacked_suffix(
     if columns.len() < 3 {
         return None;
     }
+    // Keep the actual positive common core of each suffix record column.
+    let cores: Vec<(f32, f32)> = columns
+        .iter()
+        .map(|(_, cs)| {
+            (
+                cs.iter().map(|c| c.x).fold(f32::NEG_INFINITY, f32::max),
+                cs.iter().map(|c| c.x1).fold(f32::INFINITY, f32::min),
+            )
+        })
+        .collect();
     let anchors: Vec<f32> = columns.iter().map(|(axis, _)| *axis).collect();
     let columns: Vec<Vec<&Col>> = columns.into_iter().map(|(_, cs)| cs).collect();
     let em = tail
@@ -260,10 +270,23 @@ pub(crate) fn infer_stacked_suffix(
         }) {
             return None;
         }
-        if anchors
-            .iter()
-            .all(|&a| b.iter().any(|c| (center(c) - a).abs() < 3.))
-        {
+        // A source column supports one suffix record only when their axes
+        // lie strictly inside each other's actual source projection. A wide
+        // source crossing another record core is ambiguous, regardless of its
+        // midpoint. Multiple source fragments may support the same record.
+        if anchors.iter().enumerate().all(|(i, &a)| {
+            b.iter().any(|c| {
+                let mid = center(c);
+                let (lo, hi) = cores[i];
+                c.x < a
+                    && a < c.x1
+                    && lo < mid
+                    && mid < hi
+                    && cores.iter().enumerate().all(|(j, &(other_lo, other_hi))| {
+                        j == i || c.x.max(other_lo) >= c.x1.min(other_hi)
+                    })
+            })
+        }) {
             supporting += 1;
         }
     }
