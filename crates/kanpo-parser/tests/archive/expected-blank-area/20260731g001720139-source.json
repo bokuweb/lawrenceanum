@@ -349,8 +349,8 @@
       "x1": 126.75,
       "y1": 355.8999,
       "raw": "",
-      "text": "",
-      "status": "empty"
+      "text": "□",
+      "status": "used"
     },
     {
       "id": 35,
@@ -469,8 +469,8 @@
       "x1": 94.75,
       "y1": 355.8999,
       "raw": "",
-      "text": "",
-      "status": "empty"
+      "text": "□",
+      "status": "used"
     },
     {
       "id": 47,
@@ -864,5 +864,17 @@
       "before_owner_text": "【総専有床面積】",
       "after_owner_text": "【総専有床面積】㎡"
     }
-  ]
+  ],
+  "checkbox_rebase_provenance": {
+    "parent": "after48/source104",
+    "previous_source_sha256": "21fc0e451bdc28eee38bac8e6715aa7cf6db516d69708e6267daf12557ba5aac",
+    "previous_fulltext_exact_to_before47": true,
+    "before47_completeAnalysis_gzip_sha256": "6ff19977070fbc8afac1560f2dee9c53fffe138ec7adccb8a14171fc25892732",
+    "after48_completeAnalysis_gzip_sha256": "7275cb15772738bf4691f4f9989b1ead93928ad52075797ff96d51601e6a0060",
+    "original_E712_word_ids": [
+      34,
+      46
+    ],
+    "area_E68D_bindings_and_historical_empty_target_words_unchanged": true
+  }
 }

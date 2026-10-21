@@ -169,8 +169,8 @@
       "x1": 546.25,
       "y1": 246.0784,
       "raw": "",
-      "text": "",
-      "status": "empty"
+      "text": "□",
+      "status": "used"
     },
     {
       "id": 17,
@@ -219,8 +219,8 @@
       "x1": 498.25,
       "y1": 246.0784,
       "raw": "",
-      "text": "",
-      "status": "empty"
+      "text": "□",
+      "status": "used"
     },
     {
       "id": 22,
@@ -359,8 +359,8 @@
       "x1": 450.25,
       "y1": 246.0784,
       "raw": "",
-      "text": "",
-      "status": "empty"
+      "text": "□",
+      "status": "used"
     },
     {
       "id": 36,
@@ -759,8 +759,8 @@
       "x1": 190.75,
       "y1": 298.8999,
       "raw": "",
-      "text": "",
-      "status": "empty"
+      "text": "□",
+      "status": "used"
     },
     {
       "id": 76,
@@ -809,8 +809,8 @@
       "x1": 142.75,
       "y1": 298.8999,
       "raw": "",
-      "text": "",
-      "status": "empty"
+      "text": "□",
+      "status": "used"
     },
     {
       "id": 81,
@@ -969,8 +969,8 @@
       "x1": 94.75,
       "y1": 298.8999,
       "raw": "",
-      "text": "",
-      "status": "empty"
+      "text": "□",
+      "status": "used"
     },
     {
       "id": 97,
@@ -1404,5 +1404,21 @@
       "before_owner_text": "【総専有床面積】",
       "after_owner_text": "【総専有床面積】㎡"
     }
-  ]
+  ],
+  "checkbox_rebase_provenance": {
+    "parent": "after48/source104",
+    "previous_source_sha256": "0dfef92427a6c2d56f1315f652c25867b1ec349ff786a5ae9e008988cef3cb00",
+    "previous_fulltext_exact_to_before47": true,
+    "before47_completeAnalysis_gzip_sha256": "99342dd2190d073b8aaa3c1e8923ebae9ad2c5ad88c5c0fd00dddcbcce73df03",
+    "after48_completeAnalysis_gzip_sha256": "a7515cc8067fc27f10bb21986db71b5cc0e50a670e5f81dfa78ddb090f4a5222",
+    "original_E712_word_ids": [
+      16,
+      21,
+      35,
+      75,
+      80,
+      96
+    ],
+    "area_E68D_bindings_and_historical_empty_target_words_unchanged": true
+  }
 }

@@ -113,6 +113,8 @@ pub(crate) fn text_char(c: char) -> Option<char> {
 /// 原本の字形で確かめた。英数字の間に出る。U+E888（CID 25572）は負の金額の印「△」。
 fn private_use_char(c: char) -> Option<char> {
     match c {
+        // CFF-verified checkbox: all 247 native E712/CID25198 glyphs have the same square outline.
+        '\u{E712}' => Some('□'),
         '\u{EA74}' => Some('.'),
         '\u{EA75}' => Some(','),
         '\u{E61C}' => Some('－'),
@@ -681,5 +683,19 @@ mod identity_surname_tests {
         }
         assert_eq!(word_text("\u{E500}"), "");
         assert_eq!(word_text(&tagged(0x4238)), "䈸");
+    }
+}
+
+#[cfg(test)]
+mod checkbox_source_tests {
+    use super::*;
+    #[test] fn verified_square_is_preserved_standalone_and_inline() {
+        assert_eq!(word_text("\u{E712}"), "□");
+        assert_eq!(word_text("有\u{E712}無"), "有□無");
+    }
+    #[test] fn neighboring_unverified_pua_are_not_guessed_as_squares() {
+        assert_eq!(word_text("\u{E711}\u{E713}"), "");
+        assert_eq!(word_text("□■"), "□■");
+        assert_eq!(word_text("\u{E005}"), "");
     }
 }

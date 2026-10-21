@@ -300,6 +300,7 @@ cargo run --release -p kanpo-parser --example snapshot_sample -- .cache/kanpo-ar
 | 135 回目（独立・初回、全体品質） | 16 | 4 | 10 | 比較対象外 |
 | 136 回目（独立・初回、全体品質） | 14 | 5 | 11 | 比較対象外 |
 | 137 回目（独立・初回、全体品質） | 15 | 6 | 9 | 比較対象外 |
+| 138 回目（独立・初回、全体品質） | 14 | 2 | 14 | 比較対象外 |
 
 110 回目から、対象ページ ID・原本 SHA-256・採点の理由を [`tests/audits/`](tests/audits/) に残す。
 110 回目は本文に文字層のある 30 ページで校正し、見つかった分数式・金額の空欄位置の崩れを修正して同じ原本で再照合した結果。
@@ -904,3 +905,34 @@ checkbox247Glyph/30頁、「辻」のPUA、160号48頁の引用中の表分裂�
 [`tests/audits/issue227-twenty-sixth-batch-provenance.json`](tests/audits/issue227-twenty-sixth-batch-provenance.json)、
 [`tests/audits/issue227-twenty-sixth-batch-reviews.json`](tests/audits/issue227-twenty-sixth-batch-reviews.json)、
 [`tests/audits/issue227-validation-26.json`](tests/audits/issue227-validation-26.json)に保存した。
+
+
+第 27 次修正では、申請書・選択欄など30頁で原PDFにある247字の「□」を復元した。
+ToUnicodeがPUA E712を返す原Glyph/CID25198について、30頁の原CFF輪郭と印字を照合して正規化を限定追加した。
+実装前に同じ実PDF5テストで4失敗・保存用1成功を確認し、実装後はassertionを変更せず5成功となった。
+単独・本文内の正例と隣接する未確認PUAを推測しない負例をproduction内に追加し、同じ16単体テストの1失敗15成功から16成功も確認した。
+全4関連クレート1,393テスト成功、102統合対象・4ライブラリ・4doc-test・全4examples、111コマンド終了0。パーサ単体870テスト、アーカイブ662原PDFである。
+
+全11,992原本のtextdump --pdfを再実行し、解析全体は30変更・11,962完全一致。累計2,935変更頁・文字変化1,337頁となった。
+元Wordのraw・ID・座標・その他属性を保持し、246既存Empty WordのUsed化と元行への所属、既存Used Word内1字の復元だけを許した。旧所有は一度ずつ、推測Word/IDの追加・元文字の消失は0である。
+行・表・セル座標/結合・role・Article/Documentの非text構造も保持した。本文では原字間の全角空白が85増・1減となり、本文/Article/Documentに重複する265個のtext葉では合計425増・5減となる。
+これらを一律免除せず、各編集を原247Glyphと局所字間の証拠へ照合した。その他の文字、改行、ASCII空白は全て保持した。
+30正例と4負例の原図全体・全1,535行・35Article/Documentを独立に確認し、rootで34枚の画像SHAを再現、解析全体も既読証拠と完全照合した。既存の様式・新旧・役割等の欠陥は初回記録に残し、文字復元を全頁成功と数えない。
+
+新規28・既存6snapshotは全本文・全Article/Documentを比較後に更新し、INSTA_UPDATE=noで662件を再検査した。
+既存の㎡テストも欠けていた□を検出したため、原図とnative根拠の下で既存期待値11ファイルを更新した。
+面積単位2Wordとblank-area10Wordの原字・座標・全bindings、全既存assertionは完全保持し、blank-areaの24個の□だけを既に復元された文字状態へ反映した。旧期待値・Git blob・初回失敗・更新前後の証拠を保存し、assertionの緩和はない。
+従来の原横棒11,033字、分数153件、期間706組、番号121組、括弧377セル、各数式等も累積2,935頁の再検査で保持した。
+
+初回の全頁抽出はディスク不足で失敗した。2,939部分出力をSHA付きで隔離し採用せず、完了済みテスト実行物と過去差分だけを復元可能なgzipへ保存した。
+全24,976入力/ソース/実行物/依存物のSHAを再確認し、新しい出力先で全11,992頁を初めから再抽出・比較した。部分出力の再利用はない。
+独立native証拠との1ULPの相違は、相手がserde_json::Valueのparse/serializeを経た表現であることを原Page全体で証明した。同じ一回の変換後に全Page完全一致を要求し、fresh原nativeのf64値は丸めず別保存した。数値全般の許容差へ置き換えていない。
+
+138回目の未見30頁は、範囲・原本・画像・全解析を採点前に固定した。初回の全体品質14ok/2minor/14major、本文・文字・読順25ok/1minor/4majorを保存し、全2,548行・60Article/Documentを読了した。
+全30頁のbefore47/after48解析は完全一致、今回の退行0である。native0の除外は3原本の限定9矩形だけとし、原5,075Glyphと近隣9陽性領域を確認した。空Unicode・不可視・ゼロ寸法・反転座標・端接触も数え、ページ全体は除外しない。初回採点を後の修復で上書きせず、異なる監査範囲の率比較もしない。
+会社候補は固定1,286頁中301頁確認・985頁未確認のまま未採用で、次の60頁を確認中である。現行48への再構成と全頁比較は済んだが、機械検証を視覚監査の代わりには数えない。
+「辻」のPUA、160号48頁の引用中の表、今回見つけた通常Unicodeの「救」が旧CIDと混同される問題も、別作業コピーで失敗テストを先に作って検証中である。全体100%は未達で、改善を続ける。
+証拠は[`tests/audits/138.json`](tests/audits/138.json)、
+[`tests/audits/issue227-twenty-seventh-batch-provenance.json`](tests/audits/issue227-twenty-seventh-batch-provenance.json)、
+[`tests/audits/issue227-twenty-seventh-batch-reviews.json`](tests/audits/issue227-twenty-seventh-batch-reviews.json)、
+[`tests/audits/issue227-validation-27.json`](tests/audits/issue227-validation-27.json)に保存した。
