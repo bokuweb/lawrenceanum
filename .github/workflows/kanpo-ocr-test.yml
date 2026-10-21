@@ -1,0 +1,24 @@
+name: kanpo-ocr test
+on:
+  pull_request:
+    paths:
+      - "tools/kanpo-ocr/**"
+      - ".github/workflows/kanpo-ocr-test.yml"
+  push:
+    branches: [main]
+    paths:
+      - "tools/kanpo-ocr/**"
+      - ".github/workflows/kanpo-ocr-test.yml"
+permissions:
+  contents: read
+jobs:
+  ocr-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      # Contract/failure tests use a fake engine. No OCR weights or inference in CI.
+      - run: node --test tools/kanpo-ocr/sidecar.test.cjs

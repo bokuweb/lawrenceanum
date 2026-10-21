@@ -1,0 +1,36 @@
+{
+  "issue": 227,
+  "batch": 40,
+  "source": 63,
+  "tool_revision": 1,
+  "parent_commit": "a29a13f7d25294706130d58946f6ee5ee7a30b05",
+  "goal_complete": false,
+  "canonical_quality_improvement_pages": 0,
+  "cumulative_changed_pages": 2957,
+  "cumulative_character_changed_pages": 1373,
+  "initial_review": {
+    "CLI_default20_pass": true,
+    "independent5": {
+      "passed": 2,
+      "failed": 3
+    },
+    "findings": [
+      "Partial terminal write hid ENOSPC with EEXIST and left malformed published JSON.",
+      "Positive pixel box collapsed under MIN_VALUE point frame but was marked valid.",
+      "NaN and Infinity both persisted as null without distinguishing diagnostics."
+    ],
+    "old_sources_probes_failures_retained": true
+  },
+  "final_review": {
+    "manifest_sha256": "47c60865e93f71b4a19fdfaec0f1af9bd7f5caaedddae69b4c48b24eca387bf9",
+    "artifacts_verified": 29,
+    "source_files_verified": 7,
+    "same28_contract_tests_pass": true,
+    "same5_independent_probes_pass": true,
+    "partial_write_injection_adapted_to_fd_tmp_assertions_unchanged": true,
+    "blocking_findings_in_current_tool_delta": 0,
+    "reviewer_model_downloads_or_inferences": 0,
+    "wholepage_quality_and_Article_ownership_not_proven": true
+  },
+  "held_candidate64_blocker_retained": true
+}

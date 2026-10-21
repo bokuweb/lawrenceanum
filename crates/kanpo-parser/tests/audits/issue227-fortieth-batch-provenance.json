@@ -1,0 +1,179 @@
+{
+  "issue": 227,
+  "batch": 40,
+  "source": 63,
+  "tool_revision": 1,
+  "parent_commit": "a29a13f7d25294706130d58946f6ee5ee7a30b05",
+  "goal_complete": false,
+  "canonical_quality_improvement_pages": 0,
+  "cumulative_changed_pages": 2957,
+  "cumulative_character_changed_pages": 1373,
+  "references": [
+    {
+      "path": ".cache/kanpo-227/checkpoint39-accepted63.json",
+      "sha256": "f5c36f242257f63429cb2aad5c64b76e3a4dd0cdb2576cffc3230aac03398ecb",
+      "kind": "accepted_native_source63_all3CI"
+    },
+    {
+      "path": ".cache/kanpo-227/batch40-ocr-tool-source-manifest.json",
+      "sha256": "3a39c9cb6b3c3190bce583bba5c61ecec24f096f4fa647b67f7ddae389371f39",
+      "kind": "new_tool7_and_unchanged_native_source120"
+    },
+    {
+      "path": ".cache/kanpo-227/integrated63-source-manifest.json",
+      "sha256": "55fb52385d054043f2fc6e1fc4c75da6114b0dd34ad9dd4649c1455ce170a670",
+      "kind": "inherited_native_source120"
+    },
+    {
+      "path": ".cache/kanpo-227/integrated63-test-assets-manifest.json",
+      "sha256": "e5377bbd14cf8ae875d228a582392f80d8fe11046b5909447496cb478e8dad15",
+      "kind": "unchanged_assets1127"
+    },
+    {
+      "path": ".cache/kanpo-227/snapshot39-source63-preserved.json",
+      "sha256": "c781de7992b7371251c1d5bbac150b81f7a71733fcbafcb519f51ec59a53daaa",
+      "kind": "unchanged_snapshots778"
+    },
+    {
+      "path": ".cache/kanpo-227/full39-final63-generic-partitioned-status.json",
+      "sha256": "fe0de84607cc29b4faff727971d68b0d05095e79d8287d08ea777a9dcd2ad969",
+      "kind": "inherited_default1723_not_rerun"
+    },
+    {
+      "path": ".cache/kanpo-227/integrated63-fullAnalysis-report.json",
+      "sha256": "ee598eb942ec08b954e4b14338d91b8ea2c1853b22442417b569658961be7767",
+      "kind": "inherited11992_Analysis_textdump_not_rerun"
+    },
+    {
+      "path": ".cache/kanpo-227/node-sidecar40-TDD/prefreeze.json",
+      "sha256": "712b9c3ba8c662b3d40137b4115d5f3ca61ea4a5e7ec069753b779a25708f658",
+      "kind": "initial14_tests_before_implementation"
+    },
+    {
+      "path": ".cache/kanpo-227/node-sidecar40-TDD/baseline-result.json",
+      "sha256": "daa23619c2bc3d2415a65e493fecc832bc1faf0e67153da7f51f8487d9f69ea0",
+      "kind": "initial14_2GREEN12RED"
+    },
+    {
+      "path": ".cache/kanpo-227/node-sidecar40-tests-attempt1.log",
+      "sha256": "787e625fc2a038d14362d3314ca46101886079610b41c08e462c35471dcbef03",
+      "kind": "first14_13GREEN1RED"
+    },
+    {
+      "path": ".cache/kanpo-227/node-sidecar40-tests28.log",
+      "sha256": "68a70195c1a63e8c9e23b9db6d87501c693df495973ea55808a7b30f37dfb5bb",
+      "kind": "final28GREEN"
+    },
+    {
+      "path": ".cache/kanpo-227/node-sidecar40-real4/prefreeze.json",
+      "sha256": "ce9f4e571bf27ee78bff266e0cfac3483423242ec794bd8b34e51965bed2e2ff",
+      "kind": "failed_initialization_first_case_not_4_successes"
+    },
+    {
+      "path": ".cache/kanpo-227/node-sidecar40-real4-r2/results.json",
+      "sha256": "956a9388dd916e72826ef643dcef1ce05267d9c36d155c132c8d28699b3a848e",
+      "kind": "supported_local_model_snapshot_4_successes"
+    },
+    {
+      "path": ".cache/kanpo-227/node-sidecar40-real4-final/prefreeze.json",
+      "sha256": "be73878256504dc237cd984dee8e8f8abb439f4bfe10be76db1b9f2dd62f8d92",
+      "kind": "final4_actual_CLI_preexecution_binding"
+    },
+    {
+      "path": ".cache/kanpo-227/node-sidecar40-real4-final/results.json",
+      "sha256": "e5b6b83372c5195ddd968b94a73c62ece19d2e679d20a7782faed1e4ea8b7a13",
+      "kind": "final4_exact_old_text_and_full_hierarchy"
+    },
+    {
+      "path": ".cache/kanpo-227/tesseractjs-fullpage63-frozen4/delivery-manifest.json",
+      "sha256": "8a26fe5a676e36bc08a89b67cd336c6f92d3a527e9882fdaa485f1fad1d4ac10",
+      "kind": "old_fullpage4_recognitions_no_wholepage_gold"
+    },
+    {
+      "path": ".cache/kanpo-227/native-zero-source2-63/delivery-manifest.json",
+      "sha256": "4d315fffdd00b1b79844d59f5d7b6922ea182bee8abadf4f652217f203935464",
+      "kind": "fixed2_source_raster_classification"
+    },
+    {
+      "path": ".cache/kanpo-227/root39-native-zero-source2-63-verified.json",
+      "sha256": "3805ac15b3258d9cde8e22a11c3607ef227f7f78f973be008465ac4f93030be6",
+      "kind": "source2_independent_pixels_and_references"
+    },
+    {
+      "path": ".cache/kanpo-227/root40-ocr-ink64/baseline-prefreeze.json",
+      "sha256": "37e8b85b02040ed5a1003624236cfa1554698a1eb94327b747cc7f8a385c3f5e",
+      "kind": "held_UnicodeInk_private_tests_before_edit"
+    },
+    {
+      "path": ".cache/kanpo-227/root40-ocr-ink64/baseline-result.json",
+      "sha256": "7657e1703d12d63450492c6be14ad08ed4fd9dd0ddb6b58e4f6df74732b2385a",
+      "kind": "same1062_baseline1056GREEN6RED"
+    },
+    {
+      "path": ".cache/kanpo-227/root40-ocr-ink64/candidate-r2-prefreeze.json",
+      "sha256": "149baacb08217d05036c8e969fc65d23a7ac99bf2c4cb796d01f1300ee16f89b",
+      "kind": "held_candidate64_r2_source_tests"
+    },
+    {
+      "path": ".cache/kanpo-227/root40-ocr-ink64/candidate-r2-result.json",
+      "sha256": "1a421205d30954c63226e531917966a6648c6ec35f9b07a724bbdb0199cc7912",
+      "kind": "held_candidate1062GREEN_not_public_adoption"
+    },
+    {
+      "path": ".cache/kanpo-227/ocr-input64-fixed4/prefreeze.json",
+      "sha256": "fef08a3070db804a533df41ad735bf1d279983d66c7469c7dbaef6156af81b33",
+      "kind": "word_and_line_variants_fixed_before_parser"
+    },
+    {
+      "path": ".cache/kanpo-227/ocr-input64-fixed4/results.json",
+      "sha256": "6ecf190b64543542f49afb2c04026fc45b2aa35c3ac53900dbef8a89d236c484",
+      "kind": "all16_executions8candidate_Article_and_order_failures"
+    },
+    {
+      "path": ".cache/kanpo-227/unicode-ink64-independent-review/delivery-manifest.json",
+      "sha256": "ea17c69010698770ab400c0a50309c31fecce19b377971bd9597da46366936a0",
+      "kind": "private_table_postlayout_PDF_correction_blocker"
+    },
+    {
+      "path": ".cache/kanpo-227/ocr-cli-independent-review63/delivery-manifest.json",
+      "sha256": "69f3817062d563528ef02b224fdaf75254b650509d157f25db436507d9a942bb",
+      "kind": "initial20GREEN_extra5_2GREEN3RED"
+    },
+    {
+      "path": ".cache/kanpo-227/root40-initial-independent-reviews-verified.json",
+      "sha256": "072356d41231314a39940f19f79e7a434a04e849d0f81731358d49ddf53c8668",
+      "kind": "initial_reviews_verified_historical_final_pending_marker_retained"
+    },
+    {
+      "path": ".cache/kanpo-227/ocr-cli-final-review63/delivery-manifest.json",
+      "sha256": "47c60865e93f71b4a19fdfaec0f1af9bd7f5caaedddae69b4c48b24eca387bf9",
+      "kind": "final28GREEN_independent5GREEN_current7sources"
+    },
+    {
+      "path": ".cache/kanpo-227/root40-ocr-cli-final-review-verified.json",
+      "sha256": "33681e39814338c97150ac5b87b825b25c95ff3cf8dde9b2febb16c17a7578ab",
+      "kind": "final29artifacts7sources_root_verified"
+    }
+  ],
+  "scope": "New standalone opt-in OCR observations CLI only; native Rust/PDF source63 unchanged.",
+  "model": {
+    "engine": "tesseract.js 6.0.1",
+    "language": "jpn",
+    "PSM": 3,
+    "oem": 1,
+    "model_commit": "87416418657359cb625c412a48b6e1d6d41c29bd",
+    "model_sha256": "1f5de9236d2e85f5fdf4b3c500f2d4926f8d9449f28f5394472d9e8d83b91b4d",
+    "new_model_downloads_this_batch": 0,
+    "training": 0,
+    "RURI_inference": 0,
+    "ModernBERT_inference": 0,
+    "jpn_vert_inference": 0,
+    "successful_new_recognitions": {
+      "supported_snapshot_revision": 4,
+      "final_revision": 4
+    },
+    "failed_initialization_attempts_before_recognition": 1,
+    "independent_original_pages": 2,
+    "old_paragraph_and_fullpage_experiments_are_separate_history": true
+  }
+}
