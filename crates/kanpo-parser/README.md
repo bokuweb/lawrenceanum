@@ -1156,3 +1156,31 @@ RURI/ModernBERTのopt-in許可を保持し、今回モデル取得/学習/推論
 [`tests/audits/issue227-thirty-fourth-batch-provenance.json`](tests/audits/issue227-thirty-fourth-batch-provenance.json)、
 [`tests/audits/issue227-thirty-fourth-batch-reviews.json`](tests/audits/issue227-thirty-fourth-batch-reviews.json)、
 [`tests/audits/issue227-validation-34.json`](tests/audits/issue227-validation-34.json)に保存した。
+
+
+第 35 次修正では、継続レコードの日付成分を各1〜3文字で判断する制限を、数値文法と月日の範囲へ置き換えた。
+ASCII/全角/漢数字の位取りと通常の単一「十」をchecked u32で読み、年は正、月は1〜12、日は月ごとの上限を確認する。
+元号のない年から閏年を推測せず、2月29日は常に受け入れる。元・百等の未対応表記や完全な暦年検証を修復したとは扱わない。
+姓名・会社名・頁番号・期待本文によるproduction分岐は追加せず、既存のID/列軸/前段支持/罫線/見出し/職名欄条件は保持する。
+
+同座標・同IDのfunction-contract21関数を追加し、既存23関数のprefixをbyte保持した。
+同じ44本は旧58の28成功/16失敗から44成功。rootの同じ全1,009本も旧993成功/16失敗から全成功で、既存実PDF3関数も成功した。
+全4クレート1,680テスト、108統合対象・4ライブラリ・4doc-test・全4examplesを含む117コマンドが終了0。
+独立候補と最終release59の全11,992解析は58と完全一致、本番textdump全文bytesも一致する。既存778snapshotは親と同一、新規/更新0。
+PDF23ソース/資産/release rlib+rmetaは58とbyte一致し、native全値・元Word・f64bits・source証拠は同じproducerから継承する。native probeの再実行とは数えない。
+官報品質の新規改善件数は0、累計2,957変更頁・文字変化1,373頁を維持。監査144も全30解析の完全一致後に初回55の評点を継承し、新規採点や異なる監査の率向上とはしない。
+
+別の余白診断では既存2原本＋6尺度対照の全公開Analysisを変えず、半縮尺のUsed→Margin損失をprose12Word/12Glyph、record53Word/221Glyphと特定した。
+recordはTOP40Word/181Glyph＋RIGHT13Word/40Glyphで、旧記録の元Glyph集合と一致する。〇23語は穿孔印の字種だけでは区別できず、1語は別のRIGHT枝で落ちる。
+最長の対向印刷線と元Glyph metrics中心はこの2頁の旧Margin/Usedを全尺度で分離したが、可視性・outline・一般的な外枠所有の証明ではなく、固定pt判定は未修復のままである。
+
+会社候補は親58へ通常126ソースで限定rebaseしprivate1,055＋旧actual60が成功、独立全11,992でも本文/元Word/Document token/既存記事境界を保存した。
+候補1,913変更は未採用なので品質改善件数へ加えない。旧48候補との全Analysis一致は1,880頁、差33頁中1頁は記事開始行も変わり、原図確認を要する。
+歴史421既読のうち413頁が現候補と完全一致、残8頁は文字等の変更があり再確認待ち。未読865頁と初回評点を保持する。
+別の10反例では会社名81字・zero-paddingされた31字期数見出しの拒否、不正月99/日99の受入れを固定した。曖昧な0.4pt枠端の尺度依存は安全な正例と混ぜない。
+会社分割、grid、描画状態収集は引き続き未採用。RURI/ModernBERTのopt-in許可は保持し、今回取得/学習/推論していない。
+描画状態収集の別候補は親58の通常128ソースへ限定rebaseし、PDF既存117を含む187件とroot独立oracle205件が成功した。支持範囲を広げず、全件/処理時間/本文所属/可視性の証明が未完了なので取り込まない。
+全体100%は未達で、改善を続ける。証拠は[`tests/audits/issue227-generality-audit-35.json`](tests/audits/issue227-generality-audit-35.json)、
+[`tests/audits/issue227-thirty-fifth-batch-provenance.json`](tests/audits/issue227-thirty-fifth-batch-provenance.json)、
+[`tests/audits/issue227-thirty-fifth-batch-reviews.json`](tests/audits/issue227-thirty-fifth-batch-reviews.json)、
+[`tests/audits/issue227-validation-35.json`](tests/audits/issue227-validation-35.json)に保存した。

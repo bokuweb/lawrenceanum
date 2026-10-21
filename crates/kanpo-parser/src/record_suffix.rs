@@ -37,17 +37,67 @@ pub(crate) fn has_prior_record_header(units: &[Unit]) -> bool {
         })
     })
 }
+/// Numeric date components only: positional digits, or one usual kanji ten.
+/// No era/calendar-year interpretation is available in a bare three-part date.
+fn date_number(s: &str) -> Option<u32> {
+    if s.is_empty() {
+        return None;
+    }
+    let digit = |c: char| -> Option<u32> {
+        match c {
+            '0'..='9' => Some(c as u32 - '0' as u32),
+            '０'..='９' => Some(c as u32 - '０' as u32),
+            '〇' | '零' => Some(0),
+            '一' => Some(1),
+            '二' => Some(2),
+            '三' => Some(3),
+            '四' => Some(4),
+            '五' => Some(5),
+            '六' => Some(6),
+            '七' => Some(7),
+            '八' => Some(8),
+            '九' => Some(9),
+            _ => None,
+        }
+    };
+    if let Some((before, after)) = s.split_once('十') {
+        let one_kanji = |part: &str, omitted: u32| -> Option<u32> {
+            if part.is_empty() {
+                return Some(omitted);
+            }
+            let mut chars = part.chars();
+            let c = chars.next()?;
+            if chars.next().is_some() || !"一二三四五六七八九".contains(c) {
+                return None;
+            }
+            digit(c)
+        };
+        return one_kanji(before, 1)?
+            .checked_mul(10)?
+            .checked_add(one_kanji(after, 0)?);
+    }
+    s.chars().try_fold(0u32, |value, c| {
+        value.checked_mul(10)?.checked_add(digit(c)?)
+    })
+}
 fn date(s: &str) -> bool {
-    let parts: Vec<_> = s.split('、').collect();
-    parts.len() == 3
-        && parts.iter().all(|p| {
-            (1..=3).contains(&p.chars().count())
-                && p.chars().all(|c| {
-                    "〇零一二三四五六七八九十".contains(c)
-                        || c.is_ascii_digit()
-                        || ('０'..='９').contains(&c)
-                })
-        })
+    let mut numbers = s.split('、').map(date_number);
+    let (Some(Some(year)), Some(Some(month)), Some(Some(day)), None) = (
+        numbers.next(),
+        numbers.next(),
+        numbers.next(),
+        numbers.next(),
+    ) else {
+        return false;
+    };
+    let max_day = match month {
+        1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
+        4 | 6 | 9 | 11 => 30,
+        // An era is not specified, so February29 cannot be ruled out by year.
+        2 => 29,
+        _ => return false,
+    };
+    year > 0 && (1..=max_day).contains(&day)
 }
 pub(crate) fn infer_stacked_suffix(
     bands: &[Vec<Col>],

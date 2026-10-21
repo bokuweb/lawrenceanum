@@ -246,3 +246,197 @@ fn opaque_office_payload_does_not_relax_the_date_syntax() {
         );
     }
 }
+
+// Calendar component function-contract probes: IDs/geometry/record structure fixed.
+fn calendar59_bands(value: &str) -> Vec<Vec<Col>> {
+    let mut bands = fixture();
+    let (year, rest) = match value.find('、') {
+        Some(i) => (&value[..i + '、'.len_utf8()], &value[i + '、'.len_utf8()..]),
+        None => (value, ""),
+    };
+    for c in &mut bands[3] {
+        if c.text == "八、" {
+            c.text = year.into();
+        } else if c.text == "二、一六" {
+            c.text = rest.into();
+        }
+    }
+    let shape = |bs: &[Vec<Col>]| {
+        bs.iter()
+            .flatten()
+            .map(|c| {
+                (
+                    c.id,
+                    c.x.to_bits(),
+                    c.x1.to_bits(),
+                    c.y.to_bits(),
+                    c.y1.to_bits(),
+                )
+            })
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(shape(&bands), shape(&fixture()));
+    bands
+}
+fn calendar59_accept(value: &str) {
+    assert_eq!(
+        infer_stacked_suffix(&calendar59_bands(value), 3, &[]),
+        infer_stacked_suffix(&fixture(), 3, &[]),
+        "valid supported numeric date {}",
+        value
+    );
+}
+fn calendar59_reject(value: &str) {
+    assert!(
+        infer_stacked_suffix(&calendar59_bands(value), 3, &[]).is_none(),
+        "invalid or unsupported date {}",
+        value
+    );
+}
+#[test]
+fn calendar59_month99_is_not_a_date() {
+    calendar59_reject("八、九九、一六");
+}
+#[test]
+fn calendar59_day99_is_not_a_date() {
+    calendar59_reject("八、二、九九");
+}
+#[test]
+fn calendar59_four_digit_ascii_year_is_not_a_length_error() {
+    calendar59_accept("2026、2、16");
+}
+#[test]
+fn calendar59_four_digit_fullwidth_year_is_equivalent() {
+    calendar59_accept("２０２６、２、１６");
+}
+#[test]
+fn calendar59_four_digit_kanji_place_value_year_is_equivalent() {
+    calendar59_accept("二〇二六、二、一六");
+}
+#[test]
+fn calendar59_zero_year_is_invalid() {
+    for s in ["〇、二、一六", "0、2、16", "零、二、十六"] {
+        calendar59_reject(s);
+    }
+}
+#[test]
+fn calendar59_zero_month_is_invalid() {
+    calendar59_reject("八、〇、一六");
+}
+#[test]
+fn calendar59_zero_day_is_invalid() {
+    calendar59_reject("八、二、〇");
+}
+#[test]
+fn calendar59_month13_is_invalid() {
+    calendar59_reject("八、一三、一六");
+}
+#[test]
+fn calendar59_february30_is_invalid() {
+    calendar59_reject("八、二、三〇");
+}
+#[test]
+fn calendar59_april31_is_invalid() {
+    calendar59_reject("八、四、三一");
+}
+#[test]
+fn calendar59_other_short_months_reject31() {
+    for m in ["六", "九", "十一"] {
+        calendar59_reject(&format!("八、{m}、三十一"));
+    }
+}
+#[test]
+fn calendar59_long_months_accept31() {
+    for m in ["一", "三", "五", "七", "八", "十", "十二"] {
+        calendar59_accept(&format!("八、{m}、三十一"));
+    }
+}
+#[test]
+fn calendar59_february29_does_not_infer_an_era_or_leap_year() {
+    for y in ["八", "7", "2026"] {
+        calendar59_accept(&format!("{y}、二、二十九"));
+    }
+}
+#[test]
+fn calendar59_single_tens_usual_forms_are_supported() {
+    for s in [
+        "十、一、十一",
+        "一十、一、十",
+        "十一、二、二十",
+        "二十一、十二、三十一",
+        "九十九、十一、二十一",
+        "八、十、三十",
+    ] {
+        calendar59_accept(s);
+    }
+}
+#[test]
+fn calendar59_repeated_tens_are_invalid() {
+    for s in [
+        "十十、二、一六",
+        "一十十、二、一六",
+        "八、十十、一六",
+        "八、二、一十十",
+    ] {
+        calendar59_reject(s);
+    }
+}
+#[test]
+fn calendar59_zero_and_nonkanji_unit_tens_forms_are_unsupported() {
+    for s in [
+        "零十、二、一六",
+        "〇十、二、一六",
+        "八、二、十〇",
+        "1十、二、一六",
+        "八、二、十1",
+        "八、二、十１",
+    ] {
+        calendar59_reject(s);
+    }
+}
+#[test]
+fn calendar59_u32_max_year_is_not_a_character_length_cap() {
+    calendar59_accept("4294967295、1、1");
+}
+#[test]
+fn calendar59_checked_numeric_overflow_is_rejected() {
+    for s in [
+        "4294967296、1、1",
+        "四二九四九六七二九六、一、一",
+        "99999999999999999999、1、1",
+        "8、4294967296、1",
+        "8、1、4294967296",
+    ] {
+        calendar59_reject(s);
+    }
+}
+#[test]
+fn calendar59_decimal_notations_preserve_value() {
+    for s in [
+        "8、2、16",
+        "８、２、１６",
+        "八、二、一六",
+        "八、二、十六",
+        "零八、〇二、〇一六",
+        "0八、２、十六",
+    ] {
+        calendar59_accept(s);
+    }
+}
+#[test]
+fn calendar59_unsupported_grammar_and_wrong_separators_remain_rejected() {
+    for s in [
+        "元、二、一六",
+        "百、二、一六",
+        "八、二、百",
+        "八,二,一六",
+        "八、二",
+        "八、二、一六、七",
+        "八、、一六",
+        "八、二、",
+        "-1、2、16",
+        "8、2、16。",
+    ] {
+        calendar59_reject(s);
+    }
+}
