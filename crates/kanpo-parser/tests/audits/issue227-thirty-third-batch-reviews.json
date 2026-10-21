@@ -1,0 +1,49 @@
+{
+  "batch": 33,
+  "scope": "decoded Identity code-unit completeness; no rendering/visible-harm claim",
+  "owner": {
+    "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/identity-charcode-source56/delivery-manifest.json",
+    "sha256": "aa2419b3b410bc72037e7d79bccd0fcbb181e9129dca6edfaa85479996c4d812"
+  },
+  "root_independent": {
+    "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root33-charcode57/build-result.json",
+    "sha256": "cb1453fbabc61d02da5c4dd730db9a3e1d70c516ed6a17f4d11b7e45b4203c18"
+  },
+  "independent_critical_review": {
+    "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/identity-charcode-source56-independent-review/delivery-manifest.json",
+    "sha256": "2df0e00cf7e549c4a00fd60dd43b35fc810b5c10a9e6fd0bc7fdcb9f35bbe2e3"
+  },
+  "same_public7_old56": {
+    "passed": 3,
+    "failed": 4
+  },
+  "same_public7_candidate": {
+    "passed": 7,
+    "failed": 0
+  },
+  "root_PDF117_parser979_actual69": true,
+  "synthetic_pairs": {
+    "count": 36,
+    "construction": "6 algorithmically selected CIDs x Identity-H/V x explicit charset0/1/2",
+    "same_embedded_CFF": true,
+    "all_native_Page_Glyph_Font_Word_exact": true,
+    "full_code_source_XHTML_exact": true,
+    "short_tail_only_unproven_attribute_removed": true
+  },
+  "equivalent_spellings": "CID0x30 complete hex/odd-nibble hex/escaped literal decode identical two bytes; H/V x charset0/1/2; one function",
+  "independent_Form": "one function over12 cases, same asserts old56 RED / new GREEN; font/resource/qQ/return preservation; seven carried functions filtered and not recounted",
+  "canonical_all11992_native_proofs_exact": {
+    "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root33-charcode57/full-result.json",
+    "sha256": "97bb80ed66333d7008bde9efaee2d69d240a4841008bb98891c03134fdebfe55"
+  },
+  "manual_review": {
+    "new_originals_selected": 0,
+    "new_quality_grading": false,
+    "existing_audit144": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit144-source57-inheritance.json",
+      "sha256": "1f80f0bab6c388436cbc87491ea4244475cbdb26d2d1dd13197ee1dbf7786c31"
+    },
+    "no_new_original_rendering_claim": true
+  },
+  "remaining": "Existing independent announcement/role/cell omissions and mixed signatures remain. Code-unit evidence is not a full lexical validator or renderer."
+}

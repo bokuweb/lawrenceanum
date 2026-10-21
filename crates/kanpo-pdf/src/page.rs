@@ -164,6 +164,9 @@ struct Interp<'a> {
     fonts: Vec<Rc<Font>>,
     font_ids: HashMap<ObjRef, usize>,
     glyphs: Vec<Glyph>,
+    /// Source candidates stay adjacent to the original emitted CharCode.
+    /// Legacy extraction does not allocate or decode source evidence.
+    source_resolved: Option<Vec<Option<char>>>,
     paths: Vec<PathItem>,
     path: Vec<SubPath>,
     current: Option<SubPath>,
@@ -216,6 +219,7 @@ fn interpret_page(doc: &Document, page: &PageRef, source: bool) -> (Page, Vec<Op
         fonts: Vec::new(),
         font_ids: HashMap::new(),
         glyphs: Vec::new(),
+        source_resolved: source.then(Vec::new),
         paths: Vec::new(),
         path: Vec::new(),
         current: None,
@@ -226,18 +230,7 @@ fn interpret_page(doc: &Document, page: &PageRef, source: bool) -> (Page, Vec<Op
     };
     let content = page_content(doc, &page.dict);
     it.run(&content, &page.resources);
-    let resolved = if source {
-        it.glyphs
-            .iter()
-            .map(|g| {
-                it.fonts
-                    .get(g.font)
-                    .and_then(|f| f.source_aj1_fallback(doc, g.code, g.cid))
-            })
-            .collect()
-    } else {
-        Vec::new()
-    };
+    let resolved = it.source_resolved.take().unwrap_or_default();
     (
         Page {
         width,
@@ -543,6 +536,9 @@ impl Interp<'_> {
                 kern,
                 show: self.show_count,
             });
+            if let Some(resolved) = &mut self.source_resolved {
+                resolved.push(font.source_aj1_fallback(self.doc, &c));
+            }
         }
     }
 

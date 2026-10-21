@@ -1103,3 +1103,30 @@ native Page/Glyph/Font/Pathとf64ビット、元Wordの文字/座標/Glyph IDs�
 [`tests/audits/issue227-thirty-second-batch-provenance.json`](tests/audits/issue227-thirty-second-batch-provenance.json)、
 [`tests/audits/issue227-thirty-second-batch-reviews.json`](tests/audits/issue227-thirty-second-batch-reviews.json)、
 [`tests/audits/issue227-validation-32.json`](tests/audits/issue227-validation-32.json)に保存した。
+
+第 33 次修正では、Identity-H/Vの元コードが完全な2byteかを、Glyph発行時の実際のFontとCharCodeで確認するようにした。
+完全な`<00xx>`と末尾1byteの`<xx>`は公開Glyphが同値になるため、後からGlyphだけを見て長さを推定できない。
+各Glyphと隣接する非公開ベクトルへSome/Noneを必ず1件記録し、所有元Pageとの対応を保つ。通常Unicode/ToUnicode・既存CFF検査・公開Page/Glyph/FontInfoは変更しない。
+2byteという条件は定義済みIdentity CMapの符号単位であり、期待文言や姓名の長さから選んだ値ではない。
+奇数桁hexの末尾0詰めやoctal escaped literalが同じ完全な2byteへ復号される場合も陽性を維持する。
+
+同じ公開7テストは直前56で4失敗/3成功から候補7成功。6CID×H/V×charset0/1/2の36組では、同じCFF・native Page/Glyph/Font/Wordを保持し、不完全tailの未証明属性だけを取り除く。
+不可視Glyph・TJのString境界・通常ToUnicode優先・外国ROSの拒否も検査した。独立したForm/Tf/qQ/復帰の追加1関数は旧56で失敗/候補で成功し、通常テスト総数とは別のレビュー証拠にした。
+合成の空アウトラインを持つCFF入力による符号単位の検査であり、描画実害や完全なPDF字句検証の修復とは主張しない。
+
+全4クレート1,650テスト、108統合対象・4ライブラリ・4doc-test・全4examplesを含む117コマンドが終了0。パーサ979件、PDF117件（旧108＋公開7＋内部2）を含む。
+独立候補と最終release57で全11,992原本を再解析し、56に対して変更0・解析全体完全一致、本番textdumpの全本文bytesも一致した。
+全native Page/Glyph/Font/Pathとf64ビット、元Wordの文字/座標ビット/Glyph IDs、152頁242候補の証拠も全件一致する。
+官報コーパスの改善件数は0で累計2,957変更頁・文字変化1,373頁を維持する。既存778snapshotは親Git blobと一致、新規/更新0。
+13検査値と監査144の初回採点は完全一致を確認して継承し、新規採点や8分割検査をしたとは扱わない。
+
+別の事前固定2,930 PDFのToUnicode診断では、復号した326,710 Glyphすべてに対応があり、欠落候補は0だった。
+全5,930,833 Glyph・720,500 Word・65,913,166 f64値/bit/IDは基準56と一致する。CFF確認前の欠落集合自体が0で、CMapの欠落を厳密に証明したとは呼ばず、既存guardを緩和しない。
+原図や文言による新選定・品質採点は行っていない。この限定範囲の0を全体へ外挿しない。
+
+既存の別の縦組み処理には2〜24文字・字種・固定ptの経験則が残り、実装全体が一般則だけになったとは宣言しない。
+罫線可視性/grid・会社候補未確認865頁等も未採用の残件である。RURI/ModernBERTはopt-in許可を保持するが、元byte長の証明には使わず、今回モデル取得/学習/推論は行っていない。
+全体100%は未達で、改善を続ける。証拠は[`tests/audits/issue227-generality-audit-33.json`](tests/audits/issue227-generality-audit-33.json)、
+[`tests/audits/issue227-thirty-third-batch-provenance.json`](tests/audits/issue227-thirty-third-batch-provenance.json)、
+[`tests/audits/issue227-thirty-third-batch-reviews.json`](tests/audits/issue227-thirty-third-batch-reviews.json)、
+[`tests/audits/issue227-validation-33.json`](tests/audits/issue227-validation-33.json)に保存した。

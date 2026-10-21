@@ -329,8 +329,10 @@ impl Font {
 
     /// A separate candidate only for a real unresolved Identity encoding.
     /// Explicit/partial/broken ToUnicode declarations always keep priority.
-    pub(crate) fn source_aj1_fallback(&self, doc: &Document, code: u32, cid: u32) -> Option<char> {
-        if !self.composite
+    pub(crate) fn source_aj1_fallback(&self, doc: &Document, c: &CharCode) -> Option<char> {
+        let (code, cid) = (c.code, c.cid);
+        if c.len != 2
+            || !self.composite
             || self.ordering.as_deref() != Some("Identity")
             || !self.identity_encoding
             || self.declared_to_unicode

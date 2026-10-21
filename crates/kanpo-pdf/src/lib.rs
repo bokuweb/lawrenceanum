@@ -13,6 +13,10 @@ mod cmap;
 mod crypt;
 mod filter;
 mod lexer;
+
+#[cfg(test)]
+#[path = "source_charcode_tests.rs"]
+mod source_charcode_tests;
 mod inline_image;
 
 #[cfg(test)]
