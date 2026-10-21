@@ -299,6 +299,7 @@ cargo run --release -p kanpo-parser --example snapshot_sample -- .cache/kanpo-ar
 | 134 回目（独立・初回、全体品質） | 9 | 15 | 6 | 比較対象外 |
 | 135 回目（独立・初回、全体品質） | 16 | 4 | 10 | 比較対象外 |
 | 136 回目（独立・初回、全体品質） | 14 | 5 | 11 | 比較対象外 |
+| 137 回目（独立・初回、全体品質） | 15 | 6 | 9 | 比較対象外 |
 
 110 回目から、対象ページ ID・原本 SHA-256・採点の理由を [`tests/audits/`](tests/audits/) に残す。
 110 回目は本文に文字層のある 30 ページで校正し、見つかった分数式・金額の空欄位置の崩れを修正して同じ原本で再照合した結果。
@@ -876,3 +877,30 @@ production内の正規化テストも追加箇所1失敗・既存/負例13成功
 [`tests/audits/issue227-twenty-fifth-batch-reviews.json`](tests/audits/issue227-twenty-fifth-batch-reviews.json)、
 [`tests/audits/issue227-twenty-fifth-batch-provenance.json`](tests/audits/issue227-twenty-fifth-batch-provenance.json)、
 検証集計は[`tests/audits/issue227-validation-25.json`](tests/audits/issue227-validation-25.json)に保存した。全体100%は未達で、改善を継続する。
+
+
+第 26 次修正では、205号16頁と215号32/33/35/36/54/55頁の範囲末尾14組を復元した。
+原PDFの28Glyphを印字通りの56文字へ戻し、以前の20組も保持した。新たに根拠が得られた右半字PUA EACC/EAD2/EAD3を、既存の範囲・幾何・一意所有条件の下で復元する。
+実装前に実PDF6テストが1失敗・保存用5成功となることを確認し、同じ先頭5テストと34組へ強化した第6テストが全成功した。
+production内に正例・通常序数/本文の負例・位置ずれ/既使用/重複の負例3テストを追加した。未知字の負例は、新たに原CFFで確定したEAD2/EAD3から未確定EAD5/EAD6へ置き換え、未知字を推測しない条件を保つ。
+全4関連クレート1,386テスト、101統合対象・4ライブラリ・4doc-test・全4examples、110コマンド終了0。パーサ単体868テスト、アーカイブ634原PDF。
+新規2・既存5snapshotと215号33頁の既存期待値2ファイルは、原図・本文・全Article/Document・native Glyphへ照合し、末尾番号挿入だけを反映した。以前のsnapshot/期待値と失敗ログを保存し、assertionの緩和はない。
+
+全11,992原本のtextdump --pdfと解析全体比較は7変更・11,985完全一致。累計2,916変更頁・文字変化1,315頁。
+元Wordのraw・ID・座標は全て保持し、14既存Empty WordのUsed化と既存行への所属追加だけを許した。旧Wordの所有は一度ずつ、推測Wordの追加・元文字の消失・重複は0。
+本文・Article本文・Documentの差は14組の末尾挿入だけで、他の行・表・セル座標/結合・role・記事構造・改行・空白も完全一致した。
+7原図の全580行・7Article/Documentを独立に確認し、fresh root解析と既確認候補の解析全体も照合した。205号16頁に残る参照番号10箇所の欠落や様式/新旧対応の既存欠陥は未修復として保持し、部分改善を全頁成功と数えない。
+従来の原横棒11,033字、分数153件、期間706組、番号121組、括弧377セル、各数式等は累積2,916頁の検証で保持した。
+
+初回の検証スクリプトが、納品JSONに保存された旧20組復元前のbeforeAnalysisを現在基準と誤認し、native照合で検出された。
+旧履歴を保ち、明示されたbaseline45Analysisとfresh baseline46の完全一致を必須として全11,992頁を初めから再比較した。固定処理の完了前に起動した一度の再実行もSHA guardが入力処理前に拒否し、失敗履歴を残して固定処理の終了0確認後に再実行した。
+本番ソースや納品の旧証明は変更せず、最終runner・全原本・旧新出力・104ソース・実行物・依存物のSHAを再比較前後で確認した。
+
+137回目の未見30頁は、範囲・原本・画像・全解析を採点前に固定した。初回の全体品質15ok/6minor/9major、本文・文字・読順23ok/4minor/3majorを保存し、過去の異なる監査範囲と率比較しない。
+全2,153行・52Article/Documentを読み、30頁のbefore46/after47解析は完全一致、今回の退行0。native0除外は原Glyphで確認した限定矩形だけとし、ページ全体は除外しない。
+会社公告候補は1,286頁のうち301頁確認・985頁未確認で未採用。別v3cは原図で矛盾した旧境界3箇所だけを撤回して他の境界/本文を保持するが、現行ソースへの統合と残る監査が必要である。
+checkbox247Glyph/30頁、「辻」のPUA、160号48頁の引用中の表分裂も別候補としてテスト先行で検証中。全体100%は未達で、改善を継続する。
+証拠は[`tests/audits/137.json`](tests/audits/137.json)、
+[`tests/audits/issue227-twenty-sixth-batch-provenance.json`](tests/audits/issue227-twenty-sixth-batch-provenance.json)、
+[`tests/audits/issue227-twenty-sixth-batch-reviews.json`](tests/audits/issue227-twenty-sixth-batch-reviews.json)、
+[`tests/audits/issue227-validation-26.json`](tests/audits/issue227-validation-26.json)に保存した。

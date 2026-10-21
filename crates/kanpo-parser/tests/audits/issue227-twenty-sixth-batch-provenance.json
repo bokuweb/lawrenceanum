@@ -1,0 +1,2438 @@
+{
+  "batch": 26,
+  "baseline_commit": "262b3825547ee37984a6ff784464ae5f3013e5c0",
+  "candidate": "after47/frozen104",
+  "population_pdf_pages": 11992,
+  "changed": 7,
+  "complete_Analysis_exact": 11985,
+  "original_range_pairs_restored": 14,
+  "old20_pairs_retained": true,
+  "combined_pairs34": true,
+  "original_native_Glyphs": 28,
+  "source_Unicode_characters_added": 56,
+  "old_characters_removed": 0,
+  "newly_owned_existing_IDs": 14,
+  "new_inferred_IDs": 0,
+  "new_source_Words": 0,
+  "all_raw_ID_bbox_exact": true,
+  "all_old_owners_once": true,
+  "all_other_nontext_Line_Unit_Table_cell_geometry_rowspan_roles_Article_Doc_structure_exact": true,
+  "all_LF_spaces_preserved": true,
+  "whole_page_perfection_not_implied": true,
+  "source_manifest": {
+    "baseline_commit": "262b3825547ee37984a6ff784464ae5f3013e5c0",
+    "baseline": "accepted25/after46/source104",
+    "candidate": "after47",
+    "source_files": 104,
+    "parser_source_files": 91,
+    "pdf_source_files": 13,
+    "files": [
+      {
+        "path": "crates/kanpo-parser/src/area_units.rs",
+        "sha256": "85ec9fc9caa87213acb707c5f4cf50a7afe46a92729d524fcb4c4b7579ee6219"
+      },
+      {
+        "path": "crates/kanpo-parser/src/blank_area_units.rs",
+        "sha256": "95a8fd379b4d0ca6d42fbffb1558a8ef765c662b7c60b21e480d8b9c63d8e619"
+      },
+      {
+        "path": "crates/kanpo-parser/src/cell_row_dash_tests.rs",
+        "sha256": "94401049dfc8a127b95395866e8fc7056849f7749db081c6fca6c1875d39e7a9"
+      },
+      {
+        "path": "crates/kanpo-parser/src/cell_row_dashes.rs",
+        "sha256": "2f01614cb315422228078757774f4399727c58495e626affd60d1dcc0cec2be7"
+      },
+      {
+        "path": "crates/kanpo-parser/src/chemical_line_end.rs",
+        "sha256": "38c79e61032fd7e038830fd15a40d29ea290b1827b99bd70590bcb9d191eb612"
+      },
+      {
+        "path": "crates/kanpo-parser/src/chemical_line_end_tests.rs",
+        "sha256": "473e1c55fac7a9e3be13cf06d9ef0fbf3e8432028aa5716508b8ecc82df05582"
+      },
+      {
+        "path": "crates/kanpo-parser/src/circled_numbers.rs",
+        "sha256": "ea58c40bdbb664e44aa3ff25c1ce9441ef1a288d061e0ba77839612b8e3bb25f"
+      },
+      {
+        "path": "crates/kanpo-parser/src/composite_numbers.rs",
+        "sha256": "097b1d9b82d2e03b7997b2793ad31e65fa73d5c871d3479e4a5522af8fe20f28"
+      },
+      {
+        "path": "crates/kanpo-parser/src/coordinate_rows.rs",
+        "sha256": "0fa04e51fa53be8d4df8a56711569984fb89c122bc212b69e62c670d1c89b680"
+      },
+      {
+        "path": "crates/kanpo-parser/src/coordinate_symbols.rs",
+        "sha256": "284a3f359db7afab91d9ca3302fe759fd1ad559cf3064f5a50f40eb3cfc4a342"
+      },
+      {
+        "path": "crates/kanpo-parser/src/empty_amount_record_tests.rs",
+        "sha256": "7bf82dc603459fbf8e278b55b32c90b8b47d0177c8c3051693a5459fbf55f04d"
+      },
+      {
+        "path": "crates/kanpo-parser/src/facility_continuation_shape_tests.rs",
+        "sha256": "2d8657e545c589e0e0d6f550d2b0ec6592045c69300676ca656f8d443188cb81"
+      },
+      {
+        "path": "crates/kanpo-parser/src/facility_continuations.rs",
+        "sha256": "610e5ad97f23465467a219e9f7dca2d9ccd8d7587600d3263f016cf0ff747862"
+      },
+      {
+        "path": "crates/kanpo-parser/src/financial_enclosure_tests.rs",
+        "sha256": "cfb13b057437accacce2aac4fc30102fb56afe7f34f44025b3066380c9fe2a01"
+      },
+      {
+        "path": "crates/kanpo-parser/src/financial_enclosures.rs",
+        "sha256": "2ca8740726cadd29cacee91d0c63222b5ae95d80097001f5856e87eb7f969399"
+      },
+      {
+        "path": "crates/kanpo-parser/src/financial_flow.rs",
+        "sha256": "25542fef77d59dbacb760c729586ae9ed4c3b2d34f8ac38cfa4dc31a8a567b3a"
+      },
+      {
+        "path": "crates/kanpo-parser/src/financial_flow_tests.rs",
+        "sha256": "e681722fb022e1ce721b719247a8bf21e0486d6460c2ae5004362d1102608b75"
+      },
+      {
+        "path": "crates/kanpo-parser/src/format.rs",
+        "sha256": "11a24e7e6f7291f8d26234a92a6814c853580a3edc56a3c2c32b3c2dff56566c"
+      },
+      {
+        "path": "crates/kanpo-parser/src/fractions.rs",
+        "sha256": "14f81b155047ceb32c403157d570acbe0d889bb3a8039415a5263956ede700a1"
+      },
+      {
+        "path": "crates/kanpo-parser/src/framed_amount_rows.rs",
+        "sha256": "401e682e8dc2b95bc7114995b6a56fb2758a00ec95291b9a0823006a5e52f29c"
+      },
+      {
+        "path": "crates/kanpo-parser/src/framed_band_continuations.rs",
+        "sha256": "11153d3a84ffd1edd1aae60b94ecd701d8e9f028d9ef2405fc6f7b75462f958a"
+      },
+      {
+        "path": "crates/kanpo-parser/src/grid.rs",
+        "sha256": "2d43c35a023c49b4692d6a9d5e7a6e556b3c0fcef11b46baa1207a34829afa3d"
+      },
+      {
+        "path": "crates/kanpo-parser/src/headed_data_column_tests.rs",
+        "sha256": "9ae9b40dc2593ec4d047ba42ef10f35b91d711a5be028715f39475518388fa36"
+      },
+      {
+        "path": "crates/kanpo-parser/src/headed_data_columns.rs",
+        "sha256": "00e907576242ef48a6d56dcd9d7f48235b93c1de8e903ec94599bac224a97a7f"
+      },
+      {
+        "path": "crates/kanpo-parser/src/headerless_four_bands.rs",
+        "sha256": "b5a334e037133ce18bb646a05c7d91f029c7743b4c23274499c557ab641560a0"
+      },
+      {
+        "path": "crates/kanpo-parser/src/horizontal.rs",
+        "sha256": "8d4e62c35ebc9af6557376ddd0319c9fd82d6f1b353a3eaf18d42f80e585bff1"
+      },
+      {
+        "path": "crates/kanpo-parser/src/horizontal_covering_edge_tests.rs",
+        "sha256": "0d47761bea8ecd32ddffc58c39e1825ad7739e436ed0d2b18f0edcf868147577"
+      },
+      {
+        "path": "crates/kanpo-parser/src/horizontal_fullwidth_section_tests.rs",
+        "sha256": "40e3636cad799f08430db5c4223ea7a473bdee16f2fbfb0ccab120f955ad4cf6"
+      },
+      {
+        "path": "crates/kanpo-parser/src/inline_quotes.rs",
+        "sha256": "173611d0c314c5ba7adfadf9def7d182c04ba4577fe2bd048f9033efcda5f753"
+      },
+      {
+        "path": "crates/kanpo-parser/src/large_parentheses.rs",
+        "sha256": "a0284e03cb23ff92951001ad9474f0b477506ac09e804d22447be6fb0f8fd7f8"
+      },
+      {
+        "path": "crates/kanpo-parser/src/leading_dash_tests.rs",
+        "sha256": "4404e7b76346208928f91afdef28d7824aa4cddc0b02090078078825fecdc655"
+      },
+      {
+        "path": "crates/kanpo-parser/src/leading_numeric_table_tests.rs",
+        "sha256": "d8e8832176621c6f76437ae9aea9f1f93fb3c8192472282f7dd061c92606b240"
+      },
+      {
+        "path": "crates/kanpo-parser/src/leading_table_blank_tests.rs",
+        "sha256": "360fa0eb054cc4a56b30f55324aad4e154538883d99501eeb67298ad9aae8141"
+      },
+      {
+        "path": "crates/kanpo-parser/src/lib.rs",
+        "sha256": "90640efa6673c568c4232652ac30243d2a25492525d55606482defb96b56e777"
+      },
+      {
+        "path": "crates/kanpo-parser/src/lines.rs",
+        "sha256": "c277b260081e9b35c53964098c3b39ac2cbccf054bbaf8cb083898a5f862853c"
+      },
+      {
+        "path": "crates/kanpo-parser/src/micro_prefixes.rs",
+        "sha256": "0430a55657b8c5bc635ee43270ea65b5a4e0277c30b516af3fb92fa26e490021"
+      },
+      {
+        "path": "crates/kanpo-parser/src/micro_prefixes_tests.rs",
+        "sha256": "798c937df84a5e4306322854a03bf4563a62d58c7c51707909cb43929c709e51"
+      },
+      {
+        "path": "crates/kanpo-parser/src/mixed_native_bbox_tests.rs",
+        "sha256": "039f1a0a0d4d8bc1bf4075895ca9dcee2d69810eb8156cd9a22094aae9549942"
+      },
+      {
+        "path": "crates/kanpo-parser/src/model.rs",
+        "sha256": "34ff7218594c9f98a8b607fb38c062cfedd9242295e0045d87909bdfbfb66474"
+      },
+      {
+        "path": "crates/kanpo-parser/src/native_ledger_tests.rs",
+        "sha256": "ca5dd35101465c11b98617f214589bc052fc2cc71f0972e163a8db513246d432"
+      },
+      {
+        "path": "crates/kanpo-parser/src/native_triangle_cell_tests.rs",
+        "sha256": "dd202183a8e153f37898abcfcb6380d97c886173a8929e94e806ce90c99a1756"
+      },
+      {
+        "path": "crates/kanpo-parser/src/native_triangle_cells.rs",
+        "sha256": "5bcf8fa1e475331bf37be4aee025f019d269606f001720cbc53c714b29241ac1"
+      },
+      {
+        "path": "crates/kanpo-parser/src/nested_fraction_geometry.rs",
+        "sha256": "20467eff6afd052a95fbb13b760d92e5371fa75d3a3a94a961d0b2a9787e37a0"
+      },
+      {
+        "path": "crates/kanpo-parser/src/nested_fraction_geometry_tests.rs",
+        "sha256": "bb866d3e29705d1a2978b70a5f7bc60db314b8724958e7dce68f89bc24f27b29"
+      },
+      {
+        "path": "crates/kanpo-parser/src/nested_fractions.rs",
+        "sha256": "e6f88aa6bf9c73c4eb7e2e9a62ba70beac38e8cf3ed36f0c2ce1b5337bb0e1db"
+      },
+      {
+        "path": "crates/kanpo-parser/src/nested_fractions_tests.rs",
+        "sha256": "095c65426f463aeb1ab352779f2181a22fae58a5408104b8e7906de86c5b213a"
+      },
+      {
+        "path": "crates/kanpo-parser/src/normalize.rs",
+        "sha256": "cc535ac30dbfb2056a47fda6fe62186c950774a337b6878c24b98a3a4e7c8414"
+      },
+      {
+        "path": "crates/kanpo-parser/src/numeric_fraction_adapter_tests.rs",
+        "sha256": "76e6fd5feb5b2a421e42769946394016c99f5b63580fe866e7fe6eb04a299ac0"
+      },
+      {
+        "path": "crates/kanpo-parser/src/numeric_fraction_geometry.rs",
+        "sha256": "5b87a35a5c823ed50460463739d6f8b31a948324cac5708b893c64541e71fd77"
+      },
+      {
+        "path": "crates/kanpo-parser/src/numeric_fraction_geometry_tests.rs",
+        "sha256": "c83c2e18e21541c635e848be0328f0bcb0c9f333042cfc390c59924d5a38debb"
+      },
+      {
+        "path": "crates/kanpo-parser/src/numeric_fractions.rs",
+        "sha256": "7f4fc1d34db1f66c10eff17720d8c08194c1f69c93128f66fbdb3af5003b8f1d"
+      },
+      {
+        "path": "crates/kanpo-parser/src/numeric_grid_orientation.rs",
+        "sha256": "5503e37a7d49f4d7350c5cad8c8fb40f526e901310b3acd47c6c41ce9b43de4e"
+      },
+      {
+        "path": "crates/kanpo-parser/src/owned_dash_tests.rs",
+        "sha256": "4054dfb3f501276d54cb0f6b16d08f4eade227d3e3d5a5b707f845c4b4465af2"
+      },
+      {
+        "path": "crates/kanpo-parser/src/owned_dashes.rs",
+        "sha256": "0fb5cbfb2d2d21b855fcc74dc461a58e3ff0ce334eb45be6c0a5e0d275c03b33"
+      },
+      {
+        "path": "crates/kanpo-parser/src/paired_framed_continuation_shape_tests.rs",
+        "sha256": "afc6d7e8350fa1229bb4fd8bbd283b260cc16902daa984a7d4de30ae9c9f9af4"
+      },
+      {
+        "path": "crates/kanpo-parser/src/paired_framed_continuations.rs",
+        "sha256": "8c4a0dbd186cc0f90843a647c83d79838781dea9741634b74be0b7dd426d56ee"
+      },
+      {
+        "path": "crates/kanpo-parser/src/paired_shinkyu_grid_tests.rs",
+        "sha256": "32d3d084cc12909c3dd2319f8f621526b41f1c2f88dde574e15d53b168a6afe5"
+      },
+      {
+        "path": "crates/kanpo-parser/src/parallel_fraction_adapter_tests.rs",
+        "sha256": "4a97c8acab7f2f25dbf691e8cd9840afde754465b2aeb597719441a314d9eab5"
+      },
+      {
+        "path": "crates/kanpo-parser/src/parallel_fraction_geometry.rs",
+        "sha256": "dee1abb3868ca63672333aa70caffc6abafba18a2abc0f305e012bb605882d98"
+      },
+      {
+        "path": "crates/kanpo-parser/src/parallel_fraction_geometry_tests.rs",
+        "sha256": "9fa0da416a260998dd361bb452dee3937a00c8de6828c6d120acab95dae9f1f8"
+      },
+      {
+        "path": "crates/kanpo-parser/src/parallel_fractions.rs",
+        "sha256": "5f2bd4e2635069ede150e2ca75af0f5c451611d8d9c94d03409b121669f11c85"
+      },
+      {
+        "path": "crates/kanpo-parser/src/prose_label_values_tests.rs",
+        "sha256": "2ba2d80b953f26b93d8166ad096285ea27b2affa5f4dc9286625c46dba82f3b9"
+      },
+      {
+        "path": "crates/kanpo-parser/src/quantity_tables.rs",
+        "sha256": "ffb65b9a00c7b0c2781ed076bdd060b687bc052814289b548ba96011605adfb5"
+      },
+      {
+        "path": "crates/kanpo-parser/src/range_endpoints.rs",
+        "sha256": "e201bec3dc7394c29c5d3c18a2abe1a1c4508831d921ccaf545850590a3faf00"
+      },
+      {
+        "path": "crates/kanpo-parser/src/record_suffix.rs",
+        "sha256": "43997ade6e3b8842daaf727494852e903333be2558b7831aa689de6ab72f1b3a"
+      },
+      {
+        "path": "crates/kanpo-parser/src/record_suffix_tests.rs",
+        "sha256": "bfe5838796837ba3279df09f684abc6c2eefecd02274e98d12478bf31dc29b98"
+      },
+      {
+        "path": "crates/kanpo-parser/src/reference_markers.rs",
+        "sha256": "b06a95fe2087407773c1aef85ed7c8681adb2ee7eb9ed39f435557acc14a4ce0"
+      },
+      {
+        "path": "crates/kanpo-parser/src/repeated_key_column_tests.rs",
+        "sha256": "58a46c1c69157d6c3619efdf245107180fbe7b3191accb03c7d08cec96057578"
+      },
+      {
+        "path": "crates/kanpo-parser/src/ruled_plain_dash_tests.rs",
+        "sha256": "1e6722aa09f6680292b44e3015cc38bf3a72834af4c8b7fc65d0fe73a75b3b2d"
+      },
+      {
+        "path": "crates/kanpo-parser/src/ruled_plain_dashes.rs",
+        "sha256": "3b39b9833af9e529f71581e49a882ef738d62e7ef40ade37875a02f3b69da01b"
+      },
+      {
+        "path": "crates/kanpo-parser/src/segment.rs",
+        "sha256": "05aef0a20c3f1793883d8fc8152d12261f2b5f5336a3864756d080727fb262e7"
+      },
+      {
+        "path": "crates/kanpo-parser/src/shared_physical_label_tests.rs",
+        "sha256": "691fd4c66ba25a5d3da052f340e77389f251a98e35ea67d1c185ffc2759a88d1"
+      },
+      {
+        "path": "crates/kanpo-parser/src/shared_table_labels.rs",
+        "sha256": "a9a4afe53cf2d662239a1fe1219147cbd983747830aba23cee8fd0d00028a42b"
+      },
+      {
+        "path": "crates/kanpo-parser/src/shinkyu.rs",
+        "sha256": "66f86602fc7b9e41365f2b042aad727dc14dbc902b52c996c908c97780a2b5e4"
+      },
+      {
+        "path": "crates/kanpo-parser/src/ship_record_tests.rs",
+        "sha256": "b4e7c35ee920544993a2585594e8ff338889376c2a93f82546c7eb4928796bcb"
+      },
+      {
+        "path": "crates/kanpo-parser/src/shorthand_tier_tests.rs",
+        "sha256": "0b30159ec56155d4047712d4607be7f40d6f07a10540224a6589915900c217cd"
+      },
+      {
+        "path": "crates/kanpo-parser/src/signer_block_tests.rs",
+        "sha256": "776e829693431b7766e21af2efb7cbaf12216722d57c984bf334e48798624a66"
+      },
+      {
+        "path": "crates/kanpo-parser/src/table.rs",
+        "sha256": "2ebcef0d19ba3e56dc5ce751ab63fe3bf5486c55b6e0fa91e8267b3561b92f45"
+      },
+      {
+        "path": "crates/kanpo-parser/src/table_dashes.rs",
+        "sha256": "97c2d1d7dc25eafac99495b0a87c813721dd0fe798084176037a845cdd9e9671"
+      },
+      {
+        "path": "crates/kanpo-parser/src/table_dashes_physical_cells_tests.rs",
+        "sha256": "736e613d72504ba0c571c57a5456da7362d7d881131cd90c18f2eb3c46e85c44"
+      },
+      {
+        "path": "crates/kanpo-parser/src/table_text_column_tests.rs",
+        "sha256": "7df4228068dda4b48900dcb3c87a53420d323b805364559e1b873111a8622f3d"
+      },
+      {
+        "path": "crates/kanpo-parser/src/trace.rs",
+        "sha256": "1f21f7f40ed424d32aa2cc33052ae26ec0fd2dd0f01bbba63ec211481eb6e3aa"
+      },
+      {
+        "path": "crates/kanpo-parser/src/trailing_code_tables.rs",
+        "sha256": "e59b3e0e3e86b5547db1cecd1bc4550bb50e798f2f9720c3ec8d9584c53e25ce"
+      },
+      {
+        "path": "crates/kanpo-parser/src/triangle_sign_tests.rs",
+        "sha256": "a22ea872698bc34351bb5a5f510de0e1728050a94b108e972467424cc2f327c9"
+      },
+      {
+        "path": "crates/kanpo-parser/src/unruled_record_tests.rs",
+        "sha256": "049caf72c44f37e52db2521eacad7ccac9bf1aad226de411cd5735368f64139d"
+      },
+      {
+        "path": "crates/kanpo-parser/src/unruled_records.rs",
+        "sha256": "f905f325ecbfe3eae8e7c7461a1b627708aab5c4f8850808a84547d6b1eaa75b"
+      },
+      {
+        "path": "crates/kanpo-parser/src/unruled_road.rs",
+        "sha256": "8b6e1880ca914490eb976c3fc852760eb485d90c2f4a65002c262d1f911fa70b"
+      },
+      {
+        "path": "crates/kanpo-parser/src/vertical.rs",
+        "sha256": "76c7d1b0d0d54a7bb1ceda5de9c2d75cfd7010d47d08c502b8af111df09a0f13"
+      },
+      {
+        "path": "crates/kanpo-parser/src/wrapped_native_quote_tests.rs",
+        "sha256": "68a732e65692bfe1bc5b50aeafe5e3b6935f12fcd9d53ca0791c029fa21f1fb7"
+      },
+      {
+        "path": "crates/kanpo-parser/src/wrapped_notice_title_tests.rs",
+        "sha256": "ba6b69428c49911036bd0ffe7f368a9e3d6454b33b2c07558b8dd486b493035e"
+      },
+      {
+        "path": "crates/kanpo-parser/src/wrapped_notice_titles.rs",
+        "sha256": "ee1316e253e58d73efa0100366a36244b02794561da9a67286e3ceae00e393fe"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/bbox.rs",
+        "sha256": "3488a8c9425562ba8161fafdc7f4c84fadb7770b097b1f07de8d119fc28621b2"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/cmap.rs",
+        "sha256": "ae8de5b85d27afd6d2bb2f5541f9b477fd163fc9155b71ab858fa44951701796"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/crypt.rs",
+        "sha256": "71ff6cff3f5680f1d32330b42d312d896d61b1f9f28ce8c6ee799501426098ca"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/document.rs",
+        "sha256": "eb955b1fe352e8552b1422e2755fd77eeeb9b289674532617e2740d80d4a3143"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/filter.rs",
+        "sha256": "16c3abd9992971c8cdc6aa25231a98ede9da11937019cc7f6100b763d2d05cea"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/font.rs",
+        "sha256": "3c30d51258ae02368088461ee182b5ea296d7dfaf9f2e849765c61121e8e7ab8"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/lexer.rs",
+        "sha256": "501609f620f60105fc70f53d98bd5b283091abacfea3b8e48e262f9d01590b11"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/lib.rs",
+        "sha256": "ecef6341d2f1f2281828432672778dbdee1da7f4b883b518c1ef935c19f611df"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/native_vertical_bbox_tests.rs",
+        "sha256": "d7ec99599e7f1b609c66f505bb05fbcd152dc72224d734ab8dbda42848514205"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/object.rs",
+        "sha256": "a387f5ec34b17a109ae44963123076a72fe827b4f8999a579ea38f13bbb3c0bd"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/page.rs",
+        "sha256": "ed7d29314f9318cc19f82315df17126b45bf03f290938c860504507bd0d2ed1d"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/rules.rs",
+        "sha256": "03187d799f007724086d1437326fa24c7ee4bc2b08c18774d3e40ec47c5e7265"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/short_fraction_bar_tests.rs",
+        "sha256": "701116b53a0a7e208383e551658b7c6130242e4850915694ee6e4f4b695d41d8"
+      }
+    ]
+  },
+  "source_manifest_sha256": "7e5a192ba6a2e95928011605db35c92e05880c2ad71d5bca5e16cf9a244a06ab",
+  "root_native_proof": {
+    "pages": 7,
+    "pairs": 14,
+    "native_Glyphs": 28,
+    "added_Unicode_characters": 56,
+    "old_characters_removed": 0,
+    "all_native_public_Word_geometry_matches_original_parser_Words": true,
+    "parser_f32_to_native_f64_bbox_tolerance_pt": 0.0002,
+    "native_Glyph_f64_raw_ID_CID_font_fields_exact": true,
+    "all_original_before_after_parser_Word_bboxes_exact": true,
+    "all_whole_Analysis_match_fresh_full11992": true,
+    "all_Page_and_ArticleDocument_edits_only_literal_endpoint_insertions": true,
+    "source_manifest_sha256": "7e5a192ba6a2e95928011605db35c92e05880c2ad71d5bca5e16cf9a244a06ab",
+    "results": [
+      {
+        "page": "20260915g002050016",
+        "PDF_sha256": "803afa91353fc3d3c89f061b0cbb5f789c8ad7cbe5e6db155d352f33b2a2a197",
+        "pairs": [
+          {
+            "left": 120,
+            "right": 96,
+            "endpoint": "（２９）",
+            "owner": {
+              "region": 0,
+              "line": 8,
+              "unit": 0,
+              "part": 0,
+              "role": "after",
+              "old_ids": [
+                120,
+                92
+              ],
+              "old_text": "［（２）〜　略］",
+              "new_ids": [
+                120,
+                96,
+                92
+              ],
+              "new_text": "［（２）〜（２９）　略］"
+            },
+            "native_Glyph_ids": [
+              683,
+              684
+            ]
+          },
+          {
+            "left": 48,
+            "right": 24,
+            "endpoint": "（２９）",
+            "owner": {
+              "region": 1,
+              "line": 8,
+              "unit": 0,
+              "part": 0,
+              "role": "before",
+              "old_ids": [
+                48,
+                20
+              ],
+              "old_text": "［（２）〜　同左］",
+              "new_ids": [
+                48,
+                24,
+                20
+              ],
+              "new_text": "［（２）〜（２９）　同左］"
+            },
+            "native_Glyph_ids": [
+              690,
+              691
+            ]
+          }
+        ],
+        "body_insertions": [
+          "（２９）",
+          "（２９）"
+        ],
+        "ArticleDocument_insertions": [
+          "（２９）",
+          "（２９）"
+        ],
+        "all28_original_Word_raw_ID_bbox_fields_exact": "Verified over all seven pages by fullAnalysis report and unchanged actual fixture assertions",
+        "files": [
+          {
+            "path": ".cache/kanpo-227/root26-native/20260915g002050016-after47.json",
+            "sha256": "ff228210761ba6397b9bf4c14eb7aea0ea2fa542114e4ba82f0fcc08cd6061dc"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260915g002050016-before46.json",
+            "sha256": "51a7697167bb8dbd87b44aa4657539f99c8d623cb9a0b5306d17850e8c01dc72"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260915g002050016-native.json",
+            "sha256": "1f5b39794ae001081768d225cc939cdae283ef32b3299b5fc4fcb36ecd19c14a"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260915g002050016-nativeWords.json",
+            "sha256": "2c4266bc5ae795b35307d5ed69e6f82d472dc977d980d231361caada9fad7771"
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150032",
+        "PDF_sha256": "c543a14b4dbdc72c87742143905f80ac4b5025b0d87731fd5e4f45625a873731",
+        "pairs": [
+          {
+            "left": 172,
+            "right": 158,
+            "endpoint": "（１９）",
+            "owner": {
+              "region": 0,
+              "line": 17,
+              "unit": 0,
+              "part": 0,
+              "role": "after",
+              "old_ids": [
+                172,
+                149
+              ],
+              "old_text": "（８）〜　［略］",
+              "new_ids": [
+                172,
+                158,
+                149
+              ],
+              "new_text": "（８）〜（１９）　［略］"
+            },
+            "native_Glyph_ids": [
+              353,
+              354
+            ]
+          },
+          {
+            "left": 179,
+            "right": 160,
+            "endpoint": "（２２）",
+            "owner": {
+              "region": 0,
+              "line": 36,
+              "unit": 0,
+              "part": 0,
+              "role": "after",
+              "old_ids": [
+                179,
+                153
+              ],
+              "old_text": "（９）〜　［略］",
+              "new_ids": [
+                179,
+                160,
+                153
+              ],
+              "new_text": "（９）〜（２２）　［略］"
+            },
+            "native_Glyph_ids": [
+              732,
+              733
+            ]
+          },
+          {
+            "left": 71,
+            "right": 62,
+            "endpoint": "（１８）",
+            "owner": {
+              "region": 1,
+              "line": 15,
+              "unit": 0,
+              "part": 0,
+              "role": "before",
+              "old_ids": [
+                71,
+                54
+              ],
+              "old_text": "（７）〜　［同左］",
+              "new_ids": [
+                71,
+                62,
+                54
+              ],
+              "new_text": "（７）〜（１８）　［同左］"
+            },
+            "native_Glyph_ids": [
+              365,
+              366
+            ]
+          }
+        ],
+        "body_insertions": [
+          "（１９）",
+          "（２２）",
+          "（１８）"
+        ],
+        "ArticleDocument_insertions": [
+          "（１９）",
+          "（１８）",
+          "（２２）"
+        ],
+        "all28_original_Word_raw_ID_bbox_fields_exact": "Verified over all seven pages by fullAnalysis report and unchanged actual fixture assertions",
+        "files": [
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150032-after47.json",
+            "sha256": "0ac36805c91719fc5fb1b7c5a8e5bb9e02776ac8be73996f9d0c4738171751c2"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150032-before46.json",
+            "sha256": "310c0847baeb0c06ed0669efc0e89ac93f0f652c6fcd8934b0b9e0c3a562f946"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150032-native.json",
+            "sha256": "9a06ba4caa9a07eba2dc9c174ff8b0666ed273d3a8ebebfc391ec11eb10745a0"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150032-nativeWords.json",
+            "sha256": "3e6d3481c4ec7d247876a970280dc785c8889729301d1318bc0b2fb33ed4e021"
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150033",
+        "PDF_sha256": "7f06ea16fd25d0cb1ad7108c1dad1d027e18c33bb7406e6fa1504bc178e7caa4",
+        "pairs": [
+          {
+            "left": 185,
+            "right": 165,
+            "endpoint": "（２２）",
+            "owner": {
+              "region": 0,
+              "line": 16,
+              "unit": 0,
+              "part": 0,
+              "role": "after",
+              "old_ids": [
+                185,
+                159
+              ],
+              "old_text": "（９）〜　［略］",
+              "new_ids": [
+                185,
+                165,
+                159
+              ],
+              "new_text": "（９）〜（２２）　［略］"
+            },
+            "native_Glyph_ids": [
+              334,
+              335
+            ]
+          }
+        ],
+        "body_insertions": [
+          "（２２）"
+        ],
+        "ArticleDocument_insertions": [
+          "（２２）"
+        ],
+        "all28_original_Word_raw_ID_bbox_fields_exact": "Verified over all seven pages by fullAnalysis report and unchanged actual fixture assertions",
+        "files": [
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150033-after47.json",
+            "sha256": "b46cd54180dd8e31c1f83a842666154e40b6db141286085d4af7da798202b9eb"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150033-before46.json",
+            "sha256": "0d15af0aa32b92b886fa2da812a26c037c067e9ca4c4ff6728f6c9e13917b83c"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150033-native.json",
+            "sha256": "7510195d9b1fd748f49c63ae9a60215f47ca979e9d65996e9b7ea344a3017317"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150033-nativeWords.json",
+            "sha256": "687218248755977237be5db22599993411b8fac3158296f89792214e2035cb1b"
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150035",
+        "PDF_sha256": "ebdbfc7a5f99d9b72c09e35537271dd88826683170f822209ecd856f609bf273",
+        "pairs": [
+          {
+            "left": 226,
+            "right": 215,
+            "endpoint": "（１９）",
+            "owner": {
+              "region": 0,
+              "line": 42,
+              "unit": 0,
+              "part": 0,
+              "role": "after",
+              "old_ids": [
+                226,
+                206
+              ],
+              "old_text": "（８）〜　［略］",
+              "new_ids": [
+                226,
+                215,
+                206
+              ],
+              "new_text": "（８）〜（１９）　［略］"
+            },
+            "native_Glyph_ids": [
+              767,
+              768
+            ]
+          },
+          {
+            "left": 103,
+            "right": 95,
+            "endpoint": "（１９）",
+            "owner": {
+              "region": 1,
+              "line": 1,
+              "unit": 0,
+              "part": 0,
+              "role": "before",
+              "old_ids": [
+                103,
+                90
+              ],
+              "old_text": "（７）〜　［同左］",
+              "new_ids": [
+                103,
+                95,
+                90
+              ],
+              "new_text": "（７）〜（１９）　［同左］"
+            },
+            "native_Glyph_ids": [
+              79,
+              80
+            ]
+          },
+          {
+            "left": 99,
+            "right": 93,
+            "endpoint": "（１８）",
+            "owner": {
+              "region": 1,
+              "line": 39,
+              "unit": 0,
+              "part": 0,
+              "role": "before",
+              "old_ids": [
+                99,
+                86
+              ],
+              "old_text": "（７）〜　［同左］",
+              "new_ids": [
+                99,
+                93,
+                86
+              ],
+              "new_text": "（７）〜（１８）　［同左］"
+            },
+            "native_Glyph_ids": [
+              779,
+              780
+            ]
+          }
+        ],
+        "body_insertions": [
+          "（１９）",
+          "（１９）",
+          "（１８）"
+        ],
+        "ArticleDocument_insertions": [
+          "（１９）",
+          "（１９）",
+          "（１８）"
+        ],
+        "all28_original_Word_raw_ID_bbox_fields_exact": "Verified over all seven pages by fullAnalysis report and unchanged actual fixture assertions",
+        "files": [
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150035-after47.json",
+            "sha256": "d0ef06fd10e333f4d859d843f8c9e0fdc42db0763cc701307c3d630f9c8b206d"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150035-before46.json",
+            "sha256": "06f1b864241f6d47255eea805dcea23220cbdb3fc75870db76008e2cc6900304"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150035-native.json",
+            "sha256": "126a5c7c53a6017c8333eac10ae5c9275aa22e24352484fd57f09f32a5feb31c"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150035-nativeWords.json",
+            "sha256": "a1186ff377b16cfff38f7f84314d4d281883a30e4fe4f7f794d57043c7f7a62e"
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150036",
+        "PDF_sha256": "d2e2c0594e3507b020170c41d007c529050df1183ea1d3924100dbc4ee3f2bc3",
+        "pairs": [
+          {
+            "left": 84,
+            "right": 77,
+            "endpoint": "（１９）",
+            "owner": {
+              "region": 1,
+              "line": 15,
+              "unit": 0,
+              "part": 0,
+              "role": "before",
+              "old_ids": [
+                84,
+                74
+              ],
+              "old_text": "（７）〜　［同左］",
+              "new_ids": [
+                84,
+                77,
+                74
+              ],
+              "new_text": "（７）〜（１９）　［同左］"
+            },
+            "native_Glyph_ids": [
+              373,
+              374
+            ]
+          }
+        ],
+        "body_insertions": [
+          "（１９）"
+        ],
+        "ArticleDocument_insertions": [
+          "（１９）"
+        ],
+        "all28_original_Word_raw_ID_bbox_fields_exact": "Verified over all seven pages by fullAnalysis report and unchanged actual fixture assertions",
+        "files": [
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150036-after47.json",
+            "sha256": "00898967739f39d8b75756503308e21c6b8b018f1a241a8afe2b2db2215dc750"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150036-before46.json",
+            "sha256": "672df20b1042a12d99af9b7ce94a57dbd21c40ecba0a9225e432d1766fedd95b"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150036-native.json",
+            "sha256": "267ba722c1c45fdd40d70656368db87189019b1910ec3bc5e3bbba629f74900a"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150036-nativeWords.json",
+            "sha256": "9e6dec3244f868f86e45cd5cccda3a6192b5a58c64b4bfe85b4215dc101d71a8"
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150054",
+        "PDF_sha256": "559af9912777ea7b92e8ee40aa14865f1512bbe5fd728978a54a3e92d430d08e",
+        "pairs": [
+          {
+            "left": 188,
+            "right": 180,
+            "endpoint": "（１９）",
+            "owner": {
+              "region": 0,
+              "line": 28,
+              "unit": 0,
+              "part": 0,
+              "role": "after",
+              "old_ids": [
+                188,
+                174
+              ],
+              "old_text": "（８）〜　［略］",
+              "new_ids": [
+                188,
+                180,
+                174
+              ],
+              "new_text": "（８）〜（１９）　［略］"
+            },
+            "native_Glyph_ids": [
+              529,
+              530
+            ]
+          },
+          {
+            "left": 83,
+            "right": 78,
+            "endpoint": "（１８）",
+            "owner": {
+              "region": 1,
+              "line": 26,
+              "unit": 0,
+              "part": 0,
+              "role": "before",
+              "old_ids": [
+                83,
+                73
+              ],
+              "old_text": "（７）〜　［同左］",
+              "new_ids": [
+                83,
+                78,
+                73
+              ],
+              "new_text": "（７）〜（１８）　［同左］"
+            },
+            "native_Glyph_ids": [
+              541,
+              542
+            ]
+          }
+        ],
+        "body_insertions": [
+          "（１９）",
+          "（１８）"
+        ],
+        "ArticleDocument_insertions": [
+          "（１９）",
+          "（１８）"
+        ],
+        "all28_original_Word_raw_ID_bbox_fields_exact": "Verified over all seven pages by fullAnalysis report and unchanged actual fixture assertions",
+        "files": [
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150054-after47.json",
+            "sha256": "a46e7af6afd48c3baf60622c868393d6461554c0f0d136e25c66d8791a2ccaf2"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150054-before46.json",
+            "sha256": "b76e90f4b51fd5150abf810d8b3356271c1d1745192dac633dcca7dd8b09775b"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150054-native.json",
+            "sha256": "4733c112b1cf6e84b97ff2586baabb3bfefa571b30f00c001b964bdd3feb1542"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150054-nativeWords.json",
+            "sha256": "443243a81d8e846e704762164b102cc707862da8e4aba588d2f37bcbb4310e55"
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150055",
+        "PDF_sha256": "f55f98727313ee26ce97251f98b81817aa939f55527e8c61e9a47062af227a48",
+        "pairs": [
+          {
+            "left": 180,
+            "right": 164,
+            "endpoint": "（２２）",
+            "owner": {
+              "region": 0,
+              "line": 6,
+              "unit": 0,
+              "part": 0,
+              "role": "after",
+              "old_ids": [
+                180,
+                157
+              ],
+              "old_text": "（９）〜　［略］",
+              "new_ids": [
+                180,
+                164,
+                157
+              ],
+              "new_text": "（９）〜（２２）　［略］"
+            },
+            "native_Glyph_ids": [
+              155,
+              156
+            ]
+          },
+          {
+            "left": 73,
+            "right": 66,
+            "endpoint": "（１９）",
+            "owner": {
+              "region": 1,
+              "line": 26,
+              "unit": 0,
+              "part": 0,
+              "role": "before",
+              "old_ids": [
+                73,
+                61
+              ],
+              "old_text": "（７）〜　［同左］",
+              "new_ids": [
+                73,
+                66,
+                61
+              ],
+              "new_text": "（７）〜（１９）　［同左］"
+            },
+            "native_Glyph_ids": [
+              626,
+              627
+            ]
+          }
+        ],
+        "body_insertions": [
+          "（２２）",
+          "（１９）"
+        ],
+        "ArticleDocument_insertions": [
+          "（２２）",
+          "（１９）"
+        ],
+        "all28_original_Word_raw_ID_bbox_fields_exact": "Verified over all seven pages by fullAnalysis report and unchanged actual fixture assertions",
+        "files": [
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150055-after47.json",
+            "sha256": "a6ddf471d1f8afe6e048fc41fc8c037fa920269aeab0d1bba6f79b64ec28345b"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150055-before46.json",
+            "sha256": "e6941c2fb3ad98b271ae685542e904c7bce6211b3efd07a9a5afd6f05873411f"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150055-native.json",
+            "sha256": "09e44b562028eec3e4ffc83a1c3f1cca4869c6ba4842043553084f02e80adb84"
+          },
+          {
+            "path": ".cache/kanpo-227/root26-native/20260930g002150055-nativeWords.json",
+            "sha256": "67ee29dc8fa5708b751900b199c95921d3e1f8e06225521cd17f2a5842fd79df"
+          }
+        ]
+      }
+    ]
+  },
+  "all11992_fresh_complete_Analysis": {
+    "pages": 11992,
+    "baseline": "accepted25/after46",
+    "candidate": "after47/source104",
+    "complete_Analysis_exact": 11985,
+    "body_exact": 11985,
+    "changed": 7,
+    "changes": [
+      {
+        "page": "20260915g002050016",
+        "body_changed": true,
+        "newly_owned_existing_IDs": [
+          [
+            0,
+            24
+          ],
+          [
+            0,
+            96
+          ]
+        ],
+        "changed_original_Word_IDs": [
+          24,
+          48,
+          96,
+          120
+        ],
+        "added_original_characters": {
+          "（": 2,
+          "２": 2,
+          "９": 2,
+          "）": 2
+        },
+        "artifacts": [
+          {
+            "path": ".cache/kanpo-227/integrated47-allAnalysis/20260915g002050016-46.json.gz",
+            "sha256": "171a156b70bd4af52201b5f386554e1641167021ba0d8451979f7d71d7e7f00f",
+            "uncompressed_sha256": "1dd187b33eddaa6be1236b81e8a5bc633770e37b9ae39745b5c22c438a200cba"
+          },
+          {
+            "path": ".cache/kanpo-227/integrated47-allAnalysis/20260915g002050016-47.json.gz",
+            "sha256": "25073548f976484febccf8963f365ed7b71c9fa9fc7bf544131c9e3a745e47c2",
+            "uncompressed_sha256": "fe3a025641e22811b1b1675fead0a72e21b15f8338ece13b2236525d63fdb9ae"
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150032",
+        "body_changed": true,
+        "newly_owned_existing_IDs": [
+          [
+            0,
+            62
+          ],
+          [
+            0,
+            158
+          ],
+          [
+            0,
+            160
+          ]
+        ],
+        "changed_original_Word_IDs": [
+          62,
+          71,
+          158,
+          160,
+          172,
+          179
+        ],
+        "added_original_characters": {
+          "（": 3,
+          "１": 2,
+          "９": 1,
+          "）": 3,
+          "２": 2,
+          "８": 1
+        },
+        "artifacts": [
+          {
+            "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150032-46.json.gz",
+            "sha256": "22f1e1b90924a6506a6a818b5b1108079b45708ed97043e284b41b3e2e8ab056",
+            "uncompressed_sha256": "637d246ab41d5ac10498af01ddac650d7f312d43fbdbd59c0455bf0491ce6f49"
+          },
+          {
+            "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150032-47.json.gz",
+            "sha256": "5a158f18a808263ac0ed7fe56c243f017a006d0d99b64633215f154cbd1c6c1f",
+            "uncompressed_sha256": "9d86536b41d24640cdd70917b81d621a805119f2c514c1f9fa3b7f75054c5fc1"
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150033",
+        "body_changed": true,
+        "newly_owned_existing_IDs": [
+          [
+            0,
+            165
+          ]
+        ],
+        "changed_original_Word_IDs": [
+          165,
+          185
+        ],
+        "added_original_characters": {
+          "（": 1,
+          "２": 2,
+          "）": 1
+        },
+        "artifacts": [
+          {
+            "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150033-46.json.gz",
+            "sha256": "2a53f9a525f5f1be4d17a96e43e328f9ca96d8907d584bba848add298aed38f7",
+            "uncompressed_sha256": "b5e63da5f2bc65ecd5f73cb1b4ee897282440febd18844937441bcf72ff92d09"
+          },
+          {
+            "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150033-47.json.gz",
+            "sha256": "148e81d31ba7a1dafa654b7a4fb5161d6e8263363830edc2879725eaa66d381b",
+            "uncompressed_sha256": "57a59627c04e1654d9d5b02860b02266738b3fbb50313bf70a9753a9e6031d6e"
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150035",
+        "body_changed": true,
+        "newly_owned_existing_IDs": [
+          [
+            0,
+            93
+          ],
+          [
+            0,
+            95
+          ],
+          [
+            0,
+            215
+          ]
+        ],
+        "changed_original_Word_IDs": [
+          93,
+          95,
+          99,
+          103,
+          215,
+          226
+        ],
+        "added_original_characters": {
+          "（": 3,
+          "１": 3,
+          "９": 2,
+          "）": 3,
+          "８": 1
+        },
+        "artifacts": [
+          {
+            "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150035-46.json.gz",
+            "sha256": "1adf6858154e34745dafb8b89b806cf15a8ae6cac379d2996c104e8d4841da2f",
+            "uncompressed_sha256": "4b8d38883f8de598b0dfd99f88d603e3b08b5eea53d0d960fdd448163aa87661"
+          },
+          {
+            "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150035-47.json.gz",
+            "sha256": "fc32f5eb17b75f37fc703150de61cfc3c4b8fb7e7198e9a5f9cfb0c1a4c0aa5c",
+            "uncompressed_sha256": "070c19c4fac8818cc4c490ae99ac9b5e11cdd5c5c5c8542056198a8fa63c67b9"
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150036",
+        "body_changed": true,
+        "newly_owned_existing_IDs": [
+          [
+            0,
+            77
+          ]
+        ],
+        "changed_original_Word_IDs": [
+          77,
+          84
+        ],
+        "added_original_characters": {
+          "（": 1,
+          "１": 1,
+          "９": 1,
+          "）": 1
+        },
+        "artifacts": [
+          {
+            "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150036-46.json.gz",
+            "sha256": "4f25b0cfff3e1363c8b1506fca6d3e3a771026a7ca7cacb710156909701cd21c",
+            "uncompressed_sha256": "6311d278aa734de508a2acfb47cddb6976be9fabb359cd1c5c276a6e209dde4d"
+          },
+          {
+            "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150036-47.json.gz",
+            "sha256": "17102d2315b39b209137fa4500996dd38b2b2234c1d34e2ae0fb4bf6a3c5b814",
+            "uncompressed_sha256": "ba7c286ba79843b7eb547568e20c8c430b6c1c4d8eeac14fc2a20559700dae0f"
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150054",
+        "body_changed": true,
+        "newly_owned_existing_IDs": [
+          [
+            0,
+            78
+          ],
+          [
+            0,
+            180
+          ]
+        ],
+        "changed_original_Word_IDs": [
+          78,
+          83,
+          180,
+          188
+        ],
+        "added_original_characters": {
+          "（": 2,
+          "１": 2,
+          "９": 1,
+          "）": 2,
+          "８": 1
+        },
+        "artifacts": [
+          {
+            "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150054-46.json.gz",
+            "sha256": "976863d6b49153d00f1e5429befc340b86599f9db6139276d52acc1b66e177e5",
+            "uncompressed_sha256": "eeec5752d97b8fdd6d784b71f3ffc547b2cdf8d6dbe7cd7854c8ed0f1ebebeb0"
+          },
+          {
+            "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150054-47.json.gz",
+            "sha256": "17d9aaa9b608d2808027b1fa59638d7b575301d2dced0b7a0894e76ad86a9b7b",
+            "uncompressed_sha256": "47ec1d0ccf6771d28d74c106f129dac9382209aa42cd98d9e6f07745b4ddee29"
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150055",
+        "body_changed": true,
+        "newly_owned_existing_IDs": [
+          [
+            0,
+            66
+          ],
+          [
+            0,
+            164
+          ]
+        ],
+        "changed_original_Word_IDs": [
+          66,
+          73,
+          164,
+          180
+        ],
+        "added_original_characters": {
+          "（": 2,
+          "２": 2,
+          "）": 2,
+          "１": 1,
+          "９": 1
+        },
+        "artifacts": [
+          {
+            "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150055-46.json.gz",
+            "sha256": "c315e5c05d4ecb830d11d408547809304b02947ba01d9698aa21652db06ce540",
+            "uncompressed_sha256": "4e50444e115d5cc0bdc4cb50b2515764c546fc0bc879264830d9f1616c35d706"
+          },
+          {
+            "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150055-47.json.gz",
+            "sha256": "896648c717dd991340c7be30b4d3633920b53e1e38a5c955f29981e8a2031b83",
+            "uncompressed_sha256": "3216b1f8863ab977c9a2ab828813460f0cac66de635b93c0d044149a19b681ea"
+          }
+        ]
+      }
+    ],
+    "original_prefix_Word_text_extensions": 14,
+    "original_Empty_to_Used_suffix_Words": 14,
+    "newly_owned_existing_IDs": 14,
+    "all_original_Word_raw_ID_bbox_exact": true,
+    "all_other_Word_fields_exact": true,
+    "all_old_output_owners_once": true,
+    "original_character_loss": 0,
+    "original_Glyphs_bound": 28,
+    "original_printed_Unicode_characters_added": 56,
+    "pre_post_all_input_source_executable_dependency_SHA_exact": true,
+    "part_results": [
+      {
+        "part": 0,
+        "pages": 5996,
+        "exact_fullAnalysis": 5993,
+        "exact_body": 5993,
+        "changes": [
+          {
+            "page": "20260930g002150033",
+            "body_changed": true,
+            "newly_owned_existing_IDs": [
+              [
+                0,
+                165
+              ]
+            ],
+            "changed_original_Word_IDs": [
+              165,
+              185
+            ],
+            "added_original_characters": {
+              "（": 1,
+              "２": 2,
+              "）": 1
+            },
+            "artifacts": [
+              {
+                "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150033-46.json.gz",
+                "sha256": "2a53f9a525f5f1be4d17a96e43e328f9ca96d8907d584bba848add298aed38f7",
+                "uncompressed_sha256": "b5e63da5f2bc65ecd5f73cb1b4ee897282440febd18844937441bcf72ff92d09"
+              },
+              {
+                "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150033-47.json.gz",
+                "sha256": "148e81d31ba7a1dafa654b7a4fb5161d6e8263363830edc2879725eaa66d381b",
+                "uncompressed_sha256": "57a59627c04e1654d9d5b02860b02266738b3fbb50313bf70a9753a9e6031d6e"
+              }
+            ]
+          },
+          {
+            "page": "20260930g002150035",
+            "body_changed": true,
+            "newly_owned_existing_IDs": [
+              [
+                0,
+                93
+              ],
+              [
+                0,
+                95
+              ],
+              [
+                0,
+                215
+              ]
+            ],
+            "changed_original_Word_IDs": [
+              93,
+              95,
+              99,
+              103,
+              215,
+              226
+            ],
+            "added_original_characters": {
+              "（": 3,
+              "１": 3,
+              "９": 2,
+              "）": 3,
+              "８": 1
+            },
+            "artifacts": [
+              {
+                "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150035-46.json.gz",
+                "sha256": "1adf6858154e34745dafb8b89b806cf15a8ae6cac379d2996c104e8d4841da2f",
+                "uncompressed_sha256": "4b8d38883f8de598b0dfd99f88d603e3b08b5eea53d0d960fdd448163aa87661"
+              },
+              {
+                "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150035-47.json.gz",
+                "sha256": "fc32f5eb17b75f37fc703150de61cfc3c4b8fb7e7198e9a5f9cfb0c1a4c0aa5c",
+                "uncompressed_sha256": "070c19c4fac8818cc4c490ae99ac9b5e11cdd5c5c5c8542056198a8fa63c67b9"
+              }
+            ]
+          },
+          {
+            "page": "20260930g002150055",
+            "body_changed": true,
+            "newly_owned_existing_IDs": [
+              [
+                0,
+                66
+              ],
+              [
+                0,
+                164
+              ]
+            ],
+            "changed_original_Word_IDs": [
+              66,
+              73,
+              164,
+              180
+            ],
+            "added_original_characters": {
+              "（": 2,
+              "２": 2,
+              "）": 2,
+              "１": 1,
+              "９": 1
+            },
+            "artifacts": [
+              {
+                "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150055-46.json.gz",
+                "sha256": "c315e5c05d4ecb830d11d408547809304b02947ba01d9698aa21652db06ce540",
+                "uncompressed_sha256": "4e50444e115d5cc0bdc4cb50b2515764c546fc0bc879264830d9f1616c35d706"
+              },
+              {
+                "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150055-47.json.gz",
+                "sha256": "896648c717dd991340c7be30b4d3633920b53e1e38a5c955f29981e8a2031b83",
+                "uncompressed_sha256": "3216b1f8863ab977c9a2ab828813460f0cac66de635b93c0d044149a19b681ea"
+              }
+            ]
+          }
+        ],
+        "seconds": 150.226379042
+      },
+      {
+        "part": 1,
+        "pages": 5996,
+        "exact_fullAnalysis": 5992,
+        "exact_body": 5992,
+        "changes": [
+          {
+            "page": "20260915g002050016",
+            "body_changed": true,
+            "newly_owned_existing_IDs": [
+              [
+                0,
+                24
+              ],
+              [
+                0,
+                96
+              ]
+            ],
+            "changed_original_Word_IDs": [
+              24,
+              48,
+              96,
+              120
+            ],
+            "added_original_characters": {
+              "（": 2,
+              "２": 2,
+              "９": 2,
+              "）": 2
+            },
+            "artifacts": [
+              {
+                "path": ".cache/kanpo-227/integrated47-allAnalysis/20260915g002050016-46.json.gz",
+                "sha256": "171a156b70bd4af52201b5f386554e1641167021ba0d8451979f7d71d7e7f00f",
+                "uncompressed_sha256": "1dd187b33eddaa6be1236b81e8a5bc633770e37b9ae39745b5c22c438a200cba"
+              },
+              {
+                "path": ".cache/kanpo-227/integrated47-allAnalysis/20260915g002050016-47.json.gz",
+                "sha256": "25073548f976484febccf8963f365ed7b71c9fa9fc7bf544131c9e3a745e47c2",
+                "uncompressed_sha256": "fe3a025641e22811b1b1675fead0a72e21b15f8338ece13b2236525d63fdb9ae"
+              }
+            ]
+          },
+          {
+            "page": "20260930g002150032",
+            "body_changed": true,
+            "newly_owned_existing_IDs": [
+              [
+                0,
+                62
+              ],
+              [
+                0,
+                158
+              ],
+              [
+                0,
+                160
+              ]
+            ],
+            "changed_original_Word_IDs": [
+              62,
+              71,
+              158,
+              160,
+              172,
+              179
+            ],
+            "added_original_characters": {
+              "（": 3,
+              "１": 2,
+              "９": 1,
+              "）": 3,
+              "２": 2,
+              "８": 1
+            },
+            "artifacts": [
+              {
+                "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150032-46.json.gz",
+                "sha256": "22f1e1b90924a6506a6a818b5b1108079b45708ed97043e284b41b3e2e8ab056",
+                "uncompressed_sha256": "637d246ab41d5ac10498af01ddac650d7f312d43fbdbd59c0455bf0491ce6f49"
+              },
+              {
+                "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150032-47.json.gz",
+                "sha256": "5a158f18a808263ac0ed7fe56c243f017a006d0d99b64633215f154cbd1c6c1f",
+                "uncompressed_sha256": "9d86536b41d24640cdd70917b81d621a805119f2c514c1f9fa3b7f75054c5fc1"
+              }
+            ]
+          },
+          {
+            "page": "20260930g002150036",
+            "body_changed": true,
+            "newly_owned_existing_IDs": [
+              [
+                0,
+                77
+              ]
+            ],
+            "changed_original_Word_IDs": [
+              77,
+              84
+            ],
+            "added_original_characters": {
+              "（": 1,
+              "１": 1,
+              "９": 1,
+              "）": 1
+            },
+            "artifacts": [
+              {
+                "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150036-46.json.gz",
+                "sha256": "4f25b0cfff3e1363c8b1506fca6d3e3a771026a7ca7cacb710156909701cd21c",
+                "uncompressed_sha256": "6311d278aa734de508a2acfb47cddb6976be9fabb359cd1c5c276a6e209dde4d"
+              },
+              {
+                "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150036-47.json.gz",
+                "sha256": "17102d2315b39b209137fa4500996dd38b2b2234c1d34e2ae0fb4bf6a3c5b814",
+                "uncompressed_sha256": "ba7c286ba79843b7eb547568e20c8c430b6c1c4d8eeac14fc2a20559700dae0f"
+              }
+            ]
+          },
+          {
+            "page": "20260930g002150054",
+            "body_changed": true,
+            "newly_owned_existing_IDs": [
+              [
+                0,
+                78
+              ],
+              [
+                0,
+                180
+              ]
+            ],
+            "changed_original_Word_IDs": [
+              78,
+              83,
+              180,
+              188
+            ],
+            "added_original_characters": {
+              "（": 2,
+              "１": 2,
+              "９": 1,
+              "）": 2,
+              "８": 1
+            },
+            "artifacts": [
+              {
+                "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150054-46.json.gz",
+                "sha256": "976863d6b49153d00f1e5429befc340b86599f9db6139276d52acc1b66e177e5",
+                "uncompressed_sha256": "eeec5752d97b8fdd6d784b71f3ffc547b2cdf8d6dbe7cd7854c8ed0f1ebebeb0"
+              },
+              {
+                "path": ".cache/kanpo-227/integrated47-allAnalysis/20260930g002150054-47.json.gz",
+                "sha256": "17d9aaa9b608d2808027b1fa59638d7b575301d2dced0b7a0894e76ad86a9b7b",
+                "uncompressed_sha256": "47ec1d0ccf6771d28d74c106f129dac9382209aa42cd98d9e6f07745b4ddee29"
+              }
+            ]
+          }
+        ],
+        "seconds": 156.246757333
+      }
+    ]
+  },
+  "preflight_original": {
+    "path": ".cache/kanpo-227/full47-preflight-manifest.json",
+    "sha256": "bb9266d0d7b5261f9223b5bbe6047d330ed097f751414791ab1c6f1f71e8fc93"
+  },
+  "final_fullAnalysis_v2_preflight": {
+    "path": ".cache/kanpo-227/full47-fullAnalysis-v2-preflight-manifest.json",
+    "sha256": "f6137bbd8e954cf8f360f0ed22c009225063943540638d420141ea006f199a46"
+  },
+  "independent_canonical_parent_rebase": {
+    "baseline_commit": "262b3825547ee37984a6ff784464ae5f3013e5c0",
+    "baseline_source": "immutable46",
+    "candidate": "immutable47",
+    "independent_proposal_baseline": "accepted24/after45",
+    "all12_parent46_complete_Analysis_equals_proof_explicit_baseline45Analysis": true,
+    "all12_candidate47_complete_Analysis_equals_independently_reviewed_candidateAnalysis": true,
+    "all11992_comparison": "fresh root11992, 7changed11985entireAnalysis exact, all14 source28Glyph/56chars and old20pairs preserved",
+    "retained_original_beforeAnalysis_semantics": "Original10 page proof beforeAnalysis stays before original20 restoration; it is intentionally preserved, not the parent45/46 baseline. All baseline/candidate complete analyses canonical serialize-parse, no numeric waiver.",
+    "fixture_file": "crates/kanpo-parser/tests/expected/range_endpoints/all34-pairs-after46-provenance-expected.json",
+    "fixture_sha256": "8469a904aa024957cdf3d335c12a7c687d2bd93b83dc46fd37906697f340f064",
+    "all_old20_original_proof_bytes_retained": true,
+    "first5_actual_function_bytes_retained": true,
+    "sixth_actual_strengthened_to34": true,
+    "source47_manifest_sha256": "7e5a192ba6a2e95928011605db35c92e05880c2ad71d5bca5e16cf9a244a06ab",
+    "all_report_sha256": "83452d18cd88a2cbe56f059cf0c38c90f7c355411ff88543272faf5faf944577",
+    "native_report_sha256": "95df184ef995b3e002d9f7b4a5fee90fd24d7c885c3da5b28a74e4c7c7db15a9"
+  },
+  "root_nontext_structure": {
+    "pages": 7,
+    "pairs": 14,
+    "all_new_sourceIDs": 0,
+    "mask_is_exact_except_expected14_source_EmptyIDs_status_and_owner_insertions": true,
+    "other11985_completeAnalysis_exact": true,
+    "rows": [
+      {
+        "page": "20260915g002050016",
+        "all_nontext_Line_Unit_Table_cell_geometry_rowspan_role_Article_Doc_structure_exact": true,
+        "only_original_suffix_Empty_to_Used_status_and_insertion_into_existing_owner_allowed": [
+          24,
+          96
+        ],
+        "original_Word_raw_ID_bbox_exact": true
+      },
+      {
+        "page": "20260930g002150032",
+        "all_nontext_Line_Unit_Table_cell_geometry_rowspan_role_Article_Doc_structure_exact": true,
+        "only_original_suffix_Empty_to_Used_status_and_insertion_into_existing_owner_allowed": [
+          62,
+          158,
+          160
+        ],
+        "original_Word_raw_ID_bbox_exact": true
+      },
+      {
+        "page": "20260930g002150033",
+        "all_nontext_Line_Unit_Table_cell_geometry_rowspan_role_Article_Doc_structure_exact": true,
+        "only_original_suffix_Empty_to_Used_status_and_insertion_into_existing_owner_allowed": [
+          165
+        ],
+        "original_Word_raw_ID_bbox_exact": true
+      },
+      {
+        "page": "20260930g002150035",
+        "all_nontext_Line_Unit_Table_cell_geometry_rowspan_role_Article_Doc_structure_exact": true,
+        "only_original_suffix_Empty_to_Used_status_and_insertion_into_existing_owner_allowed": [
+          93,
+          95,
+          215
+        ],
+        "original_Word_raw_ID_bbox_exact": true
+      },
+      {
+        "page": "20260930g002150036",
+        "all_nontext_Line_Unit_Table_cell_geometry_rowspan_role_Article_Doc_structure_exact": true,
+        "only_original_suffix_Empty_to_Used_status_and_insertion_into_existing_owner_allowed": [
+          77
+        ],
+        "original_Word_raw_ID_bbox_exact": true
+      },
+      {
+        "page": "20260930g002150054",
+        "all_nontext_Line_Unit_Table_cell_geometry_rowspan_role_Article_Doc_structure_exact": true,
+        "only_original_suffix_Empty_to_Used_status_and_insertion_into_existing_owner_allowed": [
+          78,
+          180
+        ],
+        "original_Word_raw_ID_bbox_exact": true
+      },
+      {
+        "page": "20260930g002150055",
+        "all_nontext_Line_Unit_Table_cell_geometry_rowspan_role_Article_Doc_structure_exact": true,
+        "only_original_suffix_Empty_to_Used_status_and_insertion_into_existing_owner_allowed": [
+          66,
+          164
+        ],
+        "original_Word_raw_ID_bbox_exact": true
+      }
+    ]
+  },
+  "independent_delivery": {
+    "path": ".cache/kanpo-227/range-endpoints-18922-proposal/delivery-final-manifest.json",
+    "sha256": "3884334e9ce01360493ad1ea7d1cc67566ef43ef8a8fdf1be6ae3e8b9245d574"
+  },
+  "native_CFF_all_archive": {
+    "path": ".cache/kanpo-227/range-endpoints-18922-proposal/native-all-CFF-outline-proof.json",
+    "sha256": "1a9840617706b707f8053dde316bdc4df2b9a61dc55aca89aaa593a7e3d8cd2a"
+  },
+  "whole_original_review": {
+    "pages": [
+      {
+        "page": "20260915g002050016",
+        "pdf": ".cache/kanpo-archive/2026-09-15/20260915g00205/20260915g002050016.pdf",
+        "pdf_sha256": "803afa91353fc3d3c89f061b0cbb5f789c8ad7cbe5e6db155d352f33b2a2a197",
+        "image": ".cache/kanpo-227/range-endpoints-18922-proposal/visuals/20260915g002050016.png",
+        "image_sha256": "be17e744c15e9ef0b83e1707621cada5ba64b46c99dbcc4e18e35984643d75ea",
+        "before_analysis_gzip": {
+          "path": ".cache/kanpo-227/range-endpoints-18922-proposal/full-changes/20260915g002050016-before45.json.gz",
+          "sha256": "bcc61d21701e98cf6535fdc3d4410f2e04cccf4e8e70c032f6b85e4b31f64570",
+          "uncompressed_sha256": "1dd187b33eddaa6be1236b81e8a5bc633770e37b9ae39745b5c22c438a200cba"
+        },
+        "after_analysis_gzip": {
+          "path": ".cache/kanpo-227/range-endpoints-18922-proposal/full-changes/20260915g002050016-candidate.json.gz",
+          "sha256": "9f27e7b2a70a27bd9e95637414a36a3f2be7926f374e8a73892efd6d0d8ee127",
+          "uncompressed_sha256": "fe3a025641e22811b1b1675fead0a72e21b15f8338ece13b2236525d63fdb9ae"
+        },
+        "line_count": 84,
+        "article_count": 1,
+        "fullreadflags": {
+          "whole_original_viewed": true,
+          "all_before_and_after_text_read": true,
+          "all_Article_texts_read": true,
+          "all_Document_block_rows_tables_runs_read": true,
+          "all_changed_lines_compared_to_original": true
+        },
+        "changed_lines": [
+          {
+            "line": 10,
+            "before": "［（２）〜　略］",
+            "after": "［（２）〜（２９）　略］"
+          },
+          {
+            "line": 52,
+            "before": "［（２）〜　同左］",
+            "after": "［（２）〜（２９）　同左］"
+          }
+        ],
+        "judgement": "improvement-no-new-regression",
+        "observations": "全84行/新旧3row。L10 after2〜29/L52 before2〜29の原印字を復元。第二十五号/第二十五号の二の1〜7項目、委託/管理会社の差、d本文の新旧引用は旧位置を維持。",
+        "known_remaining": [
+          "既存major保持: L7/49は原図の(17)c/(26)c/(30)/(31)の4参照番号が各欄で欠落、L29/71の(26)cも欠落（計10箇所）。この修復は〜付き2〜29終端だけ。その他の既存Word/Doc全文は不変。"
+        ],
+        "native0_exclusion": null,
+        "original_pair_proof": [
+          {
+            "left": 120,
+            "right": 96,
+            "endpoint": "（２９）",
+            "raw_left": "［〜",
+            "raw_right": "",
+            "bbox_left": [
+              83.25,
+              149.4654,
+              115.25,
+              157.6494
+            ],
+            "bbox_right": [
+              107.25,
+              149.4654,
+              115.25,
+              157.6494
+            ]
+          },
+          {
+            "left": 48,
+            "right": 24,
+            "endpoint": "（２９）",
+            "raw_left": "［〜",
+            "raw_right": "",
+            "bbox_left": [
+              438.754,
+              149.4654,
+              470.754,
+              157.6494
+            ],
+            "bbox_right": [
+              462.754,
+              149.4654,
+              470.754,
+              157.6494
+            ]
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150032",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150032.pdf",
+        "pdf_sha256": "c543a14b4dbdc72c87742143905f80ac4b5025b0d87731fd5e4f45625a873731",
+        "image": ".cache/kanpo-227/range-endpoints-proposal/visuals/20260930g002150032.png",
+        "image_sha256": "5248acd6cb090b82ddc7fd50e5d3bc51fe5034828f0b3f96e4d04262a020e047",
+        "before_analysis_gzip": {
+          "path": ".cache/kanpo-227/range-endpoints-18922-proposal/full-changes/20260930g002150032-before45.json.gz",
+          "sha256": "fa1d18f8f3bb04addd219acfc8f04f20bf4cecb15a32a6bb6190c4b93ea51a56",
+          "uncompressed_sha256": "637d246ab41d5ac10498af01ddac650d7f312d43fbdbd59c0455bf0491ce6f49"
+        },
+        "after_analysis_gzip": {
+          "path": ".cache/kanpo-227/range-endpoints-18922-proposal/full-changes/20260930g002150032-candidate.json.gz",
+          "sha256": "f6487c12342cbee814faf06863f7cb2d702d34495aca3e8a040766f14d99ae64",
+          "uncompressed_sha256": "9d86536b41d24640cdd70917b81d621a805119f2c514c1f9fa3b7f75054c5fc1"
+        },
+        "line_count": 84,
+        "article_count": 1,
+        "fullreadflags": {
+          "whole_original_viewed": true,
+          "all_before_and_after_text_read": true,
+          "all_Article_texts_read": true,
+          "all_Document_block_rows_tables_runs_read": true,
+          "all_changed_lines_compared_to_original": true
+        },
+        "changed_lines": [
+          {
+            "line": 19,
+            "before": "（８）〜　［略］",
+            "after": "（８）〜（１９）　［略］"
+          },
+          {
+            "line": 38,
+            "before": "（９）〜　［略］",
+            "after": "（９）〜（２２）　［略］"
+          },
+          {
+            "line": 61,
+            "before": "（７）〜　［同左］",
+            "after": "（７）〜（１８）　［同左］"
+          }
+        ],
+        "judgement": "improvement-no-new-regression",
+        "observations": "全84行/新旧5row。L19 after8〜19、L38 after9〜22、L61 before7〜18を原図へ照合。既存L78 before8〜21は維持。中間連結/非連結財務諸表・別紙6号・住所氏名・2期間の所属を全本文/Docで確認。",
+        "known_remaining": [
+          "二行期間を囲う大型括弧・下線styling・空欄様式の視覚配置はこの候補の対象外であり完全ページと認定しない。"
+        ],
+        "native0_exclusion": null,
+        "original_pair_proof": [
+          {
+            "left": 172,
+            "right": 158,
+            "endpoint": "（１９）",
+            "raw_left": "〜",
+            "raw_right": "",
+            "bbox_left": [
+              99.266,
+              254.16,
+              123.266,
+              262.344
+            ],
+            "bbox_right": [
+              115.266,
+              254.16,
+              123.266,
+              262.344
+            ]
+          },
+          {
+            "left": 179,
+            "right": 160,
+            "endpoint": "（２２）",
+            "raw_left": "〜",
+            "raw_right": "",
+            "bbox_left": [
+              99.258,
+              481.8297,
+              123.258,
+              490.0137
+            ],
+            "bbox_right": [
+              115.258,
+              481.8297,
+              123.258,
+              490.0137
+            ]
+          },
+          {
+            "left": 71,
+            "right": 62,
+            "endpoint": "（１８）",
+            "raw_left": "〜",
+            "raw_right": "",
+            "bbox_left": [
+              454.77,
+              254.16,
+              478.77,
+              262.344
+            ],
+            "bbox_right": [
+              470.77,
+              254.16,
+              478.77,
+              262.344
+            ]
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150033",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150033.pdf",
+        "pdf_sha256": "7f06ea16fd25d0cb1ad7108c1dad1d027e18c33bb7406e6fa1504bc178e7caa4",
+        "image": ".cache/kanpo-227/range-endpoints-proposal/visuals/20260930g002150033.png",
+        "image_sha256": "e03441f22993d9a85cf147ad66d1f17b20042fe667ef9fd38da65362e366234f",
+        "before_analysis_gzip": {
+          "path": ".cache/kanpo-227/range-endpoints-18922-proposal/full-changes/20260930g002150033-before45.json.gz",
+          "sha256": "cd1c240f691a4889a5575a968b4dd7fca779f6e8cf5d376bfebc665b6681c97a",
+          "uncompressed_sha256": "b5e63da5f2bc65ecd5f73cb1b4ee897282440febd18844937441bcf72ff92d09"
+        },
+        "after_analysis_gzip": {
+          "path": ".cache/kanpo-227/range-endpoints-18922-proposal/full-changes/20260930g002150033-candidate.json.gz",
+          "sha256": "1f710228b6ac23e7b94750c35d9568df7d919e388367f22706d3b4a1d0b33fa2",
+          "uncompressed_sha256": "57a59627c04e1654d9d5b02860b02266738b3fbb50313bf70a9753a9e6031d6e"
+        },
+        "line_count": 80,
+        "article_count": 1,
+        "fullreadflags": {
+          "whole_original_viewed": true,
+          "all_before_and_after_text_read": true,
+          "all_Article_texts_read": true,
+          "all_Document_block_rows_tables_runs_read": true,
+          "all_changed_lines_compared_to_original": true
+        },
+        "changed_lines": [
+          {
+            "line": 18,
+            "before": "（９）〜　［略］",
+            "after": "（９）〜（２２）　［略］"
+          }
+        ],
+        "judgement": "improvement-no-new-regression",
+        "observations": "全80行/新旧5row。上6号の2表のL18 after9〜22だけ追加。下7号のafter9〜17/before8〜16及び上before8〜21の旧復元を保持。銀行/支店/代表者と同左/加えるの各row所属を確認。",
+        "known_remaining": [
+          "二行期間を囲う大型括弧・下線styling・空欄様式の視覚配置はこの候補の対象外であり完全ページと認定しない。"
+        ],
+        "native0_exclusion": null,
+        "original_pair_proof": [
+          {
+            "left": 185,
+            "right": 165,
+            "endpoint": "（２２）",
+            "raw_left": "〜",
+            "raw_right": "",
+            "bbox_left": [
+              99.25,
+              252.6909,
+              123.25,
+              260.8749
+            ],
+            "bbox_right": [
+              115.25,
+              252.6909,
+              123.25,
+              260.8749
+            ]
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150035",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150035.pdf",
+        "pdf_sha256": "ebdbfc7a5f99d9b72c09e35537271dd88826683170f822209ecd856f609bf273",
+        "image": ".cache/kanpo-227/range-endpoints-proposal/visuals/20260930g002150035.png",
+        "image_sha256": "22eedac92905d0c28614b770aa355d9ca66a048eafd271667fcdf9a3373761bb",
+        "before_analysis_gzip": {
+          "path": ".cache/kanpo-227/range-endpoints-18922-proposal/full-changes/20260930g002150035-before45.json.gz",
+          "sha256": "0baa455b0b32c65424f8c939e4af030bcc4ca31fb4ad0f3d8ed87464da82b41a",
+          "uncompressed_sha256": "4b8d38883f8de598b0dfd99f88d603e3b08b5eea53d0d960fdd448163aa87661"
+        },
+        "after_analysis_gzip": {
+          "path": ".cache/kanpo-227/range-endpoints-18922-proposal/full-changes/20260930g002150035-candidate.json.gz",
+          "sha256": "ded99304150336303f8fdd5705b38c72c240c201ceb9689b939f521b7a7a1464",
+          "uncompressed_sha256": "070c19c4fac8818cc4c490ae99ac9b5e11cdd5c5c5c8542056198a8fa63c67b9"
+        },
+        "line_count": 89,
+        "article_count": 1,
+        "fullreadflags": {
+          "whole_original_viewed": true,
+          "all_before_and_after_text_read": true,
+          "all_Article_texts_read": true,
+          "all_Document_block_rows_tables_runs_read": true,
+          "all_changed_lines_compared_to_original": true
+        },
+        "changed_lines": [
+          {
+            "line": 44,
+            "before": "（８）〜　［略］",
+            "after": "（８）〜（１９）　［略］"
+          },
+          {
+            "line": 49,
+            "before": "（７）〜　［同左］",
+            "after": "（７）〜（１９）　［同左］"
+          },
+          {
+            "line": 87,
+            "before": "（７）〜　［同左］",
+            "after": "（７）〜（１８）　［同左］"
+          }
+        ],
+        "judgement": "improvement-no-new-regression",
+        "observations": "全89行/新旧4row。L44 after8〜19、L49 before7〜19、L87 before7〜18は各々原図通り。旧after8〜20を維持。2種類の損益期間、別紙11号・銀行持株会社・金融庁長官・連結欄の所属を確認。",
+        "known_remaining": [
+          "二行期間を囲う大型括弧・下線styling・空欄様式の視覚配置はこの候補の対象外であり完全ページと認定しない。"
+        ],
+        "native0_exclusion": null,
+        "original_pair_proof": [
+          {
+            "left": 226,
+            "right": 215,
+            "endpoint": "（１９）",
+            "raw_left": "〜",
+            "raw_right": "",
+            "bbox_left": [
+              99.266,
+              517.8383,
+              123.266,
+              526.0223
+            ],
+            "bbox_right": [
+              115.266,
+              517.8383,
+              123.266,
+              526.0223
+            ]
+          },
+          {
+            "left": 103,
+            "right": 95,
+            "endpoint": "（１９）",
+            "raw_left": "〜",
+            "raw_right": "",
+            "bbox_left": [
+              454.754,
+              74.752,
+              478.754,
+              82.936
+            ],
+            "bbox_right": [
+              470.754,
+              74.752,
+              478.754,
+              82.936
+            ]
+          },
+          {
+            "left": 99,
+            "right": 93,
+            "endpoint": "（１８）",
+            "raw_left": "〜",
+            "raw_right": "",
+            "bbox_left": [
+              454.77,
+              517.8383,
+              478.77,
+              526.0223
+            ],
+            "bbox_right": [
+              470.77,
+              517.8383,
+              478.77,
+              526.0223
+            ]
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150036",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150036.pdf",
+        "pdf_sha256": "d2e2c0594e3507b020170c41d007c529050df1183ea1d3924100dbc4ee3f2bc3",
+        "image": ".cache/kanpo-227/range-endpoints-proposal/visuals/20260930g002150036.png",
+        "image_sha256": "03a36099bd170fa8752c5a3714b7e2ee7f5e72254f6007fe040a43815ff85a36",
+        "before_analysis_gzip": {
+          "path": ".cache/kanpo-227/range-endpoints-18922-proposal/full-changes/20260930g002150036-before45.json.gz",
+          "sha256": "63bf6ed7fb88f295bf32d8ebb6cd03e3c95a7d537f228630f6a0c680407e59f5",
+          "uncompressed_sha256": "6311d278aa734de508a2acfb47cddb6976be9fabb359cd1c5c276a6e209dde4d"
+        },
+        "after_analysis_gzip": {
+          "path": ".cache/kanpo-227/range-endpoints-18922-proposal/full-changes/20260930g002150036-candidate.json.gz",
+          "sha256": "d9128ef262a798230fc0425f7e4464a9e8c81c6ac345b45fad755e3418d9a490",
+          "uncompressed_sha256": "ba7c286ba79843b7eb547568e20c8c430b6c1c4d8eeac14fc2a20559700dae0f"
+        },
+        "line_count": 80,
+        "article_count": 1,
+        "fullreadflags": {
+          "whole_original_viewed": true,
+          "all_before_and_after_text_read": true,
+          "all_Article_texts_read": true,
+          "all_Document_block_rows_tables_runs_read": true,
+          "all_changed_lines_compared_to_original": true
+        },
+        "changed_lines": [
+          {
+            "line": 58,
+            "before": "（７）〜　［同左］",
+            "after": "（７）〜（１９）　［同左］"
+          }
+        ],
+        "judgement": "improvement-no-new-regression",
+        "observations": "全80行/新旧5row。L58 before7〜19だけ追加しL19 after8〜20は既存のまま。別紙13号/18号、損益/包括利益計算書と銀行代理業報告の全空欄見出しを各欄へ保持。",
+        "known_remaining": [
+          "二行期間を囲う大型括弧・下線styling・空欄様式の視覚配置はこの候補の対象外であり完全ページと認定しない。"
+        ],
+        "native0_exclusion": null,
+        "original_pair_proof": [
+          {
+            "left": 84,
+            "right": 77,
+            "endpoint": "（１９）",
+            "raw_left": "〜",
+            "raw_right": "",
+            "bbox_left": [
+              454.762,
+              277.3417,
+              478.762,
+              285.5257
+            ],
+            "bbox_right": [
+              470.762,
+              277.3417,
+              478.762,
+              285.5257
+            ]
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150054",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150054.pdf",
+        "pdf_sha256": "559af9912777ea7b92e8ee40aa14865f1512bbe5fd728978a54a3e92d430d08e",
+        "image": ".cache/kanpo-227/range-endpoints-18922-proposal/visuals/20260930g002150054.png",
+        "image_sha256": "bd380a49d72f8803c65e0ea2cc3fbde85784b6f9db8e9798b631a8d19e949e2c",
+        "before_analysis_gzip": {
+          "path": ".cache/kanpo-227/range-endpoints-18922-proposal/full-changes/20260930g002150054-before45.json.gz",
+          "sha256": "a6220c2aad17a8b3f5128f460a2774ba8bd6dbbd63c87c514ffffa97d6472999",
+          "uncompressed_sha256": "eeec5752d97b8fdd6d784b71f3ffc547b2cdf8d6dbe7cd7854c8ed0f1ebebeb0"
+        },
+        "after_analysis_gzip": {
+          "path": ".cache/kanpo-227/range-endpoints-18922-proposal/full-changes/20260930g002150054-candidate.json.gz",
+          "sha256": "36527c6c4d3598b9821c7c9541999fab4be425977ebc546075fdc2e0bad38704",
+          "uncompressed_sha256": "47ec1d0ccf6771d28d74c106f129dac9382209aa42cd98d9e6f07745b4ddee29"
+        },
+        "line_count": 82,
+        "article_count": 1,
+        "fullreadflags": {
+          "whole_original_viewed": true,
+          "all_before_and_after_text_read": true,
+          "all_Article_texts_read": true,
+          "all_Document_block_rows_tables_runs_read": true,
+          "all_changed_lines_compared_to_original": true
+        },
+        "changed_lines": [
+          {
+            "line": 30,
+            "before": "（８）〜　［略］",
+            "after": "（８）〜（１９）　［略］"
+          },
+          {
+            "line": 70,
+            "before": "（７）〜　［同左］",
+            "after": "（７）〜（１８）　［同左］"
+          }
+        ],
+        "judgement": "improvement-no-new-regression",
+        "observations": "全82行/新旧5row。L30 after8〜19/L70 before7〜18の原印字を復元。別紙3号(81条3項)→5号(82条1/6項)、会社/住所/代表者/日付/貸借対照表の新旧所属を保持。",
+        "known_remaining": [
+          "二行期間を囲う大型括弧・下線styling・空欄様式の視覚配置はこの候補の対象外であり完全ページと認定しない。"
+        ],
+        "native0_exclusion": null,
+        "original_pair_proof": [
+          {
+            "left": 188,
+            "right": 180,
+            "endpoint": "（１９）",
+            "raw_left": "〜",
+            "raw_right": "",
+            "bbox_left": [
+              99.266,
+              394.8803,
+              123.266,
+              403.0643
+            ],
+            "bbox_right": [
+              115.266,
+              394.8803,
+              123.266,
+              403.0643
+            ]
+          },
+          {
+            "left": 83,
+            "right": 78,
+            "endpoint": "（１８）",
+            "raw_left": "〜",
+            "raw_right": "",
+            "bbox_left": [
+              454.77,
+              394.8803,
+              478.77,
+              403.0643
+            ],
+            "bbox_right": [
+              470.77,
+              394.8803,
+              478.77,
+              403.0643
+            ]
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150055",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150055.pdf",
+        "pdf_sha256": "f55f98727313ee26ce97251f98b81817aa939f55527e8c61e9a47062af227a48",
+        "image": ".cache/kanpo-227/range-endpoints-proposal/visuals/20260930g002150055.png",
+        "image_sha256": "233df7942a930e2c8ac1d7cfdb07710abc9e036ddb8b0d6c3017c1f76c3b2bbe",
+        "before_analysis_gzip": {
+          "path": ".cache/kanpo-227/range-endpoints-18922-proposal/full-changes/20260930g002150055-before45.json.gz",
+          "sha256": "d7ab09ee053d95cf999057e933a632f6a5d658ae636c785a577f2a56a508f674",
+          "uncompressed_sha256": "4e50444e115d5cc0bdc4cb50b2515764c546fc0bc879264830d9f1616c35d706"
+        },
+        "after_analysis_gzip": {
+          "path": ".cache/kanpo-227/range-endpoints-18922-proposal/full-changes/20260930g002150055-candidate.json.gz",
+          "sha256": "41173bccebaa4a7fbdeb6f407ff321e4a062edfbd043327b1bcb3ddd8fb744fe",
+          "uncompressed_sha256": "3216b1f8863ab977c9a2ab828813460f0cac66de635b93c0d044149a19b681ea"
+        },
+        "line_count": 81,
+        "article_count": 1,
+        "fullreadflags": {
+          "whole_original_viewed": true,
+          "all_before_and_after_text_read": true,
+          "all_Article_texts_read": true,
+          "all_Document_block_rows_tables_runs_read": true,
+          "all_changed_lines_compared_to_original": true
+        },
+        "changed_lines": [
+          {
+            "line": 8,
+            "before": "（９）〜　［略］",
+            "after": "（９）〜（２２）　［略］"
+          },
+          {
+            "line": 70,
+            "before": "（７）〜　［同左］",
+            "after": "（７）〜（１９）　［同左］"
+          }
+        ],
+        "judgement": "improvement-no-new-regression",
+        "observations": "全81行/新旧3row+備考。L8 after9〜22とL70 before7〜19を復元。L32 after8〜20/L48 before8〜21は旧復元を維持。第7号/商工中金/全期間見出しと備考の所属を確認。",
+        "known_remaining": [
+          "二行期間を囲う大型括弧・下線styling・空欄様式の視覚配置はこの候補の対象外であり完全ページと認定しない。"
+        ],
+        "native0_exclusion": null,
+        "original_pair_proof": [
+          {
+            "left": 180,
+            "right": 164,
+            "endpoint": "（２２）",
+            "raw_left": "〜",
+            "raw_right": "",
+            "bbox_left": [
+              99.25,
+              127.3586,
+              123.25,
+              135.5426
+            ],
+            "bbox_right": [
+              115.25,
+              127.3586,
+              123.25,
+              135.5426
+            ]
+          },
+          {
+            "left": 73,
+            "right": 66,
+            "endpoint": "（１９）",
+            "raw_left": "〜",
+            "raw_right": "",
+            "bbox_left": [
+              454.762,
+              417.6809,
+              478.762,
+              425.8649
+            ],
+            "bbox_right": [
+              470.762,
+              417.6809,
+              478.762,
+              425.8649
+            ]
+          }
+        ]
+      }
+    ],
+    "pages_count": 7,
+    "all_text_lines": 580,
+    "all_Articles": 7,
+    "new_pairs": 14,
+    "new_originalGlyphs": 28,
+    "whole_page_success_not_claimed": true,
+    "source_exe_deps_frozen_SHA_post_exact": true
+  },
+  "existing_corpus_oracle_updates": {
+    "page": "20260930g002150033",
+    "files": [
+      {
+        "path": "crates/kanpo-parser/tests/corpus/2026-09-30-gougai215-p33/expected.txt",
+        "before_sha256": "2320df0f4469bb5694449e6548d92e1db31053e8157b9765aade6b89dc7e5b6c",
+        "after_sha256": "02c6285112f54ebc67bbb1588ee67876ec7145b54d655123f30b224346ad4310",
+        "prior_oracle": ".cache/kanpo-227/root26-corpus33/prior-oracles/expected.txt",
+        "head_blob": "bcd813b0c9d7ae5750f3357ada3b91e1d696db26"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/corpus/2026-09-30-gougai215-p33/expected.json",
+        "before_sha256": "138c952d2dd370f2269e76e1d15d53c1a8a89632abc52f7e1f1aac334f749d84",
+        "after_sha256": "224700eeb68ccd150b086254eb16e036e4c59816e8fa7840c09c71f0424b81ed",
+        "prior_oracle": ".cache/kanpo-227/root26-corpus33/prior-oracles/expected.json",
+        "head_blob": "d5a8f763fb62f196c0d19f3a44509b515999ea4b"
+      }
+    ],
+    "body_insertions": [
+      "（２２）"
+    ],
+    "document_insertions": [
+      "（２２）"
+    ],
+    "native_Glyphs": 2,
+    "native_preflight": ".cache/kanpo-227/root26-native-preflight-proof.json",
+    "original_review_image": ".cache/kanpo-227/range-endpoints-proposal/visuals/20260930g002150033.png",
+    "root_whole_original_viewed": true,
+    "original_upperleft_range9to22_verified": true,
+    "all_old20_endpoint_insertions_preserved": true,
+    "test_assertions_changed": false,
+    "production_source_changed": false,
+    "full11992_pending": true
+  },
+  "legacy_counts": {
+    "counts": {
+      "period_pairs": 706,
+      "ordinal_pairs": 121,
+      "bracket_cells": 377,
+      "existing_unattached_used_diagnostic": 53,
+      "pages": 2916,
+      "native_dash_glyphs": 11033,
+      "fractions": 153,
+      "surnames": 6,
+      "plain_dashes": 341,
+      "duplicate_word_ids": 0,
+      "nested_formulas": 6,
+      "parallel_formulas": 9,
+      "numeric_formulas": 6
+    },
+    "nested_semantic_fraction_nodes": 12,
+    "nested_serialization_pairs": 24,
+    "nested_slashes": 12,
+    "parallel_semantic_fraction_nodes": 18,
+    "parallel_serialization_pairs": 18,
+    "parallel_slashes": 18,
+    "numeric_semantic_fraction_nodes": 15,
+    "numeric_serialization_pairs": 18,
+    "numeric_native_parenthesis_pairs": 3,
+    "numeric_slashes": 15,
+    "previously_counted_unattached_Used": 50,
+    "newly_counted_existing_target_unowned_Used": 3,
+    "new_target_unowned_IDs": [
+      87,
+      88,
+      93
+    ],
+    "logs": [
+      ".cache/kanpo-227/validate47-part0.log",
+      ".cache/kanpo-227/validate47-part1.log",
+      ".cache/kanpo-227/validate47-part2.log",
+      ".cache/kanpo-227/validate47-part3.log",
+      ".cache/kanpo-227/validate47-part4.log",
+      ".cache/kanpo-227/validate47-part5.log",
+      ".cache/kanpo-227/validate47-part6.log",
+      ".cache/kanpo-227/validate47-part7.log"
+    ],
+    "all_parts_exit0": true
+  }
+}

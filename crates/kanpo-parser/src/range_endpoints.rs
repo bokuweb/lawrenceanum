@@ -13,6 +13,9 @@ fn pair(left: char, right: &str) -> Option<(&'static str, &'static str, u32)> {
     let (r, u) = match right {
         "\u{eacb}" => ("１）", 1),
         "\u{ead4}" => ("０）", 0),
+        "\u{eacc}" => ("２）", 2),
+        "\u{ead2}" => ("８）", 8),
+        "\u{ead3}" => ("９）", 9),
         "\u{ead0}" => ("６）", 6),
         "\u{ead1}" => ("７）", 7),
         _ => return None,
@@ -96,7 +99,13 @@ pub(crate) fn restore(units: &mut [Unit], words: &mut [Word]) {
         w.status == WordStatus::Empty
             && matches!(
                 w.raw.as_str(),
-                "\u{eacb}" | "\u{ead4}" | "\u{ead0}" | "\u{ead1}"
+                "\u{eacb}"
+                    | "\u{ead4}"
+                    | "\u{ead0}"
+                    | "\u{ead1}"
+                    | "\u{eacc}"
+                    | "\u{ead2}"
+                    | "\u{ead3}"
             )
     }) {
         return;
@@ -442,7 +451,7 @@ mod tests {
     }
     #[test]
     fn unknown_component_stays_empty() {
-        for r in ['\u{eace}', '\u{ead2}', '\u{ead3}'] {
+        for r in ['\u{eace}', '\u{ead5}', '\u{ead6}'] {
             let (u, w) = fixture('\u{eac1}', r);
             unchanged(u, w);
         }
@@ -535,5 +544,66 @@ mod tests {
         let (u, mut w) = fixture('\u{eac2}', '\u{eacb}');
         w[2].status = WordStatus::Margin;
         unchanged(u, w);
+    }
+
+    #[test]
+    fn newly_proven_right_halves_return_only_their_original_digits() {
+        for (right, suffix) in [
+            ('\u{eacc}', "２）"),
+            ('\u{ead2}', "８）"),
+            ('\u{ead3}', "９）"),
+        ] {
+            for (left, prefix) in [('\u{eac1}', "（１"), ('\u{eac2}', "（２")] {
+                let (mut units, mut words) = fixture(left, right);
+                restore(&mut units, &mut words);
+                assert_eq!(
+                    lines(&units)[0].text,
+                    format!("（９）〜{prefix}{suffix}　［略］")
+                );
+                assert_eq!(lines(&units)[0].words, vec![0, 1, 2]);
+                assert_eq!(words[0].text, format!("（９）〜{prefix}"));
+                assert_eq!(words[1].text, suffix);
+                assert_eq!(words[1].status, WordStatus::Used);
+            }
+        }
+    }
+    #[test]
+    fn newly_proven_halves_do_not_restore_plain_ordinal_or_prose() {
+        for right in ['\u{eacc}', '\u{ead2}', '\u{ead3}'] {
+            for text in ["次の", "（９）", "９〜", "（３１）〜"] {
+                let (units, mut words) = fixture('\u{eac1}', right);
+                words[0].raw = format!("{text}{}", '\u{eac1}');
+                words[0].text = text.into();
+                unchanged(units, words);
+            }
+        }
+    }
+    #[test]
+    fn newly_proven_halves_still_require_unique_empty_owner_and_alignment() {
+        for right in ['\u{eacc}', '\u{ead2}', '\u{ead3}'] {
+            for mode in 0..4 {
+                let (mut units, mut words) = fixture('\u{eac1}', right);
+                match mode {
+                    0 => {
+                        words[1].x0 += 1.;
+                        words[1].x1 += 1.;
+                    }
+                    1 => {
+                        words[1].status = WordStatus::Margin;
+                    }
+                    2 => {
+                        let mut duplicate = words[1].clone();
+                        duplicate.id = 3;
+                        words.push(duplicate);
+                    }
+                    _ => {
+                        if let Unit::Plain(ls) = &mut units[0] {
+                            ls[0].words.push(1);
+                        }
+                    }
+                }
+                unchanged(units, words);
+            }
+        }
     }
 }

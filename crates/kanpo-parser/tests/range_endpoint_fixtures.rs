@@ -34,8 +34,8 @@ fn value(a:&Analysis)->Value{serde_json::from_str(&serde_json::to_string(a).unwr
 #[test]fn complete_analysis_negative_20260828g001920015(){let a=actual(include_bytes!("archive/pages/20260828g00192/20260828g001920015.pdf"));let b:Value=serde_json::from_str(include_str!("expected/range_endpoints/20260828g001920015-before43.json")).unwrap();assert_eq!(value(&a),b);}
 
 #[test]
-fn all_ten_original_pages_twenty_pairs_keep_source_glyph_ids_owners_and_complete_documents() {
- let proof:Value=serde_json::from_str(include_str!("expected/range_endpoints/all20-pairs-provenance-expected.json")).unwrap();
+fn all_twelve_original_pages_thirtyfour_pairs_keep_source_glyph_ids_owners_and_complete_documents() {
+ let proof:Value=serde_json::from_str(include_str!("expected/range_endpoints/all34-pairs-after46-provenance-expected.json")).unwrap();
  let literals: &[(&str,usize,usize,&str)] = &[
  ("20260930g002150029",181,172,"（２１）"),("20260930g002150029",80,74,"（２０）"),
  ("20260930g002150030",165,149,"（２１）"),("20260930g002150030",159,147,"（１７）"),("20260930g002150030",71,61,"（２０）"),("20260930g002150030",67,60,"（１６）"),
@@ -45,8 +45,9 @@ fn all_ten_original_pages_twenty_pairs_keep_source_glyph_ids_owners_and_complete
  ("20260930g002150034",202,188,"（１７）"),("20260930g002150034",90,79,"（１６）"),
  ("20260930g002150035",230,217,"（２０）"),("20260930g002150036",187,177,"（２０）"),
  ("20260930g002150053",149,141,"（２１）"),("20260930g002150053",70,66,"（２０）"),
- ("20260930g002150055",174,162,"（２０）"),("20260930g002150055",77,67,"（２１）")];
- let pdfs: &[(&str,&[u8])] = &[("20260930g002150029",include_bytes!("archive/pages/20260930g00215/20260930g002150029.pdf")),("20260930g002150030",include_bytes!("archive/pages/20260930g00215/20260930g002150030.pdf")),("20260930g002150031",include_bytes!("archive/pages/20260930g00215/20260930g002150031.pdf")),("20260930g002150032",include_bytes!("archive/pages/20260930g00215/20260930g002150032.pdf")),("20260930g002150033",include_bytes!("archive/pages/20260930g00215/20260930g002150033.pdf")),("20260930g002150034",include_bytes!("archive/pages/20260930g00215/20260930g002150034.pdf")),("20260930g002150035",include_bytes!("archive/pages/20260930g00215/20260930g002150035.pdf")),("20260930g002150036",include_bytes!("archive/pages/20260930g00215/20260930g002150036.pdf")),("20260930g002150053",include_bytes!("archive/pages/20260930g00215/20260930g002150053.pdf")),("20260930g002150055",include_bytes!("archive/pages/20260930g00215/20260930g002150055.pdf"))];
+ ("20260930g002150055",174,162,"（２０）"),("20260930g002150055",77,67,"（２１）"),
+("20260930g002150032",172,158,"（１９）"),("20260930g002150032",179,160,"（２２）"),("20260930g002150032",71,62,"（１８）"),("20260930g002150033",185,165,"（２２）"),("20260930g002150035",226,215,"（１９）"),("20260930g002150035",103,95,"（１９）"),("20260930g002150035",99,93,"（１８）"),("20260930g002150036",84,77,"（１９）"),("20260930g002150055",180,164,"（２２）"),("20260930g002150055",73,66,"（１９）"),("20260915g002050016",120,96,"（２９）"),("20260915g002050016",48,24,"（２９）"),("20260930g002150054",188,180,"（１９）"),("20260930g002150054",83,78,"（１８）")];
+ let pdfs: &[(&str,&[u8])] = &[("20260930g002150029",include_bytes!("archive/pages/20260930g00215/20260930g002150029.pdf")),("20260930g002150030",include_bytes!("archive/pages/20260930g00215/20260930g002150030.pdf")),("20260930g002150031",include_bytes!("archive/pages/20260930g00215/20260930g002150031.pdf")),("20260930g002150032",include_bytes!("archive/pages/20260930g00215/20260930g002150032.pdf")),("20260930g002150033",include_bytes!("archive/pages/20260930g00215/20260930g002150033.pdf")),("20260930g002150034",include_bytes!("archive/pages/20260930g00215/20260930g002150034.pdf")),("20260930g002150035",include_bytes!("archive/pages/20260930g00215/20260930g002150035.pdf")),("20260930g002150036",include_bytes!("archive/pages/20260930g00215/20260930g002150036.pdf")),("20260930g002150053",include_bytes!("archive/pages/20260930g00215/20260930g002150053.pdf")),("20260930g002150055",include_bytes!("archive/pages/20260930g00215/20260930g002150055.pdf")),("20260915g002050016",include_bytes!("archive/pages/20260915g00205/20260915g002050016.pdf")),("20260930g002150054",include_bytes!("archive/pages/20260930g00215/20260930g002150054.pdf"))];
  let mut checked=0;let mut missing=vec![];let mut unequal=vec![];
  for row in proof["pages"].as_array().unwrap() {
   let page=row["page"].as_str().unwrap();let pdf=pdfs.iter().find(|x|x.0==page).unwrap().1;
@@ -70,5 +71,5 @@ fn all_ten_original_pages_twenty_pairs_keep_source_glyph_ids_owners_and_complete
   }
   if actual!=row["candidateAnalysis"]{unequal.push(page.to_owned());}
  }
- assert_eq!(checked,20);assert!(missing.is_empty(),"all original endpoints still absent/wrong: {missing:?}");assert!(unequal.is_empty(),"complete Analysis differs from reviewed expected: {unequal:?}");
+ assert_eq!(checked,34);assert!(missing.is_empty(),"all original endpoints still absent/wrong: {missing:?}");assert!(unequal.is_empty(),"complete Analysis differs from reviewed expected: {unequal:?}");
 }
