@@ -73,3 +73,44 @@ node tools/kanpo-ocr/project-cli.cjs \
 このコマンドは配置メタデータをPDFから抽出したり、PNGとPDFの関係を証明したりしない。結果は `unclassified_ocr_projection`、`source_binding: "declared_unverified"`、`visibility: "unverified"`。クリップ・soft mask・透明度・後からの重ね描きは、この座標計算だけでは評価できない。ページ内にあることを可視性や記事所属の根拠にはしない。任意の補足メタデータは宣言として保持する。
 
 入力JSON2件は一度読み、その正確なbytesのSHA256と使用コードのSHA256を記録する。出力は新しいファイルだけに書き、元の認識結果を変更しない。認識誤りの補正・confidenceによる選別・native Glyph対応・記事割当は行わない。既定のパーサへの自動統合には、PDFとの対応・可視性・既存文字との重複・読み順を別途検証する必要がある。
+
+## 原本PDFの画像描画からOCR・配置まで実行する
+
+`pdf-cli.cjs`は、原本の読み取り専用コピーを作り、同じbytesに対するネイティブの画像観測と、pypdf/Pillowによる画像デコードを照合してから認識する。新しい出力ディレクトリを指定する。
+
+```sh
+cargo build --release --locked -p kanpo-pdf --example image_sources
+python3 -m venv /tmp/kanpo-image-decoder
+/tmp/kanpo-image-decoder/bin/python -m pip install -r tools/kanpo-ocr/requirements.txt
+# Node依存と固定jpnモデルは上記の手順で用意する。
+node tools/kanpo-ocr/pdf-cli.cjs \
+  --extractor "$PWD/target/release/examples/image_sources" \
+  --python /tmp/kanpo-image-decoder/bin/python \
+  --model /tmp/kanpo-ocr-model/jpn.traineddata \
+  --output /tmp/kanpo-pdf-ocr-result original.pdf
+```
+
+PDF全体のSHA256、実際に呼ばれた画像の参照・encoded stream SHA/サイズ、画素解釈に使う宣言辞書項目、デコード寸法を照合する。同じ画像が複数回描かれる場合も各描画を保持する。画像軸が表示の水平・垂直軸に正確に一致する場合は、反転・四半回転のみで向きを合わせ、画素を補間しない。せん断・斜めの画像は元の画素軸を保持し、配置行列で位置を写す。DPIは元の垂直サンプリングから整数へ丸めて一度だけ指定し、自動再試行しない。現APIが表現しない`UserUnit != 1`は失敗として記録する。
+
+- `decoded/`: 原本PDFと抽出実行ファイルのコピー、ネイティブの`sources.json`、デコード済みPNG・配置・出所receipt。receiptには元辞書/clip/gapと使用コード・デコーダ版・各ハッシュを残す。
+- `pageN-drawN-ocr/`: 既存CLIと同じ生認識結果・変更しない文字・認識経過。各非白画像を固定jpn/PSM3で一度認識する。不透明な全画素が厳密に白い画像はその事実を記録して認識を省く。
+- `pageN-drawN-projected.json`: 認識器が使ったPNGのSHA/サイズ・canvasがデコードしたPNGと一致することを検査した配置結果。元の文字・confidence・枠・順序を保持する。
+- `index.json` / `terminal.json`: 全描画と未取得の情報、成功/部分失敗を保持する。描画ごとのデコードや認識に失敗した場合も空の本文へ置換しない。部分失敗は終了コード2、全体の失敗は1。
+
+`producer_hashes_checked`は保存された生産物の照合状態で、最終表示の証明ではない。元の座標変換結果の`source_binding`は引き続き`declared_unverified`、可視性は`unverified`。画像のclip・mask・透明度・重ね描きとページ合成は再現しない。原本の画像全体を認識するため、切り取られた部分やnative文字と重なる文字も入り得る。gapがなくても全本文の取得を保証せず、既存パーサへ自動統合しない。文字修復・confidence選別・native Glyph対応・記事所属も付与しない。
+
+デコードだけを調べる場合:
+
+```sh
+/tmp/kanpo-image-decoder/bin/python tools/kanpo-ocr/decode_sources.py \
+  --extractor "$PWD/target/release/examples/image_sources" \
+  --output /tmp/kanpo-decoded-images original.pdf
+```
+
+固定依存はpypdf6.10.0・Pillow12.3.0・cryptography50.0.2。デコードは[pypdfの画像抽出API](https://pypdf.readthedocs.io/en/6.10.0/user/extract-images.html)を使い、encoded stream照合の内部属性は当該版へ固定する。モデル不要のNode回帰に加え、実ネイティブ観測・暗号化原本・画像フィルタ・反転/回転・取得失敗を検査するPython回帰を実行する。CIでも実行し、依存/実行ファイルが無い場合にskipしない。
+
+```sh
+node --test tools/kanpo-ocr/*.test.cjs
+KANPO_IMAGE_SOURCES="$PWD/target/release/examples/image_sources" \
+  /tmp/kanpo-image-decoder/bin/python tools/kanpo-ocr/decode_sources_test.py
+```

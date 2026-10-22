@@ -1,0 +1,283 @@
+{
+  "issue": 227,
+  "batch": 61,
+  "goal_complete": false,
+  "parent_head": "657584472905297a813c5250f397a19bcab0ead4",
+  "public_scope": "Opt-in original PDF -> observed image source -> pinned intrinsic pixel decoder -> one-pass OCR -> source-checked geometric projection. All unclassified; no canonical/native/Article import.",
+  "general_rules": [
+    "Immutable PDF/extractor snapshots and original-document SHA identify the source. Native observed indirect object, decrypted/filter-encoded stream SHA/length and declared image interpretation entries must match the independent decoder.",
+    "Pixel dimensions must match the observed image. Display-axis aligned pixels are only transposed/flipped, without resampling; shear/obliquity keep intrinsic axes and the exact recorded inverse transform.",
+    "CropBox/Rotate are checked against the decoder; unsupported UserUnit and codecs are retained failures, never empty body.",
+    "One pinned jpn PSM3 request per nonwhite draw; exact opaque-white draws remain recorded without recognition. No retries or confidence filtering.",
+    "Before projection, actual recognition input SHA/byte length/canvas, decoded PNG, placement/receipt hashes and original PDF snapshot must agree.",
+    "Preserve raw text, confidence, hierarchy, occurrence paths, original boxes and order. Unknown visibility/coverage/native duplication/Article assignment stay explicit."
+  ],
+  "no_new_production_company_page_full_title_expected_word_character_length_line_count_fixed_point_or_confidence_branch": true,
+  "TDD": {
+    "geometry_only_baseline": {
+      "pass": 0,
+      "fail": 7,
+      "logical_mismatch_controls": 6,
+      "positive_evidence_metadata_control": 1
+    },
+    "binding_after_checks": {
+      "pass": 7,
+      "fail": 0
+    },
+    "current_Node_contracts": {
+      "pass": 74,
+      "fail": 0,
+      "skip": 0,
+      "previous60_assertions_byte_exact": true,
+      "new": 14
+    },
+    "current_Python_native_decoder_tests": {
+      "pass": 18,
+      "fail": 0,
+      "skip": 0,
+      "actual_encrypted_originals": 2,
+      "required_native_extractor_never_skipped": true
+    },
+    "controls": [
+      "all dihedral transforms and rotations, distinct pixel-center round trips",
+      "actual source payload/dictionary/reference/dimension mismatch",
+      "same image drawn twice versus an unused image resource",
+      "inline-image capture gaps and unsupported filters/UserUnit",
+      "nonzero CropBox and page rotation",
+      "failed producer/process, partial CLI exit2, failures preserved, existing runs never replaced",
+      "atomic/exclusive JSON publication and primary error retained when failure recording also fails",
+      "source mismatch rejects projection while raw recognition survives"
+    ],
+    "fixed14_runs_source_changes_after_freeze": "Only three additional Python test functions were appended after inference. Production code hashes are identical to the prefrozen one-pass execution."
+  },
+  "fresh_fixed14_actual_execution": {
+    "pages": 14,
+    "draws": 17,
+    "one_pass_recognition_runs": 15,
+    "exact_opaque_white_retained": 2,
+    "all17_PNGs_byte_equal_prior_source76": true,
+    "all_raw_text_confidence_bounding_boxes_paths_order_retained": true,
+    "layout_nodes": 26513,
+    "words": 24198,
+    "new_model_downloads": 0,
+    "mixed_prior53_raw_text_and_all_layout_exact_after_new_one_pass": true,
+    "not_rendering_body_coverage_or_accuracy_certificate": true,
+    "rows": [
+      {
+        "page": "20260722h017520032",
+        "draw": 0,
+        "status": "recognized_unclassified",
+        "raw_characters": 1049,
+        "raw_text_sha256": "a49ed43e45d7bd761da4fe755aa3177181cd0cd3ddb788962f9426f50fcab2d6",
+        "PNG_exact_to_prior_source76": true
+      },
+      {
+        "page": "20260723h017530015",
+        "draw": 0,
+        "status": "recognized_unclassified",
+        "raw_characters": 3434,
+        "raw_text_sha256": "2b35a1d4dd3f8ebd618f97828095b9cfa020ce30e69c64ada9cbffd961bf6c82",
+        "PNG_exact_to_prior_source76": true
+      },
+      {
+        "page": "20260724h017540022",
+        "draw": 0,
+        "status": "recognized_unclassified",
+        "raw_characters": 3235,
+        "raw_text_sha256": "28830751e3dff23fadfaffba97ed7b35b262ff1f0e4479691962c1c445c79a52",
+        "PNG_exact_to_prior_source76": true
+      },
+      {
+        "page": "20260727g001670057",
+        "draw": 0,
+        "status": "recognized_unclassified",
+        "raw_characters": 2783,
+        "raw_text_sha256": "87aea090c803682365cda1891c5b04ba32c3662a5b494ceec28ab0391159325f",
+        "PNG_exact_to_prior_source76": true
+      },
+      {
+        "page": "20260730h017580024",
+        "draw": 0,
+        "status": "recognized_unclassified",
+        "raw_characters": 3594,
+        "raw_text_sha256": "3c04a8bb38ec4be6c00af5db58524ca7ca3d572fdb5e30ea3347969152289060",
+        "PNG_exact_to_prior_source76": true
+      },
+      {
+        "page": "20260810g001790015",
+        "draw": 0,
+        "status": "not_recognized_exact_opaque_white",
+        "PNG_exact_to_prior_source76": true
+      },
+      {
+        "page": "20260810g001790015",
+        "draw": 1,
+        "status": "recognized_unclassified",
+        "raw_characters": 2523,
+        "raw_text_sha256": "4636462eb0c443fe0af465c4af22e668e665ab021b17d432f5555c4db36258ca",
+        "PNG_exact_to_prior_source76": true
+      },
+      {
+        "page": "20260825h017750016",
+        "draw": 0,
+        "status": "recognized_unclassified",
+        "raw_characters": 3356,
+        "raw_text_sha256": "1f6f854b57d9b212e44c81aa04421f75fa0dcc1badb071d4064520331fffc87e",
+        "PNG_exact_to_prior_source76": true
+      },
+      {
+        "page": "20260918g002100027",
+        "draw": 0,
+        "status": "recognized_unclassified",
+        "raw_characters": 3218,
+        "raw_text_sha256": "97ad161bbd0b39d505679d01340bc0cf2261580bfbf6d4fc83ceeb0dacaa7cd0",
+        "PNG_exact_to_prior_source76": true
+      },
+      {
+        "page": "20260925h017950022",
+        "draw": 0,
+        "status": "recognized_unclassified",
+        "raw_characters": 2376,
+        "raw_text_sha256": "fd57fb15e617d78d70b125cdde84b5801ea1f71b5304b51b8b90869d2ebf602e",
+        "PNG_exact_to_prior_source76": true
+      },
+      {
+        "page": "20260928g002130061",
+        "draw": 0,
+        "status": "recognized_unclassified",
+        "raw_characters": 3124,
+        "raw_text_sha256": "a4a2b4d99c245d6a71be99236822840fcdfe80acd7d62ba57cff6a0868268fbe",
+        "PNG_exact_to_prior_source76": true
+      },
+      {
+        "page": "20260929g002140011",
+        "draw": 0,
+        "status": "recognized_unclassified",
+        "raw_characters": 4848,
+        "raw_text_sha256": "65d4d746587c90d45c1107931e894f864e7c6e23eb6ee56d341c9beab291e154",
+        "PNG_exact_to_prior_source76": true
+      },
+      {
+        "page": "20260930g002150251",
+        "draw": 0,
+        "status": "not_recognized_exact_opaque_white",
+        "PNG_exact_to_prior_source76": true
+      },
+      {
+        "page": "20260930g002150251",
+        "draw": 1,
+        "status": "recognized_unclassified",
+        "raw_characters": 811,
+        "raw_text_sha256": "c07b3dafeb7f158b33a221246fc7587894623b1392cc460a4b1f4fd4417dc72d",
+        "PNG_exact_to_prior_source76": true
+      },
+      {
+        "page": "20260930g002150251",
+        "draw": 2,
+        "status": "recognized_unclassified",
+        "raw_characters": 732,
+        "raw_text_sha256": "ff4a5aa635ebf63dc461c573d96a9e2b9dabae7c88d5f2fc61e4d509b05f5920",
+        "PNG_exact_to_prior_source76": true
+      },
+      {
+        "page": "20261007g002210006",
+        "draw": 0,
+        "status": "recognized_unclassified",
+        "raw_characters": 4819,
+        "raw_text_sha256": "f15a4892c94faec03b2954ee25b85a7f52a960e813577a3bc5c624bc6ee579d1",
+        "PNG_exact_to_prior_source76": true
+      },
+      {
+        "page": "20261019g002290021",
+        "draw": 0,
+        "status": "recognized_unclassified",
+        "raw_characters": 3264,
+        "raw_text_sha256": "769d130392abc33fe91056f372ba10d8a1c6f05c1f7f05c5a007ad15eece7022",
+        "PNG_exact_to_prior_source76": true
+      }
+    ]
+  },
+  "actual_new_inferences": 15,
+  "new_model_downloads": 0,
+  "existing_model": "Pinned tessdata_fast jpn SHA256 1f5de9236d2e85f5fdf4b3c500f2d4926f8d9449f28f5394472d9e8d83b91b4d, Tesseract.js6.0.1, PSM3/LSTM, no settings selection.",
+  "quality_limits": {
+    "mixed_original_control": {
+      "scope": "Previously corrected nonblind192-character original notice ROI; new raw text and all layout are identical to prior53, so its observed3 苫->苦 errors carry forward. Not a fresh independent accuracy estimate.",
+      "prior_gold_sha256": "a0487773e90ea8d27b6f344be547614684b4c90d40a284826737a747f9e972c4",
+      "new_observations_sha256": "9a9fb18b0278b4ae589d6a17317a4db2dd65c15363e3540bee30f61a7f15435e",
+      "prior_corrected_result_sha256": "b19aa18330e5d144a5fed5ed5970c4a7e61aee465bdf8643dbaceb68af3ec49f",
+      "retained_score": {
+        "gold_characters": 192,
+        "recognized_characters": 192,
+        "edit_distance": 3,
+        "CER": 0.015625,
+        "exact": false
+      }
+    },
+    "original_four_column_scope": "Root original preview confirms four ruled columns.117 observed words in the first notice are interrupted by345 words from other columns in raw engine order. Necessary contiguity control remains RED; no raw text repair.",
+    "original_sideways_form_scope": "Root original preview and raw output show form text/cell ordering still erroneous. Intrinsic image decoding does not discover the semantic reading direction.",
+    "all14_whole_page_character_read_order_accuracy_certified": false,
+    "root_reviews_not_independent_or_blind": true,
+    "native_default_quality_gain": 0
+  },
+  "native_source76_and801_snapshots_unchanged": true,
+  "native1904_and_fresh11992_14_8M_raw_audit": "Inherited from exact byte-identical144 Rust sources accepted at65758447 with all4CI. Not rerun locally for this tool-only batch.",
+  "old_fixed_random30_10ok5minor15major_and_known7_3pass4fail_not_regraded": true,
+  "remaining_work": [
+    "Full14 original/word/row/reading-order quality annotation, beyond the two failure scopes and prior192-character control.",
+    "General source-backed column/cell ordering and native duplicate/visibility controls before canonical integration.",
+    "Old parser fixed thresholds and the remaining original issue227 layout failures."
+  ],
+  "CI": "New OCR workflow requires Python dependencies and actual Rust image_sources build, Node74 and Python18; no model weights/inferences. Exact-head results pending at preparation.",
+  "diagnostic_setup_failure": "Local YAML validation first used Python without PyYAML and failed; Ruby standard YAML parser then passed. No new dependency installed and no OCR retry.",
+  "evidence": [
+    {
+      "path": ".cache/kanpo-227/pdf-ocr-pipeline61/binding-geometry-only-RED.log",
+      "sha256": "baaae839acd8a17bb79ef45edc84971091aadcef1d4f25c5b90028d1ef2f4b6a"
+    },
+    {
+      "path": ".cache/kanpo-227/pdf-ocr-pipeline61/binding-GREEN.log",
+      "sha256": "8bf1ffb4cc1221ebc6a707c0457ca0befe7097296a2684a6b8ae819d28ec23d8"
+    },
+    {
+      "path": ".cache/kanpo-227/pdf-ocr-pipeline61/decoder-tests-v1.log",
+      "sha256": "1f72d3f1a63baf2173dce337e3f65516f93a7ac56cd6022bced5f1032f330ace"
+    },
+    {
+      "path": ".cache/kanpo-227/pdf-ocr-pipeline61/decoder-tests-v2.log",
+      "sha256": "1fc0c102c52c79f2247ace8b3662018803ec399ef56b612579bdb30c933d16fe"
+    },
+    {
+      "path": ".cache/kanpo-227/pdf-ocr-pipeline61/decoder-tests-v3.log",
+      "sha256": "124892a34b41b985eb4ca7aaf9818e8200bf337a8518ed57f5c2fd37f98a4f77"
+    },
+    {
+      "path": ".cache/kanpo-227/pdf-ocr-pipeline61/node-contracts-v2.log",
+      "sha256": "fe30242d0672348c81d84171317eee9a8f2483321ef2efd9a600ad9c6e949f97"
+    },
+    {
+      "path": ".cache/kanpo-227/pdf-ocr-pipeline61/prefreeze-one-pass14.json",
+      "sha256": "6a0d6126ea3be1845c169272bb888aa34c7042fc40cbcfcb5bd1ecba54e712eb"
+    },
+    {
+      "path": ".cache/kanpo-227/pdf-ocr-pipeline61/one-pass14-result.json",
+      "sha256": "daae20d7fcea699c6be17c87380fa0210812071697797206776800782584cd84"
+    },
+    {
+      "path": ".cache/kanpo-227/pdf-ocr-pipeline61/one-pass14-source-and-preservation.json",
+      "sha256": "f47f7d6f21a5dc7614f1daeab5c32dca79b0a7f6273f01db8a96034e41ab9169"
+    },
+    {
+      "path": ".cache/kanpo-227/pdf-ocr-pipeline61/mixed-gold61-carryforward.json",
+      "sha256": "fd2f23984f7d5aeee3b68639634aae1ee9bb10e844a7482ab86f828ed5467ace"
+    },
+    {
+      "path": ".cache/kanpo-227/pdf-ocr-pipeline61/known-four-column-reading-order61-RED.json",
+      "sha256": "420951ef5891a00250403f2d78a921627c9f25f937baa0330dc55dc85ffec96b"
+    },
+    {
+      "path": ".cache/kanpo-227/pdf-ocr-pipeline61/release61-source-manifest.json",
+      "sha256": "654a669600766f7c3b6cb09b9f9a5c5fbf3309483b2250233efd19e4d821c2e9"
+    }
+  ]
+}
