@@ -1,0 +1,24 @@
+{
+  "issue": 227,
+  "batch": 49,
+  "parent_commit": "11483abdb1bd8c4babdf1c41e0d296733697d3d4",
+  "native_runtime_source": 74,
+  "goal_complete": false,
+  "new_production_rule": "Add bankruptcy-administrator office prefix to the same existing independent title/date/source-style/enclosure witness. Reuse the common sentence-terminator rejection; no special dividend-title path.",
+  "domain_vocabulary_added": [
+    "破産管財人"
+  ],
+  "no_new_production_company_page_full_title_amount_period_font_name_fixed_point_character_length_or_fixed_line_count_branch": true,
+  "TDD": [
+    "Original complete five-group449-word membership fails before the rule and passes after.",
+    "Arbitrary signature names including hiragana, initials and middle dots pass; each of five sentence terminators rejects role prose and absent own dates reject the signature."
+  ],
+  "all_prior_assertions_and_golds_retained": true,
+  "limits": [
+    "An office prefix is domain syntax, not universal personal-name recognition; unpunctuated role prose remains ambiguous.",
+    "No claim that all legacy parser conditions are general. Old length/line/point conditions remain under audit.",
+    "Source conservation and green tests do not certify whole-page character/read-order correctness or100% accuracy."
+  ],
+  "new_model_weights_training_or_inferences": 0,
+  "evidence_index": "issue227-validation-49.json"
+}

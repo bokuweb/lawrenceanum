@@ -1,0 +1,76 @@
+{
+  "issue": 227,
+  "batch": 49,
+  "parent_commit": "11483abdb1bd8c4babdf1c41e0d296733697d3d4",
+  "native_runtime_source": 74,
+  "goal_complete": false,
+  "method": "Root original-image engineering review of all changed scopes, not independent/blind, random30, or whole-page character/read-order accuracy.",
+  "reviewed_changed_scopes": 5,
+  "reviewed_added_boundaries": 5,
+  "rows": [
+    {
+      "page": "20260717g001600122",
+      "before": 4,
+      "after": 5,
+      "pages_equal": true,
+      "text_equal": true,
+      "original_pdf_sha256": "92c9b07ccf12693300437455c98d4a0330cb724273bdefe5b9fe356510391d12",
+      "original_image_sha256": "6d0271836afa49843e107af33671bb8430db73db47ecc74c05a0fd9d8fa2075c",
+      "reviewed_added_boundary": true,
+      "whole_page_accuracy_certified": false,
+      "note": "Independent dividend notice at left third tier follows environmental notice. Own heading/date/address/bankruptcy-administrator signature; complete five-group449-source original gold passes (220environment+24dividend+64/75/66financial)."
+    },
+    {
+      "page": "20260731g001730113",
+      "before": 3,
+      "after": 4,
+      "pages_equal": true,
+      "text_equal": true,
+      "original_pdf_sha256": "3e33a4245fce880beeda1b42cb1c75e026088f81dee63d9ffd822d81e4b34b7c",
+      "original_image_sha256": "5768cc772a7be776e3b0d57003fee87497881eb686d95fd65364f45bdbffed5b",
+      "reviewed_added_boundary": true,
+      "whole_page_accuracy_certified": false,
+      "note": "Independent middle-left dividend publication has its own date/address/administrator; preceding wind-project abandonment notice remains complete. Roster/environment still merged elsewhere, so4articles is not complete-page gold."
+    },
+    {
+      "page": "20260825g001890097",
+      "before": 7,
+      "after": 8,
+      "pages_equal": true,
+      "text_equal": true,
+      "original_pdf_sha256": "58c90a904d05d989c05b660f5f9e2a6ab3a0cb3c494bb276aa80091edf23c780",
+      "original_image_sha256": "bede8d35aa39b62e86013b8af8575377fb1dada578f8c16afd28258602398f45",
+      "reviewed_added_boundary": true,
+      "whole_page_accuracy_certified": false,
+      "note": "Independent left middle-tier dividend has its own date/address/administrator, separate from wind-project transfer notice. This does not certify the other visible funeral notice, initial wind-farm title spacing or whole-page source/reading correctness."
+    },
+    {
+      "page": "20260924h017940032",
+      "before": 10,
+      "after": 11,
+      "pages_equal": true,
+      "text_equal": true,
+      "original_pdf_sha256": "3d2d064e09a1d40088b08f5cc831399714e67c0657cc0cf0ccff7a9d0b9931cb",
+      "original_image_sha256": "0399168dbccf0bfd2656ce5de1ead381dd5687899d21ad0bb0ef665e1510ed55",
+      "reviewed_added_boundary": true,
+      "whole_page_accuracy_certified": false,
+      "note": "Third-tier left dividend has its own date/address/administrator-attorney signature. Charter and foreign-representative publications remain separate printed contextual material; preexisting merges in that preceding Article are not fixed by this split."
+    },
+    {
+      "page": "20261009h018050032",
+      "before": 10,
+      "after": 11,
+      "pages_equal": true,
+      "text_equal": true,
+      "original_pdf_sha256": "8d03f14a5c767bac2ee329973dfe8935889f46d48ba7a6ec6c5a90248eaefa85",
+      "original_image_sha256": "c9e5b5bc27989665cf440ce631e62a5f52c630690f9dd7ff121c0c72da5e5fe2",
+      "reviewed_added_boundary": true,
+      "whole_page_accuracy_certified": false,
+      "note": "Dividend starts at far left of second tier and continues at far right of third tier. Candidate preserves the entire wrapped notice including two amounts, its publication date/address and administrator. It separates from preceding compulsory-share sale publication; no amount, date or issuer literal is a runtime selector."
+    }
+  ],
+  "original_group_gold": "Environment notice220+dividend24+three financial frames64/75/66=449 Used sources. Printed original rectangles and original native bounds selected before candidate74 Article comparison.",
+  "not_a_full_page_accuracy_claim": true,
+  "remaining_context": "Roster/environment, foreign-company, unsigned and government boundaries and other original text/reading defects outside the changed scopes remain.",
+  "evidence_index": "issue227-validation-49.json"
+}

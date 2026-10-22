@@ -395,7 +395,7 @@ fn headings(page: &PageTrace, lines: &[SourceLine<'_>], frames: &[OwnedFrame]) -
 // personal initials and middle dots remain valid; sentence terminators do not.
 fn signature_office(tail: &str) -> bool {
     !tail.contains(['。', '！', '？', '!', '?']) && [
-        "代表取締役", "取締役", "代表清算人", "清算人", "代表社員", "代表理事", "理事長",
+        "代表取締役", "取締役", "代表清算人", "清算人", "代表社員", "代表理事", "理事長", "破産管財人",
     ].iter().any(|role| tail.strip_prefix(role).is_some_and(|s| !s.is_empty()))
 }
 // Date and signature must be source-token prefixes in this heading's own range.

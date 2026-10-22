@@ -1,0 +1,31 @@
+{
+  "issue": 227,
+  "batch": 49,
+  "parent_commit": "11483abdb1bd8c4babdf1c41e0d296733697d3d4",
+  "native_runtime_source": 74,
+  "goal_complete": false,
+  "source_manifest_sha256": "cd5a96bc5362e38fc08b207436eb303757ec472209e58361eab74560ab1b02c5",
+  "public_source_files": 141,
+  "new_tests": 2,
+  "new_PDFs": 3,
+  "new_original_source_group_gold_JSONs": 1,
+  "new_snapshots": 3,
+  "updated_old_snapshots": 2,
+  "changed_pages": 5,
+  "all11987_other_Analysis_exact": true,
+  "changed_page_Article_counts_before_after": [
+    34,
+    39
+  ],
+  "all5_changes_pure_subdivisions_preserve_old_endpoints_Run_bytes_styles_whole_tables": true,
+  "all2403403_Word_fields_source_usage_tables_and_nonwhitespace_characters_preserved": true,
+  "actual_CLI11992_all_bytes_equal_accepted73_and_fresh_API": true,
+  "root_changed_scope_reviews": 5,
+  "independent_blind_random30_or_whole_page_accuracy": false,
+  "initial_fixed30_not_regraded": true,
+  "new_accuracy_estimate": false,
+  "known_necessary_count_failures": 5,
+  "new_model_weights_training_or_inferences": 0,
+  "next_private_work": "Frame-aware source-scope continuation: original six financial frames+roster632-word RED and synthetic scale/ownership RED; candidate75 unit1194 green. Not adopted by this commit; full source-frame/corpus/original/release validation remains separate.",
+  "evidence_index": "issue227-validation-49.json"
+}

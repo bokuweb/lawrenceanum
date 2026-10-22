@@ -695,3 +695,10 @@ fn role_sentence_prose_cannot_be_a_signature_witness(){
 fn signature_names_keep_initials_middle_dots_and_hiragana(){
  for signature in ["取締役J.Smith","取締役Ｊ．スミス","代表取締役ベルナール・パトリック","代表理事佐藤あすか"] {let mut p=two();director_signatures(&mut p,signature);assert_eq!(cuts(&p,&Default::default()),vec![0,5],"{signature}");}
 }
+
+#[test]
+fn legal_administrator_signature_requires_its_own_date_and_non_sentence_tail(){
+ for name in ["甲","あすか","J.Smith","ベルナール・パトリック"]{let mut p=two();director_signatures(&mut p,&format!("破産管財人{name}"));assert_eq!(cuts(&p,&Default::default()),vec![0,5]);}
+ for end in ["。","！","？","!","?"]{let mut p=two();director_signatures(&mut p,&format!("破産管財人が行う手続を案内します{end}"));assert!(cuts(&p,&Default::default()).is_empty());}
+ let mut p=two();director_signatures(&mut p,"破産管財人甲");for id in [2,7]{p.words[id].text="任意本文".into();p.words[id].raw="任意本文".into();p.regions[0].lines[id].text="任意本文".into();}assert!(cuts(&p,&Default::default()).is_empty());
+}
