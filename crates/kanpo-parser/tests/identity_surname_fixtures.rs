@@ -154,5 +154,11 @@ fn page_20260729h017570032() {
         b,
         include_str!("expected-native-article-partitions/20260729h017570032.json"),
     );
+    // Five additional original-reviewed boundaries preserve the previous
+    // partition's endpoints, complete tables and Run bytes/styles.
+    let b = expected_article_partitions::with_articles(
+        b,
+        include_str!("expected-native-article-partitions/20260729h017570032-director73.json"),
+    );
     assert_eq!(a, b);
 }

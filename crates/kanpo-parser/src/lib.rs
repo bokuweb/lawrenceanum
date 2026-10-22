@@ -598,3 +598,11 @@ mod native_content_styles;
 mod common_header_source_order_tests;
 
 mod common_financial_header;
+
+#[cfg(test)]
+mod bank_frame_source_control_tests;
+
+mod framed_native_columns;
+
+#[cfg(test)]
+mod original_director_frames_tests;

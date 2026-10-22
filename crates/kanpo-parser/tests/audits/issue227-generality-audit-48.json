@@ -1,0 +1,109 @@
+{
+  "issue": 227,
+  "batch": 48,
+  "parent_commit": "f708a2d78a7fbfd0c818e178588dd7f938ec9d2f",
+  "native_runtime_source": 73,
+  "goal_complete": false,
+  "new_rules": [
+    "Use the ordinary director office prefix alongside six existing representative/liquidator offices, with existing independent title/date/source-style/enclosure witnesses.",
+    "Reject sentence terminators for all seven office tails; initials, full-width dots, middle dots and hiragana names remain permitted.",
+    "Restore one complete closed homogeneous top-down enclosure to original Glyph bounds only for internal Col layout when legacy geometry loses original frame ownership. Public Word fields remain exact."
+  ],
+  "native_direction_authority": "Original data-wmode=1 and finite advanceX==0, advanceY>0 per source occurrence; metadata is zipped with that occurrence through canonical sorting. Neither a text/category guess nor bank-title selection.",
+  "no_new_production_page_company_period_number_font_name_fixed_point_distance_character_length_or_fixed_line_count_branch": true,
+  "ambiguity_abstentions": [
+    "Unknown/nonfinite/missing/nonvertical source advances in a frame prevent whole-frame restoration.",
+    "Unknown/invalid source bounds, partial intersections, conflicting source aliases, unrepresented sources, intersecting nonnested enclosures or overlapping claims abstain.",
+    "Sideways and rotated layouts do not receive this restoration."
+  ],
+  "regression_controls": [
+    "Scale/translation and arbitrary words; complete-frame source conservation; idempotence; nested/duplicate frames.",
+    "Mixed/unknown advance directions, missing sources, crossing edges, conflicting geometry aliases and emission-order reversal.",
+    "Actual bank original: font-ID bijection, emission reversal and both together preserve every Analysis field.",
+    "Actual source Word11 invalid/missing metadata disables the complete frame; unrelated frame metadata neither grants nor revokes it.",
+    "All seven offices with all five sentence terminators; valid initials and non-Kanji names.",
+    "Original financial parent/child ownership controls; old seven geometry regressions retained."
+  ],
+  "rejected_candidate": "v2 changed mixed-direction financial parent/child layout; full unit run1168 passed1 failed. Homogeneous original top-down direction is now required; old regression/gold was not weakened.",
+  "limits": [
+    "Office-prefix syntax is not universal personal-name recognition; unpunctuated role prose can remain ambiguous.",
+    "Some domain vocabulary remains intentional; this is not a claim every legacy parser branch is general.",
+    "Legacy financial_enclosures length/line/point guards remain under audit.",
+    "Complete source conservation is not proof of correct whole-page semantics or100% quality."
+  ],
+  "new_model_weights_training_or_inferences": 0,
+  "evidence": [
+    {
+      "path": ".cache/kanpo-227/native48-source-manifest.json",
+      "sha256": "31fe27b67426f957c43f17f5e27199f456369e4b7e1966ebea0a8c430ad62570"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/full-native73-public/result.json",
+      "sha256": "038757cde04a12f1244bf4597b8a916896ff26e6bc8f7f9ed709c4f40548e802"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/full-native73-public/changes.json",
+      "sha256": "e1a5ba41bdc4fdaff56007a1d65bc630557cdde0dbac80f52ed2424844a102fd"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/public73-change-contracts.json",
+      "sha256": "fd14054019dd71b65d7c270fb4abb864304f6ee6c817fa9550ae7dd4de2de4f5"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/textdump73-result.json",
+      "sha256": "542411ce2b3afd68da5f6ba8625d35d95c195a7d1f3cd97deeff25d82578d952"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/public73-native-CLI-API-consistency.json",
+      "sha256": "1135be436bb39a2ebfaf5fa941f4a268208e80779551f7ffe2eee0c655aa5379"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/original-review-ledger73.json",
+      "sha256": "56255a2267632a52d0b5fec4abf2a1af33b7b74634ad59a98d59b108d7a26e35"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/source-observer78-runtime-identity-r2.json",
+      "sha256": "0c781d5a35990c1ca225ecc391cc90744a3973edcb86f788660bd5228647265a"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/candidate73-v2-full-lib.log",
+      "sha256": "2b6bca7af3b8eb17f113fdd404dc5efb7cd4c9e578ef687459151a7df2748589"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/candidate73-v5-role-prose-RED.log",
+      "sha256": "84ced6277a4e943043fcb691a61ec9c7da69eff9f90543bc4f9618f7c4806682"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/candidate73-v6-full-lib.log",
+      "sha256": "5a90f65b24c79a8fb0bd2adb7f538991da2f2e643e1cffa2c034949f0a90e44d"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/candidate73-v7-original-controls-tests.log",
+      "sha256": "3d740179e2811b5534d1ecfcd83ec44c17e1fd94b77b2223e855b252d800f5a1"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/baseline72-original-controls-tests.log",
+      "sha256": "8105500a30e2be1520797180bb5ab76c0c6a7467263a5255e02efddeb2ee0931"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/source72-bank-RED-r2.log",
+      "sha256": "b2110c1c8095ae3928d344106fe09ed30634a93371207b71d8f70ecebb732a80"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/snapshot-proposal-review73.json",
+      "sha256": "49c20b86ec44411dbff79457b637cd659eaae6d4ae2c59506398467787257900"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/known-seven-count-requirements73.json",
+      "sha256": "5462b689d8eb92d03bace8fc1ce9448221a76d9a44f2cedad9b53dc255d2bdf8"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/final-all-green.json",
+      "sha256": "5f6c9ce5ff167b4683853faf5f2aff2f674d124c839c6d8f4c7b4e1c1c6b0c49"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/assets-and-snapshots.json",
+      "sha256": "755ad77f2891232f336732daaea4a9471c053b8148b7b5edde23d310884cdc0b"
+    }
+  ]
+}

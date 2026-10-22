@@ -391,6 +391,13 @@ fn headings(page: &PageTrace, lines: &[SourceLine<'_>], frames: &[OwnedFrame]) -
     });
     out
 }
+// A role mention in a sentence is not a nominal signature. Dots used in
+// personal initials and middle dots remain valid; sentence terminators do not.
+fn signature_office(tail: &str) -> bool {
+    !tail.contains(['。', '！', '？', '!', '?']) && [
+        "代表取締役", "取締役", "代表清算人", "清算人", "代表社員", "代表理事", "理事長",
+    ].iter().any(|role| tail.strip_prefix(role).is_some_and(|s| !s.is_empty()))
+}
 // Date and signature must be source-token prefixes in this heading's own range.
 // A date joined to an address may end only at an original Word boundary.
 fn witness(
@@ -435,16 +442,7 @@ fn witness(
                 let tail = tokens[start..].concat();
                 if styles(page, &l.ids[start..])
                     .is_some_and(|s| !s.is_disjoint(&date_styles) && s.is_disjoint(&head.styles))
-                    && [
-                        "代表取締役",
-                        "代表清算人",
-                        "清算人",
-                        "代表社員",
-                        "代表理事",
-                        "理事長",
-                    ]
-                    .iter()
-                    .any(|role| tail.strip_prefix(role).is_some_and(|s| !s.is_empty()))
+                    && signature_office(&tail)
                 {
                     return true;
                 }

@@ -631,3 +631,67 @@ fn an_announcement_noun_prefix_does_not_make_an_unparsed_compound_a_suffix_title
         assert_eq!(cuts(&p, &rules), vec![0], "{compound}");
     }
 }
+
+fn director_signatures(p: &mut PageTrace, signature: &str) {
+    for id in [4, 9] {
+        p.words[id].text = signature.into();
+        p.words[id].raw = signature.into();
+        p.regions[0].lines[id].text = signature.into();
+    }
+    p.text = p.regions[0]
+        .lines
+        .iter()
+        .map(|l| l.text.as_str())
+        .collect::<Vec<_>>()
+        .join("\n");
+    p.doc_text = p.text.clone();
+}
+#[test]
+fn director_office_prefix_is_independent_of_organization_and_post_labels() {
+    for signature in [
+        "取締役甲",
+        "取締役社長甲",
+        "取締役会長甲",
+        "取締役頭取甲",
+        "取締役副頭取甲",
+    ] {
+        let mut p = two();
+        director_signatures(&mut p, signature);
+        assert_eq!(cuts(&p, &Default::default()), vec![0, 5]);
+    }
+}
+#[test]
+fn director_signatures_do_not_authorize_an_undated_scope() {
+    let mut p = two();
+    director_signatures(&mut p, "取締役甲");
+    for id in [2, 7] {
+        p.words[id].text = "任意本文".into();
+        p.words[id].raw = "任意本文".into();
+        p.regions[0].lines[id].text = "任意本文".into();
+    }
+    assert!(cuts(&p, &Default::default()).is_empty());
+}
+#[test]
+fn director_signatures_must_not_share_the_headings_typography() {
+    let mut p = two();
+    director_signatures(&mut p, "取締役甲");
+    for id in [4, 9] {
+        p.native_styles[id] = style(1);
+    }
+    assert!(cuts(&p, &Default::default()).is_empty());
+}
+
+#[test]
+fn role_sentence_prose_cannot_be_a_signature_witness(){
+ for role in ["取締役","代表取締役","代表清算人","清算人","代表社員","代表理事","理事長"]{
+  for terminator in ["。","！","？","!","?"]{
+   let mut p=two();director_signatures(&mut p,&format!("{role}が行う任意の手続について通知します{terminator}"));
+   assert!(cuts(&p,&Default::default()).is_empty(),"a role mention in prose is not a signed witness: {role}/{terminator}");
+  }
+ }
+}
+
+#[test]
+fn signature_names_keep_initials_middle_dots_and_hiragana(){
+ for signature in ["取締役J.Smith","取締役Ｊ．スミス","代表取締役ベルナール・パトリック","代表理事佐藤あすか"] {let mut p=two();director_signatures(&mut p,signature);assert_eq!(cuts(&p,&Default::default()),vec![0,5],"{signature}");}
+}

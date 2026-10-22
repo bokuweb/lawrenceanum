@@ -2212,6 +2212,7 @@ fn page_words_with_styles(
     let mut native_styles=Vec::new();
     let mut native_bounds=Vec::new();
     let mut native_content_styles=Vec::new();
+    let mut native_top_down=Vec::new();
     let mut native_vertical: std::collections::HashMap<[u32; 4], Vec<(String, [f32; 4])>> = Default::default();
     let mut native_horizontal_chars = 0usize;
     let mut horizontal_font_chars = 0usize;
@@ -2238,6 +2239,7 @@ fn page_words_with_styles(
                     }
                 }
             }
+            native_top_down.push(v.attr("data-wmode")==Some("1") && num("data-advance-x").is_some_and(|n|n.is_finite()&&n==0.) && num("data-advance-y").is_some_and(|n|n.is_finite()&&n>0.));
             native_bounds.push(crate::native_word_bounds::from_word(w));
             native_styles.push(v.attr("data-native-styles").and_then(|text| {
                 let mut out=crate::trace::NativeStyles::new();
@@ -2276,8 +2278,8 @@ fn page_words_with_styles(
     // 同点の扱いなどに入力順が出ないようにする。
     // Keep provenance attached to its own source occurrence, including exact
     // bbox/text ties with a word from another extractor or font.
-    let mut sources: Vec<_> = raws.into_iter().zip(resolved_aj1).zip(source_candidates).zip(native_styles).zip(native_bounds).zip(native_content_styles)
-        .map(|(((((raw, flag), source), style), bounds), content)| (raw, ((((flag, source),style),bounds),content)))
+    let mut sources: Vec<_> = raws.into_iter().zip(resolved_aj1).zip(source_candidates).zip(native_styles).zip(native_bounds).zip(native_content_styles).zip(native_top_down)
+        .map(|((((((raw, flag), source), style), bounds), content), top_down)| (raw, (((((flag, source),style),bounds),content),top_down)))
         .collect();
     sources.sort_by(|(a, _), (b, _)| {
         b.0.total_cmp(&a.0)
@@ -2287,6 +2289,7 @@ fn page_words_with_styles(
             .then_with(|| a.4.cmp(&b.4))
     });
     let (mut raws, evidence): (Vec<_>, Vec<_>) = sources.into_iter().unzip();
+    let (evidence,native_top_down): (Vec<_>, Vec<_>) = evidence.into_iter().unzip();
     let (evidence,native_content_styles): (Vec<_>, Vec<_>) = evidence.into_iter().unzip();
     let (evidence,native_bounds): (Vec<_>, Vec<_>) = evidence.into_iter().unzip();
     let (evidence,native_styles): (Vec<_>, Vec<_>) = evidence.into_iter().unzip();
@@ -2482,6 +2485,11 @@ fn page_words_with_styles(
             text,
             status,
         });
+    }
+    if !sideways && !rotated {
+        if let Some(rules)=page_rules {
+            crate::framed_native_columns::restore(&mut cols,&words,&native_bounds,&native_top_down,&rules.enclosures);
+        }
     }
     drop_ruby(&mut cols, &mut words);
     let minus = attach_minus_signs(&mut cols, &words);
@@ -6172,3 +6180,16 @@ mod aj1_provenance_parser_tests;
 #[cfg(test)]
 #[path = "source_aj1_parser_tests.rs"]
 mod source_aj1_parser_tests;
+
+#[test]
+fn original_vertical_advance_metadata_authorizes_only_its_own_complete_frame(){
+    let root=std::path::Path::new(env!("CARGO_MANIFEST_DIR"));let inputs=crate::page_inputs(&std::fs::read(root.join("tests/archive/pages/20260803g00174/20260803g001740136.pdf")).unwrap()).unwrap();let input=&inputs[0];let rules=input.rules.clone().unwrap();let mut no_frames=rules.clone();no_frames.enclosures.clear();
+    let columns=|xhtml:&str,rules:&PageRules|{let doc=Html::parse_document(xhtml);let sel=Selector::parse("page").unwrap();let page=doc.select(&sel).next().unwrap();let(w,h)=page_size(page);let(cols,_,_,_,_,_,_,_,_)=page_words_with_styles(page,w,h,Some(rules));cols.into_iter().map(|c|(c.id,[c.x.to_bits(),c.y.to_bits(),c.x1.to_bits(),c.y1.to_bits()],c.text)).collect::<Vec<_>>()};
+    let valid=columns(&input.xhtml,&rules);assert_ne!(valid,columns(&input.xhtml,&no_frames));
+    // Printed source occurrences are fixture oracles; neither text is a runtime condition.
+    let change_word=|source:&str,text:&str,key:&str,value:Option<&str>|{
+        let needle=format!(">{text}</word>");let start=source.find(&needle).unwrap();let from=source[..start].rfind("<word ").unwrap();let end=start+needle.len();let mut tag=source[from..end].to_string();let attr=format!("{key}=\"");let a=tag.find(&attr).unwrap();let value_start=a+attr.len();let value_end=value_start+tag[value_start..].find('"').unwrap();if let Some(v)=value{tag.replace_range(value_start..value_end,v);}else{tag.replace_range(a..value_end+1,"");}let mut out=source.to_string();out.replace_range(from..end,&tag);out
+    };
+    for(key,value)in[("data-advance-x",Some("NaN")),("data-advance-x",Some("inf")),("data-advance-x",Some("1")),("data-advance-x",None),("data-advance-y",Some("0")),("data-advance-y",Some("-8")),("data-advance-y",Some("NaN")),("data-wmode",Some("unknown"))]{let x=change_word(&input.xhtml,"せ",key,value);assert_eq!(columns(&x,&rules),columns(&x,&no_frames),"{key} {value:?} cannot authorize a frame");}
+    let outside=change_word(&input.xhtml,"農林債の元利金お支払い終了のお知らせ","data-advance-x",Some("NaN"));assert_eq!(columns(&outside,&rules),valid,"an unrelated frame must not inherit or revoke this source advance evidence");
+}
