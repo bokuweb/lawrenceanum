@@ -461,6 +461,11 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                     &mut units, &words, &rules.enclosures, width, height,
                 );
             }
+            if !sideways {
+                if let Some(rules) = rules.get(pi).and_then(|r| r.as_ref()) {
+                    crate::common_financial_header::restore(&mut units,&words,&native_styles,&native_content_styles,&native_bounds,&rules.enclosures);
+                }
+            }
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
@@ -779,6 +784,11 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         if !sideways && !rotated { crate::paired_framed_continuations::restore(&mut units, &words, page_rules, width, height); }
         if !sideways && !rotated { crate::headerless_four_bands::restore(&mut units, &words, page_rules, width); }
         if !sideways && !rotated { crate::quoted_inline_tables::restore(&mut units, &words, page_rules); }
+        if !sideways {
+            if let Some(rules) = rules.get(pi).and_then(|r| r.as_ref()) {
+                crate::common_financial_header::restore(&mut units,&words,&native_styles,&native_content_styles,&native_bounds,&rules.enclosures);
+            }
+        }
         let text = units
             .iter()
             .map(Unit::text)

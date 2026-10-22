@@ -1,0 +1,50 @@
+{
+  "issue": 227,
+  "batch": 47,
+  "parent_commit": "1efe13b6089ea45bed352d0d9cae632a57bd7fad",
+  "native_runtime_source": 72,
+  "goal_complete": false,
+  "method": "Root original-image engineering review, not independent/blind or a fresh30-page audit.",
+  "all_changed_originals_reviewed": 1,
+  "original_review": {
+    "page": "20260721g001610161",
+    "review": "Root original-image engineering review, not an independent or blind accuracy evaluation.",
+    "original_image_sha256": "19636298d953dcde53559b72481b02297975a74b2b74c562cb10fe0883378419",
+    "articles_before_after": [
+      8,
+      8
+    ],
+    "exact_other_articles": 7,
+    "complete_eight_source_groups_gold_unchanged": true,
+    "all656_used_words_once_test_passed": true,
+    "common_header_source_ids": [
+      239,
+      409,
+      280,
+      265,
+      66,
+      136,
+      78,
+      33,
+      7
+    ],
+    "all_common_header_sources_precede_child_heading_ids": [
+      336,
+      273,
+      122
+    ],
+    "moved_whole_lines": [
+      "address",
+      "issuer",
+      "representative"
+    ],
+    "all_page_word_fields_and_line_table_contents_preserved": true,
+    "changed_article_text_character_multiset_exact": true,
+    "article_nonwhitespace_character_style_and_table_multisets_exact": true,
+    "document_whitespace_change": "One inline newline disappears at the former table/header junction through the existing renderer; article and page text retain every character including whitespace.",
+    "whole_page_character_accuracy_or_full_reading_order_not_certified": true,
+    "new_accuracy_estimate": false
+  },
+  "strict_corpus_accuracy_not_reestimated": true,
+  "remaining": "Seven necessary-count failures, short vertical fragments, false headerless shinkyu, record/address fragments, financial dashes, officer lists, publisher/outlined/image body, visibility, and legacy fixed-value audits remain. The changed page is not certified character-perfect."
+}
