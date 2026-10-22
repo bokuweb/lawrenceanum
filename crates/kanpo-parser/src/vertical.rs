@@ -80,7 +80,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     let mut prev_mid: Option<f32> = None;
     for (pi, page) in doc.select(&page_sel).enumerate() {
         let (width, height) = page_size(page);
-        let (cols, mut words, rotated, sideways, merged, minus, native_styles, native_bounds) = page_words_with_styles(page, width, height, rules.get(pi).and_then(|r| r.as_ref()));
+        let (cols, mut words, rotated, sideways, merged, minus, native_styles, native_bounds, native_content_styles) = page_words_with_styles(page, width, height, rules.get(pi).and_then(|r| r.as_ref()));
         // 負の金額の印「△」を付ける語の字（組んだ後で行の中の位置を探す）。
         let word_texts: std::collections::HashMap<usize, String> = if minus.is_empty() { Default::default() } else { cols.iter().map(|c| (c.id, c.text.clone())).collect() };
         // 長い区切り罫の右側の横統計表は元の向きで読み、縦本文の段切りから外す。
@@ -472,6 +472,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             pages.push(PageTrace {
                 native_styles,
                 native_bounds,
+                native_content_styles,
                 width,
                 height,
                 layout,
@@ -794,6 +795,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         pages.push(PageTrace {
                 native_styles,
                 native_bounds,
+                native_content_styles,
             width,
             height,
             layout,
@@ -2181,7 +2183,7 @@ fn page_words_traced(
     page_rules: Option<&PageRules>,
 ) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>, std::collections::HashSet<usize>,
 ) {
-    let (a,b,c,d,e,f,_,_)=page_words_with_styles(page,page_width,height,page_rules);
+    let (a,b,c,d,e,f,_,_,_)=page_words_with_styles(page,page_width,height,page_rules);
     (a,b,c,d,e,f)
 }
 fn page_words_with_styles(
@@ -2189,7 +2191,7 @@ fn page_words_with_styles(
     page_width: f32,
     height: f32,
     page_rules: Option<&PageRules>,
-) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>, std::collections::HashSet<usize>, Vec<Option<crate::trace::NativeStyles>>, Vec<crate::trace::NativeBounds>,
+) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>, std::collections::HashSet<usize>, Vec<Option<crate::trace::NativeStyles>>, Vec<crate::trace::NativeBounds>, Vec<crate::trace::ContentStyles>,
 ) {
     let word_sel = Selector::parse("word").unwrap();
     let line_sel = Selector::parse("line").unwrap();
@@ -2199,6 +2201,7 @@ fn page_words_with_styles(
     let mut source_candidates = Vec::new();
     let mut native_styles=Vec::new();
     let mut native_bounds=Vec::new();
+    let mut native_content_styles=Vec::new();
     let mut native_vertical: std::collections::HashMap<[u32; 4], Vec<(String, [f32; 4])>> = Default::default();
     let mut native_horizontal_chars = 0usize;
     let mut horizontal_font_chars = 0usize;
@@ -2237,6 +2240,7 @@ fn page_words_with_styles(
                 }
                 (!out.is_empty()).then_some(out)
             }));
+            native_content_styles.push(crate::native_content_styles::from_word(w, native_styles.last().unwrap().as_ref()));
             source_candidates.push(
                 v.attr("data-source-aj1-text")
                     .and_then(|value| crate::source_aj1::candidate(&text, value)),
@@ -2262,8 +2266,8 @@ fn page_words_with_styles(
     // 同点の扱いなどに入力順が出ないようにする。
     // Keep provenance attached to its own source occurrence, including exact
     // bbox/text ties with a word from another extractor or font.
-    let mut sources: Vec<_> = raws.into_iter().zip(resolved_aj1).zip(source_candidates).zip(native_styles).zip(native_bounds)
-        .map(|((((raw, flag), source), style), bounds)| (raw, (((flag, source),style),bounds)))
+    let mut sources: Vec<_> = raws.into_iter().zip(resolved_aj1).zip(source_candidates).zip(native_styles).zip(native_bounds).zip(native_content_styles)
+        .map(|(((((raw, flag), source), style), bounds), content)| (raw, ((((flag, source),style),bounds),content)))
         .collect();
     sources.sort_by(|(a, _), (b, _)| {
         b.0.total_cmp(&a.0)
@@ -2273,6 +2277,7 @@ fn page_words_with_styles(
             .then_with(|| a.4.cmp(&b.4))
     });
     let (mut raws, evidence): (Vec<_>, Vec<_>) = sources.into_iter().unzip();
+    let (evidence,native_content_styles): (Vec<_>, Vec<_>) = evidence.into_iter().unzip();
     let (evidence,native_bounds): (Vec<_>, Vec<_>) = evidence.into_iter().unzip();
     let (evidence,native_styles): (Vec<_>, Vec<_>) = evidence.into_iter().unzip();
     let (resolved_aj1, source_candidates): (Vec<_>, Vec<_>) = evidence.into_iter().unzip();
@@ -2471,7 +2476,7 @@ fn page_words_with_styles(
     drop_ruby(&mut cols, &mut words);
     let minus = attach_minus_signs(&mut cols, &words);
     let merged = merge_warichu(&mut cols);
-    (cols, words, rotated, sideways, merged, minus, native_styles, native_bounds)
+    (cols, words, rotated, sideways, merged, minus, native_styles, native_bounds, native_content_styles)
 }
 
 /// 枠のセルに文章（200 字を超える、または 2 文以上）が入っているか。公告の囲み記事などの

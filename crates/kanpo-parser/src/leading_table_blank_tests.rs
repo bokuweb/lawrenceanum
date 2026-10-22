@@ -44,6 +44,7 @@ fn page(lines: Vec<Line>) -> PageTrace {
     PageTrace {
         native_styles:vec![],
         native_bounds: vec![],
+        native_content_styles: vec![],
         width: 842.,
         height: 595.,
         layout: "horizontal",

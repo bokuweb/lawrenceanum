@@ -1,0 +1,21 @@
+{
+  "issue": 227,
+  "batch": 46,
+  "parent_commit": "a25b928114e11339749fed426cf77a77509108e2",
+  "native_runtime_source": 71,
+  "goal_complete": false,
+  "adopted_scope": "Keep alphanumeric Glyph typography separate from punctuation typography inside the same original Word. Use it for notice-heading evidence; no layout reordering or new financial-frame grouping rule.",
+  "whole_corpus_strict_quality_not_reestimated": true,
+  "method": "Root original-image engineering review; not independent/blind evaluation and not a new30-page audit.",
+  "all_changed_original_pages_reviewed": 1,
+  "original": "20260721g001610161",
+  "original_image_sha256": "19636298d953dcde53559b72481b02297975a74b2b74c562cb10fe0883378419",
+  "new_static_gold_sha256": "f8e5bbbb447ea6bd68aea2f3768c70ec828f87b70d46f365ae69c386892f2a44",
+  "independent_gold": "Eight physical outer enclosures were selected from the original image before this algorithm; canonical source raw/bbox joins assign all656 used Word IDs exactly once. The prior89-word partial oracle is unchanged.",
+  "changed_behavior": "The common multi-period financial publication leaves the preceding foundation publication;7 articles become8. The two related financial tables stay under their common publication.",
+  "no_new_common_header_geometry_rule": "Source inspection suggested a possible structural refusal, but the glyph-typography change alone passed all eight source groups; no additional financial-frame exception or grouping rule was added.",
+  "evidence_scope": "This proves complete article source ownership for this page. It does not certify every character or all within-article reading order. The publisher fields still appear after the left statement in the unchanged body stream.",
+  "preserved": "All body text, published source Words and coordinates/status, PageTrace, tables, old article endpoints and original Run bytes/styles remain unchanged on all11992 pages.",
+  "fixed_initial_audit": "The changed page is outside the preselected fixed30 audit. Original grades are not regraded and no new whole-corpus accuracy percentage is estimated.",
+  "remaining": "Seven earlier necessary-count failures, bank/signatureless fundraising, within-article common-header order, short vertical fragments, false headerless shinkyu, record/address fragments, financial dashes, officer lists, publisher/outlined or image body, visibility, and old fixed-value audits remain unfinished."
+}

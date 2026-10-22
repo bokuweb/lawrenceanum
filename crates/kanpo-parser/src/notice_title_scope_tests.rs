@@ -25,6 +25,7 @@ fn page() -> PageTrace {
         words: vec![],
         native_styles: vec![],
         native_bounds: vec![],
+        native_content_styles: vec![],
         regions: vec![Region {
             role: Role::Body,
             unit: 0,
@@ -236,6 +237,7 @@ fn original_correction_notices_do_not_merge_at_a_qualified_prose_reference() {
 #[test]
 fn actual_source_font_id_bijection_preserves_all_analysis_fields() {
     for page in [
+        "20260721g001610161",
         "20260818g001840038",
         "20260730g001710163",
         "20260727g001670103",
@@ -247,24 +249,17 @@ fn actual_source_font_id_bijection_preserves_all_analysis_fields() {
         let (a, mut inputs) = actual(page);
         let baseline = serde_json::to_value(a).unwrap();
         for p in &mut inputs {
-            let mut output = String::new();
-            let mut rest = p.xhtml.as_str();
-            while let Some(start) = rest.find(" data-native-styles=\"") {
-                let from = start + " data-native-styles=\"".len();
-                let end = from + rest[from..].find('"').unwrap();
-                output.push_str(&rest[..from]);
-                let styles: Vec<_> = rest[from..end]
-                    .split_whitespace()
-                    .map(|t| {
-                        let (f, b) = t.split_once(':').unwrap();
-                        format!("{}:{b}", usize::MAX - f.parse::<usize>().unwrap())
-                    })
-                    .collect();
-                output.push_str(&styles.join(" "));
-                rest = &rest[end..];
+            for attr in ["data-native-styles", "data-native-content-styles"] {
+                let needle=format!(" {attr}=\"");
+                let mut output=String::new();let mut rest=p.xhtml.as_str();
+                while let Some(start)=rest.find(&needle) {
+                    let from=start+needle.len();let end=from+rest[from..].find('"').unwrap();output.push_str(&rest[..from]);
+                    let values:Vec<_>=rest[from..end].split_whitespace().map(|t| {
+                        if t=="unknown" { t.to_string() } else { let(f,b)=t.split_once(':').unwrap();format!("{}:{b}",usize::MAX-f.parse::<usize>().unwrap()) }
+                    }).collect();output.push_str(&values.join(" "));rest=&rest[end..];
+                }
+                output.push_str(rest);p.xhtml=output;
             }
-            output.push_str(rest);
-            p.xhtml = output;
         }
         assert!(
             baseline == serde_json::to_value(crate::analyze_item(&inputs)).unwrap(),

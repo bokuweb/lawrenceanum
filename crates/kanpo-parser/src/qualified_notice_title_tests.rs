@@ -28,6 +28,7 @@ fn sample(title: &str, title_font: usize) -> PageTrace {
         words: vec![],
         native_styles: vec![],
         native_bounds: vec![],
+        native_content_styles: vec![],
         regions: vec![Region {
             role: Role::Body,
             unit: 0,

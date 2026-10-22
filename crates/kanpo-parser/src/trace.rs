@@ -163,6 +163,9 @@ pub struct Word {
 
 pub(crate) type NativeStyles = std::collections::BTreeSet<(usize, u64)>;
 
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum ContentStyles { Compatibility, Glyphs(NativeStyles), Unknown }
+
 /// Geometry for the same original source occurrence as a Word. Unknown explicit
 /// metadata must not fall back to a plausible compatibility rectangle.
 #[derive(Debug, Clone, PartialEq)]
@@ -179,6 +182,8 @@ pub struct PageTrace {
     pub(crate) native_styles: Vec<Option<NativeStyles>>,
     #[serde(skip)]
     pub(crate) native_bounds: Vec<NativeBounds>,
+    #[serde(skip)]
+    pub(crate) native_content_styles: Vec<ContentStyles>,
     pub width: f32,
     pub height: f32,
     /// ページ全体をどう扱ったか: `"tiers"`（段に分けて復元）/ `"headerless_shinkyu"`

@@ -1,0 +1,24 @@
+{
+  "issue": 227,
+  "batch": 46,
+  "parent_commit": "a25b928114e11339749fed426cf77a77509108e2",
+  "native_runtime_source": 71,
+  "goal_complete": false,
+  "adopted_scope": "Keep alphanumeric Glyph typography separate from punctuation typography inside the same original Word. Use it for notice-heading evidence; no layout reordering or new financial-frame grouping rule.",
+  "whole_corpus_strict_quality_not_reestimated": true,
+  "general_rule": "Classify the glyphs of each exact source Word using the existing Unicode alphanumeric predicate, and retain the font/size identities of its alphanumeric glyphs separately from all glyph identities. Keep all-glyph provenance complete. Preserve this evidence with the same source occurrence through canonical Word sorting.",
+  "completeness": [
+    "Reconstruct the complete emitted raw Word from the same increasing, unique original Glyph indices.",
+    "For opaque Identity CIDs, require the existing owned AJ1 source proof before assigning a Unicode class. Private/unknown character classes remain explicitly unknown.",
+    "Content style pairs must have finite positive sizes and belong to that same Word all-glyph style set.",
+    "Unknown, malformed, contradictory or conflicting duplicate occurrence evidence cannot authorize a heading.",
+    "Symbol-only headings retain complete original typography instead of requiring alphanumeric title content."
+  ],
+  "new_company_page_name_known_period_character_count_line_count_fixed_point_or_font_name_conditions": 0,
+  "no_new_compound_financial_frame_rule": true,
+  "fixture_literals": "Page/Word IDs and the original eight-enclosure label exist only in tests and static oracle data. No title string or period-number match was added to production.",
+  "negative_controls": "A body-font alphanumeric glyph in a mixed Word stays part of content typography; punctuation handling must not discard that font. CJK, Latin, digit and kana cases are covered.",
+  "metamorphic_controls": "Both all-glyph and content-glyph source font channels are renamed consistently; actual font bijection and reversed emission controls now cover eight original PDFs, including the repaired page.",
+  "remaining_legacy": "Older length/line-count/fixed-point rules remain in financial_enclosures and other layout consumers. Source font identity is not a universal proof of visual font equivalence, visible ink, issuer identity or complete reading order.",
+  "new_RURI_ModernBERT_Tesseract_weights_training_or_inferences": 0
+}

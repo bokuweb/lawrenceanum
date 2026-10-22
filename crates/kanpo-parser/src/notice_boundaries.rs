@@ -144,6 +144,7 @@ fn source_lines(page: &PageTrace) -> Option<Vec<SourceLine<'_>>> {
         let style = (
             page.native_styles.get(w.id).and_then(|s| s.as_ref()),
             page.native_bounds.get(w.id),
+            page.native_content_styles.get(w.id),
         );
         if let Some(previous) = occurrences.insert(key, style) {
             if previous != style {
@@ -296,16 +297,22 @@ fn announcement_ends(text: &str) -> Vec<usize> {
     out
 }
 fn heading_styles(page: &PageTrace, line: &SourceLine<'_>, end: usize) -> Option<NativeStyles> {
-    // Even punctuation needs complete provenance. Its font is not evidence
-    // about the content typography of the title or qualifier.
+    // All glyphs, including punctuation, need complete original font evidence.
     styles(page, &line.ids[..end])?;
-    let ids: Vec<_> = line.ids[..end]
-        .iter()
-        .zip(line.tokens.as_ref()?)
-        .filter(|(_, t)| t.chars().any(char::is_alphanumeric))
-        .map(|(&id, _)| id)
-        .collect();
-    styles(page, &ids)
+    let mut out=NativeStyles::new();
+    for (&id, token) in line.ids[..end].iter().zip(line.tokens.as_ref()?) {
+        let content=token.chars().any(char::is_alphanumeric);
+        match page.native_content_styles.get(id) {
+            None if page.native_content_styles.is_empty() => { if content { out.extend(page.native_styles.get(id)?.as_ref()?.iter().copied()); } },
+            Some(crate::trace::ContentStyles::Compatibility) => { if content { out.extend(page.native_styles.get(id)?.as_ref()?.iter().copied()); } },
+            Some(crate::trace::ContentStyles::Glyphs(s)) => {
+                if content == s.is_empty() { return None; }
+                out.extend(s.iter().copied());
+            },
+            _ => return None,
+        }
+    }
+    Some(out)
 }
 fn headings(page: &PageTrace, lines: &[SourceLine<'_>], frames: &[OwnedFrame]) -> Vec<Heading> {
     let (mut out, mut quotes) = (vec![], vec![]);
@@ -565,7 +572,9 @@ fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> V
             && lines[first].unquoted
         {
             lines[first].tokens.as_ref().and_then(|tokens| {
-                styles(page, &lines[first].ids).map(|styles| Heading {
+                heading_styles(page, &lines[first], tokens.len()).and_then(|content| {
+                    if content.is_empty() { styles(page, &lines[first].ids) } else { Some(content) }
+                }).map(|styles| Heading {
                     line: first,
                     financial: false,
                     styles,

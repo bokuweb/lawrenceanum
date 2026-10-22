@@ -46,6 +46,7 @@ fn structurally_separate_unparsed_titles_do_not_release_their_date_to_the_previo
             words: vec![],
             native_styles: vec![],
         native_bounds: vec![],
+        native_content_styles: vec![],
             regions: vec![Region {
                 role: Role::Body,
                 unit: 0,

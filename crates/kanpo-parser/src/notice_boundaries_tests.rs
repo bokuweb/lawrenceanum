@@ -34,6 +34,7 @@ fn empty() -> PageTrace {
         words: vec![],
         native_styles: vec![],
         native_bounds: vec![],
+        native_content_styles: vec![],
         regions: vec![Region {
             role: Role::Body,
             unit: 0,
@@ -357,6 +358,7 @@ fn unrelated_source_font_cannot_complete_a_signature() {
 #[test]
 fn actual_word_emission_reversal_keeps_article_membership_and_all_analysis_fields() {
     for page in [
+        "20260721g001610161",
         "20260818g001840038",
         "20260730g001710163",
         "20260727g001670103",

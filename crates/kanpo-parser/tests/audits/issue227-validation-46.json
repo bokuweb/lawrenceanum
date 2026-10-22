@@ -1,0 +1,421 @@
+{
+  "issue": 227,
+  "batch": 46,
+  "parent_commit": "a25b928114e11339749fed426cf77a77509108e2",
+  "native_runtime_source": 71,
+  "goal_complete": false,
+  "adopted_scope": "Keep alphanumeric Glyph typography separate from punctuation typography inside the same original Word. Use it for notice-heading evidence; no layout reordering or new financial-frame grouping rule.",
+  "whole_corpus_strict_quality_not_reestimated": true,
+  "local_required_tests": {
+    "passed": 1830,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 117,
+    "commands": 118,
+    "executed_complete_pass_attempts_including_reviewed_proposal": 119,
+    "libraries": 4,
+    "integration_targets": 109,
+    "doctests": 4,
+    "all4_crates_examples_checked": true,
+    "new_tests": 16,
+    "all_final_required_checks_success": true,
+    "source_manifest_sha256": "d4e8ce56473944403a672947315fec04eea905f599ab643c8b8b14b8a58b4cc5",
+    "initial_complete_proposal_pass": {
+      "passed": 1829,
+      "failed": 1,
+      "ignored": 0
+    },
+    "readonly_archive": {
+      "passed": 2,
+      "failed": 0,
+      "ignored": 0,
+      "log_sha256": "d2103904d39fbe3e8c735fb6a7c61ed073a3f098ba5d951f151d4c1f82372e5c"
+    },
+    "earlier_terminal_incomplete_pass": "public71-gates: corpus1FAILED due24 stale cached input XHTMLs; retained separately."
+  },
+  "new_default_tests": {
+    "parser": 8,
+    "PDF": 8,
+    "total": 16
+  },
+  "final_parser_lib": {
+    "passed": 1145,
+    "failed": 0,
+    "ignored": 0
+  },
+  "final_PDF_lib": {
+    "passed": 129,
+    "failed": 0,
+    "ignored": 0
+  },
+  "final_public_source": {
+    "source_files": 135,
+    "parser_files": 111,
+    "PDF_files": 24,
+    "manifest_sha256": "d4e8ce56473944403a672947315fec04eea905f599ab643c8b8b14b8a58b4cc5"
+  },
+  "final_public11992_native": {
+    "terminal": 0,
+    "pages": 11992,
+    "changed": 1,
+    "whole_Analysis_exact": 11991,
+    "all_pages_and_text_exact": true,
+    "all_source_words": 2403403,
+    "document_run_bytes_styles_tables_and_old_article_endpoints_preserved": true,
+    "frozen_inputs_unchanged": true,
+    "seconds": 271.403887958
+  },
+  "final_public_actual_CLI": {
+    "pages": 11992,
+    "fresh_final_public_native_API_vs70": {
+      "whole_Analysis_exact": 11991,
+      "changed": 1,
+      "only_added_boundary_on": "20260721g001610161"
+    },
+    "all_published_PageTrace_Word_text_table_fields_exact": true,
+    "all_old_article_endpoints_Run_bytes_styles_tables_preserved": true,
+    "fresh_final_actual_CLI_all11992_files_byte_exact_API_text": true,
+    "public_private_v1_all11992_Analysis_exact": true,
+    "proof": "All11991 unchanged analyses share the exact70 reference; the only changed candidate Analysis is independently compared equal. Every fresh actual CLI output equals the same text reference used by the API comparison.",
+    "original_full8_article_source_membership_gold_used_words": 656,
+    "new_global_quality_percentage_not_estimated": true
+  },
+  "fresh_native_Glyph_f64_and_XHTML_audit": {
+    "terminal": 0,
+    "pages": 11992,
+    "all_native_Page_Glyphs_exact": true,
+    "all_Glyph_f64_bits_exact": true,
+    "all_source_Words_ids_text_f64_bits_exact": true,
+    "legacy_XHTML_and_old_native_styles_exact": true,
+    "new_content_style_metadata_is_only_added_XHTML_channel": true,
+    "glyphs": 14859045,
+    "words": 2403403,
+    "all_frozen_inputs_exact": true,
+    "seconds": 123.042450458
+  },
+  "raw_audit_to_public_runtime_binding": {
+    "all6_touched_production_files_byte_exact_frozen_v1": {
+      "crates/kanpo-parser/src/lib.rs": true,
+      "crates/kanpo-parser/src/trace.rs": true,
+      "crates/kanpo-parser/src/vertical.rs": true,
+      "crates/kanpo-parser/src/notice_boundaries.rs": true,
+      "crates/kanpo-parser/src/native_content_styles.rs": true,
+      "crates/kanpo-pdf/src/bbox.rs": true
+    },
+    "all_other_production_sources_unchanged_from_parent": true,
+    "only_differences_from_v1_are_cfg_test_modules": true,
+    "extra_PDF_class_contracts": 1,
+    "actual_font_bijection_and_source_reversal_controls_extended_from7_to8": true,
+    "new_full_original_gold_from_prechange_manual_enclosure_selection": true
+  },
+  "original_full_eight_article_control_before_change": {
+    "passed": 0,
+    "failed": 1,
+    "expected_used_words_once": 656
+  },
+  "mixed_Word_typography_before_change": {
+    "passed": 1,
+    "failed": 1
+  },
+  "source_PDF_metadata_before_change": {
+    "passed": 1,
+    "failed": 3
+  },
+  "corpus_input_cache_refresh": {
+    "source_manifest_sha256": "d4e8ce56473944403a672947315fec04eea905f599ab643c8b8b14b8a58b4cc5",
+    "cases_PDFs": 24,
+    "all_old_XHTML_byte_exact_after_new_metadata_removal": true,
+    "only_cached_inputs_updated": true,
+    "no_expected_text_or_document_oracle_updated": true,
+    "records": [
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-07-24-gougai164-p41/page-2.pdf",
+        "PDF_sha256": "17aba01d26064b89828df12b6f4390e98276b00cb18ab2d35a8da88e5ecee560",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-07-24-gougai164-p41/page-2.bbox.html",
+        "old_sha256": "b366977c1de4ab52596a717179aaf7f137d012a82726e0c56f025a7576dabdc5",
+        "new_sha256": "3b191cd10fdea18f77a1da820b908ded83deb50f6258da4e4af057fedf2fad0d",
+        "only_new_content_style_attributes": 166,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-07-24-gougai164-p41/page.pdf",
+        "PDF_sha256": "a1765f4392e8fbe929569b69c548d3730c7016c75079e435b86f61e9be24fe9b",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-07-24-gougai164-p41/page.bbox.html",
+        "old_sha256": "6bb4375626c049def2de356600d56815df5f44a25cb1c9a15284ddca63e3c00a",
+        "new_sha256": "b2011e1198b9eaf0ed11edb1bb9e0f13d1fd42098337cb03ba7535d6503552f6",
+        "only_new_content_style_attributes": 140,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-07-24-honshi1754-p2/page.pdf",
+        "PDF_sha256": "62544860d50b43fdfe4014dc06ccc381c278b48efe92c79558b13f7192d22fb2",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-07-24-honshi1754-p2/page.bbox.html",
+        "old_sha256": "448a78fb377adf69c52fde3b691149adab86fba17dbd0aab375447c0370aae3b",
+        "new_sha256": "0316d05f9ccd12770f08a7a966fe788f5274af3ebd630164f37dc71502422d47",
+        "only_new_content_style_attributes": 184,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-07-28-honshi1756-p4/page.pdf",
+        "PDF_sha256": "a0814d1d7a39c951fa3b8643c47ec772c6199c2abc88b090f6fe3172fc22e9c5",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-07-28-honshi1756-p4/page.bbox.html",
+        "old_sha256": "d5a30956c55b659a05d8ae622d01dac4b77eb4ed83a92f254f7c268ccc9c8ae3",
+        "new_sha256": "9224945601ea28c65a014076570d1a8b4acaed03be5c5e3ff8daa717ebb4d793",
+        "only_new_content_style_attributes": 482,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-07-31-gougai172-p200-201/page-2.pdf",
+        "PDF_sha256": "77c938827eebd1112e426054e630e5dedc6b8d03e2abc862bb76caad7f815d58",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-07-31-gougai172-p200-201/page-2.bbox.html",
+        "old_sha256": "c52465d09e77fcac321b6608dec645450097a774ef87b04ddd2fb9aaede6e81e",
+        "new_sha256": "df2c9c9e5c01c0267cf9ac213daaae3df5a2fb6e12243676288eea4bca9d8aac",
+        "only_new_content_style_attributes": 332,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-07-31-gougai172-p200-201/page.pdf",
+        "PDF_sha256": "b2db8823a2ceef532f803433516efdeb635959217d667375215e880c66ab1dba",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-07-31-gougai172-p200-201/page.bbox.html",
+        "old_sha256": "309f288b338e9602c587397640ce6f9d8fcf7d167ac8d7fdc6ac973c4a9f6118",
+        "new_sha256": "10197f18923d2888b10e4193036c37b6d4f3be3b0c60361d1c66e981854e2e9e",
+        "only_new_content_style_attributes": 169,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-07-31-gougai172-p254/page.pdf",
+        "PDF_sha256": "4bb7ac3d1110b50aea3b1c0d02f885bde625b3b117bfbc04075606128da3e674",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-07-31-gougai172-p254/page.bbox.html",
+        "old_sha256": "6c98056c27290fa9680f03efedbf875b4745a883b58499bf24a1b34b68edf8e0",
+        "new_sha256": "d120a907d35aa2a52de7ff45c74d341ed59587b6303dd7120d248b434c12351b",
+        "only_new_content_style_attributes": 90,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-08-31-gougai193-p4/page.pdf",
+        "PDF_sha256": "18533fa7218fd0f8c6152c1510767d2c7001f96ca450cc5581e13967074e40a3",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-08-31-gougai193-p4/page.bbox.html",
+        "old_sha256": "feb1528ae52bb61c64f65e47690b6eb6f87c21c0dfb4a8cd1164584fee4a774f",
+        "new_sha256": "a578b9fb9ea4f447e55c9251a8383f8f5de044b7cd92afd6b34d82f9dd6ba3da",
+        "only_new_content_style_attributes": 150,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-09-01-gougai195-p16/page.pdf",
+        "PDF_sha256": "961b5a6d11719441deb479262e0e1b4988e179f9808ff3cf8dc1361ff28428d0",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-09-01-gougai195-p16/page.bbox.html",
+        "old_sha256": "dc477707c8f335b51e8d2c76cf7c55cc2ae632620135de2e00e48a914a4858e1",
+        "new_sha256": "f2d398a995f0179aabc3d171d7cf25f0a0401e7660e7644c9a4ad962004c262a",
+        "only_new_content_style_attributes": 483,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-09-01-honshi1780-p2/page.pdf",
+        "PDF_sha256": "25a056763b382fa3029d43830279190cb80d50a3beb0828197a0c374d27308e8",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-09-01-honshi1780-p2/page.bbox.html",
+        "old_sha256": "291de5d4e27a9854da523da772023b0a1b8594c41fb7b002c4341951fe95fc42",
+        "new_sha256": "6dedd7a8fe3b00c375e02fe631f57d56aa6c3c73d643e72fb42b90138eb80596",
+        "only_new_content_style_attributes": 184,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-09-16-gougai206-p19/page.pdf",
+        "PDF_sha256": "9ac9e5c147c5ec7012d0ba1edec5f5b86351084463bab3e4ee817bd2caf514c6",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-09-16-gougai206-p19/page.bbox.html",
+        "old_sha256": "f83f4c3ffaeba5593c3fbee69fbc08464d06f4427ceb54e547d1b4b9c8766700",
+        "new_sha256": "bc917392f6404fd0affacca14ebcd3d4ed7ac9b9533a28c740166dc1c95166a4",
+        "only_new_content_style_attributes": 138,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-09-16-honshi1791-p4/page.pdf",
+        "PDF_sha256": "753af1cb022a662af273b019ad9426cdea0adb4e011c15176515e9ce7d6878c4",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-09-16-honshi1791-p4/page.bbox.html",
+        "old_sha256": "9843e3cad2f6fdf342f6b0bbd27d2eaf427eacdb1233ed9c5c6e23bbf9fa8825",
+        "new_sha256": "c6684063829a93436c6a6275557d70bc88fe68af3fd9892465f68a2e243904ef",
+        "only_new_content_style_attributes": 294,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-09-30-gougai215-p160/page.pdf",
+        "PDF_sha256": "fae299284969636b15313878b615b3fc8d6b341a74a8d65151a7fec599cf7088",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-09-30-gougai215-p160/page.bbox.html",
+        "old_sha256": "cf3c0a365f49a3dbf2a24e69827d6357ca671c123aeeed80e98b459460710b7e",
+        "new_sha256": "4e0cfb09108f9f70332107808e8dcc495877c3b1149e0ce6f085d292d88c7187",
+        "only_new_content_style_attributes": 144,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-09-30-gougai215-p33/page.pdf",
+        "PDF_sha256": "7f06ea16fd25d0cb1ad7108c1dad1d027e18c33bb7406e6fa1504bc178e7caa4",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-09-30-gougai215-p33/page.bbox.html",
+        "old_sha256": "43c40af4d927a77e015009c527754f6d137956d080122e4effa283d8456de28c",
+        "new_sha256": "81c74b757b4880a783abc95803581a9b0b13b17d4801d03ce98332700aece27d",
+        "only_new_content_style_attributes": 214,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-09-30-honshi1798-p6/page.pdf",
+        "PDF_sha256": "0081e33e670ea20b65059dc08e93f5132742c2494c907685276621955f68dac8",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-09-30-honshi1798-p6/page.bbox.html",
+        "old_sha256": "02654d53c854bb800622d54d9a0b112f55b3237303c6107be8e118c1db700f39",
+        "new_sha256": "bb2562b306c30403f93f3115b90638e4eac060b24bdf5b5fdc48f5e9b70c4755",
+        "only_new_content_style_attributes": 380,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-10-01-gougai217-p19/page.pdf",
+        "PDF_sha256": "aef177795aa7a7154acfcf3f1da88178c9b156751ef42ffc3d80eabc1e26bf90",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-10-01-gougai217-p19/page.bbox.html",
+        "old_sha256": "10eb5a2808471af549e3c2133c9c8b4873bc65f97d313762410a66bb0ce68af5",
+        "new_sha256": "b7fb2f9d232d6e1e692817dcdcc12d4c284ac1b660dcbb03fdc7180baae2fd34",
+        "only_new_content_style_attributes": 108,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-10-01-honshi1799-p8/page.pdf",
+        "PDF_sha256": "1da651e39c5ddfd236d1adb44a49828c13876f350d9ee41a0f07c4d66251b7e8",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-10-01-honshi1799-p8/page.bbox.html",
+        "old_sha256": "39ae431184453645c61fb1f1118c6bdc715d8653c03cf86bd3b92f6b28dedad1",
+        "new_sha256": "abf9a8a049cc72d0146c3277beaa44b105f8fbef3ee6c89692657690c1c0c5c5",
+        "only_new_content_style_attributes": 377,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-10-05-honshi1801-p2/page.pdf",
+        "PDF_sha256": "248e1126ed06af0d05d618a1480fe02fed4fb0262504c78f28f62123983bcc4d",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-10-05-honshi1801-p2/page.bbox.html",
+        "old_sha256": "06d304953ef7cd4918ce69a0fb4e763e56daab4e5052fc86a594d1aeb6e32fcc",
+        "new_sha256": "0c17ba357687a48317c5913459be66a18619b83633429779235f152114157063",
+        "only_new_content_style_attributes": 292,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-10-06-gougai220-p1/page.pdf",
+        "PDF_sha256": "d5c7a6c3c268990cb6cbc65831de7ae87f9982b31709b030cad4df188642ae67",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-10-06-gougai220-p1/page.bbox.html",
+        "old_sha256": "d8a6037c40548a7f67322358ca7f15f61f623ad0bdc44eb80c3d13903011330d",
+        "new_sha256": "42fe89fbae4f5f68ccff80e585f74749267039a82f63d90ba2c15abc47a0338e",
+        "only_new_content_style_attributes": 73,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-10-07-honshi1803-p6/page.pdf",
+        "PDF_sha256": "598bda1e778a0070f858c419c0b8f8a65f10e0dadaee535661b528b177c4a864",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-10-07-honshi1803-p6/page.bbox.html",
+        "old_sha256": "835ba42bbe223e421c6b42929f9a2f5a8b8f6bf88ce59571da30720a854bb65e",
+        "new_sha256": "0f38fc71cbf34267d2eba44710d336049cc7a97a8bdc6fe98a87d30c397dd216",
+        "only_new_content_style_attributes": 482,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-10-09-gougai223-p3/page.pdf",
+        "PDF_sha256": "cdc51809f38d052b769982e85c29694b2b7375e3f151592c6ffda467c15fefde",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-10-09-gougai223-p3/page.bbox.html",
+        "old_sha256": "befa361686ad95de4e74cf654d297cab2a7f685962085e83c034f945bc59c4d2",
+        "new_sha256": "27e947e001ca143d79fa6bfca76f432f97831dfdc85dd98f5a97e9dbaf0a3a11",
+        "only_new_content_style_attributes": 172,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-10-09-gougai223-p80/page.pdf",
+        "PDF_sha256": "b90616e31f51c93b921cd2fd193c27ff7a50032d793d3db3627d224afe721fad",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-10-09-gougai223-p80/page.bbox.html",
+        "old_sha256": "c6c2675765072a4c27348a9d4a62f751195608a6f82ba2c5085960443e1bbf77",
+        "new_sha256": "dd94645d9d629b8a46bf357e67bdfd5f2ac2d4b38ef00092b1fbd4e7e164f406",
+        "only_new_content_style_attributes": 163,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-10-13-gougai224-p69/page.pdf",
+        "PDF_sha256": "d28409f1968914305772a9a247493a4e8f18062ae7c28247ce10771ae9192352",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-10-13-gougai224-p69/page.bbox.html",
+        "old_sha256": "95d050e01a82e3a4b17ba4048c5985c0509feecb2349bacf419a90a88075c59a",
+        "new_sha256": "c5e392726e69a16fe1468a6e2c825072480ec5ff3e67763028edf4008b357e3b",
+        "only_new_content_style_attributes": 63,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      },
+      {
+        "PDF": "crates/kanpo-parser/tests/corpus/2026-10-15-honshi1808-p8/page.pdf",
+        "PDF_sha256": "c1a5b6baf49a457c82acd34f95cbbe94d4c49191d1f6082113594796c06ff123",
+        "cached_XHTML": "crates/kanpo-parser/tests/corpus/2026-10-15-honshi1808-p8/page.bbox.html",
+        "old_sha256": "0aeed76efe0f6e1c21edfc9a706347bc86c37745eac1fd51f983f0852dc34c02",
+        "new_sha256": "45eb44fec128c3742b3d518af017398fe1c6003015725f07ebdafef50ed21045",
+        "only_new_content_style_attributes": 185,
+        "old_XML_byte_exact_after_removing_only_new_attributes": true,
+        "rules_unchanged": true
+      }
+    ]
+  },
+  "assets": {
+    "old_test_files": 2349,
+    "old_test_files_byte_unchanged": 2324,
+    "old_cached_inputs_updated_only_new_metadata": 24,
+    "old_changed_reviewed_snapshots": 1,
+    "new_original_PDFs": 0,
+    "new_full_source_membership_gold": 1,
+    "new_snapshots": 0,
+    "total_snapshots": 790,
+    "proposals_pending": 0,
+    "all_old_expected_document_JSON_and_text_bytes_unchanged": true,
+    "changed": [
+      "crates/kanpo-parser/tests/corpus/2026-07-24-gougai164-p41/page-2.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-07-24-gougai164-p41/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-07-24-honshi1754-p2/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-07-28-honshi1756-p4/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-07-31-gougai172-p200-201/page-2.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-07-31-gougai172-p200-201/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-07-31-gougai172-p254/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-08-31-gougai193-p4/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-09-01-gougai195-p16/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-09-01-honshi1780-p2/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-09-16-gougai206-p19/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-09-16-honshi1791-p4/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-09-30-gougai215-p160/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-09-30-gougai215-p33/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-09-30-honshi1798-p6/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-10-01-gougai217-p19/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-10-01-honshi1799-p8/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-10-05-honshi1801-p2/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-10-06-gougai220-p1/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-10-07-honshi1803-p6/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-10-09-gougai223-p3/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-10-09-gougai223-p80/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-10-13-gougai224-p69/page.bbox.html",
+      "crates/kanpo-parser/tests/corpus/2026-10-15-honshi1808-p8/page.bbox.html",
+      "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260721g00161__20260721g001610161.pdf.snap"
+    ],
+    "new": [
+      {
+        "path": "crates/kanpo-parser/tests/expected-company-article-sources/20260721g001610161-eight-enclosures.json",
+        "sha256": "f8e5bbbb447ea6bd68aea2f3768c70ec828f87b70d46f365ae69c386892f2a44"
+      }
+    ]
+  },
+  "failure_history": "The first private PDF test build lacked the existing AJ1 data directory; a read-only data link fixed preparation. A release stream link initially lacked the new dependency directory; the corrected link succeeded without algorithm changes. The initial required corpus run failed only because24 cached coordinate XHTML inputs lacked the new metadata; all24 are byte-exact old inputs after deleting only that new attribute, and expected text/documents/rules were not updated. The archive first pass proposed one reviewed boundary update; a separate read-only pass succeeded. Failed attempts are retained and not counted as successful checks.",
+  "advisory_checks": "git diff --check; no whole-repository fmt/clippy-clean claim.",
+  "PR_checks_at_preparation": "Fresh commit CI is pending at record preparation; exact-head results are recorded separately after push."
+}

@@ -330,6 +330,33 @@ fn native_styles(page: &Page, word: &Word) -> Option<String> {
             .join(" "),
     )
 }
+/// Source fonts of alphanumeric glyphs, without treating punctuation fonts
+/// as content typography. The complete raw word must be reproduced first.
+fn native_content_styles(page: &Page, word: &Word, resolved: Option<&[Option<char>]>) -> Option<String> {
+    native_styles(page, word)?;
+    if word.glyphs.windows(2).any(|pair| pair[0] >= pair[1]) { return None; }
+    let candidate = resolved.and_then(|s| crate::source_aj1::word_candidate(page, word, s));
+    let mut candidate_chars = candidate.as_deref().map(str::chars);
+    let mut raw = String::new();
+    let mut content = std::collections::BTreeSet::new();
+    for &id in &word.glyphs {
+        let g = page.glyphs.get(id)?;
+        let font = page.fonts.get(g.font)?;
+        let emitted = glyph_text(g, &page.fonts);
+        raw.push_str(&emitted);
+        let semantic = if font.ordering.as_deref() == Some("Identity") && !font.has_to_unicode {
+            candidate_chars.as_mut()?.next()?.to_string()
+        } else {
+            emitted
+        };
+        // Opaque private glyph codes do not establish a Unicode character class.
+        if semantic.is_empty() || semantic.chars().any(|c| c.is_control() || matches!(c,
+            '\u{e000}'..='\u{f8ff}' | '\u{f0000}'..='\u{ffffd}' | '\u{100000}'..='\u{10fffd}')) { return None; }
+        if semantic.chars().any(char::is_alphanumeric) { content.insert((g.font, g.size.to_bits())); }
+    }
+    if raw != word.text || candidate_chars.as_mut().is_some_and(|cs| cs.next().is_some()) { return None; }
+    Some(content.into_iter().map(|(f,b)| format!("{f}:{b:016x}")).collect::<Vec<_>>().join(" "))
+}
 fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>)>, emit_styles:bool) -> String {
     let mut s = String::from(
         "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\
@@ -350,6 +377,10 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
             );
             let native = native_vertical_attrs(page, &word);
             let styles=if emit_styles { native_styles(page,&word).map(|s|format!(" data-native-styles=\"{s}\"")).unwrap_or_default() }else{String::new()};
+            let content = if emit_styles {
+                let value = native_content_styles(page, &word, resolved_source).unwrap_or_else(|| "unknown".into());
+                format!(" data-native-content-styles=\"{value}\"")
+            } else { String::new() };
             let source_attr = resolved_source
                 .and_then(|source| crate::source_aj1::word_candidate(page, &word, source))
                 .map(|text| format!(" data-source-aj1-text=\"{}\"", escape(&text)))
@@ -357,7 +388,7 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
             let resolved = if resolved_aj1_word(page, &word) { " data-unicode-aj1=\"1\"" } else { "" };
             let _ = writeln!(
                 s,
-                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}>{}</word>\n        </line>\n      </block>\n    </flow>",
+                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}>{}</word>\n        </line>\n      </block>\n    </flow>",
                 escape(&word.text)
             );
         }
@@ -408,7 +439,7 @@ mod tests {
         }
     }
 
-    fn page(glyphs: Vec<Glyph>) -> Page {
+    pub(super) fn page(glyphs: Vec<Glyph>) -> Page {
         let font = FontInfo { name: "F".into(), vertical: false, ordering: Some("Japan1".into()), has_to_unicode: false,
         };
         Page { width: 595.0, height: 842.0, rotate: 0, glyphs, paths: Vec::new(), fonts: vec![font.clone(), font],
@@ -455,7 +486,7 @@ mod native_vertical_bbox_tests;
 #[cfg(test)]
 mod native_style_tests {
     use super::*;
-    fn glyph(text: &str, x: f64, font: usize, size: f64) -> Glyph {
+    pub(super) fn glyph(text: &str, x: f64, font: usize, size: f64) -> Glyph {
         Glyph {
             text: text.into(),
             code: 0,
@@ -474,7 +505,7 @@ mod native_style_tests {
             show: 0,
         }
     }
-    fn page(glyphs: Vec<Glyph>) -> Page {
+    pub(super) fn page(glyphs: Vec<Glyph>) -> Page {
         let f = crate::page::FontInfo {
             name: "arbitrary".into(),
             vertical: false,
@@ -561,12 +592,19 @@ mod native_style_tests {
         let old = bbox_layout_with_aj1_sources(&sources);
         let mut new = bbox_layout_with_native_styles(&sources);
         assert_eq!(new.matches(" data-native-styles=\"").count(), 2);
-        while let Some(start) = new.find(" data-native-styles=\"") {
-            let from = start + " data-native-styles=\"".len();
-            let end = from + new[from..].find('"').unwrap() + 1;
-            new.replace_range(start..end, "");
+        for attr in ["data-native-styles", "data-native-content-styles"] {
+            let needle = format!(" {attr}=\"");
+            while let Some(start) = new.find(&needle) {
+                let from = start + needle.len();
+                let end = from + new[from..].find('"').unwrap() + 1;
+                new.replace_range(start..end, "");
+            }
         }
         assert_eq!(old, new);
         assert_eq!(old, bbox_layout(&[p]));
     }
 }
+
+#[cfg(test)]
+#[path="native_content_style_tests.rs"]
+mod native_content_style_tests;
