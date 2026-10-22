@@ -1603,6 +1603,7 @@ name = "kanpo-parser-wasm"
 version = "0.1.0"
 dependencies = [
  "kanpo-parser",
+ "kanpo-pdf",
  "serde_json",
  "wasm-bindgen",
 ]

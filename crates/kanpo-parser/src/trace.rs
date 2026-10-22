@@ -132,7 +132,7 @@ pub enum WordStatus {
     Ruby,
 }
 
-/// ページ上の 1 語。座標は `pdftotext -bbox-layout` と同じ（pt、左上原点）。
+/// ページ上の 1 語。表示座標は pt、左上原点（PDF が無い場合の推定補正を含む）。
 #[derive(Debug, Clone, Serialize)]
 pub struct Word {
     pub id: usize,
@@ -140,6 +140,8 @@ pub struct Word {
     pub y0: f32,
     pub x1: f32,
     pub y1: f32,
+    /// 補正前の XHTML の枠。PDF のグリフと照合して正確な表示座標を得るために残す。
+    pub source_box: [f32; 4],
     /// PDF から取れた生の文字列。
     pub raw: String,
     /// 正規化後（縦書き約物・私用 CID グリフの復元後）の文字列。

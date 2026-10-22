@@ -8,6 +8,7 @@ import {
   ROLE_COLOR,
   STATUS_LABEL,
   STATUS_REASON,
+  loadKanpoParser,
   type KanpoPageRules,
   type KanpoPageTrace,
   type KanpoRole,
@@ -144,6 +145,23 @@ const PageSheet = memo(function PageSheet({
   const [loadedPage, setLoadedPage] = useState<{ doc: PDFDocumentProxy; page: PDFPageProxy } | null>(null);
   const pdfPage = loadedPage?.doc === pdf && loadedPage.page.pageNumber === source.pdfPage ? loadedPage.page : null;
   const [pdfError, setPdfError] = useState<string | null>(null);
+  const [aligned, setAligned] = useState<{ doc: PDFDocumentProxy; words: KanpoWord[]; page: number; boxes: ([number, number, number, number] | null)[] } | null>(null);
+  const hasAlignment = aligned?.doc === pdf && aligned?.words === page.words && aligned?.page === source.pdfPage;
+  const displayWords = useMemo(() => hasAlignment ? page.words.map((w, i) => {
+    const b = aligned!.boxes[i];
+    return b ? { ...w, x0: b[0], y0: b[1], x1: b[2], y1: b[3] } : w;
+  }) : page.words, [hasAlignment, aligned, page.words]);
+
+  useEffect(() => {
+    if (!pdf) return;
+    let cancelled = false;
+    Promise.all([pdf.getData(), loadKanpoParser()]).then(([data, parser]) => {
+      if (cancelled || !parser) return;
+      const boxes = parser.displayBoxes(data, source.pdfPage, page.words);
+      if (!cancelled) setAligned({ doc: pdf, words: page.words, page: source.pdfPage, boxes });
+    }).catch((e) => { if (!cancelled) setPdfError(String(e?.message ?? e)); });
+    return () => { cancelled = true; };
+  }, [pdf, source.pdfPage, page.words]);
   // bbox の page サイズは /Rotate 適用前でも、語・罫線の座標は回転後。
   // PDF の表示サイズを使い、キャンバスと SVG を同じ座標系・倍率で描く。
   const viewport = pdfPage?.getViewport({ scale: 1 });
@@ -206,14 +224,14 @@ const PageSheet = memo(function PageSheet({
     const labels: { x: number; y: number; n: number; color: string }[] = [];
     for (const l of lines) {
       l.words.forEach((id, i) => {
-        const w = page.words[id];
+        const w = displayWords[id];
         if (!w) return;
         pts.push(`${((w.x0 + w.x1) / 2).toFixed(1)},${((w.y0 + w.y1) / 2).toFixed(1)}`);
         if (i === 0) labels.push({ x: w.x1, y: w.y0, n: l.order + 1, color: ROLE_COLOR[l.role] });
       });
     }
     return { pts: pts.join(" "), labels };
-  }, [showOrder, visible, lines, page.words]);
+  }, [showOrder, visible, lines, displayWords]);
 
   const tables = useMemo(() => lines.filter((l) => l.table), [lines]);
   const drawText = !source.pdf || !!pdfOpenError;
@@ -222,7 +240,7 @@ const PageSheet = memo(function PageSheet({
   return (
     <div className="flex flex-col items-center gap-1">
       <div className="self-stretch text-[11px] text-muted-foreground font-mono px-1">{source.label}</div>
-      <div ref={boxRef} data-sheet={index} data-page-width={width} className="relative bg-white shadow-sm" style={{ width: cssW, height: cssH }}>
+      <div ref={boxRef} data-sheet={index} data-page-width={width} data-aligned={hasAlignment} className="relative bg-white shadow-sm" style={{ width: cssW, height: cssH }}>
         {visible && (
           <>
             {source.pdf && !pdfOpenError && (
@@ -280,7 +298,7 @@ const PageSheet = memo(function PageSheet({
                   </g>
                 );
               })}
-              {page.words.map((w) => {
+              {displayWords.map((w) => {
                 const line = wordLine.get(wordKey(index, w.id));
                 const dropped = w.status !== "used";
                 if (dropped && !showDropped) return null;

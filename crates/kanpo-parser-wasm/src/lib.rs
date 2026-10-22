@@ -33,6 +33,23 @@ pub fn page_inputs(pdf: &[u8]) -> String {
     }
 }
 
+/// 1 始まりの PDF ページ番号と XHTML の語の枠から、実際の表示枠を返す。
+#[wasm_bindgen]
+pub fn display_boxes(pdf: &[u8], page_number: usize, boxes_json: &str) -> String {
+    let result = (|| -> Result<_, Box<dyn std::error::Error>> {
+        let boxes: Vec<[f64; 4]> = serde_json::from_str(boxes_json)?;
+        let doc = kanpo_pdf::Document::load(pdf.to_vec())?;
+        let pages = doc.pages();
+        let page = pages.get(page_number.wrapping_sub(1)).ok_or("invalid PDF page number")?;
+        let page = kanpo_pdf::extract_page(&doc, page);
+        Ok(kanpo_pdf::bbox::display_boxes(&page, &boxes))
+    })();
+    match result {
+        Ok(boxes) => serde_json::to_string(&boxes).unwrap(),
+        Err(e) => serde_json::json!({ "error": e.to_string() }).to_string(),
+    }
+}
+
 /// PDF（項目の全ページを 1 つにしたもの、または 1 ページ）をそのまま解析し、
 /// [`kanpo_parser::Analysis`] を JSON で返す。
 #[wasm_bindgen]
@@ -51,6 +68,33 @@ pub fn version() -> String {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn corpus_display_boxes_match_pdf_glyphs() {
+        let root = std::path::Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/../kanpo-parser/tests/corpus"));
+        let mut count = 0;
+        for dir in std::fs::read_dir(root).unwrap() {
+            let dir = dir.unwrap().path();
+            if !dir.is_dir() { continue; }
+            for file in std::fs::read_dir(&dir).unwrap() {
+                let pdf_path = file.unwrap().path();
+                if pdf_path.extension().is_none_or(|e| e != "pdf") { continue; }
+                let xhtml_path = pdf_path.with_extension("bbox.html");
+                let xhtml = std::fs::read_to_string(&xhtml_path).unwrap();
+                let analysis = kanpo_parser::analyze(&xhtml);
+                let words = &analysis.pages[0].words;
+                let boxes: Vec<_> = words.iter().map(|w| w.source_box.map(f64::from)).collect();
+                let pdf = std::fs::read(&pdf_path).unwrap();
+                let result: Vec<Option<[f64; 4]>> = serde_json::from_str(&super::display_boxes(&pdf, 1, &serde_json::to_string(&boxes).unwrap())).unwrap();
+                let missing: Vec<_> = words.iter().zip(&result).filter(|(_, b)| b.is_none()).collect();
+                assert!(missing.is_empty(), "{}: unmatched words {:?}", pdf_path.strip_prefix(root).unwrap().display(), missing.iter().map(|(w, _)| (&w.raw, w.source_box)).collect::<Vec<_>>());
+                assert_eq!(result.len(), words.len());
+                assert!(result.iter().flatten().all(|b| b.iter().all(|v| v.is_finite()) && b[0] < b[2] && b[1] < b[3]));
+                count += 1;
+            }
+        }
+        assert!(count >= 24);
+    }
+
     #[test]
     fn analyze_returns_json() {
         let xhtml = r#"<page width="595" height="842"><word xMin="100" yMin="100" xMax="108" yMax="124">本文</word></page>"#;

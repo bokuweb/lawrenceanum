@@ -72,6 +72,36 @@ fn poppler_box(g: &Glyph) -> [f64; 4] {
     ]
 }
 
+/// XHTML の語の枠を、PDF の実際のグリフの枠へ合わせる。
+/// 縦書きフォントの poppler 互換の枠は字面からずれる。ページ全体の向きではなく、
+/// 個々のグリフの座標を使うため、回転・縦横混在でも同じように補正できる。
+/// 語の切り方が抽出器によって異なっていても、含まれるグリフで照合する。
+/// 照合できない語は推測せず None を返す。
+pub fn display_boxes(page: &Page, boxes: &[[f64; 4]]) -> Vec<Option<[f64; 4]>> {
+    let mut indices: Vec<_> = words(page).into_iter().flat_map(|w| w.glyphs).collect();
+    indices.sort_unstable();
+    indices.dedup();
+    let glyphs: Vec<_> = indices.into_iter().map(|i| (poppler_box(&page.glyphs[i]), page.glyphs[i].bbox)).collect();
+    let union = |a: [f64; 4], b: [f64; 4]| [a[0].min(b[0]), a[1].min(b[1]), a[2].max(b[2]), a[3].max(b[3])];
+    boxes.iter().map(|source| {
+        // poppler は途中で基線がわずかに動いても、語の先頭の横位置を使うことがある。
+        // 丸め誤差とこの差を許容する（隣の列の文字までは含めない）。
+        const TOLERANCE: f64 = 0.25;
+        let contained = |b: &[f64; 4]| b[0] >= source[0] - TOLERANCE && b[1] >= source[1] - TOLERANCE
+            && b[2] <= source[2] + TOLERANCE && b[3] <= source[3] + TOLERANCE;
+        let mut bounds: Option<([f64; 4], [f64; 4])> = None;
+        for (raw, display) in &glyphs {
+            if contained(raw) {
+                bounds = Some(match bounds {
+                    None => (*raw, *display),
+                    Some((a, b)) => (union(a, *raw), union(b, *display)),
+                });
+            }
+        }
+        bounds.filter(|(raw, _)| raw.iter().zip(source).all(|(a, b)| (a - b).abs() < TOLERANCE)).map(|(_, display)| display)
+    }).collect()
+}
+
 /// poppler が文字として出すフォントか。poppler は対応表を持たない CID の文字集合
 /// （Adobe-Npb1 など）で ToUnicode も無いフォントを読めずに捨てる。官報では傍線などの
 /// 罫線用の字形のフォントがこれにあたる。
@@ -335,6 +365,35 @@ mod tests {
 
     fn texts(p: &Page) -> Vec<String> {
         words(p).into_iter().map(|w| w.text).collect()
+    }
+
+    #[test]
+    fn display_boxes_follow_vertical_glyphs_in_all_four_directions() {
+        for (end, raw, display) in [
+            ([100.0, 108.0], [100.0, 92.0, 108.0, 100.0], [96.0, 100.0, 104.0, 108.0]),
+            ([92.0, 100.0], [100.0, 100.0, 108.0, 108.0], [92.0, 96.0, 100.0, 104.0]),
+            ([100.0, 92.0], [92.0, 100.0, 100.0, 108.0], [96.0, 92.0, 104.0, 100.0]),
+            ([108.0, 100.0], [92.0, 92.0, 100.0, 100.0], [100.0, 96.0, 108.0, 104.0]),
+        ] {
+            let mut vertical = glyph("縦", 100.0, 0);
+            vertical.vertical = true;
+            vertical.end_x = end[0];
+            vertical.end_y = end[1];
+            vertical.bbox = display;
+            let horizontal = glyph("横", 200.0, 0);
+            let horizontal_box = horizontal.bbox;
+            // 同じページに横組みの文字があっても、その座標は動かさない。
+            let p = page(vec![vertical, horizontal]);
+            assert_eq!(display_boxes(&p, &[raw, horizontal_box, [0.0, 0.0, 8.0, 8.0]]),
+                vec![Some(display), Some(horizontal_box), None]);
+        }
+    }
+
+    #[test]
+    fn display_boxes_allow_different_word_grouping_and_small_baseline_drift() {
+        let p = page(vec![glyph("本", 100.0, 0), glyph("文", 108.06, 0)]);
+        assert_eq!(display_boxes(&p, &[[100.0, 93.0, 116.0, 102.0], [108.06, 93.0, 116.06, 102.0]]),
+            vec![Some([100.0, 93.0, 116.06, 102.0]), Some([108.06, 93.0, 116.06, 102.0])]);
     }
 
     #[test]
