@@ -544,6 +544,133 @@ fn owned_frames(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -
     }
     out
 }
+// A separately enclosed publication can identify its source with a typeset
+// attribution rather than a representative's signature. Recognize the header
+// fields by their original typography and columns, never by an issuer name.
+// This narrow grammar needs a dated left field, a separate right address
+// field, an emphasized byline in that right column, then full-width prose and
+// a whole table. Address and byline wrapping are unrestricted.
+fn attributed_table_header(
+    page: &PageTrace,
+    lines: &[SourceLine<'_>],
+    head: &Heading,
+    end: usize,
+    frame: Rect,
+    frame_end: usize,
+) -> Option<()> {
+    let horizontal = |b: Rect| b[2] - b[0] > b[3] - b[1];
+    // Nominal glyph boxes can overlap adjacent baselines (ascent/descent).
+    // Both vertical endpoints must advance; no fixed gap or overlap allowance.
+    let below = |a: Rect, b: Rect| a[1] < b[1] && a[3] < b[3];
+    let title = &lines[head.line];
+    if !head.authorized || !title.unquoted || head.after != title.ids.len() {
+        return None;
+    }
+    let title_box = title.bbox.filter(|&b| horizontal(b))?;
+    let header = lines.get(head.line + 1).filter(|_| head.line + 1 < end)?;
+    if !header.unquoted {
+        return None;
+    }
+    let tokens = header.tokens.as_ref()?;
+    let mut date_text = String::new();
+    let after_date = tokens.iter().position(|t| {
+        date_text.push_str(t);
+        date(&date_text)
+    })? + 1;
+    if after_date == tokens.len() {
+        return None;
+    }
+    let union = |ids: &[usize]| -> Option<Rect> {
+        ids.iter().try_fold(None, |bounds: Option<Rect>, &id| {
+            let b = word_bounds(page, id)?;
+            Some(Some(bounds.map_or(b, |a| {
+                [
+                    a[0].min(b[0]),
+                    a[1].min(b[1]),
+                    a[2].max(b[2]),
+                    a[3].max(b[3]),
+                ]
+            })))
+        })?
+    };
+    let date_box = union(&header.ids[..after_date])?;
+    let address_box = union(&header.ids[after_date..])?;
+    let body_styles = heading_styles(page, header, after_date)?;
+    // Address punctuation may use another font and need not provide content
+    // typography. It still needs complete original style evidence.
+    let address_styles = styles(page, &header.ids[after_date..])?;
+    if body_styles.is_empty()
+        || !body_styles.is_disjoint(&head.styles)
+        || !address_styles.is_disjoint(&head.styles)
+        || !horizontal(date_box)
+        || !horizontal(address_box)
+        || !below(title_box, date_box)
+        || !below(title_box, address_box)
+        || date_box[2] >= address_box[0]
+        || date_box[1] >= address_box[3]
+        || address_box[1] >= date_box[3]
+    {
+        return None;
+    }
+    // All frame source fields must have complete metadata, including table
+    // members; absent evidence must not become an apparently blank field.
+    for line in &lines[head.line..frame_end] {
+        styles(page, &line.ids)?;
+        if let Some(table) = &line.line.table {
+            let b = [table.x0, table.y0, table.x1, table.y1];
+            if !valid(b) || !contains(frame, b) {
+                return None;
+            }
+        }
+    }
+    let (mut previous, mut attributed) = (
+        [
+            date_box[0],
+            date_box[1].max(address_box[1]),
+            address_box[2],
+            date_box[3].max(address_box[3]),
+        ],
+        false,
+    );
+    for (i, line) in lines.iter().enumerate().take(end).skip(head.line + 2) {
+        if line.line.table.is_some() || !line.unquoted {
+            return None;
+        }
+        let b = line.bbox.filter(|&b| horizontal(b))?;
+        if !below(previous, b) {
+            return None;
+        }
+        let in_right_column = address_box[0] <= b[0] && b[2] <= address_box[2];
+        if !attributed && in_right_column && styles(page, &line.ids)?.is_disjoint(&head.styles) {
+            // Address rows may contain punctuation in another source font.
+        } else if in_right_column && heading_styles(page, line, line.ids.len())? == head.styles {
+            if line.line.text.contains(['。', '！', '？', '!', '?']) {
+                return None;
+            }
+            attributed = true;
+        } else if attributed
+            && heading_styles(page, line, line.ids.len())? == body_styles
+            && b[0] <= date_box[0]
+            && b[2] >= address_box[2]
+        {
+            // The first full-width body row ends the header. A table must be
+            // wholly represented later in this same already-owned scope.
+            return lines[i + 1..end]
+                .iter()
+                .any(|l| {
+                    l.line.table.as_ref().is_some_and(|t| {
+                        let table = [t.x0, t.y0, t.x1, t.y1];
+                        valid(table) && contains(frame, table) && below(b, table)
+                    })
+                })
+                .then_some(());
+        } else {
+            return None;
+        }
+        previous = b;
+    }
+    None
+}
 fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> Vec<usize> {
     if rules.enclosures.iter().any(|&b| !valid(b)) {
         return vec![];
@@ -603,7 +730,9 @@ fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> V
             .iter()
             .find(|h| h.line > root.line)
             .map_or(end, |h| h.line.min(end));
-        if witness(page, lines, root, fence, true) {
+        if witness(page, lines, root, fence, true)
+            || attributed_table_header(page, lines, root, fence, frame, end).is_some()
+        {
             accepted.push((frame, first, end));
         }
     }
@@ -804,3 +933,6 @@ pub(crate) fn groups(
 #[cfg(test)]
 #[path = "notice_boundaries_tests.rs"]
 mod tests;
+#[cfg(test)]
+#[path = "notice_attributed_header_tests.rs"]
+mod attributed_header_tests;

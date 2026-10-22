@@ -218,7 +218,7 @@ fn an_adjacent_financial_notice_cannot_supply_a_missing_date() {
     r.enclosures = vec![[90., 45., 260., 100.]];
     assert_eq!(cuts(&p, &r), vec![5]);
 }
-fn native_case(page: &str, expected: usize, gold: &serde_json::Value) {
+pub(super) fn native_case(page: &str, expected: usize, gold: &serde_json::Value) {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
     let dir = page.get(..14).unwrap();
     let pdf = std::fs::read(
