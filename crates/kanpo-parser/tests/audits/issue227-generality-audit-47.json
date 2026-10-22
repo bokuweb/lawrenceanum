@@ -27,5 +27,6 @@
     "A source font ID universally proves visible ink or semantic equivalence.",
     "Conservation or green tests prove whole-page reading order, character accuracy or100% overall quality."
   ],
-  "new_model_weights_training_or_inferences": 0
+  "new_model_weights_training_or_inferences": 0,
+  "next_bank_control_setup_correction": "The initial private bank control failed on a missing input PDF, not the intended assertion. It is preserved as setup-failure evidence. The corrected r2 control pins the original PDF and fails actual11 vs necessary12,0 passed1 failed1168 filtered; no parser runtime changed."
 }

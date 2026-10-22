@@ -71,7 +71,21 @@
     },
     {
       "path": ".cache/kanpo-227/bank-frame-source48/source72-bank-RED.log",
-      "sha256": "01a7813e5256855574f5d9e51528091342d2306f0abae61d15e783061b7dcb08"
+      "sha256": "01a7813e5256855574f5d9e51528091342d2306f0abae61d15e783061b7dcb08",
+      "purpose": "Initial missing-PDF setup failure; not a logical regression RED."
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/baseline72-control-r2-manifest.json",
+      "sha256": "0135ccdc51e96d762e4ee53621ed5a7a2d67e755bc25dfa31317fb883a0124cb"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/source72-bank-RED-r2.log",
+      "sha256": "b2110c1c8095ae3928d344106fe09ed30634a93371207b71d8f70ecebb732a80"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/source72-bank-control-r2-binding.json",
+      "sha256": "b60c347f7a416ff1fda085c098a88f1c64dbab0db618194cb7cfee4591142299"
     }
-  ]
+  ],
+  "next_bank_control_setup_correction": "The initial private bank control failed on a missing input PDF, not the intended assertion. It is preserved as setup-failure evidence. The corrected r2 control pins the original PDF and fails actual11 vs necessary12,0 passed1 failed1168 filtered; no parser runtime changed."
 }

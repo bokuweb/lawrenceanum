@@ -46,5 +46,6 @@
     "new_accuracy_estimate": false
   },
   "strict_corpus_accuracy_not_reestimated": true,
-  "remaining": "Seven necessary-count failures, short vertical fragments, false headerless shinkyu, record/address fragments, financial dashes, officer lists, publisher/outlined/image body, visibility, and legacy fixed-value audits remain. The changed page is not certified character-perfect."
+  "remaining": "Seven necessary-count failures, short vertical fragments, false headerless shinkyu, record/address fragments, financial dashes, officer lists, publisher/outlined/image body, visibility, and legacy fixed-value audits remain. The changed page is not certified character-perfect.",
+  "next_bank_control_setup_correction": "The initial private bank control failed on a missing input PDF, not the intended assertion. It is preserved as setup-failure evidence. The corrected r2 control pins the original PDF and fails actual11 vs necessary12,0 passed1 failed1168 filtered; no parser runtime changed."
 }
