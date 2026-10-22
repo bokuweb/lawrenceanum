@@ -1,5 +1,5 @@
 //! Additional article boundaries supported by native source typography and scope.
-//! Issuer identity is deliberately not inferred here. Existing reading order is retained.
+//! Issuer identity is deliberately not inferred here. Source frames may restore atomic reading blocks.
 use crate::lines::PageRules;
 use crate::trace::{Line, NativeStyles, PageTrace, Role, WordStatus};
 use std::collections::{BTreeSet, HashMap, HashSet};
@@ -936,3 +936,7 @@ mod tests;
 #[cfg(test)]
 #[path = "notice_attributed_header_tests.rs"]
 mod attributed_header_tests;
+
+#[path = "framed_publications.rs"]
+mod framed_publications;
+pub(crate) use framed_publications::restore_framed_reading_order;

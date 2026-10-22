@@ -816,6 +816,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             tables,
         });
     }
+    crate::notice_boundaries::restore_framed_reading_order(&mut pages, rules);
     pages
 }
 

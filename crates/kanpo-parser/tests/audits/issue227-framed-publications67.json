@@ -1,0 +1,367 @@
+{
+  "issue": 227,
+  "batch": 67,
+  "native_runtime": 78,
+  "parent_head": "286b8f34e84b16a66423f12fe9b97d026b660370",
+  "status": "locally_validated_source_frame_atomicity",
+  "general_rule": {
+    "parent_HEAD": "286b8f34e84b16a66423f12fe9b97d026b660370",
+    "status": "proposal_frozen_before_implementation",
+    "principle": "An independently published, source-complete closed financial frame is an atomic reading block. Preserve original complete lines/tables, within-frame order and outside-line relative order; compact at its first original heading. Reuse existing typography/date/whole-table publication proof after a hypothetical lossless grouping. Preserve parent scope and quotations; reject intersecting claims, crossing lines/tables and incomplete native provenance. No issuer/company name, page ID, text/line count caps or fixed-point tolerances.",
+    "scope_limits": "Does not certify global ordering between tall independent frames or table cell text. Does not remove old financial issuer caps.",
+    "required_checks": [
+      "Native known6 counts and all used Word memberships before/after",
+      "Invariance over names/titles/line wrapping/affine/font IDs/frame ordering",
+      "Parent-related financial child, quotations, crossing native words/tables, invalid/unknown provenance",
+      "Whole original Word fields, line/Table multisets, character conservation and source order; doc marker coherence",
+      "Idempotence with a decreasing fragmentation measure, no arbitrary iteration limit",
+      "Full11992 changed-original review and full required gates before adoption"
+    ],
+    "gold_sha256": "6768ad6c362b5b11b712c3d04a28c7e105c6a993d3df102b2912471536e57854"
+  },
+  "new_runtime_routing": {
+    "page_id": false,
+    "company_name": false,
+    "full_title_value": false,
+    "digit_value": false,
+    "character_or_line_count_cap": false,
+    "fixed_point_distance": false,
+    "font_name": false,
+    "OCR_or_ML_result": false
+  },
+  "preserved_lexical_grammar": "Financial publication type ending in決算公告, publication date syntax, quotation punctuation and existing source witness grammar are structural domain vocabulary, not page-specific result matching.",
+  "source_manifest_sha256": "7be9582f057fced2d91a1e07782165aeb3467f8a65187ba35f0f1b983dbf91ab",
+  "TDD": {
+    "new_test_functions": 20,
+    "old_behavior_same_final_tests": {
+      "passed": 8,
+      "failed": 12,
+      "ignored": 0
+    },
+    "final_parser_unit": {
+      "passed": 1229,
+      "failed": 0,
+      "ignored": 0
+    },
+    "original_membership_counterexamples": "Adding original gold after full comparison exposed2 pre-existing membership errors. Preserve gold and failing logs. Fully annotated pages require exact equality; partial scopes require strictly more exact original groups, preserve all previously correct groups and introduce no new cross-original publication pairs. Baseline regression partitions remain distinct from original gold.",
+    "rejected_test_assumption": "Requiring refinement of the wrong baseline partition wrongly forbids source-supported reassignment between mixed old groups; rejected without relaxing runtime guards.",
+    "setup_failures": "Initial fixture/helper setup errors and OCR checks referencing missing then stale example binaries are retained separately. Rebuilt current image_sources example against unchanged native76 PDF library; final45 passed. These are not logical RED evidence.",
+    "other_controls": "Independent positive x/y scaling/translation and font-ID bijection;20 monotone shuffles; values/rows/no caps; duplicates/enclosure permutation; common parent; crossing/nonfinite/missing provenance; source roundtrip/table-copy; quotations across pages; idempotence/global table IDs; raw Word emission reversal.",
+    "old_assertions_and_fixtures": "All2404 prior test asset files unchanged, all existing source test assertions unchanged."
+  },
+  "required_gates": {
+    "source78_manifest_sha256": "7be9582f057fced2d91a1e07782165aeb3467f8a65187ba35f0f1b983dbf91ab",
+    "commands": 118,
+    "integration_targets": 109,
+    "passed": 1939,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 117,
+    "all_commands_exit0": true,
+    "snapshot_proposals_pending_original_review": false,
+    "repairs": "Only missing5 new snapshots were reviewed and added. All other required targets reuse same frozen147 source checks; rerun full archive_pages/items update-forbidden, old802 byte unchanged."
+  },
+  "related_tests": {
+    "native": 1939,
+    "Node": 94,
+    "Python": 45,
+    "total": 2078,
+    "failed": 0,
+    "ignored": 0,
+    "libraries": 4,
+    "integration_targets": 109,
+    "doctests": 4,
+    "all4_crates_examples": true
+  },
+  "original_review": {
+    "reviewer": "root engineering review; nonblind, not independent, postselection for4 newly affected pages",
+    "pages": [
+      {
+        "page": "20260721g001610162",
+        "articles": [
+          5,
+          6
+        ],
+        "source_scope": "All691 used Words equal original6 publication memberships; gold frozen before implementation.",
+        "complete_source_membership": true
+      },
+      {
+        "page": "20260803g001740154",
+        "articles": [
+          4,
+          5
+        ],
+        "source_scope": "All668 used Words equal original5 publications. Keep each merger and its two related statements together.",
+        "complete_source_membership": true
+      },
+      {
+        "page": "20260807g001780124",
+        "articles": [
+          5,
+          6
+        ],
+        "source_scope": "All622 used Words equal original6 publications. Reduction owns its related statement.",
+        "complete_source_membership": true
+      },
+      {
+        "page": "20260826g001900051",
+        "articles": [
+          3,
+          4
+        ],
+        "source_scope": "Partial lower3 financial original gold:1 to2 exact groups. Middle financial retains unrelated upper Word0. Upper judicial notices/continuations remain undersegmented; true full count not frozen.",
+        "complete_source_membership": false
+      },
+      {
+        "page": "20260930g002160119",
+        "articles": [
+          5,
+          6
+        ],
+        "source_scope": "Original has7 publications. Of5 frozen groups,3 to4 become exact. Mid-left4th financial still has unrelated73rd financial content; upper-right pair not part of frozen5. No full correctness claim.",
+        "complete_source_membership": false
+      }
+    ],
+    "scope_limits": "No unique global order certification between tall independent frames; no independent all-character transcription or global accuracy estimate."
+  },
+  "fresh11992_native": {
+    "terminal": 0,
+    "pages": 11992,
+    "changed": 5,
+    "whole_Analysis_exact": 11987,
+    "source_Words": 2403403,
+    "all_Word_fields_dimensions_layout_and_region_roles_exact": true,
+    "all_complete_Line_and_Table_JSON_multisets_exact": true,
+    "source_usage_multisets_exact": true,
+    "nonwhitespace_characters_exact": true,
+    "frozen_inputs_unchanged": true,
+    "changed_original_review_required_before_adoption": true,
+    "seconds": 432.89170675
+  },
+  "actual_default_CLI": {
+    "terminal": 0,
+    "actual_default_CLI_from_PDFs": true,
+    "fresh77_files": 11992,
+    "fresh78_files": 11992,
+    "changes": [
+      {
+        "page": "20260721g001610162",
+        "before_bytes": 6442,
+        "after_bytes": 6442
+      },
+      {
+        "page": "20260803g001740154",
+        "before_bytes": 7573,
+        "after_bytes": 7573
+      },
+      {
+        "page": "20260807g001780124",
+        "before_bytes": 6268,
+        "after_bytes": 6268
+      },
+      {
+        "page": "20260826g001900051",
+        "before_bytes": 2717,
+        "after_bytes": 2717
+      },
+      {
+        "page": "20260930g002160119",
+        "before_bytes": 7183,
+        "after_bytes": 7183
+      }
+    ],
+    "baseline77_digest": "ef45ed8bbc6436102aa0d5d13f6d4e7d23db4df10d704721498d3bc201d16a2b",
+    "final78_digest": "5f1914a820725a5b726c1a8fffa00fb51acf2af88f5924abfdfc6c215b1df6cc",
+    "all_frozen_inputs_unchanged": true,
+    "seconds": 186.9161945
+  },
+  "document_tables": {
+    "all_complete_source_Line_and_Table_values_preserved": true,
+    "all5_pages_complete_structured_row_values_preserved": true,
+    "all5_pages_nonwhitespace_text_and_styles_preserved": true,
+    "exception_to_whole_document_table_multiset": "20260930g002160119 old wrongly concatenated14 and13 row financial tables into27 rows; normalization restores two original source tables. All rows/cells/order within each original table retained. Existing misownership of73rd financial remains."
+  },
+  "snapshots": {
+    "old802_unchanged": true,
+    "new": 5,
+    "total": 807,
+    "read_only_pass": true,
+    "new_outputs_are_regression_references_not_correctness_gold": true
+  },
+  "known7_required_counts": {
+    "pass": 5,
+    "fail": 2,
+    "remaining": [
+      "20260731g001730167 expected4 actual3 native image body missing",
+      "20260731h017590032 expected14 actual13 errata"
+    ],
+    "source_bound_fresh_result": "all11992_CLI_API_and_fixed30.known_required_counts"
+  },
+  "fixed30": {
+    "selection_path": ".cache/kanpo-227/broad-current74-audit51/selection-prefreeze.json",
+    "selection_sha256": "01df77c3c9ed93d8b3b50048145a59aaf68bff73f9373a09cbbaa9459c670351",
+    "selected": 30,
+    "changed_pages_in_sample": [],
+    "historical_root_review_counts": {
+      "ok": 10,
+      "minor": 5,
+      "major": 15
+    },
+    "scope": "No reselection/regrading. Final full11992 equality still required before final inheritance assertion.",
+    "all30_final_Analysis_unchanged_to77": true
+  },
+  "inherited_PDF_source": "All26 kanpo-pdf source files byte unchanged to77/76. Raw14859045 Glyph/f64 and14322 images verification inherited from native76, not rerun78. Rebuilt parser and current image_sources example, no new OCR inference or model download.",
+  "remaining": "Original issue reading order, headings/addresses/record fragments, tables, characters/source, image bodies, and old financial_enclosures character/row/distance conditions remain. No blanket generality,100%, full partial-page correctness or ML accuracy claim.",
+  "new_test_assets": [
+    {
+      "path": "crates/kanpo-parser/tests/archive/pages/20260721g00161/20260721g001610162.pdf",
+      "sha256": "212365de400428014c3a75deff1bec5173b4243c1ab9623c2e8a9c582b138ff9"
+    },
+    {
+      "path": "crates/kanpo-parser/tests/archive/pages/20260803g00174/20260803g001740154.pdf",
+      "sha256": "d1a9fc46ec6d292428ef16a856f80fbfdcfc43270ba083caf92623076bb3f37f"
+    },
+    {
+      "path": "crates/kanpo-parser/tests/archive/pages/20260807g00178/20260807g001780124.pdf",
+      "sha256": "3f447c8d95b00ffe8c1060a10cb66e9fea16971727dea5bab03aa2a7a3799764"
+    },
+    {
+      "path": "crates/kanpo-parser/tests/archive/pages/20260826g00190/20260826g001900051.pdf",
+      "sha256": "d18b10706c32c57ae15afed5be08b12b6f6f29a3580ced41e9a4c79790514ebe"
+    },
+    {
+      "path": "crates/kanpo-parser/tests/archive/pages/20260930g00216/20260930g002160119.pdf",
+      "sha256": "a041b8a121561a45f7d202c3ea1d7618c982e0b08fcd292397e668f90df7eb1a"
+    },
+    {
+      "path": "crates/kanpo-parser/tests/expected-framed-publications/20260721g001610162-gold.json",
+      "sha256": "6768ad6c362b5b11b712c3d04a28c7e105c6a993d3df102b2912471536e57854"
+    },
+    {
+      "path": "crates/kanpo-parser/tests/expected-framed-publications/20260803g001740154-baseline-memberships.json",
+      "sha256": "10980e9525e8a7ec2448fac4d2a3f7fc7af5fb760a0eb441a4ca20a28d54ffc1"
+    },
+    {
+      "path": "crates/kanpo-parser/tests/expected-framed-publications/20260803g001740154-gold.json",
+      "sha256": "89ccf270cb292e583c3c87222c5cd6a787651d15e7cf89794cec67399ae89dff"
+    },
+    {
+      "path": "crates/kanpo-parser/tests/expected-framed-publications/20260807g001780124-baseline-memberships.json",
+      "sha256": "88a2fa8646007d07874797b00d33ee5436b5307138e46756980d2e1026167c4d"
+    },
+    {
+      "path": "crates/kanpo-parser/tests/expected-framed-publications/20260807g001780124-gold.json",
+      "sha256": "fc495fa7d330895fbacd6dd18ce5561b9c761f56d424d11472cc09f2bb6842b7"
+    },
+    {
+      "path": "crates/kanpo-parser/tests/expected-framed-publications/20260826g001900051-baseline-memberships.json",
+      "sha256": "e9362d4b916ca900f61e9234dc098f9d26bf7f96b4cd3a9eaea38c0f79d37c46"
+    },
+    {
+      "path": "crates/kanpo-parser/tests/expected-framed-publications/20260826g001900051-gold.json",
+      "sha256": "576dc9d793cf6568cbb67cdd10be7fa82868975e2494e6dd35c675e1b4ac302a"
+    },
+    {
+      "path": "crates/kanpo-parser/tests/expected-framed-publications/20260930g002160119-baseline-memberships.json",
+      "sha256": "a3dce18ae880b26123e75e0aeed725859c0b953f4e4ee0fc1cd8ae2d4b85bca7"
+    },
+    {
+      "path": "crates/kanpo-parser/tests/expected-framed-publications/20260930g002160119-gold.json",
+      "sha256": "880dec8ef82004b3be8c54c27b4523c8dd3c575e251c71e3bc13d1fd7699d152"
+    },
+    {
+      "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260721g00161__20260721g001610162.pdf.snap",
+      "sha256": "7aca0f71bb2d5690e3ce08d17264cc3e50a682c972aa67b8ef8e7618b65a8c7a"
+    },
+    {
+      "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260803g00174__20260803g001740154.pdf.snap",
+      "sha256": "34887701e2368d2249ab764b90093c00532d7ce55aecae0c97fbded735f0a080"
+    },
+    {
+      "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260807g00178__20260807g001780124.pdf.snap",
+      "sha256": "4a28a86df60ed60067fa86c592e1e233b9a1d89fac6f276932302de6a828355e"
+    },
+    {
+      "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260826g00190__20260826g001900051.pdf.snap",
+      "sha256": "72bc454d5b9f47605bba24ef7a99e76d0797db5286525698e45fa59078e62b5b"
+    },
+    {
+      "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260930g00216__20260930g002160119.pdf.snap",
+      "sha256": "569b2a64bfbbc36484e44d0c5dd91b2dfd3d3525aca987f54dff21800ab50aba"
+    }
+  ],
+  "artifact_hashes": {
+    "final78-source-manifest67.json": "7be9582f057fced2d91a1e07782165aeb3467f8a65187ba35f0f1b983dbf91ab",
+    "full-final78-67/result.json": "35c1f42492b6e2e29b27df3d290fd933054208565947bf639f1fd5369002f042",
+    "full-final78-67/changes.json": "4aef657f39f8d3411de22c2fcc2b348c6b2f72958b5e375b364d3c963bf5288d",
+    "actual-CLI-all67/result.json": "525259dc086bb365e03d14f4f5b59436628acfb76c861a0cbc9f693daee0e074",
+    "final78-gates67/result.json": "0ef8ab80c56ae4626d82c2f9a048235c1df324c84a060b6ed5a788649398b841",
+    "final-lib67.log": "076239760e6cf4b9ffad5ab2d9544cbdbcff94cf189d96be3992c24d9816d695",
+    "node94-final67.log": "66b8de164b757bf84b72bf5e49d0b82a93cea84e10247f05fdd48608c2c5f037",
+    "python45-final67.log": "3869408f8e62c424b9881b934a5222b1a3f0a5d3ab56e99eabbb242933777bad",
+    "snapshot-review67.json": "0dd932af478ec214b06d8c0f8a28ab15555379e0006ca7404c0855118fc66420",
+    "document-table-review67.json": "8bf996c75752bece104688b4cb9784247f71e79468a6fecab56de2288bcdd31f",
+    "partial-membership-audit67.json": "651915bafd018ad73d5a5a3257efdb7f5b667c407b31aaee3aa27e395ed58fca",
+    "fixed30-selection-relation67.json": "4b0ebc4292805a348273e0e90c465f39cdb145ce9851031ae14cfc38b3f6b2bf",
+    "all-existing-assets-prefreeze67.json": "6b0fcdf5d10927bae933acb6aebf3543aae0ca9d6c99b034f198241a5f720ecb",
+    "all-CLI-API-result67.json": "90db93a1687a36bee65dfac5b80e1683cf0e1364776d88ceb207ee0a08585979",
+    "final-document-style-review67.json": "3fdd84df1c3d5bdbaec3699afd94d0e01b2e027eb893de25b3166c6f4c1e8b82"
+  },
+  "CI": "Local evidence here. Exact pushed-head CI captured separately in PR228 after commit.",
+  "all11992_CLI_API_and_fixed30": {
+    "terminal": 0,
+    "all11992_API_text_bytes_equal_fresh_actual_CLI": true,
+    "filename_content_digest": "5f1914a820725a5b726c1a8fffa00fb51acf2af88f5924abfdfc6c215b1df6cc",
+    "original_fixed30_all_Analysis_exact_to74": true,
+    "fixed30_count": 30,
+    "sample_reselection_or_regrading": false,
+    "known_required_counts": [
+      {
+        "page": "20260717g001600122",
+        "expected_Articles": 5,
+        "actual_Articles": 5,
+        "pass": true
+      },
+      {
+        "page": "20260721g001610162",
+        "expected_Articles": 6,
+        "actual_Articles": 6,
+        "pass": true
+      },
+      {
+        "page": "20260731g001730167",
+        "expected_Articles": 4,
+        "actual_Articles": 3,
+        "pass": false
+      },
+      {
+        "page": "20260731h017590032",
+        "expected_Articles": 14,
+        "actual_Articles": 13,
+        "pass": false
+      },
+      {
+        "page": "20260803g001740136",
+        "expected_Articles": 12,
+        "actual_Articles": 12,
+        "pass": true
+      },
+      {
+        "page": "20260804g001750060",
+        "expected_Articles": 7,
+        "actual_Articles": 7,
+        "pass": true
+      },
+      {
+        "page": "20260903g001970080",
+        "expected_Articles": 6,
+        "actual_Articles": 6,
+        "pass": true
+      }
+    ],
+    "known_required_pass": 5,
+    "known_required_fail": 2,
+    "source_frozen": true,
+    "seconds": 254.760894667
+  }
+}
