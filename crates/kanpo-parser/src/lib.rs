@@ -577,3 +577,11 @@ mod unparsed_notice_title_tests;
 
 #[cfg(test)]
 mod native_layout_relations_tests;
+
+#[cfg(test)]
+mod native_geometry_originals_tests;
+
+mod native_word_bounds;
+
+#[cfg(test)]
+mod notice_native_geometry_tests;

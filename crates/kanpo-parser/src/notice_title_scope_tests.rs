@@ -24,6 +24,7 @@ fn page() -> PageTrace {
         layout: "tiers",
         words: vec![],
         native_styles: vec![],
+        native_bounds: vec![],
         regions: vec![Region {
             role: Role::Body,
             unit: 0,

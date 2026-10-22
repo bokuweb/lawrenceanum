@@ -43,6 +43,7 @@ fn page(lines: Vec<Line>) -> PageTrace {
     let text = join_lines(&lines);
     PageTrace {
         native_styles:vec![],
+        native_bounds: vec![],
         width: 842.,
         height: 595.,
         layout: "horizontal",

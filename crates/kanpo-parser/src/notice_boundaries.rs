@@ -108,6 +108,21 @@ struct SourceLine<'a> {
     bbox: Option<Rect>,
     unquoted: bool,
 }
+fn word_bounds(page: &PageTrace, id: usize) -> Option<Rect> {
+    let w = page.words.get(id)?;
+    let compatibility = [w.x0, w.y0, w.x1, w.y1];
+    if !valid(compatibility) {
+        return None;
+    }
+    if page.native_bounds.is_empty() {
+        return Some(compatibility);
+    }
+    match page.native_bounds.get(id)? {
+        crate::trace::NativeBounds::Compatibility => Some(compatibility),
+        crate::trace::NativeBounds::Glyphs(b) => valid(*b).then_some(*b),
+        crate::trace::NativeBounds::Unknown => None,
+    }
+}
 fn source_lines(page: &PageTrace) -> Option<Vec<SourceLine<'_>>> {
     let mut seen = HashSet::new();
     let mut lines = vec![];
@@ -126,7 +141,10 @@ fn source_lines(page: &PageTrace) -> Option<Vec<SourceLine<'_>>> {
             ],
             w.raw.as_str(),
         );
-        let style = page.native_styles.get(w.id).and_then(|s| s.as_ref());
+        let style = (
+            page.native_styles.get(w.id).and_then(|s| s.as_ref()),
+            page.native_bounds.get(w.id),
+        );
         if let Some(previous) = occurrences.insert(key, style) {
             if previous != style {
                 return None;
@@ -150,7 +168,7 @@ fn source_lines(page: &PageTrace) -> Option<Vec<SourceLine<'_>>> {
                 if w.id != id || !matches!(w.status, WordStatus::Used) || !seen.insert(id) {
                     return None;
                 }
-                let b = [w.x0, w.y0, w.x1, w.y1];
+                let b = word_bounds(page, id)?;
                 if !valid(b) {
                     return None;
                 }
@@ -485,8 +503,10 @@ fn owned_frames(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -
         for (li, l) in lines.iter().enumerate() {
             let mut inside = 0;
             for &id in &l.ids {
-                let w = &page.words[id];
-                let b = [w.x0, w.y0, w.x1, w.y1];
+                let Some(b) = word_bounds(page, id) else {
+                    ambiguous = true;
+                    break;
+                };
                 if contains(frame, b) {
                     inside += 1;
                 } else if intersects(frame, b) {
