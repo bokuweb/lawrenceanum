@@ -7,6 +7,7 @@ use std::collections::BTreeSet;
 fn push(p: &mut PageTrace, text: &str, bbox: [f32; 4], font: usize) {
     let id = p.words.len();
     p.words.push(Word {
+        source_box: [bbox[0], bbox[1], bbox[2], bbox[3]],
         id,
         raw: text.into(),
         text: text.into(),

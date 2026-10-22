@@ -336,6 +336,7 @@ mod tests {
         fn push(&mut self, text: &str, b: Rect, font: usize, table: bool) {
             let id = self.words.len();
             self.words.push(Word {
+                source_box: [b[0], b[1], b[2], b[3]],
                 id,
                 x0: b[0],
                 y0: b[1],

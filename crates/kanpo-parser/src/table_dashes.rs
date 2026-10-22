@@ -486,7 +486,7 @@ mod partitioned_dash_tests {
         let mut cell = |row: usize, col: usize, text: &str, y: f32| {
             let id = words.len();
             let x = if col == 0 { 8. } else { 68. };
-            words.push(Word { id, x0: x, y0: y, x1: x + 8., y1: y + 8., raw: text.into(), text: text.into(), status: WordStatus::Used });
+            words.push(Word {source_box: [x, y, x + 8., y + 8.], id, x0: x, y0: y, x1: x + 8., y1: y + 8., raw: text.into(), text: text.into(), status: WordStatus::Used });
             TableCell {
                 row,
                 col,
@@ -501,7 +501,7 @@ mod partitioned_dash_tests {
             }
         };
         let cells = vec![cell(0, 0, "収入", 8.), cell(0, 1, "100", 8.), cell(1, 0, "費用", 28.), cell(2, 0, "合計", 48.), cell(2, 1, "200", 48.)];
-        words.push(Word { id: 5, x0: 68., y0: 28., x1: 76., y1: 36., raw: "\u{E61C}".into(), text: String::new(), status: WordStatus::Empty });
+        words.push(Word {source_box: [68., 28., 76., 36.], id: 5, x0: 68., y0: 28., x1: 76., y1: 36., raw: "\u{E61C}".into(), text: String::new(), status: WordStatus::Empty });
         let table = Table { x0: 0., y0: 0., x1: 80., y1: 60., rows: 3, cols: 2, cells };
         let units = vec![Unit::Plain(vec![Line { text: table.render(), words: Vec::new(), table: Some(table) }])];
         let grids = vec![Grid {
@@ -588,7 +588,7 @@ mod partitioned_dash_tests {
     #[test]
     fn an_existing_value_is_not_overwritten() {
         let (mut u, mut w, g) = fixture();
-        w.push(Word { id: 6, x0: 68., y0: 28., x1: 76., y1: 36., raw: "0".into(), text: "0".into(), status: WordStatus::Used });
+        w.push(Word {source_box: [68., 28., 76., 36.], id: 6, x0: 68., y0: 28., x1: 76., y1: 36., raw: "0".into(), text: "0".into(), status: WordStatus::Used });
         table(&mut u).cells.push(TableCell {
             row: 1,
             col: 1,
@@ -772,6 +772,7 @@ mod plain_numeric_dash_tests {
         ] {
             let id = words.len();
             words.push(Word {
+                source_box: [x0, y0, x1, y0 + 8.],
                 id,
                 x0,
                 x1,
@@ -783,6 +784,7 @@ mod plain_numeric_dash_tests {
             });
         }
         words.push(Word {
+            source_box: [294., 28., 302., 36.],
             id: 5,
             x0: 294.,
             x1: 302.,
@@ -804,6 +806,7 @@ mod plain_numeric_dash_tests {
                 words[id].x1 = 318.;
             }
             words.push(Word {
+                source_box: [302., 28., 318., 36.],
                 id: 6,
                 x0: 302.,
                 x1: 318.,
@@ -877,6 +880,7 @@ mod plain_numeric_dash_tests {
                 }
                 6 => {
                     w.push(Word {
+                        source_box: [294., 28., 302., 36.],
                         id: 6,
                         x0: 294.,
                         x1: 302.,

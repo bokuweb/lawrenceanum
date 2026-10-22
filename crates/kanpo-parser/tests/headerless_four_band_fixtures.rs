@@ -1,6 +1,8 @@
+#[path = "support/legacy_analysis.rs"]
+mod legacy_analysis;
 use kanpo_parser::{Analysis,trace::{Role,WordStatus}};
 fn actual(p:&[u8])->Analysis {kanpo_parser::analyze_item(&kanpo_parser::page_inputs(p).unwrap())}
-fn canonical(a:&Analysis)->serde_json::Value{serde_json::from_str(&serde_json::to_string(a).unwrap()).unwrap()}
+fn canonical(a:&Analysis)->serde_json::Value{legacy_analysis::value(a)}
 const TARGET:&[u8]=include_bytes!("archive/pages/20261001h01799/20261001h017990003.pdf");
 const BASE:&str=include_str!("expected/headerless_four_bands/20261001h017990003.analysis.json");
 const EXPECT:&str=include_str!("expected/headerless_four_bands/expected-bands.json");

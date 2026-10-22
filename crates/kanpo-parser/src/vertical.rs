@@ -5887,7 +5887,7 @@ mod raised_section_label_tests {
     fn fixture() -> (Vec<Unit>, Vec<Word>) {
         let words = [(500.,480.,509.,545.,"官庁事項"),(484.,428.,492.,501.,"関東地方整備局公示"),(525.,528.,539.,668.,"官庁報告"),
         ]
-            .into_iter().enumerate().map(|(id,(x0,y0,x1,y1,text))| Word{id,x0,y0,x1,y1,raw:text.into(),text:text.into(),status:WordStatus::Used,
+            .into_iter().enumerate().map(|(id,(x0,y0,x1,y1,text))| Word{source_box: [x0, y0, x1, y1],id,x0,y0,x1,y1,raw:text.into(),text:text.into(),status:WordStatus::Used,
         }).collect();
         let units=vec![Unit::Plain(vec![Line::text("官庁事項".into(),vec![0]),Line::text("関東地方整備局公示".into(),vec![1]),
             ]), Unit::Plain(vec![Line::text("官庁報告".into(),vec![2])]),

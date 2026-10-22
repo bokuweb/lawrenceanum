@@ -58,6 +58,7 @@ use crate::trace::{
 fn put(p: &mut PageTrace, text: &str, b: [f32; 4], font: usize) -> Line {
     let id = p.words.len();
     p.words.push(Word {
+        source_box: [b[0], b[1], b[2], b[3]],
         id,
         raw: text.into(),
         text: text.into(),

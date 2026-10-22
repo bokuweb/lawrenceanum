@@ -1,14 +1,12 @@
+#[path = "support/legacy_analysis.rs"]
+mod legacy_analysis;
 #[path = "support/expected_article_partitions.rs"]
 mod expected_article_partitions;
 use serde_json::Value;
 fn actual(p: &[u8]) -> Value {
-    serde_json::from_str(
-        &serde_json::to_string(&kanpo_parser::analyze_item(
-            &kanpo_parser::page_inputs(p).unwrap(),
-        ))
-        .unwrap(),
-    )
-    .unwrap()
+    legacy_analysis::value(&kanpo_parser::analyze_item(
+        &kanpo_parser::page_inputs(p).unwrap(),
+    ))
 }
 #[test]
 fn page_20260803g001740151() {

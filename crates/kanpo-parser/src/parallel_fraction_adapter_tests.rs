@@ -32,6 +32,7 @@ fn signature(units: &[Unit]) -> Vec<Signature> {
 const EXPECTED: &str = "各発行対象国債の額面金額×(各発行対象国債の利率/100)×(１/２)";
 fn word(id: usize, text: &str, b: [f32; 4]) -> Word {
     Word {
+        source_box: [b[0], b[1], b[2], b[3]],
         id,
         raw: text.into(),
         text: text.into(),

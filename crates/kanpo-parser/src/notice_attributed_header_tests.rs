@@ -6,6 +6,7 @@ fn push(page: &mut PageTrace, fields: &[(&str, Rect, usize)]) {
     for &(text, b, font) in fields {
         let id = page.words.len();
         page.words.push(Word {
+            source_box: [b[0], b[1], b[2], b[3]],
             id,
             raw: text.into(),
             text: text.into(),

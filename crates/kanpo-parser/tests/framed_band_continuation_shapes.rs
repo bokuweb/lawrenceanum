@@ -8,7 +8,7 @@ mod trace {
 #[path = "../src/framed_band_continuations.rs"]
 mod candidate;
 use trace::*;use lines::*;
-fn w(id:usize,text:&str,x:f32,y:f32,len:f32)->Word{Word{id,x0:x,x1:x+8.,y0:y,y1:y+len,raw:text.into(),text:text.into(),status:WordStatus::Used}}
+fn w(id:usize,text:&str,x:f32,y:f32,len:f32)->Word{Word{source_box: [x, y, x+8., y+len],id,x0:x,x1:x+8.,y0:y,y1:y+len,raw:text.into(),text:text.into(),status:WordStatus::Used}}
 fn fixture()->(Vec<Unit>,Vec<Word>,PageRules){
  let mut words=Vec::new();let mut after=Vec::new();let mut tail=Vec::new();
  for (i,text)in["（項目）","第一項の規定","本文その二","本文その三","本文その四","（条件（内側"].iter().enumerate(){words.push(w(i,text,106.-i as f32*12.,83.,152.));after.push(Line::text(text.to_string(),vec![i]));}

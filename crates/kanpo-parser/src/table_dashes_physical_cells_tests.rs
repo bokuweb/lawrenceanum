@@ -3,6 +3,7 @@ use crate::grid::{Grid, GridCell};
 
 fn setup() -> (Vec<Unit>, Vec<Word>, Vec<Grid>) {
     let w = |id, x: f32, y: f32, raw: &str, status| Word {
+        source_box: [x, y, x + 8., y + 8.],
         id,
         x0: x,
         y0: y,

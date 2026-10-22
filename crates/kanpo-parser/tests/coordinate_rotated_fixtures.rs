@@ -1,3 +1,5 @@
+#[path = "support/legacy_analysis.rs"]
+mod legacy_analysis;
 use kanpo_parser::{analyze_item, page_inputs, trace::WordStatus};
 use serde_json::{json, Value};
 const P: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/archive/expected-coordinate-rotated");
@@ -87,7 +89,7 @@ fn source_ids_raw_geometry_and_prior_owners_remain_exact() {
             assert_eq!(owners, 1);
         } else {
             assert_eq!(
-                serde_json::from_str::<Value>(&serde_json::to_string(w).unwrap()).unwrap(),
+                legacy_analysis::value(w),
                 *b
             );
         }
@@ -142,7 +144,7 @@ fn nearby_noncoordinate_and_already_correct_horizontal_tables_are_unchanged() {
         )
         .unwrap();
         assert_eq!(
-            serde_json::from_str::<Value>(&serde_json::to_string(&a).unwrap()).unwrap(),
+            legacy_analysis::value(&a),
             before,
             "all Analysis negative {page}"
         );

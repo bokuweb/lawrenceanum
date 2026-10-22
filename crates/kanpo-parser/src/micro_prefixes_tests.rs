@@ -1,5 +1,5 @@
 use super::*;
-fn w(id:usize, raw:&str,text:&str)->Word { Word{id,raw:raw.into(),text:text.into(),x0:0.,y0:0.,x1:80.,y1:8.,status:WordStatus::Used} }
+fn w(id:usize, raw:&str,text:&str)->Word { Word{source_box: [0., 0., 80., 8.],id,raw:raw.into(),text:text.into(),x0:0.,y0:0.,x1:80.,y1:8.,status:WordStatus::Used} }
 fn run(text:&str, ws:&mut[Word])->Vec<Unit> {let mut u=vec![Unit::Plain(vec![Line::text(text.into(),ws.iter().map(|w|w.id).collect())])];restore(&mut u,ws);u}
 fn text(u:&[Unit])->&str {&all_lines(u)[0].text}
 #[test] fn numeric_suffix_is_inserted_without_rebuilding_repaired_line(){

@@ -5,6 +5,7 @@ fn seed() -> (Vec<trace::Unit>, Vec<trace::Word>, crate::lines::PageRules) {
     for (r, label) in ["流動資産", "固定資産", "資産合計"].iter().enumerate() {
         let id = words.len();
         words.push(trace::Word {
+            source_box: [4., 5. + r as f32 * 20., 36., 13. + r as f32 * 20.],
             id,
             x0: 4.,
             y0: 5. + r as f32 * 20.,
@@ -32,6 +33,7 @@ fn seed() -> (Vec<trace::Unit>, Vec<trace::Word>, crate::lines::PageRules) {
             let id = words.len();
             let value = format!("{}", 100 + r * 100 + c);
             words.push(trace::Word {
+                source_box: [c as f32 * 40. + 4., r as f32 * 20. + 5., c as f32 * 40. + 20., r as f32 * 20. + 13.],
                 id,
                 x0: c as f32 * 40. + 4.,
                 y0: r as f32 * 20. + 5.,

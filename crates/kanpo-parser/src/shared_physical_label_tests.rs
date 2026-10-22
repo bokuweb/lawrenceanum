@@ -4,6 +4,7 @@ fn fixture() -> (Table, Vec<Word>) {
     let mut word = |x, y, width, text: &str| {
         let id = ws.len();
         ws.push(Word {
+            source_box: [x, y, x + width, y + 8.0],
             id,
             x0: x,
             x1: x + width,
@@ -142,6 +143,7 @@ fn the_physical_cell_can_cover_more_records_than_its_two_text_lines() {
             let y = row as f32 * 16.;
             let id = w.len();
             w.push(Word {
+                source_box: [x + 12., y + 4., x + 44., y + 12.],
                 id,
                 x0: x + 12.,
                 x1: x + 44.,

@@ -213,6 +213,7 @@ mod tests {
     use crate::trace::{Table, TableCell, WordStatus};
     fn fixture() -> (Vec<Unit>, Vec<Word>) {
         let w = |id, x0, y0, x1, y1, raw: &str, text: &str| Word {
+            source_box: [x0, y0, x1, y1],
             id,
             x0,
             y0,
@@ -329,6 +330,7 @@ mod period_tests {
     use crate::trace::WordStatus;
     fn fixture() -> (Vec<Line>, Vec<Word>) {
         let w = |id, x0, y0, x1, raw: &str, text: &str| Word {
+            source_box: [x0, y0, x1, y0 + 8.],
             id,
             x0,
             y0,

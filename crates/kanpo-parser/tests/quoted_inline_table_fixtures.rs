@@ -1,10 +1,12 @@
+#[path = "support/legacy_analysis.rs"]
+mod legacy_analysis;
 use kanpo_parser::{Analysis, model::Block};
 use serde_json::Value;
 use std::collections::{BTreeMap,BTreeSet};
 const PDF:&[u8]=include_bytes!("archive/pages/20260717g00160/20260717g001600048.pdf");
 const OLD:&str=include_str!("expected/quoted_inline_tables/20260717g001600048-before46.analysis.json");
 fn actual()->Analysis{kanpo_parser::analyze_item(&kanpo_parser::page_inputs(PDF).unwrap())}
-fn value(a:&Analysis)->Value{serde_json::from_str(&serde_json::to_string(a).unwrap()).unwrap()}
+fn value(a:&Analysis)->Value{legacy_analysis::value(a)}
 #[test]fn adjacent_before_page_all_analysis_exact(){let p=include_bytes!("archive/pages/20260717g00160/20260717g001600047.pdf");let a=kanpo_parser::analyze_item(&kanpo_parser::page_inputs(p).unwrap());assert_eq!(value(&a),serde_json::from_str::<Value>(include_str!("expected/quoted_inline_tables/20260717g001600047-before46.analysis.json")).unwrap());}
 #[test]fn adjacent_after_page_all_analysis_exact(){let p=include_bytes!("archive/pages/20260717g00160/20260717g001600049.pdf");let a=kanpo_parser::analyze_item(&kanpo_parser::page_inputs(p).unwrap());assert_eq!(value(&a),serde_json::from_str::<Value>(include_str!("expected/quoted_inline_tables/20260717g001600049-before46.analysis.json")).unwrap());}
 #[test]fn all_quoted_tables_follow_ordinary_prose_and_brackets_in_original_id_order(){

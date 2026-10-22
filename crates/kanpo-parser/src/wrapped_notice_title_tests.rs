@@ -2,7 +2,7 @@
  use super::*;use crate::trace::*;
  fn source()->(Vec<Word>,Vec<Region>){
  let data=[("年度業務実績及び財務諸表に関する",100.,50.,235.,59.),("公告",100.,59.,118.,68.),("次の規定に基づき、次のとおり財務諸表を公告します。",90.,72.,330.,80.)];
- let words=data.iter().enumerate().map(|(id,(t,x,y,r,b))|Word{id,x0:*x,y0:*y,x1:*r,y1:*b,raw:t.to_string(),text:t.to_string(),status:WordStatus::Used}).collect();
+ let words=data.iter().enumerate().map(|(id,(t,x,y,r,b))|Word{source_box: [*x, *y, *r, *b],id,x0:*x,y0:*y,x1:*r,y1:*b,raw:t.to_string(),text:t.to_string(),status:WordStatus::Used}).collect();
  let lines=data.iter().enumerate().map(|(id,(t,..))|Line::text(t.to_string(),vec![id])).collect();
  (words,vec![Region{role:Role::Body,unit:0,part:0,lines}]) }
  fn no(f:impl FnOnce(&mut Vec<Word>,&mut Vec<Region>)){let(mut w,mut r)=source();f(&mut w,&mut r);assert!(prefixes(&w,&r,"公告").is_empty());}

@@ -1,7 +1,9 @@
+#[path = "support/legacy_analysis.rs"]
+mod legacy_analysis;
 use serde_json::Value;
 fn analyze(p: &[u8]) -> Value {
     let a = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(p).unwrap());
-    serde_json::from_str(&serde_json::to_string(&a).unwrap()).unwrap()
+    legacy_analysis::value(&a)
 }
 const P163: &[u8] = include_bytes!("archive/pages/20260723g00163/20260723g001630002.pdf");
 const P172: &[u8] = include_bytes!("archive/pages/20260731g00172/20260731g001720008.pdf");

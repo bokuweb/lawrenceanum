@@ -1,3 +1,5 @@
+#[path = "support/legacy_analysis.rs"]
+mod legacy_analysis;
 use kanpo_parser::{analyze_item,page_inputs};
 fn analyzed(page:&str)->kanpo_parser::Analysis {
     let bytes: &[u8] = match page {
@@ -34,7 +36,7 @@ fn all_other_words_and_the_already_supported_roman_goals_remain_exact() {
             "20260730g001710050" => include_str!("archive/expected-roman-one/20260730g001710050-before.json"),
             _ => unreachable!(),
         }).unwrap();
-        let new:serde_json::Value=serde_json::from_str(&serde_json::to_string(&a).unwrap()).unwrap();
+        let new:serde_json::Value=legacy_analysis::value(&a);
         for (i,(b,n)) in old["words"].as_array().unwrap().iter().zip(new["pages"][0]["words"].as_array().unwrap()).enumerate(){
             for k in ["id","raw","x0","x1","y0","y1"] {assert_eq!(b[k],n[k],"{page} word{i} {k}");}
             if i!=id {assert_eq!(b,n,"unchanged word{page}/{i}");}

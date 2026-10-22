@@ -1,3 +1,5 @@
+#[path = "support/legacy_analysis.rs"]
+mod legacy_analysis;
 #[test]
 fn fifty_coordinate_pairs_restore_three_verified_symbols_and_preserve_source_ownership() {
     use kanpo_parser::trace::WordStatus;
@@ -135,7 +137,7 @@ fn rotated_trace_retains_exact_numeric_geometry_and_native_suffix_owners() {
         out.text.trim_end(),
         include_str!("archive/expected-coordinate-symbols/20260717h017500006.txt").trim_end()
     );
-    let trace: serde_json::Value = serde_json::from_str(&serde_json::to_string(&out.pages[0]).unwrap()).unwrap();
+    let trace: serde_json::Value = legacy_analysis::value(&out.pages[0]);
     let expected: serde_json::Value = serde_json::from_str(include_str!("archive/expected-coordinate-rotated/20260717h017500006-page.json")).unwrap();
     assert_eq!(trace, expected);
     for symbol in ['°', '′', '″'] { assert_eq!(out.text.matches(symbol).count(), 46); }

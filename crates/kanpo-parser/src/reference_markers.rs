@@ -418,6 +418,7 @@ mod tests {
     use crate::trace::Table;
     fn word(id: usize, raw: &str, text: &str, x: f32, y: f32) -> Word {
         Word {
+            source_box: [x, y, x + 8., y + 8.],
             id,
             raw: raw.into(),
             text: text.into(),

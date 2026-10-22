@@ -2,6 +2,7 @@ use super::*;
 use scraper::Html;
 fn word(id: usize, text: &str, b: [f32; 4]) -> Word {
     Word {
+        source_box: [b[0], b[1], b[2], b[3]],
         id,
         x0: b[0],
         y0: b[1],

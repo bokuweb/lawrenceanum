@@ -8,6 +8,7 @@ struct Case {
 fn add(words: &mut Vec<Word>, text: &str, x: f32, y: f32, end: f32) -> usize {
     let id = words.len();
     words.push(Word {
+        source_box: [x, y, x + 8.0, end],
         id,
         x0: x,
         y0: y,
@@ -616,6 +617,7 @@ fn real_native_unit_partition_preserves_all_original_record_ids() {
             _ => panic!("unknown source status"),
         };
         ws.push(Word {
+            source_box: [f("x0"), f("y0"), f("x1"), f("y1")],
             id: w["id"].as_u64().unwrap() as usize,
             x0: f("x0"),
             y0: f("y0"),
@@ -698,6 +700,7 @@ fn ghost_source_case(status: WordStatus, raw: &str, text: &str, bbox: [f32; 4]) 
     let mut c = case();
     let id = c.words.len();
     c.words.push(Word {
+        source_box: [bbox[0], bbox[1], bbox[2], bbox[3]],
         id,
         x0: bbox[0],
         y0: bbox[1],

@@ -1,9 +1,53 @@
+#[path = "support/legacy_analysis.rs"]
+mod legacy_analysis;
 use serde_json::Value;
 fn analyze(pdf: &[u8]) -> Value {
     let a = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(pdf).unwrap());
-    serde_json::from_str(&serde_json::to_string(&a).unwrap()).unwrap()
+    legacy_analysis::value(&a)
 }
 const PDF: &[u8] = include_bytes!("archive/pages/20260831g00194/20260831g001940091.pdf");
+#[test]
+fn source_boxes_preserve_original_XHTML_occurrences_in_real_orientations() {
+    let pdfs: &[&[u8]] = &[
+        PDF,
+        include_bytes!("archive/pages/20260723g00163/20260723g001630002.pdf"),
+        include_bytes!("archive/pages/20260731g00172/20260731g001720008.pdf"),
+        include_bytes!("archive/pages/20260731h01759/20260731h017590032.pdf"),
+        include_bytes!("archive/pages/20260918h01793/20260918h017930032.pdf"),
+    ];
+    for pdf in pdfs {
+        let input = kanpo_parser::page_inputs(pdf).unwrap();
+        let analysis = kanpo_parser::analyze_item(&input);
+        for (source, page) in input.iter().zip(&analysis.pages) {
+            let html = scraper::Html::parse_document(&source.xhtml);
+            let mut expected: Vec<_> = html
+                .select(&scraper::Selector::parse("word").unwrap())
+                .map(|word| {
+                    let b = ["xmin", "ymin", "xmax", "ymax"].map(|name| {
+                        word.value().attr(name).unwrap().parse::<f32>().unwrap().to_bits()
+                    });
+                    (word.text().collect::<String>(), b)
+                })
+                .collect();
+            let mut actual: Vec<_> = page.words.iter()
+                .map(|word| (word.raw.clone(), word.source_box.map(f32::to_bits)))
+                .collect();
+            expected.sort();
+            actual.sort();
+            assert_eq!(actual, expected, "raw occurrence text and all original f32 bits");
+        }
+    }
+}
+
+#[test]
+fn serialized_source_box_retains_coordinates_before_vertical_display_correction() {
+    let xhtml = "<page width=\"595\" height=\"842\"><word xMin=\"100\" yMin=\"100\" xMax=\"108\" yMax=\"180\">縦書きの本文です</word></page>";
+    let a = kanpo_parser::analyze(xhtml);
+    assert_eq!(a.pages[0].words[0].source_box, [100., 100., 108., 180.]);
+    let v: Value = serde_json::from_str(&serde_json::to_string(&a).unwrap()).unwrap();
+    assert_eq!(v["pages"][0]["words"][0]["source_box"], serde_json::json!([100., 100., 108., 180.]));
+    assert_ne!(a.pages[0].words[0].y0, 100.);
+}
 #[test]
 fn Japan1_unicode_rescue_is_not_reinterpreted_as_untagged_identity_cid() {
     let a = analyze(PDF);

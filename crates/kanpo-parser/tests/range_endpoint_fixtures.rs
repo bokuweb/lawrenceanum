@@ -1,10 +1,12 @@
+#[path = "support/legacy_analysis.rs"]
+mod legacy_analysis;
 
 use kanpo_parser::{Analysis,trace::WordStatus};use serde_json::Value;
 const PDF:&[u8]=include_bytes!("archive/pages/20260930g00215/20260930g002150030.pdf");
 const BEFORE:&str=include_str!("expected/range_endpoints/20260930g002150030-before43.json");
 const PAIRS:&str=include_str!("expected/range_endpoints/original-four-pairs.json");
 fn actual(p:&[u8])->Analysis{kanpo_parser::analyze_item(&kanpo_parser::page_inputs(p).unwrap())}
-fn value(a:&Analysis)->Value{serde_json::from_str(&serde_json::to_string(a).unwrap()).unwrap()}
+fn value(a:&Analysis)->Value{legacy_analysis::value(a)}
 #[test]fn four_original_range_endpoints_have_exact_text_roles_and_original_source_ids(){
  let a=actual(PDF);let p=&a.pages[0];let expected=[("（９）〜（２１）　［略］",165,149,"（２","１）"),("（８）〜（２０）　［同左］",71,61,"（２","０）"),("（９）〜（１７）　［略］",159,147,"（１","７）"),("（８）〜（１６）　［同左］",67,60,"（１","６）")];
  for(t,left,right,l,r)in expected{
@@ -60,7 +62,7 @@ fn all_twelve_original_pages_thirtyfour_pairs_keep_source_glyph_ids_owners_and_c
    for id in [l,r]{
     let w=&a.pages[0].words[id];let ns:Vec<_>=nativewords.iter().filter(|n|n.text==w.raw&&[n.x_min,n.y_min,n.x_max,n.y_max].iter().zip([w.x0,w.y0,w.x1,w.y1]).all(|(x,y)|(x-y as f64).abs()<0.0002)).collect();assert_eq!(ns.len(),1,"{page} Word{id} native mapping");
     let g=pair["original_native_Glyphs"][if id==l{0}else{1}].clone();let gid=g["id"].as_u64().unwrap()as usize;assert!(ns[0].glyphs.contains(&gid));
-    let ng:Value=serde_json::from_str(&serde_json::to_string(&native[0].glyphs[gid]).unwrap()).unwrap();let mut expected=g.as_object().unwrap().clone();expected.remove("id");expected.remove("font_descriptor");assert_eq!(ng,Value::Object(expected));
+    let ng:Value=legacy_analysis::value(&native[0].glyphs[gid]);let mut expected=g.as_object().unwrap().clone();expected.remove("id");expected.remove("font_descriptor");assert_eq!(ng,Value::Object(expected));
    }
    let ri=pair["prefix_owner"]["region"].as_u64().unwrap()as usize;let li=pair["prefix_owner"]["line"].as_u64().unwrap()as usize;
    let owner=&p["regions"][ri]["lines"][li];

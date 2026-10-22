@@ -83,6 +83,7 @@ impl Fixture {
     fn put(&mut self, text: &str, b: Rect, font: usize, size: f64) -> usize {
         let id = self.words.len();
         self.words.push(Word {
+            source_box: [b[0], b[1], b[2], b[3]],
             id,
             raw: text.into(),
             text: text.into(),

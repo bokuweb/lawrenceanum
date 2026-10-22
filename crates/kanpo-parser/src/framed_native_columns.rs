@@ -147,6 +147,7 @@ mod tests {
                 text: text.clone(),
             });
             f.words.push(Word {
+                source_box: [old[0], old[1], old[2], old[3]],
                 id,
                 x0: old[0],
                 y0: old[1],

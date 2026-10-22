@@ -1,3 +1,5 @@
+#[path = "support/legacy_analysis.rs"]
+mod legacy_analysis;
 #[test]
 fn complete_wide_record_precedes_following_notice() {
     let a = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(include_bytes!("archive/pages/20261014h01807/20261014h018070005.pdf")).unwrap());
@@ -48,7 +50,7 @@ fn preserves_mixed_negative_20260928h017960004() {
     let a = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(include_bytes!("archive/pages/20260928h01796/20260928h017960004.pdf")).unwrap());
     let before: serde_json::Value = serde_json::from_str(include_str!("archive/expected-ship-order/20260928h017960004.json")).unwrap();
     assert_eq!(a.text, before["text"].as_str().unwrap());
-    let trace: serde_json::Value = serde_json::from_str(&serde_json::to_string(&a.pages[0]).unwrap()).unwrap();
+    let trace: serde_json::Value = legacy_analysis::value(&a.pages[0]);
     assert!(
         trace == before,
         "mixed-layout negative must retain the entire trace, source IDs and original ownership"
@@ -59,7 +61,7 @@ fn pesticide_records_preserve_all_source_words_and_the_complete_composed_trace()
     let a = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(include_bytes!("archive/pages/20260824h01774/20260824h017740004.pdf")).unwrap());
     let before: serde_json::Value = serde_json::from_str(include_str!("archive/expected-ship-order/20260824h017740004.json")).unwrap();
     assert_eq!(a.text, before["text"].as_str().unwrap());
-    let trace: serde_json::Value = serde_json::from_str(&serde_json::to_string(&a.pages[0]).unwrap()).unwrap();
+    let trace: serde_json::Value = legacy_analysis::value(&a.pages[0]);
     assert!(
         trace == before,
         "six complete pesticide tables must retain the exact composed trace and original source metadata"
@@ -75,7 +77,7 @@ fn ship_record_has_four_exact_cells_and_preserves_all_source_words() {
     let a = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(include_bytes!("archive/pages/20261014h01807/20261014h018070005.pdf")).unwrap());
     let p = &a.pages[0];
     let before: serde_json::Value = serde_json::from_str(include_str!("archive/expected-ship-order/20261014h018070005.json")).unwrap();
-    let word_json: serde_json::Value = serde_json::from_str(&serde_json::to_string(&p.words).unwrap()).unwrap();
+    let word_json: serde_json::Value = legacy_analysis::value(&p.words);
     assert!(
         word_json == before["words"],
         "all IDs, raw text, normalized text, statuses and bboxes remain exact"
@@ -103,7 +105,7 @@ fn ship_record_has_four_exact_cells_and_preserves_all_source_words() {
         .collect();
     let actual: Vec<_> = tables
         .iter()
-        .map(|t| serde_json::from_str::<serde_json::Value>(&serde_json::to_string(t).unwrap()).unwrap())
+        .map(|t| legacy_analysis::value(t))
         .collect();
     assert!(source_tables.iter().all(|t| actual.contains(t)), "all existing physical tables remain exact");
     assert_eq!(tables.len(), source_tables.len() + 1);

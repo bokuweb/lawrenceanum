@@ -1,9 +1,11 @@
+#[path = "support/legacy_analysis.rs"]
+mod legacy_analysis;
 use kanpo_parser::{Analysis,trace::Table};
 const PDF:&[u8]=include_bytes!("archive/pages/20261020g00230/20261020g002300011.pdf");
 const BASE:&str=include_str!("expected/headed_data_columns/20261020g002300011.json");
 const EXPECT:&str=include_str!("expected/headed_data_columns/expected-17-records.json");
 fn actual(p:&[u8])->Analysis{kanpo_parser::analyze_item(&kanpo_parser::page_inputs(p).unwrap())}
-fn value(a:&Analysis)->serde_json::Value{serde_json::from_str(&serde_json::to_string(a).unwrap()).unwrap()}
+fn value(a:&Analysis)->serde_json::Value{legacy_analysis::value(a)}
 fn expected()->Vec<Vec<String>>{serde_json::from_str(EXPECT).unwrap()}
 fn find_table<'a>(a:&'a Analysis,code:&str)->Option<&'a Table>{a.pages.iter().flat_map(|p|&p.regions).flat_map(|r|&r.lines).filter_map(|l|l.table.as_ref()).find(|t|t.cells.iter().any(|c|c.col==0&&c.text==code))}
 #[test]fn all_seventeen_original_records_have_five_exact_fields(){

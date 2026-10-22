@@ -4,6 +4,7 @@ use std::collections::{BTreeSet, HashSet};
 fn put(p: &mut PageTrace, t: &str, b: [f32; 4], font: Option<usize>) {
     let id = p.words.len();
     p.words.push(Word {
+        source_box: [b[0], b[1], b[2], b[3]],
         id,
         raw: t.into(),
         text: t.into(),

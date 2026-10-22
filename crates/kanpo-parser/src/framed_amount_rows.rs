@@ -261,6 +261,7 @@ mod tests {
             (3, 160., 28., "23,456"),
         ] {
             w.push(Word {
+                source_box: [x, y, if id < 2 { x + 48. } else { x + 32. }, y + 8.],
                 id,
                 x0: x,
                 y0: y,

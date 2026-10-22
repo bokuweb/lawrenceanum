@@ -1,3 +1,5 @@
+#[path = "support/legacy_analysis.rs"]
+mod legacy_analysis;
 use kanpo_parser::{analyze_item, page_inputs};
 fn source(p: &[u8]) -> kanpo_parser::Analysis {
     analyze_item(&page_inputs(p).unwrap())
@@ -94,7 +96,7 @@ fn actual_blank_amount_triangles_stay_in_their_own_rows() {
 }
 
 fn as_json(a: kanpo_parser::Analysis) -> serde_json::Value {
-    serde_json::from_str(&serde_json::to_string(&a).unwrap()).unwrap()
+    legacy_analysis::value(&a)
 }
 #[test]
 fn actual_explanatory_triangle_must_not_negate_positive_amount() {

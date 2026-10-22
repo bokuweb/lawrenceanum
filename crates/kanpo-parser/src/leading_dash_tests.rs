@@ -9,6 +9,7 @@ fn fixture() -> (Vec<Unit>, Vec<Word>, Vec<Grid>) {
             let (x, y) = (col as f32 * 40. + 8., (row + 2) as f32 * 20. + 5.);
             let text = format!("{}", 100 + row + col * 100);
             words.push(Word {
+                source_box: [x, y, x + 8., y + 8.],
                 id,
                 x0: x,
                 y0: y,
@@ -37,6 +38,7 @@ fn fixture() -> (Vec<Unit>, Vec<Word>, Vec<Grid>) {
             let id = words.len();
             let (x, y) = (col as f32 * 40. + 8., row as f32 * 20. + 5.);
             words.push(Word {
+                source_box: [x, y, x + 8., y + 8.],
                 id,
                 x0: x,
                 y0: y,

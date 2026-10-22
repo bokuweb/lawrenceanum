@@ -1,8 +1,10 @@
+#[path = "support/legacy_analysis.rs"]
+mod legacy_analysis;
 use kanpo_parser::{analyze_item,page_inputs};
 use serde_json::Value;
 const P:&str=concat!(env!("CARGO_MANIFEST_DIR"),"/tests/expected/checkbox");
 fn analyze(page:&str)->kanpo_parser::Analysis{let p=std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/archive/pages").join(&page[..14]).join(format!("{page}.pdf"));analyze_item(&page_inputs(&std::fs::read(p).unwrap()).unwrap())}
-fn value(a:&kanpo_parser::Analysis)->Value{serde_json::from_slice(&serde_json::to_vec(a).unwrap()).unwrap()}
+fn value(a:&kanpo_parser::Analysis)->Value{legacy_analysis::value(a)}
 
 #[test]
 fn instructions_keep_both_printed_checkbox_squares_in_their_original_lines(){let a=analyze("20260723g001630102");assert_eq!(a.text.lines().next().unwrap(),"注１　該当する□にレ印を付けること。");assert!(a.text.lines().any(|l|l=="□にレ印を付けること。なお、価額競争実施指針の参加者の資格の有の欄に記載した場"));for id in [2,48]{assert_eq!(a.pages[0].words[id].raw,"\u{e712}");assert_eq!(a.pages[0].words[id].text,"□");assert_eq!(a.pages[0].words[id].status,kanpo_parser::trace::WordStatus::Used);}}

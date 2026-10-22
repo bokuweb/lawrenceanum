@@ -584,6 +584,7 @@ mod tests {
             let mut add = |text: &str, raw: &str, x: f32, width: f32| {
                 let id = words.len();
                 words.push(Word {
+                    source_box: [x, y, x + width, y + 8.],
                     id,
                     x0: x,
                     y0: y,
@@ -838,6 +839,7 @@ mod tests {
                     _ => {
                         let id = w.len();
                         w.push(Word {
+                            source_box: [55., 5., 63., 13.],
                             id,
                             x0: 55.,
                             y0: 5.,

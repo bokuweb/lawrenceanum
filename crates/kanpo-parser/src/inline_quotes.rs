@@ -205,6 +205,7 @@ mod tests {
     use super::*;
     fn w(id: usize, raw: &str, text: &str) -> Word {
         Word {
+            source_box: [0., 0., 8., 8.],
             id,
             raw: raw.into(),
             text: text.into(),

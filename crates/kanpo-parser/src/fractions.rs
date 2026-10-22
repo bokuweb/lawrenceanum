@@ -321,7 +321,7 @@ fn wrapped_fraction_line(
         && x1-x0<=right-left+em*1.5) { return None; }
     let virtual_id=usize::MAX;
     if by_id.contains_key(&virtual_id) { return None; }
-    let virtual_word=Word {id:virtual_id,x0:left-em,x1:left-em*0.25,
+    let virtual_word=Word {source_box: [left-em, center(body)-em/2.0, left-em*0.25, center(body)+em/2.0],id:virtual_id,x0:left-em,x1:left-em*0.25,
         y0:center(body)-em/2.0,y1:center(body)+em/2.0,
         raw:"×".into(),text:"×".into(),status:crate::trace::WordStatus::Used};
     let mut virtual_words: HashMap<usize,&Word>=by_id.iter().map(|(id,w)|(*id,*w)).collect();
@@ -346,6 +346,7 @@ mod tests {
 
     fn word(id: usize, x0: f32, x1: f32, y: f32, text: &str) -> Word {
         Word {
+            source_box: [x0, y, x1, y + 8.184],
             id,
             x0,
             x1,

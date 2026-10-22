@@ -1,3 +1,5 @@
+#[path = "support/legacy_analysis.rs"]
+mod legacy_analysis;
 use kanpo_parser::{analyze_item, page_inputs};
 use serde_json::Value;
 fn pdf(page:&str)->&'static[u8]{match page{"20260828g001920029"=>include_bytes!("archive/pages/20260828g00192/20260828g001920029.pdf"),
@@ -14,7 +16,7 @@ fn expected(page:&str)->&'static str{match page{"20260828g001920029"=>include_st
 "20260930g002150377"=>include_str!("expected/micro_liter/20260930g002150377-baseline36.json"),_=>panic!("unknown fixture")}}
 fn analyze(page:&str)->kanpo_parser::Analysis{analyze_item(&page_inputs(pdf(page)).unwrap())}
 fn value(a: &kanpo_parser::Analysis) -> Value {
-    serde_json::from_slice(&serde_json::to_vec(a).unwrap()).unwrap()
+    legacy_analysis::value(a)
 }
 #[test]
 fn original_three_micro_liter_prefixes_keep_their_unique_used_word_owners() {

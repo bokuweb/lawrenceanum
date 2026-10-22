@@ -8,6 +8,7 @@ fn fixture() -> (Vec<Unit>, Vec<Word>) {
     let mut add = |text: &str, raw: &str, x0: f32, y0: f32, x1: f32, y1: f32, status: WordStatus| {
         let id = words.len();
         words.push(Word {
+            source_box: [x0, y0, x1, y1],
             id,
             x0,
             y0,
@@ -161,6 +162,7 @@ fn independent_prose_bridging_full_width_blank_rejects_matrix() {
     let (mut u, mut w) = fixture();
     let id = w.len();
     w.push(Word {
+        source_box: [80., 112., 520., 155.],
         id,
         x0: 80.,
         y0: 112.,
@@ -218,6 +220,7 @@ fn unknown_private_glyph_is_not_restored_or_assigned_to_a_cell() {
     let (mut u, mut w) = fixture();
     let id = w.len();
     w.push(Word {
+        source_box: [216., 90., 220., 98.],
         id,
         x0: 216.,
         y0: 90.,
@@ -239,6 +242,7 @@ fn raw_dash_overlapping_an_existing_value_rejects_the_entire_candidate() {
     let (u, mut w) = fixture();
     let id = w.len();
     w.push(Word {
+        source_box: [216., 90., 220., 98.],
         id,
         x0: 216.,
         y0: 90.,
@@ -262,6 +266,7 @@ fn two_raw_dashes_in_one_amount_slot_reject_the_entire_candidate() {
     for _ in 0..2 {
         let id = w.len();
         w.push(Word {
+            source_box: [216., 90., 220., 98.],
             id,
             x0: 216.,
             y0: 90.,
@@ -299,6 +304,7 @@ fn numeric_parts_are_validated_in_native_x_order_not_source_id_order() {
     let geometry = infer(&words, &owners).unwrap();
     let id = words.len();
     words.push(Word {
+        source_box: [10., 0., 14., 8.],
         id,
         x0: 10.,
         y0: 0.,
@@ -309,6 +315,7 @@ fn numeric_parts_are_validated_in_native_x_order_not_source_id_order() {
         status: WordStatus::Used,
     });
     words.push(Word {
+        source_box: [13., 0., 21., 8.],
         id: id + 1,
         x0: 13.,
         y0: 0.,
@@ -319,6 +326,7 @@ fn numeric_parts_are_validated_in_native_x_order_not_source_id_order() {
         status: WordStatus::Used,
     });
     words.push(Word {
+        source_box: [18., 0., 30., 8.],
         id: id + 2,
         x0: 18.,
         y0: 0.,

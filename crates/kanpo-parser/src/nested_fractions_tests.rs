@@ -23,6 +23,7 @@ fn fixture() -> (Vec<Unit>, Vec<Word>, Vec<(f32, f32, f32)>) {
     let words = positions
         .into_iter()
         .map(|(id, b, t)| Word {
+            source_box: [b[0], b[1], b[2], b[3]],
             id,
             x0: b[0],
             y0: b[1],

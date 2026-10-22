@@ -1,3 +1,5 @@
+#[path = "support/legacy_analysis.rs"]
+mod legacy_analysis;
 fn verify(pdf: &[u8], expected: &str, source: &str, continuation: &str, rows: usize) {
     use kanpo_parser::trace::WordStatus;
     let a = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(pdf).unwrap());
@@ -189,7 +191,7 @@ fn rotated_suffixes_restore_without_widening_original_numeric_geometry() {
         include_str!("archive/expected-coordinate-symbols/20260717h017500006.txt"),
     );
     let a = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(include_bytes!("archive/pages/20260717h01750/20260717h017500006.pdf")).unwrap());
-    let trace: serde_json::Value = serde_json::from_str(&serde_json::to_string(&a.pages[0]).unwrap()).unwrap();
+    let trace: serde_json::Value = legacy_analysis::value(&a.pages[0]);
     let expected: serde_json::Value = serde_json::from_str(include_str!("archive/expected-coordinate-rotated/20260717h017500006-page.json")).unwrap();
     assert_eq!(trace, expected, "all original Word geometry and every numeric/suffix owner stay exact");
 }

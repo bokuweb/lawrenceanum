@@ -5,6 +5,7 @@ fn fixture() -> (Vec<Word>, Vec<(f32, f32, f32)>) {
     (
         a.into_iter()
             .map(|a| Word {
+                source_box: [a.x0, a.y0, a.x1, a.y1],
                 id: a.id,
                 raw: a.raw,
                 text: a.text,

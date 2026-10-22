@@ -1,3 +1,5 @@
+#[path = "support/legacy_analysis.rs"]
+mod legacy_analysis;
 
 use kanpo_parser::{Analysis,trace::WordStatus};
 use serde_json::Value;
@@ -5,7 +7,7 @@ const PDF:&[u8]=include_bytes!("archive/pages/20260911g00203/20260911g002030083.
 const PROOF:&str=include_str!("expected/ruled_plain_dashes/original-dashes-109.json");
 const BASE:&str=include_str!("expected/ruled_plain_dashes/20260911g002030083-before42.analysis.json");
 fn actual(pdf:&[u8])->Analysis{kanpo_parser::analyze_item(&kanpo_parser::page_inputs(pdf).unwrap())}
-fn value(a:&Analysis)->Value{serde_json::from_str(&serde_json::to_string(a).unwrap()).unwrap()}
+fn value(a:&Analysis)->Value{legacy_analysis::value(a)}
 #[test]fn each_of_109_original_dash_ids_glyph_boxes_and_owner_rows_is_restored(){
  let a=actual(PDF);let p=&a.pages[0];let proof:Value=serde_json::from_str(PROOF).unwrap();
  assert_eq!(proof.as_array().unwrap().len(),109);

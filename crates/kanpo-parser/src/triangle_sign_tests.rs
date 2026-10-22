@@ -2,7 +2,7 @@ use super::*;
 fn fixture(y:f32,x:f32,neighbor:bool)->(Vec<Col>,Vec<Word>){
  let mut v=vec![(0.,0.,8.,8.184,"△"),(x,y,x+9.,y+6.138,"128"),(4.,9.848,16.,18.032,"165")];
  if neighbor {v.push((x+6.75,y,x+12.75,y+6.138,","));}
- let words:Vec<_>=v.iter().enumerate().map(|(id,(x,y,x1,y1,t))|Word{id,x0:*x,y0:*y,x1:*x1,y1:*y1,raw:t.to_string(),text:t.to_string(),status:WordStatus::Used}).collect();
+ let words:Vec<_>=v.iter().enumerate().map(|(id,(x,y,x1,y1,t))|Word{source_box: [*x, *y, *x1, *y1],id,x0:*x,y0:*y,x1:*x1,y1:*y1,raw:t.to_string(),text:t.to_string(),status:WordStatus::Used}).collect();
  let cols=v.into_iter().enumerate().map(|(id,(x,y,x1,y1,t))|Col{id,x,y,x1,y1,text:t.to_string()}).collect();(cols,words)
 }
 #[test]fn smaller_horizontal_amount_keeps_original_triangle(){let(mut c,w)=fixture(0.75,17.5,true);let t=attach_minus_signs(&mut c,&w);assert!(t.is_empty());assert_eq!(c.len(),4);assert_eq!(c[0].id,0);}

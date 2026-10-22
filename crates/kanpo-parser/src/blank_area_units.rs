@@ -244,6 +244,7 @@ mod tests {
     use crate::grid::GridCell;
     fn fixture() -> (Vec<Unit>, Vec<Word>, Vec<Grid>) {
         let word = |id, text: &str, raw: &str, x0, x1, y0| Word {
+            source_box: [x0, y0, x1, y0 + 8.],
             id,
             text: text.into(),
             raw: raw.into(),

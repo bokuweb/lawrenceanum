@@ -2,6 +2,7 @@ use super::*;
 fn word(ws: &mut Vec<Word>, x: f32, y: f32, text: &str) -> usize {
     let id = ws.len();
     ws.push(Word {
+        source_box: [x, y, x + text.chars().count() as f32 * 4., y + 8.],
         id,
         x0: x,
         y0: y,

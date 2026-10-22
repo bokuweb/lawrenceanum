@@ -1,5 +1,5 @@
 use super::*;
-fn w(id:usize,raw:&str,x0:f32,y0:f32,x1:f32,y1:f32,status:WordStatus)->Word {Word{id,raw:raw.into(),text:crate::normalize::word_text(raw),x0,y0,x1,y1,status}}
+fn w(id:usize,raw:&str,x0:f32,y0:f32,x1:f32,y1:f32,status:WordStatus)->Word {Word{source_box: [x0, y0, x1, y1],id,raw:raw.into(),text:crate::normalize::word_text(raw),x0,y0,x1,y1,status}}
 fn sample()->(Vec<Unit>,Vec<Word>){let ws=vec![w(0,"比較液。",0.,0.,32.,8.,WordStatus::Used),w(1,"Ｌ",32.,1.5,38.,7.8,WordStatus::Used),w(2,"\u{E61C}",38.05,0.,46.05,8.2,WordStatus::Empty),w(3,"グルタミン酸を加える",0.,12.,80.,20.,WordStatus::Used)];let u=vec![Unit::Plain(vec![Line::text("比較液。Ｌ".into(),vec![0,1]),Line::text("グルタミン酸を加える".into(),vec![3])])];(u,ws)}
 fn lines(u:&[Unit])->&Vec<Line>{match &u[0]{Unit::Plain(l)=>l,_=>unreachable!()}}
 fn signature(u:&[Unit],ws:&[Word])->String{serde_json::to_string(&(lines(u),ws)).unwrap()}

@@ -286,6 +286,7 @@ mod tests {
     fn fixture(left: char, right: char) -> (Vec<Unit>, Vec<Word>) {
         let words = vec![
             Word {
+                source_box: [20., 30., 44., 38.184],
                 id: 0,
                 x0: 20.,
                 y0: 30.,
@@ -296,6 +297,7 @@ mod tests {
                 status: WordStatus::Used,
             },
             Word {
+                source_box: [36., 30., 44., 38.184],
                 id: 1,
                 x0: 36.,
                 y0: 30.,
@@ -306,6 +308,7 @@ mod tests {
                 status: WordStatus::Empty,
             },
             Word {
+                source_box: [52., 30., 76., 38.184],
                 id: 2,
                 x0: 52.,
                 y0: 30.,

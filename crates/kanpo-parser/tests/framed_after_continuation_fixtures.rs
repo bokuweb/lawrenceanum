@@ -1,6 +1,8 @@
+#[path = "support/legacy_analysis.rs"]
+mod legacy_analysis;
 use kanpo_parser::{Analysis,trace::{Role,WordStatus}};
 fn actual(pdf:&[u8])->Analysis{kanpo_parser::analyze_item(&kanpo_parser::page_inputs(pdf).unwrap())}
-fn canonical(a:&Analysis)->serde_json::Value{serde_json::from_str(&serde_json::to_string(a).unwrap()).unwrap()}
+fn canonical(a:&Analysis)->serde_json::Value{legacy_analysis::value(a)}
 const PDF0:&[u8]=include_bytes!("archive/pages/20261001h01799/20261001h017990004.pdf");
 const BASE0:&str=include_str!("expected/framed_after_continuation/20261001h017990004.analysis.json");
 const PDF1:&[u8]=include_bytes!("archive/pages/20261001h01799/20261001h017990003.pdf");
