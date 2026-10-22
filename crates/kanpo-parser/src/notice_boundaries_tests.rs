@@ -702,3 +702,53 @@ fn legal_administrator_signature_requires_its_own_date_and_non_sentence_tail(){
  for end in ["。","！","？","!","?"]{let mut p=two();director_signatures(&mut p,&format!("破産管財人が行う手続を案内します{end}"));assert!(cuts(&p,&Default::default()).is_empty());}
  let mut p=two();director_signatures(&mut p,"破産管財人甲");for id in [2,7]{p.words[id].text="任意本文".into();p.words[id].raw="任意本文".into();p.regions[0].lines[id].text="任意本文".into();}assert!(cuts(&p,&Default::default()).is_empty());
 }
+
+#[test]
+fn a_line_outside_a_complete_closed_frame_cannot_make_its_root_a_prose_continuation() {
+    fn fixture() -> PageTrace {
+        let mut p = empty();
+        push(&mut p, "任意の別領域の科目", [350., 30., 450., 40.], 1);
+        push(&mut p, "任意決算公告", [100., 50., 180., 60.], 1);
+        push(&mut p, "2026年7月1日", [200., 50., 300., 60.], 2);
+        push(&mut p, "任意の本文です。", [100., 65., 300., 75.], 2);
+        push(&mut p, "代表取締役あすか", [200., 80., 300., 90.], 2);
+        p.regions[0].lines[1] = Line::text("任意決算公告 2026年7月1日".into(), vec![1, 2]);
+        p.regions[0].lines.remove(2);
+        p.text = p.regions[0]
+            .lines
+            .iter()
+            .map(|l| l.text.as_str())
+            .collect::<Vec<_>>()
+            .join("\n");
+        p.doc_text = p.text.clone();
+        p
+    }
+    for scale in [0.125, 1., 8.] {
+        let mut p = fixture();
+        for w in &mut p.words {
+            w.x0 = w.x0 * scale - 100.;
+            w.x1 = w.x1 * scale - 100.;
+            w.y0 = w.y0 * scale - 200.;
+            w.y1 = w.y1 * scale - 200.;
+        }
+        let mut r = crate::lines::PageRules::default();
+        r.enclosures = vec![[
+            90. * scale - 100.,
+            45. * scale - 200.,
+            310. * scale - 100.,
+            100. * scale - 200.,
+        ]];
+        assert_eq!(cuts(&p, &r), vec![1], "complete own frame at scale={scale}");
+    }
+    let p = fixture();
+    assert!(
+        cuts(&p, &Default::default()).is_empty(),
+        "without independent ownership the same-style continuation still abstains"
+    );
+    let mut r = crate::lines::PageRules::default();
+    r.enclosures = vec![[90., 20., 470., 100.]];
+    assert!(
+        cuts(&p, &r).is_empty(),
+        "a previous line in the same enclosure cannot be discarded"
+    );
+}

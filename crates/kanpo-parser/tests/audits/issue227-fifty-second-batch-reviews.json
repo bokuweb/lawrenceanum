@@ -1,0 +1,76 @@
+{
+  "issue": 227,
+  "batch": 52,
+  "parent_commit": "9efb26e4473d33228878c68254263234ac53c596",
+  "native_runtime_source": 75,
+  "goal_complete": false,
+  "method": "Root original-image engineering review of all5 changed scopes, not independent/blind, random30 or whole-page character/read-order accuracy.",
+  "reviewed_changed_scopes": 5,
+  "reviewed_added_boundaries": 5,
+  "rows": [
+    {
+      "page": "20260722g001620066",
+      "before": 6,
+      "after": 7,
+      "pages_equal": true,
+      "text_equal": true,
+      "original_pdf_sha256": "09fd21f9e8929d262a0c239d825a2d49fb7ec95ac5799ee72d61ed9a1946fb81",
+      "original_image_sha256": "ddef5dc84ffeac17c9ce9a6c692d4a793e5ea387f8c949fdc3ffd4418ecc79f0",
+      "reviewed_added_boundary": true,
+      "whole_page_accuracy_certified": false,
+      "note": "Printed bottom middle30th and bottom right8th financial notices are separately closed, each with its own title/date/issuer/representative and statement. New split separates the middle30th from the preceding right8th in existing reading order, retaining both entire statements."
+    },
+    {
+      "page": "20260804g001750060",
+      "before": 6,
+      "after": 7,
+      "pages_equal": true,
+      "text_equal": true,
+      "original_pdf_sha256": "7d6e3a50f3dc75fbcf18fbdf2ff16b19a9b5af83528b9da681f9e2b405452b7d",
+      "original_image_sha256": "c72830b3112ebfb923e455cd7133a92f0f8160432322ef870fd7a9e0a3598924",
+      "reviewed_added_boundary": true,
+      "whole_page_accuracy_certified": false,
+      "note": "Printed six closed financial frames below upper roster are distinct. New44th financial notice in bottom right keeps its complete original body/table. Separate original632-source gold verifies upper roster207+six frames73/71/65/75/73/68, each exactly once."
+    },
+    {
+      "page": "20260812g001800073",
+      "before": 6,
+      "after": 7,
+      "pages_equal": true,
+      "text_equal": true,
+      "original_pdf_sha256": "ebab0464c9eb4d7a3d9bbe677e59e54bd41787a2cb572b7068c46a93ddc991d9",
+      "original_image_sha256": "e44bf537c7aa6f7e05ce1171d9d0822c79a4a3f0eb39e7bc5a8710e8bc506c13",
+      "reviewed_added_boundary": true,
+      "whole_page_accuracy_certified": false,
+      "note": "Printed bottom middle55th and bottom left37th financial notices each retain their own dates, issuers, representatives and full balance sheets. New37th split agrees with its independent enclosing border; upper roster remains contextual and is not certified character-perfect."
+    },
+    {
+      "page": "20260903g001970073",
+      "before": 5,
+      "after": 6,
+      "pages_equal": true,
+      "text_equal": true,
+      "original_pdf_sha256": "8bd9d867d5e2e90524764a2114dfe074afc6034764b34168c2bc43dd42b7a927",
+      "original_image_sha256": "89f1e653773e95deed1431e8f8f61ac1fbd7a4e28d5181d7227e3ea23f4b5587",
+      "reviewed_added_boundary": true,
+      "whole_page_accuracy_certified": false,
+      "note": "Printed bottom left2nd and middle20th statements are separate independent publications with different own issuer/date/representative. New2nd split keeps its original complete statement, with all source fields and tables unchanged. Other probate/gov/ownership notices elsewhere remain outside this scope."
+    },
+    {
+      "page": "20261016g002270081",
+      "before": 5,
+      "after": 6,
+      "pages_equal": true,
+      "text_equal": true,
+      "original_pdf_sha256": "12038fc1d42e4b1f5883fe897495c136f9dac00a9e6c3dbdfed3518b17683392",
+      "original_image_sha256": "a13bad2bdd00c6de3e7be3cf17b19c772ab0e73184edb26c7d7699bf05a2590b",
+      "reviewed_added_boundary": true,
+      "whole_page_accuracy_certified": false,
+      "note": "Printed bottom middle19th financial notice and bottom left14th financial notice are separately enclosed, despite sharing address and publication date. New14th split preserves its own issuer/representative/table; amounts and source coordinates do not select a runtime exception."
+    }
+  ],
+  "original_group_gold": "Upper roster207 + six independently printed financial frames73/71/65/75/73/68=632 Used sources. Membership selected using original native bounds and printed outer frames, before candidate75 Article grouping comparison.",
+  "not_a_full_page_accuracy_claim": true,
+  "remaining_context": "Other roster, unsigned/horizontal notices, government errata and body/glyph/image defects remain outside changed scopes.",
+  "evidence_index": "issue227-validation-52.json"
+}

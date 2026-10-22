@@ -352,7 +352,10 @@ fn headings(page: &PageTrace, lines: &[SourceLine<'_>], frames: &[OwnedFrame]) -
                 });
                 if let Some((base, after, valid_tail)) = candidate {
                     let s = heading_styles(page, l, after).unwrap_or_default();
+                    // A complete owned enclosure starts a separate source scope.
+                    // Typography on a line outside it cannot prove continuation.
                     let continued = i > 0
+                        && !frames.iter().any(|f| f.first == i)
                         && lines[i - 1].line.table.is_none()
                         && styles(page, &lines[i - 1].ids).is_some_and(|p| !p.is_disjoint(&s));
                     // A malformed suffix cannot turn an ordinary prose

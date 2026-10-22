@@ -609,3 +609,6 @@ mod original_director_frames_tests;
 
 #[cfg(test)]
 mod legal_role_original_tests;
+
+#[cfg(test)]
+mod closed_frame_continuation_original_tests;

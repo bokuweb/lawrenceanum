@@ -1,4 +1,4 @@
-//! Private experiment: keep one complete closed frame on one source-coordinate basis.
+//! Keep one complete closed frame on one source-coordinate basis.
 use crate::trace::{NativeBounds, Word, WordStatus};
 use crate::vertical::Col;
 use std::collections::{HashMap, HashSet};
