@@ -78,8 +78,10 @@ for (const { name: id } of readdirSync(corpusRoot, { withFileTypes: true }).filt
       await sheet.scrollIntoViewIfNeeded();
       await expect(sheet).toHaveAttribute("data-aligned", "true");
       await expect.poll(async () => sheet.evaluate((el) => {
-        const canvas = el.querySelector("canvas")!;
-        const svg = el.querySelector("svg[data-page]") as SVGSVGElement;
+        const canvas = el.querySelector("canvas");
+        const svg = el.querySelector("svg[data-page]") as SVGSVGElement | null;
+        // IntersectionObserver による表示切り替えと PDF の描画開始を待つ。
+        if (!canvas || !svg || !canvas.width || !canvas.height) return ["PDF is not ready"];
         const ctx = canvas.getContext("2d")!;
         const sx = canvas.width / svg.viewBox.baseVal.width;
         const sy = canvas.height / svg.viewBox.baseVal.height;
