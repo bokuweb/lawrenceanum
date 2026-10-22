@@ -574,3 +574,6 @@ mod qualified_notice_title_tests;
 mod notice_title_scope_tests;
 #[cfg(test)]
 mod unparsed_notice_title_tests;
+
+#[cfg(test)]
+mod native_layout_relations_tests;

@@ -1,0 +1,101 @@
+{
+  "issue": 227,
+  "batch": 44,
+  "parent_commit": "77d268f379527d8cfe464d45242d7c244aca0396",
+  "native_runtime_source": 69,
+  "native_runtime_unchanged": true,
+  "adopted_scope": "Three original-source relation regression tests only. No coordinate/layout algorithm candidate adopted.",
+  "goal_complete": false,
+  "whole_corpus_strict_quality_not_reestimated": true,
+  "accepted_quality_changed_pages_this_batch": 0,
+  "local_required_tests": {
+    "passed": 1796,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 117,
+    "commands": 118,
+    "libraries": 4,
+    "integration_targets": 109,
+    "doctests": 4,
+    "all4_crates_examples_checked": true,
+    "new_tests": 3
+  },
+  "runtime_identity": {
+    "native_source": 69,
+    "all125_other_old_Rust_sources_byte_exact_parent": true,
+    "only_old_source_changes_are_cfg_test_module_and_cfg_test_helper_visibility": true,
+    "new_module_cfg_test_only": true,
+    "all23_PDF_sources_unchanged": true,
+    "accepted11992_native_and_actual_CLI_results_inherited_by_runtime_identity": true,
+    "not_a_new_accepted_runtime11992_execution": true
+  },
+  "assets": {
+    "old_assets": 2207,
+    "all_old_asset_bytes_unchanged": true,
+    "all_old782_snapshots_unchanged": true,
+    "new_original_PDFs": 2,
+    "new_relation_oracle_JSON": 1,
+    "new_snapshots": 2,
+    "total_snapshots": 784,
+    "proposals_pending": 0,
+    "records": [
+      {
+        "page": "20260728g001680070",
+        "snapshot_sha256": "6fc119bb9bf6b6227b5132f32b44bbd59f4fb44ccf09e810b16512ecc1b0bf08",
+        "articles": 7,
+        "full_snapshot_exact_accepted69_API": true,
+        "new_snapshot_not_a_claim_of_whole_page_accuracy": true
+      },
+      {
+        "page": "20260925g002120073",
+        "snapshot_sha256": "5b65816c150199d1a4c53896b0831515a9c0c20716fb8cabc681144c9bb9997f",
+        "articles": 7,
+        "full_snapshot_exact_accepted69_API": true,
+        "new_snapshot_not_a_claim_of_whole_page_accuracy": true
+      }
+    ]
+  },
+  "prototype70_v5": {
+    "adopted": false,
+    "private_lib_passed": 1136,
+    "private_lib_failed": 0,
+    "additional_private_geometry_tests": 20,
+    "default_first_pass": {
+      "passed": 1811,
+      "failed": 2,
+      "ignored": 0
+    },
+    "whole_native_diagnostic": {
+      "terminal": 0,
+      "diagnostic_only_unreviewed_changes_not_accepted": true,
+      "pages": 11992,
+      "changed": 9,
+      "whole_Analysis_exact": 11983,
+      "all_original_Word_ids_raw_text_coordinates_exact": true,
+      "all_source_words": 2403403,
+      "status_changed_pages": [],
+      "text_changed_pages": 9,
+      "table_changed_pages": 0,
+      "nonwhitespace_character_multiset_changed_pages": 0,
+      "frozen_inputs_unchanged": true,
+      "seconds": 305.497662417
+    },
+    "all11992_actual_CLI_bytes_equal_candidate_API": true,
+    "all11992_v4_v5_Analysis_equal": true,
+    "confirmed_original_regression_cases": 3,
+    "bad_snapshot_proposals_archived_not_promoted": true
+  },
+  "new_relation_tests_on_same_rejected_runtime": {
+    "passed": 0,
+    "failed": 3,
+    "filtered_out": 1136
+  },
+  "new_relation_tests_on_accepted_runtime": {
+    "passed": 3,
+    "failed": 0
+  },
+  "later_private_investigation": "A coherent source-coordinate basis reduced the three selected failures to one (full private1138 passed1 failed). Passing all1139 private lib tests after relaying source geometry to a later geometry consumer is a subsequent experiment, not proof of corpus correctness or adoption; full-corpus review remains separate.",
+  "earlier_failures": "Initial RED test link failed with ENOSPC and was rerun unchanged after verified storage deduplication. An initial diagnostic stopped because empty serialized table arrays were omitted; successful complete v4-r2 and v5 diagnostics are separate records. Failed trials are not counted as successful coverage gates.",
+  "advisory_checks": "git diff --check passed. No whole-repository fmt/clippy-clean claim.",
+  "PR_checks_at_preparation": "Fresh coverage commit CI has not run at this record preparation; exact-commit checks are recorded separately in the PR and local checkpoint."
+}

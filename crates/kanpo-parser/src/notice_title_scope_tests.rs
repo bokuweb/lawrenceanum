@@ -128,7 +128,7 @@ fn actual(page: &str) -> (crate::Analysis, Vec<crate::PageInput>) {
     let inputs = crate::page_inputs(&std::fs::read(path).unwrap()).unwrap();
     (crate::analyze_item(&inputs), inputs)
 }
-fn parts(a: &crate::Analysis, inputs: &[crate::PageInput]) -> Vec<Vec<usize>> {
+pub(crate) fn parts(a: &crate::Analysis, inputs: &[crate::PageInput]) -> Vec<Vec<usize>> {
     let text = crate::trace::join_page_texts(&a.pages, &|p| p.doc_text.as_str());
     let mut original = crate::segment_articles(&text);
     crate::wrapped_notice_titles::repair_wrapped_notice_titles(&mut original, &a.pages);

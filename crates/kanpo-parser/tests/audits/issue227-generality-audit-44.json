@@ -1,0 +1,27 @@
+{
+  "issue": 227,
+  "batch": 44,
+  "parent_commit": "77d268f379527d8cfe464d45242d7c244aca0396",
+  "native_runtime_source": 69,
+  "native_runtime_unchanged": true,
+  "adopted_scope": "Three original-source relation regression tests only. No coordinate/layout algorithm candidate adopted.",
+  "goal_complete": false,
+  "whole_corpus_strict_quality_not_reestimated": true,
+  "accepted_quality_changed_pages_this_batch": 0,
+  "new_production_conditions": 0,
+  "fixture_literals": "Page IDs and source Word IDs are static regression oracle addresses, not production branches.",
+  "new_contracts": [
+    "Original name fragments remain in their printed column and source order.",
+    "Before/after cells remain in the same original printed row, represented either by a plain row or by a structured table row.",
+    "A related balance sheet remains with its parent publication and outside an independent publication."
+  ],
+  "not_proven": [
+    "Existing parser rules are all general; old fixed-distance/length/line-count conditions remain under audit.",
+    "Native font-metric rectangles prove visible ink or universal publication ownership.",
+    "Preserving words, coordinates, character multisets or passing lib tests proves correct reading order or parent/child association.",
+    "The unmodified bank or signatureless fundraising notice is fully repaired.",
+    "Any prototype is ready for adoption merely because its selected tests pass."
+  ],
+  "remaining_legacy_example": "financial_enclosures.rs still has title/name length restrictions, minimum support counts and fixed-point containment/band conditions; this batch does not remove or endorse them.",
+  "new_model_weights_training_or_inferences": 0
+}
