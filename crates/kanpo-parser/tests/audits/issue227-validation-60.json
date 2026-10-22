@@ -1,0 +1,208 @@
+{
+  "issue": 227,
+  "batch": 60,
+  "parent_commit": "f0aec8b7aaf973083bcfd9d86ef019d37aba7fca",
+  "native_runtime_source": 76,
+  "goal_complete": false,
+  "required_tests": {
+    "native_required_tests": 1904,
+    "failed": 0,
+    "ignored": 0,
+    "libraries": 4,
+    "integration_targets": 109,
+    "doctests": 4,
+    "result_groups": 117,
+    "required_commands": 118,
+    "all4_crate_examples_checked": true,
+    "new_PDF_tests": 25,
+    "old129_PDF_assertions_retained": true,
+    "snapshot_readonly_801": true,
+    "snapshot_updates": 0,
+    "native11992_whole_Analysis_and_actual_CLI_bytes_equal_accepted75_and_API": true,
+    "fresh_raw14859045Glyph_and_all_native_f64_Word_XHTML_compatibility": true,
+    "source_manifest_sha256": "09e52980fc0b8aa408c88fa7bc3ff00af2447fa8f58a744d9e8360afa4d3fad4",
+    "source_example_manifest_sha256": "f7605442105d08a0d9101b12e41721bf1cdaede8cbc981333a6bcc08d766648f",
+    "initial_gate_label_correction": "Runner inherited archive snapshots proposal/review pending labels, but this run used INSTA_UPDATE=no, passed on first run, proposed/updated0snapshots. No retry needed."
+  },
+  "fresh_native11992": {
+    "terminal": 0,
+    "pages": 11992,
+    "changed": 0,
+    "whole_Analysis_exact": 11992,
+    "all_words_fields_and_page_layout_exact": true,
+    "all_source_words": 2403403,
+    "source_usage_and_table_JSON_multisets_exact": true,
+    "nonwhitespace_character_multisets_exact": true,
+    "frozen_inputs_unchanged": true,
+    "all_changed_originals_require_review_before_adoption": true,
+    "seconds": 420.11632025
+  },
+  "fresh_raw_audit": {
+    "terminal": 0,
+    "inputs": 11992,
+    "all_default_native_Page_Glyph_and_all_f64_bits_exact": true,
+    "all_raw_Word_fields_f64_bits_and_glyph_indices_exact": true,
+    "all_legacy_default_source_aware_and_native_styled_XHTML_bytes_exact": true,
+    "all_new_image_bundle_Page_f64_and_native_font_rendering_exact_to_existing_API": true,
+    "glyphs": 14859045,
+    "raw_Words": 2403403,
+    "image_draws": 14322,
+    "encoded_payload_bytes": 1120237990,
+    "indirect_payloads_independently_equal_original_document": 14322,
+    "uncertain_image_geometry": 0,
+    "implicit_FormBox_clips": 0,
+    "incomplete_clips": 0,
+    "capture_gap_counts": {},
+    "all_input_and_source_binary_hashes_unchanged": true,
+    "seconds": 569.8417943339999,
+    "not_a_rendering_or_recognition_accuracy_claim": true
+  },
+  "fresh_actual_CLI": {
+    "terminal": 0,
+    "actual_default_native_CLI_from_all_original_PDFs": true,
+    "files": 11992,
+    "changed_vs75": [],
+    "ordered_filename_content_sha256_digest": "ef45ed8bbc6436102aa0d5d13f6d4e7d23db4df10d704721498d3bc201d16a2b",
+    "binary_sha256": "1390dc54a253295522d66c1ef7f73836e937683a86873cb71b9d7cdd7a3e11b7",
+    "source_manifest_sha256": "09e52980fc0b8aa408c88fa7bc3ff00af2447fa8f58a744d9e8360afa4d3fad4",
+    "API_byte_consistency_and_original_change_review_pending": true
+  },
+  "assets": {
+    "all_old_parser_test_assets_and_old_PDF_tests_byte_exact": true,
+    "only_changed_old_PDF_source_files": [
+      "crates/kanpo-pdf/src/lib.rs",
+      "crates/kanpo-pdf/src/page.rs"
+    ],
+    "old_snapshot_changes": 0,
+    "new_snapshot_proposals_or_updates": 0,
+    "readonly_snapshots": 801,
+    "old_PDF_source_files": 24,
+    "old_PDF_source_files_byte_exact": 22,
+    "new_PDF_source_modules": 2,
+    "new_original_fixture_PDFs": 2,
+    "new_source_json_example": 1
+  },
+  "private_source_pixels_and_prior_OCR_probe": {
+    "actual_PDF_source_bound_pages": 14,
+    "actual_image_draws": 17,
+    "decoded_opaque_white": 2,
+    "nonwhite_source_images": 15,
+    "all_native_vs_decoder_PDF_digest_encoded_stream_SHA_and_critical_image_entries_equal": true,
+    "mixed_example_prior_observations_reused_only_after_exact_PNG_byte_hash_match": true,
+    "prior_OCR_nodes": 1641,
+    "prior_OCR_words": 1470,
+    "all_text_confidence_paths_original_boxes_and_order_preserved": true,
+    "new_model_inferences": 0,
+    "no_Article_or_native_Glyph_assignment": true,
+    "final_visibility_unverified": true,
+    "known_prior_recognition_errors_not_repaired": "Corrected nonblind notice gold192characters retains3苫->苦 substitutions; no automatic integration/accuracy claim.",
+    "receipt_sha256": "03987e0a486c1ac542dd27375afe943c34246a665b9ede9584ffa42b3782983a",
+    "projected_sha256": "6d346167ac13b744ace4e3a6f32df01f947dc214c0a6bfc1153ec4036a216e24",
+    "prior_observations_sha256": "9dcd486c18fd8f3ec08e40f705ecf750ae8966650f3f6f76324c82f063ad1fd5"
+  },
+  "known_necessary_counts": {
+    "runtime": 76,
+    "advisory_known_requirements_not_mandatory_success_assertions": true,
+    "passed": 3,
+    "failed": 4,
+    "source_manifest_sha256": "09e52980fc0b8aa408c88fa7bc3ff00af2447fa8f58a744d9e8360afa4d3fad4",
+    "rows": [
+      {
+        "page": "20260803g001740136",
+        "actual": 12,
+        "necessary": 12,
+        "passes_necessary_count": true
+      },
+      {
+        "page": "20260903g001970080",
+        "actual": 5,
+        "necessary": 6,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260731g001730167",
+        "actual": 3,
+        "necessary": 4,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260721g001610162",
+        "actual": 5,
+        "necessary": 6,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260804g001750060",
+        "actual": 7,
+        "necessary": 7,
+        "passes_necessary_count": true
+      },
+      {
+        "page": "20260717g001600122",
+        "actual": 5,
+        "necessary": 5,
+        "passes_necessary_count": true
+      },
+      {
+        "page": "20260731h017590032",
+        "actual": 13,
+        "necessary": 14,
+        "passes_necessary_count": false
+      }
+    ],
+    "method": "All11992 Analysis exact vs75; known7 necessary counts unchanged, no success redefinition.",
+    "baseline_source75_manifest_sha256": "aa3774d04641d5b6255895889b01428350a5b3fab01baef5e270a95d98607634"
+  },
+  "all_old_assertions_and_golds_retained": true,
+  "OCR_contract_tests_inherited_from56": {
+    "passed": 60,
+    "failed": 0,
+    "skipped": 0,
+    "source_files_unchanged": true
+  },
+  "fresh_commit_CI": "Pending at preparation; exact-head results are recorded in PR and accepted checkpoint.",
+  "fixed_random30_carryforward": {
+    "ok": 10,
+    "minor": 5,
+    "major": 15,
+    "method": "All11992 Analysis byte-exact to75. No reselection, no regrading, no independent/blind or global accuracy estimate."
+  },
+  "evidence": [
+    {
+      "path": ".cache/kanpo-227/source-image-release60/final-all-green76.json",
+      "sha256": "c761dc53223f00786e562ba06b2e5f69df20d658d902ca20368df943c628d653"
+    },
+    {
+      "path": ".cache/kanpo-227/source-image-release60/full-native76-public/result.json",
+      "sha256": "28600c07dfc10bc42a5ed32c68bb678caae28a1163123b4cb5b0749baa9f93fb"
+    },
+    {
+      "path": ".cache/kanpo-227/source-image-release60/full-raw76-public/result.json",
+      "sha256": "015dd97b644376e1ef391fb06f7a9af774588e2da8bb6b0d600c4a800e8d579a"
+    },
+    {
+      "path": ".cache/kanpo-227/source-image-release60/textdump76-result.json",
+      "sha256": "bb8d99f14b02bab78cdb4ccf45a8c647f079b4f284d6c6194f4f9dbb361116c2"
+    },
+    {
+      "path": ".cache/kanpo-227/source-image-release60/assets-and-snapshots76.json",
+      "sha256": "d794ce704d1cbdfb8d3754f02322a31b25002e64c747ee5974924e664f990b20"
+    },
+    {
+      "path": ".cache/kanpo-227/source-image-release60/source-pixel-observation-binding76.json",
+      "sha256": "35edcfc2fec818030aae8658ade18b35f3857974fb473e216075e339dd10b2cf"
+    },
+    {
+      "path": ".cache/kanpo-227/source-image-release60/example-source-manifest.json",
+      "sha256": "f7605442105d08a0d9101b12e41721bf1cdaede8cbc981333a6bcc08d766648f"
+    },
+    {
+      "path": ".cache/kanpo-227/source-image-release60/public76-gates-v1/result.json",
+      "sha256": "398b8e6e892758d0075368ee67cf16e3ca6b945163731aceff69b6d77debb867"
+    },
+    {
+      "path": ".cache/kanpo-227/source-image-release60/snapshot-readonly-hashes.json",
+      "sha256": "61675519ca9be61648b5110662965ba4719111c7a29bfb0ae8429db20cc03131"
+    }
+  ]
+}
