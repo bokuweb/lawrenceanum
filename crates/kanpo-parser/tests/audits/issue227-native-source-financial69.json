@@ -1,0 +1,670 @@
+{
+  "status": "locally_verified_native80; exact GitHub head CI is tracked separately; issue227 goal incomplete",
+  "accepted_baseline_head": "2626c46ea1e9bbcfff419fde001c8746ef3f9db7",
+  "branch": "codex/kanpo-reading-accuracy-227",
+  "native_candidate": 80,
+  "OCR_tool_unchanged": 63,
+  "method": {
+    "native_financial_order": "Original Glyph advances and exact Word-occurrence-bound typography/geometry, dated source publisher fields, native signature columns, balanced quotation scope, complete tables and enclosures. Move complete original Lines/Tables; restore certified byte ranges in either partition direction.",
+    "publisher_binding": "Complete native Word spans immediately preceding their styled signature; arbitrary balanced party labels; names are source header values, not a company dictionary. Ambiguous known publisher matches are held. Unlabelled named actors require one uniquely parsed first declaration using the dynamic heading action and a complete affirmative transfer predicate. Negated, conditional, hypothetical and unresolved predicates do not authorize a relation.",
+    "unresolved_outline_chains": "Opaque original CFF1/CID source programs and actual Identity-H CID routing may prove filled rectangular chains. Arbitrary font names, CID values and ROS names. Only supported default matrices/direct Type2 lines with complete native geometry, supported paint/clipping context and every actual member glyph are certified. No ToUnicode replacement, dash decoding, blank-cell reconstruction or final-pixel-visibility claim.",
+    "fallback": "This financial-order stage uses the old heuristic only for external bbox compatibility inputs without native axes. Incomplete native evidence is held, not converted to a length/count guess.",
+    "no_new_routing_keys": [
+      "page ID",
+      "company name dictionary",
+      "full title value",
+      "character/script length limit",
+      "presentation line count limit",
+      "fixed point/aspect threshold",
+      "font name",
+      "model result"
+    ],
+    "domain_grammar": "Publication types/date/signature offices, quotation syntax and affirmative rights-transfer inflections are explicit common grammatical productions. Unsupported inflections remain unknown.",
+    "models": "No new RURI/ModernBERT dependencies, weights, training or inference. Previous rejected opt-in experiments remain unchanged."
+  },
+  "tests": {
+    "native_passed": 2066,
+    "Node_passed": 94,
+    "Python_passed": 45,
+    "related_total": 2205,
+    "failed": 0,
+    "ignored_or_skipped": 0,
+    "parser_library": 1334,
+    "PDF_library": 173,
+    "required_commands": 118,
+    "integration_targets": 109,
+    "result_groups": 117,
+    "execution_scope": "Fresh complete public74 gates plus fresh four affected targets after individually reviewed fixture migration. All other target inputs and production sources unchanged. Exact final head CI is separate.",
+    "counterexamples": "Issuer prefix/address substring cases failed before correction. The first over-strict whole-column attempt lost four original tests and was held. Source Word fields restored them. Six pure predicate counterexamples failed before the affirmative grammar; all eleven predicate functions subsequently passed. No original frame expectations were rewritten.",
+    "portable_original_tests": 23
+  },
+  "corpus": {
+    "inputs": 11992,
+    "whole_Analysis_equal_to_baseline79": 11947,
+    "changed": 45,
+    "all_original_Word_fields_and_nonwhitespace_characters_preserved": true,
+    "all45_same_role_whole_Line_Table_multisets_exact": true,
+    "all45_styled_Document_text_characters_and_whole_tables_exact": true,
+    "all45_Analysis_formats_unchanged": true,
+    "actual_default_CLI_inputs": 11992,
+    "changed_CLI_text_files": 11,
+    "fresh_actual_CLI_API_text_bytes_equal_all11992": true,
+    "public_migration_Analysis_equal_to_verified_private_candidate_all11992": true
+  },
+  "fresh_raw_pdf": {
+    "terminal": 0,
+    "inputs": 11992,
+    "glyphs": 14859045,
+    "raw_Words": 2403403,
+    "image_draws": 14322,
+    "legacy_default_and_source_XHTML_bytes_exact": true,
+    "original_styled_XHTML_bytes_exact_after_source_validated_additive_axis_and_ruling_attribute_projection": true,
+    "all_raw_Page_Glyphs_f64_bits_Words_glyph_indices_and_image_statistics_exact": true,
+    "additive_source_evidence": {
+      "bound_Words": 2403403,
+      "known_axes": 2403403,
+      "proved_ruling_Words": 22302,
+      "proved_ruling_member_Glyphs": 197723
+    },
+    "source_and_input_hashes_unchanged": true,
+    "scope": "Internal audit observer compiled from byte-exact candidate production modules with appended observer; no production code changed. Each projected attribute is verified against original Word/Glyph occurrences. Not a rendering, recognition or general accuracy claim.",
+    "seconds": 923.9386785830001
+  },
+  "original_frame_audit": {
+    "scope": "Root nonblind 51 originals: ten before native-role implementation, twelve known prior changed pages, twenty-nine remaining changed pages. Currently assigned Used Word ownership by visually reviewed outer frames only; not a blind/general accuracy, transcription, missing-character, cell or internal reading-order estimate.",
+    "baseline_passes": 18,
+    "candidate_passes": 49,
+    "baseline_successes_lost": 0,
+    "rows": [
+      {
+        "page": "20260722g001620112",
+        "original_outer_frames": 3,
+        "baseline_articles": 3,
+        "candidate_articles": 3,
+        "baseline_Used_Word_ownership_pass": true,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "d195a7df7e653854ebf514e50e26b083c63cbc713c373168d706787a3e439224"
+      },
+      {
+        "page": "20260728g001680085",
+        "original_outer_frames": 4,
+        "baseline_articles": 4,
+        "candidate_articles": 4,
+        "baseline_Used_Word_ownership_pass": true,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "b109aa244d792e83454f7d4497e07305b32f479c78c24c062bb2b5db457fdc3d"
+      },
+      {
+        "page": "20260824g001880111",
+        "original_outer_frames": 8,
+        "baseline_articles": 9,
+        "candidate_articles": 8,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "816f4e4788949909b67606ae6d546891c70f5b4ab420f1f781d523579e5e9cb6"
+      },
+      {
+        "page": "20260827g001910056",
+        "original_outer_frames": 4,
+        "baseline_articles": 4,
+        "candidate_articles": 4,
+        "baseline_Used_Word_ownership_pass": true,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "e2c356483ea35e3b0762de95687c3b346329985c595b4c92a8813187ac4eb2ee"
+      },
+      {
+        "page": "20260828g001920063",
+        "original_outer_frames": 8,
+        "baseline_articles": 8,
+        "candidate_articles": 8,
+        "baseline_Used_Word_ownership_pass": true,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "ddf2467bc3e4fb6cc438061ed27871797a5a917e3651ca2345e5399b2841b338"
+      },
+      {
+        "page": "20260828g001920078",
+        "original_outer_frames": 3,
+        "baseline_articles": 2,
+        "candidate_articles": 3,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "ef15d1584658ae23966d1215dc9d0a2988be9ac1d086a901ed0cba7064bcaf9b"
+      },
+      {
+        "page": "20260925g002120073",
+        "original_outer_frames": 8,
+        "baseline_articles": 7,
+        "candidate_articles": 8,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "6c2d74e78495c045635396349119161e3044d5b6bdd1b92e3297184e8eb4d3cf"
+      },
+      {
+        "page": "20261008g002220093",
+        "original_outer_frames": 5,
+        "baseline_articles": 5,
+        "candidate_articles": 5,
+        "baseline_Used_Word_ownership_pass": true,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "27c8509349aa4b938378fb3fb058275f10f1543b61eed581aafb8872907a4e6d"
+      },
+      {
+        "page": "20261014g002250072",
+        "original_outer_frames": 5,
+        "baseline_articles": 4,
+        "candidate_articles": 5,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "eb8fbf69ae24f4dda672869400de67741509635caf2e4e64c77b8913a4aa49b0"
+      },
+      {
+        "page": "20261020g002300087",
+        "original_outer_frames": 6,
+        "baseline_articles": 6,
+        "candidate_articles": 6,
+        "baseline_Used_Word_ownership_pass": true,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "7ac086a60ff281a5766348d09e94f8d8e5c9d5fdad58a5add81b9957938b9dc8"
+      },
+      {
+        "page": "20260721g001610172",
+        "original_outer_frames": 5,
+        "baseline_articles": 6,
+        "candidate_articles": 5,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "4337dbcac8538cc72620ae84504f3854ba49adf0bc7ffe06e66721831e875cd8"
+      },
+      {
+        "page": "20260723g001630240",
+        "original_outer_frames": 4,
+        "baseline_articles": 3,
+        "candidate_articles": 4,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "93276d84016c115b0be6a49ceb493bb89ede8e5dba13cc62320f0367608c3e1c"
+      },
+      {
+        "page": "20260724g001660092",
+        "original_outer_frames": 4,
+        "baseline_articles": 4,
+        "candidate_articles": 4,
+        "baseline_Used_Word_ownership_pass": true,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "0a775d56c4e3577b8b8cb0a656974ed67fb86606dabeb8078c71127731852b28"
+      },
+      {
+        "page": "20260724g001660098",
+        "original_outer_frames": 4,
+        "baseline_articles": 3,
+        "candidate_articles": 4,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "3d401f4b8d9e31683bc9d3bfa9c72ea047a041a57205e921558669adeaf3af1b"
+      },
+      {
+        "page": "20260724g001660104",
+        "original_outer_frames": 4,
+        "baseline_articles": 3,
+        "candidate_articles": 4,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "ae1e26aec71951da2f81f646765ac7aba1ee45bed61a3cf9d87aa3f62b12559e"
+      },
+      {
+        "page": "20260728g001680079",
+        "original_outer_frames": 8,
+        "baseline_articles": 8,
+        "candidate_articles": 8,
+        "baseline_Used_Word_ownership_pass": true,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "1d78a95c989868d4b3d0468bdf9a64692f140279712b355b96ea1768a3c3fcb6"
+      },
+      {
+        "page": "20260820g001860128",
+        "original_outer_frames": 5,
+        "baseline_articles": 4,
+        "candidate_articles": 5,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "0024f463e64e590abc9d27bef0c87557205904618521c6deef05a83cc3b72eac"
+      },
+      {
+        "page": "20260825g001890100",
+        "original_outer_frames": 8,
+        "baseline_articles": 7,
+        "candidate_articles": 8,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "cdb66efe0581a7b6a00eb68689997a4ca0d3ee695e6e3a9756866b9c1fa9dcdd"
+      },
+      {
+        "page": "20260826g001900072",
+        "original_outer_frames": 4,
+        "baseline_articles": 4,
+        "candidate_articles": 4,
+        "baseline_Used_Word_ownership_pass": true,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "733f8893efef23664b0a8a419b7105ba6de4c5b359f35cd4891db7b47d1782bd"
+      },
+      {
+        "page": "20260828g001920076",
+        "original_outer_frames": 2,
+        "baseline_articles": 1,
+        "candidate_articles": 2,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "cffaa60c614496ccbab2c1e459c184cb8557899cce464f9e2fe548aa4b60a801"
+      },
+      {
+        "page": "20260918g002100079",
+        "original_outer_frames": 4,
+        "baseline_articles": 3,
+        "candidate_articles": 4,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "8264dc15ad3f23780639cf52547512030fcbba59d3268c18543540a0b671e97a"
+      },
+      {
+        "page": "20261002g002180088",
+        "original_outer_frames": 4,
+        "baseline_articles": 3,
+        "candidate_articles": 4,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "5d87a9232d528c7788b5d407f07a08364fab607ca56d8f0e6a8a427c9c2bfefc"
+      },
+      {
+        "page": "20260812g001800086",
+        "original_outer_frames": 3,
+        "baseline_articles": 3,
+        "candidate_articles": 3,
+        "baseline_Used_Word_ownership_pass": true,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "ddca6836521fa0613fdbfcb33f7f6a0d8d55049ae22c5b7991cc9975453adb98"
+      },
+      {
+        "page": "20260814g001820091",
+        "original_outer_frames": 5,
+        "baseline_articles": 4,
+        "candidate_articles": 5,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "cf445a563d66d1810b8f3164d73d3c5dbc1e42297814aba4e9f1b32749493701"
+      },
+      {
+        "page": "20260814g001820092",
+        "original_outer_frames": 4,
+        "baseline_articles": 3,
+        "candidate_articles": 4,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "190a008c778b724157ea2a51ee48239c346a7251970b131d6a93d24ab0f7049d"
+      },
+      {
+        "page": "20260818g001840052",
+        "original_outer_frames": 8,
+        "baseline_articles": 8,
+        "candidate_articles": 8,
+        "baseline_Used_Word_ownership_pass": true,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "1dc3f88f849a209383a7c990c94427496046233bd1aff7cc1fc4f259d2101f68"
+      },
+      {
+        "page": "20260820g001860123",
+        "original_outer_frames": 4,
+        "baseline_articles": 3,
+        "candidate_articles": 4,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "ab2b1b9e174d9a6d47ebf80da2947fb310b6db99060b354d884ebb4bc0578f44"
+      },
+      {
+        "page": "20260821g001870097",
+        "original_outer_frames": 4,
+        "baseline_articles": 3,
+        "candidate_articles": 4,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "5f68c4f79edfaa71a3becc13abbc2610d22373171ae277862a10b3b398c726cb"
+      },
+      {
+        "page": "20260825g001890102",
+        "original_outer_frames": 8,
+        "baseline_articles": 8,
+        "candidate_articles": 8,
+        "baseline_Used_Word_ownership_pass": true,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "f0489e541bb21536b5121d989fd7a990f6a3dba773856b47bee38238178d9b66"
+      },
+      {
+        "page": "20260825g001890117",
+        "original_outer_frames": 5,
+        "baseline_articles": 4,
+        "candidate_articles": 5,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "3e362f0788c457bc3c74cc885b57abc6e2b745f1b50d7b328ca9168936ad3fba"
+      },
+      {
+        "page": "20260827g001910049",
+        "original_outer_frames": 8,
+        "baseline_articles": 8,
+        "candidate_articles": 8,
+        "baseline_Used_Word_ownership_pass": true,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "7decfc6550398ab0f6d3ff9eff6dadc02efa9490fe00d6214a9e5d88c204133c"
+      },
+      {
+        "page": "20260827g001910052",
+        "original_outer_frames": 4,
+        "baseline_articles": 3,
+        "candidate_articles": 4,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "1524601f7f324f448fac6e1c0ec70df98de48456e05e4734899831c7adf7ee19"
+      },
+      {
+        "page": "20260828g001920071",
+        "original_outer_frames": 4,
+        "baseline_articles": 5,
+        "candidate_articles": 4,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "398b6eff2a6f44a8d99064c2acc5f3686b9454d51b1c733eb4421d260acd78af"
+      },
+      {
+        "page": "20260828g001920072",
+        "original_outer_frames": 4,
+        "baseline_articles": 3,
+        "candidate_articles": 4,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "481644fb9b23861b7a4a15826b9609b33525e1cd5e2a6991a1c84d95c132a067"
+      },
+      {
+        "page": "20260901g001950111",
+        "original_outer_frames": 7,
+        "baseline_articles": 8,
+        "candidate_articles": 7,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "cec9bc56a0bdc7eb27aea6b770cd7f2f3b1208462f9896d2777597c940e6e74b"
+      },
+      {
+        "page": "20260902g001960184",
+        "original_outer_frames": 5,
+        "baseline_articles": 4,
+        "candidate_articles": 5,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "f6a96b54b2750936439cb6c0246e63fef3b617bd9b43f020f14911e1c8b9e5b3"
+      },
+      {
+        "page": "20260908g002000062",
+        "original_outer_frames": 7,
+        "baseline_articles": 6,
+        "candidate_articles": 6,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": false,
+        "gold_sha256": "381aff2020e8751de93d1206bddf8705751a4428472c4246454ecff00da77d80"
+      },
+      {
+        "page": "20260910g002020120",
+        "original_outer_frames": 5,
+        "baseline_articles": 5,
+        "candidate_articles": 5,
+        "baseline_Used_Word_ownership_pass": true,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "ee151bd3a6737064b1af86234492ed0c2a19c09a61942566fe3d7858124ba3cb"
+      },
+      {
+        "page": "20260911g002030106",
+        "original_outer_frames": 8,
+        "baseline_articles": 9,
+        "candidate_articles": 8,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "e1f004bf43f0aaa8b6a9138082c776b4478cf91d7b1293b092064b678ff6671e"
+      },
+      {
+        "page": "20260911g002030112",
+        "original_outer_frames": 2,
+        "baseline_articles": 2,
+        "candidate_articles": 2,
+        "baseline_Used_Word_ownership_pass": true,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "54b6fdfd977f82d169d1c9de3601916ec855502e191ea9934b4f2d50ce1afea2"
+      },
+      {
+        "page": "20260914g002040094",
+        "original_outer_frames": 5,
+        "baseline_articles": 4,
+        "candidate_articles": 5,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "c9026db9fafa4af3a458624e4be49b0bcfd9095ad068163815a12045968c9d64"
+      },
+      {
+        "page": "20260917g002080091",
+        "original_outer_frames": 7,
+        "baseline_articles": 6,
+        "candidate_articles": 7,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "ddd8624217bb1ff2c76df33bc79bfed77559d0d2eeb5d7b4688ee17507fa4931"
+      },
+      {
+        "page": "20260924g002110110",
+        "original_outer_frames": 8,
+        "baseline_articles": 8,
+        "candidate_articles": 8,
+        "baseline_Used_Word_ownership_pass": true,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "a2213b5346983f5b7252999de19c42e83eccf17e09c08929a84dbb81a12ad8b3"
+      },
+      {
+        "page": "20261009g002230169",
+        "original_outer_frames": 8,
+        "baseline_articles": 8,
+        "candidate_articles": 8,
+        "baseline_Used_Word_ownership_pass": true,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "344698766b56d929a5241ad1e9fa66277cdc63f37afc297dc5744286a5a93e4e"
+      },
+      {
+        "page": "20261009g002230170",
+        "original_outer_frames": 7,
+        "baseline_articles": 6,
+        "candidate_articles": 7,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "91627d574a1a636876bbfe60d6867ed0129b1c544503810eacbe342351c132ce"
+      },
+      {
+        "page": "20261009g002230175",
+        "original_outer_frames": 5,
+        "baseline_articles": 4,
+        "candidate_articles": 5,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "4e92dfbcff5211d5d1d904bdaa115accceb14a8f25e1aeab01f7c0ce63b49bc9"
+      },
+      {
+        "page": "20261014g002250071",
+        "original_outer_frames": 7,
+        "baseline_articles": 6,
+        "candidate_articles": 7,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "3513f3dfeab3709d29b744d3fefcd06fe3086ebffc4a9e3f9c0002017695b391"
+      },
+      {
+        "page": "20261015g002260141",
+        "original_outer_frames": 4,
+        "baseline_articles": 3,
+        "candidate_articles": 4,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "8ed16adfdea46612d3872115217a7ba2e9bd56ebae32a04fd692e89bafd78302"
+      },
+      {
+        "page": "20261019g002290057",
+        "original_outer_frames": 8,
+        "baseline_articles": 8,
+        "candidate_articles": 8,
+        "baseline_Used_Word_ownership_pass": true,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "32ad1b229247dc124858dabbdc8c583a8ba0147f07f2701647e6905bfc9bd6ae"
+      },
+      {
+        "page": "20261019g002290060",
+        "original_outer_frames": 6,
+        "baseline_articles": 5,
+        "candidate_articles": 5,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": false,
+        "gold_sha256": "3174fdf8f138b0993be5b7c931fc6b210a9a66f6b429169d2acb992858d130c5"
+      },
+      {
+        "page": "20261020g002300079",
+        "original_outer_frames": 7,
+        "baseline_articles": 6,
+        "candidate_articles": 7,
+        "baseline_Used_Word_ownership_pass": false,
+        "candidate_Used_Word_ownership_pass": true,
+        "gold_sha256": "e7d4bc67305e82a6685e3b578aee48e6149dc7b4bcee7c2bfde4dfa72beed8cd"
+      }
+    ],
+    "remaining": [
+      {
+        "page": "20260908g002000062",
+        "problem": "Existing 6 articles for7 frames. Header apostrophe and signature comma are distinct decoded source characters; no outcome-fitted punctuation equivalence added."
+      },
+      {
+        "page": "20261019g002290060",
+        "problem": "Six visual frames include a government information panel with zero Used Words; strict visual-frame score remains a mismatch. Existing five article-owned groups retained."
+      }
+    ]
+  },
+  "reviewed_fixture_migration": {
+    "source_bbox_HTML": 24,
+    "scope": "Only additive axis/ink evidence; all legacy XHTML bytes and rules preserved. These precise PDFs were compared to baseline79 and each new attribute was checked against original Word/Glyph occurrences.",
+    "source_AJ1_oracle_case": "20260828g001920071",
+    "source_AJ1_old_oracles_byte_unchanged": true,
+    "source_AJ1_new_oracle": "tests/expected-native-source-order/20260828g001920071.json",
+    "source_AJ1_constraints": "Exact historical Word fields and page metadata, same-role whole Lines/Tables, styled document characters and complete structured tables; original glyph assertions remain. Four independent publication frames are also a portable source-membership regression test.",
+    "snapshot_total": 814,
+    "snapshot_byte_unchanged": 809,
+    "individually_reviewed_updates": [
+      {
+        "page": "20260723g001630240",
+        "before_articles": 3,
+        "after_articles": 4,
+        "before_sha256": "979f65135b06e8b0de3ab372f6d8d71dfb577bf7f115458c6d2b43f756ccbeaf",
+        "after_sha256": "a2626e70e8b61896f6aafe987fbd4c037f09544d679783e64987611464639de2"
+      },
+      {
+        "page": "20260828g001920071",
+        "before_articles": 5,
+        "after_articles": 4,
+        "before_sha256": "c36e43577c51b6ca46fde28ef62e74859d9571706baef1d89481d6276658e391",
+        "after_sha256": "008577b3fba2f49cdfef83628574ae5fc9a80f17218d1236246a4725fc677397"
+      },
+      {
+        "page": "20260828g001920078",
+        "before_articles": 2,
+        "after_articles": 3,
+        "before_sha256": "f50533428c4b2fc53c4b656781ede1c60d3ae10153f85b7bfd134e39d0d4660a",
+        "after_sha256": "8ac290a7a3554e26da6454fa74fe3a8081cbb97d05142dd72f0d81e8ea0851a5"
+      },
+      {
+        "page": "20260925g002120073",
+        "before_articles": 7,
+        "after_articles": 8,
+        "before_sha256": "5b65816c150199d1a4c53896b0831515a9c0c20716fb8cabc681144c9bb9997f",
+        "after_sha256": "dd3be68e290745ca5afaa6e731ab3855b77083036996b5400afd30f2497c9008"
+      },
+      {
+        "page": "20261002g002180088",
+        "before_articles": 3,
+        "after_articles": 4,
+        "before_sha256": "5b3c78c93404e21b6bc51113457ea309e89d493d0378f1bc1e392b8d75c7aea6",
+        "after_sha256": "598cbb8623da89a7420ce61910186e9975131ecd89a53a619340cad40a962e30"
+      }
+    ],
+    "no_UPDATE_EXPECT_or_blanket_INSTA_UPDATE": true
+  },
+  "fixed_audit": {
+    "terminal": 0,
+    "fixed30_all_Analysis_equal_to_accepted79": true,
+    "fixed30_root_nonblind_score_retained": {
+      "ok": 10,
+      "minor": 5,
+      "major": 15
+    },
+    "sample_reselected_or_regraded": false,
+    "known_required_counts": [
+      {
+        "page": "20260717g001600122",
+        "expected_Articles": 5,
+        "actual_Articles": 5,
+        "pass": true
+      },
+      {
+        "page": "20260721g001610162",
+        "expected_Articles": 6,
+        "actual_Articles": 6,
+        "pass": true
+      },
+      {
+        "page": "20260731g001730167",
+        "expected_Articles": 4,
+        "actual_Articles": 3,
+        "pass": false
+      },
+      {
+        "page": "20260731h017590032",
+        "expected_Articles": 14,
+        "actual_Articles": 14,
+        "pass": true
+      },
+      {
+        "page": "20260803g001740136",
+        "expected_Articles": 12,
+        "actual_Articles": 12,
+        "pass": true
+      },
+      {
+        "page": "20260804g001750060",
+        "expected_Articles": 7,
+        "actual_Articles": 7,
+        "pass": true
+      },
+      {
+        "page": "20260903g001970080",
+        "expected_Articles": 6,
+        "actual_Articles": 6,
+        "pass": true
+      }
+    ],
+    "known_required_pass": 6,
+    "known_required_fail": 1,
+    "scope": "All fixed30 and known7 inputs are outside the45 full-Analysis changes; public all11992 corpus comparison proves their complete Analysis unchanged. No new accuracy audit or inference claim."
+  },
+  "remaining_scope": [
+    "Fixed30 still ok10/minor5/major15; unchanged full Analysis, not regraded.",
+    "Known7 necessary article counts remain6 passes/1 failure; image-body20260731g001730167 still3 vs4.",
+    "Explicit ToUnicode PUA gaps20260721h017510032 and20260820h017720032 are not overridden.",
+    "Unsupported source outlines/paint/clipping/matrices stay unknown. Rectangle evidence is not a character mapping or final visibility proof.",
+    "Old external-bbox compatibility heuristics and other issue227 reading-order/table/roster/source gaps remain; not a claim that all repository heuristics were replaced."
+  ],
+  "artifacts": {
+    ".cache/kanpo-227/source-financial69/source-ruling70/public74/api-corpus74/result70.json": "adc0ea0a29d1cfc995040bad42ea28fd5b9d5a40bbaf0ec6a8aabc4334241862",
+    ".cache/kanpo-227/source-financial69/source-ruling70/public74/CLI74/result74.json": "a2b7d2470e0439123614421c5ad7454bfc1f3a862acd4aca5386469d7e36e9d8",
+    ".cache/kanpo-227/source-financial69/source-ruling70/public74/CLI74/CLI-API-equality74.json": "638c6dac1800f6aa0732a36b053715c05ce85ad36b55ef99b06e89b39b1673e6",
+    ".cache/kanpo-227/source-financial69/source-ruling70/public74/raw-audit74/corpus/result70.json": "ec00f5a147a42bf1153861ae63298d688c25e438e516dc08b346c6f4e9b68612",
+    ".cache/kanpo-227/source-financial69/source-ruling70/public74/schema-proposals75/original-source-proof75.json": "9b34185a5ec0d7df8af11668cff2245ebacbb44bb9d6b5cb67a7ece42128fab9",
+    ".cache/kanpo-227/source-financial69/source-ruling70/public75/complete-required-gates75.json": "1262dc42015d3614e6de65e81f83467ac2d60d4539d688fae02e70adefa3d5c3"
+  }
+}

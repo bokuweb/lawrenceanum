@@ -152,6 +152,8 @@ struct GState {
     clip: Option<[f64; 4]>,
     source_clips:Option<Vec<crate::source_images::SourceClip>>,
     source_geometry_complete:bool,
+    ink_geometry_complete:bool,
+    ink_fill_components:Option<usize>,
     source_graphics_states:Option<Vec<Vec<u8>>>,
 }
 
@@ -170,6 +172,8 @@ struct Interp<'a> {
     /// Source candidates stay adjacent to the original emitted CharCode.
     /// Legacy extraction does not allocate or decode source evidence.
     source_resolved: Option<Vec<Option<char>>>,
+    source_rects:Option<Vec<Option<[f64;4]>>>,
+    ink_viewport:[f64;4],
     image_draws: Option<Vec<crate::source_images::ImageDraw>>,
     image_gaps:Option<Vec<crate::source_images::CaptureGap>>,
     source_pending_clip:Option<crate::source_images::ClipRule>,
@@ -189,15 +193,15 @@ pub fn extract_page(doc: &Document, page: &PageRef) -> Page {
     interpret_page(doc, page, false, false).0
 }
 pub(crate) fn extract_page_source_aj1(doc: &Document, page: &PageRef) -> crate::Aj1PageSources {
-    let (page, resolved, _, _) = interpret_page(doc, page, true, false);
-    crate::source_aj1::Aj1PageSources { original: page, resolved }
+    let (page, resolved, ink_rects, _, _) = interpret_page(doc, page, true, false);
+    crate::source_aj1::Aj1PageSources { original: page, resolved, ink_rects }
 }
 
 pub(crate) fn extract_page_source_images(doc:&Document,page:&PageRef)->crate::source_images::XObjectPageSources{
- let(original,resolved,draws,gaps)=interpret_page(doc,page,true,true);
- crate::source_images::XObjectPageSources{native:crate::source_aj1::Aj1PageSources{original,resolved},crop:page.crop_box,draws,gaps,document_digest:[0;32],media:page.media_box}
+ let(original,resolved,ink_rects,draws,gaps)=interpret_page(doc,page,true,true);
+ crate::source_images::XObjectPageSources{native:crate::source_aj1::Aj1PageSources{original,resolved,ink_rects},crop:page.crop_box,draws,gaps,document_digest:[0;32],media:page.media_box}
 }
-fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bool) -> (Page, Vec<Option<char>>,Vec<crate::source_images::ImageDraw>,Vec<crate::source_images::CaptureGap>) {
+fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bool) -> (Page, Vec<Option<char>>,Vec<Option<[f64;4]>>,Vec<crate::source_images::ImageDraw>,Vec<crate::source_images::CaptureGap>) {
     let [x0, y0, x1, y1] = page.crop_box;
     let device = match page.rotate {
         90 => Matrix([0.0, 1.0, 1.0, 0.0, -y0, -x0]),
@@ -222,8 +226,10 @@ fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bo
             render: 0,
             line_width: 1.0,
             clip: None,
-            source_clips:image_sources.then(Vec::new),
+            source_clips:source.then(Vec::new),
             source_geometry_complete:true,
+            ink_geometry_complete:true,
+            ink_fill_components:Some(1),
             source_graphics_states:image_sources.then(Vec::new),
         },
         stack: Vec::new(),
@@ -233,6 +239,8 @@ fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bo
         font_ids: HashMap::new(),
         glyphs: Vec::new(),
         source_resolved: source.then(Vec::new),
+        source_rects:source.then(Vec::new),
+        ink_viewport:[0.,0.,width,height],
         image_draws: image_sources.then(Vec::new),
         image_gaps:image_sources.then(Vec::new),
         source_pending_clip:None,
@@ -244,10 +252,14 @@ fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bo
         show_count: 0,
         pending_clip: false,
     };
-    let content = page_content(doc, &page.dict,it.image_gaps.as_mut());
+    let mut ink_gaps=Vec::new();
+    let content = page_content(doc, &page.dict,if image_sources{it.image_gaps.as_mut()}else if source{Some(&mut ink_gaps)}else{None});
+    if source&&(!ink_gaps.is_empty()||it.image_gaps.as_ref().is_some_and(|g|!g.is_empty())||!width.is_finite()||!height.is_finite()||width<=0.||height<=0.){it.gs.ink_geometry_complete=false;}
+
     if image_sources && (!(width.is_finite()&&height.is_finite()&&width>0.&&height>0.)||!device.0.iter().all(|v|v.is_finite())){it.gs.source_geometry_complete=false;it.image_gap(crate::source_images::GapKind::InvalidPageGeometry,b"");}
     it.run(&content, &page.resources);
     let resolved = it.source_resolved.take().unwrap_or_default();
+    let ink_rects=it.source_rects.take().unwrap_or_default();
     let image_draws=it.image_draws.take().unwrap_or_default();
     let image_gaps=it.image_gaps.take().unwrap_or_default();
     (
@@ -269,6 +281,7 @@ fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bo
             .collect(),
     },
         resolved,
+        ink_rects,
         image_draws,
         image_gaps,
     )
@@ -303,6 +316,7 @@ impl Interp<'_> {
                         if !operands.is_empty()
                             || !crate::inline_image::skip_raw(&mut parser, self.doc, resources)
                         {
+                            self.gs.ink_geometry_complete=false;
                             skip_inline_image(&mut parser);
                         }
                     } else {
@@ -319,6 +333,7 @@ impl Interp<'_> {
     }
 
     fn op(&mut self, op: &[u8], o: &[Object], resources: &Dict) {
+        self.observe_ink_op(op,o,resources);
         let n = |i: usize| Self::num(o, i);
         match op {
             b"q" => self.stack.push(self.gs.clone()),
@@ -452,7 +467,7 @@ impl Interp<'_> {
             b"f" | b"F" | b"f*" => self.paint(false, true, false),
             b"B" | b"B*" => self.paint(true, true, false),
             b"b" | b"b*" => self.paint(true, true, true),
-            b"W" | b"W*" => {self.pending_clip=true;if self.image_gaps.is_some(){self.source_pending_clip=Some(if op==b"W*"{crate::source_images::ClipRule::EvenOdd}else{crate::source_images::ClipRule::NonZero});}},
+            b"W" | b"W*" => {self.pending_clip=true;if self.image_gaps.is_some()||self.source_rects.is_some(){self.source_pending_clip=Some(if op==b"W*"{crate::source_images::ClipRule::EvenOdd}else{crate::source_images::ClipRule::NonZero});}},
             b"n" => {
                 self.flush_subpath();
                 self.apply_clip();
@@ -542,6 +557,7 @@ impl Interp<'_> {
             let spacing = extra * to_pt * if font.vertical { -1.0 } else { gs.h_scale };
             let kern = std::mem::take(&mut self.pending_kern) * to_pt * if font.vertical { -1.0 } else { gs.h_scale };
             let bbox = bounds(&trm, bbox_pts);
+            let ink_rect=if self.source_rects.is_some(){self.capture_ink_rectangle(&font,&c,&trm)}else{None};
             self.tm = advance.then(&self.tm);
             self.glyphs.push(Glyph {
                 text: font.unicode(&c),
@@ -560,6 +576,7 @@ impl Interp<'_> {
                 kern,
                 show: self.show_count,
             });
+            if let Some(rects)=&mut self.source_rects{rects.push(ink_rect);}
             if let Some(resolved) = &mut self.source_resolved {
                 resolved.push(font.source_aj1_fallback(self.doc, &c));
             }
@@ -666,7 +683,7 @@ impl Interp<'_> {
         let saved=(self.gs.clone(),self.stack.len(),self.tm,self.tlm,self.current.take(),std::mem::take(&mut self.path));
         let saved_pending=self.source_pending_clip.take();
         self.gs.ctm=matrix.then(&self.gs.ctm);
-        if self.image_draws.is_some(){
+        if self.image_draws.is_some()||self.source_rects.is_some(){
             if saved_pending.is_some()||saved.4.is_some()||!saved.5.is_empty(){self.image_gap(GapKind::OpenPathAtForm,name);self.gs.source_geometry_complete=false;}
             if invalid_matrix{self.image_gap(GapKind::InvalidFormMatrix,name);self.gs.source_geometry_complete=false;}
             if invalid_resources{self.image_gap(GapKind::InvalidFormResources,name);self.gs.source_geometry_complete=false;}
@@ -732,3 +749,5 @@ fn skip_inline_image(parser: &mut Parser) {
     }
     parser.lexer.pos = data.len();
 }
+
+#[path="source_ruling_context.rs"]mod ruling_context;

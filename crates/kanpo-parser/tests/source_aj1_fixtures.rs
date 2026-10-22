@@ -2,6 +2,8 @@
 mod legacy_analysis;
 #[path = "support/expected_article_partitions.rs"]
 mod expected_article_partitions;
+#[path = "support/expected_native_source_order.rs"]
+mod expected_native_source_order;
 use serde_json::Value;
 fn actual(pdf: &[u8]) -> Value {
     legacy_analysis::value(&kanpo_parser::analyze_item(
@@ -240,6 +242,10 @@ fn source_20260828g001920071_complete_original() {
     let e = expected_article_partitions::with_articles(
         e,
         include_str!("expected-native-article-partitions/20260828g001920071.json"),
+    );
+    let e = expected_native_source_order::with_reviewed_order(
+        e,
+        include_str!("expected-native-source-order/20260828g001920071.json"),
     );
     assert_eq!(a, e);
 }

@@ -28,7 +28,7 @@ fn push(p: &mut PageTrace, text: &str, b: [f32; 4], font: usize) {
     p.text = p.doc_text.clone();
 }
 fn empty() -> PageTrace {
-    PageTrace {
+    PageTrace {native_axes:vec![],native_rulings:vec![],
         width: 600.,
         height: 800.,
         layout: "tiers",

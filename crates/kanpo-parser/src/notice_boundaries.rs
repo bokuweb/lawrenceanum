@@ -26,7 +26,7 @@ fn contains(a: Rect, b: Rect) -> bool {
 fn intersects(a: Rect, b: Rect) -> bool {
     a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3]
 }
-fn date(t: &str) -> bool {
+pub(crate) fn date(t: &str) -> bool {
     fn digit(c: char) -> Option<u32> {
         match c {
             '0'..='9' => Some(c as u32 - '0' as u32),
@@ -396,7 +396,7 @@ fn headings(page: &PageTrace, lines: &[SourceLine<'_>], frames: &[OwnedFrame]) -
 }
 // A role mention in a sentence is not a nominal signature. Dots used in
 // personal initials and middle dots remain valid; sentence terminators do not.
-fn signature_office(tail: &str) -> bool {
+pub(crate) fn signature_office(tail: &str) -> bool {
     !tail.contains(['。', '！', '？', '!', '?']) && [
         "代表取締役", "取締役", "代表清算人", "清算人", "代表社員", "代表理事", "理事長", "破産管財人",
     ].iter().any(|role| tail.strip_prefix(role).is_some_and(|s| !s.is_empty()))
@@ -780,6 +780,9 @@ fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> V
         }
     }
     cuts.extend(ruled_corrections::section_starts(page, rules, lines));
+    let scopes=crate::financial_enclosures::certified_ranges(page,rules);
+    cuts.retain(|&cut|!scopes.iter().any(|&(start,end)|start<cut&&cut<end));
+    for(start,end)in scopes{cuts.insert(start);if end<lines.len(){cuts.insert(end);}}
     cuts.into_iter().collect()
 }
 pub(crate) fn cuts(page: &PageTrace, rules: &PageRules) -> Vec<usize> {

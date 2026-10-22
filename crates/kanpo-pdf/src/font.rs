@@ -65,6 +65,8 @@ pub struct Font {
     declared_to_unicode: bool,
     source_cff: Option<crate::object::Stream>,
     source_charset: OnceLock<Option<Vec<u16>>>,
+    source_cid0: bool,
+    source_rectangles: OnceLock<Option<std::collections::BTreeMap<u16,[f64;4]>>>,
 }
 
 /// 文字列中の 1 文字。
@@ -109,6 +111,8 @@ impl Font {
             declared_to_unicode: dict.contains_key(&b"ToUnicode"[..]),
             source_cff: None,
             source_charset: OnceLock::new(),
+            source_cid0: false,
+            source_rectangles: OnceLock::new(),
         };
         if subtype == "Type0" {
             font.composite = true;
@@ -133,6 +137,7 @@ impl Font {
                 .dict_get(dict, b"DescendantFonts")
                 .and_then(|a| a.as_array().and_then(|a| a.first().map(|x| doc.resolve(x))));
             if let Some(Object::Dict(cid_font)) = desc {
+                font.source_cid0=doc.dict_get(&cid_font,b"Subtype").and_then(|o|o.as_name().map(Vec::from)).as_deref()==Some(b"CIDFontType0");
                 font.load_cid_metrics(doc, &cid_font);
                 if let Some(csi) = doc.dict_get(&cid_font, b"CIDSystemInfo") {
                     let ordering = csi
@@ -358,6 +363,17 @@ impl Font {
             .as_ref()?;
         set.binary_search(&u16::try_from(cid).ok()?).ok()?;
         Some(c)
+    }
+
+    /// Geometry from this exact embedded program and actual Identity CID route.
+    /// Explicit ToUnicode is neither replaced nor used to infer an outline.
+    pub(crate) fn source_rectangle(&self,doc:&Document,c:&CharCode)->Option<[f64;4]> {
+        if !self.composite||!self.source_cid0||!self.identity_encoding||self.vertical{return None;}
+        let cid=u16::try_from(c.cid).ok()?;
+        self.source_rectangles.get_or_init(||{
+            let bytes=doc.decode_stream(self.source_cff.as_ref()?).ok()?;
+            crate::cff_aj1::rectangles::rectangles(&bytes)
+        }).as_ref()?.get(&cid).copied()
     }
 
     /// 1 文字の Unicode。対応が分からなければ空文字列。

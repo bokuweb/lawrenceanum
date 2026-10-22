@@ -32,7 +32,7 @@ fn publication(
     address_rows: usize,
     issuer_rows: usize,
 ) -> (PageTrace, PageRules) {
-    let mut page = PageTrace {
+    let mut page = PageTrace {native_axes:vec![],native_rulings:vec![],
         width: 600.,
         height: 800.,
         layout: "tiers",

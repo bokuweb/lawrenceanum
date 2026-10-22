@@ -83,3 +83,7 @@ mod source_aj1_api_tests;
 mod source_images;
 pub use source_images::{ImageDraw,XObjectPageSources,CaptureGap as ImageCaptureGap,GapKind as ImageCaptureGapKind,SourceClip as ImageSourceClip,ClipOrigin as ImageClipOrigin,ClipRule as ImageClipRule};
 pub fn extract_pages_with_xobject_sources(pdf:&[u8])->Result<Vec<XObjectPageSources>>{source_images::extract(pdf)}
+
+mod source_ruling;
+
+#[cfg(test)]mod source_ruling_pdf_tests;

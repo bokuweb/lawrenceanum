@@ -297,3 +297,21 @@ pub(crate) fn order_financial_enclosures(
 #[cfg(test)]
 #[path = "financial_enclosure_tests.rs"]
 mod tests;
+
+pub(crate) fn order_with_source(
+ units:&mut [Unit], words:&[Word], frames:&[Box4], width:f32,height:f32,
+ _styles:&[Option<crate::trace::NativeStyles>],_content:&[crate::trace::ContentStyles],
+ _bounds:&[crate::trace::NativeBounds],_axes:&[crate::native_word_axes::NativeAxis],_rulings:&[crate::native_word_rulings::NativeRuling], previous:&[crate::trace::PageTrace],
+) {
+ if _axes.is_empty() || _axes.iter().all(|a|*a==crate::native_word_axes::NativeAxis::Compatibility) {order_financial_enclosures(units,words,frames,width,height);return;}
+ let source=source_native::Source{words,styles:_styles,content:_content,bounds:_bounds,axes:_axes,rulings:_rulings,previous};source_native::restore(units,&source,frames);
+}
+#[path="financial_native_source.rs"]
+mod source_native;
+#[cfg(test)]
+#[path="financial_source_contract_tests.rs"]
+mod source_contract_tests;
+
+#[path="financial_source_scopes.rs"]
+mod source_scopes;
+pub(crate) use source_scopes::{ranges as certified_ranges,repair_segments};

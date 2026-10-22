@@ -8,6 +8,7 @@ use crate::page::Page;
 pub struct Aj1PageSources {
     pub(crate) original: Page,
     pub(crate) resolved: Vec<Option<char>>,
+    pub(crate) ink_rects: Vec<Option<[f64;4]>>,
 }
 #[cfg(test)]
 fn same(a: &Glyph, b: &Glyph) -> bool {
@@ -33,6 +34,7 @@ impl Aj1PageSources {
     pub fn page(&self) -> &Page {
         &self.original
     }
+    pub(crate) fn ink_rects(&self)->&[Option<[f64;4]>]{&self.ink_rects}
     pub(crate) fn resolved(&self) -> &[Option<char>] {
         &self.resolved
     }

@@ -146,6 +146,7 @@ pub fn analyze_with_rules(xhtml: &str, rules: &[Option<lines::PageRules>]) -> An
     let tables: Vec<trace::Table> = pages.iter().flat_map(|p| p.tables.iter().cloned()).collect();
     let mut segments = segment_articles(&doc_text);
     wrapped_notice_titles::repair_wrapped_notice_titles(&mut segments, &pages);
+    financial_enclosures::repair_segments(&mut segments,&pages,rules);
     let groups=notice_boundaries::groups(&segments,&doc_text,&pages,rules);
     let mut articles=Vec::new();
     for (segment,parts)in segments.into_iter().zip(groups){
@@ -612,3 +613,12 @@ mod legal_role_original_tests;
 
 #[cfg(test)]
 mod closed_frame_continuation_original_tests;
+
+mod native_word_axes;
+
+#[cfg(test)]
+mod financial_original_source_tests;
+
+#[cfg(test)]mod native_rule_source_order_tests;
+
+mod native_word_rulings;

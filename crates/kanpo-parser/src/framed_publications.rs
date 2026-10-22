@@ -1,4 +1,4 @@
-//! Keep a proven closed financial publication atomic in the reading stream.
+//! Keep a proven closed publication atomic in the reading stream.
 //! A transaction moves whole source lines only; existing publication witnesses
 //! authorize its scope. No publisher value or fixed distance/count is inferred.
 use super::*;
@@ -245,12 +245,9 @@ fn restore_page(page: &mut PageTrace, rules: &PageRules, table_start: usize) {
             }) {
                 continue;
             }
-            if !headings(&candidate, &next, &owned)
-                .iter()
-                .any(|h| h.line == first_global && h.financial && h.authorized)
-            {
-                continue;
-            }
+            // The existing source boundary proof authorizes an independent
+            // publication by its own dated witness. Its title's semantic type
+            // does not determine whether a proven frame may remain atomic.
             if !decisions(&candidate, rules, &next).contains(&first_global) {
                 continue;
             }

@@ -122,7 +122,7 @@ pub fn poppler_readable(font: &FontInfo) -> bool {
 pub const IDENTITY_CID_BASE: u32 = 0xF0000;
 
 /// 語に入れる文字列。
-fn glyph_text(g: &Glyph, fonts: &[FontInfo]) -> String {
+pub(crate) fn glyph_text(g: &Glyph, fonts: &[FontInfo]) -> String {
     let unmapped = fonts.get(g.font).is_some_and(|f| f.ordering.as_deref() == Some("Identity") && !f.has_to_unicode);
     match char::from_u32(IDENTITY_CID_BASE + g.cid) {
         Some(c) if unmapped && g.cid <= 0xFFFD => c.to_string(),
@@ -319,7 +319,7 @@ fn resolved_aj1_word(page: &Page, word: &Word) -> bool {
 
 /// ページを `pdftotext -bbox-layout` 形式の XHTML にする。語ごとに 1 つの flow・block・line に入れる。
 pub fn bbox_layout(pages: &[Page]) -> String {
-    layout(pages.iter().map(|p| (p,None)), false)
+    layout(pages.iter().map(|p| (p,None,None)), false)
 }
 /// Render only owned original pages with their own source evidence.
 /// There is no external Page argument to which evidence could be transferred.
@@ -333,12 +333,12 @@ pub fn bbox_layout(pages: &[Page]) -> String {
 /// let _ = kanpo_pdf::bbox::bbox_layout_with_aj1_sources(pages, sources);
 /// ```
 pub fn bbox_layout_with_aj1_sources(sources: &[crate::Aj1PageSources]) -> String {
-    layout(sources.iter().map(|s| (s.page(),Some(s.resolved()))), false)
+    layout(sources.iter().map(|s| (s.page(),Some(s.resolved()),None)), false)
 }
 /// Original source font/size identities. These are provenance, not inferred boldness.
 /// Each style is bound to the glyphs of its own emitted word.
 pub fn bbox_layout_with_native_styles(sources: &[crate::Aj1PageSources]) -> String {
-    layout(sources.iter().map(|s| (s.page(), Some(s.resolved()))), true)
+    layout(sources.iter().map(|s| (s.page(), Some(s.resolved()),Some(s.ink_rects()))), true)
 }
 fn native_styles(page: &Page, word: &Word) -> Option<String> {
     let mut styles = std::collections::BTreeSet::new();
@@ -387,12 +387,36 @@ fn native_content_styles(page: &Page, word: &Word, resolved: Option<&[Option<cha
     if raw != word.text || candidate_chars.as_mut().is_some_and(|cs| cs.next().is_some()) { return None; }
     Some(content.into_iter().map(|(f,b)| format!("{f}:{b:016x}")).collect::<Vec<_>>().join(" "))
 }
-fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>)>, emit_styles:bool) -> String {
+/// Source advances certify a displayed reading axis independently of font mode
+/// and word aspect. No rounding or tolerance can turn a diagonal into an axis.
+fn native_source_axis(page: &Page, word: &Word) -> Option<&'static str> {
+    native_styles(page, word)?;
+    if word.glyphs.windows(2).any(|p| p[0] >= p[1]) { return None; }
+    let mut axis = None;
+    let mut raw = String::new();
+    for &id in &word.glyphs {
+        let glyph = page.glyphs.get(id)?;
+        if glyph.invisible || ![glyph.x,glyph.y,glyph.end_x,glyph.end_y].iter().all(|x|x.is_finite()) { return None; }
+        let (x,y) = (glyph.end_x-glyph.x,glyph.end_y-glyph.y);
+        let direction = match (x,y) {
+            (x,0.) if x.is_finite() && x>0. => "right",
+            (0.,y) if y.is_finite() && y>0. => "down",
+            (x,0.) if x.is_finite() && x<0. => "left",
+            (0.,y) if y.is_finite() && y<0. => "up",
+            _ => return None,
+        };
+        if axis.is_some_and(|a|a!=direction) { return None; }
+        axis = Some(direction);
+        raw.push_str(&glyph_text(glyph,&page.fonts));
+    }
+    (raw == word.text).then_some(axis).flatten()
+}
+fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>,Option<&'a [Option<[f64;4]>]>)>, emit_styles:bool) -> String {
     let mut s = String::from(
         "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\
          <html xmlns=\"http://www.w3.org/1999/xhtml\">\n<head>\n<title></title>\n</head>\n<body>\n<doc>\n",
     );
-    for (page, resolved_source) in pages {
+    for (page, resolved_source, ink_rects) in pages {
         // poppler は /Rotate の前の幅・高さを書く。
         let (w, h) = if page.rotate % 180 == 90 {
             (page.height, page.width)
@@ -407,6 +431,10 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
             );
             let native = native_vertical_attrs(page, &word);
             let styles=if emit_styles { native_styles(page,&word).map(|s|format!(" data-native-styles=\"{s}\"")).unwrap_or_default() }else{String::new()};
+            let axis = if emit_styles { format!(" data-native-axis=\"{}\"",native_source_axis(page,&word).unwrap_or("unknown")) } else { String::new() };
+            let ruling=if emit_styles {ink_rects.and_then(|r|crate::source_ruling::word_ruling(page,&word,r)).map(|(axis,[x0,y0,x1,y1])|{
+                format!(" data-native-ruling=\"{axis}\" data-native-ink-xmin=\"{x0}\" data-native-ink-ymin=\"{y0}\" data-native-ink-xmax=\"{x1}\" data-native-ink-ymax=\"{y1}\"")
+            }).unwrap_or_default()}else{String::new()};
             let content = if emit_styles {
                 let value = native_content_styles(page, &word, resolved_source).unwrap_or_else(|| "unknown".into());
                 format!(" data-native-content-styles=\"{value}\"")
@@ -418,7 +446,7 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
             let resolved = if resolved_aj1_word(page, &word) { " data-unicode-aj1=\"1\"" } else { "" };
             let _ = writeln!(
                 s,
-                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}>{}</word>\n        </line>\n      </block>\n    </flow>",
+                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}{axis}{ruling}>{}</word>\n        </line>\n      </block>\n    </flow>",
                 escape(&word.text)
             );
         }
@@ -644,14 +672,14 @@ mod native_style_tests {
     #[test]
     fn source_style_renderer_only_adds_metadata_to_the_legacy_rendering() {
         let p = page(vec![glyph("同", 10., 0, 8.), glyph("同", 40., 1, 9.)]);
-        let sources = vec![crate::Aj1PageSources {
+        let sources = vec![crate::Aj1PageSources { ink_rects:vec![],
             resolved: vec![None, None],
             original: p.clone(),
         }];
         let old = bbox_layout_with_aj1_sources(&sources);
         let mut new = bbox_layout_with_native_styles(&sources);
         assert_eq!(new.matches(" data-native-styles=\"").count(), 2);
-        for attr in ["data-native-styles", "data-native-content-styles"] {
+        for attr in ["data-native-styles", "data-native-content-styles", "data-native-axis", "data-native-ruling", "data-native-ink-xmin", "data-native-ink-ymin", "data-native-ink-xmax", "data-native-ink-ymax"] {
             let needle = format!(" {attr}=\"");
             while let Some(start) = new.find(&needle) {
                 let from = start + needle.len();
@@ -667,3 +695,7 @@ mod native_style_tests {
 #[cfg(test)]
 #[path="native_content_style_tests.rs"]
 mod native_content_style_tests;
+
+#[cfg(test)]
+#[path="native_axis_tests.rs"]
+mod native_axis_tests;

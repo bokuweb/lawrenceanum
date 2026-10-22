@@ -41,7 +41,7 @@ fn table_line(t: Table) -> Line {
 }
 fn page(lines: Vec<Line>) -> PageTrace {
     let text = join_lines(&lines);
-    PageTrace {
+    PageTrace {native_axes:vec![],native_rulings:vec![],
         native_styles:vec![],
         native_bounds: vec![],
         native_content_styles: vec![],

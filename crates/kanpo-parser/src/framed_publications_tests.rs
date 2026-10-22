@@ -114,7 +114,7 @@ fn finish(p: &mut PageTrace, start: usize) {
     p.tables = tables;
 }
 fn fixture(rows: usize) -> (PageTrace, PageRules) {
-    let mut p = PageTrace {
+    let mut p = PageTrace {native_axes:vec![],native_rulings:vec![],
         width: 400.,
         height: 600.,
         layout: "horizontal",
@@ -765,4 +765,25 @@ fn original_20260930g002160119_publication_source_memberships() {
         ),
         false,
     );
+}
+
+fn signed_frames()->(PageTrace,PageRules) {
+ let(mut p,r)=fixture(1);
+ for(id,value)in[(0,"任意の手続公告"),(2,"代表取締役任意"),(3,"別の手続公告"),(5,"代表取締役別")]{p.words[id].raw=value.into();p.words[id].text=value.into();let line=p.regions[0].lines.iter_mut().find(|l|l.words==vec![id]).unwrap();line.text=value.into();}
+ finish(&mut p,0);(p,r)
+}
+#[test] fn a_signed_publication_with_a_whole_table_is_atomic_without_a_financial_title() {
+ let(mut p,r)=signed_frames();let before=p.clone();run(&mut p,r.clone());
+ assert_eq!(ids(&p),vec![vec![0],vec![1],vec![2],vec![6],vec![3],vec![4],vec![5],vec![7]]);
+ conserved(&before,&p);let once=snapshot(&p);run(&mut p,r);assert_eq!(snapshot(&p),once);
+}
+#[test] fn signed_atomic_publications_do_not_depend_on_their_formal_title_value_or_length() {
+ let(mut p,r)=signed_frames();let value=format!("{}公告","複数の事業に関する任意の手続".repeat(80));p.words[0].raw=value.clone();p.words[0].text=value.clone();p.regions[0].lines[0].text=value;finish(&mut p,0);
+ run(&mut p,r);assert_eq!(ids(&p)[3],vec![6]);
+}
+#[test] fn a_generic_closed_frame_still_needs_its_own_date_and_signature() {
+ for id in [1,2] {
+  let(mut p,r)=signed_frames();p.words[id].raw="任意の通常文".into();p.words[id].text="任意の通常文".into();p.regions[0].lines.iter_mut().find(|l|l.words==vec![id]).unwrap().text="任意の通常文".into();finish(&mut p,0);
+  let before=snapshot(&p);run(&mut p,r);assert_eq!(snapshot(&p),before);
+ }
 }

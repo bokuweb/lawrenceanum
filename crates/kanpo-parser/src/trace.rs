@@ -186,6 +186,10 @@ pub struct PageTrace {
     pub(crate) native_bounds: Vec<NativeBounds>,
     #[serde(skip)]
     pub(crate) native_content_styles: Vec<ContentStyles>,
+    #[serde(skip)]
+    pub(crate) native_axes: Vec<crate::native_word_axes::NativeAxis>,
+    #[serde(skip)]
+    pub(crate) native_rulings:Vec<crate::native_word_rulings::NativeRuling>,
     pub width: f32,
     pub height: f32,
     /// ページ全体をどう扱ったか: `"tiers"`（段に分けて復元）/ `"headerless_shinkyu"`

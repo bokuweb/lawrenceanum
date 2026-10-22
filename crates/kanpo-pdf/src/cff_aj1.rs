@@ -311,3 +311,5 @@ pub(crate) fn standard_cids(data: &[u8]) -> Option<Vec<u16>> {
 #[cfg(test)]
 #[path = "cff_aj1_tests.rs"]
 mod tests;
+
+#[path="cff_rect.rs"]pub(crate) mod rectangles;

@@ -172,7 +172,7 @@ impl Fixture {
             .filter(|s| !s.is_empty())
             .collect::<Vec<_>>()
             .join("\n");
-        PageTrace {
+        PageTrace {native_axes:vec![],native_rulings:vec![],
             width: 10000.,
             height: 10000.,
             layout: "tiers",
