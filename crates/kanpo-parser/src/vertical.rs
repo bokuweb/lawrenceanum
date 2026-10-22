@@ -2307,6 +2307,7 @@ fn page_words_with_styles(
     // （縦長の語と横長の語の文字数）で決める。
     // 目次のページ番号（私用 CID の数字）。位置で見るので、座標を補正する前に決める。
     let toc_numbers = toc_page_numbers(&raws);
+    let source_boxes: Vec<_> = raws.iter().map(|(x, y, x1, y1, _)| [*x, *y, *x1, *y1]).collect();
     let (mut v_chars, mut h_chars) = (0usize, 0usize);
     for (x, y, x1, y1, t) in &raws {
         let n = t.chars().count();
@@ -2433,7 +2434,7 @@ fn page_words_with_styles(
 
     let mut cols: Vec<Col> = Vec::new();
     let mut words: Vec<Word> = Vec::new();
-    for (((((x, y, x1, y1, raw), glyph), (gx, gy, gx1, gy1)), toc_number), dx) in raws.into_iter().zip(glyphs).zip(geom).zip(toc_numbers).zip(display_dx) {
+    for ((((((x, y, x1, y1, raw), glyph), (gx, gy, gx1, gy1)), toc_number), dx), source_box) in raws.into_iter().zip(glyphs).zip(geom).zip(toc_numbers).zip(display_dx).zip(source_boxes) {
         // scraper が実体参照は復号済み。私用 CID の括弧付き数字等を復元し、約物を正規化し、
         // 私用領域(傍線等のフォント固有グリフ)を除去する。
         let text: String = source_candidates[words.len()]
@@ -2483,6 +2484,7 @@ fn page_words_with_styles(
             y0: y,
             x1: x1 - dx,
             y1,
+            source_box,
             raw,
             text,
             status,

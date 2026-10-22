@@ -2,10 +2,12 @@ import { useId, type ComponentPropsWithoutRef } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { resolveWikiLink } from "./wiki-types";
+import { useReducedMotion } from "../ui/use-reduced-motion";
 
 /** wiki の Markdown を描画する。相対リンクは SPA 内遷移、脚注はページ内スクロールにする (HashRouter のため)。 */
 export function WikiMarkdown({ body, from, onOpen }: { body: string; from: string; onOpen: (path: string) => void }) {
   const idPrefix = `wiki-${useId()}-`;
+  const reducedMotion = useReducedMotion();
   return (
     <div className="text-sm leading-relaxed space-y-3 [&_.footnotes]:mt-8 [&_.footnotes]:pt-3 [&_.footnotes]:border-t [&_.footnotes]:border-border [&_.footnotes]:text-xs [&_.footnotes]:text-muted-foreground">
       <Markdown
@@ -32,7 +34,7 @@ export function WikiMarkdown({ body, from, onOpen }: { body: string; from: strin
             <pre className="whitespace-pre-wrap break-all text-xs leading-relaxed bg-muted/50 border border-border rounded-md p-3 max-h-96 overflow-y-auto [&_code]:bg-transparent [&_code]:p-0">{children}</pre>
           ),
           code: ({ children }) => <code className="px-1 py-0.5 rounded bg-muted text-[0.9em]">{children}</code>,
-          a: ({ node: _node, ...props }) => <WikiLink {...props} aria-describedby={props["aria-describedby"] === "footnote-label" ? `${idPrefix}footnote-label` : props["aria-describedby"]} from={from} onOpen={onOpen} />,
+          a: ({ node: _node, ...props }) => <WikiLink {...props} aria-describedby={props["aria-describedby"] === "footnote-label" ? `${idPrefix}footnote-label` : props["aria-describedby"]} from={from} onOpen={onOpen} reducedMotion={reducedMotion} />,
         }}
       >
         {body}
@@ -41,8 +43,8 @@ export function WikiMarkdown({ body, from, onOpen }: { body: string; from: strin
   );
 }
 
-function WikiLink({ href = "", from, onOpen, children, ...props }: ComponentPropsWithoutRef<"a"> & { from: string; onOpen: (path: string) => void }) {
-  if (/^[a-z]+:/i.test(href)) {
+function WikiLink({ href = "", from, onOpen, reducedMotion, children, ...props }: ComponentPropsWithoutRef<"a"> & { from: string; onOpen: (path: string) => void; reducedMotion: boolean }) {
+  if (/^[a-z][a-z\d+.-]*:/i.test(href) || href.startsWith("//")) {
     return <a {...props} href={href} target="_blank" rel="noreferrer" className="text-primary hover:underline">{children}</a>;
   }
   if (href.startsWith("#")) {
@@ -53,7 +55,9 @@ function WikiLink({ href = "", from, onOpen, children, ...props }: ComponentProp
         className="text-primary hover:underline"
         onClick={e => {
           e.preventDefault();
-          document.getElementById(decodeURIComponent(href.slice(1)))?.scrollIntoView({ behavior: "smooth", block: "center" });
+          let id: string;
+          try { id = decodeURIComponent(href.slice(1)); } catch { return; }
+          document.getElementById(id)?.scrollIntoView({ behavior: reducedMotion ? "instant" : "smooth", block: "center" });
         }}
       >
         {children}
@@ -67,7 +71,7 @@ function WikiLink({ href = "", from, onOpen, children, ...props }: ComponentProp
       href={target ? `#/wiki/${target}` : href}
       className="text-primary hover:underline"
       onClick={e => {
-        if (!target) return;
+        if (!target || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
         e.preventDefault();
         onOpen(target);
       }}

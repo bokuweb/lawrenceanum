@@ -2,12 +2,13 @@
 // 矩形を PDF の pt 座標の SVG で重ねる。PDF が無ければ白紙に語のテキストを描く。
 // 項目の全ページを縦に並べ、画面から離れたページは描かない（大きさだけの枠にする）。
 import { memo, useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
-import { getDocument, GlobalWorkerOptions, type PDFDocumentProxy, type RenderTask } from "pdfjs-dist";
+import { getDocument, GlobalWorkerOptions, type PDFDocumentProxy, type PDFPageProxy } from "pdfjs-dist";
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import {
   ROLE_COLOR,
   STATUS_LABEL,
   STATUS_REASON,
+  loadKanpoParser,
   type KanpoPageRules,
   type KanpoPageTrace,
   type KanpoRole,
@@ -106,7 +107,8 @@ type SheetProps = {
   /** このページの行。 */
   lines: LineInfo[];
   wordLine: Map<string, LineInfo>;
-  scale: number;
+  zoom: Zoom;
+  containerWidth: number;
   root: HTMLElement | null;
   showDropped: boolean;
   showOrder: boolean;
@@ -124,7 +126,8 @@ const PageSheet = memo(function PageSheet({
   source,
   lines,
   wordLine,
-  scale,
+  zoom,
+  containerWidth,
   root,
   showDropped,
   showOrder,
@@ -139,9 +142,34 @@ const PageSheet = memo(function PageSheet({
   // 一度見えたページだけ PDF を開く（多ページの項目で全部を先に開かない）。
   const [seen, setSeen] = useState(false);
   const { doc: pdf, error: pdfOpenError } = usePdfDocument(seen ? source.pdf : null);
+  const [loadedPage, setLoadedPage] = useState<{ doc: PDFDocumentProxy; page: PDFPageProxy } | null>(null);
+  const pdfPage = loadedPage?.doc === pdf && loadedPage.page.pageNumber === source.pdfPage ? loadedPage.page : null;
   const [pdfError, setPdfError] = useState<string | null>(null);
-  const cssW = page.width * scale;
-  const cssH = page.height * scale;
+  const [aligned, setAligned] = useState<{ doc: PDFDocumentProxy; words: KanpoWord[]; page: number; boxes: ([number, number, number, number] | null)[] } | null>(null);
+  const hasAlignment = aligned?.doc === pdf && aligned?.words === page.words && aligned?.page === source.pdfPage;
+  const displayWords = useMemo(() => hasAlignment ? page.words.map((w, i) => {
+    const b = aligned!.boxes[i];
+    return b ? { ...w, x0: b[0], y0: b[1], x1: b[2], y1: b[3] } : w;
+  }) : page.words, [hasAlignment, aligned, page.words]);
+
+  useEffect(() => {
+    if (!pdf) return;
+    let cancelled = false;
+    Promise.all([pdf.getData(), loadKanpoParser()]).then(([data, parser]) => {
+      if (cancelled || !parser) return;
+      const boxes = parser.displayBoxes(data, source.pdfPage, page.words);
+      if (!cancelled) setAligned({ doc: pdf, words: page.words, page: source.pdfPage, boxes });
+    }).catch((e) => { if (!cancelled) setPdfError(String(e?.message ?? e)); });
+    return () => { cancelled = true; };
+  }, [pdf, source.pdfPage, page.words]);
+  // bbox の page サイズは /Rotate 適用前でも、語・罫線の座標は回転後。
+  // PDF の表示サイズを使い、キャンバスと SVG を同じ座標系・倍率で描く。
+  const viewport = pdfPage?.getViewport({ scale: 1 });
+  const width = viewport?.width ?? page.width;
+  const height = viewport?.height ?? page.height;
+  const scale = zoom === "fit" ? Math.max(0.2, (containerWidth - 16) / width) : zoom;
+  const cssW = width * scale;
+  const cssH = height * scale;
 
   useEffect(() => {
     const el = boxRef.current;
@@ -157,33 +185,37 @@ const PageSheet = memo(function PageSheet({
     return () => io.disconnect();
   }, [root]);
 
-  // PDF をキャンバスへ描く。解析結果の幅（pdftotext の pt）に合わせて拡縮する。
+  // PDF のページ情報は描画から分けて保持する（ズーム・再表示でも同じサイズを使う）。
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!pdf || !visible || !canvas || !cssW) return;
-    let task: RenderTask | null = null;
+    if (!pdf) return;
     let cancelled = false;
     setPdfError(null);
     pdf.getPage(source.pdfPage).then(
       (p) => {
-        if (cancelled) return;
-        const base = p.getViewport({ scale: 1 });
-        const dpr = window.devicePixelRatio || 1;
-        const vp = p.getViewport({ scale: (cssW / base.width) * dpr });
-        canvas.width = Math.floor(vp.width);
-        canvas.height = Math.floor(vp.height);
-        task = p.render({ canvasContext: canvas.getContext("2d")!, viewport: vp });
-        task.promise.catch((e) => {
-          if (!cancelled && e?.name !== "RenderingCancelledException") setPdfError(String(e?.message ?? e));
-        });
+        if (!cancelled) setLoadedPage({ doc: pdf, page: p });
       },
       (e) => { if (!cancelled) setPdfError(String(e?.message ?? e)); },
     );
+    return () => { cancelled = true; };
+  }, [pdf, source.pdfPage]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!pdfPage || !visible || !canvas || !cssW) return;
+    let cancelled = false;
+    setPdfError(null);
+    const vp = pdfPage.getViewport({ scale: scale * (window.devicePixelRatio || 1) });
+    canvas.width = Math.floor(vp.width);
+    canvas.height = Math.floor(vp.height);
+    const task = pdfPage.render({ canvasContext: canvas.getContext("2d")!, viewport: vp });
+    task.promise.catch((e) => {
+      if (!cancelled && e?.name !== "RenderingCancelledException") setPdfError(String(e?.message ?? e));
+    });
     return () => {
       cancelled = true;
-      task?.cancel();
+      task.cancel();
     };
-  }, [pdf, visible, source.pdfPage, cssW]);
+  }, [pdfPage, visible, scale, cssW]);
 
   // 読み順: 行の順に語の中心を結ぶ折れ線と、各行の先頭語の行番号。
   const order = useMemo(() => {
@@ -192,14 +224,14 @@ const PageSheet = memo(function PageSheet({
     const labels: { x: number; y: number; n: number; color: string }[] = [];
     for (const l of lines) {
       l.words.forEach((id, i) => {
-        const w = page.words[id];
+        const w = displayWords[id];
         if (!w) return;
         pts.push(`${((w.x0 + w.x1) / 2).toFixed(1)},${((w.y0 + w.y1) / 2).toFixed(1)}`);
         if (i === 0) labels.push({ x: w.x1, y: w.y0, n: l.order + 1, color: ROLE_COLOR[l.role] });
       });
     }
     return { pts: pts.join(" "), labels };
-  }, [showOrder, visible, lines, page.words]);
+  }, [showOrder, visible, lines, displayWords]);
 
   const tables = useMemo(() => lines.filter((l) => l.table), [lines]);
   const drawText = !source.pdf || !!pdfOpenError;
@@ -208,7 +240,7 @@ const PageSheet = memo(function PageSheet({
   return (
     <div className="flex flex-col items-center gap-1">
       <div className="self-stretch text-[11px] text-muted-foreground font-mono px-1">{source.label}</div>
-      <div ref={boxRef} data-sheet={index} className="relative bg-white shadow-sm" style={{ width: cssW, height: cssH }}>
+      <div ref={boxRef} data-sheet={index} data-page-width={width} data-aligned={hasAlignment} className="relative bg-white shadow-sm" style={{ width: cssW, height: cssH }}>
         {visible && (
           <>
             {source.pdf && !pdfOpenError && (
@@ -218,7 +250,7 @@ const PageSheet = memo(function PageSheet({
               className="absolute inset-0"
               width={cssW}
               height={cssH}
-              viewBox={`0 0 ${page.width} ${page.height}`}
+              viewBox={`0 0 ${width} ${height}`}
               data-page={index}
             >
               {showRules && source.rules && (
@@ -266,7 +298,7 @@ const PageSheet = memo(function PageSheet({
                   </g>
                 );
               })}
-              {page.words.map((w) => {
+              {displayWords.map((w) => {
                 const line = wordLine.get(wordKey(index, w.id));
                 const dropped = w.status !== "used";
                 if (dropped && !showDropped) return null;
@@ -395,9 +427,6 @@ export function KanpoPageView({
     return () => ro.disconnect();
   }, []);
 
-  // 1pt を何 px で描くか。幅合わせは左右の余白 16px を引く。
-  const scaleOf = (p: KanpoPageTrace) => (zoom === "fit" ? Math.max(0.2, (containerWidth - 16) / p.width) : zoom);
-
   const lineByKey = useMemo(() => new Map(lines.map((l) => [l.key, l])), [lines]);
   const linesByPage = useMemo(() => {
     const m = pages.map(() => [] as LineInfo[]);
@@ -424,9 +453,9 @@ export function KanpoPageView({
         y1: Math.max(...ws.map((w) => w.y1)),
       };
     }
-    const scale = scaleOf(page);
     const cr = c.getBoundingClientRect();
     const br = box.getBoundingClientRect();
+    const scale = br.width / Number(box.dataset.pageWidth);
     const left = br.left - cr.left + c.scrollLeft + ((rect.x0 + rect.x1) / 2) * scale;
     const top = br.top - cr.top + c.scrollTop + ((rect.y0 + rect.y1) / 2) * scale;
     c.scrollTo({ left: left - c.clientWidth / 2, top: top - c.clientHeight / 2, behavior: "smooth" });
@@ -502,7 +531,8 @@ export function KanpoPageView({
               source={sources[i]}
               lines={linesByPage[i] ?? []}
               wordLine={wordLine}
-              scale={scaleOf(p)}
+              zoom={zoom}
+              containerWidth={containerWidth}
               root={container}
               showDropped={showDropped}
               showOrder={showOrder}

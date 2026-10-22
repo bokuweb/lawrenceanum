@@ -55,7 +55,7 @@ function MeetingListItem({ meta, selected, onClick }: {
           <div className="text-sm font-medium truncate">
             {meta.committee ?? "本会議"}
           </div>
-          <div className="flex items-center gap-2 mt-0.5">
+          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
             <span className="text-xs text-muted-foreground">{meta.date}</span>
             <span className="text-xs text-muted-foreground">第{meta.session}回</span>
             <span className="text-xs text-muted-foreground flex items-center gap-0.5">
@@ -120,6 +120,7 @@ function useLinkedLaws(meetingId: string) {
   const [data, setData] = useState<MeetingToLaws | null>(null);
   useEffect(() => {
     let cancelled = false;
+    setData(null);
     api.meetingToLaws(meetingId)
       .then(d => { if (!cancelled) setData(d); })
       .catch(() => {});
@@ -128,25 +129,24 @@ function useLinkedLaws(meetingId: string) {
   return data;
 }
 
-function MeetingDetail({ meetingId, query, onLawClick }: {
+function MeetingDetail({ meetingId, onLawClick }: {
   meetingId: string;
-  query: string;
   onLawClick: (lawId: string) => void;
 }) {
-  const { data, loading } = useMeeting(meetingId);
+  const { data, loading, retry } = useMeeting(meetingId);
   const linkedLaws = useLinkedLaws(meetingId);
   const [speechQuery, setSpeechQuery] = useState("");
-  const effectiveQuery = speechQuery || query;
+  useEffect(() => { setSpeechQuery(""); }, [meetingId]);
 
   const filteredSpeeches = useMemo(() => {
     if (!data) return [];
-    const q = effectiveQuery.trim().toLowerCase();
+    const q = speechQuery.trim().toLowerCase();
     if (!q) return data.speeches;
     return data.speeches.filter(s =>
       s.speech.toLowerCase().includes(q) ||
       (s.speaker ?? "").toLowerCase().includes(q)
     );
-  }, [data, effectiveQuery]);
+  }, [data, speechQuery]);
 
   if (loading) {
     return (
@@ -155,10 +155,15 @@ function MeetingDetail({ meetingId, query, onLawClick }: {
       </div>
     );
   }
-  if (!data) return <div className="p-6 text-sm text-muted-foreground">読み込めませんでした</div>;
+  if (!data) return (
+    <div role="alert" className="p-6 text-sm text-muted-foreground">
+      <p>会議の詳細を読み込めませんでした</p>
+      <button type="button" onClick={retry} className="mt-2 text-primary hover:underline">再試行</button>
+    </div>
+  );
 
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="flex flex-col h-full min-h-0 [overflow-wrap:anywhere]">
       {/* ヘッダー */}
       <div className="px-5 py-4 border-b border-border shrink-0">
         <div className="flex items-center gap-2 mb-1">
@@ -216,13 +221,13 @@ function MeetingDetail({ meetingId, query, onLawClick }: {
       )}
 
       {/* 発言リスト */}
-      <ScrollArea className="flex-1 min-h-0">
+      <ScrollArea className="flex-1 min-h-0 [&>[data-slot=scroll-area-viewport]>div]:!block">
         <div className="px-5">
           {filteredSpeeches.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">該当する発言がありません</p>
           ) : (
             filteredSpeeches.map(s => (
-              <SpeechCard key={s.speech_id} speech={s} query={effectiveQuery} />
+              <SpeechCard key={s.speech_id} speech={s} query={speechQuery} />
             ))
           )}
         </div>
@@ -240,7 +245,7 @@ export function ProceedingsView({
   meetingId: string | null;
   onSelectMeeting: (id: string | null) => void;
 }) {
-  const { data, loading } = useProceedingsIndex();
+  const { data, loading, retry } = useProceedingsIndex();
   const navigate = useNavigate();
 
   const [query, setQuery] = useState("");
@@ -275,9 +280,9 @@ export function ProceedingsView({
   }, [data, query, houseFilter, sessionFilter]);
 
   return (
-    <div className="flex h-full min-h-0">
+    <div className="flex h-full min-h-0 flex-col md:flex-row">
       {/* 左: 一覧 */}
-      <div className="w-80 shrink-0 border-r border-border flex flex-col min-h-0">
+      <div className="w-full max-h-64 md:max-h-none md:w-80 min-h-0 shrink-0 border-b md:border-b-0 md:border-r border-border flex flex-col">
         <div className="px-4 py-3 border-b border-border shrink-0 space-y-2">
           <div className="flex items-center gap-2">
             <h2 className="text-sm font-semibold flex-1">国会会議録</h2>
@@ -320,14 +325,19 @@ export function ProceedingsView({
           </div>
         </div>
 
-        <ScrollArea className="flex-1 min-h-0">
+        <ScrollArea className="flex-1 min-h-0 [&>[data-slot=scroll-area-viewport]>div]:!block">
           {loading ? (
             <div className="p-4 space-y-2">
               {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}
             </div>
+          ) : !data ? (
+            <div role="alert" className="p-6 text-center text-sm text-muted-foreground">
+              <p>国会会議録一覧を読み込めませんでした</p>
+              <button type="button" onClick={retry} className="mt-2 text-primary hover:underline">再試行</button>
+            </div>
           ) : filtered.length === 0 ? (
             <p className="p-6 text-center text-sm text-muted-foreground">
-              {data ? "該当する会議がありません" : "データがありません"}
+              該当する会議がありません
             </p>
           ) : (
             filtered.map(m => (
@@ -347,7 +357,6 @@ export function ProceedingsView({
         {meetingId ? (
           <MeetingDetail
             meetingId={meetingId}
-            query={query}
             onLawClick={id => navigate(`/laws/${id}`)}
           />
         ) : (

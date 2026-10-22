@@ -9,7 +9,7 @@ const BASE = `http://${HOST}:${PORT}/`;
 
 export default defineConfig({
   testDir: "./tests",
-  testMatch: /(history|browse|views|dashboard|pubcomment|kanpo|feed|enforcement|gian|tsutatsu|wiki|reiki|corpus|webmcp|search-targets)\.spec\.ts/,
+  testMatch: /(history|browse|views|dashboard|pubcomment|kanpo|feed|enforcement|gian|tsutatsu|wiki|reiki|corpus|webmcp|search-targets|search-query)\.spec\.ts/,
   use: {
     headless: true,
     viewport: { width: 1280, height: 800 },

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { ScrollArea } from "../ui/scroll-area";
@@ -12,10 +12,10 @@ function toAscii(s: string): string {
   return s.replace(/[０-９]/g, d => String.fromCharCode(d.charCodeAt(0) - 0xff10 + 0x30));
 }
 
-// 通達本文中の「法第N条」を親法令の条文へリンクする。
+// 通達本文中の「法第N条（のM）」を親法令の条文へリンクする。
 // ただし「法」が漢字/かなに続く場合 (民法・措置法・同法 等) は親法令を指さないため
 // リンクしない (誤リンク防止)。先頭または非漢字かなの直後の「法」のみ対象。
-const LAW_ART_RE = /(^|[^一-鿿ぁ-んァ-ヶー々])(法第)([0-9０-９]+)(条)/g;
+const LAW_ART_RE = /(^|[^一-鿿ぁ-んァ-ヶー々])(法第([0-9０-９]+)条((?:の[0-9０-９]+)*))/g;
 
 function renderWithLawLinks(
   text: string,
@@ -29,18 +29,18 @@ function renderWithLawLinks(
   LAW_ART_RE.lastIndex = 0;
   while ((m = LAW_ART_RE.exec(text)) !== null) {
     const [whole, pre] = m;
-    const n = toAscii(m[3]);
+    const articleId = `art_${toAscii(m[3] + m[4]).replaceAll("の", "_")}`;
     const refStart = m.index + pre.length; // 「法第…条」の開始位置
     out.push(text.slice(last, refStart));
     out.push(
       <button
         key={refStart}
         type="button"
-        onClick={() => onJump(`art_${n}`)}
-        title={`${parentLawId} 第${n}条へ`}
+        onClick={() => onJump(articleId)}
+        title={`${parentLawId} ${m[2].slice(1)}へ`}
         className="text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid"
       >
-        法第{m[3]}条
+        {m[2]}
       </button>,
     );
     last = m.index + whole.length;
@@ -53,29 +53,32 @@ function renderWithLawLinks(
 function useTsutatsuIndex() {
   const [data, setData] = useState<TsutatsuIndex | null>(null);
   const [loading, setLoading] = useState(true);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
     api.tsutatsuIndex()
       .then(d => { if (!cancelled) { setData(d); setLoading(false); } })
       .catch(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, []);
-  return { data, loading };
+  }, [attempt]);
+  return { data, loading, retry: () => setAttempt(n => n + 1) };
 }
 
 function useTsutatsuSet(tax: string | null) {
   const [data, setData] = useState<TsutatsuSet | null>(null);
   const [loading, setLoading] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
-    if (!tax) { setData(null); return; }
+    if (!tax) { setData(null); setLoading(false); return; }
     let cancelled = false;
     setLoading(true); setData(null);
     api.tsutatsuSet(tax)
       .then(d => { if (!cancelled) { setData(d); setLoading(false); } })
       .catch(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [tax]);
-  return { data, loading };
+  }, [tax, attempt]);
+  return { data, loading, retry: () => setAttempt(n => n + 1) };
 }
 
 function ItemCard({
@@ -96,7 +99,8 @@ function ItemCard({
     const i = item.text.indexOf(q);
     if (i < 0) return item.text.length > 220 ? item.text.slice(0, 220) + "…" : item.text;
     const start = Math.max(0, i - 60);
-    return (start > 0 ? "…" : "") + item.text.slice(start, i + q.length + 140) + "…";
+    const end = Math.min(item.text.length, i + q.length + 140);
+    return (start > 0 ? "…" : "") + item.text.slice(start, end) + (end < item.text.length ? "…" : "");
   }, [item.text, query]);
   return (
     <div className="px-4 py-3 border-b border-border">
@@ -114,23 +118,22 @@ function ItemCard({
   );
 }
 
-// HashRouter のため `#/tsutatsu?tax=shotoku` の query はハッシュ内にある。
-function initialTaxFromUrl(): string | null {
-  const hash = window.location.hash;
-  const qi = hash.indexOf("?");
-  if (qi < 0) return null;
-  return new URLSearchParams(hash.slice(qi + 1)).get("tax");
-}
-
 export function TsutatsuView() {
   const navigate = useNavigate();
-  const { data: index, loading: idxLoading } = useTsutatsuIndex();
-  const [tax, setTax] = useState<string | null>(() => initialTaxFromUrl());
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { data: index, loading: idxLoading, retry: retryIndex } = useTsutatsuIndex();
+  const tax = searchParams.get("tax") || null;
   useEffect(() => {
     // URL 指定が無い場合のみ先頭の通達集を既定選択。
-    if (!tax && index && index.sets.length > 0) setTax(index.sets[0].tax);
-  }, [index, tax]);
-  const { data: set, loading } = useTsutatsuSet(tax);
+    if (!tax && index && index.sets.length > 0) {
+      setSearchParams(params => {
+        const next = new URLSearchParams(params);
+        next.set("tax", index.sets[0].tax);
+        return next;
+      }, { replace: true });
+    }
+  }, [index, tax, setSearchParams]);
+  const { data: set, loading, retry: retrySet } = useTsutatsuSet(tax);
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
@@ -152,8 +155,12 @@ export function TsutatsuView() {
       </div>
 
       <div className="flex flex-wrap gap-2 mb-4 items-center">
-        <Select value={tax ?? ""} onValueChange={setTax}>
-          <SelectTrigger className="h-8 text-sm w-56"><SelectValue placeholder="通達集" /></SelectTrigger>
+        <Select value={tax ?? ""} onValueChange={value => setSearchParams(params => {
+          const next = new URLSearchParams(params);
+          next.set("tax", value);
+          return next;
+        })}>
+          <SelectTrigger aria-label="通達集" className="h-8 text-sm w-56"><SelectValue placeholder="通達集" /></SelectTrigger>
           <SelectContent>
             {(index?.sets ?? []).map(s => (
               <SelectItem key={s.tax} value={s.tax}>{s.name}（{s.count}）</SelectItem>
@@ -181,9 +188,14 @@ export function TsutatsuView() {
         <ScrollArea className="max-h-[calc(100vh-240px)]">
           {idxLoading || loading ? (
             <div className="p-4 space-y-2">{[...Array(8)].map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}</div>
+          ) : !index || (tax && !set) ? (
+            <div role="alert" className="p-8 text-center text-sm text-muted-foreground">
+              <p>{index ? "通達を読み込めませんでした" : "通達集の一覧を読み込めませんでした"}</p>
+              <button type="button" onClick={index ? retrySet : retryIndex} className="mt-2 text-primary underline">再試行</button>
+            </div>
           ) : !set || filtered.length === 0 ? (
             <p className="p-8 text-center text-sm text-muted-foreground">
-              {index ? "該当する通達がありません" : "通達を読み込めませんでした"}
+              該当する通達がありません
             </p>
           ) : (
             filtered.map((item, i) => (

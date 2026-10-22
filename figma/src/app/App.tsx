@@ -172,7 +172,7 @@ function KanpoRoute() {
 function AppShell() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [params, setParams] = useSearchParams();
+  const [params] = useSearchParams();
   // /search にいるときは URL の ?q= と双方向同期、それ以外のページでは入力即 /search?q= に遷移する。
   const onSearchPage = location.pathname === "/search";
   const topbarValue = onSearchPage ? params.get("q") ?? "" : "";
@@ -184,12 +184,11 @@ function AppShell() {
         <Topbar
           value={topbarValue}
           onChange={(q) => {
-            if (onSearchPage) {
-              if (q) setParams({ q }, { replace: true });
-              else setParams({}, { replace: true });
-            } else {
-              const url = q ? `/search?q=${encodeURIComponent(q)}` : "/search";
-              navigate(url, { replace: true });
+            // 遅延ロード中は React の location が更新前のままなので、履歴の現在位置を参照する。
+            const searching = window.location.hash.split("?")[0] === "#/search";
+            if (q || searching) {
+              // 検索開始時は元の画面を残し、その後の入力は同じ履歴を置換する。
+              navigate(q ? `/search?q=${encodeURIComponent(q)}` : "/search", { replace: searching });
             }
           }}
         />

@@ -2,25 +2,30 @@ import { useEffect, useMemo, useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
+import { Button } from "../ui/button";
 import { BarChart3, ExternalLink } from "lucide-react";
 import { api, type BudgetIndex, type BudgetDataset, type BudgetValue } from "../../data/api";
 
 function useBudgetIndex() {
   const [data, setData] = useState<BudgetIndex | null>(null);
   const [loading, setLoading] = useState(true);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
     api.budgetIndex()
       .then(d => { if (!cancelled) { setData(d); setLoading(false); } })
       .catch(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, []);
-  return { data, loading };
+  }, [attempt]);
+  return { data, loading, retry: () => setAttempt(n => n + 1) };
 }
 
 function formatValue(v: string): string {
-  const n = Number(v);
-  return v.trim() !== "" && Number.isFinite(n) ? n.toLocaleString() : v;
+  // Number への変換は大きな整数の桁を失い、toLocaleString は小数を丸める。
+  // 欠測記号や指数表記は元のまま保ち、通常の数値は文字列のまま桁区切りする。
+  const match = /^([+-]?)(\d+)(\.\d+)?$/.exec(v.trim());
+  return match ? match[1] + match[2].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (match[3] ?? "") : v;
 }
 
 /** 全レコードで値が `time` と一致する次元を時間軸とみなす。 */
@@ -32,6 +37,7 @@ function DatasetDetail({ statsId }: { statsId: string }) {
   const [dataset, setDataset] = useState<BudgetDataset | null>(null);
   const [loading, setLoading] = useState(true);
   const [selection, setSelection] = useState<Record<string, string>>({});
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     let cancelled = false;
     setLoading(true); setDataset(null); setSelection({});
@@ -39,7 +45,7 @@ function DatasetDetail({ statsId }: { statsId: string }) {
       .then(d => { if (!cancelled) { setDataset(d); setLoading(false); } })
       .catch(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [statsId]);
+  }, [statsId, attempt]);
 
   // 時間軸以外で値が複数ある次元を絞り込み条件にし、時系列表として見せる。
   const { timeKey, filterDims } = useMemo(() => {
@@ -60,20 +66,34 @@ function DatasetDetail({ statsId }: { statsId: string }) {
     return { timeKey, filterDims };
   }, [dataset]);
 
-  // 未選択の次元は先頭レコードの値 (e-Stat は合計・全国などの集計行が先頭に来ることが多い)。
-  const selected = (d: { key: string; options: string[] }) => selection[d.key] ?? d.options[0];
+  // 先に選んだ次元に存在する選択肢だけを示す。上流を切り替えた場合も
+  // 有効な系列へ補正し、実在しない組み合わせで空の表になるのを防ぐ。
+  const filters = useMemo(() => {
+    let candidates = dataset?.values ?? [];
+    return filterDims.map(d => {
+      const options = [...new Set(candidates.map(v => v.dimensions[d.key]).filter(v => v !== undefined))];
+      const value = options.includes(selection[d.key]) ? selection[d.key] : options[0];
+      candidates = candidates.filter(v => v.dimensions[d.key] === value);
+      return { key: d.key, options, value };
+    });
+  }, [dataset, filterDims, selection]);
 
   const rows = useMemo(() => {
     const values = (dataset?.values ?? []).filter(v =>
-      filterDims.every(d => v.dimensions[d.key] === selected(d)),
+      filters.every(d => v.dimensions[d.key] === d.value),
     );
     return values.slice().sort((a, b) =>
       (b.time ?? "").localeCompare(a.time ?? "", "ja", { numeric: true }),
     );
-  }, [dataset, filterDims, selection]);
+  }, [dataset, filters]);
 
   if (loading) return <div className="p-6 space-y-3">{[...Array(6)].map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>;
-  if (!dataset) return <div className="p-6 text-sm text-muted-foreground">読み込めませんでした</div>;
+  if (!dataset) return (
+    <div role="alert" className="p-6 text-sm text-muted-foreground">
+      <p>統計を読み込めませんでした</p>
+      <Button variant="outline" size="sm" className="mt-2" onClick={() => setAttempt(n => n + 1)}>再試行</Button>
+    </div>
+  );
 
   return (
     <div className="flex flex-col h-full min-h-0">
@@ -90,13 +110,13 @@ function DatasetDetail({ statsId }: { statsId: string }) {
             e-Stat で見る <ExternalLink className="size-2.5" />
           </a>
         </div>
-        {filterDims.length > 0 && (
+        {filters.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {filterDims.map(d => (
+            {filters.map(d => (
               <label key={d.key} className="space-y-1 min-w-0">
                 <span className="text-xs text-muted-foreground block truncate">{d.key}</span>
-                <Select value={selected(d)} onValueChange={v => setSelection(s => ({ ...s, [d.key]: v }))}>
-                  <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
+                <Select value={d.value ?? ""} onValueChange={v => setSelection(s => ({ ...s, [d.key]: v }))}>
+                  <SelectTrigger aria-label={d.key} className="h-7 text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {d.options.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
                   </SelectContent>
@@ -137,10 +157,10 @@ export function BudgetView({ statsId, onSelect }: {
   statsId: string | null;
   onSelect: (statsId: string) => void;
 }) {
-  const { data, loading } = useBudgetIndex();
+  const { data, loading, retry } = useBudgetIndex();
   return (
-    <div className="flex h-full">
-      <div className="w-80 shrink-0 border-r border-border flex flex-col">
+    <div className="flex h-full min-h-0 flex-col md:flex-row">
+      <div className="w-full max-h-52 md:max-h-none md:w-80 min-h-0 shrink-0 border-b md:border-b-0 md:border-r border-border flex flex-col">
         <div className="px-4 py-3 border-b border-border shrink-0 flex items-center gap-2">
           <h2 className="text-sm font-semibold flex-1">財政統計</h2>
           {data && <span className="text-xs text-muted-foreground">{data.datasets.length}統計</span>}
@@ -148,7 +168,12 @@ export function BudgetView({ statsId, onSelect }: {
         <ScrollArea className="flex-1 min-h-0 [&>[data-slot=scroll-area-viewport]>div]:!block">
           {loading ? (
             <div className="p-4 space-y-2">{[...Array(3)].map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}</div>
-          ) : !data || data.datasets.length === 0 ? (
+          ) : !data ? (
+            <div role="alert" className="p-6 text-center text-sm text-muted-foreground">
+              <p>統計の一覧を読み込めませんでした</p>
+              <Button variant="outline" size="sm" className="mt-2" onClick={retry}>再試行</Button>
+            </div>
+          ) : data.datasets.length === 0 ? (
             <p className="p-6 text-center text-sm text-muted-foreground">データがありません</p>
           ) : (
             data.datasets.map(d => (
@@ -161,7 +186,7 @@ export function BudgetView({ statsId, onSelect }: {
           )}
         </ScrollArea>
       </div>
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0">
         {statsId ? (
           <DatasetDetail statsId={statsId} />
         ) : (

@@ -3,9 +3,9 @@ import { Card, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Skeleton } from "../ui/skeleton";
-import { ARTICLES_V1, ARTICLES_V2 } from "../mock-data";
+import { Button } from "../ui/button";
 import { ArrowRight, FileText, GitCompare } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useLaws } from "../../data/use-laws";
 import {
   api,
@@ -93,13 +93,19 @@ function articleSig(a: Article): string {
 }
 
 export function CompareView({ initialLawId }: { initialLawId: string | null }) {
-  const { laws } = useLaws();
+  // URL の法令が変わったときは選択版・本文・進行中のリクエストも切り替える。
+  return <LawComparison key={initialLawId ?? "default"} initialLawId={initialLawId} />;
+}
+
+function LawComparison({ initialLawId }: { initialLawId: string | null }) {
+  const navigate = useNavigate();
+  const { laws, loading: lawsLoading, error: lawsError, retry: retryLaws } = useLaws();
   const fallbackLaw = laws[0];
   const [lawId, setLawId] = useState(initialLawId ?? fallbackLaw?.law_id ?? "");
   useEffect(() => {
     // 法令リストが後から live で埋まった場合の補正。
     if (!lawId && fallbackLaw) setLawId(fallbackLaw.law_id);
-  }, [fallbackLaw?.law_id]);
+  }, [lawId, fallbackLaw?.law_id]);
 
   const [versions, setVersions] = useState<VersionsJson | null>(null);
   // この法令を改正した法律案の改め文 (無ければ null)。
@@ -113,7 +119,9 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
       .catch(() => {});
     return () => { cancelled = true; };
   }, [lawId]);
-  const [versionsLoading, setVersionsLoading] = useState(true);
+  const [versionsLoading, setVersionsLoading] = useState(!!lawId);
+  const [versionsError, setVersionsError] = useState(false);
+  const [versionsAttempt, setVersionsAttempt] = useState(0);
   const [versionA, setVersionA] = useState<string>("");
   const [versionB, setVersionB] = useState<string>("");
 
@@ -123,7 +131,8 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
   //  壊れて比較が成立しなかった。比較に要るのは常に 2 版なので個別取得に切り替える。)
   const [bodies, setBodies] = useState<Map<string, LawDocumentRaw>>(new Map());
   // 取得に失敗した revision_id (404 等)。再取得ループを避けるため覚えておく。
-  const failedRef = useRef<Set<string>>(new Set());
+  const [failed, setFailed] = useState<Set<string>>(new Set());
+  const [bodyAttempt, setBodyAttempt] = useState(0);
   // 既定選択の「本文が変わる版まで A を遡る」自動処理の状態。ユーザが手で選んだら
   // 止め、暴走 (毎ステップ 1 fetch) を避けるため遡り段数にも上限を設ける。
   const autoWalkRef = useRef(false);
@@ -135,23 +144,24 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
     let cancelled = false;
     setVersions(null);
     setVersionsLoading(true);
+    setVersionsError(false);
     setVersionA("");
     setVersionB("");
     setBodies(new Map());
-    failedRef.current = new Set();
+    setFailed(new Set());
     autoWalkRef.current = false;
     walkStepsRef.current = 0;
     api.versions(lawId)
       .then(v => { if (!cancelled) setVersions(v); })
-      .catch(() => { if (!cancelled) setVersions(null); })
+      .catch(() => { if (!cancelled) setVersionsError(true); })
       .finally(() => { if (!cancelled) setVersionsLoading(false); });
     return () => { cancelled = true; };
-  }, [lawId]);
+  }, [lawId, versionsAttempt]);
 
   // 比較できる版 = versions.json で本文ファイルへの path を持つ版。
   //   - 判定は path の有無のみ。body_available は CI の部分 cache から再生成され
   //     当てにならず (path はあるのに false など) 、これで弾くと全滅し得る。本文の
-  //     実在は実際の fetch (404 は failedRef で吸収) で確かめる。
+  //     実在は実際の fetch で確かめ、失敗時はユーザによる再試行を待つ。
   //   - 未施行版は本番では path=null なので自然に除外される。
   // 日付付きがあれば日付付きだけを並べてセレクタを綺麗に保つ (hash 形式の作業
   // スナップショットは重複なので除外)。
@@ -167,7 +177,7 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
   //   - After (B): 今日以前で最新の版 (未来施行版まで取ると未来 vs 未来になり無意味)。
   //   - Before (A): その 1 つ前。本文が同一なら下の「distinct 化」effect が更に遡る。
   useEffect(() => {
-    if (versionsLoading || !availVersions.length) return;
+    if (versionsLoading || availVersions.length < 2) return;
     const ids = new Set(availVersions.map(v => v.revision_id));
     if (versionA && versionB && ids.has(versionA) && ids.has(versionB)) return;
     const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
@@ -183,26 +193,21 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
   // 選択中の 2 版の本文を on-demand 取得 (キャッシュ済みはスキップ)。
   useEffect(() => {
     let cancelled = false;
-    const want = [versionA, versionB].filter(Boolean).filter(
-      id => !bodies.has(id) && !failedRef.current.has(id)
+    const want = [...new Set([versionA, versionB].filter(Boolean))].filter(
+      id => !bodies.has(id) && !failed.has(id)
     );
-    if (!want.length) return;
-    Promise.all(want.map(id =>
+    for (const id of want) {
       api.revision(lawId, id)
-        .then(doc => ({ id, doc }))
-        .catch(() => { failedRef.current.add(id); return { id, doc: null as LawDocumentRaw | null }; })
-    )).then(results => {
-      if (cancelled) return;
-      const got = results.filter(r => r.doc);
-      if (!got.length) return;
-      setBodies(prev => {
-        const next = new Map(prev);
-        for (const r of got) next.set(r.id, r.doc!);
-        return next;
-      });
-    });
+        .then(doc => {
+          if (!cancelled) setBodies(prev => new Map(prev).set(id, doc));
+        })
+        .catch(() => {
+          if (!cancelled) setFailed(prev => new Set(prev).add(id));
+        });
+    }
     return () => { cancelled = true; };
-  }, [lawId, versionA, versionB, bodies]);
+    // キャッシュ更新で他方の進行中リクエストを取り消さない。
+  }, [lawId, versionA, versionB, bodyAttempt]);
 
   const docA = versionA ? bodies.get(versionA) ?? null : null;
   const docB = versionB ? bodies.get(versionB) ?? null : null;
@@ -230,19 +235,14 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
   const onPickA = (id: string) => { autoWalkRef.current = true; setVersionA(id); };
   const onPickB = (id: string) => { autoWalkRef.current = true; setVersionB(id); };
 
-  // 3 状態: skeleton (ロード中 / 本文取得待ち) → 実比較 / mock (本当にデータが無い)。
-  const willBeLive = availVersions.length >= 2;            // 実データで比較できる見込み
+  const willBeLive = availVersions.length >= 2;
   const bothFetched = !!docA && !!docB;
-  const bothFailed = (versionA ? failedRef.current.has(versionA) : false)
-    && (versionB ? failedRef.current.has(versionB) : false);
-  const liveAvailable = bothFetched && willBeLive;        // 実データが揃った
-  // ロード中、または「実データは来るが本文取得がまだ終わっていない一瞬」は skeleton。
-  // 取得が両方とも失敗したときは無限 skeleton を避け mock に落とす。
-  const showSkeleton = !bothFailed && (versionsLoading || (willBeLive && !liveAvailable));
-  const showMock = !showSkeleton && !liveAvailable;       // 本当にデータが無い時だけ mock
-  const articlesA: Article[] = liveAvailable ? docA!.articles : (ARTICLES_V1 as unknown as Article[]);
-  const articlesB: Article[] = liveAvailable ? docB!.articles : (ARTICLES_V2 as unknown as Article[]);
-  const law = laws.find(l => l.law_id === lawId) ?? laws[0] ?? { title: "民法", law_id: "?" } as any;
+  const bodyError = failed.has(versionA) || failed.has(versionB);
+  const liveAvailable = bothFetched && willBeLive;
+  const showSkeleton = (!lawId && lawsLoading) || versionsLoading || (willBeLive && !liveAvailable && !bodyError);
+  const articlesA: Article[] = liveAvailable ? docA!.articles : [];
+  const articlesB: Article[] = liveAvailable ? docB!.articles : [];
+  const lawTitle = laws.find(l => l.law_id === lawId)?.title ?? docB?.title ?? docA?.title ?? lawId;
 
   // 条の照合は Map で O(1) に (find の O(n²) を避ける)。状態 (追加/削除/変更/同一) も
   // ここで 1 度だけ確定し、stats と本文レンダの双方で使い回す。
@@ -302,61 +302,48 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
   }, [billAmendments, versionB]);
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 md:p-6 space-y-6 min-w-0 [overflow-wrap:anywhere]">
       <div>
         <h1 className="text-2xl flex items-center gap-2"><GitCompare className="size-6" />バージョン比較</h1>
         <p className="text-sm text-muted-foreground mt-1">
           同一法令の異なる版を並べて差分を確認
-          {showMock && (
-            <span className="ml-2 text-amber-600">この法令の蓄積版が 1 つしかないため、モックでデモ表示しています</span>
-          )}
         </p>
       </div>
 
       <Card>
-        <CardContent className="p-4 flex items-end gap-3">
-          <div className="flex-1 space-y-1.5">
-            <label className="text-xs text-muted-foreground">法令</label>
-            <Select value={lawId} onValueChange={setLawId}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+        <CardContent className="p-4 grid grid-cols-1 md:grid-cols-[1fr_1fr_auto_1fr] items-end gap-3">
+          <div className="min-w-0 space-y-1.5">
+            <label htmlFor="compare-law" className="text-xs text-muted-foreground">法令</label>
+            <Select value={lawId} onValueChange={id => navigate(`/laws/${id}/compare`)} disabled={lawsLoading || !laws.length}>
+              <SelectTrigger id="compare-law"><SelectValue placeholder="法令を選択">{lawTitle || undefined}</SelectValue></SelectTrigger>
               <SelectContent>
                 {laws.map(l => <SelectItem key={l.law_id} value={l.law_id}>{l.title}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
-          <div className="flex-1 space-y-1.5">
-            <label className="text-xs text-muted-foreground">基準版 (Before)</label>
+          <div className="min-w-0 space-y-1.5">
+            <label htmlFor="compare-before" className="text-xs text-muted-foreground">基準版 (Before)</label>
             {versionsLoading ? <Skeleton className="h-9 w-full" /> : (
-            <Select value={versionA} onValueChange={onPickA}>
-              <SelectTrigger><SelectValue placeholder="選択" /></SelectTrigger>
+            <Select value={versionA} onValueChange={onPickA} disabled={!willBeLive}>
+              <SelectTrigger id="compare-before"><SelectValue placeholder="選択" /></SelectTrigger>
               <SelectContent>
-                {availVersions.length ? availVersions.map(v => (
+                {availVersions.map(v => (
                   <SelectItem key={v.revision_id} value={v.revision_id}>{versionLabel(v.revision_id)}</SelectItem>
-                )) : (
-                  <>
-                    <SelectItem value="v1-mock">v1 · モック</SelectItem>
-                    <SelectItem value="v2-mock">v2 · モック</SelectItem>
-                  </>
-                )}
+                ))}
               </SelectContent>
             </Select>
             )}
           </div>
-          <ArrowRight className="size-4 text-muted-foreground mb-3" />
-          <div className="flex-1 space-y-1.5">
-            <label className="text-xs text-muted-foreground">比較版 (After)</label>
+          <ArrowRight className="hidden md:block size-4 text-muted-foreground mb-3" />
+          <div className="min-w-0 space-y-1.5">
+            <label htmlFor="compare-after" className="text-xs text-muted-foreground">比較版 (After)</label>
             {versionsLoading ? <Skeleton className="h-9 w-full" /> : (
-            <Select value={versionB} onValueChange={onPickB}>
-              <SelectTrigger><SelectValue placeholder="選択" /></SelectTrigger>
+            <Select value={versionB} onValueChange={onPickB} disabled={!willBeLive}>
+              <SelectTrigger id="compare-after"><SelectValue placeholder="選択" /></SelectTrigger>
               <SelectContent>
-                {availVersions.length ? availVersions.map(v => (
+                {availVersions.map(v => (
                   <SelectItem key={v.revision_id} value={v.revision_id}>{versionLabel(v.revision_id)}</SelectItem>
-                )) : (
-                  <>
-                    <SelectItem value="v1-mock">v1 · モック</SelectItem>
-                    <SelectItem value="v2-mock">v2 · モック</SelectItem>
-                  </>
-                )}
+                ))}
               </SelectContent>
             </Select>
             )}
@@ -364,7 +351,26 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
         </CardContent>
       </Card>
 
-      {showSkeleton ? (
+      {lawsError && (
+        <div role="alert" className="text-sm text-muted-foreground space-y-2">
+          <p>法令一覧を取得できませんでした。</p>
+          <Button variant="outline" size="sm" onClick={retryLaws}>再試行</Button>
+        </div>
+      )}
+      {versionsError ? (
+        <div role="alert" className="text-sm text-muted-foreground space-y-2">
+          <p>版一覧を取得できませんでした。</p>
+          <Button variant="outline" size="sm" onClick={() => setVersionsAttempt(n => n + 1)}>再試行</Button>
+        </div>
+      ) : bodyError ? (
+        <div role="alert" className="text-sm text-muted-foreground space-y-2">
+          <p>比較する本文を取得できませんでした。</p>
+          <Button variant="outline" size="sm" onClick={() => {
+            setFailed(new Set());
+            setBodyAttempt(n => n + 1);
+          }}>再試行</Button>
+        </div>
+      ) : showSkeleton ? (
         <div className="space-y-3">
           <div className="flex gap-2">
             <Skeleton className="h-6 w-20" />
@@ -377,7 +383,7 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
               <div className="px-4 py-2 border-b border-border bg-muted/40">
                 <Skeleton className="h-4 w-48" />
               </div>
-              <div className="grid grid-cols-2 divide-x divide-border">
+              <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
                 {[0, 1].map(side => (
                   <div key={side} className="p-4 space-y-2">
                     <Skeleton className="h-4 w-full" />
@@ -389,6 +395,10 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
             </Card>
           ))}
         </div>
+      ) : !liveAvailable ? (
+        !lawsError || lawId ? <p className="text-sm text-muted-foreground">
+          {lawId ? "比較には本文を取得できる版が2つ以上必要です。" : "比較する法令がありません。"}
+        </p> : null
       ) : (
       <>
       {liveAvailable && basisBills.length > 0 && (
@@ -411,11 +421,11 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
           </CardContent>
         </Card>
       )}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Badge variant="outline" className="gap-1.5"><span className="size-2 rounded-sm bg-emerald-500" />追加 {stats.added}</Badge>
         <Badge variant="outline" className="gap-1.5"><span className="size-2 rounded-sm bg-amber-500" />変更 {stats.modified}</Badge>
         <Badge variant="outline" className="gap-1.5"><span className="size-2 rounded-sm bg-rose-500" />削除 {stats.removed}</Badge>
-        <span className="ml-auto text-xs text-muted-foreground self-center">{law.title} · {orderedIds.length} 条を比較</span>
+        <span className="ml-auto text-xs text-muted-foreground self-center">{lawTitle} · {orderedIds.length} 条を比較</span>
       </div>
 
       {stats.added + stats.modified + stats.removed === 0 && (
@@ -448,27 +458,29 @@ export function CompareView({ initialLawId }: { initialLawId: string | null }) {
                   ))}
                 </div>
               )}
-              <div className="grid grid-cols-2 divide-x divide-border">
-                <div className="p-4 text-sm leading-relaxed space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
+                <div className="p-4 min-w-0 text-sm leading-relaxed space-y-2">
+                  <p className="md:hidden text-xs text-muted-foreground">基準版 (Before)</p>
                   {a ? a.paragraphs.map((p, i) => {
                     const bp = b?.paragraphs[i];
                     const segs = bp ? diffWords(p.text, bp.text).left : [{ type: "del" as const, text: p.text }];
                     return (
                       <p key={i} className="flex gap-3">
                         <span className="text-muted-foreground tabular-nums shrink-0 w-6">{p.paragraph_no ?? ""}</span>
-                        <span>{renderSegs(segs)}</span>
+                        <span className="min-w-0">{renderSegs(segs)}</span>
                       </p>
                     );
                   }) : <div className="text-xs text-muted-foreground italic">（この版には存在しない）</div>}
                 </div>
-                <div className="p-4 text-sm leading-relaxed space-y-2">
+                <div className="p-4 min-w-0 text-sm leading-relaxed space-y-2">
+                  <p className="md:hidden text-xs text-muted-foreground">比較版 (After)</p>
                   {b ? b.paragraphs.map((p, i) => {
                     const ap = a?.paragraphs[i];
                     const segs = ap ? diffWords(ap.text, p.text).right : [{ type: "add" as const, text: p.text }];
                     return (
                       <p key={i} className="flex gap-3">
                         <span className="text-muted-foreground tabular-nums shrink-0 w-6">{p.paragraph_no ?? ""}</span>
-                        <span>{renderSegs(segs)}</span>
+                        <span className="min-w-0">{renderSegs(segs)}</span>
                       </p>
                     );
                   }) : <div className="text-xs text-muted-foreground italic">（この版には存在しない）</div>}

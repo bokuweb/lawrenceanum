@@ -146,3 +146,129 @@ test("一覧から案件をクリックして詳細へ遷移できる", async ({
   await expect(page).toHaveURL(/#\/pubcomment\/2023-00001/, { timeout: 15_000 });
   await expect(page.getByText("府省の考え方")).toBeVisible({ timeout: 15_000 });
 });
+
+const MEETING = {
+  schema_version: 1, meeting_id: "meeting-one", session: 221, house: "衆議院", committee: "法務委員会",
+  date: "2026-10-20", issue: "第1号",
+  speeches: [{ speech_id: "speech-one", order: 1, speaker: "山田太郎", speaker_id: null,
+    speaker_group: null, speaker_position: null, speech: "基本原則について審議します。" }],
+  source: { provider: "kokkai", fetched_at: "2026-10-20" },
+};
+
+for (const config of [
+  { label: "パブコメ", path: "pubcomment", id: "2023-00001", next: "2023-00002",
+    index: { ...INDEX, cases: [...INDEX.cases, { ...INDEX.cases[0], case_id: "2023-00002", title: "次の案件" }] },
+    detail: DETAIL, nextDetail: { ...DETAIL, case_id: "2023-00002", title: "次の案件" },
+    title: DETAIL.title, nextTitle: "次の案件", query: "テスト民法", placeholder: "案件名・法令名…",
+    detailQuery: "意見・考え方を検索…", text: DETAIL.opinions[0].opinion },
+  { label: "国会会議録", path: "proceedings", id: "meeting-one", next: "meeting-two",
+    index: { schema_version: 1, count: 2, meetings: [
+      { ...MEETING, speech_count: 1 }, { ...MEETING, meeting_id: "meeting-two", committee: "予算委員会", speech_count: 1 },
+    ] },
+    detail: MEETING, nextDetail: { ...MEETING, meeting_id: "meeting-two", committee: "予算委員会" },
+    title: "法務委員会", nextTitle: "予算委員会", query: "法務", placeholder: "委員会・日付…",
+    detailQuery: "発言を検索…", text: MEETING.speeches[0].speech },
+]) {
+  test(`${config.label}: 取得失敗を表示し一覧の絞り込みを保って再試行できる`, async ({ page }) => {
+    let fail = true;
+    await page.route(`**/${config.path}/index.json`, route => fail
+      ? route.fulfill({ status: 503, body: "unavailable" }) : route.fulfill({ json: config.index }));
+    await page.goto(new URL(`#/${config.path}`, BASE).toString());
+    await expect(page.getByRole("alert")).toContainText("読み込めませんでした");
+    await page.getByPlaceholder(config.placeholder).fill(config.query);
+    fail = false;
+    await page.getByRole("button", { name: "再試行", exact: true }).click();
+    await expect(page.getByRole("button", { name: new RegExp(config.title) })).toBeVisible();
+    await expect(page.getByRole("button", { name: new RegExp(config.nextTitle) })).toHaveCount(0);
+    await expect(page.getByPlaceholder(config.placeholder)).toHaveValue(config.query);
+  });
+
+  test(`${config.label}: 詳細を同じURLで再試行できる`, async ({ page }) => {
+    let fail = true;
+    await page.route(`**/${config.path}/index.json`, route => route.fulfill({ json: config.index }));
+    await page.route(`**/${config.path}/${config.id}.json`, route => fail
+      ? route.fulfill({ status: 503, body: "unavailable" }) : route.fulfill({ json: config.detail }));
+    await page.goto(new URL(`#/${config.path}/${config.id}`, BASE).toString());
+    await expect(page.getByRole("alert")).toContainText("読み込めませんでした");
+    fail = false;
+    await page.getByRole("button", { name: "再試行", exact: true }).click();
+    await expect(page.getByText(config.text, { exact: true })).toBeVisible();
+    await expect(page).toHaveURL(new URL(`#/${config.path}/${config.id}`, BASE).toString());
+  });
+
+  test(`${config.label}: 次の詳細が取得失敗したとき前の本文を表示しない`, async ({ page }) => {
+    await page.route(`**/${config.path}/index.json`, route => route.fulfill({ json: config.index }));
+    await page.route(`**/${config.path}/${config.id}.json`, route => route.fulfill({ json: config.detail }));
+    await page.route(`**/${config.path}/${config.next}.json`, route => route.fulfill({ status: 503, body: "unavailable" }));
+    await page.goto(new URL(`#/${config.path}/${config.id}`, BASE).toString());
+    await expect(page.getByText(config.text, { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: new RegExp(config.nextTitle) }).click();
+    await expect(page.getByRole("alert")).toContainText("読み込めませんでした");
+    await expect(page.getByText(config.text, { exact: true })).toHaveCount(0);
+  });
+
+  test(`${config.label}: 詳細を切り替えると本文の検索語をリセットする`, async ({ page }) => {
+    await page.route(`**/${config.path}/index.json`, route => route.fulfill({ json: config.index }));
+    await page.route(`**/${config.path}/${config.id}.json`, route => route.fulfill({ json: config.detail }));
+    await page.route(`**/${config.path}/${config.next}.json`, route => route.fulfill({ json: config.nextDetail }));
+    await page.goto(new URL(`#/${config.path}/${config.id}`, BASE).toString());
+    await expect(page.getByText(config.text, { exact: true })).toBeVisible();
+    await page.getByPlaceholder(config.detailQuery).fill("一致しない検索語");
+    await page.getByRole("button", { name: new RegExp(config.nextTitle) }).click();
+    await expect(page.getByPlaceholder(config.detailQuery)).toHaveValue("");
+    await expect(page.getByText(config.text, { exact: true })).toBeVisible();
+  });
+
+  test(`${config.label}: スマートフォンで一覧と本文を画面内で操作できる`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.route(`**/${config.path}/index.json`, route => route.fulfill({ json: config.index }));
+    await page.route(`**/${config.path}/${config.id}.json`, route => route.fulfill({ json: config.detail }));
+    await page.goto(new URL(`#/${config.path}`, BASE).toString());
+    await page.getByRole("button", { name: new RegExp(config.title) }).click();
+    const search = page.getByPlaceholder(config.detailQuery);
+    await expect(search).toBeVisible();
+    const bounds = await search.boundingBox();
+    expect(bounds!.x).toBeGreaterThanOrEqual(0);
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(390);
+    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(844);
+    await expect(page.getByText(config.text, { exact: true })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  });
+}
+
+test("国会会議録: 次の会議で関連法令を取得できなくても前の会議の法令を残さない", async ({ page }) => {
+  const next = { ...MEETING, meeting_id: "meeting-two", committee: "予算委員会" };
+  await page.route("**/proceedings/index.json", route => route.fulfill({ json: {
+    schema_version: 1, count: 2, meetings: [MEETING, next].map(meeting => ({ ...meeting, speech_count: 1 })),
+  } }));
+  await page.route("**/proceedings/meeting-one.json", route => route.fulfill({ json: MEETING }));
+  await page.route("**/proceedings/meeting-two.json", route => route.fulfill({ json: next }));
+  await page.route("**/links/meeting-to-laws/meeting-one.json", route => route.fulfill({ json: {
+    schema_version: 1, meeting_id: "meeting-one", linked_laws: [{
+      law_id: "old-law", title: "前の会議だけの関連法令", relevance: "reference_only", confidence: 1, match_reasons: [],
+    }],
+  } }));
+  await page.route("**/links/meeting-to-laws/meeting-two.json", route => route.fulfill({ status: 503, body: "unavailable" }));
+  await page.goto(new URL("#/proceedings/meeting-one", BASE).toString());
+  await expect(page.getByRole("button", { name: "前の会議だけの関連法令" })).toBeVisible();
+  await page.getByRole("button", { name: /予算委員会/ }).click();
+  await expect(page.getByText("予算委員会", { exact: true }).last()).toBeVisible();
+  await expect(page.getByRole("button", { name: "前の会議だけの関連法令" })).toHaveCount(0);
+});
+
+test("国会会議録: 一覧を委員会名で絞っても発言本文は絞り込まない", async ({ page }) => {
+  await page.route("**/proceedings/index.json", route => route.fulfill({ json: {
+    schema_version: 1, count: 1, meetings: [{ ...MEETING, speech_count: 1 }],
+  } }));
+  await page.route("**/proceedings/meeting-one.json", route => route.fulfill({ json: MEETING }));
+  await page.goto(new URL("#/proceedings", BASE).toString());
+  await page.getByPlaceholder("委員会・日付…").fill("法務");
+  await page.getByRole("button", { name: /法務委員会/ }).click();
+  await expect(page.getByText(MEETING.speeches[0].speech, { exact: true })).toBeVisible();
+  await expect(page.getByPlaceholder("委員会・日付…")).toHaveValue("法務");
+  await expect(page.getByPlaceholder("発言を検索…")).toHaveValue("");
+  await page.getByPlaceholder("発言を検索…").fill("一致しない検索語");
+  await expect(page.getByText("該当する発言がありません")).toBeVisible();
+  await page.getByPlaceholder("発言を検索…").fill("");
+  await expect(page.getByText(MEETING.speeches[0].speech, { exact: true })).toBeVisible();
+});

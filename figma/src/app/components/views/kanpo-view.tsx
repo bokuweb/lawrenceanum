@@ -8,6 +8,7 @@ import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
+import { Button } from "../ui/button";
 import { AmendDocumentView } from "../amend-document-view";
 import type { KanpoItem, KanpoLawRef } from "../../data/api";
 import { findKanpoItem, kanpoIssueLabel, useKanpoDates, useKanpoDay } from "../../data/use-kanpo";
@@ -31,7 +32,7 @@ function ItemListRow({ item, selected, onClick }: { item: KanpoItem; selected: b
       onClick={onClick}
       aria-current={selected ? "true" : undefined}
       className={[
-        "w-full text-left px-4 py-2.5 border-b border-border transition-colors",
+        "w-full text-left px-4 py-2.5 border-b border-border transition-colors [overflow-wrap:anywhere]",
         selected ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
       ].join(" ")}
     >
@@ -70,7 +71,7 @@ function LawChips({ label, laws, onOpen }: { label: string; laws: KanpoLawRef[];
 }
 
 function ItemBody({ item }: { item: KanpoItem }) {
-  if (item.amend_document) return <AmendDocumentView doc={item.amend_document} className="" />;
+  if (item.amend_document) return <AmendDocumentView doc={item.amend_document} className="overflow-x-auto" />;
   if (item.amend_text) return <pre className="text-sm whitespace-pre-wrap font-sans leading-relaxed">{item.amend_text}</pre>;
   return (
     <div className="text-sm text-muted-foreground space-y-1.5">
@@ -92,8 +93,8 @@ function ItemDetail({ date, issueLabel, item, pageItems, onOpenItem }: {
   const navigate = useNavigate();
   const format = formatLabel(item.amend_format);
   return (
-    <div className="flex flex-col h-full min-h-0">
-      <div className="px-5 py-4 border-b border-border shrink-0 space-y-2.5">
+    <ScrollArea className="h-full min-h-0 [overflow-wrap:anywhere] [&>[data-slot=scroll-area-viewport]>div]:!block">
+      <div className="px-5 py-4 border-b border-border space-y-2.5">
         <h2 className="text-base font-semibold leading-snug">{item.title}</h2>
         <div className="text-xs text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 items-center">
           <span className="tabular-nums">{date}</span>
@@ -119,35 +120,33 @@ function ItemDetail({ date, issueLabel, item, pageItems, onOpenItem }: {
           <LawChips label="根拠法令" laws={item.basis_laws} onOpen={id => navigate(`/laws/${id}`)} />
         )}
       </div>
-      <ScrollArea className="flex-1 min-h-0">
-        <div className="px-5 py-4 space-y-6">
-          <section aria-label={`${item.title}の本文`}>
-            <h3 className="text-sm font-semibold mb-3">本文</h3>
-            <ItemBody item={item} />
+      <div className="px-5 py-4 space-y-6">
+        <section aria-label={`${item.title}の本文`}>
+          <h3 className="text-sm font-semibold mb-3">本文</h3>
+          <ItemBody item={item} />
+        </section>
+        {pageItems.length > 0 && (
+          <section aria-label="同じPDF頁の他の掲載内容" className="border-t border-border pt-4 space-y-3">
+            <h3 className="text-sm font-semibold">同じPDF頁の他の掲載内容</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              本文は目次の項目ごとに表示しています。官報PDF（{item.page}頁）には、以下の項目も掲載されています。
+              見出しを開くと、それぞれの本文を読めます。本文が次の頁に続く項目もあります。
+            </p>
+            {pageItems.map(({ item: other, index }) => (
+              <details key={index} className="rounded border border-border p-3">
+                <summary className="cursor-pointer text-sm font-medium">{other.title}</summary>
+                <div className="mt-3 space-y-3">
+                  <button className="text-xs underline hover:text-primary" onClick={() => onOpenItem(index)}>
+                    この項目を開く
+                  </button>
+                  <ItemBody item={other} />
+                </div>
+              </details>
+            ))}
           </section>
-          {pageItems.length > 0 && (
-            <section aria-label="同じPDF頁の他の掲載内容" className="border-t border-border pt-4 space-y-3">
-              <h3 className="text-sm font-semibold">同じPDF頁の他の掲載内容</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                本文は目次の項目ごとに表示しています。官報PDF（{item.page}頁）には、以下の項目も掲載されています。
-                見出しを開くと、それぞれの本文を読めます。本文が次の頁に続く項目もあります。
-              </p>
-              {pageItems.map(({ item: other, index }) => (
-                <details key={index} className="rounded border border-border p-3">
-                  <summary className="cursor-pointer text-sm font-medium">{other.title}</summary>
-                  <div className="mt-3 space-y-3">
-                    <button className="text-xs underline hover:text-primary" onClick={() => onOpenItem(index)}>
-                      この項目を開く
-                    </button>
-                    <ItemBody item={other} />
-                  </div>
-                </details>
-              ))}
-            </section>
-          )}
-        </div>
-      </ScrollArea>
-    </div>
+        )}
+      </div>
+    </ScrollArea>
   );
 }
 
@@ -163,9 +162,9 @@ export function KanpoView({
   lookup: KanpoItemLookup | null;
   onSelect: (date: string, item: KanpoItemRef | null, opts?: { replace?: boolean }) => void;
 }) {
-  const { data: dates, loading: datesLoading } = useKanpoDates();
+  const { data: dates, loading: datesLoading, error: datesError, retry: retryDates } = useKanpoDates();
   const activeDate = date ?? dates?.dates[0]?.date ?? null;
-  const { data: day, loading: dayLoading } = useKanpoDay(activeDate);
+  const { data: day, loading: dayLoading, error: dayError, retry: retryDay } = useKanpoDay(activeDate);
   const [query, setQuery] = useState("");
 
   useEffect(() => {
@@ -201,8 +200,8 @@ export function KanpoView({
   }, [dates, activeDate]);
 
   return (
-    <div className="flex h-full min-h-0">
-      <div className="w-96 shrink-0 border-r border-border flex flex-col min-h-0">
+    <div className="flex flex-col md:flex-row h-full min-h-0">
+      <div className={`w-full md:w-96 shrink-0 border-b md:border-b-0 md:border-r border-border flex flex-col min-h-0 ${selected ? "max-h-64 md:max-h-none" : "flex-1 md:flex-none"}`}>
         <div className="px-4 py-3 border-b border-border shrink-0 space-y-2">
           <div className="flex items-center gap-2">
             <h2 className="text-sm font-semibold flex-1 flex items-center gap-1.5"><Newspaper className="size-4" />官報</h2>
@@ -228,6 +227,12 @@ export function KanpoView({
               })}
             </SelectContent>
           </Select>
+          {datesError && (
+            <div role="alert" className="text-sm text-muted-foreground space-y-2">
+              <p>発行日を読み込めませんでした。</p>
+              <Button variant="outline" size="sm" onClick={retryDates}>再試行</Button>
+            </div>
+          )}
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
             <Input
@@ -240,12 +245,17 @@ export function KanpoView({
           </div>
         </div>
 
-        <ScrollArea className="flex-1 min-h-0">
-          {datesLoading || dayLoading ? (
+        <ScrollArea className="flex-1 min-h-0 [overflow-wrap:anywhere] [&>[data-slot=scroll-area-viewport]>div]:!block">
+          {dayLoading || (!activeDate && datesLoading) ? (
             <div className="p-4 space-y-2">
               {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
             </div>
-          ) : !activeDate || !day ? (
+          ) : dayError ? (
+            <div role="alert" className="p-4 text-sm text-muted-foreground space-y-2">
+              <p>この日の官報を読み込めませんでした。</p>
+              <Button variant="outline" size="sm" onClick={retryDay}>再試行</Button>
+            </div>
+          ) : datesError && !activeDate ? null : !activeDate || !day ? (
             <p className="p-6 text-center text-sm text-muted-foreground">官報のデータがありません</p>
           ) : groups.length === 0 ? (
             <p className="p-6 text-center text-sm text-muted-foreground">該当する項目がありません</p>
@@ -270,7 +280,7 @@ export function KanpoView({
         </ScrollArea>
       </div>
 
-      <div className="flex-1 flex flex-col min-w-0 min-h-0">
+      <div className={`flex-1 flex-col min-w-0 min-h-0 ${selected ? "flex" : "hidden md:flex"}`}>
         {current && currentIssue && activeDate ? (
           <ItemDetail
             key={`${activeDate}/${selected!.issue}/${selected!.item}`}

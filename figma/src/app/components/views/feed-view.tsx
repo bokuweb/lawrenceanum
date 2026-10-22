@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { Link } from "react-router";
 import { Badge } from "../ui/badge";
 import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
@@ -23,21 +23,25 @@ function kindMeta(kind: string) {
 function useRecentFeed() {
   const [data, setData] = useState<RecentFeed | null>(null);
   const [loading, setLoading] = useState(true);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
     api.recentFeed()
       .then(d => { if (!cancelled) { setData(d); setLoading(false); } })
       .catch(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, []);
-  return { data, loading };
+  }, [attempt]);
+  return { data, loading, retry: () => setAttempt(n => n + 1) };
 }
 
-function FeedRow({ item, onOpen, onLaw }: {
-  item: FeedItem;
-  onOpen: (i: FeedItem) => void;
-  onLaw: (lawId: string) => void;
-}) {
+function FeedLink({ item, className, children }: { item: FeedItem; className: string; children: ReactNode }) {
+  return item.internal
+    ? <Link to={item.href} className={className}>{children}</Link>
+    : <a href={item.href} target="_blank" rel="noopener noreferrer" className={className}>{children}</a>;
+}
+
+function FeedRow({ item }: { item: FeedItem }) {
   const meta = kindMeta(item.kind);
   const Icon = meta.icon;
   // 官報項目で対象法令が逆引きできるとき、外部PDFとは別に法令へ飛べるようにする。
@@ -48,7 +52,7 @@ function FeedRow({ item, onOpen, onLaw }: {
         <Icon className="size-4 text-muted-foreground" />
       </div>
       <div className="min-w-0 flex-1">
-        <button onClick={() => onOpen(item)} className="w-full text-left">
+        <FeedLink item={item} className="block w-full text-left">
           <div className="flex items-center gap-2 flex-wrap">
             <Badge variant="outline" className="text-xs shrink-0">{meta.label}</Badge>
             <span className="text-xs text-muted-foreground">{item.date}</span>
@@ -58,17 +62,16 @@ function FeedRow({ item, onOpen, onLaw }: {
           {item.summary && (
             <div className="text-xs text-muted-foreground mt-0.5">{item.summary}</div>
           )}
-        </button>
+        </FeedLink>
         {showLawLink && (
-          <a
-            href={`#/laws/${item.law_id}`}
-            onClick={(e) => { e.preventDefault(); onLaw(item.law_id!); }}
+          <Link
+            to={`/laws/${item.law_id}`}
             className="mt-1.5 inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded border border-border hover:border-primary hover:text-primary transition-colors cursor-pointer"
             title="改正対象の法令を開く"
           >
             <BookOpen className="size-3 shrink-0" />
             <span className="truncate max-w-[18rem]">{item.law_title}</span>
-          </a>
+          </Link>
         )}
       </div>
       <ArrowUpRight className="size-4 text-muted-foreground shrink-0 mt-1" />
@@ -77,8 +80,7 @@ function FeedRow({ item, onOpen, onLaw }: {
 }
 
 export function FeedView() {
-  const { data, loading } = useRecentFeed();
-  const navigate = useNavigate();
+  const { data, loading, retry } = useRecentFeed();
   const [active, setActive] = useState<Set<string>>(new Set());
   const items = useMemo(() => [...(data?.items ?? [])].sort((a, b) => b.date.localeCompare(a.date)), [data]);
   const latestByKind = useMemo(() => KINDS.flatMap(kind => {
@@ -103,11 +105,6 @@ export function FeedView() {
       next.has(k) ? next.delete(k) : next.add(k);
       return next;
     });
-  };
-
-  const open = (i: FeedItem) => {
-    if (i.internal) navigate(i.href);
-    else window.open(i.href, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -136,13 +133,13 @@ export function FeedView() {
           <p className="text-xs text-muted-foreground mb-3">それぞれの分野の最新情報をひと目で確認できます。</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {latestByKind.map(({ key, label, icon: Icon, item }) => (
-              <button key={key} onClick={() => open(item)} className="rounded-lg border border-border p-3 text-left hover:border-primary/50 hover:bg-accent/50 transition-colors min-w-0">
+              <FeedLink key={key} item={item} className="rounded-lg border border-border p-3 text-left hover:border-primary/50 hover:bg-accent/50 transition-colors min-w-0">
                 <span className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
                   <span className="inline-flex items-center gap-1.5 font-medium text-foreground"><Icon className="size-3.5" />{label}</span>
                   <span>{item.date}</span>
                 </span>
                 <span className="block mt-2 text-sm font-medium line-clamp-2">{item.title}</span>
-              </button>
+              </FeedLink>
             ))}
           </div>
         </section>
@@ -188,13 +185,18 @@ export function FeedView() {
             <div className="p-4 space-y-2">
               {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}
             </div>
+          ) : !data ? (
+            <div role="alert" className="p-8 text-center text-sm text-muted-foreground">
+              <p>フィードを読み込めませんでした</p>
+              <button type="button" onClick={retry} className="mt-3 text-primary hover:underline">再試行</button>
+            </div>
           ) : filtered.length === 0 ? (
             <p className="p-8 text-center text-sm text-muted-foreground">
-              {data ? "該当する新着がありません" : "フィードを読み込めませんでした"}
+              該当する新着がありません
             </p>
           ) : (
             filtered.map((item, i) => (
-              <FeedRow key={`${item.kind}-${item.href}-${i}`} item={item} onOpen={open} onLaw={(id) => navigate(`/laws/${id}`)} />
+              <FeedRow key={`${item.kind}-${item.href}-${i}`} item={item} />
             ))
           )}
         </ScrollArea>

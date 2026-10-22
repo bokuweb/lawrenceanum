@@ -44,7 +44,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
     if (visibleTarget) queueRef.current?.prioritize(visibleTarget);
   }, [visibleTarget]);
   const [cats, setCats] = useState<Set<string>>(new Set());
-  const { laws, live: lawsLive, loading } = useLaws();
+  const { laws, loading, error: lawsError, retry: retryLaws } = useLaws();
 
   const searchDetailsRequestedRef = useRef(false);
   const [hits, setHits] = useState<SearchHit[]>([]);
@@ -187,7 +187,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
         )}
       </div>
 
-      <div className="grid grid-cols-[260px_minmax(0,1fr)] gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] gap-6">
         <aside className="space-y-5">
           <Card>
             <CardContent className="p-4 space-y-4">
@@ -610,11 +610,16 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
                       <span>
                         法令 {resultCount} 件
                         {(loading || searching) && " (読み込み中…)"}
-                        {!loading && !lawsLive && !useFts && " (モック)"}
                         {useFts && " · 索引順 (FTS5)"}
                       </span>
                     </div>
 
+                    {!useFts && lawsError && (
+                      <div role="alert" className="rounded-md border border-border p-4 space-y-3 text-sm">
+                        <p>法令一覧を取得できませんでした。</p>
+                        <Button variant="outline" size="sm" onClick={retryLaws}>再試行</Button>
+                      </div>
+                    )}
                     <div className="space-y-2">
                       {useFts ? (
                         hits.length === 0 && searching ? (
