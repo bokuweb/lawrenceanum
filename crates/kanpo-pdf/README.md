@@ -128,4 +128,6 @@ cargo run --release -p kanpo-pdf --example image_sources -- original.pdf > sourc
 
 このexampleは配置・clip・資源参照・元ストリームのSHA256・宣言辞書をJSONで出力する。名前と文字列の元bytesはhexで保持し、非有限の数値は元f64のbitsとして残す。画像のデコードやOCRは実行しない。
 
+`native_paths`には同じ元Pageのパス観測を追加している。従来の左上原点のページ座標・stroke/fill・線幅・clipの外接矩形・元頂点・曲線/閉路の印を保持する。曲線の制御点や完全な合成/可視性・Formのclip所属を証明するものではない。従来の画像/元ページAPIや文字抽出の出力は変更しない。
+
 観測対象はページと展開できたForm内の名前付きImage XObjectであり、パターン・透明グループ等を含む全描画機構や本文全体の網羅性は証明しない。空のgap一覧や`source_geometry_complete`は、最終表示や全画素の正しさを保証しない。後者は記録した変換・clip表現について既知の問題がないことを示す。`visibility_verified()`は常にfalseで、透明度・mask・後からの重ね描き・OCRの正解率・native Glyph対応・記事所属を推定しない。通常の本文へ統合するには、実際の画素デコード、表示範囲、既存文字との重複、認識結果と読み順の検証が別途必要である。

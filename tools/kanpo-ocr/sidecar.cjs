@@ -5,6 +5,12 @@ const os = require('node:os');
 const crypto = require('node:crypto');
 const MODEL_SHA256 = '1f5de9236d2e85f5fdf4b3c500f2d4926f8d9449f28f5394472d9e8d83b91b4d';
 const ENGINE_VERSION = '6.0.1';
+// Tesseract's documented layout classes; never selected from recognized words.
+const LAYOUT_PSM = Object.freeze({page:3,'single-column':4});
+function layoutPsm(layout='page') {
+  if(typeof layout!=='string'||!Object.hasOwn(LAYOUT_PSM,layout))throw new Error('Unsupported recognition layout');
+  return LAYOUT_PSM[layout];
+}
 const sha256 = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const jsonNumber = value => typeof value==='number' && (!Number.isFinite(value)||Object.is(value,-0)) ? (Object.is(value,-0)?'-0':String(value)) : undefined;
 function encodeJson(value,space=2) {
@@ -86,7 +92,8 @@ function sidecar(result,source,frame) {
     article_assignment:null,native_glyph_binding:null,
   };
 }
-async function recognizeBuffers(createWorker,image,model,dpi,onEvent) {
+async function recognizeBuffers(createWorker,image,model,dpi,onEvent,layout='page') {
+  const psm=layoutPsm(layout);
   let worker;
   let recognitionFailed=false,recognitionError;
   let cleanupDiagnosticFailed=false,cleanupDiagnosticError;
@@ -108,7 +115,7 @@ async function recognizeBuffers(createWorker,image,model,dpi,onEvent) {
       gzip:false,cacheMethod:'none',legacyCore:false,legacyLang:false,
       logger:onEvent,errorHandler:error=>onEvent({status:'engine_error',error:String(error)}),
     });
-    await worker.setParameters({tessedit_pageseg_mode:'3',user_defined_dpi:String(dpi)});
+    await worker.setParameters({tessedit_pageseg_mode:String(psm),user_defined_dpi:String(dpi)});
     return await worker.recognize(imageSnapshot,{rotateAuto:false,rotateRadians:0},{text:true,blocks:true});
   } catch (error) {recognitionFailed=true;recognitionError=error;throw error;}
   finally {
@@ -126,6 +133,7 @@ async function recognizeBuffers(createWorker,image,model,dpi,onEvent) {
   }
 }
 async function run(options) {
+  const psm=layoutPsm(options.layout);
   const {image:modelImage,model:languageFile,output}=options;
   const image=fs.readFileSync(modelImage),model=fs.readFileSync(languageFile);
   const size=pngSize(image);
@@ -142,13 +150,13 @@ async function run(options) {
   const stopWatching=watchTerminal(output);
   try {
     const source={image:{path:path.resolve(modelImage),sha256:sha256(image),bytes:image.length},model:{language:'jpn',sha256:sha256(model),bytes:model.length},engine:{package:'tesseract.js',version:pkg.version},node:process.version,tool_sha256:sha256(fs.readFileSync(__filename)),package_lock_sha256:sha256(fs.readFileSync(path.join(__dirname,'package-lock.json')))};
-    json('inputs.json',{source,canvas:frame,parameters:{psm:3,oem:1,rotateAuto:false,rotateRadians:0,cacheMethod:'none',model_input:'private_readonly_local_snapshot'},normalization:null,confidence_filter:null,exceptional_number_encoding:{$js_number:'NaN | Infinity | -Infinity | -0'}});
+    json('inputs.json',{source,canvas:frame,parameters:{psm,oem:1,rotateAuto:false,rotateRadians:0,cacheMethod:'none',model_input:'private_readonly_local_snapshot'},normalization:null,confidence_filter:null,exceptional_number_encoding:{$js_number:'NaN | Infinity | -Infinity | -0'}});
     let workerCleanupFailed=false;const cleanupErrors=[];
     const result=await recognizeBuffers(createWorker,image,model,frame.dpi,event=>{
       if (event.status==='terminate_error') workerCleanupFailed=true;
       if (event.status==='terminate_error'||event.status==='model_cleanup_error') cleanupErrors.push(event);
       fs.appendFileSync(path.join(output,'events.ndjson'),encodeJson(event,0));
-    });
+    },options.layout);
     json('raw.json',result);
     const observations=sidecar(result,source,frame);
     json('observations.json',observations);

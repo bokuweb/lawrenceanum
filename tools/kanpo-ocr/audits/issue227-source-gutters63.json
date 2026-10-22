@@ -1,0 +1,240 @@
+{
+  "issue": 227,
+  "batch": 63,
+  "parent_commit": "369afcaf1f363b18a40e0ce1e118f4731a6f5157",
+  "native_runtime": 76,
+  "goal_complete": false,
+  "public_scope": "Explicit experimental native-gutters-ltr image partitioning before OCR. Source image/geometry receipts and all raw results are retained; no default native/Glyph/Article integration.",
+  "rules": [
+    "Use same-PDF native path observations and decoded source pixels; never OCR words/confidence to decide cuts.",
+    "Eight-connected exact nonwhite/nontransparent components constrain a straight native vertical stroke; all component vertical intervals must intersect its extent.",
+    "The transformed recorded stroke band must lie in an interior full-height white/transparent pixel gutter. Cut at the integer gutter center, with no hardcoded column count or physical distance.",
+    "All source RGBA pixels must reconstruct exactly from the whole-height crops; no resampling or discarded ink.",
+    "Clipped/Form source images, incomplete or oblique geometry and unsupported path evidence retain the full original image. Legacy Page.paths do not certify complete Form clipping, color/compositing or final visibility.",
+    "Every source partition uses the documented single-column PSM4; unchanged full-image inputs keep PSM3. One request per selected input/profile, no automatic retry or score-based setting/model selection.",
+    "Keep raw text/confidence/original boxes/hierarchy/order and qualified document/page/draw/partition/node references; projection and concatenated partition text are separate derived artifacts."
+  ],
+  "primary_layout_reference": "https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html#page-segmentation-method",
+  "new_business_vocabulary": [],
+  "no_new_production_page_company_expected_word_title_character_length_line_count_fixed_point_or_confidence_branch": true,
+  "TDD": {
+    "identity_image_baseline": {
+      "passed": 8,
+      "failed": 7,
+      "test_functions": 15
+    },
+    "old_source_exporter": {
+      "passed": 1,
+      "failed": 6,
+      "cause": "Existing example lacked actual native_paths; affine crop-transform case already passed."
+    },
+    "old_page_layout_profile": {
+      "passed": 8,
+      "failed": 4,
+      "cause": "Single-column calls still requested PSM3 or ignored unsupported profiles."
+    },
+    "selected_Node_contracts": {
+      "passed": 94,
+      "failed": 0,
+      "skipped": 0,
+      "previous74_assertions_byte_exact": true,
+      "new_functions": 20
+    },
+    "selected_Python_contracts": {
+      "passed": 45,
+      "failed": 0,
+      "skipped": 0,
+      "previous18_assertions_byte_exact": true,
+      "new_functions": 27
+    },
+    "source_controls": [
+      "Independent flood-fill oracle exhaustively checks512 three-by-three binary masks against row-run components.",
+      "Two/three/seven columns, PDF-unit scale/translation, header/footer outside the stroke, full-width ink, partial-alpha and transparent pixels, unsupported/curved/clipped/filled paths.",
+      "Actual encrypted originals and same-PDF source paths, crop pixel conservation, parent image/document/frame/draw mismatches, old/missing extractor data.",
+      "Rotation/reflection/shear crop transform corners agree with the existing affine projector.",
+      "Fresh/exclusive output, failed source process, partial failures, raw outputs surviving a failed column and no truncated successful combined text.",
+      "Source partition count/sequence/ownership and one uniform PSM4 request per crop; default mode never invokes partitioning."
+    ]
+  },
+  "asset_and_native_compatibility": {
+    "old_tracked_test_PDF_source_or_test_assets_checked": 2443,
+    "all_old_assertions_golds_snapshots_and_assets_byte_exact": true,
+    "old_snapshots": 801,
+    "snapshots_updated_or_proposed": 0,
+    "core144_Rust_sources_byte_exact76": true,
+    "only_changed_Rust_example": "crates/kanpo-pdf/examples/image_sources.rs",
+    "new_original_fixture_PDFs": 2,
+    "new_nonblind_original_scope_golds": 2,
+    "old74_Node18_Python_assertions_byte_exact": true,
+    "old_model_lock_and_other_source_files_byte_exact": [
+      "tools/kanpo-ocr/package.json",
+      "tools/kanpo-ocr/package-lock.json",
+      "tools/kanpo-ocr/cli.cjs",
+      "tools/kanpo-ocr/placement.cjs",
+      "tools/kanpo-ocr/project-cli.cjs",
+      "tools/kanpo-ocr/pdf-binding.cjs",
+      "tools/kanpo-ocr/decode_sources.py"
+    ]
+  },
+  "source_corpus_probe": {
+    "original_pages": 14,
+    "source_draws": 17,
+    "source_crops": 43,
+    "exact_opaque_white_retained": 2,
+    "original_recognition_results_reused_only_after_exact_PNG_frame_model_PSM_match": 47,
+    "actual_new_inferences": 0,
+    "all_current_source_artifacts_verified": true,
+    "partition_helper_sha256": "9b0fad3c311ecb16d6c86c92f30b4b9790d6575c04bedbe17ad5c843d47c4a73",
+    "gutter_code_sha256": "f222a27168bc451c4bdec59f07d4b7d60a57a545443a75371c39eb769c3aa4c5"
+  },
+  "old_example_fields_exact_on_all14_originals": true,
+  "actual_model_trials": {
+    "PSM3_private_source_crops": 43,
+    "PSM3_public_port_default1_and_columns4": 5,
+    "PSM4_private_source_crops": 43,
+    "final_public_port_default_PSM3_1_and_columns_PSM4_4": 5,
+    "actual_new_inferences": 96,
+    "new_model_downloads_for_batch63": 0,
+    "same_pinned_fast_jpn_engine6_0_1_LSTM_and_DPI": true,
+    "initial_PSM3_crop_candidate_not_selected": "Root original review found numbered-list order regression in20260723h017530015; retain that failure, use single-column layout uniformly rather than carve out the page.",
+    "final_actual_public_default_text_and_all_layout_equal61": true,
+    "final_actual_public_4column_text_and_layout_equal_private_PSM4": true,
+    "all43_PSM4_raw_fields_preserved_during_projection": true,
+    "PSM4_layout_nodes": 23404,
+    "PSM4_words": 21170,
+    "all14_current_source_validation_new_inferences": 0,
+    "all14_reused_observations_require_exact_PNG_frame_model_PSM_match": true
+  },
+  "quality_scopes": {
+    "first_original164": {
+      "scope_fixture": "fixtures/issue227-first-notice63.json",
+      "full_page_PSM3_edits": 9,
+      "source_crop_PSM4_frozen_ROI_edits": 2,
+      "one_edit_is_geometry_not_missing_raw_character": "第 exists in raw text but reported bbox ends at692 beyond fixed ROI690. Do not move the ROI.",
+      "raw_extra3_in_year_remains": true
+    },
+    "numbered_original191": {
+      "scope_fixture": "fixtures/issue227-numbered-notice63.json",
+      "full_page_PSM3_edits": 15,
+      "source_crop_PSM3_edits": 20,
+      "source_crop_PSM4_edits": 1,
+      "remaining_raw_error": "免->先"
+    },
+    "source_review": "11 original whole previews reviewed for column structure and first/last-column samples by root. Not independent/blind or exhaustive whole-page character/read-order gold.",
+    "known_character_regression": "Printed99 on20260727g001670057 becomes9 with cropped fast-model recognition; old whole-image result retained99. No zero-regression or universally better OCR claim.",
+    "no_lexical_repairs_or_confidence_filtering": true,
+    "native_default_quality_gain_pages": 0,
+    "fixed_random30_and_known7_not_regraded": true
+  },
+  "limits": [
+    "OCR errors, invalid/overlapping boxes and reading order inside a column remain possible.",
+    "White source gaps and strokes are layout evidence, not certified rendered visibility or semantic Article membership.",
+    "The explicit horizontal_ltr mode is an assumption; arbitrary tables/vertical/mixed layouts are not certified.",
+    "Native11992 outputs and801 snapshots remain unchanged. Fresh11992 Analysis/actualCLI and14.8M raw Glyph/f64/Word/XHTML audit inherited from identical core76; not rerun locally for this tool-only change.",
+    "Original issue227 layouts, legacy fixed parser thresholds,4known necessary article-count failures, image/native duplication/compositing and canonical integration remain open.",
+    "Private source-support partition62 stays unadopted; correctly recognized characters can have white reported boxes, so do not drop words on that basis."
+  ],
+  "CI": "Exact-head4checks pending at preparation; native1904/Node94/Python45 counts are captured after publication in PR and accepted checkpoint. Model-free CI builds the actual exporter and runs every Python test without skips.",
+  "evidence": [
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/identity-baseline-RED.log",
+      "sha256": "c434354b72de2174ae76a6a2a07e9df7a4d0c27e0087c05f486624954f62f1e2"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/source-rule-tests-v1.log",
+      "sha256": "16c36ae176c8925dc74efb6008909bd46a5d866707ff3ce79ef4d1d60d412ede"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/component-oracle63.log",
+      "sha256": "46df4f0edcf4a6f9a32504da3478dd3a1a7db82b7890d0c616cbb1a0a9b16b2a"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/old-exporter-path-observation-RED.log",
+      "sha256": "5db0bc9e210977654457d5c29c26243a9d92e88fbdf62964949c34db4fe47f8c"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/PSM3-profile-control-RED.log",
+      "sha256": "9b45ddd29e5f5104c6946bfb115a6174580d1ffad5fbfe7496000c86228372ca"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/node94-sealed.log",
+      "sha256": "add271289f7387e3d942e568c08b07be87f22b0c7127edaa22dfad2c74c8501f"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/python45-sealed.log",
+      "sha256": "7ffada2714180370ca32cfb5334e3b7a05dfcf6184de674c8c7097ec686af947"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/old-assets-and-core63.json",
+      "sha256": "c897b73be19176931142d18618a75648c500bd75b6c609641b1968945ab76254"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/selection-gold-rule-prefreeze63.json",
+      "sha256": "0726ef27325cab98a8f342f8e4f8b74784911c7fce5af57ebf52eacdee5a9754"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/inference-prefreeze63.json",
+      "sha256": "53dc826bb2845dce944841aee20c8c9411d74ddefbaa5c8f7d09b5bc24cac331"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/psm4-prefreeze63.json",
+      "sha256": "942df316c5d8b35590aa6ae3c730cbd4354a5f22c0de663bb697a06336219f42"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/crop-recognition-result63.json",
+      "sha256": "7b32be77e381ce358a0a314c418b71a387a7143ac046fd3af5afaa4baaa91fa5"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/psm4-result63.json",
+      "sha256": "f3bc06b6e6cd5a7bcd245cf5131b1dc91218df50bb83c7ee529e9fd4e9282b17"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/PSM4-source-and-port-verification63.json",
+      "sha256": "9c4b5e247d09cbe666e4039362a1f8ff00faab57fa3eaa14f0c7c6ff70b03ab2"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/PSM4-first164-frozen-score63.json",
+      "sha256": "d7dbbf5ebd1facd028ed660479556f4f0cd95bed9e47cd1151508cff8ac235db"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/numbered-notice-profile-comparison63.json",
+      "sha256": "0a7b5b561b6e6d06615da4c95aabfab900cfc559f7968ddc34fc1ab1ca6c9ee7"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/first-notice-crossing-annotation63.json",
+      "sha256": "54fcb9dfe34c9ae99f33b41af6bd4905ac912b099c3d9446239bb7e820abc9c2"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/root-original-column-review63.json",
+      "sha256": "ee78c6ac9c9a453f08d4f57e6b9d10df30e6a4016ec74895aa3eb0f1c277a81b"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/current-all14-source-and-projection63-sealed.json",
+      "sha256": "de1acfe426eb223c6a575262e04b35534010661d743e38ea47f1a31c9d5c295a"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/public63-compatibility-and-live-input-equality.json",
+      "sha256": "ceaacbea37f96dee1510613308e93263516a9ef26cc4a8d281593d810bd1dfed"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/public63-v2-live-both-modes-result.json",
+      "sha256": "d6ea76d6e5abe1b5e9c433631dcd9fb3a6d8b0c220fbfbedb69da08386374286"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/completed-raw91-archive-receipt.json",
+      "sha256": "83ee9955c3e094b268f81fae0cc560d64a57de483d2ba78ea50546a28c7d0f27"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/completed-projections91-archive-receipt.json",
+      "sha256": "2b2093fd8a731425eae2168d4a31671a29d004759682bd9670631bd870673480"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/archive-public63-all14-frozen-replay-receipt.json",
+      "sha256": "fa45fba38db7cdbef20c2658379f79dd1e0f7d31194a84f76aa2d09c093fe091"
+    },
+    {
+      "path": ".cache/kanpo-227/source-gutter-ocr63/release63-source-manifest.json",
+      "sha256": "1e484b912cee3761b06c1217eb5ecc242ab80bd1495423724d548164c3e8ff46"
+    }
+  ]
+}

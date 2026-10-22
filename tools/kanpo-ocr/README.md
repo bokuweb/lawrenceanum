@@ -93,7 +93,7 @@ node tools/kanpo-ocr/pdf-cli.cjs \
 PDF全体のSHA256、実際に呼ばれた画像の参照・encoded stream SHA/サイズ、画素解釈に使う宣言辞書項目、デコード寸法を照合する。同じ画像が複数回描かれる場合も各描画を保持する。画像軸が表示の水平・垂直軸に正確に一致する場合は、反転・四半回転のみで向きを合わせ、画素を補間しない。せん断・斜めの画像は元の画素軸を保持し、配置行列で位置を写す。DPIは元の垂直サンプリングから整数へ丸めて一度だけ指定し、自動再試行しない。現APIが表現しない`UserUnit != 1`は失敗として記録する。
 
 - `decoded/`: 原本PDFと抽出実行ファイルのコピー、ネイティブの`sources.json`、デコード済みPNG・配置・出所receipt。receiptには元辞書/clip/gapと使用コード・デコーダ版・各ハッシュを残す。
-- `pageN-drawN-ocr/`: 既存CLIと同じ生認識結果・変更しない文字・認識経過。各非白画像を固定jpn/PSM3で一度認識する。不透明な全画素が厳密に白い画像はその事実を記録して認識を省く。
+- `pageN-drawN-ocr/`: 既存CLIと同じ生認識結果・変更しない文字・認識経過。既定では各非白画像を固定jpn/PSM3で一度認識する。不透明な全画素が厳密に白い画像はその事実を記録して認識を省く。
 - `pageN-drawN-projected.json`: 認識器が使ったPNGのSHA/サイズ・canvasがデコードしたPNGと一致することを検査した配置結果。元の文字・confidence・枠・順序を保持する。
 - `index.json` / `terminal.json`: 全描画と未取得の情報、成功/部分失敗を保持する。描画ごとのデコードや認識に失敗した場合も空の本文へ置換しない。部分失敗は終了コード2、全体の失敗は1。
 
@@ -112,5 +112,32 @@ PDF全体のSHA256、実際に呼ばれた画像の参照・encoded stream SHA/�
 ```sh
 node --test tools/kanpo-ocr/*.test.cjs
 KANPO_IMAGE_SOURCES="$PWD/target/release/examples/image_sources" \
-  /tmp/kanpo-image-decoder/bin/python tools/kanpo-ocr/decode_sources_test.py
+  /tmp/kanpo-image-decoder/bin/python -m unittest discover -s tools/kanpo-ocr -p '*_test.py'
 ```
+
+## 罫線と元画素で列を分けて認識する実験モード
+
+横書きを列の左から右へ読む前提を明示できる場合は、`--partition native-gutters-ltr`を追加する。原本由来の画像を列で分けてから認識し、全体認識で列を横断する混線を減らすためのopt-inである。
+
+```sh
+node tools/kanpo-ocr/pdf-cli.cjs \
+  --extractor "$PWD/target/release/examples/image_sources" \
+  --python /tmp/kanpo-image-decoder/bin/python \
+  --model /tmp/kanpo-ocr-model/jpn.traineddata \
+  --partition native-gutters-ltr \
+  --output /tmp/kanpo-pdf-column-result original.pdf
+```
+
+現在の`image_sources` exampleが出す`native_paths`を使う。通常のPageのパス観測で、clipは従来の外接矩形であり、色・透明度・Formによるclip・最終表示を完全に証明するものではない。古いexampleにこの項目がない場合は明示的に失敗する。
+
+分割規則はOCR結果を参照しない。RGBのいずれかが白と異なりalphaが正の画素について8近傍の連結成分を求め、すべての成分の縦の範囲に交わる直線の縦罫を候補にする。その罫の記録された幅が、画像全高にわたる白/透明な内側の隙間に入る場合だけ、隙間の整数の中央で全画像を切り分ける。列数・会社名・文言・文字数・行数・固定ptで分岐しない。罫線のない隙間だけでは分けず、罫が届かない見出し/脚注の画素、曲線や塗り/記録済みclipも対照にする。元画像にclipやForm呼出経路がある場合、不明な幾何、斜めの画像などは全体のまま保持する。
+
+各分割画像を元の位置へ並べて全RGBA画素に完全一致することを検査する。画像の補間・画素の除去は行わない。元PNGと配置/receiptも`partitioned/`へ保持し、分割画像のreceiptには親PNG・親receipt・切り出し枠・規則/座標計算のハッシュを残す。
+
+分割した全列には、[Tesseract公式の1列用モード](https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html#page-segmentation-method)（PSM4、可変の文字サイズを持つ単一列）を一律に使う。分割しない全画像には従来のPSM3を使う。どちらも1回だけで、認識後の文言・confidence・正解との比較によって設定を切り替えたり再試行したりしない。
+
+各描画の`partitions`に列ごとの生認識とPDFへの配置を残す。すべて成功した場合だけ`pageN-drawN-partitioned-text.txt`を作り、列順の生テキストを改行でつなぐ。元の認識文字・空白・confidence・枠・順序は各結果に保持する。1列でも失敗すれば、成功した列の結果と失敗を保持し、不完全な連結本文を成功扱いしない。
+
+`source_path`は認識結果内の添字なので、文書SHA・page・draw・partitionと組にして参照する。分割の添字と元画素の範囲はreceiptにも記録する。
+
+これは画像の分割と明示した読み方向の実験であり、記事所属・native文字との統合・最終可視性や全字の正しさは未確定である。固定原図の164文字対照では全体認識9件から固定範囲2件へ減ったが、その1件は正しく認識した「第」の枠が評価範囲を越える問題。別の191文字対照では15件から1件になり、「免→先」が残る。ほかにも「99→9」など、全体認識より悪化する文字がある。結果を文言で修復せず、既定パーサへの自動統合は保留する。詳細は第63次監査JSONを参照。

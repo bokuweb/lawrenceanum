@@ -34,6 +34,16 @@ fn object(v: &Object) -> Value {
 fn dict(d: &kanpo_pdf::Dict) -> Value {
     json!({"type":"dict","entries":d.iter().map(|(k,v)|json!([hex(k),object(v)])).collect::<Vec<_>>()})
 }
+fn native_path(p: &kanpo_pdf::PathItem) -> Value {
+    json!({
+        "stroke":p.stroke,"fill":p.fill,"line_width":number(p.line_width),
+        "clip":p.clip.map(|v|matrix(&v)),
+        "subpaths":p.subpaths.iter().map(|s|json!({
+            "closed":s.closed,"curved":s.curved,"rect":s.rect,
+            "points":s.points.iter().map(|v|matrix(v)).collect::<Vec<_>>()
+        })).collect::<Vec<_>>()
+    })
+}
 fn main() {
     let path = std::env::args()
         .nth(1)
@@ -45,7 +55,7 @@ fn main() {
  let clips=d.clips.iter().map(|c|json!({"origin":match c.origin{ImageClipOrigin::Path=>"path",ImageClipOrigin::FormBox=>"form_bbox"},"rule":match c.rule{ImageClipRule::NonZero=>"nonzero",ImageClipRule::EvenOdd=>"evenodd"},"geometry_complete":c.geometry_complete,"form_bbox":c.form_box.map(|b|matrix(&b)),"page_quad":c.page_quad.map(|q|q.map(|v|matrix(&v))),"subpaths":c.subpaths.iter().map(|s|json!({"closed":s.closed,"curved":s.curved,"rect":s.rect,"points":s.points.iter().map(|v|matrix(v)).collect::<Vec<_>>()})).collect::<Vec<_>>() })).collect::<Vec<_>>();
  json!({"draw":d.sequence,"resource_name_hex":hex(&d.resource_name),"object_ref":d.object_ref.map(|r|[r.num as u64,r.gen as u64]),"form_path":d.form_path.iter().map(|r|[r.num as u64,r.gen as u64]).collect::<Vec<_>>(),"pixel_width":d.pixel_width,"pixel_height":d.pixel_height,"image_to_user":matrix(&d.image_to_user),"source_geometry_complete":d.source_geometry_complete,"encoded_sha256":hex(&d.encoded_sha256()),"encoded_bytes":d.encoded_bytes().len(),"declared_dictionary":dict(d.declared_dictionary()),"clips":clips,"graphics_state_names_hex":d.graphics_states.iter().map(|n|hex(n)).collect::<Vec<_>>()})
  }).collect::<Vec<_>>();
- json!({"page":pi,"document_sha256":hex(&p.document_sha256()),"media_box":matrix(&p.media_box()),"crop_box":matrix(&p.crop_box()),"rotate":p.page().rotate,"visibility_verified":p.visibility_verified(),"gaps":p.capture_gaps().iter().map(|g|json!({"kind":format!("{:?}",g.kind),"resource_hex":hex(&g.resource_name),"form_path":g.form_path.iter().map(|r|[r.num as u64,r.gen as u64]).collect::<Vec<_>>()})).collect::<Vec<_>>(),"images":draws})
+ json!({"page":pi,"document_sha256":hex(&p.document_sha256()),"media_box":matrix(&p.media_box()),"crop_box":matrix(&p.crop_box()),"rotate":p.page().rotate,"visibility_verified":p.visibility_verified(),"native_paths":p.page().paths.iter().map(native_path).collect::<Vec<_>>(),"gaps":p.capture_gaps().iter().map(|g|json!({"kind":format!("{:?}",g.kind),"resource_hex":hex(&g.resource_name),"form_path":g.form_path.iter().map(|r|[r.num as u64,r.gen as u64]).collect::<Vec<_>>()})).collect::<Vec<_>>(),"images":draws})
  }).collect::<Vec<_>>();
     println!(
         "{}",
