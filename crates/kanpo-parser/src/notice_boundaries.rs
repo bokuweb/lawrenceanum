@@ -215,37 +215,132 @@ struct Heading {
     after: usize,
     authorized: bool,
 }
-fn headings(page: &PageTrace, lines: &[SourceLine<'_>]) -> Vec<Heading> {
+// A title may have balanced parenthetical qualifiers followed by its date.
+// No qualifier vocabulary, ordinal, character count or source Word count is used.
+fn qualifier_bytes(tail: &str) -> Option<usize> {
+    let mut offset = 0;
+    loop {
+        let Some(open) = tail[offset..].chars().next() else {
+            return Some(offset);
+        };
+        let close = match open {
+            '(' => ')',
+            '（' => '）',
+            _ => break,
+        };
+        let mut stack = vec![close];
+        let mut content = false;
+        let mut closed = None;
+        for (i, c) in tail[offset + open.len_utf8()..].char_indices() {
+            match c {
+                '(' => stack.push(')'),
+                '（' => stack.push('）'),
+                ')' | '）' => {
+                    if stack.pop() != Some(c) {
+                        return None;
+                    }
+                    if stack.is_empty() {
+                        closed = Some(offset + open.len_utf8() + i + c.len_utf8());
+                        break;
+                    }
+                }
+                '「' | '」' | '『' | '』' => return None,
+                _ => content = true,
+            }
+        }
+        if !content {
+            return None;
+        }
+        offset = closed?;
+    }
+    date(&tail[offset..]).then_some(offset)
+}
+// Only a suffix at the outer title level can end the main announcement noun.
+// An unclosed/mismatched prefix cannot be repaired by a later marker inside it.
+fn announcement_ends(text: &str) -> Vec<usize> {
+    let (mut out, mut stack, mut valid_prefix) = (Vec::new(), Vec::new(), true);
+    for (offset, c) in text.char_indices() {
+        if valid_prefix && stack.is_empty() && text[offset..].starts_with("公告") {
+            out.push(offset + "公告".len());
+        }
+        match c {
+            '(' => stack.push(')'),
+            '（' => stack.push('）'),
+            ')' | '）' => {
+                if stack.pop() != Some(c) {
+                    valid_prefix = false;
+                }
+            }
+            '。' | '、' | '「' | '」' | '『' | '』' => valid_prefix = false,
+            _ => {}
+        }
+    }
+    out
+}
+fn heading_styles(page: &PageTrace, line: &SourceLine<'_>, end: usize) -> Option<NativeStyles> {
+    // Even punctuation needs complete provenance. Its font is not evidence
+    // about the content typography of the title or qualifier.
+    styles(page, &line.ids[..end])?;
+    let ids: Vec<_> = line.ids[..end]
+        .iter()
+        .zip(line.tokens.as_ref()?)
+        .filter(|(_, t)| t.chars().any(char::is_alphanumeric))
+        .map(|(&id, _)| id)
+        .collect();
+    styles(page, &ids)
+}
+fn headings(page: &PageTrace, lines: &[SourceLine<'_>], frames: &[OwnedFrame]) -> Vec<Heading> {
     let (mut out, mut quotes) = (vec![], vec![]);
     for (i, l) in lines.iter().enumerate() {
         if quotes.is_empty() && l.role == Role::Body {
             if let Some(tokens) = &l.tokens {
-                let mut head = String::new();
-                for (end, t) in tokens.iter().enumerate() {
-                    head.push_str(t);
-                    if head.ends_with("公告")
-                        && !head[..head.len() - "公告".len()].is_empty()
-                        && !head.contains(['。', '、', '「', '」', '『', '』'])
-                    {
-                        let tail = tokens[end + 1..].concat();
-                        {
-                            let s = styles(page, &l.ids[..=end]).unwrap_or_default();
-                            // A continuation in the same source style is not a newly proved title.
-                            let continued = i > 0
-                                && lines[i - 1].line.table.is_none()
-                                && styles(page, &lines[i - 1].ids)
-                                    .is_some_and(|p| !p.is_disjoint(&s));
-                            out.push(Heading {
-                                line: i,
-                                financial: head.ends_with("決算公告"),
-                                authorized: !continued
-                                    && !s.is_empty()
-                                    && (tail.is_empty() || date(&tail)),
-                                styles: s,
-                                after: end + 1,
-                            });
+                let text = tokens.concat();
+                let bases = announcement_ends(&text);
+                let parsed = bases.iter().find_map(|&base| {
+                    let title_end = base + qualifier_bytes(&text[base..])?;
+                    let mut bytes = 0;
+                    let after = tokens.iter().position(|t| {
+                        bytes += t.len();
+                        bytes == title_end
+                    })? + 1;
+                    Some((base, after, true))
+                });
+                // Unparsed titles still fence a structurally independent scope.
+                // Source Word segmentation must not let their witnesses leak.
+                // The topology filter below rejects announcement mentions in prose.
+                let candidate = parsed.or_else(|| {
+                    bases.iter().find_map(|&base| {
+                        // A bare announcement noun is accepted by the complete
+                        // grammar above. At the start of an unparsed compound
+                        // it is a prefix, not evidence of a title suffix. An
+                        // opening qualifier still marks a possible title end.
+                        if base == "公告".len() && !text[base..].starts_with(['(', '（']) {
+                            return None;
                         }
-                        break;
+                        let mut bytes = 0;
+                        let after = tokens.iter().position(|t| {
+                            bytes += t.len();
+                            bytes >= base
+                        })? + 1;
+                        Some((base, after, false))
+                    })
+                });
+                if let Some((base, after, valid_tail)) = candidate {
+                    let s = heading_styles(page, l, after).unwrap_or_default();
+                    let continued = i > 0
+                        && lines[i - 1].line.table.is_none()
+                        && styles(page, &lines[i - 1].ids).is_some_and(|p| !p.is_disjoint(&s));
+                    // A malformed suffix cannot turn an ordinary prose
+                    // continuation into a new semantic scope. Fully parsed
+                    // title syntax still fences even with ambiguous styles.
+                    if valid_tail || !continued {
+                        out.push(Heading {
+                            line: i,
+                            financial: text[..base].ends_with("決算公告"),
+                            authorized: valid_tail && !continued && !s.is_empty(),
+                            styles: s,
+                            after,
+                        });
                     }
                 }
             }
@@ -254,15 +349,21 @@ fn headings(page: &PageTrace, lines: &[SourceLine<'_>]) -> Vec<Heading> {
             match c {
                 '「' => quotes.push('」'),
                 '『' => quotes.push('』'),
-                '」' | '』' => {
-                    if quotes.last() == Some(&c) {
-                        quotes.pop();
-                    }
+                '」' | '』' if quotes.last() == Some(&c) => {
+                    quotes.pop();
                 }
                 _ => {}
             }
         }
     }
+    // Lexical announcement syntax inside prose does not start a new scope.
+    // A title must independently lead a complete frame or fit the vertical
+    // heading/body topology. Parsed titles with missing/equal styles still fence their scope.
+    out.retain(|h| {
+        frames.iter().any(|f| f.first == h.line)
+            || vertical_heading(lines, h, lines.len())
+            || horizontal_scope_heading(page, lines, h)
+    });
     out
 }
 // Date and signature must be source-token prefixes in this heading's own range.
@@ -345,13 +446,39 @@ fn vertical_heading(lines: &[SourceLine<'_>], h: &Heading, end: usize) -> bool {
         && b[1] <= a[3]
         && b[3] > a[3]
 }
-fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> Vec<usize> {
-    if rules.enclosures.iter().any(|&b| !valid(b)) {
-        return vec![];
-    }
-    let heads = headings(page, lines);
-    let mut accepted = vec![];
-    let mut scope = vec![];
+// Horizontal subheadings may belong to their parent announcement while still
+// fencing its date/signature search. Typography or a writing-direction change
+// distinguishes the start of a local block from ordinary prose continuation.
+fn horizontal_scope_heading(page: &PageTrace, lines: &[SourceLine<'_>], h: &Heading) -> bool {
+    let Some(a) = lines[h.line].bbox else {
+        return false;
+    };
+    let Some(next) = lines.get(h.line + 1) else {
+        return false;
+    };
+    let Some(b) = next.bbox else {
+        return false;
+    };
+    let contrast =
+        !h.styles.is_empty() && styles(page, &next.ids).is_some_and(|s| h.styles.is_disjoint(&s));
+    let changed_axis = h.line > 0
+        && lines[h.line - 1]
+            .bbox
+            .is_some_and(|p| p[3] - p[1] > p[2] - p[0]);
+    a[2] - a[0] > a[3] - a[1]
+        && b[2] - b[0] > b[3] - b[1]
+        && a[3] < b[1]
+        && a[0] < b[2]
+        && b[0] < a[2]
+        && (contrast || changed_axis)
+}
+struct OwnedFrame {
+    rect: Rect,
+    first: usize,
+    end: usize,
+}
+fn owned_frames(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> Vec<OwnedFrame> {
+    let mut out = Vec::new();
     for &frame in &rules.enclosures {
         let mut members = vec![];
         let mut ambiguous = false;
@@ -381,6 +508,28 @@ fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> V
         if (first..end).any(|i| !members.contains(&i) && !lines[i].line.text.trim().is_empty()) {
             continue;
         }
+        out.push(OwnedFrame {
+            rect: frame,
+            first,
+            end,
+        });
+    }
+    out
+}
+fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> Vec<usize> {
+    if rules.enclosures.iter().any(|&b| !valid(b)) {
+        return vec![];
+    }
+    let frames = owned_frames(page, rules, lines);
+    let heads = headings(page, lines, &frames);
+    let mut accepted = vec![];
+    let mut scope = vec![];
+    for OwnedFrame {
+        rect: frame,
+        first,
+        end,
+    } in frames
+    {
         let owned: Vec<_> = heads
             .iter()
             .filter(|h| h.line >= first && h.line < end)
@@ -388,7 +537,13 @@ fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> V
         // A fully owned, separately closed statement may use an arbitrary title.
         // Its own distinct typography, publication date and signature remain
         // necessary. A mere table enclosure or undated caption is insufficient.
-        let generic = if owned.is_empty() && lines[first].unquoted {
+        let original_root = owned.first().copied().filter(|h| h.line == first);
+        // A complete frame can prove an independent publication even when
+        // the title's formal suffix is unparsed. Keep its own whole-line
+        // typography, date and signature requirements, and every child fence.
+        let generic = if (owned.is_empty() || original_root.is_some_and(|h| !h.authorized))
+            && lines[first].unquoted
+        {
             lines[first].tokens.as_ref().and_then(|tokens| {
                 styles(page, &lines[first].ids).map(|styles| Heading {
                     line: first,
@@ -401,11 +556,10 @@ fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> V
         } else {
             None
         };
-        let Some(root) = owned
-            .first()
-            .copied()
-            .filter(|h| h.line == first)
+        let Some(root) = original_root
+            .filter(|h| h.authorized)
             .or(generic.as_ref())
+            .or(original_root)
         else {
             continue;
         };

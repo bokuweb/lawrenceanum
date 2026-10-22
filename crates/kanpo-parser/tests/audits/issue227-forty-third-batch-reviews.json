@@ -1,0 +1,345 @@
+{
+  "issue": 227,
+  "batch": 43,
+  "parent_commit": "9b4dab54135676cf33d92b8db0fdf6d3c6dd3812",
+  "native_runtime_source": 69,
+  "native_runtime_version": 5,
+  "native_parent_source": 67,
+  "goal_complete": false,
+  "whole_corpus_strict_quality_not_reestimated": true,
+  "review_method": "Root original-image engineering delta QA. Not blind, independent, a fresh30-page audit, or an estimate of whole-page accuracy.",
+  "original_images": {
+    "all_nonqualified_v2_delta_pages": 14,
+    "predetermined_qualified_v2_samples": 24,
+    "all_v3_only_delta_pages": 4,
+    "additional_controls": 2,
+    "additional_changed_old_snapshot_pages": 3,
+    "additional_v4_regression_original": 1,
+    "unique_full_original_images": 48
+  },
+  "observed_added_boundary_errors": 0,
+  "full_corpus_changed_pages_not_all_visually_reviewed": true,
+  "all11992_v5_whole_Analysis_exact_reviewed_v3": true,
+  "records": [
+    {
+      "page": "20260728h017560032",
+      "added_boundary_error": false,
+      "remaining": "Multiple preferred-capital notices and the errata remain joined; new starts of the capital-return and pension-third notices are separate original units."
+    },
+    {
+      "page": "20260730h017580031",
+      "added_boundary_error": false,
+      "remaining": null
+    },
+    {
+      "page": "20260731g001730167",
+      "added_boundary_error": false,
+      "remaining": "Original has four independent frames (three financial statements plus payment-refund announcement); candidate has three Articles, so financial units remain joined."
+    },
+    {
+      "page": "20260804h017610031",
+      "added_boundary_error": false,
+      "remaining": null
+    },
+    {
+      "page": "20260804h017610032",
+      "added_boundary_error": false,
+      "remaining": "Limited-acceptance personal notices and errata are outside the repaired officer/title coverage."
+    },
+    {
+      "page": "20260805g001760127",
+      "added_boundary_error": false,
+      "remaining": "The separate unsigned payment-refund frame remains joined. New corporate-split Article correctly retains its related period36 balance sheet, checked in native output."
+    },
+    {
+      "page": "20260819h017710032",
+      "added_boundary_error": false,
+      "remaining": "Limited-acceptance notices and errata are not fully separated."
+    },
+    {
+      "page": "20260824h017740032",
+      "added_boundary_error": false,
+      "remaining": "Preferred-capital notices, a judicial-scrivener correction and errata remain outside complete separation; added corporate correction is an independent original unit."
+    },
+    {
+      "page": "20260918h017930032",
+      "added_boundary_error": false,
+      "remaining": "Investment-corporation executive, preferred-capital, limited-acceptance and errata units are not all separated."
+    },
+    {
+      "page": "20260925h017950028",
+      "added_boundary_error": false,
+      "remaining": null
+    },
+    {
+      "page": "20260928g002130112",
+      "added_boundary_error": false,
+      "remaining": null
+    },
+    {
+      "page": "20260930h017980032",
+      "added_boundary_error": false,
+      "remaining": "A visibly misprinted officer label and personal limited-acceptance units remain outside complete separation."
+    },
+    {
+      "page": "20261009g002230174",
+      "added_boundary_error": false,
+      "remaining": null
+    },
+    {
+      "page": "20261013h018060032",
+      "added_boundary_error": false,
+      "remaining": "Limited-acceptance, preferred-capital and errata units are still not completely separated."
+    },
+    {
+      "page": "20260724h017540032",
+      "added_boundary_error": false,
+      "remaining": "Preferred-capital, legal-professional correction and errata units are not fully separated."
+    },
+    {
+      "page": "20260727h017550032",
+      "added_boundary_error": false,
+      "remaining": "Foreign representative, personal limited-acceptance, bankruptcy and errata formats remain incompletely separated."
+    },
+    {
+      "page": "20260904h017830032",
+      "added_boundary_error": false,
+      "remaining": "Trust-split and large errata blocks remain outside complete separation."
+    },
+    {
+      "page": "20260908h017850032",
+      "added_boundary_error": false,
+      "remaining": "Personal limited-acceptance, voluntary liquidation and errata units remain incompletely separated."
+    },
+    {
+      "page": "20260909h017860032",
+      "added_boundary_error": false,
+      "remaining": "Foreign-representative, personal limited-acceptance and errata units remain incompletely separated."
+    },
+    {
+      "page": "20260910h017870032",
+      "added_boundary_error": false,
+      "remaining": "Other corporate claims, limited-acceptance, correction and errata units remain incompletely separated."
+    },
+    {
+      "page": "20260911h017880032",
+      "added_boundary_error": false,
+      "remaining": "Other investment-corporation, limited-acceptance and errata units remain incompletely separated."
+    },
+    {
+      "page": "20260930g002160108",
+      "added_boundary_error": false,
+      "remaining": null
+    },
+    {
+      "page": "20260907g001990053",
+      "added_boundary_error": false,
+      "remaining": null
+    },
+    {
+      "page": "20261005g002190068",
+      "added_boundary_error": false,
+      "remaining": "Shareholder/succession and nonstandard unframed financial material remain joined beyond the separate medical units."
+    },
+    {
+      "page": "20260903g001970073",
+      "added_boundary_error": false,
+      "remaining": "Nonstandard financial, succession and land-notice material remains incompletely separated."
+    },
+    {
+      "page": "20261009g002230163",
+      "added_boundary_error": false,
+      "remaining": "Succession notices following the medical units remain joined."
+    },
+    {
+      "page": "20260820g001860106",
+      "added_boundary_error": false,
+      "remaining": null
+    },
+    {
+      "page": "20260821g001870082",
+      "added_boundary_error": false,
+      "remaining": null
+    },
+    {
+      "page": "20260903g001970072",
+      "added_boundary_error": false,
+      "remaining": null
+    },
+    {
+      "page": "20260917g002080077",
+      "added_boundary_error": false,
+      "remaining": null
+    },
+    {
+      "page": "20261007g002210047",
+      "added_boundary_error": false,
+      "remaining": "Shareholder and succession material outside the medical/financial units remains incompletely separated."
+    },
+    {
+      "page": "20260827g001910042",
+      "added_boundary_error": false,
+      "remaining": null
+    },
+    {
+      "page": "20260810g001790129",
+      "added_boundary_error": false,
+      "remaining": "Unframed financial and succession material remains incompletely separated."
+    },
+    {
+      "page": "20260814g001820080",
+      "added_boundary_error": false,
+      "remaining": "Most succession notices remain joined; this is not a full-page repair."
+    },
+    {
+      "page": "20261013g002240067",
+      "added_boundary_error": false,
+      "remaining": "Most succession notices remain joined; inherited reading order still starts with the financial frame."
+    },
+    {
+      "page": "20260814g001820079",
+      "added_boundary_error": false,
+      "remaining": null
+    },
+    {
+      "page": "20260916g002070066",
+      "added_boundary_error": false,
+      "remaining": "Succession notices below the eight medical units remain joined."
+    },
+    {
+      "page": "20260820g001860107",
+      "added_boundary_error": false,
+      "remaining": "Succession notices remain joined beyond the medical units."
+    },
+    {
+      "page": "20260717g001600122",
+      "added_boundary_error": false,
+      "remaining": "The separate distribution notice remains joined with the environmental-impact announcement."
+    },
+    {
+      "page": "20260721g001610162",
+      "added_boundary_error": false,
+      "remaining": "Original contains six independent financial frames but candidate has five Articles; period52 remains joined."
+    },
+    {
+      "page": "20260804g001750060",
+      "added_boundary_error": false,
+      "remaining": "Original has six financial frames plus the registry continuation, while candidate has six Articles; period44 remains joined."
+    },
+    {
+      "page": "20260821g001870096",
+      "added_boundary_error": false,
+      "remaining": null
+    }
+  ],
+  "additional_v4_regression_original": {
+    "page": "20260729g001700068",
+    "v4_counterexample": "A noun prefix was misread as a malformed title suffix, suppressing an existing independent financial frame start. Version4 rejected; the public arbitrary-compound test is RED before v5.",
+    "original_review": "Shared-frame financial statement and method-change notice; restoring the source67 frame start is required.",
+    "final_verified_by": "Fresh11992 v5/source67 comparison preserved every old Article endpoint; all11992 v3/v5 whole Analysis JSONs were equal.",
+    "whole_comparison_sha256": "cdbabc1b7862a329ac8573eb07639769fb8c5fe9cb5c8607f3e000f80d6589c1"
+  },
+  "additional_original_controls": [
+    {
+      "page": "20261005g002190067",
+      "scope": "All16 independent notices and268 Used source Words; manual original tracing, default public API membership regression passed."
+    },
+    {
+      "page": "20260731h017590032",
+      "scope": "Only the3 correction notices have exact source ownership regression. Other preferred-capital/cancellation/errata units are not all separated."
+    }
+  ],
+  "additional_changed_snapshot_originals": [
+    {
+      "page": "20260723g001630196",
+      "added_boundary_error": false
+    },
+    {
+      "page": "20261002g002180073",
+      "added_boundary_error": false
+    },
+    {
+      "page": "20261002g002180074",
+      "added_boundary_error": false,
+      "remaining": "Succession notices remain joined."
+    }
+  ],
+  "audit144": {
+    "all30_whole_Analysis_exact67": true,
+    "intersection_with_changed_pages": [],
+    "initial_grades_fixed_no_regrade": true,
+    "pages_not_repair_targets": true,
+    "quality_not_reestimated": true,
+    "strict_initial_counts": {
+      "ok": 6,
+      "minor": 5,
+      "major": 19
+    },
+    "body_initial_counts": {
+      "ok": 17,
+      "minor": 3,
+      "major": 10
+    },
+    "evidence": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/boundary43/full69-v5/result.json"
+  },
+  "remaining_cases": [
+    {
+      "page": "20260803g001740136",
+      "actual": 11,
+      "necessary": 12,
+      "met": false,
+      "count_only": true
+    },
+    {
+      "page": "20260717g001600122",
+      "actual": 4,
+      "necessary": 5,
+      "met": false,
+      "count_only": true
+    },
+    {
+      "page": "20260903g001970080",
+      "actual": 5,
+      "necessary": 6,
+      "met": false,
+      "count_only": true
+    },
+    {
+      "page": "20261005g002190067",
+      "actual": 16,
+      "necessary": 16,
+      "met": true,
+      "count_only": true
+    },
+    {
+      "page": "20260731g001730167",
+      "actual": 3,
+      "necessary": 4,
+      "met": false,
+      "count_only": true
+    },
+    {
+      "page": "20260731h017590032",
+      "actual": 6,
+      "necessary": 14,
+      "met": false,
+      "count_only": true
+    },
+    {
+      "page": "20260804g001750060",
+      "actual": 6,
+      "necessary": 7,
+      "met": false,
+      "count_only": true
+    },
+    {
+      "page": "20260721g001610162",
+      "actual": 5,
+      "necessary": 6,
+      "met": false,
+      "count_only": true
+    }
+  ],
+  "count_only_is_not_ownership_proof": true,
+  "reviewed_pages_not_counted_as_fully_repaired": true
+}

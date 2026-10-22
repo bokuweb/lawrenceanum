@@ -1,0 +1,81 @@
+{
+  "issue": 227,
+  "batch": 43,
+  "parent_commit": "9b4dab54135676cf33d92b8db0fdf6d3c6dd3812",
+  "native_runtime_source": 69,
+  "native_runtime_version": 5,
+  "native_parent_source": 67,
+  "goal_complete": false,
+  "whole_corpus_strict_quality_not_reestimated": true,
+  "local_required_tests": {
+    "passed": 1793,
+    "failed": 0,
+    "ignored": 0,
+    "groups": 117,
+    "commands": 118,
+    "integration_targets": 109,
+    "libraries": 4,
+    "doctests": 4,
+    "all4_examples_typechecked": true,
+    "new_parser_tests": 19,
+    "all_test_filters_absent": true
+  },
+  "whole_native_Analysis": {
+    "terminal": 0,
+    "pages": 11992,
+    "changed": 119,
+    "whole_Analysis_exact": 11873,
+    "all_pages_and_text_exact": true,
+    "all_source_words": 2403403,
+    "document_run_bytes_styles_tables_and_old_article_endpoints_preserved": true,
+    "frozen_inputs_unchanged": true,
+    "seconds": 290.896197459
+  },
+  "added_Article_cuts_vs67": 580,
+  "all11992_v3_v5_whole_Analysis_exact": true,
+  "fresh_actual_textdump_CLI": {
+    "terminal": 0,
+    "all11992_text_file_bytes_exact67": true,
+    "fresh_default_CLI_from_original_PDFs": true,
+    "binary_sha256": "084453006e68b4d74a56144a9a521f0f0f7f3c027659b2f4bf591033688d5dad",
+    "compiled_directly_from_public_source_version": 5,
+    "linked_parser_rlib_sha256": "8c2038215e5a7455204821755ced47f992e2b658b245ae7deb53331662f33608",
+    "source_manifest_sha256": "3505b7e42745d8a54b8f08f3fa9df410b7968049a2ad2363dedf7a56adb8cc2c",
+    "metadata_note": "The copied harness retained a v4 result-key label. The actual build linked libkanpo_parser_native69v5.rlib; the version label is corrected here without changing or rerunning the successful CLI output."
+  },
+  "old_assets": {
+    "old_assets_checked": 2197,
+    "unchanged": 2193,
+    "updated": 4,
+    "updated_files": [
+      "crates/kanpo-parser/tests/expected-native-article-partitions/20260723g001630196.json",
+      "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260723g00163__20260723g001630196.pdf.snap",
+      "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261002g00218__20261002g002180073.pdf.snap",
+      "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261002g00218__20261002g002180074.pdf.snap"
+    ],
+    "all_historical_whole_Analysis_JSON_oracles_unchanged": true,
+    "all_existing_original_PDFs_XHTML_text_and_corpus_rules_unchanged": true,
+    "new_original_PDFs": 2,
+    "new_manual_source_membership_JSONs": 2,
+    "static_Article_partition_files": 37,
+    "one_static_partition_updated": true,
+    "snapshots": 782,
+    "snapshot_existing_updated": 3,
+    "snapshot_new": 2,
+    "all777_other_existing_snapshots_unchanged": true,
+    "pending_snap_new": 0
+  },
+  "snapshot_review": {
+    "existing_updated": 3,
+    "new": 2,
+    "all3_old_body_layout_and_Run_bytes_styles_tables_exact": true,
+    "all5_snapshot_contents_equal_fresh_native_API": true,
+    "all11992_v5_outputs_equal_reviewed_v3": true,
+    "readonly_v5_archive_tests_passed": true,
+    "pending_snap_new": 0
+  },
+  "earlier_attempts": "Source68 was held after a correction notice lost a boundary at corpus page3228. Source69 scope, horizontal-child, unparsed-title and generic-frame counterexamples were fixed without weakening assertions. Historical v3 completed1789 green tests. Final code review froze3 new grammar tests:1112 passed3 RED on v3. Version4 passed1115 units but lost an old boundary at20260729g001700068 in the corpus scan; a new arbitrary-compound counterexample was frozen0 passed1 RED before v5. Version4 default gates were superseded when new regression sources were added, not counted complete. Final v5 passed1116 unit tests. All failed/interrupted trials remain separate; the final v5 gates above are fresh.",
+  "native_PDF_producer": "All23 PDF sources unchanged from accepted67. The earlier full Glyph/f64-bit/XHTML checks are inherited by source identity; this batch did not rerun that complete Glyph-level scan.",
+  "advisory_checks": "git diff --check passed. No whole-repository fmt/clippy-clean claim.",
+  "PR_checks_at_preparation": "Fresh implementation commit CI has not run at this record preparation; exact-head checks are recorded separately in the PR and local accepted checkpoint."
+}

@@ -1,0 +1,102 @@
+{
+  "issue": 227,
+  "batch": 43,
+  "parent_commit": "9b4dab54135676cf33d92b8db0fdf6d3c6dd3812",
+  "native_runtime_source": 69,
+  "native_runtime_version": 5,
+  "native_parent_source": 67,
+  "goal_complete": false,
+  "whole_corpus_strict_quality_not_reestimated": true,
+  "new_rule_properties": [
+    "Balanced, typed, nested and repeated ASCII/fullwidth parenthetical qualifiers are parsed structurally; no ordinal phrase, qualifier length, company identity or page-ID condition.",
+    "Only an outer-level announcement marker can terminate the main title. An unclosed or mismatched prefix cannot be repaired by a marker inside it. Bare announcement titles and symbol-only nonempty qualifiers are accepted.",
+    "Complete source Word provenance is required, including punctuation. Punctuation-only Word fonts do not override content typography; content uses source font/size identity sets without a font-name list.",
+    "A heading starts semantic scope only at a completely source-owned closed frame, a vertical heading/body topology, or a horizontal local block with typography/writing-axis contrast. Prose references cannot fence solely because they contain an announcement word.",
+    "Independent but unparsed or style-ambiguous headings fence publication evidence, so another announcement cannot borrow their date/signature.",
+    "A complete independent frame can use an arbitrary whole-line title even when its formal suffix is unparsed or its font continues the preceding unrelated document. Its own distinct date style, own signature and child fences are still required.",
+    "An independently dated financial frame may use its complete statement table as a terminal witness; related financial statements stay in their common procedure frame.",
+    "All old Run bytes/styles/whole tables and old Article endpoints remain protected by existing source-offset partitioning; source emission reversal and native-font bijection are tested on seven real PDFs."
+  ],
+  "new_domain_vocabulary": "No new company/name/page/ordinal vocabulary. Existing announcement suffix, financial category, date syntax and six signature role prefixes remain domain vocabulary.",
+  "counterexamples_added": [
+    "Nested/repeated and malformed/mismatched qualifiers",
+    "Unbounded qualifier lengths and symbol-only qualifiers",
+    "Bare announcement noun",
+    "Marker inside unclosed or mismatched prefix",
+    "Prose references across source Word segmentation and fonts",
+    "Qualified ambiguous-style headings fencing their own dates",
+    "Horizontal financial child fencing a parent even without a separate child frame",
+    "Independent frame following an unrelated same-font Word",
+    "Unknown framed titles, including malformed formal suffixes",
+    "Seven actual PDF font bijections and emission reversals",
+    "Manual all-Word ownership of sixteen medical notices and partial ownership of three corrections"
+  ],
+  "not_proven": [
+    "All preexisting parser rules are general; old fixed guards still require audit.",
+    "Source typography/bbox proves visible ink or universal logical ownership.",
+    "Every changed page or resulting Article is fully correct.",
+    "All issuer, signature role, title/date syntax or page orientations are supported.",
+    "Image-only text/publisher recovery or automatic model-based organization fields.",
+    "Whole-corpus100percent or a new blind accuracy score."
+  ],
+  "remaining_native_count_requirements": [
+    {
+      "page": "20260803g001740136",
+      "actual": 11,
+      "necessary": 12,
+      "met": false,
+      "count_only": true
+    },
+    {
+      "page": "20260717g001600122",
+      "actual": 4,
+      "necessary": 5,
+      "met": false,
+      "count_only": true
+    },
+    {
+      "page": "20260903g001970080",
+      "actual": 5,
+      "necessary": 6,
+      "met": false,
+      "count_only": true
+    },
+    {
+      "page": "20261005g002190067",
+      "actual": 16,
+      "necessary": 16,
+      "met": true,
+      "count_only": true
+    },
+    {
+      "page": "20260731g001730167",
+      "actual": 3,
+      "necessary": 4,
+      "met": false,
+      "count_only": true
+    },
+    {
+      "page": "20260731h017590032",
+      "actual": 6,
+      "necessary": 14,
+      "met": false,
+      "count_only": true
+    },
+    {
+      "page": "20260804g001750060",
+      "actual": 6,
+      "necessary": 7,
+      "met": false,
+      "count_only": true
+    },
+    {
+      "page": "20260721g001610162",
+      "actual": 5,
+      "necessary": 6,
+      "met": false,
+      "count_only": true
+    }
+  ],
+  "count_only_is_not_ownership_proof": true,
+  "known_failed_requirements_preserved_outside_mandatory_CI": true
+}

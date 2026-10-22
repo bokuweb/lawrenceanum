@@ -567,3 +567,10 @@ mod ruled_plain_dash_tests;
 mod quoted_inline_tables;
 
 mod source_aj1;
+
+#[cfg(test)]
+mod qualified_notice_title_tests;
+#[cfg(test)]
+mod notice_title_scope_tests;
+#[cfg(test)]
+mod unparsed_notice_title_tests;

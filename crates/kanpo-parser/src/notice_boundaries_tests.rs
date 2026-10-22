@@ -361,6 +361,8 @@ fn actual_word_emission_reversal_keeps_article_membership_and_all_analysis_field
         "20260727g001670103",
         "20260813g001810062",
         "20260925g002120067",
+        "20261005g002190067",
+        "20260731h017590032",
     ] {
         let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
         let pdf = std::fs::read(
@@ -511,6 +513,8 @@ fn independently_styled_framed_blocks_do_not_require_a_title_keyword() {
         "任意の記録",
         "A completely different title",
         "123",
+        "任意公告に関するお知らせ",
+        "任意公告（対象未定",
     ] {
         let mut p = empty();
         push(&mut p, "第1期決算公告", [100., 50., 250., 60.], 3);
@@ -591,4 +595,36 @@ fn page_quote_scope_resumes_after_the_matching_closure() {
     assert_eq!(got[0].len(), 3);
     assert_eq!(got[0][1].sources.len(), 5);
     assert_eq!(got[0][2].sources.len(), 5);
+}
+
+#[test]
+fn a_parent_cannot_borrow_a_horizontal_childs_date_without_a_separate_child_frame() {
+    for title in ["第1期決算公告", "第1期決算公告（任意）"] {
+        for font in [Some(3), None, Some(2)] {
+            let mut p = empty();
+            notice(&mut p, 400., "任意の親組織", "日付未定");
+            push(&mut p, title, [100., 50., 250., 60.], 3);
+            push(&mut p, "2026年7月1日", [100., 65., 250., 75.], 2);
+            push(&mut p, "代表取締役乙", [100., 80., 250., 90.], 2);
+            p.native_styles[5] = font.map(style).flatten();
+            let mut r = crate::lines::PageRules::default();
+            r.enclosures = vec![[90., 40., 420., 240.]];
+            assert!(cuts(&p, &r).is_empty(), "{title} {font:?}");
+        }
+    }
+}
+
+#[test]
+fn an_announcement_noun_prefix_does_not_make_an_unparsed_compound_a_suffix_title() {
+    for compound in ["公告対象の説明", "公告に関する参考", "公告方式の案内"] {
+        let mut p = empty();
+        push(&mut p, "任意決算公告", [100., 50., 250., 60.], 3);
+        push(&mut p, "2026年7月1日", [100., 65., 250., 75.], 2);
+        push(&mut p, "代表取締役任意", [100., 80., 250., 90.], 2);
+        push(&mut p, compound, [400., 50., 408., 200.], 4);
+        push(&mut p, "任意の参考本文です。", [389., 58., 397., 260.], 2);
+        let mut rules = crate::lines::PageRules::default();
+        rules.enclosures = vec![[90., 40., 420., 280.]];
+        assert_eq!(cuts(&p, &rules), vec![0], "{compound}");
+    }
 }

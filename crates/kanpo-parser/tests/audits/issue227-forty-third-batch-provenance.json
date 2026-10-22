@@ -1,0 +1,123 @@
+{
+  "issue": 227,
+  "batch": 43,
+  "parent_commit": "9b4dab54135676cf33d92b8db0fdf6d3c6dd3812",
+  "native_runtime_source": 69,
+  "native_runtime_version": 5,
+  "native_parent_source": 67,
+  "goal_complete": false,
+  "whole_corpus_strict_quality_not_reestimated": true,
+  "adopted_scope": "Additional Article boundaries for qualified titles plus structural evidence scope and independent-frame fallback; production change is limited to notice_boundaries.rs. No issuer classifier/model hook or text correction adopted.",
+  "source_files": 127,
+  "parser_source_files": 104,
+  "PDF_source_files": 23,
+  "source_manifest_sha256": "3505b7e42745d8a54b8f08f3fa9df410b7968049a2ad2363dedf7a56adb8cc2c",
+  "manual_source_membership_controls": {
+    "previous_full_controls": [
+      17,
+      4,
+      7,
+      12,
+      3
+    ],
+    "new_medical_all16_notices_and268_Used_Words_exact_once": true,
+    "new_correction_control_only3_notices_partial_page": true,
+    "all7_actual_emission_reversals_and_font_bijections_whole_Analysis_exact": true
+  },
+  "new_model_weight_files": 0,
+  "new_RURI_inferences": 0,
+  "new_separate_ModernBERT_inferences": 0,
+  "new_Tesseract_inferences": 0,
+  "RURI_batch41_two_pilots_remain_held": true,
+  "source68_not_adopted": true,
+  "local_evidence": [
+    {
+      "path": ".cache/kanpo-227/integrated69-source-manifest.json",
+      "sha256": "3505b7e42745d8a54b8f08f3fa9df410b7968049a2ad2363dedf7a56adb8cc2c"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/integrated69-v3-127-source-manifest.json",
+      "sha256": "9f4a7daa7bf0c564b8eacfb64a70682475f6f7739cee7a06a8a00d85faad11c7"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/public69-v3-final-aggregate.json",
+      "sha256": "7904ca5d8a302c36f31e944f1d9c74811be4fc65d49926642cf64760ed8f5bae"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/public69-v4-grammar-RED-inputs.json",
+      "sha256": "b78511662a0ea0f64b41de29fb3b17983fe92b8470525efd8bc8703862926f12"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/public69-v4-grammar-RED.log",
+      "sha256": "b5ce1112af38356d8fa725adfc321d647b78abc7d0460b1d1db53808f7ca1063"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/public69-v5-compound-RED.log",
+      "sha256": "44fa641a9e553cdb5c0e894abbff97c2e0143efe5442a13f8aa461f6a336c17e"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/full69-v4/failure.json",
+      "sha256": "a4fc7f5965e40304e0801f977cb5f9052385d04cd9e2ab51eda514d8f79523fa"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/source69-v4-held-trial.json",
+      "sha256": "fc80a65db29184e76e0c28a466933ef4d771bf3940c907145794a5ffef002300"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/final69-v5-production-review.json",
+      "sha256": "249c6fea2a1ffa2e6d1003f5e755483507a7133fa743dc9891f25770db50ed97"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/public69-v5-final-lib-tests.log",
+      "sha256": "a4dcacc0442a1d5ac5c531a539885cf4bf99463384a1f7139512ef2f6228806a"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/public69-v5-final-all-green.json",
+      "sha256": "25792e2f0f7c3142e9f32863848e711e3a1ad7f22b2490dcadf21f2b638e6008"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/full69-v5/result.json",
+      "sha256": "e958b7aefaa42c370860cd3ed27a23a2464cc2fdd99a9e22f99d51f735f6f4f3"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/v3-vs-v5-whole-native-comparison.json",
+      "sha256": "cdbabc1b7862a329ac8573eb07639769fb8c5fe9cb5c8607f3e000f80d6589c1"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/textdump69-v5-result.json",
+      "sha256": "65db992cd55341048352eaa39372ff589d1a891fed27d362f74a8f1cf8302d09"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/snapshot69-promoted.json",
+      "sha256": "a90a23129c265ca554f8b4901510295cbe12933fa230768147b066a4204eeb36"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/snapshot-partition-review69.json",
+      "sha256": "93ae5d72eb593f7c6f8590c677713a4353306a203e9fe2014d3afb21231411f5"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/legacy-one-partition-update69.json",
+      "sha256": "ac8a611fa77592089c9041a419c640d1679ff4391da8821a8313973cbd48aa62"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/review/final48-findings69.json",
+      "sha256": "53f8614aba65594ae9232b409d4e20e0a0740121a4a80f558e210296289c744a"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/audit144-source69-inheritance.json",
+      "sha256": "736ac27eb0ea4adce1911e7a98ab36bd9a57b875bda26d463b166f23d130cf20"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/remaining-boundaries69-v5-results.json",
+      "sha256": "88e04baea70bf5294e49705bf9b02c577c6f864a83d6132c903b7bedad80d947"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/remaining-boundaries69-v5-RED.log",
+      "sha256": "d8ec1f8b62e27b2d8923be8550b67e79e8c99cd468dfb90cd9f74d2f95fd2810"
+    },
+    {
+      "path": ".cache/kanpo-227/boundary43/final43-assets.json",
+      "sha256": "aa3b2a8cedc1df271ceab3c034188ac6a63bcc45b4b66f1a2d6ea3037cf89862"
+    }
+  ]
+}
