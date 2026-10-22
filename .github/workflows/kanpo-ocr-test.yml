@@ -21,4 +21,4 @@ jobs:
         with:
           node-version: "20"
       # Contract/failure tests use a fake engine. No OCR weights or inference in CI.
-      - run: node --test tools/kanpo-ocr/sidecar.test.cjs
+      - run: node --test tools/kanpo-ocr/*.test.cjs

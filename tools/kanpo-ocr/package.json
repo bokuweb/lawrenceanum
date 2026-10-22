@@ -5,6 +5,6 @@
   "description": "Opt-in full-page PNG recognition with source coordinates; separate from native PDF analysis",
   "license": "SEE LICENSE IN ../../LICENSE",
   "engines": { "node": ">=20" },
-  "scripts": { "test": "node --test sidecar.test.cjs" },
+  "scripts": { "test": "node --test *.test.cjs" },
   "dependencies": { "tesseract.js": "6.0.1" }
 }

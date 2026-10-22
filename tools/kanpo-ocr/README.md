@@ -34,7 +34,42 @@ PNGを用意する描画器は、原本のフォント・回転・clip・重ね�
 モデルを使わない回帰テスト:
 
 ```sh
-node --test tools/kanpo-ocr/sidecar.test.cjs
+node --test tools/kanpo-ocr/*.test.cjs
 ```
 
 元認識器の情報は [Tesseract.js](https://github.com/naptha/tesseract.js/tree/v6.0.1)、モデルは [公式tessdata_fast](https://github.com/tesseract-ocr/tessdata_fast/tree/87416418657359cb625c412a48b6e1d6d41c29bd)。モデルはApache-2.0で、使用・再配布時のライセンスは同リポジトリのLICENSEを参照する。
+
+## 画像領域の座標をPDFページへ写す
+
+画像XObjectの一部領域を認識したときは、画像全体をページ幅・高さへ引き伸ばすと位置が合わない。配置行列とCropBox・回転が別途分かる場合、既存の認識結果を再推論せずページ座標へ写せる。
+
+```sh
+node tools/kanpo-ocr/project-cli.cjs \
+  --placement placement.json --output new-projection.json observations.json
+```
+
+`placement.json` は次の形式で、行列はPDFと同じ `[a,b,c,d,e,f]`、点の変換は `(a*x+c*y+e, b*x+d*y+f)`。
+
+```json
+{
+  "pixel_width": 100,
+  "pixel_height": 200,
+  "image_width": 100,
+  "image_height": 200,
+  "recognition_to_image": [1, 0, 0, 1, 0, 0],
+  "image_to_user": [50, 0, 0, 100, 10, 20],
+  "crop_box": [0, 0, 300, 400],
+  "rotate": 0
+}
+```
+
+- `pixel_width/height`: 認識に使ったPNGの画素寸法。`observations.canvas`との一致を検査する。
+- `image_width/height`: 元の画像XObjectの画素寸法。`recognition_to_image`は、認識PNGの左上原点の画素辺座標を、元画像の左上原点の画素辺座標へ写す。認識前の回転・切り出し・縮尺をここに明示する。自動推定しない。
+- `image_to_user`: 画像の単位正方形からPDFユーザー座標への配置行列。呼出元Formを含む有効なCTMを指定する。画素の下向きYは画像単位座標の上向きYへ変換する。
+- `crop_box/rotate`: 継承を解決したPDFのCropBoxと正規化済みの回転0/90/180/270。出力は表示の向きで左上原点、pt単位。
+
+全block/paragraph/line/wordへ `projection` を付加し、斜め・反転・せん断でも四隅 `quad_points` と外接矩形 `bounds_points` を区別して保存する。元の `bbox`、text、confidence、出現順と添字は保持する。元の `bbox.points` は認識時に指定した旧座標系の記録であり、今回の変換結果は `projection` を参照する。退化・非有限・精度で潰れる枠は捨てずinvalidにする。元画像またはページ外の点も切り詰めず、inside/partial/touching/outsideを幾何的に記録する。
+
+このコマンドは配置メタデータをPDFから抽出したり、PNGとPDFの関係を証明したりしない。結果は `unclassified_ocr_projection`、`source_binding: "declared_unverified"`、`visibility: "unverified"`。クリップ・soft mask・透明度・後からの重ね描きは、この座標計算だけでは評価できない。ページ内にあることを可視性や記事所属の根拠にはしない。任意の補足メタデータは宣言として保持する。
+
+入力JSON2件は一度読み、その正確なbytesのSHA256と使用コードのSHA256を記録する。出力は新しいファイルだけに書き、元の認識結果を変更しない。認識誤りの補正・confidenceによる選別・native Glyph対応・記事割当は行わない。既定のパーサへの自動統合には、PDFとの対応・可視性・既存文字との重複・読み順を別途検証する必要がある。
