@@ -1,0 +1,262 @@
+{
+  "page": "20260918h017930032",
+  "original_pdf_sha256": "3589fb7c559032e9ab2e93c7ae75dce6b2d5850c3eb50bfa4c4bfba802960aa4",
+  "annotation_utc": "2026-10-22T16:51:29.372547+00:00",
+  "annotation_type": "Root nonblind original-based postselection ofchanged pages. Explicit cell ID assignment from original preview and unchanged78 native source coordinates, before reading candidate cell memberships. Source text concatenated in manually assigned field order; not independent all-character transcription, underline certification, all-page or blind accuracy.",
+  "annotation_basis": "Original has3 records with explicit page7 andtwo ditto page locators. Wrong/correct pairs一〜五/一〜四,六/五,一〜五/一〜四. Keep ditto values as printed, never expand by expected content.",
+  "annotation_rect_for_membership_aid_only": [
+    40.0,
+    609.0,
+    156.00039672851562,
+    793.0
+  ],
+  "caption": {
+    "text": "正誤",
+    "source_word_ids": [
+      176,
+      177
+    ]
+  },
+  "rows": 5,
+  "cols": 5,
+  "cells": [
+    {
+      "row": 0,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        186
+      ],
+      "text": "ページ"
+    },
+    {
+      "row": 0,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        187
+      ],
+      "text": "段"
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        188
+      ],
+      "text": "行"
+    },
+    {
+      "row": 0,
+      "col": 3,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        189
+      ],
+      "text": "誤"
+    },
+    {
+      "row": 0,
+      "col": 4,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        190
+      ],
+      "text": "正"
+    },
+    {
+      "row": 1,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 5,
+      "source_word_ids": [
+        196,
+        203,
+        211,
+        216,
+        219
+      ],
+      "text": "令和八年六月一日（号外第百二十一号）公布総務省令第七十五号（住民基本台帳法別表第一から別表第六までの総務省令で定める事務を定める省令の一部を改正する省令）（原稿誤り）"
+    },
+    {
+      "row": 2,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        227
+      ],
+      "text": "七"
+    },
+    {
+      "row": 2,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [],
+      "text": ""
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        224,
+        229
+      ],
+      "text": "改正後欄一二"
+    },
+    {
+      "row": 2,
+      "col": 3,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        225
+      ],
+      "text": "一〜五"
+    },
+    {
+      "row": 2,
+      "col": 4,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        226
+      ],
+      "text": "一〜四"
+    },
+    {
+      "row": 3,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        231
+      ],
+      "text": "〃"
+    },
+    {
+      "row": 3,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [],
+      "text": ""
+    },
+    {
+      "row": 3,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        232
+      ],
+      "text": "〃一三"
+    },
+    {
+      "row": 3,
+      "col": 3,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        233
+      ],
+      "text": "六"
+    },
+    {
+      "row": 3,
+      "col": 4,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        234
+      ],
+      "text": "五"
+    },
+    {
+      "row": 4,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        240
+      ],
+      "text": "〃"
+    },
+    {
+      "row": 4,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [],
+      "text": ""
+    },
+    {
+      "row": 4,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        237,
+        244
+      ],
+      "text": "改正前欄三"
+    },
+    {
+      "row": 4,
+      "col": 3,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        238
+      ],
+      "text": "一〜五"
+    },
+    {
+      "row": 4,
+      "col": 4,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        239
+      ],
+      "text": "一〜四"
+    }
+  ],
+  "expected_source_group": [
+    176,
+    177,
+    186,
+    187,
+    188,
+    189,
+    190,
+    196,
+    203,
+    211,
+    216,
+    219,
+    224,
+    225,
+    226,
+    227,
+    229,
+    231,
+    232,
+    233,
+    234,
+    237,
+    238,
+    239,
+    240,
+    244
+  ]
+}

@@ -789,6 +789,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 crate::common_financial_header::restore(&mut units,&words,&native_styles,&native_content_styles,&native_bounds,&rules.enclosures);
             }
         }
+        if !sideways && !rotated { if let Some(rules) = rules.get(pi).and_then(|r| r.as_ref()) { crate::notice_boundaries::restore_ruled_corrections(&mut units, &words, &native_styles, &native_content_styles, &native_bounds, rules, &pages); } }
         let text = units
             .iter()
             .map(Unit::text)

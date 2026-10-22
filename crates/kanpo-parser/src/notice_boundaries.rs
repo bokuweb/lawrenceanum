@@ -779,6 +779,7 @@ fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> V
             cuts.insert(h.line);
         }
     }
+    cuts.extend(ruled_corrections::section_starts(page, rules, lines));
     cuts.into_iter().collect()
 }
 pub(crate) fn cuts(page: &PageTrace, rules: &PageRules) -> Vec<usize> {
@@ -940,3 +941,6 @@ mod attributed_header_tests;
 #[path = "framed_publications.rs"]
 mod framed_publications;
 pub(crate) use framed_publications::restore_framed_reading_order;
+
+#[path="ruled_corrections.rs"]mod ruled_corrections;
+pub(crate) use ruled_corrections::restore_ruled_corrections;

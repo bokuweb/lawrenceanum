@@ -1,0 +1,425 @@
+{
+  "issue": 227,
+  "batch": 68,
+  "native_runtime": 79,
+  "PDF_runtime": 26,
+  "OCRtool": 63,
+  "parent_head": "e7ea90ca64aeeec39b1ecc6e37bf802ff9791356",
+  "status": "locally_validated_source_ruled_correction_tables",
+  "source_manifest_sha256": "e7e02743dddead3d90336aa428fa0c9c1ec6dad5d3acc9a4de217cf5025b03fd",
+  "source_files": 149,
+  "general_rule": "Reconstruct a correction table only from independent native caption rails, distinct source header typography, five printed field roles, repeated exact field rules, source citation syntax, unambiguous page-anchored record geometry and complete raw source ownership. Preserve whole Word occurrences; reject missing source, crossing/overlapping words, ambiguous locators, enclosing parent publications, quotation context and conflicting claims. Reprove identical source/table before creating an article boundary.",
+  "new_runtime_routing": {
+    "page_ID": false,
+    "company": false,
+    "full_caption_value": false,
+    "numeric_value": false,
+    "character_or_line_or_record_cap": false,
+    "fixed_point_tolerance": false,
+    "font_name": false,
+    "ML_result": false
+  },
+  "lexical_grammar": "Printed ページ/段/行/誤/正 field roles, date/book qualifier syntax and Japanese quotation punctuation are structural grammar. Caption and record values are unrestricted. Existing upstream PDF rule filters remain unchanged.",
+  "TDD": {
+    "new_functions": 23,
+    "no_op_same_final_tests": {
+      "passed": 10,
+      "failed": 13,
+      "ignored": 0
+    },
+    "final_parser_lib": {
+      "passed": 1252,
+      "failed": 0,
+      "ignored": 0
+    },
+    "red_sequence": "Original13/14 article count; then source gaps in otherwise character-conserving full scan; native-caption padding; unanchored locator component. Each failing evidence retained before fixing source ownership or ambiguity guards. Initial build/setup failures are not logical RED evidence.",
+    "evidence": [
+      {
+        "path": ".cache/kanpo-227/ruled-corrections68-r3/final-lib68.log",
+        "sha256": "4635273552c3ef094baf75a26a5df1a96d3b8ee1f6efbd30888fd0f6604bba4e"
+      },
+      {
+        "path": ".cache/kanpo-227/ruled-corrections68-final-noop/RED68.log",
+        "sha256": "733b20e3f9280493568b7b9654b359d24d52e4fac01a3587ee0c432b85ce4cbc"
+      },
+      {
+        "path": ".cache/kanpo-227/ruled-corrections68-r3/caption-RED-test68.log",
+        "sha256": "9b1e316c040c06c73299e83ccbd321320d2b9e317022e1b98654339a772001d4"
+      },
+      {
+        "path": ".cache/kanpo-227/ruled-corrections68-r3/public-locator-RED-test68.log",
+        "sha256": "4ec0a8f1f1bac51af0249f6d2f94fe20cb62e6d452c77d8d932e4e98af38c4cd"
+      },
+      {
+        "path": ".cache/kanpo-227/ruled-corrections68/baseline-RED68.log",
+        "sha256": "9f03210d543ee88f838995be4c4e42b79ce0ce11f33f8c759dbdad61c4f34f86"
+      },
+      {
+        "path": ".cache/kanpo-227/ruled-corrections68-r2/gap-RED-test68.log",
+        "sha256": "326edc74e6fa950ec50b46b0e24dead589616c4af86ec78f677a1db82fc8a478"
+      }
+    ]
+  },
+  "required_gates": {
+    "source79_manifest_sha256": "e7e02743dddead3d90336aa428fa0c9c1ec6dad5d3acc9a4de217cf5025b03fd",
+    "commands": 118,
+    "integration_targets": 109,
+    "passed": 1962,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 117,
+    "all_commands_exit0": true,
+    "repairs": "Reused frozen149-source checks; reran whole archive_pages/items update-forbidden after reviewing7 additions and1 correction. Other806 snapshots unchanged."
+  },
+  "related_tests": {
+    "native": 1962,
+    "Node": 94,
+    "Python": 45,
+    "total": 2101,
+    "failed": 0,
+    "ignored": 0
+  },
+  "original_review": {
+    "reviewer": "root nonblind engineering review; not independent",
+    "selection": "Primary July31 gold fixed before implementation; seven additional pages selected after full scan and manually source-assigned before checking candidate cell memberships.",
+    "scope": "All correction-table cells, source Word occurrences and correction publication membership. Not a full-page independent character/underline/layout oracle.",
+    "cells": [
+      {
+        "page": "20260727h017550032",
+        "gold_sha256": "81635d7525be7440426fd9f73cf2ea94000a452351a4b2ed7de59d1a070fdc84",
+        "exact_trace_table_cells_and_all_source_Word_IDs": true,
+        "exact_structured_document_cells_and_citation_span": true,
+        "document_nonwhitespace_text_and_Run_style_multiset_exact": true,
+        "scope": "Correction publication only; not full-page/blind or glyph/underline accuracy."
+      },
+      {
+        "page": "20260731h017590032",
+        "gold_sha256": "01a4b0bc6fef18d79ce947b83774885368ff081986e8e40c07467572d07b1006",
+        "exact_trace_table_cells_and_all_source_Word_IDs": true,
+        "exact_structured_document_cells_and_citation_span": true,
+        "document_nonwhitespace_text_and_Run_style_multiset_exact": true,
+        "scope": "Correction publication only; not full-page/blind or glyph/underline accuracy."
+      },
+      {
+        "page": "20260810h017650032",
+        "gold_sha256": "41c8039ca89799213e28bbeb56c2587c42fe0064593dc2771f78665d4ef84efd",
+        "exact_trace_table_cells_and_all_source_Word_IDs": true,
+        "exact_structured_document_cells_and_citation_span": true,
+        "document_nonwhitespace_text_and_Run_style_multiset_exact": true,
+        "scope": "Correction publication only; not full-page/blind or glyph/underline accuracy."
+      },
+      {
+        "page": "20260826h017760032",
+        "gold_sha256": "4936d01b201b5d3f3511c48dfd20704ee97cd41f3ce79dc7c964d90d035f012b",
+        "exact_trace_table_cells_and_all_source_Word_IDs": true,
+        "exact_structured_document_cells_and_citation_span": true,
+        "document_nonwhitespace_text_and_Run_style_multiset_exact": true,
+        "scope": "Correction publication only; not full-page/blind or glyph/underline accuracy."
+      },
+      {
+        "page": "20260902h017810032",
+        "gold_sha256": "370e557ffd6d06a8be6e53691ffbc379c8d2cca8c22a46c199b91694ed57330e",
+        "exact_trace_table_cells_and_all_source_Word_IDs": true,
+        "exact_structured_document_cells_and_citation_span": true,
+        "document_nonwhitespace_text_and_Run_style_multiset_exact": true,
+        "scope": "Correction publication only; not full-page/blind or glyph/underline accuracy."
+      },
+      {
+        "page": "20260914h017890032",
+        "gold_sha256": "db1d8b9004c712b5b66c4aa3bfe589166cee72b4f9d96041b94b490548b87635",
+        "exact_trace_table_cells_and_all_source_Word_IDs": true,
+        "exact_structured_document_cells_and_citation_span": true,
+        "document_nonwhitespace_text_and_Run_style_multiset_exact": true,
+        "scope": "Correction publication only; not full-page/blind or glyph/underline accuracy."
+      },
+      {
+        "page": "20260918h017930032",
+        "gold_sha256": "667f9e7bfdbc9be38977f44bf399d16699f22751329b71f0b2e00217677d88e3",
+        "exact_trace_table_cells_and_all_source_Word_IDs": true,
+        "exact_structured_document_cells_and_citation_span": true,
+        "document_nonwhitespace_text_and_Run_style_multiset_exact": true,
+        "scope": "Correction publication only; not full-page/blind or glyph/underline accuracy."
+      },
+      {
+        "page": "20261013h018060032",
+        "gold_sha256": "a271528afbb277325c42e83a8f3147a2c8ac71c96f7322341038decc2813700f",
+        "exact_trace_table_cells_and_all_source_Word_IDs": true,
+        "exact_structured_document_cells_and_citation_span": true,
+        "document_nonwhitespace_text_and_Run_style_multiset_exact": true,
+        "scope": "Correction publication only; not full-page/blind or glyph/underline accuracy."
+      }
+    ]
+  },
+  "whole_corpus": {
+    "terminal": 0,
+    "pages": 11992,
+    "changed": 8,
+    "whole_Analysis_exact": 11984,
+    "source_Words": 2403403,
+    "all_Word_fields_dimensions_layout_and_region_roles_exact": true,
+    "all_old_complete_Table_JSON_preserved": true,
+    "source_usage_multisets_exact": true,
+    "nonwhitespace_characters_exact": true,
+    "frozen_inputs_unchanged": true,
+    "changed_original_and_new_table_membership_review_required_before_adoption": true,
+    "seconds": 422.684024083
+  },
+  "CLI": {
+    "terminal": 0,
+    "fresh79_actual_default_native_CLI_from_PDFs": 11992,
+    "baseline78": "Pinned11992 actual78 CLI executions from batch67, unchanged producer/source/output; not fresh executions in batch68",
+    "changes": [
+      {
+        "page": "20260727h017550032",
+        "before_bytes": 7695,
+        "after_bytes": 7703
+      },
+      {
+        "page": "20260731h017590032",
+        "before_bytes": 7849,
+        "after_bytes": 7853
+      },
+      {
+        "page": "20260810h017650032",
+        "before_bytes": 7716,
+        "after_bytes": 7727
+      },
+      {
+        "page": "20260826h017760032",
+        "before_bytes": 7190,
+        "after_bytes": 7194
+      },
+      {
+        "page": "20260902h017810032",
+        "before_bytes": 3761,
+        "after_bytes": 3765
+      },
+      {
+        "page": "20260914h017890032",
+        "before_bytes": 6915,
+        "after_bytes": 6917
+      },
+      {
+        "page": "20260918h017930032",
+        "before_bytes": 7525,
+        "after_bytes": 7545
+      },
+      {
+        "page": "20261013h018060032",
+        "before_bytes": 6598,
+        "after_bytes": 6610
+      }
+    ],
+    "filename_content_digest": "c84458a4c9d50bf2c0ca66291b3261d7584f47c5862253ffc1d649bfc632bbc7",
+    "all_frozen_inputs_unchanged": true,
+    "seconds": 98.226309125
+  },
+  "CLI_API": {
+    "pages": 11992,
+    "fresh79_actual_CLI_and_API_text_bytes_exact": true,
+    "CLI_digest": "c84458a4c9d50bf2c0ca66291b3261d7584f47c5862253ffc1d649bfc632bbc7"
+  },
+  "prior_article_preservation": [
+    {
+      "page": "20260727h017550032",
+      "prior_articles_text_and_all_Document_blocks_exact": 10,
+      "format_only_changes_prose_to_unknown_at_indices": [],
+      "basis": "The old original-segment format inherited amendment wording from the unrelated correction citation. Hiding that citation in a typed table removes this cue. No preceding article text/Run/block/table changes; format enum is not claimed unchanged."
+    },
+    {
+      "page": "20260731h017590032",
+      "prior_articles_text_and_all_Document_blocks_exact": 12,
+      "format_only_changes_prose_to_unknown_at_indices": [],
+      "basis": "The old original-segment format inherited amendment wording from the unrelated correction citation. Hiding that citation in a typed table removes this cue. No preceding article text/Run/block/table changes; format enum is not claimed unchanged."
+    },
+    {
+      "page": "20260810h017650032",
+      "prior_articles_text_and_all_Document_blocks_exact": 11,
+      "format_only_changes_prose_to_unknown_at_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "basis": "The old original-segment format inherited amendment wording from the unrelated correction citation. Hiding that citation in a typed table removes this cue. No preceding article text/Run/block/table changes; format enum is not claimed unchanged."
+    },
+    {
+      "page": "20260826h017760032",
+      "prior_articles_text_and_all_Document_blocks_exact": 9,
+      "format_only_changes_prose_to_unknown_at_indices": [],
+      "basis": "The old original-segment format inherited amendment wording from the unrelated correction citation. Hiding that citation in a typed table removes this cue. No preceding article text/Run/block/table changes; format enum is not claimed unchanged."
+    },
+    {
+      "page": "20260902h017810032",
+      "prior_articles_text_and_all_Document_blocks_exact": 6,
+      "format_only_changes_prose_to_unknown_at_indices": [],
+      "basis": "The old original-segment format inherited amendment wording from the unrelated correction citation. Hiding that citation in a typed table removes this cue. No preceding article text/Run/block/table changes; format enum is not claimed unchanged."
+    },
+    {
+      "page": "20260914h017890032",
+      "prior_articles_text_and_all_Document_blocks_exact": 11,
+      "format_only_changes_prose_to_unknown_at_indices": [],
+      "basis": "The old original-segment format inherited amendment wording from the unrelated correction citation. Hiding that citation in a typed table removes this cue. No preceding article text/Run/block/table changes; format enum is not claimed unchanged."
+    },
+    {
+      "page": "20260918h017930032",
+      "prior_articles_text_and_all_Document_blocks_exact": 12,
+      "format_only_changes_prose_to_unknown_at_indices": [
+        10,
+        11
+      ],
+      "basis": "The old original-segment format inherited amendment wording from the unrelated correction citation. Hiding that citation in a typed table removes this cue. No preceding article text/Run/block/table changes; format enum is not claimed unchanged."
+    },
+    {
+      "page": "20261013h018060032",
+      "prior_articles_text_and_all_Document_blocks_exact": 12,
+      "format_only_changes_prose_to_unknown_at_indices": [],
+      "basis": "The old original-segment format inherited amendment wording from the unrelated correction citation. Hiding that citation in a typed table removes this cue. No preceding article text/Run/block/table changes; format enum is not claimed unchanged."
+    }
+  ],
+  "metadata_effect": "On Aug10 all11 earlier articles and on Sep18 earlier indices10/11 retain exact text/Document blocks but document.format changes prose to unknown. Previously the unsplit segment inherited an amendment cue from the unrelated correction citation; typed-table reconstruction removes this cue. Analysis.format is unchanged. Not claimed entirely identical Article objects.",
+  "snapshots": {
+    "review": "Root nonblind original/cell/Doc review. Seven new references and one reviewed correction of the old13-publication output. Other806 old snapshots unchanged; old31 output retained in cache.",
+    "snapshots": [
+      {
+        "page": "20260727h017550032",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260727h01755__20260727h017550032.pdf.snap",
+        "sha256": "21316f0a292e4b1d2fb021bb5da2e25c1bbdcf5798f875060d7fd1ee76ca5e05",
+        "entire_text_and_rendered_document_Runs_checked": true,
+        "original_source_membership_review": "All correction cells and source Word IDs exact to original-assigned gold; correction scope only. Not independent/blind/full-page character accuracy."
+      },
+      {
+        "page": "20260731h017590032",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731h01759__20260731h017590032.pdf.snap",
+        "sha256": "7c073e3866b5364ea5ce4284813b14fc7c4a0a6e9abd7506cf84f71611a40ac9",
+        "entire_text_and_rendered_document_Runs_checked": true,
+        "original_source_membership_review": "All correction cells and source Word IDs exact to original-assigned gold; correction scope only. Not independent/blind/full-page character accuracy."
+      },
+      {
+        "page": "20260810h017650032",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260810h01765__20260810h017650032.pdf.snap",
+        "sha256": "c8b7b7853554c2ef00c9e93a83987980fa461db48ea3510999e0d7d305722664",
+        "entire_text_and_rendered_document_Runs_checked": true,
+        "original_source_membership_review": "All correction cells and source Word IDs exact to original-assigned gold; correction scope only. Not independent/blind/full-page character accuracy."
+      },
+      {
+        "page": "20260826h017760032",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260826h01776__20260826h017760032.pdf.snap",
+        "sha256": "4e422bb300cf37a4412dab70ee175ed6375d902742e974486a0538776ca14015",
+        "entire_text_and_rendered_document_Runs_checked": true,
+        "original_source_membership_review": "All correction cells and source Word IDs exact to original-assigned gold; correction scope only. Not independent/blind/full-page character accuracy."
+      },
+      {
+        "page": "20260902h017810032",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260902h01781__20260902h017810032.pdf.snap",
+        "sha256": "a712c2f55f70472d128087292a43e0ae3933a325fa70a02f890e40ae8c49b56d",
+        "entire_text_and_rendered_document_Runs_checked": true,
+        "original_source_membership_review": "All correction cells and source Word IDs exact to original-assigned gold; correction scope only. Not independent/blind/full-page character accuracy."
+      },
+      {
+        "page": "20260914h017890032",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260914h01789__20260914h017890032.pdf.snap",
+        "sha256": "409d857ea1a3e6a2dfb7442602723d5270ebfb1bde22f1ee068b02634c23ed63",
+        "entire_text_and_rendered_document_Runs_checked": true,
+        "original_source_membership_review": "All correction cells and source Word IDs exact to original-assigned gold; correction scope only. Not independent/blind/full-page character accuracy."
+      },
+      {
+        "page": "20260918h017930032",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260918h01793__20260918h017930032.pdf.snap",
+        "sha256": "12c3f2b0523d6137d78adef8a2315203d2eeebbbbd2c6f59a2e6bffb8ff01676",
+        "entire_text_and_rendered_document_Runs_checked": true,
+        "original_source_membership_review": "All correction cells and source Word IDs exact to original-assigned gold; correction scope only. Not independent/blind/full-page character accuracy."
+      },
+      {
+        "page": "20261013h018060032",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261013h01806__20261013h018060032.pdf.snap",
+        "sha256": "3914dba3e2cd3c031ebc643ef2d6fac30103b99f8c6330276e205acc6b874eb0",
+        "entire_text_and_rendered_document_Runs_checked": true,
+        "original_source_membership_review": "All correction cells and source Word IDs exact to original-assigned gold; correction scope only. Not independent/blind/full-page character accuracy."
+      }
+    ],
+    "old_changed_paths": [
+      "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731h01759__20260731h017590032.pdf.snap"
+    ]
+  },
+  "source_gap_holds": {
+    "pages": [
+      "20260721h017510032",
+      "20260820h017720032"
+    ],
+    "evidence": "Raw unresolved empty Word191/199 intersects claimed table. Original ditto is not synthesized; complete Analysis remains exact to78. Neither page counted improved."
+  },
+  "fixed_evaluation": {
+    "terminal": 0,
+    "fresh79_API_pages": 11992,
+    "fixed30_all_Analysis_unchanged_to74": true,
+    "sample_reselection_or_regrading": false,
+    "known_required_counts": [
+      {
+        "page": "20260717g001600122",
+        "expected_Articles": 5,
+        "actual_Articles": 5,
+        "pass": true
+      },
+      {
+        "page": "20260721g001610162",
+        "expected_Articles": 6,
+        "actual_Articles": 6,
+        "pass": true
+      },
+      {
+        "page": "20260731g001730167",
+        "expected_Articles": 4,
+        "actual_Articles": 3,
+        "pass": false
+      },
+      {
+        "page": "20260731h017590032",
+        "expected_Articles": 14,
+        "actual_Articles": 14,
+        "pass": true
+      },
+      {
+        "page": "20260803g001740136",
+        "expected_Articles": 12,
+        "actual_Articles": 12,
+        "pass": true
+      },
+      {
+        "page": "20260804g001750060",
+        "expected_Articles": 7,
+        "actual_Articles": 7,
+        "pass": true
+      },
+      {
+        "page": "20260903g001970080",
+        "expected_Articles": 6,
+        "actual_Articles": 6,
+        "pass": true
+      }
+    ],
+    "known_required_pass": 6,
+    "known_required_fail": 1,
+    "unresolved_source_pages_all_Analysis_exact_to78": [
+      "20260721h017510032",
+      "20260820h017720032"
+    ],
+    "source_frozen": true,
+    "seconds": 310.88927020799997
+  },
+  "limits": {
+    "fixed30": "All Analysis exact to74; retain ok10/minor5/major15 without reselection/regrading.",
+    "known7": "Necessary article counts6 pass1 fail; counts do not prove full text/membership. Native financial image-body page remains3/4.",
+    "source_PDF": "All26 PDF source files unchanged. Native76 all14859045 raw Glyph/f64 and14322 image stream proof inherited, not rerun this batch.",
+    "conservation": "Word fields, source-usage multisets, nonwhitespace characters, all old complete native Table JSON preserved. New tables/lines and whitespace intentionally differ.",
+    "ML": "No new model download/training/inference or RURI/ModernBERT adoption.",
+    "global": "Original issue remains active; no100% or global accuracy claim; old financial fixed caps remain."
+  }
+}
