@@ -11,5 +11,6 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 kanpo-parser = { path = "../kanpo-parser" }
+kanpo-pdf = { path = "../kanpo-pdf" }
 serde_json.workspace = true
 wasm-bindgen = "0.2"

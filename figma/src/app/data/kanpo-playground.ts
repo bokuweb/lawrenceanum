@@ -19,6 +19,7 @@ export type KanpoWord = {
   y0: number;
   x1: number;
   y1: number;
+  source_box?: [number, number, number, number];
   raw: string;
   text: string;
   status: KanpoWordStatus;
@@ -120,6 +121,7 @@ export type KanpoParser = {
   analyze: (xhtml: string) => KanpoAnalysis;
   /** 複数ページの項目をまとめて解析する（ページで切れた新旧対照表をつなぎ、罫線から表を復元する）。 */
   analyzeItem: (pages: KanpoPageInput[]) => KanpoAnalysis;
+  displayBoxes: (pdf: Uint8Array, page: number, words: KanpoWord[]) => ([number, number, number, number] | null)[];
   version: string;
 };
 
@@ -129,6 +131,7 @@ type WasmModule = {
   analyze: (xhtml: string) => string;
   /** 古い WASM には無い（その場合は 1 ページ・罫線なしの analyze で代用する）。 */
   analyze_item?: (pagesJson: string) => string;
+  display_boxes?: (pdf: Uint8Array, page: number, boxesJson: string) => string;
   version: () => string;
 };
 
@@ -158,6 +161,14 @@ export function loadKanpoParser(): Promise<KanpoParser | null> {
               if (m.analyze_item) return parseAnalysis(m.analyze_item(JSON.stringify(pages)));
               if (pages.length === 1) return parseAnalysis(m.analyze(pages[0].xhtml));
               throw new Error("この WASM は複数ページの解析（analyze_item）に対応していません。pnpm build:wasm で作り直してください。");
+            },
+            displayBoxes: (pdf: Uint8Array, page: number, words: KanpoWord[]) => {
+              if (!m.display_boxes) return words.map(() => null);
+              const boxes = JSON.parse(m.display_boxes(pdf, page, JSON.stringify(
+                words.map((w) => w.source_box ?? [w.x0, w.y0, w.x1, w.y1]),
+              )));
+              if (boxes?.error) throw new Error(boxes.error);
+              return boxes;
             },
             version: m.version(),
           };
