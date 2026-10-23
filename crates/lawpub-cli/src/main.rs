@@ -710,6 +710,17 @@ enum Cmd {
         to: Option<String>,
     },
 
+    /// 保存済みの判例のうち、未取得の PDF 本文だけを補完する。
+    HanreiFetchBodies {
+        #[arg(long, default_value = ".cache")]
+        cache: PathBuf,
+        #[arg(long, default_value_t = 1000)]
+        interval_ms: u64,
+        /// 1 回に PDF 取得を試みる最大件数。
+        #[arg(long, default_value_t = 200)]
+        limit: usize,
+    },
+
     /// `.cache/hanrei/` → `public/hanrei/{case_id}.json` + `index.json` を書き出す。
     HanreiBuildJson {
         #[arg(long, default_value = ".cache")]
@@ -1174,6 +1185,9 @@ fn main() -> Result<()> {
             hanrei::run_fetch(&cache, interval_ms, limit, from.as_deref(), to.as_deref())
         }
         Cmd::HanreiBuildJson { cache, public } => hanrei::run_build_json(&cache, &public),
+        Cmd::HanreiFetchBodies { cache, interval_ms, limit } => {
+            hanrei::run_fetch_bodies(&cache, interval_ms, limit)
+        }
         Cmd::LinkRulemaking { public } => linking::run_link_rulemaking(&public),
         Cmd::LinkBillAmendments { public } => linking::run_link_bill_amendments(&public),
         Cmd::LinkLawsAndHanrei { public } => linking::run_link_hanrei(&public),

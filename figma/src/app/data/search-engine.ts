@@ -399,7 +399,7 @@ export type HanreiHit = {
 
 /**
  * 判例の全文検索 (hanrei_fts)。事件名・事件番号・判示事項・裁判要旨・参照法条・
- * 全文 PDF 由来の引用を横断する。索引は新しい事件順 (case_id 降順) に並ぶ。
+ * 全文 PDF 本文と引用を横断する。索引は新しい事件順 (case_id 降順) に並ぶ。
  * 旧 search.db（hanrei_fts 未作成）では strict でも空配列にフォールバック。
  */
 export async function searchHanrei(q: string, limit = 10, strict = false, offset = 0, request?: SearchRequest): Promise<HanreiHit[]> {

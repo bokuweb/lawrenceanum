@@ -310,8 +310,8 @@ impl Thesaurus {
 const LAW_INDEX_BATCH_SIZE: usize = 100;
 const PROCEEDINGS_INDEX_BATCH_SIZE: usize = 25;
 const FILE_INDEX_BATCH_SIZE: usize = 14;
-/// 判例 JSON は 1 件数 KB (PDF 本文は持たない) なので大きめに束ねる。
-const HANREI_INDEX_BATCH_SIZE: usize = 200;
+/// PDF 本文を含むので、判例も小さなバッチで索引する。
+const HANREI_INDEX_BATCH_SIZE: usize = 25;
 
 /// `laws`: 索引対象の現行版 LawDocument 群。
 /// `categories`: law_id → e-Gov 法令分類 (「民事」「行政組織」など) の対応表。
@@ -449,7 +449,7 @@ pub fn build_search_db(
             tokenize='unicode61'
         );
 
-        -- 判例 FTS5。事件名(+事件番号)・判示事項・裁判要旨・参照法条・PDF 由来の引用を
+        -- 判例 FTS5。事件名(+事件番号)・判示事項・裁判要旨・参照法条・引用・PDF 本文を
         -- 列ごとに bigram 索引する (`hanrei_tokens : ...` で列を絞れる)。表示用メタは
         -- UNINDEXED で同居させ、UI は hanrei_fts_content の先頭列だけを読む。
         -- 判示事項は原文のまま保持する (出典の規約上、改変しない)。
@@ -468,6 +468,7 @@ pub fn build_search_db(
             summary_tokens,
             referenced_laws_tokens,
             citations_tokens,
+            body_tokens,
             tokenize='unicode61'
         );
 
@@ -1006,6 +1007,27 @@ pub fn build_search_db(
     Ok(())
 }
 
+/// PDF の和文の行折り返し・字間を取り除いてから bigram 化する。
+/// 英単語間の空白は残すため、英文の単語が結合されることはない。
+fn tokenize_pdf_body(text: &str) -> String {
+    let mut normalized = String::new();
+    let mut previous = None;
+    let mut whitespace = false;
+    for c in text.chars() {
+        if c.is_whitespace() {
+            whitespace = true;
+            continue;
+        }
+        if whitespace && !normalized.is_empty() && !(previous.is_some_and(is_cjk) && is_cjk(c)) {
+            normalized.push(' ');
+        }
+        normalized.push(c);
+        previous = Some(c);
+        whitespace = false;
+    }
+    tokenize_for_fts(&normalized)
+}
+
 /// `public/hanrei/{case_id}.json` (index.json 以外) を新しい順 (case_id 降順) に
 /// hanrei_fts へ入れる。UI は rowid 順に読むので、新しい判例が先に出る。
 fn index_hanrei(conn: &Connection, hdir: &Path) -> Result<usize> {
@@ -1032,8 +1054,8 @@ fn index_hanrei(conn: &Connection, hdir: &Path) -> Result<usize> {
             let mut stmt = tx.prepare(
                 "INSERT INTO hanrei_fts \
                  (case_id, case_number, case_name, judged_on, court, result, holding, detail_url, pdf_url, \
-                  case_name_tokens, holding_tokens, summary_tokens, referenced_laws_tokens, citations_tokens) \
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)",
+                  case_name_tokens, holding_tokens, summary_tokens, referenced_laws_tokens, citations_tokens, body_tokens) \
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)",
             )?;
             for (case_id, f) in batch {
                 // 1 件壊れていても横断検索 DB 全体は作る (通達と同じく読めないものは飛ばす)。
@@ -1068,6 +1090,7 @@ fn index_hanrei(conn: &Connection, hdir: &Path) -> Result<usize> {
                     tokenize_for_fts(s("summary")),
                     tokenize_for_fts(s("referenced_laws")),
                     tokenize_for_fts(&citations),
+                    tokenize_pdf_body(s("body_text")),
                 ])?;
                 total += 1;
             }
@@ -1541,7 +1564,7 @@ mod tests {
     }
 
     #[test]
-    fn hanrei_fts_indexes_case_name_and_referenced_laws() {
+    fn hanrei_fts_indexes_metadata_and_pdf_body_with_legacy_cases() {
         let root = std::env::temp_dir().join(format!("lawpub_hanrei_fts_test_{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&root);
         let hdir = root.join("hanrei");
@@ -1571,6 +1594,10 @@ mod tests {
             (92001u64, case(92001, "損害賠償請求事件", "民法715条1項", vec![])),
             (92002, case(92002, "覚醒剤取締法違反被告事件", "", vec!["刑事訴訟法第三百二十一条"])),
         ] {
+            let mut v = v;
+            if id == 92002 {
+                v["body_text"] = "主文\n本件上告を棄却する。\n電子計算機の利用と立証責任について。\n越境\n取引の判断。Hello World".into();
+            }
             std::fs::write(hdir.join(format!("{id}.json")), v.to_string()).unwrap();
         }
         // index.json と macOS の AppleDouble は索引しない。
@@ -1608,6 +1635,18 @@ mod tests {
         // 参照法条が空の判決は PDF 由来の引用 (body_citations) で引ける。
         let hits = find(&tokenize_for_fts("刑事訴訟法第三百二十一条"));
         assert_eq!(hits.iter().map(|h| h.0).collect::<Vec<_>>(), vec![92002]);
+
+        // メタデータ・引用にない PDF 本文の語で検索でき、行をまたぐ和文も拾える。
+        for q in ["電子計算機", "越境取引", "Hello World"] {
+            let hits = find(&format!("body_tokens : ({})", tokenize_for_fts(q)));
+            assert_eq!(hits.iter().map(|h| h.0).collect::<Vec<_>>(), vec![92002]);
+        }
+        // UI は大きな本文トークンを読まず、従来通り先頭のメタデータ列だけ取得できる。
+        let compact: i64 = conn.query_row(
+            "SELECT c.c0 FROM hanrei_fts JOIN hanrei_fts_content c ON c.id = hanrei_fts.rowid WHERE hanrei_fts MATCH ?1",
+            [tokenize_for_fts("電子計算機")], |r| r.get(0),
+        ).unwrap();
+        assert_eq!(compact, 92002);
 
         // 共通の裁判要旨では両方当たり、新しい事件 (case_id 大) が先に並ぶ。
         let hits = find(&tokenize_for_fts("使用者責任"));

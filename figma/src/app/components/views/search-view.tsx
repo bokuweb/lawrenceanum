@@ -11,8 +11,9 @@ import { type LawSummary } from "../mock-data";
 import { Search, SlidersHorizontal, ChevronRight, FileText, Database, Landmark, LoaderCircle, Newspaper, ExternalLink, BookOpen, ScrollText, Building2, Gavel, Languages } from "lucide-react";
 import { useLaws } from "../../data/use-laws";
 import { search as ftsSearch, getMeta as getFtsMeta, getCategories, buildFtsMatch, unbigramSnippet, searchSpeeches, searchKanpo, searchTsutatsu, searchHanrei, searchReiki, searchEnglish, synonymExpansions, type SearchHit, type SpeechHit, type KanpoHit, type TsutatsuHit, type HanreiHit, type ReikiHit, type EnglishHit, searchDocuments, type DocumentHit, type DocumentKind } from "../../data/search-engine";
+import { HanreiBodyExcerpt } from "../hanrei-body-excerpt";
 import { hanreiUrl } from "../../data/api";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { createSearchQueue } from "../../data/search-queue";
 
 const SEARCH_TARGETS = [
@@ -524,7 +525,7 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
                     </div>
                   )}
 
-                  {/* 判例 FTS セクション。リンク先は出典 (裁判所 裁判例検索) */}
+                  {/* 判例 FTS セクション。本文はヒットした判例の JSON から取得する。 */}
                   {key === "hanrei" && hanreiHits.length > 0 && (
                     <div className="space-y-2" data-testid="hanrei-hits">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -539,24 +540,16 @@ export function SearchView({ initialQuery = "", onOpen, onQueryChange }: { initi
                             </div>
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <a href={h.detail_url || hanreiUrl(h.case_id)} target="_blank" rel="noopener noreferrer"
-                                  className="text-sm font-medium hover:text-primary hover:underline" title="裁判所 裁判例検索で開く">
+                                <Link to={`/hanrei/${h.case_id}`} className="text-sm font-medium hover:text-primary hover:underline" title="判例の詳細と本文を開く">
                                   {h.case_name || h.case_number}
-                                </a>
+                                </Link>
                                 {h.court && <Badge variant="outline" className="text-xs">{h.court}</Badge>}
                                 {h.result && <Badge variant="outline" className="text-xs">{h.result}</Badge>}
                               </div>
                               <div className="text-xs text-muted-foreground mt-0.5">
                                 {[h.judged_on, h.case_number].filter(Boolean).join(" · ")}
                               </div>
-                              {h.snippet ? (
-                                <div
-                                  className="text-sm mt-1.5 leading-relaxed [&>mark]:bg-amber-300/40 [&>mark]:rounded-sm [&>mark]:px-0.5"
-                                  dangerouslySetInnerHTML={{ __html: unbigramSnippet(h.snippet) }}
-                                />
-                              ) : h.holding && (
-                                <div className="text-sm mt-1.5 leading-relaxed text-muted-foreground line-clamp-2">{h.holding}</div>
-                              )}
+                              <HanreiBodyExcerpt caseId={h.case_id} query={q} holding={h.holding} />
                               {h.pdf_url && (
                                 <a href={h.pdf_url} target="_blank" rel="noopener noreferrer"
                                   className="mt-1.5 inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded border border-border hover:border-primary hover:text-primary transition-colors"
