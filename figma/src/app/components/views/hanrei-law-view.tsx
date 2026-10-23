@@ -43,8 +43,6 @@ export function HanreiLawView() {
   const requested = params.get("revision");
   const version = law?.versions.find(v => v.revision_id === requested) ?? (!requested ? law?.versions[0] : undefined);
   const revision = version?.revision_id;
-  const revisionSuffix = revision?.startsWith(`${lawId}_`) ? revision.slice(lawId.length + 1) : null;
-  const officialVersionUrl = revisionSuffix ? `https://laws.e-gov.go.jp/law/${encodeURIComponent(lawId)}/${encodeURIComponent(revisionSuffix)}` : null;
   const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState<{ key: string; data?: LawDocumentRaw; error?: boolean }>();
   const key = `${caseId}/${lawId}/${article}/${revision}`;
@@ -69,7 +67,6 @@ export function HanreiLawView() {
     <div className="flex gap-4 text-sm flex-wrap" aria-label="公式資料">
       <a className="text-primary underline" href={caseData?.detail_url || hanreiUrl(Number(caseId))} target="_blank" rel="noopener noreferrer">裁判所の原文ページ</a>
       {caseData?.pdf_url && <a className="text-primary underline" href={caseData.pdf_url} target="_blank" rel="noopener noreferrer">全文PDF</a>}
-      {officialVersionUrl && <a className="text-primary underline" href={officialVersionUrl} target="_blank" rel="noopener noreferrer">この版候補をe-Govで確認</a>}
     </div>
     {error ? <div role="alert">条文リンクを読み込めませんでした。<Button onClick={retry} variant="outline">再試行</Button></div>
       : !links ? <p>条文リンクを読み込み中…</p>
