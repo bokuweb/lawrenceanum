@@ -25,18 +25,30 @@ pub(crate) fn ranges(page: &PageTrace, rules: &PageRules) -> Vec<(usize, usize)>
         rulings: &page.native_rulings,
         previous: &[],
     };
+    let contiguous = |members: &[usize]| {
+        let first = *members.first()?;
+        let end = members.last()? + 1;
+        if members.iter().any(|&i| refs[i].0 != Role::Body)
+            || (first..end).any(|i| !members.contains(&i) && !lines[i].text.trim().is_empty())
+        {
+            return None;
+        }
+        Some((first, end))
+    };
     super::source_native::plans(&lines, &source, &rules.enclosures)
         .into_iter()
-        .filter_map(|plan| {
-            let first = *plan.selected.first()?;
-            let end = plan.selected.last()? + 1;
-            if plan.selected.iter().any(|&i| refs[i].0 != Role::Body)
-                || (first..end)
-                    .any(|i| !plan.selected.contains(&i) && !lines[i].text.trim().is_empty())
-            {
-                return None;
-            }
-            Some((first, end))
+        .flat_map(|plan| {
+            let Some(parent) = contiguous(&plan.selected) else {
+                return vec![];
+            };
+            // Source certificates can refine the parent only when every
+            // publication is already a complete contiguous source stream.
+            // This stage never reorders bytes or cuts a Line/Table in half.
+            plan.publications
+                .iter()
+                .map(|p| contiguous(p))
+                .collect::<Option<Vec<_>>>()
+                .unwrap_or_else(|| vec![parent])
         })
         .collect()
 }

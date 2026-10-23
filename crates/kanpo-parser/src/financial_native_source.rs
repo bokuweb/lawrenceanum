@@ -732,6 +732,7 @@ fn publisher(
 pub(super) struct Plan {
     pub selected: Vec<usize>,
     pub desired: Vec<usize>,
+    pub publications: Vec<Vec<usize>>,
     pub words: HashSet<usize>,
 }
 pub(super) fn plan(lines: &[Line], src: &Source<'_>, frame: Rect) -> Option<Plan> {
@@ -901,6 +902,7 @@ pub(super) fn plan(lines: &[Line], src: &Source<'_>, frame: Rect) -> Option<Plan
         .map(|n| declaration::rights_transfer_parties(&n.declaration, &n.action, &names))
         .collect::<Vec<_>>();
     let mut matched = vec![false; notices.len()];
+    let mut annexes = vec![];
     for (i, (start, first_table, name)) in headers.iter().enumerate() {
         let end = headers.get(i + 1).map_or(rest.len(), |h| h.0);
         if *first_table >= end
@@ -918,6 +920,7 @@ pub(super) fn plan(lines: &[Line], src: &Source<'_>, frame: Rect) -> Option<Plan
             return None;
         }
         let mut found = false;
+        let mut owners = HashSet::new();
         for (n, notice) in notices.iter().enumerate() {
             if notice
                 .attribution
@@ -929,6 +932,7 @@ pub(super) fn plan(lines: &[Line], src: &Source<'_>, frame: Rect) -> Option<Plan
                     .is_some_and(|set| set.contains(name))
             {
                 matched[n] = true;
+                owners.insert(n);
                 found = true;
             }
         }
@@ -936,6 +940,7 @@ pub(super) fn plan(lines: &[Line], src: &Source<'_>, frame: Rect) -> Option<Plan
             {};
             return None;
         }
+        annexes.push((rest[*start..end].to_vec(), owners));
     }
     if matched.iter().any(|b| !*b) {
         {};
@@ -978,15 +983,68 @@ pub(super) fn plan(lines: &[Line], src: &Source<'_>, frame: Rect) -> Option<Plan
             indegree[j] -= 1;
         }
     }
-    let desired = order
-        .into_iter()
-        .flat_map(|i| notices[i].lines.iter().copied())
-        .chain(rest)
-        .collect();
+    // The frame proves the closed source scope. Separate publications also
+    // require each complete annex to belong to exactly one independently dated
+    // notice band AND one of that notice's source-proven publishers/parties.
+    // Equal company names are not identity of legal operations. A geometric
+    // divider or a publisher match alone cannot partition a related statement.
+    let mut publications = notices.iter().map(|n| n.lines.clone()).collect::<Vec<_>>();
+    let mut attached = vec![false; notices.len()];
+    let mut distinct = true;
+    for (members, owners) in &annexes {
+        let rect = members
+            .iter()
+            .map(|&i| shapes[i].unwrap())
+            .reduce(union)
+            .unwrap();
+        let bands = notices
+            .iter()
+            .enumerate()
+            .filter_map(|(i, n)| (rect[1] < n.rect[3] && n.rect[1] < rect[3]).then_some(i))
+            .collect::<Vec<_>>();
+        let [owner] = bands.as_slice() else {
+            distinct = false;
+            break;
+        };
+        if !owners.contains(owner) {
+            distinct = false;
+            break;
+        }
+        publications[*owner].extend(members.iter().copied());
+        attached[*owner] = true;
+    }
+    let publication_reading = publications.clone();
+    for members in &mut publications {
+        members.sort_unstable();
+    }
+    let mut covered = publications.iter().flatten().copied().collect::<Vec<_>>();
+    covered.sort_unstable();
+    let separated = distinct && attached.iter().all(|&b| b) && covered == selected;
+    if !separated {
+        // Preserve the previously certified parent scope when finer ownership
+        // is ambiguous; do not emit a guessed or partial child partition.
+        publications = vec![selected.clone()];
+    }
+    let desired = if separated {
+        // The source order and the article certificate must use the same
+        // independently proven blocks. Preserve whole lines/tables within
+        // each notice and its annexes; do not put all bodies before all tables.
+        order
+            .into_iter()
+            .flat_map(|i| publication_reading[i].iter().copied())
+            .collect()
+    } else {
+        order
+            .into_iter()
+            .flat_map(|i| notices[i].lines.iter().copied())
+            .chain(rest)
+            .collect()
+    };
     {};
     Some(Plan {
         selected,
         desired,
+        publications,
         words: owned,
     })
 }

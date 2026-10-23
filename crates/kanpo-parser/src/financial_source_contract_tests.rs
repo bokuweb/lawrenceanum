@@ -714,3 +714,464 @@ fn the_rest_of_a_split_longer_issuer_is_not_discarded_before_its_signature() {
     f.units[0].insert(12, suffix);
     assert_eq!(f.run(), f.units[0]);
 }
+
+fn stacked_publications(
+    same_publisher: bool,
+) -> (crate::trace::PageTrace, crate::lines::PageRules) {
+    use crate::trace::{PageTrace, Region, Role};
+    let mut a = fixture();
+    let mut b = fixture();
+    if !same_publisher {
+        b.rename("株式会社みどり", "株式会社あお");
+    }
+    let mut first = a.run();
+    first.pop();
+    let mut second = b.run();
+    second.pop();
+    let shift = a.words.len();
+    for w in &mut b.words {
+        w.id += shift;
+        w.y0 += 300.;
+        w.y1 += 300.;
+        w.source_box[1] += 300.;
+        w.source_box[3] += 300.;
+    }
+    for bound in &mut b.bounds {
+        if let NativeBounds::Glyphs(r) = bound {
+            r[1] += 300.;
+            r[3] += 300.;
+        } else {
+            panic!();
+        }
+    }
+    for l in &mut second {
+        for id in &mut l.words {
+            *id += shift;
+        }
+        if let Some(t) = &mut l.table {
+            t.y0 += 300.;
+            t.y1 += 300.;
+            for c in &mut t.cells {
+                c.y0 += 300.;
+                c.y1 += 300.;
+                for id in &mut c.words {
+                    *id += shift;
+                }
+            }
+        }
+    }
+    for w in a.words.iter_mut().chain(&mut b.words) {
+        if w.x0 >= 600. {
+            w.status = WordStatus::Margin;
+        }
+    }
+    first.extend(second);
+    a.words.extend(b.words);
+    a.styles.extend(b.styles);
+    a.content.extend(b.content);
+    a.bounds.extend(b.bounds);
+    a.axes.extend(b.axes);
+    a.rulings.extend(b.rulings);
+    let tables = first
+        .iter()
+        .filter_map(|l| l.table.clone())
+        .collect::<Vec<_>>();
+    let text = first
+        .iter()
+        .map(|l| l.text.as_str())
+        .collect::<Vec<_>>()
+        .join("\n");
+    let mut ti = 0;
+    let doc_text = first
+        .iter()
+        .map(|l| {
+            if l.table.is_some() {
+                let s = crate::trace::table_marker(ti);
+                ti += 1;
+                s
+            } else {
+                l.text.clone()
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    let page = PageTrace {
+        width: 800.,
+        height: 1000.,
+        layout: "tiers",
+        words: a.words,
+        native_styles: a.styles,
+        native_content_styles: a.content,
+        native_bounds: a.bounds,
+        native_axes: a.axes,
+        native_rulings: a.rulings,
+        regions: vec![Region {
+            role: Role::Body,
+            unit: 0,
+            part: 0,
+            lines: first,
+        }],
+        tables,
+        text,
+        doc_text,
+    };
+    let mut rules = crate::lines::PageRules::default();
+    rules.enclosures = vec![[0., 0., 500., 550.]];
+    (page, rules)
+}
+#[test]
+fn inner_certificates_keep_distinct_dated_notices_and_their_complete_statements() {
+    let (p, r) = stacked_publications(false);
+    let cuts = super::source_scopes::ranges(&p, &r);
+    assert_eq!(cuts, vec![(0, 12), (12, 24)]);
+}
+#[test]
+fn inner_certificates_do_not_merge_independent_notices_by_equal_publisher_names() {
+    let (p, r) = stacked_publications(true);
+    assert_eq!(
+        super::source_scopes::ranges(&p, &r),
+        vec![(0, 12), (12, 24)]
+    );
+}
+#[test]
+fn inner_certificates_are_invariant_under_positive_scaling_translation_and_font_renaming() {
+    for k in [0.0625, 1., 32.] {
+        let (mut p, mut r) = stacked_publications(true);
+        let tr = |b: &mut [f32; 4]| {
+            b[0] = b[0] * k - 100.;
+            b[2] = b[2] * k - 100.;
+            b[1] = b[1] * k + 55.;
+            b[3] = b[3] * k + 55.;
+        };
+        for w in &mut p.words {
+            let mut b = [w.x0, w.y0, w.x1, w.y1];
+            tr(&mut b);
+            [w.x0, w.y0, w.x1, w.y1] = b;
+            tr(&mut w.source_box);
+        }
+        for b in &mut p.native_bounds {
+            if let NativeBounds::Glyphs(b) = b {
+                tr(b);
+            }
+        }
+        for l in &mut p.regions[0].lines {
+            if let Some(t) = &mut l.table {
+                let mut b = [t.x0, t.y0, t.x1, t.y1];
+                tr(&mut b);
+                [t.x0, t.y0, t.x1, t.y1] = b;
+                for c in &mut t.cells {
+                    let mut b = [c.x0, c.y0, c.x1, c.y1];
+                    tr(&mut b);
+                    [c.x0, c.y0, c.x1, c.y1] = b;
+                }
+            }
+        }
+        for b in &mut r.enclosures {
+            tr(b);
+        }
+        for s in p.native_styles.iter_mut().flatten() {
+            *s = s
+                .iter()
+                .map(|&(f, b)| (f + 29, (f64::from_bits(b) * k as f64).to_bits()))
+                .collect();
+        }
+        for s in &mut p.native_content_styles {
+            if let ContentStyles::Glyphs(s) = s {
+                *s = s
+                    .iter()
+                    .map(|&(f, b)| (f + 29, (f64::from_bits(b) * k as f64).to_bits()))
+                    .collect();
+            }
+        }
+        assert_eq!(
+            super::source_scopes::ranges(&p, &r),
+            vec![(0, 12), (12, 24)]
+        );
+    }
+}
+#[test]
+fn inner_certificates_do_not_split_a_statement_spanning_other_notice_bands() {
+    let (mut p, r) = stacked_publications(false);
+    p.regions[0]
+        .lines
+        .iter_mut()
+        .find_map(|l| l.table.as_mut())
+        .unwrap()
+        .y1 = 350.;
+    assert!(super::source_scopes::ranges(&p, &r).len() <= 1);
+}
+#[test]
+fn inner_certificates_require_complete_source_styles_and_word_ownership() {
+    for case in 0..2 {
+        let (mut p, r) = stacked_publications(false);
+        if case == 0 {
+            p.native_styles[0] = None;
+        } else {
+            let id = p.regions[0].lines[0].words[0];
+            p.regions[0].lines[12].words.push(id);
+        }
+        assert!(super::source_scopes::ranges(&p, &r).len() <= 1);
+    }
+}
+
+fn opaque_statement_rows() -> (crate::trace::PageTrace, crate::lines::PageRules) {
+    let (mut p, mut r) = stacked_publications(true);
+    for l in &mut p.regions[0].lines {
+        if let Some(t) = l.table.take() {
+            l.words = t
+                .cells
+                .iter()
+                .flat_map(|c| c.words.iter().copied())
+                .collect();
+            l.text = format!("△{}", t.render());
+        }
+    }
+    r.horizontal = vec![crate::lines::HRule {
+        y: 275.,
+        x0: 0.,
+        x1: 500.,
+    }];
+    (p, r)
+}
+#[test]
+fn independent_source_bands_preserve_opaque_statement_rows_without_interpreting_added_symbols() {
+    let (p, r) = opaque_statement_rows();
+    assert_eq!(crate::notice_boundaries::cuts(&p, &r), vec![0, 12]);
+}
+#[test]
+fn independent_source_bands_need_a_real_divider_and_both_own_signed_dates() {
+    let (mut p, mut r) = opaque_statement_rows();
+    r.horizontal.clear();
+    assert_eq!(crate::notice_boundaries::cuts(&p, &r), vec![0]);
+    r.horizontal = vec![crate::lines::HRule {
+        y: 275.,
+        x0: 0.,
+        x1: 500.,
+    }];
+    p.regions[0].lines[2].text = "出所未確定".into();
+    assert!(crate::notice_boundaries::cuts(&p, &r).is_empty());
+}
+#[test]
+fn a_source_body_finance_divider_does_not_make_a_financial_annex_independent() {
+    let (mut p, r) = opaque_statement_rows();
+    let l = &mut p.regions[0].lines[12];
+    l.text = "第456期決算公告".into();
+    let id = l.words[0];
+    p.words[id].text = l.text.clone();
+    p.words[id].raw = l.text.clone();
+    assert_eq!(crate::notice_boundaries::cuts(&p, &r), vec![0]);
+}
+#[test]
+fn a_transverse_stroke_cannot_split_a_complete_table_or_borrow_incomplete_native_bounds() {
+    let (mut p, r) = opaque_statement_rows();
+    let id = p.regions[0].lines[13].words[0];
+    p.native_bounds[id] = NativeBounds::Unknown;
+    assert!(crate::notice_boundaries::cuts(&p, &r).is_empty());
+    let (mut p, mut r) = stacked_publications(false);
+    r.horizontal = vec![crate::lines::HRule {
+        y: 275.,
+        x0: 0.,
+        x1: 500.,
+    }];
+    p.regions[0]
+        .lines
+        .iter_mut()
+        .find_map(|l| l.table.as_mut())
+        .unwrap()
+        .y1 = 350.;
+    assert!(!crate::notice_boundaries::cuts(&p, &r).contains(&12));
+}
+
+#[test]
+fn source_order_preserves_each_independent_notice_with_its_own_complete_statement_block() {
+    for same in [false, true] {
+        let (p, r) = stacked_publications(same);
+        let expected = p.regions[0].lines.clone();
+        let mut units = vec![Unit::Plain(expected.clone())];
+        order_with_source(
+            &mut units,
+            &p.words,
+            &r.enclosures,
+            p.width,
+            p.height,
+            &p.native_styles,
+            &p.native_content_styles,
+            &p.native_bounds,
+            &p.native_axes,
+            &p.native_rulings,
+            &[],
+        );
+        let Unit::Plain(actual) = &units[0] else {
+            panic!();
+        };
+        assert_eq!(actual,&expected,"the full source-order pass must keep each own dated operation and annex together, not move every statement after every body");
+    }
+}
+
+#[test]
+fn source_dividers_are_invariant_under_independent_axis_scales_and_font_ids() {
+    for (kx, ky) in [(0.125, 8.), (8., 0.125), (1., 1.)] {
+        let (mut p, mut r) = opaque_statement_rows();
+        let tr = |b: &mut [f32; 4]| {
+            b[0] = b[0] * kx - 100.;
+            b[2] = b[2] * kx - 100.;
+            b[1] = b[1] * ky + 55.;
+            b[3] = b[3] * ky + 55.;
+        };
+        p.width *= kx;
+        p.height *= ky;
+        for w in &mut p.words {
+            let mut b = [w.x0, w.y0, w.x1, w.y1];
+            tr(&mut b);
+            [w.x0, w.y0, w.x1, w.y1] = b;
+            tr(&mut w.source_box);
+        }
+        for b in &mut p.native_bounds {
+            if let NativeBounds::Glyphs(b) = b {
+                tr(b);
+            }
+        }
+        for b in &mut r.enclosures {
+            tr(b);
+        }
+        for h in &mut r.horizontal {
+            h.x0 = h.x0 * kx - 100.;
+            h.x1 = h.x1 * kx - 100.;
+            h.y = h.y * ky + 55.;
+        }
+        for s in p.native_styles.iter_mut().flatten() {
+            *s = s
+                .iter()
+                .map(|&(f, b)| (f + 41, (f64::from_bits(b) * ky as f64).to_bits()))
+                .collect();
+        }
+        for s in &mut p.native_content_styles {
+            if let ContentStyles::Glyphs(s) = s {
+                *s = s
+                    .iter()
+                    .map(|&(f, b)| (f + 41, (f64::from_bits(b) * ky as f64).to_bits()))
+                    .collect();
+            }
+        }
+        assert_eq!(
+            crate::notice_boundaries::cuts(&p, &r),
+            vec![0, 12],
+            "independent axis scales {kx} {ky}"
+        );
+        p.regions[0].lines[2].text = "出所未確定".into();
+        assert!(!crate::notice_boundaries::cuts(&p,&r).contains(&12),"a financial header's later date cannot supply the operative publication at scales {kx} {ky}");
+    }
+}
+#[test]
+fn a_transversal_must_meet_every_word_not_only_an_opaque_rows_union_box() {
+    let (mut p, mut r) = opaque_statement_rows();
+    r.horizontal[0].x0 = 60.;
+    let rows = p.regions[0]
+        .lines
+        .iter()
+        .enumerate()
+        .filter(|(_, l)| l.text.starts_with('△'))
+        .map(|(i, _)| i)
+        .collect::<Vec<_>>();
+    let id = p.regions[0].lines[rows[0]].words[0];
+    let other = p.regions[0].lines[rows[1]].words[0];
+    p.words[other].x0 += 50.;
+    p.words[other].x1 += 50.;
+    p.words[other].source_box[0] += 50.;
+    p.words[other].source_box[2] += 50.;
+    if let NativeBounds::Glyphs(b) = &mut p.native_bounds[other] {
+        b[0] += 50.;
+        b[2] += 50.;
+    }
+    let new = p.words.len();
+    let mut word = p.words[id].clone();
+    word.id = new;
+    word.x0 = 200.;
+    word.x1 = 210.;
+    word.source_box = [word.x0, word.y0, word.x1, word.y1];
+    p.native_bounds.push(NativeBounds::Glyphs(word.source_box));
+    p.words.push(word);
+    p.native_styles.push(p.native_styles[id].clone());
+    p.native_content_styles
+        .push(p.native_content_styles[id].clone());
+    p.native_axes.push(NativeAxis::Right);
+    p.native_rulings
+        .push(crate::native_word_rulings::NativeRuling::Unknown);
+    p.regions[0].lines[rows[0]].words.push(new);
+    p.regions[0].lines[rows[0]].text.push_str(" 123");
+    assert_eq!(crate::notice_boundaries::cuts(&p, &r), vec![0]);
+}
+#[test]
+fn a_quotation_opened_outside_the_divided_frame_does_not_release_inner_notices() {
+    let (mut p, r) = opaque_statement_rows();
+    let ids = p
+        .words
+        .iter()
+        .filter(|w| w.status == WordStatus::Margin)
+        .map(|w| w.id)
+        .collect::<Vec<_>>();
+    for (&id, text) in ids.iter().zip(["「", "」"]) {
+        p.words[id].status = WordStatus::Used;
+        p.words[id].text = text.into();
+        p.words[id].raw = text.into();
+    }
+    p.regions[0]
+        .lines
+        .insert(0, Line::text("「".into(), vec![ids[0]]));
+    p.regions[0]
+        .lines
+        .push(Line::text("」".into(), vec![ids[1]]));
+    assert!(crate::notice_boundaries::cuts(&p, &r).is_empty());
+}
+#[test]
+fn compatibility_bounds_cannot_authorize_a_new_native_divider_certificate() {
+    let (mut p, r) = opaque_statement_rows();
+    let id = p.regions[0]
+        .lines
+        .iter()
+        .find(|l| l.text.starts_with('△'))
+        .unwrap()
+        .words[0];
+    p.native_bounds[id] = NativeBounds::Compatibility;
+    assert_eq!(crate::notice_boundaries::cuts(&p, &r), vec![0]);
+}
+
+#[test]
+fn unresolved_source_words_cannot_cross_a_new_notice_divider_even_when_not_rendered() {
+    for case in 0..3 {
+        let (mut p, r) = opaque_statement_rows();
+        let id = p
+            .words
+            .iter()
+            .find(|w| w.status == WordStatus::Margin)
+            .unwrap()
+            .id;
+        let b = if case == 1 {
+            [210., 270., 230., 280.]
+        } else {
+            [210., 210., 230., 218.]
+        };
+        p.words[id].status = WordStatus::Empty;
+        p.words[id].raw = "\u{e000}".into();
+        p.words[id].text.clear();
+        [
+            p.words[id].x0,
+            p.words[id].y0,
+            p.words[id].x1,
+            p.words[id].y1,
+        ] = b;
+        p.words[id].source_box = b;
+        p.native_styles[id] = None;
+        p.native_content_styles[id] = ContentStyles::Unknown;
+        p.native_bounds[id] = if case == 2 {
+            NativeBounds::Unknown
+        } else {
+            NativeBounds::Glyphs(b)
+        };
+        assert_eq!(
+            crate::notice_boundaries::cuts(&p, &r),
+            if case == 0 { vec![0, 12] } else { vec![0] },
+            "unresolved original glyph geometry still belongs to the source scope"
+        );
+    }
+}

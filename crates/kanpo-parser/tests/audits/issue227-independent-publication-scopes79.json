@@ -1,0 +1,158 @@
+{
+  "status": "locally_verified_native82; exact final head CI tracked separately; issue227 goal incomplete",
+  "accepted_baseline_head": "2a5a5c639b6ca6e841859fa7d07a584f76eaa006",
+  "native_candidate": 82,
+  "OCRtool_unchanged": 63,
+  "problem": "Independent signed legal operations and their financial statements inside one physical enclosure were merged into one article. The source-order pass could also put every body before every statement, breaking per-operation reading blocks.",
+  "methods": {
+    "source_publications": "Complete native publisher/party fields plus a uniquely overlapping notice band assign each complete annex to one independent dated operation. All selected original Lines/Tables must be covered exactly once. Use the same proven blocks for reading order and contiguous article certificates; ambiguity retains the previously certified parent. Equal publisher names do not merge separate operations.",
+    "divided_native_frame": "An existing PageRules horizontal divider must intersect every current source Word horizontal projection, separate a contiguous source prefix/suffix, and cross no Word/Line/whole Table. Both source bands must begin with independently styled nonfinancial captions, each with its own date and signature before the next candidate caption. Unrendered original Words also require known native bounds and cannot cross the parent or divider.",
+    "opaque_lines": "Existing rendered body/financial rows can be preserved as whole opaque Lines even when derived display symbols differ from Word text. Such rows cannot supply title/date/signature evidence. No source text normalization or extra symbol mapping is added.",
+    "scale_independence": "Geometrically separated band starts are candidates without glyph-box aspect tests. Every candidate caption remains a local witness fence, including financial captions, so a later statement cannot supply the operative notice date after anisotropic scaling. Global unframed compatibility topology remains unchanged.",
+    "geometry_scope": "Uses existing native PageRules geometry and source Word bounds; no new point distance, character/line count or aspect threshold. The rule supplier and final PDF paint/clip/visibility limits remain unchanged; not a proof of final visible pixels. On the changed original the referenced source stroke is exact and original, at the frozen source coordinates.",
+    "no_routing_by": [
+      "page ID",
+      "company/name dictionary or spelling repair",
+      "observed full title value",
+      "character/line count caps",
+      "fixed point/aspect thresholds",
+      "model outcomes"
+    ]
+  },
+  "TDD_history": {
+    "original_RED": "Frozen g189119 independently signed operation groups [116,99,88,110] failed3 vs4 before implementation.",
+    "source_contract_RED": "Three generic controls showed that a complete parent certificate merged separate dated operations, including equal publisher names and positive transforms.",
+    "initial_private_candidate": "1357 library controls passed, but the real original remained RED: rendered negative-symbol rows did not satisfy the strict financial text/Word projection and lacked structured Table objects. This candidate was held.",
+    "native_divider_candidate": "Original fixed without weakening the strict publisher proof or editing symbols. Full pipeline RED then exposed all-bodies-before-all-tables ordering; reading and article certificates were aligned.",
+    "additional_counterexamples": "Unrendered unresolved source Word crossing a divider failed before its native-geometry guard. Independent x/y scaling exposed old aspect-based caption filtering; local source-band starts and all-caption witness fences corrected it without altering global legacy topology. All final1368 library tests passed.",
+    "first_full11992_scan": "Complete terminal0, one changed original. New source/scale controls justified a final full repeat after refinement. Original golden semantic units and old public expectations were not rewritten."
+  },
+  "tests": {
+    "native_passed": 2100,
+    "Node_passed": 94,
+    "Python_passed": 45,
+    "total": 2239,
+    "failed": 0,
+    "ignored_or_skipped": 0,
+    "parser_library": 1368,
+    "PDF_library": 173,
+    "commands": 118,
+    "integration_targets": 109,
+    "result_groups": 117,
+    "new_test_functions": 17,
+    "all814_snapshots_readonly_pass_and_bytes_unchanged": true,
+    "status": "Fresh complete public gates; exact final GitHub head CI tracked separately."
+  },
+  "corpus": {
+    "terminal": 0,
+    "inputs": 11992,
+    "changed": 1,
+    "all_original_Word_fields_and_nonwhitespace_characters_preserved": true,
+    "all_complete_same_role_Line_Table_multisets_and_page_metadata_preserved": true,
+    "Analysis_formats_equal": true,
+    "reading_order_and_article_partition_changes_are_saved_for_original_review": true,
+    "source_and_inputs_frozen": true,
+    "purpose": "Private independent inner-publication proof versus accepted native81. Preserve whole source Lines/Tables and every existing character. Same-publisher is not same operation; native transversal plus two own dated nonfinancial roots or unique source publisher/band certificates refine scopes. No public mutation, expected wording normalization or accuracy claim.",
+    "seconds": 275.1783135
+  },
+  "changed_original_proof": {
+    "terminal": 0,
+    "inputs": 11992,
+    "whole_Analysis_exact_to_accepted81": 11991,
+    "changed": 1,
+    "page": "20260825g001890119",
+    "before_articles": 3,
+    "after_articles": 4,
+    "all11992_pages_Words_complete_Lines_Tables_text_and_Analysis_format_exact": true,
+    "all11992_default_API_text_bytes_exact": true,
+    "all_changed_styled_Document_nonwhite_characters_and_complete_tables_other_blocks_preserved": true,
+    "first_two_Article_JSON_byte_value_equivalent": true,
+    "old_third_article_text_exactly_refined_into_two_new_articles": true,
+    "original_Used_Word_groups": [
+      116,
+      99,
+      88,
+      110
+    ],
+    "groups_exact_frozen_original_semantic_units": true,
+    "all_complete_Lines_and_Tables_uncut": true,
+    "nonUsed_original_words_in_parent": 4,
+    "no_nonUsed_word_crosses_original_divider": true,
+    "no_Original_Frame_or_inner_semantic_reference_expectation_rewritten": true,
+    "fixed30_entire_Analysis_unchanged_and_not_regraded": true,
+    "fixed30": {
+      "ok": 10,
+      "minor": 5,
+      "major": 15
+    },
+    "necessary7": {
+      "pass": 6,
+      "fail": 1,
+      "imagebody_g1730167_still3_vs4": true
+    },
+    "PUA_gap_pages_unchanged": [
+      "20260721h017510032",
+      "20260820h017720032"
+    ],
+    "scope": "Root nonblind engineering review. Inner-unit reference frozen from original image/source before implementation. Current Used Word ownership and original geometry only, not a general reading-order/recognition/cell accuracy rate. First private corpus was also complete; added raw source and anisotropic controls required a final full repeat.",
+    "evidence": {
+      ".cache/kanpo-227/source-financial69/source-ruling70/inner-notice79/corpus79-r2/result70.json": "8add0091f911f8adf477c3ad142d9552909386f6cbb1e9371b54a53bedea37bc",
+      ".cache/kanpo-227/source-financial69/source-ruling70/inner-notice79/g189119-inner-reference79.json": "8e114ed4927ec24a182923f2c557da8ca7c1331dfaf121facab1d0be3c2d1268",
+      ".cache/kanpo-227/source-financial69/source-ruling70/inner-notice79/g189119-nonUsed-source-evidence79.json": "9e497b99cd52634800724f5c0fd4e905a11b5487631bf34fa31510b58073b63e",
+      ".cache/kanpo-227/source-financial69/source-ruling70/inner-notice79/GREEN5-result79.json": "4b6853c647a320e1e1637d910642c3d463042b06d35aba073671af4c6a60fe8c"
+    }
+  },
+  "migration": "The three production modules are byte-identical between the frozen final corpus runtime and public source. Private cache-based tests were ported to two repository JSON fixtures using the existing original PDFs. No fixture/snapshot migrations of old values.",
+  "actual_CLI": {
+    "terminal": 0,
+    "fresh_actual_default_CLI_PDF_inputs": 11992,
+    "all_text_bytes_equal_accepted80_CLI": true,
+    "all_new_API_text_bytes_equal_accepted80_API": true,
+    "accepted80_CLI_API_equality": {
+      "inputs": 11992,
+      "all_prior_actual_CLI_API_bytes_equal": true,
+      "artifact": ".cache/kanpo-227/source-financial69/source-ruling70/public74/CLI74/CLI-API-equality74.json",
+      "sha256": "638c6dac1800f6aa0732a36b053715c05ce85ad36b55ef99b06e89b39b1673e6"
+    },
+    "new_CLI_API_equality_all11992_follows_both_equalities": true,
+    "source_binary_inputs_frozen": true,
+    "seconds": 89.828497375
+  },
+  "raw_PDF": "No kanpo-pdf or OCR production changes. Accepted80 raw Glyph/Word/image audits remain authority; all11992 final parser pages/Word fields match accepted81. Not a newly repeated pixel/paint or raw extraction audit.",
+  "fixed_evaluation": {
+    "fixed30_entire_Analysis_unchanged": true,
+    "not_reselected_or_regraded": true,
+    "root_nonblind_score": {
+      "ok": 10,
+      "minor": 5,
+      "major": 15
+    },
+    "necessary7_pass": 6,
+    "necessary7_fail": 1,
+    "g1730167_native_articles": 3,
+    "g1730167_necessary": 4,
+    "explicit_ToUnicode_PUA_held": [
+      "20260721h017510032",
+      "20260820h017720032"
+    ],
+    "old51_source_frame_metric_unchanged": "50/51; g229060 zero-Used-Word government panel remains. This is not a general accuracy estimate.",
+    "g189119_scope": "The earlier outer-only fixture explicitly allowed future internal refinement. It is unchanged; a separate original inner-operation reference was frozen before implementation."
+  },
+  "limits": [
+    "Root nonblind original review and fixed source predicates, not independent/blind or general transcription/recognition/cell/internal-reading-order accuracy.",
+    "Mixed-procedure g212088 remains externally grouped; its body/related-finance divider must not create an orphan statement article. More source actor/opaque-table scope work remains.",
+    "Opaque financial rows remain unstructured; this change does not reconstruct their table cells or decode missing symbols.",
+    "Word/shape source gaps, image/outline body, PUA, roster/address/table/reading-order issues and old compatibility heuristics remain.",
+    "No100% or exhausted-avenues claim. RURI/ModernBERT not introduced; opt-in remains available after fixed comparisons. Previous private image OCR fast/best trials remain held."
+  ],
+  "evidence": {
+    ".cache/kanpo-227/source-financial69/source-ruling70/public82/result82.json": "8bc1ff45e7c914e2c34cb2215785fea205f19fa3aa64c391acaad89e87dc14c9",
+    ".cache/kanpo-227/source-financial69/source-ruling70/inner-notice79/corpus79-r2/result70.json": "8add0091f911f8adf477c3ad142d9552909386f6cbb1e9371b54a53bedea37bc",
+    ".cache/kanpo-227/source-financial69/source-ruling70/inner-notice79/corpus79-r2/strong-proof79.json": "211a1f20fddc6fa405e7ad191e23c48fccc6ab2d63677b2343bd3793e0797628",
+    ".cache/kanpo-227/source-financial69/source-ruling70/inner-notice79/g189119-inner-reference79.json": "8e114ed4927ec24a182923f2c557da8ca7c1331dfaf121facab1d0be3c2d1268",
+    ".cache/kanpo-227/source-financial69/source-ruling70/inner-notice79/g189119-nonUsed-source-evidence79.json": "9e497b99cd52634800724f5c0fd4e905a11b5487631bf34fa31510b58073b63e",
+    ".cache/kanpo-227/source-financial69/source-ruling70/inner-notice79/GREEN5-result79.json": "4b6853c647a320e1e1637d910642c3d463042b06d35aba073671af4c6a60fe8c",
+    ".cache/kanpo-227/source-financial69/source-ruling70/inner-notice79/CLI82/result82.json": "307cd1103edbf9cb5b1feb075582c99c35dfc253404b206ed17ea3bc55824d35",
+    ".cache/kanpo-227/source-financial69/source-ruling70/OCR-contracts82/result82.json": "840334e13f1b44e9e9872d4de9ba4114083b3e574662f887e8f57ebaca727dba"
+  }
+}

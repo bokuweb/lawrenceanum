@@ -315,6 +315,14 @@ fn heading_styles(page: &PageTrace, line: &SourceLine<'_>, end: usize) -> Option
     Some(out)
 }
 fn headings(page: &PageTrace, lines: &[SourceLine<'_>], frames: &[OwnedFrame]) -> Vec<Heading> {
+    headings_at_source_starts(page, lines, frames, &[])
+}
+fn headings_at_source_starts(
+    page: &PageTrace,
+    lines: &[SourceLine<'_>],
+    frames: &[OwnedFrame],
+    geometric_starts: &[usize],
+) -> Vec<Heading> {
     let (mut out, mut quotes) = (vec![], vec![]);
     for (i, l) in lines.iter().enumerate() {
         if quotes.is_empty() && l.role == Role::Body {
@@ -356,6 +364,7 @@ fn headings(page: &PageTrace, lines: &[SourceLine<'_>], frames: &[OwnedFrame]) -
                     // Typography on a line outside it cannot prove continuation.
                     let continued = i > 0
                         && !frames.iter().any(|f| f.first == i)
+                        && !geometric_starts.contains(&i)
                         && lines[i - 1].line.table.is_none()
                         && styles(page, &lines[i - 1].ids).is_some_and(|p| !p.is_disjoint(&s));
                     // A malformed suffix cannot turn an ordinary prose
@@ -388,7 +397,12 @@ fn headings(page: &PageTrace, lines: &[SourceLine<'_>], frames: &[OwnedFrame]) -
     // A title must independently lead a complete frame or fit the vertical
     // heading/body topology. Parsed titles with missing/equal styles still fence their scope.
     out.retain(|h| {
-        frames.iter().any(|f| f.first == h.line)
+        // In a geometrically separated local band, retain every candidate
+        // caption as a witness fence. Its glyph-box aspect is not authority;
+        // the caller still requires an operative root at its exact source
+        // start and its own signed date. Other captions cannot supply that date.
+        !geometric_starts.is_empty()
+            || frames.iter().any(|f| f.first == h.line)
             || vertical_heading(lines, h, lines.len())
             || horizontal_scope_heading(page, lines, h)
     });
@@ -671,6 +685,126 @@ fn attributed_table_header(
     }
     None
 }
+// Unrendered/undecoded source words are still original geometry. They cannot
+// silently straddle two newly certified publications. Unknown native geometry
+// is not replaced by a compatibility bbox or by a character interpretation.
+fn raw_source_respects_divider(page: &PageTrace, frame: Rect, y: f32) -> bool {
+    page.words.iter().enumerate().all(|(id, w)| {
+        if w.status == WordStatus::Used {
+            return true;
+        }
+        if w.id != id {
+            return false;
+        }
+        let Some(crate::trace::NativeBounds::Glyphs(b)) = page.native_bounds.get(id) else {
+            return false;
+        };
+        valid(*b) && (!intersects(frame, *b) || contains(frame, *b) && (b[3] <= y || y <= b[1]))
+    })
+}
+// A source horizontal divider can refine a common physical frame only when
+// both complete source bands begin with their own dated, signed operative
+// notices. A financial caption alone remains an annex, not an independent
+// notice. Opaque existing body rows/tables are preserved, never interpreted as
+// title/date/signature evidence or normalized to match their Word text.
+fn divided_notice_starts(
+    page: &PageTrace,
+    rules: &PageRules,
+    lines: &[SourceLine<'_>],
+    frames: &[OwnedFrame],
+    frame: &OwnedFrame,
+) -> Vec<usize> {
+    let mut cuts = BTreeSet::new();
+    for h in &rules.horizontal {
+        if ![h.x0, h.x1, h.y].iter().all(|v| v.is_finite())
+            || h.x0 >= h.x1
+            || !(frame.rect[1] < h.y && h.y < frame.rect[3])
+        {
+            continue;
+        }
+        let mut split = None;
+        let mut valid = true;
+        for i in frame.first..frame.end {
+            let line = &lines[i];
+            let mut side = None;
+            for &id in &line.ids {
+                let Some(crate::trace::NativeBounds::Glyphs(b)) = page.native_bounds.get(id) else {
+                    valid = false;
+                    break;
+                };
+                // A transversal must meet every original column/field, not
+                // merely the union bbox of separated words or one table cell.
+                if !(h.x0 < b[2] && b[0] < h.x1) {
+                    valid = false;
+                    break;
+                }
+                let next = if b[3] <= h.y {
+                    false
+                } else if h.y <= b[1] {
+                    true
+                } else {
+                    valid = false;
+                    break;
+                };
+                if side.is_some_and(|old| old != next) {
+                    valid = false;
+                    break;
+                }
+                side = Some(next);
+            }
+            if let Some(t) = &line.line.table {
+                let b = [t.x0, t.y0, t.x1, t.y1];
+                if !super::notice_boundaries::valid(b)
+                    || !contains(frame.rect, b)
+                    || side.is_none_or(|below| if below { b[1] < h.y } else { h.y < b[3] })
+                {
+                    valid = false;
+                }
+            }
+            if !valid {
+                break;
+            }
+            match side {
+                Some(true) => {
+                    split.get_or_insert(i);
+                }
+                Some(false) if split.is_some() => {
+                    valid = false;
+                    break;
+                }
+                None if !line.line.text.trim().is_empty() => {
+                    valid = false;
+                    break;
+                }
+                _ => {}
+            }
+        }
+        let Some(split) = split.filter(|&i| valid && frame.first < i && i < frame.end) else {
+            continue;
+        };
+        let local_heads = headings_at_source_starts(page, lines, frames, &[split]);
+        let own_notice = |start, end| {
+            let Some(root) = local_heads
+                .iter()
+                .find(|h| h.line == start && h.authorized && !h.financial)
+            else {
+                return false;
+            };
+            let fence = local_heads
+                .iter()
+                .find(|h| h.line > start)
+                .map_or(end, |h| h.line.min(end));
+            witness(page, lines, root, fence, false)
+        };
+        if own_notice(frame.first, split)
+            && own_notice(split, frame.end)
+            && raw_source_respects_divider(page, frame.rect, h.y)
+        {
+            cuts.insert(split);
+        }
+    }
+    cuts.into_iter().collect()
+}
 // A complete physical source frame can prove its publication start without
 // proving any relationship between the publications inside it. These starts only
 // refine existing partitions; they never join or reorder an internal block.
@@ -703,6 +837,7 @@ fn frame_fences(
             || attributed_table_header(page, lines, root, end, frame.rect, frame.end).is_some()
         {
             cuts.insert(frame.first);
+            cuts.extend(divided_notice_starts(page,rules,lines,frames,frame));
             // The end of a frame does not prove that following text is a new
             // publication. That text must supply its own independent evidence.
         }
