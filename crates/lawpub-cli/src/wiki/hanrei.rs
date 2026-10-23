@@ -237,11 +237,15 @@ fn write_page(wiki: &Path, source: &Source, bundle: &Value, first_seen: &str) ->
         if ensure_law_page(wiki, source.base(), law_id, title)? {
             created.push(law_page(law_id));
         }
-        let articles = law["articles"]
+        let article_numbers = law["articles"]
             .as_array()
             .into_iter()
             .flatten()
             .filter_map(Value::as_str)
+            .collect::<Vec<_>>();
+        let articles = article_numbers
+            .iter()
+            .map(|article| format!("[{article}](#/hanrei/{id}/laws/{law_id}/{article})"))
             .collect::<Vec<_>>()
             .join("、");
         links.push(format!(
@@ -263,15 +267,17 @@ fn write_page(wiki: &Path, source: &Source, bundle: &Value, first_seen: &str) ->
             .flatten()
             .filter_map(|v| {
                 let revision = v["revision_id"].as_str()?;
-                let suffix = revision.strip_prefix(&format!("{law_id}_"))?;
-                Some(format!(
-                    "[版候補 {}](https://laws.e-gov.go.jp/law/{law_id}/{suffix}){}",
+                revision.strip_prefix(&format!("{law_id}_"))?;
+                Some((v, revision))
+            })
+            .flat_map(|(v, revision)| {
+                let query = url::form_urlencoded::Serializer::new(String::new())
+                    .append_pair("revision", revision)
+                    .finish();
+                article_numbers.iter().map(move |article| format!(
+                    "[条番号 {article}・版候補 {}](#/hanrei/{id}/laws/{law_id}/{article}?{query}){}",
                     cell(revision),
-                    if v["body_available"] == false {
-                        "（本文未収録）"
-                    } else {
-                        ""
-                    }
+                    if v["body_available"] == false { "（本文未収録）" } else { "" }
                 ))
             })
             .collect::<Vec<_>>()
@@ -656,6 +662,13 @@ mod tests {
         assert!(!excerpts
             .iter()
             .any(|e| e["url"].as_str().unwrap_or("").contains("20260401")));
+        write_page(&wiki, &src, &b, "2026-10-24").unwrap();
+        let page = Page::read(&wiki.join("hanrei/5.md")).unwrap();
+        assert!(page.body.contains("[709](#/hanrei/5/laws/L1/709)"));
+        assert!(page
+            .body
+            .contains("](#/hanrei/5/laws/L1/709?revision=L1_20100401_A)"));
+        assert!(!page.body.contains("laws.e-gov.go.jp"));
         let mut missing = history.clone();
         missing["versions"][0]["body_available"] = json!(false);
         write_json(&source.join("laws/L1/versions.json"), &missing);

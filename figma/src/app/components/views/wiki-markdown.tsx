@@ -1,6 +1,7 @@
 import { useId, type ComponentPropsWithoutRef } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Link } from "react-router";
 import { resolveWikiLink } from "./wiki-types";
 import { useReducedMotion } from "../ui/use-reduced-motion";
 
@@ -44,6 +45,9 @@ export function WikiMarkdown({ body, from, onOpen }: { body: string; from: strin
 }
 
 function WikiLink({ href = "", from, onOpen, reducedMotion, children, ...props }: ComponentPropsWithoutRef<"a"> & { from: string; onOpen: (path: string) => void; reducedMotion: boolean }) {
+  if (/^#\/hanrei\/\d+\/laws\/[A-Za-z0-9]+\/\d+(?:_\d+)*(?:\?[^#]*)?$/.test(href)) {
+    return <Link {...props} to={href.slice(1)} className="text-primary hover:underline">{children}</Link>;
+  }
   if (/^[a-z][a-z\d+.-]*:/i.test(href) || href.startsWith("//")) {
     return <a {...props} href={href} target="_blank" rel="noreferrer" className="text-primary hover:underline">{children}</a>;
   }
