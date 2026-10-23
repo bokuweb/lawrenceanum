@@ -20,11 +20,21 @@ receipt の既定位置は実行ファイルの隣の `<binary>.kanpo-build.json
 
 `NDLOCR_BIN` または PATH でも実行ファイルを指定できる。認識前に receipt のリリース・コミット・ONNX/release設定と実行ファイルの SHA256 を照合する。不明なビルド・別バージョン・変更されたバイナリは認識しない。検査したバイナリとモデルの bytes を読み取り専用の一時コピーにして実行する。認識時のダウンロードや Tesseract への自動再試行は行わない。
 
-`--model` は models ディレクトリ。現状の実OCR CLIは TXT を返すため、`layout_available: false` として保存し、文字座標を作らない。PDF CLIも同じ既定・receipt指定に対応し、NDLOCRでは `projection` を作らず `geometry_status: unavailable_from_engine` を記録する。原文、入力・モデル・binary・receiptのハッシュ、stdout/stderrを保存する。
+`--model` は models ディレクトリ。既定では TXT を `layout_available: false` として保存する。PDF CLIも同じ既定・receipt指定に対応し、座標を要求しない場合は `projection` を作らず `geometry_status: unavailable_from_engine` を記録する。原文、入力・モデル・binary・receiptのハッシュ、stdout/stderrを保存する。
 
 structure-rulesを無効にし、辞書を渡さない。検出・行confidenceは上流既定の0.25・0.3を使う。`--det-conf-threshold` / `--min-line-confidence` による明示変更は可能だが、過去の開発cropで良かった検出0.9をページ全体の既定には採用しない。
 
 [0.0.15 の固定入力検証記録](audits/ndlocr-0.0.15-20261023.json): 既存の5画像を各3回実行し、生テキストが全試行で一致。転記済みの開発用crop2件は355文字中1文字の誤り（評価時だけNFKC・空白除去）。残る全ページ画像3件には全ページ正解がなく、精度・網羅性を保証する結果ではない。PDF CLIの既定選択・receipt照合・座標なしの結果保存も実機で確認した。
+
+### NDLOCRの認識領域を明示的に保存する
+
+PNG CLI・PDF CLIへ `--ndlocr-regions` を追加すると、同じ1回の認識から生の `trace.json` と `recognition_regions` を保存する。領域には元の順番・text・confidence・縦組みかどうか・画素矩形を保持する。内部改行も変更しない。block/paragraph/wordの階層や文字ごとの枠は生成しない。
+
+traceのschema、canvas、未補正の実行設定・閾値、有限のconfidenceと画素矩形を検査する。trace本文・領域textを改行で連結した本文・生TXTがすべて完全一致する場合だけ `observations.json` を出す。不一致や不正な矩形では失敗し、作成済みの生TXT・trace・実行ログを保存する。設定変更による再認識は行わない。
+
+PDF CLIでは、原本・デコードPNG・配置receiptを従来どおり照合し、各認識領域へ `projection` を追加する。領域は認識器の粒度で、単語・字・段落の境界や本文の網羅性を表すものではない。可視性・記事所属・native Glyph対応も未検証のまま保持する。
+
+[認識領域の検証記録](audits/ndlocr-0.0.15-regions-20261023.json): Node117件・Python45件成功。実機5画像は従来の生TXTと完全一致し、PDF CLIの185領域の元属性・座標投影も検査した。原本の重ね表示は選択した5領域の非盲検開発確認で、全領域の可視性や本文の精度を保証しない。
 
 [旧ビルドとの比較仕様・実測結果](../../docs/ocr-engine-comparison.md)は当時のバイナリに対する結果であり、0.0.15 の測定値ではない。以下は明示選択する Tesseract の手順。
 
@@ -94,7 +104,7 @@ node tools/kanpo-ocr/project-cli.cjs \
 - `image_to_user`: 画像の単位正方形からPDFユーザー座標への配置行列。呼出元Formを含む有効なCTMを指定する。画素の下向きYは画像単位座標の上向きYへ変換する。
 - `crop_box/rotate`: 継承を解決したPDFのCropBoxと正規化済みの回転0/90/180/270。出力は表示の向きで左上原点、pt単位。
 
-全block/paragraph/line/wordへ `projection` を付加し、斜め・反転・せん断でも四隅 `quad_points` と外接矩形 `bounds_points` を区別して保存する。元の `bbox`、text、confidence、出現順と添字は保持する。元の `bbox.points` は認識時に指定した旧座標系の記録であり、今回の変換結果は `projection` を参照する。退化・非有限・精度で潰れる枠は捨てずinvalidにする。元画像またはページ外の点も切り詰めず、inside/partial/touching/outsideを幾何的に記録する。
+Tesseractの全block/paragraph/line/wordと、存在するNDLOCRの各認識領域へ `projection` を付加し、斜め・反転・せん断でも四隅 `quad_points` と外接矩形 `bounds_points` を区別して保存する。元の `bbox`、text、confidence、出現順と添字は保持する。元の `bbox.points` は認識時に指定した旧座標系の記録であり、今回の変換結果は `projection` を参照する。退化・非有限・精度で潰れる枠は捨てずinvalidにする。元画像またはページ外の点も切り詰めず、inside/partial/touching/outsideを幾何的に記録する。
 
 このコマンドは配置メタデータをPDFから抽出したり、PNGとPDFの関係を証明したりしない。結果は `unclassified_ocr_projection`、`source_binding: "declared_unverified"`、`visibility: "unverified"`。クリップ・soft mask・透明度・後からの重ね描きは、この座標計算だけでは評価できない。ページ内にあることを可視性や記事所属の根拠にはしない。任意の補足メタデータは宣言として保持する。
 
