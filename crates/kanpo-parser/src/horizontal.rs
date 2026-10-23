@@ -2559,8 +2559,8 @@ fn stacked(words: &[&Col]) -> bool {
     words.len() >= 2
         && text.chars().count() >= 3
         && !text.chars().all(|c| c == '〃')
-        // 1 桁の金額の並び（「0」「0」…「△」「—」）は欄の名前ではない。
-        && !text.chars().all(|c| c.is_ascii_digit() || "△▲－—-―,.、\u{E61C}".contains(c))
+        // 数字と符号（数学記号のマイナス U+2212 を含む）の並びは、縦組みの欄名ではない。
+        && !text.chars().all(|c| c.is_ascii_digit() || "△▲−－—-―,.、\u{E61C}".contains(c))
         && words.iter().all(upright)
         && y1 - y0 >= x1 - x0
         && group_lines(&owned).iter().all(|l| l.words.len() <= 2)
@@ -6147,3 +6147,7 @@ mod trailing_code_tables;
 #[cfg(test)]
 #[path = "empty_amount_record_tests.rs"]
 mod empty_amount_record_tests;
+
+#[cfg(test)]
+#[path = "numeric_sign_column_tests.rs"]
+mod numeric_sign_column_tests;
