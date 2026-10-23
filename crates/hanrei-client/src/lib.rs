@@ -1,7 +1,7 @@
 //! 裁判所 裁判例検索 (https://www.courts.go.jp/hanrei/) のクライアント。
 //!
 //! 取得するのはメタデータ (事件番号・事件名・裁判年月日・法廷名・結果・参照法条など) と
-//! 全文 PDF への URL まで。サイト利用条件は「著作権法上認められている利用」「無断改変禁止」
+//! 全文 PDF への URL と、新規取得時に PDF から抽出した本文。サイト利用条件は「著作権法上認められている利用」「無断改変禁止」
 //! のため、判示事項・裁判要旨・参照法条は原文のまま保持し、出典 URL を必ず添える。
 //! robots.txt は `/hanrei/` を禁止していない (2026-10 確認)。リクエスト間隔は
 //! [`HttpProvider`] が空ける。
@@ -42,8 +42,11 @@ pub struct CaseDetail {
     pub holding: String,
     pub summary: String,
     pub referenced_laws: String,
-    /// 参照法条が空の判決について、全文 PDF 本文から抜いた「…第N条」形式の引用文字列。
-    /// 本文そのものは保存しない。法令との突き合わせは linking が行う。
+    /// 全文 PDF から機械的に抽出した本文。旧キャッシュ・抽出失敗では空。
+    #[serde(default)]
+    pub body_text: String,
+    /// 全文 PDF 本文から抜いた「…第N条」形式の引用文字列。
+    /// 法令との突き合わせは linking が行う。
     #[serde(default)]
     pub body_citations: Vec<String>,
     pub detail_url: String,
@@ -185,6 +188,7 @@ pub fn parse_detail(html: &str, page_url: &str) -> Result<CaseDetail> {
         holding: get("判示事項"),
         summary: get("裁判要旨"),
         referenced_laws: get("参照法条"),
+        body_text: String::new(),
         body_citations: Vec::new(),
         detail_url: page_url.to_string(),
         pdf_url: doc
@@ -390,9 +394,14 @@ impl HttpProvider {
 
     /// 全文 PDF を取得して引用文字列を抜く。
     pub fn fetch_body_citations(&self, pdf_url: &str) -> Result<Vec<String>> {
+        Ok(extract_citations(&self.fetch_body_text(pdf_url)?))
+    }
+
+    /// 新規判例の Wiki で引用できるよう、抽出本文をそのまま返す。
+    pub fn fetch_body_text(&self, pdf_url: &str) -> Result<String> {
         std::thread::sleep(self.interval);
         let bytes = self.client.get(pdf_url).send()?.error_for_status()?.bytes()?;
-        Ok(extract_citations(&pdf_text(&bytes)?))
+        pdf_text(&bytes)
     }
 
     pub fn fetch_detail(&self, case_id: u64) -> Result<CaseDetail> {
@@ -405,6 +414,21 @@ impl HttpProvider {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn cached_metadata_without_body_remains_readable_and_new_body_round_trips() {
+        let detail = parse_detail(
+            "<dl><dt>事件名</dt><dd>事件</dd></dl>",
+            "https://www.courts.go.jp/hanrei/123/detail2/index.html",
+        ).unwrap();
+        let mut old = serde_json::to_value(&detail).unwrap();
+        old.as_object_mut().unwrap().remove("body_text");
+        let cached: CaseDetail = serde_json::from_value(old.clone()).unwrap();
+        assert_eq!(serde_json::to_value(cached).unwrap()["body_text"], "");
+        old["body_text"] = serde_json::json!("民法第七百九条による損害賠償について判断する。");
+        let new: CaseDetail = serde_json::from_value(old).unwrap();
+        assert_eq!(serde_json::to_value(new).unwrap()["body_text"], "民法第七百九条による損害賠償について判断する。");
+    }
 
     const LIST: &str = r#"
 <p>11件中 1～11件を表示</p>

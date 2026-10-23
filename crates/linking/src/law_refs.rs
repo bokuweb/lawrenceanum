@@ -150,6 +150,11 @@ pub struct LawRefResolver {
 }
 
 impl LawRefResolver {
+    /// 判例等の本文から、条番号を伴う法令参照だけを抽出する。
+    pub fn article_refs(&self, text: &str) -> BTreeSet<(String, String)> {
+        self.matcher.article_refs(text)
+    }
+
     /// `public/laws/index.json` から辞書を作る。
     pub fn from_index(public: &Path) -> Result<Self> {
         Ok(Self {

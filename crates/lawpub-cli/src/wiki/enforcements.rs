@@ -568,7 +568,7 @@ mod tests {
             max_roster: 0,
             reiki_base_url: String::new(),
             chunk_size: 4,
-            max_enforcements: 5,
+            max_enforcements: 5, max_hanrei: 0,
             max_probes: 20,
             lookback_days: 30,
             today: Some("2026-10-19".into()),

@@ -27,7 +27,7 @@ pub struct ExportArgs {
 /// 丸ごと生成する一覧そのものがページの中身で、LLM の経緯は付けば嬉しいおまけだからである
 /// (コーパスの全会議を対象にしたことで、経緯の付かないページが大多数になった)。
 pub(crate) fn is_stub(page: &Page) -> bool {
-    matches!(page.get_str("type"), "law" | "bill" | "pubcomment" | "kanpo" | "meeting")
+    matches!(page.get_str("type"), "law" | "bill" | "pubcomment" | "kanpo" | "meeting" | "hanrei")
         && llm_blocks(&page.body).iter().all(|b| b.trim().is_empty())
 }
 
@@ -128,6 +128,7 @@ pub fn run_export(args: &ExportArgs) -> Result<()> {
     let published = enforcements::export(&pages, &args.out)?;
     // 未完了の施行予定解説は通常の wiki 一覧にも公開しない。
     pages.retain(|(rel, p)| p.get_str("type") != enforcements::KIND || published.contains(rel));
+    pages.retain(|(_,p)| p.get_str("type") != hanrei::KIND || hanrei::ready(p));
     report::write_manifest(&pages, &args.out.join("report-manifest.json"))?;
     let known: BTreeSet<&str> = pages.iter().map(|(rel, _)| rel.as_str()).collect();
     let page_lookup: BTreeMap<&str, &Page> = pages.iter().map(|(rel, page)| (rel.as_str(), page)).collect();

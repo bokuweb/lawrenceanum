@@ -202,6 +202,9 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
                     !p.get_str("description").trim().is_empty()
                         && (p.get("evidence_version").is_none() || evidence::claim_errors(&p).is_empty())
                         && (task.kind != enforcements::KIND || enforcements::explanation_errors(&p).is_empty())
+                        && (task.kind != hanrei::KIND
+                            || (hanrei::summary_errors(&p).is_empty()
+                                && hanrei::source_matches(wiki, &p).unwrap_or(false)))
                         && (!matches!(task.kind.as_str(), KIND_KOKKAI | KIND_SHINGIKAI)
                             || std::fs::read(args.work.join(&task.source)).ok()
                                 .and_then(|bytes| serde_json::from_slice::<Value>(&bytes).ok())
@@ -230,7 +233,7 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
             page.set("llm_until", json!(pt.until));
             page.write(&path)?;
             completed.push(task.clone());
-        } else if done && task.kind == enforcements::KIND {
+        } else if done && matches!(task.kind.as_str(), enforcements::KIND | hanrei::KIND) {
             let mut page = Page::read(&path)?;
             page.set("llm_source_fingerprint", page.get("source_fingerprint").cloned().unwrap_or(Value::Null));
             page.write(&path)?;
@@ -280,6 +283,7 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
         );
     }
 
+    hanrei::finish(wiki, &completed)?;
     let intake_path = wiki.join(".lawpub/intake.json");
     if intake_path.exists() {
         let mut intake: Value = serde_json::from_slice(&std::fs::read(&intake_path)?)?;
@@ -316,6 +320,7 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
         .map(|d| (d - chrono::Duration::days(365 * 3)).format("%Y-%m-%d").to_string())
         .unwrap_or_default();
     let pubcomments = load_pubcomments(wiki)?;
+    let cases = hanrei::completed_pages(wiki)?;
     let mut law_titles: BTreeMap<String, String> = BTreeMap::new();
     for path in walk_md(wiki, "laws") {
         let rel = rel_path(wiki, &path);
@@ -324,8 +329,9 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
         let law_meetings: Vec<&MeetingInfo> = meetings.iter().filter(|m| m.laws.contains(&law_id)).collect();
         let law_bills: Vec<&BillInfo> = bills.iter().filter(|b| b.laws.contains(&law_id)).collect();
         let law_pubcomments: Vec<&PubcommentInfo> = pubcomments.iter().filter(|p| p.laws.contains(&law_id)).collect();
+        let has_cases = cases.iter().any(|(_, p)| hanrei::references_law(p, &law_id));
         let llm_empty = llm_blocks(&page.body).iter().all(|b| b.trim().is_empty());
-        if law_meetings.is_empty() && law_bills.is_empty() && law_pubcomments.is_empty() && llm_empty && created_laws.contains(&rel) {
+        if law_meetings.is_empty() && law_bills.is_empty() && law_pubcomments.is_empty() && !has_cases && llm_empty && created_laws.contains(&rel) {
             std::fs::remove_file(&path)?;
             continue;
         }
@@ -447,6 +453,8 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
             }
         }
     }
+
+    hanrei::write_backlinks(wiki, &cases)?;
 
     // 4. 人物ページ。国会は議事進行を除く発言者全員 (議員・政府側・職員)、審議会は官職者だけ
     //    (「森委員」のような姓だけの委員は同定できないので会議体ページに載せる)。
@@ -1105,6 +1113,14 @@ fn write_index(
         body.push_str(&format!("\n## 最近の議案（{}）\n\n| 日付 | 議案 | 経過 |\n|---|---|---|\n", bills.len()));
         for b in bills.iter().take(30) {
             body.push_str(&format!("| {} | [{}]({}) | {} |\n", b.date, cell(&b.title), b.page, cell(&b.description)));
+        }
+    }
+
+    let cases = hanrei::completed_pages(wiki)?;
+    if !cases.is_empty() {
+        body.push_str(&format!("\n## 最近取得した判例（{}）\n\n| 裁判日 | 判例 | 概要 |\n|---|---|---|\n", cases.len()));
+        for (rel, p) in cases.iter().take(30) {
+            body.push_str(&format!("| {} | [{}]({rel}) | {} |\n", cell(p.get_str("judged_on")), cell(p.get_str("title")), cell(p.get_str("description"))));
         }
     }
 

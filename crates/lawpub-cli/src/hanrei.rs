@@ -32,13 +32,14 @@ pub fn run_fetch(
         }
         match p.fetch_detail(it.case_id) {
             Ok(mut d) => {
-                // 最近の判決は参照法条が空のことが多い。その場合だけ全文 PDF から引用を拾う。
-                if d.referenced_laws.is_empty() {
-                    if let Some(url) = d.pdf_url.clone() {
-                        match p.fetch_body_citations(&url) {
-                            Ok(c) => d.body_citations = c,
-                            Err(e) => tracing::warn!("pdf {}: {e:#}", it.case_id),
+                // 既存キャッシュはスキップ済み。今後の新規取得だけ本文を保存し、Wiki の根拠にする。
+                if let Some(url) = d.pdf_url.clone() {
+                    match p.fetch_body_text(&url) {
+                        Ok(text) => {
+                            d.body_citations = hanrei_client::extract_citations(&text);
+                            d.body_text = text;
                         }
+                        Err(e) => tracing::warn!("pdf {}: {e:#}", it.case_id),
                     }
                 }
                 std::fs::write(&path, serde_json::to_string_pretty(&d)?)
