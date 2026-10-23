@@ -149,10 +149,68 @@ pub struct LawRefResolver {
     matcher: LawMatcher,
 }
 
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct ArticleCitation {
+    pub law_id: String,
+    pub article: String,
+    pub paragraph: Option<u32>,
+    pub start: usize,
+    pub end: usize,
+    pub text: String,
+}
+
 impl LawRefResolver {
     /// 判例等の本文から、条番号を伴う法令参照だけを抽出する。
     pub fn article_refs(&self, text: &str) -> BTreeSet<(String, String)> {
         self.matcher.article_refs(text)
+    }
+
+    /// UTF-16 offsets allow the browser to link the original text without rewriting it.
+    pub fn citations(&self, text: &str) -> Vec<ArticleCitation> {
+        let mut out = Vec::new();
+        let mut last_law: Option<&str> = None;
+        for m in self.matcher.ac.find_iter(text) {
+            let id = self.matcher.ids[m.pattern().as_usize()].as_str();
+            let law = if id.is_empty() {
+                let Some(law) = last_law else { continue };
+                law
+            } else {
+                id
+            };
+            if !id.is_empty() {
+                last_law = Some(id);
+            }
+            let tail = &text[m.end()..];
+            let mut rest = skip_law_number(tail).trim_start();
+            let mut start = m.start();
+            while let Some((article, used)) = parse_article_ref(rest) {
+                let after = &rest[used..];
+                let p = after.strip_prefix('第').unwrap_or(after);
+                let n = take_num(p);
+                let paragraph = p[n.len()..]
+                    .starts_with('項')
+                    .then(|| parse_number(n))
+                    .flatten();
+                let remaining = skip_paragraphs(after);
+                let end = text.len() - remaining.len();
+                out.push(ArticleCitation {
+                    law_id: law.into(),
+                    article,
+                    paragraph,
+                    start: text[..start].encode_utf16().count(),
+                    end: text[..end].encode_utf16().count(),
+                    text: text[start..end].into(),
+                });
+                last_law = Some(law);
+                let next = ["、", ",", "，", "・", "及び", "並びに", "又は", "若しくは"]
+                    .iter()
+                    .find_map(|sep| remaining.strip_prefix(sep));
+                let Some(next) = next else { break };
+                rest = next.trim_start();
+                start = text.len() - rest.len();
+            }
+        }
+        out
     }
 
     /// `public/laws/index.json` から辞書を作る。
@@ -207,7 +265,7 @@ pub(crate) fn parse_number(s: &str) -> Option<u32> {
     let (mut total, mut cur) = (0u32, 0u32);
     for c in s.chars() {
         if let Some(d) = kanji_digit(c) {
-            cur = cur * 10 + d; // 〇一二… の位取り表記
+            cur = cur.checked_mul(10)?.checked_add(d)?; // 〇一二… の位取り表記
         } else {
             let unit = match c {
                 '十' => 10,
@@ -215,11 +273,11 @@ pub(crate) fn parse_number(s: &str) -> Option<u32> {
                 '千' => 1000,
                 _ => return None,
             };
-            total += if cur == 0 { 1 } else { cur } * unit;
+            total = total.checked_add((if cur == 0 { 1u32 } else { cur }).checked_mul(unit)?)?;
             cur = 0;
         }
     }
-    Some(total + cur)
+    total.checked_add(cur)
 }
 
 fn is_num_char(c: char) -> bool {

@@ -22,6 +22,7 @@ use std::path::Path;
 
 mod bill_amendments;
 mod hanrei;
+mod hanrei_versions;
 mod rulemaking;
 mod shingikai;
 pub use bill_amendments::{bill_amendments_health, run_link_bill_amendments};
@@ -32,7 +33,8 @@ mod guidance;
 mod law_refs;
 mod shitsumon;
 pub use guidance::run_link_guidance;
-pub use law_refs::LawRefResolver;
+pub use law_refs::{ArticleCitation, LawRefResolver};
+pub use hanrei_versions::{resolve_hanrei_laws, HanreiLawLinks, HANREI_LAW_NOTICE};
 pub use shitsumon::run_link_shitsumon;
 mod treaty;
 pub use treaty::run_link_treaties;

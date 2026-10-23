@@ -19,6 +19,7 @@ const FeedView = lazy(() => import("./components/views/feed-view").then(m => ({ 
 const EnforcementView = lazy(() => import("./components/views/enforcement-view").then(m => ({ default: m.EnforcementView })));
 const GianView = lazy(() => import("./components/views/gian-view").then(m => ({ default: m.GianView })));
 const WikiView = lazy(() => import("./components/views/wiki-view").then(m => ({ default: m.WikiView })));
+const HanreiLawView = lazy(() => import("./components/views/hanrei-law-view").then(m => ({ default: m.HanreiLawView })));
 const HanreiView = lazy(() => import("./components/views/hanrei-view").then(m => ({ default: m.HanreiView })));
 const TsutatsuView = lazy(() => import("./components/views/tsutatsu-view").then(m => ({ default: m.TsutatsuView })));
 const ReikiView = lazy(() => import("./components/views/reiki-view").then(m => ({ default: m.ReikiView })));
@@ -216,6 +217,7 @@ function AppShell() {
               <Route path="/gian/:session/:billId" element={<GianRoute />} />
               <Route path="/enforcement" element={<EnforcementView />} />
               <Route path="/hanrei" element={<HanreiRoute />} />
+              <Route path="/hanrei/:caseId/laws/:lawId/:article" element={<HanreiLawView />} />
               <Route path="/hanrei/:caseId" element={<HanreiRoute />} />
               <Route path="/tsutatsu" element={<TsutatsuView />} />
               <Route path="/reiki" element={<ReikiRoute />} />

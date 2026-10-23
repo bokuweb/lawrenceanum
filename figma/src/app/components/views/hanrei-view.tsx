@@ -2,11 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { ArrowLeft, ExternalLink, FileText, Gavel, Search } from "lucide-react";
 import { api, hanreiUrl, type HanreiIndex } from "../../data/api";
-import { useHanreiCase } from "../../data/use-hanrei";
+import { useHanreiCase, useHanreiLawLinks, useWikiPaths } from "../../data/use-hanrei";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+
+import { LinkedCaseText, CaseLawEvidence, caseArticleUrl, articleLabel } from "./hanrei-law-view";
 
 const PAGE_SIZE = 50;
 
@@ -87,6 +89,8 @@ function HanreiList() {
 function HanreiDetail({ caseId }: { caseId: string }) {
   const [params] = useSearchParams();
   const { data, loading, error, retry } = useHanreiCase(caseId);
+  const lawLinks = useHanreiLawLinks(caseId);
+  const wikiPaths = useWikiPaths();
   const backParams = new URLSearchParams();
   for (const key of ["filter", "court"]) if (params.has(key)) backParams.set(key, params.get(key)!);
   const back = `/hanrei${backParams.size ? `?${backParams}` : ""}`;
@@ -109,15 +113,28 @@ function HanreiDetail({ caseId }: { caseId: string }) {
           <dl className="grid grid-cols-[7rem_minmax(0,1fr)] gap-x-3 gap-y-2 text-sm border rounded-lg p-4">
             {metadata.map(([label, value]) => <div key={label} className="contents"><dt className="text-muted-foreground">{label}</dt><dd className="min-w-0">{value}</dd></div>)}
           </dl>
-          {[["判示事項", data.holding], ["裁判要旨", data.summary], ["参照法条", data.referenced_laws]].map(([label, value]) => value && (
-            <section key={label} className="mt-6"><h2 className="text-base font-semibold mb-2">{label}</h2><p className="whitespace-pre-wrap text-sm leading-7">{value}</p></section>
+          {[["判示事項", data.holding, "holding"], ["裁判要旨", data.summary, "summary"], ["参照法条", data.referenced_laws, "referenced_laws"]].map(([label, value, field]) => value && (
+            <section key={label} className="mt-6"><h2 className="text-base font-semibold mb-2">{label}</h2><p className="whitespace-pre-wrap text-sm leading-7"><LinkedCaseText text={value} field={field} links={lawLinks.data} /></p></section>
           ))}
           <section className="mt-6" data-testid="hanrei-body">
             <h2 className="text-base font-semibold mb-2">本文</h2>
             {data.body_text?.trim() ? <>
               <p className="text-xs text-muted-foreground mb-3">判決全文PDFから抽出したテキスト</p>
-              <div className="whitespace-pre-wrap text-sm leading-8 border rounded-lg p-4 md:p-6">{data.body_text}</div>
+              <div className="whitespace-pre-wrap text-sm leading-8 border rounded-lg p-4 md:p-6"><LinkedCaseText text={data.body_text} field="body_text" links={lawLinks.data} /></div>
             </> : <p className="text-sm text-muted-foreground">{data.body_text === "" ? "PDFから抽出できる本文テキストがありません。" : "本文テキストは未取得です。"}{data.pdf_url && "全文PDFをご覧ください。"}</p>}
+          </section>
+          <section className="mt-6 border rounded-lg p-4 space-y-3" aria-label="関連条文とwiki">
+            <h2 className="font-semibold">関連条文・LLM wiki</h2>
+            <p className="text-sm text-muted-foreground">{lawLinks.data?.notice ?? "条文リンクは機械抽出した候補です。実際の適用法条・適用時点は原文と経過措置を確認してください。"}</p>
+            {wikiPaths?.has(`hanrei/${caseId}`) ? <Link to={`/wiki/hanrei/${caseId}`} className="block text-primary underline text-sm">判例のLLM wikiを開く</Link> : <p className="text-xs text-muted-foreground">判例wikiの公開をまだ確認できません。</p>}
+            {lawLinks.error ? <div className="text-sm">条文リンクを読み込めませんでした。<Button variant="outline" size="sm" onClick={lawLinks.retry}>条文リンクを再試行</Button></div>
+              : !lawLinks.data ? <p className="text-sm">条文リンクを読み込み中…</p>
+              : lawLinks.data.laws.length === 0 ? <p className="text-sm">条番号を伴う法令参照を抽出できませんでした。</p>
+              : lawLinks.data.laws.map(law => <div key={law.law_id} className="border-t pt-3 space-y-2">
+                <p className="text-sm font-medium">{law.title} {law.articles.map(a => <Link key={a} to={caseArticleUrl(caseId, law.law_id, a)} className="text-primary underline mr-3">{articleLabel(a)}</Link>)}</p>
+                <CaseLawEvidence law={law} />
+                {wikiPaths?.has(law.wiki_path) && <Link to={`/wiki/${law.wiki_path}`} className="inline-block text-primary underline text-sm">関連法令のwikiを開く</Link>}
+              </div>)}
           </section>
           <p className="text-xs text-muted-foreground mt-6">出典: 裁判所 裁判例検索</p>
         </>}
