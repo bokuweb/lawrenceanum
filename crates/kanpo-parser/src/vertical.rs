@@ -3399,6 +3399,10 @@ fn record_bands_with_suffix_context(bands: &[Vec<Col>], mid_line: Option<f32>, h
         }
     }
     let bands = &all_bands[..n];
+    let mut anchors = anchors;
+    anchors.extend(record_section_anchors(bands, &anchors));
+    anchors.sort_by(|a, b| b.total_cmp(a));
+    anchors.dedup_by(|a,b| *a == *b);
     // 字の大きさ（縦組みの語の幅の中央値）。
     let em = {
         let mut ws: Vec<f32> = bands.iter().flatten().filter(|c| c.y1 - c.y >= (c.x1 - c.x) * 1.5).map(|c| c.x1 - c.x).collect();
@@ -6212,3 +6216,112 @@ fn original_vertical_advance_metadata_authorizes_only_its_own_complete_frame(){
 mod source_axis_binding_tests;
 
 #[cfg(test)]#[path="source_ruling_binding_tests.rs"]mod source_ruling_binding_tests;
+
+/// Refine an already detected record table only when an isolated numbered
+/// section crosses field bands and is followed by distinct typed field labels.
+/// No record pitch, caption length or caption value is evidence of ownership.
+fn record_section_anchors(bands: &[Vec<Col>], anchors: &[f32]) -> Vec<f32> {
+    use std::collections::HashSet;
+    let mut ids = HashSet::new();
+    if anchors.len() < 2
+        || !anchors.iter().all(|v| v.is_finite())
+        || !anchors.windows(2).all(|w| w[0] > w[1])
+        || !bands.iter().flatten().all(|c| {
+            ids.insert(c.id)
+                && [c.x, c.x1, c.y, c.y1].iter().all(|v| v.is_finite())
+                && c.x < c.x1 && c.y < c.y1
+                && (c.x1-c.x).is_finite() && (c.y1-c.y).is_finite()
+                && !c.text.trim().is_empty()
+                && !c.text.chars().any(|ch| matches!(ch as u32,
+                    0xe000..=0xf8ff | 0xf0000..=0xffffd | 0x100000..=0x10fffd))
+        })
+    {
+        return Vec::new();
+    }
+    let center = |c: &Col| c.x + (c.x1 - c.x) / 2.;
+    let numbered = |text: &str| {
+        text.strip_prefix('（').and_then(|s| s.split_once('）')).is_some_and(|(n, caption)| {
+            !n.is_empty() && !caption.trim().is_empty()
+                && n.chars().all(|ch| ch.is_ascii_digit() || ('０'..='９').contains(&ch)
+                    || "〇零一二三四五六七八九十百千万億兆".contains(ch))
+        })
+    };
+    let all: Vec<Col> = bands.iter().flatten().cloned().collect();
+    let mut result = Vec::new();
+    for pair in anchors.windows(2) {
+        let mut proposals = Vec::new();
+        let mut inside: Vec<_> = all.iter().filter(|c| center(c) < pair[0] && center(c) > pair[1]).cloned().collect();
+        inside.sort_by(|a,b| b.x1.total_cmp(&a.x1).then(b.x.total_cmp(&a.x)).then(a.y.total_cmp(&b.y)));
+        let mut columns: Vec<Vec<Col>> = Vec::new();
+        let mut left = f32::INFINITY;
+        for c in inside {
+            if columns.is_empty() || c.x1 <= left {
+                left = c.x;
+                columns.push(vec![c]);
+            } else {
+                left = left.min(c.x);
+                columns.last_mut().unwrap().push(c);
+            }
+        }
+        for mut column in columns {
+            column.sort_by(|a,b|a.y.total_cmp(&b.y));
+            let lo = column.iter().map(|c| c.x).fold(f32::NEG_INFINITY, f32::max);
+            let hi = column.iter().map(|c| c.x1).fold(f32::INFINITY, f32::min);
+            // A transitive column chain or two overprinted values is ambiguous.
+            if lo >= hi || !column.windows(2).all(|w| w[0].y1 <= w[1].y) {
+                continue;
+            }
+            let text: String = column.iter().map(|c| c.text.as_str()).collect();
+            if !numbered(&text) { continue; }
+            let section_ids: HashSet<_> = column.iter().map(|c| c.id).collect();
+            let x0 = column.iter().map(|c| c.x).fold(f32::INFINITY, f32::min);
+            let x1 = column.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max);
+            let y0 = column.first().unwrap().y;
+            let y1 = column.last().unwrap().y1;
+            // The complete source column is isolated. A word that crosses its
+            // side cannot be assigned to either row by its centre alone.
+            if all.iter().any(|c| !section_ids.contains(&c.id) && c.x < x1 && c.x1 > x0) {
+                continue;
+            }
+            // A parenthesised field value inside one band is not a section.
+            let spanned = bands.iter().filter(|b| b.iter().any(|c| {
+                !section_ids.contains(&c.id) && c.y < y1 && c.y1 > y0
+            })).count();
+            if spanned < 2 { continue; }
+            let header: Vec<_> = bands.iter().enumerate().flat_map(|(bi,b)| {
+                b.iter().filter(move |c| c.x1 <= x0 && center(c) > pair[1]).map(move |c| (bi,c))
+            }).collect();
+            // Overprinting inside the proposed header is ambiguous. Geometry
+            // in unrelated records (e.g. horizontal digits in vertical text)
+            // does not become evidence for or against this local refinement.
+            if header.iter().enumerate().any(|(i,(_,a))| header[i+1..].iter().any(|(_,b)| {
+                a.x < b.x1 && b.x < a.x1 && a.y < b.y1 && b.y < a.y1
+            })) { continue; }
+            // Two different field roles in different bands are independent
+            // witnesses. Generic trailing 名 alone is not a typed field label.
+            let roles: Vec<_> = header.iter().filter_map(|(bi,c)| {
+                RECORD_HEADS.iter().filter(|&&role| role != "名")
+                    .find(|&&role| c.text.ends_with(role)).map(|role| (*bi,*role))
+            }).collect();
+            if !roles.iter().any(|a| roles.iter().any(|b| a.0 != b.0 && a.1 != b.1)) {
+                continue;
+            }
+            let header_x = header.iter().map(|(_,c)| center(c)).fold(f32::NEG_INFINITY, f32::max);
+            let section_x = lo + (hi - lo) / 2.;
+            if !(pair[0] > section_x && section_x > header_x && header_x > pair[1]) { continue; }
+            // Existing record ownership must keep every section word together.
+            // No source word may straddle the new section/header separator.
+            let cut = header.iter().map(|(_,c)| c.x1).fold(f32::NEG_INFINITY,f32::max);
+            if cut >= x0 || all.iter().any(|c| c.x < cut && c.x1 > x0) { continue; }
+            proposals.push((section_x,header_x));
+        }
+        // Competing section interpretations within one record gap are held.
+        if proposals.len() == 1 { result.extend([proposals[0].0,proposals[0].1]); }
+    }
+    result
+}
+
+
+#[cfg(test)]
+#[path = "record_section_tests.rs"]
+mod record_section_tests;

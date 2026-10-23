@@ -1,0 +1,166 @@
+{
+  "issue": 227,
+  "native_candidate": 86,
+  "accepted_baseline": "merged PR228 / 2a0c0dd6911644c3d5e59321eb08c5d7ad53055c",
+  "status": "Local native gates and full corpus/CLI verified; exact final-head CI tracked separately; goal incomplete",
+  "problem": "A numbered section and its following field-header row inside an unruled vertical record table were appended to the preceding record whenever the legacy pitch-based section detector did not fire.",
+  "method": {
+    "scope": "Refine row anchors only inside an already detected record table. Caller table detection, typography and compatibility rules remain.",
+    "section": "Complete isolated source column with a parenthesised numeric enumerator and a nonempty caption, spanning multiple field bands. Source x interval components must have one positive common core and no y overprinting. No observed caption value or character limit is used.",
+    "header": "In the next source gap require two different existing field-label roles in different bands; a generic trailing 名 alone is excluded. Source overlap inside the proposed header, side-crossing words, duplicate IDs, unknown private characters, nonfinite/nonpositive/overflowing intervals, or competing sections hold the old partition.",
+    "generality": "No page/company names, expected article counts, fixed character/line caps, fixed point distances, model outputs or output-dependent retries route the new helper. Numeric enumerator grammar and existing field-role labels are publication syntax.",
+    "limits": "The new helper geometry tests exercise scale/translation/order changes. This does not establish scale invariance of the caller, which retains old fixed table/tolerance guards, nor identify every possible unlabelled section."
+  },
+  "TDD": {
+    "initial_RED": "Three positive geometric/caption tests failed with a private empty helper; negative tests passed.",
+    "held_attempts": [
+      "First helper reused legacy column grouping and failed scaled geometry and an overlapping-header negative.",
+      "A global rectangle-overlap guard rejected the true original due unrelated record typography; checks were scoped to the proposed section/header."
+    ],
+    "first_original_RED": "Baseline84 fails the frozen row/section/header source-ownership test.",
+    "generic_fix_before_second_original_discovery": true,
+    "second_original": "Found by full CLI difference inventory after the generic fix; original image and expected roles frozen before candidate membership inspection. No production change follows that discovery. Baseline84 fails the second original test; final candidate passes.",
+    "persistent_tests": "9 new test functions, including2 cache-independent originals; complete affected source groups/order/text and whole-page Used-Word ownership without duplication are asserted. The first original reuses its existing corpus PDF.",
+    "corpus_expectations": "Initial full native gates exposed old mixed g195016 expected.txt/json. Both files were updated only after original/source review and exact-baseline comparison; final lib/corpus reruns passed. Original RED log/result retained. No blanket expectation update."
+  },
+  "tests": {
+    "terminal": 0,
+    "native_passed": 2125,
+    "failed": 0,
+    "ignored": 0,
+    "parser_library": 1393,
+    "PDF_library": 173,
+    "initial_commands": 118,
+    "supplemental_commands": 2,
+    "integration_targets": 109,
+    "all814_snapshots_readonly_pass_and_bytes_exact_baseline": true,
+    "initial_RED": "Initial corpus run failed on original-backed g195016 old expectations; retain initial result86.json and failed log. Only that case two expectations updated after original source review; final lib/corpus tests pass.",
+    "final_test_input_delta": {
+      "modified": [
+        "crates/kanpo-parser/tests/corpus/2026-09-01-gougai195-p16/expected.json",
+        "crates/kanpo-parser/tests/corpus/2026-09-01-gougai195-p16/expected.txt",
+        "crates/kanpo-parser/src/record_section_tests.rs"
+      ],
+      "added": [
+        "crates/kanpo-parser/tests/data/record-sections/20261001g002170056.json",
+        "crates/kanpo-parser/tests/data/record-sections/20261001g002170056.pdf"
+      ],
+      "removed_duplicate_pdf": [
+        "crates/kanpo-parser/tests/data/record-sections/20260901g001950016.pdf"
+      ]
+    },
+    "production_unchanged_from_complete11992_runtime": true,
+    "scope": "116 unaffected native gate commands plus final library/corpus reruns. Final exact-head CI tracked separately. No claim that initial118 commands all passed or were run against subsequently added test-only inputs."
+  },
+  "corpus": {
+    "terminal": 0,
+    "inputs": 11992,
+    "entire_Analysis_exact_native84": 11990,
+    "changed": 2,
+    "all_source_Word_fields_and_role_occurrences_nonwhite_characters_and_complete_tables_preserved": true,
+    "all_styled_Document_characters_and_nonparagraph_blocks_preserved": true,
+    "article_counts_preserved_on_both_changes": true,
+    "all_other_source_lines_on_both_changed_pages_exact_native84": true,
+    "originals": [
+      {
+        "page": "20260901g001950016",
+        "terminal": 0,
+        "original_used_Word_groups": [
+          21,
+          2,
+          12
+        ],
+        "exact_complete_groups_and_order": true,
+        "exact_row_and_section_text": true,
+        "all_other_lines_exact": true,
+        "entire_Word_fields_exact": true,
+        "article_count": [
+          2,
+          2
+        ],
+        "reference_sha256": "20b7c9bedc9ae471fe6eb4aeb478a14afdb06d4d662e22feb2c1f3948ef88d31",
+        "scope": "Root nonblind original review, not independent/blind or overall reading/cell accuracy"
+      },
+      {
+        "page": "20261001g002170056",
+        "terminal": 0,
+        "original_used_Word_groups": [
+          21,
+          2,
+          12
+        ],
+        "exact_complete_groups_and_order": true,
+        "exact_row_and_section_text": true,
+        "all_other_lines_exact": true,
+        "entire_Word_fields_exact": true,
+        "article_count": [
+          1,
+          1
+        ],
+        "reference_sha256": "4a3dcace06d3dbe5b719ed7b8ff0b4867fc736b216b9cf460fd5045e6cc0db04",
+        "no_production_change_after_discovery": true,
+        "scope": "Root nonblind original review, not independent/blind or overall reading/cell accuracy"
+      }
+    ],
+    "actual_CLI": {
+      "terminal": 0,
+      "fresh_PDF_inputs": 11992,
+      "all11992_bytes_equal_API": true,
+      "changed_text_files": [
+        "20260901g001950016.txt",
+        "20261001g002170056.txt"
+      ],
+      "entire_text_bytes_exact_native84": 11990
+    },
+    "fixed30": {
+      "entire_Analysis_unchanged": true,
+      "regraded": false,
+      "prior_counts": {
+        "major": 15,
+        "ok": 10,
+        "minor": 5
+      }
+    },
+    "source_exact_public_candidate": true,
+    "scope": "Root nonblind original engineering review; preservation and original source-role ordering, not independent/blind or global recognition/reading/cell accuracy. New helper has no page/company/count/character-length/fixed-distance branches; inherited table detection and row tolerance remain."
+  },
+  "snapshot_updates": 0,
+  "corpus_gold_cases_updated": [
+    "2026-09-01-gougai195-p16"
+  ],
+  "remaining": {
+    "goal_complete": false,
+    "fixed30": "Unchanged, not regraded: ok10/minor5/major15; root nonblind and not a whole-corpus accuracy estimate.",
+    "necessary7": "Unchanged6pass1fail; image-body g1730167 remains native3 vs4.",
+    "PUA_gaps": [
+      "20260721h017510032",
+      "20260820h017720032"
+    ],
+    "other_layouts_and_old_heuristics": "Still require original-backed review; no100% or exhausted-avenues claim.",
+    "old_issue_examples_checked": "g1640062 and g1690035 at baseline84/current86 have only body regions and no generated 改正後/改正前 labels; their reported false-shinkyu symptom does not reproduce. Not a new improvement or whole-page regrade."
+  },
+  "OCR_models_and_dependencies": "No new OCR/model/dependency/default-policy change in this native patch. Concurrent uncommitted NDLOCR work is preserved and excluded. RURI/ModernBERT opt-in permission remains; source roles/geometry suffice for this refinement.",
+  "review_scope": "Root nonblind engineering original/source review, not independent/blind or global character/reading-order/table-cell certification.",
+  "evidence_root_local_only": "/Volumes/ssd/lawrenceanum-issue227-runtime86",
+  "evidence_sha256": {
+    "RED86-test.log": "a5312c561787a542b6793f938991769d8a9dea16b089caaceca26e2332561c2f",
+    "GREEN86-test.log": "38e7dae8ce0eb404d154c0a5f4c1ba9b7c1942d453487b26245100fadfc0338b",
+    "GREEN2-86-alltests.log": "e6583b71aa1a5c38ee780f347bdaf8ab75792a14754b4218f6e3b3b0a712441a",
+    "original-RED86-test.log": "d393ff2e429584dd52c180ee047f8bece75b407b66ea7560deae04d661e82090",
+    "second-original-RED86-test.log": "d3d90349725f325e471310e260a85c4ec988e14f2a2eb73ce1b289653ae951f9",
+    "PUBLIC86-alltests.log": "c5491aa9e9fefff00e1d6f29d3aee9637305e758da6700fa0ba0bbcd722f6596",
+    "final-lib86.log": "15d090fdc988f3cc863142c083067203bb4a531d67200f91fba63ac7230d3937",
+    "final-corpus86.log": "82e2d33c9ae04d608e4a75f6b6bfdba8a2dbf7e1d91672093ded23cbe722aec0",
+    "corpus86/result86.json": "e5126c2b1aaf5bf71efe2a52b386cf2e626b3bd9f49e5ec895a07ad15e970b04",
+    "corpus86/strong-proof86.json": "176c334f3ecbc3771f7a5f109a2ce2cbad2d6d381f62469792d6fba4e0a2a051",
+    "CLI86/run-result86.json": "b9fbb0e8e9c8ffb346244ce5745a2525ad7a8db279a041f864fe3b7e5bbb829f",
+    "CLI86/full-output-hashes86.json": "c85f9098940dc8f9683d240d29cf1f8b235adfe56de688cd15eaf3545d914c6c",
+    "public86/result86.json": "a426d3839971350412bc91486a58b24cfc38233cc09848a88a46047eb4c2f8f2",
+    "public86/complete-required-gates86.json": "6e641c194739a7e0b32506d46d69bbb2d6a4742cd92ad8d575468372ff533951",
+    "public86/source-manifest86.json": "644ef545cc5415e60355727c17799dcc501b295b8c8fe03912a44038e26d5f46",
+    "public86/post-tests-source-manifest86.json": "0c1dab90d1fa1fda836450e856345acbf3f16a17e42a262ddce23822823d69e1",
+    "corpus-gold-update86.json": "d54283279b9c06f10975e571f84efe760ba08fb8f42d4e2da198253fd6b1254f",
+    "g195016-original-review86.json": "a400fa45a8bcd06fbfd10d22b0da7ab65608ac3628c6fd504d093c0605bed2e3",
+    "g217056-original-review86.json": "0f2051582c83ac5f7e87d91f68747b88d95081077bfb43dea2a5db2632d9c9df"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "source_pdf_sha256": "961b5a6d11719441deb479262e0e1b4988e179f9808ff3cf8dc1361ff28428d0",
+  "review": "Root nonblind original image review before candidate parser implementation; source Word IDs from baseline trace checked against original, no independent accuracy claim",
+  "row": [
+    183,
+    192,
+    204,
+    184,
+    185,
+    193,
+    186,
+    194,
+    195,
+    196,
+    197,
+    198,
+    187,
+    199,
+    200,
+    201,
+    202,
+    203,
+    188,
+    189,
+    190
+  ],
+  "section": [
+    207,
+    208
+  ],
+  "header": [
+    212,
+    220,
+    213,
+    221,
+    215,
+    216,
+    217,
+    210,
+    214,
+    222,
+    227,
+    231
+  ],
+  "reading_order": [
+    "row",
+    "section",
+    "header"
+  ],
+  "row_fields": [
+    "れいわ新選組参議院第一総支部",
+    "伊勢﨑賢治",
+    "主たる事務所の所在地",
+    "沖縄県那覇市松川二－一六－一",
+    "東京都千代田区麹町二－五－二〇",
+    "八、四、一"
+  ],
+  "section_text": "（二）その他の政治団体（政党及び政治資金団体以外の政治団体）",
+  "constraints": "Each complete source Word appears exactly once, in its own original publication role; all unrelated original lines and words preserved. No new global table-cell accuracy grade."
+}
