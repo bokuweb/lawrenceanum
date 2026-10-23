@@ -115,6 +115,109 @@ fn excerpt(out: &mut Vec<Value>, id: u64, key: &str, url: &str, text: &str, scop
     }
 }
 
+/// 離れた抜粋を連結せず、それぞれの原文位置を残す。引用の正本は全文の snapshot。
+fn prompt_bundle(bundle: &Value) -> Value {
+    let mut prompt = bundle.clone();
+    let mut budget = 36_000usize;
+    let mut selected = Vec::new();
+    let mut total = 0;
+    let mut included = 0;
+    let mut partial = Vec::new();
+    let mut omitted = Vec::new();
+    for excerpt in bundle["excerpts"].as_array().into_iter().flatten() {
+        let reference = excerpt["ref"].as_str().unwrap_or("");
+        let chars: Vec<char> = excerpt["text"].as_str().unwrap_or("").chars().collect();
+        let count = chars.len();
+        total += count;
+        let cap = if reference.ends_with("#holding") {
+            4_000
+        } else if reference.ends_with("#summary") {
+            6_000
+        } else if reference.ends_with("#body") {
+            22_000
+        } else {
+            4_000
+        };
+        let take = count.min(cap).min(budget);
+        if take == 0 {
+            if count > 0 {
+                omitted.push(reference);
+            }
+            continue;
+        }
+        let ranges = if take == count {
+            vec![(0, count)]
+        } else {
+            partial.push(reference);
+            let head = take / 4;
+            let middle = take / 4;
+            let tail = take - head - middle;
+            let middle_start = ((count - middle) / 2).max(head).min(count - tail - middle);
+            vec![
+                (0, head),
+                (middle_start, middle_start + middle),
+                (count - tail, count),
+            ]
+        };
+        for (start, end) in ranges.into_iter().filter(|(s, e)| s < e) {
+            let mut fragment = excerpt.clone();
+            fragment["text"] = json!(chars[start..end].iter().collect::<String>());
+            fragment["fragment"] = json!({"start_char":start,"end_char":end,"total_chars":count});
+            selected.push(fragment);
+        }
+        budget -= take;
+        included += take;
+    }
+    prompt["excerpts"] = json!(selected);
+    prompt["summary_input"] = json!({
+        "total_chars":total,"included_chars":included,"partial_refs":partial,"omitted_refs":omitted,
+        "selection":"資料ごとの文字数上限。長い資料は冒頭・中盤・末尾の離れた抜粋（末尾を多めに収録）"
+    });
+    prompt["source_truncated"] = json!(included < total);
+    // 識別情報と根拠を分け、予算外の本文や重複した要旨を入力しない。
+    if let Some(case) = prompt["case"].as_object_mut() {
+        for field in ["body_text", "holding", "summary", "body_citations"] {
+            case.remove(field);
+        }
+    }
+    prompt
+}
+
+fn official_summary(bundle: &Value) -> String {
+    let mut section = String::from("## 裁判所の公開情報（原文）\n\n裁判所が公開した文章です。AIによる要約・解説とは区別して掲載しています。\n\n");
+    for (key, title) in [("holding", "判示事項"), ("summary", "裁判要旨")] {
+        section.push_str(&format!("### {title}\n\n"));
+        let text = bundle["case"][key].as_str().unwrap_or("").trim();
+        if text.is_empty() {
+            section.push_str("取得した公開データには記載がありません。\n\n");
+        } else {
+            for line in text.lines() {
+                let escaped: String = line
+                    .replace('&', "&amp;")
+                    .replace('<', "&lt;")
+                    .replace('>', "&gt;")
+                    .chars()
+                    .flat_map(|c| {
+                        if "\\`*_[]#|".contains(c) {
+                            vec!['\\', c]
+                        } else {
+                            vec![c]
+                        }
+                    })
+                    .collect();
+                section.push_str(&format!("> {escaped}\n"));
+            }
+            section.push('\n');
+        }
+    }
+    if let Ok(url) = url::Url::parse(bundle["case"]["detail_url"].as_str().unwrap_or("")) {
+        if matches!(url.scheme(), "https" | "http") {
+            section.push_str(&format!("[出典：裁判所の裁判例情報](<{url}>)\n"));
+        }
+    }
+    section
+}
+
 fn bundle(
     source: &Source,
     doc: &Value,
@@ -217,7 +320,8 @@ fn bundle(
     } else {
         "判決PDFの機械抽出本文・判示事項・裁判要旨"
     };
-    let mut result = json!({"kind":KIND,"case_id":id,"case":doc,"laws":laws,"excerpts":excerpts,"has_case_text":has_case_text,"scope":scope,"captured_on":today});
+    let mut result = json!({"kind":KIND,"case_id":id,"case":doc,"laws":laws,"excerpts":excerpts,"has_case_text":has_case_text,"scope":scope,"captured_on":today,"summary_format_version":2});
+    result["summary_input"] = prompt_bundle(&result)["summary_input"].clone();
     result["source_fingerprint"] = json!(hex::encode(Sha256::digest(serde_json::to_vec(&result)?)));
     Ok(result)
 }
@@ -323,10 +427,26 @@ fn write_page(wiki: &Path, source: &Source, bundle: &Value, first_seen: &str) ->
         ("referenced_articles", bundle["laws"].clone()),
         ("source_scope", bundle["scope"].clone()),
         ("source_fingerprint", bundle["source_fingerprint"].clone()),
+        (
+            "summary_format_version",
+            bundle["summary_format_version"].clone(),
+        ),
+        ("summary_input", bundle["summary_input"].clone()),
     ] {
         page.set(k, v);
     }
     page.body = format!("# {}\n\n{LLM_BEGIN}\n{LLM_END}\n\n<!-- lawpub:begin meta -->\n## 裁判例の情報\n\n| 項目 | 内容 |\n|---|---|\n| 事件番号 | {} |\n| 裁判所 | {} |\n| 裁判日 | {} |\n| 結果 | {} |\n| 新規取得を確認した日 | {first_seen} |\n| 収録範囲 | {} |\n| 原文 | [裁判所]({}) |\n| 関連法令 | {} |\n\n条文リンクは機械抽出した版の候補です。本文の出来事の日付・改正前の記載、なければ裁判日を参照しています。適用法条・経過措置は未確認です。過去版未収録の場合は現行版で代用しません。\n<!-- lawpub:end meta -->\n",cell(&title),cell(s("case_number")),cell(s("court")),cell(s("judged_on")),cell(s("result")),bundle["scope"].as_str().unwrap_or(""),s("detail_url"),links.join("、"));
+    page.body = page.body.replacen(
+        LLM_BEGIN,
+        &format!(
+            "以下はAIによる要約・解説です。引用先と収録範囲を確認してください。\n\n{LLM_BEGIN}"
+        ),
+        1,
+    );
+    page.body.push_str(&format!(
+        "\n<!-- lawpub:begin official-summary -->\n{}<!-- lawpub:end official-summary -->\n",
+        official_summary(bundle)
+    ));
     page.write(&path)?;
     Ok(Task {
         key: format!("hanrei:{id}"),
@@ -388,7 +508,10 @@ pub fn plan_tasks(
             break;
         }
         let path = wiki.join(format!("hanrei/{id}.md"));
-        if path.exists() && Page::read(&path).is_ok_and(|p| ready(&p)) {
+        if path.exists()
+            && Page::read(&path)
+                .is_ok_and(|p| ready(&p) && source_matches(wiki, &p).unwrap_or(false))
+        {
             intake.pending.remove(&id);
             continue;
         }
@@ -424,22 +547,7 @@ pub fn plan_tasks(
         let dir = work.join("docs/hanrei");
         std::fs::create_dir_all(&dir)?;
         std::fs::write(dir.join(format!("{id}.json")), serde_json::to_vec(&bundle)?)?;
-        let mut prompt = bundle;
-        let mut budget = 36_000;
-        let mut truncated = false;
-        if let Some(excerpts) = prompt["excerpts"].as_array_mut() {
-            excerpts.retain_mut(|e| {
-                let original = e["text"].as_str().unwrap_or("");
-                let text: String = original.chars().take(24_000.min(budget)).collect();
-                truncated |= text.len() < original.len();
-                budget -= text.chars().count();
-                e["text"] = json!(text);
-                budget > 0 || !e["text"].as_str().unwrap().is_empty()
-            });
-        }
-        // 長い全文を二重に LLM に渡さない。本文は excerpts だけが根拠。
-        prompt["case"].as_object_mut().unwrap().remove("body_text");
-        prompt["source_truncated"] = json!(truncated);
+        let prompt = prompt_bundle(&bundle);
         std::fs::create_dir_all(work.join("sources"))?;
         std::fs::write(work.join(&task.source), serde_json::to_vec_pretty(&prompt)?)?;
         pending.status = "summary_pending".into();
@@ -457,17 +565,28 @@ pub fn summary_errors(page: &Page) -> Vec<String> {
         page.get("case_id").and_then(Value::as_u64).unwrap_or(0)
     );
     let citations = check::citations_in(&body);
-    if !citations.iter().any(|c| {
+    let case_citation = |c: &check::Citation| {
         ["holding", "summary", "body"]
             .iter()
             .any(|s| c.reference == format!("{prefix}{s}"))
-    }) {
+    };
+    if !citations.iter().any(case_citation) {
         errors.push("この判例の判示事項・裁判要旨・本文の引用が必要です".into());
     }
     if citations.iter().any(|c| !c.reference.starts_with(&prefix)) {
         errors.push("別の判例の引用をこの判例の根拠にできません".into());
     }
-    for heading in ["事案", "争点", "判断と理由", "法令との関係"] {
+    let enhanced = page
+        .get("summary_format_version")
+        .and_then(Value::as_u64)
+        .unwrap_or(1)
+        >= 2;
+    let headings = if enhanced {
+        vec!["要約", "事案", "争点", "判断と理由", "法令との関係"]
+    } else {
+        vec!["事案", "争点", "判断と理由", "法令との関係"]
+    };
+    for heading in headings {
         let section = body
             .split_once(&format!("## {heading}\n"))
             .map(|(_, s)| s.split("\n## ").next().unwrap_or(s))
@@ -477,13 +596,18 @@ pub fn summary_errors(page: &Page) -> Vec<String> {
             .filter(|l| !l.trim_start().starts_with("[^"))
             .collect::<Vec<_>>()
             .join("\n");
-        if prose.trim() != UNKNOWN
-            && !citations
-                .iter()
-                .any(|c| prose.contains(&format!("[^{}]", c.label)))
+        if (prose.trim() != UNKNOWN || (enhanced && heading == "要約"))
+            && !citations.iter().any(|c| {
+                (!enhanced || case_citation(c)) && prose.contains(&format!("[^{}]", c.label))
+            })
         {
             errors.push(format!(
-                "「{heading}」には出典付きの説明、または「{UNKNOWN}」が必要です"
+                "「{heading}」にはこの判例の出典付きの説明{}が必要です",
+                if heading == "要約" {
+                    String::new()
+                } else {
+                    format!("、または「{UNKNOWN}」")
+                }
             ));
         }
     }
@@ -510,6 +634,11 @@ pub fn source_matches(wiki: &Path, page: &Page) -> Result<bool> {
         page.get("source_fingerprint") == doc.get("source_fingerprint")
             && page.get("source_scope") == doc.get("scope")
             && page.get("referenced_articles") == doc.get("laws")
+            && page.get("summary_format_version") == doc.get("summary_format_version")
+            && page.get("summary_input") == doc.get("summary_input")
+            && (doc.get("summary_format_version").is_none()
+                || replace_block(&page.body, "official-summary", &official_summary(&doc))
+                    .is_some_and(|body| body == page.body))
             && page.get("laws")
                 == Some(&json!(doc["laws"]
                     .as_array()
@@ -562,7 +691,94 @@ pub fn references_law(page: &Page, law: &str) -> bool {
         .any(|v| v.as_str() == Some(law))
 }
 
+fn article_keys(page: &Page) -> BTreeSet<(String, String)> {
+    page.get("referenced_articles")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter_map(|law| Some((law["law_id"].as_str()?, law["articles"].as_array()?)))
+        .flat_map(|(law, articles)| {
+            articles
+                .iter()
+                .filter_map(move |a| Some((law.to_string(), a.as_str()?.to_string())))
+        })
+        .collect()
+}
+
+/// 同じ法令・条番号への言及という観測事実だけを結ぶ。先例関係は推定しない。
+fn write_case_relations(wiki: &Path, cases: &[(String, Page)]) -> Result<()> {
+    let keys: Vec<_> = cases.iter().map(|(_, page)| article_keys(page)).collect();
+    let mut index: BTreeMap<_, Vec<usize>> = BTreeMap::new();
+    for (i, refs) in keys.iter().enumerate() {
+        for key in refs {
+            index.entry(key.clone()).or_default().push(i);
+        }
+    }
+    for (i, (rel, original)) in cases.iter().enumerate() {
+        let mut related: BTreeMap<usize, Vec<_>> = BTreeMap::new();
+        for key in &keys[i] {
+            for &other in &index[key] {
+                if other != i {
+                    related.entry(other).or_default().push(key);
+                }
+            }
+        }
+        let mut related: Vec<_> = related.into_iter().collect();
+        related.sort_by(|(a, ka), (b, kb)| {
+            kb.len()
+                .cmp(&ka.len())
+                .then_with(|| cases[*a].0.cmp(&cases[*b].0))
+        });
+        let mut section = String::new();
+        if !related.is_empty() {
+            section.push_str("## 共通する参照条文を持つ判例\n\n同じ法令・条番号への言及を根拠に、共通条文の多い順に最大10件を表示します。先例関係・同じ争点や結論・適用法令の版の一致を示すものではありません。\n\n| 判例 | 共通する参照条文 | 概要 |\n|---|---|---|\n");
+            for (other, common) in related.into_iter().take(10) {
+                let (target, page) = &cases[other];
+                let articles = common
+                    .iter()
+                    .map(|(law_id, article)| {
+                        let title = original
+                            .get("referenced_articles")
+                            .and_then(Value::as_array)
+                            .into_iter()
+                            .flatten()
+                            .find(|l| l["law_id"].as_str() == Some(law_id))
+                            .and_then(|l| l["title"].as_str())
+                            .unwrap_or(law_id);
+                        format!(
+                            "[{} 第{}条](#/hanrei/{}/laws/{law_id}/{article})",
+                            cell(title),
+                            article.replace('_', "の"),
+                            original.get("case_id").and_then(Value::as_u64).unwrap_or(0)
+                        )
+                    })
+                    .collect::<Vec<_>>()
+                    .join("、");
+                section.push_str(&format!(
+                    "| [{}]({}) | {} | {} |\n",
+                    cell(page.get_str("title")),
+                    rel_link(rel, target),
+                    articles,
+                    cell(page.get_str("description"))
+                ));
+            }
+        }
+        let body = match replace_block(&original.body, "related-cases", &section) {
+            Some(body) => body,
+            None if !section.is_empty() => format!("{}\n<!-- lawpub:begin related-cases -->\n{section}<!-- lawpub:end related-cases -->\n", original.body),
+            None => continue,
+        };
+        if body != original.body {
+            let mut page = original.clone();
+            page.body = body;
+            page.write(&wiki.join(rel))?;
+        }
+    }
+    Ok(())
+}
+
 pub fn write_backlinks(wiki: &Path, cases: &[(String, Page)]) -> Result<()> {
+    write_case_relations(wiki, cases)?;
     for path in walk_md(wiki, "laws") {
         let mut page = Page::read(&path)?;
         let rel = rel_path(wiki, &path);
@@ -721,6 +937,195 @@ mod tests {
         std::fs::write(path, serde_json::to_vec(value).unwrap()).unwrap();
     }
 
+    #[test]
+    fn long_sources_keep_separate_contiguous_fragments_within_budget() {
+        let body = format!("冒頭{}中盤{}末尾", "甲".repeat(30_000), "乙".repeat(30_000));
+        let bundle = json!({"case":{"body_text":body,"holding":"duplicate","summary":"duplicate"},"excerpts":[
+            {"ref":"hanrei:5#holding","text":"判示事項".repeat(2000)},
+            {"ref":"hanrei:5#summary","text":"裁判要旨".repeat(2500)},
+            {"ref":"hanrei:5#body","text":body},
+            {"ref":"hanrei:5#law-L1-709-v1","text":"条文".repeat(4000)},
+            {"ref":"hanrei:5#law-L1-710-v1","text":"予算超過"}
+        ]});
+        let prompt = prompt_bundle(&bundle);
+        assert_eq!(prompt["source_truncated"], true);
+        assert_eq!(prompt["summary_input"]["included_chars"], 36_000);
+        assert_eq!(
+            prompt["summary_input"]["omitted_refs"],
+            json!(["hanrei:5#law-L1-710-v1"])
+        );
+        for field in ["body_text", "holding", "summary"] {
+            assert!(prompt["case"].get(field).is_none());
+        }
+        let excerpts = prompt["excerpts"].as_array().unwrap();
+        assert_eq!(
+            excerpts
+                .iter()
+                .map(|e| e["text"].as_str().unwrap().chars().count())
+                .sum::<usize>(),
+            36_000
+        );
+        let fragments: Vec<_> = excerpts
+            .iter()
+            .filter(|e| e["ref"] == "hanrei:5#body")
+            .collect();
+        assert_eq!(fragments.len(), 3);
+        assert!(fragments[0]["text"].as_str().unwrap().starts_with("冒頭"));
+        assert!(fragments[1]["text"].as_str().unwrap().contains("中盤"));
+        assert!(fragments[2]["text"].as_str().unwrap().ends_with("末尾"));
+        let chars: Vec<_> = body.chars().collect();
+        let mut previous_end = 0;
+        for e in fragments {
+            let start = e["fragment"]["start_char"].as_u64().unwrap() as usize;
+            let end = e["fragment"]["end_char"].as_u64().unwrap() as usize;
+            assert!(start >= previous_end);
+            assert_eq!(e["text"], chars[start..end].iter().collect::<String>());
+            previous_end = end;
+        }
+        let short = prompt_bundle(
+            &json!({"case":{},"excerpts":[{"ref":"hanrei:5#body","text":"短い判決本文"}]}),
+        );
+        assert_eq!(short["source_truncated"], false);
+        assert_eq!(short["excerpts"][0]["text"], "短い判決本文");
+        // 残り予算が少ない場合や上限の直上でも、抜粋範囲を重複させない。
+        for len in [1, 2, 3, 22_001, 22_002] {
+            let p = prompt_bundle(
+                &json!({"case":{},"excerpts":[{"ref":"hanrei:5#body","text":"あ".repeat(len)}]}),
+            );
+            let ranges = p["excerpts"].as_array().unwrap();
+            for pair in ranges.windows(2) {
+                assert!(
+                    pair[0]["fragment"]["end_char"].as_u64()
+                        <= pair[1]["fragment"]["start_char"].as_u64()
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn each_explanation_requires_case_evidence_and_official_text_is_preserved() {
+        let (source, wiki, work) = fixture();
+        let src = Source::new(&source.display().to_string()).unwrap();
+        plan_tasks(&src, &wiki, &work, 3, 10, "2026-10-23").unwrap();
+        index(&source, &[100, 200, 5]);
+        case(&source, 5);
+        let case_path = source.join("hanrei/5.json");
+        let mut doc: Value = serde_json::from_slice(&std::fs::read(&case_path).unwrap()).unwrap();
+        doc["summary"] = json!("公開要旨の原文。\n[リンクではない](https://example.com)\n<!-- lawpub:begin llm --> &lt;");
+        write_json(&case_path, &doc);
+        let tasks = plan_tasks(&src, &wiki, &work, 3, 10, "2026-10-24").unwrap();
+        summarize(&wiki, &tasks[0]);
+        let original = Page::read(&wiki.join(&tasks[0].page)).unwrap();
+        assert!(summary_errors(&original).is_empty());
+        assert!(source_matches(&wiki, &original).unwrap());
+        assert!(original
+            .body
+            .contains("> 公開要旨の原文。\n> \\[リンクではない\\]"));
+        assert!(original
+            .body
+            .contains("&lt;!-- lawpub:begin llm --&gt; &amp;lt;"));
+        let mut changed = original.clone();
+        changed.body = changed.body.replace("公開要旨の原文", "AIが書き換えた要旨");
+        assert!(!source_matches(&wiki, &changed).unwrap());
+        changed = original.clone();
+        changed.body = changed.body.replace(
+            "## 判断と理由\n損害賠償請求について判断した[^1]。",
+            "## 判断と理由\n条文だけから結論を説明した[^law]。",
+        );
+        changed.body = changed.body.replace(LLM_END, &format!("[^law]: [hanrei:5#law-L1-709-v1](https://example.com) 「条文だけの引用である。」\n{LLM_END}"));
+        assert!(summary_errors(&changed)
+            .iter()
+            .any(|e| e.contains("判断と理由")));
+        changed = original.clone();
+        changed.body = changed.body.replace(
+            "## 要約\n民法709条による損害賠償請求について判断した[^1]。",
+            "",
+        );
+        assert!(summary_errors(&changed).iter().any(|e| e.contains("要約")));
+        // 既存の4節形式を再要約せず読み込める。
+        changed
+            .frontmatter
+            .retain(|(k, _)| k != "summary_format_version");
+        assert!(summary_errors(&changed).is_empty());
+        std::fs::remove_dir_all(source.parent().unwrap()).unwrap();
+    }
+
+    #[test]
+    fn case_relations_require_the_same_law_and_article_and_remove_old_links() {
+        let root = temp_dir("case-relations");
+        let mut cases = Vec::new();
+        for (id, law, articles) in [
+            (1, "L1", vec!["709", "710"]),
+            (2, "L1", vec!["709"]),
+            (3, "L1", vec!["710"]),
+            (4, "L2", vec!["709"]),
+        ] {
+            let mut page = Page::default();
+            page.set("case_id", json!(id));
+            page.set("title", json!(format!("判例{id}")));
+            page.set("description", json!(format!("要約{id}")));
+            page.set(
+                "referenced_articles",
+                json!([{"law_id":law,"title":law,"articles":articles}]),
+            );
+            page.body = format!("# 判例{id}\n");
+            let rel = format!("hanrei/{id}.md");
+            page.write(&root.join(&rel)).unwrap();
+            cases.push((rel, page));
+        }
+        write_backlinks(&root, &cases).unwrap();
+        let one = Page::read(&root.join("hanrei/1.md")).unwrap();
+        assert!(one.body.contains("[判例2](../hanrei/2.md)"));
+        assert!(one.body.contains("[判例3](../hanrei/3.md)"));
+        assert!(!one.body.contains("[判例1]"));
+        assert!(!one.body.contains("[判例4]"));
+        assert!(one.body.contains("#/hanrei/1/laws/L1/709"));
+        assert!(one.body.contains("先例関係・同じ争点や結論"));
+        assert!(!Page::read(&root.join("hanrei/2.md"))
+            .unwrap()
+            .body
+            .contains("[判例3]"));
+        assert!(!Page::read(&root.join("hanrei/4.md"))
+            .unwrap()
+            .body
+            .contains("related-cases"));
+        let updated: Vec<_> = cases
+            .iter()
+            .map(|(rel, _)| (rel.clone(), Page::read(&root.join(rel)).unwrap()))
+            .collect();
+        write_backlinks(&root, &updated).unwrap();
+        assert_eq!(
+            one.body,
+            Page::read(&root.join("hanrei/1.md")).unwrap().body
+        );
+        let remaining: Vec<_> = updated
+            .into_iter()
+            .filter(|(rel, _)| rel == "hanrei/1.md" || rel == "hanrei/4.md")
+            .collect();
+        write_backlinks(&root, &remaining).unwrap();
+        let one = Page::read(&root.join("hanrei/1.md")).unwrap();
+        assert!(!one.body.contains("[判例2]"));
+        assert!(!one.body.contains("共通する参照条文"));
+        // 多い場合は10件まで。入力順によらず同じ順で出力する。
+        let mut many = vec![cases[0].clone()];
+        for id in 10..24 {
+            let mut page = cases[1].1.clone();
+            page.set("case_id", json!(id));
+            page.set("title", json!(format!("判例{id}")));
+            many.push((format!("hanrei/{id}.md"), page));
+        }
+        write_backlinks(&root, &many).unwrap();
+        let one = Page::read(&root.join("hanrei/1.md")).unwrap();
+        assert_eq!(one.body.matches("| [判例").count(), 10);
+        many.reverse();
+        write_backlinks(&root, &many).unwrap();
+        assert_eq!(
+            one.body,
+            Page::read(&root.join("hanrei/1.md")).unwrap().body
+        );
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
     fn index(source: &Path, ids: &[u64]) {
         write_json(
             &source.join("hanrei/index.json"),
@@ -768,7 +1173,7 @@ mod tests {
         let path = wiki.join(&task.page);
         let mut page = Page::read(&path).unwrap();
         page.set("description", json!("民法709条に関する損害賠償請求の判例"));
-        let narrative = format!("## 事案\n{UNKNOWN}\n\n## 争点\n{UNKNOWN}\n\n## 判断と理由\n損害賠償請求について判断した[^1]。\n\n## 法令との関係\n民法709条に言及した[^1]。\n\n[^1]: [hanrei:{}#holding](https://www.courts.go.jp/hanrei/{}/detail2/index.html) 「民法第709条による損害賠償請求について判断した。」",task.id,task.id);
+        let narrative = format!("## 要約\n民法709条による損害賠償請求について判断した[^1]。\n\n## 事案\n{UNKNOWN}\n\n## 争点\n{UNKNOWN}\n\n## 判断と理由\n損害賠償請求について判断した[^1]。\n\n## 法令との関係\n民法709条に言及した[^1]。\n\n[^1]: [hanrei:{}#holding](https://www.courts.go.jp/hanrei/{}/detail2/index.html) 「民法第709条による損害賠償請求について判断した。」",task.id,task.id);
         page.body = page.body.replace(
             &format!("{LLM_BEGIN}\n{LLM_END}"),
             &format!("{LLM_BEGIN}\n{narrative}\n{LLM_END}"),
@@ -824,11 +1229,14 @@ mod tests {
         let (source, wiki, work) = fixture();
         let src = Source::new(&source.display().to_string()).unwrap();
         plan_tasks(&src, &wiki, &work, 3, 10, "2026-10-23").unwrap();
-        index(&source, &[100, 200, 5]);
+        index(&source, &[100, 200, 5, 6]);
         case(&source, 5);
+        case(&source, 6);
         let tasks = plan_tasks(&src, &wiki, &work, 3, 10, "2026-10-24").unwrap();
         save_plan(&wiki, &work, &source, tasks.clone());
-        summarize(&wiki, &tasks[0]);
+        for task in &tasks {
+            summarize(&wiki, task);
+        }
         finalize::run_finalize(&finalize::FinalizeArgs {
             wiki: wiki.clone(),
             work: work.clone(),
@@ -864,6 +1272,13 @@ mod tests {
             .unwrap()
             .iter()
             .any(|p| p["type"] == "hanrei"));
+        let graph: Value =
+            serde_json::from_slice(&std::fs::read(out.join("graph.json")).unwrap()).unwrap();
+        assert!(graph["links"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|e| e["source"] == "hanrei/5" && e["target"] == "hanrei/6"));
         assert!(plan_tasks(&src, &wiki, &work, 3, 10, "2026-10-25")
             .unwrap()
             .is_empty());

@@ -5,7 +5,13 @@ const statuses: Record<string, string> = { unreviewed: "支持関係は未審査
 const kinds: Record<string, string> = { government_view: "政府見解", opinion: "意見", request: "要望", question: "質問", decision: "決定・結果", unknown: "区分未確認" };
 
 export function WikiEvidence({ page, onOpen }: { page: WikiPage; onOpen: (path: string) => void }) {
-  const scope = page.frontmatter.source_scope as { total_units: number; included_units: number; partial_refs: string[]; omitted_refs: string[]; limitations: string } | undefined;
+  const rawScope = page.frontmatter.source_scope;
+  const scope = rawScope && typeof rawScope === "object"
+    && "partial_refs" in rawScope && Array.isArray(rawScope.partial_refs)
+    && "omitted_refs" in rawScope && Array.isArray(rawScope.omitted_refs)
+    ? rawScope as { total_units: number; included_units: number; partial_refs: string[]; omitted_refs: string[]; limitations: string } : undefined;
+  const hanrei = page.frontmatter.type === "hanrei";
+  const input = page.frontmatter.summary_input as { total_chars?: number; included_chars?: number } | undefined;
   const source = page.frontmatter.source_fingerprint;
   const summarySource = page.frontmatter.llm_source_fingerprint;
   const stale = typeof source === "string" && source !== "" && source !== summarySource;
@@ -17,6 +23,18 @@ export function WikiEvidence({ page, onOpen }: { page: WikiPage; onOpen: (path: 
           : source ? "要約は最後に取得した資料の版に対応しています。原サイトでの最新性や主張の支持関係を保証するものではありません。"
           : "この要約には原資料の版の記録がありません。取得後の訂正への追随状況は未確認です。"}</p>
       )}
+      {hanrei && (
+        <div data-testid="wiki-hanrei-scope" className="space-y-2">
+          <p>AIによる要約・解説です。「裁判所の公開情報（原文）」に掲載する判示事項・裁判要旨とは区別してください。</p>
+          <p>収録資料：{typeof rawScope === "string" ? rawScope : "収録範囲は未記録です。"}</p>
+          {typeof input?.total_chars === "number" && typeof input.included_chars === "number" && (
+            <p>AIへの入力：原資料 {input.total_chars.toLocaleString()} 文字中 {input.included_chars.toLocaleString()} 文字。
+              {input.included_chars < input.total_chars && "長い資料は冒頭・中盤・末尾から抜粋しています。抜粋外の理由・留保・反対意見は未確認です。"}</p>
+          )}
+          {stale && <p role="alert">原資料の版に対応する解説の更新が未完了です。原文を再確認してください。</p>}
+          <p>共通条文による関連付けは、先例関係や同じ判断を示すものではありません。</p>
+        </div>
+      )}
       <p>引用の原文一致は、主張の正しさや意味的な支持を保証しません。以下に記録のない主張の支持関係も未確認です。判定は生成時の LLM の自己点検で、独立レビューではありません。</p>
       {scope ? (
         <details>
@@ -25,7 +43,7 @@ export function WikiEvidence({ page, onOpen }: { page: WikiPage; onOpen: (path: 
           <p>部分収録：{scope.partial_refs.join("、") || "なし"}</p>
           <p>未収録：{scope.omitted_refs.join("、") || "なし"}</p>
         </details>
-      ) : <p>このページの取得範囲・主張ごとの根拠情報は未整備です。全文・留保・反対意見を原資料で確認してください。</p>}
+      ) : !hanrei && <p>このページの取得範囲・主張ごとの根拠情報は未整備です。全文・留保・反対意見を原資料で確認してください。</p>}
       {!!page.citation_sources?.length && (
         <div className="border-t border-border pt-2" data-testid="wiki-citation-sources">
           <p>引用元の会議（国会・審議会の脚注から対応付け）</p>
