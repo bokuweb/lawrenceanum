@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
-import { api, type CaseLawReference, type HanreiLawLinks, type LawDocumentRaw } from "../../data/api";
-import { useHanreiLawLinks, useWikiPaths } from "../../data/use-hanrei";
+import { api, hanreiUrl, type CaseLawReference, type HanreiLawLinks, type LawDocumentRaw } from "../../data/api";
+import { useHanreiCase, useHanreiLawLinks, useWikiPaths } from "../../data/use-hanrei";
 import { Button } from "../ui/button";
 
 export const articleLabel = (article: string) => `第${article.split("_")[0]}条${article.split("_").slice(1).map(n => `の${n}`).join("")}`;
@@ -37,11 +37,14 @@ export function HanreiLawView() {
   const { caseId = "", lawId = "", article = "" } = useParams();
   const [params, setParams] = useSearchParams();
   const { data: links, error, retry } = useHanreiLawLinks(caseId);
+  const { data: caseData } = useHanreiCase(caseId);
   const paths = useWikiPaths();
   const law = links?.laws.find(l => l.law_id === lawId && l.articles.includes(article));
   const requested = params.get("revision");
   const version = law?.versions.find(v => v.revision_id === requested) ?? (!requested ? law?.versions[0] : undefined);
   const revision = version?.revision_id;
+  const revisionSuffix = revision?.startsWith(`${lawId}_`) ? revision.slice(lawId.length + 1) : null;
+  const officialVersionUrl = revisionSuffix ? `https://laws.e-gov.go.jp/law/${encodeURIComponent(lawId)}/${encodeURIComponent(revisionSuffix)}` : null;
   const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState<{ key: string; data?: LawDocumentRaw; error?: boolean }>();
   const key = `${caseId}/${lawId}/${article}/${revision}`;
@@ -63,6 +66,11 @@ export function HanreiLawView() {
   return <div className="p-4 md:p-6 max-w-5xl mx-auto [overflow-wrap:anywhere] space-y-4">
     <Link to={`/hanrei/${caseId}`} className="text-primary hover:underline">判例に戻る</Link>
     <h1 className="text-xl font-semibold">{law?.title ?? "関連条文"} {articleLabel(article)}{paragraph ? ` 第${paragraph}項` : ""}</h1>
+    <div className="flex gap-4 text-sm flex-wrap" aria-label="公式資料">
+      <a className="text-primary underline" href={caseData?.detail_url || hanreiUrl(Number(caseId))} target="_blank" rel="noopener noreferrer">裁判所の原文ページ</a>
+      {caseData?.pdf_url && <a className="text-primary underline" href={caseData.pdf_url} target="_blank" rel="noopener noreferrer">全文PDF</a>}
+      {officialVersionUrl && <a className="text-primary underline" href={officialVersionUrl} target="_blank" rel="noopener noreferrer">この版候補をe-Govで確認</a>}
+    </div>
     {error ? <div role="alert">条文リンクを読み込めませんでした。<Button onClick={retry} variant="outline">再試行</Button></div>
       : !links ? <p>条文リンクを読み込み中…</p>
       : !law ? <p>この判例の条文リンクを確認できません。</p>

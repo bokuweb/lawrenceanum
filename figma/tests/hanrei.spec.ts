@@ -116,6 +116,9 @@ test("省略された法令名・項をリンクし、版候補・根拠と過�
   await expect(page.getByText(/平成２５年から平成２７年/)).toBeVisible();
   await expect(page.getByTestId("case-law-article").locator('[data-highlighted="true"]')).toHaveText("２ 過去版の第2項の本文");
   await expect(page.getByText(/表示版:/)).toContainText(oldRevision);
+  await expect(page.getByRole("link", { name: "この版候補をe-Govで確認" })).toHaveAttribute("href", `https://laws.e-gov.go.jp/law/${lawId}/20140101_A`);
+  await expect(page.getByRole("link", { name: "裁判所の原文ページ", exact: true })).toHaveAttribute("href", fixture("92002").detail_url);
+  await expect(page.getByRole("link", { name: "全文PDF", exact: true })).toHaveAttribute("href", fixture("92002").pdf_url);
   expect(currentRequests).toBe(0);
   await page.getByRole("link", { name: "判例に戻る", exact: true }).click();
   await expect(page.getByRole("heading", { name: "検索テストの損害賠償請求事件" })).toBeVisible();
@@ -129,6 +132,7 @@ test("候補の本文が未収録なら現行版や別の過去版を取得し�
   await page.goto(new URL(`#/hanrei/92002/laws/${lawId}/8?revision=${missingRevision}&paragraph=2`, BASE).toString());
   await expect(page.getByText("この過去版の本文は未収録です。現行条文での代用は行っていません。", { exact: true })).toBeVisible();
   await expect(page.getByText(/複数の版が候補/)).toBeVisible();
+  await expect(page.getByRole("link", { name: "この版候補をe-Govで確認" })).toHaveAttribute("href", `https://laws.e-gov.go.jp/law/${lawId}/20150101_B`);
   expect(fetched).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
@@ -143,4 +147,34 @@ test("配信された本文の版が候補と異なる場合は引用せず再�
   fail = false;
   await page.getByRole("button", { name: "本文を再試行" }).click();
   await expect(page.getByTestId("case-law-article")).toContainText("過去版の第2項");
+});
+
+test("候補の切り替えに合わせて公式リンクを更新し、項の指定を維持する", async ({ page }) => {
+  await mockCaseLinks(page);
+  await page.route(`**/laws/${lawId}/revisions/${oldRevision}.json`, r => r.fulfill({ json: historicalLaw() }));
+  await page.goto(new URL(`#/hanrei/92002/laws/${lawId}/8?paragraph=2`, BASE).toString());
+  await expect(page.getByTestId("case-law-article")).toBeVisible();
+  await page.getByRole("combobox", { name: "表示する版候補" }).selectOption(missingRevision);
+  await expect(page.getByRole("link", { name: "この版候補をe-Govで確認" })).toHaveAttribute("href", `https://laws.e-gov.go.jp/law/${lawId}/20150101_B`);
+  await expect(page.getByTestId("case-law-article")).toHaveCount(0);
+  await expect(page).toHaveURL(/paragraph=2&revision=/);
+  await page.getByRole("combobox", { name: "表示する版候補" }).selectOption(oldRevision);
+  await expect(page.getByTestId("case-law-article").locator('[data-highlighted="true"]')).toContainText("過去版の第2項");
+});
+
+test("過去版を特定できなくても裁判所の原文とPDF、wikiを確認できる", async ({ page }) => {
+  await mockCaseLinks(page);
+  const links = caseLinks();
+  links.laws[0].versions = [];
+  links.laws[0].basis = "unresolved";
+  await page.route("**/links/hanrei-to-laws/92002.json", r => r.fulfill({ json: links }));
+  const fetched: string[] = [];
+  await page.route(`**/laws/${lawId}/**`, r => { fetched.push(r.request().url()); return r.fulfill({ json: {} }); });
+  await page.goto(new URL(`#/hanrei/92002/laws/${lawId}/8`, BASE).toString());
+  await expect(page.getByText("版を特定できません", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "裁判所の原文ページ", exact: true })).toHaveAttribute("href", fixture("92002").detail_url);
+  await expect(page.getByRole("link", { name: "全文PDF", exact: true })).toHaveAttribute("href", fixture("92002").pdf_url);
+  await expect(page.getByRole("link", { name: "判例のLLM wiki", exact: true })).toHaveAttribute("href", "#/wiki/hanrei/92002");
+  await expect(page.getByRole("link", { name: "この版候補をe-Govで確認" })).toHaveCount(0);
+  expect(fetched).toEqual([]);
 });
