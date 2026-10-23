@@ -1,0 +1,158 @@
+[
+  {
+    "page": "20260824g001880032",
+    "fixture": "tests/data/orthogonal-gutters/20260824g001880032.pdf",
+    "PDF_sha256": "25e87cf0c4b66370dfc3343a629e1e6d8f6b9c2ad99f300061c5b1a8284394cc",
+    "source_order_anchors": [
+      10,
+      5,
+      0,
+      9,
+      6,
+      11,
+      7,
+      3,
+      121
+    ],
+    "source_observation": "All three printed current signers finish before the following comparison instruction.",
+    "review_scope": "Root nonblind full-source development review, original glyph-to-Word-ID mapping; not a complete-page transcription or unseen accuracy audit. Expectations frozen before running these new regression tests; not generated as a candidate-output golden."
+  },
+  {
+    "page": "20260824g001880036",
+    "fixture": "tests/data/orthogonal-gutters/20260824g001880036.pdf",
+    "PDF_sha256": "7ceb3f7119b0f9a8ba09a1dc447d199844b6386b0a537e68a349e4fee66aa45f",
+    "source_order_anchors": [
+      9,
+      5,
+      1,
+      8,
+      6,
+      11,
+      7,
+      4,
+      105
+    ],
+    "source_observation": "All three printed current signers finish before the following comparison instruction.",
+    "review_scope": "Root nonblind full-source development review, original glyph-to-Word-ID mapping; not a complete-page transcription or unseen accuracy audit. Expectations frozen before running these new regression tests; not generated as a candidate-output golden."
+  },
+  {
+    "page": "20260831g001940039",
+    "fixture": "tests/data/orthogonal-gutter-order/20260831g001940039.pdf",
+    "PDF_sha256": "9cd993e1cfb7315320444e061955152e4bf6613d50f56ccbf1ebd6dc3c2d8bb2",
+    "source_order_anchors": [
+      171,
+      6,
+      5,
+      4,
+      3,
+      2,
+      1,
+      0,
+      212,
+      213,
+      210
+    ],
+    "source_observation": "The complete assets-total source row, including its amount, precedes liabilities and its first subheading in the continuation column.",
+    "review_scope": "Root nonblind full-source development review, original glyph-to-Word-ID mapping; not a complete-page transcription or unseen accuracy audit. Expectations frozen before running these new regression tests; not generated as a candidate-output golden."
+  },
+  {
+    "page": "20260910g002020100",
+    "fixture": "tests/data/orthogonal-gutter-order/20260910g002020100.pdf",
+    "PDF_sha256": "6f04e8631a083e55ff7a7663c87c01d90472a4bbe933d16a73e389f7988c0ed6",
+    "source_order_anchors": [
+      352,
+      351,
+      349,
+      348,
+      346,
+      338,
+      332,
+      323,
+      354,
+      270,
+      385,
+      372
+    ],
+    "source_observation": "Administrative-cost statement title, period and unit precede the first expense category.",
+    "review_scope": "Root nonblind full-source development review, original glyph-to-Word-ID mapping; not a complete-page transcription or unseen accuracy audit. Expectations frozen before running these new regression tests; not generated as a candidate-output golden."
+  },
+  {
+    "page": "20260930g002160066",
+    "fixture": "tests/data/orthogonal-gutter-order/20260930g002160066.pdf",
+    "PDF_sha256": "86ec3617cabfc2f227a7449d5d3cf59f665840bc16452657c544586b2c193ef2",
+    "source_order_anchors": [
+      71,
+      45,
+      6,
+      63,
+      28,
+      36,
+      157,
+      152,
+      153,
+      154,
+      155
+    ],
+    "source_observation": "The last right vehicle-category row finishes before boxed Annex2, fee-distance title, all three notes and road title. Fresh full original reviewed in this turn.",
+    "review_scope": "Root nonblind full-source development review, original glyph-to-Word-ID mapping; not a complete-page transcription or unseen accuracy audit. Expectations frozen before running these new regression tests; not generated as a candidate-output golden."
+  },
+  {
+    "page": "20261016g002280369",
+    "fixture": "tests/data/orthogonal-gutter-order/20261016g002280369.pdf",
+    "PDF_sha256": "fc91eb8e064f1178977448078fbde170a2df86e16bdd016522ff9bb2f9ddafb1",
+    "source_order_anchors": [
+      76,
+      62,
+      58,
+      54,
+      45,
+      39,
+      28,
+      20,
+      69,
+      255,
+      229
+    ],
+    "source_observation": "Equity-change statement title and period precede issuer and the first table.",
+    "review_scope": "Root nonblind full-source development review, original glyph-to-Word-ID mapping; not a complete-page transcription or unseen accuracy audit. Expectations frozen before running these new regression tests; not generated as a candidate-output golden."
+  },
+  {
+    "page": "20261016g002280496",
+    "fixture": "tests/data/orthogonal-gutter-order/20261016g002280496.pdf",
+    "PDF_sha256": "cdcd3e1a3872de8f765f54f9973523070cf75d3f9e1f9751c7619e57803df083",
+    "source_order_anchors": [
+      377,
+      378,
+      223,
+      222,
+      221,
+      220,
+      219,
+      218,
+      217,
+      422,
+      423,
+      420
+    ],
+    "source_observation": "The complete assets-total row, including amount, precedes liabilities and its first subheading.",
+    "review_scope": "Root nonblind full-source development review, original glyph-to-Word-ID mapping; not a complete-page transcription or unseen accuracy audit. Expectations frozen before running these new regression tests; not generated as a candidate-output golden."
+  },
+  {
+    "page": "20261016g002280554",
+    "fixture": "tests/data/orthogonal-gutter-order/20261016g002280554.pdf",
+    "PDF_sha256": "26bef0bcbf36d76c58bf51296a05a7b8c604d9096464eba8e3e562f43eabcf49",
+    "source_order_anchors": [
+      300,
+      183,
+      180,
+      178,
+      176,
+      174,
+      338,
+      339,
+      334
+    ],
+    "source_observation": "The complete assets-total row, including amount, precedes liabilities and its first subheading.",
+    "review_scope": "Root nonblind full-source development review, original glyph-to-Word-ID mapping; not a complete-page transcription or unseen accuracy audit. Expectations frozen before running these new regression tests; not generated as a candidate-output golden."
+  }
+]
