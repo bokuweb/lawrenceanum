@@ -1,6 +1,32 @@
 # 官報画像の opt-in OCR
 
-文字層に本文が無いページを調べるための、独立した実験用CLI。表示の向きに描画済みの全ページPNGをTesseract.jsで認識し、生の結果と座標を保存する。`kanpo-parser`の通常実行からは呼ばれない。
+文字層に本文が無いページを調べるための、独立した opt-in CLI。OCRツールの既定は [ndlocr-lite-rs 0.0.15](https://github.com/bokuweb/ndlocr-lite-rs/releases/tag/0.0.15)（Rust + ONNX）。`kanpo-parser` の通常実行からは呼ばれない。Tesseract.js は `--engine tesseract` で明示選択できる。
+
+## NDLOCR 0.0.15 の固定ビルド
+
+上流のタグ `0.0.15` はコミット `f97e930b8c3e9512f7788f258ef685da26416483` に対応する。Cargo の package version はこのタグでも `0.1.0` のため、`--version` ではリリースを識別できない。固定コミットのクリーンな checkout を用意し、次のコマンドで `--release --features onnx --locked` ビルドと receipt の作成を行う。ビルド前後のコミット・変更有無を検査し、成功したバイナリの SHA256 と Cargo.lock の SHA256 を記録する。モデルは上流の手順で別途用意する。
+
+```sh
+git clone --branch 0.0.15 https://github.com/bokuweb/ndlocr-lite-rs.git /path/ndlocr-lite-rs
+node tools/kanpo-ocr/ndlocr-build.cjs --source /path/ndlocr-lite-rs
+node tools/kanpo-ocr/cli.cjs \
+  --ndlocr-bin /path/ndlocr-lite-rs/target/release/ndlocr-lite-rs \
+  --model /path/ndlocr-lite-rs/models \
+  --output /tmp/kanpo-ndlocr-result \
+  --width-points 595 --height-points 842 --dpi 300 page.png
+```
+
+receipt の既定位置は実行ファイルの隣の `<binary>.kanpo-build.json`。別の場所に保存する場合はビルド時の `--receipt NEW_FILE` と認識時の `--ndlocr-receipt FILE`（または `NDLOCR_RECEIPT`）を指定する。既存 receipt は上書きしない。これはローカルビルドの再現記録で、配布元の署名ではない。
+
+`NDLOCR_BIN` または PATH でも実行ファイルを指定できる。認識前に receipt のリリース・コミット・ONNX/release設定と実行ファイルの SHA256 を照合する。不明なビルド・別バージョン・変更されたバイナリは認識しない。検査したバイナリとモデルの bytes を読み取り専用の一時コピーにして実行する。認識時のダウンロードや Tesseract への自動再試行は行わない。
+
+`--model` は models ディレクトリ。現状の実OCR CLIは TXT を返すため、`layout_available: false` として保存し、文字座標を作らない。PDF CLIも同じ既定・receipt指定に対応し、NDLOCRでは `projection` を作らず `geometry_status: unavailable_from_engine` を記録する。原文、入力・モデル・binary・receiptのハッシュ、stdout/stderrを保存する。
+
+structure-rulesを無効にし、辞書を渡さない。検出・行confidenceは上流既定の0.25・0.3を使う。`--det-conf-threshold` / `--min-line-confidence` による明示変更は可能だが、過去の開発cropで良かった検出0.9をページ全体の既定には採用しない。
+
+[0.0.15 の固定入力検証記録](audits/ndlocr-0.0.15-20261023.json): 既存の5画像を各3回実行し、生テキストが全試行で一致。転記済みの開発用crop2件は355文字中1文字の誤り（評価時だけNFKC・空白除去）。残る全ページ画像3件には全ページ正解がなく、精度・網羅性を保証する結果ではない。PDF CLIの既定選択・receipt照合・座標なしの結果保存も実機で確認した。
+
+[旧ビルドとの比較仕様・実測結果](../../docs/ocr-engine-comparison.md)は当時のバイナリに対する結果であり、0.0.15 の測定値ではない。以下は明示選択する Tesseract の手順。
 
 Node.js 20以降を使う。実行時にネットワークからモデルを取得しない。依存と日本語モデルを先に明示的に用意する。
 
@@ -11,7 +37,7 @@ curl -fL https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/874164186
   -o /tmp/kanpo-ocr-model/jpn.traineddata
 
 # 例: 表示寸法842×595pt、288DPIで描画した3368×2380pxのPNG。
-node tools/kanpo-ocr/cli.cjs \
+node tools/kanpo-ocr/cli.cjs --engine tesseract \
   --model /tmp/kanpo-ocr-model/jpn.traineddata \
   --output /tmp/kanpo-ocr-result \
   --width-points 842 --height-points 595 --dpi 288 page.png
@@ -82,8 +108,8 @@ node tools/kanpo-ocr/project-cli.cjs \
 cargo build --release --locked -p kanpo-pdf --example image_sources
 python3 -m venv /tmp/kanpo-image-decoder
 /tmp/kanpo-image-decoder/bin/python -m pip install -r tools/kanpo-ocr/requirements.txt
-# Node依存と固定jpnモデルは上記の手順で用意する。
-node tools/kanpo-ocr/pdf-cli.cjs \
+# このTesseract例ではNode依存と固定jpnモデルを上記の手順で用意する。NDLOCRでは --engine を省略し、binary/receiptとmodelsディレクトリを指定する。
+node tools/kanpo-ocr/pdf-cli.cjs --engine tesseract \
   --extractor "$PWD/target/release/examples/image_sources" \
   --python /tmp/kanpo-image-decoder/bin/python \
   --model /tmp/kanpo-ocr-model/jpn.traineddata \
@@ -93,7 +119,7 @@ node tools/kanpo-ocr/pdf-cli.cjs \
 PDF全体のSHA256、実際に呼ばれた画像の参照・encoded stream SHA/サイズ、画素解釈に使う宣言辞書項目、デコード寸法を照合する。同じ画像が複数回描かれる場合も各描画を保持する。画像軸が表示の水平・垂直軸に正確に一致する場合は、反転・四半回転のみで向きを合わせ、画素を補間しない。せん断・斜めの画像は元の画素軸を保持し、配置行列で位置を写す。DPIは元の垂直サンプリングから整数へ丸めて一度だけ指定し、自動再試行しない。現APIが表現しない`UserUnit != 1`は失敗として記録する。
 
 - `decoded/`: 原本PDFと抽出実行ファイルのコピー、ネイティブの`sources.json`、デコード済みPNG・配置・出所receipt。receiptには元辞書/clip/gapと使用コード・デコーダ版・各ハッシュを残す。
-- `pageN-drawN-ocr/`: 既存CLIと同じ生認識結果・変更しない文字・認識経過。既定では各非白画像を固定jpn/PSM3で一度認識する。不透明な全画素が厳密に白い画像はその事実を記録して認識を省く。
+- `pageN-drawN-ocr/`: 既存CLIと同じ生認識結果・変更しない文字・認識経過。既定では各非白画像をNDLOCR 0.0.15で一度認識する。明示したTesseractでは固定jpn/PSM3を使う。不透明な全画素が厳密に白い画像はその事実を記録して認識を省く。
 - `pageN-drawN-projected.json`: 認識器が使ったPNGのSHA/サイズ・canvasがデコードしたPNGと一致することを検査した配置結果。元の文字・confidence・枠・順序を保持する。
 - `index.json` / `terminal.json`: 全描画と未取得の情報、成功/部分失敗を保持する。描画ごとのデコードや認識に失敗した場合も空の本文へ置換しない。部分失敗は終了コード2、全体の失敗は1。
 
@@ -120,7 +146,7 @@ KANPO_IMAGE_SOURCES="$PWD/target/release/examples/image_sources" \
 横書きを列の左から右へ読む前提を明示できる場合は、`--partition native-gutters-ltr`を追加する。原本由来の画像を列で分けてから認識し、全体認識で列を横断する混線を減らすためのopt-inである。
 
 ```sh
-node tools/kanpo-ocr/pdf-cli.cjs \
+node tools/kanpo-ocr/pdf-cli.cjs --engine tesseract \
   --extractor "$PWD/target/release/examples/image_sources" \
   --python /tmp/kanpo-image-decoder/bin/python \
   --model /tmp/kanpo-ocr-model/jpn.traineddata \

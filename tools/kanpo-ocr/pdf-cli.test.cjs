@@ -10,7 +10,7 @@ const {runPdf,decode}=require('./pdf-cli.cjs');
 const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
 function harness(){
   const directory=fs.mkdtempSync(path.join(os.tmpdir(),'kanpo-pdf-cli-'));
-  const options={pdf:path.join(directory,'input.pdf'),extractor:path.join(directory,'native'),python:'unused-python',model:path.join(directory,'jpn.traineddata'),output:path.join(directory,'out')};
+  const options={engine:'tesseract',pdf:path.join(directory,'input.pdf'),extractor:path.join(directory,'native'),python:'unused-python',model:path.join(directory,'jpn.traineddata'),output:path.join(directory,'out')};
   const png=Buffer.alloc(33);Buffer.from([137,80,78,71,13,10,26,10]).copy(png);png.writeUInt32BE(13,8);png.write('IHDR',12);png.writeUInt32BE(2,16);png.writeUInt32BE(3,20);
   let calls=0;
   const runtime={
@@ -36,6 +36,17 @@ test('PDF pipeline preserves uncorrected observations and source gaps through a 
   const h=harness();try{
     const out=await runPdf(h.options,h.runtime);assert.equal(h.calls(),1);assert.equal(out.kind,'unclassified_pdf_image_ocr');assert.equal(out.body_coverage_verified,false);assert.equal(out.visibility,'unverified');assert.equal(out.article_assignment,null);assert.equal(out.pages[0].capture_gaps[0].kind,'InlineImage');
     const row=out.rows[0];assert.equal(row.status,'recognized_unclassified');const projection=JSON.parse(fs.readFileSync(path.join(h.options.output,row.projection)));assert.equal(projection.text,'未知 & 償務者\n');assert.equal(projection.source_binding,'declared_unverified');assert.equal(JSON.parse(fs.readFileSync(path.join(h.options.output,'terminal.json'))).status,'complete');
+  }finally{h.clean();}
+});
+test('text-only NDLOCR preserves text without claiming a PDF projection',async()=>{
+  const h=harness();try{
+    const old=h.runtime.recognize;
+    h.runtime.recognize=async o=>{assert.equal(o.engine,'ndlocr');assert.equal(o['ndlocr-receipt'],'/configured/build.json');assert.equal(o['ndlocr-bin'],'/configured/ndlocr');const obs=await old(o);obs.layout_available=false;return obs;};
+    delete h.options.engine;h.options['ndlocr-bin']='/configured/ndlocr';h.options['ndlocr-receipt']='/configured/build.json';
+    const out=await runPdf(h.options,h.runtime);
+    assert.equal(out.rows[0].status,'recognized_unclassified');
+    assert.equal(out.rows[0].projection,undefined);
+    assert.equal(out.rows[0].geometry_status,'unavailable_from_engine');
   }finally{h.clean();}
 });
 test('exact opaque-white and failed decode occurrences remain in the index without recognition',async()=>{
