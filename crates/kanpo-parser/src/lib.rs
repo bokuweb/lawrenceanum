@@ -625,3 +625,24 @@ mod native_word_rulings;
 
 #[cfg(test)]
 mod source_frame_fences_original_tests;
+
+#[cfg(test)]
+mod enclosed_warichu_original_tests;
+
+#[cfg(test)]
+mod composed_inline_pipeline_tests;
+
+#[cfg(test)]
+mod frame_boundary_original_tests;
+
+#[cfg(test)]
+mod frame_projection_counterfactual_tests;
+
+#[cfg(test)]
+mod source_table_border_original_tests;
+
+#[cfg(test)]
+mod source_auxiliary_original_tests;
+
+#[cfg(test)]
+mod source_shared_note_original_tests;
