@@ -461,6 +461,7 @@ export const api = {
   /** 附則の構造化 (施行期日・経過措置・読替え規定)。附則の無い法令には無い。 */
   lawSupplementary: (lawId: string) => getJson<LawSupplementary>(`./laws/${lawId}/supplementary.json`),
   hanreiIndex: () => getJson<HanreiIndex>('./hanrei/index.json'),
+  hanreiLawLinks: (caseId: string | number) => getJson<HanreiLawLinks>(`./links/hanrei-to-laws/${encodeURIComponent(caseId)}.json`),
   hanreiCase: (caseId: string | number) => getJson<HanreiCase>(`./hanrei/${encodeURIComponent(caseId)}.json`),
   /** 法令 ↔ 判例 クロスリンク (判例の参照法条から抽出)。 */
   lawToHanrei: (lawId: string) => getJson<LawToHanrei>(`./links/law-to-hanrei/${lawId}.json`),
@@ -1353,3 +1354,16 @@ export type LawToPubcomments = {
   law_id: string
   linked_pubcomments: LinkedPubcomment[]
 }
+
+/** Shared version candidates used by the case view and the Wiki planner. Offsets are UTF-16. */
+export type CaseLawCitation = { field: string; law_id: string; article: string; paragraph: number | null; start: number; end: number; text: string };
+export type CaseLawReference = {
+  law_id: string; title: string; articles: string[]; wiki_path: string;
+  basis: string; evidence: { from: string; to: string; text: string }[];
+  versions: { revision_id: string; effective_date: string; body_available: boolean }[];
+  incomplete: boolean;
+};
+export type HanreiLawLinks = {
+  schema_version: number; case_id: number; notice: string; wiki_path: string;
+  citations: CaseLawCitation[]; laws: CaseLawReference[];
+};

@@ -151,35 +151,39 @@ fn bundle(
     );
     // 関連条文だけを根拠に判例の要約を作らない。
     let has_case_text = !excerpts.is_empty();
-    let mut references: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
-    for text in [
-        s("referenced_laws"),
-        s("holding"),
-        s("summary"),
-        s("body_text"),
-    ] {
-        for (law, article) in resolver.article_refs(text) {
-            references.entry(law).or_default().insert(article);
-        }
-    }
+    let resolved = linking::resolve_hanrei_laws(doc, resolver, titles, |law| {
+        source.get_json(&format!("laws/{law}/versions.json"))
+    })?;
     let mut laws = Vec::new();
-    for (law, articles) in references.into_iter().take(30) {
-        let title = titles.get(&law).map(String::as_str).unwrap_or(&law);
-        let mut info = json!({"law_id":law,"title":title,"articles":articles,"relation":"条文への言及（適用法条との同定は未確認）"});
+    for law in resolved.laws.into_iter().take(30) {
+        let mut info = serde_json::to_value(&law)?;
+        info["relation"] = json!("条文への言及（適用法条との同定は未確認）");
         if has_case_text {
-            if let Some(current) = source.get_json(&format!("laws/{law}/current.json"))? {
-                info["revision_id"] = current["revision_id"].clone();
-                let scope = format!(
-                    "配信時点 {today} の条文（版 {}）。判決当時の適用条文は未同定",
-                    current["revision_id"].as_str().unwrap_or("不明")
-                );
-                for a in current["articles"].as_array().into_iter().flatten() {
+            for version in &law.versions {
+                if !version.body_available {
+                    continue;
+                }
+                let Some(document) = source.get_json(&format!(
+                    "laws/{}/revisions/{}.json",
+                    law.law_id, version.revision_id
+                ))?
+                else {
+                    continue;
+                };
+                // A mismatched response must never become evidence for a historical version.
+                if document["revision_id"].as_str() != Some(&version.revision_id) {
+                    continue;
+                }
+                let scope = format!("法令版候補 {}（施行日 {}、選定区分 {}）。根拠: {}。適用法条・経過措置は未確認。{}", version.revision_id, version.effective_date, law.basis, law.evidence.iter().map(|e| e.text.as_str()).collect::<Vec<_>>().join(" / "), linking::HANREI_LAW_NOTICE);
+                for a in document["articles"].as_array().into_iter().flatten() {
                     let refs = resolver.article_refs(&format!(
-                        "{title}{}",
+                        "{}{}",
+                        law.title,
                         a["article_no"].as_str().unwrap_or("")
                     ));
-                    let Some((_, number)) =
-                        refs.iter().find(|(l, n)| l == &law && articles.contains(n))
+                    let Some((_, number)) = refs
+                        .iter()
+                        .find(|(l, n)| l == &law.law_id && law.articles.contains(n))
                     else {
                         continue;
                     };
@@ -190,15 +194,15 @@ fn bundle(
                         .filter_map(|p| p["text"].as_str())
                         .collect::<Vec<_>>()
                         .join("\n");
-                    let revision = current["revision_id"].as_str().unwrap_or("");
-                    let url = match revision.strip_prefix(&format!("{law}_")) {
-                        Some(version) => format!("https://laws.e-gov.go.jp/law/{law}/{version}"),
-                        None => format!("https://laws.e-gov.go.jp/law/{law}"),
-                    };
+                    let suffix = version
+                        .revision_id
+                        .strip_prefix(&format!("{}_", law.law_id))
+                        .unwrap_or(&version.revision_id);
+                    let url = format!("https://laws.e-gov.go.jp/law/{}/{}", law.law_id, suffix);
                     excerpt(
                         &mut excerpts,
                         id,
-                        &format!("law-{law}-{number}"),
+                        &format!("law-{}-{number}-{}", law.law_id, version.revision_id),
                         &url,
                         &text,
                         &scope,
@@ -246,6 +250,46 @@ fn write_page(wiki: &Path, source: &Source, bundle: &Value, first_seen: &str) ->
             rel_link(&rel, &law_page(law_id)),
             articles
         ));
+        let evidence = law["evidence"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(|v| v["text"].as_str())
+            .collect::<Vec<_>>()
+            .join(" / ");
+        let versions = law["versions"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(|v| {
+                let revision = v["revision_id"].as_str()?;
+                let suffix = revision.strip_prefix(&format!("{law_id}_"))?;
+                Some(format!(
+                    "[版候補 {}](https://laws.e-gov.go.jp/law/{law_id}/{suffix}){}",
+                    cell(revision),
+                    if v["body_available"] == false {
+                        "（本文未収録）"
+                    } else {
+                        ""
+                    }
+                ))
+            })
+            .collect::<Vec<_>>()
+            .join("、");
+        links.push(format!(
+            "{}（根拠: {}{}）",
+            if versions.is_empty() {
+                "過去版を特定できません"
+            } else {
+                &versions
+            },
+            cell(&evidence),
+            if law["incomplete"] == true {
+                " / 収録範囲に不足あり"
+            } else {
+                ""
+            }
+        ));
         laws.push(TaskLaw {
             law_id: law_id.into(),
             title: title.into(),
@@ -276,7 +320,7 @@ fn write_page(wiki: &Path, source: &Source, bundle: &Value, first_seen: &str) ->
     ] {
         page.set(k, v);
     }
-    page.body = format!("# {}\n\n{LLM_BEGIN}\n{LLM_END}\n\n<!-- lawpub:begin meta -->\n## 裁判例の情報\n\n| 項目 | 内容 |\n|---|---|\n| 事件番号 | {} |\n| 裁判所 | {} |\n| 裁判日 | {} |\n| 結果 | {} |\n| 新規取得を確認した日 | {first_seen} |\n| 収録範囲 | {} |\n| 原文 | [裁判所]({}) |\n| 関連法令 | {} |\n\n関連条文は配信時点の版であり、判決当時の適用条文は未同定です。条文への言及だけで適用法条とは確定しません。\n<!-- lawpub:end meta -->\n",cell(&title),cell(s("case_number")),cell(s("court")),cell(s("judged_on")),cell(s("result")),bundle["scope"].as_str().unwrap_or(""),s("detail_url"),links.join("、"));
+    page.body = format!("# {}\n\n{LLM_BEGIN}\n{LLM_END}\n\n<!-- lawpub:begin meta -->\n## 裁判例の情報\n\n| 項目 | 内容 |\n|---|---|\n| 事件番号 | {} |\n| 裁判所 | {} |\n| 裁判日 | {} |\n| 結果 | {} |\n| 新規取得を確認した日 | {first_seen} |\n| 収録範囲 | {} |\n| 原文 | [裁判所]({}) |\n| 関連法令 | {} |\n\n条文リンクは機械抽出した版の候補です。本文の出来事の日付・改正前の記載、なければ裁判日を参照しています。適用法条・経過措置は未確認です。過去版未収録の場合は現行版で代用しません。\n<!-- lawpub:end meta -->\n",cell(&title),cell(s("case_number")),cell(s("court")),cell(s("judged_on")),cell(s("result")),bundle["scope"].as_str().unwrap_or(""),s("detail_url"),links.join("、"));
     page.write(&path)?;
     Ok(Task {
         key: format!("hanrei:{id}"),
@@ -567,8 +611,62 @@ mod tests {
             &source.join("laws/L1/current.json"),
             &json!({"revision_id":"L1_20260401_A1","articles":[{"article_id":"a709","article_no":"第七百九条","paragraphs":[{"text":"故意又は過失によって他人の権利を侵害した者は、これによって生じた損害を賠償する責任を負う。"}]}]}),
         );
+        let current: Value =
+            serde_json::from_slice(&std::fs::read(source.join("laws/L1/current.json")).unwrap())
+                .unwrap();
+        write_json(
+            &source.join("laws/L1/revisions/L1_20260401_A1.json"),
+            &current,
+        );
+        write_json(
+            &source.join("laws/L1/versions.json"),
+            &json!({"versions":[{"revision_id":"L1_20260401_A1","effective_date":"2026-04-01","body_available":true,"path":"laws/L1/revisions/L1_20260401_A1.json"}]}),
+        );
         index(&source, &[100, 200]);
         (source, wiki, work)
+    }
+
+    #[test]
+    fn wiki_uses_the_same_version_candidates_and_never_quotes_current_as_historical() {
+        let (source, wiki, _) = fixture();
+        let src = Source::new(&source.display().to_string()).unwrap();
+        let resolver = linking::LawRefResolver::new(&[("L1".into(), "民法".into())]).unwrap();
+        let titles = BTreeMap::from([("L1".into(), "民法".into())]);
+        let doc = json!({"case_id":5,"judged_on":"令和8年10月1日","holding":"民法第709条による損害賠償請求について判断した。","detail_url":"https://www.courts.go.jp/hanrei/5/detail2/index.html","pdf_url":"https://www.courts.go.jp/a.pdf","body_text":"平成３０年４月１日付けの処分が争われた。"});
+        let history = json!({"versions":[{"revision_id":"L1_20100401_A","effective_date":"2010-04-01","body_available":true,"path":"old.json"},{"revision_id":"L1_20260401_A1","effective_date":"2026-04-01","body_available":true,"path":"new.json"}]});
+        write_json(&source.join("laws/L1/versions.json"), &history);
+        write_json(
+            &source.join("laws/L1/revisions/L1_20100401_A.json"),
+            &json!({"revision_id":"L1_20100401_A","articles":[{"article_no":"第709条","paragraphs":[{"text":"候補の過去版の条文"}]}]}),
+        );
+        let shared =
+            linking::resolve_hanrei_laws(&doc, &resolver, &titles, |_| Ok(Some(history.clone())))
+                .unwrap();
+        let b = bundle(&src, &doc, &resolver, &titles, "2026-10-24").unwrap();
+        assert_eq!(
+            b["laws"][0]["versions"],
+            serde_json::to_value(&shared.laws[0].versions).unwrap()
+        );
+        assert_eq!(
+            b["laws"][0]["evidence"],
+            serde_json::to_value(&shared.laws[0].evidence).unwrap()
+        );
+        let excerpts = b["excerpts"].as_array().unwrap();
+        assert!(excerpts.iter().any(|e| e["text"] == "候補の過去版の条文"));
+        assert!(!excerpts
+            .iter()
+            .any(|e| e["url"].as_str().unwrap_or("").contains("20260401")));
+        let mut missing = history.clone();
+        missing["versions"][0]["body_available"] = json!(false);
+        write_json(&source.join("laws/L1/versions.json"), &missing);
+        let b = bundle(&src, &doc, &resolver, &titles, "2026-10-24").unwrap();
+        assert!(!b["excerpts"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|e| e["ref"].as_str().unwrap_or("").contains("#law-")));
+        let _ = wiki;
+        std::fs::remove_dir_all(source.parent().unwrap()).unwrap();
     }
 
     #[test]
@@ -695,7 +793,7 @@ mod tests {
             .any(|e| e["scope"]
                 .as_str()
                 .unwrap()
-                .contains("判決当時の適用条文は未同定")));
+                .contains("適用法条・経過措置は未確認")));
         save_plan(&wiki, &work, &source, tasks.clone());
         finalize::run_finalize(&finalize::FinalizeArgs {
             wiki: wiki.clone(),
