@@ -1,7 +1,7 @@
 ---
 type: "bill"
 title: "国会議員の歳費、旅費及び手当等に関する法律の一部を改正する法律案"
-description: "衆法（第221回国会）: 2026-05-29 公布（法律第26号）"
+description: "議員の期末手当の支給割合を令和六年改正前の水準とする衆法。2026-05-29 成立・公布"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE28CA.htm"
 timestamp: "2026-10-18T00:10:48Z"
 date: "2026-05-29"
@@ -17,6 +17,7 @@ proposer_groups: []
 stages: [{"date":"2026-05-26","kind":"received","label":"衆議院で受理"},{"date":"2026-05-26","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-05-26","kind":"received","label":"参議院で受理"},{"date":"2026-05-28","kind":"referred","label":"参議院 議院運営に付託"},{"date":"2026-05-29","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-05-29","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-05-29","kind":"promulgated","label":"公布（法律第26号）"}]
 tags: []
 render_version: 3
+llm_latest_date: "2026-05-29"
 ---
 
 # 国会議員の歳費、旅費及び手当等に関する法律の一部を改正する法律案
@@ -24,6 +25,22 @@ render_version: 3
 ## 概要と経緯
 
 <!-- llm:begin -->
+**提出理由**: 各議院の議長、副議長及び議員が受ける期末手当の支給割合について、一定期間、令和六年改正前の特別職給与法の水準とする必要があるとされた[^1]。
+
+**主な内容**
+- 期末手当の支給割合を、令和十年七月三十一日（それまでに衆議院が解散されたときは解散の日の属する月の末日）までの間、令和六年改正前の特別職給与法の水準とする[^2]。
+- 施行期日は公布の日とする[^3]。
+
+**審議の経過**
+- 2026-05-26 衆議院で受理、同日衆議院本会議で可決（賛成: 自由民主党・無所属の会、中道改革連合・無所属、日本維新の会、国民民主党・無所属クラブ、参政党、日本共産党／反対: チームみらい）。同日参議院で受理。
+- 2026-05-28 参議院議院運営委員会に付託。
+- 2026-05-29 参議院委員会で可決、同日参議院本会議で可決。
+
+**結果**: 2026-05-29 成立、同日公布（令和八年法律第二十六号）。
+
+[^1]: [gian:221/1DE28CA#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22105010.htm) 「一定期間、令和六年改正前の特別職の職員の給与に関する法律の水準とする必要がある」
+[^2]: [gian:221/1DE28CA#outline](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/youkou/g22105010.htm) 「令和十年七月三十一日（同日までに衆議院が解散されたときは、解散の日の属する月の末日）までの間、令和六年改正前の特別職給与法の水準とする」
+[^3]: [gian:221/1DE28CA#outline](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/youkou/g22105010.htm) 「この法律は、公布の日から施行する。」
 <!-- llm:end -->
 
 <!-- lawpub:begin meta -->

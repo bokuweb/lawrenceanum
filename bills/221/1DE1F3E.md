@@ -1,7 +1,7 @@
 ---
 type: "bill"
 title: "都市再生特別措置法等の一部を改正する法律案"
-description: "閣法（第221回国会）: 2026-05-27 公布（法律第23号）"
+description: "都市再生の協定・誘導制度や景観再生事業を創設する閣法。参院で附帯決議、2026-05-27 公布"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE1F3E.htm"
 timestamp: "2026-10-18T00:10:46Z"
 date: "2026-05-27"
@@ -17,6 +17,7 @@ proposer_groups: []
 stages: [{"date":"2026-03-10","kind":"received","label":"衆議院で受理"},{"date":"2026-04-14","kind":"referred","label":"衆議院 国土交通に付託"},{"date":"2026-04-22","kind":"committee","label":"衆議院 委員会で可決"},{"date":"2026-04-23","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-04-23","kind":"received","label":"参議院で受理"},{"date":"2026-05-13","kind":"referred","label":"参議院 国土交通に付託"},{"date":"2026-05-19","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-05-20","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-05-27","kind":"promulgated","label":"公布（法律第23号）"}]
 tags: []
 render_version: 3
+llm_latest_date: "2026-05-27"
 ---
 
 # 都市再生特別措置法等の一部を改正する法律案
@@ -24,6 +25,24 @@ render_version: 3
 ## 概要と経緯
 
 <!-- llm:begin -->
+**提出理由**: 都市の魅力及び活力の向上を通じて都市の再生を図るため、新たな協定・区域・計画等の制度の創設や景観再生事業の創設などの措置を講ずる必要があるとされた[^1]。
+
+**主な内容**
+- 公共公益施設の整備及び管理に関する協定制度、地域固有の魅力の維持・向上のための措置を講ずる制度、都市機能誘導区域に誘導施設の維持に寄与する業務施設等の立地を誘導する制度を創設する[^1]。
+- 景観計画に基づいて行う景観再生事業を創設する[^2]。
+
+**審議の経過**
+- 2026-03-10 衆議院で受理。04-14 国土交通委員会に付託、04-22 委員会で可決、04-23 本会議で可決（賛成: 自由民主党・無所属の会、中道改革連合・無所属、日本維新の会、国民民主党・無所属クラブ、参政党、チームみらい／反対: 日本共産党）。
+- 2026-04-23 参議院で受理。05-13 国土交通委員会に付託、05-19 委員会で可決し附帯決議、05-20 本会議で可決。
+- 参議院国土交通委員会の附帯決議は、地方公共団体による都市行政の効果が最大限発揮できるよう支援措置の一層の拡充と柔軟な運用を求めた[^3]。また、都道府県の調整機能の明確化に伴う広域的な全体最適化に向けた支援を求めた[^4]。防災指針の見直しに資する情報提供の充実も求めた[^5]。
+
+**結果**: 2026-05-20 成立、2026-05-27 公布（令和八年法律第二十三号）。
+
+[^1]: [gian:221/1DE1F3E#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22109022.htm) 「都市の魅力及び活力の向上を通じて都市の再生を図るため」
+[^2]: [gian:221/1DE1F3E#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22109022.htm) 「景観計画に基づいて行う景観再生事業を創設し」
+[^3]: [gian:221/1DE1F3E#res-sangiin-221-f072_051902](https://www.sangiin.go.jp/japanese/gianjoho/ketsugi/current/f072_051902.pdf) 「地方公共団体による都市行政の効果が最大限発揮できるよう」
+[^4]: [gian:221/1DE1F3E#res-sangiin-221-f072_051902](https://www.sangiin.go.jp/japanese/gianjoho/ketsugi/current/f072_051902.pdf) 「都道府県による広域的見地からの全体最適化を効果的に機能させるべく」
+[^5]: [gian:221/1DE1F3E#res-sangiin-221-f072_051902](https://www.sangiin.go.jp/japanese/gianjoho/ketsugi/current/f072_051902.pdf) 「指針の検討及び見直しに関する事例集等必要な情報提供の一層の充実を図ること」
 <!-- llm:end -->
 
 <!-- lawpub:begin meta -->

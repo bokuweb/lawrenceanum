@@ -17,6 +17,7 @@ proposer_groups: []
 stages: [{"date":"2026-03-13","kind":"received","label":"衆議院で受理"},{"date":"2026-04-02","kind":"referred","label":"衆議院 内閣に付託"},{"date":"2026-04-22","kind":"committee","label":"衆議院 委員会で可決"},{"date":"2026-04-23","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-04-23","kind":"received","label":"参議院で受理"},{"date":"2026-05-08","kind":"referred","label":"参議院 内閣に付託"},{"date":"2026-05-26","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-05-27","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-06-03","kind":"promulgated","label":"公布（法律第28号）"}]
 tags: []
 render_version: 3
+llm_latest_date: "2026-06-03"
 ---
 
 # 国家情報会議設置法案
@@ -24,6 +25,21 @@ render_version: 3
 ## 概要と経緯
 
 <!-- llm:begin -->
+**提出理由**: 重要な国政の運営に資する情報の収集調査に係る活動等に関する重要事項を調査審議する機関として、内閣に国家情報会議を設置し、その所掌事務等を定める必要があるとされた[^1][^2]。
+
+**審議の経過**
+- 2026-03-13 衆議院で受理、2026-04-02 内閣に付託。
+- 2026-04-22 衆議院委員会で可決、2026-04-23 衆議院本会議で可決（賛成: 自由民主党・無所属の会、中道改革連合・無所属、日本維新の会、国民民主党・無所属クラブ、参政党、チームみらい／反対: 日本共産党）。
+- 2026-04-23 参議院で受理、2026-05-08 内閣に付託。
+- 2026-05-26 参議院内閣委員会で可決し、附帯決議。国内の政治家や選挙区、選挙に関する情報の収集を行わないこと[^3]、議事の記録の作成と公文書としての保存[^4]などを政府に求めた（決議文の抜粋は途中までで、全項目は未確認）。
+- 2026-05-27 参議院本会議で可決。
+
+**結果**: 2026-05-27 成立、2026-06-03 公布（令和八年法律第二十八号）。
+
+[^1]: [gian:221/1DE1FCA#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22109024.htm) 「我が国の重要な国政の運営に資する情報の収集調査に係る活動等に関する重要事項を調査審議する機関として」
+[^2]: [gian:221/1DE1FCA#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22109024.htm) 「内閣に国家情報会議を設置することとし、その所掌事務等に関する事項を定める必要がある。」
+[^3]: [gian:221/1DE1FCA#res-sangiin-221-f063_052601](https://www.sangiin.go.jp/japanese/gianjoho/ketsugi/current/f063_052601.pdf) 「国内の政治家や選挙区に関する情報や、選挙及び選挙運動に関する情報の収集は行わないこと。」
+[^4]: [gian:221/1DE1FCA#res-sangiin-221-f063_052601](https://www.sangiin.go.jp/japanese/gianjoho/ketsugi/current/f063_052601.pdf) 「事後に検証できるよう国家情報会議の議事の記録を作成し、配付文書とともに、公文書等の管理に係る」
 <!-- llm:end -->
 
 <!-- lawpub:begin meta -->
