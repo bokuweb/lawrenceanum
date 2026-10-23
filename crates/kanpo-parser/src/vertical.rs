@@ -504,6 +504,17 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                     .or_else(|| prev_table.then(|| rule_band_divider(&cols, page_rules, height)).flatten())
             })
             .flatten();
+        let marker_plan = (!sideways && !rotated)
+            .then(|| ruled_marker_bands::native_layout_with_axes(
+                &cols, &words, &native_bounds, &native_axes, &merged,
+                &inline_merged, page_rules, &grids,
+            ))
+            .flatten();
+        // A source-proven local pair can contradict a whole-page continuation
+        // guess. In that case keep the ordinary tier pipeline and apply only the
+        // certified local fields below; previous-page context cannot overrule them.
+        let headerless = headerless.filter(|&divider| !marker_plan.as_ref().is_some_and(|plan|
+            ruled_marker_bands::contradicts_global_divider(plan, &cols, divider)));
         if let Some(divider) = headerless {
             layout = "headerless_shinkyu";
             // 表の左に、上下の帯の境目をまたいで紙面の高さいっぱいに組まれた別記事（表の
@@ -793,6 +804,11 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             }
         }
         if !sideways && !rotated { if let Some(rules) = rules.get(pi).and_then(|r| r.as_ref()) { crate::notice_boundaries::restore_ruled_corrections(&mut units, &words, &native_styles, &native_content_styles, &native_bounds, rules, &pages); } }
+        // Certifying a local field says nothing about the following page. Keep
+        // legacy continuation state independent of this late, page-local overlay.
+        let legacy_continuation = matches!(units.last(), Some(Unit::Shinkyu { .. }));
+        let marker_members = marker_plan
+            .and_then(|plan| ruled_marker_bands::apply(&mut units, plan, &inline_merged));
         let text = units
             .iter()
             .map(Unit::text)
@@ -800,12 +816,14 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             .collect::<Vec<_>>()
             .join("\n");
         let (doc_text, tables) = doc_text_of(&units, &mut table_count);
-        prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
+        prev_table = legacy_continuation;
         prev_pairs = None;
         prev_two_columns = false;
         prev_mid = None;
         let mut regions: Vec<_> = units.into_iter().enumerate().flat_map(|(i, u)| u.regions(i)).collect();
-        enclosed_warichu::expand(&mut regions,&inline_merged,&merged);
+        enclosed_warichu::expand(
+            &mut regions, marker_members.as_deref().unwrap_or(&inline_merged), &merged,
+        );
         mark_unused(&mut words, &regions, &merged);
         pages.push(PageTrace {native_axes,native_rulings,
                 native_styles,
@@ -6549,3 +6567,6 @@ fn a_native_advance_overhang_cannot_authorize_an_outside_article() {
         assert_eq!(table.len(), 17);
     }
 }
+
+#[path = "ruled_marker_bands.rs"]
+mod ruled_marker_bands;

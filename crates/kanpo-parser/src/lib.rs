@@ -649,3 +649,9 @@ mod source_shared_note_original_tests;
 
 #[cfg(test)]
 mod source_numeric_sign_original_tests;
+
+#[cfg(test)]
+mod ruled_marker_original_tests;
+
+#[cfg(test)]
+mod ruled_marker_existing_layout_tests;

@@ -1,0 +1,906 @@
+{
+  "issue": 227,
+  "iteration": "native104",
+  "status": "adopted after required gates, complete single-page API/actualCLI and complete cross-page-state validation",
+  "baseline": {
+    "primary_native99_commit": "2fb80622a3aaa17b8cc647fa44a3771da9c093ee",
+    "published_native99_commit": "4d309f4115730e1c0b3d30010e23942e3725320f",
+    "primary_before_adoption": "2993b932d1ce2be6269a712210836d784630e56c"
+  },
+  "change": {
+    "rule": "Complete publication omission/addition/deletion markers, three collinear symmetric horizontal source rulings, unambiguous counterpart axes and complete native source occurrences prove local After/Before fields. Accept only complete contiguous Plain blocks after existing semantic restoration.",
+    "marker_grammar": "Matching paired brackets around 新設/削る/略/同上/同左, optional arbitrary-length numeric/range prefix; entire marker band, at least one addition/deletion marker, unique body-axis counterparts. Not substring matching or expected-output reconstruction.",
+    "geometry": "Original NativeBounds::Glyphs advance boxes and recorded Down axes of every transitive inline/legacy source member. Unknown/missing/shared/cyclic geometry and crossing source members are held. These are source advance boxes, not certified pixel ink.",
+    "endpoint_policy": "A horizontal-rule endpoint is not a vertical wall. Known Down source occurrences may overhang an endpoint only with every source centerline inside and no recorded vertical rule crossed. Other/unknown axes need full containment.",
+    "numeric_tolerance": "Source-rule collinearity/symmetry and inclusion use0.01times minimum original source-column width; no page-specific fixed-pt expansion, character-count/line-count/column-count cap.",
+    "preservation": "Late overlay keeps existing classified comparison units, all complete Table lines and corrected unrelated Lines; requires exact nonwhitespace character conservation before computed renderer labels. Deterministic source membership expansion only for accepted roots.",
+    "cross_page_priority": "A complete local role proof can reject a contradictory inferred whole-page divider. The old tier pipeline then runs before the local overlay. Certifying a local field does not newly enable legacy continuation guesses on the next page.",
+    "not_added": [
+      "page/company/expected-output branches",
+      "new character/line/column-count limits",
+      "character filling or dictionary correction",
+      "OCR/model inference or automatic native/OCR append"
+    ]
+  },
+  "source_review": {
+    "reviewer": "root nonblind original-image development review, not independent/blind/heldout/full-character evaluation",
+    "portable_original_PDFs": 10,
+    "changed_originals": [
+      {
+        "page": "20260731g001720089",
+        "source_pdf_sha256": "6b10a32946c013dc86e3667a9ab8b8ab8c9e7da4869ad1e2d13feda88e323c8f",
+        "source_image_sha256": "8d56aaa1363235af08c0455cda555b00af674819d4bffded809b7420228b0076",
+        "source_rectangles_pt": {
+          "upper_after": [
+            46,
+            69.5,
+            549,
+            241
+          ],
+          "upper_before": [
+            46,
+            241,
+            549,
+            412.5
+          ],
+          "lower_after": [
+            46,
+            437.5,
+            549,
+            609
+          ],
+          "lower_before": [
+            46,
+            609,
+            549,
+            780.5
+          ]
+        }
+      },
+      {
+        "page": "20260731g001720146",
+        "source_pdf_sha256": "cac8aa6e3e319664664478d5bdfd5dac450efb4a25a2a38a1c15760813c1a0c9",
+        "source_image_sha256": "5c1958f4b720f863746a413ca185219d32fe177801f1ac1e845b553991f5e31c",
+        "source_rectangles_pt": {
+          "upper_after": [
+            46,
+            69.5,
+            549,
+            425
+          ],
+          "lower_before": [
+            46,
+            425,
+            549,
+            780.5
+          ]
+        }
+      },
+      {
+        "page": "20260807g001780056",
+        "source_pdf_sha256": "656f7788241b8c30a984ed599d4e71ca88939cbbd89431167ac073399a5b425b",
+        "source_image_sha256": "0bc57a1e4ea3c2341fff6b372497169147d4b9ea5dc376d2eb18a7757874552a",
+        "source_rectangles_pt": {
+          "upper_after": [
+            46,
+            69.5,
+            549,
+            241
+          ],
+          "upper_before": [
+            46,
+            241,
+            549,
+            412.5
+          ],
+          "lower_after": [
+            46,
+            437.5,
+            549,
+            609
+          ],
+          "lower_before": [
+            46,
+            609,
+            549,
+            780.5
+          ]
+        }
+      },
+      {
+        "page": "20260807g001780057",
+        "source_pdf_sha256": "fc7b6bc0cabc426bd9ac91adf3b5e9e8d064e610afe1ce5e0a0ac0b20cb5119b",
+        "source_image_sha256": "e97752e1089c1e349ccfb2ef53c0fd3bb9060dce664a10ecf36dc034b500a6c2",
+        "source_rectangles_pt": {
+          "upper_after": [
+            46,
+            69.5,
+            549,
+            241
+          ],
+          "upper_before": [
+            46,
+            241,
+            549,
+            412.5
+          ],
+          "lower_after": [
+            46,
+            437.5,
+            549,
+            609
+          ],
+          "lower_before": [
+            46,
+            609,
+            549,
+            780.5
+          ]
+        }
+      },
+      {
+        "page": "20260821g001870003",
+        "source_pdf_sha256": "26f1c590a0ce81fcf9f54e64664a29346d5f6badc20dca249b6671c96d10201a",
+        "source_image_sha256": "c38ac472c451f22db678fb743c88ce3d37e40c4fc992c63db2c826a11fdaf6d2",
+        "source_rectangles_pt": {
+          "upper_after": [
+            46,
+            69.5,
+            549,
+            241
+          ],
+          "upper_before": [
+            46,
+            241,
+            549,
+            412.5
+          ],
+          "lower_after": [
+            46,
+            437.5,
+            549,
+            609
+          ],
+          "lower_before": [
+            46,
+            609,
+            549,
+            780.5
+          ]
+        }
+      },
+      {
+        "page": "20260821g001870004",
+        "source_pdf_sha256": "237a6f275b73e732ac56aefaa9d73da7ed3ca65637dbd92287964e8b4046b6df",
+        "source_image_sha256": "8bac758ef4f616c2a68f123a18542ed2065bfcb8041ba433c202dc029295eee5",
+        "source_rectangles_pt": {
+          "upper_after": [
+            46,
+            69.5,
+            549,
+            241
+          ],
+          "upper_before": [
+            46,
+            241,
+            549,
+            412.5
+          ],
+          "lower_after": [
+            46,
+            437.5,
+            549,
+            609
+          ],
+          "lower_before": [
+            46,
+            609,
+            549,
+            780.5
+          ]
+        }
+      },
+      {
+        "page": "20260807g001780058",
+        "source_pdf_sha256": "5ea6f35756116c65b72c3302fd56fea8eb6ce67b77ddebf4fba9dade20a9ecc5",
+        "source_image_sha256": "76b47fcd454736df1ce2ad3147b93f8196bdcdb84feccbae413b0b97a23a83df",
+        "source_rectangles_pt": {
+          "upper_after": [
+            46,
+            69.5,
+            549,
+            241
+          ],
+          "upper_before": [
+            46,
+            241,
+            549,
+            412.5
+          ],
+          "lower_after": [
+            206.5,
+            437.5,
+            549,
+            609
+          ],
+          "lower_before": [
+            206.5,
+            609,
+            549,
+            780.5
+          ],
+          "outside": [
+            46,
+            425,
+            206.5,
+            793
+          ]
+        }
+      },
+      {
+        "page": "20260731g001720088",
+        "source_pdf_sha256": "9c5d0d174e739c3d6577da65715f6ee9465e9087f9839ef3088702a3cb706998",
+        "source_image_sha256": "91ab072e59f69082dda999607811e6260c2fadc105a82cc09073a5640b9abbe9",
+        "source_rectangles_pt": {
+          "upper_after": [
+            46,
+            69.5,
+            549,
+            241
+          ],
+          "upper_before": [
+            46,
+            241,
+            549,
+            412.5
+          ],
+          "lower_after": [
+            46,
+            437.5,
+            549,
+            609
+          ],
+          "lower_before": [
+            46,
+            609,
+            549,
+            780.5
+          ]
+        }
+      }
+    ],
+    "source_used_Words": 1212,
+    "source_ordered_numeric_heads": 217,
+    "single_page_properties": {
+      "pages": 8,
+      "source_used_Words": 1212,
+      "source_ordered_numeric_heads": 217,
+      "all_direct_public_source_properties_verified": true,
+      "scope": "Direct public104 output vs frozen original image references and re-executed public99. All source roles and order checked; no source characters removed. Added field labels are computed renderer labels, not printed source glyphs. Root nonblind development review, not whole-corpus/blind/full-character accuracy.",
+      "rows": [
+        {
+          "page": "20260731g001720089",
+          "source_used_Words": 102,
+          "source_roles_field_order_unique_occurrences_and_existing_regions": true,
+          "source_numeric_head_order_count": 0,
+          "all_Word_attributes_preserved": true,
+          "all_complete_Tables_preserved": true,
+          "article_counts": [
+            1,
+            1
+          ],
+          "format": [
+            "prose",
+            "shinkyu"
+          ],
+          "layout": [
+            "tiers",
+            "tiers"
+          ],
+          "added_computed_renderer_labels_only": {
+            "改": 4,
+            "正": 4,
+            "後": 2,
+            "前": 2
+          },
+          "removed_nonwhitespace_characters": {},
+          "original_sha256": "6b10a32946c013dc86e3667a9ab8b8ab8c9e7da4869ad1e2d13feda88e323c8f",
+          "body_limit": null
+        },
+        {
+          "page": "20260731g001720146",
+          "source_used_Words": 3,
+          "source_roles_field_order_unique_occurrences_and_existing_regions": true,
+          "source_numeric_head_order_count": 0,
+          "all_Word_attributes_preserved": true,
+          "all_complete_Tables_preserved": true,
+          "article_counts": [
+            1,
+            1
+          ],
+          "format": [
+            "unknown",
+            "shinkyu"
+          ],
+          "layout": [
+            "tiers",
+            "tiers"
+          ],
+          "added_computed_renderer_labels_only": {
+            "改": 2,
+            "正": 2,
+            "後": 1,
+            "前": 1
+          },
+          "removed_nonwhitespace_characters": {},
+          "original_sha256": "cac8aa6e3e319664664478d5bdfd5dac450efb4a25a2a38a1c15760813c1a0c9",
+          "body_limit": "Only3nativeWords; application-form image body still absent."
+        },
+        {
+          "page": "20260807g001780056",
+          "source_used_Words": 243,
+          "source_roles_field_order_unique_occurrences_and_existing_regions": true,
+          "source_numeric_head_order_count": 75,
+          "all_Word_attributes_preserved": true,
+          "all_complete_Tables_preserved": true,
+          "article_counts": [
+            1,
+            1
+          ],
+          "format": [
+            "unknown",
+            "shinkyu"
+          ],
+          "layout": [
+            "tiers",
+            "tiers"
+          ],
+          "added_computed_renderer_labels_only": {
+            "改": 4,
+            "正": 4,
+            "後": 2,
+            "前": 2
+          },
+          "removed_nonwhitespace_characters": {},
+          "original_sha256": "656f7788241b8c30a984ed599d4e71ca88939cbbd89431167ac073399a5b425b",
+          "body_limit": null
+        },
+        {
+          "page": "20260807g001780057",
+          "source_used_Words": 254,
+          "source_roles_field_order_unique_occurrences_and_existing_regions": true,
+          "source_numeric_head_order_count": 77,
+          "all_Word_attributes_preserved": true,
+          "all_complete_Tables_preserved": true,
+          "article_counts": [
+            1,
+            1
+          ],
+          "format": [
+            "unknown",
+            "shinkyu"
+          ],
+          "layout": [
+            "tiers",
+            "tiers"
+          ],
+          "added_computed_renderer_labels_only": {
+            "改": 4,
+            "正": 4,
+            "後": 2,
+            "前": 2
+          },
+          "removed_nonwhitespace_characters": {},
+          "original_sha256": "fc7b6bc0cabc426bd9ac91adf3b5e9e8d064e610afe1ce5e0a0ac0b20cb5119b",
+          "body_limit": null
+        },
+        {
+          "page": "20260821g001870003",
+          "source_used_Words": 163,
+          "source_roles_field_order_unique_occurrences_and_existing_regions": true,
+          "source_numeric_head_order_count": 0,
+          "all_Word_attributes_preserved": true,
+          "all_complete_Tables_preserved": true,
+          "article_counts": [
+            1,
+            1
+          ],
+          "format": [
+            "shinkyu",
+            "shinkyu"
+          ],
+          "layout": [
+            "tiers",
+            "tiers"
+          ],
+          "added_computed_renderer_labels_only": {
+            "改": 2,
+            "正": 2,
+            "後": 1,
+            "前": 1
+          },
+          "removed_nonwhitespace_characters": {},
+          "original_sha256": "26f1c590a0ce81fcf9f54e64664a29346d5f6badc20dca249b6671c96d10201a",
+          "body_limit": null
+        },
+        {
+          "page": "20260821g001870004",
+          "source_used_Words": 117,
+          "source_roles_field_order_unique_occurrences_and_existing_regions": true,
+          "source_numeric_head_order_count": 0,
+          "all_Word_attributes_preserved": true,
+          "all_complete_Tables_preserved": true,
+          "article_counts": [
+            1,
+            1
+          ],
+          "format": [
+            "shinkyu",
+            "shinkyu"
+          ],
+          "layout": [
+            "tiers",
+            "tiers"
+          ],
+          "added_computed_renderer_labels_only": {
+            "改": 2,
+            "正": 2,
+            "後": 1,
+            "前": 1
+          },
+          "removed_nonwhitespace_characters": {},
+          "original_sha256": "237a6f275b73e732ac56aefaa9d73da7ed3ca65637dbd92287964e8b4046b6df",
+          "body_limit": null
+        },
+        {
+          "page": "20260807g001780058",
+          "source_used_Words": 233,
+          "source_roles_field_order_unique_occurrences_and_existing_regions": true,
+          "source_numeric_head_order_count": 65,
+          "all_Word_attributes_preserved": true,
+          "all_complete_Tables_preserved": true,
+          "article_counts": [
+            2,
+            2
+          ],
+          "format": [
+            "prose",
+            "shinkyu"
+          ],
+          "layout": [
+            "tiers",
+            "tiers"
+          ],
+          "added_computed_renderer_labels_only": {
+            "改": 4,
+            "正": 4,
+            "後": 2,
+            "前": 2
+          },
+          "removed_nonwhitespace_characters": {},
+          "original_sha256": "5ea6f35756116c65b72c3302fd56fea8eb6ce67b77ddebf4fba9dade20a9ecc5",
+          "body_limit": null
+        },
+        {
+          "page": "20260731g001720088",
+          "source_used_Words": 97,
+          "source_roles_field_order_unique_occurrences_and_existing_regions": true,
+          "source_numeric_head_order_count": 0,
+          "all_Word_attributes_preserved": true,
+          "all_complete_Tables_preserved": true,
+          "article_counts": [
+            1,
+            1
+          ],
+          "format": [
+            "prose",
+            "shinkyu"
+          ],
+          "layout": [
+            "tiers",
+            "tiers"
+          ],
+          "added_computed_renderer_labels_only": {
+            "改": 4,
+            "正": 4,
+            "後": 2,
+            "前": 2
+          },
+          "removed_nonwhitespace_characters": {},
+          "original_sha256": "9c5d0d174e739c3d6577da65715f6ee9465e9087f9839ef3088702a3cb706998",
+          "body_limit": null
+        }
+      ]
+    },
+    "whole_issue_properties": {
+      "pages": [
+        {
+          "page": "20260731g001720088",
+          "all_Word_attributes_preserved": true,
+          "complete_Table_counts": [
+            0,
+            0
+          ],
+          "complete_Tables_equal": true,
+          "added_computed_field_labels": {
+            "改": 4,
+            "正": 4,
+            "後": 2,
+            "前": 2
+          },
+          "removed_nonwhitespace_characters": {}
+        },
+        {
+          "page": "20260731g001720089",
+          "all_Word_attributes_preserved": true,
+          "complete_Table_counts": [
+            0,
+            0
+          ],
+          "complete_Tables_equal": true,
+          "added_computed_field_labels": {
+            "改": 4,
+            "正": 4,
+            "後": 2,
+            "前": 2
+          },
+          "removed_nonwhitespace_characters": {}
+        },
+        {
+          "page": "20260731g001720146",
+          "all_Word_attributes_preserved": true,
+          "complete_Table_counts": [
+            0,
+            0
+          ],
+          "complete_Tables_equal": true,
+          "added_computed_field_labels": {
+            "改": 2,
+            "正": 2,
+            "後": 1,
+            "前": 1
+          },
+          "removed_nonwhitespace_characters": {}
+        },
+        {
+          "page": "20260807g001780056",
+          "all_Word_attributes_preserved": true,
+          "complete_Table_counts": [
+            2,
+            0
+          ],
+          "complete_Tables_equal": false,
+          "added_computed_field_labels": {
+            "改": 2,
+            "正": 2,
+            "後": 1,
+            "前": 1
+          },
+          "removed_nonwhitespace_characters": {}
+        },
+        {
+          "page": "20260807g001780057",
+          "all_Word_attributes_preserved": true,
+          "complete_Table_counts": [
+            2,
+            0
+          ],
+          "complete_Tables_equal": false,
+          "added_computed_field_labels": {
+            "改": 2,
+            "正": 2,
+            "後": 1,
+            "前": 1
+          },
+          "removed_nonwhitespace_characters": {}
+        },
+        {
+          "page": "20260807g001780058",
+          "all_Word_attributes_preserved": true,
+          "complete_Table_counts": [
+            0,
+            0
+          ],
+          "complete_Tables_equal": true,
+          "added_computed_field_labels": {
+            "改": 4,
+            "正": 4,
+            "後": 2,
+            "前": 2
+          },
+          "removed_nonwhitespace_characters": {}
+        },
+        {
+          "page": "20260821g001870003",
+          "all_Word_attributes_preserved": true,
+          "complete_Table_counts": [
+            0,
+            0
+          ],
+          "complete_Tables_equal": true,
+          "added_computed_field_labels": {
+            "改": 2,
+            "正": 2,
+            "後": 1,
+            "前": 1
+          },
+          "removed_nonwhitespace_characters": {}
+        },
+        {
+          "page": "20260821g001870004",
+          "all_Word_attributes_preserved": true,
+          "complete_Table_counts": [
+            0,
+            0
+          ],
+          "complete_Tables_equal": true,
+          "added_computed_field_labels": {
+            "改": 2,
+            "正": 2,
+            "後": 1,
+            "前": 1
+          },
+          "removed_nonwhitespace_characters": {}
+        }
+      ],
+      "all159_issue_article_counts_preserved": true,
+      "changed_issues": [
+        {
+          "issue": "20260731g00172",
+          "pages": 304,
+          "changed": [
+            "20260731g001720088",
+            "20260731g001720089",
+            "20260731g001720146"
+          ],
+          "baseline99_complete_Analysis_sha256": "e024f3f1f27b472345400f72fa3e61562356ad1355eb85b3612c4a76beca907c",
+          "candidate104_complete_Analysis_sha256": "12de60101c7ff68319f23e9e2e5df95bae5d142929bb60ea20a00f6dc0fe504f",
+          "article_counts": [
+            155,
+            155
+          ]
+        },
+        {
+          "issue": "20260807g00178",
+          "pages": 128,
+          "changed": [
+            "20260807g001780056",
+            "20260807g001780057",
+            "20260807g001780058"
+          ],
+          "baseline99_complete_Analysis_sha256": "c9b65a1f2204322940cbb3e5126c098148d16cf8e8ed776c95d2b1330922a949",
+          "candidate104_complete_Analysis_sha256": "45aed18fab634f056c2e7508b2be7929652ac32e34109caea51642695941303a",
+          "article_counts": [
+            153,
+            153
+          ]
+        },
+        {
+          "issue": "20260821g00187",
+          "pages": 104,
+          "changed": [
+            "20260821g001870003",
+            "20260821g001870004"
+          ],
+          "baseline99_complete_Analysis_sha256": "9dbffb3a901523994ed06429a63451397cbeac2742c1df6900f0945276fb5585",
+          "candidate104_complete_Analysis_sha256": "447d9fed5652674a71cd9f96254e813e5e3cd95881623d8a0baf73101ea00974",
+          "article_counts": [
+            225,
+            225
+          ]
+        }
+      ],
+      "scope": "Whole-publication grouping is a cross-page-state stress test, not certified TOC item segmentation/Article accuracy. Two bad inferred global splits onchemical56/57create2Tables each in99; source-local roles remove those4false Tables. Other6changed pages retain all complete Tables; no source chars removed, only computedfieldlabels added."
+    },
+    "renderer_note": "Only computed 改正後/改正前 labels added; these are not printed source glyphs. No source nonwhitespace characters removed.",
+    "body_image_limit": "g1720146has only3nativeWords. Restoring their field roles does not recover the application-form bitmap body."
+  },
+  "regressions": {
+    "added_vs_native99": 44,
+    "parser_unit_passed": 1478,
+    "scope": [
+      "variable marker grammar, columns, coordinate scale/translation and source input order",
+      "complete source provenance and deterministic64membership expansions",
+      "typed endpoint overhang/crossing-rule/unknown-axis counterfactuals",
+      "overlay preserves known comparison units, Tables, corrected lines and foreign notice boundaries",
+      "8portable original source role/field/number-head order tests; two complete-Analysis existing comparison controls",
+      "8incoming comparison-context originals, real consecutivechemical56/57/58 and outgoing unrelated ordinary page control"
+    ],
+    "cross_page_RED": {
+      "passed": 14,
+      "failed": 4,
+      "ignored": 0,
+      "tests": "ruled_marker_original_tests;18tests,10newcross-page",
+      "expected_red": true,
+      "failed_tests": [
+        "consecutive_original_fields_keep_source_roles_and_order",
+        "context_20260807g001780056",
+        "context_20260807g001780057",
+        "local_field_does_not_certify_following_plain_page"
+      ],
+      "source_manifest": "public104-RED-source.json",
+      "log_sha256": "d9e754685e353a5c58474fe7c5ba4be1270dcb596b2dff4637d729d9318bf7e8"
+    },
+    "required_gates": {
+      "terminal": 0,
+      "commands": 118,
+      "attempted_commands": 134,
+      "infrastructure_only_retry_commands": 16,
+      "integration_targets": 109,
+      "result_groups": 117,
+      "passed": 2210,
+      "failed": 0,
+      "ignored": 0,
+      "all_commands_exit0": true,
+      "source_prepost_verified": true,
+      "source_manifest_sha256": "cbad0ff8ddedb72a284fd221403dee1e57c9495cf93fc261f975a69f13015272",
+      "no_expected_snapshot_updates": true,
+      "scope": "Same118-command mandatory matrix on unchanged public104source; initial16commands could not execute due disk-full link artifacts. Those16 were rebuilt and executed, original failures/logs retained."
+    },
+    "all814_snapshot_bytes_unchanged": true,
+    "expected_or_snapshot_updates": false
+  },
+  "held_attempts": {
+    "v8": "Word/Table/count conservation passed, but source review found2old comparison fields downgraded to Body; original-source tests exposed3failures including unrecovered endpoint source. Not adopted.",
+    "public103": "2200required tests and11992single-page API/CLI all passed, but an additional multi-page sequence put128sourceWords into wrong roles and created2false Tables onchemical57. Not adopted; new10cross-page regressions fail4/18before104fix.",
+    "first104_infrastructure": "16mandatory commands never executed because disk-full linking left invalid binaries; complete single-page API andactualCLI attempts also aborted by disk full. Original attempts/logs retained. Recovered only own completed artifacts with lossless verified archives; same16mandatory commands rebuilt and passed, full API andactualCLI restarted from scratch. No source changes or partial outputs reused."
+  },
+  "single_page_complete_Analysis": {
+    "terminal": 0,
+    "inputs": 11992,
+    "processed": 11992,
+    "changed": [
+      "20260731g001720088",
+      "20260731g001720089",
+      "20260731g001720146",
+      "20260807g001780056",
+      "20260807g001780057",
+      "20260807g001780058",
+      "20260821g001870004",
+      "20260821g001870003"
+    ],
+    "complete_Analysis_equal_to99": 11984,
+    "all11992_complete_Analysis_and_text_equal_public103": true,
+    "private_mismatches": [],
+    "source_inputs_reference_binary_verified": true,
+    "seconds": 690.118264792,
+    "scope": "Complete public104 Analysis on every original compared with executed/frozen public99 and final public103 hashes. Same direct serialization observer validated against serial97 on115 pages. No fields excluded; not an accuracy estimate."
+  },
+  "whole_publication_cross_page_stress": {
+    "terminals": {
+      "99": 0,
+      "104": 0
+    },
+    "issues": 159,
+    "pages": 11992,
+    "changed": [
+      "20260731g001720088",
+      "20260731g001720089",
+      "20260731g001720146",
+      "20260807g001780056",
+      "20260807g001780057",
+      "20260807g001780058",
+      "20260821g001870003",
+      "20260821g001870004"
+    ],
+    "complete_PageTrace_equal99": 11984,
+    "source_failures": [],
+    "changed_Word_attributes": [],
+    "source_inputs_reference_binaries_verified": true,
+    "seconds": 1767.645749792,
+    "scope": "Complete11992PDFs grouped in159physical issues and analyzed as multi-page items. Direct source field roles/order/head order and existing upper regions checked for8source regressions. Not article-accuracy/whole-corpus accuracy certification."
+  },
+  "cross_page_scope": "All available pages grouped by publication and physical page order. Exercises context across unrelated notices too; not certified TOC item segmentation or article correctness. All159issue article counts retained. Chemical56/57 old inferred global split created2false Tables each; source-local roles remove those4false Tables.",
+  "actual_CLI": {
+    "terminal": 0,
+    "inputs": 11992,
+    "output_count": 11992,
+    "seconds": 526.126423417,
+    "frozen_inputs_binary_and_CLI_source_verified": true,
+    "public_parser_source_verified": true
+  },
+  "actual_CLI_API_equality": {
+    "inputs": 11992,
+    "all_actual_CLI_text_sha256_equal_direct_API": true,
+    "API_manifest_sha256": "415da3e426f3c03d3afa5ec202c0b0b3b2337629031143f403f85b64a093e1b6",
+    "CLI_terminal_sha256": "3da19c7da973d9f09ac1396bc14c83bb372ec6380262490ef8817d2ff4032585",
+    "scope": "Fresh full reruns after initial disk-failure attempts. No partial outputs reused."
+  },
+  "source_and_test_file_SHA256": {
+    "crates/kanpo-parser/src/vertical.rs": "c80525011081d0a964c435346faacfccd874d7acf05785407427c0baa3716ac8",
+    "crates/kanpo-parser/src/lib.rs": "85e715c6e4031d14486eae3531f2a07bc7accc5c2d6f56f54071b9628a609143",
+    "crates/kanpo-parser/src/ruled_marker_bands.rs": "04b80d7b1d932e5360551da857995298c0f2606d480cf00bb95e19547abb5983",
+    "crates/kanpo-parser/src/ruled_marker_existing_layout_tests.rs": "5a906ea968f43e30cb67bd6e0818e85c8c84e4f37027f5a0b207137aa4aa681e",
+    "crates/kanpo-parser/src/ruled_marker_original_tests.rs": "8a08de51b778462234f9c14dd173cd0c6f813caad4c1303d8e2127841ef31bd9",
+    "crates/kanpo-parser/src/ruled_marker_overlay_tests.rs": "9dffb47d55dc553680d1810c759679fba538556610f1412c57b70c2036cc2493",
+    "crates/kanpo-parser/tests/data/ruled-marker-bands/20260724g001650782-baseline99.json": "3f5b5b22c10bf52e1b1b1a5e7e6d879e56e582e6ecc6c0a7ee8b007ae9268db6",
+    "crates/kanpo-parser/tests/data/ruled-marker-bands/20260724g001650782.pdf": "6e91780d705dc2dfa0ae4b9a7719125bab49a58ec872719ef0f04a32c9473c86",
+    "crates/kanpo-parser/tests/data/ruled-marker-bands/20260729g001690094-baseline99.json": "0d7446946f2043197d5bda69329073c4dba30b1dd8c28059b7772c7412cd7507",
+    "crates/kanpo-parser/tests/data/ruled-marker-bands/20260729g001690094.pdf": "458c2148fb6ee0902bd81651a9636d38ca1e014aba647b1c1bbbd2f15b9f2160",
+    "crates/kanpo-parser/tests/data/ruled-marker-bands/20260731g001720088.pdf": "9c5d0d174e739c3d6577da65715f6ee9465e9087f9839ef3088702a3cb706998",
+    "crates/kanpo-parser/tests/data/ruled-marker-bands/20260731g001720089.pdf": "6b10a32946c013dc86e3667a9ab8b8ab8c9e7da4869ad1e2d13feda88e323c8f",
+    "crates/kanpo-parser/tests/data/ruled-marker-bands/20260731g001720146.pdf": "cac8aa6e3e319664664478d5bdfd5dac450efb4a25a2a38a1c15760813c1a0c9",
+    "crates/kanpo-parser/tests/data/ruled-marker-bands/20260807g001780056.pdf": "656f7788241b8c30a984ed599d4e71ca88939cbbd89431167ac073399a5b425b",
+    "crates/kanpo-parser/tests/data/ruled-marker-bands/20260807g001780057.pdf": "fc7b6bc0cabc426bd9ac91adf3b5e9e8d064e610afe1ce5e0a0ac0b20cb5119b",
+    "crates/kanpo-parser/tests/data/ruled-marker-bands/20260807g001780058.pdf": "5ea6f35756116c65b72c3302fd56fea8eb6ce67b77ddebf4fba9dade20a9ecc5",
+    "crates/kanpo-parser/tests/data/ruled-marker-bands/20260821g001870003.pdf": "26f1c590a0ce81fcf9f54e64664a29346d5f6badc20dca249b6671c96d10201a",
+    "crates/kanpo-parser/tests/data/ruled-marker-bands/20260821g001870004.pdf": "237a6f275b73e732ac56aefaa9d73da7ed3ca65637dbd92287964e8b4046b6df",
+    "crates/kanpo-parser/tests/data/ruled-marker-bands/references.json": "13e34a83ea0671db50cd9eda0a23bf0673538edaf2c71d1b72847703ab149f11"
+  },
+  "evidence": {
+    ".cache/kanpo-227/resume90-local-recovery/public-source-prefreeze104.json": {
+      "sha256": "3a38beff489bdbad85dee70b08f5d6f11bda4cc404fb211264208cd6a36c18c5",
+      "bytes": 26894
+    },
+    ".cache/kanpo-227/resume90-local-recovery/public104-RED-result.json": {
+      "sha256": "5b8f40b4521e82df32da5c88d943b25ecdef35efd2c537aa85932ae4ca863be0",
+      "bytes": 485
+    },
+    ".cache/kanpo-227/resume90-local-recovery/public104-GREEN-result.json": {
+      "sha256": "280640685bb108c24857ba1d977b3f8aef9a50858e93d216ccd5982bda6bb3e8",
+      "bytes": 290
+    },
+    ".cache/kanpo-227/resume90-local-recovery/public-gates104/final-result104.json": {
+      "sha256": "ab552bb00ab0d1d0ba1ea9a78ccd2da41525e01c9e21b9f49c109a304d7417a6",
+      "bytes": 626
+    },
+    ".cache/kanpo-227/resume90-local-recovery/public-gates104/final-state104.json": {
+      "sha256": "b7aec6fad71b0c32772a705a45e0b9f072a7e96a37e2590e0c7dc5adf95f21d5",
+      "bytes": 81110
+    },
+    ".cache/kanpo-227/resume90-local-recovery/public-corpus104/result104.json": {
+      "sha256": "9bfc59ba34f8826bf9a896eb78642f07a145773cd3b192edb1f3a0157e6a8588",
+      "bytes": 746
+    },
+    ".cache/kanpo-227/resume90-local-recovery/public-corpus104/all-canonical-Analysis-hashes104.json": {
+      "sha256": "415da3e426f3c03d3afa5ec202c0b0b3b2337629031143f403f85b64a093e1b6",
+      "bytes": 2926169
+    },
+    ".cache/kanpo-227/resume90-local-recovery/whole-issues104/result104.json": {
+      "sha256": "0463c0d056ab6d4ea5f2c103e271494a8740d7313ca26b575f00d1c8e008dec0",
+      "bytes": 746
+    },
+    ".cache/kanpo-227/resume90-local-recovery/whole-issues104/all-PageTrace-hashes104.json": {
+      "sha256": "2e1c861984eb364f46aa6b3e4835dac13bf9d841992c23f50ac60187e862e50f",
+      "bytes": 3599434
+    },
+    ".cache/kanpo-227/resume90-local-recovery/whole-issues104/all-issue-Analysis-hashes104.json": {
+      "sha256": "28b170b281d061c44e33adcb198e3e49b2e9189d76ccd64b31a134dfe6e86466",
+      "bytes": 55862
+    },
+    ".cache/kanpo-227/resume90-local-recovery/CLI104/terminal104.json": {
+      "sha256": "3da19c7da973d9f09ac1396bc14c83bb372ec6380262490ef8817d2ff4032585",
+      "bytes": 188
+    },
+    ".cache/kanpo-227/resume90-local-recovery/CLI104/direct-API-text-equality104.json": {
+      "sha256": "db46ec30f17db50d8633d08b99de9726141c1e22be874feef94f9968e8b84535",
+      "bytes": 358
+    },
+    ".cache/kanpo-227/resume90-local-recovery/public-eight-source-properties104.json": {
+      "sha256": "86d37507faba2541fa2058a8045fb26c98cdf675c9ae7702a89bb65e8e0ab72a",
+      "bytes": 6659
+    },
+    ".cache/kanpo-227/resume90-local-recovery/whole-issue-eight-source-properties104.json": {
+      "sha256": "610e47dee354672a7649038c96fef09a85c94f45c6e2d2e6a9e6d7d3642bcc77",
+      "bytes": 4788
+    },
+    ".cache/kanpo-227/resume90-local-recovery/snapshot-99-103-104-byte-identity.json": {
+      "sha256": "b41c615bc08a47dfedac80a0580e89f0b92b5208a564bd4351c2658033aeb886",
+      "bytes": 152244
+    },
+    ".cache/kanpo-227/resume90-local-recovery/sequences103/corrected-result103.json": {
+      "sha256": "9934ab9a431747f0d34752f6ff0d94e19df6ce73c7e59f0ae46ba66ee072838c",
+      "bytes": 21519
+    },
+    ".cache/kanpo-227/resume90-local-recovery/sequence104-preflight-result.json": {
+      "sha256": "a05ecd9f87d03ad19565376b0f44b98875eea5fe6ca2c1267707f5314d7a57ce",
+      "bytes": 2062
+    }
+  },
+  "limits": [
+    "100%not reached; frozen30-page audits are development inputs and not rescored as improvement rates.",
+    "Image bodies, PUA and remaining source reading order/ownership problems remain.",
+    "Existing legacy heuristic conditions outside this new local proof are not all generalized.",
+    "RURI/ModernBERT not used for this geometric correction. NDLOCR remains pinned0.0.15; its raw OCR is not automatically integrated."
+  ]
+}
