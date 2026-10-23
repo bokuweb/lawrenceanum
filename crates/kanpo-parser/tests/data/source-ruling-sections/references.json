@@ -1,0 +1,51 @@
+[
+  {
+    "page": "20260731g001720151",
+    "original": "../../archive/pages/20260731g00172/20260731g001720151.pdf",
+    "PDF_sha256": "c6336da11bfdc6fa42c75c1f8884caa4cdf07fd1907c91e822e312d64ebed556",
+    "source_order_anchors": [
+      107,
+      61,
+      95,
+      96,
+      97,
+      63,
+      98,
+      99,
+      78,
+      47,
+      2,
+      34,
+      35,
+      36,
+      11,
+      37,
+      38,
+      20,
+      116,
+      103,
+      126
+    ],
+    "source_observation": "Both printed comparison halves, including their complete lower note4 blocks and final omissions, finish inside the outer bottom rule before the following full-width supplementary-provisions heading and commencement subheading. Root viewed full original source before defining this oracle.",
+    "source_oracle_timing": "Frozen before any114runtime proposal, adopted113RED confirmed.",
+    "source_review": "Root full original, non-blind development validation; not an accuracy estimate."
+  },
+  {
+    "page": "20260930g002150345",
+    "original": "20260930g002150345.pdf",
+    "PDF_sha256": "b272637a1377d275defef35443a4fb722b957e496a5101160c47889585013543",
+    "source_order_anchors": [
+      89,
+      65,
+      26,
+      2,
+      134,
+      125,
+      24
+    ],
+    "source_observation": "Root viewed the full original. Four upper-panel omissions (second and third columns in both panels) belong above the shared bottom ruling, before the printed Article 6 and its full-width amendment sentence. Adopted113 places the far-right omission between that sentence and the following comparison legend. Private114v2 moves only that omission before Article 6. All existing internal upper-panel ordering remains outside this boundary assertion.",
+    "source_oracle_timing": "Discovered during privatev2 full11992corpus. Full original independently viewed before adding this boundary assertion; runtime unchanged.",
+    "scope": "Only upper omissions vs following article boundary; existing internal upper-panel ordering is not certified.",
+    "source_review": "Root full original, non-blind development validation; not an accuracy estimate."
+  }
+]

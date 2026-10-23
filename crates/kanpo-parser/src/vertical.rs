@@ -4,7 +4,7 @@ use scraper::{Html, Selector};
 
 use crate::grid::{find_grids, Grid};
 use crate::horizontal::{
-    horizontal_lines, horizontal_lines_with_tables, is_left_strip_header, keyed_tables,
+    horizontal_lines, is_left_strip_header, keyed_tables,
     one_column_lines_with_tables, row_lines, LEFT_STRIP,
 };
 use crate::lines::PageRules;
@@ -122,6 +122,22 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         // 回転ページ（柱が左端帯にある）は、テキスト層が柱だけでも横組みとして扱う。
         if rotated || is_horizontal_page(&cols) {
             layout = "horizontal";
+            let horizontal_lines_with_tables =
+                |cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)]| {
+                    if sideways {
+                        crate::horizontal::horizontal_lines_with_tables(cols, grids, vrules, hrules)
+                    } else {
+                        crate::horizontal::horizontal_lines_with_source_tables(
+                            cols,
+                            grids,
+                            vrules,
+                            hrules,
+                            &native_bounds,
+                            &native_axes,
+                            &words,
+                        )
+                    }
+                };
             let mut pairs_here = None;
             let mut two_columns_here = false;
             let mut mid_here = None;

@@ -160,6 +160,7 @@ mod orthogonal_alternatives {
         assert!(clear_dual_row(
             &words,
             &Context {
+                source: SourceGeometry::default(),
                 vrules: &[],
                 hrules: &[],
                 tables: &[],
@@ -170,6 +171,7 @@ mod orthogonal_alternatives {
         assert!(!clear_dual_row(
             &words,
             &Context {
+                source: SourceGeometry::default(),
                 vrules: &[(190.0, 50.0, 60.0)],
                 hrules: &[],
                 tables: &[],
@@ -249,6 +251,7 @@ mod source_wall_fences {
         assert!(clear_dual_row(
             &words,
             &Context {
+                source: SourceGeometry::default(),
                 vrules: &[],
                 hrules: &[],
                 tables: &[],
@@ -259,6 +262,7 @@ mod source_wall_fences {
         assert!(!clear_dual_row(
             &words,
             &Context {
+                source: SourceGeometry::default(),
                 vrules: &[(150.0, 0.0, 100.0)],
                 hrules: &[],
                 tables: &[],
