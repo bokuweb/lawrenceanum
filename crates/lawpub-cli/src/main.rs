@@ -590,6 +590,9 @@ enum Cmd {
         /// 施行予定ごとの解説の上限 (会議・議案とは別枠)。0 で無効。
         #[arg(long, default_value_t = 5)]
         max_enforcements: usize,
+        /// 導入後に取得された判例の要約上限（別枠）。初回は既存 ID の記録のみ。
+        #[arg(long, env = "WIKI_MAX_HANREI", default_value_t = 3)]
+        max_hanrei: usize,
     },
     /// LLM が書いた後、時系列・人物・index・log を再生成し、未完了タスクを巻き戻す。
     WikiFinalize {
@@ -1175,7 +1178,7 @@ fn main() -> Result<()> {
         Cmd::LinkBillAmendments { public } => linking::run_link_bill_amendments(&public),
         Cmd::LinkLawsAndHanrei { public } => linking::run_link_hanrei(&public),
         Cmd::BuildEnforcement { public } => enforcement::run_build(&public),
-        Cmd::WikiPlan { base_url, wiki, work, max_items, max_probes, lookback_days, today, max_bills, max_pubcomments, max_kanpo, max_people, max_roster, reiki_base_url, chunk_size, max_enforcements } => {
+        Cmd::WikiPlan { base_url, wiki, work, max_items, max_probes, lookback_days, today, max_bills, max_pubcomments, max_kanpo, max_people, max_roster, reiki_base_url, chunk_size, max_enforcements, max_hanrei } => {
             wiki::plan::run_plan(&wiki::plan::PlanArgs {
                 base_url,
                 wiki,
@@ -1192,6 +1195,7 @@ fn main() -> Result<()> {
                 reiki_base_url,
                 chunk_size,
                 max_enforcements,
+                max_hanrei,
             })
         }
         Cmd::WikiFinalize { wiki, work } => wiki::finalize::run_finalize(&wiki::finalize::FinalizeArgs { wiki, work }),
@@ -1263,6 +1267,15 @@ fn main() -> Result<()> {
 #[cfg(test)]
 mod cli_tests {
     use super::*;
+
+    #[test]
+    fn wiki_plan_accepts_an_independent_hanrei_budget_including_zero() {
+        let default = parse(["lawpub", "wiki-plan"]).unwrap();
+        assert!(matches!(default.cmd, Cmd::WikiPlan { max_hanrei: 3, .. }), "既存の日次workflowでも判例を処理する");
+        for budget in ["0", "3"] {
+            assert!(parse(["lawpub", "wiki-plan", "--max-hanrei", budget]).is_ok());
+        }
+    }
 
     /// clap の derive が組み立てるコマンド定義はサブコマンドが増えると大きくなり、
     /// テストスレッドの既定スタック (2 MiB) を debug ビルドで溢れる。本番の main スレッドは

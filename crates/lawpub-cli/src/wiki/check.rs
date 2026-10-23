@@ -23,7 +23,7 @@ pub struct CheckArgs {
 }
 
 const ROOT_FILES: [&str; 3] = ["index.md", "log.md", "README.md"];
-const DIRS: [&str; 10] = ["laws/", "meetings/", "people/", "topics/", "bills/", "committees/", "parties/", "pubcomments/", "kanpo/", "enforcements/"];
+const DIRS: [&str; 11] = ["laws/", "meetings/", "people/", "topics/", "bills/", "committees/", "parties/", "pubcomments/", "kanpo/", "enforcements/", "hanrei/"];
 const MIN_QUOTE_CHARS: usize = 8;
 const MAX_QUOTE_CHARS: usize = 200;
 
@@ -56,7 +56,7 @@ fn parse_citation(rest: &str) -> Option<(String, String, String)> {
     let (url, rest) = rest.split_once(')')?;
     let rest = rest.trim();
     let quote = rest.strip_prefix('「')?.strip_suffix('」')?;
-    if !["kokkai:", "shingikai:", "gian:", "pubcomment:", "kanpo:", "enforcement:"].iter().any(|p| reference.starts_with(p)) {
+    if !["kokkai:", "shingikai:", "gian:", "pubcomment:", "kanpo:", "enforcement:", "hanrei:"].iter().any(|p| reference.starts_with(p)) {
         return None;
     }
     Some((reference.to_string(), url.to_string(), quote.to_string()))
@@ -177,6 +177,9 @@ struct Resolver<'a> {
 impl Resolver<'_> {
     fn unit(&mut self, reference: &str) -> Result<Option<Unit>> {
         let (kind, id) = reference.split_once(':').unwrap_or(("", ""));
+        if kind == hanrei::KIND {
+            return hanrei::unit(self.wiki, reference);
+        }
         if kind == KIND_KANPO {
             return kanpo_unit(self.wiki, reference);
         }
@@ -363,7 +366,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
         if ty.is_empty() {
             err(1, "OKF の必須フィールド `type` がありません".into());
         }
-        if matches!(ty, "law" | "meeting" | "person" | "topic" | "bill" | "committee" | "party" | "pubcomment" | "kanpo" | "enforcement") && page.get_str("title").is_empty()
+        if matches!(ty, "law" | "meeting" | "person" | "topic" | "bill" | "committee" | "party" | "pubcomment" | "kanpo" | "enforcement" | "hanrei") && page.get_str("title").is_empty()
         {
             err(1, "`title` がありません".into());
         }
@@ -401,7 +404,7 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
 
         let llm_text: String = llm_blocks(&page.body).concat();
         let needs_citation = match ty {
-            "meeting" | "law" | "person" | "committee" | "party" | "bill" | "pubcomment" | "kanpo" => !llm_text.trim().is_empty(),
+            "meeting" | "law" | "person" | "committee" | "party" | "bill" | "pubcomment" | "kanpo" | "hanrei" => !llm_text.trim().is_empty(),
             "topic" => true,
             _ => false,
         };
@@ -443,6 +446,15 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
             // 空の未完了ページは再生成待ち。書かれた説明は節ごとに検証する。
             if !llm_text.trim().is_empty() {
                 for message in enforcements::explanation_errors(&page) { err(1, message); }
+            }
+        }
+
+        if ty == hanrei::KIND && !llm_text.trim().is_empty() {
+            for message in hanrei::summary_errors(&page) {
+                err(1, message);
+            }
+            if !hanrei::source_matches(wiki, &page)? {
+                err(1, "判例ページの原資料・収録範囲・法令リンクが固定した資料と一致しません".into());
             }
         }
 

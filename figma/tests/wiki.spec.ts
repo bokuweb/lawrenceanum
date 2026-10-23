@@ -65,6 +65,24 @@ async function mock(page: import("@playwright/test").Page) {
   await page.route("**/wiki/page/laws/L1.json", (r) => r.fulfill({ json: LAW }));
 }
 
+test("新規判例のWikiを判例フィルターから開き関連法令へ移動する", async ({ page }) => {
+  await mock(page);
+  const entry = { path: "hanrei/5", type: "hanrei", title: "損害賠償請求事件", description: "民法709条に関する判断", date: "2026-10-24", tags: [] };
+  await page.route("**/wiki/index.json", r => r.fulfill({ json: { ...INDEX, pages: [...INDEX.pages, entry] } }));
+  await page.route("**/wiki/page/hanrei/5.json", r => r.fulfill({ json: {
+    path: entry.path, frontmatter: entry,
+    body: "# 損害賠償請求事件\n\n判示事項・裁判要旨（判決全文未収録）\n\n[関連法令](../laws/L1.md)\n",
+  } }));
+  await page.goto(new URL("#/wiki", BASE).toString());
+  await expect(page.getByRole("button", { name: /判例.*1/ })).toBeVisible();
+  await page.getByRole("tab", { name: "一覧", exact: true }).click();
+  await page.getByRole("button", { name: /損害賠償請求事件/ }).click();
+  await expect(page).toHaveURL(/#\/wiki\/hanrei\/5$/);
+  await expect(page.getByText("判示事項・裁判要旨（判決全文未収録）")).toBeVisible();
+  await page.getByRole("link", { name: "関連法令", exact: true }).click();
+  await expect(page).toHaveURL(/#\/wiki\/laws\/L1$/);
+});
+
 test("本文に会議リンクがなくても引用元へ移動でき、未収録と要約前を区別する", async ({ page }) => {
   await mock(page);
   await page.route("**/wiki/page/laws/L1.json", r => r.fulfill({ json: {

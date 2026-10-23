@@ -11,9 +11,10 @@ export const WIKI_TYPES: Record<string, { label: string; color: string }> = {
   party: { label: "会派", color: "#64748b" },
   pubcomment: { label: "パブコメ", color: "#84cc16" },
   kanpo: { label: "官報", color: "#d946ef" },
+  hanrei: { label: "判例", color: "#0f766e" },
 };
 
-export const WIKI_TYPE_ORDER = ["law", "enforcement", "topic", "committee", "party", "pubcomment", "bill", "kanpo", "meeting", "person"];
+export const WIKI_TYPE_ORDER = ["law", "hanrei", "enforcement", "topic", "committee", "party", "pubcomment", "bill", "kanpo", "meeting", "person"];
 
 /** wiki ページ (拡張子なし) からの相対リンクを、wiki ルート相対のパス (拡張子なし) に解決する。 */
 export function resolveWikiLink(from: string, href: string): string | null {

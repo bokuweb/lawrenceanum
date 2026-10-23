@@ -26,6 +26,7 @@ pub mod check;
 pub mod evidence;
 pub mod enforcements;
 pub mod export;
+pub mod hanrei;
 pub mod finalize;
 pub mod kanpo;
 pub mod person;

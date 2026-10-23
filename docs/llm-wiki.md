@@ -1,5 +1,8 @@
 # LLM wiki (OKF)
 
+2026-10-23: 導入後に新規取得する判例も対象にする。過去分は初回の基準 ID として除外する。
+判例・法令の根拠、再試行、件数上限は [hanrei-wiki.md](hanrei-wiki.md) を参照。
+
 国会会議録・審議会議事録を、法令 ID や法令名とのリンクを必須とせず、政策形成を会議から追える wiki に日次で積み上げる。
 「いつ・どの会議で・誰が・どんな立場と理由で何を述べ、どうなったか」を、根拠・未確認範囲とともに残す。
 形式は [Open Knowledge Format](https://agentic-ai.readthedocs.io/en/latest/Standards/open-knowledge-format/)
