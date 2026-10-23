@@ -753,3 +753,112 @@ fn a_line_outside_a_complete_closed_frame_cannot_make_its_root_a_prose_continuat
         "a previous line in the same enclosure cannot be discarded"
     );
 }
+
+// Outer fences do not establish a relationship between notices inside a frame.
+fn composite_fence_case() -> (PageTrace, PageRules) {
+    let mut p = empty();
+    push(&mut p, "先行文書の末尾", [20., 10., 150., 20.], 2);
+    push(&mut p, "第31期決算公告", [220., 50., 400., 60.], 1);
+    push(&mut p, "2026年7月1日", [220., 70., 400., 80.], 2);
+    push(&mut p, "AʼB株式会社", [220., 90., 400., 100.], 2);
+    push(&mut p, "代表取締役任意", [220., 110., 400., 120.], 2);
+    notice(&mut p, 190., "A,B株式会社", "2026年7月1日");
+    push(&mut p, "後続文書の先頭", [20., 300., 150., 310.], 2);
+    let mut r = PageRules::default();
+    r.enclosures = vec![[140., 40., 410., 240.]];
+    (p, r)
+}
+#[test]
+fn outer_frame_fences_preserve_unproved_issuer_values_and_existing_inner_partitions() {
+    let (p, r) = composite_fence_case();
+    assert_eq!(cuts(&p, &r), vec![1]);
+    let text = p.doc_text.clone();
+    let old = vec![
+        p.regions[0].lines[..5]
+            .iter()
+            .map(|l| l.text.clone())
+            .collect::<Vec<_>>()
+            .join("\n"),
+        p.regions[0].lines[5..]
+            .iter()
+            .map(|l| l.text.clone())
+            .collect::<Vec<_>>()
+            .join("\n"),
+    ];
+    let got = groups(&old, &text, &[p], &[Some(r)]);
+    assert_eq!(got.iter().map(Vec::len).collect::<Vec<_>>(), vec![2, 1]);
+    assert_eq!(
+        got.iter()
+            .flatten()
+            .map(|p| p.text.as_str())
+            .collect::<Vec<_>>()
+            .join("\n"),
+        text
+    );
+}
+#[test]
+fn outer_frame_fences_cannot_borrow_a_later_notices_date_or_signature() {
+    for missing in [2, 4] {
+        let (mut p, r) = composite_fence_case();
+        p.words[missing].text = "未確定".into();
+        p.words[missing].raw = "未確定".into();
+        p.regions[0].lines[missing].text = "未確定".into();
+        assert!(cuts(&p, &r).is_empty(), "missing source witness {missing}");
+    }
+}
+#[test]
+fn outer_frame_fences_require_complete_unambiguous_source_ownership() {
+    for case in 0..4 {
+        let (mut p, r) = composite_fence_case();
+        match case {
+            0 => p.words[3].x1 = 420.,
+            1 => p.regions[0].lines[3].words.push(0),
+            2 => p.regions[0].lines.swap(0, 3),
+            _ => p.native_styles[1] = None,
+        }
+        assert!(cuts(&p, &r).is_empty(), "case {case}");
+    }
+}
+#[test]
+fn outer_frame_fences_do_not_promote_nested_or_overlapping_panels() {
+    for enclosure in [[10., 0., 450., 320.], [300., 30., 440., 250.]] {
+        let (p, mut r) = composite_fence_case();
+        r.enclosures.push(enclosure);
+        assert!(cuts(&p, &r).is_empty());
+    }
+}
+#[test]
+fn quoted_composite_frame_is_not_an_independent_publication() {
+    let (mut p, r) = composite_fence_case();
+    for (i, t) in [(0, "引用「"), (10, "」引用終わり")] {
+        p.words[i].text = t.into();
+        p.words[i].raw = t.into();
+        p.regions[0].lines[i].text = t.into();
+    }
+    assert!(cuts(&p, &r).is_empty());
+}
+#[test]
+fn outer_frame_fences_do_not_depend_on_name_equivalence_font_ids_or_scale() {
+    for k in [0.0625, 1., 32.] {
+        let (mut p, mut r) = composite_fence_case();
+        for w in &mut p.words {
+            w.x0 = w.x0 * k - 70.;
+            w.x1 = w.x1 * k - 70.;
+            w.y0 = w.y0 * k + 90.;
+            w.y1 = w.y1 * k + 90.;
+        }
+        for b in &mut r.enclosures {
+            b[0] = b[0] * k - 70.;
+            b[2] = b[2] * k - 70.;
+            b[1] = b[1] * k + 90.;
+            b[3] = b[3] * k + 90.;
+        }
+        for styles in p.native_styles.iter_mut().flatten() {
+            *styles = styles
+                .iter()
+                .map(|&(f, b)| (f + 37, (f64::from_bits(b) * k as f64).to_bits()))
+                .collect();
+        }
+        assert_eq!(cuts(&p, &r), vec![1]);
+    }
+}

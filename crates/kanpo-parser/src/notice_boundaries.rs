@@ -671,12 +671,51 @@ fn attributed_table_header(
     }
     None
 }
+// A complete physical source frame can prove its publication start without
+// proving any relationship between the publications inside it. These starts only
+// refine existing partitions; they never join or reorder an internal block.
+fn frame_fences(
+    page: &PageTrace,
+    rules: &PageRules,
+    lines: &[SourceLine<'_>],
+    frames: &[OwnedFrame],
+    heads: &[Heading],
+) -> BTreeSet<usize> {
+    let mut cuts = BTreeSet::new();
+    for frame in frames {
+        // A nested panel cannot establish independence from its enclosing
+        // publication. Crossing enclosures also leave ownership ambiguous.
+        if rules.enclosures.iter().any(|&other| {
+            other != frame.rect && intersects(other, frame.rect) && !contains(frame.rect, other)
+        }) {
+            continue;
+        }
+        let Some(root) = heads.iter().find(|h| h.line == frame.first && h.authorized) else {
+            continue;
+        };
+        let end = heads
+            .iter()
+            .find(|h| h.line > root.line)
+            .map_or(frame.end, |h| h.line.min(frame.end));
+        // Witnesses stop at the next local title, even if its styles or syntax
+        // are unknown. The later notice cannot supply the first one's date.
+        if witness(page, lines, root, end, true)
+            || attributed_table_header(page, lines, root, end, frame.rect, frame.end).is_some()
+        {
+            cuts.insert(frame.first);
+            // The end of a frame does not prove that following text is a new
+            // publication. That text must supply its own independent evidence.
+        }
+    }
+    cuts
+}
 fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> Vec<usize> {
     if rules.enclosures.iter().any(|&b| !valid(b)) {
         return vec![];
     }
     let frames = owned_frames(page, rules, lines);
     let heads = headings(page, lines, &frames);
+    let fences = frame_fences(page, rules, lines, &frames, &heads);
     let mut accepted = vec![];
     let mut scope = vec![];
     for OwnedFrame {
@@ -779,6 +818,7 @@ fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> V
             cuts.insert(h.line);
         }
     }
+    cuts.extend(fences);
     cuts.extend(ruled_corrections::section_starts(page, rules, lines));
     let scopes=crate::financial_enclosures::certified_ranges(page,rules);
     cuts.retain(|&cut|!scopes.iter().any(|&(start,end)|start<cut&&cut<end));

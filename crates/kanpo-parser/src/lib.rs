@@ -622,3 +622,6 @@ mod financial_original_source_tests;
 #[cfg(test)]mod native_rule_source_order_tests;
 
 mod native_word_rulings;
+
+#[cfg(test)]
+mod source_frame_fences_original_tests;
