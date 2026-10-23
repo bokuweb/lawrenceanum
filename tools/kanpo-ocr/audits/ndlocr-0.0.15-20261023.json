@@ -1,0 +1,992 @@
+{
+  "scope": "Local integration validation of pinned NDLOCR 0.0.15. Existing nonblind development samples, not an independent accuracy estimate or proof of full-page correctness.",
+  "release": "https://github.com/bokuweb/ndlocr-lite-rs/releases/tag/0.0.15",
+  "build_receipt": {
+    "schema_version": 1,
+    "package": "ndlocr-lite-rs",
+    "version": "0.0.15",
+    "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "features": [
+      "onnx"
+    ],
+    "profile": "release",
+    "binary_sha256": "c6a27f8dfd3df75264532836890b09244401592ec19384da436512bac891a544",
+    "cargo_lock_sha256": "862a213854cce3467b7d478e63f8d08854b7631219c12815a04bcdb71cb0ad65",
+    "build_command": [
+      "cargo",
+      "build",
+      "--manifest-path",
+      "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/Cargo.toml",
+      "--target-dir",
+      "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/target",
+      "--release",
+      "--features",
+      "onnx",
+      "--locked"
+    ],
+    "source_path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs",
+    "binary_path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/target/release/ndlocr-lite-rs"
+  },
+  "build_receipt_sha256": "68254adccb9e8d7fb510ec0945123c959094e4088ce1ea9f5b3d51dca1ac4c43",
+  "runtime_environment": {
+    "NDLOCR_RECEIPT": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-build.json"
+  },
+  "recognition_settings": {
+    "det_conf_threshold": 0.25,
+    "min_line_confidence": 0.3,
+    "structure_rules": false,
+    "dictionary": null,
+    "normalization": null,
+    "retry": false
+  },
+  "report": {
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "manifest": {
+      "scope": "2 existing nonblind notice transcriptions (355 normalized chars), 3 whole source images without full-page gold",
+      "samples": [
+        {
+          "id": "first",
+          "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/ocr-comparison-20261023/first.png",
+          "sha256": "5d7a103c9ade3813ecac455103049c2ed73186b2a91d7a64665cc1077df4fc6b",
+          "width_points": 180.0,
+          "height_points": 124.8,
+          "dpi": 300,
+          "truth": "令和8年（フ）第1750号\n福岡市城南区西片江1丁目22番14号 コーポ\n広 203号\n債務者 上野 優磨\n1 決定年月日時 令和8年9月17日午後1時\n2 主文 債務者について破産手続を開始する。\n本件破産手続を廃止する。\n3 理由の要旨 破産財団をもって破産手続の費\n用を支弁するのに不足する。\n4 免責意見申述期間 令和8年11月16日まで\n福岡地方裁判所第4民事部\n"
+        },
+        {
+          "id": "numbered",
+          "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/ocr-comparison-20261023/numbered.png",
+          "sha256": "9c971147ab55660982a9f54a39beadef76bf298b857954c68696fc745623c413",
+          "width_points": 180.0,
+          "height_points": 139.68,
+          "dpi": 300,
+          "truth": "令和8年（フ）第1644号\n名古屋市中川区葛元町1丁目18番地\n債務者 小野田恵美\n1 決定年月日時 令和8年7月13日午後5時\n2 主文 債務者について破産手続を開始する。\n3 破産管財人 弁護士 福谷朋子\n4 破産債権の届出期間 令和8年8月13日まで\n5 財産状況報告集会・一般調査・廃止意見聴取・計算報告の期日 令和8年10月6日午前10時30分\n6 免責意見申述期間 令和8年9月18日まで\n名古屋地方裁判所民事第2部\n"
+        },
+        {
+          "id": "20261007g002210006",
+          "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20261007g002210006-one-pass/decoded/page0-draw0.png",
+          "sha256": "a0f34491e5394af5815cde4410e9e573595586c549e313190e9453b085add7ff",
+          "width_points": 842,
+          "height_points": 595,
+          "dpi": 300
+        },
+        {
+          "id": "20260723h017530015",
+          "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20260723h017530015-one-pass/decoded/page0-draw0.png",
+          "sha256": "3b1cc0685097b443765e37356445a59fa89dde7fb10cf6b0bd24d32c4607b75a",
+          "width_points": 842,
+          "height_points": 595,
+          "dpi": 300
+        },
+        {
+          "id": "20260724h017540022",
+          "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20260724h017540022-one-pass/decoded/page0-draw0.png",
+          "sha256": "3080e72bf45236766c85cb9d2f46541d989755bd5fdde64c9f2d5ab8fd19d30a",
+          "width_points": 842,
+          "height_points": 595,
+          "dpi": 300
+        }
+      ]
+    },
+    "repeats": 3,
+    "timing": "new process each run; includes model snapshots/loading and output; OS caches not flushed; no persistent session",
+    "normalization": "NFKC + remove whitespace (evaluation only)",
+    "results": [
+      {
+        "sample": "first",
+        "engine": "ndlocr",
+        "repeat": 0,
+        "seconds": 5.353535915957764,
+        "exit": 0,
+        "command": [
+          "node",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/tools/kanpo-ocr/cli.cjs",
+          "--engine",
+          "ndlocr",
+          "--model",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models",
+          "--ndlocr-bin",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/target/release/ndlocr-lite-rs",
+          "--output",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-five-samples/first-ndlocr-0",
+          "--width-points",
+          "180.0",
+          "--height-points",
+          "124.8",
+          "--dpi",
+          "300",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/ocr-comparison-20261023/first.png",
+          "--det-conf-threshold",
+          "0.25",
+          "--min-line-confidence",
+          "0.3"
+        ],
+        "peak_rss_bytes_time_wrapper": 697745408,
+        "prediction_sha256": "4267a1ea82275d35ef77c6d7903566751c3c7e038b440d51fb477403f5cc89f1",
+        "characters": 164,
+        "edits": 0,
+        "cer": 0.0
+      },
+      {
+        "sample": "first",
+        "engine": "ndlocr",
+        "repeat": 1,
+        "seconds": 5.067427041940391,
+        "exit": 0,
+        "command": [
+          "node",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/tools/kanpo-ocr/cli.cjs",
+          "--engine",
+          "ndlocr",
+          "--model",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models",
+          "--ndlocr-bin",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/target/release/ndlocr-lite-rs",
+          "--output",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-five-samples/first-ndlocr-1",
+          "--width-points",
+          "180.0",
+          "--height-points",
+          "124.8",
+          "--dpi",
+          "300",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/ocr-comparison-20261023/first.png",
+          "--det-conf-threshold",
+          "0.25",
+          "--min-line-confidence",
+          "0.3"
+        ],
+        "peak_rss_bytes_time_wrapper": 694747136,
+        "prediction_sha256": "4267a1ea82275d35ef77c6d7903566751c3c7e038b440d51fb477403f5cc89f1",
+        "characters": 164,
+        "edits": 0,
+        "cer": 0.0
+      },
+      {
+        "sample": "first",
+        "engine": "ndlocr",
+        "repeat": 2,
+        "seconds": 5.1788125410676,
+        "exit": 0,
+        "command": [
+          "node",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/tools/kanpo-ocr/cli.cjs",
+          "--engine",
+          "ndlocr",
+          "--model",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models",
+          "--ndlocr-bin",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/target/release/ndlocr-lite-rs",
+          "--output",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-five-samples/first-ndlocr-2",
+          "--width-points",
+          "180.0",
+          "--height-points",
+          "124.8",
+          "--dpi",
+          "300",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/ocr-comparison-20261023/first.png",
+          "--det-conf-threshold",
+          "0.25",
+          "--min-line-confidence",
+          "0.3"
+        ],
+        "peak_rss_bytes_time_wrapper": 689094656,
+        "prediction_sha256": "4267a1ea82275d35ef77c6d7903566751c3c7e038b440d51fb477403f5cc89f1",
+        "characters": 164,
+        "edits": 0,
+        "cer": 0.0
+      },
+      {
+        "sample": "numbered",
+        "engine": "ndlocr",
+        "repeat": 0,
+        "seconds": 5.455832875100896,
+        "exit": 0,
+        "command": [
+          "node",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/tools/kanpo-ocr/cli.cjs",
+          "--engine",
+          "ndlocr",
+          "--model",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models",
+          "--ndlocr-bin",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/target/release/ndlocr-lite-rs",
+          "--output",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-five-samples/numbered-ndlocr-0",
+          "--width-points",
+          "180.0",
+          "--height-points",
+          "139.68",
+          "--dpi",
+          "300",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/ocr-comparison-20261023/numbered.png",
+          "--det-conf-threshold",
+          "0.25",
+          "--min-line-confidence",
+          "0.3"
+        ],
+        "peak_rss_bytes_time_wrapper": 687456256,
+        "prediction_sha256": "48507881c8beb239b7db5b30aa421d054400bfd98b3f3b7a4e0f51ddfb9493ec",
+        "characters": 191,
+        "edits": 1,
+        "cer": 0.005235602094240838
+      },
+      {
+        "sample": "numbered",
+        "engine": "ndlocr",
+        "repeat": 1,
+        "seconds": 5.406523457961157,
+        "exit": 0,
+        "command": [
+          "node",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/tools/kanpo-ocr/cli.cjs",
+          "--engine",
+          "ndlocr",
+          "--model",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models",
+          "--ndlocr-bin",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/target/release/ndlocr-lite-rs",
+          "--output",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-five-samples/numbered-ndlocr-1",
+          "--width-points",
+          "180.0",
+          "--height-points",
+          "139.68",
+          "--dpi",
+          "300",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/ocr-comparison-20261023/numbered.png",
+          "--det-conf-threshold",
+          "0.25",
+          "--min-line-confidence",
+          "0.3"
+        ],
+        "peak_rss_bytes_time_wrapper": 677330944,
+        "prediction_sha256": "48507881c8beb239b7db5b30aa421d054400bfd98b3f3b7a4e0f51ddfb9493ec",
+        "characters": 191,
+        "edits": 1,
+        "cer": 0.005235602094240838
+      },
+      {
+        "sample": "numbered",
+        "engine": "ndlocr",
+        "repeat": 2,
+        "seconds": 5.315547958016396,
+        "exit": 0,
+        "command": [
+          "node",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/tools/kanpo-ocr/cli.cjs",
+          "--engine",
+          "ndlocr",
+          "--model",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models",
+          "--ndlocr-bin",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/target/release/ndlocr-lite-rs",
+          "--output",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-five-samples/numbered-ndlocr-2",
+          "--width-points",
+          "180.0",
+          "--height-points",
+          "139.68",
+          "--dpi",
+          "300",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/ocr-comparison-20261023/numbered.png",
+          "--det-conf-threshold",
+          "0.25",
+          "--min-line-confidence",
+          "0.3"
+        ],
+        "peak_rss_bytes_time_wrapper": 689848320,
+        "prediction_sha256": "48507881c8beb239b7db5b30aa421d054400bfd98b3f3b7a4e0f51ddfb9493ec",
+        "characters": 191,
+        "edits": 1,
+        "cer": 0.005235602094240838
+      },
+      {
+        "sample": "20261007g002210006",
+        "engine": "ndlocr",
+        "repeat": 0,
+        "seconds": 13.949124458013102,
+        "exit": 0,
+        "command": [
+          "node",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/tools/kanpo-ocr/cli.cjs",
+          "--engine",
+          "ndlocr",
+          "--model",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models",
+          "--ndlocr-bin",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/target/release/ndlocr-lite-rs",
+          "--output",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-five-samples/20261007g002210006-ndlocr-0",
+          "--width-points",
+          "842",
+          "--height-points",
+          "595",
+          "--dpi",
+          "300",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20261007g002210006-one-pass/decoded/page0-draw0.png",
+          "--det-conf-threshold",
+          "0.25",
+          "--min-line-confidence",
+          "0.3"
+        ],
+        "peak_rss_bytes_time_wrapper": 730644480,
+        "prediction_sha256": "499113a40f6563427d9f462c56df70430cce805e96fd8136742009a9ef51a26c"
+      },
+      {
+        "sample": "20261007g002210006",
+        "engine": "ndlocr",
+        "repeat": 1,
+        "seconds": 12.401947125094011,
+        "exit": 0,
+        "command": [
+          "node",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/tools/kanpo-ocr/cli.cjs",
+          "--engine",
+          "ndlocr",
+          "--model",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models",
+          "--ndlocr-bin",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/target/release/ndlocr-lite-rs",
+          "--output",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-five-samples/20261007g002210006-ndlocr-1",
+          "--width-points",
+          "842",
+          "--height-points",
+          "595",
+          "--dpi",
+          "300",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20261007g002210006-one-pass/decoded/page0-draw0.png",
+          "--det-conf-threshold",
+          "0.25",
+          "--min-line-confidence",
+          "0.3"
+        ],
+        "peak_rss_bytes_time_wrapper": 753516544,
+        "prediction_sha256": "499113a40f6563427d9f462c56df70430cce805e96fd8136742009a9ef51a26c"
+      },
+      {
+        "sample": "20261007g002210006",
+        "engine": "ndlocr",
+        "repeat": 2,
+        "seconds": 12.71831270889379,
+        "exit": 0,
+        "command": [
+          "node",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/tools/kanpo-ocr/cli.cjs",
+          "--engine",
+          "ndlocr",
+          "--model",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models",
+          "--ndlocr-bin",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/target/release/ndlocr-lite-rs",
+          "--output",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-five-samples/20261007g002210006-ndlocr-2",
+          "--width-points",
+          "842",
+          "--height-points",
+          "595",
+          "--dpi",
+          "300",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20261007g002210006-one-pass/decoded/page0-draw0.png",
+          "--det-conf-threshold",
+          "0.25",
+          "--min-line-confidence",
+          "0.3"
+        ],
+        "peak_rss_bytes_time_wrapper": 749076480,
+        "prediction_sha256": "499113a40f6563427d9f462c56df70430cce805e96fd8136742009a9ef51a26c"
+      },
+      {
+        "sample": "20260723h017530015",
+        "engine": "ndlocr",
+        "repeat": 0,
+        "seconds": 22.94536825013347,
+        "exit": 0,
+        "command": [
+          "node",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/tools/kanpo-ocr/cli.cjs",
+          "--engine",
+          "ndlocr",
+          "--model",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models",
+          "--ndlocr-bin",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/target/release/ndlocr-lite-rs",
+          "--output",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-five-samples/20260723h017530015-ndlocr-0",
+          "--width-points",
+          "842",
+          "--height-points",
+          "595",
+          "--dpi",
+          "300",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20260723h017530015-one-pass/decoded/page0-draw0.png",
+          "--det-conf-threshold",
+          "0.25",
+          "--min-line-confidence",
+          "0.3"
+        ],
+        "peak_rss_bytes_time_wrapper": 731955200,
+        "prediction_sha256": "9db27e7b41333271e94cbdd1409bc3d7a69fbc5f31bf31a4166238b232bab622"
+      },
+      {
+        "sample": "20260723h017530015",
+        "engine": "ndlocr",
+        "repeat": 1,
+        "seconds": 17.21232329099439,
+        "exit": 0,
+        "command": [
+          "node",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/tools/kanpo-ocr/cli.cjs",
+          "--engine",
+          "ndlocr",
+          "--model",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models",
+          "--ndlocr-bin",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/target/release/ndlocr-lite-rs",
+          "--output",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-five-samples/20260723h017530015-ndlocr-1",
+          "--width-points",
+          "842",
+          "--height-points",
+          "595",
+          "--dpi",
+          "300",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20260723h017530015-one-pass/decoded/page0-draw0.png",
+          "--det-conf-threshold",
+          "0.25",
+          "--min-line-confidence",
+          "0.3"
+        ],
+        "peak_rss_bytes_time_wrapper": 602275840,
+        "prediction_sha256": "9db27e7b41333271e94cbdd1409bc3d7a69fbc5f31bf31a4166238b232bab622"
+      },
+      {
+        "sample": "20260723h017530015",
+        "engine": "ndlocr",
+        "repeat": 2,
+        "seconds": 16.49565445794724,
+        "exit": 0,
+        "command": [
+          "node",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/tools/kanpo-ocr/cli.cjs",
+          "--engine",
+          "ndlocr",
+          "--model",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models",
+          "--ndlocr-bin",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/target/release/ndlocr-lite-rs",
+          "--output",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-five-samples/20260723h017530015-ndlocr-2",
+          "--width-points",
+          "842",
+          "--height-points",
+          "595",
+          "--dpi",
+          "300",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20260723h017530015-one-pass/decoded/page0-draw0.png",
+          "--det-conf-threshold",
+          "0.25",
+          "--min-line-confidence",
+          "0.3"
+        ],
+        "peak_rss_bytes_time_wrapper": 620396544,
+        "prediction_sha256": "9db27e7b41333271e94cbdd1409bc3d7a69fbc5f31bf31a4166238b232bab622"
+      },
+      {
+        "sample": "20260724h017540022",
+        "engine": "ndlocr",
+        "repeat": 0,
+        "seconds": 16.168220833176747,
+        "exit": 0,
+        "command": [
+          "node",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/tools/kanpo-ocr/cli.cjs",
+          "--engine",
+          "ndlocr",
+          "--model",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models",
+          "--ndlocr-bin",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/target/release/ndlocr-lite-rs",
+          "--output",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-five-samples/20260724h017540022-ndlocr-0",
+          "--width-points",
+          "842",
+          "--height-points",
+          "595",
+          "--dpi",
+          "300",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20260724h017540022-one-pass/decoded/page0-draw0.png",
+          "--det-conf-threshold",
+          "0.25",
+          "--min-line-confidence",
+          "0.3"
+        ],
+        "peak_rss_bytes_time_wrapper": 576651264,
+        "prediction_sha256": "d268faa3ede6c98bf21ca20c2ec1d5de2be120c49e5b6a94df0062d7eb415dc8"
+      },
+      {
+        "sample": "20260724h017540022",
+        "engine": "ndlocr",
+        "repeat": 1,
+        "seconds": 16.889405249850824,
+        "exit": 0,
+        "command": [
+          "node",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/tools/kanpo-ocr/cli.cjs",
+          "--engine",
+          "ndlocr",
+          "--model",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models",
+          "--ndlocr-bin",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/target/release/ndlocr-lite-rs",
+          "--output",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-five-samples/20260724h017540022-ndlocr-1",
+          "--width-points",
+          "842",
+          "--height-points",
+          "595",
+          "--dpi",
+          "300",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20260724h017540022-one-pass/decoded/page0-draw0.png",
+          "--det-conf-threshold",
+          "0.25",
+          "--min-line-confidence",
+          "0.3"
+        ],
+        "peak_rss_bytes_time_wrapper": 625262592,
+        "prediction_sha256": "d268faa3ede6c98bf21ca20c2ec1d5de2be120c49e5b6a94df0062d7eb415dc8"
+      },
+      {
+        "sample": "20260724h017540022",
+        "engine": "ndlocr",
+        "repeat": 2,
+        "seconds": 19.546810624888167,
+        "exit": 0,
+        "command": [
+          "node",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/tools/kanpo-ocr/cli.cjs",
+          "--engine",
+          "ndlocr",
+          "--model",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models",
+          "--ndlocr-bin",
+          "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/target/release/ndlocr-lite-rs",
+          "--output",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-five-samples/20260724h017540022-ndlocr-2",
+          "--width-points",
+          "842",
+          "--height-points",
+          "595",
+          "--dpi",
+          "300",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20260724h017540022-one-pass/decoded/page0-draw0.png",
+          "--det-conf-threshold",
+          "0.25",
+          "--min-line-confidence",
+          "0.3"
+        ],
+        "peak_rss_bytes_time_wrapper": 602226688,
+        "prediction_sha256": "d268faa3ede6c98bf21ca20c2ec1d5de2be120c49e5b6a94df0062d7eb415dc8"
+      }
+    ],
+    "summary": [
+      {
+        "sample": "first",
+        "engine": "ndlocr",
+        "first_seconds": 5.353535915957764,
+        "median_seconds": 5.1788125410676,
+        "repeat_median_seconds": 5.123119791503996,
+        "deterministic_text": true,
+        "characters": 164,
+        "edits": 0,
+        "cer": 0.0
+      },
+      {
+        "sample": "numbered",
+        "engine": "ndlocr",
+        "first_seconds": 5.455832875100896,
+        "median_seconds": 5.406523457961157,
+        "repeat_median_seconds": 5.361035707988776,
+        "deterministic_text": true,
+        "characters": 191,
+        "edits": 1,
+        "cer": 0.005235602094240838
+      },
+      {
+        "sample": "20261007g002210006",
+        "engine": "ndlocr",
+        "first_seconds": 13.949124458013102,
+        "median_seconds": 12.71831270889379,
+        "repeat_median_seconds": 12.560129916993901,
+        "deterministic_text": true
+      },
+      {
+        "sample": "20260723h017530015",
+        "engine": "ndlocr",
+        "first_seconds": 22.94536825013347,
+        "median_seconds": 17.21232329099439,
+        "repeat_median_seconds": 16.853988874470815,
+        "deterministic_text": true
+      },
+      {
+        "sample": "20260724h017540022",
+        "engine": "ndlocr",
+        "first_seconds": 16.168220833176747,
+        "median_seconds": 16.889405249850824,
+        "repeat_median_seconds": 18.218107937369496,
+        "deterministic_text": true
+      }
+    ]
+  },
+  "source_observations": [
+    {
+      "sample": "first",
+      "input": {
+        "id": "first",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/ocr-comparison-20261023/first.png",
+        "sha256": "5d7a103c9ade3813ecac455103049c2ed73186b2a91d7a64665cc1077df4fc6b",
+        "width_points": 180.0,
+        "height_points": 124.8,
+        "dpi": 300,
+        "truth": "令和8年（フ）第1750号\n福岡市城南区西片江1丁目22番14号 コーポ\n広 203号\n債務者 上野 優磨\n1 決定年月日時 令和8年9月17日午後1時\n2 主文 債務者について破産手続を開始する。\n本件破産手続を廃止する。\n3 理由の要旨 破産財団をもって破産手続の費\n用を支弁するのに不足する。\n4 免責意見申述期間 令和8年11月16日まで\n福岡地方裁判所第4民事部\n"
+      },
+      "source": {
+        "image": {
+          "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/ocr-comparison-20261023/first.png",
+          "sha256": "5d7a103c9ade3813ecac455103049c2ed73186b2a91d7a64665cc1077df4fc6b",
+          "bytes": 15241
+        },
+        "models": [
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/deim-s-1024x1024.onnx",
+            "sha256": "c156ce0c4e704bc3bf7e4016d0a87b949cffa8b3724f4b4cc696b8284c3c7373",
+            "bytes": 40256763
+          },
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/parseq-ndl-24x768-100-tiny-153epoch-tegaki3-r8data-202604.onnx",
+            "sha256": "06462b0dbd5b0b8508545c8c3d485cf20dbf4ffa652fe145e69c9e7457080602",
+            "bytes": 42588187
+          },
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/parseq-ndl-24x256-30-tiny-189epoch-tegaki3-r8data-202604.onnx",
+            "sha256": "9e651bae4c1a4d5254da1127e86e82e21ef62d5339b37e62d4a3d3d30831772d",
+            "bytes": 36457393
+          },
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/parseq-ndl-24x384-50-tiny-300epoch-tegaki3-r8data-202604.onnx",
+            "sha256": "49cea9db4552f19eb05c8ee202fcf74714977749b2f4c9376b127fde41b07a99",
+            "bytes": 37808553
+          },
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/NDLmoji.yaml",
+            "sha256": "f6ad5a2de444b495155866af811cf1a98309dcae3225db802767ea531a2dc529",
+            "bytes": 42434
+          }
+        ],
+        "engine": {
+          "package": "ndlocr-lite-rs",
+          "binary": "/Users/bokuweb/Library/Caches/mbx/targets/v1/94d83282ed2e94b9c1c993ce534f658c42c61ae5a65235653883be27020cf792/release/ndlocr-lite-rs",
+          "version": "0.0.15",
+          "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+          "build_receipt_sha256": "68254adccb9e8d7fb510ec0945123c959094e4088ce1ea9f5b3d51dca1ac4c43",
+          "build_receipt_path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-build.json",
+          "sha256": "c6a27f8dfd3df75264532836890b09244401592ec19384da436512bac891a544"
+        },
+        "tool_sha256": "899f023695f3c7474d5fff7906229011e006c08a3a38b4f4539cf0c404f5fe65"
+      },
+      "raw_text": "tools/kanpo-ocr/audits/ndlocr-0.0.15-20261023/first.txt",
+      "raw_text_sha256": "4267a1ea82275d35ef77c6d7903566751c3c7e038b440d51fb477403f5cc89f1",
+      "layout_available": false,
+      "text_characters": 174
+    },
+    {
+      "sample": "numbered",
+      "input": {
+        "id": "numbered",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/ocr-comparison-20261023/numbered.png",
+        "sha256": "9c971147ab55660982a9f54a39beadef76bf298b857954c68696fc745623c413",
+        "width_points": 180.0,
+        "height_points": 139.68,
+        "dpi": 300,
+        "truth": "令和8年（フ）第1644号\n名古屋市中川区葛元町1丁目18番地\n債務者 小野田恵美\n1 決定年月日時 令和8年7月13日午後5時\n2 主文 債務者について破産手続を開始する。\n3 破産管財人 弁護士 福谷朋子\n4 破産債権の届出期間 令和8年8月13日まで\n5 財産状況報告集会・一般調査・廃止意見聴取・計算報告の期日 令和8年10月6日午前10時30分\n6 免責意見申述期間 令和8年9月18日まで\n名古屋地方裁判所民事第2部\n"
+      },
+      "source": {
+        "image": {
+          "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/ocr-comparison-20261023/numbered.png",
+          "sha256": "9c971147ab55660982a9f54a39beadef76bf298b857954c68696fc745623c413",
+          "bytes": 17843
+        },
+        "models": [
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/deim-s-1024x1024.onnx",
+            "sha256": "c156ce0c4e704bc3bf7e4016d0a87b949cffa8b3724f4b4cc696b8284c3c7373",
+            "bytes": 40256763
+          },
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/parseq-ndl-24x768-100-tiny-153epoch-tegaki3-r8data-202604.onnx",
+            "sha256": "06462b0dbd5b0b8508545c8c3d485cf20dbf4ffa652fe145e69c9e7457080602",
+            "bytes": 42588187
+          },
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/parseq-ndl-24x256-30-tiny-189epoch-tegaki3-r8data-202604.onnx",
+            "sha256": "9e651bae4c1a4d5254da1127e86e82e21ef62d5339b37e62d4a3d3d30831772d",
+            "bytes": 36457393
+          },
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/parseq-ndl-24x384-50-tiny-300epoch-tegaki3-r8data-202604.onnx",
+            "sha256": "49cea9db4552f19eb05c8ee202fcf74714977749b2f4c9376b127fde41b07a99",
+            "bytes": 37808553
+          },
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/NDLmoji.yaml",
+            "sha256": "f6ad5a2de444b495155866af811cf1a98309dcae3225db802767ea531a2dc529",
+            "bytes": 42434
+          }
+        ],
+        "engine": {
+          "package": "ndlocr-lite-rs",
+          "binary": "/Users/bokuweb/Library/Caches/mbx/targets/v1/94d83282ed2e94b9c1c993ce534f658c42c61ae5a65235653883be27020cf792/release/ndlocr-lite-rs",
+          "version": "0.0.15",
+          "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+          "build_receipt_sha256": "68254adccb9e8d7fb510ec0945123c959094e4088ce1ea9f5b3d51dca1ac4c43",
+          "build_receipt_path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-build.json",
+          "sha256": "c6a27f8dfd3df75264532836890b09244401592ec19384da436512bac891a544"
+        },
+        "tool_sha256": "899f023695f3c7474d5fff7906229011e006c08a3a38b4f4539cf0c404f5fe65"
+      },
+      "raw_text": "tools/kanpo-ocr/audits/ndlocr-0.0.15-20261023/numbered.txt",
+      "raw_text_sha256": "48507881c8beb239b7db5b30aa421d054400bfd98b3f3b7a4e0f51ddfb9493ec",
+      "layout_available": false,
+      "text_characters": 202
+    },
+    {
+      "sample": "20261007g002210006",
+      "input": {
+        "id": "20261007g002210006",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20261007g002210006-one-pass/decoded/page0-draw0.png",
+        "sha256": "a0f34491e5394af5815cde4410e9e573595586c549e313190e9453b085add7ff",
+        "width_points": 842,
+        "height_points": 595,
+        "dpi": 300
+      },
+      "source": {
+        "image": {
+          "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20261007g002210006-one-pass/decoded/page0-draw0.png",
+          "sha256": "a0f34491e5394af5815cde4410e9e573595586c549e313190e9453b085add7ff",
+          "bytes": 261861
+        },
+        "models": [
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/deim-s-1024x1024.onnx",
+            "sha256": "c156ce0c4e704bc3bf7e4016d0a87b949cffa8b3724f4b4cc696b8284c3c7373",
+            "bytes": 40256763
+          },
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/parseq-ndl-24x768-100-tiny-153epoch-tegaki3-r8data-202604.onnx",
+            "sha256": "06462b0dbd5b0b8508545c8c3d485cf20dbf4ffa652fe145e69c9e7457080602",
+            "bytes": 42588187
+          },
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/parseq-ndl-24x256-30-tiny-189epoch-tegaki3-r8data-202604.onnx",
+            "sha256": "9e651bae4c1a4d5254da1127e86e82e21ef62d5339b37e62d4a3d3d30831772d",
+            "bytes": 36457393
+          },
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/parseq-ndl-24x384-50-tiny-300epoch-tegaki3-r8data-202604.onnx",
+            "sha256": "49cea9db4552f19eb05c8ee202fcf74714977749b2f4c9376b127fde41b07a99",
+            "bytes": 37808553
+          },
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/NDLmoji.yaml",
+            "sha256": "f6ad5a2de444b495155866af811cf1a98309dcae3225db802767ea531a2dc529",
+            "bytes": 42434
+          }
+        ],
+        "engine": {
+          "package": "ndlocr-lite-rs",
+          "binary": "/Users/bokuweb/Library/Caches/mbx/targets/v1/94d83282ed2e94b9c1c993ce534f658c42c61ae5a65235653883be27020cf792/release/ndlocr-lite-rs",
+          "version": "0.0.15",
+          "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+          "build_receipt_sha256": "68254adccb9e8d7fb510ec0945123c959094e4088ce1ea9f5b3d51dca1ac4c43",
+          "build_receipt_path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-build.json",
+          "sha256": "c6a27f8dfd3df75264532836890b09244401592ec19384da436512bac891a544"
+        },
+        "tool_sha256": "899f023695f3c7474d5fff7906229011e006c08a3a38b4f4539cf0c404f5fe65"
+      },
+      "raw_text": "tools/kanpo-ocr/audits/ndlocr-0.0.15-20261023/20261007g002210006.txt",
+      "raw_text_sha256": "499113a40f6563427d9f462c56df70430cce805e96fd8136742009a9ef51a26c",
+      "layout_available": false,
+      "text_characters": 3027
+    },
+    {
+      "sample": "20260723h017530015",
+      "input": {
+        "id": "20260723h017530015",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20260723h017530015-one-pass/decoded/page0-draw0.png",
+        "sha256": "3b1cc0685097b443765e37356445a59fa89dde7fb10cf6b0bd24d32c4607b75a",
+        "width_points": 842,
+        "height_points": 595,
+        "dpi": 300
+      },
+      "source": {
+        "image": {
+          "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20260723h017530015-one-pass/decoded/page0-draw0.png",
+          "sha256": "3b1cc0685097b443765e37356445a59fa89dde7fb10cf6b0bd24d32c4607b75a",
+          "bytes": 258111
+        },
+        "models": [
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/deim-s-1024x1024.onnx",
+            "sha256": "c156ce0c4e704bc3bf7e4016d0a87b949cffa8b3724f4b4cc696b8284c3c7373",
+            "bytes": 40256763
+          },
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/parseq-ndl-24x768-100-tiny-153epoch-tegaki3-r8data-202604.onnx",
+            "sha256": "06462b0dbd5b0b8508545c8c3d485cf20dbf4ffa652fe145e69c9e7457080602",
+            "bytes": 42588187
+          },
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/parseq-ndl-24x256-30-tiny-189epoch-tegaki3-r8data-202604.onnx",
+            "sha256": "9e651bae4c1a4d5254da1127e86e82e21ef62d5339b37e62d4a3d3d30831772d",
+            "bytes": 36457393
+          },
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/parseq-ndl-24x384-50-tiny-300epoch-tegaki3-r8data-202604.onnx",
+            "sha256": "49cea9db4552f19eb05c8ee202fcf74714977749b2f4c9376b127fde41b07a99",
+            "bytes": 37808553
+          },
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/NDLmoji.yaml",
+            "sha256": "f6ad5a2de444b495155866af811cf1a98309dcae3225db802767ea531a2dc529",
+            "bytes": 42434
+          }
+        ],
+        "engine": {
+          "package": "ndlocr-lite-rs",
+          "binary": "/Users/bokuweb/Library/Caches/mbx/targets/v1/94d83282ed2e94b9c1c993ce534f658c42c61ae5a65235653883be27020cf792/release/ndlocr-lite-rs",
+          "version": "0.0.15",
+          "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+          "build_receipt_sha256": "68254adccb9e8d7fb510ec0945123c959094e4088ce1ea9f5b3d51dca1ac4c43",
+          "build_receipt_path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-build.json",
+          "sha256": "c6a27f8dfd3df75264532836890b09244401592ec19384da436512bac891a544"
+        },
+        "tool_sha256": "899f023695f3c7474d5fff7906229011e006c08a3a38b4f4539cf0c404f5fe65"
+      },
+      "raw_text": "tools/kanpo-ocr/audits/ndlocr-0.0.15-20261023/20260723h017530015.txt",
+      "raw_text_sha256": "9db27e7b41333271e94cbdd1409bc3d7a69fbc5f31bf31a4166238b232bab622",
+      "layout_available": false,
+      "text_characters": 3013
+    },
+    {
+      "sample": "20260724h017540022",
+      "input": {
+        "id": "20260724h017540022",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20260724h017540022-one-pass/decoded/page0-draw0.png",
+        "sha256": "3080e72bf45236766c85cb9d2f46541d989755bd5fdde64c9f2d5ab8fd19d30a",
+        "width_points": 842,
+        "height_points": 595,
+        "dpi": 300
+      },
+      "source": {
+        "image": {
+          "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20260724h017540022-one-pass/decoded/page0-draw0.png",
+          "sha256": "3080e72bf45236766c85cb9d2f46541d989755bd5fdde64c9f2d5ab8fd19d30a",
+          "bytes": 213548
+        },
+        "models": [
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/deim-s-1024x1024.onnx",
+            "sha256": "c156ce0c4e704bc3bf7e4016d0a87b949cffa8b3724f4b4cc696b8284c3c7373",
+            "bytes": 40256763
+          },
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/parseq-ndl-24x768-100-tiny-153epoch-tegaki3-r8data-202604.onnx",
+            "sha256": "06462b0dbd5b0b8508545c8c3d485cf20dbf4ffa652fe145e69c9e7457080602",
+            "bytes": 42588187
+          },
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/parseq-ndl-24x256-30-tiny-189epoch-tegaki3-r8data-202604.onnx",
+            "sha256": "9e651bae4c1a4d5254da1127e86e82e21ef62d5339b37e62d4a3d3d30831772d",
+            "bytes": 36457393
+          },
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/parseq-ndl-24x384-50-tiny-300epoch-tegaki3-r8data-202604.onnx",
+            "sha256": "49cea9db4552f19eb05c8ee202fcf74714977749b2f4c9376b127fde41b07a99",
+            "bytes": 37808553
+          },
+          {
+            "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/NDLmoji.yaml",
+            "sha256": "f6ad5a2de444b495155866af811cf1a98309dcae3225db802767ea531a2dc529",
+            "bytes": 42434
+          }
+        ],
+        "engine": {
+          "package": "ndlocr-lite-rs",
+          "binary": "/Users/bokuweb/Library/Caches/mbx/targets/v1/94d83282ed2e94b9c1c993ce534f658c42c61ae5a65235653883be27020cf792/release/ndlocr-lite-rs",
+          "version": "0.0.15",
+          "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+          "build_receipt_sha256": "68254adccb9e8d7fb510ec0945123c959094e4088ce1ea9f5b3d51dca1ac4c43",
+          "build_receipt_path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-0.0.15-build.json",
+          "sha256": "c6a27f8dfd3df75264532836890b09244401592ec19384da436512bac891a544"
+        },
+        "tool_sha256": "899f023695f3c7474d5fff7906229011e006c08a3a38b4f4539cf0c404f5fe65"
+      },
+      "raw_text": "tools/kanpo-ocr/audits/ndlocr-0.0.15-20261023/20260724h017540022.txt",
+      "raw_text_sha256": "d268faa3ede6c98bf21ca20c2ec1d5de2be120c49e5b6a94df0062d7eb415dc8",
+      "layout_available": false,
+      "text_characters": 2718
+    }
+  ],
+  "pdf_default_engine_integration": {
+    "inputs": {
+      "engine": "ndlocr",
+      "pdf_path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/crates/kanpo-pdf/src/image-source-fixtures/20261007g002210006.pdf",
+      "extractor_path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/source-financial69/source-ruling70/OCR-contracts84/image-sources84",
+      "python": "/Users/bokuweb/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "model_path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models",
+      "tool_sha256": "3c436e8093e2381d1af7b624d54afd22c08e0c3ea040facde5fa09f08c9f7847",
+      "binding_sha256": "5652b731abba7d3811d62b06b7fcd02742d6f50a7f866ba10d159ea25e99cc7a",
+      "recognition_partition": "none",
+      "normalization": null,
+      "confidence_filter": 0.3,
+      "canonical_integration": false
+    },
+    "terminal": {
+      "status": "complete",
+      "recognition_requests": 1,
+      "recognition_retry": false,
+      "canonical_integration": false
+    },
+    "row": {
+      "page": 0,
+      "draw": 0,
+      "status": "recognized_unclassified",
+      "PNG": "page0-draw0.png",
+      "placement": "page0-draw0.placement.json",
+      "receipt": "page0-draw0.receipt.json",
+      "receipt_sha256": "e58096904ee8f4d07dcdbc4ddfc09fd0560291d4ae5ffbe0882d38f7cf5232e2",
+      "decoded_opaque_white": false,
+      "width_points": 842,
+      "height_points": 595,
+      "dpi": 300,
+      "observations": "page0-draw0-ocr/observations.json",
+      "geometry_status": "unavailable_from_engine"
+    },
+    "recognized_text_matches_same_full_image_run": true,
+    "canonical_integration": false
+  },
+  "tests": {
+    "node_tests_passed": 105,
+    "failed": 0,
+    "log_sha256": "a9147573799afe02795caeccb72b4309649f6fc1c7564f0dc7d37b735a80b2ee",
+    "initial_red_log_sha256": "7ecdbaecf3bd24fa8e26de3a47aadffc896ae1fed30632378f21a9fb2c85e278"
+  },
+  "limitations": [
+    "Only two development crops (355 normalized reference characters) have gold in this local comparison.",
+    "Three whole-page images have no full-page reference here; output identity and text volume do not establish correctness or complete coverage.",
+    "OCR coordinates, article assignment and canonical native integration remain unavailable.",
+    "Local build receipt records provenance; it is not a signed upstream binary attestation."
+  ]
+}

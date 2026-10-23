@@ -1,0 +1,32 @@
+{
+  "ndlocr_commit": "0ba1c0007c12c91f2527d40a9033ca7815d18795",
+  "method": "Read-only probe of existing release rlib; detect_rgb_u8 at threshold 0, count line_* above each threshold; invoke the same public fallback_line_detections_from_bands as CLI with 220,25,45; fallback band boxes are before downstream filtering/context/recognition",
+  "source": "use std::path::Path;\nfn main() {\n    let args: Vec<String> = std::env::args().collect();\n    let img = ndlocr_lite_rs::io::load_rgb_u8(Path::new(&args[2])).unwrap();\n    let dets = ndlocr_lite_rs::infer::deim::detect_rgb_u8(Path::new(&args[1]), &img.data, img.width, img.height, 0.0).unwrap();\n    let lines: Vec<_> = dets.iter().filter(|d| d.class_name.starts_with(\"line_\")).collect();\n    println!(\"image\\t{}\\t{}x{}\", args[2], img.width, img.height);\n    let bands = ndlocr_lite_rs::app::fallback_line_detections_from_bands(&img.data, img.width, img.height, 220, 25, 45);\n    println!(\"fallback_bands\\t{}\", bands.len());\n    for d in bands {println!(\"band\\t{:?}\", d.box_xyxy);}\n    for threshold in [0.25_f32, 0.5, 0.75, 0.9, 0.95] {\n        let accepted: Vec<_> = lines.iter().filter(|d| d.confidence > threshold).collect();\n        println!(\"threshold\\t{}\\tlines\\t{}\\tfallback\\t{}\", threshold, accepted.len(), accepted.is_empty());\n        if threshold == 0.9 {\n            for d in accepted {println!(\"retained\\t{}\\t{}\\t{:?}\", d.class_name, d.confidence, d.box_xyxy);}\n        }\n    }\n}\n",
+  "runs": [
+    {
+      "sample": "first",
+      "stdout": "image\t/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/ocr-comparison-20261023/first.png\t750x520\nfallback_bands\t11\nband\t[7, 22, 433, 54]\nband\t[42, 68, 703, 100]\nband\t[40, 116, 183, 144]\nband\t[41, 160, 337, 192]\nband\t[17, 206, 703, 238]\nband\t[12, 252, 715, 284]\nband\t[177, 297, 549, 329]\nband\t[12, 343, 736, 375]\nband\t[42, 389, 449, 421]\nband\t[21, 435, 702, 467]\nband\t[308, 481, 704, 513]\nthreshold\t0.25\tlines\t30\tfallback\tfalse\nthreshold\t0.5\tlines\t12\tfallback\tfalse\nthreshold\t0.75\tlines\t5\tfallback\tfalse\nthreshold\t0.9\tlines\t0\tfallback\ttrue\nthreshold\t0.95\tlines\t0\tfallback\ttrue\n",
+      "stderr": ""
+    },
+    {
+      "sample": "numbered",
+      "stdout": "image\t/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/ocr-comparison-20261023/numbered.png\t750x582\nfallback_bands\t12\nband\t[7, 22, 433, 54]\nband\t[45, 69, 571, 101]\nband\t[41, 116, 336, 148]\nband\t[17, 163, 703, 195]\nband\t[12, 210, 715, 242]\nband\t[12, 257, 566, 289]\nband\t[21, 304, 735, 336]\nband\t[12, 351, 737, 383]\nband\t[42, 397, 738, 429]\nband\t[38, 445, 134, 475]\nband\t[11, 491, 702, 523]\nband\t[278, 538, 704, 570]\nthreshold\t0.25\tlines\t47\tfallback\tfalse\nthreshold\t0.5\tlines\t20\tfallback\tfalse\nthreshold\t0.75\tlines\t5\tfallback\tfalse\nthreshold\t0.9\tlines\t0\tfallback\ttrue\nthreshold\t0.95\tlines\t0\tfallback\ttrue\n",
+      "stderr": ""
+    },
+    {
+      "sample": "20261007g002210006",
+      "stdout": "image\t/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20261007g002210006-one-pass/decoded/page0-draw0.png\t3509x2480\nfallback_bands\t11\nband\t[257, 192, 2950, 224]\nband\t[292, 236, 3253, 272]\nband\t[290, 280, 3255, 320]\nband\t[291, 324, 2754, 365]\nband\t[267, 363, 2883, 411]\nband\t[273, 409, 3209, 1717]\nband\t[273, 1715, 3186, 2113]\nband\t[257, 2111, 3287, 2156]\nband\t[292, 2160, 2999, 2200]\nband\t[291, 2208, 3252, 2244]\nband\t[291, 2255, 3253, 2288]\nthreshold\t0.25\tlines\t316\tfallback\tfalse\nthreshold\t0.5\tlines\t187\tfallback\tfalse\nthreshold\t0.75\tlines\t73\tfallback\tfalse\nthreshold\t0.9\tlines\t0\tfallback\ttrue\nthreshold\t0.95\tlines\t0\tfallback\ttrue\n",
+      "stderr": ""
+    },
+    {
+      "sample": "20260723h017530015",
+      "stdout": "image\t/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20260723h017530015-one-pass/decoded/page0-draw0.png\t3509x2480\nfallback_bands\t9\nband\t[257, 192, 3288, 224]\nband\t[295, 236, 3282, 274]\nband\t[291, 282, 2848, 325]\nband\t[273, 323, 3245, 898]\nband\t[273, 896, 3209, 1585]\nband\t[273, 1583, 3245, 2156]\nband\t[262, 2154, 2848, 2199]\nband\t[262, 2205, 3252, 2243]\nband\t[271, 2255, 3254, 2288]\nthreshold\t0.25\tlines\t210\tfallback\tfalse\nthreshold\t0.5\tlines\t176\tfallback\tfalse\nthreshold\t0.75\tlines\t124\tfallback\tfalse\nthreshold\t0.9\tlines\t0\tfallback\ttrue\nthreshold\t0.95\tlines\t0\tfallback\ttrue\n",
+      "stderr": ""
+    },
+    {
+      "sample": "20260724h017540022",
+      "stdout": "image\t/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/pdf-ocr-pipeline61/20260724h017540022-one-pass/decoded/page0-draw0.png\t3509x2480\nfallback_bands\t17\nband\t[257, 192, 2950, 224]\nband\t[289, 236, 3117, 271]\nband\t[292, 280, 3132, 318]\nband\t[267, 323, 3283, 365]\nband\t[293, 367, 2821, 410]\nband\t[272, 411, 3282, 795]\nband\t[268, 793, 3282, 882]\nband\t[293, 880, 2719, 926]\nband\t[273, 927, 3244, 1020]\nband\t[272, 1018, 3282, 1364]\nband\t[263, 1362, 3253, 1551]\nband\t[271, 1552, 3282, 2068]\nband\t[289, 2069, 2821, 2112]\nband\t[594, 2115, 3282, 2156]\nband\t[257, 2161, 2719, 2199]\nband\t[294, 2208, 2849, 2244]\nband\t[292, 2255, 3254, 2288]\nthreshold\t0.25\tlines\t344\tfallback\tfalse\nthreshold\t0.5\tlines\t197\tfallback\tfalse\nthreshold\t0.75\tlines\t55\tfallback\tfalse\nthreshold\t0.9\tlines\t0\tfallback\ttrue\nthreshold\t0.95\tlines\t0\tfallback\ttrue\n",
+      "stderr": ""
+    }
+  ]
+}

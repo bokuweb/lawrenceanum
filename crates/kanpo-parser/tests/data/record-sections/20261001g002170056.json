@@ -1,0 +1,80 @@
+{
+  "review": "Root nonblind original image review after CLI difference discovery, before candidate membership inspection. Not an independent/blind score. No parser change follows this discovery.",
+  "source_pdf_sha256": "b049e1067b5d1c40448486ae2b780ede3057bd4209ff0b466428de1a30818365",
+  "row_fields": [
+    "れいわ新選組参議院第一総支部",
+    "伊勢﨑賢治",
+    "主たる事務所の所在地",
+    "東京都千代田区麹町二－五－二〇",
+    "沖縄県那覇市松川二－一六－一",
+    "八、六、一"
+  ],
+  "section_text": "（二）その他の政治団体（政党及び政治資金団体以外の政治団体）",
+  "order": [
+    "row",
+    "section",
+    "header"
+  ],
+  "source_role_ROI_test_only": {
+    "row": [
+      496,
+      60,
+      524,
+      421
+    ],
+    "section": [
+      480,
+      60,
+      496,
+      345
+    ],
+    "header": [
+      440,
+      60,
+      483,
+      421
+    ]
+  },
+  "row": [
+    45,
+    55,
+    67,
+    46,
+    47,
+    56,
+    48,
+    57,
+    58,
+    59,
+    60,
+    61,
+    49,
+    62,
+    63,
+    64,
+    65,
+    66,
+    50,
+    51,
+    52
+  ],
+  "section": [
+    83,
+    84
+  ],
+  "header": [
+    87,
+    104,
+    88,
+    105,
+    98,
+    99,
+    100,
+    86,
+    89,
+    106,
+    120,
+    124
+  ],
+  "ROI_note": "Initial original-image ROIs were coarse draft guides only; the complete source IDs and this corrected ROI were checked against the original before candidate membership inspection."
+}

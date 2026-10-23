@@ -1,0 +1,1253 @@
+{
+  "issue": 227,
+  "stage": 87,
+  "kind": "completed fresh30 nonblind development review and raw source inventory",
+  "parser_commit": "3cb70a123d97c30858680ff951f8125153c8f83c",
+  "native": 86,
+  "population": 11992,
+  "selection": {
+    "status": "fixed before rendering, reading or scoring this sample",
+    "commit": "3cb70a123d97c30858680ff951f8125153c8f83c",
+    "native": 86,
+    "seed_hex": "1783d3e9dff725553da29b4050a7e108959fbbfda113fcddc4cf3706508d80a3",
+    "population": 11992,
+    "method": "Uniform sample without replacement over the existing11992 PDF manifest; no exclusions, re-selection or score/output-dependent choices. Root engineering review, not independent/blind.",
+    "population_manifest_sha256": "dcbdef7348f26fbdfcfe2a13abc17ba484d42d5f9b7cee83ee145df5b6e0c74d",
+    "stream_sha256": "71f90a0d95e6a381ab47614002cc4f62d4256959d1fbe5b72b46431330351359",
+    "criteria": {
+      "ok": "No material publication/column/record/cell reading-order or missing-content issue found in original-image/current-output review; not exhaustive character certification.",
+      "minor": "Local whitespace/wrap or cosmetic issue without material semantic ownership loss.",
+      "major": "Material article/column/record/cell misassociation/order, or missing semantic body/values.",
+      "pending": "Original image or output not reviewed sufficiently; do not silently count as success."
+    },
+    "selected": [
+      {
+        "page": "20260930g002150312",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150312.pdf",
+        "sha256": "cce045d987d99aa7b8f2ade1cd24f014c80ba8dd0b34a960173f157802e05024"
+      },
+      {
+        "page": "20261009g002230004",
+        "pdf": ".cache/kanpo-archive/2026-10-09/20261009g00223/20261009g002230004.pdf",
+        "sha256": "27816a14e43b36d09895229edbbc4a705fa0f57e0751e0988824a566102fd43f"
+      },
+      {
+        "page": "20260724g001650258",
+        "pdf": ".cache/kanpo-archive/2026-07-24/20260724g00165/20260724g001650258.pdf",
+        "sha256": "916b0bc030318c74a64335c97e723d15d3b62bd633effe20e6b0447c00c67b6f"
+      },
+      {
+        "page": "20260918g002100060",
+        "pdf": ".cache/kanpo-archive/2026-09-18/20260918g00210/20260918g002100060.pdf",
+        "sha256": "23e65196f07a8253a2553c5211c04be8ed6ed091d33907e06815270e8aa9d957"
+      },
+      {
+        "page": "20260930g002150034",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150034.pdf",
+        "sha256": "661d46474ea2f2f0c20578be9aa73bf184f8f404ad10e66028fc983cb92d3ceb"
+      },
+      {
+        "page": "20260828g001920076",
+        "pdf": ".cache/kanpo-archive/2026-08-28/20260828g00192/20260828g001920076.pdf",
+        "sha256": "c8aaac26bb9a112dc823ee3130da2c061138fa09cb9170e9a28d7c4263d1bd31"
+      },
+      {
+        "page": "20260916g002060296",
+        "pdf": ".cache/kanpo-archive/2026-09-16/20260916g00206/20260916g002060296.pdf",
+        "sha256": "55c325dfb4b4ddf8d654464c55d5da0199ca48163447be582094be6087de5958"
+      },
+      {
+        "page": "20260731g001730163",
+        "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00173/20260731g001730163.pdf",
+        "sha256": "3b16e9562997eede76bcaeaa7fde378646fbbcd769def845059330cf5bf84516"
+      },
+      {
+        "page": "20260722g001620053",
+        "pdf": ".cache/kanpo-archive/2026-07-22/20260722g00162/20260722g001620053.pdf",
+        "sha256": "c6fff1beaa902556e60dbf6ce857d1e232999176a93e0173183c2a5290244adf"
+      },
+      {
+        "page": "20260826h017760003",
+        "pdf": ".cache/kanpo-archive/2026-08-26/20260826h01776/20260826h017760003.pdf",
+        "sha256": "755554eee274ce19d2eda913550b0381b1a8c2a91461a249c75d4d1a1f1e6719"
+      },
+      {
+        "page": "20260812h017660013",
+        "pdf": ".cache/kanpo-archive/2026-08-12/20260812h01766/20260812h017660013.pdf",
+        "sha256": "459fb049e7113a754c58c8afcd640f97ed092dabfa38a2437627b8e417ba4b23"
+      },
+      {
+        "page": "20260827h017770008",
+        "pdf": ".cache/kanpo-archive/2026-08-27/20260827h01777/20260827h017770008.pdf",
+        "sha256": "3a952d95f931c51384d309852d215ee93e684399cd60e70559e3388e51d76081"
+      },
+      {
+        "page": "20260917g002080068",
+        "pdf": ".cache/kanpo-archive/2026-09-17/20260917g00208/20260917g002080068.pdf",
+        "sha256": "9b12049651166f2b24bbb716652fc46079bee5669cb73dca8dd4e514061917ec"
+      },
+      {
+        "page": "20260925g002120088",
+        "pdf": ".cache/kanpo-archive/2026-09-25/20260925g00212/20260925g002120088.pdf",
+        "sha256": "227afc09db786ddbd705b0c001f33cb33f0c5af6c959d6baf12d5aa7fea9baa2"
+      },
+      {
+        "page": "20260831g001940075",
+        "pdf": ".cache/kanpo-archive/2026-08-31/20260831g00194/20260831g001940075.pdf",
+        "sha256": "b7417b785f73cc001d8ccf83973b721a98dee6a23569aeb6cd187416c9e9d505"
+      },
+      {
+        "page": "20260807g001780107",
+        "pdf": ".cache/kanpo-archive/2026-08-07/20260807g00178/20260807g001780107.pdf",
+        "sha256": "d7716c666dd4f914172a9181c7817ada423a7bd91068615f943c6a20a5ed89f4"
+      },
+      {
+        "page": "20261015g002260077",
+        "pdf": ".cache/kanpo-archive/2026-10-15/20261015g00226/20261015g002260077.pdf",
+        "sha256": "d5579fe005a2bb7c5ed4a849d4de3da53b305ec7e441c404f2f9db8b072118ac"
+      },
+      {
+        "page": "20260930g002160104",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00216/20260930g002160104.pdf",
+        "sha256": "8d1ed7fda2db59abfdc421b2126bb38708e58ce6c41d7ee0801ebdd9fa7f5972"
+      },
+      {
+        "page": "20260810g001790150",
+        "pdf": ".cache/kanpo-archive/2026-08-10/20260810g00179/20260810g001790150.pdf",
+        "sha256": "f6504faa7a8b60f7ff93869d1b4804f57edbdd4919bb67d66a9bb2ba62faca2c"
+      },
+      {
+        "page": "20260722g001620106",
+        "pdf": ".cache/kanpo-archive/2026-07-22/20260722g00162/20260722g001620106.pdf",
+        "sha256": "f2d951401d10ef218eca059d0548092dc9b75de0dff78891e2414f27ba5fc4da"
+      },
+      {
+        "page": "20261005g002190011",
+        "pdf": ".cache/kanpo-archive/2026-10-05/20261005g00219/20261005g002190011.pdf",
+        "sha256": "434898f85a8215c0022c9e4838b4c0e3e801dac4e5ce15c9c1a7578fc28104f9"
+      },
+      {
+        "page": "20260723g001630115",
+        "pdf": ".cache/kanpo-archive/2026-07-23/20260723g00163/20260723g001630115.pdf",
+        "sha256": "afd5616947121ea7f68290220410a7a62a290096d9812456e47fb4a12e6dfb99"
+      },
+      {
+        "page": "20260723g001630098",
+        "pdf": ".cache/kanpo-archive/2026-07-23/20260723g00163/20260723g001630098.pdf",
+        "sha256": "a4cae30d56fc813a4d211ee7249c17e151acebaa7be7cda6b67216e542317a27"
+      },
+      {
+        "page": "20260831g001940070",
+        "pdf": ".cache/kanpo-archive/2026-08-31/20260831g00194/20260831g001940070.pdf",
+        "sha256": "a8e89658280afacea2427bdd16f370f544d2227e93cf6c522b8d3560ef313676"
+      },
+      {
+        "page": "20260831g001930123",
+        "pdf": ".cache/kanpo-archive/2026-08-31/20260831g00193/20260831g001930123.pdf",
+        "sha256": "cf4cb010e56bbe7787d983208aef9b9855da1bee3f15dcd43742978067fac8eb"
+      },
+      {
+        "page": "20260909g002010021",
+        "pdf": ".cache/kanpo-archive/2026-09-09/20260909g00201/20260909g002010021.pdf",
+        "sha256": "4451aa1bce0cc0b26d5797f96315874876349dfc2edd94849fa3899a801ca16c"
+      },
+      {
+        "page": "20260724g001660004",
+        "pdf": ".cache/kanpo-archive/2026-07-24/20260724g00166/20260724g001660004.pdf",
+        "sha256": "35761e725df81c7ff4fb6a04fc3340cfa1743a6314c82b0bc8860260a7ca8018"
+      },
+      {
+        "page": "20260825h017750023",
+        "pdf": ".cache/kanpo-archive/2026-08-25/20260825h01775/20260825h017750023.pdf",
+        "sha256": "11ed16da46101bf438ee963bcad94f1098f508e6d03e069f20be8995234f344c"
+      },
+      {
+        "page": "20260831g001940119",
+        "pdf": ".cache/kanpo-archive/2026-08-31/20260831g00194/20260831g001940119.pdf",
+        "sha256": "926e81a4e79a3fc2c7dba330fa22cb96e705603976fe19ec389a2f21f1d0f9a1"
+      },
+      {
+        "page": "20260731g001720040",
+        "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720040.pdf",
+        "sha256": "ed7c01ca12f9f951dcb334109fc74f69f5f86ddb30b01690892091b358e2afa5"
+      }
+    ],
+    "reviewed": 0,
+    "pending": 30
+  },
+  "review": {
+    "method": "Root nonblind engineering review of the pre-fixed fresh30; not independent/blind or whole-character certification. No source edits based on this sample yet.",
+    "selection_sha256": "37cc872aaa678c90766af5e45a5c6c5cc25a5d65f9c503892b689b4bf450ca2b",
+    "reviewed": 30,
+    "pending": 0,
+    "rows": [
+      {
+        "page": "20260930g002150312",
+        "grade": "major",
+        "finding": "Original image shows a large numeric annex table; current output contains only 別表第一を次のように改める。 and omits the entire semantic table body.",
+        "cause": "Native missing body; image/outline mechanism not diagnosed.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "488c4cb8a15554e3bd9725d9bdda5a2b32c75de36570aea62a9a972d34261750",
+          "txt": "29c30adeda95cd27ba8e66ff89db510922ba19f13a8149b7087357ec771b4576",
+          "json": "d26453c4aa7cbe277a1eee79bbe68e4ce461d35f2d4b297f7aa5c6cc5bce7f22"
+        }
+      },
+      {
+        "page": "20261009g002230004",
+        "grade": "minor",
+        "finding": "Upper/lower before/after equipment lists and the concluding commencement note are in the corresponding sequence. Some adjacent equipment entries inside a shared cell are concatenated, including 緩降機発電機; local list separators need improvement.",
+        "scope": "Root original-image/current text review; no material row-side swap observed, not exhaustive character or cell certification.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "1f772aac88eea0085841a4624c3ea14c75bce689f0d45aaff8df12c610b61e81",
+          "txt": "3c1ac1d8b1853aea3a72349a60b53d6cc0ccfe404ffd4a49a39faee3b1b2c41e",
+          "json": "9d7c66704dc5219916fbad5c5eae3159c957aed8c63ef902b0b4bb0cceccba73"
+        }
+      },
+      {
+        "page": "20260724g001650258",
+        "grade": "major",
+        "finding": "Original image contains before/after formula and subsidy-definition table text; current output is empty (0 characters,0 articles).",
+        "cause": "Native missing body; image/outline mechanism not diagnosed.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "a2d4f1cb60770ace6f9e149f0c833205cad49f4e69e541ba6508da0cd3409071",
+          "txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "json": "ad5a6e319763dfef5f526e393fc11b1c2621f24fde2a7fcba942f499dcc9f5cb"
+        }
+      },
+      {
+        "page": "20260918g002100060",
+        "grade": "ok",
+        "finding": "All17 original dissolution notices remain in right-to-left tier order with their own dates, addresses, publishers and liquidators. No material reading/notice mixing observed.",
+        "scope": "Root nonblind visual/text review, not exhaustive character certification.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "e8d5c5f7dd053c565ec5d747ecab495210e2ffa14813584a83f407bb953fc5ee",
+          "txt": "a15b2b72bae975128ed416ffdf115ab1aca1530ba6b62ffd85883b0465ffd33f",
+          "json": "7a552619d74e3be8a7e7be44adde4776e16389cf46770edbf39eb02e1cf1e734"
+        }
+      },
+      {
+        "page": "20260930g002150034",
+        "grade": "minor",
+        "finding": "Both before/after sides, consecutive forms7-2/8, added note8 and the other note sequences are retained on the corresponding side. The multiline period placeholders straddle the main 中間損益計算書 heading in text order; local heading/placeholder grouping remains.",
+        "scope": "Relative side and form flow inspected; previous-page explicit side header not newly certified and no exhaustive character/cell check.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "75ed9c23e35cfd12dcac5487189b1f16d74c8514816c961f9d65ec107fa8a664",
+          "txt": "9b063094e5ba7317cefe2b3904947a23e693d4255d64085d849f2bb29223063f",
+          "json": "8c0ff342effa2b8ad42e21642cfc797d2c1a6ae81fb6679ffad4052c2ddb194c"
+        }
+      },
+      {
+        "page": "20260828g001920076",
+        "grade": "major",
+        "finding": "The lower physical frame contains separately titled, dated and signed merger and absorption-split operations. They remain in one ArticleAnalysis (page total2 articles for3 nonfinancial operation roots). Both bodies/text and financial statements remain, but operation-level ownership is unresolved.",
+        "ambiguity": "The acquirer statement is shared by both operations; no new exact article-count/annex-order gold is adopted from this review and no automatic splitting/duplication is inferred. Requires a concrete source ownership/representation rule.",
+        "scope": "Root nonblind operation-boundary engineering criterion; not a cell-order/full-recognition grade.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "424b97cd505004cac48baba7e07969e0963b96aac00292286dabbc22b8c65c92",
+          "txt": "f56dedcf0f2a2a94eeba788a371bc227268647e5d5c6a3a5dbd85482320d8e08",
+          "json": "aa207c531c41ae8164988a62f401823d71ca2281b54ce0de7de43e4ec5899e48"
+        }
+      },
+      {
+        "page": "20260916g002060296",
+        "grade": "major",
+        "finding": "In the second notice the multiline small-font ministry list belonging inside the statute citation is emitted partly before the statute title and partly after the main paragraph line (総理府、大蔵省、文部省…運輸省、郵政省、労働省、建設省). The citation cannot be read contiguously in source order.",
+        "scope": "The first before/after radio table and two notice roots are present; this grade concerns the broken inline citation/warichu ownership. Not exhaustive character certification.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "793a4e5a48df05473414b46f8a82d20cfb6be09ad2dcf697f1af567706dd5320",
+          "txt": "c1a543d223b9431f39184be99d60a599f0b3e6435d70fdaf81e25c41e07fdb89",
+          "json": "82e1ed865fca45db7060755d1d4b2deafdcaa9ff5dbfda913e4dbf78af391d2a"
+        }
+      },
+      {
+        "page": "20260731g001730163",
+        "grade": "ok",
+        "finding": "Four original merger/split operations retain their own bodies before both complete partner statements; all eight visible statement blocks remain with the corresponding companies and operation. No material cross-frame/party mixing observed.",
+        "scope": "Root nonblind original/source-group check; relative ordering between the two unnumbered horizontal annex panels is not newly certified, nor exhaustive cell/character accuracy.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "afbb707c669109ca6a57d871573b45240f0d9e1d14848a4d6f374e4e77042b5e",
+          "txt": "39a6caade15d0cbe212034c7cad26d0819e0976a0f3b6f0f095316acd117338a",
+          "json": "5bc539656957c2304067718c5d5739318dc2a60af58273ff4791840d8cefd7ad"
+        }
+      },
+      {
+        "page": "20260722g001620053",
+        "grade": "major",
+        "finding": "Continued financial tables from the earlier notice and the separately headed/dated 林野庁共済組合 decision notice are all returned as one ArticleAnalysis. The new notice starts below the second column and continues in columns3/4, so the independent source notice boundary is missing.",
+        "scope": "Plain text follows the page columns and preserves the visible table values; grade concerns distinct notice ownership. No new exact source-partition gold or production fix adopted yet.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "9aac0d1db228a25d955f5a35918d05b4a3184b262b9ee62fb976eb0c48b3e950",
+          "txt": "f8d56d9c9e321adf4f04e3588a0e681a8f963f885a9f74cce62238c87a5f23fe",
+          "json": "90901aa051ed88def9daa0bc219737ed87e5b51b0ce1e3b7acee34fce6594ccf"
+        }
+      },
+      {
+        "page": "20260826h017760003",
+        "grade": "ok",
+        "finding": "Eight visible forestry notices retain their heading/date/publisher and prose/item flow in the original tier order, including the last notice continuing off-page. No material mixing observed.",
+        "scope": "Root nonblind original/current-output review; not exhaustive character certification. Missing-body mechanism not diagnosed.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "750c019c7888e63e1b797f1047ca0ec2a1c874205ddd536749bc942f0e06c0c9",
+          "txt": "f795674051e495f107634c7bd3af0835407e055fc33f1919fec8dcf9150b2c90",
+          "json": "5e6bfd2f6679abcfe6402ab6ffd3762f2fc563b2e7ea1da4de116bffd7b2be17"
+        }
+      },
+      {
+        "page": "20260812h017660013",
+        "grade": "major",
+        "finding": "Only the bankruptcy-section heading is returned (25 characters); all visible court case bodies across four columns are absent.",
+        "scope": "Root nonblind original/current-output review; not exhaustive character certification. Missing-body mechanism not diagnosed.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "97cdb9ab2ff9ca2abab2ed6f80119b02aabdf33bbed05face59c5f6aa20b977e",
+          "txt": "6510cbf2a2093cdd869192e92d0496d4d183c7a905451d90f63e77e36b2c3e86",
+          "json": "e99d8d9e4a5d8181ee2d10431642093ec111fcc1fd53c90c387f6e011daf4065"
+        }
+      },
+      {
+        "page": "20260827h017770008",
+        "grade": "major",
+        "finding": "The factory-foundation notice is present, but the original preceding person list, inheritance-section preamble and all visible inheritance case bodies are absent; only the latter section heading remains.",
+        "scope": "Root nonblind original/current-output review; not exhaustive character certification. Missing-body mechanism not diagnosed.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "6d8d64672a438c67f08ceb61633504ede380552968de6757a39ceb6fd7967ac5",
+          "txt": "acc10bb8fbacace3a12dec083e76490ddc6dd2b7a338933f21e7266cade9e835",
+          "json": "96ad447072feaa232eaa3c8031bbf53c9b455a1f50524a601172c98d65f54865"
+        }
+      },
+      {
+        "page": "20260917g002080068",
+        "grade": "ok",
+        "finding": "The five-number row sequence continues through both page columns, with 富山県 then 大阪府 headings and the cross-column continuation preserved. No material column interleaving or header ownership issue observed.",
+        "scope": "Visual sequence/section check, not exhaustive verification of all seven-digit values.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "c360bc8df18b4ef733ce737e2301deca34b12f8e3e8f793819a3b2f57d4683f6",
+          "txt": "ea68daabb9d9dbc9cd35a04887078c4ef601a74117a44ae0e3c5f4958e966b93",
+          "json": "d3ea5b3c865fbaefafb75673b6c72d6e677b74ed1c6167a1afadc869d650d60e"
+        }
+      },
+      {
+        "page": "20260925g002120088",
+        "grade": "ok",
+        "finding": "All three merger operation groups and two standalone financial notices retain their source ownership and body-before-annex order. The two same-acquirer lower mergers remain separate, with their own subsidiary financial statements.",
+        "prior_development_case": true,
+        "scope": "This page was used in earlier native83 development and public regression tests. Its uniform re-selection is retained, but it is not an independent holdout; no new complete character/annex-panel-order certification.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "4ca67b2cd0c73aa22f9f715190aa6d6d9c192cce37a1eb086bcd055b8d0db8a5",
+          "txt": "be5f1e50a8586279d6050346c4fc4ee875595c8f23d1f067ff1d66197f51dcf7",
+          "json": "6f997ac8a6a82946603f6ee458ec14d9233baa4a8944bdbefba42c9c3c6abc89"
+        }
+      },
+      {
+        "page": "20260831g001940075",
+        "grade": "minor",
+        "finding": "Balance/income/asset-inventory statements follow the two page columns, including expense items9-11 continuing at the top of column2. The multiline income-period placeholder and account note interleave in text order; local heading/period grouping remains.",
+        "scope": "No material cell-label/value or cross-section mixing observed; not exhaustive numeric/character certification.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "004f4f15712880e0ecaec06d8a54aa30611e71be8989cd4a630c7ce17d8cbc85",
+          "txt": "44959678c1c2e357347492025a84b901e8d75e34472f4ae9ca16dcbbd199f671",
+          "json": "cb7fb0d40e642197ee98f45020dbe7d2c7dea1ed56b52741eb885b3cfc2cee08"
+        }
+      },
+      {
+        "page": "20260807g001780107",
+        "grade": "minor",
+        "finding": "All17 dissolution notices retain their body/date/publisher/liquidator groups in tier order, but the 中外エンジニアリング address is emitted as 愛県松山市 where the original visibly has 愛媛県松山市; a local source character is omitted.",
+        "scope": "Notice ownership/order intact; source glyph resolution still needs diagnosis, no exhaustive character certification.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "1c6145236fa437d7c160af73ec89d6a6254f3accd4e1fe1de3abcd599691d089",
+          "txt": "ca6274082f59f8e098617186b5dad54db69bc5e439a87a43a89771566ab2e308",
+          "json": "63deb479d59931f7fe88662c2c44461803ac59c208dd1511622bd0103e149221"
+        }
+      },
+      {
+        "page": "20261015g002260077",
+        "grade": "major",
+        "finding": "Only the bankruptcy conclusion/exemption heading is returned (14 characters); all visible case bodies in the four original columns are absent.",
+        "scope": "Native missing body; image/outline mechanism not diagnosed.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "82f305eb4cb458327f7d5ea2504aedaa0476eb8dca8738e0e1e8014f52a644bb",
+          "txt": "6052862f78c7f7ab597ca8a8fc766ee8809cbac65a062070d780388954517e39",
+          "json": "d9f4794af4514b2cce495094fbf709d12c7ae35df5d22742ae701ab1eead0b04"
+        }
+      },
+      {
+        "page": "20260930g002160104",
+        "grade": "ok",
+        "finding": "All16 visible dissolution notices retain their source body/date/publisher/liquidator associations and four-tier order, including long Latin company fields. No material cross-notice mixing or missing body observed.",
+        "scope": "Root visual/text review, not exhaustive spelling/numeric certification.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "56068762b1fdb2e5901964b9c93b433101e7646325db5e720fcbf4a7286e0717",
+          "txt": "ffa985213d6b5d17e6ada90eddb8ee3d01aa45797e255cf45d8a1a82fbf22698",
+          "json": "82c746d6dff12c705336f299867d817ad1f7b240d6735be56ef05ac96100c707"
+        }
+      },
+      {
+        "page": "20260810g001790150",
+        "grade": "ok",
+        "finding": "All six independent financial publications remain in their physical rows with the proper publisher/signature and complete associated balance/income statements, including both bottom publications with two statement types. No material cross-frame mixing observed.",
+        "scope": "Root nonblind layout/statement-ownership review, not exhaustive numeric/character certification.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "68d56895f849089bdb35d1870f84868bf93b4480b216abaeba0e1cdcc2e3517f",
+          "txt": "ab910aa49ad03a84451b479e7ab031d6d90447f114f10e2072f50c427bd3d07c",
+          "json": "629615eaec940b798d3d3c7c77ba4b1dc74bf00828ab9b85bde45ff8b02d7a26"
+        }
+      },
+      {
+        "page": "20260722g001620106",
+        "grade": "ok",
+        "finding": "All four merger operations retain their bodies before the two corresponding company statements, including the explicitly labelled historical-designation note. No source-frame or publisher crossover observed.",
+        "scope": "Root source-role review; relative order of unnumbered horizontal annex panels and exhaustive cell accuracy are not newly certified.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "d7f8d5e17ef4764b254eccefda3e3d12a5e0075b15882be49eeb879ec2d737ae",
+          "txt": "ce25875bae14fa1fc8d806d84ef39f5b3efa1933e7be49bfcde448904b142c9a",
+          "json": "1ea5984b77e3b19c8f880d78c1c495dfb348b227e307486fc777ce2b23333f25"
+        }
+      },
+      {
+        "page": "20261005g002190011",
+        "grade": "major",
+        "finding": "The original has four columns of bankruptcy case bodies and the current output is entirely empty (0 characters,0 articles).",
+        "scope": "Native body absence; image/outline mechanism not diagnosed.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "4c7bf0c6ffa197bffc647bf2d074b46da4f36bf776d77edd3f77dca80a410455",
+          "txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "json": "504f3a5f699011db8f993c7d12a652c5f91353615a4d1e13166ed70876fb0c5d"
+        }
+      },
+      {
+        "page": "20260723g001630115",
+        "grade": "ok",
+        "finding": "Four source columns of identifier/registration-date/deletion-date records retain each three-field row and page-column continuation order; no material cross-column field mixing observed.",
+        "scope": "Root nonblind original/text layout review, not exhaustive character/numeric/cell certification.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "6ba3bf0ff64f0fb8a0c7f79007fcea57eaa0b17fecb518e118c8ef0f0c41ba5c",
+          "txt": "dd5d0731c377a30c430d6e881523f9d2d21d3f81723989570d914218073b7d18",
+          "json": "9ee48125a210320c8f43e4f997e8a0a0094af1dca053c1b76664d2e1fe745003"
+        }
+      },
+      {
+        "page": "20260723g001630098",
+        "grade": "ok",
+        "finding": "The amended and prior sides preserve their respective prose, separate annex-form headings and the three checkbox declarations with their legal references; no material side/paragraph crossover observed.",
+        "scope": "Root nonblind original/text layout review, not exhaustive character/numeric/cell certification.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "876af9235ffeaf37be29ea1e999b41fd9ced0e96754a503579599144cb83e436",
+          "txt": "16e71058f76762bd7ffae131efa60a5cf2c025575e66e8359f9844ed3bbd52b4",
+          "json": "c1e2362fbc18ba5e7144549e9aa3681a49b5ae91f98b8746b4d35ae19defb661"
+        }
+      },
+      {
+        "page": "20260831g001940070",
+        "grade": "ok",
+        "finding": "Entrance/exit IC table continuation at the top of column2 remains with the prior exit table, before the next numbered toll adjustment. Subsequent up/down AIC/BIC rows remain associated correctly; no material table/caption crossover observed.",
+        "scope": "Root nonblind original/text layout review, not exhaustive character/numeric/cell certification.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "6cf6d5123ae8e583d2b91250618072ca7e22129f93ea730513321de3b793e484",
+          "txt": "c154bab34f508a6f2bd52a346b6d1971e8ed31a174e11ec17702d61c525d33a7",
+          "json": "5a7d35e1ed5a799a57dd5521b2bf399516bf6a88e7eff860f20c079800d1ff9e"
+        }
+      },
+      {
+        "page": "20260831g001930123",
+        "grade": "major",
+        "finding": "The original rotated multi-column annex table and note are entirely missing from current output (0 characters,0 articles).",
+        "scope": "Root original/current-output review; native missing-body mechanism not diagnosed and no exhaustive character certification.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "af7f1af22cec26770a80809763833a26a6bdb9a1800eda514ec9ed67a5e1c039",
+          "txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "json": "35ff7697933d281c9fc299be0cbcf2b13097485c5b82a0356d5f99341ebef41b"
+        }
+      },
+      {
+        "page": "20260909g002010021",
+        "grade": "major",
+        "finding": "Only the combined bankruptcy start/discontinuance/exemption section heading is returned (32 characters); all four columns of visible case bodies are absent.",
+        "scope": "Root original/current-output review; native missing-body mechanism not diagnosed and no exhaustive character certification.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "5e5c2afe21caae4550ab052858cee7c46addb75673d7b52b97b567761727bdc4",
+          "txt": "f46c6405e214e4821b7f5be94ce6eec3c6e8862fc80c06f1d0013fb06bb282bd",
+          "json": "d8c0cabc310006a12afe055d6d8dd21a01a57c20d714d823798043396246aa00"
+        }
+      },
+      {
+        "page": "20260724g001660004",
+        "grade": "major",
+        "finding": "Only the combined bankruptcy start/discontinuance/exemption section heading is returned (32 characters); all four columns of visible case bodies are absent.",
+        "scope": "Root original/current-output review; native missing-body mechanism not diagnosed and no exhaustive character certification.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "b2a7af3c158b7b4a0432fe8cb8f6847e624a45abe1bec6ddd57d842ea47f0c3e",
+          "txt": "f46c6405e214e4821b7f5be94ce6eec3c6e8862fc80c06f1d0013fb06bb282bd",
+          "json": "ba1f70fd0906c89f979e368124bfdfc56b66929bdd651678794f269e6b87a007"
+        }
+      },
+      {
+        "page": "20260825h017750023",
+        "grade": "major",
+        "finding": "Only the small-scale personal rehabilitation written-resolution heading is emitted (20 characters); all visible rehabilitation case bodies across four columns are absent.",
+        "scope": "Root nonblind original/current-output review; not exhaustive character/numeric/cell certification. Missing-body mechanism not diagnosed.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "f3ca8ccb07d8bd5838c0b57a975b28ba790ced565aaa20f976218033f6df2c86",
+          "txt": "906aa8a8892cd398f1d57420b8be4524b1614c998d59fc00f199ff7a396afab2",
+          "json": "44f8c6f2c03e28dd3f4297dbe98c744a922cff1fcb3484c2d4ad9fedc926b961"
+        }
+      },
+      {
+        "page": "20260831g001940119",
+        "grade": "ok",
+        "finding": "All12 independent financial notices retain their own complete publisher/signature and statement blocks in the four physical rows. No material publisher/table/cell crossover observed; wrapped liability labels remain inside their corresponding statement.",
+        "scope": "Root nonblind original/current-output review; not exhaustive character/numeric/cell certification. Missing-body mechanism not diagnosed.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "25cef010d123088d501a190afa892c3b64e908e0c3cd16fd4414e7926f1fddd9",
+          "txt": "84a016379eac7c347f07e5ce843685f7c5b4b8e59fde02eebae46befc67f1d5c",
+          "json": "fc31d6fece6d0af687d9a2f8662c366fc86ffdd2e19888455c6dd64d84e6a556"
+        }
+      },
+      {
+        "page": "20260731g001720040",
+        "grade": "major",
+        "finding": "The original rotated form, definition prose and multi-column tables are entirely missing (0 characters,0 articles).",
+        "scope": "Root nonblind original/current-output review; not exhaustive character/numeric/cell certification. Missing-body mechanism not diagnosed.",
+        "exhaustive_character_check": false,
+        "artifacts_sha256": {
+          "png": "b552670d8a00a2be02e9ad9f836a2956419f65ce2b2659d62823db6ce1d212b4",
+          "txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "json": "04a5363415fffb60a970088516f3eb2e8e503a209f5b2f244364b65688664b2e"
+        }
+      }
+    ],
+    "observed_counts": {
+      "major": 14,
+      "minor": 4,
+      "ok": 12
+    },
+    "not_a_whole_corpus_accuracy_estimate": true,
+    "prior_development_case_included_without_reselection": [
+      "20260925g002120088"
+    ],
+    "original_pdfs_and_all_scored_artifact_hashes_verified": true,
+    "all30_source86_Analysis_and_images_frozen_before_review": true,
+    "full30_review_complete": true
+  },
+  "raw_source_inventory": {
+    "terminal": 0,
+    "inputs": 30,
+    "source_inputs_binary_verified": true,
+    "rows": [
+      {
+        "page": "20260930g002150312",
+        "review_grade": "major",
+        "glyph_count": 40,
+        "native_text_chars": 40,
+        "unmapped_glyphs": 0,
+        "paths": 2,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          },
+          {
+            "draw": 1,
+            "pixels": [
+              4100,
+              6067
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20261009g002230004",
+        "review_grade": "minor",
+        "glyph_count": 479,
+        "native_text_chars": 479,
+        "unmapped_glyphs": 0,
+        "paths": 46,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260724g001650258",
+        "review_grade": "major",
+        "glyph_count": 26,
+        "native_text_chars": 26,
+        "unmapped_glyphs": 0,
+        "paths": 2,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          },
+          {
+            "draw": 1,
+            "pixels": [
+              4192,
+              6067
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260918g002100060",
+        "review_grade": "ok",
+        "glyph_count": 2565,
+        "native_text_chars": 2565,
+        "unmapped_glyphs": 0,
+        "paths": 5,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260930g002150034",
+        "review_grade": "minor",
+        "glyph_count": 785,
+        "native_text_chars": 785,
+        "unmapped_glyphs": 0,
+        "paths": 14,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260828g001920076",
+        "review_grade": "major",
+        "glyph_count": 2160,
+        "native_text_chars": 2160,
+        "unmapped_glyphs": 0,
+        "paths": 54,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260916g002060296",
+        "review_grade": "major",
+        "glyph_count": 1276,
+        "native_text_chars": 1276,
+        "unmapped_glyphs": 0,
+        "paths": 25,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260731g001730163",
+        "review_grade": "ok",
+        "glyph_count": 2884,
+        "native_text_chars": 2884,
+        "unmapped_glyphs": 0,
+        "paths": 69,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260722g001620053",
+        "review_grade": "major",
+        "glyph_count": 1530,
+        "native_text_chars": 1530,
+        "unmapped_glyphs": 0,
+        "paths": 131,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260826h017760003",
+        "review_grade": "ok",
+        "glyph_count": 2655,
+        "native_text_chars": 2655,
+        "unmapped_glyphs": 0,
+        "paths": 5,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260812h017660013",
+        "review_grade": "major",
+        "glyph_count": 47,
+        "native_text_chars": 47,
+        "unmapped_glyphs": 0,
+        "paths": 5,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260827h017770008",
+        "review_grade": "major",
+        "glyph_count": 227,
+        "native_text_chars": 227,
+        "unmapped_glyphs": 0,
+        "paths": 753,
+        "filled_paths": 124,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260917g002080068",
+        "review_grade": "ok",
+        "glyph_count": 3003,
+        "native_text_chars": 3003,
+        "unmapped_glyphs": 0,
+        "paths": 3,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260925g002120088",
+        "review_grade": "ok",
+        "glyph_count": 2650,
+        "native_text_chars": 2650,
+        "unmapped_glyphs": 0,
+        "paths": 68,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260831g001940075",
+        "review_grade": "minor",
+        "glyph_count": 1103,
+        "native_text_chars": 1103,
+        "unmapped_glyphs": 0,
+        "paths": 63,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260807g001780107",
+        "review_grade": "minor",
+        "glyph_count": 2486,
+        "native_text_chars": 2486,
+        "unmapped_glyphs": 0,
+        "paths": 530,
+        "filled_paths": 91,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20261015g002260077",
+        "review_grade": "major",
+        "glyph_count": 40,
+        "native_text_chars": 40,
+        "unmapped_glyphs": 0,
+        "paths": 5,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260930g002160104",
+        "review_grade": "ok",
+        "glyph_count": 2490,
+        "native_text_chars": 2490,
+        "unmapped_glyphs": 0,
+        "paths": 5,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260810g001790150",
+        "review_grade": "ok",
+        "glyph_count": 2153,
+        "native_text_chars": 2153,
+        "unmapped_glyphs": 0,
+        "paths": 94,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260722g001620106",
+        "review_grade": "ok",
+        "glyph_count": 2776,
+        "native_text_chars": 2776,
+        "unmapped_glyphs": 0,
+        "paths": 69,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20261005g002190011",
+        "review_grade": "major",
+        "glyph_count": 25,
+        "native_text_chars": 25,
+        "unmapped_glyphs": 0,
+        "paths": 5,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260723g001630115",
+        "review_grade": "ok",
+        "glyph_count": 4568,
+        "native_text_chars": 4568,
+        "unmapped_glyphs": 0,
+        "paths": 5,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260723g001630098",
+        "review_grade": "ok",
+        "glyph_count": 2163,
+        "native_text_chars": 2163,
+        "unmapped_glyphs": 0,
+        "paths": 8,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260831g001940070",
+        "review_grade": "ok",
+        "glyph_count": 1520,
+        "native_text_chars": 1520,
+        "unmapped_glyphs": 0,
+        "paths": 42,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260831g001930123",
+        "review_grade": "major",
+        "glyph_count": 26,
+        "native_text_chars": 26,
+        "unmapped_glyphs": 0,
+        "paths": 2,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          },
+          {
+            "draw": 1,
+            "pixels": [
+              4192,
+              6067
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260909g002010021",
+        "review_grade": "major",
+        "glyph_count": 56,
+        "native_text_chars": 56,
+        "unmapped_glyphs": 0,
+        "paths": 5,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260724g001660004",
+        "review_grade": "major",
+        "glyph_count": 56,
+        "native_text_chars": 56,
+        "unmapped_glyphs": 0,
+        "paths": 5,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260825h017750023",
+        "review_grade": "major",
+        "glyph_count": 42,
+        "native_text_chars": 42,
+        "unmapped_glyphs": 0,
+        "paths": 5,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260831g001940119",
+        "review_grade": "ok",
+        "glyph_count": 2895,
+        "native_text_chars": 2895,
+        "unmapped_glyphs": 0,
+        "paths": 114,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          }
+        ],
+        "capture_gaps": []
+      },
+      {
+        "page": "20260731g001720040",
+        "review_grade": "major",
+        "glyph_count": 25,
+        "native_text_chars": 25,
+        "unmapped_glyphs": 0,
+        "paths": 3,
+        "filled_paths": 0,
+        "curved_filled_paths": 0,
+        "images": [
+          {
+            "draw": 0,
+            "pixels": [
+              2480,
+              3509
+            ]
+          },
+          {
+            "draw": 1,
+            "pixels": [
+              4192,
+              3000
+            ]
+          },
+          {
+            "draw": 2,
+            "pixels": [
+              4192,
+              3000
+            ]
+          }
+        ],
+        "capture_gaps": []
+      }
+    ],
+    "scope": "Raw native glyph/image/path observations; no final visibility/coverage or recognition/ownership certification"
+  },
+  "limitations": [
+    "The sample was fixed before rendering/reading/scoring, but root performed a nonblind engineering review; this is not independent/blind validation or a whole-corpus accuracy estimate.",
+    "The prior development case20260925g002120088 was randomly included and retained; this is not a holdout.",
+    "ok grades are not exhaustive character, number or cell certification.",
+    "Raw glyph and image counts are diagnostic observations, not visibility/occlusion proof. No OCR inference or guessed text was introduced.",
+    "The older fixed30 audit remains ok10/minor5/major15 and was not regraded.",
+    "This fresh30 became development input after this review; any future repair must not treat it as unseen validation."
+  ],
+  "sha256": {
+    "review-after86/selection-before-review.json": "37cc872aaa678c90766af5e45a5c6c5cc25a5d65f9c503892b689b4bf450ca2b",
+    "review-after86/completed-review87.json": "8cc6d1e1fe27fbe55f70203c9ec0acb277a6f0293bcc749f05985ca1ee84dff5",
+    "source-inventory87/inventory-result87.json": "5019f5ce76007dde985d94fe65b1ddf3cb998bcabf399a7982a7ebd5e7ee409a",
+    "source-inventory87/prefreeze87.json": "f377d533bb90324439fc093b589a7efb1451a88a7df9148a3787443fe130da55"
+  },
+  "candidate88_status": "Held private88/89 experiments; accepted production remains86. No model or source-specific production branch adopted.",
+  "followup_private_experiments": {
+    "native88": {
+      "adopted": false,
+      "library_tests": {
+        "passed": 1398,
+        "failed": 0
+      },
+      "all11992_comparison_completed": true,
+      "changed_pages": [
+        "20260731g001720043",
+        "20260813h017670002",
+        "20260827g001910001",
+        "20260831g001930004",
+        "20260916g002060046",
+        "20260916g002060261",
+        "20260916g002060293",
+        "20260916g002060296",
+        "20260930g002150046"
+      ],
+      "comparison_observation": "All original Word attributes, nonwhitespace text character multiplicities, complete tables, Analysis.format and article counts preserved. This is conservation/difference inventory, not correctness certification.",
+      "held_reason": "Variable-lane citations need explicit whitespace between source lanes. Source-span review still in progress; initial single-line checks included an overly restrictive wrapping condition and one omitted source paragraph marker. Initial failed check remains evidence, not an adopted gold."
+    },
+    "native89": {
+      "adopted": false,
+      "library_tests": {
+        "passed": 1400,
+        "failed": 0,
+        "ignored": 0
+      },
+      "production_source": "Private SSD only; not copied into repository. Added lane whitespace and conservative malformed-rule/competing-proposal handling.",
+      "all11992_comparison_completed": false,
+      "interruption": "External SSD became unavailable with OSError Errno6 Device not configured. Exact final89 corpus result was not obtained; no claim that native88 comparison validates89. Own interrupted observer/stream processes stopped.",
+      "remaining": "Recover SSD artifacts, finish source-span review, add durable original regression fixtures, rerun final implementation corpus/CLI/required gates before adoption."
+    }
+  }
+}
