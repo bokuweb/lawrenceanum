@@ -76,3 +76,14 @@ test('source decoder failure is recorded before any recognition',async()=>{
 test('missing Python executable is recorded as process failure without shell interpretation',async()=>{
   const h=harness();try{fs.mkdirSync(h.options.output);await assert.rejects(decode({...h.options,python:path.join(h.directory,'missing python;no shell')}),/ENOENT/);const saved=JSON.parse(fs.readFileSync(path.join(h.options.output,'decoder-process.json')));assert.match(saved.error,/ENOENT/);}finally{h.clean();}
 });
+test('explicit NDLOCR regions retain raw text and project each recognizer rectangle once',async()=>{
+ const h=harness();try{
+  delete h.options.engine;h.options['ndlocr-regions']=true;
+  const old=h.runtime.recognize;
+  h.runtime.recognize=async o=>{assert.equal(o['ndlocr-regions'],true);const obs=await old(o);obs.layout_available=true;obs.recognition_regions=[{id:0,text:obs.text,confidence:0.9,is_vertical:false,bbox:{pixels:{x0:0,y0:0,x1:2,y1:3}}}];fs.writeFileSync(path.join(o.output,'observations.json'),JSON.stringify(obs));return obs;};
+  const out=await runPdf(h.options,h.runtime);assert.equal(h.calls(),1);assert.equal(out.rows[0].status,'recognized_unclassified');
+  const projected=JSON.parse(fs.readFileSync(path.join(h.options.output,out.rows[0].projection)));
+  assert.deepEqual(projected.blocks,[]);assert.deepEqual(projected.recognition_regions[0].projection.bounds_points,[5,175,17,193]);assert.equal(projected.recognition_regions[0].text,projected.text);
+  assert.equal(projected.visibility,'unverified');assert.equal(projected.article_assignment,null);assert.equal(projected.native_glyph_binding,null);
+ }finally{h.clean();}
+});

@@ -102,3 +102,13 @@ test('touching a page edge and having positive-area coverage remain distinct',()
 test('sparse matrix translations cannot bypass complete finite-metadata validation',()=>{
  const m=[1,0,0,1];m.length=6;assert.throws(()=>projectBox(box,frame({image_to_user:m})));assert.throws(()=>projectBox(box,frame({recognition_to_image:m})));
 });
+test('recognizer regions project directly without fabricated block/paragraph/word nodes',()=>{
+ const raw=observation();raw.blocks=[];raw.layout_available=true;raw.recognition_regions=[{id:0,text:'元の\n領域',confidence:0.8,is_vertical:true,bbox:{pixels:box}}];const before=structuredClone(raw);
+ const out=projectLayout(raw,frame());assert.deepEqual(raw,before);assert.deepEqual(out.blocks,[]);
+ const region=out.recognition_regions[0];assert.deepEqual(region.projection.quad_points,[[15,290],[25,290],[25,310],[15,310]]);
+ const {projection,...unchanged}=region;assert.deepEqual(unchanged,raw.recognition_regions[0]);assert.equal(Object.hasOwn(region,'words'),false);
+ assert.equal(out.article_assignment,null);assert.equal(out.native_glyph_binding,null);
+});
+test('recognition region projection cannot overwrite source evidence or silently drop an invalid container',()=>{
+ for(const regions of [null,{},[{projection:{},bbox:{pixels:box}}]]){const raw=observation();raw.blocks=[];raw.recognition_regions=regions;assert.throws(()=>projectLayout(raw,frame()));}
+});

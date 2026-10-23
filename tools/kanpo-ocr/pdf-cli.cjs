@@ -10,11 +10,12 @@ const {run,engineName}=require('./engine.cjs');
 const {bindProjection}=require('./pdf-binding.cjs');
 const {partitionSources}=require('./partition.cjs');
 const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
-const usage=`Usage: node tools/kanpo-ocr/pdf-cli.cjs [--engine ndlocr|tesseract] [--ndlocr-bin /path/ndlocr-lite-rs] [--ndlocr-receipt /path/build.json] --extractor /path/image_sources --python /path/python3 --model MODEL --output NEW_DIR [--partition native-gutters-ltr] original.pdf
+const usage=`Usage: node tools/kanpo-ocr/pdf-cli.cjs [--engine ndlocr|tesseract] [--ndlocr-bin /path/ndlocr-lite-rs] [--ndlocr-receipt /path/build.json] [--ndlocr-regions] --extractor /path/image_sources --python /path/python3 --model MODEL --output NEW_DIR [--partition native-gutters-ltr] original.pdf
 
 Default NDLOCR 0.0.15 requires a pinned build receipt.
 Explicit --engine tesseract uses pinned jpn.traineddata and supports PDF coordinate projection.
-NDLOCR uses a models directory and returns text without PDF coordinates.
+NDLOCR uses a models directory and returns text by default.
+Optional --ndlocr-regions exports raw recognizer rectangles and their PDF projection.
 NDLOCR-only thresholds: --det-conf-threshold 0.25 --min-line-confidence 0.3
 
 Opt-in source image decoding, one-pass OCR and PDF placement. Requires the pinned
@@ -39,7 +40,7 @@ async function runPdf(options,runtime={decode,recognize:run,partition:partitionS
   fs.mkdirSync(options.output);
   const stopWatching=watchTerminal(options.output);
   try{
-    writeAtomicJson(path.join(options.output,'run-inputs.json'),{engine,pdf_path:path.resolve(options.pdf),extractor_path:path.resolve(options.extractor),python:options.python,model_path:path.resolve(options.model),tool_sha256:hash(fs.readFileSync(__filename)),binding_sha256:hash(fs.readFileSync(path.join(__dirname,'pdf-binding.cjs'))),recognition_partition:options.partition??'none',normalization:null,confidence_filter:engine==='ndlocr'?Number(options['min-line-confidence']??0.3):null,canonical_integration:false});
+    writeAtomicJson(path.join(options.output,'run-inputs.json'),{engine,recognition_regions_requested:options['ndlocr-regions']===true,pdf_path:path.resolve(options.pdf),extractor_path:path.resolve(options.extractor),python:options.python,model_path:path.resolve(options.model),tool_sha256:hash(fs.readFileSync(__filename)),binding_sha256:hash(fs.readFileSync(path.join(__dirname,'pdf-binding.cjs'))),recognition_partition:options.partition??'none',normalization:null,confidence_filter:engine==='ndlocr'?Number(options['min-line-confidence']??0.3):null,canonical_integration:false});
     if(options.partition!==undefined&&!['none','native-gutters-ltr'].includes(options.partition))throw new Error('Unsupported recognition partition mode');
     let sources=await runtime.decode(options),directory=path.join(options.output,'decoded');
     if(sources.kind!=='intrinsic_pdf_image_sources'||sources.body_coverage_verified!==false||!Array.isArray(sources.rows))throw new Error('Unsupported decoded source index');
@@ -64,7 +65,7 @@ async function runPdf(options,runtime={decode,recognize:run,partition:partitionS
         const prefix=`page${entry.page}-draw${entry.draw}`+(partitioned?`-part${region.partition}`:''),output=path.join(options.output,prefix+'-ocr');
         try{
           requests++;
-          const observations=await runtime.recognize({engine,'ndlocr-bin':options['ndlocr-bin'],'ndlocr-receipt':options['ndlocr-receipt'],'det-conf-threshold':options['det-conf-threshold'],'min-line-confidence':options['min-line-confidence'],image:path.join(directory,region.PNG),model:options.model,output,width_points:region.width_points,height_points:region.height_points,dpi:region.dpi,layout:partitioned?'single-column':'page'});
+          const observations=await runtime.recognize({engine,'ndlocr-bin':options['ndlocr-bin'],'ndlocr-receipt':options['ndlocr-receipt'],'ndlocr-regions':options['ndlocr-regions'],'det-conf-threshold':options['det-conf-threshold'],'min-line-confidence':options['min-line-confidence'],image:path.join(directory,region.PNG),model:options.model,output,width_points:region.width_points,height_points:region.height_points,dpi:region.dpi,layout:partitioned?'single-column':'page'});
           const projected=bindProjection(observations,region,directory),projection=prefix+'-projected.json';
           row.status='recognized_unclassified';row.observations=path.relative(options.output,path.join(output,'observations.json'));
           if(observations.layout_available===false){row.geometry_status='unavailable_from_engine';}
@@ -90,7 +91,7 @@ async function runPdf(options,runtime={decode,recognize:run,partition:partitionS
 }
 if(require.main===module){
   (async()=>{
-    const {values,positionals}=parseArgs({allowPositionals:true,options:{engine:{type:'string'},'ndlocr-bin':{type:'string'},'ndlocr-receipt':{type:'string'},'det-conf-threshold':{type:'string'},'min-line-confidence':{type:'string'},extractor:{type:'string'},python:{type:'string',default:'python3'},model:{type:'string'},output:{type:'string'},partition:{type:'string',default:'none'},help:{type:'boolean'}}});
+    const {values,positionals}=parseArgs({allowPositionals:true,options:{engine:{type:'string'},'ndlocr-bin':{type:'string'},'ndlocr-receipt':{type:'string'},'ndlocr-regions':{type:'boolean'},'det-conf-threshold':{type:'string'},'min-line-confidence':{type:'string'},extractor:{type:'string'},python:{type:'string',default:'python3'},model:{type:'string'},output:{type:'string'},partition:{type:'string',default:'none'},help:{type:'boolean'}}});
     if(values.help){process.stdout.write(usage);return;}
     if(positionals.length!==1||!values.extractor||!values.model||!values.output)throw new Error(usage);
     const result=await runPdf({...values,pdf:positionals[0]});

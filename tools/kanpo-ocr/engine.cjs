@@ -2,7 +2,7 @@
 function engineName(options) {
   const name=options.engine??'ndlocr';
   if(!['ndlocr','tesseract'].includes(name))throw new Error('Unsupported OCR engine');
-  if(name==='tesseract'&&['det-conf-threshold','min-line-confidence'].some(key=>options[key]!==undefined))throw new Error('NDLOCR thresholds require --engine ndlocr');
+  if(name==='tesseract'&&['det-conf-threshold','min-line-confidence','ndlocr-regions'].some(key=>options[key]!==undefined))throw new Error('NDLOCR options require --engine ndlocr');
   return name;
 }
 async function run(options,runtime) {
