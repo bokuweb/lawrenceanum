@@ -154,9 +154,10 @@ fn check_independent_operations(n: &str) {
         wanted.len(),
         "each independently dated and signed legal operation keeps its own related financial table"
     );
-    for unit in wanted {
-        assert_eq!(actual.iter().filter(|g| **g == unit).count(), 1);
-    }
+    assert_eq!(
+        actual, wanted,
+        "complete operations must also retain their original reading order"
+    );
 }
 
 #[test]
@@ -214,5 +215,84 @@ fn a_source_divider_between_body_and_its_related_statements_cannot_create_an_orp
                 "a geometrical body/finance separator is not a publication boundary"
             );
         }
+    }
+}
+
+// Native84 original partial-order reference, frozen before candidate membership inspection.
+#[test]
+fn a_former_designation_note_keeps_the_signed_merger_before_both_statements() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+    let gold: serde_json::Value =
+        serde_json::from_slice(
+            &std::fs::read(root.join(
+                "tests/data/source-frame-fences/20260814g001820091-independent-operations.json",
+            ))
+            .unwrap(),
+        )
+        .unwrap();
+    let input = crate::page_inputs(
+        &std::fs::read(root.join("tests/data/source-frame-fences/20260814g001820091.pdf")).unwrap(),
+    )
+    .unwrap();
+    let a = crate::analyze_item(&input);
+    let actual = crate::notice_title_scope_tests::parts(&a, &input)
+        .into_iter()
+        .map(|g| g.into_iter().collect::<BTreeSet<_>>())
+        .collect::<Vec<_>>();
+    let ids = |v: &serde_json::Value| {
+        v.as_array()
+            .unwrap()
+            .iter()
+            .map(|i| i.as_u64().unwrap() as usize)
+            .collect::<BTreeSet<_>>()
+    };
+    let expected = gold["expected_units"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|g| ids(&g["used_Word_ids"]))
+        .collect::<Vec<_>>();
+    assert_eq!(actual, expected);
+    let mut order = vec![];
+    for line in a
+        .pages
+        .iter()
+        .flat_map(|p| &p.regions)
+        .flat_map(|r| &r.lines)
+    {
+        if let Some(t) = &line.table {
+            order.extend(t.cells.iter().flat_map(|c| c.words.iter().copied()));
+        } else {
+            order.extend(line.words.iter().copied());
+        }
+    }
+    let mut positions = BTreeMap::new();
+    for (i, id) in order.into_iter().enumerate() {
+        assert!(positions.insert(id, i).is_none());
+    }
+    let body = ids(&gold["KSK_merger_source_body_Word_ids"]);
+    let annexes = gold["KSK_merger_financial_Word_groups"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(ids)
+        .collect::<Vec<_>>();
+    assert!(
+        body.iter().map(|i| positions[i]).max().unwrap()
+            < annexes
+                .iter()
+                .flatten()
+                .map(|i| positions[i])
+                .min()
+                .unwrap(),
+        "the complete signed merger must precede both financial statements"
+    );
+    for annex in annexes {
+        let mut positions = annex.iter().map(|i| positions[i]).collect::<Vec<_>>();
+        positions.sort_unstable();
+        assert_eq!(
+            positions,
+            (positions[0]..=positions[positions.len() - 1]).collect::<Vec<_>>()
+        );
     }
 }

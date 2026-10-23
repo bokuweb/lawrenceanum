@@ -1422,3 +1422,26 @@ fn former_designation_fields_use_their_role_not_their_company_value() {
         }
     }
 }
+
+#[test]
+fn a_typed_former_designation_does_not_depend_on_its_font_family() {
+    for family in [4, 79] {
+        let mut f = with_publisher_note("（旧商号任意の別名称）", 6.);
+        let id = f.units[0][4].words[0];
+        let s = NativeStyles::from([(family, 6f64.to_bits())]);
+        f.styles[id] = Some(s.clone());
+        f.content[id] = ContentStyles::Glyphs(s);
+        assert_eq!(f.run()[0].text, "新設分割公告", "metadata family {family}");
+    }
+}
+#[test]
+fn other_font_notes_do_not_make_current_or_unlabelled_names_historical() {
+    for text in ["（現商号任意の名称）", "（任意の名称）", "（旧商号）"] {
+        let mut f = with_publisher_note(text, 6.);
+        let id = f.units[0][4].words[0];
+        let s = NativeStyles::from([(79, 6f64.to_bits())]);
+        f.styles[id] = Some(s.clone());
+        f.content[id] = ContentStyles::Glyphs(s);
+        assert_eq!(f.run(), f.units[0]);
+    }
+}

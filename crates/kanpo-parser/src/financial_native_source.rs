@@ -742,51 +742,53 @@ fn publisher(
         if signature_style.is_disjoint(&date_style) || !signature_style.is_disjoint(&head.styles) {
             continue;
         }
-        let mut first = i;
-        while first > date_index + 1 {
-            let all_fonts = rows[first - 1]
-                .iter()
-                .map(|&id| {
-                    src.styles
-                        .get(id)?
-                        .as_ref()
-                        .map(|s| s.iter().map(|&(f, _)| f).collect::<BTreeSet<_>>())
-                })
-                .collect::<Option<Vec<_>>>()?
-                .into_iter()
-                .flatten()
-                .collect::<BTreeSet<_>>();
-            // An unresolved row in another font family can end the field,
-            // but cannot supply any interpreted publisher characters.
-            if all_fonts.is_disjoint(&fonts) {
-                break;
+        // First identify a complete explicit metadata suffix, independently
+        // of its font family. Only the publisher field itself must carry the
+        // heading's font family. Unknown content inside either field holds.
+        let start_of_field = |end: usize| -> Option<Option<usize>> {
+            let mut first = end;
+            while first > date_index + 1 {
+                let all_fonts = rows[first - 1]
+                    .iter()
+                    .map(|&id| {
+                        src.styles
+                            .get(id)?
+                            .as_ref()
+                            .map(|s| s.iter().map(|&(f, _)| f).collect::<BTreeSet<_>>())
+                    })
+                    .collect::<Option<Vec<_>>>()?
+                    .into_iter()
+                    .flatten()
+                    .collect::<BTreeSet<_>>();
+                // An unresolved row in another font family can end the field,
+                // but cannot supply any interpreted publisher characters.
+                if all_fonts.is_disjoint(&fonts) {
+                    break;
+                }
+                let s = src.content(&rows[first - 1])?;
+                let fs = s.iter().map(|&(f, _)| f).collect::<BTreeSet<_>>();
+                if s.is_empty() || fs != fonts {
+                    break;
+                }
+                first -= 1;
             }
-            let s = src.content(&rows[first - 1])?;
-            let fs = s.iter().map(|&(f, _)| f).collect::<BTreeSet<_>>();
-            if s.is_empty() || fs != fonts {
-                break;
-            }
-            first -= 1;
-        }
-        if first == i {
-            continue;
-        }
-        let mut field_end = i;
-        let mut annotation_ends = vec![];
-        for split in first + 1..i {
-            let note = rows[split..i]
-                .iter()
-                .map(|r| src.text(r))
-                .collect::<String>();
+            Some((first != end).then_some(first))
+        };
+        let mut annotated = vec![];
+        for end in date_index + 1..i {
+            let note = rows[end..i].iter().map(|r| src.text(r)).collect::<String>();
             if !former_designation_annotation(&note) {
                 continue;
             }
-            let name_ids = rows[first..split]
+            let Some(first) = start_of_field(end)? else {
+                continue;
+            };
+            let name_ids = rows[first..end]
                 .iter()
                 .flatten()
                 .copied()
                 .collect::<Vec<_>>();
-            let note_ids = rows[split..i].iter().flatten().copied().collect::<Vec<_>>();
+            let note_ids = rows[end..i].iter().flatten().copied().collect::<Vec<_>>();
             let name_styles = src.content(&name_ids)?;
             let note_styles = src.content(&note_ids)?;
             if !name_styles.is_empty()
@@ -797,15 +799,19 @@ fn publisher(
                         .all(|&(_, p)| f64::from_bits(n) < f64::from_bits(p))
                 })
             {
-                annotation_ends.push(split);
+                annotated.push((first, end));
             }
         }
-        if annotation_ends.len() > 1 {
-            return None;
-        }
-        if let Some(&split) = annotation_ends.first() {
-            field_end = split;
-        }
+        let (first, field_end) = match annotated.as_slice() {
+            [field] => *field,
+            [] => {
+                let Some(first) = start_of_field(i)? else {
+                    continue;
+                };
+                (first, i)
+            }
+            _ => return None,
+        };
         let name = rows[first..field_end]
             .iter()
             .map(|r| src.text(r))
