@@ -649,6 +649,50 @@ fn notice_witness(
     }
     (!records.is_empty()).then_some(records)
 }
+// A former-designation field explicitly labels its name as historical. A
+// smaller parenthesized string without such a role may be part of the legal
+// publisher name, so typography alone cannot remove it. The former name is
+// never an identity alias and all source text remains in the publication.
+fn former_designation_annotation(text: &str) -> bool {
+    let mut stack = vec![];
+    for (at, c) in text.char_indices() {
+        match c {
+            '(' => stack.push(')'),
+            '（' => stack.push('）'),
+            ')' | '）' => {
+                if stack.pop() != Some(c) || (stack.is_empty() && at + c.len_utf8() != text.len()) {
+                    return false;
+                }
+            }
+            _ => {
+                if stack.is_empty() {
+                    return false;
+                }
+            }
+        }
+    }
+    if !stack.is_empty() {
+        return false;
+    }
+    let Some(first) = text.chars().next() else {
+        return false;
+    };
+    let Some(last) = text.chars().last() else {
+        return false;
+    };
+    let inner = &text[first.len_utf8()..text.len() - last.len_utf8()];
+    // These are metadata roles, like a date or signature-office label; no
+    // observed company value or publication title selects the parser path.
+    ["旧商号", "旧社名", "旧名称"].iter().any(|label| {
+        inner.strip_prefix(label).is_some_and(|value| {
+            let value = value
+                .strip_prefix(':')
+                .or_else(|| value.strip_prefix('：'))
+                .unwrap_or(value);
+            nominal(value)
+        })
+    })
+}
 fn publisher(
     lines: &[Line],
     header: &[usize],
@@ -700,6 +744,23 @@ fn publisher(
         }
         let mut first = i;
         while first > date_index + 1 {
+            let all_fonts = rows[first - 1]
+                .iter()
+                .map(|&id| {
+                    src.styles
+                        .get(id)?
+                        .as_ref()
+                        .map(|s| s.iter().map(|&(f, _)| f).collect::<BTreeSet<_>>())
+                })
+                .collect::<Option<Vec<_>>>()?
+                .into_iter()
+                .flatten()
+                .collect::<BTreeSet<_>>();
+            // An unresolved row in another font family can end the field,
+            // but cannot supply any interpreted publisher characters.
+            if all_fonts.is_disjoint(&fonts) {
+                break;
+            }
             let s = src.content(&rows[first - 1])?;
             let fs = s.iter().map(|&(f, _)| f).collect::<BTreeSet<_>>();
             if s.is_empty() || fs != fonts {
@@ -710,7 +771,42 @@ fn publisher(
         if first == i {
             continue;
         }
-        let name = rows[first..i]
+        let mut field_end = i;
+        let mut annotation_ends = vec![];
+        for split in first + 1..i {
+            let note = rows[split..i]
+                .iter()
+                .map(|r| src.text(r))
+                .collect::<String>();
+            if !former_designation_annotation(&note) {
+                continue;
+            }
+            let name_ids = rows[first..split]
+                .iter()
+                .flatten()
+                .copied()
+                .collect::<Vec<_>>();
+            let note_ids = rows[split..i].iter().flatten().copied().collect::<Vec<_>>();
+            let name_styles = src.content(&name_ids)?;
+            let note_styles = src.content(&note_ids)?;
+            if !name_styles.is_empty()
+                && !note_styles.is_empty()
+                && note_styles.iter().all(|&(_, n)| {
+                    name_styles
+                        .iter()
+                        .all(|&(_, p)| f64::from_bits(n) < f64::from_bits(p))
+                })
+            {
+                annotation_ends.push(split);
+            }
+        }
+        if annotation_ends.len() > 1 {
+            return None;
+        }
+        if let Some(&split) = annotation_ends.first() {
+            field_end = split;
+        }
+        let name = rows[first..field_end]
             .iter()
             .map(|r| src.text(r))
             .collect::<String>();
@@ -984,10 +1080,29 @@ pub(super) fn plan(lines: &[Line], src: &Source<'_>, frame: Rect) -> Option<Plan
         }
     }
     // The frame proves the closed source scope. Separate publications also
-    // require each complete annex to belong to exactly one independently dated
-    // notice band AND one of that notice's source-proven publishers/parties.
-    // Equal company names are not identity of legal operations. A geometric
-    // divider or a publisher match alone cannot partition a related statement.
+    // require each complete annex to have an independently dated source-party
+    // owner: either a unique overlapping body band, or a unique full identity
+    // in a disjoint shared annex band. Equal acquirer names do not identify a
+    // legal operation; neither a divider nor a publisher match alone suffices.
+    let annex_rects = annexes
+        .iter()
+        .map(|(members, _)| {
+            members
+                .iter()
+                .map(|&i| shapes[i].unwrap())
+                .reduce(union)
+                .unwrap()
+        })
+        .collect::<Vec<_>>();
+    // A shared annex band wholly outside every body band has no y-overlap
+    // owner. In that topology only a unique full source-party attribution can
+    // attach it; x proximity and equal acquirer names are not ownership.
+    let shared_band = annex_rects
+        .iter()
+        .all(|a| notices.iter().all(|n| n.rect[3] <= a[1]))
+        || annex_rects
+            .iter()
+            .all(|a| notices.iter().all(|n| a[3] <= n.rect[1]));
     let mut publications = notices.iter().map(|n| n.lines.clone()).collect::<Vec<_>>();
     let mut attached = vec![false; notices.len()];
     let mut distinct = true;
@@ -1002,16 +1117,20 @@ pub(super) fn plan(lines: &[Line], src: &Source<'_>, frame: Rect) -> Option<Plan
             .enumerate()
             .filter_map(|(i, n)| (rect[1] < n.rect[3] && n.rect[1] < rect[3]).then_some(i))
             .collect::<Vec<_>>();
-        let [owner] = bands.as_slice() else {
+        let owner = if let [owner] = bands.as_slice() {
+            *owner
+        } else if bands.is_empty() && shared_band && owners.len() == 1 {
+            *owners.iter().next().unwrap()
+        } else {
             distinct = false;
             break;
         };
-        if !owners.contains(owner) {
+        if !owners.contains(&owner) {
             distinct = false;
             break;
         }
-        publications[*owner].extend(members.iter().copied());
-        attached[*owner] = true;
+        publications[owner].extend(members.iter().copied());
+        attached[owner] = true;
     }
     let publication_reading = publications.clone();
     for members in &mut publications {

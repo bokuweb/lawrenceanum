@@ -484,7 +484,7 @@ fn an_unrelated_rendered_line_does_not_supply_or_invalidate_frame_evidence() {
     assert_eq!(output[0].text, "新設分割公告");
     assert_eq!(output.last(), Some(&f.units[0][7]));
     let mut bad = fixture();
-    bad.units[0][3].text = "（株式会社みどり）".into();
+    bad.units[0][3].text = "（旧商号株式会社みどり）".into();
     assert_eq!(bad.run(), bad.units[0]);
 }
 
@@ -1173,5 +1173,252 @@ fn unresolved_source_words_cannot_cross_a_new_notice_divider_even_when_not_rende
             if case == 0 { vec![0, 12] } else { vec![0] },
             "unresolved original glyph geometry still belongs to the source scope"
         );
+    }
+}
+
+fn with_publisher_note(text: &str, size: f64) -> Fixture {
+    let mut f = fixture();
+    let note = f.put(text, [20., 65., 150., 68.], 3, size, NativeAxis::Right);
+    f.units[0].insert(4, note);
+    f
+}
+#[test]
+fn former_designation_notes_are_not_identity_aliases() {
+    for text in [
+        "（旧商号任意の補足）".to_owned(),
+        format!("(旧社名{})", "任意（入れ子）の補足".repeat(25)),
+    ] {
+        let f = with_publisher_note(&text, 6.);
+        let out = f.run();
+        assert_eq!(out[0].text, "新設分割公告");
+        assert!(out.iter().any(|l| l.text == text));
+    }
+}
+#[test]
+fn annotation_does_not_lend_a_foreign_publisher() {
+    let mut f = with_publisher_note("（旧商号株式会社みどり）", 6.);
+    f.rename("株式会社みどり", "株式会社別会社");
+    // Restore only the body actor and annotation to the other issuer.
+    for index in [4, 12] {
+        let old = f.units[0][index].text.clone();
+        let new = old.replace("株式会社別会社", "株式会社みどり");
+        f.units[0][index].text = new.clone();
+        for &id in &f.units[0][index].words {
+            f.words[id].text = f.words[id].text.replace("株式会社別会社", "株式会社みどり");
+            f.words[id].raw = f.words[id].text.clone();
+        }
+    }
+    assert_eq!(f.run(), f.units[0]);
+}
+#[test]
+fn unbalanced_prose_or_equal_size_suffix_is_not_a_separate_note() {
+    for (text, size) in [
+        ("（任意の補足", 6.),
+        ("補足です。", 6.),
+        ("（旧商号任意の補足）", 9.),
+        ("（旧商号任意の補足）別会社", 6.),
+        ("（任意の補足)", 6.),
+    ] {
+        let f = with_publisher_note(text, size);
+        assert_eq!(f.run(), f.units[0]);
+    }
+}
+#[test]
+fn unknown_address_content_can_stop_but_cannot_supply_publisher_identity() {
+    let mut f = fixture();
+    let address = f.units[0][2].words[0];
+    f.content[address] = ContentStyles::Unknown;
+    assert_eq!(f.run()[0].text, "新設分割公告");
+    let name = f.units[0][3].words[0];
+    f.content[name] = ContentStyles::Unknown;
+    assert_eq!(f.run(), f.units[0]);
+}
+fn side_by_side_publications() -> (crate::trace::PageTrace, crate::lines::PageRules) {
+    let (mut p, r) = stacked_publications(false);
+    let half = p.words.len() / 2;
+    // Two body columns above a disjoint shared financial band; the names
+    // alone, rather than x proximity, assign each complete financial annex.
+    let tr = |id: usize, b: &mut [f32; 4]| {
+        let (dx, dy) = match (id >= half, p.native_axes[id]) {
+            (false, NativeAxis::Down) => (0., 0.),
+            (true, NativeAxis::Down) => (-180., -300.),
+            (false, _) => (0., 300.),
+            (true, _) => (170., 0.),
+        };
+        b[0] += dx;
+        b[2] += dx;
+        b[1] += dy;
+        b[3] += dy;
+    };
+    for w in &mut p.words {
+        let mut b = [w.x0, w.y0, w.x1, w.y1];
+        tr(w.id, &mut b);
+        [w.x0, w.y0, w.x1, w.y1] = b;
+        tr(w.id, &mut w.source_box);
+    }
+    for (i, b) in p.native_bounds.iter_mut().enumerate() {
+        if let NativeBounds::Glyphs(b) = b {
+            tr(i, b);
+        }
+    }
+    for l in &mut p.regions[0].lines {
+        if let Some(t) = &mut l.table {
+            let id = t.cells[0].words[0];
+            let mut b = [t.x0, t.y0, t.x1, t.y1];
+            tr(id, &mut b);
+            [t.x0, t.y0, t.x1, t.y1] = b;
+            for c in &mut t.cells {
+                let mut b = [c.x0, c.y0, c.x1, c.y1];
+                tr(c.words[0], &mut b);
+                [c.x0, c.y0, c.x1, c.y1] = b;
+            }
+        }
+    }
+    (p, r)
+}
+#[test]
+fn unique_parties_bind_disjoint_shared_band_annexes() {
+    let (p, r) = side_by_side_publications();
+    assert_eq!(
+        super::source_scopes::ranges(&p, &r),
+        vec![(0, 12), (12, 24)]
+    );
+}
+#[test]
+fn shared_band_ambiguous_publishers_do_not_partition() {
+    let (mut p, r) = side_by_side_publications();
+    for w in &mut p.words {
+        w.text = w.text.replace("株式会社あお", "株式会社みどり");
+        w.raw = w.text.clone();
+    }
+    for l in &mut p.regions[0].lines {
+        l.text = l.text.replace("株式会社あお", "株式会社みどり");
+    }
+    assert!(super::source_scopes::ranges(&p, &r).len() <= 1);
+}
+
+#[test]
+fn annotations_survive_axis_scaling_and_font_renaming() {
+    let f = with_publisher_note("（旧商号任意（入れ子）の補足）", 6.);
+    let want = order(&f.run());
+    for (sx, sy) in [(0.125, 64.), (64., 0.125)] {
+        let mut x = f.clone();
+        for s in x.styles.iter_mut().flatten() {
+            *s = s
+                .iter()
+                .map(|&(f, b)| (f + 53, (f64::from_bits(b) * 7.).to_bits()))
+                .collect();
+        }
+        for s in &mut x.content {
+            if let ContentStyles::Glyphs(s) = s {
+                *s = s
+                    .iter()
+                    .map(|&(f, b)| (f + 53, (f64::from_bits(b) * 7.).to_bits()))
+                    .collect();
+            }
+        }
+        for (w, b) in x.words.iter_mut().zip(&mut x.bounds) {
+            w.x0 *= sx;
+            w.x1 *= sx;
+            w.y0 *= sy;
+            w.y1 *= sy;
+            w.source_box = [
+                w.source_box[0] * sx,
+                w.source_box[1] * sy,
+                w.source_box[2] * sx,
+                w.source_box[3] * sy,
+            ];
+            if let NativeBounds::Glyphs(r) = b {
+                *r = [r[0] * sx, r[1] * sy, r[2] * sx, r[3] * sy];
+            }
+        }
+        for l in x.units.iter_mut().flatten() {
+            if let Some(t) = &mut l.table {
+                t.x0 *= sx;
+                t.x1 *= sx;
+                t.y0 *= sy;
+                t.y1 *= sy;
+                for c in &mut t.cells {
+                    c.x0 *= sx;
+                    c.x1 *= sx;
+                    c.y0 *= sy;
+                    c.y1 *= sy;
+                }
+            }
+        }
+        let mut us = x.units.iter().cloned().map(Unit::Plain).collect::<Vec<_>>();
+        order_with_source(
+            &mut us,
+            &x.words,
+            &[[0., 0., 500. * sx, 250. * sy]],
+            800. * sx,
+            1000. * sy,
+            &x.styles,
+            &x.content,
+            &x.bounds,
+            &x.axes,
+            &x.rulings,
+            &[],
+        );
+        let Unit::Plain(ls) = &us[0] else { panic!() };
+        assert_eq!(order(ls), want);
+    }
+}
+
+#[test]
+fn annotation_roles_survive_source_word_and_presentation_line_partition() {
+    let mut f = with_publisher_note("（旧商号任意の補足）", 6.);
+    let note = f.units[0].remove(4);
+    f.units[0][3].text.push_str(&note.text);
+    f.units[0][3].words.extend(note.words);
+    assert_eq!(f.run()[0].text, "新設分割公告");
+    let mut f = fixture();
+    let a = f.put(
+        "（旧商号任意の",
+        [20., 65., 70., 66.],
+        3,
+        6.,
+        NativeAxis::Right,
+    );
+    let b = f.put("補足）", [20., 67., 70., 68.], 3, 6., NativeAxis::Right);
+    f.units[0].splice(4..4, [a, b]);
+    assert_eq!(f.run()[0].text, "新設分割公告");
+}
+#[test]
+fn unknown_annotation_or_publisher_style_cannot_supply_name_proof() {
+    for index in [3, 4] {
+        let mut f = with_publisher_note("（旧商号任意の補足）", 6.);
+        let id = f.units[0][index].words[0];
+        f.content[id] = ContentStyles::Unknown;
+        assert_eq!(f.run(), f.units[0]);
+    }
+}
+
+#[test]
+fn unlabelled_small_parentheses_can_be_a_legal_name_and_are_not_removed() {
+    for note in [
+        "（任意の補足）",
+        "（東日本）",
+        "（現商号株式会社任意）",
+        "（新商号株式会社任意）",
+        "（商号株式会社任意）",
+        "（旧商号）",
+        "（旧商号：）",
+        "（旧商号株式会社任意）（別の欄）",
+    ] {
+        let f = with_publisher_note(note, 6.);
+        assert_eq!(f.run(), f.units[0], "{note}");
+    }
+}
+#[test]
+fn former_designation_fields_use_their_role_not_their_company_value() {
+    for label in ["旧商号", "旧社名", "旧名称"] {
+        for value in [
+            "任意の名称".to_owned(),
+            "異なる任意（内部の括弧）の名称".repeat(80),
+        ] {
+            let f = with_publisher_note(&format!("（{label}：{value}）"), 6.);
+            assert_eq!(f.run()[0].text, "新設分割公告");
+        }
     }
 }

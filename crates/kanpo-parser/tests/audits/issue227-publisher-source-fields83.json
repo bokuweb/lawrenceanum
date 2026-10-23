@@ -1,0 +1,212 @@
+{
+  "status": "locally_verified_native83; exact final head CI pending; issue227 goal incomplete",
+  "accepted_baseline_head": "002497cbc5372d8c9749b04a9f32dd08f9b5eae0",
+  "native_candidate": 83,
+  "OCRtool_unchanged": 63,
+  "problem": "Two independently dated mergers sharing an acquirer and signatory were merged, and their financial statements were not kept with their own operation. Separately a wrapped address caused a false internal article split.",
+  "methods": {
+    "historical_designation": "Interpret explicit 旧商号/旧社名/旧名称 metadata roles inside one complete outer parenthetical field with known native content styles and all glyph sizes strictly smaller than the preceding complete publisher field. Labels identify a historical role, never an observed company/title value or an expected count. The historical value never becomes an identity alias. Preserve every original character. Unlabelled/current/new/empty/malformed/multiple or ambiguous annotations do not authorize name removal.",
+    "field_end": "A source row whose complete known font set is disjoint from the publisher-heading family can terminate the field even if its character-content style is unresolved. That row cannot supply decoded publisher characters. Unknown styles inside the candidate publisher still hold.",
+    "shared_annex_band": "When every complete annex lies wholly above all notice bodies or wholly below all notice bodies, each annex may bind to its unique complete source publisher/party owner. Each body has its own dated signed notice proof, every body must attach, and all selected original Lines/Tables are owned exactly once. Existing unique y-overlap proof remains available; mixed/overlapping bands or ambiguous owners retain the certified parent.",
+    "source_order": "Use the same proven body/annex blocks for reading order and contiguous article scopes. Shared acquirer/date/signatory is not identity of operation.",
+    "no_new_routing_by": [
+      "page IDs",
+      "company names or aliases",
+      "observed full title values",
+      "character or line count caps",
+      "fixed point/aspect thresholds",
+      "model outcomes"
+    ]
+  },
+  "TDD_history": {
+    "original_before_implementation": "g212088 source groups [208,79,96,90,84] frozen from original before implementation; existing native82 fails4 vs5.",
+    "generic_RED": "Annotation, unresolved-address field termination and side-by-side shared-band controls failed first. Counterexamples include foreign name in annotation, ambiguous publishers and incomplete source.",
+    "held_broad_candidate": "Initially stripping arbitrary smaller balanced parentheses passed1378 controls and two original comparisons. A new unlabelled/legal-name/current-name negative failed. This broad candidate was never migrated to public source and is held despite its corpus improvements.",
+    "typed_refinement": "Only explicit historical-designation fields now authorize annotation role; arbitrary current-name values, nested/long contents, Word/Line partition, anisotropic scaling and font-ID changes are tested. Multi-parenthetical and unlabelled cases remain negative. Old public negative oracles unchanged.",
+    "original_after_discovery": "g1840057 was discovered by the first private full corpus:6 vs5. Root nonblind original review froze five source memberships before candidate Word-group inspection, then verified the wrapped-address split was incorrect. This is not an independent/blind oracle.",
+    "private_final_library": {
+      "passed": 1380,
+      "failed": 0,
+      "ignored": 0
+    },
+    "public_portable_originals": "Existing g189119 helper refactored without changing its oracle; add g212088 and g1840057 original tests. New public library1381 has passed; complete gates tracked below."
+  },
+  "tests": {
+    "terminal": 0,
+    "native_passed": 2113,
+    "Node_passed": 94,
+    "Python_passed": 45,
+    "total": 2252,
+    "failed": 0,
+    "ignored_or_skipped": 0,
+    "parser_library": 1381,
+    "PDF_library": 173,
+    "commands": 118,
+    "integration_targets": 109,
+    "result_groups": 117,
+    "new_test_functions": 13,
+    "all814_snapshots_readonly_pass": true,
+    "one_individually_original_reviewed_snapshot_update": true,
+    "other813_bytes_exact_accepted82": true,
+    "status": "Fresh complete public gates; exact final GitHub head CI tracked separately.",
+    "verified_tested_source_manifest_sha256": "3e45e051f174deacf7027a9c98d1dd355c0bee1da266f6a47afce406c5876d80"
+  },
+  "corpus": {
+    "terminal": 0,
+    "inputs": 11992,
+    "changed": 2,
+    "all_original_Word_fields_and_nonwhitespace_characters_preserved": true,
+    "all_complete_same_role_Line_Table_multisets_and_page_metadata_preserved": true,
+    "Analysis_formats_equal": true,
+    "reading_order_and_article_partition_changes_are_saved_for_original_review": true,
+    "source_and_inputs_frozen": true,
+    "purpose": "Private typed publisher annotation and unique source-party shared annex-band proof versus accepted native82. Preserve whole source Lines/Tables and every existing character. Same-publisher is not same operation; native transversal plus two own dated nonfinancial roots or unique source publisher/band certificates refine scopes. No public mutation, expected wording normalization or accuracy claim.",
+    "seconds": 751.301423625
+  },
+  "strong_proof": {
+    "terminal": 0,
+    "inputs": 11992,
+    "entire_Analysis_equal_accepted82": 11990,
+    "changed": [
+      {
+        "page": "20260818g001840057",
+        "articles": [
+          6,
+          5
+        ],
+        "text_equal": true,
+        "pages_equal": true,
+        "Line_Table_multiset_exact": true
+      },
+      {
+        "page": "20260925g002120088",
+        "articles": [
+          4,
+          5
+        ],
+        "text_equal": false,
+        "pages_equal": false,
+        "Line_Table_multiset_exact": true
+      }
+    ],
+    "all11992_original_Word_fields_complete_Line_Table_multisets_and_Analysis_format_preserved": true,
+    "all11992_styled_Document_nonwhite_characters_and_complete_tables_other_blocks_preserved": true,
+    "pages_and_text_exact_except_g212088_source_order": true,
+    "original_semantic_units": [
+      {
+        "page": "20260818g001840057",
+        "before_articles": 6,
+        "after_articles": 5,
+        "frozen_reference_sha256": "398b5c2247973a155e0b9b806a6c1d95c8364ad74633c2f9a3a896d0434ca741",
+        "original_source_Word_group_sizes": [
+          69,
+          83,
+          141,
+          163,
+          137
+        ],
+        "groups_exact_frozen_original": true,
+        "whole_Lines_and_Tables_uncut_and_source_Words_owned_once": true,
+        "styled_Document_nonwhite_characters_and_complete_tables_and_other_blocks_exact": true,
+        "text_equal": true,
+        "pages_equal": true
+      },
+      {
+        "page": "20260925g002120088",
+        "before_articles": 4,
+        "after_articles": 5,
+        "frozen_reference_sha256": "ea9e141cd17fbf2bfacae83d85b9746ea721946cb8a78d83f8ff5ef4b21660bf",
+        "original_source_Word_group_sizes": [
+          208,
+          79,
+          96,
+          90,
+          84
+        ],
+        "groups_exact_frozen_original": true,
+        "whole_Lines_and_Tables_uncut_and_source_Words_owned_once": true,
+        "styled_Document_nonwhite_characters_and_complete_tables_and_other_blocks_exact": true,
+        "text_equal": false,
+        "pages_equal": false
+      }
+    ],
+    "new_reference_timing": {
+      "g212088": "Original five groups frozen before implementation; shared acquirer does not imply identical operation.",
+      "g1840057": "Root nonblind discovery after first private corpus; original five visual units frozen before candidate Word membership inspection. No independent/blind review claimed."
+    },
+    "actual_default_CLI": {
+      "terminal": 0,
+      "fresh_actual_default_CLI_PDF_inputs": 11992,
+      "entire_text_bytes_equal_accepted80_CLI": 11991,
+      "changed": [
+        "20260925g002120088.txt"
+      ],
+      "changed_file_CLI_bytes_exact_new_API": true,
+      "source_binary_inputs_frozen": true,
+      "full_new_API_equivalence_requires_final_typed_corpus_result": true,
+      "baseline80_CLI_API_equality_artifact": ".cache/kanpo-227/source-financial69/source-ruling70/public74/CLI74/CLI-API-equality74.json",
+      "baseline80_equality_sha256": "638c6dac1800f6aa0732a36b053715c05ce85ad36b55ef99b06e89b39b1673e6",
+      "seconds": 210.185784125
+    },
+    "new_CLI_API_bytes_equal_all11992": true,
+    "CLI_API_equality_reason": "Accepted82 API text equals accepted80 API text for all11992. Candidate API text differs at only g212088; fresh CLI differs from accepted80 CLI at that exact file and equals the new API there. Accepted80 full CLI/API11992 equality retained by SHA artifact.",
+    "snapshot": {
+      "total": 814,
+      "one_original_reviewed_proposal_migrated": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260925g00212__20260925g002120088.pdf.snap",
+      "other813_bytes_exact_accepted82": true,
+      "readonly_full_gate_tracked_separately": true
+    },
+    "fixed30_entire_Analysis_unchanged_not_regraded": true,
+    "fixed30_root_nonblind": {
+      "ok": 10,
+      "minor": 5,
+      "major": 15
+    },
+    "necessary7": {
+      "pass": 6,
+      "fail": 1,
+      "image_body_g1730167_still3_vs4": true
+    },
+    "PUA_gap_pages_unchanged": [
+      "20260721h017510032",
+      "20260820h017720032"
+    ],
+    "production_byteexact_frozen_typed_runtime_source": true,
+    "scope": "Root nonblind engineering validation of source membership, full data conservation and full default CLI/API equality. No general recognition/reading-order/cell accuracy rate, no all-heuristics-removed or100% claim.",
+    "evidence": {
+      ".cache/kanpo-227/source-financial69/source-ruling70/opaque-financial83/typed-corpus83/result70.json": "733af2b0f68c7fa9faa441cfe9507a9f4dfeb44ddab131cecfd092440512a49e",
+      ".cache/kanpo-227/source-financial69/source-ruling70/opaque-financial83/typed-original-proof83.json": "ffed8f3190fbc3910d1bf97d0a0159c41ef6ff1c70f55f7a8bc9a7b3e801eb12",
+      ".cache/kanpo-227/source-financial69/source-ruling70/opaque-financial83/CLI83/result83.json": "57c556a4632cb9e8f01a9f18704ea34fbe4af7181509103679be465065020af9",
+      ".cache/kanpo-227/source-financial69/source-ruling70/opaque-financial83/held-untyped-candidate83.json": "d7b3250eca18a57315dcadaf1d3a4bebd848bda99f4f888ee410a980d22a2822",
+      ".cache/kanpo-227/source-financial69/source-ruling70/opaque-financial83/reviewed-snapshot83.json": "05986bc32afa45c9719b9cb88dfb9f075380f5f8436b3c3e761ee9256316ac30"
+    }
+  },
+  "snapshot": {
+    "total": 814,
+    "one_original_reviewed_proposal_migrated": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260925g00212__20260925g002120088.pdf.snap",
+    "other813_bytes_exact_accepted82": true,
+    "readonly_full_gate_tracked_separately": true
+  },
+  "migration": "The sole production module is byte-identical to the frozen typed full-corpus runtime. Repository-contained PDF/JSON fixtures replace private reference paths. No prior source membership gold was rewritten. One existing snapshot was individually reviewed; g1840057 has no archive snapshot and gains a portable source membership test.",
+  "raw_PDF": "kanpo-pdf/OCR source, dependencies and model policies unchanged. All11992 parser Word fields retained; inherited accepted80 raw Glyph/Word/image audits remain authority. No newly repeated final-pixel/paint or missing-character accuracy claim.",
+  "models": "No new model/dependency/download/inference. RURI/ModernBERT remain authorized opt-in research if fixed comparisons show utility; explicit source metadata and ownership suffice here.",
+  "limits": [
+    "Root nonblind original/source engineering validation, not independent/blind or global recognition, transcription, cell or reading-order accuracy.",
+    "Current native geometry, PageRules supplier and PDF paint/clip/visibility limitations remain.",
+    "Fixed30 unchanged ok10/minor5/major15, not regraded. Known7 remains6pass1fail; imagebodyg1730167 native3vs4. PUA h17510032/h17720032 held.",
+    "Image/outline body, roster/address/tables, opaque financial rows, further shared-frame layouts and existing compatibility heuristics remain. No100% or exhausted-avenues claim."
+  ],
+  "evidence": {
+    ".cache/kanpo-227/source-financial69/source-ruling70/opaque-financial83/typed-corpus83/result70.json": "733af2b0f68c7fa9faa441cfe9507a9f4dfeb44ddab131cecfd092440512a49e",
+    ".cache/kanpo-227/source-financial69/source-ruling70/opaque-financial83/typed-corpus83/strong-proof83.json": "584fad41f191cac76b863389a4d8e7ceca26ab43743b80862998442eb826b2c9",
+    ".cache/kanpo-227/source-financial69/source-ruling70/opaque-financial83/typed-original-proof83.json": "ffed8f3190fbc3910d1bf97d0a0159c41ef6ff1c70f55f7a8bc9a7b3e801eb12",
+    ".cache/kanpo-227/source-financial69/source-ruling70/opaque-financial83/held-untyped-candidate83.json": "d7b3250eca18a57315dcadaf1d3a4bebd848bda99f4f888ee410a980d22a2822",
+    ".cache/kanpo-227/source-financial69/source-ruling70/opaque-financial83/former-designation-corpus-evidence83.json": "bb3a966deb17a9d183dce6077c49500e5331464d39008bb0c58c282087aec7c4",
+    ".cache/kanpo-227/source-financial69/source-ruling70/opaque-financial83/typed-GREEN4-test83.log": "2da940c7d10923327752b88de66145857cd47484581804ef92240a5a144ca6f3",
+    ".cache/kanpo-227/source-financial69/source-ruling70/opaque-financial83/CLI83/result83.json": "57c556a4632cb9e8f01a9f18704ea34fbe4af7181509103679be465065020af9",
+    ".cache/kanpo-227/source-financial69/source-ruling70/opaque-financial83/reviewed-snapshot83.json": "05986bc32afa45c9719b9cb88dfb9f075380f5f8436b3c3e761ee9256316ac30",
+    ".cache/kanpo-227/source-financial69/source-ruling70/public83/result83.json": "0c48ff88c1ab7cfcbdf7fa745aade63082c874acd41ae93761dc43a816dbe32f",
+    ".cache/kanpo-227/source-financial69/source-ruling70/public83/source-manifest83.json": "3e45e051f174deacf7027a9c98d1dd355c0bee1da266f6a47afce406c5876d80",
+    ".cache/kanpo-227/source-financial69/source-ruling70/OCR-contracts83/result83.json": "5288367f80298fbcb5fe5a6b041c79dd8d69ea25ddb3d61f4a4f2cc1df7f6db1"
+  }
+}

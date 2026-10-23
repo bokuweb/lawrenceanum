@@ -121,13 +121,12 @@ fn original_20261020g002300078() {
     check("20261020g002300078");
 }
 
-#[test]
-fn independent_dated_operations_in_a_common_frame_keep_their_own_related_statements() {
+fn check_independent_operations(n: &str) {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
-    let frozen =
-        root.join("tests/data/source-frame-fences/20260825g001890119-independent-operations.json");
+    let frozen = root.join(format!(
+        "tests/data/source-frame-fences/{n}-independent-operations.json"
+    ));
     let gold: serde_json::Value = serde_json::from_slice(&std::fs::read(frozen).unwrap()).unwrap();
-    let n = "20260825g001890119";
     let input = crate::page_inputs(
         &std::fs::read(root.join(format!("tests/data/source-frame-fences/{n}.pdf"))).unwrap(),
     )
@@ -158,6 +157,19 @@ fn independent_dated_operations_in_a_common_frame_keep_their_own_related_stateme
     for unit in wanted {
         assert_eq!(actual.iter().filter(|g| **g == unit).count(), 1);
     }
+}
+
+#[test]
+fn independent_dated_operations_in_a_common_frame_keep_their_own_related_statements() {
+    check_independent_operations("20260825g001890119");
+}
+#[test]
+fn side_by_side_dated_operations_keep_their_current_source_publishers_and_statements() {
+    check_independent_operations("20260925g002120088");
+}
+#[test]
+fn a_wrapped_address_cannot_break_a_single_merger_and_its_statements_into_two_articles() {
+    check_independent_operations("20260818g001840057");
 }
 
 #[test]
