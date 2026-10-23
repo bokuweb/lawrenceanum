@@ -1,0 +1,1517 @@
+{
+  "issue": 227,
+  "batch": 48,
+  "parent_commit": "f708a2d78a7fbfd0c818e178588dd7f938ec9d2f",
+  "native_runtime_source": 73,
+  "goal_complete": false,
+  "local_required_tests": {
+    "passed": 1875,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 117,
+    "logical_required_commands": 118,
+    "actual_commands_including_reviewed_snapshot_and_partition_retries": 120,
+    "libraries": 4,
+    "integration_targets": 109,
+    "doctests": 4,
+    "all4_crates_examples_checked": true,
+    "new_tests": 22,
+    "snapshots": 793,
+    "snapshots_readonly_pass": true,
+    "snapshot_readonly_seconds": 172.937370042,
+    "source_manifest_sha256": "31fe27b67426f957c43f17f5e27199f456369e4b7e1966ebea0a8c430ad62570",
+    "original_proposal_gate_sha256": "64c33fbfda60f6eae1c82f75ef2b64af1a2758cf7b52dd6640e3418c0d0aae4c",
+    "readonly_log_sha256": "5b82b240c809d9f47dd03b83d2541fb32fbf9a4696e9e2d68622856692e3dcb7",
+    "partition_retry_log_sha256": "053d6c4a377d2f0518ecdd3dbc5dd0fba7da8d3c09300090b551945006a7f8d8"
+  },
+  "final_fresh_native11992": {
+    "terminal": 0,
+    "pages": 11992,
+    "changed": 78,
+    "whole_Analysis_exact": 11914,
+    "all_words_fields_and_page_layout_exact": true,
+    "all_source_words": 2403403,
+    "source_usage_and_table_JSON_multisets_exact": true,
+    "nonwhitespace_character_multisets_exact": true,
+    "frozen_inputs_unchanged": true,
+    "all_changed_originals_require_review_before_adoption": true,
+    "seconds": 401.36273225
+  },
+  "actual_CLI": {
+    "terminal": 0,
+    "actual_default_native_CLI_from_all_original_PDFs": true,
+    "files": 11992,
+    "changed_vs72": [
+      {
+        "page": "20260803g001740136",
+        "before_bytes": 7637,
+        "after_bytes": 7631
+      }
+    ],
+    "ordered_filename_content_sha256_digest": "ef45ed8bbc6436102aa0d5d13f6d4e7d23db4df10d704721498d3bc201d16a2b",
+    "binary_sha256": "077b13eda5918e5b3c51b3fbc63186ca456aa21e363404dc8ab9f584c58c879d",
+    "source_manifest_sha256": "31fe27b67426f957c43f17f5e27199f456369e4b7e1966ebea0a8c430ad62570",
+    "API_byte_consistency_and_original_change_review_pending": true
+  },
+  "CLI_API_consistency": {
+    "terminal": 0,
+    "files": 11992,
+    "all_actual_CLI_bytes_equal_fresh_API": true,
+    "public78_changed_Analysis_exactly_private_original_reviewed_78": true,
+    "originals_reviewed": 78,
+    "new_boundaries_reviewed": 230,
+    "independent_or_blind": false,
+    "whole_page_accuracy_certified": false,
+    "changed_pages": [
+      {
+        "page": "20260716h017490031",
+        "before": 8,
+        "after": 10,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260717h017500032",
+        "before": 10,
+        "after": 11,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260724h017540032",
+        "before": 5,
+        "after": 11,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260727g001670099",
+        "before": 6,
+        "after": 7,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260727h017550030",
+        "before": 13,
+        "after": 14,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260727h017550032",
+        "before": 7,
+        "after": 11,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260728h017560032",
+        "before": 5,
+        "after": 12,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260729h017570032",
+        "before": 3,
+        "after": 8,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260730h017580032",
+        "before": 2,
+        "after": 3,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260731h017590029",
+        "before": 12,
+        "after": 13,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260731h017590031",
+        "before": 15,
+        "after": 18,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260731h017590032",
+        "before": 6,
+        "after": 13,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260803g001740136",
+        "before": 11,
+        "after": 12,
+        "pages_equal": false,
+        "text_equal": false
+      },
+      {
+        "page": "20260804h017610032",
+        "before": 11,
+        "after": 12,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260805h017620032",
+        "before": 9,
+        "after": 10,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260806h017630032",
+        "before": 12,
+        "after": 13,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260807h017640032",
+        "before": 7,
+        "after": 10,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260810g001790149",
+        "before": 3,
+        "after": 4,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260810h017650032",
+        "before": 2,
+        "after": 12,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260812h017660032",
+        "before": 8,
+        "after": 9,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260813g001810069",
+        "before": 6,
+        "after": 7,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260814h017680032",
+        "before": 3,
+        "after": 12,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260817h017690030",
+        "before": 5,
+        "after": 7,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260817h017690031",
+        "before": 2,
+        "after": 11,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260817h017690032",
+        "before": 2,
+        "after": 9,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260818h017700032",
+        "before": 7,
+        "after": 8,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260821h017730032",
+        "before": 4,
+        "after": 5,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260824h017740031",
+        "before": 8,
+        "after": 13,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260824h017740032",
+        "before": 3,
+        "after": 9,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260825h017750031",
+        "before": 10,
+        "after": 12,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260825h017750032",
+        "before": 9,
+        "after": 13,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260826h017760032",
+        "before": 7,
+        "after": 10,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260827h017770031",
+        "before": 13,
+        "after": 14,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260827h017770032",
+        "before": 10,
+        "after": 11,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260828h017780031",
+        "before": 1,
+        "after": 12,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260828h017780032",
+        "before": 3,
+        "after": 13,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260901h017800032",
+        "before": 5,
+        "after": 6,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260902h017810032",
+        "before": 5,
+        "after": 7,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260904h017830030",
+        "before": 14,
+        "after": 16,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260904h017830031",
+        "before": 8,
+        "after": 9,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260904h017830032",
+        "before": 4,
+        "after": 5,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260908h017850032",
+        "before": 12,
+        "after": 13,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260909h017860032",
+        "before": 5,
+        "after": 8,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260910h017870032",
+        "before": 4,
+        "after": 6,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260914h017890030",
+        "before": 16,
+        "after": 17,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260914h017890032",
+        "before": 11,
+        "after": 12,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260915h017900031",
+        "before": 14,
+        "after": 15,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260915h017900032",
+        "before": 12,
+        "after": 14,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260916h017910032",
+        "before": 11,
+        "after": 12,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260917h017920032",
+        "before": 11,
+        "after": 12,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260918g002100073",
+        "before": 3,
+        "after": 4,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260918h017930032",
+        "before": 8,
+        "after": 13,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260924h017940031",
+        "before": 15,
+        "after": 16,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260924h017940032",
+        "before": 8,
+        "after": 10,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260925h017950030",
+        "before": 14,
+        "after": 15,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260925h017950032",
+        "before": 4,
+        "after": 12,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260928h017960030",
+        "before": 16,
+        "after": 17,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260928h017960032",
+        "before": 5,
+        "after": 10,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20260929h017970032",
+        "before": 4,
+        "after": 14,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20261001h017990031",
+        "before": 10,
+        "after": 11,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20261001h017990032",
+        "before": 2,
+        "after": 5,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20261002g002180084",
+        "before": 4,
+        "after": 5,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20261002h018000032",
+        "before": 10,
+        "after": 11,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20261006g002200080",
+        "before": 3,
+        "after": 4,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20261006h018020032",
+        "before": 11,
+        "after": 14,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20261007h018030032",
+        "before": 15,
+        "after": 16,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20261008h018040032",
+        "before": 12,
+        "after": 14,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20261009g002230173",
+        "before": 3,
+        "after": 4,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20261009h018050032",
+        "before": 5,
+        "after": 10,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20261013h018060030",
+        "before": 9,
+        "after": 10,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20261013h018060031",
+        "before": 15,
+        "after": 16,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20261013h018060032",
+        "before": 8,
+        "after": 13,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20261016g002270099",
+        "before": 3,
+        "after": 4,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20261016h018090030",
+        "before": 14,
+        "after": 15,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20261016h018090032",
+        "before": 2,
+        "after": 11,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20261019h018100032",
+        "before": 8,
+        "after": 10,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20261020h018110030",
+        "before": 15,
+        "after": 16,
+        "pages_equal": true,
+        "text_equal": true
+      },
+      {
+        "page": "20261020h018110032",
+        "before": 3,
+        "after": 8,
+        "pages_equal": true,
+        "text_equal": true
+      }
+    ],
+    "source_manifest_sha256": "31fe27b67426f957c43f17f5e27199f456369e4b7e1966ebea0a8c430ad62570",
+    "API_result_sha256": "038757cde04a12f1244bf4597b8a916896ff26e6bc8f7f9ed709c4f40548e802",
+    "CLI_result_sha256": "542411ce2b3afd68da5f6ba8625d35d95c195a7d1f3cd97deeff25d82578d952",
+    "inherited_raw_Glyph_Word_audit": "runtime71, 14859045 glyphs; all24 PDF source files byte-identical, not a fresh raw audit"
+  },
+  "change_contracts": {
+    "private_unadopted": false,
+    "changed": 78,
+    "page_and_text_exact_changes": 77,
+    "layout_changes": [
+      "20260803g001740136"
+    ],
+    "all_pure_split_old_endpoints_preserved": true,
+    "all_pure_split_document_runs_exact": true,
+    "before_articles_changed_pages": 609,
+    "after_articles_changed_pages": 839,
+    "all_changed_originals_still_require_review": false,
+    "rows": [
+      {
+        "page": "20260716h017490031",
+        "before": 8,
+        "after": 10,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260717h017500032",
+        "before": 10,
+        "after": 11,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260724h017540032",
+        "before": 5,
+        "after": 11,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260727g001670099",
+        "before": 6,
+        "after": 7,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260727h017550030",
+        "before": 13,
+        "after": 14,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260727h017550032",
+        "before": 7,
+        "after": 11,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260728h017560032",
+        "before": 5,
+        "after": 12,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260729h017570032",
+        "before": 3,
+        "after": 8,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260730h017580032",
+        "before": 2,
+        "after": 3,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260731h017590029",
+        "before": 12,
+        "after": 13,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260731h017590031",
+        "before": 15,
+        "after": 18,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260731h017590032",
+        "before": 6,
+        "after": 13,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260803g001740136",
+        "before": 11,
+        "after": 12,
+        "pages_equal": false,
+        "text_equal": false,
+        "whole_line_layout_review_required": true
+      },
+      {
+        "page": "20260804h017610032",
+        "before": 11,
+        "after": 12,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260805h017620032",
+        "before": 9,
+        "after": 10,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260806h017630032",
+        "before": 12,
+        "after": 13,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260807h017640032",
+        "before": 7,
+        "after": 10,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260810g001790149",
+        "before": 3,
+        "after": 4,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260810h017650032",
+        "before": 2,
+        "after": 12,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260812h017660032",
+        "before": 8,
+        "after": 9,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260813g001810069",
+        "before": 6,
+        "after": 7,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260814h017680032",
+        "before": 3,
+        "after": 12,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260817h017690030",
+        "before": 5,
+        "after": 7,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260817h017690031",
+        "before": 2,
+        "after": 11,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260817h017690032",
+        "before": 2,
+        "after": 9,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260818h017700032",
+        "before": 7,
+        "after": 8,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260821h017730032",
+        "before": 4,
+        "after": 5,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260824h017740031",
+        "before": 8,
+        "after": 13,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260824h017740032",
+        "before": 3,
+        "after": 9,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260825h017750031",
+        "before": 10,
+        "after": 12,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260825h017750032",
+        "before": 9,
+        "after": 13,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260826h017760032",
+        "before": 7,
+        "after": 10,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260827h017770031",
+        "before": 13,
+        "after": 14,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260827h017770032",
+        "before": 10,
+        "after": 11,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260828h017780031",
+        "before": 1,
+        "after": 12,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260828h017780032",
+        "before": 3,
+        "after": 13,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260901h017800032",
+        "before": 5,
+        "after": 6,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260902h017810032",
+        "before": 5,
+        "after": 7,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260904h017830030",
+        "before": 14,
+        "after": 16,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260904h017830031",
+        "before": 8,
+        "after": 9,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260904h017830032",
+        "before": 4,
+        "after": 5,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260908h017850032",
+        "before": 12,
+        "after": 13,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260909h017860032",
+        "before": 5,
+        "after": 8,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260910h017870032",
+        "before": 4,
+        "after": 6,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260914h017890030",
+        "before": 16,
+        "after": 17,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260914h017890032",
+        "before": 11,
+        "after": 12,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260915h017900031",
+        "before": 14,
+        "after": 15,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260915h017900032",
+        "before": 12,
+        "after": 14,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260916h017910032",
+        "before": 11,
+        "after": 12,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260917h017920032",
+        "before": 11,
+        "after": 12,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260918g002100073",
+        "before": 3,
+        "after": 4,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260918h017930032",
+        "before": 8,
+        "after": 13,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260924h017940031",
+        "before": 15,
+        "after": 16,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260924h017940032",
+        "before": 8,
+        "after": 10,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260925h017950030",
+        "before": 14,
+        "after": 15,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260925h017950032",
+        "before": 4,
+        "after": 12,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260928h017960030",
+        "before": 16,
+        "after": 17,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260928h017960032",
+        "before": 5,
+        "after": 10,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260929h017970032",
+        "before": 4,
+        "after": 14,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261001h017990031",
+        "before": 10,
+        "after": 11,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261001h017990032",
+        "before": 2,
+        "after": 5,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261002g002180084",
+        "before": 4,
+        "after": 5,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261002h018000032",
+        "before": 10,
+        "after": 11,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261006g002200080",
+        "before": 3,
+        "after": 4,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261006h018020032",
+        "before": 11,
+        "after": 14,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261007h018030032",
+        "before": 15,
+        "after": 16,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261008h018040032",
+        "before": 12,
+        "after": 14,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261009g002230173",
+        "before": 3,
+        "after": 4,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261009h018050032",
+        "before": 5,
+        "after": 10,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261013h018060030",
+        "before": 9,
+        "after": 10,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261013h018060031",
+        "before": 15,
+        "after": 16,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261013h018060032",
+        "before": 8,
+        "after": 13,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261016g002270099",
+        "before": 3,
+        "after": 4,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261016h018090030",
+        "before": 14,
+        "after": 15,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261016h018090032",
+        "before": 2,
+        "after": 11,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261019h018100032",
+        "before": 8,
+        "after": 10,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261020h018110030",
+        "before": 15,
+        "after": 16,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261020h018110032",
+        "before": 3,
+        "after": 8,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      }
+    ],
+    "all78_changed_original_scopes_reviewed": true,
+    "review_method": "Root engineering review, not independent/blind or whole-page accuracy."
+  },
+  "known_necessary_count_requirements": {
+    "runtime": 73,
+    "advisory_known_requirements_not_mandatory_success_assertions": true,
+    "passed": 1,
+    "failed": 6,
+    "source_manifest_sha256": "31fe27b67426f957c43f17f5e27199f456369e4b7e1966ebea0a8c430ad62570",
+    "rows": [
+      {
+        "page": "20260803g001740136",
+        "actual": 12,
+        "necessary": 12,
+        "passes_necessary_count": true
+      },
+      {
+        "page": "20260903g001970080",
+        "actual": 5,
+        "necessary": 6,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260731g001730167",
+        "actual": 3,
+        "necessary": 4,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260721g001610162",
+        "actual": 5,
+        "necessary": 6,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260804g001750060",
+        "actual": 6,
+        "necessary": 7,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260717g001600122",
+        "actual": 4,
+        "necessary": 5,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260731h017590032",
+        "actual": 13,
+        "necessary": 14,
+        "passes_necessary_count": false
+      }
+    ]
+  },
+  "assets": {
+    "old_tracked_test_assets": 2409,
+    "all_byte_identical": 2403,
+    "changed": [
+      {
+        "path": "crates/kanpo-parser/tests/identity_surname_fixtures.rs",
+        "old_git_blob": "2ab932440316369d7f1f15a52ab3d55f76247611",
+        "new_git_blob": "327ac7c1e7a614152791985ce41a381adcc05082"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260729h01757__20260729h017570032.pdf.snap",
+        "old_git_blob": "07cf77e30be43c567e5f9f555d29184042e518aa",
+        "new_git_blob": "5c54e020f37ca4f8105c3bfcd2244348890e34da"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731h01759__20260731h017590032.pdf.snap",
+        "old_git_blob": "1ee7517e265bb3dd9ac1f61a1d7757fc704a8ba8",
+        "new_git_blob": "4ead4d222c1ca49b2f1b765be359def9f42c06ee"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260813g00181__20260813g001810069.pdf.snap",
+        "old_git_blob": "74f8a89207e3459ccfd852f36c44b42475a5a299",
+        "new_git_blob": "ba72e6d3e388f67b1de963d1094d3e83088fc9a3"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261002g00218__20261002g002180084.pdf.snap",
+        "old_git_blob": "b7fb93de23879d30240d2807d832ba363f1104a3",
+        "new_git_blob": "fbcaf6f571e0fca03c833290ce450c51f901a217"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261007h01803__20261007h018030032.pdf.snap",
+        "old_git_blob": "89f693a682efddedd22ccae766a9db0bf4238ff2",
+        "new_git_blob": "3bb2ccb02e10a045f257acb1142b67353c58a20d"
+      }
+    ],
+    "historical_PDF_HTML_TXT_JSON_rules_and_expected_membership_gold_byte_identical": true,
+    "new_PDFs": 3,
+    "new_company_source_gold_JSON": 2,
+    "new_reviewed_director_partition_JSON": 1,
+    "new_snapshots": 3,
+    "updated_old_snapshots": 5,
+    "old_surname_test_assertions_preserved_with_additional_conservation_checked_partition": true
+  },
+  "red_then_green": {
+    "bank72": "0 passed1 failed1168 filtered with original PDF fixed; earlier missing-input attempt does not count as logical RED.",
+    "ordinary_role_sentence_v5": "0 passed1 failed1183 filtered, then v6 all1185 passed.",
+    "three_original_director_parent_frames72": "0 passed3 failed1169 filtered; all pass in final1190 public unit tests."
+  },
+  "required_gate_initial_failures": "1873 passed2 failed0 ignored. Archive8 proposals:3 new,5 old; identity_surname one failure from five reviewed article subdivisions. Only reviewed snapshots accepted. Historical surname/glyph/full-Analysis/partition JSON left byte-exact; one extra static partition composed with old endpoint/Run/style/table conservation assertions. Readonly793 snapshots and all8 surname tests then passed.",
+  "initial_diagnostic_failures": [
+    "Initial image helper lacked Pillow; bundled runtime used.",
+    "Source observer Value round-trip widened f32 decimal rendering and failed strict identity; typed serialized Analysis fixed it, with exact checks retained.",
+    "Original-control builder had a Python syntax error before execution; corrected before tests."
+  ],
+  "advisory_checks": "git diff --check; no global fmt/clippy-clean claim.",
+  "fresh_commit_CI": "Not yet run at preparation; exact-head CI will be recorded in PR and accepted checkpoint.",
+  "evidence": [
+    {
+      "path": ".cache/kanpo-227/native48-source-manifest.json",
+      "sha256": "31fe27b67426f957c43f17f5e27199f456369e4b7e1966ebea0a8c430ad62570"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/full-native73-public/result.json",
+      "sha256": "038757cde04a12f1244bf4597b8a916896ff26e6bc8f7f9ed709c4f40548e802"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/full-native73-public/changes.json",
+      "sha256": "e1a5ba41bdc4fdaff56007a1d65bc630557cdde0dbac80f52ed2424844a102fd"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/public73-change-contracts.json",
+      "sha256": "fd14054019dd71b65d7c270fb4abb864304f6ee6c817fa9550ae7dd4de2de4f5"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/textdump73-result.json",
+      "sha256": "542411ce2b3afd68da5f6ba8625d35d95c195a7d1f3cd97deeff25d82578d952"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/public73-native-CLI-API-consistency.json",
+      "sha256": "1135be436bb39a2ebfaf5fa941f4a268208e80779551f7ffe2eee0c655aa5379"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/original-review-ledger73.json",
+      "sha256": "56255a2267632a52d0b5fec4abf2a1af33b7b74634ad59a98d59b108d7a26e35"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/source-observer78-runtime-identity-r2.json",
+      "sha256": "0c781d5a35990c1ca225ecc391cc90744a3973edcb86f788660bd5228647265a"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/candidate73-v2-full-lib.log",
+      "sha256": "2b6bca7af3b8eb17f113fdd404dc5efb7cd4c9e578ef687459151a7df2748589"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/candidate73-v5-role-prose-RED.log",
+      "sha256": "84ced6277a4e943043fcb691a61ec9c7da69eff9f90543bc4f9618f7c4806682"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/candidate73-v6-full-lib.log",
+      "sha256": "5a90f65b24c79a8fb0bd2adb7f538991da2f2e643e1cffa2c034949f0a90e44d"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/candidate73-v7-original-controls-tests.log",
+      "sha256": "3d740179e2811b5534d1ecfcd83ec44c17e1fd94b77b2223e855b252d800f5a1"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/baseline72-original-controls-tests.log",
+      "sha256": "8105500a30e2be1520797180bb5ab76c0c6a7467263a5255e02efddeb2ee0931"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/source72-bank-RED-r2.log",
+      "sha256": "b2110c1c8095ae3928d344106fe09ed30634a93371207b71d8f70ecebb732a80"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/snapshot-proposal-review73.json",
+      "sha256": "49c20b86ec44411dbff79457b637cd659eaae6d4ae2c59506398467787257900"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/known-seven-count-requirements73.json",
+      "sha256": "5462b689d8eb92d03bace8fc1ce9448221a76d9a44f2cedad9b53dc255d2bdf8"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/final-all-green.json",
+      "sha256": "5f6c9ce5ff167b4683853faf5f2aff2f674d124c839c6d8f4c7b4e1c1c6b0c49"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/assets-and-snapshots.json",
+      "sha256": "755ad77f2891232f336732daaea4a9471c053b8148b7b5edde23d310884cdc0b"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "issue": 227,
+  "batch": 42,
+  "parent_commit": "9d93160eca20b9eea5f57dedba2bb628cd8f2521",
+  "native_runtime_source": 67,
+  "native_parent_source": 63,
+  "OCR_tool_revision": 2,
+  "goal_complete": false,
+  "whole_corpus_strict_quality_not_reestimated": true,
+  "whole_Analysis_changed_pages_vs63": 1951,
+  "character_changed_pages_vs63": 0,
+  "new_rule_properties": [
+    "No company name/type/page ID or known answer literal in production boundary predicates.",
+    "No Japanese character-count, line-count, fixed-point gap, em-ratio or fixed number-of-related-statements cap in the new boundary module.",
+    "Source font/size identities are read from every emitted native Word; no font-name or inferred boldness whitelist. Metadata stays attached to the same source occurrence through canonical sorting.",
+    "Formal announcement suffixes, financial-announcement category, era/date syntax and role prefixes are domain vocabulary. These are not organization identities.",
+    "Same heading evidence must be separated from its own date style; dates/signatures cannot be borrowed past another semantic heading, from quoted content or from non-body regions.",
+    "Whole closed frames require finite geometry, unique source ownership, complete Word/whole-table containment and contiguous source lines. A common procedure frame retains all related financial statements.",
+    "An arbitrary title can qualify in a complete independent frame with its own different date style and signature. No announcement-title keyword is required for this framed route.",
+    "Cross-page open quote scope abstains from new cuts on the continuation page, resumes on later pages after matching closure.",
+    "Every original Article endpoint survives; only new splits are made, with exact source-offset mapping rather than text search for repeated titles.",
+    "New Doc partitions retain all original Run text bytes, styles and whole tables, including LF/spaces at boundaries."
+  ],
+  "counterexamples_and_invariances": [
+    "Arbitrary company values and arbitrary framed titles",
+    "Bijective native font ID renaming",
+    "Positive scaling and negative coordinate translation",
+    "Missing/equal/unknown styles",
+    "Invalid/partial dates, positional and Kanji numbers, padded date presentation",
+    "Before-date and unrelated-font signatures",
+    "Quoted headings/dates/signatures within and across pages",
+    "Wrong source text, repeated Word IDs, nonfinite geometry",
+    "Related financial children and unresolved procedure parents",
+    "Adjacent missing-style/body-style semantic headings still fence evidence",
+    "Signatureless independent financial frame with own date and whole table",
+    "Undated or unsigned unclassified table frame does not qualify",
+    "Five real PDF full membership controls and Word emission reversal"
+  ],
+  "not_proven": [
+    "All existing parser rules are general: older fixed guards still need audit.",
+    "Source font identity differences always imply a visual boldness difference.",
+    "Bounding rectangles or native paths are universal visible-ink/logical ownership certificates.",
+    "Complete organization/issuer field recognition, including quoted/counterparty identities.",
+    "Every new Article is already a complete original announcement: some unsupported following units remain joined.",
+    "Every legal date/qualifier/title/role syntax or every page orientation is supported.",
+    "Whole-corpus100percent or1951 fully correct/improved pages."
+  ],
+  "remaining_native_count_requirements_RED": [
+    {
+      "page": "20261005g002190067",
+      "current": 14,
+      "necessary": 16,
+      "reason": "Unframed ordinal/parenthesized medical headings."
+    },
+    {
+      "page": "20260803g001740136",
+      "current": 11,
+      "necessary": 12,
+      "reason": "Adjacent independent bank notice remains joined."
+    },
+    {
+      "page": "20260903g001970080",
+      "current": 5,
+      "necessary": 6,
+      "reason": "Independent fundraising result notice remains joined."
+    }
+  ],
+  "count_only_is_not_ownership_proof": true,
+  "old_source58_issuer_contract_failures_not_relabelled_as_passed": true
+}

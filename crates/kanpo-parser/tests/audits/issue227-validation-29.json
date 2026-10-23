@@ -1,0 +1,352 @@
+{
+  "stage": "twenty_ninth_integrated_batch",
+  "date": "2026-10-21",
+  "batch": 29,
+  "baseline_commit": "6188e425bdcec1dccd4c79d09d1a5d96da8f1991",
+  "candidate": "after51/frozen109/general-quoted-v4",
+  "population_pdf_pages": 11992,
+  "changed": 2,
+  "complete_Analysis_exact": 11990,
+  "changes": [
+    {
+      "page": "20260717g001600048",
+      "entire_Analysis_exact_to_independently_reviewed_candidate": true,
+      "all_Word_raw_ID_bbox_status_exact": true,
+      "all_owners_once_unchanged": true,
+      "word_text_changes": [],
+      "removed_nonspace_characters": {},
+      "added_nonspace_characters": {},
+      "artifacts": [
+        {
+          "path": ".cache/kanpo-227/integrated51-allAnalysis/20260717g001600048-49.json.gz",
+          "sha256": "d62aba26d41490844cbfb1ee64794a5b226eb76d200f44a91d661d76676d09b2",
+          "raw_sha256": "b698397d0ec384393f6cfa682848f65626a55d7bc40d60e2b02aebef9597a7bf"
+        },
+        {
+          "path": ".cache/kanpo-227/integrated51-allAnalysis/20260717g001600048-51.json.gz",
+          "sha256": "97c8fa2d2700c3f856042882cd657cfdf7fc8a147537993ceb0ff1f1737a1f24",
+          "raw_sha256": "52f4dafa8af7e634e351a13627282b569c745f599565f5fef30829f78dd29685"
+        }
+      ]
+    },
+    {
+      "page": "20260831g001940091",
+      "entire_Analysis_exact_to_independently_reviewed_candidate": true,
+      "all_Word_raw_ID_bbox_status_exact": true,
+      "all_owners_once_unchanged": true,
+      "word_text_changes": [
+        {
+          "before": {
+            "id": 159,
+            "x0": 661.0104,
+            "y0": 72.2134,
+            "x1": 669.0104,
+            "y1": 80.3974,
+            "raw": "救",
+            "text": "（チ）",
+            "status": "used"
+          },
+          "after": {
+            "id": 159,
+            "x0": 661.0104,
+            "y0": 72.2134,
+            "x1": 669.0104,
+            "y1": 80.3974,
+            "raw": "救",
+            "text": "救",
+            "status": "used"
+          }
+        },
+        {
+          "before": {
+            "id": 469,
+            "x0": 292.9984,
+            "y0": 397.6471,
+            "x1": 300.9984,
+            "y1": 405.8311,
+            "raw": "救",
+            "text": "（チ）",
+            "status": "used"
+          },
+          "after": {
+            "id": 469,
+            "x0": 292.9984,
+            "y0": 397.6471,
+            "x1": 300.9984,
+            "y1": 405.8311,
+            "raw": "救",
+            "text": "救",
+            "status": "used"
+          }
+        }
+      ],
+      "removed_nonspace_characters": {
+        "（": 2,
+        "）": 2,
+        "チ": 2
+      },
+      "added_nonspace_characters": {
+        "救": 2
+      },
+      "artifacts": [
+        {
+          "path": ".cache/kanpo-227/integrated51-allAnalysis/20260831g001940091-49.json.gz",
+          "sha256": "3815b93f58f3b8a43203ff3db837bca375d4b61e80d8bd5fd702ce004b89f8f1",
+          "raw_sha256": "e02350a265c640670d54ef87d285de5cb1333c9b6b4a48862c950899caa53a9e"
+        },
+        {
+          "path": ".cache/kanpo-227/integrated51-allAnalysis/20260831g001940091-51.json.gz",
+          "sha256": "0c8507486195688bfc3ca11799ed7bbaadf01b975de4629f9ec60ae66dc383e8",
+          "raw_sha256": "1f1f16efebe752ffb3b0ef3af9be24f7def2feca57be787b6337442a7090cb67"
+        }
+      ]
+    }
+  ],
+  "original_Word_ID_raw_bbox_status_and_ownership_unchanged": true,
+  "source_rescue_Words_corrected": 2,
+  "old_incorrect_decoded_characters_removed": {
+    "（": 2,
+    "チ": 2,
+    "）": 2
+  },
+  "source_characters_added": {
+    "救": 2
+  },
+  "original_source_character_loss": 0,
+  "new_inferred_Words_or_IDs": 0,
+  "quote_source_characters_and_IDs_preserved": true,
+  "body_LF_counts_preserved": true,
+  "comparison_against_original_baseline": {
+    "fresh_pages": 11992,
+    "changed": 2,
+    "unchanged": 11990,
+    "added": {
+      "救": 2
+    },
+    "removed": {
+      "（": 2,
+      "）": 2,
+      "チ": 2
+    },
+    "cumulative": 2940,
+    "cumulative_charpages": 1353,
+    "previous_cumulative_pages": 2939,
+    "new_cumulative_pages": [
+      "20260717g001600048"
+    ]
+  },
+  "source_validation": {
+    "source109_manifest": {
+      "path": ".cache/kanpo-227/integrated51-source-manifest.json",
+      "sha256": "f3d469cc9aff70a4d9f7760196595f1eb4421dba5f8f7f31fb5b1f69b78d0246"
+    },
+    "fresh_original_PDF_textdump_pages": 11992,
+    "pdf_flag": true,
+    "textdump_terminal_stderr": {
+      "path": ".cache/kanpo-227/textdump51.stderr",
+      "sha256": "89d6fe31283914ab3c4335a10b2ca852512bf2328c4f6b4257a4cd9ea62d5f60"
+    },
+    "all25118_input_source_executable_dependency_prepost_SHA_exact": true,
+    "full_Analysis": {
+      "path": ".cache/kanpo-227/integrated51-fullAnalysis-report.json",
+      "sha256": "9c14682160343a9e471d713e9bd111e2df29633bb718a9bdc1921104014c56e1"
+    },
+    "legacy_counts": {
+      "counts": {
+        "period_pairs": 706,
+        "ordinal_pairs": 121,
+        "bracket_cells": 377,
+        "existing_unattached_used_diagnostic": 53,
+        "pages": 2940,
+        "native_dash_glyphs": 11033,
+        "fractions": 153,
+        "surnames": 6,
+        "plain_dashes": 341,
+        "duplicate_word_ids": 0,
+        "nested_formulas": 6,
+        "parallel_formulas": 9,
+        "numeric_formulas": 6
+      },
+      "nested_semantic_fraction_nodes": 12,
+      "nested_serialization_pairs": 24,
+      "nested_slashes": 12,
+      "parallel_semantic_fraction_nodes": 18,
+      "parallel_serialization_pairs": 18,
+      "parallel_slashes": 18,
+      "numeric_semantic_fraction_nodes": 15,
+      "numeric_serialization_pairs": 18,
+      "numeric_native_parenthesis_pairs": 3,
+      "numeric_slashes": 15,
+      "previously_counted_unattached_Used": 50,
+      "newly_counted_existing_target_unowned_Used": 3,
+      "new_target_unowned_IDs": [
+        87,
+        88,
+        93
+      ],
+      "logs": [
+        ".cache/kanpo-227/validate51-part0.log",
+        ".cache/kanpo-227/validate51-part1.log",
+        ".cache/kanpo-227/validate51-part2.log",
+        ".cache/kanpo-227/validate51-part3.log",
+        ".cache/kanpo-227/validate51-part4.log",
+        ".cache/kanpo-227/validate51-part5.log",
+        ".cache/kanpo-227/validate51-part6.log",
+        ".cache/kanpo-227/validate51-part7.log"
+      ],
+      "all_parts_exit0": true
+    }
+  },
+  "tests": {
+    "passed": 1480,
+    "failed": 0,
+    "all4_crates": true,
+    "parser_unit_tests": 920,
+    "PDF_unit_tests": 45,
+    "integration_targets": 105,
+    "commands": 114,
+    "all4_default_examples_typechecked": true,
+    "all_terminal_exit0": true,
+    "full_log": {
+      "path": ".cache/kanpo-227/test-batch29-generic-full.log",
+      "sha256": "22cd707464cd0e1e4aa3e20d21920decc87fbae547d69663c021da21d3be35a4"
+    },
+    "full_report": {
+      "path": ".cache/kanpo-227/full29-generic-partitioned-status.json",
+      "sha256": "8d311ddd0a6de8c92b395e14f7b25e9e0c91b1cdd95aa8db9f19364d632850c8"
+    },
+    "source_manifest_sha256": "f3d469cc9aff70a4d9f7760196595f1eb4421dba5f8f7f31fb5b1f69b78d0246",
+    "archive_input_PDFs": 694,
+    "archive_test_function_not_counted_per_input": true,
+    "actual_new_tests": 14,
+    "actual_new_baseline_RED": 6,
+    "actual_new_baseline_GREEN": 8,
+    "private_AJ1_baseline_parser_6RED877GREEN": true,
+    "private_AJ1_baseline_PDF_4RED41GREEN": true,
+    "final_generic_metamorphic_new24": true
+  },
+  "snapshots": {
+    "new": 6,
+    "updated": 0,
+    "all6_originals_full698lines_and7ArticleDocs_read": true,
+    "initial_promotion": {
+      "new": 6,
+      "updated": 0,
+      "rows": [
+        {
+          "page": "20260717g001600047",
+          "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260717g00160__20260717g001600047.pdf.snap.new",
+          "new_sha256": "eba1a41eabd930ec54aceb4d5251c1a0eef2525885ac6edb60dce4b064d5769c",
+          "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260717g00160__20260717g001600047.pdf.snap",
+          "old_sha256": null,
+          "type": "new",
+          "all_fulltext_and_all_ArticleDocument_render_exact": true
+        },
+        {
+          "page": "20260717g001600048",
+          "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260717g00160__20260717g001600048.pdf.snap.new",
+          "new_sha256": "7ec53254d63285805b36df7494ef2c69998554e6796d43489730f91801515075",
+          "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260717g00160__20260717g001600048.pdf.snap",
+          "old_sha256": null,
+          "type": "new",
+          "all_fulltext_and_all_ArticleDocument_render_exact": true
+        },
+        {
+          "page": "20260717g001600049",
+          "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260717g00160__20260717g001600049.pdf.snap.new",
+          "new_sha256": "7a5e656972e835772aaa2dc7cedb79e1a7707c9b531092d6ce39cdb73f1fab9f",
+          "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260717g00160__20260717g001600049.pdf.snap",
+          "old_sha256": null,
+          "type": "new",
+          "all_fulltext_and_all_ArticleDocument_render_exact": true
+        },
+        {
+          "page": "20260723g001630002",
+          "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260723g00163__20260723g001630002.pdf.snap.new",
+          "new_sha256": "b439e25b53449c69de6e11fa40f253bd62900d3a6615427c34fcc291554f1d45",
+          "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260723g00163__20260723g001630002.pdf.snap",
+          "old_sha256": null,
+          "type": "new",
+          "all_fulltext_and_all_ArticleDocument_render_exact": true
+        },
+        {
+          "page": "20260731g001720008",
+          "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731g00172__20260731g001720008.pdf.snap.new",
+          "new_sha256": "863137dcabd8893d6c96ee979559969b82cf9e0be685a43c84c8b781de9798ca",
+          "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731g00172__20260731g001720008.pdf.snap",
+          "old_sha256": null,
+          "type": "new",
+          "all_fulltext_and_all_ArticleDocument_render_exact": true
+        },
+        {
+          "page": "20260831g001940091",
+          "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260831g00194__20260831g001940091.pdf.snap.new",
+          "new_sha256": "242a1deaa4b864b86be98267e3cd0d8bb53cb819f69828ededd2e9b96904225e",
+          "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260831g00194__20260831g001940091.pdf.snap",
+          "old_sha256": null,
+          "type": "new",
+          "all_fulltext_and_all_ArticleDocument_render_exact": true
+        }
+      ],
+      "all6_complete_fulltext_and_ArticleDocuments_render_exact": true,
+      "root6_whole_originals_698lines_7ArticleDocs_fullread": true,
+      "root_fullread_proof_sha256": "19223d97028dcb4bcf909e1afcb27f5e2765cedbcc977206f4fd20a3e8a64ac9",
+      "source_manifest_sha256": "d547cab89e9fdfbf398e760f51c5214d1f07e1b01baca22ffe5a89c9e9e4b8d3",
+      "fresh11992_fullAnalysis_report_sha256": "ff6a0223fc9bb77d62f9123d886f425e78bcc21bc4c2cd0f62e8644793efc6fe",
+      "native_proof_sha256": "604bb49c4919695407806e921a8f26ac9d966193a1497b62123bd9ca91a8603c",
+      "all_assertions_retained": true,
+      "promoted": true
+    },
+    "generic_output_unchanged_no_further_snapshot_updates": {
+      "method": "All11992 complete Analysis exact from final generic candidate to root50; all6 original fullbody/Doc/snapshot reviews retained. Source51 differs from frozen candidate only by rustfmt of cfg(test) module; production exact. Full Cargo tests must still pass with INSTA_UPDATE=no.",
+      "original_review": ".cache/kanpo-227/snapshot29-reviewed-promoted.json",
+      "original_review_sha256": "001a4f00539510dad5afce124a9ace6b114991624a946e457b7e1a239df268cf",
+      "source51_manifest_sha256": "f3d469cc9aff70a4d9f7760196595f1eb4421dba5f8f7f31fb5b1f69b78d0246",
+      "all11992_complete_Analysis_exact_report_sha256": "bfec9e084236b9924afbd85f7a17aec0928b4f80cef4ffba762a42f3b448b083",
+      "new_snapshots_promoted": 0,
+      "old_snapshots_updated": 0
+    }
+  },
+  "corpus_inputs": {
+    "updated24_bbox_HTML_only": true,
+    "new_actual_AJ1_provenance_attributes": 4629,
+    "all_expected_text_JSON_and_assertions_unchanged": true,
+    "all24_native_and_entire_Analysis_exact49_50": true,
+    "PDF14_byteexact50_51": true
+  },
+  "unseen_audit141": {
+    "strict": {
+      "major": 13,
+      "minor": 4,
+      "ok": 13
+    },
+    "body": {
+      "minor": 6,
+      "ok": 22,
+      "major": 2
+    },
+    "lines": 1957,
+    "Articles_Documents": 46,
+    "new_regressions": 0,
+    "native": {
+      "limited_zero_rectangles": 20,
+      "source_PDFs": 6,
+      "positive_contexts": 10,
+      "positive_Glyphs": 2027,
+      "all_native_Glyphs_scanned": 6507,
+      "whole_page_exclusions": 0
+    },
+    "initial_grades_immutable": true
+  },
+  "earlier_audit140_preserved": true,
+  "broader_generality_review": "issue227-generality-audit-29.json",
+  "known_remaining": [
+    "Independent notices remain merged in some Articles",
+    "Financial amounts, headers, rowspans and signatures can be assigned to the wrong cells",
+    "Some new/old roles and continuation cells remain unresolved",
+    "Native-Glyph-zero printed regions require a separate extraction approach; limited exclusions are explicit",
+    "Facility/financial/CID/continuation candidates remain unadopted until their complete gates finish"
+  ],
+  "whole_page_perfection_not_implied": true,
+  "goal_complete": false
+}

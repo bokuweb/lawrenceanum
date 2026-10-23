@@ -1,0 +1,7760 @@
+{
+  "batch": 25,
+  "baseline_commit": "7acb566b7e8116c4bc746140db46e7ebd7f320a4",
+  "candidate": "after46/frozen104",
+  "fresh_original_PDF_pages": 11992,
+  "complete_Analysis_changes": 4,
+  "complete_Analysis_exact": 11988,
+  "Unicode_substitutions": 4,
+  "wrong_Unicode_characters_removed": 4,
+  "source_Unicode_characters_added": 4,
+  "original_native_Glyphs": 4,
+  "Word_raw_ID_bbox_status_owners_exact": true,
+  "all_structure_roles_LF_spaces_preserved": true,
+  "new_Words": 0,
+  "new_owners": 0,
+  "root_native_proof": {
+    "pages": 4,
+    "source_native_Glyphs": 4,
+    "Unicode_substitutions": 4,
+    "wrong_Unicode_characters_removed": 4,
+    "source_Unicode_characters_added": 4,
+    "new_Words": 0,
+    "new_owners": 0,
+    "all_original_raw_ID_bbox_status_and_owners_preserved": true,
+    "all_structure_roles_LF_spaces_preserved": true,
+    "parser_bbox_mapping": "Identity-V native vertical attributes use single original Glyph bbox, distinct from public bboxWord logical box; both independently verified, no glyph-union assumption.",
+    "parser_f32_to_native_f64_bbox_tolerance_pt": 0.0002,
+    "native_f64_Glyph_and_font_fields_exact": true,
+    "source_manifest_sha256": "c130d8d2283077556850c9e733290411ebdb5df4ea3b1c9f0aef5d9435ef147a",
+    "results": [
+      {
+        "page": "20260716g001590048",
+        "PDF": ".cache/kanpo-archive/2026-07-16/20260716g00159/20260716g001590048.pdf",
+        "PDF_sha256": "41a3d95770a0decf5745456cb49715964ab4b5ba8875086eb0eb9abecaa61d49",
+        "original_name": "代表清算人樽見利徳",
+        "original_Glyph_id": 2486,
+        "original_Word_id": 170,
+        "raw": "󵩲",
+        "cid": 23154,
+        "wrong_Unicode": "婲",
+        "source_Unicode": "樽",
+        "native_vertical_Glyph_bbox": [
+          175.72070000000025,
+          740.8399,
+          183.72070000000025,
+          748.8399
+        ],
+        "parser_bbox": [
+          175.7207,
+          740.8399,
+          183.7207,
+          748.8399
+        ],
+        "public_bboxWord": {
+          "text": "󵩲",
+          "bbox": [
+            179.72070000000025,
+            732.8399,
+            187.72070000000025,
+            740.8399
+          ],
+          "glyphs": [
+            2486
+          ]
+        },
+        "original_owner": {
+          "region": 3,
+          "line": 31,
+          "unit": 3,
+          "part": 0,
+          "role": "body",
+          "line_payload": {
+            "text": "代表清算人婲見利徳",
+            "words": [
+              169,
+              170,
+              171,
+              172
+            ]
+          }
+        },
+        "all_before_after_raw_ID_bbox_status_and_owner_exact": true,
+        "all_Analysis_changes_only_one_source_character_substitution": true,
+        "files": [
+          {
+            "path": ".cache/kanpo-227/root25-native/20260716g001590048-after46.json",
+            "sha256": "a03939a61ad352adf2857214d865eddedc17b9b01d0e3a649429bffad2c6134d"
+          },
+          {
+            "path": ".cache/kanpo-227/root25-native/20260716g001590048-before45.json",
+            "sha256": "4a11c6afcc7a5da472536942eea17aadc23ead165f8494829e75185aa9d6c85d"
+          },
+          {
+            "path": ".cache/kanpo-227/root25-native/20260716g001590048-native.json",
+            "sha256": "f08995d0c1c878254e032739e775febc1533f0057c546a68b4b5906b6e119e0f"
+          },
+          {
+            "path": ".cache/kanpo-227/root25-native/20260716g001590048-nativeWords.json",
+            "sha256": "f9391ef454ba67a5feb0d510b1ce851061e0aa29da18852fe16f40e7e25eaea2"
+          }
+        ]
+      },
+      {
+        "page": "20260723g001630196",
+        "PDF": ".cache/kanpo-archive/2026-07-23/20260723g00163/20260723g001630196.pdf",
+        "PDF_sha256": "64e8cc97bee9addcdf09b89778b2c28dbb913a341d9aeb121267752aedffef50",
+        "original_name": "代表清算人鄒濰鍇",
+        "original_Glyph_id": 726,
+        "original_Word_id": 20,
+        "raw": "󴈹",
+        "cid": 16953,
+        "wrong_Unicode": "䈹",
+        "source_Unicode": "濰",
+        "native_vertical_Glyph_bbox": [
+          506.3521,
+          388.83989999999994,
+          514.3521000000001,
+          396.83989999999994
+        ],
+        "parser_bbox": [
+          506.3521,
+          388.8399,
+          514.3521,
+          396.8399
+        ],
+        "public_bboxWord": {
+          "text": "󴈹",
+          "bbox": [
+            510.3521,
+            380.83989999999994,
+            518.3521000000001,
+            388.83989999999994
+          ],
+          "glyphs": [
+            726
+          ]
+        },
+        "original_owner": {
+          "region": 1,
+          "line": 3,
+          "unit": 1,
+          "part": 0,
+          "role": "body",
+          "line_payload": {
+            "text": "代表清算人鄒䈹鍇",
+            "words": [
+              18,
+              19,
+              20,
+              21
+            ]
+          }
+        },
+        "all_before_after_raw_ID_bbox_status_and_owner_exact": true,
+        "all_Analysis_changes_only_one_source_character_substitution": true,
+        "files": [
+          {
+            "path": ".cache/kanpo-227/root25-native/20260723g001630196-after46.json",
+            "sha256": "f5495459fe6296d1525759a06048f17421d97c86260ca13bd6a6b692339e3d9a"
+          },
+          {
+            "path": ".cache/kanpo-227/root25-native/20260723g001630196-before45.json",
+            "sha256": "0d08447a1b18a20398386324d315c994eb529472aa220daeabea751a3270fe03"
+          },
+          {
+            "path": ".cache/kanpo-227/root25-native/20260723g001630196-native.json",
+            "sha256": "6643ffed10df873c45e73090bfe46b1de6a6274d9bc88952d20fd88806320e0a"
+          },
+          {
+            "path": ".cache/kanpo-227/root25-native/20260723g001630196-nativeWords.json",
+            "sha256": "6d5caa000c7df2a3ceda7f6baf0aff9eb54e0ee8e93b9b943271045056eaff74"
+          }
+        ]
+      },
+      {
+        "page": "20260729h017570030",
+        "PDF": ".cache/kanpo-archive/2026-07-29/20260729h01757/20260729h017570030.pdf",
+        "PDF_sha256": "0eace9756453dd18402555442715db21bd7378ed2eb5f441a9939e00cdcfaae1",
+        "original_name": "代表取締役團塚真一郎",
+        "original_Glyph_id": 1149,
+        "original_Word_id": 224,
+        "raw": "󵍇",
+        "cid": 21319,
+        "wrong_Unicode": "升",
+        "source_Unicode": "團",
+        "native_vertical_Glyph_bbox": [
+          133.96809999999988,
+          372.83989999999994,
+          141.96809999999988,
+          380.83989999999994
+        ],
+        "parser_bbox": [
+          133.9681,
+          372.8399,
+          141.9681,
+          380.8399
+        ],
+        "public_bboxWord": {
+          "text": "󵍇",
+          "bbox": [
+            137.96809999999988,
+            364.83989999999994,
+            145.96809999999988,
+            372.83989999999994
+          ],
+          "glyphs": [
+            1149
+          ]
+        },
+        "original_owner": {
+          "region": 1,
+          "line": 37,
+          "unit": 1,
+          "part": 0,
+          "role": "body",
+          "line_payload": {
+            "text": "代表取締役升塚真一郎",
+            "words": [
+              223,
+              224,
+              225
+            ]
+          }
+        },
+        "all_before_after_raw_ID_bbox_status_and_owner_exact": true,
+        "all_Analysis_changes_only_one_source_character_substitution": true,
+        "files": [
+          {
+            "path": ".cache/kanpo-227/root25-native/20260729h017570030-after46.json",
+            "sha256": "964e2784d167371569621caef74b329bd29b56a4467eea16047661579fc76d3f"
+          },
+          {
+            "path": ".cache/kanpo-227/root25-native/20260729h017570030-before45.json",
+            "sha256": "ac782b82fb10280b9dddfcd1f0e64246dc356e9b6a97a9506154ee9e0adfd89e"
+          },
+          {
+            "path": ".cache/kanpo-227/root25-native/20260729h017570030-native.json",
+            "sha256": "b85462e5bfc75a6b1372e1a839924c278a9ed8abc534e8a6d96b84029ee864ab"
+          },
+          {
+            "path": ".cache/kanpo-227/root25-native/20260729h017570030-nativeWords.json",
+            "sha256": "b47ed6be9dfe0f3a39de17bc082b9c195aace96caa06fa74046636845e4b954a"
+          }
+        ]
+      },
+      {
+        "page": "20260729h017570031",
+        "PDF": ".cache/kanpo-archive/2026-07-29/20260729h01757/20260729h017570031.pdf",
+        "PDF_sha256": "f7d8022951a16aef1bbc401a2fcb7ce5e6eb36d45b8587e3f770c5a84338b445",
+        "original_name": "代表取締役蓬田和平",
+        "original_Glyph_id": 2658,
+        "original_Word_id": 200,
+        "raw": "󵪡",
+        "cid": 23201,
+        "wrong_Unicode": "媡",
+        "source_Unicode": "蓬",
+        "native_vertical_Glyph_bbox": [
+          152.1084000000002,
+          740.8399,
+          160.1084000000002,
+          748.8399
+        ],
+        "parser_bbox": [
+          152.1084,
+          740.8399,
+          160.1084,
+          748.8399
+        ],
+        "public_bboxWord": {
+          "text": "󵪡",
+          "bbox": [
+            156.1084000000002,
+            732.8399,
+            164.1084000000002,
+            740.8399
+          ],
+          "glyphs": [
+            2658
+          ]
+        },
+        "original_owner": {
+          "region": 3,
+          "line": 33,
+          "unit": 3,
+          "part": 0,
+          "role": "body",
+          "line_payload": {
+            "text": "代表取締役媡田和平",
+            "words": [
+              199,
+              200,
+              201,
+              202
+            ]
+          }
+        },
+        "all_before_after_raw_ID_bbox_status_and_owner_exact": true,
+        "all_Analysis_changes_only_one_source_character_substitution": true,
+        "files": [
+          {
+            "path": ".cache/kanpo-227/root25-native/20260729h017570031-after46.json",
+            "sha256": "772fef3096622b2208945f96225dd86b562c11289f38d922fbf07a4940995f11"
+          },
+          {
+            "path": ".cache/kanpo-227/root25-native/20260729h017570031-before45.json",
+            "sha256": "437dbfb15b101893118eaef6e12ca183d2ced1f302e44131e4911ccf29050402"
+          },
+          {
+            "path": ".cache/kanpo-227/root25-native/20260729h017570031-native.json",
+            "sha256": "1852742197b9c7f849225c2465d6d9d5f9e8ebd98d3462cf67932a8caf51ca4f"
+          },
+          {
+            "path": ".cache/kanpo-227/root25-native/20260729h017570031-nativeWords.json",
+            "sha256": "9dc514d6fc759c665d98952962d5a4344b80a85b105a60a4ee47f66d3b32f787"
+          }
+        ]
+      }
+    ]
+  },
+  "independent_canonical_rebase": {
+    "method": "Independent delivered repo-ready literal expected before44 entireAnalysis is exactly fresh root45 on all4 target pages. The unchanged actual8 assertions apply only four source text substitutions and are GREEN on root46; no numeric tolerance widening used for canonical Analysis comparison. Native Glyph f64 comparison is separately exact.",
+    "pages": [
+      {
+        "page": "20260716g001590048",
+        "independent_repo_expected_before44_matches_fresh_root_before45_entire_Analysis_exact": true
+      },
+      {
+        "page": "20260723g001630196",
+        "independent_repo_expected_before44_matches_fresh_root_before45_entire_Analysis_exact": true
+      },
+      {
+        "page": "20260729h017570030",
+        "independent_repo_expected_before44_matches_fresh_root_before45_entire_Analysis_exact": true
+      },
+      {
+        "page": "20260729h017570031",
+        "independent_repo_expected_before44_matches_fresh_root_before45_entire_Analysis_exact": true
+      }
+    ],
+    "root_actual_green_log": "root25-actual-green.log"
+  },
+  "root_all11992_fullAnalysis": {
+    "pages": 11992,
+    "baseline": "accepted24/after45",
+    "candidate": "after46/source104",
+    "changed": 4,
+    "complete_Analysis_exact": 11988,
+    "body_exact": 11988,
+    "changes": [
+      {
+        "page": "20260716g001590048",
+        "original_Word_ID": 170,
+        "wrong_Unicode_removed": "婲",
+        "source_Unicode_restored": "樽",
+        "original_raw_ID_bbox_status_owner_exact": true,
+        "all_other_Analysis_fields_exact": true,
+        "artifacts": [
+          {
+            "path": ".cache/kanpo-227/integrated46-allAnalysis/20260716g001590048-45.json.gz",
+            "sha256": "5d5486b4be5046921196a82d2b5590297d9e057bab5312d70f9b8673c3dbba08",
+            "uncompressed_sha256": "397d69913aa5bddc163a425af813ac519708c0004c9ddd06f7b0f87aa75e3b98"
+          },
+          {
+            "path": ".cache/kanpo-227/integrated46-allAnalysis/20260716g001590048-46.json.gz",
+            "sha256": "b1279bc04cfc22ca485eeb078f99809b214350ceeddcc86a22321d1c5c380891",
+            "uncompressed_sha256": "35011b50091c193439ad4beafe260ca4871e017b9ec72928054e63acabe7976a"
+          }
+        ]
+      },
+      {
+        "page": "20260723g001630196",
+        "original_Word_ID": 20,
+        "wrong_Unicode_removed": "䈹",
+        "source_Unicode_restored": "濰",
+        "original_raw_ID_bbox_status_owner_exact": true,
+        "all_other_Analysis_fields_exact": true,
+        "artifacts": [
+          {
+            "path": ".cache/kanpo-227/integrated46-allAnalysis/20260723g001630196-45.json.gz",
+            "sha256": "ecb175ec8012c7e5913c66b8636151ec2da5a3756f030e492743b71f83dfbba4",
+            "uncompressed_sha256": "b39816660ea4246fd0e9aa75550cfb2a9d3d60e927f50c3c7c107d8c667dd282"
+          },
+          {
+            "path": ".cache/kanpo-227/integrated46-allAnalysis/20260723g001630196-46.json.gz",
+            "sha256": "fb428972bfcd6053f8e2ce99e5e9025dae3fe95dcaaa2aad4b24f78d0964be73",
+            "uncompressed_sha256": "2f4cbe7a49312ae0d0df289b967937f56df0493aacc92d5edb8ffd6f345aac32"
+          }
+        ]
+      },
+      {
+        "page": "20260729h017570030",
+        "original_Word_ID": 224,
+        "wrong_Unicode_removed": "升",
+        "source_Unicode_restored": "團",
+        "original_raw_ID_bbox_status_owner_exact": true,
+        "all_other_Analysis_fields_exact": true,
+        "artifacts": [
+          {
+            "path": ".cache/kanpo-227/integrated46-allAnalysis/20260729h017570030-45.json.gz",
+            "sha256": "67648d6cd6106a4f2f1a4ead2ba47bd44f297e2729c0e6b46e40f8de7cda4220",
+            "uncompressed_sha256": "29da4cc3f279383f2f6d091e8b907533ddd782da310288bcccc6c5cf876ef1d3"
+          },
+          {
+            "path": ".cache/kanpo-227/integrated46-allAnalysis/20260729h017570030-46.json.gz",
+            "sha256": "cc8758a4481074505a4398bbaef6461370d8f19f04ac58fe1888c24414bf57b6",
+            "uncompressed_sha256": "b9cf1b7d0cc349dbc398f025fcff597b6f44040a2579cbd5bfc813be6928310f"
+          }
+        ]
+      },
+      {
+        "page": "20260729h017570031",
+        "original_Word_ID": 200,
+        "wrong_Unicode_removed": "媡",
+        "source_Unicode_restored": "蓬",
+        "original_raw_ID_bbox_status_owner_exact": true,
+        "all_other_Analysis_fields_exact": true,
+        "artifacts": [
+          {
+            "path": ".cache/kanpo-227/integrated46-allAnalysis/20260729h017570031-45.json.gz",
+            "sha256": "29f91b3fc2861c90b452a4f8c6a3c5fe487e3dc90023ca2203c766a64fcc63e9",
+            "uncompressed_sha256": "1b58dd281f7ce6bce5c01043989c60f9b5964a53e3602d8541d18facfb1d7fa7"
+          },
+          {
+            "path": ".cache/kanpo-227/integrated46-allAnalysis/20260729h017570031-46.json.gz",
+            "sha256": "e60e0c02e0b9a5a46e6948f6d12b2b4139e019da63ef26b3118b292dcb0799c0",
+            "uncompressed_sha256": "0115d9988ca5d20e4005efb4d2f9802f56177900a5662ef46e93fafba35c5efe"
+          }
+        ]
+      }
+    ],
+    "source_glyph_Unicode_substitutions": 4,
+    "wrong_Unicode_characters_removed": 4,
+    "source_Unicode_characters_restored": 4,
+    "original_raw_ID_bbox_status_owner_exact": true,
+    "new_source_Words": 0,
+    "newly_owned_IDs": 0,
+    "all_structure_roles_LF_spaces_exact": true,
+    "pre_post_all_input_source_executable_dependency_SHA_exact": true,
+    "part_results": [
+      {
+        "part": 0,
+        "pages": 5996,
+        "exact_fullAnalysis": 5995,
+        "exact_body": 5995,
+        "changes": [
+          {
+            "page": "20260729h017570031",
+            "original_Word_ID": 200,
+            "wrong_Unicode_removed": "媡",
+            "source_Unicode_restored": "蓬",
+            "original_raw_ID_bbox_status_owner_exact": true,
+            "all_other_Analysis_fields_exact": true,
+            "artifacts": [
+              {
+                "path": ".cache/kanpo-227/integrated46-allAnalysis/20260729h017570031-45.json.gz",
+                "sha256": "29f91b3fc2861c90b452a4f8c6a3c5fe487e3dc90023ca2203c766a64fcc63e9",
+                "uncompressed_sha256": "1b58dd281f7ce6bce5c01043989c60f9b5964a53e3602d8541d18facfb1d7fa7"
+              },
+              {
+                "path": ".cache/kanpo-227/integrated46-allAnalysis/20260729h017570031-46.json.gz",
+                "sha256": "e60e0c02e0b9a5a46e6948f6d12b2b4139e019da63ef26b3118b292dcb0799c0",
+                "uncompressed_sha256": "0115d9988ca5d20e4005efb4d2f9802f56177900a5662ef46e93fafba35c5efe"
+              }
+            ]
+          }
+        ],
+        "seconds": 116.618834417
+      },
+      {
+        "part": 1,
+        "pages": 5996,
+        "exact_fullAnalysis": 5993,
+        "exact_body": 5993,
+        "changes": [
+          {
+            "page": "20260716g001590048",
+            "original_Word_ID": 170,
+            "wrong_Unicode_removed": "婲",
+            "source_Unicode_restored": "樽",
+            "original_raw_ID_bbox_status_owner_exact": true,
+            "all_other_Analysis_fields_exact": true,
+            "artifacts": [
+              {
+                "path": ".cache/kanpo-227/integrated46-allAnalysis/20260716g001590048-45.json.gz",
+                "sha256": "5d5486b4be5046921196a82d2b5590297d9e057bab5312d70f9b8673c3dbba08",
+                "uncompressed_sha256": "397d69913aa5bddc163a425af813ac519708c0004c9ddd06f7b0f87aa75e3b98"
+              },
+              {
+                "path": ".cache/kanpo-227/integrated46-allAnalysis/20260716g001590048-46.json.gz",
+                "sha256": "b1279bc04cfc22ca485eeb078f99809b214350ceeddcc86a22321d1c5c380891",
+                "uncompressed_sha256": "35011b50091c193439ad4beafe260ca4871e017b9ec72928054e63acabe7976a"
+              }
+            ]
+          },
+          {
+            "page": "20260723g001630196",
+            "original_Word_ID": 20,
+            "wrong_Unicode_removed": "䈹",
+            "source_Unicode_restored": "濰",
+            "original_raw_ID_bbox_status_owner_exact": true,
+            "all_other_Analysis_fields_exact": true,
+            "artifacts": [
+              {
+                "path": ".cache/kanpo-227/integrated46-allAnalysis/20260723g001630196-45.json.gz",
+                "sha256": "ecb175ec8012c7e5913c66b8636151ec2da5a3756f030e492743b71f83dfbba4",
+                "uncompressed_sha256": "b39816660ea4246fd0e9aa75550cfb2a9d3d60e927f50c3c7c107d8c667dd282"
+              },
+              {
+                "path": ".cache/kanpo-227/integrated46-allAnalysis/20260723g001630196-46.json.gz",
+                "sha256": "fb428972bfcd6053f8e2ce99e5e9025dae3fe95dcaaa2aad4b24f78d0964be73",
+                "uncompressed_sha256": "2f4cbe7a49312ae0d0df289b967937f56df0493aacc92d5edb8ffd6f345aac32"
+              }
+            ]
+          },
+          {
+            "page": "20260729h017570030",
+            "original_Word_ID": 224,
+            "wrong_Unicode_removed": "升",
+            "source_Unicode_restored": "團",
+            "original_raw_ID_bbox_status_owner_exact": true,
+            "all_other_Analysis_fields_exact": true,
+            "artifacts": [
+              {
+                "path": ".cache/kanpo-227/integrated46-allAnalysis/20260729h017570030-45.json.gz",
+                "sha256": "67648d6cd6106a4f2f1a4ead2ba47bd44f297e2729c0e6b46e40f8de7cda4220",
+                "uncompressed_sha256": "29da4cc3f279383f2f6d091e8b907533ddd782da310288bcccc6c5cf876ef1d3"
+              },
+              {
+                "path": ".cache/kanpo-227/integrated46-allAnalysis/20260729h017570030-46.json.gz",
+                "sha256": "cc8758a4481074505a4398bbaef6461370d8f19f04ac58fe1888c24414bf57b6",
+                "uncompressed_sha256": "b9cf1b7d0cc349dbc398f025fcff597b6f44040a2579cbd5bfc813be6928310f"
+              }
+            ]
+          }
+        ],
+        "seconds": 121.676421417
+      }
+    ]
+  },
+  "source_manifest": {
+    "baseline_commit": "7acb566b7e8116c4bc746140db46e7ebd7f320a4",
+    "baseline": "accepted24/after45/source104",
+    "candidate": "after46",
+    "source_files": 104,
+    "parser_source_files": 91,
+    "pdf_source_files": 13,
+    "files": [
+      {
+        "path": "crates/kanpo-parser/src/area_units.rs",
+        "sha256": "85ec9fc9caa87213acb707c5f4cf50a7afe46a92729d524fcb4c4b7579ee6219"
+      },
+      {
+        "path": "crates/kanpo-parser/src/blank_area_units.rs",
+        "sha256": "95a8fd379b4d0ca6d42fbffb1558a8ef765c662b7c60b21e480d8b9c63d8e619"
+      },
+      {
+        "path": "crates/kanpo-parser/src/cell_row_dash_tests.rs",
+        "sha256": "94401049dfc8a127b95395866e8fc7056849f7749db081c6fca6c1875d39e7a9"
+      },
+      {
+        "path": "crates/kanpo-parser/src/cell_row_dashes.rs",
+        "sha256": "2f01614cb315422228078757774f4399727c58495e626affd60d1dcc0cec2be7"
+      },
+      {
+        "path": "crates/kanpo-parser/src/chemical_line_end.rs",
+        "sha256": "38c79e61032fd7e038830fd15a40d29ea290b1827b99bd70590bcb9d191eb612"
+      },
+      {
+        "path": "crates/kanpo-parser/src/chemical_line_end_tests.rs",
+        "sha256": "473e1c55fac7a9e3be13cf06d9ef0fbf3e8432028aa5716508b8ecc82df05582"
+      },
+      {
+        "path": "crates/kanpo-parser/src/circled_numbers.rs",
+        "sha256": "ea58c40bdbb664e44aa3ff25c1ce9441ef1a288d061e0ba77839612b8e3bb25f"
+      },
+      {
+        "path": "crates/kanpo-parser/src/composite_numbers.rs",
+        "sha256": "097b1d9b82d2e03b7997b2793ad31e65fa73d5c871d3479e4a5522af8fe20f28"
+      },
+      {
+        "path": "crates/kanpo-parser/src/coordinate_rows.rs",
+        "sha256": "0fa04e51fa53be8d4df8a56711569984fb89c122bc212b69e62c670d1c89b680"
+      },
+      {
+        "path": "crates/kanpo-parser/src/coordinate_symbols.rs",
+        "sha256": "284a3f359db7afab91d9ca3302fe759fd1ad559cf3064f5a50f40eb3cfc4a342"
+      },
+      {
+        "path": "crates/kanpo-parser/src/empty_amount_record_tests.rs",
+        "sha256": "7bf82dc603459fbf8e278b55b32c90b8b47d0177c8c3051693a5459fbf55f04d"
+      },
+      {
+        "path": "crates/kanpo-parser/src/facility_continuation_shape_tests.rs",
+        "sha256": "2d8657e545c589e0e0d6f550d2b0ec6592045c69300676ca656f8d443188cb81"
+      },
+      {
+        "path": "crates/kanpo-parser/src/facility_continuations.rs",
+        "sha256": "610e5ad97f23465467a219e9f7dca2d9ccd8d7587600d3263f016cf0ff747862"
+      },
+      {
+        "path": "crates/kanpo-parser/src/financial_enclosure_tests.rs",
+        "sha256": "cfb13b057437accacce2aac4fc30102fb56afe7f34f44025b3066380c9fe2a01"
+      },
+      {
+        "path": "crates/kanpo-parser/src/financial_enclosures.rs",
+        "sha256": "2ca8740726cadd29cacee91d0c63222b5ae95d80097001f5856e87eb7f969399"
+      },
+      {
+        "path": "crates/kanpo-parser/src/financial_flow.rs",
+        "sha256": "25542fef77d59dbacb760c729586ae9ed4c3b2d34f8ac38cfa4dc31a8a567b3a"
+      },
+      {
+        "path": "crates/kanpo-parser/src/financial_flow_tests.rs",
+        "sha256": "e681722fb022e1ce721b719247a8bf21e0486d6460c2ae5004362d1102608b75"
+      },
+      {
+        "path": "crates/kanpo-parser/src/format.rs",
+        "sha256": "11a24e7e6f7291f8d26234a92a6814c853580a3edc56a3c2c32b3c2dff56566c"
+      },
+      {
+        "path": "crates/kanpo-parser/src/fractions.rs",
+        "sha256": "14f81b155047ceb32c403157d570acbe0d889bb3a8039415a5263956ede700a1"
+      },
+      {
+        "path": "crates/kanpo-parser/src/framed_amount_rows.rs",
+        "sha256": "401e682e8dc2b95bc7114995b6a56fb2758a00ec95291b9a0823006a5e52f29c"
+      },
+      {
+        "path": "crates/kanpo-parser/src/framed_band_continuations.rs",
+        "sha256": "11153d3a84ffd1edd1aae60b94ecd701d8e9f028d9ef2405fc6f7b75462f958a"
+      },
+      {
+        "path": "crates/kanpo-parser/src/grid.rs",
+        "sha256": "2d43c35a023c49b4692d6a9d5e7a6e556b3c0fcef11b46baa1207a34829afa3d"
+      },
+      {
+        "path": "crates/kanpo-parser/src/headed_data_column_tests.rs",
+        "sha256": "9ae9b40dc2593ec4d047ba42ef10f35b91d711a5be028715f39475518388fa36"
+      },
+      {
+        "path": "crates/kanpo-parser/src/headed_data_columns.rs",
+        "sha256": "00e907576242ef48a6d56dcd9d7f48235b93c1de8e903ec94599bac224a97a7f"
+      },
+      {
+        "path": "crates/kanpo-parser/src/headerless_four_bands.rs",
+        "sha256": "b5a334e037133ce18bb646a05c7d91f029c7743b4c23274499c557ab641560a0"
+      },
+      {
+        "path": "crates/kanpo-parser/src/horizontal.rs",
+        "sha256": "8d4e62c35ebc9af6557376ddd0319c9fd82d6f1b353a3eaf18d42f80e585bff1"
+      },
+      {
+        "path": "crates/kanpo-parser/src/horizontal_covering_edge_tests.rs",
+        "sha256": "0d47761bea8ecd32ddffc58c39e1825ad7739e436ed0d2b18f0edcf868147577"
+      },
+      {
+        "path": "crates/kanpo-parser/src/horizontal_fullwidth_section_tests.rs",
+        "sha256": "40e3636cad799f08430db5c4223ea7a473bdee16f2fbfb0ccab120f955ad4cf6"
+      },
+      {
+        "path": "crates/kanpo-parser/src/inline_quotes.rs",
+        "sha256": "173611d0c314c5ba7adfadf9def7d182c04ba4577fe2bd048f9033efcda5f753"
+      },
+      {
+        "path": "crates/kanpo-parser/src/large_parentheses.rs",
+        "sha256": "a0284e03cb23ff92951001ad9474f0b477506ac09e804d22447be6fb0f8fd7f8"
+      },
+      {
+        "path": "crates/kanpo-parser/src/leading_dash_tests.rs",
+        "sha256": "4404e7b76346208928f91afdef28d7824aa4cddc0b02090078078825fecdc655"
+      },
+      {
+        "path": "crates/kanpo-parser/src/leading_numeric_table_tests.rs",
+        "sha256": "d8e8832176621c6f76437ae9aea9f1f93fb3c8192472282f7dd061c92606b240"
+      },
+      {
+        "path": "crates/kanpo-parser/src/leading_table_blank_tests.rs",
+        "sha256": "360fa0eb054cc4a56b30f55324aad4e154538883d99501eeb67298ad9aae8141"
+      },
+      {
+        "path": "crates/kanpo-parser/src/lib.rs",
+        "sha256": "90640efa6673c568c4232652ac30243d2a25492525d55606482defb96b56e777"
+      },
+      {
+        "path": "crates/kanpo-parser/src/lines.rs",
+        "sha256": "c277b260081e9b35c53964098c3b39ac2cbccf054bbaf8cb083898a5f862853c"
+      },
+      {
+        "path": "crates/kanpo-parser/src/micro_prefixes.rs",
+        "sha256": "0430a55657b8c5bc635ee43270ea65b5a4e0277c30b516af3fb92fa26e490021"
+      },
+      {
+        "path": "crates/kanpo-parser/src/micro_prefixes_tests.rs",
+        "sha256": "798c937df84a5e4306322854a03bf4563a62d58c7c51707909cb43929c709e51"
+      },
+      {
+        "path": "crates/kanpo-parser/src/mixed_native_bbox_tests.rs",
+        "sha256": "039f1a0a0d4d8bc1bf4075895ca9dcee2d69810eb8156cd9a22094aae9549942"
+      },
+      {
+        "path": "crates/kanpo-parser/src/model.rs",
+        "sha256": "34ff7218594c9f98a8b607fb38c062cfedd9242295e0045d87909bdfbfb66474"
+      },
+      {
+        "path": "crates/kanpo-parser/src/native_ledger_tests.rs",
+        "sha256": "ca5dd35101465c11b98617f214589bc052fc2cc71f0972e163a8db513246d432"
+      },
+      {
+        "path": "crates/kanpo-parser/src/native_triangle_cell_tests.rs",
+        "sha256": "dd202183a8e153f37898abcfcb6380d97c886173a8929e94e806ce90c99a1756"
+      },
+      {
+        "path": "crates/kanpo-parser/src/native_triangle_cells.rs",
+        "sha256": "5bcf8fa1e475331bf37be4aee025f019d269606f001720cbc53c714b29241ac1"
+      },
+      {
+        "path": "crates/kanpo-parser/src/nested_fraction_geometry.rs",
+        "sha256": "20467eff6afd052a95fbb13b760d92e5371fa75d3a3a94a961d0b2a9787e37a0"
+      },
+      {
+        "path": "crates/kanpo-parser/src/nested_fraction_geometry_tests.rs",
+        "sha256": "bb866d3e29705d1a2978b70a5f7bc60db314b8724958e7dce68f89bc24f27b29"
+      },
+      {
+        "path": "crates/kanpo-parser/src/nested_fractions.rs",
+        "sha256": "e6f88aa6bf9c73c4eb7e2e9a62ba70beac38e8cf3ed36f0c2ce1b5337bb0e1db"
+      },
+      {
+        "path": "crates/kanpo-parser/src/nested_fractions_tests.rs",
+        "sha256": "095c65426f463aeb1ab352779f2181a22fae58a5408104b8e7906de86c5b213a"
+      },
+      {
+        "path": "crates/kanpo-parser/src/normalize.rs",
+        "sha256": "cc535ac30dbfb2056a47fda6fe62186c950774a337b6878c24b98a3a4e7c8414"
+      },
+      {
+        "path": "crates/kanpo-parser/src/numeric_fraction_adapter_tests.rs",
+        "sha256": "76e6fd5feb5b2a421e42769946394016c99f5b63580fe866e7fe6eb04a299ac0"
+      },
+      {
+        "path": "crates/kanpo-parser/src/numeric_fraction_geometry.rs",
+        "sha256": "5b87a35a5c823ed50460463739d6f8b31a948324cac5708b893c64541e71fd77"
+      },
+      {
+        "path": "crates/kanpo-parser/src/numeric_fraction_geometry_tests.rs",
+        "sha256": "c83c2e18e21541c635e848be0328f0bcb0c9f333042cfc390c59924d5a38debb"
+      },
+      {
+        "path": "crates/kanpo-parser/src/numeric_fractions.rs",
+        "sha256": "7f4fc1d34db1f66c10eff17720d8c08194c1f69c93128f66fbdb3af5003b8f1d"
+      },
+      {
+        "path": "crates/kanpo-parser/src/numeric_grid_orientation.rs",
+        "sha256": "5503e37a7d49f4d7350c5cad8c8fb40f526e901310b3acd47c6c41ce9b43de4e"
+      },
+      {
+        "path": "crates/kanpo-parser/src/owned_dash_tests.rs",
+        "sha256": "4054dfb3f501276d54cb0f6b16d08f4eade227d3e3d5a5b707f845c4b4465af2"
+      },
+      {
+        "path": "crates/kanpo-parser/src/owned_dashes.rs",
+        "sha256": "0fb5cbfb2d2d21b855fcc74dc461a58e3ff0ce334eb45be6c0a5e0d275c03b33"
+      },
+      {
+        "path": "crates/kanpo-parser/src/paired_framed_continuation_shape_tests.rs",
+        "sha256": "afc6d7e8350fa1229bb4fd8bbd283b260cc16902daa984a7d4de30ae9c9f9af4"
+      },
+      {
+        "path": "crates/kanpo-parser/src/paired_framed_continuations.rs",
+        "sha256": "8c4a0dbd186cc0f90843a647c83d79838781dea9741634b74be0b7dd426d56ee"
+      },
+      {
+        "path": "crates/kanpo-parser/src/paired_shinkyu_grid_tests.rs",
+        "sha256": "32d3d084cc12909c3dd2319f8f621526b41f1c2f88dde574e15d53b168a6afe5"
+      },
+      {
+        "path": "crates/kanpo-parser/src/parallel_fraction_adapter_tests.rs",
+        "sha256": "4a97c8acab7f2f25dbf691e8cd9840afde754465b2aeb597719441a314d9eab5"
+      },
+      {
+        "path": "crates/kanpo-parser/src/parallel_fraction_geometry.rs",
+        "sha256": "dee1abb3868ca63672333aa70caffc6abafba18a2abc0f305e012bb605882d98"
+      },
+      {
+        "path": "crates/kanpo-parser/src/parallel_fraction_geometry_tests.rs",
+        "sha256": "9fa0da416a260998dd361bb452dee3937a00c8de6828c6d120acab95dae9f1f8"
+      },
+      {
+        "path": "crates/kanpo-parser/src/parallel_fractions.rs",
+        "sha256": "5f2bd4e2635069ede150e2ca75af0f5c451611d8d9c94d03409b121669f11c85"
+      },
+      {
+        "path": "crates/kanpo-parser/src/prose_label_values_tests.rs",
+        "sha256": "2ba2d80b953f26b93d8166ad096285ea27b2affa5f4dc9286625c46dba82f3b9"
+      },
+      {
+        "path": "crates/kanpo-parser/src/quantity_tables.rs",
+        "sha256": "ffb65b9a00c7b0c2781ed076bdd060b687bc052814289b548ba96011605adfb5"
+      },
+      {
+        "path": "crates/kanpo-parser/src/range_endpoints.rs",
+        "sha256": "8c843b70da89c5460fc26f82c46fc48e783de9356d8f693d9defb9aff891cac2"
+      },
+      {
+        "path": "crates/kanpo-parser/src/record_suffix.rs",
+        "sha256": "43997ade6e3b8842daaf727494852e903333be2558b7831aa689de6ab72f1b3a"
+      },
+      {
+        "path": "crates/kanpo-parser/src/record_suffix_tests.rs",
+        "sha256": "bfe5838796837ba3279df09f684abc6c2eefecd02274e98d12478bf31dc29b98"
+      },
+      {
+        "path": "crates/kanpo-parser/src/reference_markers.rs",
+        "sha256": "b06a95fe2087407773c1aef85ed7c8681adb2ee7eb9ed39f435557acc14a4ce0"
+      },
+      {
+        "path": "crates/kanpo-parser/src/repeated_key_column_tests.rs",
+        "sha256": "58a46c1c69157d6c3619efdf245107180fbe7b3191accb03c7d08cec96057578"
+      },
+      {
+        "path": "crates/kanpo-parser/src/ruled_plain_dash_tests.rs",
+        "sha256": "1e6722aa09f6680292b44e3015cc38bf3a72834af4c8b7fc65d0fe73a75b3b2d"
+      },
+      {
+        "path": "crates/kanpo-parser/src/ruled_plain_dashes.rs",
+        "sha256": "3b39b9833af9e529f71581e49a882ef738d62e7ef40ade37875a02f3b69da01b"
+      },
+      {
+        "path": "crates/kanpo-parser/src/segment.rs",
+        "sha256": "05aef0a20c3f1793883d8fc8152d12261f2b5f5336a3864756d080727fb262e7"
+      },
+      {
+        "path": "crates/kanpo-parser/src/shared_physical_label_tests.rs",
+        "sha256": "691fd4c66ba25a5d3da052f340e77389f251a98e35ea67d1c185ffc2759a88d1"
+      },
+      {
+        "path": "crates/kanpo-parser/src/shared_table_labels.rs",
+        "sha256": "a9a4afe53cf2d662239a1fe1219147cbd983747830aba23cee8fd0d00028a42b"
+      },
+      {
+        "path": "crates/kanpo-parser/src/shinkyu.rs",
+        "sha256": "66f86602fc7b9e41365f2b042aad727dc14dbc902b52c996c908c97780a2b5e4"
+      },
+      {
+        "path": "crates/kanpo-parser/src/ship_record_tests.rs",
+        "sha256": "b4e7c35ee920544993a2585594e8ff338889376c2a93f82546c7eb4928796bcb"
+      },
+      {
+        "path": "crates/kanpo-parser/src/shorthand_tier_tests.rs",
+        "sha256": "0b30159ec56155d4047712d4607be7f40d6f07a10540224a6589915900c217cd"
+      },
+      {
+        "path": "crates/kanpo-parser/src/signer_block_tests.rs",
+        "sha256": "776e829693431b7766e21af2efb7cbaf12216722d57c984bf334e48798624a66"
+      },
+      {
+        "path": "crates/kanpo-parser/src/table.rs",
+        "sha256": "2ebcef0d19ba3e56dc5ce751ab63fe3bf5486c55b6e0fa91e8267b3561b92f45"
+      },
+      {
+        "path": "crates/kanpo-parser/src/table_dashes.rs",
+        "sha256": "97c2d1d7dc25eafac99495b0a87c813721dd0fe798084176037a845cdd9e9671"
+      },
+      {
+        "path": "crates/kanpo-parser/src/table_dashes_physical_cells_tests.rs",
+        "sha256": "736e613d72504ba0c571c57a5456da7362d7d881131cd90c18f2eb3c46e85c44"
+      },
+      {
+        "path": "crates/kanpo-parser/src/table_text_column_tests.rs",
+        "sha256": "7df4228068dda4b48900dcb3c87a53420d323b805364559e1b873111a8622f3d"
+      },
+      {
+        "path": "crates/kanpo-parser/src/trace.rs",
+        "sha256": "1f21f7f40ed424d32aa2cc33052ae26ec0fd2dd0f01bbba63ec211481eb6e3aa"
+      },
+      {
+        "path": "crates/kanpo-parser/src/trailing_code_tables.rs",
+        "sha256": "e59b3e0e3e86b5547db1cecd1bc4550bb50e798f2f9720c3ec8d9584c53e25ce"
+      },
+      {
+        "path": "crates/kanpo-parser/src/triangle_sign_tests.rs",
+        "sha256": "a22ea872698bc34351bb5a5f510de0e1728050a94b108e972467424cc2f327c9"
+      },
+      {
+        "path": "crates/kanpo-parser/src/unruled_record_tests.rs",
+        "sha256": "049caf72c44f37e52db2521eacad7ccac9bf1aad226de411cd5735368f64139d"
+      },
+      {
+        "path": "crates/kanpo-parser/src/unruled_records.rs",
+        "sha256": "f905f325ecbfe3eae8e7c7461a1b627708aab5c4f8850808a84547d6b1eaa75b"
+      },
+      {
+        "path": "crates/kanpo-parser/src/unruled_road.rs",
+        "sha256": "8b6e1880ca914490eb976c3fc852760eb485d90c2f4a65002c262d1f911fa70b"
+      },
+      {
+        "path": "crates/kanpo-parser/src/vertical.rs",
+        "sha256": "76c7d1b0d0d54a7bb1ceda5de9c2d75cfd7010d47d08c502b8af111df09a0f13"
+      },
+      {
+        "path": "crates/kanpo-parser/src/wrapped_native_quote_tests.rs",
+        "sha256": "68a732e65692bfe1bc5b50aeafe5e3b6935f12fcd9d53ca0791c029fa21f1fb7"
+      },
+      {
+        "path": "crates/kanpo-parser/src/wrapped_notice_title_tests.rs",
+        "sha256": "ba6b69428c49911036bd0ffe7f368a9e3d6454b33b2c07558b8dd486b493035e"
+      },
+      {
+        "path": "crates/kanpo-parser/src/wrapped_notice_titles.rs",
+        "sha256": "ee1316e253e58d73efa0100366a36244b02794561da9a67286e3ceae00e393fe"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/bbox.rs",
+        "sha256": "3488a8c9425562ba8161fafdc7f4c84fadb7770b097b1f07de8d119fc28621b2"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/cmap.rs",
+        "sha256": "ae8de5b85d27afd6d2bb2f5541f9b477fd163fc9155b71ab858fa44951701796"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/crypt.rs",
+        "sha256": "71ff6cff3f5680f1d32330b42d312d896d61b1f9f28ce8c6ee799501426098ca"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/document.rs",
+        "sha256": "eb955b1fe352e8552b1422e2755fd77eeeb9b289674532617e2740d80d4a3143"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/filter.rs",
+        "sha256": "16c3abd9992971c8cdc6aa25231a98ede9da11937019cc7f6100b763d2d05cea"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/font.rs",
+        "sha256": "3c30d51258ae02368088461ee182b5ea296d7dfaf9f2e849765c61121e8e7ab8"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/lexer.rs",
+        "sha256": "501609f620f60105fc70f53d98bd5b283091abacfea3b8e48e262f9d01590b11"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/lib.rs",
+        "sha256": "ecef6341d2f1f2281828432672778dbdee1da7f4b883b518c1ef935c19f611df"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/native_vertical_bbox_tests.rs",
+        "sha256": "d7ec99599e7f1b609c66f505bb05fbcd152dc72224d734ab8dbda42848514205"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/object.rs",
+        "sha256": "a387f5ec34b17a109ae44963123076a72fe827b4f8999a579ea38f13bbb3c0bd"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/page.rs",
+        "sha256": "ed7d29314f9318cc19f82315df17126b45bf03f290938c860504507bd0d2ed1d"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/rules.rs",
+        "sha256": "03187d799f007724086d1437326fa24c7ee4bc2b08c18774d3e40ec47c5e7265"
+      },
+      {
+        "path": "crates/kanpo-pdf/src/short_fraction_bar_tests.rs",
+        "sha256": "701116b53a0a7e208383e551658b7c6130242e4850915694ee6e4f4b695d41d8"
+      }
+    ]
+  },
+  "source_manifest_sha256": "c130d8d2283077556850c9e733290411ebdb5df4ea3b1c9f0aef5d9435ef147a",
+  "preflight": {
+    "path": ".cache/kanpo-227/full46-preflight-manifest.json",
+    "sha256": "242cb6e1feb5de782610bd8b8c8929673b2203f42d60c53ca92ce0ddd2ffe27e"
+  },
+  "native_all11992_CFF": {
+    "scanned_native_pages": 11992,
+    "rows": [
+      {
+        "pdf": ".cache/kanpo-archive/2026-07-16/20260716g00159/20260716g001590048.pdf",
+        "glyph": {
+          "text": "婲",
+          "code": 23154,
+          "cid": 23154,
+          "font": 5,
+          "x": 179.72070000000025,
+          "y": 740.8399,
+          "end_x": 179.72070000000025,
+          "end_y": 748.8399,
+          "size": 8.0,
+          "vertical": true,
+          "bbox": [
+            175.72070000000025,
+            740.8399,
+            183.72070000000025,
+            748.8399
+          ],
+          "invisible": false,
+          "spacing": -0.0,
+          "kern": -0.0,
+          "show": 190
+        },
+        "native_font": {
+          "name": "DFHSMinchoRPro6N-W3-Identity-V",
+          "vertical": true,
+          "ordering": "Identity",
+          "has_to_unicode": false
+        },
+        "expected": "樽",
+        "matches": [
+          {
+            "resource": "/C0_5",
+            "basefont": "/DFHSMinchoRPro6N-W3-Identity-V",
+            "ordering": "Identity",
+            "to_unicode": false,
+            "encoding": "/Identity-V",
+            "font_file_sha256": "e7aa031ea118a907d351d90c324b534f20acc236af0c0aaf72a33c1dfafd9419",
+            "cff_font": "HKCIIN+DFHSMinchoRPro6N-W3",
+            "cff_ros": [
+              "Adobe",
+              "Japan1",
+              6
+            ],
+            "outline_sha256": "4b3eb997ad6091db5545bb874d52124b38858305d7af72fc3fed67b073c9a2b7",
+            "outline_operations": 135,
+            "outline": [
+              [
+                "moveTo",
+                [
+                  [
+                    273,
+                    626
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    238,
+                    579
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    222,
+                    579
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    222,
+                    747
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    226,
+                    749
+                  ],
+                  [
+                    232,
+                    751
+                  ],
+                  [
+                    240,
+                    755
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    246,
+                    757
+                  ],
+                  [
+                    250,
+                    763
+                  ],
+                  [
+                    250,
+                    771
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    250,
+                    775
+                  ],
+                  [
+                    246,
+                    779
+                  ],
+                  [
+                    240,
+                    782
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    164,
+                    794
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    164,
+                    579
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    46,
+                    579
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    58,
+                    552
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    149,
+                    552
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    121,
+                    396
+                  ],
+                  [
+                    81,
+                    270
+                  ],
+                  [
+                    31,
+                    173
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    46,
+                    157
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    94,
+                    229
+                  ],
+                  [
+                    134,
+                    301
+                  ],
+                  [
+                    164,
+                    373
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    164,
+                    -93
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    222,
+                    -85
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    222,
+                    387
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    251,
+                    364
+                  ],
+                  [
+                    271,
+                    339
+                  ],
+                  [
+                    283,
+                    313
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    290,
+                    292
+                  ],
+                  [
+                    300,
+                    282
+                  ],
+                  [
+                    312,
+                    282
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    330,
+                    282
+                  ],
+                  [
+                    339,
+                    292
+                  ],
+                  [
+                    339,
+                    313
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    339,
+                    335
+                  ],
+                  [
+                    330,
+                    355
+                  ],
+                  [
+                    312,
+                    373
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    293,
+                    389
+                  ],
+                  [
+                    263,
+                    403
+                  ],
+                  [
+                    222,
+                    415
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    222,
+                    552
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    339,
+                    552
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    339,
+                    571
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    273,
+                    626
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    410,
+                    802
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    398,
+                    794
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    433,
+                    765
+                  ],
+                  [
+                    464,
+                    720
+                  ],
+                  [
+                    491,
+                    660
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    495,
+                    653
+                  ],
+                  [
+                    501,
+                    650
+                  ],
+                  [
+                    511,
+                    650
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    535,
+                    650
+                  ],
+                  [
+                    547,
+                    664
+                  ],
+                  [
+                    547,
+                    692
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    547,
+                    706
+                  ],
+                  [
+                    535,
+                    722
+                  ],
+                  [
+                    513,
+                    742
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    490,
+                    762
+                  ],
+                  [
+                    456,
+                    782
+                  ],
+                  [
+                    410,
+                    802
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    707,
+                    814
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    690,
+                    746
+                  ],
+                  [
+                    670,
+                    691
+                  ],
+                  [
+                    646,
+                    650
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    320,
+                    650
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    332,
+                    622
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    504,
+                    622
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    503,
+                    590
+                  ],
+                  [
+                    502,
+                    561
+                  ],
+                  [
+                    501,
+                    536
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    430,
+                    536
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    367,
+                    564
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    367,
+                    204
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    425,
+                    208
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    425,
+                    224
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    683,
+                    224
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    683,
+                    153
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    285,
+                    153
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    296,
+                    126
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    683,
+                    126
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    683,
+                    -11
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    574,
+                    -11
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    574,
+                    -30
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    627,
+                    -43
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    644,
+                    -47
+                  ],
+                  [
+                    654,
+                    -57
+                  ],
+                  [
+                    657,
+                    -72
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    660,
+                    -80
+                  ],
+                  [
+                    664,
+                    -85
+                  ],
+                  [
+                    668,
+                    -85
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    674,
+                    -85
+                  ],
+                  [
+                    684,
+                    -82
+                  ],
+                  [
+                    698,
+                    -76
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    727,
+                    -64
+                  ],
+                  [
+                    742,
+                    -42
+                  ],
+                  [
+                    742,
+                    -11
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    742,
+                    126
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    961,
+                    126
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    961,
+                    145
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    886,
+                    196
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    843,
+                    153
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    742,
+                    153
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    742,
+                    188
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    757,
+                    195
+                  ],
+                  [
+                    765,
+                    202
+                  ],
+                  [
+                    765,
+                    208
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    765,
+                    214
+                  ],
+                  [
+                    759,
+                    217
+                  ],
+                  [
+                    748,
+                    218
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    711,
+                    224
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    789,
+                    224
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    789,
+                    208
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    847,
+                    220
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    847,
+                    501
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    863,
+                    507
+                  ],
+                  [
+                    871,
+                    514
+                  ],
+                  [
+                    871,
+                    521
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    871,
+                    524
+                  ],
+                  [
+                    866,
+                    529
+                  ],
+                  [
+                    858,
+                    536
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    804,
+                    571
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    789,
+                    536
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    664,
+                    536
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    664,
+                    622
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    949,
+                    622
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    949,
+                    642
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    867,
+                    696
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    824,
+                    650
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    678,
+                    650
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    709,
+                    678
+                  ],
+                  [
+                    737,
+                    711
+                  ],
+                  [
+                    761,
+                    751
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    787,
+                    753
+                  ],
+                  [
+                    800,
+                    759
+                  ],
+                  [
+                    800,
+                    767
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    800,
+                    771
+                  ],
+                  [
+                    795,
+                    776
+                  ],
+                  [
+                    786,
+                    781
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    707,
+                    814
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    425,
+                    251
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    425,
+                    310
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    789,
+                    310
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    789,
+                    251
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    425,
+                    251
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    425,
+                    337
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    425,
+                    509
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    499,
+                    509
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    497,
+                    491
+                  ],
+                  [
+                    495,
+                    475
+                  ],
+                  [
+                    493,
+                    462
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    485,
+                    420
+                  ],
+                  [
+                    473,
+                    385
+                  ],
+                  [
+                    457,
+                    356
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    464,
+                    345
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    497,
+                    375
+                  ],
+                  [
+                    520,
+                    413
+                  ],
+                  [
+                    534,
+                    457
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    538,
+                    472
+                  ],
+                  [
+                    542,
+                    489
+                  ],
+                  [
+                    546,
+                    509
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    613,
+                    509
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    613,
+                    423
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    613,
+                    399
+                  ],
+                  [
+                    627,
+                    388
+                  ],
+                  [
+                    656,
+                    388
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    738,
+                    388
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    753,
+                    388
+                  ],
+                  [
+                    765,
+                    399
+                  ],
+                  [
+                    773,
+                    423
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    760,
+                    427
+                  ],
+                  [
+                    754,
+                    435
+                  ],
+                  [
+                    754,
+                    446
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    750,
+                    485
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    742,
+                    485
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    724,
+                    436
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    722,
+                    430
+                  ],
+                  [
+                    717,
+                    427
+                  ],
+                  [
+                    711,
+                    427
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    672,
+                    427
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    666,
+                    427
+                  ],
+                  [
+                    664,
+                    428
+                  ],
+                  [
+                    664,
+                    431
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    664,
+                    509
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    789,
+                    509
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    789,
+                    337
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    425,
+                    337
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    613,
+                    536
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    549,
+                    536
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    552,
+                    562
+                  ],
+                  [
+                    554,
+                    590
+                  ],
+                  [
+                    554,
+                    622
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    613,
+                    622
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    613,
+                    536
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    410,
+                    110
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    394,
+                    103
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    418,
+                    75
+                  ],
+                  [
+                    440,
+                    33
+                  ],
+                  [
+                    458,
+                    -24
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    461,
+                    -30
+                  ],
+                  [
+                    466,
+                    -34
+                  ],
+                  [
+                    472,
+                    -34
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    500,
+                    -34
+                  ],
+                  [
+                    515,
+                    -16
+                  ],
+                  [
+                    515,
+                    20
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    515,
+                    31
+                  ],
+                  [
+                    506,
+                    45
+                  ],
+                  [
+                    490,
+                    61
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    472,
+                    77
+                  ],
+                  [
+                    445,
+                    94
+                  ],
+                  [
+                    410,
+                    110
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-07-23/20260723g00163/20260723g001630196.pdf",
+        "glyph": {
+          "text": "䈹",
+          "code": 16953,
+          "cid": 16953,
+          "font": 4,
+          "x": 510.3521,
+          "y": 388.83989999999994,
+          "end_x": 510.3521,
+          "end_y": 396.83989999999994,
+          "size": 8.0,
+          "vertical": true,
+          "bbox": [
+            506.3521,
+            388.83989999999994,
+            514.3521000000001,
+            396.83989999999994
+          ],
+          "invisible": false,
+          "spacing": -0.0,
+          "kern": -0.0,
+          "show": 71
+        },
+        "native_font": {
+          "name": "DFHSMinchoRPro6N-W3-Identity-V",
+          "vertical": true,
+          "ordering": "Identity",
+          "has_to_unicode": false
+        },
+        "expected": "濰",
+        "matches": [
+          {
+            "resource": "/C0_4",
+            "basefont": "/DFHSMinchoRPro6N-W3-Identity-V",
+            "ordering": "Identity",
+            "to_unicode": false,
+            "encoding": "/Identity-V",
+            "font_file_sha256": "ebe1389f5163e34df57ada7f2c7d45842c7c7fae154805a135d7057300b5fbd3",
+            "cff_font": "JHJJLL+DFHSMinchoRPro6N-W3",
+            "cff_ros": [
+              "Adobe",
+              "Japan1",
+              6
+            ],
+            "outline_sha256": "679bcca59574b4d94619166eba178b54c9f7166c0599bea66e7bd32d9f396140",
+            "outline_operations": 150,
+            "outline": [
+              [
+                "moveTo",
+                [
+                  [
+                    121,
+                    778
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    117,
+                    759
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    151,
+                    732
+                  ],
+                  [
+                    174,
+                    702
+                  ],
+                  [
+                    186,
+                    670
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    190,
+                    650
+                  ],
+                  [
+                    197,
+                    641
+                  ],
+                  [
+                    206,
+                    641
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    229,
+                    641
+                  ],
+                  [
+                    241,
+                    654
+                  ],
+                  [
+                    241,
+                    680
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    241,
+                    700
+                  ],
+                  [
+                    233,
+                    718
+                  ],
+                  [
+                    219,
+                    734
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    200,
+                    750
+                  ],
+                  [
+                    167,
+                    765
+                  ],
+                  [
+                    121,
+                    778
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    56,
+                    567
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    52,
+                    548
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    86,
+                    518
+                  ],
+                  [
+                    109,
+                    484
+                  ],
+                  [
+                    120,
+                    446
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    126,
+                    424
+                  ],
+                  [
+                    133,
+                    414
+                  ],
+                  [
+                    142,
+                    414
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    165,
+                    414
+                  ],
+                  [
+                    177,
+                    427
+                  ],
+                  [
+                    177,
+                    453
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    177,
+                    476
+                  ],
+                  [
+                    169,
+                    497
+                  ],
+                  [
+                    154,
+                    515
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    136,
+                    535
+                  ],
+                  [
+                    103,
+                    552
+                  ],
+                  [
+                    56,
+                    567
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    253,
+                    560
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    115,
+                    187
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    44,
+                    187
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    44,
+                    166
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    74,
+                    156
+                  ],
+                  [
+                    94,
+                    143
+                  ],
+                  [
+                    104,
+                    127
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    112,
+                    112
+                  ],
+                  [
+                    116,
+                    94
+                  ],
+                  [
+                    116,
+                    74
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    116,
+                    57
+                  ],
+                  [
+                    114,
+                    40
+                  ],
+                  [
+                    111,
+                    24
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    105,
+                    0
+                  ],
+                  [
+                    103,
+                    -16
+                  ],
+                  [
+                    103,
+                    -24
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    103,
+                    -39
+                  ],
+                  [
+                    107,
+                    -52
+                  ],
+                  [
+                    116,
+                    -62
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    128,
+                    -74
+                  ],
+                  [
+                    139,
+                    -80
+                  ],
+                  [
+                    149,
+                    -80
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    163,
+                    -80
+                  ],
+                  [
+                    174,
+                    -73
+                  ],
+                  [
+                    183,
+                    -60
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    191,
+                    -47
+                  ],
+                  [
+                    195,
+                    -34
+                  ],
+                  [
+                    195,
+                    -21
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    195,
+                    -8
+                  ],
+                  [
+                    191,
+                    12
+                  ],
+                  [
+                    183,
+                    41
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    172,
+                    79
+                  ],
+                  [
+                    167,
+                    103
+                  ],
+                  [
+                    167,
+                    114
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    167,
+                    126
+                  ],
+                  [
+                    169,
+                    141
+                  ],
+                  [
+                    175,
+                    160
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    175,
+                    160
+                  ],
+                  [
+                    206,
+                    290
+                  ],
+                  [
+                    270,
+                    552
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    253,
+                    560
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    392,
+                    798
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    320,
+                    601
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    302,
+                    613
+                  ],
+                  [
+                    280,
+                    625
+                  ],
+                  [
+                    254,
+                    637
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    243,
+                    620
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    277,
+                    588
+                  ],
+                  [
+                    306,
+                    546
+                  ],
+                  [
+                    330,
+                    492
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    335,
+                    479
+                  ],
+                  [
+                    340,
+                    473
+                  ],
+                  [
+                    345,
+                    473
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    366,
+                    473
+                  ],
+                  [
+                    377,
+                    487
+                  ],
+                  [
+                    377,
+                    515
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    377,
+                    531
+                  ],
+                  [
+                    372,
+                    545
+                  ],
+                  [
+                    362,
+                    559
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    357,
+                    565
+                  ],
+                  [
+                    351,
+                    572
+                  ],
+                  [
+                    344,
+                    580
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    443,
+                    740
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    470,
+                    740
+                  ],
+                  [
+                    484,
+                    745
+                  ],
+                  [
+                    484,
+                    755
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    484,
+                    757
+                  ],
+                  [
+                    480,
+                    761
+                  ],
+                  [
+                    472,
+                    766
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    392,
+                    798
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    456,
+                    649
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    422,
+                    561
+                  ],
+                  [
+                    378,
+                    464
+                  ],
+                  [
+                    326,
+                    358
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    249,
+                    356
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    278,
+                    284
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    282,
+                    275
+                  ],
+                  [
+                    286,
+                    271
+                  ],
+                  [
+                    292,
+                    271
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    298,
+                    271
+                  ],
+                  [
+                    303,
+                    280
+                  ],
+                  [
+                    307,
+                    299
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    329,
+                    303
+                  ],
+                  [
+                    352,
+                    307
+                  ],
+                  [
+                    375,
+                    312
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    375,
+                    -93
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    433,
+                    -81
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    433,
+                    324
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    449,
+                    328
+                  ],
+                  [
+                    466,
+                    332
+                  ],
+                  [
+                    484,
+                    336
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    490,
+                    320
+                  ],
+                  [
+                    495,
+                    302
+                  ],
+                  [
+                    501,
+                    282
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    504,
+                    274
+                  ],
+                  [
+                    509,
+                    270
+                  ],
+                  [
+                    516,
+                    270
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    538,
+                    270
+                  ],
+                  [
+                    550,
+                    284
+                  ],
+                  [
+                    550,
+                    312
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    550,
+                    329
+                  ],
+                  [
+                    541,
+                    349
+                  ],
+                  [
+                    525,
+                    373
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    507,
+                    397
+                  ],
+                  [
+                    481,
+                    422
+                  ],
+                  [
+                    447,
+                    446
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    435,
+                    430
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    448,
+                    412
+                  ],
+                  [
+                    461,
+                    390
+                  ],
+                  [
+                    473,
+                    363
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    365,
+                    359
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    410,
+                    429
+                  ],
+                  [
+                    454,
+                    504
+                  ],
+                  [
+                    497,
+                    584
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    529,
+                    587
+                  ],
+                  [
+                    545,
+                    592
+                  ],
+                  [
+                    545,
+                    598
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    545,
+                    602
+                  ],
+                  [
+                    539,
+                    607
+                  ],
+                  [
+                    528,
+                    614
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    456,
+                    649
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    272,
+                    247
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    270,
+                    180
+                  ],
+                  [
+                    266,
+                    124
+                  ],
+                  [
+                    259,
+                    78
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    251,
+                    33
+                  ],
+                  [
+                    240,
+                    -8
+                  ],
+                  [
+                    224,
+                    -47
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    238,
+                    -58
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    265,
+                    -24
+                  ],
+                  [
+                    285,
+                    10
+                  ],
+                  [
+                    299,
+                    46
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    312,
+                    83
+                  ],
+                  [
+                    322,
+                    132
+                  ],
+                  [
+                    329,
+                    193
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    353,
+                    201
+                  ],
+                  [
+                    365,
+                    210
+                  ],
+                  [
+                    365,
+                    218
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    365,
+                    224
+                  ],
+                  [
+                    359,
+                    228
+                  ],
+                  [
+                    348,
+                    232
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    272,
+                    247
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    462,
+                    247
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    446,
+                    238
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    466,
+                    194
+                  ],
+                  [
+                    484,
+                    127
+                  ],
+                  [
+                    500,
+                    37
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    502,
+                    25
+                  ],
+                  [
+                    506,
+                    20
+                  ],
+                  [
+                    512,
+                    20
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    542,
+                    20
+                  ],
+                  [
+                    557,
+                    38
+                  ],
+                  [
+                    557,
+                    74
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    557,
+                    95
+                  ],
+                  [
+                    549,
+                    121
+                  ],
+                  [
+                    534,
+                    152
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    518,
+                    184
+                  ],
+                  [
+                    494,
+                    215
+                  ],
+                  [
+                    462,
+                    247
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    633,
+                    813
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    601,
+                    649
+                  ],
+                  [
+                    561,
+                    519
+                  ],
+                  [
+                    515,
+                    421
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    533,
+                    404
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    551,
+                    432
+                  ],
+                  [
+                    568,
+                    463
+                  ],
+                  [
+                    586,
+                    497
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    586,
+                    -93
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    644,
+                    -86
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    644,
+                    -5
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    962,
+                    -5
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    962,
+                    14
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    873,
+                    86
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    826,
+                    22
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    788,
+                    22
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    788,
+                    194
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    947,
+                    194
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    947,
+                    214
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    866,
+                    273
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    823,
+                    221
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    788,
+                    221
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    788,
+                    358
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    937,
+                    358
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    937,
+                    378
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    857,
+                    441
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    816,
+                    385
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    788,
+                    385
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    788,
+                    542
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    952,
+                    542
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    952,
+                    561
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    863,
+                    629
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    816,
+                    569
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    769,
+                    569
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    835,
+                    720
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    857,
+                    720
+                  ],
+                  [
+                    869,
+                    725
+                  ],
+                  [
+                    869,
+                    736
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    869,
+                    739
+                  ],
+                  [
+                    865,
+                    743
+                  ],
+                  [
+                    857,
+                    749
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    780,
+                    782
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    730,
+                    569
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    651,
+                    569
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    627,
+                    585
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    649,
+                    635
+                  ],
+                  [
+                    669,
+                    691
+                  ],
+                  [
+                    689,
+                    752
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    711,
+                    754
+                  ],
+                  [
+                    722,
+                    758
+                  ],
+                  [
+                    722,
+                    765
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    722,
+                    770
+                  ],
+                  [
+                    717,
+                    775
+                  ],
+                  [
+                    708,
+                    781
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    633,
+                    813
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    644,
+                    22
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    644,
+                    194
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    730,
+                    194
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    730,
+                    22
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    644,
+                    22
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    730,
+                    221
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    644,
+                    221
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    644,
+                    358
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    730,
+                    358
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    730,
+                    221
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    730,
+                    385
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    644,
+                    385
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    644,
+                    542
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    730,
+                    542
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    730,
+                    385
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-07-29/20260729h01757/20260729h017570030.pdf",
+        "glyph": {
+          "text": "升",
+          "code": 21319,
+          "cid": 21319,
+          "font": 4,
+          "x": 137.96809999999988,
+          "y": 372.83989999999994,
+          "end_x": 137.96809999999988,
+          "end_y": 380.83989999999994,
+          "size": 8.0,
+          "vertical": true,
+          "bbox": [
+            133.96809999999988,
+            372.83989999999994,
+            141.96809999999988,
+            380.83989999999994
+          ],
+          "invisible": false,
+          "spacing": -0.0,
+          "kern": -0.0,
+          "show": 96
+        },
+        "native_font": {
+          "name": "DFHSMinchoRPro6N-W3-Identity-V",
+          "vertical": true,
+          "ordering": "Identity",
+          "has_to_unicode": false
+        },
+        "expected": "團",
+        "matches": [
+          {
+            "resource": "/C0_4",
+            "basefont": "/DFHSMinchoRPro6N-W3-Identity-V",
+            "ordering": "Identity",
+            "to_unicode": false,
+            "encoding": "/Identity-V",
+            "font_file_sha256": "3e60d554bb8c19a28f767e17b56831121d388aa33433ea26295cd983bcbc2339",
+            "cff_font": "HIGFIA+DFHSMinchoRPro6N-W3",
+            "cff_ros": [
+              "Adobe",
+              "Japan1",
+              6
+            ],
+            "outline_sha256": "d5dd6a24b77e581bbe08022563ff6796f5d79960aba6693137ecfed7158c03f4",
+            "outline_operations": 120,
+            "outline": [
+              [
+                "moveTo",
+                [
+                  [
+                    734,
+                    672
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    697,
+                    624
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    528,
+                    624
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    528,
+                    664
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    533,
+                    666
+                  ],
+                  [
+                    540,
+                    668
+                  ],
+                  [
+                    549,
+                    672
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    556,
+                    675
+                  ],
+                  [
+                    560,
+                    681
+                  ],
+                  [
+                    560,
+                    690
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    560,
+                    695
+                  ],
+                  [
+                    556,
+                    699
+                  ],
+                  [
+                    550,
+                    703
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    470,
+                    714
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    470,
+                    624
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    224,
+                    624
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    235,
+                    596
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    470,
+                    596
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    470,
+                    538
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    336,
+                    538
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    268,
+                    579
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    268,
+                    254
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    326,
+                    268
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    326,
+                    353
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    470,
+                    353
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    470,
+                    276
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    528,
+                    286
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    528,
+                    353
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    678,
+                    353
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    678,
+                    290
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    675,
+                    290
+                  ],
+                  [
+                    672,
+                    291
+                  ],
+                  [
+                    668,
+                    291
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    668,
+                    291
+                  ],
+                  [
+                    644,
+                    294
+                  ],
+                  [
+                    597,
+                    301
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    597,
+                    238
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    187,
+                    238
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    198,
+                    211
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    597,
+                    211
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    597,
+                    86
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    474,
+                    86
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    474,
+                    67
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    512,
+                    57
+                  ],
+                  [
+                    532,
+                    53
+                  ],
+                  [
+                    532,
+                    53
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    551,
+                    48
+                  ],
+                  [
+                    562,
+                    37
+                  ],
+                  [
+                    565,
+                    21
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    568,
+                    11
+                  ],
+                  [
+                    572,
+                    7
+                  ],
+                  [
+                    576,
+                    7
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    582,
+                    7
+                  ],
+                  [
+                    593,
+                    10
+                  ],
+                  [
+                    608,
+                    17
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    639,
+                    29
+                  ],
+                  [
+                    655,
+                    52
+                  ],
+                  [
+                    655,
+                    86
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    655,
+                    211
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    832,
+                    211
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    832,
+                    230
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    758,
+                    291
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    719,
+                    238
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    655,
+                    238
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    655,
+                    262
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    664,
+                    264
+                  ],
+                  [
+                    672,
+                    267
+                  ],
+                  [
+                    678,
+                    271
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    678,
+                    269
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    736,
+                    281
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    736,
+                    498
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    757,
+                    503
+                  ],
+                  [
+                    768,
+                    509
+                  ],
+                  [
+                    768,
+                    516
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    768,
+                    520
+                  ],
+                  [
+                    763,
+                    527
+                  ],
+                  [
+                    754,
+                    535
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    697,
+                    579
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    678,
+                    538
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    528,
+                    538
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    528,
+                    596
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    807,
+                    596
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    807,
+                    616
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    734,
+                    672
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    326,
+                    381
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    326,
+                    434
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    470,
+                    434
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    470,
+                    381
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    326,
+                    381
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    528,
+                    434
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    678,
+                    434
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    678,
+                    381
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    528,
+                    381
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    528,
+                    434
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    326,
+                    462
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    326,
+                    510
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    470,
+                    510
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    470,
+                    462
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    326,
+                    462
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    528,
+                    510
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    678,
+                    510
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    678,
+                    462
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    528,
+                    462
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    528,
+                    510
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    593,
+                    709
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    589,
+                    694
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    621,
+                    679
+                  ],
+                  [
+                    643,
+                    663
+                  ],
+                  [
+                    653,
+                    645
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    658,
+                    635
+                  ],
+                  [
+                    665,
+                    631
+                  ],
+                  [
+                    673,
+                    631
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    691,
+                    631
+                  ],
+                  [
+                    700,
+                    641
+                  ],
+                  [
+                    700,
+                    662
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    700,
+                    671
+                  ],
+                  [
+                    693,
+                    679
+                  ],
+                  [
+                    680,
+                    687
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    663,
+                    695
+                  ],
+                  [
+                    634,
+                    703
+                  ],
+                  [
+                    593,
+                    709
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    338,
+                    198
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    325,
+                    182
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    352,
+                    160
+                  ],
+                  [
+                    376,
+                    127
+                  ],
+                  [
+                    396,
+                    83
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    399,
+                    77
+                  ],
+                  [
+                    404,
+                    75
+                  ],
+                  [
+                    412,
+                    75
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    435,
+                    75
+                  ],
+                  [
+                    447,
+                    89
+                  ],
+                  [
+                    447,
+                    118
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    447,
+                    127
+                  ],
+                  [
+                    438,
+                    139
+                  ],
+                  [
+                    421,
+                    154
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    403,
+                    168
+                  ],
+                  [
+                    375,
+                    183
+                  ],
+                  [
+                    338,
+                    198
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    100,
+                    795
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    100,
+                    -105
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    162,
+                    -89
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    162,
+                    -30
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    849,
+                    -30
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    849,
+                    -101
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    911,
+                    -88
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    911,
+                    713
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    934,
+                    719
+                  ],
+                  [
+                    946,
+                    725
+                  ],
+                  [
+                    946,
+                    732
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    946,
+                    736
+                  ],
+                  [
+                    941,
+                    742
+                  ],
+                  [
+                    932,
+                    750
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    869,
+                    792
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    849,
+                    755
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    166,
+                    755
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    100,
+                    795
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    162,
+                    -2
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    162,
+                    727
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    849,
+                    727
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    849,
+                    -2
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    162,
+                    -2
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "pdf": ".cache/kanpo-archive/2026-07-29/20260729h01757/20260729h017570031.pdf",
+        "glyph": {
+          "text": "媡",
+          "code": 23201,
+          "cid": 23201,
+          "font": 4,
+          "x": 156.1084000000002,
+          "y": 740.8399,
+          "end_x": 156.1084000000002,
+          "end_y": 748.8399,
+          "size": 8.0,
+          "vertical": true,
+          "bbox": [
+            152.1084000000002,
+            740.8399,
+            160.1084000000002,
+            748.8399
+          ],
+          "invisible": false,
+          "spacing": -0.0,
+          "kern": -0.0,
+          "show": 199
+        },
+        "native_font": {
+          "name": "DFHSMinchoRPro6N-W3-Identity-V",
+          "vertical": true,
+          "ordering": "Identity",
+          "has_to_unicode": false
+        },
+        "expected": "蓬",
+        "matches": [
+          {
+            "resource": "/C0_4",
+            "basefont": "/DFHSMinchoRPro6N-W3-Identity-V",
+            "ordering": "Identity",
+            "to_unicode": false,
+            "encoding": "/Identity-V",
+            "font_file_sha256": "ab3d4bb9fcf123be03e269ea0c4452cd81a31df9de36ae501324e7b429f5da09",
+            "cff_font": "HIIKOK+DFHSMinchoRPro6N-W3",
+            "cff_ros": [
+              "Adobe",
+              "Japan1",
+              6
+            ],
+            "outline_sha256": "06ee40e18529453f38b0c3034d46ac759e5cec44fbbeb04541a909e467fcc2c7",
+            "outline_operations": 131,
+            "outline": [
+              [
+                "moveTo",
+                [
+                  [
+                    851,
+                    763
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    800,
+                    712
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    660,
+                    712
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    660,
+                    767
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    664,
+                    768
+                  ],
+                  [
+                    671,
+                    770
+                  ],
+                  [
+                    680,
+                    773
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    687,
+                    775
+                  ],
+                  [
+                    691,
+                    780
+                  ],
+                  [
+                    691,
+                    786
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    691,
+                    791
+                  ],
+                  [
+                    687,
+                    795
+                  ],
+                  [
+                    681,
+                    798
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    597,
+                    810
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    597,
+                    712
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    382,
+                    712
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    382,
+                    767
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    387,
+                    768
+                  ],
+                  [
+                    394,
+                    770
+                  ],
+                  [
+                    402,
+                    773
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    410,
+                    775
+                  ],
+                  [
+                    414,
+                    780
+                  ],
+                  [
+                    414,
+                    786
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    414,
+                    791
+                  ],
+                  [
+                    410,
+                    795
+                  ],
+                  [
+                    403,
+                    798
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    320,
+                    810
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    320,
+                    712
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    42,
+                    712
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    54,
+                    685
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    320,
+                    685
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    320,
+                    587
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    382,
+                    595
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    382,
+                    685
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    597,
+                    685
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    597,
+                    607
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    660,
+                    614
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    660,
+                    685
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    941,
+                    685
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    941,
+                    704
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    851,
+                    763
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    492,
+                    646
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    437,
+                    541
+                  ],
+                  [
+                    369,
+                    458
+                  ],
+                  [
+                    289,
+                    396
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    304,
+                    384
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    369,
+                    426
+                  ],
+                  [
+                    428,
+                    476
+                  ],
+                  [
+                    481,
+                    534
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    503,
+                    502
+                  ],
+                  [
+                    535,
+                    472
+                  ],
+                  [
+                    575,
+                    442
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    553,
+                    426
+                  ],
+                  [
+                    532,
+                    412
+                  ],
+                  [
+                    511,
+                    400
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    441,
+                    364
+                  ],
+                  [
+                    365,
+                    339
+                  ],
+                  [
+                    285,
+                    325
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    293,
+                    310
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    404,
+                    325
+                  ],
+                  [
+                    492,
+                    348
+                  ],
+                  [
+                    557,
+                    379
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    578,
+                    389
+                  ],
+                  [
+                    598,
+                    401
+                  ],
+                  [
+                    618,
+                    413
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    672,
+                    381
+                  ],
+                  [
+                    761,
+                    348
+                  ],
+                  [
+                    883,
+                    313
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    894,
+                    339
+                  ],
+                  [
+                    913,
+                    355
+                  ],
+                  [
+                    941,
+                    360
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    941,
+                    376
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    812,
+                    391
+                  ],
+                  [
+                    716,
+                    411
+                  ],
+                  [
+                    654,
+                    437
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    691,
+                    462
+                  ],
+                  [
+                    725,
+                    491
+                  ],
+                  [
+                    757,
+                    524
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    793,
+                    527
+                  ],
+                  [
+                    812,
+                    532
+                  ],
+                  [
+                    812,
+                    540
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    812,
+                    544
+                  ],
+                  [
+                    807,
+                    550
+                  ],
+                  [
+                    797,
+                    558
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    726,
+                    607
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    691,
+                    571
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    513,
+                    571
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    520,
+                    580
+                  ],
+                  [
+                    527,
+                    589
+                  ],
+                  [
+                    535,
+                    599
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    553,
+                    600
+                  ],
+                  [
+                    562,
+                    604
+                  ],
+                  [
+                    562,
+                    610
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    562,
+                    614
+                  ],
+                  [
+                    558,
+                    617
+                  ],
+                  [
+                    551,
+                    621
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    492,
+                    646
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    500,
+                    544
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    687,
+                    544
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    658,
+                    513
+                  ],
+                  [
+                    629,
+                    486
+                  ],
+                  [
+                    601,
+                    463
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    557,
+                    489
+                  ],
+                  [
+                    523,
+                    516
+                  ],
+                  [
+                    500,
+                    544
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    800,
+                    321
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    765,
+                    290
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    621,
+                    290
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    621,
+                    329
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    626,
+                    331
+                  ],
+                  [
+                    633,
+                    333
+                  ],
+                  [
+                    643,
+                    335
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    651,
+                    337
+                  ],
+                  [
+                    656,
+                    342
+                  ],
+                  [
+                    656,
+                    349
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    656,
+                    353
+                  ],
+                  [
+                    652,
+                    357
+                  ],
+                  [
+                    646,
+                    360
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    562,
+                    372
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    562,
+                    290
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    332,
+                    290
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    343,
+                    263
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    562,
+                    263
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    562,
+                    204
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    343,
+                    204
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    355,
+                    177
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    562,
+                    177
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    562,
+                    110
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    296,
+                    110
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    308,
+                    83
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    562,
+                    83
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    562,
+                    1
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    621,
+                    9
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    621,
+                    83
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    922,
+                    83
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    922,
+                    103
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    847,
+                    157
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    804,
+                    110
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    621,
+                    110
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    621,
+                    177
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    840,
+                    177
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    840,
+                    196
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    777,
+                    239
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    742,
+                    204
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    621,
+                    204
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    621,
+                    263
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    863,
+                    263
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    863,
+                    282
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    800,
+                    321
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    97,
+                    587
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    93,
+                    571
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    138,
+                    543
+                  ],
+                  [
+                    168,
+                    511
+                  ],
+                  [
+                    183,
+                    476
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    190,
+                    456
+                  ],
+                  [
+                    199,
+                    446
+                  ],
+                  [
+                    210,
+                    446
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    231,
+                    446
+                  ],
+                  [
+                    242,
+                    458
+                  ],
+                  [
+                    242,
+                    482
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    242,
+                    503
+                  ],
+                  [
+                    233,
+                    522
+                  ],
+                  [
+                    215,
+                    539
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    193,
+                    557
+                  ],
+                  [
+                    153,
+                    573
+                  ],
+                  [
+                    97,
+                    587
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ],
+              [
+                "moveTo",
+                [
+                  [
+                    42,
+                    313
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    54,
+                    286
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    187,
+                    286
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    187,
+                    48
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    50,
+                    -19
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    80,
+                    -73
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    86,
+                    -83
+                  ],
+                  [
+                    91,
+                    -89
+                  ],
+                  [
+                    97,
+                    -89
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    104,
+                    -89
+                  ],
+                  [
+                    109,
+                    -81
+                  ],
+                  [
+                    113,
+                    -66
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    234,
+                    48
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    280,
+                    -2
+                  ],
+                  [
+                    319,
+                    -34
+                  ],
+                  [
+                    351,
+                    -50
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    388,
+                    -65
+                  ],
+                  [
+                    430,
+                    -73
+                  ],
+                  [
+                    476,
+                    -73
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    910,
+                    -73
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    914,
+                    -51
+                  ],
+                  [
+                    930,
+                    -37
+                  ],
+                  [
+                    957,
+                    -30
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    957,
+                    -15
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    425,
+                    -15
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    393,
+                    -15
+                  ],
+                  [
+                    362,
+                    -8
+                  ],
+                  [
+                    332,
+                    4
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    304,
+                    15
+                  ],
+                  [
+                    276,
+                    37
+                  ],
+                  [
+                    246,
+                    71
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    246,
+                    271
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    266,
+                    281
+                  ],
+                  [
+                    277,
+                    290
+                  ],
+                  [
+                    277,
+                    298
+                  ]
+                ]
+              ],
+              [
+                "curveTo",
+                [
+                  [
+                    277,
+                    304
+                  ],
+                  [
+                    273,
+                    309
+                  ],
+                  [
+                    267,
+                    313
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    195,
+                    349
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    171,
+                    313
+                  ]
+                ]
+              ],
+              [
+                "lineTo",
+                [
+                  [
+                    42,
+                    313
+                  ]
+                ]
+              ],
+              [
+                "closePath",
+                []
+              ]
+            ]
+          }
+        ]
+      }
+    ],
+    "summary": {
+      "23154": {
+        "native_occurrences": 1,
+        "matching_fonts": 1,
+        "outline_variants": 1
+      },
+      "16953": {
+        "native_occurrences": 1,
+        "matching_fonts": 1,
+        "outline_variants": 1
+      },
+      "21319": {
+        "native_occurrences": 1,
+        "matching_fonts": 1,
+        "outline_variants": 1
+      },
+      "23201": {
+        "native_occurrences": 1,
+        "matching_fonts": 1,
+        "outline_variants": 1
+      }
+    },
+    "errors": []
+  },
+  "independent_original_review": {
+    "scope": "Identity-tagged four surname CID repairs only; accepted23/after44/source103 baseline. Prior company initial grades remain unchanged. Improvement does not claim full-page quality.",
+    "pages": [
+      {
+        "page": "20260716g001590048",
+        "classification": "improvement",
+        "regression": false,
+        "strict_remaining_grade": "major",
+        "body_remaining_grade": "minor",
+        "initial_prior_review_grades_unchanged": true,
+        "body_line": 177,
+        "before": "代表清算人婲見利徳",
+        "after": "代表清算人樽見利徳",
+        "source_id": 170,
+        "raw": "󵩲",
+        "cid": 23154,
+        "original_name": "代表清算人樽見利徳",
+        "original_glyph_bbox": [
+          175.72070000000025,
+          740.8399,
+          183.72070000000025,
+          748.8399
+        ],
+        "native_proof": {
+          "page": "20260716g001590048",
+          "native_path": ".cache/kanpo-227/identity-surnames-proposal/20260716g001590048-fresh-native44.json.gz",
+          "native_sha256": "057156909e4ba31206792fd9d38602d7561add8710394b466ce4054e4e8a6b34",
+          "glyph_id": 2486,
+          "glyph": {
+            "text": "婲",
+            "code": 23154,
+            "cid": 23154,
+            "font": 5,
+            "x": 179.72070000000025,
+            "y": 740.8399,
+            "end_x": 179.72070000000025,
+            "end_y": 748.8399,
+            "size": 8.0,
+            "vertical": true,
+            "bbox": [
+              175.72070000000025,
+              740.8399,
+              183.72070000000025,
+              748.8399
+            ],
+            "invisible": false,
+            "spacing": -0.0,
+            "kern": -0.0,
+            "show": 190
+          },
+          "native_font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-V",
+            "vertical": true,
+            "ordering": "Identity",
+            "has_to_unicode": false
+          },
+          "bbox_word": {
+            "text": "󵩲",
+            "bbox": [
+              179.72070000000025,
+              732.8399,
+              187.72070000000025,
+              740.8399
+            ],
+            "glyphs": [
+              2486
+            ]
+          },
+          "parser_word_id": 170,
+          "raw": "󵩲",
+          "expected": "樽",
+          "parser_bbox_uses_native_vertical_attrs": true,
+          "logical_bbox_word_box_is_distinct_and_preserved": true
+        },
+        "unique_owner": {
+          "region": 3,
+          "line": 31,
+          "text": "代表清算人樽見利徳",
+          "ids": [
+            169,
+            170,
+            171,
+            172
+          ]
+        },
+        "readflags": {
+          "full_original_png": true,
+          "source_name_crop": true,
+          "before_full_body": true,
+          "after_full_body": true,
+          "all_before_after_Articles": true,
+          "all_before_after_Document_blocks_runs_tables": true
+        },
+        "linecount": 188,
+        "articles": 2,
+        "known_remaining": [
+          "既存: 農事組合法人の公告と複数の解散公告がArticle0に混在し、株式会社ふるさとの住所「〇番地の一二」からArticle1へ誤切断。",
+          "既存: L155株式会社ＣＲＯＷＮＦＩＥＬＤは原本CROWN FIELDの語間が詰まる。"
+        ],
+        "native0_claims": [],
+        "source_pdf": ".cache/kanpo-archive/2026-07-16/20260716g00159/20260716g001590048.pdf",
+        "source_sha256": "41a3d95770a0decf5745456cb49715964ab4b5ba8875086eb0eb9abecaa61d49",
+        "baseline_output_sha256": "a6443eab43abcef8cebce4a9bffd893270a98ad2a8763d5b2c30074d9a9ef368",
+        "before_analysis_sha256": "9d068747daefa9589e7ca95b011a622abb7765da54cca4673a19c7976195d863",
+        "after_analysis_pilot_sha256": "74cd3ae3f03de7035cf4d70463e586f57aa873e20f4049c96733da68f902d83b",
+        "image": ".cache/kanpo-227/company-article-v3b-prototype/visual-review-batch1/20260716g001590048.png",
+        "image_sha256": "43edaac631765f6c175dcbaa39988628d69030fb2f313423288694b0f9a029c2",
+        "prior_frozen_image_entry": {
+          "path": ".cache/kanpo-227/company-article-v3b-prototype/visual-review-batch1/20260716g001590048.png",
+          "sha256": "43edaac631765f6c175dcbaa39988628d69030fb2f313423288694b0f9a029c2",
+          "bytes": 818798
+        },
+        "prior_image_delivery_manifest": ".cache/kanpo-227/company-article-v3b-prototype/visual-review-batch1/delivery-manifest.json",
+        "prior_image_delivery_manifest_sha256": "79811f4f1b44ccc1658f3d45fc4065bcd524a11f4ffeb64a48ae377ef95304f3",
+        "all_original_numbers_addresses_other_names_article_breaks_and_documents_preserved_except_target_letter": true
+      },
+      {
+        "page": "20260723g001630196",
+        "classification": "improvement",
+        "regression": false,
+        "strict_remaining_grade": "major",
+        "body_remaining_grade": "minor",
+        "initial_prior_review_grades_unchanged": true,
+        "body_line": 51,
+        "before": "代表清算人鄒䈹鍇",
+        "after": "代表清算人鄒濰鍇",
+        "source_id": 20,
+        "raw": "󴈹",
+        "cid": 16953,
+        "original_name": "代表清算人鄒濰鍇",
+        "original_glyph_bbox": [
+          506.3521,
+          388.83989999999994,
+          514.3521000000001,
+          396.83989999999994
+        ],
+        "native_proof": {
+          "page": "20260723g001630196",
+          "native_path": ".cache/kanpo-227/identity-surnames-proposal/20260723g001630196-fresh-native44.json.gz",
+          "native_sha256": "b5087e6e839eeeba201084c9345b02cc2e7b61542d3f39b982777252b4f3ecf3",
+          "glyph_id": 726,
+          "glyph": {
+            "text": "䈹",
+            "code": 16953,
+            "cid": 16953,
+            "font": 4,
+            "x": 510.3521,
+            "y": 388.83989999999994,
+            "end_x": 510.3521,
+            "end_y": 396.83989999999994,
+            "size": 8.0,
+            "vertical": true,
+            "bbox": [
+              506.3521,
+              388.83989999999994,
+              514.3521000000001,
+              396.83989999999994
+            ],
+            "invisible": false,
+            "spacing": -0.0,
+            "kern": -0.0,
+            "show": 71
+          },
+          "native_font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-V",
+            "vertical": true,
+            "ordering": "Identity",
+            "has_to_unicode": false
+          },
+          "bbox_word": {
+            "text": "󴈹",
+            "bbox": [
+              510.3521,
+              380.83989999999994,
+              518.3521000000001,
+              388.83989999999994
+            ],
+            "glyphs": [
+              726
+            ]
+          },
+          "parser_word_id": 20,
+          "raw": "󴈹",
+          "expected": "濰",
+          "parser_bbox_uses_native_vertical_attrs": true,
+          "logical_bbox_word_box_is_distinct_and_preserved": true
+        },
+        "unique_owner": {
+          "region": 1,
+          "line": 3,
+          "text": "代表清算人鄒濰鍇",
+          "ids": [
+            18,
+            19,
+            20,
+            21
+          ]
+        },
+        "readflags": {
+          "full_original_png": true,
+          "source_name_crop": true,
+          "before_full_body": true,
+          "after_full_body": true,
+          "all_before_after_Articles": true,
+          "all_before_after_Document_blocks_runs_tables": true
+        },
+        "linecount": 181,
+        "articles": 1,
+        "known_remaining": [
+          "既存: 独立した解散公告18件が単一Article/Documentに未分割。",
+          "既存: L80株式会社ＳａｌｌｙＳｔｙｌｅは原本Sally Styleの語間が詰まる。"
+        ],
+        "native0_claims": [],
+        "source_pdf": ".cache/kanpo-archive/2026-07-23/20260723g00163/20260723g001630196.pdf",
+        "source_sha256": "64e8cc97bee9addcdf09b89778b2c28dbb913a341d9aeb121267752aedffef50",
+        "baseline_output_sha256": "893a1c825e170feecf50129e84ed53c08c79aa11e32fb6f80073cc422da17fd6",
+        "before_analysis_sha256": "42cb2d3b4221256ce1f4449f4ab25ef6fca62eef88d73c98be882f0959e15c1e",
+        "after_analysis_pilot_sha256": "9a3759f060937a61f0cb9a874d7ef2b6989a8b803ed76010346968507e56e8f7",
+        "image": ".cache/kanpo-227/company-article-v3b-prototype/visual-review-batch2-60-89/20260723g001630196.png",
+        "image_sha256": "5b706ffc8a6b56e7b24aff3fdf00488b3c8b19f16d339cc6976b5d548e0ad654",
+        "prior_frozen_image_entry": {
+          "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/company-article-v3b-prototype/visual-review-batch2-60-89/20260723g001630196.png",
+          "sha256": "5b706ffc8a6b56e7b24aff3fdf00488b3c8b19f16d339cc6976b5d548e0ad654",
+          "bytes": 746387
+        },
+        "prior_image_delivery_manifest": ".cache/kanpo-227/company-article-v3b-prototype/visual-review-batch2-60-89/delivery-manifest.json",
+        "prior_image_delivery_manifest_sha256": "945ba96aa477dc4f91e5e41dd32fa283e0e665981df8ee7a2172575d337a30ca",
+        "all_original_numbers_addresses_other_names_article_breaks_and_documents_preserved_except_target_letter": true
+      },
+      {
+        "page": "20260729h017570030",
+        "classification": "improvement",
+        "regression": false,
+        "strict_remaining_grade": "major",
+        "body_remaining_grade": "ok",
+        "initial_prior_review_grades_unchanged": true,
+        "body_line": 85,
+        "before": "代表取締役升塚真一郎",
+        "after": "代表取締役團塚真一郎",
+        "source_id": 224,
+        "raw": "󵍇",
+        "cid": 21319,
+        "original_name": "代表取締役團塚真一郎",
+        "original_glyph_bbox": [
+          133.96809999999988,
+          372.83989999999994,
+          141.96809999999988,
+          380.83989999999994
+        ],
+        "native_proof": {
+          "page": "20260729h017570030",
+          "native_path": ".cache/kanpo-227/identity-surnames-proposal/20260729h017570030-fresh-native44.json.gz",
+          "native_sha256": "8f4a988ea4f5a99e520143300ef31206d2a6892dca3fa98cf9de52333a3cf04b",
+          "glyph_id": 1149,
+          "glyph": {
+            "text": "升",
+            "code": 21319,
+            "cid": 21319,
+            "font": 4,
+            "x": 137.96809999999988,
+            "y": 372.83989999999994,
+            "end_x": 137.96809999999988,
+            "end_y": 380.83989999999994,
+            "size": 8.0,
+            "vertical": true,
+            "bbox": [
+              133.96809999999988,
+              372.83989999999994,
+              141.96809999999988,
+              380.83989999999994
+            ],
+            "invisible": false,
+            "spacing": -0.0,
+            "kern": -0.0,
+            "show": 96
+          },
+          "native_font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-V",
+            "vertical": true,
+            "ordering": "Identity",
+            "has_to_unicode": false
+          },
+          "bbox_word": {
+            "text": "󵍇",
+            "bbox": [
+              137.96809999999988,
+              364.83989999999994,
+              145.96809999999988,
+              372.83989999999994
+            ],
+            "glyphs": [
+              1149
+            ]
+          },
+          "parser_word_id": 224,
+          "raw": "󵍇",
+          "expected": "團",
+          "parser_bbox_uses_native_vertical_attrs": true,
+          "logical_bbox_word_box_is_distinct_and_preserved": true
+        },
+        "unique_owner": {
+          "region": 1,
+          "line": 37,
+          "text": "代表取締役團塚真一郎",
+          "ids": [
+            223,
+            224,
+            225
+          ]
+        },
+        "readflags": {
+          "full_original_png": true,
+          "source_name_crop": true,
+          "before_full_body": true,
+          "after_full_body": true,
+          "all_before_after_Articles": true,
+          "all_before_after_Document_blocks_runs_tables": true
+        },
+        "linecount": 182,
+        "articles": 1,
+        "known_remaining": [
+          "既存: 合併4・吸収分割3・組織変更3の独立公告が単一Article/Documentに未分割。"
+        ],
+        "native0_claims": [],
+        "source_pdf": ".cache/kanpo-archive/2026-07-29/20260729h01757/20260729h017570030.pdf",
+        "source_sha256": "0eace9756453dd18402555442715db21bd7378ed2eb5f441a9939e00cdcfaae1",
+        "baseline_output_sha256": "4bd3f60e43d1c805f7cc80cc120d50471bcdedcf1521866acc27f0029954b584",
+        "before_analysis_sha256": "1ec7e8b300c22b65b6c2986ca035f9e63a9b080a6aa16b59c4738cc4f94cd04d",
+        "after_analysis_pilot_sha256": "ae854765ab9635ac3277bca18da6a74a3c054e15fedba61eb4fa9f4d0644501e",
+        "image": ".cache/kanpo-227/company-article-v3b-prototype/visual-review-batch3-150-179/20260729h017570030.png",
+        "image_sha256": "66f30283670f4e9b4abf526bc05ffd4ac3e42f38469971eeb251655e1d11065b",
+        "prior_frozen_image_entry": {
+          "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/company-article-v3b-prototype/visual-review-batch3-150-179/20260729h017570030.png",
+          "sha256": "66f30283670f4e9b4abf526bc05ffd4ac3e42f38469971eeb251655e1d11065b",
+          "bytes": 669812
+        },
+        "prior_image_delivery_manifest": ".cache/kanpo-227/company-article-v3b-prototype/visual-review-batch3-150-179/delivery-manifest.json",
+        "prior_image_delivery_manifest_sha256": "92e537f510ba29fea99d6fea6f0f8bafe88590cc534444d90e86261ff353e18f",
+        "all_original_numbers_addresses_other_names_article_breaks_and_documents_preserved_except_target_letter": true
+      },
+      {
+        "page": "20260729h017570031",
+        "classification": "improvement",
+        "regression": false,
+        "strict_remaining_grade": "major",
+        "body_remaining_grade": "minor",
+        "initial_prior_review_grades_unchanged": true,
+        "body_line": 175,
+        "before": "代表取締役媡田和平",
+        "after": "代表取締役蓬田和平",
+        "source_id": 200,
+        "raw": "󵪡",
+        "cid": 23201,
+        "original_name": "代表取締役蓬田和平",
+        "original_glyph_bbox": [
+          152.1084000000002,
+          740.8399,
+          160.1084000000002,
+          748.8399
+        ],
+        "native_proof": {
+          "page": "20260729h017570031",
+          "native_path": ".cache/kanpo-227/identity-surnames-proposal/20260729h017570031-fresh-native44.json.gz",
+          "native_sha256": "cc48d0bed0eff08cc7dfe824310eab7e903df39cee657009a1352c8a4e48974d",
+          "glyph_id": 2658,
+          "glyph": {
+            "text": "媡",
+            "code": 23201,
+            "cid": 23201,
+            "font": 4,
+            "x": 156.1084000000002,
+            "y": 740.8399,
+            "end_x": 156.1084000000002,
+            "end_y": 748.8399,
+            "size": 8.0,
+            "vertical": true,
+            "bbox": [
+              152.1084000000002,
+              740.8399,
+              160.1084000000002,
+              748.8399
+            ],
+            "invisible": false,
+            "spacing": -0.0,
+            "kern": -0.0,
+            "show": 199
+          },
+          "native_font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-V",
+            "vertical": true,
+            "ordering": "Identity",
+            "has_to_unicode": false
+          },
+          "bbox_word": {
+            "text": "󵪡",
+            "bbox": [
+              156.1084000000002,
+              732.8399,
+              164.1084000000002,
+              740.8399
+            ],
+            "glyphs": [
+              2658
+            ]
+          },
+          "parser_word_id": 200,
+          "raw": "󵪡",
+          "expected": "蓬",
+          "parser_bbox_uses_native_vertical_attrs": true,
+          "logical_bbox_word_box_is_distinct_and_preserved": true
+        },
+        "unique_owner": {
+          "region": 3,
+          "line": 33,
+          "text": "代表取締役蓬田和平",
+          "ids": [
+            199,
+            200,
+            201,
+            202
+          ]
+        },
+        "readflags": {
+          "full_original_png": true,
+          "source_name_crop": true,
+          "before_full_body": true,
+          "after_full_body": true,
+          "all_before_after_Articles": true,
+          "all_before_after_Document_blocks_runs_tables": true
+        },
+        "linecount": 184,
+        "articles": 1,
+        "known_remaining": [
+          "既存: 組織変更・効力発生日変更・資本減少等の独立公告が単一Article/Documentに未分割。",
+          "既存: L50株式会社Ｋ２Ｐｉｃｔｕｒｅｓは原本K2 Picturesの語間が詰まる。"
+        ],
+        "native0_claims": [],
+        "source_pdf": ".cache/kanpo-archive/2026-07-29/20260729h01757/20260729h017570031.pdf",
+        "source_sha256": "f7d8022951a16aef1bbc401a2fcb7ce5e6eb36d45b8587e3f770c5a84338b445",
+        "baseline_output_sha256": "49319603448a8d5d095ce7a0b9f618598105083088ec09d4b44eb6c05f284609",
+        "before_analysis_sha256": "45abed4c5b3d00033c6a5b369087d3f39f7f773b3adffc30c8941b13263a4153",
+        "after_analysis_pilot_sha256": "ce7cdbc5e405226444bfb36b634ae4465b7bb47d383401f6dc89fc62294e58c8",
+        "image": ".cache/kanpo-227/company-article-v3b-prototype/visual-review-batch3-150-179/20260729h017570031.png",
+        "image_sha256": "aab869af3583b43669500e18745480b8272728b45029a8a0654e990f491aa037",
+        "prior_frozen_image_entry": {
+          "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/company-article-v3b-prototype/visual-review-batch3-150-179/20260729h017570031.png",
+          "sha256": "aab869af3583b43669500e18745480b8272728b45029a8a0654e990f491aa037",
+          "bytes": 781609
+        },
+        "prior_image_delivery_manifest": ".cache/kanpo-227/company-article-v3b-prototype/visual-review-batch3-150-179/delivery-manifest.json",
+        "prior_image_delivery_manifest_sha256": "92e537f510ba29fea99d6fea6f0f8bafe88590cc534444d90e86261ff353e18f",
+        "all_original_numbers_addresses_other_names_article_breaks_and_documents_preserved_except_target_letter": true
+      }
+    ],
+    "summary": {
+      "original_pages_fully_viewed": 4,
+      "full_body_lines": 735,
+      "full_Articles": 5,
+      "full_Documents": 5,
+      "improvements": 4,
+      "neutral": 0,
+      "regressions": 0,
+      "native0_claims": 0,
+      "known_strict_majors_remaining": 4
+    },
+    "future_scope": {
+      "untargeted_positive_omissions": "174p151辻/174p153櫛 and other company issues remain separate; no broad mapping added"
+    },
+    "reference_corrections": [
+      {
+        "page": "20260723g001630196",
+        "old": "L82",
+        "new": "L80",
+        "field": "known_remaining/Sally Style",
+        "grades_unchanged": true
+      }
+    ]
+  },
+  "cumulative_validator": {
+    "counts": {
+      "period_pairs": 706,
+      "ordinal_pairs": 121,
+      "bracket_cells": 377,
+      "existing_unattached_used_diagnostic": 53,
+      "pages": 2914,
+      "native_dash_glyphs": 11033,
+      "fractions": 153,
+      "surnames": 6,
+      "plain_dashes": 341,
+      "duplicate_word_ids": 0,
+      "nested_formulas": 6,
+      "parallel_formulas": 9,
+      "numeric_formulas": 6
+    },
+    "nested_semantic_fraction_nodes": 12,
+    "nested_serialization_pairs": 24,
+    "nested_slashes": 12,
+    "parallel_semantic_fraction_nodes": 18,
+    "parallel_serialization_pairs": 18,
+    "parallel_slashes": 18,
+    "numeric_semantic_fraction_nodes": 15,
+    "numeric_serialization_pairs": 18,
+    "numeric_native_parenthesis_pairs": 3,
+    "numeric_slashes": 15,
+    "previously_counted_unattached_Used": 50,
+    "newly_counted_existing_target_unowned_Used": 3,
+    "new_target_unowned_IDs": [
+      87,
+      88,
+      93
+    ],
+    "logs": [
+      ".cache/kanpo-227/validate46-part0.log",
+      ".cache/kanpo-227/validate46-part1.log",
+      ".cache/kanpo-227/validate46-part2.log",
+      ".cache/kanpo-227/validate46-part3.log",
+      ".cache/kanpo-227/validate46-part4.log",
+      ".cache/kanpo-227/validate46-part5.log",
+      ".cache/kanpo-227/validate46-part6.log",
+      ".cache/kanpo-227/validate46-part7.log"
+    ],
+    "all_parts_exit0": true
+  },
+  "canonical_archive_path_correction": "Only delivered malformed13-character archive directory prefixes and include paths normalized to canonical page[:14]. All eight PDF bytes and all fixture assertions preserved.",
+  "old_oracle_updates": 0,
+  "assertions_relaxed": 0
+}

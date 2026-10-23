@@ -2,14 +2,20 @@
 
 use scraper::{Html, Selector};
 
-use crate::horizontal::{horizontal_lines, horizontal_lines_with_tables, is_left_strip_header, keyed_tables, one_column_lines_with_tables, row_lines, LEFT_STRIP};
-use crate::normalize::{is_margin_noise, is_toc_page_number, private_cid_glyph, toc_page_numbers, word_text, CidGlyph};
-use crate::shinkyu::{
-    band_pair_unit, detect_shinkyu_bands_headerless, detect_shinkyu_header, lines_with_tables_by, place_tables, reconstruct_shinkyu, split_side_by_side_tables,
-    tiers_look_like_bands, ShinkyuLayout,
-};
 use crate::grid::{find_grids, Grid};
+use crate::horizontal::{
+    horizontal_lines, horizontal_lines_with_tables, is_left_strip_header, keyed_tables,
+    one_column_lines_with_tables, row_lines, LEFT_STRIP,
+};
 use crate::lines::PageRules;
+use crate::normalize::{
+    is_margin_noise, is_toc_page_number, private_cid_glyph, toc_page_numbers, word_text, CidGlyph,
+};
+use crate::shinkyu::{
+    band_pair_unit, detect_shinkyu_bands_headerless, detect_shinkyu_header, lines_with_tables_by,
+    place_tables, reconstruct_shinkyu, split_side_by_side_tables, tiers_look_like_bands,
+    ShinkyuLayout,
+};
 use crate::trace::{join_lines, Line, PageTrace, Unit, Word, WordStatus};
 
 /// 縦書き1カラム = 1 word とみなした語。`y`/`y1` は上端/下端。
@@ -45,14 +51,8 @@ const PUNCH_MARK_BOTTOM: f32 = 30.0;
 /// だけで正しい読み順が復元でき、`-layout` で起きる「別記事の横方向への混線」を解消できる。
 /// 複数ページの PDF はページごとに復元して連結する。
 pub fn reconstruct_vertical(xhtml: &str) -> String {
-    analyze_pages(xhtml)
-        .iter()
-        .map(|p| p.text.as_str())
-        .filter(|t| !t.is_empty())
-        .collect::<Vec<_>>()
-        .join("\n")
-        .trim()
-        .to_string()
+    let pages = analyze_pages(xhtml);
+    crate::trace::join_page_texts(&pages, &|page| page.text.as_str())
 }
 
 /// ページごとに読み順を復元し、各語の割り当て（どの領域のどの行か）も返す。
@@ -80,14 +80,26 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     let mut prev_mid: Option<f32> = None;
     for (pi, page) in doc.select(&page_sel).enumerate() {
         let (width, height) = page_size(page);
-        let (cols, mut words, rotated, sideways, merged, minus) = page_words_traced(page, width, height, rules.get(pi).and_then(|r| r.as_ref()));
+        let (cols, mut words, rotated, sideways, merged, minus, native_styles, native_bounds, native_content_styles, native_axes, native_rulings) = page_words_with_styles(page, width, height, rules.get(pi).and_then(|r| r.as_ref()));
         // 負の金額の印「△」を付ける語の字（組んだ後で行の中の位置を探す）。
         let word_texts: std::collections::HashMap<usize, String> = if minus.is_empty() { Default::default() } else { cols.iter().map(|c| (c.id, c.text.clone())).collect() };
+        // 長い区切り罫の右側の横統計表は元の向きで読み、縦本文の段切りから外す。
+        let (cols, mixed_statistics) = if sideways {
+            match rules.get(pi).and_then(|r| r.as_ref()) {
+                Some(rules) => crate::horizontal::split_mixed_statistics(cols, &words, rules),
+                None => (cols, Vec::new()),
+            }
+        } else { (cols, Vec::new()) };
         // 横倒しの縦書きページは語の座標を回して使うので、罫線も同じく回す（座標の表・砂防法の土地の表を
         // 罫線の表として組む。回さないと表の欄が 1 語ずつの行になっていた）。
         let turned: Option<PageRules> = rules.get(pi).and_then(|r| r.as_ref()).filter(|_| sideways).map(|r| turn_rules(r, width));
         let page_rules: Option<&PageRules> = turned.as_ref().or_else(|| rules.get(pi).and_then(|r| r.as_ref()));
         let mut grids: Vec<Grid> = page_rules.map(|r| find_grids(r, width.max(height), width.max(height))).unwrap_or_default();
+        if !rotated && !is_horizontal_page(&cols) {
+            if let Some(rules) = page_rules {
+                grids.extend(crate::quantity_tables::infer_quantity_grids(&cols, rules));
+            }
+        }
         if sideways {
             grids.retain(|g| !unruled_records(g, &cols));
         } else if rotated || is_horizontal_page(&cols) {
@@ -206,6 +218,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 let unit = Unit::Shinkyu {
                     // 欄見出しより上（前の記事の表の続きが上にあるページも）も罫線の表を組んで読む。
                     preamble: {
+                        let pre_geom = pre.clone();
                         // 前文の中の次の記事の標題（「〇厚生労働省告示第…号」）より上（前の記事の表の続き）と下は別に組む（標題が
                         // 表の続きの左右の欄の間に読まれていた）。
                         let marked = pre.iter().filter(|c| crate::segment::is_heading_mark(c.text.trim())).min_by(|a, b| a.y.total_cmp(&b.y));
@@ -232,6 +245,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         let (head, rest): (Vec<Col>, Vec<Col>) = pre.into_iter().partition(|c| c.y < heading - 1.0);
                         let mut lines = horizontal_lines_with_tables(head, &grids, &vrules, &hrules);
                         lines.extend(horizontal_lines_with_tables(rest, &grids, &vrules, &hrules));
+                        crate::horizontal::rejoin_split_preamble_numerals(&mut lines, &pre_geom);
                         lines
                     },
                     after: vec![body(left, &left_grids)],
@@ -279,7 +293,18 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         let bottom = vrules
                             .iter()
                             .filter(|&&(x, top, end)| x > lo && x < hi && top <= y0 + 30.0 && end > y0 && end < y1)
-                            .map(|&(_, _, end)| end)
+                            .map(|&(x, _, mut end)| {
+                                // 同じ境界線が表の行ごとに分割されている場合は、接続する線分の末尾まで追う。
+                                // 左右の行数が違う表で途中の行境界を表末とすると、旧欄だけの行が次の前文へ落ちる。
+                                loop {
+                                    let next = vrules.iter()
+                                        .filter(|&&(nx, top, bottom)| (nx - x).abs() < 1.0 && top <= end + 2.0 && bottom > end + 1.0 && bottom < y1)
+                                        .map(|&(_, _, bottom)| bottom).fold(end, f32::max);
+                                    if next <= end + 1.0 { break; }
+                                    end = next;
+                                }
+                                end
+                            })
                             .reduce(f32::max);
                         bottom.map(|b| b + 1.0).unwrap_or_else(|| {
                             cols.iter()
@@ -402,11 +427,46 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 }
             }
             units.extend(tail);
+            crate::financial_flow::restore(&mut units, &mut words);
             prefix_minus(&mut units, &minus, &word_texts);
+            if !sideways { crate::native_triangle_cells::restore(&mut units, &words, page); }
             move_trailing_notes(&mut units);
             merge_split_table_rows(&mut units);
             order_masthead(&mut units);
             join_joint_ministries(&mut units);
+            crate::shared_table_labels::order_shared_table_labels(&mut units, &words);
+            crate::fractions::restore_fraction_lines(&mut units, &words, &hrules);
+            let short_bars: Vec<_> = page_rules.map(|r| r.short_fraction_bars.iter().map(|h| (h.y,h.x0,h.x1)).collect()).unwrap_or_default();
+            crate::parallel_fractions::restore(&mut units, &words, &hrules, &short_bars);
+            crate::numeric_fractions::restore(&mut units, &words, &hrules, &short_bars);
+            crate::table_dashes::restore_table_dashes(&mut units, &mut words);
+            crate::table_dashes::restore_ruled_table_dashes(&mut units, &mut words, &grids);
+            crate::table_dashes::restore_plain_numeric_dashes(&mut units, &mut words, &vrules);
+            crate::cell_row_dashes::restore_cell_record_dashes(&mut units, &mut words, &grids);
+            crate::owned_dashes::restore_owned_dashes(&mut units, &mut words, &grids, &vrules);
+            crate::ruled_plain_dashes::restore(&mut units, &mut words, &grids);
+            crate::large_parentheses::restore_large_parentheses(&mut units, &words);
+            crate::coordinate_symbols::restore_coordinate_symbols(&mut units, &mut words);
+            crate::coordinate_rows::restore_coordinate_rows(&mut units, &mut words, rules.get(pi).and_then(|r| r.as_ref()), width.max(height));
+            crate::area_units::restore_area_units(&mut units, &mut words);
+            if !sideways { crate::blank_area_units::restore(&mut units, &mut words, page_rules, width.max(height)); }
+            crate::reference_markers::restore(&mut units, &mut words);
+            crate::inline_quotes::restore(&mut units, &mut words);
+            crate::range_endpoints::restore(&mut units, &mut words);
+            crate::micro_prefixes::restore(&mut units, &mut words);
+            crate::chemical_line_end::restore(&mut units, &mut words);
+            crate::circled_numbers::restore(&mut units, &mut words);
+            if let Some(rules) = rules.get(pi).and_then(|r| r.as_ref()) {
+                crate::financial_enclosures::order_with_source(
+                    &mut units, &words, &rules.enclosures, width, height,
+                    &native_styles, &native_content_styles, &native_bounds, &native_axes, &native_rulings, &pages,
+                );
+            }
+            if !sideways {
+                if let Some(rules) = rules.get(pi).and_then(|r| r.as_ref()) {
+                    crate::common_financial_header::restore(&mut units,&words,&native_styles,&native_content_styles,&native_bounds,&rules.enclosures);
+                }
+            }
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
@@ -415,7 +475,10 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             prev_mid = mid_here;
             let regions: Vec<_> = units.into_iter().enumerate().flat_map(|(i, u)| u.regions(i)).collect();
             mark_unused(&mut words, &regions, &merged);
-            pages.push(PageTrace {
+            pages.push(PageTrace {native_axes,native_rulings,
+                native_styles,
+                native_bounds,
+                native_content_styles,
                 width,
                 height,
                 layout,
@@ -458,7 +521,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             // 欄の間に左の記事が挟まっていた）。
             let original = cols.clone();
             let cols = match split_off_leading_frame(cols, page_rules) {
-                Ok((after, before, rest)) if prev_table || spans_divider(&rest, &after, &before) => {
+                Ok((after, before, rest, labeled)) if labeled || prev_table || spans_divider(&rest, &after, &before) => {
                     units.push(band_pair_unit(after, before, &grids, page_rules));
                     rest
                 }
@@ -514,6 +577,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             // 新旧対照表のページで、行の罫線の無い枠（帯の中の表）の欄の境の横線で切られた段は、前の段に戻す（改正前の
             // 帯の救助器具の表の「性能等」の欄が別の段になり、表から外れていた）。
             if shinkyu_page {
+                rejoin_split_shinkyu_grid_tiers(&mut tiers, &grids);
                 let center = |c: &Col| ((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0);
                 let mut i = 1;
                 while i < tiers.len() {
@@ -623,7 +687,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 // 新旧対照表のあるページでも、新旧対照表の欄見出しの無い段（同じページの別の告示の名簿）なら見る。
                 let plain_tier = !shinkyu_page || detect_shinkyu_header(&tiers[i]).is_none();
                 if let Some((n, lines)) = (plain_tier && !prev_table)
-                    .then(|| record_bands(&tiers[i..], (!sideways).then_some(height / 2.0)))
+                    .then(|| record_bands_with_suffix_context(&tiers[i..], (!sideways).then_some(height / 2.0), &units, &hrules))
                     .flatten()
                     // 新旧対照表のページでは、届出年月日などの日付で始まる行が 3 行以上あり、
                     // 「（略）」の無い名簿だけ（新旧対照表の帯の続きを名簿にしない）。
@@ -689,13 +753,44 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         attach_band_tables(&mut units, &words);
         if sideways {
             unturn_tables(&mut units, width);
+            if let Some(native_rules) = rules.get(pi).and_then(|r| r.as_ref()) {
+                crate::horizontal::repair_native_ledger_tables(&mut units, &words, native_rules);
+            }
+        }
+        if !mixed_statistics.is_empty() {
+            units.push(Unit::Plain(mixed_statistics));
         }
         prefix_minus(&mut units, &minus, &word_texts);
+        if !sideways { crate::native_triangle_cells::restore(&mut units, &words, page); }
         move_trailing_notes(&mut units);
         merge_split_table_rows(&mut units);
         order_masthead(&mut units);
         join_joint_ministries(&mut units);
-        order_section_labels(&mut units);
+        order_section_labels(&mut units, &words);
+        crate::unruled_road::restore(&mut units, &words);
+        crate::large_parentheses::restore_large_parentheses(&mut units, &words);
+        crate::coordinate_symbols::restore_coordinate_symbols(&mut units, &mut words);
+        crate::coordinate_rows::restore_coordinate_rows(&mut units, &mut words, rules.get(pi).and_then(|r| r.as_ref()), width.max(height));
+        crate::area_units::restore_area_units(&mut units, &mut words);
+        if !sideways { crate::blank_area_units::restore(&mut units, &mut words, page_rules, width.max(height)); }
+        crate::reference_markers::restore(&mut units, &mut words);
+        crate::inline_quotes::restore(&mut units, &mut words);
+        crate::range_endpoints::restore(&mut units, &mut words);
+        crate::micro_prefixes::restore(&mut units, &mut words);
+        crate::chemical_line_end::restore(&mut units, &mut words);
+        crate::circled_numbers::restore(&mut units, &mut words);
+        if sideways { if let Some(native_rules) = rules.get(pi).and_then(|r| r.as_ref()) { crate::framed_amount_rows::restore(&mut units, &words, native_rules); } }
+        if !sideways && !rotated { crate::facility_continuations::restore(&mut units, &words, page_rules, width, height); }
+        if !sideways && !rotated { crate::framed_band_continuations::restore(&mut units, &words, page_rules, width, height); }
+        if !sideways && !rotated { crate::paired_framed_continuations::restore(&mut units, &words, page_rules, width, height); }
+        if !sideways && !rotated { crate::headerless_four_bands::restore(&mut units, &words, page_rules, width); }
+        if !sideways && !rotated { crate::quoted_inline_tables::restore(&mut units, &words, page_rules); }
+        if !sideways {
+            if let Some(rules) = rules.get(pi).and_then(|r| r.as_ref()) {
+                crate::common_financial_header::restore(&mut units,&words,&native_styles,&native_content_styles,&native_bounds,&rules.enclosures);
+            }
+        }
+        if !sideways && !rotated { if let Some(rules) = rules.get(pi).and_then(|r| r.as_ref()) { crate::notice_boundaries::restore_ruled_corrections(&mut units, &words, &native_styles, &native_content_styles, &native_bounds, rules, &pages); } }
         let text = units
             .iter()
             .map(Unit::text)
@@ -709,7 +804,10 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         prev_mid = None;
         let regions: Vec<_> = units.into_iter().enumerate().flat_map(|(i, u)| u.regions(i)).collect();
         mark_unused(&mut words, &regions, &merged);
-        pages.push(PageTrace {
+        pages.push(PageTrace {native_axes,native_rulings,
+                native_styles,
+                native_bounds,
+                native_content_styles,
             width,
             height,
             layout,
@@ -720,6 +818,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             tables,
         });
     }
+    crate::notice_boundaries::restore_framed_reading_order(&mut pages, rules);
     pages
 }
 
@@ -871,6 +970,7 @@ fn unturn_tables(units: &mut [Unit], page_width: f32) {
 /// 横倒しのページの罫線を、語と同じく 90° 回す（表示の上端 → 元のページの右端、左端 → 上端）。
 fn turn_rules(r: &PageRules, page_width: f32) -> PageRules {
     PageRules {
+        enclosures: Vec::new(), short_fraction_bars: Vec::new(),
         vertical: r.horizontal.iter().map(|h| crate::lines::VRule { x: page_width - h.y, y0: h.x0, y1: h.x1 }).collect(),
         horizontal: r.vertical.iter().map(|v| crate::lines::HRule { y: v.x, x0: page_width - v.y1, x1: page_width - v.y0 }).collect(),
     }
@@ -879,6 +979,7 @@ fn turn_rules(r: &PageRules, page_width: f32) -> PageRules {
 /// 罫線を x の範囲 `lo..=hi` で切り取る（範囲の端の縦線は残す）。
 fn clip_rules(r: &PageRules, lo: f32, hi: f32) -> PageRules {
     PageRules {
+        enclosures: Vec::new(), short_fraction_bars: Vec::new(),
         vertical: r.vertical.iter().filter(|v| lo - 3.0 <= v.x && v.x <= hi + 3.0).copied().collect(),
         horizontal: r
             .horizontal
@@ -992,8 +1093,8 @@ fn split_off_full_height_left(cols: Vec<Col>, divider: f32, rules: Option<&PageR
     cols.into_iter().partition(right)
 }
 
-/// [`split_off_leading_frame`] の結果（改正後, 改正前, 残り）。
-type LeadingFrame = (Vec<Col>, Vec<Col>, Vec<Col>);
+/// [`split_off_leading_frame`] の結果（改正後, 改正前, 残り, 枠内に対応する欄見出しがあるか）。
+type LeadingFrame = (Vec<Col>, Vec<Col>, Vec<Col>, bool);
 
 /// 欄の左の語（`rest`）に、上の欄の下端より下まで続く列と、下の欄の上端より上から始まる列があるか（左の記事が
 /// 上下の欄の境目をまたいで続く）。
@@ -1010,6 +1111,8 @@ fn spans_divider(rest: &[Col], after: &[Col], before: &[Col]) -> bool {
 /// 「５　前項の場合には…」、下の欄に改正前の「〔項を加える。〕」。その左に備考・附則・次の記事が続く）。
 /// 罫線の枠では取れない（下の段の次の記事の表の横線が、この欄の縦線まで伸びて 1 つの枠になる）ので、
 /// 罫線を直接見る。縦線の左に字が無い（ページ全体が表の続き）なら切り出さない（見出しの無い継続ページとして読む）。
+/// 明示の「改正後／改正前」が枠の上・下に揃う場合も、左の記事を読む前に枠全体を切り出す。
+/// 単独の「前」「後」だけがある枠は、これまでどおり候補から除く。
 fn split_off_leading_frame(cols: Vec<Col>, rules: Option<&PageRules>) -> Result<LeadingFrame, Vec<Col>> {
     let Some(rules) = rules else {
         return Err(cols);
@@ -1030,6 +1133,10 @@ fn split_off_leading_frame(cols: Vec<Col>, rules: Option<&PageRules>) -> Result<
             _ => joined.push(h),
         }
     }
+    let is_label_word = |c: &Col, hx: f32| {
+        let text: String = c.text.chars().filter(|ch| !ch.is_whitespace()).collect();
+        (c.x - hx).abs() < 6.0 && matches!(text.as_str(), "改" | "正" | "後" | "前" | "改正" | "正後" | "正前" | "改正後" | "改正前")
+    };
     let found = verticals.into_iter().find_map(|v| {
         // 縦線の左端から右へ、右端の字の上まで伸びる横線が上下の欄の境目。
         let &(hy, _, _) = joined.iter().find(|&&(y, x0, x1)| (x0 - v.x).abs() <= 3.0 && x1 >= right_edge - 2.0 && y > v.y0 + (v.y1 - v.y0) * 0.25 && y < v.y1 - (v.y1 - v.y0) * 0.25)?;
@@ -1041,10 +1148,25 @@ fn split_off_leading_frame(cols: Vec<Col>, rules: Option<&PageRules>) -> Result<
         let upper = right.iter().filter(|c| center(c).1 < hy).count();
         let lower = right.len() - upper;
         let label = right.iter().any(|c| matches!(c.text.chars().filter(|ch| !ch.is_whitespace()).collect::<String>().as_str(), "改正後" | "改正前" | "改" | "正" | "後" | "前"));
+        let right_cols: Vec<Col> = right.into_iter().cloned().collect();
+        // 枠の上下に同じ x で正式な欄見出しが揃い、その境目が中央横線と対応するときだけ、
+        // 見出し付きの枠を先に出す。本文中の「前」「後」や上下が逆のラベルは根拠にしない。
+        let header = detect_shinkyu_header(&right_cols).filter(|&(hx, divider)| {
+            let in_band = |last, upper: bool| {
+                vertical_labels(&right_cols, last).iter().any(|&(x0, _, y0, y1)| {
+                    (x0 - hx).abs() < 6.0 && if upper { y1 < hy } else { y0 > hy }
+                })
+            };
+            (divider - hy).abs() <= 12.0
+                && in_band('後', true)
+                && in_band('前', false)
+                && right_cols.iter().any(|c| center(c).1 < hy && !is_label_word(c, hx))
+                && right_cols.iter().any(|c| center(c).1 >= hy && !is_label_word(c, hx))
+        });
         let left_of = cols.iter().filter(|c| c.x1 < v.x).count();
-        (upper > 0 && lower > 0 && !label && left_of >= 3).then_some((v.x, v.y0, v.y1, hy))
+        (upper > 0 && lower > 0 && (!label || header.is_some()) && left_of >= 3).then_some((v.x, v.y0, v.y1, hy, header.map(|h| h.0)))
     });
-    let Some((x, y0, y1, mid)) = found else {
+    let Some((x, y0, y1, mid, header_x)) = found else {
         return Err(cols);
     };
     let (mut after, mut before, mut rest) = (Vec::new(), Vec::new(), Vec::new());
@@ -1052,13 +1174,20 @@ fn split_off_leading_frame(cols: Vec<Col>, rules: Option<&PageRules>) -> Result<
         let (cx, cy) = center(&c);
         if cx <= x || cy <= y0 || cy >= y1 {
             rest.push(c);
-        } else if cy < mid {
-            after.push(c);
         } else {
-            before.push(c);
+            // band_pair_unit は欄見出しを補うため、検出済みの見出し列の語だけを取り除く。
+            // 同じ「前」「後」でも、本文の別の列にある語は保持する。
+            if header_x.is_some_and(|hx| is_label_word(&c, hx)) {
+                continue;
+            }
+            if cy < mid {
+                after.push(c);
+            } else {
+                before.push(c);
+            }
         }
     }
-    Ok((after, before, rest))
+    Ok((after, before, rest, header_x.is_some()))
 }
 
 /// 縦組みの欄見出し（「変更後」「改正後」。1 字ずつの語「変」「更」「後」も）の左右の範囲と上端・下端。同じ x に
@@ -1155,7 +1284,7 @@ pub(crate) fn split_label_frames(tier: Vec<Col>, hrules: &[(f32, f32, f32)], vru
 /// 記事の見出し（「〇こども家庭庁告示第十三号」）のすぐ後に区分見出し（「法規的告示」）が来ていれば、区分見出しを先にする
 /// （見出しの下に本文が無いまま次の区分が始まることは無い。区分見出しは本文より大きな字で、見出しの列と上下にずれて
 /// 組まれ、見出しが前の段に、区分見出しが次の段の頭に分かれていた）。段の境をまたぐものも見る。
-fn order_section_labels(units: &mut [Unit]) {
+fn order_section_labels(units: &mut [Unit], words: &[Word]) {
     let compact = |l: &Line| l.text.chars().filter(|c| !c.is_whitespace()).collect::<String>();
     // 「〇」で始まり「号」で終わる 1 行（機関名がかなで始まる「〇こども家庭庁告示第十三号」も）。
     let heading = |l: &Line| {
@@ -1179,6 +1308,32 @@ fn order_section_labels(units: &mut [Unit]) {
             Unit::Plain(lines) => lines,
             Unit::Shinkyu { preamble, .. } => preamble,
         };
+        // 大きな区分見出しが小さな欄見出しのすぐ右に組まれ、上下にずれて別の段になった場合。
+        // 直前の欄見出しと短い標題だけの前へ移す（本文や離れた別記事は越えない）。
+        let bounds = |l: &Line| {
+            let ws: Option<Vec<_>> = l.words.iter().map(|&id| words.get(id).filter(|w| w.id == id)).collect();
+            let ws = ws.filter(|ws| !ws.is_empty())?;
+            Some(ws.iter().fold((f32::INFINITY, f32::INFINITY, f32::NEG_INFINITY, f32::NEG_INFINITY),
+                |(x0,y0,x1,y1), w| (x0.min(w.x0), y0.min(w.y0), x1.max(w.x1), y1.max(w.y1))))
+        };
+        let raised = next.first().filter(|l| label(l)).and_then(|primary| {
+            let at = prev.iter().rposition(|l| label(l))?;
+            if prev.len() - at > 3 || compact(primary) == compact(&prev[at]) { return None; }
+            let (a, b) = (bounds(primary)?, bounds(&prev[at])?);
+            let (large, em) = (a.2-a.0, b.2-b.0);
+            let overlap = |a: (f32,f32,f32,f32), b: (f32,f32,f32,f32)| a.3.min(b.3)-a.1.max(b.1);
+            if large < em*1.3 || a.3-a.1 < large*2.0 || b.3-b.1 < em*2.0
+                || a.0 < b.2 || a.0-b.2 > em*3.0 || overlap(a,b) < em { return None; }
+            prev[at+1..].iter().all(|l| {
+                let t=compact(l);
+                bounds(l).is_some_and(|h| t.chars().count() <= 30 && !t.contains(['。','、','：',':'])
+                    && h.2 <= b.0+em*0.5 && b.0-h.0 <= em*3.0 && overlap(h,b) >= em)
+            }).then_some(at)
+        });
+        if let Some(at) = raised {
+            prev.insert(at, next.remove(0));
+            continue;
+        }
         if prev.last().is_some_and(|l| heading(l)) && next.first().is_some_and(|l| label(l)) {
             let l = next.remove(0);
             let at = prev.len() - 1;
@@ -1855,6 +2010,172 @@ fn split_horizontal_shinkyu_pairs(cols: &[Col], prev: Option<f32>, vrules: &[(f3
     Some((Unit::Shinkyu { preamble: horizontal_lines(preamble), after, before, outside: Vec::new() }, rest, width))
 }
 
+/// Keep only font runs enclosing ordinary-font Japanese prose quotations.
+/// Isolated headings, margin marks, units and mathematical symbols cannot
+/// establish this two-sided inline relationship.
+fn retain_inline_native_quotes(
+    raws: &[(f32, f32, f32, f32, String)],
+    horizontal: &std::collections::HashSet<([u32; 4], String)>,
+    native: &mut std::collections::HashMap<[u32; 4], Vec<(String, [f32; 4])>>,
+) {
+    let key = |r: &(f32, f32, f32, f32, String)| {
+        [r.0.to_bits(), r.1.to_bits(), r.2.to_bits(), r.3.to_bits()]
+    };
+    let japanese = |t: &str| {
+        t.chars()
+            .filter(|c| {
+                ('\u{3040}'..='\u{30ff}').contains(c) || ('\u{3400}'..='\u{9fff}').contains(c)
+            })
+            .count()
+    };
+    let candidates: Vec<_> = native
+        .iter()
+        .flat_map(|(key, values)| {
+            values
+                .iter()
+                .map(move |(text, b)| (*key, text.clone(), *b, word_text(text)))
+        })
+        .collect();
+    let plain: Vec<_> = raws
+        .iter()
+        .filter(|r| horizontal.contains(&(key(r), r.4.clone())))
+        .collect();
+    let mut selected = std::collections::HashSet::new();
+    for (akey, atext, a, an) in &candidates {
+        let opening = an.rsplit_once('「').is_some_and(|(_, tail)| {
+            tail.chars()
+                .all(|c| c.is_whitespace() || matches!(c, '（' | '('))
+        });
+        if !opening {
+            continue;
+        }
+        let em = a[3] - a[1];
+        for (bkey, btext, b, bn) in &candidates {
+            if !bn.trim_start_matches(['）', ')']).starts_with('」')
+                || japanese(an).max(japanese(bn)) < 3
+                || b[0] - a[2] < em * 1.5
+                || ((b[3] - b[1]) - em).abs() > em * 0.2
+                || ((a[1] + a[3]) - (b[1] + b[3])).abs() > em * 0.5
+            {
+                continue;
+            }
+            let mut quoted: Vec<_> = plain
+                .iter()
+                .copied()
+                .filter(|r| {
+                    r.0 >= a[2] - em * 0.25
+                        && r.2 <= b[0] + em * 0.25
+                        && ((r.3 - r.1) - em).abs() <= em * 0.2
+                        && ((r.1 + r.3) - (a[1] + a[3])).abs() <= em * 0.5
+                })
+                .collect();
+            quoted.sort_by(|r, s| r.0.total_cmp(&s.0));
+            let (Some(first), Some(last)) = (quoted.first(), quoted.last()) else {
+                continue;
+            };
+            if (first.0 - a[2]).abs() > em * 0.25
+                || (last.2 - b[0]).abs() > em * 0.25
+                || quoted.windows(2).any(|p| p[1].0 - p[0].2 > em * 0.5)
+                || quoted.iter().map(|r| japanese(&r.4)).sum::<usize>() < 2
+            {
+                continue;
+            }
+            selected.insert((*akey, atext.clone()));
+            selected.insert((*bkey, btext.clone()));
+        }
+    }
+    // A second quotation may wrap once to the proven prose left margin,
+    // allowing the first line to have a one-em paragraph indent. Both ordinary-font fragments must touch
+    // the surrounding native brackets; the baseline advance must be one line.
+    for (akey, atext, a, an) in &candidates {
+        if !selected.contains(&(*akey, atext.clone()))
+            || !an.starts_with('」')
+            || !an.ends_with('「')
+        {
+            continue;
+        }
+        let em = a[3] - a[1];
+        let anchors: Vec<_> = candidates
+            .iter()
+            .filter(|(k, t, c, cn)| {
+                selected.contains(&(*k, t.clone()))
+                    && japanese(cn) >= 3
+                    && !cn.starts_with('」')
+                    && cn.ends_with('「')
+                    && c[0] < a[0]
+                    && ((c[1] + c[3]) - (a[1] + a[3])).abs() <= em * 0.5
+            })
+            .collect();
+        if anchors.len() != 1 {
+            continue;
+        }
+        let left = anchors[0].2[0];
+        for (bkey, btext, b, bn) in &candidates {
+            if !bn.starts_with('」')
+                || bn.contains('「')
+                || japanese(bn) < 3
+                || ((b[3] - b[1]) - em).abs() > em * 0.2
+            {
+                continue;
+            }
+            let dy = (b[1] + b[3] - a[1] - a[3]) * 0.5;
+            if !(em * 1.0..=em * 1.75).contains(&dy) {
+                continue;
+            }
+            let mut first: Vec<_> = plain
+                .iter()
+                .copied()
+                .filter(|r| {
+                    r.0 >= a[2] - em * 0.25
+                        && ((r.3 - r.1) - em).abs() <= em * 0.2
+                        && ((r.1 + r.3) - (a[1] + a[3])).abs() <= em * 0.5
+                })
+                .collect();
+            first.sort_by(|r, s| r.0.total_cmp(&s.0));
+            let mut second: Vec<_> = plain
+                .iter()
+                .copied()
+                .filter(|r| {
+                    r.0 >= left - em * 1.25
+                        && r.2 <= b[0] + em * 0.25
+                        && ((r.3 - r.1) - em).abs() <= em * 0.2
+                        && ((r.1 + r.3) - (b[1] + b[3])).abs() <= em * 0.5
+                })
+                .collect();
+            second.sort_by(|r, s| r.0.total_cmp(&s.0));
+            let (Some(f), Some(l), Some(sf), Some(sl)) =
+                (first.first(), first.last(), second.first(), second.last())
+            else {
+                continue;
+            };
+            if (f.0 - a[2]).abs() > em * 0.25
+                || sf.0 > left + em * 0.25
+                || sf.0 < left - em * 1.25
+                || (sl.2 - b[0]).abs() > em * 0.25
+                || l.2 - f.0 < em * 3.
+                || sl.2 - sf.0 < em * 3.
+                || first
+                    .windows(2)
+                    .chain(second.windows(2))
+                    .any(|p| p[1].0 - p[0].2 > em * 0.5)
+                || first
+                    .iter()
+                    .chain(&second)
+                    .map(|r| japanese(&r.4))
+                    .sum::<usize>()
+                    < 3
+            {
+                continue;
+            }
+            selected.insert((*bkey, btext.clone()));
+        }
+    }
+    native.retain(|k, values| {
+        values.retain(|(t, _)| selected.contains(&(*k, t.clone())));
+        !values.is_empty()
+    });
+}
+
 /// 1 ページの `<word>` を縦書きカラム語として読み出す。可視化用に全語の一覧と、回転ページ
 /// （横組みの本文を `/Rotate 270` で置いたページ）かどうかも返す（カラム語の `id` は語の添字）。
 ///
@@ -1873,17 +2194,78 @@ fn page_words_traced(
     page_width: f32,
     height: f32,
     page_rules: Option<&PageRules>,
-) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>, std::collections::HashSet<usize>) {
+) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>, std::collections::HashSet<usize>,
+) {
+    let (a,b,c,d,e,f,_,_,_,_,_)=page_words_with_styles(page,page_width,height,page_rules);
+    (a,b,c,d,e,f)
+}
+fn page_words_with_styles(
+    page: scraper::ElementRef,
+    page_width: f32,
+    height: f32,
+    page_rules: Option<&PageRules>,
+) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>, std::collections::HashSet<usize>, Vec<Option<crate::trace::NativeStyles>>, Vec<crate::trace::NativeBounds>, Vec<crate::trace::ContentStyles>, Vec<crate::native_word_axes::NativeAxis>,Vec<crate::native_word_rulings::NativeRuling>,
+) {
     let word_sel = Selector::parse("word").unwrap();
     let line_sel = Selector::parse("line").unwrap();
     // (x0, y0, x1, y1, raw)
     let mut raws: Vec<(f32, f32, f32, f32, String)> = Vec::new();
+    let mut resolved_aj1 = Vec::new();
+    let mut source_candidates = Vec::new();
+    let mut native_styles=Vec::new();
+    let mut native_bounds=Vec::new();
+    let mut native_content_styles=Vec::new();
+    let mut native_top_down=Vec::new();
+    let mut native_axes=Vec::new();
+    let mut native_rulings=Vec::new();
+    let mut native_vertical: std::collections::HashMap<[u32; 4], Vec<(String, [f32; 4])>> = Default::default();
+    let mut native_horizontal_chars = 0usize;
+    let mut horizontal_font_chars = 0usize;
+    let mut horizontal_font_words: std::collections::HashSet<([u32; 4], String)> = Default::default();
     let mut push = |w: scraper::ElementRef| {
         let v = w.value();
         // scraper は HTML パーサのため属性名を小文字化する（xMin -> xmin）。
         let num = |k: &str| v.attr(k).and_then(|s| s.parse::<f32>().ok());
         if let (Some(x), Some(x1), Some(y), Some(y1)) = (num("xmin"), num("xmax"), num("ymin"), num("ymax")) {
-            raws.push((x, y, x1, y1, w.text().collect()));
+            let text: String = w.text().collect();
+            if v.attr("data-wmode") == Some("0") && x1-x > (y1-y)*1.5 {
+                horizontal_font_chars += text.chars().count();
+                horizontal_font_words.insert(([x.to_bits(),y.to_bits(),x1.to_bits(),y1.to_bits()],text.clone(),
+                ));
+            }
+            if v.attr("data-wmode") == Some("1") {
+                if let (Some(ax), Some(ay), Some(nx), Some(ny), Some(nx1), Some(ny1)) =
+                    (num("data-advance-x"), num("data-advance-y"), num("data-native-xmin"), num("data-native-ymin"), num("data-native-xmax"), num("data-native-ymax"),
+                )
+                {
+                    if [ax,ay,nx,ny,nx1,ny1].iter().all(|n| n.is_finite()) && ax.abs() > ay.abs()*1.5 && ax.abs() > 0.0 && nx1 > nx && ny1 > ny {
+                        if x1-x > (y1-y)*1.5 { native_horizontal_chars += text.chars().count(); }
+                        native_vertical.entry([x.to_bits(),y.to_bits(),x1.to_bits(),y1.to_bits()]).or_default().push((text.clone(),[nx,ny,nx1,ny1]));
+                    }
+                }
+            }
+            native_top_down.push(v.attr("data-wmode")==Some("1") && num("data-advance-x").is_some_and(|n|n.is_finite()&&n==0.) && num("data-advance-y").is_some_and(|n|n.is_finite()&&n>0.));
+            native_axes.push(crate::native_word_axes::from_word(w));
+            native_rulings.push(crate::native_word_rulings::from_word(w));
+            native_bounds.push(crate::native_word_bounds::from_word(w));
+            native_styles.push(v.attr("data-native-styles").and_then(|text| {
+                let mut out=crate::trace::NativeStyles::new();
+                for token in text.split_whitespace(){
+                    let (f,b)=token.split_once(':')?;
+                    let (f,b)=(f.parse::<usize>().ok()?,u64::from_str_radix(b,16).ok()?);
+                    let size=f64::from_bits(b);
+                    if !size.is_finite() || size<=0.0 {return None;}
+                    out.insert((f,b));
+                }
+                (!out.is_empty()).then_some(out)
+            }));
+            native_content_styles.push(crate::native_content_styles::from_word(w, native_styles.last().unwrap().as_ref()));
+            source_candidates.push(
+                v.attr("data-source-aj1-text")
+                    .and_then(|value| crate::source_aj1::candidate(&text, value)),
+            );
+            raws.push((x, y, x1, y1, text));
+            resolved_aj1.push(v.attr("data-unicode-aj1") == Some("1"));
         }
     };
     if page.select(&line_sel).next().is_some() {
@@ -1901,13 +2283,28 @@ fn page_words_traced(
     // 語は座標の正規の順（x 降順・y 昇順）に並べ替えてから使う。`<word>` の並びは抽出器によって
     // 違い（poppler は段組みの解析順、kanpo-pdf はコンテンツストリームの順）、以降の処理の
     // 同点の扱いなどに入力順が出ないようにする。
-    raws.sort_by(|a, b| {
+    // Keep provenance attached to its own source occurrence, including exact
+    // bbox/text ties with a word from another extractor or font.
+    let mut sources: Vec<_> = raws.into_iter().zip(resolved_aj1).zip(source_candidates).zip(native_styles).zip(native_bounds).zip(native_content_styles).zip(native_top_down)
+        .map(|((((((raw, flag), source), style), bounds), content), top_down)| (raw, (((((flag, source),style),bounds),content),top_down)))
+        .zip(native_axes).map(|((raw,evidence),axis)|(raw,(evidence,axis)))
+        .zip(native_rulings).map(|((raw,evidence),ruling)|(raw,(evidence,ruling)))
+        .collect();
+    sources.sort_by(|(a, _), (b, _)| {
         b.0.total_cmp(&a.0)
             .then(a.1.total_cmp(&b.1))
             .then(b.2.total_cmp(&a.2))
             .then(a.3.total_cmp(&b.3))
             .then_with(|| a.4.cmp(&b.4))
     });
+    let (mut raws, evidence): (Vec<_>, Vec<_>) = sources.into_iter().unzip();
+    let (evidence,native_rulings): (Vec<_>,Vec<_>) = evidence.into_iter().unzip();
+    let (evidence,native_axes): (Vec<_>,Vec<_>) = evidence.into_iter().unzip();
+    let (evidence,native_top_down): (Vec<_>, Vec<_>) = evidence.into_iter().unzip();
+    let (evidence,native_content_styles): (Vec<_>, Vec<_>) = evidence.into_iter().unzip();
+    let (evidence,native_bounds): (Vec<_>, Vec<_>) = evidence.into_iter().unzip();
+    let (evidence,native_styles): (Vec<_>, Vec<_>) = evidence.into_iter().unzip();
+    let (resolved_aj1, source_candidates): (Vec<_>, Vec<_>) = evidence.into_iter().unzip();
     // 縦書きのページが /Rotate で横倒しに表示されている（座標上は縦の列が横の行に見える）
     // なら、復元に使う座標を 90° 回して縦書きに戻す。語の表示用の座標（`Word`）は
     // PDF の表示と重なるよう元のまま残す。
@@ -1953,6 +2350,31 @@ fn page_words_traced(
     }
     let sideways = is_sideways_vertical(&raws);
     let rotated = !sideways && raws.iter().any(|(_, _, x1, _, t)| is_left_strip_header(*x1, t));
+    // Poppler's WMode-1 rectangle is intentionally offset from the glyph
+    // rectangle. In horizontally set mixed pages, use the original rectangle
+    // only when font metadata proves a horizontal advance. Pure vertical and
+    // sideways pages retain their existing normalization.
+    if !vertical_page && !sideways && horizontal_font_chars > native_horizontal_chars {
+        // A coordinate/text key can occur more than once (overprinted text or
+        // distinct font runs). Use it only when every source occurrence has a
+        // valid native rectangle and all occurrences agree on that rectangle.
+        // An unannotated word must never inherit another word's font metadata.
+        native_vertical.retain(|key, values| {
+            values.iter().all(|(text, b)| {
+            let declared = values.iter().filter(|(t, _)| t == text).count();
+            let sources = raws.iter().filter(|(x, y, x1, y1, t)| {
+                        [x.to_bits(), y.to_bits(), x1.to_bits(), y1.to_bits()] == *key && t == text
+                    }).count();
+            declared == sources && values.iter().filter(|(t, _)| t == text).all(|(_, other)| other == b)
+        })
+        });
+        retain_inline_native_quotes(&raws, &horizontal_font_words, &mut native_vertical);
+        for (x,y,x1,y1,text) in &mut raws {
+            if let Some((_,b)) = native_vertical.get(&[x.to_bits(),y.to_bits(),x1.to_bits(),y1.to_bits()]).and_then(|xs| xs.iter().find(|(t,_)| t == text)) {
+                (*x, *y, *x1, *y1) = (b[0],b[1],b[2],b[3]);
+            }
+        }
+    }
     let shift_sideways = sideways && (sideways_vertical_font_shifted(&raws) || sideways_words_straddle_rules(&raws, page_rules));
     // 横倒しに組んだ URL の語（下で半 em 寄せる語）。何列も続く欧文（英字の住所）は寄せない。
     let rotated_latin = |(x, y, x1, y1, t): &(f32, f32, f32, f32, String)| {
@@ -1988,7 +2410,14 @@ fn page_words_traced(
             }
         })
         .collect();
-    let glyphs: Vec<Option<CidGlyph>> = raws.iter().map(|(x, y, x1, y1, raw)| private_cid_glyph(raw, x1 - x, y1 - y)).collect();
+    let composed_numbers = crate::composite_numbers::overlaid_private_numbers(&raws);
+    // The PDF bridge has proved these characters against actual AJ1 CID
+    // mappings. Only the legacy untagged-CID guess is bypassed; word_text
+    // still handles punctuation/PUA and tagged Identity glyphs normally.
+    let glyphs: Vec<Option<CidGlyph>> = raws.iter().zip(&resolved_aj1).zip(&source_candidates)
+        .map(|(((x, y, x1, y1, raw), resolved), source)| {
+        if *resolved || source.is_some() { None } else { private_cid_glyph(raw, x1 - x, y1 - y) }
+    }).collect();
     // 紛れのない私用 CID 記号が出ている系統。常用漢字と同じ符号はこの系統があるページで、
     // しかも前後の語と間を空けずに続く（「（イ）及び（ロ）に掲げる」）ときだけ写像する。
     let families: std::collections::HashSet<u8> =
@@ -2007,7 +2436,9 @@ fn page_words_traced(
     let glyphs: Vec<Option<CidGlyph>> = glyphs
         .into_iter()
         .enumerate()
-        .map(|(i, g)| g.filter(|g| !g.ambiguous || (families.contains(&g.family) && touches_neighbor(i))))
+        .map(|(i, g)| {
+            g.filter(|g| !g.ambiguous || (families.contains(&g.family) && touches_neighbor(i)))
+        })
         .collect();
 
     let mut cols: Vec<Col> = Vec::new();
@@ -2015,20 +2446,25 @@ fn page_words_traced(
     for ((((((x, y, x1, y1, raw), glyph), (gx, gy, gx1, gy1)), toc_number), dx), source_box) in raws.into_iter().zip(glyphs).zip(geom).zip(toc_numbers).zip(display_dx).zip(source_boxes) {
         // scraper が実体参照は復号済み。私用 CID の括弧付き数字等を復元し、約物を正規化し、
         // 私用領域(傍線等のフォント固有グリフ)を除去する。
-        let text: String = match (toc_number, glyph) {
+        let text: String = source_candidates[words.len()]
+            .as_ref()
+            .map(|source| word_text(source))
+            .unwrap_or_else(|| {
+                composed_numbers[words.len()].clone().unwrap_or_else(|| match (toc_number, glyph) {
             (Some(n), _) => n,
             (None, Some(g)) => g.text.clone(),
             (None, None) => word_text(&raw),
-        };
+                    })
+            });
         // 綴じ穴の印「〇」2 つと中央の印（私用 CID の「△」の字形）は、横組みのページと号の 1 ページ目（横倒しとみなす）
         // では紙面の上端（本文の上端 y≈47 より上の y≈7–26）に刷られている（本文に「〇」「△」の行が出ていた）。
         let punch_mark = y1 <= PUNCH_MARK_BOTTOM && matches!(text.trim(), "〇" | "△");
         let in_margin = punch_mark || if rotated {
             gx1 <= LEFT_STRIP
         } else {
-            // 横倒しのページは回した座標の高さが表示の幅（`page_width`）。表示の高さで見ると、表示の右の
-            // 3 割ほど（号外226 p25 の 4 段目、座標の表の右端の欄）が余白として捨てられていた。
-            let bottom = if sideways { page_width } else { height };
+                // 横倒しのページは回した座標の高さが表示の幅（`page_width`）。表示の高さで見ると、表示の右の
+                // 3 割ほど（号外226 p25 の 4 段目、座標の表の右端の欄）が余白として捨てられていた。
+                let bottom = if sideways { page_width } else { height };
             gy1 <= TOP_MARGIN || gy >= bottom - BOTTOM_MARGIN || (!sideways && gx >= page_width - RIGHT_MARGIN)
         };
         let status = if in_margin {
@@ -2063,10 +2499,15 @@ fn page_words_traced(
             status,
         });
     }
+    if !sideways && !rotated {
+        if let Some(rules)=page_rules {
+            crate::framed_native_columns::restore(&mut cols,&words,&native_bounds,&native_top_down,&rules.enclosures);
+        }
+    }
     drop_ruby(&mut cols, &mut words);
     let minus = attach_minus_signs(&mut cols, &words);
     let merged = merge_warichu(&mut cols);
-    (cols, words, rotated, sideways, merged, minus)
+    (cols, words, rotated, sideways, merged, minus, native_styles, native_bounds, native_content_styles, native_axes, native_rulings)
 }
 
 /// 枠のセルに文章（200 字を超える、または 2 文以上）が入っているか。公告の囲み記事などの
@@ -2176,6 +2617,28 @@ fn attach_minus_signs(cols: &mut Vec<Col>, words: &[Word]) -> std::collections::
             .min_by(|a, b| a.0.cmp(&b.0).then(a.1.total_cmp(&b.1)))
             .map(|(_, _, j)| j);
         if let Some(j) = target {
+            // A smaller-font horizontal amount may be farther right than the
+            // next row is below. Keep the source sign in its native row rather
+            // than synthesizing a prefix on the closer lower amount.
+            let selected = &cols[j];
+            if let Some((sx,sy,sx1,_)) = geom(selected.id) {
+                let selected_below = overlap(mx,mx1,sx,sx1) >= 0.5
+                    && sy >= my + em*0.25;
+                let horizontal_amount = |k: usize| {
+                    let n=&cols[k];
+                    let Some((x,y,x1,y1))=geom(n.id) else {return false};
+                    let numeric = !n.text.is_empty() && n.text.chars().all(|ch| ch.is_ascii_digit() || matches!(ch,','|'.'))
+                        && n.text.chars().any(|ch|ch.is_ascii_digit());
+                    numeric && x>=mx1 && x-mx1<=em*3.0
+                        && overlap(my,my1,y,y1)>=0.8
+                        && (((my+my1)-(y+y1))/2.0).abs()<=em*0.15
+                        && cols.iter().enumerate().any(|(h,o)| h!=k && o.id!=cols[i].id
+                            && o.text.chars().all(|ch|ch.is_ascii_digit() || matches!(ch,','|'.'))
+                            && geom(o.id).is_some_and(|(u,v,u1,v1)| overlap(y,y1,v,v1)>=0.8
+                                && (u-x1).max(x-u1)<=em*0.25 && u>=x))
+                };
+                if selected_below && (0..cols.len()).any(horizontal_amount) {continue;}
+            }
             targets.insert(cols[j].id);
             drop.push(cols[i].id);
             // 印に重なる開き括弧だけの語（「(△135)」の「(」）は、印を付けた金額の語のすぐ左に置き直す（括弧だけが金額の
@@ -2583,13 +3046,73 @@ struct TierRules {
     sideways: bool,
 }
 
+/// 左端の全高の変更後・変更前枠と、直右で段の境目をまたぐ導入列を、通常の上下段の後に読む。
+/// 導入列の直右に短い番号見出しがあり、その見出しと枠の上端が揃う場合だけ切り出す。
+fn split_off_trailing_label_frame(cols: Vec<Col>, rules: &TierRules) -> Result<(Vec<Col>, Vec<Col>), Vec<Col>> {
+    let top = cols.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+    let bottom = cols.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+    let left = cols.iter().map(|c| c.x).fold(f32::INFINITY, f32::min);
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    let found = label_frames(&cols, &rules.hrules, &rules.vrules).into_iter().find_map(|(x0, x1, y0, y1, mid)| {
+        if !y0.is_finite() || !y1.is_finite() || y1 - y0 < (bottom - top) * 0.8 {
+            return None;
+        }
+        let em = cols.iter().filter(|c| center(c) > x0 && center(c) < x1).map(|c| c.x1 - c.x).filter(|&w| w >= 3.0 && w <= 20.0).min_by(f32::total_cmp)?;
+        // 枠の左に別の本文がある場合や、全高枠の外へ字がはみ出す場合は対象外。
+        if x0 > left + em * 2.0 || cols.iter().any(|c| center(c) > x0 && center(c) < x1 && (c.y < y0 - em || c.y1 > y1 + em)) {
+            return None;
+        }
+        let intro_x = cols.iter().filter(|c| center(c) > x1).map(center).min_by(f32::total_cmp)?;
+        if intro_x - x1 > em * 2.5 {
+            return None;
+        }
+        let intro: Vec<_> = cols.iter().filter(|c| (center(c) - intro_x).abs() <= 1.5).collect();
+        let intro_top = intro.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+        let intro_bottom = intro.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+        if intro_top > y0 + em * 3.0 || intro_top >= mid - em || intro_bottom <= mid + em || intro_bottom - intro_top < (y1 - y0) * 0.5 {
+            return None;
+        }
+        let heading_x = cols.iter().filter(|c| center(c) > intro_x + em * 0.5).map(center).min_by(f32::total_cmp)?;
+        if heading_x - intro_x > em * 3.0 {
+            return None;
+        }
+        let mut heading: Vec<_> = cols.iter().filter(|c| (center(c) - heading_x).abs() <= 1.5).collect();
+        heading.sort_by(|a, b| a.y.total_cmp(&b.y));
+        let text: String = heading.iter().flat_map(|c| c.text.chars()).filter(|c| !c.is_whitespace()).collect();
+        let number = |c: char| "一二三四五六七八九十百0123456789０１２３４５６７８９".contains(c);
+        let prefix = text.chars().take_while(|&c| number(c)).count();
+        // 節番号と短い標題だけを取る。直右の前の記事の本文列は取らない。
+        if prefix == 0 || prefix > 3 || text.chars().count() <= prefix || text.chars().count() > 16
+            || heading.first()?.y > intro_top + em || (heading.first()?.y - y0).abs() > em * 3.0
+            || heading.iter().any(|c| c.y1 > mid - em)
+        {
+            return None;
+        }
+        let rest: Vec<_> = cols.iter().filter(|c| center(c) > heading_x + 1.5).collect();
+        // 右側が上下の独立した段に分かれる L 字配置だけ。右の前文なども中央境界をまたぐ場合、
+        // 枠だけを除くと、その長い列が上下の項目列より後へ回るため従来の段分割に任せる。
+        if rest.iter().any(|c| c.y < mid - em && c.y1 > mid + em) {
+            return None;
+        }
+        (rest.iter().filter(|c| c.y1 < mid).count() >= 3 && rest.iter().filter(|c| c.y > mid).count() >= 3).then_some(heading_x)
+    });
+    let Some(edge) = found else { return Err(cols) };
+    Ok(cols.into_iter().partition(|c| center(c) > edge + 1.5))
+}
+
 fn split_tiers(cols: Vec<Col>, rules: &TierRules) -> Vec<Vec<Col>> {
+    let (cols, trailing) = match split_off_trailing_label_frame(cols, rules) {
+        Ok((rest, frame)) => (rest, Some(frame)),
+        Err(cols) => (cols, None),
+    };
     let mut out = Vec::new();
     split_tiers_rec(cols, 0, rules, false, &mut out);
     rejoin_split_labels(&mut out);
     rejoin_item_numbers(&mut out);
     rejoin_honoree_names(&mut out);
     rejoin_value_cells(&mut out);
+    rejoin_prose_label_values(&mut out, rules);
+    out.extend(trailing);
     out.retain(|t| !t.is_empty());
     out
 }
@@ -2698,7 +3221,11 @@ fn value_number(t: &str) -> bool {
 /// 一覧になり、どの団体の代表者か分からなくなるので、行の頭の x（半分以上の段に列のある x）で行に分け、
 /// 行ごとに欄を全角空白で区切って 1 行に組む。`bands` の頭からいくつの段を使ったかと、組んだ行を返す。
 /// `mid_line` は縦置きのページの高さの半分（上半分と下半分の表を 1 つの表にしない）。
+#[cfg(test)]
 fn record_bands(bands: &[Vec<Col>], mid_line: Option<f32>) -> Option<(usize, Vec<Line>)> {
+    record_bands_with_suffix_context(bands,mid_line,&[],&[])
+}
+fn record_bands_with_suffix_context(bands: &[Vec<Col>], mid_line: Option<f32>, header_units: &[Unit], hrules: &[(f32,f32,f32)]) -> Option<(usize, Vec<Line>)> {
     let center = |c: &Col| (c.x + c.x1) / 2.0;
     let ext = |b: &[Col]| {
         (
@@ -2755,8 +3282,12 @@ fn record_bands(bands: &[Vec<Col>], mid_line: Option<f32>) -> Option<(usize, Vec
         n += 1;
     }
     // 高い段は、確かめられなかった段の手前までを表とする。
+    let mut suffix_tops = None;
     if let Some(&t) = tall_bands.iter().find(|&&t| t < n && !tall_record_band(&bands[..n], t, &tall_bands)) {
-        n = t;
+        if t+1==n && crate::record_suffix::has_prior_record_header(header_units) {
+            suffix_tops = crate::record_suffix::infer_stacked_suffix(&bands[..n],t,hrules).map(|tops|(t,tops));
+        }
+        if suffix_tops.is_none() { n=t; }
     }
     if n == 2 {
         return name_pair_bands(&bands[..2]);
@@ -2844,7 +3375,29 @@ fn record_bands(bands: &[Vec<Col>], mid_line: Option<f32>) -> Option<(usize, Vec
         };
         (0..n).all(aligned).then_some(anchors)
     };
-    let (n, anchors) = (3..=n).rev().find_map(|m| fit(m).map(|a| (m, a)))?;
+    let limit = n;
+    let (mut n, anchors) = (3..=n).rev().find_map(|m| fit(m).map(|a| (m, a)))?;
+    // 行頭の確かめでは、複数の変更事項の小行も独立した行として保つ。末尾に日付だけの帯が
+    // 余った場合は、既に決めた行頭と同じ列の日付だけをその行へ足す（小行をまとめ直さない）。
+    if n < limit {
+        let mut dates: Vec<&Col> = all_bands[n].iter().collect();
+        dates.sort_by(|a, b| {
+            let (ax, bx) = (center(a), center(b));
+            if (ax - bx).abs() < 3.0 { a.y.total_cmp(&b.y) } else { bx.total_cmp(&ax) }
+        });
+        let columns: Vec<_> = dates.chunk_by(|a, b| (center(a) - center(b)).abs() < 3.0).collect();
+        let date_only = columns.len() >= 3 && columns.len() * 2 >= anchors.len() && columns.iter().all(|column| {
+            let x = center(column[0]);
+            let text: String = column.iter().flat_map(|c| c.text.chars()).filter(|c| !c.is_whitespace()).collect();
+            let parts: Vec<_> = text.split('、').collect();
+            anchors.iter().any(|&a| (a - x).abs() < 3.0)
+                && parts.len() == 3
+                && parts.iter().all(|p| !p.is_empty() && p.chars().count() <= 3 && p.chars().all(|c| "〇零一二三四五六七八九十0123456789０１２３４５６７８９".contains(c)))
+        });
+        if date_only {
+            n += 1;
+        }
+    }
     let bands = &all_bands[..n];
     // 字の大きさ（縦組みの語の幅の中央値）。
     let em = {
@@ -2919,7 +3472,12 @@ fn record_bands(bands: &[Vec<Col>], mid_line: Option<f32>) -> Option<(usize, Vec
         let header = (first..anchors.len()).max_by_key(|&r| heads(r)).filter(|&r| heads(r) >= 2);
         bands
             .iter()
-            .map(|b| match header {
+            .enumerate()
+            .map(|(k,b)| {
+                if let Some((_,tops))=suffix_tops.as_ref().filter(|(t,_)|*t==k) {
+                    return tops.clone();
+                }
+                match header {
                 Some(h) => {
                     // 欄見出しの列（「名称」「氏名」…で終わる語のある列と、2 行の欄見出しの隣の列）だけ。区分の見出し
                     // （「（一）政党の支部」）の列は見ない。
@@ -2946,6 +3504,7 @@ fn record_bands(bands: &[Vec<Col>], mid_line: Option<f32>) -> Option<(usize, Vec
                     field_tops(&ws, em)
                 }
                 None => Vec::new(),
+                }
             })
             .collect()
     };
@@ -3029,7 +3588,8 @@ fn stacked_fields(ws: &[&Col], tops: &[f32], em: f32) -> String {
 
 /// [`record_bands`] の表の欄見出しの末尾の語（「政治団体の名称」「代表者の氏名」「解散年月日」「主たる事務所の所在地」
 /// 「施設名」「指定番号」「車名及び型式」「製作者等の住所」「摘要」）。
-const RECORD_HEADS: [&str; 11] = ["名称", "氏名", "年月日", "所在地", "名", "番号", "型式", "住所", "摘要", "種類", "関係"];
+const RECORD_HEADS: [&str; 11] = ["名称", "氏名", "年月日", "所在地", "名", "番号", "型式", "住所", "摘要", "種類", "関係",
+];
 
 /// [`record_bands`] の、字間を空けた欄見出しの 1 字だけの段（「番」）。
 fn label_band(b: &[Col]) -> bool {
@@ -3225,6 +3785,92 @@ fn attach_toc_page_numbers(mut tiers: Vec<Vec<Col>>, words: &[Word]) -> Vec<Vec<
     tiers.retain(|t| !t.is_empty());
     tiers
 }
+
+/// 新旧欄の対応する格子表が段切りで割れた場合、閉じた表と同じ前文列の短い署名だけを元の段へ戻す。
+fn rejoin_split_shinkyu_grid_tiers(tiers: &mut Vec<Vec<Col>>, grids: &[Grid]) {
+    let mut i = 1;
+    while i < tiers.len() {
+        let Some((header_x, divider)) = detect_shinkyu_header(&tiers[i - 1]) else {
+            i += 1;
+            continue;
+        };
+        if detect_shinkyu_header(&tiers[i]).is_some() {
+            i += 1;
+            continue;
+        }
+        let Some(frame) = grids
+            .iter()
+            .filter(|g| g.left() <= header_x && header_x <= g.right() + 1. && g.top() < divider && divider < g.bottom())
+            .min_by(|a, b| ((a.right() - a.left()) * (a.bottom() - a.top())).total_cmp(&((b.right() - b.left()) * (b.bottom() - b.top()))))
+        else {
+            i += 1;
+            continue;
+        };
+        let mid = frame
+            .ys
+            .iter()
+            .copied()
+            .min_by(|a, b| (a - divider).abs().total_cmp(&(b - divider).abs()))
+            .unwrap_or(divider);
+        let pitch = (frame.bottom() - frame.top()) / 2.;
+        let inner = |g: &Grid| {
+            g.cells.len() >= 4
+                && g.xs.len() >= 3
+                && g.ys.len() >= 3
+                && g.left() >= frame.left() - 0.5
+                && g.right() < header_x - 1.
+                && g.top() > frame.top() + 1.
+                && g.bottom() < frame.bottom() - 1.
+                && (g.bottom() < mid - 1. || g.top() > mid + 1.)
+        };
+        let matched = grids.iter().filter(|g| inner(g)).any(|g| {
+            let twin = grids.iter().any(|other| {
+                inner(other)
+                    && (other.top() < mid) != (g.top() < mid)
+                    && other.xs.len() == g.xs.len()
+                    && other.ys.len() == g.ys.len()
+                    && other.xs.iter().zip(&g.xs).all(|(a, b)| (a - b).abs() < 1.)
+                    && ((other.top() - g.top()).abs() - pitch).abs() < 2.
+                    && ((other.bottom() - other.top()) - (g.bottom() - g.top())).abs() < 1.
+            });
+            if !twin {
+                return false;
+            }
+            let inside = |c: &Col| g.contains((c.x + c.x1) / 2., (c.y + c.y1) / 2., 0.5);
+            if tiers[i - 1].iter().filter(|c| inside(c)).count() < 3 || tiers[i].iter().filter(|c| inside(c)).count() < 3 {
+                return false;
+            }
+            // 二段の合計で表全体がそろうときだけ。さらに別の段に残る格子の語は巻き込まない。
+            if tiers.iter().enumerate().any(|(j, t)| j != i - 1 && j != i && t.iter().any(inside)) {
+                return false;
+            }
+            tiers[i].iter().all(|c| {
+                if inside(c) {
+                    return true;
+                }
+                let em = (c.x1 - c.x).max(1.);
+                c.x > frame.right() + em * 0.25
+                    && c.y1 - c.y >= em * 0.9
+                    && c.text.chars().count() <= 12
+                    && !c.text.contains(['。', '、'])
+                    && !crate::segment::is_heading_mark(c.text.trim())
+                    && tiers[i - 1].iter().any(|p| {
+                        p.x > frame.right() && ((p.x + p.x1) - (c.x + c.x1)).abs() < em && p.y1 < c.y - em * 3. && p.y1 - p.y >= (p.x1 - p.x) * 0.9
+                    })
+            })
+        });
+        if matched {
+            let tail = tiers.remove(i);
+            tiers[i - 1].extend(tail);
+        } else {
+            i += 1;
+        }
+    }
+}
+
+#[cfg(test)]
+#[path = "paired_shinkyu_grid_tests.rs"]
+mod paired_shinkyu_grid_tests;
 
 /// 改正後帯と改正前帯が別々の段に割れた新旧対照表を 1 段に戻す。
 ///
@@ -3607,7 +4253,19 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
         .filter(|&&(x0, x1, y0, y1)| cols.iter().any(|c| x0 < center(c) && center(c) < x1 && y0 < c.y1 && c.y < y1))
         .map(|&(x0, _, y0, y1)| (y1 + 0.5, x0, y0))
         .collect();
-    let column_bottoms: Vec<(f32, f32, f32)> = cols.iter().map(|c| (c.y1, c.x, c.y)).collect();
+    // A sparse text layer can leave its last upper column outside the central
+    // search window. An actual tier rule inside a large empty gap is still a
+    // candidate; ordinary table row gaps do not qualify.
+    let ruled_gaps = rules.hrules.iter().filter_map(|&(y, x0, x1)| {
+        let above = cols.iter().filter(|c| c.y1 <= y).map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+        let below = cols.iter().filter(|c| c.y >= y).map(|c| c.y).fold(f32::INFINITY, f32::min);
+        (above.is_finite() && below.is_finite()
+            && below - above >= TIER_HEIGHT * 0.5
+            && !cols.iter().any(|c| c.y < y && y < c.y1)
+            && x1.min(xmax) - x0.max(xmin) >= (xmax - xmin) * 0.9)
+            .then_some((y - 0.5, xmin, above))
+    });
+    let column_bottoms: Vec<(f32, f32, f32)> = cols.iter().map(|c| (c.y1, c.x, c.y)).chain(ruled_gaps).collect();
     for pass in 0..2 {
         if pass == 1 && best_free.is_some_and(|b: Cand| b.0 <= MAX_BRIDGE) {
             break;
@@ -3754,7 +4412,25 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
     // 次の段になり、帯の終わりに読まれていた）。
     if ymax - ymin < 120.0 {
         let below: Vec<&Col> = cols.iter().filter(|c| (c.y + c.y1) / 2.0 >= cut).collect();
-        let continues = |c: &Col| pairs.iter().any(|&(y1, y, gap)| (y - c.y).abs() < 0.5 && y1 < cut && gap <= 1.5);
+        let continues = |c: &Col| {
+            pairs.iter().any(|&(y1, y, gap)| (y - c.y).abs() < 0.5 && y1 < cut && gap <= 1.5)
+                // A permitted bridging column is assigned above by its midpoint.
+                // Its bottom may cross the candidate cut; the following word is
+                // still its continuation when their original column and gap agree.
+                || cols.iter().any(|a| {
+                    let em = (a.x1 - a.x).min(c.x1 - c.x).max(1.0);
+                    a.id != c.id
+                        && upright(a) && upright(c)
+                        && (a.y + a.y1) / 2.0 < cut && a.y1 >= cut
+                        && (center(a) - center(c)).abs() < em * 0.5
+                        && ((a.x1 - a.x) - (c.x1 - c.x)).abs() <= em * 0.05
+                        && c.y >= a.y1 - 0.5 && c.y - a.y1 <= em * 1.5
+                        && !rules.hrules.iter().any(|&(y,x0,x1)| {
+                            a.y1 + 0.5 < y && y < c.y - 0.5
+                                && x0 < center(c) && center(c) < x1
+                        })
+                })
+        };
         // 上の欄が何列も cut のすぐ上まで組まれている（「神奈川県、新潟県、」… の下の欄「令和八年四／月二十日」）なら、
         // 帯の表の欄の境目。
         let em = cols.iter().map(|c| c.x1 - c.x).fold(f32::INFINITY, f32::min).max(4.0);
@@ -4125,17 +4801,59 @@ fn starts_article(cols: &[Col], part: &dyn Fn(&Col) -> bool) -> bool {
     })
 }
 
-/// 片側の上下段の間に横線があり、下段が区分見出しから始まる領域の左右の境目。
+/// 部分横線の端が縦組みの字の中ほどにある場合、1 字以内の最寄りの縦溝へ寄せる。
+/// 語を二分せず、領域全体の語の箱の間にある 1pt 以上の空きだけを使う。
+fn section_rule_gutter(cols: &[Col], edge: f32) -> Option<f32> {
+    if !cols.iter().any(|c| c.x < edge - 2.0 && edge + 2.0 < c.x1) {
+        return Some(edge);
+    }
+    let mut widths: Vec<f32> = cols
+        .iter()
+        .filter(|c| c.y1 - c.y > (c.x1 - c.x) * 1.5)
+        .map(|c| c.x1 - c.x)
+        .filter(|&w| (4.0..=20.0).contains(&w))
+        .collect();
+    widths.sort_by(f32::total_cmp);
+    let em = *widths.get(widths.len() / 2)?;
+    let reach = em * 0.75;
+    let mut spans: Vec<(f32, f32)> = cols.iter().map(|c| (c.x, c.x1)).collect();
+    spans.sort_by(|a, b| a.0.total_cmp(&b.0));
+    let mut union: Vec<(f32, f32)> = Vec::new();
+    for (x0, x1) in spans {
+        match union.last_mut() {
+            Some(last) if x0 <= last.1 => last.1 = last.1.max(x1),
+            _ => union.push((x0, x1)),
+        }
+    }
+    union
+        .windows(2)
+        .filter(|p| p[1].0 - p[0].1 >= 1.0)
+        .map(|p| (p[0].1 + p[1].0) / 2.0)
+        .filter(|&x| (x - edge).abs() <= reach)
+        .min_by(|a, b| (a - edge).abs().total_cmp(&(b - edge).abs()))
+}
+
+/// 片側の上下段の間に横線があり、一方の段に区分見出しがある領域の左右の境目。
 fn section_rule_edge(cols: &[Col], rules: &TierRules, ymin: f32, ymax: f32) -> Option<f32> {
+    if !cols.iter().any(|c| crate::segment::is_section_label(&c.text)) {
+        return None;
+    }
     let xmin = cols.iter().map(|c| c.x).fold(f32::INFINITY, f32::min);
     let xmax = cols.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max);
     let width = xmax - xmin;
     // まず頁幅の横線で上下を分ける。先に左右を分けると上段の読み順が変わる。
-    if rules.hrules.iter().any(|&(y, x0, x1)| ymin < y && y < ymax && x1.min(xmax) - x0.max(xmin) > width * 0.8) {
+    if rules
+        .hrules
+        .iter()
+        .any(|&(y, x0, x1)| ymin < y && y < ymax && x1.min(xmax) - x0.max(xmin) > width * 0.8)
+    {
         return None;
     }
     rules.hrules.iter().find_map(|&(y, x0, x1)| {
-        if y <= ymin + (ymax - ymin) * 0.2 || y >= ymax - (ymax - ymin) * 0.2 || x1 - x0 < width * 0.25 {
+        if y <= ymin + (ymax - ymin) * 0.2
+            || y >= ymax - (ymax - ymin) * 0.2
+            || x1 - x0 < width * 0.15
+        {
             return None;
         }
         let edge = if x1 >= xmax - 5.0 && x0 > xmin + 20.0 {
@@ -4145,14 +4863,29 @@ fn section_rule_edge(cols: &[Col], rules: &TierRules, ymin: f32, ymax: f32) -> O
         } else {
             return None;
         };
-        let inside = |c: &&Col| x0 - 1.0 <= c.x && c.x1 <= x1 + 1.0;
+        let edge = section_rule_gutter(cols, edge)?;
+        let (sx0, sx1) = if x0 <= xmin + 5.0 {
+            (x0, edge)
+        } else {
+            (edge, x1)
+        };
+        let inside = |c: &&Col| sx0 - 1.0 <= c.x && c.x1 <= sx1 + 1.0;
         let side: Vec<&Col> = cols.iter().filter(inside).collect();
-        // 横線が本文や表のセルを横切らず、その下に独立した区分見出しがあることを確認。
-        let label = side.iter().any(|c| c.y > y && c.y - y < 120.0 && crate::segment::is_section_label(&c.text));
-        (label && side.iter().any(|c| c.y1 < y)
+        // 横線が本文や表のセルを横切らず、その上か下の近くに独立した区分見出しがあることを確認。
+        // 官庁報告の見出しから始まる上の段の下に、同じ欄幅で別の記事が続くこともある。
+        let below = x1 - x0 >= width * 0.25
+            && side
+                .iter()
+                .any(|c| crate::segment::is_section_label(&c.text) && c.y > y && c.y - y < 120.0);
+        let above = side
+            .iter()
+            .any(|c| crate::segment::is_section_label(&c.text) && c.y1 < y && y - c.y1 < 120.0);
+        ((below || above)
+            && side.iter().any(|c| c.y1 < y)
+            && side.iter().any(|c| c.y > y)
             && !side.iter().any(|c| c.y < y && y < c.y1)
-            && !cols.iter().any(|c| c.x < edge - 1.0 && edge + 1.0 < c.x1))
-            .then_some(edge)
+            && !cols.iter().any(|c| c.x < edge - 2.0 && edge + 2.0 < c.x1))
+        .then_some(edge)
     })
 }
 
@@ -4339,10 +5072,11 @@ pub(crate) fn starts_item(text: &str) -> bool {
 /// （幅が広い）は列の文字の大きさで比べる。
 pub(crate) fn column_groups(mut cols: Vec<Col>) -> Vec<Vec<Col>> {
     let center = |c: &Col| (c.x + c.x1) / 2.0;
-    cols.sort_by(|a, b| center(b).partial_cmp(&center(a)).unwrap_or(std::cmp::Ordering::Equal));
+    cols.sort_by(|a, b| center(b).total_cmp(&center(a)).then_with(|| a.y.total_cmp(&b.y)).then_with(|| a.text.cmp(&b.text)));
     let mut groups: Vec<Vec<Col>> = Vec::new();
     let (mut rep_x, mut rep_em) = (f32::INFINITY, f32::INFINITY);
-    // 欧文の語（横倒しに組んだ URL）と上下に 1 字分以上重なる語は、同じ列ではない（URL の 2 行目「p4rtbmpp/」が、少し
+    // 上下に 1.5 字分以上重なる語は、隣の記事や表の欄なので同じ列にしない。
+    // 欧文の語（横倒しに組んだ URL）と上下に 1 字分以上重なる語も、同じ列ではない（URL の 2 行目「p4rtbmpp/」が、少し
     // 左にずれた次の列の日付「令和八年十月十六日」と同じ列になり、「令和八年十月十六日p4rtbmpp/」になっていた）。
     let latin = |c: &Col| {
         let n = c.text.chars().count();
@@ -4355,7 +5089,14 @@ pub(crate) fn column_groups(mut cols: Vec<Col>) -> Vec<Vec<Col>> {
     for c in cols {
         let em = (c.x1 - c.x).min(rep_em).max(6.0);
         let stacked = groups.last().is_some_and(|g| {
-            g.iter().any(|o| (lettered(o) || lettered(&c)) && o.y1.min(c.y1) - o.y.max(c.y) > em)
+            g.iter().any(|o| {
+                let overlap = o.y1.min(c.y1) - o.y.max(c.y);
+                // 半字ずれは割注・目次の引用の小さな列。同じ大きさの字が 0.6 字より離れているときだけ、
+                // 重なりから隣の列と判断する（異なる字号の「改正前欄」と行番号は従来どおり組む）。
+                let same_size = ((o.x1 - o.x) - (c.x1 - c.x)).abs() < em * 0.1;
+                (overlap > em * 1.5 && (center(o) - center(&c)).abs() > em * 0.6 && same_size)
+                    || ((lettered(o) || lettered(&c)) && overlap > em)
+            })
         });
         if rep_x - center(&c) > em * 0.75 || stacked {
             groups.push(Vec::new());
@@ -4386,7 +5127,10 @@ pub(crate) fn column_groups(mut cols: Vec<Col>) -> Vec<Vec<Col>> {
         let (head, tail) = groups.split_at_mut(gi);
         let prev = &mut head[gi - 1];
         let cur = &mut tail[0];
-        let Some(p) = prev.last().filter(|p| latin(p) && p.text.trim_end().ends_with(['/', '.', '-', '_'])).cloned() else { continue };
+        // URL の下線が combining low line で符号化されたものも区切りとみなす。一般の英字名は広げない。
+        let path_end = |p: &Col| p.text.trim_end().ends_with(['/', '.', '-', '_'])
+            || (p.text.trim_end().ends_with('\u{0332}') && p.text.contains(['/', '.', '@']));
+        let Some(p) = prev.last().filter(|p| latin(p) && path_end(p)).cloned() else { continue };
         // 次の URL の頭（「http」「www.」）は続きではない。
         let fresh = |c: &Col| c.text.trim_start().starts_with("http") || c.text.trim_start().starts_with("www.");
         if let Some(k) = cur.iter().position(|c| latin(c) && !fresh(c) && (c.y - p.y).abs() < 1.0) {
@@ -4561,12 +5305,27 @@ fn record_continuations(groups: &[Vec<Col>]) -> std::collections::HashMap<usize,
             let x = center(g);
             // すぐ左の列（2 字分まで）で、欄が頭の列より少なく、列の頭が頭の列のどれかの欄の上端にそろう。
             let first: usize = head[0].2.iter().map(|c| c.text.chars().count()).sum();
-            // 続きの語は欄の中で折り返した短い語（2〜14 字。英字の無いもの）。頭の列が日付（署名の列）なら除く。
-            let fragment = |c: &Col| (2..=14).contains(&c.text.chars().count()) && !c.text.chars().any(|ch| ch.is_ascii_alphabetic());
+            // 所在地の番地だけが次の列へ折り返す場合は、「一四」「－」「四」のように 1 字の語も含む。
+            // 項目の「称」「党」や同上の「〃」を続きにしないよう、所在地欄に入る数字・番地記号に限る。
+            let number = |ch: char| ch.is_ascii_digit() || ('０'..='９').contains(&ch) || "〇零一二三四五六七八九十百千万－−-".contains(ch);
+            let address = |i: usize| {
+                let text: String = head[i].2.iter().map(|c| c.text.as_str()).collect();
+                text.chars().take(4).any(|ch| "都道府県".contains(ch))
+                    && text.chars().any(|ch| "市区町村郡".contains(ch))
+                    // 二段の変更届で同じ欄に住所と会計責任者の氏名が続く行は対象外。
+                    && text.chars().last().is_some_and(number)
+            };
+            let address_number = |c: &Col| !c.text.is_empty() && c.text.chars().all(number) && band(c.y, c.y1).is_some_and(address);
+            // 通常は 2〜14 字。1 字は所在地欄の数字・番地記号だけを許す。
+            let fragment = |c: &Col| {
+                let n = c.text.chars().count();
+                ((2..=14).contains(&n) || (n == 1 && address_number(c))) && !c.text.chars().any(|ch| ch.is_ascii_alphabetic())
+            };
+            let address_only = g.iter().all(address_number);
             let dated = head[0].2.first().is_some_and(|c| c.text.starts_with("令和"));
             // 続きの列の頭は、頭の列の長い欄（名称・所在地）の上端にそろう。
             let starts_cell = head.iter().any(|hc| (hc.0 - g[0].y).abs() < 1.0 && hc.2.iter().map(|c| c.text.chars().count()).sum::<usize>() >= 4);
-            if prev - x > em * 2.0 || record_cells(g).len() >= head.len() || !starts_cell || first < 5 || dated || !g.iter().all(fragment) {
+            if prev - x > em * 2.0 || record_cells(g).len() >= head.len() || !starts_cell || (first < 5 && !address_only) || dated || !g.iter().all(fragment) {
                 break;
             }
             // 続きの語の入る欄は、欄の中で折り返す長い欄（4 字以上の名称・所在地。2 字の氏の欄に別の行の氏名をつながない）。
@@ -4965,7 +5724,8 @@ mod tests {
     fn warichu_right_half_continues_with_letter_spaced_words() {
         // 割注の右半分が複数字の語の後に字間を空けた語で続く（「国家公安委員会、総」「務」「省、」）。
         // 左半分も字間を空けた 1 字の語（「文」「部」「科」「学」）と続きの語。
-        let col = |id: usize, x: f32, y: f32, y1: f32, text: &str| Col { id, x, x1: x + 8.0, y, y1, text: text.to_string() };
+        let col = |id: usize, x: f32, y: f32, y1: f32, text: &str| Col { id, x, x1: x + 8.0, y, y1, text: text.to_string(),
+        };
         let mut cols = vec![
             col(0, 403.6, 188.8, 236.8, "（令和二年"),
             col(1, 407.6, 236.8, 308.8, "国家公安委員会、総"),
@@ -4976,7 +5736,8 @@ mod tests {
             col(6, 399.6, 260.8, 268.8, "科"),
             col(7, 399.6, 272.8, 280.8, "学"),
             col(8, 399.6, 284.8, 340.8, "省、国土交通省"),
-            col(9, 403.6, 348.8, 508.8, "告示第一号）の一部を次のように改正する。"),
+            col(9, 403.6, 348.8, 508.8, "告示第一号）の一部を次のように改正する。",
+            ),
         ];
         merge_warichu(&mut cols);
         let texts: Vec<&str> = cols.iter().map(|c| c.text.as_str()).collect();
@@ -4986,15 +5747,19 @@ mod tests {
     #[test]
     fn letter_spaced_horizontal_labels_do_not_make_a_horizontal_page() {
         // 縦書きの本文（縦長の語）の中に、字間を空けた横書きの表の欄の名前が多いページ。
-        let col = |x: f32, y: f32, x1: f32, y1: f32, text: &str| Col { id: 0, x, x1, y, y1, text: text.to_string() };
-        let mut cols = vec![col(500.0, 60.0, 508.0, 140.0, "縦書きの本文の一行"), col(490.0, 60.0, 498.0, 140.0, "縦書きの本文の二行")];
+        let col = |x: f32, y: f32, x1: f32, y1: f32, text: &str| Col { id: 0, x, x1, y, y1, text: text.to_string(),
+        };
+        let mut cols = vec![col(500.0, 60.0, 508.0, 140.0, "縦書きの本文の一行"), col(490.0, 60.0, 498.0, 140.0, "縦書きの本文の二行"),
+        ];
         for i in 0..4 {
             // 5 字を 0.5em 空けて 1 語にしたもの（幅 56pt、高さ 8pt）。
-            cols.push(col(100.0, 200.0 + 10.0 * i as f32, 156.0, 208.0 + 10.0 * i as f32, "利益剰余金"));
+            cols.push(col(100.0, 200.0 + 10.0 * i as f32, 156.0, 208.0 + 10.0 * i as f32, "利益剰余金",
+            ));
         }
         assert!(!is_horizontal_page(&cols));
         // 字間を空けていない横書きの語なら横組みのページ。
-        cols.push(col(100.0, 300.0, 260.0, 308.0, "横書きの本文の一行に並ぶ二十字の文字列です"));
+        cols.push(col(100.0, 300.0, 260.0, 308.0, "横書きの本文の一行に並ぶ二十字の文字列です",
+        ));
         assert!(is_horizontal_page(&cols));
     }
 
@@ -5015,11 +5780,65 @@ mod tests {
     }
 
     #[test]
+    fn a_frame_containing_only_header_labels_is_not_a_leading_table() {
+        // 右端の狭いラベル欄の内部罫線を、表全体の左端として切り出さない。
+        let col = |id, x, y, y1, text: &str| Col { id, x, x1: x + 8.0, y, y1, text: text.into(),
+        };
+        let cols = vec![
+            col(0, 540.0, 240.0, 264.0, "改正後"),
+            col(1, 540.0, 600.0, 624.0, "改正前"),
+            col(2, 450.0, 80.0, 410.0, "表の本体の右の列"),
+            col(3, 438.0, 80.0, 410.0, "表の本体の次の列"),
+            col(4, 426.0, 80.0, 410.0, "表の本体の左の列"),
+        ];
+        let rules = PageRules {
+            enclosures: Vec::new(), short_fraction_bars: Vec::new(),
+            vertical: vec![crate::lines::VRule { x: 532.0, y0: 60.0, y1: 790.0,
+            }],
+            horizontal: vec![crate::lines::HRule { y: 430.0, x0: 532.0, x1: 553.0,
+            }],
+        };
+        assert!(split_off_leading_frame(cols, Some(&rules)).is_err());
+    }
+
+    #[test]
+    fn trailing_frame_requires_a_closed_frame_and_a_numbered_bridging_intro() {
+        let col = |x, y, y1, text: &str| Col { id: 0, x, x1: x + 8.0, y, y1, text: text.into(),
+        };
+        let cols = vec![
+            col(100.0, 200.0, 224.0, "変更後"), col(100.0, 600.0, 624.0, "変更前"),
+            col(5.0, 50.0, 300.0, "上欄本文"), col(5.0, 450.0, 750.0, "下欄本文"),
+            col(130.0, 0.0, 600.0, "変更指示の長い本文"), col(146.0, 0.0, 56.0, "二変更した事項"),
+            col(162.0, 0.0, 350.0, "前記事末尾"), col(178.0, 0.0, 350.0, "前記事本文"), col(194.0, 0.0, 350.0, "前記事先頭"),
+            col(170.0, 420.0, 700.0, "次記事末尾"), col(186.0, 420.0, 700.0, "次記事本文"), col(202.0, 420.0, 700.0, "次記事先頭"),
+        ];
+        let mut rules = TierRules { tables: vec![], boxes: vec![], hrules: vec![(400.0, 0.0, 120.0)], vrules: vec![(0.0, 0.0, 800.0), (120.0, 0.0, 800.0)], sideways: false,
+        };
+        let Ok((rest, frame)) = split_off_trailing_label_frame(cols.clone(), &rules) else { panic!("閉じた全高枠") };
+        assert!(rest.iter().any(|c| c.text == "前記事末尾"));
+        assert!(frame.iter().any(|c| c.text == "二変更した事項"));
+        for variant in 0..4 {
+            let mut negative = cols.clone();
+            match variant {
+                0 => negative[5].text = "前記事の末尾".into(),
+                1 => negative[4].y1 = 300.0,
+                2 => { negative[0].text = "変更前".into(); negative[1].text = "変更後".into(); }
+                _ => negative[6].y1 = 700.0,
+            }
+            assert!(split_off_trailing_label_frame(negative, &rules).is_err());
+        }
+        rules.vrules.clear();
+        assert!(split_off_trailing_label_frame(cols, &rules).is_err());
+    }
+
+    #[test]
     fn finds_lower_band_of_only_marks() {
         // 新設の条が続く新旧対照表の続きのページ: 上の帯に改正後の条文、下の帯に改正前の「（新設）」だけ。
-        let col = |x: f32, y: f32, y1: f32, t: &str| Col { id: 0, x, x1: x + 8.0, y, y1, text: t.to_string() };
+        let col = |x: f32, y: f32, y1: f32, t: &str| Col { id: 0, x, x1: x + 8.0, y, y1, text: t.to_string(),
+        };
         let mut cols = vec![
-            col(500.0, 60.0, 380.0, "第九十八条の十四　医薬部外品の製造業者は"),
+            col(500.0, 60.0, 380.0, "第九十八条の十四　医薬部外品の製造業者は",
+            ),
             col(488.0, 60.0, 380.0, "号のいずれかに該当する責任技術者を"),
             col(476.0, 60.0, 300.0, "一　薬剤師"),
             col(500.0, 440.0, 472.0, "（新設）"),
@@ -5070,3 +5889,326 @@ mod tests {
         assert_eq!(reconstruct_vertical(xhtml), "上右\n上左\n下右\n下左");
     }
 }
+
+#[cfg(test)]
+mod raised_section_label_tests {
+    use super::*;
+    fn fixture() -> (Vec<Unit>, Vec<Word>) {
+        let words = [(500.,480.,509.,545.,"官庁事項"),(484.,428.,492.,501.,"関東地方整備局公示"),(525.,528.,539.,668.,"官庁報告"),
+        ]
+            .into_iter().enumerate().map(|(id,(x0,y0,x1,y1,text))| Word{source_box: [x0, y0, x1, y1],id,x0,y0,x1,y1,raw:text.into(),text:text.into(),status:WordStatus::Used,
+        }).collect();
+        let units=vec![Unit::Plain(vec![Line::text("官庁事項".into(),vec![0]),Line::text("関東地方整備局公示".into(),vec![1]),
+            ]), Unit::Plain(vec![Line::text("官庁報告".into(),vec![2])]),
+        ];
+        (units,words)
+    }
+    fn texts(units: &[Unit]) -> String {units.iter().map(Unit::text).filter(|s| !s.is_empty()).collect::<Vec<_>>().join("\n")}
+    #[test]
+    fn adjacent_larger_vertical_section_precedes_its_field_and_short_title() {
+        let (mut u,w)=fixture();order_section_labels(&mut u, &w);assert_eq!(texts(&u),"官庁報告\n官庁事項\n関東地方整備局公示");
+        let (mut u,w)=fixture();if let Unit::Plain(p) = &mut u[0]{p.insert(0,Line::text("前の記事の終わり。".into(),vec![]));}order_section_labels(&mut u, &w);assert!(texts(&u).starts_with("前の記事の終わり。\n官庁報告\n官庁事項"));
+        let (mut u,w)=fixture();if let Unit::Plain(p) = &mut u[0]{p.pop();}order_section_labels(&mut u, &w);assert_eq!(texts(&u),"官庁報告\n官庁事項");
+    }
+    #[test]
+    fn separated_equal_sized_horizontal_and_body_lines_are_not_reordered() {
+        for case in 0..8 {
+            let (mut u,mut w)=fixture();
+            match case {
+                0=>w[2].x1=w[2].x0+9.,
+                1=>{w[2].x0=450.;w[2].x1=464.;}
+                2=>{w[2].y0=700.;w[2].y1=840.;}
+                3=>{w[2].x0=600.;w[2].x1=614.;}
+                4=> {
+                    if let Unit::Plain(p) = &mut u[0]{p[1].text="本文が始まる。".into();}
+                }
+                5=> {
+                    if let Unit::Plain(p) = &mut u[1]{p[0].words=vec![99];}
+                }
+                6=> {
+                    if let Unit::Plain(p) = &mut u[0]{p[0].text="通常の本文".into();}
+                }
+                7=>{w[0].x1=550.;w[0].y1=489.;}
+                _=>unreachable!(),
+            }
+            let before=texts(&u);order_section_labels(&mut u, &w);assert_eq!(texts(&u),before,"negative {case}");
+        }
+        let mut u=vec![Unit::Plain(vec![Line::text("〇総務省告示第三号".into(),vec![])]),Unit::Plain(vec![Line::text("その他告示".into(),vec![])]),
+        ];
+        order_section_labels(&mut u, &[]);assert_eq!(texts(&u),"その他告示\n〇総務省告示第三号");
+    }
+}
+
+#[cfg(test)]
+mod low_line_url_tests {
+    use super::*;
+    fn columns(prev: &str, tail: &str, dy: f32) -> Vec<Vec<Col>> {
+        column_groups(vec![
+            Col{id:0,x:100.,x1:108.,y:40.,y1:160.,text:prev.into(),
+            },
+            Col{id:1,x:84.,x1:92.,y:0.,y1:39.,text:"五、意見書の提出".into(),
+            },
+            Col{id:2,x:89.,x1:97.,y:40.+dy,y1:100.+dy,text:tail.into(),
+            },
+        ])
+    }
+    #[test]
+    fn low_line_delimiter_keeps_url_tail_before_the_next_heading() {
+        for prev in ["business/wind̲power/kankyo̲", "https://example.test/path_", "https://example.test/path/",
+        ] {
+            let groups=columns(prev,"assessment/",0.);
+            assert_eq!(groups[0].iter().map(|c|c.id).collect::<Vec<_>>(),vec![0,2],"{prev}");
+            assert_eq!(groups[1].iter().map(|c|c.id).collect::<Vec<_>>(),vec![1]);
+        }
+    }
+    #[test]
+    fn independent_urls_shifted_lines_and_identifiers_are_not_carried() {
+        for (prev,tail,dy) in [
+            ("business/wind̲power/kankyo̲","https://other.test/",0.),
+            ("business/wind̲power/kankyo̲","www.other.test/",0.),
+            ("business/wind̲power/kankyo̲","assessment/",3.),
+            ("https://example.test/path","assessment/",0.),
+            ("identifier̲","assessment/",0.),
+        ] {
+            let groups=columns(prev,tail,dy);
+            assert!(!groups[0].iter().any(|c|c.id==2),"{prev} {tail} {dy}");
+        }
+    }
+}
+
+#[cfg(test)]
+#[path = "mixed_native_bbox_tests.rs"]
+mod mixed_native_bbox_tests;
+
+#[cfg(test)]
+#[path = "wrapped_native_quote_tests.rs"]
+mod wrapped_native_quote_tests;
+
+/// 横倒しの縦組みで、連続する番号付きの短い欄見出しと、その直下の本文だけを同じ段へ戻す。
+/// 次記事が上段の左側にあるときも、移す範囲は見出し群の横幅の中に限る。
+fn rejoin_prose_label_values(tiers: &mut [Vec<Col>], rules: &TierRules) {
+    if !rules.sideways {
+        return;
+    }
+    // An unknown separator location cannot establish an unbroken bridge.
+    if rules
+        .hrules
+        .iter()
+        .chain(&rules.vrules)
+        .any(|&(a, b, c)| ![a, b, c].iter().all(|v| v.is_finite()))
+        || rules
+            .tables
+            .iter()
+            .chain(&rules.boxes)
+            .any(|&(a, b, c, d)| ![a, b, c, d].iter().all(|v| v.is_finite()))
+    {
+        return;
+    }
+    fn ordinal(t: &str) -> Option<usize> {
+        let t = t.strip_prefix('（')?.strip_suffix('）')?;
+        ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"]
+            .iter()
+            .position(|&n| n == t)
+            .map(|n| n + 1)
+    }
+    fn japanese(c: char) -> bool {
+        ('\u{3040}'..='\u{30ff}').contains(&c)
+            || ('\u{3400}'..='\u{9fff}').contains(&c)
+            || c == '々'
+    }
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    for i in 1..tiers.len() {
+        let Some(j) = (0..i).rev().find(|&j| !tiers[j].is_empty()) else {
+            continue;
+        };
+        let (above, below) = (&tiers[j], &tiers[i]);
+        // A transfer needs known source rectangles and distinct occurrences.
+        // Unknown geometry or a repeated ID cannot establish membership.
+        let mut source_ids = std::collections::HashSet::new();
+        if above.iter().chain(below).any(|c| {
+            ![c.x, c.x1, c.y, c.y1].iter().all(|v| v.is_finite())
+                || c.x >= c.x1
+                || c.y >= c.y1
+                || !source_ids.insert(c.id)
+        }) {
+            continue;
+        }
+        let mut groups: Vec<Vec<&Col>> = Vec::new();
+        let mut ordered: Vec<_> = above.iter().collect();
+        ordered.sort_by(|a, b| center(b).total_cmp(&center(a)).then(a.y.total_cmp(&b.y)));
+        for c in ordered {
+            if let Some(g) = groups
+                .last_mut()
+                .filter(|g| (center(g[0]) - center(c)).abs() <= 1.0)
+            {
+                g.push(c);
+            } else {
+                groups.push(vec![c]);
+            }
+        }
+        for g in &mut groups {
+            g.sort_by(|a, b| a.y.total_cmp(&b.y));
+        }
+        let labels: Vec<_> = groups
+            .iter()
+            .enumerate()
+            .filter_map(|(k, g)| {
+                let n = ordinal(&g[0].text)?;
+                let suffix: String = g.iter().skip(1).map(|c| c.text.as_str()).collect();
+                let length = suffix.chars().count();
+                if !(2..=24).contains(&length) || !suffix.chars().all(japanese) {
+                    return None;
+                }
+                // 見出しの字同士は、字間を空けた組み方を含めて同じ狭い列にある。
+                if g.windows(2)
+                    .any(|w| w[1].y < w[0].y1 - 1.0 || w[1].y - w[0].y1 > 16.0)
+                {
+                    return None;
+                }
+                Some((
+                    k,
+                    n,
+                    g[0].x,
+                    g[0].x1,
+                    g[0].y,
+                    g.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max),
+                ))
+            })
+            .collect();
+        if labels.len() < 3
+            || labels.len() > 10
+            || labels
+                .windows(2)
+                .any(|w| w[1].0 != w[0].0 + 1 || w[1].1 != w[0].1 + 1)
+        {
+            continue;
+        }
+        let x0 = labels.iter().map(|l| l.2).fold(f32::INFINITY, f32::min);
+        let x1 = labels.iter().map(|l| l.3).fold(f32::NEG_INFINITY, f32::max);
+        let top = labels[0].4;
+        let bottom = labels[0].5;
+        let em = labels.iter().map(|l| l.3 - l.2).fold(0.0, f32::max);
+        // Column width is a source measure, not an absolute page-point class.
+        // The remaining alignment, spacing and fence checks still apply.
+        if !em.is_finite()
+            || em <= 0.0
+            || labels.iter().any(|l| {
+                (l.4 - top).abs() > 1.0
+                    || (l.5 - bottom).abs() > 1.0
+                    || (l.3 - l.2 - em).abs() > 1.0
+            })
+        {
+            continue;
+        }
+        let values: Vec<_> = below
+            .iter()
+            .filter(|c| c.x1 > x0 + 0.5 && c.x < x1 - 0.5)
+            .collect();
+        if values.len() < labels.len() || values.len() > 24 {
+            continue;
+        }
+        // The band begins at its earliest geometric top, regardless of source
+        // vector order. Transferred columns still keep their original order.
+        let start = values.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+        let gap = start - bottom;
+        if gap < em * 0.75 - 0.1 || gap > em * 2.0 + 0.1 {
+            continue;
+        }
+        if values.iter().any(|c| {
+            c.x < x0 - 1.0
+                || c.x1 > x1 + 1.0
+                || (c.y - start).abs() > 1.0
+                || (c.x1 - c.x - em).abs() > 1.0
+                || c.y1 - c.y < em * 0.9
+                || c.y1 - c.y > em * 40.0
+                || c.text.starts_with(['○', '〇', '◎'])
+                || crate::segment::is_section_label(&c.text)
+                || ordinal(&c.text).is_some()
+        }) {
+            continue;
+        }
+        if !values.iter().any(|c| {
+            c.text.chars().count() >= 12 && c.text.chars().any(japanese) && !value_number(&c.text)
+        }) {
+            continue;
+        }
+        if labels.iter().any(|l| {
+            !values
+                .iter()
+                .any(|c| (center(c) - (l.2 + l.3) / 2.0).abs() <= 1.0)
+        }) {
+            continue;
+        }
+        if values.iter().enumerate().any(|(k, a)| {
+            values[k + 1..]
+                .iter()
+                .any(|b| (center(a) - center(b)).abs() < em * 0.9)
+        }) {
+            continue;
+        }
+        // 見出しと値の橋渡しの範囲に原罫・確定した枠があれば、段の境界を保つ。
+        if rules
+            .hrules
+            .iter()
+            .any(|&(y, a, b)| y > bottom + 0.5 && y < start - 0.5 && b > x0 && a < x1)
+            || rules.vrules.iter().any(|&(x, a, b)| {
+                x > x0 + 0.5 && x < x1 - 0.5 && b > bottom + 0.5 && a < start - 0.5
+            })
+            || rules
+                .tables
+                .iter()
+                .chain(&rules.boxes)
+                .any(|&(a, b, c, d)| b > x0 && a < x1 && d > bottom + 0.5 && c < start - 0.5)
+        {
+            continue;
+        }
+        let ids: std::collections::HashSet<_> = values.iter().map(|c| c.id).collect();
+        let old = std::mem::take(&mut tiers[i]);
+        for c in old {
+            if ids.contains(&c.id) {
+                tiers[j].push(c);
+            } else {
+                tiers[i].push(c);
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+#[path = "prose_label_values_tests.rs"]
+mod prose_label_values_tests;
+
+#[cfg(test)]
+#[path = "shorthand_tier_tests.rs"]
+mod shorthand_tier_tests;
+
+#[cfg(test)]
+#[path = "triangle_sign_tests.rs"]
+mod triangle_sign_tests;
+
+#[cfg(test)]
+#[path="aj1_provenance_parser_tests.rs"]
+mod aj1_provenance_parser_tests;
+
+#[cfg(test)]
+#[path = "source_aj1_parser_tests.rs"]
+mod source_aj1_parser_tests;
+
+#[test]
+fn original_vertical_advance_metadata_authorizes_only_its_own_complete_frame(){
+    let root=std::path::Path::new(env!("CARGO_MANIFEST_DIR"));let inputs=crate::page_inputs(&std::fs::read(root.join("tests/archive/pages/20260803g00174/20260803g001740136.pdf")).unwrap()).unwrap();let input=&inputs[0];let rules=input.rules.clone().unwrap();let mut no_frames=rules.clone();no_frames.enclosures.clear();
+    let columns=|xhtml:&str,rules:&PageRules|{let doc=Html::parse_document(xhtml);let sel=Selector::parse("page").unwrap();let page=doc.select(&sel).next().unwrap();let(w,h)=page_size(page);let(cols,_,_,_,_,_,_,_,_,_,_)=page_words_with_styles(page,w,h,Some(rules));cols.into_iter().map(|c|(c.id,[c.x.to_bits(),c.y.to_bits(),c.x1.to_bits(),c.y1.to_bits()],c.text)).collect::<Vec<_>>()};
+    let valid=columns(&input.xhtml,&rules);assert_ne!(valid,columns(&input.xhtml,&no_frames));
+    // Printed source occurrences are fixture oracles; neither text is a runtime condition.
+    let change_word=|source:&str,text:&str,key:&str,value:Option<&str>|{
+        let needle=format!(">{text}</word>");let start=source.find(&needle).unwrap();let from=source[..start].rfind("<word ").unwrap();let end=start+needle.len();let mut tag=source[from..end].to_string();let attr=format!("{key}=\"");let a=tag.find(&attr).unwrap();let value_start=a+attr.len();let value_end=value_start+tag[value_start..].find('"').unwrap();if let Some(v)=value{tag.replace_range(value_start..value_end,v);}else{tag.replace_range(a..value_end+1,"");}let mut out=source.to_string();out.replace_range(from..end,&tag);out
+    };
+    for(key,value)in[("data-advance-x",Some("NaN")),("data-advance-x",Some("inf")),("data-advance-x",Some("1")),("data-advance-x",None),("data-advance-y",Some("0")),("data-advance-y",Some("-8")),("data-advance-y",Some("NaN")),("data-wmode",Some("unknown"))]{let x=change_word(&input.xhtml,"せ",key,value);assert_eq!(columns(&x,&rules),columns(&x,&no_frames),"{key} {value:?} cannot authorize a frame");}
+    let outside=change_word(&input.xhtml,"農林債の元利金お支払い終了のお知らせ","data-advance-x",Some("NaN"));assert_eq!(columns(&outside,&rules),valid,"an unrelated frame must not inherit or revoke this source advance evidence");
+}
+
+#[cfg(test)]
+#[path="source_axis_binding_tests.rs"]
+mod source_axis_binding_tests;
+
+#[cfg(test)]#[path="source_ruling_binding_tests.rs"]mod source_ruling_binding_tests;

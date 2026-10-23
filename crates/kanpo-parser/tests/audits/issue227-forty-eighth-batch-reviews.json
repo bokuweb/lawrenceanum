@@ -1,0 +1,1933 @@
+{
+  "issue": 227,
+  "batch": 48,
+  "parent_commit": "f708a2d78a7fbfd0c818e178588dd7f938ec9d2f",
+  "native_runtime_source": 73,
+  "goal_complete": false,
+  "method": "Root original-image engineering review of every changed scope; not independent/blind, random30, whole-page character/read-order certification, or a new corpus accuracy estimate.",
+  "changed_originals_reviewed": 78,
+  "added_boundaries_reviewed": 230,
+  "original_review_ledger": {
+    "private_unadopted": true,
+    "method": "Root original-image engineering review of changed scopes with full-page/uncropped-source crops plus exact article text and source-ID traces. Not independent/blind and not whole-page character accuracy.",
+    "source_runtime_identity": "source-observer78-runtime-identity-r2.json",
+    "pages": {
+      "20260716h017490031": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          8,
+          9
+        ],
+        "new_source_starts": [
+          68,
+          139
+        ],
+        "notes": "Full original page reviewed. Two independent preferred-capital reduction notices at the bottom are separate from the absorption/division publication. The latter retains its continuation and four-company roster. Each new preferred-capital article retains its own amount, date and director. The page still has other merged foreign-company/limited-acceptance notices; no full-page repair claim.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260716h017490031-00.png",
+            "sha256": "7891f0589d8119888ddafe0417b66f70687c3360e536f5c8fc426d61ecaf556a"
+          }
+        ]
+      },
+      "20260717h017500032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          8
+        ],
+        "new_source_starts": [
+          139
+        ],
+        "notes": "Full original page reviewed. The preferred-capital reduction notice for LAO6JP has its own72億5090万円 amount, date and director and is independent of the preceding share-certificate notice. Existing limited-acceptance/correction layout and remaining defects are not certified here.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260717h017500032-00.png",
+            "sha256": "ee8c4e4c1470950656a65cbd7a3182e68d317fed0693135ea15b0c3c856e29ab"
+          }
+        ]
+      },
+      "20260724h017540032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "new_source_starts": [
+          152,
+          245,
+          46,
+          126,
+          200,
+          2
+        ],
+        "notes": "All six new preferred-capital starts reviewed in original crops. Separate amounts/issuers/directors support each split. Article2 legitimately wraps from the upper-left five columns to the next tier's right columns; its wide source bounding rectangle must not be interpreted as mixing the unrelated merger inside that rectangle. Later four notices occupy distinct lower-tier columns and retain their own disclosure references.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260724h017540032-00.png",
+            "sha256": "da35781c29964b382b6953a733061473e8ae448eeea2830418fa1f10ee78bd83"
+          },
+          {
+            "file": "20260724h017540032-01.png",
+            "sha256": "676250476e0d87d56502318dbe1634e3e67f0f0d7c017c4badc3ba36d9065b29"
+          }
+        ]
+      },
+      "20260727g001670099": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          6
+        ],
+        "new_source_starts": [
+          1
+        ],
+        "notes": "Original shared closed frame reviewed: merger on the right and the related69th-term financial statement on the left belong to one publication. The candidate separates that complete parent/statement frame from the preceding independent notice and keeps the whole table and issuer/director inside it.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260727g001670099-00.png",
+            "sha256": "5d855c596d95101233769388bb714026c3b292220026196eb10de9836ce660ec"
+          }
+        ]
+      },
+      "20260727h017550030": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          10
+        ],
+        "new_source_starts": [
+          212
+        ],
+        "notes": "Original capital-reduction notice for the limited company has its own amount/date/director. It legitimately wraps from the previous tier's left columns to the next tier's right columns; the broad source bounding rectangle contains other notices geometrically but does not claim their words. Candidate article text and traced sources retain only this publication.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260727h017550030-00.png",
+            "sha256": "e7ad8957a352831f5d02c9020224d98be772a29cd1ebafa09e9d157551a3a61b"
+          }
+        ]
+      },
+      "20260727h017550032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          3,
+          5,
+          6,
+          7
+        ],
+        "new_source_starts": [
+          126,
+          2,
+          73,
+          129
+        ],
+        "notes": "All four added starts visually checked. One is a preferred-equity redemption/certificate-submission publication, three are independent preferred-capital reductions. Each has its own corporate amount/certificate terms, publication date and director. Article7 wraps tiers; its own closing disclosure/date/director appear at the next tier's right. Unrelated neighboring pension/correction/publication blocks merely lie inside the union bounding rectangle and do not by themselves indicate wrong source ownership.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260727h017550032-00.png",
+            "sha256": "83afd48fc77d8f66098e0193b7656f028e134b7c126e83aeb1513dc1a6f38845"
+          },
+          {
+            "file": "20260727h017550032-01.png",
+            "sha256": "2787fac642affd4e68c84537eb0404512f4e40ca1488660daf3d833c13eb5e01"
+          }
+        ]
+      },
+      "20260728h017560032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "new_source_starts": [
+          177,
+          260,
+          34,
+          153,
+          238,
+          32,
+          139
+        ],
+        "notes": "All seven new preferred-capital starts checked against original images. Each amount and corporate ending is distinct and preserves its own date/director. Two span tier boundaries; the next-tier right continuation completes the preceding left-column publication. None is a financial-statement subheading split from a parent. Neighboring pension-notice segmentation is not claimed repaired.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260728h017560032-00.png",
+            "sha256": "9498486ddfdf6aeecce9dffe2c8a27b3dc3176fc2a037a3322c4a5f5a7fd706b"
+          },
+          {
+            "file": "20260728h017560032-01.png",
+            "sha256": "8af315054cf34281e87124dd5b9d0c1c4e2737f2dab2d1b69b826e92303d8600"
+          },
+          {
+            "file": "20260728h017560032-02.png",
+            "sha256": "5bf7b348191d7cd75a7a9a38a3e78a7957917c3d58cda534ecce1e57173e14f2"
+          },
+          {
+            "file": "20260728h017560032-03.png",
+            "sha256": "372261ec047e9800b2a44a4776dbe41c63556c8dd67b0c594a910dc9edcadd62"
+          }
+        ]
+      },
+      "20260729h017570032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          1,
+          2,
+          3,
+          4,
+          7
+        ],
+        "new_source_starts": [
+          106,
+          154,
+          36,
+          75,
+          99
+        ],
+        "notes": "Five added starts checked: one preferred-equity redemption, three preferred-capital reductions, one correction publication with its own director-president signature. The long reduction notices continue across tiers and preserve their individual disclosure URLs/date/issuer. The correction names its own prior publication and director-president, separate from neighboring correction/cancellation material; no whole-page completeness claim.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260729h017570032-00.png",
+            "sha256": "b3eecf991d1ac4a6021adaec4689590614b132f5c7522dc782ef13385d013cd1"
+          },
+          {
+            "file": "20260729h017570032-01.png",
+            "sha256": "68f6812a395b8ff7a71e866668895dab0b6b18e92e2543cfeb559d40421c775a"
+          },
+          {
+            "file": "20260729h017570032-02.png",
+            "sha256": "60f675f47e363bf8765a5ffb3fd3e2c81ed6d750cc6632f0f67b4c47f71df840"
+          }
+        ]
+      },
+      "20260730h017580032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          1
+        ],
+        "new_source_starts": [
+          31
+        ],
+        "notes": "One preferred-capital reduction split checked: its own amount/disclosure URL/date/director is distinct from the following correction publication. No director/company literal is required by the geometry correction.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260730h017580032-00.png",
+            "sha256": "bd52ed8e408ac4323e12492fc1193cee4db1464ff7969687b5e6a1b9b7a2cbfc"
+          }
+        ]
+      },
+      "20260731h017590029": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          5
+        ],
+        "new_source_starts": [
+          21
+        ],
+        "notes": "New incorporation-by-division notice checked. Parent limited company/director, new company's address and transfer terms are all part of the same single publication; the candidate does not split the company mentioned inside that body. It is independent of neighboring organization-change material.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260731h017590029-00.png",
+            "sha256": "6d22fe1af59b217ef5ea0325d7c04781abe2cad04099275221f3b36b682d472c"
+          }
+        ]
+      },
+      "20260731h017590031": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          14,
+          15,
+          17
+        ],
+        "new_source_starts": [
+          0,
+          58,
+          175
+        ],
+        "notes": "Three new starts checked: two preferred-equity redemption/certificate-submission publications with differing certificate counts/dates, and one preferred-capital reduction. Each retains its own corporate director and closure; the adjacent limited-liability cancellation notice is separate contextual material.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260731h017590031-00.png",
+            "sha256": "c835ada605609039051dd7ffee9aa7c017cd4f761b6deca0e5b2e6712cc26dc9"
+          }
+        ]
+      },
+      "20260731h017590032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "new_source_starts": [
+          68,
+          153,
+          240,
+          39,
+          112,
+          179,
+          2
+        ],
+        "notes": "Seven independent preferred-capital starts checked, including the notice wrapping from the first tier's left into the next tier's right. Distinct amounts, disclosure references, dates and director names align with each printed publication. This is the known6-to13 necessary-count improvement, not a claim that the original page's14 notices are all separated.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260731h017590032-00.png",
+            "sha256": "941f97e3a1c32c05d14de1c3821b7affd3ea8dbefe76aeb5873e38129dc7fb29"
+          },
+          {
+            "file": "20260731h017590032-01.png",
+            "sha256": "cb0f7ebed87d2c5107e715d7dc7c5950eb55334ab5e638200b50f04e9e51deb4"
+          },
+          {
+            "file": "20260731h017590032-02.png",
+            "sha256": "742a82839ac8e79c212469d4a66231452b929feff170e66c7839d5b3d2d13f9c"
+          }
+        ]
+      },
+      "20260803g001740136": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          7
+        ],
+        "new_source_starts": [
+          0
+        ],
+        "notes": "Original bank frame and text diff reviewed. The right bank's three bold title columns are followed by its own body/date/address/issuer/director-president. Source11 (the title's final character) leaves the earlier financial notice and follows the first two title columns. Right-before-left order agrees with the original printed bank row. Two artificial spaces around the title separators disappear; every nonwhitespace character, Word field and table stays intact. Independent printed12-frame678-word gold passes completely.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260803g001740136-00.png",
+            "sha256": "0f487e6a88d6ee058d24c9098ffd36f284fbc265c6764b3fd55222e5cec0938a"
+          }
+        ]
+      },
+      "20260804h017610032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          11
+        ],
+        "new_source_starts": [
+          62
+        ],
+        "notes": "One preferred-capital reduction start checked with its own amount/reference/date/director. Following correction and government errata remain outside this boundary review's correctness claim; they are not interpreted as parts of the company's legal notice merely because they share the bounding crop.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260804h017610032-00.png",
+            "sha256": "9260bfba9d41dbf7565a6938a6c216e5896fb4acafe44f9e20098e006e0d465f"
+          }
+        ]
+      },
+      "20260805h017620032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          7
+        ],
+        "new_source_starts": [
+          44
+        ],
+        "notes": "One preferred-capital reduction start checked: own amount, gazette disclosure reference, current date and director identify a distinct publication before adjacent pension-claim notices. The large crop is caused by a continuation across tiers, not a synthetic merged source rectangle.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260805h017620032-00.png",
+            "sha256": "0cabd110dccb4d0aea2dab51a335bfdbc5c6662d271e70f2f85b18685e88562f"
+          }
+        ]
+      },
+      "20260806h017630032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          5
+        ],
+        "new_source_starts": [
+          75
+        ],
+        "notes": "One limited-company capital reduction checked. Full reduction terms, publication date, issuer and ordinary director are in the original. Neighboring parent/company legal role labels are not required to have a representative prefix for this independent publication.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260806h017630032-00.png",
+            "sha256": "3e52b0c945d8b22ecb763f05a039f6f0baa5895af2fd101c1c912cb16b8da70b"
+          }
+        ]
+      },
+      "20260807h017640032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          7,
+          8,
+          9
+        ],
+        "new_source_starts": [
+          118,
+          182,
+          47
+        ],
+        "notes": "Three new preferred-capital starts checked. Two Tokyo holdings publications and the JPN7 publication keep distinct amounts, financial references, dates and directors. One wraps tiers. Adjacent share-sale demands, merger continuation and government correction material are not split as children of these preferred-capital notices.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260807h017640032-00.png",
+            "sha256": "46337b2e2a9d5b2449d2e033cce39392249e8eacc9dfe25e285ae5b59c9480f1"
+          },
+          {
+            "file": "20260807h017640032-01.png",
+            "sha256": "8a2adbe2410c37236eccd79b2e14e6233eeaafdcaaf41ffe17f24b91ce63001b"
+          }
+        ]
+      },
+      "20260810g001790149": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          1
+        ],
+        "new_source_starts": [
+          1
+        ],
+        "notes": "One complete common publication reviewed. The right-hand preferred-capital reduction notice and the left9th-term balance sheet plus income statement share one printed closed frame and issuer/director. Candidate keeps both tables and all parent prose in one156-word source group and separates the whole frame from preceding unrelated material; no subsidiary financial title is split into a separate article.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260810g001790149-00.png",
+            "sha256": "776fb339d8ed5b3d6d79b86173b70465ba9d6b10e0ee0e6ee2f57f0285731838"
+          }
+        ]
+      },
+      "20260810h017650032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "new_source_starts": [
+          120,
+          200,
+          37,
+          116,
+          187,
+          23,
+          81,
+          154,
+          1,
+          47
+        ],
+        "notes": "All ten new preferred-capital starts visually checked. Individual amount/date/director combinations and disclosure URLs/references align with the original columns. Several publications wrap to the following tier; source text and ID traces connect only their continuation columns. The limited-acceptance material and later cancellation notice are not claimed fully segmented by this review.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260810h017650032-00.png",
+            "sha256": "2e2c46b113624fc3ec7f163b5077854b56757453192981cced6e41878fee7f04"
+          },
+          {
+            "file": "20260810h017650032-01.png",
+            "sha256": "f7b44757fcbdc8b878fe53265954d5b67d72c2833abc5532cff94068b64b0fa2"
+          },
+          {
+            "file": "20260810h017650032-02.png",
+            "sha256": "504167c448779e49a802037d18a0e160079e2856deacae141bd816818fbcd2fc"
+          },
+          {
+            "file": "20260810h017650032-03.png",
+            "sha256": "31ad5acc2f03833903abac8f775b618f3fd6debb223b4823d07fc3d5001bde5e"
+          }
+        ]
+      },
+      "20260812h017660032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          6
+        ],
+        "new_source_starts": [
+          0
+        ],
+        "notes": "One preferred-capital reduction publication checked, including the gazette reference,31億1千万円 amount, current date and director. It is independent of the adjacent cancellation publication.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260812h017660032-00.png",
+            "sha256": "b289a7ffb5a360a1c5e0b1199d85273c92781138b91bf3682a90c0593883f0f1"
+          }
+        ]
+      },
+      "20260813g001810069": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          3
+        ],
+        "new_source_starts": [
+          0
+        ],
+        "notes": "One complete parent/division plus financial enclosure reviewed: right new-incorporation-by-division notice and left27th-term financial statement share an issuer and original frame. Candidate retains the complete statement, director and parent publication together instead of separating the financial title.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260813g001810069-00.png",
+            "sha256": "55cf5c44d5b6ccc87cd24f26dfb1f0d6340d0d1d1533a3cc9cac0be4f2d20b86"
+          }
+        ]
+      },
+      "20260814h017680032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "new_source_starts": [
+          75,
+          164,
+          0,
+          74,
+          160,
+          2,
+          62,
+          139,
+          212
+        ],
+        "notes": "All nine preferred-capital starts checked. Their different amounts, disclosure references/URLs, dates and directors support distinct independent publications. Article9 legitimately wraps to the next tier's right to finish its own disclosure/date/director; neighboring corrections, cancellation and government errata are not part of this financial publication despite the broad union crop.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260814h017680032-00.png",
+            "sha256": "17dc8c8261a404a56d7b3bab4e283f003a662950afabe684ed28fc6b7f75897a"
+          },
+          {
+            "file": "20260814h017680032-01.png",
+            "sha256": "f99237f136e9027aec08fcb9ca9fdcacdf538dab00255f9afd5901160cbf00ec"
+          },
+          {
+            "file": "20260814h017680032-02.png",
+            "sha256": "e820a6cfa9a274ffe1a555d130ab815b273a4fba61a2de89753992e8910311ef"
+          }
+        ]
+      },
+      "20260817h017690030": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          4,
+          5
+        ],
+        "new_source_starts": [
+          26,
+          67
+        ],
+        "notes": "Two preferred-equity redemption/certificate-submission starts checked. Differing certificate quantities and redemption dates align with the original and each keeps its own director. The second wraps from the tier's left to the next tier's right to complete the certificate terms/date/issuer. The financial-services refund notice and trust-separation material are contextual neighbors, not part of this publication merely because of the crop's union bounds.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260817h017690030-00.png",
+            "sha256": "39c565e8641aa12b8f0e39487819ce3f38338299e17ce6e36a924efab42ac22b"
+          }
+        ]
+      },
+      "20260817h017690031": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "new_source_starts": [
+          56,
+          126,
+          208,
+          25,
+          98,
+          180,
+          27,
+          100,
+          178
+        ],
+        "notes": "All nine added preferred-capital starts checked. Distinct amounts, financial URLs/references, dates and directors align with each original publication. Several cross a tier boundary while retaining only their own continuation columns. Unrelated neighboring company roster belongs to preceding division/merger material and is not treated as the beginning of a preferred-capital publication.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260817h017690031-00.png",
+            "sha256": "25a9c550f92c0d486910e624576e39411ed2eb158ec57e00767837ab42c740fe"
+          },
+          {
+            "file": "20260817h017690031-01.png",
+            "sha256": "7de4ac046e8446589fdcaf36fe51381d4e4f36acf73a096e27db8aabe14b794f"
+          },
+          {
+            "file": "20260817h017690031-02.png",
+            "sha256": "83500470d4fa9988af34f7b548682c8615b81d23702be2cab868047f0e7f6899"
+          },
+          {
+            "file": "20260817h017690031-03.png",
+            "sha256": "e33386d9536a5557bedd8261c7a815f07c8227ef9c9cbf03fd6c56524f30414d"
+          }
+        ]
+      },
+      "20260817h017690032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "new_source_starts": [
+          86,
+          166,
+          253,
+          57,
+          133,
+          218,
+          27
+        ],
+        "notes": "Seven added preferred-capital starts checked, with distinct amounts/disclosure references and correct individual issuer/director endings. Their two-tier continuations agree with the original order. The adjacent financial-services refund/contact notice is a separate unresolved class and is not counted as fixed by these added capital boundaries.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260817h017690032-00.png",
+            "sha256": "bfa480268f1cb63b9fbadba83f3012914e6051347654d214a0c3d3e0dd8d6d4a"
+          },
+          {
+            "file": "20260817h017690032-01.png",
+            "sha256": "25521ec7e725182fb30f936ce1cc3f14d05d4fe09211ef84424ecf64383880b4"
+          },
+          {
+            "file": "20260817h017690032-02.png",
+            "sha256": "c89e2bafc05cce16deabfafeea720bd79e8c5ee559a3e998a07018277aefe35e"
+          },
+          {
+            "file": "20260817h017690032-03.png",
+            "sha256": "42e4984db489c124e96c284431b355d3c0aca80b1f43f1e43d6ad2069bd1421b"
+          }
+        ]
+      },
+      "20260818h017700032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          5
+        ],
+        "new_source_starts": [
+          120
+        ],
+        "notes": "One preferred-capital start checked with its own11億円 amount, gazette reference, current date and director. The adjacent officer label is contextual material outside this publication.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260818h017700032-00.png",
+            "sha256": "4b66a5e06113cf8f4e20f669efd0b29fe9ab68002560025fecc1f21594b40e61"
+          }
+        ]
+      },
+      "20260821h017730032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          3
+        ],
+        "new_source_starts": [
+          172
+        ],
+        "notes": "One preferred-capital notice checked. It wraps from the upper tier's far-left columns to the next tier's right, ending with its own disclosure reference/date/issuer/director. Nearby securities-business termination, warrant acquisition and correction material merely lies within the union bounding crop and is not interpreted as a compound preferred-capital publication.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260821h017730032-00.png",
+            "sha256": "aa66d0219c3593594e9e03b6a20e429412e9507e7176736d1731bc17e021f7b1"
+          }
+        ]
+      },
+      "20260824h017740031": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "new_source_starts": [
+          142,
+          210,
+          46,
+          118,
+          181
+        ],
+        "notes": "Five added preferred-capital starts checked. Each separate original publication retains a distinct amount, disclosure reference, date and director. One wraps tiers; its continuation closes with its own corporate identity. Neighboring financial-business merger and voluntary-liquidation material is not a related financial-statement child.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260824h017740031-00.png",
+            "sha256": "19321847bc45eb3a81b115c391ef7e7314bd356adf09ebbe58184afe3487a74d"
+          },
+          {
+            "file": "20260824h017740031-01.png",
+            "sha256": "46aa48104e18d07142db9e4cb3abec6568a2e017411b752a94b5ad4fffd84fa9"
+          }
+        ]
+      },
+      "20260824h017740032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "new_source_starts": [
+          78,
+          140,
+          190,
+          44,
+          117,
+          169
+        ],
+        "notes": "Six new preferred-capital starts checked with their individual amounts and director signatures. Wrapped publications continue at the next tier's right. The following correction and government errata are not claimed repaired or merged intentionally into these company publications; only the new boundary positions are certified here.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260824h017740032-00.png",
+            "sha256": "eaa744982a9612c96dfca9836142e542d8bb3472f72170fcf00be453e07330e2"
+          },
+          {
+            "file": "20260824h017740032-01.png",
+            "sha256": "9ac12071ae9f11d251bbdadecc339f87c6c1e245757569b5a1197732105324bf"
+          },
+          {
+            "file": "20260824h017740032-02.png",
+            "sha256": "b016046da5af5dd2fe39a4671623d971a3659bfaa39d023b0d4d4534f3360061"
+          }
+        ]
+      },
+      "20260825h017750031": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          1,
+          10
+        ],
+        "new_source_starts": [
+          72,
+          102
+        ],
+        "notes": "Two new limited-company capital starts checked: an ordinary capital reduction and a combined capital/reserve reduction. Own amounts, planned effective/meeting dates, current publication dates and director endings agree with the original and distinguish them from neighboring publications.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260825h017750031-00.png",
+            "sha256": "6f5032f759ddd910e6e4ea2b772880a4b3175416ffab42ab4cbe4be349f48c20"
+          }
+        ]
+      },
+      "20260825h017750032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          5,
+          7,
+          8,
+          9
+        ],
+        "new_source_starts": [
+          123,
+          49,
+          117,
+          0
+        ],
+        "notes": "Four added starts checked: one specified-capital reduction and three preferred-capital reductions. Separate corporate amounts/disclosures/date/directors support each original publication. The printed neighboring proxy-director and court material do not change this source-scope judgment.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260825h017750032-00.png",
+            "sha256": "dd68979f71c61a74efc66f9676fffe6de53b78f0fab5272061925dffd7d1a335"
+          },
+          {
+            "file": "20260825h017750032-01.png",
+            "sha256": "bdd7ea79cd308cc26f9a711c7b882ad10a23ffc70a346f28988370c4670b154f"
+          }
+        ]
+      },
+      "20260826h017760032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          5,
+          7,
+          8
+        ],
+        "new_source_starts": [
+          44,
+          160,
+          1
+        ],
+        "notes": "Three added starts checked: one preferred-equity redemption and two preferred-capital reductions. Certificate quantities, redemption/effective dates and individual issuer/director endings remain with their own notices. The simple reduction and the combined redemption/reduction publication are distinct.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260826h017760032-00.png",
+            "sha256": "138636f9029afcf21cba9a785774e8a93a81af6dc028bf7c422c143b70034450"
+          }
+        ]
+      },
+      "20260827h017770031": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          5
+        ],
+        "new_source_starts": [
+          22
+        ],
+        "notes": "One independent limited-company capital reduction checked with its own reduction/new-capital terms, date and director. Adjacent ordinary capital notice is contextual material rather than a child publication.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260827h017770031-00.png",
+            "sha256": "49011e2a2dacbb18515829f80a24b4e54e4e3a617bd2c120fb4a0226ed641fe9"
+          }
+        ]
+      },
+      "20260827h017770032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          9
+        ],
+        "new_source_starts": [
+          12
+        ],
+        "notes": "One preferred-capital reduction checked with its own disclosure reference/current date/director; nearby correction/court material remains outside the review's completeness claim.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260827h017770032-00.png",
+            "sha256": "8f92ad7dc6fe3c56a35cca9e15505c083fc8ee67af4737873a13dc0832ed58a3"
+          }
+        ]
+      },
+      "20260828h017780031": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "new_source_starts": [
+          50,
+          25,
+          103,
+          177,
+          1,
+          68,
+          141,
+          217,
+          27,
+          98,
+          166
+        ],
+        "notes": "All eleven added starts checked: one preferred-equity redemption/certificate submission and ten preferred-capital reductions. Individual amounts, disclosure links/references and director closures match distinct original publications. Several continue across tiers without borrowing an intervening company's words. The warrant-acquisition publication in the broad crop is a neighboring publication, not a preferred-capital child.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260828h017780031-00.png",
+            "sha256": "5ffbc0cf6b797bb85aa8ec258a90bfe3e0e2072589c11d9125503356990307c0"
+          },
+          {
+            "file": "20260828h017780031-01.png",
+            "sha256": "393e683b80323232f5b23b935dec500ce0975ad731cba1b8d58a83bc90937385"
+          },
+          {
+            "file": "20260828h017780031-02.png",
+            "sha256": "d9217b10b17b84f28eecc669410cae27e124da73f6fb3f71c9179ad080ffb73f"
+          },
+          {
+            "file": "20260828h017780031-03.png",
+            "sha256": "8e1d020470da0cdf2c75ec9d3aa62b89193104caf8799ffb46edeb7daaa1eaef"
+          }
+        ]
+      },
+      "20260828h017780032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "new_source_starts": [
+          69,
+          137,
+          214,
+          29,
+          96,
+          178,
+          1,
+          68,
+          142,
+          228
+        ],
+        "notes": "Ten preferred-capital starts checked. Each has distinct corporate amount/disclosure/date/director fields, including the reduction of preferred equity inside one publication. Tier-wrapped continuations agree with source text/IDs. Subsequent corrections are not claimed to belong to the final reduction or to be fully repaired.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260828h017780032-00.png",
+            "sha256": "5755f22add144740d47eb2994d24e45a0ba6237b502800df1bb22a0d93432911"
+          },
+          {
+            "file": "20260828h017780032-01.png",
+            "sha256": "dee3f19e7f6be9fbbb1712fc1f4631bd5b5598952e2eae2019ff0f2ce55ad50f"
+          },
+          {
+            "file": "20260828h017780032-02.png",
+            "sha256": "a220794f9f2e5c1313e911c7613b51714818e50e28fcdff10e292b10a2fc7411"
+          },
+          {
+            "file": "20260828h017780032-03.png",
+            "sha256": "6d2aa62486d60cfe1c1425e26290a1af2f70194a55bb6eec80092c9e3142bd67"
+          }
+        ]
+      },
+      "20260901h017800032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          5
+        ],
+        "new_source_starts": [
+          0
+        ],
+        "notes": "One preferred-capital reduction start checked with its own corporate amount, reference, current date and director. Government errata adjacent in the crop is not a related financial statement.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260901h017800032-00.png",
+            "sha256": "b1ea210fbeba9ce58951f8755ecd05f0986c9dbe3c4efe1d5ba63b1723a40a7d"
+          }
+        ]
+      },
+      "20260902h017810032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          5,
+          6
+        ],
+        "new_source_starts": [
+          1,
+          41
+        ],
+        "notes": "Two preferred-capital starts checked. The separate issuers retain their own reduction amounts, disclosure URL/gazette reference, date and director. The adjacent correction publication is not an issuer-name or role branch condition.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260902h017810032-00.png",
+            "sha256": "5f006bb8912b290224b82a3158c38ded75c9ae5eb125448ded72825da34b157c"
+          }
+        ]
+      },
+      "20260904h017830030": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          13,
+          14
+        ],
+        "new_source_starts": [
+          32,
+          94
+        ],
+        "notes": "Two limited-company capital reductions checked, including planned effective-date language and a no-publication-obligation disclosure. Their current dates and director endings distinguish independent notices.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260904h017830030-00.png",
+            "sha256": "acee3abfd3053c6eb765634bfa2b6ebaad2ee2f79e7ccfdc65d978ff2b90daec"
+          }
+        ]
+      },
+      "20260904h017830031": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          8
+        ],
+        "new_source_starts": [
+          131
+        ],
+        "notes": "One preferred-equity redemption/certificate-submission start checked with its own certificate quantity, deadline/date and director. The neighboring probate role is outside this corporate publication.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260904h017830031-00.png",
+            "sha256": "000feb2b0e63fab28a0c29fdea1a1995d28c35349e4dba6d4a9f46210d8913e1"
+          }
+        ]
+      },
+      "20260904h017830032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          1
+        ],
+        "new_source_starts": [
+          311
+        ],
+        "notes": "One preferred-capital reduction checked. Its opening at the previous tier's left continues at the next tier's right to its own disclosure/date/director. Preceding trust-separation text and later pension/correction material remain separate contextual scopes; no whole-page correctness claim.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260904h017830032-00.png",
+            "sha256": "bde30f80e5e6b1777d817e689b69659a3b6c1cd4c3be975933f34a67cd84f2cd"
+          }
+        ]
+      },
+      "20260908h017850032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          11
+        ],
+        "new_source_starts": [
+          20
+        ],
+        "notes": "One preferred-capital start checked with its own3千万円 amount/disclosure link/date/director. Adjacent pension-claim material is separate context.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260908h017850032-00.png",
+            "sha256": "c2a59c6bdbfc0ebae994339653f44306de9aae389da23826ba8f55947a54e30a"
+          }
+        ]
+      },
+      "20260909h017860032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          2,
+          4,
+          5
+        ],
+        "new_source_starts": [
+          213,
+          86,
+          164
+        ],
+        "notes": "Three added starts checked: one preferred-equity redemption/certificate submission wrapping tiers and two preferred-capital reductions. Certificate amount/deadline, corporate amounts, references and director endings align with the original. Probate/voluntary-liquidation/pension neighbors are not claimed repaired.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260909h017860032-00.png",
+            "sha256": "51855db5306e61bc6686612ee72cf3fb64ac7e8209e6355584d12c58fb74650b"
+          },
+          {
+            "file": "20260909h017860032-01.png",
+            "sha256": "9fc20903a6daed059ab357aaf7b34a61055e355991ace1151f7182a191224491"
+          }
+        ]
+      },
+      "20260910h017870032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          2,
+          3
+        ],
+        "new_source_starts": [
+          169,
+          45
+        ],
+        "notes": "Two preferred-capital starts checked. One continues across tiers to finish its disclosure/date/issuer/director; the other is a separate short notice. Nearby limited-acceptance and liquidation material is not a related financial-statement child.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260910h017870032-00.png",
+            "sha256": "6534816e5087adbae84835ec001dc07aa00bb7b9b8b0c872ea25117007b63006"
+          }
+        ]
+      },
+      "20260914h017890030": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          5
+        ],
+        "new_source_starts": [
+          140
+        ],
+        "notes": "One independent new-incorporation-by-division publication checked. Its body names newly created company/holdings and transferred business; these remain inside the same publication. Own date and director distinguish it from the preceding organization-change notice.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260914h017890030-00.png",
+            "sha256": "b6c74301483d76964fecd8d65c1d4b6a02bdf4bbab285921b94bc5f025f50620"
+          }
+        ]
+      },
+      "20260914h017890032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          10
+        ],
+        "new_source_starts": [
+          33
+        ],
+        "notes": "One preferred-capital start checked with its own reduction/reference URL/date/director. Adjacent cancellation material is contextual only.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260914h017890032-00.png",
+            "sha256": "f50b3d228ec2afe6ac0a546fc26c12b73ceba98aa0f8169464f9ceaaddc4d4d9"
+          }
+        ]
+      },
+      "20260915h017900031": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          1
+        ],
+        "new_source_starts": [
+          111
+        ],
+        "notes": "One independent new-incorporation-by-division notice checked. Newly created company and business-transfer terms are part of its body; no company mentioned within the text is split separately. Closing date/director remain with the issuer.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260915h017900031-00.png",
+            "sha256": "c2640e2883b1b607d4bfc7194cba770e139c263ed85d21b3dfcf5462c8062817"
+          }
+        ]
+      },
+      "20260915h017900032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          12,
+          13
+        ],
+        "new_source_starts": [
+          89,
+          156
+        ],
+        "notes": "Two preferred-capital starts checked, including a decrease plus residual-capital amount. Each retains its own disclosure reference/date/director. They are physically distinct notices.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260915h017900032-00.png",
+            "sha256": "b417dc0b6409e50d004701e636ae14f276b0421ba3fcc516bd8927cf21384e47"
+          }
+        ]
+      },
+      "20260916h017910032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          11
+        ],
+        "new_source_starts": [
+          167
+        ],
+        "notes": "One preferred-capital reduction checked with its own amount, URL, current date and director. Probate role text beside it is outside its source scope.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260916h017910032-00.png",
+            "sha256": "33f30c3ffa4046a0c3fd13e27105a9ad81f2d2d0d2cc32ee5dbc0f8ae214b25c"
+          }
+        ]
+      },
+      "20260917h017920032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          8
+        ],
+        "new_source_starts": [
+          133
+        ],
+        "notes": "One preferred-capital reduction checked with its own amount, prior disclosure reference, current date and director, independent of the neighboring correction.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260917h017920032-00.png",
+            "sha256": "aa953cf9254bc67dd356fa02735db4a5842e25997da8f9aa74d0be834b46a967"
+          }
+        ]
+      },
+      "20260918g002100073": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          2
+        ],
+        "new_source_starts": [
+          2
+        ],
+        "notes": "Complete common enclosure checked: right preferred-capital reduction and left7th-term balance sheet plus income statement share issuer/director and one original frame. Candidate keeps the entire related financial material in the parent article; neither financial subheading is split independently.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260918g002100073-00.png",
+            "sha256": "feadc91da7fc884449c254186292f6a504b5a264c658d240c824f1dae7bb436d"
+          }
+        ]
+      },
+      "20260918h017930032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "new_source_starts": [
+          150,
+          0,
+          61,
+          142,
+          217
+        ],
+        "notes": "All five preferred-capital starts checked. Individual reductions/residual capital, references, publication dates and directors match independent original publications. The last wraps tiers; adjacent corrections and cancellations are not financial children of that last issuer.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260918h017930032-00.png",
+            "sha256": "a602d4a0dccfb035614764f461c8a83fb5c44863997ade26629f159d3f0fb171"
+          },
+          {
+            "file": "20260918h017930032-01.png",
+            "sha256": "4ef07c4e909b691d99cdce3d94504d4416eea9aa37e7d3354c41ea8023250e01"
+          }
+        ]
+      },
+      "20260924h017940031": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          11
+        ],
+        "new_source_starts": [
+          148
+        ],
+        "notes": "One limited-company capital reduction checked with its own reduced-capital terms/date/director. Neighboring ordinary company officer label is separate context.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260924h017940031-00.png",
+            "sha256": "9d5cdbef248b1c795dbfd8e0cc773b6612adb7777bc674181be22f36e455c920"
+          }
+        ]
+      },
+      "20260924h017940032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          8,
+          9
+        ],
+        "new_source_starts": [
+          75,
+          136
+        ],
+        "notes": "Two preferred-capital reductions checked with distinct amounts, disclosure links, current date and director. Government errata in the broad crop is contextual rather than a financial child.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260924h017940032-00.png",
+            "sha256": "166259343761e2fc4f542ab57b8ae6a8371714a86514a4c622cf9a1f99128de5"
+          }
+        ]
+      },
+      "20260925h017950030": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          4
+        ],
+        "new_source_starts": [
+          206
+        ],
+        "notes": "One organization-change start checked. Its body changes the current limited company's form/name and its own closing address/date/director continues at the next tier's right. Other organization-change publications in the bounding crop are independent context, not new children of this issuer.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260925h017950030-00.png",
+            "sha256": "7e56936f58d448459bedfcc08258b383e2527859ecf52a36df66a04b7c157054"
+          }
+        ]
+      },
+      "20260925h017950032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "new_source_starts": [
+          192,
+          19,
+          93,
+          166,
+          1,
+          90,
+          157,
+          3
+        ],
+        "notes": "All eight preferred-capital starts checked, including tier-wrapped continuations. Distinct reduction amounts, financial links/references and director endings align with the separate printed notices. Investor-meeting, claims and correction material is context rather than financial subheadings.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260925h017950032-00.png",
+            "sha256": "cb9148476db5ffeb175bf559264f2b53ae6339193f658fe58b337359fbdbde16"
+          },
+          {
+            "file": "20260925h017950032-01.png",
+            "sha256": "264571572a61119dea62c3a833988bfd9b00b89b766de6eedc62b9c4394d46f9"
+          },
+          {
+            "file": "20260925h017950032-02.png",
+            "sha256": "9a6910fb8712b1dbd689fdeeb00a98ff865b70aee42bde8c1aab1c5198d5d792"
+          }
+        ]
+      },
+      "20260928h017960030": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          8
+        ],
+        "new_source_starts": [
+          1
+        ],
+        "notes": "One organization-change start checked. The current limited company's own date/director closes the notice proposing a change to a limited-liability company; company names mentioned in its body do not create extra boundaries.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260928h017960030-00.png",
+            "sha256": "0a4f8d0be454db29381901e62b51754951123dfe7b7532df0e65a00732d4c2d0"
+          }
+        ]
+      },
+      "20260928h017960032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "new_source_starts": [
+          119,
+          171,
+          21,
+          102,
+          144
+        ],
+        "notes": "Five preferred-capital starts checked with separate issuer/amount/disclosure/date/director closures. Cross-tier continuations preserve their original sequence. The neighboring merger/capital-reduction compound notice is not split into a financial child by these added preferred-capital boundaries.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260928h017960032-00.png",
+            "sha256": "7db85abdc9b9bae7035a46a5471aeff179c97b9df7071d7889b850c5842940e7"
+          },
+          {
+            "file": "20260928h017960032-01.png",
+            "sha256": "ec572f34610babbec67e8827317bb3befed8e29eee5b8029128e8be4cc6bb6f6"
+          }
+        ]
+      },
+      "20260929h017970032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "new_source_starts": [
+          76,
+          151,
+          230,
+          31,
+          117,
+          199,
+          0,
+          84,
+          160,
+          232
+        ],
+        "notes": "All ten preferred-capital starts checked. Different issuer numbers, amounts/disclosure URLs and director endings distinguish the publications despite repeated templates. Tier-wrapped continuations agree with their own bodies. Later corrections and travel-business material are not certified as repaired or deliberately merged into the final notice.",
+        "reviewed_original_packets": [
+          {
+            "file": "20260929h017970032-00.png",
+            "sha256": "2bb09772c26f353ad7296457f62625c625b1c23bc403738c8c9b720571ec3acb"
+          },
+          {
+            "file": "20260929h017970032-01.png",
+            "sha256": "c17fe9e4e4ebc2dccdcd99793dfaf29886fe53abc68b8f85735c5151c926d7cd"
+          },
+          {
+            "file": "20260929h017970032-02.png",
+            "sha256": "74ff52ce675fc9e428b60d54f6493b8189ecedeaa16e6ddb681df1c97d8291ae"
+          },
+          {
+            "file": "20260929h017970032-03.png",
+            "sha256": "198cf958103b3f6009b7d84bbea2a32bee975db0c47b19c53d65ded55113c0b3"
+          }
+        ]
+      },
+      "20261001h017990031": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          3
+        ],
+        "new_source_starts": [
+          175
+        ],
+        "notes": "One limited-company capital reduction checked. It wraps tiers to its own current date, address, issuer and director. Neighboring ordinary capital/reserve notices are context within the union crop, not part of its source claim.",
+        "reviewed_original_packets": [
+          {
+            "file": "20261001h017990031-00.png",
+            "sha256": "e4a3cd3ad901d6a5bcd8738bbbdcd6ef6392fdec15c13adfe29fe173d3879e81"
+          }
+        ]
+      },
+      "20261001h017990032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          2,
+          3,
+          4
+        ],
+        "new_source_starts": [
+          80,
+          158,
+          0
+        ],
+        "notes": "Three preferred-capital starts checked with separate amounts and their own disclosure reference/current date/director. Government errata beside the final notice is outside this publication's scope.",
+        "reviewed_original_packets": [
+          {
+            "file": "20261001h017990032-00.png",
+            "sha256": "26472c1fab5312a3f96eadd16cf660a781739315efef0f481e96f66a3f8ffcb1"
+          },
+          {
+            "file": "20261001h017990032-01.png",
+            "sha256": "b443974f36a6a1525e08a3bf31b7a7a49e511ac26acdbd81ceccf918fa28c14e"
+          }
+        ]
+      },
+      "20261002g002180084": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          4
+        ],
+        "new_source_starts": [
+          2
+        ],
+        "notes": "Complete common enclosure checked: preferred-capital reduction on the right with the related5th-term balance sheet/income statement on the left. Same issuer/director, enclosing frame and explicit left-hand disclosure link support one compound parent article. The candidate does not split the financial statements into independent publications.",
+        "reviewed_original_packets": [
+          {
+            "file": "20261002g002180084-00.png",
+            "sha256": "04f6699b5e931cd0ce19e62314a9f54dfe79897b302011c23818ce163d13a67d"
+          }
+        ]
+      },
+      "20261002h018000032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          8
+        ],
+        "new_source_starts": [
+          217
+        ],
+        "notes": "One preferred-equity redemption/certificate-submission start checked with its own250000-share terms, deadline, publication date and director. The neighboring warrant-acquisition publication is contextual only.",
+        "reviewed_original_packets": [
+          {
+            "file": "20261002h018000032-00.png",
+            "sha256": "52f76c4b2b687328780ec722d416d4e4bb6f4c97a82e0e5cfadc6b1852f02c8d"
+          }
+        ]
+      },
+      "20261006g002200080": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          3
+        ],
+        "new_source_starts": [
+          1
+        ],
+        "notes": "Complete common enclosure checked: preferred-capital reduction and related4th-term balance sheet/income statement share the original frame, issuer and director. Both statements remain with the parent, rather than becoming independent articles.",
+        "reviewed_original_packets": [
+          {
+            "file": "20261006g002200080-00.png",
+            "sha256": "f271040381e1523b47ec8ba204b33fba656550b79ab3e1b52a9635eed27da210"
+          }
+        ]
+      },
+      "20261006h018020032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          9,
+          10,
+          13
+        ],
+        "new_source_starts": [
+          156,
+          2,
+          131
+        ],
+        "notes": "Three added starts checked: two preferred-capital reductions and a cancellation. Each has its own current date and director; the cancellation explicitly identifies the prior capital notice being withdrawn. Government errata is neighboring context only.",
+        "reviewed_original_packets": [
+          {
+            "file": "20261006h018020032-00.png",
+            "sha256": "3f4f9546f37b009638612429825d1af215f5bffe66aa894b7bd249b331039771"
+          }
+        ]
+      },
+      "20261007h018030032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          14
+        ],
+        "new_source_starts": [
+          3
+        ],
+        "notes": "One preferred-capital reduction checked, including effective/meeting dates, current publication date and director. All monetary terms and disclosure reference remain with the issuer.",
+        "reviewed_original_packets": [
+          {
+            "file": "20261007h018030032-00.png",
+            "sha256": "2cd5e93c97ff1fd52416d37977a404aa1835058204b38d92fcf84dc413909e2b"
+          }
+        ]
+      },
+      "20261008h018040032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          10,
+          11
+        ],
+        "new_source_starts": [
+          116,
+          204
+        ],
+        "notes": "Two added starts checked: a preferred-capital reduction and an independent cancellation. The cancellation retains its own reference to the prior notice/date/director; it is not a financial-statement child of the reduction. Both source continuations agree across tiers.",
+        "reviewed_original_packets": [
+          {
+            "file": "20261008h018040032-00.png",
+            "sha256": "fe5eca80e32288f9bf6906a24cb1b7ab2889946beb7ceedd3bc906c9fac16c9b"
+          }
+        ]
+      },
+      "20261009g002230173": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          3
+        ],
+        "new_source_starts": [
+          3
+        ],
+        "notes": "Complete parent/financial enclosure checked. The preferred-capital reduction's explicit left-hand disclosure refers to the related3rd-term balance sheet and income statement; all remain in the same original frame and candidate article with the issuer/director.",
+        "reviewed_original_packets": [
+          {
+            "file": "20261009g002230173-00.png",
+            "sha256": "7f8a8a807905aa18b95ce5e65c2aa26bf9a4d47e5d82f6d6b0db444dd62ba83a"
+          }
+        ]
+      },
+      "20261009h018050032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          1,
+          4,
+          5,
+          7,
+          8
+        ],
+        "new_source_starts": [
+          115,
+          35,
+          92,
+          197,
+          103
+        ],
+        "notes": "Five starts checked: one preferred-equity redemption, three preferred-capital publications including redemption/reduction terms, and one correction with its own prior-publication reference/current date/director. Cross-tier source continuations remain attached to their own notices, without treating the later government errata as an issuer signature.",
+        "reviewed_original_packets": [
+          {
+            "file": "20261009h018050032-00.png",
+            "sha256": "227793832fdc5b077c91aece204b72e816f66cf5ef3fcc136ab80a4dfdd2dcf1"
+          },
+          {
+            "file": "20261009h018050032-01.png",
+            "sha256": "0cd23109c4e90341ddc9fe9ce199061ed75eac0cc8275c62734675df7fc9c8a2"
+          }
+        ]
+      },
+      "20261013h018060030": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          2
+        ],
+        "new_source_starts": [
+          137
+        ],
+        "notes": "One merger publication checked with both participating banks, their financial-disclosure URLs, current date and two director-president signatures. It is a single publication; the two bank names and future effective date do not cause extra child splits.",
+        "reviewed_original_packets": [
+          {
+            "file": "20261013h018060030-00.png",
+            "sha256": "840a7348c5e74591ca36e2638e7415284ec643cf3417d1b6edc10f57458bdd7b"
+          }
+        ]
+      },
+      "20261013h018060031": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          9
+        ],
+        "new_source_starts": [
+          65
+        ],
+        "notes": "One limited-company capital reduction start checked with its own reduction/new-capital amounts, date and director, independent of neighboring publications.",
+        "reviewed_original_packets": [
+          {
+            "file": "20261013h018060031-00.png",
+            "sha256": "c8dd3a6b1c1a8f9a4de2e305b4d1378c8adb3efb94ec6f767c7d4e059b450882"
+          }
+        ]
+      },
+      "20261013h018060032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "new_source_starts": [
+          45,
+          96,
+          170,
+          15,
+          64
+        ],
+        "notes": "Five added starts checked: preferred-equity redemption and four preferred-capital reductions with independent amounts, disclosures, dates and directors. Wrapped notices complete their own continuation columns; neighboring probate/correction material is not a related child.",
+        "reviewed_original_packets": [
+          {
+            "file": "20261013h018060032-00.png",
+            "sha256": "f1425f9f939ba85c87bc284ed5e649caa44dfcfd2c88df789d2aa175acbccd1c"
+          },
+          {
+            "file": "20261013h018060032-01.png",
+            "sha256": "6f122bc7138d1003b31e9e59ad480060c67dea79042af30ce8a1e8229cfdefd7"
+          },
+          {
+            "file": "20261013h018060032-02.png",
+            "sha256": "d781a979ec0742086188482d6145d8f57000064de2accdee86cd08e68752a177"
+          }
+        ]
+      },
+      "20261016g002270099": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          1
+        ],
+        "new_source_starts": [
+          1
+        ],
+        "notes": "Complete parent/financial enclosure checked. The preferred-capital reduction explicitly discloses the left7th-term balance sheet and income statement; shared issuer/director and original enclosing frame support one article containing all financial material.",
+        "reviewed_original_packets": [
+          {
+            "file": "20261016g002270099-00.png",
+            "sha256": "81d00f1b7a8e83b59e63e7d11861053de8c1f2e3d613a98c9f6e76b361c2e9e9"
+          }
+        ]
+      },
+      "20261016h018090030": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          8
+        ],
+        "new_source_starts": [
+          0
+        ],
+        "notes": "One limited-company capital reduction checked with its own amount/date/director; neighboring capital publication remains distinct.",
+        "reviewed_original_packets": [
+          {
+            "file": "20261016h018090030-00.png",
+            "sha256": "b5b73962cec07796299a4ffe7954b7851d707d58aafbf7c023f2ef9969612c51"
+          }
+        ]
+      },
+      "20261016h018090032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "new_source_starts": [
+          49,
+          99,
+          160,
+          25,
+          83,
+          132,
+          1,
+          63,
+          111
+        ],
+        "notes": "Nine preferred-capital starts checked. Distinct amounts, disclosure links/references, dates and directors match the original, including tier-spanning continuations. Adjacent estate-claim and government correction material is contextual only.",
+        "reviewed_original_packets": [
+          {
+            "file": "20261016h018090032-00.png",
+            "sha256": "0f79396cc5ebb8e85ba544da46a88582d513adc4849f7073058a0ee47c909387"
+          },
+          {
+            "file": "20261016h018090032-01.png",
+            "sha256": "e789befe36b33714d43f3664448407b4ed0bfa06eb6ebcfaeb1660a476d0e4f9"
+          },
+          {
+            "file": "20261016h018090032-02.png",
+            "sha256": "4a931b5fd8bae3179341a1e4412414102492915d50af0c20f0b3778029a8dfde"
+          },
+          {
+            "file": "20261016h018090032-03.png",
+            "sha256": "4115ad4e6b67f0d914e6a4283ac65f968ed4b3061a35c82e4964d39d7b7025b8"
+          }
+        ]
+      },
+      "20261019h018100032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          8,
+          9
+        ],
+        "new_source_starts": [
+          162,
+          40
+        ],
+        "notes": "Two preferred-capital starts checked with independent reduction/reference/date/director fields. The first spans tiers. Probate, correction and government errata inside the broad bounding crop are not financial child publications.",
+        "reviewed_original_packets": [
+          {
+            "file": "20261019h018100032-00.png",
+            "sha256": "6004a2e85ad3aadb51188c6189602d9e3bc34bbd7f88b0ce0169faa1d0e8f2a3"
+          },
+          {
+            "file": "20261019h018100032-01.png",
+            "sha256": "d0710102056290b7675a846bb1aca1d0b8e6d823e51de615789c36acdcf8858f"
+          }
+        ]
+      },
+      "20261020h018110030": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          8
+        ],
+        "new_source_starts": [
+          174
+        ],
+        "notes": "One limited-company capital reduction checked with its own current date/director and reduction/new-capital terms.",
+        "reviewed_original_packets": [
+          {
+            "file": "20261020h018110030-00.png",
+            "sha256": "c2d4f77cace53f7dbd30c482c98bc1aaa4e3e343ca02717b1f22b3e9a4cdde31"
+          }
+        ]
+      },
+      "20261020h018110032": {
+        "status": "changed_boundaries_visually_supported",
+        "whole_page_correctness_certified": false,
+        "new_article_indices": [
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "new_source_starts": [
+          183,
+          27,
+          97,
+          185,
+          44
+        ],
+        "notes": "Five preferred-capital starts checked with independent amount/reference/date/director closures and correct tier-wrapped continuations. Merger/capital compound text and later cancellations are neighboring scopes, not subsidiary statements of these preferred-capital notices.",
+        "reviewed_original_packets": [
+          {
+            "file": "20261020h018110032-00.png",
+            "sha256": "4ff9f64d14b55e184b516bd51098236f6e93c6a419089e61cbde44d999829f1f"
+          },
+          {
+            "file": "20261020h018110032-01.png",
+            "sha256": "876efc74bbae50da45369e0d9b78a03719a6b4c711e83b3adc99c4b7e51f99f8"
+          },
+          {
+            "file": "20261020h018110032-02.png",
+            "sha256": "1eb1ceba9ae7566da44dad53ae8f2ca24d709200e9f2c78dad5dffaff2f377b3"
+          }
+        ]
+      }
+    },
+    "reviewed_changed_pages": 78,
+    "reviewed_new_boundaries": 230,
+    "total_changed_pages": 78,
+    "total_new_boundaries": 230,
+    "all_changed_scopes_reviewed": true,
+    "updated_utc": "2026-10-22T06:16:56.922200+00:00"
+  },
+  "pure_partition_pages": 77,
+  "whole_line_layout_change_page": "20260803g001740136",
+  "bank_original_gold": "All12 printed source groups and all678 used source words exactly once; no article-count-only oracle.",
+  "compound_parent_controls": {
+    "20260727g001670099": 88,
+    "20260810g001790149": 156,
+    "20260813g001810069": 85
+  },
+  "parent_gold_provenance": "Selected complete printed parent/related-statement rectangles using original images and accepted72 source bounds/status before comparing candidate Article groups.",
+  "other_existing_errors_remain": true,
+  "evidence": [
+    {
+      "path": ".cache/kanpo-227/native48-source-manifest.json",
+      "sha256": "31fe27b67426f957c43f17f5e27199f456369e4b7e1966ebea0a8c430ad62570"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/full-native73-public/result.json",
+      "sha256": "038757cde04a12f1244bf4597b8a916896ff26e6bc8f7f9ed709c4f40548e802"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/full-native73-public/changes.json",
+      "sha256": "e1a5ba41bdc4fdaff56007a1d65bc630557cdde0dbac80f52ed2424844a102fd"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/public73-change-contracts.json",
+      "sha256": "fd14054019dd71b65d7c270fb4abb864304f6ee6c817fa9550ae7dd4de2de4f5"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/textdump73-result.json",
+      "sha256": "542411ce2b3afd68da5f6ba8625d35d95c195a7d1f3cd97deeff25d82578d952"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/public73-native-CLI-API-consistency.json",
+      "sha256": "1135be436bb39a2ebfaf5fa941f4a268208e80779551f7ffe2eee0c655aa5379"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/original-review-ledger73.json",
+      "sha256": "56255a2267632a52d0b5fec4abf2a1af33b7b74634ad59a98d59b108d7a26e35"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/source-observer78-runtime-identity-r2.json",
+      "sha256": "0c781d5a35990c1ca225ecc391cc90744a3973edcb86f788660bd5228647265a"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/candidate73-v2-full-lib.log",
+      "sha256": "2b6bca7af3b8eb17f113fdd404dc5efb7cd4c9e578ef687459151a7df2748589"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/candidate73-v5-role-prose-RED.log",
+      "sha256": "84ced6277a4e943043fcb691a61ec9c7da69eff9f90543bc4f9618f7c4806682"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/candidate73-v6-full-lib.log",
+      "sha256": "5a90f65b24c79a8fb0bd2adb7f538991da2f2e643e1cffa2c034949f0a90e44d"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/candidate73-v7-original-controls-tests.log",
+      "sha256": "3d740179e2811b5534d1ecfcd83ec44c17e1fd94b77b2223e855b252d800f5a1"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/baseline72-original-controls-tests.log",
+      "sha256": "8105500a30e2be1520797180bb5ab76c0c6a7467263a5255e02efddeb2ee0931"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/source72-bank-RED-r2.log",
+      "sha256": "b2110c1c8095ae3928d344106fe09ed30634a93371207b71d8f70ecebb732a80"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/snapshot-proposal-review73.json",
+      "sha256": "49c20b86ec44411dbff79457b637cd659eaae6d4ae2c59506398467787257900"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/known-seven-count-requirements73.json",
+      "sha256": "5462b689d8eb92d03bace8fc1ce9448221a76d9a44f2cedad9b53dc255d2bdf8"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/final-all-green.json",
+      "sha256": "5f6c9ce5ff167b4683853faf5f2aff2f674d124c839c6d8f4c7b4e1c1c6b0c49"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/assets-and-snapshots.json",
+      "sha256": "755ad77f2891232f336732daaea4a9471c053b8148b7b5edde23d310884cdc0b"
+    }
+  ]
+}

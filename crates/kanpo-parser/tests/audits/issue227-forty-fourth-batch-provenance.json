@@ -1,0 +1,108 @@
+{
+  "issue": 227,
+  "batch": 44,
+  "parent_commit": "77d268f379527d8cfe464d45242d7c244aca0396",
+  "native_runtime_source": 69,
+  "native_runtime_unchanged": true,
+  "adopted_scope": "Three original-source relation regression tests only. No coordinate/layout algorithm candidate adopted.",
+  "goal_complete": false,
+  "whole_corpus_strict_quality_not_reestimated": true,
+  "accepted_quality_changed_pages_this_batch": 0,
+  "source_files": 128,
+  "parser_source_files": 105,
+  "PDF_source_files": 23,
+  "source_manifest_sha256": "b05006fc0a3b80f0c6a959a66187c36af52a365f46e57dc000b777aaf5e3f60b",
+  "no_new_model_weights_training_or_inferences": true,
+  "RURI_previous_two_pilots_remain_held": true,
+  "rejected_candidate_and_all_counterexamples_preserved_locally": true,
+  "local_evidence": [
+    {
+      "path": ".cache/kanpo-227/coverage44-source-manifest.json",
+      "sha256": "b05006fc0a3b80f0c6a959a66187c36af52a365f46e57dc000b777aaf5e3f60b"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/coverage44-runtime-identity.json",
+      "sha256": "0f6353b5714701da790646d4de3f9d9e83b70e677ba4f8af4850b712ba858332"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/coverage44-final-all-green.json",
+      "sha256": "1a5dabd6462d7540a658c712e1522d2ea9084f87b99142077b1a694008407504"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/coverage44-assets-and-snapshots.json",
+      "sha256": "addb7f8ba37518715215b0358b0ba50555db38afc6bbac250e6dabd771cd1887"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/coverage44-archive-readonly.log",
+      "sha256": "0346c499843c8494b5b409399735671b26da18f2a7b598a4793ecb5191eebcc7"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/rejected70-v5-review-and-trial-ledger.json",
+      "sha256": "5d032d7143a1b6e1d2910451b4e613cc0930563d63d15a28fb4ae8f89d14caac"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/private70-v5-manifest.json",
+      "sha256": "b5c32cea9e4aa0061ede82adefb05fba7801628eedbfb819d86995a7de592fe0"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/full70-v5-diagnostic/result.json",
+      "sha256": "953806a2c2abb34e1e0e3719630fa4c9748cd54589a79cacce669da050ff4ba2"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/full70-v5-diagnostic/changes.json",
+      "sha256": "dba86e17d33471dd6a43964a1cabd0fa06f5f61bbfd3dc89ae990dbb3e50155b"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/v4-v5-whole-native-equivalence.json",
+      "sha256": "957e18aa04cec2d5142327c41897eb9411a577ec7b7776fef4e26fffdaf62d14"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/textdump70-v5-result.json",
+      "sha256": "a972db9335ebd26fa89bec4d0ab6f0322ce8927b8c99a7b787a0322604db22ee"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/textdump70-v5-API-consistency.json",
+      "sha256": "24b4a3b741d9393b6e666ef248a5fb760bb467a0c36dbecbf4f197b6e6b00113"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/native-bounds69-RED-binding.json",
+      "sha256": "22546040d59701f9eb911128b831d88c4e0b15012d9e81e452343d34588838bd"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/native-bounds70-v5-lib.log",
+      "sha256": "f2a95595c07c6635d6f74f7fce473674f1ba2edfa50742513d43339910d2d250"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/geometry-source-alias-v4-RED.log",
+      "sha256": "f2a0dca92633d0b090f26fabd6dfd1441ec215c9f42281ac5202cd6034553917"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/candidate70-v6-original-relations-RED.log",
+      "sha256": "b5f210930c3ef26635fc09f14520cbab16508a7e0e3d78a2c1d2bba39c0cb03c"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/candidate70-v7-full-lib.log",
+      "sha256": "dd1e1b6ea89b2f6dfb6112c07dcac37bb691a45c33abc8f41c1cffe1e7612a6e"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/candidate70-v8-full-lib.log",
+      "sha256": "9d4324e302e9ed745c95b74b9d538c760ae32acb21084b9c4c3447de7be72d7b"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/rejected70-v5-snapshot-proposals.json",
+      "sha256": "05f505794c1466d6cd0653f525236a55640fe0cf20c0daec5aa0034b9fd9e112"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/stable69-restored-after-rejection.json",
+      "sha256": "ef0ea42faf71c38101a736334fd0a2cdb1bfb24132ccadbb8f9d44cfc177907e"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/completed-output-storage-dedup.json",
+      "sha256": "72ef912f2779216db961c19e2eae3b999e6adb8978af1dbfe853d572708a3e92"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/fixtures/source-relations.json",
+      "sha256": "3f910a510f07079561b31b8f6fe79e627d6965d9a4e0e965dd9ad0d71be634a5"
+    }
+  ]
+}

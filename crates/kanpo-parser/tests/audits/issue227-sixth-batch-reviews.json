@@ -1,0 +1,2294 @@
+{
+  "candidate": "after27",
+  "baseline_commit": "b7571c5f82b2a62fbeca26388004e7d6d09cde31",
+  "scope_note": "Cache prototype reports are retained as evidence; final integrated all11992 PDF extraction and native source verification are in issue227-validation-6.json. Snapshot changes were reviewed before promotion.",
+  "leading_numbered_numeric_table": {
+    "validation": {
+      "baseline_commit": "b7571c5f82b2a62fbeca26388004e7d6d09cde31",
+      "snapshot": "after24",
+      "original_sha256": "aa238cf92aaad0eacb0a76d149a6e9d9b821f37a02ae80bf12091a1bc7b108a8",
+      "baseline_output_sha256": "6e392f7501ccf0da15d50da0080d1cb672f7af201ba5fc5be2040e215701ab02",
+      "candidate_output_sha256": "c52fc98afa7d362aee5e79b45a48b1c8f0e3a00d70a37dd4eb98df3edbcb0542",
+      "geometry_tests": {
+        "passed": 3,
+        "positive_cases": 2,
+        "negative_cases": 15
+      },
+      "real_pdf_tests": {
+        "passed": 2,
+        "target": "20260930g002150416",
+        "negative": "20260810g001790057"
+      },
+      "additional_unchanged_pdf_cases": 12,
+      "full_corpus": 11992,
+      "changed_pages": 1,
+      "unrelated_baseline_differences": 0,
+      "source_shared_changes": false,
+      "baseline_test_fails_expected": true,
+      "patch_git_apply_check_pass": true,
+      "production_test_file": "leading_numeric_table_fixtures.rs"
+    },
+    "full_corpus": {
+      "corpus_pdf_count": 11992,
+      "elapsed_seconds": 180.245233458,
+      "changes": [
+        {
+          "page": "20260930g002150416",
+          "hits": 1,
+          "text_changed": true,
+          "baseline_matches_parent_after24": true,
+          "all_nonlabel_text_exact": true,
+          "word_id_counts_preserved": true,
+          "no_duplicate_word_ids": true,
+          "baseline_standalone_labels": 4
+        }
+      ],
+      "unrelated_baseline_differences_from_parent_after24": []
+    },
+    "source_preservation": {
+      "tables_exact": true,
+      "table_shapes": [
+        [
+          20,
+          5,
+          100
+        ],
+        [
+          13,
+          5,
+          61
+        ],
+        [
+          2,
+          3,
+          6
+        ],
+        [
+          2,
+          3,
+          6
+        ]
+      ],
+      "source_words_exact": true,
+      "articles": 2,
+      "actual_notice_document_exact": true,
+      "per_article_nonlabel_text_exact": true
+    },
+    "negative_pages": [
+      {
+        "page": "20260930g002150415",
+        "text_exact_parent_after24": true,
+        "labels": {
+          "改正後": 0,
+          "改正前": 0
+        },
+        "source_sha256": "0ada5535c4a5bc044d0231e66f8a4c112cc6116e56f138e0b4b42bbbb3e46c95"
+      },
+      {
+        "page": "20260930g002150417",
+        "text_exact_parent_after24": true,
+        "labels": {
+          "改正後": 1,
+          "改正前": 1
+        },
+        "source_sha256": "810cc90bb05cdfa1fbb1105bb5a4cdbc863ea0f54914060715688c1947301771"
+      },
+      {
+        "page": "20260930g002150414",
+        "text_exact_parent_after24": true,
+        "labels": {
+          "改正後": 0,
+          "改正前": 0
+        },
+        "source_sha256": "dc2776030da330540f800c71e23116e787bf215e86ce49e255d8ba8694beb462"
+      },
+      {
+        "page": "20260930g002150418",
+        "text_exact_parent_after24": true,
+        "labels": {
+          "改正後": 1,
+          "改正前": 1
+        },
+        "source_sha256": "43f367d620c7dfda4d09209468800b1653a3b7f7596c546e1cc0e8d6b0479c2a"
+      },
+      {
+        "page": "20260930g002150324",
+        "text_exact_parent_after24": true,
+        "labels": {
+          "改正後": 2,
+          "改正前": 2
+        },
+        "source_sha256": "db0e8c1aa3462325bc7d9d7506d4c01254458848cfc7cd7967cb1d312d883e81"
+      },
+      {
+        "page": "20261001g002170034",
+        "text_exact_parent_after24": true,
+        "labels": {
+          "改正後": 1,
+          "改正前": 1
+        },
+        "source_sha256": "2dca1727d9f224b1ec1bcefb9e290d643fcd718f37a5c837f01c631960e0b479"
+      },
+      {
+        "page": "20260730g001710004",
+        "text_exact_parent_after24": true,
+        "labels": {
+          "改正後": 0,
+          "改正前": 0
+        },
+        "source_sha256": "4ae763b4cf42c42077d124146a08a0e5d33326f891e7e1d2720c0eeed6b309e4"
+      },
+      {
+        "page": "20260731g001720083",
+        "text_exact_parent_after24": true,
+        "labels": {
+          "改正後": 2,
+          "改正前": 2
+        },
+        "source_sha256": "13bec3a4417cd0e275863b09a39ef11f5dabd2e3956eecf7734b1eadc46a937b"
+      },
+      {
+        "page": "20260810g001790057",
+        "text_exact_parent_after24": true,
+        "labels": {
+          "改正後": 2,
+          "改正前": 2
+        },
+        "source_sha256": "03444ef87e0234ac1769689fb2c3c19365630e829383f32db818fa2440069fb3"
+      },
+      {
+        "page": "20260902g001960024",
+        "text_exact_parent_after24": true,
+        "labels": {
+          "改正後": 0,
+          "改正前": 0
+        },
+        "source_sha256": "aacbc97a058946a219401227f8b7339100fb5ba0ff0601696b33cd9a654580a9"
+      },
+      {
+        "page": "20260903g001970032",
+        "text_exact_parent_after24": true,
+        "labels": {
+          "改正後": 1,
+          "改正前": 1
+        },
+        "source_sha256": "fc90b3817833f296ecaf999550ea02a301055c04e8bb983496d0924599c64c44"
+      },
+      {
+        "page": "20260724g001640062",
+        "text_exact_parent_after24": true,
+        "labels": {
+          "改正後": 0,
+          "改正前": 0
+        },
+        "source_sha256": "e04c98f2bf2b47171ab3d0c2ddbdd19484fad76f36e615de35eeceeb113cfeab"
+      }
+    ],
+    "original_review": "audit116 original20260930g002150416 rechecked: continuing numbered numeric table is ordinary text, only following real1182 notice has one after/before pair. All four tables and real notice remain exact."
+  },
+  "covering_numeric_table_edge": {
+    "validation": {
+      "baseline_commit": "b7571c5f82b2a62fbeca26388004e7d6d09cde31",
+      "baseline_output": "after24",
+      "baseline_horizontal_sha256": "4a8a31efb9db18f816bc3b189c1885c1bd1bcca833051883a86b3e6ba8c07ee7",
+      "linked_rlib_sha256": "339d41efd9d1a7f34e02f9a7c336ff1578e21ff55acd85e1950c67cd93e40d70",
+      "corpus_pages": 11992,
+      "geometric_candidates": 13,
+      "changed_pages": 1,
+      "changed_page_ids": [
+        "20260930g002150414"
+      ],
+      "changed_scope": "horizontal assembly source old/new exact function comparison; geometry ineligibility is a superset gate of the production helper after its identical short-line filter/dedup. Candidates run the full old/new assembler. Root production corpus comparison still required after integration.",
+      "new_or_deleted_source_ids": 0,
+      "duplicate_source_ids": 0,
+      "nonwhite_character_multiset_changes": 0,
+      "last_column_cells_reassociated": 21,
+      "source_words_reassociated": 63,
+      "source_expected_matrix_cells": 210,
+      "tests": {
+        "shape_unit_cases": 19,
+        "repository_pdf_tests": 2,
+        "baseline_pdf_result": "2 red: both see21rows/9cols",
+        "prototype_result": "21 green:19 shape+2 identical PDF fixture assertions using the prototype horizontal assembler",
+        "production_scope_note": "cache proxy replaces only fixture page horizontal assembly; parent should run the supplied unmodified repo fixture after integrating patch",
+        "logs": [
+          "tests.log",
+          "pdf-tests-baseline.log",
+          "prototype-pdf-tests.log"
+        ]
+      },
+      "guards": [
+        "at least4 same-height inner vertical rules and seed height>=60pt",
+        "nearest covering outer rules required on both sides, both longer than seed",
+        "each edge band width10pt..1.5times median inner width",
+        "no intervening half-height fence in either added band",
+        "at least3 distinct original interior horizontal rules end at the new right outer edge and span all existing columns",
+        "at least3 original numeric columns with>=3numeric rows and80percent numeric",
+        "each nonempty new edge band has>=3rows and only numeric lines, no crossing word",
+        "at least3numeric row centers agree with adjacent inner band within1pt",
+        "at leastone edge band must have printed values; empty added left band is removed by existing run splitting",
+        "same top/bottom retained; lower prose stays outside"
+      ],
+      "source_checks": [
+        "all old source IDs identical as a multiset before/after, no duplicate IDs",
+        "nonwhite output character multiset identical",
+        "each new/changed cell contains its original word bboxes within1pt",
+        "unchanged preexisting cells are not revalidated for glyph overhang (210p45 proof confirms no change)",
+        "Line.text equals Table.render()"
+      ],
+      "audit": {
+        "changed_pages_reviewed": 1,
+        "changed_pages_unreviewed": 0,
+        "new_regressions": 0,
+        "file": "affected-page-audit.json"
+      },
+      "known_limits": [
+        "requires both longer external edges; missing one-only edges remain unchanged",
+        "extension band must be numeric and aligned; prose/labels/sparse values remain excluded",
+        "does not fix false new/old labels on215p416"
+      ],
+      "files": {
+        "patch": "covering-edge.patch",
+        "unit_module": "covering_table_edge_tests.rs -> crates/kanpo-parser/src/horizontal_covering_edge_tests.rs (patch includes)",
+        "pdf_fixture": "covering_table_edge_fixtures.rs -> crates/kanpo-parser/tests/covering_table_edge_fixtures.rs",
+        "new_fixture_pdf": "archive/pages/20260930g00215/20260930g002150414.pdf -> crates/kanpo-parser/tests/archive/pages/20260930g00215/20260930g002150414.pdf",
+        "full_results": "all-results.json",
+        "affected_audit": "affected-page-audit.json",
+        "last_column_id_proof": "215414-last-column-source-proof.json"
+      },
+      "integration": "patch only horizontal.rs and its new unit module. source shared files untouched by this agent. git apply --check passed against frozen after24 baseline."
+    },
+    "original_review": {
+      "reviewed_changed_pages": 1,
+      "unreviewed_changed_pages": 0,
+      "new_regressions": 0,
+      "pages": [
+        {
+          "page": "20260930g002150414",
+          "original_pdf": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150414.pdf",
+          "original_sha256": "dc2776030da330540f800c71e23116e787bf215e86ce49e255d8ba8694beb462",
+          "original_image": ".cache/kanpo-227/column-table-order-proposal/images/20260930g002150414.pdf.png",
+          "original_image_sha256": "eaab80d9af80a82ee90edb578e9cb7cbc1384a7503df9f113cbbdc025f87b48a",
+          "baseline_output": ".cache/kanpo-227/after24/20260930g002150414.txt",
+          "baseline_output_sha256": "5352b5c6ccccefc0824505fe7fb0a7dc55bfb75ca2179f616bdee7bcc1b91807",
+          "prototype_before_exactly_matches_after24": true,
+          "prototype_after": ".cache/kanpo-227/covering-edge-proposal/20260930g002150414.txt",
+          "prototype_after_sha256": "e6a21e832ff11fcd3340b4bf3bb4cfab16ca783592754bd02bb6c447b5371897",
+          "review_scope": "影響は対象1頁だけ。原本の左右表と右下備考を全体確認し、右表全21行×10欄を独立転記の期待値と照合。",
+          "grade_for_change": "ok",
+          "repaired_problem": "右表の最終列749.5..780.5が表外の21個の独立数値行へ分離していた。内罫と同じy46.25..421.5を覆う長い両側外枠を原横罫/数値行で確認して含める。",
+          "before_right_table": {
+            "x0": 468.5,
+            "x1": 749.5,
+            "rows": 21,
+            "cols": 9,
+            "cells": 189
+          },
+          "after_right_table": {
+            "x0": 468.5,
+            "x1": 780.5,
+            "rows": 21,
+            "cols": 10,
+            "cells": 210
+          },
+          "reassociated_source_words": 63,
+          "moved_last_column_cells": [
+            {
+              "row": 0,
+              "col": 9,
+              "text": "1.49",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                56,
+                35,
+                14
+              ]
+            },
+            {
+              "row": 1,
+              "col": 9,
+              "text": "1.48",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                51,
+                30,
+                9
+              ]
+            },
+            {
+              "row": 2,
+              "col": 9,
+              "text": "1.42",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                47,
+                26,
+                5
+              ]
+            },
+            {
+              "row": 3,
+              "col": 9,
+              "text": "1.50",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                43,
+                22,
+                1
+              ]
+            },
+            {
+              "row": 4,
+              "col": 9,
+              "text": "1.60",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                42,
+                21,
+                0
+              ]
+            },
+            {
+              "row": 5,
+              "col": 9,
+              "text": "1.62",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                62,
+                41,
+                20
+              ]
+            },
+            {
+              "row": 6,
+              "col": 9,
+              "text": "1.59",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                59,
+                38,
+                17
+              ]
+            },
+            {
+              "row": 7,
+              "col": 9,
+              "text": "1.51",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                55,
+                34,
+                13
+              ]
+            },
+            {
+              "row": 8,
+              "col": 9,
+              "text": "1.40",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                50,
+                29,
+                8
+              ]
+            },
+            {
+              "row": 9,
+              "col": 9,
+              "text": "1.38",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                46,
+                25,
+                4
+              ]
+            },
+            {
+              "row": 10,
+              "col": 9,
+              "text": "1.39",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                60,
+                39,
+                18
+              ]
+            },
+            {
+              "row": 11,
+              "col": 9,
+              "text": "1.37",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                57,
+                36,
+                15
+              ]
+            },
+            {
+              "row": 12,
+              "col": 9,
+              "text": "1.33",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                52,
+                31,
+                10
+              ]
+            },
+            {
+              "row": 13,
+              "col": 9,
+              "text": "1.31",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                53,
+                32,
+                11
+              ]
+            },
+            {
+              "row": 14,
+              "col": 9,
+              "text": "1.33",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                48,
+                27,
+                6
+              ]
+            },
+            {
+              "row": 15,
+              "col": 9,
+              "text": "1.27",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                44,
+                23,
+                2
+              ]
+            },
+            {
+              "row": 16,
+              "col": 9,
+              "text": "1.23",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                61,
+                40,
+                19
+              ]
+            },
+            {
+              "row": 17,
+              "col": 9,
+              "text": "1.16",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                58,
+                37,
+                16
+              ]
+            },
+            {
+              "row": 18,
+              "col": 9,
+              "text": "1.10",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                54,
+                33,
+                12
+              ]
+            },
+            {
+              "row": 19,
+              "col": 9,
+              "text": "1.06",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                49,
+                28,
+                7
+              ]
+            },
+            {
+              "row": 20,
+              "col": 9,
+              "text": "1.00",
+              "bbox": [
+                749.5,
+                46.25,
+                780.5,
+                421.5
+              ],
+              "source_ids": [
+                45,
+                24,
+                3
+              ]
+            }
+          ],
+          "full_matrix_expectations": {
+            "page": "20260930g002150414",
+            "expected_source_rows": 21,
+            "expected_source_columns": 10,
+            "checked_cells": 210,
+            "passed": true,
+            "normalization": "whitespace and fullwidth digits only",
+            "source": "manual transcription of original PDF image"
+          },
+          "other_content": "左表100.5..412.5の28行×10欄は構造・本文・IDが完全一致。長い外枠の下の備考1/2/3と地区列挙は表外のままで、北海道/東北/関東の文を保持。",
+          "new_regressions": 0,
+          "existing_unrelated_limit": "116で見つかった次頁215p416の誤った新旧属性は本修正では変化しない。"
+        }
+      ]
+    },
+    "source_matrix": {
+      "page": "20260930g002150414",
+      "expected_source_rows": 21,
+      "expected_source_columns": 10,
+      "checked_cells": 210,
+      "passed": true,
+      "normalization": "whitespace and fullwidth digits only",
+      "source": "manual transcription of original PDF image"
+    }
+  },
+  "shared_physical_cell_label": {
+    "validation": {
+      "baseline_commit": "b7571c5f82b2a62fbeca26388004e7d6d09cde31",
+      "baseline_output": "after24",
+      "full_corpus": 11992,
+      "changed_pages": 6,
+      "unchanged_pages_exact": 11986,
+      "elapsed_seconds": 194.21364775,
+      "original_changed_pages_visually_reviewed": 6,
+      "regressions_found": 0,
+      "geometry_tests_new": 3,
+      "geometry_negative_cases": 15,
+      "existing_shared_brace_tests": 2,
+      "real_pdf_tests": 4,
+      "baseline_target_test_fails_before_change": true,
+      "new_numeric_cells_introduced": 0,
+      "shared_source_changes": false,
+      "patch_apply_check": true,
+      "original_changed_page_source_words_exact": 6,
+      "all_other_cells_exact": 6,
+      "fixture_manifest": "fixture-manifest.json"
+    },
+    "full_corpus": {
+      "corpus_pdf_count": 11992,
+      "elapsed_seconds": 194.21364775,
+      "changes": [
+        {
+          "page": "20260717g001600104",
+          "hits": 1,
+          "text_changed": true,
+          "baseline_matches_parent_after24": true,
+          "nonspace_char_multiset_exact": true,
+          "all_other_columns_cells_exact": true,
+          "per_article_character_multiset_exact": true,
+          "word_id_counts_preserved": true,
+          "no_duplicate_word_ids": true
+        },
+        {
+          "page": "20260722g001620026",
+          "hits": 1,
+          "text_changed": true,
+          "baseline_matches_parent_after24": true,
+          "nonspace_char_multiset_exact": true,
+          "all_other_columns_cells_exact": true,
+          "per_article_character_multiset_exact": true,
+          "word_id_counts_preserved": true,
+          "no_duplicate_word_ids": true
+        },
+        {
+          "page": "20260722g001620027",
+          "hits": 1,
+          "text_changed": true,
+          "baseline_matches_parent_after24": true,
+          "nonspace_char_multiset_exact": true,
+          "all_other_columns_cells_exact": true,
+          "per_article_character_multiset_exact": true,
+          "word_id_counts_preserved": true,
+          "no_duplicate_word_ids": true
+        },
+        {
+          "page": "20260722g001620030",
+          "hits": 1,
+          "text_changed": true,
+          "baseline_matches_parent_after24": true,
+          "nonspace_char_multiset_exact": true,
+          "all_other_columns_cells_exact": true,
+          "per_article_character_multiset_exact": true,
+          "word_id_counts_preserved": true,
+          "no_duplicate_word_ids": true
+        },
+        {
+          "page": "20260731g001730071",
+          "hits": 1,
+          "text_changed": true,
+          "baseline_matches_parent_after24": true,
+          "nonspace_char_multiset_exact": true,
+          "all_other_columns_cells_exact": true,
+          "per_article_character_multiset_exact": true,
+          "word_id_counts_preserved": true,
+          "no_duplicate_word_ids": true
+        },
+        {
+          "page": "20260901g001950085",
+          "hits": 1,
+          "text_changed": true,
+          "baseline_matches_parent_after24": true,
+          "nonspace_char_multiset_exact": true,
+          "all_other_columns_cells_exact": true,
+          "per_article_character_multiset_exact": true,
+          "word_id_counts_preserved": true,
+          "no_duplicate_word_ids": true
+        }
+      ],
+      "unrelated_baseline_differences_from_parent_after24": []
+    },
+    "original_reviews": [
+      {
+        "page": "20260717g001600104",
+        "verdict": "improvement",
+        "notes": "左上の満期保有目的債券表。原本の「貸借対照表計上額が時価を超えるもの」は地方債行と小計行を跨ぐ1物理セルで、2行の文を連結しrowspan2へ戻す。地方債と小計の計上額200,000,000、時価192,950,000、差額△7,050,000が各行に保存され、合計行とも混ざらない。",
+        "original": ".cache/kanpo-archive/2026-07-17/20260717g00160/20260717g001600104.pdf",
+        "original_sha256": "5e5a8b02c5c3f2e7f040cf4615b3311c418253971bc44a2c1193f7eeb040e15a",
+        "image": ".cache/kanpo-227/shared-physical-label-prototype/images/20260717g001600104.png",
+        "image_sha256": "b0dddfddd7cccf0a84111effe001fb490d19981a2bbde2eff3ecfc85b0681b1b",
+        "before_output_sha256": "2802fd194702935ffcc0422ee51c56bed709d109e6baf635f765383ed80cd507",
+        "after_output_sha256": "e4c12ee3ebd829ea3ab66992051890a3e5ea34731bcb0cbbb15ef7cfaecabb5f",
+        "source_words_exact": true,
+        "nonspace_char_multiset_exact": true,
+        "original_visually_checked": true,
+        "regression_found": false,
+        "changed_source_cell": {
+          "before_cells": [
+            {
+              "row": 1,
+              "col": 0,
+              "rowspan": 1,
+              "colspan": 1,
+              "x0": 69.5,
+              "y0": 105.929,
+              "x1": 172.5,
+              "y1": 141.071,
+              "text": "貸借対照表計上額が時価を",
+              "words": [
+                1232
+              ]
+            },
+            {
+              "row": 2,
+              "col": 0,
+              "rowspan": 1,
+              "colspan": 1,
+              "x0": 69.5,
+              "y0": 105.929,
+              "x1": 172.5,
+              "y1": 141.071,
+              "text": "超えるもの",
+              "words": [
+                1233
+              ]
+            }
+          ],
+          "after_cell": {
+            "row": 1,
+            "col": 0,
+            "rowspan": 2,
+            "colspan": 1,
+            "x0": 69.5,
+            "y0": 105.929,
+            "x1": 172.5,
+            "y1": 141.071,
+            "text": "貸借対照表計上額が時価を超えるもの",
+            "words": [
+              1232,
+              1233
+            ]
+          },
+          "original_glyph_words": [
+            {
+              "id": 1232,
+              "raw": "貸借対照表計上額が時価を",
+              "text": "貸借対照表計上額が時価を",
+              "bbox": [
+                73.008,
+                111.5717,
+                169.008,
+                119.7557
+              ]
+            },
+            {
+              "id": 1233,
+              "raw": "超えるもの",
+              "text": "超えるもの",
+              "bbox": [
+                73.008,
+                119.5717,
+                113.008,
+                127.7557
+              ]
+            }
+          ],
+          "all_other_cells_exact": true
+        },
+        "diff": "--- \n\n+++ \n\n@@ -4,4 +4,4 @@\n\n 　種類　貸借対照表計上額　時価　差額\n-貸借対照表計上額が時価を　地方債　200,000,000　192,950,000　△7,050,000\n-超えるもの　小計　200,000,000　192,950,000　△7,050,000\n+貸借対照表計上額が時価を超えるもの　地方債　200,000,000　192,950,000　△7,050,000\n+　小計　200,000,000　192,950,000　△7,050,000\n 合計　　200,000,000　192,950,000　△7,050,000"
+      },
+      {
+        "page": "20260722g001620026",
+        "verdict": "improvement",
+        "notes": "中央の共通銘柄「コンビナシオネス・セレクシオン」を1セルrowspan2へ復元。ピラミデス156㎜/6本/61,600→66,000円、ロブストス124㎜/6本/54,450→58,300円が別の2レコードに残る。共通6'Sと周囲のクアバ・コノスール価格結合も変更なし。",
+        "original": ".cache/kanpo-archive/2026-07-22/20260722g00162/20260722g001620026.pdf",
+        "original_sha256": "07a5399e89d194b419ddbbc2aba0fd5270edc6805140844bb9648867171b81d3",
+        "image": ".cache/kanpo-227/shared-physical-label-prototype/images/20260722g001620026.png",
+        "image_sha256": "ab39f102a8f34a4b71af9550a56dd6edec9a5f7a5f0ea6326b2c599ecbc2ba96",
+        "before_output_sha256": "9b747ee6af4b344c5f96b04d6f84552fbb515881e19ded9c4444592abbe89640",
+        "after_output_sha256": "c1da141eacdd71005eb9588b54b69424ca3a44f873dfc1b086088c98d11e9419",
+        "source_words_exact": true,
+        "nonspace_char_multiset_exact": true,
+        "original_visually_checked": true,
+        "regression_found": false,
+        "changed_source_cell": {
+          "before_cells": [
+            {
+              "row": 12,
+              "col": 0,
+              "rowspan": 1,
+              "colspan": 1,
+              "x0": 141.5,
+              "y0": 234.57,
+              "x1": 229.5,
+              "y1": 265.998,
+              "text": "コンビナシオネス・セ",
+              "words": [
+                281
+              ]
+            },
+            {
+              "row": 13,
+              "col": 0,
+              "rowspan": 1,
+              "colspan": 1,
+              "x0": 141.5,
+              "y0": 234.57,
+              "x1": 229.5,
+              "y1": 265.998,
+              "text": "レクシオン",
+              "words": [
+                282
+              ]
+            }
+          ],
+          "after_cell": {
+            "row": 12,
+            "col": 0,
+            "rowspan": 2,
+            "colspan": 1,
+            "x0": 141.5,
+            "y0": 234.57,
+            "x1": 229.5,
+            "y1": 265.998,
+            "text": "コンビナシオネス・セレクシオン",
+            "words": [
+              281,
+              282
+            ]
+          },
+          "original_glyph_words": [
+            {
+              "id": 281,
+              "raw": "コンビナシオネス・セ",
+              "text": "コンビナシオネス・セ",
+              "bbox": [
+                145.5,
+                239.2609,
+                225.5,
+                247.4449
+              ]
+            },
+            {
+              "id": 282,
+              "raw": "レクシオン",
+              "text": "レクシオン",
+              "bbox": [
+                145.5,
+                247.2609,
+                185.5,
+                255.4449
+              ]
+            }
+          ],
+          "all_other_cells_exact": true
+        },
+        "diff": "--- \n\n+++ \n\n@@ -12,4 +12,4 @@\n\n 　　テュボス　　18,150円　20,240円\n-コンビナシオネス・セ　ピラミデス　6'S　156㎜　６本　61,600円　66,000円\n-レクシオン　ロブストス　　124㎜　６本　54,450円　58,300円\n+コンビナシオネス・セレクシオン　ピラミデス　6'S　156㎜　６本　61,600円　66,000円\n+　ロブストス　　124㎜　６本　54,450円　58,300円\n クアバ　・ディスティングイドス　フラットボックス　　162㎜　１本　7,700円　8,250円"
+      },
+      {
+        "page": "20260722g001620027",
+        "verdict": "improvement",
+        "notes": "中央下の共通銘柄「ファンロペズ・セレクション」は物理セル内2行の折返しで、rowspan2へ復元。エスペシャルLCDH170㎜/9,680→10,120円、No.2の124㎜/5,500→5,830円は独立したまま。上下のホセLピエドラ、ラフロールデカノなど別銘柄や共通価格は動かない。",
+        "original": ".cache/kanpo-archive/2026-07-22/20260722g00162/20260722g001620027.pdf",
+        "original_sha256": "9e5895d9161dee588c5497fe7d2a94e793c5e00a3ce248235fe309c06c9dace3",
+        "image": ".cache/kanpo-227/shared-physical-label-prototype/images/20260722g001620027.png",
+        "image_sha256": "6fd7e6b5dfed1bda512ac446a34a3d3f26a5decef49233c05a6b2a03e832ef69",
+        "before_output_sha256": "5d65c0446fec16af9fa960e826c855934869060fa74c66a3e68fd5ec88f630d2",
+        "after_output_sha256": "7ecfa03af0f3a1bbc1725adde145b58d375e7f5a741a2ece5dff024a570e9dc4",
+        "source_words_exact": true,
+        "nonspace_char_multiset_exact": true,
+        "original_visually_checked": true,
+        "regression_found": false,
+        "changed_source_cell": {
+          "before_cells": [
+            {
+              "row": 23,
+              "col": 0,
+              "rowspan": 1,
+              "colspan": 1,
+              "x0": 141.5,
+              "y0": 407.428,
+              "x1": 229.5,
+              "y1": 438.856,
+              "text": "ファンロペズ・セレク",
+              "words": [
+                289
+              ]
+            },
+            {
+              "row": 24,
+              "col": 0,
+              "rowspan": 1,
+              "colspan": 1,
+              "x0": 141.5,
+              "y0": 407.428,
+              "x1": 229.5,
+              "y1": 438.856,
+              "text": "ション",
+              "words": [
+                290
+              ]
+            }
+          ],
+          "after_cell": {
+            "row": 23,
+            "col": 0,
+            "rowspan": 2,
+            "colspan": 1,
+            "x0": 141.5,
+            "y0": 407.428,
+            "x1": 229.5,
+            "y1": 438.856,
+            "text": "ファンロペズ・セレクション",
+            "words": [
+              289,
+              290
+            ]
+          },
+          "original_glyph_words": [
+            {
+              "id": 289,
+              "raw": "ファンロペズ・セレク",
+              "text": "ファンロペズ・セレク",
+              "bbox": [
+                145.508,
+                412.1363,
+                225.508,
+                420.3203
+              ]
+            },
+            {
+              "id": 290,
+              "raw": "ション",
+              "text": "ション",
+              "bbox": [
+                145.508,
+                420.1363,
+                169.508,
+                428.3203
+              ]
+            }
+          ],
+          "all_other_cells_exact": true
+        },
+        "diff": "--- \n\n+++ \n\n@@ -23,4 +23,4 @@\n\n 　・ペティ　カバレロス　　　120㎜　１本\n-ファンロペズ・セレク　エスペシャル　LCDH　　　170㎜　１本　9,680円　10,120円\n-ション　No.2　　　124㎜　１本　5,500円　5,830円\n+ファンロペズ・セレクション　エスペシャル　LCDH　　　170㎜　１本　9,680円　10,120円\n+　No.2　　　124㎜　１本　5,500円　5,830円\n ラ・フロール・デ・カノ・エレヒドス　　　　127㎜　１本　3,080円　3,300円"
+      },
+      {
+        "page": "20260722g001620030",
+        "verdict": "improvement",
+        "notes": "中央左の「ロメオ・Y・ジュリエッタ」は原本で21レコード全体に掛かる共通銘柄の2行折返し。物理セルの全子行からrowspan21を復元。先頭ベリコソス140㎜/6,270→6,710円、次ベルベデレス125㎜/2,420→2,640円、最後ロメオNo.3の117㎜/2,860→3,080円を含む全銘柄/寸法/価格セルは保持。折返し2行だけを範囲にする誤りを避ける実PDFテストを追加。",
+        "original": ".cache/kanpo-archive/2026-07-22/20260722g00162/20260722g001620030.pdf",
+        "original_sha256": "13e9f1752cb9cdcbfb48b2c2dddba16ea852ed9de9027c94870214498503745f",
+        "image": ".cache/kanpo-227/shared-physical-label-prototype/images/20260722g001620030.png",
+        "image_sha256": "0a9e0bd8a7cafb6d8eb0c8476ae7aae89647f202626808f4c04c892d0c19075b",
+        "before_output_sha256": "49ab4b734b0b30df0b301310d4fe3607359e626609f802e13ff292665605014d",
+        "after_output_sha256": "d4998b34d39fb0872b544170ad9ca95820b4222610755f2779d7cb362c1a2a2f",
+        "source_words_exact": true,
+        "nonspace_char_multiset_exact": true,
+        "original_visually_checked": true,
+        "regression_found": false,
+        "changed_source_cell": {
+          "before_cells": [
+            {
+              "row": 11,
+              "col": 0,
+              "rowspan": 1,
+              "colspan": 1,
+              "x0": 141.5,
+              "y0": 218.854,
+              "x1": 229.5,
+              "y1": 549.0005,
+              "text": "ロメオ・Y・ジュリ",
+              "words": [
+                310
+              ]
+            },
+            {
+              "row": 12,
+              "col": 0,
+              "rowspan": 1,
+              "colspan": 1,
+              "x0": 141.5,
+              "y0": 218.854,
+              "x1": 229.5,
+              "y1": 549.0005,
+              "text": "エッタ",
+              "words": [
+                311
+              ]
+            }
+          ],
+          "after_cell": {
+            "row": 11,
+            "col": 0,
+            "rowspan": 21,
+            "colspan": 1,
+            "x0": 141.5,
+            "y0": 218.854,
+            "x1": 229.5,
+            "y1": 549.0005,
+            "text": "ロメオ・Y・ジュリエッタ",
+            "words": [
+              310,
+              311
+            ]
+          },
+          "original_glyph_words": [
+            {
+              "id": 310,
+              "raw": "ロメオ・Y・ジュリ",
+              "text": "ロメオ・Y・ジュリ",
+              "bbox": [
+                145.5,
+                223.574,
+                225.4992,
+                231.758
+              ]
+            },
+            {
+              "id": 311,
+              "raw": "エッタ",
+              "text": "エッタ",
+              "bbox": [
+                145.5,
+                231.574,
+                169.5,
+                239.758
+              ]
+            }
+          ],
+          "all_other_cells_exact": true
+        },
+        "diff": "--- \n\n+++ \n\n@@ -11,4 +11,4 @@\n\n 　・ロイヤル　シリーズ　LCDH　　155㎜　１本　16,500円　16,720円\n-ロメオ・Y・ジュリ　・ベリコソス　　140㎜　１本　6,270円　6,710円\n-エッタ　・ベルベデレス　　125㎜　１本　2,420円　2,640円\n+ロメオ・Y・ジュリエッタ　・ベリコソス　　140㎜　１本　6,270円　6,710円\n+　・ベルベデレス　　125㎜　１本　2,420円　2,640円\n 　・カザドラス　　162㎜　１本　4,290円　4,730円"
+      },
+      {
+        "page": "20260731g001730071",
+        "verdict": "improvement",
+        "notes": "右列中段の料金表。「往復料金セットプラン」は2行の文字を持つ4レコード共通物理セルで、rowspan4へ復元。滋賀・京都の2/3日9,300/10,000・7,500/8,100、大阪・兵庫の2/3日7,800/8,500・6,300/6,900の対応を維持。発着/周遊区域・日数の列も動かず、前後の道路区域の本文/表に混入なし。",
+        "original": ".cache/kanpo-archive/2026-07-31/20260731g00173/20260731g001730071.pdf",
+        "original_sha256": "c7a831c5ece464c9ba298a7480b15c1c1655cc828f2dd3a5b775534da754a29a",
+        "image": ".cache/kanpo-227/shared-physical-label-prototype/images/20260731g001730071.png",
+        "image_sha256": "e36eafde5934a0b133b49e0091240f13e0507295731d67a31d54c7f5d3b89d78",
+        "before_output_sha256": "2b973e44de2be87bb211a187416f3111dc0be5300b664a39432a59862abff18f",
+        "after_output_sha256": "b606d0ce3b5381bb613a00a2aac0afb2e196ea76ce4e6243b07d00b11d90c298",
+        "source_words_exact": true,
+        "nonspace_char_multiset_exact": true,
+        "original_visually_checked": true,
+        "regression_found": false,
+        "changed_source_cell": {
+          "before_cells": [
+            {
+              "row": 1,
+              "col": 0,
+              "rowspan": 1,
+              "colspan": 1,
+              "x0": 461.5,
+              "y0": 278.75,
+              "x1": 516.5,
+              "y1": 343.893,
+              "text": "往復料金セッ",
+              "words": [
+                84
+              ]
+            },
+            {
+              "row": 2,
+              "col": 0,
+              "rowspan": 1,
+              "colspan": 1,
+              "x0": 461.5,
+              "y0": 278.75,
+              "x1": 516.5,
+              "y1": 343.893,
+              "text": "トプラン",
+              "words": [
+                85
+              ]
+            }
+          ],
+          "after_cell": {
+            "row": 1,
+            "col": 0,
+            "rowspan": 4,
+            "colspan": 1,
+            "x0": 461.5,
+            "y0": 278.75,
+            "x1": 516.5,
+            "y1": 343.893,
+            "text": "往復料金セットプラン",
+            "words": [
+              84,
+              85
+            ]
+          },
+          "original_glyph_words": [
+            {
+              "id": 84,
+              "raw": "往復料金セッ",
+              "text": "往復料金セッ",
+              "bbox": [
+                465.0,
+                283.7543,
+                513.0,
+                291.9383
+              ]
+            },
+            {
+              "id": 85,
+              "raw": "トプラン",
+              "text": "トプラン",
+              "bbox": [
+                465.0,
+                291.7543,
+                497.0,
+                299.9383
+              ]
+            }
+          ],
+          "all_other_cells_exact": true
+        },
+        "diff": "--- \n\n+++ \n\n@@ -63,4 +63,4 @@\n\n 類別　発着エリア　周遊エリア　利用可能日数　普通車　軽自動車等\n-往復料金セッ　滋賀・京都　島根県東部　２日間　9,300　7,500\n-トプラン　滋賀・京都　島根県東部　３日間　10,000　8,100\n+往復料金セットプラン　滋賀・京都　島根県東部　２日間　9,300　7,500\n+　滋賀・京都　島根県東部　３日間　10,000　8,100\n 　大阪・兵庫　島根県東部　２日間　7,800　6,300"
+      },
+      {
+        "page": "20260901g001950085",
+        "verdict": "improvement",
+        "notes": "右下の満期保有目的債券表。「時価が貸借対照表計上額を超えないもの」は地方債・福岡北九州高速道路債ほか・小計の3レコード共通セルで、rowspan3へ復元。6,907,963,798/6,234,138,400/△673,825,398、4,881,888,139/4,426,291,000/△455,597,139および小計の全数値対応は同じ。上の『時価が…超えるもの』、左の国庫納付の独立小見出し⑧は結合しない。",
+        "original": ".cache/kanpo-archive/2026-09-01/20260901g00195/20260901g001950085.pdf",
+        "original_sha256": "d5e8c74be6a068aaaffcac983a039b290cc87b7be39d57056966755f2fe96e45",
+        "image": ".cache/kanpo-227/shared-physical-label-prototype/images/20260901g001950085.png",
+        "image_sha256": "1bbe3dc2b8226db4c974e223a4d8a2732de534ce2a63069837dadd4a36d86a14",
+        "before_output_sha256": "c42d7bdf32ac5f1c29b5b2bc484cd6b1f403b668f84e47976453a9fee077f23b",
+        "after_output_sha256": "849d4cad0433bb503f99f51efa4b9dc5e58db5cd45a039073876bc9353522bb9",
+        "source_words_exact": true,
+        "nonspace_char_multiset_exact": true,
+        "original_visually_checked": true,
+        "regression_found": false,
+        "changed_source_cell": {
+          "before_cells": [
+            {
+              "row": 3,
+              "col": 0,
+              "rowspan": 1,
+              "colspan": 1,
+              "x0": 437.5,
+              "y0": 463.571,
+              "x1": 533.5,
+              "y1": 531.642,
+              "text": "時価が貸借対照表計上額",
+              "words": [
+                243
+              ]
+            },
+            {
+              "row": 4,
+              "col": 0,
+              "rowspan": 1,
+              "colspan": 1,
+              "x0": 437.5,
+              "y0": 463.571,
+              "x1": 533.5,
+              "y1": 531.642,
+              "text": "を超えないもの",
+              "words": [
+                244
+              ]
+            }
+          ],
+          "after_cell": {
+            "row": 3,
+            "col": 0,
+            "rowspan": 3,
+            "colspan": 1,
+            "x0": 437.5,
+            "y0": 463.571,
+            "x1": 533.5,
+            "y1": 531.642,
+            "text": "時価が貸借対照表計上額を超えないもの",
+            "words": [
+              243,
+              244
+            ]
+          },
+          "original_glyph_words": [
+            {
+              "id": 243,
+              "raw": "時価が貸借対照表計上額",
+              "text": "時価が貸借対照表計上額",
+              "bbox": [
+                441.496,
+                469.1246,
+                529.496,
+                477.3086
+              ]
+            },
+            {
+              "id": 244,
+              "raw": "を超えないもの",
+              "text": "を超えないもの",
+              "bbox": [
+                441.496,
+                477.1246,
+                497.496,
+                485.3086
+              ]
+            }
+          ],
+          "all_other_cells_exact": true
+        },
+        "diff": "--- \n\n+++ \n\n@@ -67,4 +67,4 @@\n\n 時価が貸借対照表計上額を超えるもの　小計　－　－　－\n-時価が貸借対照表計上額　地方債　6,907,963,798　6,234,138,400　△673,825,398\n-を超えないもの　福岡北九州高速道路債ほか　4,881,888,139　4,426,291,000　△455,597,139\n+時価が貸借対照表計上額を超えないもの　地方債　6,907,963,798　6,234,138,400　△673,825,398\n+　福岡北九州高速道路債ほか　4,881,888,139　4,426,291,000　△455,597,139\n 　小計　11,789,851,937　10,660,429,400　△1,129,422,537"
+      }
+    ],
+    "negative_pages": [
+      {
+        "page": "20260722g001620025",
+        "text_exact_baseline": true,
+        "original_sha256": "50c494de3f7b043b274e1508228d93b0db593df002edf474db1a500cdea1ff40"
+      },
+      {
+        "page": "20260722g001620028",
+        "text_exact_baseline": true,
+        "original_sha256": "c5f85badf438f643e3c34707174a74c8d4b9643ea35b9ffc616b275242d84457"
+      },
+      {
+        "page": "20260722g001620029",
+        "text_exact_baseline": true,
+        "original_sha256": "ed03073d8a17627b7c9b8394d0ae2ce9f0119dfcb58f0677caed549957d8c8d7"
+      },
+      {
+        "page": "20260722g001620031",
+        "text_exact_baseline": true,
+        "original_sha256": "1f5ddec0eaf5d6bcf83ddcc2412bf8b82d2d874dcfce5bc36934edbabd2b8a1e"
+      },
+      {
+        "page": "20260930g002160055",
+        "text_exact_baseline": true,
+        "original_sha256": "3c70a3814a48fa7ac77bb7236b0533094f118002279db3e9e3f6e84f02fcf621"
+      },
+      {
+        "page": "20260724g001650690",
+        "text_exact_baseline": true,
+        "original_sha256": "85c0f309d77a26466a7ce8ace9842bccdcca879888e0bfa6e728d85bd3b58995"
+      },
+      {
+        "page": "20260724g001650703",
+        "text_exact_baseline": true,
+        "original_sha256": "bf6eb8455d6c05a8096a6c134559e4afeaea97b3d980c427b4606c99ee31702b"
+      },
+      {
+        "page": "20260724g001650705",
+        "text_exact_baseline": true,
+        "original_sha256": "72ccb1d58dedca2a875204a0c84d7ea670d1ee0db0886a7840db7c09fbb8deb8"
+      },
+      {
+        "page": "20260724g001650707",
+        "text_exact_baseline": true,
+        "original_sha256": "52b98a31e9ecc8b0f6354c15eddd24b3811b7718185bb0ec448fc1299ed29596"
+      },
+      {
+        "page": "20261016g002280134",
+        "text_exact_baseline": true,
+        "original_sha256": "14d5b97b81d86308dd09ee5f1be41e81d76df9f9de59dc61061dc84293e782df"
+      },
+      {
+        "page": "20260831g001940076",
+        "text_exact_baseline": true,
+        "original_sha256": "dd00544ae36701ec9ed088986b1d7342fef2be23a8b56f1873473d71e0b41d90"
+      },
+      {
+        "page": "20261016g002280540",
+        "text_exact_baseline": true,
+        "original_sha256": "c93ffd4d242277d9bbb049aee149526658b140f1437054925951364d2d9cedf9"
+      }
+    ]
+  },
+  "plain_period_parentheses": {
+    "validation": {
+      "scope": "all515 pages with one or more of EAED/EAEE/EAEF/EAF0, drawn from all11992 originalPDF scan",
+      "baseline": "b7571c5f82b2a62fbeca26388004e7d6d09cde31 after24 source clone",
+      "candidate": "same cache source + Plain period-only post-layout helper",
+      "scanned": 515,
+      "changed": 325,
+      "restored_periods": 706,
+      "failures": [],
+      "baseline_after24_output_mismatches": [],
+      "expected_added_characters": {
+        "（": 706,
+        "）": 706
+      },
+      "all_existing_words_ids_statuses_roles_units_parts_lines_and_tables_unchanged": true,
+      "visual_audit": "period-parentheses-visual-audit.json:16 original pages,14 changed,2 negative controls,0 regression",
+      "tests": "period-parentheses-final-test.log:6 unit PASS; period-parentheses-pdf-test.log:3 actualPDF tests PASS"
+    },
+    "original_reviews": {
+      "baseline_commit": "b7571c5f82b2a62fbeca26388004e7d6d09cde31",
+      "selection": "179p150 +2 former early-bracket regression controls +10 SHA256(seed issue227-period-parentheses) changed pages +CF/elapsed-account/account-parenthesis boundary controls",
+      "reviewed_original_pages": 16,
+      "changed_pages_visually_reviewed": 14,
+      "improvement": 14,
+      "neutral": 2,
+      "regression": 0,
+      "rows": [
+        {
+          "page": "20260810g001790150",
+          "result": "improvement",
+          "notes": "宮野医療器（自令和7年5月1日/至令和8年4月30日）とエノテカ（自令和7年1月1日/至令和7年12月31日）のPL期間各1対。両社の会社見出し・BS末尾・PL見出し・科目行は保持、単位百万円は閉じ括弧の外。audit116初回minorは固定し、本確認は修正候補の補足とする。",
+          "all_restored_pairs_visually_matched": true,
+          "restored_pairs": 2,
+          "original_pdf": ".cache/kanpo-archive/2026-08-10/20260810g00179/20260810g001790150.pdf",
+          "original_pdf_sha256": "f6504faa7a8b60f7ff93869d1b4804f57edbdd4919bb67d66a9bb2ba62faca2c",
+          "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/period-parentheses-visuals/20260810g001790150.png",
+          "original_png_sha256": "3583711b5f636602eea4605c14ea4d037931b6323b3cb8845b08c8c420eb13b1",
+          "changed_lines": [
+            {
+              "line_index": 36,
+              "before": "自　令和７年５月１日",
+              "after": "（自　令和７年５月１日",
+              "word_ids": [
+                552,
+                522
+              ]
+            },
+            {
+              "line_index": 37,
+              "before": "至　令和８年４月30日(単位：百万円)",
+              "after": "至　令和８年４月30日）(単位：百万円)",
+              "word_ids": [
+                553,
+                523,
+                384
+              ]
+            },
+            {
+              "line_index": 47,
+              "before": "自　令和７年１月１日",
+              "after": "（自　令和７年１月１日",
+              "word_ids": [
+                241,
+                212
+              ]
+            },
+            {
+              "line_index": 48,
+              "before": "至　令和７年12月31日(単位：百万円)",
+              "after": "至　令和７年12月31日）(単位：百万円)",
+              "word_ids": [
+                242,
+                213,
+                78
+              ]
+            }
+          ]
+        },
+        {
+          "page": "20260716g001590092",
+          "result": "improvement",
+          "notes": "千里センター・アルミネの令和7年4月1日～令和8年3月31日、マツダパーツの2025年4月1日～2026年3月31日、計3対が各PL期間だけを囲む。最下段の資本金減少公告は変更なし。旧early-bracket回帰の住所/署名の移動を再発しない。",
+          "all_restored_pairs_visually_matched": true,
+          "restored_pairs": 3,
+          "original_pdf": ".cache/kanpo-archive/2026-07-16/20260716g00159/20260716g001590092.pdf",
+          "original_pdf_sha256": "7dc0f424b887be1d73c506577aa9c0c4fcf134ea51bb696a5bc978c681a1311d",
+          "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/period-parentheses-visuals/20260716g001590092.png",
+          "original_png_sha256": "e93b6c326c6ed3e4411f13fb7b54dfa700ada4286174ec6c479fc46fdd95a1fe",
+          "changed_lines": [
+            {
+              "line_index": 9,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                465,
+                390
+              ]
+            },
+            {
+              "line_index": 10,
+              "before": "至　令和８年３月31日",
+              "after": "至　令和８年３月31日）",
+              "word_ids": [
+                466,
+                391
+              ]
+            },
+            {
+              "line_index": 29,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                467,
+                392
+              ]
+            },
+            {
+              "line_index": 30,
+              "before": "至　令和８年３月31日",
+              "after": "至　令和８年３月31日）",
+              "word_ids": [
+                468,
+                393
+              ]
+            },
+            {
+              "line_index": 46,
+              "before": "自　2025年４月１日",
+              "after": "（自　2025年４月１日",
+              "word_ids": [
+                417,
+                385
+              ]
+            },
+            {
+              "line_index": 47,
+              "before": "至　2026年３月31日",
+              "after": "至　2026年３月31日）",
+              "word_ids": [
+                418,
+                386
+              ]
+            }
+          ]
+        },
+        {
+          "page": "20260717g001600158",
+          "result": "improvement",
+          "notes": "アイエーホールディングス・東芝トレーディングの和暦期間、藤田金属・トラストラの西暦期間、計4対が各PL見出し直下に収まる。代表者名・日付・BS/PL科目所属は既存のまま。旧early-bracket回帰を再発しない。",
+          "all_restored_pairs_visually_matched": true,
+          "restored_pairs": 4,
+          "original_pdf": ".cache/kanpo-archive/2026-07-17/20260717g00160/20260717g001600158.pdf",
+          "original_pdf_sha256": "9b0e68723db9725e68373c1a31e6aa10e85f93db0eba303c837cc30453fe720e",
+          "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/period-parentheses-visuals/20260717g001600158.png",
+          "original_png_sha256": "15edc8f3327ce79238ebccc00fc81efd4eb2532882dad54ec6b8ca0c0f9570af",
+          "changed_lines": [
+            {
+              "line_index": 9,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                486,
+                398
+              ]
+            },
+            {
+              "line_index": 10,
+              "before": "至　令和８年３月31日",
+              "after": "至　令和８年３月31日）",
+              "word_ids": [
+                487,
+                399
+              ]
+            },
+            {
+              "line_index": 28,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                488,
+                400
+              ]
+            },
+            {
+              "line_index": 29,
+              "before": "至　令和８年３月31日",
+              "after": "至　令和８年３月31日）",
+              "word_ids": [
+                489,
+                401
+              ]
+            },
+            {
+              "line_index": 46,
+              "before": "自　2025年４月１日",
+              "after": "（自　2025年４月１日",
+              "word_ids": [
+                425,
+                390
+              ]
+            },
+            {
+              "line_index": 47,
+              "before": "至　2026年３月31日",
+              "after": "至　2026年３月31日）",
+              "word_ids": [
+                426,
+                391
+              ]
+            },
+            {
+              "line_index": 64,
+              "before": "自　2025年４月１日",
+              "after": "（自　2025年４月１日",
+              "word_ids": [
+                427,
+                392
+              ]
+            },
+            {
+              "line_index": 65,
+              "before": "至　2026年３月31日",
+              "after": "至　2026年３月31日）",
+              "word_ids": [
+                428,
+                393
+              ]
+            }
+          ]
+        },
+        {
+          "page": "20260813g001810048",
+          "result": "improvement",
+          "notes": "回転横組みの左PLと右PL、各令和7年4月1日～令和8年3月31日の2対。単位百万円を括弧外に保ち、間にある重要な会計方針や宿泊経理BSを囲まない。",
+          "all_restored_pairs_visually_matched": true,
+          "restored_pairs": 2,
+          "original_pdf": ".cache/kanpo-archive/2026-08-13/20260813g00181/20260813g001810048.pdf",
+          "original_pdf_sha256": "c2e24c593dd832bae78251d13efeff43d56bbb8a5be966e9be0ef9cd1d7310cc",
+          "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/period-parentheses-visuals/20260813g001810048.png",
+          "original_png_sha256": "e9c8f85e728ef38cd2f3d1721210cdfdcfe2776ea74c86fbd57cd49a13627d7c",
+          "changed_lines": [
+            {
+              "line_index": 1,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                430,
+                392
+              ]
+            },
+            {
+              "line_index": 2,
+              "before": "至　令和８年３月31日　（単位：百万円）",
+              "after": "至　令和８年３月31日）　（単位：百万円）",
+              "word_ids": [
+                431,
+                393,
+                258
+              ]
+            },
+            {
+              "line_index": 35,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                216,
+                176
+              ]
+            },
+            {
+              "line_index": 36,
+              "before": "至　令和８年３月31日　（単位：百万円）",
+              "after": "至　令和８年３月31日）　（単位：百万円）",
+              "word_ids": [
+                217,
+                177,
+                35
+              ]
+            }
+          ]
+        },
+        {
+          "page": "20260721g001610156",
+          "result": "improvement",
+          "notes": "医療法人社団行陵会、医療法人社団宇部中央病院のPL各1対。両期間は令和7年4月1日～令和8年3月31日。下段の2本の準備金減少公告や署名には変更なし。",
+          "all_restored_pairs_visually_matched": true,
+          "restored_pairs": 2,
+          "original_pdf": ".cache/kanpo-archive/2026-07-21/20260721g00161/20260721g001610156.pdf",
+          "original_pdf_sha256": "673d629e3bbadc389b3fb5b27940e31af34076a9ae24546faebdd31a872cb809",
+          "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/period-parentheses-visuals/20260721g001610156.png",
+          "original_png_sha256": "62b395b9fae959077b1ce1fe09bdad27e09b65351fbfdf19c8cb9b5d981e4ba4",
+          "changed_lines": [
+            {
+              "line_index": 7,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                393,
+                346
+              ]
+            },
+            {
+              "line_index": 8,
+              "before": "至　令和８年３月31日",
+              "after": "至　令和８年３月31日）",
+              "word_ids": [
+                394,
+                347
+              ]
+            },
+            {
+              "line_index": 27,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                395,
+                348
+              ]
+            },
+            {
+              "line_index": 28,
+              "before": "至　令和８年３月31日",
+              "after": "至　令和８年３月31日）",
+              "word_ids": [
+                396,
+                349
+              ]
+            }
+          ]
+        },
+        {
+          "page": "20261007g002210052",
+          "result": "improvement",
+          "notes": "つくば中央特定目的会社・東雲特定目的会社の令和7年7月1日～令和8年6月30日、COREの2025年9月1日～2026年7月31日、計3対。最下段の合併公告の甲乙・日付・署名は変更なし。",
+          "all_restored_pairs_visually_matched": true,
+          "restored_pairs": 3,
+          "original_pdf": ".cache/kanpo-archive/2026-10-07/20261007g00221/20261007g002210052.pdf",
+          "original_pdf_sha256": "f06b07fc38bb5557123e78835ace7b81a303731b48a6b73203731dc6ae2c87dd",
+          "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/period-parentheses-visuals/20261007g002210052.png",
+          "original_png_sha256": "5941113774def4aeac536fb8c488f8ce80733e01410c474b7ec8fccec2202c32",
+          "changed_lines": [
+            {
+              "line_index": 9,
+              "before": "自　令和７年７月１日",
+              "after": "（自　令和７年７月１日",
+              "word_ids": [
+                440,
+                379
+              ]
+            },
+            {
+              "line_index": 10,
+              "before": "至　令和８年６月30日",
+              "after": "至　令和８年６月30日）",
+              "word_ids": [
+                441,
+                380
+              ]
+            },
+            {
+              "line_index": 28,
+              "before": "自　令和７年７月１日",
+              "after": "（自　令和７年７月１日",
+              "word_ids": [
+                442,
+                381
+              ]
+            },
+            {
+              "line_index": 29,
+              "before": "至　令和８年６月30日",
+              "after": "至　令和８年６月30日）",
+              "word_ids": [
+                443,
+                382
+              ]
+            },
+            {
+              "line_index": 48,
+              "before": "自　2025年９月１日",
+              "after": "（自　2025年９月１日",
+              "word_ids": [
+                401,
+                375
+              ]
+            },
+            {
+              "line_index": 49,
+              "before": "至　2026年７月31日",
+              "after": "至　2026年７月31日）",
+              "word_ids": [
+                402,
+                376
+              ]
+            }
+          ]
+        },
+        {
+          "page": "20260817g001830077",
+          "result": "improvement",
+          "notes": "下段左の社会医療法人弘道会と下段右の瀬戸埠頭のPL各1対。令和7年4月1日～令和8年3月31日だけを囲み、左右別会社の表や単位を巻き込まない。",
+          "all_restored_pairs_visually_matched": true,
+          "restored_pairs": 2,
+          "original_pdf": ".cache/kanpo-archive/2026-08-17/20260817g00183/20260817g001830077.pdf",
+          "original_pdf_sha256": "73bf4ac8d0ef1335f6609e773206c0b14bf0f91fa4fed1fd0cc9a1a369d221cb",
+          "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/period-parentheses-visuals/20260817g001830077.png",
+          "original_png_sha256": "dbaf055f593f5f7647c76c4534a4a22b0e1c14c4b9e2b9051109d3f94bf49b72",
+          "changed_lines": [
+            {
+              "line_index": 35,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                583,
+                554
+              ]
+            },
+            {
+              "line_index": 36,
+              "before": "至　令和８年３月31日(単位：百万円)",
+              "after": "至　令和８年３月31日）(単位：百万円)",
+              "word_ids": [
+                584,
+                555,
+                410
+              ]
+            },
+            {
+              "line_index": 46,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                255,
+                230
+              ]
+            },
+            {
+              "line_index": 47,
+              "before": "至　令和８年３月31日(単位：百万円)",
+              "after": "至　令和８年３月31日）(単位：百万円)",
+              "word_ids": [
+                256,
+                231,
+                81
+              ]
+            }
+          ]
+        },
+        {
+          "page": "20260721g001610160",
+          "result": "improvement",
+          "notes": "DICと公益財団法人日本英語検定協会の期間各1対。BS/正味財産増減表に混入せず、下段縦組み合併公告・資本金減少公告を変更しない。",
+          "all_restored_pairs_visually_matched": true,
+          "restored_pairs": 2,
+          "original_pdf": ".cache/kanpo-archive/2026-07-21/20260721g00161/20260721g001610160.pdf",
+          "original_pdf_sha256": "7aa9c08a58fbec9e4514ef4fe8809545baffb3d6e49d5c0363bb2b64579b4865",
+          "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/period-parentheses-visuals/20260721g001610160.png",
+          "original_png_sha256": "36550bdde2dc69a09e71a33e87f93f13ac506c3fdade60ffc856b625e8e55683",
+          "changed_lines": [
+            {
+              "line_index": 8,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                350,
+                308
+              ]
+            },
+            {
+              "line_index": 9,
+              "before": "至　令和８年３月31日",
+              "after": "至　令和８年３月31日）",
+              "word_ids": [
+                351,
+                309
+              ]
+            },
+            {
+              "line_index": 27,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                353,
+                310
+              ]
+            },
+            {
+              "line_index": 28,
+              "before": "至　令和８年３月31日",
+              "after": "至　令和８年３月31日）",
+              "word_ids": [
+                354,
+                311
+              ]
+            }
+          ]
+        },
+        {
+          "page": "20260729g001700077",
+          "result": "improvement",
+          "notes": "右列コスモ石油ルブリカンツの西暦期間、豊田メタルの和暦期間の2対。下段左NECネッツエスアイの字間が広い期間は対象2語条件を満たさず従来の欠落を残す（新しい回帰ではない）。単位百万円/千円は外側。",
+          "all_restored_pairs_visually_matched": true,
+          "restored_pairs": 2,
+          "original_pdf": ".cache/kanpo-archive/2026-07-29/20260729g00170/20260729g001700077.pdf",
+          "original_pdf_sha256": "455c111848aa5efa19009a1675d3de06b54d3fef936676e0bf1ee26df3c7da21",
+          "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/period-parentheses-visuals/20260729g001700077.png",
+          "original_png_sha256": "a4fcff41f99dd5e22b9b2a271e362dc8baa8665398772d0167a7463cdc876d08",
+          "changed_lines": [
+            {
+              "line_index": 20,
+              "before": "自　2025年４月１日",
+              "after": "（自　2025年４月１日",
+              "word_ids": [
+                216,
+                177
+              ]
+            },
+            {
+              "line_index": 21,
+              "before": "至　2026年３月31日　(単位：百万円)",
+              "after": "至　2026年３月31日）　(単位：百万円)",
+              "word_ids": [
+                217,
+                178,
+                68
+              ]
+            },
+            {
+              "line_index": 31,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                224,
+                186
+              ]
+            },
+            {
+              "line_index": 32,
+              "before": "至　令和８年３月31日　(単位：千円)",
+              "after": "至　令和８年３月31日）　(単位：千円)",
+              "word_ids": [
+                225,
+                187,
+                56
+              ]
+            }
+          ]
+        },
+        {
+          "page": "20260721g001610171",
+          "result": "improvement",
+          "notes": "ニッセンレンエスコート・北海道酒類販売・社会医療法人医仁会の3対。左上大和ハウスプロパティマネジメントの既存括弧は変更せず二重化しない。科目内の括弧/金額は無変更。",
+          "all_restored_pairs_visually_matched": true,
+          "restored_pairs": 3,
+          "original_pdf": ".cache/kanpo-archive/2026-07-21/20260721g00161/20260721g001610171.pdf",
+          "original_pdf_sha256": "fab6080450bb4bc8ae17cb4fb2dedeb09fdbe48744b27a2ed79181ec43e06de9",
+          "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/period-parentheses-visuals/20260721g001610171.png",
+          "original_png_sha256": "6831698c927c93062b4d4ff87c27dd381e348370074c288437b2a03c99ab06a9",
+          "changed_lines": [
+            {
+              "line_index": 18,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                232,
+                192
+              ]
+            },
+            {
+              "line_index": 19,
+              "before": "至　令和８年３月31日　(単位：千円)",
+              "after": "至　令和８年３月31日）　(単位：千円)",
+              "word_ids": [
+                233,
+                193,
+                58
+              ]
+            },
+            {
+              "line_index": 29,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                548,
+                513
+              ]
+            },
+            {
+              "line_index": 30,
+              "before": "至　令和８年３月31日(単位：百万円)",
+              "after": "至　令和８年３月31日）(単位：百万円)",
+              "word_ids": [
+                549,
+                514,
+                398
+              ]
+            },
+            {
+              "line_index": 41,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                228,
+                190
+              ]
+            },
+            {
+              "line_index": 42,
+              "before": "至　令和８年３月31日(単位：百万円)",
+              "after": "至　令和８年３月31日）(単位：百万円)",
+              "word_ids": [
+                229,
+                191,
+                68
+              ]
+            }
+          ]
+        },
+        {
+          "page": "20260828g001920058",
+          "result": "improvement",
+          "notes": "BCJ-86の西暦2025年9月1日～2026年3月31日1対だけ。右側の相続債権者催告、上段の準備金減少/吸収分割公告の本文・日付・署名は変更なし。",
+          "all_restored_pairs_visually_matched": true,
+          "restored_pairs": 1,
+          "original_pdf": ".cache/kanpo-archive/2026-08-28/20260828g00192/20260828g001920058.pdf",
+          "original_pdf_sha256": "07fbfd6fb7740bfbbdb45c32ce094efc5c893f60a8a5bbf934b667d4b38b2d4d",
+          "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/period-parentheses-visuals/20260828g001920058.png",
+          "original_png_sha256": "0eb15ba7a668d9c2a86d49e547b870b455c07977bc41a91cd4d583913c7e201d",
+          "changed_lines": [
+            {
+              "line_index": 19,
+              "before": "自　2025年９月１日",
+              "after": "（自　2025年９月１日",
+              "word_ids": [
+                61,
+                47
+              ]
+            },
+            {
+              "line_index": 20,
+              "before": "至　2026年３月31日",
+              "after": "至　2026年３月31日）",
+              "word_ids": [
+                62,
+                48
+              ]
+            }
+          ]
+        },
+        {
+          "page": "20260810g001790143",
+          "result": "improvement",
+          "notes": "MCHホールディングス・MCH・H&PC Investmentsの3対。いずれも令和7年4月1日～令和8年3月31日。右上縦組み資本金減少公告を巻き込まず、代表者と各PL金額は既存所属。",
+          "all_restored_pairs_visually_matched": true,
+          "restored_pairs": 3,
+          "original_pdf": ".cache/kanpo-archive/2026-08-10/20260810g00179/20260810g001790143.pdf",
+          "original_pdf_sha256": "d999a055083222632b477499717337d64803acb5670869dcd84e20d476ad1eb9",
+          "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/period-parentheses-visuals/20260810g001790143.png",
+          "original_png_sha256": "fc62228fb480fa690dabb31300fb9f6a7a4c967ef52731aaa6299323df3d2c0d",
+          "changed_lines": [
+            {
+              "line_index": 42,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                150,
+                83
+              ]
+            },
+            {
+              "line_index": 43,
+              "before": "至　令和８年３月31日",
+              "after": "至　令和８年３月31日）",
+              "word_ids": [
+                151,
+                84
+              ]
+            },
+            {
+              "line_index": 59,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                152,
+                85
+              ]
+            },
+            {
+              "line_index": 60,
+              "before": "至　令和８年３月31日",
+              "after": "至　令和８年３月31日）",
+              "word_ids": [
+                153,
+                86
+              ]
+            },
+            {
+              "line_index": 78,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                154,
+                87
+              ]
+            },
+            {
+              "line_index": 79,
+              "before": "至　令和８年３月31日",
+              "after": "至　令和８年３月31日）",
+              "word_ids": [
+                155,
+                88
+              ]
+            }
+          ]
+        },
+        {
+          "page": "20260727g001670090",
+          "result": "improvement",
+          "notes": "JMAホールディングスの下段PL期間1対。令和7年4月1日～令和8年3月31日。上段/右段の他7社の公告・BS科目や括弧金額に変更なし。",
+          "all_restored_pairs_visually_matched": true,
+          "restored_pairs": 1,
+          "original_pdf": ".cache/kanpo-archive/2026-07-27/20260727g00167/20260727g001670090.pdf",
+          "original_pdf_sha256": "346825dbb946edde04edd9798f00e874c62499ba10a934576eb9b6349361d2cf",
+          "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/period-parentheses-visuals/20260727g001670090.png",
+          "original_png_sha256": "93cc0cde787e64784260e901bd9f938a49260ba1d32f196119ecbf6e82a0b0a1",
+          "changed_lines": [
+            {
+              "line_index": 48,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                365,
+                340
+              ]
+            },
+            {
+              "line_index": 49,
+              "before": "至　令和８年３月31日",
+              "after": "至　令和８年３月31日）",
+              "word_ids": [
+                366,
+                341
+              ]
+            }
+          ]
+        },
+        {
+          "page": "20260731g001720101",
+          "result": "neutral",
+          "notes": "境界負例。CF様式の空欄日付（年/月/日から、年/月/日まで）の大型括弧は実日付かつ自/至の2語条件を満たさず復元しない。従来の括弧欠落は残存。キャッシュフロー本文・金額空列・（営業活動及び資産運用活動計）等の既存科目括弧も全trace完全不変。",
+          "all_restored_pairs_visually_matched": true,
+          "restored_pairs": 0,
+          "original_pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720101.pdf",
+          "original_pdf_sha256": "53ffe3f8bac452042722b201988f14c3aae9fc8bbd0b06c62bc89c94bcd4c59c",
+          "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/period-parentheses-visuals/20260731g001720101.png",
+          "original_png_sha256": "5a125e23a61d615936ea8d97f92ecc8b0163969e1a3ebe329b2dfaa8e051d3cb",
+          "changed_lines": []
+        },
+        {
+          "page": "20260813g001810046",
+          "result": "improvement",
+          "notes": "経過的長期経理・業務経理のPL2対は同一記事内の令和7年4月1日～令和8年3月31日として正しい。経過措置の注記に含まれる平成27年政令第345号等の日付/法令番号、BS基準日（令和8年3月31日現在）は変更しない。",
+          "all_restored_pairs_visually_matched": true,
+          "restored_pairs": 2,
+          "original_pdf": ".cache/kanpo-archive/2026-08-13/20260813g00181/20260813g001810046.pdf",
+          "original_pdf_sha256": "bf977672217bd402fa0e338d01f94c880032b49878ad4f2ff6dad7e895204d23",
+          "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/period-parentheses-visuals/20260813g001810046.png",
+          "original_png_sha256": "3f67760aeae47309864684ec512722e112ae2d651081a2c14c0da3a641bd9e88",
+          "changed_lines": [
+            {
+              "line_index": 14,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                463,
+                427
+              ]
+            },
+            {
+              "line_index": 15,
+              "before": "至　令和８年３月31日　（単位：百万円）",
+              "after": "至　令和８年３月31日）　（単位：百万円）",
+              "word_ids": [
+                464,
+                428,
+                268
+              ]
+            },
+            {
+              "line_index": 32,
+              "before": "自　令和７年４月１日",
+              "after": "（自　令和７年４月１日",
+              "word_ids": [
+                222,
+                183
+              ]
+            },
+            {
+              "line_index": 33,
+              "before": "至　令和８年３月31日　（単位：百万円）",
+              "after": "至　令和８年３月31日）　（単位：百万円）",
+              "word_ids": [
+                223,
+                184,
+                39
+              ]
+            }
+          ]
+        },
+        {
+          "page": "20260727g001670087",
+          "result": "neutral",
+          "notes": "境界負例。既存post-layout表セルで復元済の（社員退職給付引当金）(119,971)、（役員退任給与引当金）(7,299)、（うち役員退職慰労引当金）(43)は期間扱いせず、ページ全trace完全不変。EAF0のEmpty状態も保持。",
+          "all_restored_pairs_visually_matched": true,
+          "restored_pairs": 0,
+          "original_pdf": ".cache/kanpo-archive/2026-07-27/20260727g00167/20260727g001670087.pdf",
+          "original_pdf_sha256": "535d7f7914a2cdadbbb02188f16d39b83aa8f0501cdd2d2f9c5c6c39b529480c",
+          "original_png": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/period-parentheses-visuals/20260727g001670087.png",
+          "original_png_sha256": "228b7a926368b7be2c51b0b569c0f03c586aae58d6b5b70a0d223b1f280dcde2",
+          "changed_lines": []
+        }
+      ],
+      "limits": "Visual sample confirms every restored pair on these16 pages; all515 occurrence pages are mechanically compared but not all325 changed pages were visually viewed."
+    },
+    "visual_scope": {
+      "changed_pages": 325,
+      "restored_pairs": 706,
+      "reviewed_changed_pages": 14,
+      "reviewed_pairs": 32,
+      "unreviewed_changed_pages": 311,
+      "unreviewed_pairs": 674,
+      "negative_original_pages": 2
+    },
+    "source_provenance": "issue227-period-parentheses-provenance.json"
+  },
+  "snapshot_reviews": [
+    {
+      "page": "20260722g001620026",
+      "existing": false,
+      "body_equals_final27": true
+    },
+    {
+      "page": "20260722g001620030",
+      "existing": false,
+      "body_equals_final27": true
+    },
+    {
+      "page": "20260731g001720101",
+      "existing": false,
+      "body_equals_final27": true
+    },
+    {
+      "page": "20260731g001730071",
+      "existing": false,
+      "body_equals_final27": true
+    },
+    {
+      "page": "20260806g001770079",
+      "existing": true,
+      "body_equals_final27": true
+    },
+    {
+      "page": "20260807g001780121",
+      "existing": true,
+      "body_equals_final27": true
+    },
+    {
+      "page": "20260810g001790150",
+      "existing": false,
+      "body_equals_final27": true
+    },
+    {
+      "page": "20260814g001820096",
+      "existing": true,
+      "body_equals_final27": true
+    },
+    {
+      "page": "20260930g002150414",
+      "existing": false,
+      "body_equals_final27": true
+    },
+    {
+      "page": "20260930g002150416",
+      "existing": false,
+      "body_equals_final27": true
+    },
+    {
+      "page": "20261001g002170155",
+      "existing": true,
+      "body_equals_final27": true
+    },
+    {
+      "page": "20261002g002180079",
+      "existing": true,
+      "body_equals_final27": true
+    },
+    {
+      "page": "20261002g002180080",
+      "existing": true,
+      "body_equals_final27": true
+    },
+    {
+      "page": "20261002g002180084",
+      "existing": true,
+      "body_equals_final27": true
+    },
+    {
+      "page": "20261002g002180086",
+      "existing": true,
+      "body_equals_final27": true
+    },
+    {
+      "page": "20261002g002180087",
+      "existing": true,
+      "body_equals_final27": true
+    }
+  ],
+  "regression_tests": {
+    "root_baseline_red_then_integrated_green": {
+      "leading_numeric_table_fixtures": {
+        "baseline_failed": 1,
+        "baseline_passed": 1,
+        "final_passed": 2
+      },
+      "period_parentheses_positive": {
+        "baseline_failed": 1,
+        "final_passed": 1,
+        "additional_negative_PDF_tests": 2
+      },
+      "covering_table_edge_fixtures": {
+        "baseline_failed": 2,
+        "final_passed": 2
+      },
+      "shared_physical_label_fixtures": {
+        "baseline_failed": 3,
+        "baseline_passed": 1,
+        "final_passed": 4
+      }
+    },
+    "new_geometry_tests": {
+      "leading": 3,
+      "period": 6,
+      "edge": 19,
+      "shared": 3
+    },
+    "final_four_crate_result": "461passed,0failed;11 new actualPDF tests including negative controls;426 archivePDF fixtures"
+  }
+}

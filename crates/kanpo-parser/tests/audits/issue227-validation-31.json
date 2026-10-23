@@ -1,0 +1,552 @@
+{
+  "stage": "thirty_first_integrated_batch",
+  "date": "2026-10-21",
+  "batch": 31,
+  "baseline_commit": "c21445b9cb990bcbd5ade7a589d2d86c0a9838f5",
+  "source55_manifest": {
+    "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated55-source-manifest.json",
+    "sha256": "8620f18ff28d8d30c64ac2c185301b0a2a4752b04353175306edae2d200003de"
+  },
+  "population_pages": 11992,
+  "changed": 18,
+  "complete_Analysis_exact": 11974,
+  "changed_pages": [
+    "20260730g001710139",
+    "20260812g001800058",
+    "20260814g001820078",
+    "20260817g001830048",
+    "20260818g001840038",
+    "20260819g001850040",
+    "20260828g001920071",
+    "20260909g002010054",
+    "20260910g002020104",
+    "20260910h017870005",
+    "20260915g002050081",
+    "20260917g002080094",
+    "20260924g002110102",
+    "20260930g002160104",
+    "20261001g002170140",
+    "20261007g002210046",
+    "20261009h018050030",
+    "20261019g002290002"
+  ],
+  "comparison_against_original_baseline": {
+    "fresh_pages": 11992,
+    "changed": 18,
+    "unchanged": 11974,
+    "added": {
+      "頔": 1,
+      "禕": 1,
+      "熠": 1,
+      "瀀": 1,
+      "嬴": 1,
+      "釬": 1,
+      "寬": 2,
+      "龑": 1,
+      "阳": 1,
+      "朗": 1,
+      "玥": 2,
+      "繥": 1,
+      "笈": 1,
+      "妮": 1,
+      "叉": 1,
+      "汛": 1,
+      "隽": 2,
+      "崁": 2
+    },
+    "removed": {
+      "䧴": 1,
+      "䜾": 1,
+      "䙳": 1,
+      "䙐": 1,
+      "䑮": 1,
+      "䥽": 1,
+      "低": 2,
+      "娍": 1,
+      "䧈": 1,
+      "佑": 1,
+      "䚦": 2,
+      "囓": 1,
+      "伧": 1,
+      "䑍": 1,
+      "伹": 1,
+      "䗸": 1,
+      "䧕": 2,
+      "䮄": 2
+    },
+    "cumulative": 2957,
+    "cumulative_charpages": 1373,
+    "previous_cumulative_pages": 2942,
+    "new_cumulative_pages": [
+      "20260730g001710139",
+      "20260812g001800058",
+      "20260814g001820078",
+      "20260817g001830048",
+      "20260818g001840038",
+      "20260819g001850040",
+      "20260909g002010054",
+      "20260910g002020104",
+      "20260915g002050081",
+      "20260924g002110102",
+      "20260930g002160104",
+      "20261001g002170140",
+      "20261007g002210046",
+      "20261009h018050030",
+      "20261019g002290002"
+    ]
+  },
+  "source_character_delta": {
+    "added": {
+      "頔": 1,
+      "禕": 1,
+      "熠": 1,
+      "瀀": 1,
+      "嬴": 1,
+      "釬": 1,
+      "寬": 2,
+      "龑": 1,
+      "阳": 1,
+      "朗": 1,
+      "玥": 2,
+      "繥": 1,
+      "笈": 1,
+      "妮": 1,
+      "叉": 1,
+      "汛": 1,
+      "隽": 2,
+      "崁": 2
+    },
+    "removed": {
+      "䧴": 1,
+      "䜾": 1,
+      "䙳": 1,
+      "䙐": 1,
+      "䑮": 1,
+      "䥽": 1,
+      "低": 2,
+      "娍": 1,
+      "䧈": 1,
+      "佑": 1,
+      "䚦": 2,
+      "囓": 1,
+      "伧": 1,
+      "䑍": 1,
+      "伹": 1,
+      "䗸": 1,
+      "䧕": 2,
+      "䮄": 2
+    },
+    "added_characters": 22,
+    "removed_wrong_fallback_characters": 22,
+    "original_Word_ID_raw_bbox_status_ownership_preserved": true,
+    "no_inferred_new_Word_or_ID": true,
+    "all_changed_entire_before_after_exact_independent_oracle": true
+  },
+  "source_validation": {
+    "frozen_files": 37508,
+    "all_prepost_SHA_exact": true,
+    "fresh_original_PDF_textdump11992": true,
+    "textdump_log": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/textdump55.log",
+      "sha256": "89d6fe31283914ab3c4335a10b2ca852512bf2328c4f6b4257a4cd9ea62d5f60"
+    },
+    "all11992_fresh_full_Analysis": true,
+    "independent_cached11992_also_terminal0": true,
+    "fresh_native11992_all_public_fields_and_f64_bits_Words_exact": true,
+    "source_candidate_PDFs": 152,
+    "source_candidate_Glyphs": 242,
+    "legacy": {
+      "counts": {
+        "period_pairs": 706,
+        "ordinal_pairs": 121,
+        "bracket_cells": 377,
+        "existing_unattached_used_diagnostic": 53,
+        "pages": 2957,
+        "native_dash_glyphs": 11033,
+        "fractions": 153,
+        "surnames": 6,
+        "plain_dashes": 341,
+        "duplicate_word_ids": 0,
+        "nested_formulas": 6,
+        "parallel_formulas": 9,
+        "numeric_formulas": 6
+      },
+      "metrics_including_scope": 13,
+      "non_scope_metrics": 12,
+      "legacy_all12_non_scope_counts_exact52": true,
+      "all_parts_exit0": true,
+      "commands": [
+        {
+          "part": 0,
+          "exit": 0,
+          "log": ".cache/kanpo-227/validate55-part0.log",
+          "sha256": "523d3c93533ba850cd94acd288dbbc7855fe43a97dc5a3da75dd863f838dd987"
+        },
+        {
+          "part": 1,
+          "exit": 0,
+          "log": ".cache/kanpo-227/validate55-part1.log",
+          "sha256": "cad816126628282deeb60dab7066ac588af4079cb7a1d334c4c4f1ae8f71fb66"
+        },
+        {
+          "part": 2,
+          "exit": 0,
+          "log": ".cache/kanpo-227/validate55-part2.log",
+          "sha256": "c7a058627ec98414485bb2021e5654a7879d0d77e7b230689d3737255c66546b"
+        },
+        {
+          "part": 3,
+          "exit": 0,
+          "log": ".cache/kanpo-227/validate55-part3.log",
+          "sha256": "f2020c13cc9a00097ef72f1d68562ba12ea78e3654d2563f1d852de30408d990"
+        },
+        {
+          "part": 4,
+          "exit": 0,
+          "log": ".cache/kanpo-227/validate55-part4.log",
+          "sha256": "865ddd3343e9880f327118d72f760c5f3657e4f750084541a00c02be15d70bc3"
+        },
+        {
+          "part": 5,
+          "exit": 0,
+          "log": ".cache/kanpo-227/validate55-part5.log",
+          "sha256": "540a2daba70322db2ca5fabd19fb26fb026e7efe0cdffad55b0c7a81e88a2a30"
+        },
+        {
+          "part": 6,
+          "exit": 0,
+          "log": ".cache/kanpo-227/validate55-part6.log",
+          "sha256": "e920d881928c087b0b361ed7b5e0d1262563ca4f1b73b280a7a6caed71941acf"
+        },
+        {
+          "part": 7,
+          "exit": 0,
+          "log": ".cache/kanpo-227/validate55-part7.log",
+          "sha256": "ec6def0b7e927b4944e82a5bc1a061b9010a9f682365ccc396f4f2a6b243a887"
+        }
+      ],
+      "prior53_count_label_erratum": "Historical candidate53 field legacy_all13_non_scope_counts_exact52 misnamed the 13 total metrics as non-scope; the actual set has12 non-scope metrics plus pages. No underlying count or assertion changed."
+    }
+  },
+  "tests": {
+    "passed": 1617,
+    "failed": 0,
+    "crates": [
+      "kanpo-parser",
+      "kanpo-pdf",
+      "kanpo-parser-wasm",
+      "kanpo-lm"
+    ],
+    "parser_unit_tests": 979,
+    "PDF_unit_tests": 84,
+    "integration_targets": 108,
+    "commands": 117,
+    "all4_libraries_and_doc_tests": true,
+    "PDF_owned_API_doctest": 1,
+    "all4_default_examples_typechecked": true,
+    "archive_input_PDFs": 719,
+    "archive_input_count_not_test_function_count": true,
+    "actual69_baseline52_RED": 18,
+    "actual69_baseline52_GREEN": 51,
+    "candidate69_GREEN": 69,
+    "CFF17_same_assertions_held53_RED": 10,
+    "CFF17_held53_GREEN": 7,
+    "all_terminal0": true,
+    "INSTA_UPDATE": "no",
+    "CI": true,
+    "report": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/full31-final55-generic-partitioned-status.json",
+      "sha256": "3110be9ea7642b06f28d29d5fadae09faf128291e47357f7e13b2fd50197a84c"
+    },
+    "log": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/test-batch31-final55-generic-full.log",
+      "sha256": "e96dccad19d8633c8d8f2051c62766f2d7bf3c09f291ebefe12d61a910f013c4"
+    }
+  },
+  "snapshots": {
+    "source55_manifest_sha256": "8620f18ff28d8d30c64ac2c185301b0a2a4752b04353175306edae2d200003de",
+    "root_cached55_full11992_native11992_sha256": "37fed9d7c72015a6491c1c34b8dfe78d3b8edd11a1a356a630ab600c8af957e1",
+    "original22_review_and_promotion_sha256": "0bcf4f218870069ab0f6a4a40e7cb24d9d37463784e635bd5ef5f2912306f39b",
+    "new_snapshot_goldens": 22,
+    "updated": 0,
+    "old756_snapshot_goldens_all_Gitblob_exact": true,
+    "all22_fullbody_allArticleDocs_render_exact55": true,
+    "no_new_snapshot_generation_or_expected_change": true,
+    "rows": [
+      {
+        "page": "20260730g001710139",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260730g00171__20260730g001710139.pdf.snap",
+        "sha256": "1c58d236513239f4740dafb2a50497d1c08df9280f31ae9b4c505a0af795e69a",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20260812g001800058",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260812g00180__20260812g001800058.pdf.snap",
+        "sha256": "b8bf35bb027cb4aa04c48311305d51c50e8fb18649bf20b419c36c87047abc4c",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20260814g001820078",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260814g00182__20260814g001820078.pdf.snap",
+        "sha256": "a95fa1a8bdcd43b481374eb971dbaed9e382d55e8def82f47d976e612c78b691",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20260817g001830047",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260817g00183__20260817g001830047.pdf.snap",
+        "sha256": "43eb741408f662eb33eb3e28f9eac53f2d03d01180301b112750e6d54f60b490",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20260817g001830048",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260817g00183__20260817g001830048.pdf.snap",
+        "sha256": "005391964d0115a94131d7f25d4411ce11b1788689557318468f68a2ad7bd668",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20260818g001840037",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260818g00184__20260818g001840037.pdf.snap",
+        "sha256": "d7dc8d23c0c68b13b2f1540794ec763282466990a76dce1594d122b3a61e3b04",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20260818g001840038",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260818g00184__20260818g001840038.pdf.snap",
+        "sha256": "10f972f33142552a6cd63d777cc41abd1b69babbb6636d82d853ed0858cdc991",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20260819g001850039",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260819g00185__20260819g001850039.pdf.snap",
+        "sha256": "ea55b93d5789b828323f6dcc2670c3d1d23ce2250ba91300601b23d8af8a43af",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20260819g001850040",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260819g00185__20260819g001850040.pdf.snap",
+        "sha256": "80dcc50c7c131c20e6e6faa4e5c143a239e1a5e57a22cd1516cbd0ff3f67b589",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20260828g001920071",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260828g00192__20260828g001920071.pdf.snap",
+        "sha256": "c29c5bd1f37ce6222db151a9266fbf40e87ee403a07d901b56e200b3451cc27d",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20260909g002010054",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260909g00201__20260909g002010054.pdf.snap",
+        "sha256": "ef8f6c358a0e2a7ade3759600ef8887db5c8dd52dd24a044d7636dcbe7a13a28",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20260910g002020104",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260910g00202__20260910g002020104.pdf.snap",
+        "sha256": "bb07856c3abb9c5a13eeb025092615af9a84339cf1ab6f7242df8e9f5610c824",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20260910h017870005",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260910h01787__20260910h017870005.pdf.snap",
+        "sha256": "1c00425b747c7eafe7bbb384b20e0cd3a139300b0f02bc8a5520e329a7430d4d",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20260915g002050081",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260915g00205__20260915g002050081.pdf.snap",
+        "sha256": "1ee76dd29e09ce098e401adbb20cc9f9103a1d73529cc178c939efac1e365f0c",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20260917g002080094",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260917g00208__20260917g002080094.pdf.snap",
+        "sha256": "ceb9d7ab3d92bc7157ae4a0443fc0f10ad7b086aea05126d06ea789cc99842f5",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20260924g002110102",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260924g00211__20260924g002110102.pdf.snap",
+        "sha256": "53c363eb3f6502a9294bf4b14779e1b3e43507e10522c1d785b7e2d3b95ee85c",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20260930g002160104",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260930g00216__20260930g002160104.pdf.snap",
+        "sha256": "e8f8c59dc90969c1da1fa36def583a9b4ed5b70115f276b1210c9e1684c273f9",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20261001g002170140",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261001g00217__20261001g002170140.pdf.snap",
+        "sha256": "ad4f33952bd0ec6bf0bf1cea6f0d29a91e6f254fd909fc59536ab1e1f53fd9d8",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20261007g002210046",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261007g00221__20261007g002210046.pdf.snap",
+        "sha256": "024d1d5bda8f72e60b90466addc0607976a921eab40e6d40ac7755fbd64e4938",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20261008g002220080",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261008g00222__20261008g002220080.pdf.snap",
+        "sha256": "b4be5ae691c939d59a35edc5822f3180c81bf93b2ef8bdd46473127e1beed671",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20261009h018050030",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261009h01805__20261009h018050030.pdf.snap",
+        "sha256": "b55e1b85bf067249060e01b293dada42cae4dd9c92481b5cb56223c66b8e9de1",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      },
+      {
+        "page": "20261019g002290002",
+        "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261019g00229__20261019g002290002.pdf.snap",
+        "sha256": "163c477268a5821743fe630e1b98c57760c0c803698863c62075db0b536e362c",
+        "full_body_every_Article_Doc_Table_Run_render_exact55": true,
+        "original_PDF_and_image_SHA_exact": true,
+        "complete_Analysis_inheritance": "positive entire candidate55 exact to fully reviewed previous candidate; negatives entire11992 before52/after55 exact plus old4 independent before52/control exact proof",
+        "known_existing_page_defects_retained": true
+      }
+    ],
+    "whole_page_success_not_implied": true
+  },
+  "unseen_audit143": {
+    "strict": {
+      "ok": 10,
+      "minor": 6,
+      "major": 14
+    },
+    "body": {
+      "ok": 27,
+      "minor": 1,
+      "major": 2
+    },
+    "lines": 2165,
+    "Articles_Documents": 60,
+    "new_regressions": 0,
+    "native0_bounded_rectangles": 8,
+    "native0_PDFs": 2,
+    "adjacent_positive_rectangles": 9,
+    "outer_context_not_excluded_Glyphs": 17,
+    "whole_page_exclusions": 0,
+    "all_initial_parent52_grades_retained": true,
+    "all_candidate55_entire_Analysis_exact": true
+  },
+  "rejected_or_held_attempts": {
+    "source53_passed_earlier_but_structural_API_counterexamples_held": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/checkpoint31-candidate53-held.json",
+      "sha256": "eaf7bc0a464ff65deddc85bee4238946649e5540c33ee4b581b1059219836363"
+    },
+    "source54_first_root_harness_visibility_error": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root31-cff55/initial-build-harness-diagnosis.json",
+      "sha256": "865cfa438e9689e5f6452e9fafd0f82baf47f74bb8eea6802c5cda4eccbae384"
+    },
+    "source55_first_default_runner_missing_log_directory_before_any_Cargo": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/full31-final55-initial-runner-directory-error.json",
+      "sha256": "882e4904befe3e6bcdf73b0c3a5c705ae9a3e5e059db923a055b21983e18eeb2"
+    },
+    "source53_first_corpus_requires_narrow_reviewed_source_attributes_only": true,
+    "audit143_first_adapter_key_shape_error": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-source55-initial-key-shape-error.json",
+      "sha256": "46990ef0e6c542c5a077d50420cd5bfcc37e73cd3d8dc47af5c7c82636fbd9e8"
+    },
+    "root_token_minimizer_initial_span_and_reorder_failures_retained": true,
+    "audit143_initial_inventory_bulk_mirror_error_retained": true,
+    "financial_and_grid_and_subcells_not_adopted": true,
+    "legacy_prior53_count_label_erratum": "Historical candidate53 field legacy_all13_non_scope_counts_exact52 misnamed the 13 total metrics as non-scope; the actual set has12 non-scope metrics plus pages. No underlying count or assertion changed."
+  },
+  "recoverable_completed_evidence": {
+    "source55_tests": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root31-cff55/completed-tests-gzip-journal.json",
+      "sha256": "62003b11c9e20003e2341c3e841a33c89c036efcecf1c01892aec4b836d39fe8"
+    },
+    "old_numbered_root_tools": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/completed-old-root-tools31-gzip/journal.json",
+      "sha256": "9a8782ca42a50d0d67f7196ea899e3c3ef123f0eb335e1146e713f4166772589"
+    },
+    "old_analysis_tools": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/completed-old-analysis-tools31-gzip/journal.json",
+      "sha256": "0b18033be245210bec765c533aafe9cd28f553f67c073d3c244bc5f0f32e656e"
+    },
+    "after53_text_outputs": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/completed-after53-lossless/complete.json",
+      "sha256": "0a061874862505831547c038db4a7fcfb7f26c562f70cbb411a979f2e6302bca"
+    },
+    "lossless_gzip_SHA_raw_SHA_mode_mtime_and_restore_helpers_preserved": true,
+    "no_source_original_PDF_image_or_active_dependency_removed": true
+  },
+  "known_remaining": [
+    "New/old role and inner row/cell association losses",
+    "Independent notices merged, split at addresses or missing",
+    "Financial amount/header/rowspan/signature association",
+    "Missing native-Glyph text needs separately validated source/raster evidence",
+    "Company fixed1286 scope still865 unreviewed",
+    "Limited native-certified grid/subcell proposals require correct-parent joint full11992 review"
+  ],
+  "whole_page_perfection_not_implied": true,
+  "goal_complete": false
+}

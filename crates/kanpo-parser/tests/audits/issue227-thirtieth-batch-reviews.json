@@ -1,0 +1,239 @@
+{
+  "batch": 30,
+  "changed_pages_fullread": {
+    "scope": "Three changed-page full source/image/body/Article/Document review, not an unseen audit; previous initial grades unchanged",
+    "rows": [
+      {
+        "page": "20261015h018080006",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/facility-general51/20261015h018080006.png",
+        "image_sha256": "230cf76e493fe5f0904c3c0de5fd06705601708471b3b43f53a4b1248d0c5e81",
+        "pdf": ".cache/kanpo-archive/2026-10-15/20261015h01808/20261015h018080006.pdf",
+        "pdf_sha256": "f5afafb48e11542b9ff8f7ae80f3b8370ac328cde3507633d31484df48a162a4",
+        "before_lines": 61,
+        "after_lines": 48,
+        "Articles": 3,
+        "all_whole_original_images_viewed_by_root": true,
+        "all_output_lines_and_all_Article_Document_Table_Run_texts_read_by_root": true,
+        "strict_remaining": "major",
+        "body_remaining": "major",
+        "decision": "partial improvement",
+        "new_regression": false,
+        "notes": "五一三八/志布志港/志布志市/公有と元の摘要を一つの五欄レコードへ復元。土地一〇、〇〇〇㎡・建物八〇㎡、使用期間10月19日〜29日、必要な展開撤収の追加期間を保持。逸見の10月26日〜29日は混入なし。後続74号/75号のArticle全文とDocument全Table/Runは完全一致。既存75号の幅員/延長の分断、◎新規提供の位置と逸見の分断は未修復でmajorを保持。",
+        "native_proof": {
+          "original_Word_IDs": [
+            27,
+            28,
+            29,
+            30,
+            31,
+            37,
+            40,
+            42,
+            44,
+            46,
+            47,
+            49,
+            51,
+            52,
+            55,
+            58,
+            60,
+            62,
+            68,
+            70
+          ],
+          "original_Glyphs": 179,
+          "all_Words_attributes_and_owners_exact": true,
+          "whole_body_nonspace_order_exact": true,
+          "all_other_Article_Documents_exact": true
+        },
+        "native_zero_exclusions": []
+      },
+      {
+        "page": "20260723g001630002",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root29-originals-and-native/20260723g001630002.png",
+        "image_sha256": "b915190c2c58b9d9bb2aa2e7522f3809dd65f3109251dd3170457b459b7b0977",
+        "pdf": ".cache/kanpo-archive/2026-07-23/20260723g00163/20260723g001630002.pdf",
+        "pdf_sha256": "bca429a7c7e30f8aa43822c9d49ca30f1563e8e1551729d349ef77611f9656bc",
+        "before_lines": 171,
+        "after_lines": 171,
+        "Articles": 1,
+        "all_whole_original_images_viewed_by_root": true,
+        "all_output_lines_and_all_Article_Document_Table_Run_texts_read_by_root": true,
+        "strict_remaining": "major",
+        "body_remaining": "minor",
+        "decision": "partial improvement",
+        "new_regression": false,
+        "notes": "右端最終段落の（チ）を元Glyph3231/E9F5/CID25937から復元。暗号資産取引業の財務の健全性の段落に付く。法63と64の二つの独立した法令のあらましは依然一Articleでstrict major。ロ〜トの六つの元ラベル欠落も残存。元の段落構造に由来するDocument内改行一つの増加を明示。",
+        "native_proof": {
+          "source_Glyph_indices": [
+            3231
+          ],
+          "source_Word_IDs": [
+            51
+          ],
+          "source_CID": 25937,
+          "source_raw": "E9F5",
+          "only_glyph_backed_label_text_added": true,
+          "all_original_raw_ID_bbox_exact": true,
+          "all_new_Used_owners_exactly_once": true
+        },
+        "native_zero_exclusions": []
+      },
+      {
+        "page": "20260731g001720008",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root29-originals-and-native/20260731g001720008.png",
+        "image_sha256": "272640ab455a6edfc24027c77bd04386b50c2310c9d80802e0f1caf7a7e3d3fb",
+        "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720008.pdf",
+        "pdf_sha256": "f77e9e30a6b376c0a9dc30b4df55899fdd192cc2c8bbc720bbc65fd8c53b21db",
+        "before_lines": 167,
+        "after_lines": 167,
+        "Articles": 1,
+        "all_whole_original_images_viewed_by_root": true,
+        "all_output_lines_and_all_Article_Document_Table_Run_texts_read_by_root": true,
+        "strict_remaining": "minor",
+        "body_remaining": "minor",
+        "decision": "partial improvement",
+        "new_regression": false,
+        "notes": "第三段冒頭の（チ）４の（１）イと、直後の（イ）〜（チ）の範囲末尾を元Glyph1596/1630から復元。原イと新しいチの混在Word50を保持。冒頭ロやリなど八つの他ラベル欠落は残存。節2/3、①〜④、後続施策の原順は保持。",
+        "native_proof": {
+          "source_Glyph_indices": [
+            1630,
+            1596
+          ],
+          "source_Word_IDs": [
+            50,
+            59
+          ],
+          "source_CID": 25937,
+          "source_raw": "E9F5",
+          "only_glyph_backed_label_text_added": true,
+          "all_original_raw_ID_bbox_exact": true,
+          "all_new_Used_owners_exactly_once": true
+        },
+        "native_zero_exclusions": []
+      }
+    ],
+    "whole_images": 3,
+    "before_lines": 399,
+    "after_lines": 386,
+    "ArticleDocs": 5,
+    "new_regressions": 0,
+    "full_page_success_claim": false,
+    "source_PDF14_native_Glyph_Font_Path_all_literal_exact": true,
+    "whole11992_gate_pending": true
+  },
+  "neighbor_negative_controls": {
+    "rows": [
+      {
+        "page": "20261015h018080005",
+        "pdf": ".cache/kanpo-archive/2026-10-15/20261015h01808/20261015h018080005.pdf",
+        "pdf_sha256": "efcdbf19d05a46b9db48915703fe94f082f3a2318198ddd35fb62ad917f6df0a",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root30-facility-chi/20261015h018080005.png",
+        "image_sha256": "cb11ee42d1986d833a5ff4f3cdebe2bb8d79713448cd079e08693d118e35cb84",
+        "analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root30-facility-chi/20261015h018080005-unchanged.analysis.json",
+        "analysis_sha256": "9b5ab34d7c2957b5ce0bfc58636a8f9661870dbd556fd1cf99415d1b5219abd9",
+        "before_after_whole_Analysis_exact": true,
+        "lines": 89,
+        "Articles": 1,
+        "review_pending": false,
+        "whole_original_viewed_by_root": true,
+        "all_body_and_Article_Document_Runs_Tables_read_by_root": true,
+        "strict_remaining": "major",
+        "body_remaining": "major",
+        "notes": "元図は施設提供表の続き。source51から存在する誤った改正後/改正前Roleが維持されており、種子島の上段摘要後半と下段レコード/那覇等がbefore側へ流れる。所在地/所有の国有郡築上町・国有国町等の連結と所有複数行の対応も未解決。全89本文行・唯一のDocumentの10新旧行すべてを原図と読み、今回の適用範囲外として完全不変を確認した。",
+        "decision": "unchanged negative control; existing defects retained",
+        "new_regression": false,
+        "native_zero_exclusions": []
+      },
+      {
+        "page": "20261015h018080007",
+        "pdf": ".cache/kanpo-archive/2026-10-15/20261015h01808/20261015h018080007.pdf",
+        "pdf_sha256": "f2cb22d9cc3284f8de08e12b1716059203bbf3e521d9fb334a0051392734e6f1",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root30-facility-chi/20261015h018080007.png",
+        "image_sha256": "9b983309ffbe116651985ff3e98eec3c346d463a0c4180a40a3f32fd6b17aae2",
+        "analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root30-facility-chi/20261015h018080007-unchanged.analysis.json",
+        "analysis_sha256": "06f618b3e5591001d22ad617af80838c367e5dff41f388cc5cd92c328d1b382b",
+        "before_after_whole_Analysis_exact": true,
+        "lines": 174,
+        "Articles": 2,
+        "review_pending": false,
+        "whole_original_viewed_by_root": true,
+        "all_body_and_Article_Document_Runs_Tables_read_by_root": true,
+        "strict_remaining": "major",
+        "body_remaining": "minor",
+        "notes": "国会事項は衆参の議案と質問の対応順が保持され、人事/褒賞の原本文も保持される一方、法務省の人事異動と複数種類の褒賞が同じArticle1に連結される。姓名間の区切り（例 植松奎二五十嵐久美子）やDocumentでの列挙/見出し改行が欠ける既存不具合を保持する。全174本文行と2ArticleDocの全Run、下段の企業一覧まで原図と読んだ。",
+        "decision": "unchanged negative control; existing defects retained",
+        "new_regression": false,
+        "native_zero_exclusions": []
+      }
+    ],
+    "source51_and_candidate_static_executables": true,
+    "all_originals_frozen_before_grading": true,
+    "all2_reviewed": true,
+    "lines": 263,
+    "ArticleDocs": 3,
+    "previous_grades_unchanged": true
+  },
+  "whole_originals": 5,
+  "after_lines": 649,
+  "Article_Documents": 8,
+  "partial_improvements": 3,
+  "new_regressions": 0,
+  "whole_page_success_not_implied": true,
+  "remaining_changed_page_defects": [
+    "1808p6 road75 original width/length/author order and prior facility splits",
+    "163p2 independent law63/64 summaries still oneArticle; six other native labels missing",
+    "172p8 eight other native labels missing"
+  ],
+  "unseen142": {
+    "path": "crates/kanpo-parser/tests/audits/142.json",
+    "sha256": "1ca69d3758652bce8558bc4f48e65e9c2554e5e486fb021bc86287b9355064b0",
+    "strict": {
+      "ok": 12,
+      "minor": 6,
+      "major": 12
+    },
+    "body": {
+      "ok": 22,
+      "major": 7,
+      "minor": 1
+    },
+    "lines": 2019,
+    "Article_Documents": 75,
+    "new_regressions": 0,
+    "native": {
+      "limited_zero_interior_rectangles": 15,
+      "grade_exclusion_rectangles": 2,
+      "diagnostic_only_zero_interiors_not_grade_excluded": 13,
+      "source_PDFs": 2,
+      "positive_contexts": 5,
+      "positive_Glyphs": 308,
+      "all_native_Glyphs_scanned": 1096,
+      "whole_page_exclusions": 0
+    }
+  },
+  "old_initial_grades_not_changed": true,
+  "part1_template_label_erratum": {
+    "raw_review_sha256": "6acea0d0e32512e8101461df364127ed849b64244e6639ea3402f2520887fc26",
+    "raw_manifest_sha256": "e9046976b8bc9da1ed447abb278625a4b1b89e5f141ddd4ba4b056b53a888a05",
+    "initial_grades_unchanged": true,
+    "raw_artifacts_unchanged": true,
+    "erroneous_template_fields": [
+      "pages[].candidate: facility/company candidates excluded",
+      "manifest.facility_candidate_frozen_and_not_applied"
+    ],
+    "correct_parent": "after52 source109 includes accepted facility generalization and E9F5 restoration; excludes unadopted financial/company/grid candidates",
+    "source_manifest": ".cache/kanpo-227/integrated52-source-manifest.json",
+    "source_manifest_sha256": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+    "evidence": "109source pre/post SHAexact; all10 complete before51/after52 Analysisexact; all60 input SHAexact"
+  },
+  "company_unadopted": {
+    "fixed_scope": 1286,
+    "reviewed": 421,
+    "pending": 865,
+    "current52_fresh_full_changes_disjoint_from_company_reviewed60": true,
+    "old_proposals_and_regression_adjudications_retained": true
+  },
+  "model_opt_in_usefulness_not_yet_proven": true
+}

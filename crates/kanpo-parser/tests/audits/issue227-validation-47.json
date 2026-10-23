@@ -1,0 +1,231 @@
+{
+  "issue": 227,
+  "batch": 47,
+  "parent_commit": "1efe13b6089ea45bed352d0d9cae632a57bd7fad",
+  "native_runtime_source": 72,
+  "goal_complete": false,
+  "local_required_tests": {
+    "passed": 1853,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 117,
+    "logical_required_commands": 118,
+    "actual_commands_including_reviewed_snapshot_retry": 119,
+    "libraries": 4,
+    "integration_targets": 109,
+    "doctests": 4,
+    "all4_crates_examples_checked": true,
+    "new_tests": 23,
+    "snapshots": 790,
+    "snapshots_readonly_pass": true,
+    "snapshot_readonly_seconds": 169.379106875,
+    "source_manifest_sha256": "2c6dc044e6e79713ee0d4c0fe05d1d35d80fec0b6d517080fe9b7d63d7780cea",
+    "original_proposal_gate_sha256": "3aed5fd559effd2b11939bb5d3643c2f4b3e0947bcbcec75353a387713486d33",
+    "readonly_log_sha256": "78c86df6e4c80792364639abca167dc4ee1feb16aa8484356e6fd48620a203cc"
+  },
+  "known_necessary_count_requirements": {
+    "runtime": 72,
+    "advisory_known_requirements_not_mandatory_success_assertions": true,
+    "passed": 0,
+    "failed": 7,
+    "source_manifest_sha256": "2c6dc044e6e79713ee0d4c0fe05d1d35d80fec0b6d517080fe9b7d63d7780cea",
+    "rows": [
+      {
+        "page": "20260803g001740136",
+        "actual": 11,
+        "necessary": 12,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260903g001970080",
+        "actual": 5,
+        "necessary": 6,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260731g001730167",
+        "actual": 3,
+        "necessary": 4,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260721g001610162",
+        "actual": 5,
+        "necessary": 6,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260804g001750060",
+        "actual": 6,
+        "necessary": 7,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260717g001600122",
+        "actual": 4,
+        "necessary": 5,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260731h017590032",
+        "actual": 6,
+        "necessary": 14,
+        "passes_necessary_count": false
+      }
+    ]
+  },
+  "final_fresh_native11992": {
+    "terminal": 0,
+    "pages": 11992,
+    "changed": 1,
+    "whole_Analysis_exact": 11991,
+    "all_words_fields_exact": true,
+    "all_source_words": 2403403,
+    "whole_lines_tables_and_character_multisets_exact": true,
+    "frozen_inputs_unchanged": true,
+    "seconds": 308.53280358300003
+  },
+  "actual_CLI": {
+    "terminal": 0,
+    "actual_default_native_CLI_from_all_original_PDFs": true,
+    "files": 11992,
+    "changed_vs71": [
+      {
+        "page": "20260721g001610161",
+        "before_bytes": 7512,
+        "after_bytes": 7512
+      }
+    ],
+    "ordered_filename_content_sha256_digest": "1b4256006ef7f0ba44754cdfd455d26adbefb1b8ed9d1443358afe191e0a7c9f",
+    "binary_sha256": "59bab4ecd29754aab255e108a4889e9d8964f94acb80d25094bdae163a737293",
+    "source_manifest_sha256": "2c6dc044e6e79713ee0d4c0fe05d1d35d80fec0b6d517080fe9b7d63d7780cea",
+    "API_byte_consistency_and_original_change_review_pending": true
+  },
+  "CLI_API_consistency": {
+    "terminal": 0,
+    "files": 11992,
+    "all_actual_CLI_bytes_equal_fresh_API": true,
+    "changed_pages": [
+      {
+        "page": "20260721g001610161",
+        "before": 8,
+        "after": 8,
+        "pages_equal": false,
+        "text_equal": false
+      }
+    ],
+    "source_manifest_sha256": "2c6dc044e6e79713ee0d4c0fe05d1d35d80fec0b6d517080fe9b7d63d7780cea",
+    "API_result_sha256": "57ecd3cdd2a8a3855a6210ba72767297bcc064731b43af6bfd96b40a9f91c2ef",
+    "CLI_result_sha256": "415463bec1ce6e5f95b0c0f3dbb3f1c3bbdbe8a2556bad3627dcdf8b0c8d85ff"
+  },
+  "private_public_identity": {
+    "all11992_Analysis_identical": true,
+    "method": "Both fresh frozen native comparisons have the same sole changed page and11991 exact-to-same-baseline Analysis values; both changed full Analysis JSONs match byte for byte.",
+    "private_source_manifest_sha256": "aa587149a3524963c73d590e613d5b6b998da701bcf021f809c8a3890cbe27b0",
+    "public_source_manifest_sha256": "2c6dc044e6e79713ee0d4c0fe05d1d35d80fec0b6d517080fe9b7d63d7780cea"
+  },
+  "PDF_runtime_identity": {
+    "native_runtime": 72,
+    "public_source_files": 137,
+    "PDF_sources_byte_exact_to71": 24,
+    "source_manifest_sha256": "2c6dc044e6e79713ee0d4c0fe05d1d35d80fec0b6d517080fe9b7d63d7780cea",
+    "raw_Glyph_Word_legacy_XHTML_audit": "Inherited from glyph-typography46/native-source11992-v1/result.json through exact identity of all PDF runtime sources; not a new raw audit.",
+    "old_raw_result_sha256": "4975c28a6410ca7cfe50f4ebdf98503d73bd647d535af8bf6f4819e40be35b3e",
+    "initial_identity_script_failure": "Initial dictionary lookup mixed relative new paths with absolute prior paths. No successful identity conclusion was written; normalized-target retry checks all24."
+  },
+  "assets": {
+    "old_tracked_test_files": 2405,
+    "old_files_byte_unchanged": 2404,
+    "old_changed_files": [
+      "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260721g00161__20260721g001610161.pdf.snap"
+    ],
+    "new_PDFs": 0,
+    "cached_corpus_HTML_TXT_JSON_and_rules_unchanged": true,
+    "old_membership_gold_unchanged": true,
+    "snapshots_current": 790,
+    "one_snapshot_proposal_reviewed_against_original_and_fresh_API": true,
+    "readonly_snapshot_verification_pending": false,
+    "rows_sha256": "1b94d8337f9d948d18c66542c506ea5e3165dec4fb1369316a90d1c65987c6b4",
+    "all790_snapshots_unchanged_during_readonly_verification": true,
+    "readonly_log_sha256": "78c86df6e4c80792364639abca167dc4ee1feb16aa8484356e6fd48620a203cc"
+  },
+  "document_whitespace_limit": "One inline newline disappears at the former table/header junction through the existing renderer; article and page text retain every character including whitespace.",
+  "initial_control": {
+    "source71": "0 passed1 failed1145 filtered",
+    "candidate72_private": "1159 passed0 failed",
+    "public72_with_additional_tests": "1168 passed0 failed"
+  },
+  "gate_snapshot_proposal": "The initial archive target failed with one reviewed snapshot proposal; all other required targets passed. After original review only that proposal was accepted and all790 snapshots passed with INSTA_UPDATE=no.",
+  "next_bank_original_control": "All12 printed enclosure memberships, all678 used Words once; source72 still0 passed1 failed1168 filtered. This is a private next-work requirement, not a wrong current count asserted as success.",
+  "initial_script_failure": "A PDF source-identity lookup initially mixed absolute and relative paths and failed before writing a success result. The normalized-target retry checked all24 sources.",
+  "advisory_checks": "git diff --check; no whole-repository fmt/clippy-clean claim.",
+  "fresh_commit_CI": "Not yet run at preparation; exact-head CI is recorded in the PR and local checkpoint.",
+  "evidence": [
+    {
+      "path": ".cache/kanpo-227/native47-source-manifest.json",
+      "sha256": "2c6dc044e6e79713ee0d4c0fe05d1d35d80fec0b6d517080fe9b7d63d7780cea"
+    },
+    {
+      "path": ".cache/kanpo-227/common-header-order47/full-native72-private-v1/result.json",
+      "sha256": "08ea159fbe9350de63b394679c143d1795d9fc5244122ac95bb4fd4c4a85378a"
+    },
+    {
+      "path": ".cache/kanpo-227/common-header-order47/full-native72-public/result.json",
+      "sha256": "57ecd3cdd2a8a3855a6210ba72767297bcc064731b43af6bfd96b40a9f91c2ef"
+    },
+    {
+      "path": ".cache/kanpo-227/common-header-order47/full-native72-public/changes.json",
+      "sha256": "32ab6384a25a3adf1ca0ca1de1003bf1b451f6ae4ee9a685ffc93055e0feac66"
+    },
+    {
+      "path": ".cache/kanpo-227/common-header-order47/textdump72-result.json",
+      "sha256": "415463bec1ce6e5f95b0c0f3dbb3f1c3bbdbe8a2556bad3627dcdf8b0c8d85ff"
+    },
+    {
+      "path": ".cache/kanpo-227/common-header-order47/public72-native-CLI-API-consistency.json",
+      "sha256": "70d66e83d0b1a0c2b1df62128406402b7a92d8ec3c087d9ac66b6ebb0613141c"
+    },
+    {
+      "path": ".cache/kanpo-227/common-header-order47/private-public72-runtime-identity.json",
+      "sha256": "51cea1e487c045aa1220f16338dd8052ffb30cdc0d6484a313c1857815ac8939"
+    },
+    {
+      "path": ".cache/kanpo-227/common-header-order47/changed-original-review.json",
+      "sha256": "a35f5eb762ea79a640949b06d68f4afeba259fb05e0ee1fb3efd6a44835ca372"
+    },
+    {
+      "path": ".cache/kanpo-227/common-header-order47/pdf71-source-identity.json",
+      "sha256": "91d8d892bd0ea68ce7d3f51f270a0addf2f861eff7a4f1ccc1a7fa47e8eb1742"
+    },
+    {
+      "path": ".cache/kanpo-227/common-header-order47/known-seven-count-requirements72.json",
+      "sha256": "4846a4097a19c0e32e975441940219397d5fdd2599e61be66dfa33da61114636"
+    },
+    {
+      "path": ".cache/kanpo-227/common-header-order47/final-all-green.json",
+      "sha256": "2cd30554ae3f7ee471eb62bd0151b76aa3d9d9d187639dced0dcf20d9178ff72"
+    },
+    {
+      "path": ".cache/kanpo-227/common-header-order47/assets-and-snapshots.json",
+      "sha256": "80eac3841bcd265be8a512f809b343646c17b7996db2dea06bdcb9163882edbc"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/source72-bank-RED.log",
+      "sha256": "01a7813e5256855574f5d9e51528091342d2306f0abae61d15e783061b7dcb08",
+      "purpose": "Initial missing-PDF setup failure; not a logical regression RED."
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/baseline72-control-r2-manifest.json",
+      "sha256": "0135ccdc51e96d762e4ee53621ed5a7a2d67e755bc25dfa31317fb883a0124cb"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/source72-bank-RED-r2.log",
+      "sha256": "b2110c1c8095ae3928d344106fe09ed30634a93371207b71d8f70ecebb732a80"
+    },
+    {
+      "path": ".cache/kanpo-227/bank-frame-source48/source72-bank-control-r2-binding.json",
+      "sha256": "b60c347f7a416ff1fda085c098a88f1c64dbab0db618194cb7cfee4591142299"
+    }
+  ],
+  "next_bank_control_setup_correction": "The initial private bank control failed on a missing input PDF, not the intended assertion. It is preserved as setup-failure evidence. The corrected r2 control pins the original PDF and fails actual11 vs necessary12,0 passed1 failed1168 filtered; no parser runtime changed."
+}

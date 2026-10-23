@@ -1,0 +1,32 @@
+{
+  "issue": 227,
+  "batch": 47,
+  "parent_commit": "1efe13b6089ea45bed352d0d9cae632a57bd7fad",
+  "native_runtime_source": 72,
+  "goal_complete": false,
+  "new_rule": "Within one complete unambiguous closed enclosure, a common financial title and original header above parallel same-font child titles precede the uniquely supported statement tables. Stable-partition existing complete source lines only.",
+  "domain_vocabulary": [
+    "決算公告"
+  ],
+  "no_new_production_page_company_period_number_font_name_or_point_distance_or_character_length_or_fixed_line_count_branch": true,
+  "why_multiple_children": "At least two is the definition of parallel blocks, not a fitted expected count; a three-child and additional-header-line test also passes.",
+  "native_geometry": "Known WMode0 source rectangles are captured before display normalization; explicit original bounds retain priority. Missing/invalid/partial/unknown modes cannot gain geometry authority.",
+  "ambiguity_abstentions": [
+    "Cross-edge lines, missing/duplicate/unused source words, incomplete source geometry.",
+    "Absent/incomplete/foreign glyph typography, differing child font identities.",
+    "Stacked or intersecting child columns, missing/shared child tables.",
+    "Intersecting nonnested enclosure claims or overlapping accepted permutations."
+  ],
+  "metamorphic_controls": [
+    "Scale and translation; whole original line/table/word/coordinate preservation; idempotence.",
+    "Three parallel columns, extra header lines, arbitrary title prefixes and issuer/metadata words.",
+    "Existing actual eight-page font-ID bijections and source emission reversal."
+  ],
+  "not_proven": [
+    "Every old parser branch is general. Legacy financial_enclosures and other fixed-length/line-count/point guards remain under audit.",
+    "A source font ID universally proves visible ink or semantic equivalence.",
+    "Conservation or green tests prove whole-page reading order, character accuracy or100% overall quality."
+  ],
+  "new_model_weights_training_or_inferences": 0,
+  "next_bank_control_setup_correction": "The initial private bank control failed on a missing input PDF, not the intended assertion. It is preserved as setup-failure evidence. The corrected r2 control pins the original PDF and fails actual11 vs necessary12,0 passed1 failed1168 filtered; no parser runtime changed."
+}

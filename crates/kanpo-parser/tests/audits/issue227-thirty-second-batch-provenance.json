@@ -1,0 +1,81 @@
+{
+  "batch": 32,
+  "date": "2026-10-21",
+  "source56": {
+    "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated56-source-manifest.json",
+    "sha256": "8ad7c1f960b38bf30b6ce3e198adf5ce11dfdd98f84784c028530bb4e7893496"
+  },
+  "parent55_commit": "77d8a05a7a29cfd05c8a22a0a84eef53675dbe35",
+  "source_files": 119,
+  "parser": 97,
+  "PDF": 22,
+  "existing_changed2": [
+    "crates/kanpo-pdf/src/lib.rs",
+    "crates/kanpo-pdf/src/page.rs"
+  ],
+  "new2": [
+    "crates/kanpo-pdf/src/inline_image.rs",
+    "crates/kanpo-pdf/src/inline_image_tests.rs"
+  ],
+  "outside4_existing115_byte_exact": true,
+  "new_synthetic_PDFs": 4,
+  "new_fixed_unsupported_golden": 1,
+  "canonical_original_PDFs": 719,
+  "scope": "Only exact raw unfiltered device-color sample length followed by a proven EI suffix. Unknown formats retain the existing scanner; no full inline-image-format repair claim.",
+  "source_boundary": "Header aliases/types, positive dimensions, device components, BPC1/2/4/8/16, per-row byte padding and checked arithmetic. Independent lookahead never mutates caller on failure. Single-byte ID whitespace and CRLF compatibility both compute raw ends; successful candidates must converge to the same EI suffix.",
+  "pixel_start_interpretation": "Common operator suffix is proved; the ambiguous CR/LF pixel-start interpretation is not claimed unique.",
+  "public_API": "Page/Glyph/FontInfo/extract_pages/bbox_layout and owned AJ1 signatures unchanged. Intentional public Path correction on synthetic PDFs only; no collector imported.",
+  "all11992_public_native_fields_f64_bits_and_Words_exact55": true,
+  "all11992_entire_Analysis_exact55": true,
+  "all11992_fresh_textdump_bytes_exact55": true,
+  "source_proof_PDFs": 152,
+  "source_candidate_Glyphs": 242,
+  "all_source_proof_receipts_entire_exact55": true,
+  "all_current_source_assets_deps_PDFs_executables_prepost_SHA_exact": true,
+  "evidence": {
+    "source": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated56-source-manifest.json",
+      "sha256": "8ad7c1f960b38bf30b6ce3e198adf5ce11dfdd98f84784c028530bb4e7893496"
+    },
+    "assets": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated56-test-assets-manifest.json",
+      "sha256": "aaec195aa0af491a96e9cbf89a83c3528c5769cc4f8a35c2d36ff844012e8908"
+    },
+    "cached": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root32-inline56-v2/full-result.json",
+      "sha256": "df1d81387d38ccfbe25ed24755d4d2e96d690fef61f8ace6a5b942bbeb3c32d6"
+    },
+    "release": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated56-fullAnalysis-report.json",
+      "sha256": "1eb8553e87e3a4a8493e5c38c4ccadef3ffc0cd765a52c44ab05bb19cb2d2449"
+    },
+    "defaults": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/full32-final56-generic-partitioned-status.json",
+      "sha256": "7f81d38645706a12420f594c65d60289832d8a07dfd10d579b5c211cc55d285f"
+    },
+    "snapshots": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/snapshot32-source56-preserved.json",
+      "sha256": "0e063829954c147ac714c8a6848ef8c7eccfb777871473a25ec888e4a20c342b"
+    },
+    "audit": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit144-source56-inheritance.json",
+      "sha256": "ccaffe7142cd189735c4df82482bcb317243ac4146e7a4517806eeb775245f2c"
+    },
+    "limited": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root32-inline56-v2/build-result.json",
+      "sha256": "a052ff7f6d9e0dd8ff26a122f20b8188fec9692d3fabce51d104e74e8ffb66f0"
+    },
+    "delivery": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/legacy-inline-raw55-v2/delivery-manifest.json",
+      "sha256": "0150719ff211a00ce34041e257df50e53fa396a9f7f0e584edd2e3ed0c2bedc4"
+    },
+    "readonly": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/legacy-inline-raw55-v2-readonly-review/manifest.json",
+      "sha256": "d86ff601bc9f908790d9708a4d7b50dc3cfb6aa1d1af8d3f0b38525c31c38675"
+    },
+    "new_raster": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root32-inline-crlf-render/whole-originals-viewed.json",
+      "sha256": "589123a668546e2da13b9181a254b4f8e7f87d14d8a0f5ee4bcbcc6989fe9a97"
+    }
+  }
+}

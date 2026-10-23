@@ -1,0 +1,58 @@
+{
+  "issue": 227,
+  "batch": 45,
+  "parent_commit": "9f1892a6b1dded6c3d361753e27487882a27d394",
+  "native_runtime_source": 70,
+  "goal_complete": false,
+  "adopted_scope": "Original Glyph bounds for notice frame ownership only; preserve published Word coordinates, page layout, text, old article boundaries and Run styles.",
+  "whole_corpus_strict_quality_not_reestimated": true,
+  "method": "Root original-image engineering QA, not independent/blind evaluation and not a new30-page accuracy estimate.",
+  "all3_changed_original_scopes_reviewed": true,
+  "original_scopes": [
+    {
+      "page": "20260721g001610161",
+      "complete_original_scope_control": false,
+      "required_original_used_words": 89,
+      "image_sha256": "19636298d953dcde53559b72481b02297975a74b2b74c562cb10fe0883378419",
+      "gold_sha256": "636c2b2c536f46a931e765b088c43e4db54aea5698bc99c9abca0a17bdec4a28"
+    },
+    {
+      "page": "20260728g001680070",
+      "complete_original_scope_control": true,
+      "required_original_used_words": 628,
+      "image_sha256": "5ea84829fc08d0942f6924660efb4bc5ae4e113ba8ccebf9b739031de31f41d8",
+      "gold_sha256": "bf1cb89c8cd539a934cc14aed5da9cf29d3074446838e0841367a374b478472a"
+    },
+    {
+      "page": "20261019g002290061",
+      "complete_original_scope_control": true,
+      "required_original_used_words": 600,
+      "image_sha256": "b8d006ebb0411a184e0e23026415bd27f034654c7d65a3b82a088ba9f609fafb",
+      "gold_sha256": "21bc8834987986438beb6c2a32c341e5eda3537a7c4fb5f00e3f89e3a5aa1734"
+    }
+  ],
+  "complete_original_controls": "Two pages: all628/600 used Word IDs occur once in their original8/7 article enclosures. One page: only the selected89-word split-notice/statement frame is a complete article control.",
+  "partial_page_remaining": "20260721g001610161 has7 detected articles; the bottom double-period financial publication remains unresolved. Do not call the entire page repaired.",
+  "rejected_v8": {
+    "candidate": 70,
+    "variant": "v8",
+    "adopted": false,
+    "originals_rendered": 53,
+    "originals_examined_this_continuation": 7,
+    "counterexamples": {
+      "20260723g001630240": "原図の縦の署名3列の末尾「尚」が別行へ移動。",
+      "20260817g001830080": "第24期の元日付と住所の間へ別の合併本文を挿入。",
+      "20260925g002120088": "元の署名5列の末尾「進」を別の横行へ収集。",
+      "20260928g002130124": "署名末尾「創」と2つの別決算表の標題が移動・混合。"
+    },
+    "unreviewed_46_not_claimed_correct": true,
+    "source_manifest": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/signature44/private70-v8-manifest.json",
+    "source_manifest_sha256": "bc4951327136c12d294db94402e2b0826667dabae4e213cb7ed668d0971200aa",
+    "raw_character_and_Word_conservation_is_insufficient": true,
+    "next_scope": "V2 original bounds for notice ownership only; no native layout correction or financial reorder view."
+  },
+  "preservation_alone_is_insufficient": "The rejected V8 conserved words and character multisets and passed1139 private lib tests; four additional original relations still failed.",
+  "new_snapshots": "Six new original-page snapshots are regression baselines, including four partially incorrect unchanged controls. They are not full-page correctness labels. The one changed old snapshot adds the reviewed article boundary only.",
+  "unchanged_initial_audit": "The initial fixed30-page grades are not regraded. All three changed pages are outside that fixed audit; no new overall percentage.",
+  "remaining_requirements": "Seven earlier necessary-count failures, bank role/signatureless fundraising, vertical fragments, false headerless shinkyu, record fragments, financial dashes, officer lists, publisher/image body, mixed layouts, old fixed-value rules and visibility/ownership audits remain unfinished."
+}

@@ -14,6 +14,15 @@ mod crypt;
 mod filter;
 mod lexer;
 
+#[cfg(test)]
+#[path = "source_charcode_tests.rs"]
+mod source_charcode_tests;
+mod inline_image;
+
+#[cfg(test)]
+#[path = "inline_image_tests.rs"]
+mod inline_image_tests;
+
 pub use document::{Document, PageRef};
 pub use object::{Dict, ObjRef, Object, Stream};
 pub use page::{extract_page, FontInfo, Glyph, Page, PathItem, SubPath};
@@ -48,3 +57,33 @@ impl std::fmt::Display for Error {
 impl std::error::Error for Error {}
 
 pub type Result<T> = std::result::Result<T, Error>;
+
+#[cfg(test)]
+#[path="aj1_provenance_pdf_tests.rs"]
+mod aj1_provenance_pdf_tests;
+
+mod cff_aj1;
+mod source_aj1;
+pub use source_aj1::Aj1PageSources;
+/// Extract opaque owned pages with source evidence. The read-only native page
+/// is available through `Aj1PageSources::page`; it cannot be re-paired with
+/// evidence from another extraction. Legacy public values remain unchanged.
+pub fn extract_pages_with_aj1_sources(pdf: &[u8]) -> Result<Vec<Aj1PageSources>> {
+    let doc = Document::load(pdf.to_vec())?;
+    Ok(doc
+        .pages()
+        .iter()
+        .map(|page| page::extract_page_source_aj1(&doc, page))
+        .collect())
+}
+#[cfg(test)]
+#[path = "source_aj1_api_tests.rs"]
+mod source_aj1_api_tests;
+
+mod source_images;
+pub use source_images::{ImageDraw,XObjectPageSources,CaptureGap as ImageCaptureGap,GapKind as ImageCaptureGapKind,SourceClip as ImageSourceClip,ClipOrigin as ImageClipOrigin,ClipRule as ImageClipRule};
+pub fn extract_pages_with_xobject_sources(pdf:&[u8])->Result<Vec<XObjectPageSources>>{source_images::extract(pdf)}
+
+mod source_ruling;
+
+#[cfg(test)]mod source_ruling_pdf_tests;

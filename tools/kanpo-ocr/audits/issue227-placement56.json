@@ -1,0 +1,175 @@
+{
+  "issue": 227,
+  "batch": 56,
+  "parent_commit": "d64e7dba9c8ab29912966691153c6db07a49497c",
+  "goal_complete": false,
+  "change": "Opt-in affine projection of existing OCR observations through recognition-image transform, original image CTM, CropBox and canonical PDF rotation. Preserve quadrilateral, bounding rectangle and raw observations; no automatic native/Article import.",
+  "generality": "No word/company/page/title/character-count/line-count/font-name/fixed-point/confidence branch. Only finite coordinates, affine transforms, explicit source metadata and polygon/rectangle geometry.",
+  "local_contract_tests": {
+    "passed": 60,
+    "failed": 0,
+    "skipped": 0,
+    "old31_assertions_byte_exact": true,
+    "new_tests": 29,
+    "cases": [
+      "All quarter-turns and nonzero CropBox origins",
+      "Partial image placement, explicit recognition rotation/crop/scale",
+      "Reflection/shear, source/page inside/partial/touching/outside",
+      "Bounding rectangle overlaps but actual quad remains outside",
+      "Nonfinite/degenerate/out-of-canvas boxes retained; precision collapse explicit",
+      "Singular/sparse metadata rejected, canvas mismatch rejected",
+      "All text/confidence/paths/order retained, no automatic Article/native assignment",
+      "Exclusive output and exact input byte hashes; help and failures need no model"
+    ]
+  },
+  "RED_controls": "New test suite initially fails because projection API does not exist. Separate real geometry control shows the old full-page mapper does not implement partial image placement; its original full-page contract is not called a bug.",
+  "setup_corrections": [
+    "An expected crop/scale corner was recomputed manually before implementation.",
+    "A later test revealed shared mutable global fixture pixels: the exceptional-coordinate test mutated the next fixture. Fixtures now clone their pixel boxes; all tests pass. No production word correction was introduced.",
+    "Initial read-only source-operator crosscheck conservatively assumed no ExtGState and stopped. Actual GS declarations are now recorded, without evaluating visibility."
+  ],
+  "actual_prior_OCR_reuse": {
+    "source75_native_parser_unchanged": true,
+    "previous_single_inference_reused_new_inferences": 0,
+    "mixed_original_full_layout_nodes": 1641,
+    "OCR_words": 1470,
+    "all_text_confidence_paths_original_boxes_and_order_exact": true,
+    "max_absolute_point_delta_from_verified_fullpage_coordinates": 1.1368683772161603e-13,
+    "numerical_check": "16*EPS*pageExtent for evaluation-only floating arithmetic; no production tolerance or decision threshold",
+    "source_observations_sha256": "9dcd486c18fd8f3ec08e40f705ecf750ae8966650f3f6f76324c82f063ad1fd5",
+    "projected_sha256": "54a51a14b5934a3aa0d39064ee66161fc392164fd8bcf77ff8a67645b2057c2d",
+    "partial_image_projections": [
+      {
+        "name": "/Im1",
+        "projection": {
+          "pixels": {
+            "x0": 0,
+            "y0": 0,
+            "x1": 4192,
+            "y1": 3000
+          },
+          "status": "projected",
+          "quad_points": [
+            [
+              46,
+              61
+            ],
+            [
+              549.04,
+              61
+            ],
+            [
+              549.04,
+              421
+            ],
+            [
+              46,
+              421
+            ]
+          ],
+          "bounds_points": [
+            46,
+            61,
+            549.04,
+            421
+          ],
+          "source_image_relation": "inside",
+          "page_relation": "inside",
+          "visibility": "unverified",
+          "source_binding": "declared_unverified"
+        }
+      },
+      {
+        "name": "/Im2",
+        "projection": {
+          "pixels": {
+            "x0": 0,
+            "y0": 0,
+            "x1": 4192,
+            "y1": 3000
+          },
+          "status": "projected",
+          "quad_points": [
+            [
+              46,
+              429
+            ],
+            [
+              549.04,
+              429
+            ],
+            [
+              549.04,
+              789
+            ],
+            [
+              46,
+              789
+            ]
+          ],
+          "bounds_points": [
+            46,
+            429,
+            549.04,
+            789
+          ],
+          "source_image_relation": "inside",
+          "page_relation": "inside",
+          "visibility": "unverified",
+          "source_binding": "declared_unverified"
+        }
+      }
+    ],
+    "source_visibility_or_native_Article_binding_proven": false
+  },
+  "native_source_and_existing_pipeline": {
+    "source_runtime": 75,
+    "all142_source_files_byte_exact": true,
+    "old_OCR_recognizer_CLI_model_lock_and_tests_byte_exact": true,
+    "new_model_downloads_or_inferences": 0,
+    "native1879_tests_and801_snapshots": "Inherited accepted source75 evidence at parent commit; no fresh native test/full11992/raw Glyph run claimed for this tools-only change.",
+    "source75_full_corpus_and_CLI": "Inherited11992 comparison and text CLI equality; no new default native behavior introduced."
+  },
+  "limits": [
+    "This tool projects supplied coordinates; it does not extract PDF placement or prove PNG/PDF identity, visibility, alpha, clips or later overpainting.",
+    "Source binding is declared_unverified and visibility unverified even when geometrically inside. No Article/native Glyph assignment.",
+    "Original OCR text errors remain, including prior苫->苦 errors and formally valid boxes over white pixels. No confidence threshold or text repair is applied.",
+    "Original page/source scopes root-reviewed; not independent/blind/whole-page accuracy. No new corpus accuracy estimate or initial fixed30 regrading.",
+    "Default OCR/body import, original issue reading/table/glyph cases and legacy fixed conditions remain unfinished."
+  ],
+  "CI": "Pending at commit preparation; exact-head tool contract and PR checks recorded separately.",
+  "evidence": [
+    {
+      "path": ".cache/kanpo-227/ocr-placement56/final-contract-tests56-r3.log",
+      "sha256": "6961804a25d9fe56fec15c7b19ce5c3de81c9998359a83c7d57166f9fe0f38cc"
+    },
+    {
+      "path": ".cache/kanpo-227/ocr-placement56/unimplemented-RED.log",
+      "sha256": "2e89e69a5703396d5ab2c4d8a90efcdd3311b3d0c9e84cf788e64bead21a4e57"
+    },
+    {
+      "path": ".cache/kanpo-227/ocr-placement56/baseline-wholepage-control-RED.log",
+      "sha256": "e64c92dba95f478489792c4f91b2b80b2a26c08f9d742fa5734362456c85667b"
+    },
+    {
+      "path": ".cache/kanpo-227/ocr-placement56/actual-original-projection-check56-final.json",
+      "sha256": "3eea948ebdfce0147bbf535c25414259dc31377523112ae214811bda4f7d078a"
+    },
+    {
+      "path": ".cache/kanpo-227/ocr-placement56/actual-operator-crosscheck56.json",
+      "sha256": "ef504c5ce6e631156b8909c8a2e422ffcc9c1a2c7acf80c4e8d0c1eb6c596c30"
+    },
+    {
+      "path": ".cache/kanpo-227/ocr-placement56/partial-original-image-frames56.json",
+      "sha256": "41e6591b7b8b107d9da4f81190c8a5eb69ce207f6d5d5309f8e32d5a849d2459"
+    },
+    {
+      "path": ".cache/kanpo-227/ocr-placement56/mixed-original-placement56.json",
+      "sha256": "ab391ef1335e0f29053e5ccf72a060f9fabf3a1310ddbf688ebf3a9d13f22e51"
+    },
+    {
+      "path": ".cache/kanpo-227/checkpoint52-accepted75-closed-frame-root.json",
+      "sha256": "33b4511d8bc6c6f5fbd7b61a21bebcda7a0d5eba2b3de6935cfe262359045d62"
+    }
+  ]
+}

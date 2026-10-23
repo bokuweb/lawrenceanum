@@ -1,0 +1,33 @@
+{
+  "annotation": "Root original-image engineering counterexamples for a rejected candidate. Static source Word relations, not predicted company/name conditions. Original images checked on2026-10-22; not independent blind labels.",
+  "same_column": {
+    "page": "20260728g001680070",
+    "ids": [
+      291,
+      292,
+      293
+    ]
+  },
+  "same_printed_row": {
+    "page": "20260904g001980020",
+    "ids": [
+      49,
+      15
+    ]
+  },
+  "common_notice_versus_independent_notice": {
+    "page": "20260925g002120073",
+    "parent_ids": [
+      0
+    ],
+    "related_financial_ids": [
+      286
+    ],
+    "independent_financial_ids": [
+      651,
+      628,
+      602,
+      466
+    ]
+  }
+}

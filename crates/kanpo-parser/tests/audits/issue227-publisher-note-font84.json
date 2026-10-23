@@ -1,0 +1,151 @@
+{
+  "status": "locally_verified_native84; exact final head CI tracked separately; issue227 goal incomplete",
+  "accepted_baseline_head": "d72c83887fd8e24efc445670bf842f7d17f0a336",
+  "native_candidate": 84,
+  "OCRtool_unchanged": 63,
+  "problem": "An explicit historical company-designation note used another source font family. The publisher extractor required the whole suffix to have the heading family, so it failed to certify the notice and left both related financial statements before the signed merger body.",
+  "method": {
+    "typed_metadata_suffix": "Identify a complete explicitly labelled historical-designation suffix before looking for the publisher field. The metadata may use any fully known source font family; every note glyph must still be smaller than every publisher-field glyph.",
+    "publisher_identity": "Only the actual publisher field retains the existing heading-family witness. Unknown name or metadata content holds; an absent field and unknown content are distinguished, preserving conservative failure behavior. Complete date/signature/table and source-cover proofs remain unchanged.",
+    "historical_value": "Existing 旧商号/旧社名/旧名称 roles remain the only recognised labels. No extra labels, company names, aliases, character/line count caps, fixed point/aspect thresholds, page IDs or expected article counts route the parser.",
+    "source_order": "Restore the complete signed legal notice before its related complete statement blocks. Keep the two horizontal annexes in their previously established relative order; do not infer a new annex order from company-name values."
+  },
+  "TDD_history": {
+    "synthetic_RED": "Independently changing only the metadata font to the normal-text family or another arbitrary source family failed; current/unlabelled/empty-note negatives passed.",
+    "generic_fix_before_original_discovery": "Only note-role extraction was separated from publisher-family extraction. Private1383 library tests passed; existing negative oracles were retained.",
+    "stronger_old_originals": "Existing g189119/g212088/g1840057 frozen source unit references now assert ordered complete operation groups, preserving their existing expected values.",
+    "full_corpus_discovery": "Full11992 comparison found only g182091; article count remained5 but source text/order changed. No parser change was made to fit that original after discovery.",
+    "original_freeze": "Root nonblind original image review froze five publication Word groups and the signed-body-before-both-annexes constraint before inspecting candidate membership/order. This is not an independent/blind reference.",
+    "original_RED_to_GREEN": "A separate baseline83 build with the new original test fails the body-before-statements assertion. The unchanged candidate passes all1384 tests, including the new original source/order control.",
+    "CLI_postcheck": "Full actual CLI finished0 for11992 inputs; its old baseline80-only expected-difference assertion exposed the additional changed original. The original RED log/script is retained. A separate frozen-source/original-backed postcheck compares every output to validated native83 CLI and new API. No outputs/parser were edited and no redundant full CLI run was used to conceal the discovery."
+  },
+  "tests": {
+    "terminal": 0,
+    "native_passed": 2116,
+    "Node_passed": 94,
+    "Python_passed": 45,
+    "total": 2255,
+    "failed": 0,
+    "ignored_or_skipped": 0,
+    "parser_library": 1384,
+    "PDF_library": 173,
+    "commands": 118,
+    "integration_targets": 109,
+    "result_groups": 117,
+    "new_test_functions": 3,
+    "all814_snapshots_readonly_pass_and_bytes_exact_native83": true,
+    "snapshot_updates": 0,
+    "status": "Fresh complete public gates; exact final GitHub head CI tracked separately.",
+    "verified_tested_source_manifest_sha256": "654c39fa359fa3d20e4b9a545dc7336c711f64e091e82e34d9ec0a0b512b532e"
+  },
+  "corpus": {
+    "terminal": 0,
+    "inputs": 11992,
+    "changed": 1,
+    "all_original_Word_fields_and_nonwhitespace_characters_preserved": true,
+    "all_complete_same_role_Line_Table_multisets_and_page_metadata_preserved": true,
+    "Analysis_formats_equal": true,
+    "reading_order_and_article_partition_changes_are_saved_for_original_review": true,
+    "source_and_inputs_frozen": true,
+    "purpose": "Private explicit historical designation role independent of annotation font family; publisher field typography and relative note size remain source proof versus published native83 d72c8388 (exact-head CI tracked separately). Preserve whole source Lines/Tables and every existing character. Same-publisher is not same operation; native transversal plus two own dated nonfinancial roots or unique source publisher/band certificates refine scopes. No public mutation, expected wording normalization or accuracy claim.",
+    "seconds": 375.53097687499996
+  },
+  "strong_proof": {
+    "terminal": 0,
+    "inputs": 11992,
+    "entire_Analysis_exact_native83": 11991,
+    "changed": 1,
+    "page": "20260814g001820091",
+    "article_counts": [
+      5,
+      5
+    ],
+    "all_Word_fields_Line_Table_multisets_nonwhite_characters_and_Analysis_format_preserved": true,
+    "all_styled_Document_characters_complete_tables_and_other_blocks_preserved": true,
+    "other_four_Article_JSON_values_exact": true,
+    "original_used_Word_groups": [
+      90,
+      78,
+      85,
+      144,
+      143
+    ],
+    "groups_and_sequence_exact_frozen_original": true,
+    "signed_merger_body_before_both_complete_financial_blocks": true,
+    "each_financial_block_contiguous": true,
+    "no_relative_order_of_two_horizontal_annexes_newly_inferred": true,
+    "CLI": {
+      "terminal": 0,
+      "fresh_actual_default_CLI_PDF_inputs": 11992,
+      "all_source_binary_input_prefreeze_hashes_verified": true,
+      "entire_text_bytes_equal_native83_CLI": 11991,
+      "changed": [
+        "20260814g001820091.txt"
+      ],
+      "changed_CLI_bytes_exact_new_API": true,
+      "new_CLI_API_bytes_equal_all11992": true,
+      "scope": "Original full CLI run finished0 and produced11992 exact filenames; its subsequent baseline80-only expected-difference checker failed on this newly discovered original, not during CLI execution. Preserve that RED log/script. This separate postcheck compares all outputs to verified native83 CLI and the now original-reviewed candidate API, without rerunning or changing parser/CLI outputs.",
+      "initial_postcheck_RED_driver_sha256": "6474c99617a0dbe5d7e9b7f8d179fececf58e4fd89207e7e34f16ddc20397952",
+      "initial_run_script_sha256": "377b11bc5a8195048b10c901ab1caf811170ae99d259966ead825ba144c39521"
+    },
+    "scope": "Root nonblind original engineering review after discovery and before candidate membership inspection. Source current Used-Word ownership/partial reading constraints, not global recognition/reading-order/cell accuracy. Public84 adoption requires separately recorded complete public gates and exact-head CI.",
+    "evidence": {
+      ".cache/kanpo-227/source-financial69/source-ruling70/publisher-note84/corpus84/result70.json": "3f4b1730ae58f0c40b0d89d5cf41cbeb90fb2eaaa476d28acbc0ef835eca3a8d",
+      ".cache/kanpo-227/source-financial69/source-ruling70/publisher-note84/g182091-original-reference84.json": "2d5ffab153429745fb7e810d22ff5deac73632cfe4c606169a0ba6ae49a29304",
+      ".cache/kanpo-227/source-financial69/source-ruling70/publisher-note84/CLI84/verified-result84.json": "d5547c63616370697eee8e4c71734a8b5136f3c05c01b3f3bd3baed7978d1723",
+      ".cache/kanpo-227/source-financial69/source-ruling70/publisher-note84/GREEN2-test84.log": "d650b17863f8d618fb7a64694884668335cc7a1ad1e8a60be219410679745aa9"
+    },
+    "fixed30_entire_Analysis_unchanged_not_regraded": true,
+    "fixed30_root_nonblind": {
+      "ok": 10,
+      "minor": 5,
+      "major": 15
+    },
+    "necessary7": {
+      "pass": 6,
+      "fail": 1,
+      "image_body_g1730167_still3_vs4": true
+    },
+    "PUA_gaps_unchanged": [
+      "20260721h017510032",
+      "20260820h017720032"
+    ],
+    "all814_snapshot_bytes_exact_native83": true,
+    "source_production_byteexact_public84_candidate": true
+  },
+  "migration": {
+    "production_byteexact_frozen_private84_runtime": true,
+    "only_production_module": "financial_native_source.rs",
+    "new_test_functions": 3,
+    "public_expected_library": 1384,
+    "public_expected_native": 2116,
+    "public_expected_total": 2255,
+    "stronger_original_operation_sequence_assertions": true,
+    "new_original_test_covers_5units_and_body_before_both_contiguous_annexes": true,
+    "no_existing_gold_or_snapshot_changes": true,
+    "fresh_public_required_gates": "complete:2116native+94Node+45Python=2255;0fail/ignored/skip"
+  },
+  "snapshot": "All814 readonly public snapshots passed with every byte exact native83; no updates.",
+  "raw_PDF_and_models": "No PDF/OCR source, extraction, dependency, model or default-policy changes. Accepted80 raw Glyph/Word/image audits remain authority, not a newly repeated final-pixel or missing-character accuracy audit. RURI/ModernBERT remain permitted opt-in research if fixed evidence shows utility; explicit source roles suffice here.",
+  "limits": [
+    "Root nonblind source membership and partial-order engineering validation, not independent/blind or general recognition/reading-order/cell accuracy.",
+    "The original reference constrains legal body before both complete financial blocks; it does not newly grade the relative order of the two horizontal annex panels.",
+    "Fixed30 unchanged ok10/minor5/major15 and not regraded; known7 stays6pass1fail; imagebodyg1730167native3vs4 and PUA gaps held.",
+    "Other typography, images/outlines, roster/address/table layouts and compatibility heuristics remain. No100% or exhausted-avenues claim."
+  ],
+  "evidence": {
+    ".cache/kanpo-227/source-financial69/source-ruling70/publisher-note84/RED-result84.json": "f86f672acc061f65e08afb95886a4039ff20017095f5787567b9b57969d10da4",
+    ".cache/kanpo-227/source-financial69/source-ruling70/publisher-note84/original-RED3-result84.json": "51576b18b03c1cd618bd70801a2087563a29b01faaa6ccdba606e788a65b5e84",
+    ".cache/kanpo-227/source-financial69/source-ruling70/publisher-note84/GREEN3-result84.json": "78965df82e0da0d5aef1462fc320e9ffa54dc5e5fd20fced9da15b8fcab40ea9",
+    ".cache/kanpo-227/source-financial69/source-ruling70/publisher-note84/GREEN3-test84.log": "a1194705707f90010552eb3d7ef24c1e11fe33edee34f4244160f713d60a29a4",
+    ".cache/kanpo-227/source-financial69/source-ruling70/publisher-note84/g182091-original-reference84.json": "2d5ffab153429745fb7e810d22ff5deac73632cfe4c606169a0ba6ae49a29304",
+    ".cache/kanpo-227/source-financial69/source-ruling70/publisher-note84/corpus84/result70.json": "3f4b1730ae58f0c40b0d89d5cf41cbeb90fb2eaaa476d28acbc0ef835eca3a8d",
+    ".cache/kanpo-227/source-financial69/source-ruling70/publisher-note84/corpus84/strong-proof84.json": "b9b8cf852d110cb731b40599e485795ebe16ba69f28ee2ebeb6d3d26ac80a038",
+    ".cache/kanpo-227/source-financial69/source-ruling70/publisher-note84/CLI84/verified-result84.json": "d5547c63616370697eee8e4c71734a8b5136f3c05c01b3f3bd3baed7978d1723",
+    ".cache/kanpo-227/source-financial69/source-ruling70/publisher-note84/CLI84-driver.log": "6474c99617a0dbe5d7e9b7f8d179fececf58e4fd89207e7e34f16ddc20397952",
+    ".cache/kanpo-227/source-financial69/source-ruling70/publisher-note84/public-migration84.json": "bb635aba6c1effb3d345f90f17f9a91ef807494f0fa90209c3d7e47f1057b694",
+    ".cache/kanpo-227/source-financial69/source-ruling70/public84/result84.json": "52b6e1582d9d4c5404f81597166d5b74f3044381ff7660b6da696a9232191a6d",
+    ".cache/kanpo-227/source-financial69/source-ruling70/public84/source-manifest84.json": "654c39fa359fa3d20e4b9a545dc7336c711f64e091e82e34d9ec0a0b512b532e",
+    ".cache/kanpo-227/source-financial69/source-ruling70/OCR-contracts84/result84.json": "ea1da3d633ea352a8088baff7b4353ea546f0675d7f15e3cd373d7046da4887b"
+  }
+}

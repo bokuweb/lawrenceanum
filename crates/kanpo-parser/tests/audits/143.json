@@ -1,0 +1,3789 @@
+{
+  "audit": 143,
+  "kind": "independent_unseen_initial_parent52_then_exact_candidate55_inheritance",
+  "date": "2026-10-21",
+  "baseline_commit": "c21445b9cb990bcbd5ade7a589d2d86c0a9838f5",
+  "candidate": "after55/frozen117/parser97+PDF20; original-CFF AJ1 fallback",
+  "population_pages": 11992,
+  "scope_fixed_before_selection": "Strict full quality: original full-page image vs all output text and every Article/Document, including independent announcements, new/old roles, cell/rowspan association, numeric signs, names and character omissions. Fix initial ok/minor/major before corrections; record original issue body/character/order axis separately. Do not compare numerically to older audits with different scope.",
+  "selection": {
+    "audit": 143,
+    "seed": "issue227-audit143",
+    "scope_fixed_before_selection_and_grading": "Strict full quality: original full-page image vs all output text and every Article/Document, including independent announcements, new/old roles, cell/rowspan association, numeric signs, names and character omissions. Fix initial ok/minor/major before corrections; record original issue body/character/order axis separately. Do not compare numerically to older audits with different scope.",
+    "source": {
+      "path": ".cache/kanpo-227/integrated52-source-manifest.json",
+      "sha256": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+      "files": 109,
+      "all_source_SHA_exact": true
+    },
+    "exclusion_manifest": ".cache/kanpo-227/audit143-exclusion-manifest.json",
+    "exclusion_manifest_sha256": "e5f653f48cca0fb9be269112abda94e77a212c1a6cd3712adc89c809e3f96c14",
+    "eligible_manifest_sha256": "6f1ebaf896aebe4f1755c35f0e11a0de1a594143a0e1295333f0ff436cf17251",
+    "stage": "frozen_selection_no_render_or_grading_yet",
+    "source_means": "accepted52 selection baseline; candidate53 source/output will be frozen separately before grading",
+    "selected": [
+      {
+        "page": "20260930g002150080",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150080.pdf",
+        "pdf_sha256": "98e7d241398dcc9cb9453428db6e77c2d0eb725872225be89c29caec8e8da48e",
+        "baseline_output": ".cache/kanpo-227/after52/20260930g002150080.txt",
+        "baseline_output_sha256": "55907e225f42df495ccaabd334ea73dd40fe4fa493cebe98ab5646dd4e573821",
+        "nonspace": 2028,
+        "rank_sha256": "0008dd79d728204846c36910181a078c58f3cde96f3fbfb9b3acaadf05822b52",
+        "index": 0,
+        "output": ".cache/kanpo-227/after53/20260930g002150080.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260930g002150080.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260930g002150156",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150156.pdf",
+        "pdf_sha256": "10c93e3a69bf53a6858f829f6ca638b1a438e390305b098c104aae528f9037cb",
+        "baseline_output": ".cache/kanpo-227/after52/20260930g002150156.txt",
+        "baseline_output_sha256": "4ca4dbf7291879622b0c736be7f4b022205c50d061d186c1dcd36acf6323e7e8",
+        "nonspace": 2503,
+        "rank_sha256": "0024514f64789d68fa0a8727b38fa8f6169437c0c97f85ffc05cf02594b23392",
+        "index": 1,
+        "output": ".cache/kanpo-227/after53/20260930g002150156.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260930g002150156.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260805g001760033",
+        "pdf": ".cache/kanpo-archive/2026-08-05/20260805g00176/20260805g001760033.pdf",
+        "pdf_sha256": "190093863bcb2a776ddd2206a3de1f8fd98b330c69913b2afa42d94739f5493a",
+        "baseline_output": ".cache/kanpo-227/after52/20260805g001760033.txt",
+        "baseline_output_sha256": "8903df49f743488cfa736900b1c406bdbc16d449e6614abc739049b2f86f42f8",
+        "nonspace": 1304,
+        "rank_sha256": "002f801a6c91ae316363de3113304de74968c67d2a7da5c9fc45a27d4b4367b0",
+        "index": 2,
+        "output": ".cache/kanpo-227/after53/20260805g001760033.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260805g001760033.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260731g001730066",
+        "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00173/20260731g001730066.pdf",
+        "pdf_sha256": "b900f97ff8175fca034dd2bcdc06d7ec3d00fe28eed9a892af40d93344ed5042",
+        "baseline_output": ".cache/kanpo-227/after52/20260731g001730066.txt",
+        "baseline_output_sha256": "15ee0f7d3ac45defe9ec027ad18cf1e1d834caca9dc62d6f6ba13ad1e28cafa4",
+        "nonspace": 1219,
+        "rank_sha256": "00684773853328215c97a942050522c19ae2dc9b13d6293475d2cc2ffefdd761",
+        "index": 3,
+        "output": ".cache/kanpo-227/after53/20260731g001730066.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260731g001730066.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260807g001780018",
+        "pdf": ".cache/kanpo-archive/2026-08-07/20260807g00178/20260807g001780018.pdf",
+        "pdf_sha256": "312bb6b5658c5cc91b277f81c534f9887e6214c4d31779e136dcc44637125d02",
+        "baseline_output": ".cache/kanpo-227/after52/20260807g001780018.txt",
+        "baseline_output_sha256": "59df2ed18a6fe9ae8f33ffa20bdb0775414d5d6f613b0b42880d2ff4c0e2701e",
+        "nonspace": 1860,
+        "rank_sha256": "007315b0ad02854444a2488070c7ac54add531889930b0219f174afb1dafeadc",
+        "index": 4,
+        "output": ".cache/kanpo-227/after53/20260807g001780018.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260807g001780018.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20261016g002280050",
+        "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280050.pdf",
+        "pdf_sha256": "b6ad6bd98e595f64119fe3e5e92ce8dc058fe8bde1c98b1d5cdffda99243455e",
+        "baseline_output": ".cache/kanpo-227/after52/20261016g002280050.txt",
+        "baseline_output_sha256": "867e1a92c527e34e55b1742ba4dcf467805b63253bd3c1d5b7a2777b0953a894",
+        "nonspace": 1686,
+        "rank_sha256": "00a93e4ce7ccf26002672bf4c423dbbc4ea9bd0123c4e69188aefe3b88f918a7",
+        "index": 5,
+        "output": ".cache/kanpo-227/after53/20261016g002280050.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20261016g002280050.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260820g001860092",
+        "pdf": ".cache/kanpo-archive/2026-08-20/20260820g00186/20260820g001860092.pdf",
+        "pdf_sha256": "ed96890660d78b045db4898cc627a8d15f22466f63516273dc5d542f7376bd65",
+        "baseline_output": ".cache/kanpo-227/after52/20260820g001860092.txt",
+        "baseline_output_sha256": "d15832e2a6e02ef7058b65eec17dcf514aed38a74f19a2111c582f45be45de70",
+        "nonspace": 1550,
+        "rank_sha256": "00ae941adc4cd7f2b8ee3fa6207b9689be25e50bdff64f01b0dcdc19d103daab",
+        "index": 6,
+        "output": ".cache/kanpo-227/after53/20260820g001860092.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260820g001860092.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260930g002150063",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150063.pdf",
+        "pdf_sha256": "e4e29d0683cfc3a86530842e5ab997fd704a9148b39e992f8612a2bc4b983c74",
+        "baseline_output": ".cache/kanpo-227/after52/20260930g002150063.txt",
+        "baseline_output_sha256": "fb054482f94c0efb23d778144ba05cb85d5fd11a91b4e8d014c66f29911610d3",
+        "nonspace": 2093,
+        "rank_sha256": "00b0c6150efe6e8101a91f7421977a533ef8d492633988db6b953c89807808ab",
+        "index": 7,
+        "output": ".cache/kanpo-227/after53/20260930g002150063.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260930g002150063.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20261016g002280304",
+        "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280304.pdf",
+        "pdf_sha256": "bcdccc9718c5608ca51c661ec46bf86bcfe8f78f5d7ea0b79d0c68051142d626",
+        "baseline_output": ".cache/kanpo-227/after52/20261016g002280304.txt",
+        "baseline_output_sha256": "87790f4f56cc9448745b926579ff0a8af2d6786d68d24aeda51b65dd7ebb1ae5",
+        "nonspace": 1071,
+        "rank_sha256": "00b8f09cf706c45c717a4dd01e22473c91c12f3a45ab38b38c7a404d890c1ffb",
+        "index": 8,
+        "output": ".cache/kanpo-227/after53/20261016g002280304.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20261016g002280304.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260724g001650657",
+        "pdf": ".cache/kanpo-archive/2026-07-24/20260724g00165/20260724g001650657.pdf",
+        "pdf_sha256": "392f2512cfe75e7ae88d4ddd94d5c192298aad2d8bf0b3da8ce2a7e97ed29492",
+        "baseline_output": ".cache/kanpo-227/after52/20260724g001650657.txt",
+        "baseline_output_sha256": "ede469d36a955956373bb6fab4346a09c6a2c831cd0bd550c0519439aa365efa",
+        "nonspace": 1158,
+        "rank_sha256": "00bc4b818a81f4d9405815bcea67d2e62fef99eb7f7dce30f4b90d9ed4e043a3",
+        "index": 9,
+        "output": ".cache/kanpo-227/after53/20260724g001650657.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260724g001650657.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260731g001720182",
+        "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720182.pdf",
+        "pdf_sha256": "ad3e640830d85aa8bdcd8ca4e1df61132ad8553a7de052f856982fa58f28e052",
+        "baseline_output": ".cache/kanpo-227/after52/20260731g001720182.txt",
+        "baseline_output_sha256": "e830c226d4c3fe9073db2c15f6906e19df1767c5d1c3e3795792ac18961428be",
+        "nonspace": 519,
+        "rank_sha256": "00c34f7b82857e41b68ba68bf14d1676bb1497466dc40d7d91ecc5c82767fa11",
+        "index": 10,
+        "output": ".cache/kanpo-227/after53/20260731g001720182.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260731g001720182.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260824g001880057",
+        "pdf": ".cache/kanpo-archive/2026-08-24/20260824g00188/20260824g001880057.pdf",
+        "pdf_sha256": "274bd43169f3e6dd0e1d3873e1cc03c1fe7f0eee90d061e736dbe4a342f55e3f",
+        "baseline_output": ".cache/kanpo-227/after52/20260824g001880057.txt",
+        "baseline_output_sha256": "0b5f2027adeb93ae976b9b04f7e408dc8ae9f0b496d751d28d038cf7e2c63967",
+        "nonspace": 1269,
+        "rank_sha256": "00ce0b82d39dd528c5d468e1045162252a84a135edc365a99cfccc4003a55bf4",
+        "index": 11,
+        "output": ".cache/kanpo-227/after53/20260824g001880057.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260824g001880057.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260901g001950047",
+        "pdf": ".cache/kanpo-archive/2026-09-01/20260901g00195/20260901g001950047.pdf",
+        "pdf_sha256": "13ebc29c20cb5a70fcf9c685ea54ab4969a79ae357f502733778f3ac9cf0d1d8",
+        "baseline_output": ".cache/kanpo-227/after52/20260901g001950047.txt",
+        "baseline_output_sha256": "81deb362700e4abb20fead13453a3f45e8701caccd3abcc8c5c495eeecba5db9",
+        "nonspace": 3131,
+        "rank_sha256": "00cfad520815d0a0d7d99df2f1eed5600ff397a23fa1ea339d78d1b3ce9edf48",
+        "index": 12,
+        "output": ".cache/kanpo-227/after53/20260901g001950047.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260901g001950047.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260803g001740038",
+        "pdf": ".cache/kanpo-archive/2026-08-03/20260803g00174/20260803g001740038.pdf",
+        "pdf_sha256": "718606df95cf55718c6e432548bd88f6a356cac558a3c8f214bed262b94cdee8",
+        "baseline_output": ".cache/kanpo-227/after52/20260803g001740038.txt",
+        "baseline_output_sha256": "60f29de1c314ac18fc31179c8af51c8ef1bcc378624fc56488395551cf00b559",
+        "nonspace": 3313,
+        "rank_sha256": "00e0e6b69be3665dd88232bec802ebee2d76f80027e2d06690892e08f1874886",
+        "index": 13,
+        "output": ".cache/kanpo-227/after53/20260803g001740038.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260803g001740038.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260731g001720115",
+        "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720115.pdf",
+        "pdf_sha256": "e4d2220852d71fbd17896bdbf4486702aa3087fa8133fe13dabe973ea6ee95c2",
+        "baseline_output": ".cache/kanpo-227/after52/20260731g001720115.txt",
+        "baseline_output_sha256": "17e625926d4a9b3d6a48390fc588978c6a5519cc6a608a7df7a8b63f5d05d219",
+        "nonspace": 2233,
+        "rank_sha256": "00f8f5d85bdba2beeae9148ede16624a0d906ed1a86251f7dff43b663ac925d4",
+        "index": 14,
+        "output": ".cache/kanpo-227/after53/20260731g001720115.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260731g001720115.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260821g001870017",
+        "pdf": ".cache/kanpo-archive/2026-08-21/20260821g00187/20260821g001870017.pdf",
+        "pdf_sha256": "639ba15b9bd7762b357d5379ac67b7112d308f84e732543858b8d6c8066d7797",
+        "baseline_output": ".cache/kanpo-227/after52/20260821g001870017.txt",
+        "baseline_output_sha256": "69e43a046974214301e1c7dca8e7e2af8615182be2cdb894666e949be0f4b58f",
+        "nonspace": 2625,
+        "rank_sha256": "00ff17f14a09f9a767af1ab42ef7e1405b3dc77c03fb6f05f2897de8e8f0ea6e",
+        "index": 15,
+        "output": ".cache/kanpo-227/after53/20260821g001870017.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260821g001870017.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260917g002080064",
+        "pdf": ".cache/kanpo-archive/2026-09-17/20260917g00208/20260917g002080064.pdf",
+        "pdf_sha256": "435fbfb5489803ae44c34e029ac51c4b11f3ead5af886c6492dd58de6859405c",
+        "baseline_output": ".cache/kanpo-227/after52/20260917g002080064.txt",
+        "baseline_output_sha256": "a7ccaceae562ea8b0069383aaebea98077f532531dc8745a3f719de0ef69830b",
+        "nonspace": 3024,
+        "rank_sha256": "010dee3b4b8e4b1b5c27602243fd6cdeb558f3ccc91c4216b38c7687dfbf8ba1",
+        "index": 16,
+        "output": ".cache/kanpo-227/after53/20260917g002080064.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260917g002080064.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20261016g002280021",
+        "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280021.pdf",
+        "pdf_sha256": "7691057fe5f7c68fd94fc0f074c4aae031cb5c530b49300dc1a21b8c4852f672",
+        "baseline_output": ".cache/kanpo-227/after52/20261016g002280021.txt",
+        "baseline_output_sha256": "a1f019950f0c5e49f499e3db8872002eb2b6da89bfaf8afbbdcc883be1c4690a",
+        "nonspace": 1073,
+        "rank_sha256": "0116eeac1090b5bc5af959e6ef0e54d3fdfdde2b00a97cc9f3d26647943b1642",
+        "index": 17,
+        "output": ".cache/kanpo-227/after53/20261016g002280021.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20261016g002280021.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260918g002090030",
+        "pdf": ".cache/kanpo-archive/2026-09-18/20260918g00209/20260918g002090030.pdf",
+        "pdf_sha256": "b63471bbd554ab7e16c037aa3b71cf29f99f4f3ba65fdd1fca263aaf8b072916",
+        "baseline_output": ".cache/kanpo-227/after52/20260918g002090030.txt",
+        "baseline_output_sha256": "346241a049e0672790e247330dacd352cc3e0b8ce37292fcf35a0e750224680f",
+        "nonspace": 1425,
+        "rank_sha256": "0134ec61e736b686f658ad466498030062c67abda86ab748203dffa14f7227ce",
+        "index": 18,
+        "output": ".cache/kanpo-227/after53/20260918g002090030.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260918g002090030.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20261016g002280238",
+        "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280238.pdf",
+        "pdf_sha256": "89a47d5cbb60191fff54495a8ba61b8f8da1c35dc560c085023af36fc82f6b83",
+        "baseline_output": ".cache/kanpo-227/after52/20261016g002280238.txt",
+        "baseline_output_sha256": "48e2e1bb445acf91feff966d11954f240b31058c98e9e3461af7686bf143e328",
+        "nonspace": 1023,
+        "rank_sha256": "0139cdd17cb9c0264d3c8fd29c40fe4dd615760007825906d15544e0ea844189",
+        "index": 19,
+        "output": ".cache/kanpo-227/after53/20261016g002280238.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20261016g002280238.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260722h017520001",
+        "pdf": ".cache/kanpo-archive/2026-07-22/20260722h01752/20260722h017520001.pdf",
+        "pdf_sha256": "bb5796a07aafdc91fb74528201ae85ec33abba3ed901c8b17056d70d9064978a",
+        "baseline_output": ".cache/kanpo-227/after52/20260722h017520001.txt",
+        "baseline_output_sha256": "c23faeda5b90f24bf593616a45c6d442d06f73d26d5ed18d8de7e4a4325a1e03",
+        "nonspace": 1296,
+        "rank_sha256": "013fb2688dc86d16d3849f1061360915b9aac0b3c58405b80da66978ed671398",
+        "index": 20,
+        "output": ".cache/kanpo-227/after53/20260722h017520001.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260722h017520001.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260915g002050072",
+        "pdf": ".cache/kanpo-archive/2026-09-15/20260915g00205/20260915g002050072.pdf",
+        "pdf_sha256": "7df7cbe7f1dd8ef00f269b1252028d7997842ab665eba796558e05c8250c4303",
+        "baseline_output": ".cache/kanpo-227/after52/20260915g002050072.txt",
+        "baseline_output_sha256": "42e1e50e1632236b575ea6d5c7c17b49d82262aa35b7d4c7a2a5f912144675a6",
+        "nonspace": 1211,
+        "rank_sha256": "0143baaaf3bb5dc64fedc9d6477129e93a7ce0136e8c4b89b991975825d60668",
+        "index": 21,
+        "output": ".cache/kanpo-227/after53/20260915g002050072.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260915g002050072.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260820g001860007",
+        "pdf": ".cache/kanpo-archive/2026-08-20/20260820g00186/20260820g001860007.pdf",
+        "pdf_sha256": "3208c16c4b3a79f0a06c382b227b61994f14d67730e4fe9226cf38089b9e8c33",
+        "baseline_output": ".cache/kanpo-227/after52/20260820g001860007.txt",
+        "baseline_output_sha256": "3e473e9be28c80cee881a38e36aa97ae8b7c8e0ab284bf7d0f8d06ad11d4b16f",
+        "nonspace": 3066,
+        "rank_sha256": "015b46b2806e41560be1df6b0df6979f57ca68482ff47ab7d4896d6ee5bbab19",
+        "index": 22,
+        "output": ".cache/kanpo-227/after53/20260820g001860007.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260820g001860007.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260820g001860087",
+        "pdf": ".cache/kanpo-archive/2026-08-20/20260820g00186/20260820g001860087.pdf",
+        "pdf_sha256": "d9537c38bf5a3bd9d67e4927b44fa3ec58260ca4a314aefefa003ba857c2f04d",
+        "baseline_output": ".cache/kanpo-227/after52/20260820g001860087.txt",
+        "baseline_output_sha256": "d52ac1d4625622f2d8479b55d918839513d41822cddd1c96c35429bf7bfabeae",
+        "nonspace": 2146,
+        "rank_sha256": "0190e78129d9bbe5c3bf340aec2b1ae4bd341f549de8dd8d56aacc30895e9fdd",
+        "index": 23,
+        "output": ".cache/kanpo-227/after53/20260820g001860087.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260820g001860087.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260911g002030023",
+        "pdf": ".cache/kanpo-archive/2026-09-11/20260911g00203/20260911g002030023.pdf",
+        "pdf_sha256": "15343cfb5fa5a0dbf482d070d193448735e0ecdca2fe3abd7d1e4f8e33362720",
+        "baseline_output": ".cache/kanpo-227/after52/20260911g002030023.txt",
+        "baseline_output_sha256": "0ec1dd9dc7809f1264895445136f01048e93bc03ee0d21540ebaffaef2714838",
+        "nonspace": 1228,
+        "rank_sha256": "0195234482adaad98cf2e6b7293dad52e786c562a84cb272a4626852a918d539",
+        "index": 24,
+        "output": ".cache/kanpo-227/after53/20260911g002030023.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260911g002030023.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260806g001770001",
+        "pdf": ".cache/kanpo-archive/2026-08-06/20260806g00177/20260806g001770001.pdf",
+        "pdf_sha256": "b9eba75b48d0ceddbaefb2015fc8f83dacd44506661b225cd50d804a2b40ed28",
+        "baseline_output": ".cache/kanpo-227/after52/20260806g001770001.txt",
+        "baseline_output_sha256": "72e7334bc491124cca04e10974192c1b7f1959b900320d35189be16645dab59a",
+        "nonspace": 762,
+        "rank_sha256": "01d6a0a72042c06e1adbb5e5d3dc24c43516f512da6052a09896ce0e30cba6e3",
+        "index": 25,
+        "output": ".cache/kanpo-227/after53/20260806g001770001.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260806g001770001.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260831g001930036",
+        "pdf": ".cache/kanpo-archive/2026-08-31/20260831g00193/20260831g001930036.pdf",
+        "pdf_sha256": "1b03940d0d64d6d24ed018f11b39fa9732c4995f11eb7a98bc730bdaf67ccc94",
+        "baseline_output": ".cache/kanpo-227/after52/20260831g001930036.txt",
+        "baseline_output_sha256": "9a9c35fbeaf12baf2e120f08bce47d7dcb9dd20f3353a13bc7057be6b26e8beb",
+        "nonspace": 1033,
+        "rank_sha256": "01f899e5e93e421661e3474d6c7023ea6fbf32d8c734234c43b418c8a5d3fe6a",
+        "index": 26,
+        "output": ".cache/kanpo-227/after53/20260831g001930036.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260831g001930036.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260918g002090068",
+        "pdf": ".cache/kanpo-archive/2026-09-18/20260918g00209/20260918g002090068.pdf",
+        "pdf_sha256": "afb16ad8ff2d1c868d8c79065a42790f30afa20e821aca81e581a468df4afb6b",
+        "baseline_output": ".cache/kanpo-227/after52/20260918g002090068.txt",
+        "baseline_output_sha256": "8f4cf1aef4de10cce845d0b9a5e1aff2f6b92e0bad34b6b2f7240076c3d19a13",
+        "nonspace": 671,
+        "rank_sha256": "022520747c060cd4d0e38ecd67ff332e1b2b7a489775b5ce1cbd468cd7b01596",
+        "index": 27,
+        "output": ".cache/kanpo-227/after53/20260918g002090068.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260918g002090068.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260930g002160084",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00216/20260930g002160084.pdf",
+        "pdf_sha256": "c80ce86ce7f983997ea3b1e47b5ac0fa85a981a7d14bef316c8a3dd7c44100c6",
+        "baseline_output": ".cache/kanpo-227/after52/20260930g002160084.txt",
+        "baseline_output_sha256": "4218bb5c77d6727f5441a193ef4bac1b2417847e62e138518e5c20dc7ba49b5a",
+        "nonspace": 1961,
+        "rank_sha256": "023f854db48ee0bc14f54b8b452ccb5b6f3e3ec6416e8b1a5dcdac959cb3be9f",
+        "index": 28,
+        "output": ".cache/kanpo-227/after53/20260930g002160084.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260930g002160084.png",
+        "initial_grade": null
+      },
+      {
+        "page": "20260731g001730081",
+        "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00173/20260731g001730081.pdf",
+        "pdf_sha256": "d1a5f2d2e1d4b7cbd331b3187f592b13cb9cfc77d6b3fc8e90c20e052d94f1bc",
+        "baseline_output": ".cache/kanpo-227/after52/20260731g001730081.txt",
+        "baseline_output_sha256": "d9da7b7daa40468a348682572a593550bba8118c6b44dd1c6f5113109545085e",
+        "nonspace": 1380,
+        "rank_sha256": "0241d8d6e888109ed3eccd1bb018bf1da31914af049c30cebf53f96df5f85a39",
+        "index": 29,
+        "output": ".cache/kanpo-227/after53/20260731g001730081.txt",
+        "candidate_output_pending": true,
+        "image": ".cache/kanpo-227/audit143/20260731g001730081.png",
+        "initial_grade": null
+      }
+    ]
+  },
+  "exclusion_population": {
+    "excluded": 8946,
+    "eligible": 3046,
+    "archive_PDFs_at_selection": 697
+  },
+  "initial_parent52_protocol": {
+    "audit": 143,
+    "initial_review_source": "accepted52 frozen before any parent original/body review; candidate53 pending",
+    "parent_freeze": ".cache/kanpo-227/audit143-parent52-original-freeze.json",
+    "parent_freeze_sha256": "0516fd6e28213857b76c9d2af0d37114e9fba5b697d2f532b3e63e7e7fbd9d8e",
+    "selection_sha256": "79456e2b53779e5da7f57d5cd35c612a14bd10baf08a08c6d1937251f380fc14",
+    "grading_allowed_for_parent52": true,
+    "candidate53_grading_allowed": false,
+    "initial_grades_immutable": true,
+    "candidate53_may_inherit_parent_reviews_only_after_entire_Analysis_exact_per_all30": true,
+    "if_candidate_changes_an_audit_page": "retain initial52 grade and original full review; separately review whole new Analysis and report post-change grade, never replace initial grade",
+    "repair_scope": "root financial/grid/CFF candidates frozen/test-first before these selected pages are read; do not use selected pages as implementation targets in batch31",
+    "scope": "Strict full quality: original full-page image vs all output text and every Article/Document, including independent announcements, new/old roles, cell/rowspan association, numeric signs, names and character omissions. Fix initial ok/minor/major before corrections; record original issue body/character/order axis separately. Do not compare numerically to older audits with different scope."
+  },
+  "initial_grades_fixed": true,
+  "initial_grades_never_rewritten": true,
+  "strict_full_quality_counts": {
+    "ok": 10,
+    "minor": 6,
+    "major": 14
+  },
+  "original_issue_body_character_order_counts": {
+    "ok": 27,
+    "minor": 1,
+    "major": 2
+  },
+  "comparison_to_prior_accuracy_rates": "Different selected pages and strict/body axes; no accuracy-rate improvement or100% claim. Initial accepted52 grades fixed before candidate inheritance; entire candidate55 Analysis freshly exact for all30.",
+  "complete_before52_after55_Analysis_exact": 30,
+  "new_batch31_regressions": 0,
+  "full_original_images_outputs_all_Articles_Documents_reviewed": 30,
+  "Articles_reviewed": 60,
+  "output_lines_reviewed": 2165,
+  "candidate55_inheritance": {
+    "audit": 143,
+    "pages": 30,
+    "source55_manifest_sha256": "8620f18ff28d8d30c64ac2c185301b0a2a4752b04353175306edae2d200003de",
+    "source55_release_fresh11992_sha256": "790dbf913eabf12d105d57fa9d7d3d40b2bb7e8d91af3643833de0cecc4db33b",
+    "all30_complete_Analysis_exact_to_independently_graded_parent52": true,
+    "initial_grades_immutable_and_candidate_inherited_only_after_exact_comparison": true,
+    "strict": {
+      "ok": 10,
+      "minor": 6,
+      "major": 14
+    },
+    "body": {
+      "ok": 27,
+      "minor": 1,
+      "major": 2
+    },
+    "body_lines": 2165,
+    "Articles_Documents": 60,
+    "native0_bounded_rectangles": 8,
+    "native0_PDFs": 2,
+    "adjacent_positive_rectangles": 9,
+    "outer_context_positive_Glyphs": 17,
+    "whole_page_exclusions": 0,
+    "native0_root_independent_proof_sha256": "9006195daaaca8df049479018117708ac2856f4b1ba76da7a676281fb5c48735",
+    "all_frozen_prepost_SHA_exact": true,
+    "initial_review_pending53_fields_preserved_as_historical_only": true,
+    "rows": [
+      {
+        "page": "20260930g002150080",
+        "PDF_sha256": "98e7d241398dcc9cb9453428db6e77c2d0eb725872225be89c29caec8e8da48e",
+        "image_sha256": "e682932ee307b8fdf4ec16aab418482babc85fc315f27ce488d92f176c8c18bc",
+        "parent52_Analysis_sha256": "15838f77410f751dafe606b1f7e2773193de746c294cb4f084265c7328f6b164",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260930g002150080.json",
+        "candidate55_Analysis_sha256": "378a9478b138cf6aebfe38166d1c2c2c353f7140d3294ee3e58ccce0532053a3",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "ok",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "page": "20260930g002150080",
+          "strict_grade": "ok",
+          "body_grade": "ok",
+          "notes": "第86/87条の上下新旧。旧側だけの第2項・各号5行と新側空欄、両本文・枝号・見出しの役割と対応を全確認。1Articleのshinkyu13rows、両段全文を保持。",
+          "parent52_analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260930g002150080.json",
+          "analysis_sha256": "15838f77410f751dafe606b1f7e2773193de746c294cb4f084265c7328f6b164",
+          "image": ".cache/kanpo-227/audit143/20260930g002150080.png",
+          "image_sha256": "e682932ee307b8fdf4ec16aab418482babc85fc315f27ce488d92f176c8c18bc",
+          "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150080.pdf",
+          "pdf_sha256": "98e7d241398dcc9cb9453428db6e77c2d0eb725872225be89c29caec8e8da48e",
+          "all_original_viewed": true,
+          "all_body_read": true,
+          "all_Article_Document_structure_and_all_Run_content_reviewed": true,
+          "body_lines": 71,
+          "Articles": 1,
+          "Document_textNodes": 21,
+          "Shinkyu_rows": 13,
+          "Tables": 0,
+          "cells": 0,
+          "native0_exclusions": [],
+          "initial_grades_fixed": true,
+          "candidate53_pending": true
+        }
+      },
+      {
+        "page": "20260930g002150156",
+        "PDF_sha256": "10c93e3a69bf53a6858f829f6ca638b1a438e390305b098c104aae528f9037cb",
+        "image_sha256": "250487af56504f605152db9f64ffbb32d92a292552d9371c7fc53d85c08caf49",
+        "parent52_Analysis_sha256": "76275c106dd01a2124589bd9b4aac4bbaf4949f94b489f63cd7df782440e1dac",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260930g002150156.json",
+        "candidate55_Analysis_sha256": "5444321ada9d71427b6189eb0fe39332d0750654823ef539c017022be11aeca3",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "minor",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "page": "20260930g002150156",
+          "strict_grade": "minor",
+          "body_grade": "ok",
+          "notes": "準用21条の4/旧21条と、改正第五条を挟む49/55条の2組新旧が本文・roleとも正確。中間の第五条改正見出しはparagraphのRunに平坦化され、見出し/条構造は失われる。1Articleのshinkyu+paragraph+shinkyu、本文欠落なし。",
+          "parent52_analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260930g002150156.json",
+          "analysis_sha256": "76275c106dd01a2124589bd9b4aac4bbaf4949f94b489f63cd7df782440e1dac",
+          "image": ".cache/kanpo-227/audit143/20260930g002150156.png",
+          "image_sha256": "250487af56504f605152db9f64ffbb32d92a292552d9371c7fc53d85c08caf49",
+          "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150156.pdf",
+          "pdf_sha256": "10c93e3a69bf53a6858f829f6ca638b1a438e390305b098c104aae528f9037cb",
+          "all_original_viewed": true,
+          "all_body_read": true,
+          "all_Article_Document_structure_and_all_Run_content_reviewed": true,
+          "body_lines": 77,
+          "Articles": 1,
+          "Document_textNodes": 7,
+          "Shinkyu_rows": 3,
+          "Tables": 0,
+          "cells": 0,
+          "native0_exclusions": [],
+          "initial_grades_fixed": true,
+          "candidate53_pending": true
+        }
+      },
+      {
+        "page": "20260805g001760033",
+        "PDF_sha256": "190093863bcb2a776ddd2206a3de1f8fd98b330c69913b2afa42d94739f5493a",
+        "image_sha256": "73ee1eb6c87e8314b10d9926576c8e83a438acd1cb0eb95bf00ca998c0481561",
+        "parent52_Analysis_sha256": "0de37b7f24fb17f99a818edbaa22fbb1896b9caa7e75decf114d63d328858b74",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260805g001760033.json",
+        "candidate55_Analysis_sha256": "3f4130d17331c60909717b6362d2cb539a42251f2adf58cc4f51a0cdb719230d",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "major",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "page": "20260805g001760033",
+          "strict_grade": "major",
+          "body_grade": "ok",
+          "notes": "原図上段の新10/11条・削除行と下段の旧11/12/13条の全文は順序含め保持。Documentはprose1paragraph/1Runで新旧roleと対応が全て失われている。本文文字/内容は保持。",
+          "parent52_analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260805g001760033.json",
+          "analysis_sha256": "0de37b7f24fb17f99a818edbaa22fbb1896b9caa7e75decf114d63d328858b74",
+          "image": ".cache/kanpo-227/audit143/20260805g001760033.png",
+          "image_sha256": "73ee1eb6c87e8314b10d9926576c8e83a438acd1cb0eb95bf00ca998c0481561",
+          "pdf": ".cache/kanpo-archive/2026-08-05/20260805g00176/20260805g001760033.pdf",
+          "pdf_sha256": "190093863bcb2a776ddd2206a3de1f8fd98b330c69913b2afa42d94739f5493a",
+          "all_original_viewed": true,
+          "all_body_read": true,
+          "all_Article_Document_structure_and_all_Run_content_reviewed": true,
+          "body_lines": 51,
+          "Articles": 1,
+          "Document_textNodes": 1,
+          "Shinkyu_rows": 0,
+          "Tables": 0,
+          "cells": 0,
+          "native0_exclusions": [],
+          "initial_grades_fixed": true,
+          "candidate53_pending": true
+        }
+      },
+      {
+        "page": "20260731g001730066",
+        "PDF_sha256": "b900f97ff8175fca034dd2bcdc06d7ec3d00fe28eed9a892af40d93344ed5042",
+        "image_sha256": "403937ea52023d56b7c579423b2587acac5da7571e517d40ae7ea3e8fa519a4c",
+        "parent52_Analysis_sha256": "049b02b9759edb97565c7f89f57f09fc1b9606de091f4ab131dd86fdfda06d2d",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260731g001730066.json",
+        "candidate55_Analysis_sha256": "3cb0662ccf70021064372b64d22c5a21efd63b7cc012ceb3d029b08a9bef4c74",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "major",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "page": "20260731g001730066",
+          "strict_grade": "major",
+          "body_grade": "ok",
+          "notes": "損益計算書の左右段にある全費用/収益/利益・金額・（注）の本文順と対応は保持。ArticleDocは全行を単一Paragraph/Runへ連結し、費用階層・明細/小計/合計の行列構造を失っている。",
+          "parent52_analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260731g001730066.json",
+          "analysis_sha256": "049b02b9759edb97565c7f89f57f09fc1b9606de091f4ab131dd86fdfda06d2d",
+          "image": ".cache/kanpo-227/audit143/20260731g001730066.png",
+          "image_sha256": "403937ea52023d56b7c579423b2587acac5da7571e517d40ae7ea3e8fa519a4c",
+          "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00173/20260731g001730066.pdf",
+          "pdf_sha256": "b900f97ff8175fca034dd2bcdc06d7ec3d00fe28eed9a892af40d93344ed5042",
+          "all_original_viewed": true,
+          "all_body_read": true,
+          "all_Article_Document_structure_and_all_Run_content_reviewed": true,
+          "body_lines": 78,
+          "Articles": 1,
+          "Document_textNodes": 1,
+          "Shinkyu_rows": 0,
+          "Tables": 0,
+          "cells": 0,
+          "native0_exclusions": [],
+          "initial_grades_fixed": true,
+          "candidate53_pending": true
+        }
+      },
+      {
+        "page": "20260807g001780018",
+        "PDF_sha256": "312bb6b5658c5cc91b277f81c534f9887e6214c4d31779e136dcc44637125d02",
+        "image_sha256": "95c90ff1f0e035901c53b1dc27cfe36e19de6fac3eb057cf4898373f52ec2442",
+        "parent52_Analysis_sha256": "ff951ed674e1f491bc452df76036a7ed62013d8e707db0a58c295eaaf008acce",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260807g001780018.json",
+        "candidate55_Analysis_sha256": "c313ab8a8ace53c66d07dff69b3f56849706caf98e1e68df35761d77f561af77",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "minor",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "page": "20260807g001780018",
+          "strict_grade": "minor",
+          "body_grade": "ok",
+          "notes": "前条8〜13号に続く第五条の帳票82項を全件・号・名称・上下段順序で保持。Documentはunknownの単一Paragraph/Runで第五条/帳票要件見出しや各号の階層が平坦だが行分けと本文は保持。",
+          "parent52_analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260807g001780018.json",
+          "analysis_sha256": "ff951ed674e1f491bc452df76036a7ed62013d8e707db0a58c295eaaf008acce",
+          "image": ".cache/kanpo-227/audit143/20260807g001780018.png",
+          "image_sha256": "95c90ff1f0e035901c53b1dc27cfe36e19de6fac3eb057cf4898373f52ec2442",
+          "pdf": ".cache/kanpo-archive/2026-08-07/20260807g00178/20260807g001780018.pdf",
+          "pdf_sha256": "312bb6b5658c5cc91b277f81c534f9887e6214c4d31779e136dcc44637125d02",
+          "all_original_viewed": true,
+          "all_body_read": true,
+          "all_Article_Document_structure_and_all_Run_content_reviewed": true,
+          "body_lines": 92,
+          "Articles": 1,
+          "Document_textNodes": 1,
+          "Shinkyu_rows": 0,
+          "Tables": 0,
+          "cells": 0,
+          "native0_exclusions": [],
+          "initial_grades_fixed": true,
+          "candidate53_pending": true
+        }
+      },
+      {
+        "page": "20261016g002280050",
+        "PDF_sha256": "b6ad6bd98e595f64119fe3e5e92ce8dc058fe8bde1c98b1d5cdffda99243455e",
+        "image_sha256": "ff9b59cdd909741e40f615b43171dff55df1a4dede15630da2a177544abd198f",
+        "parent52_Analysis_sha256": "b9cab9c3cebbf4c7ca5cadcd8ca3370262ff3bd422ba532df18ec2576af952c6",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20261016g002280050.json",
+        "candidate55_Analysis_sha256": "95196370b0fc420dbc5bbb348fe0ecd8b843c7da872084c034c34b1709365c41",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "minor",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "page": "20261016g002280050",
+          "strict_grade": "minor",
+          "body_grade": "ok",
+          "notes": "上段退職給付3組の全金額・△と減損会計の4表（3x5/3x5/2x5/2x5）・全説明を照合。名称/用途/場所/金額の所属は正確。Docの表は全50slotを保持、一方、無罫の給付調整表/各説明見出しがParagraph text内で連結・平坦化する。",
+          "parent52_analysis": ".cache/kanpo-227/audit143-parent52-analysis/20261016g002280050.json",
+          "analysis_sha256": "b9cab9c3cebbf4c7ca5cadcd8ca3370262ff3bd422ba532df18ec2576af952c6",
+          "image": ".cache/kanpo-227/audit143/20261016g002280050.png",
+          "image_sha256": "ff9b59cdd909741e40f615b43171dff55df1a4dede15630da2a177544abd198f",
+          "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280050.pdf",
+          "pdf_sha256": "b6ad6bd98e595f64119fe3e5e92ce8dc058fe8bde1c98b1d5cdffda99243455e",
+          "all_original_viewed": true,
+          "all_body_read": true,
+          "all_Article_Document_structure_and_all_Run_content_reviewed": true,
+          "body_lines": 73,
+          "Articles": 1,
+          "Document_textNodes": 59,
+          "Shinkyu_rows": 0,
+          "Tables": 4,
+          "cells": 50,
+          "native0_exclusions": [],
+          "initial_grades_fixed": true,
+          "candidate53_pending": true
+        }
+      },
+      {
+        "page": "20260820g001860092",
+        "PDF_sha256": "ed96890660d78b045db4898cc627a8d15f22466f63516273dc5d542f7376bd65",
+        "image_sha256": "38f724a8ebb1ca040562ac9ac38b6128838dd309a8aa695ba4c4a46937721f23",
+        "parent52_Analysis_sha256": "7ced8ff8a9a038181d286e296ba11e0e3b827afe7452ee509777366135525858",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260820g001860092.json",
+        "candidate55_Analysis_sha256": "0f7322419217ae07b17af2f89b640bf90581f0061ccd17379123ec899c14553c",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "minor",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "page": "20260820g001860092",
+          "strict_grade": "minor",
+          "body_grade": "ok",
+          "notes": "小郡2/大分明野/大塚町/谷山/鹿屋上野町/同2の6表を全105slot、金額・重複風除室行を含め照合。前頁からのイ/ウ継続と各イ/ウ説明も全文保持。DocTableは全て正確、宿舎名とア/イ/ウ見出しはparagraph内の平坦textにとどまる。",
+          "parent52_analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260820g001860092.json",
+          "analysis_sha256": "7ced8ff8a9a038181d286e296ba11e0e3b827afe7452ee509777366135525858",
+          "image": ".cache/kanpo-227/audit143/20260820g001860092.png",
+          "image_sha256": "38f724a8ebb1ca040562ac9ac38b6128838dd309a8aa695ba4c4a46937721f23",
+          "pdf": ".cache/kanpo-archive/2026-08-20/20260820g00186/20260820g001860092.pdf",
+          "pdf_sha256": "ed96890660d78b045db4898cc627a8d15f22466f63516273dc5d542f7376bd65",
+          "all_original_viewed": true,
+          "all_body_read": true,
+          "all_Article_Document_structure_and_all_Run_content_reviewed": true,
+          "body_lines": 75,
+          "Articles": 1,
+          "Document_textNodes": 118,
+          "Shinkyu_rows": 0,
+          "Tables": 6,
+          "cells": 105,
+          "native0_exclusions": [],
+          "initial_grades_fixed": true,
+          "candidate53_pending": true
+        }
+      },
+      {
+        "page": "20260930g002150063",
+        "PDF_sha256": "e4e29d0683cfc3a86530842e5ab997fd704a9148b39e992f8612a2bc4b983c74",
+        "image_sha256": "0518e3c3ffb10c4627d020aa5b00ad5da28eec445ca6cdf770c79cb8e734abba",
+        "parent52_Analysis_sha256": "f1ce7e6f752040ec825c57ef1d07e0baa118527f9e6f4e95eaf2b19802c79c25",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260930g002150063.json",
+        "candidate55_Analysis_sha256": "c43b4c21f23a1378deda3a99fe09db473caca631fb99f6011a3fa9a115481c83",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "ok",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "page": "20260930g002150063",
+          "strict_grade": "ok",
+          "body_grade": "ok",
+          "notes": "元ページ冒頭の途中からの定義文を補完せず、新旧両側の50条・88条の2・125条の2の2・125条の3・附則を6行のshinkyuに正しく対応。基盤機構/旧支払基金、略/同上、全参照条番号と改正後/前を保持。",
+          "parent52_analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260930g002150063.json",
+          "analysis_sha256": "f1ce7e6f752040ec825c57ef1d07e0baa118527f9e6f4e95eaf2b19802c79c25",
+          "image": ".cache/kanpo-227/audit143/20260930g002150063.png",
+          "image_sha256": "0518e3c3ffb10c4627d020aa5b00ad5da28eec445ca6cdf770c79cb8e734abba",
+          "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150063.pdf",
+          "pdf_sha256": "e4e29d0683cfc3a86530842e5ab997fd704a9148b39e992f8612a2bc4b983c74",
+          "all_original_viewed": true,
+          "all_body_read": true,
+          "all_Article_Document_structure_and_all_Run_content_reviewed": true,
+          "body_lines": 80,
+          "Articles": 1,
+          "Document_textNodes": 12,
+          "Shinkyu_rows": 6,
+          "Tables": 0,
+          "cells": 0,
+          "native0_exclusions": [],
+          "initial_grades_fixed": true,
+          "candidate53_pending": true
+        }
+      },
+      {
+        "page": "20261016g002280304",
+        "PDF_sha256": "bcdccc9718c5608ca51c661ec46bf86bcfe8f78f5d7ea0b79d0c68051142d626",
+        "image_sha256": "90ddb1ce39d1d67976d692f3114c071f4a2b691f63c216333ca408b31645ec00",
+        "parent52_Analysis_sha256": "9a43547dc7c29f8aac1cae4dee2497400d9175474b3c44c9229d59638176ec4b",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20261016g002280304.json",
+        "candidate55_Analysis_sha256": "c8bbf11dee4ca2ff36f2243073975f82500bc31cb36a6e87e544db3ab80631fd",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "major",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "page": "20261016g002280304",
+          "strict_grade": "major",
+          "body_grade": "ok",
+          "notes": "貸借対照表の左右段全行・小計/合計・△・（注）・0を本文で保持。原文印字18,350を計算から修正しない。Docは全財務行を単一Paragraph/Runに連結し、科目/金額/純額/合計の行列構造を失う。",
+          "parent52_analysis": ".cache/kanpo-227/audit143-parent52-analysis/20261016g002280304.json",
+          "analysis_sha256": "9a43547dc7c29f8aac1cae4dee2497400d9175474b3c44c9229d59638176ec4b",
+          "image": ".cache/kanpo-227/audit143/20261016g002280304.png",
+          "image_sha256": "90ddb1ce39d1d67976d692f3114c071f4a2b691f63c216333ca408b31645ec00",
+          "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280304.pdf",
+          "pdf_sha256": "bcdccc9718c5608ca51c661ec46bf86bcfe8f78f5d7ea0b79d0c68051142d626",
+          "all_original_viewed": true,
+          "all_body_read": true,
+          "all_Article_Document_structure_and_all_Run_content_reviewed": true,
+          "body_lines": 72,
+          "Articles": 1,
+          "Document_textNodes": 1,
+          "Shinkyu_rows": 0,
+          "Tables": 0,
+          "cells": 0,
+          "native0_exclusions": [],
+          "initial_grades_fixed": true,
+          "candidate53_pending": true
+        }
+      },
+      {
+        "page": "20260724g001650657",
+        "PDF_sha256": "392f2512cfe75e7ae88d4ddd94d5c192298aad2d8bf0b3da8ce2a7e97ed29492",
+        "image_sha256": "9def92c7a3baba75e162760a67e0e8122eb1ee4438381348d28d5d7915074e02",
+        "parent52_Analysis_sha256": "e5f0de63276c431a63180685231692c0e33cac9f82c2401ff5416b3ec6a8e2ce",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260724g001650657.json",
+        "candidate55_Analysis_sha256": "62c36a11f4620168b1f4f2ab5a542670f56cbb0578f7a584f5b77383024ce8bf",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "major",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "page": "20260724g001650657",
+          "strict_grade": "major",
+          "body_grade": "ok",
+          "notes": "新旧二面の警察費3,110/3,101及び1,110/1,101、道路交通量各料率、寒冷5級地×3値を全照合。roleと本文の対応は保持。一方DocTable各28x7は警察/土木費・道路の測定単位を先頭行だけに置きrowspanを持たず、道路橋りよう/費を別行へ裂くため、継続明細への親科目所属が欠落。",
+          "parent52_analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260724g001650657.json",
+          "analysis_sha256": "e5f0de63276c431a63180685231692c0e33cac9f82c2401ff5416b3ec6a8e2ce",
+          "image": ".cache/kanpo-227/audit143/20260724g001650657.png",
+          "image_sha256": "9def92c7a3baba75e162760a67e0e8122eb1ee4438381348d28d5d7915074e02",
+          "pdf": ".cache/kanpo-archive/2026-07-24/20260724g00165/20260724g001650657.pdf",
+          "pdf_sha256": "392f2512cfe75e7ae88d4ddd94d5c192298aad2d8bf0b3da8ce2a7e97ed29492",
+          "all_original_viewed": true,
+          "all_body_read": true,
+          "all_Article_Document_structure_and_all_Run_content_reviewed": true,
+          "body_lines": 64,
+          "Articles": 1,
+          "Document_textNodes": 112,
+          "Shinkyu_rows": 1,
+          "Tables": 2,
+          "cells": 392,
+          "native0_exclusions": [],
+          "initial_grades_fixed": true,
+          "candidate53_pending": true
+        }
+      },
+      {
+        "page": "20260731g001720182",
+        "PDF_sha256": "ad3e640830d85aa8bdcd8ca4e1df61132ad8553a7de052f856982fa58f28e052",
+        "image_sha256": "79dba297d7a9bef6a9dda986246fe60bef734a996531c9014e925eb3b5ccf7e3",
+        "parent52_Analysis_sha256": "10ee0a1e704b1a47a6c60befd2d0fd8046554cc43d2cd502e4d76285f7b11aaf",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260731g001720182.json",
+        "candidate55_Analysis_sha256": "f3237f4b93acc542df2516d71df74f2083fdae8cf1f661317718ed4560f8ea3a",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "major",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "index": 10,
+          "local_index": 0,
+          "page": "20260731g001720182",
+          "initial_strict_grade": "major",
+          "initial_body_grade": "ok",
+          "baseline": "accepted52 only; candidate53 not graded",
+          "notes": [
+            "原図3欄29システム行の文字・日付はいずれも対応。L1〜14は福島県平田村、L15〜29は小野町の各結合セル。",
+            "trace Tableのcol0はrow0/14でともにrowspan1（bboxだけが14/15行分を覆う）。DocTableでも先頭行のセル以外が空配列になり、14行/15行への自治体の共有所属を構造として表現できていない。"
+          ],
+          "known_remaining": [
+            "意味のある自治体共有セルのrowspan喪失。本文の29行・開始日29値・自治体切替は保全。"
+          ],
+          "native0_exclusions": [],
+          "linecount": 29,
+          "article_count": 1,
+          "fullreadflags": {
+            "whole_original_image": true,
+            "all_body_lines": true,
+            "all_Article_texts": true,
+            "all_Document_blocks_Table_cells_rowspan_Runs": true,
+            "all_original_numbers_names_dates_signs": true
+          },
+          "initial_grades_fixed": true,
+          "repair_prototypes_not_used": true,
+          "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+          "artifact_SHA": {
+            ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720182.pdf": "ad3e640830d85aa8bdcd8ca4e1df61132ad8553a7de052f856982fa58f28e052",
+            ".cache/kanpo-227/after52/20260731g001720182.txt": "e830c226d4c3fe9073db2c15f6906e19df1767c5d1c3e3795792ac18961428be",
+            ".cache/kanpo-227/audit143-parent52-analysis/20260731g001720182.json": "10ee0a1e704b1a47a6c60befd2d0fd8046554cc43d2cd502e4d76285f7b11aaf",
+            ".cache/kanpo-227/audit143/20260731g001720182.png": "79dba297d7a9bef6a9dda986246fe60bef734a996531c9014e925eb3b5ccf7e3"
+          },
+          "native_SHA": "89a12dcb4ea3aabecd10c9cb6cdfe19b5422d8a509722130a777c5b2e3400268",
+          "candidate53_inheritance_pending_exact30": true,
+          "articleDocSHA": "78b067b609606b291f0a1956a251571c73f811bd3b097fb57259e738aa605435",
+          "native_allGlyphs": 545,
+          "whole_original_not_excluded": true
+        }
+      },
+      {
+        "page": "20260824g001880057",
+        "PDF_sha256": "274bd43169f3e6dd0e1d3873e1cc03c1fe7f0eee90d061e736dbe4a342f55e3f",
+        "image_sha256": "74adb57656b31a295362d51f06b3c52bfabc172556f1574935400d4ed6ca1e67",
+        "parent52_Analysis_sha256": "c0b4b8f594424761411bd9fb239ac30885c9a64d7d3ebb4ae0a10af40a749d00",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260824g001880057.json",
+        "candidate55_Analysis_sha256": "2dbba08850ba66c22bb3949db6ed340a2c5b5881c096ef2a97dc19b8c41f8b9d",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "minor",
+        "initial_body_grade": "minor",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "index": 11,
+          "local_index": 1,
+          "page": "20260824g001880057",
+          "initial_strict_grade": "minor",
+          "initial_body_grade": "minor",
+          "baseline": "accepted52 only; candidate53 not graded",
+          "notes": [
+            "登録31820〜31835の16件と6欄対応、35年/〃/年月日/複数権利者は原図と対応。",
+            "Article0は章見出し「その他告示」だけで独立公告ではない。",
+            "L9/DocTable row1 col1で原図の別語Chlorophytum / saundersiaeがChlorophytumsaundersiae、col4のDesmond / LiefおよびSouth / Africa等も改行をまたいで連結。文字の脱落とは区別するが学名・氏名・住所の語境界が落ちている。"
+          ],
+          "known_remaining": [
+            "独立でない章見出しArticle化。Latin複合語の改行連結。数値/登録レコードの混線は認めない。"
+          ],
+          "native0_exclusions": [],
+          "linecount": 24,
+          "article_count": 2,
+          "fullreadflags": {
+            "whole_original_image": true,
+            "all_body_lines": true,
+            "all_Article_texts": true,
+            "all_Document_blocks_Table_cells_rowspan_Runs": true,
+            "all_original_numbers_names_dates_signs": true
+          },
+          "initial_grades_fixed": true,
+          "repair_prototypes_not_used": true,
+          "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+          "artifact_SHA": {
+            ".cache/kanpo-archive/2026-08-24/20260824g00188/20260824g001880057.pdf": "274bd43169f3e6dd0e1d3873e1cc03c1fe7f0eee90d061e736dbe4a342f55e3f",
+            ".cache/kanpo-227/after52/20260824g001880057.txt": "0b5f2027adeb93ae976b9b04f7e408dc8ae9f0b496d751d28d038cf7e2c63967",
+            ".cache/kanpo-227/audit143-parent52-analysis/20260824g001880057.json": "c0b4b8f594424761411bd9fb239ac30885c9a64d7d3ebb4ae0a10af40a749d00",
+            ".cache/kanpo-227/audit143/20260824g001880057.png": "74adb57656b31a295362d51f06b3c52bfabc172556f1574935400d4ed6ca1e67"
+          },
+          "native_SHA": "acdb78f88489905529ce00582c97f5df6c8f9aad9d9a4391f6542256099ce383",
+          "candidate53_inheritance_pending_exact30": true,
+          "articleDocSHA": "81369d9b39885156c1b8d4b35e96b7b3cdd294ef691f002bf0fa8f47417e1924",
+          "native_allGlyphs": 1301,
+          "whole_original_not_excluded": true
+        }
+      },
+      {
+        "page": "20260901g001950047",
+        "PDF_sha256": "13ebc29c20cb5a70fcf9c685ea54ab4969a79ae357f502733778f3ac9cf0d1d8",
+        "image_sha256": "14cf25c2e3eaa0e8020d4a335a4d240e1bdde094c68468d55fdceea1d2d5d625",
+        "parent52_Analysis_sha256": "6ce0d66038942bf9fb62b841a07dedf1e341aa4b7d26f12fc0587ae4f1c2feea",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260901g001950047.json",
+        "candidate55_Analysis_sha256": "07ad1ad7be19ab14982af4f075e0706bb17e5fec4721fe4584850777f1fa4ee5",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "major",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "index": 12,
+          "local_index": 2,
+          "page": "20260901g001950047",
+          "initial_strict_grade": "major",
+          "initial_body_grade": "ok",
+          "baseline": "accepted52 only; candidate53 not graded",
+          "notes": [
+            "L1〜35柔道整復試験の続き、L36〜145歯科衛生士試験、L146〜178歯科技工士試験という独立3公告相当を1Article/1Document/1Runへ連結。",
+            "原図4段を列順で読め、23,900円/14,300円、全試験日/受付日/電話FAXを照合。本文読順と原字は正常、独立公告境界のみ重大不良。"
+          ],
+          "known_remaining": [
+            "独立国家試験公告のArticle境界欠如。"
+          ],
+          "native0_exclusions": [],
+          "linecount": 178,
+          "article_count": 1,
+          "fullreadflags": {
+            "whole_original_image": true,
+            "all_body_lines": true,
+            "all_Article_texts": true,
+            "all_Document_blocks_Table_cells_rowspan_Runs": true,
+            "all_original_numbers_names_dates_signs": true
+          },
+          "initial_grades_fixed": true,
+          "repair_prototypes_not_used": true,
+          "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+          "artifact_SHA": {
+            ".cache/kanpo-archive/2026-09-01/20260901g00195/20260901g001950047.pdf": "13ebc29c20cb5a70fcf9c685ea54ab4969a79ae357f502733778f3ac9cf0d1d8",
+            ".cache/kanpo-227/after52/20260901g001950047.txt": "81deb362700e4abb20fead13453a3f45e8701caccd3abcc8c5c495eeecba5db9",
+            ".cache/kanpo-227/audit143-parent52-analysis/20260901g001950047.json": "6ce0d66038942bf9fb62b841a07dedf1e341aa4b7d26f12fc0587ae4f1c2feea",
+            ".cache/kanpo-227/audit143/20260901g001950047.png": "14cf25c2e3eaa0e8020d4a335a4d240e1bdde094c68468d55fdceea1d2d5d625"
+          },
+          "native_SHA": "b3f9f19ff8876b3385eb9f4f6914e2be0b7e98c702700721f587d7191080009b",
+          "candidate53_inheritance_pending_exact30": true,
+          "articleDocSHA": "11bfafea07c7cd43e2634ed92c96a73860aa513f69f4cb0e3f6f274e8b47e719",
+          "native_allGlyphs": 3099,
+          "whole_original_not_excluded": true
+        }
+      },
+      {
+        "page": "20260803g001740038",
+        "PDF_sha256": "718606df95cf55718c6e432548bd88f6a356cac558a3c8f214bed262b94cdee8",
+        "image_sha256": "b397284f83f5f972c5413d0dc82a181ac85b9ac0c71116faeb74f62c346468d7",
+        "parent52_Analysis_sha256": "46c2a4835f2338bd8c12eef99c2dbdb935f4306a9e802087e589b3a56fd79d68",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260803g001740038.json",
+        "candidate55_Analysis_sha256": "59381c4d4070c492edc7f681aaa1c5b919c2421681d548f73e920921b0f82e5a",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "minor",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "index": 13,
+          "local_index": 3,
+          "page": "20260803g001740038",
+          "initial_strict_grade": "minor",
+          "initial_body_grade": "ok",
+          "baseline": "accepted52 only; candidate53 not graded",
+          "notes": [
+            "2段の全文95行とPJ3〜8の節・見出し・本文を照合。本文順/2050年/路線名は保全。",
+            "同一地域計画の○付き小見出しを独立Article6個へ分割。例えばArticle1はL10「新しい公共」からL18 PJ3の節まで、Article2はL27○からL35 PJ4までを含む。元の節階層をArticle単位にできていないが、独立公告相互の混線や文字順破壊ではないためminor。",
+            "黒い矢印図形7個は字の欠落と断定しない。各矢印ink限定矩形のfresh全Glyph0と直後見出し字positiveを別proofに保存。"
+          ],
+          "known_remaining": [
+            "計画内小見出しでの不要なArticle分割/節階層の平坦化。"
+          ],
+          "native0_exclusions": [
+            "20260803g001740038-arrow-native0-proof.json"
+          ],
+          "linecount": 95,
+          "article_count": 6,
+          "fullreadflags": {
+            "whole_original_image": true,
+            "all_body_lines": true,
+            "all_Article_texts": true,
+            "all_Document_blocks_Table_cells_rowspan_Runs": true,
+            "all_original_numbers_names_dates_signs": true
+          },
+          "initial_grades_fixed": true,
+          "repair_prototypes_not_used": true,
+          "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+          "artifact_SHA": {
+            ".cache/kanpo-archive/2026-08-03/20260803g00174/20260803g001740038.pdf": "718606df95cf55718c6e432548bd88f6a356cac558a3c8f214bed262b94cdee8",
+            ".cache/kanpo-227/after52/20260803g001740038.txt": "60f29de1c314ac18fc31179c8af51c8ef1bcc378624fc56488395551cf00b559",
+            ".cache/kanpo-227/audit143-parent52-analysis/20260803g001740038.json": "46c2a4835f2338bd8c12eef99c2dbdb935f4306a9e802087e589b3a56fd79d68",
+            ".cache/kanpo-227/audit143/20260803g001740038.png": "b397284f83f5f972c5413d0dc82a181ac85b9ac0c71116faeb74f62c346468d7"
+          },
+          "native_SHA": "505a69f21f45c0c67ab1cf951e673f0d1711f22ef9993e11d3e76f26c21018cd",
+          "candidate53_inheritance_pending_exact30": true,
+          "articleDocSHA": "5d5b1e424df4fe629ee6a7e547b08756278f94bd9d1d17397ac4b1a2a62091eb",
+          "native_allGlyphs": 3337,
+          "whole_original_not_excluded": true
+        }
+      },
+      {
+        "page": "20260731g001720115",
+        "PDF_sha256": "e4d2220852d71fbd17896bdbf4486702aa3087fa8133fe13dabe973ea6ee95c2",
+        "image_sha256": "7f74ea6041fb0e17df08665b7d1c34eb5279e16262f0f0d0ddf2fabb1efcbdfb",
+        "parent52_Analysis_sha256": "b8dca4948d76cd4a7ec2ef354dd2819c1c29efa527528651cdc4ed4c8e56511d",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260731g001720115.json",
+        "candidate55_Analysis_sha256": "04fcc3d1206aa71c6b7a8d1f498399548bea287c909cb6117302c49115bc5f15",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "ok",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "index": 14,
+          "local_index": 4,
+          "page": "20260731g001720115",
+          "initial_strict_grade": "ok",
+          "initial_body_grade": "ok",
+          "baseline": "accepted52 only; candidate53 not graded",
+          "notes": [
+            "上下段の新旧対照を全82行で照合。改正後第一条21/22/23、旧19/20/21、登録簿性別/本籍及び性別、様式第二号/第一号の七、準用の長文を各側順で保全。",
+            "Document shinkyu6rowsのafter/before役割が原図上下段に一致。原図自体の頁端で止まる準用の文を欠落扱いしない。"
+          ],
+          "known_remaining": [],
+          "native0_exclusions": [],
+          "linecount": 82,
+          "article_count": 1,
+          "fullreadflags": {
+            "whole_original_image": true,
+            "all_body_lines": true,
+            "all_Article_texts": true,
+            "all_Document_blocks_Table_cells_rowspan_Runs": true,
+            "all_original_numbers_names_dates_signs": true
+          },
+          "initial_grades_fixed": true,
+          "repair_prototypes_not_used": true,
+          "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+          "artifact_SHA": {
+            ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720115.pdf": "e4d2220852d71fbd17896bdbf4486702aa3087fa8133fe13dabe973ea6ee95c2",
+            ".cache/kanpo-227/after52/20260731g001720115.txt": "17e625926d4a9b3d6a48390fc588978c6a5519cc6a608a7df7a8b63f5d05d219",
+            ".cache/kanpo-227/audit143-parent52-analysis/20260731g001720115.json": "b8dca4948d76cd4a7ec2ef354dd2819c1c29efa527528651cdc4ed4c8e56511d",
+            ".cache/kanpo-227/audit143/20260731g001720115.png": "7f74ea6041fb0e17df08665b7d1c34eb5279e16262f0f0d0ddf2fabb1efcbdfb"
+          },
+          "native_SHA": "01e56b6381469b88d15946cba17b45db241e4d269aae58bd397daa667d295a43",
+          "candidate53_inheritance_pending_exact30": true,
+          "articleDocSHA": "c2106304c8f13c743f6009ca8865d4b64e17d2df0ead130801c48ac2072f3e4f",
+          "native_allGlyphs": 2537,
+          "whole_original_not_excluded": true
+        }
+      },
+      {
+        "page": "20260821g001870017",
+        "PDF_sha256": "639ba15b9bd7762b357d5379ac67b7112d308f84e732543858b8d6c8066d7797",
+        "image_sha256": "76a9ff35aa3aefea7d4b16ebd6c0c0d0a98ceddd1b7ba7c864ae121ad409f13e",
+        "parent52_Analysis_sha256": "2c138f1b97fd734b22de0572521463b2f1f4e63f25d2430f0986cfa94caa934e",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260821g001870017.json",
+        "candidate55_Analysis_sha256": "596d42621570131c30b7a2953ef7b796d78aff6ee463f324a3698575d618ac06",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "ok",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "index": 15,
+          "local_index": 5,
+          "page": "20260821g001870017",
+          "initial_strict_grade": "ok",
+          "initial_body_grade": "ok",
+          "baseline": "accepted52 only; candidate53 not graded",
+          "notes": [
+            "原図上下段の新旧全71行を照合。上段の前条継続文＋2項に対して旧側空白をDoc shinkyu row0 before=[]として保持。第13条の新旧本文/2項略/3項例外/4〜6略の順とafter/before役割が一致。",
+            "空気中の鉛、特別有機溶剤、令別表列挙3の3/18の3等・測定方法の長文を照合し、側間や前条との混線なし。"
+          ],
+          "known_remaining": [],
+          "native0_exclusions": [],
+          "linecount": 71,
+          "article_count": 1,
+          "fullreadflags": {
+            "whole_original_image": true,
+            "all_body_lines": true,
+            "all_Article_texts": true,
+            "all_Document_blocks_Table_cells_rowspan_Runs": true,
+            "all_original_numbers_names_dates_signs": true
+          },
+          "initial_grades_fixed": true,
+          "repair_prototypes_not_used": true,
+          "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+          "artifact_SHA": {
+            ".cache/kanpo-archive/2026-08-21/20260821g00187/20260821g001870017.pdf": "639ba15b9bd7762b357d5379ac67b7112d308f84e732543858b8d6c8066d7797",
+            ".cache/kanpo-227/after52/20260821g001870017.txt": "69e43a046974214301e1c7dca8e7e2af8615182be2cdb894666e949be0f4b58f",
+            ".cache/kanpo-227/audit143-parent52-analysis/20260821g001870017.json": "2c138f1b97fd734b22de0572521463b2f1f4e63f25d2430f0986cfa94caa934e",
+            ".cache/kanpo-227/audit143/20260821g001870017.png": "76a9ff35aa3aefea7d4b16ebd6c0c0d0a98ceddd1b7ba7c864ae121ad409f13e"
+          },
+          "native_SHA": "56cd7bb97abcfcd5763a2abd241d09bee02bdab498ea8207962508b564969242",
+          "candidate53_inheritance_pending_exact30": true,
+          "articleDocSHA": "3121c8180caff34b7e53b13e4ac9a07173299efeec0f6c7fc3b10fddd5ec4416",
+          "native_allGlyphs": 3206,
+          "whole_original_not_excluded": true
+        }
+      },
+      {
+        "page": "20260917g002080064",
+        "PDF_sha256": "435fbfb5489803ae44c34e029ac51c4b11f3ead5af886c6492dd58de6859405c",
+        "image_sha256": "9b0d6b20405561b9cf248cfb77b185f195da987c88be6623d463ddbf66596233",
+        "parent52_Analysis_sha256": "ffdd9bf40202fc905a53def1ede5422df14d12703d778115fc7401c2bcccd95a",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260917g002080064.json",
+        "candidate55_Analysis_sha256": "7e86a9ec0369c765132174c09431c9e05d65c2322bc91ebf2fbe6aed392a6a2e",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "ok",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "index": 16,
+          "local_index": 6,
+          "page": "20260917g002080064",
+          "initial_strict_grade": "ok",
+          "initial_body_grade": "ok",
+          "baseline": "accepted52 only; candidate53 not graded",
+          "notes": [
+            "試験見出し・9月17日・会長海輪誠、および北海道96/宮城146/東京165の計407受験番号を原図の行順で照合。5個単位の番号は識別子の独立リストで、異なる意味の列の対応表ではない。",
+            "段をまたぐ宮城6224019以降が同一地域内に続き、その後東京都6310005〜6310692。1Articleは単一合格公示に一致。Docも全番号行と地域括弧を保持し、異なる試験や公告を混ぜない。"
+          ],
+          "known_remaining": [],
+          "native0_exclusions": [],
+          "linecount": 93,
+          "article_count": 1,
+          "fullreadflags": {
+            "whole_original_image": true,
+            "all_body_lines": true,
+            "all_Article_texts": true,
+            "all_Document_blocks_Table_cells_rowspan_Runs": true,
+            "all_original_numbers_names_dates_signs": true
+          },
+          "initial_grades_fixed": true,
+          "repair_prototypes_not_used": true,
+          "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+          "artifact_SHA": {
+            ".cache/kanpo-archive/2026-09-17/20260917g00208/20260917g002080064.pdf": "435fbfb5489803ae44c34e029ac51c4b11f3ead5af886c6492dd58de6859405c",
+            ".cache/kanpo-227/after52/20260917g002080064.txt": "a7ccaceae562ea8b0069383aaebea98077f532531dc8745a3f719de0ef69830b",
+            ".cache/kanpo-227/audit143-parent52-analysis/20260917g002080064.json": "ffdd9bf40202fc905a53def1ede5422df14d12703d778115fc7401c2bcccd95a",
+            ".cache/kanpo-227/audit143/20260917g002080064.png": "9b0d6b20405561b9cf248cfb77b185f195da987c88be6623d463ddbf66596233"
+          },
+          "native_SHA": "8e7c2e3129f1ead1b003efb26f51b2887a570ebcb43ba99cf5514e3b85889337",
+          "candidate53_inheritance_pending_exact30": true,
+          "articleDocSHA": "cda1a2eb1d6543262a691fccb2fc505903e475eaf33fd8ef82a3d034b8b1a7d3",
+          "native_allGlyphs": 3049,
+          "whole_original_not_excluded": true
+        }
+      },
+      {
+        "page": "20261016g002280021",
+        "PDF_sha256": "7691057fe5f7c68fd94fc0f074c4aae031cb5c530b49300dc1a21b8c4852f672",
+        "image_sha256": "95e163b5096b0f72c84cda7581224a4220e781dfc458a4d7361b2d3b09f3c5a3",
+        "parent52_Analysis_sha256": "b03a20a20c349f088e5a7ae4ec3d64268dea817f911e144148e918e9367695d0",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20261016g002280021.json",
+        "candidate55_Analysis_sha256": "687e3678536736dcc702ee1de20cba6cdf2c6bd7b6b3644236897e7f8b674fe4",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "major",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "index": 17,
+          "local_index": 7,
+          "page": "20261016g002280021",
+          "initial_strict_grade": "major",
+          "initial_body_grade": "ok",
+          "baseline": "accepted52 only; candidate53 not graded",
+          "notes": [
+            "左下から右上に続く大学BSの科目・全金額64行を原図と対照。徴収不能△2,341,634→70,883,733、5資本剰余減算/合計△1,812,022,224、政府出資13,343,105,588、最終17,359,900,239等は正しく同一行に対応。",
+            "しかし全Article DocumentはTableを一つも持たず、単一paragraph単一Run内でL1〜35等の行区切りを削除。「3,659,215差入敷金…461,870投資…」の連結になるため、原本の科目/内訳/小計/合計の数値列/行所属がDocument構造で失われる。"
+          ],
+          "known_remaining": [
+            "本文行は正常だがDocの財務セル/行対応が単一文字Runへ平坦化。"
+          ],
+          "native0_exclusions": [],
+          "linecount": 64,
+          "article_count": 1,
+          "fullreadflags": {
+            "whole_original_image": true,
+            "all_body_lines": true,
+            "all_Article_texts": true,
+            "all_Document_blocks_Table_cells_rowspan_Runs": true,
+            "all_original_numbers_names_dates_signs": true
+          },
+          "initial_grades_fixed": true,
+          "repair_prototypes_not_used": true,
+          "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+          "artifact_SHA": {
+            ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280021.pdf": "7691057fe5f7c68fd94fc0f074c4aae031cb5c530b49300dc1a21b8c4852f672",
+            ".cache/kanpo-227/after52/20261016g002280021.txt": "a1f019950f0c5e49f499e3db8872002eb2b6da89bfaf8afbbdcc883be1c4690a",
+            ".cache/kanpo-227/audit143-parent52-analysis/20261016g002280021.json": "b03a20a20c349f088e5a7ae4ec3d64268dea817f911e144148e918e9367695d0",
+            ".cache/kanpo-227/audit143/20261016g002280021.png": "95e163b5096b0f72c84cda7581224a4220e781dfc458a4d7361b2d3b09f3c5a3"
+          },
+          "native_SHA": "a82ca4fa9f08d31b8e52f979ed4783134c2291962b7576d237b2e9f41f0646ac",
+          "candidate53_inheritance_pending_exact30": true,
+          "articleDocSHA": "9640f8e01887a4ef816c4310eaa3a46e9d3c07da03d6c761f7ea69b50f830a14",
+          "native_allGlyphs": 1179,
+          "whole_original_not_excluded": true
+        }
+      },
+      {
+        "page": "20260918g002090030",
+        "PDF_sha256": "b63471bbd554ab7e16c037aa3b71cf29f99f4f3ba65fdd1fca263aaf8b072916",
+        "image_sha256": "1c8904669ee80f6019e84b8ae29f048b6706f25caef0710413d02fc47720336a",
+        "parent52_Analysis_sha256": "710fbf718fa5ac6679e8d16dac750f5f6bb67c0ab3cb529c5e1364c7859850d2",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260918g002090030.json",
+        "candidate55_Analysis_sha256": "b5da7e80b2ba016e83dcb703ab7ba6c5a5c93d7488e2123fa62a242277fb16c4",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "ok",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "index": 18,
+          "local_index": 8,
+          "page": "20260918g002090030",
+          "initial_strict_grade": "ok",
+          "initial_body_grade": "ok",
+          "baseline": "accepted52 only; candidate53 not graded",
+          "notes": [
+            "原図上部の前省令継続＋附則と、下部厚生労働省・経済産業省令第一号を2Articlesに分離。新設第9条/旧新設、定期報告10/9条、申請方法11/10条、取組報告12/11条の4対照行と役割が一致。",
+            "上部の関係者申出様式の表示本文はbounded rect[110,75,540,415]にfresh全Glyph0。右の「様式第十二の次に」/左附則はnative陽性で対象外に含めない。形態（画像/outline）は断定せず、その矩形だけ文字層なしとして除外。"
+          ],
+          "known_remaining": [],
+          "native0_exclusions": [
+            "20260918g002090030-form-native0-proof.json"
+          ],
+          "linecount": 75,
+          "article_count": 2,
+          "fullreadflags": {
+            "whole_original_image": true,
+            "all_body_lines": true,
+            "all_Article_texts": true,
+            "all_Document_blocks_Table_cells_rowspan_Runs": true,
+            "all_original_numbers_names_dates_signs": true
+          },
+          "initial_grades_fixed": true,
+          "repair_prototypes_not_used": true,
+          "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+          "artifact_SHA": {
+            ".cache/kanpo-archive/2026-09-18/20260918g00209/20260918g002090030.pdf": "b63471bbd554ab7e16c037aa3b71cf29f99f4f3ba65fdd1fca263aaf8b072916",
+            ".cache/kanpo-227/after52/20260918g002090030.txt": "346241a049e0672790e247330dacd352cc3e0b8ce37292fcf35a0e750224680f",
+            ".cache/kanpo-227/audit143-parent52-analysis/20260918g002090030.json": "710fbf718fa5ac6679e8d16dac750f5f6bb67c0ab3cb529c5e1364c7859850d2",
+            ".cache/kanpo-227/audit143/20260918g002090030.png": "1c8904669ee80f6019e84b8ae29f048b6706f25caef0710413d02fc47720336a"
+          },
+          "native_SHA": "87bfb7c5612e8a442f1b8703c86a49b0010fb1a339c4cb493ad5bbba3ed09746",
+          "candidate53_inheritance_pending_exact30": true,
+          "articleDocSHA": "58bad9fcbf09203ea6111ee0b977c3f37cb5eb794f8472894168884b93aeb8ea",
+          "native_allGlyphs": 1638,
+          "whole_original_not_excluded": true
+        }
+      },
+      {
+        "page": "20261016g002280238",
+        "PDF_sha256": "89a47d5cbb60191fff54495a8ba61b8f8da1c35dc560c085023af36fc82f6b83",
+        "image_sha256": "8567a3660826756a4a2d112f5b8cc7f48f61e8227588405a5d932d6ba62068a3",
+        "parent52_Analysis_sha256": "7c4d6a95d22e08833cf8ad701e7c72274886d695aa715f500196d63870c6c920",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20261016g002280238.json",
+        "candidate55_Analysis_sha256": "8fe3b916d300d0f8af65d8256e25379bf3882ea17a07384c22b22b30b7b6372e",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "major",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "index": 19,
+          "local_index": 9,
+          "page": "20261016g002280238",
+          "initial_strict_grade": "major",
+          "initial_body_grade": "ok",
+          "baseline": "accepted52 only; candidate53 not graded",
+          "notes": [
+            "BS続き32行＋注記、続くPL費用/収益38行を全原図対照。5つの△、括弧当期総利益1,192,652、教員給与8,177,744/職員3,268,822/業務20,029,345、費用20,735,401、財務収益12,774等の字/符号/行対応は正常。",
+            "全Article DocumentはTableがなく単一Runへ両財務表を平坦化し、数値列・内訳/小計と多くの行区切りが消失。例えば非常勤職員給与759,806/3,268,822/20,029,345が同じ文字列の3値にしかならず、原本の列階層が表されない。"
+          ],
+          "known_remaining": [
+            "本文は正常だがBS/PLのセル/数値列階層がDocに保持されない。"
+          ],
+          "native0_exclusions": [],
+          "linecount": 72,
+          "article_count": 1,
+          "fullreadflags": {
+            "whole_original_image": true,
+            "all_body_lines": true,
+            "all_Article_texts": true,
+            "all_Document_blocks_Table_cells_rowspan_Runs": true,
+            "all_original_numbers_names_dates_signs": true
+          },
+          "initial_grades_fixed": true,
+          "repair_prototypes_not_used": true,
+          "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+          "artifact_SHA": {
+            ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280238.pdf": "89a47d5cbb60191fff54495a8ba61b8f8da1c35dc560c085023af36fc82f6b83",
+            ".cache/kanpo-227/after52/20261016g002280238.txt": "48e2e1bb445acf91feff966d11954f240b31058c98e9e3461af7686bf143e328",
+            ".cache/kanpo-227/audit143-parent52-analysis/20261016g002280238.json": "7c4d6a95d22e08833cf8ad701e7c72274886d695aa715f500196d63870c6c920",
+            ".cache/kanpo-227/audit143/20261016g002280238.png": "8567a3660826756a4a2d112f5b8cc7f48f61e8227588405a5d932d6ba62068a3"
+          },
+          "native_SHA": "c74bba9f849d706859ccba3fdcbd539753f379700988e8d078969d9b03d1605f",
+          "candidate53_inheritance_pending_exact30": true,
+          "articleDocSHA": "4994df3d526e64799956f13ea5dcc89d5a4bb23a6d25e16285749b930d686c00",
+          "native_allGlyphs": 1150,
+          "whole_original_not_excluded": true
+        }
+      },
+      {
+        "page": "20260722h017520001",
+        "PDF_sha256": "bb5796a07aafdc91fb74528201ae85ec33abba3ed901c8b17056d70d9064978a",
+        "image_sha256": "e73e35259179f93e5830e0b31182dcc9d778b36d6a207aba1ddb9240d4cb3365",
+        "parent52_Analysis_sha256": "ac44d618ccaed24fc8386e27eb56fb0da377ee466f7a1848285a8c47dce4b42f",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260722h017520001.json",
+        "candidate55_Analysis_sha256": "239ea46e77bf7495a12fc5519e0957294f1374b22003119a35c3060bc3d46f60",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "major",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "page": "20260722h017520001",
+          "strict_grade": "major",
+          "body_grade": "ok",
+          "notes": [
+            "原図下段右の内閣官房令7号と、左端の別法令・人事院規則17-0-153は独立記事。出力L78『規則』以後L88までがArticle9/同じshinkyu Documentの末尾paragraphへ混入し分割されない。",
+            "目次の項目/参照/順、本文7号の追加七（人口戦略本部及び全世代型社会保障構築本部）と旧〔号を加える。〕、附則、左規則の支所長削除・取引適正化検査管理官/取引適正化管理官の引用は全文保持。目次の次区分見出しが前項Article末尾へ付く箇所はTOC内の軽微な境界問題として別記。",
+            "目次『二』『五』欠落疑いは原図crop/全Word・native照合で反証した。Word149は総務265の『二』、Word199は国交987の『五』として正しいLineへ使用され、両数字は出力L15/L23に存在する。保安林/防衛の未印字の頁番号を推測しない。"
+          ],
+          "defect_locations": [
+            {
+              "original_rect": [
+                44,
+                430,
+                160,
+                783
+              ],
+              "output_lines": [
+                78,
+                88
+              ],
+              "article": 9,
+              "kind": "independent_rule_article_merged"
+            }
+          ],
+          "native0_exclusions": [],
+          "whole_image_read": true,
+          "all_text_lines_read": true,
+          "all_Articles_Documents_Tables_Runs_read": true,
+          "index": 20,
+          "initial_grade_fixed": true,
+          "baseline": "parent52/accepted30/c21445b9",
+          "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+          "PDF": ".cache/kanpo-archive/2026-07-22/20260722h01752/20260722h017520001.pdf",
+          "PDF_SHA": "bb5796a07aafdc91fb74528201ae85ec33abba3ed901c8b17056d70d9064978a",
+          "output": ".cache/kanpo-227/after52/20260722h017520001.txt",
+          "output_SHA": "c23faeda5b90f24bf593616a45c6d442d06f73d26d5ed18d8de7e4a4325a1e03",
+          "Analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260722h017520001.json",
+          "Analysis_SHA": "ac44d618ccaed24fc8386e27eb56fb0da377ee466f7a1848285a8c47dce4b42f",
+          "image": ".cache/kanpo-227/audit143/20260722h017520001.png",
+          "image_SHA": "e73e35259179f93e5830e0b31182dcc9d778b36d6a207aba1ddb9240d4cb3365",
+          "linecount": 88,
+          "Article_count": 10,
+          "Document_counts": {
+            "runs": 13,
+            "shinkyu_rows": 1
+          },
+          "candidate53_reviewed": false,
+          "candidate53_inheritance_pending": true,
+          "existing_parent52_defect": true,
+          "new_candidate_regression_claim": false
+        }
+      },
+      {
+        "page": "20260915g002050072",
+        "PDF_sha256": "7df7cbe7f1dd8ef00f269b1252028d7997842ab665eba796558e05c8250c4303",
+        "image_sha256": "86487deae8ff09090ab33e6eb296f347f1fb6a1a44371d9bbeb6c115851e1aec",
+        "parent52_Analysis_sha256": "2d9d238e890cf3eb21c87f60bd6b5e87d1596ab6b008a6f392cfb02ee4509fab",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260915g002050072.json",
+        "candidate55_Analysis_sha256": "4cd09775f0dca1a29b09fb60d26c59d4809d8cc896d0aa8fa7abb58e23b69ba1",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "major",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "page": "20260915g002050072",
+          "strict_grade": "major",
+          "body_grade": "ok",
+          "notes": [
+            "横組原図左BS続きと右PLの全69行を照合。債券1,777,264,190,000/発行差額△1,834,859,621、固定負債8,958,735,438,676、純資産10,572,535,029,134、負債純資産19,913,160,819,305を保持。",
+            "PLの全費用/収益/△符号と各金額を照合し本文順・所属を保持。退職給付費用△1,380,732,334/利息費用△15,476、費用175,179,254,648、収益222,289,825,865、利益47,110,571,217、期間/単位も一致。",
+            "厳格構造では1 Article/1 Document/単一paragraph runへ69行がほぼ改行なしで連結され、貸借/損益の科目・内訳・小計・合計の列を表すDocTableが一つもない。特にL49/L63/L65の内訳と小計の区別がDocumentで失われるためstrict major。本文の数値欠落とは区別。"
+          ],
+          "defect_locations": [
+            {
+              "original_rect": [
+                71,
+                40,
+                780,
+                554
+              ],
+              "output_lines": [
+                1,
+                69
+              ],
+              "article": 0,
+              "kind": "financial_table_structure_lost"
+            }
+          ],
+          "native0_exclusions": [],
+          "whole_image_read": true,
+          "all_text_lines_read": true,
+          "all_Articles_Documents_Tables_Runs_read": true,
+          "index": 21,
+          "initial_grade_fixed": true,
+          "baseline": "parent52/accepted30/c21445b9",
+          "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+          "PDF": ".cache/kanpo-archive/2026-09-15/20260915g00205/20260915g002050072.pdf",
+          "PDF_SHA": "7df7cbe7f1dd8ef00f269b1252028d7997842ab665eba796558e05c8250c4303",
+          "output": ".cache/kanpo-227/after52/20260915g002050072.txt",
+          "output_SHA": "42e1e50e1632236b575ea6d5c7c17b49d82262aa35b7d4c7a2a5f912144675a6",
+          "Analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260915g002050072.json",
+          "Analysis_SHA": "2d9d238e890cf3eb21c87f60bd6b5e87d1596ab6b008a6f392cfb02ee4509fab",
+          "image": ".cache/kanpo-227/audit143/20260915g002050072.png",
+          "image_SHA": "86487deae8ff09090ab33e6eb296f347f1fb6a1a44371d9bbeb6c115851e1aec",
+          "linecount": 69,
+          "Article_count": 1,
+          "Document_counts": {
+            "runs": 1
+          },
+          "candidate53_reviewed": false,
+          "candidate53_inheritance_pending": true,
+          "existing_parent52_defect": true,
+          "new_candidate_regression_claim": false
+        }
+      },
+      {
+        "page": "20260820g001860007",
+        "PDF_sha256": "3208c16c4b3a79f0a06c382b227b61994f14d67730e4fe9226cf38089b9e8c33",
+        "image_sha256": "e81f2687506326ceab7c198d79cb592efe6265c74011c4d3e11477520497a48a",
+        "parent52_Analysis_sha256": "4952439203f4fb8609926be8585d890069c56502aa73ec3e7b06c32ae98b21b3",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260820g001860007.json",
+        "candidate55_Analysis_sha256": "937a0b97efa1a5d28e67eb4764e79ca2d5db267bdc7e497c5dfbaed875f7b4ef",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "ok",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "page": "20260820g001860007",
+          "strict_grade": "ok",
+          "body_grade": "ok",
+          "notes": [
+            "原図左段の③対応困難/④損害賠償/ロ手段態様/①身体～⑤拘束、（6）就業環境定義、3事業主等の責務（1）から右段冒頭『また、事業主』への継続がL1～52に正しく接続。",
+            "右段（2）船員の責務、4措置内容、障害・消費者法制への留意、（1）方針周知、イ/例①②/ロの全項・箇条書をL53～97と全文Docで確認。法34条2項/4項、令和5年3月14日、記号・引用の欠落/別記事混入なし。",
+            "1 Article/1 prose Documentはこの頁の単一指針の続きとして整合。全Article.textはPage.textと同一で、全97出力行と全Document Runを読了。"
+          ],
+          "defect_locations": [],
+          "native0_exclusions": [],
+          "whole_image_read": true,
+          "all_text_lines_read": true,
+          "all_Articles_Documents_Tables_Runs_read": true,
+          "index": 22,
+          "initial_grade_fixed": true,
+          "baseline": "parent52/accepted30/c21445b9",
+          "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+          "PDF": ".cache/kanpo-archive/2026-08-20/20260820g00186/20260820g001860007.pdf",
+          "PDF_SHA": "3208c16c4b3a79f0a06c382b227b61994f14d67730e4fe9226cf38089b9e8c33",
+          "output": ".cache/kanpo-227/after52/20260820g001860007.txt",
+          "output_SHA": "3e473e9be28c80cee881a38e36aa97ae8b7c8e0ab284bf7d0f8d06ad11d4b16f",
+          "Analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260820g001860007.json",
+          "Analysis_SHA": "4952439203f4fb8609926be8585d890069c56502aa73ec3e7b06c32ae98b21b3",
+          "image": ".cache/kanpo-227/audit143/20260820g001860007.png",
+          "image_SHA": "e81f2687506326ceab7c198d79cb592efe6265c74011c4d3e11477520497a48a",
+          "linecount": 97,
+          "Article_count": 1,
+          "Document_counts": {
+            "runs": 1
+          },
+          "candidate53_reviewed": false,
+          "candidate53_inheritance_pending": true,
+          "existing_parent52_defect": false,
+          "new_candidate_regression_claim": false
+        }
+      },
+      {
+        "page": "20260820g001860087",
+        "PDF_sha256": "d9537c38bf5a3bd9d67e4927b44fa3ec58260ca4a314aefefa003ba857c2f04d",
+        "image_sha256": "cb0eb700b193ed45b5ac32bdcd96fe1ec373024009a6ecdda93d8f8151554236",
+        "parent52_Analysis_sha256": "273538a817ded2cabb47e04894547a01a0c22575508813d52374d1fa7d51f5c0",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260820g001860087.json",
+        "candidate55_Analysis_sha256": "e4d847096bb544c5da2b464fe2772ccca7001423e1cd004a1f423dfb55156e40",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "major",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "page": "20260820g001860087",
+          "strict_grade": "major",
+          "body_grade": "ok",
+          "notes": [
+            "日本年金機構の会計方針から貸借対照表注記まで全83行・左右両段を照合。耐用年数の建物3～50/構築物2～52/車両3～6/工具2～20、法人内ソフト2～5年、割引率−0.082～2.266％と0.906～2.066％を保持。",
+            "資産除去債務の期首4,664,473,045、見積増1,378,146,431、取得増60,332,912、時の経過36,007,935、当期減21,352,724、期末6,117,607,599の全6対応を本文に保持。末尾の土地/年金事務所用地/東京都大田区/土地/393,000,000円は5列2行のDocTableで正しく保持。",
+            "厳格構造では、原図の4行2列の耐用年数一覧（L12～15）と6行2列の残高増減一覧（L66～71）がDoc内の単一paragraph runで連結され、各行/値の表対応を構造化していない。原罫の末尾表1件だけTableとなるためstrict major。本文の値・符号・項番号欠落とは区別。"
+          ],
+          "defect_locations": [
+            {
+              "original_rect": [
+                111,
+                172,
+                223,
+                222
+              ],
+              "output_lines": [
+                12,
+                15
+              ],
+              "article": 0,
+              "kind": "unruled_lifetimes_table_not_structured"
+            },
+            {
+              "original_rect": [
+                462,
+                307,
+                676,
+                386
+              ],
+              "output_lines": [
+                66,
+                71
+              ],
+              "article": 0,
+              "kind": "unruled_balance_movements_not_structured"
+            }
+          ],
+          "native0_exclusions": [],
+          "whole_image_read": true,
+          "all_text_lines_read": true,
+          "all_Articles_Documents_Tables_Runs_read": true,
+          "index": 23,
+          "initial_grade_fixed": true,
+          "baseline": "parent52/accepted30/c21445b9",
+          "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+          "PDF": ".cache/kanpo-archive/2026-08-20/20260820g00186/20260820g001860087.pdf",
+          "PDF_SHA": "d9537c38bf5a3bd9d67e4927b44fa3ec58260ca4a314aefefa003ba857c2f04d",
+          "output": ".cache/kanpo-227/after52/20260820g001860087.txt",
+          "output_SHA": "d52ac1d4625622f2d8479b55d918839513d41822cddd1c96c35429bf7bfabeae",
+          "Analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260820g001860087.json",
+          "Analysis_SHA": "273538a817ded2cabb47e04894547a01a0c22575508813d52374d1fa7d51f5c0",
+          "image": ".cache/kanpo-227/audit143/20260820g001860087.png",
+          "image_SHA": "cb0eb700b193ed45b5ac32bdcd96fe1ec373024009a6ecdda93d8f8151554236",
+          "linecount": 83,
+          "Article_count": 1,
+          "Document_counts": {
+            "runs": 13,
+            "tables": 1,
+            "table_rows": 2,
+            "table_slots": 10
+          },
+          "candidate53_reviewed": false,
+          "candidate53_inheritance_pending": true,
+          "existing_parent52_defect": true,
+          "new_candidate_regression_claim": false
+        }
+      },
+      {
+        "page": "20260911g002030023",
+        "PDF_sha256": "15343cfb5fa5a0dbf482d070d193448735e0ecdca2fe3abd7d1e4f8e33362720",
+        "image_sha256": "1b00d4171ec09955c744ce2019324aa5277c46ccfcc568936d9a526ae5a4e8da",
+        "parent52_Analysis_sha256": "80be9c8bffcd7d12d6be1e188e647c4f15d78d670d52470bcda46b48d0a2ca35",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260911g002030023.json",
+        "candidate55_Analysis_sha256": "7f05bff0ed4bda8543cb9ace16e7e5c3a0c0d09798dc7a2ae71f4da83e18a4a9",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "ok",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "page": "20260911g002030023",
+          "strict_grade": "ok",
+          "body_grade": "ok",
+          "notes": [
+            "原図の第2条/健保則改正の全文49行を照合。改正後23条の4・5削除と、旧23条の4の六項目/23条の5の四項目をDoc新旧row0で対応。",
+            "新23条の6の『九号ロ』と旧『九号ハ』、学生/卒業予定/休学/定時制等の定義、略一～九/2・3がrow1、24条の4略がrow2で正しく対応。全1 Article/新旧3行のafter/before所属と各引用・項番号を保持。",
+            "（傍線部分は改正部分）の注記も原図にあり、L4及びpreambleに保持。独立記事混入や文字/数字欠落は見つからない。"
+          ],
+          "defect_locations": [],
+          "native0_exclusions": [],
+          "whole_image_read": true,
+          "all_text_lines_read": true,
+          "all_Articles_Documents_Tables_Runs_read": true,
+          "index": 24,
+          "initial_grade_fixed": true,
+          "baseline": "parent52/accepted30/c21445b9",
+          "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+          "PDF": ".cache/kanpo-archive/2026-09-11/20260911g00203/20260911g002030023.pdf",
+          "PDF_SHA": "15343cfb5fa5a0dbf482d070d193448735e0ecdca2fe3abd7d1e4f8e33362720",
+          "output": ".cache/kanpo-227/after52/20260911g002030023.txt",
+          "output_SHA": "0ec1dd9dc7809f1264895445136f01048e93bc03ee0d21540ebaffaef2714838",
+          "Analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260911g002030023.json",
+          "Analysis_SHA": "80be9c8bffcd7d12d6be1e188e647c4f15d78d670d52470bcda46b48d0a2ca35",
+          "image": ".cache/kanpo-227/audit143/20260911g002030023.png",
+          "image_SHA": "1b00d4171ec09955c744ce2019324aa5277c46ccfcc568936d9a526ae5a4e8da",
+          "linecount": 49,
+          "Article_count": 1,
+          "Document_counts": {
+            "runs": 7,
+            "shinkyu_rows": 3
+          },
+          "candidate53_reviewed": false,
+          "candidate53_inheritance_pending": true,
+          "existing_parent52_defect": false,
+          "new_candidate_regression_claim": false
+        }
+      },
+      {
+        "page": "20260806g001770001",
+        "PDF_sha256": "b9eba75b48d0ceddbaefb2015fc8f83dacd44506661b225cd50d804a2b40ed28",
+        "image_sha256": "d94c328bf9705509c6ac812ead2bcb9c10f2557490f4f66a0ff9979bd9c82abc",
+        "parent52_Analysis_sha256": "44b06665f228f8843cfec40b35c462ad946b4d8eaeaebf0b708fd17ee74a1290",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260806g001770001.json",
+        "candidate55_Analysis_sha256": "6850d414c917f2e9ee979bdf62a6ee150b00583ecb6ec249df27c231a346f3b6",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "major",
+        "initial_body_grade": "major",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "page": "20260806g001770001",
+          "strict_grade": "major",
+          "body_grade": "major",
+          "notes": [
+            "上段目次は全項目/頁参照の印字範囲とL1～55を照合し保持。TOC内の『その他告示』『公告』が前項Article末尾へ付く区分境界は軽微な問題として分離。",
+            "原図下段左の単一告示108号は『法規的告示』区分→〇文部科学省告示第百八号→学校法人の寄附行為…次のように定める。→日付→大臣署名のまとまり。現出力L56直後に本文末尾の『に定める。』と日付（L57～58）が先行し、区分飾りの『法/規/的/告示』（L59～62）が本文へ割り込む。主文前半がL63に遅れ、L64～65の署名とつながる。",
+            "同じ告示がArticle12『〇文部科学省告示第百八号/に定める。/日付/法規的』とArticle13『告示/学校法人…次のよう/大臣名』に分断。全字があっても source順と告示の所属が崩れるためstrict/bodyともmajor。"
+          ],
+          "defect_locations": [
+            {
+              "original_rect": [
+                44,
+                429,
+                117,
+                790
+              ],
+              "output_lines": [
+                56,
+                65
+              ],
+              "articles": [
+                12,
+                13
+              ],
+              "kind": "sparse_vertical_notice_order_and_article_split"
+            }
+          ],
+          "native0_exclusions": [],
+          "whole_image_read": true,
+          "all_text_lines_read": true,
+          "all_Articles_Documents_Tables_Runs_read": true,
+          "index": 25,
+          "initial_grade_fixed": true,
+          "baseline": "parent52/accepted30/c21445b9",
+          "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+          "PDF": ".cache/kanpo-archive/2026-08-06/20260806g00177/20260806g001770001.pdf",
+          "PDF_SHA": "b9eba75b48d0ceddbaefb2015fc8f83dacd44506661b225cd50d804a2b40ed28",
+          "output": ".cache/kanpo-227/after52/20260806g001770001.txt",
+          "output_SHA": "72e7334bc491124cca04e10974192c1b7f1959b900320d35189be16645dab59a",
+          "Analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260806g001770001.json",
+          "Analysis_SHA": "44b06665f228f8843cfec40b35c462ad946b4d8eaeaebf0b708fd17ee74a1290",
+          "image": ".cache/kanpo-227/audit143/20260806g001770001.png",
+          "image_SHA": "d94c328bf9705509c6ac812ead2bcb9c10f2557490f4f66a0ff9979bd9c82abc",
+          "linecount": 65,
+          "Article_count": 14,
+          "Document_counts": {
+            "runs": 14
+          },
+          "candidate53_reviewed": false,
+          "candidate53_inheritance_pending": true,
+          "existing_parent52_defect": true,
+          "new_candidate_regression_claim": false
+        }
+      },
+      {
+        "page": "20260831g001930036",
+        "PDF_sha256": "1b03940d0d64d6d24ed018f11b39fa9732c4995f11eb7a98bc730bdaf67ccc94",
+        "image_sha256": "dea38c6e14fbdf18a1141f968da7767a6039872de549a75b9630f686280fb968",
+        "parent52_Analysis_sha256": "11aa0e9d488591d90ce663c1d22282762b1bf87679770493cccbd2527e3293ef",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260831g001930036.json",
+        "candidate55_Analysis_sha256": "63210df1c741875c252b52b1fc642ed99d4f1a72c8ca133802b21572b2476d02",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "ok",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "page": "20260831g001930036",
+          "strict_grade": "ok",
+          "body_grade": "ok",
+          "notes": [
+            "原図右の第6条23/28/29/39/40/41号の別表175/180/181/191/192/193の改正引用、追加41の2・無資産証明書（土地・家屋・償却資産）、42/43/45/46号と194/195/197/198の改正範囲をL1～8に保持。",
+            "続く別紙1～16の指示と対応コード0160102/0160116/0140377/0140389/0140394/0140396/0150091/0150298/0100709/0100656/0100244/0100246及び0100247/0100249/0100251/0100273/0100578をL9～40及び全Docで照合。末尾は『項の次に次の一項を加える。』で別紙16へ正しく接続。",
+            "この頁は単一改正告示の続きの指示文であり、1 Article/1 prose Documentは整合。別紙の実表そのものがこの頁に無いことを欠落とは扱わず、枠飾りを文字推定しない。"
+          ],
+          "defect_locations": [],
+          "native0_exclusions": [],
+          "whole_image_read": true,
+          "all_text_lines_read": true,
+          "all_Articles_Documents_Tables_Runs_read": true,
+          "index": 26,
+          "initial_grade_fixed": true,
+          "baseline": "parent52/accepted30/c21445b9",
+          "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+          "PDF": ".cache/kanpo-archive/2026-08-31/20260831g00193/20260831g001930036.pdf",
+          "PDF_SHA": "1b03940d0d64d6d24ed018f11b39fa9732c4995f11eb7a98bc730bdaf67ccc94",
+          "output": ".cache/kanpo-227/after52/20260831g001930036.txt",
+          "output_SHA": "9a9c35fbeaf12baf2e120f08bce47d7dcb9dd20f3353a13bc7057be6b26e8beb",
+          "Analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260831g001930036.json",
+          "Analysis_SHA": "11aa0e9d488591d90ce663c1d22282762b1bf87679770493cccbd2527e3293ef",
+          "image": ".cache/kanpo-227/audit143/20260831g001930036.png",
+          "image_SHA": "dea38c6e14fbdf18a1141f968da7767a6039872de549a75b9630f686280fb968",
+          "linecount": 40,
+          "Article_count": 1,
+          "Document_counts": {
+            "runs": 1
+          },
+          "candidate53_reviewed": false,
+          "candidate53_inheritance_pending": true,
+          "existing_parent52_defect": false,
+          "new_candidate_regression_claim": false
+        }
+      },
+      {
+        "page": "20260918g002090068",
+        "PDF_sha256": "afb16ad8ff2d1c868d8c79065a42790f30afa20e821aca81e581a468df4afb6b",
+        "image_sha256": "cf5ee3ebd1988fabe4ddac88c17dc7f2fd9163b8b771276bcb89d5b52e6b7e9f",
+        "parent52_Analysis_sha256": "cbdfc39b0807b875ad49e0c42a50f71fa56ffbc4a80f516a2c12eae6bc099812",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260918g002090068.json",
+        "candidate55_Analysis_sha256": "f2a15a89aa6002c17860e3db3c7a5394c054ea76a627561c2dca2ff7436d3a67",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "ok",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "page": "20260918g002090068",
+          "strict_grade": "ok",
+          "body_grade": "ok",
+          "notes": [
+            "原図上段の継続表6行3列すべてを全文/DocTableで照合。鉄道事業法12条2項→規則17条2項事項/17条3項書類、12条4項・9条1項認可→16条5項・14条1項事項/14条2項書類、同9条3項届出→15条2項事項/15条3項で準用する14条2項書類の3組を保持。",
+            "続く13条1項確認の申請者20条1/2/3項ごとに対応事項20条1/2/3項、書類20条4項をそれぞれ正しく別rowへ保持。全6出力行/18Docセル、括弧条件と準用関係を読了。",
+            "下段の印字のない罫欄を見て本文を推定せず、native0除外は主張しない。全表示本文と既存6行の列所属に欠陥は見つからない。"
+          ],
+          "defect_locations": [],
+          "native0_exclusions": [],
+          "whole_image_read": true,
+          "all_text_lines_read": true,
+          "all_Articles_Documents_Tables_Runs_read": true,
+          "index": 27,
+          "initial_grade_fixed": true,
+          "baseline": "parent52/accepted30/c21445b9",
+          "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+          "PDF": ".cache/kanpo-archive/2026-09-18/20260918g00209/20260918g002090068.pdf",
+          "PDF_SHA": "afb16ad8ff2d1c868d8c79065a42790f30afa20e821aca81e581a468df4afb6b",
+          "output": ".cache/kanpo-227/after52/20260918g002090068.txt",
+          "output_SHA": "8f4cf1aef4de10cce845d0b9a5e1aff2f6b92e0bad34b6b2f7240076c3d19a13",
+          "Analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260918g002090068.json",
+          "Analysis_SHA": "cbdfc39b0807b875ad49e0c42a50f71fa56ffbc4a80f516a2c12eae6bc099812",
+          "image": ".cache/kanpo-227/audit143/20260918g002090068.png",
+          "image_SHA": "cf5ee3ebd1988fabe4ddac88c17dc7f2fd9163b8b771276bcb89d5b52e6b7e9f",
+          "linecount": 6,
+          "Article_count": 1,
+          "Document_counts": {
+            "tables": 1,
+            "table_rows": 6,
+            "table_slots": 18,
+            "runs": 19
+          },
+          "candidate53_reviewed": false,
+          "candidate53_inheritance_pending": true,
+          "existing_parent52_defect": false,
+          "new_candidate_regression_claim": false
+        }
+      },
+      {
+        "page": "20260930g002160084",
+        "PDF_sha256": "c80ce86ce7f983997ea3b1e47b5ac0fa85a981a7d14bef316c8a3dd7c44100c6",
+        "image_sha256": "f0901c3d40608134a87d46e2125d321b762e90afa92494e1dab04e1806f000fb",
+        "parent52_Analysis_sha256": "80ec0ed9123b6ef4b705ffb8d5bc04cd624832f6c16d49539bfbec327e15dfc6",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260930g002160084.json",
+        "candidate55_Analysis_sha256": "5c522fcf4560273ef864e6dcf151a41d1b6a64fb1374bc43653d530d73fc24cf",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "major",
+        "initial_body_grade": "ok",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "page": "20260930g002160084",
+          "strict_grade": "major",
+          "body_grade": "ok",
+          "notes": [
+            "原図の左右新旧対照の全文76行を照合。左（新）の31条30条7項/32条30条6項2号老齢年金裁定資料、右（旧）の31条30条6項/32条30条5項2号給付資料の差を保持。",
+            "新33条の5号加入者追加、新34条の7項・5号加入者の八九号、新36条の第5号/第7号/第8号及び資格取得から3月、旧36条の第4号/第6号までの対応を本文にそれぞれ左→右の順で保持。語/数値/引用欠落や左右本文の交錯は見つからない。",
+            "ただしtraceは全76行が単一body Regionで、Document format=prose/単一paragraph run。新旧のafter/before roleと対応行・セルが一切なく、左右の同名条文が独立の通常本文として連結されるためstrict major。元issue本文文字読順の軸とは区別。"
+          ],
+          "defect_locations": [
+            {
+              "original_rect": [
+                70,
+                45,
+                780,
+                555
+              ],
+              "output_lines": [
+                1,
+                76
+              ],
+              "article": 0,
+              "kind": "headerless_shinkyu_roles_and_correspondence_missing"
+            }
+          ],
+          "native0_exclusions": [],
+          "whole_image_read": true,
+          "all_text_lines_read": true,
+          "all_Articles_Documents_Tables_Runs_read": true,
+          "index": 28,
+          "initial_grade_fixed": true,
+          "baseline": "parent52/accepted30/c21445b9",
+          "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+          "PDF": ".cache/kanpo-archive/2026-09-30/20260930g00216/20260930g002160084.pdf",
+          "PDF_SHA": "c80ce86ce7f983997ea3b1e47b5ac0fa85a981a7d14bef316c8a3dd7c44100c6",
+          "output": ".cache/kanpo-227/after52/20260930g002160084.txt",
+          "output_SHA": "4218bb5c77d6727f5441a193ef4bac1b2417847e62e138518e5c20dc7ba49b5a",
+          "Analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260930g002160084.json",
+          "Analysis_SHA": "80ec0ed9123b6ef4b705ffb8d5bc04cd624832f6c16d49539bfbec327e15dfc6",
+          "image": ".cache/kanpo-227/audit143/20260930g002160084.png",
+          "image_SHA": "f0901c3d40608134a87d46e2125d321b762e90afa92494e1dab04e1806f000fb",
+          "linecount": 76,
+          "Article_count": 1,
+          "Document_counts": {
+            "runs": 1
+          },
+          "candidate53_reviewed": false,
+          "candidate53_inheritance_pending": true,
+          "existing_parent52_defect": true,
+          "new_candidate_regression_claim": false
+        }
+      },
+      {
+        "page": "20260731g001730081",
+        "PDF_sha256": "d1a5f2d2e1d4b7cbd331b3187f592b13cb9cfc77d6b3fc8e90c20e052d94f1bc",
+        "image_sha256": "0898ba1e60ae4612d17c9ae32fa0b7036bbda3313b155bbe745265d53e9a1b09",
+        "parent52_Analysis_sha256": "7de41fd1175256e24f6693b4a13b401044b2f1ca354f00f30cc4b24a819f321d",
+        "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260731g001730081.json",
+        "candidate55_Analysis_sha256": "c40daf251074043f5350d54eee7e5cad2c0b44bef883346416c22818abe9a2ca",
+        "entire_Analysis_exact": true,
+        "initial_strict_grade": "major",
+        "initial_body_grade": "major",
+        "initial_grades_unchanged": true,
+        "initial_parent52_review": {
+          "page": "20260731g001730081",
+          "strict_grade": "major",
+          "body_grade": "major",
+          "notes": [
+            "左上BS続き、PL、会計注記、右側震災勘定の財産目録及びBSの全76行/全4DocTablesを照合。両資産合計15,708,055,373と28,012,457,394、PL一般管理6,072,213/雑益26/損失6,072,187、△53,427,963/△7,600,046等は保持。",
+            "左上の原図では『政府出資金』と6,100,000,000が同じ行で、次の行に別区分『（欠損金）』がある。出力L6及びArticle0最初のDocTable row5/col2が『政府出資金（欠損金）』となり、その両区分を同じ6,100,000,000の金額セルに対応づける。見出しの原位置/所属が崩れ、文字bag保持だけでは正常とできないためstrict/bodyともmajor。",
+            "資産の折返し名称も『地域経済活性化支援/機構株式』がL2～3の別論理行へ、『東日本大震災事業者/再生支援機構株式』がL71～72の別rowへ分割され、金額15,703,800,000/28,006,200,000は前片の行だけに付く。原名称と金額の一レコードがDocで分断する既存残件。",
+            "会計方針の全4項/給与及び退職引当の説明と、右財産目録の未収15/未払16,200/賞与41,240/正味財産28,012,399,954、BS政府出資28,020,000,000はその他全数値と照合し保持。"
+          ],
+          "defect_locations": [
+            {
+              "original_rect": [
+                250,
+                97,
+                412,
+                151
+              ],
+              "output_lines": [
+                5,
+                8
+              ],
+              "article": 0,
+              "kind": "loss_heading_merged_into_government_capital_cell"
+            },
+            {
+              "original_rect": [
+                86,
+                61,
+                278,
+                85
+              ],
+              "output_lines": [
+                2,
+                3
+              ],
+              "article": 0,
+              "kind": "wrapped_asset_name_split_across_table_rows"
+            },
+            {
+              "original_rect": [
+                448,
+                468,
+                614,
+                500
+              ],
+              "output_lines": [
+                71,
+                72
+              ],
+              "article": 1,
+              "kind": "wrapped_asset_name_split_across_table_rows"
+            }
+          ],
+          "native0_exclusions": [],
+          "whole_image_read": true,
+          "all_text_lines_read": true,
+          "all_Articles_Documents_Tables_Runs_read": true,
+          "index": 29,
+          "initial_grade_fixed": true,
+          "baseline": "parent52/accepted30/c21445b9",
+          "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+          "PDF": ".cache/kanpo-archive/2026-07-31/20260731g00173/20260731g001730081.pdf",
+          "PDF_SHA": "d1a5f2d2e1d4b7cbd331b3187f592b13cb9cfc77d6b3fc8e90c20e052d94f1bc",
+          "output": ".cache/kanpo-227/after52/20260731g001730081.txt",
+          "output_SHA": "d9da7b7daa40468a348682572a593550bba8118c6b44dd1c6f5113109545085e",
+          "Analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260731g001730081.json",
+          "Analysis_SHA": "7de41fd1175256e24f6693b4a13b401044b2f1ca354f00f30cc4b24a819f321d",
+          "image": ".cache/kanpo-227/audit143/20260731g001730081.png",
+          "image_SHA": "0898ba1e60ae4612d17c9ae32fa0b7036bbda3313b155bbe745265d53e9a1b09",
+          "linecount": 76,
+          "Article_count": 2,
+          "Document_counts": {
+            "tables": 4,
+            "table_rows": 47,
+            "table_slots": 169,
+            "runs": 141
+          },
+          "candidate53_reviewed": false,
+          "candidate53_inheritance_pending": true,
+          "existing_parent52_defect": true,
+          "new_candidate_regression_claim": false
+        }
+      }
+    ]
+  },
+  "source_manifest": {
+    "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated55-source-manifest.json",
+    "sha256": "8620f18ff28d8d30c64ac2c185301b0a2a4752b04353175306edae2d200003de"
+  },
+  "review_reports": [
+    {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-root-part0-review.json",
+      "sha256": "acb0c400a31893b42006ab2bed3eb87d452cf7acbce2226ed09f6c74bf500a4d"
+    },
+    {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-parent52-part1/review.json",
+      "sha256": "6210cc20fa75b208195792feeb842c52544bae28d2d8ee6279319db174b4b17d"
+    },
+    {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-parent52-part2/review.json",
+      "sha256": "c84ff6bd482e8e22736403a9dc6e6eac342ec278c9be11b583db4fcf7d12645a"
+    }
+  ],
+  "root_verified_reports": [
+    {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-root-verified-parts1-and2.json",
+      "sha256": "1caa35ea43888b36f9a5eb35e6852274e3d0011434892eac361b55d534f7280b"
+    },
+    {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-root-part2-nested154-proof.json",
+      "sha256": "45d5e8dc39bc2618cbda75a9bd4894043a08445acc66f7eeab6c59a6d6b684b1"
+    }
+  ],
+  "native_zero_proofs": {
+    "rows": [
+      {
+        "page": "20260803g001740038",
+        "proof": ".cache/kanpo-227/audit143-parent52-part1/20260803g001740038-arrow-native0-proof.json",
+        "proof_sha256": "04e1bebbd0ec6bc08d50a096239afee905cd56346e2f3222ba6432fbefaf0c33",
+        "fresh_native": ".cache/kanpo-227/audit143-root-native0/20260803g001740038-fresh.json",
+        "fresh_sha256": "505a69f21f45c0c67ab1cf951e673f0d1711f22ef9993e11d3e76f26c21018cd",
+        "entire_native_Page_Glyph_font_paths_exact": true,
+        "totalGlyphs": 3337,
+        "all_statuses_closed_normalized_bbox": true,
+        "counts": [
+          {
+            "zero_rect": [
+              69.2,
+              57.54539999999996,
+              76.8,
+              64.92939999999996
+            ],
+            "zero_count": 0,
+            "positive_rect": [
+              77.1,
+              57.24539999999996,
+              84.9,
+              65.22939999999997
+            ],
+            "positive_GlyphIDs": [
+              44
+            ]
+          },
+          {
+            "zero_rect": [
+              69.23570000000002,
+              150.1169,
+              76.83570000000002,
+              157.50089999999997
+            ],
+            "zero_count": 0,
+            "positive_rect": [
+              77.13570000000001,
+              149.81689999999998,
+              84.93570000000003,
+              157.80089999999998
+            ],
+            "positive_GlyphIDs": [
+              370
+            ]
+          },
+          {
+            "zero_rect": [
+              69.2,
+              325.50969999999995,
+              76.8,
+              332.8937
+            ],
+            "zero_count": 0,
+            "positive_rect": [
+              77.1,
+              325.2097,
+              84.9,
+              333.1937
+            ],
+            "positive_GlyphIDs": [
+              995
+            ]
+          },
+          {
+            "zero_rect": [
+              69.2,
+              511.2953999999999,
+              76.8,
+              518.6794
+            ],
+            "zero_count": 0,
+            "positive_rect": [
+              77.1,
+              510.99539999999996,
+              84.9,
+              518.9793999999999
+            ],
+            "positive_GlyphIDs": [
+              1633
+            ]
+          },
+          {
+            "zero_rect": [
+              437.2,
+              256.2597,
+              444.8,
+              263.6437
+            ],
+            "zero_count": 0,
+            "positive_rect": [
+              445.1,
+              255.9597,
+              452.9,
+              263.9437
+            ],
+            "positive_GlyphIDs": [
+              2427
+            ]
+          },
+          {
+            "zero_rect": [
+              437.2,
+              388.25969999999995,
+              444.8,
+              395.6437
+            ],
+            "zero_count": 0,
+            "positive_rect": [
+              445.1,
+              387.9597,
+              452.9,
+              395.9437
+            ],
+            "positive_GlyphIDs": [
+              2827
+            ]
+          },
+          {
+            "zero_rect": [
+              437.2,
+              476.25969999999995,
+              444.8,
+              483.6437
+            ],
+            "zero_count": 0,
+            "positive_rect": [
+              445.1,
+              475.9597,
+              452.9,
+              483.9437
+            ],
+            "positive_GlyphIDs": [
+              3084
+            ]
+          }
+        ],
+        "whole_page_excluded": false
+      },
+      {
+        "page": "20260918g002090030",
+        "proof": ".cache/kanpo-227/audit143-parent52-part1/20260918g002090030-form-native0-proof.json",
+        "proof_sha256": "83687de397007eef876108c892ff1cc73ddfb5fea50415373e70857b904972bd",
+        "fresh_native": ".cache/kanpo-227/audit143-root-native0/20260918g002090030-fresh.json",
+        "fresh_sha256": "87bfb7c5612e8a442f1b8703c86a49b0010fb1a339c4cb493ad5bbba3ed09746",
+        "entire_native_Page_Glyph_font_paths_exact": true,
+        "totalGlyphs": 1638,
+        "all_statuses_closed_normalized_bbox": true,
+        "counts": [
+          {
+            "name": "upper_form_only",
+            "rect": [
+              110,
+              75,
+              540,
+              415
+            ],
+            "count": 0,
+            "GlyphIDs": []
+          },
+          {
+            "name": "adjacent_instruction_positive",
+            "rect": [
+              541.05,
+              68.9,
+              548.9,
+              76.8
+            ],
+            "count": 1,
+            "GlyphIDs": [
+              0
+            ]
+          },
+          {
+            "name": "left_fusoku_positive",
+            "rect": [
+              79.1,
+              84.9,
+              86.9,
+              92.7
+            ],
+            "count": 1,
+            "GlyphIDs": [
+              17
+            ]
+          },
+          {
+            "name": "outward_context_not_excluded",
+            "rect": [
+              110,
+              75,
+              541.1,
+              415
+            ],
+            "count": 17,
+            "GlyphIDs": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16
+            ]
+          }
+        ],
+        "whole_page_excluded": false
+      }
+    ],
+    "zero_rects": 8,
+    "zero_scope": "seven arrow ink interiors and one bounded upper form only; all neighbouring text remains graded",
+    "positive_rects": 9,
+    "outward_context_not_excluded_Glyphs": 17,
+    "whole_originals_rechecked_by_root": true
+  },
+  "native_summary": {
+    "limited_zero_rectangles": 8,
+    "source_PDFs": 2,
+    "adjacent_positive_rectangles": 9,
+    "outer_context_not_excluded_Glyphs": 17,
+    "whole_page_exclusions": 0,
+    "all_Glyphs_scanned_including_empty_invisible_zero_inverted_edge_contact": true,
+    "scope": "Seven arrow ink interiors and one bounded upper form only. All neighbouring/outer text stays graded; no PDF-wide native0 claim."
+  },
+  "all30_artifact_SHA_reverified_by_root": true,
+  "all117_current_source_SHA_exact": true,
+  "PDFium_rendering": "Serial; all images/PDFs/complete parent52 Analysis frozen before grading; fresh release55 per-page binding after exact comparison.",
+  "pages": [
+    {
+      "page": "20260930g002150080",
+      "PDF_sha256": "98e7d241398dcc9cb9453428db6e77c2d0eb725872225be89c29caec8e8da48e",
+      "image_sha256": "e682932ee307b8fdf4ec16aab418482babc85fc315f27ce488d92f176c8c18bc",
+      "parent52_Analysis_sha256": "15838f77410f751dafe606b1f7e2773193de746c294cb4f084265c7328f6b164",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260930g002150080.json",
+      "candidate55_Analysis_sha256": "378a9478b138cf6aebfe38166d1c2c2c353f7140d3294ee3e58ccce0532053a3",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "ok",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "page": "20260930g002150080",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "notes": "第86/87条の上下新旧。旧側だけの第2項・各号5行と新側空欄、両本文・枝号・見出しの役割と対応を全確認。1Articleのshinkyu13rows、両段全文を保持。",
+        "parent52_analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260930g002150080.json",
+        "analysis_sha256": "15838f77410f751dafe606b1f7e2773193de746c294cb4f084265c7328f6b164",
+        "image": ".cache/kanpo-227/audit143/20260930g002150080.png",
+        "image_sha256": "e682932ee307b8fdf4ec16aab418482babc85fc315f27ce488d92f176c8c18bc",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150080.pdf",
+        "pdf_sha256": "98e7d241398dcc9cb9453428db6e77c2d0eb725872225be89c29caec8e8da48e",
+        "all_original_viewed": true,
+        "all_body_read": true,
+        "all_Article_Document_structure_and_all_Run_content_reviewed": true,
+        "body_lines": 71,
+        "Articles": 1,
+        "Document_textNodes": 21,
+        "Shinkyu_rows": 13,
+        "Tables": 0,
+        "cells": 0,
+        "native0_exclusions": [],
+        "initial_grades_fixed": true,
+        "candidate53_pending": true
+      }
+    },
+    {
+      "page": "20260930g002150156",
+      "PDF_sha256": "10c93e3a69bf53a6858f829f6ca638b1a438e390305b098c104aae528f9037cb",
+      "image_sha256": "250487af56504f605152db9f64ffbb32d92a292552d9371c7fc53d85c08caf49",
+      "parent52_Analysis_sha256": "76275c106dd01a2124589bd9b4aac4bbaf4949f94b489f63cd7df782440e1dac",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260930g002150156.json",
+      "candidate55_Analysis_sha256": "5444321ada9d71427b6189eb0fe39332d0750654823ef539c017022be11aeca3",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "minor",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "page": "20260930g002150156",
+        "strict_grade": "minor",
+        "body_grade": "ok",
+        "notes": "準用21条の4/旧21条と、改正第五条を挟む49/55条の2組新旧が本文・roleとも正確。中間の第五条改正見出しはparagraphのRunに平坦化され、見出し/条構造は失われる。1Articleのshinkyu+paragraph+shinkyu、本文欠落なし。",
+        "parent52_analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260930g002150156.json",
+        "analysis_sha256": "76275c106dd01a2124589bd9b4aac4bbaf4949f94b489f63cd7df782440e1dac",
+        "image": ".cache/kanpo-227/audit143/20260930g002150156.png",
+        "image_sha256": "250487af56504f605152db9f64ffbb32d92a292552d9371c7fc53d85c08caf49",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150156.pdf",
+        "pdf_sha256": "10c93e3a69bf53a6858f829f6ca638b1a438e390305b098c104aae528f9037cb",
+        "all_original_viewed": true,
+        "all_body_read": true,
+        "all_Article_Document_structure_and_all_Run_content_reviewed": true,
+        "body_lines": 77,
+        "Articles": 1,
+        "Document_textNodes": 7,
+        "Shinkyu_rows": 3,
+        "Tables": 0,
+        "cells": 0,
+        "native0_exclusions": [],
+        "initial_grades_fixed": true,
+        "candidate53_pending": true
+      }
+    },
+    {
+      "page": "20260805g001760033",
+      "PDF_sha256": "190093863bcb2a776ddd2206a3de1f8fd98b330c69913b2afa42d94739f5493a",
+      "image_sha256": "73ee1eb6c87e8314b10d9926576c8e83a438acd1cb0eb95bf00ca998c0481561",
+      "parent52_Analysis_sha256": "0de37b7f24fb17f99a818edbaa22fbb1896b9caa7e75decf114d63d328858b74",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260805g001760033.json",
+      "candidate55_Analysis_sha256": "3f4130d17331c60909717b6362d2cb539a42251f2adf58cc4f51a0cdb719230d",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "major",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "page": "20260805g001760033",
+        "strict_grade": "major",
+        "body_grade": "ok",
+        "notes": "原図上段の新10/11条・削除行と下段の旧11/12/13条の全文は順序含め保持。Documentはprose1paragraph/1Runで新旧roleと対応が全て失われている。本文文字/内容は保持。",
+        "parent52_analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260805g001760033.json",
+        "analysis_sha256": "0de37b7f24fb17f99a818edbaa22fbb1896b9caa7e75decf114d63d328858b74",
+        "image": ".cache/kanpo-227/audit143/20260805g001760033.png",
+        "image_sha256": "73ee1eb6c87e8314b10d9926576c8e83a438acd1cb0eb95bf00ca998c0481561",
+        "pdf": ".cache/kanpo-archive/2026-08-05/20260805g00176/20260805g001760033.pdf",
+        "pdf_sha256": "190093863bcb2a776ddd2206a3de1f8fd98b330c69913b2afa42d94739f5493a",
+        "all_original_viewed": true,
+        "all_body_read": true,
+        "all_Article_Document_structure_and_all_Run_content_reviewed": true,
+        "body_lines": 51,
+        "Articles": 1,
+        "Document_textNodes": 1,
+        "Shinkyu_rows": 0,
+        "Tables": 0,
+        "cells": 0,
+        "native0_exclusions": [],
+        "initial_grades_fixed": true,
+        "candidate53_pending": true
+      }
+    },
+    {
+      "page": "20260731g001730066",
+      "PDF_sha256": "b900f97ff8175fca034dd2bcdc06d7ec3d00fe28eed9a892af40d93344ed5042",
+      "image_sha256": "403937ea52023d56b7c579423b2587acac5da7571e517d40ae7ea3e8fa519a4c",
+      "parent52_Analysis_sha256": "049b02b9759edb97565c7f89f57f09fc1b9606de091f4ab131dd86fdfda06d2d",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260731g001730066.json",
+      "candidate55_Analysis_sha256": "3cb0662ccf70021064372b64d22c5a21efd63b7cc012ceb3d029b08a9bef4c74",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "major",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "page": "20260731g001730066",
+        "strict_grade": "major",
+        "body_grade": "ok",
+        "notes": "損益計算書の左右段にある全費用/収益/利益・金額・（注）の本文順と対応は保持。ArticleDocは全行を単一Paragraph/Runへ連結し、費用階層・明細/小計/合計の行列構造を失っている。",
+        "parent52_analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260731g001730066.json",
+        "analysis_sha256": "049b02b9759edb97565c7f89f57f09fc1b9606de091f4ab131dd86fdfda06d2d",
+        "image": ".cache/kanpo-227/audit143/20260731g001730066.png",
+        "image_sha256": "403937ea52023d56b7c579423b2587acac5da7571e517d40ae7ea3e8fa519a4c",
+        "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00173/20260731g001730066.pdf",
+        "pdf_sha256": "b900f97ff8175fca034dd2bcdc06d7ec3d00fe28eed9a892af40d93344ed5042",
+        "all_original_viewed": true,
+        "all_body_read": true,
+        "all_Article_Document_structure_and_all_Run_content_reviewed": true,
+        "body_lines": 78,
+        "Articles": 1,
+        "Document_textNodes": 1,
+        "Shinkyu_rows": 0,
+        "Tables": 0,
+        "cells": 0,
+        "native0_exclusions": [],
+        "initial_grades_fixed": true,
+        "candidate53_pending": true
+      }
+    },
+    {
+      "page": "20260807g001780018",
+      "PDF_sha256": "312bb6b5658c5cc91b277f81c534f9887e6214c4d31779e136dcc44637125d02",
+      "image_sha256": "95c90ff1f0e035901c53b1dc27cfe36e19de6fac3eb057cf4898373f52ec2442",
+      "parent52_Analysis_sha256": "ff951ed674e1f491bc452df76036a7ed62013d8e707db0a58c295eaaf008acce",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260807g001780018.json",
+      "candidate55_Analysis_sha256": "c313ab8a8ace53c66d07dff69b3f56849706caf98e1e68df35761d77f561af77",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "minor",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "page": "20260807g001780018",
+        "strict_grade": "minor",
+        "body_grade": "ok",
+        "notes": "前条8〜13号に続く第五条の帳票82項を全件・号・名称・上下段順序で保持。Documentはunknownの単一Paragraph/Runで第五条/帳票要件見出しや各号の階層が平坦だが行分けと本文は保持。",
+        "parent52_analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260807g001780018.json",
+        "analysis_sha256": "ff951ed674e1f491bc452df76036a7ed62013d8e707db0a58c295eaaf008acce",
+        "image": ".cache/kanpo-227/audit143/20260807g001780018.png",
+        "image_sha256": "95c90ff1f0e035901c53b1dc27cfe36e19de6fac3eb057cf4898373f52ec2442",
+        "pdf": ".cache/kanpo-archive/2026-08-07/20260807g00178/20260807g001780018.pdf",
+        "pdf_sha256": "312bb6b5658c5cc91b277f81c534f9887e6214c4d31779e136dcc44637125d02",
+        "all_original_viewed": true,
+        "all_body_read": true,
+        "all_Article_Document_structure_and_all_Run_content_reviewed": true,
+        "body_lines": 92,
+        "Articles": 1,
+        "Document_textNodes": 1,
+        "Shinkyu_rows": 0,
+        "Tables": 0,
+        "cells": 0,
+        "native0_exclusions": [],
+        "initial_grades_fixed": true,
+        "candidate53_pending": true
+      }
+    },
+    {
+      "page": "20261016g002280050",
+      "PDF_sha256": "b6ad6bd98e595f64119fe3e5e92ce8dc058fe8bde1c98b1d5cdffda99243455e",
+      "image_sha256": "ff9b59cdd909741e40f615b43171dff55df1a4dede15630da2a177544abd198f",
+      "parent52_Analysis_sha256": "b9cab9c3cebbf4c7ca5cadcd8ca3370262ff3bd422ba532df18ec2576af952c6",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20261016g002280050.json",
+      "candidate55_Analysis_sha256": "95196370b0fc420dbc5bbb348fe0ecd8b843c7da872084c034c34b1709365c41",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "minor",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "page": "20261016g002280050",
+        "strict_grade": "minor",
+        "body_grade": "ok",
+        "notes": "上段退職給付3組の全金額・△と減損会計の4表（3x5/3x5/2x5/2x5）・全説明を照合。名称/用途/場所/金額の所属は正確。Docの表は全50slotを保持、一方、無罫の給付調整表/各説明見出しがParagraph text内で連結・平坦化する。",
+        "parent52_analysis": ".cache/kanpo-227/audit143-parent52-analysis/20261016g002280050.json",
+        "analysis_sha256": "b9cab9c3cebbf4c7ca5cadcd8ca3370262ff3bd422ba532df18ec2576af952c6",
+        "image": ".cache/kanpo-227/audit143/20261016g002280050.png",
+        "image_sha256": "ff9b59cdd909741e40f615b43171dff55df1a4dede15630da2a177544abd198f",
+        "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280050.pdf",
+        "pdf_sha256": "b6ad6bd98e595f64119fe3e5e92ce8dc058fe8bde1c98b1d5cdffda99243455e",
+        "all_original_viewed": true,
+        "all_body_read": true,
+        "all_Article_Document_structure_and_all_Run_content_reviewed": true,
+        "body_lines": 73,
+        "Articles": 1,
+        "Document_textNodes": 59,
+        "Shinkyu_rows": 0,
+        "Tables": 4,
+        "cells": 50,
+        "native0_exclusions": [],
+        "initial_grades_fixed": true,
+        "candidate53_pending": true
+      }
+    },
+    {
+      "page": "20260820g001860092",
+      "PDF_sha256": "ed96890660d78b045db4898cc627a8d15f22466f63516273dc5d542f7376bd65",
+      "image_sha256": "38f724a8ebb1ca040562ac9ac38b6128838dd309a8aa695ba4c4a46937721f23",
+      "parent52_Analysis_sha256": "7ced8ff8a9a038181d286e296ba11e0e3b827afe7452ee509777366135525858",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260820g001860092.json",
+      "candidate55_Analysis_sha256": "0f7322419217ae07b17af2f89b640bf90581f0061ccd17379123ec899c14553c",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "minor",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "page": "20260820g001860092",
+        "strict_grade": "minor",
+        "body_grade": "ok",
+        "notes": "小郡2/大分明野/大塚町/谷山/鹿屋上野町/同2の6表を全105slot、金額・重複風除室行を含め照合。前頁からのイ/ウ継続と各イ/ウ説明も全文保持。DocTableは全て正確、宿舎名とア/イ/ウ見出しはparagraph内の平坦textにとどまる。",
+        "parent52_analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260820g001860092.json",
+        "analysis_sha256": "7ced8ff8a9a038181d286e296ba11e0e3b827afe7452ee509777366135525858",
+        "image": ".cache/kanpo-227/audit143/20260820g001860092.png",
+        "image_sha256": "38f724a8ebb1ca040562ac9ac38b6128838dd309a8aa695ba4c4a46937721f23",
+        "pdf": ".cache/kanpo-archive/2026-08-20/20260820g00186/20260820g001860092.pdf",
+        "pdf_sha256": "ed96890660d78b045db4898cc627a8d15f22466f63516273dc5d542f7376bd65",
+        "all_original_viewed": true,
+        "all_body_read": true,
+        "all_Article_Document_structure_and_all_Run_content_reviewed": true,
+        "body_lines": 75,
+        "Articles": 1,
+        "Document_textNodes": 118,
+        "Shinkyu_rows": 0,
+        "Tables": 6,
+        "cells": 105,
+        "native0_exclusions": [],
+        "initial_grades_fixed": true,
+        "candidate53_pending": true
+      }
+    },
+    {
+      "page": "20260930g002150063",
+      "PDF_sha256": "e4e29d0683cfc3a86530842e5ab997fd704a9148b39e992f8612a2bc4b983c74",
+      "image_sha256": "0518e3c3ffb10c4627d020aa5b00ad5da28eec445ca6cdf770c79cb8e734abba",
+      "parent52_Analysis_sha256": "f1ce7e6f752040ec825c57ef1d07e0baa118527f9e6f4e95eaf2b19802c79c25",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260930g002150063.json",
+      "candidate55_Analysis_sha256": "c43b4c21f23a1378deda3a99fe09db473caca631fb99f6011a3fa9a115481c83",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "ok",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "page": "20260930g002150063",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "notes": "元ページ冒頭の途中からの定義文を補完せず、新旧両側の50条・88条の2・125条の2の2・125条の3・附則を6行のshinkyuに正しく対応。基盤機構/旧支払基金、略/同上、全参照条番号と改正後/前を保持。",
+        "parent52_analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260930g002150063.json",
+        "analysis_sha256": "f1ce7e6f752040ec825c57ef1d07e0baa118527f9e6f4e95eaf2b19802c79c25",
+        "image": ".cache/kanpo-227/audit143/20260930g002150063.png",
+        "image_sha256": "0518e3c3ffb10c4627d020aa5b00ad5da28eec445ca6cdf770c79cb8e734abba",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150063.pdf",
+        "pdf_sha256": "e4e29d0683cfc3a86530842e5ab997fd704a9148b39e992f8612a2bc4b983c74",
+        "all_original_viewed": true,
+        "all_body_read": true,
+        "all_Article_Document_structure_and_all_Run_content_reviewed": true,
+        "body_lines": 80,
+        "Articles": 1,
+        "Document_textNodes": 12,
+        "Shinkyu_rows": 6,
+        "Tables": 0,
+        "cells": 0,
+        "native0_exclusions": [],
+        "initial_grades_fixed": true,
+        "candidate53_pending": true
+      }
+    },
+    {
+      "page": "20261016g002280304",
+      "PDF_sha256": "bcdccc9718c5608ca51c661ec46bf86bcfe8f78f5d7ea0b79d0c68051142d626",
+      "image_sha256": "90ddb1ce39d1d67976d692f3114c071f4a2b691f63c216333ca408b31645ec00",
+      "parent52_Analysis_sha256": "9a43547dc7c29f8aac1cae4dee2497400d9175474b3c44c9229d59638176ec4b",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20261016g002280304.json",
+      "candidate55_Analysis_sha256": "c8bbf11dee4ca2ff36f2243073975f82500bc31cb36a6e87e544db3ab80631fd",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "major",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "page": "20261016g002280304",
+        "strict_grade": "major",
+        "body_grade": "ok",
+        "notes": "貸借対照表の左右段全行・小計/合計・△・（注）・0を本文で保持。原文印字18,350を計算から修正しない。Docは全財務行を単一Paragraph/Runに連結し、科目/金額/純額/合計の行列構造を失う。",
+        "parent52_analysis": ".cache/kanpo-227/audit143-parent52-analysis/20261016g002280304.json",
+        "analysis_sha256": "9a43547dc7c29f8aac1cae4dee2497400d9175474b3c44c9229d59638176ec4b",
+        "image": ".cache/kanpo-227/audit143/20261016g002280304.png",
+        "image_sha256": "90ddb1ce39d1d67976d692f3114c071f4a2b691f63c216333ca408b31645ec00",
+        "pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280304.pdf",
+        "pdf_sha256": "bcdccc9718c5608ca51c661ec46bf86bcfe8f78f5d7ea0b79d0c68051142d626",
+        "all_original_viewed": true,
+        "all_body_read": true,
+        "all_Article_Document_structure_and_all_Run_content_reviewed": true,
+        "body_lines": 72,
+        "Articles": 1,
+        "Document_textNodes": 1,
+        "Shinkyu_rows": 0,
+        "Tables": 0,
+        "cells": 0,
+        "native0_exclusions": [],
+        "initial_grades_fixed": true,
+        "candidate53_pending": true
+      }
+    },
+    {
+      "page": "20260724g001650657",
+      "PDF_sha256": "392f2512cfe75e7ae88d4ddd94d5c192298aad2d8bf0b3da8ce2a7e97ed29492",
+      "image_sha256": "9def92c7a3baba75e162760a67e0e8122eb1ee4438381348d28d5d7915074e02",
+      "parent52_Analysis_sha256": "e5f0de63276c431a63180685231692c0e33cac9f82c2401ff5416b3ec6a8e2ce",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260724g001650657.json",
+      "candidate55_Analysis_sha256": "62c36a11f4620168b1f4f2ab5a542670f56cbb0578f7a584f5b77383024ce8bf",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "major",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "page": "20260724g001650657",
+        "strict_grade": "major",
+        "body_grade": "ok",
+        "notes": "新旧二面の警察費3,110/3,101及び1,110/1,101、道路交通量各料率、寒冷5級地×3値を全照合。roleと本文の対応は保持。一方DocTable各28x7は警察/土木費・道路の測定単位を先頭行だけに置きrowspanを持たず、道路橋りよう/費を別行へ裂くため、継続明細への親科目所属が欠落。",
+        "parent52_analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260724g001650657.json",
+        "analysis_sha256": "e5f0de63276c431a63180685231692c0e33cac9f82c2401ff5416b3ec6a8e2ce",
+        "image": ".cache/kanpo-227/audit143/20260724g001650657.png",
+        "image_sha256": "9def92c7a3baba75e162760a67e0e8122eb1ee4438381348d28d5d7915074e02",
+        "pdf": ".cache/kanpo-archive/2026-07-24/20260724g00165/20260724g001650657.pdf",
+        "pdf_sha256": "392f2512cfe75e7ae88d4ddd94d5c192298aad2d8bf0b3da8ce2a7e97ed29492",
+        "all_original_viewed": true,
+        "all_body_read": true,
+        "all_Article_Document_structure_and_all_Run_content_reviewed": true,
+        "body_lines": 64,
+        "Articles": 1,
+        "Document_textNodes": 112,
+        "Shinkyu_rows": 1,
+        "Tables": 2,
+        "cells": 392,
+        "native0_exclusions": [],
+        "initial_grades_fixed": true,
+        "candidate53_pending": true
+      }
+    },
+    {
+      "page": "20260731g001720182",
+      "PDF_sha256": "ad3e640830d85aa8bdcd8ca4e1df61132ad8553a7de052f856982fa58f28e052",
+      "image_sha256": "79dba297d7a9bef6a9dda986246fe60bef734a996531c9014e925eb3b5ccf7e3",
+      "parent52_Analysis_sha256": "10ee0a1e704b1a47a6c60befd2d0fd8046554cc43d2cd502e4d76285f7b11aaf",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260731g001720182.json",
+      "candidate55_Analysis_sha256": "f3237f4b93acc542df2516d71df74f2083fdae8cf1f661317718ed4560f8ea3a",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "major",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "index": 10,
+        "local_index": 0,
+        "page": "20260731g001720182",
+        "initial_strict_grade": "major",
+        "initial_body_grade": "ok",
+        "baseline": "accepted52 only; candidate53 not graded",
+        "notes": [
+          "原図3欄29システム行の文字・日付はいずれも対応。L1〜14は福島県平田村、L15〜29は小野町の各結合セル。",
+          "trace Tableのcol0はrow0/14でともにrowspan1（bboxだけが14/15行分を覆う）。DocTableでも先頭行のセル以外が空配列になり、14行/15行への自治体の共有所属を構造として表現できていない。"
+        ],
+        "known_remaining": [
+          "意味のある自治体共有セルのrowspan喪失。本文の29行・開始日29値・自治体切替は保全。"
+        ],
+        "native0_exclusions": [],
+        "linecount": 29,
+        "article_count": 1,
+        "fullreadflags": {
+          "whole_original_image": true,
+          "all_body_lines": true,
+          "all_Article_texts": true,
+          "all_Document_blocks_Table_cells_rowspan_Runs": true,
+          "all_original_numbers_names_dates_signs": true
+        },
+        "initial_grades_fixed": true,
+        "repair_prototypes_not_used": true,
+        "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+        "artifact_SHA": {
+          ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720182.pdf": "ad3e640830d85aa8bdcd8ca4e1df61132ad8553a7de052f856982fa58f28e052",
+          ".cache/kanpo-227/after52/20260731g001720182.txt": "e830c226d4c3fe9073db2c15f6906e19df1767c5d1c3e3795792ac18961428be",
+          ".cache/kanpo-227/audit143-parent52-analysis/20260731g001720182.json": "10ee0a1e704b1a47a6c60befd2d0fd8046554cc43d2cd502e4d76285f7b11aaf",
+          ".cache/kanpo-227/audit143/20260731g001720182.png": "79dba297d7a9bef6a9dda986246fe60bef734a996531c9014e925eb3b5ccf7e3"
+        },
+        "native_SHA": "89a12dcb4ea3aabecd10c9cb6cdfe19b5422d8a509722130a777c5b2e3400268",
+        "candidate53_inheritance_pending_exact30": true,
+        "articleDocSHA": "78b067b609606b291f0a1956a251571c73f811bd3b097fb57259e738aa605435",
+        "native_allGlyphs": 545,
+        "whole_original_not_excluded": true
+      }
+    },
+    {
+      "page": "20260824g001880057",
+      "PDF_sha256": "274bd43169f3e6dd0e1d3873e1cc03c1fe7f0eee90d061e736dbe4a342f55e3f",
+      "image_sha256": "74adb57656b31a295362d51f06b3c52bfabc172556f1574935400d4ed6ca1e67",
+      "parent52_Analysis_sha256": "c0b4b8f594424761411bd9fb239ac30885c9a64d7d3ebb4ae0a10af40a749d00",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260824g001880057.json",
+      "candidate55_Analysis_sha256": "2dbba08850ba66c22bb3949db6ed340a2c5b5881c096ef2a97dc19b8c41f8b9d",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "minor",
+      "initial_body_grade": "minor",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "index": 11,
+        "local_index": 1,
+        "page": "20260824g001880057",
+        "initial_strict_grade": "minor",
+        "initial_body_grade": "minor",
+        "baseline": "accepted52 only; candidate53 not graded",
+        "notes": [
+          "登録31820〜31835の16件と6欄対応、35年/〃/年月日/複数権利者は原図と対応。",
+          "Article0は章見出し「その他告示」だけで独立公告ではない。",
+          "L9/DocTable row1 col1で原図の別語Chlorophytum / saundersiaeがChlorophytumsaundersiae、col4のDesmond / LiefおよびSouth / Africa等も改行をまたいで連結。文字の脱落とは区別するが学名・氏名・住所の語境界が落ちている。"
+        ],
+        "known_remaining": [
+          "独立でない章見出しArticle化。Latin複合語の改行連結。数値/登録レコードの混線は認めない。"
+        ],
+        "native0_exclusions": [],
+        "linecount": 24,
+        "article_count": 2,
+        "fullreadflags": {
+          "whole_original_image": true,
+          "all_body_lines": true,
+          "all_Article_texts": true,
+          "all_Document_blocks_Table_cells_rowspan_Runs": true,
+          "all_original_numbers_names_dates_signs": true
+        },
+        "initial_grades_fixed": true,
+        "repair_prototypes_not_used": true,
+        "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+        "artifact_SHA": {
+          ".cache/kanpo-archive/2026-08-24/20260824g00188/20260824g001880057.pdf": "274bd43169f3e6dd0e1d3873e1cc03c1fe7f0eee90d061e736dbe4a342f55e3f",
+          ".cache/kanpo-227/after52/20260824g001880057.txt": "0b5f2027adeb93ae976b9b04f7e408dc8ae9f0b496d751d28d038cf7e2c63967",
+          ".cache/kanpo-227/audit143-parent52-analysis/20260824g001880057.json": "c0b4b8f594424761411bd9fb239ac30885c9a64d7d3ebb4ae0a10af40a749d00",
+          ".cache/kanpo-227/audit143/20260824g001880057.png": "74adb57656b31a295362d51f06b3c52bfabc172556f1574935400d4ed6ca1e67"
+        },
+        "native_SHA": "acdb78f88489905529ce00582c97f5df6c8f9aad9d9a4391f6542256099ce383",
+        "candidate53_inheritance_pending_exact30": true,
+        "articleDocSHA": "81369d9b39885156c1b8d4b35e96b7b3cdd294ef691f002bf0fa8f47417e1924",
+        "native_allGlyphs": 1301,
+        "whole_original_not_excluded": true
+      }
+    },
+    {
+      "page": "20260901g001950047",
+      "PDF_sha256": "13ebc29c20cb5a70fcf9c685ea54ab4969a79ae357f502733778f3ac9cf0d1d8",
+      "image_sha256": "14cf25c2e3eaa0e8020d4a335a4d240e1bdde094c68468d55fdceea1d2d5d625",
+      "parent52_Analysis_sha256": "6ce0d66038942bf9fb62b841a07dedf1e341aa4b7d26f12fc0587ae4f1c2feea",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260901g001950047.json",
+      "candidate55_Analysis_sha256": "07ad1ad7be19ab14982af4f075e0706bb17e5fec4721fe4584850777f1fa4ee5",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "major",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "index": 12,
+        "local_index": 2,
+        "page": "20260901g001950047",
+        "initial_strict_grade": "major",
+        "initial_body_grade": "ok",
+        "baseline": "accepted52 only; candidate53 not graded",
+        "notes": [
+          "L1〜35柔道整復試験の続き、L36〜145歯科衛生士試験、L146〜178歯科技工士試験という独立3公告相当を1Article/1Document/1Runへ連結。",
+          "原図4段を列順で読め、23,900円/14,300円、全試験日/受付日/電話FAXを照合。本文読順と原字は正常、独立公告境界のみ重大不良。"
+        ],
+        "known_remaining": [
+          "独立国家試験公告のArticle境界欠如。"
+        ],
+        "native0_exclusions": [],
+        "linecount": 178,
+        "article_count": 1,
+        "fullreadflags": {
+          "whole_original_image": true,
+          "all_body_lines": true,
+          "all_Article_texts": true,
+          "all_Document_blocks_Table_cells_rowspan_Runs": true,
+          "all_original_numbers_names_dates_signs": true
+        },
+        "initial_grades_fixed": true,
+        "repair_prototypes_not_used": true,
+        "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+        "artifact_SHA": {
+          ".cache/kanpo-archive/2026-09-01/20260901g00195/20260901g001950047.pdf": "13ebc29c20cb5a70fcf9c685ea54ab4969a79ae357f502733778f3ac9cf0d1d8",
+          ".cache/kanpo-227/after52/20260901g001950047.txt": "81deb362700e4abb20fead13453a3f45e8701caccd3abcc8c5c495eeecba5db9",
+          ".cache/kanpo-227/audit143-parent52-analysis/20260901g001950047.json": "6ce0d66038942bf9fb62b841a07dedf1e341aa4b7d26f12fc0587ae4f1c2feea",
+          ".cache/kanpo-227/audit143/20260901g001950047.png": "14cf25c2e3eaa0e8020d4a335a4d240e1bdde094c68468d55fdceea1d2d5d625"
+        },
+        "native_SHA": "b3f9f19ff8876b3385eb9f4f6914e2be0b7e98c702700721f587d7191080009b",
+        "candidate53_inheritance_pending_exact30": true,
+        "articleDocSHA": "11bfafea07c7cd43e2634ed92c96a73860aa513f69f4cb0e3f6f274e8b47e719",
+        "native_allGlyphs": 3099,
+        "whole_original_not_excluded": true
+      }
+    },
+    {
+      "page": "20260803g001740038",
+      "PDF_sha256": "718606df95cf55718c6e432548bd88f6a356cac558a3c8f214bed262b94cdee8",
+      "image_sha256": "b397284f83f5f972c5413d0dc82a181ac85b9ac0c71116faeb74f62c346468d7",
+      "parent52_Analysis_sha256": "46c2a4835f2338bd8c12eef99c2dbdb935f4306a9e802087e589b3a56fd79d68",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260803g001740038.json",
+      "candidate55_Analysis_sha256": "59381c4d4070c492edc7f681aaa1c5b919c2421681d548f73e920921b0f82e5a",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "minor",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "index": 13,
+        "local_index": 3,
+        "page": "20260803g001740038",
+        "initial_strict_grade": "minor",
+        "initial_body_grade": "ok",
+        "baseline": "accepted52 only; candidate53 not graded",
+        "notes": [
+          "2段の全文95行とPJ3〜8の節・見出し・本文を照合。本文順/2050年/路線名は保全。",
+          "同一地域計画の○付き小見出しを独立Article6個へ分割。例えばArticle1はL10「新しい公共」からL18 PJ3の節まで、Article2はL27○からL35 PJ4までを含む。元の節階層をArticle単位にできていないが、独立公告相互の混線や文字順破壊ではないためminor。",
+          "黒い矢印図形7個は字の欠落と断定しない。各矢印ink限定矩形のfresh全Glyph0と直後見出し字positiveを別proofに保存。"
+        ],
+        "known_remaining": [
+          "計画内小見出しでの不要なArticle分割/節階層の平坦化。"
+        ],
+        "native0_exclusions": [
+          "20260803g001740038-arrow-native0-proof.json"
+        ],
+        "linecount": 95,
+        "article_count": 6,
+        "fullreadflags": {
+          "whole_original_image": true,
+          "all_body_lines": true,
+          "all_Article_texts": true,
+          "all_Document_blocks_Table_cells_rowspan_Runs": true,
+          "all_original_numbers_names_dates_signs": true
+        },
+        "initial_grades_fixed": true,
+        "repair_prototypes_not_used": true,
+        "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+        "artifact_SHA": {
+          ".cache/kanpo-archive/2026-08-03/20260803g00174/20260803g001740038.pdf": "718606df95cf55718c6e432548bd88f6a356cac558a3c8f214bed262b94cdee8",
+          ".cache/kanpo-227/after52/20260803g001740038.txt": "60f29de1c314ac18fc31179c8af51c8ef1bcc378624fc56488395551cf00b559",
+          ".cache/kanpo-227/audit143-parent52-analysis/20260803g001740038.json": "46c2a4835f2338bd8c12eef99c2dbdb935f4306a9e802087e589b3a56fd79d68",
+          ".cache/kanpo-227/audit143/20260803g001740038.png": "b397284f83f5f972c5413d0dc82a181ac85b9ac0c71116faeb74f62c346468d7"
+        },
+        "native_SHA": "505a69f21f45c0c67ab1cf951e673f0d1711f22ef9993e11d3e76f26c21018cd",
+        "candidate53_inheritance_pending_exact30": true,
+        "articleDocSHA": "5d5b1e424df4fe629ee6a7e547b08756278f94bd9d1d17397ac4b1a2a62091eb",
+        "native_allGlyphs": 3337,
+        "whole_original_not_excluded": true
+      }
+    },
+    {
+      "page": "20260731g001720115",
+      "PDF_sha256": "e4d2220852d71fbd17896bdbf4486702aa3087fa8133fe13dabe973ea6ee95c2",
+      "image_sha256": "7f74ea6041fb0e17df08665b7d1c34eb5279e16262f0f0d0ddf2fabb1efcbdfb",
+      "parent52_Analysis_sha256": "b8dca4948d76cd4a7ec2ef354dd2819c1c29efa527528651cdc4ed4c8e56511d",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260731g001720115.json",
+      "candidate55_Analysis_sha256": "04fcc3d1206aa71c6b7a8d1f498399548bea287c909cb6117302c49115bc5f15",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "ok",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "index": 14,
+        "local_index": 4,
+        "page": "20260731g001720115",
+        "initial_strict_grade": "ok",
+        "initial_body_grade": "ok",
+        "baseline": "accepted52 only; candidate53 not graded",
+        "notes": [
+          "上下段の新旧対照を全82行で照合。改正後第一条21/22/23、旧19/20/21、登録簿性別/本籍及び性別、様式第二号/第一号の七、準用の長文を各側順で保全。",
+          "Document shinkyu6rowsのafter/before役割が原図上下段に一致。原図自体の頁端で止まる準用の文を欠落扱いしない。"
+        ],
+        "known_remaining": [],
+        "native0_exclusions": [],
+        "linecount": 82,
+        "article_count": 1,
+        "fullreadflags": {
+          "whole_original_image": true,
+          "all_body_lines": true,
+          "all_Article_texts": true,
+          "all_Document_blocks_Table_cells_rowspan_Runs": true,
+          "all_original_numbers_names_dates_signs": true
+        },
+        "initial_grades_fixed": true,
+        "repair_prototypes_not_used": true,
+        "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+        "artifact_SHA": {
+          ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720115.pdf": "e4d2220852d71fbd17896bdbf4486702aa3087fa8133fe13dabe973ea6ee95c2",
+          ".cache/kanpo-227/after52/20260731g001720115.txt": "17e625926d4a9b3d6a48390fc588978c6a5519cc6a608a7df7a8b63f5d05d219",
+          ".cache/kanpo-227/audit143-parent52-analysis/20260731g001720115.json": "b8dca4948d76cd4a7ec2ef354dd2819c1c29efa527528651cdc4ed4c8e56511d",
+          ".cache/kanpo-227/audit143/20260731g001720115.png": "7f74ea6041fb0e17df08665b7d1c34eb5279e16262f0f0d0ddf2fabb1efcbdfb"
+        },
+        "native_SHA": "01e56b6381469b88d15946cba17b45db241e4d269aae58bd397daa667d295a43",
+        "candidate53_inheritance_pending_exact30": true,
+        "articleDocSHA": "c2106304c8f13c743f6009ca8865d4b64e17d2df0ead130801c48ac2072f3e4f",
+        "native_allGlyphs": 2537,
+        "whole_original_not_excluded": true
+      }
+    },
+    {
+      "page": "20260821g001870017",
+      "PDF_sha256": "639ba15b9bd7762b357d5379ac67b7112d308f84e732543858b8d6c8066d7797",
+      "image_sha256": "76a9ff35aa3aefea7d4b16ebd6c0c0d0a98ceddd1b7ba7c864ae121ad409f13e",
+      "parent52_Analysis_sha256": "2c138f1b97fd734b22de0572521463b2f1f4e63f25d2430f0986cfa94caa934e",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260821g001870017.json",
+      "candidate55_Analysis_sha256": "596d42621570131c30b7a2953ef7b796d78aff6ee463f324a3698575d618ac06",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "ok",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "index": 15,
+        "local_index": 5,
+        "page": "20260821g001870017",
+        "initial_strict_grade": "ok",
+        "initial_body_grade": "ok",
+        "baseline": "accepted52 only; candidate53 not graded",
+        "notes": [
+          "原図上下段の新旧全71行を照合。上段の前条継続文＋2項に対して旧側空白をDoc shinkyu row0 before=[]として保持。第13条の新旧本文/2項略/3項例外/4〜6略の順とafter/before役割が一致。",
+          "空気中の鉛、特別有機溶剤、令別表列挙3の3/18の3等・測定方法の長文を照合し、側間や前条との混線なし。"
+        ],
+        "known_remaining": [],
+        "native0_exclusions": [],
+        "linecount": 71,
+        "article_count": 1,
+        "fullreadflags": {
+          "whole_original_image": true,
+          "all_body_lines": true,
+          "all_Article_texts": true,
+          "all_Document_blocks_Table_cells_rowspan_Runs": true,
+          "all_original_numbers_names_dates_signs": true
+        },
+        "initial_grades_fixed": true,
+        "repair_prototypes_not_used": true,
+        "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+        "artifact_SHA": {
+          ".cache/kanpo-archive/2026-08-21/20260821g00187/20260821g001870017.pdf": "639ba15b9bd7762b357d5379ac67b7112d308f84e732543858b8d6c8066d7797",
+          ".cache/kanpo-227/after52/20260821g001870017.txt": "69e43a046974214301e1c7dca8e7e2af8615182be2cdb894666e949be0f4b58f",
+          ".cache/kanpo-227/audit143-parent52-analysis/20260821g001870017.json": "2c138f1b97fd734b22de0572521463b2f1f4e63f25d2430f0986cfa94caa934e",
+          ".cache/kanpo-227/audit143/20260821g001870017.png": "76a9ff35aa3aefea7d4b16ebd6c0c0d0a98ceddd1b7ba7c864ae121ad409f13e"
+        },
+        "native_SHA": "56cd7bb97abcfcd5763a2abd241d09bee02bdab498ea8207962508b564969242",
+        "candidate53_inheritance_pending_exact30": true,
+        "articleDocSHA": "3121c8180caff34b7e53b13e4ac9a07173299efeec0f6c7fc3b10fddd5ec4416",
+        "native_allGlyphs": 3206,
+        "whole_original_not_excluded": true
+      }
+    },
+    {
+      "page": "20260917g002080064",
+      "PDF_sha256": "435fbfb5489803ae44c34e029ac51c4b11f3ead5af886c6492dd58de6859405c",
+      "image_sha256": "9b0d6b20405561b9cf248cfb77b185f195da987c88be6623d463ddbf66596233",
+      "parent52_Analysis_sha256": "ffdd9bf40202fc905a53def1ede5422df14d12703d778115fc7401c2bcccd95a",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260917g002080064.json",
+      "candidate55_Analysis_sha256": "7e86a9ec0369c765132174c09431c9e05d65c2322bc91ebf2fbe6aed392a6a2e",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "ok",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "index": 16,
+        "local_index": 6,
+        "page": "20260917g002080064",
+        "initial_strict_grade": "ok",
+        "initial_body_grade": "ok",
+        "baseline": "accepted52 only; candidate53 not graded",
+        "notes": [
+          "試験見出し・9月17日・会長海輪誠、および北海道96/宮城146/東京165の計407受験番号を原図の行順で照合。5個単位の番号は識別子の独立リストで、異なる意味の列の対応表ではない。",
+          "段をまたぐ宮城6224019以降が同一地域内に続き、その後東京都6310005〜6310692。1Articleは単一合格公示に一致。Docも全番号行と地域括弧を保持し、異なる試験や公告を混ぜない。"
+        ],
+        "known_remaining": [],
+        "native0_exclusions": [],
+        "linecount": 93,
+        "article_count": 1,
+        "fullreadflags": {
+          "whole_original_image": true,
+          "all_body_lines": true,
+          "all_Article_texts": true,
+          "all_Document_blocks_Table_cells_rowspan_Runs": true,
+          "all_original_numbers_names_dates_signs": true
+        },
+        "initial_grades_fixed": true,
+        "repair_prototypes_not_used": true,
+        "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+        "artifact_SHA": {
+          ".cache/kanpo-archive/2026-09-17/20260917g00208/20260917g002080064.pdf": "435fbfb5489803ae44c34e029ac51c4b11f3ead5af886c6492dd58de6859405c",
+          ".cache/kanpo-227/after52/20260917g002080064.txt": "a7ccaceae562ea8b0069383aaebea98077f532531dc8745a3f719de0ef69830b",
+          ".cache/kanpo-227/audit143-parent52-analysis/20260917g002080064.json": "ffdd9bf40202fc905a53def1ede5422df14d12703d778115fc7401c2bcccd95a",
+          ".cache/kanpo-227/audit143/20260917g002080064.png": "9b0d6b20405561b9cf248cfb77b185f195da987c88be6623d463ddbf66596233"
+        },
+        "native_SHA": "8e7c2e3129f1ead1b003efb26f51b2887a570ebcb43ba99cf5514e3b85889337",
+        "candidate53_inheritance_pending_exact30": true,
+        "articleDocSHA": "cda1a2eb1d6543262a691fccb2fc505903e475eaf33fd8ef82a3d034b8b1a7d3",
+        "native_allGlyphs": 3049,
+        "whole_original_not_excluded": true
+      }
+    },
+    {
+      "page": "20261016g002280021",
+      "PDF_sha256": "7691057fe5f7c68fd94fc0f074c4aae031cb5c530b49300dc1a21b8c4852f672",
+      "image_sha256": "95e163b5096b0f72c84cda7581224a4220e781dfc458a4d7361b2d3b09f3c5a3",
+      "parent52_Analysis_sha256": "b03a20a20c349f088e5a7ae4ec3d64268dea817f911e144148e918e9367695d0",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20261016g002280021.json",
+      "candidate55_Analysis_sha256": "687e3678536736dcc702ee1de20cba6cdf2c6bd7b6b3644236897e7f8b674fe4",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "major",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "index": 17,
+        "local_index": 7,
+        "page": "20261016g002280021",
+        "initial_strict_grade": "major",
+        "initial_body_grade": "ok",
+        "baseline": "accepted52 only; candidate53 not graded",
+        "notes": [
+          "左下から右上に続く大学BSの科目・全金額64行を原図と対照。徴収不能△2,341,634→70,883,733、5資本剰余減算/合計△1,812,022,224、政府出資13,343,105,588、最終17,359,900,239等は正しく同一行に対応。",
+          "しかし全Article DocumentはTableを一つも持たず、単一paragraph単一Run内でL1〜35等の行区切りを削除。「3,659,215差入敷金…461,870投資…」の連結になるため、原本の科目/内訳/小計/合計の数値列/行所属がDocument構造で失われる。"
+        ],
+        "known_remaining": [
+          "本文行は正常だがDocの財務セル/行対応が単一文字Runへ平坦化。"
+        ],
+        "native0_exclusions": [],
+        "linecount": 64,
+        "article_count": 1,
+        "fullreadflags": {
+          "whole_original_image": true,
+          "all_body_lines": true,
+          "all_Article_texts": true,
+          "all_Document_blocks_Table_cells_rowspan_Runs": true,
+          "all_original_numbers_names_dates_signs": true
+        },
+        "initial_grades_fixed": true,
+        "repair_prototypes_not_used": true,
+        "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+        "artifact_SHA": {
+          ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280021.pdf": "7691057fe5f7c68fd94fc0f074c4aae031cb5c530b49300dc1a21b8c4852f672",
+          ".cache/kanpo-227/after52/20261016g002280021.txt": "a1f019950f0c5e49f499e3db8872002eb2b6da89bfaf8afbbdcc883be1c4690a",
+          ".cache/kanpo-227/audit143-parent52-analysis/20261016g002280021.json": "b03a20a20c349f088e5a7ae4ec3d64268dea817f911e144148e918e9367695d0",
+          ".cache/kanpo-227/audit143/20261016g002280021.png": "95e163b5096b0f72c84cda7581224a4220e781dfc458a4d7361b2d3b09f3c5a3"
+        },
+        "native_SHA": "a82ca4fa9f08d31b8e52f979ed4783134c2291962b7576d237b2e9f41f0646ac",
+        "candidate53_inheritance_pending_exact30": true,
+        "articleDocSHA": "9640f8e01887a4ef816c4310eaa3a46e9d3c07da03d6c761f7ea69b50f830a14",
+        "native_allGlyphs": 1179,
+        "whole_original_not_excluded": true
+      }
+    },
+    {
+      "page": "20260918g002090030",
+      "PDF_sha256": "b63471bbd554ab7e16c037aa3b71cf29f99f4f3ba65fdd1fca263aaf8b072916",
+      "image_sha256": "1c8904669ee80f6019e84b8ae29f048b6706f25caef0710413d02fc47720336a",
+      "parent52_Analysis_sha256": "710fbf718fa5ac6679e8d16dac750f5f6bb67c0ab3cb529c5e1364c7859850d2",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260918g002090030.json",
+      "candidate55_Analysis_sha256": "b5da7e80b2ba016e83dcb703ab7ba6c5a5c93d7488e2123fa62a242277fb16c4",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "ok",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "index": 18,
+        "local_index": 8,
+        "page": "20260918g002090030",
+        "initial_strict_grade": "ok",
+        "initial_body_grade": "ok",
+        "baseline": "accepted52 only; candidate53 not graded",
+        "notes": [
+          "原図上部の前省令継続＋附則と、下部厚生労働省・経済産業省令第一号を2Articlesに分離。新設第9条/旧新設、定期報告10/9条、申請方法11/10条、取組報告12/11条の4対照行と役割が一致。",
+          "上部の関係者申出様式の表示本文はbounded rect[110,75,540,415]にfresh全Glyph0。右の「様式第十二の次に」/左附則はnative陽性で対象外に含めない。形態（画像/outline）は断定せず、その矩形だけ文字層なしとして除外。"
+        ],
+        "known_remaining": [],
+        "native0_exclusions": [
+          "20260918g002090030-form-native0-proof.json"
+        ],
+        "linecount": 75,
+        "article_count": 2,
+        "fullreadflags": {
+          "whole_original_image": true,
+          "all_body_lines": true,
+          "all_Article_texts": true,
+          "all_Document_blocks_Table_cells_rowspan_Runs": true,
+          "all_original_numbers_names_dates_signs": true
+        },
+        "initial_grades_fixed": true,
+        "repair_prototypes_not_used": true,
+        "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+        "artifact_SHA": {
+          ".cache/kanpo-archive/2026-09-18/20260918g00209/20260918g002090030.pdf": "b63471bbd554ab7e16c037aa3b71cf29f99f4f3ba65fdd1fca263aaf8b072916",
+          ".cache/kanpo-227/after52/20260918g002090030.txt": "346241a049e0672790e247330dacd352cc3e0b8ce37292fcf35a0e750224680f",
+          ".cache/kanpo-227/audit143-parent52-analysis/20260918g002090030.json": "710fbf718fa5ac6679e8d16dac750f5f6bb67c0ab3cb529c5e1364c7859850d2",
+          ".cache/kanpo-227/audit143/20260918g002090030.png": "1c8904669ee80f6019e84b8ae29f048b6706f25caef0710413d02fc47720336a"
+        },
+        "native_SHA": "87bfb7c5612e8a442f1b8703c86a49b0010fb1a339c4cb493ad5bbba3ed09746",
+        "candidate53_inheritance_pending_exact30": true,
+        "articleDocSHA": "58bad9fcbf09203ea6111ee0b977c3f37cb5eb794f8472894168884b93aeb8ea",
+        "native_allGlyphs": 1638,
+        "whole_original_not_excluded": true
+      }
+    },
+    {
+      "page": "20261016g002280238",
+      "PDF_sha256": "89a47d5cbb60191fff54495a8ba61b8f8da1c35dc560c085023af36fc82f6b83",
+      "image_sha256": "8567a3660826756a4a2d112f5b8cc7f48f61e8227588405a5d932d6ba62068a3",
+      "parent52_Analysis_sha256": "7c4d6a95d22e08833cf8ad701e7c72274886d695aa715f500196d63870c6c920",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20261016g002280238.json",
+      "candidate55_Analysis_sha256": "8fe3b916d300d0f8af65d8256e25379bf3882ea17a07384c22b22b30b7b6372e",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "major",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "index": 19,
+        "local_index": 9,
+        "page": "20261016g002280238",
+        "initial_strict_grade": "major",
+        "initial_body_grade": "ok",
+        "baseline": "accepted52 only; candidate53 not graded",
+        "notes": [
+          "BS続き32行＋注記、続くPL費用/収益38行を全原図対照。5つの△、括弧当期総利益1,192,652、教員給与8,177,744/職員3,268,822/業務20,029,345、費用20,735,401、財務収益12,774等の字/符号/行対応は正常。",
+          "全Article DocumentはTableがなく単一Runへ両財務表を平坦化し、数値列・内訳/小計と多くの行区切りが消失。例えば非常勤職員給与759,806/3,268,822/20,029,345が同じ文字列の3値にしかならず、原本の列階層が表されない。"
+        ],
+        "known_remaining": [
+          "本文は正常だがBS/PLのセル/数値列階層がDocに保持されない。"
+        ],
+        "native0_exclusions": [],
+        "linecount": 72,
+        "article_count": 1,
+        "fullreadflags": {
+          "whole_original_image": true,
+          "all_body_lines": true,
+          "all_Article_texts": true,
+          "all_Document_blocks_Table_cells_rowspan_Runs": true,
+          "all_original_numbers_names_dates_signs": true
+        },
+        "initial_grades_fixed": true,
+        "repair_prototypes_not_used": true,
+        "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+        "artifact_SHA": {
+          ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280238.pdf": "89a47d5cbb60191fff54495a8ba61b8f8da1c35dc560c085023af36fc82f6b83",
+          ".cache/kanpo-227/after52/20261016g002280238.txt": "48e2e1bb445acf91feff966d11954f240b31058c98e9e3461af7686bf143e328",
+          ".cache/kanpo-227/audit143-parent52-analysis/20261016g002280238.json": "7c4d6a95d22e08833cf8ad701e7c72274886d695aa715f500196d63870c6c920",
+          ".cache/kanpo-227/audit143/20261016g002280238.png": "8567a3660826756a4a2d112f5b8cc7f48f61e8227588405a5d932d6ba62068a3"
+        },
+        "native_SHA": "c74bba9f849d706859ccba3fdcbd539753f379700988e8d078969d9b03d1605f",
+        "candidate53_inheritance_pending_exact30": true,
+        "articleDocSHA": "4994df3d526e64799956f13ea5dcc89d5a4bb23a6d25e16285749b930d686c00",
+        "native_allGlyphs": 1150,
+        "whole_original_not_excluded": true
+      }
+    },
+    {
+      "page": "20260722h017520001",
+      "PDF_sha256": "bb5796a07aafdc91fb74528201ae85ec33abba3ed901c8b17056d70d9064978a",
+      "image_sha256": "e73e35259179f93e5830e0b31182dcc9d778b36d6a207aba1ddb9240d4cb3365",
+      "parent52_Analysis_sha256": "ac44d618ccaed24fc8386e27eb56fb0da377ee466f7a1848285a8c47dce4b42f",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260722h017520001.json",
+      "candidate55_Analysis_sha256": "239ea46e77bf7495a12fc5519e0957294f1374b22003119a35c3060bc3d46f60",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "major",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "page": "20260722h017520001",
+        "strict_grade": "major",
+        "body_grade": "ok",
+        "notes": [
+          "原図下段右の内閣官房令7号と、左端の別法令・人事院規則17-0-153は独立記事。出力L78『規則』以後L88までがArticle9/同じshinkyu Documentの末尾paragraphへ混入し分割されない。",
+          "目次の項目/参照/順、本文7号の追加七（人口戦略本部及び全世代型社会保障構築本部）と旧〔号を加える。〕、附則、左規則の支所長削除・取引適正化検査管理官/取引適正化管理官の引用は全文保持。目次の次区分見出しが前項Article末尾へ付く箇所はTOC内の軽微な境界問題として別記。",
+          "目次『二』『五』欠落疑いは原図crop/全Word・native照合で反証した。Word149は総務265の『二』、Word199は国交987の『五』として正しいLineへ使用され、両数字は出力L15/L23に存在する。保安林/防衛の未印字の頁番号を推測しない。"
+        ],
+        "defect_locations": [
+          {
+            "original_rect": [
+              44,
+              430,
+              160,
+              783
+            ],
+            "output_lines": [
+              78,
+              88
+            ],
+            "article": 9,
+            "kind": "independent_rule_article_merged"
+          }
+        ],
+        "native0_exclusions": [],
+        "whole_image_read": true,
+        "all_text_lines_read": true,
+        "all_Articles_Documents_Tables_Runs_read": true,
+        "index": 20,
+        "initial_grade_fixed": true,
+        "baseline": "parent52/accepted30/c21445b9",
+        "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+        "PDF": ".cache/kanpo-archive/2026-07-22/20260722h01752/20260722h017520001.pdf",
+        "PDF_SHA": "bb5796a07aafdc91fb74528201ae85ec33abba3ed901c8b17056d70d9064978a",
+        "output": ".cache/kanpo-227/after52/20260722h017520001.txt",
+        "output_SHA": "c23faeda5b90f24bf593616a45c6d442d06f73d26d5ed18d8de7e4a4325a1e03",
+        "Analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260722h017520001.json",
+        "Analysis_SHA": "ac44d618ccaed24fc8386e27eb56fb0da377ee466f7a1848285a8c47dce4b42f",
+        "image": ".cache/kanpo-227/audit143/20260722h017520001.png",
+        "image_SHA": "e73e35259179f93e5830e0b31182dcc9d778b36d6a207aba1ddb9240d4cb3365",
+        "linecount": 88,
+        "Article_count": 10,
+        "Document_counts": {
+          "runs": 13,
+          "shinkyu_rows": 1
+        },
+        "candidate53_reviewed": false,
+        "candidate53_inheritance_pending": true,
+        "existing_parent52_defect": true,
+        "new_candidate_regression_claim": false
+      }
+    },
+    {
+      "page": "20260915g002050072",
+      "PDF_sha256": "7df7cbe7f1dd8ef00f269b1252028d7997842ab665eba796558e05c8250c4303",
+      "image_sha256": "86487deae8ff09090ab33e6eb296f347f1fb6a1a44371d9bbeb6c115851e1aec",
+      "parent52_Analysis_sha256": "2d9d238e890cf3eb21c87f60bd6b5e87d1596ab6b008a6f392cfb02ee4509fab",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260915g002050072.json",
+      "candidate55_Analysis_sha256": "4cd09775f0dca1a29b09fb60d26c59d4809d8cc896d0aa8fa7abb58e23b69ba1",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "major",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "page": "20260915g002050072",
+        "strict_grade": "major",
+        "body_grade": "ok",
+        "notes": [
+          "横組原図左BS続きと右PLの全69行を照合。債券1,777,264,190,000/発行差額△1,834,859,621、固定負債8,958,735,438,676、純資産10,572,535,029,134、負債純資産19,913,160,819,305を保持。",
+          "PLの全費用/収益/△符号と各金額を照合し本文順・所属を保持。退職給付費用△1,380,732,334/利息費用△15,476、費用175,179,254,648、収益222,289,825,865、利益47,110,571,217、期間/単位も一致。",
+          "厳格構造では1 Article/1 Document/単一paragraph runへ69行がほぼ改行なしで連結され、貸借/損益の科目・内訳・小計・合計の列を表すDocTableが一つもない。特にL49/L63/L65の内訳と小計の区別がDocumentで失われるためstrict major。本文の数値欠落とは区別。"
+        ],
+        "defect_locations": [
+          {
+            "original_rect": [
+              71,
+              40,
+              780,
+              554
+            ],
+            "output_lines": [
+              1,
+              69
+            ],
+            "article": 0,
+            "kind": "financial_table_structure_lost"
+          }
+        ],
+        "native0_exclusions": [],
+        "whole_image_read": true,
+        "all_text_lines_read": true,
+        "all_Articles_Documents_Tables_Runs_read": true,
+        "index": 21,
+        "initial_grade_fixed": true,
+        "baseline": "parent52/accepted30/c21445b9",
+        "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+        "PDF": ".cache/kanpo-archive/2026-09-15/20260915g00205/20260915g002050072.pdf",
+        "PDF_SHA": "7df7cbe7f1dd8ef00f269b1252028d7997842ab665eba796558e05c8250c4303",
+        "output": ".cache/kanpo-227/after52/20260915g002050072.txt",
+        "output_SHA": "42e1e50e1632236b575ea6d5c7c17b49d82262aa35b7d4c7a2a5f912144675a6",
+        "Analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260915g002050072.json",
+        "Analysis_SHA": "2d9d238e890cf3eb21c87f60bd6b5e87d1596ab6b008a6f392cfb02ee4509fab",
+        "image": ".cache/kanpo-227/audit143/20260915g002050072.png",
+        "image_SHA": "86487deae8ff09090ab33e6eb296f347f1fb6a1a44371d9bbeb6c115851e1aec",
+        "linecount": 69,
+        "Article_count": 1,
+        "Document_counts": {
+          "runs": 1
+        },
+        "candidate53_reviewed": false,
+        "candidate53_inheritance_pending": true,
+        "existing_parent52_defect": true,
+        "new_candidate_regression_claim": false
+      }
+    },
+    {
+      "page": "20260820g001860007",
+      "PDF_sha256": "3208c16c4b3a79f0a06c382b227b61994f14d67730e4fe9226cf38089b9e8c33",
+      "image_sha256": "e81f2687506326ceab7c198d79cb592efe6265c74011c4d3e11477520497a48a",
+      "parent52_Analysis_sha256": "4952439203f4fb8609926be8585d890069c56502aa73ec3e7b06c32ae98b21b3",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260820g001860007.json",
+      "candidate55_Analysis_sha256": "937a0b97efa1a5d28e67eb4764e79ca2d5db267bdc7e497c5dfbaed875f7b4ef",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "ok",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "page": "20260820g001860007",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "notes": [
+          "原図左段の③対応困難/④損害賠償/ロ手段態様/①身体～⑤拘束、（6）就業環境定義、3事業主等の責務（1）から右段冒頭『また、事業主』への継続がL1～52に正しく接続。",
+          "右段（2）船員の責務、4措置内容、障害・消費者法制への留意、（1）方針周知、イ/例①②/ロの全項・箇条書をL53～97と全文Docで確認。法34条2項/4項、令和5年3月14日、記号・引用の欠落/別記事混入なし。",
+          "1 Article/1 prose Documentはこの頁の単一指針の続きとして整合。全Article.textはPage.textと同一で、全97出力行と全Document Runを読了。"
+        ],
+        "defect_locations": [],
+        "native0_exclusions": [],
+        "whole_image_read": true,
+        "all_text_lines_read": true,
+        "all_Articles_Documents_Tables_Runs_read": true,
+        "index": 22,
+        "initial_grade_fixed": true,
+        "baseline": "parent52/accepted30/c21445b9",
+        "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+        "PDF": ".cache/kanpo-archive/2026-08-20/20260820g00186/20260820g001860007.pdf",
+        "PDF_SHA": "3208c16c4b3a79f0a06c382b227b61994f14d67730e4fe9226cf38089b9e8c33",
+        "output": ".cache/kanpo-227/after52/20260820g001860007.txt",
+        "output_SHA": "3e473e9be28c80cee881a38e36aa97ae8b7c8e0ab284bf7d0f8d06ad11d4b16f",
+        "Analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260820g001860007.json",
+        "Analysis_SHA": "4952439203f4fb8609926be8585d890069c56502aa73ec3e7b06c32ae98b21b3",
+        "image": ".cache/kanpo-227/audit143/20260820g001860007.png",
+        "image_SHA": "e81f2687506326ceab7c198d79cb592efe6265c74011c4d3e11477520497a48a",
+        "linecount": 97,
+        "Article_count": 1,
+        "Document_counts": {
+          "runs": 1
+        },
+        "candidate53_reviewed": false,
+        "candidate53_inheritance_pending": true,
+        "existing_parent52_defect": false,
+        "new_candidate_regression_claim": false
+      }
+    },
+    {
+      "page": "20260820g001860087",
+      "PDF_sha256": "d9537c38bf5a3bd9d67e4927b44fa3ec58260ca4a314aefefa003ba857c2f04d",
+      "image_sha256": "cb0eb700b193ed45b5ac32bdcd96fe1ec373024009a6ecdda93d8f8151554236",
+      "parent52_Analysis_sha256": "273538a817ded2cabb47e04894547a01a0c22575508813d52374d1fa7d51f5c0",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260820g001860087.json",
+      "candidate55_Analysis_sha256": "e4d847096bb544c5da2b464fe2772ccca7001423e1cd004a1f423dfb55156e40",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "major",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "page": "20260820g001860087",
+        "strict_grade": "major",
+        "body_grade": "ok",
+        "notes": [
+          "日本年金機構の会計方針から貸借対照表注記まで全83行・左右両段を照合。耐用年数の建物3～50/構築物2～52/車両3～6/工具2～20、法人内ソフト2～5年、割引率−0.082～2.266％と0.906～2.066％を保持。",
+          "資産除去債務の期首4,664,473,045、見積増1,378,146,431、取得増60,332,912、時の経過36,007,935、当期減21,352,724、期末6,117,607,599の全6対応を本文に保持。末尾の土地/年金事務所用地/東京都大田区/土地/393,000,000円は5列2行のDocTableで正しく保持。",
+          "厳格構造では、原図の4行2列の耐用年数一覧（L12～15）と6行2列の残高増減一覧（L66～71）がDoc内の単一paragraph runで連結され、各行/値の表対応を構造化していない。原罫の末尾表1件だけTableとなるためstrict major。本文の値・符号・項番号欠落とは区別。"
+        ],
+        "defect_locations": [
+          {
+            "original_rect": [
+              111,
+              172,
+              223,
+              222
+            ],
+            "output_lines": [
+              12,
+              15
+            ],
+            "article": 0,
+            "kind": "unruled_lifetimes_table_not_structured"
+          },
+          {
+            "original_rect": [
+              462,
+              307,
+              676,
+              386
+            ],
+            "output_lines": [
+              66,
+              71
+            ],
+            "article": 0,
+            "kind": "unruled_balance_movements_not_structured"
+          }
+        ],
+        "native0_exclusions": [],
+        "whole_image_read": true,
+        "all_text_lines_read": true,
+        "all_Articles_Documents_Tables_Runs_read": true,
+        "index": 23,
+        "initial_grade_fixed": true,
+        "baseline": "parent52/accepted30/c21445b9",
+        "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+        "PDF": ".cache/kanpo-archive/2026-08-20/20260820g00186/20260820g001860087.pdf",
+        "PDF_SHA": "d9537c38bf5a3bd9d67e4927b44fa3ec58260ca4a314aefefa003ba857c2f04d",
+        "output": ".cache/kanpo-227/after52/20260820g001860087.txt",
+        "output_SHA": "d52ac1d4625622f2d8479b55d918839513d41822cddd1c96c35429bf7bfabeae",
+        "Analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260820g001860087.json",
+        "Analysis_SHA": "273538a817ded2cabb47e04894547a01a0c22575508813d52374d1fa7d51f5c0",
+        "image": ".cache/kanpo-227/audit143/20260820g001860087.png",
+        "image_SHA": "cb0eb700b193ed45b5ac32bdcd96fe1ec373024009a6ecdda93d8f8151554236",
+        "linecount": 83,
+        "Article_count": 1,
+        "Document_counts": {
+          "runs": 13,
+          "tables": 1,
+          "table_rows": 2,
+          "table_slots": 10
+        },
+        "candidate53_reviewed": false,
+        "candidate53_inheritance_pending": true,
+        "existing_parent52_defect": true,
+        "new_candidate_regression_claim": false
+      }
+    },
+    {
+      "page": "20260911g002030023",
+      "PDF_sha256": "15343cfb5fa5a0dbf482d070d193448735e0ecdca2fe3abd7d1e4f8e33362720",
+      "image_sha256": "1b00d4171ec09955c744ce2019324aa5277c46ccfcc568936d9a526ae5a4e8da",
+      "parent52_Analysis_sha256": "80be9c8bffcd7d12d6be1e188e647c4f15d78d670d52470bcda46b48d0a2ca35",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260911g002030023.json",
+      "candidate55_Analysis_sha256": "7f05bff0ed4bda8543cb9ace16e7e5c3a0c0d09798dc7a2ae71f4da83e18a4a9",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "ok",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "page": "20260911g002030023",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "notes": [
+          "原図の第2条/健保則改正の全文49行を照合。改正後23条の4・5削除と、旧23条の4の六項目/23条の5の四項目をDoc新旧row0で対応。",
+          "新23条の6の『九号ロ』と旧『九号ハ』、学生/卒業予定/休学/定時制等の定義、略一～九/2・3がrow1、24条の4略がrow2で正しく対応。全1 Article/新旧3行のafter/before所属と各引用・項番号を保持。",
+          "（傍線部分は改正部分）の注記も原図にあり、L4及びpreambleに保持。独立記事混入や文字/数字欠落は見つからない。"
+        ],
+        "defect_locations": [],
+        "native0_exclusions": [],
+        "whole_image_read": true,
+        "all_text_lines_read": true,
+        "all_Articles_Documents_Tables_Runs_read": true,
+        "index": 24,
+        "initial_grade_fixed": true,
+        "baseline": "parent52/accepted30/c21445b9",
+        "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+        "PDF": ".cache/kanpo-archive/2026-09-11/20260911g00203/20260911g002030023.pdf",
+        "PDF_SHA": "15343cfb5fa5a0dbf482d070d193448735e0ecdca2fe3abd7d1e4f8e33362720",
+        "output": ".cache/kanpo-227/after52/20260911g002030023.txt",
+        "output_SHA": "0ec1dd9dc7809f1264895445136f01048e93bc03ee0d21540ebaffaef2714838",
+        "Analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260911g002030023.json",
+        "Analysis_SHA": "80be9c8bffcd7d12d6be1e188e647c4f15d78d670d52470bcda46b48d0a2ca35",
+        "image": ".cache/kanpo-227/audit143/20260911g002030023.png",
+        "image_SHA": "1b00d4171ec09955c744ce2019324aa5277c46ccfcc568936d9a526ae5a4e8da",
+        "linecount": 49,
+        "Article_count": 1,
+        "Document_counts": {
+          "runs": 7,
+          "shinkyu_rows": 3
+        },
+        "candidate53_reviewed": false,
+        "candidate53_inheritance_pending": true,
+        "existing_parent52_defect": false,
+        "new_candidate_regression_claim": false
+      }
+    },
+    {
+      "page": "20260806g001770001",
+      "PDF_sha256": "b9eba75b48d0ceddbaefb2015fc8f83dacd44506661b225cd50d804a2b40ed28",
+      "image_sha256": "d94c328bf9705509c6ac812ead2bcb9c10f2557490f4f66a0ff9979bd9c82abc",
+      "parent52_Analysis_sha256": "44b06665f228f8843cfec40b35c462ad946b4d8eaeaebf0b708fd17ee74a1290",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260806g001770001.json",
+      "candidate55_Analysis_sha256": "6850d414c917f2e9ee979bdf62a6ee150b00583ecb6ec249df27c231a346f3b6",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "major",
+      "initial_body_grade": "major",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "page": "20260806g001770001",
+        "strict_grade": "major",
+        "body_grade": "major",
+        "notes": [
+          "上段目次は全項目/頁参照の印字範囲とL1～55を照合し保持。TOC内の『その他告示』『公告』が前項Article末尾へ付く区分境界は軽微な問題として分離。",
+          "原図下段左の単一告示108号は『法規的告示』区分→〇文部科学省告示第百八号→学校法人の寄附行為…次のように定める。→日付→大臣署名のまとまり。現出力L56直後に本文末尾の『に定める。』と日付（L57～58）が先行し、区分飾りの『法/規/的/告示』（L59～62）が本文へ割り込む。主文前半がL63に遅れ、L64～65の署名とつながる。",
+          "同じ告示がArticle12『〇文部科学省告示第百八号/に定める。/日付/法規的』とArticle13『告示/学校法人…次のよう/大臣名』に分断。全字があっても source順と告示の所属が崩れるためstrict/bodyともmajor。"
+        ],
+        "defect_locations": [
+          {
+            "original_rect": [
+              44,
+              429,
+              117,
+              790
+            ],
+            "output_lines": [
+              56,
+              65
+            ],
+            "articles": [
+              12,
+              13
+            ],
+            "kind": "sparse_vertical_notice_order_and_article_split"
+          }
+        ],
+        "native0_exclusions": [],
+        "whole_image_read": true,
+        "all_text_lines_read": true,
+        "all_Articles_Documents_Tables_Runs_read": true,
+        "index": 25,
+        "initial_grade_fixed": true,
+        "baseline": "parent52/accepted30/c21445b9",
+        "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+        "PDF": ".cache/kanpo-archive/2026-08-06/20260806g00177/20260806g001770001.pdf",
+        "PDF_SHA": "b9eba75b48d0ceddbaefb2015fc8f83dacd44506661b225cd50d804a2b40ed28",
+        "output": ".cache/kanpo-227/after52/20260806g001770001.txt",
+        "output_SHA": "72e7334bc491124cca04e10974192c1b7f1959b900320d35189be16645dab59a",
+        "Analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260806g001770001.json",
+        "Analysis_SHA": "44b06665f228f8843cfec40b35c462ad946b4d8eaeaebf0b708fd17ee74a1290",
+        "image": ".cache/kanpo-227/audit143/20260806g001770001.png",
+        "image_SHA": "d94c328bf9705509c6ac812ead2bcb9c10f2557490f4f66a0ff9979bd9c82abc",
+        "linecount": 65,
+        "Article_count": 14,
+        "Document_counts": {
+          "runs": 14
+        },
+        "candidate53_reviewed": false,
+        "candidate53_inheritance_pending": true,
+        "existing_parent52_defect": true,
+        "new_candidate_regression_claim": false
+      }
+    },
+    {
+      "page": "20260831g001930036",
+      "PDF_sha256": "1b03940d0d64d6d24ed018f11b39fa9732c4995f11eb7a98bc730bdaf67ccc94",
+      "image_sha256": "dea38c6e14fbdf18a1141f968da7767a6039872de549a75b9630f686280fb968",
+      "parent52_Analysis_sha256": "11aa0e9d488591d90ce663c1d22282762b1bf87679770493cccbd2527e3293ef",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260831g001930036.json",
+      "candidate55_Analysis_sha256": "63210df1c741875c252b52b1fc642ed99d4f1a72c8ca133802b21572b2476d02",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "ok",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "page": "20260831g001930036",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "notes": [
+          "原図右の第6条23/28/29/39/40/41号の別表175/180/181/191/192/193の改正引用、追加41の2・無資産証明書（土地・家屋・償却資産）、42/43/45/46号と194/195/197/198の改正範囲をL1～8に保持。",
+          "続く別紙1～16の指示と対応コード0160102/0160116/0140377/0140389/0140394/0140396/0150091/0150298/0100709/0100656/0100244/0100246及び0100247/0100249/0100251/0100273/0100578をL9～40及び全Docで照合。末尾は『項の次に次の一項を加える。』で別紙16へ正しく接続。",
+          "この頁は単一改正告示の続きの指示文であり、1 Article/1 prose Documentは整合。別紙の実表そのものがこの頁に無いことを欠落とは扱わず、枠飾りを文字推定しない。"
+        ],
+        "defect_locations": [],
+        "native0_exclusions": [],
+        "whole_image_read": true,
+        "all_text_lines_read": true,
+        "all_Articles_Documents_Tables_Runs_read": true,
+        "index": 26,
+        "initial_grade_fixed": true,
+        "baseline": "parent52/accepted30/c21445b9",
+        "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+        "PDF": ".cache/kanpo-archive/2026-08-31/20260831g00193/20260831g001930036.pdf",
+        "PDF_SHA": "1b03940d0d64d6d24ed018f11b39fa9732c4995f11eb7a98bc730bdaf67ccc94",
+        "output": ".cache/kanpo-227/after52/20260831g001930036.txt",
+        "output_SHA": "9a9c35fbeaf12baf2e120f08bce47d7dcb9dd20f3353a13bc7057be6b26e8beb",
+        "Analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260831g001930036.json",
+        "Analysis_SHA": "11aa0e9d488591d90ce663c1d22282762b1bf87679770493cccbd2527e3293ef",
+        "image": ".cache/kanpo-227/audit143/20260831g001930036.png",
+        "image_SHA": "dea38c6e14fbdf18a1141f968da7767a6039872de549a75b9630f686280fb968",
+        "linecount": 40,
+        "Article_count": 1,
+        "Document_counts": {
+          "runs": 1
+        },
+        "candidate53_reviewed": false,
+        "candidate53_inheritance_pending": true,
+        "existing_parent52_defect": false,
+        "new_candidate_regression_claim": false
+      }
+    },
+    {
+      "page": "20260918g002090068",
+      "PDF_sha256": "afb16ad8ff2d1c868d8c79065a42790f30afa20e821aca81e581a468df4afb6b",
+      "image_sha256": "cf5ee3ebd1988fabe4ddac88c17dc7f2fd9163b8b771276bcb89d5b52e6b7e9f",
+      "parent52_Analysis_sha256": "cbdfc39b0807b875ad49e0c42a50f71fa56ffbc4a80f516a2c12eae6bc099812",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260918g002090068.json",
+      "candidate55_Analysis_sha256": "f2a15a89aa6002c17860e3db3c7a5394c054ea76a627561c2dca2ff7436d3a67",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "ok",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "page": "20260918g002090068",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "notes": [
+          "原図上段の継続表6行3列すべてを全文/DocTableで照合。鉄道事業法12条2項→規則17条2項事項/17条3項書類、12条4項・9条1項認可→16条5項・14条1項事項/14条2項書類、同9条3項届出→15条2項事項/15条3項で準用する14条2項書類の3組を保持。",
+          "続く13条1項確認の申請者20条1/2/3項ごとに対応事項20条1/2/3項、書類20条4項をそれぞれ正しく別rowへ保持。全6出力行/18Docセル、括弧条件と準用関係を読了。",
+          "下段の印字のない罫欄を見て本文を推定せず、native0除外は主張しない。全表示本文と既存6行の列所属に欠陥は見つからない。"
+        ],
+        "defect_locations": [],
+        "native0_exclusions": [],
+        "whole_image_read": true,
+        "all_text_lines_read": true,
+        "all_Articles_Documents_Tables_Runs_read": true,
+        "index": 27,
+        "initial_grade_fixed": true,
+        "baseline": "parent52/accepted30/c21445b9",
+        "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+        "PDF": ".cache/kanpo-archive/2026-09-18/20260918g00209/20260918g002090068.pdf",
+        "PDF_SHA": "afb16ad8ff2d1c868d8c79065a42790f30afa20e821aca81e581a468df4afb6b",
+        "output": ".cache/kanpo-227/after52/20260918g002090068.txt",
+        "output_SHA": "8f4cf1aef4de10cce845d0b9a5e1aff2f6b92e0bad34b6b2f7240076c3d19a13",
+        "Analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260918g002090068.json",
+        "Analysis_SHA": "cbdfc39b0807b875ad49e0c42a50f71fa56ffbc4a80f516a2c12eae6bc099812",
+        "image": ".cache/kanpo-227/audit143/20260918g002090068.png",
+        "image_SHA": "cf5ee3ebd1988fabe4ddac88c17dc7f2fd9163b8b771276bcb89d5b52e6b7e9f",
+        "linecount": 6,
+        "Article_count": 1,
+        "Document_counts": {
+          "tables": 1,
+          "table_rows": 6,
+          "table_slots": 18,
+          "runs": 19
+        },
+        "candidate53_reviewed": false,
+        "candidate53_inheritance_pending": true,
+        "existing_parent52_defect": false,
+        "new_candidate_regression_claim": false
+      }
+    },
+    {
+      "page": "20260930g002160084",
+      "PDF_sha256": "c80ce86ce7f983997ea3b1e47b5ac0fa85a981a7d14bef316c8a3dd7c44100c6",
+      "image_sha256": "f0901c3d40608134a87d46e2125d321b762e90afa92494e1dab04e1806f000fb",
+      "parent52_Analysis_sha256": "80ec0ed9123b6ef4b705ffb8d5bc04cd624832f6c16d49539bfbec327e15dfc6",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260930g002160084.json",
+      "candidate55_Analysis_sha256": "5c522fcf4560273ef864e6dcf151a41d1b6a64fb1374bc43653d530d73fc24cf",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "major",
+      "initial_body_grade": "ok",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "page": "20260930g002160084",
+        "strict_grade": "major",
+        "body_grade": "ok",
+        "notes": [
+          "原図の左右新旧対照の全文76行を照合。左（新）の31条30条7項/32条30条6項2号老齢年金裁定資料、右（旧）の31条30条6項/32条30条5項2号給付資料の差を保持。",
+          "新33条の5号加入者追加、新34条の7項・5号加入者の八九号、新36条の第5号/第7号/第8号及び資格取得から3月、旧36条の第4号/第6号までの対応を本文にそれぞれ左→右の順で保持。語/数値/引用欠落や左右本文の交錯は見つからない。",
+          "ただしtraceは全76行が単一body Regionで、Document format=prose/単一paragraph run。新旧のafter/before roleと対応行・セルが一切なく、左右の同名条文が独立の通常本文として連結されるためstrict major。元issue本文文字読順の軸とは区別。"
+        ],
+        "defect_locations": [
+          {
+            "original_rect": [
+              70,
+              45,
+              780,
+              555
+            ],
+            "output_lines": [
+              1,
+              76
+            ],
+            "article": 0,
+            "kind": "headerless_shinkyu_roles_and_correspondence_missing"
+          }
+        ],
+        "native0_exclusions": [],
+        "whole_image_read": true,
+        "all_text_lines_read": true,
+        "all_Articles_Documents_Tables_Runs_read": true,
+        "index": 28,
+        "initial_grade_fixed": true,
+        "baseline": "parent52/accepted30/c21445b9",
+        "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+        "PDF": ".cache/kanpo-archive/2026-09-30/20260930g00216/20260930g002160084.pdf",
+        "PDF_SHA": "c80ce86ce7f983997ea3b1e47b5ac0fa85a981a7d14bef316c8a3dd7c44100c6",
+        "output": ".cache/kanpo-227/after52/20260930g002160084.txt",
+        "output_SHA": "4218bb5c77d6727f5441a193ef4bac1b2417847e62e138518e5c20dc7ba49b5a",
+        "Analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260930g002160084.json",
+        "Analysis_SHA": "80ec0ed9123b6ef4b705ffb8d5bc04cd624832f6c16d49539bfbec327e15dfc6",
+        "image": ".cache/kanpo-227/audit143/20260930g002160084.png",
+        "image_SHA": "f0901c3d40608134a87d46e2125d321b762e90afa92494e1dab04e1806f000fb",
+        "linecount": 76,
+        "Article_count": 1,
+        "Document_counts": {
+          "runs": 1
+        },
+        "candidate53_reviewed": false,
+        "candidate53_inheritance_pending": true,
+        "existing_parent52_defect": true,
+        "new_candidate_regression_claim": false
+      }
+    },
+    {
+      "page": "20260731g001730081",
+      "PDF_sha256": "d1a5f2d2e1d4b7cbd331b3187f592b13cb9cfc77d6b3fc8e90c20e052d94f1bc",
+      "image_sha256": "0898ba1e60ae4612d17c9ae32fa0b7036bbda3313b155bbe745265d53e9a1b09",
+      "parent52_Analysis_sha256": "7de41fd1175256e24f6693b4a13b401044b2f1ca354f00f30cc4b24a819f321d",
+      "candidate55_Analysis": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-candidate55-analysis/20260731g001730081.json",
+      "candidate55_Analysis_sha256": "c40daf251074043f5350d54eee7e5cad2c0b44bef883346416c22818abe9a2ca",
+      "entire_Analysis_exact": true,
+      "initial_strict_grade": "major",
+      "initial_body_grade": "major",
+      "initial_grades_unchanged": true,
+      "initial_parent52_review": {
+        "page": "20260731g001730081",
+        "strict_grade": "major",
+        "body_grade": "major",
+        "notes": [
+          "左上BS続き、PL、会計注記、右側震災勘定の財産目録及びBSの全76行/全4DocTablesを照合。両資産合計15,708,055,373と28,012,457,394、PL一般管理6,072,213/雑益26/損失6,072,187、△53,427,963/△7,600,046等は保持。",
+          "左上の原図では『政府出資金』と6,100,000,000が同じ行で、次の行に別区分『（欠損金）』がある。出力L6及びArticle0最初のDocTable row5/col2が『政府出資金（欠損金）』となり、その両区分を同じ6,100,000,000の金額セルに対応づける。見出しの原位置/所属が崩れ、文字bag保持だけでは正常とできないためstrict/bodyともmajor。",
+          "資産の折返し名称も『地域経済活性化支援/機構株式』がL2～3の別論理行へ、『東日本大震災事業者/再生支援機構株式』がL71～72の別rowへ分割され、金額15,703,800,000/28,006,200,000は前片の行だけに付く。原名称と金額の一レコードがDocで分断する既存残件。",
+          "会計方針の全4項/給与及び退職引当の説明と、右財産目録の未収15/未払16,200/賞与41,240/正味財産28,012,399,954、BS政府出資28,020,000,000はその他全数値と照合し保持。"
+        ],
+        "defect_locations": [
+          {
+            "original_rect": [
+              250,
+              97,
+              412,
+              151
+            ],
+            "output_lines": [
+              5,
+              8
+            ],
+            "article": 0,
+            "kind": "loss_heading_merged_into_government_capital_cell"
+          },
+          {
+            "original_rect": [
+              86,
+              61,
+              278,
+              85
+            ],
+            "output_lines": [
+              2,
+              3
+            ],
+            "article": 0,
+            "kind": "wrapped_asset_name_split_across_table_rows"
+          },
+          {
+            "original_rect": [
+              448,
+              468,
+              614,
+              500
+            ],
+            "output_lines": [
+              71,
+              72
+            ],
+            "article": 1,
+            "kind": "wrapped_asset_name_split_across_table_rows"
+          }
+        ],
+        "native0_exclusions": [],
+        "whole_image_read": true,
+        "all_text_lines_read": true,
+        "all_Articles_Documents_Tables_Runs_read": true,
+        "index": 29,
+        "initial_grade_fixed": true,
+        "baseline": "parent52/accepted30/c21445b9",
+        "source_manifest_SHA": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd",
+        "PDF": ".cache/kanpo-archive/2026-07-31/20260731g00173/20260731g001730081.pdf",
+        "PDF_SHA": "d1a5f2d2e1d4b7cbd331b3187f592b13cb9cfc77d6b3fc8e90c20e052d94f1bc",
+        "output": ".cache/kanpo-227/after52/20260731g001730081.txt",
+        "output_SHA": "d9da7b7daa40468a348682572a593550bba8118c6b44dd1c6f5113109545085e",
+        "Analysis": ".cache/kanpo-227/audit143-parent52-analysis/20260731g001730081.json",
+        "Analysis_SHA": "7de41fd1175256e24f6693b4a13b401044b2f1ca354f00f30cc4b24a819f321d",
+        "image": ".cache/kanpo-227/audit143/20260731g001730081.png",
+        "image_SHA": "0898ba1e60ae4612d17c9ae32fa0b7036bbda3313b155bbe745265d53e9a1b09",
+        "linecount": 76,
+        "Article_count": 2,
+        "Document_counts": {
+          "tables": 4,
+          "table_rows": 47,
+          "table_slots": 169,
+          "runs": 141
+        },
+        "candidate53_reviewed": false,
+        "candidate53_inheritance_pending": true,
+        "existing_parent52_defect": true,
+        "new_candidate_regression_claim": false
+      }
+    }
+  ],
+  "initial_inventory_failure": {
+    "eligible_zero_bulk11992_mirror_was_diagnostic_only": true,
+    "mechanical_input_mirror_all11992_SHA_exact_before_exclusion_correction": true,
+    "no_selected_or_graded_pages_before_corrected_selection": true,
+    "initial_diagnostics_retained": [
+      {
+        "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-initial-inventory-diagnostic.log",
+        "sha256": "a11c9629c6ff82ddcf84db7569c755234bc3f8da46c82a31d5f274ea3ba16710"
+      },
+      {
+        "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit143-inventory-second-diagnostic.log",
+        "sha256": "13f4e29cba1f144ffeee5ca5e904b751a99e413d49b7d11db04864f19abb628f"
+      }
+    ]
+  },
+  "initial_pending53_fields": "Preserved inside initial_parent52_review as historical state. Current candidate55 inheritance fields, not those historical pending fields, define the final binding."
+}

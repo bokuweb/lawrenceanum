@@ -1,0 +1,274 @@
+{
+  "issue": 227,
+  "batch": 52,
+  "parent_commit": "9efb26e4473d33228878c68254263234ac53c596",
+  "native_runtime_source": 75,
+  "goal_complete": false,
+  "local_required_tests": {
+    "passed": 1879,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 117,
+    "logical_required_commands": 118,
+    "actual_commands_including_reviewed_snapshot_retry": 119,
+    "libraries": 4,
+    "integration_targets": 109,
+    "doctests": 4,
+    "all4_crates_examples_checked": true,
+    "new_tests": 2,
+    "snapshots": 801,
+    "snapshots_readonly_pass": true,
+    "snapshot_readonly_seconds": 179.304046792,
+    "source_manifest_sha256": "aa3774d04641d5b6255895889b01428350a5b3fab01baef5e270a95d98607634",
+    "initial_proposal_gate_sha256": "ea1f720fe5dec7ec39eb49eb943331fcb1b2d9309873895946627366cbb3a4ed",
+    "readonly_log_sha256": "cbb1d59fcfa2f28082a62df8eb41a1f55c233570f06001785a0c265f06a806a8"
+  },
+  "fresh_native11992": {
+    "terminal": 0,
+    "pages": 11992,
+    "changed": 5,
+    "whole_Analysis_exact": 11987,
+    "all_words_fields_and_page_layout_exact": true,
+    "all_source_words": 2403403,
+    "source_usage_and_table_JSON_multisets_exact": true,
+    "nonwhitespace_character_multisets_exact": true,
+    "frozen_inputs_unchanged": true,
+    "all_changed_originals_require_review_before_adoption": true,
+    "seconds": 358.659804042
+  },
+  "change_contracts": {
+    "private_unadopted": false,
+    "changed": 5,
+    "page_and_text_exact_changes": 5,
+    "layout_changes": [],
+    "all_pure_split_old_endpoints_preserved": true,
+    "all_pure_split_document_runs_exact": true,
+    "before_articles_changed_pages": 28,
+    "after_articles_changed_pages": 33,
+    "all_changed_originals_still_require_review": false,
+    "rows": [
+      {
+        "page": "20260722g001620066",
+        "before": 6,
+        "after": 7,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260804g001750060",
+        "before": 6,
+        "after": 7,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260812g001800073",
+        "before": 6,
+        "after": 7,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260903g001970073",
+        "before": 5,
+        "after": 6,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261016g002270081",
+        "before": 5,
+        "after": 6,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      }
+    ],
+    "all5_changed_original_scopes_reviewed": true,
+    "review_method": "Root engineering review of changed source scopes, not independent/blind or whole-page accuracy."
+  },
+  "CLI_API_consistency": {
+    "terminal": 0,
+    "files": 11992,
+    "all_actual_CLI_bytes_equal_fresh_API": true,
+    "all_CLI_output_bytes_and_ordered_digest_equal_accepted74": true,
+    "all5_changed_Analysis_exactly_private_original_reviewed_values": true,
+    "source_manifest_sha256": "aa3774d04641d5b6255895889b01428350a5b3fab01baef5e270a95d98607634",
+    "API_result_sha256": "38d6c58585e7046ee97b9a89a8359e298b015825f2d6f74f163c7a68d3cdc6dd",
+    "CLI_result_sha256": "5e103a436d5bb7891172b32193ba64758ff754b500d5b4177cf06631d89941d6",
+    "all24_PDF_source_files_byte_identical_to74": true,
+    "raw_Glyph_Word_legacy_XHTML_audit": "14859045 glyph audit inherited from71 through all24 byte-identical PDF source files; not a fresh raw audit",
+    "root_reviewed_original_scopes": 5,
+    "independent_blind_random30_or_whole_page_accuracy": false
+  },
+  "actual_CLI": {
+    "terminal": 0,
+    "actual_default_native_CLI_from_all_original_PDFs": true,
+    "files": 11992,
+    "changed_vs74": [],
+    "ordered_filename_content_sha256_digest": "ef45ed8bbc6436102aa0d5d13f6d4e7d23db4df10d704721498d3bc201d16a2b",
+    "binary_sha256": "052cee7051587bcf0d8cda36d8c75c808ec50f57a99d2d99ac02c96da24fc6ab",
+    "source_manifest_sha256": "aa3774d04641d5b6255895889b01428350a5b3fab01baef5e270a95d98607634",
+    "API_byte_consistency_and_original_change_review_pending": true
+  },
+  "known_necessary_counts": {
+    "runtime": 75,
+    "advisory_known_requirements_not_mandatory_success_assertions": true,
+    "passed": 3,
+    "failed": 4,
+    "source_manifest_sha256": "aa3774d04641d5b6255895889b01428350a5b3fab01baef5e270a95d98607634",
+    "rows": [
+      {
+        "page": "20260803g001740136",
+        "actual": 12,
+        "necessary": 12,
+        "passes_necessary_count": true
+      },
+      {
+        "page": "20260903g001970080",
+        "actual": 5,
+        "necessary": 6,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260731g001730167",
+        "actual": 3,
+        "necessary": 4,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260721g001610162",
+        "actual": 5,
+        "necessary": 6,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260804g001750060",
+        "actual": 7,
+        "necessary": 7,
+        "passes_necessary_count": true
+      },
+      {
+        "page": "20260717g001600122",
+        "actual": 5,
+        "necessary": 5,
+        "passes_necessary_count": true
+      },
+      {
+        "page": "20260731h017590032",
+        "actual": 13,
+        "necessary": 14,
+        "passes_necessary_count": false
+      }
+    ]
+  },
+  "assets": {
+    "old_tracked_test_assets": 2433,
+    "all_old_assets_byte_exact": true,
+    "old_snapshots_changed": 0,
+    "new_snapshots": 5,
+    "readonly_snapshots": 801,
+    "all_snapshot_hashes_unchanged_in_readonly_run": true,
+    "all_old_PDF_HTML_TXT_JSON_rule_gold_assertions_retained": true
+  },
+  "initial_gate": "1878 passed1 failed0 ignored: archive proposed five new snapshots for the five original-reviewed source scopes. All other required targets passed. Only those five proposals accepted, then all801 snapshots rerun with INSTA_UPDATE=no and unchanged hashes.",
+  "source_controls": "Two logical REDs on source74; private1194 and fresh public1194 unit tests green. Public production rule exactly equals the reviewed private candidate; public source also fixes an obsolete Private experiment module comment.",
+  "PDF_raw_audit": "All24 PDF source files byte-identical to74/71.14859045-Glyph/f64, native Word and legacy XHTML audit inherited from71; not a fresh raw audit.",
+  "broad_root_audit": {
+    "sample30_source74_sha256": "d5a93b1a557bb9c69e66a1b10e98df4eea24b29fae8833be16774e972913fcce",
+    "fresh11992_comparison_sha256": "38d6c58585e7046ee97b9a89a8359e298b015825f2d6f74f163c7a68d3cdc6dd",
+    "all30_Analysis_exact_to74": true,
+    "original_review_unchanged": "Root engineering review, not independent/blind or exhaustive character certification. No reselection/regrading/global accuracy estimate.",
+    "observed_counts_unchanged": {
+      "major": 15,
+      "ok": 10,
+      "minor": 5
+    },
+    "source75_manifest_sha256": "aa3774d04641d5b6255895889b01428350a5b3fab01baef5e270a95d98607634"
+  },
+  "advisory_checks": "git diff --check; no whole-repository fmt/clippy-clean claim.",
+  "fresh_commit_CI": "Pending at preparation; exact-head checks recorded in PR and accepted checkpoint.",
+  "evidence": [
+    {
+      "path": ".cache/kanpo-227/native52-source-manifest.json",
+      "sha256": "aa3774d04641d5b6255895889b01428350a5b3fab01baef5e270a95d98607634"
+    },
+    {
+      "path": ".cache/kanpo-227/closed-frame-release52/public75-gates-v1/000.log",
+      "sha256": "9ad1497fb858fc2809e0c9df7f79de12febe4d6df36f06beb1bb89f44550d68f"
+    },
+    {
+      "path": ".cache/kanpo-227/closed-frame-release52/full-native75-public/result.json",
+      "sha256": "38d6c58585e7046ee97b9a89a8359e298b015825f2d6f74f163c7a68d3cdc6dd"
+    },
+    {
+      "path": ".cache/kanpo-227/closed-frame-release52/full-native75-public/changes.json",
+      "sha256": "337581d3be7a0f2d76dd222b6a84d2baac68ec723230b3ef5cbaf2e7df917978"
+    },
+    {
+      "path": ".cache/kanpo-227/closed-frame-release52/public75-change-contracts.json",
+      "sha256": "f9ca977d40e51575a5e0b364f2c456ae3f5cecc22d6a8154c6b9fb301f81e933"
+    },
+    {
+      "path": ".cache/kanpo-227/closed-frame-release52/textdump75-result.json",
+      "sha256": "5e103a436d5bb7891172b32193ba64758ff754b500d5b4177cf06631d89941d6"
+    },
+    {
+      "path": ".cache/kanpo-227/closed-frame-release52/public75-native-CLI-API-consistency.json",
+      "sha256": "f32b9e30db67b90292e881f331b05b790307184d1090866537f64daf4fa603f4"
+    },
+    {
+      "path": ".cache/kanpo-227/closed-frame-release52/candidate75-original-review52.json",
+      "sha256": "91ae724f9c1439b4b1be03318a29768aba4bae824e815e8fa9273e8cac00ff53"
+    },
+    {
+      "path": ".cache/kanpo-227/closed-frame-continuation50/all_six_printed_financial_frames_and_upper_roster_keep_complete_source_ownership-RED.log",
+      "sha256": "b214a76319619c5abad254828d484bfe898b9b34aaf2053cf898c62662dd05a3"
+    },
+    {
+      "path": ".cache/kanpo-227/closed-frame-continuation50/a_line_outside_a_complete_closed_frame_cannot_make_its_root_a_prose_continuation-RED.log",
+      "sha256": "355c02570dacf80156ba6add007fea0b28c8177570d1f9e4a8cdcba5ad780250"
+    },
+    {
+      "path": ".cache/kanpo-227/closed-frame-continuation50/complete-closed-frames-original-gold50.json",
+      "sha256": "b6edc9d2960fa773a40d0fb727ad999c1cb70d3f5124d7e9c7205e57e2e237ba"
+    },
+    {
+      "path": ".cache/kanpo-227/closed-frame-release52/snapshot-proposal-review75.json",
+      "sha256": "7fed7607b0fdb58e07b9099f6f939324f51628b3b321f39877a3114939854eb5"
+    },
+    {
+      "path": ".cache/kanpo-227/closed-frame-release52/known-seven-count-requirements75.json",
+      "sha256": "00599c893997c776c11b6263d46097674cf7bf9264669971199f9a1d38ae9fea"
+    },
+    {
+      "path": ".cache/kanpo-227/closed-frame-release52/final-all-green.json",
+      "sha256": "f94752263a4eab43927f00589d4268982f6e8c8fd7e8aff533050595a09b9e83"
+    },
+    {
+      "path": ".cache/kanpo-227/closed-frame-release52/assets-and-snapshots.json",
+      "sha256": "564edacd62a47b14c784d779197885bf7b18cb3c39a68d7935289d3d2c6ec279"
+    },
+    {
+      "path": ".cache/kanpo-227/closed-frame-release52/broad-root-audit51-carryforward75.json",
+      "sha256": "22ecf65bc159a440ba2b77e22da87126caf0e2be3cdb8bc779e63e9435f27272"
+    },
+    {
+      "path": ".cache/kanpo-227/broad-current74-audit51/completed-root-random30-source74.json",
+      "sha256": "d5a93b1a557bb9c69e66a1b10e98df4eea24b29fae8833be16774e972913fcce"
+    },
+    {
+      "path": ".cache/kanpo-227/broad-current74-audit51/native-glyph-followup51.json",
+      "sha256": "00ff5bf002e74a7931869eb17ff41f381bab8295d4587f1a14898b677c4ceeb3"
+    }
+  ]
+}

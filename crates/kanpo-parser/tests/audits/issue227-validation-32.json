@@ -1,0 +1,145 @@
+{
+  "stage": "thirty_second_integrated_batch",
+  "date": "2026-10-21",
+  "batch": 32,
+  "source56_manifest": {
+    "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated56-source-manifest.json",
+    "sha256": "8ad7c1f960b38bf30b6ce3e198adf5ce11dfdd98f84784c028530bb4e7893496"
+  },
+  "baseline_commit": "77d8a05a7a29cfd05c8a22a0a84eef53675dbe35",
+  "population_pages": 11992,
+  "changed": 0,
+  "complete_Analysis_exact": 11992,
+  "changed_pages": [],
+  "canonical_quality_improvement_pages": 0,
+  "cumulative_changed": 2957,
+  "cumulative_character_change_pages": 1373,
+  "tests": {
+    "passed": 1641,
+    "failed": 0,
+    "crates": [
+      "kanpo-parser",
+      "kanpo-pdf",
+      "kanpo-parser-wasm",
+      "kanpo-lm"
+    ],
+    "parser_unit_tests": 979,
+    "PDF_unit_tests": 108,
+    "integration_targets": 108,
+    "commands": 117,
+    "all4_libraries_doc_tests_and_default_examples": true,
+    "new_private_tests": 24,
+    "parent_PDF_CFF_tests_preserved": 84,
+    "source56_limited_root_actual_tests": 69,
+    "public_same_assertions_old55": "9RED8GREEN",
+    "public_same_assertions_v2": "17GREEN"
+  },
+  "snapshots": {
+    "existing": 778,
+    "new": 0,
+    "updated": 0,
+    "all_bytes_exact_HEAD": true
+  },
+  "archive_originals": 719,
+  "all11992_fresh_textdump_entire_Analysis_and_native_bits_exact": true,
+  "source_CFF_proof_pages": 152,
+  "source_candidate_Glyphs": 242,
+  "legacy_inheritance": {
+    "method": "Whole Analysis on all11992 plus all native Glyph/Word fields/bits exact to source55; deterministic13 metrics inherited, no new eight-part rerun claimed.",
+    "counts": {
+      "period_pairs": 706,
+      "ordinal_pairs": 121,
+      "bracket_cells": 377,
+      "existing_unattached_used_diagnostic": 53,
+      "pages": 2957,
+      "native_dash_glyphs": 11033,
+      "fractions": 153,
+      "surnames": 6,
+      "plain_dashes": 341,
+      "duplicate_word_ids": 0,
+      "nested_formulas": 6,
+      "parallel_formulas": 9,
+      "numeric_formulas": 6
+    },
+    "metrics_including_scope": 13,
+    "non_scope_metrics": 12,
+    "source31_validation": {
+      "path": "crates/kanpo-parser/tests/audits/issue227-validation-31.json",
+      "sha256": "8f95c25bb8af00c2ae7c12f71a2e6509918aefdbacd91e390e7c9a172ca93baa"
+    }
+  },
+  "audit144": {
+    "initial_parent55_strict": {
+      "ok": 6,
+      "minor": 5,
+      "major": 19
+    },
+    "initial_parent55_body": {
+      "ok": 17,
+      "minor": 3,
+      "major": 10
+    },
+    "all30_entire_Analysis_exact": true,
+    "initial_grades_immutable": true,
+    "whole_page_exclusions": 0
+  },
+  "input_diagnostic": {
+    "three_PDFs_fixed_before_view": true,
+    "source_metadata_h_cohort": true,
+    "initial_unmeasurable_feature": "native receipt has no total Glyph count; initial selection impossibility preserved separately",
+    "one_page_has_both_native_text_and_bounded_image_text": true,
+    "no_quality_score_or_OCR_or_source_fix": true,
+    "evidence": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/native-text-availability55-diagnosis/delivery-manifest.json",
+      "sha256": "ff998e09f1bbb29a295ef08fc042a156b8c95d218ea948befde20a54bc193827"
+    }
+  },
+  "evidence": {
+    "source": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated56-source-manifest.json",
+      "sha256": "8ad7c1f960b38bf30b6ce3e198adf5ce11dfdd98f84784c028530bb4e7893496"
+    },
+    "assets": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated56-test-assets-manifest.json",
+      "sha256": "aaec195aa0af491a96e9cbf89a83c3528c5769cc4f8a35c2d36ff844012e8908"
+    },
+    "cached": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root32-inline56-v2/full-result.json",
+      "sha256": "df1d81387d38ccfbe25ed24755d4d2e96d690fef61f8ace6a5b942bbeb3c32d6"
+    },
+    "release": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated56-fullAnalysis-report.json",
+      "sha256": "1eb8553e87e3a4a8493e5c38c4ccadef3ffc0cd765a52c44ab05bb19cb2d2449"
+    },
+    "defaults": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/full32-final56-generic-partitioned-status.json",
+      "sha256": "7f81d38645706a12420f594c65d60289832d8a07dfd10d579b5c211cc55d285f"
+    },
+    "snapshots": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/snapshot32-source56-preserved.json",
+      "sha256": "0e063829954c147ac714c8a6848ef8c7eccfb777871473a25ec888e4a20c342b"
+    },
+    "audit": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit144-source56-inheritance.json",
+      "sha256": "ccaffe7142cd189735c4df82482bcb317243ac4146e7a4517806eeb775245f2c"
+    },
+    "limited": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root32-inline56-v2/build-result.json",
+      "sha256": "a052ff7f6d9e0dd8ff26a122f20b8188fec9692d3fabce51d104e74e8ffb66f0"
+    },
+    "delivery": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/legacy-inline-raw55-v2/delivery-manifest.json",
+      "sha256": "0150719ff211a00ce34041e257df50e53fa396a9f7f0e584edd2e3ed0c2bedc4"
+    },
+    "readonly": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/legacy-inline-raw55-v2-readonly-review/manifest.json",
+      "sha256": "d86ff601bc9f908790d9708a4d7b50dc3cfb6aa1d1af8d3f0b38525c31c38675"
+    },
+    "new_raster": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root32-inline-crlf-render/whole-originals-viewed.json",
+      "sha256": "589123a668546e2da13b9181a254b4f8e7f87d14d8a0f5ee4bcbcc6989fe9a97"
+    }
+  },
+  "whole_page_perfection_not_implied": true,
+  "goal_complete": false
+}

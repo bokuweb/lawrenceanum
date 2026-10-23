@@ -1,0 +1,139 @@
+{
+  "stage": "thirty_third_integrated_batch",
+  "date": "2026-10-21",
+  "batch": 33,
+  "source57_manifest": {
+    "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated57-source-manifest.json",
+    "sha256": "b29541e91d46a873ee1c69d51bbb06cb79e32046eaf59ca335541611baa68cc0"
+  },
+  "baseline_commit": "4e652172d0f10c59cb8b1855f51328aacdf60fbb",
+  "population_pages": 11992,
+  "changed": 0,
+  "complete_Analysis_exact": 11992,
+  "changed_pages": [],
+  "canonical_quality_improvement_pages": 0,
+  "cumulative_changed": 2957,
+  "cumulative_character_change_pages": 1373,
+  "tests": {
+    "passed": 1650,
+    "failed": 0,
+    "crates": [
+      "kanpo-parser",
+      "kanpo-pdf",
+      "kanpo-parser-wasm",
+      "kanpo-lm"
+    ],
+    "parser_unit_tests": 979,
+    "PDF_unit_tests": 117,
+    "new_private_functions": 9,
+    "public_functions_within_PDF117": 7,
+    "new_internal_functions": 2,
+    "integration_targets": 108,
+    "commands": 117,
+    "all4_libraries_doc_tests_and_default_examples": true,
+    "root_limited_actual": 69,
+    "public_same_assertions_old56": "4RED3GREEN",
+    "public_same_assertions_candidate": "7GREEN",
+    "extra_independent_Form_function": "old56 1RED -> candidate 1GREEN; separate private review, not included in1650",
+    "function_count_not_input_count": true
+  },
+  "snapshots": {
+    "existing": 778,
+    "new": 0,
+    "updated": 0,
+    "all_bytes_exact_parent_Gitblob": true
+  },
+  "archive_originals": 719,
+  "all11992_fresh_textdump_entire_Analysis_and_native_bits_exact": true,
+  "source_CFF_proof_pages": 152,
+  "source_candidate_Glyphs": 242,
+  "legacy_inheritance": {
+    "method": "All11992 entire Analysis and every native Glyph/Word field and f64 bit exact56; inherited deterministic13 metrics; no new eight-part rerun.",
+    "counts": {
+      "period_pairs": 706,
+      "ordinal_pairs": 121,
+      "bracket_cells": 377,
+      "existing_unattached_used_diagnostic": 53,
+      "pages": 2957,
+      "native_dash_glyphs": 11033,
+      "fractions": 153,
+      "surnames": 6,
+      "plain_dashes": 341,
+      "duplicate_word_ids": 0,
+      "nested_formulas": 6,
+      "parallel_formulas": 9,
+      "numeric_formulas": 6
+    },
+    "metrics_including_scope": 13,
+    "non_scope_metrics": 12,
+    "parent32_validation": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/crates/kanpo-parser/tests/audits/issue227-validation-32.json",
+      "sha256": "da0e32354a1563b07d12e9bd4e331e775008545d53912d31f8d46efc2c91ecb2"
+    }
+  },
+  "audit144": {
+    "initial_parent55_strict": {
+      "minor": 5,
+      "major": 19,
+      "ok": 6
+    },
+    "initial_parent55_body": {
+      "minor": 3,
+      "ok": 17,
+      "major": 10
+    },
+    "full_body_lines": 2175,
+    "Articles_Documents": 40,
+    "all30_entire_Analysis_exact": true,
+    "initial_grades_immutable": true,
+    "whole_page_exclusions": 0
+  },
+  "evidence": {
+    "source": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated57-source-manifest.json",
+      "sha256": "b29541e91d46a873ee1c69d51bbb06cb79e32046eaf59ca335541611baa68cc0"
+    },
+    "assets": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated57-test-assets-manifest.json",
+      "sha256": "86a3da931aa58b17c644a0a1bbb9aa2d775b38751193a54096522f7b5613dfd8"
+    },
+    "cached": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root33-charcode57/full-result.json",
+      "sha256": "97bb80ed66333d7008bde9efaee2d69d240a4841008bb98891c03134fdebfe55"
+    },
+    "release": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated57-fullAnalysis-report.json",
+      "sha256": "3376b495e7e3e2b3e7b4cb2d0cfa2074081ce343d0c2450e5dae40f245d41fb8"
+    },
+    "defaults": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/full33-final57-generic-partitioned-status.json",
+      "sha256": "55bca9637a3f0136eaaeee600a185e90a244b31237f011502c2def5cadf33b1b"
+    },
+    "snapshots": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/snapshot33-source57-preserved.json",
+      "sha256": "e471c2e9f73759b167351f4dc978d5b0cd18f0fde81039a627f1b02442e50bcb"
+    },
+    "audit": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit144-source57-inheritance.json",
+      "sha256": "1f80f0bab6c388436cbc87491ea4244475cbdb26d2d1dd13197ee1dbf7786c31"
+    },
+    "limited": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root33-charcode57/build-result.json",
+      "sha256": "cb1453fbabc61d02da5c4dd730db9a3e1d70c516ed6a17f4d11b7e45b4203c18"
+    },
+    "delivery": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/identity-charcode-source56/delivery-manifest.json",
+      "sha256": "aa2419b3b410bc72037e7d79bccd0fcbb181e9129dca6edfaa85479996c4d812"
+    },
+    "independent_review": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/identity-charcode-source56-independent-review/delivery-manifest.json",
+      "sha256": "2df0e00cf7e549c4a00fd60dd43b35fc810b5c10a9e6fd0bc7fdcb9f35bbe2e3"
+    },
+    "sparse_ToUnicode_inventory": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/sparse-tounicode-inventory56/delivery-manifest.json",
+      "sha256": "7c8d17870972fc3154233afb7643e138ed8f5a9523dab9e6a4c63277190a924e"
+    }
+  },
+  "whole_page_perfection_not_implied": true,
+  "goal_complete": false
+}

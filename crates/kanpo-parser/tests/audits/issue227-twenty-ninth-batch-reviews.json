@@ -1,0 +1,1378 @@
+{
+  "batch": 29,
+  "original6_current51_Analysis_exact_to_reviewed50": true,
+  "original6_fullread": {
+    "rows": [
+      {
+        "page": "20260717g001600047",
+        "pdf": ".cache/kanpo-archive/2026-07-17/20260717g00160/20260717g001600047.pdf",
+        "pdf_sha256": "89c87865e75463ce4f880e0261e2c08f576e783ac21fba329a0ea68a68fd9d29",
+        "image": ".cache/kanpo-227/root29-originals-and-native/20260717g001600047.png",
+        "image_sha256": "b03bc21a490a4e488c6fd8648f5d426102de99805b431b50cba3c138d382f074",
+        "analysis": ".cache/kanpo-227/root29-originals-and-native/20260717g001600047-root50.analysis.json.gz",
+        "analysis_sha256": "e86a382be6e1d4b2cc1354e9abc5fc5bec3a26d3d1dbc05fe377fc5bc90c1f2b",
+        "body_lines": 98,
+        "ArticleDocs": 1
+      },
+      {
+        "page": "20260717g001600048",
+        "pdf": ".cache/kanpo-archive/2026-07-17/20260717g00160/20260717g001600048.pdf",
+        "pdf_sha256": "e575f9a5722f5d52f419454df7a5bc4b4cf7c560c11d0dff9dacee7a19b4ac4e",
+        "image": ".cache/kanpo-227/root29-originals-and-native/20260717g001600048.png",
+        "image_sha256": "a98887c60161ac91e26328cf0287c8003571a1574e2b833d81e056eebe873bda",
+        "analysis": ".cache/kanpo-227/root29-originals-and-native/20260717g001600048-root50.analysis.json.gz",
+        "analysis_sha256": "f006c1e9269c22fdde79e73f96ad6d4a4ddf40e719c1b1aadbd45acca3d30893",
+        "body_lines": 96,
+        "ArticleDocs": 1
+      },
+      {
+        "page": "20260717g001600049",
+        "pdf": ".cache/kanpo-archive/2026-07-17/20260717g00160/20260717g001600049.pdf",
+        "pdf_sha256": "171ad9afc4266774b0fd363c8e32977ea6cd2a2f24a07189d11751a1ebb5f46d",
+        "image": ".cache/kanpo-227/root29-originals-and-native/20260717g001600049.png",
+        "image_sha256": "a7a04fffb8494d7a1b0fbaa623fca60dbfd5625e57441b6412f628d8cc177c7f",
+        "analysis": ".cache/kanpo-227/root29-originals-and-native/20260717g001600049-root50.analysis.json.gz",
+        "analysis_sha256": "5d9c5297a35c71c94ae3c662476cb71293a0071d49bf3d958c11c0ddff827122",
+        "body_lines": 91,
+        "ArticleDocs": 2
+      },
+      {
+        "page": "20260723g001630002",
+        "pdf": ".cache/kanpo-archive/2026-07-23/20260723g00163/20260723g001630002.pdf",
+        "pdf_sha256": "bca429a7c7e30f8aa43822c9d49ca30f1563e8e1551729d349ef77611f9656bc",
+        "image": ".cache/kanpo-227/root29-originals-and-native/20260723g001630002.png",
+        "image_sha256": "b915190c2c58b9d9bb2aa2e7522f3809dd65f3109251dd3170457b459b7b0977",
+        "analysis": ".cache/kanpo-227/root29-originals-and-native/20260723g001630002-root50.analysis.json.gz",
+        "analysis_sha256": "a5538cf727c236866efcb4d8403efd8a1862fec1faf27a0790d0200f8a127f6c",
+        "body_lines": 171,
+        "ArticleDocs": 1
+      },
+      {
+        "page": "20260731g001720008",
+        "pdf": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720008.pdf",
+        "pdf_sha256": "f77e9e30a6b376c0a9dc30b4df55899fdd192cc2c8bbc720bbc65fd8c53b21db",
+        "image": ".cache/kanpo-227/root29-originals-and-native/20260731g001720008.png",
+        "image_sha256": "272640ab455a6edfc24027c77bd04386b50c2310c9d80802e0f1caf7a7e3d3fb",
+        "analysis": ".cache/kanpo-227/root29-originals-and-native/20260731g001720008-root50.analysis.json.gz",
+        "analysis_sha256": "9778727ddf034987b60954c5c3f728ab3a044aabeb6baf27a05513a36b9a83ad",
+        "body_lines": 167,
+        "ArticleDocs": 1
+      },
+      {
+        "page": "20260831g001940091",
+        "pdf": ".cache/kanpo-archive/2026-08-31/20260831g00194/20260831g001940091.pdf",
+        "pdf_sha256": "c289f810dbd887bbb6d9cf32167b98919d014320932d4a5849d276e6d2c6dbf1",
+        "image": ".cache/kanpo-227/root29-originals-and-native/20260831g001940091.png",
+        "image_sha256": "8baa5c8bf38edf51978243ba3837566205b7d63c90692cf84f9f8fb5cbd65594",
+        "analysis": ".cache/kanpo-227/root29-originals-and-native/20260831g001940091-root50.analysis.json.gz",
+        "analysis_sha256": "2097c6668c1525660737d8a23bcb00ebaf35d931b2f78c18a124c38f3f8993a9",
+        "body_lines": 75,
+        "ArticleDocs": 1
+      }
+    ],
+    "all6_whole_original_images_viewed_by_root": true,
+    "all698_body_lines_read_by_root": true,
+    "all7_ArticleDocs_all_Table_cells_and_Run_texts_reviewed_by_root": true,
+    "paragraph_Run_full_text_checked_against_read_complete_body": true,
+    "source_quoted_table_5_lines_and_disjoint_fragment_union_bbox_reviewed": true,
+    "source14_original_rescueGlyphs_and_both603_6165_cells_reviewed": true,
+    "known_missing_parenthetical_item_numbers_preserved": true,
+    "known_independent_law_Article_undersegmentation_preserved": true,
+    "not_claimed_all_pages_perfect": true,
+    "fullAnalysis_report_sha256": "ff6a0223fc9bb77d62f9123d886f425e78bcc21bc4c2cd0f62e8644793efc6fe",
+    "native_proof_sha256": "604bb49c4919695407806e921a8f26ac9d966193a1497b62123bd9ca91a8603c"
+  },
+  "original6_reviews": {
+    "baseline": "49",
+    "integrated": "50/source109",
+    "scope": "Target+nearby control review, not an unseen audit. First integrated50 strict/body observations fixed; previous audits unchanged. Unchanged controls can retain major/minor defects.",
+    "pages": [
+      {
+        "page": "20260717g001600047",
+        "PDF": {
+          "path": ".cache/kanpo-archive/2026-07-17/20260717g00160/20260717g001600047.pdf",
+          "sha256": "89c87865e75463ce4f880e0261e2c08f576e783ac21fba329a0ea68a68fd9d29",
+          "bytes": 121374
+        },
+        "image": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260717g001600047.png",
+          "sha256": "b03bc21a490a4e488c6fd8648f5d426102de99805b431b50cba3c138d382f074",
+          "bytes": 938416
+        },
+        "Analysis50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260717g001600047-root50.analysis.json.gz",
+          "sha256": "e86a382be6e1d4b2cc1354e9abc5fc5bec3a26d3d1dbc05fe377fc5bc90c1f2b",
+          "bytes": 8157
+        },
+        "text50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260717g001600047-50.txt",
+          "sha256": "6fdbecbae4e51541d39dec3b5634427474a339e4ba222887d7fd7714f5f4694a",
+          "bytes": 9694
+        },
+        "articles50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260717g001600047-50.articles.json",
+          "sha256": "fe5662751e9399da80c1df4eb46c1aa48e965baf293eed56262fd0d75b8aa581",
+          "bytes": 19735
+        },
+        "native50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260717g001600047-50.native.json.gz",
+          "sha256": "4fea5d66764ed1ba5d47aaaf34432921bd95d096a118583a78d22a56c3c6a08a",
+          "bytes": 87562
+        },
+        "wholeAnalysis_exact_to_independent_joint49": true,
+        "wholeAnalysis_exact_to_root49": true,
+        "native_all_Glyph_Font_Path_public_Word_schema_rawbbox_exact_to49_and_joint": true,
+        "XHTML_only_adds_resolved_AJ1_metadata": true,
+        "linecount": 98,
+        "articles": 1,
+        "native_keys": [
+          "width",
+          "height",
+          "rotate",
+          "glyphs",
+          "paths",
+          "fonts"
+        ],
+        "page_keys": [
+          "width",
+          "height",
+          "layout",
+          "words",
+          "regions",
+          "text"
+        ],
+        "initial_review_of_integrated50": {
+          "strict": "ok",
+          "body_character_order": "ok",
+          "decision": "neutral",
+          "new_regression": false
+        },
+        "read_flags": {
+          "whole_scale2_original_image_viewed": true,
+          "all_output_lines_read": true,
+          "all_Article_texts_read": true,
+          "all_Document_blocks_Tables_Runs_read": true,
+          "native_source_for_target_and_missing_glyphs_checked": true
+        },
+        "notes": "Whole upper/lower tiers: amendments36..43 and all98 output lines retain right-to-left columns then next tier. One law continuation Article/Document, no table moved, final デジタ continues onto p48. No new defect observed.",
+        "native_zero_exclusions": [],
+        "old_audit138_139_and_independent_candidate_initial_grades_not_modified": true
+      },
+      {
+        "page": "20260717g001600048",
+        "PDF": {
+          "path": ".cache/kanpo-archive/2026-07-17/20260717g00160/20260717g001600048.pdf",
+          "sha256": "e575f9a5722f5d52f419454df7a5bc4b4cf7c560c11d0dff9dacee7a19b4ac4e",
+          "bytes": 136198
+        },
+        "image": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260717g001600048.png",
+          "sha256": "a98887c60161ac91e26328cf0287c8003571a1574e2b833d81e056eebe873bda",
+          "bytes": 1138004
+        },
+        "Analysis50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260717g001600048-root50.analysis.json.gz",
+          "sha256": "f006c1e9269c22fdde79e73f96ad6d4a4ddf40e719c1b1aadbd45acca3d30893",
+          "bytes": 9605
+        },
+        "text50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260717g001600048-50.txt",
+          "sha256": "6e338d159cf1c8a90ca39e93fc45a39c006b3cb463ff86f6b37a2d80dfbc2809",
+          "bytes": 10676
+        },
+        "articles50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260717g001600048-50.articles.json",
+          "sha256": "6f859d678a718e3738ef98d342e9dfb0d8c80e9f674c76da40c95292bdbfdac1",
+          "bytes": 23345
+        },
+        "native50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260717g001600048-50.native.json.gz",
+          "sha256": "ef4c2ec767205df2fc69b513123783f20fbc9839aa634cc5a7561bb63bd55157",
+          "bytes": 97467
+        },
+        "wholeAnalysis_exact_to_independent_joint49": true,
+        "wholeAnalysis_exact_to_root49": false,
+        "native_all_Glyph_Font_Path_public_Word_schema_rawbbox_exact_to49_and_joint": true,
+        "XHTML_only_adds_resolved_AJ1_metadata": true,
+        "linecount": 96,
+        "articles": 1,
+        "native_keys": [
+          "width",
+          "height",
+          "rotate",
+          "glyphs",
+          "paths",
+          "fonts"
+        ],
+        "page_keys": [
+          "width",
+          "height",
+          "layout",
+          "words",
+          "regions",
+          "text"
+        ],
+        "initial_review_of_integrated50": {
+          "strict": "ok",
+          "body_character_order": "ok",
+          "decision": "improvement",
+          "new_regression": false
+        },
+        "read_flags": {
+          "whole_scale2_original_image_viewed": true,
+          "all_output_lines_read": true,
+          "all_Article_texts_read": true,
+          "all_Document_blocks_Tables_Runs_read": true,
+          "native_source_for_target_and_missing_glyphs_checked": true
+        },
+        "notes": "All96 lines/one Article/three tables read. Ordinary Word22 precedes opening17/oldTable20,21+26/closing29/particle23+opening19/newTable24+31,32/closing35+33. New cell has exact 及び防災庁 and 、防災庁及び復興庁; Doc runs0..4 preserve old-to-new inline quotation. Four-column addition and lower clauses44/45/supplementary1..5 remain ordered. Cross-page law stitching/styling not evaluated as repaired.",
+        "native_zero_exclusions": [],
+        "old_audit138_139_and_independent_candidate_initial_grades_not_modified": true
+      },
+      {
+        "page": "20260717g001600049",
+        "PDF": {
+          "path": ".cache/kanpo-archive/2026-07-17/20260717g00160/20260717g001600049.pdf",
+          "sha256": "171ad9afc4266774b0fd363c8e32977ea6cd2a2f24a07189d11751a1ebb5f46d",
+          "bytes": 131715
+        },
+        "image": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260717g001600049.png",
+          "sha256": "a7a04fffb8494d7a1b0fbaa623fca60dbfd5625e57441b6412f628d8cc177c7f",
+          "bytes": 871710
+        },
+        "Analysis50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260717g001600049-root50.analysis.json.gz",
+          "sha256": "5d9c5297a35c71c94ae3c662476cb71293a0071d49bf3d958c11c0ddff827122",
+          "bytes": 7892
+        },
+        "text50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260717g001600049-50.txt",
+          "sha256": "1874c69dde7c3315f32e04c52dd9b1964df75d877508916a321767aaca1f9c4f",
+          "bytes": 7935
+        },
+        "articles50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260717g001600049-50.articles.json",
+          "sha256": "926ea378728c232cd2c0e9f8280fb429b4e0cfff603f9ba61e737750f2fe13c0",
+          "bytes": 16393
+        },
+        "native50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260717g001600049-50.native.json.gz",
+          "sha256": "73b7177fcb23bcb70bdbc31b9dbc7448680279ff0392bd7dcecf9df7f65b82e3",
+          "bytes": 76580
+        },
+        "wholeAnalysis_exact_to_independent_joint49": true,
+        "wholeAnalysis_exact_to_root49": true,
+        "native_all_Glyph_Font_Path_public_Word_schema_rawbbox_exact_to49_and_joint": true,
+        "XHTML_only_adds_resolved_AJ1_metadata": true,
+        "linecount": 91,
+        "articles": 2,
+        "native_keys": [
+          "width",
+          "height",
+          "rotate",
+          "glyphs",
+          "paths",
+          "fonts"
+        ],
+        "page_keys": [
+          "width",
+          "height",
+          "layout",
+          "words",
+          "regions",
+          "text"
+        ],
+        "initial_review_of_integrated50": {
+          "strict": "major",
+          "body_character_order": "ok",
+          "decision": "neutral",
+          "new_regression": false
+        },
+        "read_flags": {
+          "whole_scale2_original_image_viewed": true,
+          "all_output_lines_read": true,
+          "all_Article_texts_read": true,
+          "all_Document_blocks_Tables_Runs_read": true,
+          "native_source_for_target_and_missing_glyphs_checked": true
+        },
+        "notes": "All91 lines/two Articles/Documents read. Existing Article0 mixes prior law continuation/signed11ministers (L1..55) with separate CabinetOrder227 (L56..74); Order228 starts Article1 L75. Original horizontal tier boundary and new promulgation/title prove separate instrument. Body order, dates, article numbers and all fee substitutions remain intact; not a regression or repaired negative.",
+        "native_zero_exclusions": [],
+        "old_audit138_139_and_independent_candidate_initial_grades_not_modified": true
+      },
+      {
+        "page": "20260723g001630002",
+        "PDF": {
+          "path": ".cache/kanpo-archive/2026-07-23/20260723g00163/20260723g001630002.pdf",
+          "sha256": "bca429a7c7e30f8aa43822c9d49ca30f1563e8e1551729d349ef77611f9656bc",
+          "bytes": 156575
+        },
+        "image": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260723g001630002.png",
+          "sha256": "b915190c2c58b9d9bb2aa2e7522f3809dd65f3109251dd3170457b459b7b0977",
+          "bytes": 940559
+        },
+        "Analysis50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260723g001630002-root50.analysis.json.gz",
+          "sha256": "a5538cf727c236866efcb4d8403efd8a1862fec1faf27a0790d0200f8a127f6c",
+          "bytes": 11409
+        },
+        "text50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260723g001630002-50.txt",
+          "sha256": "aa4f119589380d729ff5c3622fb9736a9aa16cb6ffa273a69f5545907467d16c",
+          "bytes": 8579
+        },
+        "articles50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260723g001630002-50.articles.json",
+          "sha256": "b85ef5dbd1460b5528dfbf3bd15dc9a80c61b0cecf91d4fe469e02dd6e6d46d4",
+          "bytes": 17451
+        },
+        "native50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260723g001630002-50.native.json.gz",
+          "sha256": "dd4838c15786576ce819131fa5219b33a479edb188c84a3d39bfd25d347951a5",
+          "bytes": 92429
+        },
+        "wholeAnalysis_exact_to_independent_joint49": true,
+        "wholeAnalysis_exact_to_root49": true,
+        "native_all_Glyph_Font_Path_public_Word_schema_rawbbox_exact_to49_and_joint": true,
+        "XHTML_only_adds_resolved_AJ1_metadata": true,
+        "linecount": 171,
+        "articles": 1,
+        "native_keys": [
+          "width",
+          "height",
+          "rotate",
+          "glyphs",
+          "paths",
+          "fonts"
+        ],
+        "page_keys": [
+          "width",
+          "height",
+          "layout",
+          "words",
+          "regions",
+          "text"
+        ],
+        "initial_review_of_integrated50": {
+          "strict": "major",
+          "body_character_order": "minor",
+          "decision": "neutral",
+          "new_regression": false
+        },
+        "read_flags": {
+          "whole_scale2_original_image_viewed": true,
+          "all_output_lines_read": true,
+          "all_Article_texts_read": true,
+          "all_Document_blocks_Tables_Runs_read": true,
+          "native_source_for_target_and_missing_glyphs_checked": true
+        },
+        "notes": "All171 lines/one Article/one prose Document read. Original contains two distinct law summaries: education law63 then financial law64 at L68; both remain one Article (strict major). Rightmost source column labels ロ/ハ/ニ/ホ/ヘ/ト/チ are seven nativeGlyph-bearing Empty Words45..51, absent before corresponding paragraphs (L128,136,140,145,156,163,168). Body text itself remains in source order. チ=Word51/Glyph3231/CID25937/E9F5 remains missing; no native0 exclusion.",
+        "native_zero_exclusions": [],
+        "old_audit138_139_and_independent_candidate_initial_grades_not_modified": true
+      },
+      {
+        "page": "20260731g001720008",
+        "PDF": {
+          "path": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720008.pdf",
+          "sha256": "f77e9e30a6b376c0a9dc30b4df55899fdd192cc2c8bbc720bbc65fd8c53b21db",
+          "bytes": 143650
+        },
+        "image": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260731g001720008.png",
+          "sha256": "272640ab455a6edfc24027c77bd04386b50c2310c9d80802e0f1caf7a7e3d3fb",
+          "bytes": 974338
+        },
+        "Analysis50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260731g001720008-root50.analysis.json.gz",
+          "sha256": "9778727ddf034987b60954c5c3f728ab3a044aabeb6baf27a05513a36b9a83ad",
+          "bytes": 11370
+        },
+        "text50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260731g001720008-50.txt",
+          "sha256": "0310250682cbd329970b054a02e854d31304aef0ca3c43d5dd5c2332ddcacadc",
+          "bytes": 8632
+        },
+        "articles50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260731g001720008-50.articles.json",
+          "sha256": "f063d54eb52de3294307db2bc5340edbd0427292b328b4714a6ce0c6654d31f1",
+          "bytes": 17565
+        },
+        "native50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260731g001720008-50.native.json.gz",
+          "sha256": "0fd3ec9ca4a766f8aeadac0d4c41b99178460d12fcf825d5608161a05790fa3d",
+          "bytes": 90442
+        },
+        "wholeAnalysis_exact_to_independent_joint49": true,
+        "wholeAnalysis_exact_to_root49": true,
+        "native_all_Glyph_Font_Path_public_Word_schema_rawbbox_exact_to49_and_joint": true,
+        "XHTML_only_adds_resolved_AJ1_metadata": true,
+        "linecount": 167,
+        "articles": 1,
+        "native_keys": [
+          "width",
+          "height",
+          "rotate",
+          "glyphs",
+          "paths",
+          "fonts"
+        ],
+        "page_keys": [
+          "width",
+          "height",
+          "layout",
+          "words",
+          "regions",
+          "text"
+        ],
+        "initial_review_of_integrated50": {
+          "strict": "minor",
+          "body_character_order": "minor",
+          "decision": "neutral",
+          "new_regression": false
+        },
+        "read_flags": {
+          "whole_scale2_original_image_viewed": true,
+          "all_output_lines_read": true,
+          "all_Article_texts_read": true,
+          "all_Document_blocks_Tables_Runs_read": true,
+          "native_source_for_target_and_missing_glyphs_checked": true
+        },
+        "notes": "All167 lines/one Article/one Document read. Existing missing ten original labelGlyphs: nine standalone Empty Words59,60,152..157,173 plus E9F5 inside Used Word50. Two チ occur at nativeGlyph1596/1630; source range イ〜チ is output イ〜 (L85), and standalone チ before 4の(1)イ L83 is absent. Other missing source labels ロ/ハ/ニ/ホ/ヘ/ト/リ include page-leading ロ. Circled1..4 and all operative prose/section2 and3 correspondence stay intact. These controls preserve deficiencies, not successful restorations.",
+        "native_zero_exclusions": [],
+        "old_audit138_139_and_independent_candidate_initial_grades_not_modified": true
+      },
+      {
+        "page": "20260831g001940091",
+        "PDF": {
+          "path": ".cache/kanpo-archive/2026-08-31/20260831g00194/20260831g001940091.pdf",
+          "sha256": "c289f810dbd887bbb6d9cf32167b98919d014320932d4a5849d276e6d2c6dbf1",
+          "bytes": 155167
+        },
+        "image": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260831g001940091.png",
+          "sha256": "8baa5c8bf38edf51978243ba3837566205b7d63c90692cf84f9f8fb5cbd65594",
+          "bytes": 551477
+        },
+        "Analysis50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260831g001940091-root50.analysis.json.gz",
+          "sha256": "2097c6668c1525660737d8a23bcb00ebaf35d931b2f78c18a124c38f3f8993a9",
+          "bytes": 17392
+        },
+        "text50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260831g001940091-50.txt",
+          "sha256": "37686859d8815c408ac8fbb4b0fc22cbda2004283e5d18b9ac2876b97b89db1b",
+          "bytes": 4854
+        },
+        "articles50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260831g001940091-50.articles.json",
+          "sha256": "53fafb3482a059e52d11e7fff82820b4493f3bf5250dc39757ace5c31bd67f76",
+          "bytes": 34192
+        },
+        "native50": {
+          "path": ".cache/kanpo-227/root29-originals-and-native/20260831g001940091-50.native.json.gz",
+          "sha256": "4e737513bc0cae834a70342db559d3f8333e34e96092ceae20954737cd7c81e8",
+          "bytes": 71626
+        },
+        "wholeAnalysis_exact_to_independent_joint49": true,
+        "wholeAnalysis_exact_to_root49": false,
+        "native_all_Glyph_Font_Path_public_Word_schema_rawbbox_exact_to49_and_joint": true,
+        "XHTML_only_adds_resolved_AJ1_metadata": true,
+        "linecount": 75,
+        "articles": 1,
+        "native_keys": [
+          "width",
+          "height",
+          "rotate",
+          "glyphs",
+          "paths",
+          "fonts"
+        ],
+        "page_keys": [
+          "width",
+          "height",
+          "layout",
+          "words",
+          "regions",
+          "text"
+        ],
+        "initial_review_of_integrated50": {
+          "strict": "ok",
+          "body_character_order": "ok",
+          "decision": "improvement",
+          "new_regression": false
+        },
+        "read_flags": {
+          "whole_scale2_original_image_viewed": true,
+          "all_output_lines_read": true,
+          "all_Article_texts_read": true,
+          "all_Document_blocks_Tables_Runs_read": true,
+          "native_source_for_target_and_missing_glyphs_checked": true
+        },
+        "notes": "All75 lines/one Article/full Document three tables44rows read. Source 6..9 welfare/medical/nurse/blood descriptions precede general accounts. Both original 災害救護事業費 labels correspond to603 (L30) and6,165 (L43). All other original label/amount pairs including47,745/42,959;1,220,236/1,174,192 and46,044 stay in their correct cells.14 originalGlyphs/2WordIDs159,469 and owners exact. Two incorrect チ substitutions and four inferred label gaps are repaired; native spacing unchanged. Existing paragraph heading concatenation/cross-page stitching is not changed.",
+        "native_zero_exclusions": [],
+        "old_audit138_139_and_independent_candidate_initial_grades_not_modified": true
+      }
+    ],
+    "summary": {
+      "pages": 6,
+      "output_lines": 698,
+      "Articles": 7,
+      "strict": {
+        "ok": 3,
+        "major": 2,
+        "minor": 1
+      },
+      "body": {
+        "ok": 4,
+        "minor": 2
+      },
+      "improvements": 2,
+      "neutral": 4,
+      "new_regressions": 0
+    },
+    "joined_source_proof": {
+      "path": ".cache/kanpo-227/root29-originals-and-native/joined-original-source-proof.json",
+      "sha256": "799b9b7032491796663a287715aafc51277c3f619d4807a41e8d52491f75feda",
+      "bytes": 106788
+    },
+    "all_frozen_source109_deps_and_original_inputs_prepostSHA_exact": true
+  },
+  "source50_pre_generic_audit140": {
+    "path": "crates/kanpo-parser/tests/audits/140.json",
+    "sha256": "1c0f418cd28e2706a82aedbf8e658fe5659715feeecd0d0b255134429623b6af",
+    "initial_grades_retained": true,
+    "final_generic_All11992_Analysis_exact_to_source50": true
+  },
+  "final_source51_unseen141": {
+    "path": "crates/kanpo-parser/tests/audits/141.json",
+    "sha256": "a1a2ce68768b01d92a25984118157935211174a01a4a197521522ead28ad2a59",
+    "strict": {
+      "major": 13,
+      "minor": 4,
+      "ok": 13
+    },
+    "body": {
+      "minor": 6,
+      "ok": 22,
+      "major": 2
+    },
+    "lines": 1957,
+    "Articles_Documents": 46,
+    "new_regressions": 0
+  },
+  "company_unadopted": {
+    "fixed_scope": 1286,
+    "unique_reviewed": 421,
+    "pending": 865,
+    "old361_history_path": "crates/kanpo-parser/tests/audits/issue227-twenty-eighth-batch-reviews.json",
+    "old301_regression_and_all_later_adjudications_retained": true,
+    "new60_initial_strict": {
+      "minor": 19,
+      "ok": 22,
+      "major": 19
+    },
+    "new60_initial_body": {
+      "minor": 22,
+      "ok": 31,
+      "major": 7
+    },
+    "new60_initial_classification": {
+      "partial": 38,
+      "improvement": 22
+    },
+    "new_regressions": 0,
+    "all60_before_after_complete_Analysis_exact_to_old_v3b": true,
+    "current_source51_parent_unchanged_on_all60_by_full49_50_generic_51_proofs": true,
+    "machine_PASS_not_counted_as_visual_PASS": true,
+    "deliveries": [
+      {
+        "path": ".cache/kanpo-227/company-article-v3c-rebase48/review-360-389/delivery-manifest.json",
+        "sha256": "3117b2d1793c8fe1182d0f016ed64d73eafd6822b14da6c320a664fb2098d842",
+        "review": ".cache/kanpo-227/company-article-v3c-rebase48/review-360-389/review.json",
+        "review_sha256": "2ebf74e75f8a95bf5687d3fee4ca1e5c6b579382f724361d02b93db0f29a67f6",
+        "root_verification": {
+          "delivery": ".cache/kanpo-227/company-article-v3c-rebase48/review-360-389/delivery-manifest.json",
+          "sha256": "3117b2d1793c8fe1182d0f016ed64d73eafd6822b14da6c320a664fb2098d842",
+          "verified_files": 93,
+          "summary": {
+            "total": 30,
+            "scope_indices": [
+              360,
+              389
+            ],
+            "strict_initial_grade": {
+              "minor": 9,
+              "ok": 11,
+              "major": 10
+            },
+            "body_initial_grade": {
+              "minor": 10,
+              "ok": 15,
+              "major": 5
+            },
+            "classification_initial": {
+              "partial": 19,
+              "improvement": 11
+            },
+            "additional_adjudication": {
+              "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/company-article-v3c-rebase48/review-360-389/post-review-adjudication.json",
+              "initial_grades_unchanged": true
+            },
+            "new_regression": 0,
+            "all_original_images_viewed": true,
+            "all_body_article_document_read": true,
+            "total_body_lines": 5759,
+            "before_articles": 30,
+            "after_articles": 320,
+            "fixed_scope_total": 1286,
+            "previous_unique_reviewed": 361,
+            "new_unique_reviewed": 30,
+            "local_unique_after_batch": 391,
+            "local_pending_after_batch": 895,
+            "prior_financial330_359_included_in_root361": true,
+            "scope_not_reduced": true,
+            "old_v2_history_not_recounted": true,
+            "current48_identity_delta_pages": 0,
+            "all30_before_after_wholeAnalysis_exact_old_v3b": true,
+            "candidate_adopted": false,
+            "cached_source110_postsha_exact": true,
+            "parent48_nonhook103files_exact": true,
+            "live_shared_source49_not_used_as_baseline": true,
+            "native0_is_limited_scope_not_wholepage": true,
+            "initial_omission_grades_not_rewritten_by_native_adjudication": true,
+            "accepted49_page_intersection": [],
+            "accepted49_not_integrated_into_company48": true,
+            "effective_adjudication_disproves_initial_minor_383_but_initial_kept": true
+          },
+          "adopted": false
+        }
+      },
+      {
+        "path": ".cache/kanpo-227/company-article-v3c-rebase48/review-390-419/delivery-manifest.json",
+        "sha256": "21e3589f62e102a5e09d2383fc9ab9ad1e2814c39049122fd04be2b052547bf8",
+        "review": ".cache/kanpo-227/company-article-v3c-rebase48/review-390-419/review.json",
+        "review_sha256": "750569415452cd64640b80f399eb2b8feca78203e6aa5c5c31d9c5b2211111ed",
+        "root_verification": {
+          "delivery": ".cache/kanpo-227/company-article-v3c-rebase48/review-390-419/delivery-manifest.json",
+          "sha256": "21e3589f62e102a5e09d2383fc9ab9ad1e2814c39049122fd04be2b052547bf8",
+          "verified_files": 99,
+          "summary": {
+            "total": 30,
+            "scope_indices": [
+              390,
+              419
+            ],
+            "strict_initial_grade": {
+              "major": 9,
+              "ok": 11,
+              "minor": 10
+            },
+            "body_initial_grade": {
+              "ok": 16,
+              "major": 2,
+              "minor": 12
+            },
+            "classification_initial": {
+              "partial": 19,
+              "improvement": 11
+            },
+            "additional_adjudication": {
+              "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/company-article-v3c-rebase48/review-390-419/post-review-adjudication.json",
+              "initial_grades_unchanged": true
+            },
+            "new_regression": 0,
+            "all_original_images_viewed": true,
+            "all_body_article_document_read": true,
+            "total_body_lines": 5617,
+            "before_articles": 31,
+            "after_articles": 279,
+            "fixed_scope_total": 1286,
+            "previous_unique_reviewed": 391,
+            "new_unique_reviewed": 30,
+            "local_unique_after_batch": 421,
+            "local_pending_after_batch": 865,
+            "all_previous391_preserved": true,
+            "scope_not_reduced": true,
+            "old_v2_history_not_recounted": true,
+            "current48_identity_delta_pages": 0,
+            "all30_before_after_wholeAnalysis_exact_old_v3b": true,
+            "candidate_adopted": false,
+            "cached_source110_postsha_exact": true,
+            "parent48_nonhook103files_exact": true,
+            "live_shared_source50_not_used_as_baseline": true,
+            "native0_is_limited_scope_not_wholepage": true,
+            "initial_omission_grades_not_rewritten_by_native_adjudication": true,
+            "accepted49_page_intersection": [],
+            "accepted49_not_integrated_into_company48": true,
+            "effective_adjudication_limits_initial_392_omission_but_initial_major_kept": true
+          },
+          "adopted": false
+        }
+      }
+    ],
+    "pages": [
+      {
+        "index": 360,
+        "page": "20260820g001860103",
+        "strict_grade": "minor",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図/189行/旧1→新18Article全DocRunを照合。メディックスから内外メディアまで18独立解散公告が各別Article、跨帯継続の住所/署名も正当所属。全解散日7/31,3/1,5/31,7/29,6/30等と掲載8/20・姓名住所一致。陳娌娜は原図追加拡大(娌=女里、Word70 raw娌娜)で正字確認。既存L52 AGC WIN/L143 IDEAL STUDIOの原英語語間が出力詰まりminor、他欠字/混入なし。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "d5d5eac88c335dbf03fd6e7af807f080d45757a36924621a457d301abf54c08a",
+        "image_sha256": "4d3d224b85adcd7a4d8ae55b6eb45318feba8005344c4e1620e8301a9d1c6a40"
+      },
+      {
+        "index": 361,
+        "page": "20260820g001860104",
+        "strict_grade": "minor",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図・180行・before1/after17全Article/Docを照合。Marine Forest、三明医薬、建和、FINE MAKER岩下工務店、三建工業、大谷紙興、ペンション寿グリーンシャワー、東信製作所、MATY、つくでハッピーパラダイス、すぎな、寺田木材、岡平製薬所、大黒電機、コンサウェル、Blossom、スパングの独立17公告の境界が改善。上段FINE署名・MATY団体名の帯跨ぎも同所属。全決議日/8月20日公告日/氏名住所を照合。既存L10 Marine Forest/L43 FINE MAKERの語間空白欠落が残存。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "71d73e6367c8ca542813909abf5305740e358f1ced10e6fe0521807064c8c5c9",
+        "image_sha256": "b8429c47c86316a3ac0e9263d45ad5facf8054feb73dd6f98154c33cedfd1f24"
+      },
+      {
+        "index": 362,
+        "page": "20260820g001860105",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図・183行・before1/after17全ArticleDocを照合。ロージー/飛翔/中日薈建国際/SNK/アド・バンス/日本喜屋科技/泰平/大起建設/清閑/アドバンス/よみれん鳥取/朋和創建/LUFT/一橋/海藍天/三好設備/ほけんラボの17解散公告を正しく分離。大起・清閑・LUFTの段跨ぎ、清算人柏木明/沈喬楠/グエン・タイ・チャン/王亜蓮等の全氏名、決議日/住所/公告日を保持し、原図と全行一致。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "715814dd8fadeb91be0a5a29f4a4746ee5611f7eb1e240706825e78d9e868154",
+        "image_sha256": "f8acea6144ca4faaec5de3f54f60c0823ba336fb29a9df141bab54038b136263"
+      },
+      {
+        "index": 363,
+        "page": "20260820g001860106",
+        "strict_grade": "major",
+        "body_grade": "major",
+        "classification": "partial",
+        "notes": "全原図/190行/全before1after9 ArticleDoc読了。最初8社は分割改善、Article8 L87..190にアロマコーヒー、心睦教団安藤教会、西順寺、マツダ管理組合、岩見の里、本地森林組合、禊教、東禅寺と独立三浦紙器第73期BSが未分割。BS全額299061/515471/814532/233369/451713/129449/24000/105449/27000/78449/(39049)原図照合。既存L33は原図清算人『尾崎由紀子』の紀が欠落し『尾崎由子』。原図拡大保存、native0とはまだ主張しない。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "1b6022c96d372ef16fd4b0634a58db425cf0f718433bcc25a728b8242690bf9a",
+        "image_sha256": "360e8fad4a5af5121c46beaf78fd1746fb0ba8303dc5bdb04a381f60e388d7be"
+      },
+      {
+        "index": 364,
+        "page": "20260820g001860116",
+        "strict_grade": "minor",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図・202行・全8財務Tableとbefore1/after8 ArticleDocを照合。サンセツ/卸酒販/エンドレス/カブヤマ各減額+同社BSを関連一群で保持し、AYNZ/東急R&D/住化中東/プロダクト各独立決算を分離。全8表の各科目全額・単位/△/括弧を照合。既存エンドレス資本剰余金の原図横棒がL130/Doc同セルで空欄のまま（原字未調査、native0主張なし）。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "7b9fe8dae0dbd75497e5cbdeed619dc936782be556534eae3fe258176f65dbf5",
+        "image_sha256": "775a35a9f88c64362e1a3e39fac9ba6afc9cbd05961368c954c532a53f93fe49"
+      },
+      {
+        "index": 365,
+        "page": "20260820g001860117",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図・210行・全8表/before1after8全ArticleDocを照合。LLS/柳澤組の新設分割と同社BS、セーキ/Each DreaM減資と同社BSは関連保持。独立日本滅菌業協会/ヴェルデ/Fukugu/有隣電氣を分離。全科目金額・円/千円/百万円・△/括弧と日付署名を照合、LLS1017108057、柳澤3223124、Fukugu144249534、Each48658と自己株式△301530/当期(△80958)等の対応正常。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "414ff3df4e40cca485d7b083b51ca185100454d129d5589e6dafb6622ca0306d",
+        "image_sha256": "94ad395d671f2994735f5a4e8d84ed3b54b82dbe7fbb83fc6616650cce222619"
+      },
+      {
+        "index": 366,
+        "page": "20260820g001860118",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図・214行・before1after8全ArticleDoc/9財務表を照合。MEVIUS/ユニオンネット/うむさん各減資と同社BSは関連保持、マッコーリー3別法人は別群、日本調剤BS+PLは同群。全表金額/括弧/△/単位を照合。日本調剤BS187217/PL売上346934・純利益4326、ユニオン630703/△82506等の科目と値は正しく結合。全公告文/日付/氏名/住所も一致。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "818bf9befdbb54ba29b3d6aa5c21456c3a36b956505f1b3e1f6afceff1572acc",
+        "image_sha256": "ec7cb4907c7118fbffafb999376363557acd3b95a9cef3745b0bfd38f608150b"
+      },
+      {
+        "index": 367,
+        "page": "20260820g001860119",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図・212行・before1after8全ArticleDoc/9財務表を照合。サスライト/マッコーリーエナジー/AtCoder/リードウェル/グリーンクロスは独立群、石川メンテナンス合併+同BS、Flora減資+同BS、オーク/KED吸収分割+乙BSは関連保持。全9表の値/△/括弧・単位と全署名公告文を照合。マッコーリーBS66523578/PL929922、KED2155453など所属正常。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "d6245aad61ebe1c316050cb2957fbf51c5db31e7e942bbdef5f6c720b775f696",
+        "image_sha256": "5efdd9f267f1a9274ddcb2f39c9b05ab7fdeac7e90a0efcbb37d9ad86610d378"
+      },
+      {
+        "index": 368,
+        "page": "20260820g001860120",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図・221行・全8BS/全ArticleDocを読了。ニューロング/クドー合併+乙BS、オンラインドクター減資+BS、テクノビオトープ/山梨吸収分割+乙BS、総合メンテナンス/玉原合併+甲BSを各関連保持。独立日本カメラ/エヌエヌ/グリーンベース/ステイを分離。全額・△・括弧・単位/公告文/署名を照合、同住所同代表のエヌエヌとグリーンベースも別公告として正しい。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "a311c46dbef535ff9fdc8a23d6b76f62a251caa13cc6094a036abf607468965c",
+        "image_sha256": "a0d546ffadc90429a09afc2a23c48e8ee1b20e1693ef64db0e78d780e6dfade3"
+      },
+      {
+        "index": 369,
+        "page": "20260820g001860121",
+        "strict_grade": "major",
+        "body_grade": "major",
+        "classification": "partial",
+        "notes": "全原図・191行・before1after7全ArticleDoc/7BS照合。レイノス/カンパニー/組織理論の減資+BS各関連保持、Gakken新興医学合併+乙BSも保持、ソノラス/Newmark/昔亭独立分離。全額/△/単位は正常。既存L171/L176の新興医学出版社署名は原図『橋本邦彦』に対し『橋本彦』で邦一字欠落(2箇所)。左下官報電子化案内は本文不在、未native0主張として別保存対象。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "bc7a92e768b6de4238bf8cb57160fea05665e8907d2dfda40777424fc40b56f0",
+        "image_sha256": "97f6a2056341d0cb0de93edd48f6bd9c979e0c97069883d1cb193682ca7e40bf"
+      },
+      {
+        "index": 370,
+        "page": "20260820g001860122",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図212行・全8BS/before1after6全ArticleDoc読了。顧問名鑑/mode減資+各BSを保持、仙台宮水/大平合併+甲乙2BS、日本外服/ケン合併+甲乙2BSも各一群。独立フルタ/ソフトムは分離。全額/符号/単位と全公告本文/氏名/日付を照合し、43506/581007と5143256/16654052の別社額対応正常。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "c0658eaaa3e187608cfd1251c74659e98789f930d03554c65f548535e1073ca6",
+        "image_sha256": "9caeb59abdf4240c180fe93417c4eef9e01704c75aa37b7ae930f9d60b291b13"
+      },
+      {
+        "index": 371,
+        "page": "20260820h017720027",
+        "strict_grade": "major",
+        "body_grade": "ok",
+        "classification": "partial",
+        "notes": "全原図104行全ArticleDoc照合。5独立合併のうち井原/ナカヨ/アセットは分離、Article4 L61..104にアクモスと東洋不動産の別合併2件が未分割。題字+会社区切りArticle0は司法/会社見出し混在。全会社文/日付/甲乙/署名は正確。上段/第二段司法本文は限定3矩形fresh全1591Glyph閉交差0、題字20Glyph陽性を別保存、文字層無し範囲だけ対象外。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "265f820724842a995509227e72807f27591e865b94e215251e82c2c8d31232e7",
+        "image_sha256": "707f37a410935df2d25814c845daa64bd576c7b5c5a59b24c1ea5e853c4abf7f"
+      },
+      {
+        "index": 372,
+        "page": "20260820h017720028",
+        "strict_grade": "major",
+        "body_grade": "major",
+        "classification": "partial",
+        "notes": "全原図175行全before1after9 ArticleDoc読了。東邦3種/極東/JR/日本センスティック/シニア/オリックス/伊藤忠の独立9合併を分離。JRと伊藤忠は相互同一合併の別広告を原枠別に維持。全甲乙/掲載日URL/署名を照合。既存L93JR社長は原図『田』と『滋』の間に太い達形一字があるが出力『田滋』で欠落。crop保存、native0未主張。Carrier Transicold Container Productsの語間空白も欠落L112..114。伊藤忠松典男は拡大原図『典』で出力一致を確認。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "78203522915387777f7d84e6097ae248ce8dcb838096da0da1dd5f20e06c3224",
+        "image_sha256": "1646a5a1f19d648d164db05e9d7688f2d4bad7914534e31c4d51ac58b29218d6"
+      },
+      {
+        "index": 373,
+        "page": "20260820h017720029",
+        "strict_grade": "minor",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図180行before1after9全ArticleDoc読了。gumi/大同油脂/キャタピラー/村尾技建/遠鉄/香月/西原食品/TOPPAN/青山の独立9公告が正しく分離、各甲乙・署名・掲載日/URLを照合。キャタピラー折返し代表社員/職務執行者、遠鉄の段跨ぎURLも同所属保持。既存L18原図英語商号gC Gamesの語間空白が出力gCGamesで失われるminor。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "35d181e4ec97eedc102ef66d5dc9813d9b1f3f657930d359207e5641b727c1a2",
+        "image_sha256": "c05ec5164ffd80baba8da40418a58f507664d00dc75741b4a14264091f67438f"
+      },
+      {
+        "index": 374,
+        "page": "20260820h017720030",
+        "strict_grade": "minor",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図189行before1after16全ArticleDoc読了。新設分割1/組織変更11/減資4の独立16公告分離は正常。全新旧商号/効力日/減少額/URL/氏名住所を照合。既存英字語間空白がOutcome Craftsman Inc(L72..73)、MONDO RETAIL(L97..103)、SMART FLUENT(L112)で連結。湯島Re.Developmentの段跨ぎやハローワーク公告下段継続は同所属保持。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "757fe5968b68911497370599b864d0b5970610d7300712c5afae2bd03126a197",
+        "image_sha256": "a2a962b124cbbca757d5f68595e0f8a6a40d2c45644a2f3d8ebda0e77b2fc0ed"
+      },
+      {
+        "index": 375,
+        "page": "20260820h017720031",
+        "strict_grade": "minor",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図187行before1after13全ArticleDocを照合。レイノス/レイテク/mode/ロンザン/レイアセット/ビジネスタンク/Gigalogy/ジラフ/ヴェアリアス/コトブキ/Nexus/エーケーイー/ソニア各減額公告を正しく分離。同文公告も氏名・住所・額を個別照合、Gigalogy232974000円、Nexus3387499999円→300000001円、ソニア2額とも原図一致。既存Nexus Groupの語間空白欠落L156だけminor。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "db7a7c11a57e6f47e80b50707bb210b63a8a8bbffbeeb2b802802b0a1f8d743e",
+        "image_sha256": "63f7c16a4e8cc8e7cd3aa891c8e96968808cff22c5ededef6d14edc3ba37f1e7"
+      },
+      {
+        "index": 376,
+        "page": "20260820h017720032",
+        "strict_grade": "major",
+        "body_grade": "major",
+        "classification": "partial",
+        "notes": "全原図173行before1after4全ArticleDocを照合。TREASURY/Patentix/SIRCは分離、Article3 L55..173にはユーコネクトと定款変更2社/外国退任/OS分割合併/年金/省令正誤が未分割。既存OS L117乙URLが空でL120..121へ丙丁URLの後に遅れ役割が崩れる。正誤表L149..173はPlain連結で誤正対応が表構造化されない。原図限定承認本文全体不在はnative調査待ちで除外未主張。減額4公告の額/氏名/URLと残本文は全読照合。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "7b0d8373d68fa8571469b9abc3427658a45513d3edc03b82cfe977a15b8ba0cf",
+        "image_sha256": "50c136f9d0429284587e7b72c720b208c93bd98ac1eff394872604d36c6c9c59"
+      },
+      {
+        "index": 377,
+        "page": "20260821g001870077",
+        "strict_grade": "minor",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図185行before1after18全ArticleDoc読了。17独立解散公告は正しく分離し、東松島/よしの/JASMINE/中平の段跨ぎを保持。全氏名/日付/住所/新木壽一等字形を照合。章見出しのみArticle0はminor、既存FS Japan Project9の語間空白欠落L173、イノウエ ジェリル パヨヨの語間もL79で詰まる。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "936b62896fca8eb3d07a18b5202cd7b140200722456ebd8bbaeb729551a0e20c",
+        "image_sha256": "5806ff6a8ebe42e7cc87903a88b5c02c2c80583219a9a70088013a2088b56857"
+      },
+      {
+        "index": 378,
+        "page": "20260821g001870078",
+        "strict_grade": "major",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図191行before1after16全ArticleDoc読了。原図17独立解散のうち内神田リーシング/青葉ホールディングス2件がArticle0 L1..22に未分割。残り15社の境界は正しく、Totsu一般社団法人と合同会社も別公告保持。全氏名/決議日/住所を照合。既存Totsu Residenceの語間空白欠落L109/120、値や役割混入はなし。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "5e478592d2c360eb998f9036277114e6c75031547623076e5b24701fd843f73f",
+        "image_sha256": "eebd77af4aac48f2769419a68881ead06ebe70b5ebc6aeda505cf8b62ca7cdcd"
+      },
+      {
+        "index": 379,
+        "page": "20260821g001870079",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図185行before1after17全ArticleDoc読了。相模林業/大田/セドナ/モルセラ/ウスイ/陽南/ビーエス/大野屋/オアシス/大我/丸仙/製造情報/大功/YMEY/ゼロ/エイブル/ライム各独立解散が17群正常。セドナの住所折返し、ウスイ段跨ぎ、全清算人/決議日/公告日/住所を全行照合し欠落混入を認めない。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "c18b0194a72729b749847f524cdc284d5f5695d1343e35580ba30bcd458345fb",
+        "image_sha256": "fa3c9fa3dae1d6e945e8ed284c71689bd25544c5a366c557eca28b6e0a804dce"
+      },
+      {
+        "index": 380,
+        "page": "20260821g001870080",
+        "strict_grade": "major",
+        "body_grade": "major",
+        "classification": "partial",
+        "notes": "全原図190行before1after18全ArticleDocを照合。18独立解散の境界正常、全公告/決議日/住所/氏名を照合。既存L31丸二代表清算人は原図『宇野孝』で宇が欠け『野孝』。Word165野 bbox231.7858,196.8398..239.7858,204.8398、その上の原図宇を拡大保存、native0未主張。ほかBG Hash Technology/Sole Lunaの語間空白欠落、刘崧岑/王倹の原図字形を維持。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "be753c2fa855049a3a88d0afcfa8e514177733f08f6e4f685832ff9f0e080f6d",
+        "image_sha256": "c31c49d8a99c0af12ce3e706b9e9a7c50f25e36852b4b6657445fcaa352e0edf"
+      },
+      {
+        "index": 381,
+        "page": "20260821g001870081",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図188行before1after17全ArticleDoc読了。ユーロ/ハーモニー/上田/RY/奥平/松岡/吉岡/オフィスワイズ/SPY/龍/カスタニ/ツボイ/一条/是閭/豊野/山田/アイビスの17公告が分離。奥平の債権申出先を同記事に保持し、段跨ぎ本社/申出先も混入しない。清算人久德晴美/李煥辰/辻輝幸等全氏名、決議日/住所/2箇月又は2個月の原字を照合、欠落無し。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "b3a677a7b9aa2a75f5da2bcfdbead38913c2d002b2a7237a9bc0885358f96718",
+        "image_sha256": "a8a0a810a9512af02555ba28ef2cf2a7ed660a1f1db24d1cd0631a2897e6c19f"
+      },
+      {
+        "index": 382,
+        "page": "20260821g001870082",
+        "strict_grade": "major",
+        "body_grade": "ok",
+        "classification": "partial",
+        "notes": "全原図181行before1after12全ArticleDoc読了。原図17独立解散中最初11社は分離、Article11 L116..181にKaziyaと萬寳院/京友会/西向寺/古城医院/不動教会の6独立公告が未分割。全本文・決議日/命令日・住所/債権申出先・清算人黒葛原寛/岩﨑孝生/渡邉恭子/増元賢次郎等を照合し本文欠落混入なし。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "179e5dc672e8f67f9c5801c1d886c239019b90be56f6df775d7a240c32489bf7",
+        "image_sha256": "56e381b70996beb6f52da4455cf9da7eaffb9408008b277c0eeeb33e1e14cb18"
+      },
+      {
+        "index": 383,
+        "page": "20260821g001870089",
+        "strict_grade": "minor",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図219行before1after8全ArticleDoc/10表全科目額を照合。協友会/哺育会のBSPLを同群、三恵/CNKの減額+BSを同群、独立他4決算を分離。BS51536142/20506065、PL487976/397397、各△/括弧/千円と所属正常。長野西沢書店L129固定負債は原図横棒に見えるが出力0、原native未確認の既存符号差としてminorを固定（補完/除外しない）。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "3014ca64bf04d3729ef8fcfadfc07c80f8fd8b71ce1185c2e33dfa724a665db0",
+        "image_sha256": "07d64df4c0c563f7b583e7c6c4812965862a01123314bac20b0f65eb274d6c37"
+      },
+      {
+        "index": 384,
+        "page": "20260821g001870090",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図222行before1after8全ArticleDoc/8BS全行全額照合。ユアネット新設/春日ホーム吸収/ブルーテックRocket合併/大嶋減資と各関連BS保持。独立角一/井澤/ダイキョウ/麻生を分離。実用春日利益準備金2/任意積立金571を元科目通り保持、Rocket賞与3103/ダイキョウ役員退職1500/大嶋△33288/△58288を含め正常。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "83aedfbc7620ac56fe747d28d4153465bf70a3fe1221e967e83b9af0a16392d6",
+        "image_sha256": "54f68ad8752026f96bdd82bb6b9dca2cdee4e86021c9ca9c026ecd1b9428be05"
+      },
+      {
+        "index": 385,
+        "page": "20260821g001870091",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図208行before1after8全ArticleDoc/全8BSを照合。今立酒造減資/ヒーローズ新設/ライフマクロン合併/ヤマシン減資は関連BS保持、フクショウ/スピア/多米/タウン独立分離。全科目額/△/単位と署名本文日付を照合。フクショウ/今立の0は原図0、スピア自己株式△1950、マクロン純資産△19019等正常。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "55989a13297dbf2c618a0bc0b2480114e5fa8e0a3392b21c5954cddeb15457b3",
+        "image_sha256": "4083a161a07b22dcd5af7e07987a510f6a31a27f99d9b136940886c9cd0d1b9c"
+      },
+      {
+        "index": 386,
+        "page": "20260821g001870093",
+        "strict_grade": "major",
+        "body_grade": "ok",
+        "classification": "partial",
+        "notes": "全原図205行before1after7全ArticleDoc/8BS全セルを照合。Article0 L1..54に独立ラドンナBSと日本ユニテック減資+BSが未分割。三池/センノ/WORKER関連BSは保持し他三星/東京建築/Jeisys独立分離。全科目額/括弧/△/単位、減額68234710→21765290等と各署名一致。題字/表/氏名の別記事混入は増えていない。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "1b552348876a0ae655bd644ed39e0c341e7413f2f16179c64a31c0afc3b32328",
+        "image_sha256": "602e6e31e825f569627ea54afa5f0e180bf67bc80edf47ab704f83309fe00556"
+      },
+      {
+        "index": 387,
+        "page": "20260821g001870094",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図214行before1after8全ArticleDoc/8BSを全科目額まで照合。GCJG63/NIT合併+乙BS、晃商事減資+BS、坂田合併+甲BS、サポート減資+BSを各保持。EXIDEA/セオリア/丸紅/JR九州独立分離。円53191136とJR18534808、各△/括弧/有価証券評価差額金59875等の所属・全署名/本文日付正常。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "5964a5462bd790bf3b3cf475cc9ee94a5b1f5fd00e9ad87b22ca50588d99253f",
+        "image_sha256": "827af5c31398996700d549476468546ee4dc70ce26cafe1228d30e6f493599f8"
+      },
+      {
+        "index": 388,
+        "page": "20260821g001870100",
+        "strict_grade": "major",
+        "body_grade": "ok",
+        "classification": "partial",
+        "notes": "全原図221行before1after6全ArticleDoc/9BSを照合。BGL合併+同BS、m.m減額+同BS、五彩/De Arrow/横浜会計合併+3BSは関連保持。独立那須岳/ACT/やよいを分離。しかしArticle3 L92..183に独立京浜保健衛生BSと五彩合併3BS群が未分割。全値/符号/単位/署名/本文一致。やよい資産305731/207731と合計513667は原図も同値で計算による改変なし。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "9592fe9b1ba0ff143e6876dc64595bd5bc3b1c48923db5c3903426f61b56a4a3",
+        "image_sha256": "a805cd3b54f8dde5049bca9e3f5eda62af5cf74c19310730b77bccb8997ef4fb"
+      },
+      {
+        "index": 389,
+        "page": "20260821h017730027",
+        "strict_grade": "minor",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図138行before1after7全ArticleDoc読了。独立合併6公告は正しく分離、マザアス/mania/コムニコの段跨ぎ本文・署名・URL同所属を維持。各甲乙/掲載日/氏名住所を全行照合。章見出しのみArticle0と既存Grab Success語間空白欠落L64はminor。上段司法2公告本文は限定矩形fresh全Glyph閉交差0、会社見出し近隣陽性をproof保存し対象外はその範囲のみ。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "09c5ccc8aad6a431f53f99b658bfd2de384bc0f48151cb6c98dc82962172b850",
+        "image_sha256": "9e2381a84e55888894ac73b6780938985f0bd0a9517576f487a0c1177ce1e46a"
+      },
+      {
+        "index": 390,
+        "page": "20260821h017730028",
+        "strict_grade": "major",
+        "body_grade": "ok",
+        "classification": "partial",
+        "notes": "全原図187行before1after7全ArticleDoc読了。原図8独立合併のうちArticle4 L86..139にKPマネジメント3社合併と日本特殊炉材2社合併が未分割。ほかISB/日本工作/ニューリブラ/47/極東/麻生は分離、各甲乙丙・掲載日/URL/氏名住所を全行照合、body混入欠落なし。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "04516400cd1a0e73bd41460704e09b9e6eeaed1036aee0ccd91104d52a674b23",
+        "image_sha256": "4973afce86861dc1e31457950d67f085a505d7b9c859e9b769cad598e500f4bf"
+      },
+      {
+        "index": 391,
+        "page": "20260821h017730029",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図190行before1after9全ArticleDoc読了。キヤノン/富士フイルム/WOWOW+NTTと太陽光GL公告6件を原枠ごと分離。類似GL8号は鹿児島514-6/熊本549/多古3045-1/滋賀545-1/岐阜91-1と66-1を取り違えず、GL3号山口3所在地+徳島39-2も同所属。全代表社員/職務執行者/日付住所・英語Document Outsourcing Serviceを照合正常。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "3cb0baed3cf73179af6076586b388f2ef713f2ff616fc8645a19acc06b21727c",
+        "image_sha256": "c7eb8686a262adf49b74893e7eaabc61d1d800a8bcb4abae30d9811ceadc8f09"
+      },
+      {
+        "index": 392,
+        "page": "20260821h017730030",
+        "strict_grade": "major",
+        "body_grade": "major",
+        "classification": "partial",
+        "notes": "全原図182行before1after12全ArticleDoc照合。GL/ミツウロコ/アース3吸収、組織変更6、減資3は独立分離正常。ミツウロコ甲乙丙やGL代表社員/職務者の所属も保持。既存L148ジェネリー代表は原図『榊原洵』に対し『榊洵』で原欠落、原字調査待ち。SPA EAS/MOE company/DUC KHANHの語間空白欠落も既存。全額/掲載日/URL/住所その他氏名照合済み。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "48c9f155ae67d7ef0d9a3f06c9cd5eaafe3f2f724a42a7718b8ae32422101346",
+        "image_sha256": "0743175cc23f2ea1af16cdf93d6ba3813ef522a73159c8b27b68154ad5a87eb7"
+      },
+      {
+        "index": 393,
+        "page": "20260821h017730031",
+        "strict_grade": "major",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図182行before1after10全ArticleDoc読了。原図14独立公告のうちArticle9 L127..182にINFORICH減額と北斗/エスワイエス/シスコ/ピクセル定款4件が未分割。残り9減額は分離、全額/効力日/掲載日/氏名住所を照合。既存Check Inn/GAME WINDの語間欠落、L92シェアフルURLのunderscoreが結合下線U0332となるminor、body他正常。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "4a75e325eea3f57d3848a315a59c47fe8777eb49382f3f513c3d62763218864b",
+        "image_sha256": "637ac2bcb706a030b176cd2f3cca508c1ca2ef161ee59cbf1ef4200e35b0043d"
+      },
+      {
+        "index": 394,
+        "page": "20260821h017730032",
+        "strict_grade": "major",
+        "body_grade": "major",
+        "classification": "partial",
+        "notes": "全原図135行before1after2全ArticleDoc照合。Article0にMP株式交換/ビット合併/外国退任/フクダ業廃止/ジョンマスター新株予約権が未分割、Article1にCPS減額/訂正/取消/正誤が未分割。既存正誤表L116..135がPlainで誤正役割・行が崩れる。全出力文/額/署名は原図照合。第二段限定承認3件本文のみfresh全1949Glyph閉交差0/近隣外国公告76Glyph陽性を保存。最初広矩形の76交差も隠さず記録、ページ全体除外なし。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "8b6282e66a4f32781e295e4dac3425a059a8a43e6e334632aa6741e360d6294c",
+        "image_sha256": "0bf55fc9ce97386e3c522c70c9cbdd7fcdfc68a2b72467dd47d96292a1d8cb08"
+      },
+      {
+        "index": 395,
+        "page": "20260824g001880094",
+        "strict_grade": "minor",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図183行before1after17全ArticleDoc読了。留萌/アシリカ/けいほう/ソコスモ/大工/キャッシ/アイデアル/WON/島根/オクト/コスモ/KR6/青盈/高瀬/TOK1F/三生/澳美欧の独立17解散を分離。全署名/決議日/住所照合。既存WON International語間空白欠落L88のみminor、青盈の段跨ぎ末尾や尹鋼/蔡沅伯/髙瀨の原字は正常。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "de0047bf4454ae5b42bf2679610e2576cc721d6ff34b65f9e052686048518318",
+        "image_sha256": "fe5e858c87a6a1e5b28b6b74f8c75d81365f23a00b14f55372259c012c63005c"
+      },
+      {
+        "index": 396,
+        "page": "20260824g001880096",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図187行before1after17全ArticleDoc読了。武久/二光/エーアイ/猛画/義Gi/サイマツ/ボギー/日本美しい国/日本エコ/ハウストラスト/SPV09/ラナベイク/SUCHIGUCHI/らっしー/ヒーキャリコ/インテグラ/蘇氏17公告正常分離。全公告文/氏名/決議日住所を照合。本山載蜂は原図拡大で蜂を確認し出力原字と一致、稀名を推測訂正しない。エコの段跨ぎ全名称/代表と二光の句読点も保持。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "de0931739fbae24840dcff2e4ebdd7d2646ef52140530742914507f9efe29b7d",
+        "image_sha256": "7f6c5829d3511ce32f0ed93ca9c13e711d58a6e64ae260893dc026c11bd5d5c6"
+      },
+      {
+        "index": 397,
+        "page": "20260824g001880097",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図4段・180行・before1/after17Articleの全DocRunを照合。ジャパンリーブス/メイカーズラブ/トータス/アエラ/八百信/イメージハウス/ペガサス/LAPIN/リライオン/會澤/ポーシューシャンブル/ANS/ふくや/すずらん/YM/三河染色/林ライフの17独立解散を正しく分割。各解散日・住所・清算人・除斥期間保持、森清高/會澤俊克/森澤由紀子/毛利吉宏/辻浩義/篠田晴香/吉口二郎等の姓名を原図に照合し一致。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "5a17b3f8351d1bf500a564077c7518fd80016cc549bcaedcbe90671b08eb99e8",
+        "image_sha256": "93d9403b85da80937640a40e1acada602cf223485d2c91055b307827914b00ae"
+      },
+      {
+        "index": 398,
+        "page": "20260824g001880098",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図180行・before1/after17Article/全DocRunを照合。NEXTAGE/紅芸/晨怡菲/トクユキ/バリュープロ/信和/NPOゆず/PCコックス/旭日/池田/石川鈑金/阪神FRP/鳥取/米子/オフィス/ビーインサイド/上剃17独立解散を正しく分割。全解散日・各住所・期間と山根武広/高荃/邊保信一郎/大利照代/楊明/池田靖章/深谷紀行/上剃善行等を原図全文照合。一記事への他社末尾混入なし。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "f9034a9a2fcea45c0a463c15c036cd3d2c06020880506eaaf80ee0360d2a5f27",
+        "image_sha256": "2e5cec90d5ee6fc2509d58c97f5e8a9f59893d5c786f8145fea6a470ce820ba0"
+      },
+      {
+        "index": 399,
+        "page": "20260824g001880099",
+        "strict_grade": "minor",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図185行・before1/after17Article/全DocRun照合。17独立解散の境界・各清算人/住所/日付/期間は正しく分割保持。既存軽微: L43..44 PEACE ROAD in EhimeがPEACEROADinへ語間空白喪失。姓名の観察はL66原図川原和夫→川和夫、L165荒金克茂→荒金克だが、各原/茂の実ink矩形はfresh全Glyph閉交差0、206/303元pathで描画、近傍川/克等native陽性。限定2字のみ対象外、全頁除外なし。他の氏名（瀧下信彦/鳥巢維文/猪股憲彌等）一致。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "c6728869ec71c714c0968bd76467e070833a9332588544cb687c9ba9a9dce256",
+        "image_sha256": "872c75c141144ec17b72160a47cb69bb4ab88d2e6be29995337f37ff5ddd9948"
+      },
+      {
+        "index": 400,
+        "page": "20260824g001880107",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図4段214行・before1/after8Article・8財務Table全セル/Run照合。九州/群馬/仙台/四国森紙業は各独立、同枠小甲減資+70期/北陽合併+16期/千奈利合併+84期/PETOKOTO減資+11期は各同一関連群に保持。左右別社を跨ぐ境界や枠内題字切離しなし。各数値2642/110858/5782/18989/2858/78612/2988/94293と全内訳/△/括弧純損益・単位を照合一致。1500万円/8685万円・833673036円、甲乙と佐藤奈々子/飯倉両氏/大久保泰介保持。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "7636b01e9d50b3f5835b23f1159ef0fbaeef37d3bb44002d6a59460827b3fc5f",
+        "image_sha256": "2cf2724eb60f16d785bbdd909f7ed048510fb0505afe8ffbc4b482e3d7771806"
+      },
+      {
+        "index": 401,
+        "page": "20260824g001880108",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図221行・before1/after8Articleの全Table/Run照合。華元5億減資+1期、TT合併+22期、レインボー4300万減資+12期、BB1合併+サーチファンドNLS期番号なし決算の関連群保持、鳥取/北陸/山梨/岩手森紙業は独立。8表全数値/△/純損益/単位（1074814/3528/1230085/3148/23428373/652/185108/573）一致。神﨑忍/小方秀紀/香川領兵、2URL全文と甲乙開示先保持、原本の山梨利益準備金0も0のまま。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "18cd21890124b93b824fd33975ca5e7a8009f809fe55e809cf36b9f1d742232d",
+        "image_sha256": "ba6df2f2c140bfa5242b75f3b4b158773cf566ab10fa62d1a7d223c58675a313"
+      },
+      {
+        "index": 402,
+        "page": "20260824g001880109",
+        "strict_grade": "minor",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図216行・before1/after8全ArticleDoc/8Table照合。福山/日本運輸/JRバス/昭和独立、アサックス合併+乙フォーサイト11期/OpenProp減資+1期/グリーン合併+38期/Myrodia減資+6期関連保持。全額663/819041/133/79410/433574/758601/334252/33174・全△/純利益/単位/甲乙/年月日一致。軽微既存: L200の英字社名Myrodia TherapeuticsがMyr​odiaTherapeutics（語間空白なし）へ連結、L195縦公告側は空白保持。字欠落/新境界退行なし。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "aa8bb86d4e8fa9d0ac683c6ee891550e916802ed35668fb6771c000d7b31fba2",
+        "image_sha256": "90c92a91d9c05fd3d6ce10b1f612ff4a1c69f09caaeff4b72f664dc3fb2e2940"
+      },
+      {
+        "index": 403,
+        "page": "20260824g001880110",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図208行・before1/after8Article・8全TableRun照合。SAZAREISHI減資+12期/桝屋準備金減+72期/正榮減資+60期/KATO合併+期番号なし決算は各関連保持、首里/Aurora/サンプラック/HCJIは独立。全額246603/1963032/271624087/12661481/146098/1161/112890/184295950と全内訳・△・括弧・単位が原セルに一致、サンプラック固定負債原0保持。Aurora Animation/KATO SEIKO空白、緒方教介/石塚賢一郎/槌田弘人/加藤孝浩/池上耕治等姓名も保持。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "312e8fad047901eb1b653e86a29b451b6aca481002359df76058e76814b93497",
+        "image_sha256": "984a11950462a77363ffa286a5909fa31e30b80edde626b20bc6eaab5132ba6c"
+      },
+      {
+        "index": 404,
+        "page": "20260824g001880111",
+        "strict_grade": "major",
+        "body_grade": "ok",
+        "classification": "partial",
+        "notes": "全原図208行・before2/after9Article・9Table/全Run照合。8独立公告群（マルゲン減資+64期、仁々木分割+15期、SCC減資+4期、王子BS+PL各関連保持）だが既存beforeのL21/22境界を保持し、マルゲン減資がA1L20..21題字/金額冒頭とA2L22..53本文/64期へ分断。候補は前社メディカルと題字を離す改善があるが30,000,000円の途中Article断絶が残るmajor。body/元Doc連結は不変。全9表金額/△/単位一致、仁々木その他剰余金原212202もそのまま、王子BS/PL2640まで同群に保持。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "074cd76e44509fd1a4a518d6dd85d6228b60937708786c8b1b3641f48695265f",
+        "image_sha256": "74d22c8603cdc00adeff57160b720527076199a5b2032445f101f5957dc797e8"
+      },
+      {
+        "index": 405,
+        "page": "20260824g001880112",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図218行・before1/after8Article・10全Table/Run照合。YF JRE BのBS+PL、KFのBS+PLは各同群、アルソス合併+年度決算、V TREE分割+乙島田19期も関連保持。丸一/富士美術館/GAST/ティエラコム独立。全数値3612441/2227628/10812392/70144905/79496371/110489/433895/5573952および全PL/内訳/△/0/括弧/単位一致。鄭武壽/西中克己/忍田和彦/林定昭/原文嗣/島田優平/増澤空と甲乙役割を保持。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "5eff38ad5aaa13442baf63a34ce5a53e395f18421b726d3b7cd43f78ddf2502f",
+        "image_sha256": "f1aed7f9bb47d95101d60327b8ee1dabb3f50018083aabf311eebf8ca2e7986e"
+      },
+      {
+        "index": 406,
+        "page": "20260824g001880113",
+        "strict_grade": "major",
+        "body_grade": "ok",
+        "classification": "partial",
+        "notes": "全原図206行・before1/after6Article・8全Table/Run照合。8独立群に対しA0は北三陸決算+別枠坂中分割/14期、A3はあいづ決算+別枠茅野合併/甲BSの2群ずつ未分割。あきた/ANEXST/鉾田/ドルフ境界は改善、関連分割・合併とBS保持。全数値95534/463/293422/85000/86180/764186/15498/31596および全内訳/△/0・単位一致。坂中機工の代表者は原図も坂 昌樹（会社の中を氏名へ推測追加しない）、半澤宏則/妹尾貞男/西康之/上西映子一致。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "a1e768e06f952ba4b368df6280c210b2f3892a7365bcf6573184599d9f395d8f",
+        "image_sha256": "c515b4ea58eacdcdba1baa95fd33fdaf12b3977befcb5b5e8aa328a8d4e02068"
+      },
+      {
+        "index": 407,
+        "page": "20260824g001880114",
+        "strict_grade": "minor",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図184行・before1/after8Article・7Table/全Run照合。ゲーム払戻しモファンと久喜/朝霞/成田/柏崎決算を独立、セレブロ/富国/デンの減資+BSを関連保持。全額40209/176793/27071/195608/85807/147715/27295と全△/純損益/減額、メールSS@camel4u.comと申出8月24日12時〜11月20日23時59分一致。既存minor L8/9のStellar Sanctuary語間空白がなくStellarSanctuaryとなる（L2/14は保持）。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "1b71d6ef6a278b99bf5827ec8065f34d0279e2eeca7f6d5432c748bfb9f3d760",
+        "image_sha256": "cbc5a10264714bb96422a4855365b71fe9f373199d636c91252ae1ed68e77c7e"
+      },
+      {
+        "index": 408,
+        "page": "20260824g001880116",
+        "strict_grade": "major",
+        "body_grade": "ok",
+        "classification": "partial",
+        "notes": "全原図217行・before1/after4Article・8Table全Run照合。原本5独立群に対しA1L33..105はecoフォレスト決算と別段第三文明社/鳳書院合併・甲乙2BSを未分割。ロッキー減資+30期、おふくろ/鈴美合併+2BS、国大/ピュア合併+2BSの関連は正しく保持。全数値3533/476680/733975/5544870/11714/205365/316693/2351486と全内訳/△/期番号/甲乙が一致。拡大図でロッキー利益準備金は元0確認（バーと推測しない）。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "1feecf7bbbf6c142a15a1c0dd81e1f5baa3d8adccd430ec9ae0eb7c54fce46a4",
+        "image_sha256": "d97be6fde355000d2c7e48a2d55cae84c4943eefb672e44e32b0601ebd313604"
+      },
+      {
+        "index": 409,
+        "page": "20260824g001880122",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図206行・before1/after7Article・8Table/全Run照合。エイド合併+33期/常盤準備金減+20期/jinjer合併+期番号なし甲乙2BS関連保持、東洋/ミドリ岡山/ミドリ倉敷/ひろしま独立。全額12759855/3165786/350430/310263/43966388/144011/292889/45458と全内訳/△/自己株式/新株予約権/括弧/単位一致。岡田将到/宮下典嗣/柴崎一秀/網谷匡史/冨永健/菊岡良治と甲乙役割の切離しなし。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "c88e7f69fbf1ef4686cae6ec8933a84c6c300791a714eb49664a633ddeef78b6",
+        "image_sha256": "91ac33749304269b6e83dab77d18ad603ed78726da22402af37e524f251156dc"
+      },
+      {
+        "index": 410,
+        "page": "20260824g001880126",
+        "strict_grade": "minor",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図179行・before1/after4Article・6Table全Run照合。田部合併+79/61期2BS、アダル吸収分割+甲乙2BS、アパ合併+56期は関連群維持、ALLSPRINGは独立。全額5025923/1001118/6657/3937/228922/40448949と全内訳/自己株式△/括弧/引当金・単位一致。田部長右衛門/武野龍/茂知己/元谷一志/野坂照光保持。既存minor L125 INVESTMENTS JAPAN LIMITEDの語間空白が消えて連結、原改行は2/3段英字社名を跨ぐ。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "ce3ca731d9f08e5b8fbcb50200cd7cfcb173b469fe7980e7547b13dd00fdb90d",
+        "image_sha256": "e8f126966091bb7aa63322d1c211d863500442956e86e7b79de776dc45cb87d1"
+      },
+      {
+        "index": 411,
+        "page": "20260824g001880127",
+        "strict_grade": "major",
+        "body_grade": "ok",
+        "classification": "partial",
+        "notes": "全原図162行・before1/after2Article・5全Table/Run照合。原本3独立枠のうちサンドビック合併+乙43期をA0へ分離改善したが、A1L39..162はサクライ/五十嵐合併+5期と別枠ホップライオン/伸盛/ウエスト3社合併+3BSを未分割。各合併内の甲乙丙・関連BSは保持。全額7732/60579/4138931/1153825/1776472と全△/退職給付/純損益/単位、URLhome.sandvik/jp/・櫻井知尋/渡邉宏樹/仲川進次一致。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "e8b2677d77ac414196ed41221ba67123a2eed73bdd9734336c19ebe8c0faa72a",
+        "image_sha256": "48029c0111beb5376fa13cbcdabc33eaee303226c2ee7601bebd16a2abc7a6fa"
+      },
+      {
+        "index": 412,
+        "page": "20260824h017740024",
+        "strict_grade": "minor",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図108出力行・before1/after5ArticleDocRun照合。下2段4合併の甲乙/官報開示日頁/承認省略/署名住所が各独立Articleへ正しく分割。企業年金設立5項と菊地靖則も保持。既存minor: L1..2所有者不明土地見出し（司法本文は文字層なし）とL20会社その他の公告が企業年金Articleへ混在、後者見出しは次公告側の上位題字。司法本文は限定3rect全1557Glyph閉交差0、top全域20native見出しhitを別保持しそのheading陽性を証拠。年金/会社本文は除外なし。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "c2cf1b20cfda51b02bb4a1dc551d520779eb3f5157087abc35808afc4e2ae0d3",
+        "image_sha256": "70aa35c498bddfaf08fde828b9b362057c3c8da30cdbb8bd22fe98fe86f6ee1c"
+      },
+      {
+        "index": 413,
+        "page": "20260824h017740025",
+        "strict_grade": "minor",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図188行・before1/after9独立合併Articleの全DocRun照合。新菱/東京ソフト/シンク/フルキャスト/ゼンリン/JR情報/BSMO/IAPF3/EQTの9群、各甲乙/開示日頁/URL/氏名住所と承継・解散役割一致。加賀美猛/宮﨑保典/川合正敏/荒瀬友之/西林忠宣/プリディーク・シェーン・リー等保持。既存minor L186..187 EQT Exeter Japan語間空白欠落、最後nが次折返しでも全文保持。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "16b456b07b5577213855894295c4eddf766ec096ec11327b29f300a510c15e23",
+        "image_sha256": "0b51b1646b875b84f898c77bb9590fbee780dc2331a4a4a56c9f8355c9648d59"
+      },
+      {
+        "index": 414,
+        "page": "20260824h017740026",
+        "strict_grade": "minor",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図187行・before1/after10Article全DocRun照合。大崎/グローアップ/カオナビ/GMO/兼松/むすび家/東海/三和/ムラタ/ミカタの10独立合併が正しく分割。全甲乙・公告一箇月/効力/承認、各開示紙日付頁・4URL/住所/氏名一致、蓜島健一/上松禎知/表孝憲等も保持。既存minor L75のGMO TECH語間が連結（原図甲名ではGMOとTECHに区切り、他本文不変）。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "3f359cdf5a9a13ba415d763e3da57b87fffd427e964f217ed39b95021af94eb6",
+        "image_sha256": "8dfc2835debc69bea35074e7d42e6234e9d0d0de20ac6e1598d4a04394524b85"
+      },
+      {
+        "index": 415,
+        "page": "20260824h017740027",
+        "strict_grade": "minor",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図181行・before1/after9Article全DocRun照合。2合併+7吸収分割を各独立、甲乙の承継/解散/除外事業/効力日と開示日頁/住所氏名一致。木谷/上村/日清紡/ローコード/東横/TCG/第二通信/UA/impactの本文混入なし。既存minor: L173 URL field.impact‑hに非ASCII U+2011ハイフン（他URL impact-hはASCII）、L180..181原impact connectの語間空白欠落。熊川哲也/齋藤玄太/川久保秀樹/寒河江清人/赤田卓也保持。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "85e157f02f50d6df4e16c2dae6572a648536d4c59e939c21a869797c9e779275",
+        "image_sha256": "522d5bbf3c5a264b7bded0316f8408947b2cc9d82c60396838814e8090dbbf6d"
+      },
+      {
+        "index": 416,
+        "page": "20260824h017740028",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図181行・before1/after11Article全Run照合。3吸収分割+5新設分割+3組織変更、同社名国際自動車2公告も別所在地/代表者の独立通知を正しく分離。オルトプラス乙承継/甲承継させる役割、決議予定9/25、坂本商号予定/除外保育、Macurie折返し、クリダス住所/決議日、3組織変更新商号/代表者全一致。川原邦章/南舘聡一郎/磯上和志/井上祐貴と各開示日頁URLを保持、欠字・新混入なし。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "5349d9bf821856af217d053478bf97595486d1a0c60727439db600879900abae",
+        "image_sha256": "45bc16d4460222acd37357fda16eb7006c4390e51599fba35126f58ea3841b8b"
+      },
+      {
+        "index": 417,
+        "page": "20260824h017740029",
+        "strict_grade": "minor",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図183行・before1/after16Article全Run照合。11組織変更+5減資を各独立、商号/効力日/新旧資本金/減額と公告一箇月・各開示日頁URLを保持。150013305円/70102000円等全桁一致、河端英伸/國分清志/漆畑慶将/砂川祐亮/釜形勇気/小田切高宏等一致。既存minor L50 Good Future/L154 Tycoon Studioの英字語間空白が消失。農事組合法人の主事務所備置文も同Articleに保持。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "bb9898eaa23658ab986ee5d351dcb903af125e73f3e8fa07d5d12d1ec936540a",
+        "image_sha256": "6ae6acb8e2617892b03342c9050e1818b4f915b0af7ee363da75df30765d42d6"
+      },
+      {
+        "index": 418,
+        "page": "20260824h017740030",
+        "strict_grade": "ok",
+        "body_grade": "ok",
+        "classification": "improvement",
+        "notes": "全原図183行・before1/after12Article全Run照合。5資本金減/3準備金減/4両額減の12独立通知、全額（1215800000、3999999→1、5416928867、12263141650/12860354150、154337500、79989390、1575000000等）・期限/停止条件/開示先を保持。原図レイス姓は藤 修で欠字なし。L37山本明弘（吉田明弘）の吉は元74pathsのink[126.704,181.245,134.213,188.755]内fresh全Glyph閉交差0、0.085pt下の田native陽性を別保存、限定一字のみ除外。眞子祐一/宮﨑保典/廣末紀之/沢登哲也等一致。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "a7f191b16e3aef8387e7e0ced2e4aaf625aacb7015dac78b2d1fdc58dba2143c",
+        "image_sha256": "a11264080a99c15933f19368a393c2d2950ff78d72a8fbe1691b2ba069b66419"
+      },
+      {
+        "index": 419,
+        "page": "20260824h017740031",
+        "strict_grade": "major",
+        "body_grade": "minor",
+        "classification": "partial",
+        "notes": "全原図176出力行・before1/after2Article全Run照合。14文字層有り独立公告（+限定承認1）のうちA0L1..82はAMI/定款4社/旭メタルズ/バルキー計7公告、A1L83..176はEQT/任意清算/優先減資5計7公告を未分割のまま、金融業公告でのみ分離する部分改善。全金額149999963/372672280/676913806/940033335/6982190600等・日期/取得100株/役割/氏名一致。既存bodyminor EQT Exeter Japan語間空白消失。L59棚橋の棚は307paths原ink全Glyph0、司法本文[46,245,181,423]も全Glyph0、隣中井署名が入る広rect190までの9hitを保持し限定除外。",
+        "initial_grade_fixed": true,
+        "proof_sha256": "2f2143ff851e1dadba956cb02bd0449807cc1afd302c65d94c05935938ca8a57",
+        "image_sha256": "1f3eb567786bfba78ed862801dc9d7f0617e764b086aa501e13a7b7aa21cffdc"
+      }
+    ]
+  },
+  "whole_page_perfection_not_implied": true
+}

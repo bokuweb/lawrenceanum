@@ -1,0 +1,133 @@
+{
+  "batch": 35,
+  "date": "2026-10-21",
+  "source_files": 120,
+  "parser_sources": 97,
+  "PDF_sources": 23,
+  "baseline_commit": "1746a221ff4ce3a606dfa11d320b159bbe30bc1c",
+  "evidence": {
+    "source": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated59-source-manifest.json",
+      "sha256": "ffd4d458f5e761f40449c50908014a21ff86fe19daff5cc2da44ca9f5a90f6cb"
+    },
+    "assets": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated59-test-assets-manifest.json",
+      "sha256": "63c1c33e7d064d852eb88c6fe417c66e9f591653e32f0496d1756b72c8446829"
+    },
+    "delivery": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/record-calendar59-candidate/delivery-manifest.json",
+      "sha256": "d390b29cf74c71c5e4e3e00f1e53b46a0efc468c50c34ba05f6d8fe51c3cc623"
+    },
+    "independent": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root35-calendar59/build-result.json",
+      "sha256": "6e634fd4cf7d7fddc78b307bb697e52d617d8c43d64b41a97e278a50915c8433"
+    },
+    "cached_full": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root35-calendar59/full-result.json",
+      "sha256": "6284c82cb093c155dde5cf5cfd9df7f8dbca682e22b371029eb40f73a5a9d5d6"
+    },
+    "release_full": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated59-fullAnalysis-report.json",
+      "sha256": "dc16c5e92e48bc00aa3e5482689a864e554c94e70ba730f65f9fc0d25ee8d6b5"
+    },
+    "default_tests": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/full35-final59-generic-partitioned-status.json",
+      "sha256": "83747a302328cd82e4156d122caf1905177d6b2606cf33f499f6d553b8cee86e"
+    },
+    "snapshots": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/snapshot35-source59-preserved.json",
+      "sha256": "2729eeb84f5d217968228ebd568ea99a044bf8a7551107c7d393a7e79708b7bf"
+    },
+    "audit144": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit144-source59-inheritance.json",
+      "sha256": "f02e49231169d42fc007be53ede898ff5173b14dd776ea97b8b25ea1b7c52ee1"
+    },
+    "company_limited": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/company-rebase58-limited/delivery-manifest.json",
+      "sha256": "471d8d8388cbf877e34e8b819b66a0d0c498fded6a466ee639048d1979a47227"
+    },
+    "company_full": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root35-company58-full-delivery-manifest.json",
+      "sha256": "e6c5e0a2de1c25900666e308fa67fbdbccc8277d04430a0688bcb16a6e20f47d"
+    },
+    "company_generality": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/company-generality-probe58/delivery-manifest.json",
+      "sha256": "f833ff846306bf73971b704432064433059c174ab5d932af5569bd09b5f32c04"
+    },
+    "company421_binding": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root35-company58-gate/historical421-binding.json",
+      "sha256": "36a69f2533693c6e8516f851d4ae2b4acb926dbaf0f243f900fd5e13e59db932"
+    },
+    "company33_linecuts": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root35-company58-old33-line-cut-addendum.json",
+      "sha256": "854ab9c1ef457e1f5b703c52113f9ad928dee812bd8253de0f741217f28ebec2"
+    },
+    "margin_cause": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/margin-cause-probe57/delivery-manifest.json",
+      "sha256": "ed62763b504752de94a32a0647aafe2233fb6b3406ba1b9debe0cabe6b36ba31"
+    },
+    "printed_boundary": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/margin-printed-boundary57/delivery-manifest.json",
+      "sha256": "5b3374cd95105ba2bd752e38945878d10772ef261cf0af90a6e6c9f8182ee3c9"
+    },
+    "collector_static": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/stroke-collector-rebase58-static/manifest.json",
+      "sha256": "da018e41572b4e690073db315e945824805fd6704bd4226717aa04c2f42b7e2a"
+    },
+    "collector_limited": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/stroke-collector-rebase58-limited/delivery-manifest.json",
+      "sha256": "f05a6e40a96d2d12d6a7f6e9bbe47ce7298f6f88733b5a572fcf80f4a7b51610"
+    },
+    "collector_independent": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root35-stroke58-independent/result.json",
+      "sha256": "dc3e2aa7fe5a857444bc9d10048ae99e0fd900989fc2c98ac34f780522cd45ab"
+    }
+  },
+  "goal_complete": false,
+  "stage": "thirty_fifth_integrated_batch",
+  "population_pages": 11992,
+  "changed": 0,
+  "complete_Analysis_exact": 11992,
+  "canonical_quality_improvement_pages": 0,
+  "cumulative_changed": 2957,
+  "cumulative_character_change_pages": 1373,
+  "tests": {
+    "passed": 1680,
+    "failed": 0,
+    "crates": [
+      "kanpo-parser",
+      "kanpo-pdf",
+      "kanpo-parser-wasm",
+      "kanpo-lm"
+    ],
+    "parser_private": 1009,
+    "PDF_private": 117,
+    "integration_targets": 108,
+    "commands": 117,
+    "all_libraries_doc_tests_and_default_examples": true,
+    "new_standard_functions": 21,
+    "old_record_module_prefix23_byte_exact": true,
+    "same_selected44_old58": "28GREEN16RED",
+    "same_selected44_candidate": "44GREEN",
+    "root_same_all1009_old58": "993GREEN16RED",
+    "root_candidate_all1009": "1009GREEN",
+    "existing_actual_political3_GREEN": true,
+    "new_actual_PDFs": 0,
+    "function_contract_probes_not_actual_PDF_failures": true
+  },
+  "cached_and_fresh_Cargo_release_all11992_complete_Analysis_exact58": true,
+  "textdump_all11992_bytes_exact58": true,
+  "PDF23_and_release_PDF_rlib_rmeta_exact58": true,
+  "native_all11992_Glyph_Word_f64bits_source_proofs_inherited_from_same_PDF_component_not_new_probe": true,
+  "snapshots": {
+    "existing": 778,
+    "new": 0,
+    "updated": 0,
+    "parent_bytes_exact": true
+  },
+  "legacy13_metrics": "Inherited after complete Analysis and same PDF source/rlib exact; no fresh8partition rerun",
+  "canonical_archive_PDFs": 719,
+  "synthetic_PDFs_added": 0,
+  "models_used": false,
+  "CI": "Checked for committed head separately; local evidence does not claim CI before completion"
+}

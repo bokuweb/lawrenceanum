@@ -1,0 +1,193 @@
+{
+  "issue": 227,
+  "batch": 38,
+  "source": 62,
+  "parent_commit": "fcada9ac16ea4d7cd535ac2565eab123a3fc7755",
+  "goal_complete": false,
+  "canonical_quality_improvement_pages": 0,
+  "cumulative_changed_pages": 2957,
+  "cumulative_character_changed_pages": 1373,
+  "references": [
+    {
+      "path": ".cache/kanpo-227/root38-prose-size62/baseline-r2-prefreeze.json",
+      "sha256": "4c0bdc1a972b43b828eaf99f78732e54f6250a6bb36afac60acb1c68fa7b147a",
+      "kind": "initial10_before_production_edit"
+    },
+    {
+      "path": ".cache/kanpo-227/root38-prose-size62/initial-build-failure.json",
+      "sha256": "e932f5f6b9983dd92f712d493f9d613425eaf110be0ee101f485b4f970e7e172",
+      "kind": "missing_testdata_compile_failure_not_runtime_RED"
+    },
+    {
+      "path": ".cache/kanpo-227/root38-prose-size62/baseline-result.json",
+      "sha256": "7c75015e0881545aae0c5129225754f117fe2ddaeba23d56da5eea796057a830",
+      "kind": "initial1044_source61_1035GREEN9RED"
+    },
+    {
+      "path": ".cache/kanpo-227/root38-prose-size62/candidate-result.json",
+      "sha256": "97fbf10b2927604747fdef373d85bda0acd42c7845fc8c7adff3d8ab2468195e",
+      "kind": "initial1044_candidate_GREEN_actual5"
+    },
+    {
+      "path": ".cache/kanpo-227/root38-prose-size62/full-result.json",
+      "sha256": "fc76c44d93b5b11c5a6c7484531ace172dea2f5cf1cea6fbbbb7bc7346922c73",
+      "kind": "initial_full11992_changed0_not_final_acceptance"
+    },
+    {
+      "path": ".cache/kanpo-227/root38-prose-review-r1-verified.json",
+      "sha256": "a1f77cbb6de513ad8290a4f6b48ff44c3f6c28e9a2a239769a64e20862a97a8a",
+      "kind": "initial_independent_NaN_fence_blocker"
+    },
+    {
+      "path": ".cache/kanpo-227/root38-prose-size62/baseline12-prefreeze.json",
+      "sha256": "3351cbfa17ee8b9290173b38f31e0d2b27dbb8446a8c5f442a7f19454cd223a4",
+      "kind": "same12_assertions_before_fence_fix"
+    },
+    {
+      "path": ".cache/kanpo-227/root38-prose-size62/baseline12-result.json",
+      "sha256": "cba389d69f37c07832d58abae2b1a40e76dad43630041cc9f33dcf678a890737",
+      "kind": "same1046_source61_1035G11R_initial_candidate1044G2R"
+    },
+    {
+      "path": ".cache/kanpo-227/root38-prose-fence62/candidate120-source-manifest.json",
+      "sha256": "371b780b10bda12be55b77081673b09283b1f39ca954ad14c8df223213207cfc",
+      "kind": "final120_source"
+    },
+    {
+      "path": ".cache/kanpo-227/root38-prose-fence62/candidate-result.json",
+      "sha256": "e674aa70b094e13b133718874537d2200419c89a36b3f117b4724669acda7c53",
+      "kind": "final1046GREEN_actual5"
+    },
+    {
+      "path": ".cache/kanpo-227/root38-prose-fence62/full-result.json",
+      "sha256": "44b30695219f061f7b4b780606552f78992cd580f2577b350f845309015bdff1",
+      "kind": "final_independent11992_Analysis_exact61"
+    },
+    {
+      "path": ".cache/kanpo-227/root38-prose-review-r2-verified.json",
+      "sha256": "156b7e720464f27f3f1eabc0db61bd0f45ee7bef4e694c6ee2cd17ea20e362ec",
+      "kind": "final_independent_review_same_fixed_probes"
+    },
+    {
+      "path": ".cache/kanpo-227/integrated62-source-manifest.json",
+      "sha256": "85b210ae537366dd08571a4ef0b824cac447853e96c63af3847f3654cf8ea6d2",
+      "kind": "source120"
+    },
+    {
+      "path": ".cache/kanpo-227/integrated62-test-assets-manifest.json",
+      "sha256": "1edbdb78c23db90365ab9091ac49973e305624e79eb9d676822d5fcb26d08301",
+      "kind": "assets1127"
+    },
+    {
+      "path": ".cache/kanpo-227/full38-final62-generic-partitioned-status.json",
+      "sha256": "3f5b9a0f698f9e37d7faf4d21c690639bdd3f7137367334f4c3db65bb916086a",
+      "kind": "default1717_117commands"
+    },
+    {
+      "path": ".cache/kanpo-227/full38-snapshot-build-capacity-failure.json",
+      "sha256": "1391dade211384e60c2a4ae711e9d2af905637cae276decc9802cc79c9ead1d6",
+      "kind": "snapshot_first_build_ENOSPC_never_executed"
+    },
+    {
+      "path": ".cache/kanpo-227/completed-pre53-executables38-lossless/complete.json",
+      "sha256": "939fde4c7e56e84885d5b49f8638dbe421c2213f566a56a8c98bf4e7b944b88b",
+      "kind": "lossless138_completed_executables_roundtrip_restore"
+    },
+    {
+      "path": ".cache/kanpo-227/integrated62-fullAnalysis-report.json",
+      "sha256": "bfafc6a4cdf17a7de1eca9c414f665774b33322124327d2efedb72a042edd8e7",
+      "kind": "fresh_Cargo_release11992_Analysis_and_textdump"
+    },
+    {
+      "path": ".cache/kanpo-227/immutable-root62-deps-manifest.json",
+      "sha256": "982c6526908016d11b344f1e8c3b376b189a187f20996a4c18277eef01e7a4a5",
+      "kind": "immutable119_dependencies"
+    },
+    {
+      "path": ".cache/kanpo-227/release62-tool-output-path-correction.json",
+      "sha256": "d8acf541f4a901f7e4851fea3c249f479e6a7c4a7491498ac6e687e82ac2152d",
+      "kind": "stale61_helper_name_guard_stopped_before_compile_then_fixed62"
+    },
+    {
+      "path": ".cache/kanpo-227/snapshot38-source62-preserved.json",
+      "sha256": "e1f19149a3356690360eec5a92d3064bfb914cb20f846cc7550945eb4de761f3",
+      "kind": "snapshots778_new0_updated0"
+    },
+    {
+      "path": ".cache/kanpo-227/audit144-source62-inheritance.json",
+      "sha256": "39b91f40c6f5ea6e00b0225687faca88bbdc4f0130c2d7f406359677e9f6d81b",
+      "kind": "all30_rebound_initial55_grades"
+    },
+    {
+      "path": ".cache/kanpo-227/checkpoint37-accepted61.json",
+      "sha256": "ea1eb8bfe9a18f7c41927666651412a38e78bb67ef6e670a2152cecc034b0e7f",
+      "kind": "parent61_local_all3CI_success"
+    },
+    {
+      "path": ".cache/kanpo-227/issue227-current38.json",
+      "sha256": "7aaa1c8e5469a538e6342a8e5b176288a70e169f770d68d36f1b63d88e11f043",
+      "kind": "primary_issue_refreshed_OPEN_updated20261020_no_comments"
+    },
+    {
+      "path": ".cache/kanpo-227/root38-native-word9-atlas61-verified.json",
+      "sha256": "c7b73b2f0b88b5af09371b81bdb1ac279febdf1dfa41bb51785021bd5356abbd",
+      "kind": "held_native9_actual_source_identity_atlas"
+    },
+    {
+      "path": ".cache/kanpo-227/root38-company-layout1913-verified.json",
+      "sha256": "bb5f4c95d81a364f8a5eb23330c20f49f3ce00500e8e9506b1e0681668ac0c06",
+      "kind": "held1913_layout_inventory_not_visual_quality_labels"
+    },
+    {
+      "path": ".cache/kanpo-227/root38-company-field-contract61-verified.json",
+      "sha256": "befc9b83e0e7b1f49fc10755c82e6f161d4c3406ae0b2e4557b8cc117b5fec69",
+      "kind": "held_strict_party_prefix_helper_no_issuer_authority"
+    },
+    {
+      "path": ".cache/kanpo-227/root38-local-vision-ocr61-feasibility-verified.json",
+      "sha256": "23a740c3c77f7a804438240cf50c24698eda397d90ce45c0d05cc08aa105d3f6",
+      "kind": "local_Vision_attempt1_failed_before_observations"
+    }
+  ],
+  "quality": "No canonical original output changed; no new canonical manual quality score.",
+  "audit144": {
+    "all30_complete_Analysis_exact": true,
+    "initial55_grades_inherited_after_comparison_only": true,
+    "strict": {
+      "ok": 6,
+      "minor": 5,
+      "major": 19
+    },
+    "body": {
+      "ok": 17,
+      "minor": 3,
+      "major": 10
+    },
+    "full_body_lines": 2175,
+    "Articles_Documents": 40,
+    "whole_page_exclusions": 0,
+    "selected_pages_not_used_as_repair_targets": true
+  },
+  "held_company": {
+    "source58_changed_pages": 1913,
+    "fixed_visual_review_population": 1286,
+    "reviewed": 422,
+    "pending": 864,
+    "initial_grades_unchanged": true,
+    "not_adopted": true,
+    "native9_atlas_words": 3970,
+    "native_word_identity": "Actual runtime source sort and Word ordinal to native Glyph IDs; no coordinate/text matching proxy. Whole Analysis exact61. Diagnostic first f32 JSON wrapper failures preserved before typed serialization fix.",
+    "layout_inventory": "1913 existing source58 results; lexical/context tags only, not issuer/continuation labels.",
+    "field_helper": "Closed all10 heavenly-stem party-role grammar with balanced source parentheses and source-token-boundary proof; stub1GREEN8RED -> helper9GREEN. This is not company production TDD or issuer proof.",
+    "unresolved": "Quotation/counterparty ownership, independent field start/stop and terminal-role fields, fixed0.5pt enclosure cases, legitimate folded-name dropout in prior terminal witness candidate remain held."
+  },
+  "optional_models": {
+    "RURI_ModernBERT_permission_retained": true,
+    "RURI_ModernBERT_download_train_infer": 0,
+    "local_Apple_Vision_OCR_attempts": 1,
+    "successful_OCR_runs": 0,
+    "failure": "TextRecognition.CRImageReaderError.unknownError; terminal -5 on first fixed ja-JP144DPI request. Stopped; no fallback/retry/model download.",
+    "OCR_accuracy_usefulness": "unevaluated; supported-language query alone is not recognition success"
+  },
+  "no_initial_grade_overwrites": true
+}

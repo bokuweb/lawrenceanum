@@ -150,6 +150,11 @@ struct GState {
     render: i64,
     line_width: f64,
     clip: Option<[f64; 4]>,
+    source_clips:Option<Vec<crate::source_images::SourceClip>>,
+    source_geometry_complete:bool,
+    ink_geometry_complete:bool,
+    ink_fill_components:Option<usize>,
+    source_graphics_states:Option<Vec<Vec<u8>>>,
 }
 
 const MAX_FORM_DEPTH: usize = 12;
@@ -164,6 +169,14 @@ struct Interp<'a> {
     fonts: Vec<Rc<Font>>,
     font_ids: HashMap<ObjRef, usize>,
     glyphs: Vec<Glyph>,
+    /// Source candidates stay adjacent to the original emitted CharCode.
+    /// Legacy extraction does not allocate or decode source evidence.
+    source_resolved: Option<Vec<Option<char>>>,
+    source_rects:Option<Vec<Option<[f64;4]>>>,
+    ink_viewport:[f64;4],
+    image_draws: Option<Vec<crate::source_images::ImageDraw>>,
+    image_gaps:Option<Vec<crate::source_images::CaptureGap>>,
+    source_pending_clip:Option<crate::source_images::ClipRule>,
     paths: Vec<PathItem>,
     path: Vec<SubPath>,
     current: Option<SubPath>,
@@ -177,6 +190,18 @@ struct Interp<'a> {
 
 /// ページを解釈する。
 pub fn extract_page(doc: &Document, page: &PageRef) -> Page {
+    interpret_page(doc, page, false, false).0
+}
+pub(crate) fn extract_page_source_aj1(doc: &Document, page: &PageRef) -> crate::Aj1PageSources {
+    let (page, resolved, ink_rects, _, _) = interpret_page(doc, page, true, false);
+    crate::source_aj1::Aj1PageSources { original: page, resolved, ink_rects }
+}
+
+pub(crate) fn extract_page_source_images(doc:&Document,page:&PageRef)->crate::source_images::XObjectPageSources{
+ let(original,resolved,ink_rects,draws,gaps)=interpret_page(doc,page,true,true);
+ crate::source_images::XObjectPageSources{native:crate::source_aj1::Aj1PageSources{original,resolved,ink_rects},crop:page.crop_box,draws,gaps,document_digest:[0;32],media:page.media_box}
+}
+fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bool) -> (Page, Vec<Option<char>>,Vec<Option<[f64;4]>>,Vec<crate::source_images::ImageDraw>,Vec<crate::source_images::CaptureGap>) {
     let [x0, y0, x1, y1] = page.crop_box;
     let device = match page.rotate {
         90 => Matrix([0.0, 1.0, 1.0, 0.0, -y0, -x0]),
@@ -201,6 +226,11 @@ pub fn extract_page(doc: &Document, page: &PageRef) -> Page {
             render: 0,
             line_width: 1.0,
             clip: None,
+            source_clips:source.then(Vec::new),
+            source_geometry_complete:true,
+            ink_geometry_complete:true,
+            ink_fill_components:Some(1),
+            source_graphics_states:image_sources.then(Vec::new),
         },
         stack: Vec::new(),
         tm: Matrix::IDENTITY,
@@ -208,6 +238,12 @@ pub fn extract_page(doc: &Document, page: &PageRef) -> Page {
         fonts: Vec::new(),
         font_ids: HashMap::new(),
         glyphs: Vec::new(),
+        source_resolved: source.then(Vec::new),
+        source_rects:source.then(Vec::new),
+        ink_viewport:[0.,0.,width,height],
+        image_draws: image_sources.then(Vec::new),
+        image_gaps:image_sources.then(Vec::new),
+        source_pending_clip:None,
         paths: Vec::new(),
         path: Vec::new(),
         current: None,
@@ -216,9 +252,18 @@ pub fn extract_page(doc: &Document, page: &PageRef) -> Page {
         show_count: 0,
         pending_clip: false,
     };
-    let content = page_content(doc, &page.dict);
+    let mut ink_gaps=Vec::new();
+    let content = page_content(doc, &page.dict,if image_sources{it.image_gaps.as_mut()}else if source{Some(&mut ink_gaps)}else{None});
+    if source&&(!ink_gaps.is_empty()||it.image_gaps.as_ref().is_some_and(|g|!g.is_empty())||!width.is_finite()||!height.is_finite()||width<=0.||height<=0.){it.gs.ink_geometry_complete=false;}
+
+    if image_sources && (!(width.is_finite()&&height.is_finite()&&width>0.&&height>0.)||!device.0.iter().all(|v|v.is_finite())){it.gs.source_geometry_complete=false;it.image_gap(crate::source_images::GapKind::InvalidPageGeometry,b"");}
     it.run(&content, &page.resources);
-    Page {
+    let resolved = it.source_resolved.take().unwrap_or_default();
+    let ink_rects=it.source_rects.take().unwrap_or_default();
+    let image_draws=it.image_draws.take().unwrap_or_default();
+    let image_gaps=it.image_gaps.take().unwrap_or_default();
+    (
+        Page {
         width,
         height,
         rotate: page.rotate,
@@ -234,23 +279,28 @@ pub fn extract_page(doc: &Document, page: &PageRef) -> Page {
                 has_to_unicode: f.has_to_unicode,
             })
             .collect(),
-    }
+    },
+        resolved,
+        ink_rects,
+        image_draws,
+        image_gaps,
+    )
 }
 
-fn page_content(doc: &Document, page: &Dict) -> Vec<u8> {
-    let mut out = Vec::new();
-    let streams = match page.get(&b"Contents"[..]).map(|c| doc.resolve(c)) {
-        Some(Object::Array(a)) => a.iter().map(|x| doc.resolve(x)).collect(),
-        Some(o) => vec![o],
-        None => Vec::new(),
-    };
-    for s in streams {
-        if let Some(data) = s.as_stream().and_then(|s| doc.decode_stream(s).ok()) {
-            out.extend_from_slice(&data);
-            out.push(b'\n');
-        }
-    }
-    out
+fn page_content(doc:&Document,page:&Dict,mut gaps:Option<&mut Vec<crate::source_images::CaptureGap>>)->Vec<u8>{
+ let mut out=Vec::new();
+ let raw=page.get(&b"Contents"[..]);
+ let streams=match raw.map(|c|doc.resolve(c)){
+  Some(Object::Array(a))=>a.iter().map(|x|doc.resolve(x)).collect(),
+  Some(Object::Null)if matches!(raw,Some(Object::Null))=>Vec::new(),
+  Some(o)=>vec![o],None=>Vec::new(),
+ };
+ for object in streams{
+  let data=object.as_stream().map(|stream|doc.decode_stream(stream));
+  if let Some(Ok(bytes))=data{out.extend_from_slice(&bytes);out.push(b'\n');}
+  else if let Some(list)=gaps.as_deref_mut(){list.push(crate::source_images::CaptureGap{kind:crate::source_images::GapKind::PageContentFailure,resource_name:vec![],form_path:vec![]});}
+ }
+ out
 }
 
 impl Interp<'_> {
@@ -262,7 +312,13 @@ impl Interp<'_> {
                 Ok(o) => operands.push(o),
                 Err(op) => {
                     if op == b"BI" {
-                        skip_inline_image(&mut parser);
+                        self.image_gap(crate::source_images::GapKind::InlineImage,b"");
+                        if !operands.is_empty()
+                            || !crate::inline_image::skip_raw(&mut parser, self.doc, resources)
+                        {
+                            self.gs.ink_geometry_complete=false;
+                            skip_inline_image(&mut parser);
+                        }
                     } else {
                         self.op(&op, &operands, resources);
                     }
@@ -277,19 +333,22 @@ impl Interp<'_> {
     }
 
     fn op(&mut self, op: &[u8], o: &[Object], resources: &Dict) {
+        self.observe_ink_op(op,o,resources);
         let n = |i: usize| Self::num(o, i);
         match op {
             b"q" => self.stack.push(self.gs.clone()),
             b"Q" => {
                 if let Some(g) = self.stack.pop() {
                     self.gs = g;
-                }
+                }else if self.image_gaps.is_some(){self.image_gap(crate::source_images::GapKind::StateStackUnderflow,b"");self.gs.source_geometry_complete=false;}
             }
             b"cm" => {
+                if self.image_gaps.is_some()&&!(o.len()==6&&o.iter().all(|v|v.as_f64().is_some_and(f64::is_finite))){self.image_gap(crate::source_images::GapKind::InvalidContentMatrix,b"");self.gs.source_geometry_complete=false;}
                 if let Some(m) = Matrix::from_operands(o) {
                     self.gs.ctm = m.then(&self.gs.ctm);
                 }
             }
+            b"gs"=>{if let Some(names)=self.gs.source_graphics_states.as_mut(){if let Some(name)=o.first().and_then(Object::as_name){names.push(name.to_vec());}}},
             b"w" => self.gs.line_width = n(0),
             // ---- text ----
             b"BT" => {
@@ -408,7 +467,7 @@ impl Interp<'_> {
             b"f" | b"F" | b"f*" => self.paint(false, true, false),
             b"B" | b"B*" => self.paint(true, true, false),
             b"b" | b"b*" => self.paint(true, true, true),
-            b"W" | b"W*" => self.pending_clip = true,
+            b"W" | b"W*" => {self.pending_clip=true;if self.image_gaps.is_some()||self.source_rects.is_some(){self.source_pending_clip=Some(if op==b"W*"{crate::source_images::ClipRule::EvenOdd}else{crate::source_images::ClipRule::NonZero});}},
             b"n" => {
                 self.flush_subpath();
                 self.apply_clip();
@@ -418,7 +477,7 @@ impl Interp<'_> {
             b"Do" => {
                 if let Some(name) = o.first().and_then(Object::as_name) {
                     self.do_xobject(resources, name);
-                }
+                }else{self.image_gap(crate::source_images::GapKind::UnknownXObject,b"");}
             }
             _ => {}
         }
@@ -498,6 +557,7 @@ impl Interp<'_> {
             let spacing = extra * to_pt * if font.vertical { -1.0 } else { gs.h_scale };
             let kern = std::mem::take(&mut self.pending_kern) * to_pt * if font.vertical { -1.0 } else { gs.h_scale };
             let bbox = bounds(&trm, bbox_pts);
+            let ink_rect=if self.source_rects.is_some(){self.capture_ink_rectangle(&font,&c,&trm)}else{None};
             self.tm = advance.then(&self.tm);
             self.glyphs.push(Glyph {
                 text: font.unicode(&c),
@@ -516,6 +576,10 @@ impl Interp<'_> {
                 kern,
                 show: self.show_count,
             });
+            if let Some(rects)=&mut self.source_rects{rects.push(ink_rect);}
+            if let Some(resolved) = &mut self.source_resolved {
+                resolved.push(font.source_aj1_fallback(self.doc, &c));
+            }
         }
     }
 
@@ -559,76 +623,85 @@ impl Interp<'_> {
     /// `W`・`W*` で指定したクリップを、今のパスの外接矩形で狭める。曲線を含むパスは
     /// 頂点（終点）だけでは外接矩形が決まらないので狭めない。
     fn apply_clip(&mut self) {
+        if let Some(rule)=self.source_pending_clip.take(){
+            let complete=self.gs.source_geometry_complete&&!self.path.is_empty()&&self.path.iter().all(|sp|!sp.curved&&sp.points.iter().flatten().all(|v|v.is_finite()));
+            if let Some(clips)=self.gs.source_clips.as_mut(){clips.push(crate::source_images::SourceClip{origin:crate::source_images::ClipOrigin::Path,rule,subpaths:self.path.clone(),form_box:None,page_quad:None,geometry_complete:complete});}
+            if !complete{self.gs.source_geometry_complete=false;self.image_gap(crate::source_images::GapKind::PathGeometryIncomplete,b"");}
+        }
         if !std::mem::take(&mut self.pending_clip) || self.path.iter().any(|sp| sp.curved) {
             return;
         }
         let mut pts = self.path.iter().flat_map(|sp| sp.points.iter());
         let Some(&[x, y]) = pts.next() else { return };
-        let b = pts.fold([x, y, x, y], |b, &[x, y]| [b[0].min(x), b[1].min(y), b[2].max(x), b[3].max(y)]);
+        let b = pts.fold([x, y, x, y], |b, &[x, y]| {
+            [b[0].min(x), b[1].min(y), b[2].max(x), b[3].max(y)]
+        });
         self.gs.clip = Some(match self.gs.clip {
-            Some(c) => [c[0].max(b[0]), c[1].max(b[1]), c[2].min(b[2]), c[3].min(b[3])],
+            Some(c) => [c[0].max(b[0]), c[1].max(b[1]), c[2].min(b[2]), c[3].min(b[3]),
+            ],
             None => b,
         });
     }
 
-    fn do_xobject(&mut self, resources: &Dict, name: &[u8]) {
-        let Some(xobjects) = self.doc.dict_get(resources, b"XObject") else {
-            return;
-        };
-        let Some(entry) = xobjects.as_dict().and_then(|d| d.get(name)).cloned() else {
-            return;
-        };
-        let r = entry.as_ref();
-        if self.forms.len() >= MAX_FORM_DEPTH || r.is_some_and(|r| self.forms.contains(&r)) {
-            return;
-        }
-        let obj = self.doc.resolve(&entry);
-        let Some(stream) = obj.as_stream() else { return };
-        if self
-            .doc
-            .dict_get(&stream.dict, b"Subtype")
-            .as_ref()
-            .and_then(Object::as_name)
-            != Some(b"Form")
-        {
-            return;
-        }
-        let Ok(content) = self.doc.decode_stream(stream) else {
-            return;
-        };
-        let form_resources = self
-            .doc
-            .dict_get(&stream.dict, b"Resources")
-            .and_then(|o| o.as_dict().cloned());
-        let matrix = self
-            .doc
-            .dict_get(&stream.dict, b"Matrix")
-            .and_then(|m| m.as_array().and_then(Matrix::from_operands))
-            .unwrap_or(Matrix::IDENTITY);
-        let saved = (
-            self.gs.clone(),
-            self.stack.len(),
-            self.tm,
-            self.tlm,
-            self.current.take(),
-            std::mem::take(&mut self.path),
-        );
-        self.gs.ctm = matrix.then(&self.gs.ctm);
-        if let Some(r) = r {
-            self.forms.push(r);
-        }
-        self.run(&content, form_resources.as_ref().unwrap_or(resources));
-        if r.is_some() {
-            self.forms.pop();
-        }
-        let (gs, depth, tm, tlm, current, path) = saved;
-        self.gs = gs;
-        self.stack.truncate(depth);
-        self.tm = tm;
-        self.tlm = tlm;
-        self.current = current;
-        self.path = path;
+    fn image_gap(&mut self,kind:crate::source_images::GapKind,name:&[u8]){
+        if let Some(gaps)=self.image_gaps.as_mut(){gaps.push(crate::source_images::CaptureGap{kind,resource_name:name.to_vec(),form_path:self.forms.clone()});}
     }
+    fn do_xobject(&mut self,resources:&Dict,name:&[u8]){
+        use crate::source_images::{GapKind,SourceClip,ClipOrigin,ClipRule};
+        let Some(xobjects)=self.doc.dict_get(resources,b"XObject")else{self.image_gap(GapKind::MissingResource,name);return;};
+        let Some(entry)=xobjects.as_dict().and_then(|d|d.get(name)).cloned()else{self.image_gap(GapKind::MissingResource,name);return;};
+        let r=entry.as_ref();
+        if self.forms.len()>=MAX_FORM_DEPTH{self.image_gap(GapKind::FormDepthLimit,name);return;}
+        if r.is_some_and(|r|self.forms.contains(&r)){self.image_gap(GapKind::RecursiveForm,name);return;}
+        let obj=self.doc.resolve(&entry);
+        let Some(stream)=obj.as_stream()else{self.image_gap(GapKind::UnknownXObject,name);return;};
+        let subtype=self.doc.dict_get(&stream.dict,b"Subtype");
+        if subtype.as_ref().and_then(Object::as_name)!=Some(b"Form"){
+            if self.image_draws.is_some(){
+                if subtype.as_ref().and_then(Object::as_name)==Some(b"Image"){
+                    let width=crate::source_images::dimension(self.doc.dict_get(&stream.dict,b"Width"));
+                    let height=crate::source_images::dimension(self.doc.dict_get(&stream.dict,b"Height"));
+                    if width.is_none()||height.is_none(){self.image_gap(GapKind::InvalidImageDimensions,name);}
+                    let draw=crate::source_images::ImageDraw{
+                        resource_name:name.to_vec(),object_ref:r,sequence:self.image_draws.as_ref().map_or(0,Vec::len),form_path:self.forms.clone(),
+                        pixel_width:width,pixel_height:height,image_to_user:self.gs.ctm.0,page_clip_bounds:self.gs.clip,
+                        clips:self.gs.source_clips.clone().unwrap_or_default(),source_geometry_complete:self.gs.source_geometry_complete&&self.gs.ctm.0.iter().all(|v|v.is_finite()),graphics_states:self.gs.source_graphics_states.clone().unwrap_or_default(),
+                        payload:stream.data.clone(),declared_dict:stream.dict.clone(),
+                    };
+                    if let Some(draws)=self.image_draws.as_mut(){draws.push(draw);}
+                }else{self.image_gap(GapKind::UnknownXObject,name);}
+            }
+            return;
+        }
+        let Ok(content)=self.doc.decode_stream(stream)else{self.image_gap(GapKind::FormDecodeFailure,name);return;};
+        let resource_value=self.doc.dict_get(&stream.dict,b"Resources");
+        let invalid_resources=resource_value.as_ref().is_some_and(|r|!matches!(r,Object::Dict(_)));
+        let form_resources=resource_value.and_then(|o|o.as_dict().cloned());
+        let matrix_value=self.doc.dict_get(&stream.dict,b"Matrix");
+        let matrix=matrix_value.as_ref().and_then(|m|m.as_array().and_then(Matrix::from_operands)).unwrap_or(Matrix::IDENTITY);
+        let invalid_matrix=matrix_value.as_ref().is_some_and(|m|m.as_array().is_none_or(|a|a.len()!=6||!a.iter().all(|v|v.as_f64().is_some_and(f64::is_finite))));
+        let saved=(self.gs.clone(),self.stack.len(),self.tm,self.tlm,self.current.take(),std::mem::take(&mut self.path));
+        let saved_pending=self.source_pending_clip.take();
+        self.gs.ctm=matrix.then(&self.gs.ctm);
+        if self.image_draws.is_some()||self.source_rects.is_some(){
+            if saved_pending.is_some()||saved.4.is_some()||!saved.5.is_empty(){self.image_gap(GapKind::OpenPathAtForm,name);self.gs.source_geometry_complete=false;}
+            if invalid_matrix{self.image_gap(GapKind::InvalidFormMatrix,name);self.gs.source_geometry_complete=false;}
+            if invalid_resources{self.image_gap(GapKind::InvalidFormResources,name);self.gs.source_geometry_complete=false;}
+            let bbox=self.doc.dict_get(&stream.dict,b"BBox").and_then(|o|{let a=o.as_array()?;if a.len()!=4{return None;}let v=a.iter().map(Object::as_f64).collect::<Option<Vec<_>>>()?;(v.iter().all(|x|x.is_finite())&&v[0]<=v[2]&&v[1]<=v[3]).then(||[v[0],v[1],v[2],v[3]])});
+            let quad=bbox.map(|[x0,y0,x1,y1]|[[x0,y0],[x1,y0],[x1,y1],[x0,y1]].map(|[x,y]|self.to_page(x,y)));
+            let complete=self.gs.source_geometry_complete&&quad.is_some_and(|q|q.iter().flatten().all(|v|v.is_finite()));
+            if bbox.is_none(){self.image_gap(GapKind::InvalidFormBox,name);}
+            if quad.is_some_and(|q|!q.iter().flatten().all(|v|v.is_finite())){self.image_gap(GapKind::UnrepresentableGeometry,name);}
+            if !complete{self.gs.source_geometry_complete=false;}
+            if let Some(clips)=self.gs.source_clips.as_mut(){clips.push(SourceClip{origin:ClipOrigin::FormBox,rule:ClipRule::NonZero,subpaths:vec![],form_box:bbox,page_quad:quad,geometry_complete:complete});}
+        }
+        if let Some(r)=r{self.forms.push(r);}
+        self.run(&content,form_resources.as_ref().unwrap_or(resources));
+        if r.is_some(){self.forms.pop();}
+        let(gs,depth,tm,tlm,current,path)=saved;
+        self.gs=gs;self.stack.truncate(depth);self.tm=tm;self.tlm=tlm;self.current=current;self.path=path;self.source_pending_clip=saved_pending;
+    }
+
 }
 
 fn empty_subpath() -> SubPath {
@@ -676,3 +749,5 @@ fn skip_inline_image(parser: &mut Parser) {
     }
     parser.lexer.pos = data.len();
 }
+
+#[path="source_ruling_context.rs"]mod ruling_context;

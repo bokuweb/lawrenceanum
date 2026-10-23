@@ -1,0 +1,46 @@
+{
+  "issue": 227,
+  "batch": 44,
+  "parent_commit": "77d268f379527d8cfe464d45242d7c244aca0396",
+  "native_runtime_source": 69,
+  "native_runtime_unchanged": true,
+  "adopted_scope": "Three original-source relation regression tests only. No coordinate/layout algorithm candidate adopted.",
+  "goal_complete": false,
+  "whole_corpus_strict_quality_not_reestimated": true,
+  "accepted_quality_changed_pages_this_batch": 0,
+  "method": "Root original-image engineering counterexample review, not independent/blind or a fresh30-page accuracy audit.",
+  "confirmed_originals": [
+    {
+      "page": "20260728g001680070",
+      "problem": "Name fragment shifted behind the remaining original column."
+    },
+    {
+      "page": "20260904g001980020",
+      "problem": "Before/after cells in one printed row split into unrelated lines."
+    },
+    {
+      "page": "20260925g002120073",
+      "problem": "Related balance sheet moved from its parent notice into an independent notice."
+    }
+  ],
+  "all9_candidate_changed_originals_not_claimed_reviewed": true,
+  "prototype_word_and_character_conservation_did_not_certify_correctness": true,
+  "static_original_relation_oracles": "tests/expected-native-layout-source-relations.json",
+  "partial_controls_not_full_page_gold": true,
+  "remaining_examples": "The accepted bank still has11 Articles versus12 necessary, and fundraising5 versus6. Existing seven count-only failures remain requirements outside mandatory CI; no wrong current count is introduced as a correctness assertion.",
+  "fixed_initial_audit144": "Accepted runtime is unchanged. Original30 grades are inherited, not regraded and not used as repair targets.",
+  "source_images": [
+    {
+      "path": ".cache/kanpo-227/signature44/review/20260728g001680070.png",
+      "sha256": "5ea84829fc08d0942f6924660efb4bc5ae4e113ba8ccebf9b739031de31f41d8"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/review/20260904g001980020.png",
+      "sha256": "d0fe3174d975634373d849fee55865238dd4e6bfc5ad219f2a8f8c4e5181cb8f"
+    },
+    {
+      "path": ".cache/kanpo-227/signature44/review/20260925g002120073.png",
+      "sha256": "33f3c7118583a1752834d2ba8cfc9a5182c5e5f9f443f5329192ce5bb251d0e0"
+    }
+  ]
+}

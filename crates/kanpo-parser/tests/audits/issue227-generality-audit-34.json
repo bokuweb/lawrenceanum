@@ -1,0 +1,123 @@
+{
+  "batch": 34,
+  "date": "2026-10-21",
+  "source_files": 120,
+  "parser_sources": 97,
+  "PDF_sources": 23,
+  "baseline_commit": "8ce93db831306e7e134fa04c75167fd15d5e84ed",
+  "evidence": {
+    "source": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated58-source-manifest.json",
+      "sha256": "b8d4d078d74dba18d0c329fcc284091e4a010e9fdd6e89a5667e4a36af12a0d2"
+    },
+    "assets": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated58-test-assets-manifest.json",
+      "sha256": "a263fa987cc657bc413e7f20512bf8bef0261681ebd1c9434554c4a9ef249a71"
+    },
+    "limited": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root34-record58/build-result.json",
+      "sha256": "53f539de96776d70f301e09dff91b38772b88121657e01be8f9bc6a4768a279e"
+    },
+    "cached": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root34-record58/full-result.json",
+      "sha256": "c48e2a5edb1d35f4a0e457f9813f2d8316368211b0922f750ee0a4aa4f3c5629"
+    },
+    "release": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated58-fullAnalysis-report.json",
+      "sha256": "aaf7a2c98ccba756bdb38dfd053d431d3d898b73bcef7c60a3e010fd407c3972"
+    },
+    "defaults": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/full34-final58-generic-partitioned-status.json",
+      "sha256": "61594096c1047c90332b305df8daf8c74c54ec0056c3df42c5bc00437184c917"
+    },
+    "snapshots": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/snapshot34-source58-preserved.json",
+      "sha256": "7da09248812e26ceafa7e636be5ca0b0d1980132461a8034f9983453949cdbb1"
+    },
+    "audit": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit144-source58-inheritance.json",
+      "sha256": "378ff68cab3502d8cbff8db19a2bfdb809cb095acdc2b65a62044802177d5f9e"
+    },
+    "delivery": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/record-opaque-field57/delivery-manifest.json",
+      "sha256": "5930d8d748577b39b065e70c05d9b160fc6da2cad298fcc6129982a22ab0b328"
+    },
+    "generality_diagnosis": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/heuristic-generality-audit56/delivery-manifest.json",
+      "sha256": "a683b9450a0b849fcc94de85e618e67c4f6e11e046f1716a8887e37e48b0c718"
+    },
+    "independent_diagnosis": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root34-heuristic-audit-independent/result.json",
+      "sha256": "a03eab3137702c64df97ec715dfb2bc6e4efe28007143166d1f3dcb16a9186db"
+    },
+    "producer": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/producer-scale-probe57/delivery-manifest.json",
+      "sha256": "a413f14ede5c27beedb3d83c25a8ed60cc18a84c52097bbd76a724dc54accf62"
+    },
+    "producer_followup": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/producer-scale-probe57-shared58-followup.json",
+      "sha256": "345f25569e4aefcc214f24fd03c700fbac6c9589459531a6da8ae7bb050b8616"
+    },
+    "producer_root_images": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root34-producer-whole-images-viewed.json",
+      "sha256": "b8fe1299017423e458c73f74dca4e89bd11a3076b65a40d3a9baa2469491514b"
+    },
+    "tagged_metadata": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/tagged-source-inventory57/delivery-manifest.json",
+      "sha256": "c6e26e3ee6efe8a6b5fd9d439d0a0084d66e9407d159b1f61919b778fdafad82"
+    }
+  },
+  "goal_complete": false,
+  "new_production_branches_on_expected_words_or_names": false,
+  "removed_unjustified_restrictions": [
+    "Office length2..24",
+    "ASCII/fullwidth digits in office payload"
+  ],
+  "retained_general_hints": [
+    "Nonblank field payload by Unicode trim",
+    "Printed 。、〇○ delimiter ambiguity rejection",
+    "Three-component numeric date syntax (not full calendar validation)",
+    "Existing source ID uniqueness, axes and multi-band support",
+    "Crossing-rule fence and last-band/caller context"
+  ],
+  "not_claimed": [
+    "Complete article/field ownership proof",
+    "Same-occurrence native Glyph/advance certificate",
+    "General scale invariance",
+    "All experience rules eliminated",
+    "New canonical quality improvement"
+  ],
+  "remaining_generality_risks": [
+    "Prior header check searches previous Plain units as bool, not an Article-bound certificate. It is preserved, not newly justified.",
+    "Prose still has Japanese/2..24/value>=12 and em6..14/fixed-pt limits.",
+    "Margin/tier processing changes before the record helper under scaling.",
+    "A relative em threshold alone would not establish ownership and is not substituted as a supposed proof."
+  ],
+  "tagged_metadata": {
+    "fixed_inputs": 2930,
+    "catalog_dicts": 2930,
+    "StructTreeRoot": 0,
+    "MarkInfo": 0,
+    "page_StructParents": 0,
+    "Marked": "unobserved because MarkInfo absent; not false",
+    "scope": "public catalog/page metadata only; no ActualText/content absence claim",
+    "source57_commit": "8ce93db831306e7e134fa04c75167fd15d5e84ed",
+    "static_line_erratum": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/tagged-source-inventory57/static-line-reference-erratum.json",
+      "sha256": "58caef0443af1dd45ff781231c034c636cbe9512a1a76205ce3ec021b163e400"
+    }
+  },
+  "model_scope": {
+    "RURI_ModernBERT_opt_in_authorized": true,
+    "downloaded": false,
+    "trained": false,
+    "inferred": false,
+    "no_default_change": true
+  },
+  "held": [
+    "Grid original visibility/outer stroke envelope/contrast cases",
+    "Separate stroke-survival collector has no cell-ownership/contrast proof",
+    "Company865 pages unreviewed"
+  ],
+  "whole_page_100_percent": false
+}

@@ -1,0 +1,268 @@
+{
+  "issue": 227,
+  "batch": 49,
+  "parent_commit": "11483abdb1bd8c4babdf1c41e0d296733697d3d4",
+  "native_runtime_source": 74,
+  "goal_complete": false,
+  "local_required_tests": {
+    "passed": 1877,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 117,
+    "logical_required_commands": 118,
+    "actual_commands_including_reviewed_snapshot_retry": 119,
+    "libraries": 4,
+    "integration_targets": 109,
+    "doctests": 4,
+    "all4_crates_examples_checked": true,
+    "new_tests": 2,
+    "snapshots": 796,
+    "snapshots_readonly_pass": true,
+    "snapshot_readonly_seconds": 229.67577408300002,
+    "source_manifest_sha256": "cd5a96bc5362e38fc08b207436eb303757ec472209e58361eab74560ab1b02c5",
+    "original_proposal_gate_sha256": "28fcce1543cd7c4615eb5617059caf9960409562e63af662c9f8be1cd99a5ae3",
+    "readonly_log_sha256": "fd75c5af8c1931062ebdfb34500ae3134f9de2bc3df4a0892f64936c759eaf30"
+  },
+  "fresh_native11992": {
+    "terminal": 0,
+    "pages": 11992,
+    "changed": 5,
+    "whole_Analysis_exact": 11987,
+    "all_words_fields_and_page_layout_exact": true,
+    "all_source_words": 2403403,
+    "source_usage_and_table_JSON_multisets_exact": true,
+    "nonwhitespace_character_multisets_exact": true,
+    "frozen_inputs_unchanged": true,
+    "all_changed_originals_require_review_before_adoption": true,
+    "seconds": 313.060449209
+  },
+  "change_contracts": {
+    "private_unadopted": false,
+    "changed": 5,
+    "page_and_text_exact_changes": 5,
+    "layout_changes": [],
+    "all_pure_split_old_endpoints_preserved": true,
+    "all_pure_split_document_runs_exact": true,
+    "before_articles_changed_pages": 34,
+    "after_articles_changed_pages": 39,
+    "all_changed_originals_still_require_review": false,
+    "rows": [
+      {
+        "page": "20260717g001600122",
+        "before": 4,
+        "after": 5,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260731g001730113",
+        "before": 3,
+        "after": 4,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260825g001890097",
+        "before": 7,
+        "after": 8,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20260924h017940032",
+        "before": 10,
+        "after": 11,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      },
+      {
+        "page": "20261009h018050032",
+        "before": 10,
+        "after": 11,
+        "pages_equal": true,
+        "text_equal": true,
+        "all_old_article_endpoints_preserved": true,
+        "document_run_bytes_styles_and_tables_exact_after_partition": true
+      }
+    ],
+    "all5_changed_original_scopes_reviewed": true,
+    "review_method": "Root engineering review, not independent/blind or whole-page accuracy."
+  },
+  "CLI_API_consistency": {
+    "terminal": 0,
+    "files": 11992,
+    "all_actual_CLI_bytes_equal_fresh_API": true,
+    "all_CLI_output_bytes_and_ordered_digest_equal_accepted73": true,
+    "all5_changed_Analysis_exactly_private_original_reviewed_values": true,
+    "source_manifest_sha256": "cd5a96bc5362e38fc08b207436eb303757ec472209e58361eab74560ab1b02c5",
+    "API_result_sha256": "718af2ee786ad5ae07c15f41937dae802489da45b9a771f0cbd2d7db5b3fd2ec",
+    "CLI_result_sha256": "4efce27773c42cf5c80d21143132f057e368c9af7dac4f8f8541e37907dcbc5b",
+    "all24_PDF_source_files_byte_identical_to73": true,
+    "raw_Glyph_Word_legacy_XHTML_audit": "14859045 glyph audit inherited from71 through all24 byte-identical PDF source files; not a fresh raw audit",
+    "root_reviewed_original_scopes": 5,
+    "independent_blind_random30_or_whole_page_accuracy": false
+  },
+  "actual_CLI": {
+    "terminal": 0,
+    "actual_default_native_CLI_from_all_original_PDFs": true,
+    "files": 11992,
+    "changed_vs73": [],
+    "ordered_filename_content_sha256_digest": "ef45ed8bbc6436102aa0d5d13f6d4e7d23db4df10d704721498d3bc201d16a2b",
+    "binary_sha256": "972e307d0c002b763664e33e77467f84e6af9d114630a74d64d3b4e427455207",
+    "source_manifest_sha256": "cd5a96bc5362e38fc08b207436eb303757ec472209e58361eab74560ab1b02c5",
+    "API_byte_consistency_and_original_change_review_pending": true
+  },
+  "known_necessary_counts": {
+    "runtime": 74,
+    "advisory_known_requirements_not_mandatory_success_assertions": true,
+    "passed": 2,
+    "failed": 5,
+    "source_manifest_sha256": "cd5a96bc5362e38fc08b207436eb303757ec472209e58361eab74560ab1b02c5",
+    "rows": [
+      {
+        "page": "20260803g001740136",
+        "actual": 12,
+        "necessary": 12,
+        "passes_necessary_count": true
+      },
+      {
+        "page": "20260903g001970080",
+        "actual": 5,
+        "necessary": 6,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260731g001730167",
+        "actual": 3,
+        "necessary": 4,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260721g001610162",
+        "actual": 5,
+        "necessary": 6,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260804g001750060",
+        "actual": 6,
+        "necessary": 7,
+        "passes_necessary_count": false
+      },
+      {
+        "page": "20260717g001600122",
+        "actual": 5,
+        "necessary": 5,
+        "passes_necessary_count": true
+      },
+      {
+        "page": "20260731h017590032",
+        "actual": 13,
+        "necessary": 14,
+        "passes_necessary_count": false
+      }
+    ]
+  },
+  "assets": {
+    "old_tracked_test_assets": 2422,
+    "all_byte_identical": 2420,
+    "changed": [
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731g00173__20260731g001730113.pdf.snap",
+        "old_git_blob": "09c30fb703f1e90063c74221745c5435d44758ee",
+        "new_git_blob": "bb75ee9ad6f13428270c97db1de049e330417d7c"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260825g00189__20260825g001890097.pdf.snap",
+        "old_git_blob": "7f712deaf4dc7980b24bf126bfc1f7b874afc055",
+        "new_git_blob": "e46e281aa686fb2e2926e89dde6c225c30398d0e"
+      }
+    ],
+    "historical_PDF_HTML_TXT_JSON_rules_and_expected_membership_gold_byte_identical": true,
+    "new_PDFs": 3,
+    "new_original_source_gold_JSONs": 1,
+    "new_snapshots": 3,
+    "updated_old_snapshots": 2,
+    "all_existing_assertions_unchanged": true
+  },
+  "initial_gate": "1876 passed1 failed0 ignored: archive proposed five original-reviewed snapshots (three new/two existing). All other required targets passed; only those proposals were accepted. All796 snapshots then passed with INSTA_UPDATE=no and unchanged hashes.",
+  "source_controls": "Two logical RED tests against source73, then private and final public1192 unit tests all green. Initial diagnostics setup failures from prior turn are retained in current-original-scope-diagnosis49.json.",
+  "PDF_raw_audit": "All24 PDF source files byte-identical to73/71.14859045-Glyph/f64, native Word and legacy XHTML audit inherited from71; no fresh raw audit claim.",
+  "current_scope_diagnosis": "Nine initial/necessary-count pages reviewed on source73. The two originally reported false-shinkyu examples no longer insert before/after labels. The financial dash row concatenation is already separated but one dash remains missing. One missing financial frame has zero extracted source Words. Dividend is corrected by74; other defects remain.",
+  "advisory_checks": "git diff --check; no whole-repository fmt/clippy-clean claim.",
+  "fresh_commit_CI": "Pending at preparation; exact-head checks recorded in PR and accepted checkpoint.",
+  "evidence": [
+    {
+      "path": ".cache/kanpo-227/native49-source-manifest.json",
+      "sha256": "cd5a96bc5362e38fc08b207436eb303757ec472209e58361eab74560ab1b02c5"
+    },
+    {
+      "path": ".cache/kanpo-227/source-evidence49/public74-lib.log",
+      "sha256": "e044e0937d81065a1f1b09f58dd4c01e8672a7e4c5cb00be840ea0c68704438d"
+    },
+    {
+      "path": ".cache/kanpo-227/source-evidence49/full-native74-public/result.json",
+      "sha256": "718af2ee786ad5ae07c15f41937dae802489da45b9a771f0cbd2d7db5b3fd2ec"
+    },
+    {
+      "path": ".cache/kanpo-227/source-evidence49/full-native74-public/changes.json",
+      "sha256": "b8d686d45efd25ca6092f9f06154d8d6e939029c24d5fcf52aa16cc9ac38ee9b"
+    },
+    {
+      "path": ".cache/kanpo-227/source-evidence49/public74-change-contracts.json",
+      "sha256": "11d8d13ba6bfaf2a7ea3cf64bcb9dde0985c7ee33dce146183070b8b34935e82"
+    },
+    {
+      "path": ".cache/kanpo-227/source-evidence49/textdump74-result.json",
+      "sha256": "4efce27773c42cf5c80d21143132f057e368c9af7dac4f8f8541e37907dcbc5b"
+    },
+    {
+      "path": ".cache/kanpo-227/source-evidence49/public74-native-CLI-API-consistency.json",
+      "sha256": "3146f8b4fab5f45889369d2245d9f2b6ae03dbac24ec718dfaf6635ef6629dff"
+    },
+    {
+      "path": ".cache/kanpo-227/source-evidence49/candidate74-original-review49.json",
+      "sha256": "9b3f15628dc3debb2ac619be09c234ac2e21cf3a266666e476c051e46e12deea"
+    },
+    {
+      "path": ".cache/kanpo-227/source-evidence49/original_dividend_and_environment_notices_preserve_all_five_source_groups-RED.log",
+      "sha256": "5103a7ebfec91edfbe5b3c865518bdf19e661ac5d1f7eb0d231e36d4dcaa1859"
+    },
+    {
+      "path": ".cache/kanpo-227/source-evidence49/legal_administrator_signature_requires_its_own_date_and_non_sentence_tail-RED.log",
+      "sha256": "dd99115f763a58a8ddfadb12c9ab8687736471b507e30d6a0fd0e6d93cc254cf"
+    },
+    {
+      "path": ".cache/kanpo-227/source-evidence49/dividend-original-gold49.json",
+      "sha256": "cf4ee61699ddf5ee03d3bc6fb8d6f043c8fbde9c81b95e04a0ce6dffe00e64e4"
+    },
+    {
+      "path": ".cache/kanpo-227/source-evidence49/snapshot-proposal-review74.json",
+      "sha256": "a08cc7e1558219017e83aed091098ca5123372a6ddef87382b1df98c48c6da47"
+    },
+    {
+      "path": ".cache/kanpo-227/source-evidence49/known-seven-count-requirements74.json",
+      "sha256": "c1b907b74fa982109bf64a901523c7de42a48039f67fd4a7a19847d2e10844aa"
+    },
+    {
+      "path": ".cache/kanpo-227/source-evidence49/final-all-green.json",
+      "sha256": "2571c314b1405ed9a6c1efdea9b5361054a6e76ee2d5ae658d6de1cce0ceaff5"
+    },
+    {
+      "path": ".cache/kanpo-227/source-evidence49/assets-and-snapshots.json",
+      "sha256": "7b88886386d511e8ee035a67163646533be80ab587ee24817a8f7af5a0519ba4"
+    },
+    {
+      "path": ".cache/kanpo-227/source-evidence49/current-original-scope-diagnosis49.json",
+      "sha256": "b18fd9df1bb3d843c25af11bdd70190955a8e99758c9e0c1108ff545b14ed284"
+    }
+  ]
+}

@@ -1,0 +1,336 @@
+{
+  "status": "locally_verified_native81; exact-head GitHub CI tracked separately; original goal incomplete",
+  "accepted_baseline_head": "4b0da1a3436c052e7950d9699802e810fe206229",
+  "native_candidate": 81,
+  "OCR_tool_unchanged": 63,
+  "method": "A fully owned nonnested native enclosure with an authorized first heading and its own distinct source date plus signature or whole financial table proves a publication start. Its witness stops before the next heading. Add start cuts only, preserve all preexisting internal cuts, do not join/reorder text and do not infer issuer equivalence. Existing certified parent ranges/quotes/unknown-source constraints still apply.",
+  "no_new_routing_keys": [
+    "page IDs",
+    "company names",
+    "name punctuation equivalence",
+    "full observed titles",
+    "character or line-count caps",
+    "fixed point distances",
+    "model outputs"
+  ],
+  "counterexample_history": {
+    "original_g200062_RED": "Frozen original seven frames failed at six articles before implementation.",
+    "first_attempt": "External start+end cuts fixed that original but failed three existing date/signature/unclassified-following-material controls. Held; never public.",
+    "refinement": "Only witnessed starts; original existing three expectations unchanged. Two new positive expectations had overclaimed an end and were narrowed for the same general reason. All library1341 private functions then passed; public portable originals bring library to1351.",
+    "negative_controls": "No later-notice witness borrowing; complete source ownership; unknown source styles; interleaved/crossing source lines; nested/overlapping frames; quotations; arbitrary issuer spelling differences, font-ID bijection, positive scale and translation. Existing internal partitions preserved."
+  },
+  "tests": {
+    "native_passed": 2083,
+    "Node_passed": 94,
+    "Python_passed": 45,
+    "related_total": 2222,
+    "failed": 0,
+    "ignored_or_skipped": 0,
+    "parser_library": 1351,
+    "PDF_library": 173,
+    "required_commands": 118,
+    "integration_targets": 109,
+    "result_groups": 117,
+    "new_synthetic_tests": 6,
+    "new_portable_original_tests": 11,
+    "all814_snapshots_readonly_pass": true,
+    "latest_snapshot_updates": 1,
+    "other813_snapshot_bytes_unchanged_to_native80": true,
+    "scope": "Fresh complete four-crate public source gates; fresh Node/Python contracts. Final exact-head GitHub CI tracked separately."
+  },
+  "corpus": {
+    "terminal": 0,
+    "inputs": 11992,
+    "changed": 11,
+    "all_original_Word_fields_and_nonwhitespace_characters_preserved": true,
+    "all_pages_Line_Table_text_and_format_exact": true,
+    "source_and_inputs_frozen": true,
+    "purpose": "Private source-frame start proof versus accepted native80. No public mutation. Independently witnessed frame starts refine partitions without issuer-name equivalence or adding unproved end cuts. Not an accuracy claim.",
+    "seconds": 305.385986
+  },
+  "production_migration": "Public implementation is rustfmt-normalized-source identical to frozen private corpus implementation; all other parser production sources are byte-identical and lib.rs adds only cfg(test) module. Public full gates and all11 portable originals pass. No claim that the private full scan was itself a separate public runtime run.",
+  "changed_originals": [
+    {
+      "page": "20260721g001610168",
+      "before_articles": 3,
+      "after_articles": 4,
+      "all_pages_Word_Line_Table_text_format_exact": true,
+      "all_original_article_text_boundaries_retained": true,
+      "all_styled_Document_nonwhite_characters_whole_tables_other_blocks_exact": true,
+      "all_current_Used_Words_covered_once": true,
+      "no_article_crosses_frozen_outer_frame": true,
+      "source_frame_gold_sha256": "071fc2fd9d298082cd7628d74dec9fdaa85bf56b0b0c5f0ec4ac89441f69a70f",
+      "outer_visual_frames": 4,
+      "zero_Used_Word_frames": 0,
+      "root_nonblind": true,
+      "not_internal_semantic_partition_or_global_accuracy": true
+    },
+    {
+      "page": "20260722g001620107",
+      "before_articles": 3,
+      "after_articles": 4,
+      "all_pages_Word_Line_Table_text_format_exact": true,
+      "all_original_article_text_boundaries_retained": true,
+      "all_styled_Document_nonwhite_characters_whole_tables_other_blocks_exact": true,
+      "all_current_Used_Words_covered_once": true,
+      "no_article_crosses_frozen_outer_frame": true,
+      "source_frame_gold_sha256": "4ab512529e0a9db42b3e8eb2d5ee2314850f7aaf4f11511ee33a1bae4fea26ab",
+      "outer_visual_frames": 4,
+      "zero_Used_Word_frames": 0,
+      "root_nonblind": true,
+      "not_internal_semantic_partition_or_global_accuracy": true
+    },
+    {
+      "page": "20260806g001770086",
+      "before_articles": 4,
+      "after_articles": 5,
+      "all_pages_Word_Line_Table_text_format_exact": true,
+      "all_original_article_text_boundaries_retained": true,
+      "all_styled_Document_nonwhite_characters_whole_tables_other_blocks_exact": true,
+      "all_current_Used_Words_covered_once": true,
+      "no_article_crosses_frozen_outer_frame": true,
+      "source_frame_gold_sha256": "c4c104bfa4bca45c93a9652114de19393ca2cb9c31da4193908dc613972dec06",
+      "outer_visual_frames": 5,
+      "zero_Used_Word_frames": 0,
+      "root_nonblind": true,
+      "not_internal_semantic_partition_or_global_accuracy": true
+    },
+    {
+      "page": "20260825g001890119",
+      "before_articles": 2,
+      "after_articles": 3,
+      "all_pages_Word_Line_Table_text_format_exact": true,
+      "all_original_article_text_boundaries_retained": true,
+      "all_styled_Document_nonwhite_characters_whole_tables_other_blocks_exact": true,
+      "all_current_Used_Words_covered_once": true,
+      "no_article_crosses_frozen_outer_frame": true,
+      "source_frame_gold_sha256": "e30591fcec88174ab70e8ab6d7b1447dad72daf3e3a8a74a9315f3678e31b864",
+      "outer_visual_frames": 3,
+      "zero_Used_Word_frames": 0,
+      "root_nonblind": true,
+      "not_internal_semantic_partition_or_global_accuracy": true
+    },
+    {
+      "page": "20260908g002000062",
+      "before_articles": 6,
+      "after_articles": 7,
+      "all_pages_Word_Line_Table_text_format_exact": true,
+      "all_original_article_text_boundaries_retained": true,
+      "all_styled_Document_nonwhite_characters_whole_tables_other_blocks_exact": true,
+      "all_current_Used_Words_covered_once": true,
+      "no_article_crosses_frozen_outer_frame": true,
+      "source_frame_gold_sha256": "381aff2020e8751de93d1206bddf8705751a4428472c4246454ecff00da77d80",
+      "outer_visual_frames": 7,
+      "zero_Used_Word_frames": 0,
+      "root_nonblind": true,
+      "not_internal_semantic_partition_or_global_accuracy": true
+    },
+    {
+      "page": "20260916g002070076",
+      "before_articles": 7,
+      "after_articles": 8,
+      "all_pages_Word_Line_Table_text_format_exact": true,
+      "all_original_article_text_boundaries_retained": true,
+      "all_styled_Document_nonwhite_characters_whole_tables_other_blocks_exact": true,
+      "all_current_Used_Words_covered_once": true,
+      "no_article_crosses_frozen_outer_frame": true,
+      "source_frame_gold_sha256": "561382479458f07de3032065f33b84723b0d5b8397c440f0e2bc87ee91bc467b",
+      "outer_visual_frames": 8,
+      "zero_Used_Word_frames": 0,
+      "root_nonblind": true,
+      "not_internal_semantic_partition_or_global_accuracy": true
+    },
+    {
+      "page": "20260925g002120075",
+      "before_articles": 6,
+      "after_articles": 8,
+      "all_pages_Word_Line_Table_text_format_exact": true,
+      "all_original_article_text_boundaries_retained": true,
+      "all_styled_Document_nonwhite_characters_whole_tables_other_blocks_exact": true,
+      "all_current_Used_Words_covered_once": true,
+      "no_article_crosses_frozen_outer_frame": true,
+      "source_frame_gold_sha256": "5541a681c3f499328632fadbc5a4145b460f3f1805adf7c40232363a27b80105",
+      "outer_visual_frames": 8,
+      "zero_Used_Word_frames": 0,
+      "root_nonblind": true,
+      "not_internal_semantic_partition_or_global_accuracy": true
+    },
+    {
+      "page": "20260925g002120088",
+      "before_articles": 3,
+      "after_articles": 4,
+      "all_pages_Word_Line_Table_text_format_exact": true,
+      "all_original_article_text_boundaries_retained": true,
+      "all_styled_Document_nonwhite_characters_whole_tables_other_blocks_exact": true,
+      "all_current_Used_Words_covered_once": true,
+      "no_article_crosses_frozen_outer_frame": true,
+      "source_frame_gold_sha256": "8bc4c2f3bcac3910d315687b5e993c3402e45af36a8e1d1d982d309fe8069519",
+      "outer_visual_frames": 4,
+      "zero_Used_Word_frames": 0,
+      "root_nonblind": true,
+      "not_internal_semantic_partition_or_global_accuracy": true
+    },
+    {
+      "page": "20260928g002130113",
+      "before_articles": 7,
+      "after_articles": 8,
+      "all_pages_Word_Line_Table_text_format_exact": true,
+      "all_original_article_text_boundaries_retained": true,
+      "all_styled_Document_nonwhite_characters_whole_tables_other_blocks_exact": true,
+      "all_current_Used_Words_covered_once": true,
+      "no_article_crosses_frozen_outer_frame": true,
+      "source_frame_gold_sha256": "33073a7e7b8a80008429fdd5fddf2deb99602a3e8c55364cbae431a87aab3a74",
+      "outer_visual_frames": 8,
+      "zero_Used_Word_frames": 0,
+      "root_nonblind": true,
+      "not_internal_semantic_partition_or_global_accuracy": true
+    },
+    {
+      "page": "20261005g002190079",
+      "before_articles": 3,
+      "after_articles": 4,
+      "all_pages_Word_Line_Table_text_format_exact": true,
+      "all_original_article_text_boundaries_retained": true,
+      "all_styled_Document_nonwhite_characters_whole_tables_other_blocks_exact": true,
+      "all_current_Used_Words_covered_once": true,
+      "no_article_crosses_frozen_outer_frame": true,
+      "source_frame_gold_sha256": "82ce6ce07e082247bdd18872fb514a3404e805217b9e69da47d3fa65b7f19393",
+      "outer_visual_frames": 4,
+      "zero_Used_Word_frames": 0,
+      "root_nonblind": true,
+      "not_internal_semantic_partition_or_global_accuracy": true
+    },
+    {
+      "page": "20261020g002300078",
+      "before_articles": 4,
+      "after_articles": 5,
+      "all_pages_Word_Line_Table_text_format_exact": true,
+      "all_original_article_text_boundaries_retained": true,
+      "all_styled_Document_nonwhite_characters_whole_tables_other_blocks_exact": true,
+      "all_current_Used_Words_covered_once": true,
+      "no_article_crosses_frozen_outer_frame": true,
+      "source_frame_gold_sha256": "d0352447a6a8103347b92309e46db4ca092fc5907f5ec52268c9af63f5b7f9ac",
+      "outer_visual_frames": 6,
+      "zero_Used_Word_frames": 1,
+      "root_nonblind": true,
+      "not_internal_semantic_partition_or_global_accuracy": true
+    }
+  ],
+  "original_review": "Root nonblind. g200062 gold existed before implementation; ten additional changed originals were reviewed and outer-frame ownership frozen before candidate membership inspection. Current Used Word ownership only; not recognition, missing-character, cell, internal reading-order or general accuracy. Mixed-procedure frames permit later internal refinement. g230078 government information frame has zero Used Words and remains unvalidated as an article.",
+  "fixed_audit": {
+    "terminal": 0,
+    "fixed30_source_file": ".cache/kanpo-227/audit144-source-paths.json",
+    "fixed30_inputs": 30,
+    "all_fixed30_and_known7_and_explicit_PUA_gap_pages_entire_Analysis_unchanged_to_accepted80": true,
+    "fixed30_root_nonblind_score": {
+      "ok": 10,
+      "minor": 5,
+      "major": 15
+    },
+    "reselected_or_regraded": false,
+    "known_required_counts": [
+      {
+        "page": "20260717g001600122",
+        "expected_Articles": 5,
+        "actual_Articles": 5,
+        "pass": true
+      },
+      {
+        "page": "20260721g001610162",
+        "expected_Articles": 6,
+        "actual_Articles": 6,
+        "pass": true
+      },
+      {
+        "page": "20260731g001730167",
+        "expected_Articles": 4,
+        "actual_Articles": 3,
+        "pass": false
+      },
+      {
+        "page": "20260731h017590032",
+        "expected_Articles": 14,
+        "actual_Articles": 14,
+        "pass": true
+      },
+      {
+        "page": "20260803g001740136",
+        "expected_Articles": 12,
+        "actual_Articles": 12,
+        "pass": true
+      },
+      {
+        "page": "20260804g001750060",
+        "expected_Articles": 7,
+        "actual_Articles": 7,
+        "pass": true
+      },
+      {
+        "page": "20260903g001970080",
+        "expected_Articles": 6,
+        "actual_Articles": 6,
+        "pass": true
+      }
+    ],
+    "necessary_pass": 6,
+    "necessary_fail": 1,
+    "held_source_gaps": [
+      "20260721h017510032",
+      "20260820h017720032"
+    ],
+    "old51_outer_frame_metric": {
+      "accepted80": 49,
+      "candidate81": 50,
+      "only_changed_old_original": "20260908g002000062",
+      "remaining": "20261019g002290060 government information panel has zero Used Words",
+      "scope": "Previously frozen root-nonblind source Word membership metric; not semantic partition, recognition or general accuracy"
+    },
+    "new_originals": "Ten additional nonblind originals reviewed before candidate membership; eleven changed files include the old g200062. Mixed-procedure scopes are external-only; g230078 also has a zero-Used-Word government panel."
+  },
+  "actual_default_CLI": {
+    "terminal": 0,
+    "fresh_actual_default_CLI_PDF_inputs": 11992,
+    "all_text_bytes_equal_accepted80_CLI": true,
+    "all_new_API_text_bytes_equal_accepted80_API": true,
+    "accepted80_CLI_API_equality": {
+      "artifact": ".cache/kanpo-227/source-financial69/source-ruling70/public74/CLI74/CLI-API-equality74.json",
+      "sha256": "638c6dac1800f6aa0732a36b053715c05ce85ad36b55ef99b06e89b39b1673e6",
+      "inputs": 11992,
+      "scope": "Full per-input baseline80 CLI/API hash record retained in the audit artifact; new full CLI and API equality checks preserve it."
+    },
+    "new_CLI_API_equality_all11992_follows_both_equalities": true,
+    "source_binary_inputs_frozen": true,
+    "seconds": 89.86223662500001
+  },
+  "raw_PDF_scope": "kanpo-pdf production unchanged to accepted80. All11992 parser pages/Words/Lines/Tables/text equal accepted80. Accepted80 full raw glyph/Word/image audit remains authority; not a newly repeated raw rendering audit.",
+  "reviewed_snapshot": {
+    "page": "20260925g002120088",
+    "target": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260925g00212__20260925g002120088.pdf.snap",
+    "original_pdf_sha256": "227afc09db786ddbd705b0c001f33cb33f0c5af6c959d6baf12d5aa7fea9baa2",
+    "before_sha256": "b06d813fd1da2cfda7142e15d048fcb1c42ca213f7218f3975cb6e59ad99101b",
+    "proposal_sha256": "4b791873cb9efc64fdf8e8c9e3f85cef0b29ffc26a87a6edfdaf5680de9931b3",
+    "old_formatter_exact_saved_snapshot": true,
+    "whole_page_Word_Line_Table_text_fields_exact": true,
+    "all_prior_article_text_boundaries_preserved": true,
+    "styled_document_characters_and_complete_tables_preserved": true,
+    "no_cross_outer_frame_membership": true,
+    "root_nonblind_original_review": true,
+    "scope": "Only this original-backed 3-to-4 article refinement; the previous cross-frame merge is removed. Bottom-left internal merger partition remains ungraded. No UPDATE_EXPECT or blanket INSTA_UPDATE."
+  },
+  "remaining": [
+    "Fixed30 remains ok10/minor5/major15, no regrading. Known7 necessary counts remain6/1; g1730167 image body still insufficient.",
+    "Explicit ToUnicode PUA h17510032/h17720032 remains held.",
+    "Mixed-procedure inner frame semantics; native source/image/outline gaps; roster/address/irregular table/reading order work continues.",
+    "Old51 strict frame membership becomes50/51; zero-Used-Word government panel g229060 remains. Another such panel is in new g230078.",
+    "Other compatibility heuristics and issue227 work remain; no100% or no-more-avenues claim."
+  ],
+  "models": "No new RURI/ModernBERT dependencies, downloads or inference. Opt-in remains allowed if useful; native geometric evidence sufficed for this scoped change. Historical held model experiments remain held.",
+  "evidence": {
+    ".cache/kanpo-227/source-financial69/source-ruling70/public77/result77.json": "113dde5019df558df7baf51b78d1a13136f52c563b09990790a499426afb0154",
+    ".cache/kanpo-227/source-financial69/source-ruling70/source-fences76/corpus76/result70.json": "89961f8e43aed3830d6bcadfd33b79e95823fa1cd3d1a5c4b0f83f4b14d0c174",
+    ".cache/kanpo-227/source-financial69/source-ruling70/source-fences76/corpus76/strong-proof76.json": "10885a8ecca6d64b187e20f897a866e7ce18d29d2b9656119ec3882554992e11",
+    ".cache/kanpo-227/source-financial69/source-ruling70/source-fences76/production-migration-proof76.json": "a84004756c78c5d2fb3a8eed57649d08fae2f37b9f69bbfc2b911c53e8770ea4",
+    ".cache/kanpo-227/source-financial69/source-ruling70/source-fences76/CLI76/result76.json": "5976aa8f126f63daaf259a9616bf86a1fe99fad82d1e28c6237194dba43acd5f",
+    ".cache/kanpo-227/source-financial69/source-ruling70/OCR-contracts77/result77.json": "a14f96a1d30e65dc01707df90520d95ec40338e75c1d445d30b3a9b5be914c15"
+  }
+}

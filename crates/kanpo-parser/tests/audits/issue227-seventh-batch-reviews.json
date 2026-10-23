@@ -1,0 +1,914 @@
+{
+  "candidate": "after28",
+  "baseline_commit": "d844e3d229f6779b5577632e9dc5d538a943a15c",
+  "scope_note": "Each cache-only prototype was checked on all11992. The final production combination was independently extracted from all originals and source-validated. All six changed pages were visually checked, not a new independent sample.",
+  "prose_label_value": {
+    "validation": {
+      "status": "ready_for_parent_integration",
+      "shared_source_edited": false,
+      "baseline_snapshot": "b7571c5f82b2a62fbeca26388004e7d6d09cde31 plus the four parent changes in horizontal.rs, large_parentheses.rs, shinkyu.rs, shared_table_labels.rs",
+      "equivalent_after27_commit": "d844e3d2",
+      "baseline_output_matches_after27": 11992,
+      "method": "Full identical parser source snapshots compiled with release dependency rlibs; only this helper call cfg OFF/ON differs. PDF bytes parsed once, identical xhtml/rules supplied to both full analyze_item paths. No existing trace postprocessing approximation.",
+      "patch": "prose-label-values.patch",
+      "unit_source": "prose_label_values_tests.rs",
+      "unit_tests": 20,
+      "existing_segment_tests_in_standalone_shim": 9,
+      "unit_total_pass": 29,
+      "rounding_regression_test": "sort-before fix red; final green (rounding-red.log and build-final-rounding.log)",
+      "pdf_test_source": "prose_label_value_fixtures.rs",
+      "pdf_tests": 3,
+      "pdf_baseline": "2 red, 1 existing nearby-page preservation green",
+      "pdf_prototype": "3 green",
+      "positive_pdf": "archive/pages/20260826h01776/20260826h017760008.pdf",
+      "negative_nearby_pdf": "archive/pages/20260826h01776/20260826h017760007.pdf",
+      "all_corpus": {
+        "pages": 11992,
+        "changed_pages": [
+          "20260723h017530007",
+          "20260826h017760008",
+          "20260930g002150475"
+        ],
+        "unchanged_pages": 11989,
+        "word_data_changed": 0,
+        "source_id_additions": 0,
+        "source_id_deletions": 0,
+        "source_id_duplicates": 0,
+        "nonwhitespace_character_multiset_changes": 0,
+        "changed_page_tables_changed": 0,
+        "per_page_assertions": "All Word fields (id, raw, text, bbox, status), complete line/cell source ID multiset and no duplicates, non-whitespace character multiset. Every baseline text equals frozen after27."
+      },
+      "visual_audit": "affected-page-audit.json: 3/3 changed pages reviewed, no regression",
+      "guards": [
+        "sideways pages only",
+        "3..10 consecutive parenthesized Japanese ordinals; adjoining short Japanese label columns",
+        "label starts and ends aligned to 1pt, 6..14pt nominal size",
+        "value first edge 0.75..2em after local label ends, all value starts aligned to 1pt",
+        "every label has a value in its own column; all selected values fit label x range",
+        "unique nonoverlapping value columns, same nominal size, at least one long Japanese prose value",
+        "pure numeric continuation, headings/notice markers, intervening original rules or known frames excluded",
+        "only matched below words move; below words outside label range retain their tier"
+      ],
+      "limits": [
+        "Exact parenthesized kanji ordinals 一..十 and sideways pages only; no widening to upright pages or Arabic-number labels.",
+        "Textless rendered material is not supplied by this change. Native Glyph evidence accompanies target repair recheck."
+      ],
+      "proof_files": [
+        "all-results.json",
+        "all-corpus-final-rounding.log",
+        "baseline-manifest.json",
+        "affected-page-audit.json",
+        "1776p8-repair-recheck.json"
+      ],
+      "patch_sha256": "3e5cee6219cc4f1e47f22f4f4fed2c2f5b068cfbc556258893e2289e5ae1883f"
+    },
+    "original_reviews": {
+      "changed_pages": 3,
+      "visually_reviewed_changed_pages": 3,
+      "unreviewed_changed_pages": 0,
+      "regressions_found": 0,
+      "pages": [
+        {
+          "page": "20260723h017530007",
+          "changed_region_grade": "ok",
+          "audit_scope": "原本全体を表示して変更した公示本文のラベル/値対応を照合。全文に対する出典ID/文字保存を機械検証。独立無作為監査の初回評点とは区別する。",
+          "original_pdf": ".cache/kanpo-archive/2026-07-23/20260723h01753/20260723h017530007.pdf",
+          "original_sha256": "b86a119078ea032668ae1d7652c7d24fe2cdab8e015d20c70f3fa8002bdcd9b0",
+          "png": ".cache/kanpo-227/prose-label-values-proposal/20260723h017530007.pdf.png",
+          "png_sha256": "81a3674374ab4eca4e34b8656174bdc60b575c5e5f1785c0521c2073aa80d3c1",
+          "before_output_sha256": "6e1305eefdf9dd455e3d75012101e470b3a726f9be0802017e716ff1b6688943",
+          "after_output_sha256": "85172efc4f61007d0931ca485610bd526a26de5d319a08c83d167ce14e4f2236",
+          "before_text_lines": 25,
+          "after_text_lines": 21,
+          "diff_ranges": [
+            {
+              "op": "replace",
+              "before_lines": [
+                13,
+                17
+              ],
+              "after_lines": [
+                13,
+                13
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                22,
+                22
+              ],
+              "after_lines": [
+                18,
+                18
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                24,
+                25
+              ],
+              "after_lines": [
+                20,
+                21
+              ]
+            }
+          ],
+          "used_source_ids": 73,
+          "word_attributes_equal": true,
+          "source_id_multiset_equal": true,
+          "source_id_duplicates": 0,
+          "tables_unchanged": 0,
+          "notes": [
+            "原本左上の北海道開発局公示を照合。四つの項目のラベルと対応値が元の同じ縦列に戻る。",
+            "（四）は電柱・更新移設の除外・ただし書の五列、（五）は災害被害の拡大防止の二列、（六）は令和八年七月三十日、（七）は北海道開発局及び同局留萌開発建設部。",
+            "上の導入文、（一）〜（三）、区域と備考の出力は字・ID・順序とも不変。視覚監査の対象は変更した公示の文字層。右側の外国人帰化名簿は今回の変更も本文追加もないため、ページ全体の品質評点にはしていない。"
+          ]
+        },
+        {
+          "page": "20260826h017760008",
+          "changed_region_grade": "ok",
+          "audit_scope": "原本全体を表示して変更した公示本文のラベル/値対応を照合。全文に対する出典ID/文字保存を機械検証。独立無作為監査の初回評点とは区別する。",
+          "original_pdf": ".cache/kanpo-archive/2026-08-26/20260826h01776/20260826h017760008.pdf",
+          "original_sha256": "6b9905b6d909297b477f6107cd54074a1332306c89296d5c28b63a640c15f9f1",
+          "png": ".cache/kanpo-227/audit117/20260826h017760008.png",
+          "png_sha256": "9e09f5a5cef2574211c473c1f2b3959afce5cfa7ab735de3e270fa1d01b8b39c",
+          "before_output_sha256": "9cf7cd2090ad5b1a7298bbcaa3acf1e8a2b0b5e0856b7a5062fd1447c7006a01",
+          "after_output_sha256": "2776c5b1c85c667a0e8977aa75062f28d56566a24dcb1bca1f96ae9b46d58a00",
+          "before_text_lines": 17,
+          "after_text_lines": 13,
+          "diff_ranges": [
+            {
+              "op": "replace",
+              "before_lines": [
+                1,
+                4
+              ],
+              "after_lines": [
+                1,
+                9
+              ]
+            },
+            {
+              "op": "delete",
+              "before_lines": [
+                9,
+                17
+              ],
+              "after_lines": [
+                14,
+                13
+              ]
+            }
+          ],
+          "used_source_ids": 37,
+          "word_attributes_equal": true,
+          "source_id_multiset_equal": true,
+          "source_id_duplicates": 0,
+          "tables_unchanged": 0,
+          "notes": [
+            "原本左上の継続公示を全37 Used語と全文で照合。修正前は（四）〜（七）を先に並べて公告・諸事項・相続見出しを挟んで本文九列を遅延出力していた。",
+            "修正後1〜5行は（四）と電柱の五列、6〜7行は（五）と理由の二列、8行は（六）令和八年八月二十七日、9行は（七）九州地方整備局及び同局北九州国道事務所。",
+            "公告・諸事項・相続見出しは10〜13行に残る。同じ見出し語IDと文字列を維持。ラベルと値が同じ縦列だった原本どおり、改行をまたがず同一行につながるのは許容。",
+            "initial audit117 majorは固定。修復再照合は文字層なしの相続事例本文を除外しok。除外範囲の全native Glyph数・空Glyph数とも0は既存probeで確認済み。outlinedとは断定しない。"
+          ],
+          "initial_grade": "major",
+          "initial_grade_frozen": true,
+          "repair_recheck_grade": "ok",
+          "native_text_layer_exclusion": {
+            "native_page_width": 842.0,
+            "native_page_height": 595.0,
+            "rotate": 270,
+            "total_glyphs": 286,
+            "total_empty_glyphs": 0,
+            "probe": ".cache/kanpo-227/probe-page-glyphs",
+            "evidence": ".cache/kanpo-227/20260826h017760008-glyphs.json",
+            "boxes": [
+              {
+                "bbox": [
+                  62,
+                  223,
+                  238,
+                  550
+                ],
+                "all_native_glyphs": 0,
+                "empty_native_glyphs": 0,
+                "intersecting_paths": 0,
+                "filled_intersecting_paths": 0
+              },
+              {
+                "bbox": [
+                  245,
+                  145,
+                  421,
+                  550
+                ],
+                "all_native_glyphs": 0,
+                "empty_native_glyphs": 0,
+                "intersecting_paths": 0,
+                "filled_intersecting_paths": 0
+              },
+              {
+                "bbox": [
+                  430,
+                  46,
+                  605,
+                  550
+                ],
+                "all_native_glyphs": 0,
+                "empty_native_glyphs": 0,
+                "intersecting_paths": 0,
+                "filled_intersecting_paths": 0
+              },
+              {
+                "bbox": [
+                  610,
+                  46,
+                  780,
+                  550
+                ],
+                "all_native_glyphs": 0,
+                "empty_native_glyphs": 0,
+                "intersecting_paths": 0,
+                "filled_intersecting_paths": 0
+              }
+            ]
+          }
+        },
+        {
+          "page": "20260930g002150475",
+          "changed_region_grade": "ok",
+          "audit_scope": "原本全体を表示して変更した公示本文のラベル/値対応を照合。全文に対する出典ID/文字保存を機械検証。独立無作為監査の初回評点とは区別する。",
+          "original_pdf": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150475.pdf",
+          "original_sha256": "286ca90cb7ae78e500d3e416b5f52062fcef888d37577241b0895391a41ed192",
+          "png": ".cache/kanpo-227/mixed-tables-audit/20260930g002150475.pdf.png",
+          "png_sha256": "0558c6ac7d8a979edc6ebb34a605ab318bacaa8d2343f5f55674c139a4e2d4ce",
+          "before_output_sha256": "72e4b090e4956f83bd0296579f1632e1307dd0a8a8ef9c6223d3fc215692894a",
+          "after_output_sha256": "4b28d0dc157fbcdc48e5fd4ff075fc9fb2644f5b4521246888fc1b3925281770",
+          "before_text_lines": 74,
+          "after_text_lines": 70,
+          "diff_ranges": [
+            {
+              "op": "replace",
+              "before_lines": [
+                33,
+                37
+              ],
+              "after_lines": [
+                33,
+                33
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                42,
+                42
+              ],
+              "after_lines": [
+                38,
+                38
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                44,
+                45
+              ],
+              "after_lines": [
+                40,
+                41
+              ]
+            }
+          ],
+          "used_source_ids": 879,
+          "word_attributes_equal": true,
+          "source_id_multiset_equal": true,
+          "source_id_duplicates": 0,
+          "tables_unchanged": 1,
+          "notes": [
+            "原本左側の三件目の関東地方整備局公示を照合。東京都世田谷区松原二丁目六六〇番二地内の次に続く（四）〜（七）の対応を復旧。",
+            "（四）電柱とただし書の五列、（五）被害拡大防止の二列、（六）令和八年十月一日、（七）関東地方整備局及び同局東京国道事務所を原本と確認。",
+            "一・二件目の公示、後続の資料・国庫歳入歳出状況、横組み統計表の全セル/数値/単位/注記と語IDは候補前後で完全一致。隣記事・統計表への混入なし。"
+          ]
+        }
+      ]
+    },
+    "target_repair_recheck": {
+      "page": "20260826h017760008",
+      "changed_region_grade": "ok",
+      "audit_scope": "原本全体を表示して変更した公示本文のラベル/値対応を照合。全文に対する出典ID/文字保存を機械検証。独立無作為監査の初回評点とは区別する。",
+      "original_pdf": ".cache/kanpo-archive/2026-08-26/20260826h01776/20260826h017760008.pdf",
+      "original_sha256": "6b9905b6d909297b477f6107cd54074a1332306c89296d5c28b63a640c15f9f1",
+      "png": ".cache/kanpo-227/audit117/20260826h017760008.png",
+      "png_sha256": "9e09f5a5cef2574211c473c1f2b3959afce5cfa7ab735de3e270fa1d01b8b39c",
+      "before_output_sha256": "9cf7cd2090ad5b1a7298bbcaa3acf1e8a2b0b5e0856b7a5062fd1447c7006a01",
+      "after_output_sha256": "2776c5b1c85c667a0e8977aa75062f28d56566a24dcb1bca1f96ae9b46d58a00",
+      "before_text_lines": 17,
+      "after_text_lines": 13,
+      "diff_ranges": [
+        {
+          "op": "replace",
+          "before_lines": [
+            1,
+            4
+          ],
+          "after_lines": [
+            1,
+            9
+          ]
+        },
+        {
+          "op": "delete",
+          "before_lines": [
+            9,
+            17
+          ],
+          "after_lines": [
+            14,
+            13
+          ]
+        }
+      ],
+      "used_source_ids": 37,
+      "word_attributes_equal": true,
+      "source_id_multiset_equal": true,
+      "source_id_duplicates": 0,
+      "tables_unchanged": 0,
+      "notes": [
+        "原本左上の継続公示を全37 Used語と全文で照合。修正前は（四）〜（七）を先に並べて公告・諸事項・相続見出しを挟んで本文九列を遅延出力していた。",
+        "修正後1〜5行は（四）と電柱の五列、6〜7行は（五）と理由の二列、8行は（六）令和八年八月二十七日、9行は（七）九州地方整備局及び同局北九州国道事務所。",
+        "公告・諸事項・相続見出しは10〜13行に残る。同じ見出し語IDと文字列を維持。ラベルと値が同じ縦列だった原本どおり、改行をまたがず同一行につながるのは許容。",
+        "initial audit117 majorは固定。修復再照合は文字層なしの相続事例本文を除外しok。除外範囲の全native Glyph数・空Glyph数とも0は既存probeで確認済み。outlinedとは断定しない。"
+      ],
+      "initial_grade": "major",
+      "initial_grade_frozen": true,
+      "repair_recheck_grade": "ok",
+      "native_text_layer_exclusion": {
+        "native_page_width": 842.0,
+        "native_page_height": 595.0,
+        "rotate": 270,
+        "total_glyphs": 286,
+        "total_empty_glyphs": 0,
+        "probe": ".cache/kanpo-227/probe-page-glyphs",
+        "evidence": ".cache/kanpo-227/20260826h017760008-glyphs.json",
+        "boxes": [
+          {
+            "bbox": [
+              62,
+              223,
+              238,
+              550
+            ],
+            "all_native_glyphs": 0,
+            "empty_native_glyphs": 0,
+            "intersecting_paths": 0,
+            "filled_intersecting_paths": 0
+          },
+          {
+            "bbox": [
+              245,
+              145,
+              421,
+              550
+            ],
+            "all_native_glyphs": 0,
+            "empty_native_glyphs": 0,
+            "intersecting_paths": 0,
+            "filled_intersecting_paths": 0
+          },
+          {
+            "bbox": [
+              430,
+              46,
+              605,
+              550
+            ],
+            "all_native_glyphs": 0,
+            "empty_native_glyphs": 0,
+            "intersecting_paths": 0,
+            "filled_intersecting_paths": 0
+          },
+          {
+            "bbox": [
+              610,
+              46,
+              780,
+              550
+            ],
+            "all_native_glyphs": 0,
+            "empty_native_glyphs": 0,
+            "intersecting_paths": 0,
+            "filled_intersecting_paths": 0
+          }
+        ]
+      }
+    },
+    "root_additional_real_PDFs": [
+      "20260723h017530007",
+      "20260930g002150475"
+    ],
+    "root_baseline_tests": "4red/1green; final5green, full expected notice text and unchanged statistics retained"
+  },
+  "fullwidth_section": {
+    "validation": {
+      "baseline_commit": "d844e3d229f6779b5577632e9dc5d538a943a15c",
+      "baseline_output": "after27",
+      "target": "20260730g001710130",
+      "initial_audit_grade_fixed": "major",
+      "scope": "cache only; shared source untouched",
+      "cause": {
+        "function": "horizontal::order_region / divider_end_cut",
+        "before_runtime": {
+          "first_cut_function": "band_cut",
+          "y": 387.29034,
+          "next_column_cut_x": 425,
+          "effect": "both short VI captions above the full-width table were consumed at the bottom of the left column before right-column IV notes5-7 and V cash-flow"
+        },
+        "after_runtime": {
+          "first_cut_function": "divider_end_cut",
+          "y": 363.5574,
+          "next_column_cut_x": 425,
+          "effect": "finish both upper columns before VI captions, table and explanation"
+        }
+      },
+      "general_rule": {
+        "all_existing_divider_geometry_guards_retained": true,
+        "new_evidence": [
+          "spanning pre-extracted table starts within 4 median glyph heights below divider end",
+          "table reaches within 2 em of both text-region edges and spans the divider by at least 40pt each side",
+          "only 1-3 short left-aligned numbered caption lines occur between divider and table",
+          "first caption begins within 1 em of adjusted divider end; every caption starts with Roman numeral or one digit followed by whitespace",
+          "captions <=40 characters, no prose punctuation or currency/percent amounts",
+          "both existing columns end within 3 em; divider begins at region top and covers >=70% upper height; no word/table crosses final cut"
+        ]
+      },
+      "test_first": {
+        "baseline_target_test": "FAIL (VI appeared before notes5-7/V)",
+        "final_real_pdf_tests": {
+          "passed": 3,
+          "positive": 1,
+          "negative": 2,
+          "assertions": [
+            "IV notes1-7 -> V -> VI heading/8col table/explanations -> telephone table",
+            "all 8 dormitory row cells and values",
+            "single article membership and no duplicate source IDs",
+            "normal financial columns PL -> profit disposal -> notes",
+            "next financial article stays after preceding revenue notes"
+          ]
+        },
+        "all_unit_tests_passed": 313,
+        "new_geometry_tests": 3,
+        "explicit_new_guard_negative_patterns": 13,
+        "additional_pdf_negative_pages": 12,
+        "negative_full_analysis_json_exact": true
+      },
+      "proof_files": [
+        "source-baseline-manifest.json",
+        "target-visual-review.json",
+        "negative-pages.json",
+        "full-impact.json",
+        "baseline-test.log",
+        "final-fixture-tests.log",
+        "all-unit-tests.log",
+        "diagnostic-before.log",
+        "diagnostic-after.log"
+      ],
+      "delivery": {
+        "patch": ".cache/kanpo-227/fullwidth-section.patch",
+        "fixture_manifest": ".cache/kanpo-227/fullwidth-section-prototype/fixture-manifest.json",
+        "production_tests": ".cache/kanpo-227/fullwidth-section-prototype/fullwidth_section_fixtures.rs"
+      },
+      "remaining_existing_issue": "Area unit U+E68D is separately evidenced but unchanged by this order patch; all original rendered lines remain exact.",
+      "full_corpus": {
+        "pages": 11992,
+        "seconds": 339.440657,
+        "changes": [
+          {
+            "page": "20260730g001710130",
+            "source_words_exact": true,
+            "word_id_counts_exact": true,
+            "no_duplicate_word_ids": true,
+            "all_table_cells_exact": true,
+            "nonspace_multiset_exact": true,
+            "article_membership_preserved": true
+          }
+        ],
+        "baseline_mismatches_after27": [],
+        "unchanged_pages": 11991
+      }
+    },
+    "original_review": {
+      "page": "20260730g001710130",
+      "original_sha256": "f4dabdd6791c5fc0176b86cdaa42088e98df44cd080bef90ed38eb5f136fd6ca",
+      "before_sha256": "32fcb48aa69b4ce9eb4aee5cace166dc22b20cf61a74f5f7f0482bd6e6c19e6b",
+      "after_sha256": "8784c3c4dc4acf6de9fad875bc92755e7a7695ddccbb54695b86ddb2a8431f40",
+      "classification": "improvement_with_existing_secondary_unit_omission",
+      "old_lines": {
+        "left_iv_notes1_4": [
+          14,
+          24
+        ],
+        "vi_heading_and_table": [
+          25,
+          28
+        ],
+        "right_iv_notes5_7": [
+          29,
+          46
+        ],
+        "v_cashflow": [
+          47,
+          53
+        ],
+        "vi_explanation": [
+          54,
+          57
+        ]
+      },
+      "new_lines": {
+        "left_iv_notes1_4": [
+          14,
+          24
+        ],
+        "right_iv_notes5_7": [
+          25,
+          42
+        ],
+        "v_cashflow": [
+          43,
+          49
+        ],
+        "vi_heading_and_table": [
+          50,
+          53
+        ],
+        "vi_explanation": [
+          54,
+          57
+        ]
+      },
+      "original_geometry": {
+        "gutter_rule": [
+          425,
+          46,
+          362
+        ],
+        "left_bottom_word_bbox": [
+          85,
+          354.8734,
+          101,
+          363.0574
+        ],
+        "right_bottom_word_bbox": [
+          453,
+          354.8597,
+          501,
+          363.0437
+        ],
+        "adjusted_safe_y_cut": 363.5574,
+        "vi_word_ids": [
+          263,
+          246
+        ],
+        "vi_heading_bbox": [
+          61,
+          365.8597,
+          197,
+          374.0437
+        ],
+        "subheading_word_ids": [
+          257,
+          239
+        ],
+        "subheading_bbox": [
+          69,
+          377.5397,
+          117,
+          385.7237
+        ],
+        "spanning_table_bbox": [
+          69.5,
+          388.857,
+          780.5,
+          425.571
+        ]
+      },
+      "visual_review": "full original image and full before/after text compared; the two complete upper columns now precede VI, its 8-column table and explanations; cell/amount values unchanged",
+      "remaining_existing_minor": {
+        "raw_code": "U+E68D",
+        "native_glyph_index": 90,
+        "native_cid": 25065,
+        "native_bbox": [
+          488.504,
+          413.2597,
+          496.504,
+          421.4437
+        ],
+        "word_id": 119,
+        "raw_word": "60",
+        "text_word": "60",
+        "meaning": "㎡ after 21,140.60; unit mapping deliberately separate pending whole-font proof"
+      },
+      "shared_source_edited": false,
+      "all_original_rendered_lines_exact_multiset": true,
+      "original_and_candidate_line_count": 62,
+      "source_word_count": 278,
+      "article_count": 1
+    },
+    "negative_originals": [
+      {
+        "page": "20260730g001710129",
+        "pdf": ".cache/kanpo-archive/2026-07-30/20260730g00171/20260730g001710129.pdf",
+        "original_sha256": "5e5c9341319710f624183f1fa58792cf375e6331457755417c670b32e44d267c",
+        "output_sha256": "a29ad04a592cdcb9639c20c14a19fda8b4ec38c1a03a11e2cb4ba7dea53ffea4",
+        "full_analysis_json_exact": true,
+        "after27_text_exact": true
+      },
+      {
+        "page": "20260730g001710131",
+        "pdf": ".cache/kanpo-archive/2026-07-30/20260730g00171/20260730g001710131.pdf",
+        "original_sha256": "6d146cecf37c36b48a904a1495204de98f5a5d45417963e4c2dfd2ff7c1bebe3",
+        "output_sha256": "b0ca3bfbb3b1a769d1719e21431aebe54005d069b1852ece3b7595f2ccf5d59b",
+        "full_analysis_json_exact": true,
+        "after27_text_exact": true
+      },
+      {
+        "page": "20260831g001940064",
+        "pdf": ".cache/kanpo-archive/2026-08-31/20260831g00194/20260831g001940064.pdf",
+        "original_sha256": "7ac859071632bea3c56032c13cb2675cac0b076cee90968103d7095af4072184",
+        "output_sha256": "28b5e89b92693bf97b804cd6b2da11ee260a4c60244a3851fd94264ebcc7c618",
+        "full_analysis_json_exact": true,
+        "after27_text_exact": true
+      },
+      {
+        "page": "20261008g002220074",
+        "pdf": ".cache/kanpo-archive/2026-10-08/20261008g00222/20261008g002220074.pdf",
+        "original_sha256": "4f0a3029486b5d47747ed89bad3b247efd12aed305c6cb4723632aaa40c14ccb",
+        "output_sha256": "1c12ddaf580fd8667647540587764278207a20a956ea13b237c772ecc2af3f55",
+        "full_analysis_json_exact": true,
+        "after27_text_exact": true
+      },
+      {
+        "page": "20260831g001940075",
+        "pdf": ".cache/kanpo-archive/2026-08-31/20260831g00194/20260831g001940075.pdf",
+        "original_sha256": "b7417b785f73cc001d8ccf83973b721a98dee6a23569aeb6cd187416c9e9d505",
+        "output_sha256": "44959678c1c2e357347492025a84b901e8d75e34472f4ae9ca16dcbbd199f671",
+        "full_analysis_json_exact": true,
+        "after27_text_exact": true
+      },
+      {
+        "page": "20260930g002160045",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00216/20260930g002160045.pdf",
+        "original_sha256": "d7d8ec2608cbf34aa19a426562f1de089e8519fa9d31e98c2fa408525d060ac2",
+        "output_sha256": "39ab958b9f644dc3f48c5f95a7dbf2dd6c3625b93ea04a62b6cfa955d8397cb9",
+        "full_analysis_json_exact": true,
+        "after27_text_exact": true
+      },
+      {
+        "page": "20260916g002060273",
+        "pdf": ".cache/kanpo-archive/2026-09-16/20260916g00206/20260916g002060273.pdf",
+        "original_sha256": "94edd13bbb9694a37813a4c4528291799e48647cc73d322483794379c276b5b8",
+        "output_sha256": "f54a93b7d10ba1990365330cc5940553f59df7765622eeeca9126359c02b7066",
+        "full_analysis_json_exact": true,
+        "after27_text_exact": true
+      },
+      {
+        "page": "20260810g001790057",
+        "pdf": ".cache/kanpo-archive/2026-08-10/20260810g00179/20260810g001790057.pdf",
+        "original_sha256": "03444ef87e0234ac1769689fb2c3c19365630e829383f32db818fa2440069fb3",
+        "output_sha256": "403e353ad24de77003a55dce60d3e5d0e12b077d9330ae2c301257a6dd6180d1",
+        "full_analysis_json_exact": true,
+        "after27_text_exact": true
+      },
+      {
+        "page": "20260806g001770060",
+        "pdf": ".cache/kanpo-archive/2026-08-06/20260806g00177/20260806g001770060.pdf",
+        "original_sha256": "e13173596bdf1068b9f7134eef4094bb36e8b7b15735e7229f76edf6d1c073e2",
+        "output_sha256": "2c86bee5bbdb6c803292dd89f183c8803b124a728acedbf004c97b7b382305f9",
+        "full_analysis_json_exact": true,
+        "after27_text_exact": true
+      },
+      {
+        "page": "20260810g001790116",
+        "pdf": ".cache/kanpo-archive/2026-08-10/20260810g00179/20260810g001790116.pdf",
+        "original_sha256": "4b3ce62646b13fc01960d777a6e336320018784c2494c0066f606d0c3f0e3cc7",
+        "output_sha256": "dd74f64a8cda9806df43387914e4bc129174a6e0cda2913b824c9697dd0dbea6",
+        "full_analysis_json_exact": true,
+        "after27_text_exact": true
+      },
+      {
+        "page": "20260831g001940073",
+        "pdf": ".cache/kanpo-archive/2026-08-31/20260831g00194/20260831g001940073.pdf",
+        "original_sha256": "4df3db32494117f31f08a4f095b0db68d27ee5ab9b5fdaad500a21410c0d9949",
+        "output_sha256": "ec2dc169ccc88cfd657eb10c85228ce2879a1d6334e705d368ed626027d3851b",
+        "full_analysis_json_exact": true,
+        "after27_text_exact": true
+      },
+      {
+        "page": "20260930g002160047",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00216/20260930g002160047.pdf",
+        "original_sha256": "fe0f9ac123edc0d2eb2eb6b6f942e6fc22566e28d343decb3f0d08437287b13c",
+        "output_sha256": "989643995f2439c683eb6d65f26076cb776173b1b84448e2ef2e155fb240bdc6",
+        "full_analysis_json_exact": true,
+        "after27_text_exact": true
+      }
+    ],
+    "root_baseline_tests": "1red/2green; final3green"
+  },
+  "trailing_code_pairs": {
+    "isolated_full_scan": {
+      "scanned": 11992,
+      "affected": 2,
+      "changed": 2,
+      "failures": [],
+      "baseline_source_id_diagnostics_count": 100,
+      "baseline_source_id_diagnostics": "trailing-code-baseline-id-diagnostics.json",
+      "status": "all11992 compared to frozen after26; only two text changes and two feature firings; naive ID diagnostics independently proven baseline-identical",
+      "boundary_guard_update": "Input left+right assignment cardinality guard added after original full11992 scan. The only2 positive firings have identical complete traces under this narrower guard; see trailing-code-boundary-guard-validation.json. Root will rerun all11992 after merge.",
+      "existing_ownership_diagnostic_pages_unchanged": 100,
+      "note": "The isolated full run precedes the stricter boundary guard. Both affected traces are identical with that guard; final production full11992 extraction confirms only these two JIS changes plus the four other intended pages."
+    },
+    "original_reviews": {
+      "scope": "all2 changed pages,complete original images and all184 resulting records",
+      "improvement": 2,
+      "neutral": 0,
+      "regression": 0,
+      "rows": [
+        {
+          "page": "20261020g002300017",
+          "result": "improvement",
+          "original_pdf": ".cache/kanpo-archive/2026-10-20/20261020g00230/20261020g002300017.pdf",
+          "original_sha256": "eaa866dc7aed9e5df57c428211dfb31f36e65ea529981b8b2703d46834de762d",
+          "original_png": ".cache/kanpo-227/trailing-code-230p17.png",
+          "original_png_sha256": "72950600305b12267272a1d77516269372c567f000222f56748ea58f46fed3f7",
+          "before_output_sha256": "d6a97a0a5b0b2084b4b906982f9302a0bb0ebdfbb5f78a65e30a2e59263dc79a",
+          "after_output_sha256": "0923c0b7ca895bb2e38f7da32f39ac91ebe9849fd95a97a9880421c531267260",
+          "all_records_visually_matched": true,
+          "notes": "全94recordを原本左右47件ずつと照合。ステンレス鋼のアノード分極曲線測定方法→G0579から、左末H0301、右頭溶融亜鉛めっき試験方法→H0401、右末排ガス中のふっ素化合物分析方法→K0105まで所属を保持。従来は左名称に右番号・右名称に左番号を付けており、両側の対応を改善。"
+        },
+        {
+          "page": "20261020g002300023",
+          "result": "improvement",
+          "original_pdf": ".cache/kanpo-archive/2026-10-20/20261020g00230/20261020g002300023.pdf",
+          "original_sha256": "532057dcddfc3cbad5f18086a3960524e5572cbfea6375faa6daaa460b2a8260",
+          "original_png": ".cache/kanpo-227/audit117/20261020g002300023.png",
+          "original_png_sha256": "1af828d1aaae5374de47baf22465b5bdd94c9969cc6e84d7dfc62422a3f9419b",
+          "before_output_sha256": "b2d48888ea5ce4475874df159d327eca3f62398996db0dfa24992ba5fe885213",
+          "after_output_sha256": "eabba1af76d1592d18aa291d515d412badc88a874c5f06490b1c5ff833c2f457",
+          "all_records_visually_matched": true,
+          "notes": "全90recordを原本左46/右44件と照合。防せい防食用語→Z0103、ワイヤ→Z3315が各欄に戻る。左29行の2行折返し、右53行の2行折返し、右70行の3行折返しも名称セルへつなぎ、そのコードZ2343-1/Z3609-2/Z6018を対応。左右記事の順序は左欄を完結して右欄、本文の他記事混入なし。独立監査117の初回majorは変更しない。"
+        }
+      ]
+    },
+    "boundary_guard": {
+      "new_negative_tests_baseline_red": 2,
+      "new_negative_tests_after_guard_green": 2,
+      "unit_passed": 8,
+      "pdf_tests_passed": 4,
+      "two_affected_pages_trace_recheck": [
+        {
+          "page": "20261020g002300017",
+          "entire_trace_unchanged_by_guard": true
+        },
+        {
+          "page": "20261020g002300023",
+          "entire_trace_unchanged_by_guard": true
+        }
+      ],
+      "all11992_new_guard_recheck": "root will verify; guard only narrows feature acceptance"
+    },
+    "root_final_guard_corpus_verified": true,
+    "source_provenance": "issue227-trailing-code-provenance.json:all184 pairs and372 original Word records",
+    "root_baseline_tests": "2red/2green; final4green; all94+90 names and codes asserted"
+  },
+  "root_final_integrated_source_checks": [
+    {
+      "page": "20260723h017530007",
+      "source_sha256": "b86a119078ea032668ae1d7652c7d24fe2cdab8e015d20c70f3fa8002bdcd9b0",
+      "all_Word_attributes_exact": true,
+      "source_output_ID_multiset_exact": true,
+      "duplicate_source_IDs": 0,
+      "nonspace_character_multiset_exact": true,
+      "old_table_count": 0,
+      "new_table_count": 0,
+      "existing_tables_exact_ignoring_intentional_reading_order": true,
+      "baseline_matches_accepted27": true,
+      "candidate_matches_fresh28": true
+    },
+    {
+      "page": "20260730g001710130",
+      "source_sha256": "f4dabdd6791c5fc0176b86cdaa42088e98df44cd080bef90ed38eb5f136fd6ca",
+      "all_Word_attributes_exact": true,
+      "source_output_ID_multiset_exact": true,
+      "duplicate_source_IDs": 0,
+      "nonspace_character_multiset_exact": true,
+      "old_table_count": 3,
+      "new_table_count": 3,
+      "existing_tables_exact_ignoring_intentional_reading_order": true,
+      "baseline_matches_accepted27": true,
+      "candidate_matches_fresh28": true
+    },
+    {
+      "page": "20260826h017760008",
+      "source_sha256": "6b9905b6d909297b477f6107cd54074a1332306c89296d5c28b63a640c15f9f1",
+      "all_Word_attributes_exact": true,
+      "source_output_ID_multiset_exact": true,
+      "duplicate_source_IDs": 0,
+      "nonspace_character_multiset_exact": true,
+      "old_table_count": 0,
+      "new_table_count": 0,
+      "existing_tables_exact_ignoring_intentional_reading_order": true,
+      "baseline_matches_accepted27": true,
+      "candidate_matches_fresh28": true
+    },
+    {
+      "page": "20260930g002150475",
+      "source_sha256": "286ca90cb7ae78e500d3e416b5f52062fcef888d37577241b0895391a41ed192",
+      "all_Word_attributes_exact": true,
+      "source_output_ID_multiset_exact": true,
+      "duplicate_source_IDs": 0,
+      "nonspace_character_multiset_exact": true,
+      "old_table_count": 1,
+      "new_table_count": 1,
+      "existing_tables_exact_ignoring_intentional_reading_order": true,
+      "baseline_matches_accepted27": true,
+      "candidate_matches_fresh28": true
+    },
+    {
+      "page": "20261020g002300017",
+      "source_sha256": "eaa866dc7aed9e5df57c428211dfb31f36e65ea529981b8b2703d46834de762d",
+      "all_Word_attributes_exact": true,
+      "source_output_ID_multiset_exact": true,
+      "duplicate_source_IDs": 0,
+      "nonspace_character_multiset_exact": true,
+      "old_table_count": 1,
+      "new_table_count": 2,
+      "existing_tables_exact_ignoring_intentional_reading_order": false,
+      "baseline_matches_accepted27": true,
+      "candidate_matches_fresh28": true
+    },
+    {
+      "page": "20261020g002300023",
+      "source_sha256": "532057dcddfc3cbad5f18086a3960524e5572cbfea6375faa6daaa460b2a8260",
+      "all_Word_attributes_exact": true,
+      "source_output_ID_multiset_exact": true,
+      "duplicate_source_IDs": 0,
+      "nonspace_character_multiset_exact": true,
+      "old_table_count": 1,
+      "new_table_count": 2,
+      "existing_tables_exact_ignoring_intentional_reading_order": false,
+      "baseline_matches_accepted27": true,
+      "candidate_matches_fresh28": true
+    }
+  ],
+  "snapshot_reviews": [
+    {
+      "page": "20260723h017530007",
+      "existing": false,
+      "body_equals_final28": true
+    },
+    {
+      "page": "20260730g001710130",
+      "existing": false,
+      "body_equals_final28": true
+    },
+    {
+      "page": "20260826h017760007",
+      "existing": false,
+      "body_equals_final28": true
+    },
+    {
+      "page": "20260826h017760008",
+      "existing": false,
+      "body_equals_final28": true
+    },
+    {
+      "page": "20260831g001940064",
+      "existing": false,
+      "body_equals_final28": true
+    },
+    {
+      "page": "20260930g002150475",
+      "existing": true,
+      "body_equals_final28": true
+    },
+    {
+      "page": "20261008g002220074",
+      "existing": false,
+      "body_equals_final28": true
+    },
+    {
+      "page": "20261020g002300017",
+      "existing": false,
+      "body_equals_final28": true
+    },
+    {
+      "page": "20261020g002300023",
+      "existing": false,
+      "body_equals_final28": true
+    }
+  ]
+}

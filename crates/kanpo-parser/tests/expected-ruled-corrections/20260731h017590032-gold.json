@@ -1,0 +1,238 @@
+{
+  "page": "20260731h017590032",
+  "original_pdf_sha256": "423e5f7ac9aaeef0843aa5b4f708d3d932690b607a90b7994d8bc0957ac93696",
+  "necessary_Article_count": 14,
+  "scope": "Only the original lower-left correction publication, all39 used source Words. Necessary full-page count14 is not a full-page correctness oracle. Root nonblind original review; not independent/blind or all-page character transcription.",
+  "caption": {
+    "text": "正誤",
+    "source_word_ids": [
+      154,
+      155
+    ]
+  },
+  "rows": 4,
+  "cols": 5,
+  "cells": [
+    {
+      "row": 0,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        161
+      ],
+      "text": "ページ"
+    },
+    {
+      "row": 0,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        162
+      ],
+      "text": "段"
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        163
+      ],
+      "text": "行"
+    },
+    {
+      "row": 0,
+      "col": 3,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        164
+      ],
+      "text": "誤"
+    },
+    {
+      "row": 0,
+      "col": 4,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        165
+      ],
+      "text": "正"
+    },
+    {
+      "row": 1,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 5,
+      "source_word_ids": [
+        171,
+        177,
+        182,
+        187
+      ],
+      "text": "令和八年四月八日（号外特第二十二号）公布公正取引委員会規則第一号（公正取引委員会事務総局組織規程の一部を改正する規則）（原稿誤り）"
+    },
+    {
+      "row": 2,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        199
+      ],
+      "text": "一八九"
+    },
+    {
+      "row": 2,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [],
+      "text": ""
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        193,
+        203,
+        206
+      ],
+      "text": "改正後欄終りから一五"
+    },
+    {
+      "row": 2,
+      "col": 3,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        195,
+        196
+      ],
+      "text": "〔２〜４略〕"
+    },
+    {
+      "row": 2,
+      "col": 4,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        197,
+        198,
+        204,
+        210,
+        214,
+        221,
+        222
+      ],
+      "text": "〔２〜４略〕（地方事務所及び支所の分課）第三条〔略〕"
+    },
+    {
+      "row": 3,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        234
+      ],
+      "text": "〃"
+    },
+    {
+      "row": 3,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [],
+      "text": ""
+    },
+    {
+      "row": 3,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        229,
+        237
+      ],
+      "text": "改正前欄〃一四"
+    },
+    {
+      "row": 3,
+      "col": 3,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        230,
+        231,
+        238
+      ],
+      "text": "〔２〜４同上〕"
+    },
+    {
+      "row": 3,
+      "col": 4,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        232,
+        233,
+        239,
+        244,
+        250,
+        254,
+        262,
+        263,
+        271
+      ],
+      "text": "〔２〜４同上〕（地方事務所及び支所の分課）第三条〔同上〕"
+    }
+  ],
+  "expected_source_group": [
+    154,
+    155,
+    161,
+    162,
+    163,
+    164,
+    165,
+    171,
+    177,
+    182,
+    187,
+    193,
+    195,
+    196,
+    197,
+    198,
+    199,
+    203,
+    204,
+    206,
+    210,
+    214,
+    221,
+    222,
+    229,
+    230,
+    231,
+    232,
+    233,
+    234,
+    237,
+    238,
+    239,
+    244,
+    250,
+    254,
+    262,
+    263,
+    271
+  ],
+  "note": "Five printed fields. A spanning cited-publication row follows headers. Two data records each use an explicit page locator; wrong/correct content wraps over variable native columns. No output-selected labels or text repair."
+}

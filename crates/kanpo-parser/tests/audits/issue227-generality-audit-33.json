@@ -1,0 +1,94 @@
+{
+  "batch": 33,
+  "decision": "adopt only source code-unit completeness after full gates",
+  "general_rule": {
+    "primary": "https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/pdfreference1.7old.pdf",
+    "rule": "Predefined Identity-H/V consume two-byte codes, high byte first; length is the original decoded source code-unit byte length.",
+    "ISO2008_acquired": false,
+    "original_code_and_actual_Font_binding": true,
+    "not_inferred_from_numeric_code_or_Glyph_equality": true,
+    "decoded_hex_odd_nibble_and_literal_spellings_preserved": true
+  },
+  "no_new_production_branches_on": [
+    "literal words",
+    "page/PDF id",
+    "expected sentence",
+    "person/company name",
+    "Japanese text length",
+    "neighbor Line/Unit count"
+  ],
+  "remaining_experience_rules": "Other pre-existing vertical paths still contain Japanese/length2..24 and absolute point bounds. No claim that all heuristics have been removed. Separate unchanged-production metamorphic audit is in progress; no blind relaxation adopted.",
+  "sparse_ToUnicode_diagnostic": {
+    "manifest": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/sparse-tounicode-inventory56/delivery-manifest.json",
+      "sha256": "7c8d17870972fc3154233afb7643e138ed8f5a9523dab9e6a4c63277190a924e"
+    },
+    "scope_fixed_before_view": 2930,
+    "potential_missing_decoded_mappings": 0,
+    "all_native_values_IDs_and_bits_exact": true,
+    "actual_missing_set_zero_before_CFF_charset_query": true,
+    "not_VerifiedAbsent_CMap_proof": true,
+    "no_original_selection_or_manual_quality_grade": true,
+    "no_fallback_guard_relaxation": true
+  },
+  "models": {
+    "RURI_ModernBERT_opt_in_authorized": true,
+    "downloaded": false,
+    "trained": false,
+    "inferred": false,
+    "reason": "Source-code completeness is settled by encoding grammar and original bytes; an embedding or language model supplies no missing byte-length proof."
+  },
+  "held": [
+    "Grid visibility/outer stroke envelope/contrast counterexamples",
+    "Separate stroke collector lacks cell ownership and contrast proof",
+    "Company candidate has865 unreviewed pages",
+    "Generalized vertical small-record candidate with invalid size-based advance or trailing-class threshold"
+  ],
+  "evidence": {
+    "source": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated57-source-manifest.json",
+      "sha256": "b29541e91d46a873ee1c69d51bbb06cb79e32046eaf59ca335541611baa68cc0"
+    },
+    "assets": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated57-test-assets-manifest.json",
+      "sha256": "86a3da931aa58b17c644a0a1bbb9aa2d775b38751193a54096522f7b5613dfd8"
+    },
+    "cached": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root33-charcode57/full-result.json",
+      "sha256": "97bb80ed66333d7008bde9efaee2d69d240a4841008bb98891c03134fdebfe55"
+    },
+    "release": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated57-fullAnalysis-report.json",
+      "sha256": "3376b495e7e3e2b3e7b4cb2d0cfa2074081ce343d0c2450e5dae40f245d41fb8"
+    },
+    "defaults": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/full33-final57-generic-partitioned-status.json",
+      "sha256": "55bca9637a3f0136eaaeee600a185e90a244b31237f011502c2def5cadf33b1b"
+    },
+    "snapshots": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/snapshot33-source57-preserved.json",
+      "sha256": "e471c2e9f73759b167351f4dc978d5b0cd18f0fde81039a627f1b02442e50bcb"
+    },
+    "audit": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit144-source57-inheritance.json",
+      "sha256": "1f80f0bab6c388436cbc87491ea4244475cbdb26d2d1dd13197ee1dbf7786c31"
+    },
+    "limited": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root33-charcode57/build-result.json",
+      "sha256": "cb1453fbabc61d02da5c4dd730db9a3e1d70c516ed6a17f4d11b7e45b4203c18"
+    },
+    "delivery": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/identity-charcode-source56/delivery-manifest.json",
+      "sha256": "aa2419b3b410bc72037e7d79bccd0fcbb181e9129dca6edfaa85479996c4d812"
+    },
+    "independent_review": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/identity-charcode-source56-independent-review/delivery-manifest.json",
+      "sha256": "2df0e00cf7e549c4a00fd60dd43b35fc810b5c10a9e6fd0bc7fdcb9f35bbe2e3"
+    },
+    "sparse_ToUnicode_inventory": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/sparse-tounicode-inventory56/delivery-manifest.json",
+      "sha256": "7c8d17870972fc3154233afb7643e138ed8f5a9523dab9e6a4c63277190a924e"
+    }
+  },
+  "whole_corpus_100_percent": false
+}

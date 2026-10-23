@@ -1,0 +1,144 @@
+{
+  "issue": 227,
+  "batch": 65,
+  "native_runtime": 77,
+  "status": "locally_validated_native77_attributed_publication65",
+  "parent_head": "0eaa51b3097554efa03d181e0104e8981e78c40b",
+  "change": "Allow a separately enclosed horizontal publication with a dated attribution header and whole table to stand independently without a representative signature.",
+  "general_rule": {
+    "source_scope": "Fully owned closed native enclosure; retain existing common-parent and child-heading fences.",
+    "fields": [
+      "Source-distinct horizontal title",
+      "Valid date prefix ending at an original Word boundary; a separate right-hand field on the same row",
+      "Optional wrapped right-column fields, followed by an emphasized byline with the title content typography",
+      "Regular first body row spans both date and right column",
+      "Complete table below the header inside the same enclosure"
+    ],
+    "row_relation": "Both nominal vertical endpoints increase; glyph boxes may overlap. No fixed tolerance or gap.",
+    "unknowns": "All source Word bounds/styles required; date/title/byline/body content typography required. Address punctuation can have another known font without supplying content typography. Every table in the complete owned frame, including related child scope, must have finite valid bounds contained in that enclosure.",
+    "limits": "A conservative source layout grammar, not a semantic organization-name classifier or universal unsigned-publication detector."
+  },
+  "forbidden_routing_added": {
+    "page_id": false,
+    "company_name": false,
+    "full_notice_title": false,
+    "digit_value": false,
+    "character_length": false,
+    "line_count_cap": false,
+    "fixed_pt_distance": false,
+    "font_name": false,
+    "OCR_confidence_or_result": false
+  },
+  "new_test_functions": 15,
+  "old_assertions": "Preserved; only existing native_case helper visibility made pub(super) for reuse.",
+  "TDD": {
+    "initial_missing_fixture": "Setup failure retained separately; not counted as logical RED.",
+    "corrected_old_runtime": "4 passed4 failed; actual target5 versus6 assertion fails.",
+    "v1": "50 passed1 failed, actual original still5; source address punctuation metadata and overlapping nominal glyph boxes exposed.",
+    "v2": "53 passed1 failed; positive synthetic tall-box fixture exceeded its own table/enclosure, corrected fixture geometry rather than weakening implementation.",
+    "v3_before_format_and_final_fixture_consistency": "57 passed0 failed; full cargo final source1208 lib tests passed.",
+    "second_table_counterexample": "Initial candidate passes1918 checks, but new crossing-second-table test fails0/1. Final15 new functions include valid multi-table and related-child controls paired with crossing/nonfinite cases. Final1209 unit tests and full1919 required gates pass."
+  },
+  "gold": {
+    "path": "crates/kanpo-parser/tests/expected-company-article-sources/20260903g001970080.json",
+    "sha256": "6a873095ede2f348104cf5ff0e640b7138bc9a5e78e8ec02b7dc599003e43a17",
+    "root_nonblind_original_annotation": true,
+    "publications": 6,
+    "used_source_Words": 523
+  },
+  "fresh_full_native_audit": {
+    "terminal": 0,
+    "pages": 11992,
+    "changed": 1,
+    "whole_Analysis_exact": 11991,
+    "all_words_fields_and_page_layout_exact": true,
+    "all_source_words": 2403403,
+    "source_usage_and_table_JSON_multisets_exact": true,
+    "nonwhitespace_character_multisets_exact": true,
+    "frozen_inputs_unchanged": true,
+    "all_changed_originals_require_review_before_adoption": true,
+    "seconds": 342.74757925
+  },
+  "original_review": {
+    "page": "20260903g001970080",
+    "review": "root original-based engineering review, nonblind; no independent or global accuracy claim",
+    "original_preview": ".cache/kanpo-227/source-evidence49/20260903g001970080.png",
+    "original_PDF_sha256": "5f0f7f6cc3c8db2ddb31fb10f1c58dba30ad2c9519a83a1fad58b8913bbca57c",
+    "basis": "Six separately double-framed publications; last unsigned header has its own title/date/address/attribution/body/two tables. No publication name or donor/program name is a runtime condition.",
+    "before_articles": 5,
+    "after_articles": 6,
+    "all523_used_source_Words_exact_gold_membership": true,
+    "all_PageTrace_fields_including_words_geometry_text_layout_order_tables_exact": true,
+    "first_four_articles_entirely_byte_equivalent_JSON": true,
+    "old_fourth_index4_split_to_new4_and5_only": true,
+    "all_original_document_Run_bytes_styles_and_complete_tables_preserved": true,
+    "coalesced_Runs": 13,
+    "default_OCR_or_model_inference": false,
+    "global_claim": false
+  },
+  "actual_CLI": {
+    "fresh_final_originals": 1,
+    "page": "20260903g001970080",
+    "before76_after77final_actual_textdump_bytes_equal": true,
+    "fresh_all11992_CLI_run": false,
+    "bytes": 6297,
+    "sha256": "a22fa869807cf10f061c3cac42006bd6d06e9c0265ba6d04b53f734f9a0d5c21",
+    "binary_sha256": "1f99bd808872e9d3d9a7c6092c7ab1f2e3e19611cf0295baa5b9263ac7661fa0"
+  },
+  "raw_PDF_evidence": "All26 kanpo-pdf Rust sources unchanged from76; prior14,859,045 Glyph/f64, native2,403,403 Words and14,322 image-draw audit inherited, not freshly rerun. Fresh native Analysis fields/text/pages compared11992 this batch.",
+  "fixed30": "No regrading; changed page absent from fixed30 selection, so all30 wholeAnalysis unchanged. Old observations10ok5minor15major do not estimate global accuracy.",
+  "known_seven_necessary_counts": {
+    "passed": 4,
+    "failed": 3,
+    "target_has_additional_mandatory_membership_test": true
+  },
+  "ML_this_native_batch": {
+    "downloads": 0,
+    "training": 0,
+    "inferences": 0
+  },
+  "private_best64": "Same47 source PNG/frame/DPI inputs: official best model improved one frozen address field and worsened two frozen notice scopes. Held; no per-page or word-dependent model selection.",
+  "remaining": [
+    "Three known necessary-count failures",
+    "Original issue227 text/table/name/address/image/outline problems",
+    "Legacy financial_enclosures and other fixed thresholds remain unaudited or held; no blanket generality or100% claim",
+    "Parenthesized53/54/46/52/45 are source composites distinct from earlier circled11/21; no restoration implemented65."
+  ],
+  "required_gates": {
+    "passed": 1919,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 117,
+    "libraries": 4,
+    "integration_targets": 109,
+    "doctests": 4,
+    "all4_crates_examples_checked": true,
+    "source145_manifest_sha256": "a6448da47698821c5c648ea5ff4f92e39864cd3c9693d92e118bc3b529d7f5cb",
+    "new_tests": 15,
+    "snapshots": 802,
+    "old_snapshots_changed": 0,
+    "new_snapshots": 1,
+    "all802_readonly_verified": true,
+    "parser1209_lib_log_reused_only_for_same_frozen_final_source": true,
+    "initial1918_source_tests_and_added_second_table_RED_retained": true
+  },
+  "source_manifest_sha256": "a6448da47698821c5c648ea5ff4f92e39864cd3c9693d92e118bc3b529d7f5cb",
+  "asset_preservation": {
+    "existing_tracked_test_assets": 2440,
+    "all_old_test_assets_byte_exact": true,
+    "all_old801_snapshots_byte_exact": true,
+    "new_source_gold": 1,
+    "new_original_PDF": 1,
+    "new_snapshot": 1,
+    "old_assertions_changed": false,
+    "existing_helper_only_visibility_changed": true
+  },
+  "new_snapshot_review": {
+    "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260903g00197__20260903g001970080.pdf.snap",
+    "sha256": "7b7aa84d47717df92ee76e2c819f834caeb2765a24c572b88d50d73b28f0341c",
+    "review": "New fixture only; original6 frames, all523 used source Words, unchanged body and complete original Runs/tables verified. No claim that the snapshot is an independently transcribed full-character gold.",
+    "existing801_unchanged": true
+  },
+  "final_guard_effect": "Fresh11992 final-to76 audit and equality of the sole changed Analysis to initial candidate prove no actual-corpus change caused by the conservative second-table guard.",
+  "CI": "This JSON records local source-bound checks. Exact pushed-HEAD CI results are recorded separately in PR228."
+}

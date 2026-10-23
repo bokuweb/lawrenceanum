@@ -1,0 +1,2970 @@
+{
+  "stage": "fourth_integrated_batch",
+  "outputs": "after21",
+  "plain_impact_selection": {
+    "version": "after21 vsafter20",
+    "scope": "24 original full-page contexts:10 explicit atypical/date frames and14 SHA-selected additional pages; six leading-grid pages already source-checked separately.",
+    "pages": [
+      "20260724g001650690",
+      "20260724g001650703",
+      "20260724g001650705",
+      "20260724g001650707",
+      "20260810g001790121",
+      "20260820g001860067",
+      "20260924g002110089",
+      "20261001g002170125",
+      "20261016g002270067",
+      "20261019g002290043",
+      "20261016g002280362",
+      "20261016g002280327",
+      "20261016g002280432",
+      "20261016g002280300",
+      "20260924g002110094",
+      "20261016g002280565",
+      "20261016g002280314",
+      "20260924g002110088",
+      "20261016g002280677",
+      "20261016g002280246",
+      "20261016g002280402",
+      "20261016g002270062",
+      "20261016g002280321",
+      "20261016g002280424"
+    ],
+    "added_bars": 75
+  },
+  "plain_impact_reviews": [
+    {
+      "page": "20260724g001650690",
+      "original": ".cache/kanpo-archive/2026-07-24/20260724g00165/20260724g001650690.pdf",
+      "original_sha256": "85c0f309d77a26466a7ce8ace9842bccdcca879888e0bfa6e728d85bd3b58995",
+      "before": ".cache/kanpo-227/after20/20260724g001650690.txt",
+      "before_sha256": "a38553d637f237a0fba89f1825cbc0bc453fa69752f2419886191fbb9e83505f",
+      "after": ".cache/kanpo-227/after21/20260724g001650690.txt",
+      "after_sha256": "4f534354941ef21e55b2d31b4d81ee7237e9651a140494c5e7b13d808fa46601",
+      "added_bars": 6,
+      "verdict": "partial_improvement",
+      "regression": false,
+      "new_wrong_row_or_amount_binding": false,
+      "all_changed_rows_checked": true,
+      "all_output_read": true,
+      "original_image_read": true,
+      "image": ".cache/kanpo-227/plain21-impact/20260724g001650690.png",
+      "image_sha256": "6dd7c726fb1a87fd93594ce5e536fe718166db0aabd2a4ab6f0a273145bd9717",
+      "summary": "原本左右の率表、途中のⅠの地域10/9/8種地。各行はA/B/A/Bの4欄とも横棒で、その最右B欄の1字だけが同じ種地行に復元された。左右各3行、計6字。誤行の数値・罫線・下線を拾った例なし。",
+      "existing_residual": "各対象行の残る3字、計18字の横棒は依然欠落。追加後も行は「10種地　－」等で、4欄中の列位置を出力だけから明示できない。さらに前半の左側A/B欠落や共通見出しの分断はbeforeから同じ。完全な行列復元とは数えない。",
+      "changed_rows": [
+        {
+          "line": 21,
+          "before": "10種地",
+          "after": "10種地　－"
+        },
+        {
+          "line": 22,
+          "before": "９種地",
+          "after": "９種地　－"
+        },
+        {
+          "line": 23,
+          "before": "８種地",
+          "after": "８種地　－"
+        },
+        {
+          "line": 63,
+          "before": "10種地",
+          "after": "10種地　－"
+        },
+        {
+          "line": 64,
+          "before": "９種地",
+          "after": "９種地　－"
+        },
+        {
+          "line": 65,
+          "before": "８種地",
+          "after": "８種地　－"
+        }
+      ],
+      "original_source_evidence": {
+        "page": "20260724g001650690",
+        "prototype_text_matches_parent_after21": true,
+        "added_source_words": [
+          {
+            "word_id": 0,
+            "raw": "U+E61C",
+            "bbox": [
+              764.7459716796875,
+              287.8551025390625,
+              772.7459716796875,
+              296.0390930175781
+            ],
+            "target_line": [
+              "10種地　－"
+            ]
+          },
+          {
+            "word_id": 1,
+            "raw": "U+E61C",
+            "bbox": [
+              764.7379760742188,
+              299.7110900878906,
+              772.7379760742188,
+              307.8951110839844
+            ],
+            "target_line": [
+              "９種地　－"
+            ]
+          },
+          {
+            "word_id": 2,
+            "raw": "U+E61C",
+            "bbox": [
+              764.72998046875,
+              311.5671081542969,
+              772.72998046875,
+              319.7510986328125
+            ],
+            "target_line": [
+              "８種地　－"
+            ]
+          },
+          {
+            "word_id": 515,
+            "raw": "U+E61C",
+            "bbox": [
+              409.25,
+              287.8551025390625,
+              417.25,
+              296.0390930175781
+            ],
+            "target_line": [
+              "10種地　－"
+            ]
+          },
+          {
+            "word_id": 516,
+            "raw": "U+E61C",
+            "bbox": [
+              409.24200439453125,
+              299.7110900878906,
+              417.24200439453125,
+              307.8951110839844
+            ],
+            "target_line": [
+              "９種地　－"
+            ]
+          },
+          {
+            "word_id": 517,
+            "raw": "U+E61C",
+            "bbox": [
+              409.2340087890625,
+              311.5671081542969,
+              417.2340087890625,
+              319.7510986328125
+            ],
+            "target_line": [
+              "８種地　－"
+            ]
+          }
+        ],
+        "source_word_count_matches_delta": true
+      },
+      "assertions": {
+        "nonbar_nonspace_text_order_exactly_equal": true,
+        "all_numeric_tokens_in_same_order": true
+      }
+    },
+    {
+      "page": "20260724g001650703",
+      "original": ".cache/kanpo-archive/2026-07-24/20260724g00165/20260724g001650703.pdf",
+      "original_sha256": "bf6eb8455d6c05a8096a6c134559e4afeaea97b3d980c427b4606c99ee31702b",
+      "before": ".cache/kanpo-227/after20/20260724g001650703.txt",
+      "before_sha256": "b2c14a57ad72bb38c01be36b05f9278a03e34f39cd42fe5c03d6ffcc7652518a",
+      "after": ".cache/kanpo-227/after21/20260724g001650703.txt",
+      "after_sha256": "23dcb007ba56dd416c51809528b62407be96a29660ffe35f853ba788837c09d1",
+      "added_bars": 10,
+      "verdict": "partial_improvement",
+      "regression": false,
+      "new_wrong_row_or_amount_binding": false,
+      "all_changed_rows_checked": true,
+      "all_output_read": true,
+      "original_image_read": true,
+      "image": ".cache/kanpo-227/plain21-impact/20260724g001650703.png",
+      "image_sha256": "7245869d7ea225043665582150b2560b6854c8f88c1ac9f65e707a47f096a92b",
+      "summary": "原本左右のⅠの地域7種地指定都市/中核市、6種地指定都市/中核市、5種地中核市の各行。先頭2率は左側A/Bで、原本右側A/Bはともに横棒。最右欄の原字1字がその2率の後へ復帰。左右各5行、10字をすべて照合。",
+      "existing_residual": "対象10行には右側のもう1字の横棒が残って欠落し、4欄の明示位置はまだ不完全。4種地中核市の値が前の5種地の長い行へ同居するL12/51、下の共通見出し分離等は元から同じ。数値順や既存の行連結は今回変化しない。",
+      "changed_rows": [
+        {
+          "line": 1,
+          "before": "指定都市　0.000040　0.9480",
+          "after": "指定都市　0.000040　0.9480　－"
+        },
+        {
+          "line": 3,
+          "before": "中核市　0.000040　0.9290",
+          "after": "中核市　0.000040　0.9290　－"
+        },
+        {
+          "line": 6,
+          "before": "指定都市　0.000080　0.9180",
+          "after": "指定都市　0.000080　0.9180　－"
+        },
+        {
+          "line": 8,
+          "before": "中核市　0.000070　0.9065",
+          "after": "中核市　0.000070　0.9065　－"
+        },
+        {
+          "line": 11,
+          "before": "中核市　0.000040　0.9260",
+          "after": "中核市　0.000040　0.9260　－"
+        },
+        {
+          "line": 40,
+          "before": "指定都市　0.000050　0.9435",
+          "after": "指定都市　0.000050　0.9435　－"
+        },
+        {
+          "line": 42,
+          "before": "中核市　0.000040　0.9320",
+          "after": "中核市　0.000040　0.9320　－"
+        },
+        {
+          "line": 45,
+          "before": "指定都市　0.000080　0.9210",
+          "after": "指定都市　0.000080　0.9210　－"
+        },
+        {
+          "line": 47,
+          "before": "中核市　0.000080　0.9020",
+          "after": "中核市　0.000080　0.9020　－"
+        },
+        {
+          "line": 50,
+          "before": "中核市　0.000030　0.9345",
+          "after": "中核市　0.000030　0.9345　－"
+        }
+      ],
+      "original_source_evidence": {
+        "page": "20260724g001650703",
+        "prototype_text_matches_parent_after21": true,
+        "added_source_words": [
+          {
+            "word_id": 1,
+            "raw": "U+E61C",
+            "bbox": [
+              764.7459716796875,
+              51.252601623535156,
+              772.7459716796875,
+              59.43659973144531
+            ],
+            "target_line": [
+              "指定都市　0.000050　0.9435　－"
+            ]
+          },
+          {
+            "word_id": 2,
+            "raw": "U+E61C",
+            "bbox": [
+              764.7459716796875,
+              150.397705078125,
+              772.7459716796875,
+              158.58169555664062
+            ],
+            "target_line": [
+              "中核市　0.000030　0.9345　－"
+            ]
+          },
+          {
+            "word_id": 4,
+            "raw": "U+E61C",
+            "bbox": [
+              764.7379760742188,
+              63.64459991455078,
+              772.7379760742188,
+              71.82859802246094
+            ],
+            "target_line": [
+              "中核市　0.000040　0.9320　－"
+            ]
+          },
+          {
+            "word_id": 6,
+            "raw": "U+E61C",
+            "bbox": [
+              764.7219848632812,
+              100.82060241699219,
+              772.7219848632812,
+              109.00460052490234
+            ],
+            "target_line": [
+              "指定都市　0.000080　0.9210　－"
+            ]
+          },
+          {
+            "word_id": 7,
+            "raw": "U+E61C",
+            "bbox": [
+              764.7139892578125,
+              113.21260070800781,
+              772.7139892578125,
+              121.39659881591797
+            ],
+            "target_line": [
+              "中核市　0.000080　0.9020　－"
+            ]
+          },
+          {
+            "word_id": 412,
+            "raw": "U+E61C",
+            "bbox": [
+              409.25,
+              51.252601623535156,
+              417.25,
+              59.43659973144531
+            ],
+            "target_line": [
+              "指定都市　0.000040　0.9480　－"
+            ]
+          },
+          {
+            "word_id": 413,
+            "raw": "U+E61C",
+            "bbox": [
+              409.25,
+              150.397705078125,
+              417.25,
+              158.58169555664062
+            ],
+            "target_line": [
+              "中核市　0.000040　0.9260　－"
+            ]
+          },
+          {
+            "word_id": 415,
+            "raw": "U+E61C",
+            "bbox": [
+              409.24200439453125,
+              63.64459991455078,
+              417.24200439453125,
+              71.82859802246094
+            ],
+            "target_line": [
+              "中核市　0.000040　0.9290　－"
+            ]
+          },
+          {
+            "word_id": 418,
+            "raw": "U+E61C",
+            "bbox": [
+              409.22601318359375,
+              100.82060241699219,
+              417.22601318359375,
+              109.00460052490234
+            ],
+            "target_line": [
+              "指定都市　0.000080　0.9180　－"
+            ]
+          },
+          {
+            "word_id": 419,
+            "raw": "U+E61C",
+            "bbox": [
+              409.2179870605469,
+              113.21260070800781,
+              417.2179870605469,
+              121.39659881591797
+            ],
+            "target_line": [
+              "中核市　0.000070　0.9065　－"
+            ]
+          }
+        ],
+        "source_word_count_matches_delta": true
+      },
+      "assertions": {
+        "nonbar_nonspace_text_order_exactly_equal": true,
+        "all_numeric_tokens_in_same_order": true
+      }
+    },
+    {
+      "page": "20260724g001650705",
+      "original": ".cache/kanpo-archive/2026-07-24/20260724g00165/20260724g001650705.pdf",
+      "original_sha256": "72ccb1d58dedca2a875204a0c84d7ea670d1ee0db0886a7840db7c09fbb8deb8",
+      "before": ".cache/kanpo-227/after20/20260724g001650705.txt",
+      "before_sha256": "0c3db9ab98411132ffd892786f9d53a65877bc3954068fa67eee75ded24888d7",
+      "after": ".cache/kanpo-227/after21/20260724g001650705.txt",
+      "after_sha256": "dc56b9526914e1fd925d429f4470483c21abae35096cab950e6523045f32125b",
+      "added_bars": 16,
+      "verdict": "partial_improvement",
+      "regression": false,
+      "new_wrong_row_or_amount_binding": false,
+      "all_changed_rows_checked": true,
+      "all_output_read": true,
+      "original_image_read": true,
+      "image": ".cache/kanpo-227/plain21-impact/20260724g001650705.png",
+      "image_sha256": "c6516832d501f223bde5d4ea5d9b7decdcbf55d8e04388e545b379fa1547f583",
+      "summary": "原本左右のⅠ地域7種地中核市/保健所設置市、6種地中核市/保健所設置市と、Ⅱ地域10/9/8/7種地の保健所設置市の行。右側のA/Bはいずれも横棒で、最右Bの1字が左側2率の後へ復元。左右8行ずつ、16字を全変更行で原本と確認。",
+      "existing_residual": "対象各行の右側Aの横棒1字ずつは依然欠落。保健所設置／市の項目名分断や5種地行へ4種地の先頭値が入るL23/63等はbeforeから同じ。追加横棒が「市」より先に出る点も、既存の2率が項目末尾より先に出る構造を変えたものではない。",
+      "changed_rows": [
+        {
+          "line": 13,
+          "before": "中核市　0.000610　0.6995",
+          "after": "中核市　0.000610　0.6995　－"
+        },
+        {
+          "line": 15,
+          "before": "保健所設置　0.000610　0.6875",
+          "after": "保健所設置　0.000610　0.6875　－"
+        },
+        {
+          "line": 19,
+          "before": "中核市　0.000450　0.8195",
+          "after": "中核市　0.000450　0.8195　－"
+        },
+        {
+          "line": 20,
+          "before": "保健所設置　0.000440　0.8150",
+          "after": "保健所設置　0.000440　0.8150　－"
+        },
+        {
+          "line": 30,
+          "before": "10種地　保健所設置　0.000500　0.6480",
+          "after": "10種地　保健所設置　0.000500　0.6480　－"
+        },
+        {
+          "line": 33,
+          "before": "９種地　保健所設置　0.000340　0.8000",
+          "after": "９種地　保健所設置　0.000340　0.8000　－"
+        },
+        {
+          "line": 36,
+          "before": "８種地　保健所設置　0.000440　0.7100",
+          "after": "８種地　保健所設置　0.000440　0.7100　－"
+        },
+        {
+          "line": 39,
+          "before": "７種地　保健所設置　0.000400　0.7440",
+          "after": "７種地　保健所設置　0.000400　0.7440　－"
+        },
+        {
+          "line": 53,
+          "before": "中核市　0.000620　0.6940",
+          "after": "中核市　0.000620　0.6940　－"
+        },
+        {
+          "line": 55,
+          "before": "保健所設置　0.000620　0.6830",
+          "after": "保健所設置　0.000620　0.6830　－"
+        },
+        {
+          "line": 59,
+          "before": "中核市　0.000440　0.8290",
+          "after": "中核市　0.000440　0.8290　－"
+        },
+        {
+          "line": 60,
+          "before": "保健所設置　0.000430　0.8255",
+          "after": "保健所設置　0.000430　0.8255　－"
+        },
+        {
+          "line": 70,
+          "before": "10種地　保健所設置　0.000500　0.6510",
+          "after": "10種地　保健所設置　0.000500　0.6510　－"
+        },
+        {
+          "line": 73,
+          "before": "９種地　保健所設置　0.000320　0.8220",
+          "after": "９種地　保健所設置　0.000320　0.8220　－"
+        },
+        {
+          "line": 76,
+          "before": "８種地　保健所設置　0.000440　0.7140",
+          "after": "８種地　保健所設置　0.000440　0.7140　－"
+        },
+        {
+          "line": 79,
+          "before": "７種地　保健所設置　0.000440　0.7140",
+          "after": "７種地　保健所設置　0.000440　0.7140　－"
+        }
+      ],
+      "original_source_evidence": {
+        "page": "20260724g001650705",
+        "prototype_text_matches_parent_after21": true,
+        "added_source_words": [
+          {
+            "word_id": 1,
+            "raw": "U+E61C",
+            "bbox": [
+              764.7459716796875,
+              254.36770629882812,
+              772.7459716796875,
+              262.55169677734375
+            ],
+            "target_line": [
+              "保健所設置　0.000430　0.8255　－"
+            ]
+          },
+          {
+            "word_id": 2,
+            "raw": "U+E61C",
+            "bbox": [
+              764.7420043945312,
+              241.8636932373047,
+              772.7420043945312,
+              250.04769897460938
+            ],
+            "target_line": [
+              "中核市　0.000440　0.8290　－"
+            ]
+          },
+          {
+            "word_id": 4,
+            "raw": "U+E61C",
+            "bbox": [
+              764.7380981445312,
+              491.8638916015625,
+              772.7380981445312,
+              500.04791259765625
+            ],
+            "target_line": [
+              "８種地　保健所設置　0.000440　0.7140　－"
+            ]
+          },
+          {
+            "word_id": 6,
+            "raw": "U+E61C",
+            "bbox": [
+              764.7379760742188,
+              191.79660034179688,
+              772.7379760742188,
+              199.98060607910156
+            ],
+            "target_line": [
+              "中核市　0.000620　0.6940　－"
+            ]
+          },
+          {
+            "word_id": 7,
+            "raw": "U+E61C",
+            "bbox": [
+              764.7379760742188,
+              416.8597106933594,
+              772.7379760742188,
+              425.043701171875
+            ],
+            "target_line": [
+              "10種地　保健所設置　0.000500　0.6510　－"
+            ]
+          },
+          {
+            "word_id": 9,
+            "raw": "U+E61C",
+            "bbox": [
+              764.72998046875,
+              204.3325958251953,
+              772.72998046875,
+              212.5166015625
+            ],
+            "target_line": [
+              "保健所設置　0.000620　0.6830　－"
+            ]
+          },
+          {
+            "word_id": 11,
+            "raw": "U+E61C",
+            "bbox": [
+              764.7221069335938,
+              529.3599243164062,
+              772.7221069335938,
+              537.5438842773438
+            ],
+            "target_line": [
+              "７種地　保健所設置　0.000440　0.7140　－"
+            ]
+          },
+          {
+            "word_id": 13,
+            "raw": "U+E61C",
+            "bbox": [
+              764.7219848632812,
+              454.355712890625,
+              772.7219848632812,
+              462.5397033691406
+            ],
+            "target_line": [
+              "９種地　保健所設置　0.000320　0.8220　－"
+            ]
+          },
+          {
+            "word_id": 364,
+            "raw": "U+E61C",
+            "bbox": [
+              409.2460021972656,
+              241.8636932373047,
+              417.2460021972656,
+              250.04769897460938
+            ],
+            "target_line": [
+              "中核市　0.000450　0.8195　－"
+            ]
+          },
+          {
+            "word_id": 365,
+            "raw": "U+E61C",
+            "bbox": [
+              409.2420959472656,
+              491.8638916015625,
+              417.2420959472656,
+              500.04791259765625
+            ],
+            "target_line": [
+              "８種地　保健所設置　0.000440　0.7100　－"
+            ]
+          },
+          {
+            "word_id": 367,
+            "raw": "U+E61C",
+            "bbox": [
+              409.24200439453125,
+              191.79660034179688,
+              417.24200439453125,
+              199.98060607910156
+            ],
+            "target_line": [
+              "中核市　0.000610　0.6995　－"
+            ]
+          },
+          {
+            "word_id": 368,
+            "raw": "U+E61C",
+            "bbox": [
+              409.24200439453125,
+              416.8597106933594,
+              417.24200439453125,
+              425.043701171875
+            ],
+            "target_line": [
+              "10種地　保健所設置　0.000500　0.6480　－"
+            ]
+          },
+          {
+            "word_id": 369,
+            "raw": "U+E61C",
+            "bbox": [
+              409.2380065917969,
+              254.3596954345703,
+              417.2380065917969,
+              262.543701171875
+            ],
+            "target_line": [
+              "保健所設置　0.000440　0.8150　－"
+            ]
+          },
+          {
+            "word_id": 372,
+            "raw": "U+E61C",
+            "bbox": [
+              409.2340087890625,
+              204.3325958251953,
+              417.2340087890625,
+              212.5166015625
+            ],
+            "target_line": [
+              "保健所設置　0.000610　0.6875　－"
+            ]
+          },
+          {
+            "word_id": 374,
+            "raw": "U+E61C",
+            "bbox": [
+              409.2261047363281,
+              529.3599243164062,
+              417.2261047363281,
+              537.5438842773438
+            ],
+            "target_line": [
+              "７種地　保健所設置　0.000400　0.7440　－"
+            ]
+          },
+          {
+            "word_id": 376,
+            "raw": "U+E61C",
+            "bbox": [
+              409.22601318359375,
+              454.355712890625,
+              417.22601318359375,
+              462.5397033691406
+            ],
+            "target_line": [
+              "９種地　保健所設置　0.000340　0.8000　－"
+            ]
+          }
+        ],
+        "source_word_count_matches_delta": true
+      },
+      "assertions": {
+        "nonbar_nonspace_text_order_exactly_equal": true,
+        "all_numeric_tokens_in_same_order": true
+      }
+    },
+    {
+      "page": "20260724g001650707",
+      "original": ".cache/kanpo-archive/2026-07-24/20260724g00165/20260724g001650707.pdf",
+      "original_sha256": "52b98a31e9ecc8b0f6354c15eddd24b3811b7718185bb0ec448fc1299ed29596",
+      "before": ".cache/kanpo-227/after20/20260724g001650707.txt",
+      "before_sha256": "5e4f98041ff9107dc363d6855b975ba035db1d5e3bee3277058434ede93a5c58",
+      "after": ".cache/kanpo-227/after21/20260724g001650707.txt",
+      "after_sha256": "a7097d7c1b5eb5e95b8f462d8d53430878dd77d265b43db68c3321abbecb7ca1",
+      "added_bars": 6,
+      "verdict": "partial_improvement",
+      "regression": false,
+      "new_wrong_row_or_amount_binding": false,
+      "all_changed_rows_checked": true,
+      "all_output_read": true,
+      "original_image_read": true,
+      "image": ".cache/kanpo-227/plain21-impact/20260724g001650707.png",
+      "image_sha256": "67421cbb8162f17b2a96d7bc5cbc49419149d172b8fd0a20c018907c6821bed0",
+      "summary": "原本左側のⅠ地域6種地の指定都市/中核市/児相中核市、5種地の中核市/児相中核市、4種地中核市。各行の最右Bの横棒1字、計6字がその行へ戻る。上部の負率−0.01/−0.06や右側率表の値には変更なし。",
+      "existing_residual": "右側Aに並ぶ横棒1字ずつは残って欠落。右側表の6→5→4種地で複数レコードがL65..67に連結する既存崩れ、共通見出しや町村の分離はそのまま。今回の6字は左側の別の正常な対象行にだけ追加。",
+      "changed_rows": [
+        {
+          "line": 24,
+          "before": "指定都市　0.000060　1.1050",
+          "after": "指定都市　0.000060　1.1050　－"
+        },
+        {
+          "line": 25,
+          "before": "中核市　0.000050　0.9595",
+          "after": "中核市　0.000050　0.9595　－"
+        },
+        {
+          "line": 26,
+          "before": "６種地　児相中核市　0.000060　1.1040",
+          "after": "６種地　児相中核市　0.000060　1.1040　－"
+        },
+        {
+          "line": 29,
+          "before": "中核市　0.000040　0.9660",
+          "after": "中核市　0.000040　0.9660　－"
+        },
+        {
+          "line": 30,
+          "before": "児相中核市　0.000050　1.1105",
+          "after": "児相中核市　0.000050　1.1105　－"
+        },
+        {
+          "line": 34,
+          "before": "中核市　0.000050　0.9605",
+          "after": "中核市　0.000050　0.9605　－"
+        }
+      ],
+      "original_source_evidence": {
+        "page": "20260724g001650707",
+        "prototype_text_matches_parent_after21": true,
+        "added_source_words": [
+          {
+            "word_id": 312,
+            "raw": "U+E61C",
+            "bbox": [
+              409.25,
+              348.4696960449219,
+              417.25,
+              356.6536865234375
+            ],
+            "target_line": [
+              "指定都市　0.000060　1.1050　－"
+            ]
+          },
+          {
+            "word_id": 313,
+            "raw": "U+E61C",
+            "bbox": [
+              409.2460021972656,
+              416.86138916015625,
+              417.2460021972656,
+              425.04541015625
+            ],
+            "target_line": [
+              "中核市　0.000040　0.9660　－"
+            ]
+          },
+          {
+            "word_id": 317,
+            "raw": "U+E61C",
+            "bbox": [
+              409.24200439453125,
+              362.18170166015625,
+              417.24200439453125,
+              370.3656921386719
+            ],
+            "target_line": [
+              "中核市　0.000050　0.9595　－"
+            ]
+          },
+          {
+            "word_id": 318,
+            "raw": "U+E61C",
+            "bbox": [
+              409.24200439453125,
+              375.8616943359375,
+              417.24200439453125,
+              384.0456848144531
+            ],
+            "target_line": [
+              "６種地　児相中核市　0.000060　1.1040　－"
+            ]
+          },
+          {
+            "word_id": 319,
+            "raw": "U+E61C",
+            "bbox": [
+              409.2380065917969,
+              430.5414123535156,
+              417.2380065917969,
+              438.72540283203125
+            ],
+            "target_line": [
+              "児相中核市　0.000050　1.1105　－"
+            ]
+          },
+          {
+            "word_id": 322,
+            "raw": "U+E61C",
+            "bbox": [
+              409.2300109863281,
+              471.5813903808594,
+              417.2300109863281,
+              479.7654113769531
+            ],
+            "target_line": [
+              "中核市　0.000050　0.9605　－"
+            ]
+          }
+        ],
+        "source_word_count_matches_delta": true
+      },
+      "assertions": {
+        "nonbar_nonspace_text_order_exactly_equal": true,
+        "all_numeric_tokens_in_same_order": true
+      }
+    },
+    {
+      "page": "20260810g001790121",
+      "original": ".cache/kanpo-archive/2026-08-10/20260810g00179/20260810g001790121.pdf",
+      "original_sha256": "9886f97bc1ae1a88d2b914f9addcd5025a9776d35d2b48f0b954dd7312ab21bc",
+      "before": ".cache/kanpo-227/after20/20260810g001790121.txt",
+      "before_sha256": "8c27453f5b91f95001a1a087726d1ff4412f8cf28440e46ea3e6edcce0a77904",
+      "after": ".cache/kanpo-227/after21/20260810g001790121.txt",
+      "after_sha256": "4471bd832bceed24c37a3bbd463c93f84fbc94abbd8f8573a74240e0c5eff5e7",
+      "added_bars": 3,
+      "verdict": "improvement",
+      "regression": false,
+      "new_wrong_row_or_amount_binding": false,
+      "all_changed_rows_checked": true,
+      "all_output_read": true,
+      "original_image_read": true,
+      "image": ".cache/kanpo-227/plain21-impact/20260810g001790121.png",
+      "image_sha256": "d35e0bc5dfabf18177ae1ef602850454c4a12db2c3b0e458eb8e1e43c60c0392",
+      "summary": "原本右下、資産除去債務増減表の「有形固定資産の取得に伴う増加額」「資産除去債務の履行による減少額」「その他増減額（△は減少）」の金額欄にある各1字の横棒が正しい科目行へ復帰。原本は横棒のみで円の付記はない。",
+      "existing_residual": "期首59,374,720円→調整1,349,352円→期末60,724,072円を保持。原本の備考なし/重要な後発事象なし、左下の研究事業等の表の既存横棒も維持。追加箇所には新たな残存問題なし。",
+      "changed_rows": [
+        {
+          "line": 86,
+          "before": "有形固定資産の取得に伴う増加額",
+          "after": "有形固定資産の取得に伴う増加額　－"
+        },
+        {
+          "line": 88,
+          "before": "資産除去債務の履行による減少額",
+          "after": "資産除去債務の履行による減少額　－"
+        },
+        {
+          "line": 89,
+          "before": "その他増減額（△は減少）",
+          "after": "その他増減額（△は減少）　－"
+        }
+      ],
+      "original_source_evidence": {
+        "page": "20260810g001790121",
+        "prototype_text_matches_parent_after21": true,
+        "added_source_words": [
+          {
+            "word_id": 2,
+            "raw": "U+E61C",
+            "bbox": [
+              781.0079956054688,
+              468.49139404296875,
+              789.0079956054688,
+              476.6754150390625
+            ],
+            "target_line": [
+              "有形固定資産の取得に伴う増加額　－"
+            ]
+          },
+          {
+            "word_id": 3,
+            "raw": "U+E61C",
+            "bbox": [
+              781.0079956054688,
+              491.275390625,
+              789.0079956054688,
+              499.45941162109375
+            ],
+            "target_line": [
+              "資産除去債務の履行による減少額　－"
+            ]
+          },
+          {
+            "word_id": 4,
+            "raw": "U+E61C",
+            "bbox": [
+              781.0079956054688,
+              502.6673889160156,
+              789.0079956054688,
+              510.8514099121094
+            ],
+            "target_line": [
+              "その他増減額（△は減少）　－"
+            ]
+          }
+        ],
+        "source_word_count_matches_delta": true
+      },
+      "assertions": {
+        "nonbar_nonspace_text_order_exactly_equal": true,
+        "all_numeric_tokens_in_same_order": true
+      }
+    },
+    {
+      "page": "20260820g001860067",
+      "original": ".cache/kanpo-archive/2026-08-20/20260820g00186/20260820g001860067.pdf",
+      "original_sha256": "51905a66a11eefaa9246e01cc2f9dbaa80f8a21a33b10a9e8326d69ca41db4db",
+      "before": ".cache/kanpo-227/after20/20260820g001860067.txt",
+      "before_sha256": "e17f676d56ea683f922e6fcabc83f19d0fd66507f720690259f8fdeaabdb6429",
+      "after": ".cache/kanpo-227/after21/20260820g001860067.txt",
+      "after_sha256": "7b0138a69edb577b714949a5ae6e75c8ca44d258b2932a13fbc963a0a83798a1",
+      "added_bars": 1,
+      "verdict": "improvement",
+      "regression": false,
+      "new_wrong_row_or_amount_binding": false,
+      "all_changed_rows_checked": true,
+      "all_output_read": true,
+      "original_image_read": true,
+      "image": ".cache/kanpo-227/plain21-impact/20260820g001860067.png",
+      "image_sha256": "f6d98c52cebfa4a3c2136a063d33c7bcdf3349a8a7340558423e6a19e6ada337",
+      "summary": "原本右下、破産更生債権等590,140,937から同額の貸倒引当金△590,140,937を控除した、純額欄の横棒1字をL62へ復帰。負の引当額を置換せず、その右の別の純額位置に原字を追加。",
+      "existing_residual": "前後の長期貸付金653,897,587、長期前払費用314,677,178、投資その他資産計1,090,842,550は維持。既存の複数段金額・純額の関係を増悪させていない。",
+      "changed_rows": [
+        {
+          "line": 62,
+          "before": "貸倒引当金(△)　△590,140,937",
+          "after": "貸倒引当金(△)　△590,140,937　－"
+        }
+      ],
+      "original_source_evidence": {
+        "page": "20260820g001860067",
+        "prototype_text_matches_parent_after21": true,
+        "added_source_words": [
+          {
+            "word_id": 17,
+            "raw": "U+E61C",
+            "bbox": [
+              641.0,
+              437.224609375,
+              649.0,
+              445.4085998535156
+            ],
+            "target_line": [
+              "貸倒引当金(△)　△590,140,937　－"
+            ]
+          }
+        ],
+        "source_word_count_matches_delta": true
+      },
+      "assertions": {
+        "nonbar_nonspace_text_order_exactly_equal": true,
+        "all_numeric_tokens_in_same_order": true
+      }
+    },
+    {
+      "page": "20260924g002110089",
+      "original": ".cache/kanpo-archive/2026-09-24/20260924g00211/20260924g002110089.pdf",
+      "original_sha256": "90016c8b649fab0574493d3c0dd106f2b73e407f461a516750a455e5ea4bd67b",
+      "before": ".cache/kanpo-227/after20/20260924g002110089.txt",
+      "before_sha256": "1d73db9fd5ef2244be5a97675d06cbe7409796ced1ffcc7cb294c4c779d53d25",
+      "after": ".cache/kanpo-227/after21/20260924g002110089.txt",
+      "after_sha256": "e6c7030672cadc41b589c8a830d387fc90720458f9cdba5d4649d91aa115748d",
+      "added_bars": 1,
+      "verdict": "improvement",
+      "regression": false,
+      "new_wrong_row_or_amount_binding": false,
+      "all_changed_rows_checked": true,
+      "all_output_read": true,
+      "original_image_read": true,
+      "image": ".cache/kanpo-227/plain21-impact/20260924g002110089.png",
+      "image_sha256": "e5d954281a46f753fd9f070b9d7c53991cb30dc978cf5360b51da788860ccfdd",
+      "summary": "原本右下の退職給付調整表、退職給付引当金40,170,044,843円の次の前払年金費用の右端の横棒1字。上/下の純額40,170,044,843円とは別の正しい科目行へ復帰。",
+      "existing_residual": "純額科目と金額がL68/69、L72/73で分離する既存の読み方はそのまま。引当金40,170,044,843円と損益の各値は維持。横棒の追加で別行への誤対応は起きていない。",
+      "changed_rows": [
+        {
+          "line": 71,
+          "before": "前払年金費用",
+          "after": "前払年金費用　－"
+        }
+      ],
+      "original_source_evidence": {
+        "page": "20260924g002110089",
+        "prototype_text_matches_parent_after21": true,
+        "added_source_words": [
+          {
+            "word_id": 12,
+            "raw": "U+E61C",
+            "bbox": [
+              661.0,
+              434.17999267578125,
+              669.0,
+              442.364013671875
+            ],
+            "target_line": [
+              "前払年金費用　－"
+            ]
+          }
+        ],
+        "source_word_count_matches_delta": true
+      },
+      "assertions": {
+        "nonbar_nonspace_text_order_exactly_equal": true,
+        "all_numeric_tokens_in_same_order": true
+      }
+    },
+    {
+      "page": "20261001g002170125",
+      "original": ".cache/kanpo-archive/2026-10-01/20261001g00217/20261001g002170125.pdf",
+      "original_sha256": "b35f0f88d3930fe394b066f3b6638d0260091d3dd168f312ddc829de32ab518e",
+      "before": ".cache/kanpo-227/after20/20261001g002170125.txt",
+      "before_sha256": "22d8cdb4cb0a38926364598890f5ca680fc1e8217118403a97b36f476cfd4273",
+      "after": ".cache/kanpo-227/after21/20261001g002170125.txt",
+      "after_sha256": "eded464ee477a0018bf120e9fe88882d89bf8200e27ac842557eb8142e59ab4d",
+      "added_bars": 3,
+      "verdict": "improvement",
+      "regression": false,
+      "new_wrong_row_or_amount_binding": false,
+      "all_changed_rows_checked": true,
+      "all_output_read": true,
+      "original_image_read": true,
+      "image": ".cache/kanpo-227/plain21-impact/20261001g002170125.png",
+      "image_sha256": "815e049d96019a285a867b9f138fd584bde23eb0278c16b5124a7cfb9bb9f16c",
+      "summary": "原本左上の退職給付債務調整表の過去勤務費用の当期発生額、右上損益表の過去勤務費用の当期の費用処理額/臨時に支払った割増退職金、計3字の横棒がそれぞれの金額欄・元科目行へ復帰。",
+      "existing_residual": "隣の制度加入者拠出109,881,700、期末債務27,641,903,495、損益合計911,315,163は維持。上端の⑪備考の項番が出力L3では省かれるのはbeforeから同じで今回の追加とは独立。",
+      "changed_rows": [
+        {
+          "line": 18,
+          "before": "過去勤務費用の当期発生額",
+          "after": "過去勤務費用の当期発生額　－"
+        },
+        {
+          "line": 49,
+          "before": "過去勤務費用の当期の費用処理額",
+          "after": "過去勤務費用の当期の費用処理額　－"
+        },
+        {
+          "line": 50,
+          "before": "臨時に支払った割増退職金",
+          "after": "臨時に支払った割増退職金　－"
+        }
+      ],
+      "original_source_evidence": {
+        "page": "20261001g002170125",
+        "prototype_text_matches_parent_after21": true,
+        "added_source_words": [
+          {
+            "word_id": 6,
+            "raw": "U+E61C",
+            "bbox": [
+              765.0,
+              114.34770202636719,
+              773.0,
+              122.53170013427734
+            ],
+            "target_line": [
+              "過去勤務費用の当期の費用処理額　－"
+            ]
+          },
+          {
+            "word_id": 7,
+            "raw": "U+E61C",
+            "bbox": [
+              765.0,
+              125.595703125,
+              773.0,
+              133.77969360351562
+            ],
+            "target_line": [
+              "臨時に支払った割増退職金　－"
+            ]
+          },
+          {
+            "word_id": 224,
+            "raw": "U+E61C",
+            "bbox": [
+              397.0,
+              254.29969787597656,
+              405.0,
+              262.48370361328125
+            ],
+            "target_line": [
+              "過去勤務費用の当期発生額　－"
+            ]
+          }
+        ],
+        "source_word_count_matches_delta": true
+      },
+      "assertions": {
+        "nonbar_nonspace_text_order_exactly_equal": true,
+        "all_numeric_tokens_in_same_order": true
+      }
+    },
+    {
+      "page": "20261016g002270067",
+      "verdict": "improvement",
+      "notes": "原本左列の退職給付注記と右列の減損表まで全文を前後照合。追加3本は左(1)過去勤務費用の当期発生額(出力8行)、(3)未認識過去勤務費用(26行)、(4)過去勤務費用の当期の費用処理額(35行)の各右端金額欄に原本の横棒が存在。上下の数値行や小計へずれず復元された。原本の既存負数、退職給付債務/年金資産の全額、右の用途・場所・種類・帳簿価額・区分の対応は前後不変。",
+      "existing_remaining": "新しい混線/欠落なし。今回の3横棒以外の出力は完全不変。",
+      "selection_index": 8,
+      "comparison": "after20 -> after21",
+      "original_sha256": "7a232818fd62269c09fbeec1bddab9739f75fdd5b6725959cc198da1542b9f47",
+      "original_png_sha256": "2f0b690cd0f6e7e3d439ddfe366f062395df2b966673fd745ee0efb9f4ba5d0c",
+      "before_sha256": "5fcfd240bce28af2989c2da1cec499fbbb3c347c9023aa87155b7c2baf945fd1",
+      "after_sha256": "4e6adcb25bc2ed0aac24edff38cbaf03c0a3da2e13aa4b0e1d3f7036351c8b8a",
+      "original_pdf": ".cache/kanpo-archive/2026-10-16/20261016g00227/20261016g002270067.pdf",
+      "original_png": ".cache/kanpo-227/plain21-impact/20261016g002270067.png",
+      "before_output": ".cache/kanpo-227/after20/20261016g002270067.txt",
+      "after_output": ".cache/kanpo-227/after21/20261016g002270067.txt",
+      "before_lines": 65,
+      "after_lines": 65,
+      "added_bar_count": 3,
+      "added_nonwhitespace": {
+        "－": 3
+      },
+      "removed_characters": {},
+      "changes": [
+        {
+          "output_line": 8,
+          "before": "過去勤務費用の当期発生額",
+          "after": "過去勤務費用の当期発生額　－"
+        },
+        {
+          "output_line": 26,
+          "before": "未認識過去勤務費用",
+          "after": "未認識過去勤務費用　－"
+        },
+        {
+          "output_line": 35,
+          "before": "過去勤務費用の当期の費用処理額",
+          "after": "過去勤務費用の当期の費用処理額　－"
+        }
+      ],
+      "native_bars": [
+        {
+          "bbox": [
+            401.0,
+            144.84570000000005,
+            409.0,
+            153.02970000000005
+          ],
+          "font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "cid": 24952,
+          "code": 24952
+        },
+        {
+          "bbox": [
+            401.0,
+            396.7306,
+            409.0,
+            404.9146
+          ],
+          "font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "cid": 24952,
+          "code": 24952
+        },
+        {
+          "bbox": [
+            401.0,
+            523.6746,
+            409.0,
+            531.8586
+          ],
+          "font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "cid": 24952,
+          "code": 24952
+        }
+      ],
+      "new_regression": false,
+      "unchanged_except_added_bar_suffixes": true
+    },
+    {
+      "page": "20261019g002290043",
+      "verdict": "improvement",
+      "notes": "原本左の財務注記と右の会社解散公告を前後全文照合。追加4本は左中央の資産除去債務の期首残高(24行)、取得に伴う増加額(25行)、時の経過による調整額(26行)、履行による減少額(28行)の右端金額欄に存在し、見積変更/期末残高72,732,000円(27/29行)へ混ざらない。右の5会社の本文・住所・署名も全て前後不変。",
+      "existing_remaining": "中央の弁理士登録/付記公告は前後とも本文未抽出。対象display領域[429,45,609,448]内native Glyph0、弁理士/登録番号/菅沼もGlyph全文にないため文字層なし本文として区別。path/画像の実体は未確認。追加バー由来の欠落ではない。",
+      "selection_index": 9,
+      "comparison": "after20 -> after21",
+      "original_sha256": "6ba8b6cb4ac21cba1893280fd110911fd5c95ad0e8b561147b61ecb7f8323526",
+      "original_png_sha256": "289489c65bb3ecedd1b7f54a73e7a4d19393de5b0204e606ee44f3a6e49e209e",
+      "before_sha256": "c319577a7c2da1358f3c9f9407be7c03e7db56c551581362f4e42fa9223819c5",
+      "after_sha256": "8af6c4963c93b072b9ca8a71f3126bc3b13c69a930c41ac94ce548ced911c087",
+      "original_pdf": ".cache/kanpo-archive/2026-10-19/20261019g00229/20261019g002290043.pdf",
+      "original_png": ".cache/kanpo-227/plain21-impact/20261019g002290043.png",
+      "before_output": ".cache/kanpo-227/after20/20261019g002290043.txt",
+      "after_output": ".cache/kanpo-227/after21/20261019g002290043.txt",
+      "before_lines": 96,
+      "after_lines": 96,
+      "added_bar_count": 4,
+      "added_nonwhitespace": {
+        "－": 4
+      },
+      "removed_characters": {},
+      "changes": [
+        {
+          "output_line": 24,
+          "before": "期首残高",
+          "after": "期首残高　－"
+        },
+        {
+          "output_line": 25,
+          "before": "有形固定資産の取得に伴う増加額",
+          "after": "有形固定資産の取得に伴う増加額　－"
+        },
+        {
+          "output_line": 26,
+          "before": "時の経過による調整額",
+          "after": "時の経過による調整額　－"
+        },
+        {
+          "output_line": 28,
+          "before": "資産除去債務の履行による減少額",
+          "after": "資産除去債務の履行による減少額　－"
+        }
+      ],
+      "native_bars": [
+        {
+          "bbox": [
+            413.0,
+            338.0537000000002,
+            421.0,
+            346.23770000000025
+          ],
+          "font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "cid": 24952,
+          "code": 24952
+        },
+        {
+          "bbox": [
+            413.0,
+            350.4857000000002,
+            421.0,
+            358.6697000000002
+          ],
+          "font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "cid": 24952,
+          "code": 24952
+        },
+        {
+          "bbox": [
+            413.0,
+            362.91770000000014,
+            421.0,
+            371.10170000000016
+          ],
+          "font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "cid": 24952,
+          "code": 24952
+        },
+        {
+          "bbox": [
+            413.0,
+            387.78170000000017,
+            421.0,
+            395.9657000000002
+          ],
+          "font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "cid": 24952,
+          "code": 24952
+        }
+      ],
+      "new_regression": false,
+      "unchanged_except_added_bar_suffixes": true,
+      "text_layer_exclusion_evidence": {
+        "display_bbox_pt": [
+          429,
+          45,
+          609,
+          448
+        ],
+        "native_glyphs": 0,
+        "missing_terms": [
+          "弁理士",
+          "登録番号",
+          "菅沼"
+        ],
+        "path_image_examined": false
+      }
+    },
+    {
+      "page": "20261016g002280362",
+      "verdict": "improvement",
+      "notes": "原本左の継続CF→利益処分案、右の重要会計方針を前後全文照合。追加1本は左CFのⅣ資金に係る換算差額(23行)右端の原本横棒で、次の資金増加額161,087や期首8,554,913・期末8,716,000へ移っていない。全ての△符号と投資/財務CFの小計・最終額、右の耐用年数と会計方針は完全不変。",
+      "existing_remaining": "利益処分案の最終科目名(35行)と3つの同額852,812,450(36行)が別行なのは前後共通。今回増えていない。",
+      "selection_index": 10,
+      "comparison": "after20 -> after21",
+      "original_sha256": "1b3d35b4b83048070b03399b87b940fe99918cf98b9d1fe44c47a2bf7034a330",
+      "original_png_sha256": "48930802562ac4b065428faacbbc906606f4809c06745803b89921541d5c24ea",
+      "before_sha256": "fb7c98b65f33521af71c9d495f8070ae4e77a1591422d0a3ccf9a2c3c1a9fcc4",
+      "after_sha256": "f312f8e21d7eea0d22ce9d7caa5ac7b22ea5469afee68fe26349f6a085f826b0",
+      "original_pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280362.pdf",
+      "original_png": ".cache/kanpo-227/plain21-impact/20261016g002280362.png",
+      "before_output": ".cache/kanpo-227/after20/20261016g002280362.txt",
+      "after_output": ".cache/kanpo-227/after21/20261016g002280362.txt",
+      "before_lines": 78,
+      "after_lines": 78,
+      "added_bar_count": 1,
+      "added_nonwhitespace": {
+        "－": 1
+      },
+      "removed_characters": {},
+      "changes": [
+        {
+          "output_line": 23,
+          "before": "Ⅳ　資金に係る換算差額",
+          "after": "Ⅳ　資金に係る換算差額　－"
+        }
+      ],
+      "native_bars": [
+        {
+          "bbox": [
+            401.0,
+            359.9754,
+            409.0,
+            368.1594
+          ],
+          "font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "cid": 24952,
+          "code": 24952
+        }
+      ],
+      "new_regression": false,
+      "unchanged_except_added_bar_suffixes": true
+    },
+    {
+      "page": "20261016g002280327",
+      "verdict": "improvement",
+      "notes": "原本左の会計方針続き→東海国立大学機構公告→左/右の貸借表を前後全文照合。追加1本は右投資その他の資産で『貸倒引当金 △46,071』に対する差引残額の原本横棒(53行)。上の対象債権46,071(52行)を全額引き当てた残額欄に付き、次の長期前払費用11,289へ混ざらない。有形/無形固定資産、流動資産全内訳、資産合計383,196,622の対応は完全不変。",
+      "existing_remaining": "新規の表行/科目/数値所属の崩れなし。",
+      "selection_index": 11,
+      "comparison": "after20 -> after21",
+      "original_sha256": "405ccc67507de86b2d9eed77327b6a555c1136783587db7e12ad674475c522ed",
+      "original_png_sha256": "ca67ccb53aa2c54f2b3bba541b4201ba7533286da7894fa1370bbd57378890ab",
+      "before_sha256": "856d60a0d72dcd133cf7890b737f72a685a757702f7dbaab0b7c92792f9d4090",
+      "after_sha256": "9277f04f08663e91bb4e7577a2d39e86ffa2c6ec31082652fbb2dbc338056a95",
+      "original_pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280327.pdf",
+      "original_png": ".cache/kanpo-227/plain21-impact/20261016g002280327.png",
+      "before_output": ".cache/kanpo-227/after20/20261016g002280327.txt",
+      "after_output": ".cache/kanpo-227/after21/20261016g002280327.txt",
+      "before_lines": 77,
+      "after_lines": 77,
+      "added_bar_count": 1,
+      "added_nonwhitespace": {
+        "－": 1
+      },
+      "removed_characters": {},
+      "changes": [
+        {
+          "output_line": 53,
+          "before": "貸倒引当金　△46,071",
+          "after": "貸倒引当金　△46,071　－"
+        }
+      ],
+      "native_bars": [
+        {
+          "bbox": [
+            657.0,
+            205.17690000000013,
+            665.0,
+            213.36090000000013
+          ],
+          "font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "cid": 24952,
+          "code": 24952
+        }
+      ],
+      "new_regression": false,
+      "unchanged_except_added_bar_suffixes": true
+    },
+    {
+      "page": "20261016g002280432",
+      "verdict": "improvement",
+      "notes": "原本左CFから右上続き、利益処分案、右下会計方針まで前後全文照合。追加1本は左『国庫納付金の支払額』(21行)右端の原本横棒で、前後の小計/業務CF11,370,723へ混ざらない。右への財務CF続きと△2,497,174、期末10,808,094、利益処分案の682,124,857×2と2,321,052,344の各欄も前後不変。",
+      "existing_remaining": "今回の横棒以外の文字/順序/数値は完全不変。",
+      "selection_index": 12,
+      "comparison": "after20 -> after21",
+      "original_sha256": "5096ff90d049e754714254893c9fb32ae4546a923247973ca30e366e4f651871",
+      "original_png_sha256": "6f86197d78a4cc7c246c3c865828246f96b3e983dc57f8744b48ec5a2d806143",
+      "before_sha256": "095be5e5d6cbbf95d127d952792657cd968c45499827f1bfb18b0fcf21c44bd1",
+      "after_sha256": "38943b051fe4c2622a60243cc347c0c45434327bdfb90a767c5dc923385a1f27",
+      "original_pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280432.pdf",
+      "original_png": ".cache/kanpo-227/plain21-impact/20261016g002280432.png",
+      "before_output": ".cache/kanpo-227/after20/20261016g002280432.txt",
+      "after_output": ".cache/kanpo-227/after21/20261016g002280432.txt",
+      "before_lines": 82,
+      "after_lines": 82,
+      "added_bar_count": 1,
+      "added_nonwhitespace": {
+        "－": 1
+      },
+      "removed_characters": {},
+      "changes": [
+        {
+          "output_line": 21,
+          "before": "国庫納付金の支払額",
+          "after": "国庫納付金の支払額　－"
+        }
+      ],
+      "native_bars": [
+        {
+          "bbox": [
+            401.0,
+            306.9796999999998,
+            409.0,
+            315.16369999999984
+          ],
+          "font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "cid": 24952,
+          "code": 24952
+        }
+      ],
+      "new_regression": false,
+      "unchanged_except_added_bar_suffixes": true
+    },
+    {
+      "page": "20261016g002280300",
+      "verdict": "improvement",
+      "notes": "原本左CFから右上続き、損失処理案、右下会計方針まで前後全文照合。追加1本は左『国庫納付金の支払額』(23行)右端の原本横棒で、上下の小計/業務CF4,151,803へ混ざらない。投資CF△991,253、財務CF△1,055,931、換算差額49、期末7,790,661、右の損失額/処理額333,182,817と次期0も前後不変。",
+      "existing_remaining": "今回の横棒以外の文字/順序/数値は完全不変。",
+      "selection_index": 13,
+      "comparison": "after20 -> after21",
+      "original_sha256": "55977193b3c68fd87e580966cb0a55ab95d0de9e4d5e4c1527f0dd361e831755",
+      "original_png_sha256": "c63f23a5e41f6fcd05fee215d048acb3e6dd961d614e647b64a7f3185abfcf6c",
+      "before_sha256": "4686b5a54f1c82571d6f0f2fa951b29e3346041997418968fdeed94b2ce50558",
+      "after_sha256": "cad43399fa8963d462ab326912b1c7c6c2a127aed0f628eb204a1e7ca3aa5e72",
+      "original_pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280300.pdf",
+      "original_png": ".cache/kanpo-227/plain21-impact/20261016g002280300.png",
+      "before_output": ".cache/kanpo-227/after20/20261016g002280300.txt",
+      "after_output": ".cache/kanpo-227/after21/20261016g002280300.txt",
+      "before_lines": 84,
+      "after_lines": 84,
+      "added_bar_count": 1,
+      "added_nonwhitespace": {
+        "－": 1
+      },
+      "removed_characters": {},
+      "changes": [
+        {
+          "output_line": 23,
+          "before": "国庫納付金の支払額",
+          "after": "国庫納付金の支払額　－"
+        }
+      ],
+      "native_bars": [
+        {
+          "bbox": [
+            401.0,
+            309.27339999999987,
+            409.0,
+            317.4573999999999
+          ],
+          "font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "cid": 24952,
+          "code": 24952
+        }
+      ],
+      "new_regression": false,
+      "unchanged_except_added_bar_suffixes": true
+    },
+    {
+      "page": "20260924g002110094",
+      "verdict": "improvement",
+      "notes": "原本左CF/会計方針、右の引当・債務・減損・行政コストの各注記を前後全文照合。追加2本は左CFⅢ財務活動によるCF(21行)とⅣ換算差額(22行)の原本右端横棒。両横棒が各見出しの金額欄へ付き、投資CF△626,892,066や増加額3,139,333へ移らない。右の減損3列金額/合計755,818,798、行政コストと自己収入△41,402,103,255,528円も前後不変。",
+      "existing_remaining": "新しい表行/数値対応の崩れなし。",
+      "selection_index": 14,
+      "comparison": "after20 -> after21",
+      "original_sha256": "263245d2396e447c8e5f7fa139b61f9ca1e4d584d2925e65719b76d579d99d5c",
+      "original_png_sha256": "c7ceb346fef0e8d6cdbaa93bc6c159a10c52ebf0afd5dea3471ea3648eff46b2",
+      "before_sha256": "2ca62e7d0adbf8fbf64a772cbf190c78f80869d6004d0d22017550376008e663",
+      "after_sha256": "924c7259805826019850da6cdcecf2f3a7a498c2506d55f655c661ec84d91b02",
+      "original_pdf": ".cache/kanpo-archive/2026-09-24/20260924g00211/20260924g002110094.pdf",
+      "original_png": ".cache/kanpo-227/plain21-impact/20260924g002110094.png",
+      "before_output": ".cache/kanpo-227/after20/20260924g002110094.txt",
+      "after_output": ".cache/kanpo-227/after21/20260924g002110094.txt",
+      "before_lines": 88,
+      "after_lines": 88,
+      "added_bar_count": 2,
+      "added_nonwhitespace": {
+        "－": 2
+      },
+      "removed_characters": {},
+      "changes": [
+        {
+          "output_line": 21,
+          "before": "Ⅲ　財務活動によるキャッシュ・フロー",
+          "after": "Ⅲ　財務活動によるキャッシュ・フロー　－"
+        },
+        {
+          "output_line": 22,
+          "before": "Ⅳ　資金に係る換算差額",
+          "after": "Ⅳ　資金に係る換算差額　－"
+        }
+      ],
+      "native_bars": [
+        {
+          "bbox": [
+            401.0,
+            283.57399999999996,
+            409.0,
+            291.758
+          ],
+          "font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "cid": 24952,
+          "code": 24952
+        },
+        {
+          "bbox": [
+            401.0,
+            295.60599999999994,
+            409.0,
+            303.78999999999996
+          ],
+          "font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "cid": 24952,
+          "code": 24952
+        }
+      ],
+      "new_regression": false,
+      "unchanged_except_added_bar_suffixes": true
+    },
+    {
+      "page": "20261016g002280565",
+      "verdict": "improvement",
+      "notes": "原本左上損失処理案→会計方針→右列の続き/注記事項を前後全文照合。追加1本は左表最終『Ⅱ 次期繰越欠損金』(8行)右端の原本横棒で、上の取崩額603,693,410や後の会計方針へ混ざらない。本文番号、全耐用年数、右下の14,354,201/11,541,786/差引2,812,415千円、425,574/476,843/312,005/最終4,026,839千円の対応は前後不変。",
+      "existing_remaining": "原本自体の最終項番号はⅡ。出力もⅡであり今回の誤変換ではない。425,574千円や最終合計の別行表示は前後共通、増悪なし。",
+      "selection_index": 15,
+      "comparison": "after20 -> after21",
+      "original_sha256": "dbecd4e89f4abba1efd840357fabe5d75a82adccea0e42ba00c691ec1b50e78a",
+      "original_png_sha256": "85f4c89ba0b6babc661d4a056a9fbf5a9cd2fcff9546492fd250362e674b254f",
+      "before_sha256": "617c37038bb3a5878d49961339496adeda09843d0bb693531a54ab1ac32b0f89",
+      "after_sha256": "d6c34bfe4b9382cc77c2556fd9d8af1e433acade3da3e4c63f3645d20866bc1e",
+      "original_pdf": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280565.pdf",
+      "original_png": ".cache/kanpo-227/plain21-impact/20261016g002280565.png",
+      "before_output": ".cache/kanpo-227/after20/20261016g002280565.txt",
+      "after_output": ".cache/kanpo-227/after21/20261016g002280565.txt",
+      "before_lines": 92,
+      "after_lines": 92,
+      "added_bar_count": 1,
+      "added_nonwhitespace": {
+        "－": 1
+      },
+      "removed_characters": {},
+      "changes": [
+        {
+          "output_line": 8,
+          "before": "Ⅱ　次期繰越欠損金",
+          "after": "Ⅱ　次期繰越欠損金　－"
+        }
+      ],
+      "native_bars": [
+        {
+          "bbox": [
+            401.0,
+            129.99570000000008,
+            409.0,
+            138.17970000000008
+          ],
+          "font": {
+            "name": "DFHSMinchoRPro6N-W3-Identity-H",
+            "vertical": false,
+            "ordering": "Identity",
+            "has_to_unicode": true
+          },
+          "cid": 24952,
+          "code": 24952
+        }
+      ],
+      "new_regression": false,
+      "unchanged_except_added_bar_suffixes": true
+    },
+    {
+      "page": "20261016g002280314",
+      "verdict": "improvement; no new regression at changed lines",
+      "added_bars": 2,
+      "original_sha256": "93cdf86c9408fb6411ad2e30eb2f55739412800a23fbc59ab7c9e6f9fe304020",
+      "before_sha256": "d339e15f54ae91d150fda76b050621b2223e946e6ab2668b78a129d114561cc0",
+      "after_sha256": "3238310f9e5705ac3d993065318e84907ef746874c19117c62a07543928878d8",
+      "scope": "Original full-page context and all changed lines inspected; non-dash non-whitespace sequence independently identical. Not a new whole-page initial grade.",
+      "notes": "右上ではなく左上の資本剰余金コスト注記。減損損失相当額・利息費用相当額の2本が原本の中間金額欄へ復帰。1,185,748/496/小計1,277,193は不変。"
+    },
+    {
+      "page": "20260924g002110088",
+      "verdict": "improvement; no new regression at changed lines",
+      "added_bars": 1,
+      "original_sha256": "167938285b0dfc5fcff49e6ebf6a6339b4dc66334605d8a6499c4c18906319eb",
+      "before_sha256": "d72444a63bb34eb24ad3419f5dae4d2ded3715f49af55b23434e5c8d609b8f07",
+      "after_sha256": "6f9f79a5c3dcdb569f669c09d5bd95a6480f9a1acd9fcf0467310a2fc10ceb25",
+      "scope": "Original full-page context and all changed lines inspected; non-dash non-whitespace sequence independently identical. Not a new whole-page initial grade.",
+      "notes": "右下の資産除去債務増減の取得に伴う増加額1本。期首180,787,766/見積変更△1,025/調整101,760/減少△78,691,560/期末102,196,941と対応し、原本通り。"
+    },
+    {
+      "page": "20261016g002280677",
+      "verdict": "improvement; no new regression at changed lines",
+      "added_bars": 4,
+      "original_sha256": "c8c26909b72b3a7b84947c8c42ce53c887f81ee3053d4313532f839c0cf07bc9",
+      "before_sha256": "e34489976863011bc0b8e38f7d7c6dad0cdd5bd0ac5ef7d0cc6d6dd6002ee3be",
+      "after_sha256": "19747d435b59362d8ee230e9f151af4815a0499cbda5a23da592bb12b1f3f66d",
+      "scope": "Original full-page context and all changed lines inspected; non-dash non-whitespace sequence independently identical. Not a new whole-page initial grade.",
+      "notes": "右中央の注記で減損・利息・有価証券損益（確定/その他）の4本。隣の減価償却1,204,173/除売却997/賞与15,187/退職258,876/小計1,479,234は原位置を保持。"
+    },
+    {
+      "page": "20261016g002280246",
+      "verdict": "improvement; no new regression at changed lines",
+      "added_bars": 1,
+      "original_sha256": "bf853ed5010719c7a188740f5f2489ba36ba6308530bd4e9e1c063be3c1827e1",
+      "before_sha256": "c7acf7f161db228e5cebf7a6facfd6cc2be92216f08030e728ccad8f003330b0",
+      "after_sha256": "8f2f75fcc34b5ceed7af3b05e141be09afd1e2bf89bd24ece05aff1a109f6775",
+      "scope": "Original full-page context and all changed lines inspected; non-dash non-whitespace sequence independently identical. Not a new whole-page initial grade.",
+      "notes": "右下の資本剰余金注記の減損損失相当額1本。減価償却1,751,740,028/利息16,124,528/除売却141,115,918/小計3,000,860,689等は維持。"
+    },
+    {
+      "page": "20261016g002280402",
+      "verdict": "improvement; no new regression at changed lines",
+      "added_bars": 1,
+      "original_sha256": "a0c3176d225695c068c03523a8c83aac0bc56ea38dc2d9a6b77a2bfbc1750717",
+      "before_sha256": "047b4ad10a6e912adcfe15fcf6a54baf80b503d8ad3de6ca6a60e31840c601dd",
+      "after_sha256": "78db7ec72f481b5dce97c1a0b721a909e8c275d59fecf53e598c55c25770c26e",
+      "scope": "Original full-page context and all changed lines inspected; non-dash non-whitespace sequence independently identical. Not a new whole-page initial grade.",
+      "notes": "左中央の国民負担コストIV控除国庫納付額1本。機会費用10,613/591,417/602,030とV6,724,435を侵さず、原本の最右欄へ復帰。"
+    },
+    {
+      "page": "20261016g002270062",
+      "verdict": "improvement; no new regression at changed lines",
+      "added_bars": 1,
+      "original_sha256": "13771c2d41387e54cb9637ba2cb18bb2c0234b66f66ab736a3f2f97653fd8492",
+      "before_sha256": "43f1e065e6a0b7d3687d41230d8fc44db7570ab7ae790af9ba3d5db28adc9b5e",
+      "after_sha256": "e063b3c2d90678d905f05dd8bd95d0fcb079f1668ce67c08a0c1349145a9f966",
+      "scope": "Original full-page context and all changed lines inspected; non-dash non-whitespace sequence independently identical. Not a new whole-page initial grade.",
+      "notes": "左中の行政コスト表、減損損失相当額1本。減価7,729,488,075/利息79,874/除売却16/合計7,729,567,965等は維持。"
+    },
+    {
+      "page": "20261016g002280321",
+      "verdict": "improvement; no new regression at changed lines",
+      "added_bars": 3,
+      "original_sha256": "ee02319aa5e5d361fd9616776a6faf06da598ed1f62ff56202213875219e2db5",
+      "before_sha256": "fe0f4207a8681ea93af85d58a04a388c389c308f1a0f94f030fb54aeb7ff876c",
+      "after_sha256": "d2c287572a7c077bdc4e2534056d2bb2a1bf1ea85e3738e26fe9f2f9163b6815",
+      "scope": "Original full-page context and all changed lines inspected; non-dash non-whitespace sequence independently identical. Not a new whole-page initial grade.",
+      "notes": "右上の減損と有価証券（確定/その他）3本が原本の中間金額欄へ復帰。施設費収益相当額の最右欄1本は現guard対象外で未復元のまま（原本で確認した既存残存、今回の回帰ではない）。"
+    },
+    {
+      "page": "20261016g002280424",
+      "verdict": "improvement; no new regression at changed lines",
+      "added_bars": 2,
+      "original_sha256": "8e312578383906dbaf452f80ee18aa73e3bdd294ddb87a28a39baeef2129f7ea",
+      "before_sha256": "563b920bf14bc3015cca30a827230e49b746afc4a91e4e1a76c3d98697c965fd",
+      "after_sha256": "555b7391e6424a0b8824c24e2d874a524133625eb6525dd9dd292b92319bcecd",
+      "scope": "Original full-page context and all changed lines inspected; non-dash non-whitespace sequence independently identical. Not a new whole-page initial grade.",
+      "notes": "左CFの国庫納付金の支出額とIV資金換算差額の2本。190,949/△558,369/△84,093/△451,513/1,066,245/614,732各金額と右の利益処分/注記を維持。"
+    },
+    {
+      "page": "20261016g002280047",
+      "verdict": "improvement; no new regression at changed lines",
+      "added_plain_bars": 1,
+      "other_additions": "Four source-backed bars in two leading physical grid rows checked separately by leading-dash original audit.",
+      "notes": "右下の損失処理計算書のIII次期繰越欠損金1本を原本の最右金額欄に確認。744,143,434の損失/積立取崩を保持。上部の先頭2行4字も実際の原字で、元の左側空欄は埋めない。",
+      "scope": "Additional original full-page context and all changed lines inspected."
+    },
+    {
+      "page": "20261016g002280262",
+      "verdict": "improvement; no new regression at changed lines",
+      "added_plain_bars": 2,
+      "scope": "Original audit115 full page rechecked for both changed lines.",
+      "notes": "雑損の中間金額欄と臨時利益の最右金額欄の原字横棒2本を確認。支払利息2,605・経常費用3,936,803・過年度損益1,142・当期純利益166,545・当期総利益216,815の所属は維持。"
+    }
+  ],
+  "known_five_plain_targets": {
+    "scope": "cache independent prototype only; no repository source changes; full 11992 comparison remains parent integration work",
+    "method": "existing Line.text is locally extended only; words are never used to regenerate existing text",
+    "unit_tests": {
+      "passed": 3,
+      "positive_shapes": 2,
+      "negative_cases": 13,
+      "reconstructed_text_preservation_cases": [
+        "fraction formula",
+        "wrapped account label",
+        "unit suffix"
+      ]
+    },
+    "pdf_regression": {
+      "passed": true,
+      "pages": 5,
+      "restored_existing_E61C_glyphs": 6
+    },
+    "nearby_pdf_comparison": {
+      "pages": 29,
+      "changed": 5,
+      "unchanged": 24,
+      "new_bars": 6,
+      "assertions": [
+        "non-space non-U+FF0D character sequence exactly equal before/after",
+        "non-space non-U+FF0D multiset exactly equal before/after",
+        "source Word IDs not duplicated"
+      ]
+    },
+    "explicit_negative_pdf_categories": {
+      "fraction_in_table": [
+        "20261014g002250002"
+      ],
+      "wrapped_fraction": [
+        "20261014g002250011"
+      ],
+      "unruled_fraction": [
+        "20260909g002010004"
+      ],
+      "wrapped_account_label": [
+        "20260925g002120051",
+        "20260831g001940076"
+      ],
+      "units": [
+        "20261009g002230035",
+        "20260930g002160045"
+      ],
+      "native_ledger": [
+        "20260724g001660039"
+      ]
+    },
+    "patch": ".cache/kanpo-227/plain-numeric-dashes.patch",
+    "regression_source": ".cache/kanpo-227/remaining-dashes-prototype/plain_financial_dashes_pdf.rs"
+  },
+  "leading_grid": {
+    "status": "次batch候補、共有src未編集。native bbox補正を変更しない段階後処理。",
+    "patch": "leading-dash.patch: table_dashes.rs の restore_ruled_body のみ",
+    "cause": "first_physical が最初の数値セルの物理行に制限され、空行除去で消えた数値行より前のU+E61Cを候補外にしていた。332はセルの無いlogical空行14/15も残っているため、従来の全logical行に1つの物理行を要求する条件でも脱落する。",
+    "conditions": [
+      "既存horizontal表と元罫Gridが1つだけ一致する従来のpartitioned_geometry_matchesを維持",
+      "最初の数値がlogical row0で、全既存セルが空/数値/横棒のみ",
+      "全物理升目が1行×1列で、格子全体の升目数が物理行数×物理列数と一致",
+      "この純数値継続表だけfirst_physicalを0まで広げ、セル無しlogical行をmappingから除外",
+      "語セルのある行は既存同様に物理行を一意に特定し単調増加を要求",
+      "追加字は既知raw U+E61CのEmpty語のみ、字形サイズ・実罫セル内包含・同一セル原字の一意性・既存値非上書きを維持"
+    ],
+    "kept_scope": [
+      "科目/見出し/本文のある表は従来条件",
+      "全セル横棒のみで数値が無い表は依然対象外",
+      "元原字の無い完全空欄・完全空行には何も追加しない",
+      "未知PUAは復元しない",
+      "既存語ID・文字列を維持し、既知字のセル/論理行を物理升目へ対応付け直すだけ"
+    ],
+    "full_corpus": {
+      "pages": 11992,
+      "changed_pages": {
+        "20261016g002280016": 72,
+        "20261016g002280047": 4,
+        "20261016g002280332": 18,
+        "20261016g002280431": 60,
+        "20261016g002280448": 32,
+        "20261016g002280642": 7
+      },
+      "added_total": 193,
+      "all_additions_are_before_first_numeric_physical_row": true,
+      "invariants": [
+        "元語IDを全て保持・重複0",
+        "追加は元EmptyのrawE61CをUsedにするだけ",
+        "追加語IDを含むセルは一意で元字bboxを包含",
+        "非空白・非横棒の本文全順序が同一",
+        "本文横棒増分=追加原字数",
+        "全件再適用で本文とword status/textの冪等"
+      ]
+    },
+    "unit_tests": {
+      "new_passed": 11,
+      "existing_passed": 10,
+      "total_passed": 21,
+      "positive": [
+        "純数値の先頭横棒行復元・ID保存・冪等",
+        "セル無しlogical/physical空行を埋めず物理行へ対応"
+      ],
+      "negative": [
+        "科目あり",
+        "見出しあり",
+        "上部結合升目あり",
+        "物理列境界なし",
+        "同じ枠にGrid2件",
+        "未知PUA",
+        "同じ升目に原字2個",
+        "元字が升目をまたぐ",
+        "他記事で使用済みの字"
+      ]
+    },
+    "real_pdf_fixtures": "leading_dash_fixtures.rs: 016の先頭8行/146本と332の先頭2行/167本・空行維持・24物理行/20表示行を確認するproduction用2本。現cache外部runnerで原本期待結果は検証済み。",
+    "visual_audit": {
+      "pages": 6,
+      "added_glyphs": 193,
+      "whole_changed_table_context_checked": 6,
+      "regressions": 0,
+      "record": "affected-page-audit.json",
+      "images": "images/*.pdf.png",
+      "raw_trace": "target-traces.jsonl, additional-traces.jsonl"
+    },
+    "notes": "047の最初の数値行は先頭横棒行が戻るためページ先頭ではなくなり、元の空の2列分のインデントが表示される。既存数値のセル位置は同じで改善。root production統合後の差分・fixture実行は別途必要。",
+    "native_bbox_independence": "独立runnerは既存Analysisのhorizontal表・既存原座標words・元rulesから得るGridだけを受け取り、bboxや語分割の変更を一切しない。6影響頁はいずれも通常横組みの財務数値表で、インライン引用句/異方向フォント補正を利用しない。",
+    "patch_check": "git apply --check PASS"
+  },
+  "leading_grid_original_reviews": [
+    {
+      "page": "20261016g002280016",
+      "added": 72,
+      "first_number_y": 282.0,
+      "added_physical_rows": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "added_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          8
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          1,
+          8
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          3,
+          7
+        ],
+        [
+          3,
+          8
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          4,
+          8
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          3
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          5,
+          5
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          3
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          5
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          2
+        ],
+        [
+          7,
+          3
+        ],
+        [
+          7,
+          4
+        ],
+        [
+          7,
+          5
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          7,
+          7
+        ],
+        [
+          7,
+          8
+        ]
+      ],
+      "raw_total_page": 146,
+      "raw_used_before": 74,
+      "all_added_before_first_number": true,
+      "image_checked": true,
+      "regression": false,
+      "notes": "9列継続表の先頭8データ行×9=72本を復元。次行の48,602/55,857/△104,459と以降の全行は元順。ページ内の全146原字E61Cが復帰。"
+    },
+    {
+      "page": "20261016g002280332",
+      "added": 18,
+      "first_number_y": 132.5709991455078,
+      "added_physical_rows": [
+        1,
+        2
+      ],
+      "added_cells": [
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          1,
+          8
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          8
+        ]
+      ],
+      "raw_total_page": 167,
+      "raw_used_before": 149,
+      "all_added_before_first_number": true,
+      "image_checked": true,
+      "regression": false,
+      "notes": "9列継続表の物理行1/2だけ18本を復元。原字の無い物理行0/3/18/19は空のまま。4,171,157等の既存数値の升目対応と後半の△378,349・414,123/3,722,853/△4,136,976を維持。全167原字E61Cが復帰。"
+    },
+    {
+      "page": "20261016g002280047",
+      "added": 4,
+      "first_number_y": 118.4280014038086,
+      "added_physical_rows": [
+        2,
+        3
+      ],
+      "added_cells": [
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      "raw_total_page": 16,
+      "raw_used_before": 11,
+      "all_added_before_first_number": true,
+      "image_checked": true,
+      "regression": false,
+      "notes": "上部7列継続表の物理行2/3、列5/6のみ4本を復元。列0〜4の元空欄は空のまま。後続709,505,592と△787,062,330等の列対応を維持。下のCFと損失処理表は不変。"
+    },
+    {
+      "page": "20261016g002280431",
+      "added": 60,
+      "first_number_y": 184.28599548339844,
+      "added_physical_rows": [
+        0,
+        1,
+        2,
+        3,
+        6,
+        7
+      ],
+      "added_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          8
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          1,
+          8
+        ],
+        [
+          1,
+          9
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          3,
+          7
+        ],
+        [
+          3,
+          8
+        ],
+        [
+          3,
+          9
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          3
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          5
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          6,
+          9
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          2
+        ],
+        [
+          7,
+          3
+        ],
+        [
+          7,
+          4
+        ],
+        [
+          7,
+          5
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          7,
+          7
+        ],
+        [
+          7,
+          8
+        ],
+        [
+          7,
+          9
+        ]
+      ],
+      "raw_total_page": 141,
+      "raw_used_before": 81,
+      "all_added_before_first_number": true,
+      "image_checked": true,
+      "regression": false,
+      "notes": "上部10列継続表の物理行0/1/2/3/6/7に60本を復元。中間の完全空行4/5を埋めない。1,822,629/408,486/△2,231,115の行と以下の全数値を維持。下の科目・見出し付き資本剰余金明細は不変。"
+    },
+    {
+      "page": "20261016g002280448",
+      "added": 32,
+      "first_number_y": 171.5709991455078,
+      "added_physical_rows": [
+        0,
+        1,
+        2,
+        5
+      ],
+      "added_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          3
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          5,
+          5
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          5,
+          7
+        ]
+      ],
+      "raw_total_page": 82,
+      "raw_used_before": 50,
+      "all_added_before_first_number": true,
+      "image_checked": true,
+      "regression": false,
+      "notes": "上部8列継続表の物理行0/1/2/5に32本を復元。完全空行3/4は空のまま。339,514,358/△339,514,358以下の数値と下のCFの所属を維持。"
+    },
+    {
+      "page": "20261016g002280642",
+      "added": 7,
+      "first_number_y": 61.643001556396484,
+      "added_physical_rows": [
+        0
+      ],
+      "added_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ]
+      ],
+      "raw_total_page": 76,
+      "raw_used_before": 69,
+      "all_added_before_first_number": true,
+      "image_checked": true,
+      "regression": false,
+      "notes": "上部7列継続表の先頭行7本を復元。230,891,577、△9、△488,359,165等の既存行と下の科目付き財源別増減明細・CFは不変。"
+    }
+  ],
+  "signature": {
+    "status": "次batch用cache proposal、共有src未編集",
+    "baseline": "after18 原本照合。root の既存 production rlib へ後処理する独立prototype。production統合後の全件比較はrootで別途必要。",
+    "cause_051": "raise_signer_blocks の遡り条件が肩書き左端から6em。住所は6.8426em左へ出るため除外され、法人の直前の住所が移動先と判定されて署名が動かない。",
+    "address_extension": {
+      "patch": "address-only.patch",
+      "conditions": [
+        "肩書きは既存の学長/総長/理事長/機構長ガードを維持",
+        "法人を含む30字以下の行のすぐ上へ続く40字以下の住所",
+        "都道府県＋市区町村の字、数字あり、句読点なし",
+        "住所と法人と肩書きの右端が1em以内",
+        "住所は肩書き左端から20em以内、既存の4行・1.5em間隔制限を維持",
+        "例外で広い住所を含めた場合は左日付と住所の中心高さが1.5pt以内"
+      ],
+      "scope": "通常の6em以内の行を拾う条件は維持。決算セルや通常の縦本文は既存bounds/表なしガードのまま。"
+    },
+    "float_tolerance": {
+      "patch": "float-only.patch",
+      "change": "日付の下端 <= 住所上端 + 肩書きの字高 に0.01ptの許容を追加。",
+      "evidence": "157/312は1.52587890625e-5pt、486は7.62939453125e-6ptだけ同じ高さの日付が閾値を超える。geometry-diagnosis.jsonに実f32計算を記録。0.5pt案から0.01ptへ縮小し、レイアウト1行を許容する緩和はしていない。"
+    },
+    "full_corpus": {
+      "pages": 11992,
+      "variants": {
+        "original_reapplication": [],
+        "address_only": [
+          "20261016g002280051"
+        ],
+        "float_only": [
+          "20261016g002280157",
+          "20261016g002280312",
+          "20261016g002280486"
+        ],
+        "combined": [
+          "20261016g002280051",
+          "20261016g002280157",
+          "20261016g002280312",
+          "20261016g002280486"
+        ]
+      },
+      "invariants": [
+        "変更ごとに元Line群とソート比較してtext/table/word IDsの完全保存を確認",
+        "各方式の再適用で冪等確認",
+        "旧関数を再適用するだけで変わる頁は0"
+      ]
+    },
+    "unit_tests": {
+      "passed": 12,
+      "positive": 3,
+      "negative": 9,
+      "cases": [
+        "幅広住所＋法人＋役職氏名の復帰・語ID保存・冪等",
+        "氏名が独立した次行の場合の保持",
+        "法人行なし",
+        "住所の番地なし",
+        "住所風文章に句点あり",
+        "隣記事住所で右端不一致",
+        "隣法人で右端不一致",
+        "日付と住所が別の高さ",
+        "日付なし",
+        "表セルに肩書きあり",
+        "0.005ptの丸め許容",
+        "0.02pt下方の日付を許容しない"
+      ]
+    },
+    "image_audit": [
+      {
+        "page": "20261016g002280051",
+        "verdict": "改善",
+        "notes": "原本中央の岩手大公告。日付→住所→法人→学長氏名→貸借対照表→現在日の順へ復帰。本文・上段2表・下の資産負債表に変更なし。"
+      },
+      {
+        "page": "20261016g002280157",
+        "verdict": "改善",
+        "notes": "原本左上の東京大公告。電話加入権とソフトウェアの間へ遅れた住所/法人/総長氏名を公告日直後へ戻す。左/右BSの数値と科目は同一。"
+      },
+      {
+        "page": "20261016g002280312",
+        "verdict": "改善",
+        "notes": "原本左上の静岡大公告。無形固定資産合計と投資その他資産の間へ遅れた署名３行を公告日直後へ戻す。左右BS本体と金額対応は同一。"
+      },
+      {
+        "page": "20261016g002280486",
+        "verdict": "改善",
+        "notes": "原本左上の山口大公告。有形固定資産合計と無形固定資産の間へ遅れた署名３行を公告日直後へ戻す。左右BS科目/値と負号を保持。"
+      },
+      {
+        "page": "20261016g002280020",
+        "verdict": "維持",
+        "notes": "室蘭工大。日付と住所が結合済み、学長氏名は左段最下部、BSは右段。現在正しい所属と順序へ新条件は作用しない。"
+      },
+      {
+        "page": "20261016g002280126",
+        "verdict": "維持",
+        "notes": "宇都宮大。右上の公告日と独立住所・法人・学長は既に正しく表前に並び、左の前大学の減損・賃貸等の表へ移動しない。"
+      },
+      {
+        "page": "20261016g002280372",
+        "verdict": "維持",
+        "notes": "滋賀医科大。既存修正済みの住所→法人学長肩書→独立氏名→BSを保持。上の資産除去債務表の期末9,394との所属も維持。"
+      }
+    ],
+    "pipeline_check": {
+      "file": "pipeline-seven-results.jsonl",
+      "sequence": "既存productionと同順で raise_signer_blocks → raise_unit_labels を上記7頁へ適用。",
+      "result": "同じ4頁だけ改善。157/312/486は既存raise_unit_labelsも署名除去後に作用し、単位欄が正しいBS現在日の直後へ戻る。20/126/372は不変。",
+      "outputs": "*.pipeline.combined.txt はこの順序での最終見込出力。*.combined.txt は署名処理だけの全件runner結果。"
+    },
+    "fixtures": "signer_block_fixtures.rs はproduction用実PDF正例2本(51/157)+既存正順序維持の負例372。PDFをarchive/pages/20261016g00228へ置いて利用。tests.rsはproduction内へincludeできる独立unit module。",
+    "patch_check": "住所のみ/floatのみ/併用signer-block.patch のgit apply --checkすべてPASS。別patchを両方適用する場合は同一行のcontextが重なるため併用patchを利用。"
+  },
+  "preamble": {
+    "scope": "cache prototype only, shared source unchanged",
+    "patch": ".cache/kanpo-227/split-preamble-numeral.patch",
+    "unit_tests": {
+      "passed": 2,
+      "positive_coordinate_modes": [
+        "legacy",
+        "truecoords"
+      ],
+      "negative_cases": 14
+    },
+    "real_pdf_regression": {
+      "passed": true,
+      "pages": 1,
+      "coordinate_modes": [
+        "legacy",
+        "truecoords"
+      ],
+      "test_source": ".cache/kanpo-227/preamble-flow-prototype/split_preamble_numeral_fixtures.rs"
+    },
+    "nearby_comparison": {
+      "pages": 26,
+      "cases": 52,
+      "changed_pages": [
+        "20260730g001710024"
+      ],
+      "unchanged_other_pages": 25,
+      "assertions": [
+        "non-space character multiset equal",
+        "all source Word ID counts equal",
+        "article count equal"
+      ]
+    },
+    "preservation": "merge only selected existing Line.text fragments and move their existing word IDs; no paragraph-wide regeneration or global sort"
+  },
+  "wrapped_quote": {
+    "patch": ".cache/kanpo-227/wrapped-native-quote.patch",
+    "shared_source_modified": false,
+    "status": "candidate for next batch, not part of fixed after20",
+    "positive": {
+      "page": "20261009h018050004",
+      "before_grade": "major",
+      "after_grade": "ok",
+      "physical_lines_before": 4,
+      "physical_lines_after": 2,
+      "changed_scope": "Only the bottom-left notice276 address amendment; all outside notices unchanged.",
+      "source_words": 307,
+      "used_words": 293,
+      "word_id_duplicates": 0,
+      "all_used_ids_rendered_once": true,
+      "non_whitespace_char_multiset_unchanged": true
+    },
+    "guards": [
+      "Only second quotation of an already proven two-sided native/Hfont first quote",
+      "One uniquely proven preceding native prose prefix supplies the column origin",
+      "Next line baseline advances 1.0..1.75em; font heights within20%",
+      "Explicit Hfont fragments touch both native quote endpoints within0.25em",
+      "Next line starts at prefix left origin or up to1em unindented",
+      "Both Hfont fragments are at least3em wide and contiguous; final native run is Japanese prose with close quote and no new opening quote"
+    ],
+    "tests": {
+      "parser_unit": 203,
+      "wrapped_guard_unit": 8,
+      "real_pdf_positive": 1,
+      "existing_pdf_integration": 3,
+      "all_passed": true
+    },
+    "probe": {
+      "pages": 121,
+      "errors": [],
+      "changed_from_fixed_after20": [
+        "20261009h018050004"
+      ],
+      "scope": "Old broad107 changes plus14 nearby controls; whole11992 not yet run"
+    },
+    "test_module_registration": "#[cfg(test)] #[path = \"wrapped_native_quote_tests.rs\"] mod wrapped_native_quote_tests;",
+    "limitations": "Only a second quotation wrapping once, with a proven first quote. Does not generalize arbitrary mixed-font multi-line paragraphs."
+  },
+  "note": "Nested cache proposal records predate root integration. Whole11992 production after21 checks and current visual scope are summarized in issue227-validation-4.json; original experiments are not independent post-repair audits."
+}

@@ -1,0 +1,49 @@
+{
+  "issue": 227,
+  "batch": 60,
+  "native_runtime_source": 76,
+  "goal_complete": false,
+  "public_scope": "Opt-in source observations from the existing native interpreter; no image decoder/OCR/default Article or Glyph merge.",
+  "general_rules": [
+    "PDF image draw occurrences retain effective CTM, original resource name, indirect reference and Form call path. Reused image data is not collapsed across draws.",
+    "Record explicit W/W* path rules and implicit Form BBox quadrilaterals using actual Matrix, CTM and page rotation; q/Q/Form scopes restore state.",
+    "Unavailable path control points, malformed or non-finite geometry/resources, unavailable content and recursive/depth-limited traversal are reported as known capture gaps.",
+    "Positive integer pixel dimensions follow PDF image dictionary semantics; optional null entries follow existing Document semantics.",
+    "The owned bundle retains existing native font evidence and SHA256 of the immutable original PDF bytes alongside decrypted/filter-encoded payload and original dictionary."
+  ],
+  "primary_source": "https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/pdfreference1.5_v6.pdf",
+  "spec_sections": [
+    "3.2.8 null dictionary entries",
+    "4.4 clipping and current path",
+    "4.9 Form Matrix/BBox/state scope"
+  ],
+  "new_production_domain_vocabulary": [],
+  "no_new_company_page_full_title_character_length_line_count_fixed_point_confidence_or_expected_output_branch": true,
+  "TDD": {
+    "initial_private_source57": "4 logical REDs followed by133 passing PDF tests; initial fixture path setup failure retained separately.",
+    "evidence59": "16 logical REDs before payload/clip/gap/document identity changes;149 passing PDF tests.",
+    "edge59": "2 additional logical REDs for overflowing transformed Form corners and invalid explicit resources. Null control already passed and is not counted as a bug fix.",
+    "font59": "Existing native font evidence preservation fails before retaining Aj1PageSources;153 passing after fixes.",
+    "final": "Positive nonzero CropBox/page rotation Form clip control;154 PDF unit tests and1904 required workspace tests pass."
+  },
+  "negative_and_metamorphic_controls": [
+    "q/Q placement and Form resource/transform scope",
+    "same image repeated at distinct draw occurrences",
+    "unknown/missing resources, inline images, recursion, existing depth limit and unsupported content filters",
+    "curved clips, even-odd/nonzero paths and delayed clip application",
+    "invalid dimensions/matrices/BBox and unrepresentable transformed corners",
+    "native font evidence preserved; image bundle does not expose mutable original Page"
+  ],
+  "limits": [
+    "Known gap list is not a certificate of all drawing mechanisms or image/body coverage.",
+    "source_geometry_complete concerns the recorded geometry; visibility_verified is always false.",
+    "Encoded stream SHA alone does not bind color interpretation, dictionary, PDF identity or decoded pixels.",
+    "No certified alpha/mask/transparency/later painting or native duplication handling.",
+    "Private pypdf/Pillow decoding17 draws from fixed14 original pages is an experiment, not a shipped PDF-to-OCR CLI or rendering proof.",
+    "Prior one-pass OCR still has3 苫->苦 errors in a nonblind192-character notice control; no textual repair or default merge.",
+    "Old parser fixed length/line/point conditions remain under audit.",
+    "No default accuracy gain, independent/blind audit,100% or completed issue claim."
+  ],
+  "new_model_downloads_training_or_inferences": 0,
+  "validation": "issue227-validation-60.json"
+}

@@ -1,0 +1,2676 @@
+{
+  "batch": 17,
+  "baseline_commit": "7251c695b2772b95484cd9936301261348b14c70",
+  "candidate": "after38/frozen89",
+  "changed_originals": 10,
+  "changed_classification": {
+    "improvement": 10,
+    "neutral": 0,
+    "observed_regression": 0,
+    "whole_page_perfection_not_implied": true
+  },
+  "parallel": {
+    "scope": "All final corpus impact pages, not a sample",
+    "reviewed": 9,
+    "improvement": 9,
+    "neutral": 0,
+    "regression": 0,
+    "fullgate_completion_required": false,
+    "records": [
+      {
+        "page": "20260812g001800016",
+        "classification": "improvement",
+        "regression": false,
+        "whole_page_after_grade": "ok",
+        "source_pdf": ".cache/kanpo-archive/2026-08-12/20260812g00180/20260812g001800016.pdf",
+        "source_sha256": "7a7064a715e8563cba1e6e2741d4e3c835d5c5157a8637c2beefe0b6af77981d",
+        "image": ".cache/kanpo-227/nested-fraction-proposal/after36/images/20260812g001800016.png",
+        "image_sha256": "e87fdc83bc06ac203af35fcbdab14e776a40fdf7bd1241d4c9d08cfa0be21961",
+        "before_output_path": ".cache/kanpo-227/after37/20260812g001800016.txt",
+        "before_output_sha256": "7c91386c9cbf8e0ceb523409f0e5691f7cf2f7aad8f1737e1a805a556f0dcc24",
+        "after_output_sha256": "3946b436fed7626a14b8ec496d1df18ec54d90168a414958814f9017f2c62ba8",
+        "before_analysis_gzip_sha256": "363cb9f4c5467dff9adbb35468123a77f4d6866e027c774ba71e26e911e9a1e5",
+        "after_analysis_gzip_sha256": "67aac37e7a4857a5dc15fc68f78f461b34d5dc14570b88008439b358537f60eb",
+        "native_gzip_sha256": "7d3513953dfc357845e03331cf060aba149ac77f8bf41a82dab9c1ee1c1eebb0",
+        "proof_sha256": "f2f2f55321bd54f25c30eb7327dcd9a7432ceb52afa4d4a30c9bffb3b90b36fb",
+        "body_line_count_before": 55,
+        "body_line_count_after": 55,
+        "article_count": 2,
+        "full_original_image_viewed": true,
+        "full_after_body_read": true,
+        "full_after_all_Articles_read": true,
+        "full_after_Document_text_read_by_exact_sequence": true,
+        "before_full_body_Articles_read": "accepted16 nested full review for original6; current full-after plus exact full diff and all-cell proof for all7",
+        "changed_diff_read": true,
+        "native_bar_count": 2,
+        "native_bar_lengths_pt": [
+          84.0,
+          12.0
+        ],
+        "original_native_path_ids": [
+          19,
+          20
+        ],
+        "source_words": 6,
+        "native_source_glyphs": 29,
+        "all_source_word_ID_raw_status_bbox_preserved": true,
+        "all_unmodified_cells_exact": true,
+        "all_articles_membership_retained": true,
+        "native0_exclusions": [],
+        "notes": "原図の利子式は額面金額×（各発行対象国債の利率/100）×（１/２）。同じ行の独立した84pt/12ptの実線と上下6語を確認。第11号nested式・numeric分数・前後の番号/金額/別表は不変。",
+        "known_remaining": [],
+        "before_analysis_uncompressed_sha256": "9aae88248db5a253223da82fd570d674ccf4205e41819f17c73244d02cb26f28",
+        "after_analysis_uncompressed_sha256": "d1ee823042c8ca47bf0d58cf4157885c1a9d110fe47aecfb6bf9a1bf85751e51",
+        "native_uncompressed_sha256": "bf27758907acf9ec751ff75fc76b001432c6f73d311bf7e41d75e351a73cef8f",
+        "post_fullgate_full_body_all_Article_text_matches_visual_review_exact": true,
+        "compressed_output_hashes_finalized_after_fullgate": true
+      },
+      {
+        "page": "20260812g001800017",
+        "classification": "improvement",
+        "regression": false,
+        "whole_page_after_grade": "ok",
+        "source_pdf": ".cache/kanpo-archive/2026-08-12/20260812g00180/20260812g001800017.pdf",
+        "source_sha256": "5a2c1646a37ffc263c22bb0b4a14af7a079832562d3c92479bd8fd94365952bf",
+        "image": ".cache/kanpo-227/nested-fraction-proposal/after36/images/20260812g001800017.png",
+        "image_sha256": "5deae0c5866ee72937bce98918125db4e42427694f45c0646b2fbca48ff52374",
+        "before_output_path": ".cache/kanpo-227/after37/20260812g001800017.txt",
+        "before_output_sha256": "2c3e5e28fa59fa69eb91cb5e44abae490207f9aa8898cc37a9239728b9525fe5",
+        "after_output_sha256": "44b8de77a348ffd34cd48a8573b5d0c18c9ffc13947ca3ff091f1100b495b7d5",
+        "before_analysis_gzip_sha256": "1456b4e1af36e210bcdcaad030a68ce8d597d9f9df54874a2f62deaf455d1f55",
+        "after_analysis_gzip_sha256": "e55788454d78e090fedbcaebdd068b46daeefc23ccdc795707f4ab939a2fc1e4",
+        "native_gzip_sha256": "7df617678b2bae59855b294d6a49993d0a7d183f8b541277e7954c65ec0a2b31",
+        "proof_sha256": "bc46a5ec88a97993fc96a004619357afd8a24b1403cc1d19dc141737a7627418",
+        "body_line_count_before": 47,
+        "body_line_count_after": 47,
+        "article_count": 2,
+        "full_original_image_viewed": true,
+        "full_after_body_read": true,
+        "full_after_all_Articles_read": true,
+        "full_after_Document_text_read_by_exact_sequence": true,
+        "before_full_body_Articles_read": "accepted16 nested full review for original6; current full-after plus exact full diff and all-cell proof for all7",
+        "changed_diff_read": true,
+        "native_bar_count": 2,
+        "native_bar_lengths_pt": [
+          84.0,
+          12.0
+        ],
+        "original_native_path_ids": [
+          50,
+          51
+        ],
+        "source_words": 6,
+        "native_source_glyphs": 29,
+        "all_source_word_ID_raw_status_bbox_preserved": true,
+        "all_unmodified_cells_exact": true,
+        "all_articles_membership_retained": true,
+        "native0_exclusions": [],
+        "notes": "原図の利子式は額面金額×（各発行対象国債の利率/100）×（１/２）。同じ行の独立した84pt/12ptの実線と上下6語を確認。第11号nested式・numeric分数・前後の番号/金額/別表は不変。",
+        "known_remaining": [],
+        "before_analysis_uncompressed_sha256": "b8d91784b8fc6005bc714d8715659146dd442449a50b0f8726c588946d7a4ce2",
+        "after_analysis_uncompressed_sha256": "2e4554ba2d07a3f9d9c2f46329fb2ada9a11268623308d811a6100562390a837",
+        "native_uncompressed_sha256": "937409bc9d11d15847f82d7a0de2860fe467c8b4cc7df90e985167567622e134",
+        "post_fullgate_full_body_all_Article_text_matches_visual_review_exact": true,
+        "compressed_output_hashes_finalized_after_fullgate": true
+      },
+      {
+        "page": "20260812g001800021",
+        "classification": "improvement",
+        "regression": false,
+        "whole_page_after_grade": "ok",
+        "source_pdf": ".cache/kanpo-archive/2026-08-12/20260812g00180/20260812g001800021.pdf",
+        "source_sha256": "a8742d3c71b38973beaf57b70a63cd38a634524b8609632b7abf25bd4b7c431b",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/parallel-text-fraction-proposal/after37/images/20260812g001800021.png",
+        "image_sha256": "867bc133d9904101ca165a74e21d1d367ad37f73612756bfa725e38f2dcc57a3",
+        "before_output_path": ".cache/kanpo-227/after37/20260812g001800021.txt",
+        "before_output_sha256": "30891a3e515255cd42d67b2688150c84017bb78cc80385a9ce397119f3eec6c4",
+        "after_output_sha256": "dfcb39e5ffe6f9cec5da44cbbc06712de40dd2c59950679b27bb7f978f2a5e4a",
+        "before_analysis_gzip_sha256": "97fce1efa0a519738e6caf993c95e3ee7c792367f18177c9f65125ae7f08ddca",
+        "after_analysis_gzip_sha256": "7ed93a584f7dea016957be4568cf2ee6f07ad9522c030f203b41ba1fe8921f64",
+        "native_gzip_sha256": "f059ed0c48dfff6c6ae90d24933fd0b582920ff8602d9438a127edeb756f963c",
+        "proof_sha256": "55e97e3d8cdda8722cb08a0fed97d171fe63dc4270272325d050c7082af5fdfe",
+        "body_line_count_before": 40,
+        "body_line_count_after": 40,
+        "article_count": 2,
+        "full_original_image_viewed": true,
+        "full_after_body_read": true,
+        "full_after_all_Articles_read": true,
+        "full_after_Document_text_read_by_exact_sequence": true,
+        "before_full_body_Articles_read": "Full current candidate plus complete old formula/diff; all other text is immutable and exact",
+        "changed_diff_read": true,
+        "native_bar_count": 2,
+        "native_bar_lengths_pt": [
+          172.0,
+          12.0
+        ],
+        "original_native_path_ids": [
+          6,
+          7
+        ],
+        "source_words": 6,
+        "native_source_glyphs": 33,
+        "all_source_word_ID_raw_status_bbox_preserved": true,
+        "all_unmodified_cells_exact": true,
+        "all_articles_membership_retained": true,
+        "native0_exclusions": [],
+        "notes": "Original upper-right field12 has a textual numerator over100, multiplied by a separate1/2. Both172pt and12pt stroked paths,33nativeGlyphs and original6formulaIDs/8cellIDs are certified. All other numeric/wrapped formulas, amounts, notices and IDs remain exact.",
+        "known_remaining": [],
+        "before_analysis_uncompressed_sha256": "8392b90990e4acb75b9aa7fe62d4ca0841e9b0928eb69d69c034c736e681474a",
+        "after_analysis_uncompressed_sha256": "8f9b053d3e92eae5a2857481bdf28aaccb0fd9d9f1c8a953db7288f565df01b7",
+        "native_uncompressed_sha256": "2ed0a5d152d81dcec59b0b0bef7723a3f922de10b9d5d1504622de027456170e",
+        "post_fullgate_full_body_all_Article_text_matches_visual_review_exact": true,
+        "compressed_output_hashes_finalized_after_fullgate": true
+      },
+      {
+        "page": "20260909g002010008",
+        "classification": "improvement",
+        "regression": false,
+        "whole_page_after_grade": "ok",
+        "source_pdf": ".cache/kanpo-archive/2026-09-09/20260909g00201/20260909g002010008.pdf",
+        "source_sha256": "e50c700f2f743e02c6d5cbe450e543a806379279f17759f1175907f2787f15ff",
+        "image": ".cache/kanpo-227/nested-fraction-proposal/after36/images/20260909g002010008.png",
+        "image_sha256": "3d08cef53b913e2a439723512eac7621674f4ae2c1ffd5b0b0163b0a42f48fed",
+        "before_output_path": ".cache/kanpo-227/after37/20260909g002010008.txt",
+        "before_output_sha256": "3a7127350750fbb1107b85a89e735b406ad295826cdfb0a1177b5e47181445f1",
+        "after_output_sha256": "a3966436d00b599c7956f64286476b4cbab9231aaf771e04f86d4fc1c8d69080",
+        "before_analysis_gzip_sha256": "7e3bff64ac91616001e51541057b71a6ff63f09c8c7d78cae9533ac3638ddc39",
+        "after_analysis_gzip_sha256": "27dd21d0a1932405af771afc9d97bdf8c2707b44973e65dc8553c0d79f0cdddb",
+        "native_gzip_sha256": "a3ae6b9bc1474bf8f2f726bd5b5ee552dd48549cd4273cae9681d28c7ea5ebf7",
+        "proof_sha256": "d986f57a4a890eed1d7b65e22f7e3b23316fba51046f053e775a4754804c816d",
+        "body_line_count_before": 56,
+        "body_line_count_after": 56,
+        "article_count": 2,
+        "full_original_image_viewed": true,
+        "full_after_body_read": true,
+        "full_after_all_Articles_read": true,
+        "full_after_Document_text_read_by_exact_sequence": true,
+        "before_full_body_Articles_read": "accepted16 nested full review for original6; current full-after plus exact full diff and all-cell proof for all7",
+        "changed_diff_read": true,
+        "native_bar_count": 2,
+        "native_bar_lengths_pt": [
+          84.0,
+          12.0
+        ],
+        "original_native_path_ids": [
+          22,
+          23
+        ],
+        "source_words": 6,
+        "native_source_glyphs": 29,
+        "all_source_word_ID_raw_status_bbox_preserved": true,
+        "all_unmodified_cells_exact": true,
+        "all_articles_membership_retained": true,
+        "native0_exclusions": [],
+        "notes": "原図の利子式は額面金額×（各発行対象国債の利率/100）×（１/２）。同じ行の独立した84pt/12ptの実線と上下6語を確認。第11号nested式・numeric分数・前後の番号/金額/別表は不変。",
+        "known_remaining": [],
+        "before_analysis_uncompressed_sha256": "addd10d03d159fe76eb9268b47b72cfdaa2d0660f17dfcab88418ba9840312d9",
+        "after_analysis_uncompressed_sha256": "670b742c017292341a84189194e94cb69c51407a64560dce88e99e2a32364b9f",
+        "native_uncompressed_sha256": "a82f75137a5f2a3e46718db482d8b640351299df948fc51260a08fe440e822a9",
+        "post_fullgate_full_body_all_Article_text_matches_visual_review_exact": true,
+        "compressed_output_hashes_finalized_after_fullgate": true
+      },
+      {
+        "page": "20260909g002010009",
+        "classification": "improvement",
+        "regression": false,
+        "whole_page_after_grade": "ok",
+        "source_pdf": ".cache/kanpo-archive/2026-09-09/20260909g00201/20260909g002010009.pdf",
+        "source_sha256": "bb11f8957bcfae2301880aa4fc71379a59f0487ed3760b15e5315a42cf008abf",
+        "image": ".cache/kanpo-227/nested-fraction-proposal/after36/images/20260909g002010009.png",
+        "image_sha256": "565f159e1d9a1d17c353f4e68b9ef5a0122ae3d0370222ba6f85b6036ef201ee",
+        "before_output_path": ".cache/kanpo-227/after37/20260909g002010009.txt",
+        "before_output_sha256": "4ca9522d17a4f90b4ba01b871fe52c328c706b5e2aac6558fd410cf376c94515",
+        "after_output_sha256": "02be8f98fa2678b5abace12a8df5fd857c4cbda0e647278859fa0091bcd89ca1",
+        "before_analysis_gzip_sha256": "67ec9104a05add837ecd28901882a8bca6956e4ec5e7cc22167094ea6116f9cd",
+        "after_analysis_gzip_sha256": "04a9eadb6e92fbaf7ac97b87398eb79684805284ec300224cdd266b6fa5e71df",
+        "native_gzip_sha256": "18eb82d31bfbc767ba1603d84060b97b28412bb4f9d4f41d228a81468531907c",
+        "proof_sha256": "9b7f8cfca0abf06a2906adae47b3087103017af9e1e8a2c5765e29997641a9dc",
+        "body_line_count_before": 49,
+        "body_line_count_after": 49,
+        "article_count": 2,
+        "full_original_image_viewed": true,
+        "full_after_body_read": true,
+        "full_after_all_Articles_read": true,
+        "full_after_Document_text_read_by_exact_sequence": true,
+        "before_full_body_Articles_read": "accepted16 nested full review for original6; current full-after plus exact full diff and all-cell proof for all7",
+        "changed_diff_read": true,
+        "native_bar_count": 2,
+        "native_bar_lengths_pt": [
+          84.0,
+          12.0
+        ],
+        "original_native_path_ids": [
+          42,
+          43
+        ],
+        "source_words": 6,
+        "native_source_glyphs": 29,
+        "all_source_word_ID_raw_status_bbox_preserved": true,
+        "all_unmodified_cells_exact": true,
+        "all_articles_membership_retained": true,
+        "native0_exclusions": [],
+        "notes": "原図の利子式は額面金額×（各発行対象国債の利率/100）×（１/２）。同じ行の独立した84pt/12ptの実線と上下6語を確認。第11号nested式・numeric分数・前後の番号/金額/別表は不変。",
+        "known_remaining": [],
+        "before_analysis_uncompressed_sha256": "e725cf6b94a09ccd3063083d2089b553dd1b12b26e1ddbb2a5498f9a14e61ee0",
+        "after_analysis_uncompressed_sha256": "df4d092ccbe805cd27af6e24589cdda2ba609734c3685cfe4a18b1910dbe87ab",
+        "native_uncompressed_sha256": "69ab6634f17d529a45b845bbf60a3726b8fa52a238cdab3ec017761c8ab0f4cc",
+        "post_fullgate_full_body_all_Article_text_matches_visual_review_exact": true,
+        "compressed_output_hashes_finalized_after_fullgate": true
+      },
+      {
+        "page": "20260909g002010013",
+        "classification": "improvement",
+        "regression": false,
+        "whole_page_after_grade": "major",
+        "source_pdf": ".cache/kanpo-archive/2026-09-09/20260909g00201/20260909g002010013.pdf",
+        "source_sha256": "9f3612c2714fe5cb7ba5e6020684eb92c8d07ac0277d731f700038df660f9ec7",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/parallel-text-fraction-proposal/after37/images/20260909g002010013.png",
+        "image_sha256": "d5e0e2b52c4d30d57629ffb73ce70168647e34f1c85ab17e44c5a4f014017533",
+        "before_output_path": ".cache/kanpo-227/after37/20260909g002010013.txt",
+        "before_output_sha256": "34286d2b6b426d8d25ede6d40326ec56b7de50f822cba041f657e0baea729432",
+        "after_output_sha256": "9d10fdfbdd586e0ed9b58a4f0c988be68ff683b750722631d7fbdfa33445c98a",
+        "before_analysis_gzip_sha256": "a0b30480e8816dc4998806eded4c319d020eebeefc355714692badb7925c6292",
+        "after_analysis_gzip_sha256": "af1982f5e50e900eef951776c80dcf5701db3c2b970a1dd54cef2d7cd5b108b5",
+        "native_gzip_sha256": "32087383bf2557d3c79e71e43bae4f39369302a49891b83a0188b19d73ce6484",
+        "proof_sha256": "966de9bfcb96f30559b59c76084e73afacda067aeba39f6c213427f70314f7a5",
+        "body_line_count_before": 44,
+        "body_line_count_after": 44,
+        "article_count": 3,
+        "full_original_image_viewed": true,
+        "full_after_body_read": true,
+        "full_after_all_Articles_read": true,
+        "full_after_Document_text_read_by_exact_sequence": true,
+        "before_full_body_Articles_read": "Full current candidate plus complete old formula/diff; all other text is immutable and exact",
+        "changed_diff_read": true,
+        "native_bar_count": 2,
+        "native_bar_lengths_pt": [
+          172.0,
+          12.0
+        ],
+        "original_native_path_ids": [
+          46,
+          47
+        ],
+        "source_words": 6,
+        "native_source_glyphs": 33,
+        "all_source_word_ID_raw_status_bbox_preserved": true,
+        "all_unmodified_cells_exact": true,
+        "all_articles_membership_retained": true,
+        "native0_exclusions": [
+          {
+            "bbox": [
+              429,
+              109,
+              783,
+              286
+            ],
+            "all_native_glyph_count": 0,
+            "proof": "201p13-native-zero-proof.json",
+            "proof_sha256": "004553b3f8ae129539bb80b58c32dabcde4ea0b3d88912841cba47e5493b7bd3"
+          }
+        ],
+        "notes": "Original upper-left field12 has a textual numerator over100, multiplied by a separate1/2. Both172pt and12pt stroked paths,33nativeGlyphs and original6formulaIDs/8cellIDs are certified. All other numeric/wrapped formulas, amounts, notices and IDs remain exact.",
+        "known_remaining": [
+          {
+            "grade": "major",
+            "location": "left field11 / after L4-L6",
+            "detail": "Existing numeric compound1.8/100*(1/2-2/365) is flattened across3rows and lacks structural source bracket association; unchanged."
+          },
+          {
+            "grade": "major",
+            "location": "right farmland table / after L37-L44",
+            "detail": "Existing7physical rows including header become8logical rows. The370-11 location and Iwata name/address split into2records; the shared owner cell should span5plots but has two rowspan1 cells. Original field/amount characters retained, row correspondence remains wrong; unchanged."
+          },
+          {
+            "grade": "minor",
+            "location": "farmland announcement heading / after L17-L18",
+            "detail": "Existing right-table heading marker interleaves the two-line farmland announcement title; unchanged."
+          }
+        ],
+        "before_analysis_uncompressed_sha256": "d06544549ab77477d0779a4b36084664c8a1d3519bee83c7e90b5bd38536985f",
+        "after_analysis_uncompressed_sha256": "833a7abf3a33264228cfdd0c5a611ceb12807241d2611673bdc7002f75c51064",
+        "native_uncompressed_sha256": "00bb76eb07085ae997014a21dd09e5c7417beb29f9e3107821fd97349eeb9eaa",
+        "post_fullgate_full_body_all_Article_text_matches_visual_review_exact": true,
+        "compressed_output_hashes_finalized_after_fullgate": true
+      },
+      {
+        "page": "20261014g002250006",
+        "classification": "improvement",
+        "regression": false,
+        "whole_page_after_grade": "ok",
+        "source_pdf": ".cache/kanpo-archive/2026-10-14/20261014g00225/20261014g002250006.pdf",
+        "source_sha256": "3ad2e513f9f83d58786a84af8e3fab773c72e945db4e24f922c8081f01bb675a",
+        "image": ".cache/kanpo-227/nested-fraction-proposal/after36/images/20261014g002250006.png",
+        "image_sha256": "2b16ebb721865d1337975ee3cb2a38380f75b81f13cd12b357a4caba6fab3124",
+        "before_output_path": ".cache/kanpo-227/after37/20261014g002250006.txt",
+        "before_output_sha256": "1555ad99c119a177b3cc32b8d20a08f6eb17eaa9c372062c50f6c55911ce7cd1",
+        "after_output_sha256": "73be01a7d595983a56514aab95921815e72cb2e13d78b703ab7f1e0a23c5b226",
+        "before_analysis_gzip_sha256": "2d89c1054282d18e1838652de9bd40290a4349425f3dfdc6216ebf9144ccaaf6",
+        "after_analysis_gzip_sha256": "7e64d6038cdfa31cb5f37e9b4c10019b8c80414acc5732482885f5fd01fd88ec",
+        "native_gzip_sha256": "3ddd9e295c1f82f77ce070542e6b6c3046f5be2cbaf75a61bd4720b705b01404",
+        "proof_sha256": "77fca7e84a279935187f4db5de0554da59bac1e8dba664cb58f84c5e5bfb5011",
+        "body_line_count_before": 52,
+        "body_line_count_after": 52,
+        "article_count": 2,
+        "full_original_image_viewed": true,
+        "full_after_body_read": true,
+        "full_after_all_Articles_read": true,
+        "full_after_Document_text_read_by_exact_sequence": true,
+        "before_full_body_Articles_read": "accepted16 nested full review for original6; current full-after plus exact full diff and all-cell proof for all7",
+        "changed_diff_read": true,
+        "native_bar_count": 2,
+        "native_bar_lengths_pt": [
+          84.0,
+          12.0
+        ],
+        "original_native_path_ids": [
+          21,
+          22
+        ],
+        "source_words": 6,
+        "native_source_glyphs": 29,
+        "all_source_word_ID_raw_status_bbox_preserved": true,
+        "all_unmodified_cells_exact": true,
+        "all_articles_membership_retained": true,
+        "native0_exclusions": [],
+        "notes": "原図の利子式は額面金額×（各発行対象国債の利率/100）×（１/２）。同じ行の独立した84pt/12ptの実線と上下6語を確認。第11号nested式・numeric分数・前後の番号/金額/別表は不変。",
+        "known_remaining": [],
+        "before_analysis_uncompressed_sha256": "6f88a062f0be2621684744ceb4bd032d0e502c6a7efc21fbfa8c9d724f7cb6c1",
+        "after_analysis_uncompressed_sha256": "d1810598806d550960c191ad778342f9d19f0cbb6b77f7f122e2f48f3ef1a571",
+        "native_uncompressed_sha256": "fa4b2bfe3d84f4be6df9c571324677d9cd6579812e9661dd159bfcfc1fd8f53c",
+        "post_fullgate_full_body_all_Article_text_matches_visual_review_exact": true,
+        "compressed_output_hashes_finalized_after_fullgate": true
+      },
+      {
+        "page": "20261014g002250008",
+        "classification": "improvement",
+        "regression": false,
+        "whole_page_after_grade": "minor",
+        "source_pdf": ".cache/kanpo-archive/2026-10-14/20261014g00225/20261014g002250008.pdf",
+        "source_sha256": "f18e8dc63a03f4be763976ce6909c6af80ad861db13e825cfa6a1e998ff149a3",
+        "image": ".cache/kanpo-227/parallel-text-fraction-proposal/images/20261014g002250008.png",
+        "image_sha256": "7828bd744a7a8aebdcbb5a53c7cc50748376715888118549689042c13754f465",
+        "before_output_path": ".cache/kanpo-227/after37/20261014g002250008.txt",
+        "before_output_sha256": "a04b753a631124cfb15f437317972163301b8df24cb6f95c2888eb67b9b087f6",
+        "after_output_sha256": "b206ac04d874eb633ac9852baf6ca0e93fc2de3cbefb44c56207498c9f78ae2e",
+        "before_analysis_gzip_sha256": "3e7ccacbb7e7a227eec8eb16b66c1a4df8afc945e7d7006a98b73dfe7255a414",
+        "after_analysis_gzip_sha256": "a550a67055f87717f71d4faddcaa6c88585eb903b5c7085c5f54e0ca078a70c1",
+        "native_gzip_sha256": "9b6bb5dd300a662e328827344e18ffe4c852fadff68555c50f78e8904af54f64",
+        "proof_sha256": "415751a98c96f755c30681d2d9624f3e516e8b9a4e69360b3e1e401fd7cf8237",
+        "body_line_count_before": 63,
+        "body_line_count_after": 61,
+        "article_count": 2,
+        "full_original_image_viewed": true,
+        "full_after_body_read": true,
+        "full_after_all_Articles_read": true,
+        "full_after_Document_text_read_by_exact_sequence": true,
+        "before_full_body_Articles_read": "accepted16 nested full review for original6; current full-after plus exact full diff and all-cell proof for all7",
+        "changed_diff_read": true,
+        "native_bar_count": 2,
+        "native_bar_lengths_pt": [
+          84.0,
+          12.0
+        ],
+        "original_native_path_ids": [
+          62,
+          63
+        ],
+        "source_words": 6,
+        "native_source_glyphs": 29,
+        "all_source_word_ID_raw_status_bbox_preserved": true,
+        "all_unmodified_cells_exact": true,
+        "all_articles_membership_retained": true,
+        "native0_exclusions": [],
+        "notes": "左上の継続第14号、3行平坦化を元6IDを同順のまま1行の式へ。84pt/12ptの原線と一致。左別表18行、右継続22行、次の第286号見出しと2欄は不変。",
+        "known_remaining": [
+          {
+            "grade": "minor",
+            "location": "第17号／after L8〜10",
+            "detail": "「入札の基準とする各 発行対象国債の利回 り」3行が値の文と交互に出る既存label/value混線。今回は不変。"
+          }
+        ],
+        "before_analysis_uncompressed_sha256": "ba255b6f3e27b794dcafdabdb8572d0e1761e642ba420218b20f5885104171bb",
+        "after_analysis_uncompressed_sha256": "3e1b69e596dc317c48661f87f45e87af73857f2fe137dcd261d9ecffb32c4fd9",
+        "native_uncompressed_sha256": "4d020f6834d50f24c5bd99942fdef122c1d074ab52e0336e2977bcc8ea833509",
+        "post_fullgate_full_body_all_Article_text_matches_visual_review_exact": true,
+        "compressed_output_hashes_finalized_after_fullgate": true
+      },
+      {
+        "page": "20261014g002250011",
+        "classification": "improvement",
+        "regression": false,
+        "whole_page_after_grade": "major",
+        "source_pdf": ".cache/kanpo-archive/2026-10-14/20261014g00225/20261014g002250011.pdf",
+        "source_sha256": "e165be8173e2436b3d571b36ebc617de06ce1d2c07697d7e2ee61785b9fa5bf7",
+        "image": ".cache/kanpo-227/fraction-images/20261014g002250011.png",
+        "image_sha256": "645ca0d769a2e571544efc4d2519f4f193f8a3da66867791a5e36d5f7dc539e0",
+        "before_output_path": ".cache/kanpo-227/after37/20261014g002250011.txt",
+        "before_output_sha256": "bb1dc29e283f7fd57eaa05777ba07b0217d6bcbaf6490a33fc14726ce70e3cd4",
+        "after_output_sha256": "8865f459261d3161bf9a1978855a6a287f5b77c15d52cfc80b6d76bc3f2a38c8",
+        "before_analysis_gzip_sha256": "8e5e2181b5b88e5dc4645b1268d6b7ebd51e2309573190d2ac86a4f9e583345f",
+        "after_analysis_gzip_sha256": "6b6e2fa612ecfc9ff3787b98b0d7cb766f3d242c698887e2e5524e11a7f71916",
+        "native_gzip_sha256": "2daae311ab5a3632f3602f550b8466be60e1070076a1ba69c6baffee172bc150",
+        "proof_sha256": "85f20b5a0e3497b58b59632cc0b0e2306e7355dce434799d0d5d68c7cfb9964e",
+        "body_line_count_before": 53,
+        "body_line_count_after": 53,
+        "article_count": 2,
+        "full_original_image_viewed": true,
+        "full_after_body_read": true,
+        "full_after_all_Articles_read": true,
+        "full_after_Document_text_read_by_exact_sequence": true,
+        "before_full_body_Articles_read": "accepted16 nested full review for original6; current full-after plus exact full diff and all-cell proof for all7",
+        "changed_diff_read": true,
+        "native_bar_count": 2,
+        "native_bar_lengths_pt": [
+          172.0,
+          12.0
+        ],
+        "original_native_path_ids": [
+          9,
+          10
+        ],
+        "source_words": 6,
+        "native_source_glyphs": 33,
+        "all_source_word_ID_raw_status_bbox_preserved": true,
+        "all_unmodified_cells_exact": true,
+        "all_articles_membership_retained": true,
+        "native0_exclusions": [],
+        "notes": "右第12号の本文分子172ptと１/２の12pt実線から第2期以後利子の式を復元。第10号適用利率の文を分子に含める。両側の第17/18号numeric/wrapped式と第11号の既存平坦化は厳密不変。",
+        "known_remaining": [
+          {
+            "grade": "major",
+            "location": "right field11 / after L45",
+            "detail": "「1.87１額面金額××100２」の通常numeric二重分数平坦化が未修復。今回の第12号本文分子と別セルでありother-cell exactで維持。"
+          },
+          {
+            "grade": "minor",
+            "location": "左第16号(2)／after L6〜7",
+            "detail": "末尾×の後の２が次行に残る既存の折返し。文字/順は不変。"
+          }
+        ],
+        "before_analysis_uncompressed_sha256": "55a78ea8984f50d4f51d55eef04c8f08c2ac6fb5e4c185dadc6491a69ccad5b8",
+        "after_analysis_uncompressed_sha256": "b7430303ab3e7e695eac85f2109b7de396a3874ca3ee32008c2e9000e70cd20a",
+        "native_uncompressed_sha256": "c95acbc5f08ebe414193ff5dfb1076ebf9a9ae127ae3ec6fa6c2879132e53b8d",
+        "post_fullgate_full_body_all_Article_text_matches_visual_review_exact": true,
+        "compressed_output_hashes_finalized_after_fullgate": true
+      }
+    ],
+    "corpus_full_analysis_pages": 11992,
+    "corpus_unchanged_full_analysis_pages": 11983,
+    "native_short_pages": 595,
+    "native_short_bars": 6946,
+    "frozen_inputs_all_sha_exact_after_fullgate": true
+  },
+  "framed": {
+    "fresh_original_pdf": ".cache/kanpo-archive/2026-10-01/20261001h01799/20261001h017990004.pdf",
+    "native_path": ".cache/kanpo-227/root17-1799p4-native.json",
+    "native_sha256": "5e92f9772742657ab4ffe0143988e504ee803be816dc2b2212c140baed913396",
+    "all_native_rectangles_independently_exact": [
+      {
+        "region": "firstAfter",
+        "rectangle": [
+          46,
+          69.5,
+          118.607,
+          241
+        ],
+        "all_native_Glyph_count": 117,
+        "including_empty_invisible_zero_dimension_interior": true
+      },
+      {
+        "region": "firstBefore",
+        "rectangle": [
+          46,
+          241,
+          118.607,
+          412.5
+        ],
+        "all_native_Glyph_count": 4,
+        "including_empty_invisible_zero_dimension_interior": true
+      },
+      {
+        "region": "continuationAfter",
+        "rectangle": [
+          476.5,
+          437.5,
+          548.75,
+          609
+        ],
+        "all_native_Glyph_count": 114,
+        "including_empty_invisible_zero_dimension_interior": true
+      },
+      {
+        "region": "continuationBefore",
+        "rectangle": [
+          476.5,
+          609,
+          548.75,
+          780.5
+        ],
+        "all_native_Glyph_count": 0,
+        "including_empty_invisible_zero_dimension_interior": true
+      },
+      {
+        "region": "outsideNextArticle",
+        "rectangle": [
+          444,
+          425,
+          476.5,
+          609
+        ],
+        "all_native_Glyph_count": 33,
+        "including_empty_invisible_zero_dimension_interior": true
+      }
+    ],
+    "all_original_Word_fields_exact": true,
+    "text_whitespace_multiset_exact": true,
+    "unchanged_Articles": [
+      0,
+      2,
+      3,
+      4
+    ],
+    "Word_count": 14,
+    "native_Glyph_count": 226,
+    "bindings": [
+      {
+        "id": 173,
+        "raw": "︵理事の住所についてその一部のみを公告",
+        "Glyph_indices": [
+          647,
+          648,
+          649,
+          650,
+          651,
+          652,
+          653,
+          654,
+          655,
+          656,
+          657,
+          658,
+          659,
+          660,
+          661,
+          662,
+          663,
+          664,
+          665
+        ]
+      },
+      {
+        "id": 176,
+        "raw": "することを求める旨の申出︶",
+        "Glyph_indices": [
+          666,
+          667,
+          668,
+          669,
+          670,
+          671,
+          672,
+          673,
+          674,
+          675,
+          676,
+          677,
+          678
+        ]
+      },
+      {
+        "id": 179,
+        "raw": "第十六条の三の二",
+        "Glyph_indices": [
+          679,
+          680,
+          681,
+          682,
+          683,
+          684,
+          685,
+          686
+        ]
+      },
+      {
+        "id": 180,
+        "raw": "法第二十九条第二項ただ",
+        "Glyph_indices": [
+          696,
+          697,
+          698,
+          699,
+          700,
+          701,
+          702,
+          703,
+          704,
+          705,
+          706
+        ]
+      },
+      {
+        "id": 183,
+        "raw": "し書の規定による申出は︑当該申出に係る",
+        "Glyph_indices": [
+          707,
+          708,
+          709,
+          710,
+          711,
+          712,
+          713,
+          714,
+          715,
+          716,
+          717,
+          718,
+          719,
+          720,
+          721,
+          722,
+          723,
+          724,
+          725
+        ]
+      },
+      {
+        "id": 185,
+        "raw": "理事の住所のうち都道府県名及び市町村名",
+        "Glyph_indices": [
+          726,
+          727,
+          728,
+          729,
+          730,
+          731,
+          732,
+          733,
+          734,
+          735,
+          736,
+          737,
+          738,
+          739,
+          740,
+          741,
+          742,
+          743,
+          744
+        ]
+      },
+      {
+        "id": 191,
+        "raw": "︵同一氏名組合員︵当該申出に係る理事と",
+        "Glyph_indices": [
+          745,
+          746,
+          747,
+          748,
+          749,
+          750,
+          751,
+          752,
+          753,
+          754,
+          755,
+          756,
+          757,
+          758,
+          759,
+          760,
+          761,
+          762,
+          763
+        ]
+      },
+      {
+        "id": 181,
+        "raw": "︵新設︶",
+        "Glyph_indices": [
+          764,
+          765,
+          766,
+          767
+        ]
+      },
+      {
+        "id": 0,
+        "raw": "同一の氏名を有する当該理事以外の組合員",
+        "Glyph_indices": [
+          791,
+          792,
+          793,
+          794,
+          795,
+          796,
+          797,
+          798,
+          799,
+          800,
+          801,
+          802,
+          803,
+          804,
+          805,
+          806,
+          807,
+          808,
+          809
+        ]
+      },
+      {
+        "id": 11,
+        "raw": "をいう︒︶が当該申出に係る理事と同一の市",
+        "Glyph_indices": [
+          810,
+          811,
+          812,
+          813,
+          814,
+          815,
+          816,
+          817,
+          818,
+          819,
+          820,
+          821,
+          822,
+          823,
+          824,
+          825,
+          826,
+          827,
+          828,
+          829
+        ]
+      },
+      {
+        "id": 20,
+        "raw": "町村の区域内に住所を有する場合は︑都道",
+        "Glyph_indices": [
+          830,
+          831,
+          832,
+          833,
+          834,
+          835,
+          836,
+          837,
+          838,
+          839,
+          840,
+          841,
+          842,
+          843,
+          844,
+          845,
+          846,
+          847,
+          848
+        ]
+      },
+      {
+        "id": 23,
+        "raw": "府県名︑市町村名及び市町村の区域内の町",
+        "Glyph_indices": [
+          849,
+          850,
+          851,
+          852,
+          853,
+          854,
+          855,
+          856,
+          857,
+          858,
+          859,
+          860,
+          861,
+          862,
+          863,
+          864,
+          865,
+          866,
+          867
+        ]
+      },
+      {
+        "id": 29,
+        "raw": "又は字の名称︶を公告することを求める旨",
+        "Glyph_indices": [
+          868,
+          869,
+          870,
+          871,
+          872,
+          873,
+          874,
+          875,
+          876,
+          877,
+          878,
+          879,
+          880,
+          881,
+          882,
+          883,
+          884,
+          885,
+          886
+        ]
+      },
+      {
+        "id": 31,
+        "raw": "を申し出ることにより行うものとする︒",
+        "Glyph_indices": [
+          887,
+          888,
+          889,
+          890,
+          891,
+          892,
+          893,
+          894,
+          895,
+          896,
+          897,
+          898,
+          899,
+          900,
+          901,
+          902,
+          903,
+          904
+        ]
+      }
+    ],
+    "whole_original_and104text_lines_andall5ArticleDocuments_read": true,
+    "known_remaining": "1799p3 headerless four-band major unchanged"
+  },
+  "snapshot_review": {
+    "source_manifest_SHA": "74826ef32e67e5998cd1c384d123fb087f14121f51340c908096bd4040962e18",
+    "new": 4,
+    "updated": 8,
+    "all12_complete_fulltext_ArticleDocument_snapshot_renders_exact": true,
+    "rows": [
+      {
+        "page": "20260812g001800016",
+        "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260812g00180__20260812g001800016.pdf.snap.new",
+        "new_sha256": "ac58d9ae3ea4e697282f25bcc32142c4dd01bd62860fea5266ab5b935b550958",
+        "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260812g00180__20260812g001800016.pdf.snap",
+        "old_sha256": "bd355e722a356c5bedd65f78bd82cc2541ea56c53341b4d57da1590882b32141",
+        "source_PDF": "crates/kanpo-parser/tests/archive/pages/20260812g00180/20260812g001800016.pdf",
+        "source_PDF_sha256": "7a7064a715e8563cba1e6e2741d4e3c835d5c5157a8637c2beefe0b6af77981d",
+        "fulltext_and_all_ArticleDocuments_render_exact_to_root_fresh_Analysis": true,
+        "type": "updated",
+        "all_original_review": "parallel9 full originals/457lines19Articles impact-audit + framed changed/nearby full originals; current Analysis independently equals candidate on all change pages; known1799p3major snapshot is deliberately not called solved"
+      },
+      {
+        "page": "20260812g001800017",
+        "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260812g00180__20260812g001800017.pdf.snap.new",
+        "new_sha256": "cd3a11565147d3329d6fff85b89b5f693b2f59cfd4c24dc7263da67c03dfbf52",
+        "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260812g00180__20260812g001800017.pdf.snap",
+        "old_sha256": "f615114280f2cc167f1a1fd4c964fd9ec2166976e5bced3cc8b69b4517ec7d54",
+        "source_PDF": "crates/kanpo-parser/tests/archive/pages/20260812g00180/20260812g001800017.pdf",
+        "source_PDF_sha256": "5a2c1646a37ffc263c22bb0b4a14af7a079832562d3c92479bd8fd94365952bf",
+        "fulltext_and_all_ArticleDocuments_render_exact_to_root_fresh_Analysis": true,
+        "type": "updated",
+        "all_original_review": "parallel9 full originals/457lines19Articles impact-audit + framed changed/nearby full originals; current Analysis independently equals candidate on all change pages; known1799p3major snapshot is deliberately not called solved"
+      },
+      {
+        "page": "20260812g001800021",
+        "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260812g00180__20260812g001800021.pdf.snap.new",
+        "new_sha256": "439c823b48b5b357c346f290b5095e20eec76c7ead6b149e65da63734f706451",
+        "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260812g00180__20260812g001800021.pdf.snap",
+        "old_sha256": null,
+        "source_PDF": "crates/kanpo-parser/tests/archive/pages/20260812g00180/20260812g001800021.pdf",
+        "source_PDF_sha256": "a8742d3c71b38973beaf57b70a63cd38a634524b8609632b7abf25bd4b7c431b",
+        "fulltext_and_all_ArticleDocuments_render_exact_to_root_fresh_Analysis": true,
+        "type": "new",
+        "all_original_review": "parallel9 full originals/457lines19Articles impact-audit + framed changed/nearby full originals; current Analysis independently equals candidate on all change pages; known1799p3major snapshot is deliberately not called solved"
+      },
+      {
+        "page": "20260909g002010008",
+        "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260909g00201__20260909g002010008.pdf.snap.new",
+        "new_sha256": "91da03585fd72f548fe0c6a6a802c58a1618c6a98c9060ca9b0d76e7b677cd35",
+        "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260909g00201__20260909g002010008.pdf.snap",
+        "old_sha256": "cee193304f07929a5afe8734d496176f18bb579ed87f994baae38565d3d93506",
+        "source_PDF": "crates/kanpo-parser/tests/archive/pages/20260909g00201/20260909g002010008.pdf",
+        "source_PDF_sha256": "e50c700f2f743e02c6d5cbe450e543a806379279f17759f1175907f2787f15ff",
+        "fulltext_and_all_ArticleDocuments_render_exact_to_root_fresh_Analysis": true,
+        "type": "updated",
+        "all_original_review": "parallel9 full originals/457lines19Articles impact-audit + framed changed/nearby full originals; current Analysis independently equals candidate on all change pages; known1799p3major snapshot is deliberately not called solved"
+      },
+      {
+        "page": "20260909g002010009",
+        "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260909g00201__20260909g002010009.pdf.snap.new",
+        "new_sha256": "2e9836f37906ac552a5ea39d3851d5a975a429d7c1f6ef762df634c92c990f6c",
+        "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260909g00201__20260909g002010009.pdf.snap",
+        "old_sha256": "e017a59d935f40acc92bda9e27c1e50f94eb53efc293108119d9bc9a7488afd1",
+        "source_PDF": "crates/kanpo-parser/tests/archive/pages/20260909g00201/20260909g002010009.pdf",
+        "source_PDF_sha256": "bb11f8957bcfae2301880aa4fc71379a59f0487ed3760b15e5315a42cf008abf",
+        "fulltext_and_all_ArticleDocuments_render_exact_to_root_fresh_Analysis": true,
+        "type": "updated",
+        "all_original_review": "parallel9 full originals/457lines19Articles impact-audit + framed changed/nearby full originals; current Analysis independently equals candidate on all change pages; known1799p3major snapshot is deliberately not called solved"
+      },
+      {
+        "page": "20260909g002010013",
+        "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260909g00201__20260909g002010013.pdf.snap.new",
+        "new_sha256": "365177e9fbff76e8846ad0f5192f902260a447cfd79959a8f95063bb636dc549",
+        "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260909g00201__20260909g002010013.pdf.snap",
+        "old_sha256": "c65f7d00884740f45fc5772bb16843f1a9bab00079782738dac23310f85fdcbd",
+        "source_PDF": "crates/kanpo-parser/tests/archive/pages/20260909g00201/20260909g002010013.pdf",
+        "source_PDF_sha256": "9f3612c2714fe5cb7ba5e6020684eb92c8d07ac0277d731f700038df660f9ec7",
+        "fulltext_and_all_ArticleDocuments_render_exact_to_root_fresh_Analysis": true,
+        "type": "updated",
+        "all_original_review": "parallel9 full originals/457lines19Articles impact-audit + framed changed/nearby full originals; current Analysis independently equals candidate on all change pages; known1799p3major snapshot is deliberately not called solved"
+      },
+      {
+        "page": "20261001h017990003",
+        "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261001h01799__20261001h017990003.pdf.snap.new",
+        "new_sha256": "0e93eb07bc99542e504ce9838edee187c4628527e13936aaf2247b980fbd9e2b",
+        "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261001h01799__20261001h017990003.pdf.snap",
+        "old_sha256": null,
+        "source_PDF": "crates/kanpo-parser/tests/archive/pages/20261001h01799/20261001h017990003.pdf",
+        "source_PDF_sha256": "7536b19edc808d1d8959591790f29714ffaba8b29e8c8b3d37b492fdc77ee51d",
+        "fulltext_and_all_ArticleDocuments_render_exact_to_root_fresh_Analysis": true,
+        "type": "new",
+        "all_original_review": "parallel9 full originals/457lines19Articles impact-audit + framed changed/nearby full originals; current Analysis independently equals candidate on all change pages; known1799p3major snapshot is deliberately not called solved"
+      },
+      {
+        "page": "20261001h017990004",
+        "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261001h01799__20261001h017990004.pdf.snap.new",
+        "new_sha256": "ccff6047b10edb8e38efc0adcb99887b850c684f6ed0a1d1baa6bfb0b6f90fd0",
+        "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261001h01799__20261001h017990004.pdf.snap",
+        "old_sha256": null,
+        "source_PDF": "crates/kanpo-parser/tests/archive/pages/20261001h01799/20261001h017990004.pdf",
+        "source_PDF_sha256": "59fcf4d2654cddefb0d0043a650829a5c6466e744f5a959a16b6ca8b5fbdb0a7",
+        "fulltext_and_all_ArticleDocuments_render_exact_to_root_fresh_Analysis": true,
+        "type": "new",
+        "all_original_review": "parallel9 full originals/457lines19Articles impact-audit + framed changed/nearby full originals; current Analysis independently equals candidate on all change pages; known1799p3major snapshot is deliberately not called solved"
+      },
+      {
+        "page": "20261001h017990005",
+        "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261001h01799__20261001h017990005.pdf.snap.new",
+        "new_sha256": "d48ed3df8dc3e4c470ac62fcdb46a0c5ec01b2c8b41176e0968969acd2612b1f",
+        "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261001h01799__20261001h017990005.pdf.snap",
+        "old_sha256": null,
+        "source_PDF": "crates/kanpo-parser/tests/archive/pages/20261001h01799/20261001h017990005.pdf",
+        "source_PDF_sha256": "950e1d527e764bb97e22b8c134edfc8d1009807b54c166e3a48ae6b417963d26",
+        "fulltext_and_all_ArticleDocuments_render_exact_to_root_fresh_Analysis": true,
+        "type": "new",
+        "all_original_review": "parallel9 full originals/457lines19Articles impact-audit + framed changed/nearby full originals; current Analysis independently equals candidate on all change pages; known1799p3major snapshot is deliberately not called solved"
+      },
+      {
+        "page": "20261014g002250006",
+        "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261014g00225__20261014g002250006.pdf.snap.new",
+        "new_sha256": "5fcea8b00eb4f4bd48b53d171e3bfd5220466930772ef79d6d903cae9f7fab8f",
+        "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261014g00225__20261014g002250006.pdf.snap",
+        "old_sha256": "11ae8872b3e4f7281945fd3cfdc74a564e10141ce3c40c2f0c90c7059c6388d0",
+        "source_PDF": "crates/kanpo-parser/tests/archive/pages/20261014g00225/20261014g002250006.pdf",
+        "source_PDF_sha256": "3ad2e513f9f83d58786a84af8e3fab773c72e945db4e24f922c8081f01bb675a",
+        "fulltext_and_all_ArticleDocuments_render_exact_to_root_fresh_Analysis": true,
+        "type": "updated",
+        "all_original_review": "parallel9 full originals/457lines19Articles impact-audit + framed changed/nearby full originals; current Analysis independently equals candidate on all change pages; known1799p3major snapshot is deliberately not called solved"
+      },
+      {
+        "page": "20261014g002250008",
+        "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261014g00225__20261014g002250008.pdf.snap.new",
+        "new_sha256": "03cac9e1a7ae23e38f11fbae417776c71cc282fa05a523c3b2c3f60629b54db0",
+        "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261014g00225__20261014g002250008.pdf.snap",
+        "old_sha256": "52667faba91f0c9bdf1a7fe88008b04d9f12948c26115c0d5ca9ed5de1bf6ffd",
+        "source_PDF": "crates/kanpo-parser/tests/archive/pages/20261014g00225/20261014g002250008.pdf",
+        "source_PDF_sha256": "f18e8dc63a03f4be763976ce6909c6af80ad861db13e825cfa6a1e998ff149a3",
+        "fulltext_and_all_ArticleDocuments_render_exact_to_root_fresh_Analysis": true,
+        "type": "updated",
+        "all_original_review": "parallel9 full originals/457lines19Articles impact-audit + framed changed/nearby full originals; current Analysis independently equals candidate on all change pages; known1799p3major snapshot is deliberately not called solved"
+      },
+      {
+        "page": "20261014g002250011",
+        "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261014g00225__20261014g002250011.pdf.snap.new",
+        "new_sha256": "c4d1055ffd297edf778b84a9f294387193fd2bbabe7fd53dcd24c3257ed693f8",
+        "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261014g00225__20261014g002250011.pdf.snap",
+        "old_sha256": "718c9ad31f7b0d41a4ce2856df86c0b06282886812ea258667ab6d2580c123c2",
+        "source_PDF": "crates/kanpo-parser/tests/archive/pages/20261014g00225/20261014g002250011.pdf",
+        "source_PDF_sha256": "e165be8173e2436b3d571b36ebc617de06ce1d2c07697d7e2ee61785b9fa5bf7",
+        "fulltext_and_all_ArticleDocuments_render_exact_to_root_fresh_Analysis": true,
+        "type": "updated",
+        "all_original_review": "parallel9 full originals/457lines19Articles impact-audit + framed changed/nearby full originals; current Analysis independently equals candidate on all change pages; known1799p3major snapshot is deliberately not called solved"
+      }
+    ],
+    "all_8_updated_snapshot_diffs_read": true,
+    "all12_fulltext_and_complete_ArticleDocument_renderer_independently_exact": true,
+    "complete_root_Analysis_matches_independent_candidates": "integrated38-independent-candidate-equality.json",
+    "whole_original_and_output_reviews": [
+      "parallel-text-fraction-proposal/after37/impact-audit.json:9 originals457lines19Articles",
+      "framed-after-continuation-proposal/original71-impact-audit.json:104lines5Articles and nearby whole images",
+      "root whole1799p3/p4/p5 +180p21/201p13 originals/fulltexts; raw native14/226 +54/273/18bars"
+    ],
+    "known_remaining": "1799p3 headerless major deliberately unchanged17;1799p5 name/address inner-column wrap/Doc flattening unchanged, negative means no change rather than correctness.20113 and225p11 separate numeric/farmland majors and225p8labelminor unchanged.",
+    "promoted": true
+  },
+  "oracle_source_reviews": {
+    "area_unit": {
+      "path": "crates/kanpo-parser/tests/archive/expected-area-units/20260909g002010013.txt",
+      "before_sha256": "34286d2b6b426d8d25ede6d40326ec56b7de50f822cba041f657e0baea729432",
+      "after_sha256": "9d10fdfbdd586e0ed9b58a4f0c988be68ff683b750722631d7fbdfa33445c98a",
+      "baseline37_exact": true,
+      "only_existing_flat_parallel_formula_corrected": true,
+      "all_other_fields_including_square_metres_first_numeric_formula_farmland_major_exact": true,
+      "whole_original_full_text_all3Articles_reviewed": "root whole image/text + agent full19Article review/native273Glyph18bars",
+      "source_proof": "integrated38-parallel-native-proof.json",
+      "original_oracle": ".cache/kanpo-227/area-unit-20113-original-oracle-before17.txt",
+      "failure_log": ".cache/kanpo-227/test-batch17-full-oracle-review-20113.log"
+    },
+    "corpus_rules": {
+      "path": "crates/kanpo-parser/tests/corpus/2026-10-15-honshi1808-p8/page.rules.json",
+      "before_sha256": "247b94c376f2b7135428623c175d254bc5d983390c770f5b9b5852c77180b997",
+      "after_sha256": "e7772331a2a1e101962791fce2ed2cb4360f45232a15e910ae4188a8a74050ec",
+      "only_new_optional_candidate_key_added": true,
+      "old_H_V_enclosures_all_exact": true,
+      "source_PDF_archive_byte_identical": true,
+      "native_source": ".cache/kanpo-227/corpus-1808p8-native17.json",
+      "candidate_bars": [
+        {
+          "bar": {
+            "y": 221.0,
+            "x0": 275.0,
+            "x1": 288.0
+          },
+          "native_path_id": 4,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    288.0,
+                    221.0
+                  ],
+                  [
+                    275.0,
+                    221.0
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 219.0,
+            "x0": 275.0,
+            "x1": 288.0
+          },
+          "native_path_id": 5,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    288.0,
+                    219.0
+                  ],
+                  [
+                    275.0,
+                    219.0
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 217.0,
+            "x0": 275.0,
+            "x1": 288.0
+          },
+          "native_path_id": 6,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    288.0,
+                    217.0
+                  ],
+                  [
+                    275.0,
+                    217.0
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 215.0,
+            "x0": 275.0,
+            "x1": 288.0
+          },
+          "native_path_id": 7,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    288.0,
+                    215.0
+                  ],
+                  [
+                    275.0,
+                    215.0
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 213.0,
+            "x0": 275.0,
+            "x1": 288.0
+          },
+          "native_path_id": 8,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    288.0,
+                    213.0
+                  ],
+                  [
+                    275.0,
+                    213.0
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 211.0,
+            "x0": 275.0,
+            "x1": 288.0
+          },
+          "native_path_id": 9,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    288.0,
+                    211.0
+                  ],
+                  [
+                    275.0,
+                    211.0
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 209.0,
+            "x0": 275.0,
+            "x1": 288.0
+          },
+          "native_path_id": 10,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    288.0,
+                    209.0
+                  ],
+                  [
+                    275.0,
+                    209.0
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 221.0,
+            "x0": 382.0,
+            "x1": 395.0
+          },
+          "native_path_id": 11,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    395.0,
+                    221.0
+                  ],
+                  [
+                    382.0,
+                    221.0
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 219.0,
+            "x0": 382.0,
+            "x1": 395.0
+          },
+          "native_path_id": 12,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    395.0,
+                    219.0
+                  ],
+                  [
+                    382.0,
+                    219.0
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 217.0,
+            "x0": 382.0,
+            "x1": 395.0
+          },
+          "native_path_id": 13,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    395.0,
+                    217.0
+                  ],
+                  [
+                    382.0,
+                    217.0
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 215.0,
+            "x0": 382.0,
+            "x1": 395.0
+          },
+          "native_path_id": 14,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    395.0,
+                    215.0
+                  ],
+                  [
+                    382.0,
+                    215.0
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 213.0,
+            "x0": 382.0,
+            "x1": 395.0
+          },
+          "native_path_id": 15,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    395.0,
+                    213.0
+                  ],
+                  [
+                    382.0,
+                    213.0
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 211.0,
+            "x0": 382.0,
+            "x1": 395.0
+          },
+          "native_path_id": 16,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    395.0,
+                    211.0
+                  ],
+                  [
+                    382.0,
+                    211.0
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 209.0,
+            "x0": 382.0,
+            "x1": 395.0
+          },
+          "native_path_id": 17,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    395.0,
+                    209.0
+                  ],
+                  [
+                    382.0,
+                    209.0
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 168.714,
+            "x0": 643.0,
+            "x1": 656.0
+          },
+          "native_path_id": 57,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    656.0,
+                    168.714
+                  ],
+                  [
+                    643.0,
+                    168.714
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 166.714,
+            "x0": 643.0,
+            "x1": 656.0
+          },
+          "native_path_id": 58,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    656.0,
+                    166.714
+                  ],
+                  [
+                    643.0,
+                    166.714
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 164.714,
+            "x0": 643.0,
+            "x1": 656.0
+          },
+          "native_path_id": 59,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    656.0,
+                    164.714
+                  ],
+                  [
+                    643.0,
+                    164.714
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 162.714,
+            "x0": 643.0,
+            "x1": 656.0
+          },
+          "native_path_id": 60,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    656.0,
+                    162.714
+                  ],
+                  [
+                    643.0,
+                    162.714
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 160.714,
+            "x0": 643.0,
+            "x1": 656.0
+          },
+          "native_path_id": 61,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    656.0,
+                    160.714
+                  ],
+                  [
+                    643.0,
+                    160.714
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 158.714,
+            "x0": 643.0,
+            "x1": 656.0
+          },
+          "native_path_id": 62,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    656.0,
+                    158.714
+                  ],
+                  [
+                    643.0,
+                    158.714
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 156.714,
+            "x0": 643.0,
+            "x1": 656.0
+          },
+          "native_path_id": 63,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    656.0,
+                    156.714
+                  ],
+                  [
+                    643.0,
+                    156.714
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 168.714,
+            "x0": 751.0,
+            "x1": 763.0
+          },
+          "native_path_id": 64,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    763.0,
+                    168.714
+                  ],
+                  [
+                    751.0,
+                    168.714
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 166.714,
+            "x0": 751.0,
+            "x1": 763.0
+          },
+          "native_path_id": 65,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    763.0,
+                    166.714
+                  ],
+                  [
+                    751.0,
+                    166.714
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 164.714,
+            "x0": 751.0,
+            "x1": 763.0
+          },
+          "native_path_id": 66,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    763.0,
+                    164.714
+                  ],
+                  [
+                    751.0,
+                    164.714
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 162.714,
+            "x0": 751.0,
+            "x1": 763.0
+          },
+          "native_path_id": 67,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    763.0,
+                    162.714
+                  ],
+                  [
+                    751.0,
+                    162.714
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 160.714,
+            "x0": 751.0,
+            "x1": 763.0
+          },
+          "native_path_id": 68,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    763.0,
+                    160.714
+                  ],
+                  [
+                    751.0,
+                    160.714
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 158.714,
+            "x0": 751.0,
+            "x1": 763.0
+          },
+          "native_path_id": 69,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    763.0,
+                    158.714
+                  ],
+                  [
+                    751.0,
+                    158.714
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        },
+        {
+          "bar": {
+            "y": 156.714,
+            "x0": 751.0,
+            "x1": 763.0
+          },
+          "native_path_id": 70,
+          "native_path": {
+            "subpaths": [
+              {
+                "points": [
+                  [
+                    763.0,
+                    156.714
+                  ],
+                  [
+                    751.0,
+                    156.714
+                  ]
+                ],
+                "closed": false,
+                "curved": false,
+                "rect": false
+              }
+            ],
+            "stroke": true,
+            "fill": false,
+            "line_width": 0.36
+          }
+        }
+      ],
+      "complete_Analysis_body_Words_Articles_and_Document_unchanged": "independent11992 + root38 full11992; thispage notin10changed",
+      "note": "28 decorative short native segments are candidates only; consuming formula guard rejects all, no inferred fraction/text restoration"
+    },
+    "nested_negative": {
+      "old_fixture_source": ".cache/kanpo-227/nested_fraction_fixtures-before17.rs",
+      "old_fixture_sha256": "3c5dffccc08be6baf87f2e057c920101aa8a59bc1ccaad98c1ebd8f2c4ecc824",
+      "new_fixture_sha256": "e5d26b7d68d1622f78234787c77ec1ec03ff0f08c06b1d83e9852b5b17215dca",
+      "historical_after35_oracles_preserved_unmodified": true,
+      "purpose": "side-by-side bars remain a negative for nested expression; full expected now incorporates the independently proven parallel fix. Numeric and other-cell defects preserved exactly, no broad UPDATE_EXPECT.",
+      "initial_harness_shape_correction": "Plain proof before is a3string list, not cell string; no source/test writes occurred before that TypeError. Stale old13GREEN shell follow-up preserved separately as root17-nested-oracle-list-harness-stale-green.log; not claimed as new oracle verification.",
+      "rows": [
+        {
+          "page": "20261014g002250008",
+          "historic_oracle": "crates/kanpo-parser/tests/fixtures/nested_fraction/20261014g002250008-after35.txt",
+          "historic_SHA": "a04b753a631124cfb15f437317972163301b8df24cb6f95c2888eb67b9b087f6",
+          "new_oracle": "crates/kanpo-parser/tests/fixtures/nested_fraction/20261014g002250008-after38.txt",
+          "new_SHA": "b206ac04d874eb633ac9852baf6ca0e93fc2de3cbefb44c56207498c9f78ae2e",
+          "only_certified_formula_changes": 1,
+          "replacement_mode": "original",
+          "all_other_characters_and_existing_numerical_minor_major_defects_exact": true,
+          "source_proof": "integrated38-parallel-native-proof.json"
+        },
+        {
+          "page": "20261014g002250011",
+          "historic_oracle": "crates/kanpo-parser/tests/fixtures/nested_fraction/20261014g002250011-after35.txt",
+          "historic_SHA": "bb1dc29e283f7fd57eaa05777ba07b0217d6bcbaf6490a33fc14726ce70e3cd4",
+          "new_oracle": "crates/kanpo-parser/tests/fixtures/nested_fraction/20261014g002250011-after38.txt",
+          "new_SHA": "8865f459261d3161bf9a1978855a6a287f5b77c15d52cfc80b6d76bc3f2a38c8",
+          "only_certified_formula_changes": 1,
+          "replacement_mode": "table_render_flattened",
+          "all_other_characters_and_existing_numerical_minor_major_defects_exact": true,
+          "source_proof": "integrated38-parallel-native-proof.json"
+        }
+      ]
+    }
+  },
+  "audit128": {
+    "strict_full_quality": {
+      "ok": 11,
+      "minor": 6,
+      "major": 13
+    },
+    "original_issue_body_character_order": {
+      "ok": 21,
+      "minor": 1,
+      "major": 8
+    },
+    "initial_scores_fixed": true,
+    "all30_before37_after38_Analysis_exact": true,
+    "all_originals_all_outputs_all65Articles_Documents_read": true,
+    "scope_fixed_before_selection": "Strict full quality: original full-page image vs all output text and every Article/Document, including independent announcements, new/old roles, cell/rowspan association, numeric signs, names and character omissions. Fix initial ok/minor/major before corrections; record original issue body/character/order axis separately. Do not compare numerically to older audits with different scope."
+  },
+  "audit128_native_zero_proof": {
+    "method": "Fresh original-PDF extraction. Normalize inverted bboxes. Closed rectangle intersections include empty Unicode, invisible, zero-dimension points/segments and edge touch. Zero rectangles all closed-count0. Positive contexts record both closed and positive-overlap counts; nearest native index explicitly witnessed.",
+    "source_manifest_sha256": "74826ef32e67e5998cd1c384d123fb087f14121f51340c908096bd4040962e18",
+    "zero_rectangles": 11,
+    "source_PDFs": 5,
+    "positive_contexts": 12,
+    "whole_page_exclusions": 0,
+    "originals": [
+      {
+        "page": "20260731h017590009",
+        "pdf": ".cache/kanpo-archive/2026-07-31/20260731h01759/20260731h017590009.pdf",
+        "pdf_sha256": "80a55291e74d58a80c0b82c75ea864dc312a37b0813bc8659fcc91a11375d3c8",
+        "native": ".cache/kanpo-227/audit128-root-native/20260731h017590009.json",
+        "native_sha256": "8829dff84303e4f15448ac109d2c3e88a684571961607dcbdabff3cad6afca3f",
+        "glyphs": 416
+      },
+      {
+        "page": "20260820g001860003",
+        "pdf": ".cache/kanpo-archive/2026-08-20/20260820g00186/20260820g001860003.pdf",
+        "pdf_sha256": "5620e0995c0164144d0226b933f7a40934106aa7d1a0625d246a812e2965408e",
+        "native": ".cache/kanpo-227/audit128-root-native/20260820g001860003.json",
+        "native_sha256": "5dc031388be1f977e858dd2c3620237f87eba21324c01ec45fb32a792fdd8973",
+        "glyphs": 196
+      },
+      {
+        "page": "20260824g001880060",
+        "pdf": ".cache/kanpo-archive/2026-08-24/20260824g00188/20260824g001880060.pdf",
+        "pdf_sha256": "d6ddebbdaec43ab71f63b0c9a78c18e304a07d0f55df2cdea8d519e1dbcfb7c4",
+        "native": ".cache/kanpo-227/audit128-root-native/20260824g001880060.json",
+        "native_sha256": "2676a39d83f0ec24f6ec5c5ce56203b8ecc716901162afccaa7787a4966be510",
+        "glyphs": 768
+      },
+      {
+        "page": "20260904g001980010",
+        "pdf": ".cache/kanpo-archive/2026-09-04/20260904g00198/20260904g001980010.pdf",
+        "pdf_sha256": "f9cd8036a338579c2d85a48eafcfe1a0dd17bc6d39d872583bfb2773e35fe7f1",
+        "native": ".cache/kanpo-227/audit128-root-native/20260904g001980010.json",
+        "native_sha256": "5cba1d8251e2b8ceceb43dd3aa6c62bf04dc4c7bc66ba35d6bc3279aa0dc8d2a",
+        "glyphs": 3286
+      },
+      {
+        "page": "20260930h017980001",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930h01798/20260930h017980001.pdf",
+        "pdf_sha256": "a1f3aab81cf2ed46d620d4dd76684ba0274686c6c71c0bd0c0249bb75e854686",
+        "native": ".cache/kanpo-227/audit128-root-native/20260930h017980001.json",
+        "native_sha256": "500d45416aafc26307c04d01c9432117f2af4c96f78a01088f29041f23411f00",
+        "glyphs": 1063
+      }
+    ],
+    "rectangles": [
+      {
+        "page": "20260820g001860003",
+        "name": "upper_dentist_form",
+        "rect": [
+          60,
+          85,
+          512,
+          403
+        ],
+        "expected": 0,
+        "reviewer_method": "positive overlap; zero axis interior point",
+        "closed_all_native_count": 0,
+        "positive_overlap_all_native_count": 0,
+        "closed_native_indices": [],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260820g001860003",
+        "name": "lower_nurse_form",
+        "rect": [
+          45,
+          455,
+          506,
+          775
+        ],
+        "expected": 0,
+        "reviewer_method": "positive overlap; zero axis interior point",
+        "closed_all_native_count": 0,
+        "positive_overlap_all_native_count": 0,
+        "closed_native_indices": [],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260820g001860003",
+        "name": "lower_broad_rect_neighbor_overhang",
+        "rect": [
+          45,
+          455,
+          512,
+          775
+        ],
+        "expected": 28,
+        "reviewer_method": "positive overlap; zero axis interior point",
+        "closed_all_native_count": 28,
+        "positive_overlap_all_native_count": 28,
+        "closed_native_indices": [
+          144,
+          145,
+          146,
+          147,
+          148,
+          149,
+          150,
+          151,
+          152,
+          153,
+          154,
+          155,
+          156,
+          157,
+          158,
+          159,
+          160,
+          161,
+          162,
+          163,
+          164,
+          165,
+          166,
+          167,
+          168,
+          169,
+          170,
+          171
+        ],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260820g001860003",
+        "name": "upper_article_neighbor",
+        "rect": [
+          517,
+          60,
+          552,
+          408
+        ],
+        "expected": 74,
+        "reviewer_method": "positive overlap; zero axis interior point",
+        "closed_all_native_count": 74,
+        "positive_overlap_all_native_count": 74,
+        "closed_native_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73
+        ],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260820g001860003",
+        "name": "lower_article_neighbor",
+        "rect": [
+          517,
+          430,
+          552,
+          790
+        ],
+        "expected": 69,
+        "reviewer_method": "positive overlap; zero axis interior point",
+        "closed_all_native_count": 69,
+        "positive_overlap_all_native_count": 69,
+        "closed_native_indices": [
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115,
+          116,
+          117,
+          118,
+          119,
+          120,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127,
+          128,
+          129,
+          130,
+          131,
+          132,
+          133,
+          134,
+          135,
+          136,
+          137,
+          138,
+          139,
+          140,
+          141,
+          142
+        ],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260820g001860003",
+        "name": "lower_third_notice_column",
+        "rect": [
+          508,
+          444,
+          517,
+          677
+        ],
+        "expected": 29,
+        "reviewer_method": "positive overlap; zero axis interior point",
+        "closed_all_native_count": 29,
+        "positive_overlap_all_native_count": 29,
+        "closed_native_indices": [
+          143,
+          144,
+          145,
+          146,
+          147,
+          148,
+          149,
+          150,
+          151,
+          152,
+          153,
+          154,
+          155,
+          156,
+          157,
+          158,
+          159,
+          160,
+          161,
+          162,
+          163,
+          164,
+          165,
+          166,
+          167,
+          168,
+          169,
+          170,
+          171
+        ],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260904g001980010",
+        "name": "outlined Roman II only",
+        "rect": [
+          62,
+          460,
+          68,
+          470
+        ],
+        "expected": 0,
+        "reviewer_method": "closed bbox intersection",
+        "closed_all_native_count": 0,
+        "positive_overlap_all_native_count": 0,
+        "closed_native_indices": [],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260904g001980010",
+        "name": "explicit adjacent native witness: outlined Roman II only",
+        "rect": [
+          68.999,
+          449.7786999999999,
+          77.001,
+          457.9646999999999
+        ],
+        "expected": "positive",
+        "required_glyph_index": 1354,
+        "reviewer_method": "root explicit tight rectangle around nearest native glyph",
+        "closed_all_native_count": 2,
+        "positive_overlap_all_native_count": 2,
+        "closed_native_indices": [
+          1354,
+          1355
+        ],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260731h017590009",
+        "name": "financial guarantee return notice title/body",
+        "rect": [
+          62,
+          220,
+          239,
+          438
+        ],
+        "expected": 0,
+        "reviewer_method": "closed bbox intersection",
+        "closed_all_native_count": 0,
+        "positive_overlap_all_native_count": 0,
+        "closed_native_indices": [],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260731h017590009",
+        "name": "explicit adjacent native witness: financial guarantee return notice title/body",
+        "rect": [
+          90.249,
+          441.6224,
+          99.251,
+          450.8314
+        ],
+        "expected": "positive",
+        "required_glyph_index": 198,
+        "reviewer_method": "root explicit tight rectangle around nearest native glyph",
+        "closed_all_native_count": 4,
+        "positive_overlap_all_native_count": 4,
+        "closed_native_indices": [
+          198,
+          199,
+          211,
+          212
+        ],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260731h017590009",
+        "name": "public service notice center column",
+        "rect": [
+          245,
+          172,
+          423,
+          550
+        ],
+        "expected": 0,
+        "reviewer_method": "closed bbox intersection",
+        "closed_all_native_count": 0,
+        "positive_overlap_all_native_count": 0,
+        "closed_native_indices": [],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260731h017590009",
+        "name": "explicit adjacent native witness: public service notice center column",
+        "rect": [
+          229.00999999999985,
+          462.0016,
+          237.01199999999986,
+          470.1876
+        ],
+        "expected": "positive",
+        "required_glyph_index": 241,
+        "reviewer_method": "root explicit tight rectangle around nearest native glyph",
+        "closed_all_native_count": 1,
+        "positive_overlap_all_native_count": 1,
+        "closed_native_indices": [
+          241
+        ],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260731h017590009",
+        "name": "requesters 8-12 and service statement",
+        "rect": [
+          429,
+          46,
+          608,
+          374
+        ],
+        "expected": 0,
+        "reviewer_method": "closed bbox intersection",
+        "closed_all_native_count": 0,
+        "positive_overlap_all_native_count": 0,
+        "closed_native_indices": [],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260731h017590009",
+        "name": "explicit adjacent native witness: requesters 8-12 and service statement",
+        "rect": [
+          458.249,
+          377.44390000000004,
+          467.251,
+          386.6529
+        ],
+        "expected": "positive",
+        "required_glyph_index": 395,
+        "reviewer_method": "root explicit tight rectangle around nearest native glyph",
+        "closed_all_native_count": 4,
+        "positive_overlap_all_native_count": 4,
+        "closed_native_indices": [
+          395,
+          396,
+          408,
+          409
+        ],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260731h017590009",
+        "name": "succession body below retained title",
+        "rect": [
+          429,
+          398,
+          608,
+          550
+        ],
+        "expected": 0,
+        "reviewer_method": "closed bbox intersection",
+        "closed_all_native_count": 0,
+        "positive_overlap_all_native_count": 0,
+        "closed_native_indices": [],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260731h017590009",
+        "name": "explicit adjacent native witness: succession body below retained title",
+        "rect": [
+          458.249,
+          386.44390000000004,
+          467.251,
+          395.6529
+        ],
+        "expected": "positive",
+        "required_glyph_index": 408,
+        "reviewer_method": "root explicit tight rectangle around nearest native glyph",
+        "closed_all_native_count": 4,
+        "positive_overlap_all_native_count": 4,
+        "closed_native_indices": [
+          395,
+          396,
+          408,
+          409
+        ],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260731h017590009",
+        "name": "succession right column cases and body",
+        "rect": [
+          613,
+          46,
+          790,
+          550
+        ],
+        "expected": 0,
+        "reviewer_method": "closed bbox intersection",
+        "closed_all_native_count": 0,
+        "positive_overlap_all_native_count": 0,
+        "closed_native_indices": [],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260731h017590009",
+        "name": "explicit adjacent native witness: succession right column cases and body",
+        "rect": [
+          566.249,
+          377.44390000000004,
+          575.251,
+          386.6529
+        ],
+        "expected": "positive",
+        "required_glyph_index": 407,
+        "reviewer_method": "root explicit tight rectangle around nearest native glyph",
+        "closed_all_native_count": 2,
+        "positive_overlap_all_native_count": 2,
+        "closed_native_indices": [
+          406,
+          407
+        ],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260824g001880060",
+        "name": "map_interior",
+        "rect": [
+          425.5,
+          57,
+          793,
+          557
+        ],
+        "expected": 0,
+        "reviewer_method": "positive overlap; inclusive zero axis",
+        "closed_all_native_count": 0,
+        "positive_overlap_all_native_count": 0,
+        "closed_native_indices": [],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260824g001880060",
+        "name": "map_interior_with_boundary",
+        "rect": [
+          425,
+          57,
+          793,
+          557
+        ],
+        "expected": 0,
+        "reviewer_method": "positive overlap; inclusive zero axis",
+        "closed_all_native_count": 0,
+        "positive_overlap_all_native_count": 0,
+        "closed_native_indices": [],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260824g001880060",
+        "name": "adjacent_table_header_nonzero",
+        "rect": [
+          388,
+          403.2,
+          425,
+          425
+        ],
+        "expected": 6,
+        "reviewer_method": "positive overlap; inclusive zero axis",
+        "closed_all_native_count": 6,
+        "positive_overlap_all_native_count": 6,
+        "closed_native_indices": [
+          421,
+          422,
+          452,
+          453,
+          454,
+          455
+        ],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260930h017980001",
+        "name": "decorative_title_only",
+        "rect": [
+          474.5,
+          66,
+          549,
+          205.5
+        ],
+        "expected": 0,
+        "reviewer_method": "positive overlap; inclusive zero axis",
+        "closed_all_native_count": 0,
+        "positive_overlap_all_native_count": 0,
+        "closed_native_indices": [],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      },
+      {
+        "page": "20260930h017980001",
+        "name": "adjacent_printed_imprint",
+        "rect": [
+          471,
+          212,
+          552,
+          230
+        ],
+        "expected": 16,
+        "reviewer_method": "positive overlap; inclusive zero axis",
+        "closed_all_native_count": 16,
+        "positive_overlap_all_native_count": 16,
+        "closed_native_indices": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18
+        ],
+        "including_empty_Unicode_invisible_and_zero_dimensions": true
+      }
+    ],
+    "no_image_or_path_classification_inferred": true
+  },
+  "known_remaining": [
+    "181p67 Ennet date placement;171p155/174p142 each3 absent bars.",
+    "194p50/p55 upper hierarchy;194p51 four empty account records joined;194p70 article combines two IC records.",
+    "174p46 and14other native RomanXIII remain unmapped;186p19 JIS wrapping/code mixing.",
+    "CF196p133(A)..(G)14 reference Glyphs and other unverified reference markers remain; amount/detail alignment was fixed in batch14.",
+    "206p75 form fields detached;20260814t000410002 agencytable/附則 interleaving;175h1 company/name columns.",
+    "6ambiguous⑪/4ambiguous㉑ and51unpaired components of other circled20s are not guessed.",
+    "198p21 rotated newoldtable row interleaving;206p248 two△ amounts assigned one row above.",
+    "Article-only165p694 finalleft1.099/rightfirst1.018 concatenate though all18right pairs are present in Page/Trace;179p113 old⑰/⑱ building/1円 rows concatenate only in Article Table.",
+    "Audit125minor174p153 surname櫛田;183p48瀀/䙐;170p60 onebar/176p121 twobars;212p6 delayed signatures;1767p4 Latin spaces.1761p2 missing144angles resolved in batch15.",
+    "1773p4 missing126angles resolved, but preexisting land/marker line interleaving remains; audit124 repair stays29ok1minor0major, initial27ok3minor0major fixed.",
+    "1774p3 other pesticide manufacturers detached;1790p4 economic-notice period endingで crosses city list.",
+    "1762p5 approval manufacturer/signature/type description interrupt sand-control points10/11; road94/199/61 fields interleave.",
+    "1798p6 road1175 unit/width/length78 appears inside sand-control1176;1802p5 road221/95 wrapped intervals cross inspection-place columns.",
+    "Audit126minor165p715 and226p108 table header line concatenation;215p457 circled⑮⑯⑰ absent;169p84 newold first-article display row joined while separate source cells remain.",
+    "Further unreconstructed coordinate/surname/unit candidates remain; no overall100percent claim.",
+    "Audit126174p87 title boundary and192p30 microvolume/chemical hyphens repaired. Initial audit12624ok4minor2major remains fixed, not retrospectively rescored.",
+    "215p376 printed reference83/equation93 composite Glyphs remain missing despite both0.3μm repaired. Neighbor215p375 has16rho and12m3 native symbols missing;215p377 references83/94 remain;192p31 multiline fractions and192p29 Document column join remain.",
+    "Audit127 initial12ok1minor17major and separately scoped strict9ok1minor20major/body25ok2minor3major are frozen. All30 full before36/after37 Analysis exact. Independent company/approval notices often remain unsplit; no overall100percent claim.",
+    "Audit1271784p7 plant registration31883 continuation six-column association and附則 order;203p85 upper continuation31 actual E61C dashes absent;188p91 common remarks rowspan split;1802p6Article template bullet/section mixing;226p9 headerless after/before Document role absent.",
+    "Audit127161p50 joint ministries shared notice number interleaves;1766p31 e_combiningLowline URL instead of source underscore-like glyph has native4pt advance. Unverified missing surname visible box is native0 and is not guessed.",
+    "Batch17 fixes the9 native parallel textual-numerator formulae and1799p4 framed continuation; initial audit125/126/127 grades remain frozen. No claim that every other field on those pages is correct.",
+    "1799p3 headerless four-band After/Before ordering remains major in accepted17; cache18 v2 is separately test-first validated but not integrated.1799p5 inner address/name column wrapping also remains.",
+    "225p11 field11 numeric1.87/100 times1/2 remains flat/incorrect;201p13 field11 numeric1.8/100 times(1/2 minus2/365) remains flat.201p13 farmland370番11 name/address splits into extra logical row and shared owner rowspan5 is lost.",
+    "225p8 field17 label/value wrapping and225p11 field16(2) trailing2 remain minor.201p13 upper nativeGlyph0 notice is excluded only within its exact source rectangle, with positive neighboring witnesses.",
+    "Company candidatev2 has1786 Article-only changed pages and11992 mechanical ownership/Document newline checks, but visual scope964unique pages has958pending. It is cache-only and is not an accepted fix.",
+    "Audit128 strict11ok6minor13major/body21ok1minor8major are immutable initial scores; all30 complete before37/after38 Analysis are exact. Findings preexist17; no overall100percent or old-rate comparability claim.",
+    "Audit128187p6 headerless continued after-cell follows before-cell;228p347 note3 values interleave CF heading;1786p5 unruled tobacco/Coastguard columns interleave;188p84 BS Document grouping missing;180p7 medicine newold inner3-column association lost.",
+    "Audit128179p58 four-band newold continuation and Article roles lost;1759p9 map left/right11-record fields split around other notices;172p303 budget48-row structure lost;228p175 financial Document tables missing;165p751 shared都道府県 rowspan reaches only土木, not教育/総務.",
+    "Audit128188p60 surveying7-column9-record table splits4+3columns;215p396 final33–46 common footer assigned to wrong ShinkyuRow;206p291 joint-ministry citation3-column wrapping mixes Article7 namespace. Native0 exclusions are limited to11exact rectangles, no whole page excluded."
+  ]
+}

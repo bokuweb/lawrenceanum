@@ -1,0 +1,86 @@
+{
+  "batch": 30,
+  "parent": "issue227-generality-audit-29.json",
+  "source_manifest": {
+    "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated52-source-manifest.json",
+    "sha256": "3c64329dd45ad488e882b5814350ac7471b8cb2f6c15513c5e6ce85963d53edd"
+  },
+  "facility_general_rule": "Formal source five-field header anchors, preceding printed record, native separator band, numeric axes and complete unique original Word ownership determine records. Unit count/Word segmentation/name length/record count do not determine the schema. Names are values, not identity keys. Every unassigned source Word must be physically disjoint under normalized closed bbox intersection; all statuses/raw-empty/points/edge contact included, unknown nonfinite geometry abstains.",
+  "removed_empirical_limits": [
+    "exactly2records",
+    "exactly4PlainUnits",
+    "first3bands exactly2Lines",
+    "name2..30characters",
+    "address/ownership2..24characters",
+    "oneWord per name/address/owner",
+    "code3..8characters",
+    "midpage requirement",
+    "distinct facility-name strings"
+  ],
+  "remaining_applicability_limits": [
+    "Only the explicit five-field 施設番号/施設名/所在地名/所有関係/摘要 schema is supported; no unknown or extra fields are guessed.",
+    "All five source fields must be present and unambiguous; duplicate codes/owner IDs or conflicting axes/rules abstain.",
+    "Portrait vertical input and geometric confidence limits remain: wide native caps, aligned field axes/font em widths, bounded cap-end overhang and close final source-to-cap gap. These are applicability limits, not universal guarantees.",
+    "Independent multiple candidate bands/headers are still rejected by the unique-plan requirement, even if future geometric proof might separate them. This was not generalized in this change.",
+    "The actual changed page still has an unrelated existing major in 75号 road table/signature order; partial improvement is not whole-page success."
+  ],
+  "source_proof": "Five actual source field labels define the supported schema, numeric IDs and independent physical axes define records, native separators bound the continuation; labels do not compare facility/agency/place names or expected output.",
+  "closed_source_coverage": "Every unassigned Word status/raw/empty/inverted/zero/edge box is checked; nonfinite geometry cannot prove disjointness. Same name is a value, not record identity.",
+  "original_same_name_negative_explicitly_reclassified": true,
+  "old_initial_same_name_test_and_failed_results_retained": true,
+  "metamorphic_tests": {
+    "private_new_facility": 31,
+    "prior_facility_trace": 33,
+    "final_facility_trace": 64,
+    "scale_translation_positive_combinations": 90,
+    "closed_edge_negative_transforms": 10,
+    "root_extra_testfirst": {
+      "rows": [
+        {
+          "label": "baseline",
+          "exit": 101,
+          "passed": 0,
+          "failed": 2,
+          "log_sha256": "657fd171fb3babcacf991f1fd26e23276412982c71cf7f283da77a251ffcd95c"
+        },
+        {
+          "label": "candidate",
+          "exit": 0,
+          "passed": 2,
+          "failed": 0,
+          "log_sha256": "c15bf2c7cefc4bd98bc79bcf201466fe853da1daa4c22e64c532da72354962e5"
+        }
+      ],
+      "positive_transforms": 90,
+      "closed_edge_negative_transforms": 10,
+      "production_candidate_byteexact_to_frozen11992_candidate": true,
+      "no_shared_changes": true
+    }
+  },
+  "legacy_decoder_datum": {
+    "code": "U+E9F5",
+    "decoded": "（チ）",
+    "original_Glyphs": 3,
+    "pages": 2,
+    "CID": 25937,
+    "source": "Real CFF outline/ToUnicode and original page validation; this is an encoding table entry in the existing legacy decoder, not a language/paragraph/page/name branch.",
+    "ordinary_AJ1_CID1657_rescue_preserved": true,
+    "arbitrary_unknown_fonts_not_claimed_supported": true,
+    "unconfirmed_neighbor_entries_unchanged": true
+  },
+  "no_three_surname_static_mappings_added": true,
+  "broad_parser_all_ad_hoc_free_claim": false,
+  "other_pending_generality_work": [
+    "Financial parenthetical rule stroke support and cap geometry",
+    "Continuation cell Word projection requires all original Glyph provenance",
+    "Optional CFF AJ1 fallback must preserve prior explicit decoder precedence",
+    "Multiple independently proven facility bands are still rejected rather than guessed"
+  ],
+  "models": {
+    "user_allowed_RURI_and_ModernBERT_opt_in": true,
+    "download_training_inference_performed": false,
+    "default_behavior_changed": false,
+    "utility_not_established": true,
+    "prior_evaluation_plan": "issue227-generality-audit-29.json"
+  }
+}

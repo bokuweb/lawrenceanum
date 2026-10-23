@@ -213,12 +213,91 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
     if continues(&ui, &li) || (ua.len() >= 2 && la.len() >= 1 && la.iter().min() > ua.iter().max() && ua.len() + la.len() >= 4) {
         return None;
     }
+    // 料金表などの行名「第四項第一号…第四項第七号」「第四項第八号…」も、項と号を合わせて
+    // 比べる。条番号だけを拾うと、似た金額が上下に続く通常の表を新旧対照表と取り違える。
+    let (ur, lr) = (provision_references(&upper), provision_references(&lower));
+    if ur.len() >= 3 && lr.len() >= 3 && lr.iter().min() > ur.iter().max() {
+        return None;
+    }
+    let (uk, lk) = (kana_headings(&upper), kana_headings(&lower));
+    let lower_starts_heading = lower
+        .iter()
+        .max_by(|a, b| a.x.total_cmp(&b.x).then_with(|| b.y.total_cmp(&a.y)))
+        .is_some_and(|c| kana_number(&c.text).is_some());
     let ut = reconstruct_page(upper);
     let lt = reconstruct_page(lower);
+    // 同じ小項目を持つ説明（イの下にもロの下にも（イ）〜（ホ）がある等）は上下で似る。
+    // 大項目のカナ番号が進み、帯の切れ目でカタカナ語まで続いているなら、通常の段送り。
+    // カナ番号の変更だけでは新旧対照表の号の繰下げと区別できないので、両方を求める。
+    let katakana = |c: char| ('ァ'..='ヶ').contains(&c) || c == 'ー';
+    if !uk.is_empty()
+        && !lk.is_empty()
+        && lk.iter().min() > uk.iter().max()
+        && !lower_starts_heading
+        && ut.trim_end().chars().rev().take_while(|&c| katakana(c)).count() >= 2
+        && (1..=2).contains(&lt.trim_start().chars().take_while(|&c| katakana(c)).count())
+    {
+        return None;
+    }
     if bigram_jaccard(&ut, &lt) < 0.5 || sequence_ratio(&ut, &lt) < 0.5 {
         return None;
     }
     Some(divider)
+}
+
+/// 列頭の条・項・号を合わせた参照番号（「第二条第四項第八号」など）。
+/// 同じ参照の「ただし書」の列は一度だけ数える。
+fn provision_references(band: &[Col]) -> Vec<[u32; 3]> {
+    let mut refs = Vec::new();
+    for g in column_groups(band.to_vec()) {
+        let Some(top) = g.iter().min_by(|a, b| a.y.total_cmp(&b.y)) else { continue };
+        let mut rest = top.text.trim();
+        let mut numbers = [0; 3];
+        let mut last = None;
+        while let Some(s) = rest.strip_prefix('第') {
+            let n: String = s.chars().take_while(|c| "〇一二三四五六七八九十百千".contains(*c)).collect();
+            let Some(value) = kanji_number(&n) else { break };
+            let Some(unit) = s[n.len()..].chars().next() else { break };
+            let index = match unit {
+                '条' => 0,
+                '項' => 1,
+                '号' => 2,
+                _ => break,
+            };
+            if last.is_some_and(|i| index <= i) {
+                break;
+            }
+            numbers[index] = value;
+            last = Some(index);
+            rest = &s[n.len() + unit.len_utf8()..];
+        }
+        if last == Some(2) && numbers[..2] != [0, 0] {
+            refs.push(numbers);
+        }
+    }
+    refs.sort_unstable();
+    refs.dedup();
+    refs
+}
+
+/// 括弧の無いカナの号見出し。本文の語頭「ローカル」等は数えない。
+fn kana_headings(band: &[Col]) -> Vec<usize> {
+    column_groups(band.to_vec())
+        .iter()
+        .filter_map(|g| {
+            let top = g.iter().min_by(|a, b| a.y.total_cmp(&b.y))?;
+            kana_number(&top.text)
+        })
+        .collect()
+}
+
+fn kana_number(text: &str) -> Option<usize> {
+    let mut chars = text.trim_start().chars();
+    let c = chars.next()?;
+    if chars.next().is_some_and(|next| !next.is_whitespace()) {
+        return None;
+    }
+    "イロハニホヘトチリヌルヲワカヨタレソツネナラムウヰノオクヤマケフコエテアサキユメミシヱヒモセス".chars().position(|k| k == c)
 }
 
 /// 段の列の頭の番号（算用数字で始まる列の頭の項番号と、条の見出し「第二十八条」の条番号を別々に。枝番の「の二」は
@@ -438,6 +517,52 @@ pub(crate) fn reconstruct_shinkyu(cols: Vec<Col>, header_x: f32, divider: f32, g
     layout.into_unit(grids, rules)
 }
 
+/// 上下の数表の行番号が順に続くなら、前の記事の通常表の段送り。新旧帯なら同じ番号を繰り返す。
+/// 各段の右端から整数見出しが3列以上連続し、上段全体が連番、下段先頭がその次の番号であること。
+/// 本文が数値だけの列に限り、略・新設などの新旧表の印がある場合は従来の判定に残す。
+fn continues_numbered_numeric_table(after: &[Col], before: &[Col]) -> bool {
+    if after.iter().chain(before).any(|c| has_shinkyu_marks(&c.text)) {
+        return false;
+    }
+    let rows = |band: &[Col], complete: bool| -> Option<Vec<(u32, f32)>> {
+        let mut out = Vec::new();
+        let mut top = None;
+        for g in column_groups(band.to_vec()) {
+            let head = g.iter().min_by(|a, b| a.y.total_cmp(&b.y))?;
+            let text = head.text.trim();
+            let integer = !text.is_empty() && text.chars().count() <= 4 && text.chars().all(|c| c.is_ascii_digit() || ('０'..='９').contains(&c));
+            if !integer {
+                if complete {
+                    return None;
+                }
+                break;
+            }
+            let n = text
+                .chars()
+                .fold(0, |n, c| n * 10 + c.to_digit(10).unwrap_or_else(|| c as u32 - '０' as u32));
+            // 説明文の項番号や、次の列へ折り返した数値を見出しにしない。
+            if top.is_some_and(|y: f32| (head.y - y).abs() > 2.0)
+                || g.len() < 4
+                || !g.iter().filter(|c| c.id != head.id).all(|c| {
+                    !c.text.is_empty()
+                        && c.text
+                            .chars()
+                            .all(|ch| ch.is_whitespace() || ch.is_ascii_digit() || ('０'..='９').contains(&ch) || ".．,，＋+－-−△()（）".contains(ch))
+                })
+            {
+                return None;
+            }
+            top = Some(head.y);
+            out.push((n, (head.x + head.x1) / 2.0));
+        }
+        (out.len() >= 3 && out.windows(2).all(|w| w[1].0 == w[0].0 + 1)).then_some(out)
+    };
+    let (Some(a), Some(b)) = (rows(after, true), rows(before, false)) else {
+        return false;
+    };
+    b[0].0 == a.last().unwrap().0 + 1 && (a[0].1 - b[0].1).abs() <= 2.0
+}
+
 /// 新旧対照表 1 件分のカラム配置。
 ///
 /// 帯ごとのカラム群をページ内の段ごとに分けて持つ（同じ x に別の段の列があるため、
@@ -643,16 +768,20 @@ impl ShinkyuLayout {
             }
             return units;
         }
-        units.push(
-            ShinkyuLayout {
-                band_boxes: None,
-                preamble: Vec::new(),
-                after: vec![after],
-                before: vec![before],
-                trailing: Vec::new(),
-            }
-            .into_unit(grids, rules),
-        );
+        let numbered_continuation = continues_numbered_numeric_table(&after, &before);
+        let unit = ShinkyuLayout {
+            band_boxes: None,
+            preamble: Vec::new(),
+            after: vec![after],
+            before: vec![before],
+            trailing: Vec::new(),
+        }.into_unit(grids, rules);
+        // 罫線や数値の類似だけでは前の記事の表を新旧表にしない。通常の数表と分かったときは、
+        // 組み上がった行・Table・語IDはそのままに、新旧属性だけを外す。
+        units.push(if numbered_continuation {
+            let Unit::Shinkyu { preamble, after, before, outside } = unit else { unreachable!() };
+            Unit::Plain(preamble.into_iter().chain(after.into_iter().flatten()).chain(before.into_iter().flatten()).chain(outside.into_iter().flatten()).collect())
+        } else { unit });
         if !outside.is_empty() {
             units.push(Unit::Plain(outside));
         }
@@ -1475,6 +1604,26 @@ mod tests {
     }
 
     #[test]
+    fn headerless_table_may_renumber_kana_items() {
+        // 改正後のイと改正前のロが対応する。上帯の末尾がカタカナでも、下帯は号見出しから
+        // 始まるので、前の語の続きとして扱わない。
+        use crate::vertical::Col;
+        let mut cols = Vec::new();
+        for (y, label) in [(80.0, "イ"), (450.0, "ロ")] {
+            for (x, offset, end, text) in [
+                (540.0, 0.0, 8.0, label),
+                (540.0, 16.0, 320.0, "事業を継続するために必要な措置を実施するものとする。"),
+                (520.0, 0.0, 320.0, "事業を実施するときは計画を策定し適切な実施体制を整備する。"),
+                (500.0, 0.0, 320.0, "事業計画に基づく取組を実施した者はその結果を報告する。"),
+                (480.0, 0.0, 320.0, "事業の種別については次のとおりとするカタカナ"),
+            ] {
+                cols.push(Col { id: cols.len(), x, x1: x + 8.0, y: y + offset, y1: y + end, text: text.into() });
+            }
+        }
+        assert!(super::detect_shinkyu_bands_headerless(&cols, 842.0).is_some());
+    }
+
+    #[test]
     fn reconstructs_vertical_shinkyu_into_two_bands() {
         // 縦書き新旧対照表の最小ケース: x=150 に「改正後」(上) /「改正前」(下) の
         // 欄見出し列、その左 x=120 に各帯の本文セル(改正後=甲種 / 改正前=乙類)。
@@ -1517,6 +1666,7 @@ mod tests {
         use crate::trace::Unit;
         use crate::vertical::Col;
         let rules = PageRules {
+            enclosures: Vec::new(), short_fraction_bars: Vec::new(),
             vertical: [74.0, 111.25, 310.9, 333.5].iter().map(|&x| VRule { x, y0: 69.5, y1: 412.5 }).collect(),
             horizontal: vec![
                 HRule { y: 69.5, x0: 74.0, x1: 333.5 },
@@ -1543,3 +1693,7 @@ mod tests {
         assert_eq!(text(&outside), "");
     }
 }
+
+#[cfg(test)]
+#[path = "leading_numeric_table_tests.rs"]
+mod leading_numeric_table_tests;

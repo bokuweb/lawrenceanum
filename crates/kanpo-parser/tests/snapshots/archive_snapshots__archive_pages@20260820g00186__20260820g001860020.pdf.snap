@@ -1,0 +1,124 @@
+---
+source: crates/kanpo-parser/tests/archive_snapshots.rs
+assertion_line: 105
+expression: out
+input_file: crates/kanpo-parser/tests/archive/pages/20260820g00186/20260820g001860020.pdf
+---
+layout: horizontal
+format: unknown
+
+--- 本文 ---
+③　情報セキュリティ管理者
+情報セキュリティ責任者は、次のいずれ
+かに該当すること。
+・情報処理安全確保支援士試験の合格者
+又は資格登録者
+・特定非営利活動法人日本システム監査
+人協会（SAAJ）が認定する公認情報
+システム監査人（CSA）の資格保有
+者
+・情報システムコントロール協会
+（ISACA）が認定する公認情報シス
+テム監査人（CISA）の資格保有者
+・情報システムコントロール協会
+（ISACA）が認定する公認情報セキュ
+リティマネージャ（CISM）の資格保
+有者
+・International Information Systems
+Security Certification Consortiumが
+認定するセキュリティプロフェッショ
+ナル認証資格（CISSP）の資格保有者
+・上記のいずれかの試験合格者・資格保
+有者等と同等の能力を有することが、
+経歴等において、明らかな者。
+５．手続等
+（１）　担当部局
+〒100－8918　東京都千代田区霞が関２－
+１－３国土交通省航空局予算・管財室契約係
+ＴＥＬ　03－5253－8111（内線47186）
+（２）　説明書の交付期間及び方法
+令和８年８月20日から令和８年９月８日ま
+で
+（３）　参加意思確認書の提出期限、提出先及び方
+法
+令和８年９月９日　17：00必着
+場所：（１）に同じ。原則として電子メールに
+より提出すること。
+６．その他
+（１）　手続きにおいて使用する言語及び通貨
+日本語及び日本国通貨に限る。
+（２）　関連情報を入手するための照会窓口
+５．（１）に同じ。
+（３）　令和07・08・09年度国土交通省競争参加資
+格（全省庁統一資格）における「役務の提供
+等」に係る一般競争（指名競争）参加資格の
+認定を受けていない場合も５．（３）により参加
+意思確認書を提出することができるが、一般
+競争入札に移行した後、入札参加を希望する
+場合には開札時までに公告等級に適合した資
+格等級の格付けがなされていなければならな
+い。
+（４）　契約予定日　令和８年10月９日
+（５）　随意契約によることとした場合の「政府調
+達に関する協定」の規定上の理由　第13条第
+１項⒝（ⅲ）「技術的な理由による競争の欠如」
+（６）　その他詳細は、公募説明書による。
+７．Summary
+（１）　Subject matter of contract: Improvement
+of the Trajectorized Oceanic Traffic Data
+Processing System, 1 set.
+（２）　Time‑limit to express interests:5:00
+P.M.9 September, 2026
+（３）　Contract point for documentation relat‑
+ing to the proposal: Contract section, Budg‑
+et and Property Administration Office, Inf‑
+rastructure, Transport and Tourism, 2－1－
+3 Kasumigaseki Chiyoda‑ku, Tokyo, 100－
+8918　Japan.　TEL　03－5253－8111　(Ext.
+47186)
+（４）　Expected date of the contract award:9
+October, 2026
+（５）　Reason for the use of the single tendering
+procedure as provided for in the Agreement
+on Government Procurement: Article XⅢ
+1. b.ⅲ“Due to an absence of competition
+for technical reasons”
+（６）　Name of administrator in charge of the
+contract and division which he or she be‑
+longs: IKEMITSU Takashi, Director‑Ge‑
+neral of the Civil Aviation Bureau, Ministry
+of Land, Infrastructure, Transport and
+Tourism.
+破産手続開始及び免責許可申立てに関する意見申述期間
+
+--- 記事 ---
+## 0 (unknown)
+  P ③　情報セキュリティ管理者情報セキュリティ責任者は、次のいずれかに該当すること。
+    ・情報処理安全確保支援士試験の合格者又は資格登録者・特定非営利活動法人日本システム監査人協会（SAAJ）が認定する公認情報システム監査人（CSA）の資格保有者・情報システムコントロール協会
+    （ISACA）が認定する公認情報システム監査人（CISA）の資格保有者・情報システムコントロール協会
+    （ISACA）が認定する公認情報セキュ
+    リティマネージャ（CISM）の資格保有者・International Information SystemsSecurity Certification Consortiumが認定するセキュリティプロフェッショナル認証資格（CISSP）の資格保有者・上記のいずれかの試験合格者・資格保有者等と同等の能力を有することが、経歴等において、明らかな者。
+    ５．手続等
+    （１）　担当部局〒100－8918　東京都千代田区霞が関２－
+    １－３国土交通省航空局予算・管財室契約係ＴＥＬ　03－5253－8111（内線47186）
+    （２）　説明書の交付期間及び方法令和８年８月20日から令和８年９月８日まで
+    （３）　参加意思確認書の提出期限、提出先及び方法令和８年９月９日　17：00必着場所：（１）に同じ。原則として電子メールにより提出すること。
+    ６．その他
+    （１）　手続きにおいて使用する言語及び通貨日本語及び日本国通貨に限る。
+    （２）　関連情報を入手するための照会窓口
+    ５．（１）に同じ。
+    （３）　令和07・08・09年度国土交通省競争参加資格（全省庁統一資格）における「役務の提供等」に係る一般競争（指名競争）参加資格の認定を受けていない場合も５．（３）により参加意思確認書を提出することができるが、一般競争入札に移行した後、入札参加を希望する場合には開札時までに公告等級に適合した資格等級の格付けがなされていなければならない。
+    （４）　契約予定日　令和８年10月９日
+    （５）　随意契約によることとした場合の「政府調達に関する協定」の規定上の理由　第13条第１項⒝（ⅲ）「技術的な理由による競争の欠如」
+    （６）　その他詳細は、公募説明書による。
+    ７．Summary
+    （１）　Subject matter of contract: Improvementof the Trajectorized Oceanic Traffic DataProcessing System, 1 set.
+    （２）　Time‑limit to express interests:5:00P.M.9 September, 2026
+    （３）　Contract point for documentation relat‑ing to the proposal: Contract section, Budg‑et and Property Administration Office, Inf‑rastructure, Transport and Tourism, 2－1－
+    3 Kasumigaseki Chiyoda‑ku, Tokyo, 100－
+    8918　Japan.　TEL　03－5253－8111　(Ext.
+    47186)
+    （４）　Expected date of the contract award:9October, 2026
+    （５）　Reason for the use of the single tenderingprocedure as provided for in the Agreementon Government Procurement: Article XⅢ
+    1. b.ⅲ“Due to an absence of competitionfor technical reasons”
+    （６）　Name of administrator in charge of thecontract and division which he or she be‑longs: IKEMITSU Takashi, Director‑Ge‑neral of the Civil Aviation Bureau, Ministryof Land, Infrastructure, Transport andTourism.破産手続開始及び免責許可申立てに関する意見申述期間

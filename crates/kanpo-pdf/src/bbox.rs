@@ -122,7 +122,7 @@ pub fn poppler_readable(font: &FontInfo) -> bool {
 pub const IDENTITY_CID_BASE: u32 = 0xF0000;
 
 /// 語に入れる文字列。
-fn glyph_text(g: &Glyph, fonts: &[FontInfo]) -> String {
+pub(crate) fn glyph_text(g: &Glyph, fonts: &[FontInfo]) -> String {
     let unmapped = fonts.get(g.font).is_some_and(|f| f.ordering.as_deref() == Some("Identity") && !f.has_to_unicode);
     match char::from_u32(IDENTITY_CID_BASE + g.cid) {
         Some(c) if unmapped && g.cid <= 0xFFFD => c.to_string(),
@@ -286,13 +286,137 @@ fn advance_axes(p: &Glyph, dx: f64, dy: f64) -> (f64, f64) {
     (dx * ux + dy * uy, -dx * uy + dy * ux)
 }
 
+/// Keep the historical Poppler-compatible rectangle while exposing the
+/// original glyph rectangle in display/page coordinates and its writing direction.
+fn native_vertical_attrs(page: &Page, word: &Word) -> String {
+    let Some(first) = word.glyphs.first().and_then(|&i| page.glyphs.get(i)) else { return String::new() };
+    if !first.vertical {
+        return if word.glyphs.iter().all(|&i| page.glyphs.get(i).is_some_and(|g| !g.vertical)) { " data-wmode=\"0\"".into() } else { String::new() };
+    }
+    if !word.glyphs.iter().all(|&i| page.glyphs.get(i).is_some_and(|g| g.vertical)) { return String::new(); }
+    let mut b = [f64::INFINITY, f64::INFINITY, f64::NEG_INFINITY, f64::NEG_INFINITY];
+    for &i in &word.glyphs {
+        let g = &page.glyphs[i];
+        b[0] = b[0].min(g.bbox[0]); b[1] = b[1].min(g.bbox[1]);
+        b[2] = b[2].max(g.bbox[2]); b[3] = b[3].max(g.bbox[3]);
+    }
+    format!(" data-wmode=\"1\" data-advance-x=\"{:.6}\" data-advance-y=\"{:.6}\" data-native-xmin=\"{:.6}\" data-native-ymin=\"{:.6}\" data-native-xmax=\"{:.6}\" data-native-ymax=\"{:.6}\"",
+        first.end_x-first.x, first.end_y-first.y, b[0],b[1],b[2],b[3])
+}
+
+/// Prove Unicode resolution from each original AJ1 CID, rather than treating
+/// an arbitrary CJK scalar as a legacy Identity CID. A partial ToUnicode map
+/// or its presence alone is insufficient: the actual emitted text must equal
+/// the existing AJ1 mapping. No public Glyph/Word fields are changed.
+fn resolved_aj1_word(page: &Page, word: &Word) -> bool {
+    !word.glyphs.is_empty() && word.glyphs.iter().all(|&id| {
+        page.glyphs.get(id).is_some_and(|g| {
+            page.fonts.get(g.font).is_some_and(|f| f.ordering.as_deref() == Some("Japan1"))
+                && crate::font::aj1(g.cid).is_some_and(|c| g.text.chars().eq(std::iter::once(c)))
+        })
+    })
+}
+
 /// ページを `pdftotext -bbox-layout` 形式の XHTML にする。語ごとに 1 つの flow・block・line に入れる。
 pub fn bbox_layout(pages: &[Page]) -> String {
+    layout(pages.iter().map(|p| (p,None,None)), false)
+}
+/// Render only owned original pages with their own source evidence.
+/// There is no external Page argument to which evidence could be transferred.
+///
+/// The old paired-slices call cannot attach one extraction's evidence to
+/// another native page:
+///
+/// ```compile_fail
+/// let pages: &[kanpo_pdf::Page] = &[];
+/// let sources: &[kanpo_pdf::Aj1PageSources] = &[];
+/// let _ = kanpo_pdf::bbox::bbox_layout_with_aj1_sources(pages, sources);
+/// ```
+pub fn bbox_layout_with_aj1_sources(sources: &[crate::Aj1PageSources]) -> String {
+    layout(sources.iter().map(|s| (s.page(),Some(s.resolved()),None)), false)
+}
+/// Original source font/size identities. These are provenance, not inferred boldness.
+/// Each style is bound to the glyphs of its own emitted word.
+pub fn bbox_layout_with_native_styles(sources: &[crate::Aj1PageSources]) -> String {
+    layout(sources.iter().map(|s| (s.page(), Some(s.resolved()),Some(s.ink_rects()))), true)
+}
+fn native_styles(page: &Page, word: &Word) -> Option<String> {
+    let mut styles = std::collections::BTreeSet::new();
+    for &id in &word.glyphs {
+        let g = page.glyphs.get(id)?;
+        if !g.size.is_finite() || g.size <= 0.0 || page.fonts.get(g.font).is_none() {
+            return None;
+        }
+        styles.insert((g.font, g.size.to_bits()));
+    }
+    if styles.is_empty() {
+        return None;
+    }
+    Some(
+        styles
+            .into_iter()
+            .map(|(f, b)| format!("{f}:{b:016x}"))
+            .collect::<Vec<_>>()
+            .join(" "),
+    )
+}
+/// Source fonts of alphanumeric glyphs, without treating punctuation fonts
+/// as content typography. The complete raw word must be reproduced first.
+fn native_content_styles(page: &Page, word: &Word, resolved: Option<&[Option<char>]>) -> Option<String> {
+    native_styles(page, word)?;
+    if word.glyphs.windows(2).any(|pair| pair[0] >= pair[1]) { return None; }
+    let candidate = resolved.and_then(|s| crate::source_aj1::word_candidate(page, word, s));
+    let mut candidate_chars = candidate.as_deref().map(str::chars);
+    let mut raw = String::new();
+    let mut content = std::collections::BTreeSet::new();
+    for &id in &word.glyphs {
+        let g = page.glyphs.get(id)?;
+        let font = page.fonts.get(g.font)?;
+        let emitted = glyph_text(g, &page.fonts);
+        raw.push_str(&emitted);
+        let semantic = if font.ordering.as_deref() == Some("Identity") && !font.has_to_unicode {
+            candidate_chars.as_mut()?.next()?.to_string()
+        } else {
+            emitted
+        };
+        // Opaque private glyph codes do not establish a Unicode character class.
+        if semantic.is_empty() || semantic.chars().any(|c| c.is_control() || matches!(c,
+            '\u{e000}'..='\u{f8ff}' | '\u{f0000}'..='\u{ffffd}' | '\u{100000}'..='\u{10fffd}')) { return None; }
+        if semantic.chars().any(char::is_alphanumeric) { content.insert((g.font, g.size.to_bits())); }
+    }
+    if raw != word.text || candidate_chars.as_mut().is_some_and(|cs| cs.next().is_some()) { return None; }
+    Some(content.into_iter().map(|(f,b)| format!("{f}:{b:016x}")).collect::<Vec<_>>().join(" "))
+}
+/// Source advances certify a displayed reading axis independently of font mode
+/// and word aspect. No rounding or tolerance can turn a diagonal into an axis.
+fn native_source_axis(page: &Page, word: &Word) -> Option<&'static str> {
+    native_styles(page, word)?;
+    if word.glyphs.windows(2).any(|p| p[0] >= p[1]) { return None; }
+    let mut axis = None;
+    let mut raw = String::new();
+    for &id in &word.glyphs {
+        let glyph = page.glyphs.get(id)?;
+        if glyph.invisible || ![glyph.x,glyph.y,glyph.end_x,glyph.end_y].iter().all(|x|x.is_finite()) { return None; }
+        let (x,y) = (glyph.end_x-glyph.x,glyph.end_y-glyph.y);
+        let direction = match (x,y) {
+            (x,0.) if x.is_finite() && x>0. => "right",
+            (0.,y) if y.is_finite() && y>0. => "down",
+            (x,0.) if x.is_finite() && x<0. => "left",
+            (0.,y) if y.is_finite() && y<0. => "up",
+            _ => return None,
+        };
+        if axis.is_some_and(|a|a!=direction) { return None; }
+        axis = Some(direction);
+        raw.push_str(&glyph_text(glyph,&page.fonts));
+    }
+    (raw == word.text).then_some(axis).flatten()
+}
+fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>,Option<&'a [Option<[f64;4]>]>)>, emit_styles:bool) -> String {
     let mut s = String::from(
         "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\
          <html xmlns=\"http://www.w3.org/1999/xhtml\">\n<head>\n<title></title>\n</head>\n<body>\n<doc>\n",
     );
-    for page in pages {
+    for (page, resolved_source, ink_rects) in pages {
         // poppler は /Rotate の前の幅・高さを書く。
         let (w, h) = if page.rotate % 180 == 90 {
             (page.height, page.width)
@@ -305,9 +429,24 @@ pub fn bbox_layout(pages: &[Page]) -> String {
                 "xMin=\"{:.6}\" yMin=\"{:.6}\" xMax=\"{:.6}\" yMax=\"{:.6}\"",
                 word.x_min, word.y_min, word.x_max, word.y_max
             );
+            let native = native_vertical_attrs(page, &word);
+            let styles=if emit_styles { native_styles(page,&word).map(|s|format!(" data-native-styles=\"{s}\"")).unwrap_or_default() }else{String::new()};
+            let axis = if emit_styles { format!(" data-native-axis=\"{}\"",native_source_axis(page,&word).unwrap_or("unknown")) } else { String::new() };
+            let ruling=if emit_styles {ink_rects.and_then(|r|crate::source_ruling::word_ruling(page,&word,r)).map(|(axis,[x0,y0,x1,y1])|{
+                format!(" data-native-ruling=\"{axis}\" data-native-ink-xmin=\"{x0}\" data-native-ink-ymin=\"{y0}\" data-native-ink-xmax=\"{x1}\" data-native-ink-ymax=\"{y1}\"")
+            }).unwrap_or_default()}else{String::new()};
+            let content = if emit_styles {
+                let value = native_content_styles(page, &word, resolved_source).unwrap_or_else(|| "unknown".into());
+                format!(" data-native-content-styles=\"{value}\"")
+            } else { String::new() };
+            let source_attr = resolved_source
+                .and_then(|source| crate::source_aj1::word_candidate(page, &word, source))
+                .map(|text| format!(" data-source-aj1-text=\"{}\"", escape(&text)))
+                .unwrap_or_default();
+            let resolved = if resolved_aj1_word(page, &word) { " data-unicode-aj1=\"1\"" } else { "" };
             let _ = writeln!(
                 s,
-                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}>{}</word>\n        </line>\n      </block>\n    </flow>",
+                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}{axis}{ruling}>{}</word>\n        </line>\n      </block>\n    </flow>",
                 escape(&word.text)
             );
         }
@@ -358,9 +497,11 @@ mod tests {
         }
     }
 
-    fn page(glyphs: Vec<Glyph>) -> Page {
-        let font = FontInfo { name: "F".into(), vertical: false, ordering: Some("Japan1".into()), has_to_unicode: false };
-        Page { width: 595.0, height: 842.0, rotate: 0, glyphs, paths: Vec::new(), fonts: vec![font.clone(), font] }
+    pub(super) fn page(glyphs: Vec<Glyph>) -> Page {
+        let font = FontInfo { name: "F".into(), vertical: false, ordering: Some("Japan1".into()), has_to_unicode: false,
+        };
+        Page { width: 595.0, height: 842.0, rotate: 0, glyphs, paths: Vec::new(), fonts: vec![font.clone(), font],
+        }
     }
 
     fn texts(p: &Page) -> Vec<String> {
@@ -398,14 +539,16 @@ mod tests {
 
     #[test]
     fn joins_adjacent_glyphs_and_splits_at_gaps() {
-        let p = page(vec![glyph("令", 10.0, 0), glyph("和", 18.0, 0), glyph("八", 40.0, 0)]);
+        let p = page(vec![glyph("令", 10.0, 0), glyph("和", 18.0, 0), glyph("八", 40.0, 0),
+        ]);
         assert_eq!(texts(&p), ["令和", "八"]);
     }
 
     #[test]
     fn drops_duplicated_glyph_drawn_on_top() {
         // 同じ字を 0.04pt ずらして重ね描きしたものは 1 字にする。
-        let p = page(vec![glyph("太", 10.0, 0), glyph("太", 10.04, 0), glyph("字", 18.0, 0)]);
+        let p = page(vec![glyph("太", 10.0, 0), glyph("太", 10.04, 0), glyph("字", 18.0, 0),
+        ]);
         assert_eq!(texts(&p), ["太字"]);
         assert_eq!(words(&p)[0].glyphs, vec![0, 2]);
     }
@@ -423,3 +566,136 @@ mod tests {
         assert_eq!(texts(&p), ["度\u{EAD6}", "\u{EADF}", "」"]);
     }
 }
+
+#[cfg(test)]
+#[path = "native_vertical_bbox_tests.rs"]
+mod native_vertical_bbox_tests;
+#[cfg(test)]
+mod native_style_tests {
+    use super::*;
+    pub(super) fn glyph(text: &str, x: f64, font: usize, size: f64) -> Glyph {
+        Glyph {
+            text: text.into(),
+            code: 0,
+            cid: 0,
+            font,
+            x,
+            y: 100.,
+            end_x: x + 8.,
+            end_y: 100.,
+            size,
+            vertical: false,
+            bbox: [x, 93., x + 8., 102.],
+            invisible: false,
+            spacing: 0.,
+            kern: 0.,
+            show: 0,
+        }
+    }
+    pub(super) fn page(glyphs: Vec<Glyph>) -> Page {
+        let f = crate::page::FontInfo {
+            name: "arbitrary".into(),
+            vertical: false,
+            ordering: None,
+            has_to_unicode: false,
+        };
+        Page {
+            width: 595.,
+            height: 842.,
+            rotate: 0,
+            glyphs,
+            paths: vec![],
+            fonts: vec![f.clone(), f],
+        }
+    }
+    #[test]
+    fn style_identity_belongs_to_each_source_word_not_its_text() {
+        let p = page(vec![glyph("同", 10., 0, 8.), glyph("同", 40., 1, 9.)]);
+        let ws = words(&p);
+        assert_eq!(ws.len(), 2);
+        assert_eq!(
+            native_styles(&p, &ws[0]).as_deref(),
+            Some("0:4020000000000000")
+        );
+        assert_eq!(
+            native_styles(&p, &ws[1]).as_deref(),
+            Some("1:4022000000000000")
+        );
+    }
+    #[test]
+    fn a_multi_glyph_word_keeps_all_source_style_identities() {
+        let p = page(vec![glyph("甲", 10., 0, 8.), glyph("乙", 18., 1, 8.)]);
+        let w = Word {
+            text: "甲乙".into(),
+            x_min: 10.,
+            y_min: 93.,
+            x_max: 26.,
+            y_max: 102.,
+            glyphs: vec![0, 1],
+        };
+        assert_eq!(
+            native_styles(&p, &w).as_deref(),
+            Some("0:4020000000000000 1:4020000000000000")
+        );
+    }
+    #[test]
+    fn incomplete_or_invalid_source_styles_are_not_partially_emitted() {
+        let p = page(vec![glyph("甲", 10., 0, 8.)]);
+        let mut w = words(&p).remove(0);
+        w.glyphs.push(10);
+        assert_eq!(native_styles(&p, &w), None);
+        w.glyphs.clear();
+        assert_eq!(native_styles(&p, &w), None);
+        for size in [0., -1., f64::NAN, f64::INFINITY] {
+            let p = page(vec![glyph("甲", 10., 0, size)]);
+            let w = Word {
+                text: "甲".into(),
+                x_min: 10.,
+                y_min: 93.,
+                x_max: 18.,
+                y_max: 102.,
+                glyphs: vec![0],
+            };
+            assert_eq!(native_styles(&p, &w), None);
+        }
+        let p = page(vec![glyph("甲", 10., 20, 8.)]);
+        let w = Word {
+            text: "甲".into(),
+            x_min: 10.,
+            y_min: 93.,
+            x_max: 18.,
+            y_max: 102.,
+            glyphs: vec![0],
+        };
+        assert_eq!(native_styles(&p, &w), None);
+    }
+    #[test]
+    fn source_style_renderer_only_adds_metadata_to_the_legacy_rendering() {
+        let p = page(vec![glyph("同", 10., 0, 8.), glyph("同", 40., 1, 9.)]);
+        let sources = vec![crate::Aj1PageSources { ink_rects:vec![],
+            resolved: vec![None, None],
+            original: p.clone(),
+        }];
+        let old = bbox_layout_with_aj1_sources(&sources);
+        let mut new = bbox_layout_with_native_styles(&sources);
+        assert_eq!(new.matches(" data-native-styles=\"").count(), 2);
+        for attr in ["data-native-styles", "data-native-content-styles", "data-native-axis", "data-native-ruling", "data-native-ink-xmin", "data-native-ink-ymin", "data-native-ink-xmax", "data-native-ink-ymax"] {
+            let needle = format!(" {attr}=\"");
+            while let Some(start) = new.find(&needle) {
+                let from = start + needle.len();
+                let end = from + new[from..].find('"').unwrap() + 1;
+                new.replace_range(start..end, "");
+            }
+        }
+        assert_eq!(old, new);
+        assert_eq!(old, bbox_layout(&[p]));
+    }
+}
+
+#[cfg(test)]
+#[path="native_content_style_tests.rs"]
+mod native_content_style_tests;
+
+#[cfg(test)]
+#[path="native_axis_tests.rs"]
+mod native_axis_tests;

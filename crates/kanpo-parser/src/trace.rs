@@ -54,14 +54,28 @@ pub struct TableCell {
 impl Table {
     /// テキスト出力用に、行ごとにセルを全角空白で区切って書き下す（セルの中の改行も全角空白に
     /// する。「大管工業㈱」「代表取締役　中島　栄一」のような項目を続けて書かないため）。
+    /// 値のない列も区切りを残し、見出しと金額の列位置を保つ。結合セルは開始列にだけ書く。
     pub fn render(&self) -> String {
         (0..self.rows)
-            .map(|r| {
-                let mut cells: Vec<&TableCell> = self.cells.iter().filter(|c| c.row == r).collect();
-                cells.sort_by_key(|c| c.col);
-                cells.iter().map(|c| c.text.replace('\n', "\u{3000}")).collect::<Vec<_>>().join("\u{3000}")
+            .filter_map(|r| {
+                let cells: Vec<&TableCell> = self.cells.iter().filter(|c| c.row == r).collect();
+                // 従来と同じく、セルなし・空セル一つだけの行は出力しない。
+                if cells.is_empty() || (cells.len() == 1 && cells[0].text.is_empty()) {
+                    return None;
+                }
+                let mut columns = vec![String::new(); self.cols];
+                for cell in cells {
+                    // 不規則な結合罫線では同じ開始列に複数セルが残ることがある。
+                    // 後のセル（空セルも含む）で先の本文を上書きしない。
+                    let text = cell.text.replace('\n', "\u{3000}");
+                    let column = &mut columns[cell.col];
+                    if !column.is_empty() && !text.is_empty() {
+                        column.push('\u{3000}');
+                    }
+                    column.push_str(&text);
+                }
+                Some(columns.join("\u{3000}").trim_end().to_string())
             })
-            .filter(|l| !l.is_empty())
             .collect::<Vec<_>>()
             .join("\n")
     }
@@ -149,9 +163,33 @@ pub struct Word {
     pub status: WordStatus,
 }
 
+pub(crate) type NativeStyles = std::collections::BTreeSet<(usize, u64)>;
+
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum ContentStyles { Compatibility, Glyphs(NativeStyles), Unknown }
+
+/// Geometry for the same original source occurrence as a Word. Unknown explicit
+/// metadata must not fall back to a plausible compatibility rectangle.
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum NativeBounds {
+    Compatibility,
+    Glyphs([f32; 4]),
+    Unknown,
+}
+
 /// 1 ページの復元結果。
 #[derive(Debug, Clone, Serialize)]
 pub struct PageTrace {
+    #[serde(skip)]
+    pub(crate) native_styles: Vec<Option<NativeStyles>>,
+    #[serde(skip)]
+    pub(crate) native_bounds: Vec<NativeBounds>,
+    #[serde(skip)]
+    pub(crate) native_content_styles: Vec<ContentStyles>,
+    #[serde(skip)]
+    pub(crate) native_axes: Vec<crate::native_word_axes::NativeAxis>,
+    #[serde(skip)]
+    pub(crate) native_rulings:Vec<crate::native_word_rulings::NativeRuling>,
     pub width: f32,
     pub height: f32,
     /// ページ全体をどう扱ったか: `"tiers"`（段に分けて復元）/ `"headerless_shinkyu"`
@@ -184,6 +222,84 @@ pub(crate) fn parse_table_marker(s: &str) -> Option<usize> {
     s.trim().strip_prefix('\u{E000}')?.strip_suffix('\u{E001}')?.parse().ok()
 }
 
+#[cfg(test)]
+mod tests {
+    use super::{Table, TableCell};
+
+    fn cell(row: usize, col: usize, text: &str) -> TableCell {
+        TableCell {
+            row,
+            col,
+            rowspan: 1,
+            colspan: 1,
+            x0: 0.0,
+            y0: 0.0,
+            x1: 1.0,
+            y1: 1.0,
+            text: text.to_string(),
+            words: Vec::new(),
+        }
+    }
+
+    fn table(rows: usize, cols: usize, cells: Vec<TableCell>) -> Table {
+        Table {
+            x0: 0.0,
+            y0: 0.0,
+            x1: 1.0,
+            y1: 1.0,
+            rows,
+            cols,
+            cells,
+        }
+    }
+
+    #[test]
+    fn render_keeps_leading_and_internal_empty_columns() {
+        let table = table(
+            2,
+            5,
+            vec![
+                cell(0, 3, "20"),
+                cell(0, 1, "10"),
+                cell(1, 0, "合計\n額"),
+                cell(1, 4, "30"),
+            ],
+        );
+        assert_eq!(table.render(), "　10　　20\n合計　額　　　　30");
+    }
+
+    #[test]
+    fn render_writes_merged_cells_only_at_their_start() {
+        let mut merged = cell(0, 0, "見出し");
+        merged.colspan = 2;
+        merged.rowspan = 2;
+        let table = table(2, 4, vec![merged, cell(0, 3, "甲"), cell(1, 2, "乙")]);
+        assert_eq!(table.render(), "見出し　　　甲\n　　乙");
+        assert_eq!(table.to_nested().merges.len(), 1);
+    }
+
+    #[test]
+    fn render_keeps_existing_empty_row_policy() {
+        let table = table(
+            4,
+            3,
+            vec![
+                cell(1, 1, ""),
+                cell(2, 0, ""),
+                cell(2, 1, ""),
+                cell(3, 0, "値"),
+            ],
+        );
+        assert_eq!(table.render(), "\n値");
+    }
+
+    #[test]
+    fn render_keeps_multiple_cells_with_the_same_logical_start() {
+        let table = table(1, 3, vec![cell(0, 1, "レギュラー"), cell(0, 1, "リッチ"), cell(0, 1, "")]);
+        assert_eq!(table.render(), "　レギュラー　リッチ");
+    }
+}
+
 /// 段（または表）1 つ分の復元結果。テキストと領域の両方をここから作る。
 pub(crate) enum Unit {
     Plain(Vec<Line>),
@@ -195,13 +311,52 @@ pub(crate) enum Unit {
     },
 }
 
-/// 行列を改行で連結する（前後の空白は落とす）。
+/// 行列を改行で連結する（本文の前後空白は落とし、表の先頭空欄の区切りは残す）。
 pub(crate) fn join_lines(lines: &[Line]) -> String {
     join_lines_with(lines, &mut |l| l.text.clone())
 }
 
+// Only a coherent first printed Table can certify positional leading columns.
+// An ordinary line, even one beginning with ideographic spaces and digits,
+// remains subject to the existing boundary-whitespace policy.
+fn first_rendered_table<'a>(mut lines: impl Iterator<Item = &'a Line>) -> Option<&'a Table> {
+    let first = lines.find(|line| !line.text.trim().is_empty())?;
+    first.table.as_ref().filter(|table| {
+        // Stale or deliberately unsupported metadata must not make boundary trim
+        // call Table::render with an out-of-range column index.
+        table.rows > 0
+            && table.cols > 0
+            && table.cells.iter().all(|cell| cell.row < table.rows && cell.col < table.cols)
+            && table.render() == first.text
+    })
+}
+
+fn trim_rendered_boundary(text: &str, table: Option<&Table>) -> String {
+    let trimmed = text.trim();
+    let leading = table.and_then(|table| {
+        let row = table.cells.iter().filter(|cell| !cell.text.trim().is_empty()).map(|cell| cell.row).min()?;
+        let col = table.cells.iter().filter(|cell| cell.row == row && !cell.text.trim().is_empty()).map(|cell| cell.col).min()?;
+        if col == 0 || col >= table.cols { return None; }
+        let rendered = table.render();
+        let expected = rendered.lines().find(|line| !line.trim().is_empty())?;
+        let actual = text.lines().find(|line| !line.trim().is_empty())?;
+        // Callback-rendered document markers, stale text and source indentation
+        // are not table-column evidence. Never infer columns from numbers alone.
+        (actual == expected).then_some(col)
+    }).unwrap_or(0);
+    format!("{}{}", "\u{3000}".repeat(leading), trimmed)
+}
+
+pub(crate) fn join_page_texts(pages: &[PageTrace], value: &dyn Fn(&PageTrace) -> &str) -> String {
+    let first = pages.iter().find(|page| !value(page).trim().is_empty());
+    let table = first.and_then(|page| first_rendered_table(page.regions.iter().flat_map(|region| &region.lines)));
+    let text = pages.iter().map(value).filter(|text| !text.is_empty()).collect::<Vec<_>>().join("\n");
+    trim_rendered_boundary(&text, table)
+}
+
 fn join_lines_with(lines: &[Line], render: &mut dyn FnMut(&Line) -> String) -> String {
-    lines.iter().map(render).collect::<Vec<_>>().join("\n").trim().to_string()
+    let text = lines.iter().map(render).collect::<Vec<_>>().join("\n");
+    trim_rendered_boundary(&text, first_rendered_table(lines.iter()))
 }
 
 impl Unit {
@@ -237,6 +392,7 @@ impl Unit {
                 outside,
             } => {
                 let mut out: Vec<String> = Vec::new();
+                let (after_parts, before_parts) = (after, before);
                 let pre = join_lines_with(preamble, render);
                 let mut join = |parts: &[Vec<Line>]| -> String {
                     parts
@@ -263,7 +419,10 @@ impl Unit {
                 if !rest.is_empty() {
                     out.push(rest);
                 }
-                out.join("\n").trim().to_string()
+                let table = first_rendered_table(
+                    preamble.iter().chain(after_parts.iter().flatten()).chain(before_parts.iter().flatten()).chain(outside.iter().flatten()),
+                );
+                trim_rendered_boundary(&out.join("\n"), table)
             }
         }
     }
@@ -299,3 +458,7 @@ impl Unit {
         out
     }
 }
+
+#[cfg(test)]
+#[path = "leading_table_blank_tests.rs"]
+mod leading_table_blank_tests;

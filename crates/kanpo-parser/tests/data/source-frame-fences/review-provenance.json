@@ -1,0 +1,71 @@
+{
+  "scope": "Root nonblind original-image review. g200062 gold predates frame-start implementation; ten newly observed corpus changes were visually reviewed and gold ownership frozen before candidate membership evaluation. Known changed-page identities, not blind evaluation. Used Word ownership only, no transcription/missing-character/internal-reading-order accuracy claim. Mixed-procedure frames and the government zero-Used-Word panel have external-only expectations, allowing later internal refinement.",
+  "originals": [
+    {
+      "page": "20260721g001610168",
+      "original_pdf_sha256": "bfecfb14aac046d62dec0cb9a6948a9685e55bb819b01ffd7a99df96a3f45d53",
+      "frame_gold_sha256": "071fc2fd9d298082cd7628d74dec9fdaa85bf56b0b0c5f0ec4ac89441f69a70f",
+      "scope": "complete independent external publication frames"
+    },
+    {
+      "page": "20260722g001620107",
+      "original_pdf_sha256": "4cf8ee529826ef2ccc1f61a01a5a3dcc212516f823026d80a805da2b423e9ee6",
+      "frame_gold_sha256": "4ab512529e0a9db42b3e8eb2d5ee2314850f7aaf4f11511ee33a1bae4fea26ab",
+      "scope": "complete independent external publication frames"
+    },
+    {
+      "page": "20260806g001770086",
+      "original_pdf_sha256": "5af7d80fe8200180c242aeb515a31a793b05cded0113f8c5fcbfc209ef89998c",
+      "frame_gold_sha256": "c4c104bfa4bca45c93a9652114de19393ca2cb9c31da4193908dc613972dec06",
+      "scope": "complete independent external publication frames"
+    },
+    {
+      "page": "20260825g001890119",
+      "original_pdf_sha256": "bf7c6f03bcd60388aa9467344bfb6fed49e95b02cdb2060e0d847c3077c9220e",
+      "frame_gold_sha256": "e30591fcec88174ab70e8ab6d7b1447dad72daf3e3a8a74a9315f3678e31b864",
+      "scope": "external ownership only"
+    },
+    {
+      "page": "20260908g002000062",
+      "original_pdf_sha256": "24b20112c69a0235f999971fa7d6df8eb5656ef50ef6e46efebe5e8f1aa03934",
+      "frame_gold_sha256": "381aff2020e8751de93d1206bddf8705751a4428472c4246454ecff00da77d80",
+      "scope": "complete independent external publication frames"
+    },
+    {
+      "page": "20260916g002070076",
+      "original_pdf_sha256": "c68e7ea0c4f86da692f29ef4429341d61ab9e782847e4fd8a196f169ca05f721",
+      "frame_gold_sha256": "561382479458f07de3032065f33b84723b0d5b8397c440f0e2bc87ee91bc467b",
+      "scope": "complete independent external publication frames"
+    },
+    {
+      "page": "20260925g002120075",
+      "original_pdf_sha256": "ef4416d2a1016b7bf41184311a20ee6370cdeb08d04b06165aed15c6f79381d9",
+      "frame_gold_sha256": "5541a681c3f499328632fadbc5a4145b460f3f1805adf7c40232363a27b80105",
+      "scope": "complete independent external publication frames"
+    },
+    {
+      "page": "20260925g002120088",
+      "original_pdf_sha256": "227afc09db786ddbd705b0c001f33cb33f0c5af6c959d6baf12d5aa7fea9baa2",
+      "frame_gold_sha256": "8bc4c2f3bcac3910d315687b5e993c3402e45af36a8e1d1d982d309fe8069519",
+      "scope": "external ownership only"
+    },
+    {
+      "page": "20260928g002130113",
+      "original_pdf_sha256": "50939fe9df59441214065b92e312cb76c2918f336fde97c78e8d3827220de351",
+      "frame_gold_sha256": "33073a7e7b8a80008429fdd5fddf2deb99602a3e8c55364cbae431a87aab3a74",
+      "scope": "complete independent external publication frames"
+    },
+    {
+      "page": "20261005g002190079",
+      "original_pdf_sha256": "25fa2f6b8b7138c346145892c1be18dd7e43eaa565a105e628d2ba2bfc5ef4c5",
+      "frame_gold_sha256": "82ce6ce07e082247bdd18872fb514a3404e805217b9e69da47d3fa65b7f19393",
+      "scope": "complete independent external publication frames"
+    },
+    {
+      "page": "20261020g002300078",
+      "original_pdf_sha256": "1f41fdb803cc04166b7c21e3a78ea14695c35dadf1e0e3072962f3c9d58e9f0a",
+      "frame_gold_sha256": "d0352447a6a8103347b92309e46db4ca092fc5907f5ec52268c9af63f5b7f9ac",
+      "scope": "external ownership only"
+    }
+  ]
+}

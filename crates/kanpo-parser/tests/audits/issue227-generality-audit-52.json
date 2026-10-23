@@ -1,0 +1,23 @@
+{
+  "issue": 227,
+  "batch": 52,
+  "parent_commit": "9efb26e4473d33228878c68254263234ac53c596",
+  "native_runtime_source": 75,
+  "goal_complete": false,
+  "new_production_rule": "A complete owned source enclosure starts an independent source scope. A preceding line outside it cannot prove same-style prose continuation of the root title. Prior title/date/signature/quote/table/parent-scope witnesses remain.",
+  "new_production_domain_vocabulary": [],
+  "no_new_production_company_page_full_title_amount_period_font_name_fixed_point_character_length_or_fixed_line_count_branch": true,
+  "TDD": [
+    "Original complete seven-group632-word membership fails on source74 before the production change.",
+    "Synthetic previous same-style line outside the frame fails on source74; source75 passes at scales0.125/1/8 and translation.",
+    "No complete independent frame and previous line inside the same frame both still abstain."
+  ],
+  "all_previous_assertions_golds_and_assets_retained": true,
+  "limits": [
+    "A closed frame alone does not authorize a split; existing grammar/style/date/signature witnesses are still required.",
+    "No claim that all legacy parser conditions are general. Old fixed length/line/point rules, including old circled-number restoration, remain under audit.",
+    "Source conservation, snapshots and counts do not certify whole-page text/read-order accuracy."
+  ],
+  "new_model_weights_training_or_inferences": 0,
+  "evidence_index": "issue227-validation-52.json"
+}

@@ -1,0 +1,41 @@
+{
+  "issue": 227,
+  "batch": 40,
+  "source": 63,
+  "tool_revision": 2,
+  "parent_commit": "a29a13f7d25294706130d58946f6ee5ee7a30b05",
+  "goal_complete": false,
+  "canonical_quality_improvement_pages": 0,
+  "cumulative_changed_pages": 2957,
+  "cumulative_character_changed_pages": 1373,
+  "adopted_contracts": [
+    "Explicit model/source bytes and SHA, frame/DPI, pinned engine and one PSM3 recognition; no implicit weight download or automatic retry.",
+    "Retain full block/paragraph/line/word hierarchy, source index paths, text, confidence and pixel coordinates; independently map X/Y to explicit point frame.",
+    "Retain invalid/degenerate boxes and exceptional numeric diagnostics; preserve primary errors and partial files on atomic write failure.",
+    "No text replacement, vocabulary lookup, confidence selection, OCR/native merge, or Article assignment."
+  ],
+  "held_UnicodeInk64": {
+    "private_same1062": {
+      "before_pass": 1056,
+      "before_fail": 6,
+      "candidate_pass": 1062
+    },
+    "all8_source_bbox_bits_preserved": true,
+    "all16_raw_occurrence_bindings_preserved": true,
+    "word_granularity_cross_column_join_failures": true,
+    "all8_candidate_fullpages_only_one_Article": true,
+    "independent_private_Unit_table_counterexample": "native_triangle_cells::restore still reads PDF-specific data-wmode/advance/nativebbox after layout; literal triangle moves cells.",
+    "public_analyze_reachability_of_exact_table_not_proven": true,
+    "no_public_API_or_format_marker_adopted": true,
+    "do_not_choose_line_granularity_from_observed_scores": true
+  },
+  "quality_limits": [
+    "Only two previously selected pages, two DPIs; no new random wholepage gold or accuracy claim.",
+    "Old paragraph scores are inherited only through exact recognizer text/hierarchy; extra LF and 144DPI boundary crossings remain.",
+    "Source image membership does not prove arbitrary clip/mask/overpaint visibility.",
+    "Existing native text/count/distance heuristics, issuer ownership, company mixed articles, and scale counterexamples remain unresolved."
+  ],
+  "RURI_ModernBERT_optin_allowed_if_useful": true,
+  "tool_parent_commit": "524b59b4b941a15b947a098d91ab7e5dcdaac1b7",
+  "additional_cleanup_contract": "After recognizer rejection, diagnostic observer failure during worker termination never replaces the original rejection, including null; remaining model cleanup is attempted. Without a recognizer failure the observer error is reported after cleanup."
+}

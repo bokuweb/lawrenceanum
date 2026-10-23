@@ -1,0 +1,155 @@
+{
+  "page": "20261013h018060032",
+  "original_pdf_sha256": "f4b931ab9c2c9398ff1f70fd0cadfe523bf5749ecabdaf9885292f2f9176db16",
+  "annotation_utc": "2026-10-22T16:51:29.374687+00:00",
+  "annotation_type": "Root nonblind original-based postselection ofchanged pages. Explicit cell ID assignment from original preview and unchanged78 native source coordinates, before reading candidate cell memberships. Source text concatenated in manually assigned field order; not independent all-character transcription, underline certification, all-page or blind accuracy.",
+  "annotation_basis": "Original correction page1,lower column,line2. Wrong百三十七条,correct第百三十七条. Location line2 must not join the correction text.",
+  "annotation_rect_for_membership_aid_only": [
+    40.0,
+    609.0,
+    136.46470642089844,
+    793.0
+  ],
+  "caption": {
+    "text": "正誤",
+    "source_word_ids": [
+      172,
+      173
+    ]
+  },
+  "rows": 3,
+  "cols": 5,
+  "cells": [
+    {
+      "row": 0,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        178
+      ],
+      "text": "ページ"
+    },
+    {
+      "row": 0,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        179
+      ],
+      "text": "段"
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        180
+      ],
+      "text": "行"
+    },
+    {
+      "row": 0,
+      "col": 3,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        181
+      ],
+      "text": "誤"
+    },
+    {
+      "row": 0,
+      "col": 4,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        182
+      ],
+      "text": "正"
+    },
+    {
+      "row": 1,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 5,
+      "source_word_ids": [
+        186,
+        189,
+        193,
+        196
+      ],
+      "text": "令和八年九月十日（号外第二百二号）公布財務省令第五十九号（国の会計帳簿及び書類の様式等に関する省令等の一部を改正する省令）（原稿誤り）"
+    },
+    {
+      "row": 2,
+      "col": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        200
+      ],
+      "text": "一"
+    },
+    {
+      "row": 2,
+      "col": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        201
+      ],
+      "text": "下"
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        202
+      ],
+      "text": "二"
+    },
+    {
+      "row": 2,
+      "col": 3,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        203
+      ],
+      "text": "百三十七条"
+    },
+    {
+      "row": 2,
+      "col": 4,
+      "rowspan": 1,
+      "colspan": 1,
+      "source_word_ids": [
+        204
+      ],
+      "text": "第百三十七条"
+    }
+  ],
+  "expected_source_group": [
+    172,
+    173,
+    178,
+    179,
+    180,
+    181,
+    182,
+    186,
+    189,
+    193,
+    196,
+    200,
+    201,
+    202,
+    203,
+    204
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "issue": 227,
+  "batch": 41,
+  "native_runtime_source": 63,
+  "OCR_tool_revision": 2,
+  "parent_commit": "ca1645133e1a838e8d0852825884e0a92ee3add5",
+  "goal_complete": false,
+  "canonical_quality_improvement_pages": 0,
+  "cumulative_changed_pages": 2957,
+  "cumulative_character_changed_pages": 1373,
+  "adopted_scope": "Manual source field/notice gold and two native source preservation regression tests only. No RURI inference, role decision, type vocabulary or Article rule added to default runtime.",
+  "manual_source_gold": {
+    "page": "20260818g001840038",
+    "notices": 17,
+    "source_fields": 102,
+    "all_status_Words": 240,
+    "used_Words_assigned_once": 226,
+    "word_order_permutation_whole_Analysis_exact": true,
+    "all17_notice_source_sets_contiguous_in_current_reading_stream": true,
+    "count_only_is_not_sufficient_ownership_proof": true
+  },
+  "description_similarity": {
+    "cases": 115,
+    "correct": 78,
+    "wrong": 37,
+    "unique_text_gold": 77,
+    "unique_correct": 60,
+    "unique_wrong": 17,
+    "organization_TP": 13,
+    "organization_FN": 4,
+    "organization_FP": 0
+  },
+  "supervised_prototypes": {
+    "train_occurrences": 180,
+    "train_unique": 141,
+    "training_PDF_disjoint_from_both_evaluation_PDFs": true,
+    "test_embeddings_reused_after_prior_results_seen": true,
+    "not_new_blind_holdout": true,
+    "cases": 115,
+    "correct": 103,
+    "wrong": 12,
+    "unique_text_gold": 77,
+    "unique_correct": 65,
+    "unique_wrong": 12,
+    "organization_TP": 13,
+    "organization_FN": 4,
+    "organization_FP": 0,
+    "manually_correct_input_field_spans_supplied": true
+  },
+  "no_result_fitted_branch": [
+    "No company/page/name literals in prediction logic. Specific strings appear in gold/test data only.",
+    "Descriptions and mean-classifier rules frozen before their executions. No score threshold, prompt/model/dtype search or text correction after observing each result.",
+    "Second method is explicitly exploratory and does not turn the reused evaluation set into a blind holdout.",
+    "Failed special-purpose/foreign-language names and signatures retained; no exception added to make them pass."
+  ],
+  "not_proven": [
+    "Automatic source field boundary extraction",
+    "Issuer versus quote/counterparty/adjacent notice ownership",
+    "Original PyTorch versus converted ONNX numerical parity",
+    "General usefulness/uselessness of RURI beyond these two pilots",
+    "Whole-corpus quality improvement or100percent"
+  ],
+  "remaining": "Current Article count1 versus manual17 remains a RED public API requirement. Historical held58 source finds16 starts, missing titleWord63; rebind is not a fresh held58 execution. Company candidate remains unadopted,422/1286 reviewed864 pending."
+}

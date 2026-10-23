@@ -1,0 +1,204 @@
+#[path = "support/legacy_analysis.rs"]
+mod legacy_analysis;
+#[path = "support/expected_article_partitions.rs"]
+mod expected_article_partitions;
+use serde_json::Value;
+fn actual(p: &[u8]) -> Value {
+    legacy_analysis::value(&kanpo_parser::analyze_item(
+        &kanpo_parser::page_inputs(p).unwrap(),
+    ))
+}
+#[test]
+fn page_20260803g001740151() {
+    let a = actual(include_bytes!(
+        "archive/pages/20260803g00174/20260803g001740151.pdf"
+    ));
+    assert!(a["text"].as_str().unwrap().contains("辻田　広人"));
+    assert_eq!(a["pages"][0]["words"][526]["text"], "辻田");
+    let e: Value = serde_json::from_str(include_str!(
+        "expected/tsuji_source_glyphs/20260803g001740151-source-word-expected.json"
+    ))
+    .unwrap();
+    let e = expected_article_partitions::with_articles(
+        e,
+        include_str!("expected-native-article-partitions/20260803g001740151.json"),
+    );
+    assert!(
+        a == e,
+        "whole Analysis must preserve every other source Word/owner/Article/Doc"
+    );
+}
+#[test]
+fn page_20260806g001770082() {
+    let a = actual(include_bytes!(
+        "archive/pages/20260806g00177/20260806g001770082.pdf"
+    ));
+    assert!(a["text"].as_str().unwrap().contains("辻　潤一郎"));
+    assert_eq!(a["pages"][0]["words"][56]["text"], "辻");
+    let e: Value = serde_json::from_str(include_str!(
+        "expected/tsuji_source_glyphs/20260806g001770082-source-word-expected.json"
+    ))
+    .unwrap();
+    let e = expected_article_partitions::with_articles(
+        e,
+        include_str!("expected-native-article-partitions/20260806g001770082.json"),
+    );
+    assert!(
+        a == e,
+        "whole Analysis must preserve every other source Word/owner/Article/Doc"
+    );
+}
+#[test]
+fn page_20260803g001740150() {
+    let a = actual(include_bytes!(
+        "archive/pages/20260803g00174/20260803g001740150.pdf"
+    ));
+    assert!(a["text"]
+        .as_str()
+        .unwrap()
+        .contains("湘南辻堂インベストメント"));
+    assert_eq!(
+        a["pages"][0]["words"][687]["text"],
+        "特定目的会社湘南辻堂インベストメント"
+    );
+    let e: Value = serde_json::from_str(include_str!(
+        "expected/tsuji_source_glyphs/20260803g001740150-source-word-expected.json"
+    ))
+    .unwrap();
+    let e = expected_article_partitions::with_articles(
+        e,
+        include_str!("expected-native-article-partitions/20260803g001740150.json"),
+    );
+    assert!(
+        a == e,
+        "whole Analysis must preserve every other source Word/owner/Article/Doc"
+    );
+}
+#[test]
+fn page_20260721g001610119() {
+    let a = actual(include_bytes!(
+        "archive/pages/20260721g00161/20260721g001610119.pdf"
+    ));
+    let b: Value = serde_json::from_str(include_str!(
+        "expected/tsuji_source_glyphs/20260721g001610119-before46.json"
+    ))
+    .unwrap();
+    let b = expected_article_partitions::with_articles(
+        b,
+        include_str!("expected-native-article-partitions/20260721g001610119.json"),
+    );
+    assert_eq!(a, b);
+}
+#[test]
+fn page_20260717g001600071() {
+    let a = actual(include_bytes!(
+        "archive/pages/20260717g00160/20260717g001600071.pdf"
+    ));
+    let b: Value = serde_json::from_str(include_str!(
+        "expected/tsuji_source_glyphs/20260717g001600071-before46.json"
+    ))
+    .unwrap();
+    assert_eq!(a, b);
+}
+#[test]
+fn page_20260803g001740152() {
+    let a = actual(include_bytes!(
+        "archive/pages/20260803g00174/20260803g001740152.pdf"
+    ));
+    let b: Value = serde_json::from_str(include_str!(
+        "expected/tsuji_source_glyphs/20260803g001740152-before46.json"
+    ))
+    .unwrap();
+    let b = expected_article_partitions::with_articles(
+        b,
+        include_str!("expected-native-article-partitions/20260803g001740152.json"),
+    );
+    assert_eq!(a, b);
+}
+#[test]
+fn page_20260806g001770081() {
+    let a = actual(include_bytes!(
+        "archive/pages/20260806g00177/20260806g001770081.pdf"
+    ));
+    let b: Value = serde_json::from_str(include_str!(
+        "expected/tsuji_source_glyphs/20260806g001770081-before46.json"
+    ))
+    .unwrap();
+    let b = expected_article_partitions::with_articles(
+        b,
+        include_str!("expected-native-article-partitions/20260806g001770081.json"),
+    );
+    assert_eq!(a, b);
+}
+
+#[test]
+fn merger_source_word_groups_announcement_before_its_two_bs() {
+    let a = actual(include_bytes!(
+        "archive/pages/20260730g00171/20260730g001710163.pdf"
+    ));
+    let e: Value = serde_json::from_str(include_str!(
+        "expected/tsuji_source_glyphs/20260730g001710163-source-order-expected.json"
+    ))
+    .unwrap();
+    let groups = |v: &Value| {
+        v["pages"][0]["regions"][0]["lines"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|l| l["words"].clone())
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(groups(&a),groups(&e),"19 announcement lines must precede their two BS; all old source-word groups/internal order remain exact");
+}
+
+#[test]
+fn merger_full_analysis_native_name_and_source_proven_flow() {
+    let a = actual(include_bytes!(
+        "archive/pages/20260730g00171/20260730g001710163.pdf"
+    ));
+    let e: Value = serde_json::from_str(include_str!(
+        "expected/tsuji_source_glyphs/20260730g001710163-source-order-expected.json"
+    ))
+    .unwrap();
+    let e = expected_article_partitions::with_articles(
+        e,
+        include_str!("expected-native-article-partitions/20260730g001710163.json"),
+    );
+    assert!(a==e,"full Analysis must equal source-derived 19-line rotation; all 8 tables/other frames/Article+Doc exact");
+}
+
+#[test]
+fn cell_20260911g002030097() {
+    let a = actual(include_bytes!(
+        "archive/pages/20260911g00203/20260911g002030097.pdf"
+    ));
+    let e: Value = serde_json::from_str(include_str!(
+        "expected/tsuji_source_glyphs/20260911g002030097-source-cell-expected.json"
+    ))
+    .unwrap();
+    assert!(a==e,"only source-owned native 辻 insertion in specified original and Doc table cell; all other cells/owner metadata exact");
+}
+
+#[test]
+fn cell_20260911g002030098() {
+    let a = actual(include_bytes!(
+        "archive/pages/20260911g00203/20260911g002030098.pdf"
+    ));
+    let e: Value = serde_json::from_str(include_str!(
+        "expected/tsuji_source_glyphs/20260911g002030098-source-cell-expected.json"
+    ))
+    .unwrap();
+    assert!(a==e,"only source-owned native 辻 insertion in specified original and Doc table cell; all other cells/owner metadata exact");
+}
+
+#[test]
+fn cell_20260911g002030102() {
+    let a = actual(include_bytes!(
+        "archive/pages/20260911g00203/20260911g002030102.pdf"
+    ));
+    let e: Value = serde_json::from_str(include_str!(
+        "expected/tsuji_source_glyphs/20260911g002030102-source-cell-expected.json"
+    ))
+    .unwrap();
+    assert!(a==e,"only source-owned native 辻 insertion in specified original and Doc table cell; all other cells/owner metadata exact");
+}

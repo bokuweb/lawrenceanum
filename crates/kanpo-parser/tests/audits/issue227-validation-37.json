@@ -1,0 +1,140 @@
+{
+  "issue": 227,
+  "batch": 37,
+  "source": 61,
+  "parent_commit": "067857278b9f21d533cc61039ac492ef95422f18",
+  "goal_complete": false,
+  "canonical_quality_improvement_pages": 0,
+  "cumulative_changed_pages": 2957,
+  "cumulative_character_changed_pages": 1373,
+  "models_downloaded_trained_or_inferred_this_batch": false,
+  "references": [
+    {
+      "path": ".cache/kanpo-227/root37-record-support61/baseline-initial-count-correction.json",
+      "sha256": "641112e8cbe723525ba0adab1ba12401d79ff8f0e125cfac7d3343d731551814",
+      "kind": "initial10_counts_and_non_discriminating_controls_preserved"
+    },
+    {
+      "path": ".cache/kanpo-227/root37-record-support61/baseline-result.json",
+      "sha256": "d5176f1c3120d605886c118e4e932857bf5536fee93b52925b82476bd25033e2",
+      "kind": "same1034_before_RED"
+    },
+    {
+      "path": ".cache/kanpo-227/root37-record-support61/baseline-r2-prefreeze.json",
+      "sha256": "f3999b4fbddea5d49bb98d3cc0847ee4b8e3a01bc98dedb56d509b6cc74459c1",
+      "kind": "all12_assertions_before_production_edit"
+    },
+    {
+      "path": ".cache/kanpo-227/root37-record-support61/candidate-result.json",
+      "sha256": "218278aa2eab98184131f588922344863b928638317e549facd5a7bd477487c6",
+      "kind": "same1034_after_GREEN_actual3"
+    },
+    {
+      "path": ".cache/kanpo-227/root37-record-support61/candidate120-source-manifest.json",
+      "sha256": "2417efeda97321524be343818cc61afe659ca63f1c7f401e5c0e77307e4b6e77",
+      "kind": "candidate120"
+    },
+    {
+      "path": ".cache/kanpo-227/root37-record-support61/full-result.json",
+      "sha256": "fc95eb9404a29a5d985568377c01554c357ef96fd290adac0548917c618d43fb",
+      "kind": "independent11992_complete_Analysis"
+    },
+    {
+      "path": ".cache/kanpo-227/root37-record-review-verified.json",
+      "sha256": "3f0dda3c399f99b9d5dcf9ccbbcecec31d2027bfd0b46c18cc1009849330a06b",
+      "kind": "independent_review_extra4_private_boundary_contracts"
+    },
+    {
+      "path": ".cache/kanpo-227/root37-record-review-current-source-binding.json",
+      "sha256": "f8ec5478320e5925da2f63a94759b09ec9288a5002126950475455c9b30eca72",
+      "kind": "independent_review_same_production_SHA"
+    },
+    {
+      "path": ".cache/kanpo-227/integrated61-source-manifest.json",
+      "sha256": "bb67aa1016a173424d18f14fbe35746674a2cab118dccb4bf66578515fdb2ec6",
+      "kind": "source120"
+    },
+    {
+      "path": ".cache/kanpo-227/integrated61-test-assets-manifest.json",
+      "sha256": "200ab6b5dc75af73b71a6371325291dc788ee95ef0fe929680dcc75e30ba6f7f",
+      "kind": "assets1127"
+    },
+    {
+      "path": ".cache/kanpo-227/full37-final61-generic-partitioned-status.json",
+      "sha256": "7d79e26a16dd70f64cf0d22351ff9cd18fe08f67ae7f85fedb2c1b384d70162f",
+      "kind": "default1705_117commands"
+    },
+    {
+      "path": ".cache/kanpo-227/integrated61-fullAnalysis-report.json",
+      "sha256": "bfd179a5385f41806ba5e1d932ff6bdf47f5863d6b741a5e7c38935ead46a5f9",
+      "kind": "fresh_Cargo_release11992_Analysis_and_textdump"
+    },
+    {
+      "path": ".cache/kanpo-227/immutable-root61-deps-manifest.json",
+      "sha256": "a0569bd43f3c0a011b57e95b7a46aaa8147f35ec5937a8ba39b16a18db503b3a",
+      "kind": "immutable119_dependencies"
+    },
+    {
+      "path": ".cache/kanpo-227/snapshot37-source61-preserved.json",
+      "sha256": "327f1f9d5ef5ad18888f5a2456336f6ccb6eb75b0ec19e6434a3517c81513e2c",
+      "kind": "snapshots778_new0_updated0"
+    },
+    {
+      "path": ".cache/kanpo-227/audit144-source61-inheritance.json",
+      "sha256": "7db41fe09c232f317aa6736bb4cf8b18f2884f87d9436232f9cd63ef0ab82801",
+      "kind": "all30_rebound_initial55_grades"
+    },
+    {
+      "path": ".cache/kanpo-227/checkpoint36-accepted60.json",
+      "sha256": "e7af19778a247a1a87d401b78ed13981642546dab368a9b8d03682e69782d2f9",
+      "kind": "parent60_local_and_all3_CI_success"
+    },
+    {
+      "path": ".cache/kanpo-227/root36-company-date-delivery-verified.json",
+      "sha256": "dd80fe401b46f0ddccac9974d5ecf3c063e7bbeb7f11691f03762ac8a268fcb1",
+      "kind": "held_company_date1127"
+    },
+    {
+      "path": ".cache/kanpo-227/root36-company-fence-stage1-delivery-verified.json",
+      "sha256": "3d8916acac84cd0f0e275f7494a7ea9bcf4b257e1dcb47124a0a822a2e409e58",
+      "kind": "held_company_witness_fence_stage1"
+    },
+    {
+      "path": ".cache/kanpo-227/root37-company-geometry-delivery-verified.json",
+      "sha256": "2f348af00ef2ffd5880283d75a2d210c2507b667bb62f00bd6d87b12820fc0ae",
+      "kind": "held_company_geometry_fixed_RED"
+    },
+    {
+      "path": ".cache/kanpo-227/root37-company-tail-stage2-verified.json",
+      "sha256": "5979a721f5406d36b3eda4697f80df99ea4831203f8a2e33f7a8646206b59f3a",
+      "kind": "held_company_terminal_role_legitimate_dropout"
+    },
+    {
+      "path": ".cache/kanpo-227/root36-publication-strip24-addon59-verified.json",
+      "sha256": "dada0db66495b94d3c2eb95f344c06bebc6d06f8a5357041e7d9111e3b3296fe",
+      "kind": "held_metric_strip24_addendum"
+    }
+  ],
+  "default_all4": {
+    "passed": 1705,
+    "failed": 0,
+    "commands": 117,
+    "integration_targets": 108,
+    "libraries": 4,
+    "doctests": 4,
+    "examples_all4_typechecked": true,
+    "unfiltered": true,
+    "locked": true,
+    "default_features": true,
+    "INSTA_UPDATE": "no"
+  },
+  "parser_private": 1034,
+  "PDF_private": 117,
+  "independent_actual3_passed": true,
+  "cached_and_fresh11992_Analysis_changed0": true,
+  "source_Words2403403_all_fields_preserved": true,
+  "textdump11992_bytes_exact60": true,
+  "existing_snapshots778_exact": true,
+  "no_snapshot_updates": true,
+  "CI": "pending_push_of_batch37_commit"
+}

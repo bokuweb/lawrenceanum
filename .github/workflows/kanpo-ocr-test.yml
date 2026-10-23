@@ -1,0 +1,38 @@
+name: kanpo-ocr test
+on:
+  pull_request:
+    paths:
+      - "tools/kanpo-ocr/**"
+      - "crates/kanpo-pdf/**"
+      - "Cargo.lock"
+      - ".github/workflows/kanpo-ocr-test.yml"
+  push:
+    branches: [main]
+    paths:
+      - "tools/kanpo-ocr/**"
+      - "crates/kanpo-pdf/**"
+      - "Cargo.lock"
+      - ".github/workflows/kanpo-ocr-test.yml"
+permissions:
+  contents: read
+jobs:
+  ocr-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: python -m pip install -r tools/kanpo-ocr/requirements.txt
+      - run: cargo build --locked -p kanpo-pdf --example image_sources
+      # Contract/failure tests use a fake engine. No OCR weights or inference in CI.
+      - run: node --test tools/kanpo-ocr/*.test.cjs
+      - run: python -m unittest discover -s tools/kanpo-ocr -p '*_test.py'
+        env:
+          KANPO_IMAGE_SOURCES: ${{ github.workspace }}/target/debug/examples/image_sources

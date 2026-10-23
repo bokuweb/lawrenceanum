@@ -1,0 +1,90 @@
+{
+  "issue": 227,
+  "batch": 46,
+  "parent_commit": "a25b928114e11339749fed426cf77a77509108e2",
+  "native_runtime_source": 71,
+  "goal_complete": false,
+  "adopted_scope": "Keep alphanumeric Glyph typography separate from punctuation typography inside the same original Word. Use it for notice-heading evidence; no layout reordering or new financial-frame grouping rule.",
+  "whole_corpus_strict_quality_not_reestimated": true,
+  "source_files": 135,
+  "parser_source_files": 111,
+  "PDF_source_files": 24,
+  "source_manifest_sha256": "d4e8ce56473944403a672947315fec04eea905f599ab643c8b8b14b8a58b4cc5",
+  "all6_touched_production_files_byte_exact_frozen_v1": true,
+  "raw_native_audit_has_frozen11992_original_PDF_hashes": true,
+  "no_new_model_weights_training_or_inferences": true,
+  "local_evidence": [
+    {
+      "path": ".cache/kanpo-227/native46-source-manifest.json",
+      "sha256": "d4e8ce56473944403a672947315fec04eea905f599ab643c8b8b14b8a58b4cc5"
+    },
+    {
+      "path": ".cache/kanpo-227/glyph-typography46/public-rebase-runtime-identity.json",
+      "sha256": "f347f58fb7240b2b65c065eb14a422fcee9638b0a455786f2fd0cdf85494053e"
+    },
+    {
+      "path": ".cache/kanpo-227/glyph-typography46/final-all-green.json",
+      "sha256": "401472100c6e3f5217fe360b8c8f30a7d0416cb77dd4c5f4adee2e3ae73edd57"
+    },
+    {
+      "path": ".cache/kanpo-227/glyph-typography46/assets-and-snapshots.json",
+      "sha256": "24212a1d1d313f0a5051689f9cc24df408850c61fa51213a4162ac3d239d28ca"
+    },
+    {
+      "path": ".cache/kanpo-227/glyph-typography46/archive-readonly.log",
+      "sha256": "d2103904d39fbe3e8c735fb6a7c61ed073a3f098ba5d951f151d4c1f82372e5c"
+    },
+    {
+      "path": ".cache/kanpo-227/glyph-typography46/full-native71-public/result.json",
+      "sha256": "41473b69e1299b8fee830e3a756643e3096141a0f966f8fe9b46d5ff26aa314d"
+    },
+    {
+      "path": ".cache/kanpo-227/glyph-typography46/full-native71-public/changes.json",
+      "sha256": "d98cbf5e761f40f098391b8b8cc6d70c79336857815fc8dfacb3f5a9a05cf0a2"
+    },
+    {
+      "path": ".cache/kanpo-227/glyph-typography46/public71-native-CLI-API-consistency.json",
+      "sha256": "e8baf8fa514d810f175c55a1fda13120fe36f0856dc974ba29927822be7043c5"
+    },
+    {
+      "path": ".cache/kanpo-227/glyph-typography46/textdump71-result.json",
+      "sha256": "d30455b486627737782d6f03de27ae269d54b45834c93ca796cd1b4f23f896d0"
+    },
+    {
+      "path": ".cache/kanpo-227/glyph-typography46/private71-v1-manifest.json",
+      "sha256": "8723afe32869ad8b3c8d2e71e8c17677c18f1fde560f15d13fc8eedc03dbe1ee"
+    },
+    {
+      "path": ".cache/kanpo-227/glyph-typography46/native-source11992-v1/result.json",
+      "sha256": "4975c28a6410ca7cfe50f4ebdf98503d73bd647d535af8bf6f4819e40be35b3e"
+    },
+    {
+      "path": ".cache/kanpo-227/glyph-typography46/native-source11992-v1/rows.json",
+      "sha256": "ff0e9d443153c3aa86b3e684567b5f1cc423fc7140ef0c0c823133f73bffe749"
+    },
+    {
+      "path": ".cache/kanpo-227/glyph-typography46/source70-full-eight-control-RED.log",
+      "sha256": "653ff2f8192edc5f565661233eb964d706338541cc3a2381a8eb457101a46079"
+    },
+    {
+      "path": ".cache/kanpo-227/glyph-typography46/candidate71-before-tests-RED.log",
+      "sha256": "bea1c6b5a80b086923c5265523dca9d444c84747fef170dad02877976af3b807"
+    },
+    {
+      "path": ".cache/kanpo-227/glyph-typography46/content71-pdf-before-RED.log",
+      "sha256": "d2f44d4901b7b0ba4619b315a8f9388040e6fada833414fb26c688ec24d9fef3"
+    },
+    {
+      "path": ".cache/kanpo-227/glyph-typography46/corpus-cached-input-metadata-refresh.json",
+      "sha256": "a89fd927d0f12eda01e7b6cf24a356301ec1b4df402da965bb6a61ebdfbdbb10"
+    },
+    {
+      "path": ".cache/kanpo-227/glyph-typography46/snapshot-proposal-review.json",
+      "sha256": "980ef0c410c31a3feaf82ed810384fe68cbd442c685d56c002985396b59b1a7f"
+    },
+    {
+      "path": ".cache/kanpo-227/glyph-typography46/fixed30-inheritance71.json",
+      "sha256": "7957c835bbf25521082b7d2c4e4ff6f9edcfde7f698eb501ff7f321456d4d158"
+    }
+  ]
+}

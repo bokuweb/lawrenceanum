@@ -1,0 +1,54 @@
+{
+  "issue": 227,
+  "batch": 41,
+  "native_runtime_source": 63,
+  "OCR_tool_revision": 2,
+  "parent_commit": "ca1645133e1a838e8d0852825884e0a92ee3add5",
+  "goal_complete": false,
+  "canonical_quality_improvement_pages": 0,
+  "cumulative_changed_pages": 2957,
+  "cumulative_character_changed_pages": 1373,
+  "new_default_native_tests": {
+    "passed": 2,
+    "failed": 0,
+    "ignored": 0,
+    "linked_against": "immutable accepted source63 normal release library and deps",
+    "emission_order_permutation_whole_Analysis_exact": true,
+    "models_required": false,
+    "does_not_assert_the_open17Article_fix_is_complete": true
+  },
+  "private_math_and_prototype_tests": {
+    "passed": 10,
+    "failed": 0,
+    "six_stub_before": {
+      "passed": 2,
+      "failed": 4
+    },
+    "four_stub_before": {
+      "passed": 2,
+      "failed": 2
+    },
+    "not_counted_as_default_Cargo_tests": true
+  },
+  "necessary_public_API_known_failure": {
+    "expected_Articles": 17,
+    "actual_Articles": 1,
+    "test_failed": 1,
+    "test_passed": 0,
+    "not_hidden_as_ignored_default_success": true
+  },
+  "core120_source_and_OCR7_unchanged": true,
+  "old_assets1127_exact": true,
+  "new_gold_assets": 1,
+  "snapshots778_new0_updated0": true,
+  "inherited_NOT_rerun_locally": {
+    "prior_default_tests": 1723,
+    "prior_commands": 117,
+    "all11992_complete_Analysis_and_textdump_exact62": true,
+    "source63_native_producer_evidence": true,
+    "audit144_initial55grades": true
+  },
+  "research_model_calls_complete": 302,
+  "new_original_quality_audit30": false,
+  "CI": "pending new commit; expected all4PR checks and new parser1725 tests"
+}

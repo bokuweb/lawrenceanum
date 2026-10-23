@@ -1,0 +1,178 @@
+{
+  "issue": 227,
+  "batch": 45,
+  "parent_commit": "9f1892a6b1dded6c3d361753e27487882a27d394",
+  "native_runtime_source": 70,
+  "goal_complete": false,
+  "adopted_scope": "Original Glyph bounds for notice frame ownership only; preserve published Word coordinates, page layout, text, old article boundaries and Run styles.",
+  "whole_corpus_strict_quality_not_reestimated": true,
+  "local_required_tests": {
+    "passed": 1814,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 117,
+    "commands": 118,
+    "executed_required_attempts_including_reviewed_proposal": 119,
+    "libraries": 4,
+    "integration_targets": 109,
+    "doctests": 4,
+    "all4_crates_examples_checked": true,
+    "new_tests": 18,
+    "all_final_required_checks_success": true,
+    "source_manifest_sha256": "499b6cc1c0006184e9e72036a380d70132f08980036fe94eb7610354d2536d19",
+    "initial_proposal_pass": {
+      "passed": 1813,
+      "failed": 1,
+      "ignored": 0
+    },
+    "readonly_archive": {
+      "passed": 2,
+      "failed": 0,
+      "ignored": 0,
+      "log_sha256": "cf5bf770a84bac1c4874c04b9e88a7736095070ba9d8f90df2e712aabc4f0a2f"
+    }
+  },
+  "native_all11992": {
+    "terminal": 0,
+    "pages": 11992,
+    "changed": 3,
+    "whole_Analysis_exact": 11989,
+    "all_pages_and_text_exact": true,
+    "all_source_words": 2403403,
+    "document_run_bytes_styles_tables_and_old_article_endpoints_preserved": true,
+    "frozen_inputs_unchanged": true,
+    "seconds": 289.4171905
+  },
+  "actual_default_CLI": {
+    "pages": 11992,
+    "actual_native_CLI_files_exact_final_API_text": true,
+    "proof": "All11992 freshly executed CLI files equal the unchanged reference; all11992 freshly executed native API text outputs independently equal that reference.",
+    "source_manifest_sha256": "499b6cc1c0006184e9e72036a380d70132f08980036fe94eb7610354d2536d19",
+    "all3_original_changed_scopes_reviewed": true,
+    "whole_page_source_ownership_gold": {
+      "20260728g001680070": {
+        "articles": 8,
+        "all_used_words_once": 628
+      },
+      "20261019g002290061": {
+        "articles": 7,
+        "all_used_words_once": 600
+      }
+    },
+    "partial_original_scope": {
+      "20260721g001610161": {
+        "required_used_words": 89,
+        "whole_page_correctness_not_claimed": true,
+        "double_period_financial_title_still_unseparated": true
+      }
+    },
+    "no_quality_accuracy_percentage_reestimated": true
+  },
+  "assets": {
+    "old_test_files": 2330,
+    "old_test_files_byte_unchanged": 2329,
+    "old_changed_reviewed_snapshot": [
+      "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260728g00168__20260728g001680070.pdf.snap"
+    ],
+    "new_original_PDFs": 6,
+    "new_static_membership_gold": 3,
+    "new_snapshots": 6,
+    "total_snapshots": 790,
+    "proposals_pending": 0,
+    "new_assets_before_audits": [
+      {
+        "path": "crates/kanpo-parser/tests/archive/pages/20260721g00161/20260721g001610161.pdf",
+        "sha256": "82d39a4239ed6ec9cd1ed2d0018582d0bab9bfa39bdb50e664496e2e3d0dc495"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/archive/pages/20260723g00163/20260723g001630240.pdf",
+        "sha256": "f22fdff517bb39b8254950e4423e38e747da897c9ef64fadaae9541ae1464f38"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/archive/pages/20260817g00183/20260817g001830080.pdf",
+        "sha256": "e2b3a057ba6441760a84e416af92b3ad6030c9d8a9b6b085916ceffcaf0024b7"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/archive/pages/20260925g00212/20260925g002120088.pdf",
+        "sha256": "227afc09db786ddbd705b0c001f33cb33f0c5af6c959d6baf12d5aa7fea9baa2"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/archive/pages/20260928g00213/20260928g002130124.pdf",
+        "sha256": "3d193ba095c7a331f3239e5b3b3c9f78a2db5054e6c28578b7332909b5d0f38e"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/archive/pages/20261019g00229/20261019g002290061.pdf",
+        "sha256": "10ad8de527a0f92ff7bc74d7623b0e66033486d584fdd3c2125ec4756fa8c595"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/expected-company-article-sources/20260721g001610161.json",
+        "sha256": "636c2b2c536f46a931e765b088c43e4db54aea5698bc99c9abca0a17bdec4a28"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/expected-company-article-sources/20260728g001680070.json",
+        "sha256": "bf1cb89c8cd539a934cc14aed5da9cf29d3074446838e0841367a374b478472a"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/expected-company-article-sources/20261019g002290061.json",
+        "sha256": "21bc8834987986438beb6c2a32c341e5eda3537a7c4fb5f00e3f89e3a5aa1734"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260721g00161__20260721g001610161.pdf.snap",
+        "sha256": "153dbf25da2eca0cd05919002c42d2fceb47c902d3cdb47f69ec70350eb67b7f"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260723g00163__20260723g001630240.pdf.snap",
+        "sha256": "979f65135b06e8b0de3ab372f6d8d71dfb577bf7f115458c6d2b43f756ccbeaf"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260817g00183__20260817g001830080.pdf.snap",
+        "sha256": "7094d406a23b3040d974a628f183de9e88b0df4703fee604d9eecf60d59b413e"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260925g00212__20260925g002120088.pdf.snap",
+        "sha256": "b06d813fd1da2cfda7142e15d048fcb1c42ca213f7218f3975cb6e59ad99101b"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260928g00213__20260928g002130124.pdf.snap",
+        "sha256": "d62a904392636472651a9da3036bf1faf5a02655b45eb8b52a10a70e5c01c8f2"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261019g00229__20261019g002290061.pdf.snap",
+        "sha256": "5f0a5b21528603e63e6625a048d8c346968af335e4042b4af9e3cc0c878a86de"
+      }
+    ]
+  },
+  "source": {
+    "manifest_sha256": "499b6cc1c0006184e9e72036a380d70132f08980036fe94eb7610354d2536d19",
+    "parser_files": 108,
+    "PDF_files": 23,
+    "all_PDF_sources_exact_parent": true
+  },
+  "new_default_tests": 18,
+  "new_default_tests_breakdown": {
+    "source_geometry_contracts": 11,
+    "original_improvement_controls": 3,
+    "original_regression_guards": 4
+  },
+  "old_runtime_original_improvement_controls": {
+    "passed": 0,
+    "failed": 3
+  },
+  "old_runtime_new_regression_guards": {
+    "passed": 4,
+    "failed": 0
+  },
+  "rejected_layout_v8_new_regression_guards": {
+    "passed": 0,
+    "failed": 4
+  },
+  "final_public_lib": {
+    "passed": 1137,
+    "failed": 0,
+    "ignored": 0
+  },
+  "PDF_full_Glyph_and_f64_bits": "No new full Glyph scan. All23 PDF sources and the native67 PDF binary are unchanged; the earlier complete14,859,045-Glyph/f64/legacy-XHTML proof is inherited.",
+  "failure_history": "Initial test preparations stopped on a whitespace-sensitive constructor patch assertion and a missing private fixture include. Corrected preparation separately. Two subsequent builds failed terminally with ENOSPC; logs retained, disposable objects removed and completed byte-equal outputs hardlinked before unchanged retries. The frozen Git69 control rebuild initially omitted a non-Rust source fixture, then passed after copying that file from the same commit. The archive first pass proposed seven snapshots and failed its page snapshot assertion; after individual scope review, a separate read-only pass succeeded. None of the failed attempts are counted as successful checks.",
+  "advisory_checks": "git diff --check; no whole-repository fmt/clippy-clean claim.",
+  "PR_checks_at_preparation": "New commit CI is pending at document preparation; exact-head results are recorded separately after push."
+}

@@ -1,0 +1,5904 @@
+{
+  "batch": 23,
+  "baseline_commit": "267574c47c7bf14be020a09eb8c41d1a52bf5ee2",
+  "candidate": "after44/frozen103",
+  "changed_originals": 1,
+  "classification": {
+    "improvement": 1,
+    "neutral": 0,
+    "observed_reading_regression": 0,
+    "known_Document_numeric_separator_delta": 1,
+    "whole_page_perfection_not_implied": true
+  },
+  "team_all3_originals_fulloutputs_all_Articles_Documents_reviewed": {
+    "all_changed_pages": 1,
+    "changed_pages_reviewed": 1,
+    "all_changed_whole_image_before_after_fulltext_allArticleDoc": true,
+    "reviews": [
+      {
+        "page": "20260911g002030082",
+        "pdf": ".cache/kanpo-archive/2026-09-11/20260911g00203/20260911g002030082.pdf",
+        "pdf_sha256": "b2d0322d69dd4d065c2bee6e31858be81a076ea5636f9b4dc031698e0a192246",
+        "image": ".cache/kanpo-227/ruled-plain-dashes-proposal/20260911g002030082.png",
+        "image_sha256": "d02bc53909d0a3b7df7bc86d4124e24913878905811e43f6bf313e7700f3c12c",
+        "before_analysis": ".cache/kanpo-227/ruled-plain-dashes-proposal/20260911g002030082-baseline.json",
+        "before_sha256": "37b787eda44f152e9a34387282d31ab4153e735520dccd5c33d593d8cb877146",
+        "after_analysis": ".cache/kanpo-227/ruled-plain-dashes-proposal/20260911g002030082-baseline.json",
+        "after_sha256": "37b787eda44f152e9a34387282d31ab4153e735520dccd5c33d593d8cb877146",
+        "fullreadflags": {
+          "whole_original": true,
+          "all_before_text": true,
+          "all_after_text": true,
+          "all_Articles": true,
+          "all_Documents_Tables_Runs": true
+        },
+        "before_linecount": 31,
+        "after_linecount": 31,
+        "article_count": 1,
+        "judgment": "neutral_completeAnalysis_exact",
+        "notes": [
+          "全原図/前後全文31行/1Article/3DocTables+Runを読了。上の継続20行の横棒・−4,087,907,223/272,262,791,544と下の純資産変動表の開始/変動/末残高全3行・9勘定を保持。既存Tableと全文/全Analysisは不変。前頁由来科目は同頁で補完しない。"
+        ]
+      },
+      {
+        "page": "20260911g002030083",
+        "pdf": ".cache/kanpo-archive/2026-09-11/20260911g00203/20260911g002030083.pdf",
+        "pdf_sha256": "fc46276cce7875fffb5afb8efa448da5165ea1576ef8d7cb464d4c441edf4326",
+        "image": ".cache/kanpo-227/audit132/20260911g002030083.png",
+        "image_sha256": "5aed5620fcd182f0d5b610a72f9bb7c947f04226de20e16d711d7651ae628074",
+        "before_analysis": ".cache/kanpo-227/ruled-plain-dashes-proposal/20260911g002030083-baseline.json",
+        "before_sha256": "e63c7cf064280a86b890dd0bd066ffdefd7ef0a60dafb043b6ce8ad5705efdff",
+        "after_analysis": ".cache/kanpo-227/ruled-plain-dashes-proposal/20260911g002030083-candidate.json",
+        "after_sha256": "07906a989d4db91a42ad8311f9586ce85da51ad13c126f8bf29fffdda6d8ccc1",
+        "fullreadflags": {
+          "whole_original": true,
+          "all_before_text": true,
+          "all_after_text": true,
+          "all_Articles": true,
+          "all_Documents_Tables_Runs": true
+        },
+        "before_linecount": 107,
+        "after_linecount": 165,
+        "article_count": 1,
+        "judgment": "improvement_with_existing_major",
+        "notes": [
+          "全原図/旧107行/新165行/1Article/1Doc paragraph1Runを全読了。元科目行の高さと7数値列の右端/縦罫を対照し全109横棒の列を確認。既存行14本に14字、新dash-only行58本に95字を復元。",
+          "原材料支出/人件費/貸付支出/鉱害防止/出資/石油購入/消費税/その他/保証料/積立金/交付金/受託/補助/貸付回収/清算/石油売払/還付/小計/利息/納付/業務CF/投資8科目の各原位置を確認。数値0や空欄を推測して補わず、全復元字は一意な原E61C Glyph/Wordだけ。",
+          "原図の7勘定がPageで5列グループ・Doc1Runへ分断する既存majorは未修復。名称の2行見出し合成も保持。横棒を復元しただけでTable化や全頁成功とはしない。"
+        ]
+      },
+      {
+        "page": "20260911g002030084",
+        "pdf": ".cache/kanpo-archive/2026-09-11/20260911g00203/20260911g002030084.pdf",
+        "pdf_sha256": "306871bb44da2726cc5b10f8cbdd747dcfb627366814bd4bb3f96b60df04c86a",
+        "image": ".cache/kanpo-227/ruled-plain-dashes-proposal/20260911g002030084.png",
+        "image_sha256": "a35daf6dcc7e8a12946eb6ff1c90a8f3eb772a14fda159f2b9dc30986bddebfe",
+        "before_analysis": ".cache/kanpo-227/ruled-plain-dashes-proposal/20260911g002030084-baseline.json",
+        "before_sha256": "4cd7d0a84d6d5d324cdf6b541b33028bd353ad1f52d60c1390d3f0cf8216d285",
+        "after_analysis": ".cache/kanpo-227/ruled-plain-dashes-proposal/20260911g002030084-baseline.json",
+        "after_sha256": "4cd7d0a84d6d5d324cdf6b541b33028bd353ad1f52d60c1390d3f0cf8216d285",
+        "fullreadflags": {
+          "whole_original": true,
+          "all_before_text": true,
+          "all_after_text": true,
+          "all_Articles": true,
+          "all_Documents_Tables_Runs": true
+        },
+        "before_linecount": 37,
+        "after_linecount": 37,
+        "article_count": 1,
+        "judgment": "neutral_completeAnalysis_exact",
+        "notes": [
+          "全原図/前後全文37行/1Article/上8列DocTableと下Runを全読了。上の財務CF101,216,868,936/112,851,167,979/76,419,746,710と4横棒、資金期首/期末・換算差額の全7勘定を保持。下の石炭/調整/法人単位の全数値列は不変。",
+          "既存残存: 下の3列表にrawE61C/Empty31Wordがあり横棒欠落が続く。科目と行の照合根拠が同頁に無いため今回昇格せず、全Analysis不変negativeは正常なページという意味ではない。"
+        ]
+      }
+    ],
+    "complete_page_success": false,
+    "native0_exclusions": []
+  },
+  "root_review": {
+    "page": "20260911g002030083",
+    "reviewer": "root",
+    "whole_original_image": ".cache/kanpo-227/audit132/20260911g002030083.png",
+    "whole_original_viewed": true,
+    "all_old107_and_new165_lines_read": true,
+    "all1Article_Document_content_and_structure_read": true,
+    "all7_original_columns_and109_source_dash_positions_compared": true,
+    "independent_all3_originals_review": "22938c8f57f52fadba0713eb872311f42ee6d56fc93f5696637ddb02a9815c0b",
+    "judgment": "improvement with existing major",
+    "new_regression": false,
+    "remaining": "Seven-column association and Doc flat1Run remain major; restored original dashes are not wholepage success."
+  },
+  "root_native_proof": {
+    "page": "20260911g002030083",
+    "baseline": "accepted22/after43",
+    "candidate": "after44/source103",
+    "fresh_original_native": ".cache/kanpo-227/root23-native/20260911g002030083-native.json",
+    "native_sha256": "04abd15d2ca4e01e2e87795cde12fb4c3a070aaca6d4f3b80b0696208b5c440a",
+    "all_original_Glyphs_paths_fonts_exact_to_independent": true,
+    "native_f64_tolerance_pt": 1e-09,
+    "independent_entire_Analysis_f32_tolerance_pt": 0.0002,
+    "original_Words": 909,
+    "sole_Word_changes": "109 original E61C Empty to Used and source text－; allraw/ID/bbox/other fields exact",
+    "restored_original_Glyphs": 109,
+    "restored_original_Word_IDs": 109,
+    "new_source_Words": 0,
+    "new_inferred_IDs": 0,
+    "newly_owned_existing_original_IDs": 109,
+    "old_owned_IDs": 786,
+    "new_owned_IDs": 895,
+    "all_existing_owner_lines_ID_order_text_characters_whitespace_preserved": true,
+    "all_old_Line_order_preserved": true,
+    "existing_lines_with_added_dash": 14,
+    "new_dash_only_lines": 58,
+    "dashes_in_new_lines": 95,
+    "body_lines": {
+      "before": 107,
+      "after": 165
+    },
+    "physical_column_counts": {
+      "7": 24,
+      "6": 21,
+      "5": 20,
+      "4": 19,
+      "3": 11,
+      "2": 10,
+      "1": 4
+    },
+    "changed_lines": [
+      {
+        "before_line": 7,
+        "after_line": 7,
+        "added": [
+          579
+        ],
+        "insertions": [
+          {
+            "at_new": 10,
+            "char": "　"
+          },
+          {
+            "at_new": 11,
+            "char": "－"
+          }
+        ]
+      },
+      {
+        "before_line": 13,
+        "after_line": 13,
+        "added": [
+          577
+        ],
+        "insertions": [
+          {
+            "at_new": 18,
+            "char": "　"
+          },
+          {
+            "at_new": 19,
+            "char": "－"
+          }
+        ]
+      },
+      {
+        "before_line": 20,
+        "after_line": 20,
+        "added": [
+          576
+        ],
+        "insertions": [
+          {
+            "at_new": 7,
+            "char": "　"
+          },
+          {
+            "at_new": 8,
+            "char": "－"
+          }
+        ]
+      },
+      {
+        "before_line": 25,
+        "after_line": 25,
+        "added": [
+          578
+        ],
+        "insertions": [
+          {
+            "at_new": 9,
+            "char": "　"
+          },
+          {
+            "at_new": 10,
+            "char": "－"
+          }
+        ]
+      },
+      {
+        "before_line": 81,
+        "after_line": 105,
+        "added": [
+          240
+        ],
+        "insertions": [
+          {
+            "at_new": 0,
+            "char": "－"
+          },
+          {
+            "at_new": 1,
+            "char": "　"
+          }
+        ]
+      },
+      {
+        "before_line": 83,
+        "after_line": 111,
+        "added": [
+          163
+        ],
+        "insertions": [
+          {
+            "at_new": 10,
+            "char": "　"
+          },
+          {
+            "at_new": 11,
+            "char": "－"
+          }
+        ]
+      },
+      {
+        "before_line": 87,
+        "after_line": 122,
+        "added": [
+          161
+        ],
+        "insertions": [
+          {
+            "at_new": 10,
+            "char": "　"
+          },
+          {
+            "at_new": 11,
+            "char": "－"
+          }
+        ]
+      },
+      {
+        "before_line": 97,
+        "after_line": 141,
+        "added": [
+          15
+        ],
+        "insertions": [
+          {
+            "at_new": 7,
+            "char": "　"
+          },
+          {
+            "at_new": 8,
+            "char": "－"
+          }
+        ]
+      },
+      {
+        "before_line": 98,
+        "after_line": 146,
+        "added": [
+          70
+        ],
+        "insertions": [
+          {
+            "at_new": 0,
+            "char": "－"
+          },
+          {
+            "at_new": 1,
+            "char": "　"
+          }
+        ]
+      },
+      {
+        "before_line": 99,
+        "after_line": 151,
+        "added": [
+          10
+        ],
+        "insertions": [
+          {
+            "at_new": 13,
+            "char": "　"
+          },
+          {
+            "at_new": 14,
+            "char": "－"
+          }
+        ]
+      },
+      {
+        "before_line": 102,
+        "after_line": 155,
+        "added": [
+          82
+        ],
+        "insertions": [
+          {
+            "at_new": 0,
+            "char": "－"
+          },
+          {
+            "at_new": 1,
+            "char": "　"
+          }
+        ]
+      },
+      {
+        "before_line": 104,
+        "after_line": 157,
+        "added": [
+          0
+        ],
+        "insertions": [
+          {
+            "at_new": 16,
+            "char": "　"
+          },
+          {
+            "at_new": 17,
+            "char": "－"
+          }
+        ]
+      },
+      {
+        "before_line": 105,
+        "after_line": 158,
+        "added": [
+          1
+        ],
+        "insertions": [
+          {
+            "at_new": 15,
+            "char": "　"
+          },
+          {
+            "at_new": 16,
+            "char": "－"
+          }
+        ]
+      },
+      {
+        "before_line": 106,
+        "after_line": 164,
+        "added": [
+          18
+        ],
+        "insertions": [
+          {
+            "at_new": 15,
+            "char": "　"
+          },
+          {
+            "at_new": 16,
+            "char": "－"
+          }
+        ]
+      }
+    ],
+    "bindings": [
+      {
+        "source": {
+          "word_id": 0,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.504,
+            451.3591,
+            776.504,
+            459.5431
+          ],
+          "native_glyph_id": 1465,
+          "native_bbox": [
+            768.5039999999999,
+            451.35909999999996,
+            776.5039999999999,
+            459.5431
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 28,
+        "source_subject_text": "定期預金の預入による支出",
+        "original_full_subject_line_text": "定期預金の預入による支出　−348,828,778,870",
+        "after_line": 157,
+        "after_line_ids": [
+          146,
+          134,
+          126,
+          117,
+          107,
+          97,
+          87,
+          0
+        ],
+        "after_line_text": "−427,000,000,000　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 1,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.504,
+            464.2871,
+            776.504,
+            472.4711
+          ],
+          "native_glyph_id": 1546,
+          "native_bbox": [
+            768.5039999999999,
+            464.28709999999995,
+            776.5039999999999,
+            472.4711
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 29,
+        "source_subject_text": "定期預金の払戻による収入",
+        "original_full_subject_line_text": "定期預金の払戻による収入　207,796,388,792",
+        "after_line": 158,
+        "after_line_ids": [
+          142,
+          135,
+          127,
+          118,
+          108,
+          98,
+          88,
+          1
+        ],
+        "after_line_text": "380,000,000,000　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 2,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.504,
+            477.2151,
+            776.504,
+            485.3991
+          ],
+          "native_glyph_id": 1623,
+          "native_bbox": [
+            768.5039999999999,
+            477.21509999999995,
+            776.5039999999999,
+            485.3991
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 30,
+        "source_subject_text": "有価証券の取得による支出",
+        "original_full_subject_line_text": "有価証券の取得による支出　−7,244,465,000",
+        "after_line": 159,
+        "after_line_ids": [
+          66,
+          2
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 3,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.5,
+            176.4983,
+            776.5,
+            184.6823
+          ],
+          "native_glyph_id": 425,
+          "native_bbox": [
+            768.5,
+            176.4983,
+            776.5,
+            184.6823
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 8,
+        "source_subject_text": "出資による支出",
+        "original_full_subject_line_text": "出資による支出　−7,071,576,130",
+        "after_line": 138,
+        "after_line_ids": [
+          67,
+          3
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 4,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.5,
+            189.4583,
+            776.5,
+            197.6423
+          ],
+          "native_glyph_id": 452,
+          "native_bbox": [
+            768.5,
+            189.45829999999998,
+            776.5,
+            197.64229999999998
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 9,
+        "source_subject_text": "石油購入支出",
+        "original_full_subject_line_text": "石油購入支出　−20,856,172,363",
+        "after_line": 139,
+        "after_line_ids": [
+          68,
+          4
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 5,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.5,
+            202.4183,
+            776.5,
+            210.6023
+          ],
+          "native_glyph_id": 498,
+          "native_bbox": [
+            768.5,
+            202.41829999999996,
+            776.5,
+            210.60229999999996
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 10,
+        "source_subject_text": "消費税等支払額",
+        "original_full_subject_line_text": "消費税等支払額　−13,252,285",
+        "after_line": 140,
+        "after_line_ids": [
+          69,
+          5
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 6,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.5,
+            309.1443,
+            776.5,
+            317.3283
+          ],
+          "native_glyph_id": 852,
+          "native_bbox": [
+            768.5,
+            309.1443,
+            776.5,
+            317.3283
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 17,
+        "source_subject_text": "貸付金の回収による収入",
+        "original_full_subject_line_text": "貸付金の回収による収入　702,708,454,000",
+        "after_line": 147,
+        "after_line_ids": [
+          71,
+          6
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 7,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.5,
+            322.0723,
+            776.5,
+            330.2563
+          ],
+          "native_glyph_id": 886,
+          "native_bbox": [
+            768.5,
+            322.0723,
+            776.5,
+            330.2563
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 18,
+        "source_subject_text": "関係会社の清算による収入",
+        "original_full_subject_line_text": "関係会社の清算による収入　369,496",
+        "after_line": 148,
+        "after_line_ids": [
+          72,
+          7
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 8,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.5,
+            335.0003,
+            776.5,
+            343.1843
+          ],
+          "native_glyph_id": 912,
+          "native_bbox": [
+            768.5,
+            335.0003,
+            776.5,
+            343.1843
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 19,
+        "source_subject_text": "石油売払収入",
+        "original_full_subject_line_text": "石油売払収入　20,856,172,363",
+        "after_line": 149,
+        "after_line_ids": [
+          73,
+          8
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 9,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.5,
+            347.9283,
+            776.5,
+            356.1123
+          ],
+          "native_glyph_id": 926,
+          "native_bbox": [
+            768.5,
+            347.9283,
+            776.5,
+            356.1123
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 20,
+        "source_subject_text": "消費税等還付額",
+        "original_full_subject_line_text": "消費税等還付額",
+        "after_line": 150,
+        "after_line_ids": [
+          74,
+          9
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 10,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.5,
+            360.8597,
+            776.5,
+            369.0437
+          ],
+          "native_glyph_id": 997,
+          "native_bbox": [
+            768.5,
+            360.8597,
+            776.5,
+            369.0437
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 21,
+        "source_subject_text": "その他の業務収入",
+        "original_full_subject_line_text": "その他の業務収入　19,830,166,194",
+        "after_line": 151,
+        "after_line_ids": [
+          140,
+          136,
+          128,
+          119,
+          109,
+          99,
+          89,
+          10
+        ],
+        "after_line_text": "2,073,495,982　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 11,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.5,
+            490.1454,
+            776.5,
+            498.3294
+          ],
+          "native_glyph_id": 1689,
+          "native_bbox": [
+            768.5,
+            490.1454,
+            776.5,
+            498.3294
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 31,
+        "source_subject_text": "有価証券の満期償還による収入",
+        "original_full_subject_line_text": "有価証券の満期償還による収入　33,827,991,373",
+        "after_line": 160,
+        "after_line_ids": [
+          75,
+          11
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 12,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.5,
+            503.0734,
+            776.5,
+            511.2574
+          ],
+          "native_glyph_id": 1735,
+          "native_bbox": [
+            768.5,
+            503.0734,
+            776.5,
+            511.2574
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 32,
+        "source_subject_text": "有形固定資産の取得による支出",
+        "original_full_subject_line_text": "有形固定資産の取得による支出　−747,778,439",
+        "after_line": 161,
+        "after_line_ids": [
+          76,
+          12
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 13,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.5,
+            516.0014,
+            776.5,
+            524.1854
+          ],
+          "native_glyph_id": 1777,
+          "native_bbox": [
+            768.5,
+            516.0014,
+            776.5,
+            524.1854
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 33,
+        "source_subject_text": "有形固定資産の売却による収入",
+        "original_full_subject_line_text": "有形固定資産の売却による収入　5,747,726",
+        "after_line": 162,
+        "after_line_ids": [
+          77,
+          13
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 14,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.5,
+            528.9294,
+            776.5,
+            537.1134
+          ],
+          "native_glyph_id": 1818,
+          "native_bbox": [
+            768.5,
+            528.9294,
+            776.5,
+            537.1134
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 34,
+        "source_subject_text": "無形固定資産の取得による支出",
+        "original_full_subject_line_text": "無形固定資産の取得による支出　−15,410,377",
+        "after_line": 163,
+        "after_line_ids": [
+          78,
+          14
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 15,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.492,
+            215.3783,
+            776.492,
+            223.5623
+          ],
+          "native_glyph_id": 567,
+          "native_bbox": [
+            768.492,
+            215.37829999999994,
+            776.492,
+            223.56229999999994
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 11,
+        "source_subject_text": "その他の業務支出",
+        "original_full_subject_line_text": "その他の業務支出　−4,986,130,087",
+        "after_line": 141,
+        "after_line_ids": [
+          116,
+          101,
+          91,
+          15
+        ],
+        "after_line_text": "−14,053　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 16,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.492,
+            228.3383,
+            776.492,
+            236.5223
+          ],
+          "native_glyph_id": 603,
+          "native_bbox": [
+            768.492,
+            228.33829999999992,
+            776.492,
+            236.52229999999992
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 12,
+        "source_subject_text": "債務保証料収入",
+        "original_full_subject_line_text": "債務保証料収入　2,282,998,874",
+        "after_line": 142,
+        "after_line_ids": [
+          79,
+          16
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 17,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.492,
+            399.6437,
+            776.492,
+            407.8277
+          ],
+          "native_glyph_id": 1233,
+          "native_bbox": [
+            768.492,
+            399.64369999999997,
+            776.492,
+            407.8277
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 24,
+        "source_subject_text": "利息の支払額",
+        "original_full_subject_line_text": "利息の支払額　−4,205,180,009",
+        "after_line": 154,
+        "after_line_ids": [
+          80,
+          17
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 18,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.492,
+            541.8574,
+            776.492,
+            550.0414
+          ],
+          "native_glyph_id": 1917,
+          "native_bbox": [
+            768.492,
+            541.8574,
+            776.492,
+            550.0414
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 35,
+        "source_subject_text": "投資活動によるキャッシュ・フロー",
+        "original_full_subject_line_text": "投資活動によるキャッシュ・フロー　−115,206,304,795",
+        "after_line": 164,
+        "after_line_ids": [
+          145,
+          138,
+          131,
+          123,
+          113,
+          104,
+          94,
+          18
+        ],
+        "after_line_text": "−47,000,000,000　－",
+        "font_bbox_overhang_pt": 1.0413999999999533
+      },
+      {
+        "source": {
+          "word_id": 19,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.484,
+            241.2983,
+            776.484,
+            249.4823
+          ],
+          "native_glyph_id": 637,
+          "native_bbox": [
+            768.4839999999999,
+            241.2982999999999,
+            776.4839999999999,
+            249.4822999999999
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 13,
+        "source_subject_text": "預り鉱害防止積立金の受入れによる収入",
+        "original_full_subject_line_text": "預り鉱害防止積立金の受入れによる収入",
+        "after_line": 143,
+        "after_line_ids": [
+          81,
+          19
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 20,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.476,
+            262.2583,
+            776.476,
+            270.4423
+          ],
+          "native_glyph_id": 690,
+          "native_bbox": [
+            768.4759999999999,
+            262.25829999999985,
+            776.4759999999999,
+            270.4422999999999
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 14,
+        "source_subject_text": "運営費交付金収入",
+        "original_full_subject_line_text": "運営費交付金収入　77,542,668,000",
+        "after_line": 144,
+        "after_line_ids": [
+          83,
+          20
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 21,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.472,
+            150.5557,
+            776.472,
+            158.7397
+          ],
+          "native_glyph_id": 343,
+          "native_bbox": [
+            768.4719999999999,
+            150.55570000000003,
+            776.4719999999999,
+            158.73970000000003
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 6,
+        "source_subject_text": "貸付けによる支出",
+        "original_full_subject_line_text": "貸付けによる支出　−742,459,000,000",
+        "after_line": 136,
+        "after_line_ids": [
+          84,
+          21
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 22,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.468,
+            275.2183,
+            776.468,
+            283.4023
+          ],
+          "native_glyph_id": 740,
+          "native_bbox": [
+            768.4679999999998,
+            275.21829999999983,
+            776.4679999999998,
+            283.40229999999985
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 15,
+        "source_subject_text": "受託収入等サービスの提供による収入",
+        "original_full_subject_line_text": "受託収入等サービスの提供による収入　81,549,563,118",
+        "after_line": 145,
+        "after_line_ids": [
+          85,
+          22
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 23,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            768.464,
+            163.5157,
+            776.464,
+            171.6997
+          ],
+          "native_glyph_id": 370,
+          "native_bbox": [
+            768.4639999999998,
+            163.5157,
+            776.4639999999998,
+            171.6997
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 7,
+        "original_subject_line": 7,
+        "source_subject_text": "鉱害防止業務費の支出",
+        "original_full_subject_line_text": "鉱害防止業務費の支出",
+        "after_line": 137,
+        "after_line_ids": [
+          86,
+          23
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 66,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.504,
+            477.2151,
+            696.504,
+            485.3991
+          ],
+          "native_glyph_id": 1622,
+          "native_bbox": [
+            688.5039999999999,
+            477.21509999999995,
+            696.5039999999999,
+            485.3991
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 30,
+        "source_subject_text": "有価証券の取得による支出",
+        "original_full_subject_line_text": "有価証券の取得による支出　−7,244,465,000",
+        "after_line": 159,
+        "after_line_ids": [
+          66,
+          2
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 67,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.5,
+            176.4983,
+            696.5,
+            184.6823
+          ],
+          "native_glyph_id": 424,
+          "native_bbox": [
+            688.5,
+            176.4983,
+            696.5,
+            184.6823
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 8,
+        "source_subject_text": "出資による支出",
+        "original_full_subject_line_text": "出資による支出　−7,071,576,130",
+        "after_line": 138,
+        "after_line_ids": [
+          67,
+          3
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 68,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.5,
+            189.4583,
+            696.5,
+            197.6423
+          ],
+          "native_glyph_id": 451,
+          "native_bbox": [
+            688.5,
+            189.45829999999998,
+            696.5,
+            197.64229999999998
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 9,
+        "source_subject_text": "石油購入支出",
+        "original_full_subject_line_text": "石油購入支出　−20,856,172,363",
+        "after_line": 139,
+        "after_line_ids": [
+          68,
+          4
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 69,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.5,
+            202.4183,
+            696.5,
+            210.6023
+          ],
+          "native_glyph_id": 497,
+          "native_bbox": [
+            688.5,
+            202.41829999999996,
+            696.5,
+            210.60229999999996
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 10,
+        "source_subject_text": "消費税等支払額",
+        "original_full_subject_line_text": "消費税等支払額　−13,252,285",
+        "after_line": 140,
+        "after_line_ids": [
+          69,
+          5
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 70,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.5,
+            296.2163,
+            696.5,
+            304.4003
+          ],
+          "native_glyph_id": 784,
+          "native_bbox": [
+            688.5,
+            296.2163,
+            696.5,
+            304.4003
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 16,
+        "source_subject_text": "補助金等収入",
+        "original_full_subject_line_text": "補助金等収入　6,656,507,266",
+        "after_line": 146,
+        "after_line_ids": [
+          70,
+          63,
+          57,
+          51,
+          45,
+          39,
+          31,
+          24
+        ],
+        "after_line_text": "－　15,808,200,000",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 71,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.5,
+            309.1443,
+            696.5,
+            317.3283
+          ],
+          "native_glyph_id": 851,
+          "native_bbox": [
+            688.5,
+            309.1443,
+            696.5,
+            317.3283
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 17,
+        "source_subject_text": "貸付金の回収による収入",
+        "original_full_subject_line_text": "貸付金の回収による収入　702,708,454,000",
+        "after_line": 147,
+        "after_line_ids": [
+          71,
+          6
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 72,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.5,
+            322.0723,
+            696.5,
+            330.2563
+          ],
+          "native_glyph_id": 885,
+          "native_bbox": [
+            688.5,
+            322.0723,
+            696.5,
+            330.2563
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 18,
+        "source_subject_text": "関係会社の清算による収入",
+        "original_full_subject_line_text": "関係会社の清算による収入　369,496",
+        "after_line": 148,
+        "after_line_ids": [
+          72,
+          7
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 73,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.5,
+            335.0003,
+            696.5,
+            343.1843
+          ],
+          "native_glyph_id": 911,
+          "native_bbox": [
+            688.5,
+            335.0003,
+            696.5,
+            343.1843
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 19,
+        "source_subject_text": "石油売払収入",
+        "original_full_subject_line_text": "石油売払収入　20,856,172,363",
+        "after_line": 149,
+        "after_line_ids": [
+          73,
+          8
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 74,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.5,
+            347.9283,
+            696.5,
+            356.1123
+          ],
+          "native_glyph_id": 925,
+          "native_bbox": [
+            688.5,
+            347.9283,
+            696.5,
+            356.1123
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 20,
+        "source_subject_text": "消費税等還付額",
+        "original_full_subject_line_text": "消費税等還付額",
+        "after_line": 150,
+        "after_line_ids": [
+          74,
+          9
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 75,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.5,
+            490.1454,
+            696.5,
+            498.3294
+          ],
+          "native_glyph_id": 1688,
+          "native_bbox": [
+            688.5,
+            490.1454,
+            696.5,
+            498.3294
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 31,
+        "source_subject_text": "有価証券の満期償還による収入",
+        "original_full_subject_line_text": "有価証券の満期償還による収入　33,827,991,373",
+        "after_line": 160,
+        "after_line_ids": [
+          75,
+          11
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 76,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.5,
+            503.0734,
+            696.5,
+            511.2574
+          ],
+          "native_glyph_id": 1734,
+          "native_bbox": [
+            688.5,
+            503.0734,
+            696.5,
+            511.2574
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 32,
+        "source_subject_text": "有形固定資産の取得による支出",
+        "original_full_subject_line_text": "有形固定資産の取得による支出　−747,778,439",
+        "after_line": 161,
+        "after_line_ids": [
+          76,
+          12
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 77,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.5,
+            516.0014,
+            696.5,
+            524.1854
+          ],
+          "native_glyph_id": 1776,
+          "native_bbox": [
+            688.5,
+            516.0014,
+            696.5,
+            524.1854
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 33,
+        "source_subject_text": "有形固定資産の売却による収入",
+        "original_full_subject_line_text": "有形固定資産の売却による収入　5,747,726",
+        "after_line": 162,
+        "after_line_ids": [
+          77,
+          13
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 78,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.5,
+            528.9294,
+            696.5,
+            537.1134
+          ],
+          "native_glyph_id": 1817,
+          "native_bbox": [
+            688.5,
+            528.9294,
+            696.5,
+            537.1134
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 34,
+        "source_subject_text": "無形固定資産の取得による支出",
+        "original_full_subject_line_text": "無形固定資産の取得による支出　−15,410,377",
+        "after_line": 163,
+        "after_line_ids": [
+          78,
+          14
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 79,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.492,
+            228.3383,
+            696.492,
+            236.5223
+          ],
+          "native_glyph_id": 602,
+          "native_bbox": [
+            688.492,
+            228.33829999999992,
+            696.492,
+            236.52229999999992
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 12,
+        "source_subject_text": "債務保証料収入",
+        "original_full_subject_line_text": "債務保証料収入　2,282,998,874",
+        "after_line": 142,
+        "after_line_ids": [
+          79,
+          16
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 80,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.492,
+            399.6437,
+            696.492,
+            407.8277
+          ],
+          "native_glyph_id": 1232,
+          "native_bbox": [
+            688.492,
+            399.64369999999997,
+            696.492,
+            407.8277
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 24,
+        "source_subject_text": "利息の支払額",
+        "original_full_subject_line_text": "利息の支払額　−4,205,180,009",
+        "after_line": 154,
+        "after_line_ids": [
+          80,
+          17
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 81,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.484,
+            241.2983,
+            696.484,
+            249.4823
+          ],
+          "native_glyph_id": 636,
+          "native_bbox": [
+            688.4839999999999,
+            241.2982999999999,
+            696.4839999999999,
+            249.4822999999999
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 13,
+        "source_subject_text": "預り鉱害防止積立金の受入れによる収入",
+        "original_full_subject_line_text": "預り鉱害防止積立金の受入れによる収入",
+        "after_line": 143,
+        "after_line_ids": [
+          81,
+          19
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 82,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.484,
+            412.5717,
+            696.484,
+            420.7557
+          ],
+          "native_glyph_id": 1248,
+          "native_bbox": [
+            688.4839999999999,
+            412.57169999999996,
+            696.4839999999999,
+            420.7557
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 25,
+        "source_subject_text": "国庫納付金の支払額",
+        "original_full_subject_line_text": "国庫納付金の支払額",
+        "after_line": 155,
+        "after_line_ids": [
+          82,
+          55,
+          49,
+          43,
+          36,
+          29
+        ],
+        "after_line_text": "－　−12,706,535",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 83,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.476,
+            262.2583,
+            696.476,
+            270.4423
+          ],
+          "native_glyph_id": 689,
+          "native_bbox": [
+            688.4759999999999,
+            262.25829999999985,
+            696.4759999999999,
+            270.4422999999999
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 14,
+        "source_subject_text": "運営費交付金収入",
+        "original_full_subject_line_text": "運営費交付金収入　77,542,668,000",
+        "after_line": 144,
+        "after_line_ids": [
+          83,
+          20
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 84,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.472,
+            150.5557,
+            696.472,
+            158.7397
+          ],
+          "native_glyph_id": 342,
+          "native_bbox": [
+            688.4719999999999,
+            150.55570000000003,
+            696.4719999999999,
+            158.73970000000003
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 6,
+        "source_subject_text": "貸付けによる支出",
+        "original_full_subject_line_text": "貸付けによる支出　−742,459,000,000",
+        "after_line": 136,
+        "after_line_ids": [
+          84,
+          21
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 85,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.468,
+            275.2183,
+            696.468,
+            283.4023
+          ],
+          "native_glyph_id": 739,
+          "native_bbox": [
+            688.4679999999998,
+            275.21829999999983,
+            696.4679999999998,
+            283.40229999999985
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 15,
+        "source_subject_text": "受託収入等サービスの提供による収入",
+        "original_full_subject_line_text": "受託収入等サービスの提供による収入　81,549,563,118",
+        "after_line": 145,
+        "after_line_ids": [
+          85,
+          22
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 86,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            688.464,
+            163.5157,
+            696.464,
+            171.6997
+          ],
+          "native_glyph_id": 369,
+          "native_bbox": [
+            688.4639999999998,
+            163.5157,
+            696.4639999999998,
+            171.6997
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 6,
+        "original_subject_line": 7,
+        "source_subject_text": "鉱害防止業務費の支出",
+        "original_full_subject_line_text": "鉱害防止業務費の支出",
+        "after_line": 137,
+        "after_line_ids": [
+          86,
+          23
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 149,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            608.5,
+            176.4983,
+            616.5,
+            184.6823
+          ],
+          "native_glyph_id": 423,
+          "native_bbox": [
+            608.5,
+            176.4983,
+            616.5,
+            184.6823
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 5,
+        "original_subject_line": 8,
+        "source_subject_text": "出資による支出",
+        "original_full_subject_line_text": "出資による支出　−7,071,576,130",
+        "after_line": 106,
+        "after_line_ids": [
+          222,
+          149
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 150,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            608.5,
+            189.4583,
+            616.5,
+            197.6423
+          ],
+          "native_glyph_id": 450,
+          "native_bbox": [
+            608.5,
+            189.45829999999998,
+            616.5,
+            197.64229999999998
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 5,
+        "original_subject_line": 9,
+        "source_subject_text": "石油購入支出",
+        "original_full_subject_line_text": "石油購入支出　−20,856,172,363",
+        "after_line": 107,
+        "after_line_ids": [
+          223,
+          150
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 151,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            608.5,
+            202.4183,
+            616.5,
+            210.6023
+          ],
+          "native_glyph_id": 496,
+          "native_bbox": [
+            608.5,
+            202.41829999999996,
+            616.5,
+            210.60229999999996
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 5,
+        "original_subject_line": 10,
+        "source_subject_text": "消費税等支払額",
+        "original_full_subject_line_text": "消費税等支払額　−13,252,285",
+        "after_line": 108,
+        "after_line_ids": [
+          224,
+          151
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 152,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            608.5,
+            296.2163,
+            616.5,
+            304.4003
+          ],
+          "native_glyph_id": 783,
+          "native_bbox": [
+            608.5,
+            296.2163,
+            616.5,
+            304.4003
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 5,
+        "original_subject_line": 16,
+        "source_subject_text": "補助金等収入",
+        "original_full_subject_line_text": "補助金等収入　6,656,507,266",
+        "after_line": 114,
+        "after_line_ids": [
+          225,
+          152
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 153,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            608.5,
+            309.1443,
+            616.5,
+            317.3283
+          ],
+          "native_glyph_id": 850,
+          "native_bbox": [
+            608.5,
+            309.1443,
+            616.5,
+            317.3283
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 5,
+        "original_subject_line": 17,
+        "source_subject_text": "貸付金の回収による収入",
+        "original_full_subject_line_text": "貸付金の回収による収入　702,708,454,000",
+        "after_line": 115,
+        "after_line_ids": [
+          226,
+          153
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 154,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            608.5,
+            322.0723,
+            616.5,
+            330.2563
+          ],
+          "native_glyph_id": 884,
+          "native_bbox": [
+            608.5,
+            322.0723,
+            616.5,
+            330.2563
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 5,
+        "original_subject_line": 18,
+        "source_subject_text": "関係会社の清算による収入",
+        "original_full_subject_line_text": "関係会社の清算による収入　369,496",
+        "after_line": 116,
+        "after_line_ids": [
+          227,
+          154
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 155,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            608.5,
+            335.0003,
+            616.5,
+            343.1843
+          ],
+          "native_glyph_id": 910,
+          "native_bbox": [
+            608.5,
+            335.0003,
+            616.5,
+            343.1843
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 5,
+        "original_subject_line": 19,
+        "source_subject_text": "石油売払収入",
+        "original_full_subject_line_text": "石油売払収入　20,856,172,363",
+        "after_line": 117,
+        "after_line_ids": [
+          228,
+          155
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 156,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            608.5,
+            347.9283,
+            616.5,
+            356.1123
+          ],
+          "native_glyph_id": 924,
+          "native_bbox": [
+            608.5,
+            347.9283,
+            616.5,
+            356.1123
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 5,
+        "original_subject_line": 20,
+        "source_subject_text": "消費税等還付額",
+        "original_full_subject_line_text": "消費税等還付額",
+        "after_line": 118,
+        "after_line_ids": [
+          229,
+          156
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 157,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            608.5,
+            503.0734,
+            616.5,
+            511.2574
+          ],
+          "native_glyph_id": 1733,
+          "native_bbox": [
+            608.5,
+            503.0734,
+            616.5,
+            511.2574
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 5,
+        "original_subject_line": 32,
+        "source_subject_text": "有形固定資産の取得による支出",
+        "original_full_subject_line_text": "有形固定資産の取得による支出　−747,778,439",
+        "after_line": 129,
+        "after_line_ids": [
+          230,
+          157
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 158,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            608.5,
+            516.0014,
+            616.5,
+            524.1854
+          ],
+          "native_glyph_id": 1775,
+          "native_bbox": [
+            608.5,
+            516.0014,
+            616.5,
+            524.1854
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 5,
+        "original_subject_line": 33,
+        "source_subject_text": "有形固定資産の売却による収入",
+        "original_full_subject_line_text": "有形固定資産の売却による収入　5,747,726",
+        "after_line": 130,
+        "after_line_ids": [
+          231,
+          158
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 159,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            608.5,
+            528.9294,
+            616.5,
+            537.1134
+          ],
+          "native_glyph_id": 1816,
+          "native_bbox": [
+            608.5,
+            528.9294,
+            616.5,
+            537.1134
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 5,
+        "original_subject_line": 34,
+        "source_subject_text": "無形固定資産の取得による支出",
+        "original_full_subject_line_text": "無形固定資産の取得による支出　−15,410,377",
+        "after_line": 131,
+        "after_line_ids": [
+          232,
+          159
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 160,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            608.492,
+            228.3383,
+            616.492,
+            236.5223
+          ],
+          "native_glyph_id": 601,
+          "native_bbox": [
+            608.492,
+            228.33829999999992,
+            616.492,
+            236.52229999999992
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 5,
+        "original_subject_line": 12,
+        "source_subject_text": "債務保証料収入",
+        "original_full_subject_line_text": "債務保証料収入　2,282,998,874",
+        "after_line": 110,
+        "after_line_ids": [
+          233,
+          160
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 161,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            608.492,
+            399.6437,
+            616.492,
+            407.8277
+          ],
+          "native_glyph_id": 1231,
+          "native_bbox": [
+            608.492,
+            399.64369999999997,
+            616.492,
+            407.8277
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 5,
+        "original_subject_line": 24,
+        "source_subject_text": "利息の支払額",
+        "original_full_subject_line_text": "利息の支払額　−4,205,180,009",
+        "after_line": 122,
+        "after_line_ids": [
+          293,
+          284,
+          273,
+          262,
+          250,
+          161
+        ],
+        "after_line_text": "−3,284,262　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 162,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            608.488,
+            116.6357,
+            616.488,
+            124.8197
+          ],
+          "native_glyph_id": 196,
+          "native_bbox": [
+            608.4879999999999,
+            116.63570000000006,
+            616.4879999999999,
+            124.81970000000007
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 5,
+        "original_subject_line": 4,
+        "source_subject_text": "原材料、商品又はサービスの購入による支出",
+        "original_full_subject_line_text": "原材料、商品又はサービスの購入による支出　−134,277,215,841",
+        "after_line": 102,
+        "after_line_ids": [
+          234,
+          162
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 163,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            608.484,
+            241.2983,
+            616.484,
+            249.4823
+          ],
+          "native_glyph_id": 635,
+          "native_bbox": [
+            608.4839999999999,
+            241.2982999999999,
+            616.4839999999999,
+            249.4822999999999
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 5,
+        "original_subject_line": 13,
+        "source_subject_text": "預り鉱害防止積立金の受入れによる収入",
+        "original_full_subject_line_text": "預り鉱害防止積立金の受入れによる収入",
+        "after_line": 111,
+        "after_line_ids": [
+          290,
+          286,
+          275,
+          264,
+          252,
+          163
+        ],
+        "after_line_text": "41,676,000　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 164,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            608.484,
+            412.5717,
+            616.484,
+            420.7557
+          ],
+          "native_glyph_id": 1247,
+          "native_bbox": [
+            608.4839999999999,
+            412.57169999999996,
+            616.4839999999999,
+            420.7557
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 5,
+        "original_subject_line": 25,
+        "source_subject_text": "国庫納付金の支払額",
+        "original_full_subject_line_text": "国庫納付金の支払額",
+        "after_line": 123,
+        "after_line_ids": [
+          235,
+          164
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 165,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            608.48,
+            137.5957,
+            616.48,
+            145.7797
+          ],
+          "native_glyph_id": 270,
+          "native_bbox": [
+            608.4799999999999,
+            137.59570000000005,
+            616.4799999999999,
+            145.77970000000005
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 5,
+        "original_subject_line": 5,
+        "source_subject_text": "人件費支出",
+        "original_full_subject_line_text": "人件費支出　−4,354,276,671",
+        "after_line": 103,
+        "after_line_ids": [
+          236,
+          165
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 166,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            608.476,
+            262.2583,
+            616.476,
+            270.4423
+          ],
+          "native_glyph_id": 688,
+          "native_bbox": [
+            608.4759999999999,
+            262.25829999999985,
+            616.4759999999999,
+            270.4422999999999
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 5,
+        "original_subject_line": 14,
+        "source_subject_text": "運営費交付金収入",
+        "original_full_subject_line_text": "運営費交付金収入　77,542,668,000",
+        "after_line": 112,
+        "after_line_ids": [
+          237,
+          166
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 167,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            608.472,
+            150.5557,
+            616.472,
+            158.7397
+          ],
+          "native_glyph_id": 341,
+          "native_bbox": [
+            608.4719999999999,
+            150.55570000000003,
+            616.4719999999999,
+            158.73970000000003
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 5,
+        "original_subject_line": 6,
+        "source_subject_text": "貸付けによる支出",
+        "original_full_subject_line_text": "貸付けによる支出　−742,459,000,000",
+        "after_line": 104,
+        "after_line_ids": [
+          238,
+          167
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 168,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            608.468,
+            275.2183,
+            616.468,
+            283.4023
+          ],
+          "native_glyph_id": 738,
+          "native_bbox": [
+            608.4679999999998,
+            275.21829999999983,
+            616.4679999999998,
+            283.40229999999985
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 5,
+        "original_subject_line": 15,
+        "source_subject_text": "受託収入等サービスの提供による収入",
+        "original_full_subject_line_text": "受託収入等サービスの提供による収入　81,549,563,118",
+        "after_line": 113,
+        "after_line_ids": [
+          239,
+          168
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 222,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            528.5,
+            176.4983,
+            536.5,
+            184.6823
+          ],
+          "native_glyph_id": 422,
+          "native_bbox": [
+            528.5,
+            176.4983,
+            536.5,
+            184.6823
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 4,
+        "original_subject_line": 8,
+        "source_subject_text": "出資による支出",
+        "original_full_subject_line_text": "出資による支出　−7,071,576,130",
+        "after_line": 106,
+        "after_line_ids": [
+          222,
+          149
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 223,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            528.5,
+            189.4583,
+            536.5,
+            197.6423
+          ],
+          "native_glyph_id": 449,
+          "native_bbox": [
+            528.5,
+            189.45829999999998,
+            536.5,
+            197.64229999999998
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 4,
+        "original_subject_line": 9,
+        "source_subject_text": "石油購入支出",
+        "original_full_subject_line_text": "石油購入支出　−20,856,172,363",
+        "after_line": 107,
+        "after_line_ids": [
+          223,
+          150
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 224,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            528.5,
+            202.4183,
+            536.5,
+            210.6023
+          ],
+          "native_glyph_id": 495,
+          "native_bbox": [
+            528.5,
+            202.41829999999996,
+            536.5,
+            210.60229999999996
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 4,
+        "original_subject_line": 10,
+        "source_subject_text": "消費税等支払額",
+        "original_full_subject_line_text": "消費税等支払額　−13,252,285",
+        "after_line": 108,
+        "after_line_ids": [
+          224,
+          151
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 225,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            528.5,
+            296.2163,
+            536.5,
+            304.4003
+          ],
+          "native_glyph_id": 782,
+          "native_bbox": [
+            528.5,
+            296.2163,
+            536.5,
+            304.4003
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 4,
+        "original_subject_line": 16,
+        "source_subject_text": "補助金等収入",
+        "original_full_subject_line_text": "補助金等収入　6,656,507,266",
+        "after_line": 114,
+        "after_line_ids": [
+          225,
+          152
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 226,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            528.5,
+            309.1443,
+            536.5,
+            317.3283
+          ],
+          "native_glyph_id": 849,
+          "native_bbox": [
+            528.5,
+            309.1443,
+            536.5,
+            317.3283
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 4,
+        "original_subject_line": 17,
+        "source_subject_text": "貸付金の回収による収入",
+        "original_full_subject_line_text": "貸付金の回収による収入　702,708,454,000",
+        "after_line": 115,
+        "after_line_ids": [
+          226,
+          153
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 227,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            528.5,
+            322.0723,
+            536.5,
+            330.2563
+          ],
+          "native_glyph_id": 883,
+          "native_bbox": [
+            528.5,
+            322.0723,
+            536.5,
+            330.2563
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 4,
+        "original_subject_line": 18,
+        "source_subject_text": "関係会社の清算による収入",
+        "original_full_subject_line_text": "関係会社の清算による収入　369,496",
+        "after_line": 116,
+        "after_line_ids": [
+          227,
+          154
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 228,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            528.5,
+            335.0003,
+            536.5,
+            343.1843
+          ],
+          "native_glyph_id": 909,
+          "native_bbox": [
+            528.5,
+            335.0003,
+            536.5,
+            343.1843
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 4,
+        "original_subject_line": 19,
+        "source_subject_text": "石油売払収入",
+        "original_full_subject_line_text": "石油売払収入　20,856,172,363",
+        "after_line": 117,
+        "after_line_ids": [
+          228,
+          155
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 229,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            528.5,
+            347.9283,
+            536.5,
+            356.1123
+          ],
+          "native_glyph_id": 923,
+          "native_bbox": [
+            528.5,
+            347.9283,
+            536.5,
+            356.1123
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 4,
+        "original_subject_line": 20,
+        "source_subject_text": "消費税等還付額",
+        "original_full_subject_line_text": "消費税等還付額",
+        "after_line": 118,
+        "after_line_ids": [
+          229,
+          156
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 230,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            528.5,
+            503.0734,
+            536.5,
+            511.2574
+          ],
+          "native_glyph_id": 1732,
+          "native_bbox": [
+            528.5,
+            503.0734,
+            536.5,
+            511.2574
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 4,
+        "original_subject_line": 32,
+        "source_subject_text": "有形固定資産の取得による支出",
+        "original_full_subject_line_text": "有形固定資産の取得による支出　−747,778,439",
+        "after_line": 129,
+        "after_line_ids": [
+          230,
+          157
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 231,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            528.5,
+            516.0014,
+            536.5,
+            524.1854
+          ],
+          "native_glyph_id": 1774,
+          "native_bbox": [
+            528.5,
+            516.0014,
+            536.5,
+            524.1854
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 4,
+        "original_subject_line": 33,
+        "source_subject_text": "有形固定資産の売却による収入",
+        "original_full_subject_line_text": "有形固定資産の売却による収入　5,747,726",
+        "after_line": 130,
+        "after_line_ids": [
+          231,
+          158
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 232,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            528.5,
+            528.9294,
+            536.5,
+            537.1134
+          ],
+          "native_glyph_id": 1815,
+          "native_bbox": [
+            528.5,
+            528.9294,
+            536.5,
+            537.1134
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 4,
+        "original_subject_line": 34,
+        "source_subject_text": "無形固定資産の取得による支出",
+        "original_full_subject_line_text": "無形固定資産の取得による支出　−15,410,377",
+        "after_line": 131,
+        "after_line_ids": [
+          232,
+          159
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 233,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            528.492,
+            228.3383,
+            536.492,
+            236.5223
+          ],
+          "native_glyph_id": 600,
+          "native_bbox": [
+            528.492,
+            228.33829999999992,
+            536.492,
+            236.52229999999992
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 4,
+        "original_subject_line": 12,
+        "source_subject_text": "債務保証料収入",
+        "original_full_subject_line_text": "債務保証料収入　2,282,998,874",
+        "after_line": 110,
+        "after_line_ids": [
+          233,
+          160
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 234,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            528.488,
+            116.6357,
+            536.488,
+            124.8197
+          ],
+          "native_glyph_id": 195,
+          "native_bbox": [
+            528.4879999999999,
+            116.63570000000006,
+            536.4879999999999,
+            124.81970000000007
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 4,
+        "original_subject_line": 4,
+        "source_subject_text": "原材料、商品又はサービスの購入による支出",
+        "original_full_subject_line_text": "原材料、商品又はサービスの購入による支出　−134,277,215,841",
+        "after_line": 102,
+        "after_line_ids": [
+          234,
+          162
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 235,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            528.484,
+            412.5717,
+            536.484,
+            420.7557
+          ],
+          "native_glyph_id": 1246,
+          "native_bbox": [
+            528.4839999999999,
+            412.57169999999996,
+            536.4839999999999,
+            420.7557
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 4,
+        "original_subject_line": 25,
+        "source_subject_text": "国庫納付金の支払額",
+        "original_full_subject_line_text": "国庫納付金の支払額",
+        "after_line": 123,
+        "after_line_ids": [
+          235,
+          164
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 236,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            528.48,
+            137.5957,
+            536.48,
+            145.7797
+          ],
+          "native_glyph_id": 269,
+          "native_bbox": [
+            528.4799999999999,
+            137.59570000000005,
+            536.4799999999999,
+            145.77970000000005
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 4,
+        "original_subject_line": 5,
+        "source_subject_text": "人件費支出",
+        "original_full_subject_line_text": "人件費支出　−4,354,276,671",
+        "after_line": 103,
+        "after_line_ids": [
+          236,
+          165
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 237,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            528.476,
+            262.2583,
+            536.476,
+            270.4423
+          ],
+          "native_glyph_id": 687,
+          "native_bbox": [
+            528.4759999999999,
+            262.25829999999985,
+            536.4759999999999,
+            270.4422999999999
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 4,
+        "original_subject_line": 14,
+        "source_subject_text": "運営費交付金収入",
+        "original_full_subject_line_text": "運営費交付金収入　77,542,668,000",
+        "after_line": 112,
+        "after_line_ids": [
+          237,
+          166
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 238,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            528.472,
+            150.5557,
+            536.472,
+            158.7397
+          ],
+          "native_glyph_id": 340,
+          "native_bbox": [
+            528.4719999999999,
+            150.55570000000003,
+            536.4719999999999,
+            158.73970000000003
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 4,
+        "original_subject_line": 6,
+        "source_subject_text": "貸付けによる支出",
+        "original_full_subject_line_text": "貸付けによる支出　−742,459,000,000",
+        "after_line": 104,
+        "after_line_ids": [
+          238,
+          167
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 239,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            528.468,
+            275.2183,
+            536.468,
+            283.4023
+          ],
+          "native_glyph_id": 737,
+          "native_bbox": [
+            528.4679999999998,
+            275.21829999999983,
+            536.4679999999998,
+            283.40229999999985
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 4,
+        "original_subject_line": 15,
+        "source_subject_text": "受託収入等サービスの提供による収入",
+        "original_full_subject_line_text": "受託収入等サービスの提供による収入　81,549,563,118",
+        "after_line": 113,
+        "after_line_ids": [
+          239,
+          168
+        ],
+        "after_line_text": "－　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 240,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            528.464,
+            163.5157,
+            536.464,
+            171.6997
+          ],
+          "native_glyph_id": 357,
+          "native_bbox": [
+            528.4639999999998,
+            163.5157,
+            536.4639999999998,
+            171.6997
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 4,
+        "original_subject_line": 7,
+        "source_subject_text": "鉱害防止業務費の支出",
+        "original_full_subject_line_text": "鉱害防止業務費の支出",
+        "after_line": 105,
+        "after_line_ids": [
+          240,
+          217,
+          209,
+          200,
+          190,
+          179
+        ],
+        "after_line_text": "－　−30,266,660",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 299,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            448.504,
+            490.1431,
+            456.504,
+            498.3271
+          ],
+          "native_glyph_id": 1665,
+          "native_bbox": [
+            448.5039999999999,
+            490.14309999999995,
+            456.5039999999999,
+            498.3271
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 3,
+        "original_subject_line": 31,
+        "source_subject_text": "有価証券の満期償還による収入",
+        "original_full_subject_line_text": "有価証券の満期償還による収入　33,827,991,373",
+        "after_line": 95,
+        "after_line_ids": [
+          299
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 300,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            448.5,
+            189.4583,
+            456.5,
+            197.6423
+          ],
+          "native_glyph_id": 448,
+          "native_bbox": [
+            448.5,
+            189.45829999999998,
+            456.5,
+            197.64229999999998
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 3,
+        "original_subject_line": 9,
+        "source_subject_text": "石油購入支出",
+        "original_full_subject_line_text": "石油購入支出　−20,856,172,363",
+        "after_line": 74,
+        "after_line_ids": [
+          300
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 301,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            448.5,
+            322.0723,
+            456.5,
+            330.2563
+          ],
+          "native_glyph_id": 882,
+          "native_bbox": [
+            448.5,
+            322.0723,
+            456.5,
+            330.2563
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 3,
+        "original_subject_line": 18,
+        "source_subject_text": "関係会社の清算による収入",
+        "original_full_subject_line_text": "関係会社の清算による収入　369,496",
+        "after_line": 83,
+        "after_line_ids": [
+          301
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 302,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            448.5,
+            335.0003,
+            456.5,
+            343.1843
+          ],
+          "native_glyph_id": 908,
+          "native_bbox": [
+            448.5,
+            335.0003,
+            456.5,
+            343.1843
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 3,
+        "original_subject_line": 19,
+        "source_subject_text": "石油売払収入",
+        "original_full_subject_line_text": "石油売払収入　20,856,172,363",
+        "after_line": 84,
+        "after_line_ids": [
+          302
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 303,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            448.5,
+            347.9283,
+            456.5,
+            356.1123
+          ],
+          "native_glyph_id": 922,
+          "native_bbox": [
+            448.5,
+            347.9283,
+            456.5,
+            356.1123
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 3,
+        "original_subject_line": 20,
+        "source_subject_text": "消費税等還付額",
+        "original_full_subject_line_text": "消費税等還付額",
+        "after_line": 85,
+        "after_line_ids": [
+          303
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 304,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            448.5,
+            503.0734,
+            456.5,
+            511.2574
+          ],
+          "native_glyph_id": 1731,
+          "native_bbox": [
+            448.5,
+            503.0734,
+            456.5,
+            511.2574
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 3,
+        "original_subject_line": 32,
+        "source_subject_text": "有形固定資産の取得による支出",
+        "original_full_subject_line_text": "有形固定資産の取得による支出　−747,778,439",
+        "after_line": 96,
+        "after_line_ids": [
+          304
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 305,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            448.5,
+            516.0014,
+            456.5,
+            524.1854
+          ],
+          "native_glyph_id": 1773,
+          "native_bbox": [
+            448.5,
+            516.0014,
+            456.5,
+            524.1854
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 3,
+        "original_subject_line": 33,
+        "source_subject_text": "有形固定資産の売却による収入",
+        "original_full_subject_line_text": "有形固定資産の売却による収入　5,747,726",
+        "after_line": 97,
+        "after_line_ids": [
+          305
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 306,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            448.492,
+            228.3383,
+            456.492,
+            236.5223
+          ],
+          "native_glyph_id": 599,
+          "native_bbox": [
+            448.49199999999996,
+            228.33829999999992,
+            456.49199999999996,
+            236.52229999999992
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 3,
+        "original_subject_line": 12,
+        "source_subject_text": "債務保証料収入",
+        "original_full_subject_line_text": "債務保証料収入　2,282,998,874",
+        "after_line": 77,
+        "after_line_ids": [
+          306
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 307,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            448.484,
+            241.2983,
+            456.484,
+            249.4823
+          ],
+          "native_glyph_id": 624,
+          "native_bbox": [
+            448.4839999999999,
+            241.2982999999999,
+            456.4839999999999,
+            249.4822999999999
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 3,
+        "original_subject_line": 13,
+        "source_subject_text": "預り鉱害防止積立金の受入れによる収入",
+        "original_full_subject_line_text": "預り鉱害防止積立金の受入れによる収入",
+        "after_line": 78,
+        "after_line_ids": [
+          307
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 308,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            448.484,
+            412.5717,
+            456.484,
+            420.7557
+          ],
+          "native_glyph_id": 1245,
+          "native_bbox": [
+            448.4839999999999,
+            412.57169999999996,
+            456.4839999999999,
+            420.7557
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 3,
+        "original_subject_line": 25,
+        "source_subject_text": "国庫納付金の支払額",
+        "original_full_subject_line_text": "国庫納付金の支払額",
+        "after_line": 90,
+        "after_line_ids": [
+          308
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 309,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            448.464,
+            163.5157,
+            456.464,
+            171.6997
+          ],
+          "native_glyph_id": 356,
+          "native_bbox": [
+            448.4639999999998,
+            163.5157,
+            456.4639999999998,
+            171.6997
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 3,
+        "original_subject_line": 7,
+        "source_subject_text": "鉱害防止業務費の支出",
+        "original_full_subject_line_text": "鉱害防止業務費の支出",
+        "after_line": 72,
+        "after_line_ids": [
+          309
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 437,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            368.504,
+            451.3591,
+            376.504,
+            459.5431
+          ],
+          "native_glyph_id": 1409,
+          "native_bbox": [
+            368.5039999999999,
+            451.35909999999996,
+            376.5039999999999,
+            459.5431
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 2,
+        "original_subject_line": 28,
+        "source_subject_text": "定期預金の預入による支出",
+        "original_full_subject_line_text": "定期預金の預入による支出　−348,828,778,870",
+        "after_line": 60,
+        "after_line_ids": [
+          437
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 438,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            368.504,
+            464.2871,
+            376.504,
+            472.4711
+          ],
+          "native_glyph_id": 1493,
+          "native_bbox": [
+            368.5039999999999,
+            464.28709999999995,
+            376.5039999999999,
+            472.4711
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 2,
+        "original_subject_line": 29,
+        "source_subject_text": "定期預金の払戻による収入",
+        "original_full_subject_line_text": "定期預金の払戻による収入　207,796,388,792",
+        "after_line": 61,
+        "after_line_ids": [
+          438
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 439,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            368.5,
+            189.4583,
+            376.5,
+            197.6423
+          ],
+          "native_glyph_id": 447,
+          "native_bbox": [
+            368.5,
+            189.45829999999998,
+            376.5,
+            197.64229999999998
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 2,
+        "original_subject_line": 9,
+        "source_subject_text": "石油購入支出",
+        "original_full_subject_line_text": "石油購入支出　−20,856,172,363",
+        "after_line": 42,
+        "after_line_ids": [
+          439
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 440,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            368.5,
+            335.0003,
+            376.5,
+            343.1843
+          ],
+          "native_glyph_id": 907,
+          "native_bbox": [
+            368.5,
+            335.0003,
+            376.5,
+            343.1843
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 2,
+        "original_subject_line": 19,
+        "source_subject_text": "石油売払収入",
+        "original_full_subject_line_text": "石油売払収入　20,856,172,363",
+        "after_line": 52,
+        "after_line_ids": [
+          440
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 441,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            368.5,
+            347.9283,
+            376.5,
+            356.1123
+          ],
+          "native_glyph_id": 921,
+          "native_bbox": [
+            368.5,
+            347.9283,
+            376.5,
+            356.1123
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 2,
+        "original_subject_line": 20,
+        "source_subject_text": "消費税等還付額",
+        "original_full_subject_line_text": "消費税等還付額",
+        "after_line": 53,
+        "after_line_ids": [
+          441
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 442,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            368.5,
+            528.9294,
+            376.5,
+            537.1134
+          ],
+          "native_glyph_id": 1803,
+          "native_bbox": [
+            368.5,
+            528.9294,
+            376.5,
+            537.1134
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 2,
+        "original_subject_line": 34,
+        "source_subject_text": "無形固定資産の取得による支出",
+        "original_full_subject_line_text": "無形固定資産の取得による支出　−15,410,377",
+        "after_line": 66,
+        "after_line_ids": [
+          442
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 443,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            368.484,
+            241.2983,
+            376.484,
+            249.4823
+          ],
+          "native_glyph_id": 623,
+          "native_bbox": [
+            368.4839999999999,
+            241.2982999999999,
+            376.4839999999999,
+            249.4822999999999
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 2,
+        "original_subject_line": 13,
+        "source_subject_text": "預り鉱害防止積立金の受入れによる収入",
+        "original_full_subject_line_text": "預り鉱害防止積立金の受入れによる収入",
+        "after_line": 46,
+        "after_line_ids": [
+          443
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 444,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            368.484,
+            412.5717,
+            376.484,
+            420.7557
+          ],
+          "native_glyph_id": 1244,
+          "native_bbox": [
+            368.4839999999999,
+            412.57169999999996,
+            376.4839999999999,
+            420.7557
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 2,
+        "original_subject_line": 25,
+        "source_subject_text": "国庫納付金の支払額",
+        "original_full_subject_line_text": "国庫納付金の支払額",
+        "after_line": 58,
+        "after_line_ids": [
+          444
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 445,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            368.468,
+            275.2183,
+            376.468,
+            283.4023
+          ],
+          "native_glyph_id": 722,
+          "native_bbox": [
+            368.46799999999985,
+            275.21829999999983,
+            376.46799999999985,
+            283.40229999999985
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 2,
+        "original_subject_line": 15,
+        "source_subject_text": "受託収入等サービスの提供による収入",
+        "original_full_subject_line_text": "受託収入等サービスの提供による収入　81,549,563,118",
+        "after_line": 48,
+        "after_line_ids": [
+          445
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 446,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            368.464,
+            163.5157,
+            376.464,
+            171.6997
+          ],
+          "native_glyph_id": 355,
+          "native_bbox": [
+            368.4639999999998,
+            163.5157,
+            376.4639999999998,
+            171.6997
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 2,
+        "original_subject_line": 7,
+        "source_subject_text": "鉱害防止業務費の支出",
+        "original_full_subject_line_text": "鉱害防止業務費の支出",
+        "after_line": 40,
+        "after_line_ids": [
+          446
+        ],
+        "after_line_text": "－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 576,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            288.5,
+            347.9283,
+            296.5,
+            356.1123
+          ],
+          "native_glyph_id": 920,
+          "native_bbox": [
+            288.5,
+            347.9283,
+            296.5,
+            356.1123
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 1,
+        "original_subject_line": 20,
+        "source_subject_text": "消費税等還付額",
+        "original_full_subject_line_text": "消費税等還付額",
+        "after_line": 20,
+        "after_line_ids": [
+          858,
+          844,
+          828,
+          811,
+          796,
+          780,
+          763,
+          576
+        ],
+        "after_line_text": "消費税等還付額　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 577,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            288.484,
+            241.2983,
+            296.484,
+            249.4823
+          ],
+          "native_glyph_id": 622,
+          "native_bbox": [
+            288.4839999999999,
+            241.2982999999999,
+            296.4839999999999,
+            249.4822999999999
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 1,
+        "original_subject_line": 13,
+        "source_subject_text": "預り鉱害防止積立金の受入れによる収入",
+        "original_full_subject_line_text": "預り鉱害防止積立金の受入れによる収入",
+        "after_line": 13,
+        "after_line_ids": [
+          877,
+          878,
+          577
+        ],
+        "after_line_text": "預り鉱害防止積立金の受入れによる収入　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 578,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            288.484,
+            412.5717,
+            296.484,
+            420.7557
+          ],
+          "native_glyph_id": 1243,
+          "native_bbox": [
+            288.4839999999999,
+            412.57169999999996,
+            296.4839999999999,
+            420.7557
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 1,
+        "original_subject_line": 25,
+        "source_subject_text": "国庫納付金の支払額",
+        "original_full_subject_line_text": "国庫納付金の支払額",
+        "after_line": 25,
+        "after_line_ids": [
+          879,
+          852,
+          836,
+          825,
+          814,
+          800,
+          789,
+          774,
+          766,
+          578
+        ],
+        "after_line_text": "国庫納付金の支払額　－",
+        "font_bbox_overhang_pt": 0
+      },
+      {
+        "source": {
+          "word_id": 579,
+          "raw": "",
+          "text": "",
+          "status": "empty",
+          "bbox": [
+            288.464,
+            163.5157,
+            296.464,
+            171.6997
+          ],
+          "native_glyph_id": 354,
+          "native_bbox": [
+            288.4639999999998,
+            163.5157,
+            296.4639999999998,
+            171.6997
+          ],
+          "font": 2,
+          "cid": 24952,
+          "invisible": false
+        },
+        "physical_column": 1,
+        "original_subject_line": 7,
+        "source_subject_text": "鉱害防止業務費の支出",
+        "original_full_subject_line_text": "鉱害防止業務費の支出",
+        "after_line": 7,
+        "after_line_ids": [
+          885,
+          853,
+          838,
+          831,
+          816,
+          809,
+          799,
+          787,
+          773,
+          772,
+          579
+        ],
+        "after_line_text": "鉱害防止業務費の支出　－",
+        "font_bbox_overhang_pt": 0
+      }
+    ],
+    "Document_structure": "same1Article/1paragraph/1Run; old text and all spaces is a subsequence after one explicit existing formatter LF delta before15,808,200,000; remaining27LF retained with only109 source dashes and local fullwidth separators inserted",
+    "Document_known_numeric_separator_LF_removed": 1,
+    "Document_LF_before": 28,
+    "Document_LF_after": 27,
+    "Document_insertions": [
+      {
+        "at_new": 158,
+        "char": "　"
+      },
+      {
+        "at_new": 159,
+        "char": "－"
+      },
+      {
+        "at_new": 285,
+        "char": "　"
+      },
+      {
+        "at_new": 286,
+        "char": "－"
+      },
+      {
+        "at_new": 437,
+        "char": "　"
+      },
+      {
+        "at_new": 438,
+        "char": "－"
+      },
+      {
+        "at_new": 535,
+        "char": "　"
+      },
+      {
+        "at_new": 536,
+        "char": "－"
+      },
+      {
+        "at_new": 860,
+        "char": "－"
+      },
+      {
+        "at_new": 876,
+        "char": "－"
+      },
+      {
+        "at_new": 911,
+        "char": "－"
+      },
+      {
+        "at_new": 927,
+        "char": "－"
+      },
+      {
+        "at_new": 965,
+        "char": "－"
+      },
+      {
+        "at_new": 966,
+        "char": "－"
+      },
+      {
+        "at_new": 1017,
+        "char": "－"
+      },
+      {
+        "at_new": 1033,
+        "char": "－"
+      },
+      {
+        "at_new": 1034,
+        "char": "－"
+      },
+      {
+        "at_new": 1093,
+        "char": "－"
+      },
+      {
+        "at_new": 1157,
+        "char": "－"
+      },
+      {
+        "at_new": 1173,
+        "char": "－"
+      },
+      {
+        "at_new": 1200,
+        "char": "－"
+      },
+      {
+        "at_new": 1201,
+        "char": "－"
+      },
+      {
+        "at_new": 1255,
+        "char": "－"
+      },
+      {
+        "at_new": 1256,
+        "char": "－"
+      },
+      {
+        "at_new": 1257,
+        "char": "－"
+      },
+      {
+        "at_new": 1312,
+        "char": "－"
+      },
+      {
+        "at_new": 1371,
+        "char": "－"
+      },
+      {
+        "at_new": 1372,
+        "char": "－"
+      },
+      {
+        "at_new": 1373,
+        "char": "－"
+      },
+      {
+        "at_new": 1429,
+        "char": "－"
+      },
+      {
+        "at_new": 1430,
+        "char": "　"
+      },
+      {
+        "at_new": 1431,
+        "char": "－"
+      },
+      {
+        "at_new": 1432,
+        "char": "－"
+      },
+      {
+        "at_new": 1433,
+        "char": "　"
+      },
+      {
+        "at_new": 1434,
+        "char": "－"
+      },
+      {
+        "at_new": 1435,
+        "char": "－"
+      },
+      {
+        "at_new": 1436,
+        "char": "　"
+      },
+      {
+        "at_new": 1437,
+        "char": "－"
+      },
+      {
+        "at_new": 1438,
+        "char": "－"
+      },
+      {
+        "at_new": 1439,
+        "char": "　"
+      },
+      {
+        "at_new": 1451,
+        "char": "－"
+      },
+      {
+        "at_new": 1452,
+        "char": "　"
+      },
+      {
+        "at_new": 1453,
+        "char": "－"
+      },
+      {
+        "at_new": 1454,
+        "char": "－"
+      },
+      {
+        "at_new": 1455,
+        "char": "　"
+      },
+      {
+        "at_new": 1456,
+        "char": "－"
+      },
+      {
+        "at_new": 1457,
+        "char": "－"
+      },
+      {
+        "at_new": 1458,
+        "char": "　"
+      },
+      {
+        "at_new": 1459,
+        "char": "－"
+      },
+      {
+        "at_new": 1476,
+        "char": "－"
+      },
+      {
+        "at_new": 1477,
+        "char": "　"
+      },
+      {
+        "at_new": 1478,
+        "char": "－"
+      },
+      {
+        "at_new": 1490,
+        "char": "　"
+      },
+      {
+        "at_new": 1491,
+        "char": "－"
+      },
+      {
+        "at_new": 1492,
+        "char": "－"
+      },
+      {
+        "at_new": 1493,
+        "char": "　"
+      },
+      {
+        "at_new": 1494,
+        "char": "－"
+      },
+      {
+        "at_new": 1495,
+        "char": "－"
+      },
+      {
+        "at_new": 1496,
+        "char": "　"
+      },
+      {
+        "at_new": 1497,
+        "char": "－"
+      },
+      {
+        "at_new": 1498,
+        "char": "－"
+      },
+      {
+        "at_new": 1499,
+        "char": "　"
+      },
+      {
+        "at_new": 1500,
+        "char": "－"
+      },
+      {
+        "at_new": 1501,
+        "char": "－"
+      },
+      {
+        "at_new": 1502,
+        "char": "　"
+      },
+      {
+        "at_new": 1503,
+        "char": "－"
+      },
+      {
+        "at_new": 1504,
+        "char": "－"
+      },
+      {
+        "at_new": 1505,
+        "char": "　"
+      },
+      {
+        "at_new": 1506,
+        "char": "－"
+      },
+      {
+        "at_new": 1507,
+        "char": "－"
+      },
+      {
+        "at_new": 1508,
+        "char": "　"
+      },
+      {
+        "at_new": 1509,
+        "char": "－"
+      },
+      {
+        "at_new": 1510,
+        "char": "－"
+      },
+      {
+        "at_new": 1511,
+        "char": "　"
+      },
+      {
+        "at_new": 1512,
+        "char": "－"
+      },
+      {
+        "at_new": 1582,
+        "char": "　"
+      },
+      {
+        "at_new": 1583,
+        "char": "－"
+      },
+      {
+        "at_new": 1584,
+        "char": "－"
+      },
+      {
+        "at_new": 1585,
+        "char": "　"
+      },
+      {
+        "at_new": 1586,
+        "char": "－"
+      },
+      {
+        "at_new": 1705,
+        "char": "－"
+      },
+      {
+        "at_new": 1706,
+        "char": "　"
+      },
+      {
+        "at_new": 1707,
+        "char": "－"
+      },
+      {
+        "at_new": 1708,
+        "char": "－"
+      },
+      {
+        "at_new": 1709,
+        "char": "　"
+      },
+      {
+        "at_new": 1710,
+        "char": "－"
+      },
+      {
+        "at_new": 1711,
+        "char": "－"
+      },
+      {
+        "at_new": 1712,
+        "char": "　"
+      },
+      {
+        "at_new": 1713,
+        "char": "－"
+      },
+      {
+        "at_new": 1809,
+        "char": "－"
+      },
+      {
+        "at_new": 1810,
+        "char": "　"
+      },
+      {
+        "at_new": 1811,
+        "char": "－"
+      },
+      {
+        "at_new": 1812,
+        "char": "－"
+      },
+      {
+        "at_new": 1813,
+        "char": "　"
+      },
+      {
+        "at_new": 1814,
+        "char": "－"
+      },
+      {
+        "at_new": 1815,
+        "char": "－"
+      },
+      {
+        "at_new": 1816,
+        "char": "　"
+      },
+      {
+        "at_new": 1817,
+        "char": "－"
+      },
+      {
+        "at_new": 1818,
+        "char": "－"
+      },
+      {
+        "at_new": 1819,
+        "char": "　"
+      },
+      {
+        "at_new": 1820,
+        "char": "－"
+      },
+      {
+        "at_new": 1821,
+        "char": "－"
+      },
+      {
+        "at_new": 1822,
+        "char": "　"
+      },
+      {
+        "at_new": 1823,
+        "char": "－"
+      },
+      {
+        "at_new": 1831,
+        "char": "　"
+      },
+      {
+        "at_new": 1832,
+        "char": "－"
+      },
+      {
+        "at_new": 1833,
+        "char": "－"
+      },
+      {
+        "at_new": 1834,
+        "char": "　"
+      },
+      {
+        "at_new": 1835,
+        "char": "－"
+      },
+      {
+        "at_new": 1836,
+        "char": "－"
+      },
+      {
+        "at_new": 1837,
+        "char": "　"
+      },
+      {
+        "at_new": 1838,
+        "char": "－"
+      },
+      {
+        "at_new": 1839,
+        "char": "－"
+      },
+      {
+        "at_new": 1840,
+        "char": "　"
+      },
+      {
+        "at_new": 1841,
+        "char": "－"
+      },
+      {
+        "at_new": 1842,
+        "char": "－"
+      },
+      {
+        "at_new": 1843,
+        "char": "　"
+      },
+      {
+        "at_new": 1844,
+        "char": "－"
+      },
+      {
+        "at_new": 1845,
+        "char": "－"
+      },
+      {
+        "at_new": 1846,
+        "char": "　"
+      },
+      {
+        "at_new": 1861,
+        "char": "－"
+      },
+      {
+        "at_new": 1862,
+        "char": "　"
+      },
+      {
+        "at_new": 1863,
+        "char": "－"
+      },
+      {
+        "at_new": 1864,
+        "char": "－"
+      },
+      {
+        "at_new": 1865,
+        "char": "　"
+      },
+      {
+        "at_new": 1866,
+        "char": "－"
+      },
+      {
+        "at_new": 1867,
+        "char": "－"
+      },
+      {
+        "at_new": 1868,
+        "char": "　"
+      },
+      {
+        "at_new": 1869,
+        "char": "－"
+      },
+      {
+        "at_new": 1870,
+        "char": "－"
+      },
+      {
+        "at_new": 1871,
+        "char": "　"
+      },
+      {
+        "at_new": 1872,
+        "char": "－"
+      },
+      {
+        "at_new": 1887,
+        "char": "　"
+      },
+      {
+        "at_new": 1888,
+        "char": "－"
+      },
+      {
+        "at_new": 1936,
+        "char": "－"
+      },
+      {
+        "at_new": 1937,
+        "char": "　"
+      },
+      {
+        "at_new": 1938,
+        "char": "－"
+      },
+      {
+        "at_new": 1939,
+        "char": "－"
+      },
+      {
+        "at_new": 1940,
+        "char": "　"
+      },
+      {
+        "at_new": 1994,
+        "char": "　"
+      },
+      {
+        "at_new": 1995,
+        "char": "－"
+      },
+      {
+        "at_new": 2012,
+        "char": "　"
+      },
+      {
+        "at_new": 2013,
+        "char": "－"
+      },
+      {
+        "at_new": 2014,
+        "char": "－"
+      },
+      {
+        "at_new": 2015,
+        "char": "　"
+      },
+      {
+        "at_new": 2016,
+        "char": "－"
+      },
+      {
+        "at_new": 2017,
+        "char": "－"
+      },
+      {
+        "at_new": 2018,
+        "char": "　"
+      },
+      {
+        "at_new": 2019,
+        "char": "－"
+      },
+      {
+        "at_new": 2020,
+        "char": "－"
+      },
+      {
+        "at_new": 2021,
+        "char": "　"
+      },
+      {
+        "at_new": 2022,
+        "char": "－"
+      },
+      {
+        "at_new": 2023,
+        "char": "－"
+      },
+      {
+        "at_new": 2024,
+        "char": "　"
+      },
+      {
+        "at_new": 2025,
+        "char": "－"
+      },
+      {
+        "at_new": 2026,
+        "char": "－"
+      },
+      {
+        "at_new": 2027,
+        "char": "　"
+      },
+      {
+        "at_new": 2028,
+        "char": "－"
+      },
+      {
+        "at_new": 2044,
+        "char": "　"
+      },
+      {
+        "at_new": 2045,
+        "char": "－"
+      }
+    ],
+    "negative_complete_Analysis_exact": [
+      {
+        "page": "20260911g002030082",
+        "entire_Analysis_exact": true,
+        "whole_page_success_not_implied": true
+      },
+      {
+        "page": "20260911g002030084",
+        "entire_Analysis_exact": true,
+        "whole_page_success_not_implied": true
+      }
+    ],
+    "remaining": "Seven account numeric columns remain fragmented and Document remains1Run. Neighborp84 lower31E61C omitted remains unresolved."
+  },
+  "Document_separator_discovery": {
+    "initial_harness": "assumed all old DocLF kept, failed on one existing formatter join",
+    "original_Page_line_order_preserved": true,
+    "original_Document_LF_before": 28,
+    "current_Document_LF_after": 27,
+    "exact_old_context": "−14,053\n15,808,200,000",
+    "reason": "last2 account columns share Plain strip; restored dash prefix makes numeric line join under existing Document formatting",
+    "production_changes_after_discovery": 0,
+    "new_actual_regression_test_added": true,
+    "prior5_assertions_unchanged": true,
+    "existing_Document_flattening_major_still_unfixed": true
+  },
+  "snapshot_review": {
+    "source_manifest_SHA": "e2208a1c5f5e04d55658f246bbc9eef055b0b410a6e1a5d8f1a4afa0c8b3222f",
+    "new": 3,
+    "updated": 0,
+    "all3_complete_fulltext_ArticleDocument_snapshot_renders_exact": true,
+    "rows": [
+      {
+        "page": "20260911g002030082",
+        "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260911g00203__20260911g002030082.pdf.snap.new",
+        "new_sha256": "9e51696448689462a33e7180a9cfacd2478b661b58307a879d2701201deee1ba",
+        "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260911g00203__20260911g002030082.pdf.snap",
+        "old_sha256": null,
+        "source_PDF": "crates/kanpo-parser/tests/archive/pages/20260911g00203/20260911g002030082.pdf",
+        "source_PDF_sha256": "b2d0322d69dd4d065c2bee6e31858be81a076ea5636f9b4dc031698e0a192246",
+        "fulltext_and_all_ArticleDocuments_render_exact_to_root_fresh_Analysis": true,
+        "type": "new",
+        "all_original_review": "ruled-plain-dashes-proposal/whole-original-review.json:all3wholeoriginals/fulloutput/allArticleDocuments; root203p83wholeimage/old107/new165lines/1DocRun/native109Glyphpositions;2negativefullAnalysisexact;7accountrowassociation andp84lower31dashes remain"
+      },
+      {
+        "page": "20260911g002030083",
+        "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260911g00203__20260911g002030083.pdf.snap.new",
+        "new_sha256": "a86a2ad5a2707d25413eeee6e711bd3b3dc7e97529224db487131dcc0e90bf9f",
+        "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260911g00203__20260911g002030083.pdf.snap",
+        "old_sha256": null,
+        "source_PDF": "crates/kanpo-parser/tests/archive/pages/20260911g00203/20260911g002030083.pdf",
+        "source_PDF_sha256": "fc46276cce7875fffb5afb8efa448da5165ea1576ef8d7cb464d4c441edf4326",
+        "fulltext_and_all_ArticleDocuments_render_exact_to_root_fresh_Analysis": true,
+        "type": "new",
+        "all_original_review": "ruled-plain-dashes-proposal/whole-original-review.json:all3wholeoriginals/fulloutput/allArticleDocuments; root203p83wholeimage/old107/new165lines/1DocRun/native109Glyphpositions;2negativefullAnalysisexact;7accountrowassociation andp84lower31dashes remain"
+      },
+      {
+        "page": "20260911g002030084",
+        "snapshot_new": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260911g00203__20260911g002030084.pdf.snap.new",
+        "new_sha256": "c54b68c9b41ad444617aee663dceef37f9f0634a1c108a4d39d9d22e11ed3112",
+        "existing_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260911g00203__20260911g002030084.pdf.snap",
+        "old_sha256": null,
+        "source_PDF": "crates/kanpo-parser/tests/archive/pages/20260911g00203/20260911g002030084.pdf",
+        "source_PDF_sha256": "306871bb44da2726cc5b10f8cbdd747dcfb627366814bd4bb3f96b60df04c86a",
+        "fulltext_and_all_ArticleDocuments_render_exact_to_root_fresh_Analysis": true,
+        "type": "new",
+        "all_original_review": "ruled-plain-dashes-proposal/whole-original-review.json:all3wholeoriginals/fulloutput/allArticleDocuments; root203p83wholeimage/old107/new165lines/1DocRun/native109Glyphpositions;2negativefullAnalysisexact;7accountrowassociation andp84lower31dashes remain"
+      }
+    ],
+    "all3_originals_reviewed": true,
+    "root_native109_Source_IDs_and_original_lines_proven": true,
+    "Document_one_known_LF_delta_explicit_and_regression_tested": true,
+    "old_test_oracles_changed": 0
+  },
+  "company_fixed_scope_progress": {
+    "candidate": "frozen v3b after39; not adopted",
+    "fixed_scope": 1286,
+    "source_exe_deps_input_frozen_files": 2027,
+    "all_frozen2027_and_completed_batch_artifact_SHA_verified_by_root": true,
+    "completed_fixed_scope_indices": [
+      0,
+      179
+    ],
+    "fixed_batch_pages": 180,
+    "prior_initial_reviews": [
+      {
+        "path": ".cache/kanpo-227/company-article-v3b-prototype/166p94-red-green-review.json",
+        "sha256": "55c11789c297f6050332f396a32bdc4707db35fc2409131e2e5994be312b74e9",
+        "page": "20260724g001660094"
+      },
+      {
+        "path": ".cache/kanpo-227/company-article-v3b-prototype/visual-new-pages/20260727g001670104-review.json",
+        "sha256": "eb880ef5a375271621e749f6275c04ca1a25128a7a1dd0bbf44ed3a580c5ef50",
+        "page": "20260727g001670104"
+      }
+    ],
+    "historical_prior_count_122_retained": true,
+    "correction": "166p94 initial review duplicates fixed index92. Preserve both reviews and initial grades; count one unique page.",
+    "unique_reviewed": 181,
+    "pending": 1105,
+    "duplicate_page_occurrences": {
+      "20260724g001660094": 2
+    },
+    "scope_not_reduced": true,
+    "no_mechanical_result_as_visual_quality": true,
+    "old_v2_fixed964_history_not_recounted": true,
+    "all_initial_grades_unchanged": true,
+    "completed_batches": [
+      {
+        "review": ".cache/kanpo-227/company-article-v3b-prototype/visual-review-batch1/review.json",
+        "review_sha256": "1fc0d85fb06c550e9c7166b4963caf1c39929e440919fa75efefef342e37f4c9",
+        "delivery": ".cache/kanpo-227/company-article-v3b-prototype/visual-review-batch1/delivery-manifest.json",
+        "delivery_sha256": "79811f4f1b44ccc1658f3d45fc4065bcd524a11f4ffeb64a48ae377ef95304f3",
+        "pages": 30
+      },
+      {
+        "review": ".cache/kanpo-227/company-article-v3b-prototype/fullgate39v3b/review-financial-30-59/review-result.json",
+        "review_sha256": "822028d81231f9499259d652bbfacaccc63f26e7551e30c975fa5b52a2200ff4",
+        "delivery": ".cache/kanpo-227/company-article-v3b-prototype/fullgate39v3b/review-financial-30-59/review-artifact-manifest.json",
+        "delivery_sha256": "e5023221f2ea61094f1593670d46db89e905fa41263ced113bfc0de7232dc9d3",
+        "pages": 30
+      },
+      {
+        "review": ".cache/kanpo-227/company-article-v3b-prototype/visual-review-batch2-60-89/review.json",
+        "review_sha256": "3e3a2bfa854adac9abc744be2470eee1fdc576b32b7b5918be1be9d2a5aa6bb2",
+        "delivery": ".cache/kanpo-227/company-article-v3b-prototype/visual-review-batch2-60-89/delivery-manifest.json",
+        "delivery_sha256": "945ba96aa477dc4f91e5e41dd32fa283e0e665981df8ee7a2172575d337a30ca",
+        "pages": 30
+      },
+      {
+        "review": ".cache/kanpo-227/company-article-v3b-prototype/fullgate39v3b/review-financial-90-119/review-result.json",
+        "review_sha256": "97d83af341f1887096e9c3a2c4487411f94c9e723e214a59fc05ec7f227f0ef2",
+        "delivery": ".cache/kanpo-227/company-article-v3b-prototype/fullgate39v3b/review-financial-90-119/review-artifact-manifest.json",
+        "delivery_sha256": "094b3f9f807894b4e8af894596dbe23cf391a720d8786698b3b4b3c511341382",
+        "pages": 30
+      },
+      {
+        "review": ".cache/kanpo-227/company-article-v3b-prototype/fullgate39v3b/review-financial-120-149/review-result.json",
+        "review_sha256": "b5d6b211d1c09f3a9d98ee1caefd773de149c05304d00b9cc78cac1205a3f467",
+        "delivery": ".cache/kanpo-227/company-article-v3b-prototype/fullgate39v3b/review-financial-120-149/review-artifact-manifest.json",
+        "delivery_sha256": "8c0d11b0b8fbfc5e27234acf1ba764c3e65eb17c998cf7ee5990ad6c7972232d",
+        "pages": 30
+      },
+      {
+        "review": ".cache/kanpo-227/company-article-v3b-prototype/visual-review-batch3-150-179/review.json",
+        "review_sha256": "a3d7733a67624ce656688896c865c3486a63ead91f66e20e71041a64b6be1d18",
+        "delivery": ".cache/kanpo-227/company-article-v3b-prototype/visual-review-batch3-150-179/delivery-manifest.json",
+        "delivery_sha256": "92e537f510ba29fea99d6fea6f0f8bafe88590cc534444d90e86261ff353e18f",
+        "pages": 30
+      }
+    ],
+    "reviewed_page_IDs": [
+      "20260716g001590048",
+      "20260716g001590049",
+      "20260716g001590050",
+      "20260716g001590052",
+      "20260716g001590053",
+      "20260716g001590054",
+      "20260716g001590055",
+      "20260716g001590056",
+      "20260716g001590092",
+      "20260716g001590093",
+      "20260716g001590096",
+      "20260716g001590097",
+      "20260716g001590099",
+      "20260716g001590100",
+      "20260716g001590102",
+      "20260716h017490029",
+      "20260716h017490030",
+      "20260717g001600112",
+      "20260717g001600113",
+      "20260717g001600114",
+      "20260717g001600115",
+      "20260717g001600116",
+      "20260717g001600161",
+      "20260717g001600162",
+      "20260717g001600163",
+      "20260717g001600166",
+      "20260717g001600168",
+      "20260717g001600173",
+      "20260717g001600184",
+      "20260717h017500030",
+      "20260717h017500031",
+      "20260717h017500032",
+      "20260721g001610118",
+      "20260721g001610119",
+      "20260721g001610120",
+      "20260721g001610122",
+      "20260721g001610123",
+      "20260721g001610124",
+      "20260721g001610156",
+      "20260721g001610157",
+      "20260721g001610158",
+      "20260721g001610160",
+      "20260721g001610161",
+      "20260721g001610163",
+      "20260721g001610166",
+      "20260721g001610167",
+      "20260721g001610172",
+      "20260721g001610176",
+      "20260721h017510029",
+      "20260721h017510030",
+      "20260721h017510031",
+      "20260721h017510032",
+      "20260722g001620056",
+      "20260722g001620057",
+      "20260722g001620058",
+      "20260722g001620059",
+      "20260722g001620060",
+      "20260722g001620095",
+      "20260722g001620099",
+      "20260722g001620100",
+      "20260722g001620101",
+      "20260722g001620104",
+      "20260722g001620112",
+      "20260722h017520031",
+      "20260723g001630193",
+      "20260723g001630194",
+      "20260723g001630195",
+      "20260723g001630196",
+      "20260723g001630221",
+      "20260723g001630222",
+      "20260723g001630223",
+      "20260723g001630224",
+      "20260723g001630229",
+      "20260723g001630230",
+      "20260723g001630238",
+      "20260723h017530030",
+      "20260723h017530031",
+      "20260724g001660039",
+      "20260724g001660040",
+      "20260724g001660041",
+      "20260724g001660042",
+      "20260724g001660044",
+      "20260724g001660080",
+      "20260724g001660081",
+      "20260724g001660082",
+      "20260724g001660083",
+      "20260724g001660084",
+      "20260724g001660087",
+      "20260724g001660088",
+      "20260724g001660091",
+      "20260724g001660092",
+      "20260724g001660093",
+      "20260724g001660094",
+      "20260724h017540026",
+      "20260724h017540027",
+      "20260724h017540028",
+      "20260724h017540029",
+      "20260724h017540030",
+      "20260724h017540031",
+      "20260724h017540032",
+      "20260727g001670065",
+      "20260727g001670066",
+      "20260727g001670067",
+      "20260727g001670068",
+      "20260727g001670069",
+      "20260727g001670093",
+      "20260727g001670094",
+      "20260727g001670095",
+      "20260727g001670099",
+      "20260727g001670103",
+      "20260727g001670104",
+      "20260727g001670112",
+      "20260727h017550026",
+      "20260727h017550027",
+      "20260727h017550028",
+      "20260727h017550029",
+      "20260727h017550030",
+      "20260727h017550031",
+      "20260727h017550032",
+      "20260728g001680045",
+      "20260728g001680046",
+      "20260728g001680047",
+      "20260728g001680048",
+      "20260728g001680049",
+      "20260728g001680070",
+      "20260728g001680071",
+      "20260728g001680072",
+      "20260728g001680073",
+      "20260728g001680074",
+      "20260728g001680077",
+      "20260728g001680078",
+      "20260728g001680079",
+      "20260728g001680080",
+      "20260728g001680081",
+      "20260728g001680082",
+      "20260728g001680086",
+      "20260728h017560026",
+      "20260728h017560027",
+      "20260728h017560028",
+      "20260728h017560029",
+      "20260728h017560030",
+      "20260728h017560031",
+      "20260728h017560032",
+      "20260729g001700046",
+      "20260729g001700048",
+      "20260729g001700049",
+      "20260729g001700050",
+      "20260729g001700068",
+      "20260729g001700069",
+      "20260729g001700071",
+      "20260729g001700072",
+      "20260729g001700074",
+      "20260729g001700078",
+      "20260729g001700079",
+      "20260729g001700080",
+      "20260729h017570029",
+      "20260729h017570030",
+      "20260729h017570031",
+      "20260729h017570032",
+      "20260730g001710139",
+      "20260730g001710140",
+      "20260730g001710154",
+      "20260730g001710155",
+      "20260730g001710161",
+      "20260730h017580029",
+      "20260730h017580030",
+      "20260730h017580031",
+      "20260730h017580032",
+      "20260731g001730100",
+      "20260731g001730101",
+      "20260731g001730102",
+      "20260731g001730103",
+      "20260731g001730104",
+      "20260731g001730105",
+      "20260731g001730148",
+      "20260731g001730149",
+      "20260731g001730150",
+      "20260731g001730152",
+      "20260731g001730153",
+      "20260731g001730154",
+      "20260731g001730155"
+    ]
+  },
+  "old_test_oracle_updates": 0,
+  "assertions_relaxed": 0,
+  "prior5_assertions_unchanged": true,
+  "stronger_sixth_actual_test_added": true,
+  "audit134_initial": {
+    "strict": {
+      "minor": 15,
+      "ok": 9,
+      "major": 6
+    },
+    "body": {
+      "ok": 26,
+      "minor": 4
+    },
+    "initial_scores_fixed": true,
+    "all30_before43_after44_Analysis_exact": true,
+    "all30_originals_all_outputs_all_Articles_Documents_read": true,
+    "Articles": 52,
+    "output_lines": 1840,
+    "scope_fixed_before_selection": "Strict full quality: original full-page image vs all output text and every Article/Document, including independent announcements, new/old roles, cell/rowspan association, numeric signs, names and character omissions. Fix initial ok/minor/major before corrections; record original issue body/character/order axis separately. Do not compare numerically to older audits with different scope."
+  },
+  "audit134_native_zero_proof": {
+    "method": "Fresh original-PDF extraction; inverted bbox normalization and closed rectangle intersection of all Glyphs, including empty Unicode/invisible/zero dimensions/edge touch. No center-only or text filter.",
+    "source_manifest_sha256": "e2208a1c5f5e04d55658f246bbc9eef055b0b410a6e1a5d8f1a4afa0c8b3222f",
+    "zero_rectangles": 8,
+    "source_PDFs": 3,
+    "positive_contexts": 3,
+    "whole_page_exclusions": 0,
+    "originals": [
+      {
+        "page": "20260803g001740039",
+        "pdf": ".cache/kanpo-archive/2026-08-03/20260803g00174/20260803g001740039.pdf",
+        "pdf_sha256": "71ede143ae417d4a2a103b401264be4240e28ece8d08eedf42586d9a8a0f86c4",
+        "native": ".cache/kanpo-227/audit134-root-native/20260803g001740039.json",
+        "native_sha256": "e64b7c9a917af71baa322484cf349464b7adb3d9dbfd4ba06716036bd30bcbe2",
+        "Glyphs": 3198
+      },
+      {
+        "page": "20261013g002240068",
+        "pdf": ".cache/kanpo-archive/2026-10-13/20261013g00224/20261013g002240068.pdf",
+        "pdf_sha256": "af9275d1db3bddd37301014320c493d3c630424765af04a5cef6c7b48b2ebd40",
+        "native": ".cache/kanpo-227/audit134-root-native/20261013g002240068.json",
+        "native_sha256": "d8593a4b53d7f90d0cbf5b00f1647ca922ca68b58e2562ef1e5986e66f2cbd94",
+        "Glyphs": 304
+      },
+      {
+        "page": "20261014h018070022",
+        "pdf": ".cache/kanpo-archive/2026-10-14/20261014h01807/20261014h018070022.pdf",
+        "pdf_sha256": "5c3b4226e5138d0cf8a56ec818da52ef7abcc145c45fed82e8be2dc231bc8ecd",
+        "native": ".cache/kanpo-227/audit134-root-native/20261014h018070022.json",
+        "native_sha256": "693f77ede2a5aa3018900e85d3667c5ab79711af9f43223c4b1e49ec012c23fd",
+        "Glyphs": 977
+      }
+    ],
+    "rectangles": [
+      {
+        "page": "20261014h018070022",
+        "name": "precise native0 exclusion",
+        "rect": [
+          61,
+          45,
+          240,
+          551
+        ],
+        "expected": 0,
+        "closed_all_native_count": 0,
+        "all_native_indices": [],
+        "including_emptyUnicode_invisible_zeroDimensions_edgeTouch": true
+      },
+      {
+        "page": "20261014h018070022",
+        "name": "precise native0 exclusion",
+        "rect": [
+          244,
+          45,
+          423,
+          208
+        ],
+        "expected": 0,
+        "closed_all_native_count": 0,
+        "all_native_indices": [],
+        "including_emptyUnicode_invisible_zeroDimensions_edgeTouch": true
+      },
+      {
+        "page": "20261014h018070022",
+        "name": "precise native0 exclusion",
+        "rect": [
+          244,
+          230,
+          423,
+          329
+        ],
+        "expected": 0,
+        "closed_all_native_count": 0,
+        "all_native_indices": [],
+        "including_emptyUnicode_invisible_zeroDimensions_edgeTouch": true
+      },
+      {
+        "page": "20261014h018070022",
+        "name": "precise native0 exclusion",
+        "rect": [
+          244,
+          343,
+          423,
+          551
+        ],
+        "expected": 0,
+        "closed_all_native_count": 0,
+        "all_native_indices": [],
+        "including_emptyUnicode_invisible_zeroDimensions_edgeTouch": true
+      },
+      {
+        "page": "20261014h018070022",
+        "name": "precise native0 exclusion",
+        "rect": [
+          426,
+          45,
+          605,
+          187
+        ],
+        "expected": 0,
+        "closed_all_native_count": 0,
+        "all_native_indices": [],
+        "including_emptyUnicode_invisible_zeroDimensions_edgeTouch": true
+      },
+      {
+        "page": "20261014h018070022",
+        "name": "explicit neighboring native context",
+        "rect": [
+          426,
+          190,
+          605,
+          310
+        ],
+        "expected": 117,
+        "closed_all_native_count": 117,
+        "all_native_indices": [
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115,
+          116,
+          117,
+          118,
+          119,
+          120,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127,
+          128,
+          129,
+          130,
+          131,
+          132,
+          133,
+          134,
+          135,
+          136,
+          137,
+          138,
+          139,
+          140,
+          141,
+          142,
+          143,
+          144,
+          145,
+          146,
+          147,
+          148,
+          149,
+          150,
+          151,
+          152,
+          153
+        ],
+        "including_emptyUnicode_invisible_zeroDimensions_edgeTouch": true
+      },
+      {
+        "page": "20261013g002240068",
+        "name": "precise native0 exclusion",
+        "rect": [
+          45,
+          60,
+          550,
+          610
+        ],
+        "expected": 0,
+        "closed_all_native_count": 0,
+        "all_native_indices": [],
+        "including_emptyUnicode_invisible_zeroDimensions_edgeTouch": true
+      },
+      {
+        "page": "20261013g002240068",
+        "name": "precise native0 exclusion",
+        "rect": [
+          300,
+          611,
+          555,
+          790
+        ],
+        "expected": 0,
+        "closed_all_native_count": 0,
+        "all_native_indices": [],
+        "including_emptyUnicode_invisible_zeroDimensions_edgeTouch": true
+      },
+      {
+        "page": "20261013g002240068",
+        "name": "explicit neighboring native context",
+        "rect": [
+          45,
+          612,
+          293,
+          790
+        ],
+        "expected": 278,
+        "closed_all_native_count": 278,
+        "all_native_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115,
+          116,
+          117,
+          118,
+          119,
+          120,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127,
+          128,
+          129,
+          130,
+          131,
+          132,
+          133,
+          134,
+          135,
+          136,
+          137,
+          138,
+          139,
+          140,
+          141,
+          142,
+          143,
+          144,
+          145,
+          146,
+          147,
+          148,
+          149,
+          150,
+          151,
+          152,
+          153,
+          154,
+          155,
+          156,
+          157,
+          158,
+          159,
+          160,
+          161,
+          162,
+          163,
+          164,
+          165,
+          166,
+          167,
+          168,
+          169,
+          170,
+          171,
+          172,
+          173,
+          174,
+          175,
+          176,
+          177,
+          178,
+          179,
+          180,
+          181,
+          182,
+          183,
+          184,
+          185,
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192,
+          193,
+          194,
+          195,
+          196,
+          197,
+          198,
+          199,
+          200,
+          201,
+          202,
+          203,
+          204,
+          205,
+          206,
+          207,
+          208,
+          209,
+          210,
+          211,
+          212,
+          213,
+          214,
+          215,
+          216,
+          217,
+          218,
+          219,
+          220,
+          221,
+          222,
+          223,
+          224,
+          225,
+          226,
+          227,
+          228,
+          229,
+          230,
+          231,
+          232,
+          233,
+          234,
+          235,
+          236,
+          237,
+          238,
+          239,
+          240,
+          241,
+          242,
+          243,
+          244,
+          245,
+          246,
+          247,
+          248,
+          249,
+          250,
+          251,
+          252,
+          253,
+          254,
+          255,
+          256,
+          257,
+          258,
+          259,
+          260,
+          261,
+          262,
+          263,
+          264,
+          265,
+          266,
+          267,
+          268,
+          269,
+          270,
+          271,
+          272,
+          273,
+          274,
+          275,
+          276,
+          277
+        ],
+        "including_emptyUnicode_invisible_zeroDimensions_edgeTouch": true
+      },
+      {
+        "page": "20260803g001740039",
+        "name": "precise native0 exclusion",
+        "rect": [
+          69,
+          167.8,
+          76.9,
+          176.1
+        ],
+        "expected": 0,
+        "closed_all_native_count": 0,
+        "all_native_indices": [],
+        "including_emptyUnicode_invisible_zeroDimensions_edgeTouch": true
+      },
+      {
+        "page": "20260803g001740039",
+        "name": "explicit neighboring native context",
+        "rect": [
+          77,
+          167.8,
+          85,
+          176.1
+        ],
+        "expected": 2,
+        "closed_all_native_count": 2,
+        "all_native_indices": [
+          406,
+          407
+        ],
+        "including_emptyUnicode_invisible_zeroDimensions_edgeTouch": true
+      }
+    ],
+    "no_image_or_outline_mechanism_inferred": true
+  },
+  "known_remaining": [
+    "181p67 Ennet date placement;171p155/174p142 each3 absent bars.",
+    "194p50/p55 upper hierarchy;194p51 four empty account records joined;194p70 article combines two IC records.",
+    "174p46 and14other native RomanXIII remain unmapped;186p19 JIS wrapping/code mixing.",
+    "CF196p133(A)..(G)14 reference Glyphs and other unverified reference markers remain; amount/detail alignment was fixed in batch14.",
+    "206p75 form fields detached;20260814t000410002 agencytable/附則 interleaving;175h1 company/name columns.",
+    "6ambiguous⑪/4ambiguous㉑ and51unpaired components of other circled20s are not guessed.",
+    "198p21 rotated newoldtable row interleaving;206p248 two△ amounts assigned one row above.",
+    "Article-only165p694 finalleft1.099/rightfirst1.018 concatenate though all18right pairs are present in Page/Trace;179p113 old⑰/⑱ building/1円 rows concatenate only in Article Table.",
+    "Audit125minor174p153 surname櫛田;183p48瀀/䙐;170p60 onebar/176p121 twobars;212p6 delayed signatures;1767p4 Latin spaces.1761p2 missing144angles resolved in batch15.",
+    "1773p4 missing126angles resolved, but preexisting land/marker line interleaving remains; audit124 repair stays29ok1minor0major, initial27ok3minor0major fixed.",
+    "1774p3 other pesticide manufacturers detached;1790p4 economic-notice period endingで crosses city list.",
+    "1762p5 approval manufacturer/signature/type description interrupt sand-control points10/11; road94/199/61 fields interleave.",
+    "1798p6 road1175 unit/width/length78 appears inside sand-control1176;1802p5 road221/95 wrapped intervals cross inspection-place columns.",
+    "Audit126minor165p715 and226p108 table header line concatenation;215p457 circled⑮⑯⑰ absent;169p84 newold first-article display row joined while separate source cells remain.",
+    "Further unreconstructed coordinate/surname/unit candidates remain; no overall100percent claim.",
+    "Audit126174p87 title boundary and192p30 microvolume/chemical hyphens repaired. Initial audit12624ok4minor2major remains fixed, not retrospectively rescored.",
+    "215p376 printed reference83/equation93 composite Glyphs remain missing despite both0.3μm repaired. Neighbor215p375 has16rho and12m3 native symbols missing;215p377 references83/94 remain;192p31 multiline fractions and192p29 Document column join remain.",
+    "Audit127 initial12ok1minor17major and separately scoped strict9ok1minor20major/body25ok2minor3major are frozen. All30 full before36/after37 Analysis exact. Independent company/approval notices often remain unsplit; no overall100percent claim.",
+    "Audit1271784p7 plant registration31883 continuation six-column association and附則 order;203p85 upper continuation31 actual E61C dashes absent;188p91 common remarks rowspan split;1802p6Article template bullet/section mixing;226p9 headerless after/before Document role absent.",
+    "Audit127161p50 joint ministries shared notice number interleaves;1766p31 e_combiningLowline URL instead of source underscore-like glyph has native4pt advance. Unverified missing surname visible box is native0 and is not guessed.",
+    "Batch17 fixes the9 native parallel textual-numerator formulae and1799p4 framed continuation; initial audit125/126/127 grades remain frozen. No claim that every other field on those pages is correct.",
+    "225p8 field17 label/value wrapping and225p11 field16(2) trailing2 remain minor.201p13 upper nativeGlyph0 notice is excluded only within its exact source rectangle, with positive neighboring witnesses.",
+    "Audit128 strict11ok6minor13major/body21ok1minor8major are immutable initial scores; all30 complete before37/after38 Analysis are exact. Findings preexist17; no overall100percent or old-rate comparability claim.",
+    "Audit128187p6 headerless continued after-cell follows before-cell;228p347 note3 values interleave CF heading;1786p5 unruled tobacco/Coastguard columns interleave;188p84 BS Document grouping missing;180p7 medicine newold inner3-column association lost.",
+    "Audit128179p58 four-band newold continuation and Article roles lost;1759p9 map left/right11-record fields split around other notices;172p303 budget48-row structure lost;228p175 financial Document tables missing;165p751 shared都道府県 rowspan reaches only土木, not教育/総務.",
+    "Audit128188p60 surveying7-column9-record table splits4+3columns;215p396 final33–46 common footer assigned to wrong ShinkyuRow;206p291 joint-ministry citation3-column wrapping mixes Article7 namespace. Native0 exclusions are limited to11exact rectangles, no whole page excluded.",
+    "Batch18 fixes1799p3 whole-page four-band continuation. Its118 original Lines,178Words,164Used owners and1637nativeGlyph bindings are preserved. Page-start cross-page sentence stitching, underline styling and existing Document wrapping remain;1799p5 inner address/name columns remain major.",
+    "Companyv2 independent full11992 mechanical checks are complete, but frozen964visual scope has36reviewed/928pending. First additional30originals show13improvement/17partial and0new regressions, with17residual majors. v3 tests real multi-company BS/PL/periodless-boundary failures, remains cache-only, and cannot replace old initial grades/scope.",
+    "Audit129 immutable initial strict11ok7minor12major/body21ok3minor6major. All30 complete before38/after39 Analysis exact,0new18regression. Independent article boundaries, newold roles, shared cells and financial Document structure remain major.",
+    "Audit129193p183 source△ on歳入128613201090 is lost while synthetic△ appears on positive歳出165844651302; sourceWord268 remainsNoise/unowned. SourceGlyph2463/E888/CID25572 proves sign belongs to歳入. Native empty E61C bars are a separate remaining issue.",
+    "Audit129167p21 old7条2項 continuation is interrupted by附則/法規的告示 and old3/4/JISX6283 land in anotherArticle;211p14 headerless roles lost;169p181 fertilizer外第3号 record splits;174p43 shared国家試験係 name interleaves新潟県 and independent nursing notice is unsplit.",
+    "Audit1291778p6 road110 shared interval losesrowspan/before-after association;228p198 BSPL totals retain original values but DocTable grouping is absent;167p63,213p1,1763p9,186p1,215p3 independent notices/TOC summaries merge or misown headings.1777p5 ㎢ nativeGlyph/Wordraw unit omitted.",
+    "Batch19 fixes6numeric compound formulas only.201p12 separatefield16(2) wrapped singlebar expression remains major;201p13 farmland record/owner rowspan remains major;180p15 rightfield14 canonical formula retains existing table/Plain split.225p11/201p11 printed trailing×2 is an actual wrapped multiplier.",
+    "Audit130 initial strict9ok4minor17major/body17ok9minor4major fixed forever. All30 before39/after40 completeAnalysis exact,0new19regression. No historical rate comparison or whole-page perfection claim.",
+    "Audit130217p17 quoted住民基本台帳法 clause follows later改正instructions;202p57 separate都道府県22-row and大臣管理3-row fishery tables mixed;187p20 EA1/2→EC1/2 quoted subscripts split;230p11 fertilizer17-record six-year table splits2and3columns.",
+    "Audit130172p9 omits15nativeordinalGlyphs (11EmptyWords and4UsedWord interiors);172p118 newoldマンションform roles absent and8nativeE712 checkboxGlyphs/8EmptyWords missing.228p534 oneE61C dash missing;179p111 period parentheses close before至date.",
+    "Audit130 financial tables/totals and independent公告 boundaries remain major on228p130/534/340/245/669,179p111,189p70,194p46,226p111,163p197,1809p32. Native0 exclusions limited8rectangles/4PDFs with6positive contexts.",
+    "Triangle candidate first11992 attempt failedENOSPC after5500/6changes. Whole-original review found a genuine regression166p33: explanatory当期損失金（△） made positive14653 negative. Candidate rejected; source/exe/gzips retained, new actualRED precedes narrower rewrite. Not included.",
+    "Companyv3 firstfullgate stopped at1917pages/340changes because166p94 lost a v2-proved boundary after periodless title recognition. Failure evidence retained; v3b is separatecache test-first work. Originalv2 fixed964scope/36reviewed928pending and first30initial grades unchanged.",
+    "Batch20 changes only167p21 paired continuation. Existing Used87/88/93 remain unowned with the complete heading preserved through fallback. Category-only法規的告示 Article, underline styling and old Document paragraph joins remain.",
+    "Audit131 immutable initial strict10ok6minor14major/body20ok7minor3major. All30 before40/after41 completeAnalysis exact;0newbatch20regressions.43Articles/1960lines read.9native0rectangles/3PDFs/4positivecontexts; no wholepage exclusions or guessed OCR.",
+    "Audit131163p137附則 occurs between paired continuation bands;203p8 quoted table clause order and roles lost;195p14 minister signature belongs to the wrong notice and lower7 records dates split off;215p460南九号/シサNo.5 register name interleaves. Other financial Document tables and independent announcements remain major.",
+    "Audit132 immutable initial strict15ok3minor12major/body21ok5minor4major,all30before41after42Analysisexact/0newregression;72Articles2307lines.192p4政令266/267未分割、230p9fertilizer19records split、191p20newoldroleslost、215p30endpoints21/20/17/16 omitted despite8nativeGlyphs、215p408same notice split at備考、1751p1TOC15Articles.203p83CF7accounts amounts separated/109nativeE61Cbars absent、h1807p2upper3cells combined、211p120fourBS/two mergernotices interleaved、174p105PLlabels combined、162p53unrelated notice/BS combined、225p62return/distribution notices combined. Nativezero20preciserects3PDF4distinctpositivecontexts/no wholepageexclusions.",
+    "Batch21 repairs only4 original pages/5native triangle Words. Native193p183 Word268 Noise→Used is one original source restoration and one newly owned existing ID. False synthesized triangle on the positive expenditure is removed; body triangle count is unchanged. Remaining4 original Used signs move only to their proved amount cells.",
+    "193p1838nativeE61Cbars and flattened statistical Document remain unresolved.172p98/p102/206p248 existing sparse/multilabel grouping remains.166p33 loss-row formatting and other existing triangle placement are unchanged negatives; only the new explanatory-sign regression is prevented.",
+    "Batch22 repairs only230p11 headed five-field fertilizer records:17left rows and6right continuation rows are represented in a24-row Document including header. 230p9 separate19record headerless continuation remains split.169p181 short-code shape and230p12 JIS structure remain unchanged negatives; target JIS article/prose wrapping remains unresolved.",
+    "Audit133 immutable initial grades and all30 original/ArticleDocument reviews are recorded separately. New/old roles, table row association, unrelated notice boundaries and CF numeric ordering remain actual defects, not success from body character preservation. All30 before42/after43 completeAnalysis exact; no new regression.",
+    "Companyv3b remains unadopted with fixed1286 scope;121 unique pages reviewed and1165 pending; prior122 count included166p94 twice and is retained as historical evidence before the next fixed batches. Oldv2 scope964 and all initial grades/failures remain distinct. All mechanically preserved source/article streams do not establish whole-page quality.",
+    "Batch23 restores109 original sourceE61C dashes on203p83, but seven-account field association remains major and Document remains1paragraph1Run. Neighborp84 lower31E61C EmptyWord omissions remain unresolved; completeAnalysis negative is not wholepage success.",
+    "One existing Document numeric formatter LF before15,808,200,000 changes after its original dash prefix is restored. This explicit28→27LF delta is preserved in proof and a stronger actual regression test; all old non-LF characters, old spaces, remaining27LF and original Page line order are preserved. Not a claim that all Document whitespace is unchanged.",
+    "Audit134 initial grades remain immutable and separate from changed-page impact. All30 before43/after44 wholeAnalysis exact; company and endpoint candidates are not mixed in.",
+    "215p30 original endpoint pairs21/20/17/16 are under separate cache-only test-first investigation against frozen43. No endpoint restoration included in batch23. Companyv3b remains unadopted. Root reverified all2027frozen files and6completed30pagebatch artifacts; unique181/1286reviewed,1105pending after deduplicating166p94 index92 against its initial review. Initial grades/histories remain unchanged."
+  ]
+}

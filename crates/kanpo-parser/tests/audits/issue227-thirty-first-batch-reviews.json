@@ -1,0 +1,1101 @@
+{
+  "batch": 31,
+  "source55_full11992": {
+    "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated55-fullAnalysis-report.json",
+    "sha256": "790dbf913eabf12d105d57fa9d7d3d40b2bb7e8d91af3643833de0cecc4db33b"
+  },
+  "changed18_complete_original_reviews": {
+    "pages": 18,
+    "all_originals_full_body_Article_Document_read": true,
+    "body_lines": 3033,
+    "restored_Words": 22,
+    "classification": {
+      "improvement": 14,
+      "partial": 4,
+      "regression": 0
+    },
+    "strict_after_counts": {
+      "ok": 1,
+      "minor": 1,
+      "major": 16
+    },
+    "body_after_counts": {
+      "ok": 15,
+      "minor": 2,
+      "major": 1
+    },
+    "rows": [
+      {
+        "page": "20260730g001710139",
+        "pdf": ".cache/kanpo-archive/2026-07-30/20260730g00171/20260730g001710139.pdf",
+        "pdf_sha256": "fd7674a6499c6ef4c3a1ee1e8325ccccaaa6ae5b2879f723989902e47088a9b1",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/company-article-v3b-prototype/visual-review-batch3-150-179/20260730g001710139.png",
+        "image_sha256": "81f10f4e6dd8beb9d6a8281354419eed1eb32a91c3926ff5afacd6af565395af",
+        "current_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/revision2/changes/20260730g001710139.json.gz",
+        "current_proof_sha256": "bd31e572dedd1cdcb2d7f4d61788a321163be4705524ab9dd44b26ab0aaf435b",
+        "complete_before_after_equal_to_v1_original_read": true,
+        "before_text_sha256": "d54e82b452e7c62c8d3085538ecbe8a893babc97905d03e8128d298a79fba9f3",
+        "after_text_sha256": "d413019e80de2ba6c0a27a2724f98e51ade9170aff1f032abe010d4576a00fc7",
+        "body_lines": 180,
+        "articles": 1,
+        "strict_after_grade": "major",
+        "body_after_grade": "ok",
+        "classification": "improvement",
+        "readflags": {
+          "full_original_PNG": true,
+          "all_before_after_body_lines": true,
+          "all_Articles": true,
+          "all_Document_blocks_Tables_Runs": true,
+          "all_names_dates_addresses_symbols_and_values": true
+        },
+        "word_native_bindings": [
+          {
+            "word_id": 48,
+            "raw": "󴧴",
+            "before": "䧴",
+            "after": "頔",
+            "nativeGlyph": [
+              749
+            ],
+            "bbox": [
+              444.1921,
+              404.8399,
+              452.1921,
+              412.8399
+            ]
+          }
+        ],
+        "known_remaining": [
+          "既存:原図の独立公告が同一Article/Documentへ混在。今回のCFF字置換で境界/役割を修復したとは主張しない。"
+        ],
+        "native0_exclusions": [],
+        "no_prior_initial_grade_rewrite": true,
+        "new_regression": false
+      },
+      {
+        "page": "20260812g001800058",
+        "pdf": ".cache/kanpo-archive/2026-08-12/20260812g00180/20260812g001800058.pdf",
+        "pdf_sha256": "9be4a1ad8cde199379db99b540e40c81b58711d5b2a810fe34d941182339689c",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/20260812g001800058.png",
+        "image_sha256": "4d9f0c77f8e96c8af61c25db08cb9b4d52a8e2c002872d133acf9758b74e2933",
+        "current_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/revision2/changes/20260812g001800058.json.gz",
+        "current_proof_sha256": "057bf1522025d133364db8499e686b0df32a82dda79448b30a5d00ad0e707042",
+        "complete_before_after_equal_to_v1_original_read": true,
+        "before_text_sha256": "d720533c31b63912fdcf6d4af514b7026de6c457849509b92601a069ea0c5e3c",
+        "after_text_sha256": "872fcf6280863791511ba8f2dabaddf67922dd9642fe8ef0128ef80a506789d9",
+        "body_lines": 170,
+        "articles": 1,
+        "strict_after_grade": "major",
+        "body_after_grade": "ok",
+        "classification": "improvement",
+        "readflags": {
+          "full_original_PNG": true,
+          "all_before_after_body_lines": true,
+          "all_Articles": true,
+          "all_Document_blocks_Tables_Runs": true,
+          "all_names_dates_addresses_symbols_and_values": true
+        },
+        "word_native_bindings": [
+          {
+            "word_id": 161,
+            "raw": "󴜾",
+            "before": "䜾",
+            "after": "禕",
+            "nativeGlyph": [
+              1633
+            ],
+            "bbox": [
+              175.7361,
+              580.8399,
+              183.7361,
+              588.8399
+            ]
+          }
+        ],
+        "known_remaining": [
+          "既存:原図の独立公告が同一Article/Documentへ混在。今回のCFF字置換で境界/役割を修復したとは主張しない。"
+        ],
+        "native0_exclusions": [],
+        "no_prior_initial_grade_rewrite": true,
+        "new_regression": false
+      },
+      {
+        "page": "20260814g001820078",
+        "pdf": ".cache/kanpo-archive/2026-08-14/20260814g00182/20260814g001820078.pdf",
+        "pdf_sha256": "3200656b9880daf80eb3fb33d96a72ee92a1874bad882708756e56e6e6a8e13a",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/company-article-v3b-prototype/visual-review-batch7-270-299/20260814g001820078.png",
+        "image_sha256": "e2b7d0bac9bbe3c450e12d7ed4b042ad5ed10ad9ba798547cb99389afadcccb9",
+        "current_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/revision2/changes/20260814g001820078.json.gz",
+        "current_proof_sha256": "6e76568911a5920bdfd0a3ebfc4ba5b19754b231e371a684a7f2a2b9b7ad20b4",
+        "complete_before_after_equal_to_v1_original_read": true,
+        "before_text_sha256": "4a51d48eca51dcc360f87828f23a25060aceee36ee4ad6c3c8e92b925483f9cd",
+        "after_text_sha256": "1029895f2f4fb129cbeb8ffd8d13e981feb27d3fb83ff1bd8bc2a67e34518d50",
+        "body_lines": 182,
+        "articles": 1,
+        "strict_after_grade": "major",
+        "body_after_grade": "ok",
+        "classification": "improvement",
+        "readflags": {
+          "full_original_PNG": true,
+          "all_before_after_body_lines": true,
+          "all_Articles": true,
+          "all_Document_blocks_Tables_Runs": true,
+          "all_names_dates_addresses_symbols_and_values": true
+        },
+        "word_native_bindings": [
+          {
+            "word_id": 174,
+            "raw": "󴙳",
+            "before": "䙳",
+            "after": "熠",
+            "nativeGlyph": [
+              2171
+            ],
+            "bbox": [
+              167.2481,
+              772.8399,
+              175.2481,
+              780.8399
+            ]
+          }
+        ],
+        "known_remaining": [
+          "既存:原図の独立公告が同一Article/Documentへ混在。今回のCFF字置換で境界/役割を修復したとは主張しない。"
+        ],
+        "native0_exclusions": [],
+        "no_prior_initial_grade_rewrite": true,
+        "new_regression": false
+      },
+      {
+        "page": "20260817g001830048",
+        "pdf": ".cache/kanpo-archive/2026-08-17/20260817g00183/20260817g001830048.pdf",
+        "pdf_sha256": "3f9e179aefcb5ab588f441c94e566ae2cd75a356b104342f2440bb45bf9e02ae",
+        "image": ".cache/kanpo-227/company-article-v3c-rebase48/review-300-329/20260817g001830048.png",
+        "image_sha256": "4a4c1d85188e5256a6be2653301985439dab810e87ab1b6c4bc84036d0b195c3",
+        "current_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/revision2/changes/20260817g001830048.json.gz",
+        "current_proof_sha256": "c3998f418a742f22293fd4560677fa006d4b9fd26b108ef07e5383adfd1fd763",
+        "complete_before_after_equal_to_v1_original_read": true,
+        "before_text_sha256": "ee3b87c1481aef9128dbfcf390b0e47903d6d26c1f011ccf8c549fcab3927828",
+        "after_text_sha256": "5ef06d1cb1d25b3f0e7e403af4840b97b8bee3fc7bf2f660d90a7dbd1d1cb2c8",
+        "body_lines": 186,
+        "articles": 1,
+        "strict_after_grade": "major",
+        "body_after_grade": "ok",
+        "classification": "improvement",
+        "readflags": {
+          "full_original_PNG": true,
+          "all_before_after_body_lines": true,
+          "all_Articles": true,
+          "all_Document_blocks_Tables_Runs": true,
+          "all_names_dates_addresses_symbols_and_values": true
+        },
+        "word_native_bindings": [
+          {
+            "word_id": 157,
+            "raw": "󴙐",
+            "before": "䙐",
+            "after": "瀀",
+            "nativeGlyph": [
+              500
+            ],
+            "bbox": [
+              228.0001,
+              212.8399,
+              236.0001,
+              220.8399
+            ]
+          }
+        ],
+        "known_remaining": [
+          "既存:原図の独立公告が同一Article/Documentへ混在。今回のCFF字置換で境界/役割を修復したとは主張しない。"
+        ],
+        "native0_exclusions": [],
+        "no_prior_initial_grade_rewrite": true,
+        "new_regression": false
+      },
+      {
+        "page": "20260818g001840038",
+        "pdf": ".cache/kanpo-archive/2026-08-18/20260818g00184/20260818g001840038.pdf",
+        "pdf_sha256": "1ebba12cbe02849758607326878da149956bf842efa5de24a4ed056b1546dea9",
+        "image": ".cache/kanpo-227/company-article-v3c-rebase48/review-300-329/20260818g001840038.png",
+        "image_sha256": "86513401240adac62fe70c747662d1e29da0ec4a7ca8367d72c16e760a105539",
+        "current_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/revision2/changes/20260818g001840038.json.gz",
+        "current_proof_sha256": "dc70e1eb6d330d9c3cad11a38aa4d901205fafe2077204778657eab6c66d4727",
+        "complete_before_after_equal_to_v1_original_read": true,
+        "before_text_sha256": "864cfce13e4e2e950f6968df8c9b9507d0668c6402aff7088497be71f5f5648b",
+        "after_text_sha256": "f4bb26e3c772457b7cf2ed6e83cdd0c275e445e3d862eff3e60b2ca8c149f2d9",
+        "body_lines": 187,
+        "articles": 1,
+        "strict_after_grade": "major",
+        "body_after_grade": "ok",
+        "classification": "improvement",
+        "readflags": {
+          "full_original_PNG": true,
+          "all_before_after_body_lines": true,
+          "all_Articles": true,
+          "all_Document_blocks_Tables_Runs": true,
+          "all_names_dates_addresses_symbols_and_values": true
+        },
+        "word_native_bindings": [
+          {
+            "word_id": 57,
+            "raw": "󴑮",
+            "before": "䑮",
+            "after": "嬴",
+            "nativeGlyph": [
+              1493
+            ],
+            "bbox": [
+              425.7361,
+              588.8399,
+              433.7361,
+              596.8399
+            ]
+          }
+        ],
+        "known_remaining": [
+          "既存:原図の独立公告が同一Article/Documentへ混在。今回のCFF字置換で境界/役割を修復したとは主張しない。"
+        ],
+        "native0_exclusions": [],
+        "no_prior_initial_grade_rewrite": true,
+        "new_regression": false
+      },
+      {
+        "page": "20260819g001850040",
+        "pdf": ".cache/kanpo-archive/2026-08-19/20260819g00185/20260819g001850040.pdf",
+        "pdf_sha256": "9854395e0fde3b341464252ef8768c0718b79c9ff93498fa25dc8eac6641683d",
+        "image": ".cache/kanpo-227/company-article-v3c-rebase48/review-330-359/20260819g001850040.png",
+        "image_sha256": "6006c0447a7284f30d2f1b373b8e810f229212a52375d9e4f8c94175d76a1177",
+        "current_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/revision2/changes/20260819g001850040.json.gz",
+        "current_proof_sha256": "c593d90b00de414939b6260643147e330168273d202841380ee90547fac3ad06",
+        "complete_before_after_equal_to_v1_original_read": true,
+        "before_text_sha256": "d0d79a4fbde0aca904f553e69f973bc39a70ffbd1e8ae9f81a7ce15aa23f818d",
+        "after_text_sha256": "86370f3fa7e2c87d8416868fdbe1c48ff18c0f4c2a4e3b972e0cde3df0f06c71",
+        "body_lines": 183,
+        "articles": 1,
+        "strict_after_grade": "major",
+        "body_after_grade": "ok",
+        "classification": "improvement",
+        "readflags": {
+          "full_original_PNG": true,
+          "all_before_after_body_lines": true,
+          "all_Articles": true,
+          "all_Document_blocks_Tables_Runs": true,
+          "all_names_dates_addresses_symbols_and_values": true
+        },
+        "word_native_bindings": [
+          {
+            "word_id": 49,
+            "raw": "󴥽",
+            "before": "䥽",
+            "after": "釬",
+            "nativeGlyph": [
+              171
+            ],
+            "bbox": [
+              433.4801,
+              212.8399,
+              441.4801,
+              220.8399
+            ]
+          }
+        ],
+        "known_remaining": [
+          "既存:原図の独立公告が同一Article/Documentへ混在。今回のCFF字置換で境界/役割を修復したとは主張しない。"
+        ],
+        "native0_exclusions": [],
+        "no_prior_initial_grade_rewrite": true,
+        "new_regression": false
+      },
+      {
+        "page": "20260828g001920071",
+        "pdf": ".cache/kanpo-archive/2026-08-28/20260828g00192/20260828g001920071.pdf",
+        "pdf_sha256": "64d221a1fb0925994b9a22921f59478c76efe7a6a94245df9106a6b2e455ad2e",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/20260828g001920071.png",
+        "image_sha256": "904bde8533bf6a4db1e1c70cae2f33064884ab8a8728c78e37736a21c424905d",
+        "current_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/revision2/changes/20260828g001920071.json.gz",
+        "current_proof_sha256": "e449e1aef5e4dbf6df7e860a7f8ff81d30c5c386f81c13869adc639fdfc1fd72",
+        "complete_before_after_equal_to_v1_original_read": true,
+        "before_text_sha256": "428636990a7324787edba4e15f29e58155ea468898ffbd2ed9a603895e43d652",
+        "after_text_sha256": "521e63e55620bb87e900641e0a6ca6f35b78a1cd770fd163b683f49c69ec1384",
+        "body_lines": 201,
+        "articles": 2,
+        "strict_after_grade": "major",
+        "body_after_grade": "major",
+        "classification": "partial",
+        "readflags": {
+          "full_original_PNG": true,
+          "all_before_after_body_lines": true,
+          "all_Articles": true,
+          "all_Document_blocks_Tables_Runs": true,
+          "all_names_dates_addresses_symbols_and_values": true
+        },
+        "word_native_bindings": [
+          {
+            "word_id": 59,
+            "raw": "󴽎",
+            "before": "低",
+            "after": "寬",
+            "nativeGlyph": [
+              711
+            ],
+            "bbox": [
+              417.8001,
+              388.8399,
+              425.8001,
+              396.8399
+            ]
+          },
+          {
+            "word_id": 78,
+            "raw": "󴽎",
+            "before": "低",
+            "after": "寬",
+            "nativeGlyph": [
+              747
+            ],
+            "bbox": [
+              388.0161,
+              388.8399,
+              396.0161,
+              396.8399
+            ]
+          }
+        ],
+        "known_remaining": [
+          "既存:4つの合併外枠が2Articleに混在、L109/110で福祉開発研究所側の住所途中を分断。",
+          "既存:原表のMCP(△2,412)、風童門(△262)、訪問看護(△277)、福祉(△6,000)等で括弧内△欠落。E888原Word9がNoiseで残る。姓名2字改善と混同しない。",
+          "既存:原図の独立公告が同一Article/Documentへ混在。今回のCFF字置換で境界/役割を修復したとは主張しない。"
+        ],
+        "native0_exclusions": [],
+        "no_prior_initial_grade_rewrite": true,
+        "new_regression": false
+      },
+      {
+        "page": "20260909g002010054",
+        "pdf": ".cache/kanpo-archive/2026-09-09/20260909g00201/20260909g002010054.pdf",
+        "pdf_sha256": "937adaf0822125ea3517bf8604ae8bfef0236e61af722c84136e5b3f292c466f",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/20260909g002010054.png",
+        "image_sha256": "35b48904bfa4524c3dbb1cbc6b00d6a228ae6b7c6486dc030f19aa0e5745fe4c",
+        "current_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/revision2/changes/20260909g002010054.json.gz",
+        "current_proof_sha256": "226c53f5f651ce9e3cb8b0474faeb6b5e3f52b83fcc855ea4c5fdf5dfffb09d2",
+        "complete_before_after_equal_to_v1_original_read": true,
+        "before_text_sha256": "a4e355d82cab051fd9e174a764dd23ed9682cbb8a06c2d7077a9f1345d211b50",
+        "after_text_sha256": "1d493a43066f72f17d3de00715107e7112e23ffc4d2be828e38e09f9ca4634ec",
+        "body_lines": 180,
+        "articles": 1,
+        "strict_after_grade": "major",
+        "body_after_grade": "ok",
+        "classification": "improvement",
+        "readflags": {
+          "full_original_PNG": true,
+          "all_before_after_body_lines": true,
+          "all_Articles": true,
+          "all_Document_blocks_Tables_Runs": true,
+          "all_names_dates_addresses_symbols_and_values": true
+        },
+        "word_native_bindings": [
+          {
+            "word_id": 51,
+            "raw": "󵨍",
+            "before": "娍",
+            "after": "龑",
+            "nativeGlyph": [
+              1533
+            ],
+            "bbox": [
+              437.2538,
+              772.8398,
+              445.2538,
+              780.8398
+            ]
+          }
+        ],
+        "known_remaining": [
+          "既存:原図の独立公告が同一Article/Documentへ混在。今回のCFF字置換で境界/役割を修復したとは主張しない。"
+        ],
+        "native0_exclusions": [],
+        "no_prior_initial_grade_rewrite": true,
+        "new_regression": false
+      },
+      {
+        "page": "20260910g002020104",
+        "pdf": ".cache/kanpo-archive/2026-09-10/20260910g00202/20260910g002020104.pdf",
+        "pdf_sha256": "a6129ef4a088447754182c5995b7212fa3dc8179e79281d6c9a83e7aa4ff4c13",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/20260910g002020104.png",
+        "image_sha256": "0b953564c7eddf3436a97f4e764c3b6555f6706f7d70a5d3a3b0389bfbb53f11",
+        "current_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/revision2/changes/20260910g002020104.json.gz",
+        "current_proof_sha256": "2fb5a52d556622da549f4d93047ac608650c5750fc090d4bd16a8d012f49b85f",
+        "complete_before_after_equal_to_v1_original_read": true,
+        "before_text_sha256": "cd740dbd3d901a4da8bddd9aa9a164bbc801c9bd3186ee72a9d11ca665140cd4",
+        "after_text_sha256": "053b65043d40a4005536027436199d14edc7b20abfeb155ca7cf5c0af14d7f6e",
+        "body_lines": 184,
+        "articles": 1,
+        "strict_after_grade": "major",
+        "body_after_grade": "ok",
+        "classification": "improvement",
+        "readflags": {
+          "full_original_PNG": true,
+          "all_before_after_body_lines": true,
+          "all_Articles": true,
+          "all_Document_blocks_Tables_Runs": true,
+          "all_names_dates_addresses_symbols_and_values": true
+        },
+        "word_native_bindings": [
+          {
+            "word_id": 133,
+            "raw": "󴧈",
+            "before": "䧈",
+            "after": "阳",
+            "nativeGlyph": [
+              981
+            ],
+            "bbox": [
+              252.40811,
+              404.8399,
+              260.4081,
+              412.8399
+            ]
+          }
+        ],
+        "known_remaining": [
+          "既存:原図の独立公告が同一Article/Documentへ混在。今回のCFF字置換で境界/役割を修復したとは主張しない。"
+        ],
+        "native0_exclusions": [],
+        "no_prior_initial_grade_rewrite": true,
+        "new_regression": false
+      },
+      {
+        "page": "20260910h017870005",
+        "pdf": ".cache/kanpo-archive/2026-09-10/20260910h01787/20260910h017870005.pdf",
+        "pdf_sha256": "016e79a5ce6101448d4012b4331ef2bb0b39c4538e09098cbd46a3954062d3f6",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/unruled-road-prototype/images/20260910h017870005.png",
+        "image_sha256": "9529ea3d53886c75bf801c1e83e217b5bf67eb2308ad39f6d6685aac259fcd13",
+        "current_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/revision2/changes/20260910h017870005.json.gz",
+        "current_proof_sha256": "1338514986e9ed260839c1c870d1c7df17f7b2cb541ad306463c8cccf07681b8",
+        "complete_before_after_equal_to_v1_original_read": true,
+        "before_text_sha256": "e41c84071d384f36de03224ac2b26147baac97841af6ec82cc7cbf4a8b7c3fb7",
+        "after_text_sha256": "31f87178242486ffd60871dc725818146c2bf3ff7ccfcf6b830d812a8e279d50",
+        "body_lines": 128,
+        "articles": 5,
+        "strict_after_grade": "ok",
+        "body_after_grade": "ok",
+        "classification": "improvement",
+        "readflags": {
+          "full_original_PNG": true,
+          "all_before_after_body_lines": true,
+          "all_Articles": true,
+          "all_Document_blocks_Tables_Runs": true,
+          "all_names_dates_addresses_symbols_and_values": true
+        },
+        "word_native_bindings": [
+          {
+            "word_id": 208,
+            "raw": "󴽑",
+            "before": "佑",
+            "after": "朗",
+            "nativeGlyph": [
+              1747
+            ],
+            "bbox": [
+              167.4047,
+              780.8399,
+              175.4047,
+              788.8399
+            ]
+          }
+        ],
+        "known_remaining": [],
+        "native0_exclusions": [],
+        "no_prior_initial_grade_rewrite": true,
+        "new_regression": false
+      },
+      {
+        "page": "20260915g002050081",
+        "pdf": ".cache/kanpo-archive/2026-09-15/20260915g00205/20260915g002050081.pdf",
+        "pdf_sha256": "40189b3d356411b4ffb551cb675bae8e794b878f55d3e9440e55e57b145df8eb",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/20260915g002050081.png",
+        "image_sha256": "7e1cffb232e4709f101f1cc7c508d484f5c378c6c74b81eba7f0ddab3d0e59f9",
+        "current_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/revision2/changes/20260915g002050081.json.gz",
+        "current_proof_sha256": "faee89482927aac25a9b47bb231ca2ff1540610eb6d6f216ef7aa190dccd6813",
+        "complete_before_after_equal_to_v1_original_read": true,
+        "before_text_sha256": "19053f6fe23bd293783e403870f8ac525b11dbc22431c2213abcd8f6975d49f9",
+        "after_text_sha256": "eb5e7f84b66decb377373c4bdc3f80f5fbd9a110cb203ea5c655e79bb239ddba",
+        "body_lines": 176,
+        "articles": 1,
+        "strict_after_grade": "major",
+        "body_after_grade": "minor",
+        "classification": "partial",
+        "readflags": {
+          "full_original_PNG": true,
+          "all_before_after_body_lines": true,
+          "all_Articles": true,
+          "all_Document_blocks_Tables_Runs": true,
+          "all_names_dates_addresses_symbols_and_values": true
+        },
+        "word_native_bindings": [
+          {
+            "word_id": 50,
+            "raw": "󴚦",
+            "before": "䚦",
+            "after": "玥",
+            "nativeGlyph": [
+              763
+            ],
+            "bbox": [
+              439.8801,
+              372.8399,
+              447.8801,
+              380.8399
+            ]
+          },
+          {
+            "word_id": 77,
+            "raw": "󵛓",
+            "before": "囓",
+            "after": "繥",
+            "nativeGlyph": [
+              2043
+            ],
+            "bbox": [
+              394.9761,
+              772.8399,
+              402.9761,
+              780.8399
+            ]
+          }
+        ],
+        "known_remaining": [
+          "既存:末尾L176『代表清算人媊越篤』Word258 rawF5A8A/CID23178/nativeGlyph2499。標準AJ1表外で今回も未解決、原字を推測しない。",
+          "既存:原図の独立公告が同一Article/Documentへ混在。今回のCFF字置換で境界/役割を修復したとは主張しない。"
+        ],
+        "native0_exclusions": [],
+        "no_prior_initial_grade_rewrite": true,
+        "new_regression": false
+      },
+      {
+        "page": "20260917g002080094",
+        "pdf": ".cache/kanpo-archive/2026-09-17/20260917g00208/20260917g002080094.pdf",
+        "pdf_sha256": "d79f68a55be50d4d88cafc2c1d0a10a6bda045782d648084dd75f41f7cbc88c7",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/20260917g002080094.png",
+        "image_sha256": "849f8a30187aff38f0f1567fc89c6bdd058e0c60cf9746e3d75c9b0c67f7fdcd",
+        "current_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/revision2/changes/20260917g002080094.json.gz",
+        "current_proof_sha256": "892c3cd1f7a9e68de09bb149ac3afcbffaef966e9c64bb0291946671e93a3312",
+        "complete_before_after_equal_to_v1_original_read": true,
+        "before_text_sha256": "e4852b353295aa435011d12874f347bbfa0100bae6ec309b298cc0d7688c0f68",
+        "after_text_sha256": "00970cac10b868ed58e0e4cfcd4dc7a20b1ab0c63786a2dde4851c1e8a5396fd",
+        "body_lines": 147,
+        "articles": 1,
+        "strict_after_grade": "major",
+        "body_after_grade": "ok",
+        "classification": "improvement",
+        "readflags": {
+          "full_original_PNG": true,
+          "all_before_after_body_lines": true,
+          "all_Articles": true,
+          "all_Document_blocks_Tables_Runs": true,
+          "all_names_dates_addresses_symbols_and_values": true
+        },
+        "word_native_bindings": [
+          {
+            "word_id": 122,
+            "raw": "󴼧",
+            "before": "伧",
+            "after": "笈",
+            "nativeGlyph": [
+              184
+            ],
+            "bbox": [
+              343.5482,
+              172.8398,
+              351.5482,
+              180.8398
+            ]
+          }
+        ],
+        "known_remaining": [
+          "既存:原図の独立公告が同一Article/Documentへ混在。今回のCFF字置換で境界/役割を修復したとは主張しない。"
+        ],
+        "native0_exclusions": [],
+        "no_prior_initial_grade_rewrite": true,
+        "new_regression": false
+      },
+      {
+        "page": "20260924g002110102",
+        "pdf": ".cache/kanpo-archive/2026-09-24/20260924g00211/20260924g002110102.pdf",
+        "pdf_sha256": "8fa9ea8a28d99cdc5453a39ee0185d718de8e8b7f4242107fc715bef73cc9c44",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/20260924g002110102.png",
+        "image_sha256": "592f0a213cab711608065d9a355633947de80d17e5ef42a0167d60edf863b2f2",
+        "current_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/revision2/changes/20260924g002110102.json.gz",
+        "current_proof_sha256": "061e6511138efb9ed679603ec772a18ed4c7ea3f95713b5d872c8556ae8305e0",
+        "complete_before_after_equal_to_v1_original_read": true,
+        "before_text_sha256": "9eb338fd8e8063e031775aaba8a65cf5020469ad33c83c55c0706fd2bd162ea1",
+        "after_text_sha256": "ac0852ea853f61c71f2e50788b15908f162a0a9a063324a38e0b097678b2768a",
+        "body_lines": 182,
+        "articles": 1,
+        "strict_after_grade": "major",
+        "body_after_grade": "ok",
+        "classification": "partial",
+        "readflags": {
+          "full_original_PNG": true,
+          "all_before_after_body_lines": true,
+          "all_Articles": true,
+          "all_Document_blocks_Tables_Runs": true,
+          "all_names_dates_addresses_symbols_and_values": true
+        },
+        "word_native_bindings": [
+          {
+            "word_id": 213,
+            "raw": "󴑍",
+            "before": "䑍",
+            "after": "妮",
+            "nativeGlyph": [
+              604
+            ],
+            "bbox": [
+              110.6641,
+              220.8399,
+              118.6641,
+              228.8399
+            ]
+          }
+        ],
+        "known_remaining": [
+          "原図に見える水田邦夫の邦は限定ink内部にnativeGlyph無し。外周の夫edge-touchを非零として保存し、セル全体0やwholepage除外とはしていない。",
+          "既存:原図の独立公告が同一Article/Documentへ混在。今回のCFF字置換で境界/役割を修復したとは主張しない。"
+        ],
+        "native0_exclusions": [
+          {
+            "evidence": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/20260924g002110102-native0-limited-evidence.json",
+            "sha256": "1ea56339ccd237f4db9f776b8e38d310eecee5472ee0770f6c766e3228f6b12c",
+            "scope": "target ink interior only",
+            "outer_edge_touch_neighbor_retained": true
+          }
+        ],
+        "no_prior_initial_grade_rewrite": true,
+        "new_regression": false
+      },
+      {
+        "page": "20260930g002160104",
+        "pdf": ".cache/kanpo-archive/2026-09-30/20260930g00216/20260930g002160104.pdf",
+        "pdf_sha256": "8d1ed7fda2db59abfdc421b2126bb38708e58ce6c41d7ee0801ebdd9fa7f5972",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/20260930g002160104.png",
+        "image_sha256": "b8579855afda3a70dcdad0299db99c41c7240ffd14cbd1170af7ed58cfe17e1d",
+        "current_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/revision2/changes/20260930g002160104.json.gz",
+        "current_proof_sha256": "cfed452e0e3b2e03a00db5ef72cfc5d84aec3cc3009bff28e6a79dbee3b5b852",
+        "complete_before_after_equal_to_v1_original_read": true,
+        "before_text_sha256": "9d258f09e89a69a61ad999f90107a56fddf8853b636d3da4e387183169580871",
+        "after_text_sha256": "ffa985213d6b5d17e6ada90eddb8ee3d01aa45797e255cf45d8a1a82fbf22698",
+        "body_lines": 176,
+        "articles": 1,
+        "strict_after_grade": "major",
+        "body_after_grade": "ok",
+        "classification": "improvement",
+        "readflags": {
+          "full_original_PNG": true,
+          "all_before_after_body_lines": true,
+          "all_Articles": true,
+          "all_Document_blocks_Tables_Runs": true,
+          "all_names_dates_addresses_symbols_and_values": true
+        },
+        "word_native_bindings": [
+          {
+            "word_id": 106,
+            "raw": "󴼹",
+            "before": "伹",
+            "after": "叉",
+            "nativeGlyph": [
+              588
+            ],
+            "bbox": [
+              317.9841,
+              196.8398,
+              325.9841,
+              204.8398
+            ]
+          }
+        ],
+        "known_remaining": [
+          "既存:原図の独立公告が同一Article/Documentへ混在。今回のCFF字置換で境界/役割を修復したとは主張しない。"
+        ],
+        "native0_exclusions": [],
+        "no_prior_initial_grade_rewrite": true,
+        "new_regression": false
+      },
+      {
+        "page": "20261001g002170140",
+        "pdf": ".cache/kanpo-archive/2026-10-01/20261001g00217/20261001g002170140.pdf",
+        "pdf_sha256": "f4741b42440ee263788fa739889ad39711f20da8b6d1531a10bde741c2dd1b1a",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/20261001g002170140.png",
+        "image_sha256": "ea5f172279958589bcbf007b7f064fe792d67870968d7c1d5a8f5d8d3d0d3763",
+        "current_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/revision2/changes/20261001g002170140.json.gz",
+        "current_proof_sha256": "395124013fd411a487fce528fddf849853d88f5cefd6d2d982a4a6f945a09f01",
+        "complete_before_after_equal_to_v1_original_read": true,
+        "before_text_sha256": "05e9aa6e7695f2ec31cb41b3d6ed7d070ab8e7ca655a9c1292290229bf7d7c7f",
+        "after_text_sha256": "34c795d93383c3cd8bc40ee78a7327781db09369ff2c3bacb181495085ff317b",
+        "body_lines": 188,
+        "articles": 1,
+        "strict_after_grade": "major",
+        "body_after_grade": "ok",
+        "classification": "improvement",
+        "readflags": {
+          "full_original_PNG": true,
+          "all_before_after_body_lines": true,
+          "all_Articles": true,
+          "all_Document_blocks_Tables_Runs": true,
+          "all_names_dates_addresses_symbols_and_values": true
+        },
+        "word_native_bindings": [
+          {
+            "word_id": 53,
+            "raw": "󴗸",
+            "before": "䗸",
+            "after": "汛",
+            "nativeGlyph": [
+              158
+            ],
+            "bbox": [
+              434.9441,
+              164.8399,
+              442.9441,
+              172.8399
+            ]
+          }
+        ],
+        "known_remaining": [
+          "既存:原図の独立公告が同一Article/Documentへ混在。今回のCFF字置換で境界/役割を修復したとは主張しない。"
+        ],
+        "native0_exclusions": [],
+        "no_prior_initial_grade_rewrite": true,
+        "new_regression": false
+      },
+      {
+        "page": "20261007g002210046",
+        "pdf": ".cache/kanpo-archive/2026-10-07/20261007g00221/20261007g002210046.pdf",
+        "pdf_sha256": "10a8f3f6207ef7c93e59e21f2c8b4097593382f7378a08d785387b688a505bae",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/20261007g002210046.png",
+        "image_sha256": "caf0ca1d042c24aad570bf66a41baa082261eadec7243b6629f0ca6db96ef610",
+        "current_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/revision2/changes/20261007g002210046.json.gz",
+        "current_proof_sha256": "7f415b1538ea5f17ba883e19267ed7ddd3c1aa777426e47ce304af48918a72d7",
+        "complete_before_after_equal_to_v1_original_read": true,
+        "before_text_sha256": "437bcdb83ae655c432d56fae00094f8195567e92b90211b9a30958e7cffeb18b",
+        "after_text_sha256": "953c20b9041bdf803765078365405ec29fa4759a9ef96ce883441055ec6d3279",
+        "body_lines": 179,
+        "articles": 1,
+        "strict_after_grade": "major",
+        "body_after_grade": "ok",
+        "classification": "improvement",
+        "readflags": {
+          "full_original_PNG": true,
+          "all_before_after_body_lines": true,
+          "all_Articles": true,
+          "all_Document_blocks_Tables_Runs": true,
+          "all_names_dates_addresses_symbols_and_values": true
+        },
+        "word_native_bindings": [
+          {
+            "word_id": 41,
+            "raw": "󴧕",
+            "before": "䧕",
+            "after": "隽",
+            "nativeGlyph": [
+              1194
+            ],
+            "bbox": [
+              455.0401,
+              532.8399,
+              463.0401,
+              540.8399
+            ]
+          },
+          {
+            "word_id": 49,
+            "raw": "󴧕",
+            "before": "䧕",
+            "after": "隽",
+            "nativeGlyph": [
+              1206
+            ],
+            "bbox": [
+              444.2881,
+              588.8399,
+              452.2881,
+              596.8399
+            ]
+          }
+        ],
+        "known_remaining": [
+          "既存:原図の独立公告が同一Article/Documentへ混在。今回のCFF字置換で境界/役割を修復したとは主張しない。"
+        ],
+        "native0_exclusions": [],
+        "no_prior_initial_grade_rewrite": true,
+        "new_regression": false
+      },
+      {
+        "page": "20261009h018050030",
+        "pdf": ".cache/kanpo-archive/2026-10-09/20261009h01805/20261009h018050030.pdf",
+        "pdf_sha256": "5a085de858a30d60cbfbf0d626045ecc1e9a1251761ec18d93614347e4034cc9",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/20261009h018050030.png",
+        "image_sha256": "75ef1a6082ec60a5b6ed7367bc4f505b10a59c39efc87b1ed690d03dc01c2485",
+        "current_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/revision2/changes/20261009h018050030.json.gz",
+        "current_proof_sha256": "d2e6dfd843477f81287337bb34ce85618d9f8c55d552f047ebaed0717f2cb9dd",
+        "complete_before_after_equal_to_v1_original_read": true,
+        "before_text_sha256": "b835996f77604c6280f1f9824e703cc09e9b554ca113632a2f890bee77e6f358",
+        "after_text_sha256": "5d6ab614277591ec32c8e1573f3ef7e275e2cb41ff3e44bac980bce642422471",
+        "body_lines": 187,
+        "articles": 1,
+        "strict_after_grade": "major",
+        "body_after_grade": "ok",
+        "classification": "improvement",
+        "readflags": {
+          "full_original_PNG": true,
+          "all_before_after_body_lines": true,
+          "all_Articles": true,
+          "all_Document_blocks_Tables_Runs": true,
+          "all_names_dates_addresses_symbols_and_values": true
+        },
+        "word_native_bindings": [
+          {
+            "word_id": 210,
+            "raw": "󴚦",
+            "before": "䚦",
+            "after": "玥",
+            "nativeGlyph": [
+              1747
+            ],
+            "bbox": [
+              144.9681,
+              572.8399,
+              152.9681,
+              580.8399
+            ]
+          }
+        ],
+        "known_remaining": [
+          "既存:原図の独立公告が同一Article/Documentへ混在。今回のCFF字置換で境界/役割を修復したとは主張しない。"
+        ],
+        "native0_exclusions": [],
+        "no_prior_initial_grade_rewrite": true,
+        "new_regression": false
+      },
+      {
+        "page": "20261019g002290002",
+        "pdf": ".cache/kanpo-archive/2026-10-19/20261019g00229/20261019g002290002.pdf",
+        "pdf_sha256": "3d2ceaf77b2a05ad0a4f7b3160935052509976400762b492ffab554d91030525",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/20261019g002290002.png",
+        "image_sha256": "c1af07aac237abda479e2905b65a8248734c5da78f2a3798d97e852f064450ef",
+        "current_proof": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/aj1-source-generalization51/revision2/changes/20261019g002290002.json.gz",
+        "current_proof_sha256": "83aa93ee4c2bbd20f48695dc0d4e9e314268cba8a46a86b8343614c656cd4846",
+        "complete_before_after_equal_to_v1_original_read": true,
+        "before_text_sha256": "1a5c4590b4a4b5752eb893baba00f82cdd1f7cfef45ba1c380105ec193ca9b2a",
+        "after_text_sha256": "65c1260039c4b6c127a3287a8cd8c2a7b520a6c093004ae47bfa0a8075c290e8",
+        "body_lines": 17,
+        "articles": 1,
+        "strict_after_grade": "minor",
+        "body_after_grade": "minor",
+        "classification": "partial",
+        "readflags": {
+          "full_original_PNG": true,
+          "all_before_after_body_lines": true,
+          "all_Articles": true,
+          "all_Document_blocks_Tables_Runs": true,
+          "all_names_dates_addresses_symbols_and_values": true
+        },
+        "word_native_bindings": [
+          {
+            "word_id": 91,
+            "raw": "󴮄",
+            "before": "䮄",
+            "after": "崁",
+            "nativeGlyph": [
+              1042
+            ],
+            "bbox": [
+              284.7427,
+              658.5939,
+              292.7427,
+              666.5939
+            ]
+          },
+          {
+            "word_id": 93,
+            "raw": "󴮄",
+            "before": "䮄",
+            "after": "崁",
+            "nativeGlyph": [
+              1045
+            ],
+            "bbox": [
+              284.7427,
+              682.5939,
+              292.7427,
+              690.5939
+            ]
+          }
+        ],
+        "known_remaining": [
+          "既存:L10新欄の原文Frigoríficoのíが落ちFrigorfico。Word181 raw Frigor[E203]fico、nativeGlyph1666 E203/CID23583/Npb1/explicitToUnicodeあり。CFF Identity fallback対象外として未修復保持。"
+        ],
+        "native0_exclusions": [],
+        "no_prior_initial_grade_rewrite": true,
+        "new_regression": false
+      }
+    ],
+    "scope": "repair impact review, not a fresh random audit or global quality success rate",
+    "all_initial_company_audit_observations_and_frozen_failed_v1_unchanged": true
+  },
+  "source55_inheritance_condition": "Every entire before52/after55 Analysis of18 changed pages equals independent frozen reviewed oracles; PDF/PNG SHAs exact; native all242 producer proofs exact. No prior review adopted from character delta alone.",
+  "negative4_complete_original_reviews": {
+    "pages": 4,
+    "body_lines": 648,
+    "Articles": 4,
+    "strict": {
+      "major": 4
+    },
+    "body": {
+      "minor": 3,
+      "major": 1
+    },
+    "rows": [
+      {
+        "page": "20260818g001840037",
+        "pdf": ".cache/kanpo-archive/2026-08-18/20260818g00184/20260818g001840037.pdf",
+        "analysis": ".cache/kanpo-227/root31-cff/control-originals/20260818g001840037.json",
+        "image": ".cache/kanpo-227/root31-cff/control-originals/20260818g001840037.png",
+        "pdf_sha256": "d75a1923dd4e8e960c012435455004336c5833539324c36a13d3c72aa4700914",
+        "analysis_sha256": "0735110f40c1b9ad605166eec285576f1bca429eea642e3f00497b31e5265912",
+        "image_sha256": "466b3b7fc45e2bd5b7f9f50e461b12bc33e9699866f55ffb018da5304fc04666",
+        "strict_grade": "major",
+        "body_grade": "major",
+        "known_remaining": "上段の再生事件（再イ）4・5・26の3件、弁護士懲戒、無縁墳墓改葬の本文が出力にない。下段の会社解散10公告の本文は保持するが1Article/1paragraph/1Runに連結。既存欠陥として残す。",
+        "source_dissolution_notices": 10,
+        "output_Articles": 1,
+        "body_lines": 109,
+        "all_original_image_body_Articles_Documents_and_Run_text_reviewed": true,
+        "entire_Analysis_before52_after_candidate117_exact": true,
+        "native0_exclusions": [],
+        "initial_baseline_faults_not_counted_as_new_regression": true
+      },
+      {
+        "page": "20260817g001830047",
+        "pdf": ".cache/kanpo-archive/2026-08-17/20260817g00183/20260817g001830047.pdf",
+        "analysis": ".cache/kanpo-227/root31-cff/control-originals/20260817g001830047.json",
+        "image": ".cache/kanpo-227/root31-cff/control-originals/20260817g001830047.png",
+        "pdf_sha256": "eaed6ed81bccf0f3e1b5a7ba59e8b2dc1e02133ec5bece077c92b36053abba27",
+        "analysis_sha256": "886fb562d5de7495beada9eac383345687a2b0607bc29d0f6897660ec864fa18",
+        "image_sha256": "fc9c3fa07965088d332365baa6fc8b44b19309136a427b76f71229d27839abbe",
+        "strict_grade": "major",
+        "body_grade": "minor",
+        "known_remaining": "独立した解散16公告を1Article/1paragraph/1Runへ連結。有限会社北川製□所の原図の一字が出力で脱落（字形を推測して補わない）。他の公告の日付・住所・名前・条項を全読。",
+        "source_dissolution_notices": 16,
+        "output_Articles": 1,
+        "body_lines": 173,
+        "all_original_image_body_Articles_Documents_and_Run_text_reviewed": true,
+        "entire_Analysis_before52_after_candidate117_exact": true,
+        "native0_exclusions": [],
+        "initial_baseline_faults_not_counted_as_new_regression": true
+      },
+      {
+        "page": "20260819g001850039",
+        "pdf": ".cache/kanpo-archive/2026-08-19/20260819g00185/20260819g001850039.pdf",
+        "analysis": ".cache/kanpo-227/root31-cff/control-originals/20260819g001850039.json",
+        "image": ".cache/kanpo-227/root31-cff/control-originals/20260819g001850039.png",
+        "pdf_sha256": "71151439fd74d55517545da73e1af08b17de417ef4fb93f619645b1086439d92",
+        "analysis_sha256": "5060c94335d700568e441d4dca2c75339d3e052f3dab4c93624d85c6383c049d",
+        "image_sha256": "e7e716313fea3107013a7a3fa9a0c60d8838682b894411938e32e96fd026d9e3",
+        "strict_grade": "major",
+        "body_grade": "minor",
+        "known_remaining": "独立した解散17公告を1Article/1paragraph/1Runへ連結。株式会社32の代表清算人柴琢也の琢が出力では脱落。その他16件と当該件の残る条項・日付・会社・住所を全読。",
+        "source_dissolution_notices": 17,
+        "output_Articles": 1,
+        "body_lines": 180,
+        "all_original_image_body_Articles_Documents_and_Run_text_reviewed": true,
+        "entire_Analysis_before52_after_candidate117_exact": true,
+        "native0_exclusions": [],
+        "initial_baseline_faults_not_counted_as_new_regression": true
+      },
+      {
+        "page": "20261008g002220080",
+        "pdf": ".cache/kanpo-archive/2026-10-08/20261008g00222/20261008g002220080.pdf",
+        "analysis": ".cache/kanpo-227/root31-cff/control-originals/20261008g002220080.json",
+        "image": ".cache/kanpo-227/root31-cff/control-originals/20261008g002220080.png",
+        "pdf_sha256": "09ea07ec37fcddf15425993461dc903940dc202de1be7930cbb95763c54ecc7b",
+        "analysis_sha256": "496a378436e9732b1bbf52675bee83b63ff69228a5fd7ca0b244feae637424d3",
+        "image_sha256": "e5fcea283df2d90619adefc25ae4ab4328f4c53fbb9168c141bf989317571251",
+        "strict_grade": "major",
+        "body_grade": "minor",
+        "known_remaining": "独立した解散17公告を1Article/1paragraph/1Runへ連結。既存の明示decoderによる廻を保持。アートマテリアル清算人梁取忠億の億が出力で脱落。Cuttlefish Digital / Japan Limited等のLatin語間空白も失う。全件の日付・住所・会社・名前・条項を全読。",
+        "source_dissolution_notices": 17,
+        "output_Articles": 1,
+        "body_lines": 186,
+        "all_original_image_body_Articles_Documents_and_Run_text_reviewed": true,
+        "entire_Analysis_before52_after_candidate117_exact": true,
+        "native0_exclusions": [],
+        "initial_baseline_faults_not_counted_as_new_regression": true
+      }
+    ],
+    "whole_page_or_unproved_native0_exclusions": 0,
+    "not_random_audit_scope": true,
+    "no_whole_page_success_claim": true
+  },
+  "whole_originals": 22,
+  "body_lines": 3681,
+  "changed_classification": {
+    "improvement": 14,
+    "partial": 4,
+    "regression": 0
+  },
+  "changed_strict_quality": {
+    "ok": 1,
+    "minor": 1,
+    "major": 16
+  },
+  "changed_body_quality": {
+    "ok": 15,
+    "minor": 2,
+    "major": 1
+  },
+  "new_regressions": 0,
+  "whole_page_success_not_implied": true,
+  "known_changed_page_defects": [
+    "192p71 independent mergers/address association and E888 triangle",
+    "205p81 CID23178 outside supported AJ1 mapped incorrectly by prior fallback",
+    "211p102 original 邦 with native0 limited ink remains missing",
+    "229p2 Frigor[E203]fico missing original í"
+  ],
+  "negative_control_defects": [
+    "184p37 three civil-rehabilitation notices/disciplinary/grave notice missing and independent dissolutions merged",
+    "183p47 sixteen dissolutions merged and native fabrication name character absent",
+    "185p39 seventeen dissolutions merged and 清算人柴琢也 loses 琢",
+    "222p80 seventeen dissolutions merged; 梁取忠億 loses 億; original 廻 retained"
+  ],
+  "unseen143": {
+    "path": "crates/kanpo-parser/tests/audits/143.json",
+    "sha256": "d7647376c6943261542c0a7f8add506348f4d580c4b92aaa25d9922d5ae7888d",
+    "strict": {
+      "ok": 10,
+      "minor": 6,
+      "major": 14
+    },
+    "body": {
+      "ok": 27,
+      "minor": 1,
+      "major": 2
+    },
+    "lines": 2165,
+    "Articles_Documents": 60,
+    "new_regressions": 0,
+    "initial_parent52_grades_immutable": true,
+    "candidate55_all30_entire_Analysis_exact": true,
+    "native0_bounded_rectangles": 8,
+    "whole_page_exclusions": 0
+  },
+  "company_unadopted": {
+    "fixed_scope": 1286,
+    "reviewed": 421,
+    "pending": 865,
+    "original_initial_reviews_and_later_adjudications_retained": true,
+    "not_counted_as_CFF_completion": true
+  },
+  "models_not_used": true
+}

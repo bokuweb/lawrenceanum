@@ -159,6 +159,7 @@ mod tests {
         // 2 列(x10-30, x30-50) × 2 帯(y10-30, y30-50) のグリッド。縦書きなので
         // x 列(右→左)が論理行、y 帯(上→下)が論理列。
         let rules = PageRules {
+            enclosures: Vec::new(), short_fraction_bars: Vec::new(),
             vertical: vec![
                 VRule { x: 10.0, y0: 10.0, y1: 50.0 },
                 VRule { x: 30.0, y0: 10.0, y1: 50.0 },
@@ -188,6 +189,7 @@ mod tests {
     fn separates_two_tables_by_horizontal_segments() {
         // 横罫線が x0-20 と x40-60 の 2 セグメントに割れている → 別表 2 つに分離。
         let rules = PageRules {
+            enclosures: Vec::new(), short_fraction_bars: Vec::new(),
             vertical: vec![
                 VRule { x: 0.0, y0: 0.0, y1: 40.0 },
                 VRule { x: 20.0, y0: 0.0, y1: 40.0 },

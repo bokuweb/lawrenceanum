@@ -1,0 +1,95 @@
+{
+  "batch": 34,
+  "date": "2026-10-21",
+  "source_files": 120,
+  "parser_sources": 97,
+  "PDF_sources": 23,
+  "baseline_commit": "8ce93db831306e7e134fa04c75167fd15d5e84ed",
+  "evidence": {
+    "source": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated58-source-manifest.json",
+      "sha256": "b8d4d078d74dba18d0c329fcc284091e4a010e9fdd6e89a5667e4a36af12a0d2"
+    },
+    "assets": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated58-test-assets-manifest.json",
+      "sha256": "a263fa987cc657bc413e7f20512bf8bef0261681ebd1c9434554c4a9ef249a71"
+    },
+    "limited": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root34-record58/build-result.json",
+      "sha256": "53f539de96776d70f301e09dff91b38772b88121657e01be8f9bc6a4768a279e"
+    },
+    "cached": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root34-record58/full-result.json",
+      "sha256": "c48e2a5edb1d35f4a0e457f9813f2d8316368211b0922f750ee0a4aa4f3c5629"
+    },
+    "release": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/integrated58-fullAnalysis-report.json",
+      "sha256": "aaf7a2c98ccba756bdb38dfd053d431d3d898b73bcef7c60a3e010fd407c3972"
+    },
+    "defaults": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/full34-final58-generic-partitioned-status.json",
+      "sha256": "61594096c1047c90332b305df8daf8c74c54ec0056c3df42c5bc00437184c917"
+    },
+    "snapshots": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/snapshot34-source58-preserved.json",
+      "sha256": "7da09248812e26ceafa7e636be5ca0b0d1980132461a8034f9983453949cdbb1"
+    },
+    "audit": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/audit144-source58-inheritance.json",
+      "sha256": "378ff68cab3502d8cbff8db19a2bfdb809cb095acdc2b65a62044802177d5f9e"
+    },
+    "delivery": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/record-opaque-field57/delivery-manifest.json",
+      "sha256": "5930d8d748577b39b065e70c05d9b160fc6da2cad298fcc6129982a22ab0b328"
+    },
+    "generality_diagnosis": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/heuristic-generality-audit56/delivery-manifest.json",
+      "sha256": "a683b9450a0b849fcc94de85e618e67c4f6e11e046f1716a8887e37e48b0c718"
+    },
+    "independent_diagnosis": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root34-heuristic-audit-independent/result.json",
+      "sha256": "a03eab3137702c64df97ec715dfb2bc6e4efe28007143166d1f3dcb16a9186db"
+    },
+    "producer": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/producer-scale-probe57/delivery-manifest.json",
+      "sha256": "a413f14ede5c27beedb3d83c25a8ed60cc18a84c52097bbd76a724dc54accf62"
+    },
+    "producer_followup": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/producer-scale-probe57-shared58-followup.json",
+      "sha256": "345f25569e4aefcc214f24fd03c700fbac6c9589459531a6da8ae7bb050b8616"
+    },
+    "producer_root_images": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/root34-producer-whole-images-viewed.json",
+      "sha256": "b8fe1299017423e458c73f74dca4e89bd11a3076b65a40d3a9baa2469491514b"
+    },
+    "tagged_metadata": {
+      "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/tagged-source-inventory57/delivery-manifest.json",
+      "sha256": "c6e26e3ee6efe8a6b5fd9d439d0a0084d66e9407d159b1f61919b778fdafad82"
+    }
+  },
+  "goal_complete": false,
+  "production_changed": [
+    "crates/kanpo-parser/src/record_suffix.rs"
+  ],
+  "tests_changed": [
+    "crates/kanpo-parser/src/record_suffix_tests.rs"
+  ],
+  "outside2_sources118_exact_parent57": true,
+  "source_assets1127_exact": true,
+  "mechanism": "Treat office field payload as nonblank text, retain existing 。、〇○ delimiter rejection. Remove only length2..24 and ASCII/fullwidth digit bans. All date/unique source IDs/axes/prior supports/last-band/fence/caller header guards unchanged.",
+  "same_test_protocol": "Four original opaque-field invariant functions ported from sealed audit; five additional fullwidth/empty/whitespace/delimiter/date negatives fixed before candidate. Same final9 tests used for baseline and candidate; existing14 prefix unchanged.",
+  "root_formatting": "rustfmt applied only candidate guard formatting and new test additions before independent freeze. Existing14 prefix remains byte-exact; owner-to-root whitespace-only production diff retained.",
+  "failure_history": [
+    "Prior generality audit initial missing borrowed testdata compile failure preserved; not semanticRED",
+    "Producer appended encrypted-stream, JSON macro compile and typed-f32/Value serialization harness errors preserved. Final8 use identical direct typed serialization, numeric waivers0.",
+    "Two shared source58 files were staged after producer57 seal; separate followup verifies private authority120 against parent57 Gitblob and postexact executable closure. No old seal rewritten.",
+    "Audit144 source58 binder stdout retained stale exact56 label; actual compared paths/report are source57 to58. Separate print-only erratum preserved; no source/assertion/grade change."
+  ],
+  "unrelated_scope_unchanged": [
+    "prose Japanese/length/point limits",
+    "font/CFF/Unicode/ToUnicode/source-owned API",
+    "margin/tier/header scope",
+    "company/grid/stroke candidates",
+    "models/default features"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "original_pdf": "crates/kanpo-pdf/src/image-source-fixtures/20261007g002210006.pdf",
+  "original_pdf_sha256": "58a7c97f61eba22843763431fea8adfeb7594fbf4620f0b59348b1337d6de1e7",
+  "page": 0,
+  "draw": 0,
+  "source_PNG_sha256": "a0f34491e5394af5815cde4410e9e573595586c549e313190e9453b085add7ff",
+  "source_pixel_ROI": [
+    250,
+    170,
+    1000,
+    690
+  ],
+  "original_transcription": "令和8年（フ）第1750号\n福岡市城南区西片江1丁目22番14号 コーポ\n広 203号\n債務者 上野 優磨\n1 決定年月日時 令和8年9月17日午後1時\n2 主文 債務者について破産手続を開始する。\n本件破産手続を廃止する。\n3 理由の要旨 破産財団をもって破産手続の費\n用を支弁するのに不足する。\n4 免責意見申述期間 令和8年11月16日まで\n福岡地方裁判所第4民事部\n",
+  "evaluation_only_normalization": "NFKC and whitespace removal; never applied to raw recognition",
+  "scope": "Root engineering transcription from original source crop, frozen before new cropped OCR but after prior full-page output was seen. Not independent/blind or whole-page accuracy.",
+  "frozen_ROI_result": "Baseline9 edits; source-crop2 edits in164 normalized gold characters. One crop edit is the correctly recognized第 whose reported bbox extends beyond the frozen ROI. Raw year contains an extra3. Keep this geometry/character distinction; do not widen the ROI to fit output."
+}

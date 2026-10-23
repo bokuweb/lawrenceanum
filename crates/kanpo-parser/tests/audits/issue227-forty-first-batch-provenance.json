@@ -1,0 +1,135 @@
+{
+  "issue": 227,
+  "batch": 41,
+  "native_runtime_source": 63,
+  "OCR_tool_revision": 2,
+  "parent_commit": "ca1645133e1a838e8d0852825884e0a92ee3add5",
+  "goal_complete": false,
+  "canonical_quality_improvement_pages": 0,
+  "cumulative_changed_pages": 2957,
+  "cumulative_character_changed_pages": 1373,
+  "references": [
+    {
+      "path": ".cache/kanpo-227/checkpoint40-accepted63-with-ocr-tool2.json",
+      "sha256": "2c416402dcae820d75589d6e37b8ccae08010778cfd9aa0aa7424f6dfc77936e",
+      "kind": "accepted_parent_all4CI"
+    },
+    {
+      "path": ".cache/kanpo-227/batch41-source-test-delta-manifest.json",
+      "sha256": "24516a9dc99e51eaaf458f887e77c4ed7c7d5454aadc68d49f8ab870383005d0",
+      "kind": "core_and_OCR_unchanged_new2tests_new1gold"
+    },
+    {
+      "path": ".cache/kanpo-227/ruri41/delivery-final-manifest.json",
+      "sha256": "13eb98f547ea0d0e958a92fbaecda2ca1fe8fadbcce51e3aecec9135d9482d33",
+      "kind": "research679_artifacts"
+    },
+    {
+      "path": ".cache/kanpo-227/ruri41/gold-prefreeze.json",
+      "sha256": "0ddb5ea1121b234bc6b119a7e1d317c1b54d2a88e0bc473adb9788fd796f473e",
+      "kind": "manual17_notices226used_source_Words_and115roles_before_inference"
+    },
+    {
+      "path": ".cache/kanpo-227/ruri41/execution-prefreeze.json",
+      "sha256": "3e993ef48845f1fcf7cdbfd4c662fcdc1288028e709c90ebe133952d9950e996",
+      "kind": "phase1_frozen2610files_runtime_model_data_sources"
+    },
+    {
+      "path": ".cache/kanpo-227/ruri41/model-download.json",
+      "sha256": "f395fdc3e461f5ef14be6b5d8b6afed70a8f4d4952c462d8bcb497201ba8aeba",
+      "kind": "one147020821byte_ONNX_weight_and_pinned_tokenizer"
+    },
+    {
+      "path": ".cache/kanpo-227/ruri41/score-summary.json",
+      "sha256": "15a33582bfadcea0b831221e856a149f5976abf0da251e3ced23c21bb9be3c4c",
+      "kind": "description_similarity78of115_60of77"
+    },
+    {
+      "path": ".cache/kanpo-227/ruri41/prototype2/training-prefreeze.json",
+      "sha256": "20552814d5c16cd887144f730dc172e3d4612cf7f843b2104befb2424ee5f3b1",
+      "kind": "disjoint_training_PDF180fields141unique"
+    },
+    {
+      "path": ".cache/kanpo-227/ruri41/prototype2/execution-prefreeze.json",
+      "sha256": "02133ba13ee33fde1f5664756c04c77c5f072aa6dcd5cf524e63bd4e363058b9",
+      "kind": "phase2_frozen2621files_before_train_embeddings_fit"
+    },
+    {
+      "path": ".cache/kanpo-227/ruri41/prototype2/summary.json",
+      "sha256": "bf5cf4da35e360bd54a0f3b4858a1e2d6a497d225f34b2fc553914d0374cf3f8",
+      "kind": "prototypes103of115_65of77_not_blind_holdout"
+    },
+    {
+      "path": ".cache/kanpo-227/ruri41/prototype2/root-verified.json",
+      "sha256": "1193f394d57614599c970fbc217d5393e4f3dbe2e7ce359ceb15c87446f20913",
+      "kind": "independent_implementation_tensors_prototypes_scores_not_new_reviewer"
+    },
+    {
+      "path": ".cache/kanpo-227/ruri41/ranking-test-prefreeze.json",
+      "sha256": "8cf2c596da048190823cb8523831bad1256752321052d76963708f2b226571f3",
+      "kind": "six_math_identity_tests_stub2GREEN4RED"
+    },
+    {
+      "path": ".cache/kanpo-227/ruri41/ranking-GREEN.log",
+      "sha256": "31a32efc66ba2640eb2645809cb5d1c3d36b9634458c1550914947e1f1cf6f82",
+      "kind": "same6GREEN"
+    },
+    {
+      "path": ".cache/kanpo-227/ruri41/prototype2/test-prefreeze.json",
+      "sha256": "41adb75e01b12d08ba98e0492fbba08be0d8b5c981ce9914ab6c823ae8cffea1",
+      "kind": "four_split_and_prototype_tests_stub2GREEN2RED"
+    },
+    {
+      "path": ".cache/kanpo-227/ruri41/prototype2/GREEN.log",
+      "sha256": "c443070947d4bb7e0853952d87c755ede51eda7abcccfff303acbdfd0fe5baa2",
+      "kind": "same4GREEN"
+    },
+    {
+      "path": ".cache/kanpo-227/ruri41/source-field-tests63.log",
+      "sha256": "116ebecee71a0002f942b7b84d637d8919520d62245fd1f32e406cd6a22c071f",
+      "kind": "two_actual_native_contracts_allGREEN"
+    },
+    {
+      "path": ".cache/kanpo-227/ruri41/known17-RED.log",
+      "sha256": "c7f43f3849b68228146d3942e1ae4a02cf1b8f6f152dfd282dccbbac272f6747",
+      "kind": "fresh_publicAPI1Article_expected17_remains_RED"
+    },
+    {
+      "path": ".cache/kanpo-227/ruri41/source-flow17-rebound.json",
+      "sha256": "ab3a3c606cac5836b3ec670d84b3e96b12f8c63e3352c02890f9a3ea7af82c6f",
+      "kind": "all17_gold_source_sets_contiguous_current_reading_flow_old58_missing_title63"
+    }
+  ],
+  "primary_sources": [
+    {
+      "url": "https://huggingface.co/cl-nagoya/ruri-v3-30m/tree/24899e5de370b56d179604a007c0d727bf144504",
+      "scope": "original model metadata/tokenizer and documented topic prefix, pooling; original PyTorch weights not acquired"
+    },
+    {
+      "url": "https://huggingface.co/onnx-community/ruri-v3-30m-ONNX/tree/1b41a27f31213fc55a9c4653c067770e39406408",
+      "scope": "separately frozen community conversion, not numerical parity proof"
+    },
+    {
+      "url": "https://huggingface.co/docs/transformers.js/v3.8.1/index",
+      "scope": "pinned Node runtime; actual installed source is frozen before execution"
+    }
+  ],
+  "model_usage_this_batch": {
+    "new_weight_files": 1,
+    "weight_bytes": 147020821,
+    "weight_SHA256": "5ffd75c4d39c2d783efc46f45c1b5c9b0e19699e2b2b60396ae45dbd7d8ef869",
+    "new_model_download": true,
+    "RURI_model_inference_calls": 302,
+    "phase1_label_embeddings": 7,
+    "phase1_evaluation_embeddings": 115,
+    "phase2_training_embeddings": 180,
+    "phase2_evaluation_embeddings_reused_without_new_inference": 115,
+    "model_weights_finetuned": false,
+    "supervised_class_prototypes_fit": true,
+    "unique_training_examples": 141,
+    "separate_ModernBERT_MLM_runs": 0,
+    "Tesseract_runs": 0,
+    "runtime_import_failures_before_any_inference": 1,
+    "runtime_import_repair": "same npm lock, installed platform optional sharp libraries; no patched dependency or model/profile fallback"
+  }
+}

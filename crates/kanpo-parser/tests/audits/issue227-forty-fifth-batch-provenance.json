@@ -1,0 +1,102 @@
+{
+  "issue": 227,
+  "batch": 45,
+  "parent_commit": "9f1892a6b1dded6c3d361753e27487882a27d394",
+  "native_runtime_source": 70,
+  "goal_complete": false,
+  "adopted_scope": "Original Glyph bounds for notice frame ownership only; preserve published Word coordinates, page layout, text, old article boundaries and Run styles.",
+  "whole_corpus_strict_quality_not_reestimated": true,
+  "source_manifest_sha256": "499b6cc1c0006184e9e72036a380d70132f08980036fe94eb7610354d2536d19",
+  "source_files": 131,
+  "parser_source_files": 108,
+  "PDF_source_files": 23,
+  "all23_PDF_sources_byte_exact_parent": true,
+  "no_new_model_weights_training_or_inferences": true,
+  "RURI_previous_two_pilots_still_held": true,
+  "local_evidence": [
+    {
+      "path": ".cache/kanpo-227/native45-source-manifest.json",
+      "sha256": "499b6cc1c0006184e9e72036a380d70132f08980036fe94eb7610354d2536d19"
+    },
+    {
+      "path": ".cache/kanpo-227/native-ownership45/rebase-v2-runtime-binding.json",
+      "sha256": "943fbfae4bbc9f314d677d9b56cc17e2e77d18f74e77648f3ee88bc8f51fb958"
+    },
+    {
+      "path": ".cache/kanpo-227/native-ownership45/final-source-delta.json",
+      "sha256": "be4907b1a7b4af9f56b5f8e9b78801514ae0c334e0cd8d01959e8605daf14261"
+    },
+    {
+      "path": ".cache/kanpo-227/native-ownership45/public70-lib-r3.log",
+      "sha256": "525ca3c5388e3971c6f6e2b4db585685001650b62b727c3b1933c9a8be2af1d5"
+    },
+    {
+      "path": ".cache/kanpo-227/native-ownership45/final-all-green.json",
+      "sha256": "08e9059f0b7166f1489b6022235a34c28806f35060a7b7d89e110b4eb513ca73"
+    },
+    {
+      "path": ".cache/kanpo-227/native-ownership45/assets-and-snapshots.json",
+      "sha256": "e397f4d0e001becec7ae25ab14f1219c52e809df91dbf34851ccce3ece51294c"
+    },
+    {
+      "path": ".cache/kanpo-227/native-ownership45/archive-readonly.log",
+      "sha256": "cf5bf770a84bac1c4874c04b9e88a7736095070ba9d8f90df2e712aabc4f0a2f"
+    },
+    {
+      "path": ".cache/kanpo-227/native-ownership45/full-native70/result.json",
+      "sha256": "319b5a1b9cbe2ba1fddcf07bbc13e8f5ea43588711771e8ea077c61c043512af"
+    },
+    {
+      "path": ".cache/kanpo-227/native-ownership45/full-native70/changes.json",
+      "sha256": "05513d30555dfe762f180f37b9bd61eec41ebd27619380bcbf4c48fafc552efe"
+    },
+    {
+      "path": ".cache/kanpo-227/native-ownership45/textdump70-result.json",
+      "sha256": "cdb8a617914897aed2fcdc200baa662de6eace02e31a52a346c7548d1691ec65"
+    },
+    {
+      "path": ".cache/kanpo-227/native-ownership45/native70-actual-CLI-API-consistency.json",
+      "sha256": "810b6e50196d8d5c3812ba520675f135932b1fd89a698af8931399e3552be633"
+    },
+    {
+      "path": ".cache/kanpo-227/native-ownership45/original-gold-source-reproduction.json",
+      "sha256": "961ad80d64f39400db8ccfaa77cda0ffd41b962fb7ac5d9fde849e41e1d24516"
+    },
+    {
+      "path": ".cache/kanpo-227/native-ownership45/new7-original-metamorphic-results.json",
+      "sha256": "a42ba69c97fe5eb9303dcc8c522839fa05085f5d9846e18228bb4920278ce62e"
+    },
+    {
+      "path": ".cache/kanpo-227/native-ownership45/source69-frozen-original-tests.log",
+      "sha256": "62029e885698bb1ac58f8826b0fffa824728a9f940608bdca964401af3188958"
+    },
+    {
+      "path": ".cache/kanpo-227/native-ownership45/source69-frozen-regression-source-binding.json",
+      "sha256": "1d9846d93e0581b1f67e34436bddc90e237b66e436c866f079b5b6c85a4f266d"
+    },
+    {
+      "path": ".cache/kanpo-227/native-ownership45/fixed30-not-selected-for-repair-binding.json",
+      "sha256": "a1f58476515eb2cdf626fdd6fd53fc3dc34ccd139a265e10011d7c51c7eb89ad"
+    },
+    {
+      "path": ".cache/kanpo-227/native-ownership45/rejected-v8-original-tests.log",
+      "sha256": "7b1931f4e6a31978bc3dfc534e5b7e6c44f98f3b3fa8cbecec8ce9974e9c136c"
+    },
+    {
+      "path": ".cache/kanpo-227/native-ownership45/rejected-v8-original-QA.json",
+      "sha256": "d0f20c238c39845d7a78c541fca5576288d683d1de270342d819c899cf09bf19"
+    },
+    {
+      "path": ".cache/kanpo-227/native-ownership45/completed-output-dedup.json",
+      "sha256": "937f6b7d721ffda231ad7b91da1d733d7f92129fa813c3010c403fb90de06bd0"
+    },
+    {
+      "path": ".cache/kanpo-227/native-ownership45/failed-build-object-cleanup.json",
+      "sha256": "fb8869bdba3f831b1a167cfb8da5f23b76730a6e40da01f1b97e71c0b1c87062"
+    },
+    {
+      "path": ".cache/kanpo-227/native-ownership45/snapshot-proposal-review.json",
+      "sha256": "757a79c49dc7c6a69379c2fa5565adb8c0bba5c371efaed8d6f33e5527586d60"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "original_pdf": "crates/kanpo-pdf/src/image-source-fixtures/20260723h017530015.pdf",
+  "original_pdf_sha256": "96e3638002823e3082461763cc396b24e3202bcc8a49bdf9494bff53175807cd",
+  "page": 0,
+  "draw": 0,
+  "source_PNG_sha256": "3b1cc0685097b443765e37356445a59fa89dde7fb10cf6b0bd24d32c4607b75a",
+  "source_pixel_ROI": [
+    250,
+    170,
+    1000,
+    752
+  ],
+  "original_transcription": "令和8年（フ）第1644号\n名古屋市中川区葛元町1丁目18番地\n債務者 小野田恵美\n1 決定年月日時 令和8年7月13日午後5時\n2 主文 債務者について破産手続を開始する。\n3 破産管財人 弁護士 福谷朋子\n4 破産債権の届出期間 令和8年8月13日まで\n5 財産状況報告集会・一般調査・廃止意見聴取・計算報告の期日 令和8年10月6日午前10時30分\n6 免責意見申述期間 令和8年9月18日まで\n名古屋地方裁判所民事第2部\n",
+  "evaluation_only_normalization": "NFKC and whitespace removal; raw outputs stay unchanged",
+  "scope": "Root original transcription fixed after PSM3 crop regression was found and before PSM4 inference. Not independent/blind or whole-page accuracy.",
+  "frozen_ROI_result": {
+    "normalized_gold_characters": 191,
+    "full_page_PSM3_edit_distance": 15,
+    "crop_PSM3_edit_distance": 20,
+    "crop_PSM4_edit_distance": 1
+  },
+  "remaining_error": "免->先; no expected-word repair applied"
+}

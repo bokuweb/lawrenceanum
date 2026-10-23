@@ -1,0 +1,68 @@
+{
+  "issue": 227,
+  "batch": 45,
+  "parent_commit": "9f1892a6b1dded6c3d361753e27487882a27d394",
+  "native_runtime_source": 70,
+  "goal_complete": false,
+  "adopted_scope": "Original Glyph bounds for notice frame ownership only; preserve published Word coordinates, page layout, text, old article boundaries and Run styles.",
+  "whole_corpus_strict_quality_not_reestimated": true,
+  "general_rule": "Bind geometry to the same original Word occurrence through canonical sorting; use complete finite nondegenerate declared source bounds to decide closed-frame ownership. Unknown/partial metadata and conflicting duplicate occurrence declarations cannot authorize a frame.",
+  "legacy_inputs": "Words without explicit native geometry and without a vertical writing-mode declaration retain compatibility geometry; vertical metadata without original bounds remains unknown.",
+  "new_company_page_name_length_line_count_or_fixed_point_conditions": 0,
+  "fixture_literals": "Original PDF page IDs and Word IDs occur only in tests and static source-membership oracles.",
+  "invariants": [
+    "Unknown/partial/nonfinite/inverted geometry abstains instead of falling back to a plausible box.",
+    "No individual or page-wide native coordinate substitution in layout reconstruction.",
+    "No geometry-view substitution in financial reordering.",
+    "Repeated source bbox/raw pairs with conflicting font or native-bound evidence abstain."
+  ],
+  "metamorphic_checks": {
+    "default_CI": "Synthetic geometry scaling, source reversal and conflicting occurrence cases; inherited actual seven-page font bijection and emission reversal tests.",
+    "additional_final_runtime": {
+      "source_manifest_sha256": "499b6cc1c0006184e9e72036a380d70132f08980036fe94eb7610354d2536d19",
+      "pages": 7,
+      "transformed_analyses": 21,
+      "all_whole_Analysis_exact": true,
+      "not_independent_quality_labels": true,
+      "records": [
+        {
+          "page": "20260721g001610161",
+          "variants": 3,
+          "whole_Analysis_exact": true
+        },
+        {
+          "page": "20260723g001630240",
+          "variants": 3,
+          "whole_Analysis_exact": true
+        },
+        {
+          "page": "20260728g001680070",
+          "variants": 3,
+          "whole_Analysis_exact": true
+        },
+        {
+          "page": "20260817g001830080",
+          "variants": 3,
+          "whole_Analysis_exact": true
+        },
+        {
+          "page": "20260925g002120088",
+          "variants": 3,
+          "whole_Analysis_exact": true
+        },
+        {
+          "page": "20260928g002130124",
+          "variants": 3,
+          "whole_Analysis_exact": true
+        },
+        {
+          "page": "20261019g002290061",
+          "variants": 3,
+          "whole_Analysis_exact": true
+        }
+      ]
+    }
+  },
+  "remaining_legacy": "financial_enclosures.rs still contains title/company length limits, minimum line counts, point tolerances, and company/procedure vocabulary. This batch neither removes nor certifies those older rules.",
+  "new_model_weights_training_or_inferences": 0
+}
