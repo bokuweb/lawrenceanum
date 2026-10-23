@@ -1,7 +1,7 @@
 {
   "issue": 227,
   "iteration": "OCRsource100",
-  "status": "qualitative pilot held from canonical integration",
+  "status": "qualitative pilot held from canonical integration; manual source-heading reference corrected in OCRsource105",
   "frozen_before_inference": {
     "timestamp": "2026-10-23T12:50:33.213992+00:00",
     "original": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-10-07/20261007g00221/20261007g002210047.pdf",
@@ -131,7 +131,7 @@
     "regions_requested": true
   },
   "review": {
-    "finding": "96verticalregions recover image-body text absent from native. Raw reading_order interleaves independent inheritance notices and the stockholder notice. Recognition errors remain, including に伴う in place of printed に係る and 受遣者 in place of 受遺者.",
+    "finding": "96verticalregions recover image-body text absent from native. Raw reading_order interleaves independent inheritance notices and the stockholder notice. Some recognition errors remain, including 受遣者 in place of printed 受遺者. The earlier に係る→に伴う claim was a manual source-reference error: the original prints に伴う, correctly recognized by NDLOCR; see correction105.",
     "heading_presence_limit": "A heading appearing somewhere is not occurrence-level recall; repeated inheritance titles were not exhaustively aligned. No heading accuracy percentage is reported.",
     "next_evidence_needed": [
       "Source geometry and pixels must separate independent notice reading flows without text/result-conditioned branching.",
@@ -143,7 +143,8 @@
       "text correction to expected wording",
       "model/threshold switching after inspecting results",
       "accuracy or coverage certification"
-    ]
+    ],
+    "historical_finding_before105_correction": "96verticalregions recover image-body text absent from native. Raw reading_order interleaves independent inheritance notices and the stockholder notice. Recognition errors remain, including に伴う in place of printed に係る and 受遣者 in place of 受遺者."
   },
   "evidence": {
     "prefreeze100.json": {
@@ -178,5 +179,12 @@
       "path": ".cache/kanpo-227/ndlocr-hybrid-source100/result/page0-draw0-projected.json",
       "sha256": "87f535dfb1746e9f9d111f78f923b051dc32e6e687abdf69c7f7ecbfc70fe570"
     }
+  },
+  "source_reference_correction": {
+    "audit": "issue227-ndlocr-source-heading-correction105.json",
+    "wrong_original_reference": "に係る",
+    "printed_and_correct_NDLOCR_output": "に伴う",
+    "original_preinference_reference_and_raw_files_preserved": true,
+    "scope": "The source100 second heading presence=false came from a wrong manual source reference and is superseded. No whole-page/occurrence-level recognition score."
   }
 }
