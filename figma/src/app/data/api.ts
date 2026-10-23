@@ -460,6 +460,8 @@ export const api = {
   lawToRulemaking: (lawId: string) => getJson<LawToRulemaking>(`./links/law-to-rulemaking/${lawId}.json`),
   /** 附則の構造化 (施行期日・経過措置・読替え規定)。附則の無い法令には無い。 */
   lawSupplementary: (lawId: string) => getJson<LawSupplementary>(`./laws/${lawId}/supplementary.json`),
+  hanreiIndex: () => getJson<HanreiIndex>('./hanrei/index.json'),
+  hanreiCase: (caseId: string | number) => getJson<HanreiCase>(`./hanrei/${encodeURIComponent(caseId)}.json`),
   /** 法令 ↔ 判例 クロスリンク (判例の参照法条から抽出)。 */
   lawToHanrei: (lawId: string) => getJson<LawToHanrei>(`./links/law-to-hanrei/${lawId}.json`),
   /** 法令 ↔ 質問主意書・答弁書 クロスリンク (件名・本文の法令参照から抽出)。 */
@@ -910,6 +912,35 @@ export type LawSupplementary = {
     refs_resolved: number
   }
   provisions: SupplementaryProvisionAnalysis[]
+}
+
+export type HanreiSummary = {
+  case_id: number
+  case_number: string
+  case_name: string
+  judged_on: string
+  court: string
+  result: string
+  holding: string
+}
+export type HanreiIndex = {
+  source: string
+  count: number
+  cases: HanreiSummary[]
+}
+export type HanreiCase = HanreiSummary & {
+  judgment_type: string
+  reporter: string
+  lower_court: string
+  lower_case_number: string
+  lower_judged_on: string
+  summary: string
+  referenced_laws: string
+  body_citations?: string[]
+  /** undefined/null = 未取得、空文字 = PDF に抽出可能な文字情報なし。 */
+  body_text?: string | null
+  detail_url: string
+  pdf_url: string | null
 }
 
 /** 法令 → 判例 クロスリンク。出典は裁判所 裁判例検索 (`/hanrei/{case_id}/detail2/`)。 */

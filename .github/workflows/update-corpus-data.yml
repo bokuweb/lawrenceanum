@@ -426,6 +426,9 @@ jobs:
           to="${HANREI_TO:-$(date -u +%F)}"
           ./target/release/lawpub hanrei-fetch \
             --cache .cache --from "$from" --to "$to" --limit 1500 --interval-ms 1000
+          # 既存のメタデータのみのキャッシュにも PDF 本文を段階的に補完する。
+          ./target/release/lawpub hanrei-fetch-bodies \
+            --cache .cache --limit 200 --interval-ms 1000
 
       - name: Upload hanrei cache to R2
         id: upload_hanrei

@@ -1,7 +1,7 @@
 //! 裁判所 裁判例検索 (https://www.courts.go.jp/hanrei/) のクライアント。
 //!
 //! 取得するのはメタデータ (事件番号・事件名・裁判年月日・法廷名・結果・参照法条など) と
-//! 全文 PDF への URL と、新規取得時に PDF から抽出した本文。サイト利用条件は「著作権法上認められている利用」「無断改変禁止」
+//! 全文 PDF から抽出した本文。サイト利用条件は「著作権法上認められている利用」「無断改変禁止」
 //! のため、判示事項・裁判要旨・参照法条は原文のまま保持し、出典 URL を必ず添える。
 //! robots.txt は `/hanrei/` を禁止していない (2026-10 確認)。リクエスト間隔は
 //! [`HttpProvider`] が空ける。
@@ -42,13 +42,14 @@ pub struct CaseDetail {
     pub holding: String,
     pub summary: String,
     pub referenced_laws: String,
-    /// 全文 PDF から機械的に抽出した本文。旧キャッシュ・抽出失敗では空。
-    #[serde(default)]
-    pub body_text: String,
     /// 全文 PDF 本文から抜いた「…第N条」形式の引用文字列。
     /// 法令との突き合わせは linking が行う。
     #[serde(default)]
     pub body_citations: Vec<String>,
+    /// PDF 抽出本文。None は未取得・取得失敗、Some("") は文字情報のない PDF。
+    /// 古いキャッシュにはこのフィールドがないため、本文だけ後から補完できる。
+    #[serde(default)]
+    pub body_text: Option<String>,
     pub detail_url: String,
     pub pdf_url: Option<String>,
 }
@@ -112,10 +113,16 @@ pub fn parse_list(html: &str, page_url: &str) -> Vec<CaseListItem> {
     );
     let mut out = Vec::new();
     for row in doc.select(&tr) {
-        let Some(a) = row.select(&th_a).next() else { continue };
+        let Some(a) = row.select(&th_a).next() else {
+            continue;
+        };
         let href = a.value().attr("href").unwrap_or_default();
-        let Some(case_id) = case_id_from_url(href) else { continue };
-        let Some(info) = row.select(&td).next() else { continue };
+        let Some(case_id) = case_id_from_url(href) else {
+            continue;
+        };
+        let Some(info) = row.select(&td).next() else {
+            continue;
+        };
         let paras: Vec<String> = info.select(&p).map(|e| squash(&text_of(e))).collect();
         let first = paras.first().cloned().unwrap_or_default();
         // 1 段落目は「事件番号 事件名」。事件番号は最初の空白まで。
@@ -148,8 +155,8 @@ pub fn parse_list(html: &str, page_url: &str) -> Vec<CaseListItem> {
 /// 詳細ページ (`/hanrei/{id}/detail2/`) をパースする。見出し (`dt`) と値 (`dd`) が
 /// 項目ごとの `dl` に分かれているため、`dt`/`dd` を文書順に読んで対応づける。
 pub fn parse_detail(html: &str, page_url: &str) -> Result<CaseDetail> {
-    let case_id = case_id_from_url(page_url)
-        .with_context(|| format!("case id not found in {page_url}"))?;
+    let case_id =
+        case_id_from_url(page_url).with_context(|| format!("case id not found in {page_url}"))?;
     let doc = Html::parse_document(html);
     let mut kv: Vec<(String, String)> = Vec::new();
     let mut key: Option<String> = None;
@@ -188,8 +195,8 @@ pub fn parse_detail(html: &str, page_url: &str) -> Result<CaseDetail> {
         holding: get("判示事項"),
         summary: get("裁判要旨"),
         referenced_laws: get("参照法条"),
-        body_text: String::new(),
         body_citations: Vec::new(),
+        body_text: None,
         detail_url: page_url.to_string(),
         pdf_url: doc
             .select(&sel("a[href$='.pdf']"))
@@ -212,16 +219,45 @@ pub fn parse_total(html: &str) -> Option<usize> {
     rev.chars().rev().collect::<String>().parse().ok()
 }
 
-/// 全文 PDF からテキストを取り出す。語を読み順につなぎ、空白は入れない (和文のため)。
+/// 全文 PDF からテキストを取り出す。語の行・ページ境界は改行として保持する。
 pub fn pdf_text(pdf: &[u8]) -> Result<String> {
     let pages = kanpo_pdf::extract_pages(pdf).map_err(|e| anyhow::anyhow!("pdf: {e}"))?;
     let mut out = String::new();
     for page in &pages {
-        for w in kanpo_pdf::bbox::words(page) {
-            out.push_str(&w.text);
+        if !out.is_empty() {
+            out.push('\n');
+        }
+        let mut previous: Option<(kanpo_pdf::bbox::Word, bool)> = None;
+        for word in kanpo_pdf::bbox::words(page) {
+            let vertical = word
+                .glyphs
+                .first()
+                .is_some_and(|&i| page.glyphs[i].vertical);
+            if let Some((prev, was_vertical)) = &previous {
+                let new_line = vertical != *was_vertical
+                    || if vertical {
+                        (word.x_min - prev.x_min).abs() > (word.x_max - word.x_min).abs() * 0.5
+                    } else {
+                        (word.y_min - prev.y_min).abs() > (word.y_max - word.y_min).abs() * 0.5
+                    };
+                if new_line {
+                    out.push('\n');
+                } else if out.ends_with(|c: char| c.is_ascii_alphanumeric())
+                    && word.text.starts_with(|c: char| c.is_ascii_alphanumeric())
+                    && if vertical {
+                        word.y_min - prev.y_max > (word.x_max - word.x_min).abs() * 0.15
+                    } else {
+                        word.x_min - prev.x_max > (word.y_max - word.y_min).abs() * 0.15
+                    }
+                {
+                    out.push(' ');
+                }
+            }
+            out.push_str(&word.text);
+            previous = Some((word, vertical));
         }
     }
-    Ok(out)
+    Ok(out.trim().to_owned())
 }
 
 /// 引用 1 件の前方に遡る最大文字数 (法令名の長さの上限)。
@@ -383,7 +419,12 @@ impl HttpProvider {
         let url = format!("{BASE}/hanrei/search{search_page}/index.html");
         let query = range_query(court_case_type, from, to, offset)?;
         std::thread::sleep(self.interval);
-        let resp = self.client.get(&url).query(&query).send()?.error_for_status()?;
+        let resp = self
+            .client
+            .get(&url)
+            .query(&query)
+            .send()?
+            .error_for_status()?;
         let page_url = resp.url().to_string();
         let html = resp.text()?;
         Ok(ListPage {
@@ -392,16 +433,20 @@ impl HttpProvider {
         })
     }
 
-    /// 全文 PDF を取得して引用文字列を抜く。
-    pub fn fetch_body_citations(&self, pdf_url: &str) -> Result<Vec<String>> {
-        Ok(extract_citations(&self.fetch_body_text(pdf_url)?))
-    }
-
-    /// 新規判例の Wiki で引用できるよう、抽出本文をそのまま返す。
+    /// 全文 PDF を取得して本文を抽出する。
     pub fn fetch_body_text(&self, pdf_url: &str) -> Result<String> {
         std::thread::sleep(self.interval);
-        let bytes = self.client.get(pdf_url).send()?.error_for_status()?.bytes()?;
+        let bytes = self
+            .client
+            .get(pdf_url)
+            .send()?
+            .error_for_status()?
+            .bytes()?;
         pdf_text(&bytes)
+    }
+
+    pub fn fetch_body_citations(&self, pdf_url: &str) -> Result<Vec<String>> {
+        Ok(extract_citations(&self.fetch_body_text(pdf_url)?))
     }
 
     pub fn fetch_detail(&self, case_id: u64) -> Result<CaseDetail> {
@@ -420,14 +465,18 @@ mod tests {
         let detail = parse_detail(
             "<dl><dt>事件名</dt><dd>事件</dd></dl>",
             "https://www.courts.go.jp/hanrei/123/detail2/index.html",
-        ).unwrap();
+        )
+        .unwrap();
         let mut old = serde_json::to_value(&detail).unwrap();
         old.as_object_mut().unwrap().remove("body_text");
         let cached: CaseDetail = serde_json::from_value(old.clone()).unwrap();
-        assert_eq!(serde_json::to_value(cached).unwrap()["body_text"], "");
+        assert!(serde_json::to_value(cached).unwrap()["body_text"].is_null());
         old["body_text"] = serde_json::json!("民法第七百九条による損害賠償について判断する。");
         let new: CaseDetail = serde_json::from_value(old).unwrap();
-        assert_eq!(serde_json::to_value(new).unwrap()["body_text"], "民法第七百九条による損害賠償について判断する。");
+        assert_eq!(
+            serde_json::to_value(new).unwrap()["body_text"],
+            "民法第七百九条による損害賠償について判断する。"
+        );
     }
 
     const LIST: &str = r#"
@@ -480,7 +529,10 @@ mod tests {
         let got = extract_citations(text);
         assert!(got.contains(&"民法７０９条".to_string()), "{got:?}");
         assert!(got.contains(&"刑事訴訟法第３８２条".to_string()), "{got:?}");
-        assert!(got.iter().any(|c| c.ends_with("借地借家法１４条")), "{got:?}");
+        assert!(
+            got.iter().any(|c| c.ends_with("借地借家法１４条")),
+            "{got:?}"
+        );
         // 条番号を伴わない法令名は拾わない。
         assert!(!got.iter().any(|c| c.contains("会社法")), "{got:?}");
     }
@@ -500,8 +552,16 @@ mod tests {
     fn range_query_spans_eras() {
         let q = range_query(
             1,
-            Ymd { y: 2019, m: 4, d: 1 },
-            Ymd { y: 2019, m: 5, d: 31 },
+            Ymd {
+                y: 2019,
+                m: 4,
+                d: 1,
+            },
+            Ymd {
+                y: 2019,
+                m: 5,
+                d: 31,
+            },
             60,
         )
         .unwrap();
@@ -511,6 +571,54 @@ mod tests {
         assert_eq!(get("filter[judgeGengoTo]"), Some("令和"));
         assert_eq!(get("filter[judgeYearTo]"), Some("1"));
         assert_eq!(get("offset"), Some("60"));
+    }
+
+    #[test]
+    fn pdf_text_preserves_lines_and_pages() {
+        let content = "BT /F1 10 Tf 1 0 0 1 100 700 Tm (AB) Tj 0 -20 Td (CD) Tj ET\n";
+        let objects = vec![
+            "<< /Type /Catalog /Pages 2 0 R >>".to_string(),
+            "<< /Type /Pages /Kids [3 0 R 6 0 R] /Count 2 >>".into(),
+            "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>".into(),
+            "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /FirstChar 65 /LastChar 68 /Widths [667 667 667 667] >>".into(),
+            format!("<< /Length {} >>\nstream\n{content}endstream", content.len()),
+            "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>".into(),
+        ];
+        let mut pdf = b"%PDF-1.4\n".to_vec();
+        let mut offsets = Vec::new();
+        for (i, obj) in objects.iter().enumerate() {
+            offsets.push(pdf.len());
+            pdf.extend_from_slice(format!("{} 0 obj\n{obj}\nendobj\n", i + 1).as_bytes());
+        }
+        let xref = pdf.len();
+        pdf.extend_from_slice(
+            format!("xref\n0 {}\n0000000000 65535 f \n", objects.len() + 1).as_bytes(),
+        );
+        for off in offsets {
+            pdf.extend_from_slice(format!("{off:010} 00000 n \n").as_bytes());
+        }
+        pdf.extend_from_slice(
+            format!(
+                "trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n",
+                objects.len() + 1
+            )
+            .as_bytes(),
+        );
+        assert_eq!(pdf_text(&pdf).unwrap(), "AB\nCD\nAB\nCD");
+        assert!(pdf_text(b"not a PDF").is_err());
+    }
+
+    #[test]
+    fn legacy_cache_without_body_deserializes() {
+        let d = parse_detail(
+            "<dl><dt>事件番号</dt><dd>令和6(受)1</dd></dl>",
+            "https://www.courts.go.jp/hanrei/123/detail2/index.html",
+        )
+        .unwrap();
+        let mut value = serde_json::to_value(&d).unwrap();
+        value.as_object_mut().unwrap().remove("body_text");
+        let old: CaseDetail = serde_json::from_value(value).unwrap();
+        assert_eq!(old.body_text, None);
     }
 
     #[test]
@@ -527,8 +635,11 @@ mod tests {
 <dl><dt>裁判要旨</dt><dd></dd></dl>
 <dl><dt>参照法条</dt><dd>借地借家法14条</dd></dl>
 <a href="/assets/hanrei/hanrei-pdf-96970.pdf">全文</a>"#;
-        let d = parse_detail(html, "https://www.courts.go.jp/hanrei/96970/detail2/index.html")
-            .unwrap();
+        let d = parse_detail(
+            html,
+            "https://www.courts.go.jp/hanrei/96970/detail2/index.html",
+        )
+        .unwrap();
         assert_eq!(d.case_id, 96970);
         assert_eq!(d.case_number, "令和6(受)2169");
         assert_eq!(d.court, "最高裁判所第二小法廷");

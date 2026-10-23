@@ -32,15 +32,8 @@ pub fn run_fetch(
         }
         match p.fetch_detail(it.case_id) {
             Ok(mut d) => {
-                // 既存キャッシュはスキップ済み。今後の新規取得だけ本文を保存し、Wiki の根拠にする。
-                if let Some(url) = d.pdf_url.clone() {
-                    match p.fetch_body_text(&url) {
-                        Ok(text) => {
-                            d.body_citations = hanrei_client::extract_citations(&text);
-                            d.body_text = text;
-                        }
-                        Err(e) => tracing::warn!("pdf {}: {e:#}", it.case_id),
-                    }
+                if let Err(e) = fill_body(&mut d, |url| p.fetch_body_text(url)) {
+                    tracing::warn!("pdf {}: {e:#}", it.case_id);
                 }
                 std::fs::write(&path, serde_json::to_string_pretty(&d)?)
                     .with_context(|| format!("write {}", path.display()))?;
@@ -108,6 +101,68 @@ pub fn run_fetch(
     Ok(())
 }
 
+/// 未取得本文だけ補完する。空の抽出結果は取得済みとして記録し、失敗は再試行可能にする。
+fn fill_body(d: &mut CaseDetail, fetch: impl FnOnce(&str) -> Result<String>) -> Result<bool> {
+    if d.body_text.is_some() {
+        return Ok(false);
+    }
+    let Some(url) = d.pdf_url.as_deref() else {
+        return Ok(false);
+    };
+    let text = fetch(url)?;
+    d.body_citations = hanrei_client::extract_citations(&text);
+    d.body_text = Some(text);
+    Ok(true)
+}
+
+/// 古いキャッシュの PDF 本文を新しい事件から補完する。上限は成功数ではなく試行数。
+/// 新規事件の取得とは別に実行でき、--limit で少しずつ移行する。
+pub fn run_fetch_bodies(cache: &Path, interval_ms: u64, limit: usize) -> Result<()> {
+    let p = HttpProvider::new(Duration::from_millis(interval_ms))?;
+    let dir = cache.join("hanrei");
+    let mut files = Vec::new();
+    if dir.is_dir() {
+        for entry in std::fs::read_dir(&dir)? {
+            let path = entry?.path();
+            if path.extension().and_then(|x| x.to_str()) == Some("json") {
+                if let Some(id) = path
+                    .file_stem()
+                    .and_then(|x| x.to_str())
+                    .and_then(|x| x.parse::<u64>().ok())
+                {
+                    files.push((id, path));
+                }
+            }
+        }
+    }
+    files.sort_by_key(|(id, _)| std::cmp::Reverse(*id));
+    let (mut attempted, mut saved) = (0, 0);
+    for (id, path) in files {
+        if attempted >= limit {
+            break;
+        }
+        let mut d: CaseDetail = serde_json::from_slice(&std::fs::read(&path)?)
+            .with_context(|| format!("parse {}", path.display()))?;
+        if d.body_text.is_some() || d.pdf_url.is_none() {
+            continue;
+        }
+        attempted += 1;
+        match fill_body(&mut d, |url| p.fetch_body_text(url)) {
+            Ok(true) => {
+                // Replace only once extraction has succeeded; a failed fetch leaves the cache intact.
+                let tmp = path.with_extension("json.tmp");
+                std::fs::write(&tmp, serde_json::to_vec_pretty(&d)?)?;
+                std::fs::rename(tmp, &path)?;
+                saved += 1;
+            }
+            Ok(false) => {}
+            Err(e) => tracing::warn!("hanrei PDF {id}: {e:#}"),
+        }
+    }
+    tracing::info!("hanrei-fetch-bodies: {saved}/{attempted} cases updated");
+    Ok(())
+}
+
 /// 1 回の検索で辿れる上限 (サイト側の仕様)。
 const SITE_LIMIT: usize = 2000;
 
@@ -119,7 +174,10 @@ fn parse_ymd(s: &str) -> Result<Ymd> {
             .with_context(|| format!("invalid {what} in {s:?} (expected YYYY-MM-DD)"))
     };
     let (y, m, d) = (next("year")?, next("month")?, next("day")?);
-    anyhow::ensure!((1..=12).contains(&m) && (1..=31).contains(&d), "invalid date {s:?}");
+    anyhow::ensure!(
+        (1..=12).contains(&m) && (1..=31).contains(&d),
+        "invalid date {s:?}"
+    );
     Ok(Ymd { y: y as i32, m, d })
 }
 
@@ -138,8 +196,16 @@ fn month_windows(from: Ymd, to: Ymd) -> Vec<(Ymd, Ymd)> {
     let mut out = Vec::new();
     let (mut y, mut m) = (to.y, to.m);
     while (y, m) >= (from.y, from.m) {
-        let start = if (y, m) == (from.y, from.m) { from.d } else { 1 };
-        let end = if (y, m) == (to.y, to.m) { to.d } else { days_in_month(y, m) };
+        let start = if (y, m) == (from.y, from.m) {
+            from.d
+        } else {
+            1
+        };
+        let end = if (y, m) == (to.y, to.m) {
+            to.d
+        } else {
+            days_in_month(y, m)
+        };
         out.push((Ymd { y, m, d: start }, Ymd { y, m, d: end }));
         if m == 1 {
             (y, m) = (y - 1, 12);
@@ -151,14 +217,14 @@ fn month_windows(from: Ymd, to: Ymd) -> Vec<(Ymd, Ymd)> {
 }
 
 #[derive(Serialize)]
-struct IndexEntry<'a> {
+struct IndexEntry {
     case_id: u64,
-    case_number: &'a str,
-    case_name: &'a str,
-    judged_on: &'a str,
-    court: &'a str,
-    result: &'a str,
-    holding: &'a str,
+    case_number: String,
+    case_name: String,
+    judged_on: String,
+    court: String,
+    result: String,
+    holding: String,
 }
 
 /// `lawpub hanrei-build-json` — `.cache/hanrei/` → `public/hanrei/{case_id}.json` + `index.json`。
@@ -166,38 +232,38 @@ pub fn run_build_json(cache: &Path, public: &Path) -> Result<()> {
     let src = cache.join("hanrei");
     let out = public.join("hanrei");
     std::fs::create_dir_all(&out)?;
-    let mut cases: Vec<CaseDetail> = Vec::new();
+    // 本文全件をメモリに保持せず、一覧用のメタデータだけ集める。
+    let mut entries = Vec::new();
     if src.is_dir() {
         for entry in std::fs::read_dir(&src)? {
             let path = entry?.path();
-            if path.extension().and_then(|e| e.to_str()) != Some("json") {
+            if path.extension().and_then(|e| e.to_str()) != Some("json")
+                || path
+                    .file_stem()
+                    .and_then(|e| e.to_str())
+                    .and_then(|e| e.parse::<u64>().ok())
+                    .is_none()
+            {
                 continue;
             }
             let d: CaseDetail = serde_json::from_slice(&std::fs::read(&path)?)
                 .with_context(|| format!("parse {}", path.display()))?;
-            cases.push(d);
+            std::fs::write(
+                out.join(format!("{}.json", d.case_id)),
+                serde_json::to_vec_pretty(&d)?,
+            )?;
+            entries.push(IndexEntry {
+                case_id: d.case_id,
+                case_number: d.case_number,
+                case_name: d.case_name,
+                judged_on: d.judged_on,
+                court: d.court,
+                result: d.result,
+                holding: d.holding,
+            });
         }
     }
-    // case_id は採番順 (新しいほど大きい)。新しい順に並べる。
-    cases.sort_by(|a, b| b.case_id.cmp(&a.case_id));
-    for d in &cases {
-        std::fs::write(
-            out.join(format!("{}.json", d.case_id)),
-            serde_json::to_string_pretty(d)?,
-        )?;
-    }
-    let entries: Vec<IndexEntry> = cases
-        .iter()
-        .map(|d| IndexEntry {
-            case_id: d.case_id,
-            case_number: &d.case_number,
-            case_name: &d.case_name,
-            judged_on: &d.judged_on,
-            court: &d.court,
-            result: &d.result,
-            holding: &d.holding,
-        })
-        .collect();
+    entries.sort_by_key(|d| std::cmp::Reverse(d.case_id));
     std::fs::write(
         out.join("index.json"),
         serde_json::to_string_pretty(&serde_json::json!({
@@ -214,19 +280,93 @@ pub fn run_build_json(cache: &Path, public: &Path) -> Result<()> {
 mod tests {
     use super::*;
 
+    fn legacy_case() -> CaseDetail {
+        hanrei_client::parse_detail(
+            "<dl><dt>参照法条</dt><dd>民法709条</dd></dl><a href='/case.pdf'>全文</a>",
+            "https://www.courts.go.jp/hanrei/123/detail2/index.html",
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn fills_body_even_with_referenced_laws_and_keeps_successful_extractions() {
+        let mut d = legacy_case();
+        assert!(!d.referenced_laws.is_empty());
+        assert!(fill_body(&mut d, |_| Ok("主文\n民法７０９条による。".into())).unwrap());
+        assert_eq!(d.body_text.as_deref(), Some("主文\n民法７０９条による。"));
+        assert!(d.body_citations.iter().any(|s| s.contains("民法７０９条")));
+        assert!(!fill_body(&mut d, |_| panic!("must not refetch")).unwrap());
+        d.body_text = Some(String::new());
+        assert!(!fill_body(&mut d, |_| panic!("image-only PDF must not refetch")).unwrap());
+    }
+
+    #[test]
+    fn failed_body_fetch_preserves_cache_and_can_retry() {
+        let mut d = legacy_case();
+        let before = d.clone();
+        assert!(fill_body(&mut d, |_| anyhow::bail!("offline")).is_err());
+        assert_eq!(d, before);
+        assert!(fill_body(&mut d, |_| Ok(String::new())).unwrap());
+        assert_eq!(d.body_text.as_deref(), Some(""));
+    }
+
+    #[test]
+    fn build_json_preserves_body_but_keeps_index_compact() {
+        let root = std::env::temp_dir().join(format!("hanrei_build_body_{}", std::process::id()));
+        let cache = root.join("cache");
+        let public = root.join("public");
+        std::fs::create_dir_all(cache.join("hanrei")).unwrap();
+        for id in [123, 456] {
+            let mut d = legacy_case();
+            d.case_id = id;
+            d.body_text = Some("主文\n民法７０９条による。".into());
+            std::fs::write(
+                cache.join(format!("hanrei/{id}.json")),
+                serde_json::to_vec(&d).unwrap(),
+            )
+            .unwrap();
+        }
+        run_build_json(&cache, &public).unwrap();
+        let detail: CaseDetail =
+            serde_json::from_slice(&std::fs::read(public.join("hanrei/123.json")).unwrap())
+                .unwrap();
+        assert_eq!(
+            detail.body_text.as_deref(),
+            Some("主文\n民法７０９条による。")
+        );
+        let index: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(public.join("hanrei/index.json")).unwrap())
+                .unwrap();
+        assert_eq!(index["count"], 2);
+        assert_eq!(index["cases"][0]["case_id"], 456);
+        assert!(index["cases"][0].get("body_text").is_none());
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
     #[test]
     fn windows_are_months_newest_first() {
-        let w = month_windows(parse_ymd("2024-11-15").unwrap(), parse_ymd("2025-02-10").unwrap());
+        let w = month_windows(
+            parse_ymd("2024-11-15").unwrap(),
+            parse_ymd("2025-02-10").unwrap(),
+        );
         let got: Vec<_> = w.iter().map(|(a, b)| (a.y, a.m, a.d, b.d)).collect();
         assert_eq!(
             got,
-            vec![(2025, 2, 1, 10), (2025, 1, 1, 31), (2024, 12, 1, 31), (2024, 11, 15, 30)]
+            vec![
+                (2025, 2, 1, 10),
+                (2025, 1, 1, 31),
+                (2024, 12, 1, 31),
+                (2024, 11, 15, 30)
+            ]
         );
     }
 
     #[test]
     fn leap_february() {
-        let w = month_windows(parse_ymd("2024-02-01").unwrap(), parse_ymd("2024-02-29").unwrap());
+        let w = month_windows(
+            parse_ymd("2024-02-01").unwrap(),
+            parse_ymd("2024-02-29").unwrap(),
+        );
         assert_eq!(w.len(), 1);
         assert_eq!(w[0].1.d, 29);
     }

@@ -1,0 +1,24 @@
+{
+  "source": "https://www.courts.go.jp/hanrei/search1/index.html",
+  "count": 2,
+  "cases": [
+    {
+      "case_id": 92002,
+      "case_number": "令和6(受)2",
+      "case_name": "検索テストの損害賠償請求事件",
+      "judged_on": "令和8年8月28日",
+      "court": "最高裁判所第二小法廷",
+      "result": "棄却",
+      "holding": "使用者責任の成否"
+    },
+    {
+      "case_id": 92001,
+      "case_number": "令和5(行ヒ)1",
+      "case_name": "旧データの行政事件",
+      "judged_on": "令和7年1月15日",
+      "court": "東京地方裁判所",
+      "result": "認容",
+      "holding": "行政処分の適法性"
+    }
+  ]
+}
