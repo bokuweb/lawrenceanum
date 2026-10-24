@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { api, type WikiPage } from "../../data/api";
+import { api, type HanreiCase, type HanreiCitation, type WikiPage } from "../../data/api";
 import { Button } from "../ui/button";
 import { WikiMarkdown } from "./wiki-markdown";
 import { articleLabel, caseArticleUrl } from "./hanrei-law-view";
 
 /** 公開済み Wiki の LLM 区間だけを表示し、公式要旨・判決本文と混ぜない。 */
-export function HanreiExplanation({ caseId, wikiPaths }: { caseId: string; wikiPaths: ReadonlySet<string> | null }) {
+export function HanreiExplanation({ caseId, wikiPaths, source }: { caseId: string; wikiPaths: ReadonlySet<string> | null; source: HanreiCase }) {
   const navigate = useNavigate();
   const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState<{ page: WikiPage | null; error: boolean }>({ page: null, error: false });
@@ -48,6 +48,7 @@ export function HanreiExplanation({ caseId, wikiPaths }: { caseId: string; wikiP
             <p className="text-xs text-muted-foreground">原資料 {input.total_chars.toLocaleString()} 文字中 {input.included_chars.toLocaleString()} 文字を入力した解説です。抜粋外の理由・留保・反対意見は未確認です。</p>
           )}
           <WikiMarkdown body={markdown} from={path} onOpen={target => navigate(`/wiki/${target}`)} />
+          <CitationContext caseId={caseId} citations={page.hanrei_citations ?? []} source={source} />
         </> : <p className="text-sm text-muted-foreground">この配信版の解説は判例Wikiで確認できます。</p>}
       {related.length > 0 && <section className="border-t pt-4 space-y-3" data-testid="hanrei-related-cases" aria-label="共通する参照条文を持つ判例">
         <h3 className="text-sm font-semibold">共通する参照条文を持つ判例</h3>
@@ -67,4 +68,38 @@ export function HanreiExplanation({ caseId, wikiPaths }: { caseId: string; wikiP
       <Link to={`/wiki/${path}`} className="inline-block text-sm text-primary underline">解説・関連判例をWikiで読む</Link>
     </section>
   );
+}
+
+const sourceLabels = { holding: "判示事項", summary: "裁判要旨", body_text: "本文（PDF抽出）" };
+
+/** 保存時の引用と現在の原文の完全一致だけを示す。解説の意味的な正しさは判定しない。 */
+function CitationContext({ caseId, citations, source }: { caseId: string; citations: HanreiCitation[]; source: HanreiCase }) {
+  const own = citations.filter(c => Object.hasOwn(sourceLabels, c.field) && c.quote.trim()
+    && c.reference === `hanrei:${caseId}#${c.field === "body_text" ? "body" : c.field}`);
+  if (!own.length) return null;
+  return <details className="border-t pt-3" data-testid="hanrei-citation-context">
+    <summary className="cursor-pointer text-sm font-medium">引用箇所を原文で確認（{own.length}件）</summary>
+    <p className="text-xs text-muted-foreground mt-2">引用と配信中の原文が完全一致する箇所の前後を表示します。最初の一致箇所を示しており、解説の内容が正しいことを保証するものではありません。</p>
+    <ul className="mt-3 space-y-4">
+      {own.map((c, i) => {
+        const text = source[c.field] ?? "";
+        const start = text.indexOf(c.quote);
+        const end = start + c.quote.length;
+        return <li key={`${c.label}-${i}`} className="space-y-2 text-sm">
+          <p className="font-medium">引用 {c.label} · {sourceLabels[c.field]}</p>
+          {start >= 0 ? <>
+            <blockquote className="border-l-2 pl-3 whitespace-pre-wrap leading-7">{start > 100 && "…"}{text.slice(Math.max(0, start - 100), start)}<mark>{c.quote}</mark>{text.slice(end, end + 100)}{text.length > end + 100 && "…"}</blockquote>
+            <Button variant="outline" size="sm" onClick={() => {
+              const target = document.getElementById(`hanrei-source-${c.field}`);
+              target?.focus({ preventScroll: true });
+              target?.scrollIntoView({ block: "start" });
+            }}>{sourceLabels[c.field]}の原文へ移動</Button>
+          </> : <>
+            <blockquote className="border-l-2 pl-3 whitespace-pre-wrap leading-7">{c.quote}</blockquote>
+            <p className="text-xs text-muted-foreground">配信中の原文には完全一致する箇所がありません。資料の更新や空白・改行の違い、本文の未収録が考えられます。解説の出典リンクで確認してください。</p>
+          </>}
+        </li>;
+      })}
+    </ul>
+  </details>;
 }

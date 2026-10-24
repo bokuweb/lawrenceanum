@@ -115,10 +115,10 @@ function HanreiDetail({ caseId }: { caseId: string }) {
             {metadata.map(([label, value]) => <div key={label} className="contents"><dt className="text-muted-foreground">{label}</dt><dd className="min-w-0">{value}</dd></div>)}
           </dl>
           {[["判示事項", data.holding, "holding"], ["裁判要旨", data.summary, "summary"], ["参照法条", data.referenced_laws, "referenced_laws"]].map(([label, value, field]) => value && (
-            <section key={label} className="mt-6"><h2 className="text-base font-semibold mb-2">{label}</h2><p className="whitespace-pre-wrap text-sm leading-7"><LinkedCaseText text={value} field={field} links={lawLinks.data} /></p></section>
+            <section key={label} id={`hanrei-source-${field}`} tabIndex={-1} className="mt-6"><h2 className="text-base font-semibold mb-2">{label}</h2><p className="whitespace-pre-wrap text-sm leading-7"><LinkedCaseText text={value} field={field} links={lawLinks.data} /></p></section>
           ))}
-          <HanreiExplanation caseId={caseId} wikiPaths={wikiPaths} />
-          <section className="mt-6" data-testid="hanrei-body">
+          <HanreiExplanation caseId={caseId} wikiPaths={wikiPaths} source={data} />
+          <section className="mt-6" id="hanrei-source-body_text" tabIndex={-1} data-testid="hanrei-body">
             <h2 className="text-base font-semibold mb-2">本文</h2>
             {data.body_text?.trim() ? <>
               <p className="text-xs text-muted-foreground mb-3">判決全文PDFから抽出したテキスト</p>
