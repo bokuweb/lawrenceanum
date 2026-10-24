@@ -840,7 +840,7 @@ fn same_characters_in_a_different_current_order_do_not_borrow_original_sentence_
 use crate::native_word_flow::NativeFlow;
 fn flow_add(f: &mut F, b: [f32; 4], baseline: f64, text: &str) -> usize {
     let id = add(f, b, text);
-    f.flows[id] = Some(NativeFlow{
+    f.flows[id] = Some(NativeFlow{mode:None,
         start: f64::from(b[0]),
         baseline,
         end: f64::from(b[2]),

@@ -137,6 +137,8 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                             &native_bounds,
                             &native_axes,
                             &words,
+                            &native_flows,
+                            page_rules.map(|r|r.enclosures.as_slice()).unwrap_or(&[]),
                         )
                     }
                 };
@@ -6632,3 +6634,7 @@ mod ruled_marker_bands;
 #[cfg(test)]
 #[path="source_flow_binding_tests.rs"]
 mod source_flow_binding_tests;
+
+#[cfg(test)]
+#[path="native_mode_band_binding_tests.rs"]
+mod native_mode_band_binding_tests;

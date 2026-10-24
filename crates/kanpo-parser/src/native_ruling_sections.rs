@@ -2,6 +2,8 @@
 use super::{table_bottom_cut, trace, y_center, Block, Col};
 #[derive(Clone, Copy, Default)]
 pub(super) struct SourceGeometry<'a> {
+    pub(super) enclosures: &'a [[f32;4]],
+    pub(super) flows: &'a [Option<crate::native_word_flow::NativeFlow>],
     pub(super) bounds: &'a [trace::NativeBounds],
     pub(super) axes: &'a [crate::native_word_axes::NativeAxis],
     pub(super) words: &'a [trace::Word],

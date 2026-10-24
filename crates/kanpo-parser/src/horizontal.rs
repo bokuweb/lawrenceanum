@@ -18,6 +18,7 @@ use crate::vertical::Col;
 #[path="native_ruling_sections.rs"]
 mod native_ruling_sections;
 use native_ruling_sections::{source_table_bottom_cut,SourceGeometry};
+#[path="native_mode_bands.rs"]mod native_mode_bands;
 
 /// 回転ページの左端の柱の帯（回転前のページ上余白）。語全体がこの x より左にあれば柱として
 /// 捨てる。本文の左端は x≈61、表の丸数字は x≈53 から始まるので、語の右端で判定する。
@@ -256,6 +257,8 @@ pub(crate) fn horizontal_lines_with_source_tables(
     bounds: &[trace::NativeBounds],
     axes: &[crate::native_word_axes::NativeAxis],
     words: &[trace::Word],
+    flows: &[Option<crate::native_word_flow::NativeFlow>],
+    enclosures: &[[f32;4]],
 ) -> Vec<trace::Line> {
     lines_with_tables_source(
         cols,
@@ -263,7 +266,7 @@ pub(crate) fn horizontal_lines_with_source_tables(
         vrules,
         hrules,
         false,
-        SourceGeometry { bounds, axes, words },
+        SourceGeometry { bounds, axes, words, flows, enclosures },
     )
 }
 
@@ -2831,6 +2834,21 @@ fn order_stacked_period(words: &mut Vec<Col>) {
 /// `boxed` は囲みの境の線で分けた段（[`is_column_split`]）。
 /// `column` は列の溝で左右に分けた後の領域（囲みの境の線で切るのはその中だけ）。
 fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: bool, column: bool, out: &mut Vec<trace::Line>) {
+    if blocks.is_empty() && ctx.tables.is_empty() {
+        if let Some(cut) = native_mode_bands::cut(&words, ctx.source, ctx.vrules, ctx.hrules) {
+            let baseline_ctx = Context { source: SourceGeometry { flows: &[], ..ctx.source }, ..*ctx };
+            let mut baseline = Vec::new();
+            order_region(words.clone(), blocks, &baseline_ctx, boxed, column, &mut baseline);
+            let (left, right): (Vec<Col>, Vec<Col>) = words.iter().cloned().partition(|w| x_center(w) < cut);
+            let mut candidate = Vec::new();
+            order_region(left, blocks, ctx, boxed, true, &mut candidate);
+            order_region(right, blocks, ctx, boxed, true, &mut candidate);
+            let accepted = native_mode_bands::preserves_source_lines(&words, ctx.source, &baseline, &candidate, ctx.vrules, ctx.hrules);
+            out.extend(if accepted { candidate } else { baseline });
+            return;
+        }
+    }
+
     let (vrules, hrules) = (ctx.vrules, ctx.hrules);
     if words.is_empty() {
         return;

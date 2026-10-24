@@ -118,7 +118,7 @@ mod tests {
                 text: "任意の項目名".into(),
             });
             f.bounds.push(NativeBounds::Glyphs(b));
-            f.flows.push(Some(NativeFlow{
+            f.flows.push(Some(NativeFlow{mode:None,
                 start: 5.,
                 baseline: y,
                 end,
@@ -246,7 +246,7 @@ mod tests {
         };
         f.cols.insert(1, c);
         f.bounds.push(NativeBounds::Glyphs([35., 12., 77., 23.]));
-        f.flows.push(Some(NativeFlow{
+        f.flows.push(Some(NativeFlow{mode:None,
             start: 35.,
             baseline: 20.,
             end: 77.,

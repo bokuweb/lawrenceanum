@@ -1,0 +1,166 @@
+{
+  "status": "Validated native123 public3; goal227 active and100% not reached",
+  "baseline": {
+    "primary": "628de7c8a7eff42ce78ca9ba2fbe7bd6a35e27ab",
+    "PR237": "f5c785524b5a070c71e93c294c7fe848c0957bb6"
+  },
+  "priority": "Native non-image text, source flow, tables and ownership first. NDLOCR0.0.15/f97e930b8c3e9512f7788f258ef685da26416483 fixed unchanged; no new model/OCR fusion.",
+  "problem": "Geometric centers merged three TOC page numbers into adjacent legal title/body lines. Native source baselines and font writing modes disagree with those hosts. Order280 also remained merged with the last TOC entry.",
+  "proof": [
+    "Native PDF font writing mode0/1 is independent of physical advancement. Both source TOC and legal Words in the failing page advance Right. NativeMode travels with its own existing NativeFlow through canonical source sorting; it is not inferred from vocabulary, aspect ratio, font identity or missing metadata.",
+    "Only complete unique Used original Word occurrences, unchanged projection text/boxes, explicit rightward native axes, valid glyph bounds and complete finite native flow metadata may propose a new partition. Two disjoint native writing-mode bands must have a genuine empty source gap; the existing projection must agree. The split is derived from the source band edges, with no guessed page coordinate or size/count/proximity limit.",
+    "Compute the old reading order as an explicit alternative. Accept the native-band alternative only when it repairs an existing line containing different source modes and contradictory f64 native baselines. A source group must rejoin its unique complete old source row with exactly matching native mode and baseline. Equal f32 rounding is insufficient.",
+    "Every previous homogeneous source line and maximal contiguous same-mode run stays whole and ordered. Every source occurrence remains once; rendered line text must match the same original source Words. Do not split a line to borrow a convenient word or combine two competing same-baseline targets.",
+    "Actual vertical/horizontal rules fence a new join. Closed native rectangular enclosures are separate PageRules metadata and must also fence it: a new row may stay completely within its own frame, but cannot cross or straddle an edge or bridge an empty frame. Invalid frame geometry defers; unrelated frames do not block a proof.",
+    "Existing Table/barrier blocks remain opaque to this source-mode partition. This implementation does not guess their ownership. The existing baseline remains the fallback when proof is incomplete or conflicts.",
+    "The original three page-number Words already decode correctly. Their own source baselines establish their original TOC rows; no numeral/name/page lookup, character restoration, OCR/model or dependency/API-schema change is introduced. Native Words and geometry are unchanged; reading order and dependent article/document text are corrected by existing renderers."
+  ],
+  "new_regressions": {
+    "native_mode_bands": 33,
+    "canonical_source_mode_binding": 3,
+    "original_context_and_derived_input_counters": 6,
+    "total": 42,
+    "new_original_PDFs": 1,
+    "existing_next_page_PDF_reused": 1,
+    "prior_snapshot_or_fixture_updates": 0
+  },
+  "RED_and_held_history": {
+    "first_original_before_any123runtime": "Actual1220pass1fail, numberWord185 wrongly shares a line withlegalWord168. Original pixel ownership oracle frozen before runtime.",
+    "first_units": "25contracts20pass5fail; additionalsourcefences29contracts23pass6fail before implementation. A first incorrect test filter ran0cases and is excluded from evidence.",
+    "metadata_RED": "Existing complete-source metadata contract extended with declared mode failed0pass1fail before mode parsing. Existing legacy fixtures use unknownmode for their older scope proofs.",
+    "v1_GREEN": "29contracts and1868all library pass; actual original and5portable tests pass. Actual122portable2pass3fail. All11992scanned:onlyonechangedpage, all other11991completeAnalysisexact.",
+    "metadata_binding_helper": "Three extra canonical mode binding tests initially had one helper unwrap an intentionally absent NativeFlow on invalid source mode. Helper now observes unknown mode whether the complete flow is absent or its mode is absent; no runtime/original ownership expectation change.1871all library pass.",
+    "held_public2": "All11992single/CLI,159wholeissues and2710normal native tests passed, but source review found that closed native enclosures were not forwarded into the new rule. Supported framed PageInput exposes crossing ownership: portable5pass1fail. Held this candidate.",
+    "native_frame_counter_RED": "33mode-band contracts31pass2fail before adding native frame containment/edge guards. New own-frame and unrelated-frame positives already pass.",
+    "final_private3": "33mode-band plus3canonical binding contracts;1875all library and6original/context/counter controls pass.",
+    "conservation_observer_repair": "Initial private material checker indexed inherited tuple material as dictionaries. All11992workers and canonical hashes had completed; conservation was finished from cached outputs without rescanning or changing runtime/input/oracle."
+  },
+  "validation": {
+    "native": {
+      "terminal": 0,
+      "source_manifest_sha256": "81bd8f587c1423b766abf3831b7fe25d944ed5d46758295f37fec5598013079b",
+      "commands": 133,
+      "integration_targets": 124,
+      "passed": 2715,
+      "failed": 0,
+      "ignored": 0,
+      "result_groups": 132,
+      "no_expected_snapshot_updates": true,
+      "all_commands_exit0": true
+    },
+    "public_single11992_exact_independent_private1_predictions": true,
+    "only_changed_single_page": "20260916g002060002",
+    "other11991_complete_Analysis_exact122": true,
+    "three_source_numbers_restored_to_their_original_rows": true,
+    "single_articles_before": 10,
+    "single_articles_after": 11,
+    "whole159_11992_only_one_issue_one_boundary_changed": true,
+    "all_original_Words_raw_text_geometry_statuses_and_Region_roles_exact": true,
+    "all_source_line_and_cell_occurrences_preserved_once": true,
+    "all_document_content_characters_styles_and_ordered_Tables_exact": true,
+    "all814prior_snapshots_and_all_prior_expected_data_byte_exact": true,
+    "snapshot_or_prior_fixture_updates": 0,
+    "CLI11992_equal_new_API_and_other11991_byte_exact122": true,
+    "source_record_owners_in_whole_issue": {
+      "issue": "20260916g00206",
+      "source_record_owners": [
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51
+      ],
+      "all18independent_source_TOC_and_instrument_records_have_distinct_ordered_owners": true,
+      "TOC_and_order280_title_owners": [
+        38,
+        39
+      ],
+      "order284_page2_owner": 43,
+      "order284_page3_continuation_owner": 43,
+      "continuation_kept": true,
+      "source_oracle_sha256": "9a55d586e7f785d7371149ba7640a8dd74f376f7cec85865312ca419591c74f0"
+    }
+  },
+  "whole_changed_issue": [
+    {
+      "issue": "20260916g00206",
+      "pages": 320,
+      "sha256": "857008ba3cca02704a7e75524272c389a61450b07da07b66a4ffc2a75a7c65cb",
+      "changed122": true,
+      "articles_after": 97,
+      "articles_before": 96,
+      "all_original_Words_geometry_statuses_Tables_and_Region_roles_exact": true,
+      "all_original_line_cell_occurrences_exact": true,
+      "all_content_characters_styles_and_ordered_complete_Tables_exact": true
+    }
+  ],
+  "original_pixel_review": {
+    "reviewer": "root",
+    "method": "Original QuickLook Japanese pixels actually inspected;3printed TOC page numbers315,316,320 atleft of decorative glyph frame belong to their original parenthesis rows. Fiveindependentlyprinted numbered orders280through284 own their own outlines; no OCR or numeral replacement.",
+    "pages": 1,
+    "all_private_changed_pages_reviewed": true,
+    "nonblind": true,
+    "fixed30_rescore": false,
+    "global_accuracy_estimate": false,
+    "source_image_sha256": "aaa09ef130a0546aae06875a0d6514cec54a852b1f5b1010e61106606101ba75",
+    "source_pdf_sha256": "5219e45a0abafe91b891b163b757c73e3923cc2bf0cc5967ba8cdc5cc886737d",
+    "source_oracle": "three-number-and-eleven-source-scope-oracle-before-adoption123.json",
+    "critical_limits": [
+      "Native fontwritingmode differs from actualadvance axis: bothTOC andlegal WordsadvanceRight.",
+      "Decorativeframe comprises line-fontglyphs; no existingx241rule orroundedpaintedpath. No guessedframecoordinate used.",
+      "ExistingcorpusWorddecodingstaysunchanged;thisfixrestoresnativeflowmembershipandreadingorder.",
+      "Source-mode band repair currentlyrequires no extractedTable/barrier blocks; independent sharedTables andothercomplexlayouts remain."
+    ]
+  },
+  "limitations": [
+    "Nonblind original source development review, one changed page. No fixed30 rescore or global accuracy estimate;100% not reached.",
+    "Original decorative frame is made of line-font glyphs and has no extractedx241rule or closed painted path. No invented source frame is used. The closed-rectangle regression is a derived supported PageInput counterexample, not a claim that the original PDF contains that rectangle.",
+    "All original source content characters/styles and ordered whole Tables are preserved. Document whitespace is rendered by the existing formatter after correcting source rows; this change does not claim byte-identical document reading order on the corrected page.",
+    "This source-mode partition currently requires no opaque Table/barrier blocks and complete rightward source-flow metadata. Other table/column and shared-annex ownership, unheaded records and missing native character/PUA reconstruction remain.",
+    "Images remain lower priority per user; no fabricated native glyphs or context-based numeral replacement."
+  ],
+  "cached_evidence_root": ".cache/kanpo-227/resume90-local-recovery/native-axis-caption-ownership123",
+  "artifact_sha256": {
+    "original-ownership-oracle-before-runtime123.json": "8974098d22427304a82ccb81e2bcce8786c5f3e7883a6d63df0a2bcc1259fade",
+    "actual122-original-RED123.log": "aa7a57c646d37711cc32d2105cfb073db472fe12d08d6a3fdb1e3957c5423ead",
+    "three-number-and-eleven-source-scope-oracle-before-adoption123.json": "9a55d586e7f785d7371149ba7640a8dd74f376f7cec85865312ca419591c74f0",
+    "original-targeted-review123.json": "d7f632ce99a95b874e69dbf62fa3299ade2db24c19fb2c5260849c340b445479",
+    "first-observed-facts123.json": "85fc8578d989bca7ba8bfcbeaaffd1e00afae9e85c9fbfc734853191e6e8f783",
+    "runtime-v1/unit-RED.log": "a97dad64f71663a0b352c8889895f01ddf4f93c6f815d7277a556a35c4466de2",
+    "runtime-v1/RED2.log": "a1cab20b23f1cee22660c9e26f787f43d64958e596fecaf1f9f84768a34fecc4",
+    "runtime-v1/mode-metadata-RED.log": "afc2fd4fffd1889761f3472355c5281fa90bf9699a0a252638ea2b07fb288de4",
+    "runtime-v1/all-unit-GREEN1.log": "42067adcfbc312f5ed6d0f28f366257035f3b6505ba7686fd8fa0684878c0395",
+    "runtime-v1/single/result.json": "65d1e5e13d5a0a2b1503ac21575389e3a328a35eb5ec76fd02ee6e7113832aff",
+    "runtime-v2/all-unit-v2.log": "9f484e4620f2185cf476f685423a2df437be9be91cd9b78bd711cae122ec03a2",
+    "runtime-v2/all-unit-GREEN2.log": "32ecb0aa1cd6c2f59a4eaf56eabddaa544eb4cc44f259beb3785be741c0964d7",
+    "metadata-test-helper-correction123.json": "af53ac50dfb7b96b6eace285d4cf129a5d6c76e305bd97872feb04e3cbc6edf8",
+    "native-frame-before-runtime-v3-RED.json": "2dcc089c7487f6a8c2665dc706e924b526affa51d621299f4acb5a4ba031bf9c",
+    "runtime-v3/frame-RED.log": "d173adb64bc44f74be01b89e9f5f71a3216cb43bd61f500feaa2f92032bd8d10",
+    "runtime-v3/all-unit-GREEN3.log": "07fc04a58999d924b5b080cd77778438a2354994b72ea584324eddd32e1cfbc0",
+    "portable-stage/RED122.log": "bf87ff42a0ba1143519bf900849281f8043137c0a9a704481b302b10c01abe14",
+    "portable-stage3/frame-RED-public123v2.log": "5cc0d2c3c3a738f033fc211ea0c50e84c7017a68a547da7bc61bf503a41cc720",
+    "portable-stage3/private123v3.log": "2eaf611949081e2f10f7a66491b587928be6ad4de98369cd4a5bff82e0a6e86a",
+    "public-port2/native-gates/result123.json": "50619f8c5b5f30a7472026fbffa25f7a55e57bbddec8b348ce7f66c0589adc48",
+    "public-port3/portable.log": "1a2e831e454a98edd9bb04828d4044f0b0f65851bfb9f698d28fff6748c61f09",
+    "public-port3/single/result.json": "5048ffa570e6f198580044b90ab270f03ee33f728d58067070fc96a5517012f4",
+    "public-port3/whole/result.json": "61f1459e5f72021da0f80a13f4a0b5f63c42f384a3988bf7d4481e4008fc8f10",
+    "public-port3/whole-original-source-result123.json": "6838948b60dafba7c282b3351a37b4ea7364ac5b9ccdf988554e2ab0c78382cf",
+    "public-port3/CLI/result.json": "78d0e7ae0d5820308b0694156d0d8991a96297a8b0867ca469575bd6fe0b2af3",
+    "public-port3/CLI/change-vs122-source-certified123.json": "b6d5cc87db664bdb7431972e0a00e70b8344e6c90e1695977afdb8867afaf857",
+    "public-port3/native-gates/result123.json": "e6bfff4b0baf7d19b9e410d51ae87fecfe461127b5692042aea2e6b04d4f56f2",
+    "public-port3/all-public-gates-result.json": "7f40bd3de6c54cd1358a58c6ffc0b0d2d7e45ea3dfa5eac31233752458fe6271"
+  }
+}

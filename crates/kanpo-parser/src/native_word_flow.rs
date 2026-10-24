@@ -1,5 +1,11 @@
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum NativeMode {
+    Horizontal,
+    Vertical,
+}
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub(crate) struct NativeFlow {
+    pub(crate) mode: Option<NativeMode>,
     pub(crate) start: f64,
     pub(crate) baseline: f64,
     pub(crate) end: f64,
@@ -33,7 +39,13 @@ pub(crate) fn from_word(word: scraper::ElementRef<'_>) -> Option<NativeFlow> {
     };
     let attrs = word.value();
     let num = |key| attrs.attr(key)?.parse::<f64>().ok();
+    let mode = match attrs.attr("data-wmode") {
+        Some("0") => Some(NativeMode::Horizontal),
+        Some("1") => Some(NativeMode::Vertical),
+        _ => None,
+    };
     let flow = NativeFlow{
+        mode,
         start: num("data-native-flow-start")?,
         baseline: num("data-native-flow-baseline")?,
         end: num("data-native-flow-end")?,
@@ -57,7 +69,7 @@ mod tests {
     fn complete_explicit_source_flow_preserves_f64_baseline() {
         assert_eq!(
             parse(GOOD),
-            Some(NativeFlow{
+            Some(NativeFlow{mode:Some(NativeMode::Horizontal),
                 start: 10.,
                 baseline: 100.00000000001,
                 end: 30.,
@@ -154,7 +166,7 @@ mod tests {
     }
     #[test]
     fn original_flow_binding_rejects_foreign_and_invalid_rectangles() {
-        let f = NativeFlow{
+        let f = NativeFlow{mode:None,
             start: 10.,
             baseline: 100.,
             end: 30.,
