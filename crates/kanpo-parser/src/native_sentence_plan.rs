@@ -83,6 +83,35 @@ pub(crate) fn source_plan(table: &Table, source: Source<'_>) -> Option<Table> {
         }
         false
     }
+    // An ordinal labels a section only when it has a non-scalar body.
+    fn numbered_prefix(s: &str) -> bool {
+        let s = s.trim_start();
+        if numeric(s) { return false; }
+        let rest = if let Some(s) = s.strip_prefix('(') { Some((s, ')')) }
+            else { s.strip_prefix('（').map(|s| (s, '）')) };
+        let Some((s, close)) = rest else { return false };
+        let Some((ordinal, body)) = s.split_once(close) else { return false };
+        let ds: Vec<_> = ordinal.chars().filter(|c| !c.is_whitespace()).collect();
+        !ds.is_empty() && ds.iter().all(|c| c.is_ascii_digit() || ('０'..='９').contains(c))
+            && !body.trim().is_empty() && !numeric(body)
+    }
+    fn parenthetical_scalar(s: &str) -> bool {
+        let s = s.trim();
+        if !numeric(s) { return false; }
+        let mut stack = Vec::new();
+        for (offset, c) in s.char_indices() {
+            match c {
+                '(' => stack.push(')'), '（' => stack.push('）'),
+                ')' | '）' => {
+                    if stack.pop() != Some(c) { return false; }
+                    if stack.is_empty() { return offset + c.len_utf8() == s.len(); }
+                }
+                _ if stack.is_empty() => return false,
+                _ => {}
+            }
+        }
+        false
+    }
     fn band(ids: &[usize], b: &HashMap<usize, R>) -> Option<(f32, f32)> {
         let mut lo = f32::NEG_INFINITY;
         let mut hi = f32::INFINITY;
@@ -696,11 +725,40 @@ pub(crate) fn source_plan(table: &Table, source: Source<'_>) -> Option<Table> {
             {
                 continue;
             }
+            // A separately wrapped numeric parenthesis can remain subordinate
+            // to explicit ordinal sections when every original glyph starts
+            // strictly inside its section's source margin. Bare scalar records,
+            // unnumbered labels and aligned value heads do not gain this proof.
+            let mut ordinal_sections = HashSet::new();
+            for &p in &fields {
+                let mut margin = None;
+                let mut heads = 0;
+                let mut continuation = false;
+                let mut valid = true;
+                for &i in &groups[p] {
+                    let c = &table.cells[i];
+                    let Some(first) = c.words.first().and_then(|&id| flows[id]) else {
+                        valid = false;
+                        break;
+                    };
+                    let head: String = c.words.iter()
+                        .take_while(|&&id| flows[id].unwrap().baseline == first.baseline)
+                        .map(|id| originals[id].text.as_str()).collect();
+                    if numbered_prefix(&head) {
+                        margin = Some(first.start);
+                        heads += 1;
+                    } else if parenthetical_scalar(&c.text)
+                        && margin.is_some_and(|left| c.words.iter().all(|&id| flows[id].unwrap().start > left)) {
+                        continuation = true;
+                    } else { valid = false; break; }
+                }
+                if valid && heads >= 2 && continuation { ordinal_sections.insert(p); }
+            }
             // A numeric continuation inside a labelled section is not a
             // second value record. A numeric section head still is. Use the
             // exact first source baseline, without guessing a line from boxes.
             let independent_scalar = |p: usize| {
-                scalar_columns.contains(&p) && (!section_columns.contains(&p)
+                scalar_columns.contains(&p) && !ordinal_sections.contains(&p) && (!section_columns.contains(&p)
                     || groups[p].iter().any(|&i| {
                         let ids = &table.cells[i].words;
                         let first = flows[ids[0]].unwrap().baseline;
@@ -744,7 +802,7 @@ pub(crate) fn source_plan(table: &Table, source: Source<'_>) -> Option<Table> {
             }
             let mut wrapped = HashSet::new();
             for &p in &fields {
-                if groups[p].len() < 2
+                if groups[p].is_empty()
                     || independent_scalar(p)
                     || fields.iter().any(|q| *q != p && atomic.contains(q))
                 {
@@ -767,7 +825,7 @@ pub(crate) fn source_plan(table: &Table, source: Source<'_>) -> Option<Table> {
                 || fields.iter().any(|p| {
                     groups[*p].len() > 1
                         && (independent_scalar(*p)
-                            || (!wrapped.contains(p) && !section_columns.contains(p)))
+                            || (!wrapped.contains(p) && !section_columns.contains(p) && !ordinal_sections.contains(p)))
                 })
             {
                 continue;
