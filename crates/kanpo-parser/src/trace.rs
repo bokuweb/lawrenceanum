@@ -382,7 +382,7 @@ impl Unit {
     }
 
     /// `end_marker` なら新旧対照表の改正前の後ろに [`SHINKYU_END`] を置く（構造化用）。
-    fn text_with(&self, render: &mut dyn FnMut(&Line) -> String, end_marker: bool) -> String {
+    pub(crate) fn text_with(&self, render: &mut dyn FnMut(&Line) -> String, end_marker: bool) -> String {
         match self {
             Unit::Plain(lines) => join_lines_with(lines, render),
             Unit::Shinkyu {

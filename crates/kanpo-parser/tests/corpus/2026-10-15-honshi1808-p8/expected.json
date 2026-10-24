@@ -35,12 +35,7 @@
             "text": "官庁報告"
           }
         ]
-      }
-    ]
-  },
-  {
-    "format": "unknown",
-    "blocks": [
+      },
       {
         "kind": "paragraph",
         "runs": [
@@ -136,7 +131,7 @@
     ]
   },
   {
-    "format": "unknown",
+    "format": "prose",
     "blocks": [
       {
         "kind": "paragraph",
@@ -145,12 +140,7 @@
             "text": "公告"
           }
         ]
-      }
-    ]
-  },
-  {
-    "format": "prose",
-    "blocks": [
+      },
       {
         "kind": "paragraph",
         "runs": [

@@ -180,9 +180,6 @@ expression: "a.articles.iter().map(|a|\na.text.as_str()).collect::<Vec<_>>().joi
 ---
 
 官庁報告
-
----
-
 国家試験
 水先人試験の施行
 水先人試験の施行について、水先法施行規則（昭和二十四年運輸省令　経済安定本部令第一号）第十一条の規

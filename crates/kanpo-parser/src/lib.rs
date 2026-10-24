@@ -54,6 +54,7 @@ mod reference_markers;
 
 mod cell_row_dashes;
 mod financial_enclosures;
+mod section_context;
 pub mod notice_sources;
 pub mod format;
 mod fractions;
@@ -154,16 +155,25 @@ pub fn analyze_with_rules(xhtml: &str, rules: &[Option<lines::PageRules>]) -> An
     let groups=notice_boundaries::groups(&segments,&doc_text,&pages,rules);
     let certificates=notice_sources::certificates(&pages,rules);
     let mut articles=Vec::new();
+    let mut article_sources=Vec::new();
     for (segment,parts)in segments.into_iter().zip(groups){
         let original=Document::from_text_with_tables(&segment,&tables);
         if parts.len()>1 {
             let desired:Vec<_>=parts.iter().map(|p|Document::from_text_with_tables(&p.text,&tables)).collect();
             if let Some(documents)=company_document_parts::repartition(&original,&desired){
-                articles.extend(parts.into_iter().zip(documents).map(|(p,document)|ArticleAnalysis{text:render_table_markers(&p.text,&tables),document,notices:notice_sources::for_sources(&certificates,p.sources)}));continue;
+                for (p,document) in parts.into_iter().zip(documents) {
+                    let notices=notice_sources::for_sources(&certificates,p.sources.iter().copied());
+                    article_sources.push(section_context::OwnedSources::new(&p.text,p.sources));
+                    articles.push(ArticleAnalysis{text:render_table_markers(&p.text,&tables),document,notices});
+                }continue;
             }
         }
-        articles.push(ArticleAnalysis{text:render_table_markers(&segment,&tables),document:original,notices:notice_sources::for_sources(&certificates,parts.into_iter().flat_map(|p|p.sources))});
+        let sources=parts.into_iter().flat_map(|p|p.sources).collect::<Vec<_>>();
+        let notices=notice_sources::for_sources(&certificates,sources.iter().copied());
+        article_sources.push(section_context::OwnedSources::new(&segment,sources));
+        articles.push(ArticleAnalysis{text:render_table_markers(&segment,&tables),document:original,notices});
     }
+    section_context::repair(&mut articles,&mut article_sources,&pages,rules);
     Analysis {
         format: format::detect_format(&text),
         pages,

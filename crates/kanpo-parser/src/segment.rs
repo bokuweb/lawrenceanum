@@ -248,3 +248,8 @@ mod tests {
         assert!(arts[1].starts_with("令和八年熊本地震による災害"));
     }
 }
+
+pub(crate) fn is_field_label(text: &str) -> bool {
+    let compact: String = text.chars().filter(|c| !c.is_whitespace()).collect();
+    FIELD_HEADERS.contains(&compact.as_str())
+}

@@ -1,0 +1,1051 @@
+{
+  "issue": 227,
+  "stage": "native125",
+  "baseline_primary_commit": "3b12a6a7b304b781c45aef58985d900d9dc54154",
+  "goal_complete": false,
+  "priority": "Native non-image text, characters, tables, reading order and article ownership; image-only integration remains lower priority.",
+  "change": "Attach a standalone printed section masthead to its immediately following proven field and native body. Copy all original Document blocks and retain the child format and notice references. Repair source ownership through existing synthetic shinkyu labels using the same Unit renderer, without changing text generation or searching for matching body values.",
+  "public_behavior": {
+    "new_schema": false,
+    "Article_indices": "Proven parent/child joins intentionally change Article indices. Native PageTrace coordinates/Word/Region/Line indices and notice source references stay exact.",
+    "raw_segment_articles": "Unchanged, including numbered-root lookup contract.",
+    "native_pdf_producer": "Unchanged. data-wmode=0 already produces NativeBounds::Glyphs from its original box; absence of explicit data-native-bbox metadata is not a producer bug."
+  },
+  "authority": [
+    "Existing section and field grammar only; same original Body region and consecutive whole source-owned heading lines",
+    "Complete finite original glyph bounds, four explicit source axes, positive original content styles; matching opaque font identifiers and relative heading size hierarchy",
+    "Independent ruling/domain fences, complete quote state and all intervening source material; the child Article owning a body Word does not turn that Word into heading evidence",
+    "Open parallel source strips with identical endpoints bracketing only the complete masthead may supply its decoration role; no fixed number of lines or point-distance caps",
+    "Closed frames cannot lend outside body; every whole source Table including wordless tables is followed by its original global internal marker ID, never searched by cell value",
+    "Fallback source offsets require exact full original page and article streams from the same Unit renderer; complete line/Table ownership, no duplicate/unrepresented Word IDs or crossing article bounds; native PUA content is expanded only once",
+    "No company, page, source coordinate, expected-output value, new word-count, line-count, rule-count or proximity threshold switches; no new model dependency"
+  ],
+  "tests": {
+    "new": 75,
+    "new_library": 67,
+    "new_original_pdf_controls": 8,
+    "actual124_original_RED": "Original vertical and horizontal source tests fail; portable source controls4pass4fail on actual adopted124.",
+    "held_candidates": [
+      "Privatev2 passed11992material conservation but failed3closed-frame/body/Table scope counterexamples.",
+      "Privatev4 passed55contracts and158page170join conservation, but the horizontal original remained RED because original source ownership was missing before the rule fence.",
+      "Privatev5 passed65contracts and11992/159-issue material conservation; the2new intervening child body Word/wordless Table counterexamples failed, so adoption was held.",
+      "Privatev6 passes all67contracts and1979library tests. All11992complete single Analysis hashes remain equal to privatev5 after the2general source-domain guards."
+    ],
+    "portable_input_correction": "The no-rule vertical fixture already joins/misorders section material in adopted124. A blanket standalone-heading assertion was invalid; two independent adopted124 no-rule complete Analysis oracles preserve existing behavior. No runtime proof was relaxed.",
+    "first_dynamic_native_gate": {
+      "terminal": 1,
+      "source_manifest_sha256": "76efb72cb74774924e02a4623bfc48bdeabc3e595fe228074c5c4de30a8c9eed",
+      "commands": 135,
+      "integration_targets": 126,
+      "passed": 2833,
+      "failed": 2,
+      "ignored": 0,
+      "result_groups": 134,
+      "no_expected_snapshot_updates": true,
+      "all_commands_exit0": false
+    },
+    "final_all_four_packages_and_examples": {
+      "terminal": 0,
+      "commands": 2,
+      "passed": 2835,
+      "failed": 0,
+      "ignored": 0,
+      "result_groups": 134,
+      "all814_snapshots_readonly": true,
+      "source_inputs_expected_manifest_prepost_exact": true,
+      "source_manifest_sha256": "211adeb806efc670ef27af7bf43aae0c21c26c507809f76fd5ca2dd280c8f6f8",
+      "prior_dynamic135_target_gate_only_expected_boundary_failures": true
+    },
+    "snapshot_count": 814,
+    "intentional_snapshot_expectations": 33,
+    "other_snapshots_unchanged": 781,
+    "intentional_other_expected_files": 1,
+    "other_prior_non_Rust_test_inputs_expected_files_retained": 2574,
+    "no_UPDATE_EXPECT_or_INSTA_UPDATE_always": true
+  },
+  "single11992": {
+    "changed_pages": 161,
+    "section_field_joins": 173,
+    "all_old_PageTrace_text_format_Document_material_styles_spaces_Tables_merges_and_notice_references_exact": true,
+    "all_other_complete_Analysis_exact124": true,
+    "all_actual_public125v2_full_Analysis_equals_independent_private125v6": true,
+    "counts_not_a_global_accuracy_estimate": true
+  },
+  "whole159_11992": {
+    "issues": 159,
+    "pages": 11992,
+    "joins": 162,
+    "all_full_Analysis_equals_independent_private125v5_prediction": true,
+    "new_v6_intervening_material_guards_do_not_change_the_source_validated_whole_corpus_prediction": true,
+    "all_original_PageTrace_text_format_Document_blocks_styles_spaces_tables_and_notices_exact": true,
+    "source_inputs_runtime_baselines_prepost_exact": true,
+    "seconds": 538.0610400840001
+  },
+  "CLI11992": {
+    "pages": 11992,
+    "all_actual_public125v2_API_and_actual_PDF_CLI_text_bytes_exact": true,
+    "baseline124_CLI_bytes_retained": true
+  },
+  "expected_oracles": {
+    "archive_snapshots": {
+      "rows": [
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260723h01753__20260723h017530007.pdf.snap",
+          "original_sha256": "2cce0f76c88c06a0e670122b7bd1dc8e46e6b9145a61d02a5b8fba6777fef370",
+          "expected_sha256": "60f6b2838abf02f623986652d837138bb43a0e10943df696371f67d1a9ddabbe",
+          "page": "20260723h017530007",
+          "joins": [
+            {
+              "old_articles": [
+                0,
+                1
+              ],
+              "new_article": 0,
+              "context": "官庁報告",
+              "body_start": "官庁事項\n北海道開発局公示\n道路法（昭和二十七年法律第百八十号）第三十七条第一項の規定に基づき、道路の占用を制限する\n区域を指定することとしたので、同条第三項の規定に基づき次のとおり公示する。\nその関係図面は、令和八年七月二十三日から二週間一般の縦覧に供する。\n令和八年七月二十三日　北海道開発局長遠藤達哉\n（一）道路の種類一般国道\n（二）路線名二百三十一号及び四百五十一号\n（三）占用を制限する区域"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260730g00171__20260730g001710046.pdf.snap",
+          "original_sha256": "aa216e9d185c7edd70fab6a8b43993e1e3b8a33589c3e8b3963aaa1019cfef1f",
+          "expected_sha256": "db2dc238304f4ec7450d3ef38de7fed15c9526f078d53e370c8d673c545e5d9e",
+          "page": "20260730g001710046",
+          "joins": [
+            {
+              "old_articles": [
+                1,
+                2
+              ],
+              "new_article": 1,
+              "context": "官庁報告",
+              "body_start": "官庁事項\n第五次食育推進基本計画を令和八年六月二十四日に作成したので、食育基本法（平成十七年法律第\n六十三号）第十六条第三項の規定に基づき、その要旨を次のとおり公表する。\n令和八年七月三十日　食育推進会議\n第５次食育推進基本計画要旨\nはじめに\n食は命の源であり、私たち人間が生きるために食は欠かせない。また、国民が健康で心豊かな生活\nを送るためには、健全な食生活を日々実践するとともに、生産現場等に対"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260730h01758__20260730h017580006.pdf.snap",
+          "original_sha256": "680a4c3c0e2c7d243421b44186e72030ae2dedb790a17aab4e0b74e78c49ae8d",
+          "expected_sha256": "cb2f69f69ddfb0eb3f63de35138b33a6892cbf2a7f1fbc17296c7f9629378cfc",
+          "page": "20260730h017580006",
+          "joins": [
+            {
+              "old_articles": [
+                4,
+                5
+              ],
+              "new_article": 4,
+              "context": "官庁報告",
+              "body_start": "官庁事項\n国営土地改良事業の工事完了の公告\n下記に掲げる国営土地改良事業の工事は、令和\n８年２月25日をもって完了したので、土地改良法\n（昭和24年法律第195号）第113条の３第３項の規\n定に基づき公告する。\n令和８年７月30日\n農林水産大臣鈴木憲和\n記\n土地改良施設突発事故復旧事業（直轄）高岡シッ\nプ地区\n下記に掲げる国営土地改良事業の工事は、令和\n８年３月20日をもって完了したので、土地改良"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731h01759__20260731h017590008.pdf.snap",
+          "original_sha256": "674ed7a011f2410e1c504eb843be52f86899d8fc70ce248ee9528e17d7f86acd",
+          "expected_sha256": "5a8bfd524a18f7007a2a3967d67a45380101706147f6a57e7e00913f5a3a5ce0",
+          "page": "20260731h017590008",
+          "joins": [
+            {
+              "old_articles": [
+                2,
+                3
+              ],
+              "new_article": 2,
+              "context": "官庁報告",
+              "body_start": "官庁事項\n四国地方整備局公示\n道路法（昭和二十七年法律第百八十号）第三十七条第一項の規定に基づき、道路の占用を制限する\n区域を指定することとしたので、同条第三項の規定に基づき次のとおり公示する。\nその関係図面は、令和八年七月三十一日から二週間一般の縦覧に供する。\n令和八年七月三十一日　四国地方整備局長奥田晃久\n（一）道路の種類一般国道\n（二）路線名十一号\n（三）占用を制限する区域\n区域備考\n東かが"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260803g00174__20260803g001740040.pdf.snap",
+          "original_sha256": "a8dd2fae711eec07f7a819c05b04eca4dc1f26c3698e24fd6dbc80d2dc677804",
+          "expected_sha256": "bc31d224107be5c3b84a106beb3a0060b6ef91c28ac61a20384f9df108ae5faa",
+          "page": "20260803g001740040",
+          "joins": [
+            {
+              "old_articles": [
+                1,
+                2
+              ],
+              "new_article": 1,
+              "context": "官庁報告",
+              "body_start": "国家試験\n保健師国家試験の施行\n保健師助産師看護師法（昭和23年法律第203号）\n第18条の規定により、第113回保健師国家試験を\n次のとおり施行する。\n令和８年８月３日\n厚生労働大臣　上野賢一郎\n１　試験期日　令和９年２月12日（金曜日）\n２　試験地　北海道、青森県、宮城県、東京都、\n新潟県、愛知県、石川県、大阪府、広島県、香\n川県、福岡県及び沖縄県\n３　試験科目　公衆衛生看護学、疫学、保健統計"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260803h01760__20260803h017600009.pdf.snap",
+          "original_sha256": "eb0959ce55e5504614b19ce3ae435d4ffc22a330a81ea179e23bf8f6ebd936f4",
+          "expected_sha256": "c900b2ba33432c325028748002a4398ab793be5ee506065688c0c7dfe423cce8",
+          "page": "20260803h017600009",
+          "joins": [
+            {
+              "old_articles": [
+                2,
+                3
+              ],
+              "new_article": 2,
+              "context": "官庁報告",
+              "body_start": "官庁事項\n国営土地改良事業の工事完了の公告\n下記に掲げる国営土地改良事業の工事は、令和\n８年３月30日をもって完了したので、土地改良法\n（昭和24年法律第195号）第113条の３第３項の規\n定に基づき公告する。\n令和８年８月３日\n農林水産大臣　鈴木　憲和\n記\n土地改良施設突発事故復旧事業（直轄）上場地\n区"
+            },
+            {
+              "old_articles": [
+                4,
+                5
+              ],
+              "new_article": 3,
+              "context": "公告",
+              "body_start": "諸事項\n前払式支払手段発行者の発行保証金に係る仮配当表公示\n前払式支払手段発行保証金規則（平成22年内閣\n府・法務省令第４号）第７条第１項の規定により\n次のように公示する。\n１．商号　レア株式会社\n２．代表者の氏名　代表取締役　山田　和義\n３．住所　東京都豊島区池袋１丁目14番27号\n４．仮配当表\n（１）　権利の実行の対象となる発行保証金の額\n8,975,100円\n（２）　権利の実行に係る申出等の"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260820g00186__20260820g001860019.pdf.snap",
+          "original_sha256": "87011f99ff3206af0cd18fd6e0aebc249bd88df3e1e542d8d1c471277fa7c9c7",
+          "expected_sha256": "0acdf8e3f7bee26531d0538a27076a16e73cd560a32302723d4846d6990e82d8",
+          "page": "20260820g001860019",
+          "joins": [
+            {
+              "old_articles": [
+                1,
+                2
+              ],
+              "new_article": 1,
+              "context": "公告",
+              "body_start": "諸事項\n参加者の有無を確認する公募手続に係る参加意思確認書の提出を求める公示\n令和８年８月20日\n国土交通省航空局長　池光　崇\n次のとおり、参加意思確認書の提出を招請しま\nす。\n１．当該招請の主旨\n本件は、洋上管制処理システム（ＴＯＰＳ）\n性能向上を行うものである。\n下記の応募要件を満たし、本業務の実施を希\n望する者の有無を確認する目的で、参加意思確\n認書の提出を招請する公募を実施するものであ\nる"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260820h01772__20260820h017720007.pdf.snap",
+          "original_sha256": "40143d90f0de72aa762b3cae48bdeca4ff372d31e8e033d9441af9c02d30692f",
+          "expected_sha256": "9b2fb1e1ce0726aaf0b0f691077f11cdac6defab8e0822ac55d8e9e59ecda548",
+          "page": "20260820h017720007",
+          "joins": [
+            {
+              "old_articles": [
+                7,
+                8
+              ],
+              "new_article": 7,
+              "context": "官庁報告",
+              "body_start": "官庁事項\n四国地方整備局公示\n道路法（昭和二十七年法律第百八十号）第三十七条第一項の規定に基づき、道路の占用を制限する\n区域を指定することとしたので、同条第三項の規定に基づき次のとおり公示する。\nその関係図面は、令和八年八月二十日から二週間一般の縦覧に供する。\n令和八年八月二十日　四国地方整備局長奥田晃久\n（一）道路の種類一般国道\n（二）路線名十一号\n（三）占用を制限する区域\n区域備考\n三豊市豊中"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260824h01774__20260824h017740007.pdf.snap",
+          "original_sha256": "f39d6ec23c86e9b1bca8633e0a49f638936497029171f1459ce58cbf3ff31b54",
+          "expected_sha256": "53f907addeec49842d62e447c6f26fdd30da74e8a7bf4e5ec1ae8416f7168e26",
+          "page": "20260824h017740007",
+          "joins": [
+            {
+              "old_articles": [
+                4,
+                5
+              ],
+              "new_article": 4,
+              "context": "公告",
+              "body_start": "諸事項\n工場財団\n東京都中央区日本橋大伝馬町14番17号ナス物産\n株式会社の工場財団に堺市八下町弐丁36番地ナス\n物産株式会社堺工場の機械、器具等を追加する変\n更登記申請に係る動産につき権利を有する者、差\n押、仮差押又は仮処分債権者は、本日から32日以\n内に権利を申し出て下さい。\n令和８年８月24日　大阪法務局堺支局\n山口県下関市本町三丁目１番１号山口合同ガス\n株式会社の工場財団に山口県下関市本町"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260826h01776__20260826h017760007.pdf.snap",
+          "original_sha256": "be1844c1850214cf08573d0ba7348bda874101237a92a96847cf2baaa598d444",
+          "expected_sha256": "14e6f7b9e8216a0177e405dcc61c147096080b579e2d95cbd5ed34f07313398c",
+          "page": "20260826h017760007",
+          "joins": [
+            {
+              "old_articles": [
+                8,
+                9
+              ],
+              "new_article": 8,
+              "context": "官庁報告",
+              "body_start": "官庁事項\n国営美瑛川下流土地改良事業（かんがい排水）計\n画の公告\n土地改良法（昭和24年法律第195号）第87条第\n１項の規定に基づき、国営美瑛川下流土地改良事\n業（かんがい排水）につき土地改良事業計画を定\nめたので、同条第５項の規定に基づき公告し、当\n該土地改良事業計画書の写しを次のとおり縦覧に\n供する。\nなお、この土地改良事業計画については、縦覧\n期間満了の日の翌日から起算して15日以内に農林"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260826h01776__20260826h017760008.pdf.snap",
+          "original_sha256": "9e876e7eb70bc0e601daf20d513b5ab868e55a3e17165ddc71a69e0a90c6ffce",
+          "expected_sha256": "920ce2f0f75f51e1fd8f96c497756cae17950a51079c418b75d645c935e7f754",
+          "page": "20260826h017760008",
+          "joins": [
+            {
+              "old_articles": [
+                1,
+                2
+              ],
+              "new_article": 1,
+              "context": "公告",
+              "body_start": "諸事項\n相続財産清算人の選任及び相\n続権主張の催告"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260831h01779__20260831h017790008.pdf.snap",
+          "original_sha256": "7eda9bfa3bd7536f62e25e5a7ff7c30094f04dbc04ad98a244c11a9fd8778bd0",
+          "expected_sha256": "3a93209ba88a2502f368f0b34cf0b8b8a1860b24d9093259ed76e24c69f8a16d",
+          "page": "20260831h017790008",
+          "joins": [
+            {
+              "old_articles": [
+                5,
+                6
+              ],
+              "new_article": 5,
+              "context": "官庁報告",
+              "body_start": "官庁事項\n指定保安検査機関の指定に関する公示\n高圧ガス保安法（昭和二十六年法律第二百四号）\n第三十五条第一項第一号の規定に基づく指定保安\n検査機関を次のとおり指定したので、高圧ガス保\n安法施行令（平成九年政令第二十号）第十九条第\n二項第三号の規定に基づき委任された同法第七十\n四条の二第一項第一号の規定に基づき、公示する。\n令和八年八月三十一日\n関東東北産業保安監督部長溝田健志\n一名称株式会社北東検"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260831h01779__20260831h017790010.pdf.snap",
+          "original_sha256": "84d3bb6174912763f8a978cd286daba82161577608970cd7612bfa75ad7e0e27",
+          "expected_sha256": "a50e1cd549d6a96250efac3c02ca020fcb49caf58bb8ef94506ad3c2d82e5fc6",
+          "page": "20260831h017790010",
+          "joins": [
+            {
+              "old_articles": [
+                1,
+                2
+              ],
+              "new_article": 1,
+              "context": "公告",
+              "body_start": "諸事項\n相続財産清算人の選任及び相続権主張の催告"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260901h01780__20260901h017800005.pdf.snap",
+          "original_sha256": "640e0c2c445b57a98ddfdadf3f12d93e897c4034b10f6c6d4af5db5cff9ccc80",
+          "expected_sha256": "c2461645cb514f298071c521b4b973298323daef13d205841c241af9d86d62fd",
+          "page": "20260901h017800005",
+          "joins": [
+            {
+              "old_articles": [
+                1,
+                2
+              ],
+              "new_article": 1,
+              "context": "官庁報告",
+              "body_start": "官庁事項\n武力攻撃事態等及び存立危機事態における我が\n国の平和と独立並びに国及び国民の安全の確保に\n関する法律施行令（平成十五年政令第二百五十二\n号）第三条第三十八号の規定に基づき、武力攻撃\n事態等及び存立危機事態における我が国の平和と\n独立並びに国及び国民の安全の確保に関する法律\n第二条第七号に規定する指定公共機関を公示する\n件（平成十六年九月十七日）の一部を次のように改正する指定をしたので公示"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260902g00196__20260902g001960134.pdf.snap",
+          "original_sha256": "643c88d7dc3a8f40ae5df320a36a1ffacedeae716de0bffe6b49d1c3d4aef183",
+          "expected_sha256": "e7c9f946433a6da3b51db6bc91f12a3ae782c48ce07bf5dfa4866c65284c7da5",
+          "page": "20260902g001960134",
+          "joins": [
+            {
+              "old_articles": [
+                1,
+                2
+              ],
+              "new_article": 1,
+              "context": "公告",
+              "body_start": "諸事項\n破産手続開始及び免責許可申立てに関する意見申述期間"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260904g00198__20260904g001980021.pdf.snap",
+          "original_sha256": "42559178c108bfed94ff6b5523512eb773264d9db8b0f4578d4f0c047654338d",
+          "expected_sha256": "d856aa461dfbab17428133e026b1e259af554380aa7813afef28d526986ba3eb",
+          "page": "20260904g001980021",
+          "joins": [
+            {
+              "old_articles": [
+                1,
+                2
+              ],
+              "new_article": 1,
+              "context": "官庁報告",
+              "body_start": "国家試験\n公認心理師試験委員の公告\n第10回公認心理師試験の試験委員を次のとおり\n公告する。\n令和８年９月４日\n文部科学大臣　松本　洋平\n厚生労働大臣　上野賢一郎\n試験委員長\n吉田　素文\n副試験委員長\n熊野　宏昭　森岡　正芳\n試験委員\n青木佐奈枝　浅井真理子　浅野　憲一\n浅野　倫子　芦澤　政子　有村　達之\n安藤　哲也　石井　秀宗　石津憲一郎\n井出　智博　伊藤　拓　伊野　美幸\n岩井　圭司　岡田　涼　"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260909g00201__20260909g002010013.pdf.snap",
+          "original_sha256": "c837aba1e66d22039286db79c93c70b0a7241230c40bed6ff25b12a71944107f",
+          "expected_sha256": "a8e1ee7e9b8414c8af68f6745ffc0fc87135609892b4b55300d495ac36627c92",
+          "page": "20260909g002010013",
+          "joins": [
+            {
+              "old_articles": [
+                1,
+                2
+              ],
+              "new_article": 1,
+              "context": "公告",
+              "body_start": "諸事項\n買収前の所有者等への売払い　記\nに関する公告\n下記１の国有財産は、農地法等の一部を改正す\nる法律（平成21年法律第57号）附則第８条第４項\nの規定により、読み替えてなおその効力を有する\nこととされた同法第１条の規定による改正前の農\n地法（昭和27年法律第229号）第80条第１項の規\n定により土地の農業上の利用の増進の目的に供し\nないことを相当と認め、同条第２項の規定により\n当該土地の買収前"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260909h01786__20260909h017860009.pdf.snap",
+          "original_sha256": "d2771d54b7a0db1e9562e36da9b969b7fd79baab6a873fcd913c8328b7885860",
+          "expected_sha256": "d9d7b4b0dc3222599fed024cc65b6ac1b1100ddded6bb3c09d10cfd87937e1fe",
+          "page": "20260909h017860009",
+          "joins": [
+            {
+              "old_articles": [
+                2,
+                3
+              ],
+              "new_article": 2,
+              "context": "官庁報告",
+              "body_start": "官庁事項\n関東地方整備局公示\n道路法（昭和二十七年法律第百八十号）第三十七条第一項の規定に基づき、道路の占用を制限する\n区域を指定することとしたので、同条第三項の規定に基づき次のとおり公示する。\nその関係図面は、令和八年九月九日から二週間一般の縦覧に供する。\n令和八年九月九日　関東地方整備局長西澤賢太郎\n（一）道路の種類一般国道\n（二）路線名四号\n（三）占用を制限する区域\n区域備考\n小山市大字羽川"
+            },
+            {
+              "old_articles": [
+                4,
+                5
+              ],
+              "new_article": 3,
+              "context": "公告",
+              "body_start": "諸事項\n相続財産清算人の選任及び相\n続権主張の催告"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260911h01788__20260911h017880010.pdf.snap",
+          "original_sha256": "6fc8647f28e221787008ad6ea2ed65aab84e040a13e362b2b3d42b8c162d5e13",
+          "expected_sha256": "8130fa932a2ba73c4a757419d331f35edd847cc109836d6b209120dee78c14e4",
+          "page": "20260911h017880010",
+          "joins": [
+            {
+              "old_articles": [
+                0,
+                1
+              ],
+              "new_article": 0,
+              "context": "官庁報告",
+              "body_start": "官庁事項\n登録海技免許講習実施機関の登録事項の変更に関\nする公示\n船舶職員及び小型船舶操縦者法（昭和二十六年\n法律第百四十九号）第十七条の五の規定に基づき、\n次の登録海技免許講習実施機関より登録事項の変\n更の届出があったので、同法第十七条の十五第二\n号の規定に基づき、次のとおり公示する。\n令和八年九月十一日\n国土交通大臣　金子　恭之\n一　登録海技免許講習実施機関の名称　海上自衛\n隊第１術科学校\n二"
+            },
+            {
+              "old_articles": [
+                4,
+                5
+              ],
+              "new_article": 3,
+              "context": "公告",
+              "body_start": "諸事項\n相続財産清算人の選任及び相続権主張の催告"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260915h01790__20260915h017900006.pdf.snap",
+          "original_sha256": "717594372974ccb0aafccd8be7b560d300be52483d1bd37966afd166611620b0",
+          "expected_sha256": "7bd27a7c27c9a351c38069085836562af388ea83bab7f074be0281a6791a11cf",
+          "page": "20260915h017900006",
+          "joins": [
+            {
+              "old_articles": [
+                1,
+                2
+              ],
+              "new_article": 1,
+              "context": "官庁報告",
+              "body_start": "労働\n最低賃金の改正決定に関する公示\n静岡労働局最低賃金公示第１号\n最低賃金法（昭和34年法律第137号）第12条の\n規定に基づき、静岡県最低賃金（昭和55年静岡労\n働基準局最低賃金公示第10号）の一部を次のよう\nに改正する決定をしたので、同法第14条第１項の\n規定により公示する。\n令和８年９月15日\n静岡労働局長　國分　一行\n第４号中「１時間1,097円」を「１時間1,154円」\nに改める。\n船"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260917g00208__20260917g002080012.pdf.snap",
+          "original_sha256": "af2a9eb0907d689f64f6520bade640ba8553fe1f65d8d6e8c68ee59b09cc32f0",
+          "expected_sha256": "64838a68f3ca58553625590ae720d980352fa32587b266e85d8029492c2813b5",
+          "page": "20260917g002080012",
+          "joins": [
+            {
+              "old_articles": [
+                4,
+                5
+              ],
+              "new_article": 4,
+              "context": "官庁報告",
+              "body_start": "官庁事項\n東北地方整備局公示\n道路法（昭和二十七年法律第百八十号）第三十七条第一項の規定に基づき、道路の占用を制限する\n区域を指定することとしたので、同条第三項の規定に基づき次のとおり公示する。\nその関係図面は、令和八年九月十七日から二週間一般の縦覧に供する。\n令和八年九月十七日　東北地方整備局長小島　優\n（一）道路の種類一般国道\n（二）路線名四十八号\n（三）占用を制限する区域\n区域備考\n仙台市青"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260930g00215__20260930g002150474.pdf.snap",
+          "original_sha256": "9baa03a1f2f474ee46c273d694be9a9100a92bf796ca1050a8d8fc59322df6c5",
+          "expected_sha256": "65e92cfbcf819d08c479c4414ed55d781c60f3c094bf62ac4f2198b07d77f867",
+          "page": "20260930g002150474",
+          "joins": [
+            {
+              "old_articles": [
+                6,
+                7
+              ],
+              "new_article": 6,
+              "context": "官庁報告",
+              "body_start": "官庁事項\n東北地方整備局公示\n道路法（昭和二十七年法律第百八十号）第三十七条第一項の規定に基づき、道路の占用を制限する\n区域を指定することとしたので、同条第三項の規定に基づき次のとおり公示する。\nその関係図面は、令和八年九月三十日から二週間一般の縦覧に供する。\n令和八年九月三十日　東北地方整備局長小島　優\n（一）道路の種類一般国道\n（二）路線名四号\n（三）占用を制限する区域\n区域備考\n岩手県胆沢郡"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261002g00218__20261002g002180026.pdf.snap",
+          "original_sha256": "57b826b616efb6545cf311a634a2d7e5c6de5f761cf26bfd7d9405f81df0ecaa",
+          "expected_sha256": "008149ce2ff2fa4f9100c8f0be940d3646760127fe8cf1e8b482ce55b392708c",
+          "page": "20261002g002180026",
+          "joins": [
+            {
+              "old_articles": [
+                0,
+                1
+              ],
+              "new_article": 0,
+              "context": "公告",
+              "body_start": "諸事項\n破産手続開始及び免責許可申立てに関する意見申述期間"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261005h01801__20261005h018010006.pdf.snap",
+          "original_sha256": "a9f6e6acb4f08f34d6021d1c1340e17b3c51ab9c69301eb84a700166bf1ae3ce",
+          "expected_sha256": "83bc472715daffe9487d45d0b095547e8e5e409c21799169e7860bd1252c90b8",
+          "page": "20261005h018010006",
+          "joins": [
+            {
+              "old_articles": [
+                3,
+                4
+              ],
+              "new_article": 3,
+              "context": "官庁報告",
+              "body_start": "官庁事項\n組換えＤＮＡ技術応用飼料の安全性に関する確認\nを受けた飼料について（公表）\n次に掲げる組換えＤＮＡ技術応用飼料について\nは、飼料及び飼料添加物の成分規格等に関する省\n令（昭和51年農林省令第35号）別表第１の１の（１）\nのシの規定に基づき組換えＤＮＡ技術応用飼料の\n安全性に関する確認を行ったので、組換えＤＮＡ\n技術応用飼料及び飼料添加物の安全性に関する確\n認の手続（平成14年農林水産省告"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261006g00220__20261006g002200013.pdf.snap",
+          "original_sha256": "b393aa031ebf818094e3d8e5c217bdfe1191bc8f6de004e2266b81f800223451",
+          "expected_sha256": "f48ad81bfabb3150458e7877d2cd7ae8817fae856df68d4872c1ace87bfd99ae",
+          "page": "20261006g002200013",
+          "joins": [
+            {
+              "old_articles": [
+                0,
+                1
+              ],
+              "new_article": 0,
+              "context": "公告",
+              "body_start": "諸事項\n参加者の有無を確認する公募手続に係る参加意思確認書の提出を求める公示\n令和８年10月６日\n国土交通省航空局長　池光　崇\n次のとおり、参加意思確認書の提出を招請しま\nす。\n１．当該招請の主旨\n本件は、飛行情報管理処理システム（FACE）\n性能向上及び調整を行うものである。\n下記の応募要件を満たし、本業務の実施を希\n望する者の有無を確認する目的で、参加意思確\n認書の提出を招請する公募を実施する"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261007h01803__20261007h018030008.pdf.snap",
+          "original_sha256": "76685352e55dc577e8a2c71ba244e7dcbe44cd649ea91e8bc1561dd561782024",
+          "expected_sha256": "b2b66241154f37edd0b2d9d3e0c9c34df2aa17cf90ff34e9e9f63285fec7b1ad",
+          "page": "20261007h018030008",
+          "joins": [
+            {
+              "old_articles": [
+                2,
+                3
+              ],
+              "new_article": 2,
+              "context": "官庁報告",
+              "body_start": "官庁事項\n登録海技免許講習実施機関の登録事項の変更に関\nする公示\n船舶職員及び小型船舶操縦者法（昭和二十六年\n法律第百四十九号）第十七条の五の規定に基づき、\n次の登録海技免許講習実施機関より登録事項の変\n更の届出があったので、同法第十七条の十五第二\n号の規定に基づき、次のとおり公示する。\n令和八年十月七日\n国土交通大臣井林辰憲\n一登録海技免許講習実施機関の名称公益財団\n法人日本船員雇用促進センター"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261007h01803__20261007h018030010.pdf.snap",
+          "original_sha256": "cc0a2a9dc2da710e7a79addec8c377f6425fb282f6d33c00cc927e68b9ca7780",
+          "expected_sha256": "d06197831a3aed242a881468125d3f191b63e561b8060cb4e5db6fe9dd06b0cf",
+          "page": "20261007h018030010",
+          "joins": [
+            {
+              "old_articles": [
+                1,
+                2
+              ],
+              "new_article": 1,
+              "context": "公告",
+              "body_start": "諸事項\n相続財産清算人の選任及び相続権主張の催告"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261008h01804__20261008h018040008.pdf.snap",
+          "original_sha256": "085d1d22c29841557e7e9a6ddf01fbb4d57507a0cbaa00168bd8c40600e3c5b4",
+          "expected_sha256": "70136ec2aac274c94dd4adbd086036bc3305ca311f48878ff418ba429edd1562",
+          "page": "20261008h018040008",
+          "joins": [
+            {
+              "old_articles": [
+                1,
+                2
+              ],
+              "new_article": 1,
+              "context": "公告",
+              "body_start": "諸事項\n有権者申出方\n元当局所属公証人小原浩司の身元保証金還付に\nつき、その上に権利を有する者は、本公告掲載の\n日の翌日から６か月以内に当局に申し出て下さ\nい。\n令和８年10月８日　広島法務局\n割賦販売法及び割賦販売法施行令に基づく債権の申出に関する公示\n次表に掲げる割賦販売法（昭和36年法律第159号。以下「法」という。）第35条の３の61の許可を受\nけた者は、前払式特定取引の営業を廃止し、法第"
+            }
+          ],
+          "oracle": "Original adopted snapshot body bytes and adopted124 full Document blocks; remove only source-reviewed child article headers, copy child format, renumber. No new runtime output used as expected text."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_items@20260901h01780-p5-2.json.snap",
+          "original_sha256": "4632a68f029c1e80d4dab006e05c91887f59233ab25fb242c8f5ceb45b4626db",
+          "expected_sha256": "f861507a667e9ad04522b10ec76bc05e16b196bbf7ac0e0478656869788d8c2a",
+          "item": "20260901h01780-p5-2",
+          "old_articles": [
+            1,
+            2
+          ],
+          "original_picked": 3,
+          "new_picked": 2,
+          "oracle": "Fixed source-reviewed old pair; preserve all old selected publication body bytes, prepend sole source masthead block only if its child is selected. Selected publication identity unchanged."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_items@20260901h01780-p5.json.snap",
+          "original_sha256": "b853c2127374f73ec69998073903c3b90994497fdfd5d846e45f2307a6cf8518",
+          "expected_sha256": "3ee51f97f19334d4d3b07f1e1b49d440c651db48f328e7d21edadf5ba69ca4e9",
+          "item": "20260901h01780-p5",
+          "old_articles": [
+            1,
+            2
+          ],
+          "original_picked": 2,
+          "new_picked": 1,
+          "oracle": "Fixed source-reviewed old pair; preserve all old selected publication body bytes, prepend sole source masthead block only if its child is selected. Selected publication identity unchanged."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_items@20261005h01801-p6.json.snap",
+          "original_sha256": "9189d222a2a1ac7c1767bfb4d68787a1e8d9a50f6a36ad6d0f854982a227eee4",
+          "expected_sha256": "0944d377ebef926f4ce4b172218fb40de93521790be4bf12ea4cff21f031e6bb",
+          "item": "20261005h01801-p6",
+          "old_articles": [
+            3,
+            4
+          ],
+          "original_picked": 6,
+          "new_picked": 5,
+          "oracle": "Fixed source-reviewed old pair; preserve all old selected publication body bytes, prepend sole source masthead block only if its child is selected. Selected publication identity unchanged."
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_items@20260904g00198-p20.json.snap",
+          "original_sha256": "72345c93b3e13da9112db0587f6a84b28e1ae43b1299917bb82ed4608fda977c",
+          "expected_sha256": "cc605463a7bd60bac7aa2f6b265049f341aef6994ce2399d89591f109840a1a0",
+          "item": "20260904g00198-p20",
+          "old_articles": [
+            3,
+            4
+          ],
+          "original_picked": 2,
+          "new_picked": 2,
+          "oracle": "Fixed source-reviewed old pair; preserve all old selected publication body bytes, prepend sole source masthead block only if its child is selected. Selected publication identity unchanged."
+        }
+      ],
+      "files": 32,
+      "no_snapshot_adoption_yet": true,
+      "not_computed_from_new_runtime_snapshot": true
+    },
+    "archive_pending_actual_public2_equals_independent_old_snapshot_source_oracles": {
+      "files": 32,
+      "rows": [
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260723h01753__20260723h017530007.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "60f6b2838abf02f623986652d837138bb43a0e10943df696371f67d1a9ddabbe"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260730g00171__20260730g001710046.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "3bf74ae88a492813defacf820fa459decdfbb3cf32adca1e50e4f8d7a0ee1189"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260730h01758__20260730h017580006.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "cb2f69f69ddfb0eb3f63de35138b33a6892cbf2a7f1fbc17296c7f9629378cfc"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731h01759__20260731h017590008.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "95d5a62cb3d95753c6fe2a2dc5782b3dc51f1835e52be72abd865a8c0a674028"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260803g00174__20260803g001740040.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "7cf0753c68eb925105c13d14651a0858c32bcd51befb586296daedabc0460f74"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260803h01760__20260803h017600009.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "70b52452be0f74cbc5f2ad6a7ac337b479ac1d645577acc67d66330d51ce2856"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260820g00186__20260820g001860019.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "0acdf8e3f7bee26531d0538a27076a16e73cd560a32302723d4846d6990e82d8"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260820h01772__20260820h017720007.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "9b2fb1e1ce0726aaf0b0f691077f11cdac6defab8e0822ac55d8e9e59ecda548"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260824h01774__20260824h017740007.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "53f907addeec49842d62e447c6f26fdd30da74e8a7bf4e5ec1ae8416f7168e26"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260826h01776__20260826h017760007.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "14e6f7b9e8216a0177e405dcc61c147096080b579e2d95cbd5ed34f07313398c"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260826h01776__20260826h017760008.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "920ce2f0f75f51e1fd8f96c497756cae17950a51079c418b75d645c935e7f754"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260831h01779__20260831h017790008.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "3a93209ba88a2502f368f0b34cf0b8b8a1860b24d9093259ed76e24c69f8a16d"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260831h01779__20260831h017790010.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "51413368f4b174b525e6a62f52150e0e4ad50aa300d2cc9de88a4bba9dadd956"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260901h01780__20260901h017800005.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "86295e27ce1c6aeb2d38035ebe505419666d48a822027f277f8afb8bdc5644c0"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260902g00196__20260902g001960134.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "e7c9f946433a6da3b51db6bc91f12a3ae782c48ce07bf5dfa4866c65284c7da5"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260904g00198__20260904g001980021.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "d856aa461dfbab17428133e026b1e259af554380aa7813afef28d526986ba3eb"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260909g00201__20260909g002010013.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "a8e1ee7e9b8414c8af68f6745ffc0fc87135609892b4b55300d495ac36627c92"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260909h01786__20260909h017860009.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "d9d7b4b0dc3222599fed024cc65b6ac1b1100ddded6bb3c09d10cfd87937e1fe"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260911h01788__20260911h017880010.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "8e596f2eb65c5f2b3a02f637f3dba31051f020be989e99cfac98a3d2e153f504"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260915h01790__20260915h017900006.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "7bd27a7c27c9a351c38069085836562af388ea83bab7f074be0281a6791a11cf"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260917g00208__20260917g002080012.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "64838a68f3ca58553625590ae720d980352fa32587b266e85d8029492c2813b5"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260930g00215__20260930g002150474.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "65e92cfbcf819d08c479c4414ed55d781c60f3c094bf62ac4f2198b07d77f867"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261002g00218__20261002g002180026.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "92bc9070e12eced75a5a8e07eb588c9d219891bcbeed1b940b9a0da1af6e6c1b"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261005h01801__20261005h018010006.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "eeed103d793d1ee4626e65dea0e8c9dd7643c68e651af2eb9c6402910730897e"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261006g00220__20261006g002200013.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "f48ad81bfabb3150458e7877d2cd7ae8817fae856df68d4872c1ace87bfd99ae"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261007h01803__20261007h018030008.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "808643410303676003e88f54299db50f2c5e472d3d6c6b3630d6775aed0294a5"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261007h01803__20261007h018030010.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "ecca7842953a2875a4e152255a957b59aebaa8d3cb2e90a25d50d1bfcaf4ff9b"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261008h01804__20261008h018040008.pdf.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "9e450ad9436a3afad39b90058c8b863be82fbf1457618ac83b7d8bfb327ede80"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_items@20260901h01780-p5-2.json.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "0a3dc6a41ee345bbbfbcc66aa546598374c77c372f8f9e26bb7db9a773fdd5c6"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_items@20260901h01780-p5.json.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "0b1aa239fa380c210e8ba51b488bf83a26b3d99e3d1cd735f2e0551c149f2e46"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_items@20261005h01801-p6.json.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "b4ebdf5a93914de206f5d185370a9818cb1ae3408ddb3ad0a46ba22306825136"
+        },
+        {
+          "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_items@20260904g00198-p20.json.snap",
+          "independent_expected_matches_pending_runtime_payload": true,
+          "original_expected_unchanged": true,
+          "pending_sha256": "bc9dc242d5aa9f1c80ac27ae9a5315233a3658a2efad7b0851a1185752800b5a"
+        }
+      ],
+      "adopted": false
+    },
+    "corpus": {
+      "page": "20261015h018080008",
+      "original_pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/crates/kanpo-parser/tests/corpus/2026-10-15-honshi1808-p8/page.pdf",
+      "original_pdf_sha256": "c1a5b6baf49a457c82acd34f95cbbe94d4c49191d1f6082113594796c06ff123",
+      "original_expected": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/crates/kanpo-parser/tests/corpus/2026-10-15-honshi1808-p8/expected.json",
+      "original_expected_sha256": "efa3b7c458a622fc9a934d043bbdb14b9eb85203b48148f7eee082eb59312131",
+      "independent_expected": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-source-audit125/independent-corpus-expected125.json",
+      "independent_expected_sha256": "09ecba6808af4050cc9a06203068658ad0de8e057d253b16211f8ae9b50f8fa2",
+      "old_documents_match_actual_adopted124": true,
+      "only_change": "Copy complete parent Blocks before complete child Blocks, retaining child format and all original table cells/merges/Run text/styles. No expected.txt, bbox, rules, input PDF or other golden change.",
+      "not_yet_adopted": true,
+      "old_article_pairs": [
+        [
+          2,
+          3
+        ],
+        [
+          5,
+          6
+        ]
+      ],
+      "root_source_relationships": [
+        "官庁報告 -> 官庁事項 -> 保障契約証明書の無効について; complete original two-certificate table retained",
+        "公告 -> 諸事項 -> 会社法第472条第1項の届出に関する公告; second foundation publication remains in the same old field Article"
+      ],
+      "root_original_pixel_review": true,
+      "root_pixel_sha256": "61143e6e4695be3a44fd8a85a32766972ff0e1b3bb5cef816a1434d2929a06f6",
+      "independent_expected_matches_actual_public125v2_Documents": true,
+      "diagnostic_correction": "Initial independent oracle copied only the government-report pair; the exact public comparison exposed the omitted public-announcement pair and its child prose format. Full original image independently confirms both source relationships; existing body blocks remain byte-for-byte unchanged."
+    },
+    "parliament": {
+      "page": "20261019h018100007",
+      "old_article_pair": [
+        4,
+        5
+      ],
+      "fixture_pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/crates/kanpo-parser/tests/fixtures/parliament-personnel-honours.pdf",
+      "fixture_pdf_sha256": "33e91fe945df47f4a5c6f6ff9fdede22e26d582bbff51f619de50f7799544250",
+      "original_snapshot": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/crates/kanpo-parser/tests/snapshots/parliament_items__shared_page_preserves_each_toc_items_body.snap",
+      "original_snapshot_sha256": "112e9fb68a6fb0d827cf2ed31cce5f91eaa00d3a3188a945e7fb9367d32f253d",
+      "independent_expected": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-source-audit125/independent-parliament-snapshot125.snap",
+      "independent_expected_sha256": "9772775ef22373e43e19f7490bd6a085a8711ec3a0d46ecc2f15c2ef9cc72ede",
+      "oracle": "Root reviewed original pixels in source-pixels125/batch-08.png: 官庁報告 -> 国家試験 -> 水先人試験の施行. Remove only the separator between old Articles4/5; every original text byte and all other article delimiters stay exact.",
+      "independent_expected_matches_actual_public125v2_article_texts": true,
+      "root_original_pixels_already_in_48_page_review": true,
+      "not_yet_adopted": true
+    },
+    "notes": "Expected changes are independently copied from adopted original Document blocks or snapshot body bytes and source-reviewed old parent/child pairs. Fixed-case corpus first oracle omitted the printed 公告/諸事項 pair and child prose format; full source image confirms both pairs. No new runtime snapshot dump used as the expected body."
+  },
+  "root_source_pixel_review": {
+    "non_blind_development_review": true,
+    "pages": 49,
+    "parent_field_contexts": 53,
+    "selected_originals": {
+      "reviewer": "root",
+      "non_blind_development_review": true,
+      "pages": 48,
+      "source_parent_field_contexts": 51,
+      "reviewed_batches": [
+        {
+          "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-source-audit125/source-pixels125/batch-00.png",
+          "sha256": "37a2a5f32170122d5144b16a7ef33970a8397b5f120825d9f0995d55e1b2da3a"
+        },
+        {
+          "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-source-audit125/source-pixels125/batch-01.png",
+          "sha256": "138c51a41f3722b08851bd35f0d99b90837facf9247c943f7fa2cdadbb1264ea"
+        },
+        {
+          "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-source-audit125/source-pixels125/batch-02.png",
+          "sha256": "60fc5d1ef82f5313f47bf6ff8888493aef12aa67825d82209c40e71e7cbd0bac"
+        },
+        {
+          "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-source-audit125/source-pixels125/batch-03.png",
+          "sha256": "ee581b217b6f3244e59c83e175a9b83a3e1485f04170a7e68ede34dcf3b1a52d"
+        },
+        {
+          "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-source-audit125/source-pixels125/batch-04.png",
+          "sha256": "2508d9a6c62faa844e1f35e4e4e1e3185cb3550989129cdb156fc25d0bec38c1"
+        },
+        {
+          "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-source-audit125/source-pixels125/batch-05.png",
+          "sha256": "064f3dcb5116506000d6917ccebb14337fe8c3f957143e1a0e94851b4a7371e8"
+        },
+        {
+          "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-source-audit125/source-pixels125/batch-06.png",
+          "sha256": "dd141cefd8443d069be30394978605ecc50c252a9f9601a0e5f7f7630cd8f3c6"
+        },
+        {
+          "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-source-audit125/source-pixels125/batch-07.png",
+          "sha256": "b84c5806b034249599df7c32ad459f8640dbf45d02b06222bc91f0f970b34c77"
+        },
+        {
+          "path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-source-audit125/source-pixels125/batch-08.png",
+          "sha256": "a9da6c7cd20ce5994aca144703a0774a8073e1ee9a34162d53a10322d3a2840a"
+        }
+      ],
+      "full_page_followups": [
+        "20260723h017530007",
+        "20260826h017760008",
+        "20260831h017790010",
+        "20261007h018030010"
+      ],
+      "findings": "All selected printed section mastheads govern their immediately following field heading and first publication. Horizontal source strips are visibly masthead decoration; separate neighboring material remains beyond the heading/field domain. Full-page followups confirmed fields and body where contact crops clipped the field. No text, source Table or paragraph was edited by these repairs. Review is restricted to the parent/field relationship; residual intra-article procedure boundaries, image forms and body reading defects remain.",
+      "not_a_global_accuracy_estimate": true,
+      "not_all_161_changed_pages_reviewed": true
+    },
+    "additional_corpus": {
+      "page": "20261015h018080008",
+      "original_pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/crates/kanpo-parser/tests/corpus/2026-10-15-honshi1808-p8/page.pdf",
+      "original_pdf_sha256": "c1a5b6baf49a457c82acd34f95cbbe94d4c49191d1f6082113594796c06ff123",
+      "original_expected": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/crates/kanpo-parser/tests/corpus/2026-10-15-honshi1808-p8/expected.json",
+      "original_expected_sha256": "efa3b7c458a622fc9a934d043bbdb14b9eb85203b48148f7eee082eb59312131",
+      "independent_expected": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-source-audit125/independent-corpus-expected125.json",
+      "independent_expected_sha256": "09ecba6808af4050cc9a06203068658ad0de8e057d253b16211f8ae9b50f8fa2",
+      "old_documents_match_actual_adopted124": true,
+      "only_change": "Copy complete parent Blocks before complete child Blocks, retaining child format and all original table cells/merges/Run text/styles. No expected.txt, bbox, rules, input PDF or other golden change.",
+      "not_yet_adopted": true,
+      "old_article_pairs": [
+        [
+          2,
+          3
+        ],
+        [
+          5,
+          6
+        ]
+      ],
+      "root_source_relationships": [
+        "官庁報告 -> 官庁事項 -> 保障契約証明書の無効について; complete original two-certificate table retained",
+        "公告 -> 諸事項 -> 会社法第472条第1項の届出に関する公告; second foundation publication remains in the same old field Article"
+      ],
+      "root_original_pixel_review": true,
+      "root_pixel_sha256": "61143e6e4695be3a44fd8a85a32766972ff0e1b3bb5cef816a1434d2929a06f6",
+      "independent_expected_matches_actual_public125v2_Documents": true,
+      "diagnostic_correction": "Initial independent oracle copied only the government-report pair; the exact public comparison exposed the omitted public-announcement pair and its child prose format. Full original image independently confirms both source relationships; existing body blocks remain byte-for-byte unchanged."
+    },
+    "scope": "Only printed parent/field relationship reviewed. All changed archive pages plus newly admitted open-strip/structural-stream cases and originals; the additional corpus original has two source pairs. Parliament original already belongs to the48-page set. Not a full161-page image audit, full body accuracy score or fixed thirty-page rescore."
+  },
+  "OCR": {
+    "engine": "NDLOCR",
+    "version": "0.0.15",
+    "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "normal_analysis_integration": false,
+    "additional_models": false
+  },
+  "evidence_directory": ".cache/kanpo-227/resume90-local-recovery/native-source-audit125",
+  "artifacts": {
+    ".cache/kanpo-227/resume90-local-recovery/native-source-audit125/original-context-RED125.log": "2e1697ca4ecd82e3eb85b8dd76b205e04c83f926041ba1fbb667086ee5502543",
+    ".cache/kanpo-227/resume90-local-recovery/native-source-audit125/original-horizontal-context-RED125.log": "3751d6ac28c6825b80651101141a30785635c1ebfe37d0f7bb5aa2ee2933a2c6",
+    ".cache/kanpo-227/resume90-local-recovery/native-source-audit125/private-v6/unit-RED-v6-intervening-material.log": "080eb2304e1158aef2ba78f9fb987fb96d30df88966be51766c952b05ab97380",
+    ".cache/kanpo-227/resume90-local-recovery/native-source-audit125/private-v6/unit-full1979.log": "17a88edaa8b3f85b4fdb4a18f582450ef987e410f435e914b5160f78b94a1d3f",
+    ".cache/kanpo-227/resume90-local-recovery/native-source-audit125/portable-stage1/RED-actual124.log": "bb85d37611edc9663dcef1a30e411761273b1dcc6b2c9cb120ace4d0f98530fb",
+    ".cache/kanpo-227/resume90-local-recovery/native-source-audit125/portable-stage1/GREEN-v6.log": "d9fc9d7eb2309a4a3057452f50f7e7cedd6b81f02af4653dc5f8c07fcdf197ca",
+    ".cache/kanpo-227/resume90-local-recovery/native-source-audit125/private-v6/single/result.json": "dda072e3fd0e424de16afff69c2cf8e0705c4ed281e75b5f2cbabffb859bf869",
+    ".cache/kanpo-227/resume90-local-recovery/native-source-audit125/private-v5/whole/result.json": "62e99877618a72d38ed7a05f026067246e6b1a7b402b8e039f9d487e1f633e04",
+    ".cache/kanpo-227/resume90-local-recovery/native-source-audit125/public-port2/single/result.json": "c6f1264a0b3dd2b6499519365ea98880b4c80ab13e67f16c8dd7dd426b0b918a",
+    ".cache/kanpo-227/resume90-local-recovery/native-source-audit125/public-port2/whole/result.json": "9ef9766bfe00148e48be7f437c961508386cad26db3dcdc2ca22cefbd6ff9f6f",
+    ".cache/kanpo-227/resume90-local-recovery/native-source-audit125/public-port2/CLI/result.json": "3ab602b9e7c543ca835fcfbafe9844124ce95c729a47b267af1d8076f88c4c80",
+    ".cache/kanpo-227/resume90-local-recovery/native-source-audit125/public-port2/CLI/API-CLI-exact125.json": "ac98dbc14b7886e905ce0c0d194985fc104d79663de1a85251d53f61394c7c76",
+    ".cache/kanpo-227/resume90-local-recovery/native-source-audit125/public-port2/native-gates1/result125.json": "bc03fdfc6f7b30b40b30f11785e390a6e1d1da0ee747f2163cc31aca9555c3ec",
+    ".cache/kanpo-227/resume90-local-recovery/native-source-audit125/public-port2/native-gates2/result125.json": "415735fa50e493f3a28059cf0bda473f55b1085050f1ad91df2999c50a81c453",
+    ".cache/kanpo-227/resume90-local-recovery/native-source-audit125/public-port2/native-gates2/source-manifest125.json": "211adeb806efc670ef27af7bf43aae0c21c26c507809f76fd5ca2dd280c8f6f8",
+    ".cache/kanpo-227/resume90-local-recovery/native-source-audit125/public-port2/independent-snapshot-adoption125.json": "ba7967d7493b42231b7600139fd597a4bb95f7ef6d7649d6b4da040ebf328aac",
+    ".cache/kanpo-227/resume90-local-recovery/native-source-audit125/source-pixels125/root-review.json": "cc64a6a6c06ab74dda16bff2f75368618de9d0151d73f625325f80c53f516aa7",
+    ".cache/kanpo-227/resume90-local-recovery/native-source-audit125/corpus-expectation-source-oracle125.json": "90eb8ff7f22a4d8438ab361f47f58678f9f5696215bd9648a51c1019a13dff2a",
+    ".cache/kanpo-227/resume90-local-recovery/native-source-audit125/parliament-snapshot-source-oracle125.json": "96670f09516fc44e79801451705d4d546b07f20a3fdbb2ed9a27415e3f233f00"
+  },
+  "limits": [
+    "Known section/field vocabulary and complete source evidence are required; unsupported/unknown styles, bounds, roles and interrupted/quoted domains remain unjoined.",
+    "This repairs section context, not every independent procedure inside the surviving field Article.",
+    "Complex table/column/notice ownership and character-code/PUA restoration remain.",
+    "Image-only pages are not automatically OCR-integrated;100%not achieved."
+  ]
+}
