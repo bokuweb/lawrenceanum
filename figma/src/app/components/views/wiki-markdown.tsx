@@ -5,9 +5,26 @@ import { Link } from "react-router";
 import { resolveWikiLink } from "./wiki-types";
 import { useReducedMotion } from "../ui/use-reduced-motion";
 import { remarkWikiOutline } from "./wiki-outline";
+import { HanreiCitationContext, type HanreiCitationSource } from "./hanrei-citation-context";
+
+type SourceNode = { type: string; tagName?: string; value?: string; children?: SourceNode[] };
+const nodeText = (node: SourceNode): string => node.value ?? node.children?.map(nodeText).join("") ?? "";
+function hasReference(node: SourceNode, reference: string): boolean {
+  return (node.tagName === "a" && nodeText(node) === reference)
+    || (node.children?.some(child => hasReference(child, reference)) ?? false);
+}
+
+/** Only join a saved quote to its actual footnote label and source reference. */
+function footnoteCitations(id: string | undefined, prefix: string, node: SourceNode | undefined, source?: HanreiCitationSource) {
+  if (!source || !node || !id?.startsWith(`${prefix}fn-`)) return [];
+  let label: string;
+  try { label = decodeURIComponent(id.slice(`${prefix}fn-`.length)); } catch { return []; }
+  return source.citations.filter(c => c.label.replace(/[\t\n\r ]+/g, " ").trim().toUpperCase().toLowerCase() === label
+    && hasReference(node, c.reference));
+}
 
 /** wiki の Markdown を描画する。相対リンクは SPA 内遷移、脚注はページ内スクロールにする (HashRouter のため)。 */
-export function WikiMarkdown({ body, from, onOpen, outlineLabel }: { body: string; from: string; onOpen: (path: string) => void; outlineLabel?: string }) {
+export function WikiMarkdown({ body, from, onOpen, outlineLabel, citationSource }: { body: string; from: string; onOpen: (path: string) => void; outlineLabel?: string; citationSource?: HanreiCitationSource }) {
   const idPrefix = `wiki-${useId()}-`;
   const reducedMotion = useReducedMotion();
   return (
@@ -25,6 +42,13 @@ export function WikiMarkdown({ body, from, onOpen, outlineLabel }: { body: strin
           h4: ({ children }) => <h4 className="text-sm font-medium text-muted-foreground mt-3 mb-1">{children}</h4>,
           ul: ({ children }) => <ul className="list-disc pl-5 space-y-1.5">{children}</ul>,
           ol: ({ children }) => <ol className="list-decimal pl-5 space-y-1">{children}</ol>,
+          li: ({ children, id, node, ...props }) => {
+            const citations = footnoteCitations(id, idPrefix, node, citationSource);
+            return <li {...props} id={id} tabIndex={id?.startsWith(`${idPrefix}fn-`) ? -1 : props.tabIndex}>
+              {children}
+              {citationSource && citations.length > 0 && <HanreiCitationContext {...citationSource} citations={citations} inline />}
+            </li>;
+          },
           table: ({ children }) => (
             // 日付・種別などの短い列が 1 文字ずつ折り返されないようにする。
             <div className="overflow-x-auto border border-border rounded-md [&_td:first-child]:whitespace-nowrap [&_td]:min-w-[3.5em]">
@@ -65,7 +89,7 @@ function WikiLink({ href = "", from, onOpen, reducedMotion, children, ...props }
           try { id = decodeURIComponent(href.slice(1)); } catch { return; }
           const target = document.getElementById(id);
           const heading = target?.matches('h2[tabindex="-1"], h3[tabindex="-1"]');
-          if (heading) target?.focus({ preventScroll: true });
+          if (target?.matches('[tabindex="-1"], a[data-footnote-ref]')) target.focus({ preventScroll: true });
           target?.scrollIntoView({ behavior: reducedMotion ? "instant" : "smooth", block: heading ? "start" : "center" });
         }}
       >

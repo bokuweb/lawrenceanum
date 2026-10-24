@@ -6,7 +6,9 @@ import { Button } from "../ui/button";
 const sourceLabels = { holding: "判示事項", summary: "裁判要旨", body_text: "本文（PDF抽出）" };
 
 /** 保存時の引用と現在の原文の完全一致だけを示す。解説の意味的な正しさは判定しない。 */
-export function HanreiCitationContext({ caseId, citations, source }: { caseId: string; citations: HanreiCitation[]; source?: HanreiCase }) {
+export type HanreiCitationSource = { caseId: string; citations: HanreiCitation[]; source?: HanreiCase };
+
+export function HanreiCitationContext({ caseId, citations, source, inline = false }: HanreiCitationSource & { inline?: boolean }) {
   const [open, setOpen] = useState(false);
   const [loaded, setLoaded] = useState<HanreiCase | null>(null);
   const [error, setError] = useState(false);
@@ -25,8 +27,8 @@ export function HanreiCitationContext({ caseId, citations, source }: { caseId: s
     return () => { active = false; };
   }, [open, current, caseId, own.length, attempt]);
   if (!own.length) return null;
-  return <details className="border-t pt-3" data-testid="hanrei-citation-context" onToggle={e => setOpen(e.currentTarget.open)}>
-    <summary className="cursor-pointer text-sm font-medium">引用箇所を原文で確認（{own.length}件）</summary>
+  return <details className={inline ? "my-2 rounded border p-3 [overflow-wrap:anywhere]" : "border-t pt-3"} data-testid={inline ? "hanrei-citation-inline" : "hanrei-citation-context"} onToggle={e => setOpen(e.currentTarget.open)}>
+    <summary className="cursor-pointer text-sm font-medium">{inline ? "この脚注の引用を原文で確認" : "引用箇所を原文で確認"}（{own.length}件）</summary>
     <p className="text-xs text-muted-foreground mt-2">引用と配信中の原文が完全一致する箇所の前後を表示します。最初の一致箇所を示しており、解説の内容が正しいことを保証するものではありません。</p>
     {!current ? error ? <div role="alert" className="text-sm mt-3">
       <p>引用元の原文を読み込めないか、事件との対応を確認できませんでした。</p>

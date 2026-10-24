@@ -185,6 +185,82 @@ function publishedExplanation() {
 
 const wikiCitation = { label: "1", reference: "hanrei:92002#summary", field: "summary", quote: "公開された理由の一部" };
 
+for (const surface of ["hanrei", "wiki/hanrei"] as const) {
+  test(`${surface}の脚注から対応する引用だけを確認し、解説へ戻れる`, async ({ page }, testInfo) => {
+    await mockCaseLinks(page);
+    const quotes = ["基準を検討した。", "判断には留保がある。"];
+    const markdown = `## 要約\n\n基準についての説明[^2]。別の説明[^1]。\n\n[^1]: [hanrei:92002#summary](https://www.courts.go.jp/hanrei/92002/) 「${quotes[0]}」\n[^2]: [hanrei:92002#summary](https://www.courts.go.jp/hanrei/92002/) 「${quotes[1]}」\n`;
+    let requests = 0;
+    await page.route("**/hanrei/92002.json", r => {
+      requests++;
+      return r.fulfill({ json: { ...fixture("92002"), summary: `前提条件。${quotes[0]}判断の理由。${quotes[1]}結論の範囲。` } });
+    });
+    await page.route("**/wiki/page/hanrei/92002.json", r => r.fulfill({ json: {
+      ...publishedExplanation(), body: markdown, hanrei_explanation: markdown,
+      hanrei_citations: quotes.map((quote, i) => ({ ...wikiCitation, label: String(i + 1), quote })),
+    } }));
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto(new URL(`#/${surface}/92002`, BASE).toString());
+    const inline = page.getByTestId("hanrei-citation-inline").first();
+    await expect(inline).toBeAttached();
+    expect(requests).toBe(surface === "hanrei" ? 1 : 0);
+    const ref = page.locator("a[data-footnote-ref]").first();
+    await ref.focus();
+    await page.keyboard.press("Enter");
+    const footnote = inline.locator("..");
+    await expect(footnote).toBeFocused();
+    await inline.locator("summary").click();
+    await expect(inline.locator("mark")).toHaveText(quotes[1]);
+    await expect(inline).toContainText("結論の範囲。");
+    await expect(inline.getByText("引用 1 · 裁判要旨", { exact: true })).toHaveCount(0);
+    expect(requests).toBe(1);
+    await inline.locator("summary").click();
+    await inline.locator("summary").click();
+    await expect(inline.locator("mark")).toBeVisible();
+    expect(requests).toBe(1);
+    if (surface === "wiki/hanrei") {
+      await inline.scrollIntoViewIfNeeded();
+      await page.screenshot({ path: testInfo.outputPath("footnote-evidence-mobile.png") });
+    }
+    await footnote.locator("a[data-footnote-backref]").click();
+    await expect(ref).toBeFocused();
+    await expect(page).toHaveURL(new RegExp(`#/${surface}/92002$`));
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
+  });
+}
+
+test("脚注ラベル・出典・事件の対応が合わない引用を脚注に追加しない", async ({ page }) => {
+  await mockCaseLinks(page);
+  const markdown = `説明[^1][^2][^3]。\n\n[^1]: [hanrei:92002#summary](https://www.courts.go.jp/hanrei/92002/)\n[^2]: [hanrei:92002#holding](https://www.courts.go.jp/hanrei/92002/)\n[^3]: [hanrei:92001#summary](https://www.courts.go.jp/hanrei/92001/)`;
+  await page.route("**/wiki/page/hanrei/92002.json", r => r.fulfill({ json: {
+    ...publishedExplanation(), hanrei_explanation: markdown,
+    hanrei_citations: [{ ...wikiCitation, label: "9" }, { ...wikiCitation, label: "2" }, { ...wikiCitation, label: "3", reference: "hanrei:92001#summary" }],
+  } }));
+  await page.goto(new URL("#/hanrei/92002", BASE).toString());
+  await expect(page.getByTestId("hanrei-explanation").getByRole("heading", { name: "出典", exact: true })).toBeVisible();
+  await expect(page.getByTestId("hanrei-citation-inline")).toHaveCount(0);
+  await expect(page.locator("a[data-footnote-ref]")).toHaveCount(3);
+});
+
+test("脚注の原文取得を再試行し、一致しない引用を一致扱いしない", async ({ page }) => {
+  await mockCaseLinks(page);
+  const markdown = "説明[^1]。\n\n[^1]: [hanrei:92002#summary](https://www.courts.go.jp/hanrei/92002/)";
+  let fail = true;
+  await page.route("**/hanrei/92002.json", r => fail ? r.fulfill({ status: 503 }) : r.fulfill({ json: { ...fixture("92002"), summary: "更新後の別の記述。" } }));
+  await page.route("**/wiki/page/hanrei/92002.json", r => r.fulfill({ json: {
+    ...publishedExplanation(), body: markdown, hanrei_citations: [wikiCitation],
+  } }));
+  await page.goto(new URL("#/wiki/hanrei/92002", BASE).toString());
+  const inline = page.getByTestId("hanrei-citation-inline");
+  await inline.locator("summary").click();
+  await expect(inline.getByRole("alert")).toBeVisible();
+  fail = false;
+  await inline.getByRole("button", { name: "引用元を再試行", exact: true }).click();
+  await expect(inline).toContainText("配信中の原文には完全一致する箇所がありません");
+  await expect(inline.locator("mark")).toHaveCount(0);
+  await expect(inline).toContainText(wikiCitation.quote);
+});
+
 test("Wikiで引用確認を開いたときだけ原文を読み込み、判例の該当セクションに移動する", async ({ page }) => {
   await mockCaseLinks(page);
   let requests = 0;
@@ -243,6 +319,7 @@ for (const mismatch of ["case", "source", "legacy"] as const) {
   test(`Wikiの引用情報の対応が未確認なら原文確認欄を出さない: ${mismatch}`, async ({ page }) => {
     await mockCaseLinks(page);
     const wiki = publishedExplanation();
+    wiki.body = "説明[^1]。\n\n[^1]: [hanrei:92002#summary](https://www.courts.go.jp/hanrei/92002/)";
     if (mismatch === "case") wiki.frontmatter.case_id = 92001;
     if (mismatch === "source") wiki.frontmatter.llm_source_fingerprint = "old";
     let requests = 0;
@@ -251,6 +328,7 @@ for (const mismatch of ["case", "source", "legacy"] as const) {
     await page.goto(new URL("#/wiki/hanrei/92002", BASE).toString());
     await expect(page.getByRole("heading", { name: "hanrei/92002", exact: true })).toBeVisible();
     await expect(page.getByTestId("hanrei-citation-context")).toHaveCount(0);
+    await expect(page.getByTestId("hanrei-citation-inline")).toHaveCount(0);
     expect(requests).toBe(0);
   });
 }
