@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { api, hanreiUrl, type HanreiCase, type WikiPageMeta } from "../../data/api";
-import { caseComparisonReport } from "../../data/topic-watch";
+import { caseComparisonReport, type ResearchProject } from "../../data/topic-watch";
 import { useHanreiLawLinks } from "../../data/use-hanrei";
 import { HanreiExplanation } from "./hanrei-explanation";
 import { LinkedCaseText } from "./hanrei-law-view";
 
 type CaseState = { data: HanreiCase | null; error: boolean };
 
-export function TopicCaseComparison({ ids, notes, onRemove, onNote }: {
-  ids: string[]; notes: Record<string, string>; onRemove: (id: string) => void; onNote: (id: string, note: string) => void;
+export function TopicCaseComparison({ ids, notes, project, onRemove, onNote }: {
+  ids: string[]; notes: Record<string, string>; project?: ResearchProject; onRemove: (id: string) => void; onNote: (id: string, note: string) => void;
 }) {
   const [cases, setCases] = useState<Record<string, CaseState>>({});
   const [attempt, setAttempt] = useState(0);
@@ -42,7 +42,7 @@ export function TopicCaseComparison({ ids, notes, onRemove, onNote }: {
   const download = () => {
     if (!ready) return;
     const explained = wiki ? new Set(wiki.filter(page => page.type === "hanrei" && !page.stub).map(page => page.path)) : null;
-    const blob = new Blob([caseComparisonReport(ids.map(id => cases[id].data!), notes, explained, window.location.href)], { type: "text/markdown;charset=utf-8" });
+    const blob = new Blob([caseComparisonReport(ids.map(id => cases[id].data!), notes, explained, window.location.href, project)], { type: "text/markdown;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url; link.download = `hanrei-comparison-${ids.join("-")}.md`; link.click();
@@ -53,6 +53,7 @@ export function TopicCaseComparison({ ids, notes, onRemove, onNote }: {
       <h2 className="text-base font-semibold">判例の比較（{ids.length}/2件）</h2>
       <button type="button" disabled={!ready} onClick={download} className="text-sm text-primary underline disabled:opacity-40">比較メモを出力</button>
     </div>
+    {project && <p className="text-sm font-medium">調査案件: {project.title}</p>}
     <p className="text-xs text-muted-foreground">比較する判例を一覧から2件選んでください。比較対象と各判例のメモはこのブラウザに保存します。未読の絞り込みやフィードの更新後も比較を再開できます。</p>
     <p className="text-xs text-muted-foreground">結論の違いだけでは、事案の違いや判例変更は判断できません。裁判要旨・理由・当時の条文候補を原文と照合してください。</p>
     {wikiError ? <p role="status" className="text-xs">AI解説の収録状況を確認できませんでした。<button type="button" onClick={() => setWikiAttempt(n => n + 1)} className="ml-2 text-primary underline">Wikiの確認を再試行</button></p>
