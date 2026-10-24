@@ -145,6 +145,7 @@ function HanreiDetail({ caseId }: { caseId: string }) {
           <div className="flex flex-wrap gap-3 my-4 text-sm">
             <a href={data.detail_url || hanreiUrl(data.case_id)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">裁判所の原文ページ<ExternalLink className="size-3" /></a>
             {data.pdf_url && <a href={data.pdf_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline"><FileText className="size-3.5" />全文PDF</a>}
+            <Link to={`/watch?case=${caseId}`} className="text-primary underline">この判例を調査案件で比較</Link>
           </div>
           <dl className="grid grid-cols-[7rem_minmax(0,1fr)] gap-x-3 gap-y-2 text-sm border rounded-lg p-4">
             {metadata.map(([label, value]) => <div key={label} className="contents"><dt className="text-muted-foreground">{label}</dt><dd className="min-w-0">{value}</dd></div>)}

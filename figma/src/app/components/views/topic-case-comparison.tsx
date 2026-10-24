@@ -48,13 +48,13 @@ export function TopicCaseComparison({ ids, notes, project, onRemove, onNote }: {
     link.href = url; link.download = `hanrei-comparison-${ids.join("-")}.md`; link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
-  return <section aria-label="判例の比較" className="rounded-lg border border-border p-4 space-y-4 [overflow-wrap:anywhere]">
+  return <section id="topic-case-comparison" tabIndex={-1} aria-label="判例の比較" className="rounded-lg border border-border p-4 space-y-4 [overflow-wrap:anywhere]">
     <div className="flex flex-wrap gap-3 items-center justify-between">
       <h2 className="text-base font-semibold">判例の比較（{ids.length}/2件）</h2>
       <button type="button" disabled={!ready} onClick={download} className="text-sm text-primary underline disabled:opacity-40">比較メモを出力</button>
     </div>
     {project && <p className="text-sm font-medium">調査案件: {project.title}</p>}
-    <p className="text-xs text-muted-foreground">比較する判例を一覧から2件選んでください。比較対象と各判例のメモはこのブラウザに保存します。未読の絞り込みやフィードの更新後も比較を再開できます。</p>
+    <p className="text-xs text-muted-foreground">比較する判例を2件選んでください。テーマの一覧に加え、判例ページ・Wiki・関連判例からも選べます。比較対象と各判例のメモはこのブラウザに保存します。未読の絞り込みやフィードの更新後も比較を再開できます。</p>
     <p className="text-xs text-muted-foreground">結論の違いだけでは、事案の違いや判例変更は判断できません。裁判要旨・理由・当時の条文候補を原文と照合してください。</p>
     {wikiError ? <p role="status" className="text-xs">AI解説の収録状況を確認できませんでした。<button type="button" onClick={() => setWikiAttempt(n => n + 1)} className="ml-2 text-primary underline">Wikiの確認を再試行</button></p>
       : wiki === null && <p role="status" className="text-xs text-muted-foreground">AI解説の収録状況を確認中…</p>}
