@@ -2,8 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 import { Bell, Check, Download, Rss } from "lucide-react";
 import { api, type TopicFeed } from "../../data/api";
-import { emptyWatchState, feedItemKey, matchedKeywords, readWatchState, WATCH_STORAGE_KEY, watchReport, watchTopics, type WatchState } from "../../data/topic-watch";
+import { emptyWatchState, feedItemKey, matchedKeywords, readWatchState, WATCH_STORAGE_KEY, watchCaseId, watchReport, watchTopics, withCaseNote, type WatchState } from "../../data/topic-watch";
 import { FeedRow } from "./feed-view";
+import { TopicCaseComparison } from "./topic-case-comparison";
 
 const topic = watchTopics[0];
 
@@ -38,6 +39,11 @@ export function TopicWatchView() {
   const unread = items.filter(item => !read.has(feedItemKey(item)));
   const shown = onlyUnread ? unread : items;
   const toggleRead = (key: string) => update({ ...state, read: read.has(key) ? state.read.filter(id => id !== key) : [...state.read, key].slice(-2000) });
+  const toggleComparison = (id: string) => {
+    const selected = state.comparison.includes(id);
+    if (!selected && state.comparison.length >= 2) return;
+    update({ ...state, comparison: selected ? state.comparison.filter(value => value !== id) : [...state.comparison, id] });
+  };
   const download = () => {
     if (!data) return;
     const blob = new Blob([watchReport(topic, shown, data.generated_at, state.note, window.location.href)], { type: "text/markdown;charset=utf-8" });
@@ -73,6 +79,8 @@ export function TopicWatchView() {
       {data && <p>フィード生成日時: {data.generated_at}</p>}
     </section>
 
+    {state.comparison.length > 0 && <TopicCaseComparison ids={state.comparison} notes={state.caseNotes} onRemove={toggleComparison} onNote={(id, note) => update(withCaseNote(state, id, note))} />}
+
     <div className="flex flex-wrap items-center justify-between gap-3">
       <h2 className="text-base">追跡する資料 <span className="text-sm text-muted-foreground">{loading || error ? "" : `${items.length}件 · 未読${unread.length}件`}</span></h2>
       <div className="flex flex-wrap gap-3 items-center">
@@ -80,6 +88,7 @@ export function TopicWatchView() {
         <button type="button" onClick={download} disabled={loading || error || shown.length === 0} className="inline-flex items-center gap-1.5 text-sm border border-border rounded-md px-3 py-2 disabled:opacity-40"><Download className="size-4" />表示中の資料を調査メモに出力</button>
       </div>
     </div>
+    <p className="text-xs text-muted-foreground">判例は「比較に追加」から2件まで選べます。{state.comparison.length === 2 && "比較対象を入れ替えるには、選択済みの判例を比較から外してください。"}</p>
     <section aria-label="追跡資料一覧" className="space-y-3">
       {loading ? <p role="status" className="text-sm text-muted-foreground">テーマの資料を読み込み中…</p>
         : error ? <div role="alert" className="rounded-lg border border-border p-5 text-sm"><p>テーマのフィードを読み込めませんでした。</p><button type="button" onClick={() => setAttempt(n => n + 1)} className="text-primary underline mt-2">再試行</button></div>
@@ -88,7 +97,10 @@ export function TopicWatchView() {
               <FeedRow item={item} />
               <div className="px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
                 <span className="text-muted-foreground">一致した語: {matchedKeywords(item, topic).join(" / ")}</span>
-                <button type="button" aria-pressed={read.has(feedItemKey(item))} onClick={() => toggleRead(feedItemKey(item))} className="text-primary underline">{read.has(feedItemKey(item)) ? "未読に戻す" : "既読にする"}</button>
+                <div className="flex flex-wrap gap-3">
+                  {watchCaseId(item) && <button type="button" aria-pressed={state.comparison.includes(watchCaseId(item)!)} disabled={state.comparison.length >= 2 && !state.comparison.includes(watchCaseId(item)!)} onClick={() => toggleComparison(watchCaseId(item)!)} className="text-primary underline disabled:opacity-40">{state.comparison.includes(watchCaseId(item)!) ? "比較から外す" : "比較に追加"}</button>}
+                  <button type="button" aria-pressed={read.has(feedItemKey(item))} onClick={() => toggleRead(feedItemKey(item))} className="text-primary underline">{read.has(feedItemKey(item)) ? "未読に戻す" : "既読にする"}</button>
+                </div>
               </div>
             </article>)}
     </section>
