@@ -35,6 +35,9 @@ pub struct CaseLaw {
     pub basis: String,
     pub evidence: Vec<DateEvidence>,
     pub versions: Vec<VersionCandidate>,
+    /// Browsing aids only; never used as historical evidence by the Wiki planner.
+    #[serde(default)]
+    pub reference_versions: Vec<VersionCandidate>,
     pub incomplete: bool,
 }
 #[derive(Debug, Serialize, Deserialize)]
@@ -273,7 +276,12 @@ pub fn resolve_hanrei_laws(
                         .is_some_and(|d| chrono::NaiveDate::parse_from_str(d, "%Y-%m-%d").is_ok())
             })
             .collect();
-        rows.sort_by_key(|v| v["effective_date"].as_str().unwrap());
+        rows.sort_by_key(|v| {
+            (
+                v["effective_date"].as_str().unwrap(),
+                v["revision_id"].as_str().unwrap(),
+            )
+        });
         // Only consider an explicit old-law phrase in the sentence containing this law's name.
         let old_context: Vec<_> = source_text
             .split('。')
@@ -357,7 +365,27 @@ pub fn resolve_hanrei_laws(
                 );
             }
         }
+        // Keep out-of-period browsing aids separate from date-selected candidates.
+        // In particular, the Wiki planner must not quote these as applicable law.
+        let mut reference_versions = Vec::new();
         if chosen.is_empty() {
+            let mut seen = BTreeSet::new();
+            reference_versions = rows
+                .iter()
+                .filter_map(|v| {
+                    let id = v["revision_id"].as_str().unwrap();
+                    if !seen.insert(id) {
+                        return None;
+                    }
+                    Some(VersionCandidate {
+                        revision_id: id.into(),
+                        effective_date: v["effective_date"].as_str().unwrap().into(),
+                        body_available: v["body_available"].as_bool() == Some(true)
+                            && v["path"].as_str().is_some(),
+                    })
+                })
+                .take(3)
+                .collect();
             incomplete = true;
             basis = "unresolved";
         }
@@ -369,6 +397,7 @@ pub fn resolve_hanrei_laws(
             basis: basis.into(),
             evidence,
             versions: chosen.into_values().collect(),
+            reference_versions,
             incomplete,
         });
     }
@@ -429,9 +458,10 @@ mod tests {
         assert_eq!(law.versions.len(), 1);
         assert_eq!(law.versions[0].revision_id, "L1_20200401_B");
         assert!(!law.versions[0].body_available);
+        assert!(law.reference_versions.is_empty());
     }
     #[test]
-    fn welfare_case_event_range_before_coverage_stays_unresolved() {
+    fn welfare_case_before_coverage_offers_separate_reference_versions() {
         let links = resolve("平成２５年から平成２７年にかけて生活扶助基準を改定したことに伴う保護変更決定について争う。", "生活保護法３条、８条２項", history());
         let law = &links.laws[0];
         assert_eq!(law.evidence[0].from, "2013-01-01");
@@ -439,6 +469,35 @@ mod tests {
         assert_eq!(law.basis, "unresolved");
         assert!(law.incomplete);
         assert!(law.versions.is_empty());
+        assert_eq!(law.reference_versions.len(), 3);
+        assert_eq!(law.reference_versions[0].revision_id, "L1_20160401_A");
+        assert!(!law.reference_versions[1].body_available);
+    }
+    #[test]
+    fn reference_versions_are_bounded_sorted_deduplicated_and_validated() {
+        let mut versions = history();
+        let rows = versions["versions"].as_array_mut().unwrap();
+        rows.reverse();
+        rows.push(rows[0].clone());
+        rows.push(json!({"revision_id":"L1_20300101_D","effective_date":"2030-01-01"}));
+        rows.push(json!({"revision_id":"OTHER_20000101","effective_date":"2000-01-01"}));
+        rows.push(json!({"revision_id":"L1_INVALID","effective_date":"2000-99-99"}));
+        let links = resolve(
+            "生活保護法（平成１５年法律第５号による改正前）８条。",
+            "",
+            versions,
+        );
+        let law = &links.laws[0];
+        assert_eq!(law.basis, "unresolved");
+        assert!(law.evidence.is_empty());
+        assert!(law.versions.is_empty());
+        assert_eq!(
+            law.reference_versions
+                .iter()
+                .map(|v| v.revision_id.as_str())
+                .collect::<Vec<_>>(),
+            vec!["L1_20160401_A", "L1_20200401_B", "L1_20261001_C"]
+        );
     }
     #[test]
     fn welfare_case_finds_event_after_parenthetical_statute_and_ignores_price_statistics() {
@@ -488,5 +547,6 @@ mod tests {
         assert_eq!(links.laws[0].versions[0].revision_id, "L1_20261001_C");
         let links = resolve("", "生活保護法８条", json!({"versions":[]}));
         assert_eq!(links.laws[0].basis, "unresolved");
+        assert!(links.laws[0].reference_versions.is_empty());
     }
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
-import { api, hanreiUrl, type CaseLawReference, type HanreiLawLinks, type LawDocumentRaw } from "../../data/api";
+import { api, hanreiUrl, type CaseLawReference, type CaseLawVersion, type VersionsJson, type HanreiLawLinks, type LawDocumentRaw } from "../../data/api";
 import { useHanreiCase, useHanreiLawLinks, useWikiPaths } from "../../data/use-hanrei";
 import { Button } from "../ui/button";
 
@@ -33,6 +33,21 @@ export function CaseLawEvidence({ law }: { law: CaseLawReference }) {
   </div>;
 }
 
+// Older published link files do not include reference_versions. Resolve browsing
+// candidates from the same version inventory without changing applicable versions.
+function referenceCandidates(lawId: string, history: VersionsJson): CaseLawVersion[] {
+  if (history.law_id !== lawId || !Array.isArray(history.versions)) throw new Error("history mismatch");
+  const seen = new Set<string>();
+  return history.versions.filter(v => {
+    const date = v.effective_date;
+    return v.revision_id?.startsWith(`${lawId}_`) && typeof date === "string"
+      && /^\d{4}-\d{2}-\d{2}$/.test(date)
+      && Number.isFinite(Date.parse(date)) && new Date(date).toISOString().slice(0, 10) === date;
+  }).sort((a, b) => a.effective_date!.localeCompare(b.effective_date!) || a.revision_id.localeCompare(b.revision_id))
+    .filter(v => { if (seen.has(v.revision_id)) return false; seen.add(v.revision_id); return true; })
+    .slice(0, 3).map(v => ({ revision_id: v.revision_id, effective_date: v.effective_date!, body_available: v.body_available === true && typeof v.path === "string" }));
+}
+
 export function HanreiLawView() {
   const { caseId = "", lawId = "", article = "" } = useParams();
   const [params, setParams] = useSearchParams();
@@ -40,8 +55,26 @@ export function HanreiLawView() {
   const { data: caseData } = useHanreiCase(caseId);
   const paths = useWikiPaths();
   const law = links?.laws.find(l => l.law_id === lawId && l.articles.includes(article));
+  const [historyAttempt, setHistoryAttempt] = useState(0);
+  const [historyState, setHistoryState] = useState<{ key: string; versions?: CaseLawVersion[]; error?: boolean }>();
+  const historyKey = `${caseId}/${lawId}`;
+  const needsHistory = !!law && law.basis === "unresolved" && law.versions.length === 0 && law.reference_versions === undefined;
+  useEffect(() => {
+    let active = true;
+    if (needsHistory) {
+      setHistoryState(undefined);
+      api.versions(lawId).then(data => {
+        const versions = referenceCandidates(lawId, data);
+        if (active) setHistoryState({ key: historyKey, versions });
+      }).catch(() => { if (active) setHistoryState({ key: historyKey, error: true }); });
+    }
+    return () => { active = false; };
+  }, [historyKey, needsHistory, historyAttempt]);
+  const history = historyState?.key === historyKey ? historyState : undefined;
+  const isReference = !!law && law.basis === "unresolved" && law.versions.length === 0;
+  const versions = law?.versions.length ? law.versions : isReference ? law?.reference_versions ?? history?.versions ?? [] : [];
   const requested = params.get("revision");
-  const version = law?.versions.find(v => v.revision_id === requested) ?? (!requested ? law?.versions[0] : undefined);
+  const version = versions.find(v => v.revision_id === requested) ?? (!requested ? versions[0] : undefined);
   const revision = version?.revision_id;
   const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState<{ key: string; data?: LawDocumentRaw; error?: boolean }>();
@@ -78,12 +111,20 @@ export function HanreiLawView() {
           {paths?.has(links.wiki_path) && <Link className="text-primary underline" to={`/wiki/${links.wiki_path}`}>判例のLLM wiki</Link>}
           {paths?.has(law.wiki_path) && <Link className="text-primary underline" to={`/wiki/${law.wiki_path}`}>関連法令のwiki</Link>}
         </div>
-        {law.versions.length > 0 && <label className="block text-sm">表示する版候補<select aria-label="表示する版候補" className="block border rounded p-2 w-full mt-1 bg-background" value={revision ?? ""} onChange={e => { const next = new URLSearchParams(params); next.set("revision", e.target.value); setParams(next); }}>
+        {isReference && <section className="border rounded-lg p-3 space-y-2 text-sm" aria-label="適用版が未特定の場合の参考候補">
+          <h2 className="font-medium">適用版は未特定ですが、参考候補を表示します</h2>
+          <p>収録履歴の古い順に最大3件を表示します。対象期間より後の版を含む場合があります。当時の適用条文であることや、条文が改正されていないことは確認できていません。</p>
+          {needsHistory && !history && <p>参考候補を読み込み中…</p>}
+          {history?.error && <div role="alert">参考候補を読み込めませんでした。<Button variant="outline" onClick={() => setHistoryAttempt(n => n + 1)}>候補を再試行</Button></div>}
+          {!versions.length && (!needsHistory || history?.versions) && <p>収録履歴にも版候補がありません。</p>}
+        </section>}
+        {versions.length > 0 && <label className="block text-sm">{isReference ? "表示する参考候補（適用版は未確認）" : "表示する版候補"}<select aria-label={isReference ? "表示する参考候補" : "表示する版候補"} className="block border rounded p-2 w-full mt-1 bg-background" value={revision ?? ""} onChange={e => { const next = new URLSearchParams(params); next.set("revision", e.target.value); setParams(next); }}>
           {requested && !version && <option value="">候補にない版です</option>}
-          {law.versions.map(v => <option key={v.revision_id} value={v.revision_id}>{v.effective_date}施行 · {v.revision_id}{v.body_available ? "" : "（本文未収録）"}</option>)}
+          {versions.map(v => <option key={v.revision_id} value={v.revision_id}>{v.effective_date}施行 · {v.revision_id}{v.body_available ? "" : "（本文未収録）"}</option>)}
         </select></label>}
-        {!version ? <p>対象時点の法令版を特定できません。裁判所の原文を確認してください。</p>
+        {!version ? requested ? <p>指定された版は候補にありません。上の候補から選択してください。</p> : !isReference ? <p>対象時点の法令版を特定できません。裁判所の原文を確認してください。</p> : null
           : <>
+            {isReference && <p className="text-sm font-medium" role="note">参考表示：当時の適用版とは未確認です。{law.evidence.length > 0 && version.effective_date > law.evidence.map(e => e.to).sort().at(-1)! ? `この版の施行日（${version.effective_date}）は対象期間より後です。` : ""}</p>}
             <p className="text-xs text-muted-foreground">表示版: {version.revision_id}（{version.effective_date}施行）</p>
             {!version.body_available ? <p>この過去版の本文は未収録です。現行条文での代用は行っていません。</p>
               : state?.key === key && state.error ? <div role="alert">過去版本文を読み込めませんでした。<Button variant="outline" onClick={() => setAttempt(n => n + 1)}>本文を再試行</Button></div>

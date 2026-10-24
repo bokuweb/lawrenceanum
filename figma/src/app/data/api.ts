@@ -1362,10 +1362,12 @@ export type LawToPubcomments = {
 
 /** Shared version candidates used by the case view and the Wiki planner. Offsets are UTF-16. */
 export type CaseLawCitation = { field: string; law_id: string; article: string; paragraph: number | null; start: number; end: number; text: string };
+export type CaseLawVersion = { revision_id: string; effective_date: string; body_available: boolean };
 export type CaseLawReference = {
   law_id: string; title: string; articles: string[]; wiki_path: string;
   basis: string; evidence: { from: string; to: string; text: string }[];
-  versions: { revision_id: string; effective_date: string; body_available: boolean }[];
+  versions: CaseLawVersion[];
+  reference_versions?: CaseLawVersion[];
   incomplete: boolean;
 };
 export type HanreiLawLinks = {
