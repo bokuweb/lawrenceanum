@@ -5,6 +5,7 @@ import { caseComparisonReport, type ResearchProject } from "../../data/topic-wat
 import { useHanreiLawLinks } from "../../data/use-hanrei";
 import { HanreiExplanation } from "./hanrei-explanation";
 import { LinkedCaseText } from "./hanrei-law-view";
+import { TopicArticleComparison } from "./topic-article-comparison";
 
 type CaseState = { data: HanreiCase | null; error: boolean };
 
@@ -17,6 +18,9 @@ export function TopicCaseComparison({ ids, notes, project, onRemove, onNote }: {
   const [wikiError, setWikiError] = useState(false);
   const [wikiAttempt, setWikiAttempt] = useState(0);
   const key = ids.join(",");
+  const firstLinks = useHanreiLawLinks(ids[0] ?? "");
+  const secondLinks = useHanreiLawLinks(ids[1] ?? "");
+  const lawStates = [firstLinks, secondLinks];
   useEffect(() => {
     let active = true;
     setCases({});
@@ -42,7 +46,7 @@ export function TopicCaseComparison({ ids, notes, project, onRemove, onNote }: {
   const download = () => {
     if (!ready) return;
     const explained = wiki ? new Set(wiki.filter(page => page.type === "hanrei" && !page.stub).map(page => page.path)) : null;
-    const blob = new Blob([caseComparisonReport(ids.map(id => cases[id].data!), notes, explained, window.location.href, project)], { type: "text/markdown;charset=utf-8" });
+    const blob = new Blob([caseComparisonReport(ids.map(id => cases[id].data!), notes, explained, window.location.href, project, Object.fromEntries(ids.map((id, index) => [id, lawStates[index]])))], { type: "text/markdown;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url; link.download = `hanrei-comparison-${ids.join("-")}.md`; link.click();
@@ -59,24 +63,24 @@ export function TopicCaseComparison({ ids, notes, project, onRemove, onNote }: {
     {wikiError ? <p role="status" className="text-xs">AI解説の収録状況を確認できませんでした。<button type="button" onClick={() => setWikiAttempt(n => n + 1)} className="ml-2 text-primary underline">Wikiの確認を再試行</button></p>
       : wiki === null && <p role="status" className="text-xs text-muted-foreground">AI解説の収録状況を確認中…</p>}
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      {ids.map(id => <div key={id} className="min-w-0 border border-border rounded-lg p-3 space-y-3">
+      {ids.map((id, index) => <div key={id} className="min-w-0 border border-border rounded-lg p-3 space-y-3">
         <div className="flex gap-2 justify-between items-start">
           <h3 className="text-sm font-semibold">{cases[id]?.data?.case_name || `判例 ${id}`}</h3>
           <button type="button" onClick={() => onRemove(id)} className="text-xs text-primary underline shrink-0" aria-label={`判例${id}を比較から外す`}>比較から外す</button>
         </div>
         {cases[id]?.error ? <div role="alert" className="text-sm"><p>判例を読み込めないか、比較対象との対応を確認できませんでした。</p><button type="button" onClick={() => setAttempt(n => n + 1)} className="text-primary underline mt-2">判例を再試行</button></div>
           : !cases[id]?.data ? <p role="status" className="text-sm text-muted-foreground">判例を読み込み中…</p>
-            : <CaseContent source={cases[id].data!} paths={paths} wiki={wiki?.find(page => page.type === "hanrei" && !page.stub && page.path === `hanrei/${id}`)} />}
+            : <CaseContent source={cases[id].data!} links={lawStates[index]} paths={paths} wiki={wiki?.find(page => page.type === "hanrei" && !page.stub && page.path === `hanrei/${id}`)} />}
         <label className="block text-sm">判例{id}の比較メモ<textarea maxLength={2000} rows={3} value={notes[id] ?? ""} onChange={event => onNote(id, event.target.value)} placeholder="事案の違い、確認した理由、未確認の点など" className="block w-full mt-1 p-2 rounded border border-border bg-background text-sm" /></label>
       </div>)}
     </div>
+    {ready && <TopicArticleComparison cases={ids.map(id => cases[id].data!)} states={lawStates} paths={paths} />}
     <p className="text-xs text-muted-foreground">出力には裁判所公表データ、原文・条文候補・公開済みAI解説へのリンク、自分の比較メモを含みます。判例の比較対象とメモは共有・同期されません。</p>
   </section>;
 }
 
-function CaseContent({ source, paths, wiki }: { source: HanreiCase; paths: ReadonlySet<string> | null; wiki?: WikiPageMeta }) {
+function CaseContent({ source, links, paths, wiki }: { source: HanreiCase; links: ReturnType<typeof useHanreiLawLinks>; paths: ReadonlySet<string> | null; wiki?: WikiPageMeta }) {
   const id = String(source.case_id);
-  const links = useHanreiLawLinks(id);
   const [open, setOpen] = useState(false);
   return <>
     <dl className="text-sm space-y-2">

@@ -31,8 +31,9 @@ export function useHanreiLawLinks(caseId: string) {
   useEffect(() => {
     let active = true;
     setState({ key: caseId, data: null, error: false });
+    if (!caseId) return () => { active = false; };
     api.hanreiLawLinks(caseId).then(data => {
-      if (data.schema_version !== 1 || String(data.case_id) !== caseId) throw new Error("case link mismatch");
+      if (data.schema_version !== 1 || String(data.case_id) !== caseId || !Array.isArray(data.laws) || !Array.isArray(data.citations)) throw new Error("case link mismatch");
       if (active) setState({ key: caseId, data, error: false });
     }).catch(() => { if (active) setState({ key: caseId, data: null, error: true }); });
     return () => { active = false; };

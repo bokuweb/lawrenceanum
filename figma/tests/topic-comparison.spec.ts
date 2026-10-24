@@ -43,6 +43,178 @@ async function selectTwo(page: Page) {
   await expect(page.getByRole("button", { name: "比較メモを出力", exact: true })).toBeEnabled();
 }
 
+const welfareId = "325AC0000000144";
+const otherLawId = "337AC0000000139";
+function articleLinks(id: number) {
+  const law = (law_id: string, title: string, articles: string[]) => ({
+    law_id, title, articles, wiki_path: `laws/${law_id}`, basis: id === 97208 ? "event_date_candidate" : "unresolved",
+    evidence: [{ from: "2013-01-01", to: "2015-12-31", text: `判例${id}の改定期間を抽出` }],
+    versions: [], reference_versions: [], incomplete: true,
+  });
+  return {
+    schema_version: 1, case_id: id, notice: "版候補", wiki_path: `hanrei/${id}`,
+    laws: [law(welfareId, "生活保護法", id === 97208 ? ["8", "3", "8"] : ["8"]),
+      ...(id === 97209 ? [law(otherLawId, "行政事件訴訟法", ["8"])] : [])],
+    citations: [
+      { field: "summary", law_id: welfareId, article: "8", paragraph: id === 97208 ? 2 : 1, start: 0, end: citation.length, text: citation },
+      { field: "summary", law_id: welfareId, article: "8", paragraph: id === 97208 ? 2 : 1, start: 0, end: citation.length, text: citation },
+      { field: "summary", law_id: welfareId, article: "3", paragraph: null, start: 0, end: 4, text: "古い抽出箇所" },
+    ],
+  };
+}
+
+async function mockArticleLinks(page: Page) {
+  await page.route("**/links/hanrei-to-laws/*.json", route => route.fulfill({ json: articleLinks(Number(route.request().url().match(/\/(\d+)\.json/)![1])) }));
+  await page.route("**/wiki/index.json", route => route.fulfill({ json: { ...wiki, pages: [...wiki.pages, { path: `laws/${welfareId}`, type: "law", title: "生活保護法", description: "法令解説", tags: [] }] } }));
+  // The second case mentions a different paragraph of the same article.
+  await page.route("**/hanrei/97209.json", route => route.fulfill({ json: { ...source(97209), summary: source(97209).summary.replace("２", "１") } }));
+  await page.route("**/links/hanrei-to-laws/97209.json", route => {
+    const links = articleLinks(97209);
+    links.citations = links.citations.map(c => ({ ...c, text: c.text.replace("２", "１") }));
+    return route.fulfill({ json: links });
+  });
+}
+
+test("共通条文を法令ID・条単位で比較し、項・事件別の版根拠・原文・法令Wikiをたどれる", async ({ page }) => {
+  await mock(page); await mockArticleLinks(page); await selectTwo(page);
+  const articles = page.getByRole("region", { name: "抽出条文の比較", exact: true });
+  await expect(articles).toContainText("共通して抽出：1条 / 片方のみで抽出：2条");
+  await expect(articles.getByRole("article")).toHaveCount(3);
+  const common = articles.getByRole("article").filter({ has: page.getByRole("heading", { name: "生活保護法 第8条", exact: true }) });
+  await expect(common).toContainText("抽出された項：第2項");
+  await expect(common).toContainText("抽出された項：第1項");
+  await expect(common.getByRole("link", { name: "判例97208の第2項の候補", exact: true })).toHaveAttribute("href", `#/hanrei/97208/laws/${welfareId}/8?paragraph=2`);
+  await expect(common.getByRole("link", { name: "判例97209の第1項の候補", exact: true })).toHaveAttribute("href", `#/hanrei/97209/laws/${welfareId}/8?paragraph=1`);
+  for (const id of [97208, 97209]) {
+    await expect(common.getByRole("link", { name: `判例${id}の条文・版候補`, exact: true })).toHaveAttribute("href", `#/hanrei/${id}/laws/${welfareId}/8`);
+  }
+  await expect(common.getByRole("link", { name: "法令Wikiで解説・関連資料を確認" })).toHaveAttribute("href", `#/wiki/laws/${welfareId}`);
+  await common.locator("summary").first().click();
+  await common.locator("summary").last().click();
+  await expect(common).toContainText("本文の出来事の日付による候補");
+  await expect(common).toContainText("版を特定できません");
+  await expect(common).toContainText("判例97209の改定期間を抽出");
+  // Duplicate offsets are listed once per case; stale extraction is not quoted.
+  await expect(common.getByRole("link", { name: "裁判要旨の言及箇所を確認", exact: true })).toHaveCount(2);
+  const unique = articles.getByRole("article").filter({ has: page.getByRole("heading", { name: "生活保護法 第3条", exact: true }) });
+  await unique.locator("summary").click();
+  await expect(unique).toContainText("現在の判例データと一致する言及箇所を確認できません");
+  await expect(unique).not.toContainText("古い抽出箇所");
+  const otherLaw = articles.getByRole("article").filter({ has: page.getByRole("heading", { name: "行政事件訴訟法 第8条", exact: true }) });
+  await expect(otherLaw).toContainText("判例97209のみで抽出");
+  await expect(otherLaw.getByRole("link", { name: /法令Wiki/ })).toHaveCount(0);
+  await expect(articles).toContainText("項・適用版・争点・先例関係の一致を示しません");
+  await common.getByRole("link", { name: "裁判要旨の言及箇所を確認", exact: true }).last().click();
+  await expect(page).toHaveURL(/#\/hanrei\/97209\?source=summary$/);
+  await expect(page.locator("#hanrei-source-summary")).toBeFocused();
+});
+
+test("比較メモに抽出条文と各事件の候補・原文リンクを含め、古い引用とAI本文を出力しない", async ({ page }) => {
+  await mock(page); await mockArticleLinks(page); await selectTwo(page);
+  await expect(page.getByRole("region", { name: "抽出条文の比較", exact: true })).toContainText("共通して抽出：1条");
+  const waiting = page.waitForEvent("download");
+  await page.getByRole("button", { name: "比較メモを出力", exact: true }).click();
+  const report = await readFile((await (await waiting).path())!, "utf8");
+  expect(report).toContain("## 抽出条文の比較");
+  expect(report.match(/### 生活保護法 第8条/g)).toHaveLength(1);
+  expect(report).toContain("裁判要旨の抽出箇所（第1項への言及）: 生活保護法８条１項");
+  expect(report).toContain("適用版は未特定");
+  expect(report).toContain(`${BASE}#/hanrei/97208/laws/${welfareId}/8`);
+  expect(report).toContain(`${BASE}#/hanrei/97209/laws/${welfareId}/8`);
+  expect(report).toContain(`${BASE}#/hanrei/97209/laws/${welfareId}/8?paragraph=1`);
+  expect(report).toContain(`${BASE}#/hanrei/97209/laws/${otherLawId}/8`);
+  expect(report).toContain("言及や適用がないことを意味しません");
+  expect(report).not.toContain("古い抽出箇所");
+  expect(report).not.toContain("AIの概要97208");
+});
+
+test("条文データの別事件・不正形式を該当なしと扱わず、再試行後に分類と出力を回復する", async ({ page }) => {
+  await mock(page); await mockArticleLinks(page);
+  let stage = 0;
+  await page.route("**/links/hanrei-to-laws/97209.json", route => route.fulfill({ json: stage === 0 ? articleLinks(97210) : stage === 1 ? { schema_version: 1, case_id: 97209 } : articleLinks(97209) }));
+  await selectTwo(page);
+  const articles = page.getByRole("region", { name: "抽出条文の比較", exact: true });
+  await expect(articles).toContainText("判定を保留しています");
+  await expect(articles).not.toContainText("共通して抽出：");
+  const waiting = page.waitForEvent("download");
+  await page.getByRole("button", { name: "比較メモを出力", exact: true }).click();
+  const report = await readFile((await (await waiting).path())!, "utf8");
+  expect(report).toContain("条文データの確認が完了していないため");
+  expect(report).toContain("判例97209: 取得失敗・対応未確認");
+  expect(report).not.toContain("両判例で抽出");
+  stage = 1;
+  await articles.getByRole("button", { name: "判例97209の条文比較を再試行", exact: true }).click();
+  await expect(articles.getByRole("button", { name: "判例97209の条文比較を再試行", exact: true })).toBeVisible();
+  stage = 2;
+  await articles.getByRole("button", { name: "判例97209の条文比較を再試行", exact: true }).click();
+  await expect(articles).toContainText("共通して抽出：1条");
+});
+
+test("未抽出の案内と比較対象の入れ替えが正しく、モバイルでも条文比較がはみ出さない", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await mock(page); await selectTwo(page);
+  const articles = page.getByRole("region", { name: "抽出条文の比較", exact: true });
+  await expect(articles).toContainText("比較できる条文は未抽出です");
+  await mockArticleLinks(page);
+  await page.reload();
+  await expect(articles).toContainText("共通して抽出：1条");
+  await articles.locator("summary").first().click();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
+  await articles.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: test.info().outputPath("article-comparison-mobile.png") });
+  await page.getByRole("button", { name: "判例97208を比較から外す", exact: true }).click();
+  await expect(articles).toHaveCount(0);
+  await page.getByRole("region", { name: "追跡資料一覧" }).getByRole("button", { name: "比較に追加", exact: true }).last().click();
+  await expect(articles).toContainText("共通して抽出：1条 / 片方のみで抽出：1条");
+  await expect(articles).not.toContainText("判例97208");
+  await expect(articles.getByRole("link", { name: "判例97210の条文・版候補", exact: true })).toHaveAttribute("href", `#/hanrei/97210/laws/${welfareId}/8`);
+});
+
+test("確認中の出力は分類を保留し、外した判例の遅い応答が次の比較に混入しない", async ({ page }) => {
+  await mock(page); await mockArticleLinks(page);
+  let release!: () => void;
+  let delivered!: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  const completed = new Promise<void>(resolve => { delivered = resolve; });
+  await page.route("**/links/hanrei-to-laws/97208.json", async route => {
+    await gate;
+    await route.fulfill({ json: articleLinks(97208) });
+    delivered();
+  });
+  try {
+    await selectTwo(page);
+    const articles = page.getByRole("region", { name: "抽出条文の比較", exact: true });
+    await expect(articles).toContainText("判例97208：条文データを確認中");
+    await expect(articles).not.toContainText("共通して抽出：");
+    const waiting = page.waitForEvent("download");
+    await page.getByRole("button", { name: "比較メモを出力", exact: true }).click();
+    const report = await readFile((await (await waiting).path())!, "utf8");
+    expect(report).toContain("判例97208: 確認未完了");
+    expect(report).not.toContain("両判例で抽出");
+    await page.getByRole("button", { name: "判例97208を比較から外す", exact: true }).click();
+    await page.getByRole("region", { name: "追跡資料一覧" }).getByRole("button", { name: "比較に追加", exact: true }).last().click();
+    await expect(articles).toContainText("共通して抽出：1条 / 片方のみで抽出：1条");
+    release(); await completed;
+    await expect(articles).not.toContainText("判例97208");
+    await expect(articles.getByRole("heading", { name: "生活保護法 第3条", exact: true })).toHaveCount(0);
+  } finally { release(); }
+});
+
+test("参照法条の言及箇所から判例ページの該当欄へ移動できる", async ({ page }) => {
+  await mock(page); await mockArticleLinks(page);
+  await page.route("**/links/hanrei-to-laws/97208.json", route => {
+    const links = articleLinks(97208);
+    links.citations = [{ ...links.citations[0], field: "referenced_laws" }];
+    return route.fulfill({ json: links });
+  });
+  await selectTwo(page);
+  const common = page.getByRole("region", { name: "抽出条文の比較", exact: true }).getByRole("article").filter({ has: page.getByRole("heading", { name: "生活保護法 第8条", exact: true }) });
+  await common.locator("summary").first().click();
+  await common.getByRole("link", { name: "参照法条の言及箇所を確認", exact: true }).click();
+  await expect(page).toHaveURL(/#\/hanrei\/97208\?source=referenced_laws$/);
+  await expect(page.locator("#hanrei-source-referenced_laws")).toBeFocused();
+});
+
 test("2判例の公式要旨・結果・条文候補とLLM解説を同じ画面で確認できる", async ({ page }) => {
   await mock(page); await selectTwo(page);
   const comparison = page.getByRole("region", { name: "判例の比較", exact: true });
