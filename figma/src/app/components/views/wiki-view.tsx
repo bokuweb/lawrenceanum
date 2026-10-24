@@ -10,6 +10,7 @@ import { WIKI_TYPES, WIKI_TYPE_ORDER } from "./wiki-types";
 import { setShowStubs, useShowStubs } from "./wiki-prefs";
 import { WikiEvidence } from "./wiki-evidence";
 import { WikiMarkdown } from "./wiki-markdown";
+import { HanreiCitationContext } from "./hanrei-citation-context";
 
 const WikiGraphCanvas = lazy(() => import("./wiki-graph").then(m => ({ default: m.WikiGraphCanvas })));
 
@@ -315,6 +316,12 @@ function WikiPageView({
             </div>
             <WikiEvidence page={page.data} onOpen={onOpen} />
             <WikiMarkdown body={page.data.body} from={path} onOpen={onOpen} />
+            {str("type") === "hanrei" && !page.data.stub
+              && Number.isSafeInteger(fm.case_id) && (fm.case_id as number) > 0
+              && page.data.path === path && path === `hanrei/${fm.case_id}`
+              && str("source_fingerprint") && str("source_fingerprint") === str("llm_source_fingerprint") && (
+              <HanreiCitationContext key={path} caseId={String(fm.case_id)} citations={page.data.hanrei_citations ?? []} />
+            )}
 
             {/* 隣接だけの図。全体のグラフは毛玉になるので、ここでは「このページの周り」だけを描く。 */}
             {graph && neighbors.length > 0 && (
