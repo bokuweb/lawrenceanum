@@ -131,6 +131,13 @@ pub fn run_export(args: &ExportArgs) -> Result<()> {
     let published_hanrei: BTreeSet<_> = hanrei::completed_pages(wiki)?
         .into_iter().map(|(rel, _)| rel).collect();
     pages.retain(|(rel,p)| p.get_str("type") != hanrei::KIND || published_hanrei.contains(rel));
+    let cases: Vec<_> = pages.iter().filter(|(_, p)| p.get_str("type") == hanrei::KIND).cloned().collect();
+    let case_relations = hanrei::case_relations(&cases);
+    for (rel, page) in &mut pages {
+        if let Some(related) = case_relations.get(rel) {
+            page.body = hanrei::body_with_case_relations(rel, page, related);
+        }
+    }
     report::write_manifest(&pages, &args.out.join("report-manifest.json"))?;
     let known: BTreeSet<&str> = pages.iter().map(|(rel, _)| rel.as_str()).collect();
     let page_lookup: BTreeMap<&str, &Page> = pages.iter().map(|(rel, page)| (rel.as_str(), page)).collect();
@@ -154,7 +161,7 @@ pub fn run_export(args: &ExportArgs) -> Result<()> {
 
         let dest = args.out.join("page").join(format!("{id}.json"));
         std::fs::create_dir_all(dest.parent().expect("has parent"))?;
-        std::fs::write(&dest, serde_json::to_vec(&json!({ "path": id, "frontmatter": fm, "body": display_body(&page.body), "stub": is_stub(page), "claim_assessments": evidence::assessments(page), "citation_sources": citation_sources(rel, page, &page_lookup), "hanrei_explanation": (page.get_str("type") == hanrei::KIND).then(|| first_llm_block(&page.body)) }))?)?;
+        std::fs::write(&dest, serde_json::to_vec(&json!({ "path": id, "frontmatter": fm, "body": display_body(&page.body), "stub": is_stub(page), "claim_assessments": evidence::assessments(page), "citation_sources": citation_sources(rel, page, &page_lookup), "hanrei_explanation": (page.get_str("type") == hanrei::KIND).then(|| first_llm_block(&page.body)), "hanrei_related_cases": case_relations.get(rel) }))?)?;
 
         if HUB_PAGES.contains(&rel.as_str()) {
             continue;

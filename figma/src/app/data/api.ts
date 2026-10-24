@@ -396,7 +396,11 @@ export type WikiCitationSource = {
   /** 引用元会議の要約の状態。このページの記述がその版に対応するとは限らない。 */
   summary_source_status: "current" | "stale" | "pending" | "untracked" | null;
 }
-export type WikiPage = { path: string; frontmatter: Record<string, unknown>; body: string; hanrei_explanation?: string | null; stub?: boolean; claim_assessments?: WikiClaim[]; citation_sources?: WikiCitationSource[] }
+export type WikiRelatedCase = {
+  path: string; case_id: number; title: string; judged_on: string; court: string; description: string;
+  common_articles: { law_id: string; title: string; article: string }[];
+}
+export type WikiPage = { path: string; frontmatter: Record<string, unknown>; body: string; hanrei_explanation?: string | null; hanrei_related_cases?: WikiRelatedCase[] | null; stub?: boolean; claim_assessments?: WikiClaim[]; citation_sources?: WikiCitationSource[] }
 
 export const api = {
   index: () => getJson<IndexJson>('./index.json'),

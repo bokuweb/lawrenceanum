@@ -117,7 +117,7 @@ function HanreiDetail({ caseId }: { caseId: string }) {
           {[["判示事項", data.holding, "holding"], ["裁判要旨", data.summary, "summary"], ["参照法条", data.referenced_laws, "referenced_laws"]].map(([label, value, field]) => value && (
             <section key={label} className="mt-6"><h2 className="text-base font-semibold mb-2">{label}</h2><p className="whitespace-pre-wrap text-sm leading-7"><LinkedCaseText text={value} field={field} links={lawLinks.data} /></p></section>
           ))}
-          <HanreiExplanation caseId={caseId} published={wikiPaths?.has(`hanrei/${caseId}`) ?? false} />
+          <HanreiExplanation caseId={caseId} wikiPaths={wikiPaths} />
           <section className="mt-6" data-testid="hanrei-body">
             <h2 className="text-base font-semibold mb-2">本文</h2>
             {data.body_text?.trim() ? <>
