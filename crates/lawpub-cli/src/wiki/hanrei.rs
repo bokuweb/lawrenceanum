@@ -341,7 +341,7 @@ fn bundle(
     } else {
         "判決PDFの機械抽出本文・判示事項・裁判要旨"
     };
-    let mut result = json!({"kind":KIND,"case_id":id,"case":doc,"laws":laws,"excerpts":excerpts,"has_case_text":has_case_text,"scope":scope,"captured_on":today,"summary_format_version":2});
+    let mut result = json!({"kind":KIND,"case_id":id,"case":doc,"laws":laws,"excerpts":excerpts,"has_case_text":has_case_text,"scope":scope,"captured_on":today,"summary_format_version":3});
     result["summary_input"] = prompt_bundle(&result)["summary_input"].clone();
     result["source_fingerprint"] = json!(hex::encode(Sha256::digest(serde_json::to_vec(&result)?)));
     Ok(result)
@@ -598,12 +598,22 @@ pub fn summary_errors(page: &Page) -> Vec<String> {
     if citations.iter().any(|c| !c.reference.starts_with(&prefix)) {
         errors.push("別の判例の引用をこの判例の根拠にできません".into());
     }
-    let enhanced = page
+    let version = page
         .get("summary_format_version")
         .and_then(Value::as_u64)
-        .unwrap_or(1)
-        >= 2;
-    let headings = if enhanced {
+        .unwrap_or(1);
+    let enhanced = version >= 2;
+    let headings = if version >= 3 {
+        vec![
+            "要約",
+            "事案",
+            "争点",
+            "結論",
+            "判断と理由",
+            "射程・留意点",
+            "法令との関係",
+        ]
+    } else if enhanced {
         vec!["要約", "事案", "争点", "判断と理由", "法令との関係"]
     } else {
         vec!["事案", "争点", "判断と理由", "法令との関係"]
@@ -1144,6 +1154,66 @@ mod tests {
     }
 
     #[test]
+    fn outcome_and_limits_require_case_evidence_and_keep_older_formats_readable() {
+        let mut page = Page::default();
+        page.set("case_id", json!(42));
+        page.set("summary_format_version", json!(3));
+        let sections = [
+            "要約",
+            "事案",
+            "争点",
+            "結論",
+            "判断と理由",
+            "射程・留意点",
+            "法令との関係",
+        ];
+        let prose = sections
+            .iter()
+            .map(|h| format!("## {h}\nこの事件の説明[^1]。\n\n"))
+            .collect::<String>();
+        page.body = format!("{LLM_BEGIN}\n{prose}[^1]: [hanrei:42#summary](https://example.com/case) 「この事件の原文」\n[^law]: [hanrei:42#law-L1-1-v1](https://example.com/law) 「条文の原文」\n{LLM_END}");
+        assert!(summary_errors(&page).is_empty());
+        for heading in ["結論", "射程・留意点"] {
+            for text in ["", "根拠のない説明。", "条文だけの説明[^law]。"] {
+                let mut changed = page.clone();
+                changed.body = changed.body.replace(
+                    &format!("## {heading}\nこの事件の説明[^1]。"),
+                    &format!("## {heading}\n{text}"),
+                );
+                assert!(
+                    summary_errors(&changed).iter().any(|e| e.contains(heading)),
+                    "{heading}: {text}"
+                );
+            }
+            let mut unknown = page.clone();
+            unknown.body = unknown.body.replace(
+                &format!("## {heading}\nこの事件の説明[^1]。"),
+                &format!("## {heading}\n{UNKNOWN}"),
+            );
+            assert!(summary_errors(&unknown).is_empty());
+            let mut missing = page.clone();
+            missing.body = missing
+                .body
+                .replace(&format!("## {heading}\nこの事件の説明[^1]。\n\n"), "");
+            assert!(summary_errors(&missing).iter().any(|e| e.contains(heading)));
+        }
+        let mut legacy = page.clone();
+        for heading in ["結論", "射程・留意点"] {
+            legacy.body = legacy
+                .body
+                .replace(&format!("## {heading}\nこの事件の説明[^1]。\n\n"), "");
+        }
+        assert!(summary_errors(&legacy).iter().any(|e| e.contains("結論")));
+        legacy.set("summary_format_version", json!(2));
+        assert!(summary_errors(&legacy).is_empty());
+        legacy
+            .frontmatter
+            .retain(|(k, _)| k != "summary_format_version");
+        legacy.body = legacy.body.replace("## 要約\nこの事件の説明[^1]。\n\n", "");
+        assert!(summary_errors(&legacy).is_empty());
+    }
+
+    #[test]
     fn case_relations_require_the_same_law_and_article_and_remove_old_links() {
         let root = temp_dir("case-relations");
         let mut cases = Vec::new();
@@ -1287,7 +1357,7 @@ mod tests {
         let path = wiki.join(&task.page);
         let mut page = Page::read(&path).unwrap();
         page.set("description", json!("民法709条に関する損害賠償請求の判例"));
-        let narrative = format!("## 要約\n民法709条による損害賠償請求について判断した[^1]。\n\n## 事案\n{UNKNOWN}\n\n## 争点\n{UNKNOWN}\n\n## 判断と理由\n損害賠償請求について判断した[^1]。\n\n## 法令との関係\n民法709条に言及した[^1]。\n\n[^1]: [hanrei:{}#holding](https://www.courts.go.jp/hanrei/{}/detail2/index.html) 「民法第709条による損害賠償請求について判断した。」",task.id,task.id);
+        let narrative = format!("## 要約\n民法709条による損害賠償請求について判断した[^1]。\n\n## 事案\n{UNKNOWN}\n\n## 争点\n{UNKNOWN}\n\n## 結論\n{UNKNOWN}\n\n## 判断と理由\n損害賠償請求について判断した[^1]。\n\n## 射程・留意点\n{UNKNOWN}\n\n## 法令との関係\n民法709条に言及した[^1]。\n\n[^1]: [hanrei:{}#holding](https://www.courts.go.jp/hanrei/{}/detail2/index.html) 「民法第709条による損害賠償請求について判断した。」",task.id,task.id);
         page.body = page.body.replace(
             &format!("{LLM_BEGIN}\n{LLM_END}"),
             &format!("{LLM_BEGIN}\n{narrative}\n{LLM_END}"),
@@ -1317,6 +1387,8 @@ mod tests {
         assert!(page.body.contains("../laws/L1.md"));
         let bundle: Value =
             serde_json::from_slice(&std::fs::read(work.join(&tasks[0].source)).unwrap()).unwrap();
+        assert_eq!(bundle["summary_format_version"], 3);
+        assert_eq!(page.get("summary_format_version"), Some(&json!(3)));
         assert_eq!(bundle["laws"][0]["articles"], json!(["709"]));
         assert!(bundle["excerpts"]
             .as_array()
