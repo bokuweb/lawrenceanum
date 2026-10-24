@@ -52,6 +52,7 @@ export function HanreiRelatedCases({ caseId, cases, wikiPaths }: {
             {wikiPaths?.has(`laws/${a.law_id}`) && <Link to={`/wiki/laws/${a.law_id}`} className="text-primary underline" aria-label={`${a.title}の法令Wiki`}>法令Wiki</Link>}
           </span>)}
           <Link to={`/wiki/${c.path}`} className="text-primary underline" aria-label={`${c.title}のWiki`}>判例Wiki</Link>
+          <Link to={`/watch?case=${caseId}&case=${c.case_id}`} className="text-primary underline" aria-label={`${c.title}と表示中の判例を比較`}>この2件を調査案件で比較</Link>
         </div>
       </li>)}
     </ul>

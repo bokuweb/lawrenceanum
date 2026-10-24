@@ -1,4 +1,5 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router";
 import { ArrowLeft, ExternalLink, Network, Search } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -311,6 +312,7 @@ function WikiPageView({
               </p>
             )}
             <div className="flex flex-wrap items-center gap-1.5 mb-5">
+              {verifiedHanrei && <Link to={`/watch?case=${fm.case_id}`} className="text-xs text-primary underline mr-2">この判例を調査案件で比較</Link>}
               {str("resource") && (
                 <a
                   href={str("resource")}

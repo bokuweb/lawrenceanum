@@ -6,6 +6,7 @@ import { captureFeedCheckpoint, emptyWatchState, feedItemChange, feedItemKey, ma
 import { FeedRow } from "./feed-view";
 import { TopicCaseComparison } from "./topic-case-comparison";
 import { TopicResearchProjects } from "./topic-research-projects";
+import { TopicComparisonRequest } from "./topic-comparison-request";
 
 const topic = watchTopics[0];
 
@@ -15,12 +16,13 @@ export function TopicWatchView() {
   const [error, setError] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [storageError, setStorageError] = useState(false);
+  const [storageReady, setStorageReady] = useState(false);
   const [state, setState] = useState<WatchState>(emptyWatchState);
   const [onlyUnread, setOnlyUnread] = useState(false);
   const [onlyChanges, setOnlyChanges] = useState(false);
   const [checkpointError, setCheckpointError] = useState(false);
   useEffect(() => {
-    try { setState(readWatchState()); } catch { setStorageError(true); }
+    try { setState(readWatchState()); setStorageReady(true); } catch { setStorageError(true); }
   }, []);
   useEffect(() => {
     let active = true;
@@ -34,8 +36,8 @@ export function TopicWatchView() {
 
   const update = (next: WatchState) => {
     setState(next);
-    try { localStorage.setItem(WATCH_STORAGE_KEY, JSON.stringify({ version: 1, ...next })); setStorageError(false); }
-    catch { setStorageError(true); }
+    try { localStorage.setItem(WATCH_STORAGE_KEY, JSON.stringify({ version: 1, ...next })); setStorageError(false); return true; }
+    catch { setStorageError(true); return false; }
   };
   const items = useMemo(() => [...(data?.items ?? [])].filter(item => matchedKeywords(item, topic).length > 0).sort((a, b) => b.date.localeCompare(a.date)), [data]);
   const read = useMemo(() => new Set(state.read), [state.read]);
@@ -118,6 +120,10 @@ export function TopicWatchView() {
     <TopicResearchProjects projects={state.projects} active={project} comparisonCount={comparison.length} storageError={storageError}
       onCreate={createProject} onOpen={id => update({ ...state, activeProject: id })} onEdit={updateProject}
       onDelete={id => update({ ...state, projects: state.projects.filter(item => item.id !== id), activeProject: state.activeProject === id ? null : state.activeProject })} />
+
+    <TopicComparisonRequest comparison={comparison} projectTitle={project?.title} storageReady={storageReady} onApply={ids => project
+      ? updateProject({ ...project, comparison: ids })
+      : update({ ...state, comparison: ids })} />
 
     {comparison.length > 0 && <TopicCaseComparison key={project?.id ?? "general"} ids={comparison} notes={caseNotes} project={project} onRemove={toggleComparison}
       onNote={(id, note) => project ? updateProject(withCaseNote(project, id, note)) : update(withCaseNote(state, id, note))} />}
