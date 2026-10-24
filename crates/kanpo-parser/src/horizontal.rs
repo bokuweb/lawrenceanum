@@ -4162,7 +4162,7 @@ fn horizontal_dual_gutter(left: &[Col], right: &[Col], blocks: &[Block], x: f32)
 // conservative grammar constraint on arbitrary content, never issuer/title
 // vocabulary or a line/character count. Unknown source membership or an
 // unmatched delimiter cannot authorize a different layout.
-fn orthogonal_order_preserves_spans(
+pub(crate) fn orthogonal_order_preserves_spans(
     words: &[Col],
     baseline: &[trace::Line],
     candidate: &[trace::Line],

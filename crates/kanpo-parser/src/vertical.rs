@@ -443,6 +443,13 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 }
             }
             units.extend(tail);
+            if !sideways {
+                if let Some(rules) = page_rules {
+                    crate::ruled_cell_flow::restore(
+                        &mut units, &words, &native_bounds, &native_axes, &grids, rules,
+                    );
+                }
+            }
             crate::financial_flow::restore(&mut units, &mut words);
             prefix_minus(&mut units, &minus, &word_texts);
             if !sideways { crate::native_triangle_cells::restore(&mut units, &words, page); }
