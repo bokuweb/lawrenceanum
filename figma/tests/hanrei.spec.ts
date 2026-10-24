@@ -63,9 +63,11 @@ test("AI概要の取得失敗でも公式情報で検索でき、解説のみの
   await page.getByRole("textbox", { name: "判例一覧の絞り込み" }).fill("行政処分");
   await expect(page.getByText("1 / 2件")).toBeVisible();
   await page.getByRole("button", { name: "AI解説あり", exact: true }).click();
+  await expect(page.getByRole("button", { name: "AI解説あり", exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByText("該当する判例がありません")).toHaveCount(0);
   await expect(page.getByText("0 / 2件")).toHaveCount(0);
   await page.getByRole("textbox", { name: "判例一覧の絞り込み" }).fill("");
+  await expect(page).toHaveURL(/#\/hanrei\?wiki=ready$/);
   fail = false;
   await page.getByRole("button", { name: "AI概要を再試行" }).click();
   await expect(page.getByText("1 / 2件")).toBeVisible();

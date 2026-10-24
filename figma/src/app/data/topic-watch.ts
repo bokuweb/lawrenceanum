@@ -3,23 +3,49 @@ import { hanreiUrl, type FeedItem, type HanreiCase, type WatchTopic } from "./ap
 
 export const watchTopics: WatchTopic[] = definitions;
 export const WATCH_STORAGE_KEY = "lawrenceanum:topic-watch:v1";
-export type WatchState = { followed: boolean; read: string[]; note: string; comparison: string[]; caseNotes: Record<string, string> };
-export const emptyWatchState: WatchState = { followed: false, read: [], note: "", comparison: [], caseNotes: {} };
+export type ResearchProject = {
+  id: string; title: string; question: string; findings: string; pending: string;
+  comparison: string[]; caseNotes: Record<string, string>; updatedAt: string;
+};
+export const MAX_RESEARCH_PROJECTS = 10;
+export type WatchState = { followed: boolean; read: string[]; note: string; comparison: string[]; caseNotes: Record<string, string>; projects: ResearchProject[]; activeProject: string | null };
+export const emptyWatchState: WatchState = { followed: false, read: [], note: "", comparison: [], caseNotes: {}, projects: [], activeProject: null };
 const validCaseId = (value: unknown): value is string => typeof value === "string" && /^[1-9]\d{0,9}$/.test(value);
 export const watchCaseId = (item: FeedItem) => item.kind === "hanrei" && item.internal ? item.href.match(/^\/hanrei\/([1-9]\d{0,9})$/)?.[1] : undefined;
+const readComparison = (value: unknown) => Array.isArray(value) ? [...new Set<string>(value.filter(validCaseId))].slice(0, 2) : [];
+const readCaseNotes = (value: unknown): Record<string, string> => value && typeof value === "object" && !Array.isArray(value)
+  ? Object.fromEntries(Object.entries(value).filter(([id, note]) => validCaseId(id) && typeof note === "string").slice(-100).map(([id, note]) => [id, (note as string).slice(0, 2000)])) : {};
+
+function readProjects(value: unknown): ResearchProject[] {
+  if (!Array.isArray(value)) return [];
+  const projects: ResearchProject[] = [];
+  for (const entry of value) {
+    if (!entry || typeof entry.id !== "string" || !/^[a-zA-Z0-9-]{1,64}$/.test(entry.id) || projects.some(project => project.id === entry.id)
+      || typeof entry.title !== "string" || !entry.title.trim() || typeof entry.updatedAt !== "string" || Number.isNaN(Date.parse(entry.updatedAt))) continue;
+    const comparison = readComparison(entry.comparison);
+    const notes = readCaseNotes(entry.caseNotes);
+    projects.push({ id: entry.id, title: entry.title.trim().slice(0, 100), comparison,
+      caseNotes: notes, updatedAt: new Date(entry.updatedAt).toISOString(),
+      question: typeof entry.question === "string" ? entry.question.slice(0, 2000) : "",
+      findings: typeof entry.findings === "string" ? entry.findings.slice(0, 4000) : "",
+      pending: typeof entry.pending === "string" ? entry.pending.slice(0, 4000) : "" });
+    if (projects.length === MAX_RESEARCH_PROJECTS) break;
+  }
+  return projects;
+}
 
 export function readWatchState(): WatchState {
   const raw = localStorage.getItem(WATCH_STORAGE_KEY);
   if (!raw) return emptyWatchState;
   const value = JSON.parse(raw);
   if (value?.version !== 1 || typeof value.followed !== "boolean" || !Array.isArray(value.read) || typeof value.note !== "string") throw new Error("invalid watch state");
-  const comparison = Array.isArray(value.comparison) ? [...new Set<string>(value.comparison.filter(validCaseId))].slice(0, 2) : [];
-  const caseNotes = value.caseNotes && typeof value.caseNotes === "object" && !Array.isArray(value.caseNotes)
-    ? Object.fromEntries(Object.entries(value.caseNotes).filter(([id, note]) => validCaseId(id) && typeof note === "string").slice(-100).map(([id, note]) => [id, (note as string).slice(0, 2000)])) : {};
-  return { followed: value.followed, read: value.read.filter((id: unknown) => typeof id === "string" && id.length < 2000).slice(-2000), note: value.note.slice(0, 5000), comparison, caseNotes };
+  const projects = readProjects(value.projects);
+  return { followed: value.followed, read: value.read.filter((id: unknown) => typeof id === "string" && id.length < 2000).slice(-2000), note: value.note.slice(0, 5000),
+    comparison: readComparison(value.comparison), caseNotes: readCaseNotes(value.caseNotes), projects,
+    activeProject: projects.some(project => project.id === value.activeProject) ? value.activeProject : null };
 }
 
-export function withCaseNote(state: WatchState, caseId: string, note: string): WatchState {
+export function withCaseNote<T extends { caseNotes: Record<string, string> }>(state: T, caseId: string, note: string): T {
   const notes = Object.entries(state.caseNotes).filter(([id]) => id !== caseId);
   return { ...state, caseNotes: Object.fromEntries([...notes, [caseId, note.slice(0, 2000)]].slice(-100)) };
 }
@@ -32,7 +58,32 @@ export const matchedKeywords = (item: FeedItem, topic: WatchTopic) => topic.keyw
 
 const plain = (value: string) => value.replace(/[\\`*_{}[\]<>#|]/g, "\\$&");
 
-export function caseComparisonReport(cases: HanreiCase[], notes: Record<string, string>, wikiPaths: ReadonlySet<string> | null, base: string) {
+function projectRecordLines(project: ResearchProject) {
+  const lines = ["## 利用者の調査記録", "", `案件名: ${plain(project.title)}`, `案件の保存日時: ${project.updatedAt}`, "",
+    "以下は利用者が記入した記録です。法的な結論や資料の確認状況をシステムが判定したものではありません。", "表示する資料は再開時に取得します。案件保存時の資料を固定したものではありません。", ""];
+  for (const [label, text] of [["調査する問い", project.question], ["確認した出典・箇所", project.findings], ["未確認の点・次に調べること", project.pending]]) {
+    lines.push(`### ${label}`, "", plain(text.trim() || "未記入"), "");
+  }
+  return lines;
+}
+
+/** 取得失敗時や比較対象が2件未満でも、利用者の記録は持ち出せる。 */
+export function researchProjectReport(project: ResearchProject, base: string) {
+  const root = new URL("./", base).href;
+  const lines = ["# 調査案件の記録", "", `出力日時: ${new Date().toISOString()}`, "", ...projectRecordLines(project),
+    "## 比較対象の確認先", "", "この出力は利用者の記録と確認先リンクです。公式要旨やLLMによる解説本文は含みません。当時の条文は適用版が未確定の候補である場合があります。", "",
+    `比較対象: ${project.comparison.length}件`, ""];
+  for (const id of project.comparison) {
+    lines.push(`### 判例 ${id}`, "", `判例・条文の版候補・関連Wikiの確認先: ${root}#/hanrei/${id}`, `裁判所の原文・出典: ${hanreiUrl(Number(id))}`, "");
+    if (project.caseNotes[id]?.trim()) lines.push("自分の比較メモ:", "", plain(project.caseNotes[id]), "");
+  }
+  const otherNotes = Object.entries(project.caseNotes).filter(([id, note]) => !project.comparison.includes(id) && note.trim());
+  if (otherNotes.length) lines.push("## 比較対象から外した判例のメモ", "");
+  for (const [id, note] of otherNotes) lines.push(`### 判例 ${id}`, "", `確認先: ${root}#/hanrei/${id}`, "", plain(note), "");
+  return lines.join("\n");
+}
+
+export function caseComparisonReport(cases: HanreiCase[], notes: Record<string, string>, wikiPaths: ReadonlySet<string> | null, base: string, project?: ResearchProject) {
   const root = new URL("./", base).href;
   const lines = ["# 判例の比較メモ", "", `出力日時: ${new Date().toISOString()}`, "",
     "比較対象は利用者が選択した判例です。結論の違いだけでは法的な評価・判例変更を判断できません。",
@@ -40,6 +91,7 @@ export function caseComparisonReport(cases: HanreiCase[], notes: Record<string, 
     "LLMによる要約・解説はリンク先で表示します。この出力にはAIの解説本文を含めていません。",
     "当時の条文は版候補で、適用版が確定していない場合があります。原文・経過措置を確認してください。", "",
     `比較対象: ${cases.length}件`, ""];
+  if (project) lines.push(...projectRecordLines(project));
   for (const source of cases) {
     const id = String(source.case_id);
     const path = `hanrei/${id}`;

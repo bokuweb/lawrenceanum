@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 import { Bell, Check, Download, Rss } from "lucide-react";
 import { api, type TopicFeed } from "../../data/api";
-import { emptyWatchState, feedItemKey, matchedKeywords, readWatchState, WATCH_STORAGE_KEY, watchCaseId, watchReport, watchTopics, withCaseNote, type WatchState } from "../../data/topic-watch";
+import { emptyWatchState, feedItemKey, matchedKeywords, MAX_RESEARCH_PROJECTS, readWatchState, WATCH_STORAGE_KEY, watchCaseId, watchReport, watchTopics, withCaseNote, type ResearchProject, type WatchState } from "../../data/topic-watch";
 import { FeedRow } from "./feed-view";
 import { TopicCaseComparison } from "./topic-case-comparison";
+import { TopicResearchProjects } from "./topic-research-projects";
 
 const topic = watchTopics[0];
 
@@ -39,10 +40,22 @@ export function TopicWatchView() {
   const unread = items.filter(item => !read.has(feedItemKey(item)));
   const shown = onlyUnread ? unread : items;
   const toggleRead = (key: string) => update({ ...state, read: read.has(key) ? state.read.filter(id => id !== key) : [...state.read, key].slice(-2000) });
+  const project = state.projects.find(item => item.id === state.activeProject);
+  const comparison = project?.comparison ?? state.comparison;
+  const caseNotes = project?.caseNotes ?? state.caseNotes;
+  const updateProject = (next: ResearchProject) => update({ ...state, projects: state.projects.map(item => item.id === next.id ? { ...next, updatedAt: new Date().toISOString() } : item) });
+  const createProject = (title: string) => {
+    if (state.projects.length >= MAX_RESEARCH_PROJECTS || !title.trim()) return;
+    const next: ResearchProject = { id: crypto.randomUUID(), title: title.trim().slice(0, 100), question: "", findings: "", pending: "", comparison: [...comparison],
+      caseNotes: Object.fromEntries(comparison.map(id => [id, caseNotes[id] ?? ""])), updatedAt: new Date().toISOString() };
+    update({ ...state, projects: [...state.projects, next], activeProject: next.id });
+  };
   const toggleComparison = (id: string) => {
-    const selected = state.comparison.includes(id);
-    if (!selected && state.comparison.length >= 2) return;
-    update({ ...state, comparison: selected ? state.comparison.filter(value => value !== id) : [...state.comparison, id] });
+    const selected = comparison.includes(id);
+    if (!selected && comparison.length >= 2) return;
+    const next = selected ? comparison.filter(value => value !== id) : [...comparison, id];
+    if (project) updateProject({ ...project, comparison: next });
+    else update({ ...state, comparison: next });
   };
   const download = () => {
     if (!data) return;
@@ -79,7 +92,12 @@ export function TopicWatchView() {
       {data && <p>フィード生成日時: {data.generated_at}</p>}
     </section>
 
-    {state.comparison.length > 0 && <TopicCaseComparison ids={state.comparison} notes={state.caseNotes} onRemove={toggleComparison} onNote={(id, note) => update(withCaseNote(state, id, note))} />}
+    <TopicResearchProjects projects={state.projects} active={project} comparisonCount={comparison.length} storageError={storageError}
+      onCreate={createProject} onOpen={id => update({ ...state, activeProject: id })} onEdit={updateProject}
+      onDelete={id => update({ ...state, projects: state.projects.filter(item => item.id !== id), activeProject: state.activeProject === id ? null : state.activeProject })} />
+
+    {comparison.length > 0 && <TopicCaseComparison key={project?.id ?? "general"} ids={comparison} notes={caseNotes} project={project} onRemove={toggleComparison}
+      onNote={(id, note) => project ? updateProject(withCaseNote(project, id, note)) : update(withCaseNote(state, id, note))} />}
 
     <div className="flex flex-wrap items-center justify-between gap-3">
       <h2 className="text-base">追跡する資料 <span className="text-sm text-muted-foreground">{loading || error ? "" : `${items.length}件 · 未読${unread.length}件`}</span></h2>
@@ -88,7 +106,7 @@ export function TopicWatchView() {
         <button type="button" onClick={download} disabled={loading || error || shown.length === 0} className="inline-flex items-center gap-1.5 text-sm border border-border rounded-md px-3 py-2 disabled:opacity-40"><Download className="size-4" />表示中の資料を調査メモに出力</button>
       </div>
     </div>
-    <p className="text-xs text-muted-foreground">判例は「比較に追加」から2件まで選べます。{state.comparison.length === 2 && "比較対象を入れ替えるには、選択済みの判例を比較から外してください。"}</p>
+    <p className="text-xs text-muted-foreground">判例は「比較に追加」から2件まで選べます。{project && `現在の案件: ${project.title}。`}{comparison.length === 2 && "比較対象を入れ替えるには、選択済みの判例を比較から外してください。"}</p>
     <section aria-label="追跡資料一覧" className="space-y-3">
       {loading ? <p role="status" className="text-sm text-muted-foreground">テーマの資料を読み込み中…</p>
         : error ? <div role="alert" className="rounded-lg border border-border p-5 text-sm"><p>テーマのフィードを読み込めませんでした。</p><button type="button" onClick={() => setAttempt(n => n + 1)} className="text-primary underline mt-2">再試行</button></div>
@@ -98,7 +116,7 @@ export function TopicWatchView() {
               <div className="px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
                 <span className="text-muted-foreground">一致した語: {matchedKeywords(item, topic).join(" / ")}</span>
                 <div className="flex flex-wrap gap-3">
-                  {watchCaseId(item) && <button type="button" aria-pressed={state.comparison.includes(watchCaseId(item)!)} disabled={state.comparison.length >= 2 && !state.comparison.includes(watchCaseId(item)!)} onClick={() => toggleComparison(watchCaseId(item)!)} className="text-primary underline disabled:opacity-40">{state.comparison.includes(watchCaseId(item)!) ? "比較から外す" : "比較に追加"}</button>}
+                  {watchCaseId(item) && <button type="button" aria-pressed={comparison.includes(watchCaseId(item)!)} disabled={comparison.length >= 2 && !comparison.includes(watchCaseId(item)!)} onClick={() => toggleComparison(watchCaseId(item)!)} className="text-primary underline disabled:opacity-40">{comparison.includes(watchCaseId(item)!) ? "比較から外す" : "比較に追加"}</button>}
                   <button type="button" aria-pressed={read.has(feedItemKey(item))} onClick={() => toggleRead(feedItemKey(item))} className="text-primary underline">{read.has(feedItemKey(item)) ? "未読に戻す" : "既読にする"}</button>
                 </div>
               </div>
