@@ -11,7 +11,7 @@ interface MarkdownNode {
 }
 
 function headingText(node: MarkdownNode): string {
-  if (node.type === "footnoteReference") return "";
+  if (node.type === "footnoteReference" || node.type === "html") return "";
   return node.value ?? node.alt ?? node.children?.map(headingText).join("") ?? "";
 }
 

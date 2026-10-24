@@ -284,7 +284,7 @@ for (const surface of ["hanrei", "wiki/hanrei"] as const) {
     test(`判例の目次から見出しへキーボードで移動する: ${surface}, ${reducedMotion}`, async ({ page }) => {
       await mockCaseLinks(page);
       const markdown = [
-        "## **要約**", "短い要約[^1]。", "## 結論", "結論の説明。",
+        "## **要約**<span></span>[^1]", "短い要約[^1]。", "## 結論", "結論の説明。",
         "### 判断の理由", "理由の説明。", "## 結論", "別の結論の補足。",
         "```md", "## コード内の見出し", "```", "> ## 引用内の見出し",
         "[^1]: [原文](https://www.courts.go.jp/hanrei/92002/)",
