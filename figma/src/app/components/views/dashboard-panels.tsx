@@ -108,6 +108,7 @@ export function WikiSummaryCard({ index, loading }: { index: WikiIndex | null; l
 
 const FEED_KINDS: Record<string, { label: string; icon: any }> = {
   law: { label: "法令改正", icon: BookOpen },
+  hanrei: { label: "判例", icon: BookOpen },
   bill: { label: "法案", icon: Landmark },
   pubcomment: { label: "パブコメ", icon: MessageSquare },
   kanpo: { label: "官報", icon: Newspaper },

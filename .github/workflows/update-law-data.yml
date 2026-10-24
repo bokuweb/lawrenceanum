@@ -955,6 +955,8 @@ jobs:
       - name: Build regulatory feeds
         if: steps.detect.outputs.changed == 'true'
         continue-on-error: true
+        env:
+          LAWPUB_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
         run: |
           ./target/release/lawpub build-feeds --public public \
             || echo "::warning::build-feeds failed"

@@ -1,10 +1,12 @@
 # プロダクトロードマップ — 規制変化アラート & 高ACV機能
 
+> **2026-10-24の優先方針:** 無料の検索・Wikiを維持し、「生活保護・行政救済」のテーマ追跡を試用する。5〜10人への試用で調査時間の短縮と月5,000円で継続する理由を確認してから、通知・課金基盤へ進む。実装範囲・検証手順・価格仮説は [テーマ追跡の試用計画](topic-watch-pilot.md) を参照。以下の高ACV施策と価格は過去の構想で、現時点の販売プランや検証済みの需要ではない。外部サービスの価格・対応状況も再確認が必要。
+
 > 法令データ基盤（法令↔改正↔官報新旧対照表↔パブコメ↔国会会議録）を「**規制変化アラート**」
 > プロダクトへ発展させ、客単価（ACV）を上げるための機能ロードマップ。
 > 関連: [`public-corpus-roadmap.md`](public-corpus-roadmap.md) / [`proceedings-plan.md`](proceedings-plan.md) /
 > [`reiki-plan.md`](reiki-plan.md) / [`diff-design.md`](diff-design.md)
-> 方針メモ: `memory/alert-mvp-direction.md`（アラートは T0 認証ゼロ → T1 マジックリンク → T2 B2B で段階展開）
+> 試用方針: [`topic-watch-pilot.md`](topic-watch-pilot.md)（認証ゼロの試用 → 需要検証 → 通知・同期・課金を段階展開）
 
 ---
 

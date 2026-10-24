@@ -8,10 +8,12 @@ on:
     branches: [main]
     paths:
       - "figma/**"
+      - "config/watch-topics.json"
       - ".github/workflows/e2e-history.yml"
   pull_request:
     paths:
       - "figma/**"
+      - "config/watch-topics.json"
       - ".github/workflows/e2e-history.yml"
   workflow_dispatch:
 

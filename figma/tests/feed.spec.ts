@@ -75,6 +75,17 @@ async function mockFeed(page: import("@playwright/test").Page) {
   await page.route("**/feeds/recent.json", (route) => route.fulfill({ json: FEED }));
 }
 
+test("判例を絞り込み、裁判所の判示事項とサイト内リンクを表示する", async ({ page }) => {
+  const judgment = { kind: "hanrei", date: "2026-06-19", title: "生活扶助基準の事件", href: "/hanrei/97208", internal: true, summary: "生活保護法の基準に関する判示事項" };
+  await page.route("**/feeds/recent.json", route => route.fulfill({ json: { ...FEED, count: 8, items: [judgment, ...FEED.items] } }));
+  await page.goto(new URL("#/feed", BASE).href);
+  await page.getByLabel("フィルタ-判例").click();
+  const list = page.getByRole("region", { name: "新着一覧", exact: true });
+  await expect(list.getByRole("link")).toHaveCount(1);
+  await expect(list.getByRole("link")).toHaveAttribute("href", "#/hanrei/97208");
+  await expect(list).toContainText("裁判所公表の判示事項");
+});
+
 test("新着フィードが横断アイテムとRSS購読を表示する", async ({ page }) => {
   await mockFeed(page);
   await page.goto(new URL("#/feed", BASE).toString());
