@@ -83,6 +83,7 @@ test("新規判例のWikiを判例フィルターから開き関連法令へ移�
   await expect(evidence).toContainText("原資料 50,000 文字中 36,000 文字");
   await expect(evidence).toContainText("抜粋外の理由・留保・反対意見は未確認");
   await expect(evidence).toContainText("AIによる要約・解説");
+  await expect(evidence).toContainText("LLM（大規模言語モデル）が生成しました。");
   await expect(page.getByRole("heading", { name: "裁判所の公開情報（原文）", exact: true })).toBeVisible();
   await expect(page.getByTestId("wiki-evidence").getByRole("alert")).toHaveCount(0);
   await page.getByRole("link", { name: "関連法令", exact: true }).click();

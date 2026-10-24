@@ -44,7 +44,7 @@ export function useWikiPaths() {
   const [paths, setPaths] = useState<Set<string> | null>(null);
   useEffect(() => {
     let active = true;
-    api.wikiIndex().then(index => { if (active) setPaths(new Set(index.pages.map(p => p.path))); }).catch(() => {});
+    api.wikiIndex().then(index => { if (active) setPaths(new Set(index.pages.filter(p => p.type !== "hanrei" || !p.stub).map(p => p.path))); }).catch(() => {});
     return () => { active = false; };
   }, []);
   return paths;

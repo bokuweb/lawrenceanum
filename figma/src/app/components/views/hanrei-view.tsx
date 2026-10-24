@@ -84,7 +84,7 @@ function HanreiList() {
       </div>
       {wikiError ? <div role="status" className="text-xs text-muted-foreground mb-3">AI概要を読み込めませんでした。{!onlyExplained && "裁判所のデータで検索できます。"}<Button variant="outline" size="sm" className="ml-2" onClick={() => setWikiAttempt(n => n + 1)}>AI概要を再試行</Button></div>
         : !wiki ? <p role="status" className="text-xs text-muted-foreground mb-3">AI概要を読み込み中…</p>
-        : explanations.size > 0 && <p className="text-xs text-muted-foreground mb-3">AI概要は公開済みWikiの説明文です。裁判所の裁判要旨とは異なります。解説と出典を確認してください。</p>}
+        : explanations.size > 0 && <p className="text-xs text-muted-foreground mb-3">AI概要はLLM（大規模言語モデル）が生成した公開済みWikiの説明文です。裁判所の裁判要旨とは異なります。解説と出典を確認してください。</p>}
       <div className="flex flex-wrap justify-between gap-2 mb-3 text-xs text-muted-foreground">
         <span>{data && (!onlyExplained || wiki) ? `${filtered.length.toLocaleString()} / ${data.count.toLocaleString()}件` : ""}</span>
         <Link to={query.trim() ? `/search?q=${encodeURIComponent(query.trim())}` : "/search"} className="text-primary hover:underline">横断検索で本文を検索</Link>
@@ -101,7 +101,7 @@ function HanreiList() {
                 <div className="flex flex-wrap items-center gap-2"><span className="font-medium">{c.case_name || c.case_number}</span>{c.result && <Badge variant="outline">{c.result}</Badge>}</div>
                 <p className="text-xs text-muted-foreground mt-1">{[c.judged_on, c.court, c.case_number].filter(Boolean).join(" · ")}</p>
                 {c.holding && <p className="text-sm text-muted-foreground mt-2 line-clamp-2 whitespace-pre-wrap">{c.holding}</p>}
-                {explanation?.description && <p className="text-sm mt-2 line-clamp-3 whitespace-pre-wrap" data-testid="hanrei-list-ai-summary">AI概要：{explanation.description}</p>}
+                {explanation?.description && <p className="text-sm mt-2 line-clamp-3 whitespace-pre-wrap" data-testid="hanrei-list-ai-summary">AI概要（LLM生成）：{explanation.description}</p>}
               </Link>
               {explanation && <Link to={`/wiki/${explanation.path}`} className="inline-block mx-4 mb-4 text-xs text-primary underline" aria-label={`${c.case_name || c.case_number}のAI解説を読む`}>WikiでAI解説・出典を読む</Link>}
             </div>;

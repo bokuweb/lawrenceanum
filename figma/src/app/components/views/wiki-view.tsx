@@ -11,6 +11,7 @@ import { setShowStubs, useShowStubs } from "./wiki-prefs";
 import { WikiEvidence } from "./wiki-evidence";
 import { WikiMarkdown } from "./wiki-markdown";
 import { HanreiCitationContext } from "./hanrei-citation-context";
+import { HanreiRelatedCases, publishedRelatedCases } from "./hanrei-related-cases";
 
 const WikiGraphCanvas = lazy(() => import("./wiki-graph").then(m => ({ default: m.WikiGraphCanvas })));
 
@@ -211,7 +212,7 @@ function WikiHome({
                           {p.title}
                           {p.stub && <span className="text-[10px] font-normal text-muted-foreground ml-1">（要約前）</span>}
                         </span>
-                        {p.description && <span className="text-xs text-muted-foreground line-clamp-2">{p.description}</span>}
+                        {p.description && <span className="text-xs text-muted-foreground line-clamp-2">{p.type === "hanrei" && !p.stub && "AI概要（LLM生成）："}{p.description}</span>}
                       </span>
                       {p.date && <span className="ml-auto text-xs text-muted-foreground shrink-0">{p.date}</span>}
                     </button>
@@ -248,6 +249,12 @@ function WikiPageView({
   const fm = page.data?.frontmatter ?? {};
   const str = (k: string) => (typeof fm[k] === "string" ? (fm[k] as string) : "");
   const tags = Array.isArray(fm.tags) ? (fm.tags as string[]) : [];
+  const verifiedHanrei = str("type") === "hanrei" && !page.data?.stub
+    && Number.isSafeInteger(fm.case_id) && (fm.case_id as number) > 0
+    && page.data?.path === path && path === `hanrei/${fm.case_id}`
+    && !!str("source_fingerprint") && str("source_fingerprint") === str("llm_source_fingerprint");
+  const wikiPaths = useMemo(() => index ? new Set(index.pages.filter(p => p.type !== "hanrei" || !p.stub).map(p => p.path)) : null, [index]);
+  const related = verifiedHanrei ? publishedRelatedCases(String(fm.case_id), page.data?.hanrei_related_cases ?? [], wikiPaths) : [];
 
   // グラフ上の隣接ページ (このページへのリンクと、このページからのリンク)。
   const showStubs = useShowStubs();
@@ -267,6 +274,8 @@ function WikiPageView({
         (b.date ?? "").localeCompare(a.date ?? ""),
       );
   }, [graph, index, path, showStubs]);
+  const relatedPaths = new Set(related.map(c => c.path));
+  const otherNeighbors = neighbors.filter(n => !relatedPaths.has(n.path));
 
   useEffect(() => {
     document.querySelector("main")?.scrollTo({ top: 0 });
@@ -295,7 +304,7 @@ function WikiPageView({
               {str("date") && <span className="text-xs text-muted-foreground">{str("date")}</span>}
             </div>
             <h1 className="text-2xl mb-1">{str("title") || path}</h1>
-            {str("description") && <p className="text-sm text-muted-foreground mb-2">{str("description")}</p>}
+            {str("description") && <p className="text-sm text-muted-foreground mb-2">{str("type") === "hanrei" && !page.data.stub && "AI概要（LLM生成）："}{str("description")}</p>}
             {page.data.stub && (
               <p className="text-xs rounded-md border border-border bg-muted/40 px-3 py-2 mb-3 text-muted-foreground" data-testid="wiki-stub-note">
                 このページはまだ LLM による要約がありません。収集したデータの一覧だけを表示しています（毎日の更新で順次まとめます）。
@@ -316,10 +325,7 @@ function WikiPageView({
             </div>
             <WikiEvidence page={page.data} onOpen={onOpen} />
             <WikiMarkdown body={page.data.body} from={path} onOpen={onOpen} />
-            {str("type") === "hanrei" && !page.data.stub
-              && Number.isSafeInteger(fm.case_id) && (fm.case_id as number) > 0
-              && page.data.path === path && path === `hanrei/${fm.case_id}`
-              && str("source_fingerprint") && str("source_fingerprint") === str("llm_source_fingerprint") && (
+            {verifiedHanrei && (
               <HanreiCitationContext key={path} caseId={String(fm.case_id)} citations={page.data.hanrei_citations ?? []} />
             )}
 
@@ -346,25 +352,28 @@ function WikiPageView({
             )}
           </article>
 
-          {neighbors.length > 0 && (
-            <aside className="text-sm">
-              <div className="text-xs font-semibold text-muted-foreground mb-2">つながっているページ ({neighbors.length})</div>
-              <ul className="space-y-1.5">
-                {neighbors.slice(0, NEIGHBOR_LIMIT).map(n => (
-                  <li key={n.path}>
-                    <button type="button" onClick={() => onOpen(n.path)} className="text-left flex items-start gap-1.5 hover:text-primary">
-                      <TypeBadge type={n.type} />
-                      <span className="leading-snug">
-                        {n.title}
-                        {n.stub && <span className="text-[10px] text-muted-foreground ml-1">（要約前）</span>}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-              {neighbors.length > NEIGHBOR_LIMIT && (
-                <p className="text-xs text-muted-foreground mt-2">ほか {neighbors.length - NEIGHBOR_LIMIT} 件（図で見ると全部たどれます）</p>
-              )}
+          {(related.length > 0 || otherNeighbors.length > 0) && (
+            <aside className="text-sm min-w-0 space-y-6">
+              {related.length > 0 && <HanreiRelatedCases key={path} caseId={String(fm.case_id)} cases={related} wikiPaths={wikiPaths} />}
+              {otherNeighbors.length > 0 && <div>
+                <div className="text-xs font-semibold text-muted-foreground mb-2">{related.length > 0 && "その他の"}つながっているページ ({otherNeighbors.length})</div>
+                <ul className="space-y-1.5">
+                  {otherNeighbors.slice(0, NEIGHBOR_LIMIT).map(n => (
+                    <li key={n.path}>
+                      <button type="button" onClick={() => onOpen(n.path)} className="text-left flex items-start gap-1.5 hover:text-primary">
+                        <TypeBadge type={n.type} />
+                        <span className="leading-snug">
+                          {n.title}
+                          {n.stub && <span className="text-[10px] text-muted-foreground ml-1">（要約前）</span>}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                {otherNeighbors.length > NEIGHBOR_LIMIT && (
+                  <p className="text-xs text-muted-foreground mt-2">ほか {otherNeighbors.length - NEIGHBOR_LIMIT} 件（図で見ると全部たどれます）</p>
+                )}
+              </div>}
             </aside>
           )}
         </div>
