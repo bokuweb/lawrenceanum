@@ -1,0 +1,959 @@
+{
+  "status": "validated native120 public-v2; goal227 active,100% not reached",
+  "baseline": {
+    "primary": "57f07f73d98bfa969ce30799263586012ec1a601",
+    "PR237": "d59e9b8a219531b67facb1c91952b3d5e996cb4c"
+  },
+  "priority": "Native text/layout/article ownership prioritized. NDLOCR0.0.15/f97e930b8c3e9512f7788f258ef685da26416483 unchanged. No OCR fusion or new model.",
+  "problem": "Separate signed court records were combined in one ArticleAnalysis although native Word and body order were intact.",
+  "source_oracle_before_runtime": {
+    "page": "20260925h017950021",
+    "source_pdf_sha256": "f3a8a67c6080852439065724903b44a13a34d213a071896f414ab55639e224d0",
+    "oracle_sha256": "08663ce6b8ad485c12ff6884bb232dd163174238de9ecac9e3a81a7040e08bd9",
+    "records": 3,
+    "body_lines": 177,
+    "all_words": 247,
+    "used_record_Word_counts": [
+      107,
+      103,
+      23
+    ]
+  },
+  "proof": [
+    "A complete Japanese era/year, balanced case type and positive integral case number must occupy an exact unquoted source line. No case-type/name/page-specific dispatch.",
+    "An immediately preceding nominal court signature must close above the header in the same original horizontal column; the next body line must be indented below it and stay within that source column.",
+    "All three lines must be Body in the same original Region, contain unique Used Word occurrences matching their complete rendered tokens, have explicit native glyph bounds, rightward axes and complete source/content typography.",
+    "The case header content styles must be disjoint from both court signature and body; signature and body styles must intersect. Shared punctuation fonts do not override actual alphanumeric glyph styles.",
+    "Tables, enclosed frames, quotations, incomplete/unknown metadata, same body/header styles and ambiguous ownership defer. Existing financial ranges remain protected.",
+    "Add line-offset article cuts only; reassign slices of the original Document Runs through the existing exact repartitioner. Keep all original text bytes, whitespace, underline styles, tables and order.",
+    "No arbitrary point tolerance, character/line/lookahead cap, debtor/issuer body keyword or model output is added. Standard court/case grammar vocabulary is intentional. Existing unrelated heuristics remain."
+  ],
+  "new_regressions": {
+    "parser_library": 13,
+    "independently_reviewed_original_full_API_Word_article_document": 1,
+    "total": 14,
+    "prior_expected_snapshot_or_corpus_updates": 0
+  },
+  "RED_history": {
+    "actual119_original": "1test fails:1article vs independently frozen3 original records; Word and page-text checks already pass.",
+    "initial_units": "7pass4fail before runtime change.",
+    "source_region_counterexample": "First implementation passes12 but fails1: footer from another Region could authorize a header. Retain held scope-RED log and add exact same-Region proof.",
+    "final_actual_public_units": "1781pass0fail; original1pass; all four native package gates2599pass0fail/ignored."
+  },
+  "validation": {
+    "all_public_API_single11992_conservation": true,
+    "whole159_all11992_PageTrace_and_material_exact": true,
+    "CLI11992_bytes_equal119_and_current_API": true,
+    "native": {
+      "terminal": 0,
+      "source_manifest_sha256": "bd7795272c4fd601d4d2edf1908eb20843ec7658a421916e50d60c5b3f75277f",
+      "commands": 130,
+      "integration_targets": 121,
+      "passed": 2599,
+      "failed": 0,
+      "ignored": 0,
+      "result_groups": 129,
+      "no_expected_snapshot_updates": true,
+      "all_commands_exit0": true
+    },
+    "changed_pages": 58,
+    "single_new_boundaries": 102,
+    "changed_whole_issues": 46,
+    "whole_new_boundaries": 102,
+    "all814_prior_snapshots_byte_exact": true,
+    "all_prior_expected_data_files_byte_exact": 982
+  },
+  "single_changed_pages": [
+    "20260716h017490025",
+    "20260723h017530025",
+    "20260724h017540018",
+    "20260727h017550018",
+    "20260727h017550019",
+    "20260728h017560022",
+    "20260728h017560023",
+    "20260729h017570017",
+    "20260729h017570018",
+    "20260731h017590022",
+    "20260731h017590023",
+    "20260803h017600020",
+    "20260807h017640023",
+    "20260814h017680025",
+    "20260817h017690018",
+    "20260819h017710021",
+    "20260820h017720021",
+    "20260821h017730022",
+    "20260824h017740019",
+    "20260825h017750020",
+    "20260826h017760023",
+    "20260826h017760024",
+    "20260827h017770020",
+    "20260831h017790021",
+    "20260901h017800020",
+    "20260902h017810020",
+    "20260903h017820028",
+    "20260907h017840027",
+    "20260908h017850023",
+    "20260909h017860024",
+    "20260910h017870019",
+    "20260911h017880022",
+    "20260914h017890021",
+    "20260915h017900021",
+    "20260916h017910021",
+    "20260917h017920023",
+    "20260918h017930022",
+    "20260918h017930023",
+    "20260925h017950020",
+    "20260925h017950021",
+    "20260925h017950022",
+    "20260928h017960017",
+    "20260928h017960018",
+    "20260929h017970019",
+    "20261001h017990020",
+    "20261005h018010018",
+    "20261006h018020023",
+    "20261006h018020024",
+    "20261007h018030023",
+    "20261007h018030024",
+    "20261008h018040023",
+    "20261009h018050021",
+    "20261013h018060019",
+    "20261014h018070022",
+    "20261014h018070023",
+    "20261015h018080025",
+    "20261016h018090024",
+    "20261019h018100022"
+  ],
+  "whole_changed_issues": [
+    {
+      "issue": "20260716h01749",
+      "pages": 32,
+      "sha256": "3146e0f4a245adf5632e95a5f068b1dfb7260b7746268c5adc52973d6c53c3f0",
+      "changed119": true,
+      "articles_after": 58,
+      "articles_before": 57,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260723h01753",
+      "pages": 32,
+      "sha256": "78bcee2e99ae0549b86640299f519f8a6d2ee116c6547407c0b4190fc0f1bfa9",
+      "changed119": true,
+      "articles_after": 81,
+      "articles_before": 80,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260724h01754",
+      "pages": 32,
+      "sha256": "e2ea87bd46877d895dddf6ec8cc9c36f0e6202dd70f4aae8e44549abc4f6cf18",
+      "changed119": true,
+      "articles_after": 122,
+      "articles_before": 119,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260727h01755",
+      "pages": 32,
+      "sha256": "1aac39636228751288e06d1a876ad447242e8345e90f835fcd7bce5ec0c950f4",
+      "changed119": true,
+      "articles_after": 134,
+      "articles_before": 130,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260728h01756",
+      "pages": 32,
+      "sha256": "bc6a6699e146db2e4a3008b7c0d83ebb6bcb355b934505bde77f08aafa580770",
+      "changed119": true,
+      "articles_after": 100,
+      "articles_before": 94,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260729h01757",
+      "pages": 32,
+      "sha256": "997a07c102239f119f4c257f96afcec60f9200ba135db5fcacad2b9a01cf54f7",
+      "changed119": true,
+      "articles_after": 81,
+      "articles_before": 79,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260731h01759",
+      "pages": 32,
+      "sha256": "ec08de622d36df1c256db6e753e0e3a01ba514dc426358a868beb32f43271fcf",
+      "changed119": true,
+      "articles_after": 140,
+      "articles_before": 137,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260803h01760",
+      "pages": 32,
+      "sha256": "351d496111d722fe22e5461d7109b7204f330413fd22a002a97fa484ab22dc76",
+      "changed119": true,
+      "articles_after": 94,
+      "articles_before": 92,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260807h01764",
+      "pages": 32,
+      "sha256": "cdcf58a68e4edc9f4f52f73489cae668e1a0b34f6e2dae9a932fb7df98c87af3",
+      "changed119": true,
+      "articles_after": 81,
+      "articles_before": 78,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260814h01768",
+      "pages": 32,
+      "sha256": "63c5c9c2992e3726d289d9459d231245006ccd3b92ad47799fe77159cbfbc3d6",
+      "changed119": true,
+      "articles_after": 128,
+      "articles_before": 127,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260817h01769",
+      "pages": 32,
+      "sha256": "043cddbcf1b9d0c68edeef69092c11189e5fc20ccaa1b50da065f50331c1f137",
+      "changed119": true,
+      "articles_after": 136,
+      "articles_before": 135,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260819h01771",
+      "pages": 32,
+      "sha256": "ebb9c50729ab25ab3b03556117ed3d4735d08d52e667106211a8b2300651dcab",
+      "changed119": true,
+      "articles_after": 72,
+      "articles_before": 71,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260820h01772",
+      "pages": 32,
+      "sha256": "14818d108888082c5a3f746e19d53085dd54d94cafc8a05678675b087a6e0a66",
+      "changed119": true,
+      "articles_after": 114,
+      "articles_before": 111,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260821h01773",
+      "pages": 32,
+      "sha256": "32c2099e994215ad3d340053fb3705ef93078c4bc0a9870eee6182ea4bfe7f1f",
+      "changed119": true,
+      "articles_after": 113,
+      "articles_before": 112,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260824h01774",
+      "pages": 32,
+      "sha256": "8d6aff83704f03604076ccd6948636379b2bb00ee2427b474e70c3c73917c294",
+      "changed119": true,
+      "articles_after": 131,
+      "articles_before": 130,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260825h01775",
+      "pages": 32,
+      "sha256": "e24372dd867215f95041b7fe3dfb4067d90d3852f89edef7fa0293eab70f6e11",
+      "changed119": true,
+      "articles_after": 120,
+      "articles_before": 119,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260826h01776",
+      "pages": 32,
+      "sha256": "fd1e5e009342d2e5dee6b56b56c4afc1d2f0f1252a5e832063409d9b81b72412",
+      "changed119": true,
+      "articles_after": 105,
+      "articles_before": 102,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260827h01777",
+      "pages": 32,
+      "sha256": "231b2ca8be32e387797ba1c34eb2a05fb88f26f4c746a0ad4e5b229c7502fbcc",
+      "changed119": true,
+      "articles_after": 91,
+      "articles_before": 90,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260831h01779",
+      "pages": 32,
+      "sha256": "f3dd56b707136fc926f49435348d2bd785a7e715e65b40e3e51e8c9a58343fb5",
+      "changed119": true,
+      "articles_after": 100,
+      "articles_before": 99,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260901h01780",
+      "pages": 32,
+      "sha256": "070d731aeeec0ea109c00929614d3cf6230967417fcd985a2d78d6630f1df142",
+      "changed119": true,
+      "articles_after": 65,
+      "articles_before": 63,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260902h01781",
+      "pages": 32,
+      "sha256": "899165deee22594b6fbf4b4a847de9b9e942de9340530c393f3886fe87cd6dea",
+      "changed119": true,
+      "articles_after": 65,
+      "articles_before": 64,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260903h01782",
+      "pages": 32,
+      "sha256": "1ab383efe50c24d4ba26d7cf4f70e826094188fcf4046a66d8019d796b8264f9",
+      "changed119": true,
+      "articles_after": 47,
+      "articles_before": 45,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260907h01784",
+      "pages": 32,
+      "sha256": "b9842cb269f5c42deec77bb54671c7d8922081d95a02eda7cbb8348a71afeac3",
+      "changed119": true,
+      "articles_after": 60,
+      "articles_before": 59,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260908h01785",
+      "pages": 32,
+      "sha256": "2d894d42c06d0f9c391298b147ea4540fd79c38426016d04cdbada5eb21d0d8b",
+      "changed119": true,
+      "articles_after": 44,
+      "articles_before": 43,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260909h01786",
+      "pages": 32,
+      "sha256": "1be5c002a4f33a734ccb2982b40e668104062518439b724428f2879affc00127",
+      "changed119": true,
+      "articles_after": 83,
+      "articles_before": 78,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260910h01787",
+      "pages": 32,
+      "sha256": "a1ce38ab78fe0a4a4a0ff96ea91cf4b847ce1acb9a1ad91eee5c4eabeb80eb7a",
+      "changed119": true,
+      "articles_after": 77,
+      "articles_before": 76,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260911h01788",
+      "pages": 32,
+      "sha256": "74a83b7d914d676c53dc85c59ad5953a7be94afd9779551d66c60cf28b9e43ba",
+      "changed119": true,
+      "articles_after": 78,
+      "articles_before": 77,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260914h01789",
+      "pages": 32,
+      "sha256": "8004d4ad38d57161fbcc9a012e313f356567736b9a7ce0618b8a3bf4c929df0d",
+      "changed119": true,
+      "articles_after": 106,
+      "articles_before": 102,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260915h01790",
+      "pages": 32,
+      "sha256": "7989e9473021c04490949f440c2e5e4155405a46870ac043d2da6140d13287f8",
+      "changed119": true,
+      "articles_after": 74,
+      "articles_before": 73,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260916h01791",
+      "pages": 32,
+      "sha256": "35a1a43b1020f2f16c27286da0a66d3981faacb80a1d541f8623cf8d6682a151",
+      "changed119": true,
+      "articles_after": 80,
+      "articles_before": 78,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260917h01792",
+      "pages": 32,
+      "sha256": "6a9172d0c4072b7b9286ced2e983509d37a418d01a3f7f2bd979f0687b163048",
+      "changed119": true,
+      "articles_after": 67,
+      "articles_before": 66,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260918h01793",
+      "pages": 32,
+      "sha256": "ff28aa4d4a4f14e9db7b4fdd9cd086ac8ebfd18d9e0673f5490acd8dfa8dc42a",
+      "changed119": true,
+      "articles_after": 121,
+      "articles_before": 119,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260925h01795",
+      "pages": 32,
+      "sha256": "c6ef3014240d7cc17f78cac575b68bf0ab69eafc71b4e0c7f3f3f97c1efce59d",
+      "changed119": true,
+      "articles_after": 122,
+      "articles_before": 115,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260928h01796",
+      "pages": 32,
+      "sha256": "617fe00bde980973586e98355fedca1e2d3b365ba3f33236a7387cc393683ed3",
+      "changed119": true,
+      "articles_after": 105,
+      "articles_before": 101,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260929h01797",
+      "pages": 32,
+      "sha256": "9c7f41a39a1d178ff8f553cc217141c0c4263ec24b8608961c683dc851871b33",
+      "changed119": true,
+      "articles_after": 113,
+      "articles_before": 112,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20261001h01799",
+      "pages": 32,
+      "sha256": "a59331a4b2c9aa03368146fe31b4c6165d5ac3d7e1e4209d8665eb83daa4dbfa",
+      "changed119": true,
+      "articles_after": 97,
+      "articles_before": 96,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20261005h01801",
+      "pages": 32,
+      "sha256": "7fe8ed5224ecf3f37b31bf3e941abf04dfe0174795b4438c0ec8c00a8fbb5a7a",
+      "changed119": true,
+      "articles_after": 87,
+      "articles_before": 84,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20261006h01802",
+      "pages": 32,
+      "sha256": "70608f30f3752f047013a7a71de055822861c0884fd76e1a978956c94facf2c7",
+      "changed119": true,
+      "articles_after": 86,
+      "articles_before": 82,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20261007h01803",
+      "pages": 32,
+      "sha256": "5240d1966c6166619e807423085f56cd54bcd8be2dbf6ed4ca6c2b01b880ddab",
+      "changed119": true,
+      "articles_after": 60,
+      "articles_before": 56,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20261008h01804",
+      "pages": 32,
+      "sha256": "fbf68b474037eb820a1260aacb35acf7e54ff8bce4d11da0862627523ed76108",
+      "changed119": true,
+      "articles_after": 85,
+      "articles_before": 84,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20261009h01805",
+      "pages": 32,
+      "sha256": "6ac4d2b172312f829db94f7818e8bf3b4661709d21b8505687010672802d041e",
+      "changed119": true,
+      "articles_after": 103,
+      "articles_before": 102,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20261013h01806",
+      "pages": 32,
+      "sha256": "867b748e0d7330e0257226b2bdb4c77c66636f1bb8e34ca555c70c4be54e0856",
+      "changed119": true,
+      "articles_after": 72,
+      "articles_before": 71,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20261014h01807",
+      "pages": 32,
+      "sha256": "11aa30977260e2ef52103daf52b5d991835b05d25a0ffac5b658ad1c0a055f56",
+      "changed119": true,
+      "articles_after": 73,
+      "articles_before": 68,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20261015h01808",
+      "pages": 32,
+      "sha256": "526f26442527bd80fd11b7dbc2ab7d0d24907d188ee9da6e1e4e80fe63dd30ed",
+      "changed119": true,
+      "articles_after": 55,
+      "articles_before": 52,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20261016h01809",
+      "pages": 32,
+      "sha256": "7a07701aaf1c7c77111fc0db47334d74e5276bd13d511e9ce676673a3ffad20f",
+      "changed119": true,
+      "articles_after": 92,
+      "articles_before": 89,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20261019h01810",
+      "pages": 32,
+      "sha256": "cc40ff541478fefc98e82227838dc55a9b8a971463d249da7d323ff53d95e9e8",
+      "changed119": true,
+      "articles_after": 58,
+      "articles_before": 57,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    }
+  ],
+  "original_pixel_review": {
+    "reviewer": "root",
+    "method": "Nonblind targeted original QuickLook review. Chronological coverage, maximum new-cut count, initial independent source oracle, and all affected case-type classes. Extra Mi-page added to cover the other affected issue. No blind30 regrading or whole-corpus accuracy estimate.",
+    "reviewed_pages": 17,
+    "reviewed_new_boundaries": 33,
+    "new_boundary_errors_observed": 0,
+    "pages": [
+      {
+        "page": "20260716h017490025",
+        "cuts": [
+          {
+            "line": 20,
+            "court": "東京地方裁判所民事第２０部",
+            "case": "令和８年（ヒ）第１００３号",
+            "body": "広島市中区本川町３丁目１番５号"
+          }
+        ],
+        "pdf_sha256": "78e80b25bb4abd653f4c84acb288e4de68066d7aa475bb6fca163783787d69ad",
+        "original_image_sha256": "f034850ae0cf88a2575de00e83e43954276cca5af03d48e144321e1f3c6d2694",
+        "judgement": "Every newly added cut matches a separate original court record beginning at its bold case identifier after a closing court signature. Earlier records, their closing signatures, and all column continuations remain before their proper next record. Existing unseparated records and source category-title ownership defects are not scored fixed."
+      },
+      {
+        "page": "20260728h017560022",
+        "cuts": [
+          {
+            "line": 9,
+            "court": "神戸地方裁判所豊岡支部",
+            "case": "令和８年（ヒ）第１０００２号",
+            "body": "仙台市宮城野区岩切字今市90"
+          },
+          {
+            "line": 17,
+            "court": "仙台地方裁判所第４民事部",
+            "case": "令和８年（ヒ）第３号",
+            "body": "岩手県大船渡市大船渡町字台19番地8"
+          },
+          {
+            "line": 33,
+            "court": "札幌地方裁判所民事第４部",
+            "case": "令和8年（ヒ）第1001号",
+            "body": "横浜市中区常盤町三丁目30-1"
+          },
+          {
+            "line": 40,
+            "court": "横浜地方裁判所第３民事部",
+            "case": "令和８年（ヒ）第１号",
+            "body": "北海道小樽市朝里川温泉一丁目８６番地８"
+          }
+        ],
+        "pdf_sha256": "416bd8b67c38074d73a2ce53de3ad7aa9dfa5da221b3a516b28d37d273d9fd79",
+        "original_image_sha256": "d934232bd32ddf0da47d30494a452426e4b9f7d7fe7ca5c018c67267dd95810a",
+        "judgement": "Every newly added cut matches a separate original court record beginning at its bold case identifier after a closing court signature. Earlier records, their closing signatures, and all column continuations remain before their proper next record. Existing unseparated records and source category-title ownership defects are not scored fixed."
+      },
+      {
+        "page": "20260731h017590023",
+        "cuts": [
+          {
+            "line": 79,
+            "court": "岡山地方裁判所津山支部",
+            "case": "令和７年（ヒ）第１０１６号",
+            "body": "名古屋市瑞穂区上山町１丁目１６番地"
+          }
+        ],
+        "pdf_sha256": "7a53884ba803879cd9e901b8f57ae2fa002cc898001210e0b645c97b2e86553a",
+        "original_image_sha256": "37fff994ac227049cab223ec195549fa74a52fa8cd7ac6cfa7c8f3868ba9fb2e",
+        "judgement": "Every newly added cut matches a separate original court record beginning at its bold case identifier after a closing court signature. Earlier records, their closing signatures, and all column continuations remain before their proper next record. Existing unseparated records and source category-title ownership defects are not scored fixed."
+      },
+      {
+        "page": "20260819h017710021",
+        "cuts": [
+          {
+            "line": 11,
+            "court": "大阪地方裁判所第６民事部",
+            "case": "令和８年（ヒ）第１０１５号",
+            "body": "愛知県瀬戸市美濃池町３７番地１"
+          }
+        ],
+        "pdf_sha256": "fe84cb0600e8a02ac01d70d06a8fbc8e01e2e8a018cd762ec94ccd11f1fd2cbd",
+        "original_image_sha256": "f8e6698808f5589c4ade9de727f4e2895cddccdcce0a6f6c5766baae66fb972f",
+        "judgement": "Every newly added cut matches a separate original court record beginning at its bold case identifier after a closing court signature. Earlier records, their closing signatures, and all column continuations remain before their proper next record. Existing unseparated records and source category-title ownership defects are not scored fixed."
+      },
+      {
+        "page": "20260826h017760023",
+        "cuts": [
+          {
+            "line": 11,
+            "court": "東京地方裁判所民事第２０部",
+            "case": "令和８年（ヒ）第２０４７号",
+            "body": "東京都千代田区丸の内２丁目２番１号"
+          },
+          {
+            "line": 26,
+            "court": "東京地方裁判所民事第２０部",
+            "case": "令和８年（ヒ）第５号",
+            "body": "宮崎県都城市鷹尾三丁目４街区６号"
+          }
+        ],
+        "pdf_sha256": "12f490132e46988607157bde4af8ccca97df0d852867ec55e8ec3f4c12ad629c",
+        "original_image_sha256": "eaca9e2411c4216c4d283c807fcdf044258bb374993816c4d5559a50a86a61e3",
+        "judgement": "Every newly added cut matches a separate original court record beginning at its bold case identifier after a closing court signature. Earlier records, their closing signatures, and all column continuations remain before their proper next record. Existing unseparated records and source category-title ownership defects are not scored fixed."
+      },
+      {
+        "page": "20260902h017810020",
+        "cuts": [
+          {
+            "line": 28,
+            "court": "神戸地方裁判所姫路支部",
+            "case": "令和８年（ヒ）第２号",
+            "body": "栃木県足利市羽刈町５５６番地"
+          }
+        ],
+        "pdf_sha256": "a0fd4e8b668d0029ad815f3a387a395a120b5490b40ac924b2fa19ddc2db3fe3",
+        "original_image_sha256": "dfb56bc78421c3a48f7af35df35ef568bde9b6384bfb7683fff2eedc605f5869",
+        "judgement": "Every newly added cut matches a separate original court record beginning at its bold case identifier after a closing court signature. Earlier records, their closing signatures, and all column continuations remain before their proper next record. Existing unseparated records and source category-title ownership defects are not scored fixed."
+      },
+      {
+        "page": "20260910h017870019",
+        "cuts": [
+          {
+            "line": 85,
+            "court": "富山地方裁判所民事部",
+            "case": "令和８年（ヒ）第２０２２号",
+            "body": "東京都千代田区麹町三丁目３番地ＫＤＸ麹町ビ"
+          }
+        ],
+        "pdf_sha256": "eeca29353dc1417e8ea300f073e2602f8dd8df16eddf5d919e6e89570b3b9ed8",
+        "original_image_sha256": "8b17e73eb8fee980486b6d1625d2e14bc3da48a78f7ae7e3671653a77b351c3e",
+        "judgement": "Every newly added cut matches a separate original court record beginning at its bold case identifier after a closing court signature. Earlier records, their closing signatures, and all column continuations remain before their proper next record. Existing unseparated records and source category-title ownership defects are not scored fixed."
+      },
+      {
+        "page": "20260917h017920023",
+        "cuts": [
+          {
+            "line": 9,
+            "court": "さいたま地方裁判所熊谷支部",
+            "case": "令和８年（ヒ）第７号",
+            "body": "埼玉県所沢市大字松郷７４番地の１４"
+          }
+        ],
+        "pdf_sha256": "a1bb8e26035e16f61e15026ade2f8667cfa078d466b9b1a9a8d1c9ef4eeef814",
+        "original_image_sha256": "1566f91c6bd28dfb8a000c6940765ffb74f151ceb1da4a4c12efd1a86bafeaaa",
+        "judgement": "Every newly added cut matches a separate original court record beginning at its bold case identifier after a closing court signature. Earlier records, their closing signatures, and all column continuations remain before their proper next record. Existing unseparated records and source category-title ownership defects are not scored fixed."
+      },
+      {
+        "page": "20260925h017950022",
+        "cuts": [
+          {
+            "line": 23,
+            "court": "前橋地方裁判所高崎支部",
+            "case": "令和８年（ヒ）第２００２号",
+            "body": "青森県八戸市大字寺横町１３番地"
+          }
+        ],
+        "pdf_sha256": "8054fd07dc906ce7bd548ba2975c78ecdb348913a783697a70ca1564e2d61f06",
+        "original_image_sha256": "4421feb5e77cbe83312539bb35f104243db3845aec1cebe7a7b35ae9f9745a88",
+        "judgement": "Every newly added cut matches a separate original court record beginning at its bold case identifier after a closing court signature. Earlier records, their closing signatures, and all column continuations remain before their proper next record. Existing unseparated records and source category-title ownership defects are not scored fixed."
+      },
+      {
+        "page": "20261005h018010018",
+        "cuts": [
+          {
+            "line": 11,
+            "court": "東京地方裁判所立川支部民事第４部",
+            "case": "令和8年（ヒ）第3026号",
+            "body": "大阪市東住吉区湯里一丁目１番６号"
+          },
+          {
+            "line": 43,
+            "court": "広島地方裁判所民事第４部",
+            "case": "令和８年（ヒ）第１００６号",
+            "body": "広島市西区商工センター７丁目５番１７号"
+          },
+          {
+            "line": 51,
+            "court": "広島地方裁判所民事第４部",
+            "case": "令和８年（ヒ）第１３号",
+            "body": "栃木県さくら市大中２７０番地３"
+          }
+        ],
+        "pdf_sha256": "04c4def14463472ad912ff315a6bf0741b28da19e09c242399bb7a089fc9c3a6",
+        "original_image_sha256": "2dbdd91eb75ff8fab71e905a3fb9ac3fae29060c1a3f5672e8c4bf05c7d9cd8e",
+        "judgement": "Every newly added cut matches a separate original court record beginning at its bold case identifier after a closing court signature. Earlier records, their closing signatures, and all column continuations remain before their proper next record. Existing unseparated records and source category-title ownership defects are not scored fixed."
+      },
+      {
+        "page": "20261008h018040023",
+        "cuts": [
+          {
+            "line": 18,
+            "court": "千葉地方裁判所民事第４部",
+            "case": "令和８年（ヒ）第２０１６号",
+            "body": "東京都板橋区向原三丁目10番37号"
+          }
+        ],
+        "pdf_sha256": "fdd875159a65a18893fb156459dbedef4fc320fe72f705f795d7437c5a33a548",
+        "original_image_sha256": "d6f1b6b9ae2aa44952dfd750021e8ead8f1ad199b68f899903026b11c1422c2f",
+        "judgement": "Every newly added cut matches a separate original court record beginning at its bold case identifier after a closing court signature. Earlier records, their closing signatures, and all column continuations remain before their proper next record. Existing unseparated records and source category-title ownership defects are not scored fixed."
+      },
+      {
+        "page": "20261015h018080025",
+        "cuts": [
+          {
+            "line": 27,
+            "court": "旭川地方裁判所名寄支部",
+            "case": "令和８年（ヒ）第１００１号",
+            "body": "鳥取市商栄町２０３番地２２"
+          },
+          {
+            "line": 122,
+            "court": "大阪地方裁判所第６民事部",
+            "case": "令和８年（ヒ）第３０２１号",
+            "body": "兵庫県宝塚市湯本町１番４６号宝南ショップス"
+          },
+          {
+            "line": 155,
+            "court": "大阪地方裁判所第６民事部",
+            "case": "令和８年（ヒ）第３０２２号",
+            "body": "兵庫県宝塚市湯本町１番４６号宝南ショップス"
+          }
+        ],
+        "pdf_sha256": "ea7d2b361a8c4bb447f5c257b82c06be3f8598cb2c765e6b6a3cd58fb099a0d5",
+        "original_image_sha256": "b9034c458430efdf064960856016a5670622f5fc3bd5fca454ed5d9882d5f40f",
+        "judgement": "Every newly added cut matches a separate original court record beginning at its bold case identifier after a closing court signature. Earlier records, their closing signatures, and all column continuations remain before their proper next record. Existing unseparated records and source category-title ownership defects are not scored fixed."
+      },
+      {
+        "page": "20261019h018100022",
+        "cuts": [
+          {
+            "line": 9,
+            "court": "岡山地方裁判所第３民事部",
+            "case": "令和７年（ヒ）第１３号",
+            "body": "沖縄県那覇市字安謝６１９番地１６"
+          }
+        ],
+        "pdf_sha256": "638ac78199040f9aa889a510dd297b88851e1a1528d78eddb37ddb60496ee8ee",
+        "original_image_sha256": "15071f9a5cdc4c82171ab8c19a2123688da18358321d30e22d1c3c964c3d4b48",
+        "judgement": "Every newly added cut matches a separate original court record beginning at its bold case identifier after a closing court signature. Earlier records, their closing signatures, and all column continuations remain before their proper next record. Existing unseparated records and source category-title ownership defects are not scored fixed."
+      },
+      {
+        "page": "20260925h017950021",
+        "cuts": [
+          {
+            "line": 84,
+            "court": "新潟地方裁判所民事部",
+            "case": "令和７年（ヒ）第２５号",
+            "body": "愛知県岡崎市葵町２番地８"
+          },
+          {
+            "line": 164,
+            "court": "名古屋地方裁判所岡崎支部",
+            "case": "令和８年（ヒ）第６号",
+            "body": "群馬県富岡市富岡９８０番地"
+          }
+        ],
+        "pdf_sha256": "f3a8a67c6080852439065724903b44a13a34d213a071896f414ab55639e224d0",
+        "original_image_sha256": "48fd69e545cff2bc1fd99281330291173809e71f52745210bf1554813c3c5009",
+        "judgement": "Every newly added cut matches a separate original court record beginning at its bold case identifier after a closing court signature. Earlier records, their closing signatures, and all column continuations remain before their proper next record. Existing unseparated records and source category-title ownership defects are not scored fixed."
+      },
+      {
+        "page": "20261016h018090024",
+        "cuts": [
+          {
+            "line": 92,
+            "court": "大阪地方裁判所第６民事部",
+            "case": "令和８年（ミ）第1号",
+            "body": "大阪市中央区内本町一丁目２番８号ＴＳＫビル"
+          },
+          {
+            "line": 103,
+            "court": "大阪地方裁判所第６民事部",
+            "case": "令和８年（ミ）第３号",
+            "body": "大阪市中央区内本町１丁目２番８号ＴＳＫビル"
+          },
+          {
+            "line": 114,
+            "court": "大阪地方裁判所第６民事部",
+            "case": "令和８年（ミ）第４号",
+            "body": "大阪市中央区内本町一丁目２番８号ＴＳＫビル"
+          }
+        ],
+        "pdf_sha256": "8084d997b9eb4f10c9794ebbbe9483c667a20dbd02fd4b946d4d3cf6f6d5c845",
+        "original_image_sha256": "7cb72b1f99dd9ea2d268c473ab4db9539cfb0fe43e5c6f800f9153e2bedf3eb6",
+        "judgement": "Every newly added cut matches a separate original court record beginning at its bold case identifier after a closing court signature. Earlier records, their closing signatures, and all column continuations remain before their proper next record. Existing unseparated records and source category-title ownership defects are not scored fixed."
+      },
+      {
+        "page": "20260909h017860024",
+        "cuts": [
+          {
+            "line": 10,
+            "court": "東京地方裁判所立川支部民事第４部",
+            "case": "令和８年（ヒ）第１６号",
+            "body": "東京都町田市小川六丁目１４番１号"
+          },
+          {
+            "line": 33,
+            "court": "新潟地方裁判所民事部",
+            "case": "令和８年（ヒ）第１００８号",
+            "body": "名古屋市中村区名駅３丁目４番１０号"
+          },
+          {
+            "line": 39,
+            "court": "名古屋地方裁判所民事第２部",
+            "case": "令和８年（ヒ）第１００７号",
+            "body": "名古屋市中村区名駅３丁目４番１０号"
+          },
+          {
+            "line": 45,
+            "court": "名古屋地方裁判所民事第２部",
+            "case": "令和８年（ヒ）第１０１０号",
+            "body": "名古屋市中村区名駅３丁目４番１０号"
+          },
+          {
+            "line": 59,
+            "court": "盛岡地方裁判所第２民事部",
+            "case": "令和８年（ヒ）第２号",
+            "body": "堺市中区伏尾2933番地１"
+          }
+        ],
+        "pdf_sha256": "307c355049bc7de9e4ebeed3feca6c2080c11a4257e41a1c0bddf1dbdcede2e2",
+        "original_image_sha256": "f725b690c47187836c13793774fe6d1e8dd5e3a2e7707610e9a0c7cd9aaffe40",
+        "judgement": "Every newly added cut matches a separate original court record beginning at its bold case identifier after a closing court signature. Earlier records, their closing signatures, and all column continuations remain before their proper next record. Existing unseparated records and source category-title ownership defects are not scored fixed."
+      },
+      {
+        "page": "20260916h017910021",
+        "cuts": [
+          {
+            "line": 16,
+            "court": "名古屋地方裁判所民事第２部",
+            "case": "令和８年（ヒ）第５号",
+            "body": "兵庫県加古郡稲美町加古３８２番地の７５"
+          },
+          {
+            "line": 58,
+            "court": "大阪地方裁判所第６民事部",
+            "case": "令和７年（ミ）第６号",
+            "body": "大阪市西区阿波座一丁目４番14号"
+          }
+        ],
+        "pdf_sha256": "96c7cecbea48ea3d61606ea5312d7e0dad8f1c34dfd6046451fdf1fbee23fe24",
+        "original_image_sha256": "4577193dc534d6f187653380c44196bfb817c278b144c0b09adac6a7131fd9bf",
+        "judgement": "Every newly added cut matches a separate original court record beginning at its bold case identifier after a closing court signature. Earlier records, their closing signatures, and all column continuations remain before their proper next record. Existing unseparated records and source category-title ownership defects are not scored fixed."
+      }
+    ],
+    "limitations": [
+      "All58 changed pages have exact conservation checks; only these17 have fresh pixel review.",
+      "Page01749-0025 still contains many old unsplit records and category headers.",
+      "Page01791-0021 still attaches a subsequent category title to the preceding record; the new cuts themselves are valid.",
+      "Court signatures on the same line as their date, headings between records, and cross-column or cross-page boundaries require additional proof and are deliberately not inferred by this rule."
+    ]
+  },
+  "limitations": [
+    "Targeted original review is nonblind;17pages33new boundaries reviewed, not all58 changed pages. No fixed30 scores were revised.",
+    "Conservation checks establish no material loss/reordering; they do not establish complete semantic ownership or full corpus correctness.",
+    "Many other court records still remain joined. Same-line signed dates, category-title ownership and cross-column/cross-page boundaries require further independent evidence.",
+    "Character/PUA, other complex tables/columns and article/role boundaries remain unresolved; image-only OCR fusion remains lower priority."
+  ],
+  "cached_evidence_root": ".cache/kanpo-227/resume90-local-recovery/native-court-records120",
+  "artifact_sha256": {
+    "original-source-oracle-before-runtime.json": "08663ce6b8ad485c12ff6884bb232dd163174238de9ecac9e3a81a7040e08bd9",
+    "original-RED.log": "8ce881e61b735675c39e2e159e992175356417d24aa181472a65e9f5d97294c9",
+    "unit-RED.log": "76af90510f6d3b6241a4c5550457d66bcdc2dd5e5fe89f5237979b08c2145e2e",
+    "scope-RED.log": "8328f385b87e935fbd40a583465682cab232c8b622640a5d8c0a546b985a7e07",
+    "original-targeted-review120.json": "04d125ad176266fad2b14ad7576b993be7b840a63a09b8873195e1cf7f42ffe0",
+    "public-v2/unit.log": "4f4bf3dd004a064a7aafe9bfaecaca2a70d7027ab280008ed60cfa494e671031",
+    "public-v2/original.log": "7ac64acd60105db0b635829247a808e654e68a2a3ebba6835cf14cb3bf7c15fb",
+    "public-v2/single/result.json": "b80e296c190b8f82081937189097d7ecfcdf86ad43baf3e06d70db5b721a07fd",
+    "public-v2/whole/result.json": "d038fed6852aff3a635e90508ba3355ec5922178637e732b184340b81752cd65",
+    "public-v2/CLI/result.json": "3f32e0f68e1af51a545f86128e548e288ea752097c077027babd8365d09c2c50",
+    "public-v2/native-gates/result120.json": "b8e3404facdaff7e24b02b9e4c4a166dcd534a5c1741daa4c3a1c82f8d8adfa6",
+    "public-v2/all-public-gates-result.json": "52db5f3fca903b3da3a96e9e8a72eb10d96ae62d8444ef1fc4f6f9b36348fb94"
+  },
+  "audit_harness_note": "Initial post-comparison helper used JSON block.type rather than block.kind and stopped after the completed single sweep. Corrected material120 helper verified the same immutable outputs against freshly rerun adopted119 baselines. No runtime or oracle changed for this driver repair."
+}

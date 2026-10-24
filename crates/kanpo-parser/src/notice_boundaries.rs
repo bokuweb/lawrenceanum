@@ -102,6 +102,7 @@ pub(crate) fn date(t: &str) -> bool {
 }
 struct SourceLine<'a> {
     line: &'a Line,
+    scope: usize,
     role: Role,
     ids: Vec<usize>,
     tokens: Option<Vec<String>>,
@@ -152,7 +153,7 @@ fn source_lines(page: &PageTrace) -> Option<Vec<SourceLine<'_>>> {
             }
         }
     }
-    for region in &page.regions {
+    for (scope, region) in page.regions.iter().enumerate() {
         for l in &region.lines {
             let ids = if let Some(t) = &l.table {
                 t.cells
@@ -202,6 +203,7 @@ fn source_lines(page: &PageTrace) -> Option<Vec<SourceLine<'_>>> {
             }
             lines.push(SourceLine {
                 line: l,
+                scope,
                 role: region.role,
                 ids,
                 tokens,
@@ -954,6 +956,7 @@ fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> V
         }
     }
     cuts.extend(fences);
+    cuts.extend(court_records::starts(page, rules, lines));
     cuts.extend(ruled_corrections::section_starts(page, rules, lines));
     let scopes=crate::financial_enclosures::certified_ranges(page,rules);
     cuts.retain(|&cut|!scopes.iter().any(|&(start,end)|start<cut&&cut<end));
@@ -1115,6 +1118,13 @@ mod tests;
 #[cfg(test)]
 #[path = "notice_attributed_header_tests.rs"]
 mod attributed_header_tests;
+
+#[path = "court_records.rs"]
+mod court_records;
+
+#[cfg(test)]
+#[path = "court_record_tests.rs"]
+mod court_record_tests;
 
 #[path = "framed_publications.rs"]
 mod framed_publications;
