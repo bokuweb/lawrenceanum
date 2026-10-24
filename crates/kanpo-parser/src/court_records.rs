@@ -7,7 +7,7 @@ use crate::{
     trace::{ContentStyles, NativeBounds},
 };
 
-fn positive_integer(s: &str) -> bool {
+pub(super) fn positive_integer(s: &str) -> bool {
     fn digit(c: char) -> bool {
         c.is_ascii_digit() || "〇零一二三四五六七八九".contains(c)
     }

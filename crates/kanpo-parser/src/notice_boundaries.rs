@@ -957,6 +957,7 @@ fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> V
     }
     cuts.extend(fences);
     cuts.extend(court_records::starts(page, rules, lines));
+    cuts.extend(horizontal_publications::starts(page, rules, lines));
     cuts.extend(ruled_corrections::section_starts(page, rules, lines));
     let scopes=crate::financial_enclosures::certified_ranges(page,rules);
     cuts.retain(|&cut|!scopes.iter().any(|&(start,end)|start<cut&&cut<end));
@@ -1070,14 +1071,21 @@ pub(crate) fn groups(
     for s in original {
         let end = offset + s.len();
         let mut bounds = vec![offset];
-        bounds.extend(
-            breaks
-                .range((
-                    std::ops::Bound::Excluded(offset),
-                    std::ops::Bound::Excluded(end),
-                ))
-                .copied(),
-        );
+        for &point in breaks.range((
+            std::ops::Bound::Excluded(offset),
+            std::ops::Bound::Excluded(end),
+        )) {
+            // A category heading supplies context for its first publication;
+            // it has no independent operative body to repartition into an article.
+            // Keep every original byte with that first publication. Later roots
+            // still split once the preceding part contains real body or a table.
+            let start = *bounds.last().unwrap();
+            if text[start..point].lines().any(|line| {
+                !line.trim().is_empty() && !crate::segment::is_section_label(line)
+            }) {
+                bounds.push(point);
+            }
+        }
         bounds.push(end);
         let parts: Vec<_> = bounds
             .windows(2)
@@ -1122,6 +1130,9 @@ mod attributed_header_tests;
 #[path = "court_records.rs"]
 mod court_records;
 
+#[path = "horizontal_publications.rs"]
+mod horizontal_publications;
+
 #[cfg(test)]
 #[path = "court_record_tests.rs"]
 mod court_record_tests;
@@ -1132,3 +1143,7 @@ pub(crate) use framed_publications::restore_framed_reading_order;
 
 #[path="ruled_corrections.rs"]mod ruled_corrections;
 pub(crate) use ruled_corrections::restore_ruled_corrections;
+
+#[cfg(test)]
+#[path="horizontal_publication_tests.rs"]
+mod horizontal_publication_tests;
