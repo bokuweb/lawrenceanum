@@ -82,7 +82,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     let mut prev_native_roles = false;
     for (pi, page) in doc.select(&page_sel).enumerate() {
         let (width, height) = page_size(page);
-        let (cols, mut words, rotated, sideways, merged, minus, native_styles, native_bounds, native_content_styles, native_axes, native_rulings, inline_merged) = page_words_with_styles(page, width, height, rules.get(pi).and_then(|r| r.as_ref()));
+        let (cols, mut words, rotated, sideways, merged, minus, native_styles, native_bounds, native_content_styles, native_axes, native_rulings, inline_merged, native_flows) = page_words_with_styles(page, width, height, rules.get(pi).and_then(|r| r.as_ref()));
         // 負の金額の印「△」を付ける語の字（組んだ後で行の中の位置を探す）。
         let word_texts: std::collections::HashMap<usize, String> = if minus.is_empty() { Default::default() } else { cols.iter().map(|c| (c.id, c.text.clone())).collect() };
         // 長い区切り罫の右側の横統計表は元の向きで読み、縦本文の段切りから外す。
@@ -141,7 +141,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                     }
                 };
             let native_continuation_cols = (!sideways && prev_native_roles).then(|| cols.clone());
-            let native_sentence_source_cols = (!sideways && !grids.is_empty() && cols.iter().any(|c|c.text.contains('。'))).then(|| cols.clone());
+            let native_sentence_source_cols = (!sideways && !grids.is_empty() && (cols.iter().any(|c|c.text.contains('。')) || native_flows.iter().any(Option::is_some))).then(|| cols.clone());
             let mut pairs_here = None;
             let mut two_columns_here = false;
             let mut mid_here = None;
@@ -512,7 +512,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             }
             crate::native_unit_dash::restore(&mut units, &mut words, &native_bounds, &native_axes, &native_styles, rules.get(pi).and_then(|r| r.as_ref()));
             if let (Some(originals),Some(rules))=(native_sentence_source_cols.as_ref(),page_rules){
-                crate::native_sentence_cells::restore(&mut units,crate::native_sentence_cells::Source{words:&words,originals,bounds:&native_bounds,axes:&native_axes,rulings:&native_rulings,grids:&grids,rules});
+                crate::native_sentence_cells::restore(&mut units,crate::native_sentence_cells::Source{flows:Some(&native_flows),words:&words,originals,bounds:&native_bounds,axes:&native_axes,rulings:&native_rulings,grids:&grids,rules});
             }
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
@@ -2324,7 +2324,7 @@ fn page_words_traced(
     page_rules: Option<&PageRules>,
 ) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>, std::collections::HashSet<usize>,
 ) {
-    let (a,b,c,d,e,f,_,_,_,_,_,_)=page_words_with_styles(page,page_width,height,page_rules);
+    let (a,b,c,d,e,f,_,_,_,_,_,_,_)=page_words_with_styles(page,page_width,height,page_rules);
     (a,b,c,d,e,f)
 }
 fn page_words_with_styles(
@@ -2332,7 +2332,7 @@ fn page_words_with_styles(
     page_width: f32,
     height: f32,
     page_rules: Option<&PageRules>,
-) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>, std::collections::HashSet<usize>, Vec<Option<crate::trace::NativeStyles>>, Vec<crate::trace::NativeBounds>, Vec<crate::trace::ContentStyles>, Vec<crate::native_word_axes::NativeAxis>,Vec<crate::native_word_rulings::NativeRuling>, Vec<(usize,usize)>,
+) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>, std::collections::HashSet<usize>, Vec<Option<crate::trace::NativeStyles>>, Vec<crate::trace::NativeBounds>, Vec<crate::trace::ContentStyles>, Vec<crate::native_word_axes::NativeAxis>,Vec<crate::native_word_rulings::NativeRuling>, Vec<(usize,usize)>, Vec<Option<crate::native_word_flow::NativeFlow>>,
 ) {
     let word_sel = Selector::parse("word").unwrap();
     let line_sel = Selector::parse("line").unwrap();
@@ -2346,6 +2346,7 @@ fn page_words_with_styles(
     let mut native_top_down=Vec::new();
     let mut native_axes=Vec::new();
     let mut native_rulings=Vec::new();
+    let mut native_flows=Vec::new();
     let mut native_vertical: std::collections::HashMap<[u32; 4], Vec<(String, [f32; 4])>> = Default::default();
     let mut native_horizontal_chars = 0usize;
     let mut horizontal_font_chars = 0usize;
@@ -2375,6 +2376,7 @@ fn page_words_with_styles(
             native_top_down.push(v.attr("data-wmode")==Some("1") && num("data-advance-x").is_some_and(|n|n.is_finite()&&n==0.) && num("data-advance-y").is_some_and(|n|n.is_finite()&&n>0.));
             native_axes.push(crate::native_word_axes::from_word(w));
             native_rulings.push(crate::native_word_rulings::from_word(w));
+            native_flows.push(crate::native_word_flow::from_word(w));
             native_bounds.push(crate::native_word_bounds::from_word(w));
             native_styles.push(v.attr("data-native-styles").and_then(|text| {
                 let mut out=crate::trace::NativeStyles::new();
@@ -2417,6 +2419,7 @@ fn page_words_with_styles(
         .map(|((((((raw, flag), source), style), bounds), content), top_down)| (raw, (((((flag, source),style),bounds),content),top_down)))
         .zip(native_axes).map(|((raw,evidence),axis)|(raw,(evidence,axis)))
         .zip(native_rulings).map(|((raw,evidence),ruling)|(raw,(evidence,ruling)))
+        .zip(native_flows).map(|((raw,evidence),flow)|(raw,(evidence,flow)))
         .collect();
     sources.sort_by(|(a, _), (b, _)| {
         b.0.total_cmp(&a.0)
@@ -2426,6 +2429,7 @@ fn page_words_with_styles(
             .then_with(|| a.4.cmp(&b.4))
     });
     let (mut raws, evidence): (Vec<_>, Vec<_>) = sources.into_iter().unzip();
+    let (evidence,native_flows): (Vec<_>,Vec<_>) = evidence.into_iter().unzip();
     let (evidence,native_rulings): (Vec<_>,Vec<_>) = evidence.into_iter().unzip();
     let (evidence,native_axes): (Vec<_>,Vec<_>) = evidence.into_iter().unzip();
     let (evidence,native_top_down): (Vec<_>, Vec<_>) = evidence.into_iter().unzip();
@@ -2638,7 +2642,7 @@ fn page_words_with_styles(
     let inline_merged = page_rules.map(|r| enclosed_warichu::merge(&mut cols,r)).unwrap_or_default();
     let protected = inline_merged.iter().map(|&(_, owner)| owner).collect();
     let merged = merge_warichu(&mut cols, &protected);
-    (cols, words, rotated, sideways, merged, minus, native_styles, native_bounds, native_content_styles, native_axes, native_rulings, inline_merged)
+    (cols, words, rotated, sideways, merged, minus, native_styles, native_bounds, native_content_styles, native_axes, native_rulings, inline_merged, native_flows)
 }
 
 /// 枠のセルに文章（200 字を超える、または 2 文以上）が入っているか。公告の囲み記事などの
@@ -6335,7 +6339,7 @@ mod source_aj1_parser_tests;
 #[test]
 fn original_vertical_advance_metadata_authorizes_only_its_own_complete_frame(){
     let root=std::path::Path::new(env!("CARGO_MANIFEST_DIR"));let inputs=crate::page_inputs(&std::fs::read(root.join("tests/archive/pages/20260803g00174/20260803g001740136.pdf")).unwrap()).unwrap();let input=&inputs[0];let rules=input.rules.clone().unwrap();let mut no_frames=rules.clone();no_frames.enclosures.clear();
-    let columns=|xhtml:&str,rules:&PageRules|{let doc=Html::parse_document(xhtml);let sel=Selector::parse("page").unwrap();let page=doc.select(&sel).next().unwrap();let(w,h)=page_size(page);let(cols,_,_,_,_,_,_,_,_,_,_,_)=page_words_with_styles(page,w,h,Some(rules));cols.into_iter().map(|c|(c.id,[c.x.to_bits(),c.y.to_bits(),c.x1.to_bits(),c.y1.to_bits()],c.text)).collect::<Vec<_>>()};
+    let columns=|xhtml:&str,rules:&PageRules|{let doc=Html::parse_document(xhtml);let sel=Selector::parse("page").unwrap();let page=doc.select(&sel).next().unwrap();let(w,h)=page_size(page);let(cols,_,_,_,_,_,_,_,_,_,_,_,_)=page_words_with_styles(page,w,h,Some(rules));cols.into_iter().map(|c|(c.id,[c.x.to_bits(),c.y.to_bits(),c.x1.to_bits(),c.y1.to_bits()],c.text)).collect::<Vec<_>>()};
     let valid=columns(&input.xhtml,&rules);assert_ne!(valid,columns(&input.xhtml,&no_frames));
     // Printed source occurrences are fixture oracles; neither text is a runtime condition.
     let change_word=|source:&str,text:&str,key:&str,value:Option<&str>|{
@@ -6624,3 +6628,7 @@ fn a_native_advance_overhang_cannot_authorize_an_outside_article() {
 
 #[path = "ruled_marker_bands.rs"]
 mod ruled_marker_bands;
+
+#[cfg(test)]
+#[path="source_flow_binding_tests.rs"]
+mod source_flow_binding_tests;

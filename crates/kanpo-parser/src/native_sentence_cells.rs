@@ -8,6 +8,7 @@ use crate::{
     vertical::Col,
 };
 pub(crate) struct Source<'a> {
+    pub(crate) flows: Option<&'a[Option<crate::native_word_flow::NativeFlow>]>,
     pub(crate) words: &'a [Word],
     pub(crate) originals: &'a [Col],
     pub(crate) bounds: &'a [NativeBounds],
@@ -63,6 +64,7 @@ pub(crate) fn restore(units: &mut [Unit], source: Source<'_>) {
             if let Some(next) = source_plan(
                 t,
                 Source {
+                    flows: source.flows,
                     words: source.words,
                     originals: source.originals,
                     bounds: source.bounds,

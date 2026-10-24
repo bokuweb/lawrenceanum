@@ -9,6 +9,7 @@ use crate::{
     vertical::Col,
 };
 struct F {
+    flows: Vec<Option<crate::native_word_flow::NativeFlow>>,
     table: Table,
     words: Vec<Word>,
     originals: Vec<Col>,
@@ -43,6 +44,7 @@ fn add(f: &mut F, b: [f32; 4], text: &str) -> usize {
     f.bounds.push(NativeBounds::Glyphs(b));
     f.axes.push(NativeAxis::Right);
     f.rulings.push(NativeRuling::Unknown);
+    f.flows.push(None);
     id
 }
 fn cell(f: &mut F, row: usize, col: usize, rect: [f32; 4], ids: Vec<usize>) {
@@ -98,6 +100,7 @@ fn fixture(record: bool, n: usize) -> F {
         bounds: vec![],
         axes: vec![],
         rulings: vec![],
+        flows: vec![],
         grids: vec![g],
         rules: PageRules::default(),
         source_cells: vec![vec![]; 6],
@@ -179,6 +182,7 @@ fn prove(f: &F) -> Option<Table> {
     source_plan(
         &f.table,
         Source {
+            flows: Some(&f.flows),
             words: &f.words,
             originals: &f.originals,
             bounds: &f.bounds,
@@ -833,3 +837,435 @@ fn same_characters_in_a_different_current_order_do_not_borrow_original_sentence_
     c.text = c.text.chars().rev().collect();
     reject(f);
 }
+use crate::native_word_flow::NativeFlow;
+fn flow_add(f: &mut F, b: [f32; 4], baseline: f64, text: &str) -> usize {
+    let id = add(f, b, text);
+    f.flows[id] = Some(NativeFlow{
+        start: f64::from(b[0]),
+        baseline,
+        end: f64::from(b[2]),
+        leading: 8., trailing:0., prefix:0. });
+    id
+}
+fn paragraph_field(n: usize, sections: usize, atomic: bool) -> F {
+    assert!(n >= sections && sections >= 2);
+    let bottom = 80. + 12. * n.max(sections + 1) as f32;
+    let mut f = F {
+        table: Table {
+            x0: 0.,
+            y0: 20.,
+            x1: 160.,
+            y1: bottom,
+            rows: sections + 1,
+            cols: 2,
+            cells: vec![],
+        },
+        words: vec![],
+        originals: vec![],
+        bounds: vec![],
+        axes: vec![],
+        rulings: vec![],
+        flows: vec![],
+        grids: vec![Grid {
+            xs: vec![0., 80., 160.],
+            ys: vec![20., 40., bottom],
+            cells: (0..2)
+                .flat_map(|y| {
+                    (0..2).map(move |x| GridCell {
+                        x0: x,
+                        x1: x + 1,
+                        y0: y,
+                        y1: y + 1,
+                    })
+                })
+                .collect(),
+        }],
+        rules: PageRules::default(),
+        source_cells: vec![vec![]; 4],
+    };
+    for x in [0., 80., 160.] {
+        f.rules.vertical.push(VRule {
+            x,
+            y0: 20.,
+            y1: bottom,
+        });
+    }
+    for y in [20., 40., bottom] {
+        f.rules.horizontal.push(HRule {
+            y,
+            x0: 0.,
+            x1: 160.,
+        });
+    }
+    for c in 0..2 {
+        let x = 5. + 80. * c as f32;
+        let id = flow_add(&mut f, [x, 24., x + 55., 32.184], 30., "任意の見出し");
+        f.source_cells[c].push(id);
+        cell(
+            &mut f,
+            0,
+            c,
+            [80. * c as f32, 20., 80. * (c + 1) as f32, 40.],
+            vec![id],
+        );
+    }
+    let mut ids = vec![];
+    for i in 0..n {
+        let y = 50. + 12. * i as f64;
+        let end = if i + 1 == n { 29. } else { 77. };
+        let id = flow_add(
+            &mut f,
+            [5., (y - 6.) as f32, end, (y + 2.184) as f32],
+            y,
+            "任意の項目名",
+        );
+        ids.push(id);
+    }
+    f.source_cells[2] = ids.clone();
+    for r in 0..sections {
+        let group = if r + 1 == sections {
+            ids[r..].to_vec()
+        } else {
+            vec![ids[r]]
+        };
+        cell(&mut f, r + 1, 0, [0., 40., 80., bottom], group);
+    }
+    for r in 0..sections {
+        let y = 50. + 12. * r as f64;
+        let terminal = if atomic && r + 1 == sections {
+            "。"
+        } else {
+            ""
+        };
+        let text = format!("（任意{r}）別の説明{terminal}");
+        let id = flow_add(
+            &mut f,
+            [85., (y - 6.) as f32, 155., (y + 2.184) as f32],
+            y,
+            &text,
+        );
+        let mut ids = vec![id];
+        if !atomic && r + 1 == sections {
+            let y = y + 12.;
+            ids.push(flow_add(
+                &mut f,
+                [85., (y - 6.) as f32, 130., (y + 2.184) as f32],
+                y,
+                "末尾。",
+            ));
+        }
+        f.source_cells[3].extend(&ids);
+        cell(&mut f, r + 1, 1, [80., 40., 160., bottom], ids);
+    }
+    f
+}
+fn one_field(f: F) -> Table {
+    let t=prove(&f).expect("Complete source paragraph and its parallel sections remain inside their one original physical field row");
+    assert_eq!(
+        (t.rows, t.cols, t.cells.len()),
+        (2, f.table.cols, f.table.cols * 2)
+    );
+    for (row, col, ids) in f
+        .source_cells
+        .iter()
+        .enumerate()
+        .map(|(i, ids)| (i / f.table.cols, i % f.table.cols, ids))
+    {
+        let c = t
+            .cells
+            .iter()
+            .find(|c| c.row == row && c.col == col)
+            .unwrap();
+        assert_eq!(&c.words, ids);
+    }
+    t
+}
+#[test]
+fn native_wrapped_field_and_its_sections_have_no_line_or_section_count_cap() {
+    for n in [2, 3, 7, 29] {
+        one_field(paragraph_field(n, 2, false));
+    }
+    for s in [2, 3, 11] {
+        one_field(paragraph_field(s + 3, s, false));
+    }
+}
+#[test]
+fn native_field_scope_uses_arbitrary_body_words_and_section_labels() {
+    for body in ["x", "未見の項目名", "unseen field label"] {
+        let mut f = paragraph_field(3, 2, false);
+        for id in f.source_cells[2].clone() {
+            patch(&mut f, id, body);
+        }
+        for (id, text) in f.source_cells[3][..2].to_vec().into_iter().zip([
+            "[alpha] arbitrary description",
+            "[beta] unrelated explanation",
+        ]) {
+            patch(&mut f, id, text);
+        }
+        one_field(f);
+    }
+}
+#[test]
+fn a_column_of_atomic_value_records_keeps_its_logical_rows() {
+    reject(paragraph_field(7, 2, true));
+}
+#[test]
+fn a_missing_native_flow_never_uses_font_box_overlap_as_a_fallback() {
+    for id in [2, 3, 5] {
+        let mut f = paragraph_field(3, 2, false);
+        f.flows[id] = None;
+        reject(f);
+    }
+}
+#[test]
+fn a_next_glyph_that_fits_the_previous_line_supplies_no_wrap_scope() {
+    let mut f = paragraph_field(3, 2, false);
+    for id in f.source_cells[2][..2].to_vec() {
+        f.words[id].x1 = 65.;
+        f.words[id].source_box[2] = 65.;
+        f.originals.iter_mut().find(|c| c.id == id).unwrap().x1 = 65.;
+        if let NativeBounds::Glyphs(ref mut b) = f.bounds[id] {
+            b[2] = 65.;
+        }
+        f.flows[id].as_mut().unwrap().end = 65.;
+    }
+    reject(f);
+}
+#[test]
+fn a_top_level_sentence_end_stops_a_forced_field_continuation() {
+    let mut f = paragraph_field(3, 2, false);
+    let id = f.source_cells[2][0];
+    patch(&mut f, id, "既に完結した文。");
+    reject(f);
+}
+#[test]
+fn internal_quoted_periods_do_not_end_a_wrapped_field() {
+    let mut f = paragraph_field(3, 2, false);
+    let ids = f.source_cells[2].clone();
+    patch(&mut f, ids[0], "任意（「引用。");
+    patch(&mut f, ids[1], "続き」）の");
+    patch(&mut f, ids[2], "項目名");
+    one_field(f);
+}
+#[test]
+fn an_incomplete_or_mismatched_quote_does_not_supply_field_scope() {
+    for text in ["任意（「引用", "任意）説明", "任意［説明）"] {
+        let mut f = paragraph_field(3, 2, false);
+        let id = f.source_cells[2][0];
+        patch(&mut f, id, text);
+        reject(f);
+    }
+}
+#[test]
+fn parallel_field_sections_preserve_their_paragraph_breaks() {
+    let t = one_field(paragraph_field(7, 3, false));
+    let c = t.cells.iter().find(|c| c.row == 1 && c.col == 1).unwrap();
+    assert_eq!(c.text.matches('\n').count(), 2);
+}
+#[test]
+fn complete_native_field_scope_does_not_need_a_sentence_terminal() {
+    let mut f = paragraph_field(3, 2, false);
+    let id = *f.source_cells[3].last().unwrap();
+    patch(&mut f, id, "末尾");
+    one_field(f);
+}
+#[test]
+fn a_scalar_value_with_other_text_values_is_not_one_field() {
+    let mut f = paragraph_field(3, 2, false);
+    let id = f.source_cells[3][0];
+    patch(&mut f, id, "2.57％");
+    reject(f);
+}
+#[test]
+fn a_true_source_row_boundary_is_not_removed_by_wrap_capacity() {
+    let mut f = paragraph_field(3, 2, false);
+    let bottom = f.table.y1;
+    f.grids[0].ys.insert(2, 60.);
+    f.grids[0].cells = (0..3)
+        .flat_map(|y| {
+            (0..2).map(move |x| GridCell {
+                x0: x,
+                x1: x + 1,
+                y0: y,
+                y1: y + 1,
+            })
+        })
+        .collect();
+    f.rules.horizontal.push(HRule {
+        y: 60.,
+        x0: 0.,
+        x1: 160.,
+    });
+    for c in &mut f.table.cells {
+        if c.row == 1 {
+            c.y1 = 60.;
+        }
+        if c.row == 2 {
+            c.y0 = 60.;
+            c.y1 = bottom;
+        }
+    }
+    reject(f);
+}
+fn with_common_scalar(mut f: F) -> F {
+    let old = f.source_cells.clone();
+    let shifted: std::collections::HashSet<_> = old[1].iter().chain(&old[3]).copied().collect();
+    for id in shifted {
+        let w = &mut f.words[id];
+        w.x0 += 80.;
+        w.x1 += 80.;
+        w.source_box[0] += 80.;
+        w.source_box[2] += 80.;
+        let c = f.originals.iter_mut().find(|c| c.id == id).unwrap();
+        c.x += 80.;
+        c.x1 += 80.;
+        if let NativeBounds::Glyphs(ref mut b) = f.bounds[id] {
+            b[0] += 80.;
+            b[2] += 80.;
+        }
+        let n = f.flows[id].as_mut().unwrap();
+        n.start += 80.;
+        n.end += 80.;
+    }
+    for c in &mut f.table.cells {
+        if c.col == 1 {
+            c.col = 2;
+            c.x0 += 80.;
+            c.x1 += 80.;
+        }
+    }
+    f.table.cols = 3;
+    f.table.x1 = 240.;
+    let bottom = f.table.y1;
+    let g = &mut f.grids[0];
+    for c in &mut g.cells {
+        if c.x0 == 1 {
+            c.x0 += 1;
+            c.x1 += 1;
+        }
+    }
+    g.xs = vec![0., 80., 160., 240.];
+    for y in 0..2 {
+        g.cells.push(GridCell {
+            x0: 1,
+            x1: 2,
+            y0: y,
+            y1: y + 1,
+        });
+    }
+    for v in &mut f.rules.vertical {
+        if v.x == 160. {
+            v.x = 240.;
+        }
+    }
+    f.rules.vertical.push(VRule {
+        x: 160.,
+        y0: 20.,
+        y1: bottom,
+    });
+    for h in &mut f.rules.horizontal {
+        h.x1 = 240.;
+    }
+    let h = flow_add(&mut f, [85., 24., 140., 32.184], 30., "別の欄");
+    cell(&mut f, 0, 1, [80., 20., 160., 40.], vec![h]);
+    let v = flow_add(&mut f, [85., 44., 140., 52.184], 50., "100");
+    cell(&mut f, 1, 1, [80., 40., 160., bottom], vec![v]);
+    f.source_cells = vec![
+        old[0].clone(),
+        vec![h],
+        old[1].clone(),
+        old[2].clone(),
+        vec![v],
+        old[3].clone(),
+    ];
+    f
+}
+#[test]
+fn one_shared_scalar_cell_is_not_a_column_of_independent_value_records() {
+    one_field(with_common_scalar(paragraph_field(7, 3, false)));
+}
+#[test]
+fn two_independent_scalar_records_keep_their_field_rows() {
+    let mut f = with_common_scalar(paragraph_field(7, 2, false));
+    let bottom = f.table.y1;
+    let id = flow_add(&mut f, [85., 56., 140., 64.184], 62., "200");
+    f.source_cells[4].push(id);
+    cell(&mut f, 2, 1, [80., 40., 160., bottom], vec![id]);
+    reject(f);
+}
+#[test]
+fn an_unrelated_header_without_flow_does_not_block_a_complete_body_field() {
+    let mut f = paragraph_field(7, 3, false);
+    f.flows[0] = None;
+    one_field(f);
+}
+#[test]
+fn original_field_flow_survives_independent_scale_and_translation() {
+    for (sx, sy, tx, ty) in [(0.5f32, 3., 30., 7.), (4., 0.25, 5., 20.)] {
+        let mut f = paragraph_field(7, 3, false);
+        let tr = |b: [f32; 4]| {
+            [
+                b[0] * sx + tx,
+                b[1] * sy + ty,
+                b[2] * sx + tx,
+                b[3] * sy + ty,
+            ]
+        };
+        for i in 0..f.words.len() {
+            let b = tr(f.words[i].source_box);
+            let w = &mut f.words[i];
+            w.source_box = b;
+            w.x0 = b[0];
+            w.y0 = b[1];
+            w.x1 = b[2];
+            w.y1 = b[3];
+            f.bounds[i] = NativeBounds::Glyphs(b);
+            let c = f.originals.iter_mut().find(|c| c.id == i).unwrap();
+            c.x = b[0];
+            c.y = b[1];
+            c.x1 = b[2];
+            c.y1 = b[3];
+            let n = f.flows[i].as_mut().unwrap();
+            n.start = n.start * f64::from(sx) + f64::from(tx);
+            n.end = n.end * f64::from(sx) + f64::from(tx);
+            n.leading *= f64::from(sx);
+            n.trailing *= f64::from(sx);
+            n.prefix *= f64::from(sx);
+            n.baseline = n.baseline * f64::from(sy) + f64::from(ty);
+        }
+        for c in &mut f.table.cells {
+            let b = tr([c.x0, c.y0, c.x1, c.y1]);
+            c.x0 = b[0];
+            c.y0 = b[1];
+            c.x1 = b[2];
+            c.y1 = b[3];
+        }
+        let b = tr([f.table.x0, f.table.y0, f.table.x1, f.table.y1]);
+        f.table.x0 = b[0];
+        f.table.y0 = b[1];
+        f.table.x1 = b[2];
+        f.table.y1 = b[3];
+        for g in &mut f.grids {
+            for x in &mut g.xs {
+                *x = *x * sx + tx;
+            }
+            for y in &mut g.ys {
+                *y = *y * sy + ty;
+            }
+        }
+        for v in &mut f.rules.vertical {
+            v.x = v.x * sx + tx;
+            v.y0 = v.y0 * sy + ty;
+            v.y1 = v.y1 * sy + ty;
+        }
+        for h in &mut f.rules.horizontal {
+            h.y = h.y * sy + ty;
+            h.x0 = h.x0 * sx + tx;
+            h.x1 = h.x1 * sx + tx;
+        }
+        one_field(f);
+    }
+}
+
+#[test]fn numbers_in_an_explicit_section_continuation_do_not_create_new_records(){for s in ["1034 （139.10）","１２３４","0.55％","1,000"]{let mut f=paragraph_field(7,2,false);let id=*f.source_cells[3].last().unwrap();patch(&mut f,id,s);one_field(f);}}
+#[test]fn numeric_heads_remain_independent_even_with_balanced_parentheses(){for s in ["(100)200","（１００）２００"]{let mut f=paragraph_field(7,2,false);let id=f.source_cells[3][0];patch(&mut f,id,s);reject(f);}}

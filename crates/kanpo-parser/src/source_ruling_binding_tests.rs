@@ -10,7 +10,7 @@ fn equal_bbox_text_occurrences_keep_their_own_font_axis_and_ink_evidence() {
     ] {
         let h = Html::parse_document(&xml);
         let p = h.select(&Selector::parse("page").unwrap()).next().unwrap();
-        let (_, w, _, _, _, _, styles, _, _, axes, rulings, _) =
+        let (_, w, _, _, _, _, styles, _, _, axes, rulings, _, _) =
             page_words_with_styles(p, 595., 842., None);
         assert_eq!(w.len(), 2);
         for i in 0..2 {

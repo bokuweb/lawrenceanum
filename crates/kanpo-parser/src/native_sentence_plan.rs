@@ -167,6 +167,60 @@ pub(crate) fn source_plan(table: &Table, source: Source<'_>) -> Option<Table> {
         }
         Some(parents)
     }
+    fn paragraph_grammar(lines: &[Vec<usize>], text: &HashMap<usize, &Col>) -> bool {
+        let pairs = [
+            ('(', ')'),
+            ('（', '）'),
+            ('[', ']'),
+            ('［', '］'),
+            ('{', '}'),
+            ('｛', '｝'),
+            ('「', '」'),
+            ('『', '』'),
+            ('【', '】'),
+            ('〈', '〉'),
+            ('《', '》'),
+        ];
+        let mut stack = Vec::new();
+        for (k, line) in lines.iter().enumerate() {
+            let s: String = line.iter().map(|id| text[id].text.as_str()).collect();
+            let n = s
+                .trim_start()
+                .chars()
+                .take_while(|c| {
+                    c.is_ascii_digit()
+                        || ('０'..='９').contains(c)
+                        || "〇零一二三四五六七八九十百千万億兆".contains(*c)
+                })
+                .count();
+            let item = n > 0
+                && s.trim_start()
+                    .chars()
+                    .nth(n)
+                    .is_some_and(|c| c.is_whitespace() || "、.．)）〜～".contains(c));
+            if numeric(&s) || (k > 0 && stack.is_empty() && (field_prefix(&s) || item)) {
+                return false;
+            }
+            let mut tail = None;
+            for ch in s.chars().filter(|c| !c.is_whitespace()) {
+                if let Some(&(_, end)) = pairs.iter().find(|p| p.0 == ch) {
+                    stack.push(end);
+                } else if pairs.iter().any(|p| p.1 == ch) {
+                    if stack.pop() != Some(ch) {
+                        return false;
+                    }
+                }
+                tail = Some(ch);
+            }
+            if k + 1 < lines.len()
+                && stack.is_empty()
+                && tail.is_some_and(|c| "。.!?！？".contains(c))
+            {
+                return false;
+            }
+        }
+        stack.is_empty()
+    }
     fn glue(a: &str, b: &str, connected: bool) -> String {
         let mut s = a.to_owned();
         if !a.is_empty() && !b.is_empty() {
@@ -179,7 +233,7 @@ pub(crate) fn source_plan(table: &Table, source: Source<'_>) -> Option<Table> {
         s.push_str(b);
         s
     }
-    if !table.cells.iter().any(|c| c.text.contains('。'))
+    if (!table.cells.iter().any(|c| c.text.contains('。')) && source.flows.is_none())
         || !table.cells.iter().enumerate().any(|(i, a)| {
             table.cells[i + 1..]
                 .iter()
@@ -491,6 +545,8 @@ pub(crate) fn source_plan(table: &Table, source: Source<'_>) -> Option<Table> {
     // real logical records. A long shared sentence may span those records.
     let mut records = BTreeMap::new();
     let mut data_columns = HashSet::new();
+    let mut scalar_columns = HashSet::new();
+    let mut section_columns = HashSet::new();
     for (&r, &(lo, hi)) in &ranges {
         if hi - lo < 2 {
             records.insert(r, false);
@@ -576,12 +632,17 @@ pub(crate) fn source_plan(table: &Table, source: Source<'_>) -> Option<Table> {
                     previous = v.1;
                 }
             }
-            if observed_value
-                || (groups[p].len() > 1
-                    && groups[p]
-                        .iter()
-                        .all(|&i| field_prefix(&table.cells[i].text)))
-            {
+            let sectioned = groups[p].len() > 1
+                && groups[p]
+                    .iter()
+                    .all(|&i| field_prefix(&table.cells[i].text));
+            if observed_value {
+                scalar_columns.insert(p);
+            }
+            if sectioned {
+                section_columns.insert(p);
+            }
+            if observed_value || sectioned {
                 data_columns.insert(p);
             }
         }
@@ -600,6 +661,125 @@ pub(crate) fn source_plan(table: &Table, source: Source<'_>) -> Option<Table> {
     let mut components: Vec<Vec<usize>> = groups.iter().map(|ps| (0..ps.len()).collect()).collect();
     let mut collapse = BTreeSet::new();
     let mut changed = false;
+    // A fully source-wrapped field can own several parallel explanatory
+    // sections. Exact native baselines distinguish atomic value rows from
+    // multi-line fragments whose font rectangles merely overlap.
+    if let Some(flows) = source
+        .flows
+        .filter(|flows| flows.len() == source.words.len())
+    {
+        for (&r, &(lo, hi)) in &ranges {
+            if hi - lo < 2
+                || native_rows
+                    .iter()
+                    .enumerate()
+                    .filter(|(i, _)| root(&native_rows, *i) == r)
+                    .count()
+                    != 1
+            {
+                continue;
+            }
+            let fields: Vec<_> = (0..g.cells.len())
+                .filter(|&p| native_keys[p] == r)
+                .collect();
+            if fields
+                .iter()
+                .flat_map(|&p| groups[p].iter())
+                .flat_map(|&i| table.cells[i].words.iter())
+                .any(|&id| {
+                    flows
+                        .get(id)
+                        .copied()
+                        .flatten()
+                        .is_none_or(|f| !f.belongs(boxes[&id]))
+                })
+            {
+                continue;
+            }
+            // A numeric continuation inside a labelled section is not a
+            // second value record. A numeric section head still is. Use the
+            // exact first source baseline, without guessing a line from boxes.
+            let independent_scalar = |p: usize| {
+                scalar_columns.contains(&p) && (!section_columns.contains(&p)
+                    || groups[p].iter().any(|&i| {
+                        let ids = &table.cells[i].words;
+                        let first = flows[ids[0]].unwrap().baseline;
+                        let head: String = ids.iter()
+                            .take_while(|&&id| flows[id].unwrap().baseline == first)
+                            .map(|id| originals[id].text.as_str()).collect();
+                        numeric(&head)
+                    }))
+            };
+            let mut atomic = HashSet::new();
+            for &p in &fields {
+                let mut previous = f64::NEG_INFINITY;
+                let mut valid = true;
+                for row in lo..hi {
+                    let Some(i) = groups[p]
+                        .iter()
+                        .copied()
+                        .find(|&i| table.cells[i].row == row && table.cells[i].rowspan == 1)
+                    else {
+                        valid = false;
+                        break;
+                    };
+                    let ids = &table.cells[i].words;
+                    let Some(first) = ids.first().and_then(|&id| flows[id]) else {
+                        valid = false;
+                        break;
+                    };
+                    if first.baseline <= previous
+                        || ids
+                            .iter()
+                            .any(|&id| flows[id].is_none_or(|f| f.baseline != first.baseline))
+                    {
+                        valid = false;
+                        break;
+                    }
+                    previous = first.baseline;
+                }
+                if valid {
+                    atomic.insert(p);
+                }
+            }
+            let mut wrapped = HashSet::new();
+            for &p in &fields {
+                if groups[p].len() < 2
+                    || independent_scalar(p)
+                    || fields.iter().any(|q| *q != p && atomic.contains(q))
+                {
+                    continue;
+                }
+                let ids: Vec<_> = groups[p]
+                    .iter()
+                    .flat_map(|&i| table.cells[i].words.iter().copied())
+                    .collect();
+                let cols: Vec<_> = ids.iter().map(|id| (*originals[id]).clone()).collect();
+                if let Some(lines) =
+                    crate::native_paragraph_scope::scope(&cols, flows, source.bounds, cr(g, p))
+                {
+                    if paragraph_grammar(&lines, &originals) {
+                        wrapped.insert(p);
+                    }
+                }
+            }
+            if wrapped.is_empty()
+                || fields.iter().any(|p| {
+                    groups[*p].len() > 1
+                        && (independent_scalar(*p)
+                            || (!wrapped.contains(p) && !section_columns.contains(p)))
+                })
+            {
+                continue;
+            }
+            collapse.insert(r);
+            changed = true;
+            for p in wrapped {
+                components[p].fill(0);
+            }
+        }
+    }
+
     for (p, parts) in groups.iter().enumerate() {
         if parts.len() < 2 || data_columns.contains(&p) {
             continue;

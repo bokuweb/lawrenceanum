@@ -23,8 +23,15 @@ fn mixed_scalar_and_text_field_values_keep_their_entire_analysis() {
     unchanged("20261013g002240055");
 }
 #[test]
-fn parenthetical_summary_and_reason_do_not_rewrite_neighboring_field_flow() {
-    unchanged("20261016g002280625");
+fn parenthetical_summary_and_reason_keep_complete_native_fields() {
+    // The116 control preserved a known split label. The source-cell118
+    // regressions independently bind its complete physical memberships.
+    let a = analyze("20261016g002280625");
+    let expected: serde_json::Value = serde_json::from_str(include_str!(
+        "data/native-paragraph-cells/20261016g002280625-baseline118.json"
+    ))
+    .unwrap();
+    assert_eq!(a, expected);
 }
 #[test]
 fn frequency_explanations_span_records_without_inserting_footnotes() {
