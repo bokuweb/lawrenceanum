@@ -141,6 +141,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                     }
                 };
             let native_continuation_cols = (!sideways && prev_native_roles).then(|| cols.clone());
+            let native_sentence_source_cols = (!sideways && !grids.is_empty() && cols.iter().any(|c|c.text.contains('。'))).then(|| cols.clone());
             let mut pairs_here = None;
             let mut two_columns_here = false;
             let mut mid_here = None;
@@ -510,6 +511,9 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 }
             }
             crate::native_unit_dash::restore(&mut units, &mut words, &native_bounds, &native_axes, &native_styles, rules.get(pi).and_then(|r| r.as_ref()));
+            if let (Some(originals),Some(rules))=(native_sentence_source_cols.as_ref(),page_rules){
+                crate::native_sentence_cells::restore(&mut units,crate::native_sentence_cells::Source{words:&words,originals,bounds:&native_bounds,axes:&native_axes,rulings:&native_rulings,grids:&grids,rules});
+            }
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));

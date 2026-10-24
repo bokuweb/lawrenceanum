@@ -671,3 +671,8 @@ mod ruled_cell_flow;
 mod native_role_contracts;
 #[cfg(test)]
 mod native_role_caption_contracts;
+
+mod native_sentence_cells;
+
+#[cfg(test)]
+mod native_sentence_contracts;

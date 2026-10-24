@@ -29,7 +29,7 @@ fn cell_rect(g: &Grid, i: usize) -> Rect {
     let c = g.cells[i];
     [g.xs[c.x0], g.ys[c.y0], g.xs[c.x1], g.ys[c.y1]]
 }
-fn partition(g: &Grid) -> bool {
+pub(crate) fn partition(g: &Grid) -> bool {
     if g.xs.len() < 2 || g.ys.len() < 2 || g.cells.len() < 2 {
         return false;
     }
@@ -60,7 +60,7 @@ fn partition(g: &Grid) -> bool {
     }
     slots.into_iter().all(|x| x)
 }
-fn cover(mut intervals: Vec<(f32, f32)>, start: f32, end: f32) -> bool {
+pub(crate) fn cover(mut intervals: Vec<(f32, f32)>, start: f32, end: f32) -> bool {
     if !start.is_finite() || !end.is_finite() || start >= end {
         return false;
     }
@@ -81,7 +81,7 @@ fn cover(mut intervals: Vec<(f32, f32)>, start: f32, end: f32) -> bool {
     }
     false
 }
-fn fence(a: Rect, b: Rect, ga: Rect, gb: Rect, rules: &PageRules) -> bool {
+pub(crate) fn fence(a: Rect, b: Rect, ga: Rect, gb: Rect, rules: &PageRules) -> bool {
     if ga[3] <= gb[1] || gb[3] <= ga[1] {
         let (top, bottom) = if ga[3] <= gb[1] { (a, b) } else { (b, a) };
         rules
