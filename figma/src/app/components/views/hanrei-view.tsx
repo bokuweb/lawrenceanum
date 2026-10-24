@@ -115,6 +115,16 @@ function HanreiList() {
 function HanreiDetail({ caseId }: { caseId: string }) {
   const [params] = useSearchParams();
   const { data, loading, error, retry } = useHanreiCase(caseId);
+  const sourceField = params.get("source");
+  useEffect(() => {
+    if (!data || !["holding", "summary", "body_text"].includes(sourceField ?? "")) return;
+    const frame = requestAnimationFrame(() => {
+      const target = document.getElementById(`hanrei-source-${sourceField}`);
+      target?.focus({ preventScroll: true });
+      target?.scrollIntoView({ block: "start" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [data, sourceField]);
   const lawLinks = useHanreiLawLinks(caseId);
   const wikiPaths = useWikiPaths();
   const backParams = new URLSearchParams();
