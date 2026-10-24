@@ -54,6 +54,7 @@ mod reference_markers;
 
 mod cell_row_dashes;
 mod financial_enclosures;
+pub mod notice_sources;
 pub mod format;
 mod fractions;
 pub mod grid;
@@ -122,6 +123,9 @@ pub struct Analysis {
 pub struct ArticleAnalysis {
     pub text: String,
     pub document: Document,
+    /// Independently signed notices and their proven source statement references.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub notices: Vec<notice_sources::NoticeScope>,
 }
 
 /// `pdftotext -bbox-layout` の XHTML を解析し、本文・記事・構造化結果に加えて、各語が
@@ -148,16 +152,17 @@ pub fn analyze_with_rules(xhtml: &str, rules: &[Option<lines::PageRules>]) -> An
     wrapped_notice_titles::repair_wrapped_notice_titles(&mut segments, &pages);
     financial_enclosures::repair_segments(&mut segments,&pages,rules);
     let groups=notice_boundaries::groups(&segments,&doc_text,&pages,rules);
+    let certificates=notice_sources::certificates(&pages,rules);
     let mut articles=Vec::new();
     for (segment,parts)in segments.into_iter().zip(groups){
         let original=Document::from_text_with_tables(&segment,&tables);
         if parts.len()>1 {
             let desired:Vec<_>=parts.iter().map(|p|Document::from_text_with_tables(&p.text,&tables)).collect();
             if let Some(documents)=company_document_parts::repartition(&original,&desired){
-                articles.extend(parts.into_iter().zip(documents).map(|(p,document)|ArticleAnalysis{text:render_table_markers(&p.text,&tables),document}));continue;
+                articles.extend(parts.into_iter().zip(documents).map(|(p,document)|ArticleAnalysis{text:render_table_markers(&p.text,&tables),document,notices:notice_sources::for_sources(&certificates,p.sources)}));continue;
             }
         }
-        articles.push(ArticleAnalysis{text:render_table_markers(&segment,&tables),document:original});
+        articles.push(ArticleAnalysis{text:render_table_markers(&segment,&tables),document:original,notices:notice_sources::for_sources(&certificates,parts.into_iter().flat_map(|p|p.sources))});
     }
     Analysis {
         format: format::detect_format(&text),
@@ -481,7 +486,7 @@ mod tests {
     use super::*;
 
     fn arts(texts: &[&str]) -> Vec<ArticleAnalysis> {
-        texts.iter().map(|t| ArticleAnalysis { text: t.to_string(), document: model::Document::from_text(t),
+        texts.iter().map(|t| ArticleAnalysis { text: t.to_string(), document: model::Document::from_text(t), notices:vec![],
             }).collect()
     }
 

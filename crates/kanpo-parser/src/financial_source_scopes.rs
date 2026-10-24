@@ -151,3 +151,97 @@ pub(crate) fn repair_segments(
         *segments = desired;
     }
 }
+
+/// Preserve original line indices: certificates never own text by searching
+/// repeated values, and references never duplicate a native Table.
+pub(crate) fn notice_scopes(
+    page_index: usize,
+    page: &PageTrace,
+    rules: &PageRules,
+    previous: &[PageTrace],
+) -> Vec<crate::notice_sources::NoticeScope> {
+    use crate::notice_sources::{NoticeScope, SourceSpan, StatementReference};
+    if page.native_axes.is_empty() {
+        return vec![];
+    }
+    let refs = page
+        .regions
+        .iter()
+        .enumerate()
+        .flat_map(|(ri, r)| {
+            r.lines
+                .iter()
+                .enumerate()
+                .map(move |(li, l)| (ri, li, r.role, l))
+        })
+        .collect::<Vec<_>>();
+    let lines = refs
+        .iter()
+        .map(|(_, _, _, l)| (*l).clone())
+        .collect::<Vec<_>>();
+    let source = super::source_native::Source {
+        words: &page.words,
+        styles: &page.native_styles,
+        content: &page.native_content_styles,
+        bounds: &page.native_bounds,
+        axes: &page.native_axes,
+        rulings: &page.native_rulings,
+        previous,
+    };
+    let spans = |members: &[usize]| -> Option<Vec<SourceSpan>> {
+        let mut members = members.to_vec();
+        members.sort_unstable();
+        if members.is_empty() || members.windows(2).any(|w| w[0] == w[1]) {
+            return None;
+        }
+        let mut out: Vec<SourceSpan> = vec![];
+        for i in members {
+            let &(ri, li, role, _) = refs.get(i)?;
+            if role != Role::Body {
+                return None;
+            }
+            if let Some(last) = out
+                .last_mut()
+                .filter(|last| last.region == ri && last.end_line == li)
+            {
+                last.end_line += 1;
+            } else {
+                out.push(SourceSpan {
+                    page: page_index,
+                    region: ri,
+                    start_line: li,
+                    end_line: li + 1,
+                });
+            }
+        }
+        Some(out)
+    };
+    let mut out = vec![];
+    for plan in super::source_native::plans(&lines, &source, &rules.enclosures) {
+        let graph = plan
+            .relations
+            .iter()
+            .map(|(body, annexes)| {
+                Some(NoticeScope {
+                    source: spans(body)?,
+                    financial_statements: annexes
+                        .iter()
+                        .map(|annex| {
+                            Some(StatementReference {
+                                source: spans(annex)?,
+                            })
+                        })
+                        .collect::<Option<Vec<_>>>()?,
+                })
+            })
+            .collect::<Option<Vec<_>>>();
+        if let Some(graph) = graph {
+            out.extend(graph);
+        }
+    }
+    out.sort_by_key(|n| {
+        let s = &n.source[0];
+        (s.page, s.region, s.start_line)
+    });
+    out
+}

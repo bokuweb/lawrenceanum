@@ -1,0 +1,118 @@
+{
+  "source_page": "20260828g001920071",
+  "review": "Root non-blind original pixel review. Historical character/line/Article/Document expectations remain unchanged; only the independently reviewed additive notice field is overlaid. Uncertified frames retain no new source graph.",
+  "source_image_sha256": "3799b85e0bbd5ff372d1fdb253c63ff773795a204654452516a68bfc67d26874",
+  "articles": [
+    {
+      "article": 1,
+      "notices": [
+        {
+          "source": [
+            {
+              "page": 0,
+              "region": 0,
+              "start_line": 29,
+              "end_line": 45
+            }
+          ],
+          "financial_statements": [
+            {
+              "source": [
+                {
+                  "page": 0,
+                  "region": 0,
+                  "start_line": 45,
+                  "end_line": 52
+                }
+              ]
+            },
+            {
+              "source": [
+                {
+                  "page": 0,
+                  "region": 0,
+                  "start_line": 52,
+                  "end_line": 59
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "article": 2,
+      "notices": [
+        {
+          "source": [
+            {
+              "page": 0,
+              "region": 0,
+              "start_line": 59,
+              "end_line": 78
+            }
+          ],
+          "financial_statements": [
+            {
+              "source": [
+                {
+                  "page": 0,
+                  "region": 0,
+                  "start_line": 78,
+                  "end_line": 85
+                }
+              ]
+            },
+            {
+              "source": [
+                {
+                  "page": 0,
+                  "region": 0,
+                  "start_line": 85,
+                  "end_line": 92
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "article": 3,
+      "notices": [
+        {
+          "source": [
+            {
+              "page": 0,
+              "region": 0,
+              "start_line": 92,
+              "end_line": 108
+            }
+          ],
+          "financial_statements": [
+            {
+              "source": [
+                {
+                  "page": 0,
+                  "region": 0,
+                  "start_line": 108,
+                  "end_line": 115
+                }
+              ]
+            },
+            {
+              "source": [
+                {
+                  "page": 0,
+                  "region": 0,
+                  "start_line": 115,
+                  "end_line": 122
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

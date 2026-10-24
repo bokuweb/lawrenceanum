@@ -314,4 +314,4 @@ mod source_contract_tests;
 
 #[path="financial_source_scopes.rs"]
 mod source_scopes;
-pub(crate) use source_scopes::{ranges as certified_ranges,repair_segments};
+pub(crate) use source_scopes::{ranges as certified_ranges,repair_segments,notice_scopes};

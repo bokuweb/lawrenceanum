@@ -1,0 +1,34 @@
+{
+  "source_page": "20260806g001770082",
+  "review": "Root non-blind original pixel review. Historical character/line/Article/Document expectations remain unchanged; only the independently reviewed additive notice field is overlaid. Uncertified frames retain no new source graph.",
+  "source_image_sha256": "6cd6a5b30eef58fb0a6426e71ad10f165c0d04cdad624ecd1ad6102537a2f9a5",
+  "articles": [
+    {
+      "article": 0,
+      "notices": [
+        {
+          "source": [
+            {
+              "page": 0,
+              "region": 0,
+              "start_line": 0,
+              "end_line": 13
+            }
+          ],
+          "financial_statements": [
+            {
+              "source": [
+                {
+                  "page": 0,
+                  "region": 0,
+                  "start_line": 13,
+                  "end_line": 19
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

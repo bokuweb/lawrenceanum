@@ -1,0 +1,187 @@
+{
+  "issue": 227,
+  "stage": "native124",
+  "baseline_primary_commit": "0fe69cfe50a5e675315fdbfcf22495fb0630e368",
+  "goal_complete": false,
+  "priority": "Native non-image characters, tables, reading order and ownership. Image-only work remains lower priority.",
+  "change": "Add optional ArticleAnalysis.notices source scopes and many-to-many financial statement references. Existing text, ArticleAnalysis boundaries/documents and all PageTrace data remain exact. Shared statements retain a single source content occurrence.",
+  "public_schema": {
+    "field": "ArticleAnalysis.notices",
+    "types": [
+      "notice_sources::NoticeScope",
+      "notice_sources::StatementReference",
+      "notice_sources::SourceSpan"
+    ],
+    "indices": "zero based, end_line exclusive; Analysis.pages[page].regions[region].lines[start_line..end_line]",
+    "empty": "Uncertified subset; omission does not establish absence of legal procedures. JSON omits empty notices.",
+    "rust_source_compatibility": "Callers constructing ArticleAnalysis literals must initialize notices."
+  },
+  "authority": [
+    "Closed original native frame and complete original Word flow/glyph/font provenance",
+    "Each notice owns its dated signed attribution; complete source publisher fields, never substring identity",
+    "Unquoted affirmative disclosure before the notice own date; party-labelled disclosure resolves against the same signed role record",
+    "Unique statement issuers may be shared; multiple statements of the same issuer require existing exclusive publication ownership proof",
+    "Ambiguous/unknown/negated/conflicting references, unaccounted source and external quotation remain uncertified",
+    "No company/page/expected-output switches; no new character/line/distance caps; conventional disclosure grammar is intentional document vocabulary"
+  ],
+  "original": {
+    "page": "20260828g001920076",
+    "sha256": "c8aaac26bb9a112dc823ee3130da2c061138fa09cb9170e9a28d7c4263d1bd31",
+    "flat_article_count_retained": 2,
+    "independent_procedures": 3,
+    "native_statement_count_retained": 5,
+    "shared_statement": "Single original Emu statement source referenced by merger and absorption split.",
+    "external_reference": "Decolte cites another Gazette issue; no sixth local statement or inferred date is created.",
+    "oracle": "tests/data/native-notice-relations/expected-notices.json",
+    "complete_old_Analysis": "tests/data/native-notice-relations/baseline123.json"
+  },
+  "tests": {
+    "new": 45,
+    "new_library": 37,
+    "new_original_source_controls": 8,
+    "old_actual_original_RED": "0 passed; 1 failed before implementation; missing three independent notice scopes",
+    "first_stub_RED": "9 passed;5 failed. Three shared-fixture positives initially retained removed source Words: invalid synthetic inputs corrected without relaxing runtime proof. Original PDF RED and the two complete independent-source positive REDs remain valid.",
+    "first_normal_native_result": {
+      "terminal": 1,
+      "source_manifest_sha256": "c7622b365abcfa01a6ea98c24ec670ca629a09d12e0e44cb3273d527af7258d6",
+      "commands": 134,
+      "integration_targets": 125,
+      "passed": 2756,
+      "failed": 4,
+      "ignored": 0,
+      "result_groups": 133,
+      "no_expected_snapshot_updates": true,
+      "all_commands_exit0": false
+    },
+    "four_schema_expectation_controls": [
+      "20260730g001710163.json",
+      "20260806g001770081.json",
+      "20260806g001770082.json",
+      "20260828g001920071.json"
+    ],
+    "historical_goldens_retained": true,
+    "final_native": {
+      "terminal": 0,
+      "source_manifest_sha256": "e747567d0bc308c2c728f7f895ea585854d4d31f0b9a44a3be4e84233e070413",
+      "commands": 134,
+      "integration_targets": 125,
+      "passed": 2760,
+      "failed": 0,
+      "ignored": 0,
+      "result_groups": 133,
+      "no_expected_snapshot_updates": true,
+      "all_commands_exit0": true
+    },
+    "snapshot_count": 814,
+    "all_prior_fixture_expected_snapshot_files_exact": 2600
+  },
+  "single11992": {
+    "all_old_Analysis_fields_exact": true,
+    "all_public_full_Analysis_equals_independent_private_prediction": true,
+    "additive_coverage": {
+      "pages": 555,
+      "notices": 1267,
+      "references": 1944,
+      "shared_pages": 6,
+      "shared_extra_references": 9
+    },
+    "coverage_is_not_error_count_or_accuracy": true
+  },
+  "whole159_11992": {
+    "issues": 159,
+    "pages": 11992,
+    "all_old_Analysis_fields_exact": true,
+    "source_inputs_artifacts_prepost_exact": true,
+    "seconds": 412.125546708
+  },
+  "CLI11992": {
+    "pages": 11992,
+    "all_actual_public124_API_text_and_PDF_CLI_bytes_exact": true,
+    "all_adopted123_CLI_text_bytes_exact": true
+  },
+  "root_source_pixel_audit": {
+    "non_blind_root_pixel_review": true,
+    "all_six_pages_with_shared_statements": [
+      {
+        "page": "20260722g001620112",
+        "procedures": 4,
+        "statement_references": 7,
+        "distinct_source_statements": 4,
+        "shared_extra_references": 3,
+        "image_sha256": "95385145fd6f513f22779f340bade5f102cf03bd2052c31b5a82c031d16473c4",
+        "source_observed_procedure_parties_and_statement_issuers_match": true
+      },
+      {
+        "page": "20260723g001630240",
+        "procedures": 4,
+        "statement_references": 6,
+        "distinct_source_statements": 5,
+        "shared_extra_references": 1,
+        "image_sha256": "a0dd34b9b453af2f468d535fadee08e6a96521233aae75a5762db3d3625a21a6",
+        "source_observed_procedure_parties_and_statement_issuers_match": true
+      },
+      {
+        "page": "20260820g001860123",
+        "procedures": 4,
+        "statement_references": 6,
+        "distinct_source_statements": 5,
+        "shared_extra_references": 1,
+        "image_sha256": "e6b1227a5ac964cba2950e0d4e141b8977ef168fd7a47262cfdcaadc1b1a70a7",
+        "source_observed_procedure_parties_and_statement_issuers_match": true
+      },
+      {
+        "page": "20260828g001920076",
+        "procedures": 3,
+        "statement_references": 6,
+        "distinct_source_statements": 5,
+        "shared_extra_references": 1,
+        "image_sha256": "b51883409006871ea0778dad1d70251ab7035e6c2ca35bc12f33ccd13d58e94a",
+        "source_observed_procedure_parties_and_statement_issuers_match": true
+      },
+      {
+        "page": "20260828g001920078",
+        "procedures": 5,
+        "statement_references": 8,
+        "distinct_source_statements": 6,
+        "shared_extra_references": 2,
+        "image_sha256": "2e02b439e90e0c78aa11c799ead7ece26d39f04128128f79411de5e5a1fbb9d4",
+        "source_observed_procedure_parties_and_statement_issuers_match": true
+      },
+      {
+        "page": "20261014g002250071",
+        "procedures": 4,
+        "statement_references": 5,
+        "distinct_source_statements": 4,
+        "shared_extra_references": 1,
+        "image_sha256": "2da657b839358e6a060885cfa2462a5533188c157c8c4a09b2243dbc8b43c99a",
+        "source_observed_procedure_parties_and_statement_issuers_match": true
+      }
+    ],
+    "procedures": 24,
+    "references": 38,
+    "distinct_source_statements": 29,
+    "not_a_global_accuracy_estimate": true
+  },
+  "legacy_control_pixel_review": "Four additional original pages independently reviewed; exact source ranges overlaid on historical complete character/Word/Article/Document goldens, no fields discarded.",
+  "evidence_directory": ".cache/kanpo-227/resume90-local-recovery/native-shared-notice-ownership124",
+  "validation_artifacts": {
+    ".cache/kanpo-227/resume90-local-recovery/native-shared-notice-ownership124/public-port1/single/result.json": "9794c67b86175ea5357161a525d6668f53821ca3c08fe00fcaedb263024885cd",
+    ".cache/kanpo-227/resume90-local-recovery/native-shared-notice-ownership124/public-port1/whole/result.json": "306ae3df45fe43dd7c581f1417a01c19c566de7e4afbc2c01ed0e10c71dec574",
+    ".cache/kanpo-227/resume90-local-recovery/native-shared-notice-ownership124/public-port1/CLI/result.json": "a3c429ad743272a6c21b66b18e7f268c0c7f91188bb9c320bc7995484f13e282",
+    ".cache/kanpo-227/resume90-local-recovery/native-shared-notice-ownership124/public-port1/native-gates2/result124.json": "d7b995e2e09880a013fa04fbeab68f5f6c666a2218378599e62b4aaae406de4c",
+    ".cache/kanpo-227/resume90-local-recovery/native-shared-notice-ownership124/public-port1/native-gates2/source-manifest124.json": "e747567d0bc308c2c728f7f895ea585854d4d31f0b9a44a3be4e84233e070413",
+    ".cache/kanpo-227/resume90-local-recovery/native-shared-notice-ownership124/source-pixels124/verification.json": "e5babdc39e523f62f2ef57f205a4b08fae0d90a1ee4f98190bef58b6d0ceef51"
+  },
+  "OCR": {
+    "engine": "NDLOCR",
+    "version": "0.0.15",
+    "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "normal_analysis_integration": false,
+    "additional_models": false
+  },
+  "limits": [
+    "No full 555-page pixel audit; all six observed shared-reference pages plus four legacy control originals reviewed non-blind",
+    "No fixed thirty-page rescore or global accuracy estimate",
+    "Further uncertified shared/complex ownership and table/layout/Unicode/PUA residuals remain; issue227 not complete"
+  ]
+}

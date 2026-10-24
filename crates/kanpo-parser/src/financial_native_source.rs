@@ -535,6 +535,7 @@ struct NoticeProof {
     attribution: Vec<BTreeSet<String>>,
     action: String,
     declaration: String,
+    disclosure: String,
     rect: Rect,
 }
 fn notice_witness(
@@ -542,7 +543,7 @@ fn notice_witness(
     members: &[usize],
     head: &Caption,
     src: &Source<'_>,
-) -> Option<Vec<BTreeSet<String>>> {
+) -> Option<(Vec<BTreeSet<String>>, String)> {
     let body = members
         .iter()
         .flat_map(|&i| lines[i].words.iter().copied())
@@ -647,7 +648,14 @@ fn notice_witness(
             after_signature = attributed_columns.iter().take(end + 1).map(Vec::len).sum();
         }
     }
-    (!records.is_empty()).then_some(records)
+    let disclosure = src.text(
+        &columns[..column]
+            .iter()
+            .flatten()
+            .copied()
+            .collect::<Vec<_>>(),
+    );
+    (!records.is_empty()).then_some((records, disclosure))
 }
 // A former-designation field explicitly labels its name as historical. A
 // smaller parenthesized string without such a role may be part of the legal
@@ -836,6 +844,7 @@ pub(super) struct Plan {
     pub desired: Vec<usize>,
     pub publications: Vec<Vec<usize>>,
     pub words: HashSet<usize>,
+    pub relations: Vec<(Vec<usize>, Vec<Vec<usize>>)>,
 }
 pub(super) fn plan(lines: &[Line], src: &Source<'_>, frame: Rect) -> Option<Plan> {
     if !valid(frame) {
@@ -943,7 +952,7 @@ pub(super) fn plan(lines: &[Line], src: &Source<'_>, frame: Rect) -> Option<Plan
         if !text.contains("貸借対照表") {
             return None;
         }
-        let attribution = notice_witness(lines, &members, &head, src)?;
+        let (attribution, disclosure) = notice_witness(lines, &members, &head, src)?;
         let rect = members.iter().map(|&i| shapes[i].unwrap()).reduce(union)?;
         let action = src
             .text(&head.words)
@@ -962,6 +971,7 @@ pub(super) fn plan(lines: &[Line], src: &Source<'_>, frame: Rect) -> Option<Plan
             attribution,
             action,
             declaration,
+            disclosure,
             rect,
         });
     }
@@ -1150,6 +1160,54 @@ pub(super) fn plan(lines: &[Line], src: &Source<'_>, frame: Rect) -> Option<Plan
         // is ambiguous; do not emit a guessed or partial child partition.
         publications = vec![selected.clone()];
     }
+    // Retain the many-to-many source certificate separately from the flat
+    // partition. A shared statement has one source and multiple references.
+    // Repeated issuer names require the existing exclusive publication proof.
+    let relations = (|| {
+        let mut relations = notices
+            .iter()
+            .map(|n| (n.lines.clone(), vec![]))
+            .collect::<Vec<_>>();
+        let mut used = vec![false; notices.len()];
+        for (index, (members, owners)) in annexes.iter().enumerate() {
+            let name = &headers[index].2;
+            let repeated = headers.iter().filter(|h| &h.2 == name).count() != 1;
+            if repeated && !separated {
+                return None;
+            }
+            let mut referenced = false;
+            for &owner in owners {
+                if repeated && !members.iter().all(|i| publications[owner].contains(i)) {
+                    continue;
+                }
+                match disclosure::references_local(
+                    &notices[owner].disclosure,
+                    &notices[owner].attribution,
+                    name,
+                )? {
+                    true => {
+                        relations[owner].1.push(members.clone());
+                        used[owner] = true;
+                        referenced = true;
+                    }
+                    false => {}
+                }
+            }
+            if !referenced {
+                return None;
+            }
+        }
+        if used.iter().any(|used| !used) {
+            return None;
+        }
+        Some(
+            order
+                .iter()
+                .map(|&i| relations[i].clone())
+                .collect::<Vec<_>>(),
+        )
+    })()
+    .unwrap_or_default();
     let desired = if separated {
         // The source order and the article certificate must use the same
         // independently proven blocks. Preserve whole lines/tables within
@@ -1171,6 +1229,7 @@ pub(super) fn plan(lines: &[Line], src: &Source<'_>, frame: Rect) -> Option<Plan
         desired,
         publications,
         words: owned,
+        relations,
     })
 }
 pub(super) fn plans(lines: &[Line], src: &Source<'_>, frames: &[Rect]) -> Vec<Plan> {
@@ -1230,3 +1289,6 @@ pub(super) fn restore(units: &mut [Unit], src: &Source<'_>, frames: &[Rect]) {
 
 #[path = "publication_party_lists.rs"]
 mod declaration;
+
+#[path = "financial_statement_disclosure.rs"]
+mod disclosure;
