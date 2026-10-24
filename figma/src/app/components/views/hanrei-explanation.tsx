@@ -44,7 +44,7 @@ export function HanreiExplanation({ caseId, wikiPaths, source }: { caseId: strin
           {typeof input?.total_chars === "number" && typeof input.included_chars === "number" && input.included_chars < input.total_chars && (
             <p className="text-xs text-muted-foreground">原資料 {input.total_chars.toLocaleString()} 文字中 {input.included_chars.toLocaleString()} 文字を入力した解説です。抜粋外の理由・留保・反対意見は未確認です。</p>
           )}
-          <WikiMarkdown body={markdown} from={path} onOpen={target => navigate(`/wiki/${target}`)} />
+          <WikiMarkdown body={markdown} from={path} onOpen={target => navigate(`/wiki/${target}`)} outlineLabel="解説の目次" />
           <HanreiCitationContext caseId={caseId} citations={page.hanrei_citations ?? []} source={source} />
         </> : <p className="text-sm text-muted-foreground">この配信版の解説は判例Wikiで確認できます。</p>}
       <HanreiRelatedCases key={path} caseId={caseId} cases={page?.hanrei_related_cases ?? []} wikiPaths={wikiPaths} />

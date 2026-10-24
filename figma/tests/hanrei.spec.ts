@@ -279,6 +279,48 @@ test("判例本文の前に公開Wikiの解説・引用・入力範囲を表示�
   await expect(page.getByTestId("hanrei-body")).toContainText("電子計算機");
 });
 
+for (const surface of ["hanrei", "wiki/hanrei"] as const) {
+  for (const reducedMotion of ["reduce", "no-preference"] as const) {
+    test(`判例の目次から見出しへキーボードで移動する: ${surface}, ${reducedMotion}`, async ({ page }) => {
+      await mockCaseLinks(page);
+      const markdown = [
+        "## **要約**", "短い要約[^1]。", "## 結論", "結論の説明。",
+        "### 判断の理由", "理由の説明。", "## 結論", "別の結論の補足。",
+        "```md", "## コード内の見出し", "```", "> ## 引用内の見出し",
+        "[^1]: [原文](https://www.courts.go.jp/hanrei/92002/)",
+      ].join("\n\n");
+      await page.route("**/wiki/page/hanrei/92002.json", r => r.fulfill({ json: {
+        ...publishedExplanation(), body: markdown, hanrei_explanation: markdown,
+      } }));
+      await page.emulateMedia({ reducedMotion });
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.addInitScript(() => {
+        Element.prototype.scrollIntoView = function(options) {
+          (window as any).__outlineScroll = { id: this.id, options };
+        };
+      });
+      await page.goto(new URL(`#/${surface}/92002`, BASE).toString());
+      const outline = page.getByRole("navigation", { name: surface === "hanrei" ? "解説の目次" : "この判例ページの目次", exact: true });
+      await expect(outline.getByRole("link")).toHaveText(["要約", "結論", "判断の理由", "結論"]);
+      const hrefs = await outline.getByRole("link").evaluateAll(links => links.map(a => a.getAttribute("href")));
+      expect(new Set(hrefs).size).toBe(4);
+      const link = outline.getByRole("link", { name: "結論", exact: true }).nth(1);
+      await link.focus();
+      await page.keyboard.press("Enter");
+      const heading = page.getByRole("heading", { name: "結論", exact: true }).nth(1);
+      await expect(heading).toBeFocused();
+      expect(await page.evaluate(() => (window as any).__outlineScroll)).toEqual({
+        id: await heading.getAttribute("id"),
+        options: { behavior: reducedMotion === "reduce" ? "instant" : "smooth", block: "start" },
+      });
+      await expect(page).toHaveURL(new RegExp(`#/${surface}/92002$`));
+      await page.locator("a[data-footnote-ref]").first().click();
+      await expect(page).toHaveURL(new RegExp(`#/${surface}/92002$`));
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+    });
+  }
+}
+
 function citation(field: "holding" | "summary" | "body_text", quote: string, label = "1") {
   return { label, field, quote, reference: `hanrei:92002#${field === "body_text" ? "body" : field}` };
 }
