@@ -6,6 +6,8 @@ fn analyze(pdf: &[u8]) -> Value {
     legacy_analysis::value(&a)
 }
 const PDF: &[u8] = include_bytes!("archive/pages/20260831g00194/20260831g001940091.pdf");
+#[path = "support/legal_summary_expectation.rs"]
+mod legal_summary_expectation;
 #[test]
 fn source_boxes_preserve_original_XHTML_occurrences_in_real_orientations() {
     let pdfs: &[&[u8]] = &[
@@ -83,10 +85,11 @@ fn actual_verified_identity_CID25937_ToUnicode_E9F5_is_restored_page163p2() {
     let a = analyze(include_bytes!(
         "archive/pages/20260723g00163/20260723g001630002.pdf"
     ));
-    let b: Value = serde_json::from_str(include_str!(
+    let mut b: Value = serde_json::from_str(include_str!(
         "expected/paren_chi_e9f5/20260723g001630002-restored.analysis.json"
     ))
     .unwrap();
+    legal_summary_expectation::separate_original_laws_63_and_64(&mut b);
     assert_eq!(a, b);
     assert_eq!(a["pages"][0]["words"][51]["raw"], "\u{e9f5}");
     assert_eq!(a["pages"][0]["words"][51]["status"], "used");

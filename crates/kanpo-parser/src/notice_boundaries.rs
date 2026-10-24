@@ -956,6 +956,7 @@ fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> V
         }
     }
     cuts.extend(fences);
+    cuts.extend(legal_summaries::starts(page, rules, lines));
     cuts.extend(court_records::starts(page, rules, lines));
     cuts.extend(horizontal_publications::starts(page, rules, lines));
     cuts.extend(ruled_corrections::section_starts(page, rules, lines));
@@ -1147,3 +1148,6 @@ pub(crate) use ruled_corrections::restore_ruled_corrections;
 #[cfg(test)]
 #[path="horizontal_publication_tests.rs"]
 mod horizontal_publication_tests;
+
+#[path="legal_summaries.rs"]mod legal_summaries;
+#[cfg(test)]#[path="legal_summary_tests.rs"]mod legal_summary_tests;
