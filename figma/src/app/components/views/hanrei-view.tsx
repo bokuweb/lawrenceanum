@@ -117,7 +117,7 @@ function HanreiDetail({ caseId }: { caseId: string }) {
   const { data, loading, error, retry } = useHanreiCase(caseId);
   const sourceField = params.get("source");
   useEffect(() => {
-    if (!data || !["holding", "summary", "body_text"].includes(sourceField ?? "")) return;
+    if (!data || !["holding", "summary", "referenced_laws", "body_text"].includes(sourceField ?? "")) return;
     const frame = requestAnimationFrame(() => {
       const target = document.getElementById(`hanrei-source-${sourceField}`);
       target?.focus({ preventScroll: true });

@@ -1,5 +1,6 @@
 import definitions from "../../../../config/watch-topics.json";
 import { hanreiUrl, type FeedItem, type HanreiCase, type WatchTopic } from "./api";
+import { citationFields, compareCaseArticles, type ComparisonLawState } from "./case-article-comparison";
 
 export const watchTopics: WatchTopic[] = definitions;
 export const WATCH_STORAGE_KEY = "lawrenceanum:topic-watch:v1";
@@ -117,7 +118,7 @@ export function researchProjectReport(project: ResearchProject, base: string) {
   return lines.join("\n");
 }
 
-export function caseComparisonReport(cases: HanreiCase[], notes: Record<string, string>, wikiPaths: ReadonlySet<string> | null, base: string, project?: ResearchProject) {
+export function caseComparisonReport(cases: HanreiCase[], notes: Record<string, string>, wikiPaths: ReadonlySet<string> | null, base: string, project?: ResearchProject, lawStates?: Record<string, ComparisonLawState>) {
   const root = new URL("./", base).href;
   const lines = ["# 判例の比較メモ", "", `出力日時: ${new Date().toISOString()}`, "",
     "比較対象は利用者が選択した判例です。結論の違いだけでは法的な評価・判例変更を判断できません。",
@@ -126,6 +127,32 @@ export function caseComparisonReport(cases: HanreiCase[], notes: Record<string, 
     "当時の条文は版候補で、適用版が確定していない場合があります。原文・経過措置を確認してください。", "",
     `比較対象: ${cases.length}件`, ""];
   if (project) lines.push(...projectRecordLines(project));
+  lines.push("## 抽出条文の比較", "", "法令IDと条番号の一致を機械的に比較した結果です。項・適用版・争点・先例関係の一致を示しません。未抽出は言及や適用がないことを意味しません。", "");
+  const states = cases.map(source => lawStates?.[String(source.case_id)]);
+  if (cases.length === 2 && states.every((state, index) => state?.data && state.data.case_id === cases[index].case_id)) {
+    const rows = compareCaseArticles(cases, states.map(state => state!.data!));
+    if (!rows.length) lines.push("比較できる条文は未抽出です。原文を確認してください。", "");
+    for (const row of rows) {
+      const title = row.sides.find(Boolean)!.law.title;
+      const article = `第${row.article.split("_")[0]}条${row.article.split("_").slice(1).map(n => `の${n}`).join("")}`;
+      lines.push(`### ${plain(title)} ${article}`, "", row.sides.every(Boolean) ? "両判例で抽出（条単位）" : "片方のみで抽出（他方は未抽出）", "");
+      row.sides.forEach((side, index) => {
+        const id = String(cases[index].case_id);
+        if (!side) { lines.push(`判例${id}: 未抽出。言及の有無は原文で確認してください。`, ""); return; }
+        lines.push(`判例${id}の条文・版候補: ${root}#/hanrei/${id}/laws/${encodeURIComponent(row.lawId)}/${encodeURIComponent(row.article)}`, "");
+        if (side.law.basis === "unresolved") lines.push("適用版は未特定です。閲覧用の候補をリンク先で確認してください。", "");
+        for (const c of side.citations) {
+          lines.push(`${citationFields[c.field as keyof typeof citationFields]}の抽出箇所${c.paragraph ? `（第${c.paragraph}項への言及）` : ""}: ${plain(c.text)}`, `確認先: ${root}#/hanrei/${id}?source=${c.field}`);
+          if (Number.isInteger(c.paragraph) && c.paragraph! > 0) lines.push(`項の候補: ${root}#/hanrei/${id}/laws/${encodeURIComponent(row.lawId)}/${encodeURIComponent(row.article)}?paragraph=${c.paragraph}`);
+          lines.push("");
+        }
+        if (!side.citations.length) lines.push("現在の判例データと一致する言及箇所は未確認です。版候補と原文を照合してください。", "");
+      });
+    }
+  } else {
+    lines.push("条文データの確認が完了していないため、共通・片方のみの判定を保留しています。", "");
+    cases.forEach((source, index) => { if (!states[index]?.data) lines.push(`判例${source.case_id}: ${states[index]?.error ? "取得失敗・対応未確認" : "確認未完了"}`, ""); });
+  }
   for (const source of cases) {
     const id = String(source.case_id);
     const path = `hanrei/${id}`;
