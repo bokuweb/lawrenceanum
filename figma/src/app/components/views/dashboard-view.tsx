@@ -5,6 +5,7 @@ import { TrendingUp, Database, FileText, CheckCircle2, ArrowUpRight, ChevronRigh
 import { Button } from "../ui/button";
 import { useDashboardExtras, useLiveSnapshot } from "../../data/use-live-data";
 import { RecentFeedCard, UpcomingEnforcementCard, WikiSummaryCard } from "./dashboard-panels";
+import { TopicWatchCard } from "./topic-watch-card";
 import { type CorpusHealth } from "../../data/api";
 import { Link } from "react-router";
 import { useReducedMotion } from "../ui/use-reduced-motion";
@@ -305,6 +306,7 @@ export function DashboardView() {
       </div>
 
       <CorpusStatusCard corpora={health?.corpora} />
+      <TopicWatchCard />
 
       <div className="grid grid-cols-1 gap-4">
         <Suspense fallback={<ChartFallback />}>

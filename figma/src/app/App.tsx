@@ -16,6 +16,7 @@ const SettingsView = lazy(() => import("./components/views/simple-views").then(m
 const ProceedingsView = lazy(() => import("./components/views/proceedings-view").then(m => ({ default: m.ProceedingsView })));
 const PubcommentView = lazy(() => import("./components/views/pubcomment-view").then(m => ({ default: m.PubcommentView })));
 const FeedView = lazy(() => import("./components/views/feed-view").then(m => ({ default: m.FeedView })));
+const TopicWatchView = lazy(() => import("./components/views/topic-watch-view").then(m => ({ default: m.TopicWatchView })));
 const EnforcementView = lazy(() => import("./components/views/enforcement-view").then(m => ({ default: m.EnforcementView })));
 const GianView = lazy(() => import("./components/views/gian-view").then(m => ({ default: m.GianView })));
 const WikiView = lazy(() => import("./components/views/wiki-view").then(m => ({ default: m.WikiView })));
@@ -213,6 +214,7 @@ function AppShell() {
               <Route path="/pubcomment" element={<PubcommentRoute />} />
               <Route path="/pubcomment/:caseId" element={<PubcommentRoute />} />
               <Route path="/feed" element={<FeedView />} />
+              <Route path="/watch" element={<TopicWatchView />} />
               <Route path="/gian" element={<GianRoute />} />
               <Route path="/gian/:session/:billId" element={<GianRoute />} />
               <Route path="/enforcement" element={<EnforcementView />} />

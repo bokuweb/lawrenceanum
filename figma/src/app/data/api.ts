@@ -447,6 +447,7 @@ export const api = {
 
   /** 規制変化フィード (法令改正・パブコメ・官報の新着, 逆時系列)。 */
   recentFeed: () => getJson<RecentFeed>('./feeds/recent.json'),
+  topicFeed: (topicId: string) => getJson<TopicFeed>(`./feeds/topics/${encodeURIComponent(topicId)}.json`),
 
   /** 施行予定ごとの出典付き wiki 解説。 */
   enforcementExplanations: (lawId: string) =>
@@ -1208,6 +1209,9 @@ export type RecentFeed = {
   count: number
   items: FeedItem[]
 }
+
+export type WatchTopic = { id: string; title: string; description: string; keywords: string[] }
+export type TopicFeed = RecentFeed & { topic: WatchTopic }
 
 // ── 国会会議録 型定義 ──────────────────────────────────────────────
 

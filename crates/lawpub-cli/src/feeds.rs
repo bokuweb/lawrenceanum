@@ -7,7 +7,7 @@
 
 use anyhow::{Context, Result};
 use chrono::{NaiveDate, Utc};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::{
     collections::{HashMap, HashSet},
     path::Path,
@@ -17,7 +17,7 @@ const MAX_ITEMS_PER_KIND: usize = 50;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct FeedItem {
-    /// law / bill / pubcomment / kanpo / proceedings / shingikai / procurement
+    /// law / hanrei / bill / pubcomment / kanpo / proceedings / shingikai / procurement
     pub kind: String,
     pub date: String,
     pub title: String,
@@ -42,6 +42,68 @@ struct Feed {
     generated_at: String,
     count: usize,
     items: Vec<FeedItem>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    topic: Option<WatchTopic>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+struct WatchTopic {
+    id: String,
+    title: String,
+    description: String,
+    keywords: Vec<String>,
+}
+
+fn watch_topics() -> Vec<WatchTopic> {
+    serde_json::from_str(include_str!("../../../config/watch-topics.json"))
+        .expect("valid bundled watch topics")
+}
+
+fn matches_topic(item: &FeedItem, topic: &WatchTopic) -> bool {
+    [
+        item.title.as_str(),
+        item.summary.as_deref().unwrap_or(""),
+        item.law_title.as_deref().unwrap_or(""),
+    ]
+    .iter()
+    .any(|text| {
+        topic
+            .keywords
+            .iter()
+            .any(|word| text.contains(word.as_str()))
+    })
+}
+
+/// 裁判所の一覧に収録された判例。日付は公表日・取得日ではなく裁判日。
+fn collect_hanrei_items(public: &Path) -> Vec<FeedItem> {
+    let Some(v) = read_json(&public.join("hanrei/index.json")) else {
+        return Vec::new();
+    };
+    v.get("cases")
+        .and_then(|v| v.as_array())
+        .into_iter()
+        .flatten()
+        .filter_map(|case| {
+            let id = case.get("case_id")?.as_u64().filter(|id| *id > 0)?;
+            let name = case.get("case_name")?.as_str()?.trim();
+            if name.is_empty() {
+                return None;
+            }
+            let mut item = internal_item(
+                "hanrei",
+                case.get("judged_on")?.as_str()?,
+                name.into(),
+                format!("/hanrei/{id}"),
+            );
+            // holding は裁判所公表の判示事項。LLM の生成文と混ぜない。
+            item.summary = case
+                .get("holding")
+                .and_then(|v| v.as_str())
+                .filter(|s| !s.trim().is_empty())
+                .map(String::from);
+            Some(item)
+        })
+        .collect()
 }
 
 fn read_json(path: &Path) -> Option<serde_json::Value> {
@@ -254,6 +316,17 @@ fn collect_kanpo_items(public: &Path, max_dates: usize) -> Vec<FeedItem> {
 /// パブコメは和式日付 (例「2026年6月19日」「2026年3月27日18時0分」)、法令/官報は ISO。
 fn normalize_date(s: &str) -> String {
     let s = s.trim();
+    let digits: String = s
+        .chars()
+        .map(|c| match c {
+            '０'..='９' => char::from_u32(c as u32 - '０' as u32 + '0' as u32).unwrap(),
+            _ => c,
+        })
+        .collect();
+    if let Some(date) = jlt_client::wareki_date_to_iso(&digits) {
+        return date;
+    }
+    let s = digits.as_str();
     if let Some(date) = s
         .get(..10)
         .filter(|date| NaiveDate::parse_from_str(date, "%Y-%m-%d").is_ok())
@@ -277,6 +350,7 @@ fn normalize_date(s: &str) -> String {
 fn kind_label(k: &str) -> &str {
     match k {
         "law" => "法令",
+        "hanrei" => "判例",
         "pubcomment" => "パブコメ",
         "kanpo" => "官報",
         "bill" => "法案",
@@ -514,7 +588,7 @@ fn rfc822(date: &str) -> Option<String> {
     Some(dt.format("%a, %d %b %Y %H:%M:%S +0000").to_string())
 }
 
-fn write_rss(public: &Path, items: &[FeedItem]) -> Result<()> {
+fn write_rss(path: &Path, items: &[FeedItem], title: &str, description: &str) -> Result<()> {
     let base = std::env::var("LAWPUB_BASE_URL").unwrap_or_else(|_| "/".to_string());
     let base_norm = if base.ends_with('/') {
         base.clone()
@@ -526,10 +600,13 @@ fn write_rss(public: &Path, items: &[FeedItem]) -> Result<()> {
         r#"<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
 <channel>
-<title>Lawrenceanum 規制変化フィード</title>
-<description>法令改正・法案・パブリックコメント・官報・国会会議録・審議会・政府調達の新着</description>
 "#,
     );
+    rss.push_str(&format!(
+        "<title>{}</title>\n<description>{}</description>\n",
+        xml_escape(title),
+        xml_escape(description)
+    ));
     rss.push_str(&format!("<link>{}</link>\n", xml_escape(&base_norm)));
     for it in items {
         let link = if it.internal {
@@ -554,8 +631,7 @@ fn write_rss(public: &Path, items: &[FeedItem]) -> Result<()> {
         rss.push_str("</item>\n");
     }
     rss.push_str("</channel>\n</rss>\n");
-    std::fs::write(public.join("feeds").join("recent.xml"), rss.as_bytes())
-        .context("write recent.xml")?;
+    std::fs::write(path, rss.as_bytes()).with_context(|| format!("write {}", path.display()))?;
     Ok(())
 }
 
@@ -566,6 +642,7 @@ pub fn run_build_feeds(public: &Path) -> Result<()> {
 
     let mut items = Vec::new();
     items.extend(collect_law_items(public, 14));
+    items.extend(collect_hanrei_items(public));
     items.extend(collect_pubcomment_items(public));
     items.extend(collect_kanpo_items(public, 30));
     items.extend(collect_gian_items(public));
@@ -576,13 +653,40 @@ pub fn run_build_feeds(public: &Path) -> Result<()> {
     let today = Utc::now()
         .with_timezone(&chrono::FixedOffset::east_opt(9 * 3600).unwrap())
         .date_naive();
+    let generated_at = Utc::now().to_rfc3339();
+    let topics_dir = out_dir.join("topics");
+    std::fs::create_dir_all(&topics_dir)?;
+    for topic in watch_topics() {
+        // 全体フィードの種別上限より先に選別する。大量の別テーマで候補を失わない。
+        let selected = recent_items(
+            items
+                .iter()
+                .filter(|item| matches_topic(item, &topic))
+                .cloned()
+                .collect(),
+            today,
+        );
+        let feed = Feed {
+            schema_version: 1,
+            generated_at: generated_at.clone(),
+            count: selected.len(),
+            items: selected.clone(),
+            topic: Some(topic.clone()),
+        };
+        std::fs::write(
+            topics_dir.join(format!("{}.json", topic.id)),
+            serde_json::to_vec_pretty(&feed)?,
+        )?;
+        write_rss(&topics_dir.join(format!("{}.xml", topic.id)), &selected, &format!("Lawrenceanum — {}", topic.title), &format!("{} キーワード一致による候補です。判例は裁判日順で、公表・取得順ではありません。各種別最新50件まで。", topic.description))?;
+    }
     let items = recent_items(items, today);
 
     let feed = Feed {
         schema_version: 1,
-        generated_at: Utc::now().to_rfc3339(),
+        generated_at,
         count: items.len(),
         items: items.clone(),
+        topic: None,
     };
     std::fs::write(
         out_dir.join("recent.json"),
@@ -590,7 +694,7 @@ pub fn run_build_feeds(public: &Path) -> Result<()> {
     )
     .context("write recent.json")?;
 
-    write_rss(public, &items)?;
+    write_rss(&out_dir.join("recent.xml"), &items, "Lawrenceanum 規制変化フィード", "法令改正・判例・法案・パブリックコメント・官報・国会会議録・審議会・政府調達。判例は裁判日順です。")?;
 
     tracing::info!(
         "build-feeds: {} items (feeds/recent.json + recent.xml)",
@@ -646,10 +750,64 @@ mod tests {
 
     #[test]
     fn normalizes_japanese_dates_and_iso_timestamps() {
+        assert_eq!(normalize_date("令和８年１０月２３日"), "2026-10-23");
+        assert_eq!(normalize_date("平成25年8月1日"), "2013-08-01");
         assert_eq!(normalize_date("2026-10-16 23:59"), "2026-10-16");
         assert_eq!(normalize_date("2026-10-16T12:00:00+09:00"), "2026-10-16");
         assert_eq!(normalize_date("2026年3月7日18時0分"), "2026-03-07");
         assert_eq!(normalize_date("月年日"), "月年日");
+    }
+
+    #[test]
+    fn topic_rules_are_safe_and_select_before_the_global_limit() {
+        let topics = watch_topics();
+        let mut ids = std::collections::HashSet::new();
+        for topic in &topics {
+            assert!(ids.insert(&topic.id));
+            assert!(
+                !topic.id.is_empty()
+                    && topic
+                        .id
+                        .bytes()
+                        .all(|c| c.is_ascii_lowercase() || c == b'-')
+            );
+            assert!(
+                !topic.keywords.is_empty()
+                    && topic.keywords.iter().all(|word| !word.trim().is_empty())
+            );
+        }
+        let topic = &topics[0];
+        let today = NaiveDate::from_ymd_opt(2026, 10, 24).unwrap();
+        let mut items: Vec<_> = (0..60)
+            .map(|n| {
+                internal_item(
+                    "hanrei",
+                    "2026-10-23",
+                    "別の分野".into(),
+                    format!("/hanrei/{n}"),
+                )
+            })
+            .collect();
+        let mut matching = internal_item(
+            "hanrei",
+            "2026-10-22",
+            "保護変更決定取消請求事件".into(),
+            "/hanrei/97208".into(),
+        );
+        matching.summary = Some("生活扶助の基準に関する判示事項".into());
+        items.push(matching);
+        assert!(!recent_items(items.clone(), today)
+            .iter()
+            .any(|item| matches_topic(item, topic)));
+        let selected = recent_items(
+            items
+                .into_iter()
+                .filter(|item| matches_topic(item, topic))
+                .collect(),
+            today,
+        );
+        assert_eq!(selected.len(), 1);
+        assert_eq!(selected[0].href, "/hanrei/97208");
     }
 
     #[test]
@@ -697,6 +855,15 @@ mod tests {
 
         for (source, value) in [
             (
+                "hanrei",
+                serde_json::json!({"cases": [
+                    {"case_id": 97208, "case_name": "保護変更決定取消請求事件", "judged_on": "令和8年5月28日", "holding": "生活保護法の生活扶助基準に関する判示事項"},
+                    {"case_id": 97209, "case_name": "日付不明", "judged_on": "不明"},
+                    {"case_id": 97210, "case_name": "未来の事件", "judged_on": "令和81年1月1日"},
+                    {"case_id": 0, "case_name": "不正なID", "judged_on": "令和8年5月28日"}
+                ]}),
+            ),
+            (
                 "gian",
                 serde_json::json!({"bills": [{"bill_id": "b1", "session": 221, "title": "テスト法案", "latest_date": "2026-05-29"}]}),
             ),
@@ -731,8 +898,8 @@ mod tests {
             serde_json::from_slice(&std::fs::read(root.join("feeds").join("recent.json")).unwrap())
                 .unwrap();
         let items = feed["items"].as_array().unwrap();
-        // 7種類 + 募集開始1件。予定・日付不明・本文のある公告も除外。
-        assert_eq!(items.len(), 8);
+        // 8種類 + 募集開始1件。予定・日付不明・本文のある公告も除外。
+        assert_eq!(items.len(), 9);
         let kinds: Vec<&str> = items.iter().map(|i| i["kind"].as_str().unwrap()).collect();
         assert!(kinds.contains(&"law"));
         assert!(kinds.contains(&"pubcomment"));
@@ -741,6 +908,7 @@ mod tests {
         assert!(kinds.contains(&"proceedings"));
         assert!(kinds.contains(&"shingikai"));
         assert!(kinds.contains(&"procurement"));
+        assert!(kinds.contains(&"hanrei"));
         // 日付降順: 先頭は 2026-06-01 (pubcomment)。
         assert_eq!(items[0]["date"].as_str().unwrap(), "2026-06-01");
         assert_eq!(items[1]["date"], "2026-05-30");
@@ -765,6 +933,20 @@ mod tests {
         assert!(rss.contains("[パブコメ] テストパブコメ"));
         assert!(rss.contains("[審議会] 法制審議会"));
         assert!(rss.contains("[政府調達] 情報システム調達"));
+        assert!(rss.contains("[判例] 保護変更決定取消請求事件"));
+        let topic_feed: serde_json::Value = serde_json::from_slice(
+            &std::fs::read(root.join("feeds/topics/administrative-welfare.json")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(topic_feed["topic"]["id"], "administrative-welfare");
+        assert_eq!(topic_feed["count"], 1);
+        assert_eq!(topic_feed["items"][0]["href"], "/hanrei/97208");
+        assert_eq!(topic_feed["items"][0]["date"], "2026-05-28");
+        let topic_rss =
+            std::fs::read_to_string(root.join("feeds/topics/administrative-welfare.xml")).unwrap();
+        assert!(topic_rss.contains("生活保護・行政救済"));
+        assert!(topic_rss.contains("#/hanrei/97208"));
+        assert!(topic_rss.contains("公表・取得順ではありません"));
 
         let _ = std::fs::remove_dir_all(&root);
     }

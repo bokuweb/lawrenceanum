@@ -3,11 +3,12 @@ import { Link } from "react-router";
 import { Badge } from "../ui/badge";
 import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
-import { BookOpen, MessageSquare, Newspaper, Rss, ArrowUpRight, Bell, Landmark, MessagesSquare, Users, BriefcaseBusiness } from "lucide-react";
+import { BookOpen, MessageSquare, Newspaper, Rss, ArrowUpRight, Bell, Landmark, MessagesSquare, Users, BriefcaseBusiness, Gavel } from "lucide-react";
 import { api, type RecentFeed, type FeedItem } from "../../data/api";
 
 const KINDS = [
   { key: "law", label: "法令改正", icon: BookOpen },
+  { key: "hanrei", label: "判例", icon: Gavel },
   { key: "bill", label: "法案", icon: Landmark },
   { key: "pubcomment", label: "パブコメ", icon: MessageSquare },
   { key: "kanpo", label: "官報", icon: Newspaper },
@@ -41,7 +42,7 @@ function FeedLink({ item, className, children }: { item: FeedItem; className: st
     : <a href={item.href} target="_blank" rel="noopener noreferrer" className={className}>{children}</a>;
 }
 
-function FeedRow({ item }: { item: FeedItem }) {
+export function FeedRow({ item }: { item: FeedItem }) {
   const meta = kindMeta(item.kind);
   const Icon = meta.icon;
   // 官報項目で対象法令が逆引きできるとき、外部PDFとは別に法令へ飛べるようにする。
@@ -60,7 +61,7 @@ function FeedRow({ item }: { item: FeedItem }) {
           </div>
           <div className="text-sm font-medium mt-0.5 line-clamp-2">{item.title}</div>
           {item.summary && (
-            <div className="text-xs text-muted-foreground mt-0.5">{item.summary}</div>
+            <div className="text-xs text-muted-foreground mt-0.5">{item.kind === "hanrei" && <span className="block font-medium">裁判所公表の判示事項</span>}{item.summary}</div>
           )}
         </FeedLink>
         {showLawLink && (
@@ -113,7 +114,7 @@ export function FeedView() {
         <div>
           <h1 className="text-2xl flex items-center gap-2"><Bell className="size-6" />新着 — 規制変化フィード</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            法令・法案から、国会会議録・審議会・政府調達まで横断表示
+            判例・法令・法案から、国会会議録・審議会・政府調達まで横断表示
           </p>
         </div>
         <a
@@ -126,6 +127,8 @@ export function FeedView() {
           <Rss className="size-4" />RSS購読
         </a>
       </div>
+
+      <Link to="/watch" className="block mb-5 rounded-lg border border-border p-3 text-sm hover:border-primary">生活保護・行政救済のテーマを追跡する →</Link>
 
       {!loading && active.size === 0 && latestByKind.length > 0 && (
         <section aria-label="種類別の最新" className="mb-6">
@@ -178,7 +181,7 @@ export function FeedView() {
         <h2 className="text-sm font-medium">新着一覧 <span className="text-muted-foreground">{filtered.length}件</span></h2>
         <span className="text-xs text-muted-foreground">日付の新しい順</span>
       </div>
-      <p className="text-xs text-muted-foreground mb-3">各種類の最新50件まで。パブコメは募集開始日・結果公示日、会議は開催日、調達は公示日で表示します。</p>
+      <p className="text-xs text-muted-foreground mb-3">各種類の最新50件まで。判例は裁判日（公表日・取得日ではありません）、パブコメは募集開始日・結果公示日、会議は開催日、調達は公示日で表示します。</p>
       <section aria-label="新着一覧" className="border border-border rounded-lg overflow-hidden">
         <ScrollArea className="max-h-[calc(100vh-220px)]">
           {loading ? (

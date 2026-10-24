@@ -40,6 +40,7 @@ function useLastSync(): { sync: string | null; egovDate: string | null } {
 const items: { path: string; label: string; icon: any; matchPrefix?: string; kanpoParser?: boolean }[] = [
   { path: "/", label: "ダッシュボード", icon: LayoutDashboard },
   { path: "/feed", label: "新着", icon: Bell, matchPrefix: "/feed" },
+  { path: "/watch", label: "テーマ追跡", icon: Bell, matchPrefix: "/watch" },
   { path: "/search", label: "検索", icon: Search },
   { path: "/laws", label: "法令閲覧", icon: BookOpen, matchPrefix: "/laws" },
   { path: "/proceedings", label: "国会会議録", icon: Landmark, matchPrefix: "/proceedings" },
