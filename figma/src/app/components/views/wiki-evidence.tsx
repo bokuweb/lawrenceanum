@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import type { WikiPage } from "../../data/api";
 
 const roles: Record<string, string> = { government: "政府側（役職表記による）", expert: "有識者（役職表記による）", industry: "業界側（所属表記による）", witness: "参考人（立場未特定）", committee_member: "委員（立場未特定）", unknown: "立場未確認" };
@@ -25,6 +26,9 @@ export function WikiEvidence({ page, onOpen }: { page: WikiPage; onOpen: (path: 
       )}
       {hanrei && (
         <div data-testid="wiki-hanrei-scope" className="space-y-2">
+          {typeof page.frontmatter.case_id === "number" && Number.isSafeInteger(page.frontmatter.case_id) && page.frontmatter.case_id > 0 && (
+            <Link to={`/hanrei/${page.frontmatter.case_id}`} className="inline-block text-primary underline">判例本文・公式要旨を読む</Link>
+          )}
           <p>AIによる要約・解説です。「裁判所の公開情報（原文）」に掲載する判示事項・裁判要旨とは区別してください。</p>
           <p>収録資料：{typeof rawScope === "string" ? rawScope : "収録範囲は未記録です。"}</p>
           {typeof input?.total_chars === "number" && typeof input.included_chars === "number" && (

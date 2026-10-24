@@ -1279,6 +1279,47 @@ mod tests {
             .unwrap()
             .iter()
             .any(|e| e["source"] == "hanrei/5" && e["target"] == "hanrei/6"));
+        let exported_case: Value =
+            serde_json::from_slice(&std::fs::read(out.join("page/hanrei/5.json")).unwrap())
+                .unwrap();
+        let explanation = exported_case["hanrei_explanation"].as_str().unwrap();
+        assert!(explanation.contains("## 要約\n"));
+        assert!(explanation.contains("[^1]: [hanrei:5#holding]"));
+        assert!(!explanation.contains("裁判所の公開情報（原文）"));
+        assert!(!explanation.contains("共通する参照条文"));
+        // ready なページでも固定資料との対応が壊れたら、一覧・本文・グラフから外す。
+        let path = wiki.join("hanrei/5.md");
+        let original = Page::read(&path).unwrap();
+        let mut wrong = original.clone();
+        wrong.set("source_scope", json!("対応しない収録範囲"));
+        assert!(ready(&wrong));
+        wrong.write(&path).unwrap();
+        export::run_export(&export::ExportArgs {
+            wiki: wiki.clone(),
+            out: out.clone(),
+        })
+        .unwrap();
+        let exported: Value =
+            serde_json::from_slice(&std::fs::read(out.join("index.json")).unwrap()).unwrap();
+        assert!(!exported["pages"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|p| p["path"] == "hanrei/5"));
+        assert!(!out.join("page/hanrei/5.json").exists());
+        let graph: Value =
+            serde_json::from_slice(&std::fs::read(out.join("graph.json")).unwrap()).unwrap();
+        assert!(!graph["nodes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|n| n["id"] == "hanrei/5"));
+        assert!(!graph["links"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|e| e["source"] == "hanrei/5" || e["target"] == "hanrei/5"));
+        original.write(&path).unwrap();
         assert!(plan_tasks(&src, &wiki, &work, 3, 10, "2026-10-25")
             .unwrap()
             .is_empty());

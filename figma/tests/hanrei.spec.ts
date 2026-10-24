@@ -102,6 +102,87 @@ async function mockCaseLinks(page: import("@playwright/test").Page) {
   await page.route("**/wiki/index.json", r => r.fulfill({ json: { schema_version: 1, pages: [{ path: "hanrei/92002" }, { path: `laws/${lawId}` }] } }));
 }
 
+function publishedExplanation() {
+  return {
+    path: "hanrei/92002", frontmatter: {
+      type: "hanrei", case_id: 92002, source_fingerprint: "v1", llm_source_fingerprint: "v1",
+      source_scope: "判示事項・裁判要旨（判決全文未収録）", summary_input: { total_chars: 50000, included_chars: 36000 },
+    },
+    body: "## 裁判所の公開情報（原文）\n\n公式原文の区間はカードに複製しない。",
+    hanrei_explanation: "## 要約\n\n生活扶助基準の改定について判断した[^1]。\n\n## 判断と理由\n\n基準の改定理由を検討した[^1]。\n\n[関連法令](../laws/325AC0000000144.md)\n\n[^1]: [hanrei:92002#holding](https://www.courts.go.jp/hanrei/92002/) 「生活扶助基準の改定について判断した。」\n",
+  };
+}
+
+test("判例本文の前に公開Wikiの解説・引用・入力範囲を表示し、Wikiと行き来できる", async ({ page }) => {
+  await mockCaseLinks(page);
+  await page.route("**/wiki/page/hanrei/92002.json", r => r.fulfill({ json: publishedExplanation() }));
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(new URL("#/hanrei/92002", BASE).toString());
+  const card = page.getByTestId("hanrei-explanation");
+  await expect(card).toContainText("生活扶助基準の改定について判断した");
+  await expect(card).toContainText("判決全文未収録");
+  await expect(card).toContainText("50,000 文字中 36,000 文字");
+  await expect(card).toContainText("抜粋外の理由・留保・反対意見は未確認");
+  await expect(card).not.toContainText("公式原文の区間はカードに複製しない");
+  await expect(card.getByRole("heading", { name: "出典", exact: true })).toBeVisible();
+  await expect(card.getByRole("link", { name: "hanrei:92002#holding", exact: true })).toHaveAttribute("href", "https://www.courts.go.jp/hanrei/92002/");
+  await card.locator("a[data-footnote-ref]").first().click();
+  await expect(page).toHaveURL(/#\/hanrei\/92002$/);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await card.getByRole("link", { name: "関連法令", exact: true }).click();
+  await expect(page).toHaveURL(/#\/wiki\/laws\/325AC0000000144$/);
+  await page.goto(new URL("#/hanrei/92002", BASE).toString());
+  await page.getByRole("link", { name: "解説・関連判例をWikiで読む", exact: true }).click();
+  await expect(page).toHaveURL(/#\/wiki\/hanrei\/92002$/);
+  await page.getByRole("link", { name: "判例本文・公式要旨を読む", exact: true }).click();
+  await expect(page.getByTestId("hanrei-body")).toContainText("電子計算機");
+});
+
+test("解説取得の失敗から再試行でき、判例本文は引き続き読める", async ({ page }) => {
+  await mockCaseLinks(page);
+  let fail = true;
+  await page.route("**/wiki/page/hanrei/92002.json", r => fail ? r.fulfill({ status: 503 }) : r.fulfill({ json: publishedExplanation() }));
+  await page.goto(new URL("#/hanrei/92002", BASE).toString());
+  const card = page.getByTestId("hanrei-explanation");
+  await expect(card.getByRole("alert")).toBeVisible();
+  await expect(page.getByTestId("hanrei-body")).toContainText("電子計算機");
+  fail = false;
+  await card.getByRole("button", { name: "解説を再試行", exact: true }).click();
+  await expect(card).toContainText("生活扶助基準の改定について判断した");
+  await expect(card.getByRole("alert")).toHaveCount(0);
+});
+
+for (const mismatch of ["case", "source", "stub"] as const) {
+  test(`対応を確認できない解説を本文に表示しない: ${mismatch}`, async ({ page }) => {
+    await mockCaseLinks(page);
+    const wiki = publishedExplanation();
+    if (mismatch === "case") wiki.frontmatter.case_id = 92001;
+    if (mismatch === "source") wiki.frontmatter.llm_source_fingerprint = "old";
+    await page.route("**/wiki/page/hanrei/92002.json", r => r.fulfill({ json: { ...wiki, stub: mismatch === "stub" } }));
+    await page.goto(new URL("#/hanrei/92002", BASE).toString());
+    const card = page.getByTestId("hanrei-explanation");
+    await expect(card.getByRole("alert")).toContainText("対応を確認できませんでした");
+    await expect(card).not.toContainText("生活扶助基準の改定について判断した");
+    await expect(page.getByTestId("hanrei-body")).toContainText("電子計算機");
+  });
+}
+
+test("未公開の解説は取得せず、旧配信形式ではWikiへの導線を表示する", async ({ page }) => {
+  await mockCaseLinks(page);
+  let requests = 0;
+  const wiki = publishedExplanation();
+  await page.route("**/wiki/page/hanrei/92002.json", r => { requests++; return r.fulfill({ json: { ...wiki, hanrei_explanation: undefined } }); });
+  await page.route("**/wiki/index.json", r => r.fulfill({ json: { schema_version: 1, pages: [] } }));
+  await page.goto(new URL("#/hanrei/92002", BASE).toString());
+  await expect(page.getByText("判例wikiの公開をまだ確認できません。", { exact: true })).toBeVisible();
+  await expect(page.getByTestId("hanrei-explanation")).toHaveCount(0);
+  expect(requests).toBe(0);
+  await page.unroute("**/wiki/index.json");
+  await page.route("**/wiki/index.json", r => r.fulfill({ json: { schema_version: 1, pages: [{ path: wiki.path }] } }));
+  await page.reload();
+  await expect(page.getByTestId("hanrei-explanation")).toContainText("この配信版の解説は判例Wikiで確認できます。");
+});
+
 test("省略された法令名・項をリンクし、版候補・根拠と過去版本文、wikiの紐付けを表示する", async ({ page }) => {
   await mockCaseLinks(page);
   let currentRequests = 0;

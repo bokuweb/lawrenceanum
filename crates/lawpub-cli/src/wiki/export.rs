@@ -128,7 +128,9 @@ pub fn run_export(args: &ExportArgs) -> Result<()> {
     let published = enforcements::export(&pages, &args.out)?;
     // 未完了の施行予定解説は通常の wiki 一覧にも公開しない。
     pages.retain(|(rel, p)| p.get_str("type") != enforcements::KIND || published.contains(rel));
-    pages.retain(|(_,p)| p.get_str("type") != hanrei::KIND || hanrei::ready(p));
+    let published_hanrei: BTreeSet<_> = hanrei::completed_pages(wiki)?
+        .into_iter().map(|(rel, _)| rel).collect();
+    pages.retain(|(rel,p)| p.get_str("type") != hanrei::KIND || published_hanrei.contains(rel));
     report::write_manifest(&pages, &args.out.join("report-manifest.json"))?;
     let known: BTreeSet<&str> = pages.iter().map(|(rel, _)| rel.as_str()).collect();
     let page_lookup: BTreeMap<&str, &Page> = pages.iter().map(|(rel, page)| (rel.as_str(), page)).collect();
@@ -152,7 +154,7 @@ pub fn run_export(args: &ExportArgs) -> Result<()> {
 
         let dest = args.out.join("page").join(format!("{id}.json"));
         std::fs::create_dir_all(dest.parent().expect("has parent"))?;
-        std::fs::write(&dest, serde_json::to_vec(&json!({ "path": id, "frontmatter": fm, "body": display_body(&page.body), "stub": is_stub(page), "claim_assessments": evidence::assessments(page), "citation_sources": citation_sources(rel, page, &page_lookup) }))?)?;
+        std::fs::write(&dest, serde_json::to_vec(&json!({ "path": id, "frontmatter": fm, "body": display_body(&page.body), "stub": is_stub(page), "claim_assessments": evidence::assessments(page), "citation_sources": citation_sources(rel, page, &page_lookup), "hanrei_explanation": (page.get_str("type") == hanrei::KIND).then(|| first_llm_block(&page.body)) }))?)?;
 
         if HUB_PAGES.contains(&rel.as_str()) {
             continue;
