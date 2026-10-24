@@ -419,6 +419,7 @@ fn write_page(wiki: &Path, source: &Source, bundle: &Value, first_seen: &str) ->
         ("case_id", json!(id)),
         ("date", json!(first_seen)),
         ("judged_on", doc["judged_on"].clone()),
+        ("court", doc["court"].clone()),
         ("resource", doc["detail_url"].clone()),
         (
             "laws",
@@ -636,6 +637,12 @@ pub fn source_matches(wiki: &Path, page: &Page) -> Result<bool> {
             && page.get("referenced_articles") == doc.get("laws")
             && page.get("summary_format_version") == doc.get("summary_format_version")
             && page.get("summary_input") == doc.get("summary_input")
+            && page
+                .get("judged_on")
+                .is_none_or(|v| Some(v) == doc["case"].get("judged_on"))
+            && page
+                .get("court")
+                .is_none_or(|v| Some(v) == doc["case"].get("court"))
             && (doc.get("summary_format_version").is_none()
                 || replace_block(&page.body, "official-summary", &official_summary(&doc))
                     .is_some_and(|body| body == page.body))
@@ -705,8 +712,27 @@ fn article_keys(page: &Page) -> BTreeSet<(String, String)> {
         .collect()
 }
 
+#[derive(Debug, Serialize)]
+pub struct CommonArticle {
+    law_id: String,
+    title: String,
+    article: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct RelatedCase {
+    path: String,
+    case_id: u64,
+    title: String,
+    judged_on: String,
+    court: String,
+    description: String,
+    common_articles: Vec<CommonArticle>,
+}
+
 /// 同じ法令・条番号への言及という観測事実だけを結ぶ。先例関係は推定しない。
-fn write_case_relations(wiki: &Path, cases: &[(String, Page)]) -> Result<()> {
+pub fn case_relations(cases: &[(String, Page)]) -> BTreeMap<String, Vec<RelatedCase>> {
+    let mut result = BTreeMap::new();
     let keys: Vec<_> = cases.iter().map(|(_, page)| article_keys(page)).collect();
     let mut index: BTreeMap<_, Vec<usize>> = BTreeMap::new();
     for (i, refs) in keys.iter().enumerate() {
@@ -729,12 +755,12 @@ fn write_case_relations(wiki: &Path, cases: &[(String, Page)]) -> Result<()> {
                 .cmp(&ka.len())
                 .then_with(|| cases[*a].0.cmp(&cases[*b].0))
         });
-        let mut section = String::new();
-        if !related.is_empty() {
-            section.push_str("## 共通する参照条文を持つ判例\n\n同じ法令・条番号への言及を根拠に、共通条文の多い順に最大10件を表示します。先例関係・同じ争点や結論・適用法令の版の一致を示すものではありません。\n\n| 判例 | 共通する参照条文 | 概要 |\n|---|---|---|\n");
-            for (other, common) in related.into_iter().take(10) {
+        let entries = related
+            .into_iter()
+            .take(10)
+            .filter_map(|(other, common)| {
                 let (target, page) = &cases[other];
-                let articles = common
+                let common_articles = common
                     .iter()
                     .map(|(law_id, article)| {
                         let title = original
@@ -745,29 +771,75 @@ fn write_case_relations(wiki: &Path, cases: &[(String, Page)]) -> Result<()> {
                             .find(|l| l["law_id"].as_str() == Some(law_id))
                             .and_then(|l| l["title"].as_str())
                             .unwrap_or(law_id);
-                        format!(
-                            "[{} 第{}条](#/hanrei/{}/laws/{law_id}/{article})",
-                            cell(title),
-                            article.replace('_', "の"),
-                            original.get("case_id").and_then(Value::as_u64).unwrap_or(0)
-                        )
+                        CommonArticle {
+                            law_id: law_id.clone(),
+                            title: title.to_string(),
+                            article: article.clone(),
+                        }
                     })
-                    .collect::<Vec<_>>()
-                    .join("、");
-                section.push_str(&format!(
-                    "| [{}]({}) | {} | {} |\n",
-                    cell(page.get_str("title")),
-                    rel_link(rel, target),
-                    articles,
-                    cell(page.get_str("description"))
-                ));
-            }
+                    .collect();
+                Some(RelatedCase {
+                    path: target.trim_end_matches(".md").to_string(),
+                    case_id: page.get("case_id").and_then(Value::as_u64)?,
+                    title: page.get_str("title").to_string(),
+                    judged_on: page.get_str("judged_on").to_string(),
+                    court: page.get_str("court").to_string(),
+                    description: page.get_str("description").to_string(),
+                    common_articles,
+                })
+            })
+            .collect();
+        result.insert(rel.clone(), entries);
+    }
+    result
+}
+
+/// 保存済みの古い関連区間も、現在の公開対象だけを使って置き換える。
+pub fn body_with_case_relations(rel: &str, original: &Page, related: &[RelatedCase]) -> String {
+    let mut section = String::new();
+    if !related.is_empty() {
+        section.push_str("## 共通する参照条文を持つ判例\n\n同じ法令・条番号への言及を根拠に、共通条文の多い順に最大10件を表示します。先例関係・同じ争点や結論・適用法令の版の一致を示すものではありません。\n\n| 判例 | 裁判日・裁判所 | 共通する参照条文 | 概要 |\n|---|---|---|---|\n");
+        for case in related {
+            let articles = case
+                .common_articles
+                .iter()
+                .map(|a| {
+                    format!(
+                        "[{} 第{}条](#/hanrei/{}/laws/{}/{})",
+                        cell(&a.title),
+                        a.article.replace('_', "の"),
+                        original.get("case_id").and_then(Value::as_u64).unwrap_or(0),
+                        a.law_id,
+                        a.article
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join("、");
+            section.push_str(&format!(
+                "| [{}]({}) | {} {} | {} | {} |\n",
+                cell(&case.title),
+                rel_link(rel, &format!("{}.md", case.path)),
+                cell(&case.judged_on),
+                cell(&case.court),
+                articles,
+                cell(&case.description)
+            ));
         }
-        let body = match replace_block(&original.body, "related-cases", &section) {
-            Some(body) => body,
-            None if !section.is_empty() => format!("{}\n<!-- lawpub:begin related-cases -->\n{section}<!-- lawpub:end related-cases -->\n", original.body),
-            None => continue,
-        };
+    }
+    match replace_block(&original.body, "related-cases", &section) {
+        Some(body) => body,
+        None if !section.is_empty() => format!(
+            "{}\n<!-- lawpub:begin related-cases -->\n{section}<!-- lawpub:end related-cases -->\n",
+            original.body
+        ),
+        None => original.body.clone(),
+    }
+}
+
+fn write_case_relations(wiki: &Path, cases: &[(String, Page)]) -> Result<()> {
+    let relations = case_relations(cases);
+    for (rel, original) in cases {
+        let body = body_with_case_relations(rel, original, &relations[rel]);
         if body != original.body {
             let mut page = original.clone();
             page.body = body;
@@ -1064,6 +1136,9 @@ mod tests {
             page.set("case_id", json!(id));
             page.set("title", json!(format!("判例{id}")));
             page.set("description", json!(format!("要約{id}")));
+            page.set("judged_on", json!("令和7年1月15日"));
+            page.set("court", json!("東京地方裁判所"));
+            page.set("date", json!("2026-10-24"));
             page.set(
                 "referenced_articles",
                 json!([{"law_id":law,"title":law,"articles":articles}]),
@@ -1073,6 +1148,18 @@ mod tests {
             page.write(&root.join(&rel)).unwrap();
             cases.push((rel, page));
         }
+        let relations = case_relations(&cases);
+        let entries = &relations["hanrei/1.md"];
+        assert_eq!(
+            entries.iter().map(|c| c.case_id).collect::<Vec<_>>(),
+            vec![2, 3]
+        );
+        assert_eq!(entries[0].path, "hanrei/2");
+        assert_eq!(entries[0].judged_on, "令和7年1月15日");
+        assert_eq!(entries[0].court, "東京地方裁判所");
+        assert_eq!(entries[0].description, "要約2");
+        assert_eq!(entries[0].common_articles[0].law_id, "L1");
+        assert_eq!(entries[0].common_articles[0].article, "709");
         write_backlinks(&root, &cases).unwrap();
         let one = Page::read(&root.join("hanrei/1.md")).unwrap();
         assert!(one.body.contains("[判例2](../hanrei/2.md)"));
@@ -1114,6 +1201,12 @@ mod tests {
             page.set("title", json!(format!("判例{id}")));
             many.push((format!("hanrei/{id}.md"), page));
         }
+        // 複数条文が共通する判例を、パス順より優先する。
+        many[14].1.set(
+            "referenced_articles",
+            cases[0].1.get("referenced_articles").unwrap().clone(),
+        );
+        assert_eq!(case_relations(&many)["hanrei/1.md"][0].case_id, 23);
         write_backlinks(&root, &many).unwrap();
         let one = Page::read(&root.join("hanrei/1.md")).unwrap();
         assert_eq!(one.body.matches("| [判例").count(), 10);
@@ -1282,6 +1375,15 @@ mod tests {
         let exported_case: Value =
             serde_json::from_slice(&std::fs::read(out.join("page/hanrei/5.json")).unwrap())
                 .unwrap();
+        assert_eq!(
+            exported_case["hanrei_related_cases"],
+            json!([{
+                "path":"hanrei/6", "case_id":6, "title":"損害賠償請求事件 — 最高裁判所第一小法廷 令和8(受)1",
+                "judged_on":"令和8年10月1日", "court":"最高裁判所第一小法廷",
+                "description":Page::read(&wiki.join("hanrei/6.md")).unwrap().get_str("description"),
+                "common_articles":[{"law_id":"L1","title":"民法","article":"709"}]
+            }])
+        );
         let explanation = exported_case["hanrei_explanation"].as_str().unwrap();
         assert!(explanation.contains("## 要約\n"));
         assert!(explanation.contains("[^1]: [hanrei:5#holding]"));
@@ -1290,6 +1392,18 @@ mod tests {
         // ready なページでも固定資料との対応が壊れたら、一覧・本文・グラフから外す。
         let path = wiki.join("hanrei/5.md");
         let original = Page::read(&path).unwrap();
+        assert!(source_matches(&wiki, &original).unwrap());
+        for field in ["court", "judged_on"] {
+            let mut changed = original.clone();
+            changed.set(field, json!("別のメタデータ"));
+            assert!(!source_matches(&wiki, &changed).unwrap());
+        }
+        let mut legacy = original.clone();
+        legacy.frontmatter.retain(|(key, _)| key != "court");
+        assert!(
+            source_matches(&wiki, &legacy).unwrap(),
+            "旧ページの裁判所欄の欠落は許容"
+        );
         let mut wrong = original.clone();
         wrong.set("source_scope", json!("対応しない収録範囲"));
         assert!(ready(&wrong));
@@ -1319,6 +1433,25 @@ mod tests {
             .unwrap()
             .iter()
             .any(|e| e["source"] == "hanrei/5" || e["target"] == "hanrei/5"));
+        let remaining: Value =
+            serde_json::from_slice(&std::fs::read(out.join("page/hanrei/6.json")).unwrap())
+                .unwrap();
+        assert_eq!(remaining["hanrei_related_cases"], json!([]));
+        assert!(!remaining["body"]
+            .as_str()
+            .unwrap()
+            .contains("../hanrei/5.md"));
+        assert!(!remaining["body"]
+            .as_str()
+            .unwrap()
+            .contains("共通する参照条文"));
+        assert!(
+            Page::read(&wiki.join("hanrei/6.md"))
+                .unwrap()
+                .body
+                .contains("../hanrei/5.md"),
+            "export の関連区間再計算は元の Wiki ファイルを書き換えない"
+        );
         original.write(&path).unwrap();
         assert!(plan_tasks(&src, &wiki, &work, 3, 10, "2026-10-25")
             .unwrap()
