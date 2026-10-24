@@ -3,13 +3,31 @@ import { hanreiUrl, type FeedItem, type HanreiCase, type WatchTopic } from "./ap
 
 export const watchTopics: WatchTopic[] = definitions;
 export const WATCH_STORAGE_KEY = "lawrenceanum:topic-watch:v1";
+export type FeedCheckpoint = { topicId: string; generatedAt: string; checkedAt: string; entries: Record<string, string> };
 export type ResearchProject = {
   id: string; title: string; question: string; findings: string; pending: string;
   comparison: string[]; caseNotes: Record<string, string>; updatedAt: string;
 };
 export const MAX_RESEARCH_PROJECTS = 10;
-export type WatchState = { followed: boolean; read: string[]; note: string; comparison: string[]; caseNotes: Record<string, string>; projects: ResearchProject[]; activeProject: string | null };
-export const emptyWatchState: WatchState = { followed: false, read: [], note: "", comparison: [], caseNotes: {}, projects: [], activeProject: null };
+export type WatchState = { followed: boolean; read: string[]; note: string; comparison: string[]; caseNotes: Record<string, string>; projects: ResearchProject[]; activeProject: string | null; checkpoint: FeedCheckpoint | null };
+export const emptyWatchState: WatchState = { followed: false, read: [], note: "", comparison: [], caseNotes: {}, projects: [], activeProject: null, checkpoint: null };
+
+function readCheckpoint(value: unknown): FeedCheckpoint | null {
+  const entry = value as FeedCheckpoint | null;
+  if (!entry || entry.topicId !== watchTopics[0].id || typeof entry.generatedAt !== "string" || Number.isNaN(Date.parse(entry.generatedAt))
+    || typeof entry.checkedAt !== "string" || Number.isNaN(Date.parse(entry.checkedAt)) || !entry.entries || typeof entry.entries !== "object" || Array.isArray(entry.entries)) return null;
+  const entries = Object.entries(entry.entries);
+  if (entries.length > 1000 || JSON.stringify(entry.entries).length > 1_000_000 || entries.some(([key, text]) => {
+    try {
+      const parts = JSON.parse(key);
+      const content = typeof text === "string" ? JSON.parse(text) : null;
+      return !Array.isArray(parts) || parts.length !== 3 || !parts.every(part => typeof part === "string") || key.length > 2000
+        || !Array.isArray(content) || content.length !== 6 || !content.slice(0, 4).every(part => typeof part === "string") || typeof content[4] !== "boolean" || typeof content[5] !== "string";
+    }
+    catch { return true; }
+  })) return null;
+  return { topicId: entry.topicId, generatedAt: entry.generatedAt, checkedAt: entry.checkedAt, entries: Object.fromEntries(entries) };
+}
 const validCaseId = (value: unknown): value is string => typeof value === "string" && /^[1-9]\d{0,9}$/.test(value);
 export const watchCaseId = (item: FeedItem) => item.kind === "hanrei" && item.internal ? item.href.match(/^\/hanrei\/([1-9]\d{0,9})$/)?.[1] : undefined;
 const readComparison = (value: unknown) => Array.isArray(value) ? [...new Set<string>(value.filter(validCaseId))].slice(0, 2) : [];
@@ -41,7 +59,7 @@ export function readWatchState(): WatchState {
   if (value?.version !== 1 || typeof value.followed !== "boolean" || !Array.isArray(value.read) || typeof value.note !== "string") throw new Error("invalid watch state");
   const projects = readProjects(value.projects);
   return { followed: value.followed, read: value.read.filter((id: unknown) => typeof id === "string" && id.length < 2000).slice(-2000), note: value.note.slice(0, 5000),
-    comparison: readComparison(value.comparison), caseNotes: readCaseNotes(value.caseNotes), projects,
+    comparison: readComparison(value.comparison), caseNotes: readCaseNotes(value.caseNotes), projects, checkpoint: readCheckpoint(value.checkpoint),
     activeProject: projects.some(project => project.id === value.activeProject) ? value.activeProject : null };
 }
 
@@ -52,6 +70,22 @@ export function withCaseNote<T extends { caseNotes: Record<string, string> }>(st
 
 // 同じ資料でも日付が変わる更新イベントは再び未読として扱う。
 export const feedItemKey = (item: FeedItem) => JSON.stringify([item.kind, item.date, item.href]);
+const feedItemContent = (item: FeedItem) => JSON.stringify([item.title, item.summary ?? "", item.law_title ?? "", item.ministry ?? "", item.internal, item.law_id ?? ""]);
+export function captureFeedCheckpoint(topicId: string, generatedAt: string, items: FeedItem[]): FeedCheckpoint {
+  const checkpoint = readCheckpoint({ topicId, generatedAt, checkedAt: new Date().toISOString(), entries: Object.fromEntries(items.map(item => [feedItemKey(item), feedItemContent(item)])) });
+  if (!checkpoint) throw new Error("checkpoint exceeds storage limits");
+  return checkpoint;
+}
+export function feedItemChange(item: FeedItem, checkpoint: FeedCheckpoint): "追加" | "表示情報の変更" | null {
+  const previous = checkpoint.entries[feedItemKey(item)];
+  return previous === undefined ? "追加" : previous !== feedItemContent(item) ? "表示情報の変更" : null;
+}
+export function previousFeedDisplay(item: FeedItem, checkpoint: FeedCheckpoint): { title: string; summary: string; lawTitle: string; ministry: string } | null {
+  const value = checkpoint.entries[feedItemKey(item)];
+  if (!value) return null;
+  const [title, summary, lawTitle, ministry] = JSON.parse(value);
+  return { title, summary, lawTitle, ministry };
+}
 export const matchedKeywords = (item: FeedItem, topic: WatchTopic) => topic.keywords.filter(word =>
   [item.title, item.summary ?? "", item.law_title ?? ""].some(text => text.includes(word)),
 );
@@ -106,7 +140,7 @@ export function caseComparisonReport(cases: HanreiCase[], notes: Record<string, 
   }
   return lines.join("\n");
 }
-export function watchReport(topic: WatchTopic, items: FeedItem[], generatedAt: string, note: string, base: string) {
+export function watchReport(topic: WatchTopic, items: FeedItem[], generatedAt: string, note: string, base: string, checkpoint?: FeedCheckpoint | null) {
   const lines = [
     `# ${topic.title} — 調査メモ`, "", `フィード生成日時: ${generatedAt}`, `出力日時: ${new Date().toISOString()}`, "",
     "収録済み資料のキーワード一致による候補です。関連性・影響の確定や網羅性を保証しません。",
@@ -116,10 +150,19 @@ export function watchReport(topic: WatchTopic, items: FeedItem[], generatedAt: s
     "当時の条文は版候補であり、適用版が確定していない場合があります。", "",
     `対象キーワード: ${topic.keywords.join(" / ")}`, `出力件数: ${items.length}`, "",
   ];
+  if (checkpoint) lines.push("## 保存した一覧との比較", "", `比較基準の確認日時: ${checkpoint.checkedAt}`, `比較基準のフィード生成日時: ${checkpoint.generatedAt}`,
+    "追加・表示情報の変更は保存した一覧との比較です。公表日以降の新着や、資料本文・Wiki・条文の変更を検出したものではありません。一覧から外れた資料は削除と判断しません。", "");
   if (note.trim()) lines.push("## 自分のメモ", "", plain(note), "");
   for (const item of items) {
     const url = item.internal ? `${new URL("./", base).href}#${item.href}` : item.href;
     lines.push(`## ${plain(item.date)} ${plain(item.title)}`, "", `一致した語: ${matchedKeywords(item, topic).join(" / ")}`, "");
+    if (checkpoint) lines.push(`保存した一覧との比較: ${feedItemChange(item, checkpoint) ?? "変更なし"}`, "");
+    if (checkpoint && feedItemChange(item, checkpoint) === "表示情報の変更") {
+      const before = previousFeedDisplay(item, checkpoint)!;
+      lines.push("### 基準保存時の表示情報", "", `タイトル: ${plain(before.title)}`, `説明・判示事項: ${plain(before.summary || "未収録")}`, `対象法令: ${plain(before.lawTitle || "未収録")}`, `機関: ${plain(before.ministry || "未収録")}`, "", "### 現在の表示情報", "");
+    }
+    if (item.law_title) lines.push(`対象法令: ${plain(item.law_title)}`, "");
+    if (item.ministry) lines.push(`機関: ${plain(item.ministry)}`, "");
     if (item.summary) lines.push(`${item.kind === "hanrei" ? "裁判所公表の判示事項" : "収録データの説明"}: ${plain(item.summary)}`, "");
     lines.push(`確認先: ${url}`, "");
     const caseId = item.kind === "hanrei" && item.href.match(/^\/hanrei\/(\d+)$/)?.[1];
