@@ -29,7 +29,7 @@ export function WikiEvidence({ page, onOpen }: { page: WikiPage; onOpen: (path: 
           {typeof page.frontmatter.case_id === "number" && Number.isSafeInteger(page.frontmatter.case_id) && page.frontmatter.case_id > 0 && (
             <Link to={`/hanrei/${page.frontmatter.case_id}`} className="inline-block text-primary underline">判例本文・公式要旨を読む</Link>
           )}
-          <p>AIによる要約・解説です。「裁判所の公開情報（原文）」に掲載する判示事項・裁判要旨とは区別してください。</p>
+          <p>AIによる要約・解説です。この要約・解説はLLM（大規模言語モデル）が生成しました。「裁判所の公開情報（原文）」に掲載する判示事項・裁判要旨とは区別してください。</p>
           <p>収録資料：{typeof rawScope === "string" ? rawScope : "収録範囲は未記録です。"}</p>
           {typeof input?.total_chars === "number" && typeof input.included_chars === "number" && (
             <p>AIへの入力：原資料 {input.total_chars.toLocaleString()} 文字中 {input.included_chars.toLocaleString()} 文字。

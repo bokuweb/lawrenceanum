@@ -23,7 +23,7 @@ test("一覧で公開済みAI概要を検索し、解説のある判例からWik
   });
   await page.route("**/wiki/index.json", r => r.fulfill({ json: summaryIndex() }));
   await page.goto(new URL("#/hanrei", BASE).toString());
-  await expect(page.getByTestId("hanrei-list-ai-summary")).toHaveText("AI概要：デジタル証拠の評価と立証責任");
+  await expect(page.getByTestId("hanrei-list-ai-summary")).toHaveText("AI概要（LLM生成）：デジタル証拠の評価と立証責任");
   await expect(page.getByText("裁判所の裁判要旨とは異なります。", { exact: false })).toBeVisible();
   await expect(page.getByText("使用者責任の成否", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: /のAI解説を読む$/ })).toHaveCount(1);
@@ -259,6 +259,7 @@ test("判例本文の前に公開Wikiの解説・引用・入力範囲を表示�
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(new URL("#/hanrei/92002", BASE).toString());
   const card = page.getByTestId("hanrei-explanation");
+  await expect(card).toContainText("この要約・解説はLLM（大規模言語モデル）が生成しました。");
   await expect(card).toContainText("生活扶助基準の改定について判断した");
   await expect(card).toContainText("判決全文未収録");
   await expect(card).toContainText("50,000 文字中 36,000 文字");
@@ -358,7 +359,7 @@ test("共通条文を持つ判例の概要・裁判日・裁判所を表示し�
   await page.goto(new URL("#/hanrei/92002", BASE).toString());
   const related = page.getByTestId("hanrei-related-cases");
   await expect(related).toContainText("令和7年1月15日・東京地方裁判所");
-  await expect(related).toContainText("AIによる概要：行政処分の基準について検討した。");
+  await expect(related).toContainText("AI概要（LLM生成）：行政処分の基準について検討した。");
   await expect(related).toContainText("先例関係・同じ争点や結論・適用法令の版の一致を示すものではありません。");
   await expect(related.getByRole("link", { name: "旧データの行政事件のWiki", exact: true })).toHaveAttribute("href", "#/wiki/hanrei/92001");
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
@@ -379,6 +380,7 @@ test("公開索引にない関連判例・自分自身・事件IDと異なるパ
     { ...relatedCase(), path: "hanrei/92002", case_id: 92002, title: "自分自身" },
     { ...relatedCase(), path: "hanrei/99999", case_id: 99999, title: "公開対象から外れた判例" },
     { ...relatedCase(), path: "hanrei/92001", case_id: 92003, title: "事件ID不一致" },
+    { ...relatedCase(), title: "重複した関連判例" },
   ]);
   await page.goto(new URL("#/hanrei/92002", BASE).toString());
   const related = page.getByTestId("hanrei-related-cases");
@@ -387,6 +389,67 @@ test("公開索引にない関連判例・自分自身・事件IDと異なるパ
   await expect(related).not.toContainText("自分自身");
   await expect(related).not.toContainText("公開対象から外れた判例");
   await expect(related).not.toContainText("事件ID不一致");
+  await expect(related).not.toContainText("重複した関連判例");
+});
+
+for (const surface of ["hanrei", "wiki/hanrei"] as const) {
+  test(`${surface}で法令と条番号の組合せで関連判例を絞り、関連Wikiをたどる`, async ({ page }) => {
+    const article3 = { law_id: lawId, title: "生活保護法", article: "3" };
+    const otherLaw = { law_id: "129AC0000000089", title: "民法", article: "8" };
+    await mockRelatedCases(page, [
+      { ...relatedCase(), common_articles: [...relatedCase().common_articles, article3, article3] },
+      { ...relatedCase(), path: "hanrei/92003", case_id: 92003, title: "第3条の関連判例", common_articles: [article3] },
+      { ...relatedCase(), path: "hanrei/92004", case_id: 92004, title: "別法令の第8条の判例", common_articles: [otherLaw] },
+      { ...relatedCase(), path: "hanrei/92005", case_id: 92005, title: "公開外の第8条の判例" },
+      { ...relatedCase(), path: "hanrei/92007", case_id: 92007, title: "要約前の判例" },
+      { ...relatedCase(), path: "hanrei/92006", case_id: 92006, title: "共通条文なしの判例", common_articles: [] },
+    ]);
+    await page.route("**/wiki/index.json", r => r.fulfill({ json: { schema_version: 1, pages: [
+      ...[92001, 92002, 92003, 92004, 92006].map(id => ({ path: `hanrei/${id}`, type: "hanrei" })),
+      { path: "hanrei/92007", type: "hanrei", stub: true },
+      { path: `laws/${lawId}`, type: "law" },
+    ] } }));
+    // グラフが取得できなくても、根拠付きの関連判例は利用できる。
+    await page.route("**/wiki/graph.json", r => r.fulfill({ status: 503 }));
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(new URL(`#/${surface}/92002`, BASE).toString());
+    const related = page.getByTestId("hanrei-related-cases");
+    await expect(related.getByRole("listitem")).toHaveCount(3);
+    await expect(related).not.toContainText("公開外の第8条の判例");
+    await expect(related).not.toContainText("共通条文なしの判例");
+    await expect(related).not.toContainText("要約前の判例");
+    const select = related.getByRole("combobox", { name: "関連判例の共通条文" });
+    await select.selectOption({ label: "生活保護法 第8条（1件）" });
+    await expect(related.getByRole("status")).toHaveText("1 / 3件（公開済みの関連候補内）");
+    await expect(related.getByRole("listitem")).toHaveCount(1);
+    await expect(related).not.toContainText("別法令の第8条の判例");
+    await select.selectOption({ label: "生活保護法 第3条（2件）" });
+    await expect(related.getByRole("listitem")).toHaveCount(2);
+    await select.selectOption({ label: "民法 第8条（1件）" });
+    await expect(related.getByRole("listitem")).toHaveCount(1);
+    await expect(related).toContainText("別法令の第8条の判例");
+    await expect(related.getByRole("link", { name: "民法の法令Wiki", exact: true })).toHaveCount(0);
+    await select.selectOption("");
+    await expect(related.getByRole("listitem")).toHaveCount(3);
+    await expect(related).toContainText("AI概要（LLM生成）：");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    if (surface === "wiki/hanrei") {
+      await expect(page.getByTestId("wiki-hanrei-scope")).toContainText("この要約・解説はLLM（大規模言語モデル）が生成しました。");
+    }
+    await related.getByRole("link", { name: "生活保護法の法令Wiki", exact: true }).first().click();
+    await expect(page).toHaveURL(new RegExp(`#/wiki/laws/${lawId}$`));
+  });
+}
+
+test("Wikiの資料の版が不一致なら構造化した関連判例欄を出さない", async ({ page }) => {
+  await mockRelatedCases(page, [relatedCase()]);
+  await page.route("**/wiki/page/hanrei/92002.json", r => r.fulfill({ json: {
+    ...publishedExplanation(), frontmatter: { ...publishedExplanation().frontmatter, llm_source_fingerprint: "old" },
+    hanrei_related_cases: [relatedCase()],
+  } }));
+  await page.goto(new URL("#/wiki/hanrei/92002", BASE).toString());
+  await expect(page.getByTestId("wiki-hanrei-scope").getByRole("alert")).toBeVisible();
+  await expect(page.getByTestId("hanrei-related-cases")).toHaveCount(0);
 });
 
 test("解説取得の失敗から再試行でき、判例本文は引き続き読める", async ({ page }) => {
