@@ -324,7 +324,8 @@ function WikiPageView({
               {tags.map(t => <Badge key={t} variant="outline" className="text-[11px]">{t}</Badge>)}
             </div>
             <WikiEvidence page={page.data} onOpen={onOpen} />
-            <WikiMarkdown body={page.data.body} from={path} onOpen={onOpen} outlineLabel={str("type") === "hanrei" ? "この判例ページの目次" : undefined} />
+            <WikiMarkdown body={page.data.body} from={path} onOpen={onOpen} outlineLabel={str("type") === "hanrei" ? "この判例ページの目次" : undefined}
+              citationSource={verifiedHanrei ? { caseId: String(fm.case_id), citations: page.data.hanrei_citations ?? [] } : undefined} />
             {verifiedHanrei && (
               <HanreiCitationContext key={path} caseId={String(fm.case_id)} citations={page.data.hanrei_citations ?? []} />
             )}

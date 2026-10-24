@@ -28,7 +28,8 @@ async function mock(page: Page) {
   });
   await page.route("**/wiki/page/hanrei/97208.json", route => route.fulfill({ json: {
     path: "hanrei/97208", frontmatter: { type: "hanrei", case_id: 97208, source_fingerprint: "v1", llm_source_fingerprint: "v1", source_scope: "判示事項・裁判要旨" }, body: "",
-    hanrei_explanation: "## 要約\n\n出典と照合するLLM解説です。", hanrei_citations: [], hanrei_related_cases: [],
+    hanrei_explanation: `## 要約\n\n出典と照合するLLM解説です[^1]。\n\n[^1]: [hanrei:97208#holding](https://www.courts.go.jp/hanrei/97208/) 「${source(97208).holding}」`,
+    hanrei_citations: [{ label: "1", reference: "hanrei:97208#holding", field: "holding", quote: source(97208).holding }], hanrei_related_cases: [],
   } }));
 }
 
@@ -55,6 +56,12 @@ test("2判例の公式要旨・結果・条文候補とLLM解説を同じ画面�
   await comparison.getByRole("button", { name: "AI解説・引用根拠をこの場で読む" }).click();
   await expect(comparison.getByTestId("hanrei-explanation")).toContainText("出典と照合するLLM解説");
   await expect(comparison.getByTestId("hanrei-explanation")).toContainText("LLM（大規模言語モデル）が生成");
+  const inline = comparison.getByTestId("hanrei-citation-inline");
+  await inline.locator("summary").click();
+  await expect(inline.locator("mark")).toHaveText(source(97208).holding);
+  await inline.getByRole("button", { name: "判示事項の原文へ移動", exact: true }).click();
+  await expect(page).toHaveURL(/#\/hanrei\/97208\?source=holding$/);
+  await expect(page.locator("#hanrei-source-holding")).toBeFocused();
 });
 
 test("以前の保存状態を維持し、比較対象とメモは一覧から外れた後も再開できる", async ({ page }) => {
