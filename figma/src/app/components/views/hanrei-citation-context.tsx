@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { api, type HanreiCase, type HanreiCitation } from "../../data/api";
 import { Button } from "../ui/button";
 
@@ -9,6 +9,7 @@ const sourceLabels = { holding: "判示事項", summary: "裁判要旨", body_te
 export type HanreiCitationSource = { caseId: string; citations: HanreiCitation[]; source?: HanreiCase };
 
 export function HanreiCitationContext({ caseId, citations, source, inline = false }: HanreiCitationSource & { inline?: boolean }) {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [loaded, setLoaded] = useState<HanreiCase | null>(null);
   const [error, setError] = useState(false);
@@ -44,6 +45,10 @@ export function HanreiCitationContext({ caseId, citations, source, inline = fals
             <blockquote className="border-l-2 pl-3 whitespace-pre-wrap leading-7">{start > 100 && "…"}{text.slice(Math.max(0, start - 100), start)}<mark>{c.quote}</mark>{text.slice(end, end + 100)}{text.length > end + 100 && "…"}</blockquote>
             {source ? <Button variant="outline" size="sm" onClick={() => {
               const target = document.getElementById(`hanrei-source-${c.field}`);
+              if (!target) {
+                navigate(`/hanrei/${caseId}?source=${c.field}`);
+                return;
+              }
               target?.focus({ preventScroll: true });
               target?.scrollIntoView({ block: "start" });
             }}>{sourceLabels[c.field]}の原文へ移動</Button>
