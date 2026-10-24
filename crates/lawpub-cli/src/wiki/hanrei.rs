@@ -9,6 +9,27 @@ pub const KIND: &str = "hanrei";
 pub const UNKNOWN: &str = "確認できる資料がありません。";
 const INTAKE: &str = ".lawpub/hanrei-intake.json";
 
+/// 判例自身の引用を画面上の原文と照合するためのデータ。法令や別事件の引用は混ぜない。
+pub fn explanation_citations(page: &Page) -> Vec<Value> {
+    let Some(id) = page.get("case_id").and_then(Value::as_u64) else {
+        return Vec::new();
+    };
+    let text = first_llm_block(&page.body);
+    let prefix = format!("hanrei:{id}#");
+    check::citations_in(&text)
+        .into_iter()
+        .filter_map(|c| {
+            let field = match c.reference.strip_prefix(&prefix)? {
+                "holding" => "holding",
+                "summary" => "summary",
+                "body" => "body_text",
+                _ => return None,
+            };
+            Some(json!({"label":c.label,"reference":c.reference,"field":field,"quote":c.quote}))
+        })
+        .collect()
+}
+
 #[derive(Debug, Default, Serialize, Deserialize)]
 struct Intake {
     initialized_at: Option<String>,
@@ -1385,6 +1406,19 @@ mod tests {
             }])
         );
         let explanation = exported_case["hanrei_explanation"].as_str().unwrap();
+        assert_eq!(
+            exported_case["hanrei_citations"],
+            json!([{"label":"1","reference":"hanrei:5#holding","field":"holding","quote":"民法第709条による損害賠償請求について判断した。"}])
+        );
+        let mut citations_page = Page::read(&wiki.join("hanrei/5.md")).unwrap();
+        citations_page.body = format!("{LLM_BEGIN}\n[^1]: [hanrei:5#summary](https://example.com) 「裁判要旨の引用」\n[^2]: [hanrei:5#body](https://example.com) 「判決本文の引用」\n[^3]: [hanrei:6#holding](https://example.com) 「別事件の引用」\n[^4]: [hanrei:5#law-L1-709](https://example.com) 「条文の引用」\n{LLM_END}");
+        assert_eq!(
+            explanation_citations(&citations_page),
+            vec![
+                json!({"label":"1","reference":"hanrei:5#summary","field":"summary","quote":"裁判要旨の引用"}),
+                json!({"label":"2","reference":"hanrei:5#body","field":"body_text","quote":"判決本文の引用"}),
+            ]
+        );
         assert!(explanation.contains("## 要約\n"));
         assert!(explanation.contains("[^1]: [hanrei:5#holding]"));
         assert!(!explanation.contains("裁判所の公開情報（原文）"));

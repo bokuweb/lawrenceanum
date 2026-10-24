@@ -138,6 +138,63 @@ test("判例本文の前に公開Wikiの解説・引用・入力範囲を表示�
   await expect(page.getByTestId("hanrei-body")).toContainText("電子計算機");
 });
 
+function citation(field: "holding" | "summary" | "body_text", quote: string, label = "1") {
+  return { label, field, quote, reference: `hanrei:92002#${field === "body_text" ? "body" : field}` };
+}
+
+test("AIの引用を判示事項・裁判要旨・本文で照合し、原文区間へ移動できる", async ({ page }) => {
+  await mockCaseLinks(page);
+  await page.route("**/hanrei/92002.json", r => r.fulfill({ json: {
+    ...fixture("92002"), holding, summary: "前の記述。原告の請求を認めた。後の記述。",
+  } }));
+  await page.route("**/wiki/page/hanrei/92002.json", r => r.fulfill({ json: {
+    ...publishedExplanation(), hanrei_citations: [
+      citation("holding", holding), citation("summary", "原告の請求を認めた。", "2"),
+      citation("body_text", "電子計算機の利用と立証責任", "3"),
+      { ...citation("holding", holding, "other"), reference: "hanrei:92001#holding" },
+    ],
+  } }));
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(new URL("#/hanrei/92002", BASE).toString());
+  const context = page.getByTestId("hanrei-citation-context");
+  await context.getByText("引用箇所を原文で確認（3件）", { exact: true }).click();
+  await expect(context.locator("mark")).toHaveText([holding, "原告の請求を認めた。", "電子計算機の利用と立証責任"]);
+  await expect(context).toContainText("前の記述。原告の請求を認めた。後の記述。");
+  for (const [label, field] of [["判示事項", "holding"], ["裁判要旨", "summary"], ["本文（PDF抽出）", "body_text"]]) {
+    await context.getByRole("button", { name: `${label}の原文へ移動`, exact: true }).click();
+    await expect(page.locator(`#hanrei-source-${field}`)).toBeFocused();
+    await expect(page).toHaveURL(/#\/hanrei\/92002$/);
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});
+
+test("更新された原文や未収録の本文に引用を無理に対応付けない", async ({ page }) => {
+  await mockCaseLinks(page);
+  await page.route("**/hanrei/92002.json", r => r.fulfill({ json: { ...fixture("92002"), holding, body_text: null } }));
+  await page.route("**/wiki/page/hanrei/92002.json", r => r.fulfill({ json: {
+    ...publishedExplanation(), hanrei_citations: [
+      citation("holding", "保存時の判示事項の引用"), citation("body_text", "保存時の判決本文の引用", "2"),
+    ],
+  } }));
+  await page.goto(new URL("#/hanrei/92002", BASE).toString());
+  const context = page.getByTestId("hanrei-citation-context");
+  await context.getByText("引用箇所を原文で確認（2件）", { exact: true }).click();
+  await expect(context).toContainText("保存時の判示事項の引用");
+  await expect(context).toContainText("保存時の判決本文の引用");
+  await expect(context.getByText(/配信中の原文には完全一致する箇所がありません/)).toHaveCount(2);
+  await expect(context.locator("mark")).toHaveCount(0);
+  await expect(context.getByRole("button")).toHaveCount(0);
+  await expect(page.getByTestId("hanrei-explanation").getByRole("link", { name: "hanrei:92002#holding", exact: true })).toBeVisible();
+});
+
+test("引用データのない旧配信でも解説の脚注を読める", async ({ page }) => {
+  await mockCaseLinks(page);
+  await page.route("**/wiki/page/hanrei/92002.json", r => r.fulfill({ json: publishedExplanation() }));
+  await page.goto(new URL("#/hanrei/92002", BASE).toString());
+  await expect(page.getByTestId("hanrei-explanation").getByRole("heading", { name: "出典", exact: true })).toBeVisible();
+  await expect(page.getByTestId("hanrei-citation-context")).toHaveCount(0);
+});
+
 function relatedCase() {
   return {
     path: "hanrei/92001", case_id: 92001, title: "旧データの行政事件",
