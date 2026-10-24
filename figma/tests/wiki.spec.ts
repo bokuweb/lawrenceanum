@@ -70,15 +70,21 @@ test("新規判例のWikiを判例フィルターから開き関連法令へ移�
   const entry = { path: "hanrei/5", type: "hanrei", title: "損害賠償請求事件", description: "民法709条に関する判断", date: "2026-10-24", tags: [] };
   await page.route("**/wiki/index.json", r => r.fulfill({ json: { ...INDEX, pages: [...INDEX.pages, entry] } }));
   await page.route("**/wiki/page/hanrei/5.json", r => r.fulfill({ json: {
-    path: entry.path, frontmatter: entry,
-    body: "# 損害賠償請求事件\n\n判示事項・裁判要旨（判決全文未収録）\n\n[関連法令](../laws/L1.md)\n",
+    path: entry.path, frontmatter: { ...entry, source_scope: "判示事項・裁判要旨（判決全文未収録）", summary_input: { total_chars: 50000, included_chars: 36000 }, source_fingerprint: "v1", llm_source_fingerprint: "v1" },
+    body: "# 損害賠償請求事件\n\n## 要約\n\n民法709条に関する判断。\n\n## 裁判所の公開情報（原文）\n\n### 裁判要旨\n\n> 公開された裁判要旨です。\n\n[関連法令](../laws/L1.md)\n",
   } }));
   await page.goto(new URL("#/wiki", BASE).toString());
   await expect(page.getByRole("button", { name: /判例.*1/ })).toBeVisible();
   await page.getByRole("tab", { name: "一覧", exact: true }).click();
   await page.getByRole("button", { name: /損害賠償請求事件/ }).click();
   await expect(page).toHaveURL(/#\/wiki\/hanrei\/5$/);
-  await expect(page.getByText("判示事項・裁判要旨（判決全文未収録）")).toBeVisible();
+  const evidence = page.getByTestId("wiki-hanrei-scope");
+  await expect(evidence).toContainText("判示事項・裁判要旨（判決全文未収録）");
+  await expect(evidence).toContainText("原資料 50,000 文字中 36,000 文字");
+  await expect(evidence).toContainText("抜粋外の理由・留保・反対意見は未確認");
+  await expect(evidence).toContainText("AIによる要約・解説");
+  await expect(page.getByRole("heading", { name: "裁判所の公開情報（原文）", exact: true })).toBeVisible();
+  await expect(page.getByTestId("wiki-evidence").getByRole("alert")).toHaveCount(0);
   await page.getByRole("link", { name: "関連法令", exact: true }).click();
   await expect(page).toHaveURL(/#\/wiki\/laws\/L1$/);
 });
