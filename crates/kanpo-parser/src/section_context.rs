@@ -337,6 +337,23 @@ fn quotes_before(pages: &[PageTrace], loc: Location) -> Option<()> {
 }
 #[path = "section_masthead.rs"]
 mod masthead;
+type RuleSegment = ((f32, f32), (f32, f32));
+fn rule_segments(rule: &PageRules) -> Option<Vec<RuleSegment>> {
+    let mut segments = vec![];
+    for r in &rule.horizontal {
+        if !r.x0.is_finite() || !r.x1.is_finite() || !r.y.is_finite() || r.x0 >= r.x1 {
+            return None;
+        }
+        segments.push(((r.x0, r.y), (r.x1, r.y)));
+    }
+    for r in &rule.vertical {
+        if !r.y0.is_finite() || !r.y1.is_finite() || !r.x.is_finite() || r.y0 >= r.y1 {
+            return None;
+        }
+        segments.push(((r.x, r.y0), (r.x, r.y1)));
+    }
+    Some(segments)
+}
 fn fenced(
     rule: &PageRules,
     parent: &Heading,
@@ -358,19 +375,9 @@ fn fenced(
     let b = project(child.rect, child.axis).unwrap();
     let low = a[0].min(b[0]);
     let high = a[2].max(b[2]);
-    let mut segments = vec![];
-    for r in &rule.horizontal {
-        if !r.x0.is_finite() || !r.x1.is_finite() || !r.y.is_finite() || r.x0 >= r.x1 {
-            return true;
-        }
-        segments.push(((r.x0, r.y), (r.x1, r.y)));
-    }
-    for r in &rule.vertical {
-        if !r.y0.is_finite() || !r.y1.is_finite() || !r.x.is_finite() || r.y0 >= r.y1 {
-            return true;
-        }
-        segments.push(((r.x, r.y0), (r.x, r.y1)));
-    }
+    let Some(segments) = rule_segments(rule) else {
+        return true;
+    };
     let own = masthead::rulings(rule, &segments, parent, child, page, pi, owner);
     segments
         .into_iter()
@@ -628,3 +635,62 @@ mod stream;
 #[cfg(test)]
 #[path = "section_context_tests.rs"]
 mod tests;
+
+/// Certify the printed heading/domain geometry for a source-only section root.
+/// The caller supplies complete original Line word lists and their first source
+/// location. The category grammar is independent of this native source proof.
+/// A section title may naturally use a different font from its masthead.
+pub(crate) fn printed_root(
+    page: &PageTrace,
+    rules: &PageRules,
+    region: usize,
+    line: usize,
+    header: &[usize],
+    body: &[usize],
+) -> bool {
+    (|| {
+        let own = header.iter().map(|&id| (0, id)).collect::<BTreeSet<_>>();
+        let title = body.iter().map(|&id| (0, id)).collect::<BTreeSet<_>>();
+        if own.len() != header.len() || title.len() != body.len() || !own.is_disjoint(&title) {
+            return None;
+        }
+        quotes_before(std::slice::from_ref(page), (0, region, line))?;
+        let parent = heading(page, header)?;
+        let child = heading(page, body)?;
+        if parent.axis != child.axis || parent.size <= child.size {
+            return None;
+        }
+        let a = project(parent.rect, parent.axis)?;
+        let b = project(child.rect, parent.axis)?;
+        if a[3] > b[1] {
+            return None;
+        }
+        let segments = rule_segments(rules)?;
+        if masthead::rulings(rules, &segments, &parent, &child, page, 0, &own).is_empty()
+            || fenced(rules, &parent, &child, page, 0, &own)
+        {
+            return None;
+        }
+        let owner = own.union(&title).copied().collect();
+        let envelope = union(parent.rect, child.rect);
+        if unaccounted(page, 0, &owner, envelope, parent.axis)
+            || page
+                .tables
+                .iter()
+                .chain(
+                    page.regions
+                        .iter()
+                        .flat_map(|r| &r.lines)
+                        .filter_map(|l| l.table.as_ref()),
+                )
+                .any(|table| {
+                    let rect = [table.x0, table.y0, table.x1, table.y1];
+                    !valid(rect) || touches(rect, envelope)
+                })
+        {
+            return None;
+        }
+        Some(())
+    })()
+    .is_some()
+}

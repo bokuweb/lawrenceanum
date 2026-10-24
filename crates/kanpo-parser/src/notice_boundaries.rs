@@ -956,6 +956,7 @@ fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> V
         }
     }
     cuts.extend(fences);
+    cuts.extend(section_roots::starts(page, rules, lines));
     cuts.extend(legal_summaries::starts(page, rules, lines));
     cuts.extend(court_records::starts(page, rules, lines));
     cuts.extend(horizontal_publications::starts(page, rules, lines));
@@ -1151,3 +1152,6 @@ mod horizontal_publication_tests;
 
 #[path="legal_summaries.rs"]mod legal_summaries;
 #[cfg(test)]#[path="legal_summary_tests.rs"]mod legal_summary_tests;
+
+#[path = "native_section_roots.rs"]
+mod section_roots;

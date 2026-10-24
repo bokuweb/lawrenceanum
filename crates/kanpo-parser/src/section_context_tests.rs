@@ -1171,3 +1171,352 @@ fn a_whole_wordless_table_between_the_headers_is_not_empty_heading_space() {
     wordless_table(&mut f, [382., 50., 395., 80.]);
     assert_eq!(f.run().len(), 2);
 }
+
+fn native_root_fixture() -> Fixture {
+    let mut f = fixture();
+    f.replace("官庁報告", "資料");
+    f.replace("官庁事項", "任意の統計題名");
+    let style = NativeStyles::from([(5, 8f64.to_bits())]);
+    f.pages[0].native_styles[1] = Some(style.clone());
+    f.pages[0].native_content_styles[1] = ContentStyles::Glyphs(style);
+    open_masthead(&mut f);
+    refresh_root_stream(&mut f);
+    f
+}
+fn refresh_root_stream(f: &mut Fixture) {
+    let text = f.pages[0]
+        .regions
+        .iter()
+        .flat_map(|r| &r.lines)
+        .map(|l| l.text.as_str())
+        .collect::<Vec<_>>()
+        .join("\n");
+    f.pages[0].text = text.clone();
+    f.pages[0].doc_text = text;
+}
+fn native_roots(f: &Fixture) -> Vec<usize> {
+    crate::notice_boundaries::cuts(&f.pages[0], f.rules[0].as_ref().unwrap())
+}
+#[test]
+fn an_open_native_primary_masthead_starts_a_section_before_its_own_title() {
+    assert_eq!(native_roots(&native_root_fixture()), vec![0]);
+}
+#[test]
+fn a_primary_masthead_and_its_title_do_not_have_to_use_the_same_font() {
+    let f = native_root_fixture();
+    assert_ne!(f.pages[0].native_styles[0], f.pages[0].native_styles[1]);
+    assert_eq!(native_roots(&f), vec![0]);
+}
+#[test]
+fn ordinary_label_words_keep_the_existing_plain_text_segmentation() {
+    assert_eq!(
+        crate::segment_articles("先行の本文。\n資料\n後続する任意の本文。").len(),
+        1
+    );
+    let mut f = native_root_fixture();
+    f.rules[0] = Some(PageRules::default());
+    assert!(native_roots(&f).is_empty());
+}
+#[test]
+fn unknown_titles_do_not_gain_a_primary_category_from_font_and_rules_alone() {
+    let mut f = native_root_fixture();
+    f.replace("資料", "任意の大見出し");
+    assert!(native_roots(&f).is_empty());
+}
+#[test]
+fn all_known_category_labels_use_the_same_native_masthead_proof() {
+    for label in [
+        "告示",
+        "公告",
+        "公示",
+        "法規的告示",
+        "その他告示",
+        "条約",
+        "庁令",
+        "訓令",
+        "国会事項",
+        "官庁報告",
+        "皇室事項",
+        "叙位・叙勲",
+        "資料",
+        "官庁事項",
+        "人事異動",
+        "労働",
+        "法務",
+        "国家試験",
+        "公聴会",
+        "諸事項",
+    ] {
+        let mut f = native_root_fixture();
+        f.replace("資料", label);
+        assert_eq!(native_roots(&f), vec![0], "{label}");
+    }
+}
+#[test]
+fn category_words_with_plain_field_typography_do_not_start_new_sections() {
+    for label in [
+        "官庁事項",
+        "人事異動",
+        "労働",
+        "法務",
+        "国家試験",
+        "公聴会",
+        "諸事項",
+    ] {
+        let mut f = native_root_fixture();
+        f.replace("資料", label);
+        f.rules[0] = Some(PageRules::default());
+        assert!(native_roots(&f).is_empty(), "{label}");
+    }
+}
+#[test]
+fn an_equal_sized_body_does_not_certify_a_higher_primary_heading() {
+    let mut f = native_root_fixture();
+    let style = NativeStyles::from([(5, 14f64.to_bits())]);
+    f.pages[0].native_styles[1] = Some(style.clone());
+    f.pages[0].native_content_styles[1] = ContentStyles::Glyphs(style);
+    assert!(native_roots(&f).is_empty());
+}
+#[test]
+fn native_font_zero_is_a_valid_opaque_identifier_for_a_section_masthead() {
+    let mut f = native_root_fixture();
+    let style = NativeStyles::from([(0, 14f64.to_bits())]);
+    f.pages[0].native_styles[0] = Some(style.clone());
+    f.pages[0].native_content_styles[0] = ContentStyles::Glyphs(style);
+    assert_eq!(native_roots(&f), vec![0]);
+}
+#[test]
+fn an_independent_rule_still_fences_the_section_from_the_next_title() {
+    let mut f = native_root_fixture();
+    f.rules[0]
+        .as_mut()
+        .unwrap()
+        .vertical
+        .push(crate::lines::VRule {
+            x: 390.,
+            y0: 0.,
+            y1: 210.,
+        });
+    assert!(native_roots(&f).is_empty());
+}
+#[test]
+fn a_closed_frame_is_not_reclassified_as_an_open_primary_masthead() {
+    let mut f = native_root_fixture();
+    f.rules[0]
+        .as_mut()
+        .unwrap()
+        .enclosures
+        .push([393., 19., 421., 201.]);
+    assert!(native_roots(&f).is_empty());
+}
+#[test]
+fn foreign_visible_source_inside_the_masthead_strip_prevents_a_section_cut() {
+    let mut f = native_root_fixture();
+    foreign_masthead_word(&mut f);
+    assert!(native_roots(&f).is_empty());
+}
+#[test]
+fn a_wordless_table_inside_the_masthead_strip_is_still_source_material() {
+    let mut f = native_root_fixture();
+    wordless_table(&mut f, [415., 45., 417., 70.]);
+    assert!(native_roots(&f).is_empty());
+}
+#[test]
+fn a_body_word_between_the_primary_heading_and_its_title_prevents_a_cut() {
+    let mut f = native_root_fixture();
+    f.pages[0].native_bounds[2] = NativeBounds::Glyphs([385., 50., 392., 80.]);
+    assert!(native_roots(&f).is_empty());
+}
+#[test]
+fn a_wordless_table_between_the_primary_heading_and_its_title_prevents_a_cut() {
+    let mut f = native_root_fixture();
+    wordless_table(&mut f, [382., 50., 395., 80.]);
+    assert!(native_roots(&f).is_empty());
+}
+#[test]
+fn a_section_root_requires_known_native_glyphs_content_styles_and_axes() {
+    for id in [0, 1] {
+        let mut f = native_root_fixture();
+        f.pages[0].native_bounds[id] = NativeBounds::Compatibility;
+        assert!(native_roots(&f).is_empty());
+        let mut f = native_root_fixture();
+        f.pages[0].native_content_styles[id] = ContentStyles::Unknown;
+        assert!(native_roots(&f).is_empty());
+        let mut f = native_root_fixture();
+        f.pages[0].native_axes[id] = NativeAxis::Unknown;
+        assert!(native_roots(&f).is_empty());
+    }
+}
+#[test]
+fn an_empty_primary_heading_cannot_borrow_a_following_category_as_body() {
+    let mut f = native_root_fixture();
+    f.replace("任意の統計題名", "国家試験");
+    assert!(native_roots(&f).is_empty());
+}
+#[test]
+fn primary_header_domains_keep_axis_scale_translation_and_border_count_invariance() {
+    for axis in [
+        NativeAxis::Right,
+        NativeAxis::Down,
+        NativeAxis::Left,
+        NativeAxis::Up,
+    ] {
+        for (sx, sy, dx, dy) in [
+            (0.125, 64., -1000., 3000.),
+            (64., 0.125, 2000., -500.),
+            (1., 1., 0., 0.),
+        ] {
+            let mut f = native_root_fixture();
+            rotate_ruled_fixture(&mut f, axis, sx, sy, dx, dy);
+            assert_eq!(native_roots(&f), vec![0], "{axis:?} {sx},{sy},{dx},{dy}");
+        }
+    }
+}
+fn root_prefix(f: &mut Fixture, text: &str) {
+    let p = &mut f.pages[0];
+    let id = p.words.len();
+    let mut w = p.words[3].clone();
+    w.id = id;
+    w.raw = text.into();
+    w.text = text.into();
+    let b = [600., 40., 608., 180.];
+    [w.x0, w.y0, w.x1, w.y1] = b;
+    w.source_box = b;
+    p.words.push(w);
+    p.native_styles.push(p.native_styles[3].clone());
+    p.native_content_styles
+        .push(p.native_content_styles[3].clone());
+    p.native_bounds.push(NativeBounds::Glyphs(b));
+    p.native_axes.push(NativeAxis::Down);
+    p.native_rulings
+        .push(crate::native_word_rulings::NativeRuling::Unknown);
+    p.regions[0]
+        .lines
+        .insert(0, Line::text(text.into(), vec![id]));
+    refresh_root_stream(f);
+}
+#[test]
+fn an_open_preceding_quote_does_not_authorize_a_primary_section() {
+    let mut f = native_root_fixture();
+    root_prefix(&mut f, "別の本文から引用「");
+    assert!(native_roots(&f).is_empty());
+}
+#[test]
+fn a_closed_preceding_quote_does_not_own_the_next_primary_section() {
+    let mut f = native_root_fixture();
+    root_prefix(&mut f, "別の本文の引用「終了」");
+    assert_eq!(native_roots(&f), vec![1]);
+}
+#[test]
+fn an_unmatched_preceding_quote_closure_is_not_valid_section_evidence() {
+    let mut f = native_root_fixture();
+    root_prefix(&mut f, "先行する未知の引用」");
+    assert!(native_roots(&f).is_empty());
+}
+#[test]
+fn primary_root_parts_keep_original_source_offsets_in_the_existing_group_pipeline() {
+    let mut f = native_root_fixture();
+    root_prefix(&mut f, "先行する別の本文。");
+    let original = crate::segment_articles(&f.pages[0].doc_text);
+    assert_eq!(original.len(), 1);
+    let grouped =
+        crate::notice_boundaries::groups(&original, &f.pages[0].doc_text, &f.pages, &f.rules);
+    assert_eq!(grouped.len(), 1);
+    assert_eq!(grouped[0].len(), 2);
+    assert_eq!(grouped[0][0].text, "先行する別の本文。");
+    assert_eq!(
+        grouped[0][1].text,
+        "資料\n任意の統計題名\n任意の標題\n独立した本文。"
+    );
+    assert_eq!(grouped[0][0].sources, vec![(0, 4)]);
+    assert_eq!(grouped[0][1].sources, vec![(0, 0), (0, 1), (0, 2), (0, 3)]);
+}
+
+#[test]
+fn blank_source_rows_before_a_masthead_do_not_duplicate_its_cut() {
+    let mut f = native_root_fixture();
+    f.pages[0].regions[0]
+        .lines
+        .insert(0, Line::text(String::new(), vec![]));
+    refresh_root_stream(&mut f);
+    assert_eq!(native_roots(&f), vec![1]);
+}
+#[test]
+fn a_wrapped_source_category_has_no_fixed_line_count_boundary() {
+    let mut f = native_root_fixture();
+    let p = &mut f.pages[0];
+    p.words[0].raw = "資".into();
+    p.words[0].text = "資".into();
+    p.regions[0].lines[0].text = "資".into();
+    let id = p.words.len();
+    let mut w = p.words[0].clone();
+    w.id = id;
+    w.raw = "料".into();
+    w.text = "料".into();
+    let b = [385., 40., 399., 110.];
+    [w.x0, w.y0, w.x1, w.y1] = b;
+    w.source_box = b;
+    p.words.push(w);
+    p.native_styles.push(p.native_styles[0].clone());
+    p.native_content_styles
+        .push(p.native_content_styles[0].clone());
+    p.native_bounds.push(NativeBounds::Glyphs(b));
+    p.native_axes.push(NativeAxis::Down);
+    p.native_rulings
+        .push(crate::native_word_rulings::NativeRuling::Unknown);
+    p.regions[0]
+        .lines
+        .insert(1, Line::text("料".into(), vec![id]));
+    let rules = f.rules[0].as_mut().unwrap();
+    rules.vertical.clear();
+    for x in [381., 383., 418., 420.] {
+        rules.vertical.push(crate::lines::VRule {
+            x,
+            y0: 20.,
+            y1: 200.,
+        });
+    }
+    refresh_root_stream(&mut f);
+    assert_eq!(native_roots(&f), vec![0]);
+}
+
+#[test]
+fn categorical_root_certification_has_no_border_count_threshold() {
+    for before in [1, 2, 7] {
+        for after in [1, 3, 9] {
+            let mut f = native_root_fixture();
+            f.rules[0].as_mut().unwrap().vertical.clear();
+            for i in 0..before {
+                f.rules[0]
+                    .as_mut()
+                    .unwrap()
+                    .vertical
+                    .push(crate::lines::VRule {
+                        x: 418. + i as f32,
+                        y0: 20.,
+                        y1: 200.,
+                    });
+            }
+            for i in 0..after {
+                f.rules[0]
+                    .as_mut()
+                    .unwrap()
+                    .vertical
+                    .push(crate::lines::VRule {
+                        x: 399. - i as f32,
+                        y0: 20.,
+                        y1: 200.,
+                    });
+            }
+            assert_eq!(native_roots(&f), vec![0], "{before} {after}");
+        }
+    }
+}
+#[test]
+fn categorical_roots_do_not_branch_on_the_following_title_value_or_length() {
+    for title in ["一".into(), "任意の長い標題".repeat(1000)] {
+        let mut f = native_root_fixture();
+        f.replace("任意の統計題名", &title);
+        assert_eq!(native_roots(&f), vec![0]);
+    }
+}

@@ -253,3 +253,15 @@ pub(crate) fn is_field_label(text: &str) -> bool {
     let compact: String = text.chars().filter(|c| !c.is_whitespace()).collect();
     FIELD_HEADERS.contains(&compact.as_str())
 }
+
+// These ordinary words need native masthead evidence; they are not raw lexical
+// boundaries. The existing numbered-root and plain-text segmentation stay fixed.
+const NATIVE_SECTION_HEADERS: &[&str] = &["資料"];
+pub(crate) fn is_native_section_label(text: &str) -> bool {
+    let value: String = text.chars().filter(|c| !c.is_whitespace()).collect();
+    SECTION_HEADERS.iter().chain(FIELD_HEADERS).chain(NATIVE_SECTION_HEADERS).any(|&label| label == value)
+}
+pub(crate) fn is_native_section_prefix(text: &str) -> bool {
+    let value: String = text.chars().filter(|c| !c.is_whitespace()).collect();
+    SECTION_HEADERS.iter().chain(FIELD_HEADERS).chain(NATIVE_SECTION_HEADERS).any(|&label| label.starts_with(&value))
+}
