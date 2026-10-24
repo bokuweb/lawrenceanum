@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { ArrowLeft, ExternalLink, FileText, Gavel, Search } from "lucide-react";
-import { api, hanreiUrl, type HanreiIndex } from "../../data/api";
+import { api, hanreiUrl, type HanreiIndex, type WikiIndex } from "../../data/api";
 import { useHanreiCase, useHanreiLawLinks, useWikiPaths } from "../../data/use-hanrei";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -21,7 +21,11 @@ function HanreiList() {
   const [params, setParams] = useSearchParams();
   const query = params.get("filter") ?? "";
   const court = params.get("court") ?? "all";
+  const onlyExplained = params.get("wiki") === "ready";
   const [data, setData] = useState<HanreiIndex | null>(null);
+  const [wiki, setWiki] = useState<WikiIndex | null>(null);
+  const [wikiError, setWikiError] = useState(false);
+  const [wikiAttempt, setWikiAttempt] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -37,15 +41,26 @@ function HanreiList() {
     });
     return () => { active = false; };
   }, [attempt]);
-  useEffect(() => { setLimit(PAGE_SIZE); }, [query, court]);
+  useEffect(() => {
+    let active = true;
+    setWikiError(false);
+    api.wikiIndex().then(index => { if (active) setWiki(index); })
+      .catch(() => { if (active) setWikiError(true); });
+    return () => { active = false; };
+  }, [wikiAttempt]);
+  const explanations = useMemo(() => new Map((wiki?.pages ?? [])
+    .filter(p => p.type === "hanrei" && !p.stub && /^hanrei\/[1-9]\d*$/.test(p.path))
+    .map(p => [p.path.slice("hanrei/".length), p])), [wiki]);
+  useEffect(() => { setLimit(PAGE_SIZE); }, [query, court, onlyExplained]);
   const courts = useMemo(() => [...new Set((data?.cases ?? []).map(c => c.court).filter(Boolean))].sort(), [data]);
   const filtered = useMemo(() => {
     const words = query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
     return (data?.cases ?? []).filter(c => {
-      const text = [c.case_name, c.case_number, c.court, c.judged_on, c.holding, c.result].join(" ").toLocaleLowerCase();
-      return (court === "all" || c.court === court) && words.every(word => text.includes(word));
+      const explanation = explanations.get(String(c.case_id));
+      const text = [c.case_name, c.case_number, c.court, c.judged_on, c.holding, c.result, explanation?.description].join(" ").toLocaleLowerCase();
+      return (!onlyExplained || !!explanation) && (court === "all" || c.court === court) && words.every(word => text.includes(word));
     });
-  }, [data, query, court]);
+  }, [data, query, court, explanations, onlyExplained]);
   const update = (key: string, value: string) => setParams(prev => {
     const next = new URLSearchParams(prev);
     if (value && value !== "all") next.set(key, value); else next.delete(key);
@@ -59,28 +74,38 @@ function HanreiList() {
       <div className="flex flex-wrap gap-2 items-center my-4">
         <div className="relative flex-1 min-w-0 basis-64">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-          <Input aria-label="判例一覧の絞り込み" placeholder="事件名・事件番号・判示事項で絞り込み…" value={query} onChange={e => update("filter", e.target.value)} className="pl-8" />
+          <Input aria-label="判例一覧の絞り込み" placeholder="事件名・判示事項・AI概要で絞り込み…" value={query} onChange={e => update("filter", e.target.value)} className="pl-8" />
         </div>
         <Select value={court} onValueChange={v => update("court", v)}>
           <SelectTrigger aria-label="裁判所" className="w-full sm:w-64"><SelectValue /></SelectTrigger>
           <SelectContent><SelectItem value="all">すべての裁判所</SelectItem>{courts.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
         </Select>
+        <Button variant={onlyExplained ? "default" : "outline"} size="sm" aria-pressed={onlyExplained} onClick={() => update("wiki", onlyExplained ? "" : "ready")}>AI解説あり</Button>
       </div>
+      {wikiError ? <div role="status" className="text-xs text-muted-foreground mb-3">AI概要を読み込めませんでした。{!onlyExplained && "裁判所のデータで検索できます。"}<Button variant="outline" size="sm" className="ml-2" onClick={() => setWikiAttempt(n => n + 1)}>AI概要を再試行</Button></div>
+        : !wiki ? <p role="status" className="text-xs text-muted-foreground mb-3">AI概要を読み込み中…</p>
+        : explanations.size > 0 && <p className="text-xs text-muted-foreground mb-3">AI概要は公開済みWikiの説明文です。裁判所の裁判要旨とは異なります。解説と出典を確認してください。</p>}
       <div className="flex flex-wrap justify-between gap-2 mb-3 text-xs text-muted-foreground">
-        <span>{data ? `${filtered.length.toLocaleString()} / ${data.count.toLocaleString()}件` : ""}</span>
+        <span>{data && (!onlyExplained || wiki) ? `${filtered.length.toLocaleString()} / ${data.count.toLocaleString()}件` : ""}</span>
         <Link to={query.trim() ? `/search?q=${encodeURIComponent(query.trim())}` : "/search"} className="text-primary hover:underline">横断検索で本文を検索</Link>
       </div>
       {loading ? <p className="p-8 text-center text-sm text-muted-foreground">判例一覧を読み込み中…</p>
         : error ? <div role="alert" className="p-8 text-center text-sm"><p>判例一覧を読み込めませんでした</p><Button variant="outline" size="sm" className="mt-2" onClick={() => setAttempt(n => n + 1)}>再試行</Button></div>
+        : onlyExplained && !wiki ? null
         : filtered.length === 0 ? <p className="p-8 text-center text-sm text-muted-foreground">該当する判例がありません</p>
         : <div className="border border-border rounded-lg divide-y divide-border overflow-hidden">
-          {filtered.slice(0, limit).map(c => (
-            <Link key={c.case_id} to={`/hanrei/${c.case_id}${suffix}`} className="block p-4 hover:bg-accent/50 transition-colors">
-              <div className="flex flex-wrap items-center gap-2"><span className="font-medium">{c.case_name || c.case_number}</span>{c.result && <Badge variant="outline">{c.result}</Badge>}</div>
-              <p className="text-xs text-muted-foreground mt-1">{[c.judged_on, c.court, c.case_number].filter(Boolean).join(" · ")}</p>
-              {c.holding && <p className="text-sm text-muted-foreground mt-2 line-clamp-2 whitespace-pre-wrap">{c.holding}</p>}
-            </Link>
-          ))}
+          {filtered.slice(0, limit).map(c => {
+            const explanation = explanations.get(String(c.case_id));
+            return <div key={c.case_id}>
+              <Link to={`/hanrei/${c.case_id}${suffix}`} className="block p-4 hover:bg-accent/50 transition-colors">
+                <div className="flex flex-wrap items-center gap-2"><span className="font-medium">{c.case_name || c.case_number}</span>{c.result && <Badge variant="outline">{c.result}</Badge>}</div>
+                <p className="text-xs text-muted-foreground mt-1">{[c.judged_on, c.court, c.case_number].filter(Boolean).join(" · ")}</p>
+                {c.holding && <p className="text-sm text-muted-foreground mt-2 line-clamp-2 whitespace-pre-wrap">{c.holding}</p>}
+                {explanation?.description && <p className="text-sm mt-2 line-clamp-3 whitespace-pre-wrap" data-testid="hanrei-list-ai-summary">AI概要：{explanation.description}</p>}
+              </Link>
+              {explanation && <Link to={`/wiki/${explanation.path}`} className="inline-block mx-4 mb-4 text-xs text-primary underline" aria-label={`${c.case_name || c.case_number}のAI解説を読む`}>WikiでAI解説・出典を読む</Link>}
+            </div>;
+          })}
         </div>}
       {!loading && !error && filtered.length > limit && <Button variant="outline" className="w-full mt-3" onClick={() => setLimit(n => n + PAGE_SIZE)}>さらに表示（残り {(filtered.length - limit).toLocaleString()}件）</Button>}
     </div>
@@ -93,7 +118,7 @@ function HanreiDetail({ caseId }: { caseId: string }) {
   const lawLinks = useHanreiLawLinks(caseId);
   const wikiPaths = useWikiPaths();
   const backParams = new URLSearchParams();
-  for (const key of ["filter", "court"]) if (params.has(key)) backParams.set(key, params.get(key)!);
+  for (const key of ["filter", "court", "wiki"]) if (params.has(key)) backParams.set(key, params.get(key)!);
   const back = `/hanrei${backParams.size ? `?${backParams}` : ""}`;
   const metadata = data ? [
     ["事件番号", data.case_number], ["裁判年月日", data.judged_on], ["裁判所", data.court],
