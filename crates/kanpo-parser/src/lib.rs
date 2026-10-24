@@ -615,6 +615,7 @@ mod legal_role_original_tests;
 mod closed_frame_continuation_original_tests;
 
 mod native_word_axes;
+mod native_role_continuation;
 
 #[cfg(test)]
 mod financial_original_source_tests;
@@ -665,3 +666,8 @@ mod source_unit_dash_original_tests;
 mod orthogonal_gutters_original_tests;
 
 mod ruled_cell_flow;
+
+#[cfg(test)]
+mod native_role_contracts;
+#[cfg(test)]
+mod native_role_caption_contracts;

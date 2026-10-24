@@ -78,6 +78,8 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     let mut prev_two_columns = false;
     // その左右の境目の x。
     let mut prev_mid: Option<f32> = None;
+    // Only printed native caption evidence or a certified continuation can carry this scope.
+    let mut prev_native_roles = false;
     for (pi, page) in doc.select(&page_sel).enumerate() {
         let (width, height) = page_size(page);
         let (cols, mut words, rotated, sideways, merged, minus, native_styles, native_bounds, native_content_styles, native_axes, native_rulings, inline_merged) = page_words_with_styles(page, width, height, rules.get(pi).and_then(|r| r.as_ref()));
@@ -138,6 +140,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         )
                     }
                 };
+            let native_continuation_cols = (!sideways && prev_native_roles).then(|| cols.clone());
             let mut pairs_here = None;
             let mut two_columns_here = false;
             let mut mid_here = None;
@@ -443,6 +446,22 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 }
             }
             units.extend(tail);
+            let native_restored = match (native_continuation_cols.as_ref(), page_rules) {
+                (Some(original), Some(rules)) => crate::native_role_continuation::restore(
+                    crate::native_role_continuation::Source {
+                        inherited_explicit_roles: prev_native_roles,
+                        words: &words,
+                        cols: original,
+                        bounds: &native_bounds,
+                        axes: &native_axes,
+                        grids: &grids,
+                        rules,
+                    },
+                    &mut units,
+                    |cols| horizontal_lines_with_tables(cols, &grids, &vrules, &hrules),
+                ),
+                _ => crate::native_role_continuation::Restored::default(),
+            };
             if !sideways {
                 if let Some(rules) = page_rules {
                     crate::ruled_cell_flow::restore(
@@ -497,6 +516,9 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             prev_pairs = pairs_here;
             prev_two_columns = two_columns_here;
             prev_mid = mid_here;
+            let native_carry = native_restored.applied
+                && native_restored.continues
+                && matches!(units.last(), Some(Unit::Shinkyu { .. }));
             let mut regions: Vec<_> = units.into_iter().enumerate().flat_map(|(i, u)| u.regions(i)).collect();
             enclosed_warichu::expand(&mut regions,&inline_merged,&merged);
         mark_unused(&mut words, &regions, &merged);
@@ -513,6 +535,8 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 doc_text,
                 tables,
             });
+            prev_native_roles = native_carry
+                || crate::native_role_continuation::explicit_page(pages.last().unwrap());
             continue;
         }
         // 多ページ新旧対照表の継続ページ（2 ページ目以降）は「改正後/改正前」の欄見出しを
@@ -863,6 +887,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             doc_text,
             tables,
         });
+        prev_native_roles = crate::native_role_continuation::explicit_page(pages.last().unwrap());
     }
     crate::notice_boundaries::restore_framed_reading_order(&mut pages, rules);
     pages

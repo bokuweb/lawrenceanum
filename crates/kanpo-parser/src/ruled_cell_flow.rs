@@ -451,7 +451,7 @@ fn union(a: Rect, b: Rect) -> Rect {
 }
 // A ruling certifies order only across the shared orthogonal projection.
 // Diagonal, disconnected supports have no implied reading order.
-fn certified_before(a: Rect, ea: Rect, b: Rect, eb: Rect, rules: &PageRules) -> bool {
+pub(crate) fn certified_before(a: Rect, ea: Rect, b: Rect, eb: Rect, rules: &PageRules) -> bool {
     if a[2] <= b[0] && a[1].max(b[1]) < a[3].min(b[3]) {
         return rules
             .vertical
