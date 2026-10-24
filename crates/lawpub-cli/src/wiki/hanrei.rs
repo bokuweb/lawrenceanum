@@ -997,7 +997,22 @@ mod tests {
             .unwrap()
             .iter()
             .any(|e| e["ref"].as_str().unwrap_or("").contains("#law-")));
-        let _ = wiki;
+        // Reference candidates are navigation metadata, never applicable-law excerpts.
+        let mut earlier = doc.clone();
+        earlier["body_text"] = json!("平成１３年４月１日付けの処分が争われた。");
+        write_json(&source.join("laws/L1/versions.json"), &history);
+        let b = bundle(&src, &earlier, &resolver, &titles, "2026-10-24").unwrap();
+        assert_eq!(b["laws"][0]["basis"], "unresolved");
+        assert!(b["laws"][0]["versions"].as_array().unwrap().is_empty());
+        assert_eq!(
+            b["laws"][0]["reference_versions"][0]["revision_id"],
+            "L1_20100401_A"
+        );
+        assert!(!b["excerpts"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|e| e["ref"].as_str().unwrap_or("").contains("#law-")));
         std::fs::remove_dir_all(source.parent().unwrap()).unwrap();
     }
 
