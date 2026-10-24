@@ -4,6 +4,74 @@ import { readFileSync } from "node:fs";
 const BASE = process.env.HISTORY_BASE ?? "http://127.0.0.1:8799/";
 const fixture = (name: string) => JSON.parse(readFileSync(new URL(`./fixtures/public/hanrei/${name}.json`, import.meta.url), "utf8"));
 
+function summaryIndex() {
+  const meta = { type: "hanrei", title: "公開済みの解説", description: "デジタル証拠の評価と立証責任", date: null, tags: [] };
+  return { schema_version: 1, pages: [
+    { ...meta, path: "hanrei/92002" },
+    { ...meta, path: "hanrei/92001", description: "未公開の概要", stub: true },
+    { ...meta, path: "hanrei/92001/extra", description: "別パスの概要" },
+    { ...meta, path: "hanrei/092001", description: "別IDの概要" },
+    { ...meta, path: "hanrei/92001", type: "law", description: "法令の概要" },
+  ] };
+}
+
+test("一覧で公開済みAI概要を検索し、解説のある判例からWikiへ進める", async ({ page }) => {
+  let wikiPageRequests = 0;
+  await page.route("**/wiki/page/**", r => {
+    wikiPageRequests++;
+    return r.fulfill({ json: { ...publishedExplanation(), frontmatter: { ...publishedExplanation().frontmatter, title: "デジタル証拠の判例解説" } } });
+  });
+  await page.route("**/wiki/index.json", r => r.fulfill({ json: summaryIndex() }));
+  await page.goto(new URL("#/hanrei", BASE).toString());
+  await expect(page.getByTestId("hanrei-list-ai-summary")).toHaveText("AI概要：デジタル証拠の評価と立証責任");
+  await expect(page.getByText("裁判所の裁判要旨とは異なります。", { exact: false })).toBeVisible();
+  await expect(page.getByText("使用者責任の成否", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: /のAI解説を読む$/ })).toHaveCount(1);
+  await page.getByRole("textbox", { name: "判例一覧の絞り込み" }).fill("デジタル証拠 立証責任");
+  await expect(page.getByText("1 / 2件")).toBeVisible();
+  await page.getByRole("button", { name: "AI解説あり", exact: true }).click();
+  expect(wikiPageRequests).toBe(0);
+  await page.getByRole("link", { name: /検索テストの損害賠償請求事件/, exact: false }).first().click();
+  await expect(page).toHaveURL(/#\/hanrei\/92002\?filter=.*wiki=ready/);
+  await page.getByRole("link", { name: "判例一覧に戻る" }).click();
+  await expect(page.getByRole("textbox", { name: "判例一覧の絞り込み" })).toHaveValue("デジタル証拠 立証責任");
+  await expect(page.getByRole("button", { name: "AI解説あり", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("link", { name: /のAI解説を読む$/ })).toHaveAttribute("href", "#/wiki/hanrei/92002");
+  expect(wikiPageRequests).toBe(1); // 詳細画面でだけ解説本文を取得する。
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.getByRole("link", { name: /のAI解説を読む$/ }).click();
+  await expect(page.getByRole("heading", { name: "デジタル証拠の判例解説", exact: true })).toBeVisible();
+});
+
+test("解説ありの絞り込みは裁判所条件と組み合わせ、未公開の概要を除く", async ({ page }) => {
+  await page.route("**/wiki/index.json", r => r.fulfill({ json: summaryIndex() }));
+  await page.goto(new URL("#/hanrei?wiki=ready&court=東京地方裁判所", BASE).toString());
+  await expect(page.getByText("0 / 2件")).toBeVisible();
+  await expect(page.getByText("該当する判例がありません")).toBeVisible();
+  await page.getByRole("button", { name: "AI解説あり", exact: true }).click();
+  await expect(page.getByText("1 / 2件")).toBeVisible();
+  await expect(page.getByTestId("hanrei-list-ai-summary")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: /旧データの行政事件/ })).toBeVisible();
+});
+
+test("AI概要の取得失敗でも公式情報で検索でき、解説のみの一覧は再試行できる", async ({ page }) => {
+  let fail = true;
+  await page.route("**/wiki/index.json", r => fail ? r.fulfill({ status: 503 }) : r.fulfill({ json: summaryIndex() }));
+  await page.goto(new URL("#/hanrei", BASE).toString());
+  await expect(page.getByText("AI概要を読み込めませんでした。", { exact: false })).toBeVisible();
+  await page.getByRole("textbox", { name: "判例一覧の絞り込み" }).fill("行政処分");
+  await expect(page.getByText("1 / 2件")).toBeVisible();
+  await page.getByRole("button", { name: "AI解説あり", exact: true }).click();
+  await expect(page.getByText("該当する判例がありません")).toHaveCount(0);
+  await expect(page.getByText("0 / 2件")).toHaveCount(0);
+  await page.getByRole("textbox", { name: "判例一覧の絞り込み" }).fill("");
+  fail = false;
+  await page.getByRole("button", { name: "AI概要を再試行" }).click();
+  await expect(page.getByText("1 / 2件")).toBeVisible();
+  await expect(page.getByTestId("hanrei-list-ai-summary")).toBeVisible();
+});
+
 test("左メニューの判例から一覧・絞り込み・詳細本文を開いて一覧に戻れる", async ({ page }) => {
   await page.goto(BASE);
   await page.getByRole("navigation").getByRole("link", { name: "判例", exact: true }).click();
