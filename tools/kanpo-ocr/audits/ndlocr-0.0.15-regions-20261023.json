@@ -1,0 +1,178 @@
+{
+  "issue": 227,
+  "kind": "Opt-in pinned NDLOCR recognition-region export and PDF projection",
+  "date": "2026-10-23",
+  "engine": {
+    "schema_version": 1,
+    "package": "ndlocr-lite-rs",
+    "version": "0.0.15",
+    "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "features": [
+      "onnx"
+    ],
+    "profile": "release",
+    "binary_sha256": "27ae23d8d8a40d294e75140f44881fecddc7a18cac60efae2d6fb5169f30c105",
+    "cargo_lock_sha256": "862a213854cce3467b7d478e63f8d08854b7631219c12815a04bcdb71cb0ad65"
+  },
+  "production_code_sha256": {
+    "tools/kanpo-ocr/ndlocr.cjs": "3d9505dd16bf379b467b2f7574c5e6447415c0ce0ae929cc9cacb00f30336a36",
+    "tools/kanpo-ocr/pdf-cli.cjs": "717eff9eba0df21957cf6c513fb4a8dbd897da01db9c8ceb68a94502662fb83c",
+    "tools/kanpo-ocr/placement.cjs": "bc4f7d7ac8c8ede9053e8301926d1270d4da62eb1a54687d8ea7685c4d69652c",
+    "tools/kanpo-ocr/project-cli.cjs": "5d1ef6564cc8fad548e17721b75afd2daac1cd740d621007b930502f33086f00",
+    "tools/kanpo-ocr/sidecar.cjs": "8b793f88223d8f0dc3f85ef0cdc7355012245c6e6b286d62af0cec1a164677cc",
+    "tools/kanpo-ocr/ndlocr-build.cjs": "59cea9f3f4839422a1c251751d390af5ed6b7404f85e64aa772ea9634eeeef5f",
+    "tools/kanpo-ocr/pdf-binding.cjs": "5652b731abba7d3811d62b06b7fcd02742d6f50a7f866ba10d159ea25e99cc7a",
+    "tools/kanpo-ocr/ndlocr-regions.cjs": "dae58fb6616d1e3715c9664ab5ec5624511131d99214be9af41181192e077d9c",
+    "tools/kanpo-ocr/engine.cjs": "bdf62971d33de46a6cf9deff332bec1b2c1db8c2dfa78485b53ef840af8a67ff",
+    "tools/kanpo-ocr/partition.cjs": "fb8abd364fb421378aa801fbd4ad6d2ef3afdecbade5e6716278be3c034b402a",
+    "tools/kanpo-ocr/cli.cjs": "40e9b0835fbf02e3b3ed182cf2fb6efce369fde95c29c1c94bf358dc6c9a3615"
+  },
+  "contract": "Explicit --ndlocr-regions requests a trace during the same inference pass. Validate trace schema/canvas/raw settings and f32 thresholds, finite scores, positive integer bounded boxes, trace body = unmodified TXT = reading-order text joined by newline. Preserve raw text/internal newlines/orientation/confidence/rectangles. No fabricated glyph/word/paragraph structure; no Article/native binding, correction, retries or confidence-based post-selection. Invalid traces fail and retain raw diagnostics. Default text-only mode unchanged.",
+  "tests": {
+    "node_passed": 117,
+    "python_passed": 45,
+    "failed": 0,
+    "skipped": 0,
+    "Node_log_sha256": "cc79d1d0b5e173ccea8c874c24ae78b580a0d06996fb305b43cdd142eea7b544",
+    "Python_log_sha256": "9bc1b1484b42df4e7a11db07831a6a1bf879e7947dd716bc4067b28e1eb5ca17",
+    "initial_RED_logs": {
+      "regions-contract-RED.log": "18e8cb59814eabfd92591017df2416b01756cd8c9341021d01a25452d0ac0583",
+      "regions-adapter-RED.log": "964dc429a0c6aa9ca02a3a948e179829cb8d8c2fc9b37fb25b00e90c95b2d685",
+      "regions-integration-RED.log": "f58f778bcba8333445170400f5906c71ac085a8351ec8d40c619acf11dab1aa7"
+    }
+  },
+  "actual_five_image_CLI": [
+    {
+      "sample": "first",
+      "terminal": 0,
+      "seconds": 5.978127958,
+      "regions": 11,
+      "TXT_sha256": "4267a1ea82275d35ef77c6d7903566751c3c7e038b440d51fb477403f5cc89f1",
+      "trace_sha256": "e9e53c7688fd11a61a75e88c0bf010c18d51d016dc14d48405954d0aff4f6726",
+      "raw_TXT_matches_prior_without_trace": true,
+      "regions_join_equals_TXT": true,
+      "recognition_runs": 1,
+      "input_image_sha256": "5d7a103c9ade3813ecac455103049c2ed73186b2a91d7a64665cc1077df4fc6b",
+      "observations_sha256": "0594685da2c61ab3b10265a4f4413c1f5c78ba0fac24c696574129339c0b692e"
+    },
+    {
+      "sample": "numbered",
+      "terminal": 0,
+      "seconds": 5.883427792,
+      "regions": 12,
+      "TXT_sha256": "48507881c8beb239b7db5b30aa421d054400bfd98b3f3b7a4e0f51ddfb9493ec",
+      "trace_sha256": "3ac6c01fe907fe56ca70ef19ed084d33ab2e607d2a70a5aa95298f8e4f20b70d",
+      "raw_TXT_matches_prior_without_trace": true,
+      "regions_join_equals_TXT": true,
+      "recognition_runs": 1,
+      "input_image_sha256": "9c971147ab55660982a9f54a39beadef76bf298b857954c68696fc745623c413",
+      "observations_sha256": "df88c35486928ce90af3cbbe0f07dd7e458dafafb07317f2e577f1ca121eb461"
+    },
+    {
+      "sample": "20261007g002210006",
+      "terminal": 0,
+      "seconds": 14.346148792,
+      "regions": 185,
+      "TXT_sha256": "499113a40f6563427d9f462c56df70430cce805e96fd8136742009a9ef51a26c",
+      "trace_sha256": "70aea583abb6a5d9913f4de07cd3a0cb3bd3e2c9c03fff9344f7c3432ae23bf3",
+      "raw_TXT_matches_prior_without_trace": true,
+      "regions_join_equals_TXT": true,
+      "recognition_runs": 1,
+      "input_image_sha256": "a0f34491e5394af5815cde4410e9e573595586c549e313190e9453b085add7ff",
+      "observations_sha256": "c2cede61cbacd4434317713bb8c05db05e4eeeab0d0fd484ca4df7ad32ffc7ed"
+    },
+    {
+      "sample": "20260723h017530015",
+      "terminal": 0,
+      "seconds": 19.588129917,
+      "regions": 179,
+      "TXT_sha256": "9db27e7b41333271e94cbdd1409bc3d7a69fbc5f31bf31a4166238b232bab622",
+      "trace_sha256": "80bbc24e94f18f38b611853e141f529fa58d0f1f01ed2727dd88f88770759123",
+      "raw_TXT_matches_prior_without_trace": true,
+      "regions_join_equals_TXT": true,
+      "recognition_runs": 1,
+      "input_image_sha256": "3b1cc0685097b443765e37356445a59fa89dde7fb10cf6b0bd24d32c4607b75a",
+      "observations_sha256": "d6e0b301aa56bbff53cad85eb372a107f079e5539fd266b7e7bd38da771f8944"
+    },
+    {
+      "sample": "20260724h017540022",
+      "terminal": 0,
+      "seconds": 17.361225124999997,
+      "regions": 187,
+      "TXT_sha256": "d268faa3ede6c98bf21ca20c2ec1d5de2be120c49e5b6a94df0062d7eb415dc8",
+      "trace_sha256": "187a1cccf64d648cfd7f077a6eeb55a81b2a820155e3efc67fd5058e3dc381e8",
+      "raw_TXT_matches_prior_without_trace": true,
+      "regions_join_equals_TXT": true,
+      "recognition_runs": 1,
+      "input_image_sha256": "3080e72bf45236766c85cb9d2f46541d989755bd5fdde64c9f2d5ab8fd19d30a",
+      "observations_sha256": "f79383ab1a8cb073fe82feb2be5a676c113ba6f283b715fa71bbc4fb44b55cdf"
+    }
+  ],
+  "actual_PDF_CLI": {
+    "original": "crates/kanpo-pdf/src/image-source-fixtures/20261007g002210006.pdf",
+    "original_sha256": "58a7c97f61eba22843763431fea8adfeb7594fbf4620f0b59348b1337d6de1e7",
+    "requests": 1,
+    "terminal": "complete",
+    "regions": 185,
+    "all_original_region_fields_unchanged": true,
+    "same_raw_text_as_direct_PNG_CLI": true,
+    "all_projections_finite_inside_source_and_page": true,
+    "all_projections_visibility_unverified": true,
+    "source_receipts_checked": true,
+    "raw_sha256": "9cde8bffd31cfce26195943fc2e4a303a8ae263c48e84144eadf1998ccb2b819",
+    "projected_sha256": "d25ca2e0318d549be1a618c29545036b86265c48729b273e8af2ff5ea75c6f29",
+    "native_or_article_binding": null,
+    "placement": {
+      "pixel_width": 3509,
+      "pixel_height": 2480,
+      "image_width": 2480,
+      "image_height": 3509,
+      "recognition_to_image": [
+        0,
+        1,
+        -1,
+        0,
+        2480,
+        0
+      ],
+      "image_to_user": [
+        595.0,
+        0.0,
+        0.0,
+        842.0,
+        0.0,
+        0.0
+      ],
+      "crop_box": [
+        0.0,
+        0.0,
+        595.0,
+        842.0
+      ],
+      "rotate": 270
+    },
+    "source_review": {
+      "reviewer": "root nonblind development review",
+      "selected_indices": [
+        0,
+        1,
+        2,
+        10,
+        50
+      ],
+      "method": "Project native rectangles onto a full original CoreGraphics 144DPI rendering. Visually confirmed selected boxes align with the corresponding printed lines. Other regions are geometrically validated, not exhaustively visually certified.",
+      "render_sha256": "90bf82aca31a6959bd9d4459866268fdf8269581be6414d12d95751aae4ba2b0",
+      "overlay_sha256": "bbb477c236587306b959f615efdb53bc1267a00b78ec268d8308dd3383cb9807"
+    }
+  },
+  "limitations": [
+    "Recognition rectangles are coarse recognizer regions, not word/glyph boxes or semantic paragraphs.",
+    "No full-page truth for3 whole-page images, so unchanged TXT and valid geometry do not establish accuracy or coverage. Existing2 crop truths are nonblind development data; no new accuracy estimate is made.",
+    "Producer receipt/PNG/PDF hashes are checked; clipping, masks, transparency and final visibility are unverified. Native parser integration and Article assignment remain absent."
+  ],
+  "runtime_recovery": {
+    "reason": "Previously built MBX cache directory disappeared, leaving a dangling target symlink. Initial missing-binary/build failures retained locally. Recreated the empty generated target and rebuilt clean pinned commit with real Cargo; no pin/receipt validation bypass.",
+    "previous_receipt_binary_sha256": "c6a27f8dfd3df75264532836890b09244401592ec19384da436512bac891a544",
+    "recovered_receipt_binary_sha256": "27ae23d8d8a40d294e75140f44881fecddc7a18cac60efae2d6fb5169f30c105"
+  }
+}

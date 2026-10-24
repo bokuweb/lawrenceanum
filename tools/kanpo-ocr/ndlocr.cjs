@@ -6,6 +6,7 @@ const crypto=require('node:crypto');
 const {spawnSync}=require('node:child_process');
 const {pngSize,validateFrame,writeAtomicJson,recordFailure,watchTerminal}=require('./sidecar.cjs');
 const {verifyBinary}=require('./ndlocr-build.cjs');
+const {recognitionRegions}=require('./ndlocr-regions.cjs');
 const MODEL_FILES={
   '--det-model':'deim-s-1024x1024.onnx',
   '--model':'parseq-ndl-24x768-100-tiny-153epoch-tegaki3-r8data-202604.onnx',
@@ -20,6 +21,8 @@ function executable(name) {
   throw new Error('NDLOCR executable not found; set --ndlocr-bin or NDLOCR_BIN to a release + onnx binary');
 }
 async function run(options) {
+  if(options['ndlocr-regions']!==undefined&&typeof options['ndlocr-regions']!=='boolean')throw new Error('NDLOCR regions option must be boolean');
+  const withRegions=options['ndlocr-regions']===true;
   const threshold=(name,fallback)=>{const value=Number(options[name]??fallback);if(!Number.isFinite(value)||value<0||value>1)throw new Error(`Invalid ${name} threshold; expected 0..1`);return value;};
   const detection=threshold('det-conf-threshold',0.25),confidence=threshold('min-line-confidence',0.3);
   const binary=executable(options['ndlocr-bin']??process.env.NDLOCR_BIN??'ndlocr-lite-rs');
@@ -40,6 +43,7 @@ async function run(options) {
       const original=path.resolve(options.model,file),bytes=fs.readFileSync(original),copy=path.join(snapshot,file);
       fs.writeFileSync(copy,bytes,{flag:'wx',mode:0o400});args.push(flag,copy);models.push({path:original,sha256:hash(bytes),bytes:bytes.length});
     }
+    if(withRegions)args.push('--trace-json',path.resolve(options.output,'trace.json'));
     const source={image:{path:path.resolve(options.image),sha256:hash(image),bytes:image.length},models,engine:{package:'ndlocr-lite-rs',binary,...verified.identity},tool_sha256:hash(fs.readFileSync(__filename))};
     json('inputs.json',{source,canvas:frame,args,normalization:null,confidence_filter:confidence,detection_confidence_threshold:detection,model_input:'private_readonly_local_snapshot',layout_requested:options.layout??'page'});
     const stdout=fs.openSync(path.join(options.output,'stdout.txt'),'wx'),stderr=fs.openSync(path.join(options.output,'stderr.txt'),'wx');
@@ -51,9 +55,14 @@ async function run(options) {
     if(result.error)throw result.error;
     if(result.status!==0)throw new Error(`NDLOCR failed (${result.status??result.signal}); see stderr.txt`);
     const text=fs.readFileSync(path.join(options.output,'recognized.txt'),'utf8');
-    const observations={schema_version:1,kind:'unclassified_ocr',source,canvas:frame,text,engine_result:{output:'recognize-page TXT'},layout_available:false,blocks:[],article_assignment:null,native_glyph_binding:null};
+    const observations={schema_version:1,kind:'unclassified_ocr',source,canvas:frame,text,engine_result:{output:'recognize-page TXT'},layout_available:withRegions,blocks:[],article_assignment:null,native_glyph_binding:null};
+    if(withRegions){
+      const bytes=fs.readFileSync(path.join(options.output,'trace.json'));
+      observations.recognition_regions=recognitionRegions(JSON.parse(bytes),text,frame,{detection,confidence});
+      observations.engine_result={output:'recognize-page TXT + trace',trace:'trace.json',trace_sha256:hash(bytes),region_kind:'recognizer_region',validator_sha256:hash(fs.readFileSync(path.join(__dirname,'ndlocr-regions.cjs')))};
+    }
     json('observations.json',observations);
-    json('terminal.json',{status:'complete',recognition_runs:1,output_kind:'unclassified_ocr',layout_available:false,canonical_integration:false});
+    json('terminal.json',{status:'complete',recognition_runs:1,output_kind:'unclassified_ocr',layout_available:withRegions,canonical_integration:false});
     return observations;
   }catch(error){throw recordFailure(options.output,error);}
   finally{try{fs.rmSync(snapshot,{recursive:true,force:true});}finally{stop();}}

@@ -1,0 +1,991 @@
+{
+  "issue": 227,
+  "native": 97,
+  "kind": "adopted general bracketed-citation reconstruction and conservative shared-frame ownership",
+  "baseline_native": 86,
+  "baseline_source_commit": "9ee1171d35c1a42d07747615eaf654853525131e",
+  "problem": "A balanced bracketed parent citation expands across variable adjacent native columns. Legacy two/three-column projection can reorder/drop source ownership or invent middle dots; fixing the citation can expose a later outside-article classification regression.",
+  "rules": [
+    "Resolve a complete balanced parent/citation/resumption span before legacy lossy warichu projection. Require finite unique native rectangles, matching parent axis, contiguous aligned non-overprinted lanes, and no crossing ruling/enclosure. Unknown controls/PUA in inline members or competing interpretations hold. Tolerance is relative to native em; no fixed line/character/column count cap.",
+    "Record physical lane boundaries as whitespace, preserving printed punctuation. Protect accepted roots from later legacy consumption; expand every original Word membership once before unused marking. Original Word fields are unchanged.",
+    "Remove outside-fragment count minima in the existing source-ruling split. A native frame shared with all right-hand column centers is counterevidence to an independent outside article and holds that tentative split. Center containment does not authorize new ownership; native advance overhang is not outside proof. Original shinkyu inner-table reconstruction is retained.",
+    "No page/company/expected-output conditions, short Japanese-string limits, fixed above/below line counts, RURI/ModernBERT model decisions or text correction are added. Existing unrelated heuristic thresholds and unresolved cases remain."
+  ],
+  "new_unit_tests": 38,
+  "regression_fixtures": {
+    "citation_spans": "tests/data/enclosed-warichu/references.json",
+    "notice_note_order": "tests/data/enclosed-warichu/frame-boundary-reference.json",
+    "table_borders_and_supplementary_heading_and_shared_note": "tests/data/enclosed-warichu/source-frame-references.json",
+    "composition": "2..7-lane one-character source fragmentation, complete Word ownership once",
+    "counterfactuals": "Variable2/3/4/7/16 lanes; scale/translation/input order and independent axes; missing/malformed brackets, invalid/duplicate geometry, rule/enclosure crossings, PUA, printed middle dot, competing parents;1..7 outside columns; shared versus independent frames and advance overhang."
+  },
+  "tests": {
+    "terminal": 0,
+    "source_manifest_sha256": "7857a18dfb59e76605af9d879cf8136ff8b032ac689099053d09efbd6284de9a",
+    "commands": 118,
+    "integration_targets": 109,
+    "passed": 2163,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 117,
+    "no_expected_snapshot_updates": true,
+    "all_commands_exit0": true
+  },
+  "full_11992_comparison": {
+    "inputs": 11992,
+    "changed": 50,
+    "terminals": [
+      0,
+      0
+    ],
+    "source_inputs_binaries_verified": true,
+    "baseline_text_differences_from_saved84": [
+      "20260901g001950016",
+      "20261001g002170056"
+    ],
+    "seconds": 1391.880647375,
+    "scope": "Diagnostic comparison of exact public uncommitted97 vs rebuilt9ee source. Not a whole-corpus correctness estimate. Recovered90/97 is not assumed byte-identical to inaccessible SSD88/89."
+  },
+  "properties": {
+    "pages": 11992,
+    "changed": 50,
+    "all_other11942_complete_Analysis_equal86": true,
+    "rows": [
+      {
+        "page": "20260721g001610050",
+        "removed_legacy_synthetic_punctuation": {},
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260723g001630130",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 1
+      },
+      {
+        "page": "20260724h017540002",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 4
+      },
+      {
+        "page": "20260729g001690071",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260729g001690179",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 2
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 3
+      },
+      {
+        "page": "20260729h017570001",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 14
+      },
+      {
+        "page": "20260731g001720031",
+        "removed_legacy_synthetic_punctuation": {},
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260731g001720043",
+        "removed_legacy_synthetic_punctuation": {},
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260731g001720067",
+        "removed_legacy_synthetic_punctuation": {},
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 1
+      },
+      {
+        "page": "20260805g001760042",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 2
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 4
+      },
+      {
+        "page": "20260805g001760043",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260805g001760044",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 3
+      },
+      {
+        "page": "20260805g001760048",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 2
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260805g001760049",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 2
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260806h017630002",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 2
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 3
+      },
+      {
+        "page": "20260813h017670002",
+        "removed_legacy_synthetic_punctuation": {},
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 5
+      },
+      {
+        "page": "20260821g001870001",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 5
+      },
+      {
+        "page": "20260824g001880037",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260824g001880038",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 2
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260824g001880040",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260824g001880042",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 1
+      },
+      {
+        "page": "20260824g001880043",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260824g001880045",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 2
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260824g001880050",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 2
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260824g001880052",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 2
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260824g001880053",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260827g001910001",
+        "removed_legacy_synthetic_punctuation": {},
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 4
+      },
+      {
+        "page": "20260828g001920025",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260831g001930004",
+        "removed_legacy_synthetic_punctuation": {},
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260901g001950013",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 3
+      },
+      {
+        "page": "20260909g002010002",
+        "removed_legacy_synthetic_punctuation": {},
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 1
+      },
+      {
+        "page": "20260916g002060046",
+        "removed_legacy_synthetic_punctuation": {},
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260916g002060239",
+        "removed_legacy_synthetic_punctuation": {},
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 1
+      },
+      {
+        "page": "20260916g002060261",
+        "removed_legacy_synthetic_punctuation": {},
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 3
+      },
+      {
+        "page": "20260916g002060262",
+        "removed_legacy_synthetic_punctuation": {},
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 1
+      },
+      {
+        "page": "20260916g002060283",
+        "removed_legacy_synthetic_punctuation": {},
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 1
+      },
+      {
+        "page": "20260916g002060286",
+        "removed_legacy_synthetic_punctuation": {},
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 1
+      },
+      {
+        "page": "20260916g002060293",
+        "removed_legacy_synthetic_punctuation": {},
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260916g002060296",
+        "removed_legacy_synthetic_punctuation": {},
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260918g002090019",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260918g002090021",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 1
+      },
+      {
+        "page": "20260918g002090111",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 1
+      },
+      {
+        "page": "20260930g002150046",
+        "removed_legacy_synthetic_punctuation": {},
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260930g002150056",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20260930g002150060",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 2
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 1
+      },
+      {
+        "page": "20260930g002150061",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 1
+      },
+      {
+        "page": "20261001g002170017",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 1
+      },
+      {
+        "page": "20261001t000550002",
+        "removed_legacy_synthetic_punctuation": {},
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 1
+      },
+      {
+        "page": "20261009g002230009",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 2
+      },
+      {
+        "page": "20261019h018100007",
+        "removed_legacy_synthetic_punctuation": {
+          "・": 1
+        },
+        "all_source_Word_fields_preserved": true,
+        "complete_tables_preserved": true,
+        "article_count": 6
+      }
+    ],
+    "extra_source_review": {
+      "page": "20260731g001720067",
+      "reviewer": "root nonblind original source review",
+      "image_sha256": "7859a4f1d83429e7c167497eb722d19f9ddcc39fa3d5ecdd2ba8f792514da25e",
+      "source_words": [
+        147,
+        148,
+        149
+      ],
+      "contract": "Shared note printed inside the comparison frame left cell, before the physically separate supplementary provisions. After/Before regions exact; note becomes Outside of unit0 rather than Body of unit1, retaining all source words once. Only note whitespace changes in text. No new Article boundary.",
+      "baseline_and_candidate": {
+        "baseline": "048c69c0860fb21a65163f3c8efd67eb315a95245d7bfd624cad4d5a4f21695e",
+        "candidate": "0c572636d8a6c093c2116bccff0aab551ea8b3882f871e04c34f8bb1017aa6dc"
+      }
+    },
+    "scope": "Conservation and original source review are separate claims; not a whole-corpus accuracy estimate."
+  },
+  "actual_CLI": {
+    "pages": 11992,
+    "mismatches": [],
+    "actual_CLI_matches_API_all_pages": true,
+    "scope": "Actual --pdf CLI on11992 frozen originals compared directly with the text SHA256 produced by the independently executed public97 API on every original. No baseline text substitution or inferred equality chain. Not an accuracy estimate."
+  },
+  "snapshots": {
+    "snapshots": 814,
+    "updated": [
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_items@20261001t00055-p1.json.snap",
+        "base_sha256": "d86d132174a766c905ed61f0ffd6020e14ecfc3a0b00504bab0b3dbb63aa653b",
+        "updated_sha256": "5c3b9e4fed315eed7e96970cc3c03a7e02ac2b0d598f075c6f524e9ed8b3856b"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260901g00195__20260901g001950013.pdf.snap",
+        "base_sha256": "e853829536f1b12051772a7f90a1297c7797f6120a8ee973686f672c9d0e4d9c",
+        "updated_sha256": "8058ffa9d69ac31786019fe980c650069b5c434352d388e29a4cd494fffe392d"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261001t00055__20261001t000550002.pdf.snap",
+        "base_sha256": "21b3cf5d103ced2f07c32690fee1f24799d324acd25e8aaafaa3ca0ea764ce49",
+        "updated_sha256": "771ea134b75e2259a3de00734ccc0c71e79c49e16988c584c00b7db9d5e4e373"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/parliament_items__shared_page_preserves_each_toc_items_body.snap",
+        "base_sha256": "dba396107febf7fe539208f0a22cb24cfcf5c0c646fb1d66dac40b78a15385aa",
+        "updated_sha256": "112e9fb68a6fb0d827cf2ed31cce5f91eaa00d3a3188a945e7fb9367d32f253d"
+      }
+    ],
+    "all_other810_bytes_unchanged": true,
+    "scope": "Only four reviewed snapshots changed: two physical citation-boundary punctuation outputs, T55 supplementary heading page/item affiliation. All814 passed required readonly gates. No additional failed96 gold accepted."
+  },
+  "corpus_updates": [
+    "2026-07-24-honshi1754-p2/expected.txt + expected.json: remove synthetic punctuation only",
+    "2026-08-31-gougai193-p4/expected.txt + expected.json: physical citation lane order/whitespace"
+  ],
+  "unchanged_existing_original_controls": {
+    "paired_framed_continuation": 8,
+    "framed_after_continuation": 9,
+    "expected_updates": 0
+  },
+  "rejected_trials": {
+    "native92": {
+      "changed_pages": 48,
+      "problem": "g1880038 outside notice wrongly enters Before and table note follows the next notice. All Word/table/count conservation checks were insufficient.",
+      "permanent_audit": "issue227-enclosed-citation-source92-held.json"
+    },
+    "native94": {
+      "changed_pages": 56,
+      "problem": "Moving a frame split ahead of global detection clipped an existing g1670020 inner-table left ruling to ink bounds; unchanged paired original control failed.",
+      "tests": {
+        "passed": 2154,
+        "failed": 3
+      }
+    },
+    "native96": {
+      "changed_pages": 85,
+      "problems": [
+        "Global source-band envelope expansion introduced37 complete-table changes and failed the g1790057 original/snapshot.",
+        "A single shared g1790005 note plus native advance overhang ejected comparison words into Body; newly frozen source contract failed Word58 After->Body."
+      ],
+      "tests": {
+        "passed": 2162,
+        "failed": 2
+      },
+      "all85_pages_after97": "36 entire Analysis restored;49 intended changes; Word fields, complete tables and article counts all preserved. Full97 independently finds one additional g1720067 shared-note affiliation/whitespace change, reviewed separately."
+    }
+  },
+  "review": {
+    "reviewer": "root",
+    "independent_or_blind": false,
+    "scope": "Original changed citation spans, source table/notice/supplement boundaries, contact sheets and enlarged uncertain crops. No claim that every unchanged/changed original is fully correct.",
+    "source_images": [
+      {
+        "page": "20260721g001610050",
+        "original_image_sha256": "aa4d81bdb70f2cd18e899268488f47ade2d3d86d895555a7768e47d13e00775d",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260723g001630130",
+        "original_image_sha256": "0ac0b3b56fab2d0c80bb746999dd8107dc696d759b628151eaa46b4e918357f2",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260724h017540002",
+        "original_image_sha256": "d6df0dcc76220b8f5617edfceb7363e8bf0bf054090c934d6bc7b2dada5780c4",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260729g001690071",
+        "original_image_sha256": "1bde64147406aad49b53e0d8e6ff5a377bf001d6897de929d00aa321ee257bf6",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260729g001690179",
+        "original_image_sha256": "337fcbf95accc194d0c1d26becc8af9e48083f3634e5c918169234f85d86070f",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260729h017570001",
+        "original_image_sha256": "596c0e20a3424a2a5b47663943f3054a3894531c3105bf262e74fbcbb5043ecf",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260731g001720031",
+        "original_image_sha256": "a6fe68b6481b4ab320ca76d4044d391925a6de1de1b88035ad5f47696f96280a",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260731g001720043",
+        "original_image_sha256": "37b52832a221cc8d2c053b2165cffbd78a11c45c240b4f977f5d02501e82db0d",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260731g001720067",
+        "original_image_sha256": "7859a4f1d83429e7c167497eb722d19f9ddcc39fa3d5ecdd2ba8f792514da25e",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260805g001760042",
+        "original_image_sha256": "cac3c8e23b13a4f26d1c5521e274ea6aadf22d279009991498555675bb1084b6",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260805g001760043",
+        "original_image_sha256": "32f92f0c3b4eed8962e8352464b4a47a259a21c8c317880017651b725d550214",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260805g001760044",
+        "original_image_sha256": "b91df453efb8dc9218b25ce7e08995b4fd3a77df2aec77edc595f7756f189ff3",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260805g001760048",
+        "original_image_sha256": "172cc439c3bc5ca6365c6b8340c0b09926f4ebc04b085caf65e22ecf8bc896bd",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260805g001760049",
+        "original_image_sha256": "2e220b1345008f6d2877b58d80cf916fe13ea85ab0a21c30ac3d221894e743fe",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260806h017630002",
+        "original_image_sha256": "1dfb822c353880debc916aec98060bca8f7acf6b433cf394c466b47576141851",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260813h017670002",
+        "original_image_sha256": "c39d2116a9205b32637e92177c40b4d31c9097e4fa74fc50a47bce33e3f3c357",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260821g001870001",
+        "original_image_sha256": "47455d1939731ee23ee37ad3b74e183fc8923543abd4d6bde47b453e6c2ed4a1",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260824g001880037",
+        "original_image_sha256": "6a1c2dacc7a8cec6d58566f107f3d82e595a71c139605b63d2fd06d55df0aa68",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260824g001880038",
+        "original_image_sha256": "03cd5a10040625a9971003f50836b8d97a27d14b5230d4ffdbed9d2e4a7a955b",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260824g001880040",
+        "original_image_sha256": "990c062a0704e16a26e4eeb902aac4f65bad83971d13e30ba4ba4c808005b281",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260824g001880042",
+        "original_image_sha256": "19c2e805ee6c9df5ce2d42cdc961d340c6605c7a1f658e212961f69a63697444",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260824g001880043",
+        "original_image_sha256": "2eee37b9b2dc3fe0af3106020d8daa0c4f6346f9285b08ab13f05483fac3a832",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260824g001880045",
+        "original_image_sha256": "8e2c4f983ef19cc4b83ead5fa51dbb9c892214e3966cde153b4e962d0162e525",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260824g001880050",
+        "original_image_sha256": "31f1b3e833275bd688c789e56c2c628eea1d48458776ac05775f746db69c8352",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260824g001880052",
+        "original_image_sha256": "28104f168146cad95832561df35616c68ef05b0cb4e11f0af4859cb0291afb76",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260824g001880053",
+        "original_image_sha256": "8a393fc30b1c5870f610ef60a2c3f486d30696c867587caf86f919fea6e995e8",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260827g001910001",
+        "original_image_sha256": "cf9f4e0ec87ac15bad61593958d668a915014ca839d9b835463ffedd97e4e88a",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260828g001920025",
+        "original_image_sha256": "f21f67852a318bd8c4bd4697c79fd19666d2852a3121c9d0fe2002c872aa87be",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260831g001930004",
+        "original_image_sha256": "51a80be0cd603241d781735a3aa76e2b9e0f65ce7fadcdc82820ac29dd466baa",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260901g001950013",
+        "original_image_sha256": "e432088b0467685c549aded38db5cb471ae3fc0da1594a88781b6e148b369e14",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260909g002010002",
+        "original_image_sha256": "6edb7a3ad96fe1fd125aaae4c73796bbbd7912bcb21cfc708a275375c663edf3",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260916g002060046",
+        "original_image_sha256": "8176859c8927622771b1fa26e28d6965aae6501604e0e42440b966d416b40e53",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260916g002060239",
+        "original_image_sha256": "77296f27f6aef29ba66f92c826473fdaa3cdfaf4d455b4c6f31ae2fd43045271",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260916g002060261",
+        "original_image_sha256": "4aa2b250f0a04370bb8d4061fb9ac817f36c98e971a62ab362d2db3a6f14b6e8",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260916g002060262",
+        "original_image_sha256": "c3318c1971819a67644f22bef543db4af1aee56ef97c0b8c537a70b31726dd5f",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260916g002060283",
+        "original_image_sha256": "6fc1ab42f6aa387073c2af0a7f8f29669150b8591083c8fc4531f886206cb689",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260916g002060286",
+        "original_image_sha256": "0ef3554475b833eae73086470682652e87bb83a02f234db7ddcd7b851a929362",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260916g002060293",
+        "original_image_sha256": "ea3aaa8363ce84e29cf3b2ee371f5098dac94117f784d5a8a299beee703dc0bb",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260916g002060296",
+        "original_image_sha256": "793a4e5a48df05473414b46f8a82d20cfb6be09ad2dcf697f1af567706dd5320",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260918g002090019",
+        "original_image_sha256": "50cb88c178f8da05376a5908f53543c840c40f7d09eceb980f65ef7da952a17d",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260918g002090021",
+        "original_image_sha256": "5de23f986c326a4c1c086502e4f31d85212efd8fbf5e30926160f73bc46dc220",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260918g002090111",
+        "original_image_sha256": "b0013e2258b7a98c9513e3a8691f6429c498e7aa5cf03cb8c3fddf43aefc67a5",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260930g002150046",
+        "original_image_sha256": "50c8ec166bbdc019028236fee346c626264d77eef8779f9d8b65a0f3f936f4ee",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260930g002150056",
+        "original_image_sha256": "71384beea6a07d13e0234a2a3dc962175c401b59468b33a26f6d0da0c3bda28b",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260930g002150060",
+        "original_image_sha256": "55aa63b9093649db31d980390cbe8c00b5773b952d992e33bacaddd1a915ece7",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20260930g002150061",
+        "original_image_sha256": "fabda7d6908a26cedf7078ac46645b145cbdceaa629dcdaffbd32ed1157809b3",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20261001g002170017",
+        "original_image_sha256": "0c4ab8491bc4b8e562be6717b37b36a78807903cf5efe8b157ddb5649ac38556",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20261001t000550002",
+        "original_image_sha256": "c062dc07a50360de85219c09f57141bfa53f1a6678c37ae63f7c56c47b8fb3aa",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20261009g002230009",
+        "original_image_sha256": "7fa4b4255e635a1e6ee7b9dd8473577a31005696462efdcb38015b1ce23d3a7e",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      },
+      {
+        "page": "20261019h018100007",
+        "original_image_sha256": "c89a88f24b8bc99118f7c418250d23b6fe91c4c91cb8b8fed3323fea0b8d39f1",
+        "review": "Root nonblind changed-span/source review, not whole-page accuracy certification."
+      }
+    ],
+    "last_extra_note": {
+      "page": "20260731g001720067",
+      "reviewer": "root nonblind original source review",
+      "image_sha256": "7859a4f1d83429e7c167497eb722d19f9ddcc39fa3d5ecdd2ba8f792514da25e",
+      "source_words": [
+        147,
+        148,
+        149
+      ],
+      "contract": "Shared note printed inside the comparison frame left cell, before the physically separate supplementary provisions. After/Before regions exact; note becomes Outside of unit0 rather than Body of unit1, retaining all source words once. Only note whitespace changes in text. No new Article boundary.",
+      "baseline_and_candidate": {
+        "baseline": "048c69c0860fb21a65163f3c8efd67eb315a95245d7bfd624cad4d5a4f21695e",
+        "candidate": "0c572636d8a6c093c2116bccff0aab551ea8b3882f871e04c34f8bb1017aa6dc"
+      }
+    }
+  },
+  "source_sha256": {
+    "crates/kanpo-parser/src/common_header_source_order_tests.rs": "169a84785adbab72ea76f1e3c31aa0c74e1a767b21cb1d3c868c96bf5641ad72",
+    "crates/kanpo-parser/src/format.rs": "11a24e7e6f7291f8d26234a92a6814c853580a3edc56a3c2c32b3c2dff56566c",
+    "crates/kanpo-parser/src/unruled_road.rs": "8b6e1880ca914490eb976c3fc852760eb485d90c2f4a65002c262d1f911fa70b",
+    "crates/kanpo-parser/src/glyph_typography_contract_tests.rs": "0e5ae1d25b2d848d44499e5fd9fa3dac0482fe639b5d13232a88dc0d69d60c0c",
+    "crates/kanpo-parser/src/table_dashes.rs": "7cf4003118269a6b918ae95be75993f521877982ec48b1d9b7b049d3934d6f33",
+    "crates/kanpo-parser/src/shared_physical_label_tests.rs": "9a5fec73f6e76ad57854d1681d551b1be478a9983169a5226b858e7c9408ef1b",
+    "crates/kanpo-parser/src/quoted_inline_tables.rs": "ff4c28f2e5cd7766f35907c62ffedc162dc23bd4299556b1ec0aee05bb7ff759",
+    "crates/kanpo-parser/src/table_dashes_physical_cells_tests.rs": "1b750b8c94cb64feb4d6204274ebe221ffedeaca0169803cba8f426147d02b1c",
+    "crates/kanpo-parser/src/record_section_tests.rs": "265068ec99eb1acfc0b6af0664925e0621665666f21b34fb2018ddc2bc96cccc",
+    "crates/kanpo-parser/src/financial_native_source.rs": "7f21645472f67132d2299a50f1e0fae5fc539ddfb4169eba06fed699457fbccc",
+    "crates/kanpo-parser/src/bank_frame_source_control_tests.rs": "a4965464e0309c85d72a427b81eb1878cb87a4158352da9a07f769afdf3df4dc",
+    "crates/kanpo-parser/src/numeric_grid_orientation.rs": "5503e37a7d49f4d7350c5cad8c8fb40f526e901310b3acd47c6c41ce9b43de4e",
+    "crates/kanpo-parser/src/coordinate_symbols.rs": "09809cca3d125f126c2813abe72582eac4f13912d72f600ff76cadb18e26b6f3",
+    "crates/kanpo-parser/src/composed_inline_pipeline_tests.rs": "82f94b2b164b06537956b089c8ec6c643d52d116c01b05d8168400d160a5cfe3",
+    "crates/kanpo-parser/src/financial_flow_tests.rs": "64bd30aeb270a8207cddc59df62a0104045158b363cfc8275b691510d142fe1f",
+    "crates/kanpo-parser/src/owned_dashes.rs": "0fb5cbfb2d2d21b855fcc74dc461a58e3ff0ce334eb45be6c0a5e0d275c03b33",
+    "crates/kanpo-parser/src/framed_native_columns.rs": "487725c836fb0d9b7dec995651d3fd6ebc66257d411fe44c9d334fbbd58dd943",
+    "crates/kanpo-parser/src/financial_source_scopes.rs": "9d2bf2d1f11439a9458d00a47d2e5cf6e77c6f0221e7b8c3e675c189b6c3bf59",
+    "crates/kanpo-parser/src/repeated_key_column_tests.rs": "58a46c1c69157d6c3619efdf245107180fbe7b3191accb03c7d08cec96057578",
+    "crates/kanpo-parser/src/leading_table_blank_tests.rs": "7548d2d725f13c06a4ad2460f1650b50655dd8c69e188c014397a2d5cbc352b4",
+    "crates/kanpo-parser/src/source_frame_fences_original_tests.rs": "42a2d32ff409b519ec31b90524790ae706ffa803eff4f95359373f13e6ec60a3",
+    "crates/kanpo-parser/src/enclosed_warichu_tests.rs": "c08ac08b92505094e526ec4fc999d8f63e9643761b0f60d78f705450e0574a39",
+    "crates/kanpo-parser/src/numeric_fraction_geometry_tests.rs": "c83c2e18e21541c635e848be0328f0bcb0c9f333042cfc390c59924d5a38debb",
+    "crates/kanpo-parser/src/native_geometry_originals_tests.rs": "184f6d2ac66fa772781a066d49dc16dd8e7e7766a7fe5f2f64a81e74416b53fd",
+    "crates/kanpo-parser/src/nested_fractions_tests.rs": "2246e7d80839acf0de53abc7e9d5bc17396b1855c61b4c1070eac289d0e418a0",
+    "crates/kanpo-parser/src/financial_flow.rs": "25542fef77d59dbacb760c729586ae9ed4c3b2d34f8ac38cfa4dc31a8a567b3a",
+    "crates/kanpo-parser/src/wrapped_native_quote_tests.rs": "68a732e65692bfe1bc5b50aeafe5e3b6935f12fcd9d53ca0791c029fa21f1fb7",
+    "crates/kanpo-parser/src/native_layout_relations_tests.rs": "28a14f794d78af60f32c2f366430e5fb9c89be202ebf44f04b951ae4f6ebffd2",
+    "crates/kanpo-parser/src/qualified_notice_title_tests.rs": "5b7359b6e26e93681f9dc86f971154e9d3d1b7691725569f7ba7c8848a4df19e",
+    "crates/kanpo-parser/src/parallel_fraction_geometry.rs": "dee1abb3868ca63672333aa70caffc6abafba18a2abc0f305e012bb605882d98",
+    "crates/kanpo-parser/src/circled_numbers.rs": "18d4f3b5f9b3dd9b7cee679c1d5771831bca7020b0dfcd5feb03478892db57f8",
+    "crates/kanpo-parser/src/normalize.rs": "533d2a3ae890c8809bdd559987a365c1d234b5c286c55563fd177ad62751875f",
+    "crates/kanpo-parser/src/shorthand_tier_tests.rs": "0b30159ec56155d4047712d4607be7f40d6f07a10540224a6589915900c217cd",
+    "crates/kanpo-parser/src/nested_fraction_geometry.rs": "20467eff6afd052a95fbb13b760d92e5371fa75d3a3a94a961d0b2a9787e37a0",
+    "crates/kanpo-parser/src/quoted_inline_table_shape_fixture.rs": "ec455151e4f3953025742cadea4a8cc7800568fe3f5264cce3889b0cb8161dce",
+    "crates/kanpo-parser/src/parallel_fraction_geometry_tests.rs": "9fa0da416a260998dd361bb452dee3937a00c8de6828c6d120acab95dae9f1f8",
+    "crates/kanpo-parser/src/financial_source_contract_tests.rs": "cf3ecf1253ff0cc1277a81f60298db599772a5bb0b0592a56f947f4a5ec1296e",
+    "crates/kanpo-parser/src/ruled_plain_dashes.rs": "3b39b9833af9e529f71581e49a882ef738d62e7ef40ade37875a02f3b69da01b",
+    "crates/kanpo-parser/src/horizontal.rs": "8d4e62c35ebc9af6557376ddd0319c9fd82d6f1b353a3eaf18d42f80e585bff1",
+    "crates/kanpo-parser/src/company_document_parts.rs": "ad8ce0af0e8cff7451890e2cf95cdd8d9d15fd782993014bfe40a433945f0d25",
+    "crates/kanpo-parser/src/paired_shinkyu_grid_tests.rs": "32d3d084cc12909c3dd2319f8f621526b41f1c2f88dde574e15d53b168a6afe5",
+    "crates/kanpo-parser/src/coordinate_rows.rs": "6a8b33c2389216493e8e302ac17681e12faad5e27bff15e79b198f7b865d6721",
+    "crates/kanpo-parser/src/source_aj1_parser_tests.rs": "a328f4d9346647ff0091cae0f8b7b98790a536432c27ff1377adf39a99055ea2",
+    "crates/kanpo-parser/src/facility_continuation_shape_tests.rs": "840f09de95e9385b3314b831dcea2c39e27e4313d122b55ff65ab2622f7b2129",
+    "crates/kanpo-parser/src/lib.rs": "a5b5d902f305642fb8e617949e03ba077e866d8f7e20cb00aa855622b0a52513",
+    "crates/kanpo-parser/src/parallel_fraction_adapter_tests.rs": "3a0b608566a36830a2c5c94b01a3d2af37c5abbf0bf18b8e72ef0ba792475888",
+    "crates/kanpo-parser/src/horizontal_covering_edge_tests.rs": "0d47761bea8ecd32ddffc58c39e1825ad7739e436ed0d2b18f0edcf868147577",
+    "crates/kanpo-parser/src/blank_area_units.rs": "5c8082c31c91db51adc92e820fceb6b748c79c0b0337a909399ea8cb847af9fd",
+    "crates/kanpo-parser/src/source_shared_note_original_tests.rs": "924ac36834916d91f22ada112fd832b458cedc45f8987f14c60d81f6a01410fa",
+    "crates/kanpo-parser/src/closed_frame_continuation_original_tests.rs": "a415c82a50194ea59a366f753f20d8fa1383f29c21f046959ed107942867568e",
+    "crates/kanpo-parser/src/notice_boundaries_tests.rs": "a31dd7dfeec9643be2b6bd433d05a4be919b42a744bca27f54ad7b5dea5c4de1",
+    "crates/kanpo-parser/src/notice_attributed_header_tests.rs": "c214beb4a1654a0ade69e44472408d5951207f7f8fa0d405e1c677d686e91854",
+    "crates/kanpo-parser/src/vertical.rs": "8d3fbaba72427e0a800da89e71f8096acf916ae882333f09c0dc011cfe7526bb",
+    "crates/kanpo-parser/src/wrapped_notice_titles.rs": "ee1316e253e58d73efa0100366a36244b02794561da9a67286e3ceae00e393fe",
+    "crates/kanpo-parser/src/trailing_code_tables.rs": "e59b3e0e3e86b5547db1cecd1bc4550bb50e798f2f9720c3ec8d9584c53e25ce",
+    "crates/kanpo-parser/src/native_triangle_cells.rs": "5bcf8fa1e475331bf37be4aee025f019d269606f001720cbc53c714b29241ac1",
+    "crates/kanpo-parser/src/native_triangle_cell_tests.rs": "d6c9f3b7c8e6233dbedeeb673dcfe06a8d7fc66827db2a9f067c9b07fc6b6bc2",
+    "crates/kanpo-parser/src/ruled_corrections_tests.rs": "2e88aadb832f7578bcddd67c6be105526aa81ca952fca2f7eb1f42356c2670d9",
+    "crates/kanpo-parser/src/micro_prefixes_tests.rs": "c6c04f93167ac57bace09d3f7b2fdc8e94d4a6ac7c7a80d5fe946d6d338304d7",
+    "crates/kanpo-parser/src/triangle_sign_tests.rs": "4e971c1a8529ea497b7aaa0e62dacca8d8b0f8b3f39e5a9f337bdbc5f5e59158",
+    "crates/kanpo-parser/src/range_endpoints.rs": "1e53ddacf349cbebc63cfe62ff2e331a0ea792126bbf976a6dc937d34fc4524d",
+    "crates/kanpo-parser/src/financial_original_source_tests.rs": "1f582e4d93f635b14ed90dfe73f2b412630a135f2a7dce13f0d11b43fb99f2ed",
+    "crates/kanpo-parser/src/headerless_four_bands.rs": "b5a334e037133ce18bb646a05c7d91f029c7743b4c23274499c557ab641560a0",
+    "crates/kanpo-parser/src/notice_boundaries.rs": "cb8d5febce09bef3d4ba1fc2010e640b808a321fe6b0ee4c2c7a0d1775209b47",
+    "crates/kanpo-parser/src/cell_row_dash_tests.rs": "fcc4719606e043f33f964ea70a3dd17a1a3cd89f3b306fdfd9b47a2b4bfced60",
+    "crates/kanpo-parser/src/aj1_provenance_parser_tests.rs": "47d92f33046aa9316ad9416fc83ca417cb0300f9f17411d8cbd1587b8b1a2efe",
+    "crates/kanpo-parser/src/quantity_tables.rs": "ffb65b9a00c7b0c2781ed076bdd060b687bc052814289b548ba96011605adfb5",
+    "crates/kanpo-parser/src/framed_amount_rows.rs": "9994a3458388f2c413b7d5fc069e58d269ceb15ba507d933ba937cc896112578",
+    "crates/kanpo-parser/src/trace.rs": "d44a4109df65a30e6d4f60e73f16c3770247526a99a8c2f5f1bf5b0c8d54361f",
+    "crates/kanpo-parser/src/grid.rs": "2d43c35a023c49b4692d6a9d5e7a6e556b3c0fcef11b46baa1207a34829afa3d",
+    "crates/kanpo-parser/src/empty_amount_record_tests.rs": "7bf82dc603459fbf8e278b55b32c90b8b47d0177c8c3051693a5459fbf55f04d",
+    "crates/kanpo-parser/src/notice_native_geometry_tests.rs": "c013471be401b5d7b7d6048e3605c8510eca386bd515055a7abdcbf57f3e8f5b",
+    "crates/kanpo-parser/src/record_suffix.rs": "2936da8cfa8062e38e31ef7b096eb56b4d5cd3fbf4b4810ea149c8367a36637f",
+    "crates/kanpo-parser/src/headed_data_column_tests.rs": "9ae9b40dc2593ec4d047ba42ef10f35b91d711a5be028715f39475518388fa36",
+    "crates/kanpo-parser/src/frame_projection_counterfactual_tests.rs": "cc6587c36cbb47d90e078ba5c4130a55fa2e2b32e24591f0579b0a1d289d9c05",
+    "crates/kanpo-parser/src/composite_numbers.rs": "097b1d9b82d2e03b7997b2793ad31e65fa73d5c871d3479e4a5522af8fe20f28",
+    "crates/kanpo-parser/src/leading_dash_tests.rs": "5bd0fb1ed9ec1152f4ac1560475e569c559dcbe6a6ff5be8b4d610210a7a69a5",
+    "crates/kanpo-parser/src/paired_framed_continuation_shape_tests.rs": "15de0e8331ba963099613574fc06f55f9d39990f62778ec98f367f14bbd75c86",
+    "crates/kanpo-parser/src/nested_fractions.rs": "e6f88aa6bf9c73c4eb7e2e9a62ba70beac38e8cf3ed36f0c2ce1b5337bb0e1db",
+    "crates/kanpo-parser/src/headed_data_columns.rs": "00e907576242ef48a6d56dcd9d7f48235b93c1de8e903ec94599bac224a97a7f",
+    "crates/kanpo-parser/src/unruled_records.rs": "f905f325ecbfe3eae8e7c7461a1b627708aab5c4f8850808a84547d6b1eaa75b",
+    "crates/kanpo-parser/src/native_rule_source_order_tests.rs": "9f38c02f0472328cdb629eed757cc9e3a7b4c20e3ad69c630441836143d7012d",
+    "crates/kanpo-parser/src/signer_block_tests.rs": "776e829693431b7766e21af2efb7cbaf12216722d57c984bf334e48798624a66",
+    "crates/kanpo-parser/src/native_ledger_tests.rs": "316d12f819786f2a71516fd256a448f8b9aeab07d17d19e232d02e4ae89c06c3",
+    "crates/kanpo-parser/src/framed_publications.rs": "d5d76d453f0a26cc934008600d0e8e21a87622cef48a45ccc1f2fbb95e9a19b1",
+    "crates/kanpo-parser/src/mixed_native_bbox_tests.rs": "039f1a0a0d4d8bc1bf4075895ca9dcee2d69810eb8156cd9a22094aae9549942",
+    "crates/kanpo-parser/src/prose_label_values_tests.rs": "fcd4594575d879f272e58d44c30205c6e6f4c77912e6b678f2907c64eace6e05",
+    "crates/kanpo-parser/src/publication_party_lists_tests.rs": "c216be7d680aa29e461262dc1242fcc494f9d09d1890e0892af4fbb0c225e5fe",
+    "crates/kanpo-parser/src/segment.rs": "05aef0a20c3f1793883d8fc8152d12261f2b5f5336a3864756d080727fb262e7",
+    "crates/kanpo-parser/src/source_aj1.rs": "797445f298181089865ebebbbda785e7c6014d7a911ff6dd36fea6a9496c7341",
+    "crates/kanpo-parser/src/chemical_line_end_tests.rs": "18a97982d455a50e380cd397adf5cb6cee225ae0c12fca752d4656b329de7112",
+    "crates/kanpo-parser/src/ship_record_tests.rs": "b4e7c35ee920544993a2585594e8ff338889376c2a93f82546c7eb4928796bcb",
+    "crates/kanpo-parser/src/table.rs": "2ebcef0d19ba3e56dc5ce751ab63fe3bf5486c55b6e0fa91e8267b3561b92f45",
+    "crates/kanpo-parser/src/cell_row_dashes.rs": "2f01614cb315422228078757774f4399727c58495e626affd60d1dcc0cec2be7",
+    "crates/kanpo-parser/src/frame_boundary_original_tests.rs": "2980e463594d11fb831d1f8dccd78cdef334ddad9a8683ed0f70c78103e7f280",
+    "crates/kanpo-parser/src/source_auxiliary_original_tests.rs": "69077aed327ea8532089bf1134effa66d4b1411a91213ca814d5a780a067f39a",
+    "crates/kanpo-parser/src/publication_party_lists.rs": "6cbfca2e2cceba5130b97ce0b60db82fc0c77890073dedf8e0c4b13090853a6a",
+    "crates/kanpo-parser/src/wrapped_notice_title_tests.rs": "6a0cd947c93856bcc218b2149d319ad418482965ab639988660677b43a801b34",
+    "crates/kanpo-parser/src/micro_prefixes.rs": "0430a55657b8c5bc635ee43270ea65b5a4e0277c30b516af3fb92fa26e490021",
+    "crates/kanpo-parser/src/common_financial_header.rs": "cf7f785ddbe05c2a9fd524beb329db469b010de605477be7c4ddd07b33ba9097",
+    "crates/kanpo-parser/src/parallel_fractions.rs": "5f2bd4e2635069ede150e2ca75af0f5c451611d8d9c94d03409b121669f11c85",
+    "crates/kanpo-parser/src/native_word_axes.rs": "5e24612d8c73805e295ef6d36294f6d8736dbf45762bce6b7617f08c7587591b",
+    "crates/kanpo-parser/src/numeric_fraction_geometry.rs": "5b87a35a5c823ed50460463739d6f8b31a948324cac5708b893c64541e71fd77",
+    "crates/kanpo-parser/src/chemical_line_end.rs": "38c79e61032fd7e038830fd15a40d29ea290b1827b99bd70590bcb9d191eb612",
+    "crates/kanpo-parser/src/source_table_border_original_tests.rs": "597a342ff6d131514c18433957fb23b30c32125972f5c6f1eb2a470d1baef424",
+    "crates/kanpo-parser/src/unruled_record_tests.rs": "049caf72c44f37e52db2521eacad7ccac9bf1aad226de411cd5735368f64139d",
+    "crates/kanpo-parser/src/source_ruling_binding_tests.rs": "cb5d4664ff0502fb4368408aafacba43e6812ee5e68024c025566da88087d21e",
+    "crates/kanpo-parser/src/notice_title_scope_tests.rs": "7de3a2a9fe21f51c948c3ff7e3f4ca8bf0876dbd8a2ea4f826371edc0b70cae3",
+    "crates/kanpo-parser/src/fractions.rs": "a0e4f1afc4bdbd0b322f27d287d24c620947649eeec3a5d49d8c80e42b742218",
+    "crates/kanpo-parser/src/inline_quotes.rs": "85015ba4d7312e36e0d3764ba779010f63bf41b1e888e9169e5951e77bd14ab4",
+    "crates/kanpo-parser/src/shared_table_labels.rs": "7b019e91d2d055903d724d2d4170e8f105ee31664ae7720488966d6426c8fde9",
+    "crates/kanpo-parser/src/original_director_frames_tests.rs": "6ff3af8b3aaa3bfb9410a978ed5c4a8df6abbd124e6f8ad53aa86b6a622039dc",
+    "crates/kanpo-parser/src/paired_framed_continuations.rs": "8c4a0dbd186cc0f90843a647c83d79838781dea9741634b74be0b7dd426d56ee",
+    "crates/kanpo-parser/src/owned_dash_tests.rs": "fe0d8d24ff29003536d8e75056fc44b988670768f60ebed5ba6226f1e982c0a0",
+    "crates/kanpo-parser/src/enclosed_warichu.rs": "32f55ebb58b1447a8e372b959b9ccf606e264053b777c733087f36d5c1e726ca",
+    "crates/kanpo-parser/src/glyph_typography_originals_tests.rs": "05030199336bd5acd29804f8940fc287577138f13b9de7ec11c80f17d4bd5708",
+    "crates/kanpo-parser/src/area_units.rs": "f2e0f90ba64d2b9d26495cee01ab62031fd99915ced36241f5fed78d2aa5d3a1",
+    "crates/kanpo-parser/src/native_word_bounds.rs": "b9f5afd1a6d8a243e2b281ff081e2db1f49a3699a54b2966c6e245db43b40874",
+    "crates/kanpo-parser/src/record_suffix_tests.rs": "2e31b8ac2a374866d7f1dcd2524d36f2947e3288a923eee851c172c7c2a7ed96",
+    "crates/kanpo-parser/src/numeric_fractions.rs": "7f4fc1d34db1f66c10eff17720d8c08194c1f69c93128f66fbdb3af5003b8f1d",
+    "crates/kanpo-parser/src/native_word_rulings.rs": "894f55e19af9e84e1364dd77c212ea3061ef46fd2e6eda399f53311775063598",
+    "crates/kanpo-parser/src/legal_role_original_tests.rs": "72967e2c93c0c219fe352112806a8ba7dfb331c5e44f9018b3f8d4967b32eaef",
+    "crates/kanpo-parser/src/nested_fraction_geometry_tests.rs": "bb866d3e29705d1a2978b70a5f7bc60db314b8724958e7dce68f89bc24f27b29",
+    "crates/kanpo-parser/src/native_content_styles.rs": "03200b8100535fdc2a343003d3ec4b304071a12075f4f85e40e00ef212eb9ead",
+    "crates/kanpo-parser/src/quoted_inline_table_tests.rs": "4542054568fef2da05ded85806e76ccfe5ce5adad8f6957b5715189cdf491301",
+    "crates/kanpo-parser/src/large_parentheses.rs": "f0c7966779c99835e27ccc2552ff953ba573fda1b69419a5fbd8ae65a626e7d7",
+    "crates/kanpo-parser/src/numeric_fraction_adapter_tests.rs": "3afae19c435987f4bacf1acf6306b627bbf10df09ff372542dfbd81fb2652d45",
+    "crates/kanpo-parser/src/framed_publications_tests.rs": "37f1c3d279da9a337bc2ddc7034fdb6a11b1ce5d068c1abb6e501d89bfb063db",
+    "crates/kanpo-parser/src/ruled_corrections.rs": "7afcaefdd729dc3aee0a0d2e42d628e03aa61364e69e8495853f83bc7530d1dc",
+    "crates/kanpo-parser/src/shinkyu.rs": "66f86602fc7b9e41365f2b042aad727dc14dbc902b52c996c908c97780a2b5e4",
+    "crates/kanpo-parser/src/source_axis_binding_tests.rs": "0b853160e34a1b7ce609d20e8f1f142511a6c6c00211a1a488e7a97cbffaa4ea",
+    "crates/kanpo-parser/src/model.rs": "34ff7218594c9f98a8b607fb38c062cfedd9242295e0045d87909bdfbfb66474",
+    "crates/kanpo-parser/src/table_text_column_tests.rs": "7df4228068dda4b48900dcb3c87a53420d323b805364559e1b873111a8622f3d",
+    "crates/kanpo-parser/src/leading_numeric_table_tests.rs": "d8e8832176621c6f76437ae9aea9f1f93fb3c8192472282f7dd061c92606b240",
+    "crates/kanpo-parser/src/unparsed_notice_title_tests.rs": "47257ce2bf4fe2590e283363597542693a5f6d647f7b53a7c6628dda4c28a172",
+    "crates/kanpo-parser/src/lines.rs": "c277b260081e9b35c53964098c3b39ac2cbccf054bbaf8cb083898a5f862853c",
+    "crates/kanpo-parser/src/reference_markers.rs": "cc4798e5f45cdeb3629d6fbd449f92f38281ed49002b0387462fde36d5d31d5f",
+    "crates/kanpo-parser/src/facility_continuations.rs": "21d601e53b9089bda404b0deefdc3dbae4ee555237b6703d3dc515179b60f88d",
+    "crates/kanpo-parser/src/framed_band_continuations.rs": "11153d3a84ffd1edd1aae60b94ecd701d8e9f028d9ef2405fc6f7b75462f958a",
+    "crates/kanpo-parser/src/enclosed_warichu_original_tests.rs": "8ef986fb14cfd5e4f06cc3de0379fbc1133823222b7c8dae14e405aec90f998d",
+    "crates/kanpo-parser/src/horizontal_fullwidth_section_tests.rs": "40e3636cad799f08430db5c4223ea7a473bdee16f2fbfb0ccab120f955ad4cf6",
+    "crates/kanpo-parser/src/ruled_plain_dash_tests.rs": "03e312b48e7e485ef9aac28a82725b8642547d90c7ce09fa6a4fea4203ea1d55",
+    "crates/kanpo-parser/src/company_document_parts_tests.rs": "0000935587b4f9c07917b428e69e3c5c6698a906955580e04d4703b896f7c7e8",
+    "crates/kanpo-parser/src/financial_enclosures.rs": "2fde6358ab86129b311574e2d038c495c12a4f3f961880c46e3ca35cec4183fb",
+    "crates/kanpo-parser/src/financial_enclosure_tests.rs": "ba177952c1f2d1177605f9484f3d69177fc9c24db16a6bbfe490e5345bc66b8e"
+  },
+  "evidence_sha256": {
+    "public-source-prefreeze97.json": "95cd9d10abe2b1c843377a05ce0abf12a78ac8cb6f8b55669eb06b8d20e05902",
+    "public-gates97/source-manifest97.json": "7857a18dfb59e76605af9d879cf8136ff8b032ac689099053d09efbd6284de9a",
+    "public-gates97/result97.json": "847b51b9e2f9727c84c6b74747d8705b99615c3adb3f7cf9a13797ca99dafdff",
+    "corpus97/result97.json": "974f0f7500515ecf68526fa5a9b93ece05d9596985a947af7432b1657980b767",
+    "corpus97/all-canonical-Analysis-hashes97.json": "1616bb4c8668dc4cfbc8a0cf138be905af500dcdf354f8620154c120454cbb90",
+    "CLI97/API-CLI-equality97.json": "52eb3e946aa580dbdc55fb681d953209ff7e16557d7306db2fe66262231c5763",
+    "source-reviewed-snapshot-differences97.json": "015ef2499e6da28b906c6ffad6837ae8f3027133580c02b55a232783323ef1d6",
+    "candidate97-corrected-source-role-RED.log": "6e0d490dd620165aa043de20e267e540f4286dd91cb55b3aff67378b3b4fc478",
+    "source-table-boundary-RED95.log": "1622db76e14c1a5a5bb9099303d9a4119939080c2d22eab571c0459478269952",
+    "frame-boundary-RED93.log": "f3decc02c9b31ba842da993d82d97d855a6a9c5952ce5d7dc3a0317c475d2c5e"
+  },
+  "limitations": [
+    "100% not achieved. Image bodies/PUA and other publication/table ownership issues remain.",
+    "Fresh30source98 is a root development review, all30 complete Analysis identical to adopted86; it is not a measured native97 gain or an independent benchmark.",
+    "The next U+2212 numeric-row candidate99 is private, tested but not adopted by this audit. It must undergo separate full validation."
+  ]
+}

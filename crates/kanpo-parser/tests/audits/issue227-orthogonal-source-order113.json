@@ -1,0 +1,349 @@
+{
+  "issue": 227,
+  "batch": 82,
+  "candidate": "native113",
+  "status": "locally validated; draft PR update; not merged; global goal remains active",
+  "baseline": {
+    "primary_commit": "1a8dc2f1cd7c4af06b7d8a39693edba5861736fc",
+    "published_PR237_parent": "fb72cc4bde833cd8e0645ce9ff47e783ae4dcd0d"
+  },
+  "scope": "Native source reading order. NDLOCR0.0.15 pin f97e930b8c3e9512f7788f258ef685da26416483 unchanged. No automatic native/OCR fusion or new semantic model.",
+  "implementation": {
+    "production_paths": [
+      "crates/kanpo-parser/src/horizontal.rs"
+    ],
+    "alternative": "An original eligible whitespace column cut with disjoint full source y-envelopes also admits a horizontal guillotine. Resolve its earliest supported horizontal alternative without changing the shared column/table/row probes. Native vertical source walls anywhere inside the region fence the new horizontal cut; invalid source/rule/table bounds do not authorize it.",
+    "preserved_source_rule_functions": [
+      {
+        "function": "rule_cut",
+        "old_function_bytes_unchanged": true,
+        "sha256": "632d5ecbc22f1c10bafc9c3bf5ac68a08d3073998a03b571f72ef060578aa659"
+      },
+      {
+        "function": "is_column_split",
+        "old_function_bytes_unchanged": true,
+        "sha256": "070503638f379e686d0389e1284bd7e5d8eaf8f94e8f48afe5947e128c9b9204"
+      }
+    ],
+    "legacy_evidence": "Original column candidate selection/scoring remains the result of column_gutters; existing strong boxed/sparse/paired-heading conventions are not reclassified. The helper selection constants are moved unchanged, not new thresholds.",
+    "constraints": "Compute the original legacy layout with the new alternative disabled. Accept candidate only with complete unique original IDs, an identical multiset of full Table/cell objects, and original internal order/contiguity for each supported balanced delimiter span. Unknown membership, mismatched/unmatched delimiters and conflicting source evidence retain the original layout.",
+    "generalization": "No production page IDs, expected output strings, issuer/title names, Japanese-character length tests, fixed line-count caps, model/dictionary output fitting or synthetic source Words added. Delimiter pairs are grammar syntax. The conservative constraint preserves preexisting mistakes inside a legacy span and is not proof that every citation is correct."
+  },
+  "tests": {
+    "new": 30,
+    "geometry_grammar_counterfactuals": 14,
+    "original_source_order_assertions": 16,
+    "unique_portable_original_PDFs": 14,
+    "original_source_positive_improvements": 9,
+    "original_negative_regression_barriers": 7,
+    "private_full_unit_result": "1513 passed, 0 failed, 0 ignored",
+    "actual_public_lib_result": "1521 passed, 0 failed, 0 ignored",
+    "extra8_positive_sources": {
+      "rows": [
+        {
+          "variant": "baseline112",
+          "exit": 101,
+          "results": [
+            "test result: FAILED. 0 passed; 8 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.25s"
+          ]
+        },
+        {
+          "variant": "public113v14",
+          "exit": 0,
+          "results": [
+            "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.35s"
+          ]
+        }
+      ],
+      "source_expectations_prepost_verified": true,
+      "production_source_changed": false,
+      "scope": "Eight additional original source regressions, every changed original has a direct positive source-order oracle; source133 already has its positive oracle in lib. No new expected output generated."
+    },
+    "required_native": {
+      "commands": 119,
+      "passed": 2261,
+      "failed": 0,
+      "ignored": 0,
+      "result_groups": 118,
+      "all_commands_exit0": true,
+      "snapshots": 814,
+      "snapshots_byte_equal112": 813,
+      "only_source_reviewed_snapshot_change": [
+        "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731g00172__20260731g001720133.pdf.snap"
+      ],
+      "source_backed_text_expectation_changes": [
+        "crates/kanpo-parser/tests/archive/expected-blank-area/20260731g001720133.txt"
+      ],
+      "extra_target_inventory_delta": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/public-extra-sources113v14/target-inventory-delta.json",
+      "scope": "Initial118commands and added1independent target all completed. No expected output updates during readonly runs. Two source133 expectations were independently source-reviewed before the frozen run."
+    },
+    "expectation_changes": {
+      "snapshot": [
+        "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731g00172__20260731g001720133.pdf.snap"
+      ],
+      "text": [
+        "crates/kanpo-parser/tests/archive/expected-blank-area/20260731g001720133.txt"
+      ],
+      "reason": "Only source133 title/section order corrected from the original independently frozen first3line oracle [3], [14,4,1,0], [47]. Complete snapshot body/article-paragraph delta reviewed; baseline renderer exactly reproduced old snapshot. The area-unit glyph ownership oracle is unchanged.",
+      "all_other_snapshots_byte_equal112": 813,
+      "readonly_snapshots_passed": 814
+    }
+  },
+  "single_page_all_originals": {
+    "terminal": 0,
+    "processed": 11992,
+    "inputs": 11992,
+    "changed": [
+      "20260731g001720133",
+      "20260824g001880032",
+      "20260824g001880036",
+      "20260831g001940039",
+      "20260910g002020100",
+      "20260930g002160066",
+      "20261016g002280369",
+      "20261016g002280496",
+      "20261016g002280554"
+    ],
+    "unchanged_complete_Analysis_equal112": 11983,
+    "all11992_complete_Analysis_and_text_equal_private14": true,
+    "mismatches_private14": [],
+    "changed_set_equal_reviewed_private14": true,
+    "source_inputs_references_binaries_prepost_verified": true,
+    "seconds": 678.456173625,
+    "scope": "Actual public port complete API output on every original; no excluded fields, no accuracy estimate. Source-backed private9review only transfers when every complete Analysis/text exactly matches."
+  },
+  "actual_standalone_CLI": {
+    "pages": 11992,
+    "every_text_byte_equals_actual_public_API": true,
+    "payload_archive": {
+      "archive": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/CLI113v14/actual-CLI113v14-plaintext.tar.gz",
+      "archive_sha256": "53c70a37993e9a5b59e4fdf4447a90bca1ad3c5a0cb91f313758d50139f55461",
+      "archive_bytes": 8298453,
+      "uncompressed_bytes": 39465890,
+      "members": 11992,
+      "every_member_SHA256_equals_actual_CLI_payload": true,
+      "actual_all11992_API_text_bytes_equal_receipt": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/CLI113v14/all-CLI-API-equal113v14.json",
+      "action": "Only loose plaintext files removed after every archived payload SHA was verified; lossless raw outputs retained."
+    }
+  },
+  "sequence_stress": {
+    "frozen_pre_port_runtime_all159issues": {
+      "terminals": {
+        "112": 0,
+        "113": 0
+      },
+      "issues": 159,
+      "pages": 11992,
+      "changed": [
+        "20260731g001720133",
+        "20260824g001880032",
+        "20260824g001880036",
+        "20260831g001940039",
+        "20260910g002020100",
+        "20260930g002160066",
+        "20261016g002280369",
+        "20261016g002280496",
+        "20261016g002280554"
+      ],
+      "complete_PageTrace_equal112": 11983,
+      "source_failures": [],
+      "changed_Word_attributes": [],
+      "source_inputs_reference_binaries_verified": true,
+      "seconds": 1520.560646583,
+      "scope": "Complete11992PDFs grouped in159physical issues, independently executed public112 vs private113v14 multi-page items; original104 source role/order/head-order gates plus all8original113source oracles retained. Not accuracy certification; new source changes still require full original review."
+    },
+    "all159_issue_article_counts_preserved": true,
+    "complete_Table_multisets_and_nonwhite_characters_preserved_on_every_changed_PageTrace": true,
+    "actual_public_all_affected_and_regression_barrier_issues": {
+      "terminals": {
+        "112": 0,
+        "113": 0
+      },
+      "issues": 9,
+      "pages": 2112,
+      "changed": [
+        "20260731g001720133",
+        "20260824g001880032",
+        "20260824g001880036",
+        "20260831g001940039",
+        "20260910g002020100",
+        "20260930g002160066",
+        "20261016g002280369",
+        "20261016g002280496",
+        "20261016g002280554"
+      ],
+      "complete_PageTrace_equal112": 2103,
+      "source_failures": [],
+      "changed_Word_attributes": [],
+      "source_inputs_reference_binaries_verified": true,
+      "seconds": 215.204880958,
+      "scope": "Actual public113v14 vs independently reexecuted public112 on complete9affected/barrier issues, all pages without exclusion. Original104 source-role gates and all16new original source assertions checked where present. Not accuracy certification; new source changes still require full original review."
+    },
+    "public_whole_Analysis_and_PageTrace_equivalence": {
+      "full_private_runtime_issues": 159,
+      "full_private_runtime_pages": 11992,
+      "actual_public_whole_issues": 9,
+      "actual_public_whole_pages": 2112,
+      "all2112_public_complete_PageTrace_equal_frozen_private14": true,
+      "all9_public_complete_Analysis_equal_frozen_private14": true,
+      "both_independent_baseline112_runs_equal": true,
+      "PageTrace_mismatches": [],
+      "whole_Analysis_mismatches": [],
+      "scope": "Transfer proven for every complete public affected/barrier issue and every one of its pages, not merely source anchors. Public all11992single-page complete Analysis also separately exact private14."
+    },
+    "all16_new_original_assertions_checked_in_public_complete_issues": true,
+    "scope": "Page-state and source-membership/order stress tests, not complete article-ownership or global accuracy certification."
+  },
+  "all_changed_original_reviews": {
+    "reviewed": 9,
+    "regressions_observed": 0,
+    "scope": "Root nonblind development review of every changed original; 8exact complete before/after analyses/source/render hashes transferred from prior full-source review, 1fresh complete source/delta review. Every changed original is now included with an independent positive source-order regression test. No unseen audit or new accuracy percentage.",
+    "rows": [
+      {
+        "page": "20260731g001720133",
+        "PDF_sha256": "c755c192c220dd077602e96a1502c06cb3cdc7a47a08aad7d9d3233e571dd4a2",
+        "full_original_render_sha256": "425163f9321b4a761dca20afcf18cfd3c85dd01f41ae0ff47a2a8e6c8ee6007c",
+        "complete_Analysis_sha256": "2e41812d844af272b7b4004f94a6123be6dc60a212b5b0013c9e74a3b763e6ed",
+        "baseline112_complete_Analysis_sha256": "de8d275158ce61d701df9f5bd63da5cd21fd1a2ebb0a99cf7a8d803a6d8da527",
+        "assessment": "local_title_order_improved",
+        "source_observation": "Second-face label and centered plan title precede section1, matching source.",
+        "review_method": "Exact complete before/after analyses and original/source render SHA matched to the previous root nonblind full-source review, not a sample-only equivalence.",
+        "portable_original": "crates/kanpo-parser/tests/archive/pages/20260731g00172/20260731g001720133.pdf"
+      },
+      {
+        "page": "20260824g001880032",
+        "PDF_sha256": "25e87cf0c4b66370dfc3343a629e1e6d8f6b9c2ad99f300061c5b1a8284394cc",
+        "full_original_render_sha256": "26361ccf27bbbd4f92ca9f0903352504843f9be7444b4c2b9cbfd43c8fc0114c",
+        "complete_Analysis_sha256": "5c51f356d9e74e638d3472a4eb9f7f5ec336c30db5cdf1136ad2dfdd645d8b8b",
+        "baseline112_complete_Analysis_sha256": "3869c35232e25549fd3b6d4461016d81f03492b4a77625ffcaa9272a28b37714",
+        "assessment": "local_signer_order_improved",
+        "source_observation": "All three printed signers precede the subsequent comparison-instruction sentence.",
+        "review_method": "Exact complete before/after analyses and original/source render SHA matched to the previous root nonblind full-source review, not a sample-only equivalence.",
+        "portable_original": "crates/kanpo-parser/tests/data/orthogonal-gutters/20260824g001880032.pdf"
+      },
+      {
+        "page": "20260824g001880036",
+        "PDF_sha256": "7ceb3f7119b0f9a8ba09a1dc447d199844b6386b0a537e68a349e4fee66aa45f",
+        "full_original_render_sha256": "cd19b04968f0d1efc17e295f74a9c6e003c1b80e010f28c8551f76433186c86d",
+        "complete_Analysis_sha256": "438799513e11dbb3c7a395facf5045ee3e91596a630513a3a2314d08af334aa6",
+        "baseline112_complete_Analysis_sha256": "f011648b1fb338a4bcacb8995719888d6a5eae26dc6d0067f1d761f397aa1bbd",
+        "assessment": "local_signer_order_improved",
+        "source_observation": "All three printed signers precede the subsequent comparison-instruction sentence.",
+        "review_method": "Exact complete before/after analyses and original/source render SHA matched to the previous root nonblind full-source review, not a sample-only equivalence.",
+        "portable_original": "crates/kanpo-parser/tests/data/orthogonal-gutters/20260824g001880036.pdf"
+      },
+      {
+        "page": "20260831g001940039",
+        "PDF_sha256": "9cd993e1cfb7315320444e061955152e4bf6613d50f56ccbf1ebd6dc3c2d8bb2",
+        "full_original_render_sha256": "d39c8a5e272413ede04e791f42e90380e17f386f19ab0d6750b3436e976b3038",
+        "complete_Analysis_sha256": "4ce060c788d6bd55f7840f2ff950f74b6d1dd70f7dc1318fad898756651da070",
+        "baseline112_complete_Analysis_sha256": "999b30908e935ce6cdb7aec33eb28dfdcf76bca934ce5be5d3ef5bf13640c162",
+        "assessment": "local_financial_heading_order_improved",
+        "source_observation": "Liabilities heading follows the complete assets continuation, including assets top-right, before liabilities rows.",
+        "review_method": "Exact complete before/after analyses and original/source render SHA matched to the previous root nonblind full-source review, not a sample-only equivalence.",
+        "portable_original": "crates/kanpo-parser/tests/data/orthogonal-gutter-order/20260831g001940039.pdf"
+      },
+      {
+        "page": "20260910g002020100",
+        "PDF_sha256": "6f04e8631a083e55ff7a7663c87c01d90472a4bbe933d16a73e389f7988c0ed6",
+        "full_original_render_sha256": "e877c6e20f1be8516ebc8f7d01b6bed605ac9c7f0826c4c85ebf4e61420c06b3",
+        "complete_Analysis_sha256": "a7b82af92172f13249ceb638a1ceb8e433a56f92d90198479c1c940bd63a09bd",
+        "baseline112_complete_Analysis_sha256": "cfd38afb778a5f537951da43fbaeb59a3dafe100e4ace38c6369297e514bbf82",
+        "assessment": "local_title_order_improved",
+        "source_observation": "Administrative-cost title, period and unit precede the first expense category.",
+        "review_method": "Exact complete before/after analyses and original/source render SHA matched to the previous root nonblind full-source review, not a sample-only equivalence.",
+        "portable_original": "crates/kanpo-parser/tests/data/orthogonal-gutter-order/20260910g002020100.pdf"
+      },
+      {
+        "page": "20260930g002160066",
+        "PDF_sha256": "86ec3617cabfc2f227a7449d5d3cf59f665840bc16452657c544586b2c193ef2",
+        "full_original_render_sha256": "1cd00e07ac11e34398bde3f336c06d71a0c9c4110552e63c994951a3efcb455f",
+        "complete_Analysis_sha256": "fe0f66db48b1535b0da730cf70819dd627a832bf2e1e9d23523a3ef097787fba",
+        "baseline112_complete_Analysis_sha256": "e94335a0186367a02dfe1593ac5b1e86ef7dd79a352a3f4f644fdb7e2e02010c",
+        "assessment": "local_source_order_improved",
+        "source_observation": "Both left and right vehicle-category table columns finish before the boxed Annex2 label, fee-distance title and all three notes, followed by the road title and staircase distance table. Existing Table objects and all original Word attributes preserved. Preexisting recognition/wording errors not certified.",
+        "review_method": "Fresh full original Quick Look render and entire new text delta viewed by root in this turn.",
+        "portable_original": "crates/kanpo-parser/tests/data/orthogonal-gutter-order/20260930g002160066.pdf"
+      },
+      {
+        "page": "20261016g002280369",
+        "PDF_sha256": "fc91eb8e064f1178977448078fbde170a2df86e16bdd016522ff9bb2f9ddafb1",
+        "full_original_render_sha256": "b1b09df8594cc538d43cb1c70a930135f1622ac560e74b47ee602e7e03e29171",
+        "complete_Analysis_sha256": "71d6c74e846e5725f711abd4c9a04cf517171183692614374db2d233b0eeae1c",
+        "baseline112_complete_Analysis_sha256": "2afd6c3b89fa771e1cbafe4a9dd7c9ebfb329510d43dcdac58294cb317cc8732",
+        "assessment": "local_title_order_improved",
+        "source_observation": "Equity-change statement title/period precede issuer and first table; existing unit-label placement not fully certified.",
+        "review_method": "Exact complete before/after analyses and original/source render SHA matched to the previous root nonblind full-source review, not a sample-only equivalence.",
+        "portable_original": "crates/kanpo-parser/tests/data/orthogonal-gutter-order/20261016g002280369.pdf"
+      },
+      {
+        "page": "20261016g002280496",
+        "PDF_sha256": "cdcd3e1a3872de8f765f54f9973523070cf75d3f9e1f9751c7619e57803df083",
+        "full_original_render_sha256": "7951da0b81593fcdcea0dcf707c00072f50913997ad6895f0f06002b4b95cbeb",
+        "complete_Analysis_sha256": "d47f9b339f2b777b41574f753f00e751faf3ea248f88b3847c4ff15831105aa9",
+        "baseline112_complete_Analysis_sha256": "325465283c92588da38b724aac44fce0470e528ecd4e56619bcac79c5cf62c4f",
+        "assessment": "local_financial_heading_order_improved",
+        "source_observation": "Assets continuation in left column precedes the liabilities heading in that same column.",
+        "review_method": "Exact complete before/after analyses and original/source render SHA matched to the previous root nonblind full-source review, not a sample-only equivalence.",
+        "portable_original": "crates/kanpo-parser/tests/data/orthogonal-gutter-order/20261016g002280496.pdf"
+      },
+      {
+        "page": "20261016g002280554",
+        "PDF_sha256": "26bef0bcbf36d76c58bf51296a05a7b8c604d9096464eba8e3e562f43eabcf49",
+        "full_original_render_sha256": "b2a9a3b1c78d7b06c312c9427ff70919275e3f9645794b4624e57c19d02c6b9e",
+        "complete_Analysis_sha256": "7d6d8a2f399cdb15ad7291c2f7899c9435ffdc16f76bfd795c0912f31fe87ece",
+        "baseline112_complete_Analysis_sha256": "5a998dd91e962c256fbd2a29ee3fcba654b60d99cedb865bc6944e45c077956d",
+        "assessment": "local_financial_heading_order_improved",
+        "source_observation": "Assets continuation in left column precedes the liabilities heading in that same column.",
+        "review_method": "Exact complete before/after analyses and original/source render SHA matched to the previous root nonblind full-source review, not a sample-only equivalence.",
+        "portable_original": "crates/kanpo-parser/tests/data/orthogonal-gutter-order/20261016g002280554.pdf"
+      }
+    ]
+  },
+  "held_prototypes": [
+    {
+      "hypothesis": "Change shared column split or source-rule predicate",
+      "decision": "held",
+      "reason": "Real original source divider/header/placeholder regressions; original expectations retained."
+    },
+    {
+      "hypothesis": "Centered synthetic panel occupancy with original enclosure propagation",
+      "decision": "held",
+      "reason": "One attempted span crossed its own original closed enclosure. Adding enclosure edges inferred invalid independent reading roots. Even the negative-owner variant changed199/11992pages, changed Tables and5issue article counts, and broke2original continuous-wall cases."
+    },
+    {
+      "hypothesis": "Restore global probes but repartition all glyphs without lexical source-span constraints (v10)",
+      "decision": "held",
+      "reason": "1509unit tests and6originals passed; valid11992comparison changed10pages with Word/Table/character/article preservation, yet2multi-issuer source citations regressed. Their unchanged source assertions were baseline112GREEN/v10RED. Partial96of118public commands and16issues2104pages intentionally stopped. Public owned candidate files were fully SHA-backed-up/restored to112; no held snapshot/golden adopted."
+    },
+    {
+      "hypothesis": "Only stable-partition existing complete Lines/Tables (v11/v12)",
+      "decision": "held",
+      "reason": "The unchanged unboxed upper-fragment synthetic failed at scale2. Source instrumentation showed atomic rows inherited an incorrect prior regional partition; no expected assertion weakened."
+    },
+    {
+      "hypothesis": "Balanced-source-span constraint fixture (v13/v14)",
+      "decision": "runtime retained with fixture typo correction",
+      "reason": "Before v13 results existed, recorded that one malformed-negative test string was actually balanced. Corrected only fixture input to truly mismatched nesting, kept rejection expectation, and added balanced nested positive counterparts; runtime prefix byte-identical v13/v14. No original source oracle changed."
+    }
+  ],
+  "execution_provenance": {
+    ".cache/kanpo-227/resume90-local-recovery/public-corpus113v14/result113v14.json": "4c1799201a29f8a401dbc87ee5a40af34a7071675ce3ea5bd59833b214537664",
+    ".cache/kanpo-227/resume90-local-recovery/public-corpus113v14/all-canonical-Analysis-hashes113v14.json": "811251026e205e827f0e9837f3dd65bfdb7800818cc2f4d0983c5bb3511d7bbc",
+    ".cache/kanpo-227/resume90-local-recovery/CLI113v14/all-CLI-API-equal113v14.json": "c1a967650f94a9427b5fae5c4f3681d9dd6f0227954c8f04893713eda74adb75",
+    ".cache/kanpo-227/resume90-local-recovery/CLI113v14/lossless-plaintext-archive113v14.json": "eaeb154a0cd20f6e593cf56f81f7c16964a460dd554a5f376bb50831be423775",
+    ".cache/kanpo-227/resume90-local-recovery/public-required-gates-aggregate113v14.json": "b3d3f43778b44614d72794dda22d40c86fb4cb05a60c3f6e75b324f178349f23",
+    ".cache/kanpo-227/resume90-local-recovery/form-title-source113/candidate-v14/whole-issues/result113.json": "7825d395cb8b746774a4151c5221a2ff64b74b02581724b218bd41645f764397",
+    ".cache/kanpo-227/resume90-local-recovery/form-title-source113/candidate-v14/whole-issues/changed-properties113v14.json": "5e6ed9f0ad2a48c09057140420a9b6c2640e48bbd2b61bf57ee748cb8375109a",
+    ".cache/kanpo-227/resume90-local-recovery/public-whole-affected113v14/result113.json": "97a07337f7e306c3b7fca3d37e2e248619a0708f5d2ccbbef25414e62a5e7c66",
+    ".cache/kanpo-227/resume90-local-recovery/public-whole-affected113v14/changed-properties113v14.json": "8ef6cc70296ac6bcbe277190b97d3851e92c6c4e04107cdd479a41e720fae011",
+    ".cache/kanpo-227/resume90-local-recovery/public-private-whole-sequence-equivalence113v14.json": "ae2df04e07be44d47abb5c154fc999ff4ce78bb6c9eb6b356a39dba22dc387a6",
+    ".cache/kanpo-227/resume90-local-recovery/form-title-source113/positive-source-order113/baseline-RED-public-GREEN.json": "22c25ef2b7aea9e6d3bd16d807858051b057f2002731fd857c6880afc16d968a"
+  },
+  "known_remaining": [
+    "Original20260731g001720151 retains its preexisting annex-flow error unchanged; conservative span preservation is not a fix for it.",
+    "Image/outline body omissions, PUA and remaining column/article ownership issues remain.",
+    "NDLOCR0.0.15 later crop/region-order prototypes remain private/held, not adopted by this native change.",
+    "The fixed30-page development audit was not rescored. All source pages/tests are exposed development inputs. 100% is not achieved."
+  ]
+}

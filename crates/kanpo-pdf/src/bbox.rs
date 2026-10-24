@@ -411,6 +411,24 @@ fn native_source_axis(page: &Page, word: &Word) -> Option<&'static str> {
     }
     (raw == word.text).then_some(axis).flatten()
 }
+// Exact original rightward baseline and first-glyph advance. Font metrics
+// may overlap adjacent lines; no rounding/tolerance merges their baselines.
+fn native_flow_tuple(page:&Page,word:&Word)->Option<[f64;4]>{
+    if native_source_axis(page,word)? != "right" {return None;}
+    let first=page.glyphs.get(*word.glyphs.first()?)?;
+    let last=page.glyphs.get(*word.glyphs.last()?)?;
+    let mut rect=poppler_box(first);
+    let mut previous=None;
+    for &i in &word.glyphs{
+        let g=page.glyphs.get(i)?;
+        let b=poppler_box(g);
+        if !g.spacing.is_finite() || !g.kern.is_finite() || g.y!=first.y || !b.iter().all(|n|n.is_finite()) || b[0]>=b[2] || b[1]>=b[3] || previous.is_some_and(|(x,end)|g.x<x || g.end_x<end){return None;}
+        rect[0]=rect[0].min(b[0]);rect[2]=rect[2].max(b[2]);previous=Some((g.x,g.end_x));
+    }
+    if rect != [word.x_min,word.y_min,word.x_max,word.y_max]{return None;}
+    let flow=[first.x,first.y,last.end_x,first.end_x-first.x];
+    (flow.iter().all(|n|n.is_finite()) && flow[0]<flow[2] && flow[3]>0. && flow[3]<=flow[2]-flow[0] && (last.end_x+last.spacing).is_finite() && (flow[3]+first.kern).is_finite()).then_some(flow)
+}
 fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>,Option<&'a [Option<[f64;4]>]>)>, emit_styles:bool) -> String {
     let mut s = String::from(
         "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\
@@ -435,6 +453,7 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
             let ruling=if emit_styles {ink_rects.and_then(|r|crate::source_ruling::word_ruling(page,&word,r)).map(|(axis,[x0,y0,x1,y1])|{
                 format!(" data-native-ruling=\"{axis}\" data-native-ink-xmin=\"{x0}\" data-native-ink-ymin=\"{y0}\" data-native-ink-xmax=\"{x1}\" data-native-ink-ymax=\"{y1}\"")
             }).unwrap_or_default()}else{String::new()};
+            let flow=if emit_styles {native_flow_tuple(page,&word).map(|[start,baseline,end,leading]|{ let trailing=page.glyphs[*word.glyphs.last().unwrap()].spacing; let prefix=page.glyphs[word.glyphs[0]].kern; format!(" data-native-flow-start=\"{start}\" data-native-flow-baseline=\"{baseline}\" data-native-flow-end=\"{end}\" data-native-flow-leading=\"{leading}\" data-native-flow-trailing=\"{trailing}\" data-native-flow-prefix=\"{prefix}\"") }).unwrap_or_default()}else{String::new()};
             let content = if emit_styles {
                 let value = native_content_styles(page, &word, resolved_source).unwrap_or_else(|| "unknown".into());
                 format!(" data-native-content-styles=\"{value}\"")
@@ -446,7 +465,7 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
             let resolved = if resolved_aj1_word(page, &word) { " data-unicode-aj1=\"1\"" } else { "" };
             let _ = writeln!(
                 s,
-                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}{axis}{ruling}>{}</word>\n        </line>\n      </block>\n    </flow>",
+                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}{axis}{ruling}{flow}>{}</word>\n        </line>\n      </block>\n    </flow>",
                 escape(&word.text)
             );
         }
@@ -679,7 +698,7 @@ mod native_style_tests {
         let old = bbox_layout_with_aj1_sources(&sources);
         let mut new = bbox_layout_with_native_styles(&sources);
         assert_eq!(new.matches(" data-native-styles=\"").count(), 2);
-        for attr in ["data-native-styles", "data-native-content-styles", "data-native-axis", "data-native-ruling", "data-native-ink-xmin", "data-native-ink-ymin", "data-native-ink-xmax", "data-native-ink-ymax"] {
+        for attr in ["data-native-flow-start","data-native-flow-baseline","data-native-flow-end","data-native-flow-leading", "data-native-flow-trailing", "data-native-flow-prefix","data-native-styles", "data-native-content-styles", "data-native-axis", "data-native-ruling", "data-native-ink-xmin", "data-native-ink-ymin", "data-native-ink-xmax", "data-native-ink-ymax"] {
             let needle = format!(" {attr}=\"");
             while let Some(start) = new.find(&needle) {
                 let from = start + needle.len();
@@ -699,3 +718,7 @@ mod native_content_style_tests;
 #[cfg(test)]
 #[path="native_axis_tests.rs"]
 mod native_axis_tests;
+
+#[cfg(test)]
+#[path="native_flow_contracts.rs"]
+mod native_flow_contracts;

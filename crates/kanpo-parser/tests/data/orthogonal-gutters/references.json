@@ -1,0 +1,50 @@
+[
+  {
+    "page": "20260731g001720133",
+    "PDF_sha256": "c755c192c220dd077602e96a1502c06cb3cdc7a47a08aad7d9d3233e571dd4a2",
+    "review_scope": "Full original Quick Look render independently reviewed nonblind during development; source order oracle frozen before latest variant. Not a whole-page recognition or accuracy certificate.",
+    "fixture": "crates/kanpo-parser/tests/archive/pages/20260731g00172/20260731g001720133.pdf"
+  },
+  {
+    "page": "20260717h017500021",
+    "PDF_sha256": "23199b350eac0999b91e682283bc3df8ab6e4490ee732d2fb2ce12615b35fc43",
+    "review_scope": "Full original Quick Look render independently reviewed nonblind during development; source order oracle frozen before latest variant. Not a whole-page recognition or accuracy certificate.",
+    "fixture": "crates/kanpo-parser/tests/data/orthogonal-gutters/20260717h017500021.pdf"
+  },
+  {
+    "page": "20260821g001870026",
+    "PDF_sha256": "a686a4121a8266ce02fc90748fa51e04d1c1e26c305a6715bd3702f035761b62",
+    "review_scope": "Full original Quick Look render independently reviewed nonblind during development; source order oracle frozen before latest variant. Not a whole-page recognition or accuracy certificate.",
+    "fixture": "crates/kanpo-parser/tests/data/orthogonal-gutters/20260821g001870026.pdf"
+  },
+  {
+    "page": "20260930g002150052",
+    "PDF_sha256": "0105106fdbda8d75d0bb9597ddc36018427ff0e301b8245854f487cb4319e4c0",
+    "review_scope": "Full original Quick Look render independently reviewed nonblind during development; source order oracle frozen before latest variant. Not a whole-page recognition or accuracy certificate.",
+    "fixture": "crates/kanpo-parser/tests/data/orthogonal-gutters/20260930g002150052.pdf"
+  },
+  {
+    "page": "20260717h017500011",
+    "PDF_sha256": "fe2a7dee744f7776e38db4e161040109bab21ddf58257553d456e4bab6146b0b",
+    "review_scope": "Full original Quick Look render independently reviewed nonblind during development; source order oracle frozen before latest variant. Not a whole-page recognition or accuracy certificate.",
+    "fixture": "crates/kanpo-parser/tests/data/orthogonal-gutters/20260717h017500011.pdf"
+  },
+  {
+    "page": "20260717h017500027",
+    "PDF_sha256": "38b3720d55c65976442698a45d19e33428e2b88d2c871677fdd82418cee38f93",
+    "review_scope": "Full original Quick Look render independently reviewed nonblind during development; source order oracle frozen before latest variant. Not a whole-page recognition or accuracy certificate.",
+    "fixture": "crates/kanpo-parser/tests/data/orthogonal-gutters/20260717h017500027.pdf"
+  },
+  {
+    "page": "20260824g001880032",
+    "PDF_sha256": "25e87cf0c4b66370dfc3343a629e1e6d8f6b9c2ad99f300061c5b1a8284394cc",
+    "review_scope": "Full original Quick Look source reviewed by root before v11; multi-issuer parenthesized source citation must finish all its printed issuer lanes before shared suffix. Current date/signature flow and complete page recognition not certified.",
+    "fixture": "crates/kanpo-parser/tests/data/orthogonal-gutters/20260824g001880032.pdf"
+  },
+  {
+    "page": "20260824g001880036",
+    "PDF_sha256": "7ceb3f7119b0f9a8ba09a1dc447d199844b6386b0a537e68a349e4fee66aa45f",
+    "review_scope": "Full original Quick Look source reviewed by root before v11; multi-issuer parenthesized source citation must finish all its printed issuer lanes before shared suffix. Current date/signature flow and complete page recognition not certified.",
+    "fixture": "crates/kanpo-parser/tests/data/orthogonal-gutters/20260824g001880036.pdf"
+  }
+]

@@ -1,0 +1,200 @@
+{
+  "issue": 227,
+  "iteration": "native99",
+  "status": "adopted after public required gates and full API/actual CLI validation",
+  "baseline": {
+    "primary_commit": "3a5647d599ba5ddc9a945a26b50303d22ac3ddec",
+    "published_PR237_commit": "9013f22c8ce884c23049c6cd65360a0a12faf387"
+  },
+  "change": {
+    "rule": "U+2212 mathematical minus belongs to the existing numeric-sign alphabet and cannot turn adjacent numeric records into a stacked vertical field name.",
+    "production_diff": "one additional sign in horizontal::stacked; existing other guards are retained",
+    "not_added": [
+      "page or company branches",
+      "expected-output comparisons",
+      "new character/line/column count cutoffs",
+      "dictionary correction",
+      "OCR or model inference"
+    ]
+  },
+  "source": {
+    "source_pdf": "20260724g001660077.pdf",
+    "sha256": "dd4c007a5379bcacb55609303c3afac82481394fd7e47cecba25e7cb99e79753",
+    "native_words": {
+      "current_liabilities_amount": {
+        "id": 1,
+        "raw": "51"
+      },
+      "fixed_liabilities_no_value": {
+        "id": 2,
+        "raw": "−"
+      }
+    },
+    "reference": "Original upper-right financial notice: current liabilities51; fixed liabilities separate printed no-value minus; total liabilities51. Nonblind source review; row labels and word identities are regression-test oracles, not runtime branches."
+  },
+  "tests": {
+    "added": 3,
+    "numeric_counterfactuals": "3decimalvalues ×5signs ×3scales plus translation; vertical-label positive control",
+    "original_pdf": "portable repository fixture; separate amount rows, source labels and unique sourceWord ownership",
+    "RED": "1432passed2failed0ignored; canonical-minus metamorphic case and original source fail on97; genuine vertical-label control passes",
+    "private_GREEN": "1434passed0failed0ignored",
+    "public_required_gates": {
+      "terminal": 0,
+      "source_manifest_sha256": "9e77ffada5317a0eae4a5387d0a0b9abe9edd315696e5e226f34c17e29754aaf",
+      "commands": 118,
+      "integration_targets": 109,
+      "passed": 2166,
+      "failed": 0,
+      "ignored": 0,
+      "result_groups": 117,
+      "no_expected_snapshot_updates": true,
+      "all_commands_exit0": true
+    },
+    "all814_snapshot_bytes_unchanged": true,
+    "goldens_updated": false
+  },
+  "full_comparison": {
+    "terminal": 0,
+    "inputs": 11992,
+    "processed": 11992,
+    "changed": [
+      "20260724g001660077"
+    ],
+    "complete_Analysis_equal_to97": 11991,
+    "source_inputs_reference_binary_verified": true,
+    "seconds": 575.125374375,
+    "scope": "Public99 full API complete-Analysis comparison against independently executed/frozen serial97 canonical hashes. Four-worker observer validated on115 pages with same public97 library; no field exclusion. Not an accuracy estimate.",
+    "all_complete_Analysis_equal_private99": true
+  },
+  "changed_page_properties": {
+    "page": "20260724g001660077",
+    "all_other_complete_Analysis_fields_exact_after_only_target_cell_split_and_document_text_mirrors": true,
+    "all_original_Word_fields_preserved": true,
+    "article_counts": [
+      8,
+      8
+    ],
+    "nonwhitespace_character_multiset_preserved": true,
+    "table_envelope_rows_cols_preserved": true,
+    "other_complete_cells_preserved": 30,
+    "removed_cells": [],
+    "changed_existing_cell": {
+      "row": 2,
+      "col": 3,
+      "before": {
+        "row": 2,
+        "col": 3,
+        "rowspan": 1,
+        "colspan": 1,
+        "x0": 490.0,
+        "y0": 142.0,
+        "x1": 540.25,
+        "y1": 159.0,
+        "text": "51−",
+        "words": [
+          1,
+          2
+        ]
+      },
+      "after": {
+        "row": 2,
+        "col": 3,
+        "rowspan": 1,
+        "colspan": 1,
+        "x0": 490.0,
+        "y0": 142.0,
+        "x1": 540.25,
+        "y1": 159.0,
+        "text": "51",
+        "words": [
+          1
+        ]
+      }
+    },
+    "added_cell": {
+      "row": 3,
+      "col": 3,
+      "rowspan": 1,
+      "colspan": 1,
+      "x0": 490.0,
+      "y0": 142.0,
+      "x1": 540.25,
+      "y1": 159.0,
+      "text": "−",
+      "words": [
+        2
+      ]
+    },
+    "document_table_mirror_checked": true,
+    "source_review": {
+      "renderer": "CoreGraphics144DPI",
+      "image": ".cache/kanpo-227/resume90-local-recovery/fresh30-source98/20260724g001660077.png",
+      "image_sha256": "c1d59efcfa24d8038f79c85378dfa43f633169e44f88d163933106c96cc00a14",
+      "finding": "Original upper-right financial notice prints current liabilities 51, fixed liabilities a separate no-value minus, total liabilities51. Physical rows agree with native Word1/2 positions. Root nonblind development review; no page-wide OCR or accuracy certification."
+    },
+    "text_diff": "--- \n+++ \n@@ -26,8 +26,8 @@\n (2025年12月31日現在)(単位：百万ドル)\n 資産の部　　負債及び純資産の部\n 科目　金額　科目　金額\n-流動資産　53　流動負債　51−\n-固定資産　1,319　固定負債\n+流動資産　53　流動負債　51\n+固定資産　1,319　固定負債　−\n 　　負債合計　51\n 　　株主資本　1,561\n 　　資本剰余金　1,115\n"
+  },
+  "actual_CLI": {
+    "result": {
+      "terminal": 0,
+      "inputs": 11992,
+      "output_count": 11992,
+      "seconds": 446.997101708,
+      "frozen_inputs_binary_and_CLI_source_verified": true,
+      "public_parser_source_verified": true
+    },
+    "all11992_text_sha256_equal_independently_executed_API": true
+  },
+  "evidence": {
+    "candidate99-RED-tests.log": {
+      "path": ".cache/kanpo-227/resume90-local-recovery/candidate99-RED-tests.log",
+      "sha256": "e752e05cef4d769f2244c2714bb56c814771be3f2c0b09f6ddbfc6427e5d939a"
+    },
+    "candidate99-GREEN-tests.log": {
+      "path": ".cache/kanpo-227/resume90-local-recovery/candidate99-GREEN-tests.log",
+      "sha256": "8e73670881608d689b778d7689b9039596024247db3b9526d4b9c9eff06681c9"
+    },
+    "public-gates99/result99.json": {
+      "path": ".cache/kanpo-227/resume90-local-recovery/public-gates99/result99.json",
+      "sha256": "cc32ba40660ac455d8e1e59352caeece9be13d7d5b8090c227fb780b1cbfea3c"
+    },
+    "public-gates99/source-manifest99.json": {
+      "path": ".cache/kanpo-227/resume90-local-recovery/public-gates99/source-manifest99.json",
+      "sha256": "9e77ffada5317a0eae4a5387d0a0b9abe9edd315696e5e226f34c17e29754aaf"
+    },
+    "public-corpus99/result99.json": {
+      "path": ".cache/kanpo-227/resume90-local-recovery/public-corpus99/result99.json",
+      "sha256": "f3737b318f41ea06405c53cb3eb344d9e89b1d3c9a65f33ca57cd129df7bf0e7"
+    },
+    "public-corpus99/all-canonical-Analysis-hashes99.json": {
+      "path": ".cache/kanpo-227/resume90-local-recovery/public-corpus99/all-canonical-Analysis-hashes99.json",
+      "sha256": "23e5abdd0649ec0c7b772a3bdfd8c0ec81249d6b9a1cce7e091329e443f0e7b5"
+    },
+    "CLI99/terminal99.json": {
+      "path": ".cache/kanpo-227/resume90-local-recovery/CLI99/terminal99.json",
+      "sha256": "a20903805cd15369f6f4eda6cc60216502bedbbbf05dd3f57c5fea6a0d9da2fb"
+    },
+    "CLI99/API-CLI-equality99.json": {
+      "path": ".cache/kanpo-227/resume90-local-recovery/CLI99/API-CLI-equality99.json",
+      "sha256": "bd033d09f215414842457cca18fcb08629da47bd5d665b37338ec684d2ef16ac"
+    },
+    "snapshot-byte-preservation99.json": {
+      "path": ".cache/kanpo-227/resume90-local-recovery/snapshot-byte-preservation99.json",
+      "sha256": "3a45d593b6948bfe7494fc49e118649182c7f5590f6bea149f18f0685e84e7bf"
+    },
+    "source-and-full-result-properties99.json": {
+      "path": ".cache/kanpo-227/resume90-local-recovery/source-and-full-result-properties99.json",
+      "sha256": "caae6e555f3a9cc6a25899e5746f25ea8b0d399e17418e7572f2cbcb64b5de86"
+    },
+    "parallel97-proof/result.json": {
+      "path": ".cache/kanpo-227/resume90-local-recovery/parallel97-proof/result.json",
+      "sha256": "d4fdac5f664eeb4d50d9ad16bfaa2de3ff16a6c8dcd632acbaf859c78bf902e6"
+    }
+  },
+  "limits": [
+    "Root nonblind development source review; no global/blind accuracy estimate.",
+    "Fresh98 sample is now development data; its frozen historical grades are not revised.",
+    "This fixes one numeric-symbol omission in existing logic, not every legacy heuristic.",
+    "Image-only bodies, unresolved glyphs, headerless comparison fields and remaining order/ownership defects still exist.100% is not achieved."
+  ]
+}

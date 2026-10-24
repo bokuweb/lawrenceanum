@@ -1,0 +1,15 @@
+{
+  "source_pdf": "20260724g001660077.pdf",
+  "sha256": "dd4c007a5379bcacb55609303c3afac82481394fd7e47cecba25e7cb99e79753",
+  "native_words": {
+    "current_liabilities_amount": {
+      "id": 1,
+      "raw": "51"
+    },
+    "fixed_liabilities_no_value": {
+      "id": 2,
+      "raw": "−"
+    }
+  },
+  "reference": "Original upper-right financial notice: current liabilities51; fixed liabilities separate printed no-value minus; total liabilities51. Nonblind source review; row labels and word identities are regression-test oracles, not runtime branches."
+}

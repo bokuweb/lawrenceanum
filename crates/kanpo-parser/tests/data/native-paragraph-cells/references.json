@@ -1,0 +1,420 @@
+{
+  "scope": "Next native issue118: root original fullpage and original7physicalrow grids verified. Folded left field label is one native cell and must finish before right summary/reason sections. All14 memberships in each of2tables independently rechecked by complete Used Word.source_box enclosure and source center-line order. Frozen before any118runtime prototype. Current117 full-negative control knowingly preserves this remaining defect. No publication changes yet.",
+  "baseline117_primary": "03fb86204a75c05d697bf849fe5d524dc966719d",
+  "baseline117_PR": "133ac141d404afb0b2cfe53395f7ad3d9988d5ab",
+  "files": {
+    "crates/kanpo-parser/tests/data/native-sentence-cells/20261016g002280625.pdf": "564d1d59a1ea1ad92e36842304fd12beaf339d839c1140102bced9cbfbc26506",
+    ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280624.pdf": "b5b9dadba25c30ffd9a3a1f656d762898ed8fb7361a4cbc8f28f31b2ea9da758",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/source-review/20261016g002280625.pdf.png": "95c37cf710e5b72687c66e64aac3a9c00785930c62b8fc8014513fb2edfa63fe",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/source-review/20261016g002280625-grids.txt": "98b49d89a65fa85fb532958efb4ece66ab7053f53c60a13b28ca9490d42b6352"
+  },
+  "expected": [
+    {
+      "anchor": 26,
+      "rows": 7,
+      "cols": 2,
+      "cells": [
+        {
+          "row": 0,
+          "col": 0,
+          "source_box": [
+            437.5,
+            227.714,
+            548.5,
+            244.143
+          ],
+          "words": [
+            68,
+            53
+          ]
+        },
+        {
+          "row": 0,
+          "col": 1,
+          "source_box": [
+            548.5,
+            227.714,
+            780.5,
+            244.143
+          ],
+          "words": [
+            23
+          ]
+        },
+        {
+          "row": 1,
+          "col": 0,
+          "source_box": [
+            437.5,
+            244.143,
+            548.5,
+            260.571
+          ],
+          "words": [
+            69,
+            54
+          ]
+        },
+        {
+          "row": 1,
+          "col": 1,
+          "source_box": [
+            548.5,
+            244.143,
+            780.5,
+            260.571
+          ],
+          "words": [
+            42
+          ]
+        },
+        {
+          "row": 2,
+          "col": 0,
+          "source_box": [
+            437.5,
+            260.571,
+            548.5,
+            277.0
+          ],
+          "words": [
+            70,
+            55
+          ]
+        },
+        {
+          "row": 2,
+          "col": 1,
+          "source_box": [
+            548.5,
+            260.571,
+            780.5,
+            277.0
+          ],
+          "words": [
+            43
+          ]
+        },
+        {
+          "row": 3,
+          "col": 0,
+          "source_box": [
+            437.5,
+            277.0,
+            548.5,
+            293.429
+          ],
+          "words": [
+            71
+          ]
+        },
+        {
+          "row": 3,
+          "col": 1,
+          "source_box": [
+            548.5,
+            277.0,
+            780.5,
+            293.429
+          ],
+          "words": [
+            13,
+            10,
+            7,
+            4,
+            1
+          ]
+        },
+        {
+          "row": 4,
+          "col": 0,
+          "source_box": [
+            437.5,
+            293.429,
+            548.5,
+            325.857
+          ],
+          "words": [
+            72
+          ]
+        },
+        {
+          "row": 4,
+          "col": 1,
+          "source_box": [
+            548.5,
+            293.429,
+            780.5,
+            325.857
+          ],
+          "words": [
+            44,
+            24,
+            25
+          ]
+        },
+        {
+          "row": 5,
+          "col": 0,
+          "source_box": [
+            437.5,
+            325.857,
+            548.5,
+            358.286
+          ],
+          "words": [
+            73,
+            74,
+            75
+          ]
+        },
+        {
+          "row": 5,
+          "col": 1,
+          "source_box": [
+            548.5,
+            325.857,
+            780.5,
+            358.286
+          ],
+          "words": [
+            26,
+            27,
+            28
+          ]
+        },
+        {
+          "row": 6,
+          "col": 0,
+          "source_box": [
+            437.5,
+            358.286,
+            548.5,
+            390.75
+          ],
+          "words": [
+            76
+          ]
+        },
+        {
+          "row": 6,
+          "col": 1,
+          "source_box": [
+            548.5,
+            358.286,
+            780.5,
+            390.75
+          ],
+          "words": [
+            45,
+            29,
+            30
+          ]
+        }
+      ]
+    },
+    {
+      "anchor": 33,
+      "rows": 7,
+      "cols": 2,
+      "cells": [
+        {
+          "row": 0,
+          "col": 0,
+          "source_box": [
+            437.5,
+            393.5,
+            548.5,
+            410.0
+          ],
+          "words": [
+            77,
+            56
+          ]
+        },
+        {
+          "row": 0,
+          "col": 1,
+          "source_box": [
+            548.5,
+            393.5,
+            780.5,
+            410.0
+          ],
+          "words": [
+            31
+          ]
+        },
+        {
+          "row": 1,
+          "col": 0,
+          "source_box": [
+            437.5,
+            410.0,
+            548.5,
+            426.5
+          ],
+          "words": [
+            78,
+            57
+          ]
+        },
+        {
+          "row": 1,
+          "col": 1,
+          "source_box": [
+            548.5,
+            410.0,
+            780.5,
+            426.5
+          ],
+          "words": [
+            46
+          ]
+        },
+        {
+          "row": 2,
+          "col": 0,
+          "source_box": [
+            437.5,
+            426.5,
+            548.5,
+            443.0
+          ],
+          "words": [
+            79,
+            58
+          ]
+        },
+        {
+          "row": 2,
+          "col": 1,
+          "source_box": [
+            548.5,
+            426.5,
+            780.5,
+            443.0
+          ],
+          "words": [
+            47
+          ]
+        },
+        {
+          "row": 3,
+          "col": 0,
+          "source_box": [
+            437.5,
+            443.0,
+            548.5,
+            459.5
+          ],
+          "words": [
+            80
+          ]
+        },
+        {
+          "row": 3,
+          "col": 1,
+          "source_box": [
+            548.5,
+            443.0,
+            780.5,
+            459.5
+          ],
+          "words": [
+            14,
+            11,
+            8,
+            5,
+            2
+          ]
+        },
+        {
+          "row": 4,
+          "col": 0,
+          "source_box": [
+            437.5,
+            459.5,
+            548.5,
+            484.0
+          ],
+          "words": [
+            81
+          ]
+        },
+        {
+          "row": 4,
+          "col": 1,
+          "source_box": [
+            548.5,
+            459.5,
+            780.5,
+            484.0
+          ],
+          "words": [
+            48,
+            32
+          ]
+        },
+        {
+          "row": 5,
+          "col": 0,
+          "source_box": [
+            437.5,
+            484.0,
+            548.5,
+            516.5
+          ],
+          "words": [
+            82,
+            83,
+            84
+          ]
+        },
+        {
+          "row": 5,
+          "col": 1,
+          "source_box": [
+            548.5,
+            484.0,
+            780.5,
+            516.5
+          ],
+          "words": [
+            33,
+            34,
+            35
+          ]
+        },
+        {
+          "row": 6,
+          "col": 0,
+          "source_box": [
+            437.5,
+            516.5,
+            548.5,
+            549.0
+          ],
+          "words": [
+            85
+          ]
+        },
+        {
+          "row": 6,
+          "col": 1,
+          "source_box": [
+            548.5,
+            516.5,
+            780.5,
+            549.0
+          ],
+          "words": [
+            49,
+            36,
+            37
+          ]
+        }
+      ]
+    }
+  ]
+}

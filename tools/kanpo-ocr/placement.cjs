@@ -84,6 +84,10 @@ function projectLayout(observations,frame) {
   }
   if(!Array.isArray(out.blocks))throw new Error('Expected OCR block array');
   for(const b of out.blocks)visit(b,'paragraphs','lines');
+  if(Object.hasOwn(out,'recognition_regions')){
+    if(!Array.isArray(out.recognition_regions))throw new Error('Expected recognition region array');
+    for(const region of out.recognition_regions)visit(region,null,null);
+  }
   out.kind='unclassified_ocr_projection';out.declared_placement=structuredClone(frame);out.visibility='unverified';out.source_binding='declared_unverified';
   return out;
 }

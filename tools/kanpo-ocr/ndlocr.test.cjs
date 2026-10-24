@@ -63,3 +63,33 @@ test('unverified or replaced binaries fail before recognition and output creatio
   }
   fs.unlinkSync(binary+'.kanpo-build.json');await assert.rejects(run(options),/receipt/);assert.equal(fs.existsSync(options.output),false);
 }));
+
+function tracingEngine(options,invalid=false){
+ fs.writeFileSync(options['ndlocr-bin'],`#!/usr/bin/env node
+const fs=require('node:fs'),args=process.argv.slice(2);
+const text='生の\\n認識領域';
+fs.writeFileSync(args[args.indexOf('--output-txt')+1],text);
+const index=args.indexOf('--trace-json');
+if(index<0)process.exit(9);
+fs.writeFileSync(args[index+1],JSON.stringify({schema_version:1,width:2,height:3,settings:{structure_rules:false,quality_boost:false,use_deim_detection:true,det_conf_threshold:0.25,min_line_confidence:Math.fround(0.3)},body:text,stages:{reading_order:[{bbox:[0,0,2,${invalid?4:3}],text,confidence:0.8,is_vertical:true}]}}));
+console.log(JSON.stringify(args));
+`,{mode:0o700});receipt(options['ndlocr-bin']);
+}
+test('explicit NDLOCR regions use the same recognition pass and save raw trace',()=>harness(async options=>{
+ tracingEngine(options);
+ const result=await run({...options,'ndlocr-regions':true});
+ assert.equal(result.text,'生の\n認識領域');assert.equal(result.layout_available,true);assert.deepEqual(result.blocks,[]);
+ assert.equal(result.recognition_regions.length,1);assert.equal(result.recognition_regions[0].text,result.text);
+ assert.deepEqual(result.recognition_regions[0].bbox.pixels,{x0:0,y0:0,x1:2,y1:3});
+ assert.equal(result.article_assignment,null);assert.equal(result.native_glyph_binding,null);
+ assert.equal(result.engine_result.trace_sha256,crypto.createHash('sha256').update(fs.readFileSync(path.join(options.output,'trace.json'))).digest('hex'));
+ assert.equal(JSON.parse(fs.readFileSync(path.join(options.output,'terminal.json'))).recognition_runs,1);
+}));
+test('malformed trace retains raw diagnostics but does not emit observations or retry',()=>harness(async options=>{
+ tracingEngine(options,true);
+ await assert.rejects(run({...options,'ndlocr-regions':true}),/NDLOCR trace/);
+ assert.equal(fs.existsSync(path.join(options.output,'trace.json')),true);
+ assert.equal(fs.existsSync(path.join(options.output,'recognized.txt')),true);
+ assert.equal(fs.existsSync(path.join(options.output,'observations.json')),false);
+ assert.equal(JSON.parse(fs.readFileSync(path.join(options.output,'terminal.json'))).status,'failed');
+}));

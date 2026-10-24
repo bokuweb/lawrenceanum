@@ -1,0 +1,225 @@
+{
+  "scope": "Root fulloriginal reviewed. Each lower inner table has a header and one native physical body row, three columns; wrapped explanation and its ordinal reference are not independent neighboring records. All6 physical source memberships additionally verified by original Word.source_box enclosure; complete originalWord IDs are test witnesses only. No runtime prototype yet.",
+  "PDFs": {
+    "crates/kanpo-parser/tests/data/source-ruling-sections/20260930g002150345.pdf": "b272637a1377d275defef35443a4fb722b957e496a5101160c47889585013543",
+    "crates/kanpo-parser/tests/data/ruled-cell-flow/20260930g002150344.pdf": "d7008e209fa8286cb715d988f93db615b2018b798d4a003d3df37b7d07a01723"
+  },
+  "expected": {
+    "after": {
+      "rows": 2,
+      "cols": 3,
+      "cells": [
+        {
+          "col": 0,
+          "physical_row": 0,
+          "source_box": [
+            83.25,
+            296.786,
+            267.25,
+            312.929
+          ],
+          "words": [
+            123
+          ]
+        },
+        {
+          "col": 1,
+          "physical_row": 0,
+          "source_box": [
+            267.25,
+            296.786,
+            339.25,
+            312.929
+          ],
+          "words": [
+            90
+          ]
+        },
+        {
+          "col": 2,
+          "physical_row": 0,
+          "source_box": [
+            339.25,
+            296.786,
+            411.25,
+            312.929
+          ],
+          "words": [
+            66
+          ]
+        },
+        {
+          "col": 0,
+          "physical_row": 1,
+          "source_box": [
+            83.25,
+            312.929,
+            267.25,
+            549.0
+          ],
+          "words": [
+            124,
+            119,
+            122,
+            102
+          ]
+        },
+        {
+          "col": 1,
+          "physical_row": 1,
+          "source_box": [
+            267.25,
+            312.929,
+            339.25,
+            549.0
+          ],
+          "words": [
+            91
+          ]
+        },
+        {
+          "col": 2,
+          "physical_row": 1,
+          "source_box": [
+            339.25,
+            312.929,
+            411.25,
+            549.0
+          ],
+          "words": [
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            74,
+            75,
+            76,
+            77,
+            78,
+            79,
+            80,
+            81,
+            63,
+            83,
+            84,
+            85,
+            86,
+            87
+          ]
+        }
+      ],
+      "anchor": 67
+    },
+    "before": {
+      "rows": 2,
+      "cols": 3,
+      "cells": [
+        {
+          "col": 0,
+          "physical_row": 0,
+          "source_box": [
+            438.75,
+            296.786,
+            622.75,
+            312.929
+          ],
+          "words": [
+            53
+          ]
+        },
+        {
+          "col": 1,
+          "physical_row": 0,
+          "source_box": [
+            622.75,
+            296.786,
+            694.75,
+            312.929
+          ],
+          "words": [
+            27
+          ]
+        },
+        {
+          "col": 2,
+          "physical_row": 0,
+          "source_box": [
+            694.75,
+            296.786,
+            766.75,
+            312.929
+          ],
+          "words": [
+            3
+          ]
+        },
+        {
+          "col": 0,
+          "physical_row": 1,
+          "source_box": [
+            438.75,
+            312.929,
+            622.75,
+            549.0
+          ],
+          "words": [
+            54,
+            49,
+            52,
+            35
+          ]
+        },
+        {
+          "col": 1,
+          "physical_row": 1,
+          "source_box": [
+            622.75,
+            312.929,
+            694.75,
+            549.0
+          ],
+          "words": [
+            28
+          ]
+        },
+        {
+          "col": 2,
+          "physical_row": 1,
+          "source_box": [
+            694.75,
+            312.929,
+            766.75,
+            549.0
+          ],
+          "words": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            1,
+            20,
+            21,
+            22,
+            23
+          ]
+        }
+      ],
+      "anchor": 4
+    }
+  },
+  "previous_hypothesis_correction": "h01810p2 standalone already has complete37+29cell order under actual116; not a remaining reading bug. Frozen no-change diagnostic retained separately."
+}

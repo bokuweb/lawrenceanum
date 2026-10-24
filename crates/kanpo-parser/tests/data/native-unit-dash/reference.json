@@ -1,0 +1,30 @@
+{
+  "source": "20261016g002280433",
+  "PDF_sha256": "6f95eb99a2e1b44f3a66d07d1f70e8185d88dfbde226008a42336ebc73ab615d",
+  "full_original_render_sha256": "dabc93b38540b005990119bec5711ca8d2e168e632d1f855c0d5d068ce0695f9",
+  "source_crop_sha256": "9ae62e9cf1083263e2ee417bc93319bb892538ba0e85683823b9da8f28df30ba",
+  "reviewer": "root nonblind original source development review; selected from frozen fresh98minor, not unseen evaluation",
+  "source_word": {
+    "id": 12,
+    "raw": "U+E61C",
+    "known_normalization": "U+FF0D, fullwidth hyphen-minus",
+    "bounds_pt": [
+      717,
+      508.8597,
+      725,
+      517.0437
+    ],
+    "unit_word": 0,
+    "unit_text": "千円",
+    "unit_bounds_pt": [
+      733,
+      508.8597,
+      749,
+      517.0437
+    ],
+    "current_line": 91,
+    "existing_normalization_behavior": "Standalone source dash deliberately discarded before layout; restore only after field/line ownership is proven."
+  },
+  "expected_scope": "One original glyph and its sourceWord ownership/text mirrors; all other complete Analysis fields unchanged. No word/glyph/character count accuracy percentage.",
+  "baseline104_json_sha256": "2330ea7ad70a86bb56093199ed3f505e82dbf8a2abba1c09a19895319f2b66c3"
+}

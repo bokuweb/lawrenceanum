@@ -615,6 +615,7 @@ mod legal_role_original_tests;
 mod closed_frame_continuation_original_tests;
 
 mod native_word_axes;
+mod native_role_continuation;
 
 #[cfg(test)]
 mod financial_original_source_tests;
@@ -625,3 +626,57 @@ mod native_word_rulings;
 
 #[cfg(test)]
 mod source_frame_fences_original_tests;
+
+#[cfg(test)]
+mod enclosed_warichu_original_tests;
+
+#[cfg(test)]
+mod composed_inline_pipeline_tests;
+
+#[cfg(test)]
+mod frame_boundary_original_tests;
+
+#[cfg(test)]
+mod frame_projection_counterfactual_tests;
+
+#[cfg(test)]
+mod source_table_border_original_tests;
+
+#[cfg(test)]
+mod source_auxiliary_original_tests;
+
+#[cfg(test)]
+mod source_shared_note_original_tests;
+
+#[cfg(test)]
+mod source_numeric_sign_original_tests;
+
+#[cfg(test)]
+mod ruled_marker_original_tests;
+
+#[cfg(test)]
+mod ruled_marker_existing_layout_tests;
+
+mod native_unit_dash;
+
+#[cfg(test)]
+mod source_unit_dash_original_tests;
+
+#[cfg(test)]
+mod orthogonal_gutters_original_tests;
+
+mod ruled_cell_flow;
+
+#[cfg(test)]
+mod native_role_contracts;
+#[cfg(test)]
+mod native_role_caption_contracts;
+
+mod native_sentence_cells;
+
+#[cfg(test)]
+mod native_sentence_contracts;
+
+mod native_word_flow;
+
+mod native_paragraph_scope;

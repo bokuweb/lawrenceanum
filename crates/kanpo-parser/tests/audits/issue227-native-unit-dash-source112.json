@@ -1,0 +1,305 @@
+{
+  "issue": "https://github.com/bokuweb/lawrenceanum/issues/227",
+  "iteration": 81,
+  "status": "native112 adopted after all required gates/full original API+actualCLI validation; root nonblind development evidence, 100% not reached",
+  "baseline": {
+    "primary_commit": "f9ede5652abd63c59b9fdbf31a85f196b2581d7f",
+    "clean_PR237_commit": "8ab2c147a6fe1dbab0031fc4300bc781a80d9b40",
+    "runtime": "native104"
+  },
+  "change": {
+    "stage": "After existing layout and correction, both vertical::analyze_pages_with_rules exits; no pre-layout grouping change.",
+    "source": "Original Empty U+E61C (existing fullwidth hyphen-minus mapping), complete native glyph advance bounds, explicit rightward axes, known finite positive source styles, unique source ID/line ownership.",
+    "quantity_proof": "Derive the nonempty alphabetic unit suffix, numeric tail extent, unit right edge/style and numeric fonts from an already-owned numeric sibling line. Require matching unit/right edge/style and observed numeric font support for source dash.",
+    "negative_evidence": "Foreign source occurrence in witness numeric field or dash/unit corridor, crossing/separating rulings, incomplete or ambiguous source metadata, duplicate marks/owners, changed/generated quantity suffix or numeric tail all hold recovery.",
+    "text_preservation": "Insert only the original dash at the existing mapped terminal unit text offset; preserve unrelated corrected label bytes/trailing whitespace, all preexisting Tables and classified comparison units.",
+    "no_new": "No page/company/title/expected-output selector, hardcoded unit names or new text/line/row/digit/distance cutoff. Existing unrelated heuristics are not all generalized.",
+    "limit": "Unit grammar is conservative numeric-prefix + alphabetic suffix, target raw==text. Original glyph advance bounds are not certified visible ink."
+  },
+  "source_review": {
+    "source": "20261016g002280433",
+    "PDF_sha256": "6f95eb99a2e1b44f3a66d07d1f70e8185d88dfbde226008a42336ebc73ab615d",
+    "full_original_render_sha256": "dabc93b38540b005990119bec5711ca8d2e168e632d1f855c0d5d068ce0695f9",
+    "source_crop_sha256": "9ae62e9cf1083263e2ee417bc93319bb892538ba0e85683823b9da8f28df30ba",
+    "reviewer": "root nonblind original source development review; selected from frozen fresh98minor, not unseen evaluation",
+    "source_word": {
+      "id": 12,
+      "raw": "U+E61C",
+      "known_normalization": "U+FF0D, fullwidth hyphen-minus",
+      "bounds_pt": [
+        717,
+        508.8597,
+        725,
+        517.0437
+      ],
+      "unit_word": 0,
+      "unit_text": "千円",
+      "unit_bounds_pt": [
+        733,
+        508.8597,
+        749,
+        517.0437
+      ],
+      "current_line": 91,
+      "existing_normalization_behavior": "Standalone source dash deliberately discarded before layout; restore only after field/line ownership is proven."
+    },
+    "expected_scope": "One original glyph and its sourceWord ownership/text mirrors; all other complete Analysis fields unchanged. No word/glyph/character count accuracy percentage.",
+    "baseline104_json_sha256": "2330ea7ad70a86bb56093199ed3f505e82dbf8a2abba1c09a19895319f2b66c3"
+  },
+  "regressions": {
+    "added_public": 21,
+    "counterfactual_tests": 17,
+    "original_and_cross_page_tests": 4,
+    "required_gates": {
+      "terminal": 0,
+      "source_manifest_sha256": "f09c69fd4a493f04ac70ac3ecb4e59752ad552568dc3f68bdece9371d99a3bf6",
+      "commands": 118,
+      "integration_targets": 109,
+      "passed": 2231,
+      "failed": 0,
+      "ignored": 0,
+      "result_groups": 117,
+      "no_expected_snapshot_updates": true,
+      "all_commands_exit0": true
+    },
+    "parser_unit_passed": 1499,
+    "snapshots": {
+      "count": 814,
+      "all_bytes_equal104": true,
+      "frozen104_manifest_sha256": "cbad0ff8ddedb72a284fd221403dee1e57c9495cf93fc261f975a69f13015272"
+    },
+    "inputs": "3 portable original PDFs plus previous complete source Analysis; no cache paths needed by public tests."
+  },
+  "pre_fix_failures": {
+    "original": {
+      "passed": 1,
+      "failed": 1,
+      "ignored": 0,
+      "scope": "Frozen adopted104source plus original-source regression. Original lacksprinted sourceWord12beforeunitWord0; metadata-only diagnostic passes. No public runtime edit.",
+      "log_sha256": "06d274b262ca152634b32d007b391d7f4a15bb4b8383f3d4c0c995c58663b1e7"
+    },
+    "cross_unit_duplicate": {
+      "passed": 0,
+      "failed": 1,
+      "ignored": 0,
+      "scope": "v1runtime duplicates one original dash across two independently owned source quantity units. New source-ownership counterfactual fails before generic uniqueness fix; not adopted.",
+      "log_sha256": "ceda0310fb718fe77e36e65b8528171392f1ff6d30b317bf6275edc1214c0ad8"
+    },
+    "unrelated_corrected_prefixes": {
+      "passed": 15,
+      "failed": 2,
+      "ignored": 0,
+      "scope": "v3whole-line text requirement incorrectly holds a source quantity because of an unrelated corrected label. Positive target/witness prefix counterfactuals fail; changed/generated unit and numeric tails still held.",
+      "log_sha256": "118c8114a1113691f16386bd61b405512392c360cd935953c8bf448a1a9e389e"
+    },
+    "final_private_unit": {
+      "passed": 1497,
+      "failed": 0,
+      "ignored": 0,
+      "source_prepost_verified": true,
+      "source_manifest_sha256": "9a7a951e39d867e22a6c08b388c3e36f636856f1d9f2751d344d08b0a8e648a0",
+      "log_sha256": "2e6b0958fe74db5b1eb84a51b00fc7b86f152a535695117fc66f826941790ade",
+      "scope": "Private v4tail-only alignment preserves unrelated corrected labels; original/ownership/metadata counterfactuals allgreen. No public adoption."
+    }
+  },
+  "single_page_complete_Analysis": {
+    "terminal": 0,
+    "inputs": 11992,
+    "processed": 11992,
+    "changed": [
+      "20261016g002280433"
+    ],
+    "complete_Analysis_equal_to104": 11991,
+    "source_inputs_reference_binary_verified": true,
+    "seconds": 947.0408935,
+    "scope": "Public112complete Analysis on every original vs independently executed/frozen adopted104. No excluded fields; not an accuracy estimate or adoption approval. Changed originals must be source-reviewed."
+  },
+  "exact_public_source_delta": {
+    "page": "20261016g002280433",
+    "full_Analysis_only_changed_paths": [
+      "$.pages[0].words[12].text",
+      "$.pages[0].words[12].status",
+      "$.pages[0].regions[0].lines[91].text",
+      "$.pages[0].regions[0].lines[91].words",
+      "$.pages[0].text",
+      "$.text",
+      "$.articles[0].text",
+      "$.articles[0].document.blocks[0].runs[0].text"
+    ],
+    "removed_nonwhite_characters": {},
+    "added_nonwhite_characters": {
+      "－": 1
+    },
+    "source_word_ids_before": [
+      0
+    ],
+    "source_word_ids_after": [
+      12,
+      0
+    ],
+    "all_other_full_Analysis_fields_exact104": true,
+    "independently_reexecuted_baseline104": {
+      "pages": [
+        "20261016g002280433"
+      ],
+      "all_full_Analysis_equal_frozen104_hashes": true,
+      "binaries_prepost_verified": true,
+      "frozen": {
+        "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/public-parallel104-stream": "4353b424eaa8614af9c8c8e695fdcd912f12f97f471f90aaa4336037379ac9fa",
+        "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/libkanpo_parser_public104.rlib": "50ba3a88d511d3d6015648e9ea041010308f0ca8fd772cd748b0a72cf855ecb5"
+      }
+    },
+    "scope": "Exact fullAnalysis delta checked with independently executed104, source Word12 U+E61C observed before implementation."
+  },
+  "public_and_final_private_all11992": {
+    "pages": 11992,
+    "mismatches": [],
+    "private_manifest_sha256": "2f2b6128a05230901b82b89f953751a31992c2af6f9ed8098fcafe7c5dbe86cb",
+    "scope": "Independentpublic112run completeAnalysis/text vs finalprivate109v4onalloriginals, notaccuracyestimate."
+  },
+  "actual_CLI": {
+    "terminal": 0,
+    "inputs": 11992,
+    "output_count": 11992,
+    "seconds": 719.2179355,
+    "frozen_inputs_binary_and_CLI_source_verified": true,
+    "public_parser_source_verified": true
+  },
+  "actual_CLI_API_equality": {
+    "pages": 11992,
+    "mismatches": [],
+    "API_hash_manifest_sha256": "148063d62f42144cee97b944d4967187ea224b830f31862d08a01babb6611569",
+    "CLI_hash_manifest_sha256": "d91398b30971816ea6dc1bd6ed6c5e8e40441d359334089906e3cbb96ce835dd",
+    "actual_CLI_terminal": {
+      "terminal": 0,
+      "inputs": 11992,
+      "output_count": 11992,
+      "seconds": 719.2179355,
+      "frozen_inputs_binary_and_CLI_source_verified": true,
+      "public_parser_source_verified": true
+    },
+    "scope": "Actual --pdf textdump outputs vs independently executed publicAPI112 UTF8 text bytes, every original. Not accuracy estimate."
+  },
+  "cross_page_preflights": {
+    "groups": [
+      [
+        "20261016g002280432",
+        "20261016g002280433",
+        "20261016g002280434"
+      ],
+      [
+        "20260724g001650782",
+        "20261016g002280433"
+      ],
+      [
+        "20260731g001720088",
+        "20261016g002280433"
+      ],
+      [
+        "20261016g002280433",
+        "20261016g002280433"
+      ]
+    ],
+    "source_pages": [
+      {
+        "group": 0,
+        "page": "20261016g002280433",
+        "full_PageTrace_equal_source_validated_single_v4": true
+      },
+      {
+        "group": 1,
+        "page": "20261016g002280433",
+        "full_PageTrace_equal_source_validated_single_v4": true
+      },
+      {
+        "group": 2,
+        "page": "20261016g002280433",
+        "full_PageTrace_equal_source_validated_single_v4": true
+      },
+      {
+        "group": 3,
+        "page": "20261016g002280433",
+        "full_PageTrace_equal_source_validated_single_v4": true
+      },
+      {
+        "group": 3,
+        "page": "20261016g002280433",
+        "full_PageTrace_equal_source_validated_single_v4": true
+      }
+    ],
+    "all_source_PageTrace_exact_single": true,
+    "scope": "Actualneighbors,knownpreviousglobal/localcomparisonsandrepeatedsameinput; no newselectors. Not an accuracy rate."
+  },
+  "affected_whole_issue_private": {
+    "terminal": 0,
+    "issues": [
+      {
+        "issue": "20261016g00228",
+        "article_counts": [
+          62,
+          62
+        ],
+        "complete_Analysis_sha256": "abd07789f5b4ec20d494e0b1296bd47781d24544fd6dd4139a261255f655bae8"
+      }
+    ],
+    "pages": 680,
+    "changed": [
+      "20261016g002280433"
+    ],
+    "other_PageTrace_exact104": 679,
+    "source_inputs_reference_binaries_prepost_verified": true,
+    "seconds": 57.792391333000005,
+    "scope": "Complete affectedpublication stress test, not certified TOC item segmentation or globalaccuracy."
+  },
+  "affected_whole_issue_public": {
+    "terminal": 0,
+    "pages": 680,
+    "articles": 62,
+    "complete_Analysis_sha256": "abd07789f5b4ec20d494e0b1296bd47781d24544fd6dd4139a261255f655bae8",
+    "all_Analysis_fields_equal_final_private_v4": true,
+    "source_inputs_reference_binaries_prepost_verified": true,
+    "seconds": 236.568825917
+  },
+  "source_and_test_file_SHA256": {
+    "crates/kanpo-parser/src/lib.rs": "71c0387ac5c0156be6dfc45f8a2fc0346c510b54d48f39b9d7d11c95056c3910",
+    "crates/kanpo-parser/src/vertical.rs": "e7064115ad6b2e80f562eb9da06bc78d3fa3add069d54a9c88a15b515a0bf939",
+    "crates/kanpo-parser/src/native_unit_dash.rs": "27ff25c25e39d6b57495e9b1de0eaa984213a02457da06e07651e5ae069f3625",
+    "crates/kanpo-parser/src/native_unit_dash_tests.rs": "a66b1c8003956f3baf3b69de33146670ba9f35405f8e27b2ef84be1d40aa0b6d",
+    "crates/kanpo-parser/src/source_unit_dash_original_tests.rs": "8a6cca382db9222d42afbd9b495584baaae5ba008d938515ad04639cabd61f5e",
+    "crates/kanpo-parser/tests/data/native-unit-dash/20261016g002280432.pdf": "5096ff90d049e754714254893c9fb32ae4546a923247973ca30e366e4f651871",
+    "crates/kanpo-parser/tests/data/native-unit-dash/20261016g002280433-baseline104.json": "2330ea7ad70a86bb56093199ed3f505e82dbf8a2abba1c09a19895319f2b66c3",
+    "crates/kanpo-parser/tests/data/native-unit-dash/20261016g002280433.pdf": "6f95eb99a2e1b44f3a66d07d1f70e8185d88dfbde226008a42336ebc73ab615d",
+    "crates/kanpo-parser/tests/data/native-unit-dash/20261016g002280434.pdf": "3df95a1d4641fbf4aa79378e4abb0fa7a8d34db53497d5018e06632916977fed",
+    "crates/kanpo-parser/tests/data/native-unit-dash/reference.json": "64c0c015df3b5fc49440a09ba5b83d19f60dde75ca4798f9877723ebeb9fd740"
+  },
+  "evidence": {
+    ".cache/kanpo-227/resume90-local-recovery/public-gates112/source-manifest112.json": "f09c69fd4a493f04ac70ac3ecb4e59752ad552568dc3f68bdece9371d99a3bf6",
+    ".cache/kanpo-227/resume90-local-recovery/public-gates112/description-erratum.json": "b04e45d13ba794fe9a1389f34d05b41c6fb764a8bc0e58f789cf2121d5a7c74a",
+    ".cache/kanpo-227/resume90-local-recovery/public-gates112/result112.json": "1cf2fffb487506355fe1636ed906970c9e9db98f4b8adeb968bea46405c036fd",
+    ".cache/kanpo-227/resume90-local-recovery/public-gates112/state112.json": "55b29d6229bdbea10099a1ec2a22c70f2f2358d8beb09ea77bb8cf55e43d8177",
+    ".cache/kanpo-227/resume90-local-recovery/public-gates112/snapshot-identity112.json": "d485ab842237b29bd954bca2f154a66ed673190e9e7aac9c3957c94eb57036e5",
+    ".cache/kanpo-227/resume90-local-recovery/public-gates112/004.log": "8e2977f496f044070d0704b3a0073a66f340cf9fcfbbd75f88660a531d07eb02",
+    ".cache/kanpo-227/resume90-local-recovery/public-corpus112/result112.json": "6e4e5bc34b14d986799c87826047d20c06c93fe5d229c10c0249eac0588b97c3",
+    ".cache/kanpo-227/resume90-local-recovery/public-corpus112/all-canonical-Analysis-hashes112.json": "148063d62f42144cee97b944d4967187ea224b830f31862d08a01babb6611569",
+    ".cache/kanpo-227/resume90-local-recovery/public-corpus112/exact-source-delta112.json": "ac4e250e45ec867e886a002e1625ed935b718585fc2712a703bdc9ecf09c9175",
+    ".cache/kanpo-227/resume90-local-recovery/public-corpus112/changed-baseline104-reexecution.json": "593b9c6fa8152f2e16d0a8a6cb92324d939411e4a2549d316e5684398b431e9c",
+    ".cache/kanpo-227/resume90-local-recovery/public-corpus112/all11992-public-and-private-v4-equal.json": "4ff1c6e24e2dc95ef7f365b581df284e86783396457c00681d862fddb3695cc0",
+    ".cache/kanpo-227/resume90-local-recovery/CLI112/terminal112.json": "01d3ff2a99145a58331fe33a505d64a8d63634ddae33fa130a0d6c366942bd87",
+    ".cache/kanpo-227/resume90-local-recovery/CLI112/all-text-hashes112.json": "d91398b30971816ea6dc1bd6ed6c5e8e40441d359334089906e3cbb96ce835dd",
+    ".cache/kanpo-227/resume90-local-recovery/CLI112/direct-API-text-equality112.json": "232d77ecb0e7624b52d1623dec177d484e512faf54105cf7682671af9b1814dd",
+    ".cache/kanpo-227/resume90-local-recovery/public-affected-issue112/result112.json": "4e8cbafc97f45e68301e35d959535f0ce5cce53e7b1593ca854b73a59d674a14",
+    ".cache/kanpo-227/resume90-local-recovery/source-unit-dash109/RED-result.json": "da1c1e6761c6009543f7c9c8386d179584f59a90334315dbe5be2e34a8de9063",
+    ".cache/kanpo-227/resume90-local-recovery/source-unit-dash109/v2-ownership-RED-result.json": "cbd19a082ed294ff1b9048de91108792e41f99f69fe647dd0d712ae60881b95c",
+    ".cache/kanpo-227/resume90-local-recovery/source-unit-dash109/v4/prefix-RED-result.json": "b2f5579f80d7abc27fcd0c9a4b0852e3b8fe5cb4e05ed24d02be547bdc66b8d9",
+    ".cache/kanpo-227/resume90-local-recovery/source-unit-dash109/v4/v4-result.json": "b3a94929c937809dc7b0dfdbe5117dd48a5d83ce3cd8a0dc854f33df4aef4e3e",
+    ".cache/kanpo-227/resume90-local-recovery/source-unit-dash109/v4/sequence-preflight/result.json": "42637767b7b30e38b743e8bd26d65e3f6733cb6ceb62a76f56506e437f5846a6",
+    ".cache/kanpo-227/resume90-local-recovery/source-unit-dash109/v4/affected-whole-issue/result.json": "055fa9c75f52f84f14f988ef457a17fb5ceafa338d7e8884dbc78ba6924108b6"
+  },
+  "limits": [
+    "Root nonblind source development review, not independent/unseen evaluation or population accuracy estimate. Fresh98 fixed30 grades unchanged; no rescoring as improvement rate.",
+    "All11991 other completeAnalysis results match104; unchanged output is compatibility evidence, not proof of correct reading/ownership.",
+    "680page whole publication is a cross-page state stress test, not certified TOC segmentation.",
+    "NDLOCR stays0.0.15; private106/107/108/110 image-band experiments remain out of canonical/native integration.",
+    "Image/outline body omissions, PUA and other ownership/order errors remain; 100% not achieved."
+  ]
+}

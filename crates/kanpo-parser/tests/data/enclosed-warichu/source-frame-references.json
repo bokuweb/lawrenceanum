@@ -1,0 +1,61 @@
+[
+  {
+    "page": "20260727g001670020",
+    "pdf": "tests/archive/pages/20260727g00167/20260727g001670020.pdf",
+    "pdf_sha256": "bf54f2eda50b6425f9ff668f98f9768e5e3243620882433639f354afdf823aff",
+    "review": "root nonblind source review",
+    "contract": "Every complete inner-table left border remains an original vertical PDF ruling; no clipping to ink bounds."
+  },
+  {
+    "page": "20261001t000550002",
+    "pdf": "tests/archive/pages/20261001t00055/20261001t000550002.pdf",
+    "pdf_sha256": "5d001d250d84821bbdd3a9e5f492ad6a3577469b96a6a405bbe7e7aa358ae7ce",
+    "review": "root nonblind source review",
+    "outside_words": [
+      31,
+      32,
+      33,
+      34
+    ],
+    "contract": "Supplementary heading and complete body are outside After/Before and follow every comparison word."
+  },
+  {
+    "page": "20260810g001790005",
+    "pdf": "tests/data/enclosed-warichu/20260810g001790005.pdf",
+    "pdf_sha256": "1895307618e0016ecc0b45f3082e35992d6e627d1c9d4bf2a01f2e54a3dc62c7",
+    "review": "root nonblind source review",
+    "after_source_words": [
+      58,
+      59,
+      60,
+      62,
+      63,
+      65,
+      66,
+      69,
+      70,
+      73,
+      76,
+      79,
+      84,
+      86,
+      88,
+      89
+    ],
+    "before_source_words": [
+      61,
+      67,
+      72,
+      74,
+      77,
+      83,
+      90
+    ],
+    "shared_note_words": [
+      105,
+      106,
+      107
+    ],
+    "contract": "Original upper/lower comparison cells stay After/Before; shared full-height note stays outside both. Native advance overhang is not evidence of a separate outside article."
+  }
+]

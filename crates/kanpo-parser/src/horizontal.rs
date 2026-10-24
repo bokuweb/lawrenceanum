@@ -15,6 +15,9 @@
 use crate::grid::{Grid, GridCell};
 use crate::trace;
 use crate::vertical::Col;
+#[path="native_ruling_sections.rs"]
+mod native_ruling_sections;
+use native_ruling_sections::{source_table_bottom_cut,SourceGeometry};
 
 /// 回転ページの左端の柱の帯（回転前のページ上余白）。語全体がこの x より左にあれば柱として
 /// 捨てる。本文の左端は x≈61、表の丸数字は x≈53 から始まるので、語の右端で判定する。
@@ -57,9 +60,38 @@ type Block = (f32, f32, f32, f32);
 /// 列の境にする（[`rule_cut`]）。
 ///
 /// `tables` は先に取り出した表の外枠（囲みの段の中で、表と表の間の溝を囲みの境とみなす。[`order_region`]）。
-fn horizontal_lines_around(cols: Vec<Col>, blocks: &[Block], vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)], tables: &[Block]) -> Vec<trace::Line> {
+fn horizontal_lines_around(
+    cols: Vec<Col>,
+    blocks: &[Block],
+    vrules: &[(f32, f32, f32)],
+    hrules: &[(f32, f32, f32)],
+    tables: &[Block],
+) -> Vec<trace::Line> {
+    horizontal_lines_around_source(
+        cols,
+        blocks,
+        vrules,
+        hrules,
+        tables,
+        SourceGeometry::default(),
+    )
+}
+fn horizontal_lines_around_source(
+    cols: Vec<Col>,
+    blocks: &[Block],
+    vrules: &[(f32, f32, f32)],
+    hrules: &[(f32, f32, f32)],
+    tables: &[Block],
+    source: SourceGeometry,
+) -> Vec<trace::Line> {
     let mut lines: Vec<trace::Line> = Vec::new();
-    let ctx = Context { vrules, hrules, tables };
+    let ctx = Context {
+        vrules,
+        hrules,
+        tables,
+        allow_orthogonal: true,
+        source,
+    };
     order_region(cols, blocks, &ctx, false, false, &mut lines);
     lines
 }
@@ -200,10 +232,45 @@ fn merge_side_by_side(tables: &mut Vec<trace::Table>) {
 }
 
 /// `vrules`・`hrules` は縦・横の罫線（`(x, y0, y1)`・`(y, x0, x1)`）。
-fn lines_with_tables(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)], one_column: bool) -> Vec<trace::Line> {
+fn lines_with_tables(
+    cols: Vec<Col>,
+    grids: &[Grid],
+    vrules: &[(f32, f32, f32)],
+    hrules: &[(f32, f32, f32)],
+    one_column: bool,
+) -> Vec<trace::Line> {
+    lines_with_tables_source(
+        cols,
+        grids,
+        vrules,
+        hrules,
+        one_column,
+        SourceGeometry::default(),
+    )
+}
+pub(crate) fn horizontal_lines_with_source_tables(
+    cols: Vec<Col>,
+    grids: &[Grid],
+    vrules: &[(f32, f32, f32)],
+    hrules: &[(f32, f32, f32)],
+    bounds: &[trace::NativeBounds],
+    axes: &[crate::native_word_axes::NativeAxis],
+    words: &[trace::Word],
+) -> Vec<trace::Line> {
+    lines_with_tables_source(
+        cols,
+        grids,
+        vrules,
+        hrules,
+        false,
+        SourceGeometry { bounds, axes, words },
+    )
+}
+
+fn lines_with_tables_source(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)], one_column: bool, source: SourceGeometry) -> Vec<trace::Line> {
     let geom: std::collections::HashMap<usize, (f32, f32, f32, f32)> = cols.iter().map(|c| (c.id, (c.x, c.x1, c.y, c.y1))).collect();
     let texts: std::collections::HashMap<usize, String> = cols.iter().map(|c| (c.id, c.text.clone())).collect();
-    let mut lines = lines_with_tables_inner(cols, grids, vrules, hrules, one_column);
+    let mut lines = lines_with_tables_inner(cols, grids, vrules, hrules, one_column, source);
     rejoin_split_names(&mut lines, &geom, &texts);
     attach_toc_numbers(&mut lines, &geom, &texts);
     raise_signer_blocks(&mut lines, &geom);
@@ -488,14 +555,14 @@ fn rejoin_split_names(lines: &mut Vec<trace::Line>, geom: &std::collections::Has
     }
 }
 
-fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)], one_column: bool) -> Vec<trace::Line> {
+fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, f32)], hrules: &[(f32, f32, f32)], one_column: bool, source: SourceGeometry) -> Vec<trace::Line> {
     if !one_column {
         if let Some(cut) = table_text_column_cut(&cols, grids, vrules, hrules) {
             let (left, right): (Vec<_>, Vec<_>) = cols.into_iter().partition(|c| x_center(c) < cut);
             let lg: Vec<_> = grids.iter().filter(|g| g.right() <= cut).cloned().collect();
             let rg: Vec<_> = grids.iter().filter(|g| g.left() >= cut).cloned().collect();
-            let mut lines = lines_with_tables_inner(left, &lg, vrules, hrules, false);
-            lines.extend(lines_with_tables_inner(right, &rg, vrules, hrules, false));
+            let mut lines = lines_with_tables_inner(left, &lg, vrules, hrules, false, source);
+            lines.extend(lines_with_tables_inner(right, &rg, vrules, hrules, false, source));
             return lines;
         }
     }
@@ -560,7 +627,7 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
         }
     }
     if tables.is_empty() && verticals.is_empty() {
-        return if one_column { row_lines(rest) } else { horizontal_lines_around(rest, &[], vrules, hrules, &[]) };
+        return if one_column { row_lines(rest) } else { horizontal_lines_around_source(rest, &[], vrules, hrules, &[], source) };
     }
     let geom: std::collections::HashMap<usize, (f32, f32, f32, f32)> = rest.iter().map(|c| (c.id, (c.x, c.x1, c.y, c.y1))).collect();
     // 2 段抜きの表（本文の段 2 つ分の幅）だけ。決算公告の囲みの中の表は囲みの列ごとに並び、
@@ -576,7 +643,7 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
         .collect();
     let rects: Vec<Block> = tables.iter().map(|t| (t.x0, t.y0, t.x1, t.y1)).collect();
     let by_id: std::collections::HashMap<usize, Col> = rest.iter().map(|c| (c.id, c.clone())).collect();
-    let mut lines = if one_column { row_lines(rest) } else { horizontal_lines_around(rest, &blocks, vrules, hrules, &rects) };
+    let mut lines = if one_column { row_lines(rest) } else { horizontal_lines_around_source(rest, &blocks, vrules, hrules, &rects, source) };
     // 左右に並ぶ 2 つの表のすぐ上（30pt 以内）に同じ高さで組まれたそれぞれの見出し（改正後・改正前の「別表第二（第二号関係）」）が
     // 1 行につながっていれば、表の間で 2 行に分ける（それぞれ表の見出しとして表の前に置く）。
     // 左右に並ぶ表のすぐ上（30pt 以内）に同じ高さで組まれたそれぞれの見出し（改正後・改正前の「別表第二（第二号関係）」、
@@ -2559,8 +2626,8 @@ fn stacked(words: &[&Col]) -> bool {
     words.len() >= 2
         && text.chars().count() >= 3
         && !text.chars().all(|c| c == '〃')
-        // 1 桁の金額の並び（「0」「0」…「△」「—」）は欄の名前ではない。
-        && !text.chars().all(|c| c.is_ascii_digit() || "△▲－—-―,.、\u{E61C}".contains(c))
+        // 数字と符号（数学記号のマイナス U+2212 を含む）の並びは、縦組みの欄名ではない。
+        && !text.chars().all(|c| c.is_ascii_digit() || "△▲−－—-―,.、\u{E61C}".contains(c))
         && words.iter().all(upright)
         && y1 - y0 >= x1 - x0
         && group_lines(&owned).iter().all(|l| l.words.len() <= 2)
@@ -2815,9 +2882,53 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
         // 囲みの段の中では、表と表の間（囲みの境、囲みの中の貸借対照表と損益計算書の境）の溝を囲みの境とみなす。
         // 表の枠の下端（左右の欄を分ける縦の罫線がそこで終わる、領域の幅いっぱいの横の罫線）より下の行（表の備考・
         // 附則）は、左右の欄より後に読む（左の欄の下に続く短い行が左の欄の続きとして読まれていた）。
-        if let Some(cut) = table_bottom_cut(&words, blocks, hrules, vrules) {
-            let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < cut);
-            let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < cut);
+        let legacy_bottom = table_bottom_cut(&words, blocks, hrules, vrules);
+        let barriers: Vec<_> = blocks.iter().chain(ctx.tables.iter()).copied().collect();
+        let source_bottom = (legacy_bottom.is_none() && ctx.source.sources_unchanged(&words))
+            .then(|| {
+                source_table_bottom_cut(
+                    &words,
+                    &barriers,
+                    hrules,
+                    vrules,
+                    ctx.source.bounds,
+                    ctx.source.axes,
+                )
+            })
+            .flatten();
+        if let Some(cut) = source_bottom {
+            let baseline_ctx = Context {
+                vrules,
+                hrules,
+                tables: ctx.tables,
+                allow_orthogonal: ctx.allow_orthogonal,
+                source: SourceGeometry::default(),
+            };
+            let mut baseline = Vec::new();
+            order_region(
+                words.clone(),
+                blocks,
+                &baseline_ctx,
+                boxed,
+                column,
+                &mut baseline,
+            );
+            let (top, bottom): (Vec<Col>, Vec<Col>) =
+                words.iter().cloned().partition(|w| y_center(w) < cut);
+            let (bt, bb): (Vec<Block>, Vec<Block>) =
+                blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < cut);
+            let mut candidate = Vec::new();
+            order_region(top, &bt, ctx, boxed, column, &mut candidate);
+            order_region(bottom, &bb, ctx, boxed, column, &mut candidate);
+            let accepted = source_order_preserves_spans(&words, &baseline, &candidate, cut);
+            out.extend(if accepted { candidate } else { baseline });
+            return;
+        }
+        if let Some(cut) = legacy_bottom {
+            let (top, bottom): (Vec<Col>, Vec<Col>) =
+                words.into_iter().partition(|w| y_center(w) < cut);
+            let (bt, bb): (Vec<Block>, Vec<Block>) =
+                blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < cut);
             order_region(top, &bt, ctx, boxed, column, out);
             order_region(bottom, &bb, ctx, boxed, column, out);
             return;
@@ -2835,7 +2946,24 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
                 return;
             }
         }
-        let gutters = column_gutters(&words, blocks, if boxed { ctx.tables } else { &[] }, boxed, ctx.tables.is_empty());
+        let plan = gutter_plan(&words, blocks, if boxed { ctx.tables } else { &[] }, boxed, ctx.tables.is_empty());
+        let horizontal=ctx.allow_orthogonal.then(||plan.horizontal.iter().copied().filter(|&(_,y)|
+            rule_cut(&words,blocks,vrules,hrules).is_none() && clear_dual_row(&words,&ctx,y))
+            .min_by(|a,b|a.1.total_cmp(&b.1))).flatten();
+        if let Some((_x,y))=horizontal {
+            let baseline_ctx=Context{vrules,hrules,tables:ctx.tables,allow_orthogonal:false,source:ctx.source};
+            let mut baseline=Vec::new();
+            order_region(words.clone(),blocks,&baseline_ctx,boxed,column,&mut baseline);
+            let source=words.clone();
+            let (top,bottom):(Vec<Col>,Vec<Col>)=words.into_iter().partition(|w|y_center(w)<y);
+            let (bt,bb):(Vec<Block>,Vec<Block>)=blocks.iter().partition(|b|(b.1+b.3)/2.0<y);
+            let mut candidate=Vec::new();
+            order_region(top,&bt,ctx,boxed,column,&mut candidate);
+            order_region(bottom,&bb,ctx,boxed,column,&mut candidate);
+            out.extend(if orthogonal_order_preserves_spans(&source,&baseline,&candidate) {candidate} else {baseline});
+            return;
+        }
+        let gutters=plan.original;
         // 領域の左端から溝まで引いた長い横の罫線（囲みの中の上下の組の境の線）が終わる溝は囲みの境なので、先にそこで切る
         // （囲みの中の貸借対照表の列と合併公告の列の間の狭い溝で先に切ると、上下の組の貸借対照表が先にまとめて読まれた）。
         let (wx0, wy0, wy1) = (
@@ -3963,7 +4091,236 @@ fn column_gutter(words: &[Col], blocks: &[Block], tables: &[Block]) -> Option<(f
 ///
 /// `boxed`（囲みの段の中）なら、20pt 以上の溝で左右とも 100pt 以上の幅の組は囲みの境。
 /// `no_tables` はページに表が無いか（見出しだけのページの溝の判定に使う）。
-fn column_gutters(words: &[Col], blocks: &[Block], tables: &[Block], boxed: bool, no_tables: bool) -> Option<((f32, f32), Vec<(f32, f32, f32)>)> {
+type ColumnGutters = ((f32, f32), Vec<(f32, f32, f32)>);
+
+struct GutterPlan {
+    original: Option<ColumnGutters>,
+    horizontal: Vec<(f32, f32)>,
+}
+
+fn select_gutter(cuts: Vec<(f32, f32, f32)>) -> Option<ColumnGutters> {
+    let first = *cuts.first()?;
+    let widest = cuts
+        .iter()
+        .copied()
+        .filter(|c| c.2 >= 100.0)
+        .max_by(|a, b| a.1.total_cmp(&b.1))
+        .unwrap_or(first);
+    let pick = if widest.1 >= WIDE_GUTTER && widest.1 >= first.1 * 2.0 {
+        widest
+    } else {
+        first
+    };
+    Some(((pick.0, pick.1), cuts))
+}
+
+// The same diagonal whitespace separation admits two guillotine axes.
+// Preserve its horizontal alternative instead of discarding the candidate and
+// allowing a different vertical cut to interleave the original upper rows.
+fn horizontal_dual_gutter(left: &[Col], right: &[Col], blocks: &[Block], x: f32) -> Option<f32> {
+    let valid = |ws: &[Col]| {
+        !ws.is_empty()
+            && ws.iter().all(|w| {
+                [w.x, w.y, w.x1, w.y1].iter().all(|v| v.is_finite()) && w.x < w.x1 && w.y < w.y1
+            })
+    };
+    if !x.is_finite() || !valid(left) || !valid(right) {
+        return None;
+    }
+    let range = |ws: &[Col]| {
+        (
+            ws.iter().map(|w| w.y).fold(f32::INFINITY, f32::min),
+            ws.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max),
+        )
+    };
+    let (mut a, mut b) = (range(left), range(right));
+    for &(x0, y0, x1, y1) in blocks {
+        if ![x0, y0, x1, y1].iter().all(|v| v.is_finite())
+            || x0 >= x1
+            || y0 >= y1
+            || (x0 < x && x < x1)
+        {
+            return None;
+        }
+        let side = if (x0 + x1) / 2.0 < x { &mut a } else { &mut b };
+        side.0 = side.0.min(y0);
+        side.1 = side.1.max(y1);
+    }
+    let gap = if a.1 <= b.0 {
+        (a.1, b.0)
+    } else if b.1 <= a.0 {
+        (b.1, a.0)
+    } else {
+        return None;
+    };
+    let y = gap.0 + (gap.1 - gap.0) / 2.0;
+    y.is_finite().then_some(y)
+}
+
+// A new geometric order must preserve complete existing table objects and
+// the source order/contiguity inside balanced delimiter spans. This is a
+// conservative grammar constraint on arbitrary content, never issuer/title
+// vocabulary or a line/character count. Unknown source membership or an
+// unmatched delimiter cannot authorize a different layout.
+pub(crate) fn orthogonal_order_preserves_spans(
+    words: &[Col],
+    baseline: &[trace::Line],
+    candidate: &[trace::Line],
+) -> bool {
+    order_preserves_spans_in_sections(words, baseline, candidate, None)
+}
+fn source_order_preserves_spans(
+    words: &[Col],
+    baseline: &[trace::Line],
+    candidate: &[trace::Line],
+    cut: f32,
+) -> bool {
+    order_preserves_spans_in_sections(words, baseline, candidate, Some(cut))
+}
+fn order_preserves_spans_in_sections(
+    words: &[Col],
+    baseline: &[trace::Line],
+    candidate: &[trace::Line],
+    cut: Option<f32>,
+) -> bool {
+    let mut source = std::collections::HashMap::new();
+    for w in words {
+        if source.insert(w.id, w).is_some() {
+            return false;
+        }
+    }
+    let sequence = |lines: &[trace::Line]| -> Option<Vec<usize>> {
+        let mut ids = Vec::new();
+        let mut seen = std::collections::HashSet::new();
+        for line in lines {
+            let mut own = line.words.clone();
+            if let Some(t) = &line.table {
+                let mut cells: Vec<_> = t.cells.iter().collect();
+                cells.sort_by_key(|c| (c.row, c.col));
+                own.extend(cells.into_iter().flat_map(|c| c.words.iter().copied()));
+            }
+            for id in own {
+                if !source.contains_key(&id) || !seen.insert(id) {
+                    return None;
+                }
+                ids.push(id);
+            }
+        }
+        (seen.len() == source.len()).then_some(ids)
+    };
+    let Some(mut before) = sequence(baseline) else {
+        return false;
+    };
+    let Some(after) = sequence(candidate) else {
+        return false;
+    };
+    if let Some(y) = cut {
+        // The ruling proves two physical source sections. A legacy layout can
+        // interleave them; grammar must close within each section, while its
+        // original internal span membership/order remains protected.
+        before.sort_by_key(|id| y_center(source[id]) >= y);
+        if after
+            .windows(2)
+            .any(|p| y_center(source[&p[0]]) >= y && y_center(source[&p[1]]) < y)
+        {
+            return false;
+        }
+    }
+    let mut tables: Vec<_> = candidate.iter().filter_map(|l| l.table.as_ref()).collect();
+    for table in baseline.iter().filter_map(|l| l.table.as_ref()) {
+        let Some(i) = tables.iter().position(|t| *t == table) else {
+            return false;
+        };
+        tables.swap_remove(i);
+    }
+    if !tables.is_empty() {
+        return false;
+    }
+    let positions: std::collections::HashMap<_, _> =
+        after.iter().enumerate().map(|(i, id)| (*id, i)).collect();
+    let pairs = [
+        ('(', ')'),
+        ('（', '）'),
+        ('[', ']'),
+        ('［', '］'),
+        ('{', '}'),
+        ('｛', '｝'),
+        ('「', '」'),
+        ('『', '』'),
+        ('【', '】'),
+        ('〈', '〉'),
+        ('《', '》'),
+    ];
+    let mut stack = Vec::new();
+    let mut section = None;
+    for (i, id) in before.iter().enumerate() {
+        if let Some(y) = cut {
+            let next = y_center(source[id]) >= y;
+            if section.is_some_and(|previous| previous != next) && !stack.is_empty() {
+                return false;
+            }
+            section = Some(next);
+        }
+        for c in source[id].text.chars() {
+            if let Some(&(_, close)) = pairs.iter().find(|&&(open, _)| open == c) {
+                stack.push((close, i));
+            } else if pairs.iter().any(|&(_, close)| close == c) {
+                let Some((close, start)) = stack.pop() else {
+                    return false;
+                };
+                if c != close {
+                    return false;
+                }
+                let first = positions[&before[start]];
+                if before[start..=i]
+                    .iter()
+                    .enumerate()
+                    .any(|(offset, id)| positions[id] != first + offset)
+                {
+                    return false;
+                }
+            }
+        }
+    }
+    stack.is_empty()
+}
+
+fn clear_dual_row(words: &[Col], ctx: &Context, y: f32) -> bool {
+    if ctx
+        .vrules
+        .iter()
+        .any(|&(vx, y0, y1)| ![vx, y0, y1].iter().all(|v| v.is_finite()) || y0 >= y1)
+        || ctx
+            .hrules
+            .iter()
+            .any(|&(hy, x0, x1)| ![hy, x0, x1].iter().all(|v| v.is_finite()) || x0 >= x1)
+    {
+        return false;
+    }
+    // A horizontal guillotine spans the whole current region. A source wall
+    // anywhere between its words, not only beside the candidate x, fences it.
+    let left = words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
+    let right = words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max);
+    left.is_finite()
+        && right.is_finite()
+        && !ctx
+            .vrules
+            .iter()
+            .any(|&(vx, y0, y1)| left < vx && vx < right && y0 <= y && y <= y1)
+}
+
+fn column_gutters(
+    words: &[Col],
+    blocks: &[Block],
+    tables: &[Block],
+    boxed: bool,
+    no_tables: bool,
+) -> Option<ColumnGutters> {
+    // This helper is also used by table/row-layout probes. Keep its original
+    // column evidence; only order_region resolves an orthogonal alternative.
+    gutter_plan(words, blocks, tables, boxed, no_tables).original
+}
+fn gutter_plan(words: &[Col], blocks: &[Block], tables: &[Block], boxed: bool, no_tables: bool) -> GutterPlan {
     let (y0, y1) = (words.iter().map(|w| w.y).fold(f32::INFINITY, f32::min), words.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max));
     // 段の中の表（語の下に続く表も。表を取り出した後の段の語は、表の上の見出しの行だけのことがある）。
     let near: Vec<&Block> = tables.iter().filter(|t| t.1 < y1 + 40.0 && y0 < t.3).collect();
@@ -4012,6 +4369,7 @@ fn column_gutters(words: &[Col], blocks: &[Block], tables: &[Block], boxed: bool
     let mut right_edge = f32::NEG_INFINITY;
     // 列の境になる溝（x, 幅, 左右の狭い方の幅）。
     let mut cuts: Vec<(f32, f32, f32)> = Vec::new();
+    let mut diagonals: Vec<(f32,f32)> = Vec::new();
     for (a, b) in spans {
         if right_edge.is_finite() && a - right_edge >= MIN_GUTTER {
             let cut = (right_edge + a) / 2.0;
@@ -4066,6 +4424,11 @@ fn column_gutters(words: &[Col], blocks: &[Block], tables: &[Block], boxed: bool
                 && !words.iter().any(|w| w.text.chars().any(|c| c.is_ascii_alphabetic() || ('Ａ'..='Ｚ').contains(&c) || "（）()".contains(c)));
             if !latin_word_gap(words, cut) && !item_numbers(&left, &right) && !repeat_marks(&left, &right) && (boxes || sparse || heading_pair || is_column_split(&left, &right, between(cut))) {
                 cuts.push((cut, a - right_edge, width(&left).min(width(&right))));
+                if !boxes && !sparse && !heading_pair && !between(cut) {
+                    if let Some(y)=horizontal_dual_gutter(&left,&right,blocks,cut) {
+                        diagonals.push((cut,y));
+                    }
+                }
             }
         }
         right_edge = right_edge.max(b);
@@ -4073,17 +4436,16 @@ fn column_gutters(words: &[Col], blocks: &[Block], tables: &[Block], boxed: bool
     // 左の溝から切る。ただし、2 倍以上広い溝（12pt 以上）で左右とも幅 100pt 以上の列に分かれるものがあれば先にそこで
     // 切る（決算公告の囲みの列の間。左の列の囲みの中の貸借対照表と損益計算書の間の狭い溝で先に切ると、どの囲みも貸借
     // 対照表だけが先に読まれる。項目名と金額の間の広い溝は、金額の側が狭い）。
-    let first = *cuts.first()?;
-    let widest = cuts.iter().copied().filter(|c| c.2 >= 100.0).max_by(|a, b| a.1.total_cmp(&b.1)).unwrap_or(first);
-    let pick = if widest.1 >= WIDE_GUTTER && widest.1 >= first.1 * 2.0 { widest } else { first };
-    Some(((pick.0, pick.1), cuts))
+    GutterPlan { original: select_gutter(cuts), horizontal: diagonals }
 }
 
 /// 横組みの読み順の処理に渡す罫線と表。
 struct Context<'a> {
+    source: SourceGeometry<'a>,
     vrules: &'a [(f32, f32, f32)],
     hrules: &'a [(f32, f32, f32)],
     tables: &'a [Block],
+    allow_orthogonal: bool,
 }
 
 /// 囲みの列の間とみなす広い溝の幅(pt)。
@@ -6147,3 +6509,15 @@ mod trailing_code_tables;
 #[cfg(test)]
 #[path = "empty_amount_record_tests.rs"]
 mod empty_amount_record_tests;
+
+#[cfg(test)]
+#[path = "numeric_sign_column_tests.rs"]
+mod numeric_sign_column_tests;
+
+#[cfg(test)]
+#[path = "orthogonal_gutters_tests.rs"]
+mod orthogonal_gutters_tests;
+
+#[cfg(test)]#[path="source_boundary_tests.rs"]mod source_boundary_tests;
+
+#[cfg(test)]#[path="source_section_span_tests.rs"]mod source_section_span_tests;
