@@ -486,6 +486,36 @@ fn write_page(wiki: &Path, source: &Source, bundle: &Value, first_seen: &str) ->
     })
 }
 
+/// Explicit, bounded historical intake. Never reset the normal new-case baseline.
+pub fn queue_cases(source: &Source, wiki: &Path, ids: &[u64], today: &str) -> Result<()> {
+    let selected: BTreeSet<_> = ids.iter().copied().collect();
+    anyhow::ensure!(!selected.is_empty() && selected.len() <= 10, "過去判例の指定は1〜10件です");
+    anyhow::ensure!(selected.len() == ids.len() && !selected.contains(&0), "判例IDが不正または重複しています");
+    let index = source.get_json("hanrei/index.json")?.context("判例索引がありません")?;
+    let mut intake = Intake::load(wiki)?;
+    intake.observe(&index, today)?;
+    let published: BTreeSet<_> = index["cases"].as_array().unwrap().iter()
+        .filter_map(|c| c["case_id"].as_u64()).collect();
+    anyhow::ensure!(selected.is_subset(&published), "公開索引にない判例IDが含まれています");
+    let mut added = 0;
+    for id in selected {
+        let path = wiki.join(format!("hanrei/{id}.md"));
+        if path.exists() {
+            let page = Page::read(&path)?;
+            if ready(&page) && source_matches(wiki, &page)? {
+                continue;
+            }
+        }
+        if let std::collections::btree_map::Entry::Vacant(entry) = intake.pending.entry(id) {
+            entry.insert(Pending { first_seen: today.into(), attempts: 0, status: "pending".into() });
+            added += 1;
+        }
+    }
+    intake.save(wiki)?;
+    eprintln!("wiki-queue-hanrei: {added} historical case(s) queued");
+    Ok(())
+}
+
 /// 初回は索引だけを固定する。保留は消さず、取得試行の少ないものから巡回する。
 pub fn plan_tasks(
     source: &Source,
@@ -1635,6 +1665,34 @@ mod tests {
                 .get_str("source_scope"),
             "判決PDFの機械抽出本文・判示事項・裁判要旨"
         );
+        std::fs::remove_dir_all(source.parent().unwrap()).unwrap();
+    }
+
+    #[test]
+    fn explicit_history_queue_is_bounded_idempotent_and_preserves_new_case_intake() {
+        let (source, wiki, work) = fixture();
+        let src = Source::new(&source.display().to_string()).unwrap();
+        index(&source, &[100, 200]);
+        case(&source, 100);
+        case(&source, 200);
+        queue_cases(&src, &wiki, &[200], "2026-10-25").unwrap();
+        let state = Intake::load(&wiki).unwrap();
+        assert_eq!(state.seen, BTreeSet::from([100, 200]));
+        assert_eq!(state.pending.keys().copied().collect::<Vec<_>>(), vec![200]);
+        queue_cases(&src, &wiki, &[200], "2026-10-26").unwrap();
+        assert_eq!(Intake::load(&wiki).unwrap().pending[&200].first_seen, "2026-10-25");
+        let before = std::fs::read(wiki.join(INTAKE)).unwrap();
+        for ids in [vec![], vec![0], vec![200, 200], vec![100, 999], (1..=11).collect()] {
+            assert!(queue_cases(&src, &wiki, &ids, "2026-10-26").is_err());
+            assert_eq!(std::fs::read(wiki.join(INTAKE)).unwrap(), before);
+        }
+        index(&source, &[100, 200, 5]);
+        case(&source, 5);
+        let tasks = plan_tasks(&src, &wiki, &work, 10, 10, "2026-10-26").unwrap();
+        assert_eq!(tasks.len(), 2, "選んだ過去判例と新規判例だけがタスクになる");
+        assert!(!wiki.join("hanrei/100.md").exists());
+        assert!(wiki.join("hanrei/200.md").exists());
+        assert!(wiki.join("hanrei/5.md").exists());
         std::fs::remove_dir_all(source.parent().unwrap()).unwrap();
     }
 
