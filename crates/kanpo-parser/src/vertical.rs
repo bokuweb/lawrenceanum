@@ -614,9 +614,10 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             let keyed = keyed_table_boxes(&cols);
             // 横組みの囲み（決算公告）も、見出しと貸借対照表の間の空きで段に切らない。
             let boxes = horizontal_block_boxes(&cols);
-            let plain_tiers =
+            let mut plain_tiers =
                 merge_split_header_tiers(split_tiers(cols.clone(), &TierRules { tables: keyed.clone(), boxes: boxes.clone(), hrules: hrules.clone(), vrules: vrules.clone(), sideways }));
-            let shinkyu_page = plain_tiers.iter().any(|t| detect_shinkyu_header(t).is_some())
+            let native_caption_fields = if !sideways { crate::native_caption_tiers::merge(&mut plain_tiers, crate::native_caption_tiers::Source { words:&words, bounds:&native_bounds, axes:&native_axes, styles:&native_content_styles,flows:&projected_flows }, page_rules).certificates } else { Vec::new() };
+            let shinkyu_page = !native_caption_fields.is_empty() || plain_tiers.iter().any(|t| detect_shinkyu_header(t).is_some())
                 || plain_tiers.windows(2).any(|w| tiers_look_like_bands(&w[0], &w[1]));
             let tables: Vec<(f32, f32, f32, f32)> = grids
                 .iter()
@@ -754,7 +755,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             while i < tiers.len() {
                 // 罫線の無い縦組みの表（欄ごとの低い段が上下に並び、行が同じ x の列に揃う名簿）は行ごとに組む。
                 // 新旧対照表のあるページでも、新旧対照表の欄見出しの無い段（同じページの別の告示の名簿）なら見る。
-                let plain_tier = !shinkyu_page || detect_shinkyu_header(&tiers[i]).is_none();
+                let plain_tier = !native_caption_fields.iter().any(|c|c.matches(&tiers[i])) && (!shinkyu_page || detect_shinkyu_header(&tiers[i]).is_none());
                 if let Some((n, lines)) = (plain_tier && !prev_table)
                     .then(|| record_bands_with_suffix_context(&tiers[i..], (!sideways).then_some(height / 2.0), &units, &hrules))
                     .flatten()
@@ -776,6 +777,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 }
                 let tier = std::mem::take(&mut tiers[i]);
                 i += 1;
+                if let Some(certificate) = native_caption_fields.iter().find(|c|c.matches(&tier)) { units.push(certificate.into_unit(tier,&grids,page_rules)); continue; }
                 let unit = match detect_shinkyu_header(&tier) {
                     Some((header_x, divider)) => {
                         let mut layout = ShinkyuLayout::split(tier, header_x, divider);

@@ -709,3 +709,5 @@ mod partial_rule_columns;
 mod native_grid_fragments;
 
 mod native_atomic_column;
+
+mod native_caption_tiers;

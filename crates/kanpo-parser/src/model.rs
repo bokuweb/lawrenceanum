@@ -462,13 +462,122 @@ impl Document {
 ///
 /// 後ろのブロックの先頭の行が条の見出し（`（見出し）`・`別表`・`附則`）で始まらなければ、
 /// 前のブロックの最後の行（ページの切れ目で途中まで載った条）の続きとしてつなぐ。
+// A numbered legal level above an article starts new scope. A reference such
+// as 第二章に規定する... is not a declaration of an outline title.
+fn outline_heading(line: &str) -> bool {
+    const NUMBER: &str = "〇一二三四五六七八九十百千0123456789０１２３４５６７８９";
+    let Some(rest) = line.trim().strip_prefix('第') else {
+        return false;
+    };
+    let chars = rest.chars().collect::<Vec<_>>();
+    let n = chars.iter().take_while(|c| NUMBER.contains(**c)).count();
+    if n == 0 || !chars.get(n).is_some_and(|c| "編章節款目".contains(*c)) {
+        return false;
+    }
+    let mut end = n + 1;
+    while chars.get(end) == Some(&'の') {
+        let next = chars[end + 1..]
+            .iter()
+            .take_while(|c| NUMBER.contains(**c))
+            .count();
+        if next == 0 {
+            return false;
+        }
+        end += 1 + next;
+    }
+    chars.get(end).is_none_or(|c| c.is_whitespace())
+}
+fn attach_outline_prefix(rows: &mut Vec<ShinkyuRow>) {
+    fn title(runs: &[Run]) -> bool {
+        if runs.is_empty() {
+            return true;
+        }
+        if runs.iter().any(|r| r.table.is_some()) {
+            return false;
+        }
+        let text = runs_plain(runs);
+        let mut lines = text.lines().filter(|l| !l.trim().is_empty());
+        lines.next().is_some_and(outline_heading)
+            && !text.contains('。')
+            && lines.all(|l| !outline_heading(l) && is_row_heading(l).is_none())
+    }
+    fn article(runs: &[Run]) -> bool {
+        if runs.iter().any(|r| r.table.is_some()) {
+            return false;
+        }
+        let text = runs_plain(runs);
+        let mut body = text.trim();
+        if body.starts_with('（') {
+            let mut depth = 0;
+            let mut end = None;
+            for (i, c) in body.char_indices() {
+                if c == '（' {
+                    depth += 1
+                } else if c == '）' {
+                    depth -= 1;
+                    if depth == 0 {
+                        end = Some(i + c.len_utf8());
+                        break;
+                    }
+                }
+            }
+            let Some(end) = end else { return false };
+            if is_row_heading(&body[..end]).is_none() {
+                return false;
+            }
+            body = body[end..].trim_start();
+        }
+        body.lines()
+            .next()
+            .is_some_and(|l| article_number(l).is_some())
+    }
+    if rows.len() < 2 {
+        return;
+    }
+    let first = &rows[0];
+    let next = &rows[1];
+    if first.after_table.is_some()
+        || first.before_table.is_some()
+        || (first.after.is_empty() && first.before.is_empty())
+        || !title(&first.after)
+        || !title(&first.before)
+        || (!first.after.is_empty() && !article(&next.after))
+        || (!first.before.is_empty() && !article(&next.before))
+    {
+        return;
+    }
+    let prefix = rows.remove(0);
+    let next = &mut rows[0];
+    for (dst, mut head) in [
+        (&mut next.after, prefix.after),
+        (&mut next.before, prefix.before),
+    ] {
+        if head.is_empty() {
+            continue;
+        }
+        let mut tail = std::mem::take(dst);
+        if let (Some(last), Some(first)) = (head.last_mut(), tail.first()) {
+            if last.table.is_none() && first.table.is_none() && last.underline == first.underline {
+                if !last.text.ends_with('\n') {
+                    last.text.push('\n');
+                }
+                last.text.push_str(&first.text);
+                tail.remove(0);
+            } else if last.table.is_none() && first.table.is_none() && !last.text.ends_with('\n') {
+                last.text.push('\n');
+            }
+        }
+        head.extend(tail);
+        *dst = head;
+    }
+}
 fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
     let mut out: Vec<Block> = Vec::new();
     for mut block in blocks {
         // ページの頭の行の改正後が前のページの条の続き（「４　主務大臣は…」）で、改正前が印（「（新設）」）だけなら、
         // 印は次の行（新設の条）のもの。印だけの行が続いた先に改正前の空いた行があれば、印を 1 行ずつ下へずらす。
         if let Block::Shinkyu { rows } = &mut block {
-            let continued = |runs: &[Run]| runs.first().and_then(|r| r.text.lines().next()).is_some_and(|l| is_row_heading(l).is_none());
+            let continued = |runs: &[Run]| runs.first().and_then(|r| r.text.lines().next()).is_some_and(|l| is_row_heading(l).is_none() && !outline_heading(l));
             let marks = |r: &ShinkyuRow| !only_marks(&runs_plain(&r.before)).is_empty();
             if rows.len() >= 2 && marks(&rows[0]) && continued(&rows[0].after) {
                 let j = (1..rows.len()).find(|&j| !marks(&rows[j]));
@@ -484,10 +593,11 @@ fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
             continue;
         };
         let mut rows = rows.clone();
+        attach_outline_prefix(&mut rows);
         let continues = |runs: &[Run]| {
             runs.first()
                 .and_then(|r| r.text.lines().next())
-                .is_some_and(|l| is_row_heading(l).is_none())
+                .is_some_and(|l| is_row_heading(l).is_none() && !outline_heading(l))
         };
         if let (Some(last), Some(first)) = (prev.last_mut(), rows.first()) {
             let cont = (first.after.is_empty() || continues(&first.after)) && (first.before.is_empty() || continues(&first.before));
@@ -513,7 +623,7 @@ fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
                     runs.first().and_then(|r| r.text.lines().next()).is_some_and(|l| {
                         let t = l.trim();
                         let compact: String = t.chars().filter(|c| !c.is_whitespace()).collect();
-                        is_row_heading(l).is_none() || (compact.starts_with("附則") && compact != "附則" && article_number(t).is_none())
+                        is_row_heading(l).is_none() && !outline_heading(l) || (compact.starts_with("附則") && compact != "附則" && article_number(t).is_none())
                     })
                 };
                 let marks = |r: &ShinkyuRow| !only_marks(&runs_plain(&r.before)).is_empty();
@@ -2722,3 +2832,7 @@ mod tests {
     }
 }
 
+
+#[cfg(test)]
+#[path="model_native_heading_tests.rs"]
+mod native_heading_tests;

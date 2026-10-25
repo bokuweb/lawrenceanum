@@ -578,6 +578,7 @@ pub(crate) struct ShinkyuLayout {
 }
 
 impl ShinkyuLayout {
+    pub(crate) fn native_fields(after:Vec<Col>,before:Vec<Col>,boxes:[(f32,f32,f32,f32);2])->Self { Self { band_boxes:Some(boxes),preamble:vec![],after:vec![after],before:vec![before],trailing:vec![] } }
     /// 見出し列 x より右(=`x >= header_x`)は前文・標題とみなし先頭にそのまま置く。
     /// 表本体(`x < header_x`)を境界 y で上下に分ける。
     pub(crate) fn split(cols: Vec<Col>, header_x: f32, divider: f32) -> Self {

@@ -55,6 +55,13 @@ pub(crate) fn from_word(word: scraper::ElementRef<'_>, total: Option<usize>) -> 
     out.belongs(b).then_some(out)
 }
 impl AxisFlow {
+    /// The actual vertical source path, with exact glyph-envelope binding.
+    pub(crate) fn vertical_path(self,b:[f32;4])->Option<[f64;3]>{
+        let f=self.flow;
+        (self.axis==NativeAxis::Down && f.mode==Some(NativeMode::Vertical)
+            && self.belongs(project(self.axis,b)?) && f.start as f32==b[1] && f.end as f32==b[3])
+            .then_some([-f.baseline,f.start,f.end])
+    }
     #[cfg(test)]
     pub(crate) fn range(self) -> (usize, usize) {
         (self.first, self.after)
