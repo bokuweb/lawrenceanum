@@ -61,24 +61,22 @@ fn check(id: &str, pdf: &[u8], golden: &str) {
     assert_eq!(actual, expected);
 }
 macro_rules! original {
-    ($name:ident,$id:literal) => {
+    ($name:ident,$id:literal) => { original!($name,$id,concat!("data/native-atomic-columns/",$id,"-reviewed132.json")); };
+    ($name:ident,$id:literal,$golden:expr) => {
         #[test]
         fn $name() {
             check(
                 $id,
                 include_bytes!(concat!("data/native-atomic-columns/", $id, ".pdf")),
-                include_str!(concat!(
-                    "data/native-atomic-columns/",
-                    $id,
-                    "-reviewed132.json"
-                )),
+                include_str!($golden),
             )
         }
     };
 }
 original!(
     caption_does_not_interrupt_another_court_case,
-    "20260728h017560022"
+    "20260728h017560022",
+    "data/native-court-categories/20260728h017560022-reviewed133.json"
 );
 original!(
     first_physical_column_keeps_its_own_caption,
@@ -90,11 +88,13 @@ original!(
 );
 original!(
     adjacent_procedure_titles_are_separate_source_blocks,
-    "20260826h017760023"
+    "20260826h017760023",
+    "data/native-court-categories/20260826h017760023-reviewed133.json"
 );
 original!(
     first_column_caption_does_not_name_the_second_column,
-    "20260917h017920023"
+    "20260917h017920023",
+    "data/native-court-categories/20260917h017920023-reviewed133.json"
 );
 original!(
     trustee_change_caption_does_not_name_a_liquidation,
@@ -158,6 +158,6 @@ fn october_column_end_closes_before_the_next_original_page() {
     page_end(
         include_bytes!("data/native-atomic-columns/20261020h018110016.pdf"),
         include_bytes!("data/native-atomic-columns/20261020h018110017.pdf"),
-        include_str!("data/native-atomic-columns/20261020h018110016-17-reviewed132.json"),
+        include_str!("data/native-court-categories/20261020h018110016-17-reviewed133.json"),
     )
 }

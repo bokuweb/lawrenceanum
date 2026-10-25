@@ -1,0 +1,195 @@
+{
+  "issue": 227,
+  "stage": "native133",
+  "goal_complete": false,
+  "previous_primary": "8dde9e642ef05260df2202711565c44da9158d19",
+  "previous_public": "245012242188d043c43ff846b95357e02c6b5c4b",
+  "priority": "Non-image native text, structure and ownership. NDLOCR0.0.15 remains opt-in fixed at f97e930b8c3e9512f7788f258ef685da26416483. No automatic OCR or extra model.",
+  "problem": "A larger printed category between a closing court signature and the next complete case identifier stayed in the previous case. Same-column and adjacent-column transitions affected native case ownership.",
+  "rule": "Keep the existing case/institution grammar and exact native style/geometry proof. Scan contiguous display rows with the same opaque font family as the case identifier and sizes strictly larger than header/body/footer; no category wording, value, page, font-ID, point-distance, line-count or character-count keys. Require unquoted non-table Body source ownership, finite positive source styles, complete original rightward horizontal-mode flow belonging to native glyph bounds. Ordered same-column rectangles or a unique adjacent-column proof with original full-baseline-span walls, the actual footer source last baseline, and actual first caption source first baseline; compare x in column coordinates. Enclosures/separators/unknowns/ambiguity defer. Private baseline provenance is serde-skipped.",
+  "new_tests": {
+    "library": 12,
+    "original_PDF_cases": 43,
+    "source_boundaries": 56,
+    "of_which_adjacent_column_transitions": 6,
+    "original_previous_132": {
+      "passed": 0,
+      "failed": 43
+    },
+    "original_final_133": {
+      "passed": 43,
+      "failed": 0
+    },
+    "existing_atomic_132_contracts_with_new_version_goldens": {
+      "passed": 10,
+      "failed": 0
+    },
+    "library_total": 2171
+  },
+  "rejected_prototypes": [
+    "v1 fixed same-column source but failed adjacent-column original.",
+    "v3 new negative tests rejected missing cross-column horizontal separator handling and infinite caption font size.",
+    "v5 new negative source-frontier test rejected borrowing an earlier baseline from a foreign word inside the caption rectangle; v6 binds the first baseline to actual caption source IDs."
+  ],
+  "full_corpus": {
+    "single": {
+      "mode": "single",
+      "items": 11992,
+      "changed": 43,
+      "source_inputs_oracles_binaries_prepost_exact": true,
+      "changed_raw_pages_and_stream_exact132": true,
+      "seconds": 287.18007712499997
+    },
+    "whole": {
+      "mode": "whole",
+      "items": 159,
+      "changed": 38,
+      "source_inputs_oracles_binaries_prepost_exact": true,
+      "changed_raw_pages_and_stream_exact132": true,
+      "seconds": 499.332830042
+    },
+    "unchanged_complete_Analysis_single": 11949,
+    "unchanged_complete_Analysis_whole": 121,
+    "added_boundaries_single_and_whole": 56,
+    "raw_PageTrace_Words_regions_lines_text_tables_and_Analysis_text": "All11992pages unchanged from132 in both single and whole runs. Only Article partitioning changes.",
+    "runtime_scope": "Frozen private-v6 runtime. Actual adopted root .rs source set and every source byte exactly equal v6; normal Cargo all4native packages validated against adopted source and committed fixtures. No separate exhaustive actual-root binary replay or fresh full-CLI run claimed. Existing CLI code is unchanged."
+  },
+  "material_and_ownership": {
+    "single_checked": 43,
+    "whole_checked": 38,
+    "failures": 0,
+    "method": "Read-only trace of existing OwnedSources, asserting complete normal Analysis canonical equality before using the trace. Each old Article maps in order to its new parts; exact source Word order and multiplicity, exact Article text joined at new cuts, exact ordered Document characters/Run styles/paragraph kinds, typed tables/shinkyu, formats and notices. Split-part text/source membership also checked; unsplit Articles exact.",
+    "calibrated_rejected_corruptions": {
+      "meaningful_corruptions_rejected": 14,
+      "rows": [
+        {
+          "corruption": "native_Word_character",
+          "rejected": true,
+          "reason": "original native Pages/Words/lines/tables changed"
+        },
+        {
+          "corruption": "native_Word_ID_type",
+          "rejected": true,
+          "reason": "original native Pages/Words/lines/tables changed"
+        },
+        {
+          "corruption": "raw_stream",
+          "rejected": true,
+          "reason": "nonarticle analysis"
+        },
+        {
+          "corruption": "Article_character",
+          "rejected": true,
+          "reason": "split article text/source membership mismatch"
+        },
+        {
+          "corruption": "Article_order",
+          "rejected": true,
+          "reason": "split article text/source membership mismatch"
+        },
+        {
+          "corruption": "Document_character",
+          "rejected": true,
+          "reason": "ordered document character/style/structure changed"
+        },
+        {
+          "corruption": "Document_underline",
+          "rejected": true,
+          "reason": "ordered document character/style/structure changed"
+        },
+        {
+          "corruption": "Document_block_kind",
+          "rejected": true,
+          "reason": "ordered document character/style/structure changed"
+        },
+        {
+          "corruption": "source_ID_type",
+          "rejected": true,
+          "reason": "source ID type"
+        },
+        {
+          "corruption": "source_swap_same_old_article",
+          "rejected": true,
+          "reason": "source word sequence changed"
+        },
+        {
+          "corruption": "source_cut_rebound_same_flat_sequence",
+          "rejected": true,
+          "reason": "split article text/source membership mismatch"
+        },
+        {
+          "corruption": "source_duplicate",
+          "rejected": true,
+          "reason": "duplicate source ownership"
+        },
+        {
+          "corruption": "Table_insertion",
+          "rejected": true,
+          "reason": "original native Pages/Words/lines/tables changed"
+        },
+        {
+          "corruption": "notice_insertion",
+          "rejected": true,
+          "reason": "notices changed"
+        }
+      ]
+    }
+  },
+  "native_normal_Cargo": {
+    "terminal": 0,
+    "source_manifest_sha256": "8636e194191f07c4e0d3f7dfb39eae92cf0154f67ce047421bcff1ea14e572a2",
+    "commands": 143,
+    "integration_targets": 134,
+    "passed": 3123,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 142,
+    "no_expected_snapshot_updates": true,
+    "all_commands_exit0": true
+  },
+  "snapshot_policy": "All814existing snapshots and all prior golden JSON files remain byte unchanged. Three existing caption fixture cases and one original two-page context now explicitly select separate133 reviewed goldens. Other132 expectations remain selected.",
+  "review": {
+    "method": "Author visually reviewed all56 newly proposed boundaries in original PDFium-rendered source snippets, including same-column and actual adjacent-column transitions. Candidate used only for locating review; no fullpage accuracy grade. Initial contact sheet used incorrect portrait trace dimensions; it was rejected and preserved as boundary-review-coordinate-RED. Final sheet uses physical PDFium page dimensions; full originals H1750p21 and H1755p18 also inspected.",
+    "all56_boundary_snippets_reviewed": true,
+    "sheets": {
+      "boundary-review/review-06.png": "50dbef0713fce472bc73d00a6a3da6a9e730889f1e7354e883025e888b3c1d36",
+      "boundary-review/review-07.png": "09615d9339435dd0fa61e7a1f4a8715586444de474cddc87f41496894815f1cd",
+      "boundary-review/review-05.png": "a05a614c8d6f84b2dc638872ecefce72dbecc40ac1ccfb9223ef9d01612dc019",
+      "boundary-review/review-10.png": "a2d69e97920c38ee3c650dde3f2ecf4d0bac71f236cb965605be0e53a321a7ab",
+      "boundary-review/review-04.png": "90fc578a0cffec25d9010bf9bb28406a25448558aa7dbe1240c2a8b18cc973aa",
+      "boundary-review/review-01.png": "b0c3c3156a5ebc528f2849082d0ef312c942dcfab8dbcb1da0b437be85b22811",
+      "boundary-review/review-03.png": "f4810902761ea98b24b52943679197dc4a579ffcfe7ef1b4cf25987851129ada",
+      "boundary-review/review-02.png": "6066e0696819daa53a1d3c5cbb442fe5aeec807ecf7a43a63da993ac8e0852e9",
+      "boundary-review/review-09.png": "adf632269542dc85973c838a8b14dbe612a02b4248bd965cbf1d251268a5f2ed",
+      "boundary-review/review-08.png": "3f0ce2bd39442a10c201c008a54c3088ef653ae8388c9d24f5d51c7939e3e1ce"
+    },
+    "source_witness_index_sha256": "0b7db0ddedfb06245cb5a550fecaa70416c3e7c8e47b493573f858366015c259",
+    "rows": 56,
+    "page_count": 43,
+    "scope_limit": "Not a full-page correctness oracle or population estimate; preexisting image-body gaps and unrelated boundaries remain."
+  },
+  "limitations": [
+    "Source snippets and reviewed regression goldens are distinct; goldens and tracing are not independent full-page correctness oracles. Author review was nonblind, not a population accuracy estimate.",
+    "Image bodies and unrecognized native text/PUA, other complex table/column order, unrelated caption ownership and headerless amendments remain.",
+    "Fixed30 audit145 has no completed full-quality grade or rate. Goal remains active and below100%."
+  ],
+  "witnesses": "../data/native-court-categories/source-category-witnesses133.json",
+  "artifact_hashes": {
+    ".cache/kanpo-227/resume90-local-recovery/native-court-category-headings133/original-boundary-review133.json": "d48db83b7a414b31be99f5f36cd83a25b6b0a9a384e735ad97713bb940affe52",
+    ".cache/kanpo-227/resume90-local-recovery/native-court-category-headings133/guard-calibration133.json": "7cb84e484db1413613726b60fe640788d76bab7becd94afd55d066ea25bd7e21",
+    ".cache/kanpo-227/resume90-local-recovery/native-court-category-headings133/source-material-single133.json": "0abe58e9afc981b3b599d5558e91f67a76865dd18fd356cc6600df1de08dff7e",
+    ".cache/kanpo-227/resume90-local-recovery/native-court-category-headings133/source-material-whole133.json": "6ec6da692ba983d0446f64b53efe87389e96d31a49a17dccdda8aa65078404a3",
+    ".cache/kanpo-227/resume90-local-recovery/native-court-category-headings133/private-v6/impact-single/result.json": "311e594399f46fd03d72f0e73ce2ac0d845bd3b1d6979bba67bc7663417c4e66",
+    ".cache/kanpo-227/resume90-local-recovery/native-court-category-headings133/private-v6/impact-whole/result.json": "166f6af6b8cc12be418a59e0110c26441b8c03902d83f712ee142f7769f9836d",
+    ".cache/kanpo-227/resume90-local-recovery/native-court-category-headings133/private-v6/impact-single/all-canonical-Analysis-hashes.json": "ca3d0894dd66eed19a31a4af394d84186d0be29a33335294f94a7d80279fbde6",
+    ".cache/kanpo-227/resume90-local-recovery/native-court-category-headings133/private-v6/impact-whole/all-canonical-Analysis-hashes.json": "83bb94ffcbc39d5b57bfb5f87d134796e54ff3350ca63ef19ef3279b92111b4d",
+    ".cache/kanpo-227/resume90-local-recovery/native-court-category-headings133/private-v6/unit-all133.log": "273115e9787a7bfb0b68d00e04c536118440c9161fd21a8896f7f57e94a38b0b",
+    ".cache/kanpo-227/resume90-local-recovery/native-court-category-headings133/port1/originals-RED132.log": "2727ac1887e3e3aaf7abfc45d19bf0bfe4ea07bdb44591b1dcb3a2d3832102af",
+    ".cache/kanpo-227/resume90-local-recovery/native-court-category-headings133/port1/originals-GREEN133.log": "f29941d834c50d0982079e3d133d2397fbff64d21231e5bb2afb2717a60f955e",
+    ".cache/kanpo-227/resume90-local-recovery/native-court-category-headings133/port1/existing-atomic133.log": "96d3dfd7d835425320c5b09f1048f60de746412e396130ae878ec4fc076d0758",
+    ".cache/kanpo-227/resume90-local-recovery/native-court-category-headings133/port1/native-gates1/result133.json": "59fe870e0ca261d20250a323acf5947a43eaed02456aa56e6d5be9b61a510f3c",
+    ".cache/kanpo-227/resume90-local-recovery/native-court-category-headings133/port1/native-gates1/source-manifest133.json": "8636e194191f07c4e0d3f7dfb39eae92cf0154f67ce047421bcff1ea14e572a2",
+    ".cache/kanpo-227/resume90-local-recovery/native-court-category-headings133/guard133.py": "f10721136245fc87882b42278370864bc8a86a8b88acd3eeb4096ff139be78a7",
+    ".cache/kanpo-227/resume90-local-recovery/native-court-category-headings133/probe133.py": "3afd1fce4bd3fc7abbeb375953ec04e9258b95f37d3bc2707915a783a7f8aa3b"
+  }
+}

@@ -148,6 +148,7 @@ fn unchanged(mut f: Fixture) {
 }
 fn page(f: &Fixture) -> PageTrace {
     PageTrace {
+        native_horizontal_baselines:vec![],
         native_atomic_columns: f.certificates.clone(),
         native_styles: vec![None; f.words.len()],
         native_bounds: f.bounds.clone(),

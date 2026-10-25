@@ -36,7 +36,7 @@ fn add(p: &mut PageTrace, text: &str, b: Rect, font: usize) {
     p.text = p.doc_text.clone();
 }
 fn fixture(case: &str, court: &str) -> PageTrace {
-    let mut p = PageTrace {native_atomic_columns:vec![],
+    let mut p = PageTrace {native_horizontal_baselines:vec![],native_atomic_columns:vec![],
         width: 600.,
         height: 800.,
         layout: "horizontal",
@@ -283,3 +283,5 @@ fn whole_table_cells_cannot_supply_a_court_header_or_its_witnesses() {
         assert!(cuts(&p, &Default::default()).is_empty());
     }
 }
+
+include!("court_category_tests.rs");

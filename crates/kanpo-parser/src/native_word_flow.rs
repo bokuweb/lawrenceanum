@@ -52,9 +52,34 @@ pub(crate) fn from_word(word: scraper::ElementRef<'_>) -> Option<NativeFlow> {
         leading: num("data-native-flow-leading")?, trailing:num("data-native-flow-trailing")?, prefix:num("data-native-flow-prefix")? };
     flow.belongs(b).then_some(flow)
 }
+/// Keep only baselines whose complete original horizontal flow belongs to its
+/// native glyph rectangle. A rightward vertical-mode word is not this evidence.
+pub(crate) fn horizontal_baselines(
+    bounds:&[crate::trace::NativeBounds],axes:&[crate::native_word_axes::NativeAxis],flows:&[Option<NativeFlow>]
+)->Vec<Option<f64>>{
+    bounds.iter().enumerate().map(|(id,b)|{
+        let crate::trace::NativeBounds::Glyphs(b)=b else{return None};
+        let f=flows.get(id)?.as_ref()?;
+        (axes.get(id)==Some(&crate::native_word_axes::NativeAxis::Right)
+            && f.mode==Some(NativeMode::Horizontal)&&f.belongs(*b)).then_some(f.baseline)
+    }).collect()
+}
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn horizontal_baseline_requires_its_own_complete_flow_mode_and_axis() {
+        use crate::{trace::NativeBounds,native_word_axes::NativeAxis};
+        let b=NativeBounds::Glyphs([10.,90.,30.,105.]);
+        let good=NativeFlow{mode:Some(NativeMode::Horizontal),start:10.,baseline:100.00000000001,end:30.,leading:8.,trailing:0.,prefix:0.};
+        assert_eq!(horizontal_baselines(&[b.clone()],&[NativeAxis::Right],&[Some(good)]),vec![Some(good.baseline)]);
+        for mode in [None,Some(NativeMode::Vertical)]{assert_eq!(horizontal_baselines(&[b.clone()],&[NativeAxis::Right],&[Some(NativeFlow{mode,..good})]),vec![None]);}
+        for axis in [NativeAxis::Down,NativeAxis::Unknown,NativeAxis::Compatibility]{assert_eq!(horizontal_baselines(&[b.clone()],&[axis],&[Some(good)]),vec![None]);}
+        for flow in [None,Some(NativeFlow{end:31.,..good}),Some(NativeFlow{baseline:f64::NAN,..good})]{assert_eq!(horizontal_baselines(&[b.clone()],&[NativeAxis::Right],&[flow]),vec![None]);}
+        assert_eq!(horizontal_baselines(&[b.clone()],&[],&[Some(good)]),vec![None]);
+        assert_eq!(horizontal_baselines(&[b],&[NativeAxis::Right],&[]),vec![None]);
+        for unknown in [NativeBounds::Unknown,NativeBounds::Compatibility]{assert_eq!(horizontal_baselines(&[unknown],&[NativeAxis::Right],&[Some(good)]),vec![None]);}
+    }
     fn parse(attrs: &str) -> Option<NativeFlow> {
         let s=format!("<word xmin='10' ymin='90' xmax='30' ymax='105' data-wmode='0' data-native-axis='right' {attrs}>任意</word>");
         let h = scraper::Html::parse_fragment(&s);

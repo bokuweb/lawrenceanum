@@ -181,6 +181,8 @@ pub(crate) enum NativeBounds {
 #[derive(Debug, Clone, Serialize)]
 pub struct PageTrace {
     #[serde(skip)]
+    pub(crate) native_horizontal_baselines: Vec<Option<f64>>,
+    #[serde(skip)]
     pub(crate) native_atomic_columns: Vec<crate::native_atomic_column::Certificate>,
     #[serde(skip)]
     pub(crate) native_styles: Vec<Option<NativeStyles>>,

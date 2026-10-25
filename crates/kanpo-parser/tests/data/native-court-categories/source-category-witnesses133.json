@@ -1,0 +1,1038 @@
+{
+  "scope": "Source heading/footer/case snippets were checked against original PDF pixels by the author. Category words and values are test witnesses only. Reviewed Analysis goldens freeze regressions, not full-page correctness or raster coverage.",
+  "rows": [
+    {
+      "page": "20260717h017500021",
+      "source_sha256": "23199b350eac0999b91e682283bc3df8ab6e4490ee732d2fb2ce12615b35fc43",
+      "fixture": "data/orthogonal-gutters/20260717h017500021.pdf",
+      "witnesses": [
+        {
+          "key": "20260717h017500021",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和８年（ヒ）第１００２号",
+            "名古屋市中区錦２丁目１７番３０号"
+          ],
+          "native_word_ids": [
+            11
+          ],
+          "original_previous_line": "横浜地方裁判所川崎支部民事部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260727h017550018",
+      "source_sha256": "22d4b2b87bb9d592246aceeaac661a827968605e0a3c531e0e456f95123d5cb8",
+      "fixture": "data/native-court-categories/20260727h017550018.pdf",
+      "witnesses": [
+        {
+          "key": "20260727h017550018",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和８年（ヒ）第２００９号",
+            "東京都千代田区神田東松下町17番地13"
+          ],
+          "native_word_ids": [
+            21
+          ],
+          "original_previous_line": "鳥取地方裁判所米子支部",
+          "column_transition": false
+        },
+        {
+          "key": "20260727h017550018",
+          "first_line": "特別清算協定認可",
+          "next_lines": [
+            "令和８年（ヒ）第１号",
+            "栃木県足利市羽刈町５５６番地"
+          ],
+          "native_word_ids": [
+            25
+          ],
+          "original_previous_line": "東京地方裁判所民事第２０部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260728h017560022",
+      "source_sha256": "416bd8b67c38074d73a2ce53de3ad7aa9dfa5da221b3a516b28d37d273d9fd79",
+      "fixture": "data/native-atomic-columns/20260728h017560022.pdf",
+      "witnesses": [
+        {
+          "key": "20260728h017560022",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和８年（ヒ）第１００１号",
+            "札幌市清田区平岡８条１丁目１番１０号"
+          ],
+          "native_word_ids": [
+            76
+          ],
+          "original_previous_line": "盛岡地方裁判所一関支部",
+          "column_transition": false
+        },
+        {
+          "key": "20260728h017560022",
+          "first_line": "特別清算協定認可",
+          "next_lines": [
+            "令和８年（ヒ）第３０１４号",
+            "大阪府八尾市北亀井町一丁目５番１４号"
+          ],
+          "native_word_ids": [
+            6
+          ],
+          "original_previous_line": "札幌地方裁判所小樽支部",
+          "column_transition": true
+        }
+      ]
+    },
+    {
+      "page": "20260729h017570017",
+      "source_sha256": "13b62d7d4e53c4c52068b1fc1a2e21a5dfb203625196ea722500cc6fddbc8d6c",
+      "fixture": "data/native-court-categories/20260729h017570017.pdf",
+      "witnesses": [
+        {
+          "key": "20260729h017570017",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和７年（ヒ）第２０８８号",
+            "東京都千代田区丸の内１丁目９番２号"
+          ],
+          "native_word_ids": [
+            10
+          ],
+          "original_previous_line": "仙台地方裁判所第４民事部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260729h017570018",
+      "source_sha256": "ce2b48718da8db51ad6fab52506f89f9c42e0bea5a9e06f080fb1c2268351fa4",
+      "fixture": "data/native-court-categories/20260729h017570018.pdf",
+      "witnesses": [
+        {
+          "key": "20260729h017570018",
+          "first_line": "更生手続における包括的禁止命令",
+          "next_lines": [
+            "令和８年（ミ）第５号",
+            "兵庫県伊丹市中央二丁目７番１０−１号"
+          ],
+          "native_word_ids": [
+            32,
+            33
+          ],
+          "original_previous_line": "前橋地方裁判所高崎支部",
+          "column_transition": false
+        },
+        {
+          "key": "20260729h017570018",
+          "first_line": "更生手続における保全管理命令",
+          "next_lines": [
+            "令和８年（ミ）第５号",
+            "兵庫県伊丹市中央二丁目７番１０−１号"
+          ],
+          "native_word_ids": [
+            13
+          ],
+          "original_previous_line": "東京地方裁判所民事第２０部",
+          "column_transition": true
+        }
+      ]
+    },
+    {
+      "page": "20260731h017590022",
+      "source_sha256": "fddc7f9da34f6493af585b0fbb23453c134d831959539b677b11ef3da00a852b",
+      "fixture": "data/native-court-categories/20260731h017590022.pdf",
+      "witnesses": [
+        {
+          "key": "20260731h017590022",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和８年（ヒ）第２００３号",
+            "東京都品川区戸越３丁目１番17号"
+          ],
+          "native_word_ids": [
+            15
+          ],
+          "original_previous_line": "横浜地方裁判所第３民事部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260803h017600020",
+      "source_sha256": "3f825050988ad2485341fc5f6651bbd3d803ccf5906c1d117e8cbe4f3ed97c74",
+      "fixture": "data/native-court-categories/20260803h017600020.pdf",
+      "witnesses": [
+        {
+          "key": "20260803h017600020",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和７年（ヒ）第２０号",
+            "北九州市若松区南二島二丁目８番８号"
+          ],
+          "native_word_ids": [
+            21
+          ],
+          "original_previous_line": "前橋地方裁判所高崎支部",
+          "column_transition": false
+        },
+        {
+          "key": "20260803h017600020",
+          "first_line": "更生手続における保全管理命令",
+          "next_lines": [
+            "令和８年（ミ）第６号",
+            "千葉県柏市十余二３４８番地"
+          ],
+          "native_word_ids": [
+            32
+          ],
+          "original_previous_line": "前橋地方裁判所民事部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260805h017620026",
+      "source_sha256": "4e4aeb29a576f5a0ade5b47ffb4b9d0eb5096cd319e32d067cedaf3986b6457b",
+      "fixture": "data/native-court-categories/20260805h017620026.pdf",
+      "witnesses": [
+        {
+          "key": "20260805h017620026",
+          "first_line": "特別清算協定認可",
+          "next_lines": [
+            "令和８年（ヒ）第１００２号",
+            "長野市アークス１０番１０号"
+          ],
+          "native_word_ids": [
+            11
+          ],
+          "original_previous_line": "京都地方裁判所福知山支部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260807h017640023",
+      "source_sha256": "74de0fa1dcb89723dafeee6c7116f51b599a638ebf51924176696189b51a8b5e",
+      "fixture": "data/native-court-categories/20260807h017640023.pdf",
+      "witnesses": [
+        {
+          "key": "20260807h017640023",
+          "first_line": "特別清算協定認可",
+          "next_lines": [
+            "令和８年（ヒ）第１００６号",
+            "名古屋市熱田区沢上１丁目２番１２号"
+          ],
+          "native_word_ids": [
+            74
+          ],
+          "original_previous_line": "静岡地方裁判所浜松支部民事部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260810h017650020",
+      "source_sha256": "266ed6f84f327ddc999040ac0a1404d37d6f77811a44f14a6323a32080246dfe",
+      "fixture": "data/native-court-categories/20260810h017650020.pdf",
+      "witnesses": [
+        {
+          "key": "20260810h017650020",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和８年（ヒ）第３号",
+            "群馬県高崎市南大類町５６２番地"
+          ],
+          "native_word_ids": [
+            7
+          ],
+          "original_previous_line": "名古屋地方裁判所民事第２部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260813h017670024",
+      "source_sha256": "c89c8343646537df78ed0db720aa22f5e4d6f0ae647ddd3a73d00ea89eaaacf0",
+      "fixture": "data/native-court-categories/20260813h017670024.pdf",
+      "witnesses": [
+        {
+          "key": "20260813h017670024",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和７年（ヒ）第９号",
+            "新潟県十日町市松之山湯本55番地１"
+          ],
+          "native_word_ids": [
+            55
+          ],
+          "original_previous_line": "大阪地方裁判所第６民事部",
+          "column_transition": false
+        },
+        {
+          "key": "20260813h017670024",
+          "first_line": "特別清算協定認可",
+          "next_lines": [
+            "令和８年（ヒ）第４号",
+            "兵庫県多可郡多可町中区牧野80９番地の１"
+          ],
+          "native_word_ids": [
+            8
+          ],
+          "original_previous_line": "新潟地方裁判所高田支部",
+          "column_transition": true
+        }
+      ]
+    },
+    {
+      "page": "20260814h017680025",
+      "source_sha256": "cea203c55dad698e398a251a5872423e154483896bb81b8ac19c5d0dd57caf35",
+      "fixture": "data/native-court-categories/20260814h017680025.pdf",
+      "witnesses": [
+        {
+          "key": "20260814h017680025",
+          "first_line": "特別清算協定認可",
+          "next_lines": [
+            "令和８年（ヒ）第６号",
+            "静岡県浜松市中央区流通元町１９番３号"
+          ],
+          "native_word_ids": [
+            165
+          ],
+          "original_previous_line": "東京地方裁判所民事第２０部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260817h017690018",
+      "source_sha256": "3ee960096ea06e8c74fcce81ecef8099fd5540fc9d15cb0e99443f368988789f",
+      "fixture": "data/native-court-categories/20260817h017690018.pdf",
+      "witnesses": [
+        {
+          "key": "20260817h017690018",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和７年（ヒ）第１００６号",
+            "福岡市博多区浦田一丁目１番１号"
+          ],
+          "native_word_ids": [
+            126
+          ],
+          "original_previous_line": "大阪地方裁判所第６民事部",
+          "column_transition": false
+        },
+        {
+          "key": "20260817h017690018",
+          "first_line": "特別清算協定認可",
+          "next_lines": [
+            "令和８年（ヒ）第１号",
+            "徳島県阿南市宝田町荒井20番地"
+          ],
+          "native_word_ids": [
+            128
+          ],
+          "original_previous_line": "福岡地方裁判所第４民事部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260819h017710021",
+      "source_sha256": "fe84cb0600e8a02ac01d70d06a8fbc8e01e2e8a018cd762ec94ccd11f1fd2cbd",
+      "fixture": "data/native-court-categories/20260819h017710021.pdf",
+      "witnesses": [
+        {
+          "key": "20260819h017710021",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和８年（ヒ）第４号",
+            "兵庫県尼崎市小中島三丁目19番４号"
+          ],
+          "native_word_ids": [
+            14
+          ],
+          "original_previous_line": "名古屋地方裁判所民事第２部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260820h017720021",
+      "source_sha256": "df834ca0dabde16265bd4acdae06dbfeca96ba265d368a3682c963ce6a9d694f",
+      "fixture": "data/native-court-categories/20260820h017720021.pdf",
+      "witnesses": [
+        {
+          "key": "20260820h017720021",
+          "first_line": "特別清算協定認可",
+          "next_lines": [
+            "令和８年（ヒ）第１０１号",
+            "広島県三次市南畑敷町４８４番地"
+          ],
+          "native_word_ids": [
+            200
+          ],
+          "original_previous_line": "名古屋地方裁判所民事第２部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260826h017760023",
+      "source_sha256": "12f490132e46988607157bde4af8ccca97df0d852867ec55e8ec3f4c12ad629c",
+      "fixture": "data/native-atomic-columns/20260826h017760023.pdf",
+      "witnesses": [
+        {
+          "key": "20260826h017760023",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和７年（ヒ）第２１０２号",
+            "東京都千代田区丸の内１丁目９番２号"
+          ],
+          "native_word_ids": [
+            18
+          ],
+          "original_previous_line": "東京地方裁判所民事第２０部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260826h017760024",
+      "source_sha256": "f52a87b92fb89ff907497d38d793c920d0394cc0197b2618de8f5c800f684848",
+      "fixture": "data/native-court-categories/20260826h017760024.pdf",
+      "witnesses": [
+        {
+          "key": "20260826h017760024",
+          "first_line": "更生手続開始",
+          "next_lines": [
+            "令和８年（ミ）第５号",
+            "兵庫県伊丹市中央２丁目７番１０−１号"
+          ],
+          "native_word_ids": [
+            10
+          ],
+          "original_previous_line": "宇都宮地方裁判所第１民事部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260901h017800020",
+      "source_sha256": "fcc1ca15454edd1c4d4bd223b425ebc94f5a771aba0d2a65c94ba0909b9c89df",
+      "fixture": "data/native-court-categories/20260901h017800020.pdf",
+      "witnesses": [
+        {
+          "key": "20260901h017800020",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和８年（ヒ）第101号",
+            "茨城県水戸市千波町1853番地１"
+          ],
+          "native_word_ids": [
+            19
+          ],
+          "original_previous_line": "東京地方裁判所民事第２０部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260903h017820028",
+      "source_sha256": "a1b0372a02b7b344da22a137a116ab33f849d1fa0fea3a4fe8e3907f0b583666",
+      "fixture": "data/native-court-categories/20260903h017820028.pdf",
+      "witnesses": [
+        {
+          "key": "20260903h017820028",
+          "first_line": "特別清算協定認可",
+          "next_lines": [
+            "令和８年（ヒ）第３０１５号",
+            "大阪市福島区福島５丁目13番18号"
+          ],
+          "native_word_ids": [
+            94
+          ],
+          "original_previous_line": "岡山地方裁判所第３民事部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260904h017830021",
+      "source_sha256": "a9ea1b658822269896d8d77c716874e64ace51a601329c7b6a29a6c4ebe98fc0",
+      "fixture": "data/native-court-categories/20260904h017830021.pdf",
+      "witnesses": [
+        {
+          "key": "20260904h017830021",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和７年（ヒ）第１００５号",
+            "広島市中区白島北町３番14号"
+          ],
+          "native_word_ids": [
+            18
+          ],
+          "original_previous_line": "東京地方裁判所立川支部民事第４部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260907h017840027",
+      "source_sha256": "08c33ae0fd95cf3584c6f0d02228bfa1630bfac12841728d0f94e92ec26a4bd5",
+      "fixture": "data/native-court-categories/20260907h017840027.pdf",
+      "witnesses": [
+        {
+          "key": "20260907h017840027",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和７年（ヒ）第１４号",
+            "岐阜市加納黒木町二丁目１番地"
+          ],
+          "native_word_ids": [
+            8
+          ],
+          "original_previous_line": "福岡地方裁判所久留米支部",
+          "column_transition": true
+        }
+      ]
+    },
+    {
+      "page": "20260908h017850023",
+      "source_sha256": "3dee19ec7ed84a6e5f514535b1885742ea45a502f3dfba039c914e70aa39e74a",
+      "fixture": "data/native-court-categories/20260908h017850023.pdf",
+      "witnesses": [
+        {
+          "key": "20260908h017850023",
+          "first_line": "特別清算協定認可",
+          "next_lines": [
+            "令和８年（ヒ）第１０１号",
+            "鹿児島市下荒田四丁目６番１号２階"
+          ],
+          "native_word_ids": [
+            53
+          ],
+          "original_previous_line": "さいたま地方裁判所第３民事部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260910h017870019",
+      "source_sha256": "eeca29353dc1417e8ea300f073e2602f8dd8df16eddf5d919e6e89570b3b9ed8",
+      "fixture": "data/native-court-categories/20260910h017870019.pdf",
+      "witnesses": [
+        {
+          "key": "20260910h017870019",
+          "first_line": "特別清算協定認可",
+          "next_lines": [
+            "令和８年（ヒ）第５号",
+            "富山市上袋１００番地１アピタ富山店２Ｆ"
+          ],
+          "native_word_ids": [
+            129
+          ],
+          "original_previous_line": "東京地方裁判所立川支部民事第４部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260911h017880022",
+      "source_sha256": "17333f2a9fe93ceaf681667c1bb8594108e441271ad8c4fedb5f9efe941e2e7e",
+      "fixture": "data/native-court-categories/20260911h017880022.pdf",
+      "witnesses": [
+        {
+          "key": "20260911h017880022",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和８年（ヒ）第２００７号",
+            "東京都中央区日本橋浜町一丁目１番１２号"
+          ],
+          "native_word_ids": [
+            18
+          ],
+          "original_previous_line": "大阪地方裁判所第６民事部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260914h017890021",
+      "source_sha256": "72e9401ec0bf859a4f2abe5339cc4a4221b26669704772fc22e18ab5cabffac9",
+      "fixture": "data/native-court-categories/20260914h017890021.pdf",
+      "witnesses": [
+        {
+          "key": "20260914h017890021",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和８年（ヒ）第１０００３号",
+            "仙台市泉区南光台東１丁目37番１号"
+          ],
+          "native_word_ids": [
+            80
+          ],
+          "original_previous_line": "さいたま地方裁判所第３民事部",
+          "column_transition": true
+        },
+        {
+          "key": "20260914h017890021",
+          "first_line": "更生計画認可",
+          "next_lines": [
+            "令和８年（ミ）第１号",
+            "神奈川県平塚市横内３７７４−２"
+          ],
+          "native_word_ids": [
+            8
+          ],
+          "original_previous_line": "前橋地方裁判所民事部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260916h017910021",
+      "source_sha256": "96c7cecbea48ea3d61606ea5312d7e0dad8f1c34dfd6046451fdf1fbee23fe24",
+      "fixture": "data/native-court-categories/20260916h017910021.pdf",
+      "witnesses": [
+        {
+          "key": "20260916h017910021",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和８年（ヒ）第１００９号",
+            "名古屋市中村区名駅３丁目４番１０号"
+          ],
+          "native_word_ids": [
+            96
+          ],
+          "original_previous_line": "東京地方裁判所民事第２０部",
+          "column_transition": false
+        },
+        {
+          "key": "20260916h017910021",
+          "first_line": "特別清算協定認可中更正",
+          "next_lines": [
+            "令和８年（ヒ）第１００３号",
+            "愛知県あま市木折戸井田２３番地"
+          ],
+          "native_word_ids": [
+            26
+          ],
+          "original_previous_line": "鳥取地方裁判所民事部",
+          "column_transition": false
+        },
+        {
+          "key": "20260916h017910021",
+          "first_line": "更生手続における書面による決議に付する決定",
+          "next_lines": [
+            "令和７年（ミ）第５号",
+            "東京都渋谷区幡ケ谷２丁目39番８号"
+          ],
+          "native_word_ids": [
+            28,
+            29
+          ],
+          "original_previous_line": "名古屋地方裁判所民事第２部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260917h017920023",
+      "source_sha256": "a1bb8e26035e16f61e15026ade2f8667cfa078d466b9b1a9a8d1c9ef4eeef814",
+      "fixture": "data/native-atomic-columns/20260917h017920023.pdf",
+      "witnesses": [
+        {
+          "key": "20260917h017920023",
+          "first_line": "特別清算協定認可",
+          "next_lines": [
+            "令和８年（ヒ）第２号",
+            "和歌山県田辺市古尾１１番２９号"
+          ],
+          "native_word_ids": [
+            34
+          ],
+          "original_previous_line": "さいたま地方裁判所川越支部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260918h017930022",
+      "source_sha256": "9b97705efbaa1333a236199bc48233e673aee2c43de2c698862f12abbd38ae95",
+      "fixture": "data/native-court-categories/20260918h017930022.pdf",
+      "witnesses": [
+        {
+          "key": "20260918h017930022",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和７年（ヒ）第１９号",
+            "愛知県豊田市保見町上三戸口３５番地"
+          ],
+          "native_word_ids": [
+            10
+          ],
+          "original_previous_line": "東京地方裁判所民事第２０部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260924h017940021",
+      "source_sha256": "2c4f2432772dd06f8f3920e9d48be9679fda6ad9ecaec239aa78a288ab78ac79",
+      "fixture": "data/native-court-categories/20260924h017940021.pdf",
+      "witnesses": [
+        {
+          "key": "20260924h017940021",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和８年（ヒ）第１号",
+            "徳島県阿南市宝田町荒井20番地"
+          ],
+          "native_word_ids": [
+            49
+          ],
+          "original_previous_line": "東京地方裁判所民事第２０部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260928h017960017",
+      "source_sha256": "b7101c5d4a27ac868c83e0cade3dddb85cf464775eca2193e09148cdf52b092c",
+      "fixture": "data/native-court-categories/20260928h017960017.pdf",
+      "witnesses": [
+        {
+          "key": "20260928h017960017",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和８年（ヒ）第５号",
+            "兵庫県多可郡多可町中区中村町４04番地"
+          ],
+          "native_word_ids": [
+            82
+          ],
+          "original_previous_line": "長崎地方裁判所佐世保支部",
+          "column_transition": false
+        },
+        {
+          "key": "20260928h017960017",
+          "first_line": "特別清算協定認可",
+          "next_lines": [
+            "令和８年（ヒ）第１００１号",
+            "福岡市西区今津字津本5413番14"
+          ],
+          "native_word_ids": [
+            9
+          ],
+          "original_previous_line": "青森地方裁判所八戸支部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260928h017960018",
+      "source_sha256": "35a4046e3994dfb76fb945a139ac7d5b3895ad3ccfed4067eb7c78241c0effdb",
+      "fixture": "data/native-court-categories/20260928h017960018.pdf",
+      "witnesses": [
+        {
+          "key": "20260928h017960018",
+          "first_line": "更生手続における包括的禁止命令",
+          "next_lines": [
+            "令和８年（ミ）第８号",
+            "北海道北斗市萩野３５番地４"
+          ],
+          "native_word_ids": [
+            7,
+            8
+          ],
+          "original_previous_line": "福岡地方裁判所第４民事部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20260930h017980021",
+      "source_sha256": "9669aead8a59e1545a9554f3b070ab58749c60f4bbaf131eb8b4c84ba964114a",
+      "fixture": "data/native-court-categories/20260930h017980021.pdf",
+      "witnesses": [
+        {
+          "key": "20260930h017980021",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和８年（ヒ）第２０１０号",
+            "東京都台東区上野１丁目７−３−３F"
+          ],
+          "native_word_ids": [
+            9
+          ],
+          "original_previous_line": "東京地方裁判所民事第２０部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20261002h018000023",
+      "source_sha256": "9d5bd945af0202f1413b6b33ea6fabbe63c23c97f4bb36f7e5bdbe089edb411e",
+      "fixture": "data/native-court-categories/20261002h018000023.pdf",
+      "witnesses": [
+        {
+          "key": "20261002h018000023",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和７年（ヒ）第３号",
+            "秋田県山本郡三種町大口字上の沢４８番１"
+          ],
+          "native_word_ids": [
+            17
+          ],
+          "original_previous_line": "東京地方裁判所民事第２０部",
+          "column_transition": false
+        },
+        {
+          "key": "20261002h018000023",
+          "first_line": "特別清算協定認可",
+          "next_lines": [
+            "令和８年（ヒ）第３００１号",
+            "川崎市麻生区白鳥１丁目１３番８号"
+          ],
+          "native_word_ids": [
+            21
+          ],
+          "original_previous_line": "秋田地方裁判所能代支部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20261006h018020023",
+      "source_sha256": "1d1bfce212fa42769451d2c733b786c1aebb476d51aa44135a25e005efabbab8",
+      "fixture": "data/native-court-categories/20261006h018020023.pdf",
+      "witnesses": [
+        {
+          "key": "20261006h018020023",
+          "first_line": "特別清算協定認可",
+          "next_lines": [
+            "令和７年（ヒ）第１０１５号",
+            "愛知県長久手市武蔵塚６３０番地"
+          ],
+          "native_word_ids": [
+            12
+          ],
+          "original_previous_line": "東京地方裁判所民事第２０部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20261008h018040023",
+      "source_sha256": "fdd875159a65a18893fb156459dbedef4fc320fe72f705f795d7437c5a33a548",
+      "fixture": "data/native-court-categories/20261008h018040023.pdf",
+      "witnesses": [
+        {
+          "key": "20261008h018040023",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和7年（ヒ）第1007号",
+            "千葉市美浜区高浜２丁目２番１号"
+          ],
+          "native_word_ids": [
+            10
+          ],
+          "original_previous_line": "熊本地方裁判所玉名支部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20261008h018040024",
+      "source_sha256": "ce83c2472edf9a8eed2ec8bc27cc21c12d6c6d9e516aa16631eea64b5cc6dbce",
+      "fixture": "data/native-court-categories/20261008h018040024.pdf",
+      "witnesses": [
+        {
+          "key": "20261008h018040024",
+          "first_line": "事業譲渡に関する株主総会の決議による承認に代わる許可",
+          "next_lines": [
+            "令和８年（再）第１７号",
+            "東京都港区虎ノ門二丁目３番１７号"
+          ],
+          "native_word_ids": [
+            7,
+            8
+          ],
+          "original_previous_line": "京都地方裁判所第５民事部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20261013h018060019",
+      "source_sha256": "910fec3cc60fe8a5b4c8263bcc2b7d6044eb1414c18b6375f4ab7bf920c91b49",
+      "fixture": "data/native-court-categories/20261013h018060019.pdf",
+      "witnesses": [
+        {
+          "key": "20261013h018060019",
+          "first_line": "特別清算協定認可",
+          "next_lines": [
+            "令和８年（ヒ）第２号",
+            "長崎県諫早市久山町２０１４番地７２"
+          ],
+          "native_word_ids": [
+            32
+          ],
+          "original_previous_line": "神戸地方裁判所姫路支部",
+          "column_transition": true
+        }
+      ]
+    },
+    {
+      "page": "20261014h018070022",
+      "source_sha256": "5c3b4226e5138d0cf8a56ec818da52ef7abcc145c45fed82e8be2dc231bc8ecd",
+      "fixture": "data/native-court-categories/20261014h018070022.pdf",
+      "witnesses": [
+        {
+          "key": "20261014h018070022",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和８年（ヒ）第９号",
+            "岡山県瀬戸内市邑久町山田庄196番地の1"
+          ],
+          "native_word_ids": [
+            84
+          ],
+          "original_previous_line": "東京地方裁判所民事第２０部",
+          "column_transition": false
+        },
+        {
+          "key": "20261014h018070022",
+          "first_line": "特別清算協定認可",
+          "next_lines": [
+            "令和８年（ヒ）第１０２号",
+            "静岡県伊豆の国市長岡１３０８番地"
+          ],
+          "native_word_ids": [
+            19
+          ],
+          "original_previous_line": "神戸地方裁判所伊丹支部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20261015h018080024",
+      "source_sha256": "26d884efc6ae27387a457127d3f124e08529a9647301824d0416225e79aa5493",
+      "fixture": "data/native-court-categories/20261015h018080024.pdf",
+      "witnesses": [
+        {
+          "key": "20261015h018080024",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和７年（ヒ）第４号",
+            "千葉県八街市八街は15番地82"
+          ],
+          "native_word_ids": [
+            9
+          ],
+          "original_previous_line": "さいたま地方裁判所第３民事部",
+          "column_transition": false
+        },
+        {
+          "key": "20261015h018080024",
+          "first_line": "特別清算協定認可",
+          "next_lines": [
+            "令和８年（ヒ）第２号",
+            "北海道士別市東２条北３丁目17番地"
+          ],
+          "native_word_ids": [
+            14
+          ],
+          "original_previous_line": "千葉地方裁判所佐倉支部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20261016h018090023",
+      "source_sha256": "a5865c36513db12962034d8ab3dac67be987c8842ca9d5690b6174caa65e9a6d",
+      "fixture": "data/native-court-categories/20261016h018090023.pdf",
+      "witnesses": [
+        {
+          "key": "20261016h018090023",
+          "first_line": "特別清算協定認可",
+          "next_lines": [
+            "令和８年（ヒ）第１００１号",
+            "鳥取県米子市皆生温泉四丁目１８番４５号"
+          ],
+          "native_word_ids": [
+            152
+          ],
+          "original_previous_line": "東京地方裁判所民事第２０部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20261016h018090024",
+      "source_sha256": "8084d997b9eb4f10c9794ebbbe9483c667a20dbd02fd4b946d4d3cf6f6d5c845",
+      "fixture": "data/native-court-categories/20261016h018090024.pdf",
+      "witnesses": [
+        {
+          "key": "20261016h018090024",
+          "first_line": "更生手続開始",
+          "next_lines": [
+            "令和８年（ミ）第８号",
+            "北海道北斗市萩野３５番地４"
+          ],
+          "native_word_ids": [
+            131
+          ],
+          "original_previous_line": "東京地方裁判所民事第２０部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20261019h018100022",
+      "source_sha256": "638ac78199040f9aa889a510dd297b88851e1a1528d78eddb37ddb60496ee8ee",
+      "fixture": "data/native-court-categories/20261019h018100022.pdf",
+      "witnesses": [
+        {
+          "key": "20261019h018100022",
+          "first_line": "特別清算協定認可",
+          "next_lines": [
+            "令和８年（ヒ）第５０１号",
+            "福島県須賀川市森宿字舘ノ下３２番地１"
+          ],
+          "native_word_ids": [
+            108
+          ],
+          "original_previous_line": "那覇地方裁判所民事第３部",
+          "column_transition": false
+        }
+      ]
+    },
+    {
+      "page": "20261020h018110017",
+      "source_sha256": "b229a189c736e066b961f83ff8537ac63ae7716508b5e0357db22c38c6469413",
+      "fixture": "data/native-atomic-columns/20261020h018110017.pdf",
+      "witnesses": [
+        {
+          "key": "20261020h018110017",
+          "first_line": "特別清算終結",
+          "next_lines": [
+            "令和８年（ヒ）第２０号",
+            "京都市山科区東野中井ノ上町１番地２１"
+          ],
+          "native_word_ids": [
+            47
+          ],
+          "original_previous_line": "福岡地方裁判所久留米支部",
+          "column_transition": false
+        }
+      ]
+    }
+  ]
+}

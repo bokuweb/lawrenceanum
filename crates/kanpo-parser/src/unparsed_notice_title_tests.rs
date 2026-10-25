@@ -40,7 +40,7 @@ fn structurally_separate_unparsed_titles_do_not_release_their_date_to_the_previo
         "関連公告日付未定",
         "公告（対象未定",
     ] {
-        let mut p = PageTrace {native_atomic_columns:vec![],native_axes:vec![],native_rulings:vec![],
+        let mut p = PageTrace {native_horizontal_baselines:vec![],native_atomic_columns:vec![],native_axes:vec![],native_rulings:vec![],
             width: 600.,
             height: 800.,
             layout: "tiers",
