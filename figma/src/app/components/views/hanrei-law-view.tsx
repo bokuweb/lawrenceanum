@@ -3,6 +3,8 @@ import { Link, useParams, useSearchParams } from "react-router";
 import { api, hanreiUrl, type CaseLawReference, type CaseLawVersion, type VersionsJson, type HanreiLawLinks, type LawDocumentRaw } from "../../data/api";
 import { useHanreiCase, useHanreiLawLinks, useWikiPaths } from "../../data/use-hanrei";
 import { Button } from "../ui/button";
+import { historicalArticleSupplement } from "../../data/historical-article-supplements";
+import { HistoricalArticleSupplementPanel } from "./historical-article-supplement";
 
 export const articleLabel = (article: string) => `第${article.split("_")[0]}条${article.split("_").slice(1).map(n => `の${n}`).join("")}`;
 
@@ -24,9 +26,11 @@ export function LinkedCaseText({ text, field, links }: { text: string; field: st
 }
 
 export function CaseLawEvidence({ law }: { law: CaseLawReference }) {
+  const supplemented = law.articles.filter(a => historicalArticleSupplement(law, a));
   const label = ({ event_date_candidate: "本文の出来事の日付による候補", before_amendment_candidate: "改正前の記載による候補", judgment_date_candidate: "裁判日による暫定候補", unresolved: "版を特定できません" } as Record<string, string>)[law.basis] ?? "版は未確認";
   return <div className="text-sm space-y-2">
     <p className="font-medium">{label}</p>
+    {supplemented.length > 0 && <p>法令全体の版は未特定ですが、{supplemented.map(articleLabel).join("・")}には公的資料で文言を照合した補完条文があります。条文リンクから確認できます。</p>}
     {law.evidence.map((e, i) => <p key={i} className="text-muted-foreground">{e.from === e.to ? e.from : `${e.from}〜${e.to}`}：{e.text}</p>)}
     {law.incomplete && <p>対象時点の過去版に未収録・未特定の範囲があります。</p>}
     {law.versions.length > 1 && <p>複数の版が候補です。原文と経過措置を確認してください。</p>}
@@ -93,6 +97,7 @@ export function HanreiLawView() {
   const document = state?.key === key ? state.data : undefined;
   const provision = document?.articles.find(a => a.article_id === `art_${article}`);
   const paragraph = params.get("paragraph");
+  const supplement = law && historicalArticleSupplement(law, article);
   const matchingParagraph = provision?.paragraphs.some(p => (p.paragraph_num ?? p.paragraph_no?.normalize("NFKC")) === paragraph);
   return <div className="p-4 md:p-6 max-w-5xl mx-auto [overflow-wrap:anywhere] space-y-4">
     <Link to={`/hanrei/${caseId}`} className="text-primary hover:underline">判例に戻る</Link>
@@ -107,13 +112,14 @@ export function HanreiLawView() {
       : <>
         <p className="text-sm border rounded-lg p-3 bg-muted/40">{links.notice}</p>
         <CaseLawEvidence law={law} />
+        {supplement && <HistoricalArticleSupplementPanel supplement={supplement} paragraph={paragraph} />}
         <div className="flex gap-4 text-sm flex-wrap">
           {paths?.has(links.wiki_path) && <Link className="text-primary underline" to={`/wiki/${links.wiki_path}`}>判例のLLM wiki</Link>}
           {paths?.has(law.wiki_path) && <Link className="text-primary underline" to={`/wiki/${law.wiki_path}`}>関連法令のwiki</Link>}
         </div>
         {isReference && <section className="border rounded-lg p-3 space-y-2 text-sm" aria-label="適用版が未特定の場合の参考候補">
           <h2 className="font-medium">適用版は未特定ですが、参考候補を表示します</h2>
-          <p>収録履歴の古い順に最大3件を表示します。対象期間より後の版を含む場合があります。当時の適用条文であることや、条文が改正されていないことは確認できていません。</p>
+          <p>収録履歴の古い順に最大3件を表示します。対象期間より後の版を含む場合があります。{supplement ? "上の補完条文とは別に表示しています。この法令全体の版が事件に適用されたことは確認できていません。" : "当時の適用条文であることや、条文が改正されていないことは確認できていません。"}</p>
           {needsHistory && !history && <p>参考候補を読み込み中…</p>}
           {history?.error && <div role="alert">参考候補を読み込めませんでした。<Button variant="outline" onClick={() => setHistoryAttempt(n => n + 1)}>候補を再試行</Button></div>}
           {!versions.length && (!needsHistory || history?.versions) && <p>収録履歴にも版候補がありません。</p>}

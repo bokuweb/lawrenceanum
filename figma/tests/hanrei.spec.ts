@@ -740,7 +740,7 @@ test("旧配信の未特定データでも参考候補を表示し、対象期�
   });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(new URL(`#/hanrei/92002/laws/${lawId}/8?paragraph=2`, BASE).toString());
-  await expect(page.getByRole("note")).toContainText("この版の施行日（2016-04-01）は対象期間より後です");
+  await expect(page.getByRole("note").filter({ hasText: "参考表示：" })).toContainText("この版の施行日（2016-04-01）は対象期間より後です");
   await expect(page.getByTestId("case-law-article").locator('[data-highlighted="true"]')).toContainText("過去版の第2項");
   const selector = page.getByRole("combobox", { name: "表示する参考候補", exact: true });
   await expect(selector.locator("option")).toHaveCount(3);
@@ -783,4 +783,67 @@ test("参考候補の履歴取得失敗は再試行でき、収録なしと区�
   await page.getByRole("button", { name: "候補を再試行", exact: true }).click();
   await expect(page.getByText("収録履歴にも版候補がありません。", { exact: true })).toBeVisible();
   await expect(page.getByRole("combobox")).toHaveCount(0);
+});
+
+test("97208の未収録期間でも公的資料で補完した3条・8条を内部リンクで読み、出典と限界を確認できる", async ({ page }) => {
+  const links = { ...unresolvedLinks(), case_id: 97208, wiki_path: "hanrei/97208" };
+  links.laws[0].reference_versions = [];
+  await page.route("**/hanrei/97208.json", r => r.fulfill({ json: { ...fixture("92002"), case_id: 97208, holding } }));
+  await page.route("**/links/hanrei-to-laws/97208.json", r => r.fulfill({ json: links }));
+  await page.route("**/wiki/index.json", r => r.fulfill({ json: { schema_version: 1, pages: [{ path: "hanrei/97208" }] } }));
+  let lawRequests = 0;
+  await page.route(`**/laws/${lawId}/**`, r => { lawRequests++; return r.fulfill({ status: 503 }); });
+  await page.goto(new URL("#/hanrei/97208", BASE).toString());
+  await expect(page.getByText(/第3条・第8条には公的資料で文言を照合した補完条文/)).toBeVisible();
+  await page.getByRole("link", { name: "８条２項", exact: true }).click();
+  const panel = page.getByTestId("historical-article-supplement");
+  await expect(panel).toContainText("2013-01-01〜2015-12-31");
+  await expect(panel.locator('[data-highlighted="true"]')).toContainText("要保護者の年齢別、性別、世帯構成別、所在地域別");
+  await expect(panel).toContainText("事件に実際に適用された法令版・経過措置を確定するものではありません");
+  await expect(panel).toContainText("保護基準（告示）の当時の内容は、この補完には含みません");
+  await panel.locator("summary").click();
+  await expect(panel).toContainText("2001年1月6日");
+  await expect(panel).toContainText("LLMによる要約ではありません");
+  await expect(panel.getByRole("link", { name: /平成11年法律第160号/ })).toHaveAttribute("href", "https://www.shugiin.go.jp/internet/itdb_housei.nsf/html/housei/h146160.htm");
+  await expect(panel.getByRole("link", { name: /厚生労働省/ })).toHaveAttribute("href", "https://www.mhlw.go.jp/web/t_doc?dataId=82048000&dataType=0");
+  await expect(page.getByText("版を特定できません", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "判例のLLM wiki", exact: true })).toHaveAttribute("href", "#/wiki/hanrei/97208");
+  await page.getByRole("link", { name: "判例に戻る", exact: true }).click();
+  await page.getByRole("link", { name: "生活保護法３条", exact: true }).click();
+  await expect(panel).toContainText("健康で文化的な生活水準を維持することができる");
+  await panel.locator("summary").click();
+  await expect(panel.getByRole("link", { name: /制定時の第3条/ })).toHaveAttribute("href", "https://www.shugiin.go.jp/internet/itdb_housei.nsf/html/houritsu/00719500504144.htm");
+  expect(lawRequests).toBe(0);
+});
+
+test("補完条文は参照版と区別し、範囲外・別法令・不正期間・未確認条には流用しない", async ({ page }) => {
+  await mockCaseLinks(page);
+  let links: any = unresolvedLinks();
+  links.laws[0].reference_versions = [{ revision_id: referenceRevision, effective_date: "2016-04-01", body_available: true }];
+  await page.route("**/links/hanrei-to-laws/92002.json", r => r.fulfill({ json: links }));
+  await page.route(`**/laws/${lawId}/revisions/${referenceRevision}.json`, r => r.fulfill({ json: { ...historicalLaw(), revision_id: referenceRevision } }));
+  await page.goto(new URL(`#/hanrei/92002/laws/${lawId}/8?paragraph=9`, BASE).toString());
+  await expect(page.getByTestId("historical-article-supplement")).toContainText("指定の項を確認できないため、条全体を表示します");
+  await expect(page.getByTestId("historical-article-supplement").locator('[data-highlighted="true"]')).toHaveCount(0);
+  await expect(page.getByTestId("case-law-article")).toContainText("過去版の第2項の本文");
+  await expect(page.getByText(/上の補完条文とは別に表示しています/)).toBeVisible();
+  for (const change of [
+    { evidence: [] },
+    { evidence: [{ from: "2012-12-31", to: "2015-12-31", text: "範囲外" }] },
+    { evidence: [{ from: "2013-01-01", to: "2016-01-01", text: "範囲外" }] },
+    { evidence: [{ from: "2013-02-30", to: "2015-12-31", text: "不正日付" }] },
+    { evidence: [{ from: "2015-12-31", to: "2013-01-01", text: "逆転" }] },
+    { evidence: [...caseLinks().laws[0].evidence, { from: "2020-01-01", to: "2020-01-01", text: "別期間もある" }] },
+    { law_id: "OTHER" },
+    { articles: ["9"] },
+    { basis: "event_date_candidate", versions: [{ revision_id: oldRevision, effective_date: "2014-01-01", body_available: false }] },
+  ]) {
+    links = unresolvedLinks();
+    links.laws[0] = { ...links.laws[0], reference_versions: [], ...change };
+    const law = links.laws[0];
+    await page.goto(new URL(`#/hanrei/92002/laws/${law.law_id}/${law.articles[0] === "9" ? "9" : "8"}`, BASE).toString());
+    await page.reload();
+    await expect(page.getByText("条文リンクを読み込み中…", { exact: true })).toHaveCount(0);
+    await expect(page.getByTestId("historical-article-supplement")).toHaveCount(0);
+  }
 });
