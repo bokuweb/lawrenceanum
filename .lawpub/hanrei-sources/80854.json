@@ -1,0 +1,126 @@
+{
+  "kind": "hanrei",
+  "case_id": 80854,
+  "case": {
+    "case_id": 80854,
+    "case_number": "平成22(行ト)63",
+    "case_name": "執行停止申立て却下決定に対する抗告棄却決定に対する特別抗告及び許可抗告事件",
+    "judged_on": "平成22年11月25日",
+    "court": "最高裁判所第一小法廷",
+    "judgment_type": "決定",
+    "result": "棄却",
+    "reporter": "民集 第64巻8号1951頁",
+    "lower_court": "東京高等裁判所",
+    "lower_case_number": "平成22(行ス)76",
+    "lower_judged_on": "平成22年10月22日",
+    "holding": "検察審査会法４１条の６第１項所定の検察審査会による起訴をすべき旨の議決の適否につき行政事件訴訟を提起して争い，これを本案とする行政事件訴訟法２５条２項の執行停止の申立てをすることができるか",
+    "summary": "検察審査会法４１条の６第１項所定の検察審査会による起訴をすべき旨の議決の適否については，行政事件訴訟を提起して争うことはできず，これを本案とする行政事件訴訟法２５条２項の執行停止の申立てをすることもできない。",
+    "referenced_laws": "検察審査会法41条の6第1項，検察審査会法41条の10第1項，行政事件訴訟法1条，行政事件訴訟法25条2項",
+    "body_citations": [],
+    "body_text": null,
+    "detail_url": "https://www.courts.go.jp/hanrei/80854/detail2/index.html",
+    "pdf_url": "https://www.courts.go.jp/assets/hanrei/hanrei-pdf-80854.pdf"
+  },
+  "laws": [
+    {
+      "law_id": "323AC0000000147",
+      "title": "検察審査会法",
+      "articles": [
+        "41_10",
+        "41_6"
+      ],
+      "wiki_path": "laws/323AC0000000147",
+      "basis": "unresolved",
+      "evidence": [
+        {
+          "from": "2010-11-25",
+          "to": "2010-11-25",
+          "text": "本文から適用時点を絞れないため裁判日を参照（実際の適用版は未確認）"
+        }
+      ],
+      "versions": [],
+      "reference_versions": [
+        {
+          "revision_id": "323AC0000000147_20160401_426AC0000000042",
+          "effective_date": "2016-04-01",
+          "body_available": true
+        },
+        {
+          "revision_id": "323AC0000000147_20180601_428AC0000000054",
+          "effective_date": "2018-06-01",
+          "body_available": true
+        },
+        {
+          "revision_id": "323AC0000000147_20220617_504AC0000000068",
+          "effective_date": "2022-06-17",
+          "body_available": true
+        }
+      ],
+      "incomplete": true,
+      "relation": "条文への言及（適用法条との同定は未確認）"
+    },
+    {
+      "law_id": "337AC0000000139",
+      "title": "行政事件訴訟法",
+      "articles": [
+        "1",
+        "25"
+      ],
+      "wiki_path": "laws/337AC0000000139",
+      "basis": "unresolved",
+      "evidence": [
+        {
+          "from": "2010-11-25",
+          "to": "2010-11-25",
+          "text": "本文から適用時点を絞れないため裁判日を参照（実際の適用版は未確認）"
+        }
+      ],
+      "versions": [],
+      "reference_versions": [
+        {
+          "revision_id": "337AC0000000139_20170401_427AC0000000059",
+          "effective_date": "2017-04-01",
+          "body_available": true
+        },
+        {
+          "revision_id": "337AC0000000139_20220525_504AC0000000048",
+          "effective_date": "2022-05-25",
+          "body_available": true
+        },
+        {
+          "revision_id": "337AC0000000139_20220617_504AC0000000054",
+          "effective_date": "2022-06-17",
+          "body_available": true
+        }
+      ],
+      "incomplete": true,
+      "relation": "条文への言及（適用法条との同定は未確認）"
+    }
+  ],
+  "excerpts": [
+    {
+      "ref": "hanrei:80854#holding",
+      "url": "https://www.courts.go.jp/hanrei/80854/detail2/index.html",
+      "text": "検察審査会法４１条の６第１項所定の検察審査会による起訴をすべき旨の議決の適否につき行政事件訴訟を提起して争い，これを本案とする行政事件訴訟法２５条２項の執行停止の申立てをすることができるか",
+      "scope": "裁判所の判示事項"
+    },
+    {
+      "ref": "hanrei:80854#summary",
+      "url": "https://www.courts.go.jp/hanrei/80854/detail2/index.html",
+      "text": "検察審査会法４１条の６第１項所定の検察審査会による起訴をすべき旨の議決の適否については，行政事件訴訟を提起して争うことはできず，これを本案とする行政事件訴訟法２５条２項の執行停止の申立てをすることもできない。",
+      "scope": "裁判所の裁判要旨"
+    }
+  ],
+  "has_case_text": true,
+  "scope": "判示事項・裁判要旨（判決全文未収録）",
+  "captured_on": "2026-10-25",
+  "summary_format_version": 3,
+  "summary_input": {
+    "total_chars": 198,
+    "included_chars": 198,
+    "partial_refs": [],
+    "omitted_refs": [],
+    "selection": "資料ごとの文字数上限。長い資料は冒頭・中盤・末尾の離れた抜粋（末尾を多めに収録）"
+  },
+  "source_fingerprint": "89ea9fbea5d2b9f7427a2fa92da6da6c6a42d56446473a04b49d55ace258911e"
+}

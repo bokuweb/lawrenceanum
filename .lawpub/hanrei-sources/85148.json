@@ -1,0 +1,126 @@
+{
+  "kind": "hanrei",
+  "case_id": 85148,
+  "case": {
+    "case_id": 85148,
+    "case_number": "平成25(受)2430",
+    "case_name": "地位確認等請求反訴事件",
+    "judged_on": "平成27年6月8日",
+    "court": "最高裁判所第二小法廷",
+    "judgment_type": "判決",
+    "result": "破棄差戻",
+    "reporter": "民集 第69巻4号1047頁",
+    "lower_court": "東京高等裁判所",
+    "lower_case_number": "平成24(ネ)7172",
+    "lower_judged_on": "平成25年7月10日",
+    "holding": "労働者災害補償保険法による療養補償給付を受ける労働者につき，使用者が労働基準法８１条所定の打切補償の支払をすることにより，解雇制限の除外事由を定める同法１９条１項ただし書の適用を受けることの可否",
+    "summary": "労働者災害補償保険法１２条の８第１項１号の療養補償給付を受ける労働者が，療養開始後３年を経過しても疾病等が治らない場合には，使用者は，当該労働者につき，労働基準法８１条の規定による打切補償の支払をすることにより，解雇制限の除外事由を定める同法１９条１項ただし書の適用を受けることができる。",
+    "referenced_laws": "労働者災害補償保険法１２条の８第１項１号，労働者災害補償保険法１２条の８第２項，労働基準法１９条１項，労働基準法７５条，労働基準法８１条",
+    "body_citations": [],
+    "body_text": null,
+    "detail_url": "https://www.courts.go.jp/hanrei/85148/detail2/index.html",
+    "pdf_url": "https://www.courts.go.jp/assets/hanrei/hanrei-pdf-85148.pdf"
+  },
+  "laws": [
+    {
+      "law_id": "322AC0000000049",
+      "title": "労働基準法",
+      "articles": [
+        "19",
+        "75",
+        "81"
+      ],
+      "wiki_path": "laws/322AC0000000049",
+      "basis": "unresolved",
+      "evidence": [
+        {
+          "from": "2015-06-08",
+          "to": "2015-06-08",
+          "text": "本文から適用時点を絞れないため裁判日を参照（実際の適用版は未確認）"
+        }
+      ],
+      "versions": [],
+      "reference_versions": [
+        {
+          "revision_id": "322AC0000000049_20160401_427AC0000000031",
+          "effective_date": "2016-04-01",
+          "body_available": true
+        },
+        {
+          "revision_id": "322AC0000000049_20170602_429AC0000000045",
+          "effective_date": "2017-06-02",
+          "body_available": true
+        },
+        {
+          "revision_id": "322AC0000000049_20180706_430AC0000000071",
+          "effective_date": "2018-07-06",
+          "body_available": true
+        }
+      ],
+      "incomplete": true,
+      "relation": "条文への言及（適用法条との同定は未確認）"
+    },
+    {
+      "law_id": "322AC0000000050",
+      "title": "労働者災害補償保険法",
+      "articles": [
+        "12_8"
+      ],
+      "wiki_path": "laws/322AC0000000050",
+      "basis": "unresolved",
+      "evidence": [
+        {
+          "from": "2015-06-08",
+          "to": "2015-06-08",
+          "text": "本文から適用時点を絞れないため裁判日を参照（実際の適用版は未確認）"
+        }
+      ],
+      "versions": [],
+      "reference_versions": [
+        {
+          "revision_id": "322AC0000000050_20160401_426AC0000000042",
+          "effective_date": "2016-04-01",
+          "body_available": true
+        },
+        {
+          "revision_id": "322AC0000000050_20160401_426AC0000000069",
+          "effective_date": "2016-04-01",
+          "body_available": true
+        },
+        {
+          "revision_id": "322AC0000000050_20160401_427AC0000000017",
+          "effective_date": "2016-04-01",
+          "body_available": true
+        }
+      ],
+      "incomplete": true,
+      "relation": "条文への言及（適用法条との同定は未確認）"
+    }
+  ],
+  "excerpts": [
+    {
+      "ref": "hanrei:85148#holding",
+      "url": "https://www.courts.go.jp/hanrei/85148/detail2/index.html",
+      "text": "労働者災害補償保険法による療養補償給付を受ける労働者につき，使用者が労働基準法８１条所定の打切補償の支払をすることにより，解雇制限の除外事由を定める同法１９条１項ただし書の適用を受けることの可否",
+      "scope": "裁判所の判示事項"
+    },
+    {
+      "ref": "hanrei:85148#summary",
+      "url": "https://www.courts.go.jp/hanrei/85148/detail2/index.html",
+      "text": "労働者災害補償保険法１２条の８第１項１号の療養補償給付を受ける労働者が，療養開始後３年を経過しても疾病等が治らない場合には，使用者は，当該労働者につき，労働基準法８１条の規定による打切補償の支払をすることにより，解雇制限の除外事由を定める同法１９条１項ただし書の適用を受けることができる。",
+      "scope": "裁判所の裁判要旨"
+    }
+  ],
+  "has_case_text": true,
+  "scope": "判示事項・裁判要旨（判決全文未収録）",
+  "captured_on": "2026-10-25",
+  "summary_format_version": 3,
+  "summary_input": {
+    "total_chars": 241,
+    "included_chars": 241,
+    "partial_refs": [],
+    "omitted_refs": [],
+    "selection": "資料ごとの文字数上限。長い資料は冒頭・中盤・末尾の離れた抜粋（末尾を多めに収録）"
+  },
+  "source_fingerprint": "6f28692c8b794cd6d744bbf85125cb3317981b21aa597483f5a4c93664022bf8"
+}
