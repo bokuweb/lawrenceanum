@@ -19,23 +19,21 @@
 
 use std::path::{Path, PathBuf};
 
-// The original HTML fixtures predate the additive cell-origin contract.
+// The original HTML fixtures predate the additive cell-origin/advance-band contracts.
 // Keep their complete existing payload check. A regenerated fixture containing
 // the contract compares every byte, including the new metadata, as before.
 // Original glyph/envelope/font-size contracts are tested in kanpo-pdf.
 fn source_payload(actual: &str, expected: &str) -> String {
-    let needle = " data-native-cell-origin=\"";
-    if expected.contains(needle) {
-        return actual.to_owned();
-    }
     let mut out = actual.to_owned();
-    while let Some(start) = out.find(needle) {
-        let value = start + needle.len();
-        let end = value
-            + out[value..]
-                .find('"')
-                .expect("closed cell origin attribute");
-        out.replace_range(start..=end, "");
+    for needle in [" data-native-cell-origin=\"", " data-native-advance-band=\""] {
+        if expected.contains(needle) {
+            continue;
+        }
+        while let Some(start) = out.find(needle) {
+            let value = start + needle.len();
+            let end = value + out[value..].find('"').expect("closed source attribute");
+            out.replace_range(start..=end, "");
+        }
     }
     out
 }
@@ -219,4 +217,18 @@ fn first_diff(expected: &str, actual: &str) -> String {
         e.get(i).copied().unwrap_or("<EOF>"),
         a.get(i).copied().unwrap_or("<EOF>")
     )
+}
+
+#[test]
+fn additive_band_metadata_does_not_hide_existing_or_current_payload() {
+    let old="<word xmin='10' data-native-axis='right'>a b</word>";
+    let band=old.replace(" data-native-axis", " data-native-advance-band=\"1 original complete origins\" data-native-axis");
+    let both=band.replace(" data-native-axis", " data-native-cell-origin=\"2 original envelope and sizes\" data-native-axis");
+    assert_eq!(source_payload(&band,old),old);
+    assert_eq!(source_payload(&both,old),old);
+    assert_eq!(source_payload(&both,&band),band);
+    assert_eq!(source_payload(&both,&both),both);
+    for changed in [both.replace("a b","ab"),both.replace("xmin='10'","xmin='11'"),both.replace("'right'","'left'"),both.replace("1 original","2 changed"),both.replace("2 original","3 changed")] {
+        assert_ne!(source_payload(&changed,&both),both);
+    }
 }

@@ -693,6 +693,7 @@ mod native_sentence_cells;
 mod native_sentence_contracts;
 
 mod native_word_flow;
+mod native_advance_band;
 
 mod native_paragraph_scope;
 

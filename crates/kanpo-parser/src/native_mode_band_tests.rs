@@ -51,6 +51,7 @@ impl F {
     }
     fn s(&self) -> SourceGeometry<'_> {
         SourceGeometry {
+            bands: &[],
             enclosures: &self.frames,
             words: &self.words,
             bounds: &self.bounds,

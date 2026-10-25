@@ -1,0 +1,161 @@
+{
+  "issue": 227,
+  "stage": 110,
+  "native_change": 144,
+  "native_baseline": 142,
+  "scope": "Implementing agent nonblind inspection of all85 name/code source rows on one original PDF. Regression contract, not independent whole-page gold, encoding accuracy or overall100%.",
+  "source": {
+    "page": "20261020g002300021",
+    "pdf_sha256": "d1a8a91c6a5d09705d2eab372ad4ee132f7726ce29f258786b4e2524d53f4a5c",
+    "native_Words": 196,
+    "used_Words_once": 182,
+    "panels_rows": [
+      39,
+      46
+    ],
+    "original_whole_page_viewed": true,
+    "independent_gold": false
+  },
+  "cause": "One original identifier spans two distinct native horizontal paint origins454.5453999999994 and454.55339999999944, glyph IDs2095..2102. Font IDs0/1 are both horizontal; font IDs are not writing modes. The original Word projection retains first-glyph cross-axis bounds, separately from the complete raw glyph envelope.",
+  "production_rules": [
+    "Separate complete contiguous native-glyph advance-band certificate; all original glyphs have explicit horizontal mode/rightward axis, finite ordered advances and exact original projection. Source-enabled XHTML only, and only when no exact common flow exists.",
+    "Keep exact min/max original binary64 origins and whole native glyph envelope; never round or average them into a common baseline. Projection references use the same six-decimal representation as the existing XHTML Word attributes; this binds representations, not a distance tolerance.",
+    "Parser validates version, complete shape, explicit axis/mode, finite source styles, parent source-glyph range, original projection and full envelope. Contradictory old flow attributes and impossible single-glyph ranges decline.",
+    "Certificate remains zipped to its own source Word through canonical sorting, including identical rectangle/text/font ties. Fenced record matching uses complete origin ranges and disjoint native envelopes. A present invalid exact flow cannot fall back to a band.",
+    "Existing repeated two-field record grammar and original fences remain required; all original words are owned once. No code/name/page/company dispatch or fixed coordinate tolerance."
+  ],
+  "TDD": {
+    "new_PDF_unit_controls": 15,
+    "new_parser_unit_controls": 22,
+    "new_original_API_tests": 7,
+    "new_XHTML_compatibility_test": 1,
+    "original_API_tests_before": {
+      "passed": 0,
+      "failed": 7
+    },
+    "original_API_tests_after": {
+      "passed": 7,
+      "failed": 0
+    },
+    "generic_RED_then_GREEN": true,
+    "controls": [
+      "missing/partial/foreign/nonfinite source evidence",
+      "unknown version/mode/axis",
+      "range and projection mismatch",
+      "source envelope versus first-glyph projection",
+      "single-glyph origin consistency",
+      "ambiguous or crossing complete label/key bands",
+      "invalid present flow cannot fallback",
+      "original precision and own glyph IDs",
+      "equal-sort-key source binding"
+    ]
+  },
+  "native4": {
+    "terminal": 0,
+    "source_manifest_sha256": "c4218c17d7dbfcdef9616ef585bebc64857e45462be7709d8875d073b7e3a0d8",
+    "commands": 152,
+    "executed_commands_including_corpus_retry": 153,
+    "integration_targets": 143,
+    "passed": 3352,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 151,
+    "no_expected_snapshot_updates": true,
+    "all_commands_exit0": true,
+    "final_target_results_only": true,
+    "initial_metadata_compatibility_failure_retained": "native-gates144/019.log",
+    "only_test_harness_changed_for_retry": "crates/kanpo-parser/tests/corpus.rs",
+    "production_source_and_all_other_test_inputs_unchanged": true
+  },
+  "cohorts": {
+    "single": {
+      "mode": "single",
+      "items": 11992,
+      "changed": 1,
+      "changed_PageTrace_pages": 1,
+      "all_changed_items_PageTrace_exact": false,
+      "all_changed_items_full_text_exact": false,
+      "source_inputs_reference_sources_binaries_prepost_exact": true,
+      "source_Word_fields_changed_items": [],
+      "seconds": 432.49523975
+    },
+    "whole": {
+      "mode": "whole",
+      "items": 159,
+      "changed": 1,
+      "changed_PageTrace_pages": 1,
+      "all_changed_items_PageTrace_exact": false,
+      "all_changed_items_full_text_exact": false,
+      "source_inputs_reference_sources_binaries_prepost_exact": true,
+      "source_Word_fields_changed_items": [],
+      "seconds": 794.3534625829999
+    }
+  },
+  "preservation": {
+    "single": {
+      "20261020g002300021": {
+        "reviewed_physical_pages": 1,
+        "all_native_Word_fields_and_unique_occurrences_exact": true,
+        "complete_Article_owners_and_other_text_exact": true,
+        "Document_character_styles_order_exact_reviewed_source_page_permutation_whitespace_excluded": true,
+        "Document_rows_exact_reviewed_native_records_unmerged_table_containers_normalized": true
+      }
+    },
+    "whole": {
+      "20261020g00230": {
+        "reviewed_physical_pages": 1,
+        "all_native_Word_fields_and_unique_occurrences_exact": true,
+        "complete_Article_owners_and_other_text_exact": true,
+        "Document_character_styles_order_exact_reviewed_source_page_permutation_whitespace_excluded": true,
+        "Document_rows_exact_reviewed_native_records_unmerged_table_containers_normalized": true
+      }
+    },
+    "controlled_corruptions_rejected": [
+      "native Word position",
+      "native Word text",
+      "article owner",
+      "complete text",
+      "duplicated source ownership",
+      "wrong source row",
+      "wrong source pairing",
+      "Document character style",
+      "Document text"
+    ],
+    "scope": "Nonblind reviewed source associations; no independent gold or overall accuracy claim."
+  },
+  "actual_CLI": {
+    "actual_Cargo_debug_native_PDFs": 12,
+    "actual_Cargo_debug_source_XHTML_textdump": 12,
+    "actual_Cargo_debug_text_example": 12,
+    "every_complete_text_exact_frozen_optimized_API": true,
+    "all_source_bytes_prepost_exact": true,
+    "word_duplicates": 0,
+    "full11992_CLI_run": false,
+    "release_CLI_run": false
+  },
+  "historical_references": {
+    "all_old_JSON_TSV_snapshots_retained_unchanged": true,
+    "snapshots": 814,
+    "old_expected_output_updates": 0,
+    "corpus_test_only_change": "Normalize only absent additive source certificates independently; retain every existing payload byte and require current certificates unchanged. New test RED then GREEN.",
+    "previous11_native142_complete_Analyses_exact": true
+  },
+  "fixed30_source_review139_scores_unchanged_native138_history": true,
+  "OCR": {
+    "explicit_opt_in": true,
+    "automatic_native_OCR": false,
+    "engine": "NDLOCR",
+    "version": "0.0.15",
+    "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "new_inferences": 0
+  },
+  "additional_models": false,
+  "remaining": [
+    "new-section marker row and Article ownership",
+    "change-before/after frequency tables and footnotes",
+    "independent procedures and publications",
+    "multiple amount columns and subtotals",
+    "unresolved character codes/PUA and other layout/ownership"
+  ],
+  "goal227_complete": false
+}

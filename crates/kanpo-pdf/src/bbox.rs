@@ -455,6 +455,11 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
                 format!(" data-native-ruling=\"{axis}\" data-native-ink-xmin=\"{x0}\" data-native-ink-ymin=\"{y0}\" data-native-ink-xmax=\"{x1}\" data-native-ink-ymax=\"{y1}\"")
             }).unwrap_or_default()}else{String::new()};
             let flow=if emit_styles {native_axis_flow_tuple(page,&word).map(|[start,baseline,end,leading]|{ let trailing=page.glyphs[*word.glyphs.last().unwrap()].spacing; let prefix=page.glyphs[word.glyphs[0]].kern; format!(" data-native-flow-start=\"{start}\" data-native-flow-baseline=\"{baseline}\" data-native-flow-end=\"{end}\" data-native-flow-leading=\"{leading}\" data-native-flow-trailing=\"{trailing}\" data-native-flow-prefix=\"{prefix}\"") }).unwrap_or_default()}else{String::new()};
+            let advance_band = if emit_styles && native_axis_flow_tuple(page, &word).is_none() {
+                native_advance_band::from_word(page, &word)
+                    .map(|band| format!(" data-native-advance-band=\"{}\"", band.attribute()))
+                    .unwrap_or_default()
+            } else { String::new() };
             let range=if emit_styles{native_glyph_range(page,&word).map(|(first,after)|format!(" data-native-flow-first-glyph=\"{first}\" data-native-flow-after-glyph=\"{after}\"")).unwrap_or_default()}else{String::new()};
             let content = if emit_styles {
                 let value = native_content_styles(page, &word, resolved_source).unwrap_or_else(|| "unknown".into());
@@ -468,7 +473,7 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
             let resolved = if resolved_aj1_word(page, &word) { " data-unicode-aj1=\"1\"" } else { "" };
             let _ = writeln!(
                 s,
-                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}{axis}{ruling}{flow}{range}{cell_origin}>{}</word>\n        </line>\n      </block>\n    </flow>",
+                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}{axis}{ruling}{flow}{range}{cell_origin}{advance_band}>{}</word>\n        </line>\n      </block>\n    </flow>",
                 escape(&word.text)
             );
         }
@@ -756,3 +761,6 @@ fn native_glyph_range(page:&Page,word:&Word)->Option<(usize,usize)>{
 mod native_projected_flow_tests;
 
 #[path="native_cell_origin.rs"]mod native_cell_origin;
+
+#[path = "native_advance_band.rs"]
+mod native_advance_band;

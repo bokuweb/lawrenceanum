@@ -10,6 +10,7 @@ struct F {
     bounds: Vec<NativeBounds>,
     axes: Vec<NativeAxis>,
     flows: Vec<Option<NativeFlow>>,
+    bands: Vec<Option<crate::native_advance_band::Band>>,
     v: Vec<(f32, f32, f32)>,
 }
 impl F {
@@ -36,6 +37,7 @@ impl F {
         });
         self.bounds.push(NativeBounds::Glyphs(b));
         self.axes.push(NativeAxis::Right);
+        self.bands.push(None);
         self.flows.push(Some(NativeFlow {
             mode: Some(NativeMode::Horizontal),
             start: f64::from(b[0]),
@@ -49,6 +51,7 @@ impl F {
     }
     fn source(&self) -> SourceGeometry<'_> {
         SourceGeometry {
+            bands: &self.bands,
             enclosures: &[],
             flows: &self.flows,
             bounds: &self.bounds,
@@ -67,6 +70,7 @@ fn fixture(panels: usize, wrap: usize) -> F {
         bounds: vec![],
         axes: vec![],
         flows: vec![],
+        bands: vec![],
         v: vec![],
     };
     for col in 0..panels {
@@ -297,4 +301,98 @@ fn fenced_records_one_name_field_keeps_its_text_across_physical_wraps() {
     let f = fixture(1, 1);
     let ts = f.run().unwrap();
     assert_eq!(ts[0].cells[0].text, "Arbitrary label 0continuation 0");
+}
+
+fn with_band(f: &mut F, id: usize, lower: f64, upper: f64) {
+    let w = &f.cols[id];
+    f.bands[id] = Some(crate::native_advance_band::Band {
+        start: f64::from(w.x),
+        end: f64::from(w.x1),
+        min_baseline: lower,
+        max_baseline: upper,
+        leading: 8.,
+        trailing: 0.,
+        prefix: 0.,
+        projection: [w.x, w.y, w.x1, w.y1],
+        glyph_bounds: [
+            f64::from(w.x),
+            f64::from(w.y).min(lower),
+            f64::from(w.x1),
+            f64::from(w.y1).max(upper),
+        ],
+        first: id * 2,
+        after: id * 2 + 2,
+        glyph_count: f.cols.len() * 2,
+    });
+}
+#[test]
+fn fenced_records144_complete_key_band_does_not_fabricate_an_exact_flow() {
+    for panels in [1, 2, 3] {
+        let mut f = fixture(panels, 1);
+        let ids = f
+            .cols
+            .iter()
+            .filter(|c| identifier(&c.text))
+            .map(|c| c.id)
+            .collect::<Vec<_>>();
+        for id in ids {
+            let y = f.flows[id].unwrap().baseline;
+            f.flows[id] = None;
+            with_band(&mut f, id, y, y + 0.008);
+        }
+        let t = f.run().unwrap();
+        assert_eq!(t.len(), panels);
+        assert!(f
+            .cols
+            .iter()
+            .filter(|c| identifier(&c.text))
+            .all(|c| f.flows[c.id].is_none()));
+    }
+}
+#[test]
+fn fenced_records144_band_crossing_neighboring_rows_is_not_one_row() {
+    let mut f = fixture(1, 1);
+    f.flows[2] = None;
+    with_band(&mut f, 2, 26., 106.);
+    assert!(f.bands[2].unwrap().belongs([160., 20., 220., 28.]));
+    assert!(f.run().is_none());
+}
+#[test]
+fn fenced_records144_a_band_never_rehabilitates_an_invalid_present_exact_flow() {
+    let mut f = fixture(1, 1);
+    with_band(&mut f, 2, 26., 26.008);
+    f.flows[2].as_mut().unwrap().end += 1.;
+    assert!(f.run().is_none());
+}
+#[test]
+fn fenced_records144_foreign_projection_in_a_band_is_not_owned() {
+    let mut f = fixture(1, 1);
+    f.flows[2] = None;
+    with_band(&mut f, 2, 26., 26.008);
+    f.bands[2].as_mut().unwrap().projection[0] += 1.;
+    assert!(f.run().is_none());
+}
+
+#[test]
+fn fenced_records144_a_whole_label_origin_band_cannot_be_replaced_by_one_endpoint() {
+    let mut f = fixture(1, 1);
+    f.flows[0] = None;
+    with_band(&mut f, 0, 26., 106.);
+    assert!(f.bands[0].unwrap().belongs([10., 20., 120., 28.]));
+    assert!(f.run().is_none());
+}
+#[test]
+fn fenced_records144_an_invalid_label_band_cannot_hide_behind_the_old_projection() {
+    let mut f = fixture(1, 1);
+    f.flows[0] = None;
+    with_band(&mut f, 0, 26., 26.16);
+    f.bands[0].as_mut().unwrap().projection[0] += 1.;
+    assert!(f.run().is_none());
+}
+#[test]
+fn fenced_records144_a_complete_label_range_and_its_key_keep_one_record() {
+    let mut f = fixture(1, 1);
+    f.flows[0] = None;
+    with_band(&mut f, 0, 26., 26.16);
+    assert!(f.run().is_some());
 }

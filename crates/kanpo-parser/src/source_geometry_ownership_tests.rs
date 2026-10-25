@@ -37,6 +37,7 @@ fn fixture() -> (Vec<Col>, Vec<Word>) {
 }
 fn bound(cols: &[Col], original: &[Word]) -> bool {
     SourceGeometry {
+            bands: &[],
         enclosures: &[],
         flows: &[],
         bounds: &[],

@@ -39,6 +39,34 @@ fn flow(w: &Col, s: SourceGeometry<'_>) -> Option<NativeFlow> {
     let f = (*s.flows.get(w.id)?)?;
     (f.mode == Some(NativeMode::Horizontal) && f.belongs([w.x, w.y, w.x1, w.y1])).then_some(f)
 }
+
+#[derive(Clone, Copy)]
+struct RowOrigins {
+    lower: f64,
+    upper: f64,
+    bounds: [f64; 4],
+}
+fn source_row(w: &Col, s: SourceGeometry<'_>) -> Option<RowOrigins> {
+    if s.flows.get(w.id).copied().flatten().is_some() {
+        let f = flow(w, s)?;
+        return Some(RowOrigins {
+            lower: f.baseline,
+            upper: f.baseline,
+            bounds: [
+                f64::from(w.x),
+                f64::from(w.y),
+                f64::from(w.x1),
+                f64::from(w.y1),
+            ],
+        });
+    }
+    let b = s.bands.get(w.id).copied().flatten()?;
+    b.belongs([w.x, w.y, w.x1, w.y1]).then_some(RowOrigins {
+        lower: b.min_baseline,
+        upper: b.max_baseline,
+        bounds: b.glyph_bounds,
+    })
+}
 fn panel(words: &[Col], s: SourceGeometry<'_>, left: f32, right: f32) -> Option<trace::Table> {
     let mut spans = words.iter().map(|w| (w.x, w.x1)).collect::<Vec<_>>();
     spans.sort_by(|a, b| a.0.total_cmp(&b.0));
@@ -61,7 +89,7 @@ fn panel(words: &[Col], s: SourceGeometry<'_>, left: f32, right: f32) -> Option<
     let mut keys = words
         .iter()
         .filter(|w| w.x > cut)
-        .map(|w| Some((w, flow(w, s)?)))
+        .map(|w| Some((w, source_row(w, s)?)))
         .collect::<Option<Vec<_>>>()?;
     if names.len() + keys.len() != words.len()
         || keys.len() < 2
@@ -69,29 +97,39 @@ fn panel(words: &[Col], s: SourceGeometry<'_>, left: f32, right: f32) -> Option<
     {
         return None;
     }
-    keys.sort_by(|a, b| a.1.baseline.total_cmp(&b.1.baseline));
+    keys.sort_by(|a, b| a.1.lower.total_cmp(&b.1.lower));
     if keys
         .windows(2)
-        .any(|p| p[0].1.baseline >= p[1].1.baseline || p[0].0.y1 >= p[1].0.y)
+        .any(|p| p[0].1.upper >= p[1].1.lower || p[0].1.bounds[3] >= p[1].1.bounds[1])
+    {
+        return None;
+    }
+    if keys
+        .iter()
+        .any(|(_, row)| row.bounds[0] < f64::from(cut) || row.bounds[2] > f64::from(right))
     {
         return None;
     }
     let mut grouped = vec![Vec::<Col>::new(); keys.len()];
     let mut first = vec![false; keys.len()];
     for w in names {
-        // A mixed-font original Word can lack a complete advance-flow witness. Its
-        // complete native glyph cell can still contain exactly one explicit anchor baseline.
+        // An interval retains all original origins. Neither its midpoint nor
+        // either endpoint is substituted for a common baseline.
+        let own = source_row(w, s);
+        if own.is_some_and(|r| r.bounds[0] < f64::from(left) || r.bounds[2] > f64::from(cut)) {
+            return None;
+        }
         let direct = keys
             .iter()
             .enumerate()
-            .filter(|(_, (k, kf))| match flow(w, s) {
-                Some(wf) => {
-                    f64::from(w.y) <= kf.baseline
-                        && kf.baseline <= f64::from(w.y1)
-                        && f64::from(k.y) <= wf.baseline
-                        && wf.baseline <= f64::from(k.y1)
+            .filter(|(_, (_, key))| match own {
+                Some(name) => {
+                    name.bounds[1] <= key.lower
+                        && key.upper <= name.bounds[3]
+                        && key.bounds[1] <= name.lower
+                        && name.upper <= key.bounds[3]
                 }
-                None => f64::from(w.y) <= kf.baseline && kf.baseline <= f64::from(w.y1),
+                None => f64::from(w.y) <= key.lower && key.upper <= f64::from(w.y1),
             })
             .map(|(i, _)| i)
             .collect::<Vec<_>>();
@@ -102,21 +140,23 @@ fn panel(words: &[Col], s: SourceGeometry<'_>, left: f32, right: f32) -> Option<
             if direct.len() > 1 {
                 return None;
             }
-            if let Some(f) = s.flows.get(w.id).copied().flatten() {
-                if f.mode != Some(NativeMode::Horizontal) || !f.belongs([w.x, w.y, w.x1, w.y1]) {
-                    return None;
-                }
-                let r = keys.iter().rposition(|(_, k)| k.baseline <= f.baseline)?;
-                if f.baseline == keys[r].1.baseline {
+            if let Some(name) = own {
+                let r = keys.iter().rposition(|(_, key)| key.upper <= name.lower)?;
+                if name.lower == name.upper
+                    && keys[r].1.lower == keys[r].1.upper
+                    && name.lower == keys[r].1.lower
+                {
                     first[r] = true;
                 }
                 r
             } else {
-                keys.iter().rposition(|(k, _)| k.y <= w.y)?
+                keys.iter()
+                    .rposition(|(_, key)| key.bounds[1] <= f64::from(w.y))?
             }
         };
-        if let Some((next, _)) = keys.get(row + 1) {
-            if w.y1 >= next.y {
+        if let Some((_, next)) = keys.get(row + 1) {
+            let bottom = own.map(|r| r.bounds[3]).unwrap_or(f64::from(w.y1));
+            if bottom >= next.bounds[1] {
                 return None;
             }
         }
@@ -231,7 +271,14 @@ pub(super) fn tables(
     // extend below that baseline; source flow supplies the actual row coordinate.
     // Mixed-font Words without one common baseline still require full glyph coverage.
     for w in words {
-        if invalid_flow(w, source) {
+        if invalid_flow(w, source)
+            || source
+                .bands
+                .get(w.id)
+                .copied()
+                .flatten()
+                .is_some_and(|b| !b.belongs([w.x, w.y, w.x1, w.y1]))
+        {
             return None;
         }
     }
@@ -243,8 +290,8 @@ pub(super) fn tables(
     let mut fences = v
         .iter()
         .filter(|&&(_, a, b)| {
-            words.iter().all(|w| match flow(w, source) {
-                Some(f) => f64::from(a) <= f.baseline && f.baseline <= f64::from(b),
+            words.iter().all(|w| match source_row(w, source) {
+                Some(row) => f64::from(a) <= row.lower && row.upper <= f64::from(b),
                 None => a <= w.y && b >= w.y1,
             })
         })

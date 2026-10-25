@@ -260,6 +260,7 @@ pub(crate) fn horizontal_lines_with_source_tables(
     axes: &[crate::native_word_axes::NativeAxis],
     words: &[trace::Word],
     flows: &[Option<crate::native_word_flow::NativeFlow>],
+    bands: &[Option<crate::native_advance_band::Band>],
     enclosures: &[[f32;4]],
 ) -> Vec<trace::Line> {
     lines_with_tables_source(
@@ -268,7 +269,7 @@ pub(crate) fn horizontal_lines_with_source_tables(
         vrules,
         hrules,
         false,
-        SourceGeometry { bounds, axes, words, flows, enclosures },
+        SourceGeometry { bounds, axes, words, flows, bands, enclosures },
     )
 }
 

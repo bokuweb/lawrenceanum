@@ -1,0 +1,4 @@
+Original official PDF: 20261020g002300021, Kanpo special issue230, 2026-10-20,page21.
+Unchanged source PDF; noOCR or image-based reconstruction.
+Nonblind original review: the long photocatalyst and grinder labels must precede their own trailing identifiers. The original R6211-12 code uses two distinct native paint origins; tests do not round or guess a common baseline.
+PDF SHA256: d1a8a91c6a5d09705d2eab372ad4ee132f7726ce29f258786b4e2524d53f4a5c
