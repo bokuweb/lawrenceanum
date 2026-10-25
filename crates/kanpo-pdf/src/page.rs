@@ -554,8 +554,22 @@ impl Interp<'_> {
             let (end_x, end_y) = trm.apply(own.0, own.1);
             // text space の長さをページ座標の長さに（字の大きさの比で）直す。
             let to_pt = if fs.abs() > 1e-9 { size / fs.abs() } else { 0.0 };
-            let spacing = extra * to_pt * if font.vertical { -1.0 } else { gs.h_scale };
-            let kern = std::mem::take(&mut self.pending_kern) * to_pt * if font.vertical { -1.0 } else { gs.h_scale };
+            let pending_kern = std::mem::take(&mut self.pending_kern);
+            let legacy_spacing = extra * to_pt * if font.vertical { -1.0 } else { gs.h_scale };
+            let legacy_kern = pending_kern * to_pt * if font.vertical { -1.0 } else { gs.h_scale };
+            // Tc/Tw and TJ are text-space translations. Project their actual
+            // linear transform onto the glyph's forward axis; the em-height
+            // norm is not the advance scale under nonuniform/mirrored text.
+            let [ma,mb,mc,md,_,_] = trm.0;
+            let forward = (ma*own.0+mc*own.1,mb*own.0+md*own.1);
+            let [ma,mb,mc,md,_,_] = self.tm.then(&ctm_dev).0;
+            let step = |amount:f64,legacy:f64| {
+                let (tx,ty)=if font.vertical {(0.,amount)} else {(amount*gs.h_scale,0.)};
+                let delta=(ma*tx+mc*ty,mb*tx+md*ty);
+                forward_scalar(forward,delta).map(|v|if v==legacy {legacy} else {v}).unwrap_or(legacy)
+            };
+            let spacing = step(extra,legacy_spacing);
+            let kern = step(pending_kern,legacy_kern);
             let bbox = bounds(&trm, bbox_pts);
             let ink_rect=if self.source_rects.is_some(){self.capture_ink_rectangle(&font,&c,&trm)}else{None};
             self.tm = advance.then(&self.tm);
@@ -751,3 +765,15 @@ fn skip_inline_image(parser: &mut Parser) {
 }
 
 #[path="source_ruling_context.rs"]mod ruling_context;
+
+// Exact axes avoid norm rounding; oblique text uses its actual forward unit
+// vector. Zero/unknown source advances retain the legacy value at the caller.
+fn forward_scalar((x,y):(f64,f64),(dx,dy):(f64,f64))->Option<f64>{
+    if ![x,y,dx,dy].iter().all(|v|v.is_finite()){return None;}
+    let v=match(x,y){
+        (x,0.)if x>0.=>dx,(x,0.)if x<0.=>-dx,
+        (0.,y)if y>0.=>dy,(0.,y)if y<0.=>-dy,
+        _=>{let length=x.hypot(y);if !length.is_finite()||length<=0.{return None;}x/length*dx+y/length*dy}
+    };
+    v.is_finite().then_some(v)
+}

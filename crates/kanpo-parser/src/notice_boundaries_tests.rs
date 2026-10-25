@@ -862,3 +862,23 @@ fn outer_frame_fences_do_not_depend_on_name_equivalence_font_ids_or_scale() {
         assert_eq!(cuts(&p, &r), vec![1]);
     }
 }
+
+#[test]
+fn quote_scope127_notice_heading_candidates_require_the_same_original_raw_word_authority() {
+    let mut p=empty();
+    push(&mut p,"第三条中「「旧字句」を「新字句」に改める。",[450.,40.,458.,240.],2);
+    notice(&mut p,400.,"任意の名称","令和八年七月一日");
+    p.words[0].raw.clear();
+    let lines=source_lines(&p).unwrap();
+    assert!(headings(&p,&lines,&[]).is_empty());
+}
+#[test]
+fn quote_scope127_notice_candidates_cannot_ignore_unknown_prior_source_text() {
+    let mut p=empty();
+    push(&mut p,"対応が不明な先行行",[480.,40.,488.,240.],2);
+    push(&mut p,"第三条中「「旧字句」を「新字句」に改める。",[450.,40.,458.,240.],2);
+    notice(&mut p,400.,"任意の名称","令和八年七月一日");
+    p.words[0].text="隠れた引用「".into();
+    let lines=source_lines(&p).unwrap();
+    assert!(headings(&p,&lines,&[]).is_empty());
+}

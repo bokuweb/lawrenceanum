@@ -82,7 +82,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     let mut prev_native_roles = false;
     for (pi, page) in doc.select(&page_sel).enumerate() {
         let (width, height) = page_size(page);
-        let (cols, mut words, rotated, sideways, merged, minus, native_styles, native_bounds, native_content_styles, native_axes, native_rulings, inline_merged, native_flows) = page_words_with_styles(page, width, height, rules.get(pi).and_then(|r| r.as_ref()));
+        let (cols, mut words, rotated, sideways, merged, minus, native_styles, native_bounds, native_content_styles, native_axes, native_rulings, inline_merged, native_flows, projected_flows) = page_words_with_styles(page, width, height, rules.get(pi).and_then(|r| r.as_ref()));
         // 負の金額の印「△」を付ける語の字（組んだ後で行の中の位置を探す）。
         let word_texts: std::collections::HashMap<usize, String> = if minus.is_empty() { Default::default() } else { cols.iter().map(|c| (c.id, c.text.clone())).collect() };
         // 長い区切り罫の右側の横統計表は元の向きで読み、縦本文の段切りから外す。
@@ -864,6 +864,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         let marker_members = marker_plan
             .and_then(|plan| ruled_marker_bands::apply(&mut units, plan, &inline_merged));
         crate::native_unit_dash::restore(&mut units, &mut words, &native_bounds, &native_axes, &native_styles, rules.get(pi).and_then(|r| r.as_ref()));
+        crate::native_column_flow::restore(&mut units,&words,&native_bounds,&native_styles,&projected_flows,rules.get(pi).and_then(|r|r.as_ref()));
         let text = units
             .iter()
             .map(Unit::text)
@@ -2326,7 +2327,7 @@ fn page_words_traced(
     page_rules: Option<&PageRules>,
 ) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>, std::collections::HashSet<usize>,
 ) {
-    let (a,b,c,d,e,f,_,_,_,_,_,_,_)=page_words_with_styles(page,page_width,height,page_rules);
+    let (a,b,c,d,e,f,_,_,_,_,_,_,_,_)=page_words_with_styles(page,page_width,height,page_rules);
     (a,b,c,d,e,f)
 }
 fn page_words_with_styles(
@@ -2334,7 +2335,7 @@ fn page_words_with_styles(
     page_width: f32,
     height: f32,
     page_rules: Option<&PageRules>,
-) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>, std::collections::HashSet<usize>, Vec<Option<crate::trace::NativeStyles>>, Vec<crate::trace::NativeBounds>, Vec<crate::trace::ContentStyles>, Vec<crate::native_word_axes::NativeAxis>,Vec<crate::native_word_rulings::NativeRuling>, Vec<(usize,usize)>, Vec<Option<crate::native_word_flow::NativeFlow>>,
+) -> (Vec<Col>, Vec<Word>, bool, bool, Vec<(usize, usize)>, std::collections::HashSet<usize>, Vec<Option<crate::trace::NativeStyles>>, Vec<crate::trace::NativeBounds>, Vec<crate::trace::ContentStyles>, Vec<crate::native_word_axes::NativeAxis>,Vec<crate::native_word_rulings::NativeRuling>, Vec<(usize,usize)>, Vec<Option<crate::native_word_flow::NativeFlow>>, Vec<Option<crate::native_column_flow::AxisFlow>>,
 ) {
     let word_sel = Selector::parse("word").unwrap();
     let line_sel = Selector::parse("line").unwrap();
@@ -2349,6 +2350,8 @@ fn page_words_with_styles(
     let mut native_axes=Vec::new();
     let mut native_rulings=Vec::new();
     let mut native_flows=Vec::new();
+    let mut projected_flows=Vec::new();
+    let glyph_count=page.value().attr("data-native-glyph-count").and_then(|n|n.parse::<usize>().ok());
     let mut native_vertical: std::collections::HashMap<[u32; 4], Vec<(String, [f32; 4])>> = Default::default();
     let mut native_horizontal_chars = 0usize;
     let mut horizontal_font_chars = 0usize;
@@ -2379,6 +2382,7 @@ fn page_words_with_styles(
             native_axes.push(crate::native_word_axes::from_word(w));
             native_rulings.push(crate::native_word_rulings::from_word(w));
             native_flows.push(crate::native_word_flow::from_word(w));
+            projected_flows.push(crate::native_column_flow::from_word(w,glyph_count));
             native_bounds.push(crate::native_word_bounds::from_word(w));
             native_styles.push(v.attr("data-native-styles").and_then(|text| {
                 let mut out=crate::trace::NativeStyles::new();
@@ -2422,6 +2426,7 @@ fn page_words_with_styles(
         .zip(native_axes).map(|((raw,evidence),axis)|(raw,(evidence,axis)))
         .zip(native_rulings).map(|((raw,evidence),ruling)|(raw,(evidence,ruling)))
         .zip(native_flows).map(|((raw,evidence),flow)|(raw,(evidence,flow)))
+        .zip(projected_flows).map(|((raw,evidence),flow)|(raw,(evidence,flow)))
         .collect();
     sources.sort_by(|(a, _), (b, _)| {
         b.0.total_cmp(&a.0)
@@ -2431,6 +2436,7 @@ fn page_words_with_styles(
             .then_with(|| a.4.cmp(&b.4))
     });
     let (mut raws, evidence): (Vec<_>, Vec<_>) = sources.into_iter().unzip();
+    let (evidence,projected_flows): (Vec<_>,Vec<_>) = evidence.into_iter().unzip();
     let (evidence,native_flows): (Vec<_>,Vec<_>) = evidence.into_iter().unzip();
     let (evidence,native_rulings): (Vec<_>,Vec<_>) = evidence.into_iter().unzip();
     let (evidence,native_axes): (Vec<_>,Vec<_>) = evidence.into_iter().unzip();
@@ -2644,7 +2650,7 @@ fn page_words_with_styles(
     let inline_merged = page_rules.map(|r| enclosed_warichu::merge(&mut cols,r)).unwrap_or_default();
     let protected = inline_merged.iter().map(|&(_, owner)| owner).collect();
     let merged = merge_warichu(&mut cols, &protected);
-    (cols, words, rotated, sideways, merged, minus, native_styles, native_bounds, native_content_styles, native_axes, native_rulings, inline_merged, native_flows)
+    (cols, words, rotated, sideways, merged, minus, native_styles, native_bounds, native_content_styles, native_axes, native_rulings, inline_merged, native_flows, projected_flows)
 }
 
 /// 枠のセルに文章（200 字を超える、または 2 文以上）が入っているか。公告の囲み記事などの
@@ -6341,7 +6347,7 @@ mod source_aj1_parser_tests;
 #[test]
 fn original_vertical_advance_metadata_authorizes_only_its_own_complete_frame(){
     let root=std::path::Path::new(env!("CARGO_MANIFEST_DIR"));let inputs=crate::page_inputs(&std::fs::read(root.join("tests/archive/pages/20260803g00174/20260803g001740136.pdf")).unwrap()).unwrap();let input=&inputs[0];let rules=input.rules.clone().unwrap();let mut no_frames=rules.clone();no_frames.enclosures.clear();
-    let columns=|xhtml:&str,rules:&PageRules|{let doc=Html::parse_document(xhtml);let sel=Selector::parse("page").unwrap();let page=doc.select(&sel).next().unwrap();let(w,h)=page_size(page);let(cols,_,_,_,_,_,_,_,_,_,_,_,_)=page_words_with_styles(page,w,h,Some(rules));cols.into_iter().map(|c|(c.id,[c.x.to_bits(),c.y.to_bits(),c.x1.to_bits(),c.y1.to_bits()],c.text)).collect::<Vec<_>>()};
+    let columns=|xhtml:&str,rules:&PageRules|{let doc=Html::parse_document(xhtml);let sel=Selector::parse("page").unwrap();let page=doc.select(&sel).next().unwrap();let(w,h)=page_size(page);let(cols,_,_,_,_,_,_,_,_,_,_,_,_ , _)=page_words_with_styles(page,w,h,Some(rules));cols.into_iter().map(|c|(c.id,[c.x.to_bits(),c.y.to_bits(),c.x1.to_bits(),c.y1.to_bits()],c.text)).collect::<Vec<_>>()};
     let valid=columns(&input.xhtml,&rules);assert_ne!(valid,columns(&input.xhtml,&no_frames));
     // Printed source occurrences are fixture oracles; neither text is a runtime condition.
     let change_word=|source:&str,text:&str,key:&str,value:Option<&str>|{
@@ -6638,3 +6644,9 @@ mod source_flow_binding_tests;
 #[cfg(test)]
 #[path="native_mode_band_binding_tests.rs"]
 mod native_mode_band_binding_tests;
+
+#[cfg(test)] mod projected_flow_binding_tests {
+use super::*;
+fn signatures(order:&[usize])->std::collections::BTreeMap<usize,(usize,usize)>{let ws=order.iter().map(|id|format!("<word xmin='10' ymin='93' xmax='18' ymax='102' data-wmode='0' data-native-axis='right' data-native-styles='{id}:4020000000000000' data-native-flow-start='10' data-native-flow-baseline='100' data-native-flow-end='18' data-native-flow-leading='8' data-native-flow-trailing='0' data-native-flow-prefix='0' data-native-flow-first-glyph='{id}' data-native-flow-after-glyph='{}'>same</word>",id+1)).collect::<String>();let dom=Html::parse_document(&format!("<page width='595' height='842' data-native-glyph-count='2'>{ws}</page>"));let page=dom.select(&Selector::parse("page").unwrap()).next().unwrap();let(_,_,_,_,_,_,styles,_,_,_,_,_,_,flows)=page_words_with_styles(page,595.,842.,None);styles.iter().zip(flows).map(|(s,f)|(s.as_ref().unwrap().iter().next().unwrap().0,f.unwrap().range())).collect()}
+#[test]fn exact_bbox_text_ties_keep_their_own_primitive_range_when_xml_emission_reverses(){let a=signatures(&[0,1]);assert_eq!(a,signatures(&[1,0]));assert_eq!(a[&0],(0,1));assert_eq!(a[&1],(1,2));}
+}

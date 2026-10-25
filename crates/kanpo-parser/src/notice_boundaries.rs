@@ -127,7 +127,8 @@ fn word_bounds(page: &PageTrace, id: usize) -> Option<Rect> {
 fn source_lines(page: &PageTrace) -> Option<Vec<SourceLine<'_>>> {
     let mut seen = HashSet::new();
     let mut lines = vec![];
-    let mut quotes = vec![];
+    let quote_lines=crate::amendment_quotes::source_lines(page);
+    let quote_states=crate::amendment_quotes::states(&quote_lines);
     let mut occurrences = HashMap::new();
     for w in &page.words {
         if !matches!(w.status, WordStatus::Used) {
@@ -188,19 +189,7 @@ fn source_lines(page: &PageTrace) -> Option<Vec<SourceLine<'_>>> {
             }
             let tokens =
                 (l.table.is_none() && tokens.concat() == compact(&l.text)).then_some(tokens);
-            let unquoted = quotes.is_empty() && !l.text.contains(['「', '」', '『', '』']);
-            for c in l.text.chars() {
-                match c {
-                    '「' => quotes.push('」'),
-                    '『' => quotes.push('』'),
-                    '」' | '』' => {
-                        if quotes.last() == Some(&c) {
-                            quotes.pop();
-                        }
-                    }
-                    _ => {}
-                }
-            }
+            let unquoted = quote_states[lines.len()].empty && !l.text.contains(['「','」','『','』']);
             lines.push(SourceLine {
                 line: l,
                 scope,
@@ -325,9 +314,13 @@ fn headings_at_source_starts(
     frames: &[OwnedFrame],
     geometric_starts: &[usize],
 ) -> Vec<Heading> {
-    let (mut out, mut quotes) = (vec![], vec![]);
+    let mut out=vec![];
+    let source=page.regions.iter().flat_map(|r|&r.lines).collect::<Vec<_>>();
+    if source.len()!=lines.len() || source.iter().zip(lines).any(|(a,b)|!std::ptr::eq(*a,b.line)) {return vec![];}
+    let quote_lines=crate::amendment_quotes::source_lines(page);
+    let quote_states=crate::amendment_quotes::states(&quote_lines);
     for (i, l) in lines.iter().enumerate() {
-        if quotes.is_empty() && l.role == Role::Body {
+        if quote_states[i].empty && l.role == Role::Body {
             if let Some(tokens) = &l.tokens {
                 let text = tokens.concat();
                 let bases = announcement_ends(&text);
@@ -384,16 +377,7 @@ fn headings_at_source_starts(
                 }
             }
         }
-        for c in l.line.text.chars() {
-            match c {
-                '「' => quotes.push('」'),
-                '『' => quotes.push('』'),
-                '」' | '』' if quotes.last() == Some(&c) => {
-                    quotes.pop();
-                }
-                _ => {}
-            }
-        }
+
     }
     // Lexical announcement syntax inside prose does not start a new scope.
     // A title must independently lead a complete frame or fit the vertical
@@ -993,24 +977,12 @@ pub(crate) fn groups(
     }
     let (mut offset, mut table, mut nonempty) = (0usize, 0usize, false);
     let (mut breaks, mut ownership) = (BTreeSet::new(), vec![]);
-    let mut quotes = Vec::new();
+    let quote_lines=pages.iter().flat_map(crate::amendment_quotes::source_lines).collect::<Vec<_>>();
+    let quote_states=crate::amendment_quotes::states(&quote_lines);
+    let mut quote_offset=0;
     for (pi, p) in pages.iter().enumerate() {
-        // An input page beginning inside an earlier page's quotation cannot
-        // independently authorize new articles. Retain its source ownership;
-        // resume candidates on later pages after the matching closure.
-        let continuing_quote = !quotes.is_empty();
-        for line in p.regions.iter().flat_map(|r| &r.lines) {
-            for c in line.text.chars() {
-                match c {
-                    '「' => quotes.push('」'),
-                    '『' => quotes.push('』'),
-                    '」' | '』' if quotes.last() == Some(&c) => {
-                        quotes.pop();
-                    }
-                    _ => {}
-                }
-            }
-        }
+        let continuing_quote=quote_states.get(quote_offset).is_some_and(|s|!s.empty);
+        quote_offset+=p.regions.iter().map(|r|r.lines.len()).sum::<usize>();
         let table_start = table;
         table += p.tables.len();
         if p.doc_text.is_empty() {

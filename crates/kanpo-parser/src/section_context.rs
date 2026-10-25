@@ -310,30 +310,11 @@ fn whole_line(pages: &[PageTrace], loc: Location, owner: &BTreeSet<Source>) -> O
     (compact(&text) == compact(&l.text)).then(|| l.words.clone())
 }
 fn quotes_before(pages: &[PageTrace], loc: Location) -> Option<()> {
-    let mut stack = vec![];
-    let (pi, ri, li) = loc;
-    for (pj, p) in pages.iter().enumerate().take(pi + 1) {
-        for (rj, r) in p.regions.iter().enumerate() {
-            for (lj, l) in r.lines.iter().enumerate() {
-                if pj == pi && (rj, lj) == (ri, li) {
-                    return stack.is_empty().then_some(());
-                }
-                for c in l.text.chars() {
-                    match c {
-                        '「' => stack.push('」'),
-                        '『' => stack.push('』'),
-                        '」' | '』' => {
-                            if stack.pop() != Some(c) {
-                                return None;
-                            }
-                        }
-                        _ => {}
-                    }
-                }
-            }
-        }
-    }
-    None
+    let lines=pages.iter().flat_map(crate::amendment_quotes::source_lines).collect::<Vec<_>>();
+    let (pi,ri,li)=loc;
+    let p=pages.get(pi)?;let r=p.regions.get(ri)?;r.lines.get(li)?;
+    let offset=pages[..pi].iter().flat_map(|p|&p.regions).map(|r|r.lines.len()).sum::<usize>()+p.regions[..ri].iter().map(|r|r.lines.len()).sum::<usize>()+li;
+    crate::amendment_quotes::states(&lines).get(offset)?.strict().then_some(())
 }
 #[path = "section_masthead.rs"]
 mod masthead;

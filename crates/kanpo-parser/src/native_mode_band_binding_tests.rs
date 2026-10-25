@@ -7,7 +7,7 @@ fn modes(words: &[String]) -> std::collections::BTreeMap<usize, Option<NativeMod
     );
     let d = Html::parse_document(&x);
     let p = d.select(&Selector::parse("page").unwrap()).next().unwrap();
-    let (_, words, _, _, _, _, styles, _, _, _, _, _, flows) =
+    let (_, words, _, _, _, _, styles, _, _, _, _, _, flows , _) =
         page_words_with_styles(p, 595., 842., None);
     assert_eq!(words.len(), flows.len());
     styles

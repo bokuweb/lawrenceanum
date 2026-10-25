@@ -1520,3 +1520,154 @@ fn categorical_roots_do_not_branch_on_the_following_title_value_or_length() {
         assert_eq!(native_roots(&f), vec![0]);
     }
 }
+
+
+// Stage127: source quote-scope contracts. Runtime remains adopted126 here.
+#[test]
+fn quote_scope127_literal_opening_delimiters_in_complete_replacement_operands_are_not_an_outer_quote() {
+    for (before,after) in [("甲項目","乙項目"),("任意の長い改正対象","x"),("x","別の任意の改正後字句")] {
+        let mut f=native_root_fixture();
+        root_prefix(&mut f,&format!("第三条中「「{before}」を「「{after}」に改める。"));
+        assert_eq!(native_roots(&f),vec![1]);
+    }
+}
+#[test]
+fn quote_scope127_literal_closing_delimiters_are_operand_content_not_unknown_outer_closures() {
+    let mut f=native_root_fixture();
+    root_prefix(&mut f,"第三条中「甲項目」」を「乙項目」」に改める。");
+    assert_eq!(native_roots(&f),vec![1]);
+}
+#[test]
+fn quote_scope127_wrapped_complete_operand_operation_has_no_fixed_line_limit() {
+    let mut f=native_root_fixture();
+    for line in ["める。","「「新項目」に改","第三条中「「旧項目」を"].iter() {root_prefix(&mut f,line);}
+    assert_eq!(native_roots(&f),vec![3]);
+}
+#[test]
+fn quote_scope127_a_genuine_outer_quote_with_an_embedded_operation_keeps_its_scope() {
+    let mut f=native_root_fixture();
+    root_prefix(&mut f,"引用「第三条中「旧項目」を「新項目」に改める。");
+    assert!(native_roots(&f).is_empty());
+}
+#[test]
+fn quote_scope127_a_balanced_genuine_quote_does_not_own_the_following_source_section() {
+    let mut f=native_root_fixture();
+    root_prefix(&mut f,"引用「第三条中「旧項目」を「新項目」に改める。」");
+    assert_eq!(native_roots(&f),vec![1]);
+}
+#[test]
+fn quote_scope127_unfinished_literal_operand_grammar_cannot_release_a_quote() {
+    let mut f=native_root_fixture();
+    root_prefix(&mut f,"第三条中「「旧項目」を「「新項目」に");
+    assert!(native_roots(&f).is_empty());
+}
+fn quote_scope127_cross_page_parts(prefix:&str)->Vec<Vec<crate::notice_boundaries::Part>> {
+    let mut previous=native_root_fixture();root_prefix(&mut previous,prefix);
+    let mut page=previous.pages.remove(0);
+    page.regions[0].lines.truncate(1);
+    let id=page.regions[0].lines[0].words[0];
+    for w in &mut page.words {if w.id!=id {w.status=WordStatus::Empty;}}
+    page.text=prefix.into();page.doc_text=prefix.into();
+    let mut f=native_root_fixture();f.pages.insert(0,page);f.rules.insert(0,Some(PageRules::default()));
+    let text=f.pages.iter().map(|p|p.doc_text.as_str()).collect::<Vec<_>>().join("\n");
+    let original=crate::segment_articles(&text);assert_eq!(original.len(),1);
+    crate::notice_boundaries::groups(&original,&text,&f.pages,&f.rules)
+}
+#[test]
+fn quote_scope127_literal_operand_quote_state_does_not_leak_to_a_later_page() {
+    let parts=quote_scope127_cross_page_parts("第三条中「「旧項目」を「「新項目」に改める。");
+    assert_eq!(parts.len(),1);assert_eq!(parts[0].len(),2);
+}
+#[test]
+fn quote_scope127_genuine_continuing_quote_still_protects_a_later_native_masthead() {
+    let parts=quote_scope127_cross_page_parts("引用「第三条中「旧項目」を「新項目」に改める。");
+    assert_eq!(parts.len(),1);assert_eq!(parts[0].len(),1);
+}
+
+#[test]
+fn quote_scope127_other_complete_operands_before_the_literal_fragment_do_not_hide_its_scope() {
+    let mut f=native_root_fixture();
+    root_prefix(&mut f,"同条第三項中「及び旧項目」を「及び新項目」に、「別の旧項目」を「別の新項目」に、「「旧字句」を「「新字句」に改める。");
+    assert_eq!(native_roots(&f),vec![1]);
+}
+#[test]
+fn quote_scope127_a_literal_pair_earlier_in_a_complete_operation_list_does_not_remain_open() {
+    let mut f=native_root_fixture();
+    root_prefix(&mut f,"第三条中「「旧字句」を「「新字句」に、「別の旧項目」を「別の新項目」に改める。");
+    assert_eq!(native_roots(&f),vec![1]);
+}
+#[test]
+fn quote_scope127_a_genuine_outer_quote_of_a_literal_fragment_operation_remains_open() {
+    let mut f=native_root_fixture();
+    root_prefix(&mut f,"引用「第三条中「「旧字句」を「「新字句」に改める。");
+    assert!(native_roots(&f).is_empty());
+}
+#[test]
+fn quote_scope127_an_unrecognized_operation_does_not_supply_a_quote_release() {
+    let mut f=native_root_fixture();
+    root_prefix(&mut f,"第三条中「「旧字句」を「「新字句」と記す。");
+    assert!(native_roots(&f).is_empty());
+}
+#[test]
+fn quote_scope127_a_complete_replacement_can_remove_a_literal_opening_delimiter() {
+    let mut f=native_root_fixture();
+    root_prefix(&mut f,"第三条中「「旧字句」を「新字句」に改める。");
+    assert_eq!(native_roots(&f),vec![1]);
+}
+
+#[test]
+fn quote_scope127_a_later_independent_statement_cannot_poison_an_already_complete_operation() {
+    let mut f=native_root_fixture();
+    root_prefix(&mut f,"第三条中「「旧字句」を「「新字句」に改める。第四条中「別の旧項目」を「別の新項目」に改める。");
+    assert_eq!(native_roots(&f),vec![1]);
+}
+#[test]
+fn quote_scope127_an_interior_unmatched_quote_is_ambiguous_with_an_unfinished_outer_operand() {
+    for value in ["引用","任意の字句","x"] {
+        let mut f=native_root_fixture();
+        root_prefix(&mut f,&format!("第三条中「{value}「旧字句」を「新字句」に改める。"));
+        assert!(native_roots(&f).is_empty());
+    }
+}
+#[test]
+fn quote_scope127_a_balanced_operand_can_explicitly_quote_a_whole_operation() {
+    let mut f=native_root_fixture();
+    root_prefix(&mut f,"第三条中「「甲」を「乙」に改める。」を「別の字句」に改める。");
+    assert_eq!(native_roots(&f),vec![1]);
+}
+#[test]
+fn quote_scope127_a_literal_boundary_fragment_can_contain_balanced_nested_quotations() {
+    let mut f=native_root_fixture();
+    root_prefix(&mut f,"第三条中「「甲『乙』」を「「丙『丁』」に改める。");
+    assert_eq!(native_roots(&f),vec![1]);
+}
+
+#[test]
+fn quote_scope127_a_closed_outer_quote_can_contain_a_literal_opening_replacement() {
+    let mut f=native_root_fixture();
+    root_prefix(&mut f,"引用「第三条中「「旧字句」を「新字句」に改める。」");
+    assert_eq!(native_roots(&f),vec![1]);
+}
+#[test]
+fn quote_scope127_a_closed_outer_quote_can_contain_a_literal_closing_replacement() {
+    let mut f=native_root_fixture();
+    root_prefix(&mut f,"引用「第三条中「旧字句」」を「新字句」に改める。」");
+    assert_eq!(native_roots(&f),vec![1]);
+}
+
+#[test]
+fn quote_scope127_an_amendment_line_without_its_original_word_text_cannot_release_scope() {
+    let mut f=native_root_fixture();
+    root_prefix(&mut f,"第三条中「「旧字句」を「新字句」に改める。");
+    let id=f.pages[0].regions[0].lines[0].words[0];
+    f.pages[0].words[id].text="対応の違う元語".into();
+    assert!(native_roots(&f).is_empty());
+}
+#[test]
+fn quote_scope127_a_missing_original_raw_word_cannot_certify_a_literal_operation() {
+    let mut f=native_root_fixture();
+    root_prefix(&mut f,"第三条中「「旧字句」を「新字句」に改める。");
+    let id=f.pages[0].regions[0].lines[0].words[0];
+    f.pages[0].words[id].raw.clear();
+    assert!(native_roots(&f).is_empty());
+}

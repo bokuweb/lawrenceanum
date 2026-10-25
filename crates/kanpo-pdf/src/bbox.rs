@@ -441,7 +441,8 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
         } else {
             (page.width, page.height)
         };
-        let _ = writeln!(s, "  <page width=\"{w:.6}\" height=\"{h:.6}\">");
+        let count=if emit_styles{format!(" data-native-glyph-count=\"{}\"",page.glyphs.len())}else{String::new()};
+        let _ = writeln!(s, "  <page width=\"{w:.6}\" height=\"{h:.6}\"{count}>");
         for word in words(page) {
             let attrs = format!(
                 "xMin=\"{:.6}\" yMin=\"{:.6}\" xMax=\"{:.6}\" yMax=\"{:.6}\"",
@@ -453,7 +454,8 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
             let ruling=if emit_styles {ink_rects.and_then(|r|crate::source_ruling::word_ruling(page,&word,r)).map(|(axis,[x0,y0,x1,y1])|{
                 format!(" data-native-ruling=\"{axis}\" data-native-ink-xmin=\"{x0}\" data-native-ink-ymin=\"{y0}\" data-native-ink-xmax=\"{x1}\" data-native-ink-ymax=\"{y1}\"")
             }).unwrap_or_default()}else{String::new()};
-            let flow=if emit_styles {native_flow_tuple(page,&word).map(|[start,baseline,end,leading]|{ let trailing=page.glyphs[*word.glyphs.last().unwrap()].spacing; let prefix=page.glyphs[word.glyphs[0]].kern; format!(" data-native-flow-start=\"{start}\" data-native-flow-baseline=\"{baseline}\" data-native-flow-end=\"{end}\" data-native-flow-leading=\"{leading}\" data-native-flow-trailing=\"{trailing}\" data-native-flow-prefix=\"{prefix}\"") }).unwrap_or_default()}else{String::new()};
+            let flow=if emit_styles {native_axis_flow_tuple(page,&word).map(|[start,baseline,end,leading]|{ let trailing=page.glyphs[*word.glyphs.last().unwrap()].spacing; let prefix=page.glyphs[word.glyphs[0]].kern; format!(" data-native-flow-start=\"{start}\" data-native-flow-baseline=\"{baseline}\" data-native-flow-end=\"{end}\" data-native-flow-leading=\"{leading}\" data-native-flow-trailing=\"{trailing}\" data-native-flow-prefix=\"{prefix}\"") }).unwrap_or_default()}else{String::new()};
+            let range=if emit_styles{native_glyph_range(page,&word).map(|(first,after)|format!(" data-native-flow-first-glyph=\"{first}\" data-native-flow-after-glyph=\"{after}\"")).unwrap_or_default()}else{String::new()};
             let content = if emit_styles {
                 let value = native_content_styles(page, &word, resolved_source).unwrap_or_else(|| "unknown".into());
                 format!(" data-native-content-styles=\"{value}\"")
@@ -465,7 +467,7 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
             let resolved = if resolved_aj1_word(page, &word) { " data-unicode-aj1=\"1\"" } else { "" };
             let _ = writeln!(
                 s,
-                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}{axis}{ruling}{flow}>{}</word>\n        </line>\n      </block>\n    </flow>",
+                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}{axis}{ruling}{flow}{range}>{}</word>\n        </line>\n      </block>\n    </flow>",
                 escape(&word.text)
             );
         }
@@ -698,7 +700,7 @@ mod native_style_tests {
         let old = bbox_layout_with_aj1_sources(&sources);
         let mut new = bbox_layout_with_native_styles(&sources);
         assert_eq!(new.matches(" data-native-styles=\"").count(), 2);
-        for attr in ["data-native-flow-start","data-native-flow-baseline","data-native-flow-end","data-native-flow-leading", "data-native-flow-trailing", "data-native-flow-prefix","data-native-styles", "data-native-content-styles", "data-native-axis", "data-native-ruling", "data-native-ink-xmin", "data-native-ink-ymin", "data-native-ink-xmax", "data-native-ink-ymax"] {
+        for attr in ["data-native-glyph-count", "data-native-flow-first-glyph", "data-native-flow-after-glyph", "data-native-flow-start","data-native-flow-baseline","data-native-flow-end","data-native-flow-leading", "data-native-flow-trailing", "data-native-flow-prefix","data-native-styles", "data-native-content-styles", "data-native-axis", "data-native-ruling", "data-native-ink-xmin", "data-native-ink-ymin", "data-native-ink-xmax", "data-native-ink-ymax"] {
             let needle = format!(" {attr}=\"");
             while let Some(start) = new.find(&needle) {
                 let from = start + needle.len();
@@ -722,3 +724,32 @@ mod native_axis_tests;
 #[cfg(test)]
 #[path="native_flow_contracts.rs"]
 mod native_flow_contracts;
+
+fn source_point(axis:&str,x:f64,y:f64)->Option<(f64,f64)>{Some(match axis{"right"=>(x,y),"down"=>(y,-x),"left"=>(-x,-y),"up"=>(-y,x),_=>return None})}
+fn native_axis_flow_tuple(page:&Page,word:&Word)->Option<[f64;4]>{
+    let axis=native_source_axis(page,word)?;
+    if axis=="right"{return native_flow_tuple(page,word);}
+    let first=page.glyphs.get(*word.glyphs.first()?)?;
+    let last=page.glyphs.get(*word.glyphs.last()?)?;
+    let start=source_point(axis,first.x,first.y)?;
+    let end=source_point(axis,last.end_x,last.end_y)?;
+    let lead=source_point(axis,first.end_x,first.end_y)?.0-start.0;
+    let mut rect=poppler_box(first);let mut previous=None;
+    for &id in &word.glyphs{
+        let g=page.glyphs.get(id)?;let b=poppler_box(g);
+        let a=source_point(axis,g.x,g.y)?;let z=source_point(axis,g.end_x,g.end_y)?;
+        if !g.spacing.is_finite()||!g.kern.is_finite()||a.1!=start.1||z.1!=start.1||!b.iter().all(|v|v.is_finite())||b[0]>=b[2]||b[1]>=b[3]||previous.is_some_and(|(x,e)|a.0<x||z.0<e){return None;}
+        rect=[rect[0].min(b[0]),rect[1].min(b[1]),rect[2].max(b[2]),rect[3].max(b[3])];previous=Some((a.0,z.0));
+    }
+    if rect!=[word.x_min,word.y_min,word.x_max,word.y_max]{return None;}
+    let result=[start.0,start.1,end.0,lead];
+    (result.iter().all(|v|v.is_finite())&&start.0<end.0&&lead>0.&&lead<=end.0-start.0&&(end.0+last.spacing).is_finite()&&(lead+first.kern).is_finite()).then_some(result)
+}
+fn native_glyph_range(page:&Page,word:&Word)->Option<(usize,usize)>{
+    native_axis_flow_tuple(page,word)?;
+    let first=*word.glyphs.first()?;let after=word.glyphs.last()?.checked_add(1)?;
+    (after<=page.glyphs.len()&&word.glyphs.iter().enumerate().all(|(i,&id)|first.checked_add(i)==Some(id))).then_some((first,after))
+}
+#[cfg(test)]
+#[path="native_projected_flow_tests.rs"]
+mod native_projected_flow_tests;

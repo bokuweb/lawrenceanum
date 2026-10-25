@@ -1,0 +1,171 @@
+{
+  "issue": 227,
+  "stage": "native127-128",
+  "goal_complete": false,
+  "priority": "Non-image text, source characters/order, tables and article ownership first. Image-only areas may stay images.",
+  "baseline": {
+    "primary": "020cbbac8c95e2f0b36167f7804719b78aec56bd",
+    "publication": "a159f012b2169fff1b2e6e412a232cf9bcbd74a0"
+  },
+  "changes": {
+    "single_pages": 1,
+    "single_source": "20260930g002150131",
+    "whole_issues": 1,
+    "whole_source": "20260930g00215",
+    "whole_original_pages": 480,
+    "other_complete_Analysis_exact126": {
+      "singles": 11991,
+      "whole_issues": 158
+    },
+    "both_final_whole_Articles": "Complete text/Documents/Tables equal independent126original474..480tail Articles. No corpus-wide accuracy inference."
+  },
+  "rules": [
+    "Complete unchanged original Glyph/Word identity, known axis/mode/style/baseline and actual signed source advance.",
+    "An original coherent mixed-mode column witnesses the exact transition; primitive adjacency corroborates, never solely determines order.",
+    "Unknown/partial metadata, copied/overlapping source ranges, conflicts, source rule/frame/Table/role or other Word fences hold.",
+    "Full legal replacement grammar requires unique endpoint and complete original Word/Line source ownership; genuine outer quotations and ambiguous/incomplete operands remain binding.",
+    "Iterative forward dependency evaluation replaces recursive operation/clause descent; existing4097replacement stress exposed stack overflow in unoptimized build before fix.",
+    "No page/company/expected-value/length/line-count/distance cutoff; no quotation reset by page/category."
+  ],
+  "regressions_added": {
+    "parser_library": 51,
+    "PDF_library": 9,
+    "original_source_portable": 9,
+    "total": 69
+  },
+  "native_final": {
+    "terminal": 0,
+    "passed": 2937,
+    "failed": 0,
+    "ignored": 0,
+    "integration_targets": 128,
+    "result_groups": 136,
+    "original_full_commands": 137,
+    "additional_targeted_command": [
+      "/Users/bokuweb/.cargo/bin/cargo",
+      "test",
+      "--locked",
+      "--no-fail-fast",
+      "-p",
+      "kanpo-parser",
+      "--test",
+      "corpus",
+      "--test",
+      "vertical_record_fixtures"
+    ],
+    "replacement_log": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-column-transitions128/public-port1/metadata-recheck/result.log",
+    "source_changes_only24_independently_source_verified_XHTML_metadata": true,
+    "other135_command_results_retained": "Only the failed corpus target and the vertical_record fixture which compile-includes one corpus HTML require rerun; no other Rust/source/expected/snapshot changed. Both targets pass on updated source cache.",
+    "all814_snapshots_byte_exact_and_readonly_passed": true,
+    "all_runtime_and_other_inputs_prepost_exact": true,
+    "seconds_targeted_recheck": 14.079361708
+  },
+  "source_controls": {
+    "original131_whole_PageTrace": true,
+    "original_Words_raw_text_status_coordinates_unchanged": true,
+    "physical_columns": [
+      [
+        0,
+        3,
+        1,
+        4,
+        2,
+        5
+      ],
+      [
+        8,
+        6,
+        9,
+        7
+      ],
+      [
+        10
+      ]
+    ],
+    "original11_131_475_composition_fiscal_root": true,
+    "whole480_not_replaced_by_short_composition": true,
+    "all_other_styled_Runs_LF_spaces_paragraphs_whole_Tables_shinkyu_notices_ordered_preserved": "Verified after exactly the independent131source correction and its sentence-end boundary before nextnonempty nativepage. Seven intentional corruptions rejected.",
+    "existing814snapshot_bytes_unchanged": true,
+    "cached_XHTML24": "Only page GlyphCount, contiguous source ranges and nonRight flow fields added. Removing only these additions restores every old byte. Rules/text/Document expectations untouched.",
+    "no_blanket_expect_updates": true
+  },
+  "oracle_corrections": [
+    "Compare serializedf32Analysis JSON with serialized baseline; to_value expandsf32 differently. SourceWordf32bits preserved.",
+    "Long legal-clause stress uses balanced operands and asserts complete grammar certificate. Unbalanced outer operand with nested legal clauses is correctly held.",
+    "A containing Article format follows old126composition; isolated475format differs. Portable tests preserve independently recorded old containing format.",
+    "Whole fiscal report spans475..480; compare final fiscal Article. Original474..480also contains preceding notices; independently select its final two whole Articles."
+  ],
+  "known_remaining": [
+    "Document Run still wraps a quoted hierarchical numeric reference on131;129independent tests currently4RED/8GREEN, not adopted.",
+    "Other character-code/PUA restoration, complex tables/columns and ownership remain.",
+    "Image-only pages still have no normal automatic OCR integration."
+  ],
+  "OCR": {
+    "version": "0.0.15",
+    "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "changed": false
+  },
+  "RURI_ModernBERT": "Not used; no model dependency introduced.",
+  "artifacts": [
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-column-transitions128/private128v4-final-source-proof.json",
+      "sha256": "1ae9fa139342d5191d1d23688dcef4885e0e713fa40981a57a6028f123aa194d"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-column-transitions128/material-oracle-calibration128.json",
+      "sha256": "812c54150633a5082746713eb5560e40bdabdc330e31d6498cd67bfa1c218adf"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-column-transitions128/golden-metadata-source-proof128.json",
+      "sha256": "664414620fd3f80953b1eed1aa3c878f5cebbc331d247011f2c27b12ca6d78ae"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-column-transitions128/stack-and-oracle-recovery128.json",
+      "sha256": "5294db3508d879ea57a90c716f0a63a5a454ea558a741f066e436b8f773e42e2"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-column-transitions128/source-JSON-oracle-correction128.json",
+      "sha256": "976496dbb96bc96dc3085088d4d5975ff10a547ce348e74cbe6305f43cab67bb"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-column-transitions128/baseline11-131-475-format126-proof.json",
+      "sha256": "9581fec77a2bdf87b20f3e7317e9e250f62e40acfef7a22ad683e5a30be821c0"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-column-transitions128/parser-private-v4/unit-full2055.log",
+      "sha256": "098a04c6fba1d1315e2d102265535c3ba11d606e2c28329285bacabc8bf3b738"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-column-transitions128/parser-private-v4/unit-empty-unit-RED.log",
+      "sha256": "f9aed0457efae3237d2a3ca3c984b8b7c3855f00e5237e81ed367b01d589c514"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-column-transitions128/parser-private-v2/unit-full2053.log",
+      "sha256": "7f06cd9ffd06a53605b2f75db98fc45fc1391272a133f83d9fef95442e066ddb"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-column-transitions128/pdf-private-v2/source-flow-result.log",
+      "sha256": "5069a75da41a430a5bae0b0b3c7f8c29eceef06cdbeb7681d839ed3c20d937ab"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-column-transitions128/pdf-private-v2/unit-full193-v2.log",
+      "sha256": "984b0e4c9834209f86a42792d66d77e58b7613482640903c045afe245b10894b"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-column-transitions128/public-port1/native-final-result128.json",
+      "sha256": "683dd90350302b67090765b5f677ebfad9e5c370ac26e9d08be31df769c965df"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-column-transitions128/public-port1/single/result.json",
+      "sha256": "c1f1fdea1c853073322b9a6e42411e23dcf59b31cade0aa40f9ecf87898a6c27"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-column-transitions128/public-port1/whole/result.json",
+      "sha256": "07dbc1627785303cb20cd3cfb4e641794d11a16232980eef3ee01689ca58d85a"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-column-transitions128/public-port1/CLI/result.json",
+      "sha256": "12e8ae1285f939129c0c641de0bd7b0de39722bd8b34dbc9649eee4350d84fd9"
+    }
+  ]
+}
