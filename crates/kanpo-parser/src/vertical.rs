@@ -571,7 +571,11 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         // certified local fields below; previous-page context cannot overrule them.
         let headerless = headerless.filter(|&divider| !marker_plan.as_ref().is_some_and(|plan|
             ruled_marker_bands::contradicts_global_divider(plan, &cols, divider)));
-        if let Some(divider) = headerless {
+        let native_edits = if !sideways && !rotated && detect_shinkyu_header(&cols).is_none(){page_rules.and_then(|rules|crate::native_parallel_edits::prove(crate::native_parallel_edits::Source{words:&words,cols:&cols,bounds:&native_bounds,axes:&native_axes,flows:&projected_flows,styles:&native_content_styles,rules}))}else{None};
+        if let Some(certificate)=native_edits.filter(|p|p.matches(&cols)){
+            layout="headerless_shinkyu";
+            units.push(certificate.into_unit(cols,&grids,page_rules));
+        } else if let Some(divider) = headerless {
             layout = "headerless_shinkyu";
             // 表の左に、上下の帯の境目をまたいで紙面の高さいっぱいに組まれた別記事（表の
             // 後ろの附則・次の記事）が同居していれば、表の後ろに本文として出す。

@@ -1,0 +1,479 @@
+{
+  "issue": 227,
+  "stage": 103,
+  "native_revision": 135,
+  "goal_complete": false,
+  "status": "targeted improvement; full quality audit145 remains ungraded",
+  "scope": "non-image native source fields, item row boundaries; no automatic OCR or models",
+  "source_rule": "Two fields bounded by exactly joined original rails, native vertical glyph advance/axes, aligned monotonic typed ordinal entries and explicit edit operators determine orientation; no lexical body similarity, prior guessed role, source/page/company values, fixed point or line/character caps. Item-level declarations prevent continuation joins only when both old and new rows declare that level. Article paragraphs and asymmetric continuation remain joined.",
+  "regressions": {
+    "new_library_contracts": 32,
+    "new_original_contexts": 6,
+    "original_contexts_old134": {
+      "pass": 2,
+      "fail": 4
+    },
+    "original_contexts_new135": {
+      "pass": 6,
+      "fail": 0
+    },
+    "library_total_pass": 2227
+  },
+  "cohort": {
+    "single": {
+      "mode": "single",
+      "items": 11992,
+      "changed": 1,
+      "changed_physical_pages": 1,
+      "source_inputs_oracles_binaries_prepost_exact": true,
+      "source_Word_text_raw_ID_geometry_changed_items": [],
+      "seconds": 465.95727075
+    },
+    "whole": {
+      "mode": "whole",
+      "items": 159,
+      "changed": 12,
+      "changed_physical_pages": 1,
+      "source_inputs_oracles_binaries_prepost_exact": true,
+      "source_Word_text_raw_ID_geometry_changed_items": [],
+      "seconds": 1049.441162542
+    },
+    "model_only_changed_articles": 16
+  },
+  "guards": [
+    {
+      "mode": "single",
+      "key": "20260916g002060056",
+      "proof": {
+        "changed_pages": [
+          0
+        ],
+        "article_count": 1,
+        "native_Word_raw_text_ID_status_geometry_exact": true,
+        "Line_ID_order_and_native_proven_prefix_gaps": true,
+        "ordered_per_field_styled_graft_exact": true,
+        "source_rows_retained_without_adjacent_item_absorption": true,
+        "notice_and_typed_table_material_exact": true,
+        "rendered_partial_source_membership_checked": true,
+        "source_scope": "partial rendered Word refs plus unchanged opaque slices; unique complete changed-page byte replacement in same article; not global complete Word tracing"
+      }
+    },
+    {
+      "mode": "whole",
+      "key": "20260723g00163",
+      "proof": {
+        "changed_pages": [],
+        "article_count": 51,
+        "native_Word_raw_text_ID_status_geometry_exact": true,
+        "Line_ID_order_and_native_proven_prefix_gaps": true,
+        "ordered_per_field_styled_graft_exact": true,
+        "source_rows_retained_without_adjacent_item_absorption": true,
+        "notice_and_typed_table_material_exact": true,
+        "rendered_partial_source_membership_checked": false,
+        "source_scope": "complete upstream Analysis and article payload exact; ordered per-field styled document material exact"
+      }
+    },
+    {
+      "mode": "whole",
+      "key": "20260727g00167",
+      "proof": {
+        "changed_pages": [],
+        "article_count": 445,
+        "native_Word_raw_text_ID_status_geometry_exact": true,
+        "Line_ID_order_and_native_proven_prefix_gaps": true,
+        "ordered_per_field_styled_graft_exact": true,
+        "source_rows_retained_without_adjacent_item_absorption": true,
+        "notice_and_typed_table_material_exact": true,
+        "rendered_partial_source_membership_checked": false,
+        "source_scope": "complete upstream Analysis and article payload exact; ordered per-field styled document material exact"
+      }
+    },
+    {
+      "mode": "whole",
+      "key": "20260730g00171",
+      "proof": {
+        "changed_pages": [],
+        "article_count": 340,
+        "native_Word_raw_text_ID_status_geometry_exact": true,
+        "Line_ID_order_and_native_proven_prefix_gaps": true,
+        "ordered_per_field_styled_graft_exact": true,
+        "source_rows_retained_without_adjacent_item_absorption": true,
+        "notice_and_typed_table_material_exact": true,
+        "rendered_partial_source_membership_checked": false,
+        "source_scope": "complete upstream Analysis and article payload exact; ordered per-field styled document material exact"
+      }
+    },
+    {
+      "mode": "whole",
+      "key": "20260731g00172",
+      "proof": {
+        "changed_pages": [],
+        "article_count": 165,
+        "native_Word_raw_text_ID_status_geometry_exact": true,
+        "Line_ID_order_and_native_proven_prefix_gaps": true,
+        "ordered_per_field_styled_graft_exact": true,
+        "source_rows_retained_without_adjacent_item_absorption": true,
+        "notice_and_typed_table_material_exact": true,
+        "rendered_partial_source_membership_checked": false,
+        "source_scope": "complete upstream Analysis and article payload exact; ordered per-field styled document material exact"
+      }
+    },
+    {
+      "mode": "whole",
+      "key": "20260805h01762",
+      "proof": {
+        "changed_pages": [],
+        "article_count": 62,
+        "native_Word_raw_text_ID_status_geometry_exact": true,
+        "Line_ID_order_and_native_proven_prefix_gaps": true,
+        "ordered_per_field_styled_graft_exact": true,
+        "source_rows_retained_without_adjacent_item_absorption": true,
+        "notice_and_typed_table_material_exact": true,
+        "rendered_partial_source_membership_checked": false,
+        "source_scope": "complete upstream Analysis and article payload exact; ordered per-field styled document material exact"
+      }
+    },
+    {
+      "mode": "whole",
+      "key": "20260810g00179",
+      "proof": {
+        "changed_pages": [],
+        "article_count": 274,
+        "native_Word_raw_text_ID_status_geometry_exact": true,
+        "Line_ID_order_and_native_proven_prefix_gaps": true,
+        "ordered_per_field_styled_graft_exact": true,
+        "source_rows_retained_without_adjacent_item_absorption": true,
+        "notice_and_typed_table_material_exact": true,
+        "rendered_partial_source_membership_checked": false,
+        "source_scope": "complete upstream Analysis and article payload exact; ordered per-field styled document material exact"
+      }
+    },
+    {
+      "mode": "whole",
+      "key": "20260814h01768",
+      "proof": {
+        "changed_pages": [],
+        "article_count": 128,
+        "native_Word_raw_text_ID_status_geometry_exact": true,
+        "Line_ID_order_and_native_proven_prefix_gaps": true,
+        "ordered_per_field_styled_graft_exact": true,
+        "source_rows_retained_without_adjacent_item_absorption": true,
+        "notice_and_typed_table_material_exact": true,
+        "rendered_partial_source_membership_checked": false,
+        "source_scope": "complete upstream Analysis and article payload exact; ordered per-field styled document material exact"
+      }
+    },
+    {
+      "mode": "whole",
+      "key": "20260901g00195",
+      "proof": {
+        "changed_pages": [],
+        "article_count": 314,
+        "native_Word_raw_text_ID_status_geometry_exact": true,
+        "Line_ID_order_and_native_proven_prefix_gaps": true,
+        "ordered_per_field_styled_graft_exact": true,
+        "source_rows_retained_without_adjacent_item_absorption": true,
+        "notice_and_typed_table_material_exact": true,
+        "rendered_partial_source_membership_checked": false,
+        "source_scope": "complete upstream Analysis and article payload exact; ordered per-field styled document material exact"
+      }
+    },
+    {
+      "mode": "whole",
+      "key": "20260914g00204",
+      "proof": {
+        "changed_pages": [],
+        "article_count": 198,
+        "native_Word_raw_text_ID_status_geometry_exact": true,
+        "Line_ID_order_and_native_proven_prefix_gaps": true,
+        "ordered_per_field_styled_graft_exact": true,
+        "source_rows_retained_without_adjacent_item_absorption": true,
+        "notice_and_typed_table_material_exact": true,
+        "rendered_partial_source_membership_checked": false,
+        "source_scope": "complete upstream Analysis and article payload exact; ordered per-field styled document material exact"
+      }
+    },
+    {
+      "mode": "whole",
+      "key": "20260916g00206",
+      "proof": {
+        "changed_pages": [
+          55
+        ],
+        "article_count": 97,
+        "native_Word_raw_text_ID_status_geometry_exact": true,
+        "Line_ID_order_and_native_proven_prefix_gaps": true,
+        "ordered_per_field_styled_graft_exact": true,
+        "source_rows_retained_without_adjacent_item_absorption": true,
+        "notice_and_typed_table_material_exact": true,
+        "rendered_partial_source_membership_checked": true,
+        "source_scope": "partial rendered Word refs plus unchanged opaque slices; unique complete changed-page byte replacement in same article; not global complete Word tracing"
+      }
+    },
+    {
+      "mode": "whole",
+      "key": "20260918g00209",
+      "proof": {
+        "changed_pages": [],
+        "article_count": 47,
+        "native_Word_raw_text_ID_status_geometry_exact": true,
+        "Line_ID_order_and_native_proven_prefix_gaps": true,
+        "ordered_per_field_styled_graft_exact": true,
+        "source_rows_retained_without_adjacent_item_absorption": true,
+        "notice_and_typed_table_material_exact": true,
+        "rendered_partial_source_membership_checked": false,
+        "source_scope": "complete upstream Analysis and article payload exact; ordered per-field styled document material exact"
+      }
+    },
+    {
+      "mode": "whole",
+      "key": "20260930g00215",
+      "proof": {
+        "changed_pages": [],
+        "article_count": 201,
+        "native_Word_raw_text_ID_status_geometry_exact": true,
+        "Line_ID_order_and_native_proven_prefix_gaps": true,
+        "ordered_per_field_styled_graft_exact": true,
+        "source_rows_retained_without_adjacent_item_absorption": true,
+        "notice_and_typed_table_material_exact": true,
+        "rendered_partial_source_membership_checked": false,
+        "source_scope": "complete upstream Analysis and article payload exact; ordered per-field styled document material exact"
+      }
+    }
+  ],
+  "calibration": {
+    "rejected": 27,
+    "cases": [
+      {
+        "name": "original Word raw",
+        "rejected": true,
+        "reason": "original Word/native geometry/status/layout changed"
+      },
+      {
+        "name": "original Word text",
+        "rejected": true,
+        "reason": "original Word/native geometry/status/layout changed"
+      },
+      {
+        "name": "original Word id",
+        "rejected": true,
+        "reason": "original Word/native geometry/status/layout changed"
+      },
+      {
+        "name": "original Word x0",
+        "rejected": true,
+        "reason": "original Word/native geometry/status/layout changed"
+      },
+      {
+        "name": "original Word status",
+        "rejected": true,
+        "reason": "original Word/native geometry/status/layout changed"
+      },
+      {
+        "name": "original Word source_box",
+        "rejected": true,
+        "reason": "original Word/native geometry/status/layout changed"
+      },
+      {
+        "name": "layout unsupported",
+        "rejected": true,
+        "reason": "unexpected layout reassignment"
+      },
+      {
+        "name": "missing Line",
+        "rejected": true,
+        "reason": "Line Word membership changed"
+      },
+      {
+        "name": "reversed Line source words",
+        "rejected": true,
+        "reason": "Line Word membership changed"
+      },
+      {
+        "name": "source line invented text",
+        "rejected": true,
+        "reason": "non-source text change"
+      },
+      {
+        "name": "native field role swapped",
+        "rejected": true,
+        "reason": "native field certificate/role mismatch"
+      },
+      {
+        "name": "certificate misses source Word",
+        "rejected": true,
+        "reason": "certificate omits used source"
+      },
+      {
+        "name": "certificate swaps new and old",
+        "rejected": true,
+        "reason": "native field certificate/role mismatch"
+      },
+      {
+        "name": "missing certificate",
+        "rejected": true,
+        "reason": "missing native certificate"
+      },
+      {
+        "name": "original advance proof missing",
+        "rejected": true,
+        "reason": "unproven native prefix gap"
+      },
+      {
+        "name": "article count changed",
+        "rejected": true,
+        "reason": "article count changed"
+      },
+      {
+        "name": "article text wrong owner",
+        "rejected": true,
+        "reason": "native source delta crossed an article boundary or altered other article text"
+      },
+      {
+        "name": "signed notice owner changed",
+        "rejected": true,
+        "reason": "article metadata/ownership changed"
+      },
+      {
+        "name": "document character lost",
+        "rejected": true,
+        "reason": "styled material changed"
+      },
+      {
+        "name": "Run style changed",
+        "rejected": true,
+        "reason": "styled material changed"
+      },
+      {
+        "name": "new row lost",
+        "rejected": true,
+        "reason": "recovered source row absorbed into adjacent item or side changed"
+      },
+      {
+        "name": "ordered source rows swapped",
+        "rejected": true,
+        "reason": "ordered styled fields or retained paragraphs changed"
+      },
+      {
+        "name": "rendered Word membership changed",
+        "rejected": true,
+        "reason": "rendered source changed article membership"
+      },
+      {
+        "name": "opaque legacy page slice lost",
+        "rejected": true,
+        "reason": "opaque source slice changed ownership"
+      },
+      {
+        "name": "actual v4 adjacent24/25 and32/33 wrong row joins",
+        "rejected": true,
+        "reason": "recovered source row absorbed into adjacent item or side changed"
+      },
+      {
+        "name": "actual inline NestedTable side corruption",
+        "rejected": true,
+        "reason": "ordered styled fields or retained paragraphs changed"
+      },
+      {
+        "name": "actual inline NestedTable order corruption",
+        "rejected": true,
+        "reason": "ordered styled fields or retained paragraphs changed"
+      }
+    ]
+  },
+  "native4": {
+    "terminal": 0,
+    "source_manifest_sha256": "21a865024eb58581e4662d30c3cce014356f0a9f5a76dfbc6bc0c7eb64d549fa",
+    "commands": 145,
+    "integration_targets": 136,
+    "passed": 3195,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 144,
+    "no_expected_snapshot_updates": true,
+    "all_commands_exit0": true
+  },
+  "normal_gate_reference_doc_correction": {
+    "file": "crates/kanpo-parser/tests/data/native-parallel-edits/source-references135.json",
+    "old_sha256": "e7f93eed36679895e471786c3b805b5dd3f8593a1ddd0c11894a2eff91738fe7",
+    "new_sha256": "ecc3415f66d6c58808fab438a3704699b59f1cd2e88368dce5adf190736de771",
+    "reason": "Documentation only: unverified external URLs replaced by actual local archive paths and immutable original SHA-256. Rust does not include this metadata; source, PDF fixture and golden bytes unchanged.",
+    "Rust_source_PDF_fixtures_golden_bytes_exact": true,
+    "source_manifest_other_files_exact": true
+  },
+  "originals": "tests/data/native-parallel-edits/source-references135.json",
+  "artifacts": [
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-field-continuity135/guard135.py",
+      "sha256": "10a7aea201e79c8db8233b7ac30ef1cc6abea4a3a94b16e27442c4cb8aa8a271"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-field-continuity135/calibrate-guards135.py",
+      "sha256": "3de9c7c10991b889cf789fedef065760588012c57005b5267a9fd4d28ac2942e"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-field-continuity135/candidate-runtime135.json",
+      "sha256": "4f5af8aec22b0b78427fb868ed493ac0210301ff74af298ef52eb6c1bd4ecd72"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-field-continuity135/private-v6/unit-all135.log",
+      "sha256": "e699beb177a21bba20ba0c27f928d54a3140626d7d5c63ea340ee90704908ac8"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-field-continuity135/port1/originals134.log",
+      "sha256": "9802b3363e675061c5070aab7616c6f5956742bf30561894299e67eb5ef51327"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-field-continuity135/port1/originals135.log",
+      "sha256": "bacadd067dd326e386d1891a661087d01951b3e8de15a392f8795ed52b77e3ba"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-field-continuity135/private-v6/impact-single/result.json",
+      "sha256": "8f80da9d86f0341a970ae42db2a177e85f0e030ab59a619d3633d1e3a7e6f2ae"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-field-continuity135/private-v6/impact-whole/result.json",
+      "sha256": "0a613fd04b52929e988c66069c3491409b8a95d43eca1f17630aba5427c99623"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-field-continuity135/verified-guards135.json",
+      "sha256": "cce587a0ffb593d3fb9f80ebbf25a6570f758b69cb70de0fd171ef94e6d8e90f"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-field-continuity135/calibrated-guards135.json",
+      "sha256": "145dd6511198bda9ec76a786aa80eaf60f2fa00ce578f1f7046a9e509489fa68"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-field-continuity135/model-effects-review135.json",
+      "sha256": "9e5ad8a1b046f7b28eb03641c053b38b3d1ab807032f1d70d9dda2cf217bdfa0"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-field-continuity135/nested-table-associations135.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-field-continuity135/port1/native-gates1/result135.json",
+      "sha256": "1036d899fb1be1e514e77d733451bc023916f2bfbb86f3833336881ec07de797"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-field-continuity135/port1/native-gates1/source-manifest135.json",
+      "sha256": "21a865024eb58581e4662d30c3cce014356f0a9f5a76dfbc6bc0c7eb64d549fa"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-field-continuity135/port1/documentation-reference-correction135.json",
+      "sha256": "d146e5a72869eb74f5a277c35f16f6870c63c5609b262d65d16da824f1dfccb6"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-field-continuity135/port1/corrected-reference-originals135.log",
+      "sha256": "2e9687a89fe127822f0a44bf319a9a3ec48e6318ed92995b2c35cdc8299a0eb7"
+    }
+  ],
+  "prior_tests": "All pre-existing fixture/oracle/snapshot bytes retained, including814snapshots with INSTA_UPDATE=no. New JSONs freeze reviewed targeted regressions, not independently correct full-page goldens.",
+  "review": "Author non-blind source review: G206 original pages53,56,61,68 and representative model-boundary sources G163p128/G167p8/G172p226/H1762p2. Whole-cohort source/style/material checks are not an independent full visual quality audit.",
+  "limits": [
+    "Partial rendered source membership and unchanged opaque legacy slices are separately recorded; changed full-page text must replace only the same unique article byte span. No global complete Word trace is claimed.",
+    "Whole model-only changes require complete upstream Analysis/article payload and ordered styled field identity. These are necessary regression guards, not a full semantic quality score.",
+    "Images may remain images; NDLOCR0.0.15 commitf97e930b8c3e9512f7788f258ef685da26416483 unchanged; no automatic OCR/RURI/ModernBERT integration.",
+    "Image/outline body extraction, PUA/encoding, other tables/columns and article ownership remain open. Next read-only finding136 concerns preserved16x6 Run.table Latin line/word boundaries and annotation bracket order; a prior claim of missing typed tables was corrected."
+  ]
+}

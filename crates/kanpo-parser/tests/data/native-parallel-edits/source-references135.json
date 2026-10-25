@@ -1,0 +1,58 @@
+{
+  "scope": "Original PDFs and targeted native fields/item boundaries; these complete Analysis regression outputs are not an independent all-page quality grade.",
+  "groups": {
+    "isolated": [
+      "20260916g002060056"
+    ],
+    "preceding": [
+      "20260916g002060055",
+      "20260916g002060056"
+    ],
+    "both-neighbors": [
+      "20260916g002060055",
+      "20260916g002060056",
+      "20260916g002060057"
+    ],
+    "ordinary-complete": [
+      "20260724g001640062"
+    ],
+    "ordinary-sparse": [
+      "20260729g001690035"
+    ],
+    "other-numbered-boundary": [
+      "20260916g002060052",
+      "20260916g002060053"
+    ]
+  },
+  "files": {
+    "20260916g002060056": {
+      "sha256": "cde9ed71e9613aa3894835315f4a15fd211991750053fde6e30306fc8c6564cc",
+      "archive_path": ".cache/kanpo-archive/2026-09-16/20260916g00206/20260916g002060056.pdf"
+    },
+    "20260916g002060055": {
+      "sha256": "8733765e53053a9b872694ec00f2eba86625d41eeddd4308e69f758bd66ed9d5",
+      "archive_path": ".cache/kanpo-archive/2026-09-16/20260916g00206/20260916g002060055.pdf"
+    },
+    "20260916g002060057": {
+      "sha256": "61784a7eeef9eab81733b30176d0f1d9eddb0ef0eea0fa8c561bc282e415a453",
+      "archive_path": ".cache/kanpo-archive/2026-09-16/20260916g00206/20260916g002060057.pdf"
+    },
+    "20260724g001640062": {
+      "sha256": "e04c98f2bf2b47171ab3d0c2ddbdd19484fad76f36e615de35eeceeb113cfeab",
+      "archive_path": ".cache/kanpo-archive/2026-07-24/20260724g00164/20260724g001640062.pdf"
+    },
+    "20260729g001690035": {
+      "sha256": "794f0beaa5e37fbaeaa4664383daa7ff40b7601fad8e8842594057d55f50892a",
+      "archive_path": ".cache/kanpo-archive/2026-07-29/20260729g00169/20260729g001690035.pdf"
+    },
+    "20260916g002060052": {
+      "sha256": "572b52fd9195fd6046aba6fb546bd12808c19d9a58d624b000defd44cc4b2db6",
+      "archive_path": ".cache/kanpo-archive/2026-09-16/20260916g00206/20260916g002060052.pdf"
+    },
+    "20260916g002060053": {
+      "sha256": "dfc4e9867a1a779ffd23b1d3a5c05dd81cad4934ecdd4065e7b2aee095ef64c5",
+      "archive_path": ".cache/kanpo-archive/2026-09-16/20260916g00206/20260916g002060053.pdf"
+    }
+  },
+  "reference_note": "Archive paths and SHA-256 identify the original bytes used. No external URL is asserted."
+}

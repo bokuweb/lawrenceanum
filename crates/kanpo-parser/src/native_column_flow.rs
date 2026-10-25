@@ -55,6 +55,12 @@ pub(crate) fn from_word(word: scraper::ElementRef<'_>, total: Option<usize>) -> 
     out.belongs(b).then_some(out)
 }
 impl AxisFlow {
+    pub(crate) fn vertical_prefix_gap(self,b:[f32;4],next:Self,nb:[f32;4])->bool{
+        match(self.vertical_path(b),next.vertical_path(nb)){
+            (Some(a),Some(z))=>a[0] as f32==z[0] as f32&&(a[2]+self.flow.leading)as f32<=z[1]as f32,
+            _=>false,
+        }
+    }
     /// The actual vertical source path, with exact glyph-envelope binding.
     pub(crate) fn vertical_path(self,b:[f32;4])->Option<[f64;3]>{
         let f=self.flow;

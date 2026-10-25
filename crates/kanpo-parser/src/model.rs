@@ -571,6 +571,12 @@ fn attach_outline_prefix(rows: &mut Vec<ShinkyuRow>) {
         *dst = head;
     }
 }
+fn declared_item_row(row:&ShinkyuRow)->bool{
+ let a=runs_plain(&row.after);let b=runs_plain(&row.before);
+ let ka=crate::native_parallel_edits::item_row_front(&a);
+ let kb=crate::native_parallel_edits::item_row_front(&b);
+ (ka==Some(true)||kb==Some(true))&&(ka.is_some()||a.trim().is_empty())&&(kb.is_some()||b.trim().is_empty())
+}
 fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
     let mut out: Vec<Block> = Vec::new();
     for mut block in blocks {
@@ -601,7 +607,8 @@ fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
         };
         if let (Some(last), Some(first)) = (prev.last_mut(), rows.first()) {
             let cont = (first.after.is_empty() || continues(&first.after)) && (first.before.is_empty() || continues(&first.before));
-            if cont && (!first.after.is_empty() || !first.before.is_empty()) {
+            let next_item=declared_item_row(last)&&declared_item_row(first);
+            if cont && !next_item && (!first.after.is_empty() || !first.before.is_empty()) {
                 let first = rows.remove(0);
                 append_runs(&mut last.after, first.after);
                 append_runs(&mut last.before, first.before);
@@ -2836,3 +2843,5 @@ mod tests {
 #[cfg(test)]
 #[path="model_native_heading_tests.rs"]
 mod native_heading_tests;
+
+#[cfg(test)]#[path="model_parallel_item_tests.rs"]mod parallel_item_tests;

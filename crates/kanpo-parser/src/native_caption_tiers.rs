@@ -186,7 +186,7 @@ fn frames(r: &PageRules) -> Vec<Frame> {
 }
 // A glyph bearing can protrude past an open horizontal rail end. Only the
 // original bound vertical path can prove its field; an actual left wall blocks it.
-fn inside_body(source: Source<'_>, id: usize, b: Rect, r: Rect, rules: &PageRules) -> bool {
+pub(crate) fn inside_body(source: Source<'_>, id: usize, b: Rect, r: Rect, rules: &PageRules) -> bool {
     if contains(r, b) {
         return true;
     }
@@ -437,3 +437,5 @@ pub(crate) fn merge(
 #[cfg(test)]
 #[path = "native_caption_tier_tests.rs"]
 mod tests;
+
+pub(crate) fn horizontal_rails(r:&PageRules)->Vec<[f32;3]>{rails(r).into_iter().map(|h|[h.left,h.y,h.right]).collect()}
