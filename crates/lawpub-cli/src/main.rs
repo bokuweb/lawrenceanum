@@ -602,6 +602,20 @@ enum Cmd {
         /// 導入後に取得された判例の要約上限（別枠）。初回は既存 ID の記録のみ。
         #[arg(long, env = "WIKI_MAX_HANREI", default_value_t = 3)]
         max_hanrei: usize,
+        /// 過去判例の自動追加上限。新規枠とは別枠。0 で無効。
+        #[arg(long, env = "WIKI_MAX_HANREI_BACKFILL", default_value_t = 0)]
+        max_hanrei_backfill: usize,
+    },
+    /// 過去判例の自動追加候補を表示する。Wiki・状態を変更せず LLM も呼ばない。
+    WikiPreviewHanrei {
+        #[arg(long)]
+        base_url: String,
+        #[arg(long, default_value = "wiki")]
+        wiki: PathBuf,
+        #[arg(long, default_value_t = 20)]
+        max_backfill: usize,
+        #[arg(long)]
+        today: Option<String>,
     },
     /// LLM が書いた後、時系列・人物・index・log を再生成し、未完了タスクを巻き戻す。
     WikiFinalize {
@@ -1204,7 +1218,7 @@ fn main() -> Result<()> {
         Cmd::WikiQueueHanrei { base_url, wiki, case_ids } => {
             wiki::hanrei::queue_cases(&wiki::Source::new(&base_url)?, &wiki, &case_ids, &chrono::Utc::now().format("%Y-%m-%d").to_string())
         }
-        Cmd::WikiPlan { base_url, wiki, work, max_items, max_probes, lookback_days, today, max_bills, max_pubcomments, max_kanpo, max_people, max_roster, reiki_base_url, chunk_size, max_enforcements, max_hanrei } => {
+        Cmd::WikiPlan { base_url, wiki, work, max_items, max_probes, lookback_days, today, max_bills, max_pubcomments, max_kanpo, max_people, max_roster, reiki_base_url, chunk_size, max_enforcements, max_hanrei, max_hanrei_backfill } => {
             wiki::plan::run_plan(&wiki::plan::PlanArgs {
                 base_url,
                 wiki,
@@ -1222,7 +1236,15 @@ fn main() -> Result<()> {
                 chunk_size,
                 max_enforcements,
                 max_hanrei,
+                max_hanrei_backfill,
             })
+        }
+        Cmd::WikiPreviewHanrei { base_url, wiki, max_backfill, today } => {
+            let today = today.unwrap_or_else(|| chrono::Utc::now().format("%Y-%m-%d").to_string());
+            chrono::NaiveDate::parse_from_str(&today, "%Y-%m-%d")?;
+            let preview = wiki::hanrei::preview(&wiki::Source::new(&base_url)?, &wiki, max_backfill, &today)?;
+            println!("{}", serde_json::to_string_pretty(&preview)?);
+            Ok(())
         }
         Cmd::WikiFinalize { wiki, work } => wiki::finalize::run_finalize(&wiki::finalize::FinalizeArgs { wiki, work }),
         Cmd::WikiExport { wiki, out } => wiki::export::run_export(&wiki::export::ExportArgs { wiki, out }),

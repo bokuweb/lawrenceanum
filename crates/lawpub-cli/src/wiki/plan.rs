@@ -38,6 +38,7 @@ pub struct PlanArgs {
     pub max_enforcements: usize,
     /// 導入後に取得された判例の要約上限（別枠）。0 でも新規 ID は保留する。
     pub max_hanrei: usize,
+    pub max_hanrei_backfill: usize,
 }
 
 /// 1 発言から抜き出す文脈幅 (文字数)。
@@ -266,8 +267,8 @@ pub fn run_plan(args: &PlanArgs) -> Result<()> {
     }
 
     tasks.extend(enforcements::plan(args, &source, &today_s)?);
-    tasks.extend(super::hanrei::plan_tasks(
-        &source, &args.wiki, &args.work, args.max_hanrei, args.max_probes, &today_s,
+    tasks.extend(super::hanrei::plan_tasks_with_backfill(
+        &source, &args.wiki, &args.work, args.max_hanrei, args.max_hanrei_backfill, args.max_probes, &today_s,
     )?);
 
     let before = tasks
@@ -1367,7 +1368,7 @@ mod tests {
         state.save(&wiki).unwrap();
         let args = PlanArgs { base_url: public.display().to_string(), wiki: wiki.clone(), work: work.clone(),
             max_items: 1, max_probes: 3, lookback_days: 30, today: Some("2026-10-08".into()),
-            max_bills: 0, max_enforcements: 0, max_hanrei: 0, max_pubcomments: 0, max_kanpo: 0,
+            max_bills: 0, max_enforcements: 0, max_hanrei: 0, max_hanrei_backfill: 0, max_pubcomments: 0, max_kanpo: 0,
             max_people: 0, max_roster: 0, reiki_base_url: String::new(), chunk_size: 4 };
         run_plan(&args).unwrap();
         let intake = || -> Value { serde_json::from_slice(&std::fs::read(wiki.join(".lawpub/intake.json")).unwrap()).unwrap() };
@@ -1503,7 +1504,7 @@ mod tests {
         state.save(&wiki).unwrap();
         let args = PlanArgs { base_url: public.display().to_string(), wiki: wiki.clone(), work: work.clone(),
             max_items: 1, max_probes: 1, lookback_days: 30, today: Some("2026-10-08".into()),
-            max_bills: 0, max_enforcements: 0, max_hanrei: 0, max_pubcomments: 0, max_kanpo: 0,
+            max_bills: 0, max_enforcements: 0, max_hanrei: 0, max_hanrei_backfill: 0, max_pubcomments: 0, max_kanpo: 0,
             max_people: 0, max_roster: 0, reiki_base_url: String::new(), chunk_size: 4 };
         // 取得失敗も巡回順を進める。欠けた資料を毎回先頭で試すことを避ける。
         run_plan(&args).unwrap();
@@ -1577,7 +1578,7 @@ mod tests {
             lookback_days: 30,
             today: Some("2026-10-08".into()),
             max_bills: 0,
-            max_enforcements: 0, max_hanrei: 0,
+            max_enforcements: 0, max_hanrei: 0, max_hanrei_backfill: 0,
             max_pubcomments: 0,
             max_kanpo: 0,
             max_people: 0,
@@ -1667,7 +1668,7 @@ mod tests {
             lookback_days: 30,
             today: Some("2026-10-08".into()),
             max_bills: 0,
-            max_enforcements: 0, max_hanrei: 0,
+            max_enforcements: 0, max_hanrei: 0, max_hanrei_backfill: 0,
             max_pubcomments: 0,
             max_kanpo: 0,
             max_people: 0,
@@ -1719,7 +1720,7 @@ mod tests {
             lookback_days: 30,
             today: Some("2026-10-09".into()),
             max_bills: 0,
-            max_enforcements: 0, max_hanrei: 0,
+            max_enforcements: 0, max_hanrei: 0, max_hanrei_backfill: 0,
             max_pubcomments: 0,
             max_kanpo: 0,
             max_people: 0,

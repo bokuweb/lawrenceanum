@@ -25,13 +25,22 @@ on:
   workflow_dispatch:
     inputs:
       hanrei_case_ids:
-        description: "試験追加する過去判例ID（カンマ区切り、最大10件。空なら新規分だけ）"
+        description: "試験追加する過去判例ID（カンマ区切り、最大10件。空なら日次の自動選択）"
         required: false
         type: string
       max_hanrei:
-        description: "1回で要約する判例の上限（既定3件、試験追加時は10などを指定）"
+        description: "1回で要約する判例の上限（新規・手動枠の既定3件、試験追加時は10などを指定）"
         required: false
         type: string
+      max_hanrei_backfill:
+        description: "過去判例の自動追加上限（定期実行は既定20件／日。手動実行は既定0、0で停止）"
+        required: false
+        type: string
+      preview_hanrei:
+        description: "過去判例の候補確認だけ行う（状態変更・LLM・pushなし）"
+        required: false
+        default: false
+        type: boolean
       max_items:
         description: "1 回で処理する会議の上限 (コスト上限)"
         required: false
@@ -95,6 +104,8 @@ jobs:
       WIKI_MODEL: ${{ vars.WIKI_MODEL || 'claude-sonnet-5-5' }}
       MAX_ITEMS: ${{ github.event.inputs.max_items || vars.WIKI_MAX_ITEMS || '5' }}
       MAX_HANREI: ${{ github.event.inputs.max_hanrei || vars.WIKI_MAX_HANREI || '3' }}
+      WIKI_HANREI_PRIORITY_LAWS: ${{ vars.WIKI_HANREI_PRIORITY_LAWS || '325AC0000000144,337AC0000000139,322AC0000000049' }}
+      MAX_HANREI_BACKFILL: ${{ github.event.inputs.max_hanrei_backfill || (github.event_name == 'schedule' && (vars.WIKI_MAX_HANREI_BACKFILL || '20')) || '0' }}
       MAX_BILLS: ${{ github.event.inputs.max_bills || vars.WIKI_MAX_BILLS || '5' }}
       MAX_PUBCOMMENTS: ${{ github.event.inputs.max_pubcomments || vars.WIKI_MAX_PUBCOMMENTS || '3' }}
       MAX_KANPO: ${{ github.event.inputs.max_kanpo || vars.WIKI_MAX_KANPO || '3' }}
@@ -134,7 +145,26 @@ jobs:
       - name: Build lawpub
         run: cargo build --release -p lawpub-cli
 
+      - name: Preview historical cases
+        if: github.event.inputs.preview_hanrei == 'true'
+        env:
+          PREVIEW_MAX_BACKFILL: ${{ github.event.inputs.max_hanrei_backfill || vars.WIKI_MAX_HANREI_BACKFILL || '20' }}
+        run: |
+          ./target/release/lawpub wiki-preview-hanrei --base-url "$WIKI_BASE_URL" --wiki wiki \
+            --max-backfill "$PREVIEW_MAX_BACKFILL" > /tmp/hanrei-preview.json
+          cat /tmp/hanrei-preview.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Check Wiki publication lag
+        id: publication_watch
+        if: github.event.inputs.preview_hanrei != 'true'
+        continue-on-error: true
+        run: |
+          sha=$(git -C wiki rev-parse HEAD)
+          python3 .github/scripts/wiki_publication.py watch --base-url "$WIKI_BASE_URL" --sha "$sha" \
+            --watch-file wiki/.lawpub/publication-watch.json
+
       - name: Plan
+        if: github.event.inputs.preview_hanrei != 'true'
         id: plan
         env:
           HANREI_CASE_IDS: ${{ github.event.inputs.hanrei_case_ids }}
@@ -145,7 +175,7 @@ jobs:
           ./target/release/lawpub wiki-plan \
             --wiki wiki --work .wiki-work \
             --max-items "$MAX_ITEMS" --max-bills "$MAX_BILLS" --max-pubcomments "$MAX_PUBCOMMENTS" --max-kanpo "$MAX_KANPO" \
-            --max-enforcements "$MAX_ENFORCEMENTS" --max-people "$MAX_PEOPLE" --max-roster "$MAX_ROSTER" --max-hanrei "$MAX_HANREI" --lookback-days "$LOOKBACK_DAYS"
+            --max-enforcements "$MAX_ENFORCEMENTS" --max-people "$MAX_PEOPLE" --max-roster "$MAX_ROSTER" --max-hanrei "$MAX_HANREI" --max-hanrei-backfill "$MAX_HANREI_BACKFILL" --lookback-days "$LOOKBACK_DAYS"
           echo "tasks=$(jq '.tasks | length' .wiki-work/plan.json)" >> "$GITHUB_OUTPUT"
           cat .wiki-work/plan.md >> "$GITHUB_STEP_SUMMARY"
           echo '### 会議取り込みの状態（完了は finalize 後）' >> "$GITHUB_STEP_SUMMARY"
@@ -158,17 +188,17 @@ jobs:
       # 一度に何十件も渡すと途中で作業を切り上げてしまうので、wiki-plan が分けたチャンク
       # (.wiki-work/chunks/NNN.md、既定 4 件) ごとに、まっさらな状態の Claude Code を呼ぶ。
       - name: Setup Node (Claude Code CLI)
-        if: steps.plan.outputs.tasks != '0' && env.HAS_CLAUDE_AUTH == 'true'
+        if: github.event.inputs.preview_hanrei != 'true' && (steps.plan.outputs.tasks != '0' && env.HAS_CLAUDE_AUTH == 'true')
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
       - name: Install Claude Code CLI
-        if: steps.plan.outputs.tasks != '0' && env.HAS_CLAUDE_AUTH == 'true'
+        if: github.event.inputs.preview_hanrei != 'true' && (steps.plan.outputs.tasks != '0' && env.HAS_CLAUDE_AUTH == 'true')
         run: npm install -g @anthropic-ai/claude-code
 
       - name: Write wiki pages (Claude Code, per chunk)
-        if: steps.plan.outputs.tasks != '0' && env.HAS_CLAUDE_AUTH == 'true'
+        if: github.event.inputs.preview_hanrei != 'true' && (steps.plan.outputs.tasks != '0' && env.HAS_CLAUDE_AUTH == 'true')
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -198,16 +228,18 @@ jobs:
           done
 
       - name: Finalize
+        if: github.event.inputs.preview_hanrei != 'true'
         run: ./target/release/lawpub wiki-finalize --wiki wiki --work .wiki-work
 
       - name: Check
+        if: github.event.inputs.preview_hanrei != 'true'
         id: check
         continue-on-error: true
         run: ./target/release/lawpub wiki-check --wiki wiki --work .wiki-work --changed
 
       # 検証エラーは 1 回だけ LLM に直させる (引用の引き直し、または該当記述の削除)。
       - name: Repair (Claude Code)
-        if: steps.check.outcome == 'failure' && env.HAS_CLAUDE_AUTH == 'true'
+        if: github.event.inputs.preview_hanrei != 'true' && (steps.check.outcome == 'failure' && env.HAS_CLAUDE_AUTH == 'true')
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -227,17 +259,28 @@ jobs:
           jq -r '"修正パス: \(.num_turns) turns, $\(.total_cost_usd)"' .wiki-work/repair.result.json 2>/dev/null || true
 
       - name: Re-check after repair
-        if: steps.check.outcome == 'failure'
+        if: github.event.inputs.preview_hanrei != 'true' && (steps.check.outcome == 'failure')
         run: |
           ./target/release/lawpub wiki-finalize --wiki wiki --work .wiki-work
           ./target/release/lawpub wiki-check --wiki wiki --work .wiki-work --changed
 
       - name: Report
-        if: always()
+        if: github.event.inputs.preview_hanrei != 'true' && (always())
         run: |
           [ -f .wiki-work/check-report.md ] && cat .wiki-work/check-report.md >> "$GITHUB_STEP_SUMMARY" || true
 
+      - name: Report historical intake
+        if: github.event.inputs.preview_hanrei != 'true'
+        run: |
+          if [ -f wiki/.lawpub/hanrei-intake.json ]; then
+            {
+              echo '### 判例の日次取り込み'
+              jq '{daily, pending: (.pending | length), statuses: ([.pending[].status] | group_by(.) | map({status: .[0], count: length}))}' wiki/.lawpub/hanrei-intake.json
+              echo 'summary_incomplete は生成または引用検査の未完了。次の確認日以降に再試行します。'
+            } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Commit and push
+        if: github.event.inputs.preview_hanrei != 'true'
         run: |
           cd wiki
           git add -A
@@ -264,3 +307,9 @@ jobs:
           fi
         env:
           GH_TOKEN: ${{ github.token }}
+
+      - name: Fail on overdue publication
+        if: github.event.inputs.preview_hanrei != 'true' && steps.publication_watch.outcome == 'failure'
+        run: |
+          echo '::error::Wikiの公開確認に失敗しました（通信障害または24時間以上の未配信）。生成済みページはwikiブランチに保存済みです。'
+          exit 1

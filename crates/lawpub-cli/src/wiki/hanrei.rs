@@ -1,4 +1,4 @@
-//! 導入後に取得された判例だけを法令と結んで Wiki に取り込む。
+//! 新規判例と件数を制限した過去判例を法令と結んで Wiki に取り込む。
 
 use super::*;
 use serde_json::json;
@@ -35,13 +35,32 @@ struct Intake {
     initialized_at: Option<String>,
     seen: BTreeSet<u64>,
     pending: BTreeMap<u64, Pending>,
+    #[serde(default)]
+    backfill_cursor: Option<u64>,
+    #[serde(default)]
+    daily: Daily,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
+struct Daily {
+    date: String,
+    new_planned: usize,
+    backfill_planned: usize,
+    new_probes: usize,
+    backfill_probes: usize,
+}
+
+#[derive(Debug, Default, Serialize, Deserialize)]
 struct Pending {
     first_seen: String,
     attempts: usize,
     status: String,
+    #[serde(default)]
+    origin: String,
+    #[serde(default)]
+    next_attempt: Option<String>,
+    #[serde(default)]
+    selection_reason: String,
 }
 
 impl Intake {
@@ -94,6 +113,7 @@ impl Intake {
                             first_seen: today.into(),
                             attempts: 0,
                             status: "pending".into(),
+                            ..Pending::default()
                         },
                     );
                 }
@@ -489,14 +509,29 @@ fn write_page(wiki: &Path, source: &Source, bundle: &Value, first_seen: &str) ->
 /// Explicit, bounded historical intake. Never reset the normal new-case baseline.
 pub fn queue_cases(source: &Source, wiki: &Path, ids: &[u64], today: &str) -> Result<()> {
     let selected: BTreeSet<_> = ids.iter().copied().collect();
-    anyhow::ensure!(!selected.is_empty() && selected.len() <= 10, "過去判例の指定は1〜10件です");
-    anyhow::ensure!(selected.len() == ids.len() && !selected.contains(&0), "判例IDが不正または重複しています");
-    let index = source.get_json("hanrei/index.json")?.context("判例索引がありません")?;
+    anyhow::ensure!(
+        !selected.is_empty() && selected.len() <= 10,
+        "過去判例の指定は1〜10件です"
+    );
+    anyhow::ensure!(
+        selected.len() == ids.len() && !selected.contains(&0),
+        "判例IDが不正または重複しています"
+    );
+    let index = source
+        .get_json("hanrei/index.json")?
+        .context("判例索引がありません")?;
     let mut intake = Intake::load(wiki)?;
     intake.observe(&index, today)?;
-    let published: BTreeSet<_> = index["cases"].as_array().unwrap().iter()
-        .filter_map(|c| c["case_id"].as_u64()).collect();
-    anyhow::ensure!(selected.is_subset(&published), "公開索引にない判例IDが含まれています");
+    let published: BTreeSet<_> = index["cases"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter_map(|c| c["case_id"].as_u64())
+        .collect();
+    anyhow::ensure!(
+        selected.is_subset(&published),
+        "公開索引にない判例IDが含まれています"
+    );
     let mut added = 0;
     for id in selected {
         let path = wiki.join(format!("hanrei/{id}.md"));
@@ -507,7 +542,12 @@ pub fn queue_cases(source: &Source, wiki: &Path, ids: &[u64], today: &str) -> Re
             }
         }
         if let std::collections::btree_map::Entry::Vacant(entry) = intake.pending.entry(id) {
-            entry.insert(Pending { first_seen: today.into(), attempts: 0, status: "pending".into() });
+            entry.insert(Pending {
+                first_seen: today.into(),
+                status: "pending".into(),
+                origin: "manual".into(),
+                ..Pending::default()
+            });
             added += 1;
         }
     }
@@ -517,6 +557,7 @@ pub fn queue_cases(source: &Source, wiki: &Path, ids: &[u64], today: &str) -> Re
 }
 
 /// 初回は索引だけを固定する。保留は消さず、取得試行の少ないものから巡回する。
+#[cfg(test)]
 pub fn plan_tasks(
     source: &Source,
     wiki: &Path,
@@ -525,16 +566,283 @@ pub fn plan_tasks(
     max_probes: usize,
     today: &str,
 ) -> Result<Vec<Task>> {
-    let mut intake = Intake::load(wiki)?;
-    if let Some(index) = source.get_json("hanrei/index.json")? {
-        intake.observe(&index, today)?;
+    plan_tasks_with_backfill(source, wiki, work, max, 0, max_probes, today)
+}
+
+const PRIORITY_LAWS: [&str; 3] = ["325AC0000000144", "337AC0000000139", "322AC0000000049"];
+
+/// 日付不明も最後に残す。和暦文字列をそのまま辞書順に並べない。
+fn case_date(case: &Value) -> String {
+    let raw = case["judged_on"].as_str().unwrap_or("");
+    let text: String = raw
+        .chars()
+        .map(|c| match c {
+            '０'..='９' => char::from_u32(c as u32 - '０' as u32 + '0' as u32).unwrap(),
+            _ => c,
+        })
+        .collect();
+    if chrono::NaiveDate::parse_from_str(&text, "%Y-%m-%d").is_ok() {
+        return text;
     }
-    // 索引の一時的な欠落で空の基準を保存しない。
+    for (era, base) in [
+        ("令和", 2018),
+        ("平成", 1988),
+        ("昭和", 1925),
+        ("大正", 1911),
+        ("明治", 1867),
+    ] {
+        if let Some(rest) = text.strip_prefix(era) {
+            if let Some((year, rest)) = rest.split_once('年') {
+                if let Some((month, day)) = rest.split_once('月') {
+                    let y = if year == "元" {
+                        Some(1)
+                    } else {
+                        year.parse::<i32>().ok()
+                    };
+                    if let (Some(y), Ok(m), Ok(d)) =
+                        (y, month.parse(), day.trim_end_matches('日').parse())
+                    {
+                        if y > 0 {
+                            if let Some(date) = chrono::NaiveDate::from_ymd_opt(base + y, m, d) {
+                                return date.to_string();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    String::new()
+}
+
+fn historical_candidates(
+    source: &Source,
+    wiki: &Path,
+    index: &Value,
+    intake: &Intake,
+    limit: usize,
+) -> Result<Vec<(u64, String)>> {
+    if limit == 0 {
+        return Ok(vec![]);
+    }
+    let pages = completed_pages(wiki)?;
+    let completed: BTreeSet<_> = pages
+        .iter()
+        .filter_map(|(_, p)| p.get("case_id").and_then(Value::as_u64))
+        .collect();
+    let shared_articles: BTreeSet<_> = pages.iter().flat_map(|(_, p)| article_keys(p)).collect();
+    let eligible = |id: u64| {
+        intake.seen.contains(&id) && !completed.contains(&id) && !intake.pending.contains_key(&id)
+    };
+    let mut all: Vec<_> = index["cases"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter_map(|c| Some((case_date(c), c["case_id"].as_u64()?)))
+        .collect();
+    all.sort_by(|a, b| b.cmp(a));
+    let mut priority = BTreeSet::new();
+    let mut shared = BTreeSet::new();
+    let laws =
+        std::env::var("WIKI_HANREI_PRIORITY_LAWS").unwrap_or_else(|_| PRIORITY_LAWS.join(","));
+    for law in laws.split(',').map(str::trim).filter(|s| !s.is_empty()) {
+        anyhow::ensure!(
+            law.chars().all(|c| c.is_ascii_alphanumeric()),
+            "優先法令IDが不正です"
+        );
+        if let Some(reverse) = source.get_json(&format!("links/law-to-hanrei/{law}.json"))? {
+            for case in reverse["linked_cases"].as_array().into_iter().flatten() {
+                let Some(id) = case["case_id"].as_u64() else {
+                    continue;
+                };
+                priority.insert(id);
+                if case["articles"]
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .filter_map(Value::as_str)
+                    .any(|article| shared_articles.contains(&(law.into(), article.into())))
+                {
+                    shared.insert(id);
+                }
+            }
+        }
+    }
+    let mut preferred: Vec<_> = all
+        .iter()
+        .filter(|(_, id)| priority.contains(id) && eligible(*id))
+        .map(|(_, id)| *id)
+        .collect();
+    preferred.sort_by_key(|id| !shared.contains(id));
+    let offset = intake
+        .backfill_cursor
+        .and_then(|id| all.iter().position(|(_, n)| *n == id))
+        .map_or(0, |n| n + 1);
+    let general: Vec<_> = all
+        .iter()
+        .cycle()
+        .skip(offset)
+        .take(all.len())
+        .filter(|(_, id)| eligible(*id))
+        .map(|(_, id)| *id)
+        .collect();
+    let mut selected = BTreeSet::new();
+    let mut out = Vec::new();
+    let (mut p, mut g) = (preferred.into_iter(), general.into_iter());
+    while out.len() < limit {
+        let next = if out.len() % 2 == 0 {
+            p.by_ref()
+                .find(|id| !selected.contains(id))
+                .map(|id| (id, "priority_law"))
+                .or_else(|| {
+                    g.by_ref()
+                        .find(|id| !selected.contains(id))
+                        .map(|id| (id, "corpus_cursor"))
+                })
+        } else {
+            g.by_ref()
+                .find(|id| !selected.contains(id))
+                .map(|id| (id, "corpus_cursor"))
+                .or_else(|| {
+                    p.by_ref()
+                        .find(|id| !selected.contains(id))
+                        .map(|id| (id, "priority_law"))
+                })
+        };
+        let Some((id, reason)) = next else { break };
+        selected.insert(id);
+        out.push((
+            id,
+            if reason == "priority_law" && shared.contains(&id) {
+                "shared_article"
+            } else {
+                reason
+            }
+            .into(),
+        ));
+    }
+    Ok(out)
+}
+
+/// 状態や Markdown を書き換えず、候補と既存の保留を確認する。
+pub fn preview(source: &Source, wiki: &Path, max_backfill: usize, today: &str) -> Result<Value> {
+    let mut intake = Intake::load(wiki)?;
+    let index = source
+        .get_json("hanrei/index.json")?
+        .context("判例索引がありません")?;
+    intake.observe(&index, today)?;
+    let candidates = historical_candidates(source, wiki, &index, &intake, max_backfill)?;
+    Ok(
+        json!({"date":today,"max_backfill":max_backfill,"candidates":candidates.iter().map(|(id, reason)| json!({"case_id":id,"reason":reason})).collect::<Vec<_>>(),"progress":progress(wiki)?}),
+    )
+}
+
+pub fn progress(wiki: &Path) -> Result<Value> {
+    let intake = Intake::load(wiki)?;
+    let completed = completed_pages(wiki)?;
+    let mut statuses = BTreeMap::<String, usize>::new();
+    for pending in intake.pending.values() {
+        *statuses.entry(pending.status.clone()).or_default() += 1;
+    }
+    Ok(
+        json!({"schema_version":1,"initialized_at":intake.initialized_at,"known_cases":intake.seen.len(),"completed":completed.len(),"pending_new":intake.pending.values().filter(|p| p.origin != "backfill").count(),"pending_backfill":intake.pending.values().filter(|p| p.origin == "backfill").count(),"statuses":statuses,"daily":intake.daily}),
+    )
+}
+
+/// 新規・手動の上限を維持し、過去分には独立した枠を追加する。
+/// 自動処理では日ごとの枠と試行数を保存し、同日の再実行でも増量しない。
+#[allow(clippy::too_many_arguments)]
+pub fn plan_tasks_with_backfill(
+    source: &Source,
+    wiki: &Path,
+    work: &Path,
+    max: usize,
+    max_backfill: usize,
+    max_probes: usize,
+    today: &str,
+) -> Result<Vec<Task>> {
+    let mut intake = Intake::load(wiki)?;
+    let published = source.get_json("hanrei/index.json")?;
+    if let Some(index) = &published {
+        intake.observe(index, today)?;
+    }
     if intake.initialized_at.is_none() {
         return Ok(vec![]);
     }
+    if intake.daily.date != today {
+        intake.daily = Daily {
+            date: today.into(),
+            ..Daily::default()
+        };
+    }
+    let automatic = max_backfill > 0;
+    let new_limit = if automatic {
+        max.saturating_sub(intake.daily.new_planned)
+    } else {
+        max
+    };
+    let old_limit = max_backfill.saturating_sub(intake.daily.backfill_planned);
+    // Missing sources must not trigger unbounded requests. Each kind has its own daily probe budget.
+    let probe_limit = max_probes.min(80);
+    let new_probes = if automatic {
+        probe_limit.saturating_sub(intake.daily.new_probes)
+    } else {
+        max_probes
+    };
+    let old_probes = probe_limit.saturating_sub(intake.daily.backfill_probes);
+    let due = |p: &Pending| p.next_attempt.as_deref().is_none_or(|date| date <= today);
+    let mut queued: Vec<_> = intake
+        .pending
+        .iter()
+        .filter(|(_, p)| due(p))
+        .map(|(id, p)| {
+            (
+                p.attempts,
+                p.first_seen.clone(),
+                *id,
+                p.origin == "backfill",
+            )
+        })
+        .collect();
+    queued.sort();
+    let mut queue: Vec<_> = queued
+        .iter()
+        .filter(|q| !q.3)
+        .take(new_probes)
+        .map(|q| (q.2, String::new()))
+        .collect();
+    // Reserve half the historical probes for fresh candidates; retries cannot monopolize the batch.
+    let retry: Vec<_> = queued
+        .iter()
+        .filter(|q| q.3)
+        .take(old_probes.div_ceil(2))
+        .map(|q| (q.2, "retry".into()))
+        .collect();
+    if old_limit > 0 {
+        let fresh = if let Some(index) = &published {
+            historical_candidates(
+                source,
+                wiki,
+                index,
+                &intake,
+                old_probes.saturating_sub(retry.len()),
+            )?
+        } else {
+            vec![]
+        };
+        let (mut r, mut f) = (retry.into_iter(), fresh.into_iter());
+        loop {
+            let pair = (r.next(), f.next());
+            if pair == (None, None) {
+                break;
+            }
+            for c in [pair.0, pair.1].into_iter().flatten() {
+                queue.push(c);
+            }
+        }
+    }
     intake.save(wiki)?;
-    if max == 0 || intake.pending.is_empty() {
+    if new_limit + old_limit == 0 || queue.is_empty() {
         return Ok(vec![]);
     }
     let index = source
@@ -548,16 +856,16 @@ pub fn plan_tasks(
         .collect();
     let resolver = linking::LawRefResolver::new(&names)?;
     let titles = names.into_iter().collect();
-    let mut queue: Vec<_> = intake
-        .pending
-        .iter()
-        .map(|(id, p)| (p.attempts, p.first_seen.clone(), *id))
-        .collect();
-    queue.sort();
     let mut tasks = Vec::new();
-    for (_, first_seen, id) in queue.into_iter().take(max_probes) {
-        if tasks.len() >= max {
-            break;
+    let (mut new_count, mut old_count) = (0, 0);
+    for (id, reason) in queue {
+        let backfill = intake
+            .pending
+            .get(&id)
+            .is_some_and(|p| p.origin == "backfill")
+            || !reason.is_empty();
+        if (backfill && old_count >= old_limit) || (!backfill && new_count >= new_limit) {
+            continue;
         }
         let path = wiki.join(format!("hanrei/{id}.md"));
         if path.exists()
@@ -567,8 +875,32 @@ pub fn plan_tasks(
             intake.pending.remove(&id);
             continue;
         }
-        let pending = intake.pending.get_mut(&id).unwrap();
+        let pending = intake.pending.entry(id).or_insert_with(|| Pending {
+            first_seen: today.into(),
+            origin: "backfill".into(),
+            selection_reason: reason.clone(),
+            ..Pending::default()
+        });
+        let first_seen = pending.first_seen.clone();
+        if backfill {
+            intake.daily.backfill_probes += 1;
+            if reason == "corpus_cursor" {
+                intake.backfill_cursor = Some(id);
+            }
+        } else {
+            intake.daily.new_probes += 1;
+        }
         pending.attempts += 1;
+        if automatic || pending.origin == "backfill" {
+            let delay = match pending.attempts {
+                1 => 1,
+                2 => 3,
+                3 => 7,
+                _ => 30,
+            };
+            let date = chrono::NaiveDate::parse_from_str(today, "%Y-%m-%d")?;
+            pending.next_attempt = Some((date + chrono::Duration::days(delay)).to_string());
+        }
         pending.status = "source_unavailable".into();
         let result = (|| -> Result<Option<Value>> {
             let Some(doc) = source.get_json(&format!("hanrei/{id}.json"))? else {
@@ -603,6 +935,13 @@ pub fn plan_tasks(
         std::fs::create_dir_all(work.join("sources"))?;
         std::fs::write(work.join(&task.source), serde_json::to_vec_pretty(&prompt)?)?;
         pending.status = "summary_pending".into();
+        if backfill {
+            old_count += 1;
+            intake.daily.backfill_planned += 1;
+        } else {
+            new_count += 1;
+            intake.daily.new_planned += 1;
+        }
         tasks.push(task);
     }
     intake.save(wiki)?;
@@ -739,13 +1078,18 @@ pub fn finish(wiki: &Path, completed: &[Task]) -> Result<()> {
         return Ok(());
     }
     let mut intake = Intake::load(wiki)?;
-    let before = intake.pending.len();
+    let before = serde_json::to_vec(&intake.pending)?;
     for task in completed.iter().filter(|t| t.kind == KIND) {
         if let Ok(id) = task.id.parse::<u64>() {
             intake.pending.remove(&id);
         }
     }
-    if intake.pending.len() != before {
+    for pending in intake.pending.values_mut() {
+        if pending.status == "summary_pending" {
+            pending.status = "summary_incomplete".into();
+        }
+    }
+    if serde_json::to_vec(&intake.pending)? != before {
         intake.save(wiki)?;
     }
     Ok(())
@@ -953,6 +1297,126 @@ mod tests {
     use super::*;
     use serde_json::json;
 
+    #[test]
+    fn daily_backfill_reserves_twenty_separate_slots_and_prevents_same_day_repeat() {
+        let (source, wiki, work) = fixture();
+        let src = Source::new(source.to_str().unwrap()).unwrap();
+        let existing: Vec<_> = (1..=30).collect();
+        index(&source, &existing);
+        plan_tasks(&src, &wiki, &work, 0, 80, "2026-10-25").unwrap();
+        let all: Vec<_> = (1..=34).collect();
+        index(&source, &all);
+        for id in &all {
+            case(&source, *id);
+        }
+        let tasks = plan_tasks_with_backfill(&src, &wiki, &work, 3, 20, 80, "2026-10-25").unwrap();
+        assert_eq!(tasks.len(), 23);
+        let intake = Intake::load(&wiki).unwrap();
+        assert_eq!(
+            (intake.daily.new_planned, intake.daily.backfill_planned),
+            (3, 20)
+        );
+        assert_eq!(
+            tasks
+                .iter()
+                .filter(|t| t.id.parse::<u64>().unwrap() > 30)
+                .count(),
+            3
+        );
+        assert!(
+            plan_tasks_with_backfill(&src, &wiki, &work, 3, 20, 80, "2026-10-25")
+                .unwrap()
+                .is_empty()
+        );
+        assert_eq!(Intake::load(&wiki).unwrap().seen.len(), 34);
+        // A disabled historical budget cannot accidentally process the pending historical tasks.
+        let manual = plan_tasks(&src, &wiki, &work, 3, 80, "2026-10-26").unwrap();
+        assert_eq!(manual.len(), 3);
+        assert!(manual.iter().all(|t| t.id.parse::<u64>().unwrap() > 30));
+    }
+
+    #[test]
+    fn missing_sources_back_off_and_do_not_starve_fresh_candidates() {
+        let (source, wiki, work) = fixture();
+        let src = Source::new(source.to_str().unwrap()).unwrap();
+        assert!(
+            plan_tasks_with_backfill(&src, &wiki, &work, 0, 20, 4, "2026-10-25")
+                .unwrap()
+                .is_empty()
+        );
+        let intake = Intake::load(&wiki).unwrap();
+        assert_eq!(intake.pending.len(), 2);
+        assert!(intake
+            .pending
+            .values()
+            .all(|p| p.attempts == 1 && p.next_attempt.as_deref() == Some("2026-10-26")));
+        plan_tasks_with_backfill(&src, &wiki, &work, 0, 20, 4, "2026-10-26").unwrap();
+        assert!(Intake::load(&wiki)
+            .unwrap()
+            .pending
+            .values()
+            .all(|p| p.attempts == 2 && p.next_attempt.as_deref() == Some("2026-10-29")));
+        plan_tasks_with_backfill(&src, &wiki, &work, 0, 20, 4, "2026-10-27").unwrap();
+        assert_eq!(Intake::load(&wiki).unwrap().daily.backfill_probes, 0);
+        // Newly available historical candidates can proceed while retries are deferred.
+        index(&source, &[100, 200, 300]);
+        // This ID was not new at the baseline, so mark it known to simulate a historical addition.
+        let mut intake = Intake::load(&wiki).unwrap();
+        intake.seen.insert(300);
+        intake.save(&wiki).unwrap();
+        case(&source, 300);
+        let tasks = plan_tasks_with_backfill(&src, &wiki, &work, 0, 20, 4, "2026-10-27").unwrap();
+        assert_eq!(
+            tasks.iter().map(|t| t.id.as_str()).collect::<Vec<_>>(),
+            vec!["300"]
+        );
+    }
+
+    #[test]
+    fn preview_is_read_only_and_interleaves_priority_with_corpus() {
+        let (source, wiki, _) = fixture();
+        let src = Source::new(source.to_str().unwrap()).unwrap();
+        write_json(
+            &source.join("links/law-to-hanrei/325AC0000000144.json"),
+            &json!({"linked_cases":[{"case_id":100}]}),
+        );
+        let output = preview(&src, &wiki, 2, "2026-10-25").unwrap();
+        assert_eq!(
+            output["candidates"][0],
+            json!({"case_id":100,"reason":"priority_law"})
+        );
+        assert_eq!(
+            output["candidates"][1],
+            json!({"case_id":200,"reason":"corpus_cursor"})
+        );
+        assert!(!wiki.join(INTAKE).exists());
+        assert!(completed_pages(&wiki).unwrap().is_empty());
+        assert_eq!(
+            case_date(&json!({"judged_on":"平成３１年４月３０日"})),
+            "2019-04-30"
+        );
+        assert_eq!(
+            case_date(&json!({"judged_on":"令和元年5月1日"})),
+            "2019-05-01"
+        );
+        assert_eq!(case_date(&json!({"judged_on":"不明"})), "");
+    }
+
+    #[test]
+    fn legacy_intake_loads_and_public_progress_does_not_dump_baseline() {
+        let (_, wiki, _) = fixture();
+        write_json(
+            &wiki.join(INTAKE),
+            &json!({"initialized_at":"2026-10-24","seen":[1,2],"pending":{"3":{"first_seen":"2026-10-25","attempts":0,"status":"pending"}}}),
+        );
+        let intake = Intake::load(&wiki).unwrap();
+        assert_ne!(intake.pending[&3].origin, "backfill");
+        let report = progress(&wiki).unwrap();
+        assert_eq!(report["known_cases"], 2);
+        assert_eq!(report["pending_new"], 1);
+        assert!(report.get("seen").is_none());
+    }
+
     fn fixture() -> (PathBuf, PathBuf, PathBuf) {
         let root = temp_dir("hanrei");
         let source = root.join("public");
@@ -1066,6 +1530,7 @@ mod tests {
             chunk_size: 4,
             max_enforcements: 0,
             max_hanrei: 3,
+            max_hanrei_backfill: 0,
         };
         plan::run_plan(&args).unwrap();
         index(&source, &[100, 200, 5]);
@@ -1503,6 +1968,14 @@ mod tests {
             .unwrap()
             .iter()
             .any(|p| p["type"] == "hanrei"));
+        assert_eq!(exported["hanrei_progress"]["completed"], 2);
+        let previewed = preview(&src, &wiki, 20, "2026-10-25").unwrap();
+        assert!(previewed["candidates"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|c| c["case_id"] != 5 && c["case_id"] != 6));
+        assert!(out.join("hanrei-progress.json").exists());
         let graph: Value =
             serde_json::from_slice(&std::fs::read(out.join("graph.json")).unwrap()).unwrap();
         assert!(graph["links"]
@@ -1680,9 +2153,18 @@ mod tests {
         assert_eq!(state.seen, BTreeSet::from([100, 200]));
         assert_eq!(state.pending.keys().copied().collect::<Vec<_>>(), vec![200]);
         queue_cases(&src, &wiki, &[200], "2026-10-26").unwrap();
-        assert_eq!(Intake::load(&wiki).unwrap().pending[&200].first_seen, "2026-10-25");
+        assert_eq!(
+            Intake::load(&wiki).unwrap().pending[&200].first_seen,
+            "2026-10-25"
+        );
         let before = std::fs::read(wiki.join(INTAKE)).unwrap();
-        for ids in [vec![], vec![0], vec![200, 200], vec![100, 999], (1..=11).collect()] {
+        for ids in [
+            vec![],
+            vec![0],
+            vec![200, 200],
+            vec![100, 999],
+            (1..=11).collect(),
+        ] {
             assert!(queue_cases(&src, &wiki, &ids, "2026-10-26").is_err());
             assert_eq!(std::fs::read(wiki.join(INTAKE)).unwrap(), before);
         }
