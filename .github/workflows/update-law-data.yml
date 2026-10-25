@@ -85,6 +85,8 @@ jobs:
     outputs:
       changed: ${{ steps.detect.outputs.changed }}
       new_xmls: ${{ steps.detect.outputs.new_xmls }}
+      wiki_sha: ${{ steps.wiki_revision.outputs.sha }}
+      wiki_case_digest: ${{ steps.wiki_export.outputs.case_digest }}
     env:
       LAWPUB_PROVIDER: ${{ github.event.inputs.provider || 'http' }}
       # 既定は v1 API (path 構造: lawlists/{cat}, lawdata/{id}, updatelawlists/{yyyymmdd})。
@@ -270,6 +272,19 @@ jobs:
           }
           EOF
 
+      - name: Detect unpublished Wiki revision
+        id: wiki_revision
+        env:
+          PUBLIC_BASE: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+        run: |
+          # ls-remote failure is an error; an absent branch is the only allowed empty case.
+          sha=$(git ls-remote --heads origin wiki | cut -f1)
+          if [ -n "$sha" ]; then
+            git fetch --depth=1 origin "$sha"
+            echo "sha=$sha" >> "$GITHUB_OUTPUT"
+            python3 .github/scripts/wiki_publication.py detect --base-url "$PUBLIC_BASE" --sha "$sha" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: lawpub update (data refresh)
         if: >-
           github.event_name != 'push' &&
@@ -291,7 +306,7 @@ jobs:
           else
             ARGS+=(--compact-history)
           fi
-          if [ "${{ github.event.inputs.force }}" = "true" ]; then
+          if [ "${{ github.event.inputs.force }}" = "true" ] || [ "${{ steps.wiki_revision.outputs.changed }}" = "true" ]; then
             ARGS+=(--force)
           fi
           ./target/release/lawpub update "${ARGS[@]}"
@@ -938,19 +953,19 @@ jobs:
       # kanpo が public/ に出揃った後に実行し、feeds/recent.json + RSS を書く。
       # feeds/・enforcement/ を manifest に載せるため rebuild-manifest して validate を通す。
       # LLM wiki (orphan ブランチ `wiki`、update-wiki.yml が日次更新) を SPA 用の JSON にして同梱する。
-      # 後段の rebuild-manifest / compress に乗せるため feeds より前に置く。失敗しても deploy は止めない。
+      # Wiki の取得・export 失敗時は不完全な配信物を公開しない。
       - name: Include LLM wiki
-        if: steps.detect.outputs.changed == 'true'
-        continue-on-error: true
+        id: wiki_export
+        if: steps.detect.outputs.changed == 'true' && steps.wiki_revision.outputs.sha != ''
+        env:
+          WIKI_SOURCE_SHA: ${{ steps.wiki_revision.outputs.sha }}
         run: |
-          if git fetch --depth=1 origin wiki 2>/dev/null; then
-            rm -rf .wiki-src && mkdir .wiki-src
-            git archive FETCH_HEAD | tar -x -C .wiki-src
-            ./target/release/lawpub wiki-export --wiki .wiki-src --out public/wiki \
-              || echo "::warning::wiki-export failed"
-          else
-            echo "::notice::wiki ブランチが無いので wiki なしで続行"
-          fi
+          mkdir -p .wiki-src
+          git archive "$WIKI_SOURCE_SHA" | tar -x -C .wiki-src
+          ./target/release/lawpub wiki-export --wiki .wiki-src --out public/wiki
+          digest=$(python3 .github/scripts/wiki_publication.py digest --index public/wiki/index.json)
+          echo "case_digest=$digest" >> "$GITHUB_OUTPUT"
+          jq '{source_commit, generated_at, hanrei_progress}' public/wiki/index.json >> "$GITHUB_STEP_SUMMARY"
 
       - name: Build regulatory feeds
         if: steps.detect.outputs.changed == 'true'
@@ -1073,12 +1088,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
+      contents: read
       pages: write
       id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/checkout@v4
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify published Wiki
+        if: needs.update.outputs.wiki_sha != ''
+        env:
+          PUBLIC_BASE: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+          WIKI_SHA: ${{ needs.update.outputs.wiki_sha }}
+          WIKI_CASE_DIGEST: ${{ needs.update.outputs.wiki_case_digest }}
+        run: |
+          python3 .github/scripts/wiki_publication.py verify --base-url "$PUBLIC_BASE" \
+            --sha "$WIKI_SHA" --case-digest "$WIKI_CASE_DIGEST"

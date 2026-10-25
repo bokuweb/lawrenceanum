@@ -191,9 +191,14 @@ pub fn run_export(args: &ExportArgs) -> Result<()> {
 
     let intake_path = wiki.join(".lawpub/intake.json");
     let intake: Value = if intake_path.exists() { serde_json::from_slice(&std::fs::read(intake_path)?)? } else { Value::Null };
+    let hanrei_progress = hanrei::progress(wiki)?;
+    let source_commit = std::env::var("WIKI_SOURCE_SHA").ok();
+    std::fs::write(args.out.join("hanrei-progress.json"), serde_json::to_vec(&json!({
+        "generated_at":now_rfc3339(), "source_commit":source_commit, "progress":hanrei_progress
+    }))?)?;
     std::fs::write(
         args.out.join("index.json"),
-        serde_json::to_vec(&json!({ "schema_version": 1, "generated_at": now_rfc3339(), "pages": index, "intake": intake }))?,
+        serde_json::to_vec(&json!({ "schema_version": 1, "generated_at": now_rfc3339(), "pages": index, "intake": intake, "source_commit":source_commit, "hanrei_progress":hanrei_progress }))?,
     )?;
     std::fs::write(
         args.out.join("graph.json"),

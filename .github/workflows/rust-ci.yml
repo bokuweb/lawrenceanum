@@ -12,6 +12,9 @@ on:
       - "Cargo.toml"
       - "Cargo.lock"
       - ".github/workflows/rust-ci.yml"
+      - ".github/workflows/update-wiki.yml"
+      - ".github/workflows/update-law-data.yml"
+      - ".github/scripts/**"
   pull_request:
     paths:
       - "crates/**"
@@ -19,6 +22,9 @@ on:
       - "Cargo.toml"
       - "Cargo.lock"
       - ".github/workflows/rust-ci.yml"
+      - ".github/workflows/update-wiki.yml"
+      - ".github/workflows/update-law-data.yml"
+      - ".github/scripts/**"
 
 concurrency:
   group: rust-ci-${{ github.ref }}
@@ -30,6 +36,9 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+
+      - name: Test Wiki publication checks
+        run: python3 -m unittest discover -s .github/scripts -p 'test_*.py'
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
