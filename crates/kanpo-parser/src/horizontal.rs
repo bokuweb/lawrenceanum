@@ -19,6 +19,8 @@ use crate::vertical::Col;
 mod native_ruling_sections;
 use native_ruling_sections::{source_table_bottom_cut,SourceGeometry};
 #[path="native_mode_bands.rs"]mod native_mode_bands;
+#[path = "native_fenced_records.rs"]
+mod native_fenced_records;
 
 /// 回転ページの左端の柱の帯（回転前のページ上余白）。語全体がこの x より左にあれば柱として
 /// 捨てる。本文の左端は x≈61、表の丸数字は x≈53 から始まるので、語の右端で判定する。
@@ -567,6 +569,18 @@ fn lines_with_tables_inner(cols: Vec<Col>, grids: &[Grid], vrules: &[(f32, f32, 
             let mut lines = lines_with_tables_inner(left, &lg, vrules, hrules, false, source);
             lines.extend(lines_with_tables_inner(right, &rg, vrules, hrules, false, source));
             return lines;
+        }
+    }
+    if !one_column {
+        if let Some(tables) = native_fenced_records::tables(&cols, source, vrules, hrules) {
+            return tables
+                .into_iter()
+                .map(|t| trace::Line {
+                    text: t.render(),
+                    words: Vec::new(),
+                    table: Some(t),
+                })
+                .collect();
         }
     }
     if !one_column {
@@ -6539,3 +6553,4 @@ mod orthogonal_gutters_tests;
 #[cfg(test)]#[path="source_boundary_tests.rs"]mod source_boundary_tests;
 
 #[cfg(test)]#[path="source_section_span_tests.rs"]mod source_section_span_tests;
+
