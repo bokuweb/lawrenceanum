@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { ArrowLeft, ExternalLink, Network, Search } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -73,9 +73,30 @@ function WikiHome({
   graph: { data: WikiGraph | null; loading: boolean; error: boolean; retry: () => void };
   onOpen: (path: string | null) => void;
 }) {
-  const [query, setQuery] = useState("");
-  const [visible, setVisible] = useState<Set<string>>(() => new Set(WIKI_TYPE_ORDER));
+  const [params, setParams] = useSearchParams();
+  const query = params.get("q") ?? "";
+  const tab = params.get("tab") === "list" ? "list" : "graph";
+  const types = params.get("types");
+  const visible = useMemo(() => {
+    if (types === null) return new Set(WIKI_TYPE_ORDER);
+    const selected = types.split(",").filter(type => WIKI_TYPE_ORDER.includes(type));
+    // 空文字は全解除。不明な種類しかない URL は既定の全選択に戻す。
+    return new Set(types && selected.length === 0 ? WIKI_TYPE_ORDER : selected);
+  }, [types]);
   const showStubs = useShowStubs();
+  const stubs = params.get("stubs");
+  useEffect(() => {
+    if (stubs === "1" || stubs === "0") setShowStubs(stubs === "1");
+  }, [stubs]);
+
+  const updateParam = (key: string, value: string | null) => {
+    setParams(prev => {
+      const next = new URLSearchParams(prev);
+      if (value === null) next.delete(key);
+      else next.set(key, value);
+      return next;
+    }, { replace: true });
+  };
   const all = useMemo(() => (index.data?.pages ?? []).filter(p => WIKI_TYPES[p.type]), [index.data]);
   const stubCount = useMemo(() => all.filter(p => p.stub).length, [all]);
   // 要約前 (一覧だけ) のページは既定で出さない。件数のチップも要約済みのページだけを数える。
@@ -97,13 +118,14 @@ function WikiHome({
       );
   }, [pages, visible, query]);
 
-  const toggle = (type: string) =>
-    setVisible(prev => {
-      const next = new Set(prev);
-      if (next.has(type)) next.delete(type);
-      else next.add(type);
-      return next;
-    });
+  const toggle = (type: string) => {
+    const next = new Set(visible);
+    if (next.has(type)) next.delete(type);
+    else next.add(type);
+    updateParam("types", next.size === WIKI_TYPE_ORDER.length
+      ? null
+      : WIKI_TYPE_ORDER.filter(t => next.has(t)).join(","));
+  };
 
   return (
     <div className="p-6 max-w-6xl">
@@ -157,7 +179,10 @@ function WikiHome({
 
           {stubCount > 0 && (
             <label className="flex items-center gap-1.5 text-xs text-muted-foreground mb-3 w-fit">
-              <input type="checkbox" checked={showStubs} onChange={e => setShowStubs(e.target.checked)} />
+              <input type="checkbox" checked={showStubs} onChange={e => {
+                setShowStubs(e.target.checked);
+                updateParam("stubs", e.target.checked ? "1" : "0");
+              }} />
               要約前（一覧だけ）のページも表示（{stubCount}）
             </label>
           )}
@@ -166,13 +191,13 @@ function WikiHome({
             <Search className="size-4 absolute left-2.5 top-2.5 text-muted-foreground" />
             <Input
               value={query}
-              onChange={e => setQuery(e.target.value)}
+              onChange={e => updateParam("q", e.target.value || null)}
               placeholder="タイトル・概要・タグで絞り込み（グラフにも効きます）"
               className="pl-8"
             />
           </div>
 
-          <Tabs defaultValue="graph">
+          <Tabs value={tab} onValueChange={value => updateParam("tab", value === "list" ? "list" : null)}>
             <TabsList>
               <TabsTrigger value="graph">グラフ</TabsTrigger>
               <TabsTrigger value="list">一覧</TabsTrigger>

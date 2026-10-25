@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router";
 import ForceGraph2D, { type ForceGraphMethods } from "react-force-graph-2d";
 import type { WikiGraph } from "../../data/api";
 import { WIKI_TYPES } from "./wiki-types";
@@ -43,7 +44,17 @@ export function WikiGraphCanvas({
   const box = useRef<HTMLDivElement>(null);
   const fg = useRef<ForceGraphMethods | undefined>(undefined);
   const [size, setSize] = useState({ width: 800, height: 560 });
-  const [budget, setBudget] = useState<number>(DEFAULT_BUDGET);
+  const [params, setParams] = useSearchParams();
+  const requestedBudget = params.get("budget") === "all" ? Infinity : Number(params.get("budget"));
+  const budget = GRAPH_BUDGETS.find(value => value === requestedBudget) ?? DEFAULT_BUDGET;
+  const setBudget = (value: number) => {
+    setParams(prev => {
+      const next = new URLSearchParams(prev);
+      if (value === DEFAULT_BUDGET) next.delete("budget");
+      else next.set("budget", value === Infinity ? "all" : String(value));
+      return next;
+    }, { replace: true });
+  };
   useEffect(() => {
     const el = box.current;
     if (!el) return;
