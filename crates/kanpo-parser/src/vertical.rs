@@ -517,6 +517,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 crate::native_sentence_cells::restore(&mut units,crate::native_sentence_cells::Source{flows:Some(&native_flows),words:&words,originals,bounds:&native_bounds,axes:&native_axes,rulings:&native_rulings,grids:&grids,rules});
             }
             if let Some(rules)=rules.get(pi).and_then(|r|r.as_ref()){crate::native_grid_fragments::restore(&mut units,&words,&native_bounds,&native_axes,rules,width,height);}
+            let native_atomic_columns=crate::native_atomic_column::restore(&mut units,&words,&native_bounds,&native_axes,&native_flows,rules.get(pi).and_then(|r|r.as_ref()));
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
@@ -529,7 +530,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             let mut regions: Vec<_> = units.into_iter().enumerate().flat_map(|(i, u)| u.regions(i)).collect();
             enclosed_warichu::expand(&mut regions,&inline_merged,&merged);
         mark_unused(&mut words, &regions, &merged);
-            pages.push(PageTrace {native_axes,native_rulings,
+            pages.push(PageTrace {native_atomic_columns,native_axes,native_rulings,
                 native_styles,
                 native_bounds,
                 native_content_styles,
@@ -889,7 +890,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             &mut regions, marker_members.as_deref().unwrap_or(&inline_merged), &merged,
         );
         mark_unused(&mut words, &regions, &merged);
-        pages.push(PageTrace {native_axes,native_rulings,
+        pages.push(PageTrace {native_atomic_columns:vec![],native_axes,native_rulings,
                 native_styles,
                 native_bounds,
                 native_content_styles,

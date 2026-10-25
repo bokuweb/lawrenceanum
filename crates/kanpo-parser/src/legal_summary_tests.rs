@@ -35,7 +35,7 @@ fn sync(p: &mut PageTrace) {
     p.text = p.doc_text.clone();
 }
 fn empty() -> PageTrace {
-    PageTrace {
+    PageTrace {native_atomic_columns:vec![],
         width: 600.,
         height: 800.,
         layout: "horizontal",

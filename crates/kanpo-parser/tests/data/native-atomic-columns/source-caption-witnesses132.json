@@ -1,0 +1,21 @@
+{
+  "scope": "Manually transcribed original caption and physical-column witnesses. Only ownership/reading order of native captions is graded; raster bodies and other unresolved page-quality issues are not graded as correct.",
+  "rows": [
+    {"page": "20260728h017560022", "caption": "書面による計算報告", "physical_column_from_left": 2},
+    {"page": "20260824h017740012", "caption": "除権決定", "physical_column_from_left": 1},
+    {"page": "20260825h017750019", "caption": "書面による計算報告", "physical_column_from_left": 4},
+    {"page": "20260826h017760023", "caption": "書面による計算報告", "physical_column_from_left": 3},
+    {"page": "20260917h017920023", "caption": "書面による計算報告", "physical_column_from_left": 1},
+    {"page": "20260925h017950020", "caption": "破産管財人変更", "physical_column_from_left": 2},
+    {"page": "20261020h018110016", "caption": "書面による計算報告", "physical_column_from_left": 4}
+  ],
+  "negative_control": {
+    "page": "20260831g001930134",
+    "observation": "Original paired comparison continuation, whose existing Body regions are not newly reconstructed columns. Preserve the native131 complete Analysis, including the pre-existing unresolved amendment roles.",
+    "native_metadata": "The city labels have native axis right and native writing mode1; direction alone does not prove horizontal paragraph/heading semantics."
+  },
+  "page_end_pairs": [
+    ["20260825h017750019", "20260825h017750020"],
+    ["20261020h018110016", "20261020h018110017"]
+  ]
+}

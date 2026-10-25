@@ -940,6 +940,7 @@ fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> V
         }
     }
     cuts.extend(fences);
+    cuts.extend(atomic_column_roots::starts(page,rules,lines));
     cuts.extend(section_roots::starts(page, rules, lines));
     cuts.extend(legal_summaries::starts(page, rules, lines));
     cuts.extend(court_records::starts(page, rules, lines));
@@ -1022,7 +1023,11 @@ pub(crate) fn groups(
                 } else {
                     decisions(p, r, &lines)
                 } {
-                    if spans[c] >= leading && spans[c] - leading < p.doc_text.len() {
+                    if c==lines.len(){
+                        // A certified source block may end at the last line of
+                        // this page. Close it before the following page begins.
+                        breaks.insert(offset+p.doc_text.len());
+                    } else if spans[c] >= leading && spans[c] - leading < p.doc_text.len() {
                         breaks.insert(offset + spans[c] - leading);
                     }
                 }
@@ -1127,3 +1132,6 @@ mod horizontal_publication_tests;
 
 #[path = "native_section_roots.rs"]
 mod section_roots;
+
+#[path="native_atomic_column_roots.rs"]
+mod atomic_column_roots;

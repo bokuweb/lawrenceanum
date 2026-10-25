@@ -19,7 +19,7 @@ fn put(p: &mut PageTrace, t: &str, b: [f32; 4], font: Option<usize>) {
     p.regions[0].lines.push(Line::text(t.into(), vec![id]));
 }
 fn page() -> PageTrace {
-    PageTrace {native_axes:vec![],native_rulings:vec![],
+    PageTrace {native_atomic_columns:vec![],native_axes:vec![],native_rulings:vec![],
         width: 600.,
         height: 800.,
         layout: "tiers",
