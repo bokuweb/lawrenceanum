@@ -701,3 +701,7 @@ mod amendment_quotes;
 mod native_column_flow;
 
 mod quoted_references;
+
+mod partial_rule_columns;
+
+#[cfg(test)] mod partial_rule_column_tests;

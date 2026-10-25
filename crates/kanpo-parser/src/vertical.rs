@@ -864,6 +864,11 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         let marker_members = marker_plan
             .and_then(|plan| ruled_marker_bands::apply(&mut units, plan, &inline_merged));
         crate::native_unit_dash::restore(&mut units, &mut words, &native_bounds, &native_axes, &native_styles, rules.get(pi).and_then(|r| r.as_ref()));
+        if !sideways && !rotated {
+            let vrules=page_rules.map(|r|r.vertical.iter().map(|v|(v.x,v.y0,v.y1)).collect::<Vec<_>>()).unwrap_or_default();
+            let hrules=page_rules.map(|r|r.horizontal.iter().map(|h|(h.y,h.x0,h.x1)).collect::<Vec<_>>()).unwrap_or_default();
+            crate::partial_rule_columns::restore(&mut units,&words,&native_bounds,&native_axes,&vrules,&hrules,|cols|page_lines_with(cols,&vrules,&hrules));
+        }
         crate::native_column_flow::restore(&mut units,&words,&native_bounds,&native_styles,&projected_flows,rules.get(pi).and_then(|r|r.as_ref()));
         let text = units
             .iter()
