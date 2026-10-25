@@ -1,7 +1,7 @@
 //! Public-output regressions for independently signed publication boundaries.
 //! The frozen JSON preserves surrounding output; it is not a full-page gold.
-//! In particular, the pension example still has a later, separate publication
-//! merged into it. That known residual is recorded in source-reference140.json.
+//! The pension example uses the later source-reviewed141 reference; the older
+//! reviewed140 output and its residual description remain as historical evidence.
 fn check(pdf: &[u8], expected: &str, title: &str) {
     let a = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(pdf).unwrap());
     let actual: serde_json::Value =
@@ -28,7 +28,14 @@ macro_rules! source {
     };
 }
 source!(research_financial_publication, "20260803g001740089", "国立研究開発法人農業・食品産業技術総合研究機構令和７年度\n財務諸表に関する公告");
-source!(pension_boundary_preserves_known_later_residual, "20260806g001770058", "企業年金基金変更公告");
+#[test]
+fn pension_and_following_financial_publication_keep_their_own_boundaries() {
+    check(
+        include_bytes!("data/shared-publication-row/20260806g001770058.pdf"),
+        include_str!("data/source-financial-headers/20260806g001770058-reviewed141.json"),
+        "企業年金基金変更公告",
+    );
+}
 source!(housing_financial_publication, "20260825g001890072", "令和７事業年度独立行政法人住宅金融支援機構の財務諸表に関\nする公告");
 source!(trade_financial_publication, "20260831g001940057", "独立行政法人日本貿易振興機構令和７事業年度財務諸表に関す\nる公告");
 source!(fisheries_financial_publication, "20260930g002160037", "国立研究開発法人水産研究・教育機構令和７事業年度財務諸表\nに関する公告");

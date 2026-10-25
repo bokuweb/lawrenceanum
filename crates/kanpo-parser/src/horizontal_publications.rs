@@ -203,6 +203,9 @@ fn closed_by_frame(rules: &PageRules, b: Rect) -> bool {
 }
 // A dated, right-aligned source header precedes a whole existing table, below
 // it or in the next column. Address text stays opaque; only its geometry is used.
+fn financial_title(h: &Head) -> bool {
+    h.text[..h.base].ends_with("決算公告") || h.text[..h.base].ends_with("決算に関する公告")
+}
 fn financial(
     page: &PageTrace,
     rules: &PageRules,
@@ -210,8 +213,7 @@ fn financial(
     h: &Head,
     end: usize,
 ) -> bool {
-    if !h.text[..h.base].ends_with("決算公告") && !h.text[..h.base].ends_with("決算に関する公告")
-    {
+    if !financial_title(h) {
         return false;
     }
     let Some(date_line) = lines.get(h.end).filter(|_| h.end < end) else {
@@ -227,20 +229,21 @@ fn financial(
     let mut block = h.rect;
     let mut previous_y = lines[h.end - 1].bbox.unwrap()[1];
     let mut signed = None;
-    for i in h.end..end {
-        let l = &lines[i];
-        let Some(b) = native(page, l) else {
+    let mut i = h.end;
+    while i < end {
+        let Some((next, b)) = native_row(page, lines, i, end) else {
             break;
         };
-        if l.line.table.is_some()
-            || !l.unquoted
-            || l.scope != lines[h.first].scope
-            || b[0] < d[0]
+        if lines[i..next].iter().any(|l| {
+            l.line.table.is_some()
+                || !l.unquoted
+                || l.scope != lines[h.first].scope
+                || !nominal(&l.line.text)
+                || closed_by_frame(rules, native(page, l).unwrap())
+        }) || b[0] < d[0]
             || b[1] <= previous_y
             || b[0] >= block[2]
             || b[2] <= block[0]
-            || !nominal(&l.line.text)
-            || closed_by_frame(rules, b)
         {
             break;
         }
@@ -248,13 +251,16 @@ fn financial(
             && b[0] > d[0]
             && b[1] >= d[3]
             && prior.iter().any(|p: &Rect| p[2] == b[2])
-            && content(page, l).as_ref() == Some(&ds)
+            && lines[i..next]
+                .iter()
+                .all(|l| content(page, l).as_ref() == Some(&ds))
         {
-            signed = Some((i, b));
+            signed = Some((next - 1, b));
         }
         prior.push(b);
         block = union(block, b);
         previous_y = b[1];
+        i = next;
     }
     let Some((signed, s)) = signed else {
         return false;
@@ -270,8 +276,9 @@ fn financial(
     if !valid(t) || native(page, &lines[ti]).is_none() || lines[ti].scope != lines[h.first].scope {
         return false;
     }
-    let below =
-        t[0] >= d[0] && t[2] <= block[2] && t[0] <= h.rect[0] && h.rect[2] <= t[2] && t[1] >= s[3];
+    let below = t[1] >= s[3]
+        && ((t[0] >= d[0] && t[2] <= block[2] && t[0] <= h.rect[0] && h.rect[2] <= t[2])
+            || header_order::below_own_source_table(page, rules, lines, h, ti));
     let next = t[0] > block[2];
     if !below && !next {
         return false;
@@ -287,6 +294,7 @@ fn financial(
         })
     })
 }
+
 fn officer(l: &SourceLine<'_>) -> bool {
     let Some(tokens) = &l.tokens else {
         return false;
@@ -385,3 +393,36 @@ pub(super) fn starts(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_
         })
         .collect()
 }
+
+// Geometry of one printed source row, possibly represented by several Lines.
+// Unknown source baselines retain the existing one-Line behavior.
+fn native_row(
+    page: &PageTrace,
+    lines: &[SourceLine<'_>],
+    first: usize,
+    end: usize,
+) -> Option<(usize, Rect)> {
+    let mut rect = native(page, lines.get(first)?)?;
+    let mut next = first + 1;
+    while next < end {
+        let previous = &lines[next - 1];
+        let current = &lines[next];
+        let Some(b) = native(page, current) else {
+            break;
+        };
+        if current.scope != lines[first].scope
+            || current.line.table.is_some()
+            || previous.line.table.is_some()
+            || !rightward_source_row(page, previous, current, native(page, previous)?, b)
+        {
+            break;
+        }
+        rect = union(rect, b);
+        next += 1;
+    }
+    Some((next, rect))
+}
+
+#[path = "horizontal_publication_headers.rs"]
+mod header_order;
+pub(super) use header_order::restore_header_order;

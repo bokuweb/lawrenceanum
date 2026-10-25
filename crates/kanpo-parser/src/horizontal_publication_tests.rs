@@ -574,3 +574,171 @@ fn shared_header140_every_word_of_the_fragment_needs_the_same_source_baseline() 
     assert_eq!(extra,p.words.len()-1);refresh(&mut p);
     assert!(cuts(&p,&Default::default()).is_empty());
 }
+
+fn header141_fixture() -> (PageTrace, PageRules) {
+    let mut f = financial(2, false);
+    let original = f.p.regions[0].lines.clone();
+    let date = f.p.native_bounds[f.date].clone();
+    let NativeBounds::Glyphs(date) = date else { unreachable!() };
+    let NativeBounds::Glyphs(mut address) = f.p.native_bounds[f.address].clone() else { unreachable!() };
+    address[1] = date[1]; address[3] = date[3];
+    for (id, b) in [(f.address, address)] {
+        let w = &mut f.p.words[id];
+        w.x0=b[0]; w.y0=b[1]; w.x1=b[2]; w.y1=b[3]; w.source_box=b;
+        f.p.native_bounds[id]=NativeBounds::Glyphs(b);
+    }
+    let cap = original.iter().position(|l| l.text == "１ 短期経理").unwrap();
+    for &id in &original[cap].words {
+        let w=&mut f.p.words[id]; w.x0=50.; w.source_box[0]=50.;
+        let NativeBounds::Glyphs(b)=&mut f.p.native_bounds[id] else {unreachable!()};b[0]=50.;
+    }
+    let date_line=original.iter().position(|l|l.words==vec![f.date]).unwrap();
+    let mut order=vec![0,date_line,cap];
+    order.extend(1..date_line);
+    order.extend((date_line+1..original.len()).filter(|i|*i!=cap));
+    f.p.regions[0].lines=order.into_iter().map(|i|original[i].clone()).collect();
+    f.p.native_horizontal_baselines=f.p.native_bounds.iter().map(|b|match b {NativeBounds::Glyphs(b)=>Some((f64::from(b[1])+f64::from(b[3]))/2.),_=>None}).collect();
+    let table=&f.p.tables[0];
+    let rules=PageRules {
+        horizontal:vec![crate::lines::HRule{y:table.y0,x0:table.x0,x1:table.x1}],
+        vertical:vec![crate::lines::VRule{x:table.x0,y0:table.y0,y1:table.y1},crate::lines::VRule{x:table.x1,y0:table.y0,y1:table.y1}],
+        ..Default::default()
+    };
+    header141_seal(&mut f.p);
+    (f.p,rules)
+}
+fn header141_seal(p:&mut PageTrace) {
+    let unit=crate::trace::Unit::Plain(p.regions.iter().flat_map(|r|r.lines.iter().cloned()).collect());
+    let mut tables=vec![];p.text=unit.text();p.doc_text=unit.doc_text(&mut tables,0);p.tables=tables;
+}
+fn header141_restore(p:&mut PageTrace,r:&PageRules) {
+    framed_publications::restore_framed_reading_order(std::slice::from_mut(p),&[Some(r.clone())]);
+}
+fn header141_first_id(p:&PageTrace,text:&str)->usize {
+    p.words.iter().find(|w|w.text==text).unwrap().id
+}
+fn header141_position(p:&PageTrace,id:usize)->usize {
+    p.regions.iter().flat_map(|r|&r.lines).position(|l|l.words.contains(&id)).unwrap()
+}
+#[test]
+fn header141_restores_source_parent_header_before_its_statement() {
+    let (mut p,r)=header141_fixture();
+    let title=header141_first_id(&p,"無名の団体の任意の期間の");
+    let date=header141_first_id(&p,"2026年7月1日");
+    let issuer=header141_first_id(&p,"任意の機関");
+    let caption=header141_first_id(&p,"１ 短期経理");
+    header141_restore(&mut p,&r);
+    assert!(header141_position(&p,title)<header141_position(&p,date));
+    assert!(header141_position(&p,issuer)<header141_position(&p,caption));
+    assert_eq!(cuts(&p,&r),vec![1]);
+}
+#[test]
+fn header141_missing_source_or_baseline_keeps_the_original() {
+    for kind in 0..4 {
+        let(mut p,r)=header141_fixture();let id=header141_first_id(&p,"任意の所在地");
+        match kind {0=>p.native_bounds[id]=NativeBounds::Unknown,1=>p.native_axes[id]=NativeAxis::Unknown,2=>p.native_horizontal_baselines[id]=None,_=>p.native_content_styles[id]=ContentStyles::Unknown}
+        let old=serde_json::to_string(&p).unwrap();header141_restore(&mut p,&r);
+        assert_eq!(serde_json::to_string(&p).unwrap(),old);
+    }
+}
+#[test]
+fn header141_native_table_top_and_both_outer_edges_are_required() {
+    for kind in 0..3 {
+        let(mut p,mut r)=header141_fixture();
+        if kind==0 {r.horizontal.clear();}else{r.vertical.remove(kind-1);}
+        let old=serde_json::to_string(&p).unwrap();header141_restore(&mut p,&r);
+        assert_eq!(serde_json::to_string(&p).unwrap(),old);
+    }
+}
+#[test]
+fn header141_real_column_separator_fences_the_header() {
+    let(mut p,mut r)=header141_fixture();r.vertical.push(crate::lines::VRule{x:175.,y0:30.,y1:p.tables[0].y0});
+    let old=serde_json::to_string(&p).unwrap();header141_restore(&mut p,&r);assert_eq!(serde_json::to_string(&p).unwrap(),old);
+}
+#[test]
+fn header141_cannot_reorder_a_header_across_regions() {
+    let(mut p,r)=header141_fixture();let rest=p.regions[0].lines.split_off(3);
+    p.regions.push(Region{role:Role::Body,unit:1,part:0,lines:rest});header141_seal(&mut p);
+    let old=serde_json::to_string(&p).unwrap();header141_restore(&mut p,&r);assert_eq!(serde_json::to_string(&p).unwrap(),old);
+}
+#[test]
+fn header141_mismatched_document_rendering_is_not_repaired() {
+    let(mut p,r)=header141_fixture();p.doc_text.push_str(" unmatched source");
+    let old=serde_json::to_string(&p).unwrap();header141_restore(&mut p,&r);assert_eq!(serde_json::to_string(&p).unwrap(),old);
+}
+#[test]
+fn header141_quoted_header_is_not_an_independent_publication() {
+    let(mut p,r)=header141_fixture();
+    let first=header141_first_id(&p,"無名の団体の任意の期間の");
+    replace(&mut p,first,"「無名の団体の任意の期間の");
+    let last=header141_first_id(&p,"任意の表題");replace(&mut p,last,"任意の表題」");header141_seal(&mut p);
+    let old=serde_json::to_string(&p).unwrap();header141_restore(&mut p,&r);assert_eq!(serde_json::to_string(&p).unwrap(),old);
+}
+#[test]
+fn header141_source_geometry_is_invariant_under_scale_and_translation() {
+    for (s,dx,dy) in [(0.5,0.,0.),(2.,128.,64.)] {
+        let(mut p,mut rules)=header141_fixture();
+        let rect=|b:Rect|[b[0]*s+dx,b[1]*s+dy,b[2]*s+dx,b[3]*s+dy];
+        for w in &mut p.words {let b=rect([w.x0,w.y0,w.x1,w.y1]);w.x0=b[0];w.y0=b[1];w.x1=b[2];w.y1=b[3];w.source_box=rect(w.source_box);}
+        for b in &mut p.native_bounds {if let NativeBounds::Glyphs(b)=b{*b=rect(*b);}}
+        for b in &mut p.native_horizontal_baselines {if let Some(b)=b{*b=*b*f64::from(s)+f64::from(dy);}}
+        for r in &mut p.regions {for l in &mut r.lines {if let Some(t)=&mut l.table {let b=rect([t.x0,t.y0,t.x1,t.y1]);t.x0=b[0];t.y0=b[1];t.x1=b[2];t.y1=b[3];for c in &mut t.cells {let b=rect([c.x0,c.y0,c.x1,c.y1]);c.x0=b[0];c.y0=b[1];c.x1=b[2];c.y1=b[3];}}}}
+        for r in &mut rules.vertical{r.x=r.x*s+dx;r.y0=r.y0*s+dy;r.y1=r.y1*s+dy;}
+        for r in &mut rules.horizontal{r.y=r.y*s+dy;r.x0=r.x0*s+dx;r.x1=r.x1*s+dx;}
+        header141_seal(&mut p);header141_restore(&mut p,&rules);assert_eq!(cuts(&p,&rules),vec![1]);
+    }
+}
+
+#[test]
+fn header141_inset_date_remains_inside_its_own_ruled_table_parent() {
+    let(mut p,r)=header141_fixture();let id=header141_first_id(&p,"2026年7月1日");
+    let NativeBounds::Glyphs(mut b)=p.native_bounds[id] else {unreachable!()};b[0]+=48.;b[2]+=48.;
+    p.native_bounds[id]=NativeBounds::Glyphs(b);let w=&mut p.words[id];w.x0=b[0];w.x1=b[2];w.source_box=b;
+    header141_seal(&mut p);header141_restore(&mut p,&r);assert_eq!(cuts(&p,&r),vec![1]);
+    let old=serde_json::to_string(&p).unwrap();header141_restore(&mut p,&r);assert_eq!(serde_json::to_string(&p).unwrap(),old,"restoration must be idempotent");
+}
+fn header141_overhang(amount:f32,dividers:bool)->(PageTrace,PageRules) {
+    let(mut p,mut r)=header141_fixture();let id=header141_first_id(&p,"任意の表題");
+    let NativeBounds::Glyphs(mut b)=p.native_bounds[id] else {unreachable!()};b[0]=300.;b[2]=p.tables[0].x1+amount;
+    p.native_bounds[id]=NativeBounds::Glyphs(b);let w=&mut p.words[id];w.x0=b[0];w.x1=b[2];w.source_box=b;
+    if dividers {r.vertical.extend([crate::lines::VRule{x:40.,y0:0.,y1:p.tables[0].y1},crate::lines::VRule{x:b[2]+8.,y0:0.,y1:p.tables[0].y1}]);}
+    header141_seal(&mut p);(p,r)
+}
+#[test]
+fn header141_overhanging_caption_uses_original_column_dividers_without_fixed_tolerance() {
+    for overhang in [0.5,16.,64.] {
+        let(mut p,r)=header141_overhang(overhang,true);header141_restore(&mut p,&r);assert_eq!(cuts(&p,&r),vec![1]);
+    }
+}
+#[test]
+fn header141_overhang_without_a_source_column_boundary_is_not_guessed() {
+    for overhang in [0.5,16.,64.] {
+        let(mut p,r)=header141_overhang(overhang,false);let old=serde_json::to_string(&p).unwrap();header141_restore(&mut p,&r);assert_eq!(serde_json::to_string(&p).unwrap(),old);
+    }
+}
+#[test]
+fn header141_another_publication_inside_the_same_parent_column_is_ambiguous() {
+    let(mut p,r)=header141_fixture();let id=header141_first_id(&p,"１ 短期経理");
+    replace(&mut p,id,"別の機関の決算に関する公告");
+    let st=NativeStyles::from([(7,9f64.to_bits())]);p.native_styles[id]=Some(st.clone());p.native_content_styles[id]=ContentStyles::Glyphs(st);
+    header141_seal(&mut p);let old=serde_json::to_string(&p).unwrap();header141_restore(&mut p,&r);assert_eq!(serde_json::to_string(&p).unwrap(),old);
+}
+#[test]
+fn header141_overlapping_same_baseline_fields_are_not_reordered() {
+    let(mut p,r)=header141_fixture();let id=header141_first_id(&p,"任意の所在地");
+    let NativeBounds::Glyphs(mut b)=p.native_bounds[id]else{unreachable!()};b[0]=120.;
+    p.native_bounds[id]=NativeBounds::Glyphs(b);let w=&mut p.words[id];w.x0=b[0];w.source_box=b;
+    let old=serde_json::to_string(&p).unwrap();header141_restore(&mut p,&r);assert_eq!(serde_json::to_string(&p).unwrap(),old);
+}
+#[test]
+fn header141_font_bijection_and_word_id_permutation_keep_the_same_source_order() {
+    let(mut p,r)=header141_fixture();let n=p.words.len();let remap=|id:usize|n-1-id;
+    p.words.reverse();for w in &mut p.words {w.id=remap(w.id);}
+    p.native_bounds.reverse();p.native_axes.reverse();p.native_styles.reverse();p.native_content_styles.reverse();p.native_horizontal_baselines.reverse();
+    for s in p.native_styles.iter_mut().flatten(){*s=s.iter().map(|&(i,z)|(99-i,z)).collect();}
+    for s in &mut p.native_content_styles {if let ContentStyles::Glyphs(s)=s{*s=s.iter().map(|&(i,z)|(99-i,z)).collect();}}
+    for r in &mut p.regions {for l in &mut r.lines{for id in &mut l.words{*id=remap(*id);}if let Some(t)=&mut l.table{for c in &mut t.cells{for id in &mut c.words{*id=remap(*id);}}}}}
+    header141_seal(&mut p);header141_restore(&mut p,&r);
+    let title=header141_first_id(&p,"無名の団体の任意の期間の");let date=header141_first_id(&p,"2026年7月1日");
+    assert!(header141_position(&p,title)<header141_position(&p,date));assert_eq!(cuts(&p,&r),vec![1]);
+}

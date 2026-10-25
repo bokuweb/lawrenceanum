@@ -1,0 +1,3864 @@
+{
+  "issue": 227,
+  "stage": 108,
+  "native_candidate": 141,
+  "baseline_primary": "c4b1f750742b8f0122f53b5e78cc9e6613647412",
+  "baseline_publication": "c1f9dd21ef8008dfb91b599f35cd219d450603dc",
+  "scope": "Non-image parent financial header/source-row order and independent publication ownership. Whole original Lines move; no inferred characters, new page/issuer/body cases or fixed point/count thresholds.",
+  "cause_and_rejected_candidates": {
+    "V3": {
+      "generic_controls": "8pass",
+      "original_tests": "0pass3fail",
+      "reason": "same-row date/address recognized, but original date is inset from table edge"
+    },
+    "V4": {
+      "generic_controls": "9pass incl inset date, all39financial controlspass",
+      "original_tests": "0pass3fail",
+      "observer": "observer-v4-141.log exact no-op V4 Analysis",
+      "actual_remaining_guard": "unit caption Word83 source glyph rect ends x781 while table edge x780.5. Header interval wrongly assumed equal to table interval."
+    },
+    "V5_design": "Use nearest original full-height column separators to bound parent header; otherwise keep original table-edge boundary. No fixed point/em expansion or caption-specific text branch. Generic caption-overhang controls vary0.5/16/64 and require source dividers.",
+    "source_expectations_unchanged": "three original assertions remain; no changing expected Articlecount to2 or claiming source page correct"
+  },
+  "production_rule": {
+    "complete_native_rightward_Glyph_bounds_baselines_and_content_styles": true,
+    "same_source_baseline_rightward_logical_fields_form_one_row": true,
+    "own_table_native_top_and_outer_rule_continuity": true,
+    "parent_header_bounded_by_nearest_full_height_original_column_dividers_or_table_edges": true,
+    "existing_financial_title_date_issuer_table_grammar": true,
+    "whole_original_Line_permutation": true,
+    "previous_horizontal_publication_root_IDs_preserved": true,
+    "source_row_inversion_measure_strictly_decreases_without_retry_cap": true,
+    "no_new_page_title_issuer_body_value_dispatch": true,
+    "no_new_character_line_count_or_point_distance_threshold": true
+  },
+  "source_reviews": [
+    {
+      "page": "20260731g001730090",
+      "original_full_image_viewed": true,
+      "source_review_scope": "Original has prior institution report continuation above an independently dated/signed cooperative deposit-insurance financial announcement; title before own date/address/issuer, followed by general-account inventory. Newly2Articles match original2publications. Officer roster material belongs to prior report; its5records and lower8-column financial table remain unchanged.",
+      "all_source_Word_fields_exact": true,
+      "every_original_Line_and_table_exact_once": true,
+      "old_Articles": 1,
+      "new_Articles": 2,
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-header-source-order141/private-v6/impact-single/20260731g001730090-140.json.gz": "325e3211351aadb37125975ed5587508903da9b951118a6dfc53630cc65fefce",
+        ".cache/kanpo-227/resume90-local-recovery/native-header-source-order141/private-v6/impact-single/20260731g001730090-141.json.gz": "8cbcea6fedbd80923f660d0ee0bbe70cefe116390f4baec2f6f48d29f36035e8",
+        ".cache/kanpo-227/resume90-local-recovery/native-header-source-order141/source-review/20260731g001730090.png": "c3e5061a9d81bb8973103d8e4addf8441bbb5e7b3012dd8006931a724fef3f43"
+      }
+    },
+    {
+      "page": "20260806g001770058",
+      "original_full_image_viewed": true,
+      "source_review_scope": "Original has3publications: prior financial continuation, pension change and federation financial announcement. FinalV6 makes3Articles, title/date/issuer precede statement/caption. Original unit caption extends0.5pt beyond inner table edge but fits original full-height right column425..793; no fixed tolerance added. Full-page character/cell independent correctness not claimed.",
+      "all_source_Word_fields_exact": true,
+      "every_original_Line_and_table_exact_once": true,
+      "old_Articles": 2,
+      "new_Articles": 3,
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-header-source-order141/private-v6/impact-single/20260806g001770058-140.json.gz": "fe66c722a541005e2216a1ee2f49e450556ebfa20f34275df4ab2f8d5361d493",
+        ".cache/kanpo-227/resume90-local-recovery/native-header-source-order141/private-v6/impact-single/20260806g001770058-141.json.gz": "fe693e3cfbbc85d006fde745d85a6be64a21292e77cb70e77b5a76a2d8ea3058",
+        ".cache/kanpo-227/resume90-local-recovery/native-header-source-order141/source-review/20260806g001770058.png": "0bd60730cf26612253d294f841654652bf208906d4171e52bae223387faefa07"
+      }
+    }
+  ],
+  "whole_issue_target_match": [
+    {
+      "issue": "20260731g00173",
+      "page_index": 89,
+      "source_page": "20260731g001730090",
+      "both_complete_old_and_new_PageTrace_exact_the_reviewed_single_page": true,
+      "old_Articles": 647,
+      "new_Articles": 648
+    },
+    {
+      "issue": "20260806g00177",
+      "page_index": 57,
+      "source_page": "20260806g001770058",
+      "both_complete_old_and_new_PageTrace_exact_the_reviewed_single_page": true,
+      "old_Articles": 280,
+      "new_Articles": 281
+    }
+  ],
+  "independent_original_renderer_metadata": [
+    {
+      "page": "20260731g001730090",
+      "method": "Fresh original PDF rendered through published140 native source XHTML; exact f32-bit bbox/raw match to original Word IDs, no expected body substitution. This metadata renderer/PDF extractor is unchanged by141.",
+      "changed_source_Lines": [
+        {
+          "original_Line": 9,
+          "text": "令和８年７月31日",
+          "baseline": 173.94709999999998,
+          "Words": [
+            {
+              "id": 263,
+              "raw": "令和８年７月",
+              "source_box": [
+                85.0,
+                167.9311,
+                133.0,
+                176.1151
+              ],
+              "source_attributes": {
+                "xMin": "85.000000",
+                "yMin": "167.931100",
+                "xMax": "133.000000",
+                "yMax": "176.115100",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "1:4020000000000000",
+                "data-native-content-styles": "1:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "85",
+                "data-native-flow-baseline": "173.94709999999998",
+                "data-native-flow-end": "133",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "0",
+                "data-native-flow-prefix": "0",
+                "data-native-flow-first-glyph": "741",
+                "data-native-flow-after-glyph": "747",
+                "data-native-cell-origin": "2 741 747 85 173.94709999999998 133 8 0 0 85 167.9311 133 176.11509999999998 8 8"
+              }
+            },
+            {
+              "id": 214,
+              "raw": "31",
+              "source_box": [
+                135.0,
+                167.9311,
+                143.0,
+                176.1151
+              ],
+              "source_attributes": {
+                "xMin": "135.000000",
+                "yMin": "167.931100",
+                "xMax": "143.000000",
+                "yMax": "176.115100",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "1:4020000000000000",
+                "data-native-content-styles": "1:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "135",
+                "data-native-flow-baseline": "173.94709999999998",
+                "data-native-flow-end": "143",
+                "data-native-flow-leading": "4",
+                "data-native-flow-trailing": "0",
+                "data-native-flow-prefix": "2",
+                "data-native-flow-first-glyph": "747",
+                "data-native-flow-after-glyph": "749",
+                "data-native-cell-origin": "2 747 749 135 173.94709999999998 143 4 0 2 135 167.9311 143 176.11509999999998 8 8"
+              }
+            },
+            {
+              "id": 203,
+              "raw": "日",
+              "source_box": [
+                145.0,
+                167.9311,
+                153.0,
+                176.1151
+              ],
+              "source_attributes": {
+                "xMin": "145.000000",
+                "yMin": "167.931100",
+                "xMax": "153.000000",
+                "yMax": "176.115100",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "1:4020000000000000",
+                "data-native-content-styles": "1:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "145",
+                "data-native-flow-baseline": "173.94709999999998",
+                "data-native-flow-end": "153",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "0",
+                "data-native-flow-prefix": "2",
+                "data-native-flow-first-glyph": "749",
+                "data-native-flow-after-glyph": "750",
+                "data-native-cell-origin": "2 749 750 145 173.94709999999998 153 8 0 2 145 167.9311 153 176.11509999999998 8 8"
+              }
+            }
+          ]
+        },
+        {
+          "original_Line": 10,
+          "text": "令和７事業年度財務諸表の概要",
+          "baseline": 207.16140000000001,
+          "Words": [
+            {
+              "id": 280,
+              "raw": "令和７事業年度財務諸表の概要",
+              "source_box": [
+                61.0,
+                201.1454,
+                173.0,
+                209.3294
+              ],
+              "source_attributes": {
+                "xMin": "61.000000",
+                "yMin": "201.145400",
+                "xMax": "173.000000",
+                "yMax": "209.329400",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "0:4020000000000000",
+                "data-native-content-styles": "0:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "61",
+                "data-native-flow-baseline": "207.16140000000001",
+                "data-native-flow-end": "173",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "0",
+                "data-native-flow-prefix": "0",
+                "data-native-flow-first-glyph": "0",
+                "data-native-flow-after-glyph": "14",
+                "data-native-cell-origin": "2 0 14 61 207.16140000000001 173 8 0 0 61 201.14540000000002 173 209.32940000000002 8 8"
+              }
+            }
+          ]
+        },
+        {
+          "original_Line": 11,
+          "text": "一般勘定",
+          "baseline": 218.23340000000002,
+          "Words": [
+            {
+              "id": 281,
+              "raw": "一般勘定",
+              "source_box": [
+                61.0,
+                212.2174,
+                93.0,
+                220.4014
+              ],
+              "source_attributes": {
+                "xMin": "61.000000",
+                "yMin": "212.217400",
+                "xMax": "93.000000",
+                "yMax": "220.401400",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "0:4020000000000000",
+                "data-native-content-styles": "0:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "61",
+                "data-native-flow-baseline": "218.23340000000002",
+                "data-native-flow-end": "93",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "0",
+                "data-native-flow-prefix": "0",
+                "data-native-flow-first-glyph": "14",
+                "data-native-flow-after-glyph": "18",
+                "data-native-cell-origin": "2 14 18 61 218.23340000000002 93 8 0 0 61 212.21740000000003 93 220.40140000000002 8 8"
+              }
+            }
+          ]
+        },
+        {
+          "original_Line": 12,
+          "text": "農水産業協同組合貯金保険機構令和７事業年度決算に関する公告",
+          "baseline": 157.7129,
+          "Words": [
+            {
+              "id": 161,
+              "raw": "農水産業協同組合貯金保険機構令和７事業年度決算に関する公告",
+              "source_box": [
+                294.5,
+                150.9449,
+                555.5,
+                160.1519
+              ],
+              "source_attributes": {
+                "xMin": "294.500000",
+                "yMin": "150.944900",
+                "xMax": "555.500000",
+                "yMax": "160.151900",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "0:4022000000000000",
+                "data-native-content-styles": "0:4022000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "294.5",
+                "data-native-flow-baseline": "157.7129",
+                "data-native-flow-end": "555.5",
+                "data-native-flow-leading": "9",
+                "data-native-flow-trailing": "0",
+                "data-native-flow-prefix": "0",
+                "data-native-flow-first-glyph": "712",
+                "data-native-flow-after-glyph": "741",
+                "data-native-cell-origin": "2 712 741 294.5 157.7129 555.5 9 0 0 294.5 150.9449 555.5 160.15189999999998 9 9"
+              }
+            }
+          ]
+        },
+        {
+          "original_Line": 13,
+          "text": "東京都千代田区丸の内三丁目３番１号",
+          "baseline": 173.94709999999998,
+          "Words": [
+            {
+              "id": 33,
+              "raw": "東京都千代田区丸の内三丁目３番１号",
+              "source_box": [
+                629.0,
+                167.9311,
+                765.0,
+                176.1151
+              ],
+              "source_attributes": {
+                "xMin": "629.000000",
+                "yMin": "167.931100",
+                "xMax": "765.000000",
+                "yMax": "176.115100",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "1:4020000000000000",
+                "data-native-content-styles": "1:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "629",
+                "data-native-flow-baseline": "173.94709999999998",
+                "data-native-flow-end": "765",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "0",
+                "data-native-flow-prefix": "0",
+                "data-native-flow-first-glyph": "750",
+                "data-native-flow-after-glyph": "767",
+                "data-native-cell-origin": "2 750 767 629 173.94709999999998 765 8 0 0 629 167.9311 765 176.11509999999998 8 8"
+              }
+            }
+          ]
+        },
+        {
+          "original_Line": 14,
+          "text": "農水産業協同組合貯金保険機構",
+          "baseline": 185.01909999999998,
+          "Words": [
+            {
+              "id": 32,
+              "raw": "農水産業協同組合貯金保険機構",
+              "source_box": [
+                653.0,
+                179.0031,
+                765.0,
+                187.1871
+              ],
+              "source_attributes": {
+                "xMin": "653.000000",
+                "yMin": "179.003100",
+                "xMax": "765.000000",
+                "yMax": "187.187100",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "1:4020000000000000",
+                "data-native-content-styles": "1:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "653",
+                "data-native-flow-baseline": "185.01909999999998",
+                "data-native-flow-end": "765",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "0",
+                "data-native-flow-prefix": "0",
+                "data-native-flow-first-glyph": "767",
+                "data-native-flow-after-glyph": "781",
+                "data-native-cell-origin": "2 767 781 653 185.01909999999998 765 8 0 0 653 179.0031 765 187.1871 8 8"
+              }
+            }
+          ]
+        },
+        {
+          "original_Line": 15,
+          "text": "理事長　庄司　裕宇",
+          "baseline": 196.09109999999998,
+          "Words": [
+            {
+              "id": 30,
+              "raw": "理事長",
+              "source_box": [
+                693.0,
+                190.0751,
+                717.0,
+                198.2591
+              ],
+              "source_attributes": {
+                "xMin": "693.000000",
+                "yMin": "190.075100",
+                "xMax": "717.000000",
+                "yMax": "198.259100",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "1:4020000000000000",
+                "data-native-content-styles": "1:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "693",
+                "data-native-flow-baseline": "196.09109999999998",
+                "data-native-flow-end": "717",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "0",
+                "data-native-flow-prefix": "0",
+                "data-native-flow-first-glyph": "781",
+                "data-native-flow-after-glyph": "784",
+                "data-native-cell-origin": "2 781 784 693 196.09109999999998 717 8 0 0 693 190.0751 717 198.2591 8 8"
+              }
+            },
+            {
+              "id": 21,
+              "raw": "庄司",
+              "source_box": [
+                725.0,
+                190.0751,
+                741.0,
+                198.2591
+              ],
+              "source_attributes": {
+                "xMin": "725.000000",
+                "yMin": "190.075100",
+                "xMax": "741.000000",
+                "yMax": "198.259100",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "1:4020000000000000",
+                "data-native-content-styles": "1:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "725",
+                "data-native-flow-baseline": "196.09109999999998",
+                "data-native-flow-end": "741",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "0",
+                "data-native-flow-prefix": "8",
+                "data-native-flow-first-glyph": "784",
+                "data-native-flow-after-glyph": "786",
+                "data-native-cell-origin": "2 784 786 725 196.09109999999998 741 8 0 8 725 190.0751 741 198.2591 8 8"
+              }
+            },
+            {
+              "id": 15,
+              "raw": "裕宇",
+              "source_box": [
+                749.0,
+                190.0751,
+                765.0,
+                198.2591
+              ],
+              "source_attributes": {
+                "xMin": "749.000000",
+                "yMin": "190.075100",
+                "xMax": "765.000000",
+                "yMax": "198.259100",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "1:4020000000000000",
+                "data-native-content-styles": "1:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "749",
+                "data-native-flow-baseline": "196.09109999999998",
+                "data-native-flow-end": "765",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "0",
+                "data-native-flow-prefix": "8",
+                "data-native-flow-first-glyph": "786",
+                "data-native-flow-after-glyph": "788",
+                "data-native-cell-origin": "2 786 788 749 196.09109999999998 765 8 0 8 749 190.0751 765 198.2591 8 8"
+              }
+            }
+          ]
+        }
+      ],
+      "source_rules": {
+        "vertical": [
+          {
+            "x": 69.5,
+            "y0": 245.0709991455078,
+            "y1": 537.4639892578125
+          },
+          {
+            "x": 174.5,
+            "y0": 245.07200622558594,
+            "y1": 520.3930053710938
+          },
+          {
+            "x": 311.5,
+            "y0": 245.07200622558594,
+            "y1": 520.3930053710938
+          },
+          {
+            "x": 368.5,
+            "y0": 245.0709991455078,
+            "y1": 537.4639892578125
+          },
+          {
+            "x": 425.5,
+            "y0": 245.0709991455078,
+            "y1": 537.4639892578125
+          },
+          {
+            "x": 424.5,
+            "y0": 245.0709991455078,
+            "y1": 537.4639892578125
+          },
+          {
+            "x": 529.5,
+            "y0": 245.0709991455078,
+            "y1": 503.3210144042969
+          },
+          {
+            "x": 666.5,
+            "y0": 245.0709991455078,
+            "y1": 503.3210144042969
+          },
+          {
+            "x": 723.5,
+            "y0": 245.0709991455078,
+            "y1": 537.4639892578125
+          },
+          {
+            "x": 780.5,
+            "y0": 245.0709991455078,
+            "y1": 537.4639892578125
+          },
+          {
+            "x": 69.5,
+            "y0": 96.53600311279297,
+            "y1": 142.0
+          },
+          {
+            "x": 117.5,
+            "y0": 96.53600311279297,
+            "y1": 142.0
+          },
+          {
+            "x": 165.5,
+            "y0": 96.53600311279297,
+            "y1": 142.0
+          },
+          {
+            "x": 237.5,
+            "y0": 111.60700225830078,
+            "y1": 142.0
+          },
+          {
+            "x": 309.5,
+            "y0": 96.53600311279297,
+            "y1": 142.0
+          },
+          {
+            "x": 412.5,
+            "y0": 96.53600311279297,
+            "y1": 142.0
+          },
+          {
+            "x": 437.5,
+            "y0": 46.25,
+            "y1": 118.35700225830078
+          },
+          {
+            "x": 485.5,
+            "y0": 46.25,
+            "y1": 118.35700225830078
+          },
+          {
+            "x": 533.5,
+            "y0": 46.25,
+            "y1": 118.35700225830078
+          },
+          {
+            "x": 605.5,
+            "y0": 46.25,
+            "y1": 118.35700225830078
+          },
+          {
+            "x": 677.5,
+            "y0": 46.25,
+            "y1": 118.35700225830078
+          },
+          {
+            "x": 780.5,
+            "y0": 46.25,
+            "y1": 118.35700225830078
+          },
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 142.0
+          },
+          {
+            "x": 57.0,
+            "y0": 37.5,
+            "y1": 557.5
+          },
+          {
+            "x": 793.0,
+            "y0": 37.5,
+            "y1": 557.5
+          }
+        ],
+        "horizontal": [
+          {
+            "y": 245.0709991455078,
+            "x0": 69.5,
+            "x1": 780.5
+          },
+          {
+            "y": 262.2139892578125,
+            "x0": 69.5,
+            "x1": 424.5
+          },
+          {
+            "y": 262.2139892578125,
+            "x0": 425.5,
+            "x1": 780.5
+          },
+          {
+            "y": 503.3210144042969,
+            "x0": 425.5,
+            "x1": 780.5
+          },
+          {
+            "y": 520.3930053710938,
+            "x0": 69.5,
+            "x1": 424.5
+          },
+          {
+            "y": 520.3930053710938,
+            "x0": 425.5,
+            "x1": 780.5
+          },
+          {
+            "y": 537.4639892578125,
+            "x0": 69.5,
+            "x1": 780.5
+          },
+          {
+            "y": 96.53600311279297,
+            "x0": 69.5,
+            "x1": 412.5
+          },
+          {
+            "y": 111.60700225830078,
+            "x0": 165.5,
+            "x1": 309.5
+          },
+          {
+            "y": 126.67900085449219,
+            "x0": 69.5,
+            "x1": 412.5
+          },
+          {
+            "y": 141.75,
+            "x0": 69.5,
+            "x1": 412.5
+          },
+          {
+            "y": 63.92900085449219,
+            "x0": 437.5,
+            "x1": 780.5
+          },
+          {
+            "y": 82.0719985961914,
+            "x0": 437.5,
+            "x1": 780.5
+          },
+          {
+            "y": 100.21499633789062,
+            "x0": 437.5,
+            "x1": 780.5
+          },
+          {
+            "y": 118.35800170898438,
+            "x0": 437.5,
+            "x1": 780.5
+          }
+        ]
+      }
+    },
+    {
+      "page": "20260806g001770058",
+      "method": "Fresh original PDF rendered through published140 native source XHTML; exact f32-bit bbox/raw match to original Word IDs, no expected body substitution. This metadata renderer/PDF extractor is unchanged by141.",
+      "changed_source_Lines": [
+        {
+          "original_Line": 49,
+          "text": "令和８年８月６日",
+          "baseline": 76.59000000000003,
+          "Words": [
+            {
+              "id": 303,
+              "raw": "令和８年８月６日",
+              "source_box": [
+                445.0,
+                70.574,
+                509.0,
+                78.758
+              ],
+              "source_attributes": {
+                "xMin": "445.000000",
+                "yMin": "70.574000",
+                "xMax": "509.000000",
+                "yMax": "78.758000",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "2:4020000000000000",
+                "data-native-content-styles": "2:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "445",
+                "data-native-flow-baseline": "76.59000000000003",
+                "data-native-flow-end": "509",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "0",
+                "data-native-flow-prefix": "0",
+                "data-native-flow-first-glyph": "1669",
+                "data-native-flow-after-glyph": "1677",
+                "data-native-cell-origin": "2 1669 1677 445 76.59000000000003 509 8 0 0 445 70.57400000000003 509 78.75800000000004 8 8"
+              }
+            }
+          ]
+        },
+        {
+          "original_Line": 50,
+          "text": "公益事業",
+          "baseline": 125.43909999999994,
+          "Words": [
+            {
+              "id": 304,
+              "raw": "公",
+              "source_box": [
+                442.0,
+                119.4231,
+                450.0,
+                127.6071
+              ],
+              "source_attributes": {
+                "xMin": "442.000000",
+                "yMin": "119.423100",
+                "xMax": "450.000000",
+                "yMax": "127.607100",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "2:4020000000000000",
+                "data-native-content-styles": "2:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "442",
+                "data-native-flow-baseline": "125.43909999999994",
+                "data-native-flow-end": "450",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "8",
+                "data-native-flow-prefix": "0",
+                "data-native-flow-first-glyph": "273",
+                "data-native-flow-after-glyph": "274",
+                "data-native-cell-origin": "2 273 274 442 125.43909999999994 450 8 8 0 442 119.42309999999993 450 127.60709999999995 8 8"
+              }
+            },
+            {
+              "id": 296,
+              "raw": "益",
+              "source_box": [
+                458.0,
+                119.4231,
+                466.0,
+                127.6071
+              ],
+              "source_attributes": {
+                "xMin": "458.000000",
+                "yMin": "119.423100",
+                "xMax": "466.000000",
+                "yMax": "127.607100",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "2:4020000000000000",
+                "data-native-content-styles": "2:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "458",
+                "data-native-flow-baseline": "125.43909999999994",
+                "data-native-flow-end": "466",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "8",
+                "data-native-flow-prefix": "0",
+                "data-native-flow-first-glyph": "274",
+                "data-native-flow-after-glyph": "275",
+                "data-native-cell-origin": "2 274 275 458 125.43909999999994 466 8 8 0 458 119.42309999999993 466 127.60709999999995 8 8"
+              }
+            },
+            {
+              "id": 290,
+              "raw": "事",
+              "source_box": [
+                474.0,
+                119.4231,
+                482.0,
+                127.6071
+              ],
+              "source_attributes": {
+                "xMin": "474.000000",
+                "yMin": "119.423100",
+                "xMax": "482.000000",
+                "yMax": "127.607100",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "2:4020000000000000",
+                "data-native-content-styles": "2:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "474",
+                "data-native-flow-baseline": "125.43909999999994",
+                "data-native-flow-end": "482",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "8",
+                "data-native-flow-prefix": "0",
+                "data-native-flow-first-glyph": "275",
+                "data-native-flow-after-glyph": "276",
+                "data-native-cell-origin": "2 275 276 474 125.43909999999994 482 8 8 0 474 119.42309999999993 482 127.60709999999995 8 8"
+              }
+            },
+            {
+              "id": 274,
+              "raw": "業",
+              "source_box": [
+                490.0,
+                119.4231,
+                498.0,
+                127.6071
+              ],
+              "source_attributes": {
+                "xMin": "490.000000",
+                "yMin": "119.423100",
+                "xMax": "498.000000",
+                "yMax": "127.607100",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "2:4020000000000000",
+                "data-native-content-styles": "2:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "490",
+                "data-native-flow-baseline": "125.43909999999994",
+                "data-native-flow-end": "498",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "8",
+                "data-native-flow-prefix": "0",
+                "data-native-flow-first-glyph": "276",
+                "data-native-flow-after-glyph": "277",
+                "data-native-cell-origin": "2 276 277 490 125.43909999999994 498 8 8 0 490 119.42309999999993 498 127.60709999999995 8 8"
+              }
+            }
+          ]
+        },
+        {
+          "original_Line": 51,
+          "text": "令和７年度の決算に関する公告",
+          "baseline": 58.71289999999999,
+          "Words": [
+            {
+              "id": 271,
+              "raw": "令和７年度の決算に関する公告",
+              "source_box": [
+                546.0,
+                51.9449,
+                672.0,
+                61.1519
+              ],
+              "source_attributes": {
+                "xMin": "546.000000",
+                "yMin": "51.944900",
+                "xMax": "672.000000",
+                "yMax": "61.151900",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "0:4022000000000000",
+                "data-native-content-styles": "0:4022000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "546",
+                "data-native-flow-baseline": "58.71289999999999",
+                "data-native-flow-end": "672",
+                "data-native-flow-leading": "9",
+                "data-native-flow-trailing": "0",
+                "data-native-flow-prefix": "0",
+                "data-native-flow-first-glyph": "1655",
+                "data-native-flow-after-glyph": "1669",
+                "data-native-cell-origin": "2 1655 1669 546 58.71289999999999 672 9 0 0 546 51.94489999999999 672 61.15189999999999 9 9"
+              }
+            }
+          ]
+        },
+        {
+          "original_Line": 52,
+          "text": "東京都中央区日本橋本石町三丁目２番12号",
+          "baseline": 76.59000000000003,
+          "Words": [
+            {
+              "id": 179,
+              "raw": "東京都中央区日本橋本石町三丁目２番12号",
+              "source_box": [
+                621.0,
+                70.574,
+                773.0,
+                78.758
+              ],
+              "source_attributes": {
+                "xMin": "621.000000",
+                "yMin": "70.574000",
+                "xMax": "773.000000",
+                "yMax": "78.758000",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "2:4020000000000000",
+                "data-native-content-styles": "2:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "621",
+                "data-native-flow-baseline": "76.59000000000003",
+                "data-native-flow-end": "773",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "0",
+                "data-native-flow-prefix": "0",
+                "data-native-flow-first-glyph": "1677",
+                "data-native-flow-after-glyph": "1697",
+                "data-native-cell-origin": "2 1677 1697 621 76.59000000000003 773 8 0 0 621 70.57400000000003 773 78.75800000000004 8 8"
+              }
+            }
+          ]
+        },
+        {
+          "original_Line": 53,
+          "text": "全国社会保険労務士会連合会",
+          "baseline": 89.30200000000002,
+          "Words": [
+            {
+              "id": 153,
+              "raw": "全国社会保険労務士会連合会",
+              "source_box": [
+                669.0,
+                83.286,
+                773.0,
+                91.47
+              ],
+              "source_attributes": {
+                "xMin": "669.000000",
+                "yMin": "83.286000",
+                "xMax": "773.000000",
+                "yMax": "91.470000",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "2:4020000000000000",
+                "data-native-content-styles": "2:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "669",
+                "data-native-flow-baseline": "89.30200000000002",
+                "data-native-flow-end": "773",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "0",
+                "data-native-flow-prefix": "0",
+                "data-native-flow-first-glyph": "1697",
+                "data-native-flow-after-glyph": "1710",
+                "data-native-cell-origin": "2 1697 1710 669 89.30200000000002 773 8 0 0 669 83.28600000000002 773 91.47000000000003 8 8"
+              }
+            }
+          ]
+        },
+        {
+          "original_Line": 54,
+          "text": "貸借対照表",
+          "baseline": 102.01859999999999,
+          "Words": [
+            {
+              "id": 270,
+              "raw": "貸",
+              "source_box": [
+                549.0,
+                96.0026,
+                557.0,
+                104.1866
+              ],
+              "source_attributes": {
+                "xMin": "549.000000",
+                "yMin": "96.002600",
+                "xMax": "557.000000",
+                "yMax": "104.186600",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "0:4020000000000000",
+                "data-native-content-styles": "0:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "549",
+                "data-native-flow-baseline": "102.01859999999999",
+                "data-native-flow-end": "557",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "20",
+                "data-native-flow-prefix": "0",
+                "data-native-flow-first-glyph": "0",
+                "data-native-flow-after-glyph": "1",
+                "data-native-cell-origin": "2 0 1 549 102.01859999999999 557 8 20 0 549 96.00259999999999 557 104.1866 8 8"
+              }
+            },
+            {
+              "id": 268,
+              "raw": "借",
+              "source_box": [
+                577.0,
+                96.0026,
+                585.0,
+                104.1866
+              ],
+              "source_attributes": {
+                "xMin": "577.000000",
+                "yMin": "96.002600",
+                "xMax": "585.000000",
+                "yMax": "104.186600",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "0:4020000000000000",
+                "data-native-content-styles": "0:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "577",
+                "data-native-flow-baseline": "102.01859999999999",
+                "data-native-flow-end": "585",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "20",
+                "data-native-flow-prefix": "0",
+                "data-native-flow-first-glyph": "1",
+                "data-native-flow-after-glyph": "2",
+                "data-native-cell-origin": "2 1 2 577 102.01859999999999 585 8 20 0 577 96.00259999999999 585 104.1866 8 8"
+              }
+            },
+            {
+              "id": 229,
+              "raw": "対",
+              "source_box": [
+                605.0,
+                96.0026,
+                613.0,
+                104.1866
+              ],
+              "source_attributes": {
+                "xMin": "605.000000",
+                "yMin": "96.002600",
+                "xMax": "613.000000",
+                "yMax": "104.186600",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "0:4020000000000000",
+                "data-native-content-styles": "0:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "605",
+                "data-native-flow-baseline": "102.01859999999999",
+                "data-native-flow-end": "613",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "20",
+                "data-native-flow-prefix": "0",
+                "data-native-flow-first-glyph": "2",
+                "data-native-flow-after-glyph": "3",
+                "data-native-cell-origin": "2 2 3 605 102.01859999999999 613 8 20 0 605 96.00259999999999 613 104.1866 8 8"
+              }
+            },
+            {
+              "id": 177,
+              "raw": "照",
+              "source_box": [
+                633.0,
+                96.0026,
+                641.0,
+                104.1866
+              ],
+              "source_attributes": {
+                "xMin": "633.000000",
+                "yMin": "96.002600",
+                "xMax": "641.000000",
+                "yMax": "104.186600",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "0:4020000000000000",
+                "data-native-content-styles": "0:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "633",
+                "data-native-flow-baseline": "102.01859999999999",
+                "data-native-flow-end": "641",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "20",
+                "data-native-flow-prefix": "0",
+                "data-native-flow-first-glyph": "3",
+                "data-native-flow-after-glyph": "4",
+                "data-native-cell-origin": "2 3 4 633 102.01859999999999 641 8 20 0 633 96.00259999999999 641 104.1866 8 8"
+              }
+            },
+            {
+              "id": 169,
+              "raw": "表",
+              "source_box": [
+                661.0,
+                96.0026,
+                669.0,
+                104.1866
+              ],
+              "source_attributes": {
+                "xMin": "661.000000",
+                "yMin": "96.002600",
+                "xMax": "669.000000",
+                "yMax": "104.186600",
+                "data-wmode": "0",
+                "data-unicode-aj1": "1",
+                "data-native-styles": "0:4020000000000000",
+                "data-native-content-styles": "0:4020000000000000",
+                "data-native-axis": "right",
+                "data-native-flow-start": "661",
+                "data-native-flow-baseline": "102.01859999999999",
+                "data-native-flow-end": "669",
+                "data-native-flow-leading": "8",
+                "data-native-flow-trailing": "20",
+                "data-native-flow-prefix": "0",
+                "data-native-flow-first-glyph": "4",
+                "data-native-flow-after-glyph": "5",
+                "data-native-cell-origin": "2 4 5 661 102.01859999999999 669 8 20 0 661 96.00259999999999 669 104.1866 8 8"
+              }
+            }
+          ]
+        }
+      ],
+      "source_rules": {
+        "vertical": [
+          {
+            "x": 437.5,
+            "y0": 164.9290008544922,
+            "y1": 308.5
+          },
+          {
+            "x": 564.5,
+            "y0": 164.9290008544922,
+            "y1": 308.5
+          },
+          {
+            "x": 636.5,
+            "y0": 164.9290008544922,
+            "y1": 308.5
+          },
+          {
+            "x": 708.5,
+            "y0": 164.9290008544922,
+            "y1": 308.5
+          },
+          {
+            "x": 780.5,
+            "y0": 164.9290008544922,
+            "y1": 308.5
+          },
+          {
+            "x": 438.5,
+            "y0": 111.85600280761719,
+            "y1": 133.28500366210938
+          },
+          {
+            "x": 437.5,
+            "y0": 111.85600280761719,
+            "y1": 133.28500366210938
+          },
+          {
+            "x": 502.5,
+            "y0": 111.85600280761719,
+            "y1": 133.28500366210938
+          },
+          {
+            "x": 501.5,
+            "y0": 111.85600280761719,
+            "y1": 133.28500366210938
+          },
+          {
+            "x": 437.5,
+            "y0": 308.5,
+            "y1": 425.9289855957031
+          },
+          {
+            "x": 564.5,
+            "y0": 308.5,
+            "y1": 425.9289855957031
+          },
+          {
+            "x": 636.5,
+            "y0": 308.5,
+            "y1": 425.9289855957031
+          },
+          {
+            "x": 708.5,
+            "y0": 308.5,
+            "y1": 425.9289855957031
+          },
+          {
+            "x": 780.5,
+            "y0": 308.5,
+            "y1": 425.9289855957031
+          },
+          {
+            "x": 437.5,
+            "y0": 425.9289855957031,
+            "y1": 549.0
+          },
+          {
+            "x": 564.5,
+            "y0": 425.9289855957031,
+            "y1": 549.0
+          },
+          {
+            "x": 636.5,
+            "y0": 425.9289855957031,
+            "y1": 549.0
+          },
+          {
+            "x": 708.5,
+            "y0": 425.9289855957031,
+            "y1": 549.0
+          },
+          {
+            "x": 780.5,
+            "y0": 425.9289855957031,
+            "y1": 549.0
+          },
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 57.0,
+            "y0": 37.5,
+            "y1": 557.5
+          },
+          {
+            "x": 793.0,
+            "y0": 37.5,
+            "y1": 557.5
+          }
+        ],
+        "horizontal": [
+          {
+            "y": 308.5,
+            "x0": 564.5,
+            "x1": 780.5
+          },
+          {
+            "y": 112.35700225830078,
+            "x0": 438.0,
+            "x1": 502.0
+          },
+          {
+            "y": 111.35700225830078,
+            "x0": 438.0,
+            "x1": 502.0
+          },
+          {
+            "y": 133.78599548339844,
+            "x0": 438.0,
+            "x1": 502.0
+          },
+          {
+            "y": 132.78599548339844,
+            "x0": 438.0,
+            "x1": 502.0
+          },
+          {
+            "y": 164.9290008544922,
+            "x0": 437.5,
+            "x1": 780.5
+          },
+          {
+            "y": 185.35699462890625,
+            "x0": 437.5,
+            "x1": 780.5
+          },
+          {
+            "y": 288.0710144042969,
+            "x0": 564.5,
+            "x1": 780.5
+          },
+          {
+            "y": 425.9289855957031,
+            "x0": 564.5,
+            "x1": 780.5
+          },
+          {
+            "y": 405.5,
+            "x0": 564.5,
+            "x1": 780.5
+          },
+          {
+            "y": 549.5,
+            "x0": 564.5,
+            "x1": 780.5
+          },
+          {
+            "y": 548.5,
+            "x0": 564.5,
+            "x1": 780.5
+          },
+          {
+            "y": 487.4289855957031,
+            "x0": 564.5,
+            "x1": 780.5
+          },
+          {
+            "y": 507.7860107421875,
+            "x0": 564.5,
+            "x1": 780.5
+          },
+          {
+            "y": 528.1430053710938,
+            "x0": 564.5,
+            "x1": 780.5
+          }
+        ],
+        "short_fraction_bars": [
+          {
+            "y": 129.10299682617188,
+            "x0": 64.42900085449219,
+            "x1": 67.4489974975586
+          },
+          {
+            "y": 129.1439971923828,
+            "x0": 64.38800048828125,
+            "x1": 67.4489974975586
+          },
+          {
+            "y": 129.18499755859375,
+            "x0": 64.34700012207031,
+            "x1": 67.4489974975586
+          },
+          {
+            "y": 129.2259979248047,
+            "x0": 64.34700012207031,
+            "x1": 67.48999786376953
+          },
+          {
+            "y": 129.26699829101562,
+            "x0": 64.38800048828125,
+            "x1": 67.48999786376953
+          },
+          {
+            "y": 129.30799865722656,
+            "x0": 64.38800048828125,
+            "x1": 67.4489974975586
+          },
+          {
+            "y": 149.593994140625,
+            "x0": 63.40800094604492,
+            "x1": 68.26499938964844
+          },
+          {
+            "y": 149.63499450683594,
+            "x0": 63.367000579833984,
+            "x1": 68.30500030517578
+          },
+          {
+            "y": 149.8780059814453,
+            "x0": 63.7760009765625,
+            "x1": 68.26499938964844
+          },
+          {
+            "y": 156.2449951171875,
+            "x0": 63.53099822998047,
+            "x1": 68.34700012207031
+          },
+          {
+            "y": 156.28599548339844,
+            "x0": 63.4900016784668,
+            "x1": 68.38700103759766
+          },
+          {
+            "y": 156.44900512695312,
+            "x0": 63.53099822998047,
+            "x1": 68.38800048828125
+          },
+          {
+            "y": 273.1029968261719,
+            "x0": 63.082000732421875,
+            "x1": 68.59200286865234
+          },
+          {
+            "y": 273.1440124511719,
+            "x0": 63.04100036621094,
+            "x1": 68.63200378417969
+          },
+          {
+            "y": 273.2659912109375,
+            "x0": 63.04100036621094,
+            "x1": 68.71399688720703
+          },
+          {
+            "y": 273.3070068359375,
+            "x0": 63.04100036621094,
+            "x1": 68.6729965209961
+          },
+          {
+            "y": 273.3479919433594,
+            "x0": 63.082000732421875,
+            "x1": 68.6729965209961
+          },
+          {
+            "y": 279.7149963378906,
+            "x0": 63.36800003051758,
+            "x1": 68.71399688720703
+          },
+          {
+            "y": 279.7560119628906,
+            "x0": 63.16400146484375,
+            "x1": 68.71399688720703
+          },
+          {
+            "y": 279.9179992675781,
+            "x0": 63.16299819946289,
+            "x1": 68.71299743652344
+          },
+          {
+            "y": 279.9590148925781,
+            "x0": 63.20399856567383,
+            "x1": 68.6729965209961
+          },
+          {
+            "y": 293.67401123046875,
+            "x0": 63.12300109863281,
+            "x1": 66.67400360107422
+          },
+          {
+            "y": 293.91900634765625,
+            "x0": 63.12300109863281,
+            "x1": 66.67400360107422
+          }
+        ]
+      }
+    }
+  ],
+  "regressions": {
+    "new_generic_unit_controls": 14,
+    "new_original_integration_tests": 4,
+    "original_three_assertions_old0pass3fail_final3pass0fail": true,
+    "old_generic_actual6pass2fail_sha256": "5f5b741339532805dbc9d8df052517f468aff31f62ce598d9f826de67cd8d295",
+    "inset_date_actual0pass1fail_sha256": "26f8e08a1a841bf250a7b4bb5141dc2419e61377f5a8f749a562aea4447a1d35",
+    "all2286_private_units_passed": true,
+    "all_other_prior2952_test_inputs_exact_except_one_reviewed_test_reference": true,
+    "reviewed_test_exception": "crates/kanpo-parser/tests/shared_publication_row.rs",
+    "all_old_JSON_and814_snapshots_preserved": true,
+    "automatic_snapshot_updates": false,
+    "full_reference_JSONs_are_independent_full_page_gold": false
+  },
+  "native4_packages": {
+    "terminal": 0,
+    "source_manifest_sha256": "0b105233d086008b9dcbd4a262fdf259d79027981e1be0ddab87e6f7240b888d",
+    "commands": 150,
+    "integration_targets": 141,
+    "passed": 3284,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 149,
+    "no_expected_snapshot_updates": true,
+    "all_commands_exit0": true
+  },
+  "cohorts": {
+    "single": {
+      "result": {
+        "mode": "single",
+        "items": 11992,
+        "changed": 2,
+        "changed_PageTrace_pages": 2,
+        "all_changed_items_PageTrace_exact": false,
+        "all_changed_items_full_text_exact": false,
+        "source_inputs_reference_sources_binaries_prepost_exact": true,
+        "source_Word_fields_changed_items": [],
+        "seconds": 455.423410334
+      },
+      "all_canonical_Analysis_hash_manifest_sha256": "f05bac2d893a88a8163b80d128f8d62e767625254be6e775b1213e6158ab9dfd",
+      "reviewed_changes": [
+        {
+          "page": "20260731g001730090",
+          "page_index": 0,
+          "only_reviewed_whole_Line_permutation": true,
+          "all_source_Word_fields_exact": true,
+          "other_complete_PageTraces_and_Articles_exact": true,
+          "one_ordered_Article_partition_after_reviewed_header_move": true,
+          "Document_characters_styles_and_tables_exact_expected": true,
+          "Document_LF_paragraph_wrappers_not_compared_as_source_characters": true,
+          "controlled_corruptions_rejected": [
+            "word_raw",
+            "word_geometry",
+            "word_status",
+            "region_role",
+            "line_text",
+            "full_text",
+            "article_text",
+            "doc_style"
+          ]
+        },
+        {
+          "page": "20260806g001770058",
+          "page_index": 0,
+          "only_reviewed_whole_Line_permutation": true,
+          "all_source_Word_fields_exact": true,
+          "other_complete_PageTraces_and_Articles_exact": true,
+          "one_ordered_Article_partition_after_reviewed_header_move": true,
+          "Document_characters_styles_and_tables_exact_expected": true,
+          "Document_LF_paragraph_wrappers_not_compared_as_source_characters": true,
+          "controlled_corruptions_rejected": [
+            "word_raw",
+            "word_geometry",
+            "word_status",
+            "region_role",
+            "line_text",
+            "full_text",
+            "article_text",
+            "doc_style"
+          ]
+        }
+      ]
+    },
+    "whole": {
+      "result": {
+        "mode": "whole",
+        "items": 159,
+        "changed": 2,
+        "changed_PageTrace_pages": 2,
+        "all_changed_items_PageTrace_exact": false,
+        "all_changed_items_full_text_exact": false,
+        "source_inputs_reference_sources_binaries_prepost_exact": true,
+        "source_Word_fields_changed_items": [],
+        "seconds": 882.188272
+      },
+      "all_canonical_Analysis_hash_manifest_sha256": "eb4c91a37eb5a2bf83c42ddd25c82589dea620b855ce7dc1e3dfdef2c69a6150",
+      "reviewed_changes": [
+        {
+          "page": "20260731g001730090",
+          "page_index": 89,
+          "only_reviewed_whole_Line_permutation": true,
+          "all_source_Word_fields_exact": true,
+          "other_complete_PageTraces_and_Articles_exact": true,
+          "one_ordered_Article_partition_after_reviewed_header_move": true,
+          "Document_characters_styles_and_tables_exact_expected": true,
+          "Document_LF_paragraph_wrappers_not_compared_as_source_characters": true,
+          "controlled_corruptions_rejected": [
+            "word_raw",
+            "word_geometry",
+            "word_status",
+            "region_role",
+            "line_text",
+            "full_text",
+            "article_text",
+            "doc_style"
+          ]
+        },
+        {
+          "page": "20260806g001770058",
+          "page_index": 57,
+          "only_reviewed_whole_Line_permutation": true,
+          "all_source_Word_fields_exact": true,
+          "other_complete_PageTraces_and_Articles_exact": true,
+          "one_ordered_Article_partition_after_reviewed_header_move": true,
+          "Document_characters_styles_and_tables_exact_expected": true,
+          "Document_LF_paragraph_wrappers_not_compared_as_source_characters": true,
+          "controlled_corruptions_rejected": [
+            "word_raw",
+            "word_geometry",
+            "word_status",
+            "region_role",
+            "line_text",
+            "full_text",
+            "article_text",
+            "doc_style"
+          ]
+        }
+      ]
+    }
+  },
+  "actual_CLI": {
+    "comparison": {
+      "original_PDFs": 11992,
+      "old_example": "actual unchanged textdump.rs built by rustc O3 against frozen native140 library",
+      "new_example": "actual Cargo release-built textdump",
+      "changed_source_pages": [
+        "20260731g001730090",
+        "20260806g001770058"
+      ],
+      "other11990_text_outputs_bytes_exact": true,
+      "both_changed_complete_texts_exact_reviewed_before_after_Analysis": true,
+      "all_word_duplicate_reports": 0
+    },
+    "runs": [
+      {
+        "command": [
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-header-source-order141/actual-CLI141/textdump-release141",
+          "--pdf",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-header-source-order141/actual-CLI141/archive",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-header-source-order141/actual-CLI141/release141-native"
+        ],
+        "exit": 0,
+        "seconds": 165.643531084,
+        "log": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-header-source-order141/actual-CLI141/release141-native.log",
+        "log_sha256": "89d6fe31283914ab3c4335a10b2ca852512bf2328c4f6b4257a4cd9ea62d5f60",
+        "duplicate_Words_reported": 0
+      },
+      {
+        "command": [
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-header-source-order141/actual-CLI141/textdump-debug141",
+          "--pdf",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-header-source-order141/actual-CLI141/two-source-XHTML",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-header-source-order141/actual-CLI141/debug141-two-native"
+        ],
+        "exit": 0,
+        "seconds": 0.7401307499999916,
+        "log": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-header-source-order141/actual-CLI141/debug141-two-native.log",
+        "log_sha256": "96fa24300016b429e18b11304454d2093b000a63442807d752ed2ee5927262c1",
+        "duplicate_Words_reported": 0
+      },
+      {
+        "command": [
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-header-source-order141/actual-CLI141/text-debug141",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-header-source-order141/actual-CLI141/two-source-XHTML/20260731g001730090.bbox.html"
+        ],
+        "exit": 0,
+        "seconds": 0.5683712499999842,
+        "log": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-header-source-order141/actual-CLI141/debug141-text-20260731g001730090.log",
+        "log_sha256": "a1e5c91e5704ef9d00bb6e309eff6e9b04339138f829f1db87e331a65b3536e2",
+        "duplicate_Words_reported": 0
+      },
+      {
+        "command": [
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-header-source-order141/actual-CLI141/text-debug141",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-header-source-order141/actual-CLI141/two-source-XHTML/20260806g001770058.bbox.html"
+        ],
+        "exit": 0,
+        "seconds": 0.199575665999987,
+        "log": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-header-source-order141/actual-CLI141/debug141-text-20260806g001770058.log",
+        "log_sha256": "eb245f6066f52cc51a6c17ee1a894840db6f0dca7caad13a0f1ddd140056a72c",
+        "duplicate_Words_reported": 0
+      },
+      {
+        "command": [
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-header-source-order141/actual-CLI141/text-release141",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-header-source-order141/actual-CLI141/two-source-XHTML/20260731g001730090.bbox.html"
+        ],
+        "exit": 0,
+        "seconds": 0.28223358399998233,
+        "log": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-header-source-order141/actual-CLI141/release141-text-20260731g001730090.log",
+        "log_sha256": "a1e5c91e5704ef9d00bb6e309eff6e9b04339138f829f1db87e331a65b3536e2",
+        "duplicate_Words_reported": 0
+      },
+      {
+        "command": [
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-header-source-order141/actual-CLI141/text-release141",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-header-source-order141/actual-CLI141/two-source-XHTML/20260806g001770058.bbox.html"
+        ],
+        "exit": 0,
+        "seconds": 0.029964749999976448,
+        "log": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-header-source-order141/actual-CLI141/release141-text-20260806g001770058.log",
+        "log_sha256": "eb245f6066f52cc51a6c17ee1a894840db6f0dca7caad13a0f1ddd140056a72c",
+        "duplicate_Words_reported": 0
+      }
+    ],
+    "binary_sha256": {
+      "textdump-release141": "01c231969eea7a09fc140c8b16985556f6e317c204d8a6d111808fe01b42add4",
+      "text-debug141": "08cbfab879a0b0f35e3669df3ed71a04b85dd7d753d623a5279e8685132b53aa",
+      "textdump-debug141": "c4e387f362571ad13e4946ed6216e749f6a850d123aa11464760622abba27471",
+      "text-release141": "4d817f3212a810b8ceb9cae6da6b2a5a636aafd2e5d1457e4084fbc174ddf8db",
+      "textdump-baseline140": "1ee097a62d6e5488e641e1eba953f2a6bb7382f518d3eea2429faf3ab54db7bf"
+    },
+    "source_prepost_exact": true
+  },
+  "review_limits": "Implementing agent nonblind target header/ownership review. No full-page character/cell gold, independent blind audit or full-corpus accuracy estimate. Source paths/rules are used as supplied by current extraction; no general final-visibility/clip proof. Document char/style guard ignores LF paragraph wrappers and preserves exact structured tables/formats. Fixed30 audit139 remains138 baseline.",
+  "additional_graphic_source_fact": {
+    "page": "20260831h017790021",
+    "PDF_sha256": "c71b8bc2dda1c0b401bfc9cf10e806e50e54c55a2202caecb2541ad561c3f30f",
+    "source_operator_indices_0_based": [
+      133,
+      1395
+    ],
+    "text_show_operators_between_label_and_next_Stone": 0,
+    "painted_paths": [
+      {
+        "operation_index": 139,
+        "paint": "S",
+        "source_control_point_bounds": [
+          501.817,
+          323.051,
+          502.144,
+          323.051
+        ]
+      },
+      {
+        "operation_index": 146,
+        "paint": "S",
+        "source_control_point_bounds": [
+          501.817,
+          323.092,
+          502.266,
+          323.092
+        ]
+      },
+      {
+        "operation_index": 153,
+        "paint": "S",
+        "source_control_point_bounds": [
+          501.817,
+          323.133,
+          502.348,
+          323.133
+        ]
+      },
+      {
+        "operation_index": 160,
+        "paint": "S",
+        "source_control_point_bounds": [
+          501.817,
+          323.174,
+          502.47,
+          323.174
+        ]
+      },
+      {
+        "operation_index": 167,
+        "paint": "S",
+        "source_control_point_bounds": [
+          501.817,
+          323.215,
+          502.552,
+          323.215
+        ]
+      },
+      {
+        "operation_index": 174,
+        "paint": "S",
+        "source_control_point_bounds": [
+          501.817,
+          323.256,
+          502.633,
+          323.256
+        ]
+      },
+      {
+        "operation_index": 181,
+        "paint": "S",
+        "source_control_point_bounds": [
+          501.817,
+          323.297,
+          508.14300000000003,
+          323.297
+        ]
+      },
+      {
+        "operation_index": 188,
+        "paint": "S",
+        "source_control_point_bounds": [
+          501.817,
+          323.338,
+          508.184,
+          323.338
+        ]
+      },
+      {
+        "operation_index": 195,
+        "paint": "S",
+        "source_control_point_bounds": [
+          501.817,
+          323.379,
+          508.265,
+          323.379
+        ]
+      },
+      {
+        "operation_index": 202,
+        "paint": "S",
+        "source_control_point_bounds": [
+          501.817,
+          323.42,
+          508.306,
+          323.42
+        ]
+      },
+      {
+        "operation_index": 209,
+        "paint": "S",
+        "source_control_point_bounds": [
+          501.817,
+          323.461,
+          508.347,
+          323.461
+        ]
+      },
+      {
+        "operation_index": 216,
+        "paint": "S",
+        "source_control_point_bounds": [
+          501.817,
+          323.502,
+          502.42900000000003,
+          323.502
+        ]
+      },
+      {
+        "operation_index": 223,
+        "paint": "S",
+        "source_control_point_bounds": [
+          501.817,
+          323.543,
+          502.348,
+          323.543
+        ]
+      },
+      {
+        "operation_index": 229,
+        "paint": "B",
+        "source_control_point_bounds": [
+          501.817,
+          323.582,
+          502.307,
+          329.581
+        ]
+      },
+      {
+        "operation_index": 233,
+        "paint": "B",
+        "source_control_point_bounds": [
+          501.817,
+          329.581,
+          508.14300000000003,
+          329.744
+        ]
+      },
+      {
+        "operation_index": 238,
+        "paint": "S",
+        "source_control_point_bounds": [
+          501.817,
+          329.744,
+          507.653,
+          329.744
+        ]
+      },
+      {
+        "operation_index": 243,
+        "paint": "B",
+        "source_control_point_bounds": [
+          501.817,
+          329.78499999999997,
+          502.307,
+          330.03
+        ]
+      },
+      {
+        "operation_index": 248,
+        "paint": "S",
+        "source_control_point_bounds": [
+          501.817,
+          330.03,
+          502.266,
+          330.03
+        ]
+      },
+      {
+        "operation_index": 254,
+        "paint": "S",
+        "source_control_point_bounds": [
+          501.858,
+          330.071,
+          502.184,
+          330.071
+        ]
+      },
+      {
+        "operation_index": 260,
+        "paint": "S",
+        "source_control_point_bounds": [
+          507.776,
+          323.133,
+          507.898,
+          323.133
+        ]
+      },
+      {
+        "operation_index": 266,
+        "paint": "S",
+        "source_control_point_bounds": [
+          507.735,
+          323.174,
+          507.939,
+          323.174
+        ]
+      },
+      {
+        "operation_index": 272,
+        "paint": "S",
+        "source_control_point_bounds": [
+          507.694,
+          323.215,
+          508.02000000000004,
+          323.215
+        ]
+      },
+      {
+        "operation_index": 278,
+        "paint": "S",
+        "source_control_point_bounds": [
+          507.653,
+          323.256,
+          508.10200000000003,
+          323.256
+        ]
+      },
+      {
+        "operation_index": 284,
+        "paint": "S",
+        "source_control_point_bounds": [
+          507.694,
+          323.501,
+          508.38800000000003,
+          323.501
+        ]
+      },
+      {
+        "operation_index": 289,
+        "paint": "B",
+        "source_control_point_bounds": [
+          507.694,
+          323.541,
+          508.42900000000003,
+          323.663
+        ]
+      },
+      {
+        "operation_index": 294,
+        "paint": "S",
+        "source_control_point_bounds": [
+          507.694,
+          323.663,
+          508.38800000000003,
+          323.663
+        ]
+      },
+      {
+        "operation_index": 300,
+        "paint": "S",
+        "source_control_point_bounds": [
+          507.694,
+          323.704,
+          508.34700000000004,
+          323.704
+        ]
+      },
+      {
+        "operation_index": 306,
+        "paint": "S",
+        "source_control_point_bounds": [
+          507.694,
+          323.745,
+          508.26500000000004,
+          323.745
+        ]
+      },
+      {
+        "operation_index": 312,
+        "paint": "S",
+        "source_control_point_bounds": [
+          507.694,
+          323.786,
+          508.184,
+          323.786
+        ]
+      },
+      {
+        "operation_index": 317,
+        "paint": "B",
+        "source_control_point_bounds": [
+          507.694,
+          323.827,
+          508.14300000000003,
+          327.745
+        ]
+      },
+      {
+        "operation_index": 322,
+        "paint": "S",
+        "source_control_point_bounds": [
+          507.734,
+          327.745,
+          508.142,
+          327.745
+        ]
+      },
+      {
+        "operation_index": 327,
+        "paint": "B",
+        "source_control_point_bounds": [
+          507.694,
+          327.785,
+          508.14300000000003,
+          329.581
+        ]
+      },
+      {
+        "operation_index": 332,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.306,
+          323.663,
+          504.428,
+          323.663
+        ]
+      },
+      {
+        "operation_index": 338,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.224,
+          323.704,
+          504.51,
+          323.704
+        ]
+      },
+      {
+        "operation_index": 344,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.224,
+          323.745,
+          504.632,
+          323.745
+        ]
+      },
+      {
+        "operation_index": 350,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.224,
+          323.786,
+          504.755,
+          323.786
+        ]
+      },
+      {
+        "operation_index": 356,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.224,
+          323.827,
+          504.836,
+          323.827
+        ]
+      },
+      {
+        "operation_index": 362,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.183,
+          323.868,
+          504.877,
+          323.868
+        ]
+      },
+      {
+        "operation_index": 368,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.183,
+          323.909,
+          504.95799999999997,
+          323.909
+        ]
+      },
+      {
+        "operation_index": 373,
+        "paint": "B",
+        "source_control_point_bounds": [
+          504.143,
+          323.949,
+          505.0,
+          324.031
+        ]
+      },
+      {
+        "operation_index": 378,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.102,
+          324.031,
+          505.0,
+          324.031
+        ]
+      },
+      {
+        "operation_index": 384,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.102,
+          324.072,
+          504.87699999999995,
+          324.072
+        ]
+      },
+      {
+        "operation_index": 390,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.102,
+          324.113,
+          504.673,
+          324.113
+        ]
+      },
+      {
+        "operation_index": 396,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.061,
+          324.154,
+          504.632,
+          324.154
+        ]
+      },
+      {
+        "operation_index": 402,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.061,
+          324.195,
+          504.592,
+          324.195
+        ]
+      },
+      {
+        "operation_index": 408,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.02,
+          324.236,
+          504.551,
+          324.236
+        ]
+      },
+      {
+        "operation_index": 414,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.02,
+          324.277,
+          504.51,
+          324.277
+        ]
+      },
+      {
+        "operation_index": 420,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.979,
+          324.318,
+          504.428,
+          324.318
+        ]
+      },
+      {
+        "operation_index": 426,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.979,
+          324.359,
+          504.387,
+          324.359
+        ]
+      },
+      {
+        "operation_index": 432,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.938,
+          324.4,
+          504.346,
+          324.4
+        ]
+      },
+      {
+        "operation_index": 438,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.897,
+          324.441,
+          504.264,
+          324.441
+        ]
+      },
+      {
+        "operation_index": 444,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.897,
+          324.482,
+          504.223,
+          324.482
+        ]
+      },
+      {
+        "operation_index": 450,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.897,
+          324.523,
+          504.183,
+          324.523
+        ]
+      },
+      {
+        "operation_index": 456,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.856,
+          324.564,
+          504.142,
+          324.564
+        ]
+      },
+      {
+        "operation_index": 462,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.856,
+          324.605,
+          504.101,
+          324.605
+        ]
+      },
+      {
+        "operation_index": 468,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.815,
+          324.646,
+          504.06,
+          324.646
+        ]
+      },
+      {
+        "operation_index": 474,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.774,
+          324.687,
+          504.019,
+          324.687
+        ]
+      },
+      {
+        "operation_index": 480,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.631,
+          324.728,
+          506.018,
+          324.728
+        ]
+      },
+      {
+        "operation_index": 486,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.672,
+          324.769,
+          505.815,
+          324.769
+        ]
+      },
+      {
+        "operation_index": 492,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.672,
+          324.81,
+          505.61,
+          324.81
+        ]
+      },
+      {
+        "operation_index": 498,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.672,
+          324.851,
+          505.447,
+          324.851
+        ]
+      },
+      {
+        "operation_index": 504,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.713,
+          324.892,
+          505.16200000000003,
+          324.892
+        ]
+      },
+      {
+        "operation_index": 510,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.713,
+          324.933,
+          504.83500000000004,
+          324.933
+        ]
+      },
+      {
+        "operation_index": 516,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.754,
+          324.974,
+          504.509,
+          324.974
+        ]
+      },
+      {
+        "operation_index": 522,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.754,
+          325.015,
+          504.223,
+          325.015
+        ]
+      },
+      {
+        "operation_index": 528,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.795,
+          325.056,
+          503.897,
+          325.056
+        ]
+      },
+      {
+        "operation_index": 534,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.795,
+          325.097,
+          503.53000000000003,
+          325.097
+        ]
+      },
+      {
+        "operation_index": 540,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.795,
+          325.138,
+          503.20300000000003,
+          325.138
+        ]
+      },
+      {
+        "operation_index": 546,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.836,
+          325.179,
+          503.122,
+          325.179
+        ]
+      },
+      {
+        "operation_index": 551,
+        "paint": "B",
+        "source_control_point_bounds": [
+          502.837,
+          325.214,
+          503.082,
+          325.296
+        ]
+      },
+      {
+        "operation_index": 556,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.878,
+          325.296,
+          503.041,
+          325.296
+        ]
+      },
+      {
+        "operation_index": 562,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.919,
+          325.337,
+          503.001,
+          325.337
+        ]
+      },
+      {
+        "operation_index": 568,
+        "paint": "S",
+        "source_control_point_bounds": [
+          505.735,
+          323.909,
+          505.735,
+          323.909
+        ]
+      },
+      {
+        "operation_index": 574,
+        "paint": "S",
+        "source_control_point_bounds": [
+          505.653,
+          323.95,
+          505.81600000000003,
+          323.95
+        ]
+      },
+      {
+        "operation_index": 580,
+        "paint": "S",
+        "source_control_point_bounds": [
+          505.735,
+          323.991,
+          505.939,
+          323.991
+        ]
+      },
+      {
+        "operation_index": 586,
+        "paint": "S",
+        "source_control_point_bounds": [
+          505.776,
+          324.032,
+          506.021,
+          324.032
+        ]
+      },
+      {
+        "operation_index": 592,
+        "paint": "S",
+        "source_control_point_bounds": [
+          505.817,
+          324.073,
+          506.062,
+          324.073
+        ]
+      },
+      {
+        "operation_index": 598,
+        "paint": "S",
+        "source_control_point_bounds": [
+          505.899,
+          324.114,
+          506.144,
+          324.114
+        ]
+      },
+      {
+        "operation_index": 604,
+        "paint": "S",
+        "source_control_point_bounds": [
+          505.981,
+          324.155,
+          506.226,
+          324.155
+        ]
+      },
+      {
+        "operation_index": 610,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.022,
+          324.196,
+          506.308,
+          324.196
+        ]
+      },
+      {
+        "operation_index": 616,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.104,
+          324.237,
+          506.39,
+          324.237
+        ]
+      },
+      {
+        "operation_index": 622,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.104,
+          324.278,
+          506.43,
+          324.278
+        ]
+      },
+      {
+        "operation_index": 628,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.186,
+          324.319,
+          506.513,
+          324.319
+        ]
+      },
+      {
+        "operation_index": 634,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.227,
+          324.36,
+          506.594,
+          324.36
+        ]
+      },
+      {
+        "operation_index": 640,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.268,
+          324.401,
+          506.635,
+          324.401
+        ]
+      },
+      {
+        "operation_index": 646,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.309,
+          324.442,
+          506.71700000000004,
+          324.442
+        ]
+      },
+      {
+        "operation_index": 652,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.35,
+          324.483,
+          506.75800000000004,
+          324.483
+        ]
+      },
+      {
+        "operation_index": 658,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.35,
+          324.524,
+          506.84000000000003,
+          324.524
+        ]
+      },
+      {
+        "operation_index": 664,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.187,
+          324.565,
+          506.88100000000003,
+          324.565
+        ]
+      },
+      {
+        "operation_index": 670,
+        "paint": "S",
+        "source_control_point_bounds": [
+          505.779,
+          324.606,
+          506.963,
+          324.606
+        ]
+      },
+      {
+        "operation_index": 676,
+        "paint": "S",
+        "source_control_point_bounds": [
+          505.248,
+          324.647,
+          506.34999999999997,
+          324.647
+        ]
+      },
+      {
+        "operation_index": 682,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.717,
+          324.688,
+          506.227,
+          324.688
+        ]
+      },
+      {
+        "operation_index": 688,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.717,
+          324.647,
+          502.921,
+          324.647
+        ]
+      },
+      {
+        "operation_index": 694,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.635,
+          324.688,
+          503.40999999999997,
+          324.688
+        ]
+      },
+      {
+        "operation_index": 700,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.512,
+          324.647,
+          507.002,
+          324.647
+        ]
+      },
+      {
+        "operation_index": 706,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.553,
+          324.688,
+          507.043,
+          324.688
+        ]
+      },
+      {
+        "operation_index": 712,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.553,
+          324.729,
+          507.084,
+          324.729
+        ]
+      },
+      {
+        "operation_index": 718,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.594,
+          324.77,
+          507.125,
+          324.77
+        ]
+      },
+      {
+        "operation_index": 724,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.594,
+          324.811,
+          507.165,
+          324.811
+        ]
+      },
+      {
+        "operation_index": 730,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.635,
+          324.852,
+          507.206,
+          324.852
+        ]
+      },
+      {
+        "operation_index": 736,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.676,
+          324.893,
+          507.288,
+          324.893
+        ]
+      },
+      {
+        "operation_index": 741,
+        "paint": "B",
+        "source_control_point_bounds": [
+          506.714,
+          324.928,
+          507.326,
+          325.01
+        ]
+      },
+      {
+        "operation_index": 746,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.714,
+          325.01,
+          507.367,
+          325.01
+        ]
+      },
+      {
+        "operation_index": 751,
+        "paint": "B",
+        "source_control_point_bounds": [
+          506.755,
+          325.051,
+          507.408,
+          325.133
+        ]
+      },
+      {
+        "operation_index": 755,
+        "paint": "B",
+        "source_control_point_bounds": [
+          506.796,
+          325.132,
+          507.449,
+          325.214
+        ]
+      },
+      {
+        "operation_index": 760,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.837,
+          325.214,
+          507.449,
+          325.214
+        ]
+      },
+      {
+        "operation_index": 765,
+        "paint": "B",
+        "source_control_point_bounds": [
+          506.877,
+          325.255,
+          507.44800000000004,
+          325.337
+        ]
+      },
+      {
+        "operation_index": 770,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.918,
+          325.337,
+          507.408,
+          325.337
+        ]
+      },
+      {
+        "operation_index": 776,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.959,
+          325.378,
+          507.408,
+          325.378
+        ]
+      },
+      {
+        "operation_index": 782,
+        "paint": "S",
+        "source_control_point_bounds": [
+          507.0,
+          325.419,
+          507.367,
+          325.419
+        ]
+      },
+      {
+        "operation_index": 788,
+        "paint": "S",
+        "source_control_point_bounds": [
+          507.082,
+          325.46,
+          507.327,
+          325.46
+        ]
+      },
+      {
+        "operation_index": 794,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.592,
+          324.685,
+          504.633,
+          324.685
+        ]
+      },
+      {
+        "operation_index": 800,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.49,
+          325.216,
+          503.572,
+          325.216
+        ]
+      },
+      {
+        "operation_index": 806,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.408,
+          325.257,
+          503.81600000000003,
+          325.257
+        ]
+      },
+      {
+        "operation_index": 812,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.408,
+          325.298,
+          503.898,
+          325.298
+        ]
+      },
+      {
+        "operation_index": 818,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.408,
+          325.339,
+          503.97900000000004,
+          325.339
+        ]
+      },
+      {
+        "operation_index": 824,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.408,
+          325.38,
+          504.06100000000004,
+          325.38
+        ]
+      },
+      {
+        "operation_index": 830,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.408,
+          325.421,
+          506.714,
+          325.421
+        ]
+      },
+      {
+        "operation_index": 836,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.408,
+          325.462,
+          506.755,
+          325.462
+        ]
+      },
+      {
+        "operation_index": 842,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.408,
+          325.503,
+          506.795,
+          325.503
+        ]
+      },
+      {
+        "operation_index": 848,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.408,
+          325.544,
+          506.877,
+          325.544
+        ]
+      },
+      {
+        "operation_index": 853,
+        "paint": "B",
+        "source_control_point_bounds": [
+          503.408,
+          325.582,
+          503.857,
+          326.153
+        ]
+      },
+      {
+        "operation_index": 857,
+        "paint": "B",
+        "source_control_point_bounds": [
+          503.408,
+          326.15299999999996,
+          506.591,
+          326.316
+        ]
+      },
+      {
+        "operation_index": 861,
+        "paint": "B",
+        "source_control_point_bounds": [
+          503.408,
+          326.316,
+          503.857,
+          326.969
+        ]
+      },
+      {
+        "operation_index": 865,
+        "paint": "B",
+        "source_control_point_bounds": [
+          503.408,
+          326.969,
+          506.591,
+          327.133
+        ]
+      },
+      {
+        "operation_index": 869,
+        "paint": "B",
+        "source_control_point_bounds": [
+          503.408,
+          327.132,
+          503.857,
+          327.785
+        ]
+      },
+      {
+        "operation_index": 873,
+        "paint": "B",
+        "source_control_point_bounds": [
+          503.408,
+          327.785,
+          506.591,
+          327.949
+        ]
+      },
+      {
+        "operation_index": 877,
+        "paint": "B",
+        "source_control_point_bounds": [
+          503.408,
+          327.948,
+          503.857,
+          328.234
+        ]
+      },
+      {
+        "operation_index": 882,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.408,
+          328.234,
+          503.81600000000003,
+          328.234
+        ]
+      },
+      {
+        "operation_index": 888,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.408,
+          328.275,
+          503.77500000000003,
+          328.275
+        ]
+      },
+      {
+        "operation_index": 894,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.408,
+          328.316,
+          503.735,
+          328.316
+        ]
+      },
+      {
+        "operation_index": 900,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.408,
+          328.357,
+          503.612,
+          328.357
+        ]
+      },
+      {
+        "operation_index": 906,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.265,
+          325.255,
+          506.469,
+          325.255
+        ]
+      },
+      {
+        "operation_index": 912,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.224,
+          325.296,
+          506.55,
+          325.296
+        ]
+      },
+      {
+        "operation_index": 918,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.183,
+          325.337,
+          506.591,
+          325.337
+        ]
+      },
+      {
+        "operation_index": 924,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.142,
+          325.378,
+          506.673,
+          325.378
+        ]
+      },
+      {
+        "operation_index": 930,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.142,
+          325.582,
+          506.877,
+          325.582
+        ]
+      },
+      {
+        "operation_index": 935,
+        "paint": "B",
+        "source_control_point_bounds": [
+          506.184,
+          325.622,
+          506.87800000000004,
+          325.745
+        ]
+      },
+      {
+        "operation_index": 940,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.184,
+          325.745,
+          506.83700000000005,
+          325.745
+        ]
+      },
+      {
+        "operation_index": 946,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.184,
+          325.786,
+          506.71500000000003,
+          325.786
+        ]
+      },
+      {
+        "operation_index": 952,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.184,
+          325.827,
+          506.63300000000004,
+          325.827
+        ]
+      },
+      {
+        "operation_index": 957,
+        "paint": "B",
+        "source_control_point_bounds": [
+          506.184,
+          325.867,
+          506.59200000000004,
+          326.153
+        ]
+      },
+      {
+        "operation_index": 962,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.143,
+          326.316,
+          506.592,
+          326.316
+        ]
+      },
+      {
+        "operation_index": 967,
+        "paint": "B",
+        "source_control_point_bounds": [
+          506.184,
+          326.35699999999997,
+          506.59200000000004,
+          326.969
+        ]
+      },
+      {
+        "operation_index": 971,
+        "paint": "B",
+        "source_control_point_bounds": [
+          506.184,
+          327.132,
+          506.59200000000004,
+          327.785
+        ]
+      },
+      {
+        "operation_index": 975,
+        "paint": "B",
+        "source_control_point_bounds": [
+          506.184,
+          327.949,
+          506.59200000000004,
+          328.153
+        ]
+      },
+      {
+        "operation_index": 980,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.184,
+          328.153,
+          506.511,
+          328.153
+        ]
+      },
+      {
+        "operation_index": 986,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.184,
+          328.194,
+          506.38800000000003,
+          328.194
+        ]
+      },
+      {
+        "operation_index": 992,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.225,
+          328.235,
+          506.307,
+          328.235
+        ]
+      },
+      {
+        "operation_index": 998,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.184,
+          328.072,
+          504.266,
+          328.072
+        ]
+      },
+      {
+        "operation_index": 1004,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.143,
+          328.113,
+          504.388,
+          328.113
+        ]
+      },
+      {
+        "operation_index": 1010,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.102,
+          328.154,
+          504.469,
+          328.154
+        ]
+      },
+      {
+        "operation_index": 1016,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.061,
+          328.195,
+          504.51,
+          328.195
+        ]
+      },
+      {
+        "operation_index": 1022,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.02,
+          328.236,
+          504.632,
+          328.236
+        ]
+      },
+      {
+        "operation_index": 1028,
+        "paint": "S",
+        "source_control_point_bounds": [
+          504.02,
+          328.277,
+          504.714,
+          328.277
+        ]
+      },
+      {
+        "operation_index": 1034,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.979,
+          328.318,
+          504.79499999999996,
+          328.318
+        ]
+      },
+      {
+        "operation_index": 1040,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.938,
+          328.359,
+          504.795,
+          328.359
+        ]
+      },
+      {
+        "operation_index": 1046,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.897,
+          328.4,
+          504.836,
+          328.4
+        ]
+      },
+      {
+        "operation_index": 1052,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.856,
+          328.441,
+          504.876,
+          328.441
+        ]
+      },
+      {
+        "operation_index": 1058,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.815,
+          328.482,
+          504.835,
+          328.482
+        ]
+      },
+      {
+        "operation_index": 1064,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.774,
+          328.523,
+          504.794,
+          328.523
+        ]
+      },
+      {
+        "operation_index": 1070,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.733,
+          328.564,
+          504.427,
+          328.564
+        ]
+      },
+      {
+        "operation_index": 1076,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.692,
+          328.605,
+          504.345,
+          328.605
+        ]
+      },
+      {
+        "operation_index": 1082,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.651,
+          328.646,
+          504.26300000000003,
+          328.646
+        ]
+      },
+      {
+        "operation_index": 1088,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.569,
+          328.687,
+          504.14000000000004,
+          328.687
+        ]
+      },
+      {
+        "operation_index": 1094,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.528,
+          328.728,
+          504.09900000000005,
+          328.728
+        ]
+      },
+      {
+        "operation_index": 1100,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.446,
+          328.769,
+          504.01700000000005,
+          328.769
+        ]
+      },
+      {
+        "operation_index": 1106,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.405,
+          328.81,
+          503.936,
+          328.81
+        ]
+      },
+      {
+        "operation_index": 1112,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.323,
+          328.851,
+          503.854,
+          328.851
+        ]
+      },
+      {
+        "operation_index": 1118,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.282,
+          328.892,
+          503.813,
+          328.892
+        ]
+      },
+      {
+        "operation_index": 1124,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.241,
+          328.933,
+          503.731,
+          328.933
+        ]
+      },
+      {
+        "operation_index": 1130,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.2,
+          328.974,
+          503.649,
+          328.974
+        ]
+      },
+      {
+        "operation_index": 1136,
+        "paint": "S",
+        "source_control_point_bounds": [
+          503.078,
+          329.015,
+          503.568,
+          329.015
+        ]
+      },
+      {
+        "operation_index": 1142,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.996,
+          329.056,
+          503.486,
+          329.056
+        ]
+      },
+      {
+        "operation_index": 1148,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.874,
+          329.097,
+          503.36400000000003,
+          329.097
+        ]
+      },
+      {
+        "operation_index": 1154,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.792,
+          329.138,
+          503.323,
+          329.138
+        ]
+      },
+      {
+        "operation_index": 1160,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.71,
+          329.179,
+          503.2,
+          329.179
+        ]
+      },
+      {
+        "operation_index": 1166,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.588,
+          329.22,
+          503.07800000000003,
+          329.22
+        ]
+      },
+      {
+        "operation_index": 1172,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.506,
+          329.261,
+          502.914,
+          329.261
+        ]
+      },
+      {
+        "operation_index": 1178,
+        "paint": "S",
+        "source_control_point_bounds": [
+          502.465,
+          329.302,
+          502.751,
+          329.302
+        ]
+      },
+      {
+        "operation_index": 1184,
+        "paint": "S",
+        "source_control_point_bounds": [
+          505.485,
+          328.078,
+          505.607,
+          328.078
+        ]
+      },
+      {
+        "operation_index": 1190,
+        "paint": "S",
+        "source_control_point_bounds": [
+          505.485,
+          328.119,
+          505.73,
+          328.119
+        ]
+      },
+      {
+        "operation_index": 1196,
+        "paint": "S",
+        "source_control_point_bounds": [
+          505.567,
+          328.16,
+          505.853,
+          328.16
+        ]
+      },
+      {
+        "operation_index": 1202,
+        "paint": "S",
+        "source_control_point_bounds": [
+          505.649,
+          328.201,
+          505.935,
+          328.201
+        ]
+      },
+      {
+        "operation_index": 1208,
+        "paint": "S",
+        "source_control_point_bounds": [
+          505.771,
+          328.242,
+          506.057,
+          328.242
+        ]
+      },
+      {
+        "operation_index": 1214,
+        "paint": "S",
+        "source_control_point_bounds": [
+          505.812,
+          328.283,
+          506.139,
+          328.283
+        ]
+      },
+      {
+        "operation_index": 1220,
+        "paint": "S",
+        "source_control_point_bounds": [
+          505.894,
+          328.324,
+          506.221,
+          328.324
+        ]
+      },
+      {
+        "operation_index": 1226,
+        "paint": "S",
+        "source_control_point_bounds": [
+          505.976,
+          328.365,
+          506.302,
+          328.365
+        ]
+      },
+      {
+        "operation_index": 1232,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.058,
+          328.406,
+          506.425,
+          328.406
+        ]
+      },
+      {
+        "operation_index": 1238,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.099,
+          328.447,
+          506.548,
+          328.447
+        ]
+      },
+      {
+        "operation_index": 1244,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.181,
+          328.488,
+          506.63,
+          328.488
+        ]
+      },
+      {
+        "operation_index": 1250,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.222,
+          328.529,
+          506.671,
+          328.529
+        ]
+      },
+      {
+        "operation_index": 1256,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.263,
+          328.57,
+          506.753,
+          328.57
+        ]
+      },
+      {
+        "operation_index": 1262,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.345,
+          328.611,
+          506.83500000000004,
+          328.611
+        ]
+      },
+      {
+        "operation_index": 1268,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.386,
+          328.652,
+          506.91700000000003,
+          328.652
+        ]
+      },
+      {
+        "operation_index": 1274,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.427,
+          328.693,
+          506.99800000000005,
+          328.693
+        ]
+      },
+      {
+        "operation_index": 1280,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.468,
+          328.734,
+          507.08000000000004,
+          328.734
+        ]
+      },
+      {
+        "operation_index": 1286,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.509,
+          328.775,
+          507.12100000000004,
+          328.775
+        ]
+      },
+      {
+        "operation_index": 1292,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.55,
+          328.816,
+          507.20300000000003,
+          328.816
+        ]
+      },
+      {
+        "operation_index": 1298,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.591,
+          328.857,
+          507.244,
+          328.857
+        ]
+      },
+      {
+        "operation_index": 1304,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.591,
+          328.898,
+          507.285,
+          328.898
+        ]
+      },
+      {
+        "operation_index": 1310,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.632,
+          328.939,
+          507.326,
+          328.939
+        ]
+      },
+      {
+        "operation_index": 1316,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.673,
+          328.98,
+          507.367,
+          328.98
+        ]
+      },
+      {
+        "operation_index": 1322,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.714,
+          329.021,
+          507.408,
+          329.021
+        ]
+      },
+      {
+        "operation_index": 1327,
+        "paint": "B",
+        "source_control_point_bounds": [
+          506.755,
+          329.05,
+          507.408,
+          329.132
+        ]
+      },
+      {
+        "operation_index": 1332,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.796,
+          329.132,
+          507.408,
+          329.132
+        ]
+      },
+      {
+        "operation_index": 1337,
+        "paint": "B",
+        "source_control_point_bounds": [
+          506.837,
+          329.173,
+          507.408,
+          329.255
+        ]
+      },
+      {
+        "operation_index": 1342,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.877,
+          329.255,
+          507.367,
+          329.255
+        ]
+      },
+      {
+        "operation_index": 1348,
+        "paint": "S",
+        "source_control_point_bounds": [
+          506.918,
+          329.296,
+          507.326,
+          329.296
+        ]
+      },
+      {
+        "operation_index": 1354,
+        "paint": "S",
+        "source_control_point_bounds": [
+          507.0,
+          329.337,
+          507.286,
+          329.337
+        ]
+      },
+      {
+        "operation_index": 1360,
+        "paint": "S",
+        "source_control_point_bounds": [
+          507.041,
+          329.378,
+          507.204,
+          329.378
+        ]
+      },
+      {
+        "operation_index": 1366,
+        "paint": "S",
+        "source_control_point_bounds": [
+          507.735,
+          329.745,
+          508.14300000000003,
+          329.745
+        ]
+      },
+      {
+        "operation_index": 1372,
+        "paint": "S",
+        "source_control_point_bounds": [
+          507.694,
+          329.786,
+          508.14300000000003,
+          329.786
+        ]
+      },
+      {
+        "operation_index": 1377,
+        "paint": "B",
+        "source_control_point_bounds": [
+          507.734,
+          329.826,
+          508.142,
+          329.949
+        ]
+      },
+      {
+        "operation_index": 1381,
+        "paint": "B",
+        "source_control_point_bounds": [
+          507.694,
+          329.949,
+          508.14300000000003,
+          330.112
+        ]
+      },
+      {
+        "operation_index": 1385,
+        "paint": "B",
+        "source_control_point_bounds": [
+          507.694,
+          330.111,
+          508.10200000000003,
+          330.193
+        ]
+      },
+      {
+        "operation_index": 1390,
+        "paint": "S",
+        "source_control_point_bounds": [
+          507.734,
+          330.193,
+          507.979,
+          330.193
+        ]
+      }
+    ],
+    "union_source_control_point_bounds": [
+      501.817,
+      323.051,
+      508.42900000000003,
+      330.193
+    ],
+    "source_transform": "original MediaBox595x842, Rotate270; native displayed top-left (842-y,595-x) after source cm transforms",
+    "original_crop_actually_viewed": "representative-source141.png",
+    "native_Glyphs_in_inner_ink_box": 0,
+    "conclusion_scope": "The visible preceding enclosed shape is drawn by original path operations at this source position, with no intervening text-show operator. No CID/PUA or Unicode character is assigned to these paths. Control-point bounds are not exact Bezier ink bounds or full visibility certification. No OCR inference, character guessing or production change."
+  },
+  "additional_graphic_fact_scope": "Read-only source classification:217path paints at surname-initial position, no native Glyph/text-show there. No Unicode assigned, OCR or parser repair claimed.",
+  "remaining": [
+    "Other fixed30 non-image JIS row/code wrapping, newSection before-marker ownership, frequency tables, multi-procedure/multiamount layouts and other source ownership",
+    "Other encoding/PUA and graphic/text restoration",
+    "Full corpus accuracy remains unproven"
+  ],
+  "OCR": {
+    "opt_in": true,
+    "normal_parser_auto_OCR": false,
+    "engine": "NDLOCR",
+    "version": "0.0.15",
+    "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "new_inferences": 0,
+    "existing_image_only_and_hybrid_default_Analysis_tests_passed": true
+  },
+  "additional_models": false,
+  "overall_goal_complete": false
+}
