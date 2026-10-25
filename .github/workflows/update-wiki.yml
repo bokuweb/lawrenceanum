@@ -24,6 +24,14 @@ on:
     - cron: "0 0 * * *"
   workflow_dispatch:
     inputs:
+      hanrei_case_ids:
+        description: "試験追加する過去判例ID（カンマ区切り、最大10件。空なら新規分だけ）"
+        required: false
+        type: string
+      max_hanrei:
+        description: "1回で要約する判例の上限（既定3件、試験追加時は10などを指定）"
+        required: false
+        type: string
       max_items:
         description: "1 回で処理する会議の上限 (コスト上限)"
         required: false
@@ -86,6 +94,7 @@ jobs:
       WIKI_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
       WIKI_MODEL: ${{ vars.WIKI_MODEL || 'claude-sonnet-5-5' }}
       MAX_ITEMS: ${{ github.event.inputs.max_items || vars.WIKI_MAX_ITEMS || '5' }}
+      MAX_HANREI: ${{ github.event.inputs.max_hanrei || vars.WIKI_MAX_HANREI || '3' }}
       MAX_BILLS: ${{ github.event.inputs.max_bills || vars.WIKI_MAX_BILLS || '5' }}
       MAX_PUBCOMMENTS: ${{ github.event.inputs.max_pubcomments || vars.WIKI_MAX_PUBCOMMENTS || '3' }}
       MAX_KANPO: ${{ github.event.inputs.max_kanpo || vars.WIKI_MAX_KANPO || '3' }}
@@ -127,11 +136,16 @@ jobs:
 
       - name: Plan
         id: plan
+        env:
+          HANREI_CASE_IDS: ${{ github.event.inputs.hanrei_case_ids }}
         run: |
+          if [ -n "$HANREI_CASE_IDS" ]; then
+            ./target/release/lawpub wiki-queue-hanrei --wiki wiki --case-ids "$HANREI_CASE_IDS"
+          fi
           ./target/release/lawpub wiki-plan \
             --wiki wiki --work .wiki-work \
             --max-items "$MAX_ITEMS" --max-bills "$MAX_BILLS" --max-pubcomments "$MAX_PUBCOMMENTS" --max-kanpo "$MAX_KANPO" \
-            --max-enforcements "$MAX_ENFORCEMENTS" --max-people "$MAX_PEOPLE" --max-roster "$MAX_ROSTER" --lookback-days "$LOOKBACK_DAYS"
+            --max-enforcements "$MAX_ENFORCEMENTS" --max-people "$MAX_PEOPLE" --max-roster "$MAX_ROSTER" --max-hanrei "$MAX_HANREI" --lookback-days "$LOOKBACK_DAYS"
           echo "tasks=$(jq '.tasks | length' .wiki-work/plan.json)" >> "$GITHUB_OUTPUT"
           cat .wiki-work/plan.md >> "$GITHUB_STEP_SUMMARY"
           echo '### 会議取り込みの状態（完了は finalize 後）' >> "$GITHUB_STEP_SUMMARY"

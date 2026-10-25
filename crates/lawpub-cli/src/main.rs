@@ -545,6 +545,15 @@ enum Cmd {
         #[arg(long, default_value = "public")]
         public: PathBuf,
     },
+    /// 指定した過去判例1〜10件だけをWikiの待ち行列に追加する。通常の新規取得基準は維持する。
+    WikiQueueHanrei {
+        #[arg(long, env = "WIKI_BASE_URL", default_value = "https://bokuweb.github.io/lawrenceanum")]
+        base_url: String,
+        #[arg(long, default_value = "wiki")]
+        wiki: PathBuf,
+        #[arg(long, value_delimiter = ',', required = true)]
+        case_ids: Vec<u64>,
+    },
     /// LLM wiki (OKF) の今日の対象会議を選び、ソースバンドルとページ雛形を作る。
     /// 法令リンクのある未処理会議を新しい順に最大 `--max-items` 件 (コスト上限)。
     WikiPlan {
@@ -1192,6 +1201,9 @@ fn main() -> Result<()> {
         Cmd::LinkBillAmendments { public } => linking::run_link_bill_amendments(&public),
         Cmd::LinkLawsAndHanrei { public } => linking::run_link_hanrei(&public),
         Cmd::BuildEnforcement { public } => enforcement::run_build(&public),
+        Cmd::WikiQueueHanrei { base_url, wiki, case_ids } => {
+            wiki::hanrei::queue_cases(&wiki::Source::new(&base_url)?, &wiki, &case_ids, &chrono::Utc::now().format("%Y-%m-%d").to_string())
+        }
         Cmd::WikiPlan { base_url, wiki, work, max_items, max_probes, lookback_days, today, max_bills, max_pubcomments, max_kanpo, max_people, max_roster, reiki_base_url, chunk_size, max_enforcements, max_hanrei } => {
             wiki::plan::run_plan(&wiki::plan::PlanArgs {
                 base_url,
