@@ -472,3 +472,82 @@ test("動きを抑える設定では Wiki の脚注へ即座に移動する", as
   expect(await page.evaluate(() => (window as any).__scrollBehaviors)).toContain("instant");
   await expect(page).toHaveURL(/#\/wiki\/meetings\/kokkai\/M1$/);
 });
+
+
+test("wiki のフィルター・検索語・タブ・表示範囲を URL に保存して復元する", async ({ page }) => {
+  await mock(page);
+  await page.goto(new URL("#/wiki?keep=value", BASE).toString());
+  await page.getByTestId("wiki-graph-budget").selectOption("500");
+  await page.getByRole("button", { name: "会議 1", exact: true }).click();
+  await page.getByLabel(/要約前（一覧だけ）のページも表示/).check();
+  await page.getByPlaceholder("タイトル・概要・タグで絞り込み（グラフにも効きます）").fill("予防接種法");
+  await page.getByRole("tab", { name: "一覧", exact: true }).click();
+  await expect(page).toHaveURL(/tab=list/);
+
+  const url = page.url();
+  const params = new URLSearchParams(new URL(url).hash.split("?")[1]);
+  expect(params.get("q")).toBe("予防接種法");
+  expect(params.get("types")?.split(",")).not.toContain("meeting");
+  expect(params.get("stubs")).toBe("1");
+  expect(params.get("tab")).toBe("list");
+  expect(params.get("budget")).toBe("500");
+  expect(params.get("keep")).toBe("value");
+
+  // ローカル設定が無い別のブラウザでも、URL だけから同じ状態に戻る。
+  await page.evaluate(() => localStorage.removeItem("wiki-show-stubs"));
+  await page.reload();
+  await expect(page.getByRole("tab", { name: "一覧", exact: true })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByPlaceholder("タイトル・概要・タグで絞り込み（グラフにも効きます）")).toHaveValue("予防接種法");
+  await expect(page.getByRole("button", { name: "会議 1", exact: true })).toHaveAttribute("aria-pressed", "false");
+  await expect(page.getByLabel(/要約前（一覧だけ）のページも表示/)).toBeChecked();
+  await expect(page.getByRole("button", { name: /予防接種法/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /参議院 厚生労働委員会 第1号/ })).toHaveCount(0);
+  await page.getByRole("tab", { name: "グラフ", exact: true }).click();
+  await expect(page.getByTestId("wiki-graph-budget")).toHaveValue("500");
+  await expect(page.getByTestId("wiki-graph-note")).toHaveText("「予防接種法」に一致 1 件とそのつながり、あわせて 1 件を表示");
+
+  await page.getByTestId("wiki-graph-budget").selectOption("Infinity");
+  await expect(page).toHaveURL(/budget=all/);
+  await page.reload();
+  await expect(page.getByTestId("wiki-graph-budget")).toHaveValue("Infinity");
+  await page.getByLabel(/要約前（一覧だけ）のページも表示/).uncheck();
+  await expect(page).toHaveURL(/stubs=0/);
+  await page.reload();
+  await expect(page.getByLabel(/要約前（一覧だけ）のページも表示/)).not.toBeChecked();
+});
+
+test("wiki の種類の全解除・全選択と検索解除を URL に反映する", async ({ page }) => {
+  await mock(page);
+  await page.goto(new URL("#/wiki?types=law&tab=list&q=予防接種法", BASE).toString());
+  const law = page.getByRole("button", { name: "法令 1", exact: true });
+  await law.click();
+  await expect(page).toHaveURL(/types=(&|$)/);
+  await page.reload();
+  await expect(law).toHaveAttribute("aria-pressed", "false");
+  await expect(page.getByText("該当するページはありません。", { exact: true })).toBeVisible();
+  const chips = page.locator("button[aria-pressed]");
+  for (const chip of await chips.all()) await chip.click();
+  expect(new URLSearchParams(new URL(page.url()).hash.split("?")[1]).has("types")).toBe(false);
+  await page.getByPlaceholder("タイトル・概要・タグで絞り込み（グラフにも効きます）").fill("");
+  expect(new URLSearchParams(new URL(page.url()).hash.split("?")[1]).has("q")).toBe(false);
+  await page.reload();
+  for (const chip of await chips.all()) await expect(chip).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: /参議院 厚生労働委員会 第1号/ })).toBeVisible();
+});
+
+test("wiki は URL の明示的な要約前の非表示を優先し、不正な値は既定に戻す", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("wiki-show-stubs", "on"));
+  await mock(page);
+  await page.goto(new URL("#/wiki?types=unknown&tab=unknown&budget=-1&stubs=0", BASE).toString());
+  await expect(page.getByRole("tab", { name: "グラフ", exact: true })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByTestId("wiki-graph-budget")).toHaveValue("250");
+  await expect(page.getByLabel(/要約前（一覧だけ）のページも表示/)).not.toBeChecked();
+  await expect(page.getByRole("button", { name: "法令 1", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: "会議 1", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await page.goto(new URL("#/wiki?types=law,unknown&tab=list", BASE).toString());
+  await expect(page.getByRole("button", { name: "会議 1", exact: true })).toHaveAttribute("aria-pressed", "false");
+  await expect(page.getByRole("button", { name: /予防接種法/ })).toBeVisible();
+  await page.goBack();
+  await expect(page.getByRole("button", { name: "会議 1", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("tab", { name: "グラフ", exact: true })).toHaveAttribute("aria-selected", "true");
+});
