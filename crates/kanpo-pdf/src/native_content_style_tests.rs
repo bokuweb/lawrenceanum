@@ -48,7 +48,7 @@ fn adding_source_class_evidence_does_not_change_legacy_xhtml_or_native_page() {
     }];
     let old = bbox_layout_with_aj1_sources(&sources);
     let mut new = bbox_layout_with_native_styles(&sources);
-    for attr in ["data-native-glyph-count", "data-native-flow-first-glyph", "data-native-flow-after-glyph", "data-native-flow-start", "data-native-flow-baseline", "data-native-flow-end", "data-native-flow-leading", "data-native-flow-trailing", "data-native-flow-prefix", "data-native-styles", "data-native-content-styles", "data-native-axis"] {
+    for attr in ["data-native-cell-origin", "data-native-glyph-count", "data-native-flow-first-glyph", "data-native-flow-after-glyph", "data-native-flow-start", "data-native-flow-baseline", "data-native-flow-end", "data-native-flow-leading", "data-native-flow-trailing", "data-native-flow-prefix", "data-native-styles", "data-native-content-styles", "data-native-axis"] {
         let needle = format!(" {attr}=\"");
         while let Some(start) = new.find(&needle) {
             let from = start + needle.len();

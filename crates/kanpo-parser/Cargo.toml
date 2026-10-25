@@ -10,6 +10,7 @@ publish.workspace = true
 
 [dependencies]
 anyhow.workspace = true
+icu_properties = "2.2.0"
 kanpo-pdf = { path = "../kanpo-pdf" }
 scraper.workspace = true
 serde.workspace = true

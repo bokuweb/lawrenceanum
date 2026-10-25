@@ -464,10 +464,11 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
                 .and_then(|source| crate::source_aj1::word_candidate(page, &word, source))
                 .map(|text| format!(" data-source-aj1-text=\"{}\"", escape(&text)))
                 .unwrap_or_default();
+            let cell_origin=if emit_styles{native_cell_origin::prove(page,&word).map(|o|format!(" data-native-cell-origin=\"2 {} {} {} {} {} {} {} {} {} {} {} {} {} {}\"",o.first,o.after,o.flow[0],o.flow[1],o.flow[2],o.flow[3],o.flow[4],o.flow[5],o.bounds[0],o.bounds[1],o.bounds[2],o.bounds[3],o.sizes[0],o.sizes[1])).unwrap_or_default()}else{String::new()};
             let resolved = if resolved_aj1_word(page, &word) { " data-unicode-aj1=\"1\"" } else { "" };
             let _ = writeln!(
                 s,
-                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}{axis}{ruling}{flow}{range}>{}</word>\n        </line>\n      </block>\n    </flow>",
+                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}{axis}{ruling}{flow}{range}{cell_origin}>{}</word>\n        </line>\n      </block>\n    </flow>",
                 escape(&word.text)
             );
         }
@@ -700,7 +701,7 @@ mod native_style_tests {
         let old = bbox_layout_with_aj1_sources(&sources);
         let mut new = bbox_layout_with_native_styles(&sources);
         assert_eq!(new.matches(" data-native-styles=\"").count(), 2);
-        for attr in ["data-native-glyph-count", "data-native-flow-first-glyph", "data-native-flow-after-glyph", "data-native-flow-start","data-native-flow-baseline","data-native-flow-end","data-native-flow-leading", "data-native-flow-trailing", "data-native-flow-prefix","data-native-styles", "data-native-content-styles", "data-native-axis", "data-native-ruling", "data-native-ink-xmin", "data-native-ink-ymin", "data-native-ink-xmax", "data-native-ink-ymax"] {
+        for attr in ["data-native-cell-origin", "data-native-glyph-count", "data-native-flow-first-glyph", "data-native-flow-after-glyph", "data-native-flow-start","data-native-flow-baseline","data-native-flow-end","data-native-flow-leading", "data-native-flow-trailing", "data-native-flow-prefix","data-native-styles", "data-native-content-styles", "data-native-axis", "data-native-ruling", "data-native-ink-xmin", "data-native-ink-ymin", "data-native-ink-xmax", "data-native-ink-ymax"] {
             let needle = format!(" {attr}=\"");
             while let Some(start) = new.find(&needle) {
                 let from = start + needle.len();
@@ -753,3 +754,5 @@ fn native_glyph_range(page:&Page,word:&Word)->Option<(usize,usize)>{
 #[cfg(test)]
 #[path="native_projected_flow_tests.rs"]
 mod native_projected_flow_tests;
+
+#[path="native_cell_origin.rs"]mod native_cell_origin;

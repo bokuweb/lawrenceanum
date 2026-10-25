@@ -3,7 +3,7 @@ use crate::native_word_axes::NativeAxis;
 fn bound(xml: &str) -> Vec<(String, NativeAxis, Option<crate::trace::NativeStyles>)> {
     let h = Html::parse_document(xml);
     let p = h.select(&Selector::parse("page").unwrap()).next().unwrap();
-    let (_, w, _, _, _, _, s, _, _, a, _, _, _ , _) = page_words_with_styles(p, 595., 842., None);
+    let (_, w, _, _, _, _, s, _, _, a, _, _, _ , _, _) = page_words_with_styles(p, 595., 842., None);
     w.into_iter()
         .enumerate()
         .map(|(i, w)| (w.raw, a[i], s[i].clone()))

@@ -1,0 +1,28 @@
+{
+  "original_pages": [
+    {
+      "id": "20260722g001620027",
+      "source_archive_path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-07-22/20260722g00162/20260722g001620027.pdf",
+      "PDF_sha256": "9e5895d9161dee588c5497fe7d2a94e793c5e00a3ce248235fe309c06c9dace3",
+      "scope": "Original same-baseline source gaps only. Full Analysis freezes reviewed target changes, not an independent full-page accuracy gold."
+    },
+    {
+      "id": "20260813h017670004",
+      "source_archive_path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-08-13/20260813h01767/20260813h017670004.pdf",
+      "PDF_sha256": "340f3d95015c45a7a630b9ce4fb24574a6c3174363edacc5acf0f0e46145b2b5",
+      "scope": "Original same-baseline source gaps only. Full Analysis freezes reviewed target changes, not an independent full-page accuracy gold."
+    },
+    {
+      "id": "20261013h018060004",
+      "source_archive_path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-10-13/20261013h01806/20261013h018060004.pdf",
+      "PDF_sha256": "6eda450d2f496e08aef244a1b7575a66e45defab6896cc62afcc05217db5369c",
+      "scope": "Original same-baseline source gaps only. Full Analysis freezes reviewed target changes, not an independent full-page accuracy gold."
+    }
+  ],
+  "synthetic_control": {
+    "PDF": "same-baseline-size-change.pdf",
+    "PDF_sha256": "bed16cf399ab38e0266b9d5e777b1cfeb72f85824e28307fea7ff4f6fa6b7157",
+    "reference": "same-baseline-size-change-native135.json",
+    "scope": "Constructed same-baseline font-size16/8 control; native TJ prefix0.125pt. Native135 baseline reviewed as logical ab; V7 incorrectly added a space; V8 must match full baseline."
+  }
+}

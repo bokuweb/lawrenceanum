@@ -387,15 +387,12 @@ fn actual_word_emission_reversal_keeps_article_membership_and_all_analysis_field
                 rest = &rest[end..];
             }
             words.reverse();
-            let doc = scraper::Html::parse_document(&p.xhtml);
-            let s = scraper::Selector::parse("page").unwrap();
-            let page = doc.select(&s).next().unwrap();
-            p.xhtml = format!(
-                "<doc><page width=\"{}\" height=\"{}\">{}</page></doc>",
-                page.value().attr("width").unwrap(),
-                page.value().attr("height").unwrap(),
-                words.join("")
-            );
+            // Reverse word emission only. Retain all original page provenance,
+            // including the native glyph count used to bind original ranges.
+            let start=p.xhtml.find("<page ").unwrap();
+            let end=start+p.xhtml[start..].find('>').unwrap();
+            let opening=p.xhtml[start..=end].to_owned();
+            p.xhtml=format!("<doc>{opening}{}</page></doc>",words.join(""));
         }
         let b = crate::analyze_item(&reversed);
         assert_eq!(

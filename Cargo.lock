@@ -1590,6 +1590,7 @@ name = "kanpo-parser"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "icu_properties",
  "insta",
  "kanpo-pdf",
  "reqwest",

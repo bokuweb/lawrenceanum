@@ -19,6 +19,53 @@
 
 use std::path::{Path, PathBuf};
 
+// The original HTML fixtures predate the additive cell-origin contract.
+// Keep their complete existing payload check. A regenerated fixture containing
+// the contract compares every byte, including the new metadata, as before.
+// Original glyph/envelope/font-size contracts are tested in kanpo-pdf.
+fn source_payload(actual: &str, expected: &str) -> String {
+    let needle = " data-native-cell-origin=\"";
+    if expected.contains(needle) {
+        return actual.to_owned();
+    }
+    let mut out = actual.to_owned();
+    while let Some(start) = out.find(needle) {
+        let value = start + needle.len();
+        let end = value
+            + out[value..]
+                .find('"')
+                .expect("closed cell origin attribute");
+        out.replace_range(start..=end, "");
+    }
+    out
+}
+
+#[test]
+fn source_metadata_versions_keep_all_existing_payload_checks() {
+    let historical = "<word xmin='10' data-native-axis='right'>a b</word>";
+    let current = historical.replace(
+        "data-native-axis",
+        "data-native-cell-origin=\"2 original envelope and sizes\" data-native-axis",
+    );
+    assert_eq!(source_payload(&current, historical), historical);
+    assert_eq!(
+        source_payload(&current, &current),
+        current,
+        "UPDATE_EXPECT output stays self-consistent"
+    );
+    for changed in [
+        current.replace("a b", "ab"),
+        current.replace("xmin='10'", "xmin='11'"),
+        current.replace("'right'", "'left'"),
+    ] {
+        assert_ne!(
+            source_payload(&changed, historical),
+            historical,
+            "existing text, geometry and source evidence remain checked"
+        );
+    }
+}
+
 fn cases() -> Vec<PathBuf> {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/corpus");
     let mut dirs: Vec<PathBuf> = std::fs::read_dir(&root)
@@ -54,8 +101,12 @@ fn corpus_matches_expected() {
                     let path = dir.join(&file);
                     if update {
                         std::fs::write(&path, actual).unwrap();
-                    } else if std::fs::read_to_string(&path).ok().as_ref() != Some(actual) {
-                        failures.push(format!("{name}/{file} が PDF から作ったものと違う（UPDATE_EXPECT=1 で作り直す）"));
+                    } else {
+                        let expected = std::fs::read_to_string(&path).ok();
+                        let compared = expected.as_deref().map(|e| source_payload(actual, e)).unwrap_or_else(|| actual.to_owned());
+                        if expected.as_deref() != Some(compared.as_str()) {
+                            failures.push(format!("{name}/{file} が PDF から作ったものと違う（UPDATE_EXPECT=1 で作り直す）"));
+                        }
                     }
                 }
                 Some(page)

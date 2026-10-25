@@ -713,3 +713,8 @@ mod native_atomic_column;
 mod native_caption_tiers;
 
 mod native_parallel_edits;
+
+mod native_cell_text;
+
+mod native_cell_origin;
+
