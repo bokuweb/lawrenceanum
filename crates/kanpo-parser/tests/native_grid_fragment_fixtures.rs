@@ -96,7 +96,7 @@ fn document_continuation_keeps_all_fifteen_records_in_six_columns() {
     }
 }
 #[test]
-fn unrelated_amendment_and_complete_right_table_stay_verbatim() {
+fn original_words_and_complete_right_table_stay_verbatim() {
     let a = original();
     let actual: serde_json::Value =
         serde_json::from_str(&serde_json::to_string(&a).unwrap()).unwrap();
@@ -104,7 +104,8 @@ fn unrelated_amendment_and_complete_right_table_stay_verbatim() {
         "data/native-grid-fragments/20260813h017670003-baseline130.json"
     ))
     .unwrap();
-    assert_eq!(actual["articles"][0], baseline["articles"][0]);
+    // Shared annotation ownership is checked against the source in
+    // shared_comparison_cell.rs; its native130 placement was incorrect.
     let table = |v: &serde_json::Value| {
         v["pages"][0]["regions"]
             .as_array()
@@ -125,7 +126,7 @@ fn complete_reviewed_analysis_is_a_regression_contract() {
     let actual: serde_json::Value =
         serde_json::from_str(&serde_json::to_string(&original()).unwrap()).unwrap();
     let expected: serde_json::Value = serde_json::from_str(include_str!(
-        "data/native-grid-fragments/20260813h017670003-reviewed131.json"
+        "data/shared-comparison-cell/20260813h017670003-reviewed138.json"
     ))
     .unwrap();
     assert_eq!(actual, expected);

@@ -1,0 +1,148 @@
+{
+  "issue": 227,
+  "stage": 105,
+  "native_candidate": 138,
+  "baseline_primary": "15ccebaab5326dcbf3dd6c005515e25a2bbe9e9d",
+  "scope": "Non-image comparison shared-cell ownership. Remove only the quarter-width eligibility heuristic; existing grid construction, geometric tolerances, and trailing-note recognition remain.",
+  "original": {
+    "page": "20260813h017670003",
+    "source": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-08-13/20260813h01767/20260813h017670003.pdf",
+    "PDF_sha256": "942339715dc0e1ba430020e8855628cdff65c1e4b58ad60cbe8523e45dfcca7a",
+    "current_primary": "15ccebaab5326dcbf3dd6c005515e25a2bbe9e9d"
+  },
+  "cause": {
+    "existing_grid_shared_strip_width": 31.143,
+    "old_quarter_width_limit": 18.75,
+    "physical_shared_note_row": [
+      143.964,
+      175.107
+    ],
+    "central_rule_ends_y": 143.965,
+    "rounding_note": "Existing projected rule coordinates differ0.001pt; no new epsilon added. Source grid already contains the spanning cell."
+  },
+  "production_dispatch": {
+    "new_page_ID_body_company_or_value_cases": false,
+    "new_fixed_character_or_line_or_point_thresholds": false,
+    "uses_existing_grid_topology": true
+  },
+  "regressions": {
+    "added_geometry_controls": 3,
+    "added_original_full_Analysis": 1,
+    "old_target_and_wide_control_failed": true,
+    "all_final_controls_passed": true,
+    "historical_assertions_updated": [
+      "crates/kanpo-parser/tests/native_grid_continuation_fixtures.rs",
+      "crates/kanpo-parser/tests/native_grid_fragment_fixtures.rs"
+    ],
+    "historical_JSON_bytes_preserved": true,
+    "all_814_existing_snapshots_unchanged": true,
+    "all_other_prior_test_inputs_exact": true,
+    "prefix3_review": {
+      "old_complete_page_exact_131_historical_reference": true,
+      "new_complete_Analysis_only_shared_row_relocation": true,
+      "unrelated2pages_exact": true
+    }
+  },
+  "native4_packages": {
+    "terminal": 0,
+    "source_manifest_sha256": "3ceb2ccd237747e7592834600d2a7d16f413924916f83d717ec19d850a5e4905",
+    "commands": 148,
+    "integration_targets": 139,
+    "passed": 3251,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 147,
+    "no_expected_snapshot_updates": true,
+    "all_commands_exit0": true
+  },
+  "cohorts": {
+    "single": {
+      "result": {
+        "mode": "single",
+        "items": 11992,
+        "changed": 1,
+        "changed_physical_pages": 1,
+        "source_inputs_reference_sources_binaries_prepost_exact": true,
+        "source_Word_raw_text_ID_geometry_changed_items": [],
+        "seconds": 525.677647333
+      },
+      "proofs": [
+        {
+          "key": "20260813h017670003",
+          "index": 0,
+          "whole_Analysis_exact_expected_single_row_relocation": true,
+          "all_Word_fields_including_status_exact": true,
+          "controlled_corruptions_rejected": 8
+        }
+      ],
+      "result_manifest_sha256": "aa0d43705473ff95958020ced0304ab7819749ff70b4b4ed40950bb7a567b492"
+    },
+    "whole": {
+      "result": {
+        "mode": "whole",
+        "items": 159,
+        "changed": 1,
+        "changed_physical_pages": 1,
+        "source_inputs_reference_sources_binaries_prepost_exact": true,
+        "source_Word_raw_text_ID_geometry_changed_items": [],
+        "seconds": 961.376933
+      },
+      "proofs": [
+        {
+          "key": "20260813h01767",
+          "index": 2,
+          "whole_Analysis_exact_expected_single_row_relocation": true,
+          "all_Word_fields_including_status_exact": true,
+          "controlled_corruptions_rejected": 8
+        }
+      ],
+      "result_manifest_sha256": "f90532b2cd6a0d28ab3c7da23b0540e4cd2af981665eac7f54789d6e1a94efb0"
+    }
+  },
+  "actual_debug_release_CLI": {
+    "runs": [
+      {
+        "profile": "debug",
+        "mode": "native",
+        "complete_text_matches_reviewed_Analysis": true,
+        "duplicate_Words": 0
+      },
+      {
+        "profile": "debug",
+        "mode": "legacy",
+        "complete_text_matches_reviewed_Analysis": true,
+        "duplicate_Words": 0
+      },
+      {
+        "profile": "release",
+        "mode": "native",
+        "complete_text_matches_reviewed_Analysis": true,
+        "duplicate_Words": 0
+      },
+      {
+        "profile": "release",
+        "mode": "legacy",
+        "complete_text_matches_reviewed_Analysis": true,
+        "duplicate_Words": 0
+      }
+    ],
+    "source_prepost_exact": true
+  },
+  "review": "Original physical source crop reviewed nonblind by implementing agent. Whole Analysis regression freezes reviewed target change; not independent full-page gold or a full-corpus accuracy grade.",
+  "remaining": [
+    "cross-wrap Latin word boundaries",
+    "encoding and PUA",
+    "other layouts, roles, and article ownership",
+    "fixed30 independent full regrading"
+  ],
+  "OCR": {
+    "opt_in": true,
+    "normal_parser_auto_OCR": false,
+    "engine": "NDLOCR",
+    "version": "0.0.15",
+    "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "image_only_and_hybrid_default_Analysis_regressions_retained": true
+  },
+  "additional_models": false,
+  "overall_goal_complete": false
+}

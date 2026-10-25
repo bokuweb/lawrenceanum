@@ -50,7 +50,7 @@ fn preceding_original_pages_do_not_leave_either_registration_grid_fragmented() {
     let actual: serde_json::Value =
         serde_json::from_str(&serde_json::to_string(page).unwrap()).unwrap();
     let reviewed: serde_json::Value = serde_json::from_str(include_str!(
-        "data/native-grid-fragments/20260813h017670003-whole-page-reviewed131.json"
+        "data/shared-comparison-cell/20260813h017670003-whole-page-reviewed138.json"
     ))
     .unwrap();
     assert_eq!(actual, reviewed);

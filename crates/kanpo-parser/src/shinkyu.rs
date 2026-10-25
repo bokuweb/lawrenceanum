@@ -872,13 +872,12 @@ impl ShinkyuLayout {
         // 枠の左端に、帯の境目の横線が届かず上下の帯をまたぐ細い欄（表の後ろの「備考」、数行）が
         // あり、その列が帯の境目をまたいでいれば（長い備考）、帯の中心で上下に分けると備考が割れる。
         // 欄の列はまとめて改正後の帯の終わりに置き（短い備考が改正後の帯に収まるときと同じ）、
-        // 欄の右の罫線を帯の左端にする。幅の広い欄（枠の中に組んだ次の記事など）は帯のまま扱う。
+        // 欄の右の罫線を帯の左端にする。セルが両帯をまたぐことは罫線の格子で判断し、
+        // 本文幅に対する割合では制限しない。共通セルの幅だけでは所属は変わらない。
         let left = frame.left();
         let mut note_right = left;
-        let max_width = (label_left - left) * 0.25;
         while let Some(c) = frame.cells.iter().find(|c| {
             (frame.xs[c.x0] - note_right).abs() < 1.0
-                && frame.xs[c.x1] - frame.xs[c.x0] <= max_width
                 && frame.ys[c.y0] < mid - 1.0
                 && frame.ys[c.y1] > mid + 1.0
         }) {
@@ -1698,3 +1697,7 @@ mod tests {
 #[cfg(test)]
 #[path = "leading_numeric_table_tests.rs"]
 mod leading_numeric_table_tests;
+
+#[cfg(test)]
+#[path="shared_cell_controls138.rs"]
+mod shared_cell_controls;
