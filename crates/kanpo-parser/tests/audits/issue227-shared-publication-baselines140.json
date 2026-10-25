@@ -1,0 +1,656 @@
+{
+  "issue": 227,
+  "stage": 107,
+  "native_candidate": 140,
+  "baseline_primary": "b2d7425dd56d06e1b7e10060240ded2bff815376",
+  "baseline_publication": "0fc1f591c46f18e66a54411c0b99661ad1f30d90",
+  "scope": "Non-image independent publication boundaries. Adjacent logical date/address fields on the same certified original horizontal baseline are not a reversal.",
+  "source_fact": [
+    {
+      "source_line": 64,
+      "Words": [
+        {
+          "Word": 112,
+          "raw": "令和８年８月３日",
+          "native_source_glyph_indices": [
+            1350,
+            1351,
+            1352,
+            1353,
+            1354,
+            1355,
+            1356,
+            1357
+          ],
+          "source_baselines": [
+            392.3357
+          ],
+          "source_font_vertical_modes": [
+            false
+          ]
+        }
+      ]
+    },
+    {
+      "source_line": 65,
+      "Words": [
+        {
+          "Word": 56,
+          "raw": "茨城県つくば市観音台３１１",
+          "native_source_glyph_indices": [
+            1358,
+            1359,
+            1360,
+            1361,
+            1362,
+            1363,
+            1364,
+            1365,
+            1366,
+            1367,
+            1368,
+            1369,
+            1370,
+            1371,
+            1372
+          ],
+          "source_baselines": [
+            392.3357
+          ],
+          "source_font_vertical_modes": [
+            false
+          ]
+        }
+      ]
+    }
+  ],
+  "production_rule": {
+    "all_Words_native_rightward_and_valid_Glyph_bounds": true,
+    "all_original_horizontal_baselines_present_finite_equal_and_within_Glyph_bounds": true,
+    "previous_right_edge_at_or_left_of_next_left_edge": true,
+    "legacy_strictly_downward_path_retained": true,
+    "existing_date_signature_title_style_scope_and_frame_grammar_retained": true,
+    "new_page_title_issuer_body_value_dispatch": false,
+    "new_character_line_point_distance_threshold": false,
+    "bbox_equality_fallback": false
+  },
+  "regressions": {
+    "added_unit_controls": 8,
+    "added_original_full_Analysis_tests": 7,
+    "actual_old_original_1_vs_2_RED_sha256": "dc8cbd9ae93fb180baecb2a5ef33b7ad080b078888fb7d6d6471cc8903b81b21",
+    "actual_old_baseline_controls_3_failed_5_passed_sha256": "72b552f140b2180786b961a867bec0a1acca8a2d56bd1956b23e4a166ac03837",
+    "all_8_new_controls_GREEN_sha256": "2e468cff384402075f4108eab802a108d1e23270073bf330f84065e57ec79f57",
+    "all_previous_test_inputs_unchanged": 2934,
+    "all_814_previous_snapshots_unchanged": true,
+    "automatic_snapshot_updates": false,
+    "frozen_original_outputs_are_independent_full_page_gold": false
+  },
+  "native4_packages": {
+    "terminal": 0,
+    "source_manifest_sha256": "64355f2f4e147a007afdf1440fb13d7a808ff50babb7ec614e46f81669d5df08",
+    "commands": 149,
+    "integration_targets": 140,
+    "passed": 3266,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 148,
+    "no_expected_snapshot_updates": true,
+    "all_commands_exit0": true
+  },
+  "cohorts": {
+    "single": {
+      "result": {
+        "mode": "single",
+        "items": 11992,
+        "changed": 7,
+        "changed_PageTrace_pages": 0,
+        "all_changed_items_PageTrace_exact": true,
+        "all_changed_items_full_text_exact": true,
+        "source_inputs_reference_sources_binaries_prepost_exact": true,
+        "source_Word_raw_text_ID_geometry_changed_items": [],
+        "seconds": 375.670291292
+      },
+      "all_canonical_Analysis_hash_manifest_sha256": "b365402967389e08d4ef3ced7988de5bd91b642e03e4c68074ccdd2f35b25c56",
+      "verified_partitions": [
+        {
+          "key": "20260803g001740089",
+          "cuts": [
+            {
+              "source_page": "20260803g001740089",
+              "page_index": 0,
+              "new_title_prefix": "国立研究開発法人農業・食品産業技術総合研究機構令和７年度",
+              "prior_document_format": "unknown",
+              "old_article_exact_ordered_partition": true,
+              "all_Document_text_styles_and_tables_exact": true
+            }
+          ],
+          "controlled_corruptions_rejected": [
+            "full_text",
+            "page_text",
+            "word_raw",
+            "word_status",
+            "word_geometry",
+            "article_text",
+            "document_format",
+            "document_text"
+          ]
+        },
+        {
+          "key": "20260806g001770058",
+          "cuts": [
+            {
+              "source_page": "20260806g001770058",
+              "page_index": 0,
+              "new_title_prefix": "企業年金基金変更公告",
+              "prior_document_format": "unknown",
+              "old_article_exact_ordered_partition": true,
+              "all_Document_text_styles_and_tables_exact": true
+            }
+          ],
+          "controlled_corruptions_rejected": [
+            "full_text",
+            "page_text",
+            "word_raw",
+            "word_status",
+            "word_geometry",
+            "article_text",
+            "document_format",
+            "document_text"
+          ]
+        },
+        {
+          "key": "20260825g001890072",
+          "cuts": [
+            {
+              "source_page": "20260825g001890072",
+              "page_index": 0,
+              "new_title_prefix": "令和７事業年度独立行政法人住宅金融支援機構の財務諸表に関",
+              "prior_document_format": "unknown",
+              "old_article_exact_ordered_partition": true,
+              "all_Document_text_styles_and_tables_exact": true
+            }
+          ],
+          "controlled_corruptions_rejected": [
+            "full_text",
+            "page_text",
+            "word_raw",
+            "word_status",
+            "word_geometry",
+            "article_text",
+            "document_format",
+            "document_text"
+          ]
+        },
+        {
+          "key": "20260831g001940057",
+          "cuts": [
+            {
+              "source_page": "20260831g001940057",
+              "page_index": 0,
+              "new_title_prefix": "独立行政法人日本貿易振興機構令和７事業年度財務諸表に関す",
+              "prior_document_format": "prose",
+              "old_article_exact_ordered_partition": true,
+              "all_Document_text_styles_and_tables_exact": true
+            }
+          ],
+          "controlled_corruptions_rejected": [
+            "full_text",
+            "page_text",
+            "word_raw",
+            "word_status",
+            "word_geometry",
+            "article_text",
+            "document_format",
+            "document_text"
+          ]
+        },
+        {
+          "key": "20260930g002160037",
+          "cuts": [
+            {
+              "source_page": "20260930g002160037",
+              "page_index": 0,
+              "new_title_prefix": "国立研究開発法人水産研究・教育機構令和７事業年度財務諸表",
+              "prior_document_format": "unknown",
+              "old_article_exact_ordered_partition": true,
+              "all_Document_text_styles_and_tables_exact": true
+            }
+          ],
+          "controlled_corruptions_rejected": [
+            "full_text",
+            "page_text",
+            "word_raw",
+            "word_status",
+            "word_geometry",
+            "article_text",
+            "document_format",
+            "document_text"
+          ]
+        },
+        {
+          "key": "20261016g002270058",
+          "cuts": [
+            {
+              "source_page": "20261016g002270058",
+              "page_index": 0,
+              "new_title_prefix": "独立行政法人国立美術館令和７事業年度財務諸表に関する公告",
+              "prior_document_format": "unknown",
+              "old_article_exact_ordered_partition": true,
+              "all_Document_text_styles_and_tables_exact": true
+            }
+          ],
+          "controlled_corruptions_rejected": [
+            "full_text",
+            "page_text",
+            "word_raw",
+            "word_status",
+            "word_geometry",
+            "article_text",
+            "document_format",
+            "document_text"
+          ]
+        },
+        {
+          "key": "20261016g002280645",
+          "cuts": [
+            {
+              "source_page": "20261016g002280645",
+              "page_index": 0,
+              "new_title_prefix": "国立大学法人奈良先端科学技術大学院大学令和７事業年度財務",
+              "prior_document_format": "unknown",
+              "old_article_exact_ordered_partition": true,
+              "all_Document_text_styles_and_tables_exact": true
+            }
+          ],
+          "controlled_corruptions_rejected": [
+            "full_text",
+            "page_text",
+            "word_raw",
+            "word_status",
+            "word_geometry",
+            "article_text",
+            "document_format",
+            "document_text"
+          ]
+        }
+      ]
+    },
+    "whole": {
+      "result": {
+        "mode": "whole",
+        "items": 159,
+        "changed": 11,
+        "changed_PageTrace_pages": 0,
+        "all_changed_items_PageTrace_exact": true,
+        "all_changed_items_full_text_exact": true,
+        "source_inputs_reference_sources_binaries_prepost_exact": true,
+        "source_Word_raw_text_ID_geometry_changed_items": [],
+        "seconds": 866.2978984590001
+      },
+      "all_canonical_Analysis_hash_manifest_sha256": "fc480fcc032a7343609be4144769678ad23abc9f6a55ed49753d593e983b11d7",
+      "verified_partitions": [
+        {
+          "key": "20260803g00174",
+          "cuts": [
+            {
+              "source_page": "20260803g001740089",
+              "page_index": 88,
+              "new_title_prefix": "国立研究開発法人農業・食品産業技術総合研究機構令和７年度",
+              "prior_document_format": "prose",
+              "old_article_exact_ordered_partition": true,
+              "all_Document_text_styles_and_tables_exact": true
+            }
+          ],
+          "controlled_corruptions_rejected": [
+            "full_text",
+            "page_text",
+            "word_raw",
+            "word_status",
+            "word_geometry",
+            "article_text",
+            "document_format",
+            "document_text"
+          ]
+        },
+        {
+          "key": "20260806g00177",
+          "cuts": [
+            {
+              "source_page": "20260806g001770058",
+              "page_index": 57,
+              "new_title_prefix": "企業年金基金変更公告",
+              "prior_document_format": "prose",
+              "old_article_exact_ordered_partition": true,
+              "all_Document_text_styles_and_tables_exact": true
+            }
+          ],
+          "controlled_corruptions_rejected": [
+            "full_text",
+            "page_text",
+            "word_raw",
+            "word_status",
+            "word_geometry",
+            "article_text",
+            "document_format",
+            "document_text"
+          ]
+        },
+        {
+          "key": "20260824g00188",
+          "cuts": [
+            {
+              "source_page": "20260824g001880084",
+              "page_index": 83,
+              "new_title_prefix": "原子力損害賠償・廃炉等支援機構令和７事業年度財務諸表に関する公告",
+              "prior_document_format": "unknown",
+              "old_article_exact_ordered_partition": true,
+              "all_Document_text_styles_and_tables_exact": true
+            }
+          ],
+          "controlled_corruptions_rejected": [
+            "full_text",
+            "page_text",
+            "word_raw",
+            "word_status",
+            "word_geometry",
+            "article_text",
+            "document_format",
+            "document_text"
+          ]
+        },
+        {
+          "key": "20260825g00189",
+          "cuts": [
+            {
+              "source_page": "20260825g001890072",
+              "page_index": 71,
+              "new_title_prefix": "令和７事業年度独立行政法人住宅金融支援機構の財務諸表に関",
+              "prior_document_format": "prose",
+              "old_article_exact_ordered_partition": true,
+              "all_Document_text_styles_and_tables_exact": true
+            }
+          ],
+          "controlled_corruptions_rejected": [
+            "full_text",
+            "page_text",
+            "word_raw",
+            "word_status",
+            "word_geometry",
+            "article_text",
+            "document_format",
+            "document_text"
+          ]
+        },
+        {
+          "key": "20260831g00194",
+          "cuts": [
+            {
+              "source_page": "20260831g001940057",
+              "page_index": 56,
+              "new_title_prefix": "独立行政法人日本貿易振興機構令和７事業年度財務諸表に関す",
+              "prior_document_format": "prose",
+              "old_article_exact_ordered_partition": true,
+              "all_Document_text_styles_and_tables_exact": true
+            }
+          ],
+          "controlled_corruptions_rejected": [
+            "full_text",
+            "page_text",
+            "word_raw",
+            "word_status",
+            "word_geometry",
+            "article_text",
+            "document_format",
+            "document_text"
+          ]
+        },
+        {
+          "key": "20260930g00216",
+          "cuts": [
+            {
+              "source_page": "20260930g002160037",
+              "page_index": 36,
+              "new_title_prefix": "国立研究開発法人水産研究・教育機構令和７事業年度財務諸表",
+              "prior_document_format": "prose",
+              "old_article_exact_ordered_partition": true,
+              "all_Document_text_styles_and_tables_exact": true
+            }
+          ],
+          "controlled_corruptions_rejected": [
+            "full_text",
+            "page_text",
+            "word_raw",
+            "word_status",
+            "word_geometry",
+            "article_text",
+            "document_format",
+            "document_text"
+          ]
+        },
+        {
+          "key": "20261001g00217",
+          "cuts": [
+            {
+              "source_page": "20261001g002170112",
+              "page_index": 111,
+              "new_title_prefix": "独立行政法人北方領土問題対策協会令和７事業年度財務諸表に",
+              "prior_document_format": "prose",
+              "old_article_exact_ordered_partition": true,
+              "all_Document_text_styles_and_tables_exact": true
+            }
+          ],
+          "controlled_corruptions_rejected": [
+            "full_text",
+            "page_text",
+            "word_raw",
+            "word_status",
+            "word_geometry",
+            "article_text",
+            "document_format",
+            "document_text"
+          ]
+        },
+        {
+          "key": "20261008g00222",
+          "cuts": [
+            {
+              "source_page": "20261008g002220054",
+              "page_index": 53,
+              "new_title_prefix": "国立研究開発法人国立がん研究センター令和７事業年度財務諸",
+              "prior_document_format": "prose",
+              "old_article_exact_ordered_partition": true,
+              "all_Document_text_styles_and_tables_exact": true
+            }
+          ],
+          "controlled_corruptions_rejected": [
+            "full_text",
+            "page_text",
+            "word_raw",
+            "word_status",
+            "word_geometry",
+            "article_text",
+            "document_format",
+            "document_text"
+          ]
+        },
+        {
+          "key": "20261016g00227",
+          "cuts": [
+            {
+              "source_page": "20261016g002270058",
+              "page_index": 57,
+              "new_title_prefix": "独立行政法人国立美術館令和７事業年度財務諸表に関する公告",
+              "prior_document_format": "prose",
+              "old_article_exact_ordered_partition": true,
+              "all_Document_text_styles_and_tables_exact": true
+            }
+          ],
+          "controlled_corruptions_rejected": [
+            "full_text",
+            "page_text",
+            "word_raw",
+            "word_status",
+            "word_geometry",
+            "article_text",
+            "document_format",
+            "document_text"
+          ]
+        },
+        {
+          "key": "20261016g00228",
+          "cuts": [
+            {
+              "source_page": "20261016g002280645",
+              "page_index": 644,
+              "new_title_prefix": "国立大学法人奈良先端科学技術大学院大学令和７事業年度財務",
+              "prior_document_format": "prose",
+              "old_article_exact_ordered_partition": true,
+              "all_Document_text_styles_and_tables_exact": true
+            }
+          ],
+          "controlled_corruptions_rejected": [
+            "full_text",
+            "page_text",
+            "word_raw",
+            "word_status",
+            "word_geometry",
+            "article_text",
+            "document_format",
+            "document_text"
+          ]
+        },
+        {
+          "key": "20261020g00230",
+          "cuts": [
+            {
+              "source_page": "20261020g002300059",
+              "page_index": 58,
+              "new_title_prefix": "独立行政法人国立女性教育会館令和７事業年度財務諸表に関す",
+              "prior_document_format": "unknown",
+              "old_article_exact_ordered_partition": true,
+              "all_Document_text_styles_and_tables_exact": true
+            }
+          ],
+          "controlled_corruptions_rejected": [
+            "full_text",
+            "page_text",
+            "word_raw",
+            "word_status",
+            "word_geometry",
+            "article_text",
+            "document_format",
+            "document_text"
+          ]
+        }
+      ]
+    }
+  },
+  "reviewed_original_new_boundaries": {
+    "20260803g001740089": {
+      "original_PDF_sha256": "7e1305cd08d3efe6602949ad606735d48078bf0d278db9e96111f1a5f6ef3ed3",
+      "rendered_original_sha256": "54550313d0615258b038848d70a7c05cf5ca02b1139d91ff908a0a76b37ab0e7",
+      "original_viewed": true,
+      "scope": "Independent new publication title, legal introduction, own date/rightward address and own signature; surrounding full-cell/character correctness is not graded",
+      "partial_remaining": false
+    },
+    "20260806g001770058": {
+      "original_PDF_sha256": "c654ea513b7ac30048d3d55704c1c0755bbc9b2b396a1fddaa887e60e82ff29d",
+      "rendered_original_sha256": "0bd60730cf26612253d294f841654652bf208906d4171e52bae223387faefa07",
+      "original_viewed": true,
+      "scope": "Independent new publication title, legal introduction, own date/rightward address and own signature; surrounding full-cell/character correctness is not graded",
+      "partial_remaining": true
+    },
+    "20260824g001880084": {
+      "original_PDF_sha256": "be268789e1185ad1e273affac6200597af358e1be745d9ccd668877b94c826c9",
+      "rendered_original_sha256": "f10fd52dc6d7778b8c5a62a2fb4a0e961e0e8cb0c68f1d24e28fa269e4fb8391",
+      "original_viewed": true,
+      "scope": "Independent new publication title, legal introduction, own date/rightward address and own signature; surrounding full-cell/character correctness is not graded",
+      "partial_remaining": false
+    },
+    "20260825g001890072": {
+      "original_PDF_sha256": "80a81536d4096154bc741e4330634a61137bcd7f146cf5206457c6251312036f",
+      "rendered_original_sha256": "d6b32f4c8128213abdc55032f2aa72fd0af4aacdbe121c80b6b57f9996ef4df1",
+      "original_viewed": true,
+      "scope": "Independent new publication title, legal introduction, own date/rightward address and own signature; surrounding full-cell/character correctness is not graded",
+      "partial_remaining": false
+    },
+    "20260831g001940057": {
+      "original_PDF_sha256": "8c75a4ed9c9a0e2388fe29710d261acd76eb3df8b0a8125514bf46a1e54b5e09",
+      "rendered_original_sha256": "29fb8d2cc4fbcb1ef6b4b3e59ce759bf89b8417fdd5db4c3607eaed82ae32f5a",
+      "original_viewed": true,
+      "scope": "Independent new publication title, legal introduction, own date/rightward address and own signature; surrounding full-cell/character correctness is not graded",
+      "partial_remaining": false
+    },
+    "20260930g002160037": {
+      "original_PDF_sha256": "ed2fdfcb382f085d9c441086319297eb91fdd86777412bc88945645e32e8ee29",
+      "rendered_original_sha256": "e9bacb2f4241f562a6f2cfe973d07927158286eac6af6a6c84df9e8f4706c3b7",
+      "original_viewed": true,
+      "scope": "Independent new publication title, legal introduction, own date/rightward address and own signature; surrounding full-cell/character correctness is not graded",
+      "partial_remaining": false
+    },
+    "20261001g002170112": {
+      "original_PDF_sha256": "3515663e8f9fec484f4bacbf42112cebbac547ac6589a55fe98f40ccecb5b641",
+      "rendered_original_sha256": "95ca9459c2c893ae08c5bd8fd727b60be5c3ac68d0a5bd2b4134ab0697f53810",
+      "original_viewed": true,
+      "scope": "Independent new publication title, legal introduction, own date/rightward address and own signature; surrounding full-cell/character correctness is not graded",
+      "partial_remaining": false
+    },
+    "20261008g002220054": {
+      "original_PDF_sha256": "7089b957c5135b2a0fffbaf8409e2b631ec2828b3ed22a9f301454ccbcfb046d",
+      "rendered_original_sha256": "35384cbf6dade308fd7d282261bab1d74a7a5b852ce50c82607292c26b420f34",
+      "original_viewed": true,
+      "scope": "Independent new publication title, legal introduction, own date/rightward address and own signature; surrounding full-cell/character correctness is not graded",
+      "partial_remaining": false
+    },
+    "20261016g002270058": {
+      "original_PDF_sha256": "484cdbf45e2587e62fc0d4fe0237f7de0e61e6b0da4b04b15d475e3b6c2fe557",
+      "rendered_original_sha256": "be99a8835a7875142354a08ef2fcc591b722947406835563a732042f8cb176fb",
+      "original_viewed": true,
+      "scope": "Independent new publication title, legal introduction, own date/rightward address and own signature; surrounding full-cell/character correctness is not graded",
+      "partial_remaining": false
+    },
+    "20261016g002280645": {
+      "original_PDF_sha256": "22ee2acd6b02a3bc8f8c28199c8073d8afc18747381df43597fd511c26a59d8d",
+      "rendered_original_sha256": "44c4add0abc96116e88dd815ebd428d030ec129e310654aa24ab44a87281572d",
+      "original_viewed": true,
+      "scope": "Independent new publication title, legal introduction, own date/rightward address and own signature; surrounding full-cell/character correctness is not graded",
+      "partial_remaining": false
+    },
+    "20261020g002300059": {
+      "original_PDF_sha256": "9cf40400d18b92da521fc9386c9876798f5874f16bd391c7d1ae368f71726591",
+      "rendered_original_sha256": "425e9b3de52ede4a476b9a0788fb03c0350dfb4cff2b4ff9c08b70805122ae31",
+      "original_viewed": true,
+      "scope": "Independent new publication title, legal introduction, own date/rightward address and own signature; surrounding full-cell/character correctness is not graded",
+      "partial_remaining": false
+    }
+  },
+  "guard_sha256": "b2fb79721aec81950512d5a2625c1c550e4ebb682232a2dcaad0e645b41cf78f",
+  "actual_CLI_scope": "No new debug/release CLI run claimed for140; prior138 CLI proof is retained separately. Complete native source PageTrace/full text and public analyze_item outputs are freshly compared here.",
+  "known_residual": {
+    "page": "20260806g001770058",
+    "original_independent_publications": 3,
+    "baseline_Articles": 1,
+    "candidate_Articles": 2,
+    "complete_3_article_test_still_RED_sha256": "5e5fce5e455f488833199eb3fc4d2fbe8b5dfb75b753497733acb7c89813e59f",
+    "new_boundary": "Prior financial continuation to pension publication",
+    "still_fused": "Later federation financial publication; its date/caption still precede its title in existing PageTrace",
+    "counted_as_whole_page_correct": false
+  },
+  "other_remaining": [
+    "Financial subtotal order on20260803g001740089",
+    "Source-review139 non-image table, section/role and courtcase ownership findings",
+    "other encoding/PUA and layout errors"
+  ],
+  "review_limits": "Implementing agent nonblind inspection of11 originals at changed boundaries, not all cells/characters or an independent full-corpus accuracy estimate. Native139 fixed30 grading remains frozen to138.",
+  "OCR": {
+    "opt_in": true,
+    "normal_parser_auto_OCR": false,
+    "engine": "NDLOCR",
+    "version": "0.0.15",
+    "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "new_inferences": 0,
+    "existing_image_only_and_hybrid_default_Analysis_tests_passed": true
+  },
+  "additional_models": false,
+  "overall_goal_complete": false
+}

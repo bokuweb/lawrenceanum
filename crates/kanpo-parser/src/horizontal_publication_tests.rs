@@ -505,3 +505,72 @@ fn an_existing_publication_body_before_the_new_title_still_requires_a_boundary()
     assert_eq!(result[0].len(), 2);
     assert_eq!(result[0][0].text, "以前の公表の本文。");
 }
+
+// A printed date/address row may be two logical Lines in the same source scope.
+fn split_header140(address: Rect) -> PageTrace {
+    let mut p = signed("任意団体支局公告第七号");
+    add(&mut p, "opaque address", address, 1, 8.);
+    let address = p.regions[0].lines.pop().unwrap();
+    p.regions[0].lines.insert(5, address);
+    p.native_horizontal_baselines=vec![None;p.words.len()];
+    p.native_horizontal_baselines[4]=Some(104.);
+    let id=p.words.len()-1;p.native_horizontal_baselines[id]=Some(104.);
+    refresh(&mut p);
+    p
+}
+#[test]
+fn shared_header140_two_disjoint_fields_on_one_native_row_are_not_a_reversal() {
+    assert_eq!(cuts(&split_header140([200.,100.,350.,108.]), &Default::default()), vec![1]);
+}
+#[test]
+fn shared_header140_overlapping_or_leftward_fields_are_not_one_ordered_row() {
+    for b in [[120.,100.,350.,108.],[10.,100.,40.,108.]] {
+        assert!(cuts(&split_header140(b), &Default::default()).is_empty());
+    }
+}
+#[test]
+fn shared_header140_source_baseline_handles_different_glyph_extents() {
+    for b in [[200.,100.,350.,109.],[200.,99.,350.,108.]] {
+        assert_eq!(cuts(&split_header140(b), &Default::default()),vec![1]);
+    }
+}
+#[test]
+fn shared_header140_missing_source_axis_or_bounds_cannot_use_legacy_coordinates() {
+    for b in [true,false] {
+        let mut p=split_header140([200.,100.,350.,108.]);let id=p.words.len()-1;
+        if b {p.native_bounds[id]=NativeBounds::Unknown;}else{p.native_axes[id]=NativeAxis::Unknown;}
+        assert!(cuts(&p,&Default::default()).is_empty());
+    }
+}
+#[test]
+fn shared_header140_opaque_address_content_font_is_not_date_or_signature_evidence() {
+    let mut p=split_header140([200.,100.,350.,108.]);let id=p.words.len()-1;p.native_content_styles[id]=ContentStyles::Unknown;
+    assert_eq!(cuts(&p,&Default::default()),vec![1]);
+}
+#[test]
+fn shared_header140_cannot_borrow_a_signature_across_a_source_region_boundary() {
+    let mut p=split_header140([200.,100.,350.,108.]);let lines=p.regions[0].lines.split_off(5);
+    p.regions.push(Region{role:Role::Body,unit:1,part:0,lines});refresh(&mut p);
+    assert!(cuts(&p,&Default::default()).is_empty());
+}
+
+#[test]
+fn shared_header140_absent_nonfinite_or_foreign_baseline_is_not_legacy_row_evidence() {
+    for baseline in [None,Some(f64::NAN),Some(103.)] {
+        let mut p=split_header140([200.,100.,350.,108.]);let id=p.words.len()-1;
+        p.native_horizontal_baselines[id]=baseline;
+        assert!(cuts(&p,&Default::default()).is_empty());
+    }
+    let mut p=split_header140([200.,100.,350.,108.]);p.native_horizontal_baselines.clear();
+    assert!(cuts(&p,&Default::default()).is_empty());
+}
+#[test]
+fn shared_header140_every_word_of_the_fragment_needs_the_same_source_baseline() {
+    let mut p=split_header140([200.,100.,350.,108.]);
+    let extra=add(&mut p,"extra",[351.,100.,370.,108.],1,8.);
+    p.native_horizontal_baselines.push(Some(103.));
+    let extra_line=p.regions[0].lines.pop().unwrap();
+    p.regions[0].lines[5].text.push_str(" extra");p.regions[0].lines[5].words.extend(extra_line.words);
+    assert_eq!(extra,p.words.len()-1);refresh(&mut p);
+    assert!(cuts(&p,&Default::default()).is_empty());
+}

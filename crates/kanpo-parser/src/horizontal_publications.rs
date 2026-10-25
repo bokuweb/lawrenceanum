@@ -297,6 +297,35 @@ fn officer(l: &SourceLine<'_>) -> bool {
         })
         && tokens.iter().skip(1).any(|t| nominal(t))
 }
+// Distinct logical Lines can be adjacent fields on one printed source row.
+// Require every original horizontal Word to certify the same finite baseline;
+// glyph-box top/bottom equality alone is not source baseline evidence.
+fn source_baseline(page: &PageTrace, line: &SourceLine<'_>) -> Option<f64> {
+    let mut baseline = None;
+    for &id in &line.ids {
+        let n = page.native_horizontal_baselines.get(id).copied().flatten()?;
+        let NativeBounds::Glyphs(b) = page.native_bounds.get(id)? else { return None };
+        if !n.is_finite() || (n as f32) < b[1] || (n as f32) > b[3]
+            || baseline.is_some_and(|prior| prior != n)
+        {
+            return None;
+        }
+        baseline = Some(n);
+    }
+    baseline
+}
+fn rightward_source_row(
+    page: &PageTrace,
+    previous: &SourceLine<'_>,
+    current: &SourceLine<'_>,
+    a: Rect,
+    b: Rect,
+) -> bool {
+    a[2] <= b[0]
+        && source_baseline(page, previous)
+            .zip(source_baseline(page, current))
+            .is_some_and(|(a, b)| a == b)
+}
 fn signed_notice(
     page: &PageTrace,
     rules: &PageRules,
@@ -306,6 +335,7 @@ fn signed_notice(
 ) -> bool {
     let mut date_evidence = None;
     let mut previous = lines[h.end - 1].bbox.unwrap();
+    let mut previous_line = &lines[h.end - 1];
     let mut block = h.rect;
     let mut right_edges = vec![];
     for l in &lines[h.end..end] {
@@ -314,7 +344,8 @@ fn signed_notice(
         };
         if l.line.table.is_some()
             || l.scope != lines[h.first].scope
-            || b[1] <= previous[1]
+            || (b[1] <= previous[1]
+                && !rightward_source_row(page, previous_line, l, previous, b))
             || b[0] >= block[2]
             || b[2] <= block[0]
             || closed_by_frame(rules, b)
@@ -339,6 +370,7 @@ fn signed_notice(
         }
         right_edges.push(b[2]);
         previous = b;
+        previous_line = l;
         block = union(block, b);
     }
     false
