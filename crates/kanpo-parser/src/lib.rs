@@ -699,3 +699,5 @@ mod native_paragraph_scope;
 mod amendment_quotes;
 
 mod native_column_flow;
+
+mod quoted_references;

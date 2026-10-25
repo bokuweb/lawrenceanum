@@ -111,7 +111,11 @@ fn cell_runs(lines: &[&str]) -> Vec<Run> {
 /// 次行が構造マーカー（`第○条` / 号（一・二…/イ・ロ…/数字）/ `（見出し）` / `別表` /
 /// `附則`）で始まる箇所だけ改行を残し、それ以外は連結して読みやすくする。
 fn join_wrapped_lines(lines: &[&str]) -> String {
-    let lines: Vec<&str> = lines.iter().map(|l| l.trim()).filter(|l| !l.is_empty()).collect();
+    let trimmed: Vec<&str> = lines.iter().map(|l| l.trim()).collect();
+    // Evidence uses original boundary spaces, before legacy rendering trims them.
+    let reference_breaks = crate::quoted_references::boundaries(lines);
+    let indices: Vec<usize> = trimmed.iter().enumerate().filter_map(|(i,l)|(!l.is_empty()).then_some(i)).collect();
+    let lines: Vec<&str> = indices.iter().map(|&i|trimmed[i]).collect();
     let mut out = String::new();
     for (idx, line) in lines.iter().enumerate() {
         let starts_line = out.is_empty() || out.ends_with('\n');
@@ -129,7 +133,8 @@ fn join_wrapped_lines(lines: &[&str]) -> String {
             // 短い列のあとの数は、1 列に 1 つずつ並べた地番（「四四三番二」「四四五番二」）などの区切り。
             let wrapped_number = fills_column(&lines, idx)
                 && (continues_number(line, lines[idx + 1]) || starts_reference(lines[idx + 1]) || continues_parenthetical(line, lines[idx + 1]));
-            if ends_sentence || around_table || after_note || (starts_structural_marker(lines[idx + 1]) && !mid_word && !wrapped_number) {
+            let reference = indices[idx].checked_add(1) == Some(indices[idx+1]) && reference_breaks.contains(&indices[idx]);
+            if ends_sentence || around_table || after_note || (starts_structural_marker(lines[idx + 1]) && !mid_word && !wrapped_number && !reference) {
                 out.push('\n');
             }
         }

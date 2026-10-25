@@ -10,7 +10,7 @@ fn original() -> Vec<PageInput> {
     .unwrap()
 }
 fn expected() -> Value {
-    serde_json::from_str(include_str!("data/native-column-flow/expected131-128.json")).unwrap()
+    serde_json::from_str(include_str!("data/quoted-references/20260930g002150131-expected129.json")).unwrap()
 }
 fn baseline() -> Value {
     serde_json::from_str(include_str!("data/native-column-flow/baseline131-126.json")).unwrap()
