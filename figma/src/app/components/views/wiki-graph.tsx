@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "react-router";
+import { parsePath, useSearchParams } from "react-router";
 import ForceGraph2D, { type ForceGraphMethods } from "react-force-graph-2d";
 import type { WikiGraph } from "../../data/api";
 import { WIKI_TYPES } from "./wiki-types";
@@ -48,8 +48,9 @@ export function WikiGraphCanvas({
   const requestedBudget = params.get("budget") === "all" ? Infinity : Number(params.get("budget"));
   const budget = GRAPH_BUDGETS.find(value => value === requestedBudget) ?? DEFAULT_BUDGET;
   const setBudget = (value: number) => {
-    setParams(prev => {
-      const next = new URLSearchParams(prev);
+    setParams(() => {
+      // 親のフィルター操作が描画待ちでも、その最新の URL を保持する。
+      const next = new URLSearchParams(parsePath(window.location.hash.slice(1)).search);
       if (value === DEFAULT_BUDGET) next.delete("budget");
       else next.set("budget", value === Infinity ? "all" : String(value));
       return next;

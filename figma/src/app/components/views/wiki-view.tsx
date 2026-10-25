@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router";
+import { Link, parsePath, useSearchParams } from "react-router";
 import { ArrowLeft, ExternalLink, Network, Search } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -90,8 +90,9 @@ function WikiHome({
   }, [stubs]);
 
   const updateParam = (key: string, value: string | null) => {
-    setParams(prev => {
-      const next = new URLSearchParams(prev);
+    setParams(() => {
+      // HashRouter の描画更新を待たず、直前の操作で更新された URL を引き継ぐ。
+      const next = new URLSearchParams(parsePath(window.location.hash.slice(1)).search);
       if (value === null) next.delete(key);
       else next.set(key, value);
       return next;

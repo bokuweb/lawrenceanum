@@ -482,6 +482,7 @@ test("wiki のフィルター・検索語・タブ・表示範囲を URL に保�
   await page.getByLabel(/要約前（一覧だけ）のページも表示/).check();
   await page.getByPlaceholder("タイトル・概要・タグで絞り込み（グラフにも効きます）").fill("予防接種法");
   await page.getByRole("tab", { name: "一覧", exact: true }).click();
+  await expect(page).toHaveURL(/tab=list/);
 
   const url = page.url();
   const params = new URLSearchParams(new URL(url).hash.split("?")[1]);
