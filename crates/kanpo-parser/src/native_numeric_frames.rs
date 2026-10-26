@@ -538,3 +538,11 @@ pub(crate) fn restore(
 #[cfg(test)]
 #[path = "native_numeric_frames_tests148.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path="native_numeric_matrix_tests152.rs"]
+mod matrix152_tests;
+
+#[path="native_numeric_matrix.rs"]
+mod matrix;
+pub(crate) use matrix::restore as restore_matrix;

@@ -2,6 +2,8 @@
 //! The frozen JSON preserves surrounding output; it is not a full-page gold.
 //! The pension example uses the later source-reviewed141 reference; the older
 //! reviewed140 output and its residual description remain as historical evidence.
+#[path = "support/native_numeric_matrix_contracts.rs"]
+mod matrix_contract;
 #[path = "support/native_numeric_frame_contracts.rs"]
 mod numeric_contract;
 
@@ -60,9 +62,22 @@ fn housing_financial_publication() {
     let a: serde_json::Value = serde_json::from_str(previous).unwrap();
     let b: serde_json::Value = serde_json::from_str(reviewed).unwrap();
     assert!(numeric_contract::reviewed_projection(&a, &b) > 0);
+    let current = include_str!("data/native-numeric-matrix/20260825g001890072-reviewed152.json");
+    let c: serde_json::Value = serde_json::from_str(current).unwrap();
+    let rules: serde_json::Value = serde_json::from_str(
+        &serde_json::to_string(
+            &kanpo_parser::page_rules(include_bytes!(
+                "data/shared-publication-row/20260825g001890072.pdf"
+            ))
+            .unwrap(),
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    assert_eq!(matrix_contract::reviewed_projection(&b, &c, &[rules]), 1);
     check(
         include_bytes!("data/shared-publication-row/20260825g001890072.pdf"),
-        reviewed,
+        current,
         "令和７事業年度独立行政法人住宅金融支援機構の財務諸表に関\nする公告",
     );
 }
@@ -76,11 +91,29 @@ source!(
     "20260930g002160037",
     "国立研究開発法人水産研究・教育機構令和７事業年度財務諸表\nに関する公告"
 );
-source!(
-    museum_financial_publication,
-    "20261016g002270058",
-    "独立行政法人国立美術館令和７事業年度財務諸表に関する公告"
-);
+#[test]
+fn museum_financial_publication() {
+    let previous: serde_json::Value = serde_json::from_str(include_str!(
+        "data/shared-publication-row/20261016g002270058-reviewed140.json"
+    ))
+    .unwrap();
+    let current = include_str!("data/native-numeric-matrix/20261016g002270058-reviewed152.json");
+    let reviewed: serde_json::Value = serde_json::from_str(current).unwrap();
+    let pdf = include_bytes!("data/shared-publication-row/20261016g002270058.pdf");
+    let rules: serde_json::Value = serde_json::from_str(
+        &serde_json::to_string(&kanpo_parser::page_rules(pdf).unwrap()).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(
+        matrix_contract::reviewed_projection(&previous, &reviewed, &[rules]),
+        1
+    );
+    check(
+        pdf,
+        current,
+        "独立行政法人国立美術館令和７事業年度財務諸表に関する公告",
+    );
+}
 source!(
     university_financial_publication,
     "20261016g002280645",

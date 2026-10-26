@@ -1,0 +1,418 @@
+{
+  "issue": 227,
+  "native_baseline": 151,
+  "stage": "native152",
+  "scope": "Complete original four-sided native frames with multiple numeric amount rails. Retain explicit blank physical slots and exact source cells; no OCR, Unicode restitution, arithmetic or financial hierarchy inference.",
+  "baseline_local": "cee4a86f6b158cf7ced7860198d06b5d31595e2e",
+  "baseline_publication": "e2d4e98d276efe9d42e62018d9486811a7a97a56",
+  "rules": [
+    "Exact original vertical intervals at identical x are unioned only when overlapping or touching. Actual gaps and nearby different x values are never rounded or bridged. Both original full horizontal caps and complete continuous sides are required.",
+    "Every used native word in the full frame has one original owner and complete finite rightward horizontal-flow/baseline evidence. All words of each source row share one exact original baseline and match its complete rendered payload. Unknown, repeated, orphan, crossing, typed-grid or comparison-scope evidence declines.",
+    "All rows of the same original ordinary source unit are contiguous and nonoverlapping. Labels and complete numeric suffixes retain exact original substrings and source-word order. Glyph rectangles inside one cell can overlap; their left bounds must progress and complete cell envelopes prove disjoint global gutters.",
+    "All exact numeric right edges are inspected. A connected graph of original same-row amount co-occurrences certifies their common matrix; disjoint complete label/amount column gaps and explicit empty physical slots are retained. No local easy fragment authorizes a larger unsupported parent.",
+    "Existing single-terminal-column logic is unchanged. Unclosed frames decline because another printed column or page can introduce additional amount rails that page-local evidence cannot establish."
+  ],
+  "no_new_dispatch": "No page/company/person/case-value/font-name/CID/PUA-code runtime dispatch; no fixed point tolerance, arbitrary character length or neighboring-row budget. Existing numeric and Roman-enumerator notation grammar is reused.",
+  "tdd": {
+    "new_unit_controls": 33,
+    "initial22_against151": {
+      "passed": 17,
+      "failed": 5
+    },
+    "final33_against_unadopted_v5": {
+      "passed": 31,
+      "failed": 2
+    },
+    "final_private_all_parser_units": {
+      "passed": 2609,
+      "failed": 0
+    },
+    "public_original_API9_against151": {
+      "passed": 5,
+      "failed": 4
+    },
+    "candidate_public_API9": {
+      "passed": 9,
+      "failed": 0
+    },
+    "independent_source_transcriptions": "Complete6x3and15x4matrices are manually transcribed and checked cell-by-cell. The37-row left expense column is retained as an independent literal source witness and an unresolved cross-column negative, not counted as restored.",
+    "additional_corruption_controls": 12,
+    "corruption_scope": "Original text/raw/geometry/owner duplication, empty-slot payloads, row-specific column cuts, removed or altered Document slots/spacing/styles, old opaque-table styles, document format and missing original rails must all fail the public projection contract."
+  },
+  "rejected_prototypes": [
+    {
+      "source": "20260910g002020088",
+      "failure": "A14-row top fragment ignored later amount columns because overlapping original collinear strokes were treated as separate parents. Native word/character/style preservation alone passed. Independent original rule/owner authority detected the same failure.",
+      "resolution": "Exact overlap/touch interval union; preserved source RED and generic overlapping/redundant/stroke-order/affine counterexamples."
+    },
+    {
+      "source": "20261016g002280121",
+      "failure": "An actual stroke gap could hide later amount rails in a larger parent. A same-page cap-bounded parent guard rejected it; the original and generic gap/unknown-continuation failures are retained.",
+      "resolution": "No missing line or proximity tolerance is invented."
+    },
+    {
+      "sources": [
+        "20260731g001730066",
+        "20261016g002280003"
+      ],
+      "failure": "Another printed column or following page introduces later amount columns. The initially proposed37-row/10-row local matrices were incomplete global schemes.",
+      "resolution": "Not adopted. Final scope requires fully closed physical source frames; complete priorAnalysis remains unchanged for these unresolved continuations."
+    }
+  ],
+  "singletons": {
+    "mode": "single",
+    "items": 11992,
+    "changed": 13,
+    "inputs_sources_binaries_exact": true,
+    "seconds": 291.723126542,
+    "scope": "Final private candidate footprint; all sources/binaries/originalPDFs frozen and validated. Not an independent accuracy percentage."
+  },
+  "whole_issues": {
+    "mode": "whole",
+    "items": 159,
+    "changed": 8,
+    "inputs_sources_binaries_exact": true,
+    "seconds": 709.110536167,
+    "scope": "Final private candidate footprint; all sources/binaries/originalPDFs frozen and validated. Not an independent accuracy percentage."
+  },
+  "preservation": {
+    "single": {
+      "mode": "single",
+      "changed_items": 13,
+      "failed_items": 0,
+      "failures": [],
+      "additional_tables": 17,
+      "additional_rows": 87,
+      "unrelated_ArticleAnalysis_exact": 3,
+      "scope": "Private source/matrix/document/notice preservation checks; not image approval or accuracy gold."
+    },
+    "whole": {
+      "mode": "whole",
+      "changed_items": 8,
+      "failed_items": 0,
+      "failures": [],
+      "additional_tables": 17,
+      "additional_rows": 87,
+      "unrelated_ArticleAnalysis_exact": 2437,
+      "scope": "Private source/matrix/document/notice preservation checks; not image approval or accuracy gold."
+    }
+  },
+  "source_preservation_contract": "All original Word fields/raw/text/ID/status/coordinates and occurrence order/multiplicity, page metadata and region role/unit/part are exact. Only complete primitive rows become source-owned matrices. All original cell payload characters/styles/ASCII/fullwidth gaps are preserved; only explicitly certified empty column slots add separators, and LF/table containers are projected. Existing opaque Document rows/cells/merges retain exact payload/order, including permitted adjacent table-container concatenation. All notices/source-span word streams, opaque nodes, ownership/scopes and other metadata remain. Article counts are unchanged.",
+  "independent_original_native_frame_authority": {
+    "single": {
+      "private": "private-v6",
+      "mode": "single",
+      "changed_items": 13,
+      "proposed_matrices": 17,
+      "failed_matrices": 0,
+      "scope": "Independent original Cargo151 PDF rule extraction: exact collinear interval union and complete original used-word inventory for each parent. No proximity tolerance or guessed source border."
+    },
+    "whole": {
+      "private": "private-v6",
+      "mode": "whole",
+      "changed_items": 8,
+      "proposed_matrices": 17,
+      "failed_matrices": 0,
+      "scope": "Independent original Cargo151 PDF rule extraction: exact collinear interval union and complete original used-word inventory for each parent. No proximity tolerance or guessed source border."
+    }
+  },
+  "source_review": {
+    "reviewer": "Implementing agent, nonblind",
+    "original_PDFs": 13,
+    "complete_closed_frames": 17,
+    "rows": 87,
+    "full_originals_additionally_viewed": [
+      "20260717g001600100",
+      "20260831g001940043",
+      "20260825g001890072",
+      "20261016g002270058",
+      "20261016g002280516"
+    ],
+    "counterexample_full_originals_viewed": [
+      "20260731g001730066",
+      "20260910g002020088",
+      "20261016g002280003",
+      "20261016g002280121"
+    ],
+    "frames": [
+      {
+        "page": "20260717g001600100",
+        "matrix": 0,
+        "rows": 6,
+        "cols": 3,
+        "source": ".cache/kanpo-archive/2026-07-17/20260717g00160/20260717g001600100.pdf",
+        "PDF_sha256": "53ba0e398a046dd2840a9e62d57da63fe7560a3a1396f4cd04a19ee380719efe",
+        "review": "Original closed-frame crop viewed; every proposed row/amount rail/blank-slot placement checked by implementing agent, nonblind. Full-frame vector/word certificate independently verified; not accuracy gold."
+      },
+      {
+        "page": "20260820g001860086",
+        "matrix": 0,
+        "rows": 4,
+        "cols": 3,
+        "source": ".cache/kanpo-archive/2026-08-20/20260820g00186/20260820g001860086.pdf",
+        "PDF_sha256": "86584141a8411b73c12e5ddd6d3e881f558f1824b3270ca0626c5bfa8395db53",
+        "review": "Original closed-frame crop viewed; every proposed row/amount rail/blank-slot placement checked by implementing agent, nonblind. Full-frame vector/word certificate independently verified; not accuracy gold."
+      },
+      {
+        "page": "20260825g001890072",
+        "matrix": 0,
+        "rows": 6,
+        "cols": 3,
+        "source": ".cache/kanpo-archive/2026-08-25/20260825g00189/20260825g001890072.pdf",
+        "PDF_sha256": "80a81536d4096154bc741e4330634a61137bcd7f146cf5206457c6251312036f",
+        "review": "Original closed-frame crop viewed; every proposed row/amount rail/blank-slot placement checked by implementing agent, nonblind. Full-frame vector/word certificate independently verified; not accuracy gold."
+      },
+      {
+        "page": "20260831g001940042",
+        "matrix": 0,
+        "rows": 4,
+        "cols": 3,
+        "source": ".cache/kanpo-archive/2026-08-31/20260831g00194/20260831g001940042.pdf",
+        "PDF_sha256": "2c555460f0b8a2f76b0a1167555e8ac9cd75f8e037f4356b734a1cce2f530392",
+        "review": "Original closed-frame crop viewed; every proposed row/amount rail/blank-slot placement checked by implementing agent, nonblind. Full-frame vector/word certificate independently verified; not accuracy gold."
+      },
+      {
+        "page": "20260831g001940043",
+        "matrix": 0,
+        "rows": 15,
+        "cols": 4,
+        "source": ".cache/kanpo-archive/2026-08-31/20260831g00194/20260831g001940043.pdf",
+        "PDF_sha256": "35dbe6884985018e61492b612747ef41391d73e18f80a62781fe6eea89c2c1a9",
+        "review": "Original closed-frame crop viewed; every proposed row/amount rail/blank-slot placement checked by implementing agent, nonblind. Full-frame vector/word certificate independently verified; not accuracy gold."
+      },
+      {
+        "page": "20260831g001940043",
+        "matrix": 1,
+        "rows": 4,
+        "cols": 3,
+        "source": ".cache/kanpo-archive/2026-08-31/20260831g00194/20260831g001940043.pdf",
+        "PDF_sha256": "35dbe6884985018e61492b612747ef41391d73e18f80a62781fe6eea89c2c1a9",
+        "review": "Original closed-frame crop viewed; every proposed row/amount rail/blank-slot placement checked by implementing agent, nonblind. Full-frame vector/word certificate independently verified; not accuracy gold."
+      },
+      {
+        "page": "20260831g001940061",
+        "matrix": 0,
+        "rows": 4,
+        "cols": 3,
+        "source": ".cache/kanpo-archive/2026-08-31/20260831g00194/20260831g001940061.pdf",
+        "PDF_sha256": "caea43692e2a461c60e60ca56005e492a75b3325dea9bf0c2dd8d8c846c135e6",
+        "review": "Original closed-frame crop viewed; every proposed row/amount rail/blank-slot placement checked by implementing agent, nonblind. Full-frame vector/word certificate independently verified; not accuracy gold."
+      },
+      {
+        "page": "20260918g002100050",
+        "matrix": 0,
+        "rows": 6,
+        "cols": 3,
+        "source": ".cache/kanpo-archive/2026-09-18/20260918g00210/20260918g002100050.pdf",
+        "PDF_sha256": "96c63390f70670de9766b011ef30d85960e3355aee32ceda61ceb7e06d385a5c",
+        "review": "Original closed-frame crop viewed; every proposed row/amount rail/blank-slot placement checked by implementing agent, nonblind. Full-frame vector/word certificate independently verified; not accuracy gold."
+      },
+      {
+        "page": "20261015g002260107",
+        "matrix": 0,
+        "rows": 4,
+        "cols": 3,
+        "source": ".cache/kanpo-archive/2026-10-15/20261015g00226/20261015g002260107.pdf",
+        "PDF_sha256": "c6900ba4dd778e4d3596eba4350a698e87346dbbc389d633bd079294d9c77909",
+        "review": "Original closed-frame crop viewed; every proposed row/amount rail/blank-slot placement checked by implementing agent, nonblind. Full-frame vector/word certificate independently verified; not accuracy gold."
+      },
+      {
+        "page": "20261016g002270058",
+        "matrix": 0,
+        "rows": 4,
+        "cols": 3,
+        "source": ".cache/kanpo-archive/2026-10-16/20261016g00227/20261016g002270058.pdf",
+        "PDF_sha256": "484cdbf45e2587e62fc0d4fe0237f7de0e61e6b0da4b04b15d475e3b6c2fe557",
+        "review": "Original closed-frame crop viewed; every proposed row/amount rail/blank-slot placement checked by implementing agent, nonblind. Full-frame vector/word certificate independently verified; not accuracy gold."
+      },
+      {
+        "page": "20261016g002270068",
+        "matrix": 0,
+        "rows": 4,
+        "cols": 3,
+        "source": ".cache/kanpo-archive/2026-10-16/20261016g00227/20261016g002270068.pdf",
+        "PDF_sha256": "726bc95e32bce207ed3f20e264ae6a0845f215e8a8eb50ca6b21119a1f4d0bef",
+        "review": "Original closed-frame crop viewed; every proposed row/amount rail/blank-slot placement checked by implementing agent, nonblind. Full-frame vector/word certificate independently verified; not accuracy gold."
+      },
+      {
+        "page": "20261016g002270068",
+        "matrix": 1,
+        "rows": 4,
+        "cols": 3,
+        "source": ".cache/kanpo-archive/2026-10-16/20261016g00227/20261016g002270068.pdf",
+        "PDF_sha256": "726bc95e32bce207ed3f20e264ae6a0845f215e8a8eb50ca6b21119a1f4d0bef",
+        "review": "Original closed-frame crop viewed; every proposed row/amount rail/blank-slot placement checked by implementing agent, nonblind. Full-frame vector/word certificate independently verified; not accuracy gold."
+      },
+      {
+        "page": "20261016g002270069",
+        "matrix": 0,
+        "rows": 4,
+        "cols": 3,
+        "source": ".cache/kanpo-archive/2026-10-16/20261016g00227/20261016g002270069.pdf",
+        "PDF_sha256": "9ede32aa68b319d3432759768ffa4b6391ea9cce1c07fadefb6f965eb6107b3e",
+        "review": "Original closed-frame crop viewed; every proposed row/amount rail/blank-slot placement checked by implementing agent, nonblind. Full-frame vector/word certificate independently verified; not accuracy gold."
+      },
+      {
+        "page": "20261016g002270069",
+        "matrix": 1,
+        "rows": 4,
+        "cols": 3,
+        "source": ".cache/kanpo-archive/2026-10-16/20261016g00227/20261016g002270069.pdf",
+        "PDF_sha256": "9ede32aa68b319d3432759768ffa4b6391ea9cce1c07fadefb6f965eb6107b3e",
+        "review": "Original closed-frame crop viewed; every proposed row/amount rail/blank-slot placement checked by implementing agent, nonblind. Full-frame vector/word certificate independently verified; not accuracy gold."
+      },
+      {
+        "page": "20261016g002270069",
+        "matrix": 2,
+        "rows": 5,
+        "cols": 3,
+        "source": ".cache/kanpo-archive/2026-10-16/20261016g00227/20261016g002270069.pdf",
+        "PDF_sha256": "9ede32aa68b319d3432759768ffa4b6391ea9cce1c07fadefb6f965eb6107b3e",
+        "review": "Original closed-frame crop viewed; every proposed row/amount rail/blank-slot placement checked by implementing agent, nonblind. Full-frame vector/word certificate independently verified; not accuracy gold."
+      },
+      {
+        "page": "20261016g002280202",
+        "matrix": 0,
+        "rows": 5,
+        "cols": 3,
+        "source": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280202.pdf",
+        "PDF_sha256": "d23c5e58e3c6094d5d82c3420121405b474dfc47acd05de292dbdb3c62474b96",
+        "review": "Original closed-frame crop viewed; every proposed row/amount rail/blank-slot placement checked by implementing agent, nonblind. Full-frame vector/word certificate independently verified; not accuracy gold."
+      },
+      {
+        "page": "20261016g002280516",
+        "matrix": 0,
+        "rows": 4,
+        "cols": 3,
+        "source": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280516.pdf",
+        "PDF_sha256": "47457c85ed3cdd73dc2f2d8568a69654f912fcd1e4b71c384bfee3ac303f3f06",
+        "review": "Original closed-frame crop viewed; every proposed row/amount rail/blank-slot placement checked by implementing agent, nonblind. Full-frame vector/word certificate independently verified; not accuracy gold."
+      }
+    ],
+    "claims": "Targeted frame/row/column correspondence; not independent full-page accuracy gold or new accuracy percentage. Unresolved continuations are retained as negative controls."
+  },
+  "legacy_expectations": {
+    "old147_140_148_149_JSON_TSV_PDF": "All retained. Three affected regression views append152 references and pass the full source/matrix/document projection before exact currentAnalysis checks; independent next-publication title/boundary assertions stay unchanged.",
+    "reviewed_updated_source_views": [
+      "20260717g001600100",
+      "20260825g001890072",
+      "20261016g002270058"
+    ],
+    "first_native_gate": {
+      "terminal": 1,
+      "commands": 2,
+      "integration_targets": 151,
+      "result_groups": 159,
+      "passed": 3717,
+      "failed": 1,
+      "ignored": 0,
+      "source_manifest_sha256": "6638c34465b50e762b4ea6027303a8ed5963b084b4f651cf373250c0f86f5d50",
+      "source_and_all_existing_test_inputs_prepost_exact": true,
+      "snapshot_updates_disabled": true
+    },
+    "first_failure": "Only the original516snapshot still encoded the profit frame as a plain paragraph. No runtime change after the failing gate; original image and exact whole-snapshot projection verified before accepting only that proposal.",
+    "snapshot_transition": {
+      "source": "20261016g002280516",
+      "original_frame_viewed": true,
+      "original_rows": 4,
+      "original_columns": 3,
+      "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261016g00228__20261016g002280516.pdf.snap",
+      "old_sha256": "b8b6aecf2a639d84418fdba44f7d875b976fbfd29bb54d257045435822e5a98b",
+      "new_sha256": "2219f3bac8fc7f9f0849b8c87d2e5dfcf51754ad07810af80a47f0167049f8f0",
+      "complete_snapshot_meta_body_and_document_projection_exact": true,
+      "scope": "Only certified empty source column slots and the4x3native table replace the old plain paragraph. CF/accounting/other payload bytes remain exact."
+    }
+  },
+  "native_gate": {
+    "terminal": 0,
+    "commands": 2,
+    "integration_targets": 151,
+    "result_groups": 159,
+    "passed": 3718,
+    "failed": 0,
+    "ignored": 0,
+    "source_manifest_sha256": "8f432b7a65ba9456c2c190d9b9f381c5305f20b20f23cbc1cd5d36e25a99796c",
+    "source_and_all_existing_test_inputs_prepost_exact": true,
+    "snapshot_updates_disabled": true
+  },
+  "actual_Cargo_CLI": {
+    "original_PDFs": 23,
+    "actual_Cargo_PDF_textdump": 23,
+    "actual_Cargo_XHTML_textdump": 23,
+    "actual_Cargo_text_example": 23,
+    "actual_Cargo_structured_docjson_singletons": 23,
+    "actual_Cargo_consecutive_three_page_docjson": 1,
+    "duplicate_word_reports": 0,
+    "source_and_binaries_prepost_exact": true,
+    "scope": "Actual Cargo debug examples on every152changed original plus10 source-scope/layout controls. Not full11992 CLI or release-mode validation.",
+    "actual_Cargo_library_full_Analysis_equal_private_v6": 23,
+    "metadata_correction": "The executed runner reused the old private_v2 result-field name. Its actual P=private-v6, frozen binaries/commands and compared152 outputs are unchanged; only this metadata name is corrected in this separate final artifact.",
+    "original_executed_result_sha256": "163da6ed0996a18c8fdc5837d8bd6fafda22503551fbcbdf38b77481c230f6e2",
+    "independent_all23_Analysis_word_owner_duplicate_checks": 23
+  },
+  "renderer": {
+    "command": "node figma/scripts/test-amend-document.mjs",
+    "passed": 7,
+    "failed": 0,
+    "evidence": "Successful tool execution recorded in this turn after2original fixture regressions were added. No renderer implementation change.",
+    "source_sha256": {
+      "figma/tests/amend-document.test.tsx": "dea1bb4ef40dcf91c976ceb6545e104da48beb36e57574ad8b933755b58b5239",
+      "figma/scripts/test-amend-document.mjs": "9ae3272228900a2f59ff87176f2e77ae5af6f83af8f17127e38ce01cacf823ec",
+      "figma/src/app/components/amend-document-view.tsx": "725008302543e5c9f89ef6bdba776038a9a273c3f1a34cf06dda02f1c91cf858",
+      "figma/src/app/components/ui/utils.ts": "d1f1e0d62cb8d8d1e04c26e14de842d8a151f75812d81b046c65b5d1fe8e4b27"
+    }
+  },
+  "runtime_source_equivalence": {
+    "private_v6_src_files": 244,
+    "byte_exact_after_explicit_module_path_rename": 242,
+    "rustfmt_code_exact": [
+      "native_numeric_matrix_tests152.rs",
+      "native_numeric_matrix.rs"
+    ],
+    "module_rename": "native_numeric_matrix152.rs/matrix152 -> native_numeric_matrix.rs/matrix; test-only reference updated. No algorithm/token changes.",
+    "private_matrix_sha256": "42136f3216245de2e42660ac607b84ce9a43afd0af84d09130c4dc87bf85c9ef",
+    "public_matrix_sha256": "3ce8bc110d04151e82d2dd1f7780eef7d6900be19871e6c588800ec926c91e8d"
+  },
+  "old_anchors_and_foreign": {
+    "all_prior_JSON_TSV_PDF_snapshots": 2838,
+    "changed_prior_files": [
+      "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261016g00228__20261016g002280516.pdf.snap"
+    ],
+    "existing_snapshots": 814,
+    "reviewed_snapshot_changes": 1,
+    "other813snapshots_byte_exact": true,
+    "all_old_JSON_TSV_PDF_byte_exact": true,
+    "all23_foreign_primary_files_exact": true
+  },
+  "limits": [
+    "Targeted implementing-agent nonblind frame/row/column review and source invariants; not independent full-page accuracy gold or a new accuracy percentage.",
+    "Unclosed/cross-column/page continuations, unsupported numbered or wrapped labels, missing-value glyphs, financial hierarchy, encoding/PUA and other article/table ownership problems remain. No arithmetic or inferred parent/child totals are inserted.",
+    "Images/outline-only bodies are not recovered. Fixed30-page139audit retains its native138grades; no100%claim.",
+    "ActualCargo debugCLI is23originals plus one actual3pagecontext; not full11992CLI or release validation."
+  ],
+  "OCR": {
+    "mode": "explicit opt-in only; unused",
+    "NDLOCR_version": "0.0.15",
+    "rev": "f97e930b8c3e9512f7788f258ef685da26416483"
+  },
+  "additional_models": "none",
+  "overall_goal_complete": false,
+  "evidence_files_sha256": {
+    "single-contracts-v6-152.json": "9be7dc7e822d718974d5044547864e6b6aca79df90e9eb3e4f518f5b946c6b1b",
+    "whole-contracts-v6-152.json": "0b59d040594201742be6156f60f88009f677af2420793a3c5b24860a04550a79",
+    "single-private-v6-native-authority152.json": "4538f5374a7d3253a5afeaaf88454d2f2270700a36dea708eda02961d7e856ee",
+    "whole-private-v6-native-authority152.json": "9cd133cba5fe4722d4f0efd31633f944a6011b65d1ba9b181d7c722cccc23877",
+    "runtime-source-equivalence152.json": "49c50dba22f8cb8b3d2517625cd81db73b42e3587409ac46cf2510c020327ac6",
+    "source-reviews-v6-152.json": "34f8090877e882568071f968654002776f68566f6ca5cfe4e1c1363bd66a6b20",
+    "reviewed-snapshot-transition152.json": "1e79250dcdf00b6d277b1beef80b6c6f9d5d342d86a0ed893acd225734d81c7e",
+    "native-gates-final152/result152.json": "1a465770495d1b1c53da2ccb6e800a2d0d8271d608622d905a10e63aacc73721",
+    "actual-CLI-result152.json": "163da6ed0996a18c8fdc5837d8bd6fafda22503551fbcbdf38b77481c230f6e2",
+    "actual-CLI-result152-final.json": "208fb1afda8b11549ceba61621f52ccd62cf0be85acd539518b966d407e9cbdc",
+    "shared-renderer-result152.json": "9400857101fe4147d9f2e5421d47c998271865cf5422579d8dc44947b369c386",
+    "old-anchors-and-foreign152.json": "4210c3099037327d14cf36afb1c831883c1383d3cb46969e64ee7d48637dfb65",
+    "final-source-integrity152.json": "08cc3b6b30659f7fea3af8185363ee538d79032c02dd967c661f60a9d589842c",
+    "public-tests/source-tests-151-final.log": "cdc6bb08928193516d2c3fb3aa748c199d7c1269fca25049da1a538dacdde083",
+    "public-tests/source-tests-152-v6.log": "13072257444614aa61fac19e0966b638ab8260e7304d2b9eb2b4ae6333ab40f8",
+    "final-controls-againstv5/final33-againstv5-RED152.log": "e7027713f9ae723619f6e378198d08b949d05a5145642f2213fe1f916917c193"
+  }
+}

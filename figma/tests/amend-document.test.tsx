@@ -4,6 +4,10 @@ import { strict as assert } from "node:assert";
 import { test } from "node:test";
 import { AmendDocumentView } from "../src/app/components/amend-document-view";
 import sourceCashFlow from "../../crates/kanpo-parser/tests/data/native-numeric-frames/renderer-document.json";
+import sourceProfitMatrix from "../../crates/kanpo-parser/tests/data/native-numeric-matrix/profit-document152.json";
+import sourceStatementMatrix from "../../crates/kanpo-parser/tests/data/native-numeric-matrix/statement-document152.json";
+import sourceProfitRows from "../../crates/kanpo-parser/tests/data/native-numeric-matrix/profit-source-6rows152.json";
+import sourceStatementRows from "../../crates/kanpo-parser/tests/data/native-numeric-matrix/statement-source-15rows152.json";
 
 const block = (labels?: { after: string; before: string }) => ({
   kind: "shinkyu" as const,
@@ -54,4 +58,32 @@ test("native source financial rows retain their own amounts in the shared render
   ]) {
     assert.equal(rows.filter((row) => row[0] === label && row[1] === amount).length, 1);
   }
+});
+
+
+const nativeDocumentRows = (doc: React.ComponentProps<typeof AmendDocumentView>["doc"]) => {
+  const html = renderToStaticMarkup(<AmendDocumentView doc={doc} />);
+  const rows = [...html.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/g)].map((match) =>
+    [...match[1].matchAll(/<td\b[^>]*>([\s\S]*?)<\/td>/g)].map((cell) => cell[1].replace(/<[^>]+>/g, "").replace(/\s/g, "")),
+  );
+  return { html, rows };
+};
+test("the backend source profit matrix keeps its blank amount column in the shared renderer", () => {
+  const doc = sourceProfitMatrix as React.ComponentProps<typeof AmendDocumentView>["doc"];
+  const { html, rows } = nativeDocumentRows(doc);
+  assert.equal((html.match(/<table\b/g) ?? []).length, 3);
+  assert.equal(rows.length, 16 + 6 + 41);
+  const first = rows.findIndex((row) => row.length === 3 && row[0] === "Ⅰ処分対象利益");
+  assert.ok(first >= 0);
+  assert.deepEqual(rows.slice(first, first + 6), sourceProfitRows);
+});
+test("the backend source statement retains three amount columns and the next independent matrix", () => {
+  const doc = sourceStatementMatrix as React.ComponentProps<typeof AmendDocumentView>["doc"];
+  const { html, rows } = nativeDocumentRows(doc);
+  assert.equal((html.match(/<table\b/g) ?? []).length, 2);
+  assert.equal(rows.length, 15 + 4);
+  assert.deepEqual(rows.slice(0, 15), sourceStatementRows);
+  assert.equal(rows[15].length, 3);
+  assert.deepEqual(rows[15], ["Ⅰ当期未処分利益", "", "0"]);
+  assert.deepEqual(rows[18], ["積立金", "0", "0"]);
 });

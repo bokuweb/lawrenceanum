@@ -1,6 +1,8 @@
 //! Original PDF controls for a source-certified terminal numeric column.
 //! Baseline147 JSON anchors unchanged material; it is not an accuracy oracle.
 use serde_json::Value;
+#[path = "support/native_numeric_matrix_contracts.rs"]
+mod matrix_contract;
 #[path = "support/native_numeric_frame_contracts.rs"]
 mod numeric_contract;
 use numeric_contract::{material, source_inventory};
@@ -156,9 +158,27 @@ fn original_expense_frame_is_not_limited_to_cash_flow_vocabulary() {
         && cell(t, 13, 1) == "256,579,627"));
 }
 #[test]
-fn original_profit_disposal_with_multiple_amount_lanes_is_unchanged() {
+fn original_profit_disposal_preserves_the_complete_source_matrix() {
     let key = "20260717g001600100";
-    assert_eq!(analyze(&[key]), baseline(key));
+    let old = baseline(key);
+    let actual = analyze(&[key]);
+    let reviewed: Value = serde_json::from_str(include_str!(
+        "data/native-numeric-matrix/20260717g001600100-reviewed152.json"
+    ))
+    .unwrap();
+    let rules: Value = serde_json::from_str(
+        &serde_json::to_string(
+            &kanpo_parser::page_rules(&std::fs::read(data(&format!("{key}.pdf"))).unwrap())
+                .unwrap(),
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    assert_eq!(
+        matrix_contract::reviewed_projection(&old, &reviewed, &[rules]),
+        1
+    );
+    assert_eq!(actual, reviewed);
 }
 #[test]
 fn original_expenses_with_multiple_amount_lanes_are_unchanged() {
