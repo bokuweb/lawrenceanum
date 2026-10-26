@@ -7,6 +7,7 @@ use std::collections::BTreeSet;
 
 pub const KIND: &str = "hanrei";
 pub const UNKNOWN: &str = "確認できる資料がありません。";
+pub const PROMPT_VERSION: &str = "hanrei-rag-v4";
 const INTAKE: &str = ".lawpub/hanrei-intake.json";
 
 /// 判例自身の引用を画面上の原文と照合するためのデータ。法令や別事件の引用は混ぜない。
@@ -61,6 +62,8 @@ struct Pending {
     next_attempt: Option<String>,
     #[serde(default)]
     selection_reason: String,
+    #[serde(default)]
+    refresh: bool,
 }
 
 impl Intake {
@@ -123,7 +126,7 @@ impl Intake {
     }
 }
 
-fn snapshot_path(wiki: &Path, id: u64) -> PathBuf {
+pub(crate) fn snapshot_path(wiki: &Path, id: u64) -> PathBuf {
     wiki.join(format!(".lawpub/hanrei-sources/{id}.json"))
 }
 
@@ -361,7 +364,7 @@ fn bundle(
     } else {
         "判決PDFの機械抽出本文・判示事項・裁判要旨"
     };
-    let mut result = json!({"kind":KIND,"case_id":id,"case":doc,"laws":laws,"excerpts":excerpts,"has_case_text":has_case_text,"scope":scope,"captured_on":today,"summary_format_version":3});
+    let mut result = json!({"kind":KIND,"case_id":id,"case":doc,"laws":laws,"excerpts":excerpts,"has_case_text":has_case_text,"scope":scope,"captured_on":today,"summary_format_version":4,"prompt_version":PROMPT_VERSION,"generation_model":std::env::var("WIKI_MODEL").unwrap_or_else(|_| "unknown".into())});
     result["summary_input"] = prompt_bundle(&result)["summary_input"].clone();
     result["source_fingerprint"] = json!(hex::encode(Sha256::digest(serde_json::to_vec(&result)?)));
     Ok(result)
@@ -461,6 +464,8 @@ fn write_page(wiki: &Path, source: &Source, bundle: &Value, first_seen: &str) ->
         ("date", json!(first_seen)),
         ("judged_on", doc["judged_on"].clone()),
         ("court", doc["court"].clone()),
+        ("case_number", doc["case_number"].clone()),
+        ("prompt_version", bundle["prompt_version"].clone()),
         ("resource", doc["detail_url"].clone()),
         (
             "laws",
@@ -508,6 +513,16 @@ fn write_page(wiki: &Path, source: &Source, bundle: &Value, first_seen: &str) ->
 
 /// Explicit, bounded historical intake. Never reset the normal new-case baseline.
 pub fn queue_cases(source: &Source, wiki: &Path, ids: &[u64], today: &str) -> Result<()> {
+    queue_cases_with_refresh(source, wiki, ids, today, false)
+}
+
+pub fn queue_cases_with_refresh(
+    source: &Source,
+    wiki: &Path,
+    ids: &[u64],
+    today: &str,
+    refresh: bool,
+) -> Result<()> {
     let selected: BTreeSet<_> = ids.iter().copied().collect();
     anyhow::ensure!(
         !selected.is_empty() && selected.len() <= 10,
@@ -537,15 +552,19 @@ pub fn queue_cases(source: &Source, wiki: &Path, ids: &[u64], today: &str) -> Re
         let path = wiki.join(format!("hanrei/{id}.md"));
         if path.exists() {
             let page = Page::read(&path)?;
-            if ready(&page) && source_matches(wiki, &page)? {
+            if !refresh && ready(&page) && source_matches(wiki, &page)? {
                 continue;
             }
+        }
+        if refresh {
+            intake.pending.remove(&id);
         }
         if let std::collections::btree_map::Entry::Vacant(entry) = intake.pending.entry(id) {
             entry.insert(Pending {
                 first_seen: today.into(),
                 status: "pending".into(),
                 origin: "manual".into(),
+                refresh,
                 ..Pending::default()
             });
             added += 1;
@@ -572,7 +591,7 @@ pub fn plan_tasks(
 const PRIORITY_LAWS: [&str; 3] = ["325AC0000000144", "337AC0000000139", "322AC0000000049"];
 
 /// 日付不明も最後に残す。和暦文字列をそのまま辞書順に並べない。
-fn case_date(case: &Value) -> String {
+pub(crate) fn case_date(case: &Value) -> String {
     let raw = case["judged_on"].as_str().unwrap_or("");
     let text: String = raw
         .chars()
@@ -869,6 +888,7 @@ pub fn plan_tasks_with_backfill(
         }
         let path = wiki.join(format!("hanrei/{id}.md"));
         if path.exists()
+            && !intake.pending.get(&id).is_some_and(|p| p.refresh)
             && Page::read(&path)
                 .is_ok_and(|p| ready(&p) && source_matches(wiki, &p).unwrap_or(false))
         {
@@ -881,7 +901,11 @@ pub fn plan_tasks_with_backfill(
             selection_reason: reason.clone(),
             ..Pending::default()
         });
-        let first_seen = pending.first_seen.clone();
+        let first_seen = Page::read(&path)
+            .ok()
+            .map(|p| p.get_str("date").to_string())
+            .filter(|s| !s.is_empty())
+            .unwrap_or_else(|| pending.first_seen.clone());
         if backfill {
             intake.daily.backfill_probes += 1;
             if reason == "corpus_cursor" {
@@ -923,6 +947,16 @@ pub fn plan_tasks_with_backfill(
         if bundle["has_case_text"] != true {
             pending.status = "no_case_text".into();
             continue;
+        }
+        // Keep both the previous page and its immutable source until finalize succeeds.
+        let backup = work.join(format!("hanrei-backups/{id}"));
+        if path.exists() && !backup.exists() {
+            std::fs::create_dir_all(&backup)?;
+            std::fs::copy(&path, backup.join("page.md"))?;
+            let previous_source = snapshot_path(wiki, id);
+            if previous_source.exists() {
+                std::fs::copy(previous_source, backup.join("source.json"))?;
+            }
         }
         let snapshot = snapshot_path(wiki, id);
         std::fs::create_dir_all(snapshot.parent().unwrap())?;
@@ -1011,6 +1045,9 @@ pub fn summary_errors(page: &Page) -> Vec<String> {
                 }
             ));
         }
+    }
+    if version >= 4 {
+        errors.extend(super::hanrei_rag::paragraph_errors(page));
     }
     errors
 }
@@ -1897,8 +1934,8 @@ mod tests {
         assert!(page.body.contains("../laws/L1.md"));
         let bundle: Value =
             serde_json::from_slice(&std::fs::read(work.join(&tasks[0].source)).unwrap()).unwrap();
-        assert_eq!(bundle["summary_format_version"], 3);
-        assert_eq!(page.get("summary_format_version"), Some(&json!(3)));
+        assert_eq!(bundle["summary_format_version"], 4);
+        assert_eq!(page.get("summary_format_version"), Some(&json!(4)));
         assert_eq!(bundle["laws"][0]["articles"], json!(["709"]));
         assert!(bundle["excerpts"]
             .as_array()
@@ -1998,7 +2035,7 @@ mod tests {
         let explanation = exported_case["hanrei_explanation"].as_str().unwrap();
         assert_eq!(
             exported_case["hanrei_citations"],
-            json!([{"label":"1","reference":"hanrei:5#holding","field":"holding","quote":"民法第709条による損害賠償請求について判断した。"}])
+            json!([{"label": exported_case["frontmatter"]["sources"][0]["id"],"reference":"hanrei:5#holding","field":"holding","quote":"民法第709条による損害賠償請求について判断した。"}])
         );
         let mut citations_page = Page::read(&wiki.join("hanrei/5.md")).unwrap();
         citations_page.body = format!("{LLM_BEGIN}\n[^1]: [hanrei:5#summary](https://example.com) 「裁判要旨の引用」\n[^2]: [hanrei:5#body](https://example.com) 「判決本文の引用」\n[^3]: [hanrei:6#holding](https://example.com) 「別事件の引用」\n[^4]: [hanrei:5#law-L1-709](https://example.com) 「条文の引用」\n{LLM_END}");
@@ -2010,7 +2047,7 @@ mod tests {
             ]
         );
         assert!(explanation.contains("## 要約\n"));
-        assert!(explanation.contains("[^1]: [hanrei:5#holding]"));
+        assert!(explanation.contains(&format!("[^{}]: [hanrei:5#holding]", exported_case["frontmatter"]["sources"][0]["id"].as_str().unwrap())));
         assert!(!explanation.contains("裁判所の公開情報（原文）"));
         assert!(!explanation.contains("共通する参照条文"));
         // ready なページでも固定資料との対応が壊れたら、一覧・本文・グラフから外す。
@@ -2099,6 +2136,71 @@ mod tests {
             std::fs::write(&path, wrong).unwrap();
             assert!(check::run_check(&check_args).is_err());
         }
+        std::fs::remove_dir_all(source.parent().unwrap()).unwrap();
+    }
+
+    #[test]
+    fn explicit_refresh_restores_old_page_and_snapshot_until_regeneration_succeeds() {
+        let (source, wiki, work) = fixture();
+        let src = Source::new(&source.display().to_string()).unwrap();
+        case(&source, 200);
+        queue_cases(&src, &wiki, &[200], "2026-10-24").unwrap();
+        let tasks = plan_tasks(&src, &wiki, &work, 1, 10, "2026-10-24").unwrap();
+        save_plan(&wiki, &work, &source, tasks.clone());
+        summarize(&wiki, &tasks[0]);
+        finalize::run_finalize(&finalize::FinalizeArgs {
+            wiki: wiki.clone(),
+            work: work.clone(),
+        })
+        .unwrap();
+        let path = wiki.join("hanrei/200.md");
+        let original = Page::read(&path).unwrap();
+        let snapshot = std::fs::read(snapshot_path(&wiki, 200)).unwrap();
+        assert!(ready(&original));
+        assert!(original
+            .get("sources")
+            .unwrap()
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|s| s["id"].as_str().unwrap().starts_with("src-")));
+        assert!(original.get("verified").is_none());
+        queue_cases(&src, &wiki, &[200], "2026-10-25").unwrap();
+        assert!(Intake::load(&wiki).unwrap().pending.is_empty());
+        queue_cases_with_refresh(&src, &wiki, &[200], "2026-10-25", true).unwrap();
+        let refresh_work = work.join("refresh");
+        let tasks = plan_tasks(&src, &wiki, &refresh_work, 1, 10, "2026-10-25").unwrap();
+        assert_eq!(tasks.len(), 1);
+        save_plan(&wiki, &refresh_work, &source, tasks);
+        let args = finalize::FinalizeArgs {
+            wiki: wiki.clone(),
+            work: refresh_work,
+        };
+        for _ in 0..2 {
+            finalize::run_finalize(&args).unwrap();
+            let restored = Page::read(&path).unwrap();
+            assert!(ready(&restored));
+            assert_eq!(
+                first_llm_block(&original.body),
+                first_llm_block(&restored.body)
+            );
+            assert_eq!(snapshot, std::fs::read(snapshot_path(&wiki, 200)).unwrap());
+            assert!(Intake::load(&wiki).unwrap().pending[&200].refresh);
+        }
+        let retry_work = work.join("retry");
+        let tasks = plan_tasks(&src, &wiki, &retry_work, 1, 10, "2026-10-26").unwrap();
+        save_plan(&wiki, &retry_work, &source, tasks.clone());
+        summarize(&wiki, &tasks[0]);
+        finalize::run_finalize(&finalize::FinalizeArgs {
+            wiki: wiki.clone(),
+            work: retry_work,
+        })
+        .unwrap();
+        let updated = Page::read(&path).unwrap();
+        assert!(ready(&updated));
+        assert!(Intake::load(&wiki).unwrap().pending.is_empty());
+        assert_eq!(updated.get_str("date"), original.get_str("date"));
+        assert_ne!(snapshot, std::fs::read(snapshot_path(&wiki, 200)).unwrap());
         std::fs::remove_dir_all(source.parent().unwrap()).unwrap();
     }
 

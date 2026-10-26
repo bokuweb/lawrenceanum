@@ -204,7 +204,9 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
                         && (task.kind != enforcements::KIND || enforcements::explanation_errors(&p).is_empty())
                         && (task.kind != hanrei::KIND
                             || (hanrei::summary_errors(&p).is_empty()
-                                && hanrei::source_matches(wiki, &p).unwrap_or(false)))
+                                && hanrei::source_matches(wiki, &p).unwrap_or(false)
+                                && hanrei_rag::planned_source_matches(&args.work, task, &p)
+                                && hanrei_rag::page_record(wiki, &p).is_ok()))
                         && (!matches!(task.kind.as_str(), KIND_KOKKAI | KIND_SHINGIKAI)
                             || std::fs::read(args.work.join(&task.source)).ok()
                                 .and_then(|bytes| serde_json::from_slice::<Value>(&bytes).ok())
@@ -235,6 +237,7 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
             completed.push(task.clone());
         } else if done && matches!(task.kind.as_str(), enforcements::KIND | hanrei::KIND) {
             let mut page = Page::read(&path)?;
+            if task.kind == hanrei::KIND { hanrei_rag::annotate(wiki, &mut page)?; }
             page.set("llm_source_fingerprint", page.get("source_fingerprint").cloned().unwrap_or(Value::Null));
             page.write(&path)?;
             completed.push(task.clone());
@@ -271,7 +274,14 @@ pub fn run_finalize(args: &FinalizeArgs) -> Result<()> {
         } else {
             tracing::warn!("wiki-finalize: {} は未完了 — 次回に再試行", task.key);
             rolled_back += 1;
-            if task.created.contains(&task.page) {
+            let backup = args.work.join(format!("hanrei-backups/{}", task.id));
+            if task.kind == hanrei::KIND && backup.join("page.md").exists() {
+                std::fs::copy(backup.join("page.md"), &path)?;
+                let snapshot = hanrei::snapshot_path(wiki, task.id.parse()?);
+                if backup.join("source.json").exists() {
+                    std::fs::copy(backup.join("source.json"), snapshot)?;
+                } else { std::fs::remove_file(snapshot).ok(); }
+            } else if task.created.contains(&task.page) {
                 std::fs::remove_file(&path).ok();
             }
         }

@@ -75,3 +75,35 @@ CLI の `--max-hanrei` または環境変数 `WIKI_MAX_HANREI` で1回の上限�
 - 公開中の判例97208と生活保護法の履歴をローカル入力にして実CLIを実行。判示事項の3条・8条2項、本文の改定期間2013〜2015年を抽出し、2016年以降の収録履歴では適用版を `unresolved`・`incomplete` とし、現在はそれとは別に古い順の最大3件を参考候補として表示する。
 
 生活保護法第3条・第8条に加え、行政事件訴訟法6条分・労働基準法5条分を公的資料の本文・改正注記から条単位で補完した。確認期間は法令ごとに限定し、全体版の特定とは区別して表示する。出典・判断方法・適用範囲は [補完資料の調査記録](historical-article-supplements.md) を参照。
+
+
+## OKF v0.2 と RAG 用の要約（形式4）
+
+正本は `wiki` ブランチの Markdown + YAML frontmatter（OKF）。
+[OKF v0.2](https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/main/SPEC.md)
+の `sources` に脚注ラベルと同じ安定 ID・原文 URL、`generated` に生成モデルと UTC 日時を保存する。
+引用照合は文章の意味の検証ではないため、`verified` は付けず `status: draft` とする。
+AI 要約・解説である旨と、公式要旨の区別を維持する。
+
+形式4では7節を単独で読める短い説明とし、各説明段落に判例原文の引用を必須とする。
+`rag` frontmatter は機械生成し、節単位のチャンク・段落単位の主張・根拠を同じ Markdown 内に残す。
+不明を示す定型文、共通の注意書き、脚注定義は検索本文に入れない。
+各チャンクの `retrieval_text` には事件名・裁判所・裁判日・節名を補う。
+
+`wiki-export` は追加で `hanrei-rag.jsonl`（1行1判例）と `hanrei-rag-manifest.json` を出力する。
+SQLite 等への取り込みはこの派生データを利用できる。今回 SQLite 同期は追加していない。
+
+- `document_id`: `lawrenceanum:hanrei:裁判所ID`。外部サービスの判例 ID への変換はしない。
+- `chunks[].id`: 判例 ID + 節キーの安定 ID。段落 ID は内容のハッシュを含む。
+- `content_hash` / `evidence_hash`: 本文と根拠の変更を別々に識別。取得日・生成日だけの変更では変わらない。
+- `evidence`: 引用元・URL・引用・全文 snapshot のハッシュ・原文の文字範囲。
+  位置は Unicode scalar の0始まり、終了位置は含まない。空白を除いて照合し、重複引用は
+  `match_count` と最大16箇所の `ranges` で示す。意味的な支持は `unverified`。
+- `relations` の `mentions_article`（条文への言及）と、`related_cases` の `shares_article`（共通の言及条文）を区別。
+  適用法条や先例関係は未確認のまま保持し、法令版候補・選定根拠・収録不足も渡す。
+- `source_scope` / `summary_input` / `provenance`: 全文の有無、LLMへの抜粋範囲、モデル・プロンプト版。
+- manifest: スキーマ版、件数、内容ハッシュ、Wiki commit。取り込み側で差分・削除を判定できる全件 snapshot。
+
+既存の判例を再生成するには、手動 workflow の `hanrei_case_ids`（最大10件）と
+`refresh_hanrei: true` を指定する。CLI は `wiki-queue-hanrei --refresh`。
+生成や原文照合に失敗した場合は、元のページと原資料 snapshot を復元し、再試行待ちにする。

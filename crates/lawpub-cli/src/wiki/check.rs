@@ -456,6 +456,11 @@ pub fn run_check(args: &CheckArgs) -> Result<()> {
             if !hanrei::source_matches(wiki, &page)? {
                 err(1, "判例ページの原資料・収録範囲・法令リンクが固定した資料と一致しません".into());
             }
+            if page.get("summary_format_version").and_then(Value::as_u64).unwrap_or(0) >= 4 {
+                if let Err(e) = hanrei_rag::check_metadata(wiki, &page) {
+                    err(1, format!("判例の OKF / RAG メタデータが不正です: {e:#}"));
+                }
+            }
         }
 
         // 要約から発言へのリンクは、検証済みの引用と同じ発言を指すこと (根拠の無いリンクを防ぐ)。

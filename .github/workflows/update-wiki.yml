@@ -28,6 +28,10 @@ on:
         description: "試験追加する過去判例ID（カンマ区切り、最大10件。空なら日次の自動選択）"
         required: false
         type: string
+      refresh_hanrei:
+        description: "指定した完了済み判例も最新の要約形式で再生成する（失敗時は復元）"
+        type: boolean
+        default: false
       max_hanrei:
         description: "1回で要約する判例の上限（新規・手動枠の既定3件、試験追加時は10などを指定）"
         required: false
@@ -168,9 +172,12 @@ jobs:
         id: plan
         env:
           HANREI_CASE_IDS: ${{ github.event.inputs.hanrei_case_ids }}
+          REFRESH_HANREI: ${{ github.event.inputs.refresh_hanrei }}
         run: |
           if [ -n "$HANREI_CASE_IDS" ]; then
-            ./target/release/lawpub wiki-queue-hanrei --wiki wiki --case-ids "$HANREI_CASE_IDS"
+            refresh_args=()
+            if [ "$REFRESH_HANREI" = "true" ]; then refresh_args+=(--refresh); fi
+            ./target/release/lawpub wiki-queue-hanrei --wiki wiki --case-ids "$HANREI_CASE_IDS" "${refresh_args[@]}"
           fi
           ./target/release/lawpub wiki-plan \
             --wiki wiki --work .wiki-work \
@@ -278,6 +285,7 @@ jobs:
               jq '{daily, pending: (.pending | length), statuses: ([.pending[].status] | group_by(.) | map({status: .[0], count: length}))}' wiki/.lawpub/hanrei-intake.json
               echo 'summary_incomplete は生成または引用検査の未完了。次の確認日以降に再試行します。'
             } >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Commit and push
         if: github.event.inputs.preview_hanrei != 'true'
