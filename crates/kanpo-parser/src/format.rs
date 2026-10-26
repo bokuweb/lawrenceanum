@@ -16,8 +16,7 @@ pub fn detect_format_of(text: &str) -> Option<String> {
 /// 改正前」）を新旧対照表と誤判定しないため。これによりフロントの表組み可否（独立見出し
 /// 行を要求する parseShinkyu）と判定が一致する。
 pub(crate) fn detect_format(text: &str) -> String {
-    let has_header = |label: &str| text.lines().any(|l| l.trim() == label);
-    if has_header("改正後") && has_header("改正前") {
+    if crate::comparison_labels::has_after_first_pair(text) {
         return "shinkyu".to_string();
     }
     if text.contains("に改める")

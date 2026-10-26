@@ -75,7 +75,7 @@ fn visit(units: &[Unit], mut f: impl FnMut(&[Line])) {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 f(preamble);
                 for lines in after.iter().chain(before).chain(outside) {
                     f(lines)
@@ -226,7 +226,7 @@ pub(crate) fn restore(
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 rewrite(preamble);
                 for lines in after.iter_mut().chain(before).chain(outside) {
                     rewrite(lines)

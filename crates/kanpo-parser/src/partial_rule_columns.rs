@@ -167,7 +167,7 @@ pub(crate) fn restore(
                 after,
                 before,
                 outside,
-            } => preamble
+            ..} => preamble
                 .iter()
                 .chain(after.iter().flatten())
                 .chain(before.iter().flatten())

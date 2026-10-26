@@ -445,7 +445,7 @@ fn lines(unit: &Unit) -> Vec<&Line> {
             after,
             before,
             outside,
-        } => preamble
+        ..} => preamble
             .iter()
             .chain(after.iter().flatten())
             .chain(before.iter().flatten())
@@ -459,7 +459,7 @@ fn pair_roots(unit: &Unit) -> Option<std::collections::HashMap<usize, bool>> {
         after,
         before,
         outside,
-    } = unit
+    ..} = unit
     else {
         return None;
     };

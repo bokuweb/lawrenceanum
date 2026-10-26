@@ -25,7 +25,7 @@ fn add(p: &mut PageTrace, text: &str, b: Rect, font: usize, size: f64) -> usize 
     id
 }
 fn empty() -> PageTrace {
-    PageTrace {native_horizontal_baselines:vec![],native_atomic_columns:vec![],
+    PageTrace {native_comparison_labels:vec![],native_horizontal_baselines:vec![],native_atomic_columns:vec![],
         width: 800.,
         height: 800.,
         layout: "horizontal",

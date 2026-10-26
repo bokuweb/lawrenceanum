@@ -31,6 +31,7 @@ fn trailing_change_frame_stays_with_its_notice_after_the_normal_tiers() {
     assert!(!a.articles[0].text.contains("変更した事項"));
     let notice = a.articles.iter().find(|x| x.text.contains("〇国土交通省告示第千百二号")).unwrap();
     for text in ["二変更した事項", "変更後", "変更前", "発光ダイオード", "白熱電灯"] {
-        assert!(notice.text.contains(text), "{}", notice.text);
+        let notice_compact: String = notice.text.chars().filter(|c| !c.is_whitespace()).collect();
+        assert!(notice_compact.contains(text), "{}", notice.text);
     }
 }

@@ -36,7 +36,7 @@ fn add(p: &mut PageTrace, text: &str, b: Rect, font: usize) {
     p.text = p.doc_text.clone();
 }
 fn fixture(case: &str, court: &str) -> PageTrace {
-    let mut p = PageTrace {native_horizontal_baselines:vec![],native_atomic_columns:vec![],
+    let mut p = PageTrace {native_comparison_labels:vec![],native_horizontal_baselines:vec![],native_atomic_columns:vec![],
         width: 600.,
         height: 800.,
         layout: "horizontal",

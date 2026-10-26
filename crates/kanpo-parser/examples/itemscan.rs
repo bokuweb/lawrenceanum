@@ -39,7 +39,7 @@ fn flags(doc: &Document) -> (String, Vec<String>) {
                     flags.push("label-in-paragraph".into());
                 }
             }
-            Block::Shinkyu { rows } => {
+            Block::Shinkyu { rows, .. } => {
                 if short_p_between {
                     flags.push("S-shortP-S".into());
                 }

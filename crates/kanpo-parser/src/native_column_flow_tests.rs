@@ -181,7 +181,7 @@ fn intervening_blank_table_or_role_boundary_holds() {
                     }),
                 }])
             } else {
-                Unit::Shinkyu {
+                Unit::Shinkyu {labels:None,
                     preamble: vec![],
                     after: vec![],
                     before: vec![],

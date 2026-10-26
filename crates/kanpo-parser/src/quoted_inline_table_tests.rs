@@ -3,7 +3,7 @@ use crate::quoted_inline_tables as candidate;
 use crate::trace::{Line, Table, TableCell, Unit, Word, WordStatus};
 include!("quoted_inline_table_shape_fixture.rs");
 fn state(u: &[Unit]) -> String {
-    serde_json::to_string(&u.iter().map(|v|match v{Unit::Plain(l)=>serde_json::json!({"plain":l}),Unit::Shinkyu{preamble,after,before,outside}=>serde_json::json!({"preamble":preamble,"after":after,"before":before,"outside":outside})}).collect::<Vec<_>>()).unwrap()
+    serde_json::to_string(&u.iter().map(|v|match v{Unit::Plain(l)=>serde_json::json!({"plain":l}),Unit::Shinkyu{preamble,after,before,outside,..}=>serde_json::json!({"preamble":preamble,"after":after,"before":before,"outside":outside})}).collect::<Vec<_>>()).unwrap()
 }
 fn plain(u: &mut Unit) -> &mut Vec<Line> {
     let Unit::Plain(l) = u else { panic!() };
@@ -563,7 +563,7 @@ fn two_independent_physical_continuations_are_repaired_once_each() {
 fn a_new_old_role_boundary_is_never_crossed() {
     let (mut u, w, r) = sample();
     let ls = plain(&mut u[1]).clone();
-    u[1] = Unit::Shinkyu {
+    u[1] = Unit::Shinkyu {labels:None,
         preamble: vec![],
         after: vec![ls],
         before: vec![],

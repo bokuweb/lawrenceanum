@@ -67,7 +67,7 @@ fn typed(d: &Document, a: bool) -> Option<Typed> {
         cells: vec![],
     };
     for (bi, b) in d.blocks.iter().enumerate() {
-        if let Block::Shinkyu { rows } = b {
+        if let Block::Shinkyu { rows ,..} = b {
             for (ri, r) in rows.iter().enumerate() {
                 let start = out.atoms.len();
                 run_atoms(runs(r, a), &mut out.atoms)?;
@@ -88,7 +88,7 @@ fn typed(d: &Document, a: bool) -> Option<Typed> {
 fn material(d: &Document, a: bool) -> Option<Vec<Material>> {
     let mut out = vec![];
     for b in &d.blocks {
-        if let Block::Shinkyu { rows } = b {
+        if let Block::Shinkyu { rows ,..} = b {
             for r in rows {
                 for run in runs(r, a) {
                     if let Some(t) = &run.table {
@@ -581,7 +581,7 @@ fn structural_plan(
         if start <= cell.start || start >= cell.end {
             continue;
         }
-        let Block::Shinkyu { rows } = &d.blocks[cell.block] else {
+        let Block::Shinkyu { rows ,..} = &d.blocks[cell.block] else {
             continue;
         };
         let Some(preceding) = slice(runs(&rows[cell.row], after), 0, start - cell.start) else {
@@ -620,7 +620,7 @@ fn structural_plan(
 }
 fn apply_structural(d: &Document, p: StructuralPlan) -> Option<Document> {
     let mut next = d.clone();
-    let Block::Shinkyu { rows } = next.blocks.get_mut(p.block)? else {
+    let Block::Shinkyu { rows ,..} = next.blocks.get_mut(p.block)? else {
         return None;
     };
     let old = rows.get(p.row)?;
@@ -740,7 +740,7 @@ fn slice(rs: &[Run], start: usize, end: usize) -> Option<Vec<Run>> {
 }
 fn apply(d: &Document, p: Plan) -> Option<Document> {
     let mut next = d.clone();
-    let Block::Shinkyu { rows } = next.blocks.get_mut(p.block)? else {
+    let Block::Shinkyu { rows ,..} = next.blocks.get_mut(p.block)? else {
         return None;
     };
     let old = runs(rows.get(p.row)?, p.after);
@@ -792,7 +792,7 @@ fn outline_prefix(rs: &[Run]) -> bool {
 }
 fn relevant(d: &Document) -> bool {
     d.blocks.iter().any(|b| {
-        if let Block::Shinkyu { rows } = b {
+        if let Block::Shinkyu { rows ,..} = b {
             rows.iter().any(|r| {
                 outline_prefix(&r.after)
                     || outline_prefix(&r.before)

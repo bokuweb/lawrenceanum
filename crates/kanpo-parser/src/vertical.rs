@@ -72,6 +72,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     let mut table_count = 0usize;
     // 前のページが新旧対照表で終わったか（表の続きのページの判定に使う）。
     let mut prev_table = false;
+    let mut prev_comparison_labels=None;
     // 前のページの、改正後・改正前の列の組が横に並ぶ新旧対照表の列の幅。
     let mut prev_pairs: Option<f32> = None;
     // 前のページが横書きの 2 列の新旧対照表か。
@@ -83,6 +84,8 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     for (pi, page) in doc.select(&page_sel).enumerate() {
         let (width, height) = page_size(page);
         let ((cols, mut words, rotated, sideways, merged, minus, native_styles, native_bounds, native_content_styles, native_axes, native_rulings, inline_merged, native_flows, projected_flows, cell_origins),advance_bands) = page_words_with_styles_and_bands(page, width, height, rules.get(pi).and_then(|r| r.as_ref()));
+        let native_header_words:std::collections::HashSet<_>=crate::comparison_labels::headers(&cols).into_iter().flat_map(|h|h.words).collect();
+        let explicit_comparison_label=!native_header_words.is_empty() || !shinkyu_labels(&cols,'後').is_empty() || !shinkyu_labels(&cols,'前').is_empty();
         // 負の金額の印「△」を付ける語の字（組んだ後で行の中の位置を探す）。
         let word_texts: std::collections::HashMap<usize, String> = if minus.is_empty() { Default::default() } else { cols.iter().map(|c| (c.id, c.text.clone())).collect() };
         // 長い区切り罫の右側の横統計表は元の向きで読み、縦本文の段切りから外す。
@@ -119,6 +122,14 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             .iter()
             .map(|g| cols.iter().filter(|c| g.contains((c.x + c.x1) / 2.0, (c.y + c.y1) / 2.0, 0.5)).map(|c| c.id).collect())
             .collect();
+        let independent_vertical_plans=if !rotated&&!sideways{
+            crate::comparison_labels::field_frames(&cols,&grids).map(|frames|grids.iter()
+                .filter(|g|g.cells.len()>=2&&!grids.iter().any(|o|g.encloses(o)))
+                .filter(|g|crate::comparison_labels::independent_table((g.left(),g.right(),g.top(),g.bottom()),&frames))
+                .filter(|g|vertical_inside(&cols,g)&&!prose_cells(&cols,g))
+                .map(|g|(g.clone(),cols.iter().filter(|c|g.contains((c.x+c.x1)*0.5,(c.y+c.y1)*0.5,0.5)).cloned().collect()))
+                .collect::<Vec<_>>()).unwrap_or_default()
+        }else{Vec::new()};
         let mut layout = "tiers";
         let mut units: Vec<Unit> = Vec::new();
         // 回転ページ（柱が左端帯にある）は、テキスト層が柱だけでも横組みとして扱う。
@@ -238,7 +249,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                     }
                     lines
                 };
-                let unit = Unit::Shinkyu {
+                let unit = Unit::Shinkyu {labels:None,
                     // 欄見出しより上（前の記事の表の続きが上にあるページも）も罫線の表を組んで読む。
                     preamble: {
                         let pre_geom = pre.clone();
@@ -519,7 +530,10 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             }
             if let Some(rules)=rules.get(pi).and_then(|r|r.as_ref()){crate::native_grid_fragments::restore(&mut units,&words,&native_bounds,&native_axes,rules,width,height);}
             let native_atomic_columns=crate::native_atomic_column::restore(&mut units,&words,&native_bounds,&native_axes,&native_flows,rules.get(pi).and_then(|r|r.as_ref()));
-            crate::native_cell_text::restore(&mut units,&words,&native_bounds,&cell_origins);
+            crate::native_grid_fragments::restore_independent_vertical(&mut units,&independent_vertical_plans,&words,&native_bounds,&native_axes,&native_styles,&projected_flows);
+        crate::native_cell_text::restore(&mut units,&words,&native_bounds,&cell_origins);
+            if prev_table {crate::comparison_labels::inherit(&mut units,prev_comparison_labels,explicit_comparison_label);}
+            prev_comparison_labels=match units.last(){Some(Unit::Shinkyu{labels,..})=>*labels,_=>None};
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
@@ -529,10 +543,12 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             let native_carry = native_restored.applied
                 && native_restored.continues
                 && matches!(units.last(), Some(Unit::Shinkyu { .. }));
-            let mut regions: Vec<_> = units.into_iter().enumerate().flat_map(|(i, u)| u.regions(i)).collect();
+            let native_comparison_labels=units.iter().map(|u|match u{Unit::Shinkyu{labels,..}=>*labels,_=>None}).collect();
+        let mut regions: Vec<_> = units.into_iter().enumerate().flat_map(|(i, u)| u.regions(i)).collect();
             enclosed_warichu::expand(&mut regions,&inline_merged,&merged);
         mark_unused(&mut words, &regions, &merged);
-            pages.push(PageTrace {native_horizontal_baselines:crate::native_word_flow::horizontal_baselines(&native_bounds,&native_axes,&native_flows),native_atomic_columns,native_axes,native_rulings,
+        for word in &mut words {if word.status==WordStatus::Noise && native_header_words.contains(&word.id){word.status=WordStatus::HeaderLabel;}}
+            pages.push(PageTrace {native_comparison_labels,native_horizontal_baselines:crate::native_word_flow::horizontal_baselines(&native_bounds,&native_axes,&native_flows),native_atomic_columns,native_axes,native_rulings,
                 native_styles,
                 native_bounds,
                 native_content_styles,
@@ -644,6 +660,9 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             });
             // 横倒しのページ（回した座標で組む）は語が横組みでも、罫線の表を段で割らない（型式認定の表の右半分の表が、欄ごとの
             // 段に分かれて欄ごとに読まれていた）。
+            // A comparison field's native frame owns only its descendants.
+            // Preserve closed ordinary tables in independent publications even
+            // when a formal comparison pair occurs elsewhere on this page.
             let tiers = if shinkyu_page || tables.is_empty() || (v_chars < h_chars * 2 && !sideways) {
                 plain_tiers
             } else {
@@ -755,7 +774,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 tiers.clear();
                 let inner = inner_grids(&tier);
                 let after = lines_with_tables_by(tier, &inner, cell_lines);
-                units.push(Unit::Shinkyu { preamble: Vec::new(), after: vec![after], before: vec![Vec::new()], outside: Vec::new() });
+                units.push(Unit::Shinkyu {labels:None, preamble: Vec::new(), after: vec![after], before: vec![Vec::new()], outside: Vec::new() });
             }
             let mut i = 0;
             while i < tiers.len() {
@@ -802,7 +821,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                                 break;
                             }
                         }
-                        layout.into_unit(&grids, page_rules)
+                        layout.into_unit_with_source(&grids, page_rules, &grid_words)
                     }
                     // 見出しの無い 2 段が改正後/改正前の組なら（4 段に組んだ継続ページ）表として組む。
                     None if i < tiers.len()
@@ -882,7 +901,10 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         crate::native_column_flow::restore(&mut units,&words,&native_bounds,&native_styles,&projected_flows,rules.get(pi).and_then(|r|r.as_ref()));
         if let Some(rules)=rules.get(pi).and_then(|r|r.as_ref()){crate::native_grid_fragments::restore(&mut units,&words,&native_bounds,&native_axes,rules,width,height);}
 
+        crate::native_grid_fragments::restore_independent_vertical(&mut units,&independent_vertical_plans,&words,&native_bounds,&native_axes,&native_styles,&projected_flows);
         crate::native_cell_text::restore(&mut units,&words,&native_bounds,&cell_origins);
+        if prev_table {crate::comparison_labels::inherit(&mut units,prev_comparison_labels,explicit_comparison_label);}
+        prev_comparison_labels=match units.last(){Some(Unit::Shinkyu{labels,..})=>*labels,_=>None};
         let text = units
             .iter()
             .map(Unit::text)
@@ -894,12 +916,14 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         prev_pairs = None;
         prev_two_columns = false;
         prev_mid = None;
+        let native_comparison_labels=units.iter().map(|u|match u{Unit::Shinkyu{labels,..}=>*labels,_=>None}).collect();
         let mut regions: Vec<_> = units.into_iter().enumerate().flat_map(|(i, u)| u.regions(i)).collect();
         enclosed_warichu::expand(
             &mut regions, marker_members.as_deref().unwrap_or(&inline_merged), &merged,
         );
         mark_unused(&mut words, &regions, &merged);
-        pages.push(PageTrace {native_horizontal_baselines:crate::native_word_flow::horizontal_baselines(&native_bounds,&native_axes,&native_flows),native_atomic_columns:vec![],native_axes,native_rulings,
+        for word in &mut words {if word.status==WordStatus::Noise && native_header_words.contains(&word.id){word.status=WordStatus::HeaderLabel;}}
+        pages.push(PageTrace {native_comparison_labels,native_horizontal_baselines:crate::native_word_flow::horizontal_baselines(&native_bounds,&native_axes,&native_flows),native_atomic_columns:vec![],native_axes,native_rulings,
                 native_styles,
                 native_bounds,
                 native_content_styles,
@@ -1047,7 +1071,7 @@ fn unturn_tables(units: &mut [Unit], page_width: f32) {
     for unit in units {
         let lines: Vec<&mut Line> = match unit {
             Unit::Plain(lines) => lines.iter_mut().collect(),
-            Unit::Shinkyu { preamble, after, before, outside } => preamble
+            Unit::Shinkyu { preamble, after, before, outside ,..} => preamble
                 .iter_mut()
                 .chain(after.iter_mut().flatten())
                 .chain(before.iter_mut().flatten())
@@ -1724,7 +1748,7 @@ fn merge_split_table_rows(units: &mut [Unit]) {
     for unit in units.iter_mut() {
         match unit {
             Unit::Plain(lines) => merge(lines),
-            Unit::Shinkyu { preamble, after, before, outside } => {
+            Unit::Shinkyu { preamble, after, before, outside ,..} => {
                 merge(preamble);
                 after.iter_mut().chain(before.iter_mut()).chain(outside.iter_mut()).for_each(|p| merge(p));
             }
@@ -2156,7 +2180,7 @@ fn split_horizontal_shinkyu_pairs(cols: &[Col], prev: Option<f32>, vrules: &[(f3
             before.push(lines);
         }
     }
-    Some((Unit::Shinkyu { preamble: horizontal_lines(preamble), after, before, outside: Vec::new() }, rest, width))
+    Some((Unit::Shinkyu {labels:None, preamble: horizontal_lines(preamble), after, before, outside: Vec::new() }, rest, width))
 }
 
 /// Keep only font runs enclosing ordinary-font Japanese prose quotations.
@@ -2899,7 +2923,7 @@ fn prefix_minus(units: &mut [Unit], minus: &std::collections::HashSet<usize>, te
     for u in units.iter_mut() {
         match u {
             Unit::Plain(lines) => lines.iter_mut().for_each(&mut fix),
-            Unit::Shinkyu { preamble, after, before, outside } => {
+            Unit::Shinkyu { preamble, after, before, outside ,..} => {
                 preamble.iter_mut().for_each(&mut fix);
                 for part in after.iter_mut().chain(before.iter_mut()).chain(outside.iter_mut()) {
                     part.iter_mut().for_each(&mut fix);

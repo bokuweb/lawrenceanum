@@ -638,7 +638,7 @@ fn real_native_unit_partition_preserves_all_original_record_ids() {
             .iter()
             .any(|l| l.get("table").is_some())
         {
-            units.push(Unit::Shinkyu {
+            units.push(Unit::Shinkyu {labels:None,
                 preamble: vec![],
                 after: vec![],
                 before: vec![],
@@ -710,7 +710,7 @@ fn ghost_source_case(status: WordStatus, raw: &str, text: &str, bbox: [f32; 4]) 
         text: text.into(),
         status,
     });
-    c.units.push(Unit::Shinkyu {
+    c.units.push(Unit::Shinkyu {labels:None,
         preamble: vec![Line::text(text.into(), vec![id])],
         after: vec![],
         before: vec![],
@@ -851,7 +851,7 @@ fn exact_unit_view(
                 after,
                 before,
                 outside,
-            } => (
+            ..} => (
                 1,
                 preamble.clone(),
                 after.clone(),

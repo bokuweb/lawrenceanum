@@ -5,7 +5,8 @@
 use super::*;
 use crate::trace::{Line, Region, Unit};
 
-fn units(regions: &[Region]) -> Option<Vec<Unit>> {
+fn units(page: &PageTrace) -> Option<Vec<Unit>> {
+    let regions=&page.regions;
     let mut out = vec![];
     let mut at = 0;
     let mut previous = None;
@@ -51,7 +52,7 @@ fn units(regions: &[Region]) -> Option<Vec<Unit>> {
                     _ => return None,
                 }
             }
-            out.push(Unit::Shinkyu {
+            out.push(Unit::Shinkyu {labels:page.native_comparison_labels.get(id).copied().flatten(),
                 preamble,
                 after,
                 before,
@@ -117,7 +118,7 @@ fn line_chunk(
     Some(Chunk { text, words: ids })
 }
 fn page_stream(page: &PageTrace, pi: usize, table: &mut usize) -> Option<(String, Vec<Span>)> {
-    let units = units(&page.regions)?;
+    let units = units(page)?;
     let mut text = String::new();
     let mut spans = vec![];
     let mut seen = BTreeSet::new();
@@ -283,7 +284,7 @@ pub(super) fn page_units(
     page_stream(page, pi, &mut after_table)?;
     let mut out = vec![];
     let mut table = first_table;
-    for unit in units(&page.regions)? {
+    for unit in units(page)? {
         let mut tables = vec![];
         let text = unit.doc_text(&mut tables, table);
         let ids = (table..table + tables.len()).collect();

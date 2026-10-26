@@ -110,7 +110,7 @@ pub(crate) fn restore(
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 count(preamble, &mut counts);
                 for ls in after.iter().chain(before).chain(outside) {
                     count(ls, &mut counts)

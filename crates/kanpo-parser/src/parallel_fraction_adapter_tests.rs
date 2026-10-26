@@ -20,7 +20,7 @@ fn signature(units: &[Unit]) -> Vec<Signature> {
                 after,
                 before,
                 outside,
-            } => Signature::Shinkyu {
+            ..} => Signature::Shinkyu {
                 preamble: preamble.clone(),
                 after: after.clone(),
                 before: before.clone(),
@@ -228,7 +228,7 @@ fn adapter_operand_in_different_cell_is_noop() {
 fn adapter_shinkyu_is_never_mutated() {
     let (mut u, w) = table();
     let ls = lines(&mut u).clone();
-    let u = vec![Unit::Shinkyu {
+    let u = vec![Unit::Shinkyu {labels:None,
         preamble: vec![],
         after: vec![ls],
         before: vec![],

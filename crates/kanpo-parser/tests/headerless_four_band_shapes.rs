@@ -1,6 +1,6 @@
 mod trace {
  pub use kanpo_parser::trace::{Line,Word,WordStatus,Table};
- pub enum Unit {Plain(Vec<Line>),Shinkyu{preamble:Vec<Line>,after:Vec<Vec<Line>>,before:Vec<Vec<Line>>,outside:Vec<Vec<Line>>}}
+ pub enum Unit {Plain(Vec<Line>),Shinkyu{labels:Option<kanpo_parser::ComparisonLabels>,preamble:Vec<Line>,after:Vec<Vec<Line>>,before:Vec<Vec<Line>>,outside:Vec<Vec<Line>>}}
 }
 mod lines {pub use kanpo_parser::lines::{HRule,PageRules,VRule};}
 #[path="../src/headerless_four_bands.rs"]mod implementation;
@@ -11,10 +11,10 @@ fn fixture()->(Vec<Unit>,Vec<Word>,PageRules){
  let words=p["words"].as_array().unwrap().iter().map(|w|Word{source_box: [w["x0"].as_f64().unwrap()as f32, w["y0"].as_f64().unwrap()as f32, w["x1"].as_f64().unwrap()as f32, w["y1"].as_f64().unwrap()as f32],id:w["id"].as_u64().unwrap()as usize,x0:w["x0"].as_f64().unwrap()as f32,x1:w["x1"].as_f64().unwrap()as f32,y0:w["y0"].as_f64().unwrap()as f32,y1:w["y1"].as_f64().unwrap()as f32,raw:w["raw"].as_str().unwrap().into(),text:w["text"].as_str().unwrap().into(),status:match w["status"].as_str().unwrap(){"used"=>WordStatus::Used,"margin"=>WordStatus::Margin,_=>panic!()}}).collect();
  let r:serde_json::Value=serde_json::from_str(include_str!("expected/headerless_four_bands/20261001h017990003-rules.json")).unwrap();let rules=PageRules{enclosures:vec![],short_fraction_bars:vec![],vertical:vec![],horizontal:r["rules"]["horizontal"].as_array().unwrap().iter().map(|h|HRule{x0:h["x0"].as_f64().unwrap()as f32,x1:h["x1"].as_f64().unwrap()as f32,y:h["y"].as_f64().unwrap()as f32}).collect()};(units,words,rules)
 }
-fn state(us:&[Unit],ws:&[Word])->serde_json::Value{serde_json::json!({"units":us.iter().map(|u|match u{Unit::Plain(ls)=>serde_json::json!({"plain":ls}),Unit::Shinkyu{preamble,after,before,outside}=>serde_json::json!({"preamble":preamble,"after":after,"before":before,"outside":outside})}).collect::<Vec<_>>(),"words":ws})}
+fn state(us:&[Unit],ws:&[Word])->serde_json::Value{serde_json::json!({"units":us.iter().map(|u|match u{Unit::Plain(ls)=>serde_json::json!({"plain":ls}),Unit::Shinkyu{preamble,after,before,outside,..}=>serde_json::json!({"preamble":preamble,"after":after,"before":before,"outside":outside})}).collect::<Vec<_>>(),"words":ws})}
 fn line(us:&mut[Unit],u:usize,l:usize)->&mut Line{let Unit::Plain(ls)=&mut us[u]else{panic!()}; &mut ls[l]}
 fn reject(mutate:impl FnOnce(&mut Vec<Unit>,&mut Vec<Word>,&mut PageRules)) {let(mut u,mut w,mut r)=fixture();mutate(&mut u,&mut w,&mut r);let before=state(&u,&w);implementation::restore(&mut u,&w,Some(&r),595.);assert_eq!(state(&u,&w),before);}
-#[test]fn real_four_bands_rejoin_and_preserve_every_line_and_word(){let(mut u,w,r)=fixture();let before=state(&u,&w);implementation::restore(&mut u,&w,Some(&r),595.);assert_eq!(u.len(),1);let Unit::Shinkyu{after,before:old,preamble,outside}=&u[0]else{panic!("not a shinkyu")};assert!(preamble.is_empty()&&outside.is_empty());assert_eq!(after.iter().map(Vec::len).collect::<Vec<_>>(),[29,23]);assert_eq!(old.iter().map(Vec::len).collect::<Vec<_>>(),[25,41]);assert_eq!(serde_json::to_value(&after[0]).unwrap(),before["units"][0]["plain"]);assert_eq!(serde_json::to_value(&old[0]).unwrap(),before["units"][1]["plain"]);assert_eq!(serde_json::to_value(&after[1]).unwrap(),before["units"][2]["plain"]);assert_eq!(serde_json::to_value(&old[1]).unwrap(),before["units"][3]["plain"]);assert_eq!(serde_json::to_value(&w).unwrap(),before["words"]);}
+#[test]fn real_four_bands_rejoin_and_preserve_every_line_and_word(){let(mut u,w,r)=fixture();let before=state(&u,&w);implementation::restore(&mut u,&w,Some(&r),595.);assert_eq!(u.len(),1);let Unit::Shinkyu{after,before:old,preamble,outside,..}=&u[0]else{panic!("not a shinkyu")};assert!(preamble.is_empty()&&outside.is_empty());assert_eq!(after.iter().map(Vec::len).collect::<Vec<_>>(),[29,23]);assert_eq!(old.iter().map(Vec::len).collect::<Vec<_>>(),[25,41]);assert_eq!(serde_json::to_value(&after[0]).unwrap(),before["units"][0]["plain"]);assert_eq!(serde_json::to_value(&old[0]).unwrap(),before["units"][1]["plain"]);assert_eq!(serde_json::to_value(&after[1]).unwrap(),before["units"][2]["plain"]);assert_eq!(serde_json::to_value(&old[1]).unwrap(),before["units"][3]["plain"]);assert_eq!(serde_json::to_value(&w).unwrap(),before["words"]);}
 #[test]fn no_native_rules(){let(mut u,w,_)=fixture();let before=state(&u,&w);implementation::restore(&mut u,&w,None,595.);assert_eq!(state(&u,&w),before);}
 #[test]fn missing_one_split_horizontal_piece(){reject(|_,_,r|r.horizontal.retain(|h|h.y!=241.||h.x0>46.1));}
 #[test]fn missing_pair_boundary(){reject(|_,_,r|r.horizontal.retain(|h|h.y!=609.));}
@@ -33,7 +33,7 @@ fn reject(mutate:impl FnOnce(&mut Vec<Unit>,&mut Vec<Word>,&mut PageRules)) {let
 #[test]fn repeated_short_footer_not_enough(){reject(|u,_,_|for j in [2,3]{let len=if j==2{23}else{41};for k in 1..=5{line(u,j,len-k).text="（略）".into();}});}
 #[test]fn unrelated_long_before_body(){reject(|u,_,_|for j in [1,3]{let Unit::Plain(ls)=&mut u[j]else{panic!()};let len=ls.len();for l in &mut ls[..len-5]{l.text="価格数量寸法金額所在地".repeat(5);}});}
 #[test]fn extra_body_unit(){reject(|u,_,_|u.push(Unit::Plain(vec![])));}
-#[test]fn preexisting_shinkyu_unit(){reject(|u,_,_|u[0]=Unit::Shinkyu{preamble:vec![],after:vec![],before:vec![],outside:vec![]});}
+#[test]fn preexisting_shinkyu_unit(){reject(|u,_,_|u[0]=Unit::Shinkyu{labels:None,preamble:vec![],after:vec![],before:vec![],outside:vec![]});}
 #[test]fn too_few_columns(){reject(|u,_,_|{let Unit::Plain(ls)=&mut u[0]else{panic!()};ls.truncate(3);});}
 #[test]fn shared_word_owner(){reject(|u,_,_|{let id=line(u,0,0).words[0];line(u,1,0).words.push(id);});}
 #[test]fn unknown_source_word(){reject(|u,_,_|line(u,0,0).words.push(10000));}

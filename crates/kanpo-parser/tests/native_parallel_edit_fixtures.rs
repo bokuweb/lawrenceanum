@@ -20,7 +20,7 @@ fn rows(a: &Analysis) -> Vec<&ShinkyuRow> {
         .iter()
         .flat_map(|a| &a.document.blocks)
         .filter_map(|b| {
-            if let Block::Shinkyu { rows } = b {
+            if let Block::Shinkyu { rows ,..} = b {
                 Some(rows)
             } else {
                 None

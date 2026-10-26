@@ -151,7 +151,7 @@ fn snapshot(units: &[Unit]) -> Vec<(String, Vec<Line>)> {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 out.push(("preamble".into(), preamble.clone()));
                 for (role, parts) in [("after", after), ("before", before), ("outside", outside)] {
                     for l in parts {

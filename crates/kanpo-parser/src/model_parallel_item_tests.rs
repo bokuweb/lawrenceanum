@@ -8,10 +8,10 @@ fn row(a: &str, b: &str) -> ShinkyuRow {
 }
 fn joined(a: ShinkyuRow, b: ShinkyuRow) -> Vec<ShinkyuRow> {
     let r = merge_continued_tables(vec![
-        Block::Shinkyu { rows: vec![a] },
-        Block::Shinkyu { rows: vec![b] },
+        Block::Shinkyu {labels:None, rows: vec![a] },
+        Block::Shinkyu {labels:None, rows: vec![b] },
     ]);
-    let Block::Shinkyu { rows } = r.into_iter().next().unwrap() else {
+    let Block::Shinkyu { rows ,..} = r.into_iter().next().unwrap() else {
         panic!()
     };
     rows

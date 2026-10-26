@@ -22,7 +22,7 @@ fn walk(u: &Unit, f: &mut impl FnMut(&Line)) {
             after,
             before,
             outside,
-        } => {
+        ..} => {
             preamble.iter().for_each(&mut *f);
             for ls in after.iter().chain(before).chain(outside) {
                 ls.iter().for_each(&mut *f)

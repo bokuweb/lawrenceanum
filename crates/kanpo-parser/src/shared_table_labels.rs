@@ -254,7 +254,7 @@ pub(crate) fn order_shared_table_labels(units: &mut [crate::trace::Unit], words:
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 visit(preamble);
                 for lines in after.iter_mut().chain(before).chain(outside) {
                     visit(lines);

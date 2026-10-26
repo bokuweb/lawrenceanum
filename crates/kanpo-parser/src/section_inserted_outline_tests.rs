@@ -14,7 +14,7 @@ fn joined(r: &[Run]) -> String {
     r.iter().map(|r| r.text.as_str()).collect()
 }
 fn rows(a: &[ArticleAnalysis]) -> &[ShinkyuRow] {
-    let Block::Shinkyu { rows } = &a[0].document.blocks[0] else {
+    let Block::Shinkyu { rows ,..} = &a[0].document.blocks[0] else {
         panic!()
     };
     rows
@@ -22,7 +22,7 @@ fn rows(a: &[ArticleAnalysis]) -> &[ShinkyuRow] {
 impl F {
     fn sync(&mut self) {
         let p = &mut self.pages[0];
-        let u = Unit::Shinkyu {
+        let u = Unit::Shinkyu {labels:None,
             preamble: vec![],
             after: vec![p.regions[0].lines.clone()],
             before: vec![p.regions[1].lines.clone()],
@@ -59,7 +59,7 @@ impl F {
             }
         }
         for b in &mut self.articles[0].document.blocks {
-            if let Block::Shinkyu { rows } = b {
+            if let Block::Shinkyu { rows ,..} = b {
                 for r in rows {
                     for run in r.after.iter_mut().chain(&mut r.before) {
                         run.text = run.text.replace(from, to);
@@ -99,7 +99,7 @@ impl F {
     }
 }
 fn fixture() -> F {
-    let p = PageTrace {
+    let p = PageTrace {native_comparison_labels:vec![],
         native_horizontal_baselines: vec![],
         native_atomic_columns: vec![],
         native_styles: vec![],
@@ -135,7 +135,7 @@ fn fixture() -> F {
             text: String::new(),
             document: Document {
                 format: "shinkyu".into(),
-                blocks: vec![Block::Shinkyu {
+                blocks: vec![Block::Shinkyu {labels:None,
                     rows: vec![
                         ShinkyuRow {
                             after: vec![Run::plain("第三条　改正文。")],
@@ -255,7 +255,7 @@ fn outline143_unknown_or_opposite_axis_cannot_supply_the_same_column() {
 fn outline143_ambiguous_counterpart_columns_decline() {
     let mut f = fixture();
     f.add_line(Role::Before, "（新設）", 391., 2);
-    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+    if let Block::Shinkyu { rows ,..} = &mut f.articles[0].document.blocks[0] {
         rows[0].before[0].text.push_str("\n（新設）");
     }
     f.sync();
@@ -292,7 +292,7 @@ fn outline143_invalid_source_rectangle_or_nonfinite_native_geometry_declines() {
 #[test]
 fn outline143_native_line_and_typed_payload_must_bind_completely() {
     let mut f = fixture();
-    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+    if let Block::Shinkyu { rows ,..} = &mut f.articles[0].document.blocks[0] {
         rows[0].before[0].text = rows[0].before[0].text.replace("原文", "別文");
     }
     f.unchanged();
@@ -356,7 +356,7 @@ fn outline143_title_wrapping_has_no_line_count_ceiling() {
         f.add_line(Role::After, &t, 890. - 10. * i as f32, 2 + i);
         text.push_str(&t);
     }
-    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+    if let Block::Shinkyu { rows ,..} = &mut f.articles[0].document.blocks[0] {
         rows[1].after[0].text.push_str(&text);
     }
     f.sync();
@@ -381,7 +381,7 @@ fn outline143_an_article_without_caption_still_has_its_own_source_anchor() {
     let mut f = fixture();
     f.pages[0].regions[0].lines.remove(2);
     f.pages[0].words[2].status = WordStatus::Empty;
-    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+    if let Block::Shinkyu { rows ,..} = &mut f.articles[0].document.blocks[0] {
         rows[1].after[1].text = rows[1].after[1].text.replace("（任意の条見出し）\n", "");
     }
     f.sync();
@@ -395,7 +395,7 @@ fn outline143_the_visible_outline_may_be_on_either_comparison_side() {
     f.pages[0].regions.swap(0, 1);
     f.pages[0].regions[0].role = Role::After;
     f.pages[0].regions[1].role = Role::Before;
-    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+    if let Block::Shinkyu { rows ,..} = &mut f.articles[0].document.blocks[0] {
         for r in rows {
             std::mem::swap(&mut r.after, &mut r.before);
         }
@@ -436,7 +436,7 @@ fn outline143_complete_opaque_neighbor_tables_are_copied_with_their_original_run
         let l = &mut f.pages[0].regions[ri].lines[0];
         l.words.clear();
         l.table = Some(t.clone());
-        if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+        if let Block::Shinkyu { rows ,..} = &mut f.articles[0].document.blocks[0] {
             let runs = if role == Role::After {
                 &mut rows[0].after
             } else {
@@ -472,7 +472,7 @@ fn outline143_nested_levels_keep_each_of_their_own_native_markers() {
     let mut f = fixture();
     f.add_line(Role::After, "第九節　内側の見出し", 380., 2);
     f.add_line(Role::Before, "（新設）", 380., 2);
-    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+    if let Block::Shinkyu { rows ,..} = &mut f.articles[0].document.blocks[0] {
         rows[1]
             .after
             .insert(1, Run::plain("\n第九節　内側の見出し"));
@@ -523,7 +523,7 @@ fn outline143_rotating_all_native_axes_and_envelopes_keeps_column_pairs() {
 #[test]
 fn outline143_every_original_character_style_survives_arbitrary_run_boundaries() {
     let mut f = fixture();
-    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+    if let Block::Shinkyu { rows ,..} = &mut f.articles[0].document.blocks[0] {
         for row in rows {
             for rs in [&mut row.after, &mut row.before] {
                 let text = joined(rs);
@@ -728,7 +728,7 @@ fn article146_fixture() -> F {
         r.lines.clear();
     }
     let after = "（前の条見出し）\n第十三条の二　前の本文。\n２　続く本文。\n（次の条見出し）\n第二百条の三　次の本文。\n一　項目。";
-    f.articles[0].document.blocks = vec![Block::Shinkyu {
+    f.articles[0].document.blocks = vec![Block::Shinkyu {labels:None,
         rows: vec![ShinkyuRow {
             after: vec![Run {
                 text: after.into(),
@@ -785,7 +785,7 @@ fn article146_native_columns_split_a_merged_inserted_article_cell() {
 #[test]
 fn article146_a_continuation_can_have_an_empty_opposite_prefix() {
     let mut f = article146_fixture();
-    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+    if let Block::Shinkyu { rows ,..} = &mut f.articles[0].document.blocks[0] {
         rows[0].before.remove(0);
     }
     f.pages[0].regions[1].lines.remove(0);
@@ -829,7 +829,7 @@ fn article146_before_side_can_own_inserted_article_columns() {
         };
     }
     f.pages[0].regions.swap(0, 1);
-    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+    if let Block::Shinkyu { rows ,..} = &mut f.articles[0].document.blocks[0] {
         let r = &mut rows[0];
         std::mem::swap(&mut r.after, &mut r.before);
     }
@@ -852,7 +852,7 @@ fn article146_nonintersecting_printed_marker_declines() {
 fn article146_ambiguous_opposite_marker_declines() {
     let mut f = article146_fixture();
     f.add_line(Role::Before, "（新設）", 821., 2);
-    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+    if let Block::Shinkyu { rows ,..} = &mut f.articles[0].document.blocks[0] {
         rows[0].before.push(Run::plain("\n（新設）"));
     }
     f.sync();
@@ -905,7 +905,7 @@ fn article146_complete_wrapped_nested_caption_moves_with_its_article() {
     let mut f = article146_fixture();
     f.map_text("（次の条見出し）", "（次の（内側）");
     f.add_line(Role::After, "条見出し）", 830., 4);
-    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+    if let Block::Shinkyu { rows ,..} = &mut f.articles[0].document.blocks[0] {
         rows[0].after[0].text = rows[0].after[0]
             .text
             .replace("（次の（内側）\n", "（次の（内側）\n条見出し）\n");
@@ -942,7 +942,7 @@ fn article146_add_table(f: &mut F, x: f32, line_at: usize, trailing: bool) {
     let l = &mut f.pages[0].regions[0].lines[line_at];
     l.words.clear();
     l.table = Some(table.clone());
-    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+    if let Block::Shinkyu { rows ,..} = &mut f.articles[0].document.blocks[0] {
         let r = &mut rows[0];
         if trailing {
             r.after_table = Some(table.to_nested());
@@ -1001,7 +1001,7 @@ fn article146_trailing_table_field_follows_the_last_article() {
             .document
             .blocks
             .iter()
-            .find_map(|b| if let Block::Shinkyu { rows } = b {
+            .find_map(|b| if let Block::Shinkyu { rows ,..} = b {
                 rows[0].after_table.clone()
             } else {
                 None
@@ -1067,7 +1067,7 @@ fn article146_with_internal_outline() -> F {
     f.map_text("（次の条見出し）", "第五節　別の任意見出し");
     f.add_line(Role::After, "（次の条見出し）", 830., 4);
     f.add_line(Role::Before, "（新設）", 840., 1);
-    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+    if let Block::Shinkyu { rows ,..} = &mut f.articles[0].document.blocks[0] {
         let r = &mut rows[0];
         r.after[0].text = r.after[0].text.replace(
             "第五節　別の任意見出し\n",
@@ -1106,7 +1106,7 @@ fn article146_an_internal_outline_on_the_before_side_keeps_its_own_marker() {
         };
     }
     f.pages[0].regions.swap(0, 1);
-    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+    if let Block::Shinkyu { rows ,..} = &mut f.articles[0].document.blocks[0] {
         let r = &mut rows[0];
         std::mem::swap(&mut r.after, &mut r.before);
     }
@@ -1137,7 +1137,7 @@ fn article146_repeated_marker_pages(
         notices: vec![],
     };
     let mut a = vec![f.articles[0].clone(), other];
-    if let Block::Shinkyu { rows: r } = &mut a[0].document.blocks[0] {
+    if let Block::Shinkyu { rows: r ,..} = &mut a[0].document.blocks[0] {
         r.extend(rows(&g.articles).iter().cloned());
     }
     let sep = if gap {
@@ -1204,7 +1204,7 @@ fn article146_an_unvalidated_physical_page_cannot_be_skipped_by_a_chain() {
         notices: vec![],
     };
     let mut a = vec![f.articles[0].clone(), other];
-    if let Block::Shinkyu { rows: r } = &mut a[0].document.blocks[0] {
+    if let Block::Shinkyu { rows: r ,..} = &mut a[0].document.blocks[0] {
         r.extend(rows(&g.articles).iter().cloned());
     }
     let marked = format!("{}\n{}", f.marked, g.marked);
@@ -1238,7 +1238,7 @@ fn article146_an_unrelated_typed_mismatch_does_not_poison_a_complete_neighboring
     unrelated.after[0].text = unrelated.after[0]
         .text
         .replace("第三頁の次の本文", "照合しない既存の別出力");
-    if let Block::Shinkyu { rows: r } = &mut a[0].document.blocks[0] {
+    if let Block::Shinkyu { rows: r ,..} = &mut a[0].document.blocks[0] {
         r.extend(rows(&g.articles).iter().cloned());
         r.push(unrelated.clone());
     }

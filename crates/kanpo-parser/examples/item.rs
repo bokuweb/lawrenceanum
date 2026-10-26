@@ -23,7 +23,7 @@ fn main() {
             .iter()
             .map(|b| match b {
                 kanpo_parser::Block::Paragraph { .. } => "P".to_string(),
-                kanpo_parser::Block::Shinkyu { rows } => format!("S{}", rows.len()),
+                kanpo_parser::Block::Shinkyu { rows, .. } => format!("S{}", rows.len()),
             })
             .collect();
         println!("=== article {i}: {}", shape.join(" "));

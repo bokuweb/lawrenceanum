@@ -119,7 +119,7 @@ fn gyogyo_structures_into_document_with_shinkyu_block() {
         .blocks
         .iter()
         .find_map(|b| match b {
-            Block::Shinkyu { rows } => Some(rows),
+            Block::Shinkyu { rows ,..} => Some(rows),
             _ => None,
         })
         .expect("新旧対照表ブロック");
@@ -191,7 +191,7 @@ fn kaiyo_table_continues_into_lower_tiers_on_same_page() {
         .blocks
         .iter()
         .find_map(|b| match b {
-            Block::Shinkyu { rows } => Some(rows),
+            Block::Shinkyu { rows ,..} => Some(rows),
             _ => None,
         })
         .expect("新旧対照表ブロック");

@@ -29,7 +29,12 @@ pub enum Block {
     /// 散文（前文・散文改め文など）。
     Paragraph { runs: Vec<Run> },
     /// 新旧対照表の 1 段。条（別表）ごとの行に分け、各行で改正後/改正前を対応させる。
-    Shinkyu { rows: Vec<ShinkyuRow> },
+    Shinkyu {
+        rows: Vec<ShinkyuRow>,
+        /// Actual source field names. Omission retains the legacy amendment pair.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        labels: Option<crate::ComparisonLabels>,
+    },
 }
 
 /// 新旧対照表の 1 行（条・別表など 1 単位）。改正後/改正前のセル。
@@ -315,7 +320,8 @@ impl Document {
     ///
     /// 「改正後」「改正前」の独立見出し行を境に新旧対照表ブロックを作り、
     /// それ以外の連続行は段落ブロックにする。形式は [`detect_format`] で判定する。
-    pub fn from_text(text: &str) -> Document {
+    pub fn from_text(text: &str) -> Document {Self::from_text_mode(text,true)}
+    fn from_text_mode(text:&str,comparison_markers:bool)->Document {
         let format = detect_format(text);
         let lines: Vec<&str> = text.lines().collect();
         let mut blocks: Vec<Block> = Vec::new();
@@ -328,20 +334,36 @@ impl Document {
             para.clear();
         };
         let mut i = 0;
+        let mut leading_before = false;
         while i < lines.len() {
-            if lines[i].trim() == "改正後" {
+            // Unit marker streams are After-first. A leading opposite role can
+            // be ordinary Before/After prose or a detached fragment. Neither
+            // authorizes borrowing the next record's Before. Preserve the
+            // complete scope literally until an explicit table end resets it.
+            if crate::ComparisonLabels::from_before(lines[i].trim()).is_some() {leading_before=true;}
+            if let Some(labels) = crate::ComparisonLabels::from_after(lines[i].trim()).filter(|_|comparison_markers&&!leading_before).filter(|labels| {
+                // Before must belong to this marker scope. EOF, the end marker,
+                // or a fresh After may terminate a legitimate one-sided cell.
+                lines[i+1..].iter().find_map(|line| {
+                    let line=line.trim();
+                    if let Some(other)=crate::ComparisonLabels::from_before(line){Some(other==*labels)}
+                    else if line==SHINKYU_END || crate::ComparisonLabels::from_after(line).is_some(){Some(true)}
+                    else{None}
+                }).unwrap_or(true)
+            }) {
                 flush_para(&mut para, &mut blocks);
                 // 改正後セル: 次の「改正前」まで。
                 let after_start = i + 1;
                 let mut j = after_start;
-                while j < lines.len() && lines[j].trim() != "改正前" {
+                while j < lines.len() && lines[j].trim()!=SHINKYU_END && crate::ComparisonLabels::from_after(lines[j].trim()).is_none() && crate::ComparisonLabels::from_before(lines[j].trim()).is_none() {
                     j += 1;
                 }
                 let after_lines = &lines[after_start..j];
                 // 改正前セル: 次の「改正後」（次段の開始）か、表の終わりの目印まで。
-                let before_start = (j + 1).min(lines.len());
+                let paired=lines.get(j).is_some_and(|line|line.trim()==labels.before);
+                let before_start = if paired {j+1}else{j};
                 let mut k = before_start;
-                while k < lines.len() && lines[k].trim() != "改正後" && lines[k].trim() != SHINKYU_END {
+                while paired && k < lines.len() && crate::ComparisonLabels::from_after(lines[k].trim()).is_none() && crate::ComparisonLabels::from_before(lines[k].trim()).is_none() && lines[k].trim() != SHINKYU_END {
                     k += 1;
                 }
                 let before_lines = &lines[before_start..k];
@@ -380,7 +402,7 @@ impl Document {
                 // 改正後・改正前とも空の行（空白だけの帯）は作らない。
                 rows.retain(|r| !r.after.is_empty() || !r.before.is_empty());
                 if !rows.is_empty() {
-                    blocks.push(Block::Shinkyu { rows });
+                    blocks.push(Block::Shinkyu {labels:(labels!=crate::ComparisonLabels::AMENDMENT).then_some(labels), rows });
                 }
                 for runs in furisoku {
                     blocks.push(Block::Paragraph { runs });
@@ -389,6 +411,7 @@ impl Document {
             } else if lines[i].trim() == SHINKYU_END {
                 // 表の終わりの目印は本文に入れない（表の後ろに本文があればそれが段落になり、
                 // 続く表とはつながらない。ページの切れ目のように間に本文が無ければつながる）。
+                leading_before = false;
                 i += 1;
             } else {
                 para.push(lines[i]);
@@ -404,13 +427,15 @@ impl Document {
 
     /// [`Document::from_text`] と同じだが、テキスト中の表の目印（[`crate::trace::table_marker`]）を
     /// `tables` の表に置き換え、本文の流れの中の表（`Run::table`）にする。
-    pub(crate) fn from_text_with_tables(text: &str, tables: &[Table]) -> Document {
-        let mut doc = Document::from_text(text);
+    pub(crate) fn from_text_with_tables(text:&str,tables:&[Table])->Document{Self::from_text_tables_mode(text,tables,true)}
+    pub(crate) fn from_paragraph_text_with_tables(text:&str,tables:&[Table])->Document{Self::from_text_tables_mode(text,tables,false)}
+    fn from_text_tables_mode(text:&str,tables:&[Table],comparison_markers:bool)->Document {
+        let mut doc = Self::from_text_mode(text,comparison_markers);
         let splice = |runs: &mut Vec<Run>| *runs = join_adjacent_tables(splice_tables(std::mem::take(runs), tables));
         for block in &mut doc.blocks {
             match block {
                 Block::Paragraph { runs } => splice(runs),
-                Block::Shinkyu { rows } => {
+                Block::Shinkyu { rows ,..} => {
                     for r in rows {
                         splice(&mut r.after);
                         splice(&mut r.before);
@@ -434,7 +459,7 @@ impl Document {
                         out.push(t);
                     }
                 }
-                Block::Shinkyu { rows } => {
+                Block::Shinkyu { rows, labels } => {
                     let after: String = rows
                         .iter()
                         .map(|r| runs_text(&r.after))
@@ -447,9 +472,9 @@ impl Document {
                         .filter(|s| !s.is_empty())
                         .collect::<Vec<_>>()
                         .join("\n");
-                    out.push("改正後".to_string());
+                    out.push(labels.unwrap_or(crate::ComparisonLabels::AMENDMENT).after.to_string());
                     out.push(after);
-                    out.push("改正前".to_string());
+                    out.push(labels.unwrap_or(crate::ComparisonLabels::AMENDMENT).before.to_string());
                     out.push(before);
                 }
             }
@@ -582,7 +607,7 @@ fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
     for mut block in blocks {
         // ページの頭の行の改正後が前のページの条の続き（「４　主務大臣は…」）で、改正前が印（「（新設）」）だけなら、
         // 印は次の行（新設の条）のもの。印だけの行が続いた先に改正前の空いた行があれば、印を 1 行ずつ下へずらす。
-        if let Block::Shinkyu { rows } = &mut block {
+        if let Block::Shinkyu { rows ,..} = &mut block {
             let continued = |runs: &[Run]| runs.first().and_then(|r| r.text.lines().next()).is_some_and(|l| is_row_heading(l).is_none() && !outline_heading(l));
             let marks = |r: &ShinkyuRow| !only_marks(&runs_plain(&r.before)).is_empty();
             if rows.len() >= 2 && marks(&rows[0]) && continued(&rows[0].after) {
@@ -594,10 +619,11 @@ fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
                 }
             }
         }
-        let (Some(Block::Shinkyu { rows: prev }), Block::Shinkyu { rows }) = (out.last_mut(), &block) else {
+        let (Some(Block::Shinkyu { rows: prev, labels: prev_labels }), Block::Shinkyu { rows, labels }) = (out.last_mut(), &block) else {
             out.push(block);
             continue;
         };
+        if prev_labels != labels {out.push(block);continue;}
         let mut rows = rows.clone();
         attach_outline_prefix(&mut rows);
         let continues = |runs: &[Run]| {
@@ -619,7 +645,7 @@ fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
     // ページの切れ目でつないだ表でも、新設の条・項の号やまとめて削った条の行をまとめる（ページごとの行の
     // 対応ではページをまたぐ行が見えない）。
     for block in &mut out {
-        if let Block::Shinkyu { rows } = block {
+        if let Block::Shinkyu { rows ,..} = block {
             // 片側だけの行が残れば、つないだ表の全体で号・項・条の単位に分けて組み直す（ページの切れ目の
             // 前後で号がずれて組まれた行）。セルに表のある表は文に戻せないので除く。
             // 前のページの条の続きの行（「附則第四条第五項の…⏎４　…」）の改正前が印だけで、上へ印だけの行が続き、その上に
@@ -2242,7 +2268,7 @@ mod tests {
                 Block::Paragraph {
                     runs: vec![Run::plain("前文")]
                 },
-                Block::Shinkyu {
+                Block::Shinkyu {labels:None,
                     rows: vec![ShinkyuRow {
                         after: vec![Run::plain("甲種")],
                         before: vec![Run::plain("乙類")],
@@ -2260,7 +2286,7 @@ mod tests {
         let before = "（特例A）\n第一条旧\n（特例B）\n第二条旧";
         let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
         let rows = match &doc.blocks[0] {
-            Block::Shinkyu { rows } => rows,
+            Block::Shinkyu { rows ,..} => rows,
             _ => panic!("shinkyu block"),
         };
         assert_eq!(rows.len(), 3);
@@ -2281,7 +2307,7 @@ mod tests {
         let before = "一\u{3000}（略）\n二\u{3000}（新設）";
         let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
         let rows = match &doc.blocks[0] {
-            Block::Shinkyu { rows } => rows,
+            Block::Shinkyu { rows ,..} => rows,
             _ => panic!("shinkyu block"),
         };
         assert_eq!(rows.len(), 3, "{rows:?}");
@@ -2298,7 +2324,7 @@ mod tests {
                      二十一\u{3000}有価証券の引受けのうち元引受契約に係るもの\n二十二\u{3000}新しく加える号の文である";
         let before = "十七\u{3000}（略）\n十八\u{3000}特定非上場会社の議決権に係る議決権代理行使受任\n十九\u{3000}有価証券の引受けのうち元引受契約に係るもの";
         let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
-        let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
+        let Block::Shinkyu { rows ,..} = &doc.blocks[0] else { panic!() };
         let text = |r: &[Run]| r.iter().map(|x| x.text.as_str()).collect::<String>();
         let row = |k: &str| rows.iter().find(|r| text(&r.after).starts_with(k)).unwrap();
         assert!(text(&row("二十\u{3000}").before).starts_with("十八"), "{rows:?}");
@@ -2653,7 +2679,7 @@ mod tests {
                     改正後\nの後半。\n（丙の規定）\n第四条　丙\n（丁の規定）\n第五条　丁\n改正前\nの後半。\n（丙の規定）\n第四条　旧丙\n（丁の規定）\n第五条　旧丁";
         let doc = Document::from_text(text);
         assert_eq!(doc.blocks.len(), 1, "{:?}", doc.blocks);
-        let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
+        let Block::Shinkyu { rows ,..} = &doc.blocks[0] else { panic!() };
         assert_eq!(rows.len(), 4, "{rows:?}");
         assert!(rows[1].after[0].text.contains("乙の前半の後半。"), "{rows:?}");
         assert!(rows[1].before[0].text.contains("旧乙の前半の後半。"), "{rows:?}");
@@ -2666,7 +2692,7 @@ mod tests {
         let after = "（甲の規定）\n第一条　甲\n（乙の手続）\n第二条　新";
         let before = "（甲の規定）\n第一条　甲\n（乙の申請）\n第二条　旧";
         let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
-        let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
+        let Block::Shinkyu { rows ,..} = &doc.blocks[0] else { panic!() };
         assert_eq!(rows.len(), 2, "{rows:?}");
         assert!(rows[1].after[0].text.contains("新") && rows[1].before[0].text.contains("旧"));
     }
@@ -2677,7 +2703,7 @@ mod tests {
         let after = "（免許を要しない無線局）\n第六条　〔略〕\n第六条の二　法第四条第三号の総務省令で定める機能は、次のとおり。";
         let before = "（免許を要しない無線局）\n第六条　〔同上〕\n第六条の二　〔同上〕";
         let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
-        let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
+        let Block::Shinkyu { rows ,..} = &doc.blocks[0] else { panic!() };
         assert_eq!(rows.len(), 2, "{rows:?}");
         assert!(rows[0].after[0].text.starts_with("（免許を要しない無線局）\n第六条"));
         assert!(rows[1].after[0].text.starts_with("第六条の二") && rows[1].before[0].text.starts_with("第六条の二"));
@@ -2689,7 +2715,7 @@ mod tests {
         let after = "附　則\n（経過措置）\n第二条　新しい条";
         let before = "附　則\n（新設）";
         let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
-        let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
+        let Block::Shinkyu { rows ,..} = &doc.blocks[0] else { panic!() };
         assert_eq!(rows.len(), 2, "{rows:?}");
         assert_eq!(rows[0].before[0].text.trim(), "附　則");
         assert_eq!(rows[1].before[0].text.trim(), "（新設）");
@@ -2701,7 +2727,7 @@ mod tests {
         let after = "（甲室）\n第一条　甲\n（削る）\n（乙室）\n第二条　乙";
         let before = "（甲室及び丙室）\n第一条　甲\n２　丙\n（乙室及び丁室）\n第二条　乙";
         let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
-        let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
+        let Block::Shinkyu { rows ,..} = &doc.blocks[0] else { panic!() };
         assert_eq!(rows.len(), 2, "{rows:?}");
         assert!(rows[1].after[0].text.starts_with("（乙室）") && rows[1].before[0].text.starts_with("（乙室及び丁室）"));
     }
@@ -2728,7 +2754,7 @@ mod tests {
         let doc = Document::from_text(text);
         assert_eq!(
             doc.blocks,
-            vec![Block::Shinkyu {
+            vec![Block::Shinkyu {labels:None,
                 rows: vec![ShinkyuRow {
                     after: vec![Run::plain("A1A2")],
                     before: vec![Run::plain("B1B2")],

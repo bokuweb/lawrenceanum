@@ -122,7 +122,7 @@ fn missing_and_invalid_geometry_hold() {
 use crate::native_word_axes::NativeAxis;
 use crate::trace::{Line, NativeBounds, Table, Unit, Word, WordStatus};
 fn signature(u: &[Unit]) -> String {
-    serde_json::to_string(&u.iter().map(|u|match u{Unit::Plain(l)=>serde_json::json!({"plain":l}),Unit::Shinkyu{preamble,after,before,outside}=>serde_json::json!({"preamble":preamble,"after":after,"before":before,"outside":outside})}).collect::<Vec<_>>()).unwrap()
+    serde_json::to_string(&u.iter().map(|u|match u{Unit::Plain(l)=>serde_json::json!({"plain":l}),Unit::Shinkyu{preamble,after,before,outside,..}=>serde_json::json!({"preamble":preamble,"after":after,"before":before,"outside":outside})}).collect::<Vec<_>>()).unwrap()
 }
 fn fixture() -> (Vec<Unit>, Vec<Word>, Vec<NativeBounds>, Vec<NativeAxis>) {
     let c = sample();
@@ -263,7 +263,7 @@ fn shinkyu_sides_are_never_reassembled() {
     let Unit::Plain(l) = u.remove(0) else {
         panic!()
     };
-    u.push(Unit::Shinkyu {
+    u.push(Unit::Shinkyu {labels:None,
         preamble: l,
         after: vec![],
         before: vec![],

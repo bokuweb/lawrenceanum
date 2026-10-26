@@ -26,7 +26,7 @@ pub(crate) fn restore_area_units(units: &mut [Unit], words: &mut [Word]) {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 count(preamble);
                 for p in after.iter().chain(before).chain(outside) {
                     count(p);
@@ -57,7 +57,7 @@ pub(crate) fn restore_area_units(units: &mut [Unit], words: &mut [Word]) {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 lines(preamble, words, &owners);
                 for p in after.iter_mut().chain(before).chain(outside) {
                     lines(p, words, &owners);

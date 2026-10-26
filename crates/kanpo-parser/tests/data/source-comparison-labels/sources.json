@@ -1,0 +1,31 @@
+{
+  "issue": "https://github.com/bokuweb/lawrenceanum/issues/227",
+  "ocr": false,
+  "sources": [
+    {
+      "source": "20260730g001710030",
+      "url": "https://www.kanpo.go.jp/20260730/20260730g00171/20260730g001710030.pdf",
+      "sha256": "759b27e70b4a28d00a798bbc770582a04f57aad6650d0eb2a6db73db2eaadd0a"
+    },
+    {
+      "source": "20260730g001710031",
+      "url": "https://www.kanpo.go.jp/20260730/20260730g00171/20260730g001710031.pdf",
+      "sha256": "ca5047358ea0a4f04c8fca64e31e7da7e8c171a9b037e982e28daf6de0920615"
+    },
+    {
+      "source": "20260924g002110029",
+      "url": "https://www.kanpo.go.jp/20260924/20260924g00211/20260924g002110029.pdf",
+      "sha256": "e6598abff35bf78fa2c0d262563da1f83b03f8700f31a73b04bc0ba7a45bb9ba"
+    },
+    {
+      "source": "20261007h018030003",
+      "url": "https://www.kanpo.go.jp/20261007/20261007h01803/20261007h018030003.pdf",
+      "sha256": "9d5dc0786823e8fc6b92b4951aa75c909aea7fd073b8d0782da5e66673bdeaae"
+    },
+    {
+      "source": "20261020h018110006",
+      "url": "https://www.kanpo.go.jp/20261020/20261020h01811/20261020h018110006.pdf",
+      "sha256": "60048fbc896da07e5f9764f01c89da25fb1feb1c7dc3869d6678be9ace40de89"
+    }
+  ]
+}

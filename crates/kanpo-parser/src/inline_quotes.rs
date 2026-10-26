@@ -55,7 +55,7 @@ fn all_lines(units: &[Unit]) -> Vec<&Line> {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 out.extend(preamble);
                 for p in after.iter().chain(before).chain(outside) {
                     out.extend(p);
@@ -75,7 +75,7 @@ fn all_lines_mut(units: &mut [Unit]) -> Vec<&mut Line> {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 out.extend(preamble);
                 for p in after.iter_mut().chain(before).chain(outside) {
                     out.extend(p);
@@ -311,7 +311,7 @@ mod tests {
     }
     #[test]
     fn shinkyu_parts_preserve_their_separate_owners() {
-        let mut units = vec![Unit::Shinkyu {
+        let mut units = vec![Unit::Shinkyu {labels:None,
             preamble: vec![],
             after: vec![vec![Line::text("Due".into(), vec![0])]],
             before: vec![vec![Line::text("reasons".into(), vec![1])]],

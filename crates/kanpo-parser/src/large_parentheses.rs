@@ -86,7 +86,7 @@ pub(crate) fn restore_large_parentheses(units: &mut [Unit], words: &[Word]) {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 lines(preamble, words);
                 for p in after.iter_mut().chain(before).chain(outside) {
                     lines(p, words);
@@ -417,7 +417,7 @@ mod period_tests {
     #[test]
     fn shinkyu_lines_are_not_changed() {
         let (lines, words) = fixture();
-        let mut units = vec![Unit::Shinkyu {
+        let mut units = vec![Unit::Shinkyu {labels:None,
             preamble: lines.clone(),
             after: vec![],
             before: vec![],

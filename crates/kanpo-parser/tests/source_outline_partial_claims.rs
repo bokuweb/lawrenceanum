@@ -9,7 +9,7 @@ fn rows(a: &Analysis) -> Vec<&ShinkyuRow> {
         .iter()
         .flat_map(|a| &a.document.blocks)
         .flat_map(|b| match b {
-            Block::Shinkyu { rows } => rows.as_slice(),
+            Block::Shinkyu { rows ,..} => rows.as_slice(),
             _ => &[],
         })
         .collect()

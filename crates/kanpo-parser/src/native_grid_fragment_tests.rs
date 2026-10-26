@@ -349,19 +349,19 @@ fn comparative_and_preamble_roles_are_never_borrowed() {
             panic!()
         };
         f.units.push(match role {
-            0 => Unit::Shinkyu {
+            0 => Unit::Shinkyu {labels:None,
                 preamble: l,
                 after: vec![],
                 before: vec![],
                 outside: vec![],
             },
-            1 => Unit::Shinkyu {
+            1 => Unit::Shinkyu {labels:None,
                 preamble: vec![],
                 after: vec![l],
                 before: vec![],
                 outside: vec![],
             },
-            _ => Unit::Shinkyu {
+            _ => Unit::Shinkyu {labels:None,
                 preamble: vec![],
                 after: vec![],
                 before: vec![l],
@@ -378,7 +378,7 @@ fn outside_and_body_fragments_can_share_one_proven_original_table() {
         panic!()
     };
     let rest = l.split_off(1);
-    f.units.push(Unit::Shinkyu {
+    f.units.push(Unit::Shinkyu {labels:None,
         preamble: vec![],
         after: vec![],
         before: vec![],

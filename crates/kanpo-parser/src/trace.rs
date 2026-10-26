@@ -181,6 +181,8 @@ pub(crate) enum NativeBounds {
 #[derive(Debug, Clone, Serialize)]
 pub struct PageTrace {
     #[serde(skip)]
+    pub(crate) native_comparison_labels: Vec<Option<crate::ComparisonLabels>>,
+    #[serde(skip)]
     pub(crate) native_horizontal_baselines: Vec<Option<f64>>,
     #[serde(skip)]
     pub(crate) native_atomic_columns: Vec<crate::native_atomic_column::Certificate>,
@@ -308,6 +310,7 @@ mod tests {
 pub(crate) enum Unit {
     Plain(Vec<Line>),
     Shinkyu {
+        labels: Option<crate::ComparisonLabels>,
         preamble: Vec<Line>,
         after: Vec<Vec<Line>>,
         before: Vec<Vec<Line>>,
@@ -394,7 +397,9 @@ impl Unit {
                 after,
                 before,
                 outside,
+                labels,
             } => {
+                let labels=labels.unwrap_or(crate::ComparisonLabels::AMENDMENT);
                 let mut out: Vec<String> = Vec::new();
                 let (after_parts, before_parts) = (after, before);
                 let pre = join_lines_with(preamble, render);
@@ -411,9 +416,9 @@ impl Unit {
                 }
                 let (after, before) = (join(after), join(before));
                 if !after.is_empty() || !before.is_empty() {
-                    out.push("改正後".to_string());
+                    out.push(labels.after.to_string());
                     out.push(after);
-                    out.push("改正前".to_string());
+                    out.push(labels.before.to_string());
                     out.push(before);
                     if end_marker {
                         out.push(SHINKYU_END.to_string());
@@ -446,7 +451,7 @@ impl Unit {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 push(Role::Preamble, 0, preamble);
                 for (i, l) in after.into_iter().enumerate() {
                     push(Role::After, i, l);

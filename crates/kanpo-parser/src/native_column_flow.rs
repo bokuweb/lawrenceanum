@@ -55,6 +55,22 @@ pub(crate) fn from_word(word: scraper::ElementRef<'_>, total: Option<usize>) -> 
     out.belongs(b).then_some(out)
 }
 impl AxisFlow {
+    /// Bound every vertical glyph center from the complete source column and
+    /// original em sizes. Mixed sizes are valid when their conservative center
+    /// envelope stays in one cell; no average size or point tolerance is used.
+    pub(crate) fn vertical_center_envelope(self,b:[f32;4],styles:&NativeStyles)->Option<[f64;3]>{
+        let [x,start,end]=self.vertical_path(b)?;
+        let sizes=styles.iter().map(|(_,bits)|f64::from_bits(*bits)).collect::<Vec<_>>();
+        if sizes.is_empty()||sizes.iter().any(|s|!s.is_finite()||*s<=0.){return None;}
+        let min=sizes.iter().copied().fold(f64::INFINITY,f64::min);
+        let max=sizes.iter().copied().fold(f64::NEG_INFINITY,f64::max);
+        // This is the native XHTML coordinate codec, not a geometric margin.
+        let encoded=|v:f64|format!("{v:.6}").parse::<f32>().ok().filter(|v|v.is_finite());
+        if encoded(x-max*0.5)!=Some(b[0])||encoded(x+max*0.5)!=Some(b[2]){return None;}
+        let out=[x,start+min*0.5,end-min*0.5];
+        (out.iter().all(|v|v.is_finite())&&out[1]<=out[2]).then_some(out)
+    }
+
     pub(crate) fn vertical_prefix_gap(self,b:[f32;4],next:Self,nb:[f32;4])->bool{
         match(self.vertical_path(b),next.vertical_path(nb)){
             (Some(a),Some(z))=>a[0] as f32==z[0] as f32&&(a[2]+self.flow.leading)as f32<=z[1]as f32,
@@ -109,7 +125,7 @@ fn unit_lines(u: &Unit) -> Vec<&Line> {
             after,
             before,
             outside,
-        } => preamble
+        ..} => preamble
             .iter()
             .chain(after.iter().chain(before).chain(outside).flatten())
             .collect(),

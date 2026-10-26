@@ -131,7 +131,7 @@ fn visit(units: &[Unit], mut f: impl FnMut(&[Line])) {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 f(preamble);
                 for ls in after.iter().chain(before).chain(outside) {
                     f(ls);
@@ -149,7 +149,7 @@ fn visit_mut(units: &mut [Unit], mut f: impl FnMut(&mut Vec<Line>)) {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 f(preamble);
                 for ls in after
                     .iter_mut()

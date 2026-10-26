@@ -330,7 +330,7 @@ pub(crate) fn restore(
         }
     };
     let (a, b, c, d) = (take(), take(), take(), take());
-    units.push(Unit::Shinkyu {
+    units.push(Unit::Shinkyu {labels:None,
         preamble: Vec::new(),
         after: vec![a, c],
         before: vec![b, d],

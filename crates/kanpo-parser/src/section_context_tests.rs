@@ -91,7 +91,7 @@ fn fixture() -> Fixture {
         .map(|(i, t)| Line::text((*t).into(), vec![i]))
         .collect::<Vec<_>>();
     let text = texts.join("\n");
-    let page = PageTrace {native_horizontal_baselines:vec![],native_atomic_columns:vec![],
+    let page = PageTrace {native_comparison_labels:vec![],native_horizontal_baselines:vec![],native_atomic_columns:vec![],
         width: 800.,
         height: 1000.,
         layout: "tiers",

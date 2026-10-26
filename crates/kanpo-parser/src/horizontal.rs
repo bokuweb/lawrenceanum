@@ -6102,7 +6102,7 @@ pub(crate) fn repair_native_ledger_tables(units: &mut [trace::Unit], words: &[tr
     for unit in units {
         match unit {
             trace::Unit::Plain(lines) => repair(lines),
-            trace::Unit::Shinkyu { preamble, after, before, outside } => {
+            trace::Unit::Shinkyu { preamble, after, before, outside ,..} => {
                 repair(preamble);
                 for lines in after.iter_mut().chain(before).chain(outside) {
                     repair(lines);

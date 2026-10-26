@@ -407,7 +407,7 @@ fn main() -> anyhow::Result<()> {
                                 law = Some(l);
                             }
                         }
-                        Block::Shinkyu { rows } => {
+                        Block::Shinkyu { rows, .. } => {
                             table_index += 1;
                             let (Some(amend), Some(law)) = (amend.as_ref(), law.as_ref()) else { continue };
                             let candidates = cached.entry((amend.clone(), law.clone())).or_insert_with(|| {

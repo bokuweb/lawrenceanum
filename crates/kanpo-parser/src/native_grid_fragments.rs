@@ -71,7 +71,7 @@ fn visit(units: &[Unit], mut f: impl FnMut(bool, &Line)) {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 for l in preamble
                     .iter()
                     .chain(after.iter().flatten())
@@ -109,7 +109,7 @@ fn replace(units: &mut [Unit], selected: &HashSet<usize>, first: usize, replacem
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 edit(preamble);
                 for l in after
                     .iter_mut()
@@ -380,3 +380,138 @@ pub(crate) fn restore(
 #[cfg(test)]
 #[path = "native_grid_fragment_tests.rs"]
 mod tests;
+
+/// Recover a complete vertical ordinary table from its painted source grid.
+/// This is a local replacement after comparison tier planning: an independent
+/// grid cannot change unrelated role divisions elsewhere on the page.
+pub(crate) fn restore_independent_vertical(
+    units: &mut [Unit],
+    plans: &[(Grid, Vec<Col>)],
+    words: &[Word],
+    bounds: &[NativeBounds],
+    axes: &[NativeAxis],
+    styles: &[Option<crate::trace::NativeStyles>],
+    flows: &[Option<crate::native_column_flow::AxisFlow>],
+) {
+    for (g, cols) in plans {
+        if !crate::ruled_cell_flow::partition(g) {
+            continue;
+        }
+        let all: BTreeSet<_> = cols.iter().map(|c| c.id).collect();
+        if all.is_empty() || all.len() != cols.len() {
+            continue;
+        }
+        // Plans must name the complete native inventory inside the frame, not
+        // merely a convenient subset whose own characters happen to match.
+        let mut native_members = BTreeSet::new();
+        let mut source_known = true;
+        for (id, w) in words
+            .iter()
+            .enumerate()
+            .filter(|(_, w)| w.status == WordStatus::Used)
+        {
+            let Some(NativeBounds::Glyphs(b)) = bounds.get(id) else {
+                source_known = false;
+                break;
+            };
+            if w.id != id || !valid(*b) {
+                source_known = false;
+                break;
+            }
+            if g.contains((b[0] + b[2]) * 0.5, (b[1] + b[3]) * 0.5, 0.5) {
+                native_members.insert(id);
+            }
+        }
+        if !source_known || native_members != all {
+            continue;
+        }
+        let certified = cols.iter().all(|c| {
+            let Some(w) = words.get(c.id) else {
+                return false;
+            };
+            let Some(NativeBounds::Glyphs(b)) = bounds.get(c.id) else {
+                return false;
+            };
+            let Some(style) = styles.get(c.id).and_then(Option::as_ref) else {
+                return false;
+            };
+            let Some(flow) = flows.get(c.id).copied().flatten() else {
+                return false;
+            };
+            w.id == c.id
+                && w.status == WordStatus::Used
+                && w.text == c.text
+                && valid(*b)
+                && axes.get(c.id) == Some(&NativeAxis::Down)
+                && flow
+                    .vertical_center_envelope(*b, style)
+                    .is_some_and(|centers| vertical_center_cell(g, centers).is_some())
+                && !crate::segment::is_heading_mark(&c.text)
+        });
+        if !certified {
+            continue;
+        }
+        let mut flat = vec![];
+        visit(units, |allowed, l| flat.push((allowed, l.clone())));
+        let mut counts = HashMap::new();
+        let mut selected = HashSet::new();
+        let mut ok = true;
+        for (i, (allowed, line)) in flat.iter().enumerate() {
+            let Some(own) = ids(line) else {
+                ok = false;
+                break;
+            };
+            for id in &own {
+                *counts.entry(*id).or_insert(0usize) += 1;
+            }
+            if own.is_disjoint(&all) {
+                continue;
+            }
+            // Preserve every pre-existing typed table, logical comparison role,
+            // and any line containing a source word outside this physical grid.
+            if !allowed || line.table.is_some() || !own.is_subset(&all) {
+                ok = false;
+                break;
+            }
+            selected.insert(i);
+        }
+        if !ok || all.iter().any(|id| counts.get(id) != Some(&1)) {
+            continue;
+        }
+        let Some(first) = selected.iter().min().copied() else {
+            continue;
+        };
+        let table = crate::shinkyu::grid_table(g, cols.clone());
+        let line = Line {
+            text: table.render(),
+            words: vec![],
+            table: Some(table),
+        };
+        if ids(&line) != Some(all)
+            || material([line.text.as_str()])
+                != material(selected.iter().map(|&i| flat[i].1.text.as_str()))
+        {
+            continue;
+        }
+        replace(units, &selected, first, line);
+    }
+}
+
+#[cfg(test)]
+#[path = "independent_vertical_grid_tests147.rs"]
+mod independent_vertical_tests147;
+
+/// All certified glyph centers of the original column must belong to one
+/// native cell. A segment crossing a painted boundary remains ambiguous.
+fn vertical_center_cell(g: &Grid, [x, first, last]: [f64; 3]) -> Option<usize> {
+    if ![x, first, last].iter().all(|v| v.is_finite()) || first > last {
+        return None;
+    }
+    let cells: Vec<_> = (0..g.cells.len())
+        .filter(|&i| {
+            let r = cell(g, i);
+            r[0] as f64 <= x && x <= r[2] as f64 && r[1] as f64 <= first && last <= r[3] as f64
+        })
+        .collect();
+    (cells.len() == 1).then(|| cells[0])
+}

@@ -10,7 +10,7 @@ export default defineConfig({
   use: { headless: true, viewport: { width: 1280, height: 900 }, baseURL: BASE },
   reporter: [["list"]],
   webServer: {
-    command: "pnpm build:wasm && node tests/serve.mjs",
+    command: "pnpm test:amend-document && pnpm build:wasm && node tests/serve.mjs",
     url: BASE,
     timeout: 180_000,
     reuseExistingServer: !process.env.CI,

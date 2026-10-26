@@ -34,7 +34,7 @@ fn visit(units: &[Unit], mut f: impl FnMut(usize, &Line)) {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 for l in preamble {
                     f(k, l);
                     k += 1;
@@ -64,7 +64,7 @@ fn visit_mut(units: &mut [Unit], mut f: impl FnMut(usize, &mut Line)) {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 for l in preamble {
                     f(k, l);
                     k += 1;
@@ -146,7 +146,8 @@ pub(crate) fn restore_coordinate_rows(
                 after,
                 before,
                 outside,
-            } => Unit::Shinkyu {
+                labels,
+            } => Unit::Shinkyu {labels:*labels,
                 preamble: preamble.clone(),
                 after: after.clone(),
                 before: before.clone(),

@@ -126,7 +126,7 @@ fn copy(u: &Unit) -> Unit {
             after,
             before,
             outside,
-        } => Unit::Shinkyu {
+        ..} => Unit::Shinkyu {labels:None,
             preamble: preamble.clone(),
             after: after.clone(),
             before: before.clone(),
@@ -147,7 +147,7 @@ fn unchanged(mut f: Fixture) {
     assert_eq!(snapshot(&f), old)
 }
 fn page(f: &Fixture) -> PageTrace {
-    PageTrace {
+    PageTrace {native_comparison_labels:vec![],
         native_horizontal_baselines:vec![],
         native_atomic_columns: f.certificates.clone(),
         native_styles: vec![None; f.words.len()],
@@ -309,7 +309,7 @@ fn comparative_roles_hold() {
     let Unit::Plain(ls) = f.units.remove(0) else {
         panic!()
     };
-    f.units.push(Unit::Shinkyu {
+    f.units.push(Unit::Shinkyu {labels:None,
         preamble: vec![],
         after: vec![ls],
         before: vec![],

@@ -41,7 +41,7 @@ fn table_line(t: Table) -> Line {
 }
 fn page(lines: Vec<Line>) -> PageTrace {
     let text = join_lines(&lines);
-    PageTrace {native_horizontal_baselines:vec![],native_atomic_columns:vec![],native_axes:vec![],native_rulings:vec![],
+    PageTrace {native_comparison_labels:vec![],native_horizontal_baselines:vec![],native_atomic_columns:vec![],native_axes:vec![],native_rulings:vec![],
         native_styles:vec![],
         native_bounds: vec![],
         native_content_styles: vec![],
@@ -136,14 +136,14 @@ fn missing_metadata_at_page_join_still_trims() {
 #[test]
 fn shinkyu_table_preamble_keeps_columns_but_not_before_label_indent() {
     let pre = table_line(table());
-    let u = Unit::Shinkyu {
+    let u = Unit::Shinkyu {labels:None,
         preamble: vec![pre],
         after: vec![vec![Line::text("new".into(), vec![])]],
         before: vec![vec![Line::text("old".into(), vec![])]],
         outside: vec![],
     };
     assert!(u.text().starts_with("\u{3000}10"));
-    let u = Unit::Shinkyu {
+    let u = Unit::Shinkyu {labels:None,
         preamble: vec![],
         after: vec![vec![table_line(table())]],
         before: vec![],

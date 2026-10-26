@@ -92,7 +92,7 @@ fn owners(units: &[Unit]) -> BTreeMap<usize, usize> {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 add(preamble);
                 for lines in after.iter().chain(before).chain(outside) {
                     add(lines)

@@ -456,7 +456,7 @@ fn a_previously_classified_comparison_keeps_its_original_lines() {
         panic!()
     };
     let old = ls.clone();
-    f.units.push(Unit::Shinkyu {
+    f.units.push(Unit::Shinkyu {labels:None,
         preamble: vec![],
         after: vec![ls],
         before: vec![],

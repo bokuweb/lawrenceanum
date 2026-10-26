@@ -70,7 +70,7 @@ fn unrelated_tiers_articles_and_incomplete_grids_remain_separate() {
         match case {
             0 => {
                 ts[0][0].text = "変更後".into();
-                ts[0][1].text = "変更前".into();
+                ts[0][1].text = "改正前".into();
             }
             1 => {
                 gs.remove(0);
@@ -129,3 +129,5 @@ fn unrelated_tiers_articles_and_incomplete_grids_remain_separate() {
         );
     }
 }
+
+#[test]fn complete_change_pair_rejoins_the_same_certified_paired_grids(){for signature in [false,true]{let(mut tiers,grids)=fixture(signature);tiers[0][0].text="変更後".into();tiers[0][1].text="変更前".into();let ids:std::collections::HashSet<_>=tiers.iter().flatten().map(|c|c.id).collect();rejoin_split_shinkyu_grid_tiers(&mut tiers,&grids);assert_eq!(tiers.len(),1);let actual:Vec<_>=tiers.iter().flatten().map(|c|c.id).collect();assert_eq!(actual.len(),ids.len());assert_eq!(actual.into_iter().collect::<std::collections::HashSet<_>>(),ids);}}

@@ -1,7 +1,7 @@
 use super::*;
 
 fn pair(after: usize, before: usize) -> Unit {
-    Unit::Shinkyu {
+    Unit::Shinkyu {labels:None,
         preamble: vec![],
         after: vec![vec![Line::text("alpha".into(), vec![after])]],
         before: vec![vec![Line::text("（新設）".into(), vec![before])]],
@@ -20,7 +20,7 @@ fn mixed() -> Line {
 fn snapshot(units: &[Unit]) -> serde_json::Value {
     serde_json::Value::Array(units.iter().map(|u| match u {
         Unit::Plain(ls) => serde_json::json!({"plain":ls}),
-        Unit::Shinkyu { preamble, after, before, outside } => serde_json::json!({"preamble":preamble,"after":after,"before":before,"outside":outside}),
+        Unit::Shinkyu { preamble, after, before, outside ,..} => serde_json::json!({"preamble":preamble,"after":after,"before":before,"outside":outside}),
     }).collect())
 }
 

@@ -86,6 +86,7 @@ pub mod vertical;
 
 pub use format::detect_format_of;
 pub use model::{Block, Document, Run, ShinkyuRow};
+pub use comparison_labels::ComparisonLabels;
 pub use normalize::normalize_text;
 pub use segment::segment_articles;
 pub use vertical::reconstruct_vertical;
@@ -160,7 +161,9 @@ pub fn analyze_with_rules(xhtml: &str, rules: &[Option<lines::PageRules>]) -> An
         let original=Document::from_text_with_tables(&segment,&tables);
         if parts.len()>1 {
             let desired:Vec<_>=parts.iter().map(|p|Document::from_text_with_tables(&p.text,&tables)).collect();
-            if let Some(documents)=company_document_parts::repartition(&original,&desired){
+            let documents=company_document_parts::repartition(&original,&desired)
+                .or_else(||source_article_parts::documents(&original,&segment,&parts,&pages,&desired,&tables));
+            if let Some(documents)=documents{
                 for (p,document) in parts.into_iter().zip(documents) {
                     let notices=notice_sources::for_sources(&certificates,p.sources.iter().copied());
                     article_sources.push(section_context::OwnedSources::from_partial_claims(&p.text,p.sources));
@@ -453,7 +456,7 @@ fn attach_bessho_tables(doc: &mut Document, rules: &lines::PageRules, xhtml: &st
     // Document の 別表行（after が「別表」で始まる行）に、読み順で順番に割り当てる。
     let (mut ai, mut bi) = (0usize, 0usize);
     for block in &mut doc.blocks {
-        let model::Block::Shinkyu { rows } = block else { continue };
+        let model::Block::Shinkyu { rows ,..} = block else { continue };
         for row in rows.iter_mut() {
             let is_bessho = |runs: &[Run]| runs.first().map(|r| model::starts_with_spaced(&r.text, "別表")).unwrap_or(false);
             // 既に別表が付いている行（前のページで充填済み）は飛ばす。
@@ -719,3 +722,7 @@ mod native_cell_text;
 
 mod native_cell_origin;
 
+
+mod comparison_labels;
+
+mod source_article_parts;

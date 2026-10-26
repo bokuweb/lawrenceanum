@@ -38,7 +38,7 @@ pub(crate) fn restore_coordinate_symbols(units: &mut [Unit], words: &mut [Word])
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 collect(preamble);
                 for p in after.iter().chain(before).chain(outside) {
                     collect(p);
@@ -155,7 +155,7 @@ pub(crate) fn restore_coordinate_symbols(units: &mut [Unit], words: &mut [Word])
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 lines(preamble, words, &mut attached, &owner_counts);
                 for p in after.iter_mut().chain(before).chain(outside) {
                     lines(p, words, &mut attached, &owner_counts);

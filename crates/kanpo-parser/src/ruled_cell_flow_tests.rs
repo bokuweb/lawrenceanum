@@ -104,7 +104,7 @@ fn scopes(units: &[Unit]) -> Vec<(String, Vec<Line>)> {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 out.push(("preamble".into(), preamble.clone()));
                 for (name, parts) in [("after", after), ("before", before), ("outside", outside)] {
                     for part in parts {
@@ -338,7 +338,7 @@ fn current_tables_are_not_replaced_or_reordered() {
 #[test]
 fn a_grid_split_between_after_and_before_scopes_is_not_moved_across_roles() {
     let mut f = fixture(1, 2, "data");
-    f.units = vec![Unit::Shinkyu {
+    f.units = vec![Unit::Shinkyu {labels:None,
         preamble: vec![],
         after: vec![crate::horizontal::row_lines(
             f.words[..2].iter().map(col).collect(),

@@ -65,7 +65,7 @@ fn render_document(out: &mut String, doc: &Document) {
     for b in &doc.blocks {
         match b {
             Block::Paragraph { runs } => render_runs(out, "  P ", runs),
-            Block::Shinkyu { rows } => {
+            Block::Shinkyu { rows ,..} => {
                 out.push_str(&format!("  [新旧対照表 {} 行]\n", rows.len()));
                 for (i, r) in rows.iter().enumerate() {
                     out.push_str(&format!("   row {i}\n"));

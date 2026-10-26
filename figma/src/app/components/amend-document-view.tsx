@@ -3,6 +3,14 @@
 import type { AmendDocument, AmendRun, AmendNestedTable } from "../data/api";
 import { cn } from "./ui/utils";
 
+// Older documents omit labels; new documents preserve the actual source pair.
+type ComparisonBlock = Extract<AmendDocument["blocks"][number], { kind: "shinkyu" }> & {
+  labels?: { after: string; before: string };
+};
+function comparisonLabels(block: ComparisonBlock) {
+  return block.labels ?? { after: "改正後", before: "改正前" };
+}
+
 /** テキストの Run 列を描画。傍線(下線)付きは <u> で表す（現状は常に false だが将来の傍線抽出に対応）。 */
 function renderTextRuns(runs: AmendRun[]) {
   return runs.map((r, i) => (r.underline ? <u key={i}>{r.text}</u> : <span key={i}>{r.text}</span>));
@@ -115,12 +123,13 @@ export function AmendDocumentView({ doc, className }: { doc: AmendDocument; clas
         if (b.kind === "paragraph") {
           return <RunsView key={bi} runs={b.runs} className="text-xs" />;
         }
+        const labels = comparisonLabels(b);
         return (
           <table key={bi} className="w-full text-xs border-collapse table-fixed">
             <thead>
               <tr>
-                <th className="w-1/2 border border-border bg-background/60 px-2 py-1 text-left font-medium">改正後</th>
-                <th className="w-1/2 border border-border bg-background/60 px-2 py-1 text-left font-medium">改正前</th>
+                <th className="w-1/2 border border-border bg-background/60 px-2 py-1 text-left font-medium">{labels.after}</th>
+                <th className="w-1/2 border border-border bg-background/60 px-2 py-1 text-left font-medium">{labels.before}</th>
               </tr>
             </thead>
             <tbody>

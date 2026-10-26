@@ -56,7 +56,7 @@ fn visit(units: &[Unit], mut f: impl FnMut(&[Line])) {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 f(preamble);
                 for ls in after.iter().chain(before).chain(outside) {
                     f(ls);
@@ -155,7 +155,7 @@ pub(crate) fn restore(
                     }
                     lines.push(ls);
                 }
-                candidate.push(Unit::Shinkyu {
+                candidate.push(Unit::Shinkyu {labels:None,
                     preamble: vec![],
                     after: vec![lines.remove(0)],
                     before: vec![lines.remove(0)],

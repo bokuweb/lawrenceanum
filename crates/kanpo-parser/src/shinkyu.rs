@@ -20,55 +20,25 @@ pub(crate) fn detect_shinkyu_header(cols: &[Col]) -> Option<(f32, f32)> {
 
 /// 「改正後／改正前」欄見出し列をすべて検出し、右から順に `(見出し x, 上下帯の境界 y)` を返す。
 ///
-/// x 近傍でカラムをまとめ、その縦連結に両ラベルが現れる列を見出し列とみなす。境界は
-/// 両ラベルの中心の中点。ラベルは 1〜3 文字の短い語（「改」「正」「後」や「改正後」）に
-/// 限る。前文の「改正前欄に掲げる…改正後欄に…」を見出しと取り違えないため。
+/// 「改正後／改正前」「変更後／変更前」の完全な語を、共通する列の矩形と
+/// 元の Word の連続性から認定する。両役割の中心の中点を境界にする。
+/// 本文の一部や途中の Word を飛ばした組合せは欄見出しにしない。
 pub(crate) fn detect_shinkyu_headers(cols: &[Col]) -> Vec<(f32, f32)> {
-    // x 近傍(±6pt)でグループ化。
-    let mut idx: Vec<usize> = (0..cols.len()).filter(|&i| cols[i].text.chars().count() <= 3).collect();
-    idx.sort_by(|&a, &b| cols[a].x.partial_cmp(&cols[b].x).unwrap_or(std::cmp::Ordering::Equal));
-    let check = |g: &mut Vec<usize>| -> Option<(f32, f32)> {
-        if g.len() < 2 {
-            return None;
-        }
-        g.sort_by(|&a, &b| cols[a].y.partial_cmp(&cols[b].y).unwrap_or(std::cmp::Ordering::Equal));
-        let chars: Vec<char> = g.iter().flat_map(|&i| cols[i].text.chars()).collect();
-        // 各文字の y 中心（語が複数文字なら全文字に同じ中心を割当: 見出しは短いので十分）。
-        let centers: Vec<f32> = g
-            .iter()
-            .flat_map(|&i| {
-                let c = (cols[i].y + cols[i].y1) / 2.0;
-                cols[i].text.chars().map(move |_| c)
-            })
-            .collect();
-        let header_x = g.iter().map(|&i| cols[i].x).fold(f32::INFINITY, f32::min);
-        let go = find_run(&chars, &['改', '正', '後']);
-        let mae = find_run(&chars, &['改', '正', '前']);
-        match (go, mae) {
-            (Some(gi), Some(mi)) if gi != mi => {
-                let go_c = (centers[gi] + centers[gi + 1] + centers[gi + 2]) / 3.0;
-                let mae_c = (centers[mi] + centers[mi + 1] + centers[mi + 2]) / 3.0;
-                Some((header_x, (go_c + mae_c) / 2.0))
-            }
-            _ => None,
-        }
-    };
-    let mut found: Vec<(f32, f32)> = Vec::new();
-    let mut group: Vec<usize> = Vec::new();
-    let mut rep = f32::NEG_INFINITY;
-    for &i in &idx {
-        if !group.is_empty() && cols[i].x - rep > 6.0 {
-            found.extend(check(&mut group));
-            group.clear();
-        }
-        if group.is_empty() {
-            rep = cols[i].x;
-        }
-        group.push(i);
-    }
-    found.extend(check(&mut group));
-    found.sort_by(|a, b| b.0.partial_cmp(&a.0).unwrap_or(std::cmp::Ordering::Equal));
-    found
+    crate::comparison_labels::headers(cols).into_iter().map(|h|(h.x,h.divider)).collect()
+}
+
+// A reconstructed line may begin with a heading while also containing a
+// neighboring table cell. Only a complete numbered publication lexeme can
+// authorize a new preamble boundary; a prefix cannot claim the full line.
+fn complete_numbered_publication_heading(text:&str)->bool{
+    let text:String=text.chars().filter(|c|!c.is_whitespace()).collect();
+    if !is_heading_mark(&text){return false;}
+    let Some(core)=text.strip_suffix('号')else{return false;};
+    let Some((name,number))=core.rsplit_once('第')else{return false;};
+    !name.contains('号')
+        &&["告示","省令","府令","規則","庁令","訓令","命令","令"].iter().any(|kind|name.ends_with(kind))
+        &&!number.is_empty()
+        &&number.chars().all(|c|c.is_ascii_digit()||('０'..='９').contains(&c)||"〇零一二三四五六七八九十百千万".contains(c))
 }
 
 /// 1 つの段に新旧対照表が横に並ぶとき、表ごとの縦の切れ目で分ける（右から順）。
@@ -82,11 +52,27 @@ pub(crate) fn split_side_by_side_tables(cols: Vec<Col>) -> Vec<Vec<Col>> {
     let mut cuts: Vec<f32> = Vec::new();
     for w in heads.windows(2) {
         let ((h1, d1), (h2, _)) = (w[0], w[1]);
-        let cut = cols
-            .iter()
-            .filter(|c| c.x > h2 + 6.0 && c.x1 < h1 - 1.0 && ((c.y < d1 && c.y1 > d1) || c.text.starts_with('〇')))
-            .map(|c| c.x1)
-            .reduce(f32::max);
+        let between = |c: &&Col| c.x > h2 + 6.0 && c.x1 < h1 - 1.0;
+        // An independent publication heading certifies the next preamble's
+        // source boundary. A spanning note to its right still belongs to the
+        // preceding table; crossing the role divider alone cannot reassign it.
+        let heading_cols:Vec<_>=cols.iter().filter(between).cloned().collect();
+        // Reuse the source column renderer so a joint ministry heading split
+        // across original Words has the same boundary as a single-Word heading.
+        // Every reconstructed heading Word must bind uniquely to this slice.
+        let cut = page_lines(heading_cols.clone()).iter().filter(|l|complete_numbered_publication_heading(&l.text)).filter_map(|line|{
+            if line.words.is_empty(){return None;}
+            let mut ids=std::collections::HashSet::new();
+            let mut right=f32::NEG_INFINITY;
+            for id in &line.words{
+                if !ids.insert(*id){return None;}
+                let mut found=heading_cols.iter().filter(|c|c.id==*id);
+                let c=found.next()?;if found.next().is_some(){return None;}
+                right=right.max(c.x1);
+            }
+            Some(right)
+        }).reduce(f32::max)
+            .or_else(||cols.iter().filter(between).filter(|c|c.y<d1&&c.y1>d1).map(|c|c.x1).reduce(f32::max));
         if let Some(cut) = cut {
             cuts.push(cut + 1.0);
         }
@@ -436,7 +422,7 @@ fn has_shinkyu_marks(t: &str) -> bool {
 
 /// [`tiers_look_like_bands`] の 2 段を改正後・改正前として組む。
 pub(crate) fn band_pair_unit(after: Vec<Col>, before: Vec<Col>, grids: &[Grid], rules: Option<&PageRules>) -> Unit {
-    ShinkyuLayout {
+    ShinkyuLayout {labels:None,
         band_boxes: None,
         preamble: Vec::new(),
         after: vec![after],
@@ -482,6 +468,7 @@ pub(crate) fn bigram_jaccard(a: &str, b: &str) -> f32 {
 }
 
 /// `chars` 中で連続部分列 `pat` が最初に現れる開始位置を返す。
+#[cfg(test)]
 fn find_run(chars: &[char], pat: &[char]) -> Option<usize> {
     if pat.is_empty() || chars.len() < pat.len() {
         return None;
@@ -570,6 +557,7 @@ fn continues_numbered_numeric_table(after: &[Col], before: &[Col]) -> bool {
 pub(crate) struct ShinkyuLayout {
     /// 罫線の外枠から求めた改正後帯・改正前帯の矩形 `(x0, x1, y0, y1)`（見出し段のみ）。
     band_boxes: Option<[(f32, f32, f32, f32); 2]>,
+    labels: Option<crate::ComparisonLabels>,
     preamble: Vec<Col>,
     after: Vec<Vec<Col>>,
     before: Vec<Vec<Col>>,
@@ -578,14 +566,18 @@ pub(crate) struct ShinkyuLayout {
 }
 
 impl ShinkyuLayout {
-    pub(crate) fn native_fields(after:Vec<Col>,before:Vec<Col>,boxes:[(f32,f32,f32,f32);2])->Self { Self { band_boxes:Some(boxes),preamble:vec![],after:vec![after],before:vec![before],trailing:vec![] } }
+    pub(crate) fn native_fields(after:Vec<Col>,before:Vec<Col>,boxes:[(f32,f32,f32,f32);2])->Self { Self {labels:None, band_boxes:Some(boxes),preamble:vec![],after:vec![after],before:vec![before],trailing:vec![] } }
     /// 見出し列 x より右(=`x >= header_x`)は前文・標題とみなし先頭にそのまま置く。
     /// 表本体(`x < header_x`)を境界 y で上下に分ける。
     pub(crate) fn split(cols: Vec<Col>, header_x: f32, divider: f32) -> Self {
+        let header = crate::comparison_labels::headers(&cols).into_iter().find(|h|h.x==header_x && h.divider==divider);
+        let labels=header.as_ref().map(|h|h.labels).filter(|p|*p!=crate::ComparisonLabels::AMENDMENT);
+        let label_words=header.map(|h|h.words).unwrap_or_default();
         let mut preamble: Vec<Col> = Vec::new();
         let mut upper: Vec<Col> = Vec::new();
         let mut lower_all: Vec<Col> = Vec::new();
         for c in cols {
+            if label_words.contains(&c.id) {continue;}
             if c.x >= header_x - 1.0 {
                 // 見出しラベル自身(改/正/後/前)は捨て、それ以外(前文・標題)は前文へ。
                 if matches!(c.text.as_str(), "改" | "正" | "後" | "前") && (c.x - header_x).abs() < 6.0 {
@@ -612,6 +604,7 @@ impl ShinkyuLayout {
             None => (lower_all, Vec::new()),
         };
         ShinkyuLayout {
+            labels,
             band_boxes: None,
             preamble,
             after: vec![upper],
@@ -751,7 +744,7 @@ impl ShinkyuLayout {
         let outside: Vec<Line> = cell_lines(out_after).into_iter().chain(cell_lines(out_before)).collect();
         let mut units = Vec::new();
         if one_sided && continued_before {
-            units.push(Unit::Shinkyu {
+            units.push(Unit::Shinkyu {labels:None,
                 preamble: Vec::new(),
                 after: vec![cell_lines(after)],
                 before: vec![cell_lines(before)],
@@ -770,7 +763,7 @@ impl ShinkyuLayout {
             return units;
         }
         let numbered_continuation = continues_numbered_numeric_table(&after, &before);
-        let unit = ShinkyuLayout {
+        let unit = ShinkyuLayout {labels:None,
             band_boxes: None,
             preamble: Vec::new(),
             after: vec![after],
@@ -780,7 +773,7 @@ impl ShinkyuLayout {
         // 罫線や数値の類似だけでは前の記事の表を新旧表にしない。通常の数表と分かったときは、
         // 組み上がった行・Table・語IDはそのままに、新旧属性だけを外す。
         units.push(if numbered_continuation {
-            let Unit::Shinkyu { preamble, after, before, outside } = unit else { unreachable!() };
+            let Unit::Shinkyu { preamble, after, before, outside ,..} = unit else { unreachable!() };
             Unit::Plain(preamble.into_iter().chain(after.into_iter().flatten()).chain(before.into_iter().flatten()).chain(outside.into_iter().flatten()).collect())
         } else { unit });
         if !outside.is_empty() {
@@ -979,7 +972,9 @@ impl ShinkyuLayout {
     }
 
     /// 帯ごとに行へ組む（テキスト化は [`Unit::text`]）。帯の中の罫線の表は表として組む。
-    pub(crate) fn into_unit(self, grids: &[Grid], rules: Option<&PageRules>) -> Unit {
+    pub(crate) fn into_unit_with_source(self,grids:&[Grid],rules:Option<&PageRules>,source:&[Vec<usize>])->Unit{self.into_unit_impl(grids,rules,Some(source))}
+    pub(crate) fn into_unit(self,grids:&[Grid],rules:Option<&PageRules>)->Unit{self.into_unit_impl(grids,rules,None)}
+    fn into_unit_impl(self, grids: &[Grid], rules: Option<&PageRules>,source:Option<&[Vec<usize>]>) -> Unit {
         // 見出し段の帯は、帯の内側の罫線だけで表を探す（表の罫線が帯の枠に接していても拾える）。
         // それ以外（下の段への続き・見出しの無い継続ページ）は、ページの枠のうち他の枠を含まない
         // ものを表の候補にする。
@@ -1058,8 +1053,25 @@ impl ShinkyuLayout {
                 inner.iter().copied().filter(move |g| !banded(g) && part.iter().any(|c| inside(g, c)) && crate::vertical::vertical_inside(part, g) && !crate::vertical::prose_cells(part, g))
             })
             .collect();
+        // Geometry alone cannot promote the last note of a previous field into
+        // this preamble. Require the complete original grid membership, with
+        // every source occurrence owned here exactly once.
+        let complete_preamble_grid=|g:&Grid|{
+            let Some(source)=source.filter(|s|s.len()==grids.len())else{return false;};
+            let Some(i)=grids.iter().position(|original|original==g)else{return false;};
+            let expected:std::collections::BTreeSet<_>=source[i].iter().copied().collect();
+            let actual:Vec<_>=self.preamble.iter().filter(|c|inside(g,c)).map(|c|c.id).collect();
+            let own:std::collections::BTreeSet<_>=actual.iter().copied().collect();
+            !expected.is_empty()&&expected.len()==source[i].len()&&own.len()==actual.len()&&own==expected
+        };
+        let preamble_grids:Vec<&Grid>=inner.iter().copied().filter(|g|
+            complete_preamble_grid(g)&&self.preamble.iter().any(|c|inside(g,c))
+            && !all_after.iter().chain(all_before.iter()).any(|c|inside(g,c))
+            && crate::vertical::vertical_inside(&self.preamble,g)
+            && !crate::vertical::prose_cells(&self.preamble,g)).collect();
         Unit::Shinkyu {
-            preamble: page_lines(self.preamble),
+            labels:self.labels,
+            preamble: lines_with_tables_by(self.preamble,&preamble_grids,page_lines),
             after: self.after.into_iter().map(|p| lines_with_tables(p, &after_grids)).collect(),
             before: self.before.into_iter().map(|p| lines_with_tables(p, &before_grids)).collect(),
             // 表の外の記事の変更後・変更前の枠は、上の欄・下の欄の順に読む（[`crate::vertical::split_label_frames`]）。
@@ -1211,7 +1223,7 @@ pub(crate) fn place_tables(rest: Vec<Col>, mut tables: Vec<Table>, rest_lines: i
 /// （「物質｜係数」の表で物質ごとの行）。帯の中で、複数の欄にまたがって同じ x に字がある
 /// 文字の列（物質名と係数が同じ縦の線上に並ぶ）を 1 行の頭とし、1 つの欄にしか字の無い
 /// 列（セルの中の折り返し）はその行に入れる。
-fn grid_table(g: &Grid, cols: Vec<Col>) -> Table {
+pub(crate) fn grid_table(g: &Grid, cols: Vec<Col>) -> Table {
     let nx = g.xs.len() - 1;
     // 語 → セル。縦中横の短い語（「３番13号」の「13」）は字面が列から横にずれて隣のセルの
     // 境に掛かることがあるので、すぐ上に続く語のある列の中心で決める。
@@ -1701,3 +1713,5 @@ mod leading_numeric_table_tests;
 #[cfg(test)]
 #[path="shared_cell_controls138.rs"]
 mod shared_cell_controls;
+
+#[cfg(test)]#[path="preamble_grid_source_tests147.rs"]mod preamble_grid_source_tests147;

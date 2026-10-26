@@ -1,7 +1,7 @@
 use super::*;
 #[test]
 fn a_standalone_outline_row_is_already_valid_structure_and_is_not_reparented(){
- let original=vec![Block::Paragraph{runs:vec![run("独立した前文")]},Block::Shinkyu{rows:vec![row("第一章　独立した章","第一章　独立した章"),row("第一条　後続する本文。","第一条　従前の本文。")]}];assert_eq!(merge_continued_tables(original.clone()),original);
+ let original=vec![Block::Paragraph{runs:vec![run("独立した前文")]},Block::Shinkyu{labels:None,rows:vec![row("第一章　独立した章","第一章　独立した章"),row("第一条　後続する本文。","第一条　従前の本文。")]}];assert_eq!(merge_continued_tables(original.clone()),original);
 }
 #[test]
 fn an_outline_prefix_with_a_typed_table_keeps_its_cell_material() {
@@ -17,7 +17,7 @@ fn an_outline_prefix_with_a_typed_table_keeps_its_cell_material() {
 #[test]
 fn outline_prefix_normalization_is_idempotent_and_keeps_run_styles() {
     let rows = merged(row("第三節　任意の節名", "第三節　任意の節名"));
-    let once = vec![Block::Shinkyu { rows }];
+    let once = vec![Block::Shinkyu {labels:None, rows }];
     assert_eq!(merge_continued_tables(once.clone()), once);
 }
 #[test]
@@ -25,14 +25,14 @@ fn a_terminal_outline_heading_is_preserved_when_no_following_article_exists() {
     let prior = row("第一条　本文。", "第一条　旧本文。");
     let heading = row("第二章　後続する章", "第二章　後続する章");
     let out = merge_continued_tables(vec![
-        Block::Shinkyu {
+        Block::Shinkyu {labels:None,
             rows: vec![prior.clone()],
         },
-        Block::Shinkyu {
+        Block::Shinkyu {labels:None,
             rows: vec![heading.clone()],
         },
     ]);
-    let Block::Shinkyu { rows } = &out[0] else {
+    let Block::Shinkyu { rows ,..} = &out[0] else {
         panic!()
     };
     assert_eq!(rows, &vec![prior, heading]);
@@ -54,10 +54,10 @@ fn row(a: &str, b: &str) -> ShinkyuRow {
 }
 fn merged(prefix: ShinkyuRow) -> Vec<ShinkyuRow> {
     let blocks = vec![
-        Block::Shinkyu {
+        Block::Shinkyu {labels:None,
             rows: vec![row("第一条　先行する本文。", "第一条　先行する従前本文。")],
         },
-        Block::Shinkyu {
+        Block::Shinkyu {labels:None,
             rows: vec![
                 prefix,
                 row(
@@ -69,7 +69,7 @@ fn merged(prefix: ShinkyuRow) -> Vec<ShinkyuRow> {
     ];
     let result = merge_continued_tables(blocks);
     assert_eq!(result.len(), 1);
-    let Block::Shinkyu { rows } = result.into_iter().next().unwrap() else {
+    let Block::Shinkyu { rows ,..} = result.into_iter().next().unwrap() else {
         panic!()
     };
     rows
@@ -110,17 +110,17 @@ fn all_higher_legal_levels_and_unbounded_wrapped_titles_keep_their_following_bod
 #[test]
 fn a_reference_to_a_chapter_is_still_a_sentence_continuation() {
     let result = merge_continued_tables(vec![
-        Block::Shinkyu {
+        Block::Shinkyu {labels:None,
             rows: vec![row("甲に係る", "乙に係る")],
         },
-        Block::Shinkyu {
+        Block::Shinkyu {labels:None,
             rows: vec![row(
                 "第二章に規定する要件を満たすもの。",
                 "第二章に規定する旧要件を満たすもの。",
             )],
         },
     ]);
-    let Block::Shinkyu { rows } = &result[0] else {
+    let Block::Shinkyu { rows ,..} = &result[0] else {
         panic!()
     };
     assert_eq!(rows.len(), 1);

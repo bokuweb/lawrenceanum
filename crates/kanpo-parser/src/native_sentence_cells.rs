@@ -29,7 +29,7 @@ pub(crate) fn restore(units: &mut [Unit], source: Source<'_>) {
                     after,
                     before,
                     outside,
-                } => {
+                ..} => {
                     f(preamble);
                     for ls in after.iter().chain(before).chain(outside) {
                         f(ls);
@@ -87,7 +87,7 @@ pub(crate) fn restore(units: &mut [Unit], source: Source<'_>) {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 repair(preamble);
                 for ls in after.iter_mut().chain(before).chain(outside) {
                     repair(ls);

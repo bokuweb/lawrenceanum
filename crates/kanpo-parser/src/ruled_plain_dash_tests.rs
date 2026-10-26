@@ -35,7 +35,7 @@ fn unchanged(mut u:Vec<Unit>,mut w:Vec<Word>,g:Vec<Grid>){let before=state(&u,&w
 #[test]fn owner_word_missing(){let(mut u,mut w,mut g)=fixture();if let Unit::Plain(ls)=&mut u[0]{ls[4].words.remove(2);}unchanged(u,w,g);}
 #[test]fn duplicate_existing_owner(){let(mut u,mut w,mut g)=fixture();if let Unit::Plain(ls)=&mut u[0]{ls[4].words.push(755);}unchanged(u,w,g);}
 #[test]fn two_plain_units(){let(mut u,mut w,mut g)=fixture();u.push(Unit::Plain(vec![]));unchanged(u,w,g);}
-#[test]fn new_old_unit_boundary(){let(mut u,mut w,mut g)=fixture();u.push(Unit::Shinkyu{preamble:vec![],after:vec![],before:vec![],outside:vec![]});unchanged(u,w,g);}
+#[test]fn new_old_unit_boundary(){let(mut u,mut w,mut g)=fixture();u.push(Unit::Shinkyu{labels:None,preamble:vec![],after:vec![],before:vec![],outside:vec![]});unchanged(u,w,g);}
 #[test]fn text_source_not_matching(){let(mut u,mut w,mut g)=fixture();if let Unit::Plain(ls)=&mut u[0]{ls[7].text="別の本文".into();}unchanged(u,w,g);}
 #[test]fn crossing_physical_rule(){let(mut u,mut w,mut g)=fixture();w[755].x0=210.;unchanged(u,w,g);}
 #[test]fn numeric_word_is_margin(){let(mut u,mut w,mut g)=fixture();w[755].status=WordStatus::Margin;unchanged(u,w,g);}

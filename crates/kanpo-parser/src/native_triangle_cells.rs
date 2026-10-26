@@ -94,7 +94,7 @@ fn owner_count(units: &[Unit], id: usize) -> usize {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 preamble.iter().for_each(&mut line);
                 for p in after.iter().chain(before).chain(outside) {
                     p.iter().for_each(&mut line)
@@ -280,7 +280,7 @@ pub(crate) fn restore(units: &mut [Unit], words: &[Word], page: ElementRef<'_>) 
                     after,
                     before,
                     outside,
-                } => {
+                ..} => {
                     preamble.iter_mut().for_each(&mut fix);
                     for p in after.iter_mut().chain(before).chain(outside) {
                         p.iter_mut().for_each(&mut fix)
