@@ -163,14 +163,14 @@ pub fn analyze_with_rules(xhtml: &str, rules: &[Option<lines::PageRules>]) -> An
             if let Some(documents)=company_document_parts::repartition(&original,&desired){
                 for (p,document) in parts.into_iter().zip(documents) {
                     let notices=notice_sources::for_sources(&certificates,p.sources.iter().copied());
-                    article_sources.push(section_context::OwnedSources::new(&p.text,p.sources));
+                    article_sources.push(section_context::OwnedSources::from_partial_claims(&p.text,p.sources));
                     articles.push(ArticleAnalysis{text:render_table_markers(&p.text,&tables),document,notices});
                 }continue;
             }
         }
         let sources=parts.into_iter().flat_map(|p|p.sources).collect::<Vec<_>>();
         let notices=notice_sources::for_sources(&certificates,sources.iter().copied());
-        article_sources.push(section_context::OwnedSources::new(&segment,sources));
+        article_sources.push(section_context::OwnedSources::from_partial_claims(&segment,sources));
         articles.push(ArticleAnalysis{text:render_table_markers(&segment,&tables),document:original,notices});
     }
     section_context::repair(&mut articles,&mut article_sources,&pages,rules);

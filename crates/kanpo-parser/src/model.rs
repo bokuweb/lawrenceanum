@@ -464,7 +464,7 @@ impl Document {
 /// 前のブロックの最後の行（ページの切れ目で途中まで載った条）の続きとしてつなぐ。
 // A numbered legal level above an article starts new scope. A reference such
 // as 第二章に規定する... is not a declaration of an outline title.
-fn outline_heading(line: &str) -> bool {
+pub(crate) fn outline_heading(line: &str) -> bool {
     const NUMBER: &str = "〇一二三四五六七八九十百千0123456789０１２３４５６７８９";
     let Some(rest) = line.trim().strip_prefix('第') else {
         return false;
@@ -2055,7 +2055,7 @@ fn unit_heading(line: &str) -> Option<String> {
 
 /// 行が条の書き出し（`第六条の二　…`。条番号の後に全角空白）なら条番号。列の折り返しで
 /// 行頭に来た「第三条の規定により」（空白が無い）は条の書き出しではない。
-fn article_number(line: &str) -> Option<String> {
+pub(crate) fn article_number(line: &str) -> Option<String> {
     // 横書きの告示は算用数字で書く（「第285条の３　（略）」）。
     const NUM: &str = "〇一二三四五六七八九十百千0123456789０１２３４５６７８９";
     let t = line.trim();

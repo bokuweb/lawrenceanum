@@ -17,6 +17,8 @@ type Location = (usize, usize, usize);
 pub(crate) struct OwnedSources {
     marked_text: String,
     words: Vec<Source>,
+    // Positive claims from a partial source collector do not assert absence.
+    partial_claims: bool,
     tables: Vec<usize>,
 }
 impl OwnedSources {
@@ -24,12 +26,22 @@ impl OwnedSources {
         Self {
             marked_text: marked_text.into(),
             words,
+            partial_claims: false,
             tables: marked_text
                 .lines()
                 .filter_map(crate::trace::parse_table_marker)
                 .collect(),
         }
     }
+    /// notice_boundaries::Part.sources covers only successfully recovered pages.
+    /// Consumers may extend these positive claims only with an independent,
+    /// complete source witness; this is not a declared complete Word inventory.
+    pub(crate) fn from_partial_claims(marked_text: &str, words: Vec<Source>) -> Self {
+        let mut source = Self::new(marked_text, words);
+        source.partial_claims = true;
+        source
+    }
+
 }
 struct TableSource<'a> {
     page: usize,
@@ -560,6 +572,7 @@ pub(crate) fn repair(
     pages: &[PageTrace],
     rules: &[Option<PageRules>],
 ) {
+    inserted_outline::repair(articles, sources, pages);
     if articles.len() != sources.len() {
         return;
     }
@@ -603,6 +616,7 @@ pub(crate) fn repair(
             parent.document.blocks.append(&mut child.document.blocks);
             child.document.blocks = parent.document.blocks;
             let mut owned = sources.remove(i);
+            owned.partial_claims |= sources[i].partial_claims;
             owned.words.append(&mut sources[i].words);
             owned.tables.append(&mut sources[i].tables);
             sources[i] = owned;
@@ -675,3 +689,6 @@ pub(crate) fn printed_root(
     })()
     .is_some()
 }
+
+#[path = "section_inserted_outline.rs"]
+mod inserted_outline;

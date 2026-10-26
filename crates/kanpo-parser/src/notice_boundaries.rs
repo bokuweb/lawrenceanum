@@ -6,6 +6,8 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 type Rect = [f32; 4];
 pub(crate) struct Part {
     pub text: String,
+    /// Positive source claims from recoverable pages, not an exhaustive
+    /// inventory for mixed or multipage articles.
     pub sources: Vec<(usize, usize)>,
 }
 fn compact(s: &str) -> String {

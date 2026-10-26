@@ -202,7 +202,7 @@ fn page_stream(page: &PageTrace, pi: usize, table: &mut usize) -> Option<(String
     }
     Some((text, spans))
 }
-fn owners(sources: &[OwnedSources], pages: &[PageTrace]) -> Option<Vec<Vec<Source>>> {
+pub(super) fn owners(sources: &[OwnedSources], pages: &[PageTrace]) -> Option<Vec<Vec<Source>>> {
     let mut text = String::new();
     let mut spans = vec![];
     let mut table = 0;
@@ -263,4 +263,67 @@ pub(super) fn restore(sources: &mut [OwnedSources], pages: &[PageTrace]) {
             }
         }
     }
+}
+
+/// Independently recover complete native units on one fully validated page.
+/// This does not relax the global owners()/restore() contract. An invalid page
+/// cannot certify any of its units, nor poison an unrelated valid source page.
+pub(super) struct UnitSource {
+    pub(super) text: String,
+    pub(super) words: Vec<Source>,
+    pub(super) tables: Vec<usize>,
+    pub(super) has_outline: bool,
+}
+pub(super) fn page_units(
+    page: &PageTrace,
+    pi: usize,
+    first_table: usize,
+) -> Option<Vec<UnitSource>> {
+    let mut after_table = first_table;
+    page_stream(page, pi, &mut after_table)?;
+    let mut out = vec![];
+    let mut table = first_table;
+    for unit in units(&page.regions)? {
+        let mut tables = vec![];
+        let text = unit.doc_text(&mut tables, table);
+        let ids = (table..table + tables.len()).collect();
+        table += tables.len();
+        let regions = unit.regions(0);
+        let has_outline = regions
+            .iter()
+            .filter(|r| matches!(r.role, Role::After | Role::Before))
+            .flat_map(|r| &r.lines)
+            .any(|l| crate::model::outline_heading(&l.text));
+        let words = regions
+            .iter()
+            .flat_map(|r| &r.lines)
+            .flat_map(|l| {
+                if let Some(t) = &l.table {
+                    t.cells
+                        .iter()
+                        .flat_map(|c| c.words.clone())
+                        .collect::<Vec<_>>()
+                } else {
+                    l.words.clone()
+                }
+            })
+            .map(|id| (pi, id))
+            .collect();
+        if !text.is_empty() {
+            out.push(UnitSource {
+                text,
+                words,
+                tables: ids,
+                has_outline,
+            });
+        }
+    }
+    (table == after_table
+        && out
+            .iter()
+            .map(|s| s.text.as_str())
+            .collect::<Vec<_>>()
+            .join("\n")
+            == page.doc_text)
+        .then_some(out)
 }

@@ -1,0 +1,6 @@
+Original official Kanpo PDFs,2026-09-18 special issue209 pages2/59.
+The two-page input is deliberately non-contiguous: a regression for independent source-unit certification, not a complete issue transcription. The complete176-page issue is also checked separately in the full cohort.
+Nonblind original page59 review: its seven legal comparison rows keep each outline/article and opposite change marker in the same native column. All original107Words and93usedWord occurrences remain unchanged. Only typed row ownership changes; noOCR or character inference.
+The reviewed145 JSON is a regression contract, not independent full-page gold.
+20260918g002090002.pdf SHA256 882dd0ca14653364d02c19e7a72e86b9e4c543bd691526c5fcf62913cbbbe0dc
+20260918g002090059.pdf SHA256 aabf8723345d39afc67726d60e7a28c8ad53481ebb4dfc9ce69a4312c6f4d1d8
