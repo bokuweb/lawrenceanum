@@ -584,3 +584,6 @@ fn matrix152_an_open_end_does_not_prove_columns_in_an_unseen_continuation() {
         decline152(s);
     }
 }
+
+#[path="native_numeric_compound_tests153.rs"]
+mod compound153;

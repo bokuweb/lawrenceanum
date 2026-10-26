@@ -34,7 +34,7 @@ fn table_touches(t: &Table, f: Frame) -> bool {
 // A shorter path is not a parent frame when original collinear strokes cover
 // beyond it. Union only overlapping/touching intervals at the identical x;
 // actual gaps and distinct source coordinates are never rounded or bridged.
-pub(super) fn covered_frames(rules: &PageRules) -> Vec<Frame> {
+fn covered_vertical(rules: &PageRules) -> Vec<crate::lines::VRule> {
     let mut coverage: Vec<crate::lines::VRule> = vec![];
     for v in &rules.vertical {
         if ![v.x, v.y0, v.y1].iter().all(|x| x.is_finite()) || v.y0 >= v.y1 {
@@ -51,10 +51,14 @@ pub(super) fn covered_frames(rules: &PageRules) -> Vec<Frame> {
         }
         coverage.push(v);
     }
+    coverage
+}
+pub(super) fn covered_frames(rules: &PageRules) -> Vec<Frame> {
     let mut complete = rules.clone();
-    complete.vertical = coverage;
+    complete.vertical = covered_vertical(rules);
     frames(&complete)
 }
+
 fn row(
     l: &Line,
     index: usize,
@@ -71,7 +75,6 @@ fn row(
         .iter()
         .map(|id| ws.get(id).copied())
         .collect::<Option<Vec<_>>>()?;
-    let mut baseline = None;
     for w in &words {
         let y = baselines.get(w.id).copied().flatten()?;
         if !y.is_finite()
@@ -85,12 +88,27 @@ fn row(
             || (!f.open_bottom && w.y1 > f.y1)
             || y < w.y0 as f64
             || y > w.y1 as f64
-            || baseline.is_some_and(|b| b != y)
         {
             return None;
         }
-        baseline = Some(y);
     }
+    // Each cell retains an exact source baseline. Across cells, all original
+    // baselines must lie inside the same intersection of source glyph bands;
+    // a fixed point tolerance or a neighboring line supplies no authority.
+    let band_top = words.iter().map(|w| w.y0 as f64).reduce(f64::max)?;
+    let band_bottom = words.iter().map(|w| w.y1 as f64).reduce(f64::min)?;
+    if band_top >= band_bottom
+        || words.iter().any(|w| {
+            let y = baselines[w.id].unwrap();
+            y < band_top || y > band_bottom
+        })
+    {
+        return None;
+    }
+    let one_baseline = |cell: &[&Word]| {
+        let first = cell.first().and_then(|w| baselines[w.id]);
+        first.is_some() && cell.iter().all(|w| baselines[w.id] == first)
+    };
     // Original glyph boxes within a cell can overlap. Source origins must still
     // advance strictly; the complete cell envelopes must prove disjoint global
     // column gutters below. No glyph-specific overlap allowance is used.
@@ -126,6 +144,9 @@ fn row(
                 .collect::<String>(),
         ) == compact(&label)
     })?;
+    if !one_baseline(&words[..k]) {
+        return None;
+    }
     let mut cursor = k;
     let mut amounts = vec![];
     for value in &fields[label_end..] {
@@ -142,6 +163,9 @@ fn row(
             }
         }
         if text != *value || start == cursor {
+            return None;
+        }
+        if !one_baseline(&words[start..cursor]) {
             return None;
         }
         let b = box_for(&words[start..cursor])?;
@@ -234,113 +258,10 @@ fn plan(
     {
         return None;
     }
-    let mut rails = rows
-        .iter()
-        .flat_map(|r| r.amounts.iter().map(|(_, _, b)| b[2]))
-        .collect::<Vec<_>>();
-    rails.sort_by(f32::total_cmp);
-    rails.dedup();
-    if rails.len() < 2 {
-        return None;
-    }
-    let rail = |x: f32| rails.iter().position(|v| *v == x);
-    // Every rail must participate in the same co-occurrence graph. Separate
-    // singleton amounts at unrelated right edges do not prove extra columns.
-    let mut graph = vec![HashSet::new(); rails.len()];
-    let mut starts = vec![f32::INFINITY; rails.len()];
-    for r in &rows {
-        let cols = r
-            .amounts
-            .iter()
-            .map(|(_, _, b)| rail(b[2]))
-            .collect::<Option<Vec<_>>>()?;
-        if cols.windows(2).any(|p| p[0] >= p[1]) {
-            return None;
-        }
-        for (&c, (_, _, b)) in cols.iter().zip(&r.amounts) {
-            starts[c] = starts[c].min(b[0]);
-        }
-        for p in cols.windows(2) {
-            graph[p[0]].insert(p[1]);
-            graph[p[1]].insert(p[0]);
-        }
-    }
-    let mut seen = HashSet::new();
-    let mut todo = vec![0];
-    while let Some(c) = todo.pop() {
-        if seen.insert(c) {
-            todo.extend(graph[c].iter().copied());
-        }
-    }
-    if seen.len() != rails.len() {
-        return None;
-    }
-    let label_end = rows
-        .iter()
-        .map(|r| r.label_end)
-        .fold(f32::NEG_INFINITY, f32::max);
-    if label_end >= starts[0] || rails.iter().zip(starts.iter().skip(1)).any(|(a, b)| a >= b) {
-        return None;
-    }
-    let mut edges = vec![f.x0, label_end + (starts[0] - label_end) * 0.5];
-    edges.extend(
-        rails
-            .iter()
-            .zip(starts.iter().skip(1))
-            .map(|(a, b)| a + (b - a) * 0.5),
-    );
-    edges.push(f.x1);
-    if edges.iter().any(|x| !x.is_finite()) || edges.windows(2).any(|p| p[0] >= p[1]) {
-        return None;
-    }
-    let cols = rails.len() + 1;
-    let mut cells = vec![];
-    for (i, r) in rows.iter().enumerate() {
-        let y0 = if i == 0 {
-            r.top
-        } else {
-            rows[i - 1].bottom + (r.top - rows[i - 1].bottom) * 0.5
-        };
-        let y1 = if i + 1 == rows.len() {
-            r.bottom
-        } else {
-            r.bottom + (rows[i + 1].top - r.bottom) * 0.5
-        };
-        for c in 0..cols {
-            let (text, owned) = if c == 0 {
-                (r.label.clone(), r.label_ids.clone())
-            } else {
-                r.amounts
-                    .iter()
-                    .find(|(_, _, b)| rail(b[2]) == Some(c - 1))
-                    .map(|(t, ids, _)| (t.clone(), ids.clone()))
-                    .unwrap_or_default()
-            };
-            cells.push(TableCell {
-                row: i,
-                col: c,
-                rowspan: 1,
-                colspan: 1,
-                x0: edges[c],
-                y0,
-                x1: edges[c + 1],
-                y1,
-                text,
-                words: owned,
-            });
-        }
-    }
+    let edges = columns(&rows, f)?;
+    let table = source_table(&rows, f, &edges)?;
     let start = rows.first()?.line;
     let end = rows.last()?.line + 1;
-    let table = Table {
-        x0: f.x0,
-        y0: rows.first()?.top,
-        x1: f.x1,
-        y1: rows.last()?.bottom,
-        rows: rows.len(),
-        cols,
-        cells,
-    };
     let Unit::Plain(ls) = &units[unit] else {
         return None;
     };
@@ -409,11 +330,12 @@ pub(crate) fn restore(
     }
     // A page-local rail set cannot prove columns in an unseen continuation.
     // Only a complete original four-sided frame authorizes this overlay.
-    let plans = covered_frames(rules)
+    let mut plans = covered_frames(rules)
         .into_iter()
         .filter(|f| !f.open_top && !f.open_bottom)
         .filter_map(|f| plan(units, f, &ws, baselines, &owners))
         .collect::<Vec<_>>();
+    plans.extend(continuation::plans(units, rules, &ws, baselines, &owners));
     let conflicts = (0..plans.len())
         .filter(|&i| (0..plans.len()).any(|j| i != j && !plans[i].ids.is_disjoint(&plans[j].ids)))
         .collect::<HashSet<_>>();
@@ -444,3 +366,127 @@ pub(crate) fn restore(
         }
     }
 }
+
+fn columns(rows: &[SourceRow], f: Frame) -> Option<Vec<f32>> {
+    let mut rails = rows
+        .iter()
+        .flat_map(|r| r.amounts.iter().map(|(_, _, b)| b[2]))
+        .collect::<Vec<_>>();
+    rails.sort_by(f32::total_cmp);
+    rails.dedup();
+    if rails.len() < 2 {
+        return None;
+    }
+    let rail = |x: f32| rails.iter().position(|v| *v == x);
+    // Every rail must participate in the same co-occurrence graph. Separate
+    // singleton amounts at unrelated right edges do not prove extra columns.
+    let mut graph = vec![HashSet::new(); rails.len()];
+    let mut starts = vec![f32::INFINITY; rails.len()];
+    for r in rows {
+        let cols = r
+            .amounts
+            .iter()
+            .map(|(_, _, b)| rail(b[2]))
+            .collect::<Option<Vec<_>>>()?;
+        if cols.windows(2).any(|p| p[0] >= p[1]) {
+            return None;
+        }
+        for (&c, (_, _, b)) in cols.iter().zip(&r.amounts) {
+            starts[c] = starts[c].min(b[0]);
+        }
+        for p in cols.windows(2) {
+            graph[p[0]].insert(p[1]);
+            graph[p[1]].insert(p[0]);
+        }
+    }
+    // Same-row co-occurrence proves neighboring amount rails. A separate
+    // total column instead needs the same exact original right edge in
+    // distinct source rows. One isolated amount cannot invent another lane.
+    for (c, neighbors) in graph.iter().enumerate() {
+        if neighbors.is_empty() {
+            let mut witness = None;
+            let mut repeated = false;
+            for r in rows {
+                if r.amounts.iter().any(|(_, _, b)| rail(b[2]) == Some(c)) {
+                    if witness.is_some_and(|old| old != r.line) {
+                        repeated = true;
+                    }
+                    witness = Some(r.line);
+                }
+            }
+            if !repeated {
+                return None;
+            }
+        }
+    }
+    let label_end = rows
+        .iter()
+        .map(|r| r.label_end)
+        .fold(f32::NEG_INFINITY, f32::max);
+    if label_end >= starts[0] || rails.iter().zip(starts.iter().skip(1)).any(|(a, b)| a >= b) {
+        return None;
+    }
+    let mut edges = vec![f.x0, label_end + (starts[0] - label_end) * 0.5];
+    edges.extend(
+        rails
+            .iter()
+            .zip(starts.iter().skip(1))
+            .map(|(a, b)| a + (b - a) * 0.5),
+    );
+    edges.push(f.x1);
+    if edges.iter().any(|x| !x.is_finite()) || edges.windows(2).any(|p| p[0] >= p[1]) {
+        return None;
+    }
+    Some(edges)
+}
+fn source_table(rows: &[SourceRow], f: Frame, edges: &[f32]) -> Option<Table> {
+    let cols = edges.len() - 1;
+    let mut cells = vec![];
+    for (i, r) in rows.iter().enumerate() {
+        let y0 = if i == 0 {
+            r.top
+        } else {
+            rows[i - 1].bottom + (r.top - rows[i - 1].bottom) * 0.5
+        };
+        let y1 = if i + 1 == rows.len() {
+            r.bottom
+        } else {
+            r.bottom + (rows[i + 1].top - r.bottom) * 0.5
+        };
+        for c in 0..cols {
+            let (text, owned) = if c == 0 {
+                (r.label.clone(), r.label_ids.clone())
+            } else {
+                r.amounts
+                    .iter()
+                    .find(|(_, _, b)| edges[c] <= b[0] && b[2] <= edges[c + 1])
+                    .map(|(t, ids, _)| (t.clone(), ids.clone()))
+                    .unwrap_or_default()
+            };
+            cells.push(TableCell {
+                row: i,
+                col: c,
+                rowspan: 1,
+                colspan: 1,
+                x0: edges[c],
+                y0,
+                x1: edges[c + 1],
+                y1,
+                text,
+                words: owned,
+            });
+        }
+    }
+    let table = Table {
+        x0: f.x0,
+        y0: rows.first()?.top,
+        x1: f.x1,
+        y1: rows.last()?.bottom,
+        rows: rows.len(),
+        cols,
+        cells,
+    };
+    Some(table)
+}
+#[path = "native_numeric_continuation.rs"]
+mod continuation;

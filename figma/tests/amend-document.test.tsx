@@ -9,6 +9,9 @@ import sourceStatementMatrix from "../../crates/kanpo-parser/tests/data/native-n
 import sourceProfitRows from "../../crates/kanpo-parser/tests/data/native-numeric-matrix/profit-source-6rows152.json";
 import sourceStatementRows from "../../crates/kanpo-parser/tests/data/native-numeric-matrix/statement-source-15rows152.json";
 
+import sourceCompoundDocument from "../../crates/kanpo-parser/tests/data/native-numeric-parents/expenses-document153.json";
+import sourceCompoundRows from "../../crates/kanpo-parser/tests/data/native-numeric-parents/expenses-source-74rows153.json";
+
 const block = (labels?: { after: string; before: string }) => ({
   kind: "shinkyu" as const,
   rows: [{ after: [{ text: "新しい本文" }], before: [{ text: "元の本文" }] }],
@@ -86,4 +89,11 @@ test("the backend source statement retains three amount columns and the next ind
   assert.equal(rows[15].length, 3);
   assert.deepEqual(rows[15], ["Ⅰ当期未処分利益", "", "0"]);
   assert.deepEqual(rows[18], ["積立金", "0", "0"]);
+});
+
+test("the backend continuation keeps all74rows in one complete four-column matrix", () => {
+  const doc = sourceCompoundDocument as React.ComponentProps<typeof AmendDocumentView>["doc"];
+  const { html, rows } = nativeDocumentRows(doc);
+  assert.equal((html.match(/<table\b/g) ?? []).length, 1);
+  assert.deepEqual(rows, sourceCompoundRows);
 });

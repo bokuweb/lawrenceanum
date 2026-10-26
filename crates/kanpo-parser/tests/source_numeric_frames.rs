@@ -150,8 +150,13 @@ fn original_expense_frame_is_not_limited_to_cash_flow_vocabulary() {
     let key = "20260820g001860077";
     let old = baseline(key);
     let new = analyze(&[key]);
-    material(&old, &new);
-    source_inventory(&old["pages"][0], &new["pages"][0]);
+    let before: Value = serde_json::from_str(include_str!(
+        "data/native-numeric-parents/20260820g001860077-baseline152.json"
+    ))
+    .unwrap();
+    material(&old, &before);
+    source_inventory(&old["pages"][0], &before["pages"][0]);
+    reviewed_source_parent153(key, &before, &new, 1);
     assert!(tables(&new["pages"][0]).iter().any(|t| t["rows"] == 14
         && t["cols"] == 2
         && cell(t, 0, 0) == "給与・賞与及び手当"
@@ -181,9 +186,31 @@ fn original_profit_disposal_preserves_the_complete_source_matrix() {
     assert_eq!(actual, reviewed);
 }
 #[test]
-fn original_expenses_with_multiple_amount_lanes_are_unchanged() {
+fn original_expenses_keep_all_source_material_under_the_complete_parent() {
     let key = "20260731g001730066";
-    assert_eq!(analyze(&[key]), baseline(key));
+    reviewed_source_parent153(key, &baseline(key), &analyze(&[key]), 2);
+}
+
+fn reviewed_source_parent153(key: &str, before: &Value, actual: &Value, count: usize) {
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/data/native-numeric-parents")
+        .join(format!("{key}-reviewed153.json"));
+    let reviewed: Value = serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
+    let pdf = std::fs::read(data(&format!("{key}.pdf"))).unwrap();
+    let rules: Value = serde_json::from_str(
+        &serde_json::to_string(&kanpo_parser::page_rules(&pdf).unwrap()).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(
+        matrix_contract::reviewed_parent_projection(
+            before,
+            &reviewed,
+            &[rules],
+            &[kanpo_parser::bbox_xhtml(&pdf).unwrap()]
+        ),
+        count
+    );
+    assert_eq!(actual, &reviewed);
 }
 #[test]
 fn original_multi_lane_assets_are_unchanged() {

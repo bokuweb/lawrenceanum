@@ -1,0 +1,815 @@
+{
+  "issue": 227,
+  "stage": "native153",
+  "baseline_local": "1330c9828970d417265013fa2be690afb16e68a1",
+  "baseline_publication": "1451e30a5936354976e260cb30aaa89d2adcf07c",
+  "scope": "Exact original numeric amount columns in complete source parents:27closed frames and2complete within-page column continuations emitted as4physical parts;31native TraceTables/362rows in29PDFs. No numeric arithmetic, hierarchy, Unicode restitution or OCR.",
+  "rules": [
+    "Exact source interval union at identical x is reused for both frame sides and the original printed-column divider. Only overlapping or touching intervals join; actual gaps and nearby distinct coordinates remain distinct.",
+    "Each cell has its own complete finite original horizontal flow and one exact baseline. Every original cell baseline must lie in the common intersection of all original glyph vertical bands for that source row. No fixed point tolerance, neighboring-row budget or font-name dispatch.",
+    "A numeric right edge is witnessed by original same-row amount co-occurrence or repeated exact alignment in distinct original source rows. A single isolated amount cannot introduce another column. Complete global label and amount gutters and explicit empty physical slots remain.",
+    "A within-page continuation requires both outer caps, original equal-width frame translation, one original complete adjacent-column divider and complete used-glyph inventory. Previous-column last and next-column first original used glyphs certify the transition; same source unit and consecutive original rows retain ownership. Unknown directions, intervening captions/owners, gaps, differing widths, grids/comparison roles and incomplete outer caps decline.",
+    "All parent numeric rails are collected before assigning either physical part its logical columns. Both parts use the same complete scheme and keep original row glyph bounds, word order and literal payloads. Original SourceWords are never translated or changed; only proof coordinates use the source-frame translation."
+  ],
+  "no_new_dispatch": "No page/company/person/amount-value/font-name/CID/PUA runtime dispatch; no distance tolerance, arbitrary character length or neighboring-row count. Existing numeric/label notation grammar remains.",
+  "TDD": {
+    "new_unit_controls": 29,
+    "initial10_against152": {
+      "passed": 9,
+      "failed": 1
+    },
+    "repeated_rails15_against_privatev2": {
+      "passed": 12,
+      "failed": 3
+    },
+    "cell_baselines20_against_privatev3": {
+      "passed": 18,
+      "failed": 2
+    },
+    "divider_union29_against_privatev4": {
+      "passed": 27,
+      "failed": 2
+    },
+    "final_numeric_units": {
+      "passed": 110,
+      "failed": 0
+    },
+    "all_final_private_parser_units": {
+      "passed": 2638,
+      "failed": 0
+    },
+    "original_API_initial5_against152": {
+      "passed": 2,
+      "failed": 3
+    },
+    "final_actual_Cargo_original_API": {
+      "passed": 8,
+      "failed": 0
+    },
+    "independent_source_transcriptions": {
+      "matrices": 3,
+      "rows": 125,
+      "cells": 496,
+      "dimensions": [
+        "74x4across37+37printed rows",
+        "47x4across37+10printed rows",
+        "4x3closed profit frame"
+      ]
+    },
+    "corruption_controls": 13,
+    "coordinated_counterexample": "A second physical fragment gains an empty extra column and corresponding structured Document rows while all source words/text/style payloads remain exact. The material-only contract passes; the complete-parent contract must reject the inconsistent scheme.",
+    "other_corruptions": "Raw/text/coordinates, duplicate owners, physical slots/cuts, Document slots/styles, missing original caps/divider, unknown native axis and original baseline corruption are rejected.",
+    "actual_consecutive_original_pages": "173065/066/067:2native parts74rows, all source/document/notice material retained; first and third completePageTrace exact."
+  },
+  "not_adopted_missing_value_experiment": {
+    "stage": "153missing-value prototype",
+    "not_adopted": true,
+    "new_controls": 11,
+    "RED_against152": {
+      "passed": 8,
+      "failed": 3
+    },
+    "private_parser_units": {
+      "passed": 2620,
+      "failed": 0
+    },
+    "native_singleton_footprint": {
+      "mode": "single",
+      "items": 11992,
+      "changed": 0,
+      "inputs_sources_binaries_exact": true,
+      "seconds": 288.594504625,
+      "scope": "Private153 missing-value rail prototype impact only; not adopted/published."
+    },
+    "decision": "No benefit in the fixed11992 singleton originals. Do not adopt speculative runtime handling or count synthetic success as an actual source improvement. Whole-item effect not measured. Continue native compound-parent source proof.",
+    "OCR": "opt-in NDLOCR0.0.15 unchanged/unused"
+  },
+  "singletons": {
+    "mode": "single",
+    "items": 11992,
+    "changed": 29,
+    "inputs_sources_binaries_exact": true,
+    "seconds": 355.463216208,
+    "scope": "Final fixed-corpus private candidate footprint, sources/binaries/originalPDFs frozen. ActualCargo port/gates/CLI checked separately; not an independent accuracy percentage."
+  },
+  "whole_issues": {
+    "mode": "whole",
+    "items": 159,
+    "changed": 15,
+    "inputs_sources_binaries_exact": true,
+    "seconds": 742.6530522080001,
+    "scope": "Final fixed-corpus private candidate footprint, sources/binaries/originalPDFs frozen. ActualCargo port/gates/CLI checked separately; not an independent accuracy percentage."
+  },
+  "preservation": {
+    "single": {
+      "changed_items": 29,
+      "tables": 31,
+      "rows": 362,
+      "unrelated_ArticleAnalysis_exact": 4,
+      "original_Article_count": 33,
+      "all_source_word_fields_status_geometry_order_and_multiplicity_exact": true,
+      "all_document_characters_styles_ASCII_and_fullwidth_gaps_preserved": true,
+      "only_certified_blank_column_separators_added": true,
+      "existing_table_cells_merges_payload_and_order_retained": true,
+      "all_notice_sources_and_other_metadata_retained": true,
+      "Article_counts_unchanged": true
+    },
+    "whole": {
+      "changed_items": 15,
+      "tables": 31,
+      "rows": 362,
+      "unrelated_ArticleAnalysis_exact": 4498,
+      "original_Article_count": 4520,
+      "all_source_word_fields_status_geometry_order_and_multiplicity_exact": true,
+      "all_document_characters_styles_ASCII_and_fullwidth_gaps_preserved": true,
+      "only_certified_blank_column_separators_added": true,
+      "existing_table_cells_merges_payload_and_order_retained": true,
+      "all_notice_sources_and_other_metadata_retained": true,
+      "Article_counts_unchanged": true
+    }
+  },
+  "independent_original_source_authority": {
+    "single": {
+      "private": "compound-private-v5",
+      "mode": "single",
+      "items": 29,
+      "matrices": 31,
+      "failed_items": 0,
+      "failures": [],
+      "rows": 362,
+      "scope": "Independent actualCargo152 original PDF vectors/XHTML source occurrences, source/material projection and complete-parent authority. No source-page dispatch or proximity tolerance."
+    },
+    "whole": {
+      "private": "compound-private-v5",
+      "mode": "whole",
+      "items": 15,
+      "matrices": 31,
+      "failed_items": 0,
+      "failures": [],
+      "rows": 362,
+      "scope": "Independent actualCargo152 original PDF vectors/XHTML source occurrences, source/material projection and complete-parent authority. No source-page dispatch or proximity tolerance."
+    }
+  },
+  "source_review": {
+    "reviewer": "Implementing agent, nonblind",
+    "PDFs": 29,
+    "complete_source_frames": 31,
+    "rows": 362,
+    "closed_frames": 27,
+    "complete_within_page_continuation_parents": 2,
+    "physical_continuation_parts": 4,
+    "full_originals_additionally_viewed": [
+      "20260731g001730066",
+      "20261016g002280523"
+    ],
+    "frames": [
+      {
+        "page": "20260729g001700043",
+        "matrix": 0,
+        "rows": 6,
+        "cols": 3,
+        "frame": {
+          "x0": 437.5,
+          "y0": 255.393,
+          "x1": 780.5,
+          "y1": 342.643,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "09a4ccfc54b7d4c99944e97c21aebc8065b6b055ce3e3e3bd9b3669d8a3eaa45",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20260729g001700043-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20260731g001730064",
+        "matrix": 0,
+        "rows": 6,
+        "cols": 3,
+        "frame": {
+          "x0": 69.5,
+          "y0": 462.75,
+          "x1": 412.5,
+          "y1": 549.0,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "e7d76d77df8ed07f7b2348ed27a4feed2bd336436553697fab3e0ec0ba809a86",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20260731g001730064-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20260731g001730066",
+        "matrix": 0,
+        "rows": 37,
+        "cols": 4,
+        "frame": {
+          "x0": 69.5,
+          "y0": 81.107,
+          "x1": 412.5,
+          "y1": 549.0,
+          "closed_top": true,
+          "closed_bottom": false
+        },
+        "PDF_sha256": "b900f97ff8175fca034dd2bcdc06d7ec3d00fe28eed9a892af40d93344ed5042",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20260731g001730066-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20260731g001730066",
+        "matrix": 1,
+        "rows": 37,
+        "cols": 4,
+        "frame": {
+          "x0": 437.5,
+          "y0": 46.0,
+          "x1": 780.5,
+          "y1": 536.143,
+          "closed_top": false,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "b900f97ff8175fca034dd2bcdc06d7ec3d00fe28eed9a892af40d93344ed5042",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20260731g001730066-matrix1.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20260803g001740087",
+        "matrix": 0,
+        "rows": 4,
+        "cols": 3,
+        "frame": {
+          "x0": 69.5,
+          "y0": 487.0,
+          "x1": 412.5,
+          "y1": 549.0,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "9c4e5eeec4422799fec1c864e1731dcad9e53936306ba55ca239934c8b31f7ae",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20260803g001740087-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20260803g001740091",
+        "matrix": 0,
+        "rows": 19,
+        "cols": 3,
+        "frame": {
+          "x0": 437.5,
+          "y0": 201.643,
+          "x1": 780.5,
+          "y1": 448.964,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "dfea920ede3ebc2060582467bddbb2ce2d40e66fc141a4ab772157d7d80eb593",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20260803g001740091-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20260810g001790106",
+        "matrix": 0,
+        "rows": 18,
+        "cols": 3,
+        "frame": {
+          "x0": 437.5,
+          "y0": 198.178,
+          "x1": 780.5,
+          "y1": 433.714,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "ec36c7278065012b723cfc6f9768a5966e6562ffeada335f3d89ab723d020a7e",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20260810g001790106-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20260817g001830030",
+        "matrix": 0,
+        "rows": 9,
+        "cols": 3,
+        "frame": {
+          "x0": 437.5,
+          "y0": 418.643,
+          "x1": 780.5,
+          "y1": 549.0,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "bde958ff56e5ba537b940692cf2e9d5ddd37b149f99f1a9e23b65cc8e71a154d",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20260817g001830030-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20260820g001860077",
+        "matrix": 0,
+        "rows": 11,
+        "cols": 3,
+        "frame": {
+          "x0": 69.5,
+          "y0": 396.929,
+          "x1": 412.5,
+          "y1": 535.893,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "da6d8210d8ee3f3fc3d4abd576253ab65556f4e4fcab760cf2733e7b541614e4",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20260820g001860077-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20260820g001860080",
+        "matrix": 0,
+        "rows": 4,
+        "cols": 3,
+        "frame": {
+          "x0": 437.5,
+          "y0": 495.429,
+          "x1": 780.5,
+          "y1": 549.0,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "8d6b9f25fa141422cecbcd50e268f547039c5d12df7706c6611b7a7b0d40edae",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20260820g001860080-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20260820g001860083",
+        "matrix": 0,
+        "rows": 13,
+        "cols": 3,
+        "frame": {
+          "x0": 437.5,
+          "y0": 377.643,
+          "x1": 780.5,
+          "y1": 538.036,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "0cfd7f85b4d81686418c8b7958cae24ba67afa521dc8b773ea759e87df6075ff",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20260820g001860083-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20260825g001890066",
+        "matrix": 0,
+        "rows": 6,
+        "cols": 3,
+        "frame": {
+          "x0": 69.5,
+          "y0": 67.571,
+          "x1": 412.5,
+          "y1": 148.321,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "3e2aab27828255168d9c15e604e02b1a1e4ac654f7d1a0df7a10f36a5c33a78f",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20260825g001890066-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20260901g001950082",
+        "matrix": 0,
+        "rows": 6,
+        "cols": 3,
+        "frame": {
+          "x0": 437.5,
+          "y0": 131.857,
+          "x1": 780.5,
+          "y1": 216.607,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "25b342285ca1aa4635af44ffd4029768ce511a50205e1132804da89a45f100f6",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20260901g001950082-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20260910g002020087",
+        "matrix": 0,
+        "rows": 19,
+        "cols": 3,
+        "frame": {
+          "x0": 437.5,
+          "y0": 276.572,
+          "x1": 780.5,
+          "y1": 536.179,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "ce115399140896a8100675a32229c7b8c1570ed5799fc749cce6800b35ce9ece",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20260910g002020087-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20260918g002100049",
+        "matrix": 0,
+        "rows": 28,
+        "cols": 4,
+        "frame": {
+          "x0": 437.5,
+          "y0": 141.0,
+          "x1": 780.5,
+          "y1": 536.286,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "a608a40404777ad031044aff47f8bb9d270b1447636f3cb9fa3b9a9df03d3e0d",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20260918g002100049-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20260930g002160033",
+        "matrix": 0,
+        "rows": 10,
+        "cols": 3,
+        "frame": {
+          "x0": 69.5,
+          "y0": 142.179,
+          "x1": 412.5,
+          "y1": 273.786,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "f500cec842515b5bd2dfae174d0e9fa4c581be92bd0bfdce430b0e2ec9f3c37d",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20260930g002160033-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20260930g002160046",
+        "matrix": 0,
+        "rows": 6,
+        "cols": 3,
+        "frame": {
+          "x0": 69.5,
+          "y0": 68.786,
+          "x1": 412.5,
+          "y1": 146.786,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "7c831742ffae6776dda353eaa9adeb5e6f84c30c5d5bfaa666d51314df494aee",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20260930g002160046-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20261009g002230139",
+        "matrix": 0,
+        "rows": 12,
+        "cols": 3,
+        "frame": {
+          "x0": 437.5,
+          "y0": 204.393,
+          "x1": 780.5,
+          "y1": 354.786,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "23fbbb67e78675daf92ea4455e116fc9be0a16112188f32128fd312adb8ae27a",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20261009g002230139-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20261009g002230145",
+        "matrix": 0,
+        "rows": 10,
+        "cols": 3,
+        "frame": {
+          "x0": 69.5,
+          "y0": 405.214,
+          "x1": 412.5,
+          "y1": 537.643,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "3e42516be3972cdf007e5212378bae38adc97414393a77893a503376e657574a",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20261009g002230145-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20261009g002230147",
+        "matrix": 0,
+        "rows": 6,
+        "cols": 3,
+        "frame": {
+          "x0": 69.5,
+          "y0": 419.0,
+          "x1": 412.5,
+          "y1": 497.75,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "713a371528d5ec2e1c42e463e6f8ed687cea2420978466df4c5f3b1326c73b3b",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20261009g002230147-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20261009g002230150",
+        "matrix": 0,
+        "rows": 10,
+        "cols": 3,
+        "frame": {
+          "x0": 69.5,
+          "y0": 78.429,
+          "x1": 412.5,
+          "y1": 208.5,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "630fceaa9c779fab6d9397743452942705fabc5deb787ba21920f998e66bc6c1",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20261009g002230150-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20261009g002230152",
+        "matrix": 0,
+        "rows": 6,
+        "cols": 3,
+        "frame": {
+          "x0": 69.5,
+          "y0": 469.25,
+          "x1": 412.5,
+          "y1": 549.0,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "5dbb9c60b5b860e67d7dc6ae1d3b63eb90932219e06ddb5d23adb1dea1103f6d",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20261009g002230152-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20261013g002240041",
+        "matrix": 0,
+        "rows": 4,
+        "cols": 3,
+        "frame": {
+          "x0": 437.5,
+          "y0": 310.357,
+          "x1": 780.5,
+          "y1": 371.0,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "8266a3976044dd2a1f282d75699de181c6e4b62d369347d9f2f576afe5f0abb5",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20261013g002240041-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20261013g002240045",
+        "matrix": 0,
+        "rows": 4,
+        "cols": 3,
+        "frame": {
+          "x0": 69.5,
+          "y0": 365.75,
+          "x1": 412.5,
+          "y1": 423.0,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "e6e65fd654d0e2d88217b60f2c4ea6c39c40c182f970c7b0d6c7c118f87d0226",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20261013g002240045-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20261013g002240048",
+        "matrix": 0,
+        "rows": 4,
+        "cols": 3,
+        "frame": {
+          "x0": 437.5,
+          "y0": 361.5,
+          "x1": 780.5,
+          "y1": 420.0,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "d98f282f35e3f02ec1f63ad4bfcfca9e684b2064d416bc6b02b16faa08287757",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20261013g002240048-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20261016g002270061",
+        "matrix": 0,
+        "rows": 6,
+        "cols": 3,
+        "frame": {
+          "x0": 69.5,
+          "y0": 98.214,
+          "x1": 412.5,
+          "y1": 194.714,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "f67b3f9291ca4161fc5e4bf2080d706b69e6389cdc8c0fe72eea1a17352a459f",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20261016g002270061-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20261016g002280113",
+        "matrix": 0,
+        "rows": 5,
+        "cols": 3,
+        "frame": {
+          "x0": 437.5,
+          "y0": 106.429,
+          "x1": 780.5,
+          "y1": 173.786,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "1aaf8bafd202fdbb29693274b1464282aba328be8ae7b76df146d39e4181bd64",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20261016g002280113-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20261016g002280137",
+        "matrix": 0,
+        "rows": 5,
+        "cols": 3,
+        "frame": {
+          "x0": 437.5,
+          "y0": 230.75,
+          "x1": 780.5,
+          "y1": 302.25,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "9c6b51d9bc8f0a8af2759933556e3aa7405998a349bda8324fb31fcf9718ea9f",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20261016g002280137-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20261016g002280523",
+        "matrix": 0,
+        "rows": 37,
+        "cols": 4,
+        "frame": {
+          "x0": 69.5,
+          "y0": 69.857,
+          "x1": 412.5,
+          "y1": 549.0,
+          "closed_top": true,
+          "closed_bottom": false
+        },
+        "PDF_sha256": "fb50290cd57b25196bcf8c1df9fe7dad629e372b43b15025722d80a9522edd32",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20261016g002280523-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20261016g002280523",
+        "matrix": 1,
+        "rows": 10,
+        "cols": 4,
+        "frame": {
+          "x0": 437.5,
+          "y0": 46.0,
+          "x1": 780.5,
+          "y1": 176.357,
+          "closed_top": false,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "fb50290cd57b25196bcf8c1df9fe7dad629e372b43b15025722d80a9522edd32",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20261016g002280523-matrix1.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      },
+      {
+        "page": "20261016g002280548",
+        "matrix": 0,
+        "rows": 4,
+        "cols": 3,
+        "frame": {
+          "x0": 437.5,
+          "y0": 259.393,
+          "x1": 780.5,
+          "y1": 320.786,
+          "closed_top": true,
+          "closed_bottom": true
+        },
+        "PDF_sha256": "4e98fe04faa8d3538a51182c0b4a86f2e8f78b627710fca76da12359e126a402",
+        "crop": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-matrix-continuations153/source-images153/20261016g002280548-matrix0.png",
+        "review": "Implementing agent nonblind: complete original source crop viewed; visible label/amount/blank column assignments and scope checked. Original173066/523 full pages also viewed; separate74/47/4row transcriptions checked. Not accuracy gold.",
+        "prototype": "Final private-v5: all11992singleton and159whole completeAnalysis hashes equal the source-reviewed private-v4 outputs."
+      }
+    ],
+    "scope": "Original source crops/frame inventory and typed manual matrices; not independent blind full-text gold or an overall accuracy estimate."
+  },
+  "native_gate": {
+    "terminal": 0,
+    "commands": 2,
+    "integration_targets": 152,
+    "result_groups": 160,
+    "passed": 3755,
+    "failed": 0,
+    "ignored": 0,
+    "source_manifest_sha256": "b2efe46e8ded841cc03842fd55039aa37109eba549a446f84aed6b24175814dd",
+    "source_and_all_existing_test_inputs_prepost_exact": true,
+    "snapshot_updates_disabled": true
+  },
+  "actual_Cargo_CLI": {
+    "original_PDFs": 40,
+    "actual_Cargo_library_full_Analysis_equal_private_v5": 40,
+    "actual_Cargo_PDF_textdump": 40,
+    "actual_Cargo_XHTML_textdump": 40,
+    "actual_Cargo_text_example": 40,
+    "actual_Cargo_docjson_singletons": 40,
+    "actual_Cargo_consecutive_three_page_docjson": 1,
+    "duplicate_word_reports": 0,
+    "source_and_binaries_prepost_exact": true,
+    "scope": "Actual Cargo debug examples on all29changed originals and11controls; not full11992CLI or release validation."
+  },
+  "shared_renderer": {
+    "passed": 8,
+    "failed": 0,
+    "actual_shared_implementation_unchanged": true,
+    "backend_actual_Document_and_independent74row296cell_fixture_coupled": true,
+    "source_hashes": {
+      "figma/tests/amend-document.test.tsx": "ffeb08a468a20a7b2369d44f50f4a5d14a3c731220f50f450ed31a2d1ce90c79",
+      "figma/src/app/components/amend-document-view.tsx": "725008302543e5c9f89ef6bdba776038a9a273c3f1a34cf06dda02f1c91cf858",
+      "figma/src/app/components/ui/utils.ts": "d1f1e0d62cb8d8d1e04c26e14de842d8a151f75812d81b046c65b5d1fe8e4b27",
+      "figma/scripts/test-amend-document.mjs": "9ae3272228900a2f59ff87176f2e77ae5af6f83af8f17127e38ce01cacf823ec",
+      "figma/playwright.kanpo.config.ts": "e836ffc27eb359cb7aa41d9fd3b66f1a11afbade3bb7b0bccffbaed20f0f0517",
+      "crates/kanpo-parser/tests/data/native-numeric-parents/expenses-document153.json": "84c403625e564bf6c17451ebabb03703564255fc0f29a9abce39f19bffa572c2",
+      "crates/kanpo-parser/tests/data/native-numeric-parents/expenses-source-74rows153.json": "477ca72f92855b2f33012a384dad2f4d9731e11deae1fa8c2a7b34c5e570a635"
+    },
+    "final_exact_source_run": true,
+    "final_log_sha256": "1e5ebe4f6bf744a53e4a4d3f0e17885c49eadca8b8831e2616b832523f123497"
+  },
+  "prior_anchors": {
+    "prior_JSON_TSV_PDF_snapshot_files": 2859,
+    "only_changed_source_reviewed_snapshot": [
+      "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260803g00174__20260803g001740087.pdf.snap"
+    ],
+    "other813_snapshots_byte_exact": true,
+    "all_prior_JSON_TSV_PDF_byte_exact": true,
+    "all23_foreign_primary_files_exact": true,
+    "scope": "Tracked prior JSON/TSV/PDF/snapshot blobs in all4native packages; parser-only prior count kept separately.",
+    "prior_parser_test_anchors": 2822
+  },
+  "reviewed_snapshot_transition": {
+    "source": "20260803g001740087",
+    "original_frame_viewed": true,
+    "original_rows": 4,
+    "original_columns": 3,
+    "snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260803g00174__20260803g001740087.pdf.snap",
+    "old_sha256": "cef9f9a098401bc8003c3882c3f8f7dec998e94625fb5a307c81087c39b5cd24",
+    "new_sha256": "1b2d4ff43addc0d508f9beab90ceb9ed29023ada7a354060150e010c2ef2e8c7",
+    "complete_snapshot_metadata_unchanged": true,
+    "whole_old_and_new_body_and_document_renderings_exact_frozen_source_analyses": true,
+    "scope": "Only certified blank column separators and the4x3native matrix replace the old plain source rows. The following independent notice/header/ownership and all other bytes remain source-preserved."
+  },
+  "old_expected_transition": "Initial normal gate detected5old expectations in4targets. Keep original147/152JSON,37row source witness, old wrapped-title JSON and all independent notice/title/owner controls. Chain147->152single-column preservation,152->153strict source-parent/document projection and fixed153completeAnalysis only for affected3prior originals. Other prior inputs retain exact original expectations.",
+  "final_input_integrity": {
+    "scope": "All final native-gate existing source/test inputs, every privatev5 source/binary/original PDF and actualCargoCLI freeze retained; docs/audit prose written afterward.",
+    "native_gate_manifest_files": 3562,
+    "private_single_whole_manifest_files": [
+      12245,
+      12245
+    ],
+    "all_hashes_exact": true,
+    "all_parser_sources_equivalent": 246
+  },
+  "all_private_parser_sources": 246,
+  "runtime_port": "Explicit private-module aliases renamed to generic runtime modules; all parser sources checked for byte/rustfmt equivalence. Existing single-terminal-column runtime unchanged.",
+  "OCR": "Explicit opt-in NDLOCR0.0.15 pinned f97e930b8c3e9512f7788f258ef685da26416483; unused. Native/nonimage inputs prioritized; no extra model.",
+  "accuracy": "Do not infer a rate from changed-page counts, preservation tests or this nonblind source review. Keep the fixed30page139audit as historical native138 grades; no100%claim.",
+  "remaining": [
+    "Unseen next-page continuations and within-page flows without complete source proof",
+    "Reconsidering earlier single-column inferred fragments before native parent certification",
+    "Different-width or multi-stage parent continuation coordinates",
+    "Numbered/wrapped labels, original missing-value glyphs and financial hierarchy",
+    "Unresolved character codes/PUA and other article/table ownership",
+    "Image/outline-only body, low priority; OCR stays opt-in"
+  ],
+  "goal_complete": false
+}

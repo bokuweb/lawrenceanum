@@ -308,6 +308,16 @@ fn project(text: &str, changes: &[(String, String)]) -> String {
 }
 
 pub(crate) fn reviewed_projection(old: &Value, new: &Value, rules: &[Value]) -> usize {
+    reviewed_projection_with_parent(old, new, rules, |pi, _, page, table| {
+        native_parent(&rules[pi], page, table)
+    })
+}
+fn reviewed_projection_with_parent(
+    old: &Value,
+    new: &Value,
+    rules: &[Value],
+    mut parent: impl FnMut(usize, &Value, &Value, &Value),
+) -> usize {
     assert_eq!(old["format"], new["format"]);
     assert_eq!(array(&old["pages"]).len(), array(&new["pages"]).len());
     assert_eq!(array(&old["pages"]).len(), rules.len());
@@ -462,7 +472,7 @@ pub(crate) fn reviewed_projection(old: &Value, new: &Value, rules: &[Value]) -> 
                     dense_text.push(payload);
                 }
                 assert_eq!(s(&l["text"]), rendered.join("\n"));
-                native_parent(&rules[pi], b, t);
+                parent(pi, a, b, t);
                 changes.push((s(&l["text"]).to_owned(), dense_text.join("\n")));
                 at += rows;
                 promoted += 1;
@@ -535,4 +545,20 @@ pub(crate) fn reviewed_projection(old: &Value, new: &Value, rules: &[Value]) -> 
         "all source rows appear in their own structured documents"
     );
     promoted
+}
+
+#[path = "native_numeric_parent_contracts.rs"]
+mod parent_contracts;
+#[allow(unused_imports)]
+pub(crate) use parent_contracts::reviewed_parent_projection;
+
+// This negative control deliberately verifies material alone before asserting
+// that the complete original parent rejects the coordinated shape corruption.
+#[allow(dead_code)]
+pub(crate) fn material_projection_for_counterexample(
+    old: &Value,
+    new: &Value,
+    rules: &[Value],
+) -> usize {
+    reviewed_projection_with_parent(old, new, rules, |_, _, _, _| {})
 }

@@ -106,9 +106,21 @@ fn original_profit_disposal_keeps_all_six_rows_and_empty_amount_slots() {
 fn the_expense_continuation_does_not_infer_columns_from_only_its_first_printed_column() {
     let key = "20260731g001730066";
     let a = analyze(&[key]);
-    assert_eq!(a, baseline(key));
+    let before = baseline(key);
+    let reviewed = value(
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/data/native-numeric-parents/20260731g001730066-reviewed153.json"),
+    );
+    let xhtml = kanpo_parser::bbox_xhtml(&pdf(key)).unwrap();
+    assert_eq!(
+        matrix_contract::reviewed_parent_projection(&before, &reviewed, &rules(&[key]), &[xhtml]),
+        2
+    );
+    assert_eq!(a, reviewed);
+    // Keep the independent old37row transcription as a literal source witness.
+    // The new74row transcription separately fixes all complete parent columns.
     let expected = value(data("expenses-source-37rows152.json"));
-    let lines = a["pages"][0]["regions"]
+    let lines = before["pages"][0]["regions"]
         .as_array()
         .unwrap()
         .iter()
