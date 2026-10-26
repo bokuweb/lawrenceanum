@@ -110,7 +110,19 @@ fn original_consecutive_pages_keep_all_article_material_and_prior_tables() {
     material(&old, &new);
     assert_eq!(new["articles"].as_array().unwrap().len(), 1);
     assert_eq!(old["pages"][0], new["pages"][0]);
-    assert_eq!(old["pages"][2], new["pages"][2]);
+    // The bottom-bounded continuation now has its own source-certified cells.
+    assert_eq!(numeric_contract::reviewed_projection(&old, &new), 4);
+    assert_eq!(
+        tables(&new["pages"][2])
+            .iter()
+            .map(|t| t["rows"].as_u64().unwrap())
+            .collect::<Vec<_>>(),
+        [7, 13]
+    );
+    assert_eq!(
+        source_inventory(&old["pages"][2], &new["pages"][2]).len(),
+        11
+    );
     assert_eq!(tables(&new["pages"][1]).len(), 3);
     assert_eq!(
         source_inventory(&old["pages"][1], &new["pages"][1]).len(),
@@ -171,4 +183,88 @@ fn renderer_fixture_is_the_actual_original_cash_flow_document() {
         serde_json::from_slice(&std::fs::read(data("renderer-document.json")).unwrap()).unwrap();
     let actual = analyze(&["20260825g001890074"]);
     assert_eq!(actual["articles"][0]["document"], fixture);
+}
+
+fn continuation_baseline(key: &str) -> Value {
+    serde_json::from_slice(&std::fs::read(data(&format!("{key}-baseline148.json"))).unwrap())
+        .unwrap()
+}
+
+#[test]
+fn original_bottom_bounded_continuation_keeps_all_twenty_printed_rows() {
+    let key = "20260825g001890075";
+    let old = continuation_baseline(key);
+    let new = analyze(&[key]);
+    assert_eq!(numeric_contract::reviewed_projection(&old, &new), 2);
+    assert_eq!(
+        source_inventory(&old["pages"][0], &new["pages"][0]).len(),
+        11
+    );
+    let ts = tables(&new["pages"][0]);
+    assert_eq!(
+        ts.iter()
+            .map(|t| t["rows"].as_u64().unwrap())
+            .collect::<Vec<_>>(),
+        [7, 13]
+    );
+    let rows: Vec<_> = ts
+        .iter()
+        .flat_map(|t| {
+            (0..t["rows"].as_u64().unwrap())
+                .map(|r| format!("{}\t{}", cell(t, r, 0), cell(t, r, 1)))
+        })
+        .collect();
+    let reviewed = include_str!("data/native-numeric-frames/20260825g001890075-reviewed149.tsv");
+    assert_eq!(rows.join("\n") + "\n", reviewed);
+}
+
+#[test]
+fn original_different_bottom_bounded_source_keeps_its_twenty_rows() {
+    let key = "20260810g001790109";
+    let old = continuation_baseline(key);
+    let new = analyze(&[key]);
+    assert_eq!(numeric_contract::reviewed_projection(&old, &new), 2);
+    let ts = tables(&new["pages"][0]);
+    assert_eq!(
+        ts.iter()
+            .map(|t| t["rows"].as_u64().unwrap())
+            .collect::<Vec<_>>(),
+        [11, 9]
+    );
+    assert_eq!(cell(ts[0], 0, 0), "定期預金の預入による支出");
+    assert_eq!(cell(ts[0], 0, 1), "△2,900,000,000");
+    assert_eq!(cell(ts[1], 8, 0), "Ⅵ　資金期末残高");
+    assert_eq!(cell(ts[1], 8, 1), "24,895,781,523");
+}
+
+#[test]
+fn original_enumerated_label_retains_its_internal_gaps_and_footnote() {
+    let key = "20261016g002280142";
+    let old = continuation_baseline(key);
+    let new = analyze(&[key]);
+    assert_eq!(numeric_contract::reviewed_projection(&old, &new), 1);
+    let ts = tables(&new["pages"][0]);
+    let t = ts
+        .iter()
+        .find(|t| t["rows"] == 2 && cell(t, 0, 0) == "Ⅶ　目的積立金取崩額　※")
+        .unwrap();
+    assert_eq!(cell(t, 0, 1), "36,265");
+    assert_eq!(cell(t, 1, 0), "Ⅷ　当期総利益");
+    assert_eq!(cell(t, 1, 1), "451,672");
+}
+
+#[test]
+fn original_right_column_continuation_keeps_its_four_closing_values() {
+    let key = "20261016g002280006";
+    let old = continuation_baseline(key);
+    let new = analyze(&[key]);
+    assert_eq!(numeric_contract::reviewed_projection(&old, &new), 1);
+    let ts = tables(&new["pages"][0]);
+    let t = ts
+        .iter()
+        .find(|t| t["rows"] == 4 && cell(t, 0, 0) == "Ⅳ　資金に係る換算差額")
+        .unwrap();
+    assert_eq!(cell(t, 0, 1), "0");
+    assert_eq!(cell(t, 3, 0), "Ⅶ　資金期末残高");
+    assert_eq!(cell(t, 3, 1), "13,815");
 }

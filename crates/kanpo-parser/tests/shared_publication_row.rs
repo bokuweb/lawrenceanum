@@ -55,8 +55,8 @@ fn pension_and_following_financial_publication_keep_their_own_boundaries() {
 }
 #[test]
 fn housing_financial_publication() {
-    let previous = include_str!("data/shared-publication-row/20260825g001890072-reviewed140.json");
-    let reviewed = include_str!("data/shared-publication-row/20260825g001890072-reviewed148.json");
+    let previous = include_str!("data/shared-publication-row/20260825g001890072-reviewed148.json");
+    let reviewed = include_str!("data/shared-publication-row/20260825g001890072-reviewed149.json");
     let a: serde_json::Value = serde_json::from_str(previous).unwrap();
     let b: serde_json::Value = serde_json::from_str(reviewed).unwrap();
     assert!(numeric_contract::reviewed_projection(&a, &b) > 0);

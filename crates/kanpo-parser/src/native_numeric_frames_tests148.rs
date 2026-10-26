@@ -559,3 +559,6 @@ fn whole_frame148_an_opaque_existing_grid_retains_its_authority() {
     run(&mut s);
     assert_eq!(tables(&s.0), vec![&table]);
 }
+
+#[path = "native_numeric_frame_continuations_tests149.rs"]
+mod continuations149;

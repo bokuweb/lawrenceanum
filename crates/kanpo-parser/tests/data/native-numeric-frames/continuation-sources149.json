@@ -1,0 +1,28 @@
+{
+  "issue": 227,
+  "baseline_local": "1127e0f8f0b1b18a7de11b59cbf1d7b85b798be3",
+  "baseline_publication": "001c9d7b293f5b34d5545c09a198f884d71a800f",
+  "scope": "Original native numeric continuation controls. baseline148 anchors unchanged material; these JSONs are not independent accuracy gold. Reviewed20-row TSV transcribes the complete new source cells on page75. No OCR. Previous147 fixtures remain untouched.",
+  "sources": [
+    {
+      "page": "20260825g001890075",
+      "PDF_sha256": "f7d23c68d7343a7a3fb2c33b948f6eb3433c57bad64c25cccd924e442be0f932",
+      "source_archive_path": ".cache/kanpo-archive/2026-08-25/20260825g00189/20260825g001890075.pdf"
+    },
+    {
+      "page": "20260810g001790109",
+      "PDF_sha256": "a52318cca74fdcc9f1bf344aff51f932f49b0cb2e96451cd85570030e76fb25e",
+      "source_archive_path": ".cache/kanpo-archive/2026-08-10/20260810g00179/20260810g001790109.pdf"
+    },
+    {
+      "page": "20261016g002280142",
+      "PDF_sha256": "816032fd74a019e2bf3ead41c74b7c7195f2f9721a06ceb6075c2c408690dcdc",
+      "source_archive_path": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280142.pdf"
+    },
+    {
+      "page": "20261016g002280006",
+      "PDF_sha256": "67688afa6e753ab527a7a89baa22f605402e2afebc1e6cac6df5d283c04b8cd5",
+      "source_archive_path": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280006.pdf"
+    }
+  ]
+}

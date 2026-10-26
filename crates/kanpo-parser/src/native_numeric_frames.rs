@@ -11,6 +11,7 @@ struct Frame {
     y0: f32,
     x1: f32,
     y1: f32,
+    open_top: bool,
     open_bottom: bool,
 }
 #[derive(Clone)]
@@ -83,7 +84,7 @@ fn frames(r: &PageRules) -> Vec<Frame> {
                     .iter()
                     .any(|h| h.y == y && h.x0 == a.0 && h.x1 == b.0)
             };
-            if !wall(a.1)
+            if (!wall(a.1) && !wall(a.2))
                 || vs
                     .iter()
                     .any(|c| a.0 < c.0 && c.0 < b.0 && c.1 < a.2 && a.1 < c.2)
@@ -95,11 +96,35 @@ fn frames(r: &PageRules) -> Vec<Frame> {
                 y0: a.1,
                 x1: b.0,
                 y1: a.2,
+                open_top: !wall(a.1),
                 open_bottom: !wall(a.2),
             });
         }
     }
     out
+}
+// Whitespace is ignored only when binding the complete original label words.
+// The cell retains the exact existing line substring, including every gap.
+fn compact(s: &str) -> String {
+    s.chars().filter(|c| !c.is_whitespace()).collect()
+}
+fn source_label(s: &str) -> bool {
+    if s.trim().is_empty() {
+        return false;
+    }
+    if !s.chars().any(char::is_numeric) {
+        return true;
+    }
+    let Some((marker, body)) = s.split_once(char::is_whitespace) else {
+        return false;
+    };
+    // Unicode Roman enumerators are a label prefix, not another amount lane.
+    !marker.is_empty()
+        && marker
+            .chars()
+            .all(|c| ('Ⅰ'..='Ⅿ').contains(&c) || ('ⅰ'..='ⅿ').contains(&c))
+        && !body.trim().is_empty()
+        && !body.chars().any(char::is_numeric)
 }
 fn row(
     l: &Line,
@@ -112,8 +137,8 @@ fn row(
     if l.table.is_some() || l.words.is_empty() {
         return None;
     }
-    let (label, number) = l.text.split_once('\u{3000}')?;
-    if label.is_empty() || label.chars().any(char::is_numeric) || !amount(number) {
+    let (label, number) = l.text.rsplit_once('\u{3000}')?;
+    if !source_label(label) || !amount(number) {
         return None;
     }
     let words = l
@@ -131,7 +156,7 @@ fn row(
             || !matches!(w.status, WordStatus::Used)
             || w.x0 < f.x0
             || w.x1 > f.x1
-            || w.y0 < f.y0
+            || (!f.open_top && w.y0 < f.y0)
             || y < f.y0
             || y > f.y1
             || (!f.open_bottom && w.y1 > f.y1)
@@ -150,7 +175,7 @@ fn row(
     for k in 1..words.len() {
         let left = &words[..k];
         let right = &words[k..];
-        if left.iter().map(|w| w.text.as_str()).collect::<String>() != label
+        if compact(&left.iter().map(|w| w.text.as_str()).collect::<String>()) != compact(label)
             || right.iter().map(|w| w.text.as_str()).collect::<String>() != unsigned(number)
         {
             continue;
@@ -180,8 +205,9 @@ fn row(
                         && w.x0 < w.x1
                         && w.y0 < w.y1
                         && w.x0 >= left_end
-                        && w.x1 <= right_start
-                        && w.y0 >= f.y0
+                        && w.x0 < right_start
+                        && w.x1 <= right[0].x1
+                        && (f.open_top || w.y0 >= f.y0)
                         && (f.open_bottom || w.y1 <= f.y1)
                         && baselines.get(w.id).and_then(|b| *b).is_some_and(|y| {
                             y as f32 == baseline.unwrap() && w.y0 <= y as f32 && y as f32 <= w.y1
