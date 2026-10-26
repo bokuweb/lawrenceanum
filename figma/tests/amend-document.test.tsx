@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 import { AmendDocumentView } from "../src/app/components/amend-document-view";
+import sourceCashFlow from "../../crates/kanpo-parser/tests/data/native-numeric-frames/renderer-document.json";
 
 const block = (labels?: { after: string; before: string }) => ({
   kind: "shinkyu" as const,
@@ -35,4 +36,22 @@ test("mixed families retain independent headers and cells", () => {
   }
   assert.equal(html.split("新しい本文").length - 1, 2);
   assert.equal(html.split("元の本文").length - 1, 2);
+});
+
+test("native source financial rows retain their own amounts in the shared renderer", () => {
+  const doc = sourceCashFlow as React.ComponentProps<typeof AmendDocumentView>["doc"];
+  const html = renderToStaticMarkup(<AmendDocumentView doc={doc} />);
+  assert.equal((html.match(/<table\b/g) ?? []).length, 3);
+  const rows = [...html.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/g)].map((match) =>
+    [...match[1].matchAll(/<td\b[^>]*>([\s\S]*?)<\/td>/g)].map((cell) => cell[1].replace(/<[^>]+>/g, "")),
+  );
+  assert.equal(rows.length, 38 + 24 + 5);
+  for (const [label, amount] of [
+    ["買取債権の取得による支出", "△973,990,240,000"],
+    ["小計", "744,943,589,967"],
+    ["業務活動によるキャッシュ・フロー", "604,181,379,501"],
+    ["有形固定資産の売却による収入", "2,794,245,000"],
+  ]) {
+    assert.equal(rows.filter((row) => row[0] === label && row[1] === amount).length, 1);
+  }
 });

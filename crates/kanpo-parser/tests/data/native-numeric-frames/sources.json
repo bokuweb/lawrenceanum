@@ -1,0 +1,58 @@
+{
+  "issue": 227,
+  "scope": "Original native PDF source regressions for numeric frames; baseline147 is a regression anchor, not independent accuracy ground truth. Whole-frame ownership and same-source row evidence must remain explicit. OCR remains opt-in and unused.",
+  "baseline_local": "fd99e8e2e18e5f11904457e458460073fd598b67",
+  "baseline_publication": "ce2d1f521cda2f51a30e8f2bd8c7f96147f47286",
+  "sources": [
+    {
+      "page": "20260825g001890073",
+      "PDF_sha256": "c9bd376a28522885d260f5e9935e647921dad8c5ae5f4247032ab4bee55b0414",
+      "source_archive_path": ".cache/kanpo-archive/2026-08-25/20260825g00189/20260825g001890073.pdf"
+    },
+    {
+      "page": "20260825g001890074",
+      "PDF_sha256": "b10c626049f582fe594852d42b70f83b805991d7fac3c30df921ea5ef5222aef",
+      "source_archive_path": ".cache/kanpo-archive/2026-08-25/20260825g00189/20260825g001890074.pdf"
+    },
+    {
+      "page": "20260825g001890075",
+      "PDF_sha256": "f7d23c68d7343a7a3fb2c33b948f6eb3433c57bad64c25cccd924e442be0f932",
+      "source_archive_path": ".cache/kanpo-archive/2026-08-25/20260825g00189/20260825g001890075.pdf"
+    },
+    {
+      "page": "20260717g001600100",
+      "PDF_sha256": "53ba0e398a046dd2840a9e62d57da63fe7560a3a1396f4cd04a19ee380719efe",
+      "source_archive_path": ".cache/kanpo-archive/2026-07-17/20260717g00160/20260717g001600100.pdf"
+    },
+    {
+      "page": "20260731g001730066",
+      "PDF_sha256": "b900f97ff8175fca034dd2bcdc06d7ec3d00fe28eed9a892af40d93344ed5042",
+      "source_archive_path": ".cache/kanpo-archive/2026-07-31/20260731g00173/20260731g001730066.pdf"
+    },
+    {
+      "page": "20261016g002280002",
+      "PDF_sha256": "48451eea63aebe4985ad9446148791d08004f2fb973501c55547e59411ba7aa5",
+      "source_archive_path": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280002.pdf"
+    },
+    {
+      "page": "20261016g002280553",
+      "PDF_sha256": "1faefcb00d527582f5370ac87315c992972bc8a3399b28fe4c205e83a06983e1",
+      "source_archive_path": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280553.pdf"
+    },
+    {
+      "page": "20260731g001720293",
+      "PDF_sha256": "e815dc502008e8fad44aced8dfb9091b1ffa3f30978c5a5aa4575becc9725698",
+      "source_archive_path": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720293.pdf"
+    },
+    {
+      "page": "20260803g001740089",
+      "PDF_sha256": "7e1305cd08d3efe6602949ad606735d48078bf0d278db9e96111f1a5f6ef3ed3",
+      "source_archive_path": ".cache/kanpo-archive/2026-08-03/20260803g00174/20260803g001740089.pdf"
+    },
+    {
+      "page": "20260820g001860077",
+      "PDF_sha256": "da6d8210d8ee3f3fc3d4abd576253ab65556f4e4fcab760cf2733e7b541614e4",
+      "source_archive_path": ".cache/kanpo-archive/2026-08-20/20260820g00186/20260820g001860077.pdf"
+    }
+  ]
+}

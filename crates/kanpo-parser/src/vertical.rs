@@ -532,6 +532,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             let native_atomic_columns=crate::native_atomic_column::restore(&mut units,&words,&native_bounds,&native_axes,&native_flows,rules.get(pi).and_then(|r|r.as_ref()));
             crate::native_grid_fragments::restore_independent_vertical(&mut units,&independent_vertical_plans,&words,&native_bounds,&native_axes,&native_styles,&projected_flows);
         crate::native_cell_text::restore(&mut units,&words,&native_bounds,&cell_origins);
+        if let Some(r)=rules.get(pi).and_then(|r|r.as_ref()){let b=crate::native_word_flow::horizontal_baselines(&native_bounds,&native_axes,&native_flows);crate::native_numeric_frames::restore(&mut units,&words,r,&b); }
             if prev_table {crate::comparison_labels::inherit(&mut units,prev_comparison_labels,explicit_comparison_label);}
             prev_comparison_labels=match units.last(){Some(Unit::Shinkyu{labels,..})=>*labels,_=>None};
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
@@ -903,6 +904,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
 
         crate::native_grid_fragments::restore_independent_vertical(&mut units,&independent_vertical_plans,&words,&native_bounds,&native_axes,&native_styles,&projected_flows);
         crate::native_cell_text::restore(&mut units,&words,&native_bounds,&cell_origins);
+        if let Some(r)=rules.get(pi).and_then(|r|r.as_ref()){let b=crate::native_word_flow::horizontal_baselines(&native_bounds,&native_axes,&native_flows);crate::native_numeric_frames::restore(&mut units,&words,r,&b); }
         if prev_table {crate::comparison_labels::inherit(&mut units,prev_comparison_labels,explicit_comparison_label);}
         prev_comparison_labels=match units.last(){Some(Unit::Shinkyu{labels,..})=>*labels,_=>None};
         let text = units

@@ -726,3 +726,5 @@ mod native_cell_origin;
 mod comparison_labels;
 
 mod source_article_parts;
+
+mod native_numeric_frames;
