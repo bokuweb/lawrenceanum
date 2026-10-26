@@ -272,7 +272,7 @@ pub(super) struct UnitSource {
     pub(super) text: String,
     pub(super) words: Vec<Source>,
     pub(super) tables: Vec<usize>,
-    pub(super) has_outline: bool,
+    pub(super) has_structural_anchor: bool,
 }
 pub(super) fn page_units(
     page: &PageTrace,
@@ -289,11 +289,14 @@ pub(super) fn page_units(
         let ids = (table..table + tables.len()).collect();
         table += tables.len();
         let regions = unit.regions(0);
-        let has_outline = regions
+        let has_structural_anchor = regions
             .iter()
             .filter(|r| matches!(r.role, Role::After | Role::Before))
             .flat_map(|r| &r.lines)
-            .any(|l| crate::model::outline_heading(&l.text));
+            .any(|l| {
+                crate::model::outline_heading(&l.text)
+                    || crate::model::article_number(&l.text).is_some()
+            });
         let words = regions
             .iter()
             .flat_map(|r| &r.lines)
@@ -314,7 +317,7 @@ pub(super) fn page_units(
                 text,
                 words,
                 tables: ids,
-                has_outline,
+                has_structural_anchor,
             });
         }
     }

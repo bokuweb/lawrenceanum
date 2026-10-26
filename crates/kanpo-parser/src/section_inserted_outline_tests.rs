@@ -712,3 +712,553 @@ fn outline143_partial_claims_do_not_rehabilitate_unknown_complete_extras() {
     repair(&mut a, &[scope], &f.pages);
     assert_eq!(a[0].document, f.articles[0].document);
 }
+
+// Inserted articles are separate legal rows even when their legacy cell and
+// the opposite cell each contain several complete printed article anchors.
+fn article146_fixture() -> F {
+    let mut f = fixture();
+    let p = &mut f.pages[0];
+    p.words.clear();
+    p.native_bounds.clear();
+    p.native_axes.clear();
+    p.native_styles.clear();
+    p.native_content_styles.clear();
+    p.native_rulings.clear();
+    for r in &mut p.regions {
+        r.lines.clear();
+    }
+    let after = "（前の条見出し）\n第十三条の二　前の本文。\n２　続く本文。\n（次の条見出し）\n第二百条の三　次の本文。\n一　項目。";
+    f.articles[0].document.blocks = vec![Block::Shinkyu {
+        rows: vec![ShinkyuRow {
+            after: vec![Run {
+                text: after.into(),
+                underline: true,
+                table: None,
+            }],
+            before: vec![
+                Run::plain("（新設）\n"),
+                Run {
+                    text: "（新設）".into(),
+                    underline: true,
+                    table: None,
+                },
+            ],
+            ..Default::default()
+        }],
+    }];
+    for (i, text) in after.lines().enumerate() {
+        f.add_line(Role::After, text, 900. - 20. * i as f32, i);
+    }
+    f.add_line(Role::Before, "（新設）", 880., 0);
+    f.add_line(Role::Before, "（新設）", 820., 1);
+    f.sync();
+    f
+}
+fn article146_check(f: &F) {
+    let a = f.run();
+    let rs = rows(&a);
+    assert_eq!(rs.len(), 2);
+    assert_eq!(
+        joined(&rs[0].after),
+        "（前の条見出し）\n第十三条の二　前の本文。\n２　続く本文。"
+    );
+    assert_eq!(
+        joined(&rs[1].after),
+        "（次の条見出し）\n第二百条の三　次の本文。\n一　項目。"
+    );
+    assert_eq!(joined(&rs[0].before), "（新設）");
+    assert_eq!(joined(&rs[1].before), "（新設）");
+    assert!(rs[0].after[0].underline && rs[1].after[0].underline);
+    assert!(!rs[0].before[0].underline && rs[1].before[0].underline);
+    for side in [true, false] {
+        assert_eq!(
+            material(&f.articles[0].document, side),
+            material(&a[0].document, side)
+        );
+    }
+    assert_eq!(a[0].text, f.articles[0].text);
+}
+#[test]
+fn article146_native_columns_split_a_merged_inserted_article_cell() {
+    article146_check(&article146_fixture());
+}
+#[test]
+fn article146_a_continuation_can_have_an_empty_opposite_prefix() {
+    let mut f = article146_fixture();
+    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+        rows[0].before.remove(0);
+    }
+    f.pages[0].regions[1].lines.remove(0);
+    let id = 6;
+    f.pages[0].words[id].status = WordStatus::Margin;
+    f.sync();
+    let a = f.run();
+    let rs = rows(&a);
+    assert_eq!(rs.len(), 2);
+    assert!(rs[0].before.is_empty());
+    assert_eq!(joined(&rs[1].before), "（新設）");
+}
+#[test]
+fn article146_distinct_numbers_titles_scale_and_translation_keep_the_proof() {
+    let mut f = article146_fixture();
+    f.map_text("第十三条の二", "第５条の４");
+    f.map_text("第二百条の三", "第六百七条の八");
+    f.map_text("次の条見出し", "任意の長さに変更した条文の見出し");
+    for p in &mut f.pages {
+        for (i, w) in p.words.iter_mut().enumerate() {
+            let b = w.source_box.map(|v| v * 3. + 71.);
+            w.source_box = b;
+            w.x0 = b[0];
+            w.y0 = b[1];
+            w.x1 = b[2];
+            w.y1 = b[3];
+            p.native_bounds[i] = NativeBounds::Glyphs(b);
+        }
+    }
+    f.sync();
+    assert_eq!(rows(&f.run()).len(), 2);
+}
+#[test]
+fn article146_before_side_can_own_inserted_article_columns() {
+    let mut f = article146_fixture();
+    for r in &mut f.pages[0].regions {
+        r.role = if r.role == Role::After {
+            Role::Before
+        } else {
+            Role::After
+        };
+    }
+    f.pages[0].regions.swap(0, 1);
+    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+        let r = &mut rows[0];
+        std::mem::swap(&mut r.after, &mut r.before);
+    }
+    f.sync();
+    assert_eq!(rows(&f.run()).len(), 2);
+}
+#[test]
+fn article146_missing_native_bounds_declines() {
+    let mut f = article146_fixture();
+    f.pages[0].native_bounds[4] = NativeBounds::Unknown;
+    f.unchanged();
+}
+#[test]
+fn article146_nonintersecting_printed_marker_declines() {
+    let mut f = article146_fixture();
+    f.pages[0].native_bounds[7] = NativeBounds::Glyphs([810., 400., 818., 500.]);
+    f.unchanged();
+}
+#[test]
+fn article146_ambiguous_opposite_marker_declines() {
+    let mut f = article146_fixture();
+    f.add_line(Role::Before, "（新設）", 821., 2);
+    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+        rows[0].before.push(Run::plain("\n（新設）"));
+    }
+    f.sync();
+    f.unchanged();
+}
+#[test]
+fn article146_markers_from_another_unit_decline() {
+    let mut f = article146_fixture();
+    f.pages[0].regions[1].unit = 1;
+    f.unchanged();
+}
+#[test]
+fn article146_arbitrary_opposite_text_is_not_an_insertion_symbol() {
+    let mut f = article146_fixture();
+    f.map_text("（新設）", "（参考）");
+    f.unchanged();
+}
+#[test]
+fn article146_citation_without_article_number_separator_declines() {
+    let mut f = article146_fixture();
+    f.map_text("第二百条の三　", "第二百条の三の規定により");
+    f.unchanged();
+}
+#[test]
+fn article146_malformed_caption_does_not_stay_with_the_previous_article() {
+    let mut f = article146_fixture();
+    f.map_text("（次の条見出し）", "（次の条見出し");
+    f.unchanged();
+}
+#[test]
+fn article146_duplicate_explicit_word_claims_decline() {
+    let mut f = article146_fixture();
+    f.owned = vec![(0, 4), (0, 4)];
+    f.unchanged();
+}
+#[test]
+fn article146_no_caption_is_required_by_the_article_column_proof() {
+    let mut f = article146_fixture();
+    f.map_text("（次の条見出し）\n", "");
+    f.pages[0].regions[0].lines.remove(3);
+    f.pages[0].words[3].status = WordStatus::Margin;
+    f.sync();
+    let a = f.run();
+    let rs = rows(&a);
+    assert_eq!(rs.len(), 2);
+    assert!(joined(&rs[1].after).starts_with("第二百条の三　"));
+}
+#[test]
+fn article146_complete_wrapped_nested_caption_moves_with_its_article() {
+    let mut f = article146_fixture();
+    f.map_text("（次の条見出し）", "（次の（内側）");
+    f.add_line(Role::After, "条見出し）", 830., 4);
+    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+        rows[0].after[0].text = rows[0].after[0]
+            .text
+            .replace("（次の（内側）\n", "（次の（内側）\n条見出し）\n");
+    }
+    f.sync();
+    let a = f.run();
+    let rs = rows(&a);
+    assert_eq!(rs.len(), 2);
+    assert!(joined(&rs[1].after).starts_with("（次の（内側）\n条見出し）\n第二百条の三　"));
+}
+fn article146_add_table(f: &mut F, x: f32, line_at: usize, trailing: bool) {
+    let id = f.add_line(Role::After, "保存する表", x, line_at);
+    let b = f.pages[0].words[id].source_box;
+    let table = crate::trace::Table {
+        x0: b[0],
+        y0: b[1],
+        x1: b[2],
+        y1: b[3],
+        rows: 1,
+        cols: 1,
+        cells: vec![crate::trace::TableCell {
+            row: 0,
+            col: 0,
+            rowspan: 1,
+            colspan: 1,
+            x0: b[0],
+            y0: b[1],
+            x1: b[2],
+            y1: b[3],
+            text: "保存する表".into(),
+            words: vec![id],
+        }],
+    };
+    let l = &mut f.pages[0].regions[0].lines[line_at];
+    l.words.clear();
+    l.table = Some(table.clone());
+    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+        let r = &mut rows[0];
+        if trailing {
+            r.after_table = Some(table.to_nested());
+        } else {
+            let (a, b) = r.after[0].text.split_once("（次の条見出し）").unwrap();
+            let a = a.to_owned();
+            let b = format!("（次の条見出し）{b}");
+            r.after = vec![
+                Run {
+                    text: a,
+                    underline: true,
+                    table: None,
+                },
+                Run {
+                    text: String::new(),
+                    underline: true,
+                    table: Some(table.to_nested()),
+                },
+                Run {
+                    text: format!("\n{b}"),
+                    underline: true,
+                    table: None,
+                },
+            ];
+        }
+    }
+    f.sync();
+}
+#[test]
+fn article146_inline_opaque_table_remains_with_its_original_article() {
+    let mut f = article146_fixture();
+    article146_add_table(&mut f, 850., 3, false);
+    let a = f.run();
+    let rs = rows(&a);
+    assert_eq!(rs.len(), 2);
+    assert!(rs[0].after.iter().any(|r| r.table.is_some() && r.underline));
+    assert!(rs[1].after.iter().all(|r| r.table.is_none()));
+    for side in [true, false] {
+        assert_eq!(
+            material(&f.articles[0].document, side),
+            material(&a[0].document, side)
+        );
+    }
+}
+#[test]
+fn article146_trailing_table_field_follows_the_last_article() {
+    let mut f = article146_fixture();
+    article146_add_table(&mut f, 780., 6, true);
+    let a = f.run();
+    let rs = rows(&a);
+    assert_eq!(rs.len(), 2);
+    assert!(rs[0].after_table.is_none());
+    assert_eq!(
+        rs[1].after_table,
+        f.articles[0]
+            .document
+            .blocks
+            .iter()
+            .find_map(|b| if let Block::Shinkyu { rows } = b {
+                rows[0].after_table.clone()
+            } else {
+                None
+            })
+    );
+    for side in [true, false] {
+        assert_eq!(
+            material(&f.articles[0].document, side),
+            material(&a[0].document, side)
+        );
+    }
+}
+#[test]
+fn article146_ascii_and_ideographic_spaces_keep_their_styles_and_positions() {
+    let mut f = article146_fixture();
+    f.map_text("次の本文。", " 次 の　本文。 ");
+    let a = f.run();
+    assert_eq!(rows(&a).len(), 2);
+    for side in [true, false] {
+        assert_eq!(
+            material(&f.articles[0].document, side),
+            material(&a[0].document, side)
+        );
+    }
+}
+#[test]
+fn article146_unknown_explicit_source_declines() {
+    let mut f = article146_fixture();
+    f.owned = vec![(0, 999)];
+    f.unchanged();
+}
+#[test]
+fn article146_incomplete_marked_unit_does_not_supply_source_authority() {
+    let mut f = article146_fixture();
+    f.marked = f.marked.replacen("２　続く本文。\n", "", 1);
+    f.unchanged();
+}
+#[test]
+fn article146_marker_intersecting_multiple_article_columns_declines() {
+    let mut f = article146_fixture();
+    f.pages[0].native_bounds[7] = NativeBounds::Glyphs([799., 400., 829., 500.]);
+    f.unchanged();
+}
+#[test]
+fn article146_caption_in_reverse_column_order_declines() {
+    let mut f = article146_fixture();
+    f.pages[0].native_bounds[3] = NativeBounds::Glyphs([810., 40., 818., 140.]);
+    f.unchanged();
+}
+#[test]
+fn article146_partial_collector_claims_can_use_a_complete_independent_unit() {
+    let f = article146_fixture();
+    let mut a = f.articles.clone();
+    repair(
+        &mut a,
+        &[OwnedSources::from_partial_claims(&f.marked, vec![(0, 0)])],
+        &f.pages,
+    );
+    assert_eq!(rows(&a).len(), 2);
+}
+fn article146_with_internal_outline() -> F {
+    let mut f = article146_fixture();
+    f.map_text("（次の条見出し）", "第五節　別の任意見出し");
+    f.add_line(Role::After, "（次の条見出し）", 830., 4);
+    f.add_line(Role::Before, "（新設）", 840., 1);
+    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+        let r = &mut rows[0];
+        r.after[0].text = r.after[0].text.replace(
+            "第五節　別の任意見出し\n",
+            "第五節　別の任意見出し\n（次の条見出し）\n",
+        );
+        r.before.insert(1, Run::plain("（新設）\n"));
+    }
+    f.sync();
+    f
+}
+#[test]
+fn article146_an_internal_outline_does_not_borrow_its_previous_article_row() {
+    let f = article146_with_internal_outline();
+    let a = f.run();
+    let rs = rows(&a);
+    assert_eq!(rs.len(), 3);
+    assert_eq!(joined(&rs[1].after), "第五節　別の任意見出し");
+    for r in rs {
+        assert_eq!(joined(&r.before), "（新設）");
+    }
+    for side in [true, false] {
+        assert_eq!(
+            material(&f.articles[0].document, side),
+            material(&a[0].document, side)
+        );
+    }
+}
+#[test]
+fn article146_an_internal_outline_on_the_before_side_keeps_its_own_marker() {
+    let mut f = article146_with_internal_outline();
+    for r in &mut f.pages[0].regions {
+        r.role = if r.role == Role::After {
+            Role::Before
+        } else {
+            Role::After
+        };
+    }
+    f.pages[0].regions.swap(0, 1);
+    if let Block::Shinkyu { rows } = &mut f.articles[0].document.blocks[0] {
+        let r = &mut rows[0];
+        std::mem::swap(&mut r.after, &mut r.before);
+    }
+    f.sync();
+    let a = f.run();
+    let rs = rows(&a);
+    assert_eq!(rs.len(), 3);
+    assert_eq!(joined(&rs[1].before), "第五節　別の任意見出し");
+    for r in rs {
+        assert_eq!(joined(&r.after), "（新設）");
+    }
+}
+fn article146_repeated_marker_pages(
+    gap: bool,
+    reverse: bool,
+    foreign: bool,
+) -> Vec<ArticleAnalysis> {
+    let f = article146_fixture();
+    let mut g = article146_fixture();
+    g.map_text("前の本文", "別頁の前の本文");
+    g.map_text("次の本文", "別頁の次の本文");
+    g.map_text("第十三条の二", "第五十条");
+    g.map_text("第二百条の三", "第六十条");
+    let bad = unrelated_invalid_page();
+    let other = ArticleAnalysis {
+        text: bad.text.clone(),
+        document: Document::from_text(&bad.text),
+        notices: vec![],
+    };
+    let mut a = vec![f.articles[0].clone(), other];
+    if let Block::Shinkyu { rows: r } = &mut a[0].document.blocks[0] {
+        r.extend(rows(&g.articles).iter().cloned());
+    }
+    let sep = if gap {
+        "\n証明されない別の本文\n"
+    } else {
+        "\n"
+    };
+    let marked = if reverse {
+        format!("{}{}{}", g.marked, sep, f.marked)
+    } else {
+        format!("{}{}{}", f.marked, sep, g.marked)
+    };
+    let scope = OwnedSources::from_partial_claims(&marked, vec![(0, 0)]);
+    let mut other_scope = OwnedSources::new(&bad.doc_text, vec![]);
+    if foreign {
+        other_scope.words.push((0, 4));
+    }
+    repair(
+        &mut a,
+        &[scope, other_scope],
+        &[f.pages[0].clone(), g.pages[0].clone(), bad],
+    );
+    a
+}
+#[test]
+fn article146_repeated_markers_are_bound_by_contiguous_certified_source_units() {
+    let a = article146_repeated_marker_pages(false, false, false);
+    assert_eq!(rows(&a).len(), 4);
+    for r in rows(&a) {
+        assert_eq!(joined(&r.before), "（新設）");
+    }
+}
+#[test]
+fn article146_a_gap_in_raw_article_scope_does_not_certify_a_chain() {
+    assert_eq!(
+        rows(&article146_repeated_marker_pages(true, false, false)).len(),
+        2
+    );
+}
+#[test]
+fn article146_reversed_raw_article_units_do_not_certify_a_chain() {
+    assert_eq!(
+        rows(&article146_repeated_marker_pages(false, true, false)).len(),
+        2
+    );
+}
+#[test]
+fn article146_conflicting_article_word_owner_breaks_a_chain() {
+    assert_eq!(
+        rows(&article146_repeated_marker_pages(false, false, true)).len(),
+        2
+    );
+}
+#[test]
+fn article146_an_unvalidated_physical_page_cannot_be_skipped_by_a_chain() {
+    let f = article146_fixture();
+    let mut g = article146_fixture();
+    g.map_text("前の本文", "別頁の前の本文");
+    g.map_text("次の本文", "別頁の次の本文");
+    let bad = unrelated_invalid_page();
+    let other = ArticleAnalysis {
+        text: bad.text.clone(),
+        document: Document::from_text(&bad.text),
+        notices: vec![],
+    };
+    let mut a = vec![f.articles[0].clone(), other];
+    if let Block::Shinkyu { rows: r } = &mut a[0].document.blocks[0] {
+        r.extend(rows(&g.articles).iter().cloned());
+    }
+    let marked = format!("{}\n{}", f.marked, g.marked);
+    let scope = OwnedSources::from_partial_claims(&marked, vec![]);
+    let other = OwnedSources::new(&bad.doc_text, vec![]);
+    repair(
+        &mut a,
+        &[scope, other],
+        &[f.pages[0].clone(), bad, g.pages[0].clone()],
+    );
+    assert_eq!(rows(&a).len(), 2);
+}
+#[test]
+fn article146_an_unrelated_typed_mismatch_does_not_poison_a_complete_neighboring_frame() {
+    let f = article146_fixture();
+    let mut g = article146_fixture();
+    g.map_text("前の本文", "別頁の前の本文");
+    g.map_text("次の本文", "別頁の次の本文");
+    let mut third = article146_fixture();
+    third.map_text("前の本文", "第三頁の前の本文");
+    third.map_text("次の本文", "第三頁の次の本文");
+    third.map_text("（新設）", "第三十条　独立した原文。");
+    let bad = unrelated_invalid_page();
+    let other = ArticleAnalysis {
+        text: bad.text.clone(),
+        document: Document::from_text(&bad.text),
+        notices: vec![],
+    };
+    let mut a = vec![f.articles[0].clone(), other];
+    let mut unrelated = rows(&third.articles)[0].clone();
+    unrelated.after[0].text = unrelated.after[0]
+        .text
+        .replace("第三頁の次の本文", "照合しない既存の別出力");
+    if let Block::Shinkyu { rows: r } = &mut a[0].document.blocks[0] {
+        r.extend(rows(&g.articles).iter().cloned());
+        r.push(unrelated.clone());
+    }
+    let marked = format!("{}\n{}\n{}", f.marked, g.marked, third.marked);
+    let scope = OwnedSources::from_partial_claims(&marked, vec![]);
+    let other = OwnedSources::new(&bad.doc_text, vec![]);
+    repair(
+        &mut a,
+        &[scope, other],
+        &[
+            f.pages[0].clone(),
+            g.pages[0].clone(),
+            third.pages[0].clone(),
+            bad,
+        ],
+    );
+    let rs = rows(&a);
+    assert_eq!(rs.len(), 5);
+    assert_eq!(rs[4], unrelated);
+    for r in &rs[..4] {
+        assert_eq!(joined(&r.before), "（新設）");
+    }
+}

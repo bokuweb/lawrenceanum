@@ -495,6 +495,188 @@ fn plan(
     }
     None
 }
+// A native legal-structure column and its unique opposite change symbol provide a
+// boundary inside a merged legacy cell. Captions stay with their own article.
+struct StructuralPlan {
+    after: bool,
+    block: usize,
+    row: usize,
+    own_cut: usize,
+    other_cut: usize,
+}
+fn article_caption_start(source: &SourceSide<'_>, i: usize) -> Option<usize> {
+    let h = &source.lines[i];
+    let Some(previous) = i.checked_sub(1).map(|j| &source.lines[j]) else {
+        return Some(i);
+    };
+    if !group(previous, h) || previous.line.table.is_some() {
+        return Some(i);
+    }
+    for j in (0..i).rev() {
+        let line = &source.lines[j];
+        if !group(line, h) || line.line.table.is_some() || structural(&line.line.text) {
+            break;
+        }
+        let text = source.lines[j..i]
+            .iter()
+            .map(|l| l.line.text.as_str())
+            .collect::<String>();
+        if caption(&text) && !marker(&text) {
+            return Some(j);
+        }
+    }
+    // A visibly incomplete/ambiguous caption must not be left on the old row.
+    let previous = previous.line.text.trim();
+    if previous.starts_with(['（', '(']) || previous.ends_with(['）', ')']) {
+        None
+    } else {
+        Some(i)
+    }
+}
+fn structural_plan(
+    d: &Document,
+    source: &SourceSide<'_>,
+    other: &SourceSide<'_>,
+    after: bool,
+) -> Option<StructuralPlan> {
+    let own = typed(d, after)?;
+    let opp = typed(d, !after)?;
+    let shift = offset(&own.atoms, &source.atoms)?;
+    let opposite = offset(&opp.atoms, &other.atoms)?;
+    for (i, h) in source.lines.iter().enumerate() {
+        if h.line.table.is_some() || !structural(&h.line.text) {
+            continue;
+        }
+        let Some(mark) =
+            counterpart(h, other).filter(|m| m.line.table.is_none() && marker(&m.line.text))
+        else {
+            continue;
+        };
+        // The same physical marker must not belong to another printed line.
+        if counterpart(mark, source).is_none_or(|a| a.start != h.start || a.end != h.end) {
+            continue;
+        }
+        let Some(j) = (if crate::model::outline_heading(&h.line.text) {
+            Some(i)
+        } else {
+            article_caption_start(source, i)
+        }) else {
+            continue;
+        };
+        let prefix = &source.lines[j..=i];
+        if prefix.iter().any(|l| {
+            l.column
+                .is_none_or(|c| h.column.is_none_or(|hc| c.axis != hc.axis))
+        }) || prefix
+            .windows(2)
+            .any(|p| p[0].column.unwrap().hi > p[1].column.unwrap().lo)
+        {
+            continue;
+        }
+        let start = source.lines[j].start + shift;
+        let Some(cell) = containing(&own, start, h.end + shift) else {
+            continue;
+        };
+        // There must actually be a preceding legal fragment in this legacy row.
+        if start <= cell.start || start >= cell.end {
+            continue;
+        }
+        let Block::Shinkyu { rows } = &d.blocks[cell.block] else {
+            continue;
+        };
+        let Some(preceding) = slice(runs(&rows[cell.row], after), 0, start - cell.start) else {
+            continue;
+        };
+        // A title alone cannot certify an earlier article. Require an actual
+        // article declaration, a completed prose sentence, or an opaque table.
+        // This also covers a genuine article continuing from an earlier page.
+        let text = preceding
+            .iter()
+            .map(|r| r.text.as_str())
+            .collect::<String>();
+        if !preceding.iter().any(|r| r.table.is_some())
+            && !text.contains('。')
+            && !text
+                .lines()
+                .any(|l| crate::model::article_number(l).is_some())
+        {
+            continue;
+        }
+        let Some(target) = containing(&opp, mark.start + opposite, mark.end + opposite) else {
+            continue;
+        };
+        if (target.block, target.row) != (cell.block, cell.row) {
+            continue;
+        }
+        return Some(StructuralPlan {
+            after,
+            block: cell.block,
+            row: cell.row,
+            own_cut: start - cell.start,
+            other_cut: mark.start + opposite - target.start,
+        });
+    }
+    None
+}
+fn apply_structural(d: &Document, p: StructuralPlan) -> Option<Document> {
+    let mut next = d.clone();
+    let Block::Shinkyu { rows } = next.blocks.get_mut(p.block)? else {
+        return None;
+    };
+    let old = rows.get(p.row)?;
+    let own = runs(old, p.after);
+    let other = runs(old, !p.after);
+    // Explicit trailing tables are complete terminal atoms. The article anchor
+    // and symbol must occur in Runs; their complete trailing tables follow them.
+    let own_len = size(own)?;
+    let other_len = size(other)?;
+    if p.own_cut == 0 || p.own_cut >= own_len || p.other_cut >= other_len {
+        return None;
+    }
+    let mut head = old.clone();
+    let mut tail = old.clone();
+    *runs_mut(&mut head, p.after) = slice(own, 0, p.own_cut)?;
+    *runs_mut(&mut tail, p.after) = slice(own, p.own_cut, own_len)?;
+    *runs_mut(&mut head, !p.after) = slice(other, 0, p.other_cut)?;
+    *runs_mut(&mut tail, !p.after) = slice(other, p.other_cut, other_len)?;
+    head.after_table = None;
+    head.before_table = None;
+    if runs(&head, p.after).is_empty()
+        || runs(&tail, p.after).is_empty()
+        || runs(&tail, !p.after).is_empty()
+    {
+        return None;
+    }
+    rows[p.row] = head;
+    rows.insert(p.row + 1, tail);
+    for side in [true, false] {
+        if material(d, side)? != material(&next, side)? {
+            return None;
+        }
+    }
+    Some(next)
+}
+fn merged_structural_prefix(rs: &[Run]) -> bool {
+    let mut text = String::new();
+    for r in rs {
+        if r.table.is_some() {
+            text.push('\n');
+            text.push('\u{fffc}');
+            text.push('\n');
+        } else {
+            text.push_str(&r.text);
+        }
+    }
+    let mut prefix = String::new();
+    for line in text.lines() {
+        if structural(line) && !prefix.trim().is_empty() && !caption(&prefix) {
+            return true;
+        }
+        prefix.push_str(line);
+        prefix.push('\n');
+    }
+    false
+}
 fn size(rs: &[Run]) -> Option<usize> {
     let mut a = vec![];
     run_atoms(rs, &mut a)?;
@@ -611,8 +793,12 @@ fn outline_prefix(rs: &[Run]) -> bool {
 fn relevant(d: &Document) -> bool {
     d.blocks.iter().any(|b| {
         if let Block::Shinkyu { rows } = b {
-            rows.iter()
-                .any(|r| outline_prefix(&r.after) || outline_prefix(&r.before))
+            rows.iter().any(|r| {
+                outline_prefix(&r.after)
+                    || outline_prefix(&r.before)
+                    || merged_structural_prefix(&r.after)
+                    || merged_structural_prefix(&r.before)
+            })
         } else {
             false
         }
@@ -642,15 +828,15 @@ fn repair_scope(
     pages: &[PageTrace],
     source_tables: &[Option<TableSource<'_>>],
     locations: &HashMap<Source, Vec<Location>>,
-) {
+) -> bool {
     if !relevant(&article.document) || !valid_scope(scope) || !valid_claims(scope, pages, locations)
     {
-        return;
+        return false;
     }
     let owner = words.iter().copied().collect::<HashSet<_>>();
     let tables = scope.tables.iter().copied().collect::<HashSet<_>>();
     if owner.len() != words.len() {
-        return;
+        return false;
     }
     if super::table_words(
         scope,
@@ -661,22 +847,37 @@ fn repair_scope(
     )
     .is_none()
     {
-        return;
+        return false;
     }
     let (Some(after), Some(before)) = (
         source_side(pages, &owner, &tables, true),
         source_side(pages, &owner, &tables, false),
     ) else {
-        return;
+        return false;
     };
+    let (Some(own), Some(opp)) = (
+        typed(&article.document, true),
+        typed(&article.document, false),
+    ) else {
+        return false;
+    };
+    if offset(&own.atoms, &after.atoms).is_none() || offset(&opp.atoms, &before.atoms).is_none() {
+        return false;
+    }
     loop {
         let p = plan(&article.document, &after, &before, true)
             .or_else(|| plan(&article.document, &before, &after, false));
-        let Some(next) = p.and_then(|p| apply(&article.document, p)) else {
+        let next = p.and_then(|p| apply(&article.document, p)).or_else(|| {
+            structural_plan(&article.document, &after, &before, true)
+                .or_else(|| structural_plan(&article.document, &before, &after, false))
+                .and_then(|p| apply_structural(&article.document, p))
+        });
+        let Some(next) = next else {
             break;
         };
         article.document = next;
     }
+    true
 }
 fn unique_at(text: &str, needle: &str) -> Option<usize> {
     if needle.is_empty() {
@@ -710,23 +911,25 @@ pub(super) fn repair(
     // A complete, unique native unit can be certified independently when an
     // unrelated physical page prevents a global reconstruction. No partial unit,
     // conflicting explicit owner or repeated source spelling supplies authority.
+    struct Certified {
+        article: usize,
+        page: usize,
+        unit: usize,
+        last: usize,
+        start: usize,
+        end: usize,
+        source: super::stream::UnitSource,
+    }
+    let mut certified = vec![];
     let mut first_table = 0;
     for (pi, page) in pages.iter().enumerate() {
         let first = first_table;
         first_table += page.tables.len();
-        if !page
-            .regions
-            .iter()
-            .filter(|r| matches!(r.role, Role::After | Role::Before))
-            .flat_map(|r| &r.lines)
-            .any(|l| crate::model::outline_heading(&l.text))
-        {
-            continue;
-        }
         let Some(units) = super::stream::page_units(page, pi, first) else {
             continue;
         };
-        for unit in units.into_iter().filter(|u| u.has_outline) {
+        let last = units.len().saturating_sub(1);
+        for (ui, unit) in units.into_iter().enumerate() {
             let native = pages
                 .iter()
                 .filter(|p| p.doc_text.contains(&unit.text))
@@ -766,18 +969,92 @@ pub(super) fn repair(
             }) {
                 continue;
             }
-            let local = OwnedSources::new(&unit.text, unit.words.clone());
-            if local.tables != unit.tables {
+            let start = unique_at(&scope.marked_text, &unit.text).unwrap();
+            certified.push(Certified {
+                article: i,
+                page: pi,
+                unit: ui,
+                last,
+                start,
+                end: start + unit.text.len(),
+                source: unit,
+            });
+        }
+    }
+    certified.sort_by_key(|u| (u.article, u.start));
+    let mut at = 0;
+    while at < certified.len() {
+        let begin = at;
+        at += 1;
+        while at < certified.len() {
+            let a = &certified[at - 1];
+            let b = &certified[at];
+            let physical = (a.page == b.page && a.unit.checked_add(1) == Some(b.unit))
+                || (a.page.checked_add(1) == Some(b.page) && a.unit == a.last && b.unit == 0);
+            if a.article != b.article
+                || !physical
+                || a.end > b.start
+                || &scopes[a.article].marked_text[a.end..b.start] != "\n"
+            {
+                break;
+            }
+            at += 1;
+        }
+        let chain = &certified[begin..at];
+        if !chain.iter().any(|u| u.source.has_structural_anchor) {
+            continue;
+        }
+        let index = chain[0].article;
+        let mut try_frame = |lo: usize, hi: usize| {
+            let span = &chain[lo..hi];
+            let text = &scopes[index].marked_text[span[0].start..span.last().unwrap().end];
+            let words = span
+                .iter()
+                .flat_map(|u| u.source.words.iter().copied())
+                .collect::<Vec<_>>();
+            let tables = span
+                .iter()
+                .flat_map(|u| u.source.tables.iter().copied())
+                .collect::<Vec<_>>();
+            let local = OwnedSources::new(text, words);
+            local.tables == tables
+                && repair_scope(
+                    &mut articles[index],
+                    &local,
+                    &local.words,
+                    pages,
+                    &source_tables,
+                    &locations,
+                )
+        };
+        // Prefer the complete chain. If another legacy typed fragment disagrees,
+        // certify complete contiguous subframes independently. A frame is accepted
+        // only when BOTH full role streams have unique exact typed positions.
+        // Every extent is derived from the available units; there is no page,
+        // line, character or neighbor-count bound and no text-specific fallback.
+        if try_frame(0, chain.len()) {
+            continue;
+        }
+        let mut tested = HashSet::from([(0, chain.len())]);
+        let mut covered = vec![false; chain.len()];
+        for unit in 0..chain.len() {
+            if covered[unit] || !chain[unit].source.has_structural_anchor {
                 continue;
             }
-            repair_scope(
-                &mut articles[i],
-                &local,
-                &unit.words,
-                pages,
-                &source_tables,
-                &locations,
-            );
+            'frame: for len in 1..=chain.len() {
+                let first = (unit + 1).saturating_sub(len);
+                let last = unit.min(chain.len() - len);
+                for lo in first..=last {
+                    let hi = lo + len;
+                    if !tested.insert((lo, hi)) {
+                        continue;
+                    }
+                    if try_frame(lo, hi) {
+                        covered[lo..hi].fill(true);
+                        break 'frame;
+                    }
+                }
+            }
         }
     }
 }
