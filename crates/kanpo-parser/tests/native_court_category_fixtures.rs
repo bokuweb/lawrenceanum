@@ -1,5 +1,7 @@
 //! Original category ownership witnesses and reviewed regression freezes.
 //! Raster-body omissions and unrelated existing boundaries are not full-page graded.
+#[path = "support/native_court_article_contracts.rs"]
+mod court_contract;
 fn check(id: &str, pdf: &[u8], golden: &str) {
     let a=kanpo_parser::analyze_item(&kanpo_parser::page_inputs(pdf).unwrap());
     let witnesses:serde_json::Value=serde_json::from_str(include_str!("data/native-court-categories/source-category-witnesses133.json")).unwrap();
@@ -14,7 +16,7 @@ fn check(id: &str, pdf: &[u8], golden: &str) {
     // Preserve exact f32 serialization; Value::from can promote geometry to f64.
     let actual:serde_json::Value=serde_json::from_str(&serde_json::to_string(&a).unwrap()).unwrap();
     let expected:serde_json::Value=serde_json::from_str(golden).unwrap();
-    assert!(actual==expected,"reviewed complete Analysis regression: {id}");
+    court_contract::reviewed_regression(id, &expected, &actual);
 }
 macro_rules! original {
     ($name:ident,$id:literal,$pdf:literal)=>{

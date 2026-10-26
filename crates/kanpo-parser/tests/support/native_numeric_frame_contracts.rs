@@ -52,7 +52,7 @@ fn styled_runs(runs: &Value) -> Vec<(char, Map<String, Value>)> {
     }
     out
 }
-fn styled_document(doc: &Value) -> Vec<(char, Map<String, Value>)> {
+pub(crate) fn styled_document(doc: &Value) -> Vec<(char, Map<String, Value>)> {
     let mut out = vec![];
     for block in doc["blocks"].as_array().unwrap() {
         match block["kind"].as_str().unwrap() {

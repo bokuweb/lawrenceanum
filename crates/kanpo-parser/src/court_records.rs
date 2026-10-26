@@ -202,26 +202,33 @@ pub(super) fn starts(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_
         ) else {
             continue;
         };
-        let transition = if captions.is_empty() {
-            None
-        } else {
+        let transition = if !captions.is_empty() || f[3] > h[1] || footer.scope != head.scope {
             column_transition(page, rules, lines, footer, head, body, &captions)
+        } else {
+            None
         };
+        let source_column = if transition.is_none() {
+            shared_source_column(page, rules, f, h, b)
+        } else {
+            None
+        };
+        let certified_column = transition.is_some() || source_column.is_some();
         if footer.scope != head.scope && transition.is_none() {
             continue;
         }
         let (lf, lh, lb) = transition.as_ref().map_or((f, h, b), |c| {
             (c.local(f, false), c.local(h, true), c.local(b, true))
         });
-        // The closing institution is right aligned in the same source column.
-        // The new header returns to its left margin, followed by indented body.
-        // Exact original bounds define this relation; there is no point tolerance.
+        // Keep the strict unruled signature/indentation proof. Complete original
+        // column separators can independently certify source scope, including
+        // centered signatures and flush body margins, without a point tolerance.
         if transition.is_none() && f[3] > h[1]
             || h[3] > b[1]
-            || lh[0] >= lf[0]
-            || lh[2] > lf[2]
-            || lb[0] <= lh[0]
-            || lb[2] > lf[2]
+            || if certified_column {
+                lb[0] < lh[0]
+            } else {
+                lh[0] >= lf[0] || lh[2] > lf[2] || lb[0] <= lh[0] || lb[2] > lf[2]
+            }
             || !hs.is_disjoint(&fs)
             || !hs.is_disjoint(&bs)
             || fs.is_disjoint(&bs)
@@ -248,7 +255,12 @@ pub(super) fn starts(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_
                     .as_ref()
                     .map_or(*bounds, |c| c.local(*bounds, true));
                 if local[0] < lh[0]
-                    || local[2] > lf[2]
+                    || local[2]
+                        > if transition.is_some() {
+                            1.
+                        } else {
+                            source_column.map_or(lf[2], |c| c[1])
+                        }
                     || bounds[1] < edge
                     || bounds[3] > h[1]
                     || !style
@@ -264,9 +276,11 @@ pub(super) fn starts(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_
             }
             // A cross-column prefix occupies the next column's top, not the
             // vertical interval following the previous column's footer.
-            let (start, left, right) = transition.as_ref().map_or((f[3], h[0], f[2]), |c| {
-                (captions[0].1[1], c.next[0], c.next[1])
-            });
+            let (start, left, right) = transition
+                .as_ref()
+                .map_or((f[3], h[0], source_column.map_or(f[2], |c| c[1])), |c| {
+                    (captions[0].1[1], c.next[0], c.next[1])
+                });
             // Printed separators can introduce a different source scope.
             if !certified
                 || rules
@@ -319,15 +333,10 @@ impl Columns {
         b
     }
 }
-fn column_transition(
+fn source_column_inventory(
     page: &PageTrace,
     rules: &PageRules,
-    lines: &[SourceLine<'_>],
-    footer: &SourceLine<'_>,
-    head: &SourceLine<'_>,
-    body: &SourceLine<'_>,
-    captions: &[(usize, Rect, NativeStyles)],
-) -> Option<Columns> {
+) -> Option<(Vec<(usize, Rect, f64)>, Vec<f32>)> {
     let mut native = vec![];
     for w in &page.words {
         if w.status != WordStatus::Used {
@@ -362,11 +371,52 @@ fn column_transition(
         .collect::<Vec<_>>();
     xs.sort_by(f32::total_cmp);
     xs.dedup();
+    Some((native, xs))
+}
+fn shared_source_column(
+    page: &PageTrace,
+    rules: &PageRules,
+    footer: Rect,
+    head: Rect,
+    body: Rect,
+) -> Option<[f32; 2]> {
+    let (native, xs) = source_column_inventory(page, rules)?;
+    let mut answers = vec![];
+    for pair in xs.windows(2) {
+        let a = pair[0];
+        let b = pair[1];
+        if ![footer, head, body].iter().all(|r| a <= r[0] && r[2] <= b) {
+            continue;
+        }
+        if native
+            .iter()
+            .any(|(_, r, _)| (r[0] < a && a < r[2]) || (r[0] < b && b < r[2]))
+        {
+            continue;
+        }
+        answers.push([a, b]);
+    }
+    if answers.len() == 1 {
+        answers.pop()
+    } else {
+        None
+    }
+}
+fn column_transition(
+    page: &PageTrace,
+    rules: &PageRules,
+    lines: &[SourceLine<'_>],
+    footer: &SourceLine<'_>,
+    head: &SourceLine<'_>,
+    body: &SourceLine<'_>,
+    captions: &[(usize, Rect, NativeStyles)],
+) -> Option<Columns> {
+    let (native, xs) = source_column_inventory(page, rules)?;
     let fb = footer.bbox?;
     let hb = head.bbox?;
     let bb = body.bbox?;
     let last = line_baselines(page, footer)?.into_iter().reduce(f64::max)?;
-    let first = line_baselines(page, &lines[captions.last()?.0])?
+    let first = line_baselines(page, captions.last().map_or(head, |c| &lines[c.0]))?
         .into_iter()
         .reduce(f64::min)?;
     let mut answers = vec![];

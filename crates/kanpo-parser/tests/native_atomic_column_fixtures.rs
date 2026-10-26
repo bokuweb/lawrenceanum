@@ -1,5 +1,7 @@
 //! Original caption witnesses and reviewed regression goldens are distinct.
 //! Raster bodies and pre-existing unresolved amendment roles are not graded.
+#[path = "support/native_court_article_contracts.rs"]
+mod court_contract;
 fn compact(s: &str) -> String {
     s.chars().filter(|c| !c.is_whitespace()).collect()
 }
@@ -58,7 +60,7 @@ fn check(id: &str, pdf: &[u8], golden: &str) {
     let actual: serde_json::Value =
         serde_json::from_str(&serde_json::to_string(&a).unwrap()).unwrap();
     let expected: serde_json::Value = serde_json::from_str(golden).unwrap();
-    assert_eq!(actual, expected);
+    court_contract::reviewed_regression(id, &expected, &actual);
 }
 macro_rules! original {
     ($name:ident,$id:literal) => { original!($name,$id,concat!("data/native-atomic-columns/",$id,"-reviewed132.json")); };
@@ -123,7 +125,7 @@ fn existing_comparison_fields_do_not_gain_unrelated_article_roots() {
         "preserve the existing unresolved comparison roles"
     );
 }
-fn page_end(first: &[u8], next: &[u8], reviewed: &str) {
+fn page_end(first: &[u8], next: &[u8], reviewed: &str, id: &str) {
     let mut pages = vec![];
     for bytes in [first, next] {
         pages.extend(kanpo_parser::page_inputs(bytes).unwrap())
@@ -143,7 +145,7 @@ fn page_end(first: &[u8], next: &[u8], reviewed: &str) {
     let actual: serde_json::Value =
         serde_json::from_str(&serde_json::to_string(&a).unwrap()).unwrap();
     let expected: serde_json::Value = serde_json::from_str(reviewed).unwrap();
-    assert_eq!(actual, expected);
+    court_contract::reviewed_regression(id, &expected, &actual);
 }
 #[test]
 fn august_column_end_closes_before_the_next_original_page() {
@@ -151,6 +153,7 @@ fn august_column_end_closes_before_the_next_original_page() {
         include_bytes!("data/native-atomic-columns/20260825h017750019.pdf"),
         include_bytes!("data/native-atomic-columns/20260825h017750020.pdf"),
         include_str!("data/native-atomic-columns/20260825h017750019-20-reviewed132.json"),
+        "20260825h017750019-20",
     )
 }
 #[test]
@@ -159,5 +162,6 @@ fn october_column_end_closes_before_the_next_original_page() {
         include_bytes!("data/native-atomic-columns/20261020h018110016.pdf"),
         include_bytes!("data/native-atomic-columns/20261020h018110017.pdf"),
         include_str!("data/native-court-categories/20261020h018110016-17-reviewed133.json"),
+        "20261020h018110016-17",
     )
 }
