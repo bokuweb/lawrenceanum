@@ -129,6 +129,69 @@ fn evidence(page: &PageTrace, l: &SourceLine<'_>) -> Option<(Rect, NativeStyles)
     let styles = heading_styles(page, l, l.tokens.as_ref()?.len())?;
     (!styles.is_empty()).then_some((l.bbox?, styles))
 }
+// A following body line need not establish the Unicode class of every glyph.
+// Its complete original glyph fonts and one exact owned horizontal flow can
+// independently certify typography. Header/court/caption semantics keep their
+// existing complete content-class evidence; no opaque character is decoded.
+fn body_evidence(page: &PageTrace, l: &SourceLine<'_>) -> Option<(Rect, NativeStyles)> {
+    if let Some(e) = evidence(page, l) {
+        return Some(e);
+    }
+    if l.role != Role::Body || !l.unquoted || l.line.table.is_some() || l.ids.is_empty() {
+        return None;
+    }
+    if !l.ids.iter().any(|&id| {
+        matches!(
+            page.native_content_styles.get(id),
+            Some(ContentStyles::Unknown)
+        )
+    }) {
+        return None;
+    }
+    let tokens = l.tokens.as_ref()?;
+    if tokens.len() != l.ids.len() || !tokens.iter().any(|t| t.chars().any(char::is_alphanumeric)) {
+        return None;
+    }
+    if l.ids.iter().any(|&id| {
+        page.native_axes.get(id) != Some(&NativeAxis::Right)
+            || !matches!(page.native_bounds.get(id),Some(NativeBounds::Glyphs(b))if valid(*b))
+    }) {
+        return None;
+    }
+    for (&id, token) in l.ids.iter().zip(tokens) {
+        let glyph_styles = page.native_styles.get(id)?.as_ref()?;
+        if glyph_styles.is_empty()
+            || glyph_styles.iter().any(|(_, size)| {
+                let size = f64::from_bits(*size);
+                !size.is_finite() || size <= 0.
+            })
+        {
+            return None;
+        }
+        match page.native_content_styles.get(id)? {
+            ContentStyles::Unknown => (),
+            ContentStyles::Glyphs(content)
+                if token.chars().any(char::is_alphanumeric) != content.is_empty()
+                    && content.is_subset(glyph_styles) =>
+            {
+                ()
+            }
+            _ => return None,
+        }
+    }
+    let baseline = line_baselines(page, l)?;
+    if baseline.windows(2).any(|p| p[0] != p[1]) {
+        return None;
+    }
+    let styles = styles(page, &l.ids)?;
+    if styles
+        .iter()
+        .any(|(_, b)| !f64::from_bits(*b).is_finite() || f64::from_bits(*b) <= 0.)
+    {
+        return None;
+    }
+    Some((l.bbox?, styles))
+}
 pub(super) fn starts(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> Vec<usize> {
     let mut cuts = vec![];
     for i in 1..lines.len().saturating_sub(1) {
@@ -142,7 +205,8 @@ pub(super) fn starts(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_
         if !case_identifier(&tokens.concat()) {
             continue;
         }
-        let (Some((h, hs)), Some((b, bs))) = (evidence(page, head), evidence(page, body)) else {
+        let (Some((h, hs)), Some((b, bs))) = (evidence(page, head), body_evidence(page, body))
+        else {
             continue;
         };
         let Some(reference_size) = max_size(hs.iter().chain(bs.iter())) else {
@@ -198,7 +262,7 @@ pub(super) fn starts(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_
         let (Some((f, fs)), Some((h, hs)), Some((b, bs))) = (
             evidence(page, footer),
             evidence(page, head),
-            evidence(page, body),
+            body_evidence(page, body),
         ) else {
             continue;
         };

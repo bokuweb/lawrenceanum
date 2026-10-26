@@ -106,8 +106,17 @@ pub(crate) fn reviewed_regression(key: &str, old: &Value, actual: &Value) {
         expected["articles"] = row["articles"].clone();
         preserved(old, &expected);
     }
+    let reviewed151: Value = serde_json::from_str(include_str!(
+        "../data/native-court-body-fonts/reviewed-article-projections151.json"
+    ))
+    .unwrap();
+    if let Some(row) = reviewed151["cases"].get(key) {
+        let previous = expected.clone();
+        expected["articles"] = row["articles"].clone();
+        preserved(&previous, &expected);
+    }
     assert!(
         actual == &expected,
-        "fixed source-reviewed article partition150 or unchanged complete Analysis: {key}"
+        "fixed source-reviewed article partitions150/151 or unchanged complete Analysis: {key}"
     );
 }

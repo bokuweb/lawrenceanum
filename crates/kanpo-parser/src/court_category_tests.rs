@@ -161,6 +161,13 @@ fn category_cannot_borrow_unknown_direction_geometry_styles_or_baselines() {
             assert!(cuts(&p, &r).is_empty());
             let (mut p, r) = category_fixture(next, &["任意"]);
             p.native_content_styles[id] = ContentStyles::Unknown;
+            if id == 6 {
+                // The ordinary body has complete original glyph fonts and an
+                // exact horizontal baseline. Header/caption/signature semantics
+                // still require known character-class evidence.
+                assert_eq!(cuts(&p, &r), vec![5]);
+                p.native_styles[id] = None;
+            }
             assert!(cuts(&p, &r).is_empty());
         }
     }
