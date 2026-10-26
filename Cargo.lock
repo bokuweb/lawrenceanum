@@ -1681,6 +1681,7 @@ dependencies = [
  "pubcomment-client",
  "quick-xml",
  "rayon",
+ "regex",
  "reiki-client",
  "reqwest",
  "scraper",

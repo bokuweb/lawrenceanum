@@ -133,6 +133,7 @@ pub fn run_export(args: &ExportArgs) -> Result<()> {
     pages.retain(|(rel,p)| p.get_str("type") != hanrei::KIND || published_hanrei.contains(rel));
     let cases: Vec<_> = pages.iter().filter(|(_, p)| p.get_str("type") == hanrei::KIND).cloned().collect();
     let case_relations = hanrei::case_relations(&cases);
+    hanrei_rag::write_export(wiki, &cases, &case_relations, &args.out)?;
     for (rel, page) in &mut pages {
         if let Some(related) = case_relations.get(rel) {
             page.body = hanrei::body_with_case_relations(rel, page, related);

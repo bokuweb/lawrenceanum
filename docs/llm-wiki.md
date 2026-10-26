@@ -5,7 +5,7 @@
 
 国会会議録・審議会議事録を、法令 ID や法令名とのリンクを必須とせず、政策形成を会議から追える wiki に日次で積み上げる。
 「いつ・どの会議で・誰が・どんな立場と理由で何を述べ、どうなったか」を、根拠・未確認範囲とともに残す。
-形式は [Open Knowledge Format](https://agentic-ai.readthedocs.io/en/latest/Standards/open-knowledge-format/)
+形式は [Open Knowledge Format](https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/main/SPEC.md)
 (Markdown + YAML frontmatter、必須は `type`)。
 
 [public-corpus-roadmap.md](public-corpus-roadmap.md) の原則どおり、wiki は正規化コーパスの**下流の派生物**で、

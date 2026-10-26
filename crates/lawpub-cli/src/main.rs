@@ -553,6 +553,9 @@ enum Cmd {
         wiki: PathBuf,
         #[arg(long, value_delimiter = ',', required = true)]
         case_ids: Vec<u64>,
+        /// 完了済みの判例も再生成する（失敗時は元のページと原資料を復元）。
+        #[arg(long)]
+        refresh: bool,
     },
     /// LLM wiki (OKF) の今日の対象会議を選び、ソースバンドルとページ雛形を作る。
     /// 法令リンクのある未処理会議を新しい順に最大 `--max-items` 件 (コスト上限)。
@@ -1215,8 +1218,8 @@ fn main() -> Result<()> {
         Cmd::LinkBillAmendments { public } => linking::run_link_bill_amendments(&public),
         Cmd::LinkLawsAndHanrei { public } => linking::run_link_hanrei(&public),
         Cmd::BuildEnforcement { public } => enforcement::run_build(&public),
-        Cmd::WikiQueueHanrei { base_url, wiki, case_ids } => {
-            wiki::hanrei::queue_cases(&wiki::Source::new(&base_url)?, &wiki, &case_ids, &chrono::Utc::now().format("%Y-%m-%d").to_string())
+        Cmd::WikiQueueHanrei { base_url, wiki, case_ids, refresh } => {
+            wiki::hanrei::queue_cases_with_refresh(&wiki::Source::new(&base_url)?, &wiki, &case_ids, &chrono::Utc::now().format("%Y-%m-%d").to_string(), refresh)
         }
         Cmd::WikiPlan { base_url, wiki, work, max_items, max_probes, lookback_days, today, max_bills, max_pubcomments, max_kanpo, max_people, max_roster, reiki_base_url, chunk_size, max_enforcements, max_hanrei, max_hanrei_backfill } => {
             wiki::plan::run_plan(&wiki::plan::PlanArgs {
