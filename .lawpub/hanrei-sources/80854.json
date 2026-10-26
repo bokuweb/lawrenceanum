@@ -113,8 +113,10 @@
   ],
   "has_case_text": true,
   "scope": "判示事項・裁判要旨（判決全文未収録）",
-  "captured_on": "2026-10-25",
-  "summary_format_version": 3,
+  "captured_on": "2026-10-26",
+  "summary_format_version": 4,
+  "prompt_version": "hanrei-rag-v4",
+  "generation_model": "claude-sonnet-5-5",
   "summary_input": {
     "total_chars": 198,
     "included_chars": 198,
@@ -122,5 +124,5 @@
     "omitted_refs": [],
     "selection": "資料ごとの文字数上限。長い資料は冒頭・中盤・末尾の離れた抜粋（末尾を多めに収録）"
   },
-  "source_fingerprint": "89ea9fbea5d2b9f7427a2fa92da6da6c6a42d56446473a04b49d55ace258911e"
+  "source_fingerprint": "2f3265e20befed045936b16ea5155b4c70973032e1df2ab61b2d7f6af09a0eff"
 }

@@ -1,6 +1,6 @@
 {
-  "date": "2026-10-25",
-  "since": "2026-09-10",
+  "date": "2026-10-26",
+  "since": "2026-09-11",
   "entries": {
     "kokkai:122104037X00220260826": "budget_pending",
     "kokkai:122203895X00120261005": "budget_pending",
@@ -32,8 +32,7 @@
     "kokkai:122215385X00120261005": "budget_pending",
     "kokkai:122215386X00120261005": "budget_pending",
     "shingikai:mhlw_shingi-kousei_206844_20260901_68": "budget_pending",
-    "shingikai:shingi03500044_00016": "budget_pending",
-    "shingikai:shingi06100001_00165": "budget_pending"
+    "shingikai:shingi03500044_00016": "budget_pending"
   },
   "scope": "日付窓内の未完了会議・処理済み会議の原資料再取得と旧形式ページ。取得・要約件数に上限があり、窓外の現行形式ページ・未収集資料は集計外。source_unchanged は取得時点の比較結果、planned は完了ではない。"
 }

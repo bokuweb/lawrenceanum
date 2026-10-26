@@ -44982,5 +44982,13 @@
     97206,
     97208
   ],
-  "pending": {}
+  "pending": {},
+  "backfill_cursor": null,
+  "daily": {
+    "date": "2026-10-26",
+    "new_planned": 10,
+    "backfill_planned": 0,
+    "new_probes": 10,
+    "backfill_probes": 0
+  }
 }
