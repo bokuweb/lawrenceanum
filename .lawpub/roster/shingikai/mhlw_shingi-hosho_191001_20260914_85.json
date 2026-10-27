@@ -1,0 +1,164 @@
+{
+  "schema_version": 2,
+  "corpus": "shingikai",
+  "id": "mhlw_shingi-hosho_191001_20260914_85",
+  "date": "2026-09-14",
+  "title": "年金事業管理部会 第８5回",
+  "organization": "厚生労働省",
+  "committee": "年金事業管理部会",
+  "url": "https://www.mhlw.go.jp/stf/kanribukai-siryo85_00001.html",
+  "laws": [
+    {
+      "law_id": "211AC0000000070",
+      "title": "健康保険法"
+    },
+    {
+      "law_id": "314AC0000000073",
+      "title": "船員保険法"
+    },
+    {
+      "law_id": "322AC0000000049",
+      "title": "労働基準法"
+    },
+    {
+      "law_id": "322IO0000000165",
+      "title": "予算決算及び会計令"
+    },
+    {
+      "law_id": "329AC0000000115",
+      "title": "厚生年金保険法"
+    },
+    {
+      "law_id": "334AC0000000141",
+      "title": "国民年金法"
+    },
+    {
+      "law_id": "334AC0000000147",
+      "title": "国税徴収法"
+    },
+    {
+      "law_id": "415AC0000000120",
+      "title": "次世代育成支援対策推進法"
+    },
+    {
+      "law_id": "416AC0000000122",
+      "title": "公益通報者保護法"
+    },
+    {
+      "law_id": "418AC0000000051",
+      "title": "競争の導入による公共サービスの改革に関する法律"
+    },
+    {
+      "law_id": "419AC0000000109",
+      "title": "日本年金機構法"
+    },
+    {
+      "law_id": "419AC1000000131",
+      "title": "厚生年金保険の保険給付及び保険料の納付の特例等に関する法律"
+    },
+    {
+      "law_id": "424AC0000000065",
+      "title": "子ども・子育て支援法"
+    },
+    {
+      "law_id": "420AC0000000056",
+      "title": "保険法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "中野日本年金機構理事（事業企画部門担当）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "久保日本年金機構理事（特命担当）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "伊澤年金管理審議官",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "土屋委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "小野委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "岡事業管理課長",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "松山部会長",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "松本委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "梅田日本年金機構部長",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "津曲事業企画課長",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "渡辺給付事業室長",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "田口年金事業運営推進室長",
+      "role": "official",
+      "laws": [
+        "419AC0000000109"
+      ],
+      "excerpt": "…の令和７年度業務実績の評価について御説明します。 機構の業務実績評価については、日本年金機構法に基づいて、各事業年度に係る評価を厚生労働大臣が行うこととされています。また、これらの評価に当たりましては、社会保障審議会に諮問がなされ、年金事業管理部会で御議論いただくことになっております。 諮問書は参考資料です。 評価（案）の本体は資料…",
+      "excerpt_url": "https://www.mhlw.go.jp/stf/kanribukai-siryo85_00001.html"
+    },
+    {
+      "name": "石塚日本年金機構審議役",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "竹川委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "辻部会長代理",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "野村委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "鈴木総括調整官",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "高橋日本年金機構副理事長",
+      "role": "member",
+      "laws": []
+    }
+  ]
+}

@@ -17,6 +17,7 @@ proposer_groups: []
 stages: [{"date":"2026-03-10","kind":"received","label":"衆議院で受理"},{"date":"2026-04-07","kind":"referred","label":"衆議院 外務に付託"},{"date":"2026-04-10","kind":"committee","label":"衆議院 委員会で可決"},{"date":"2026-04-14","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-04-14","kind":"received","label":"参議院で受理"},{"date":"2026-04-20","kind":"referred","label":"参議院 外交防衛に付託"},{"date":"2026-04-23","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-04-24","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-05-07","kind":"promulgated","label":"公布（法律第19号）"}]
 tags: []
 render_version: 3
+llm_latest_date: "2026-05-07"
 ---
 
 # 旅券法の一部を改正する法律案
@@ -24,6 +25,24 @@ render_version: 3
 ## 概要と経緯
 
 <!-- llm:begin -->
+**提出理由**: 旅券に関する国内外の動向を踏まえ、一般旅券の発給等の申請に係る手数料の額の定め方を改めるなどの措置を講ずる必要があるとされた[^1]。
+
+**主な内容**
+- 一般旅券の発給等の申請に係る手数料の額を、各処分に要する実費及び各処分の性質を勘案して政令で定めることとする[^2]。
+- 発行された一般旅券を受領せずに失効させた者が新たな申請をした場合の手数料の額を、通常の二倍の額とする[^3]。
+- 有効期間五年の一般旅券の発給対象者を十八歳未満の者のみとし、十八歳未満の者からの残存有効期間同一旅券の申請を廃止する[^4]。
+
+**審議の経過**
+- 2026-03-10 衆議院で受理。2026-04-07 外務委員会に付託。
+- 2026-04-14 衆議院本会議で可決（全会一致。賛成: 自由民主党・無所属の会、中道改革連合・無所属、日本維新の会、国民民主党・無所属クラブ、参政党、チームみらい、日本共産党）。
+- 2026-04-23 参議院外交防衛委員会で可決。2026-04-24 参議院本会議で可決。附帯決議は収録資料にない。
+
+**結果**: 2026-05-07 公布（令和八年法律第十九号）。
+
+[^1]: [gian:221/1DE1F2A#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22109021.htm) 「旅券に関する国内外の動向を踏まえ、一般旅券の発給等の申請に係る国に納付すべき手数料の額について」
+[^2]: [gian:221/1DE1F2A#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22109021.htm) 「各処分に要する実費及び各処分の性質を勘案して政令で定めることとする」
+[^3]: [gian:221/1DE1F2A#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22109021.htm) 「発行された一般旅券を受領せずに失効させた者が新たな申請をした場合に国に納付すべき手数料の額を通常の二倍の額とする」
+[^4]: [gian:221/1DE1F2A#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22109021.htm) 「有効期間五年の一般旅券の発給対象者を十八歳未満の者のみとし、十八歳未満の者からの残存有効期間同一旅券の申請を廃止する」
 <!-- llm:end -->
 
 <!-- lawpub:begin meta -->
