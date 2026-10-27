@@ -740,3 +740,6 @@ mod native_cell_lineage;
 
 #[cfg(test)]
 mod native_caption_scope_tests;
+
+#[cfg(test)]
+mod native_compound_caption_tests;

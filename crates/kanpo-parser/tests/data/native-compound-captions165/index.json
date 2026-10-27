@@ -1,0 +1,62 @@
+{
+  "single": [
+    {
+      "key": "20260721h017510032",
+      "pdf": "data/native-caption-scopes164/20260721h017510032.pdf",
+      "gold": "data/native-caption-scopes164/20260721h017510032.json"
+    },
+    {
+      "key": "20260722h017520032",
+      "pdf": "data/native-caption-scopes164/20260722h017520032.pdf",
+      "gold": "data/native-caption-scopes164/20260722h017520032.json"
+    },
+    {
+      "key": "20260817h017690030",
+      "pdf": "data/native-compound-captions165/20260817h017690030.pdf",
+      "gold": "data/native-compound-captions165/20260817h017690030.json"
+    },
+    {
+      "key": "20260821h017730032",
+      "pdf": "data/native-caption-scopes164/20260821h017730032.pdf",
+      "gold": "data/native-caption-scopes164/20260821h017730032.json"
+    },
+    {
+      "key": "20260828h017780031",
+      "pdf": "data/native-compound-captions165/20260828h017780031.pdf",
+      "gold": "data/native-compound-captions165/20260828h017780031.json"
+    },
+    {
+      "key": "20260901h017800032",
+      "pdf": "data/native-caption-scopes164/20260901h017800032.pdf",
+      "gold": "data/native-caption-scopes164/20260901h017800032.json"
+    },
+    {
+      "key": "20260929h017970031",
+      "pdf": "data/native-caption-scopes164/20260929h017970031.pdf",
+      "gold": "data/native-caption-scopes164/20260929h017970031.json"
+    },
+    {
+      "key": "20261001h017990032",
+      "pdf": "data/native-caption-scopes164/20261001h017990032.pdf",
+      "gold": "data/native-compound-captions165/20261001h017990032.json"
+    },
+    {
+      "key": "20261014h018070032",
+      "pdf": "data/native-compound-captions165/20261014h018070032.pdf",
+      "gold": "data/native-compound-captions165/20261014h018070032.json"
+    },
+    {
+      "key": "20261016g002270086",
+      "pdf": "data/native-compound-captions165/20261016g002270086.pdf",
+      "gold": "data/native-compound-captions165/20261016g002270086.json"
+    }
+  ],
+  "window": {
+    "key": "20260717g001600121--20260717g001600122",
+    "pdfs": [
+      "data/native-compound-captions165/20260717g001600121.pdf",
+      "archive/pages/20260717g00160/20260717g001600122.pdf"
+    ],
+    "gold": "data/native-compound-captions165/20260717g001600121--20260717g001600122.json"
+  }
+}

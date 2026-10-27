@@ -222,6 +222,8 @@ fn styles(page: &PageTrace, ids: &[usize]) -> Option<NativeStyles> {
 #[derive(Clone)]
 struct Heading {
     line: usize,
+    /// Final original title line; `after` is a token offset on this line.
+    last: usize,
     financial: bool,
     styles: NativeStyles,
     after: usize,
@@ -269,7 +271,8 @@ fn qualifier_bytes(tail: &str) -> Option<usize> {
 }
 // Only a suffix at the outer title level can end the main announcement noun.
 // An unclosed/mismatched prefix cannot be repaired by a later marker inside it.
-fn announcement_ends(text: &str) -> Vec<usize> {
+fn announcement_ends(text: &str) -> Vec<usize> { announcement_ends_nominal(text, false) }
+fn announcement_ends_nominal(text: &str, lists: bool) -> Vec<usize> {
     let (mut out, mut stack, mut valid_prefix) = (Vec::new(), Vec::new(), true);
     for (offset, c) in text.char_indices() {
         if valid_prefix && stack.is_empty() && text[offset..].starts_with("公告") {
@@ -283,6 +286,7 @@ fn announcement_ends(text: &str) -> Vec<usize> {
                     valid_prefix = false;
                 }
             }
+            '、' if lists => {},
             '。' | '、' | '「' | '」' | '『' | '』' => valid_prefix = false,
             _ => {}
         }
@@ -307,14 +311,16 @@ fn heading_styles(page: &PageTrace, line: &SourceLine<'_>, end: usize) -> Option
     }
     Some(out)
 }
+#[cfg(test)]
 fn headings(page: &PageTrace, lines: &[SourceLine<'_>], frames: &[OwnedFrame]) -> Vec<Heading> {
-    headings_at_source_starts(page, lines, frames, &[])
+    headings_at_source_starts(page, lines, frames, &[], &[])
 }
 fn headings_at_source_starts(
     page: &PageTrace,
     lines: &[SourceLine<'_>],
     frames: &[OwnedFrame],
     geometric_starts: &[usize],
+    enclosures: &[Rect],
 ) -> Vec<Heading> {
     let mut out=vec![];
     let source=page.regions.iter().flat_map(|r|&r.lines).collect::<Vec<_>>();
@@ -370,6 +376,7 @@ fn headings_at_source_starts(
                     if valid_tail || !continued {
                         out.push(Heading {
                             line: i,
+                            last: i,
                             financial: text[..base].ends_with("決算公告"),
                             authorized: valid_tail && !continued && !s.is_empty(),
                             styles: s,
@@ -381,6 +388,7 @@ fn headings_at_source_starts(
         }
 
     }
+    merge_source_caption_runs(page, lines, frames, geometric_starts, enclosures, &mut out);
     // Lexical announcement syntax inside prose does not start a new scope.
     // A title must independently lead a complete frame or fit the vertical
     // heading/body topology. Parsed titles with missing/equal styles still fence their scope.
@@ -396,6 +404,117 @@ fn headings_at_source_starts(
             || horizontal_scope_heading(page, lines, h)
     });
     out
+}
+// Maximal original-font caption columns form one source span. The nominal
+// suffix can be on its last column; no connective or column-count list is used.
+fn merge_source_caption_runs(
+    page: &PageTrace,
+    lines: &[SourceLine<'_>],
+    frames: &[OwnedFrame],
+    geometric_starts: &[usize],
+    enclosures: &[Rect],
+    heads: &mut Vec<Heading>,
+) {
+    fn column(page: &PageTrace, l: &SourceLine<'_>) -> Option<(Rect, NativeStyles)> {
+        if l.role != Role::Body || !l.unquoted || l.tokens.is_none() {
+            return None;
+        }
+        let b = l.bbox?;
+        if b[3] - b[1] <= b[2] - b[0] {
+            return None;
+        }
+        let s = heading_styles(page, l, l.ids.len())?;
+        (!s.is_empty()).then_some((b, s))
+    }
+    fn adjacent(page: &PageTrace, a: &SourceLine<'_>, b: &SourceLine<'_>) -> bool {
+        let (Some((x, s)), Some((y, t))) = (column(page, a), column(page, b)) else {
+            return false;
+        };
+        a.scope == b.scope && s == t && y[2] < x[0] && y[1] == x[1]
+    }
+    let seeds = heads.clone();
+    let mut spans = Vec::<Heading>::new();
+    for seed in &seeds {
+        if column(page, &lines[seed.line]).is_none() {
+            continue;
+        }
+        let (mut first, mut last) = (seed.line, seed.line);
+        while first > 0 && adjacent(page, &lines[first - 1], &lines[first]) {
+            first -= 1;
+        }
+        while last + 1 < lines.len() && adjacent(page, &lines[last], &lines[last + 1]) {
+            last += 1;
+        }
+        if first == last
+            || spans.iter().any(|s| s.line == first && s.last == last)
+            || frames.iter().any(|f| first < f.end && f.first <= last)
+        {
+            continue;
+        }
+        // Every original occurrence in the projected caption band must be
+        // accounted for, including words omitted by normalization/layout.
+        // Known decoded whitespace cannot carry a foreign nominal fragment.
+        let members: HashSet<_> = lines[first..=last]
+            .iter()
+            .flat_map(|l| l.ids.iter().copied())
+            .collect();
+        let band = lines[first..=last]
+            .iter()
+            .map(|l| l.bbox.unwrap())
+            .reduce(|a, b| {
+                [
+                    a[0].min(b[0]),
+                    a[1].min(b[1]),
+                    a[2].max(b[2]),
+                    a[3].max(b[3]),
+                ]
+            })
+            .unwrap();
+        if enclosures.iter().any(|&frame| intersects(frame, band))
+            || page.words.iter().any(|w| {
+                if members.contains(&w.id)
+                    || !w.raw.is_empty() && w.raw.chars().all(char::is_whitespace)
+                {
+                    return false;
+                }
+                word_bounds(page, w.id).is_none_or(|b| intersects(b, band))
+            })
+        {
+            continue;
+        }
+        let Some(s) = heading_styles(page, &lines[first], lines[first].ids.len()) else {
+            continue;
+        };
+        let text = lines[first..=last]
+            .iter()
+            .flat_map(|l| l.tokens.as_ref().unwrap())
+            .cloned()
+            .collect::<String>();
+        let Some(base) = announcement_ends_nominal(&text, true)
+            .into_iter()
+            .find(|&base| qualifier_bytes(&text[base..]).is_some_and(|n| base + n == text.len()))
+        else {
+            continue;
+        };
+        let continued = first > 0
+            && !geometric_starts.contains(&first)
+            && lines[first - 1].line.table.is_none()
+            && styles(page, &lines[first - 1].ids).is_some_and(|p| !p.is_disjoint(&s));
+        let head = Heading {
+            line: first,
+            last,
+            financial: text[..base].ends_with("決算公告"),
+            styles: s,
+            after: lines[last].ids.len(),
+            authorized: !continued,
+        };
+        if typographic_vertical_body(page, lines, &head, lines.len()) {
+            spans.push(head);
+        }
+    }
+    heads.retain(|h| !spans.iter().any(|s| s.line <= h.line && h.line <= s.last));
+    heads.extend(spans);
+    heads.sort_by_key(|h| h.line);
 }
 // A role mention in a sentence is not a nominal signature. Dots used in
 // personal initials and middle dots remain valid; sentence terminators do not.
@@ -418,7 +537,7 @@ fn witness(
     }
     let mut date_styles = NativeStyles::new();
     for (i, l) in lines.iter().enumerate().take(end).skip(head.line) {
-        if l.role != Role::Body || !l.unquoted {
+        if i < head.last || l.role != Role::Body || !l.unquoted {
             continue;
         }
         // An independently owned financial frame may publish a statement
@@ -430,7 +549,7 @@ fn witness(
         let Some(tokens) = &l.tokens else {
             continue;
         };
-        let from = if i == head.line { head.after } else { 0 };
+        let from = if i == head.last { head.after } else { 0 };
         let mut text = String::new();
         for n in from..tokens.len() {
             text.push_str(&tokens[n]);
@@ -443,7 +562,7 @@ fn witness(
                 }
             }
         }
-        if !date_styles.is_empty() && i > head.line {
+        if !date_styles.is_empty() && i > head.last {
             for start in 0..tokens.len() {
                 let tail = tokens[start..].concat();
                 if styles(page, &l.ids[start..])
@@ -458,6 +577,7 @@ fn witness(
     false
 }
 fn vertical_heading(lines: &[SourceLine<'_>], h: &Heading, end: usize) -> bool {
+    if h.last != h.line { return false; }
     let Some(a) = lines[h.line].bbox else {
         return false;
     };
@@ -486,10 +606,10 @@ fn typographic_vertical_body(
     end: usize,
 ) -> bool {
     let title = &lines[h.line];
-    let Some(next) = lines.get(h.line + 1).filter(|_| h.line + 1 < end) else {
+    let Some(next) = lines.get(h.last + 1).filter(|_| h.last + 1 < end) else {
         return false;
     };
-    let (Some(a), Some(b), Some(tokens)) = (title.bbox, next.bbox, &next.tokens) else {
+    let (Some(a), Some(left), Some(b), Some(tokens)) = (title.bbox, lines[h.last].bbox, next.bbox, &next.tokens) else {
         return false;
     };
     if next.scope != title.scope
@@ -499,7 +619,7 @@ fn typographic_vertical_body(
         || !styles(page, &next.ids).is_some_and(|s| s.is_disjoint(&h.styles))
         || !(a[3] - a[1] > a[2] - a[0]
             && b[3] - b[1] > b[2] - b[0]
-            && b[2] < a[0]
+            && b[2] < left[0]
             && b[1] >= a[1]
             && b[1] <= a[3])
     {
@@ -518,6 +638,7 @@ fn typographic_vertical_body(
 // fencing its date/signature search. Typography or a writing-direction change
 // distinguishes the start of a local block from ordinary prose continuation.
 fn horizontal_scope_heading(page: &PageTrace, lines: &[SourceLine<'_>], h: &Heading) -> bool {
+    if h.last != h.line { return false; }
     let Some(a) = lines[h.line].bbox else {
         return false;
     };
@@ -605,7 +726,7 @@ fn attributed_table_header(
     // Both vertical endpoints must advance; no fixed gap or overlap allowance.
     let below = |a: Rect, b: Rect| a[1] < b[1] && a[3] < b[3];
     let title = &lines[head.line];
-    if !head.authorized || !title.unquoted || head.after != title.ids.len() {
+    if head.last != head.line || !head.authorized || !title.unquoted || head.after != title.ids.len() {
         return None;
     }
     let title_box = title.bbox.filter(|&b| horizontal(b))?;
@@ -810,7 +931,7 @@ fn divided_notice_starts(
         let Some(split) = split.filter(|&i| valid && frame.first < i && i < frame.end) else {
             continue;
         };
-        let local_heads = headings_at_source_starts(page, lines, frames, &[split]);
+        let local_heads = headings_at_source_starts(page, lines, frames, &[split], &rules.enclosures);
         let own_notice = |start, end| {
             let Some(root) = local_heads
                 .iter()
@@ -877,7 +998,7 @@ fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> V
         return vec![];
     }
     let frames = owned_frames(page, rules, lines);
-    let heads = headings(page, lines, &frames);
+    let heads = headings_at_source_starts(page, lines, &frames, &[], &rules.enclosures);
     let fences = frame_fences(page, rules, lines, &frames, &heads);
     let mut accepted = vec![];
     let mut scope = vec![];
@@ -906,6 +1027,7 @@ fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> V
                     if content.is_empty() { styles(page, &lines[first].ids) } else { Some(content) }
                 }).map(|styles| Heading {
                     line: first,
+                    last: first,
                     financial: false,
                     styles,
                     after: tokens.len(),
