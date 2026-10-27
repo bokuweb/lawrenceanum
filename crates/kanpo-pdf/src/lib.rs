@@ -91,3 +91,4 @@ mod source_ruling;
 mod source_lineage;
 
 mod source_scene;
+mod uniform_samples;

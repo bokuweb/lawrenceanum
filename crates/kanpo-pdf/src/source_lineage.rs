@@ -653,9 +653,7 @@ fn uniform_background_samples_with_cache(
     }
     let uniform = doc.resolve(&Object::Ref(r)).as_stream().and_then(|s|doc.decode_stream(s).ok()).is_some_and(|bytes| {
         bytes.len() == expected
-            && bytes
-                .get(..components)
-                .is_some_and(|first| bytes.chunks_exact(components).all(|tuple| tuple == first))
+            && crate::uniform_samples::constant(&bytes, components)
     });
     if cached {
         if let Ok(mut cache) = BACKGROUND_PROGRAM_CACHE

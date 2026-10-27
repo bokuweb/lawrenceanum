@@ -178,10 +178,7 @@ fn uniform_scene_program(program: &BackgroundProgram) -> bool {
     };
     let uniform = bytes.is_some_and(|b| {
         b.len() == program.expected
-            && b.get(..program.components).is_some_and(|first| {
-                b.chunks_exact(program.components)
-                    .all(|tuple| tuple == first)
-            })
+            && crate::uniform_samples::constant(&b, program.components)
     });
     if let Ok(mut cache) = SCENE_BACKGROUND_CACHE.get_or_init(Default::default).lock() {
         let mut entry = program.clone();
